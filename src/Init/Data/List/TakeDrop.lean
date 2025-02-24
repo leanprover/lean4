@@ -10,7 +10,7 @@ import Init.Data.List.Lemmas
 # Lemmas about `List.take` and `List.drop`.
 -/
 
--- set_option linter.listName true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 -- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
@@ -45,7 +45,7 @@ theorem drop_one : ∀ l : List α, drop 1 l = tail l
     _ = succ (length l) - succ i := (Nat.succ_sub_succ_eq_sub (length l) i).symm
 
 theorem drop_of_length_le {l : List α} (h : l.length ≤ i) : drop i l = [] :=
-  length_eq_zero.1 (length_drop .. ▸ Nat.sub_eq_zero_of_le h)
+  length_eq_zero_iff.1 (length_drop .. ▸ Nat.sub_eq_zero_of_le h)
 
 theorem length_lt_of_drop_ne_nil {l : List α} {i} (h : drop i l ≠ []) : i < l.length :=
   gt_of_not_le (mt drop_of_length_le h)
@@ -149,7 +149,7 @@ theorem take_eq_nil_of_eq_nil : ∀ {as : List α} {i}, as = [] → as.take i = 
 theorem ne_nil_of_take_ne_nil {as : List α} {i : Nat} (h : as.take i ≠ []) : as ≠ [] :=
   mt take_eq_nil_of_eq_nil h
 
-theorem set_take {l : List α} {i j : Nat} {a : α} :
+theorem take_set {l : List α} {i j : Nat} {a : α} :
     (l.set j a).take i = (l.take i).set j a := by
   induction i generalizing l j with
   | zero => simp
@@ -157,6 +157,9 @@ theorem set_take {l : List α} {i j : Nat} {a : α} :
     cases l with
     | nil => simp
     | cons hd tl => cases j <;> simp_all
+
+@[deprecated take_set (since := "2025-02-17")]
+abbrev set_take := @take_set
 
 theorem drop_set {l : List α} {i j : Nat} {a : α} :
     (l.set j a).drop i = if j < i then l.drop i else (l.drop i).set (j - i) a := by

@@ -36,7 +36,6 @@ static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_expandMacro
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_expandMacroArg_mkAntiquotNode___spec__1___closed__7;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___closed__4;
 lean_object* l_Lean_Parser_getParserAliasInfo(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___closed__7;
@@ -118,6 +117,7 @@ static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_expandMacro
 static lean_object* l_Lean_Elab_Command_expandMacroArg___lambda__1___closed__1;
 static lean_object* l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_expandMacroArg___spec__1___rarg(lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMacroArg_mkSyntaxAndPat___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_expandMacroArg_mkAntiquotNode___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMacroArg___closed__4;

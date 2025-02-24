@@ -2568,17 +2568,17 @@ LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_SyntheticCompletion_0__Le
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; lean_object* x_13; lean_object* x_14; 
-x_7 = l_Lean_Syntax_getArgs(x_1);
-x_8 = lean_box(0);
+x_7 = lean_box(0);
+x_8 = l_Lean_Syntax_getArgs(x_1);
 x_9 = lean_box(0);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_2);
-x_11 = lean_array_size(x_7);
+x_11 = lean_array_size(x_8);
 x_12 = 0;
 lean_inc(x_3);
-x_13 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_isSyntheticTacticCompletion_go___spec__1(x_3, x_4, x_5, x_7, x_8, x_9, x_7, x_11, x_12, x_10);
-lean_dec(x_7);
+x_13 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_isSyntheticTacticCompletion_go___spec__1(x_3, x_4, x_5, x_7, x_8, x_9, x_8, x_11, x_12, x_10);
+lean_dec(x_8);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 lean_dec(x_13);

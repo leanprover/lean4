@@ -47,7 +47,7 @@ def uget : (a : @& ByteArray) → (i : USize) → (h : i.toNat < a.size := by ge
 
 @[extern "lean_byte_array_get"]
 def get! : (@& ByteArray) → (@& Nat) → UInt8
-  | ⟨bs⟩, i => bs.get! i
+  | ⟨bs⟩, i => bs[i]!
 
 @[extern "lean_byte_array_fget"]
 def get : (a : @& ByteArray) → (i : @& Nat) → (h : i < a.size := by get_elem_tactic) → UInt8
@@ -56,7 +56,7 @@ def get : (a : @& ByteArray) → (i : @& Nat) → (h : i < a.size := by get_elem
 instance : GetElem ByteArray Nat UInt8 fun xs i => i < xs.size where
   getElem xs i h := xs.get i
 
-instance : GetElem ByteArray USize UInt8 fun xs i => i.val < xs.size where
+instance : GetElem ByteArray USize UInt8 fun xs i => i.toFin < xs.size where
   getElem xs i h := xs.uget i h
 
 @[extern "lean_byte_array_set"]

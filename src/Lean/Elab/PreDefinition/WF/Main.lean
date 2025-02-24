@@ -8,12 +8,11 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.TerminationMeasure
 import Lean.Elab.PreDefinition.Mutual
 import Lean.Elab.PreDefinition.WF.PackMutual
-import Lean.Elab.PreDefinition.WF.Preprocess
+import Lean.Elab.PreDefinition.WF.FloatRecApp
 import Lean.Elab.PreDefinition.WF.Rel
 import Lean.Elab.PreDefinition.WF.Fix
 import Lean.Elab.PreDefinition.WF.Unfold
-import Lean.Elab.PreDefinition.WF.Ite
-import Lean.Elab.PreDefinition.WF.AutoAttach
+import Lean.Elab.PreDefinition.WF.Preprocess
 import Lean.Elab.PreDefinition.WF.GuessLex
 
 namespace Lean.Elab
@@ -23,8 +22,8 @@ open Meta
 def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) : TermElabM Unit := do
   let termMeasures? := termMeasure?s.mapM id -- Either all or none, checked by `elabTerminationByHints`
   let preDefs ← preDefs.mapM fun preDef =>
-    return { preDef with value := (← preprocess preDef.value) }
-  let (fixedPrefixSize, argsPacker, unaryPreDef) ← withoutModifyingEnv do
+    return { preDef with value := (← floatRecApp preDef.value) }
+  let (fixedPrefixSize, argsPacker, unaryPreDef, wfPreprocessProofs) ← withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef
     let fixedPrefixSize ← Mutual.getFixedPrefix preDefs
@@ -34,8 +33,10 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
       if varNames.isEmpty then
         throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any (non-fixed) arguments"
     let argsPacker := { varNamess }
-    let preDefsDIte ← preDefs.mapM fun preDef => return { preDef with value := (← iteToDIte preDef.value) }
-    return (fixedPrefixSize, argsPacker, ← packMutual fixedPrefixSize argsPacker preDefsDIte)
+    let (preDefsAttached, wfPreprocessProofs) ← Array.unzip <$> preDefs.mapM fun preDef => do
+      let result ← preprocess preDef.value
+      return ({preDef with value := result.expr}, result)
+    return (fixedPrefixSize, argsPacker, ← packMutual fixedPrefixSize argsPacker preDefsAttached, wfPreprocessProofs)
 
   let wf : TerminationMeasures ← do
     if let some tms := termMeasures? then pure tms else
@@ -62,10 +63,10 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
   Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
   let preDefs ← Mutual.cleanPreDefs preDefs
   registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize argsPacker
-  for preDef in preDefs do
+  for preDef in preDefs, wfPreprocessProof in wfPreprocessProofs do
     unless preDef.kind.isTheorem do
       unless (← isProp preDef.type) do
-        WF.mkUnfoldEq preDef preDefNonRec.declName
+        WF.mkUnfoldEq preDef preDefNonRec.declName wfPreprocessProof
   Mutual.addPreDefAttributes preDefs
 
 builtin_initialize registerTraceClass `Elab.definition.wf

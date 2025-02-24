@@ -11,7 +11,7 @@ import Init.Data.Nat.Div.Basic
 -/
 
 set_option linter.missingDocs true -- keep it documented
--- set_option linter.listName true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 -- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 open Decidable List
@@ -49,7 +49,7 @@ macro_rules
       match i, skip with
       | 0,   _     => pure result
       | i+1, true  => expandListLit i false result
-      | i+1, false => expandListLit i true  (← ``(List.cons $(⟨elems.elemsAndSeps.get! i⟩) $result))
+      | i+1, false => expandListLit i true  (← ``(List.cons $(⟨elems.elemsAndSeps.get!Internal i⟩) $result))
     let size := elems.elemsAndSeps.size
     if size < 64 then
       expandListLit size (size % 2 == 0) (← ``(List.nil))

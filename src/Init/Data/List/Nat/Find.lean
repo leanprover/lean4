@@ -7,6 +7,9 @@ prelude
 import Init.Data.List.Nat.Range
 import Init.Data.List.Find
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 open Nat
@@ -41,7 +44,7 @@ theorem findIdx?_eq_some_le_of_findIdx?_eq_some {xs : List α} {p q : α → Boo
   rw [findSome?_eq_some_iff] at h
   simp only [Option.ite_none_right_eq_some, Option.some.injEq, ite_eq_right_iff, reduceCtorEq,
     imp_false, Bool.not_eq_true, Prod.forall, exists_and_right, Prod.exists] at h
-  obtain ⟨h, h₁, b, ⟨es, h₂⟩, ⟨hb, rfl⟩, h₃⟩ := h
+  obtain ⟨xs, h₁, b, ⟨ys, h₂⟩, ⟨hb, rfl⟩, h₃⟩ := h
   rw [zipIdx_eq_append_iff] at h₂
   obtain ⟨l₁', l₂', rfl, rfl, h₂⟩ := h₂
   rw [eq_comm, zipIdx_eq_cons_iff] at h₂

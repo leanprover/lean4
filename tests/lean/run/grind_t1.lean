@@ -1,3 +1,4 @@
+set_option grind.warning false
 example (a b : List Nat) : a = [] → b = [2] → a = b → False := by
   grind
 
@@ -228,7 +229,7 @@ example (P Q : Prop) : (¬P → ¬Q) ↔ (Q → P) := by
 
 example {α} (a b c : α) [LE α] :
   ¬(¬a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ a ≤ b) ↔ a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ ¬a ≤ b := by
-  simp_arith -- should not fail
+  simp +arith -- should not fail
   sorry
 
 example {α} (a b c : α) [LE α] :
@@ -245,7 +246,7 @@ p q : Prop
 h : p = q
 h_1 : p
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] p = q
     [prop] p
@@ -279,7 +280,7 @@ p q : Prop
 h : p = ¬q
 h_1 : p
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] p = ¬q
     [prop] p
@@ -350,7 +351,7 @@ b : Bool
 h : (if b = true then 10 else 20) = a
 h_1 : b = true
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] (if b = true then 10 else 20) = a
     [prop] b = true

@@ -17,7 +17,7 @@
    {"start": {"line": 16, "character": 12},
     "end": {"line": 17, "character": 0}},
    "message":
-   "failed to synthesize\n  A\nAdditional diagnostic information may be available using the `set_option diagnostics true` command.",
+   "failed to synthesize\n  A\n\nAdditional diagnostic information may be available using the `set_option diagnostics true` command.",
    "fullRange":
    {"start": {"line": 16, "character": 12},
     "end": {"line": 20, "character": 0}}},
@@ -37,7 +37,7 @@
    {"start": {"line": 22, "character": 17},
     "end": {"line": 22, "character": 20}},
    "message":
-   "failed to synthesize\n  A\nAdditional diagnostic information may be available using the `set_option diagnostics true` command.",
+   "failed to synthesize\n  A\n\nAdditional diagnostic information may be available using the `set_option diagnostics true` command.",
    "fullRange":
    {"start": {"line": 22, "character": 17},
     "end": {"line": 22, "character": 20}}},

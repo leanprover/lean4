@@ -57,13 +57,13 @@ for deciding where to place a theorem, and is, on occasion, a good reason to dup
 New types that are added will usually be placed in the `Std` namespace and in the `Std/` source directory, unless there are good reasons to place
 them elsewhere.
 
-Inside the  `Std`, all internal declarations should be `private` or else have a name component that clearly marks them as internal, preferably
+Inside the `Std` namespace, all internal declarations should be `private` or else have a name component that clearly marks them as internal, preferably
 `Internal`.
 
 
 ## Naming convention for data
 
-When defining data, i.e., a (possibly 0-ary) function whose codomain is not Sort u, but has type Type u for some u, it should be named in lowerCamelCase. Examples include List.append and List.isPrefixOf.
+When defining data, i.e., a (possibly 0-ary) function whose codomain is not Sort u, but has type Type u for some u, it should be named in lowerCamelCase. Examples include `List.append` and `List.isPrefixOf`.
 If your data is morally fully specified by its type, then use the naming procedure for theorems described below and convert the result to lower camel case.
 
 If your function returns an `Option`, consider adding `?` as a suffix. If your function may panic, consider adding `!` as a suffix. In many cases, there will be multiple variants of a function; one returning an option, one that may panic and possibly one that takes a proof argument.
@@ -187,10 +187,12 @@ There are certain special “keywords” that may appear in identifiers.
 | `distrib` | Theorems of the form `f (g a b) = g (f a) (f b)` | `Nat.add_left_distrib` |
 | `self` | May be used if a variable appears multiple times in the conclusion | `List.mem_cons_self` |
 | `inj` | Theorems of the form `f a = f b ↔ a = b`. | `Int.neg_inj`, `Nat.add_left_inj` |
-| `cancel` | Theorems which have one of the forms `f a = f b →a = b` or `g (f a) = a`, where `f` and `g` usually involve a binary operator | `Nat.add_sub_cancel` |
+| `cancel` | Theorems which have one of the forms `f a = f b → a = b` or `g (f a) = a`, where `f` and `g` usually involve a binary operator | `Nat.add_sub_cancel` |
 | `cancel_iff` | Same as `inj`, but with different conventions for left and right (see below) | `Nat.add_right_cancel_iff` |
+| `ext` | Theorems of the form `f a = f b → a = b`, where `f` usually involves some kind of projection | `List.ext_getElem`
+| `mono` | Theorems of the form `a R b → f a R f b`, where `R` is a transitive relation | `List.countP_mono_left`
 
-## Left and right
+### Left and right
 
 The keywords left and right are useful to disambiguate symmetric variants of theorems.
 
@@ -221,6 +223,10 @@ theorem Nat.add_sub_self_right (a b : Nat) : (a + b) - b = a := sorry
 theorem Nat.add_sub_cancel (n m : Nat) : (n + m) - m = n := sorry
 ```
 
+## Primed names
+
+Avoid disambiguating variants of a concept by appending the `'` character (e.g., introducing both `BitVec.sshiftRight` and `BitVec.sshiftRight'`), as it is impossible to tell the difference without looking at the type signature, the documentation or even the code, and even if you know what the two variants are there is no way to tell which is which. Prefer descriptive pairs `BitVec.sshiftRightNat`/`BitVec.sshiftRight`.
+
 ## Acronyms
 
 For acronyms which are three letters or shorter, all letters should use the same case as dictated by the convention. For example, `IO` is a correct name for a type and the name `IO.Ref` may become `IORef` when used as part of a definition name and `ioRef` when used as part of a theorem name.
@@ -228,3 +234,27 @@ For acronyms which are three letters or shorter, all letters should use the same
 For acronyms which are at least four letters long, switch to lower case starting from the second letter. For example, `Json` is a correct name for a type, as is `JsonRPC`.
 
 If an acronym is typically spelled using mixed case, this mixed spelling may be used in identifiers (for example `Std.Net.IPv4Addr`).
+
+## Simp sets
+
+Simp sets centered around a conversion function should be called `source_to_target`. For example, a simp set for the `BitVec.toNat` function, which goes from `BitVec` to
+`Nat`, should be called `bitvec_to_nat`.
+
+## Variable names
+
+We make the following recommendations for variable names, but without insisting on them:
+* Simple hypotheses should be named `h`, `h'`, or using a numerical sequence `h₁`, `h₂`, etc.
+* Another common name for a simple hypothesis is `w` (for "witness").
+* `List`s should be named `l`, `l'`, `l₁`, etc, or `as`, `bs`, etc.
+  (Use of `as`, `bs` is encouraged when the lists are of different types, e.g. `as : List α` and `bs : List β`.)
+  `xs`, `ys`, `zs` are allowed, but it is better if these are reserved for `Array` and `Vector`.
+  A list of lists may be named `L`.
+* `Array`s should be named `xs`, `ys`, `zs`, although `as`, `bs` are encouraged when the arrays are of different types, e.g. `as : Array α` and `bs : Array β`.
+  An array of arrays may be named `xss`.
+* `Vector`s should be named `xs`, `ys`, `zs`, although `as`, `bs` are encouraged when the vectors are of different types, e.g. `as : Vector α n` and `bs : Vector β n`.
+  A vector of vectors may be named `xss`.
+* A common exception for `List` / `Array` / `Vector` is to use `acc` for an accumulator in a recursive function.
+* `i`, `j`, `k` are preferred for numerical indices.
+  Descriptive names such as `start`, `stop`, `lo`, and `hi` are encouraged when they increase readability.
+* `n`, `m` are preferred for sizes, e.g. in `Vector α n` or `xs.size = n`.
+* `w` is preferred for the width of a `BitVec`.

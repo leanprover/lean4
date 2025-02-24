@@ -450,9 +450,9 @@ if h : p then
   decidable_of_decidable_of_iff ⟨fun h2 _ => h2, fun al => al h⟩
 else isTrue fun h2 => absurd h2 h
 
-theorem decide_eq_true_iff {p : Prop} [Decidable p] : (decide p = true) ↔ p := by simp
+@[bool_to_prop] theorem decide_eq_true_iff {p : Prop} [Decidable p] : (decide p = true) ↔ p := by simp
 
-@[simp, boolToPropSimps] theorem decide_eq_decide {p q : Prop} {_ : Decidable p} {_ : Decidable q} :
+@[simp, bool_to_prop] theorem decide_eq_decide {p q : Prop} {_ : Decidable p} {_ : Decidable q} :
     decide p = decide q ↔ (p ↔ q) :=
   ⟨fun h => by rw [← decide_eq_true_iff (p := p), h, decide_eq_true_iff], fun h => by simp [h]⟩
 

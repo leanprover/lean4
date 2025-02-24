@@ -177,7 +177,7 @@ where
     throwExs (failures : Array EvalTacticFailure) : TacticM Unit := do
      if h : 0 < failures.size  then
        -- For macros we want to report the error from the first registered / last tried rule (#3770)
-       let fail := failures[failures.size-1]
+       let fail := failures[failures.size - 1]
        fail.state.restore (restoreInfo := true)
        throw fail.exception -- (*)
      else
@@ -230,18 +230,18 @@ where
                     stx := stx'
                     diagnostics := .empty
                     inner? := none
-                    finished := .pure {
+                    finished := .finished stx' {
                       diagnostics := .empty
                       state? := (← Tactic.saveState)
                     }
-                    next := #[{ range? := stx'.getRange?, task := promise.resultD default }]
+                    next := #[{ stx? := stx', task := promise.resultD default }]
                   }
                   -- Update `tacSnap?` to old unfolding
                   withTheReader Term.Context ({ · with tacSnap? := some {
                     new := promise
                     old? := do
                       let old ← old?
-                      return ⟨old.stx, (← old.next.get? 0)⟩
+                      return ⟨old.stx, (← old.next[0]?)⟩
                   } }) do
                     evalTactic stx'
                   return
@@ -269,6 +269,10 @@ def done : TacticM Unit := do
     Term.reportUnsolvedGoals gs
     throwAbortTactic
 
+/--
+Runs `x` with only the first unsolved goal as the goal.
+Fails if there are no goal to be solved.
+-/
 def focus (x : TacticM α) : TacticM α := do
   let mvarId :: mvarIds ← getUnsolvedGoals | throwNoGoalsToBeSolved
   setGoals [mvarId]
@@ -277,6 +281,10 @@ def focus (x : TacticM α) : TacticM α := do
   setGoals (mvarIds' ++ mvarIds)
   pure a
 
+/--
+Runs `tactic` with only the first unsolved goal as the goal, and expects it leave no goals.
+Fails if there are no goal to be solved.
+-/
 def focusAndDone (tactic : TacticM α) : TacticM α :=
   focus do
     let a ← tactic

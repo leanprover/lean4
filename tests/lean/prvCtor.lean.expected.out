@@ -4,6 +4,7 @@ prvCtor.lean:27:7-27:8: error: unknown identifier 'a'
 prvCtor.lean:29:25-29:27: error: overloaded, errors 
   failed to synthesize
     EmptyCollection (Name "hello")
+  
   Additional diagnostic information may be available using the `set_option diagnostics true` command.
   
   invalid {...} notation, constructor for `Name` is marked as private

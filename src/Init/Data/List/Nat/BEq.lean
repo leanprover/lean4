@@ -7,18 +7,21 @@ prelude
 import Init.Data.Nat.Lemmas
 import Init.Data.List.Basic
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 /-! ### isEqv -/
 
-theorem isEqv_eq_decide (a b : List α) (r) :
-    isEqv a b r = if h : a.length = b.length then
-      decide (∀ (i : Nat) (h' : i < a.length), r (a[i]'(h ▸ h')) (b[i]'(h ▸ h'))) else false := by
-  induction a generalizing b with
+theorem isEqv_eq_decide (as bs : List α) (r) :
+    isEqv as bs r = if h : as.length = bs.length then
+      decide (∀ (i : Nat) (h' : i < as.length), r (as[i]'(h ▸ h')) (bs[i]'(h ▸ h'))) else false := by
+  induction as generalizing bs with
   | nil =>
-    cases b <;> simp
+    cases bs <;> simp
   | cons a as ih =>
-    cases b with
+    cases bs with
     | nil => simp
     | cons b bs =>
       simp only [isEqv, ih, length_cons, Nat.add_right_cancel_iff]
@@ -26,12 +29,12 @@ theorem isEqv_eq_decide (a b : List α) (r) :
 
 /-! ### beq -/
 
-theorem beq_eq_isEqv [BEq α] (a b : List α) : a.beq b = isEqv a b (· == ·) := by
-  induction a generalizing b with
+theorem beq_eq_isEqv [BEq α] (as bs : List α) : as.beq bs = isEqv as bs (· == ·) := by
+  induction as generalizing bs with
   | nil =>
-    cases b <;> simp
+    cases bs <;> simp
   | cons a as ih =>
-    cases b with
+    cases bs with
     | nil => simp
     | cons b bs =>
       simp only [beq_cons₂, ih, isEqv_eq_decide, length_cons, Nat.add_right_cancel_iff,
@@ -39,9 +42,9 @@ theorem beq_eq_isEqv [BEq α] (a b : List α) : a.beq b = isEqv a b (· == ·) :
         Bool.decide_eq_true]
       split <;> simp
 
-theorem beq_eq_decide [BEq α] (a b : List α) :
-    (a == b) = if h : a.length = b.length then
-      decide (∀ (i : Nat) (h' : i < a.length), a[i] == b[i]'(h ▸ h')) else false := by
+theorem beq_eq_decide [BEq α] (as bs : List α) :
+    (as == bs) = if h : as.length = bs.length then
+      decide (∀ (i : Nat) (h' : i < as.length), as[i] == bs[i]'(h ▸ h')) else false := by
   simp [BEq.beq, beq_eq_isEqv, isEqv_eq_decide]
 
 end List

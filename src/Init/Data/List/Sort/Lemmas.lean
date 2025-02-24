@@ -21,6 +21,9 @@ import Init.Data.Bool
 
 -/
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 /-! ### splitInTwo -/
@@ -152,8 +155,8 @@ theorem cons_merge_cons (s : α → α → Bool) (a b l r) :
   | a::l, b::r =>
     rw [cons_merge_cons]
     split
-    · simp_arith [length_merge s l (b::r)]
-    · simp_arith [length_merge s (a::l) r]
+    · simp +arith [length_merge s l (b::r)]
+    · simp +arith [length_merge s (a::l) r]
 
 /--
 The elements of `merge le xs ys` are exactly the elements of `xs` and `ys`.
@@ -418,10 +421,10 @@ then `c` is still a sublist of `mergeSort le l`.
 theorem sublist_mergeSort
     (trans : ∀ (a b c : α), le a b → le b c → le a c)
     (total : ∀ (a b : α), le a b || le b a) :
-    ∀ {c : List α} (_ : c.Pairwise le) (_ : c <+ l),
-    c <+ mergeSort l le
+    ∀ {ys : List α} (_ : ys.Pairwise le) (_ : ys <+ xs),
+    ys <+ mergeSort xs le
   | _, _, .slnil => nil_sublist _
-  | c, hc, @Sublist.cons _ _ l a h => by
+  | ys, hc, @Sublist.cons _ _ l a h => by
     obtain ⟨l₁, l₂, h₁, h₂, -⟩ := mergeSort_cons trans total a l
     rw [h₁]
     have h' := sublist_mergeSort trans total hc h
@@ -460,9 +463,9 @@ theorem map_merge {f : α → β} {r : α → α → Bool} {s : β → β → Bo
     (hl : ∀ a ∈ l, ∀ b ∈ l', r a b = s (f a) (f b)) :
     (l.merge l' r).map f = (l.map f).merge (l'.map f) s := by
   match l, l' with
-  | [], x' => simp
-  | x, [] => simp
-  | x :: xs, x' :: xs' =>
+  | [], _ => simp
+  | _, [] => simp
+  | _ :: _, _ :: _ =>
     simp only [List.forall_mem_cons] at hl
     simp only [forall_and] at hl
     simp only [List.map, List.cons_merge_cons]

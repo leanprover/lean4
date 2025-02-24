@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.NotationExtra
 import Init.Data.ToString.Macro
-import Init.Data.Int.DivMod
+import Init.Data.Int.DivMod.Basic
 import Init.Data.Nat.Gcd
 namespace Std
 namespace Internal

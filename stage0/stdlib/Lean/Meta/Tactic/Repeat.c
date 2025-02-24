@@ -15,6 +15,7 @@ extern "C" {
 #endif
 static lean_object* l_Lean_Meta_repeat1_x27___rarg___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat1_x27___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Repeat_0____private_Init_Data_List_Attach_0__List_pmap__eq__pmapImpl_match__1_splitter(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Functor_mapRev___at_Lean_Meta_repeat_x27___spec__1(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -63,6 +64,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Repeat_0__Lean_Meta_repeat
 lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Repeat_0__Lean_Meta_repeat_x27Core_go_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Repeat_0____private_Init_Data_List_Attach_0__List_pmap__eq__pmapImpl_match__1_splitter___rarg(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Repeat_0__Lean_Meta_repeat_x27Core_go_match__3_splitter(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_repeat_x27Core_go___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -407,6 +409,22 @@ lean_object* x_4;
 x_4 = l___private_Lean_Meta_Tactic_Repeat_0__Lean_Meta_repeat_x27Core_go_match__2_splitter___rarg(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec(x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Repeat_0____private_Init_Data_List_Attach_0__List_pmap__eq__pmapImpl_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_apply_2(x_2, x_1, lean_box(0));
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Repeat_0____private_Init_Data_List_Attach_0__List_pmap__eq__pmapImpl_match__1_splitter(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Repeat_0____private_Init_Data_List_Attach_0__List_pmap__eq__pmapImpl_match__1_splitter___rarg), 2, 0);
 return x_4;
 }
 }

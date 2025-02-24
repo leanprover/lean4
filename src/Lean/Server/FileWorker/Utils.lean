@@ -19,22 +19,22 @@ open IO
 private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :
     AsyncList IO.Error Snapshot := Id.run do
   let some headerParsed := initSnap.result? | return .nil
-  .delayed <| headerParsed.processedSnap.task.bind fun headerProcessed => Id.run do
+  .delayed <| headerParsed.processedSnap.task.asServerTask.bindCheap fun headerProcessed => Id.run do
     let some headerSuccess := headerProcessed.result? | return .pure <| .ok .nil
     return .pure <| .ok <| .cons {
       stx := initSnap.stx
       mpState := headerParsed.parserState
       cmdState := headerSuccess.cmdState
-    } <| .delayed <| headerSuccess.firstCmdSnap.task.bind go
+    } <| .delayed <| headerSuccess.firstCmdSnap.task.asServerTask.bindCheap go
 where
   go cmdParsed :=
-    cmdParsed.finishedSnap.task.map fun finished =>
+    cmdParsed.finishedSnap.task.asServerTask.mapCheap fun finished =>
       .ok <| .cons {
         stx := cmdParsed.stx
         mpState := cmdParsed.parserState
         cmdState := finished.cmdState
       } (match cmdParsed.nextCmdSnap? with
-        | some next => .delayed <| next.task.bind go
+        | some next => .delayed <| next.task.asServerTask.bindCheap go
         | none => .nil)
 
 /--
@@ -59,7 +59,7 @@ structure EditableDocument extends EditableDocumentCore where
   /--
     Task reporting processing status back to client. We store it here for implementing
     `waitForDiagnostics`. -/
-  reporter : Task Unit
+  reporter : ServerTask Unit
 
 namespace EditableDocument
 

@@ -122,6 +122,11 @@ opaque bindTask (t : Task α) (f : α → BaseIO (Task β)) (prio := Task.Priori
     (sync := false) : BaseIO (Task β) :=
   f t.get
 
+/-- Like `BaseIO.mapTask, but ignores the result. -/
+def chainTask (t : Task α) (f : α → BaseIO Unit) (prio := Task.Priority.default)
+    (sync := false) : BaseIO Unit :=
+  discard <| BaseIO.mapTask f t prio sync
+
 def mapTasks (f : List α → BaseIO β) (tasks : List (Task α)) (prio := Task.Priority.default)
     (sync := false) : BaseIO (Task β) :=
   go tasks []
@@ -149,6 +154,11 @@ namespace EIO
     (prio := Task.Priority.default) (sync := false) : BaseIO (Task (Except ε β)) :=
   BaseIO.bindTask t (fun a => f a |>.catchExceptions fun e => return Task.pure <| Except.error e)
     prio sync
+
+/-- `EIO` specialization of `BaseIO.chainTask`. -/
+def chainTask (t : Task α) (f : α → EIO ε Unit) (prio := Task.Priority.default)
+    (sync := false) : EIO ε Unit :=
+  discard <| EIO.mapTask f t prio sync
 
 /-- `EIO` specialization of `BaseIO.mapTasks`. -/
 @[inline] def mapTasks (f : List α → EIO ε β) (tasks : List (Task α))
@@ -194,6 +204,11 @@ def sleep (ms : UInt32) : BaseIO Unit :=
 @[inline] def bindTask (t : Task α) (f : α → IO (Task (Except IO.Error β)))
     (prio := Task.Priority.default) (sync := false) : BaseIO (Task (Except IO.Error β)) :=
   EIO.bindTask t f prio sync
+
+/-- `IO` specialization of `EIO.chainTask`. -/
+def chainTask (t : Task α) (f : α → IO Unit) (prio := Task.Priority.default)
+    (sync := false) : IO Unit :=
+  EIO.chainTask t f prio sync
 
 /-- `IO` specialization of `EIO.mapTasks`. -/
 @[inline] def mapTasks (f : List α → IO β) (tasks : List (Task α)) (prio := Task.Priority.default)
@@ -881,6 +896,7 @@ tasks.
 -/
 structure CancelToken where
   private ref : IO.Ref Bool
+deriving Nonempty
 
 namespace CancelToken
 

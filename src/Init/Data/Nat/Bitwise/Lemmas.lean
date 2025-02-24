@@ -286,7 +286,7 @@ theorem testBit_two_pow_add_gt {i j : Nat} (j_lt_i : j < i) (x : Nat) :
       · simp [i_lt_j]
       · have x_lt : x < 2^i :=
             calc x < 2^j := x_lt_j
-                _ ≤ 2^i := Nat.pow_le_pow_of_le_right Nat.zero_lt_two i_ge_j
+                _ ≤ 2^i := Nat.pow_le_pow_right Nat.zero_lt_two i_ge_j
         simp [Nat.testBit_lt_two_pow x_lt]
     · generalize y_eq : x - 2^j = y
       have x_eq : x = y + 2^j := Nat.eq_add_of_sub_eq x_ge_j y_eq
@@ -490,7 +490,7 @@ theorem and_lt_two_pow (x : Nat) {y n : Nat} (right : y < 2^n) : (x &&& y) < 2^n
   have yf : testBit y i = false := by
           apply Nat.testBit_lt_two_pow
           apply Nat.lt_of_lt_of_le right
-          exact pow_le_pow_of_le_right Nat.zero_lt_two i_ge_n
+          exact pow_le_pow_right Nat.zero_lt_two i_ge_n
   simp [testBit_and, yf]
 
 @[simp] theorem and_pow_two_sub_one_eq_mod (x n : Nat) : x &&& 2^n - 1 = x % 2^n := by
@@ -695,7 +695,7 @@ theorem mul_add_lt_is_or {b : Nat} (b_lt : b < 2^i) (a : Nat) : 2^i * a + b = 2^
     have i_le : i ≤ j := Nat.le_of_not_lt j_lt
     have b_lt_j :=
             calc b < 2 ^ i := b_lt
-                 _ ≤ 2 ^ j := Nat.pow_le_pow_of_le_right Nat.zero_lt_two i_le
+                 _ ≤ 2 ^ j := Nat.pow_le_pow_right Nat.zero_lt_two i_le
     simp [i_le, j_lt, testBit_lt_two_pow, b_lt_j]
 
 /-! ### shiftLeft and shiftRight -/

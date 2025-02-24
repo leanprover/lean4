@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DHashMap.Internal.Defs
-// Imports: Init.Data.Array.Lemmas Std.Data.DHashMap.RawDef Std.Data.DHashMap.Internal.List.Defs Std.Data.DHashMap.Internal.Index
+// Imports: Init.Data.Array.Lemmas Std.Data.DHashMap.RawDef Std.Data.Internal.List.Defs Std.Data.DHashMap.Internal.Index
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -38,7 +38,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_DHashMap_Internal_Ra
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Std_DHashMap_Internal_Raw_u2080_filter___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_reinsertAux(lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_Const_modify___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_filterMap(lean_object*, lean_object*, lean_object*);
@@ -122,6 +121,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertMany(lean_objec
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_getKey_x3f___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expandIfNecessary___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_toListModel___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_toListModel(lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_Const_alter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4288,7 +4288,7 @@ return x_6;
 }
 lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_DHashMap_RawDef(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DHashMap_Internal_List_Defs(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_Internal_List_Defs(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_DHashMap_Internal_Index(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_DHashMap_Internal_Defs(uint8_t builtin, lean_object* w) {
@@ -4301,7 +4301,7 @@ lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_RawDef(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_DHashMap_Internal_List_Defs(builtin, lean_io_mk_world());
+res = initialize_Std_Data_Internal_List_Defs(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_Internal_Index(builtin, lean_io_mk_world());

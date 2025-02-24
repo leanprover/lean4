@@ -95,7 +95,6 @@ structure Context where
   macroStack     : MacroStack := []
   currMacroScope : MacroScope := firstFrontendMacroScope
   ref            : Syntax := Syntax.missing
-  tacticCache?   : Option (IO.Ref Tactic.Cache)
   /--
   Snapshot for incremental reuse and reporting of command elaboration. Currently only used for
   (mutual) defs and contained tactics, in which case the `DynamicSnapshot` is a
@@ -275,7 +274,7 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
       let linters ← lintersRef.get
       unless linters.isEmpty do
         for linter in linters do
-          withTraceNode `Elab.lint (fun _ => return m!"running linter: {linter.name}")
+          withTraceNode `Elab.lint (fun _ => return m!"running linter: {.ofConstName linter.name}")
               (tag := linter.name.toString) do
             let savedState ← get
             try
@@ -283,7 +282,7 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
             catch ex =>
               match ex with
               | Exception.error ref msg =>
-                logException (.error ref m!"linter {linter.name} failed: {msg}")
+                logException (.error ref m!"linter {.ofConstName linter.name} failed: {msg}")
               | Exception.internal _ _ =>
                 logException ex
             finally
@@ -300,16 +299,20 @@ Interrupt and abort exceptions are caught but not logged.
   EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
 
 @[inherit_doc Core.wrapAsync]
-def wrapAsync (act : Unit → CommandElabM α) : CommandElabM (EIO Exception α) := do
-  return act () |>.run (← read) |>.run' (← get)
+def wrapAsync (act : Unit → CommandElabM α) (cancelTk? : Option IO.CancelToken) :
+    CommandElabM (EIO Exception α) := do
+  let ctx ← read
+  let ctx := { ctx with cancelTk? }
+  let st ← get
+  return act () |>.run ctx |>.run' st
 
 open Language in
 @[inherit_doc Core.wrapAsyncAsSnapshot]
 -- `CoreM` and `CommandElabM` are too different to meaningfully share this code
-def wrapAsyncAsSnapshot (act : Unit → CommandElabM Unit)
+def wrapAsyncAsSnapshot (act : Unit → CommandElabM Unit) (cancelTk? : Option IO.CancelToken)
     (desc : String := by exact decl_name%.toString) :
     CommandElabM (BaseIO SnapshotTree) := do
-  let t ← wrapAsync fun _ => do
+  let t ← wrapAsync (cancelTk? := cancelTk?) fun _ => do
     IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get (← getOptions)) do
       let tid ← IO.getTID
       -- reset trace state and message log so as not to report them twice
@@ -358,8 +361,9 @@ def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
 
   -- We only start one task for all linters for now as most linters are fast and we simply want
   -- to unblock elaboration of the next command
-  let lintAct ← wrapAsyncAsSnapshot fun _ => runLinters stx
-  logSnapshotTask { range? := none, task := (← BaseIO.asTask lintAct) }
+  let cancelTk ← IO.CancelToken.new
+  let lintAct ← wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => runLinters stx
+  logSnapshotTask { stx? := none, task := (← BaseIO.asTask lintAct), cancelTk? := cancelTk }
 
 protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
 protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
@@ -497,7 +501,7 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
                   newNextMacroScope := nextMacroScope
                   hasTraces
                   next := Array.zipWith (fun cmdPromise cmd =>
-                    { range? := cmd.getRange?, task := cmdPromise.resultD default }) cmdPromises cmds
+                    { stx? := some cmd, task := cmdPromise.resultD default }) cmdPromises cmds
                   : MacroExpandedSnapshot
                 }
                 -- After the first command whose syntax tree changed, we must disable
@@ -619,8 +623,7 @@ private def mkTermContext (ctx : Context) (s : State) : CommandElabM Term.Contex
   return {
     macroStack             := ctx.macroStack
     sectionVars            := sectionVars
-    isNoncomputableSection := scope.isNoncomputable
-    tacticCache?           := ctx.tacticCache? }
+    isNoncomputableSection := scope.isNoncomputable }
 
 /--
 Lift the `TermElabM` monadic action `x` into a `CommandElabM` monadic action.
@@ -759,7 +762,6 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
       currRecDepth := ctx.currRecDepth
       currMacroScope := ctx.currMacroScope
       ref := ctx.ref
-      tacticCache? := none
       snap? := none
       cancelTk? := ctx.cancelTk?
       suppressElabErrors := ctx.suppressElabErrors

@@ -124,7 +124,7 @@ private def ppOffset : M Unit := do
   if model.isEmpty then return ()
   let mut ms := #[]
   for (e, val) in model do
-    ms := ms.push <| .trace { cls := `assign } m!"{e} := {val}" #[]
+    ms := ms.push <| .trace { cls := `assign } m!"{quoteIfNotAtom e} := {val}" #[]
   pushMsg <| .trace { cls := `offset } "Assignment satisfying offset contraints" ms
 
 private def ppThresholds (c : Grind.Config) : M Unit := do
@@ -153,7 +153,7 @@ private def ppCasesTrace : M Unit := do
 def goalToMessageData (goal : Goal) (config : Grind.Config) : MetaM MessageData := goal.mvarId.withContext do
   if config.verbose then
     let (_, m) ← go goal |>.run #[]
-    let gm := MessageData.trace { cls := `grind, collapsed := false } "Diagnostics" m
+    let gm := MessageData.trace { cls := `grind, collapsed := false } "Goal diagnostics" m
     let r := m!"{.ofGoal goal.mvarId}\n{gm}"
     addMessageContextFull r
   else

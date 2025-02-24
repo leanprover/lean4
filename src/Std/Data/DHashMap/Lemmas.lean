@@ -20,7 +20,7 @@ open Std.DHashMap.Internal
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v
+universe u v w
 
 variable {α : Type u} {β : α → Type v} {_ : BEq α} {_ : Hashable α}
 
@@ -815,13 +815,13 @@ theorem mem_of_mem_insertIfNew [EquivBEq α] [LawfulHashable α] {k a : α} {v :
     a ∈ m.insertIfNew k v → (k == a) = false → a ∈ m := by
   simpa [mem_iff_contains, -contains_insertIfNew] using contains_of_contains_insertIfNew
 
-/-- This is a restatement of `contains_insertIfNew` that is written to exactly match the proof
+/-- This is a restatement of `contains_of_contains_insertIfNew` that is written to exactly match the proof
 obligation in the statement of `get_insertIfNew`. -/
 theorem contains_of_contains_insertIfNew' [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
     (m.insertIfNew k v).contains a → ¬((k == a) ∧ m.contains k = false) → m.contains a :=
   Raw₀.contains_of_contains_insertIfNew' ⟨m.1, _⟩ m.2
 
-/-- This is a restatement of `mem_insertIfNew` that is written to exactly match the proof obligation
+/-- This is a restatement of `mem_of_mem_insertIfNew` that is written to exactly match the proof obligation
 in the statement of `get_insertIfNew`. -/
 theorem mem_of_mem_insertIfNew' [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
     a ∈ m.insertIfNew k v → ¬((k == a) ∧ ¬k ∈ m) → a ∈ m := by
@@ -962,6 +962,186 @@ theorem mem_keys [LawfulBEq α] {k : α} :
 theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
     m.keys.Pairwise (fun a b => (a == b) = false) :=
   Raw₀.distinct_keys ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem map_sigma_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
+    m.1.toList.map Sigma.fst = m.1.keys  :=
+  Raw₀.map_sigma_fst_toList_eq_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp]
+theorem length_toList [EquivBEq α] [LawfulHashable α] :
+    m.toList.length = m.size :=
+  Raw₀.length_toList ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] :
+    m.toList.isEmpty = m.isEmpty :=
+  Raw₀.isEmpty_toList ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem mem_toList_iff_get?_eq_some [LawfulBEq α]
+    {k : α} {v : β k} :
+    ⟨k, v⟩ ∈ m.toList ↔ m.get? k = some v :=
+  Raw₀.mem_toList_iff_get?_eq_some ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem find?_toList_eq_some_iff_get?_eq_some [LawfulBEq α]
+    {k : α} {v : β k} :
+    m.toList.find? (·.1 == k) = some ⟨k, v⟩ ↔ m.get? k = some v :=
+  Raw₀.find?_toList_eq_some_iff_get?_eq_some ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    {k : α} :
+    m.toList.find? (·.1 == k) = none ↔ m.contains k = false :=
+  Raw₀.find?_toList_eq_none_iff_contains_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem find?_toList_eq_none_iff_not_mem [EquivBEq α] [LawfulHashable α]
+    {k : α} :
+    m.toList.find? (·.1 == k) = none ↔ ¬ k ∈ m := by
+  simp only [Bool.not_eq_true, mem_iff_contains]
+  apply Raw₀.find?_toList_eq_none_iff_contains_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] :
+    m.toList.Pairwise (fun a b => (a.1 == b.1) = false) :=
+  Raw₀.distinct_keys_toList ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+namespace Const
+
+variable {β : Type v} {m : DHashMap α (fun _ => β)}
+
+@[simp]
+theorem map_prod_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
+    (toList m).map Prod.fst = m.keys :=
+  Raw₀.Const.map_prod_fst_toList_eq_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp]
+theorem length_toList [EquivBEq α] [LawfulHashable α] :
+    (toList m).length = m.size :=
+  Raw₀.Const.length_toList ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] :
+    (toList m).isEmpty = m.isEmpty :=
+  Raw₀.Const.isEmpty_toList ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem mem_toList_iff_get?_eq_some [LawfulBEq α]
+    {k : α} {v : β} :
+    (k, v) ∈ toList m ↔ get? m k = some v :=
+  Raw₀.Const.mem_toList_iff_get?_eq_some ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem mem_toList_iff_getKey?_eq_some_and_get?_eq_some [EquivBEq α] [LawfulHashable α]
+    {k : α} {v : β} :
+    (k, v) ∈ toList m ↔ m.getKey? k = some k ∧ get? m k = some v :=
+  Raw₀.Const.mem_toList_iff_getKey?_eq_some_and_get?_eq_some ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem get?_eq_some_iff_exists_beq_and_mem_toList [EquivBEq α] [LawfulHashable α]
+    {k : α} {v : β} :
+    get? m k = some v ↔ ∃ (k' : α), k == k' ∧ (k', v) ∈ toList m :=
+  Raw₀.Const.get?_eq_some_iff_exists_beq_and_mem_toList ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some
+    [EquivBEq α] [LawfulHashable α] {k k' : α} {v : β} :
+    (toList m).find? (fun a => a.1 == k) = some ⟨k', v⟩ ↔
+      m.getKey? k = some k' ∧ get? m k = some v :=
+  Raw₀.Const.find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some
+    ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    {k : α} :
+    (toList m).find? (·.1 == k) = none ↔ m.contains k = false :=
+  Raw₀.Const.find?_toList_eq_none_iff_contains_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem find?_toList_eq_none_iff_not_mem [EquivBEq α] [LawfulHashable α]
+    {k : α} :
+    (toList m).find? (·.1 == k) = none ↔ ¬ k ∈ m := by
+  simp only [Bool.not_eq_true, mem_iff_contains]
+  apply Raw₀.Const.find?_toList_eq_none_iff_contains_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] :
+    (toList m).Pairwise (fun a b => (a.1 == b.1) = false) :=
+  Raw₀.Const.distinct_keys_toList ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+end Const
+
+section monadic
+
+variable {m : DHashMap α β} {δ : Type w} {m' : Type w → Type w}
+
+theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β a → m' δ} {init : δ} :
+    m.foldM f init = m.toList.foldlM (fun a b => f a b.1 b.2) init :=
+  Raw₀.foldM_eq_foldlM_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem fold_eq_foldl_toList {f : δ → (a : α) → β a → δ} {init : δ} :
+    m.fold f init = m.toList.foldl (fun a b => f a b.1 b.2) init :=
+  Raw₀.fold_eq_foldl_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp]
+theorem forM_eq_forM [Monad m'] [LawfulMonad m'] {f : (a : α) → β a → m' PUnit} :
+    DHashMap.forM f m = ForM.forM m (fun a => f a.1 a.2):= rfl
+
+theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : (a : α) × β a → m' PUnit} :
+    ForM.forM m f = ForM.forM m.toList f :=
+  Raw₀.forM_eq_forM_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp]
+theorem forIn_eq_forIn [Monad m'] [LawfulMonad m']
+    {f : (a : α) → β a → δ → m' (ForInStep δ)} {init : δ} :
+    DHashMap.forIn f init m = ForIn.forIn m init (fun a b => f a.1 a.2 b) := rfl
+
+theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
+    {f : (a : α) × β a → δ → m' (ForInStep δ)} {init : δ} :
+    ForIn.forIn m init f = ForIn.forIn m.toList init f :=
+  Raw₀.forIn_eq_forIn_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+namespace Const
+
+variable {β : Type v} {m : DHashMap α (fun _ => β)}
+
+theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β → m' δ} {init : δ} :
+    m.foldM f init = (Const.toList m).foldlM (fun a b => f a b.1 b.2) init :=
+  Raw₀.Const.foldM_eq_foldlM_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem fold_eq_foldl_toList {f : δ → (a : α) → β → δ} {init : δ} :
+    m.fold f init = (Const.toList m).foldl (fun a b => f a b.1 b.2) init :=
+  Raw₀.Const.fold_eq_foldl_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : (a : α) → β → m' PUnit} :
+    m.forM f = (Const.toList m).forM (fun a => f a.1 a.2) :=
+  Raw₀.Const.forM_eq_forM_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
+    {f : (a : α) → β → δ → m' (ForInStep δ)} {init : δ} :
+    m.forIn f init = ForIn.forIn (Const.toList m) init (fun a b => f a.1 a.2 b) :=
+  Raw₀.Const.forIn_eq_forIn_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+variable {m : DHashMap α (fun _ => Unit)}
+
+theorem foldM_eq_foldlM_keys [Monad m'] [LawfulMonad m']
+    {f : δ → α → m' δ} {init : δ} :
+    m.foldM (fun d a _ => f d a) init = m.keys.foldlM f init :=
+  Raw₀.Const.foldM_eq_foldlM_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem fold_eq_foldl_keys {f : δ → α → δ} {init : δ} :
+    m.fold (fun d a _ => f d a) init = m.keys.foldl f init :=
+  Raw₀.Const.fold_eq_foldl_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem forM_eq_forM_keys [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
+    m.forM (fun a _ => f a) = m.keys.forM f :=
+  Raw₀.Const.forM_eq_forM_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem forIn_eq_forIn_keys [Monad m'] [LawfulMonad m']
+    {f : α → δ → m' (ForInStep δ)} {init : δ} :
+    m.forIn (fun a _ d => f a d) init = ForIn.forIn m.keys init f :=
+  Raw₀.Const.forIn_eq_forIn_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+end Const
+
+end monadic
 
 @[simp]
 theorem insertMany_nil :

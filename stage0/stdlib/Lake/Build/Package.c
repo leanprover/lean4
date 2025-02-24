@@ -83,7 +83,6 @@ LEAN_EXPORT lean_object* l_Lake_Package_optGitHubReleaseFacetConfig;
 lean_object* l_Lake_Job_mix___rarg(lean_object*, lean_object*);
 lean_object* l_Lake_download(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_buildUnlessUpToDate_x3f_go(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___at___private_Lake_Build_Package_0__Lake_Package_mkOptBuildArchiveFacetConfig___spec__2___closed__3;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_buildCacheFacetConfig___elambda__2___closed__2;
@@ -296,6 +295,7 @@ static lean_object* l_Lake_stdFormat___at_Lake_Package_optBuildCacheFacetConfig_
 LEAN_EXPORT lean_object* l_Lake_Package_depsFacetConfig;
 LEAN_EXPORT lean_object* l_IO_withStdout___at_Lake_Package_afterBuildCacheSync___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Package_0__Lake_Package_fetchOptBuildCacheCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Package_recComputeTransDeps___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdin___at_Lake_Package_afterBuildCacheSync___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_depsFacetConfig___elambda__1___boxed(lean_object*, lean_object*);
@@ -4954,11 +4954,11 @@ LEAN_EXPORT lean_object* l_Lake_Package_recBuildExtraDepTargets___lambda__3(lean
 _start:
 {
 lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; lean_object* x_15; 
-x_11 = lean_ctor_get(x_1, 4);
-x_12 = lean_box(0);
-x_13 = lean_array_size(x_11);
+x_11 = lean_box(0);
+x_12 = lean_ctor_get(x_1, 4);
+x_13 = lean_array_size(x_12);
 x_14 = 0;
-x_15 = l_Array_forIn_x27Unsafe_loop___at_Lake_Package_recBuildExtraDepTargets___spec__1(x_2, x_11, x_12, x_11, x_13, x_14, x_3, x_5, x_6, x_7, x_8, x_9, x_10);
+x_15 = l_Array_forIn_x27Unsafe_loop___at_Lake_Package_recBuildExtraDepTargets___spec__1(x_2, x_11, x_12, x_12, x_13, x_14, x_3, x_5, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; 

@@ -5,6 +5,7 @@ Author: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Init.Core
+import Init.BinderNameHint
 
 universe u v w
 
@@ -34,6 +35,12 @@ instance (priority := 500) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α 
   intro b
   simp [h]
   rfl
+
+@[wf_preprocess] theorem forIn_eq_forin' [d : Membership α ρ] [ForIn' m ρ α d] {β} [Monad m]
+    (x : ρ) (b : β) (f : (a : α) → β → m (ForInStep β)) :
+    forIn x b f = forIn' x b (fun x h => binderNameHint x f <| binderNameHint h () <| f x) := by
+  simp [binderNameHint]
+  rfl -- very strange why `simp` did not close it
 
 /-- Extract the value from a `ForInStep`, ignoring whether it is `done` or `yield`. -/
 def ForInStep.value (x : ForInStep α) : α :=
@@ -71,7 +78,7 @@ Error recovery and state can interact subtly. For example, the implementation of
 -/
 -- NB: List instance is in mathlib. Once upstreamed, add
 -- * `List`, where `failure` is the empty list and `<|>` concatenates.
-class Alternative (f : Type u → Type v) extends Applicative f : Type (max (u+1) v) where
+class Alternative (f : Type u → Type v) : Type (max (u+1) v) extends Applicative f where
   /--
   Produces an empty collection or recoverable failure.  The `<|>` operator collects values or recovers
   from failures. See `Alternative` for more details.

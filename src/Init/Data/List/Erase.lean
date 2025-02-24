@@ -12,6 +12,9 @@ import Init.Data.List.Find
 # Lemmas about `List.eraseP`, `List.erase`, and `List.eraseIdx`.
 -/
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 open Nat
@@ -134,7 +137,7 @@ theorem mem_of_mem_eraseP {l : List α} : a ∈ l.eraseP p → a ∈ l := (erase
 @[simp] theorem eraseP_eq_self_iff {p} {l : List α} : l.eraseP p = l ↔ ∀ a ∈ l, ¬ p a := by
   rw [← Sublist.length_eq (eraseP_sublist l), length_eraseP]
   split <;> rename_i h
-  · simp only [any_eq_true, length_eq_zero] at h
+  · simp only [any_eq_true, length_eq_zero_iff] at h
     constructor
     · intro; simp_all [Nat.sub_one_eq_self]
     · intro; obtain ⟨x, m, h⟩ := h; simp_all
@@ -437,10 +440,10 @@ theorem erase_eq_iff [LawfulBEq α] {a : α} {l : List α} :
   rw [erase_eq_eraseP', eraseP_eq_iff]
   simp only [beq_iff_eq, forall_mem_ne', exists_and_left]
   constructor
-  · rintro (⟨h, rfl⟩ | ⟨a', l', h, rfl, x, rfl, rfl⟩)
+  · rintro (⟨h, rfl⟩ | ⟨a', l', h, rfl, xs, rfl, rfl⟩)
     · left; simp_all
-    · right; refine ⟨l', h, x, by simp⟩
-  · rintro (⟨h, rfl⟩ | ⟨l₁, h, x, rfl, rfl⟩)
+    · right; refine ⟨l', h, xs, by simp⟩
+  · rintro (⟨h, rfl⟩ | ⟨l₁, h, xs, rfl, rfl⟩)
     · left; simp_all
     · right; refine ⟨a, l₁, h, by simp⟩
 

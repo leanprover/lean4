@@ -9,7 +9,7 @@ import Init.Data.Int.DivMod.Lemmas
 import Init.Omega
 universe u v
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 -- We do not use `linter.indexVariables` here as it is helpful to name the index variables as `lo`, `mid`, and `hi`.
 
 namespace Array

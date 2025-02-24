@@ -237,20 +237,23 @@ def listVariablesLinter : Linter
           if let .str _ n := n then
           let n := stripBinderName n
           if !allowedListNames.contains n then
-            unless (ty.getArg! 0).isAppOf `List && (n == "L" || n == "xss") do
+            -- Allow `L` or `xss` for `List (List α)` or `List (Array α)`
+            unless ((ty.getArg! 0).isAppOf `List || (ty.getArg! 0).isAppOf `Array) && (n == "L" || n == "xss") do
               Linter.logLint linter.listVariables stx
                 m!"Forbidden variable appearing as a `List` name: {n}"
         for (stx, n, ty) in binders.filter fun (_, _, ty) => ty.isAppOf `Array do
           if let .str _ n := n then
           let n := stripBinderName n
           if !allowedArrayNames.contains n then
-            unless (ty.getArg! 0).isAppOf `Array && n == "xss" do
+            -- Allow `xss` for `Array (Array α)` or `Array (Vector α)`
+            unless ((ty.getArg! 0).isAppOf `Array || (ty.getArg! 0).isAppOf `Vector) && n == "xss" do
               Linter.logLint linter.listVariables stx
                 m!"Forbidden variable appearing as a `Array` name: {n}"
         for (stx, n, ty) in binders.filter fun (_, _, ty) => ty.isAppOf `Vector do
           if let .str _ n := n then
           let n := stripBinderName n
           if !allowedVectorNames.contains n then
+            -- Allow `xss` for `Vector (Vector α)`
             unless (ty.getArg! 0).isAppOf `Vector && n == "xss" do
               Linter.logLint linter.listVariables stx
                 m!"Forbidden variable appearing as a `Vector` name: {n}"

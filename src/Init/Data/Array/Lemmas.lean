@@ -22,8 +22,8 @@ import Init.Data.List.ToArray
 ## Theorems about `Array`.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Array
 
@@ -833,9 +833,9 @@ theorem getElem?_set (xs : Array α) (i : Nat) (h : i < xs.size) (v : α) (j : N
   cases xs
   simp
 
-@[simp] theorem set_eq_empty_iff {xs : Array α} (n : Nat) (a : α) (h) :
-     xs.set n a = #[] ↔ xs = #[] := by
-  cases xs <;> cases n <;> simp [set]
+@[simp] theorem set_eq_empty_iff {xs : Array α} (i : Nat) (a : α) (h) :
+     xs.set i a = #[] ↔ xs = #[] := by
+  cases xs <;> cases i <;> simp [set]
 
 theorem set_comm (a b : α)
     {i j : Nat} (xs : Array α) {hi : i < xs.size} {hj : j < (xs.set i a).size} (h : i ≠ j) :
@@ -2021,7 +2021,7 @@ theorem flatten_eq_flatMap {xss : Array (Array α)} : flatten xss = xss.flatMap 
   rw [← Function.comp_def, ← List.map_map, flatten_toArray_map]
 
 theorem flatten_filter_not_isEmpty {xss : Array (Array α)} :
-    flatten (xss.filter fun l => !l.isEmpty) = xss.flatten := by
+    flatten (xss.filter fun xs => !xs.isEmpty) = xss.flatten := by
   induction xss using array₂_induction
   simp [List.filter_map, Function.comp_def, List.flatten_filter_not_isEmpty]
 

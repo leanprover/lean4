@@ -12,8 +12,9 @@ import Init.Data.Array.Find
 ## Vectors
 Lemmas about `Vector α n`
 -/
-set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
-set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Array
 

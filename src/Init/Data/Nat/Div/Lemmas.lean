@@ -63,8 +63,9 @@ theorem div_add_le_right {z : Nat} (h : 0 < z) (x y : Nat) :
     x / (y + z) ≤ x / z :=
   div_le_div_left (Nat.le_add_left z y) h
 
-theorem succ_div_of_mod_eq_zero {a b : Nat} (h : (a + 1) % b = 0) :
+theorem succ_div_of_dvd {a b : Nat} (h : b ∣ a + 1) :
     (a + 1) / b = a / b + 1 := by
+  replace h := mod_eq_zero_of_dvd h
   cases b with
   | zero => simp at h
   | succ b =>
@@ -84,8 +85,13 @@ theorem succ_div_of_mod_eq_zero {a b : Nat} (h : (a + 1) % b = 0) :
       rw [Nat.mod_eq_of_lt h'] at h
       simp at h
 
-theorem succ_div_of_mod_ne_zero {a b : Nat} (h : (a + 1) % b ≠ 0) :
+theorem succ_div_of_mod_eq_zero {a b : Nat} (h : (a + 1) % b = 0) :
+    (a + 1) / b = a / b + 1 := by
+  rw [succ_div_of_dvd (by rwa [dvd_iff_mod_eq_zero])]
+
+theorem succ_div_of_not_dvd {a b : Nat} (h : ¬ b ∣ a + 1) :
     (a + 1) / b = a / b := by
+  replace h := mt dvd_of_mod_eq_zero h
   cases b with
   | zero => simp
   | succ b =>
@@ -97,9 +103,13 @@ theorem succ_div_of_mod_ne_zero {a b : Nat} (h : (a + 1) % b ≠ 0) :
     · rw [Nat.div_mul_self_eq_mod_sub_self]
       omega
 
-theorem succ_div {a b : Nat} : (a + 1) / b = a / b + if (a + 1) % b = 0 then 1 else 0 := by
+theorem succ_div_of_mod_ne_zero {a b : Nat} (h : (a + 1) % b ≠ 0) :
+    (a + 1) / b = a / b := by
+  rw [succ_div_of_not_dvd (by rwa [dvd_iff_mod_eq_zero])]
+
+theorem succ_div {a b : Nat} : (a + 1) / b = a / b + if b ∣ a + 1 then 1 else 0 := by
   split <;> rename_i h
-  · simp [succ_div_of_mod_eq_zero h]
-  · simp [succ_div_of_mod_ne_zero h]
+  · simp [succ_div_of_dvd h]
+  · simp [succ_div_of_not_dvd h]
 
 end Nat

@@ -300,6 +300,12 @@ protected theorem ediv_mul_cancel {a b : Int} (H : b ∣ a) : a / b * b = a :=
 protected theorem mul_ediv_cancel' {a b : Int} (H : a ∣ b) : a * (b / a) = b := by
   rw [Int.mul_comm, Int.ediv_mul_cancel H]
 
+theorem emod_pos_of_not_dvd {a b : Int} (h : ¬ a ∣ b) : a = 0 ∨ 0 < b % a := by
+  rw [dvd_iff_emod_eq_zero] at h
+  by_cases w : a = 0
+  · simp_all
+  · exact Or.inr (Int.lt_iff_le_and_ne.mpr ⟨emod_nonneg b w, Ne.symm h⟩)
+
 /-! ### bmod -/
 
 @[simp] theorem bmod_emod : bmod x m % m = x % m := by

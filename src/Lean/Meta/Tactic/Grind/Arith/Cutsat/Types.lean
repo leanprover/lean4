@@ -34,8 +34,8 @@ inductive DvdCnstrProof where
   | solveCombine (c₁ c₂ : DvdCnstr)
   | solveElim (c₁ c₂ : DvdCnstr)
   | elim (c : DvdCnstr)
-  | ofEq (c : EqCnstr)
-  | subst (c₁ : EqCnstr) (c₂ : DvdCnstr)
+  | ofEq (x : Var) (c : EqCnstr)
+  | subst (x : Var) (c₁ : EqCnstr) (c₂ : DvdCnstr)
 
 structure LeCnstr where
   p  : Poly
@@ -48,7 +48,7 @@ inductive LeCnstrProof where
   | norm (c : LeCnstr)
   | divCoeffs (c : LeCnstr)
   | combine (c₁ c₂ : LeCnstr)
-  | subst (c₁ : EqCnstr) (c₂ : LeCnstr)
+  | subst (x : Var) (c₁ : EqCnstr) (c₂ : LeCnstr)
   -- TODO: missing constructors
 
 structure EqCnstr where
@@ -59,7 +59,7 @@ structure EqCnstr where
 inductive EqCnstrProof where
   | expr (h : Expr)
   | norm (c : EqCnstr)
-  | subst (c₁ : EqCnstr) (c₂ : EqCnstr)
+  | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
 end
 
 /-- State of the cutsat procedure. -/

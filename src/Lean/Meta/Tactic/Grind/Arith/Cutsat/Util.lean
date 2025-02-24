@@ -125,7 +125,7 @@ def EqCnstr.pp (c : EqCnstr) : GoalM MessageData := do
 def EqCnstr.denoteExpr (c : EqCnstr) : GoalM Expr := do
   return mkIntEq (← c.p.denoteExpr') (mkIntLit 0)
 
-def EqCnstr.throwUnexpected (c : LeCnstr) : GoalM α := do
+def EqCnstr.throwUnexpected (c : EqCnstr) : GoalM α := do
   throwError "`grind` internal error, unexpected{indentD (← c.pp)}"
 
 /-- Returns occurrences of `x`. -/
@@ -176,11 +176,9 @@ abbrev caching (id : Nat) (k : ProofM Expr) : ProofM Expr := do
     modify fun s => { s with cache := s.cache.insert id h }
     return h
 
-abbrev DvdCnstr.caching (c : DvdCnstr) (k : ProofM Expr) : ProofM Expr :=
-  Cutsat.caching c.id k
-
-abbrev LeCnstr.caching (c : LeCnstr) (k : ProofM Expr) : ProofM Expr :=
-  Cutsat.caching c.id k
+abbrev DvdCnstr.caching (c : DvdCnstr) (k : ProofM Expr) : ProofM Expr := Cutsat.caching c.id k
+abbrev LeCnstr.caching (c : LeCnstr) (k : ProofM Expr) : ProofM Expr := Cutsat.caching c.id k
+abbrev EqCnstr.caching (c : EqCnstr) (k : ProofM Expr) : ProofM Expr := Cutsat.caching c.id k
 
 abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
   withLetDecl `ctx (mkApp (mkConst ``RArray) (mkConst ``Int)) (← toContextExpr) fun ctx => do

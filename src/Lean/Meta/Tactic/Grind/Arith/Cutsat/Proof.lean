@@ -37,8 +37,11 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := c'.caching do
     return mkApp10 (mkConst ``Int.Linear.dvd_solve_elim)
       (← getContext) (toExpr c₁.d) (toExpr c₁.p) (toExpr c₂.d) (toExpr c₂.p) (toExpr c'.d) (toExpr c'.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
-  | .subst _c₁ _c₂ => throwError "NIY"
-  | .ofEq _c => throwError "NIY"
+  | .subst _x _c₁ _c₂ => throwError "NIY"
+  | .ofEq x c =>
+    return mkApp7 (mkConst ``Int.Linear.dvd_of_eq)
+      (← getContext) (toExpr x) (toExpr c.p) (toExpr c'.d) (toExpr c'.p)
+      reflBoolTrue (← c.toExprProof)
 
 partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := c'.caching do
   match c'.h with
@@ -56,7 +59,18 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := c'.caching do
       (← getContext) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
       reflBoolTrue
       (← c₁.toExprProof) (← c₂.toExprProof)
-  | .subst _c₁ _c₂ => throwError "NIY"
+  | .subst _x _c₁ _c₂ => throwError "NIY"
+
+partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := c'.caching do
+  match c'.h with
+  | .expr h =>
+    return h
+  | .norm c =>
+    return mkApp5 (mkConst ``Int.Linear.eq_norm) (← getContext) (toExpr c.p) (toExpr c'.p) reflBoolTrue (← c.toExprProof)
+  | .subst x c₁ c₂  =>
+    return mkApp8 (mkConst ``Int.Linear.eq_eq_subst)
+      (← getContext) (toExpr x) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
+      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
 
 end
 end Lean.Meta.Grind.Arith.Cutsat

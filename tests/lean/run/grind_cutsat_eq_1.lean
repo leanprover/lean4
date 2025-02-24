@@ -35,6 +35,9 @@ theorem ex₆ (a c : Int) (_ : c + 3*a = 0) (_ : c + 3*a = 1) : False := by
 theorem ex₇ (a c : Int) (_ : c + 3*a = 0) (_ : c - 3*a = 6) (_ : 2*c + a = 0) : False := by
   grind
 
+theorem ex₈ (a b : Int) (_ : 2 ∣ a + 1) (_ : a = 2*b) : False := by
+  grind
+
 #print ex₁
 #print ex₂
 #print ex₃
@@ -42,3 +45,4 @@ theorem ex₇ (a c : Int) (_ : c + 3*a = 0) (_ : c - 3*a = 6) (_ : 2*c + a = 0) 
 #print ex₅
 #print ex₆
 #print ex₇
+#print ex₈

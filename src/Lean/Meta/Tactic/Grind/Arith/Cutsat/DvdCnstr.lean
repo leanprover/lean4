@@ -26,10 +26,29 @@ def DvdCnstr.norm (c : DvdCnstr) : GoalM DvdCnstr := do
   else
     return c
 
+/--
+Given an equation `c₁` containing the monomial `a*x`, and a divisibility constraint `c₂`
+containing the monomial `b*x`, eliminate `x` by applying substitution.
+-/
+def DvdCnstr.applyEq (a : Int) (x : Var) (c₁ : EqCnstr) (b : Int) (c₂ : DvdCnstr) : GoalM DvdCnstr := do
+  let p := c₁.p
+  let q := c₂.p
+  let d := Int.ofNat (a * c₂.d).natAbs
+  let p := (q.mul a |>.combine (p.mul (-b)))
+  trace[grind.cutsat.subst] "{← getVar x}, {← c₁.pp}, {← c₂.pp}"
+  mkDvdCnstr d p (.subst x c₁ c₂)
+
+partial def DvdCnstr.applySubsts (c : DvdCnstr) : GoalM DvdCnstr := withIncRecDepth do
+  let some (b, x, c₁) ← c.p.findVarToSubst | return c
+  let a := c₁.p.coeff x
+  let c ← c.applyEq a x c₁ b
+  applySubsts c
+
 /-- Asserts divisibility constraint. -/
 partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
   if (← inconsistent) then return ()
   let c ← c.norm
+  let c ← c.applySubsts
   if c.isUnsat then
     setInconsistent (.dvd c)
     return ()

@@ -231,4 +231,17 @@ Returns `.true` if `c` is satisfied by the current partial model,
 def LeCnstr.satisfied (c : LeCnstr) : GoalM LBool := do
   c.p.satisfiedLe
 
+/--
+Given a polynomial `p`, returns `some (x, k, c)` if `p` contains the monomial `k*x`,
+and `x` has been eliminated using the equality `c`.
+-/
+def _root_.Int.Linear.Poly.findVarToSubst (p : Poly) : GoalM (Option (Int × Var × EqCnstr)) := do
+  match p with
+  | .num _ => return none
+  | .add k x p =>
+    if let some c := (← get').elimEqs[x]! then
+      return some (k, x, c)
+    else
+      findVarToSubst p
+
 end Lean.Meta.Grind.Arith.Cutsat

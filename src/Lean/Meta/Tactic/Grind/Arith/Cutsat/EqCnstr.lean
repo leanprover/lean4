@@ -37,20 +37,7 @@ where
         else
           go k x p
 
-/--
-Given a polynomial `p`, returns `some (x, k, c)` if `p` contains the monomial `k*x`,
-and `x` has been eliminated using the equality `c`.
--/
-def _root_.Int.Linear.Poly.findVarToSubst (p : Poly) : GoalM (Option (Int × Var × EqCnstr)) := do
-  match p with
-  | .num _ => return none
-  | .add k x p =>
-    if let some c := (← get').elimEqs[x]! then
-      return some (k, x, c)
-    else
-      findVarToSubst p
-
-partial def applySubsts (c : EqCnstr) : GoalM EqCnstr := withIncRecDepth do
+partial def EqCnstr.applySubsts (c : EqCnstr) : GoalM EqCnstr := withIncRecDepth do
   let some (a, x, c₁) ← c.p.findVarToSubst | return c
   trace[grind.cutsat.subst] "{← getVar x}, {← c.pp}, {← c₁.pp}"
   let b := c₁.p.coeff x
@@ -58,31 +45,41 @@ partial def applySubsts (c : EqCnstr) : GoalM EqCnstr := withIncRecDepth do
   let c ← mkEqCnstr p (.subst x c₁ c)
   applySubsts c
 
-private def updateDvdCnstrs (k : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
-  -- TODO
-  pure ()
+private def updateDvdCnstr (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
+  let some c' := (← get').dvdCnstrs[y]! | return ()
+  let b := c'.p.coeff x
+  if b == 0 then return ()
+  modify' fun s => { s with dvdCnstrs := s.dvdCnstrs.set y none }
+  let c' ← c'.applyEq a x c b
+  c'.assert
 
 private def updateLowers (k : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
+  if (← inconsistent) then return ()
   -- TODO
   pure ()
 
 private def updateUppers (k : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
+  if (← inconsistent) then return ()
   -- TODO
   pure ()
+
+private def updateOccsAt (k : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
+  updateDvdCnstr k x c y
+  updateLowers k x c y
+  updateUppers k x c y
 
 private def updateOccs (k : Int) (x : Var) (c : EqCnstr) : GoalM Unit := do
   let ys := (← get').occurs[x]!
   modify' fun s => { s with occurs := s.occurs.set x {} }
+  updateOccsAt k x c x
   for y in ys do
-    updateDvdCnstrs k x c y
-    updateLowers k x c y
-    updateUppers k x c y
+    updateOccsAt k x c y
 
 def EqCnstr.assert (c : EqCnstr) : GoalM Unit := do
   if (← inconsistent) then return ()
   trace[grind.cutsat.assert] "{← c.pp}"
   let c ← c.norm
-  let c ← applySubsts c
+  let c ← c.applySubsts
   if c.p.isUnsatEq then
     setInconsistent (.eq c)
     return ()
@@ -92,25 +89,25 @@ def EqCnstr.assert (c : EqCnstr) : GoalM Unit := do
   let k := c.p.gcdCoeffs'
   if c.p.getConst % k > 0 then
     setInconsistent (.eq c)
+    return ()
+  let c ← if k == 1 then
+    pure c
   else
-    let c ← if k == 1 then
-      pure c
-    else
-      mkEqCnstr (c.p.div k) (.divCoeffs c)
-    trace[grind.cutsat.eq] "{← c.pp}"
-    let some (k, x) := c.p.pickVarToElim? | c.throwUnexpected
-    updateOccs k x c
-    if (← inconsistent) then return ()
-    -- assert a divisibility constraint IF `|k| != 1`
-    if k.natAbs != 1 then
-      let p := c.p.insert (-k) x
-      let d := Int.ofNat k.natAbs
-      let c ← mkDvdCnstr d p (.ofEq x c)
-      c.assert
-    modify' fun s => { s with
-      elimEqs := s.elimEqs.set x (some c)
-      elimStack := x :: s.elimStack
-    }
+    mkEqCnstr (c.p.div k) (.divCoeffs c)
+  trace[grind.cutsat.eq] "{← c.pp}"
+  let some (k, x) := c.p.pickVarToElim? | c.throwUnexpected
+  updateOccs k x c
+  if (← inconsistent) then return ()
+  -- assert a divisibility constraint IF `|k| != 1`
+  if k.natAbs != 1 then
+    let p := c.p.insert (-k) x
+    let d := Int.ofNat k.natAbs
+    let c ← mkDvdCnstr d p (.ofEq x c)
+    c.assert
+  modify' fun s => { s with
+    elimEqs := s.elimEqs.set x (some c)
+    elimStack := x :: s.elimStack
+  }
 
 @[export lean_process_cutsat_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do

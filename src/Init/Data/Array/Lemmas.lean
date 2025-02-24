@@ -3192,11 +3192,11 @@ theorem foldr_rel {xs : Array α} {f g : α → β → β} {a b : β} (r : β �
 -- We unfold `leftpad` and `rightpad` for verification purposes.
 attribute [simp] leftpad rightpad
 
-theorem size_leftpad (n : Nat) (a : α) (l : Array α) :
-    (leftpad n a l).size = max n l.size := by simp; omega
+theorem size_leftpad (n : Nat) (a : α) (xs : Array α) :
+    (leftpad n a xs).size = max n xs.size := by simp; omega
 
-theorem size_rightpad (n : Nat) (a : α) (l : Array α) :
-    (rightpad n a l).size = max n l.size := by simp; omega
+theorem size_rightpad (n : Nat) (a : α) (xs : Array α) :
+    (rightpad n a xs).size = max n xs.size := by simp; omega
 
 /-! Content below this point has not yet been aligned with `List`. -/
 

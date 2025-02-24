@@ -461,8 +461,8 @@ Pad a vector on the left with a given element.
 Note that we immediately simplify this to an `++` operation,
 and do not provide separate verification theorems.
 -/
-@[inline, simp] def leftpad (n : Nat) (a : α) (l : Vector α m) : Vector α (max n m) :=
-  (mkVector (n - m) a ++ l).cast (by omega)
+@[inline, simp] def leftpad (n : Nat) (a : α) (xs : Vector α m) : Vector α (max n m) :=
+  (mkVector (n - m) a ++ xs).cast (by omega)
 
 /--
 Pad a vector on the right with a given element.
@@ -470,8 +470,8 @@ Pad a vector on the right with a given element.
 Note that we immediately simplify this to an `++` operation,
 and do not provide separate verification theorems.
 -/
-@[inline, simp] def rightpad (n : Nat) (a : α) (l : Vector α m) : Vector α (max n m) :=
-  (l ++ mkVector (n - m) a).cast (by omega)
+@[inline, simp] def rightpad (n : Nat) (a : α) (xs : Vector α m) : Vector α (max n m) :=
+  (xs ++ mkVector (n - m) a).cast (by omega)
 
 /-! ### ForIn instance -/
 

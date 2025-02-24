@@ -50,7 +50,7 @@ def getIntValue? (e : Expr) : MetaM (Option Int) := do
   let some (n, _) ← getOfNatValue? a ``Int | return none
   return some (-↑n)
 
-/-- Return `some c` if `e` is a `Char.ofNat`-application that encodes character `c`. -/
+/-- Return `some c` if `e` is a `Char.ofNat`-application that encodes the character `c`. -/
 def getCharValue? (e : Expr) : MetaM (Option Char) := do
   let_expr Char.ofNat n ← e | return none
   let some n ← getNatValue? n | return none

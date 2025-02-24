@@ -139,7 +139,7 @@ theorem size_insert_le [TransCmp cmp] {k : α} {v : β} :
 
 @[simp]
 theorem erase_emptyc {k : α} :
-    (∅ : TreeMap α β cmp).erase k = empty :=
+    (∅ : TreeMap α β cmp).erase k = ∅ :=
   ext <| DTreeMap.erase_emptyc
 
 @[simp]

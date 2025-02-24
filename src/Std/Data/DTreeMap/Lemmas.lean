@@ -464,8 +464,7 @@ theorem get!_insert [TransCmp cmp] [Inhabited β] {k a : α} {v : β} :
   Impl.Const.get!_insert t.wf
 
 @[simp]
-theorem get!_insert_self [TransCmp cmp] [Inhabited β] {k : α}
-    {v : β} : get! (t.insert k v) k = v :=
+theorem get!_insert_self [TransCmp cmp] [Inhabited β] {k : α} {v : β} : get! (t.insert k v) k = v :=
   Impl.Const.get!_insert_self t.wf
 
 theorem get!_eq_default_of_contains_eq_false [TransCmp cmp] [Inhabited β] {a : α} :
@@ -505,8 +504,8 @@ theorem get!_eq_get! [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited β] {a : α} :
     get! t a = t.get! a :=
   Impl.Const.get!_eq_get! t.wf
 
-theorem get!_congr [TransCmp cmp] [Inhabited β] {a b : α}
-    (hab : cmp a b = .eq) : get! t a = get! t b :=
+theorem get!_congr [TransCmp cmp] [Inhabited β] {a b : α} (hab : cmp a b = .eq) :
+    get! t a = get! t b :=
   Impl.Const.get!_congr t.wf hab
 
 end Const
@@ -516,7 +515,8 @@ theorem getD_emptyc [TransCmp cmp] [LawfulEqCmp cmp] {a : α} {fallback : β a} 
     (∅ : DTreeMap α β cmp).getD a fallback = fallback :=
   Impl.getD_empty
 
-theorem getD_of_isEmpty [TransCmp cmp] [LawfulEqCmp cmp] {a : α} {fallback : β a} : t.isEmpty = true → t.getD a fallback = fallback :=
+theorem getD_of_isEmpty [TransCmp cmp] [LawfulEqCmp cmp] {a : α} {fallback : β a} :
+    t.isEmpty = true → t.getD a fallback = fallback :=
   Impl.getD_of_isEmpty t.wf
 
 theorem getD_insert [TransCmp cmp] [LawfulEqCmp cmp] {k a : α} {fallback : β a} {v : β k} :
@@ -531,8 +531,8 @@ theorem getD_insert_self [TransCmp cmp] [LawfulEqCmp cmp] {a : α} {fallback b :
     (t.insert a b).getD a fallback = b :=
   Impl.getD_insert_self t.wf
 
-theorem getD_eq_fallback_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] {a : α} {fallback : β a} :
-    t.contains a = false → t.getD a fallback = fallback :=
+theorem getD_eq_fallback_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] {a : α}
+    {fallback : β a} : t.contains a = false → t.getD a fallback = fallback :=
   Impl.getD_eq_fallback_of_contains_eq_false t.wf
 
 theorem getD_eq_fallback [TransCmp cmp] [LawfulEqCmp cmp] {a : α} {fallback : β a} :
@@ -634,8 +634,8 @@ theorem getD_eq_getD [TransCmp cmp] [LawfulEqCmp cmp] {a : α} {fallback : β} :
     getD t a fallback = t.getD a fallback :=
   Impl.Const.getD_eq_getD t.wf
 
-theorem getD_congr [TransCmp cmp] {a b : α} {fallback : β}
-    (hab : cmp a b = .eq) : getD t a fallback = getD t b fallback :=
+theorem getD_congr [TransCmp cmp] {a b : α} {fallback : β} (hab : cmp a b = .eq) :
+    getD t a fallback = getD t b fallback :=
   Impl.Const.getD_congr t.wf hab
 
 end Const

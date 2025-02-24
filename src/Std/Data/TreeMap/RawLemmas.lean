@@ -139,7 +139,7 @@ theorem size_insert_le [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
 
 @[simp]
 theorem erase_emptyc {k : α} :
-    (empty : Raw α β cmp).erase k = empty :=
+    (∅ : Raw α β cmp).erase k = ∅ :=
   ext <| DTreeMap.Raw.erase_emptyc
 
 @[simp]
@@ -366,32 +366,32 @@ theorem getElem!_congr [TransCmp cmp] [Inhabited β] (h : t.WF) {a b : α}
   DTreeMap.Raw.Const.get!_congr h hab
 
 @[simp]
-theorem getD_emptyc [TransCmp cmp] {a : α} {fallback : β} :
+theorem getElemD_emptyc [TransCmp cmp] {a : α} {fallback : β} :
     getD (∅ : Raw α β cmp) a fallback = fallback :=
   DTreeMap.Raw.Const.getD_emptyc
 
-theorem getD_of_isEmpty [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
+theorem getElemD_of_isEmpty [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
     t.isEmpty = true → getD t a fallback = fallback :=
   DTreeMap.Raw.Const.getD_of_isEmpty h
 
-theorem getD_insert [TransCmp cmp] (h : t.WF) {k a : α} {fallback v : β} :
+theorem getElemD_insert [TransCmp cmp] (h : t.WF) {k a : α} {fallback v : β} :
     getD (t.insert k v) a fallback = if cmp k a = .eq then v else getD t a fallback :=
   DTreeMap.Raw.Const.getD_insert h
 
 @[simp]
-theorem getD_insert_self [TransCmp cmp] (h : t.WF) {k : α} {fallback v : β} :
+theorem getElemD_insert_self [TransCmp cmp] (h : t.WF) {k : α} {fallback v : β} :
     getD (t.insert k v) k fallback = v :=
   DTreeMap.Raw.Const.getD_insert_self h
 
-theorem getD_eq_fallback_of_contains_eq_false [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
+theorem getElemD_eq_fallback_of_contains_eq_false [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
     t.contains a = false → getD t a fallback = fallback :=
   DTreeMap.Raw.Const.getD_eq_fallback_of_contains_eq_false h
 
-theorem getD_eq_fallback [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
+theorem getElemD_eq_fallback [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
     ¬ a ∈ t → getD t a fallback = fallback :=
   DTreeMap.Raw.Const.getD_eq_fallback h
 
-theorem getD_erase [TransCmp cmp] (h : t.WF) {k a : α} {fallback : β} :
+theorem getElemD_erase [TransCmp cmp] (h : t.WF) {k a : α} {fallback : β} :
     getD (t.erase k) a fallback = if cmp k a = .eq then
       fallback
     else
@@ -399,15 +399,15 @@ theorem getD_erase [TransCmp cmp] (h : t.WF) {k a : α} {fallback : β} :
   DTreeMap.Raw.Const.getD_erase h
 
 @[simp]
-theorem getD_erase_self [TransCmp cmp] (h : t.WF) {k : α} {fallback : β} :
+theorem getElemD_erase_self [TransCmp cmp] (h : t.WF) {k : α} {fallback : β} :
     getD (t.erase k) k fallback = fallback :=
   DTreeMap.Raw.Const.getD_erase_self h
 
-theorem getElem?_eq_some_getD_of_contains [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
+theorem getElem?_eq_some_getElemD_of_contains [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
     t.contains a = true → get? t a = some (getD t a fallback) :=
   DTreeMap.Raw.Const.get?_eq_some_getD_of_contains h
 
-theorem getElem?_eq_some_getD [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
+theorem getElem?_eq_some_getElemD [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
     a ∈ t → t[a]? = some (getD t a fallback) :=
   DTreeMap.Raw.Const.get?_eq_some_getD h
 
@@ -415,15 +415,15 @@ theorem getD_eq_getD_getElem? [TransCmp cmp] (h : t.WF) {a : α} {fallback : β}
     getD t a fallback = t[a]?.getD fallback :=
   DTreeMap.Raw.Const.getD_eq_getD_get? h
 
-theorem getElem_eq_getD [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} {h'} :
+theorem getElem_eq_getElemD [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} {h'} :
     t[a]'h' = getD t a fallback :=
   DTreeMap.Raw.Const.get_eq_getD h
 
-theorem getElem!_eq_getD_default [TransCmp cmp] [Inhabited β] (h : t.WF) {a : α} :
+theorem getElem!_eq_getElemD_default [TransCmp cmp] [Inhabited β] (h : t.WF) {a : α} :
     t[a]! = getD t a default :=
   DTreeMap.Raw.Const.get!_eq_getD_default h
 
-theorem getD_congr [TransCmp cmp] (h : t.WF) {a b : α} {fallback : β}
+theorem getElemD_congr [TransCmp cmp] (h : t.WF) {a b : α} {fallback : β}
     (hab : cmp a b = .eq) : getD t a fallback = getD t b fallback :=
   DTreeMap.Raw.Const.getD_congr h hab
 

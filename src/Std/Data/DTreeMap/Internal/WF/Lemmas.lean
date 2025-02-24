@@ -568,7 +568,7 @@ theorem get?_eq_getValueCast? [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {
 ''' `get`
 -/
 
-theorem contains_eq_get?ₘ_isSome [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t : Impl α β}
+theorem contains_eq_isSome_get?ₘ [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t : Impl α β}
     (hto : t.Ordered) : contains k t = (t.get?ₘ k).isSome := by
   rw [get?ₘ_eq_getValueCast? hto, contains_eq_containsKey hto, containsKey_eq_isSome_getValueCast?]
 
@@ -582,7 +582,7 @@ theorem getₘ_eq_getValueCast [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} 
 theorem get_eq_getValueCast [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t : Impl α β} {h}
     (hto : t.Ordered): t.get k h = getValueCast k t.toListModel (contains_eq_containsKey hto ▸ h) := by
   rw [get_eq_getₘ, getₘ_eq_getValueCast _ hto]
-  exact contains_eq_get?ₘ_isSome hto ▸ h
+  exact contains_eq_isSome_get?ₘ hto ▸ h
 
 /-!
 ''' `get!`
@@ -637,7 +637,7 @@ theorem get?_eq_getValue? [Ord α] [TransOrd α] {k : α} {t : Impl α (fun _ =>
 ''' `get`
 -/
 
-theorem contains_eq_get?ₘ_isSome [Ord α] [TransOrd α] {k : α} {t : Impl α β}
+theorem contains_eq_isSome_get?ₘ [Ord α] [TransOrd α] {k : α} {t : Impl α β}
     (hto : t.Ordered) : contains k t = (get?ₘ t k).isSome := by
   rw [get?ₘ_eq_getValue? hto, contains_eq_containsKey hto, containsKey_eq_isSome_getValue?]
 
@@ -651,7 +651,7 @@ theorem getₘ_eq_getValue [Ord α] [TransOrd α] {k : α} {t : Impl α β} (h) 
 theorem get_eq_getValue [Ord α] [TransOrd α] {k : α} {t : Impl α β} {h}
     (hto : t.Ordered): get t k h = getValue k t.toListModel (contains_eq_containsKey hto ▸ h) := by
   rw [get_eq_getₘ, getₘ_eq_getValue _ hto]
-  exact contains_eq_get?ₘ_isSome hto ▸ h
+  exact contains_eq_isSome_get?ₘ hto ▸ h
 
 /-!
 ''' `get!`
@@ -678,7 +678,6 @@ theorem getD_eq_getValueD [Ord α] [TransOrd α] {k : α}
     {t : Impl α β} {fallback : β} (hto : t.Ordered) :
     getD t k fallback = getValueD k t.toListModel fallback := by
   rw [getD_eq_getDₘ, getDₘ_eq_getValueD hto]
-
 
 end Const
 

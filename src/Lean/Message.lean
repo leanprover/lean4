@@ -490,6 +490,10 @@ def indentD (msg : MessageData) : MessageData :=
 def indentExpr (e : Expr) : MessageData :=
   indentD e
 
+/-- Atom quotes -/
+def aquote (msg : MessageData) : MessageData :=
+  "「" ++ msg ++ "」"
+
 class AddMessageContext (m : Type → Type) where
   /--
   Without context, a `MessageData` object may be missing information

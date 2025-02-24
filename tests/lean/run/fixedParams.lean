@@ -4,8 +4,14 @@ set_option trace.Elab.definition.fixedParams true
 
 namespace Ex1
 
-/-- info: [Elab.definition.fixedParams] getFixedParams: [[], []] -/
-#guard_msgs(info) in
+/--
+error: well-founded recursion cannot be used, 'Ex1.foo' does not take any (non-fixed) arguments
+---
+info: [Elab.definition.fixedParams] getFixedParams:
+      • ⏎
+      •
+-/
+#guard_msgs in
 mutual
 def foo : Nat := bar
 def bar : Nat := foo
@@ -33,11 +39,13 @@ end Ex2
 
 namespace Ex3
 /--
+error: well-founded recursion cannot be used, 'Ex3.foo' does not take any (non-fixed) arguments
+---
 info: [Elab.definition.fixedParams] getFixedParams:
       • [#1 #2] [#2 #1]
       • [#2 #1] [#1 #2]
 -/
-#guard_msgs(info) in
+#guard_msgs in
 mutual
 def foo (n : Nat) (m : Nat) : Nat := bar m n
 decreasing_by all_goals exact test_sorry
@@ -48,11 +56,13 @@ end Ex3
 
 namespace Ex4
 /--
+error: unknown goal
+---
 info: [Elab.definition.fixedParams] getFixedParams:
       • [#1 #3] ❌ [#3 #1] ❌
       • [#3 #1] ❌ [#1 #3] ❌
 -/
-#guard_msgs(info) in
+#guard_msgs in
 mutual
 def foo (a : Nat) (n : Nat) (d : Nat) (m : Nat) : Nat := bar d m a n
 decreasing_by exact test_sorry

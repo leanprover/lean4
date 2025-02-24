@@ -69,6 +69,19 @@ private partial def shrink (a : PArray Int) (sz : Nat) : PArray Int :=
 def resetAssignmentFrom (x : Var) : GoalM Unit := do
   modify' fun s => { s with assignment := shrink s.assignment x }
 
+def _root_.Int.Linear.Poly.pp (p : Poly) : GoalM MessageData := do
+  match p with
+  | .num k => return m!"{k}"
+  | .add 1 x p => go (aquote (← getVar x)) p
+  | .add k x p => go m!"{k}*{aquote (← getVar x)}" p
+where
+  go (r : MessageData)  (p : Int.Linear.Poly) : GoalM MessageData := do
+    match p with
+    | .num 0 => return r
+    | .num k => return m!"{r}+ {k}"
+    | .add 1 x p => go m!"{r}+{aquote (← getVar x)}" p
+    | .add k x p => go m!"{r}+ {k}*{aquote (← getVar x)}" p
+
 def _root_.Int.Linear.Poly.denoteExpr' (p : Poly) : GoalM Expr := do
   let vars ← getVars
   return (← p.denoteExpr (vars[·]!))
@@ -78,33 +91,42 @@ def DvdCnstr.isTrivial (c : DvdCnstr) : Bool :=
   | .num k' => k' % c.d == 0
   | _ => c.d == 1
 
+def DvdCnstr.pp (c : DvdCnstr) : GoalM MessageData := do
+  return m!"{c.d} ∣ {← c.p.pp}"
+
 def DvdCnstr.denoteExpr (c : DvdCnstr) : GoalM Expr := do
   return mkIntDvd (toExpr c.d) (← c.p.denoteExpr')
 
 def DvdCnstr.throwUnexpected (c : DvdCnstr) : GoalM α := do
-  throwError "`grind` internal error, unexpected{indentExpr (← c.denoteExpr)} "
+  throwError "`grind` internal error, unexpected{indentD (← c.pp)} "
 
 def LeCnstr.isTrivial (c : LeCnstr) : Bool :=
   match c.p with
   | .num k => k ≤ 0
   | _ => false
 
+def LeCnstr.pp (c : LeCnstr) : GoalM MessageData := do
+  return m!"{← c.p.pp} ≤ 0"
+
 def LeCnstr.denoteExpr (c : LeCnstr) : GoalM Expr := do
   return mkIntLE (← c.p.denoteExpr') (mkIntLit 0)
 
 def LeCnstr.throwUnexpected (c : LeCnstr) : GoalM α := do
-  throwError "`grind` internal error, unexpected{indentExpr (← c.denoteExpr)}"
+  throwError "`grind` internal error, unexpected{indentD (← c.pp)}"
 
 def EqCnstr.isTrivial (c : LeCnstr) : Bool :=
   match c.p with
   | .num k => k == 0
   | _ => false
 
+def EqCnstr.pp (c : EqCnstr) : GoalM MessageData := do
+  return m!"{← c.p.pp} = 0"
+
 def EqCnstr.denoteExpr (c : EqCnstr) : GoalM Expr := do
   return mkIntEq (← c.p.denoteExpr') (mkIntLit 0)
 
 def EqCnstr.throwUnexpected (c : LeCnstr) : GoalM α := do
-  throwError "`grind` internal error, unexpected{indentExpr (← c.denoteExpr)}"
+  throwError "`grind` internal error, unexpected{indentD (← c.pp)}"
 
 /-- Returns occurrences of `x`. -/
 def getOccursOf (x : Var) : GoalM (PHashSet Var) :=

@@ -2,8 +2,8 @@ set_option grind.warning false
 set_option grind.debug true
 
 /--
-info: [grind.cutsat.assign] a := 3
-[grind.cutsat.assign] b := -1
+info: [grind.cutsat.assign] 「a」:= 3
+[grind.cutsat.assign] 「b」:= -1
 -/
 #guard_msgs (info) in
 set_option trace.grind.cutsat.assign true in

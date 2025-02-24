@@ -40,7 +40,7 @@ private def internalizeCore (e : Expr) (parent? : Option Expr) (k : SupportedTer
   if isForbiddenParent parent? k then return ()
   let p ← toPoly e
   markAsCutsatTerm e
-  trace[grind.cutsat.internalize] "{aquote e}:= {← p.denoteExpr'}"
+  trace[grind.cutsat.internalize] "{aquote e}:= {← p.pp}"
   modify' fun s => { s with terms := s.terms.insert { expr := e } p }
 
 /--

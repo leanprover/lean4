@@ -864,17 +864,28 @@ private theorem dvd_of_eq' {a x p : Int} : a*x + p = 0 → a ∣ p := by
   rw [Int.mul_comm, ← Int.neg_mul, Eq.comm, Int.mul_comm] at h
   exact ⟨-x, h⟩
 
+private def abs (x : Int) : Int :=
+  Int.ofNat x.natAbs
+
+private theorem abs_dvd {a p : Int} (h : a ∣ p) : abs a ∣ p := by
+  cases a <;> simp [abs]
+  · simp at h; assumption
+  · simp [Int.negSucc_eq] at h; assumption
+
 def dvd_of_eq_cert (x : Var) (p₁ : Poly) (d₂ : Int) (p₂ : Poly) : Bool :=
-  d₂ == p₁.coeff x && p₂ == p₁.insert (-d₂) x
+  let a := p₁.coeff x
+  d₂ == abs a && p₂ == p₁.insert (-a) x
 
 theorem dvd_of_eq (ctx : Context) (x : Var) (p₁ : Poly) (d₂ : Int) (p₂ : Poly)
     : dvd_of_eq_cert x p₁ d₂ p₂ → p₁.denote' ctx = 0 → d₂ ∣ p₂.denote' ctx := by
   simp [dvd_of_eq_cert]
   intro h₁ h₂
   have h := eq_add_coeff_insert ctx p₁ x
-  rw [← h₁, ← h₂] at h
-  rw [h]
-  apply dvd_of_eq'
+  rw [← h₂] at h
+  rw [h, h₁]
+  intro h₃
+  apply abs_dvd
+  apply dvd_of_eq' h₃
 
 private theorem eq_dvd_subst' {a x p d b q : Int} : a*x + p = 0 → d ∣ b*x + q → a*d ∣ a*q - b*p := by
   intro h₁ ⟨z, h₂⟩
@@ -892,7 +903,7 @@ def eq_dvd_subst_cert (x : Var) (p₁ : Poly) (d₂ : Int) (p₂ : Poly) (d₃ :
   let b := p₂.coeff x
   let p := p₁.insert (-a) x
   let q := p₂.insert (-b) x
-  d₃ == a * d₂ &&
+  d₃ == abs (a * d₂) &&
   p₃ == (q.mul a |>.combine (p.mul (-b)))
 
 theorem eq_dvd_subst (ctx : Context) (x : Var) (p₁ : Poly) (d₂ : Int) (p₂ : Poly) (d₃ : Int) (p₃ : Poly)
@@ -913,6 +924,7 @@ theorem eq_dvd_subst (ctx : Context) (x : Var) (p₁ : Poly) (d₂ : Int) (p₂ 
   rw [Int.add_comm] at h₁ h₂
   have := eq_dvd_subst' h₁ h₂
   rw [Int.sub_eq_add_neg, Int.add_comm] at this
+  apply abs_dvd
   simp [this]
 
 private theorem eq_eq_subst' {a x p b q : Int} : a*x + p = 0 → b*x + q = 0 → b*p - a*q = 0 := by

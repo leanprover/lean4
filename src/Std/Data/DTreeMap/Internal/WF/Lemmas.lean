@@ -619,7 +619,7 @@ variable {β : Type v}
 -/
 
 theorem get?ₘ_eq_getValue? [Ord α] [TransOrd α] {k : α} {t : Impl α (fun _ => β)} (hto : t.Ordered) :
-    get?ₘ k t = getValue? k t.toListModel := by
+    get?ₘ t k = getValue? k t.toListModel := by
   rw [get?ₘ, applyCell_eq_apply_toListModel hto (fun l _ => getValue? k l)]
   · rintro ⟨(_|p), hp⟩ -
     · simp [Cell.Const.get?]
@@ -630,7 +630,7 @@ theorem get?ₘ_eq_getValue? [Ord α] [TransOrd α] {k : α} {t : Impl α (fun _
   · exact fun l₁ l₂ h => getValue?_append_of_containsKey_eq_false
 
 theorem get?_eq_getValue? [Ord α] [TransOrd α] {k : α} {t : Impl α (fun _ => β)} (hto : t.Ordered) :
-    get? k t = getValue? k t.toListModel := by
+    get? t k = getValue? k t.toListModel := by
   rw [get?_eq_get?ₘ, get?ₘ_eq_getValue? hto]
 
 /-!
@@ -638,18 +638,18 @@ theorem get?_eq_getValue? [Ord α] [TransOrd α] {k : α} {t : Impl α (fun _ =>
 -/
 
 theorem contains_eq_get?ₘ_isSome [Ord α] [TransOrd α] {k : α} {t : Impl α β}
-    (hto : t.Ordered) : contains k t = (get?ₘ k t).isSome := by
+    (hto : t.Ordered) : contains k t = (get?ₘ t k).isSome := by
   rw [get?ₘ_eq_getValue? hto, contains_eq_containsKey hto, containsKey_eq_isSome_getValue?]
 
 theorem getₘ_eq_getValue [Ord α] [TransOrd α] {k : α} {t : Impl α β} (h) {h'}
-    (hto : t.Ordered) : getₘ k t h' = getValue k t.toListModel h := by
+    (hto : t.Ordered) : getₘ t k h' = getValue k t.toListModel h := by
   simp only [getₘ]
   revert h'
   rw [get?ₘ_eq_getValue? hto]
   simp [getValue?_eq_some_getValue ‹_›]
 
 theorem get_eq_getValue [Ord α] [TransOrd α] {k : α} {t : Impl α β} {h}
-    (hto : t.Ordered): get k t h = getValue k t.toListModel (contains_eq_containsKey hto ▸ h) := by
+    (hto : t.Ordered): get t k h = getValue k t.toListModel (contains_eq_containsKey hto ▸ h) := by
   rw [get_eq_getₘ, getₘ_eq_getValue _ hto]
   exact contains_eq_get?ₘ_isSome hto ▸ h
 
@@ -658,11 +658,11 @@ theorem get_eq_getValue [Ord α] [TransOrd α] {k : α} {t : Impl α β} {h}
 -/
 
 theorem get!ₘ_eq_getValue! [Ord α] [TransOrd α] {k : α} [Inhabited β]
-    {t : Impl α β} (hto : t.Ordered) : get!ₘ k t = getValue! k t.toListModel := by
+    {t : Impl α β} (hto : t.Ordered) : get!ₘ t k = getValue! k t.toListModel := by
   simp [get!ₘ, get?ₘ_eq_getValue? hto, getValue!_eq_getValue?]
 
 theorem get!_eq_getValue! [Ord α] [TransOrd α] {k : α} [Inhabited β]
-    {t : Impl α β} (hto : t.Ordered) : get! k t = getValue! k t.toListModel := by
+    {t : Impl α β} (hto : t.Ordered) : get! t k = getValue! k t.toListModel := by
   rw [get!_eq_get!ₘ, get!ₘ_eq_getValue! hto]
 
 /-!
@@ -671,12 +671,12 @@ theorem get!_eq_getValue! [Ord α] [TransOrd α] {k : α} [Inhabited β]
 
 theorem getDₘ_eq_getValueD [Ord α] [TransOrd α] {k : α}
     {t : Impl α β} {fallback : β} (hto : t.Ordered) :
-    getDₘ k t fallback = getValueD k t.toListModel fallback := by
+    getDₘ t k fallback = getValueD k t.toListModel fallback := by
   simp [getDₘ, get?ₘ_eq_getValue? hto, getValueD_eq_getValue?]
 
 theorem getD_eq_getValueD [Ord α] [TransOrd α] {k : α}
     {t : Impl α β} {fallback : β} (hto : t.Ordered) :
-    getD k t fallback = getValueD k t.toListModel fallback := by
+    getD t k fallback = getValueD k t.toListModel fallback := by
   rw [getD_eq_getDₘ, getDₘ_eq_getValueD hto]
 
 

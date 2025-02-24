@@ -490,68 +490,68 @@ namespace Const
 
 variable {β : Type v} {t : Impl α β}
 
-theorem get?_empty [TransOrd α] {a : α} : get? a (empty : Impl α β) = none := by
+theorem get?_empty [TransOrd α] {a : α} : get? (empty : Impl α β) a = none := by
   simp_to_model using List.getValue?_nil
 
 theorem get?_of_isEmpty [TransOrd α] (h : t.WF) {a : α} :
-    t.isEmpty = true → get? a t = none := by
+    t.isEmpty = true → get? t a = none := by
   simp_to_model; empty
 
 theorem get?_insert [TransOrd α] (h : t.WF) {a k : α} {v : β} :
-    get? a (t.insert k v h.balanced).impl =
-      if compare k a = .eq then some v else get? a t := by
+    get? (t.insert k v h.balanced).impl a =
+      if compare k a = .eq then some v else get? t a := by
   simp_to_model [insert] using List.getValue?_insertEntry
 
 theorem get?_insert! [TransOrd α] (h : t.WF) {a k : α} {v : β} :
-    get? a (t.insert! k v) =
-      if compare k a = .eq then some v else get? a t := by
+    get? (t.insert! k v) a =
+      if compare k a = .eq then some v else get? t a := by
   simp_to_model [insert!] using List.getValue?_insertEntry
 
 theorem get?_insert_self [TransOrd α] (h : t.WF) {k : α} {v : β} :
-    get? k (t.insert k v h.balanced).impl = some v := by
+    get? (t.insert k v h.balanced).impl k = some v := by
   simp_to_model [insert] using List.getValue?_insertEntry_self
 
 theorem get?_insert!_self [TransOrd α] (h : t.WF) {k : α} {v : β} :
-    get? k (t.insert! k v) = some v := by
+    get? (t.insert! k v) k = some v := by
   simp_to_model [insert!] using List.getValue?_insertEntry_self
 
 theorem contains_eq_isSome_get? [TransOrd α] (h : t.WF) {a : α} :
-    t.contains a = (get? a t).isSome := by
+    t.contains a = (get? t a).isSome := by
   simp_to_model using List.containsKey_eq_isSome_getValue?
 
 theorem mem_iff_isSome_get? [TransOrd α] (h : t.WF) {a : α} :
-    a ∈ t ↔ (get? a t).isSome := by
+    a ∈ t ↔ (get? t a).isSome := by
   simpa [mem_iff_contains] using contains_eq_isSome_get? h
 
 theorem get?_eq_none_of_contains_eq_false [TransOrd α] (h : t.WF) {a : α} :
-    t.contains a = false → get? a t = none := by
+    t.contains a = false → get? t a = none := by
   simp_to_model using List.getValue?_eq_none.mpr
 
 theorem get?_eq_none [TransOrd α] (h : t.WF) {a : α} :
-    ¬ a ∈ t → get? a t = none := by
+    ¬ a ∈ t → get? t a = none := by
   simpa [mem_iff_contains] using get?_eq_none_of_contains_eq_false h
 
 theorem get?_erase [TransOrd α] (h : t.WF) {k a : α} :
-    get? a (t.erase k h.balanced).impl = if compare k a = .eq then none else get? a t := by
+    get? (t.erase k h.balanced).impl a = if compare k a = .eq then none else get? t a := by
   simp_to_model [erase] using List.getValue?_eraseKey
 
 theorem get?_erase! [TransOrd α] (h : t.WF) {k a : α} :
-    get? a (t.erase! k) = if compare k a = .eq then none else get? a t := by
+    get? (t.erase! k) a = if compare k a = .eq then none else get? t a := by
   simp_to_model [erase!] using List.getValue?_eraseKey
 
 theorem get?_erase_self [TransOrd α] (h : t.WF) {k : α} :
-    get? k (t.erase k h.balanced).impl = none := by
+    get? (t.erase k h.balanced).impl k = none := by
   simp_to_model [erase] using List.getValue?_eraseKey_self
 
 theorem get?_erase!_self [TransOrd α] (h : t.WF) {k : α} :
-    get? k (t.erase! k) = none := by
+    get? (t.erase! k) k = none := by
   simp_to_model [erase!] using List.getValue?_eraseKey_self
 
-theorem get?_eq_get? [LawfulEqOrd α] [TransOrd α] (h : t.WF) {a : α} : get? a t = t.get? a := by
+theorem get?_eq_get? [LawfulEqOrd α] [TransOrd α] (h : t.WF) {a : α} : get? t a = t.get? a := by
   simp_to_model using List.getValue?_eq_getValueCast?
 
 theorem get?_congr [TransOrd α] (h : t.WF) {a b : α} (hab : compare a b = .eq) :
-    get? a t = get? b t := by
+    get? t a = get? t b := by
   revert hab
   simp_to_model using List.getValue?_congr
 
@@ -582,36 +582,36 @@ namespace Const
 variable {β : Type v} {t : Impl α β} (h : t.WF)
 
 theorem get_insert [TransOrd α] (h : t.WF) {k a : α} {v : β} {h₁} :
-    get a (t.insert k v h.balanced).impl h₁ =
+    get (t.insert k v h.balanced).impl a h₁ =
       if h₂ : compare k a = .eq then v
-      else get a t (contains_of_contains_insert h h₁ h₂) := by
+      else get t a (contains_of_contains_insert h h₁ h₂) := by
   simp_to_model [insert] using List.getValue_insertEntry
 
 theorem get_insert_self [TransOrd α] (h : t.WF) {k : α} {v : β} :
-    get k (t.insert k v h.balanced).impl (contains_insert_self h) = v := by
+    get (t.insert k v h.balanced).impl k (contains_insert_self h) = v := by
   simp_to_model [insert] using List.getValue_insertEntry_self
 
 @[simp]
 theorem get_erase [TransOrd α] (h : t.WF) {k a : α} {h'} :
-    get a (t.erase k h.balanced).impl h' = get a t (contains_of_contains_erase h h') := by
+    get (t.erase k h.balanced).impl a h' = get t a (contains_of_contains_erase h h') := by
   simp_to_model [erase] using List.getValue_eraseKey
 
 theorem get?_eq_some_get [TransOrd α] (h : t.WF) {a : α} {h} :
-    get? a t = some (get a t h) := by
+    get? t a = some (get t a h) := by
   simp_to_model using List.getValue?_eq_some_getValue
 
-theorem get_eq_get [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {h} : get a t h = t.get a h := by
+theorem get_eq_get [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {h} : get t a h = t.get a h := by
   simp_to_model using List.getValue_eq_getValueCast
 
 theorem get_congr [TransOrd α] (h : t.WF) {a b : α} (hab : compare a b = .eq) {h'} :
-    get a t h' = get b t ((contains_congr h hab).symm.trans h') := by
+    get t a h' = get t b ((contains_congr h hab).symm.trans h') := by
   revert hab h'
   simp_to_model using List.getValue_congr
 
 end Const
 
 theorem get!_empty [TransOrd α] [LawfulEqOrd α] {a : α} [Inhabited (β a)] :
-    get! a (empty : Impl α β) = default := by
+    get! (empty : Impl α β) a = default := by
   simp_to_model using List.getValueCast!_nil
 
 theorem get!_of_isEmpty [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inhabited (β a)] :
@@ -656,51 +656,51 @@ namespace Const
 variable {β : Type v} (t : Impl α β) (h : t.WF)
 
 theorem get!_empty [TransOrd α] [Inhabited β] {a : α} :
-    get! a (empty : Impl α β) = default := by
+    get! (empty : Impl α β) a = default := by
   simp_to_model using List.getValue!_nil
 
 theorem get!_of_isEmpty [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
-    t.isEmpty = true → get! a t = default := by
+    t.isEmpty = true → get! t a = default := by
   simp_to_model; empty
 
 theorem get!_insert [TransOrd α] [Inhabited β] (h : t.WF) {k a : α} {v : β} :
-    get! a (t.insert k v h.balanced).impl = if compare k a = .eq then v else get! a t := by
+    get! (t.insert k v h.balanced).impl a = if compare k a = .eq then v else get! t a := by
   simp_to_model [insert] using List.getValue!_insertEntry
 
 theorem get!_insert_self [TransOrd α] [Inhabited β] (h : t.WF) {k : α}
-    {v : β} : get! k (t.insert k v h.balanced).impl = v := by
+    {v : β} : get! (t.insert k v h.balanced).impl k = v := by
   simp_to_model [insert] using List.getValue!_insertEntry_self
 
 theorem get!_eq_default [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
-    t.contains a = false → get! a t = default := by
+    t.contains a = false → get! t a = default := by
   simp_to_model using List.getValue!_eq_default
 
 theorem get!_erase [TransOrd α] [Inhabited β] (h : t.WF) {k a : α} :
-    get! a (t.erase k h.balanced).impl = if compare k a = .eq then default else get! a t := by
+    get! (t.erase k h.balanced).impl a = if compare k a = .eq then default else get! t a := by
   simp_to_model [erase] using List.getValue!_eraseKey
 
 theorem get!_erase_self [TransOrd α] [Inhabited β] (h : t.WF) {k : α} :
-    get! k (t.erase k h.balanced).impl = default := by
+    get! (t.erase k h.balanced).impl k = default := by
   simp_to_model [erase] using List.getValue!_eraseKey_self
 
 theorem get?_eq_some_get! [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
-    t.contains a = true → get? a t = some (get! a t) := by
+    t.contains a = true → get? t a = some (get! t a) := by
   simp_to_model using List.getValue?_eq_some_getValue!
 
 theorem get!_eq_get!_get? [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
-    get! a t = (get? a t).get! := by
+    get! t a = (get? t a).get! := by
   simp_to_model using List.getValue!_eq_getValue?
 
 theorem get_eq_get! [TransOrd α] [Inhabited β] (h : t.WF) {a : α} {h} :
-    get a t h = get! a t := by
+    get t a h = get! t a := by
   simp_to_model using List.getValue_eq_getValue!
 
 theorem get!_eq_get! [TransOrd α] [LawfulEqOrd α] [Inhabited β] (h : t.WF) {a : α} :
-    get! a t = t.get! a := by
+    get! t a = t.get! a := by
   simp_to_model using List.getValue!_eq_getValueCast!
 
 theorem get!_congr [TransOrd α] [Inhabited β] (h : t.WF) {a b : α}
-    (hab : compare a b = .eq) : get! a t = get! b t := by
+    (hab : compare a b = .eq) : get! t a = get! t b := by
   revert hab
   simp_to_model using List.getValue!_congr
 
@@ -757,58 +757,58 @@ namespace Const
 variable {β : Type v} (t : Impl α β) (h : t.WF)
 
 theorem getD_empty [TransOrd α] {a : α} {fallback : β} :
-    getD a (empty : Impl α β) fallback = fallback := by
+    getD (empty : Impl α β) a fallback = fallback := by
   simp_to_model using List.getValueD_nil
 
 theorem getD_of_isEmpty [TransOrd α] (h : t.WF) {a : α} {fallback : β} :
-    t.isEmpty = true → getD a t fallback = fallback := by
+    t.isEmpty = true → getD t a fallback = fallback := by
   simp_to_model; empty
 
 theorem getD_insert [TransOrd α] (h : t.WF) {k a : α} {fallback v : β} :
-    getD a (t.insert k v h.balanced).impl fallback = if compare k a = .eq then v else getD a t fallback := by
+    getD (t.insert k v h.balanced).impl a fallback = if compare k a = .eq then v else getD t a fallback := by
   simp_to_model [insert] using List.getValueD_insertEntry
 
 theorem getD_insert_self [TransOrd α] (h : t.WF) {k : α} {fallback v : β} :
-    getD k (t.insert k v h.balanced).impl fallback = v := by
+    getD (t.insert k v h.balanced).impl k fallback = v := by
   simp_to_model [insert] using List.getValueD_insertEntry_self
 
 theorem getD_eq_fallback [TransOrd α] (h : t.WF) {a : α} {fallback : β} :
-    t.contains a = false → getD a t fallback = fallback := by
+    t.contains a = false → getD t a fallback = fallback := by
   simp_to_model using List.getValueD_eq_fallback
 
 theorem getD_erase [TransOrd α] (h : t.WF) {k a : α} {fallback : β} :
-    getD a (t.erase k h.balanced).impl fallback = if compare k a = .eq then
+    getD (t.erase k h.balanced).impl a fallback = if compare k a = .eq then
       fallback
     else
-      getD a t fallback := by
+      getD t a fallback := by
   simp_to_model [erase] using List.getValueD_eraseKey
 
 theorem getD_erase_self [TransOrd α] (h : t.WF) {k : α} {fallback : β} :
-    getD k (t.erase k h.balanced).impl fallback = fallback := by
+    getD (t.erase k h.balanced).impl k fallback = fallback := by
   simp_to_model [erase] using List.getValueD_eraseKey_self
 
 theorem get?_eq_some_getD [TransOrd α] (h : t.WF) {a : α} {fallback : β} :
-    t.contains a = true → get? a t = some (getD a t fallback) := by
+    t.contains a = true → get? t a = some (getD t a fallback) := by
   simp_to_model using List.getValue?_eq_some_getValueD
 
 theorem getD_eq_getD_get? [TransOrd α] (h : t.WF) {a : α} {fallback : β} :
-    getD a t fallback = (get? a t).getD fallback := by
+    getD t a fallback = (get? t a).getD fallback := by
   simp_to_model using List.getValueD_eq_getValue?
 
 theorem get_eq_getD [TransOrd α] (h : t.WF) {a : α} {fallback : β} {h} :
-    get a t h = getD a t fallback := by
+    get t a h = getD t a fallback := by
   simp_to_model using List.getValue_eq_getValueD
 
 theorem get!_eq_getD_default [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
-    get! a t = getD a t default := by
+    get! t a = getD t a default := by
   simp_to_model using List.getValue!_eq_getValueD_default
 
 theorem getD_eq_getD [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fallback : β} :
-    getD a t fallback = t.getD a fallback := by
+    getD t a fallback = t.getD a fallback := by
   simp_to_model using List.getValueD_eq_getValueCastD
 
 theorem getD_congr [TransOrd α] (h : t.WF) {a b : α} {fallback : β}
-    (hab : compare a b = .eq) : getD a t fallback = getD b t fallback := by
+    (hab : compare a b = .eq) : getD t a fallback = getD t b fallback := by
   revert hab
   simp_to_model using List.getValueD_congr
 

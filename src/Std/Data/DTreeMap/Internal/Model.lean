@@ -202,38 +202,37 @@ def updateCell [Ord α] (k : α) (f : Cell α β (compare k) → Cell α β (com
 Model implementation of the `contains` function.
 Internal implementation detail of the tree map
 -/
-def containsₘ [Ord α] (k : α) (l : Impl α β) : Bool :=
+def containsₘ [Ord α] (l : Impl α β) (k : α) : Bool :=
   applyCell k l fun c _ => c.contains
 
 /--
 Model implementation of the `get?` function.
 Internal implementation detail of the tree map
 -/
-def get?ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) : Option (β k) :=
+def get?ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (l : Impl α β) (k : α) : Option (β k) :=
   applyCell k l fun c _ => c.get?
 
 /--
 Model implementation of the `get` function.
 Internal implementation detail of the tree map
 -/
-def getₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) (h : (get?ₘ k l).isSome) :
+def getₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (l : Impl α β) (k : α) (h : (get?ₘ l k).isSome) :
     β k :=
-  get?ₘ k l |>.get h
+  get?ₘ l k |>.get h
 
 /--
 Model implementation of the `get!` function.
 Internal implementation detail of the tree map
 -/
-def get!ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) [Inhabited (β k)]
-    (l : Impl α β) : β k :=
-  get?ₘ k l |>.get!
+def get!ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (l : Impl α β) (k : α) [Inhabited (β k)] : β k :=
+  get?ₘ l k |>.get!
 
 /--
 Model implementation of the `getD` function.
 Internal implementation detail of the tree map
 -/
 def getDₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) (fallback : β k) : β k :=
-  get?ₘ k l |>.getD fallback
+  get?ₘ l k |>.getD fallback
 
 /--
 Model implementation of the `insert` function.
@@ -274,31 +273,30 @@ variable {β : Type v}
 Model implementation of the `get?` function.
 Internal implementation detail of the tree map
 -/
-def get?ₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) : Option β :=
+def get?ₘ [Ord α] (l : Impl α (fun _ => β)) (k : α) : Option β :=
   applyCell k l fun c _ => Cell.Const.get? c
 
 /--
 Model implementation of the `get` function.
 Internal implementation detail of the tree map
 -/
-def getₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) (h : (get?ₘ k l).isSome) :
+def getₘ [Ord α] (l : Impl α (fun _ => β)) (k : α) (h : (get?ₘ l k).isSome) :
     β :=
-  get?ₘ k l |>.get h
+  get?ₘ l k |>.get h
 
 /--
 Model implementation of the `get!` function.
 Internal implementation detail of the tree map
 -/
-def get!ₘ [Ord α] (k : α) [Inhabited β]
-    (l : Impl α (fun _ => β)) : β :=
-  get?ₘ k l |>.get!
+def get!ₘ [Ord α] (l : Impl α (fun _ => β)) (k : α) [Inhabited β] : β :=
+  get?ₘ l k |>.get!
 
 /--
 Model implementation of the `getD` function.
 Internal implementation detail of the tree map
 -/
-def getDₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) (fallback : β) : β :=
-  get?ₘ k l |>.getD fallback
+def getDₘ [Ord α] (l : Impl α (fun _ => β)) (k : α) (fallback : β) : β :=
+  get?ₘ l k |>.getD fallback
 
 /--
 Model implementation of the `alter` function.
@@ -545,7 +543,7 @@ namespace Const
 variable {β : Type v}
 
 theorem get?_eq_get?ₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) :
-    Const.get? k l = Const.get?ₘ k l := by
+    Const.get? l k = Const.get?ₘ l k := by
   simp only [Const.get?ₘ]
   induction l
   · simp only [applyCell, Const.get?]
@@ -554,19 +552,19 @@ theorem get?_eq_get?ₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) :
   · simp [Const.get?, applyCell]
 
 theorem get_eq_get? [Ord α] (k : α) (l : Impl α (fun _ => β)) {h} :
-    get k l h = get? k l := by
+    get l k h = get? l k := by
   induction l
   · simp only [applyCell, get, get?]
     split <;> rename_i ihl ihr hcmp <;> simp_all
   · contradiction
 
 theorem get_eq_getₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) {h} (h') :
-    get k l h = getₘ k l h' := by
+    get l k h = getₘ l k h' := by
   apply Option.some.inj
   simp [get_eq_get?, get?_eq_get?ₘ, getₘ]
 
 theorem get!_eq_get!ₘ [Ord α] (k : α) [Inhabited β] (l : Impl α (fun _ => β)) :
-    get! k l = get!ₘ k l := by
+    get! l k = get!ₘ l k := by
   simp only [get!ₘ, get?ₘ]
   induction l
   · simp only [applyCell, get!]
@@ -575,7 +573,7 @@ theorem get!_eq_get!ₘ [Ord α] (k : α) [Inhabited β] (l : Impl α (fun _ => 
   · simp only [get!, applyCell, Option.get!_none]; rfl
 
 theorem getD_eq_getDₘ [Ord α] (k : α) (l : Impl α (fun _ => β))
-    (fallback : β) : getD k l fallback = getDₘ k l fallback := by
+    (fallback : β) : getD l k fallback = getDₘ l k fallback := by
   simp only [getDₘ, get?ₘ]
   induction l
   · simp only [applyCell, getD]

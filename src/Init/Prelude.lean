@@ -2150,17 +2150,6 @@ instance : Inhabited UInt64 where
 /-- The size of type `USize`, that is, `2^System.Platform.numBits`. -/
 abbrev USize.size : Nat := (hPow 2 System.Platform.numBits)
 
-theorem usize_size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
-  show Or (Eq (hPow 2 System.Platform.numBits) 4294967296) (Eq (hPow 2 System.Platform.numBits) 18446744073709551616) from
-  match System.Platform.numBits, System.Platform.numBits_eq with
-  | _, Or.inl rfl => Or.inl (of_decide_eq_true rfl)
-  | _, Or.inr rfl => Or.inr (of_decide_eq_true rfl)
-
-theorem usize_size_pos : LT.lt 0 USize.size :=
-  match USize.size, usize_size_eq with
-  | _, Or.inl rfl => of_decide_eq_true rfl
-  | _, Or.inr rfl => of_decide_eq_true rfl
-
 /--
 A `USize` is an unsigned integer with the size of a word
 for the platform's architecture.

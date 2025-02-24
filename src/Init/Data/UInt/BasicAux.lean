@@ -138,7 +138,23 @@ def UInt32.toUInt64 (a : UInt32) : UInt64 := ⟨⟨a.toNat, Nat.lt_trans a.toBit
 
 instance UInt64.instOfNat : OfNat UInt64 n := ⟨UInt64.ofNat n⟩
 
-@[deprecated usize_size_pos (since := "2024-11-24")] theorem usize_size_gt_zero : USize.size > 0 :=
+theorem USize.size_eq : USize.size = 4294967296 ∨ USize.size = 18446744073709551616 := by
+  cases System.Platform.numBits_eq <;> simp_all [size]
+
+@[deprecated USize.size_eq (since := "2025-02-24")]
+theorem usize_size_eq : USize.size = 4294967296 ∨ USize.size = 18446744073709551616 :=
+  USize.size_eq
+
+theorem USize.size_pos : 0 < USize.size :=
+  match USize.size, usize_size_eq with
+  | _, Or.inl rfl => of_decide_eq_true rfl
+  | _, Or.inr rfl => of_decide_eq_true rfl
+
+@[deprecated USize.size_pos (since := "2025-02-24")]
+theorem usize_size_pos : 0 < USize.size :=
+  USize.size_pos
+
+@[deprecated USize.size_pos (since := "2024-11-24")] theorem usize_size_gt_zero : USize.size > 0 :=
   usize_size_pos
 
 /-- Converts a `USize` into the corresponding `Fin USize.size`. -/

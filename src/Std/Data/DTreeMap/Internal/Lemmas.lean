@@ -298,6 +298,41 @@ theorem size_le_size_erase! [TransOrd α] (h : t.WF) {k : α} :
     t.size ≤ (t.erase! k).size + 1 := by
   simp_to_model [erase!] using List.length_le_length_eraseKey
 
+theorem containsThenInsert_fst [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsert k v h.balanced).1 = t.contains k := by
+  rw [containsThenInsert_fst_eq_containsₘ, contains_eq_containsₘ]
+  exact h.ordered
+
+theorem containsThenInsert!_fst [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsert! k v).1 = t.contains k := by
+  rw [containsThenInsert!_fst_eq_containsThenInsert_fst, containsThenInsert_fst h]
+
+theorem containsThenInsert_snd [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsert k v h.balanced).2.impl = (t.insert k v h.balanced).impl := by
+  rfl
+
+theorem containsThenInsert!_snd [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsert! k v).2 = t.insert! k v := by
+  rw [containsThenInsert!_snd_eq_containsThenInsert_snd _ h.balanced, containsThenInsert_snd h,
+    insert_eq_insert!]
+
+theorem containsThenInsertIfNew_fst [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsertIfNew k v h.balanced).1 = t.contains k := by
+  rw [containsThenInsertIfNew_fst_eq_containsₘ, contains_eq_containsₘ]
+
+theorem containsThenInsertIfNew!_fst [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsertIfNew! k v).1 = t.contains k := by
+  rw [containsThenInsertIfNew!_fst_eq_containsThenInsertIfNew_fst, containsThenInsertIfNew_fst h]
+
+theorem containsThenInsertIfNew_snd [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsertIfNew k v h.balanced).2.impl = (t.insertIfNew k v h.balanced).impl := by
+  rw [containsThenInsertIfNew_snd_eq_insertIfNew]
+
+theorem containsThenInsertIfNew!_snd [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsertIfNew! k v).2 = t.insertIfNew! k v := by
+  rw [containsThenInsertIfNew!_snd_eq_containsThenInsertIfNew_snd _ h.balanced, containsThenInsertIfNew_snd h,
+    insertIfNew_eq_insertIfNew!]
+
 theorem contains_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
     (t.insertIfNew k v h.balanced).impl.contains a = (k == a || t.contains a) := by
   simp_to_model [insertIfNew] using List.containsKey_insertEntryIfNew

@@ -704,7 +704,7 @@ theorem size_containsThenInsert_eq_size [Ord α] (t : Impl α β) :
     containsThenInsert.size t = t.size := by
   induction t <;> rfl
 
-theorem containsThenInsert_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β) (htb : t.Balanced)
+theorem containsThenInsert_fst_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β) (htb : t.Balanced)
     (ho : t.Ordered) (a : α) (b : β a) :
     (t.containsThenInsert a b htb).1 = t.containsₘ a := by
   simp [containsThenInsert, size_containsThenInsert_eq_size, size_eq_length, htb,
@@ -714,12 +714,12 @@ theorem containsThenInsert_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β
 
 theorem ordered_containsThenInsert [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β}
     (htb : t.Balanced) (hto : t.Ordered) : (t.containsThenInsert k v htb).2.impl.Ordered := by
-  simpa only [containsThenInsert_eq_insertₘ, hto] using ordered_insertₘ htb hto
+  simpa only [containsThenInsert_snd_eq_insertₘ, hto] using ordered_insertₘ htb hto
 
 theorem toListModel_containsThenInsert [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β}
     (htb : t.Balanced) (hto : t.Ordered) :
     (t.containsThenInsert k v htb).2.impl.toListModel.Perm (insertEntry k v t.toListModel) := by
-  rw [containsThenInsert_eq_insertₘ]
+  rw [containsThenInsert_snd_eq_insertₘ]
   exact toListModel_insertₘ htb hto
 
 /-!
@@ -728,12 +728,12 @@ theorem toListModel_containsThenInsert [Ord α] [TransOrd α] {k : α} {v : β k
 
 theorem WF.containsThenInsert! [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β} (h : t.WF) :
     (t.containsThenInsert! k v).2.WF := by
-  simpa [snd_containsThenInsert!_eq_containsThenInsert, h.balanced] using WF.containsThenInsert (h := h.balanced) h
+  simpa [containsThenInsert!_snd_eq_containsThenInsert_snd, h.balanced] using WF.containsThenInsert (h := h.balanced) h
 
 theorem toListModel_containsThenInsert! [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β}
     (htb : t.Balanced) (hto : t.Ordered) :
     (t.containsThenInsert! k v).2.toListModel.Perm (insertEntry k v t.toListModel) := by
-  rw [containsThenInsert!_eq_insertₘ]
+  rw [containsThenInsert!_snd_eq_insertₘ]
   exact toListModel_insertₘ htb hto
 
 /-!
@@ -777,12 +777,12 @@ theorem toListModel_insertIfNew! [Ord α] [TransOrd α] {k : α} {v : β k} {l :
 
 theorem ordered_containsThenInsertIfNew [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β}
     (h : l.Balanced) (ho : l.Ordered) : (l.containsThenInsertIfNew k v h).2.impl.Ordered := by
-  simpa only [snd_containsThenInsertIfNew_eq_insertIfNew, h] using ordered_insertIfNew h ho
+  simpa only [containsThenInsertIfNew_snd_eq_insertIfNew, h] using ordered_insertIfNew h ho
 
 theorem toListModel_containsThenInsertIfNew [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β}
     (htb : t.Balanced) (hto : t.Ordered) :
     (t.containsThenInsertIfNew k v htb).2.impl.toListModel.Perm (insertEntryIfNew k v t.toListModel) := by
-  rw [snd_containsThenInsertIfNew_eq_insertIfNew]
+  rw [containsThenInsertIfNew_snd_eq_insertIfNew]
   exact toListModel_insertIfNew htb hto
 
 /-!
@@ -791,16 +791,16 @@ theorem toListModel_containsThenInsertIfNew [Ord α] [TransOrd α] {k : α} {v :
 
 theorem ordered_containsThenInsertIfNew! [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β}
     (h : l.Balanced) (ho : l.Ordered) : (l.containsThenInsertIfNew! k v).2.Ordered := by
-  simpa [snd_containsThenInsertIfNew!_eq_insertIfNew!] using ordered_insertIfNew! h ho
+  simpa [containsThenInsertIfNew!_snd_eq_insertIfNew!] using ordered_insertIfNew! h ho
 
 theorem WF.containsThenInsertIfNew! [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β}
     (h : l.WF) : (l.containsThenInsertIfNew! k v).2.WF := by
-  simpa [snd_containsThenInsertIfNew!_eq_insertIfNew!] using WF.insertIfNew! (h := h)
+  simpa [containsThenInsertIfNew!_snd_eq_insertIfNew!] using WF.insertIfNew! (h := h)
 
 theorem toListModel_containsThenInsertIfNew! [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β}
     (htb : t.Balanced) (hto : t.Ordered) :
     (t.containsThenInsertIfNew k v htb).2.impl.toListModel.Perm (insertEntryIfNew k v t.toListModel) := by
-  rw [snd_containsThenInsertIfNew_eq_insertIfNew]
+  rw [containsThenInsertIfNew_snd_eq_insertIfNew]
   exact toListModel_insertIfNew htb hto
 
 /-!

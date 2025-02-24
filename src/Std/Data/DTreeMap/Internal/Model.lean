@@ -407,23 +407,23 @@ theorem erase!_eq_eraseₘ [Ord α] {k : α} {t : Impl α β} (h : t.Balanced) :
     erase! k t = eraseₘ k t h := by
   rw [← erase_eq_erase! (h := h), erase_eq_eraseₘ]
 
-theorem fst_containsThenInsert!_eq_containsThenInsert [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+theorem containsThenInsert!_fst_eq_containsThenInsert_fst [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
     (t.containsThenInsert! a b).1 = (t.containsThenInsert a b htb).1 := by
   cases t <;> simp [containsThenInsert, containsThenInsert.size,
     containsThenInsert!, containsThenInsert!.size, insert!_eq_insertₘ, insert_eq_insertₘ, htb]
 
-theorem snd_containsThenInsert!_eq_containsThenInsert [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+theorem containsThenInsert!_snd_eq_containsThenInsert_snd [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
     (t.containsThenInsert! a b).2 = (t.containsThenInsert a b htb).2.impl := by
   cases t <;> simp [containsThenInsert, containsThenInsert!, insert!_eq_insertₘ htb,
     insert_eq_insertₘ]
 
-theorem containsThenInsert_eq_insertₘ [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+theorem containsThenInsert_snd_eq_insertₘ [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
     (t.containsThenInsert a b htb).2.impl = t.insertₘ a b htb := by
   rw [containsThenInsert, insert_eq_insertₘ]
 
-theorem containsThenInsert!_eq_insertₘ [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+theorem containsThenInsert!_snd_eq_insertₘ [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
     (t.containsThenInsert! a b).2 = t.insertₘ a b htb := by
-  rw [snd_containsThenInsert!_eq_containsThenInsert, containsThenInsert_eq_insertₘ]
+  rw [containsThenInsert!_snd_eq_containsThenInsert_snd, containsThenInsert_snd_eq_insertₘ]
 
 theorem insertIfNew_eq_insertIfNew! [Ord α] {k : α} {v : β k} {l : Impl α β} {h} :
     (insertIfNew k v l h).impl = insertIfNew! k v l := by
@@ -432,34 +432,34 @@ theorem insertIfNew_eq_insertIfNew! [Ord α] {k : α} {v : β k} {l : Impl α β
   · rfl
   · simp [insert_eq_insert!]
 
-theorem fst_containsThenInsertIfNew!_eq_containsThenInsertIfNew [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+theorem containsThenInsertIfNew!_fst_eq_containsThenInsertIfNew_fst [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
     (t.containsThenInsertIfNew! a b).1 = (t.containsThenInsertIfNew a b htb).1 := by
   simp only [containsThenInsertIfNew!, containsThenInsertIfNew]
   split <;> rfl
 
-theorem snd_containsThenInsertIfNew!_eq_containsThenInsertIfNew [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+theorem containsThenInsertIfNew!_snd_eq_containsThenInsertIfNew_snd [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
     (t.containsThenInsertIfNew! a b).2 = (t.containsThenInsertIfNew a b htb).2.impl := by
   simp only [containsThenInsertIfNew!, containsThenInsertIfNew]
   split
   · rfl
   · simp [insert!_eq_insertₘ, insert_eq_insertₘ, htb]
 
-theorem fst_containsThenInsertIfNew_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β) (htb : t.Balanced)
+theorem containsThenInsertIfNew_fst_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β) (htb : t.Balanced)
     (a : α) (b : β a) : (t.containsThenInsertIfNew a b htb).1 = t.containsₘ a := by
   simp only [containsThenInsertIfNew, contains_eq_containsₘ]
   split <;> next h => simp only [h]
 
-theorem snd_containsThenInsertIfNew_eq_insertIfNew [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+theorem containsThenInsertIfNew_snd_eq_insertIfNew [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
     (t.containsThenInsertIfNew a b htb).2 = (t.insertIfNew a b htb) := by
   rw [containsThenInsertIfNew, insertIfNew]
   split <;> rfl
 
-theorem fst_containsThenInsertIfNew!_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β)
+theorem containsThenInsertIfNew!_fst_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β)
     (a : α) (b : β a) : (t.containsThenInsertIfNew! a b).1 = t.containsₘ a := by
   simp only [containsThenInsertIfNew!, contains_eq_containsₘ]
   split <;> next h => simp only [h]
 
-theorem snd_containsThenInsertIfNew!_eq_insertIfNew! [Ord α] (t : Impl α β) (a : α) (b : β a) :
+theorem containsThenInsertIfNew!_snd_eq_insertIfNew! [Ord α] (t : Impl α β) (a : α) (b : β a) :
     (t.containsThenInsertIfNew! a b).2 = t.insertIfNew! a b:= by
   rw [containsThenInsertIfNew!, insertIfNew!]
   split <;> rfl

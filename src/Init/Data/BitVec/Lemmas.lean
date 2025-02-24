@@ -4219,7 +4219,7 @@ theorem toInt_abs_eq_natAbs_of_ne_intMin {x : BitVec w} (hx : x ≠ intMin w) :
 
 theorem toFin_abs {x : BitVec w} :
     x.abs.toFin = if x.msb then Fin.ofNat' (2 ^ w) (2 ^ w - x.toNat) else x.toFin := by
-  by_cases hx : x.msb <;> simp [BitVec.abs, hx]
+  by_cases h : x.msb <;> simp [BitVec.abs, hx]
 
 /-! ### Reverse -/
 

@@ -96,9 +96,10 @@ where
     if args.isEmpty then
       return f
     else
-      let mut r := f
+      let mut r := m!""
       for arg in args do
         r := r ++ Format.line ++ arg
+      r := f ++ .nest 2 r
       if parenIfNonAtomic then
         return .paren r
       else

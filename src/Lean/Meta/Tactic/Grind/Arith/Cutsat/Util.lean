@@ -129,7 +129,7 @@ def EqCnstr.throwUnexpected (c : EqCnstr) : GoalM α := do
   throwError "`grind` internal error, unexpected{indentD (← c.pp)}"
 
 /-- Returns occurrences of `x`. -/
-def getOccursOf (x : Var) : GoalM (PHashSet Var) :=
+def getOccursOf (x : Var) : GoalM VarSet :=
   return (← get').occurs[x]!
 
 /--

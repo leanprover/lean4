@@ -63,6 +63,8 @@ inductive EqCnstrProof where
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
 end
 
+abbrev VarSet := RBTree Var compare
+
 /-- State of the cutsat procedure. -/
 structure State where
   /-- Mapping from variables to their denotations. -/
@@ -103,7 +105,7 @@ structure State where
   If `x` occurs in `dvdCnstrs[y]`, `lowers[y]`, or `uppers[y]`, then `y` is in `occurs[x]`, but the reverse is not true.
   If `x` is in `elimStack`, then `occurs[x]` is the empty set.
   -/
-  occurs : PArray (PHashSet Var) := {}
+  occurs : PArray VarSet := {}
   /-- Partial assignment being constructed by cutsat. -/
   assignment : PArray Int := {}
   /-- Next unique id for a constraint. -/

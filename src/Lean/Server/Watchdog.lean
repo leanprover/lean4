@@ -350,6 +350,10 @@ section ServerM
     importData        : IO.Ref ImportData
     requestData       : RequestDataMutex
 
+  structure ReferenceRequestContext where
+    srcSearchPath : System.SearchPath
+    references    : References
+
   abbrev ServerM := ReaderT ServerContext IO
 
   def updateFileWorkers (val : FileWorker) : ServerM Unit := do
@@ -543,7 +547,7 @@ section ServerM
 
   def terminateFileWorker (uri : DocumentUri) : ServerM Unit := do
     let some fw ← findFileWorker? uri
-      | return
+        | return
     setWorkerState fw .terminating
     eraseFileWorker uri
     try
@@ -615,11 +619,11 @@ def findDefinitions (p : TextDocumentPositionParams) : ServerM <| Array Location
       definitions := definitions.push definitionLocation
   return definitions
 
-def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
+def handleReference (p : ReferenceParams) : ReaderT ReferenceRequestContext IO (Array Location) := do
   let srcSearchPath := (← read).srcSearchPath
   let some module ← srcSearchPath.searchModuleNameOfUri p.textDocument.uri
     | return #[]
-  let references ← (← read).references.get
+  let references := (← read).references
   let mut result := #[]
   for ident in references.findAt module p.position (includeStop := true) do
     let identRefs ← references.referringTo srcSearchPath ident
@@ -699,12 +703,12 @@ private def callHierarchyItemOf?
     }
 
 def handlePrepareCallHierarchy (p : CallHierarchyPrepareParams)
-    : ServerM (Array CallHierarchyItem) := do
+    : ReaderT ReferenceRequestContext IO (Array CallHierarchyItem) := do
   let srcSearchPath := (← read).srcSearchPath
   let some module ← srcSearchPath.searchModuleNameOfUri p.textDocument.uri
     | return #[]
 
-  let references ← (← read).references.get
+  let references := (← read).references
   let idents := references.findAt module p.position (includeStop := true)
 
   let items ← idents.filterMapM fun ident =>
@@ -712,13 +716,13 @@ def handlePrepareCallHierarchy (p : CallHierarchyPrepareParams)
   return items.qsort (·.name < ·.name)
 
 def handleCallHierarchyIncomingCalls (p : CallHierarchyIncomingCallsParams)
-    : ServerM (Array CallHierarchyIncomingCall) := do
+    : ReaderT ReferenceRequestContext IO (Array CallHierarchyIncomingCall) := do
   let some itemData := CallHierarchyItemData.fromItem? p.item
     | return #[]
 
   let srcSearchPath := (← read).srcSearchPath
 
-  let references ← (← read).references.get
+  let references := (← read).references
   let identRefs ← references.referringTo srcSearchPath (.const itemData.module.toString itemData.name.toString) false
 
   let incomingCalls ← identRefs.filterMapM fun ⟨location, parentDecl?⟩ => do
@@ -764,7 +768,7 @@ where
     collapsed
 
 def handleCallHierarchyOutgoingCalls (p : CallHierarchyOutgoingCallsParams)
-    : ServerM (Array CallHierarchyOutgoingCall) := do
+    : ReaderT ReferenceRequestContext IO (Array CallHierarchyOutgoingCall) := do
   let some itemData := CallHierarchyItemData.fromItem? p.item
     | return #[]
 
@@ -773,9 +777,9 @@ def handleCallHierarchyOutgoingCalls (p : CallHierarchyOutgoingCallsParams)
   let some module ← srcSearchPath.searchModuleNameOfUri p.item.uri
     | return #[]
 
-  let references ← (← read).references.get
+  let references := (← read).references
 
-  let some refs := references.allRefs[module]?
+  let some refs := references.getModuleRefs? module
     | return #[]
 
   let items ← refs.toArray.filterMapM fun ⟨ident, info⟩ => do
@@ -810,10 +814,10 @@ where
     }
     collapsed
 
-def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInformation) := do
+def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ReaderT ReferenceRequestContext IO (Array SymbolInformation) := do
   if p.query.isEmpty then
     return #[]
-  let references ← (← read).references.get
+  let references := (← read).references
   let srcSearchPath := (← read).srcSearchPath
   let symbols ← references.definitionsMatching srcSearchPath (maxAmount? := none)
     fun name =>
@@ -828,15 +832,15 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInf
     |>.map fun ((name, _), location) =>
       { name, kind := SymbolKind.constant, location }
 
-def handlePrepareRename (p : PrepareRenameParams) : ServerM (Option Range) := do
+def handlePrepareRename (p : PrepareRenameParams) : ReaderT ReferenceRequestContext IO (Option Range) := do
   -- This just checks that the cursor is over a renameable identifier
   let srcSearchPath := (← read).srcSearchPath
   let some module ← srcSearchPath.searchModuleNameOfUri p.textDocument.uri
     | return none
-  let references ← (← read).references.get
+  let references := (← read).references
   return references.findRange? module p.position (includeStop := true)
 
-def handleRename (p : RenameParams) : ServerM Lsp.WorkspaceEdit := do
+def handleRename (p : RenameParams) : ReaderT ReferenceRequestContext IO Lsp.WorkspaceEdit := do
   if (String.toName p.newName).isAnonymous then
     throwServerError s!"Can't rename: `{p.newName}` is not an identifier"
   let mut refs : Std.HashMap DocumentUri (RBMap Lsp.Position Lsp.Position compare) := ∅
@@ -941,7 +945,7 @@ section NotificationHandling
 end NotificationHandling
 
 section MessageHandling
-  def parseParams (paramType : Type) [FromJson paramType] (params : Json) : ServerM paramType :=
+  def parseParams (paramType : Type) [FromJson paramType] (params : Json) : IO paramType :=
     match fromJson? params with
     | Except.ok parsed =>
       pure parsed
@@ -950,15 +954,15 @@ section MessageHandling
 
   def forwardRequestToWorker (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
     let uri: DocumentUri ←
-      -- This request is handled specially.
       if method == "$/lean/rpc/connect" then
         let ps ← parseParams Lsp.RpcConnectParams params
         pure <| fileSource ps
-      else match (← routeLspRequest method params) with
-      | Except.error e =>
-        (←read).hOut.writeLspResponseError <| e.toLspResponseError id
-        return
-      | Except.ok uri => pure uri
+      else
+        match (← routeLspRequest method params) with
+        | Except.error e =>
+          (←read).hOut.writeLspResponseError <| e.toLspResponseError id
+          return
+        | Except.ok uri => pure uri
     if (← findFileWorker? uri).isNone then
       /- Clients may send requests to closed files, which we respond to with an error.
       For example, VSCode sometimes sends requests just after closing a file,
@@ -973,12 +977,18 @@ section MessageHandling
     let r := Request.mk id method params
     tryWriteMessage uri r
 
-  def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
-    let handle α β [FromJson α] [ToJson β] (handler : α → ServerM β) : ServerM Unit := do
-      let hOut := (← read).hOut
+  def handleReferenceRequest α β [FromJson α] [ToJson β] (id : RequestID) (params : Json)
+      (handler : α → ReaderT ReferenceRequestContext IO β) : ServerM Unit := do
+    let ctx ← read
+    let hOut := ctx.hOut
+    let srcSearchPath := ctx.srcSearchPath
+    let references ← ctx.references.get
+    let _ ← ServerTask.IO.asTask do
       try
         let params ← parseParams α params
-        let result ← handler params
+        let result ← ReaderT.run (m := IO)
+          (r := { srcSearchPath, references : ReferenceRequestContext })
+          <| handler params
         hOut.writeLspResponse ⟨id, result⟩
       catch
         -- TODO Do fancier error handling, like in file worker?
@@ -987,39 +997,43 @@ section MessageHandling
           code := ErrorCode.internalError
           message := s!"Failed to process request {id}: {e}"
         }
-    -- If a definition is in a different, modified file, the ilean data should
-    -- have the correct location while the olean still has outdated info from
-    -- the last compilation. This is easier than catching the client's reply and
-    -- fixing the definition's location afterwards, but it doesn't work for
-    -- go-to-type-definition.
-    if method == "textDocument/definition" || method == "textDocument/declaration" then
-      let params ← parseParams TextDocumentPositionParams params
-      let definitions ← findDefinitions params
+
+  def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
+    let handle α β [FromJson α] [ToJson β] := handleReferenceRequest α β id params
+    match method with
+    | "textDocument/definition" | "textDocument/declaration" =>
+      -- If a definition is in a different, modified file, the ilean data should
+      -- have the correct location while the olean still has outdated info from
+      -- the last compilation. This is easier than catching the client's reply and
+      -- fixing the definition's location afterwards, but it doesn't work for
+      -- go-to-type-definition.
+      let params' ← parseParams TextDocumentPositionParams params
+      let definitions ← findDefinitions params'
       if !definitions.isEmpty then
         (← read).hOut.writeLspResponse ⟨id, definitions⟩
-        return
-    match method with
-      | "textDocument/references" =>
-        handle ReferenceParams (Array Location) handleReference
-      | "workspace/symbol" =>
-        handle WorkspaceSymbolParams (Array SymbolInformation) handleWorkspaceSymbol
-      | "textDocument/prepareCallHierarchy" =>
-        handle CallHierarchyPrepareParams (Array CallHierarchyItem) handlePrepareCallHierarchy
-      | "callHierarchy/incomingCalls" =>
-        handle CallHierarchyIncomingCallsParams (Array CallHierarchyIncomingCall)
-          handleCallHierarchyIncomingCalls
-      | "callHierarchy/outgoingCalls" =>
-        handle Lsp.CallHierarchyOutgoingCallsParams (Array CallHierarchyOutgoingCall)
-          handleCallHierarchyOutgoingCalls
-      | "textDocument/prepareRename" =>
-        handle PrepareRenameParams (Option Range) handlePrepareRename
-      | "textDocument/rename" =>
-        handle RenameParams WorkspaceEdit handleRename
-      | _ =>
+      else
         forwardRequestToWorker id method params
+    | "textDocument/references" =>
+      handle ReferenceParams (Array Location) handleReference
+    | "workspace/symbol" =>
+      handle WorkspaceSymbolParams (Array SymbolInformation) handleWorkspaceSymbol
+    | "textDocument/prepareCallHierarchy" =>
+      handle CallHierarchyPrepareParams (Array CallHierarchyItem) handlePrepareCallHierarchy
+    | "callHierarchy/incomingCalls" =>
+      handle CallHierarchyIncomingCallsParams (Array CallHierarchyIncomingCall)
+        handleCallHierarchyIncomingCalls
+    | "callHierarchy/outgoingCalls" =>
+      handle Lsp.CallHierarchyOutgoingCallsParams (Array CallHierarchyOutgoingCall)
+        handleCallHierarchyOutgoingCalls
+    | "textDocument/prepareRename" =>
+      handle PrepareRenameParams (Option Range) handlePrepareRename
+    | "textDocument/rename" =>
+      handle RenameParams WorkspaceEdit handleRename
+    | _ =>
+      forwardRequestToWorker id method params
 
   def handleNotification (method : String) (params : Json) : ServerM Unit := do
-    let handle := fun α [FromJson α] (handler : α → ServerM Unit) =>
+    let handle α [FromJson α] (handler : α → ServerM Unit) : ServerM Unit :=
       parseParams α params >>= handler
     match method with
     | "textDocument/didOpen" =>
@@ -1040,8 +1054,9 @@ section MessageHandling
       handle RpcKeepAliveParams (forwardNotification method)
     | _ =>
       -- implementation-dependent notifications can be safely ignored
-      if !"$/".isPrefixOf method then
+      if ! "$/".isPrefixOf method then
         (←read).hLog.putStrLn s!"Got unsupported notification: {method}"
+        (←read).hLog.flush
 
   def handleResponse (id : RequestID) (result : Json) : ServerM Unit := do
     let some translation ← (← read).serverRequestData.modifyGet (·.translateInboundResponse id)

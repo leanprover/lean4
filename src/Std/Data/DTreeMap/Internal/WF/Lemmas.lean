@@ -546,7 +546,7 @@ theorem contains_eq_containsKey [Ord α] [TransOrd α] {k : α} {l : Impl α β}
   rw [contains_eq_containsₘ, containsₘ_eq_containsKey hlo]
 
 /-!
-''' `get?`
+### `get?`
 -/
 
 theorem get?ₘ_eq_getValueCast? [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t : Impl α β}
@@ -565,7 +565,7 @@ theorem get?_eq_getValueCast? [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {
   rw [get?_eq_get?ₘ, get?ₘ_eq_getValueCast? hto]
 
 /-!
-''' `get`
+### `get`
 -/
 
 theorem contains_eq_isSome_get?ₘ [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t : Impl α β}
@@ -585,7 +585,7 @@ theorem get_eq_getValueCast [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t 
   exact contains_eq_isSome_get?ₘ hto ▸ h
 
 /-!
-''' `get!`
+### `get!`
 -/
 
 theorem get!ₘ_eq_getValueCast! [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} [Inhabited (β k)]
@@ -597,7 +597,7 @@ theorem get!_eq_getValueCast! [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} [
   rw [get!_eq_get!ₘ, get!ₘ_eq_getValueCast! hto]
 
 /-!
-''' `getD`
+### `getD`
 -/
 
 theorem getDₘ_eq_getValueCastD [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α}
@@ -615,7 +615,7 @@ namespace Const
 variable {β : Type v}
 
 /-!
-''' `get?`
+### `get?`
 -/
 
 theorem get?ₘ_eq_getValue? [Ord α] [TransOrd α] {k : α} {t : Impl α (fun _ => β)} (hto : t.Ordered) :
@@ -634,7 +634,7 @@ theorem get?_eq_getValue? [Ord α] [TransOrd α] {k : α} {t : Impl α (fun _ =>
   rw [get?_eq_get?ₘ, get?ₘ_eq_getValue? hto]
 
 /-!
-''' `get`
+### `get`
 -/
 
 theorem contains_eq_isSome_get?ₘ [Ord α] [TransOrd α] {k : α} {t : Impl α β}
@@ -654,7 +654,7 @@ theorem get_eq_getValue [Ord α] [TransOrd α] {k : α} {t : Impl α β} {h}
   exact contains_eq_isSome_get?ₘ hto ▸ h
 
 /-!
-''' `get!`
+### `get!`
 -/
 
 theorem get!ₘ_eq_getValue! [Ord α] [TransOrd α] {k : α} [Inhabited β]
@@ -666,7 +666,7 @@ theorem get!_eq_getValue! [Ord α] [TransOrd α] {k : α} [Inhabited β]
   rw [get!_eq_get!ₘ, get!ₘ_eq_getValue! hto]
 
 /-!
-''' `getD`
+### `getD`
 -/
 
 theorem getDₘ_eq_getValueD [Ord α] [TransOrd α] {k : α}

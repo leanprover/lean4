@@ -11,6 +11,9 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 def mkEqCnstr (p : Poly) (h : EqCnstrProof) : GoalM EqCnstr := do
   return { p, h, id := (← mkCnstrId) }
 
+/--
+Selects the variable in the given linear polynomial whose coefficient has the smallest absolute value.
+-/
 def _root_.Int.Linear.Poly.pickVarToElim? (p : Poly) : Option (Int × Var) :=
   match p with
   | .num _ => none

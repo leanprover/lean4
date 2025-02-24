@@ -50,13 +50,20 @@ def _root_.Int.Linear.Poly.findVarToSubst (p : Poly) : GoalM (Option (Int × Var
     else
       findVarToSubst p
 
-partial def applySubsts (c : EqCnstr) : GoalM EqCnstr := do
+partial def applySubsts (c : EqCnstr) : GoalM EqCnstr := withIncRecDepth do
   let some (a, x, c₁) ← c.p.findVarToSubst | return c
   trace[grind.cutsat.subst] "{← getVar x}, {← c.pp}, {← c₁.pp}"
   let b := c₁.p.coeff x
   let p := c.p.mul (-b) |>.combine (c₁.p.mul a)
   let c ← mkEqCnstr p (.subst x c₁ c)
   applySubsts c
+
+private def updateOccs (k : Int) (x : Var) (c : EqCnstr) : GoalM Unit := do
+  let ys := (← get').occurs[x]!
+  modify' fun s => { s with occurs := s.occurs.set x {} }
+  for y in ys do
+    -- TODO
+    pure ()
 
 def EqCnstr.assert (c : EqCnstr) : GoalM Unit := do
   if (← isInconsistent) then return ()
@@ -85,8 +92,8 @@ def EqCnstr.assert (c : EqCnstr) : GoalM Unit := do
     mkEqCnstr (c.p.div k) (.divCoeffs c)
   trace[grind.cutsat.eq] "{← c.pp}"
   let some (k, x) := c.p.pickVarToElim? | c.throwUnexpected
-  -- TODO: eliminate `x` from lowers, uppers, and dvdCnstrs
-  -- TODO: reset `x`s occurrences
+  updateOccs k x c
+  if (← isInconsistent) then return ()
   -- assert a divisibility constraint IF `|k| != 1`
   if k.natAbs != 1 then
     let p := c.p.insert (-k) x
@@ -107,11 +114,14 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
 @[export lean_process_new_cutsat_lit]
 def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
   let some k ← getIntValue? ke | return ()
-  let some p := (← get').terms.find? { expr := a } | return ()
-  if k == 0 then
-    (← mkEqCnstr p (.expr (← mkEqProof a ke))).assert
+  if let some p := (← get').terms.find? { expr := a } then
+    if k == 0 then
+      (← mkEqCnstr p (.expr (← mkEqProof a ke))).assert
+    else
+      -- TODO
+      return ()
   else
-    -- TODO
+    -- TODO: `a` is a variable
     return ()
 
 /-- Different kinds of terms internalized by this module. -/

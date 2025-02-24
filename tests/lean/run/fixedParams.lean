@@ -56,8 +56,6 @@ end Ex3
 
 namespace Ex4
 /--
-error: unknown goal
----
 info: [Elab.definition.fixedParams] getFixedParams:
       • [#1 #3] ❌ [#3 #1] ❌
       • [#3 #1] ❌ [#1 #3] ❌

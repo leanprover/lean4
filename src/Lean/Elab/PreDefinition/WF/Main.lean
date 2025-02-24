@@ -37,22 +37,23 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
       return ({preDef with value := result.expr}, result)
     let unaryPreDef ← packMutual fixedParams argsPacker preDefsAttached
     return (fixedParams, argsPacker, unaryPreDef, wfPreprocessProofs)
+  trace[Elab.definition.wf] "unaryPreDef:{indentD unaryPreDef.value}"
 
   let wf : TerminationMeasures ← do
     if let some tms := termMeasures? then pure tms else
     -- No termination_by here, so use GuessLex to infer one
     guessLex preDefs unaryPreDef fixedParams argsPacker
 
-  let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedParams.size fun prefixArgs type => do
+  let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedParams.size fun fixedArgs type => do
     let type ← whnfForall type
     unless type.isForall do
       throwError "wfRecursion: expected unary function type: {type}"
     let packedArgType := type.bindingDomain!
-    elabWFRel (preDefs.map (·.declName)) unaryPreDef.declName prefixArgs argsPacker packedArgType wf fun wfRel => do
+    elabWFRel (preDefs.map (·.declName)) unaryPreDef.declName fixedParams fixedArgs argsPacker packedArgType wf fun wfRel => do
       trace[Elab.definition.wf] "wfRel: {wfRel}"
       let (value, envNew) ← withoutModifyingEnv' do
         addAsAxiom unaryPreDef
-        let value ← mkFix unaryPreDef prefixArgs argsPacker wfRel (preDefs.map (·.termination.decreasingBy?))
+        let value ← mkFix unaryPreDef fixedArgs argsPacker wfRel (preDefs.map (·.termination.decreasingBy?))
         eraseRecAppSyntaxExpr value
       /- `mkFix` invokes `decreasing_tactic` which may add auxiliary theorems to the environment. -/
       let value ← unfoldDeclsFrom envNew value

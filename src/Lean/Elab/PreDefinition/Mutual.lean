@@ -288,6 +288,15 @@ def pickVaryingArgs (fixedParams : FixedParams) (funIdx : Nat) (xs : Array Expr)
     if !mask[i]! then ys := ys.push xs[i]!
   pure ys
 
+/--
+Are all fixed parameters a non-reordered prefix?
+-/
+def FixedParams.fixedArePrefix (fixedParams : FixedParams) : Bool :=
+  fixedParams.mappings.all fun paramInfos =>
+    paramInfos ==
+      (Array.range fixedParams.size).map Option.some ++
+      mkArray (paramInfos.size - fixedParams.size) .none
+
 def checkFixedParams (preDefs : Array PreDefinition) (fixedPrefixSize : Nat) : MetaM Unit := do
   let fixedParams ← getFixedParams preDefs
   for preDef in preDefs, mapping in fixedParams.mappings do

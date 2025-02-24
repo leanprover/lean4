@@ -75,7 +75,8 @@ Creates a single unary function from the given `preDefs`, using the machinery in
 module.
 -/
 def packMutual (fixedParams : Mutual.FixedParams) (argsPacker : ArgsPacker) (preDefs : Array PreDefinition) : MetaM PreDefinition := do
-  if argsPacker.onlyOneUnary then return preDefs[0]! -- TODO: Do we have to reorder now?
+  if fixedParams.fixedArePrefix && argsPacker.onlyOneUnary then
+    return preDefs[0]!
   let newFn := mutualName argsPacker preDefs
   -- Bring the fixed prefix into scope
   Mutual.forallTelescopeFixedParams fixedParams 0 preDefs[0]!.type fun ys => do

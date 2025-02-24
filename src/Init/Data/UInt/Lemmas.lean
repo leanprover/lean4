@@ -255,7 +255,7 @@ declare_uint_theorems USize System.Platform.numBits
 @[simp] theorem USize.toNat_toUInt64 (x : USize) : x.toUInt64.toNat = x.toNat := rfl
 
 theorem USize.toNat_ofNat_of_lt_32 {n : Nat} (h : n < 4294967296) : toNat (ofNat n) = n :=
-  toNat_ofNat_of_lt (Nat.lt_of_lt_of_le h le_usize_size)
+  toNat_ofNat_of_lt (Nat.lt_of_lt_of_le h USize.le_size)
 
 theorem UInt32.toNat_lt_of_lt {n : UInt32} {m : Nat} (h : m < size) : n < ofNat m → n.toNat < m := by
   simp [-toNat_toBitVec, lt_def, BitVec.lt_def, UInt32.toNat, toBitVec_eq_of_lt h]
@@ -275,27 +275,24 @@ theorem UInt32.le_toNat_of_le {n : UInt32} {m : Nat} (h : m < size) : ofNat m �
 @[simp] theorem UInt64.toNat_lt (n : UInt64) : n.toNat < 2 ^ 64 := n.toFin.isLt
 
 theorem UInt8.size_lt_usizeSize : UInt8.size < USize.size := by
-  cases usize_size_eq <;> simp_all +decide
+  cases USize.size_eq <;> simp_all +decide
 theorem UInt8.size_le_usizeSize : UInt8.size ≤ USize.size :=
   Nat.le_of_lt UInt8.size_lt_usizeSize
 theorem UInt16.size_lt_usizeSize : UInt16.size < USize.size := by
-  cases usize_size_eq <;> simp_all +decide
+  cases USize.size_eq <;> simp_all +decide
 theorem UInt16.size_le_usizeSize : UInt16.size ≤ USize.size :=
   Nat.le_of_lt UInt16.size_lt_usizeSize
 theorem UInt32.size_le_usizeSize : UInt32.size ≤ USize.size := by
-  cases usize_size_eq <;> simp_all +decide
-
-@[simp] theorem USize.le_size : 2 ^ 32 ≤ USize.size := by cases usize_size_eq <;> simp_all
-@[simp] theorem USize.size_le : USize.size ≤ 2 ^ 64 := by cases usize_size_eq <;> simp_all
+  cases USize.size_eq <;> simp_all +decide
 theorem USize.size_lt_two_pow_numBits (n : USize) : n.toNat < 2 ^ System.Platform.numBits := n.toFin.isLt
 @[simp] theorem USize.toNat_lt (n : USize) : n.toNat < 2 ^ 64 := Nat.lt_of_lt_of_le n.toFin.isLt size_le
 
 theorem UInt8.toNat_lt_usizeSize (n : UInt8) : n.toNat < USize.size :=
-  Nat.lt_of_lt_of_le n.toNat_lt (by cases usize_size_eq <;> simp_all)
+  Nat.lt_of_lt_of_le n.toNat_lt (by cases USize.size_eq <;> simp_all)
 theorem UInt16.toNat_lt_usizeSize (n : UInt16) : n.toNat < USize.size :=
-  Nat.lt_of_lt_of_le n.toNat_lt (by cases usize_size_eq <;> simp_all)
+  Nat.lt_of_lt_of_le n.toNat_lt (by cases USize.size_eq <;> simp_all)
 theorem UInt32.toNat_lt_usizeSize (n : UInt32) : n.toNat < USize.size :=
-  Nat.lt_of_lt_of_le n.toNat_lt (by cases usize_size_eq <;> simp_all)
+  Nat.lt_of_lt_of_le n.toNat_lt (by cases USize.size_eq <;> simp_all)
 
 @[simp] theorem Fin.mk_uInt8ToNat (n : UInt8) : Fin.mk n.toNat n.toFin.isLt = n.toFin := rfl
 @[simp] theorem Fin.mk_uInt16ToNat (n : UInt16) : Fin.mk n.toNat n.toFin.isLt = n.toFin := rfl

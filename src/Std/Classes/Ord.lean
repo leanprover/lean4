@@ -31,10 +31,9 @@ class ReflCmp {α : Type u} (cmp : α → α → Ordering) : Prop where
 /-- A typeclasses for ordered types for which `compare a a = .eq` for all `a`. -/
 abbrev ReflOrd (α : Type u) [Ord α] := ReflCmp (compare : α → α → Ordering)
 
+@[simp]
 theorem ReflOrd.compare_self {α : Type u} [Ord α] [ReflOrd α] {a : α} : compare a a = .eq :=
     ReflCmp.compare_self
-
-attribute [simp] ReflOrd.compare_self
 
 export ReflOrd (compare_self)
 

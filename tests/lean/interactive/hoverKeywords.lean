@@ -2,6 +2,13 @@
 This file tests that hovers for various kinds of declarations include the correct keywords, both in
 the declarations themselves and in use sites.
 
+For example, hovering `X` in the following code should show the signature `class X (α : Type) : Type`:
+````
+class X (α : Type) where
+  get : Nat → α
+````
+
+
 The following combinations are tested:
 1. Declaration and use sites
 2. Declaration types structure, class, inductive, class inductive, def, theorem, axiom, opaque
@@ -99,6 +106,15 @@ class inductive B where
 private class inductive B' where
                       --^ textDocument/hover
   | x
+
+instance instB : B := .x
+          --^ textDocument/hover
+
+example := instB
+           --^ textDocument/hover
+
+private instance instB' : B := .x
+                  --^ textDocument/hover
 
 namespace NS
 
@@ -201,3 +217,43 @@ syntax (name := cD) "D" : c
 syntax "⟪" c "⟫" : term
          --^ textDocument/hover
                   --^ textDocument/hover
+
+
+abbrev Abb := "Abb"
+     --^ textDocument/hover
+
+example := Abb
+         --^ textDocument/hover
+
+def Abb' := "Abb"
+    --^ textDocument/hover
+
+example := Abb'
+         --^ textDocument/hover
+
+attribute [reducible] Abb'
+                     --^ textDocument/hover
+
+example := Abb'
+         --^ textDocument/hover
+
+namespace NS
+
+private abbrev Abb := "Abb"
+             --^ textDocument/hover
+
+example := Abb
+         --^ textDocument/hover
+
+private def Abb' := "Abb"
+          --^ textDocument/hover
+
+example := Abb'
+         --^ textDocument/hover
+
+attribute [reducible] Abb'
+                     --^ textDocument/hover
+
+example := Abb'
+          --^ textDocument/hover
+end NS

@@ -378,7 +378,14 @@ where
       -- nor for "syntax" declarations
       else if (← Meta.isDefEq type (.const ``Lean.ParserDescr [])) then
         pure .nil
+      else if (← Meta.isInstance c) then
+        pure "instance "
+      else if let .reducible := (← getReducibilityStatus c) then
+        pure "abbrev "
       else
+        if let some stk := stk? then
+          if let some d := (← declSyntaxKw c stk) then
+            return d
         pure "def "
     | some (.inductInfo ..) =>
       let x := ci.parentDecl?
@@ -422,6 +429,17 @@ where
           let declName := getDeclName (← getVisibility ⟨mods⟩) declId
           if declName == c then
             return some "class inductive "
+        else if stx[1].getKind == ``Lean.Parser.Command.instance then
+          if let some declId := stx[1][3].getOptional? then
+            let declName := getDeclName (← getVisibility ⟨mods⟩) declId
+            if declName == c then
+              return some "instance "
+        else if stx[1].getKind == ``Lean.Parser.Command.abbrev then
+          let declId := stx[1][1]
+          let declName := getDeclName (← getVisibility ⟨mods⟩) declId
+          if declName == c then
+            return some "abbrev "
+
     return none
 
   getDeclName (visibility : Visibility) (declId : Syntax) : Name :=

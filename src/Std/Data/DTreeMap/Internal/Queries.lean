@@ -62,122 +62,122 @@ def isEmpty (t : Impl α β) : Bool :=
   | .inner _ _ _ _ _ => false
 
 /-- Returns the value for the key `k`, or `none` if such a key does not exist. -/
-def get? [Ord α] [LawfulEqOrd α] (k : α) (t : Impl α β) : Option (β k) :=
+def get? [Ord α] [LawfulEqOrd α] (t : Impl α β) (k : α) : Option (β k) :=
   match t with
   | .leaf => none
   | .inner _ k' v' l r =>
     match h : compare k k' with
-    | .lt => get? k l
-    | .gt => get? k r
+    | .lt => get? l k
+    | .gt => get? r k
     | .eq => some (cast (congrArg β (compare_eq_iff_eq.mp h).symm) v')
 
 /-- Returns the value for the key `k`. -/
-def get [Ord α] [LawfulEqOrd α] (k : α) (t : Impl α β) (hlk : t.contains k = true) : β k :=
+def get [Ord α] [LawfulEqOrd α] (t : Impl α β) (k : α) (hlk : t.contains k = true) : β k :=
   match t with
   | .inner _ k' v' l r =>
     match h : compare k k' with
-    | .lt => get k l (by simpa [contains, h] using hlk)
-    | .gt => get k r (by simpa [contains, h] using hlk)
+    | .lt => get l k (by simpa [contains, h] using hlk)
+    | .gt => get r k (by simpa [contains, h] using hlk)
     | .eq => cast (congrArg β (compare_eq_iff_eq.mp h).symm) v'
 
 /-- Returns the value for the key `k`, or panics if such a key does not exist. -/
-def get! [Ord α] [LawfulEqOrd α] (k : α) (t : Impl α β) [Inhabited (β k)] : β k :=
+def get! [Ord α] [LawfulEqOrd α] (t : Impl α β) (k : α) [Inhabited (β k)] : β k :=
   match t with
   | .leaf => panic! "Key is not present in map"
   | .inner _ k' v' l r =>
     match h : compare k k' with
-    | .lt => get! k l
-    | .gt => get! k r
+    | .lt => get! l k
+    | .gt => get! r k
     | .eq => cast (congrArg β (compare_eq_iff_eq.mp h).symm) v'
 
 /-- Returns the value for the key `k`, or `fallback` if such a key does not exist. -/
-def getD [Ord α] [LawfulEqOrd α] (k : α) (t : Impl α β) (fallback : β k) : β k :=
+def getD [Ord α] [LawfulEqOrd α] (t : Impl α β) (k : α) (fallback : β k) : β k :=
   match t with
   | .leaf => fallback
   | .inner _ k' v' l r =>
     match h : compare k k' with
-    | .lt => getD k l fallback
-    | .gt => getD k r fallback
+    | .lt => getD l k fallback
+    | .gt => getD r k fallback
     | .eq => cast (congrArg β (compare_eq_iff_eq.mp h).symm) v'
 
 /-- Implementation detail of the tree map -/
-def getKey? [Ord α] (k : α) (t : Impl α β) : Option α :=
+def getKey? [Ord α] (t : Impl α β) (k : α) : Option α :=
   match t with
   | .leaf => none
   | .inner _ k' _ l r =>
     match compare k k' with
-    | .lt => getKey? k l
-    | .gt => getKey? k r
+    | .lt => getKey? l k
+    | .gt => getKey? r k
     | .eq => some k'
 
 /-- Implementation detail of the tree map -/
-def getKey [Ord α] (k : α) (t : Impl α β) (hlk : t.contains k = true) : α :=
+def getKey [Ord α] (t : Impl α β) (k : α) (hlk : t.contains k = true) : α :=
   match t with
   | .inner _ k' _ l r =>
     match h : compare k k' with
-    | .lt => getKey k l (by simpa [contains, h] using hlk)
-    | .gt => getKey k r (by simpa [contains, h] using hlk)
+    | .lt => getKey l k (by simpa [contains, h] using hlk)
+    | .gt => getKey r k (by simpa [contains, h] using hlk)
     | .eq => k'
 
 /-- Implementation detail of the tree map -/
-def getKey! [Ord α] (k : α) (t : Impl α β) [Inhabited α] : α :=
+def getKey! [Ord α] (t : Impl α β) (k : α) [Inhabited α] : α :=
   match t with
   | .leaf => panic! "Key is not present in map"
   | .inner _ k' _ l r =>
     match compare k k' with
-    | .lt => getKey! k l
-    | .gt => getKey! k r
+    | .lt => getKey! l k
+    | .gt => getKey! r k
     | .eq => k'
 
 /-- Implementation detail of the tree map -/
-def getKeyD [Ord α] (k : α) (t : Impl α β) (fallback : α) : α :=
+def getKeyD [Ord α] (t : Impl α β) (k : α) (fallback : α) : α :=
   match t with
   | .leaf => fallback
   | .inner _ k' _ l r =>
     match compare k k' with
-    | .lt => getKeyD k l fallback
-    | .gt => getKeyD k r fallback
+    | .lt => getKeyD l k fallback
+    | .gt => getKeyD r k fallback
     | .eq => k'
 
 namespace Const
 
 /-- Returns the value for the key `k`, or `none` if such a key does not exist. -/
-def get? [Ord α] (k : α) (t : Impl α δ) : Option δ :=
+def get? [Ord α] (t : Impl α δ) (k : α) : Option δ :=
   match t with
   | .leaf => none
   | .inner _ k' v' l r =>
     match compare k k' with
-    | .lt => get? k l
-    | .gt => get? k r
+    | .lt => get? l k
+    | .gt => get? r k
     | .eq => some v'
 
 /-- Returns the value for the key `k`. -/
-def get [Ord α] (k : α) (t : Impl α δ) (hlk : t.contains k = true) : δ :=
+def get [Ord α] (t : Impl α δ) (k : α) (hlk : t.contains k = true) : δ :=
   match t with
   | .inner _ k' v' l r =>
     match h : compare k k' with
-    | .lt => get k l (by simpa [contains, h] using hlk)
-    | .gt => get k r (by simpa [contains, h] using hlk)
+    | .lt => get l k (by simpa [contains, h] using hlk)
+    | .gt => get r k (by simpa [contains, h] using hlk)
     | .eq => v'
 
 /-- Returns the value for the key `k`, or panics if such a key does not exist. -/
-def get! [Ord α] (k : α) (t : Impl α δ) [Inhabited δ] : δ :=
+def get! [Ord α] (t : Impl α δ) (k : α) [Inhabited δ] : δ :=
   match t with
   | .leaf => panic! "Key is not present in map"
   | .inner _ k' v' l r =>
     match compare k k' with
-    | .lt => get! k l
-    | .gt => get! k r
+    | .lt => get! l k
+    | .gt => get! r k
     | .eq => v'
 
 /-- Returns the value for the key `k`, or `fallback` if such a key does not exist. -/
-def getD [Ord α] (k : α) (t : Impl α δ) (fallback : δ) : δ :=
+def getD [Ord α] (t : Impl α δ) (k : α) (fallback : δ) : δ :=
   match t with
   | .leaf => fallback
   | .inner _ k' v' l r =>
     match compare k k' with
-    | .lt => getD k l fallback
-    | .gt => getD k r fallback
+    | .lt => getD l k fallback
+    | .gt => getD r k fallback
     | .eq => v'
 
 end Const

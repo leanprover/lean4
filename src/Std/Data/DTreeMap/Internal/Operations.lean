@@ -606,7 +606,7 @@ variable {β : Type v}
 @[inline]
 def getThenInsertIfNew? [Ord α] (k : α) (v : β) (t : Impl α (fun _ => β))
     (ht : t.Balanced) : Option β × Impl α (fun _ => β) :=
-  match get? k t with
+  match get? t k with
   | none => (none, t.insertIfNew k v ht |>.impl)
   | some b => (some b, t)
 
@@ -617,7 +617,7 @@ information but still assumes the preconditions of `getThenInsertIfNew?`, otherw
 @[inline]
 def getThenInsertIfNew?! [Ord α] (k : α) (v : β) (t : Impl α (fun _ => β))
     : Option β × Impl α (fun _ => β) :=
-  match get? k t with
+  match get? t k with
   | none => (none, t.insertIfNew! k v)
   | some b => (some b, t)
 

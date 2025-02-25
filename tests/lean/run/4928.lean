@@ -33,7 +33,6 @@ decreasing_by fail
 /--
 error: tactic 'fail' failed
 x : List Nat
-y : Nat
 ⊢ x.tail.length < x.length
 -/
 #guard_msgs in
@@ -49,13 +48,8 @@ end
 /--
 error: tactic 'fail' failed
 x : List Nat
-y : Nat
-⊢ (invImage
-        (fun x =>
-          PSum.casesOn x (fun _x => PSigma.casesOn _x fun x y => x.length) fun _x =>
-            PSigma.casesOn _x fun x y => x.length)
-        instWellFoundedRelationOfSizeOf).1
-    (PSum.inr ⟨x.tail, y⟩) (PSum.inl ⟨x, y⟩)
+⊢ (invImage (fun x => PSum.casesOn x (fun x => x.length) fun x => x.length) instWellFoundedRelationOfSizeOf).1
+    (PSum.inr x.tail) (PSum.inl x)
 -/
 #guard_msgs in
 set_option debug.rawDecreasingByGoal true in

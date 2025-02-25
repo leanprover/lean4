@@ -358,7 +358,9 @@ def collectRecCalls (unaryPreDef : PreDefinition) (fixedParams : Mutual.FixedPar
         | throwError "Cannot unpack param, unexpected expression:{indentExpr param}"
       let some (callee, args) := argsPacker.unpack arg
         | throwError "Cannot unpack arg, unexpected expression:{indentExpr arg}"
-      RecCallWithContext.create (← getRef) caller (ys ++ params) callee (ys ++ args)
+      let callerParams := Mutual.buildArgs fixedParams caller ys params
+      let calleeArgs := Mutual.buildArgs fixedParams callee ys args
+      RecCallWithContext.create (← getRef) caller callerParams callee calleeArgs
 
 /-- Is the expression a `<`-like comparison of `Nat` expressions -/
 def isNatCmp (e : Expr) : Option (Expr × Expr) :=

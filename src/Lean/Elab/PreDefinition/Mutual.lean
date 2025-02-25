@@ -223,6 +223,7 @@ def forallTelescopeFixedParams (fixedParams : FixedParams) (funIdx : Nat) (type 
     let mut ys := #[]
     let mut zs := #[]
     for x in xs, paramInfo in fixedParams.mappings[funIdx]! do
+      -- TODO: Wrong for different order in non-first functions
       if paramInfo.isSome then
         ys := ys.push x
       else
@@ -241,6 +242,7 @@ where
   go | [], [], type => pure type
      | [], _, _ => panic! s!"instantiateForallFixedParams: Too many arguments {xs}"
      | .some _::_, [], _ => panic! s!"instantiateForallFixedParams: Too few arguments {xs}"
+      -- TODO: Wrong for different order in non-first functions
      | (.some _)::mask, x::xs, type => do
         go mask xs (← instantiateForall type #[x])
      | .none::mask, xs, type =>
@@ -258,6 +260,7 @@ def instantiateLambdaFixedParams (fixedParams : FixedParams) (funIdx : Nat) (typ
 where
   go | [], [], type => pure type
      | [], _, _ => panic! s!"instantiateLambdaFixedParams: Too many arguments {xs}"
+      -- TODO: Wrong for different order in non-first functions
      | .some _::_, [], _ => panic! s!"instantiateLambdaFixedParams: Too few arguments {xs}"
      | (.some _)::mask, x::xs, type => do
         go mask xs (← instantiateLambda type #[x])
@@ -274,6 +277,7 @@ def pickFixedArgs (fixedParams : FixedParams) (funIdx : Nat) (xs : Array Expr) :
   assert! mask.size = xs.size
   let mut ys := #[]
   for i in [:xs.size] do
+      -- TODO: Wrong for different order in non-first functions
     if mask[i]! then ys := ys.push xs[i]!
   pure ys
 
@@ -287,6 +291,23 @@ def pickVaryingArgs (fixedParams : FixedParams) (funIdx : Nat) (xs : Array Expr)
   for i in [:xs.size] do
     if !mask[i]! then ys := ys.push xs[i]!
   pure ys
+
+partial def buildArgs (fixedParams : FixedParams) (funIdx : Nat) (fixedArgs varyingArgs : Array Expr) : Array Expr :=
+  let mask := fixedParams.mappings[funIdx]!
+  assert! fixedArgs.size = fixedParams.size
+  assert! mask.size = fixedParams.size + varyingArgs.size
+  go mask 0 0 #[]
+where
+  go mask i j xs :=
+    if _ : i + j < mask.size then
+        -- TODO: Wrong for different order in non-first functions
+      if mask[i + j].isSome then
+        go mask (i + 1) j (xs.push fixedArgs[i]!)
+      else
+        go mask i (j + 1) (xs.push varyingArgs[j]!)
+    else
+      xs
+
 
 /--
 Are all fixed parameters a non-reordered prefix?

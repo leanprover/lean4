@@ -61,8 +61,8 @@ def packCalls (fixedParams : Mutual.FixedParams) (argsPacker : ArgsPacker) (funN
     return TransformStep.done e
     )
 
-def mutualName (argsPacker : ArgsPacker) (preDefs : Array PreDefinition) : Name :=
-  if argsPacker.onlyOneUnary then
+def mutualName (fixedParams : Mutual.FixedParams) (argsPacker : ArgsPacker) (preDefs : Array PreDefinition) : Name :=
+  if fixedParams.fixedArePrefix && argsPacker.onlyOneUnary then
     preDefs[0]!.declName
   else
     if argsPacker.numFuncs > 1 then
@@ -75,9 +75,9 @@ Creates a single unary function from the given `preDefs`, using the machinery in
 module.
 -/
 def packMutual (fixedParams : Mutual.FixedParams) (argsPacker : ArgsPacker) (preDefs : Array PreDefinition) : MetaM PreDefinition := do
-  if fixedParams.fixedArePrefix && argsPacker.onlyOneUnary then
+  let newFn := mutualName fixedParams argsPacker preDefs
+  if newFn = preDefs[0]!.declName then
     return preDefs[0]!
-  let newFn := mutualName argsPacker preDefs
   -- Bring the fixed prefix into scope
   Mutual.forallTelescopeFixedParams fixedParams 0 preDefs[0]!.type fun ys => do
     let types ← preDefs.mapIdxM fun i preDef =>

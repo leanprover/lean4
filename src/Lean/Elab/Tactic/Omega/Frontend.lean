@@ -693,7 +693,9 @@ def omegaDefault : TacticM Unit := omegaTactic {}
 
 @[builtin_tactic Lean.Parser.Tactic.omega]
 def evalOmega : Tactic
-  | `(tactic| omega $cfg:optConfig) => do
+  | `(tactic| omega%$tk $cfg:optConfig) => do
+    -- Call `assumption` first, to avoid constructing unnecessary proofs.
+    withReducibleAndInstances (evalAssumption tk) <|> do
     let cfg ← elabOmegaConfig cfg
     omegaTactic cfg
   | _ => throwUnsupportedSyntax

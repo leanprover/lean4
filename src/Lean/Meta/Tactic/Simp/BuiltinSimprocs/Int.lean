@@ -48,19 +48,19 @@ The following code assumes users did not override the `Int` instances for the ar
 If they do, they must disable the following `simprocs`.
 -/
 
-builtin_dsimproc [simp, seval] reduceNeg ((- _ : Int)) := fun e => do
-  let_expr Neg.neg _ _ arg ← e | return .continue
-  -- if arg.isAppOfArity ``OfNat.ofNat 3 then
-  --   -- We return .done to ensure `Neg.neg` is not unfolded even when `ground := true`.
-  --   return .done e
-  -- else
-  let some v ← fromExpr? arg | return .continue
-  return .done <| toExpr (- v)
+-- builtin_dsimproc [simp, seval] reduceNeg ((- _ : Int)) := fun e => do
+--   let_expr Neg.neg _ _ arg ← e | return .continue
+--   if arg.isAppOfArity ``OfNat.ofNat 3 then
+--     -- We return .done to ensure `Neg.neg` is not unfolded even when `ground := true`.
+--     return .done e
+--   else
+--     let some v ← fromExpr? arg | return .continue
+--     return .done <| toExpr (- v)
 
-/-- Return `.done` for positive Int values. We don't want to unfold in the symbolic evaluator. -/
-builtin_dsimproc [seval] isPosValue ((OfNat.ofNat _ : Int)) := fun e => do
-  let_expr OfNat.ofNat _ _ _ ← e | return .continue
-  return .done e
+-- /-- Return `.done` for positive Int values. We don't want to unfold in the symbolic evaluator. -/
+-- builtin_dsimproc [seval] isPosValue ((OfNat.ofNat _ : Int)) := fun e => do
+--   let_expr OfNat.ofNat _ _ _ ← e | return .continue
+--   return .done e
 
 builtin_dsimproc [simp, seval] reduceAdd ((_ + _ : Int)) := reduceBin ``HAdd.hAdd 6 (· + ·)
 builtin_dsimproc [simp, seval] reduceMul ((_ * _ : Int)) := reduceBin ``HMul.hMul 6 (· * ·)

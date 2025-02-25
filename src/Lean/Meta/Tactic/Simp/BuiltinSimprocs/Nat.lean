@@ -78,10 +78,10 @@ builtin_simproc [simp, seval] reduceGT  (( _ : Nat) > _)  := reduceBinPred ``GT.
 builtin_dsimproc [simp, seval] reduceBEq  (( _ : Nat) == _)  := reduceBoolPred ``BEq.beq 4 (. == .)
 builtin_dsimproc [simp, seval] reduceBNe  (( _ : Nat) != _)  := reduceBoolPred ``bne 4 (. != .)
 
-/-- Return `.done` for Nat values. We don't want to unfold in the symbolic evaluator. -/
-builtin_dsimproc [seval] isValue ((OfNat.ofNat _ : Nat)) := fun e => do
-  let_expr OfNat.ofNat _ _ _ ← e | return .continue
-  return .done e
+-- /-- Return `.done` for Nat values. We don't want to unfold in the symbolic evaluator. -/
+-- builtin_dsimproc [seval] isValue ((OfNat.ofNat _ : Nat)) := fun e => do
+--   let_expr OfNat.ofNat _ _ _ ← e | return .continue
+--   return .done e
 
 /-- A literal natural number or a base + offset expression. -/
 private inductive NatOffset where

@@ -446,7 +446,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getpeername(b_obj_arg socket) {
     struct sockaddr addr_storage;
     int addr_len = sizeof(addr_storage);
 
+    event_loop_lock(&global_ev);
     int result = uv_tcp_getpeername(tcp_socket->m_uv_tcp, (struct sockaddr*)&addr_storage, &addr_len);
+    event_loop_unlock(&global_ev);
 
     if (result < 0) {
         return io_result_mk_error(uv_strerror(result));
@@ -464,7 +466,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getsockname(b_obj_arg socket) {
     struct sockaddr addr_storage;
     int addr_len = sizeof(addr_storage);
 
+    event_loop_lock(&global_ev);
     int result = uv_tcp_getsockname(tcp_socket->m_uv_tcp, &addr_storage, &addr_len);
+    event_loop_unlock(&global_ev);
 
     if (result < 0) {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
@@ -478,7 +482,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getsockname(b_obj_arg socket) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_nodelay(b_obj_arg socket) {
     lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
 
+    event_loop_lock(&global_ev);
     int result = uv_tcp_nodelay(tcp_socket->m_uv_tcp, 1);
+    event_loop_unlock(&global_ev);
 
     if (result < 0) {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
@@ -491,7 +497,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_nodelay(b_obj_arg socket) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int32_t enable, uint32_t delay) {
     lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
 
+    event_loop_lock(&global_ev);
     int result = uv_tcp_keepalive(tcp_socket->m_uv_tcp, enable, delay);
+    event_loop_unlock(&global_ev);
 
     if (result < 0) {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
@@ -499,28 +507,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int3
 
     return lean_io_result_mk_ok(lean_box(0));
 }
-
-/* Std.Internal.UV.TCP.Socket.isActive (socket : @& Socket) : IO Bool */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_is_active(b_obj_arg socket) {
-    lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
-    int active = uv_is_active((const uv_handle_t *)tcp_socket->m_uv_tcp);
-    return lean_io_result_mk_ok(lean_box(active != 0));
-}
-
-/* Std.Internal.UV.TCP.Socket.isReadable (socket : @& Socket) : IO Bool */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_is_readable(b_obj_arg socket) {
-    lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
-    int active = uv_is_readable((const uv_stream_t *)tcp_socket->m_uv_tcp);
-    return lean_io_result_mk_ok(lean_box(active != 0));
-}
-
-/* Std.Internal.UV.TCP.Socket.isWritable (socket : @& Socket) : IO Bool */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_is_writable(b_obj_arg socket) {
-    lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
-    int active = uv_is_writable((const uv_stream_t *)tcp_socket->m_uv_tcp);
-    return lean_io_result_mk_ok(lean_box(active != 0));
-}
-
 }
 
 #else

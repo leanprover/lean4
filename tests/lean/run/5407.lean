@@ -21,9 +21,8 @@ theorem odd_iff {n : Nat} : Odd n ↔ n % 2 = 1 := by
   | n + 2 => exact fun _ => Odd.add_two (odd_iff.mpr (by omega))
 
 /--
-error: found a proof, but the corresponding tactic
+error: found a proof, but the corresponding tactic failed:
   exact fun a => (fun {n} => odd_iff.mpr) a
-failed to compile
 -/
 #guard_msgs in
 example {n : Nat} : n % 2 = 1 → Odd n :=
@@ -34,18 +33,16 @@ example {n : Nat} : n % 2 = 1 → Odd n :=
 opaque A : Type
 opaque B : Type
 opaque C : Prop
-theorem imp : A → B → C := sorry
+axiom imp : A → B → C
+axiom a : A
+axiom b : B
 /--
-error: found a proof, but the corresponding tactic
-  exact imp h✝ h
-is invalid because the following variables have inaccessible names:
-  h✝
-To fix this, ensure these variables are not shadowed and are given explicit names when introduced.
+info: Try this: (expose_names; exact imp h_1 h)
 -/
 #guard_msgs in
 example : C := by
-  have h : A := sorry
-  have h : B := sorry
+  have h : A := a
+  have h : B := b
   exact?
 
 
@@ -53,9 +50,8 @@ example : C := by
 inductive EqExplicit {α} : α → α → Prop
   | intro : (a b : α) → a = b → EqExplicit a b
 /--
-error: found a proof, but the corresponding tactic
+error: found a proof, but the corresponding tactic failed:
   exact EqExplicit.intro (fun f => (fun g x => g x) f) id rfl
-failed to compile
 -/
 #guard_msgs in
 example : EqExplicit (fun (f : α → β) => (fun g x => g x) f) id := by
@@ -63,14 +59,13 @@ example : EqExplicit (fun (f : α → β) => (fun g x => g x) f) id := by
 
 /-! `apply?` logs info instead of erroring -/
 opaque D : Prop
-theorem option1 : A → D := sorry
-theorem option2 {_ : B} :  D := sorry
+axiom option1 : A → D
+axiom option2 {_ : B} : D
 /--
 info: Try this: refine option1 ?_
 ---
-info: found a partial proof, but the corresponding tactic
+info: found a partial proof, but the corresponding tactic failed:
   refine option2
-failed to compile
 ---
 warning: declaration uses 'sorry'
 -/

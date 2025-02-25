@@ -33,7 +33,7 @@ def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireCl
     let allowFailure := fun g => do
       let g ← g.withContext (instantiateMVars (.mvar g))
       return required.all fun e => e.occurs g
-    match ← librarySearch goal tactic allowFailure with
+    match (← librarySearch goal tactic allowFailure) with
     -- Found goal that closed problem
     | none =>
       addSuggestionIfValid ref mvar initialState
@@ -49,17 +49,6 @@ def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireCl
       if suggestions.isEmpty then logError "apply? didn't find any relevant lemmas"
       admitGoal goal
 where
-  /-- Returns all free variables in `e` that are shadowed or not user-enterable. -/
-  collectUnprintableFVars (e : Expr) : MetaM (List FVarId) := do
-    let lctx ← getLCtx
-    let { fvarSet, .. } := Lean.collectFVars {} e
-    let unprintableFVars := fvarSet.toList.filter fun fvarId =>
-      if let some name := lctx.getRoundtrippingUserName? fvarId then
-        name.isInaccessibleUserName || name.isAnonymous || name.hasNum
-      else
-        true
-    return unprintableFVars
-
   /--
   Executes `tac` in `savedState` (then restores the current state). Used to ensure that a suggested
   tactic is valid.
@@ -67,11 +56,11 @@ where
   Remark: we don't merely elaborate the proof term's syntax because it may successfully round-trip
   (d)elaboration but still produce an invalid tactic (see the example in #5407).
   -/
-  evalTacticInState (savedState : Tactic.SavedState) (tac : TSyntax `tactic) : TacticM Unit := do
+  evalTacticWithState (savedState : Tactic.SavedState) (tac : TSyntax `tactic) : TacticM Unit := do
     let currState ← saveState
     savedState.restore
     try
-      evalTactic tac
+      Term.withoutErrToSorry <| withoutRecover <| evalTactic tac
     finally
       currState.restore
 
@@ -82,32 +71,23 @@ where
   addSuggestionIfValid (ref : Syntax) (goal : MVarId) (initialState : Tactic.SavedState)
                        (addSubgoalsMsg := false) (errorOnInvalid := true) : TacticM Unit := do
     let proofExpr := (← instantiateMVars (mkMVar goal)).headBeta
-    let (suggestion, proofMVars) ← mkExactSuggestionSyntax proofExpr
+    let proofMVars ← getMVars proofExpr
     let hasMVars := !proofMVars.isEmpty
-    let unprintableFVars ← collectUnprintableFVars proofExpr
-    if unprintableFVars.length > 0 then
-      let exprMessageDatas := unprintableFVars.map (MessageData.ofExpr ∘ Expr.fvar)
-      let fvarsListMessage := MessageData.joinSep exprMessageDatas ", "
-      -- We use `ppExpr` here so that tombstones appear in the output
-      let pp ← withOptions (pp.mvars.set · false) (ppExpr proofExpr)
-      let ppProof := if hasMVars then m!"refine {pp}" else m!"exact {pp}"
-      let msg := m!"found a {if hasMVars then "partial " else ""}proof, but the corresponding tactic\
-                    {indentD ppProof}\n\
-                    is invalid because the following variables have inaccessible names:\
-                    {indentD fvarsListMessage}\n\
-                    To fix this, ensure these variables are not shadowed and are given explicit \
-                    names when introduced."
-      if errorOnInvalid then throwError msg else logInfo msg
-    else
-      try
-        evalTacticInState initialState suggestion
+    let suggestion ← mkExactSuggestionSyntax proofExpr (useRefine := hasMVars) (exposeNames := false)
+    let mut exposeNames := false
+    try evalTacticWithState initialState suggestion
+    catch _ =>
+      exposeNames := true
+      let suggestion' ← mkExactSuggestionSyntax proofExpr (useRefine := hasMVars) (exposeNames := true)
+      try evalTacticWithState initialState suggestion'
       catch _ =>
-        let suggestionPretty ← SuggestionText.prettyExtra suggestion
-        let msg := m!"found a {if hasMVars then "partial " else ""}proof, but the corresponding tactic\
-                      {indentD suggestionPretty}\nfailed to compile"
+        let suggestionStr ← SuggestionText.prettyExtra suggestion
+        -- Pretty-print the version without `expose_names` so variable names match the Infoview
+        let msg := m!"found a {if hasMVars then "partial " else ""}proof, \
+                      but the corresponding tactic failed:{indentD suggestionStr}"
         if errorOnInvalid then throwError msg else logInfo msg
         return
-      addExactSuggestion ref proofExpr (addSubgoalsMsg := addSubgoalsMsg)
+    addExactSuggestion ref proofExpr (addSubgoalsMsg := addSubgoalsMsg) (exposeNames := exposeNames)
 
 @[builtin_tactic Lean.Parser.Tactic.exact?]
 def evalExact : Tactic := fun stx => do

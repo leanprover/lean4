@@ -299,7 +299,7 @@ theorem State.cons_le_of_eq (h₁ : σ' ≼ σ) (h₂ : σ.find? x = some v) : (
   grind
 
 @[grind] theorem State.join_le_left (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₁ := by
-  induction σ₁, σ₂ using State.join.induct <;> grind
+  induction σ₁ using State.join.induct σ₂ <;> grind
 
 @[grind] theorem State.join_le_left_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₁.join σ₃ ≼ σ₂ := by
   grind

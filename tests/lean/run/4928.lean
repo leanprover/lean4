@@ -1,17 +1,16 @@
 /--
 error: tactic 'fail' failed
-x y : Nat
-⊢ x - 1 < x
+z : Nat
+⊢ z - 1 < z
 -/
 #guard_msgs in
-def g (x : Nat) (y : Nat) : Nat := g (x - 1) y
-termination_by x
+def g (z : Nat) (y : Nat) : Nat := g (z - 1) y
+termination_by z
 decreasing_by fail
 
 /--
 error: tactic 'fail' failed
 x : List Nat
-y : Nat
 ⊢ sizeOf x.tail < sizeOf x
 -/
 #guard_msgs in
@@ -22,7 +21,6 @@ decreasing_by fail
 /--
 error: tactic 'fail' failed
 x : List Nat
-y : Nat
 ⊢ x.tail.length < x.length
 -/
 #guard_msgs in

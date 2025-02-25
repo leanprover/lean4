@@ -215,7 +215,8 @@ def getFixedParams (preDefs : Array PreDefinition) : MetaM FixedParams := do
 Brings the fixed parameters from `type`, which should the the type of the `funIdx`'s function, into
 scope.
 -/
-def forallTelescopeFixedParams (fixedParams : FixedParams) (funIdx : Nat) (type : Expr) (k : Array Expr → MetaM α) : MetaM α := do
+partial def forallTelescopeFixedParams (fixedParams : FixedParams) (funIdx : Nat) (type : Expr) (k : Array Expr → MetaM α) : MetaM α := do
+  /-
   -- Local implementation shortcut:
   -- We just bring all into scope and then remove the ones we didn't want.
   forallBoundedTelescope type (fixedParams.mappings[funIdx]!.size) fun xs _ => do
@@ -230,6 +231,24 @@ def forallTelescopeFixedParams (fixedParams : FixedParams) (funIdx : Nat) (type 
         zs := zs.push x.fvarId!
     assert! ys.size = fixedParams.size
     withErasedFVars zs (k ys)
+  -/
+  go 0 type #[]
+where
+  go i type xs := do
+    match fixedParams.mappings[funIdx]![i]? with
+    | .some (Option.some _) =>
+      forallBoundedTelescope type (some 1) fun xs' type => do
+        assert! xs'.size = 1
+        assert! !(← inferType xs'[0]!).hasLooseBVars
+        go (i + 1) type (xs ++ xs')
+    | .some .none =>
+      let type ← whnf type
+      assert! type.isForall
+      go (i + 1) type.bindingBody! xs
+    | .none =>
+      -- TODO: Reorder xs if funIdx is not 0
+      k xs
+
 
 /--
 If `type` is the type of the `funIdx`'s function, instantiate the fixed paramters.

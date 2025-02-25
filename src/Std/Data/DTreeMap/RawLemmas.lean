@@ -49,11 +49,6 @@ theorem mem_congr [TransCmp cmp] (h : t.WF) {k k' : α} (hab : cmp k k' = .eq) :
   Impl.mem_congr h hab
 
 @[simp]
-theorem isEmpty_insertIfNew [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
-    (t.insertIfNew k v).isEmpty = false :=
-  Impl.isEmpty_insertIfNew! h
-
-@[simp]
 theorem contains_emptyc {k : α} : (∅ : Raw α β cmp).contains k = false :=
   Impl.contains_empty
 
@@ -199,44 +194,6 @@ theorem containsThenInsertIfNew_fst [TransCmp cmp] (h : t.WF) {k : α} {v : β k
 theorem containsThenInsertIfNew_snd [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsertIfNew k v).2 = t.insertIfNew k v :=
   ext <| Impl.containsThenInsertIfNew!_snd h
-
-@[simp]
-theorem contains_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :
-    (t.insertIfNew k v).contains a = (cmp k a == .eq || t.contains a) :=
-  Impl.contains_insertIfNew! h
-
-@[simp]
-theorem mem_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :
-    a ∈ t.insertIfNew k v ↔ cmp k a = .eq ∨ a ∈ t :=
-  Impl.mem_insertIfNew! h
-
-theorem contains_insertIfNew_self [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
-    (t.insertIfNew k v).contains k :=
-  Impl.contains_insertIfNew!_self h
-
-theorem mem_insertIfNew_self [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
-    k ∈ t.insertIfNew k v :=
-  Impl.mem_insertIfNew!_self h
-
-theorem contains_of_contains_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :
-    (t.insertIfNew k v).contains a → cmp k a ≠ .eq → t.contains a :=
-  Impl.contains_of_contains_insertIfNew! h
-
-theorem mem_of_mem_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :
-    a ∈ t.insertIfNew k v → cmp k a ≠ .eq → a ∈ t :=
-  Impl.contains_of_contains_insertIfNew! h
-
-theorem size_insertIfNew [TransCmp cmp] {k : α} (h : t.WF) {v : β k} :
-    (t.insertIfNew k v).size = if k ∈ t then t.size else t.size + 1 :=
-  Impl.size_insertIfNew! h
-
-theorem size_le_size_insertIfNew [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
-    t.size ≤ (t.insertIfNew k v).size :=
-  Impl.size_le_size_insertIfNew! h
-
-theorem size_insertIfNew_le [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
-    (t.insertIfNew k v).size ≤ t.size + 1 :=
-  Impl.size_insertIfNew!_le h
 
 @[simp]
 theorem get?_emptyc [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
@@ -689,23 +646,24 @@ theorem getKey_insert [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} {h₁} :
       if h₂ : cmp k a = .eq then
         k
       else
-        t.getKey a (contains_of_contains_insert h h₁ h₂) :=
+        t.getKey a (mem_of_mem_insert h h₁ h₂) :=
   Impl.getKey_insert! h
 
 @[simp]
 theorem getKey_insert_self [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
-    (t.insert k v).getKey k (contains_insert_self h) = k :=
+    (t.insert k v).getKey k (mem_insert_self h) = k :=
   Impl.getKey_insert!_self h
 
 @[simp]
 theorem getKey_erase [TransCmp cmp] (h : t.WF) {k a : α} {h'} :
-    (t.erase k).getKey a h' = t.getKey a (contains_of_contains_erase h h') :=
+    (t.erase k).getKey a h' = t.getKey a (mem_of_mem_erase h h') :=
   Impl.getKey_erase! h
 
 theorem getKey?_eq_some_getKey [TransCmp cmp] (h : t.WF) {a : α} {h'} :
     t.getKey? a = some (t.getKey a h') :=
   Impl.getKey?_eq_some_getKey h
 
+@[simp]
 theorem getKey!_emptyc {a : α} [Inhabited α] :
     (∅ : DTreeMap α β cmp).getKey! a = default :=
   Impl.getKey!_empty
@@ -714,14 +672,13 @@ theorem getKey!_of_isEmpty [TransCmp cmp] [Inhabited α] (h : t.WF) {a : α} :
     t.isEmpty = true → t.getKey! a = default :=
   Impl.getKey!_of_isEmpty h
 
-theorem getKey!_insert [TransCmp cmp] [Inhabited α] (h : t.WF) {k a : α}
-    {v : β k} :
+theorem getKey!_insert [TransCmp cmp] [Inhabited α] (h : t.WF) {k a : α} {v : β k} :
     (t.insert k v).getKey! a = if cmp k a = .eq then k else t.getKey! a :=
   Impl.getKey!_insert! h
 
 @[simp]
-theorem getKey!_insert_self [TransCmp cmp] [Inhabited α] (h : t.WF) {a : α}
-    {b : β a} : (t.insert a b).getKey! a = a :=
+theorem getKey!_insert_self [TransCmp cmp] [Inhabited α] (h : t.WF) {a : α} {b : β a} :
+    (t.insert a b).getKey! a = a :=
   Impl.getKey!_insert!_self h
 
 theorem getKey!_eq_default_of_contains_eq_false [TransCmp cmp] [Inhabited α] (h : t.WF) {a : α} :
@@ -757,6 +714,7 @@ theorem getKey_eq_getKey! [TransCmp cmp] [Inhabited α] (h : t.WF) {a : α} {h'}
     t.getKey a h' = t.getKey! a :=
   Impl.getKey_eq_getKey! h
 
+@[simp]
 theorem getKeyD_emptyc {a : α} {fallback : α} :
     (∅ : DTreeMap α β cmp).getKeyD a fallback = fallback :=
   Impl.getKeyD_empty
@@ -766,8 +724,7 @@ theorem getKeyD_of_isEmpty [TransCmp cmp] (h : t.WF) {a fallback : α} :
   Impl.getKeyD_of_isEmpty h
 
 theorem getKeyD_insert [TransCmp cmp] (h : t.WF) {k a fallback : α} {v : β k} :
-    (t.insert k v).getKeyD a fallback =
-      if cmp k a = .eq then k else t.getKeyD a fallback :=
+    (t.insert k v).getKeyD a fallback = if cmp k a = .eq then k else t.getKeyD a fallback :=
   Impl.getKeyD_insert! h
 
 @[simp]
@@ -813,16 +770,58 @@ theorem getKey!_eq_getKeyD_default [TransCmp cmp] [Inhabited α] (h : t.WF) {a :
     t.getKey! a = t.getKeyD a default :=
   Impl.getKey!_eq_getKeyD_default h
 
-/-- This is a restatement of `contains_of_contains_insertIfNew` that is written to exactly match the
+@[simp]
+theorem isEmpty_insertIfNew [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
+    (t.insertIfNew k v).isEmpty = false :=
+  Impl.isEmpty_insertIfNew! h
+
+@[simp]
+theorem contains_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :
+    (t.insertIfNew k v).contains a = (cmp k a == .eq || t.contains a) :=
+  Impl.contains_insertIfNew! h
+
+@[simp]
+theorem mem_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :
+    a ∈ t.insertIfNew k v ↔ cmp k a = .eq ∨ a ∈ t :=
+  Impl.mem_insertIfNew! h
+
+theorem contains_insertIfNew_self [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
+    (t.insertIfNew k v).contains k :=
+  Impl.contains_insertIfNew!_self h
+
+theorem mem_insertIfNew_self [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
+    k ∈ t.insertIfNew k v :=
+  Impl.mem_insertIfNew!_self h
+
+theorem contains_of_contains_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :
+    (t.insertIfNew k v).contains a → cmp k a ≠ .eq → t.contains a :=
+  Impl.contains_of_contains_insertIfNew! h
+
+theorem mem_of_mem_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :
+    a ∈ t.insertIfNew k v → cmp k a ≠ .eq → a ∈ t :=
+  Impl.contains_of_contains_insertIfNew! h
+
+/-- This is a restatement of `mem_of_mem_insertIfNew` that is written to exactly match the
 proof obligation in the statement of `get_insertIfNew`. -/
-theorem contains_of_contains_insertIfNew' [TransCmp cmp] (h : t.WF) {k a : α}
-    {v : β k} :
-    (t.insertIfNew k v).contains a → ¬ (cmp k a = .eq ∧ t.contains k = false) → t.contains a :=
-  Impl.contains_of_contains_insertIfNew!' h
+theorem mem_of_mem_insertIfNew' [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :
+    a ∈ t.insertIfNew k v → ¬ (cmp k a = .eq ∧ ¬ k ∈ t) → a ∈ t :=
+  Impl.mem_of_mem_insertIfNew!' h
+
+theorem size_insertIfNew [TransCmp cmp] {k : α} (h : t.WF) {v : β k} :
+    (t.insertIfNew k v).size = if k ∈ t then t.size else t.size + 1 :=
+  Impl.size_insertIfNew! h
+
+theorem size_le_size_insertIfNew [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
+    t.size ≤ (t.insertIfNew k v).size :=
+  Impl.size_le_size_insertIfNew! h
+
+theorem size_insertIfNew_le [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
+    (t.insertIfNew k v).size ≤ t.size + 1 :=
+  Impl.size_insertIfNew!_le h
 
 theorem get?_insertIfNew [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} {v : β k} :
     (t.insertIfNew k v).get? a =
-      if h : cmp k a = .eq ∧ t.contains k = false then
+      if h : cmp k a = .eq ∧ ¬ k ∈ t then
         some (cast (congrArg β (compare_eq_iff_eq.mp h.1)) v)
       else
         t.get? a :=
@@ -830,15 +829,15 @@ theorem get?_insertIfNew [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} 
 
 theorem get_insertIfNew [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} {v : β k} {h₁} :
     (t.insertIfNew k v).get a h₁ =
-      if h₂ : cmp k a = .eq ∧ t.contains k = false then
+      if h₂ : cmp k a = .eq ∧ ¬ k ∈ t then
         cast (congrArg β (compare_eq_iff_eq.mp h₂.1)) v
       else
-        t.get a (contains_of_contains_insertIfNew' h h₁ h₂) :=
+        t.get a (mem_of_mem_insertIfNew' h h₁ h₂) :=
   Impl.get_insertIfNew! h
 
 theorem get!_insertIfNew [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} [Inhabited (β a)] {v : β k} :
     (t.insertIfNew k v).get! a =
-      if h : cmp k a = .eq ∧ t.contains k = false then
+      if h : cmp k a = .eq ∧ ¬ k ∈ t then
         cast (congrArg β (compare_eq_iff_eq.mp h.1)) v
       else
         t.get! a :=
@@ -846,7 +845,7 @@ theorem get!_insertIfNew [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} 
 
 theorem getD_insertIfNew [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} {fallback : β a} {v : β k} :
     (t.insertIfNew k v).getD a fallback =
-      if h : cmp k a = .eq ∧ t.contains k = false then
+      if h : cmp k a = .eq ∧ ¬ k ∈ t then
         cast (congrArg β (compare_eq_iff_eq.mp h.1)) v
       else
         t.getD a fallback :=
@@ -858,54 +857,50 @@ variable {β : Type v} {t : Raw α β cmp}
 
 theorem get?_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β} :
     get? (t.insertIfNew k v) a =
-      if cmp k a = .eq ∧ t.contains k = false then
-        some v
-      else
-        get? t a :=
+      if cmp k a = .eq ∧ ¬ k ∈ t then some v else get? t a :=
   Impl.Const.get?_insertIfNew! h
 
 theorem get_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β} {h₁} :
     get (t.insertIfNew k v) a h₁ =
-      if h₂ : cmp k a = .eq ∧ t.contains k = false then
+      if h₂ : cmp k a = .eq ∧ ¬ k ∈ t then
         v
       else
-        get t a (contains_of_contains_insertIfNew' h h₁ h₂) :=
+        get t a (mem_of_mem_insertIfNew' h h₁ h₂) :=
   Impl.Const.get_insertIfNew! h
 
-theorem get!_insertIfNew [TransCmp cmp] [Inhabited β] (h : t.WF) {k a : α}
-    {v : β} :
+theorem get!_insertIfNew [TransCmp cmp] [Inhabited β] (h : t.WF) {k a : α} {v : β} :
     get! (t.insertIfNew k v) a =
-      if cmp k a = .eq ∧ t.contains k = false then v else get! t a :=
+      if cmp k a = .eq ∧ ¬ k ∈ t then v else get! t a :=
   Impl.Const.get!_insertIfNew! h
 
 theorem getD_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {fallback v : β} :
     getD (t.insertIfNew k v) a fallback =
-      if cmp k a = .eq ∧ t.contains k = false then v else getD t a fallback :=
+      if cmp k a = .eq ∧ ¬ k ∈ t then v else getD t a fallback :=
   Impl.Const.getD_insertIfNew! h
 
 end Const
 
 theorem getKey?_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :
     (t.insertIfNew k v).getKey? a =
-      if cmp k a = .eq ∧ t.contains k = false then some k else t.getKey? a :=
+      if cmp k a = .eq ∧ ¬ k ∈ t then some k else t.getKey? a :=
   Impl.getKey?_insertIfNew! h
 
 theorem getKey_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} {h₁} :
     (t.insertIfNew k v).getKey a h₁ =
-      if h₂ : cmp k a = .eq ∧ t.contains k = false then k
-      else t.getKey a (contains_of_contains_insertIfNew' h h₁ h₂) :=
+      if h₂ : cmp k a = .eq ∧ ¬ k ∈ t then k
+      else t.getKey a (mem_of_mem_insertIfNew' h h₁ h₂) :=
   Impl.getKey_insertIfNew! h
 
 theorem getKey!_insertIfNew [TransCmp cmp] [Inhabited α] (h : t.WF) {k a : α}
     {v : β k} :
     (t.insertIfNew k v).getKey! a =
-      if cmp k a = .eq ∧ t.contains k = false then k else t.getKey! a :=
+      if cmp k a = .eq ∧ ¬ k ∈ t then k else t.getKey! a :=
   Impl.getKey!_insertIfNew! h
 
 theorem getKeyD_insertIfNew [TransCmp cmp] (h : t.WF) {k a fallback : α}
     {v : β k} :
     (t.insertIfNew k v).getKeyD a fallback =
-      if cmp k a = .eq ∧ t.contains k = false then k else t.getKeyD a fallback :=
+      if cmp k a = .eq ∧ ¬ k ∈ t then k else t.getKeyD a fallback :=
   Impl.getKeyD_insertIfNew! h
 
 end Std.DTreeMap.Raw

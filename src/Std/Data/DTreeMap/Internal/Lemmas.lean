@@ -1195,18 +1195,20 @@ theorem mem_of_mem_insertIfNew!' [TransOrd α] (h : t.WF) {k a : α}
 
 theorem get?_insertIfNew [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {v : β k} :
     (t.insertIfNew k v h.balanced).impl.get? a =
-      if h : compare k a = .eq ∧ t.contains k = false then
+      if h : compare k a = .eq ∧ ¬ k ∈ t then
         some (cast (congrArg β (compare_eq_iff_eq.mp h.1)) v)
       else
         t.get? a := by
+  simp only [mem_iff_contains, Bool.not_eq_true]
   simp_to_model [insertIfNew] using List.getValueCast?_insertEntryIfNew
 
 theorem get?_insertIfNew! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {v : β k} :
     (t.insertIfNew! k v).get? a =
-      if h : compare k a = .eq ∧ t.contains k = false then
+      if h : compare k a = .eq ∧ ¬ k ∈ t then
         some (cast (congrArg β (compare_eq_iff_eq.mp h.1)) v)
       else
         t.get? a := by
+  simp only [mem_iff_contains, Bool.not_eq_true]
   simp_to_model [insertIfNew!] using List.getValueCast?_insertEntryIfNew
 
 theorem get_insertIfNew [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {v : β k} {h₁} :

@@ -112,6 +112,12 @@ theorem mem_of_mem_insert [TransCmp cmp] {k a : α} :
     a ∈ t.insert k → cmp k a ≠ .eq → a ∈ t :=
   TreeMap.mem_of_mem_insertIfNew
 
+/-- This is a restatement of `mem_of_mem_insert` that is written to exactly match the
+proof obligation in the statement of `get_insert`. -/
+theorem mem_of_mem_insert' [TransCmp cmp] {k a : α} :
+    a ∈ t.insert k → ¬ (cmp k a = .eq ∧ ¬ k ∈ t) → a ∈ t :=
+  TreeMap.mem_of_mem_insertIfNew'
+
 @[simp]
 theorem size_emptyc : (∅ : TreeSet α cmp).size = 0 :=
   TreeMap.size_emptyc
@@ -172,6 +178,22 @@ theorem size_le_size_erase [TransCmp cmp] {k : α} :
     t.size ≤ (t.erase k).size + 1 :=
   TreeMap.size_le_size_erase
 
+@[simp]
+theorem get?_emptyc {a : α} : (∅ : TreeSet α cmp).get? a = none :=
+  TreeMap.getKey?_emptyc
+
+theorem get?_of_isEmpty [TransCmp cmp] {a : α} :
+    t.isEmpty = true → t.get? a = none :=
+  TreeMap.getKey?_of_isEmpty
+
+theorem get?_insert [TransCmp cmp] {k a : α} :
+    (t.insert k).get? a = if cmp k a = .eq ∧ ¬k ∈ t then some k else t.get? a :=
+  TreeMap.getKey?_insertIfNew
+
+theorem contains_eq_isSome_get? [TransCmp cmp] {a : α} :
+    t.contains a = (t.get? a).isSome :=
+  TreeMap.contains_eq_isSome_getKey?
+
 theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → t.get? a = none :=
   TreeMap.getKey?_eq_none_of_contains_eq_false
@@ -191,26 +213,20 @@ theorem get?_erase_self [TransCmp cmp] {k : α} :
 
 theorem get_insert [TransCmp cmp] {k a : α} {h₁} :
     (t.insert k).get a h₁ =
-      if h₂ : cmp k a = .eq then
-        k
-      else
-        t.get a (contains_of_contains_insert h₁ h₂) :=
+      if h₂ : cmp k a = .eq ∧ ¬ k ∈ t then k
+      else t.get a (mem_of_mem_insert' h₁ h₂) :=
   TreeMap.getKey_insertIfNew
 
 @[simp]
-theorem get_insert_self [TransCmp cmp] {k : α} :
-    (t.insert k).get k contains_insert_self = k :=
-  TreeMap.getKey_insertIfNew_self
-
-@[simp]
 theorem get_erase [TransCmp cmp] {k a : α} {h'} :
-    (t.erase k).get a h' = t.get a (contains_of_contains_erase h') :=
+    (t.erase k).get a h' = t.get a (mem_of_mem_erase h') :=
   TreeMap.getKey_erase
 
 theorem get?_eq_some_get [TransCmp cmp] {a : α} {h'} :
     t.get? a = some (t.get a h') :=
   TreeMap.getKey?_eq_some_getKey
 
+@[simp]
 theorem get!_emptyc {a : α} [Inhabited α] :
     (∅ : TreeSet α cmp).get! a = default :=
   TreeMap.getKey!_emptyc
@@ -220,11 +236,8 @@ theorem get!_of_isEmpty [TransCmp cmp] [Inhabited α] {a : α} :
   TreeMap.getKey!_of_isEmpty
 
 theorem get!_insert [TransCmp cmp] [Inhabited α] {k a : α} :
-    (t.insert k).get! a = if cmp k a = .eq then k else t.get! a :=
+    (t.insert k).get! a = if cmp k a = .eq ∧ ¬ k ∈ t then k else t.get! a :=
   TreeMap.getKey!_insertIfNew
-
-theorem get!_insert_self [TransCmp cmp] [Inhabited α] {a : α} : (t.insert a).get! a = a :=
-  TreeMap.getKey!_insertIfNew_self
 
 theorem get!_eq_default_of_contains_eq_false [TransCmp cmp] [Inhabited α] {a : α} :
     t.contains a = false → t.get! a = default :=
@@ -259,6 +272,7 @@ theorem get_eq_get! [TransCmp cmp] [Inhabited α] {a : α} {h} :
     t.get a h = t.get! a :=
   TreeMap.getKey_eq_getKey!
 
+@[simp]
 theorem getD_emptyc {a : α} {fallback : α} :
     (∅ : TreeSet α cmp).getD a fallback = fallback :=
   TreeMap.getKeyD_emptyc
@@ -269,13 +283,8 @@ theorem getD_of_isEmpty [TransCmp cmp] {a fallback : α} :
 
 theorem getD_insert [TransCmp cmp] {k a fallback : α} :
     (t.insert k).getD a fallback =
-      if cmp k a = .eq then k else t.getD a fallback :=
+      if cmp k a = .eq ∧ ¬ k ∈ t then k else t.getD a fallback :=
   TreeMap.getKeyD_insertIfNew
-
-@[simp]
-theorem getD_insert_self [TransCmp cmp] {a fallback : α} :
-    (t.insert a).getD a fallback = a :=
-  TreeMap.getKeyD_insertIfNew_self
 
 theorem getD_eq_fallback_of_contains_eq_false [TransCmp cmp] {a fallback : α} :
     t.contains a = false → t.getD a fallback = fallback :=
@@ -300,7 +309,7 @@ theorem get?_eq_some_getD_of_contains [TransCmp cmp] {a fallback : α} :
   TreeMap.getKey?_eq_some_getKeyD_of_contains
 
 theorem get?_eq_some_getD [TransCmp cmp] {a fallback : α} :
-  a ∈ t → t.get? a = some (t.getD a fallback) :=
+    a ∈ t → t.get? a = some (t.getD a fallback) :=
   TreeMap.getKey?_eq_some_getKeyD
 
 theorem getD_eq_getD_get? [TransCmp cmp] {a fallback : α} :

@@ -46,11 +46,6 @@ theorem mem_congr [TransCmp cmp] (h : t.WF) {k k' : α} (hab : cmp k k' = .eq) :
   DTreeMap.Raw.mem_congr h hab
 
 @[simp]
-theorem isEmpty_insertIfNew [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
-    (t.insertIfNew k v).isEmpty = false :=
-  DTreeMap.Raw.isEmpty_insertIfNew h
-
-@[simp]
 theorem contains_emptyc {k : α} : (∅ : Raw α β cmp).contains k = false :=
   DTreeMap.Raw.contains_emptyc
 
@@ -196,44 +191,6 @@ theorem containsThenInsertIfNew_fst [TransCmp cmp] (h : t.WF) {k : α} {v : β} 
 theorem containsThenInsertIfNew_snd [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
     (t.containsThenInsertIfNew k v).2 = t.insertIfNew k v :=
   ext <| DTreeMap.Raw.containsThenInsertIfNew_snd h
-
-@[simp]
-theorem contains_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β} :
-    (t.insertIfNew k v).contains a = (cmp k a == .eq || t.contains a) :=
-  DTreeMap.Raw.contains_insertIfNew h
-
-@[simp]
-theorem mem_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β} :
-    a ∈ t.insertIfNew k v ↔ cmp k a = .eq ∨ a ∈ t :=
-  DTreeMap.Raw.mem_insertIfNew h
-
-theorem contains_insertIfNew_self [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
-    (t.insertIfNew k v).contains k :=
-  DTreeMap.Raw.contains_insertIfNew_self h
-
-theorem mem_insertIfNew_self [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
-    k ∈ t.insertIfNew k v :=
-  DTreeMap.Raw.mem_insertIfNew_self h
-
-theorem contains_of_contains_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β} :
-    (t.insertIfNew k v).contains a → cmp k a ≠ .eq → t.contains a :=
-  DTreeMap.Raw.contains_of_contains_insertIfNew h
-
-theorem mem_of_mem_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β} :
-    a ∈ t.insertIfNew k v → cmp k a ≠ .eq → a ∈ t :=
-  DTreeMap.Raw.contains_of_contains_insertIfNew h
-
-theorem size_insertIfNew [TransCmp cmp] {k : α} (h : t.WF) {v : β} :
-    (t.insertIfNew k v).size = if k ∈ t then t.size else t.size + 1 :=
-  DTreeMap.Raw.size_insertIfNew h
-
-theorem size_le_size_insertIfNew [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
-    t.size ≤ (t.insertIfNew k v).size :=
-  DTreeMap.Raw.size_le_size_insertIfNew h
-
-theorem size_insertIfNew_le [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
-    (t.insertIfNew k v).size ≤ t.size + 1 :=
-  DTreeMap.Raw.size_insertIfNew_le h
 
 @[simp] theorem get_eq_getElem {a : α} {h} : get t a h = t[a]'h := rfl
 @[simp] theorem get?_eq_getElem? {a : α} : get? t a = t[a]? := rfl
@@ -471,26 +428,24 @@ theorem getKey?_erase_self [TransCmp cmp] (h : t.WF) {k : α} :
 
 theorem getKey_insert [TransCmp cmp] (h : t.WF) {k a : α} {v : β} {h₁} :
     (t.insert k v).getKey a h₁ =
-      if h₂ : cmp k a = .eq then
-        k
-      else
-        t.getKey a (contains_of_contains_insert h h₁ h₂) :=
+      if h₂ : cmp k a = .eq then k else t.getKey a (mem_of_mem_insert h h₁ h₂) :=
   DTreeMap.Raw.getKey_insert h
 
 @[simp]
 theorem getKey_insert_self [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
-    (t.insert k v).getKey k (contains_insert_self h) = k :=
+    (t.insert k v).getKey k (mem_insert_self h) = k :=
   DTreeMap.Raw.getKey_insert_self h
 
 @[simp]
 theorem getKey_erase [TransCmp cmp] (h : t.WF) {k a : α} {h'} :
-    (t.erase k).getKey a h' = t.getKey a (contains_of_contains_erase h h') :=
+    (t.erase k).getKey a h' = t.getKey a (mem_of_mem_erase h h') :=
   DTreeMap.Raw.getKey_erase h
 
 theorem getKey?_eq_some_getKey [TransCmp cmp] (h : t.WF) {a : α} {h'} :
     t.getKey? a = some (t.getKey a h') :=
   DTreeMap.Raw.getKey?_eq_some_getKey h
 
+@[simp]
 theorem getKey!_emptyc {a : α} [Inhabited α] :
     (∅ : Raw α β cmp).getKey! a = default :=
   DTreeMap.Raw.getKey!_emptyc
@@ -503,6 +458,7 @@ theorem getKey!_insert [TransCmp cmp] [Inhabited α] (h : t.WF) {k a : α}
     {v : β} : (t.insert k v).getKey! a = if cmp k a = .eq then k else t.getKey! a :=
   DTreeMap.Raw.getKey!_insert h
 
+@[simp]
 theorem getKey!_insert_self [TransCmp cmp] [Inhabited α] (h : t.WF) {a : α}
     {b : β} : (t.insert a b).getKey! a = a :=
   DTreeMap.Raw.getKey!_insert_self h
@@ -540,6 +496,7 @@ theorem getKey_eq_getKey! [TransCmp cmp] [Inhabited α] (h : t.WF) {a : α} {h'}
     t.getKey a h' = t.getKey! a :=
   DTreeMap.Raw.getKey_eq_getKey! h
 
+@[simp]
 theorem getKeyD_emptyc {a : α} {fallback : α} :
     (∅ : Raw α β cmp).getKeyD a fallback = fallback :=
   DTreeMap.Raw.getKeyD_emptyc
@@ -596,17 +553,60 @@ theorem getKey!_eq_getKeyD_default [TransCmp cmp] [Inhabited α] (h : t.WF) {a :
     t.getKey! a = t.getKeyD a default :=
   DTreeMap.Raw.getKey!_eq_getKeyD_default h
 
-/-- This is a restatement of `contains_of_contains_insertIfNew` that is written to exactly match the
+@[simp]
+theorem isEmpty_insertIfNew [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+    (t.insertIfNew k v).isEmpty = false :=
+  DTreeMap.Raw.isEmpty_insertIfNew h
+
+@[simp]
+theorem contains_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β} :
+    (t.insertIfNew k v).contains a = (cmp k a == .eq || t.contains a) :=
+  DTreeMap.Raw.contains_insertIfNew h
+
+@[simp]
+theorem mem_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β} :
+    a ∈ t.insertIfNew k v ↔ cmp k a = .eq ∨ a ∈ t :=
+  DTreeMap.Raw.mem_insertIfNew h
+
+theorem contains_insertIfNew_self [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+    (t.insertIfNew k v).contains k :=
+  DTreeMap.Raw.contains_insertIfNew_self h
+
+theorem mem_insertIfNew_self [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+    k ∈ t.insertIfNew k v :=
+  DTreeMap.Raw.mem_insertIfNew_self h
+
+theorem contains_of_contains_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β} :
+    (t.insertIfNew k v).contains a → cmp k a ≠ .eq → t.contains a :=
+  DTreeMap.Raw.contains_of_contains_insertIfNew h
+
+theorem mem_of_mem_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β} :
+    a ∈ t.insertIfNew k v → cmp k a ≠ .eq → a ∈ t :=
+  DTreeMap.Raw.contains_of_contains_insertIfNew h
+
+/-- This is a restatement of `mem_of_mem_insertIfNew` that is written to exactly match the
 proof obligation in the statement of `get_insertIfNew`. -/
-theorem contains_of_contains_insertIfNew' [TransCmp cmp] (h : t.WF) {k a : α}
+theorem mem_of_mem_insertIfNew' [TransCmp cmp] (h : t.WF) {k a : α}
     {v : β} :
-    (t.insertIfNew k v).contains a →
-      ¬ (cmp k a = .eq ∧ t.contains k = false) → t.contains a :=
-  DTreeMap.Raw.contains_of_contains_insertIfNew' h
+    a ∈ (t.insertIfNew k v) →
+      ¬ (cmp k a = .eq ∧ ¬ k ∈ t) → a ∈ t :=
+  DTreeMap.Raw.mem_of_mem_insertIfNew' h
+
+theorem size_insertIfNew [TransCmp cmp] {k : α} (h : t.WF) {v : β} :
+    (t.insertIfNew k v).size = if k ∈ t then t.size else t.size + 1 :=
+  DTreeMap.Raw.size_insertIfNew h
+
+theorem size_le_size_insertIfNew [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+    t.size ≤ (t.insertIfNew k v).size :=
+  DTreeMap.Raw.size_le_size_insertIfNew h
+
+theorem size_insertIfNew_le [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+    (t.insertIfNew k v).size ≤ t.size + 1 :=
+  DTreeMap.Raw.size_insertIfNew_le h
 
 theorem getElem?_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β} :
     (t.insertIfNew k v)[a]? =
-      if cmp k a = .eq ∧ t.contains k = false then
+      if cmp k a = .eq ∧ ¬ k ∈ t then
         some v
       else
         t[a]? :=
@@ -614,42 +614,42 @@ theorem getElem?_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β} :
 
 theorem getElem_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β} {h₁} :
     (t.insertIfNew k v)[a]'h₁ =
-      if h₂ : cmp k a = .eq ∧ t.contains k = false then
+      if h₂ : cmp k a = .eq ∧ ¬ k ∈ t then
         v
       else
-        t[a]'(contains_of_contains_insertIfNew' h h₁ h₂) :=
+        t[a]'(mem_of_mem_insertIfNew' h h₁ h₂) :=
   DTreeMap.Raw.Const.get_insertIfNew h
 
 theorem getElem!_insertIfNew [TransCmp cmp] [Inhabited β] (h : t.WF) {k a : α} {v : β} :
-    (t.insertIfNew k v)[a]! = if cmp k a = .eq ∧ t.contains k = false then v else t[a]! :=
+    (t.insertIfNew k v)[a]! = if cmp k a = .eq ∧ ¬ k ∈ t then v else t[a]! :=
   DTreeMap.Raw.Const.get!_insertIfNew h
 
 theorem getD_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {fallback v : β} :
     getD (t.insertIfNew k v) a fallback =
-      if cmp k a = .eq ∧ t.contains k = false then v else getD t a fallback :=
+      if cmp k a = .eq ∧ ¬ k ∈ t then v else getD t a fallback :=
   DTreeMap.Raw.Const.getD_insertIfNew h
 
 theorem getKey?_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β} :
     (t.insertIfNew k v).getKey? a =
-      if cmp k a = .eq ∧ t.contains k = false then some k else t.getKey? a :=
+      if cmp k a = .eq ∧ ¬ k ∈ t then some k else t.getKey? a :=
   DTreeMap.Raw.getKey?_insertIfNew h
 
 theorem getKey_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β} {h₁} :
     (t.insertIfNew k v).getKey a h₁ =
-      if h₂ : cmp k a = .eq ∧ t.contains k = false then k
-      else t.getKey a (contains_of_contains_insertIfNew' h h₁ h₂) :=
+      if h₂ : cmp k a = .eq ∧ ¬ k ∈ t then k
+      else t.getKey a (mem_of_mem_insertIfNew' h h₁ h₂) :=
   DTreeMap.Raw.getKey_insertIfNew h
 
 theorem getKey!_insertIfNew [TransCmp cmp] [Inhabited α] (h : t.WF) {k a : α}
     {v : β} :
     (t.insertIfNew k v).getKey! a =
-      if cmp k a = .eq ∧ t.contains k = false then k else t.getKey! a :=
+      if cmp k a = .eq ∧ ¬ k ∈ t then k else t.getKey! a :=
   DTreeMap.Raw.getKey!_insertIfNew h
 
 theorem getKeyD_insertIfNew [TransCmp cmp] (h : t.WF) {k a fallback : α}
     {v : β} :
     (t.insertIfNew k v).getKeyD a fallback =
-      if cmp k a = .eq ∧ t.contains k = false then k else t.getKeyD a fallback :=
+      if cmp k a = .eq ∧ ¬ k ∈ t then k else t.getKeyD a fallback :=
   DTreeMap.Raw.getKeyD_insertIfNew h
 
 end Std.TreeMap.Raw

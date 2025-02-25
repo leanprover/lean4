@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Sofia Rodrigues
@@ -44,7 +44,7 @@ void event_loop_run_loop(event_loop_t *event_loop);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg options, obj_arg /* w */ );
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive(obj_arg /* w */ );
 
-// Utilitary
+// Helpers
 
 lean_object* unpack_io(lean_object* io);
 lean_object* create_promise();

@@ -23,7 +23,7 @@ using namespace std;
 
 event_loop_t global_ev;
 
-// Utilitary
+// Helpers
 
 lean_object* unpack_io(lean_object* io) {
     lean_object* io_res = lean_ctor_get(io, 0);

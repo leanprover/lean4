@@ -32,7 +32,6 @@ def runJoe (addr: SocketAddress) : Async Unit := do
   await (client.connect addr)
   await (client.send (String.toUTF8 "hello robert!"))
   await client.shutdown
-  await client.shutdown
 
 def listenClose : IO Unit := do
   let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8080
@@ -42,17 +41,26 @@ def listenClose : IO Unit := do
   server.listen 128
 
 def acceptClose : IO Unit := do
-  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8080
+  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8082
 
   let server ← TCP.Socket.Server.mk
   server.bind addr
   server.listen 128
 
-  let res ← (runJoe addr).run
-  res.block
+  let _ ← (runJoe addr).run
 
-  let res ← server.accept
-  discard <| res.block
+  let task ← server.accept
+  let client ← task.block
 
+  let mes ← client.recv? 1024
+  let msg ← mes.block
 
+  assert! (String.fromUTF8! <$> msg) == "hello robert!"
+
+  let mes ← client.recv? 1024
+  let msg ← mes.block
+
+  assert! (String.fromUTF8! <$> msg) == none
+
+#eval acceptClose
 #eval listenClose

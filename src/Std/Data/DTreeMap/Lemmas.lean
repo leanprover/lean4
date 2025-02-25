@@ -902,7 +902,7 @@ theorem getKey!_insertIfNew [TransCmp cmp] [Inhabited α] {k a : α}
 theorem getKeyD_insertIfNew [TransCmp cmp] {k a fallback : α}
     {v : β k} :
     (t.insertIfNew k v).getKeyD a fallback =
-      if cmp k a = .eq ∧ t.contains k = false then k else t.getKeyD a fallback :=
+      if cmp k a = .eq ∧ ¬ k ∈ t then k else t.getKeyD a fallback :=
   Impl.getKeyD_insertIfNew t.wf
 
 end Std.DTreeMap

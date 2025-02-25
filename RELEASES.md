@@ -48,7 +48,7 @@ tail-recursive, or operate within certain monads such as `Option`
 
   Typical examples:
 
-  ```
+  ```lean
   def ack : (n m : Nat) → Option Nat
     | 0,   y   => some (y+1)
     | x+1, 0   => ack x 1
@@ -75,7 +75,7 @@ for more details.
 
 * [#6905](https://github.com/leanprover/lean4/pull/6905) adds a first draft of the `try`?`
   interactive tactic, which tries various tactics, including induction:
-  ```  
+  ```lean
   @[simp] def revAppend : List Nat → List Nat → List Nat
   | [],    ys => ys
   | x::xs, ys => revAppend xs (x::ys)
@@ -322,7 +322,7 @@ ensuring it now avoids unnecessary case-splits on `Iff`.
 automatically handling
 forbidden pattern symbols. For example, consider the following theorem
 tagged with this attribute:
-  ```
+  ```lean
   getLast?_eq_some_iff {xs : List α} {a : α} : xs.getLast? = some a ↔ ∃ ys, xs = ys ++ [a]
   ```
   Here, the selected pattern is `xs.getLast? = some a`, but `Eq` is a
@@ -362,7 +362,7 @@ tactic can now solve problems such as the following:
 * [#6648](https://github.com/leanprover/lean4/pull/6648) adds support for numerals, lower & upper bounds to the offset
 constraint module in the `grind` tactic. `grind` can now solve examples
 such as:
-  ```
+  ```lean
   example (f : Nat → Nat) :
           f 2 = a →
           b ≤ 1 → b ≥ 1 →

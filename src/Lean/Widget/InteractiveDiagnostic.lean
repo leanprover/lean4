@@ -149,6 +149,12 @@ where
   | ctx,      compose d₁ d₂            => do let d₁ ← go nCtx ctx d₁; let d₂ ← go nCtx ctx d₂; pure $ d₁ ++ d₂
   | ctx,      group d                  => Format.group <$> go nCtx ctx d
   | ctx,      .trace data header children => do
+    if data.cls.isAnonymous then
+      -- Sequence of top-level traces collected by `addTraceAsMessages`, do not indent.
+      -- As with nested sibling nodes, we do not separate them with newlines but rely on the client
+      -- to never put trace nodes on the same line.
+      return .join (← children.mapM (go nCtx ctx)).toList
+
     let mut header := (← go nCtx ctx header).nest 4
     if data.startTime != 0 then
       header := f!"[{data.stopTime - data.startTime}] {header}"

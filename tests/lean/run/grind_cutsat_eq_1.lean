@@ -48,6 +48,22 @@ example (a b c : Int) (_ : a + c > 1) (_ : a + 2*b = 0) (_ : -c + 2*b = 0) : Fal
 example (a b c : Int) (_ : -a + -c > 1) (_ : a + 2*b = 0) (_ : -c + 2*b = 0) : False := by
   grind
 
+example {p : Prop} (a c : Int) :
+        a + 2*c > 10 →
+        p ∨ [a + c] = [5 - c] →
+        ¬p →
+        False := by
+  grind
+
+example (a : Int) : a > 2 → a = 0 → False := by
+  grind
+
+example (a b : Int) : a = 0 → b = 1 → a + b > 2 → False := by
+  grind
+
+example (a b c : Int) : a = 0 → a + b > 2 → b = c → 1 = c → False := by
+  grind
+
 #print ex₁
 #print ex₂
 #print ex₃

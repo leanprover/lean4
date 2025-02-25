@@ -778,16 +778,25 @@ def projectMutualInduct (names : Array Name) (mutualInduct : Name) : MetaM Unit 
 For a (non-mutual!) definition of `name`, uses the `FunIndInfo` associated with the `unaryInduct` and
 derives the one for the n-ary function.
 -/
-def setNaryFunIndInfo (name : Name) (arity : Nat) (unaryInduct : Name) : MetaM Unit := do
-    let inductName := getFunInductName name
-    unless inductName = unaryInduct do
-      let some unaryFunIndInfo ← getFunIndInfoForInduct? unaryInduct
-        | throwError "Expected {unaryInduct} to have FunIndInfo"
-      setFunIndInfo {
-        unaryFunIndInfo with
-        funIndName := inductName
-        params := unaryFunIndInfo.params.filter (· != .target) ++ mkArray arity .target
-      }
+def setNaryFunIndInfo (fixedParams : Mutual.FixedParams) (name : Name) (unaryInduct : Name) : MetaM Unit := do
+  assert!  fixedParams.mappings.size = 1 -- only non-mutual for now
+  let funIndName := getFunInductName name
+  unless funIndName = unaryInduct do
+    let some unaryFunIndInfo ← getFunIndInfoForInduct? unaryInduct
+      | throwError "Expected {unaryInduct} to have FunIndInfo"
+    let paramInfos := fixedParams.mappings[0]!
+    let mut params := #[]
+    let mut j := 0
+    for h : i in [:paramInfos.size] do
+      if paramInfos[i].isSome then
+        assert! j + 1 < unaryFunIndInfo.params.size
+        params := params.push unaryFunIndInfo.params[j]!
+        j := j + 1
+      else
+        params := params.push .target
+    assert! j + 1 = unaryFunIndInfo.params.size
+
+    setFunIndInfo { unaryFunIndInfo with funIndName, params }
 
 /--
 In the type of `value`, reduces
@@ -1196,7 +1205,7 @@ def deriveInduction (name : Name) : MetaM Unit := do
       let unpackedInductName ← unpackMutualInduction eqnInfo unaryInductName
       projectMutualInduct eqnInfo.declNames unpackedInductName
       if eqnInfo.argsPacker.numFuncs = 1 then
-        setNaryFunIndInfo eqnInfo.declNames[0]! eqnInfo.argsPacker.arities[0]! unaryInductName
+        setNaryFunIndInfo eqnInfo.fixedParams eqnInfo.declNames[0]! unaryInductName
     else if let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) name then
       deriveInductionStructural eqnInfo.declNames eqnInfo.numFixed
     else

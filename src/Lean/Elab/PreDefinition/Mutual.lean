@@ -174,6 +174,7 @@ structure FixedParams where
   telescope : Expr
   /-- For each function in the clique, a mapping from its parameters to the fixed parameters -/
   mappings : Array (Array (Option Nat))
+deriving Inhabited
 
 def getFixedParams (preDefs : Array PreDefinition) : MetaM FixedParams := do
   let info ← getFixedParamsInfo preDefs

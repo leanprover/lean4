@@ -226,11 +226,11 @@ where
     propagateBeta lams₁ fns₁
     propagateBeta lams₂ fns₂
     resetParentsOf lhsRoot.self
+    propagateOffsetEq rhsRoot lhsRoot
+    propagateCutsatEq rhsRoot lhsRoot
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
       updateMT rhsRoot.self
-    propagateOffsetEq rhsRoot lhsRoot
-    propagateCutsatEq rhsRoot lhsRoot
     unless (← isInconsistent) do
       for parent in parents do
         propagateUp parent

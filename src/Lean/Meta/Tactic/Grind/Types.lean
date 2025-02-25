@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Tactics
 import Init.Data.Queue
+import Std.Data.TreeSet
 import Lean.Util.ShareCommon
 import Lean.HeadIndex
 import Lean.Meta.Basic
@@ -396,7 +397,7 @@ instance : BEq (CongrKey enodes) where
 abbrev CongrTable (enodes : ENodeMap) := PHashSet (CongrKey enodes)
 
 -- Remark: we cannot use pointer addresses here because we have to traverse the tree.
-abbrev ParentSet := RBTree Expr Expr.quickComp
+abbrev ParentSet := Std.TreeSet Expr Expr.quickComp
 abbrev ParentMap := PHashMap ENodeKey ParentSet
 
 /--

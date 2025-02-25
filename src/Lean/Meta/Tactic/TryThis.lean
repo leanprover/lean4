@@ -8,6 +8,7 @@ import Lean.Server.CodeActions
 import Lean.Widget.UserWidget
 import Lean.Data.Json.Elab
 import Lean.Data.Lsp.Utf16
+import Lean.Meta.Tactic.ExposeNames
 
 /-!
 # "Try this" support
@@ -430,13 +431,23 @@ def addSuggestions (ref : Syntax) (suggestions : Array Suggestion)
   logInfoAt ref m!"{header}{msgs}"
   addSuggestionCore ref suggestions header (isInline := false) origSpan? style? codeActionPrefix?
 
-private def addExactSuggestionCore (addSubgoalsMsg : Bool) (e : Expr) : MetaM Suggestion :=
+/--
+Returns the syntax for an `exact` or `refine` (as indicated by `useRefine`) tactic corresponding to
+`e`. If `exposeNames` is `true`, prepends the tactic with `expose_names.`
+-/
+def mkExactSuggestionSyntax (e : Expr) (useRefine : Bool) (exposeNames : Bool) : MetaM (TSyntax `tactic) :=
   withOptions (pp.mvars.set · false) do
-  let stx ← delabToRefinableSyntax e
+  let exprStx ← (if exposeNames then withExposedNames else id) <| delabToRefinableSyntax e
+  let tac ← if useRefine then `(tactic| refine $exprStx) else `(tactic| exact $exprStx)
+  let tacSeq ← if exposeNames then `(tactic| (expose_names; $tac)) else pure tac
+  return tacSeq
+
+private def addExactSuggestionCore (addSubgoalsMsg : Bool) (exposeNames : Bool) (e : Expr) :
+    MetaM Suggestion :=
+  withOptions (pp.mvars.set · false) do
   let mvars ← getMVars e
-  let suggestion ← if mvars.isEmpty then `(tactic| exact $stx) else `(tactic| refine $stx)
-  let pp ← ppExpr e
-  let messageData? := if mvars.isEmpty then m!"exact {pp}" else m!"refine {pp}"
+  let mut suggestion ← mkExactSuggestionSyntax e (useRefine := !mvars.isEmpty) exposeNames
+  let messageData? ← SuggestionText.prettyExtra suggestion
   let postInfo? ← if !addSubgoalsMsg || mvars.isEmpty then pure none else
     let mut str := "\nRemaining subgoals:"
     for g in mvars do
@@ -457,11 +468,12 @@ The parameters are:
   `Remaining subgoals:`
 * `codeActionPrefix?`: an optional string to be used as the prefix of the replacement text if the
   suggestion does not have a custom `toCodeActionTitle?`. If not provided, `"Try this: "` is used.
+* `exposeNames`: if true (default false), will insert `expose_names` prior to the generated tactic
 -/
 def addExactSuggestion (ref : Syntax) (e : Expr)
     (origSpan? : Option Syntax := none) (addSubgoalsMsg := false)
-    (codeActionPrefix? : Option String := none): MetaM Unit := do
-  addSuggestion ref (← addExactSuggestionCore addSubgoalsMsg e)
+    (codeActionPrefix? : Option String := none) (exposeNames := false) : MetaM Unit := do
+  addSuggestion ref (← addExactSuggestionCore addSubgoalsMsg exposeNames e)
     (origSpan? := origSpan?) (codeActionPrefix? := codeActionPrefix?)
 
 /-- Add `exact e` or `refine e` suggestions.
@@ -479,8 +491,8 @@ The parameters are:
 -/
 def addExactSuggestions (ref : Syntax) (es : Array Expr)
     (origSpan? : Option Syntax := none) (addSubgoalsMsg := false)
-    (codeActionPrefix? : Option String := none) : MetaM Unit := do
-  let suggestions ← es.mapM <| addExactSuggestionCore addSubgoalsMsg
+    (codeActionPrefix? : Option String := none) (exposeNames := false) : MetaM Unit := do
+  let suggestions ← es.mapM <| addExactSuggestionCore addSubgoalsMsg exposeNames
   addSuggestions ref suggestions (origSpan? := origSpan?) (codeActionPrefix? := codeActionPrefix?)
 
 /-- Add a term suggestion.

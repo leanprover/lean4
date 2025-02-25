@@ -110,8 +110,8 @@ instance : ReprAtom Int8 := ⟨⟩
 instance : Hashable Int8 where
   hash i := i.toUInt8.toUInt64
 
-instance : OfNat Int8 n := ⟨Int8.ofNat n⟩
-instance : Neg Int8 where
+instance Int8.instOfNat : OfNat Int8 n := ⟨Int8.ofNat n⟩
+instance Int8.instNeg : Neg Int8 where
   neg := Int8.neg
 
 /-- The maximum value an `Int8` may attain, that is, `2^7 - 1 = 127`. -/
@@ -250,8 +250,8 @@ instance : ReprAtom Int16 := ⟨⟩
 instance : Hashable Int16 where
   hash i := i.toUInt16.toUInt64
 
-instance : OfNat Int16 n := ⟨Int16.ofNat n⟩
-instance : Neg Int16 where
+instance Int16.instOfNat : OfNat Int16 n := ⟨Int16.ofNat n⟩
+instance Int16.instNeg : Neg Int16 where
   neg := Int16.neg
 
 /-- The maximum value an `Int16` may attain, that is, `2^15 - 1 = 32767`. -/
@@ -394,8 +394,8 @@ instance : ReprAtom Int16 := ⟨⟩
 instance : Hashable Int32 where
   hash i := i.toUInt32.toUInt64
 
-instance : OfNat Int32 n := ⟨Int32.ofNat n⟩
-instance : Neg Int32 where
+instance Int32.instOfNat : OfNat Int32 n := ⟨Int32.ofNat n⟩
+instance Int32.instNeg : Neg Int32 where
   neg := Int32.neg
 
 /-- The maximum value an `Int32` may attain, that is, `2^31 - 1 = 2147483647`. -/
@@ -542,8 +542,8 @@ instance : ReprAtom Int64 := ⟨⟩
 instance : Hashable Int64 where
   hash i := i.toUInt64
 
-instance : OfNat Int64 n := ⟨Int64.ofNat n⟩
-instance : Neg Int64 where
+instance Int64.instOfNat : OfNat Int64 n := ⟨Int64.ofNat n⟩
+instance Int64.instNeg : Neg Int64 where
   neg := Int64.neg
 
 /-- The maximum value an `Int64` may attain, that is, `2^63 - 1 = 9223372036854775807`. -/
@@ -700,8 +700,8 @@ instance : ReprAtom ISize := ⟨⟩
 instance : Hashable ISize where
   hash i := i.toUSize.toUInt64
 
-instance : OfNat ISize n := ⟨ISize.ofNat n⟩
-instance : Neg ISize where
+instance ISize.instOfNat : OfNat ISize n := ⟨ISize.ofNat n⟩
+instance ISize.instNeg : Neg ISize where
   neg := ISize.neg
 
 /-- The maximum value an `ISize` may attain, that is, `2^(System.Platform.numBits - 1) - 1`. -/

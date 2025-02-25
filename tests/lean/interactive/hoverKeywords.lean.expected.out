@@ -1,0 +1,427 @@
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 13, "character": 10}}
+{"range":
+ {"start": {"line": 13, "character": 10}, "end": {"line": 13, "character": 11}},
+ "contents": {"value": "```lean\nstructure C : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 16, "character": 10}}
+{"range":
+ {"start": {"line": 16, "character": 10}, "end": {"line": 16, "character": 12}},
+ "contents": {"value": "```lean\nstructure C' : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 16, "character": 28}}
+{"range":
+ {"start": {"line": 16, "character": 28}, "end": {"line": 16, "character": 29}},
+ "contents": {"value": "```lean\nstructure C : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 21, "character": 18}}
+{"range":
+ {"start": {"line": 21, "character": 18}, "end": {"line": 21, "character": 19}},
+ "contents": {"value": "```lean\nstructure D : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 21, "character": 35}}
+{"range":
+ {"start": {"line": 21, "character": 35}, "end": {"line": 21, "character": 37}},
+ "contents": {"value": "```lean\nstructure C' : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 28, "character": 10}}
+{"range":
+ {"start": {"line": 28, "character": 10}, "end": {"line": 28, "character": 11}},
+ "contents":
+ {"value": "```lean\nstructure NS.C : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 31, "character": 10}}
+{"range":
+ {"start": {"line": 31, "character": 10}, "end": {"line": 31, "character": 12}},
+ "contents":
+ {"value": "```lean\nstructure NS.C' : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 31, "character": 28}}
+{"range":
+ {"start": {"line": 31, "character": 28}, "end": {"line": 31, "character": 29}},
+ "contents":
+ {"value": "```lean\nstructure NS.C : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 36, "character": 18}}
+{"range":
+ {"start": {"line": 36, "character": 18}, "end": {"line": 36, "character": 19}},
+ "contents":
+ {"value": "```lean\nstructure NS.D : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 36, "character": 35}}
+{"range":
+ {"start": {"line": 36, "character": 35}, "end": {"line": 36, "character": 37}},
+ "contents":
+ {"value": "```lean\nstructure NS.C' : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 44, "character": 6}}
+{"range":
+ {"start": {"line": 44, "character": 6}, "end": {"line": 44, "character": 8}},
+ "contents":
+ {"value": "```lean\nclass Cl (α : Type) : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 48, "character": 6}}
+{"range":
+ {"start": {"line": 48, "character": 6}, "end": {"line": 48, "character": 9}},
+ "contents":
+ {"value": "```lean\nclass Cl' (α : Type) : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 48, "character": 36}}
+{"range":
+ {"start": {"line": 48, "character": 36}, "end": {"line": 48, "character": 38}},
+ "contents":
+ {"value": "```lean\nclass Cl (α : Type) : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 53, "character": 15}}
+{"range":
+ {"start": {"line": 53, "character": 14}, "end": {"line": 53, "character": 18}},
+ "contents":
+ {"value": "```lean\nclass Cl'' (α : Type) : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 53, "character": 45}}
+{"range":
+ {"start": {"line": 53, "character": 45}, "end": {"line": 53, "character": 47}},
+ "contents":
+ {"value": "```lean\nclass Cl (α : Type) : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 59, "character": 6}}
+{"range":
+ {"start": {"line": 59, "character": 6}, "end": {"line": 59, "character": 8}},
+ "contents":
+ {"value": "```lean\nclass NS.NS.Cl (α : Type) : Type\n```",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 63, "character": 6}}
+{"range":
+ {"start": {"line": 63, "character": 6}, "end": {"line": 63, "character": 9}},
+ "contents":
+ {"value": "```lean\nclass NS.NS.Cl' (α : Type) : Type\n```",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 63, "character": 36}}
+{"range":
+ {"start": {"line": 63, "character": 36}, "end": {"line": 63, "character": 38}},
+ "contents":
+ {"value": "```lean\nclass NS.NS.Cl (α : Type) : Type\n```",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 68, "character": 14}}
+{"range":
+ {"start": {"line": 68, "character": 14}, "end": {"line": 68, "character": 18}},
+ "contents":
+ {"value": "```lean\nclass NS.NS.Cl'' (α : Type) : Type\n```",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 68, "character": 45}}
+{"range":
+ {"start": {"line": 68, "character": 45}, "end": {"line": 68, "character": 47}},
+ "contents":
+ {"value": "```lean\nclass NS.NS.Cl (α : Type) : Type\n```",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 74, "character": 10}}
+{"range":
+ {"start": {"line": 74, "character": 10}, "end": {"line": 74, "character": 11}},
+ "contents": {"value": "```lean\ninductive A : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 78, "character": 18}}
+{"range":
+ {"start": {"line": 78, "character": 18}, "end": {"line": 78, "character": 20}},
+ "contents": {"value": "```lean\ninductive A' : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 84, "character": 10}}
+{"range":
+ {"start": {"line": 84, "character": 10}, "end": {"line": 84, "character": 11}},
+ "contents":
+ {"value": "```lean\ninductive NS.A : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 88, "character": 18}}
+{"range":
+ {"start": {"line": 88, "character": 18}, "end": {"line": 88, "character": 20}},
+ "contents":
+ {"value": "```lean\ninductive NS.A' : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 94, "character": 16}}
+{"range":
+ {"start": {"line": 94, "character": 16}, "end": {"line": 94, "character": 17}},
+ "contents":
+ {"value": "```lean\nclass inductive B : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 98, "character": 24}}
+{"range":
+ {"start": {"line": 98, "character": 24}, "end": {"line": 98, "character": 26}},
+ "contents":
+ {"value": "```lean\nclass inductive B' : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 104, "character": 16}}
+{"range":
+ {"start": {"line": 104, "character": 16},
+  "end": {"line": 104, "character": 17}},
+ "contents":
+ {"value": "```lean\nclass inductive NS.B : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 108, "character": 24}}
+{"range":
+ {"start": {"line": 108, "character": 24},
+  "end": {"line": 108, "character": 26}},
+ "contents":
+ {"value": "```lean\nclass inductive NS.B' : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 114, "character": 4}}
+{"range":
+ {"start": {"line": 114, "character": 4}, "end": {"line": 114, "character": 5}},
+ "contents": {"value": "```lean\ndef x : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 116, "character": 15}}
+{"range":
+ {"start": {"line": 116, "character": 15},
+  "end": {"line": 116, "character": 16}},
+ "contents": {"value": "```lean\ndef x : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 116, "character": 4}}
+{"range":
+ {"start": {"line": 116, "character": 4}, "end": {"line": 116, "character": 5}},
+ "contents": {"value": "```lean\ndef y : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 120, "character": 12}}
+{"range":
+ {"start": {"line": 120, "character": 8},
+  "end": {"line": 120, "character": 15}},
+ "contents":
+ {"value": "```lean\ntheorem x_eq_44 : x = 44\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 120, "character": 18}}
+{"range":
+ {"start": {"line": 120, "character": 18},
+  "end": {"line": 120, "character": 19}},
+ "contents": {"value": "```lean\ndef x : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 124, "character": 12}}
+{"range":
+ {"start": {"line": 124, "character": 8},
+  "end": {"line": 124, "character": 15}},
+ "contents":
+ {"value": "```lean\ntheorem y_eq_44 : y = 44\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 124, "character": 18}}
+{"range":
+ {"start": {"line": 124, "character": 18},
+  "end": {"line": 124, "character": 19}},
+ "contents": {"value": "```lean\ndef y : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 124, "character": 40}}
+{"range":
+ {"start": {"line": 124, "character": 40},
+  "end": {"line": 124, "character": 47}},
+ "contents":
+ {"value": "```lean\ntheorem x_eq_44 : x = 44\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 129, "character": 6}}
+{"range":
+ {"start": {"line": 129, "character": 6}, "end": {"line": 129, "character": 9}},
+ "contents": {"value": "```lean\naxiom yes : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 131, "character": 8}}
+{"range":
+ {"start": {"line": 131, "character": 8},
+  "end": {"line": 131, "character": 10}},
+ "contents": {"value": "```lean\ntheorem ok : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 131, "character": 21}}
+{"range":
+ {"start": {"line": 131, "character": 21},
+  "end": {"line": 131, "character": 24}},
+ "contents": {"value": "```lean\naxiom yes : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 135, "character": 16}}
+{"range":
+ {"start": {"line": 135, "character": 14},
+  "end": {"line": 135, "character": 20}},
+ "contents": {"value": "```lean\naxiom indeed : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 138, "character": 7}}
+{"range":
+ {"start": {"line": 138, "character": 7},
+  "end": {"line": 138, "character": 11}},
+ "contents": {"value": "```lean\nopaque yes' : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 140, "character": 5}}
+{"range":
+ {"start": {"line": 140, "character": 4}, "end": {"line": 140, "character": 9}},
+ "contents": {"value": "```lean\ndef yes'' : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 140, "character": 28}}
+{"range":
+ {"start": {"line": 140, "character": 28},
+  "end": {"line": 140, "character": 34}},
+ "contents": {"value": "```lean\naxiom indeed : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 140, "character": 37}}
+{"range":
+ {"start": {"line": 140, "character": 36},
+  "end": {"line": 140, "character": 40}},
+ "contents": {"value": "```lean\nopaque yes' : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 147, "character": 4}}
+{"range":
+ {"start": {"line": 147, "character": 4}, "end": {"line": 147, "character": 5}},
+ "contents": {"value": "```lean\ndef NS'.x : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 149, "character": 15}}
+{"range":
+ {"start": {"line": 149, "character": 15},
+  "end": {"line": 149, "character": 16}},
+ "contents": {"value": "```lean\ndef NS'.x : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 149, "character": 4}}
+{"range":
+ {"start": {"line": 149, "character": 4}, "end": {"line": 149, "character": 5}},
+ "contents": {"value": "```lean\ndef NS'.y : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 153, "character": 12}}
+{"range":
+ {"start": {"line": 153, "character": 8},
+  "end": {"line": 153, "character": 15}},
+ "contents":
+ {"value": "```lean\ntheorem NS'.x_eq_44 : x = 44\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 153, "character": 18}}
+{"range":
+ {"start": {"line": 153, "character": 18},
+  "end": {"line": 153, "character": 19}},
+ "contents": {"value": "```lean\ndef NS'.x : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 157, "character": 12}}
+{"range":
+ {"start": {"line": 157, "character": 8},
+  "end": {"line": 157, "character": 15}},
+ "contents":
+ {"value": "```lean\ntheorem NS'.y_eq_44 : y = 44\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 157, "character": 18}}
+{"range":
+ {"start": {"line": 157, "character": 18},
+  "end": {"line": 157, "character": 19}},
+ "contents": {"value": "```lean\ndef NS'.y : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 157, "character": 40}}
+{"range":
+ {"start": {"line": 157, "character": 40},
+  "end": {"line": 157, "character": 47}},
+ "contents":
+ {"value": "```lean\ntheorem NS'.x_eq_44 : x = 44\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 162, "character": 6}}
+{"range":
+ {"start": {"line": 162, "character": 6}, "end": {"line": 162, "character": 9}},
+ "contents":
+ {"value": "```lean\naxiom NS'.yes : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 164, "character": 8}}
+{"range":
+ {"start": {"line": 164, "character": 8},
+  "end": {"line": 164, "character": 10}},
+ "contents":
+ {"value": "```lean\ntheorem NS'.ok : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 164, "character": 21}}
+{"range":
+ {"start": {"line": 164, "character": 21},
+  "end": {"line": 164, "character": 24}},
+ "contents":
+ {"value": "```lean\naxiom NS'.yes : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 168, "character": 16}}
+{"range":
+ {"start": {"line": 168, "character": 14},
+  "end": {"line": 168, "character": 20}},
+ "contents":
+ {"value": "```lean\naxiom NS'.indeed : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 171, "character": 7}}
+{"range":
+ {"start": {"line": 171, "character": 7},
+  "end": {"line": 171, "character": 11}},
+ "contents":
+ {"value": "```lean\nopaque NS'.yes' : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 173, "character": 5}}
+{"range":
+ {"start": {"line": 173, "character": 4}, "end": {"line": 173, "character": 9}},
+ "contents":
+ {"value": "```lean\ndef NS'.yes'' : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 173, "character": 28}}
+{"range":
+ {"start": {"line": 173, "character": 28},
+  "end": {"line": 173, "character": 34}},
+ "contents":
+ {"value": "```lean\naxiom NS'.indeed : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 173, "character": 37}}
+{"range":
+ {"start": {"line": 173, "character": 36},
+  "end": {"line": 173, "character": 40}},
+ "contents":
+ {"value": "```lean\nopaque NS'.yes' : True\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 186, "character": 13}}
+{"range":
+ {"start": {"line": 186, "character": 11},
+  "end": {"line": 186, "character": 14}},
+ "contents":
+ {"value": "```lean\ndef NS'.yay : String\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 191, "character": 19}}
+{"range":
+ {"start": {"line": 191, "character": 19},
+  "end": {"line": 191, "character": 20}},
+ "contents":
+ {"value": "```lean\nLean.Parser.Category.c : Lean.Parser.Category\n```",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 193, "character": 13}}
+{"range":
+ {"start": {"line": 193, "character": 13},
+  "end": {"line": 193, "character": 14}},
+ "contents":
+ {"value": "```lean\nLean.Parser.Category.c : Lean.Parser.Category\n```",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 193, "character": 4}}
+{"range":
+ {"start": {"line": 193, "character": 0}, "end": {"line": 193, "character": 6}},
+ "contents":
+ {"value": "```lean\ncC : Lean.ParserDescr\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 197, "character": 17}}
+{"range":
+ {"start": {"line": 197, "character": 16},
+  "end": {"line": 197, "character": 18}},
+ "contents":
+ {"value": "```lean\ncD : Lean.ParserDescr\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 197, "character": 26}}
+{"range":
+ {"start": {"line": 197, "character": 26},
+  "end": {"line": 197, "character": 27}},
+ "contents":
+ {"value": "```lean\nLean.Parser.Category.c : Lean.Parser.Category\n```",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 200, "character": 11}}
+{"range":
+ {"start": {"line": 200, "character": 11},
+  "end": {"line": 200, "character": 12}},
+ "contents":
+ {"value": "```lean\nLean.Parser.Category.c : Lean.Parser.Category\n```",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverKeywords.lean"},
+ "position": {"line": 200, "character": 20}}
+{"range":
+ {"start": {"line": 200, "character": 19},
+  "end": {"line": 200, "character": 23}},
+ "contents":
+ {"value":
+  "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\n`term` is the builtin syntax category for terms. A term denotes an expression\nin lean's type theory, for example `2 + 2` is a term. The difference between\n`Term` and `Expr` is that the former is a kind of syntax, while the latter is\nthe result of elaboration. For example `by simp` is also a `Term`, but it elaborates\nto different `Expr`s depending on the context. \n***\n*import Init.Notation*",
+  "kind": "markdown"}}

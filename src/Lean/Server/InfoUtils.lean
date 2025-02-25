@@ -310,7 +310,9 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
 
 
 /-- Construct a hover popup, if any, from an info node in a context.-/
-def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option FormatWithInfos) := do
+def Info.fmtHover?
+    (ci : ContextInfo) (i : Info) (stk? : Option Syntax.Stack) :
+    IO (Option FormatWithInfos) := do
   ci.runMetaM i.lctx do
     let mut fmts := #[]
     let mut infos := ∅
@@ -346,7 +348,8 @@ where
       let tpFmt ← Meta.ppExpr tp
       if let .const c _ := e then
         let eFmt ← PrettyPrinter.ppSignature c
-        return (some { eFmt with fmt := f!"```lean\n{eFmt.fmt}\n```" }, ← fmtModule? c)
+        let kw ← constDeclKw c
+        return (some { eFmt with fmt := f!"```lean\n{kw ++ eFmt.fmt}\n```" }, ← fmtModule? c)
       let eFmt ← Meta.ppExpr e
       -- Try not to show too scary internals
       let showTerm := if let .fvar _ := e then
@@ -361,6 +364,80 @@ where
       let tpFmt ← Meta.ppExpr tp
       return (some f!"```lean\n{fi.fieldName} : {tpFmt}\n```", none)
     | _ => return (none, none)
+
+  /--
+  Attempts to discover which keyword was used to declare a constant so it can be shown in the hover.
+  -/
+  constDeclKw (c : Name) : MetaM Format := do
+    match (← getEnv).find? c with
+    | some (.axiomInfo ..) => pure "axiom "
+    | some (.defnInfo {type, ..}) =>
+      -- Don't show "def" for syntax categories
+      if (← Meta.isDefEq type (.const ``Lean.Parser.Category [])) then
+        pure .nil
+      -- nor for "syntax" declarations
+      else if (← Meta.isDefEq type (.const ``Lean.ParserDescr [])) then
+        pure .nil
+      else
+        pure "def "
+    | some (.inductInfo ..) =>
+      let x := ci.parentDecl?
+      if isClass (← getEnv) c then
+        if isStructure (← getEnv) c then
+          return "class "
+        else
+          return "class inductive"
+      else if isStructure (← getEnv) c then
+        return "structure "
+      else
+        -- When hovering on the header of a class or structure type, the environment used for the
+        -- query does not yet contain structure info. Examining the syntax for which the hover is
+        -- being produced can reveal whether the site in question is part of such a hover.
+        if let some stk := stk? then
+          if let some d := (← declSyntaxKw c stk) then
+            return d
+        return s!"inductive "
+    | some (.opaqueInfo ..) => pure "opaque "
+    | some (.thmInfo ..) => pure "theorem "
+    | some (.quotInfo ..)
+    | some (.ctorInfo ..)
+    | some (.recInfo ..)
+    | none => pure .nil
+
+  -- Loops outwards from the hovered syntax until it finds a declaration with a name that matches
+  -- the hovered constant. If it finds it, the declaration is examined to determine the appropriate
+  -- keyword.
+  declSyntaxKw (c : Name) (stk : Syntax.Stack) : MetaM (Option String) := do
+    for (stx, n) in stk do
+      if stx.getKind == ``Lean.Parser.Command.declaration then
+        let mods := stx[0]
+        if stx[1].getKind == ``Lean.Parser.Command.structure then
+          let isClass := stx[1][0].getKind == ``Parser.Command.classTk
+          let declId := stx[1][1]
+          let declName := getDeclName (← getVisibility ⟨mods⟩) declId
+          if declName == c then
+            if isClass then return some "class " else return some "structure "
+        else if stx[1].getKind == ``Lean.Parser.Command.classInductive then
+          let declId := stx[1][1]
+          let declName := getDeclName (← getVisibility ⟨mods⟩) declId
+          if declName == c then
+            return some "class inductive "
+    return none
+
+  getDeclName (visibility : Visibility) (declId : Syntax) : Name :=
+    let declName := ci.currNamespace ++ (expandDeclIdCore declId).1
+    if let .private := visibility then
+      mkPrivateName ci.env declName
+    else declName
+
+  getVisibility (mods : TSyntax ``Lean.Parser.Command.declModifiers) : MetaM Visibility :=
+      match mods.raw[2].getOptional? with
+      | none   => pure .regular
+      | some v =>
+        let kind := v.getKind
+        if kind == ``Parser.Command.private then pure .private
+        else if kind == ``Parser.Command.protected then pure .protected
+        else pure .regular
 
   isAtomicFormat : Format → Bool
     | Std.Format.text _    => true

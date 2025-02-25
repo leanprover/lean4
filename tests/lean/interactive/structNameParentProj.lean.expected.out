@@ -3,4 +3,4 @@
 {"range":
  {"start": {"line": 6, "character": 21}, "end": {"line": 6, "character": 29}},
  "contents":
- {"value": "```lean\nS'.toParent (self : S') : S\n```", "kind": "markdown"}}
+ {"value": "```lean\ndef S'.toParent (self : S') : S\n```", "kind": "markdown"}}

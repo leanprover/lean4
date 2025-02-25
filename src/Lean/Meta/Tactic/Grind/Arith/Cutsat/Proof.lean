@@ -77,6 +77,8 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := c'.caching do
   match c'.h with
   | .expr h =>
     return h
+  | .core p₁ p₂ h =>
+    return mkApp6 (mkConst ``Int.Linear.eq_of_core) (← getContext) (toExpr p₁) (toExpr p₂) (toExpr c'.p) reflBoolTrue h
   | .norm c =>
     return mkApp5 (mkConst ``Int.Linear.eq_norm) (← getContext) (toExpr c.p) (toExpr c'.p) reflBoolTrue (← c.toExprProof)
   | .divCoeffs c =>

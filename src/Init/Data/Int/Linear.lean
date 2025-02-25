@@ -997,6 +997,15 @@ theorem eq_le_subst_nonpos (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly)
   rw [Int.mul_comm]
   assumption
 
+def eq_of_core_cert (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
+  p₃ == p₁.combine (p₂.mul (-1))
+
+theorem eq_of_core (ctx : Context) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
+    : eq_of_core_cert p₁ p₂ p₃ → p₁.denote' ctx = p₂.denote' ctx → p₃.denote' ctx = 0 := by
+  simp [eq_of_core_cert]
+  intro; subst p₃; simp
+  intro h; rw [h, ←Int.sub_eq_add_neg, Int.sub_self]
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

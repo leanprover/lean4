@@ -58,6 +58,7 @@ structure EqCnstr where
 
 inductive EqCnstrProof where
   | expr (h : Expr)
+  | core (p₁ p₂ : Poly) (h : Expr)
   | norm (c : EqCnstr)
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)

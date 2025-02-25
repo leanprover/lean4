@@ -211,7 +211,7 @@ example (e : Expr) : e.simplify.eval σ = e.eval σ := by
   try? (max := 1)
 
 @[simp, grind =] theorem Expr.eval_simplify (e : Expr) : e.simplify.eval σ = e.eval σ := by
-  induction e, σ using Expr.simplify.induct <;> grind
+  induction e using Expr.simplify.induct <;> grind
 
 @[simp, grind =] def Stmt.simplify : Stmt → Stmt
   | skip => skip

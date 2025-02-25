@@ -139,24 +139,36 @@ def EqCnstr.assert (c : EqCnstr) : GoalM Unit := do
     elimStack := x :: s.elimStack
   }
 
+private def exprAsPoly (a : Expr) : GoalM Poly := do
+  if let some p := (← get').terms.find? { expr := a } then
+    return p
+  else if let some var := (← get').varMap.find? { expr := a } then
+    return .add 1 var (.num 0)
+  else if let some k ← getIntValue? a then
+    return .num k
+  else
+    throwError "internal `grind` error, expression is not relevant to cutsat{indentExpr a}"
+
 @[export lean_process_cutsat_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
-  trace[grind.cutsat.eq] "{mkIntEq a b}"
-  -- TODO
-  return ()
+  let p₁ ← exprAsPoly a
+  let p₂ ← exprAsPoly b
+  let p := p₁.combine (p₂.mul (-1))
+  let c ← mkEqCnstr p (.core p₁ p₂ (← mkEqProof a b))
+  c.assert
 
 @[export lean_process_new_cutsat_lit]
 def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
   let some k ← getIntValue? ke | return ()
-  if let some p := (← get').terms.find? { expr := a } then
-    if k == 0 then
-      (← mkEqCnstr p (.expr (← mkEqProof a ke))).assert
-    else
-      -- TODO
-      return ()
+  let p₁ ← exprAsPoly a
+  let h ← mkEqProof a ke
+  let c ← if k == 0 then
+    mkEqCnstr p₁ (.expr h)
   else
-    -- TODO: `a` is a variable
-    return ()
+    let p₂ ← exprAsPoly ke
+    let p := p₁.combine (p₂.mul (-1))
+    mkEqCnstr p (.core p₁ p₂ h)
+  c.assert
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where

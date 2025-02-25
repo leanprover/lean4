@@ -564,7 +564,7 @@ theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) :=
     rw [Int.bmod_neg] <;> simp only [←Int.ofNat_emod, toNat_mod_cancel]
     omega
 
-theorem toInt_le_of_msb_true {x : BitVec w} (h : x.msb = true) : x.toInt ≤ 0 := by
+theorem toInt_le_of_msb_true {x : BitVec w} (h : x.msb = true) : x.toInt < 0 := by
   simp only [BitVec.toInt]
   have : 2 * x.toNat ≥ 2 ^ w := msb_eq_true_iff_two_mul_ge.mp h
   omega

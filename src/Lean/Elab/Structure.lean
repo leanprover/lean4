@@ -564,7 +564,8 @@ where
               let value? ← copyDefaultValue? fieldMap expandedStructNames parentStructName fieldName
               let fieldDeclName := structDeclName ++ fieldName
               let fieldDeclName ← applyVisibility (← toVisibility fieldInfo) fieldDeclName
-              addDocString' fieldDeclName (← findDocString? (← getEnv) fieldInfo.projFn)
+              -- No need to validate links because this docstring was already added to the environment previously
+              addDocStringCore' fieldDeclName (← findDocString? (← getEnv) fieldInfo.projFn)
               let infos := infos.push { ref := (← getRef)
                                         name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value?,
                                         kind := StructFieldKind.copiedField }

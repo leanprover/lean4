@@ -160,7 +160,7 @@ recursive ones), and without providing inductive hypotheses.
 
 * [#6355](https://github.com/leanprover/lean4/pull/6355) adds the ability to define possibly non-terminating functions
 and still be able to reason about them equationally, as long as they are
-tail-recursive or monadic.is logic like that 
+tail-recursive or monadic.
 
 * [#6368](https://github.com/leanprover/lean4/pull/6368) implements executing kernel checking in parallel to elaboration,
 which is a prerequisite for parallelizing elaboration itself.

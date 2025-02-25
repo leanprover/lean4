@@ -28,12 +28,14 @@ class ReflCmp {α : Type u} (cmp : α → α → Ordering) : Prop where
   /-- Comparison is reflexive. -/
   compare_self {a : α} : cmp a a = .eq
 
-export ReflCmp (compare_self)
-
 /-- A typeclasses for ordered types for which `compare a a = .eq` for all `a`. -/
 abbrev ReflOrd (α : Type u) [Ord α] := ReflCmp (compare : α → α → Ordering)
 
-attribute [simp] compare_self
+@[simp]
+theorem ReflOrd.compare_self {α : Type u} [Ord α] [ReflOrd α] {a : α} : compare a a = .eq :=
+    ReflCmp.compare_self
+
+export ReflOrd (compare_self)
 
 end Refl
 
@@ -266,7 +268,7 @@ variable {α : Type u} {cmp : α → α → Ordering} [LawfulEqCmp cmp]
 
 @[simp]
 theorem compare_eq_iff_eq {a b : α} : cmp a b = .eq ↔ a = b :=
-  ⟨LawfulEqCmp.eq_of_compare, by rintro rfl; simp⟩
+  ⟨LawfulEqCmp.eq_of_compare, by rintro rfl; exact ReflCmp.compare_self⟩
 
 @[simp]
 theorem compare_beq_iff_eq {a b : α} : cmp a b == .eq ↔ a = b :=
@@ -293,7 +295,7 @@ theorem beq_eq [Ord α] {a b : α} : (a == b) = (compare a b == .eq) :=
 theorem equivBEq_of_transOrd [Ord α] [TransOrd α] : EquivBEq α where
   symm {a b} h := by simp_all [OrientedCmp.eq_comm]
   trans h₁ h₂ := by simp_all only [beq_eq, beq_iff_eq]; exact TransCmp.eq_trans h₁ h₂
-  refl := by simp
+  refl := by simp only [beq_eq, beq_iff_eq]; exact compare_self
 
 theorem lawfulBEq_of_lawfulEqOrd [Ord α] [LawfulEqOrd α] : LawfulBEq α where
   eq_of_beq hbeq := by simp_all

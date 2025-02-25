@@ -211,7 +211,7 @@ def Workspace.runFetchM
   let showProgress := cfg.showProgress
   let ctx ← mkBuildContext ws cfg
   -- Job Computation
-  let caption := "Computing build jobs"
+  let caption := "job computation"
   let compute := Job.async build (caption := caption)
   let job ← compute.run.run'.run ctx |>.run nilTrace
   -- Job Monitor

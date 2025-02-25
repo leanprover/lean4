@@ -771,7 +771,7 @@ theorem getKeyD_insert_self [TransCmp cmp] {a fallback : α} {b : β a} :
     (t.insert a b).getKeyD a fallback = a :=
   Impl.getKeyD_insert_self t.wf
 
-theorem getKeyD_eq_fallback_of_contains [TransCmp cmp] {a fallback : α} :
+theorem getKeyD_eq_fallback_of_contains_eq_false [TransCmp cmp] {a fallback : α} :
     t.contains a = false → t.getKeyD a fallback = fallback :=
   Impl.getKeyD_eq_fallback_of_contains_eq_false t.wf
 

@@ -741,8 +741,12 @@ theorem getKey!_erase_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k : α} :
     (t.erase k).getKey! k = default :=
   Impl.getKey!_erase!_self h
 
-theorem getKey?_eq_some_getKey! [TransCmp cmp] [Inhabited α] (h : t.WF) {a : α} :
+theorem getKey?_eq_some_getKey!_of_contains [TransCmp cmp] [Inhabited α] (h : t.WF) {a : α} :
     t.contains a = true → t.getKey? a = some (t.getKey! a) :=
+  Impl.getKey?_eq_some_getKey!_of_contains h
+
+theorem getKey?_eq_some_getKey! [TransCmp cmp] [Inhabited α] (h : t.WF) {a : α} :
+    a ∈ t → t.getKey? a = some (t.getKey! a) :=
   Impl.getKey?_eq_some_getKey! h
 
 theorem getKey!_eq_get!_getKey? [TransCmp cmp] [Inhabited α] (h : t.WF) {a : α} :

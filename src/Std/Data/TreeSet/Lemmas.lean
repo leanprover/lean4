@@ -172,6 +172,149 @@ theorem size_le_size_erase [TransCmp cmp] {k : α} :
     t.size ≤ (t.erase k).size + 1 :=
   TreeMap.size_le_size_erase
 
+theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
+    t.contains a = false → t.get? a = none :=
+  TreeMap.getKey?_eq_none_of_contains_eq_false
+
+theorem get?_eq_none [TransCmp cmp] {a : α} :
+    ¬ a ∈ t → t.get? a = none :=
+  TreeMap.getKey?_eq_none
+
+theorem get?_erase [TransCmp cmp] {k a : α} :
+    (t.erase k).get? a = if cmp k a = .eq then none else t.get? a :=
+  TreeMap.getKey?_erase
+
+@[simp]
+theorem get?_erase_self [TransCmp cmp] {k : α} :
+    (t.erase k).get? k = none :=
+  TreeMap.getKey?_erase_self
+
+theorem get_insert [TransCmp cmp] {k a : α} {h₁} :
+    (t.insert k).get a h₁ =
+      if h₂ : cmp k a = .eq then
+        k
+      else
+        t.get a (contains_of_contains_insert h₁ h₂) :=
+  TreeMap.getKey_insertIfNew
+
+@[simp]
+theorem get_insert_self [TransCmp cmp] {k : α} :
+    (t.insert k).get k contains_insert_self = k :=
+  TreeMap.getKey_insertIfNew_self
+
+@[simp]
+theorem get_erase [TransCmp cmp] {k a : α} {h'} :
+    (t.erase k).get a h' = t.get a (contains_of_contains_erase h') :=
+  TreeMap.getKey_erase
+
+theorem get?_eq_some_get [TransCmp cmp] {a : α} {h'} :
+    t.get? a = some (t.get a h') :=
+  TreeMap.getKey?_eq_some_getKey
+
+theorem get!_emptyc {a : α} [Inhabited α] :
+    (∅ : TreeSet α cmp).get! a = default :=
+  TreeMap.getKey!_emptyc
+
+theorem get!_of_isEmpty [TransCmp cmp] [Inhabited α] {a : α} :
+    t.isEmpty = true → t.get! a = default :=
+  TreeMap.getKey!_of_isEmpty
+
+theorem get!_insert [TransCmp cmp] [Inhabited α] {k a : α} :
+    (t.insert k).get! a = if cmp k a = .eq then k else t.get! a :=
+  TreeMap.getKey!_insertIfNew
+
+theorem get!_insert_self [TransCmp cmp] [Inhabited α] {a : α} : (t.insert a).get! a = a :=
+  TreeMap.getKey!_insertIfNew_self
+
+theorem get!_eq_default_of_contains_eq_false [TransCmp cmp] [Inhabited α] {a : α} :
+    t.contains a = false → t.get! a = default :=
+  TreeMap.getKey!_eq_default_of_contains_eq_false
+
+theorem get!_eq_default [TransCmp cmp] [Inhabited α] {a : α} :
+    ¬ a ∈ t → t.get! a = default :=
+  TreeMap.getKey!_eq_default
+
+theorem get!_erase [TransCmp cmp] [Inhabited α] {k a : α} :
+    (t.erase k).get! a = if cmp k a = .eq then default else t.get! a :=
+  TreeMap.getKey!_erase
+
+@[simp]
+theorem get!_erase_self [TransCmp cmp] [Inhabited α] {k : α} :
+    (t.erase k).get! k = default :=
+  TreeMap.getKey!_erase_self
+
+theorem get?_eq_some_get!_of_contains [TransCmp cmp] [Inhabited α] {a : α} :
+    t.contains a = true → t.get? a = some (t.get! a) :=
+  TreeMap.getKey?_eq_some_getKey!_of_contains
+
+theorem get?_eq_some_get! [TransCmp cmp] [Inhabited α] {a : α} :
+    a ∈ t → t.get? a = some (t.get! a) :=
+  TreeMap.getKey?_eq_some_getKey!
+
+theorem get!_eq_get!_get? [TransCmp cmp] [Inhabited α] {a : α} :
+    t.get! a = (t.get? a).get! :=
+  TreeMap.getKey!_eq_get!_getKey?
+
+theorem get_eq_get! [TransCmp cmp] [Inhabited α] {a : α} {h} :
+    t.get a h = t.get! a :=
+  TreeMap.getKey_eq_getKey!
+
+theorem getD_emptyc {a : α} {fallback : α} :
+    (∅ : TreeSet α cmp).getD a fallback = fallback :=
+  TreeMap.getKeyD_emptyc
+
+theorem getD_of_isEmpty [TransCmp cmp] {a fallback : α} :
+    t.isEmpty = true → t.getD a fallback = fallback :=
+  TreeMap.getKeyD_of_isEmpty
+
+theorem getD_insert [TransCmp cmp] {k a fallback : α} :
+    (t.insert k).getD a fallback =
+      if cmp k a = .eq then k else t.getD a fallback :=
+  TreeMap.getKeyD_insertIfNew
+
+@[simp]
+theorem getD_insert_self [TransCmp cmp] {a fallback : α} :
+    (t.insert a).getD a fallback = a :=
+  TreeMap.getKeyD_insertIfNew_self
+
+theorem getD_eq_fallback_of_contains_eq_false [TransCmp cmp] {a fallback : α} :
+    t.contains a = false → t.getD a fallback = fallback :=
+  TreeMap.getKeyD_eq_fallback_of_contains_eq_false
+
+theorem getD_eq_fallback [TransCmp cmp] {a fallback : α} :
+    ¬ a ∈ t → t.getD a fallback = fallback :=
+  TreeMap.getKeyD_eq_fallback
+
+theorem getD_erase [TransCmp cmp] {k a fallback : α} :
+    (t.erase k).getD a fallback =
+      if cmp k a = .eq then fallback else t.getD a fallback :=
+  TreeMap.getKeyD_erase
+
+@[simp]
+theorem getD_erase_self [TransCmp cmp] {k fallback : α} :
+    (t.erase k).getD k fallback = fallback :=
+  TreeMap.getKeyD_erase_self
+
+theorem get?_eq_some_getD_of_contains [TransCmp cmp] {a fallback : α} :
+    t.contains a = true → t.get? a = some (t.getD a fallback) :=
+  TreeMap.getKey?_eq_some_getKeyD_of_contains
+
+theorem get?_eq_some_getD [TransCmp cmp] {a fallback : α} :
+  a ∈ t → t.get? a = some (t.getD a fallback) :=
+  TreeMap.getKey?_eq_some_getKeyD
+
+theorem getD_eq_getD_get? [TransCmp cmp] {a fallback : α} :
+    t.getD a fallback = (t.get? a).getD fallback :=
+  TreeMap.getKeyD_eq_getD_getKey?
+
+theorem get_eq_getD [TransCmp cmp] {a fallback : α} {h} :
+    t.get a h = t.getD a fallback :=
+  TreeMap.getKey_eq_getKeyD
+
+theorem get!_eq_getD_default [TransCmp cmp] [Inhabited α] {a : α} :
+    t.get! a = t.getD a default :=
+  TreeMap.getKey!_eq_getKeyD_default
+
 @[simp]
 theorem containsThenInsert_fst [TransCmp cmp] {k : α} :
     (t.containsThenInsert k).1 = t.contains k :=

@@ -404,6 +404,7 @@ lean_object* l_Lake_Manifest_loadEntries(lean_object*, lean_object*);
 static lean_object* l_Lake_lakeLongOption___closed__17;
 lean_object* l_String_toName(lean_object*);
 lean_object* l_Lake_Workspace_runFetchM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lake_Config_InstallPath_0__Lake_reprLakeInstall____x40_Lake_Config_InstallPath___hyg_1120_(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lake_lake_lean___spec__3___closed__1;
 static lean_object* l_Lake_LakeOptions_getLakeInstall___closed__1;
@@ -483,7 +484,6 @@ LEAN_EXPORT lean_object* l_Option_repr___at_Lake_verifyInstall___spec__2(lean_ob
 LEAN_EXPORT lean_object* l_Lake_takeOptArg_x27___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_CliStateM_runLogIO___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_lake_script_run___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lake_Config_InstallPath_0__Lake_reprLakeInstall____x40_Lake_Config_InstallPath___hyg_1106_(lean_object*, lean_object*);
 lean_object* l_IO_FS_writeFile(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lake_lake_new___spec__2(lean_object*, lean_object*);
 static lean_object* l_Lake_parseTemplateSpec___closed__1;
@@ -11828,7 +11828,7 @@ else
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = lean_ctor_get(x_1, 0);
 x_5 = lean_unsigned_to_nat(1024u);
-x_6 = l___private_Lake_Config_InstallPath_0__Lake_reprLakeInstall____x40_Lake_Config_InstallPath___hyg_1106_(x_4, x_5);
+x_6 = l___private_Lake_Config_InstallPath_0__Lake_reprLakeInstall____x40_Lake_Config_InstallPath___hyg_1120_(x_4, x_5);
 x_7 = l_Option_repr___at_Lake_verifyInstall___spec__1___closed__4;
 x_8 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_8, 0, x_7);

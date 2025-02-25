@@ -2798,7 +2798,7 @@ return x_92;
 else
 {
 uint8_t x_93; 
-x_93 = lean_ctor_get_uint8(x_30, sizeof(void*)*11 + 4);
+x_93 = lean_ctor_get_uint8(x_30, sizeof(void*)*12 + 4);
 if (x_93 == 0)
 {
 uint8_t x_94; 
@@ -4707,7 +4707,7 @@ goto block_29;
 else
 {
 uint8_t x_88; 
-x_88 = lean_ctor_get_uint8(x_34, sizeof(void*)*11 + 4);
+x_88 = lean_ctor_get_uint8(x_34, sizeof(void*)*12 + 4);
 if (x_88 == 0)
 {
 uint8_t x_89; 
@@ -16850,7 +16850,7 @@ if (x_24 == 0)
 lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_126; 
 x_25 = lean_ctor_get(x_23, 0);
 x_26 = lean_ctor_get(x_23, 1);
-x_126 = lean_ctor_get_uint8(x_25, sizeof(void*)*11 + 4);
+x_126 = lean_ctor_get_uint8(x_25, sizeof(void*)*12 + 4);
 if (x_126 == 0)
 {
 uint8_t x_127; 
@@ -17513,7 +17513,7 @@ x_140 = lean_ctor_get(x_23, 1);
 lean_inc(x_140);
 lean_inc(x_139);
 lean_dec(x_23);
-x_178 = lean_ctor_get_uint8(x_139, sizeof(void*)*11 + 4);
+x_178 = lean_ctor_get_uint8(x_139, sizeof(void*)*12 + 4);
 if (x_178 == 0)
 {
 uint8_t x_179; 
@@ -19244,7 +19244,7 @@ x_28 = lean_alloc_closure((void*)(l_Lean_Loop_forIn_loop___at___private_Lean_Met
 lean_closure_set(x_28, 0, x_26);
 lean_closure_set(x_28, 1, x_1);
 lean_closure_set(x_28, 2, x_2);
-x_53 = lean_ctor_get_uint8(x_26, sizeof(void*)*11 + 4);
+x_53 = lean_ctor_get_uint8(x_26, sizeof(void*)*12 + 4);
 if (x_53 == 0)
 {
 lean_object* x_54; uint8_t x_55; 

@@ -2442,14 +2442,72 @@ theorem back?_mkVector (a : α) (n : Nat) :
     (Vector.mk xs h).rightpad n a = Vector.mk (Array.rightpad n a xs) (by simp [h]; omega) := by
   simp [h]
 
+/-! ### contains -/
+
+theorem contains_eq_any_beq [BEq α] (xs : Vector α n) (a : α) : xs.contains a = xs.any (a == ·) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.contains_eq_any_beq]
+
+theorem contains_iff_exists_mem_beq [BEq α] {xs : Vector α n} {a : α} :
+    xs.contains a ↔ ∃ a' ∈ xs, a == a' := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.contains_iff_exists_mem_beq]
+
+theorem contains_iff_mem [BEq α] [LawfulBEq α] {xs : Vector α n} {a : α} :
+    xs.contains a ↔ a ∈ xs := by
+  simp
+
+/-! ### more lemmas about `pop` -/
+
+@[simp] theorem pop_empty : (#v[] : Vector α 0).pop = #v[] := rfl
+
+@[simp] theorem pop_push (xs : Vector α n) : (xs.push x).pop = xs := by simp [pop]
+
+@[simp] theorem getElem_pop {xs : Vector α n} {i : Nat} (h : i < n - 1) :
+    xs.pop[i] = xs[i] := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+theorem getElem?_pop (xs : Vector α n) (i : Nat) :
+    xs.pop[i]? = if i < n - 1 then xs[i]? else none := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.getElem?_pop]
+
+theorem back_pop {xs : Vector α n} [h : NeZero (n - 1)] :
+   xs.pop.back =
+     xs[n - 2]'(by have := h.out; omega) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.back_pop]
+
+theorem back?_pop {xs : Vector α n} :
+    xs.pop.back? = if n ≤ 1 then none else xs[n - 2]? := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.back?_pop]
+
+@[simp] theorem pop_append_of_size_ne_zero {xs : Vector α n} {ys : Vector α m} (h : m ≠ 0) :
+    (xs ++ ys).pop = (xs ++ ys.pop).cast (by omega) := by
+  rcases xs with ⟨xs, rfl⟩
+  rcases ys with ⟨ys, rfl⟩
+  simp only [mk_append_mk, pop_mk, cast_mk, eq_mk]
+  rw [Array.pop_append_of_ne_empty]
+  apply Array.ne_empty_of_size_pos
+  omega
+
+theorem pop_append {xs : Vector α n} {ys : Vector α m} :
+    (xs ++ ys).pop = if h : m = 0 then xs.pop.cast (by omega) else (xs ++ ys.pop).cast (by omega) := by
+  rcases xs with ⟨xs, rfl⟩
+  rcases ys with ⟨ys, rfl⟩
+  simp only [mk_append_mk, pop_mk, List.length_eq_zero_iff, Array.toList_eq_nil_iff, cast_mk, mk_eq]
+  rw [Array.pop_append]
+  split <;> simp_all
+
+@[simp] theorem pop_mkVector (n) (a : α) : (mkVector n a).pop = mkVector (n - 1) a := by
+  ext <;> simp
+
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 
 set_option linter.indexVariables false in
 @[simp] theorem getElem_push_last {xs : Vector α n} {x : α} : (xs.push x)[n] = x := by
-  rcases xs with ⟨xs, rfl⟩
-  simp
-
-@[simp] theorem getElem_pop {xs : Vector α n} {i : Nat} (h : i < n - 1) : (xs.pop)[i] = xs[i] := by
   rcases xs with ⟨xs, rfl⟩
   simp
 

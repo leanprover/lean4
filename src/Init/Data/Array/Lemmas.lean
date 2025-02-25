@@ -3349,6 +3349,78 @@ theorem size_leftpad (n : Nat) (a : α) (xs : Array α) :
 theorem size_rightpad (n : Nat) (a : α) (xs : Array α) :
     (rightpad n a xs).size = max n xs.size := by simp; omega
 
+/-! ### contains -/
+
+theorem elem_cons_self [BEq α] [LawfulBEq α] {xs : Array α} {a : α} : (xs.push a).elem a = true := by simp
+
+theorem contains_eq_any_beq [BEq α] (xs : Array α) (a : α) : xs.contains a = xs.any (a == ·) := by
+  rcases xs with ⟨xs⟩
+  simp [List.contains_eq_any_beq]
+
+theorem contains_iff_exists_mem_beq [BEq α] {xs : Array α} {a : α} :
+    xs.contains a ↔ ∃ a' ∈ xs, a == a' := by
+  rcases xs with ⟨xs⟩
+  simp [List.contains_iff_exists_mem_beq]
+
+theorem contains_iff_mem [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
+    xs.contains a ↔ a ∈ xs := by
+  simp
+
+/-! ### more lemmas about `pop` -/
+
+@[simp] theorem pop_empty : (#[] : Array α).pop = #[] := rfl
+
+@[simp] theorem pop_push (xs : Array α) : (xs.push x).pop = xs := by simp [pop]
+
+@[simp] theorem getElem_pop {xs : Array α} {i : Nat} (h : i < xs.pop.size) :
+    xs.pop[i] = xs[i]'(by simp at h; omega) := by
+  rcases xs with ⟨xs⟩
+  simp [List.getElem_dropLast]
+
+theorem getElem?_pop (xs : Array α) (i : Nat) :
+    xs.pop[i]? = if i < xs.size - 1 then xs[i]? else none := by
+  rcases xs with ⟨xs⟩
+  simp [List.getElem?_dropLast]
+
+theorem back_pop {xs : Array α} (h) :
+   xs.pop.back h =
+     xs[xs.size - 2]'(by simp at h; omega) := by
+  rcases xs with ⟨xs⟩
+  simp [List.getLast_dropLast]
+
+theorem back?_pop {xs : Array α} :
+    xs.pop.back? = if xs.size ≤ 1 then none else xs[xs.size - 2]? := by
+  rcases xs with ⟨xs⟩
+  simp [List.getLast?_dropLast]
+
+@[simp] theorem pop_append_of_ne_empty {xs : Array α} {ys : Array α} (h : ys ≠ #[]) :
+    (xs ++ ys).pop = xs ++ ys.pop := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  simp only [List.append_toArray, List.pop_toArray, mk.injEq]
+  rw [List.dropLast_append_of_ne_nil _ (by simpa using h)]
+
+theorem pop_append {xs ys : Array α} :
+    (xs ++ ys).pop = if ys.isEmpty then xs.pop else xs ++ ys.pop := by
+  split <;> simp_all
+
+@[simp] theorem pop_mkArray (n) (a : α) : (mkArray n a).pop = mkArray (n - 1) a := by
+  ext <;> simp
+
+theorem eq_push_pop_back!_of_size_ne_zero [Inhabited α] {xs : Array α} (h : xs.size ≠ 0) :
+    xs = xs.pop.push xs.back! := by
+  apply ext
+  · simp [Nat.sub_add_cancel (Nat.zero_lt_of_ne_zero h)]
+  · intros i h h'
+    if hlt : i < xs.pop.size then
+      rw [getElem_push_lt (h:=hlt), getElem_pop]
+    else
+      have heq : i = xs.pop.size :=
+        Nat.le_antisymm (size_pop .. ▸ Nat.le_pred_of_lt h) (Nat.le_of_not_gt hlt)
+      cases heq
+      rw [getElem_push_eq, back!]
+      simp [← getElem!_pos]
+
 /-! Content below this point has not yet been aligned with `List`. -/
 
 /-! ### sum -/
@@ -3587,28 +3659,6 @@ theorem swapAt!_def (xs : Array α) (i : Nat) (v : α) (h : i < xs.size) :
   split
   · simp
   · rfl
-
-@[simp] theorem pop_empty : (#[] : Array α).pop = #[] := rfl
-
-@[simp] theorem pop_push (xs : Array α) : (xs.push x).pop = xs := by simp [pop]
-
-@[simp] theorem getElem_pop (xs : Array α) (i : Nat) (hi : i < xs.pop.size) :
-    xs.pop[i] = xs[i]'(Nat.lt_of_lt_of_le (xs.size_pop ▸ hi) (Nat.sub_le _ _)) :=
-  List.getElem_dropLast ..
-
-theorem eq_push_pop_back!_of_size_ne_zero [Inhabited α] {xs : Array α} (h : xs.size ≠ 0) :
-    xs = xs.pop.push xs.back! := by
-  apply ext
-  · simp [Nat.sub_add_cancel (Nat.zero_lt_of_ne_zero h)]
-  · intros i h h'
-    if hlt : i < xs.pop.size then
-      rw [getElem_push_lt (h:=hlt), getElem_pop]
-    else
-      have heq : i = xs.pop.size :=
-        Nat.le_antisymm (size_pop .. ▸ Nat.le_pred_of_lt h) (Nat.le_of_not_gt hlt)
-      cases heq
-      rw [getElem_push_eq, back!]
-      simp [← getElem!_pos]
 
 theorem eq_push_of_size_ne_zero {xs : Array α} (h : xs.size ≠ 0) :
     ∃ (bs : Array α) (c : α), xs = bs.push c :=

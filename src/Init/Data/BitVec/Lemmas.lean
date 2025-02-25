@@ -3731,6 +3731,29 @@ theorem getLsbD_twoPow (i j : Nat) : (twoPow w i).getLsbD j = ((i < w) && (i = j
           simp at hi
         simp_all
 
+theorem toFin_twoPow {w i : Nat} :
+    (BitVec.twoPow w i).toFin = Fin.ofNat' (2 ^ w) (2 ^ i) := by
+  rcases w with rfl | w
+  · simp [BitVec.twoPow, BitVec.toFin, toFin_shiftLeft, Fin.fin_one_eq_zero]
+  · simp [BitVec.twoPow, BitVec.toFin, toFin_shiftLeft, Nat.shiftLeft_eq]
+
+theorem toInt_twoPow {w i : Nat} :
+    (BitVec.twoPow w i).toInt = (if w ≤ i then 0 else if i + 1 = w then -1 <<< i else 1 <<< i : Int) := by
+  simp only [BitVec.twoPow, BitVec.toInt]
+  rcases w with _|w
+  · simp
+  · by_cases h : w + 1 ≤ i
+    · simp [h]; norm_cast; omega
+    · simp only [toNat_shiftLeft, toNat_ofNat, Nat.zero_lt_succ, Nat.one_mod_two_pow, h]
+      have hy : (2 ^ i % 2 ^  (w + 1)) = 2 ^ i := by rw [Nat.mod_eq_of_lt (by rw [Nat.pow_lt_pow_iff_right (by omega)]; omega)]
+      have hj : 2 * 2 ^ i = 2 ^ (i + 1) := by rw [Nat.pow_add, Nat.mul_comm]
+      norm_cast
+      simp only [Nat.shiftLeft_eq, Nat.one_mul, hy, hj]
+      by_cases i + 1 =  (w + 1)
+      · simp [show i = w by omega]; omega
+      · simp [show 2 ^ (i + 1) < 2 ^ (w + 1) by rw [Nat.pow_lt_pow_iff_right (by omega)]; omega]
+        omega
+
 @[simp]
 theorem getElem_twoPow {i j : Nat} (h : j < w) : (twoPow w i)[j] = decide (j = i) := by
   rw [←getLsbD_eq_getElem, getLsbD_twoPow]

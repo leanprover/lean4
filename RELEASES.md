@@ -84,14 +84,12 @@ for more details.
     try?
     /-
     Try these:
-    • ·
-      induction xs, ys using revAppend.induct
-      · simp
-      · simp +arith [*]
-    • ·
-      induction xs, ys using revAppend.induct
-      · simp only [revAppend, List.length_nil, Nat.zero_add]
-      · simp +arith only [revAppend, List.length_cons, *]
+    • · induction xs, ys using revAppend.induct
+        · simp
+        · simp +arith [*]
+    • · induction xs, ys using revAppend.induct
+        · simp only [revAppend, List.length_nil, Nat.zero_add]
+        · simp +arith only [revAppend, List.length_cons, *]
     -/
   ```
 

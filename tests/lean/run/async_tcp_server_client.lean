@@ -29,15 +29,15 @@ instance : MonadLift IO Async where
 
 /-- Mike is another client. -/
 def runMike (client: TCP.Socket.Client) : Async Unit := do
-  let mes ← await (client.recv 1024)
-  assert! String.fromUTF8! mes == "hi mike!! :)"
+  let mes ← await (client.recv? 1024)
+  assert! String.fromUTF8! <$> mes == some "hi mike!! :)"
   await (client.send (String.toUTF8 "hello robert!!"))
   await (client.shutdown)
 
 /-- Joe is another client. -/
 def runJoe (client: TCP.Socket.Client) : Async Unit := do
-  let mes ← await (client.recv 1024)
-  assert! String.fromUTF8! mes == "hi joe! :)"
+  let mes ← await (client.recv? 1024)
+  assert! String.fromUTF8! <$> mes == some "hi joe! :)"
   await (client.send (String.toUTF8 "hello robert!"))
   await client.shutdown
 
@@ -47,12 +47,12 @@ def runRobert (server: TCP.Socket.Server) : Async Unit := do
   let mike ← await server.accept
 
   await (joe.send (String.toUTF8 "hi joe! :)"))
-  let mes ← await (joe.recv 1024)
-  assert! String.fromUTF8! mes == "hello robert!"
+  let mes ← await (joe.recv? 1024)
+  assert! String.fromUTF8! <$> mes == some "hello robert!"
 
   await (mike.send (String.toUTF8 "hi mike!! :)"))
-  let mes ← await (mike.recv 1024)
-  assert! String.fromUTF8! mes == "hello robert!!"
+  let mes ← await (mike.recv? 1024)
+  assert! String.fromUTF8! <$> mes == some "hello robert!!"
 
   pure ()
 

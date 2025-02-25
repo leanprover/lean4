@@ -232,7 +232,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_try_send(b_obj_arg socket, obj_a
 }
 
 
-/* Std.Internal.UV.TCP.Socket.recv (socket : @& Socket) : IO (IO.Promise (Except IO.Error ByteArray)) */
+/* Std.Internal.UV.TCP.Socket.recv? (socket : @& Socket) : IO (IO.Promise (Except IO.Error (Option ByteArray))) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t buffer_size) {
     lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
 
@@ -271,7 +271,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
 
         if (nread >= 0) {
             lean_sarray_set_size(byte_array, nread);
-            resolve_promise(promise, mk_ok_except(byte_array));
+            resolve_promise(promise, mk_ok_except(lean::mk_option_some(byte_array)));
+        } else if (nread == UV_EOF) {
+            lean_dec(byte_array);
+            resolve_promise(promise, mk_ok_except(lean::mk_option_none()));
         } else if (nread < 0) {
             lean_dec(byte_array);
             resolve_promise(promise, mk_err_except(lean_decode_uv_error(nread, nullptr)));

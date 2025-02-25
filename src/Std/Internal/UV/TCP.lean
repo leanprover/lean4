@@ -50,11 +50,12 @@ Tries to send data through a TCP socket.
 opaque try_send (socket : @& Socket) (data : ByteArray) : IO Unit
 
 /--
-Receives data from a TCP socket. `size` is for the maximum bytes to receive. The promise
-resolves when some data is available or an error occurs.
+Receives data from a TCP socket with a maximum size of size bytes. The promise resolves when data is
+available or an error occurs. If data is received, it’s wrapped in .some. If EOF is reached, the
+result is .none, indicating no more data is available.
 -/
 @[extern "lean_uv_tcp_recv"]
-opaque recv (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error ByteArray))
+opaque recv? (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (Option ByteArray)))
 
 /--
 Binds a TCP socket to a specific address.

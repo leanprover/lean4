@@ -127,11 +127,12 @@ def trySend (s : Client) (data : ByteArray) : IO Unit :=
   s.native.try_send data
 
 /--
-Receives data from the client socket.
+Receives data from the client socket.  If data is received, it’s wrapped in .some. If EOF is reached,
+the result is .none, indicating no more data is available.
 -/
 @[inline]
-def recv (s : Client) (size : UInt64) : IO (AsyncTask ByteArray) :=
-  AsyncTask.ofPromise <$> s.native.recv size
+def recv? (s : Client) (size : UInt64) : IO (AsyncTask (OptioByteArray)) :=
+  AsyncTask.ofPromise <$> s.native.recv? size
 
 /--
 Shuts down the client socket.

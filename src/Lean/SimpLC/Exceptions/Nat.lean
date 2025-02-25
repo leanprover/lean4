@@ -8,6 +8,8 @@ import Init.Data.Nat
 import Init.Data.Int
 import Lean.SimpLC.Exceptions.Root
 
+set_option Elab.async false -- `simplc` crashes on the command line with a 139 without this.
+
 theorem Int.emod_add_div (m k : Int) : m % k + k * (m / k) = m := by
   simp [Int.emod_def]
 

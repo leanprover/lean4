@@ -7,6 +7,8 @@ prelude
 import Init.Data.Subtype
 import Lean.SimpLC.Exceptions.Root
 
+set_option Elab.async false -- `simplc` crashes on the command line with a 139 without this.
+
 simp_lc ignore Subtype.exists
 simp_lc ignore Subtype.forall
 

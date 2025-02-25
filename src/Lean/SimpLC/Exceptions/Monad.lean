@@ -7,6 +7,8 @@ prelude
 import Init.Control
 import Lean.SimpLC.Exceptions.Root
 
+set_option Elab.async false -- `simplc` crashes on the command line with a 139 without this.
+
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.
 This commented out command remains here for convenience while debugging.

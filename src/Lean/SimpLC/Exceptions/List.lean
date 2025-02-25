@@ -7,6 +7,8 @@ prelude
 import Init.Data.List
 import Lean.SimpLC.Exceptions.Root
 
+set_option Elab.async false -- `simplc` crashes on the command line with a 139 without this.
+
 open List
 
 simp_lc allow List.map_const List.map_flatten -- too hard?
@@ -126,7 +128,7 @@ end List
 simp_lc allow List.foldr_push List.foldr_attachWith
 simp_lc allow List.foldl_push List.foldl_attachWith
 
--- These still need thinking about.
+-- FIXME These still need thinking about.
 simp_lc allow List.pmap_eq_attachWith List.pmap_attachWith
 simp_lc allow List.pmap_eq_attachWith List.pmap_attach
 simp_lc allow List.pmap_attachWith List.pmap_eq_map
@@ -136,6 +138,43 @@ simp_lc allow List.attachWith_mem_toArray List.attachWith_append
 simp_lc allow List.attachWith_cons List.attachWith_mem_toArray
 simp_lc allow List.map_const List.map_attachWith
 simp_lc allow List.foldr_cons_eq_append' List.foldr_attachWith
+
+-- FIXME what is happening here?
+simp_lc allow List.size_toArray List.length_eraseP_of_mem
+
+namespace List
+
+@[simp] theorem flatten_map_flatten_map {xss : List (List α)} {f : α → List β} :
+    (List.map (fun xs => (List.map f xs).flatten) xss).flatten =
+      (xss.map (fun xs => xs.map f)).flatten.flatten := by
+  induction xss with
+  | nil => simp
+  | cons head tail ih => simp [ih]
+
+@[simp] theorem nat_sum_append {l₁ l₂ : List Nat} : (l₁ ++ l₂).sum = l₁.sum + l₂.sum := by
+  induction l₁ with
+  | nil => simp
+  | cons head tail ih => simp [ih]; omega
+
+@[simp] theorem nat_sum_map_nat_sum_map {xss : List (List α)} {f : α → Nat} :
+    (xss.map (fun y => (y.map f).sum)).sum = (xss.map (fun y => y.map f)).flatten.sum := by
+  induction xss with
+  | nil => simp
+  | cons head tail ih => simp_all [Function.comp_def]
+
+@[simp] theorem sum_map_toList [Zero β] [Add β] {xs : Array α} {f : α → β} :
+    (xs.toList.map f).sum = (xs.map f).sum := by
+  rcases xs with ⟨xs⟩
+  induction xs with
+  | nil => simp
+  | cons head tail ih => simp
+
+@[simp] theorem nat_sum_reverse {l : List Nat} : l.reverse.sum = l.sum := by
+  induction l with
+  | nil => simp
+  | cons head tail ih => simp [ih]; omega
+
+end List
 
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.

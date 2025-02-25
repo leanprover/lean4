@@ -7,6 +7,8 @@ prelude
 import Init.Data.Fin
 import Lean.SimpLC
 
+set_option Elab.async false -- `simplc` crashes on the command line with a 139 without this.
+
 -- This seems like a weird corner case. The discharger doesn't simplify `h` because it is used.
 example (n m : Nat) (i : Fin n) (h : 0 + n = m + n) : Fin.natAdd m i = Fin.cast (by omega) i := by
   simp at h

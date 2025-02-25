@@ -8,6 +8,8 @@ import Init.Data.BitVec
 import Lean.SimpLC.Exceptions.Root
 import Std.Tactic.BVDecide
 
+set_option Elab.async false -- `simplc` crashes on the command line with a 139 without this.
+
 simp_lc ignore BitVec.getLsbD_ge
 simp_lc ignore BitVec.getMsbD_ge
 

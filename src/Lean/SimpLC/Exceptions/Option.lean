@@ -7,6 +7,8 @@ prelude
 import Init.Data.Option
 import Lean.SimpLC.Exceptions.Root
 
+set_option Elab.async false -- `simplc` crashes on the command line with a 139 without this.
+
 -- These higher order simp lemmas cause many confluence problems. Reconsider?
 simp_lc ignore Option.map_subtype
 simp_lc ignore Option.bind_subtype

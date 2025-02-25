@@ -9,6 +9,8 @@ import Lean.SimpLC.Exceptions.List
 import Lean.SimpLC.Exceptions.Bool
 import Lean.SimpLC.Exceptions.Nat
 
+set_option Elab.async false -- `simplc` crashes on the command line with a 139 without this.
+
 simp_lc ignore Sum.getLeft_eq_iff
 simp_lc ignore Sum.getRight_eq_iff
 

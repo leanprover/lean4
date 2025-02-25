@@ -7,6 +7,8 @@ prelude
 import Std
 import Lean.SimpLC.Exceptions.Root
 
+set_option Elab.async false -- `simplc` crashes on the command line with a 139 without this.
+
 -- Internal implementation details of `DHashMap`.
 simp_lc ignore Std.DHashMap.Internal.Raw₀.contains_keys
 simp_lc ignore Std.DHashMap.Internal.Raw₀.mem_keys
@@ -34,20 +36,10 @@ simp_lc allow Std.HashSet.Raw.insert_eq_insert LawfulSingleton.insert_emptyc_eq
 simp_lc allow Std.HashMap.Raw.insert_eq_insert LawfulSingleton.insert_emptyc_eq
 simp_lc allow LawfulSingleton.insert_emptyc_eq Std.DHashMap.Raw.insert_eq_insert
 
--- https://github.com/leanprover/lean4/pull/7004 should fix most of there:
-simp_lc allow Std.HashMap.get_eq_getElem Std.HashMap.get_alter_self
-simp_lc allow Std.HashMap.get_eq_getElem Std.HashMap.get_modify_self
-simp_lc allow Std.HashMap.get!_alter_self Std.HashMap.get!_eq_getElem!
-simp_lc allow Std.HashMap.get!_modify_self Std.HashMap.get!_eq_getElem!
 simp_lc allow Std.DHashMap.Raw.contains_keys Std.DHashMap.Internal.Raw₀.contains_keys
 simp_lc allow Std.HashMap.Raw.get!_eq_getElem! Std.HashMap.Raw.get!_modify_self
-simp_lc allow Std.HashMap.Raw.get!_alter_self Std.HashMap.Raw.get!_eq_getElem!
-simp_lc allow Std.HashMap.Raw.get?_eq_getElem? Std.HashMap.Raw.get?_alter_self
 simp_lc allow Std.HashMap.Raw.get?_eq_getElem? Std.HashMap.Raw.get?_modify_self
 simp_lc allow Std.DHashMap.Internal.Raw₀.mem_keys Std.DHashMap.Raw.mem_keys
-simp_lc allow Std.HashMap.get?_alter_self Std.HashMap.get?_eq_getElem?
-simp_lc allow Std.HashMap.get?_modify_self Std.HashMap.get?_eq_getElem?
-simp_lc allow Std.HashMap.Raw.get_eq_getElem Std.HashMap.Raw.get_alter_self
 simp_lc allow Std.HashMap.Raw.get_eq_getElem Std.HashMap.Raw.get_modify_self
 
 /-

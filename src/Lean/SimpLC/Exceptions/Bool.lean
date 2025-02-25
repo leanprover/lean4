@@ -7,6 +7,8 @@ prelude
 import Init.Data.Bool
 import Lean.SimpLC.Exceptions.Root
 
+set_option Elab.async false -- `simplc` crashes on the command line with a 139 without this.
+
 simp_lc allow Bool.bne_assoc Bool.bne_self_left -- `(x != (y != (x != (y != b)))) = b` `(y != (x != y)) = x`
 
 #guard_msgs (drop info) in

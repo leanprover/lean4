@@ -2477,25 +2477,25 @@ theorem reverse_eq_iff {xs ys : Array α} : xs.reverse = ys ↔ xs = ys.reverse 
   cases xs <;> simp [*]
 
 /-- Variant of `filter_reverse` with a hypothesis giving the stop condition. -/
-@[simp] theorem filter_reverse' (p : α → Bool) (l : Array α) (w : stop = l.size) :
-     (l.reverse.filter p 0 stop) = (l.filter p).reverse := by
+@[simp] theorem filter_reverse' (p : α → Bool) (xs : Array α) (w : stop = xs.size) :
+     (xs.reverse.filter p 0 stop) = (xs.filter p).reverse := by
   subst w
-  cases l
+  cases xs
   simp
 
-theorem filter_reverse (p : α → Bool) (l : Array α) : (l.reverse.filter p) = (l.filter p).reverse := by
-  cases l
+theorem filter_reverse (p : α → Bool) (xs : Array α) : (xs.reverse.filter p) = (xs.filter p).reverse := by
+  cases xs
   simp
 
 /-- Variant of `filterMap_reverse` with a hypothesis giving the stop condition. -/
-@[simp] theorem filterMap_reverse' (f : α → Option β) (l : Array α) (w : stop = l.size) :
-    (l.reverse.filterMap f 0 stop) = (l.filterMap f).reverse := by
+@[simp] theorem filterMap_reverse' (f : α → Option β) (xs : Array α) (w : stop = xs.size) :
+    (xs.reverse.filterMap f 0 stop) = (xs.filterMap f).reverse := by
   subst w
-  cases l
+  cases xs
   simp
 
-theorem filterMap_reverse (f : α → Option β) (l : Array α) : (l.reverse.filterMap f) = (l.filterMap f).reverse := by
-  cases l
+theorem filterMap_reverse (f : α → Option β) (xs : Array α) : (xs.reverse.filterMap f) = (xs.filterMap f).reverse := by
+  cases xs
   simp
 
 @[simp] theorem reverse_append (xs ys : Array α) : (xs ++ ys).reverse = ys.reverse ++ xs.reverse := by
@@ -2997,29 +2997,29 @@ rather than `(arr.push a).size` as the argument.
   rcases as with ⟨as⟩
   simp
 
-@[simp] theorem foldr_append_eq_append (as : Array α) (f : α → Array β) (bs : Array β) :
-    as.foldr (f · ++ ·) bs = (as.map f).flatten ++ bs := by
-  rcases as with ⟨as⟩
-  rcases bs with ⟨bs⟩
-  induction as <;> simp_all [Function.comp_def, flatten_toArray]
+@[simp] theorem foldr_append_eq_append (xs : Array α) (f : α → Array β) (ys : Array β) :
+    xs.foldr (f · ++ ·) ys = (xs.map f).flatten ++ ys := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  induction xs <;> simp_all [Function.comp_def, flatten_toArray]
 
-@[simp] theorem foldl_append_eq_append (as : Array α) (f : α → Array β) (bs : Array β) :
-    as.foldl (· ++ f ·) bs = bs ++ (as.map f).flatten := by
-  rcases as with ⟨as⟩
-  rcases bs with ⟨bs⟩
-  induction as generalizing bs <;> simp_all [Function.comp_def, flatten_toArray]
+@[simp] theorem foldl_append_eq_append (xs : Array α) (f : α → Array β) (ys : Array β) :
+    xs.foldl (· ++ f ·) ys = ys ++ (xs.map f).flatten := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  induction xs generalizing ys <;> simp_all [Function.comp_def, flatten_toArray]
 
-@[simp] theorem foldr_flip_append_eq_append (as : Array α) (f : α → Array β) (bs : Array β) :
-    as.foldr (fun x y => y ++ f x) bs = bs ++ (as.map f).reverse.flatten := by
-  rcases as with ⟨as⟩
-  rcases bs with ⟨bs⟩
-  induction as generalizing bs <;> simp_all [Function.comp_def, flatten_toArray]
+@[simp] theorem foldr_flip_append_eq_append (xs : Array α) (f : α → Array β) (ys : Array β) :
+    xs.foldr (fun x acc => acc ++ f x) ys = ys ++ (xs.map f).reverse.flatten := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  induction xs generalizing ys <;> simp_all [Function.comp_def, flatten_toArray]
 
-@[simp] theorem foldl_flip_append_eq_append (as : Array α) (f : α → Array β) (bs : Array β) :
-    as.foldl (fun x y => f y ++ x) bs = (as.map f).reverse.flatten ++ bs:= by
-  rcases as with ⟨as⟩
-  rcases bs with ⟨bs⟩
-  induction as generalizing bs <;> simp_all [Function.comp_def, flatten_toArray]
+@[simp] theorem foldl_flip_append_eq_append (xs : Array α) (f : α → Array β) (ys : Array β) :
+    xs.foldl (fun acc y => f y ++ acc) ys = (xs.map f).reverse.flatten ++ ys:= by
+  rcases xs with ⟨l⟩
+  rcases ys with ⟨l'⟩
+  induction l generalizing l' <;> simp_all [Function.comp_def, flatten_toArray]
 
 theorem foldl_map' (f : β₁ → β₂) (g : α → β₂ → α) (xs : Array β₁) (init : α) (w : stop = xs.size) :
     (xs.map f).foldl g init 0 stop = xs.foldl (fun x y => g x (f y)) init := by

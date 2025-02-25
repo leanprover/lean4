@@ -7,6 +7,8 @@ prelude
 import Init.Data.Prod
 import Lean.SimpLC.Exceptions.Root
 
+set_option Elab.async false -- `simplc` crashes on the command line with a 139 without this.
+
 simp_lc ignore Prod.exists
 simp_lc ignore Prod.forall
 

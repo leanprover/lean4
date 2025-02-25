@@ -8,6 +8,8 @@ import Init.Data
 import Lean.SimpLC
 import Lean.Elab.Tactic.Grind
 
+set_option Elab.async false -- `simplc` crashes on the command line with a 139 without this.
+
 -- This possibly could be a simp lemma.
 -- It would fire on any `arrow` goal, but we have plenty of these already.
 example (x : True → Prop) : (∀ (h : True), x h) ↔ x True.intro :=

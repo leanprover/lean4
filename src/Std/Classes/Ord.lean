@@ -292,10 +292,6 @@ def beqOfOrd [Ord α] : BEq α where
 theorem beq_eq [Ord α] {a b : α} : (a == b) = (compare a b == .eq) :=
   rfl
 
-theorem beq_iff [Ord α] [LawfulEqOrd α] {a b : α} : (a == b) ↔ compare a b = .eq := by
-  dsimp only [beq_eq]
-  exact beq_iff_eq
-
 theorem equivBEq_of_transOrd [Ord α] [TransOrd α] : EquivBEq α where
   symm {a b} h := by simp_all [OrientedCmp.eq_comm]
   trans h₁ h₂ := by simp_all only [beq_eq, beq_iff_eq]; exact TransCmp.eq_trans h₁ h₂

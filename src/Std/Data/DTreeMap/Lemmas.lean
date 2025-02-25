@@ -802,10 +802,8 @@ theorem mem_of_mem_insertIfNew [TransCmp cmp] {k a : α} {v : β k} :
 
 /-- This is a restatement of `mem_of_mem_insertIfNew` that is written to exactly match the
 proof obligation in the statement of `get_insertIfNew`. -/
-theorem mem_of_mem_insertIfNew' [TransCmp cmp] {k a : α}
-    {v : β k} :
-    a ∈ (t.insertIfNew k v) →
-      ¬ (cmp k a = .eq ∧ ¬ k ∈ t) → a ∈ t :=
+theorem mem_of_mem_insertIfNew' [TransCmp cmp] {k a : α} {v : β k} :
+    a ∈ (t.insertIfNew k v) → ¬ (cmp k a = .eq ∧ ¬ k ∈ t) → a ∈ t :=
   Impl.mem_of_mem_insertIfNew' t.wf
 
 theorem size_insertIfNew [TransCmp cmp] {k : α} {v : β k} :

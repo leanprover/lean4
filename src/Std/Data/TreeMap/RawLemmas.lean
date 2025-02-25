@@ -588,8 +588,7 @@ theorem mem_of_mem_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β} :
 proof obligation in the statement of `get_insertIfNew`. -/
 theorem mem_of_mem_insertIfNew' [TransCmp cmp] (h : t.WF) {k a : α}
     {v : β} :
-    a ∈ (t.insertIfNew k v) →
-      ¬ (cmp k a = .eq ∧ ¬ k ∈ t) → a ∈ t :=
+    a ∈ (t.insertIfNew k v) → ¬ (cmp k a = .eq ∧ ¬ k ∈ t) → a ∈ t :=
   DTreeMap.Raw.mem_of_mem_insertIfNew' h
 
 theorem size_insertIfNew [TransCmp cmp] {k : α} (h : t.WF) {v : β} :

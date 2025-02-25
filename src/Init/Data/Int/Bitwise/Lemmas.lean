@@ -43,7 +43,7 @@ theorem le_shiftRight_of_nonpos {n : Int} {s : Nat} (h : n ≤ 0) : n ≤ n >>> 
   simp only [Int.shiftRight_eq, Int.shiftRight, Int.ofNat_eq_coe]
   split
   case _ _ _ m =>
-    simp [Int.ofNat_eq_coe] at h
+    simp only [ofNat_eq_coe] at h
     by_cases hm : m = 0
     · simp [hm]
     · omega

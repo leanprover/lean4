@@ -763,13 +763,13 @@ theorem balance_eq_inner [Ord α] {sz k v} {l r : Impl α β}
     balance k v l r hl.left hl.right h = inner sz k v l r := by
   rw [balance_eq_balance!, balance!_eq_balanceₘ hl.left hl.right h, balanceₘ]
   have hl' := balanced_inner_iff.mp hl
-  cases k, v, l, r, hl.left, hl.right, h using balanceₘ.fun_cases <;> tree_tac
+  fun_cases balanceₘ k v l r <;> tree_tac
 
 theorem balance!_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced) (hrb : r.Balanced)
     (hlr : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size) :
     (balance! k v l r).size = l.size + 1 + r.size ∧ (balance! k v l r).Balanced := by
   rw [balance!_eq_balanceₘ hlb hrb hlr, balanceₘ]
-  cases k, v, l, r, hlb, hrb, hlr using balanceₘ.fun_cases
+  fun_cases balanceₘ k v l r
   · rw [if_pos ‹_›, bin, balanced_inner_iff]
     exact ⟨rfl, hlb, hrb, Or.inl ‹_›, rfl⟩
   · rw [if_neg ‹_›, dif_pos ‹_›]

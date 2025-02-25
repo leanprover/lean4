@@ -598,4 +598,63 @@ theorem getKey!_eq_getKeyD_default [TransCmp cmp] [Inhabited α] {a : α} :
     t.getKey! a = t.getKeyD a default :=
   DTreeMap.getKey!_eq_getKeyD_default
 
+/-- This is a restatement of `contains_of_contains_insertIfNew` that is written to exactly match the
+proof obligation in the statement of `get_insertIfNew`. -/
+theorem contains_of_contains_insertIfNew' [TransCmp cmp] {k a : α}
+    {v : β} :
+    (t.insertIfNew k v).contains a →
+      ¬ (cmp k a = .eq ∧ t.contains k = false) → t.contains a :=
+  DTreeMap.contains_of_contains_insertIfNew'
+
+theorem get?_insertIfNew [TransCmp cmp] {k a : α} {v : β} :
+    get? (t.insertIfNew k v) a =
+      if cmp k a = .eq ∧ t.contains k = false then
+        some v
+      else
+        get? t a :=
+  DTreeMap.Const.get?_insertIfNew
+
+theorem get_insertIfNew [TransCmp cmp] {k a : α} {v : β} {h₁} :
+    get (t.insertIfNew k v) a h₁ =
+      if h₂ : cmp k a = .eq ∧ t.contains k = false then
+        v
+      else
+        get t a (contains_of_contains_insertIfNew' h₁ h₂) :=
+  DTreeMap.Const.get_insertIfNew
+
+theorem get!_insertIfNew [TransCmp cmp] [Inhabited β] {k a : α}
+    {v : β} :
+    get! (t.insertIfNew k v) a =
+      if cmp k a = .eq ∧ t.contains k = false then v else get! t a :=
+  DTreeMap.Const.get!_insertIfNew
+
+theorem getD_insertIfNew [TransCmp cmp] {k a : α} {fallback v : β} :
+    getD (t.insertIfNew k v) a fallback =
+      if cmp k a = .eq ∧ t.contains k = false then v else getD t a fallback :=
+  DTreeMap.Const.getD_insertIfNew
+
+theorem getKey?_insertIfNew [TransCmp cmp] {k a : α} {v : β} :
+    (t.insertIfNew k v).getKey? a =
+      if cmp k a = .eq ∧ t.contains k = false then some k else t.getKey? a :=
+  DTreeMap.getKey?_insertIfNew
+
+theorem getKey_insertIfNew [TransCmp cmp] {k a : α} {v : β} {h₁} :
+    (t.insertIfNew k v).getKey a h₁ =
+      if h₂ : cmp k a = .eq ∧ t.contains k = false then k
+      else t.getKey a (contains_of_contains_insertIfNew' h₁ h₂) :=
+  DTreeMap.getKey_insertIfNew
+
+theorem getKey!_insertIfNew [TransCmp cmp] [Inhabited α] {k a : α}
+    {v : β} :
+    (t.insertIfNew k v).getKey! a =
+      if cmp k a = .eq ∧ t.contains k = false then k else t.getKey! a :=
+  DTreeMap.getKey!_insertIfNew
+
+theorem getKeyD_insertIfNew [TransCmp cmp] {k a fallback : α}
+    {v : β} :
+    (t.insertIfNew k v).getKeyD a fallback =
+      if cmp k a = .eq ∧ t.contains k = false then k else t.getKeyD a fallback :=
+  DTreeMap.getKeyD_insertIfNew
+
+
 end Std.TreeMap

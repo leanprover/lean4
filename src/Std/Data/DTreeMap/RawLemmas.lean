@@ -344,17 +344,17 @@ theorem get_insert [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} {v : �
       if h₂ : cmp k a = .eq then
         cast (congrArg β (compare_eq_iff_eq.mp h₂)) v
       else
-        t.get a (contains_of_contains_insert h h₁ h₂) :=
+        t.get a (mem_of_mem_insert h h₁ h₂) :=
   Impl.get_insert! h
 
 @[simp]
 theorem get_insert_self [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} {v : β k} :
-    (t.insert k v).get k (contains_insert_self h) = v :=
+    (t.insert k v).get k (mem_insert_self h) = v :=
   Impl.get_insert!_self h
 
 @[simp]
 theorem get_erase [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} {h'} :
-    (t.erase k).get a h' = t.get a (contains_of_contains_erase h h') :=
+    (t.erase k).get a h' = t.get a (mem_of_mem_erase h h') :=
   Impl.get_erase! h
 
 theorem get?_eq_some_get [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} {h'} :
@@ -368,17 +368,17 @@ variable {β : Type v} {t : Raw α β cmp}
 theorem get_insert [TransCmp cmp] (h : t.WF) {k a : α} {v : β} {h₁} :
     get (t.insert k v) a h₁ =
       if h₂ : cmp k a = .eq then v
-      else get t a (contains_of_contains_insert h h₁ h₂) :=
+      else get t a (mem_of_mem_insert h h₁ h₂) :=
   Impl.Const.get_insert! h
 
 @[simp]
 theorem get_insert_self [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
-    get (t.insert k v) k (contains_insert_self h) = v :=
+    get (t.insert k v) k (mem_insert_self h) = v :=
   Impl.Const.get_insert!_self h
 
 @[simp]
 theorem get_erase [TransCmp cmp] (h : t.WF) {k a : α} {h'} :
-    get (t.erase k) a h' = get t a (contains_of_contains_erase h h') :=
+    get (t.erase k) a h' = get t a (mem_of_mem_erase h h') :=
   Impl.Const.get_erase! h
 
 theorem get?_eq_some_get [TransCmp cmp] (h : t.WF) {a : α} {h'} :
@@ -390,7 +390,7 @@ theorem get_eq_get [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} {h'} :
   Impl.Const.get_eq_get h
 
 theorem get_congr [TransCmp cmp] (h : t.WF) {a b : α} (hab : cmp a b = .eq) {h'} :
-    get t a h' = get t b ((contains_congr h hab).symm.trans h') :=
+    get t a h' = get t b ((mem_congr h hab).mp h') :=
   Impl.Const.get_congr h hab
 
 end Const

@@ -291,17 +291,17 @@ theorem getElem?_congr [TransCmp cmp] {a b : α} (hab : cmp a b = .eq) :
 theorem getElem_insert [TransCmp cmp] {k a : α} {v : β} {h₁} :
     (t.insert k v)[a]'h₁ =
       if h₂ : cmp k a = .eq then v
-      else get t a (contains_of_contains_insert h₁ h₂) :=
+      else get t a (mem_of_mem_insert h₁ h₂) :=
   DTreeMap.Const.get_insert
 
 @[simp]
 theorem getElem_insert_self [TransCmp cmp] {k : α} {v : β} :
-    (t.insert k v)[k]'(contains_insert_self) = v :=
+    (t.insert k v)[k]'mem_insert_self = v :=
   DTreeMap.Const.get_insert_self
 
 @[simp]
 theorem getElem_erase [TransCmp cmp] {k a : α} {h'} :
-    (t.erase k)[a]'h' = t[a]'(contains_of_contains_erase h') :=
+    (t.erase k)[a]'h' = t[a]'(mem_of_mem_erase h') :=
   DTreeMap.Const.get_erase
 
 theorem getElem?_eq_some_getElem [TransCmp cmp] {a : α} {h} :
@@ -309,7 +309,7 @@ theorem getElem?_eq_some_getElem [TransCmp cmp] {a : α} {h} :
   DTreeMap.Const.get?_eq_some_get
 
 theorem getElem_congr [TransCmp cmp] {a b : α} (hab : cmp a b = .eq) {h'} :
-    t[a]'h' = t[b]'((contains_congr hab).symm.trans h') :=
+    t[a]'h' = t[b]'((mem_congr hab).mp h') :=
   DTreeMap.Const.get_congr hab
 
 @[simp]

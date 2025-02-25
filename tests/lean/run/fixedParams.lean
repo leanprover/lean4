@@ -56,9 +56,10 @@ end Ex3
 
 namespace Ex4
 /--
-info: [Elab.definition.fixedParams] getFixedParams:
-      • [#1 #3] ❌ [#3 #1] ❌
-      • [#3 #1] ❌ [#1 #3] ❌
+info: [Elab.definition.fixedParams] getFixedParams: notFixed 0 3:
+    In foo c n b m
+    m not matched
+[Elab.definition.fixedParams] getFixedParams: • [#1 #3] ❌ [#3 #1] ❌ • [#3 #1] ❌ [#1 #3] ❌
 -/
 #guard_msgs in
 mutual

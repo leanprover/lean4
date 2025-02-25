@@ -85,8 +85,8 @@ partial def Info.setCallerParam (calleeIdx argIdx callerIdx paramIdx : Nat) (inf
         -- all good
         info
       else
-        -- Inconsistent information, mark both as not fixed
-        info.setNotFixed callerIdx paramIdx |>.setNotFixed calleeIdx argIdx
+        -- Inconsistent information
+        info.setNotFixed calleeIdx argIdx
     else
       -- Set the new entry
       let info := info.modify calleeIdx (·.modify argIdx (·.map (·.set! callerIdx (some paramIdx))))
@@ -102,7 +102,8 @@ partial def Info.setCallerParam (calleeIdx argIdx callerIdx paramIdx : Nat) (inf
           for otherArgIdx in [:info[otherFunIdx]!.size] do
             if let some otherArgsInfo := info[otherFunIdx]![otherArgIdx]! then
               if let some paramIdx' := otherArgsInfo[calleeIdx]! then
-                info := info.setCallerParam otherFunIdx otherArgIdx callerIdx paramIdx
+                if paramIdx' = argIdx then
+                  info := info.setCallerParam otherFunIdx otherArgIdx callerIdx paramIdx
 
         return info
     else

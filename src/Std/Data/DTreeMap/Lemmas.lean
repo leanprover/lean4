@@ -809,4 +809,100 @@ theorem getKey!_eq_getKeyD_default [TransCmp cmp] [Inhabited α] {a : α} :
     t.getKey! a = t.getKeyD a default :=
   Impl.getKey!_eq_getKeyD_default t.wf
 
+/-- This is a restatement of `contains_of_contains_insertIfNew` that is written to exactly match the
+proof obligation in the statement of `get_insertIfNew`. -/
+theorem contains_of_contains_insertIfNew' [TransCmp cmp] {k a : α}
+    {v : β k} :
+    (t.insertIfNew k v).contains a →
+      ¬ (cmp k a = .eq ∧ t.contains k = false) → t.contains a :=
+  Impl.contains_of_contains_insertIfNew' t.wf
+
+theorem get?_insertIfNew [TransCmp cmp] [LawfulEqCmp cmp] {k a : α} {v : β k} :
+    (t.insertIfNew k v).get? a =
+      if h : cmp k a = .eq ∧ t.contains k = false then
+        some (cast (congrArg β (compare_eq_iff_eq.mp h.1)) v)
+      else
+        t.get? a :=
+  Impl.get?_insertIfNew t.wf
+
+theorem get_insertIfNew [TransCmp cmp] [LawfulEqCmp cmp] {k a : α} {v : β k} {h₁} :
+    (t.insertIfNew k v).get a h₁ =
+      if h₂ : cmp k a = .eq ∧ t.contains k = false then
+        cast (congrArg β (compare_eq_iff_eq.mp h₂.1)) v
+      else
+        t.get a (contains_of_contains_insertIfNew' h₁ h₂) :=
+  Impl.get_insertIfNew t.wf
+
+theorem get!_insertIfNew [TransCmp cmp] [LawfulEqCmp cmp] {k a : α} [Inhabited (β a)] {v : β k} :
+    (t.insertIfNew k v).get! a =
+      if h : cmp k a = .eq ∧ t.contains k = false then
+        cast (congrArg β (compare_eq_iff_eq.mp h.1)) v
+      else
+        t.get! a :=
+  Impl.get!_insertIfNew t.wf
+
+theorem getD_insertIfNew [TransCmp cmp] [LawfulEqCmp cmp] {k a : α} {fallback : β a} {v : β k} :
+    (t.insertIfNew k v).getD a fallback =
+      if h : cmp k a = .eq ∧ t.contains k = false then
+        cast (congrArg β (compare_eq_iff_eq.mp h.1)) v
+      else
+        t.getD a fallback :=
+  Impl.getD_insertIfNew t.wf
+
+namespace Const
+
+variable {β : Type v} {t : DTreeMap α β cmp}
+
+theorem get?_insertIfNew [TransCmp cmp] {k a : α} {v : β} :
+    get? (t.insertIfNew k v) a =
+      if cmp k a = .eq ∧ t.contains k = false then
+        some v
+      else
+        get? t a :=
+  Impl.Const.get?_insertIfNew t.wf
+
+theorem get_insertIfNew [TransCmp cmp] {k a : α} {v : β} {h₁} :
+    get (t.insertIfNew k v) a h₁ =
+      if h₂ : cmp k a = .eq ∧ t.contains k = false then
+        v
+      else
+        get t a (contains_of_contains_insertIfNew' h₁ h₂) :=
+  Impl.Const.get_insertIfNew t.wf
+
+theorem get!_insertIfNew [TransCmp cmp] [Inhabited β] {k a : α}
+    {v : β} :
+    get! (t.insertIfNew k v) a =
+      if cmp k a = .eq ∧ t.contains k = false then v else get! t a :=
+  Impl.Const.get!_insertIfNew t.wf
+
+theorem getD_insertIfNew [TransCmp cmp] {k a : α} {fallback v : β} :
+    getD (t.insertIfNew k v) a fallback =
+      if cmp k a = .eq ∧ t.contains k = false then v else getD t a fallback :=
+  Impl.Const.getD_insertIfNew t.wf
+
+end Const
+
+theorem getKey?_insertIfNew [TransCmp cmp] {k a : α} {v : β k} :
+    (t.insertIfNew k v).getKey? a =
+      if cmp k a = .eq ∧ t.contains k = false then some k else t.getKey? a :=
+  Impl.getKey?_insertIfNew t.wf
+
+theorem getKey_insertIfNew [TransCmp cmp] {k a : α} {v : β k} {h₁} :
+    (t.insertIfNew k v).getKey a h₁ =
+      if h₂ : cmp k a = .eq ∧ t.contains k = false then k
+      else t.getKey a (contains_of_contains_insertIfNew' h₁ h₂) :=
+  Impl.getKey_insertIfNew t.wf
+
+theorem getKey!_insertIfNew [TransCmp cmp] [Inhabited α] {k a : α}
+    {v : β k} :
+    (t.insertIfNew k v).getKey! a =
+      if cmp k a = .eq ∧ t.contains k = false then k else t.getKey! a :=
+  Impl.getKey!_insertIfNew t.wf
+
+theorem getKeyD_insertIfNew [TransCmp cmp] {k a fallback : α}
+    {v : β k} :
+    (t.insertIfNew k v).getKeyD a fallback =
+      if cmp k a = .eq ∧ t.contains k = false then k else t.getKeyD a fallback :=
+  Impl.getKeyD_insertIfNew t.wf
+
 end Std.DTreeMap

@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
@@ -131,7 +131,7 @@ Receives data from the client socket.  If data is received, it’s wrapped in .s
 the result is .none, indicating no more data is available.
 -/
 @[inline]
-def recv? (s : Client) (size : UInt64) : IO (AsyncTask (OptioByteArray)) :=
+def recv? (s : Client) (size : UInt64) : IO (AsyncTask (Option ByteArray)) :=
   AsyncTask.ofPromise <$> s.native.recv? size
 
 /--

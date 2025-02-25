@@ -25,6 +25,7 @@ def Socket : Type := SocketImpl.type
 instance : Nonempty Socket := SocketImpl.property
 
 namespace Socket
+
 /--
 Creates a new TCP socket.
 -/
@@ -100,7 +101,7 @@ Enables the Nagle algorithm for a TCP socket.
 opaque nodelay (socket : @& Socket) : IO Unit
 
 /--
-Enables TCP keep-alive for a socket.
+Enables TCP keep-alive for a socket. If delay is less than 1 then UV_EINVAL is returned.
 -/
 @[extern "lean_uv_tcp_keepalive"]
 opaque keepalive (socket : @& Socket) (enable : Int32) (delay : UInt32) : IO Unit

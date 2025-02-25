@@ -59,7 +59,7 @@ def send (s : Socket) (data : ByteArray) (addr : Option SocketAddress := none) :
 Receives data from the UDP socket.
 -/
 @[inline]
-def recv (s : Socket) (size : UInt64) : IO (AsyncTask ByteArray) :=
+def recv (s : Socket) (size : UInt64) : IO (AsyncTask (ByteArray × SocketAddress)) :=
   AsyncTask.ofPromise <$> s.native.recv size
 
 /--

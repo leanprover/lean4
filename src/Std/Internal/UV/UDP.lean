@@ -62,7 +62,7 @@ Receives data from an UDP socket. `size` is for the maximum bytes to receive. Th
 resolves when some data is available or an error occurs.
 -/
 @[extern "lean_uv_udp_recv"]
-opaque recv (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error ByteArray))
+opaque recv (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (ByteArray × SocketAddress)))
 
 /--
 Gets the remote address of a connected UDP socket.

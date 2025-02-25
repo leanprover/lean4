@@ -208,6 +208,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
     }, [](uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
         uv_udp_recv_stop(handle);
 
+        lean_object * addr_obj = lean_sockaddr_to_socketaddress(addr);
+
         lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket((lean_object*)handle->data);
         lean_object * promise = udp_socket->m_promise_read;
         lean_object * byte_array = udp_socket->m_byte_array;
@@ -217,7 +219,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
 
         if (nread >= 0) {
             lean_sarray_set_size(byte_array, nread);
-            resolve_promise(promise, mk_ok_except(byte_array));
+
+            lean_object * prod = lean_alloc_ctor(1, 2, 0);
+            lean_ctor_set(prod, 0, byte_array);
+            lean_ctor_set(prod, 1, addr_obj);
+
+            resolve_promise(promise, mk_ok_except(prod));
         } else if (nread < 0) {
             lean_dec(byte_array);
             resolve_promise(promise, mk_err_except(lean_decode_uv_error(nread, nullptr)));

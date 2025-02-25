@@ -203,6 +203,8 @@ private def elabHeaders (views : Array DefView)
             let levelNames ← getLevelNames
             if view.type?.isSome then
               let pendingMVarIds ← getMVars type
+              if pendingMVarIds.isEmpty then
+                type ← Meta.abstractNestedProofs declName type
               discard <| logUnassignedUsingErrorInfos pendingMVarIds <|
                 getPendingMVarErrorMessage views
             let newHeader : DefViewElabHeaderData := {

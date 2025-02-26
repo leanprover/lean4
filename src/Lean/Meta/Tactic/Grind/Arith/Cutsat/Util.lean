@@ -65,6 +65,12 @@ def mkCnstrId : GoalM Nat := do
   modify' fun s => { s with nextCnstrId := id + 1 }
   return id
 
+def mkEqCnstr (p : Poly) (h : EqCnstrProof) : GoalM EqCnstr := do
+  return { p, h, id := (← mkCnstrId) }
+
+@[extern "lean_grind_cutsat_assert_eq"] -- forward definition
+opaque EqCnstr.assert (c : EqCnstr) : GoalM Unit
+
 private partial def shrink (a : PArray Int) (sz : Nat) : PArray Int :=
   if a.size > sz then
     shrink a.pop sz

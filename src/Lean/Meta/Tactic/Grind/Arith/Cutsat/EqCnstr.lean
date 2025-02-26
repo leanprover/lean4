@@ -17,9 +17,6 @@ private def _root_.Int.Linear.Poly.substVar (p : Poly) : GoalM (Option (Var × E
   let p := p.mul (-b) |>.combine (c.p.mul a)
   return some (x, c, p)
 
-def mkEqCnstr (p : Poly) (h : EqCnstrProof) : GoalM EqCnstr := do
-  return { p, h, id := (← mkCnstrId) }
-
 def EqCnstr.norm (c : EqCnstr) : GoalM EqCnstr := do
   let c ← if c.p.isSorted then
     pure c
@@ -180,7 +177,8 @@ private def updateOccs (k : Int) (x : Var) (c : EqCnstr) : GoalM Unit := do
   for y in ys do
     updateOccsAt k x c y
 
-def EqCnstr.assert (c : EqCnstr) : GoalM Unit := do
+@[export lean_grind_cutsat_assert_eq]
+def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
   if (← inconsistent) then return ()
   trace[grind.cutsat.assert] "{← c.pp}"
   let c ← c.norm

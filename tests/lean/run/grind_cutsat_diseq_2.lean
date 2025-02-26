@@ -24,7 +24,11 @@ set_option trace.grind.cutsat.diseq true in
 theorem ex₄ (a b c d : Int) : a = 2*b + 2*c → a - 2*b - 2*d ≠ 0 → c ≠ d := by
   grind
 
+theorem ex₅ (a b c : Int) : c = a → a + b ≤ 3 → 2 < b + c → a + b = 3 := by
+  grind
+
 #print ex₁
 #print ex₂
 #print ex₃
 #print ex₄
+#print ex₅

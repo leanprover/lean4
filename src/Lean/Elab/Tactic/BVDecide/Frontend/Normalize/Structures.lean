@@ -29,9 +29,7 @@ namespace Frontend.Normalize
 open Lean.Meta
 
 
-def applyIteSimproc : Simp.Simproc := fun e => do
-  let proj := e.getAppFn
-  let args := e.getAppArgs
+def applyIteSimproc : Simp.Simproc := fun e => e.withApp fun proj args => do
   if h : args.size ≠ 0 then
     let_expr ite α c instDec t e := args.back | return .continue
     let params := args.pop
@@ -44,9 +42,7 @@ def applyIteSimproc : Simp.Simproc := fun e => do
   else
     return .continue
 
-def applyCondSimproc : Simp.Simproc := fun e => do
-  let proj := e.getAppFn
-  let args := e.getAppArgs
+def applyCondSimproc : Simp.Simproc := fun e => e.withApp fun proj args => do
   if h : args.size ≠ 0 then
     let_expr cond α c t e := args.back | return .continue
     let params := args.pop
@@ -94,9 +90,9 @@ where
           -- We use the simprocs with pre such that we push in projections eagerly in order to
           -- potentially not have to simplify complex structure expressions that we only project one
           -- element out of.
-          let path := mkDiscrKeyFor const numParams proj ``ite 5
+          let path := mkDiscrPathFor const numParams proj ``ite 5
           simprocs := simprocs.addCore path ``applyIteSimproc false (.inl applyIteSimproc)
-          let path := mkDiscrKeyFor const numParams proj ``cond 4
+          let path := mkDiscrPathFor const numParams proj ``cond 4
           simprocs := simprocs.addCore path ``applyCondSimproc false (.inl applyCondSimproc)
       let cfg ← PreProcessM.getConfig
       let simpCtx ← Simp.mkContext
@@ -112,7 +108,11 @@ where
       let some (_, newGoal) := result? | return none
       return newGoal
 
-  mkDiscrKeyFor (struct : Name) (structParams : Nat) (projIdx : Nat) (controlFlow : Name)
+  /--
+  For `Prod.fst` and `ite` this function creates the path: `Prod.fst (ite (Prod _ _) _ _ _ _)`.
+  This path can be used to match on applications of structure projections onto control flow primitives.
+  -/
+  mkDiscrPathFor (struct : Name) (structParams : Nat) (projIdx : Nat) (controlFlow : Name)
       (controlFlowParams : Nat) : Array DiscrTree.Key := Id.run do
     let stars := structParams + controlFlowParams - 1
     let mut path : Array DiscrTree.Key := Array.mkEmpty (3 + stars)

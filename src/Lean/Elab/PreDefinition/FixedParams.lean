@@ -47,42 +47,55 @@ We find the largest set and graph that satisfies these rules:
   `(callee, argIdx) ∈ varying`
 * If the type of `funIdx`’s parameter `paramIdx₂ depends on the `paramIdx₁` and
   `(funIdx, paramIdx₁) ∈ varying`, then `(funIdx, paramIdx₁) ∈ varying`
-  (TODO!)
+* For structural recursion: The target and all its indices are `varying`. (TODO)
 
 Under the assumption that the predefintions indeed are mutually recursive, then the resulting graph,
 restricted to the non-`varying` nodes, should partition into cliques that have one member from each
 function. Every such clique becomes a fixed parameter.
 
-The data structure we already makes use of some invariants; in particular once we know a paramter
-is varying, it's incoming edges are irrelevant. So we have:
-
-* `graph[callee][argIdx] = none`: `(callee, argIdx) ∈ varying`
-* `graph[callee][argIdx] = some a`:
-   * `(callee, argIdx) ∉ varying` (yet) and
-   * `a[callerIdx] = none`: we have no edge to `(callee, argIdx)`
-   * `a[callerIdx] = some paramIdx`: we have edge `(callerIdx, paramIdx) → (callee, argIdx)`
 -/
-abbrev Info := Array (Array (Option (Array (Option Nat))))
+structure Info where
+  /-
+  The concrete data structure for set and graph exploits some of the invariants:
+  * Once we know a parameter is varying, it's incoming edges are irrelevant.
+  * There can be at most one incoming edge
 
-def Info.init (arities : Array Nat) : Info :=
-  arities.map fun calleeArity =>
-    mkArray calleeArity (some (mkArray arities.size none))
+  So we have
+
+  * `graph[callee][argIdx] = none`: `(callee, argIdx) ∈ varying`
+  * `graph[callee][argIdx] = some a`:
+    * `(callee, argIdx) ∉ varying` (yet) and
+    * `a[callerIdx] = none`: we have no edge to `(callee, argIdx)`
+    * `a[callerIdx] = some paramIdx`: we have edge `(callerIdx, paramIdx) → (callee, argIdx)`
+  -/
+  graph : Array (Array (Option (Array (Option Nat))))
+  /--
+  The dependency structure of the function parameter.
+  If `paramIdx₂ ∈ revDeps[funIdx][paraIdx₁]`, then the type of `paramIdx₂` depends on `parmaIdx₁`
+  -/
+  revDeps : Array (Array (Array Nat))
+
+
+def Info.init (revDeps : Array (Array (Array Nat))) : Info where
+  graph := revDeps.map fun deps =>
+    mkArray deps.size (some (mkArray revDeps.size none))
+  revDeps
 
 def Info.addSelfCalls (info : Info) : Info :=
-  info.mapIdx fun funIdx paramInfos =>
+  { info with graph := info.graph.mapIdx fun funIdx paramInfos =>
     paramInfos.mapIdx fun paramIdx paramInfo? =>
       paramInfo?.map fun callers =>
-        callers.set! funIdx (some paramIdx)
+        callers.set! funIdx (some paramIdx) }
 
 /-- All paremeters known to be non-fixed? Then we can stop. -/
 def Info.allNotFixed (info : Info) : Bool :=
-  info.any (·.all Option.isNone)
+  info.graph.any (·.all Option.isNone)
 
 /--
 Is this parameter still plausibly a fixed parameter?
 -/
 def Info.mayBeFixed (callerIdx paramIdx : Nat) (info : Info) : Bool :=
-  info[callerIdx]![paramIdx]!.isSome
+  info.graph[callerIdx]![paramIdx]!.isSome
 
 /--
 This parameter is varying. Set and propagate that information.
@@ -90,16 +103,21 @@ This parameter is varying. Set and propagate that information.
 partial def Info.setVarying (funIdx paramIdx : Nat) (info : Info) : Info := Id.run do
   let mut info : Info := info
   if info.mayBeFixed funIdx paramIdx then
-    info := info.modify funIdx (·.set! paramIdx none)
-    for otherFunIdx in [:info.size] do
-      for otherParamIdx in [:info[otherFunIdx]!.size] do
-        if let some otherParamInfo := info[otherFunIdx]![otherParamIdx]! then
+    -- Set this as varying
+    info := { info with graph := info.graph.modify funIdx (·.set! paramIdx none) }
+    -- Propagate along edges for already observed calls
+    for otherFunIdx in [:info.graph.size] do
+      for otherParamIdx in [:info.graph[otherFunIdx]!.size] do
+        if let some otherParamInfo := info.graph[otherFunIdx]![otherParamIdx]! then
           if otherParamInfo[funIdx]! = some paramIdx then
             info := Info.setVarying otherFunIdx otherParamIdx info
+    -- Propagate along type dependencies edges
+    for dependingParam in info.revDeps[funIdx]![paramIdx]! do
+      info := Info.setVarying funIdx dependingParam info
   info
 
 def Info.getCallerParam? (calleeIdx argIdx callerIdx : Nat) (info : Info) : Option Nat :=
-  info[calleeIdx]![argIdx]!.bind (·[callerIdx]!)
+  info.graph[calleeIdx]![argIdx]!.bind (·[callerIdx]!)
 
 /--
 We observe a possibly valid edge.
@@ -117,18 +135,18 @@ partial def Info.setCallerParam (calleeIdx argIdx callerIdx paramIdx : Nat) (inf
         info.setVarying calleeIdx argIdx
     else
       -- Set the new entry
-      let info := info.modify calleeIdx (·.modify argIdx (·.map (·.set! callerIdx (some paramIdx))))
+      let info := { info with graph := info.graph.modify calleeIdx (·.modify argIdx (·.map (·.set! callerIdx (some paramIdx)))) }
       Id.run do
         -- Propagate information about the caller
         let mut info : Info := info
-        if let some callerParamInfo := info[callerIdx]![paramIdx]! then
+        if let some callerParamInfo := info.graph[callerIdx]![paramIdx]! then
           for h : otherFunIdx in [:callerParamInfo.size] do
             if let some otherParamIdx := callerParamInfo[otherFunIdx] then
               info := info.setCallerParam calleeIdx argIdx otherFunIdx otherParamIdx
         -- Propagate information about the callee
-        for otherFunIdx in [:info.size] do
-          for otherArgIdx in [:info[otherFunIdx]!.size] do
-            if let some otherArgsInfo := info[otherFunIdx]![otherArgIdx]! then
+        for otherFunIdx in [:info.graph.size] do
+          for otherArgIdx in [:info.graph[otherFunIdx]!.size] do
+            if let some otherArgsInfo := info.graph[otherFunIdx]![otherArgIdx]! then
               if let some paramIdx' := otherArgsInfo[calleeIdx]! then
                 if paramIdx' = argIdx then
                   info := info.setCallerParam otherFunIdx otherArgIdx callerIdx paramIdx
@@ -140,12 +158,13 @@ partial def Info.setCallerParam (calleeIdx argIdx callerIdx paramIdx : Nat) (inf
   else
     info
 
-def Info.format (info : Info) : Format := Format.line.joinSep <| info.toList.map fun paramInfos =>
-  (f!"• " ++ ·) <| f!" ".joinSep <| paramInfos.toList.map fun
-    | .none => f!"❌"
-    | .some callerInfos => .sbracket <| f!" ".joinSep <| callerInfos.toList.map fun
-      | Option.none => f!"?"
-      | .some idx => f!"#{idx+1}"
+def Info.format (info : Info) : Format := Format.line.joinSep <|
+  info.graph.toList.map fun paramInfos =>
+    (f!"• " ++ ·) <| f!" ".joinSep <| paramInfos.toList.map fun
+      | .none => f!"❌"
+      | .some callerInfos => .sbracket <| f!" ".joinSep <| callerInfos.toList.map fun
+        | Option.none => f!"?"
+        | .some idx => f!"#{idx+1}"
 
 
 instance : ToFormat Info := ⟨Info.format⟩
@@ -154,9 +173,23 @@ end FixedParams
 
 open Lean Meta FixedParams
 
+def getParamRevDeps (preDefs : Array PreDefinition) : MetaM (Array (Array (Array Nat))) := do
+  preDefs.mapM fun preDef =>
+    lambdaTelescope preDef.value (cleanupAnnotations := true) fun xs _ => do
+      let mut revDeps := #[]
+      for h : i in [:xs.size] do
+        let mut deps := #[]
+        for h : j in [i+1:xs.size] do
+          if (← dependsOn (← inferType xs[j]) xs[i].fvarId!) then
+            deps := deps.push j
+        revDeps := revDeps.push deps
+      pure revDeps
+
 def getFixedParamsInfo (preDefs : Array PreDefinition) : MetaM FixedParams.Info := do
-  let arities ← preDefs.mapM fun preDef => lambdaTelescope preDef.value fun xs _ => pure xs.size
-  let ref ← IO.mkRef (Info.init arities)
+  let revDeps ← getParamRevDeps preDefs
+  let arities := revDeps.map (·.size)
+  let ref ← IO.mkRef (Info.init revDeps)
+
   ref.modify .addSelfCalls
 
   for h : callerIdx in [:preDefs.size] do
@@ -223,7 +256,7 @@ deriving Inhabited
 def getFixedParams (preDefs : Array PreDefinition) : MetaM FixedParams := do
   let info ← getFixedParamsInfo preDefs
   lambdaTelescope preDefs[0]!.value fun xs _ => do
-    let paramInfos := info[0]!
+    let paramInfos := info.graph[0]!
     assert! xs.size = paramInfos.size
 
     let mut ys := #[]
@@ -239,8 +272,8 @@ def getFixedParams (preDefs : Array PreDefinition) : MetaM FixedParams := do
     let telescope ← mkLambdaFVars ys (.sort 0)
 
     let mut mappings := #[firstMapping]
-    for h : funIdx in [1:info.size] do
-      let paramInfos := info[funIdx]
+    for h : funIdx in [1:info.graph.size] do
+      let paramInfos := info.graph[funIdx]
       let mut mapping := #[]
       for paramInfo? in paramInfos do
         if let some paramInfo := paramInfo? then

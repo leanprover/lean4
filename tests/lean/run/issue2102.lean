@@ -1,8 +1,3 @@
-def Option.attach {α: Type} (o : Option α): Option { x : α // o = .some x } :=
-  match o with
-  | .some x => .some ⟨x, rfl⟩
-  | .none => .none
-
 -- works
 def g' (T : Type) (ls : List T) : (Option (List T)) :=
   match ls with

@@ -92,7 +92,7 @@ def resolveDvdConflict (c : DvdCnstr) : GoalM Unit := do
 def decideVar (x : Var) : GoalM Unit := do
   let lower? ← getBestLower? x
   let upper? ← getBestUpper? x
-  let dvd? := (← get').dvdCnstrs[x]!
+  let dvd? := (← get').dvds[x]!
   match lower?, upper?, dvd? with
   | none, none, none =>
     setAssignment x 0

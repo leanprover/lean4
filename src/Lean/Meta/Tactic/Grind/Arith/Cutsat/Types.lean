@@ -103,7 +103,7 @@ structure State where
   /--
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/
-  dvdCnstrs : PArray (Option DvdCnstr) := {}
+  dvds : PArray (Option DvdCnstr) := {}
   /--
   Mapping from variables to their "lower" bounds. We say a relational constraint `c` is a lower bound for a variable `x`
   if `x` is the maximal variable in `c`, and `x` coefficient in `c` is negative.

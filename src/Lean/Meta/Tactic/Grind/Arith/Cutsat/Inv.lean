@@ -59,11 +59,11 @@ def checkUppers : GoalM Unit := do
   assert! s.uppers.size == s.vars.size
   checkLeCnstrs s.uppers (isLower := false)
 
-def checkDvdCnstrs : GoalM Unit := do
+def checkDvds : GoalM Unit := do
   let s ← get'
-  assert! s.vars.size == s.dvdCnstrs.size
+  assert! s.vars.size == s.dvds.size
   let mut x := 0
-  for c? in s.dvdCnstrs do
+  for c? in s.dvds do
     if let some c := c? then
       c.p.checkCnstrOf x
       assert! c.d > 1
@@ -99,7 +99,7 @@ def checkElimStack : GoalM Unit := do
 
 def checkInvariants : GoalM Unit := do
   checkVars
-  checkDvdCnstrs
+  checkDvds
   checkLowers
   checkUppers
   checkElimEqs

@@ -47,10 +47,10 @@ partial def EqCnstr.applySubsts (c : EqCnstr) : GoalM EqCnstr := withIncRecDepth
   applySubsts c
 
 private def updateDvdCnstr (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
-  let some c' := (← get').dvdCnstrs[y]! | return ()
+  let some c' := (← get').dvds[y]! | return ()
   let b := c'.p.coeff x
   if b == 0 then return ()
-  modify' fun s => { s with dvdCnstrs := s.dvdCnstrs.set y none }
+  modify' fun s => { s with dvds := s.dvds.set y none }
   let c' ← c'.applyEq a x c b
   c'.assert
 

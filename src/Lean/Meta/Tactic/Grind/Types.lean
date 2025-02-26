@@ -897,15 +897,13 @@ def hasType (t α : Expr) : MetaM Bool :=
   withDefault do isDefEq (← inferType t) α
 
 /--
-Executes `k b c` for each `b = c` s.t.
+For each equality `b = c` in `parents`, executes `k b c` IF
 - `b = c` is equal to `False`, and
 - `a` is the equivalence class of `b` or `c`, and
 - type of `a` is definitionally equal to types of `b` and `c`.
 -/
-@[specialize] def forEachDiseqOf (a : Expr) (k : (lhs : Expr) → (rhs : Expr) → GoalM Unit) : GoalM Unit := do
-  let aRoot ← getRoot a
-  let aParents ← getParents aRoot
-  for parent in aParents do
+@[inline] def forEachDiseqOfCore (a : Expr) (parents : ParentSet) (k : (lhs : Expr) → (rhs : Expr) → GoalM Unit) : GoalM Unit := do
+  for parent in parents do
     let_expr Eq α b c := parent | continue
     if (← isEqFalse parent) then
     if (← isEqv a b <||> isEqv a c) then
@@ -913,12 +911,20 @@ Executes `k b c` for each `b = c` s.t.
       k b c
 
 /--
+For each equality `b = c` in `(← getParents a)`, executes `k b c` IF
+- `b = c` is equal to `False`, and
+- `a` is the equivalence class of `b` or `c`, and
+- type of `a` is definitionally equal to types of `b` and `c`.
+-/
+@[inline] def forEachDiseqOf (a : Expr) (k : (lhs : Expr) → (rhs : Expr) → GoalM Unit) : GoalM Unit := do
+  forEachDiseqOfCore a (← getParents a) k
+
+/--
 Given `lhs` and `rhs` that are known to be disequal, checks whether
 `lhs` and `rhs` have cutsat terms `e₁` and `e₂` attached to them,
 and invokes process `Arith.Cutsat.processNewDiseq e₁ e₂`
 -/
 def propagateCutsatDiseq (lhs rhs : Expr) : GoalM Unit := do
-  trace[Meta.debug] "{lhs} ≠ {rhs}, {(← getRootENode lhs).cutsat?}, {(← getRootENode rhs).cutsat?}"
   let { cutsat? := some e₁, .. } ← getRootENode lhs | return ()
   let { cutsat? := some e₂, .. } ← getRootENode rhs | return ()
   Arith.Cutsat.processNewDiseq e₁ e₂

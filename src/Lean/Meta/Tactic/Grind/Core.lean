@@ -126,9 +126,11 @@ private def propagateCutsatEq (rhsRoot lhsRoot : ENode) : GoalM Unit := do
       setENode rhsRoot.self { rhsRoot with cutsat? := lhsCutsat }
       propagateCutsatDiseqs rhsRoot.self
   | none =>
-    if isIntNum lhsRoot.self then
     if let some rhsCutsat := rhsRoot.cutsat? then
-      Arith.Cutsat.processNewEqLit rhsCutsat lhsRoot.self
+      if isIntNum lhsRoot.self then
+        Arith.Cutsat.processNewEqLit rhsCutsat lhsRoot.self
+      else
+        propagateCutsatDiseqs lhsRoot.self
 
 /--
 Tries to apply beta-reductiong using the parent applications of the functions in `fns` with
@@ -226,9 +228,9 @@ where
     }
     propagateBeta lams₁ fns₁
     propagateBeta lams₂ fns₂
-    resetParentsOf lhsRoot.self
     propagateOffsetEq rhsRoot lhsRoot
     propagateCutsatEq rhsRoot lhsRoot
+    resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
       updateMT rhsRoot.self

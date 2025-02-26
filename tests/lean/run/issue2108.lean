@@ -15,7 +15,7 @@ Not considering parameter #2 of Foo.bar:
     x✝¹
   depends on the function parameter
     x✝¹
-  which does not come before the varying parameters and before the indices of the recursion parameter.
+  which is not fixed.
 Cannot use parameter #1:
   failed to eliminate recursive application
     (f 0).bar

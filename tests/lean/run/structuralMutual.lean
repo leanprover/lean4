@@ -414,17 +414,6 @@ inductive  B (n : Nat) : Type
   | a : A n → B n
 end
 
-/--
-error: cannot use specified measure for structural recursion:
-  its type is an inductive datatype
-    A n
-  and the datatype parameter
-    n
-  depends on the function parameter
-    n
-  which does not come before the varying parameters and before the indices of the recursion parameter.
--/
-#guard_msgs in
 set_option linter.constructorNameAsVariable false in
 mutual
 def A.size (n : Nat) (m : Nat) : A n → Nat
@@ -525,16 +514,28 @@ Too many possible combinations of parameters of type Nattish (or please indicate
 Could not find a decreasing measure.
 The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-Call from ManyCombinations.f to ManyCombinations.g at 545:15-29:
-   #1
-#2  ?
-Call from ManyCombinations.g to ManyCombinations.f at 548:15-29:
-   #2
-#1  _
+Call from ManyCombinations.f to ManyCombinations.g at 546:15-29:
+   #1 #2 #3 #4
+#5  ?  ?  ?  ?
+#6  ?  ?  =  ?
+#7  ?  ?  ?  =
+#8  ?  =  ?  ?
+Call from ManyCombinations.g to ManyCombinations.f at 549:15-29:
+   #5 #6 #7 #8
+#1  _  _  _  _
+#2  _  _  _  ?
+#3  _  ?  _  _
+#4  _  _  ?  _
 
 
 #1: sizeOf a
-#2: sizeOf a
+#2: sizeOf b
+#3: sizeOf c
+#4: sizeOf d
+#5: sizeOf a
+#6: sizeOf b
+#7: sizeOf c
+#8: sizeOf d
 
 Please use `termination_by` to specify a decreasing measure.
 -/
@@ -542,7 +543,7 @@ Please use `termination_by` to specify a decreasing measure.
 mutual
 def f (a b c d : Nattish) : Nat := match a with
   | .zero => 0
-  | .cons n => g (n 23) b c d
+  | .cons n => g (n 23) c d b
 def g (a b c d : Nattish) : Nat := match a with
   | .zero => 0
   | .cons n => f (n 42) b c d

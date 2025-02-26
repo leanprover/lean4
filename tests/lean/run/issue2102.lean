@@ -22,7 +22,7 @@ Not considering parameter ls of g'':
     T
   depends on the function parameter
     T
-  which does not come before the varying parameters and before the indices of the recursion parameter.
+  which is not fixed.
 no parameters suitable for structural recursion
 
 failed to prove termination, possible solutions:

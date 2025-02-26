@@ -75,7 +75,6 @@ static lean_object* l___private_Lean_Syntax_0__String_reprRange____x40_Lean_Synt
 static lean_object* l_Lean_isLitKind___closed__10;
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Syntax_0__Lean_Syntax_updateInfo(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_List_mapTR_loop___at_Lean_Syntax_identComponents___spec__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_SyntaxNode_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_ifNode(lean_object*);
@@ -285,6 +284,7 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_modifyArg___boxed(lean_object*, lean_obje
 LEAN_EXPORT uint8_t l_Lean_Syntax_isQuot(lean_object*);
 LEAN_EXPORT lean_object* l_String_Range_includes___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_instForInTopDown_loop___at_Lean_Syntax_hasMissing___spec__1___closed__2;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_structRangeEq___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_MonadTraverser_goUp___rarg___closed__1;
 LEAN_EXPORT lean_object* l_String_Range_bsize(lean_object*);
@@ -412,6 +412,7 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_goUp___rarg___lambda__1(le
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_getIdx___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SourceInfo_getRangeWithTrailing_x3f___boxed(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_ifNodeKind(lean_object*);
 static lean_object* l_Lean_Syntax_mkAntiquotNode___closed__9;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -434,7 +435,6 @@ LEAN_EXPORT uint8_t l_Lean_Syntax_isAntiquots(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDown_loop___at_Lean_Syntax_hasMissing___spec__1___lambda__1(lean_object*, lean_object*);
 lean_object* lean_dbg_trace(lean_object*, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_unescapeAntiquot(lean_object*);
 lean_object* l_List_zipWith___at_List_zip___spec__1___rarg(lean_object*, lean_object*);

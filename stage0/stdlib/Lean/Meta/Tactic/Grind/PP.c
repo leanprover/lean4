@@ -131,6 +131,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppT
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppActiveTheoremPatterns___closed__2;
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppThresholds___closed__3;
+lean_object* l_Lean_quoteIfNotAtom(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_ppEqcs___spec__3___closed__12;
@@ -1143,7 +1144,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grin
 _start:
 {
 uint8_t x_12; 
-x_12 = lean_ctor_get_uint8(x_4, sizeof(void*)*11 + 2);
+x_12 = lean_ctor_get_uint8(x_4, sizeof(void*)*12 + 2);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -1195,7 +1196,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grin
 _start:
 {
 uint8_t x_12; 
-x_12 = lean_ctor_get_uint8(x_4, sizeof(void*)*11 + 1);
+x_12 = lean_ctor_get_uint8(x_4, sizeof(void*)*12 + 1);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -5532,7 +5533,7 @@ if (x_19 == 0)
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; size_t x_34; size_t x_35; 
 x_20 = lean_ctor_get(x_18, 0);
 x_21 = lean_ctor_get(x_18, 1);
-x_22 = l_Lean_MessageData_ofExpr(x_20);
+x_22 = l_Lean_quoteIfNotAtom(x_20);
 x_23 = l_Lean_Meta_Grind_Goal_ppENodeRef___closed__9;
 lean_ctor_set_tag(x_18, 7);
 lean_ctor_set(x_18, 1, x_22);
@@ -5572,7 +5573,7 @@ x_38 = lean_ctor_get(x_18, 1);
 lean_inc(x_38);
 lean_inc(x_37);
 lean_dec(x_18);
-x_39 = l_Lean_MessageData_ofExpr(x_37);
+x_39 = l_Lean_quoteIfNotAtom(x_37);
 x_40 = l_Lean_Meta_Grind_Goal_ppENodeRef___closed__9;
 x_41 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_41, 0, x_40);
@@ -7087,7 +7088,7 @@ static lean_object* _init_l_Lean_Meta_Grind_goalToMessageData___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Diagnostics", 11, 11);
+x_1 = lean_mk_string_unchecked("Goal diagnostics", 16, 16);
 return x_1;
 }
 }

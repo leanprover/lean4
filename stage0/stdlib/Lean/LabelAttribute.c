@@ -48,7 +48,6 @@ LEAN_EXPORT lean_object* l_Lean_mkLabelAttr___lambda__3(lean_object*, lean_objec
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__26;
 LEAN_EXPORT lean_object* l_Array_erase___at_Lean_mkLabelAttr___spec__2(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_56____closed__27;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkLabelAttr___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__11;
@@ -155,6 +154,7 @@ LEAN_EXPORT lean_object* l_Lean_labelExtensionMapRef;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__1;
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__33;
 static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__16;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_56____closed__7;
 lean_object* l___private_Init_Meta_0__Lean_getEscapedNameParts_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__36;

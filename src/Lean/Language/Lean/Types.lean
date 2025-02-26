@@ -91,8 +91,6 @@ structure HeaderParsedSnapshot extends Snapshot where
   /-- State after successful parsing. -/
   result? : Option HeaderParsedState
   isFatal := result?.isNone
-  /-- Cancellation token for interrupting processing of this run. -/
-  cancelTk? : Option IO.CancelToken
 
 instance : ToSnapshotTree HeaderParsedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot,

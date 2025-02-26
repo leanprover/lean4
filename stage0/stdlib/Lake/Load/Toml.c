@@ -89,7 +89,6 @@ LEAN_EXPORT lean_object* l_Lake_Toml_decodeArray___at_Lake_LeanLibConfig_decodeT
 static lean_object* l_Lake_Glob_decodeToml___closed__2;
 static lean_object* l_Lake_PackageConfig_decodeToml___closed__59;
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanExeConfig_decodeToml___closed__7;
 static lean_object* l_Lake_LeanConfig_decodeToml___closed__22;
 static lean_object* l_Lake_PackageConfig_decodeToml___closed__54;
@@ -304,6 +303,7 @@ LEAN_EXPORT lean_object* l_Lake_instDecodeTomlDependencySrc___lambda__1(lean_obj
 static lean_object* l_Lake_PackageConfig_decodeToml___closed__32;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Dependency_decodeToml___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern uint32_t l_Lean_idEndEscape;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lake_decodeLeanOptions___spec__2___closed__1;
 lean_object* l_Lake_Toml_loadToml(lean_object*, lean_object*);

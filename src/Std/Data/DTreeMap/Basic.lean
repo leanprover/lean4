@@ -634,7 +634,7 @@ def getThenInsertIfNew? (t : DTreeMap α β cmp) (a : α) (b : β) :
 
 @[inline, inherit_doc DTreeMap.get?]
 def get? (t : DTreeMap α β cmp) (a : α) : Option β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.get? a t.inner
+  letI : Ord α := ⟨cmp⟩; Impl.Const.get? t.inner a
 
 @[inline, inherit_doc get?, deprecated get? (since := "2025-02-12")]
 def find? (t : DTreeMap α β cmp) (a : α) : Option β :=
@@ -642,11 +642,11 @@ def find? (t : DTreeMap α β cmp) (a : α) : Option β :=
 
 @[inline, inherit_doc DTreeMap.get]
 def get (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.get a t.inner h
+  letI : Ord α := ⟨cmp⟩; Impl.Const.get t.inner a h
 
 @[inline, inherit_doc DTreeMap.get!]
 def get! (t : DTreeMap α β cmp) (a : α) [Inhabited β] : β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.get! a t.inner
+  letI : Ord α := ⟨cmp⟩; Impl.Const.get! t.inner a
 
 @[inline, inherit_doc get!, deprecated get! (since := "2025-02-12")]
 def find! (t : DTreeMap α β cmp) (a : α) [Inhabited β] : β :=
@@ -654,7 +654,7 @@ def find! (t : DTreeMap α β cmp) (a : α) [Inhabited β] : β :=
 
 @[inline, inherit_doc DTreeMap.getD]
 def getD (t : DTreeMap α β cmp) (a : α) (fallback : β) : β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.getD a t.inner fallback
+  letI : Ord α := ⟨cmp⟩; Impl.Const.getD t.inner a fallback
 
 @[inline, inherit_doc getD, deprecated getD (since := "2025-02-12")]
 def findD (t : DTreeMap α β cmp) (a : α) (fallback : β) : β :=
@@ -893,6 +893,26 @@ def fromArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering) : DT
   ofArray a cmp
 
 /--
+Modifies in place the value associated with a given key.
+
+This function ensures that the value is used linearly.
+-/
+@[inline]
+def modify [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (f : β a → β a) : DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.modify a f, t.wf.modify⟩
+
+/--
+Modifies in place the value associated with a given key,
+allowing creating new values and deleting values via an `Option` valued replacement function.
+
+This function ensures that the value is used linearly.
+-/
+@[inline]
+def alter [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (f : Option (β a) → Option (β a)) :
+    DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.alter a f t.wf.balanced |>.impl, t.wf.alter⟩
+
+/--
 Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the
 same key `k` with respect to `cmp`, the provided function is used to determine the new value from
 the respective values in `t₁` and `t₂`.
@@ -950,6 +970,14 @@ def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compare) 
 def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : DTreeMap α Unit cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.Const.unitOfArray a, Impl.WF.empty.constInsertManyIfNewUnit⟩
+
+@[inline, inherit_doc DTreeMap.modify]
+def modify (t : DTreeMap α β cmp) (a : α) (f : β → β) : DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.modify a f t.inner, t.wf.constModify⟩
+
+@[inline, inherit_doc DTreeMap.alter]
+def alter (t : DTreeMap α β cmp) (a : α) (f : Option β → Option β) : DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.alter a f t.inner t.wf.balanced |>.impl, t.wf.constAlter⟩
 
 @[inline, inherit_doc DTreeMap.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=

@@ -5,7 +5,7 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Data.List.Zip
-import Init.Data.Int.DivModLemmas
+import Init.Data.Int.DivMod.Bootstrap
 import Init.Data.Nat.Gcd
 
 namespace Lean.Omega

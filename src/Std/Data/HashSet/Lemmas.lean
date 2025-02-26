@@ -374,6 +374,39 @@ theorem distinct_toList [EquivBEq α] [LawfulHashable α]:
     m.toList.Pairwise (fun a b => (a == b) = false) :=
   HashMap.distinct_keys
 
+section monadic
+
+variable {δ : Type v} {m' : Type v → Type v}
+
+theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m']
+    {f : δ → α → m' δ} {init : δ} :
+    m.foldM f init = m.toList.foldlM f init :=
+  HashMap.foldM_eq_foldlM_keys
+
+theorem fold_eq_foldl_toList {f : δ → α → δ} {init : δ} :
+    m.fold f init = m.toList.foldl f init :=
+  HashMap.fold_eq_foldl_keys
+
+@[simp]
+theorem forM_eq_forM [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
+    m.forM f = ForM.forM m f := rfl
+
+theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
+    ForM.forM m f = ForM.forM m.toList f :=
+  HashMap.forM_eq_forM_keys
+
+@[simp]
+theorem forIn_eq_forIn [Monad m'] [LawfulMonad m']
+    {f : α → δ → m' (ForInStep δ)} {init : δ} :
+    m.forIn f init = ForIn.forIn m init f := rfl
+
+theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
+    {f : α → δ → m' (ForInStep δ)} {init : δ} :
+    ForIn.forIn m init f = ForIn.forIn m.toList init f :=
+  HashMap.forIn_eq_forIn_keys
+
+end monadic
+
 @[simp]
 theorem insertMany_nil :
     insertMany m [] = m :=

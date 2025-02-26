@@ -1012,6 +1012,19 @@ be eagerly evaluated (see `ite`).
   | true  => x
   | false => y
 
+
+/--
+`Bool.dcond b (fun h => x) (fun h => y)` is the same as `if h _ : b then x else y`,
+but optimized for a boolean condition. It can also be written as `bif b then x else y`.
+This is `@[macro_inline]` because `x` and `y` should not be eagerly evaluated (see `dite`).
+This definition intendend for metaprogramming use, and does not come with a suitable API.
+-/
+@[macro_inline]
+protected def Bool.dcond {α : Sort u} (c : Bool) (x : Eq c true → α) (y : Eq c false → α) : α :=
+  match c with
+  | true  => x rfl
+  | false => y rfl
+
 /--
 `or x y`, or `x || y`, is the boolean "or" operation (not to be confused
 with `Or : Prop → Prop → Prop`, which is the propositional connective).
@@ -2137,14 +2150,14 @@ instance : Inhabited UInt64 where
 /-- The size of type `USize`, that is, `2^System.Platform.numBits`. -/
 abbrev USize.size : Nat := (hPow 2 System.Platform.numBits)
 
-theorem usize_size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
+theorem USize.size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
   show Or (Eq (hPow 2 System.Platform.numBits) 4294967296) (Eq (hPow 2 System.Platform.numBits) 18446744073709551616) from
   match System.Platform.numBits, System.Platform.numBits_eq with
   | _, Or.inl rfl => Or.inl (of_decide_eq_true rfl)
   | _, Or.inr rfl => Or.inr (of_decide_eq_true rfl)
 
-theorem usize_size_pos : LT.lt 0 USize.size :=
-  match USize.size, usize_size_eq with
+theorem USize.size_pos : LT.lt 0 USize.size :=
+  match USize.size, USize.size_eq with
   | _, Or.inl rfl => of_decide_eq_true rfl
   | _, Or.inr rfl => of_decide_eq_true rfl
 
@@ -2194,7 +2207,7 @@ def USize.decEq (a b : USize) : Decidable (Eq a b) :=
 instance : DecidableEq USize := USize.decEq
 
 instance : Inhabited USize where
-  default := USize.ofNatLT 0 usize_size_pos
+  default := USize.ofNatLT 0 USize.size_pos
 
 /--
 A `Nat` denotes a valid unicode codepoint if it is less than `0x110000`, and
@@ -2852,7 +2865,7 @@ syntax over monad operations, and it depends on a `Monad` instance.
 See [the `do` notation](https://lean-lang.org/lean4/doc/do.html)
 chapter of the manual for details.
 -/
-class Monad (m : Type u → Type v) extends Applicative m, Bind m : Type (max (u+1) v) where
+class Monad (m : Type u → Type v) : Type (max (u+1) v) extends Applicative m, Bind m where
   map      f x := bind x (Function.comp pure f)
   seq      f x := bind f fun y => Functor.map y (x ())
   seqLeft  x y := bind x fun a => bind (y ()) (fun _ => pure a)

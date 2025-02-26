@@ -81,7 +81,6 @@ LEAN_EXPORT lean_object* l_Lean_mkAttributeImplOfConstantUnsafe(lean_object*, le
 LEAN_EXPORT lean_object* l_Lean_instInhabitedAttributeImpl;
 LEAN_EXPORT lean_object* l_Lean_registerEnumAttributes___rarg___lambda__2___boxed(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_282____closed__2;
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_getAttrParamOptPrio___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
@@ -298,6 +297,7 @@ static lean_object* l_Lean_registerAttributeImplBuilder___closed__2;
 LEAN_EXPORT lean_object* l_Lean_registerTagAttribute___lambda__4(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerParametricAttribute___rarg___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerTagAttribute___lambda__4___closed__4;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedAttributeImpl___closed__1;
 static lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_3825____closed__1;
 LEAN_EXPORT lean_object* l_Lean_ParametricAttribute_getParam_x3f(lean_object*);

@@ -2495,7 +2495,7 @@ lean_dec(x_6);
 x_102 = lean_ctor_get(x_8, 0);
 lean_inc(x_102);
 lean_dec(x_8);
-x_103 = lean_ctor_get(x_102, 2);
+x_103 = lean_ctor_get(x_102, 3);
 lean_inc(x_103);
 lean_dec(x_102);
 x_3 = x_103;

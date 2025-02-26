@@ -99,17 +99,21 @@ def applyEditToHint? (hintMod : Name) (ihi : Elab.InlayHintInfo) (range : String
 
 structure InlayHintState where
   oldInlayHints      : Array Elab.InlayHintInfo
+  oldFinishedSnaps   : Nat
   lastEditTimestamp? : Option Nat
   deriving TypeName, Inhabited
 
 def InlayHintState.init : InlayHintState := {
   oldInlayHints := #[]
+  oldFinishedSnaps := 0
   lastEditTimestamp? := none
 }
 
-def handleInlayHints (_ : InlayHintParams) (s : InlayHintState) :
+def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
     RequestM (LspResponse (Array InlayHint) × InlayHintState) := do
   let ctx ← read
+  let text := ctx.doc.meta.text
+  let range := text.lspRangeToUtf8Range p.range
   let srcSearchPath := ctx.srcSearchPath
   -- We delay sending inlay hints by 3000ms to avoid inlay hint flickering on the client.
   -- VS Code already has a mechanism for this, but it is not sufficient.
@@ -122,16 +126,24 @@ def handleInlayHints (_ : InlayHintParams) (s : InlayHintState) :
       let timeSinceLastEditMs := timestamp - lastEditTimestamp
       inlayHintEditDelayMs - timeSinceLastEditMs
   let (snaps, _, isComplete) ← ctx.doc.cmdSnaps.getFinishedPrefixWithConsistentLatency editDelayMs.toUInt32 (cancelTk? := ctx.cancelTk.cancellationTask)
-  let finishedRange? : Option String.Range := do
-    return ⟨⟨0⟩, ← List.max? <| snaps.map (fun s => s.endPos)⟩
+  let snaps := snaps.toArray
+  let finishedSnaps := snaps.size
+  let oldFinishedSnaps := s.oldFinishedSnaps
+  -- File processing is monotonic modulo `didChange` notifications.
+  assert! finishedSnaps >= oldFinishedSnaps
+  -- VS Code emits inlay hint requests *every time the user scrolls*. This is reasonably expensive,
+  -- so in addition to re-using old inlay hints from parts of the file that haven't been processed
+  -- yet, we also re-use old inlay hints from parts of the file that have been processed already
+  -- with the current state of the document.
+  let invalidOldInlayHintsRange : String.Range := {
+    start := snaps[oldFinishedSnaps - 1]?.map (·.endPos) |>.getD ⟨0⟩
+    stop := snaps[finishedSnaps - 1]?.map (·.endPos) |>.getD ⟨0⟩
+  }
   let oldInlayHints :=
-    if let some finishedRange := finishedRange? then
-      s.oldInlayHints.filter fun (ihi : Elab.InlayHintInfo) =>
-        ! finishedRange.contains ihi.position
-    else
-      s.oldInlayHints
+    s.oldInlayHints.filter fun (ihi : Elab.InlayHintInfo) =>
+      ! invalidOldInlayHintsRange.contains ihi.position
   let newInlayHints : Array Elab.InlayHintInfo ← (·.2) <$> StateT.run (s := #[]) do
-    for s in snaps do
+    for s in snaps[oldFinishedSnaps:] do
       s.infoTree.visitM' (postNode := fun ci i _ => do
         let .ofCustomInfo i := i
           | return
@@ -139,61 +151,76 @@ def handleInlayHints (_ : InlayHintParams) (s : InlayHintState) :
           | return
         let ih ← ci.runMetaM ih.lctx ih.resolveDeferred
         modify (·.push ih.toInlayHintInfo))
-  let inlayHints := newInlayHints ++ oldInlayHints
-  let lspInlayHints ← inlayHints.mapM (·.toLspInlayHint srcSearchPath ctx.doc.meta.text)
+  let allInlayHints := newInlayHints ++ oldInlayHints
+  let inlayHintsInRange := allInlayHints.filter (range.contains (includeStop := true) ·.position)
+  let lspInlayHints ← inlayHintsInRange.mapM (·.toLspInlayHint srcSearchPath text)
   let r := { response := lspInlayHints, isComplete }
-  let s := { s with oldInlayHints := inlayHints }
+  let s := { s with
+    oldInlayHints := allInlayHints
+    oldFinishedSnaps := finishedSnaps
+  }
   return (r, s)
 
 def handleInlayHintsDidChange (p : DidChangeTextDocumentParams)
     : StateT InlayHintState RequestM Unit := do
-  let meta := (← read).doc.meta
-  let text := meta.text
-  let srcSearchPath := (← read).srcSearchPath
-  let .ok modName? ← EIO.toBaseIO <| do
+  let s ← get
+  let updatedOldInlayHints ← updateOldInlayHints s.oldInlayHints
+  let lastEditTimestamp? ← determineLastEditTimestamp? s.oldInlayHints
+  set <| { s with
+    oldInlayHints := updatedOldInlayHints
+    oldFinishedSnaps := 0
+    lastEditTimestamp?
+  }
+
+where
+
+  updateOldInlayHints (oldInlayHints : Array Elab.InlayHintInfo) : RequestM (Array Elab.InlayHintInfo) := do
+    let meta := (← read).doc.meta
+    let text := meta.text
+    let srcSearchPath := (← read).srcSearchPath
+    let modName? ← EIO.toBaseIO <| do
       let some path := System.Uri.fileUriToPath? meta.uri
         | return none
       let some mod ← searchModuleNameOfFileName path srcSearchPath
         | return some <| ← moduleNameOfFileName path none
       return some mod
-    | return
-  let modName := modName?.getD .anonymous -- `.anonymous` occurs in untitled files
-  let s ← get
-  let mut updatedOldInlayHints := #[]
-  for ihi in s.oldInlayHints do
-    let mut ihi := ihi
-    let mut inlayHintInvalidated := false
-    for c in p.contentChanges do
+    let modName ← match modName? with
+      | .ok (some modName) => pure modName
+      | .ok none => pure .anonymous -- `.anonymous` occurs in untitled files
+      | .error err => throw <| .ofIoError err
+    let mut updatedOldInlayHints := #[]
+    for ihi in oldInlayHints do
+      let mut ihi := ihi
+      let mut inlayHintInvalidated := false
+      for c in p.contentChanges do
+        let .rangeChange changeRange newText := c
+          | return #[] -- `fullChange` => all old inlay hints invalidated
+        let changeRange := text.lspRangeToUtf8Range changeRange
+        let some ihi' := applyEditToHint? modName ihi changeRange newText
+          | -- Change in some position of inlay hint => inlay hint invalidated
+            inlayHintInvalidated := true
+            break
+        ihi := ihi'
+      if ! inlayHintInvalidated then
+        updatedOldInlayHints := updatedOldInlayHints.push ihi
+    return updatedOldInlayHints
+
+  determineLastEditTimestamp? (oldInlayHints : Array Elab.InlayHintInfo) : RequestM (Option Nat) := do
+    let text := (← read).doc.meta.text
+    let isInlayHintInsertionEdit := p.contentChanges.all fun c => Id.run do
       let .rangeChange changeRange newText := c
-        | set <| { s with oldInlayHints := #[] } -- `fullChange` => all old inlay hints invalidated
-          return
+        | return false
       let changeRange := text.lspRangeToUtf8Range changeRange
-      let some ihi' := applyEditToHint? modName ihi changeRange newText
-        | -- Change in some position of inlay hint => inlay hint invalidated
-          inlayHintInvalidated := true
-          break
-      ihi := ihi'
-    if ! inlayHintInvalidated then
-      updatedOldInlayHints := updatedOldInlayHints.push ihi
-  let isInlayHintInsertionEdit := p.contentChanges.all fun c => Id.run do
-    let .rangeChange changeRange newText := c
-      | return false
-    let changeRange := text.lspRangeToUtf8Range changeRange
-    let edit := ⟨changeRange, newText⟩
-    return s.oldInlayHints.any (·.textEdits.contains edit)
-  let timestamp ← IO.monoMsNow
-  let lastEditTimestamp? :=
+      let edit := ⟨changeRange, newText⟩
+      return oldInlayHints.any (·.textEdits.contains edit)
+    let timestamp ← IO.monoMsNow
     if isInlayHintInsertionEdit then
       -- For some stupid reason, VS Code doesn't remove the inlay hint when applying it, so we
       -- try to figure out whether the edit was an insertion of an inlay hint and then respond
       -- to the request without latency so that it inserted ASAP.
-      none
+      return none
     else
-      some timestamp
-  set <| { s with
-    oldInlayHints := updatedOldInlayHints
-    lastEditTimestamp?
-  }
+      return some timestamp
 
 builtin_initialize
   registerPartialStatefulLspRequestHandler

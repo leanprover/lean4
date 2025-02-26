@@ -41,10 +41,15 @@ example (as bs cs : Array α) (v₁ v₂ : α)
   grind
 
 /--
-info: [grind] Counters
+info: [grind] Diagnostics
   [thm] E-Matching instances
     [thm] Array.get_set_ne ↦ 3
     [thm] Array.size_set ↦ 3
+  [grind] Simplifier
+    [simp] tried theorems (max: 30, num: 2):
+      [simp] eq_self ↦ 30 ❌️
+      [simp] Lean.Grind.gt_eq ↦ 28 ❌️
+    use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
 info: [diag] Diagnostics
   [reduction] unfolded declarations (max: 11519, num: 3):

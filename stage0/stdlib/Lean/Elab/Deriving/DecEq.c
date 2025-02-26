@@ -430,6 +430,7 @@ static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_DecEq_mkM
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqEnum___closed__40;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqEnum___closed__3;
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at_Lean_Elab_Deriving_DecEq_mkDecEq___spec__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_DecEq_mkAuxFunction___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -460,7 +461,6 @@ static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqEnum___closed__22;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqCmds___closed__6;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch___closed__1;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_PrettyPrinter_Delaborator_delabAppMatch___spec__20(size_t, size_t, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__1___closed__12;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqCmds___closed__9;
 static lean_object* l_Lean_Elab_Deriving_DecEq_initFn____x40_Lean_Elab_Deriving_DecEq___hyg_4857____closed__13;

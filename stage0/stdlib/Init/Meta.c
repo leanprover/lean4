@@ -256,7 +256,6 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_decodeQuotedChar___boxed__const__4;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__declareSimpLikeTactic__1___lambda__1___closed__106;
 static lean_object* l_Lean_Parser_Tactic_tacticErw_________closed__6;
 static lean_object* l_Lean_termEval__prio_____closed__7;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l___private_Init_Meta_0__Lean_Meta_reprEtaStructMode____x40_Init_Meta___hyg_11985____closed__5;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__tacticErw________1___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Name_escapePart___boxed(lean_object*, lean_object*);
@@ -902,6 +901,7 @@ static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_getTailInfo_x3f(lean_object*);
 LEAN_EXPORT uint32_t l_Lean_idEndEscape;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_instReprPreresolved___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Occurrences_contains___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_decodeQuotedChar(lean_object*, lean_object*);

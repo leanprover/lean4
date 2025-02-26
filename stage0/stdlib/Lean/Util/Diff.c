@@ -40,7 +40,6 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Diff_lcs___spec__5_
 lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_Diff_Action_linePrefix___closed__2;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Diff_0__Lean_Diff_hashAction____x40_Lean_Util_Diff___hyg_143____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Diff_linesToString___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_nextPowerOfTwo_go(lean_object*, lean_object*, lean_object*);
@@ -110,6 +109,7 @@ lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_Histogram_addRight___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_Diff_0__Lean_Diff_reprAction____x40_Lean_Util_Diff___hyg_9____closed__16;
 lean_object* l_Subarray_get___rarg(lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Diff_diff___spec__6(lean_object*);
 static lean_object* l___private_Lean_Util_Diff_0__Lean_Diff_reprAction____x40_Lean_Util_Diff___hyg_9____closed__18;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Diff_diff___spec__7___rarg(size_t, size_t, lean_object*);
@@ -155,6 +155,7 @@ LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_Diff_diff___spec__1___
 LEAN_EXPORT lean_object* l_Lean_Diff_Histogram_addLeft(lean_object*);
 static lean_object* l_Lean_Diff_instToStringAction___closed__3;
 lean_object* lean_array_get_size(lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_lcs(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -166,7 +167,6 @@ LEAN_EXPORT lean_object* l_Lean_Diff_Action_noConfusion___rarg___lambda__1(lean_
 static lean_object* l_Lean_Diff_lcs___rarg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Diff_Action_toCtorIdx(uint8_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_diff(lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_Histogram_addRight(lean_object*);

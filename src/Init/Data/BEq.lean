@@ -25,7 +25,7 @@ class ReflBEq (α) [BEq α] : Prop where
   refl : (a : α) == a
 
 /-- `EquivBEq` says that the `BEq` implementation is an equivalence relation. -/
-class EquivBEq (α) [BEq α] extends PartialEquivBEq α, ReflBEq α : Prop
+class EquivBEq (α) [BEq α] : Prop extends PartialEquivBEq α, ReflBEq α
 
 @[simp]
 theorem BEq.refl [BEq α] [ReflBEq α] {a : α} : a == a :=

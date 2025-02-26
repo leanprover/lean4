@@ -19,7 +19,7 @@ set_option autoImplicit false
 open Std.Internal.List
 open Std.Internal
 
-universe u v
+universe u v w
 
 variable {α : Type u} {β : α → Type v}
 
@@ -90,7 +90,10 @@ private def queryNames : Array Name :=
     ``Const.get!_eq_getValue!, ``Const.getD_eq_getValueD, ``getKey?_eq_getKey?,
     ``getKey_eq_getKey, ``getKeyD_eq_getKeyD, ``getKey!_eq_getKey!,
     ``Raw.toList_eq_toListModel, ``Raw.keys_eq_keys_toListModel,
-    ``Raw.Const.toList_eq_toListModel_map]
+    ``Raw.Const.toList_eq_toListModel_map, ``Raw.foldM_eq_foldlM_toListModel,
+    ``Raw.fold_eq_foldl_toListModel, ``Raw.foldRevM_eq_foldrM_toListModel,
+    ``Raw.foldRev_eq_foldr_toListModel, ``Raw.forIn_eq_forIn_toListModel,
+    ``Raw.forM_eq_forM_toListModel]
 
 private def modifyMap : Std.DHashMap Name (fun _ => Name) :=
   .ofList
@@ -935,6 +938,102 @@ theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
   simp_to_model using List.pairwise_fst_eq_false_map_toProd
 
 end Const
+
+section monadic
+
+-- The types are redefined because fold/for does not need BEq/Hashable
+variable {α : Type u} {β : α → Type v} (m : Raw₀ α β) {δ : Type w} {m' : Type w → Type w}
+
+theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β a → m' δ} {init : δ} :
+    m.1.foldM f init = m.1.toList.foldlM (fun a b => f a b.1 b.2) init := by
+  simp_to_model
+
+theorem fold_eq_foldl_toList {f : δ → (a : α) → β a → δ} {init : δ} :
+    m.1.fold f init = m.1.toList.foldl (fun a b => f a b.1 b.2) init := by
+  simp_to_model
+
+theorem foldRevM_eq_foldrM_toList [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β a → m' δ} {init : δ} :
+    m.1.foldRevM f init = m.1.toList.foldrM (fun a b => f b a.1 a.2) init := by
+  simp_to_model
+
+theorem foldRev_eq_foldr_toList {f : δ → (a : α) → β a → δ} {init : δ} :
+    m.1.foldRev f init = m.1.toList.foldr (fun a b => f b a.1 a.2) init := by
+  simp_to_model
+
+theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : (a : α) → β a → m' PUnit} :
+    m.1.forM f = m.1.toList.forM (fun a => f a.1 a.2) := by
+  simp_to_model
+
+theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
+    {f : (a : α) → β a → δ → m' (ForInStep δ)} {init : δ} :
+    m.1.forIn f init = ForIn.forIn m.1.toList init (fun a b => f a.1 a.2 b) := by
+  simp_to_model
+
+namespace Const
+
+variable {β : Type v} (m : Raw₀ α (fun _ => β))
+
+theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β → m' δ} {init : δ} :
+    m.1.foldM f init = (Raw.Const.toList m.1).foldlM (fun a b => f a b.1 b.2) init := by
+  simp_to_model using List.foldlM_eq_foldlM_toProd
+
+theorem fold_eq_foldl_toList {f : δ → (a : α) → β → δ} {init : δ} :
+    m.1.fold f init = (Raw.Const.toList m.1).foldl (fun a b => f a b.1 b.2) init := by
+  simp_to_model using List.foldl_eq_foldl_toProd
+
+theorem foldRevM_eq_foldrM_toList [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β → m' δ} {init : δ} :
+    m.1.foldRevM f init = (Raw.Const.toList m.1).foldrM (fun a b => f b a.1 a.2) init := by
+  simp_to_model using List.foldrM_eq_foldrM_toProd
+
+theorem foldRev_eq_foldr_toList {f : δ → (a : α) → β → δ} {init : δ} :
+    m.1.foldRev f init = (Raw.Const.toList m.1).foldr (fun a b => f b a.1 a.2) init := by
+  simp_to_model using List.foldr_eq_foldr_toProd
+
+theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : (a : α) → β → m' PUnit} :
+    m.1.forM f = (Raw.Const.toList m.1).forM (fun a => f a.1 a.2) := by
+  simp_to_model using List.forM_eq_forM_toProd
+
+theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
+    {f : (a : α) → β → δ → m' (ForInStep δ)} {init : δ} :
+    m.1.forIn f init = ForIn.forIn (Raw.Const.toList m.1) init (fun a b => f a.1 a.2 b) := by
+  simp_to_model using List.forIn_eq_forIn_toProd
+
+variable (m : Raw₀ α (fun _ => Unit))
+
+theorem foldM_eq_foldlM_keys [Monad m'] [LawfulMonad m']
+    {f : δ → α → m' δ} {init : δ} :
+    m.1.foldM (fun d a _ => f d a) init = m.1.keys.foldlM f init := by
+  simp_to_model using List.foldlM_eq_foldlM_keys
+
+theorem fold_eq_foldl_keys {f : δ → α → δ} {init : δ} :
+    m.1.fold (fun d a _ => f d a) init = m.1.keys.foldl f init := by
+  simp_to_model using List.foldl_eq_foldl_keys
+
+theorem foldRevM_eq_foldrM_keys [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → m' δ} {init : δ} :
+    m.1.foldRevM (fun d a _ => f d a) init = m.1.keys.foldrM (fun a b => f b a) init := by
+  simp_to_model using List.foldrM_eq_foldrM_keys
+
+theorem foldRev_eq_foldr_keys {f : δ → (a : α) → δ} {init : δ} :
+    m.1.foldRev (fun d a _ => f d a) init = m.1.keys.foldr (fun a b => f b a) init := by
+  simp_to_model using List.foldr_eq_foldr_keys
+
+theorem forM_eq_forM_keys [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
+    m.1.forM (fun a _ => f a) = m.1.keys.forM f := by
+  simp_to_model using List.forM_eq_forM_keys
+
+theorem forIn_eq_forIn_keys [Monad m'] [LawfulMonad m']
+    {f : α → δ → m' (ForInStep δ)} {init : δ} :
+    m.1.forIn (fun a _ d => f a d) init = ForIn.forIn m.1.keys init f := by
+  simp_to_model using List.forIn_eq_forIn_keys
+
+end Const
+
+end monadic
 
 @[simp]
 theorem insertMany_nil :

@@ -132,6 +132,7 @@ lean_object* l_List_mapTR_loop___at_Lean_compileDecls_doCompile___spec__1(lean_o
 static lean_object* l_Lean_PremiseSelection_evalSuggestPremises___rarg___lambda__2___closed__3;
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_elabSetPremiseSelector___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PremiseSelection_evalSuggestPremises___rarg___lambda__2___closed__5;
 static lean_object* l___regBuiltin_Lean_PremiseSelection_evalSuggestPremises__1___closed__7;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -149,7 +150,6 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_PremiseSelection_evalSuggestPremises___rarg___lambda__2___closed__2;
 static lean_object* l_Lean_PremiseSelection_evalSuggestPremises___rarg___lambda__2___closed__4;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_PremiseSelection_elabSetPremiseSelector___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_replaceMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PremiseSelection_elabSetPremiseSelector_unsafe__1___closed__1;
 static lean_object* l_Lean_PremiseSelection_evalSuggestPremises___rarg___lambda__2___closed__6;

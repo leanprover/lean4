@@ -658,6 +658,40 @@ private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j
   · simp only [size_toArray, Nat.not_le] at h'
     rw [List.insertIdx_of_length_lt (h := h')]
 
+@[simp]
+theorem replace_toArray [BEq α] [LawfulBEq α] (l : List α) (a b : α) :
+    l.toArray.replace a b = (l.replace a b).toArray := by
+  rw [Array.replace]
+  split <;> rename_i i h
+  · simp only [finIdxOf?_toArray, finIdxOf?_eq_none_iff] at h
+    rw [replace_of_not_mem]
+    simpa
+  · simp_all only [finIdxOf?_toArray, finIdxOf?_eq_some_iff, Fin.getElem_fin, set_toArray,
+      mk.injEq]
+    apply List.ext_getElem
+    · simp
+    · intro j h₁ h₂
+      rw [List.getElem_replace, List.getElem_set]
+      by_cases h₃ : j < i
+      · rw [if_neg (by omega), if_neg]
+        simp only [length_set] at h₁ h₃
+        simpa using h.2 ⟨j, by omega⟩ h₃
+      · by_cases h₃ : j = i
+        · rw [if_pos (by omega), if_pos, if_neg]
+          · simp only [mem_take_iff_getElem, not_exists]
+            intro k hk
+            simpa using h.2 ⟨k, by omega⟩ (by show k < i.1; omega)
+          · subst h₃
+            simpa using h.1
+        · rw [if_neg (by omega)]
+          split
+          · rw [if_pos]
+            · simp_all
+            · simp only [mem_take_iff_getElem]
+              simp only [length_set] at h₁
+              exact ⟨i, by omega, h.1⟩
+          · rfl
+
 @[simp] theorem leftpad_toArray (n : Nat) (a : α) (l : List α) :
     Array.leftpad n a l.toArray = (leftpad n a l).toArray := by
   simp [leftpad, Array.leftpad, ← toArray_replicate]

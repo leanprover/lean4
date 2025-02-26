@@ -3086,8 +3086,12 @@ variable [BEq α]
 @[simp] theorem replace_cons_self [LawfulBEq α] {a : α} : (a::as).replace a b = b::as := by
   simp [replace_cons]
 
-@[simp] theorem replace_of_not_mem {l : List α} (h : !l.elem a) : l.replace a b = l := by
-  induction l <;> simp_all [replace_cons]
+@[simp] theorem replace_of_not_mem [LawfulBEq α] {l : List α} (h : a ∉ l) : l.replace a b = l := by
+  induction l with
+  | nil => rfl
+  | cons x xs ih =>
+    simp only [replace_cons]
+    split <;> simp_all
 
 @[simp] theorem length_replace {l : List α} : (l.replace a b).length = l.length := by
   induction l with
@@ -3170,7 +3174,7 @@ theorem replace_take {l : List α} {i : Nat} :
     (replicate n a).replace a b = b :: replicate (n - 1) a := by
   cases n <;> simp_all [replicate_succ, replace_cons]
 
-@[simp] theorem replace_replicate_ne {a b c : α} (h : !b == a) :
+@[simp] theorem replace_replicate_ne [LawfulBEq α] {a b c : α} (h : !b == a) :
     (replicate n a).replace b c = replicate n a := by
   rw [replace_of_not_mem]
   simp_all

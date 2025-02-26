@@ -1090,6 +1090,11 @@ def split (as : Array α) (p : α → Bool) : Array α × Array α :=
   as.foldl (init := (#[], #[])) fun (as, bs) a =>
     if p a then (as.push a, bs) else (as, bs.push a)
 
+def replace [BEq α] (xs : Array α) (a b : α) : Array α :=
+  match xs.finIdxOf? a with
+  | none => xs
+  | some i => xs.set i b
+
 /-! ### Lexicographic ordering -/
 
 instance instLT [LT α] : LT (Array α) := ⟨fun as bs => as.toList < bs.toList⟩

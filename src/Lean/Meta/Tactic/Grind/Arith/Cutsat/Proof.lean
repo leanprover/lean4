@@ -13,6 +13,36 @@ private def DvdCnstr.get_d_a (c : DvdCnstr) : GoalM (Int × Int) := do
   let .add a _ _ := c.p | c.throwUnexpected
   return (d, a)
 
+partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := c'.caching do
+  match c'.h with
+  | .expr h =>
+    return h
+  | .core p₁ p₂ h =>
+    return mkApp6 (mkConst ``Int.Linear.eq_of_core) (← getContext) (toExpr p₁) (toExpr p₂) (toExpr c'.p) reflBoolTrue h
+  | .norm c =>
+    return mkApp5 (mkConst ``Int.Linear.eq_norm) (← getContext) (toExpr c.p) (toExpr c'.p) reflBoolTrue (← c.toExprProof)
+  | .divCoeffs c =>
+    let k := c.p.gcdCoeffs c.p.getConst
+    return mkApp6 (mkConst ``Int.Linear.eq_coeff) (← getContext) (toExpr c.p) (toExpr c'.p) (toExpr k) reflBoolTrue (← c.toExprProof)
+  | .subst x c₁ c₂  =>
+    return mkApp8 (mkConst ``Int.Linear.eq_eq_subst)
+      (← getContext) (toExpr x) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
+      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+
+partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := c'.caching do
+  match c'.h with
+  | .expr h =>
+    return h
+  | .norm c =>
+    return mkApp5 (mkConst ``Int.Linear.diseq_norm) (← getContext) (toExpr c.p) (toExpr c'.p) reflBoolTrue (← c.toExprProof)
+  | .divCoeffs c =>
+    let k := c.p.gcdCoeffs c.p.getConst
+    return mkApp6 (mkConst ``Int.Linear.diseq_coeff) (← getContext) (toExpr c.p) (toExpr c'.p) (toExpr k) reflBoolTrue (← c.toExprProof)
+  | .subst x c₁ c₂  =>
+    return mkApp8 (mkConst ``Int.Linear.eq_diseq_subst)
+      (← getContext) (toExpr x) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
+      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+
 mutual
 partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := c'.caching do
   match c'.h with
@@ -73,22 +103,6 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := c'.caching do
         reflBoolTrue
         (← c₁.toExprProof) (← c₂.toExprProof)
 
-partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := c'.caching do
-  match c'.h with
-  | .expr h =>
-    return h
-  | .core p₁ p₂ h =>
-    return mkApp6 (mkConst ``Int.Linear.eq_of_core) (← getContext) (toExpr p₁) (toExpr p₂) (toExpr c'.p) reflBoolTrue h
-  | .norm c =>
-    return mkApp5 (mkConst ``Int.Linear.eq_norm) (← getContext) (toExpr c.p) (toExpr c'.p) reflBoolTrue (← c.toExprProof)
-  | .divCoeffs c =>
-    let k := c.p.gcdCoeffs c.p.getConst
-    return mkApp6 (mkConst ``Int.Linear.eq_coeff) (← getContext) (toExpr c.p) (toExpr c'.p) (toExpr k) reflBoolTrue (← c.toExprProof)
-  | .subst x c₁ c₂  =>
-    return mkApp8 (mkConst ``Int.Linear.eq_eq_subst)
-      (← getContext) (toExpr x) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
-      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
-
 end
 
 def setInconsistent (h : UnsatProof) : GoalM Unit := do
@@ -107,6 +121,10 @@ def setInconsistent (h : UnsatProof) : GoalM Unit := do
       else
         let k := c.p.gcdCoeffs'
         return mkApp5 (mkConst ``Int.Linear.eq_unsat_coeff) (← getContext) (toExpr c.p) (toExpr (Int.ofNat k)) reflBoolTrue (← c.toExprProof)
+    | .diseq c =>
+      trace[grind.cutsat.diseq.unsat] "{← c.pp}"
+      return mkApp4 (mkConst ``Int.Linear.diseq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
+
   closeGoal hf
 
 end Lean.Meta.Grind.Arith.Cutsat

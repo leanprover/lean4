@@ -24,9 +24,7 @@ namespace Std.TreeSet.Raw.WF
 
 open TreeMap.Raw renaming WF → InnerWF
 
-variable {α : Type u} {β : Type v} {cmp : α → α → Ordering} {t : TreeSet.Raw α cmp}
-
-variable {t : Raw α cmp}
+variable {α : Type u} {cmp : α → α → Ordering} {t : Raw α cmp}
 
 theorem empty : (empty : Raw α cmp).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨InnerWF.empty⟩
@@ -70,8 +68,12 @@ theorem ofList [TransCmp cmp] {l : List α} :
     (Raw.ofList l cmp).WF :=
   ⟨InnerWF.unitOfList⟩
 
-theorem ofArray [TransCmp cmp] {l : Array α} :
-    (Raw.ofArray l cmp).WF :=
+theorem ofArray [TransCmp cmp] {a : Array α} :
+    (Raw.ofArray a cmp).WF :=
   ⟨InnerWF.unitOfArray⟩
+
+theorem merge {t₁ t₂ : Raw α cmp} (h : t₁.WF) :
+    (t₁.merge t₂).WF :=
+  ⟨InnerWF.mergeWith h⟩
 
 end Std.TreeSet.Raw.WF

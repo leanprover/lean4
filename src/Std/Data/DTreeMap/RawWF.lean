@@ -24,10 +24,8 @@ universe u v
 
 namespace Std.DTreeMap.Raw.WF
 
-variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} {t : DTreeMap.Raw α β cmp}
+variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} {t : Raw α β cmp}
 private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
-
-variable {t : Raw α β cmp}
 
 theorem empty : (empty : Raw α β cmp).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.WF.empty⟩
@@ -96,8 +94,8 @@ theorem ofList [TransCmp cmp] {l : List ((a : α) × β a)} :
     (Raw.ofList l cmp).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.WF.insertMany Impl.WF.empty⟩
 
-theorem ofArray [TransCmp cmp] {l : Array ((a : α) × β a)} :
-    (Raw.ofArray l cmp).WF :=
+theorem ofArray [TransCmp cmp] {a : Array ((a : α) × β a)} :
+    (Raw.ofArray a cmp).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.WF.insertMany Impl.WF.empty⟩
 
 theorem alter [LawfulEqCmp cmp] {a f} {t : Raw α β cmp} (h : t.WF) :
@@ -107,6 +105,10 @@ theorem alter [LawfulEqCmp cmp] {a f} {t : Raw α β cmp} (h : t.WF) :
 theorem modify [LawfulEqCmp cmp] {a f} {t : Raw α β cmp} (h : t.WF) :
     (t.modify a f).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨h.out.modify⟩
+
+theorem mergeWith [LawfulEqCmp cmp] {mergeFn} {t₁ t₂ : Raw α β cmp} (h : t₁.WF) :
+    (t₁.mergeWith mergeFn t₂).WF :=
+  ⟨h.out.mergeWith!⟩
 
 section Const
 
@@ -128,16 +130,16 @@ theorem constOfList [TransCmp cmp] {l : List (α × β)} :
     (Raw.Const.ofList l cmp).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.WF.constInsertMany Impl.WF.empty⟩
 
-theorem constOfArray [TransCmp cmp] {l : Array (α × β)} :
-    (Raw.Const.ofArray l cmp).WF :=
+theorem constOfArray [TransCmp cmp] {a : Array (α × β)} :
+    (Raw.Const.ofArray a cmp).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.WF.constInsertMany Impl.WF.empty⟩
 
 theorem unitOfList [TransCmp cmp] {l : List α} :
     (Raw.Const.unitOfList l cmp).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.WF.constInsertManyIfNewUnit Impl.WF.empty⟩
 
-theorem unitOfArray [TransCmp cmp] {l : Array α} :
-    (Raw.Const.unitOfArray l cmp).WF :=
+theorem unitOfArray [TransCmp cmp] {a : Array α} :
+    (Raw.Const.unitOfArray a cmp).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.WF.constInsertManyIfNewUnit Impl.WF.empty⟩
 
 theorem constAlter {a f} {t : Raw α β cmp} (h : t.WF) :
@@ -147,5 +149,9 @@ theorem constAlter {a f} {t : Raw α β cmp} (h : t.WF) :
 theorem constModify {a f} {t : Raw α β cmp} (h : t.WF) :
     (Const.modify t a f).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨h.out.constModify⟩
+
+theorem constMergeWith {mergeFn} {t₁ t₂ : Raw α β cmp} (h : t₁.WF) :
+    (Const.mergeWith mergeFn t₁ t₂).WF :=
+  ⟨h.out.constMergeWith!⟩
 
 end Std.DTreeMap.Raw.WF.Const

@@ -24,9 +24,7 @@ namespace Std.TreeMap.Raw.WF
 
 open DTreeMap.Raw renaming WF → InnerWF
 
-variable {α : Type u} {β : Type v} {cmp : α → α → Ordering} {t : TreeMap.Raw α β cmp}
-
-variable {t : Raw α β cmp}
+variable {α : Type u} {β : Type v} {cmp : α → α → Ordering} {t : Raw α β cmp}
 
 theorem empty : (empty : Raw α β cmp).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨InnerWF.empty⟩
@@ -90,15 +88,15 @@ theorem ofList [TransCmp cmp] {l : List (α × β)} :
     (Raw.ofList l cmp).WF :=
   ⟨InnerWF.constOfList⟩
 
-theorem ofArray [TransCmp cmp] {l : Array (α × β)} :
-    (Raw.ofArray l cmp).WF :=
+theorem ofArray [TransCmp cmp] {a : Array (α × β)} :
+    (Raw.ofArray a cmp).WF :=
   ⟨InnerWF.constOfArray⟩
 
-theorem alter [LawfulEqCmp cmp] {a f} {t : Raw α β cmp} (h : t.WF) :
+theorem alter {a f} {t : Raw α β cmp} (h : t.WF) :
     (t.alter a f).WF :=
   ⟨InnerWF.constAlter h⟩
 
-theorem modify [LawfulEqCmp cmp] {a f} {t : Raw α β cmp} (h : t.WF) :
+theorem modify {a f} {t : Raw α β cmp} (h : t.WF) :
     (t.modify a f).WF :=
   ⟨InnerWF.constModify h⟩
 
@@ -106,8 +104,12 @@ theorem unitOfList [TransCmp cmp] {l : List α} :
     (Raw.unitOfList l cmp).WF :=
   ⟨InnerWF.unitOfList⟩
 
-theorem unitOfArray [TransCmp cmp] {l : Array α} :
-    (Raw.unitOfArray l cmp).WF :=
+theorem unitOfArray [TransCmp cmp] {a : Array α} :
+    (Raw.unitOfArray a cmp).WF :=
   ⟨InnerWF.unitOfArray⟩
+
+theorem mergeWith {mergeFn} {t₁ t₂ : Raw α β cmp} (h : t₁.WF) :
+    (t₁.mergeWith mergeFn t₂).WF :=
+  ⟨InnerWF.constMergeWith h⟩
 
 end Std.TreeMap.Raw.WF

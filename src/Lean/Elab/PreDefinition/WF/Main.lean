@@ -26,7 +26,7 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
   let (fixedParams, argsPacker, unaryPreDef, wfPreprocessProofs) ← withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef
-    let fixedParams ← Mutual.getFixedParams preDefs
+    let fixedParams ← getFixedParams preDefs
     let varNamess ← preDefs.mapIdxM fun i preDef => varyingVarNames fixedParams i preDef
     for varNames in varNamess, preDef in preDefs do
       if varNames.isEmpty then

@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Joachim Breitner
 prelude
 import Lean.Meta.ArgsPacker
 import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.Mutual
+import Lean.Elab.PreDefinition.FixedParams
 import Lean.Elab.PreDefinition.WF.Eqns
 
 /-!
@@ -39,7 +39,7 @@ def withAppN (n : Nat) (e : Expr) (k : Array Expr → MetaM Expr) : MetaM Expr :
 /--
 Processes the expression and replaces calls to  the `preDefs` with calls to `f`.
 -/
-def packCalls (fixedParams : Mutual.FixedParams) (argsPacker : ArgsPacker) (funNames : Array Name) (newF : Expr)
+def packCalls (fixedParams : FixedParams) (argsPacker : ArgsPacker) (funNames : Array Name) (newF : Expr)
   (e : Expr) : MetaM Expr := do
   let fType ← inferType newF
   unless fType.isForall do
@@ -54,14 +54,14 @@ def packCalls (fixedParams : Mutual.FixedParams) (argsPacker : ArgsPacker) (funN
       let mask := fixedParams.mappings[fidx]!.map Option.isSome
       let arity := mask.size
       let e' ← withAppN arity e fun args => do
-        let varying := Mutual.pickVaryingArgs fixedParams fidx args
+        let varying := fixedParams.pickVarying fidx args
         let packedArg ← argsPacker.pack domain fidx varying
         return mkApp newF packedArg
       return TransformStep.done e'
     return TransformStep.done e
     )
 
-def mutualName (fixedParams : Mutual.FixedParams) (argsPacker : ArgsPacker) (preDefs : Array PreDefinition) : Name :=
+def mutualName (fixedParams : FixedParams) (argsPacker : ArgsPacker) (preDefs : Array PreDefinition) : Name :=
   if fixedParams.fixedArePrefix && argsPacker.onlyOneUnary then
     preDefs[0]!.declName
   else
@@ -74,16 +74,16 @@ def mutualName (fixedParams : Mutual.FixedParams) (argsPacker : ArgsPacker) (pre
 Creates a single unary function from the given `preDefs`, using the machinery in the `ArgPacker`
 module.
 -/
-def packMutual (fixedParams : Mutual.FixedParams) (argsPacker : ArgsPacker) (preDefs : Array PreDefinition) : MetaM PreDefinition := do
+def packMutual (fixedParams : FixedParams) (argsPacker : ArgsPacker) (preDefs : Array PreDefinition) : MetaM PreDefinition := do
   let newFn := mutualName fixedParams argsPacker preDefs
   if newFn = preDefs[0]!.declName then
     return preDefs[0]!
   -- Bring the fixed prefix into scope
-  Mutual.forallTelescopeFixedParams fixedParams 0 preDefs[0]!.type fun ys => do
+  fixedParams.forallTelescope 0 preDefs[0]!.type fun ys => do
     let types ← preDefs.mapIdxM fun i preDef =>
-      Mutual.instantiateForallFixedParams fixedParams i preDef.type ys
+      fixedParams.instantiateForall i preDef.type ys
     let vals ← preDefs.mapIdxM fun i preDef =>
-      Mutual.instantiateLambdaFixedParams fixedParams i preDef.value ys
+      fixedParams.instantiateLambda i preDef.value ys
 
     let type ← argsPacker.uncurryType types
 
@@ -110,7 +110,7 @@ fun : (n : Nat) → Nat | 0 => 0 | n+1 => fun n
 ```
 idiom.
 -/
-def varyingVarNames (fixedParams : Mutual.FixedParams) (preDefIdx : Nat) (preDef : PreDefinition) : MetaM (Array Name) := do
+def varyingVarNames (fixedParams : FixedParams) (preDefIdx : Nat) (preDef : PreDefinition) : MetaM (Array Name) := do
   -- We take the arity from the term, but the names from the types
   let arity ← lambdaTelescope preDef.value fun xs _ => return xs.size
   forallBoundedTelescope preDef.type arity fun xs _ => do
@@ -122,7 +122,7 @@ def varyingVarNames (fixedParams : Mutual.FixedParams) (preDefIdx : Nat) (preDef
       ns := ns.push (← x.fvarId!.getUserName)
     return ns
 
-def preDefsFromUnaryNonRec (fixedParams : Mutual.FixedParams) (argsPacker : ArgsPacker)
+def preDefsFromUnaryNonRec (fixedParams : FixedParams) (argsPacker : ArgsPacker)
     (preDefs : Array PreDefinition) (unaryPreDefNonRec : PreDefinition) : MetaM (Array PreDefinition) := do
   withoutModifyingEnv do
     let us := unaryPreDefNonRec.levelParams.map mkLevelParam
@@ -131,8 +131,8 @@ def preDefsFromUnaryNonRec (fixedParams : Mutual.FixedParams) (argsPacker : Args
       let arity := fixedParams.mappings[fidx]!.size
       let value ← forallBoundedTelescope preDef.type (some arity) fun params _ => do
         assert! arity = params.size
-        let xs := Mutual.pickFixedArgs fixedParams fidx params
-        let ys := Mutual.pickVaryingArgs fixedParams fidx params
+        let xs := fixedParams.pickFixed fidx params
+        let ys := fixedParams.pickVarying fidx params
         let value := mkAppN (mkConst unaryPreDefNonRec.declName us) xs
         let value ← argsPacker.curryProj value fidx
         let value := value.beta ys

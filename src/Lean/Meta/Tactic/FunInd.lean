@@ -787,7 +787,7 @@ def projectMutualInduct (names : Array Name) (mutualInduct : Name) : MetaM Unit 
 For a (non-mutual!) definition of `name`, uses the `FunIndInfo` associated with the `unaryInduct` and
 derives the one for the n-ary function.
 -/
-def setNaryFunIndInfo (fixedParams : Mutual.FixedParams) (name : Name) (unaryInduct : Name) : MetaM Unit := do
+def setNaryFunIndInfo (fixedParams : FixedParams) (name : Name) (unaryInduct : Name) : MetaM Unit := do
   assert!  fixedParams.mappings.size = 1 -- only non-mutual for now
   let funIndName := getFunInductName name
   unless funIndName = unaryInduct do

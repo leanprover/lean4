@@ -12,6 +12,7 @@ import Std.Data.TreeMap.Raw
 
 This file contains lemmas about `Std.Data.TreeMap.Raw`. Most of the lemmas require
 `TransCmp cmp` for the comparison function `cmp`.
+These proofs can be obtained from `Std.Data.TreeMap.RawWF`.
 -/
 
 set_option linter.missingDocs true

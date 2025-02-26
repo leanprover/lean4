@@ -9,7 +9,7 @@ import Std.Data.TreeMap.AdditionalOperations
 import Std.Data.TreeMap.Raw
 
 /-!
-# Well-formedness proofs for raw dependent tree maps
+# Well-formedness proofs for raw tree maps
 
 This file contains well-formedness proofs about `Std.Data.TreeMap.Raw`. Most of the lemmas require
 `TransCmp cmp` for the comparison function `cmp`.

@@ -114,36 +114,31 @@ abbrev inferInstanceAs (α : Sort u) [i : α] : α := i
 
 set_option bootstrap.inductiveCheckResultingUniverse false in
 /--
-The unit type, the canonical type with one element, named `unit` or `()`.
-This is the universe-polymorphic version of `Unit`; it is preferred to use
-`Unit` instead where applicable.
-For more information about universe levels: [Types as objects](https://lean-lang.org/theorem_proving_in_lean4/dependent_type_theory.html#types-as-objects)
+The canonical universe-polymorphic type with just one element.
+
+It should be used in contexts that require a type to be universe polymorphic, thus disallowing
+`Unit`.
 -/
 inductive PUnit : Sort u where
-  /-- `PUnit.unit : PUnit` is the canonical element of the unit type. -/
+  /-- The only element of the universe-polymorphic unit type. -/
   | unit : PUnit
 
 /--
-The unit type, the canonical type with one element, named `unit` or `()`.
-In other words, it describes only a single value, which consists of said constructor applied
-to no arguments whatsoever.
-The `Unit` type is similar to `void` in languages derived from C.
+The canonical type with one element. This element is written `()`.
 
-`Unit` is actually defined as `PUnit.{1}` where `PUnit` is the universe
-polymorphic version. The `Unit` should be preferred over `PUnit` where possible to avoid
-unnecessary universe parameters.
-
-In functional programming, `Unit` is the return type of things that "return
-nothing", since a type with one element conveys no additional information.
-When programming with monads, the type `m Unit` represents an action that has
-some side effects but does not return a value, while `m α` would be an action
-that has side effects and returns a value of type `α`.
+`Unit` has a number of uses:
+ * It can be used to model control flow that returns from a function call without providing other
+   information.
+ * Monadic actions that return `Unit` have side effects without computing values.
+ * In polymorphic types, it can be used to indicate that no data is to be stored in a particular
+   field.
 -/
 abbrev Unit : Type := PUnit
 
 /--
-`Unit.unit : Unit` is the canonical element of the unit type.
-It can also be written as `()`.
+The only element of the unit type.
+
+It can be written as an empty tuple: `()`.
 -/
 @[match_pattern] abbrev Unit.unit : Unit := PUnit.unit
 

@@ -102,8 +102,8 @@ extern "C" LEAN_EXPORT void lean_set_panic_messages(bool flag) {
     g_panic_messages = flag;
 }
 
-static void panic_eprintln(char const * line) {
-    if (g_exit_on_panic || should_abort_on_panic()) {
+static void panic_eprintln(char const * line, bool force_stderr) {
+    if (force_stderr || g_exit_on_panic || should_abort_on_panic()) {
         // If we are about to kill the process, we should skip the Lean stderr buffer
         std::cerr << line << "\n";
     } else {
@@ -111,37 +111,33 @@ static void panic_eprintln(char const * line) {
     }
 }
 
-static void print_backtrace() {
+static void print_backtrace(bool force_stderr) {
 #if LEAN_SUPPORTS_BACKTRACE
     void * bt_buf[100];
     int nptrs = backtrace(bt_buf, sizeof(bt_buf) / sizeof(void *));
     if (char ** symbols = backtrace_symbols(bt_buf, nptrs)) {
         for (int i = 0; i < nptrs; i++) {
-            panic_eprintln(symbols[i]);
+            panic_eprintln(symbols[i], force_stderr);
         }
         // According to `man backtrace`, each `symbols[i]` should NOT be freed
         free(symbols);
         if (nptrs == sizeof(bt_buf)) {
-            panic_eprintln("...");
+            panic_eprintln("...", force_stderr);
         }
     }
 #else
-    panic_eprintln("(stack trace unavailable)");
+    panic_eprintln("(stack trace unavailable)", force_stderr);
 #endif
 }
 
 extern "C" LEAN_EXPORT void lean_panic(char const * msg, bool force_stderr = false) {
     if (g_panic_messages) {
-        if (force_stderr) {
-            std::cerr << msg << "\n";
-        } else {
-            panic_eprintln(msg);
-        }
+        panic_eprintln(msg, force_stderr);
 #if LEAN_SUPPORTS_BACKTRACE
         char * bt_env = getenv("LEAN_BACKTRACE");
         if (!bt_env || strcmp(bt_env, "0") != 0) {
-            panic_eprintln("backtrace:");
-            print_backtrace();
+            panic_eprintln("backtrace:", force_stderr);
+            print_backtrace(force_stderr);
         }
 #endif
     }
@@ -2558,7 +2554,7 @@ extern "C" LEAN_EXPORT object * lean_dbg_trace_if_shared(obj_arg s, obj_arg a) {
 }
 
 extern "C" LEAN_EXPORT object * lean_dbg_stack_trace(obj_arg fn) {
-    print_backtrace();
+    print_backtrace(/* force_stderr */ false);
     return lean_apply_1(fn, lean_box(0));
 }
 

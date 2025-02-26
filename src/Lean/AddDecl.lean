@@ -8,12 +8,6 @@ import Lean.CoreM
 
 namespace Lean
 
-register_builtin_option debug.skipKernelTC : Bool := {
-  defValue := false
-  group    := "debug"
-  descr    := "skip kernel type checker. WARNING: setting this option to true may compromise soundness because your proofs will not be checked by the Lean kernel"
-}
-
 /-- Adds given declaration to the environment, respecting `debug.skipKernelTC`. -/
 def Kernel.Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) : Except Exception Environment :=

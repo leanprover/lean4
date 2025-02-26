@@ -3713,7 +3713,7 @@ theorem toNat_twoPow (w : Nat) (i : Nat) : (twoPow w i).toNat = 2^i % 2^w := by
     have h1 : 1 < 2 ^ (w + 1) := Nat.one_lt_two_pow (by omega)
     rw [Nat.mod_eq_of_lt h1, Nat.shiftLeft_eq, Nat.one_mul]
 
-theorem toNat_twoPow_of_le {i w : Nat} (h : w ≤ i): (twoPow w i).toNat = 0 := by
+theorem toNat_twoPow_of_le {i w : Nat} (h : w ≤ i) : (twoPow w i).toNat = 0 := by
   rw [toNat_twoPow]
   apply Nat.mod_eq_zero_of_dvd
   exact Nat.pow_dvd_pow_iff_le_right'.mpr h

@@ -162,6 +162,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
         udp_send_data * tup = (udp_send_data*) req->data;
         lean_promise_resolve_with_code(status, tup->promise);
 
+        lean_dec(tup->promise);
         lean_dec(tup->socket);
         lean_dec(tup->data);
 
@@ -176,6 +177,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
     }
 
     if (result < 0) {
+        lean_dec(promise);
+
         free(send_uv);
         free(send_uv->data);
 

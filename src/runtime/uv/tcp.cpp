@@ -145,8 +145,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, obj_ar
         lean_promise_resolve_with_code(status, tup->promise);
 
         // The event loop does not own the object anymore.
-        lean_dec(tup->promise);
         lean_dec(tup->socket);
+        lean_dec(tup->promise);
 
         free(req->data);
         free(req);
@@ -155,6 +155,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, obj_ar
     event_loop_unlock(&global_ev);
 
     if (result < 0) {
+        lean_dec(promise);
+
         free(uv_connect);
         free(uv_connect->data);
 
@@ -427,6 +429,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
 
     if (result < 0) {
         free(shutdown_req);
+        lean_dec(tcp_socket->m_promise_shutdown);
         tcp_socket->m_promise_shutdown = nullptr;
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }

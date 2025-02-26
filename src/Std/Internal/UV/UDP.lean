@@ -24,13 +24,6 @@ def Socket : Type := SocketImpl.type
 
 instance : Nonempty Socket := SocketImpl.property
 
-/--
-Membership type for multicast operations.
--/
-inductive Membership
-  | leaveGroup
-  | enterGroup
-
 namespace Socket
 
 /--
@@ -99,7 +92,7 @@ opaque setMulticastTTL (socket : @& Socket) (ttl : UInt32) : IO Unit
 Sets the membership for joining or leaving a multicast group.
 -/
 @[extern "lean_uv_udp_set_membership"]
-opaque setMembership (socket : @& Socket) (multicast_addr interface_addr : String) (membership : Membership) : IO Unit
+opaque setMembership (socket : @& Socket) (multicast_addr interface_addr : String) (membership : UInt8) : IO Unit
 
 /--
 Sets the multicast interface for sending packets.

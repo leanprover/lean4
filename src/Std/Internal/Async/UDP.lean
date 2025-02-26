@@ -24,6 +24,13 @@ structure Socket where
   private ofNative ::
     native : Internal.UV.UDP.Socket
 
+/--
+Membership type for multicast operations.
+-/
+inductive Membership
+  | leaveGroup
+  | enterGroup
+
 namespace Socket
 
 /--
@@ -101,7 +108,10 @@ def setMulticastTTL (s : Socket) (ttl : UInt32) : IO Unit :=
 Sets the membership for joining or leaving a multicast group.
 -/
 @[inline]
-def setMembership (s : Socket) (multicastAddr : String) (interfaceAddr : String) (membership : Internal.UV.UDP.Membership) : IO Unit :=
+def setMembership (s : Socket) (multicastAddr : String) (interfaceAddr : String) (membership : Membership) : IO Unit :=
+  let membership := match membership with
+    | .leaveGroup => 0
+    | .enterGroup => 1
   s.native.setMembership multicastAddr interfaceAddr membership
 
 /--

@@ -645,4 +645,14 @@ theorem getKeyD_insertIfNew [TransCmp cmp] {k a fallback : α}
       if cmp k a = .eq ∧ ¬ k ∈ t then k else t.getKeyD a fallback :=
   DTreeMap.getKeyD_insertIfNew
 
+@[simp]
+theorem getThenInsertIfNew?_fst [TransCmp cmp] {k : α} {v : β} :
+    (getThenInsertIfNew? t k v).1 = get? t k :=
+  DTreeMap.Const.getThenInsertIfNew?_fst
+
+@[simp]
+theorem getThenInsertIfNew?_snd [TransCmp cmp] {k : α} {v : β} :
+    (getThenInsertIfNew? t k v).2 = t.insertIfNew k v :=
+  ext <| DTreeMap.Const.getThenInsertIfNew?_snd
+
 end Std.TreeMap

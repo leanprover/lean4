@@ -629,7 +629,7 @@ variable {β : Type v}
 def getThenInsertIfNew? (t : DTreeMap α β cmp) (a : α) (b : β) :
     Option β × DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
-  let p := Impl.Const.getThenInsertIfNew? a b t.inner t.wf.balanced
+  let p := Impl.Const.getThenInsertIfNew? t.inner a b t.wf.balanced
   (p.1, ⟨p.2, t.wf.constGetThenInsertIfNew?⟩)
 
 @[inline, inherit_doc DTreeMap.get?]

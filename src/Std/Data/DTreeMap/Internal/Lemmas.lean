@@ -1387,4 +1387,82 @@ theorem getKeyD_insertIfNew! [TransOrd α] (h : t.WF) {k a fallback : α}
   simp only [mem_iff_contains, Bool.not_eq_true]
   simp_to_model [insertIfNew!] using List.getKeyD_insertEntryIfNew
 
+/-!
+### getThenInsertIfNew?
+-/
+
+theorem getThenInsertIfNew?_fst [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.getThenInsertIfNew? k v h.balanced).1 = t.get? k := by
+  rw [getThenInsertIfNew?.eq_def]
+  cases t.get? k <;> rfl
+
+theorem getThenInsertIfNew?_snd [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.getThenInsertIfNew? k v h.balanced).2 = (t.insertIfNew k v h.balanced).impl := by
+  rw [getThenInsertIfNew?.eq_def]
+  cases heq : t.get? k
+  · rfl
+  · rw [get?_eq_getValueCast? h.ordered] at heq
+    rw [insertIfNew, contains_eq_containsKey h.ordered, List.containsKey_eq_isSome_getValueCast?, heq]
+    rfl
+
+/-!
+### getThenInsertIfNew?!
+-/
+
+theorem getThenInsertIfNew?!_fst [TransOrd α] [LawfulEqOrd α] {k : α} {v : β k} :
+    (t.getThenInsertIfNew?! k v).1 = t.get? k := by
+  rw [getThenInsertIfNew?!.eq_def]
+  cases t.get? k <;> rfl
+
+theorem getThenInsertIfNew?!_snd [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.getThenInsertIfNew?! k v).2 = (t.insertIfNew! k v) := by
+  rw [getThenInsertIfNew?!.eq_def]
+  cases heq : t.get? k
+  · rfl
+  · rw [get?_eq_getValueCast? h.ordered] at heq
+    rw [insertIfNew!, contains_eq_containsKey h.ordered, List.containsKey_eq_isSome_getValueCast?, heq]
+    rfl
+
+namespace Const
+
+variable {β : Type v} {t : Impl α β}
+
+/-!
+### getThenInsertIfNew?
+-/
+
+theorem getThenInsertIfNew?_fst [TransOrd α] (h : t.WF) {k : α} {v : β} :
+    (getThenInsertIfNew? t k v h.balanced).1 = get? t k := by
+  rw [getThenInsertIfNew?.eq_def]
+  cases get? t k <;> rfl
+
+theorem getThenInsertIfNew?_snd [TransOrd α] (h : t.WF) {k : α} {v : β} :
+    (getThenInsertIfNew? t k v h.balanced).2 = (t.insertIfNew k v h.balanced).impl := by
+  rw [getThenInsertIfNew?.eq_def]
+  cases heq : get? t k
+  · rfl
+  · rw [get?_eq_getValue? h.ordered] at heq
+    rw [insertIfNew, contains_eq_containsKey h.ordered, List.containsKey_eq_isSome_getValue?, heq]
+    rfl
+
+/-!
+### getThenInsertIfNew?!
+-/
+
+theorem getThenInsertIfNew?!_fst [TransOrd α] {k : α} {v : β} :
+    (getThenInsertIfNew?! t k v).1 = get? t k := by
+  rw [getThenInsertIfNew?!.eq_def]
+  cases get? t k <;> rfl
+
+theorem getThenInsertIfNew?!_snd [TransOrd α] (h : t.WF) {k : α} {v : β} :
+    (getThenInsertIfNew?! t k v).2 = (t.insertIfNew! k v) := by
+  rw [getThenInsertIfNew?!.eq_def]
+  cases heq : get? t k
+  · rfl
+  · rw [get?_eq_getValue? h.ordered] at heq
+    rw [insertIfNew!, contains_eq_containsKey h.ordered, List.containsKey_eq_isSome_getValue?, heq]
+    rfl
+
+end Const
+
 end Std.DTreeMap.Internal.Impl

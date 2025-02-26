@@ -903,4 +903,30 @@ theorem getKeyD_insertIfNew [TransCmp cmp] (h : t.WF) {k a fallback : α}
       if cmp k a = .eq ∧ ¬ k ∈ t then k else t.getKeyD a fallback :=
   Impl.getKeyD_insertIfNew! h
 
+@[simp]
+theorem getThenInsertIfNew?_fst [TransCmp cmp] [LawfulEqCmp cmp] (_ : t.WF) {k : α} {v : β k} :
+    (t.getThenInsertIfNew? k v).1 = t.get? k :=
+  Impl.getThenInsertIfNew?!_fst
+
+@[simp]
+theorem getThenInsertIfNew?_snd [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} {v : β k} :
+    (t.getThenInsertIfNew? k v).2 = t.insertIfNew k v :=
+  ext <| Impl.getThenInsertIfNew?!_snd h
+
+namespace Const
+
+variable {β : Type v} {t : Raw α β cmp}
+
+@[simp]
+theorem getThenInsertIfNew?_fst [TransCmp cmp] (_ : t.WF) {k : α} {v : β} :
+    (getThenInsertIfNew? t k v).1 = get? t k :=
+  Impl.Const.getThenInsertIfNew?!_fst
+
+@[simp]
+theorem getThenInsertIfNew?_snd [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+    (getThenInsertIfNew? t k v).2 = t.insertIfNew k v :=
+  ext <| Impl.Const.getThenInsertIfNew?!_snd h
+
+end Const
+
 end Std.DTreeMap.Raw

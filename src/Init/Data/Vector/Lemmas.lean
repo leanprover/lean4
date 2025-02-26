@@ -2068,6 +2068,12 @@ theorem flatMap_mkArray {β} (f : α → Vector β m) : (mkVector n a).flatMap f
   rcases xs with ⟨xs, rfl⟩
   simp
 
+theorem getElem_eq_getElem_reverse {xs : Vector α n} {i} (h : i < n) :
+    xs[i] = xs.reverse[n - 1 - i] := by
+  rw [getElem_reverse]
+  congr
+  omega
+
 /-- Variant of `getElem?_reverse` with a hypothesis giving the linear relation between the indices. -/
 theorem getElem?_reverse' {xs : Vector α n} (i j) (h : i + j + 1 = n) : xs.reverse[i]? = xs[j]? := by
   rcases xs with ⟨xs, rfl⟩

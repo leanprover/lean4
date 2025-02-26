@@ -266,8 +266,6 @@ def tryAllArgs (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
           -- are ok in a nested group. This logic can maybe simplified)
           unless (← hasConst (group.brecOnName false 0)) do
             throwError "the type {group} does not have a `.brecOn` recursor"
-          -- TODO: Here we used to save and restore the state. But should the `try`-`catch`
-          -- not suffice?
           let r ← k comb
           trace[Elab.definition.structural] "tryAllArgs report:\n{report}"
           return r

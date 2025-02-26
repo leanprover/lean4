@@ -3496,6 +3496,128 @@ theorem replace_extract {xs : Array α} {i : Nat} :
 
 end replace
 
+/-! ## Logic -/
+
+/-! ### any / all -/
+
+theorem not_any_eq_all_not (xs : Array α) (p : α → Bool) : (!xs.any p) = xs.all fun a => !p a := by
+  rcases xs with ⟨xs⟩
+  simp [List.not_any_eq_all_not]
+
+theorem not_all_eq_any_not (xs : Array α) (p : α → Bool) : (!xs.all p) = xs.any fun a => !p a := by
+  rcases xs with ⟨xs⟩
+  simp [List.not_all_eq_any_not]
+
+theorem and_any_distrib_left (xs : Array α) (p : α → Bool) (q : Bool) :
+    (q && xs.any p) = xs.any fun a => q && p a := by
+  rcases xs with ⟨xs⟩
+  simp [List.and_any_distrib_left]
+
+theorem and_any_distrib_right (xs : Array α) (p : α → Bool) (q : Bool) :
+    (xs.any p && q) = xs.any fun a => p a && q := by
+  rcases xs with ⟨xs⟩
+  simp [List.and_any_distrib_right]
+
+theorem or_all_distrib_left (xs : Array α) (p : α → Bool) (q : Bool) :
+    (q || xs.all p) = xs.all fun a => q || p a := by
+  rcases xs with ⟨xs⟩
+  simp [List.or_all_distrib_left]
+
+theorem or_all_distrib_right (xs : Array α) (p : α → Bool) (q : Bool) :
+    (xs.all p || q) = xs.all fun a => p a || q := by
+  rcases xs with ⟨xs⟩
+  simp [List.or_all_distrib_right]
+
+theorem any_eq_not_all_not (xs : Array α) (p : α → Bool) : xs.any p = !xs.all (!p .) := by
+  simp only [not_all_eq_any_not, Bool.not_not]
+
+@[simp] theorem any_map {xs : Array α} {p : β → Bool} : (xs.map f).any p = xs.any (p ∘ f) := by
+  rcases xs with ⟨xs⟩
+  rw [List.map_toArray]
+  simp [List.any_map]
+
+@[simp] theorem all_map {xs : Array α} {p : β → Bool} : (xs.map f).all p = xs.all (p ∘ f) := by
+  rcases xs with ⟨xs⟩
+  rw [List.map_toArray]
+  simp [List.all_map]
+
+@[simp] theorem any_filter {xs : Array α} {p q : α → Bool} :
+    (xs.filter p).any q = xs.any fun a => p a && q a := by
+  rcases xs with ⟨xs⟩
+  rw [List.filter_toArray]
+  simp [List.any_filter]
+
+@[simp] theorem all_filter {xs : Array α} {p q : α → Bool} :
+    (xs.filter p).all q = xs.all fun a => p a → q a := by
+  rcases xs with ⟨xs⟩
+  rw [List.filter_toArray]
+  simp [List.all_filter]
+
+@[simp] theorem any_filterMap {xs : Array α} {f : α → Option β} {p : β → Bool} :
+    (xs.filterMap f).any p = xs.any fun a => match f a with | some b => p b | none => false := by
+  rcases xs with ⟨xs⟩
+  rw [List.filterMap_toArray]
+  simp [List.any_filterMap]
+  rfl
+
+@[simp] theorem all_filterMap {xs : Array α} {f : α → Option β} {p : β → Bool} :
+    (xs.filterMap f).all p = xs.all fun a => match f a with | some b => p b | none => true := by
+  rcases xs with ⟨xs⟩
+  rw [List.filterMap_toArray]
+  simp [List.all_filterMap]
+  rfl
+
+@[simp] theorem any_append {xs ys : Array α} : (xs ++ ys).any f = (xs.any f || ys.any f) := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  rw [List.append_toArray]
+  simp [List.any_append]
+
+@[simp] theorem all_append {xs ys : Array α} : (xs ++ ys).all f = (xs.all f && ys.all f) := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  rw [List.append_toArray]
+  simp [List.all_append]
+
+
+@[simp] theorem any_flatten {xss : Array (Array α)} : xss.flatten.any f = xss.any (any · f) := by
+  cases xss using array₂_induction
+  simp
+
+@[simp] theorem all_flatten {xss : Array (Array α)} : xss.flatten.all f = xss.all (all · f) := by
+  cases xss using array₂_induction
+  simp
+
+@[simp] theorem any_flatMap {xs : Array α} {f : α → Array β} :
+    (xs.flatMap f).any p = xs.any fun a => (f a).any p := by
+  rcases xs with ⟨xs⟩
+  rw [List.flatMap_toArray]
+  simp [List.any_flatMap]
+
+@[simp] theorem all_flatMap {xs : Array α} {f : α → Array β} :
+    (xs.flatMap f).all p = xs.all fun a => (f a).all p := by
+  rcases xs with ⟨xs⟩
+  rw [List.flatMap_toArray]
+  simp [List.all_flatMap]
+
+@[simp] theorem any_reverse {xs : Array α} : xs.reverse.any f = xs.any f := by
+  rcases xs with ⟨xs⟩
+  rw [List.reverse_toArray]
+  simp [List.any_reverse]
+
+@[simp] theorem all_reverse {xs : Array α} : xs.reverse.all f = xs.all f := by
+  rcases xs with ⟨xs⟩
+  rw [List.reverse_toArray]
+  simp [List.all_reverse]
+
+@[simp] theorem any_mkArray {n : Nat} {a : α} :
+    (mkArray n a).any f = if n = 0 then false else f a := by
+  cases n <;> simp [mkArray_succ']
+
+@[simp] theorem all_mkArray {n : Nat} {a : α} :
+    (mkArray n a).all f = if n = 0 then true else f a := by
+  cases n <;> simp +contextual [mkArray_succ']
+
 /-! Content below this point has not yet been aligned with `List`. -/
 
 /-! ### sum -/

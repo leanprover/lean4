@@ -912,9 +912,17 @@ Given `lhs` and `rhs` that are known to be disequal, checks whether
 and invokes process `Arith.Cutsat.processNewDiseq e₁ e₂`
 -/
 def propagateCutsatDiseq (lhs rhs : Expr) : GoalM Unit := do
-  let { cutsat? := some e₁, .. } ← getRootENode lhs | return ()
-  let { cutsat? := some e₂, .. } ← getRootENode rhs | return ()
-  Arith.Cutsat.processNewDiseq e₁ e₂
+  let some lhs ← get? lhs | return ()
+  let some rhs ← get? rhs | return ()
+  -- Recall that core can take care of disequalities of the form `1≠2`.
+  unless isIntNum lhs && isIntNum rhs do
+    Arith.Cutsat.processNewDiseq lhs rhs
+where
+  get? (a : Expr) : GoalM (Option Expr) := do
+    let root ← getRootENode a
+    if isIntNum root.self then
+      return some root.self
+    return root.cutsat?
 
 /--
 Traverses disequalities in `parents`, and propagate the ones relevant to the

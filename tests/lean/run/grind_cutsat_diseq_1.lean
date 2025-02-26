@@ -64,3 +64,6 @@ example (a b c d e : Int) : a = d → c = b → c = e → a = 1 → d ≠ c → 
 
 example (a b c : Int) : a + 2*b = 0 → c + b = -b → a = c := by
   grind
+
+example (a b c : Int) : a + 2*b = 0 → a = c → c + b = -b := by
+  grind

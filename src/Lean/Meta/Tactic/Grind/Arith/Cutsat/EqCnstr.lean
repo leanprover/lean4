@@ -151,14 +151,16 @@ private def exprAsPoly (a : Expr) : GoalM Poly := do
 
 @[export lean_process_cutsat_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
+  trace[grind.debug.cutsat.eq] "{a} = {b}"
   let p₁ ← exprAsPoly a
   let p₂ ← exprAsPoly b
   let p := p₁.combine (p₂.mul (-1))
   let c ← mkEqCnstr p (.core p₁ p₂ (← mkEqProof a b))
   c.assert
 
-@[export lean_process_new_cutsat_lit]
+@[export lean_process_cutsat_eq_lit]
 def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
+  trace[grind.debug.cutsat.eq] "{a} = {ke}"
   let some k ← getIntValue? ke | return ()
   let p₁ ← exprAsPoly a
   let h ← mkEqProof a ke
@@ -169,6 +171,11 @@ def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
     let p := p₁.combine (p₂.mul (-1))
     mkEqCnstr p (.core p₁ p₂ h)
   c.assert
+
+@[export lean_process_cutsat_diseq]
+def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
+  trace[grind.debug.cutsat.diseq] "{a} ≠ {b}"
+  -- TODO
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where

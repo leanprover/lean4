@@ -866,8 +866,15 @@ opaque Arith.Cutsat.processNewEq (a b : Expr) : GoalM Unit
 Notifies the cutsat module that `a = k` where
 `a` is term that has been internalized by this module, and `k` is a numeral.
 -/
-@[extern "lean_process_new_cutsat_lit"] -- forward definition
+@[extern "lean_process_cutsat_eq_lit"] -- forward definition
 opaque Arith.Cutsat.processNewEqLit (a k : Expr) : GoalM Unit
+
+/--
+Notifies the cutsat module that `a ≠ b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_cutsat_diseq"] -- forward definition
+opaque Arith.Cutsat.processNewDiseq (a b : Expr) : GoalM Unit
 
 /-- Returns `true` if `e` is a nonegative numeral and has type `Int`. -/
 def isNonnegIntNum (e : Expr) : Bool := Id.run do
@@ -884,6 +891,52 @@ def isIntNum (e : Expr) : Bool :=
   | _ => isNonnegIntNum e
 
 /--
+Returns `true` if type of `t` is definitionally equal to `α`
+-/
+def hasType (t α : Expr) : MetaM Bool :=
+  withDefault do isDefEq (← inferType t) α
+
+/--
+For each equality `b = c` in `parents`, executes `k b c` IF
+- `b = c` is equal to `False`, and
+- `a` is the equivalence class of `b` or `c`, and
+- type of `a` is definitionally equal to types of `b` and `c`.
+-/
+@[inline] def forEachDiseqOfCore (a : Expr) (parents : ParentSet) (k : (lhs : Expr) → (rhs : Expr) → GoalM Unit) : GoalM Unit := do
+  for parent in parents do
+    let_expr Eq α b c := parent | continue
+    if (← isEqFalse parent) then
+    if (← isEqv a b <||> isEqv a c) then
+    if (← hasType a α) then
+      k b c
+
+/--
+For each equality `b = c` in `(← getParents a)`, executes `k b c` IF
+- `b = c` is equal to `False`, and
+- `a` is the equivalence class of `b` or `c`, and
+- type of `a` is definitionally equal to types of `b` and `c`.
+-/
+@[inline] def forEachDiseqOf (a : Expr) (k : (lhs : Expr) → (rhs : Expr) → GoalM Unit) : GoalM Unit := do
+  forEachDiseqOfCore a (← getParents a) k
+
+/--
+Given `lhs` and `rhs` that are known to be disequal, checks whether
+`lhs` and `rhs` have cutsat terms `e₁` and `e₂` attached to them,
+and invokes process `Arith.Cutsat.processNewDiseq e₁ e₂`
+-/
+def propagateCutsatDiseq (lhs rhs : Expr) : GoalM Unit := do
+  let { cutsat? := some e₁, .. } ← getRootENode lhs | return ()
+  let { cutsat? := some e₂, .. } ← getRootENode rhs | return ()
+  Arith.Cutsat.processNewDiseq e₁ e₂
+
+/--
+Traverses all known disequalities about `e`, and propagate the ones relevant to the
+cutsat module.
+-/
+def propagateCutsatDiseqs (e : Expr) : GoalM Unit := do
+  forEachDiseqOf e propagateCutsatDiseq
+
+/--
 Marks `e` as a term of interest to the cutsat module.
 If the root of `e`s equivalence class has already a term of interest,
 a new equality is propagated to the cutsat module.
@@ -896,6 +949,7 @@ def markAsCutsatTerm (e : Expr) : GoalM Unit := do
     Arith.Cutsat.processNewEqLit e root.self
   else
     setENode root.self { root with cutsat? := some e }
+    propagateCutsatDiseqs root.self
 
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do

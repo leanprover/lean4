@@ -148,7 +148,6 @@ structure State where
   /-
   TODO: support for storing
   - Disjuctions: they come from conflict resolution, and disequalities.
-  - Disequalities.
   - Linear integer terms appearing in the main module, and model-based equality propagation.
   -/
   deriving Inhabited

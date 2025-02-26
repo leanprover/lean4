@@ -961,17 +961,6 @@ theorem toListModel_containsThenInsertIfNew! [Ord α] [TransOrd α] {k : α} {v 
   exact toListModel_insertIfNew htb hto
 
 /-!
-### getThenInsertIfNew?!
--/
-
-theorem WF.getThenInsertIfNew?! {_ : Ord α} [TransOrd α] [LawfulEqOrd α] {k : α} {v : β k} {t : Impl α β}
-    (h : t.WF) : (t.getThenInsertIfNew?! k v).2.WF := by
-  rw [getThenInsertIfNew?!.eq_def]
-  cases get? t k
-  · exact h.insertIfNew!
-  · exact h
-
-/-!
 ### filterMap
 -/
 
@@ -1067,6 +1056,26 @@ theorem ordered_alter [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {
   exact ordered_updateAtKey htb hto
 
 /-!
+### alter!
+-/
+
+theorem alter_eq_alter! [Ord α] [LawfulEqOrd α] {t : Impl α β} {a f} (htb) :
+    (alter a f t htb).impl = alter! a f t := by
+  induction t with
+  | leaf =>
+    rw [alter, alter!]
+    cases f none <;> rfl
+  | inner sz k' v' l' r' ihl ihr =>
+    rw [alter, alter!]
+    split
+    case h_1 => simp only [balance_eq_balance!, ihl htb.left]
+    case h_2 => simp only [balance_eq_balance!, ihr htb.right]
+    case h_3 =>
+      cases f (some _)
+      · exact glue_eq_glue!
+      · rfl
+
+/-!
 ### modify
 -/
 
@@ -1096,6 +1105,25 @@ theorem ordered_mergeWith [Ord α] [TransOrd α] [LawfulEqOrd α] {t₁ t₂ : I
   induction t₂ generalizing t₁ with
   | leaf => exact hto
   | inner sz k v l r  ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
+/-!
+### foldlM
+-/
+
+theorem foldlM_eq_foldlM {t : Impl α β} {m δ} [Monad m] [LawfulMonad m] {f : δ → (a : α) → β a → m δ} {init} :
+    t.foldlM (init := init) f = t.toListModel.foldlM (init := init) fun acc p => f acc p.1 p.2 := by
+  induction t generalizing init with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr =>
+    simp only [foldlM, toListModel_inner, List.foldl_append, List.foldl_cons]
+    simp [ihl, ihr]
+
+/-!
+### foldl
+-/
+
+theorem foldl_eq_foldl {t : Impl α β} {δ} {f : δ → (a : α) → β a → δ} {init} :
+    t.foldl (init := init) f = t.toListModel.foldl (init := init) fun acc p => f acc p.1 p.2 := by
+  rw [foldl, foldlM_eq_foldlM, List.foldl_eq_foldlM, Id.run]
 
 namespace Const
 
@@ -1162,6 +1190,26 @@ theorem ordered_alter [Ord α] [TransOrd α] {t : Impl α β} {a f}
     (htb : t.Balanced) (hto : t.Ordered) : (alter a f t htb).impl.Ordered := by
   rw [alter_eq_alterₘ htb hto, alterₘ]
   exact ordered_updateAtKey htb hto
+
+/-!
+### alter!
+-/
+
+theorem alter_eq_alter! [Ord α] {t : Impl α β} {a f} (htb) :
+    (alter a f t htb).impl = alter! a f t := by
+  induction t with
+  | leaf =>
+    rw [alter, alter!]
+    cases f none <;> rfl
+  | inner sz k' v' l' r' ihl ihr =>
+    rw [alter, alter!]
+    cases compare a k'
+    case lt => simp only [balance_eq_balance!, ihl htb.left]
+    case gt => simp only [balance_eq_balance!, ihr htb.right]
+    case eq =>
+      cases f (some v')
+      · exact glue_eq_glue!
+      · rfl
 
 /-!
 ### modify
@@ -1273,6 +1321,108 @@ theorem wf [Ord α] {t : Impl α β} {t' : Impl α β'} (hs : SameKeys t t') (h 
   .wf (hs.balanced h.balanced) (hs.ordered h.ordered)
 
 end SameKeys
+
+/-!
+### getThenInsertIfNew?!
+-/
+
+theorem WF.getThenInsertIfNew?! {_ : Ord α} [TransOrd α] [LawfulEqOrd α] {k : α} {v : β k} {t : Impl α β}
+    (h : t.WF) : (t.getThenInsertIfNew?! k v).2.WF := by
+  rw [getThenInsertIfNew?!.eq_def]
+  cases get? t k
+  · exact h.insertIfNew!
+  · exact h
+
+theorem WF.constGetThenInsertIfNew?! {β : Type v} {_ : Ord α} [TransOrd α] {k : α} {v : β} {t : Impl α β}
+    (h : t.WF) : (Const.getThenInsertIfNew?! k v t).2.WF := by
+  rw [Const.getThenInsertIfNew?!.eq_def]
+  cases Const.get? t k
+  · exact h.insertIfNew!
+  · exact h
+
+/-!
+### `eraseMany!`
+-/
+
+theorem WF.eraseMany! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ α] {l : ρ}
+    {t : Impl α β} (h : t.WF) : (t.eraseMany! l).1.WF :=
+  (t.eraseMany! l).2 h (fun _ _ h' => h'.erase!)
+
+/-!
+### `insertMany!`
+-/
+
+theorem WF.insertMany! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ ((a : α) × β a)] {l : ρ}
+    {t : Impl α β} (h : t.WF) : (t.insertMany! l).1.WF :=
+  (t.insertMany! l).2 h (fun _ _ _ h' => h'.insert!)
+
+theorem WF.constInsertMany! {β : Type v} {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ (α × β)] {l : ρ}
+    {t : Impl α β} (h : t.WF) : (Const.insertMany! t l).1.WF :=
+  (Const.insertMany! t l).2 h (fun _ _ _ h' => h'.insert!)
+
+theorem WF.constInsertManyIfNewUnit! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ α] {l : ρ}
+    {t : Impl α Unit} (h : t.WF) : (Const.insertManyIfNewUnit! t l).1.WF :=
+  (Const.insertManyIfNewUnit! t l).2 h (fun _ _ h' => h'.insertIfNew!)
+
+/-!
+### alter!
+-/
+
+theorem WF.alter! {_ : Ord α} [LawfulEqOrd α] {t : Impl α β} {a f} (h : t.WF) :
+    (alter! a f t).WF := by
+  rw [← alter_eq_alter! h.balanced]
+  exact h.alter
+
+theorem WF.constAlter! {_ : Ord α} {β : Type v} {t : Impl α β} {a f} (h : t.WF) :
+    (Const.alter! a f t).WF := by
+  rw [← Const.alter_eq_alter! h.balanced]
+  exact h.constAlter
+
+/-!
+### mergeWith!
+-/
+
+theorem mergeWith_eq_mergeWith! {_ : Ord α} [LawfulEqOrd α] {mergeFn} {t₁ t₂ : Impl α β}
+    (h : t₁.Balanced) :
+    (mergeWith mergeFn t₁ t₂ h).impl = mergeWith! mergeFn t₁ t₂ := by
+  rw [mergeWith, mergeWith!]
+  induction t₂ generalizing t₁ with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr =>
+    simp only [foldl, foldlM, Id.run, bind]
+    simp only [foldl, Id.run, bind] at ihl ihr
+    rw [ihr]
+    congr
+    simp only [SizedBalancedTree.toBalancedTree]
+    rw [alter_eq_alter!]
+    congr
+    exact ihl h
+
+theorem WF.mergeWith! {_ : Ord α} [LawfulEqOrd α] {mergeFn} {t₁ t₂ : Impl α β} (h : t₁.WF) :
+    (Impl.mergeWith! mergeFn t₁ t₂).WF := by
+  rw [← mergeWith_eq_mergeWith! h.balanced]
+  exact h.mergeWith
+
+theorem Const.mergeWith_eq_mergeWith! {β : Type v} {_ : Ord α} {mergeFn} {t₁ t₂ : Impl α β}
+    (h : t₁.Balanced) :
+    (mergeWith mergeFn t₁ t₂ h).impl = mergeWith! mergeFn t₁ t₂ := by
+  rw [mergeWith, mergeWith!]
+  induction t₂ generalizing t₁ with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr =>
+    simp only [foldl, foldlM, Id.run, bind]
+    simp only [foldl, Id.run, bind] at ihl ihr
+    rw [ihr]
+    congr
+    simp only [SizedBalancedTree.toBalancedTree]
+    rw [alter_eq_alter!]
+    congr
+    exact ihl h
+
+theorem WF.constMergeWith! {β : Type v} {_ : Ord α} {mergeFn} {t₁ t₂ : Impl α β} (h : t₁.WF) :
+    (Impl.Const.mergeWith! mergeFn t₁ t₂).WF := by
+  rw [← Const.mergeWith_eq_mergeWith! h.balanced]
+  exact h.constMergeWith
 
 /-!
 ### filterMap

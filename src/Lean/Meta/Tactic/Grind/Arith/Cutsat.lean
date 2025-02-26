@@ -19,6 +19,7 @@ namespace Lean
 
 builtin_initialize registerTraceClass `grind.cutsat
 builtin_initialize registerTraceClass `grind.cutsat.subst
+builtin_initialize registerTraceClass `grind.cutsat.diseq
 builtin_initialize registerTraceClass `grind.cutsat.eq
 builtin_initialize registerTraceClass `grind.cutsat.eq.unsat (inherited := true)
 builtin_initialize registerTraceClass `grind.cutsat.eq.trivial (inherited := true)

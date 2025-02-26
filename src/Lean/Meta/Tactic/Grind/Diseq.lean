@@ -10,12 +10,6 @@ import Lean.Meta.Tactic.Grind.Types
 namespace Lean.Meta.Grind
 
 /--
-Returns `true` if type of `t` is definitionally equal to `α`
--/
-private def hasType (t α : Expr) : MetaM Bool :=
-  withDefault do isDefEq (← inferType t) α
-
-/--
 Returns `some (c = d)` if
 - `c = d` and `False` are in the same equivalence class, and
 - `a` (`b`) and `c` are in the same equivalence class, and

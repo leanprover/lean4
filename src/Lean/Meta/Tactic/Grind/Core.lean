@@ -124,6 +124,7 @@ private def propagateCutsatEq (rhsRoot lhsRoot : ENode) : GoalM Unit := do
       -- We have to retrieve the node because other fields have been updated
       let rhsRoot ← getENode rhsRoot.self
       setENode rhsRoot.self { rhsRoot with cutsat? := lhsCutsat }
+      propagateCutsatDiseqs rhsRoot.self
   | none =>
     if isIntNum lhsRoot.self then
     if let some rhsCutsat := rhsRoot.cutsat? then

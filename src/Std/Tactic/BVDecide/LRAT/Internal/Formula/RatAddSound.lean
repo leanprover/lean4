@@ -32,17 +32,13 @@ theorem mem_of_necessary_assignment {n : Nat} {p : (PosFin n) → Bool} {c : Def
     simp only [Entails.eval, Bool.not_eq_false] at h
     split at h
     · next heq => simp [Literal.negate, ← heq, h, v_in_c]
-    · next hne =>
-      exfalso
-      simp [(· ⊨ ·), h] at pv
+    · next hne => simp [(· ⊨ ·), h] at pv
   · specialize p'_not_entails_c v
     have h := p'_not_entails_c.2 v_in_c
     simp only [(· ⊨ ·), Bool.not_eq_false] at h
     split at h
     · next heq => simp [Literal.negate, ← heq, h, v_in_c]
-    · next hne =>
-      exfalso
-      simp [(· ⊨ ·), h] at pv
+    · next hne => simp [(· ⊨ ·), h] at pv
 
 theorem entails_of_irrelevant_assignment {n : Nat} {p : (PosFin n) → Bool} {c : DefaultClause n}
     {l : Literal (PosFin n)} (p_entails_cl : p ⊨ c.delete (Literal.negate l)) :
@@ -199,7 +195,8 @@ theorem sat_of_confirmRupHint_of_insertRat_fold {n : Nat} (f : DefaultFormula n)
   intro fc confirmRupHint_fold_res confirmRupHint_success
   let motive := ConfirmRupHintFoldEntailsMotive fc.1
   have h_base : motive 0 (fc.fst.assignments, [], false, false) := by
-    simp [ConfirmRupHintFoldEntailsMotive, size_assignments_insertRatUnits, hf.2.1, fc, motive]
+    simp only [ConfirmRupHintFoldEntailsMotive, size_assignments_insertRatUnits, hf.2.1,
+      Bool.false_eq_true, false_implies, and_true, true_and, motive, fc]
     have fc_satisfies_AssignmentsInvariant : AssignmentsInvariant fc.1 :=
       assignmentsInvariant_insertRatUnits f hf (negate c)
     exact limplies_of_assignmentsInvariant fc.1 fc_satisfies_AssignmentsInvariant

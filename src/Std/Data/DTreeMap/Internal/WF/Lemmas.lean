@@ -546,7 +546,7 @@ theorem contains_eq_containsKey [Ord α] [TransOrd α] {k : α} {l : Impl α β}
   rw [contains_eq_containsₘ, containsₘ_eq_containsKey hlo]
 
 /-!
-''' `get?`
+### `get?`
 -/
 
 theorem get?ₘ_eq_getValueCast? [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t : Impl α β}
@@ -564,16 +564,127 @@ theorem get?_eq_getValueCast? [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {
     (hto : t.Ordered) : t.get? k = getValueCast? k t.toListModel := by
   rw [get?_eq_get?ₘ, get?ₘ_eq_getValueCast? hto]
 
+/-!
+### `get`
+-/
+
+theorem contains_eq_isSome_get?ₘ [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t : Impl α β}
+    (hto : t.Ordered) : contains k t = (t.get?ₘ k).isSome := by
+  rw [get?ₘ_eq_getValueCast? hto, contains_eq_containsKey hto, containsKey_eq_isSome_getValueCast?]
+
+theorem getₘ_eq_getValueCast [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t : Impl α β} (h) {h'}
+    (hto : t.Ordered) : t.getₘ k h' = getValueCast k t.toListModel h := by
+  simp only [getₘ]
+  revert h'
+  rw [get?ₘ_eq_getValueCast? hto]
+  simp [getValueCast?_eq_some_getValueCast ‹_›]
+
+theorem get_eq_getValueCast [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t : Impl α β} {h}
+    (hto : t.Ordered): t.get k h = getValueCast k t.toListModel (contains_eq_containsKey hto ▸ h) := by
+  rw [get_eq_getₘ, getₘ_eq_getValueCast _ hto]
+  exact contains_eq_isSome_get?ₘ hto ▸ h
+
+/-!
+### `get!`
+-/
+
+theorem get!ₘ_eq_getValueCast! [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} [Inhabited (β k)]
+    {t : Impl α β} (hto : t.Ordered) : t.get!ₘ k = getValueCast! k t.toListModel := by
+  simp [get!ₘ, get?ₘ_eq_getValueCast? hto, getValueCast!_eq_getValueCast?]
+
+theorem get!_eq_getValueCast! [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} [Inhabited (β k)]
+    {t : Impl α β} (hto : t.Ordered) : t.get! k = getValueCast! k t.toListModel := by
+  rw [get!_eq_get!ₘ, get!ₘ_eq_getValueCast! hto]
+
+/-!
+### `getD`
+-/
+
+theorem getDₘ_eq_getValueCastD [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α}
+    {t : Impl α β} {fallback : β k} (hto : t.Ordered) :
+    t.getDₘ k fallback = getValueCastD k t.toListModel fallback := by
+  simp [getDₘ, get?ₘ_eq_getValueCast? hto, getValueCastD_eq_getValueCast?]
+
+theorem getD_eq_getValueCastD [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α}
+    {t : Impl α β} {fallback : β k} (hto : t.Ordered) :
+    t.getD k fallback = getValueCastD k t.toListModel fallback := by
+  rw [getD_eq_getDₘ, getDₘ_eq_getValueCastD hto]
+
+/-!
+### `getKey?`
+-/
+
+theorem getKey?ₘ_eq_getKey? [Ord α] [TransOrd α] {k : α} {t : Impl α β}
+    (hto : t.Ordered) : t.getKey?ₘ k = List.getKey? k t.toListModel := by
+  rw [getKey?ₘ, applyCell_eq_apply_toListModel hto (fun l _ => List.getKey? k l)]
+  · rintro ⟨(_|p), hp⟩ -
+    · simp [Cell.getKey?]
+    · simp only [Cell.getKey?, Option.toList_some, List.getKey?, beq_eq,
+        compare_eq_iff_eq, Option.some_eq_dite_none_right, exists_prop, and_true]
+      simp [OrientedCmp.eq_symm (hp p rfl)]
+  · exact fun l₁ l₂ h => List.getKey?_of_perm
+  · exact fun l₁ l₂ h => List.getKey?_append_of_containsKey_eq_false
+
+theorem getKey?_eq_getKey? [Ord α] [TransOrd α] {k : α} {t : Impl α β}
+    (hto : t.Ordered) : t.getKey? k = List.getKey? k t.toListModel := by
+  rw [getKey?_eq_getKey?ₘ, getKey?ₘ_eq_getKey? hto]
+
+/-!
+### `getKey`
+-/
+
+theorem contains_eq_isSome_getKey?ₘ [Ord α] [TransOrd α] {k : α} {t : Impl α β}
+    (hto : t.Ordered) : contains k t = (t.getKey?ₘ k).isSome := by
+  rw [getKey?ₘ_eq_getKey? hto, contains_eq_containsKey hto, containsKey_eq_isSome_getKey?]
+
+theorem getKeyₘ_eq_getKey [Ord α] [TransOrd α] {k : α} {t : Impl α β} (h) {h'}
+    (hto : t.Ordered) : t.getKeyₘ k h' = List.getKey k t.toListModel h := by
+  simp only [getKeyₘ]
+  revert h'
+  rw [getKey?ₘ_eq_getKey? hto]
+  simp [getKey?_eq_some_getKey ‹_›]
+
+theorem getKey_eq_getKey [Ord α] [TransOrd α] {k : α} {t : Impl α β} {h}
+    (hto : t.Ordered): t.getKey k h = List.getKey k t.toListModel (contains_eq_containsKey hto ▸ h) := by
+  rw [getKey_eq_getKeyₘ, getKeyₘ_eq_getKey _ hto]
+  exact contains_eq_isSome_getKey?ₘ hto ▸ h
+
+/-!
+### `getKey!`
+-/
+
+theorem getKey!ₘ_eq_getKey! [Ord α] [TransOrd α] {k : α} [Inhabited α]
+    {t : Impl α β} (hto : t.Ordered) : t.getKey!ₘ k = List.getKey! k t.toListModel := by
+  simp [getKey!ₘ, getKey?ₘ_eq_getKey? hto, getKey!_eq_getKey?]
+
+theorem getKey!_eq_getKey! [Ord α] [TransOrd α] {k : α} [Inhabited α]
+    {t : Impl α β} (hto : t.Ordered) : t.getKey! k = List.getKey! k t.toListModel := by
+  rw [getKey!_eq_getKey!ₘ, getKey!ₘ_eq_getKey! hto]
+
+/-!
+### `getKeyD`
+-/
+
+theorem getKeyDₘ_eq_getKeyD [Ord α] [TransOrd α] {k : α}
+    {t : Impl α β} {fallback : α} (hto : t.Ordered) :
+    t.getKeyDₘ k fallback = List.getKeyD k t.toListModel fallback := by
+  simp [getKeyDₘ, getKey?ₘ_eq_getKey? hto, getKeyD_eq_getKey?]
+
+theorem getKeyD_eq_getKeyD [Ord α] [TransOrd α] {k : α}
+    {t : Impl α β} {fallback : α} (hto : t.Ordered) :
+    t.getKeyD k fallback = List.getKeyD k t.toListModel fallback := by
+  rw [getKeyD_eq_getKeyDₘ, getKeyDₘ_eq_getKeyD hto]
+
 namespace Const
 
 variable {β : Type v}
 
 /-!
-''' `get?`
+### `get?`
 -/
 
 theorem get?ₘ_eq_getValue? [Ord α] [TransOrd α] {k : α} {t : Impl α (fun _ => β)} (hto : t.Ordered) :
-    get?ₘ k t = getValue? k t.toListModel := by
+    get?ₘ t k = getValue? k t.toListModel := by
   rw [get?ₘ, applyCell_eq_apply_toListModel hto (fun l _ => getValue? k l)]
   · rintro ⟨(_|p), hp⟩ -
     · simp [Cell.Const.get?]
@@ -584,8 +695,54 @@ theorem get?ₘ_eq_getValue? [Ord α] [TransOrd α] {k : α} {t : Impl α (fun _
   · exact fun l₁ l₂ h => getValue?_append_of_containsKey_eq_false
 
 theorem get?_eq_getValue? [Ord α] [TransOrd α] {k : α} {t : Impl α (fun _ => β)} (hto : t.Ordered) :
-    get? k t = getValue? k t.toListModel := by
+    get? t k = getValue? k t.toListModel := by
   rw [get?_eq_get?ₘ, get?ₘ_eq_getValue? hto]
+
+/-!
+### `get`
+-/
+
+theorem contains_eq_isSome_get?ₘ [Ord α] [TransOrd α] {k : α} {t : Impl α β}
+    (hto : t.Ordered) : contains k t = (get?ₘ t k).isSome := by
+  rw [get?ₘ_eq_getValue? hto, contains_eq_containsKey hto, containsKey_eq_isSome_getValue?]
+
+theorem getₘ_eq_getValue [Ord α] [TransOrd α] {k : α} {t : Impl α β} (h) {h'}
+    (hto : t.Ordered) : getₘ t k h' = getValue k t.toListModel h := by
+  simp only [getₘ]
+  revert h'
+  rw [get?ₘ_eq_getValue? hto]
+  simp [getValue?_eq_some_getValue ‹_›]
+
+theorem get_eq_getValue [Ord α] [TransOrd α] {k : α} {t : Impl α β} {h}
+    (hto : t.Ordered): get t k h = getValue k t.toListModel (contains_eq_containsKey hto ▸ h) := by
+  rw [get_eq_getₘ, getₘ_eq_getValue _ hto]
+  exact contains_eq_isSome_get?ₘ hto ▸ h
+
+/-!
+### `get!`
+-/
+
+theorem get!ₘ_eq_getValue! [Ord α] [TransOrd α] {k : α} [Inhabited β]
+    {t : Impl α β} (hto : t.Ordered) : get!ₘ t k = getValue! k t.toListModel := by
+  simp [get!ₘ, get?ₘ_eq_getValue? hto, getValue!_eq_getValue?]
+
+theorem get!_eq_getValue! [Ord α] [TransOrd α] {k : α} [Inhabited β]
+    {t : Impl α β} (hto : t.Ordered) : get! t k = getValue! k t.toListModel := by
+  rw [get!_eq_get!ₘ, get!ₘ_eq_getValue! hto]
+
+/-!
+### `getD`
+-/
+
+theorem getDₘ_eq_getValueD [Ord α] [TransOrd α] {k : α}
+    {t : Impl α β} {fallback : β} (hto : t.Ordered) :
+    getDₘ t k fallback = getValueD k t.toListModel fallback := by
+  simp [getDₘ, get?ₘ_eq_getValue? hto, getValueD_eq_getValue?]
+
+theorem getD_eq_getValueD [Ord α] [TransOrd α] {k : α}
+    {t : Impl α β} {fallback : β} (hto : t.Ordered) :
+    getD t k fallback = getValueD k t.toListModel fallback := by
+  rw [getD_eq_getDₘ, getDₘ_eq_getValueD hto]
 
 end Const
 

@@ -4,11 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 
 namespace Lean.Meta.Grind.Arith.Cutsat
+
+private def _root_.Int.Linear.Poly.substVar (p : Poly) : GoalM (Option (Var × EqCnstr × Poly)) := do
+  let some (a, x, c) ← p.findVarToSubst | return none
+  let b := c.p.coeff x
+  let p := p.mul (-b) |>.combine (c.p.mul a)
+  return some (x, c, p)
 
 def mkEqCnstr (p : Poly) (h : EqCnstrProof) : GoalM EqCnstr := do
   return { p, h, id := (← mkCnstrId) }
@@ -18,6 +25,48 @@ def EqCnstr.norm (c : EqCnstr) : GoalM EqCnstr := do
     pure c
   else
     mkEqCnstr c.p.norm (.norm c)
+
+def mkDiseqCnstr (p : Poly) (h : DiseqCnstrProof) : GoalM DiseqCnstr := do
+  return { p, h, id := (← mkCnstrId) }
+
+def DiseqCnstr.norm (c : DiseqCnstr) : GoalM DiseqCnstr := do
+  let c ← if c.p.isSorted then
+    pure c
+  else
+    mkDiseqCnstr c.p.norm (.norm c)
+
+/--
+Given an equation `c₁` containing the monomial `a*x`, and a disequality constraint `c₂`
+containing the monomial `b*x`, eliminate `x` by applying substitution.
+-/
+def DiseqCnstr.applyEq (a : Int) (x : Var) (c₁ : EqCnstr) (b : Int) (c₂ : DiseqCnstr) : GoalM DiseqCnstr := do
+  let p := c₁.p
+  let q := c₂.p
+  let p := p.mul b |>.combine (q.mul (-a))
+  trace[grind.cutsat.subst] "{← getVar x}, {← c₁.pp}, {← c₂.pp}"
+  mkDiseqCnstr p (.subst x c₁ c₂)
+
+partial def DiseqCnstr.applySubsts (c : DiseqCnstr) : GoalM DiseqCnstr := withIncRecDepth do
+  let some (x, c₁, p) ← c.p.substVar | return c
+  trace[grind.cutsat.subst] "{← getVar x}, {← c.pp}, {← c₁.pp}"
+  let c ← mkDiseqCnstr p (.subst x c₁ c)
+  applySubsts c
+
+def DiseqCnstr.assert (c : DiseqCnstr) : GoalM Unit := do
+  if (← inconsistent) then return ()
+  let c ← c.norm
+  let c ← c.applySubsts
+  if c.p.isUnsatDiseq then
+    setInconsistent (.diseq c)
+    return ()
+  if c.isTrivial then
+    trace[grind.cutsat.diseq.trivial] "{← c.pp}"
+    return ()
+  let .add _ x _ := c.p | c.throwUnexpected
+  c.p.updateOccs
+  modify' fun s => { s with diseqs := s.diseqs.modify x (·.push c) }
+  if (← c.satisfied) == .false then
+    resetAssignmentFrom x
 
 /--
 Selects the variable in the given linear polynomial whose coefficient has the smallest absolute value.
@@ -39,18 +88,16 @@ where
           go k x p
 
 partial def EqCnstr.applySubsts (c : EqCnstr) : GoalM EqCnstr := withIncRecDepth do
-  let some (a, x, c₁) ← c.p.findVarToSubst | return c
+  let some (x, c₁, p) ← c.p.substVar | return c
   trace[grind.cutsat.subst] "{← getVar x}, {← c.pp}, {← c₁.pp}"
-  let b := c₁.p.coeff x
-  let p := c.p.mul (-b) |>.combine (c₁.p.mul a)
   let c ← mkEqCnstr p (.subst x c₁ c)
   applySubsts c
 
 private def updateDvdCnstr (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
-  let some c' := (← get').dvdCnstrs[y]! | return ()
+  let some c' := (← get').dvds[y]! | return ()
   let b := c'.p.coeff x
   if b == 0 then return ()
-  modify' fun s => { s with dvdCnstrs := s.dvdCnstrs.set y none }
+  modify' fun s => { s with dvds := s.dvds.set y none }
   let c' ← c'.applyEq a x c b
   c'.assert
 
@@ -93,10 +140,31 @@ private def updateUppers (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Uni
   modify' fun s => { s with uppers := s.uppers.set y uppers' }
   updateLeCnstrs a x c todo
 
+private def splitDiseqs (x : Var) (cs : PArray DiseqCnstr) : GoalM (PArray DiseqCnstr × Array (Int × DiseqCnstr)) := do
+  let mut cs' := {}
+  let mut todo := #[]
+  for c in cs do
+    let b := c.p.coeff x
+    if b == 0 then
+      cs' := cs'.push c
+    else
+      todo := todo.push (b, c)
+  return (cs', todo)
+
+private def updateDiseqs (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
+  if (← inconsistent) then return ()
+  let (diseqs', todo) ← splitDiseqs x (← get').diseqs[y]!
+  modify' fun s => { s with diseqs := s.diseqs.set y diseqs' }
+  for (b, c₂) in todo do
+    let c₂ ← c₂.applyEq a x c b
+    c₂.assert
+    if (← inconsistent) then return ()
+
 private def updateOccsAt (k : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
   updateDvdCnstr k x c y
   updateLowers k x c y
   updateUppers k x c y
+  updateDiseqs k x c y
 
 private def updateOccs (k : Int) (x : Var) (c : EqCnstr) : GoalM Unit := do
   let ys := (← get').occurs[x]!
@@ -151,14 +219,16 @@ private def exprAsPoly (a : Expr) : GoalM Poly := do
 
 @[export lean_process_cutsat_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
+  trace[grind.debug.cutsat.eq] "{a} = {b}"
   let p₁ ← exprAsPoly a
   let p₂ ← exprAsPoly b
   let p := p₁.combine (p₂.mul (-1))
   let c ← mkEqCnstr p (.core p₁ p₂ (← mkEqProof a b))
   c.assert
 
-@[export lean_process_new_cutsat_lit]
+@[export lean_process_cutsat_eq_lit]
 def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
+  trace[grind.debug.cutsat.eq] "{a} = {ke}"
   let some k ← getIntValue? ke | return ()
   let p₁ ← exprAsPoly a
   let h ← mkEqProof a ke
@@ -168,6 +238,20 @@ def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
     let p₂ ← exprAsPoly ke
     let p := p₁.combine (p₂.mul (-1))
     mkEqCnstr p (.core p₁ p₂ h)
+  c.assert
+
+@[export lean_process_cutsat_diseq]
+def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
+  trace[grind.debug.cutsat.diseq] "{a} ≠ {b}"
+  let p₁ ← exprAsPoly a
+  let some h ← mkDiseqProof? a b
+    | throwError "internal `grind` error, failed to build disequality proof for{indentExpr a}\nand{indentExpr b}"
+  let c ← if let some 0 ← getIntValue? b then
+    mkDiseqCnstr p₁ (.expr h)
+  else
+    let p₂ ← exprAsPoly b
+    let p := p₁.combine (p₂.mul (-1))
+    mkDiseqCnstr p (.core p₁ p₂ h)
   c.assert
 
 /-- Different kinds of terms internalized by this module. -/

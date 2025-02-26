@@ -406,12 +406,12 @@ variable {β : Type v}
 @[inline, inherit_doc DTreeMap.Const.getThenInsertIfNew?]
 def getThenInsertIfNew? (t : Raw α β cmp) (a : α) (b : β) : Option β × Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩
-  let p := Impl.Const.getThenInsertIfNew?! a b t.inner
+  let p := Impl.Const.getThenInsertIfNew?! t.inner a b
   (p.1, ⟨p.2⟩)
 
 @[inline, inherit_doc DTreeMap.Const.get?]
 def get? (t : Raw α β cmp) (a : α) : Option β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.get? a t.inner
+  letI : Ord α := ⟨cmp⟩; Impl.Const.get? t.inner a
 
 @[inline, inherit_doc get?, deprecated get? (since := "2025-02-12")]
 def find? (t : Raw α β cmp) (a : α) : Option β :=
@@ -419,11 +419,11 @@ def find? (t : Raw α β cmp) (a : α) : Option β :=
 
 @[inline, inherit_doc DTreeMap.Const.get]
 def get (t : Raw α β cmp) (a : α) (h : a ∈ t) : β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.get a t.inner h
+  letI : Ord α := ⟨cmp⟩; Impl.Const.get t.inner a h
 
 @[inline, inherit_doc DTreeMap.Const.get!]
 def get! (t : Raw α β cmp) (a : α) [Inhabited β] : β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.get! a t.inner
+  letI : Ord α := ⟨cmp⟩; Impl.Const.get! t.inner a
 
 @[inline, inherit_doc get!, deprecated get! (since := "2025-02-12")]
 def find! (t : Raw α β cmp) (a : α) [Inhabited β] : β :=
@@ -431,7 +431,7 @@ def find! (t : Raw α β cmp) (a : α) [Inhabited β] : β :=
 
 @[inline, inherit_doc DTreeMap.Const.getD]
 def getD (t : Raw α β cmp) (a : α) (fallback : β) : β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.getD a t.inner fallback
+  letI : Ord α := ⟨cmp⟩; Impl.Const.getD t.inner a fallback
 
 @[inline, inherit_doc getD, deprecated getD (since := "2025-02-12")]
 def findD (t : Raw α β cmp) (a : α) (fallback : β) : β :=

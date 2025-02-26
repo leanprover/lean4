@@ -45,10 +45,16 @@ structure Foo where
 structure Bar extends Foo where
   z : BitVec 32
 
-structure FooBar extends Bar where
+structure FooBar (α : Type u) extends Bar where
   a : Unit
+  lala : α
 
-example (f : FooBar) (h : f.z > 0) : f.x + f.y + f.z > 0 := by
+example (f g : FooBar α) (h : (if (b : Bool) then f else g).z = 0) :
+    f.x + f.y + f.z = 0 ∨ f.x + f.y + g.z = 0 := by
+  bv_decide
+
+example (f g : FooBar α) (h : (bif (b : Bool) then f else g).z = 0) :
+    f.x + f.y + f.z = 0 ∨ f.x + f.y + g.z = 0 := by
   bv_decide
 
 end Ex4

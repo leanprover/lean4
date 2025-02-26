@@ -19,6 +19,36 @@ fields until the compiler provides support for avoiding the performance overhead
 -/
 
 mutual
+/-- A equality constraint and its justification/proof. -/
+structure EqCnstr where
+  p  : Poly
+  h  : EqCnstrProof
+  id : Nat
+
+inductive EqCnstrProof where
+  | expr (h : Expr)
+  | core (p₁ p₂ : Poly) (h : Expr)
+  | norm (c : EqCnstr)
+  | divCoeffs (c : EqCnstr)
+  | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
+end
+
+mutual
+/-- A disequality constraint and its justification/proof. -/
+structure DiseqCnstr where
+  p  : Poly
+  h  : DiseqCnstrProof
+  id : Nat
+
+inductive DiseqCnstrProof where
+  | expr (h : Expr)
+  | core (p₁ p₂ : Poly) (h : Expr)
+  | norm (c : DiseqCnstr)
+  | divCoeffs (c : DiseqCnstr)
+  | subst (x : Var) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
+end
+
+mutual
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstr where
   d  : Int
@@ -37,6 +67,7 @@ inductive DvdCnstrProof where
   | ofEq (x : Var) (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : DvdCnstr)
 
+/-- An inequality constraint and its justification/proof. -/
 structure LeCnstr where
   p  : Poly
   h  : LeCnstrProof
@@ -50,18 +81,6 @@ inductive LeCnstrProof where
   | combine (c₁ c₂ : LeCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : LeCnstr)
   -- TODO: missing constructors
-
-structure EqCnstr where
-  p  : Poly
-  h  : EqCnstrProof
-  id : Nat
-
-inductive EqCnstrProof where
-  | expr (h : Expr)
-  | core (p₁ p₂ : Poly) (h : Expr)
-  | norm (c : EqCnstr)
-  | divCoeffs (c : EqCnstr)
-  | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
 end
 
 /--
@@ -72,6 +91,7 @@ inductive UnsatProof where
   | dvd (c : DvdCnstr)
   | le (c : LeCnstr)
   | eq (c : EqCnstr)
+  | diseq (c : DiseqCnstr)
 
 abbrev VarSet := RBTree Var compare
 
@@ -84,17 +104,22 @@ structure State where
   /--
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/
-  dvdCnstrs : PArray (Option DvdCnstr) := {}
+  dvds : PArray (Option DvdCnstr) := {}
   /--
   Mapping from variables to their "lower" bounds. We say a relational constraint `c` is a lower bound for a variable `x`
-  if `x` is the maximal variable in `c`, `c.isLe`, and `x` coefficient in `c` is negative.
+  if `x` is the maximal variable in `c`, and `x` coefficient in `c` is negative.
   -/
   lowers : PArray (PArray LeCnstr) := {}
   /--
   Mapping from variables to their "upper" bounds. We say a relational constraint `c` is a upper bound for a variable `x`
-  if `x` is the maximal variable in `c`, `c.isLe`, and `x` coefficient in `c` is positive.
+  if `x` is the maximal variable in `c`, and `x` coefficient in `c` is positive.
   -/
   uppers : PArray (PArray LeCnstr) := {}
+  /--
+  Mapping from variables to their disequalities. We say a disequality constraint `c` is a disequality for a variable `x`
+  if `x` is the maximal variable in `c`.
+  -/
+  diseqs : PArray (PArray DiseqCnstr) := {}
   /--
   Mapping from variable to equation constraint used to eliminate it. `solved` variables should not occur in
   `dvdCnstrs`, `lowers`, or `uppers`.

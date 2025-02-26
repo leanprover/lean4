@@ -111,16 +111,24 @@ return x_4;
 static lean_object* _init_l_Lean_Meta_Grind_Arith_instInhabitedState___closed__8() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__4;
-x_2 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__6;
-x_3 = lean_unsigned_to_nat(0u);
-x_4 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_1);
-lean_ctor_set(x_4, 3, x_3);
-return x_4;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__4;
+x_3 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__6;
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = lean_alloc_ctor(0, 11, 0);
+lean_ctor_set(x_5, 0, x_2);
+lean_ctor_set(x_5, 1, x_3);
+lean_ctor_set(x_5, 2, x_2);
+lean_ctor_set(x_5, 3, x_2);
+lean_ctor_set(x_5, 4, x_2);
+lean_ctor_set(x_5, 5, x_2);
+lean_ctor_set(x_5, 6, x_1);
+lean_ctor_set(x_5, 7, x_3);
+lean_ctor_set(x_5, 8, x_2);
+lean_ctor_set(x_5, 9, x_2);
+lean_ctor_set(x_5, 10, x_4);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_Arith_instInhabitedState___closed__9() {

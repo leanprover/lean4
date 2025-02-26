@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Rat
-// Imports: Init.NotationExtra Init.Data.ToString.Macro Init.Data.Int.DivMod Init.Data.Nat.Gcd
+// Imports: Init.NotationExtra Init.Data.ToString.Macro Init.Data.Int.DivMod.Basic Init.Data.Nat.Gcd
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1350,7 +1350,7 @@ return x_3;
 }
 lean_object* initialize_Init_NotationExtra(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_DivMod(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Gcd(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Rat(uint8_t builtin, lean_object* w) {
@@ -1363,7 +1363,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_ToString_Macro(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_DivMod(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Int_DivMod_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Gcd(builtin, lean_io_mk_world());

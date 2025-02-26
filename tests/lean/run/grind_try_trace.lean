@@ -132,10 +132,9 @@ example (as : List α) (a : α) : concat as a = as ++ [a] := by
 /--
 info: Try these:
 • (fun_induction concat) <;> simp_all
-• ·
-  fun_induction concat
-  · simp
-  · simp [*]
+• · fun_induction concat
+    · simp
+    · simp [*]
 -/
 #guard_msgs (info) in
 example (as : List α) (a : α) : concat as a = as ++ [a] := by

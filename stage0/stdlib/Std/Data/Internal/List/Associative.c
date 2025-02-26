@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.Internal.List.Associative
-// Imports: Init.Data.BEq Init.Data.Nat.Simproc Init.Data.List.Perm Init.Data.List.Find Std.Classes.Ord Std.Data.Internal.List.Defs
+// Imports: Init.Data.BEq Init.Data.Nat.Simproc Init.Data.List.Perm Init.Data.List.Find Init.Data.List.Monadic Std.Classes.Ord Std.Data.Internal.List.Defs
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -28,6 +28,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_List_insertListConst(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Std_Internal_List_getValueCast_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_Const_alterKey_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_getValueCast_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__List_forIn_x27__cons_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_getKey___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_getValueCast___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_List_getValueCast_x21___rarg___closed__1;
@@ -77,6 +78,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_List_Prod_toSigma(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_keys_match__1_splitter(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_getKeyD___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_Const_alterKey___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__List_forIn_x27__cons_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__Std_Internal_List_Option_dmap(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_List_getValue_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Internal_List_getValueCast_x21___rarg___closed__2;
@@ -1341,6 +1343,39 @@ lean_dec(x_2);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__List_forIn_x27__cons_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+lean_dec(x_3);
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_apply_1(x_2, x_4);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_2);
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+lean_dec(x_1);
+x_7 = lean_apply_1(x_3, x_6);
+return x_7;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Data_Internal_List_Associative_0__List_forIn_x27__cons_match__1_splitter(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l___private_Std_Data_Internal_List_Associative_0__List_forIn_x27__cons_match__1_splitter___rarg), 3, 0);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Internal_List_insertList___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1781,6 +1816,7 @@ lean_object* initialize_Init_Data_BEq(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Simproc(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Perm(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Find(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Monadic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Classes_Ord(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Internal_List_Defs(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1798,6 +1834,9 @@ res = initialize_Init_Data_List_Perm(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Find(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Monadic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Classes_Ord(builtin, lean_io_mk_world());

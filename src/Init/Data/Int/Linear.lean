@@ -1006,6 +1006,43 @@ theorem eq_of_core (ctx : Context) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
   intro; subst p₃; simp
   intro h; rw [h, ←Int.sub_eq_add_neg, Int.sub_self]
 
+def Poly.isUnsatDiseq (p : Poly) : Bool :=
+  match p with
+  | .num 0 => true
+  | _ => false
+
+theorem diseq_norm (ctx : Context) (p₁ p₂ : Poly) (h : p₁.norm == p₂) : p₁.denote' ctx ≠ 0 → p₂.denote' ctx ≠ 0 := by
+  simp at h
+  replace h := congrArg (Poly.denote ctx) h
+  simp at h
+  simp [*]
+
+theorem diseq_coeff (ctx : Context) (p p' : Poly) (k : Int) : eq_coeff_cert p p' k → p.denote' ctx ≠ 0 → p'.denote' ctx ≠ 0 := by
+  simp [eq_coeff_cert]
+  intro _ _; simp [mul_eq_zero_iff, *]
+
+theorem diseq_unsat (ctx : Context) (p : Poly) : p.isUnsatDiseq → p.denote' ctx ≠ 0 → False := by
+  simp [Poly.isUnsatDiseq] <;> split <;> simp
+
+def diseq_eq_subst_cert (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
+  let a := p₁.coeff x
+  let b := p₂.coeff x
+  a != 0 && p₃ == (p₁.mul b |>.combine (p₂.mul (-a)))
+
+theorem eq_diseq_subst (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
+    : diseq_eq_subst_cert x p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx ≠ 0 → p₃.denote' ctx ≠ 0 := by
+  simp [diseq_eq_subst_cert]
+  intros _ _; subst p₃
+  intro h₁ h₂
+  simp [*]
+
+theorem diseq_of_core (ctx : Context) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
+    : eq_of_core_cert p₁ p₂ p₃ → p₁.denote' ctx ≠ p₂.denote' ctx → p₃.denote' ctx ≠ 0 := by
+  simp [eq_of_core_cert]
+  intro; subst p₃; simp
+  intro h; rw [← Int.sub_eq_zero] at h
+  rw [←Int.sub_eq_add_neg]; assumption
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

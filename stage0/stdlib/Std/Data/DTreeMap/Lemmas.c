@@ -13,6 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Lemmas_0__Std_DTreeMap_instCoeTypeForall(lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Lemmas_0__Std_DTreeMap_instCoeTypeForall(lean_object* x_1) {
+_start:
+{
+return lean_box(0);
+}
+}
 lean_object* initialize_Std_Data_DTreeMap_Internal_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_DTreeMap_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;

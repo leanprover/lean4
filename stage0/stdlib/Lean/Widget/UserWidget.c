@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Server_RequestM_mapTask___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_eraseWidgetSpec___closed__2;
 LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_1426____spec__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_erasePanelWidget(lean_object*, lean_object*);
@@ -301,6 +300,7 @@ lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Term_elabForall__
 LEAN_EXPORT lean_object* l_Lean_Widget_getWidgetSource___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_elabWidgetInstanceSpecAux___closed__2;
+lean_object* l_Lean_Server_RequestM_mapTaskCostly___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_panelWidgetsExt;
 LEAN_EXPORT lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_1367_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at___private_Lean_Widget_UserWidget_0__Lean_Widget_evalUserWidgetDefinitionUnsafe___spec__1(lean_object*);
@@ -23541,7 +23541,7 @@ x_12 = l_Lean_Server_RequestM_findInfoTreeAtPos(x_5, x_10, x_11);
 x_13 = lean_alloc_closure((void*)(l_Lean_Widget_getWidgets___lambda__2___boxed), 5, 2);
 lean_closure_set(x_13, 0, x_1);
 lean_closure_set(x_13, 1, x_9);
-x_14 = l_Lean_Server_RequestM_mapTask___rarg(x_12, x_13, x_2, x_6);
+x_14 = l_Lean_Server_RequestM_mapTaskCostly___rarg(x_12, x_13, x_2, x_6);
 return x_14;
 }
 }

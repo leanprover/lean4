@@ -177,7 +177,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
         let mostRecentUnitIdx : Fin (insertUnit (units, assignments, foundContradiction) l).1.size :=
           ⟨units.size, units_size_lt_updatedUnits_size⟩
         have j_lt_updatedUnits_size : j.1 < (insertUnit (units, assignments, foundContradiction) l).1.size := by
-          simp [insertUnit, h5, ite_false, Array.size_push]
+          simp only [insertUnit, h5, Bool.false_eq_true, ↓reduceIte, Array.size_push]
           exact Nat.lt_trans j.2 (Nat.lt_succ_self units.size)
         match hb : b, hl : l.2 with
         | true, true =>
@@ -225,7 +225,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
                       exact k_ne_l rfl
         | false, true =>
           refine ⟨mostRecentUnitIdx, ⟨j.1, j_lt_updatedUnits_size⟩, i_gt_zero, ?_⟩
-          simp [insertUnit, h5, ite_false, Array.getElem_push_eq, ne_eq]
+          simp only [insertUnit, h5, Bool.false_eq_true, ↓reduceIte, mostRecentUnitIdx]
           constructor
           · simp +zetaDelta [i_eq_l, ← hl]
             rfl
@@ -259,7 +259,6 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
                     rcases Nat.lt_or_eq_of_le <| Nat.le_of_lt_succ k_property with k_lt_units_size | k_eq_units_size
                     · exact h k_lt_units_size
                     · simp only [← k_eq_units_size, not_true, mostRecentUnitIdx] at k_ne_l
-                      exact k_ne_l rfl
         | false, false =>
           exfalso
           have assignments_i_rw : assignments[i.1]! = assignments[i.1] := by

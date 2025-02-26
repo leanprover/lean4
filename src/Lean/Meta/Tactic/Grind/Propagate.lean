@@ -146,6 +146,7 @@ builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
     pushEq a b <| mkOfEqTrueCore e (← mkEqTrueProof e)
   else if (← isEqFalse e) then
     let_expr Eq α lhs rhs := e | return ()
+    propagateCutsatDiseq lhs rhs
     let thms ← getExtTheorems α
     if !thms.isEmpty then
       /-

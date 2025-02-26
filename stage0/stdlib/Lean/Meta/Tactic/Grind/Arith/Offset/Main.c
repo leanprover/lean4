@@ -19,37 +19,36 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_addEdge___lambda__1(lean
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_modifyAux___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setDist___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqTrueProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* lean_process_new_offset_eq_lit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_propagatePending___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_getNodeId___closed__1;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_toMessageData___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setDist___spec__8___closed__6;
+static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__3;
 static lean_object* l_panic___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setUnsat___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_toMessageData___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_internalizeCnstr___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_mkNatLit(lean_object*);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_Grind_Arith_Offset_mkNode___spec__2___closed__3;
 size_t lean_usize_shift_right(size_t, size_t);
+static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_updateCnstrsOf___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_checkEqFalse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_forEachSourceOf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_forIn_loop___at_Lean_Meta_Grind_Arith_Offset_checkInvariants___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_forM___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_forEachSourceOf___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_forIn_loop___at_Lean_Meta_Grind_Arith_Offset_checkInvariants___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_toArray___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_internalizeCnstr___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAux___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_alreadyInternalized___spec__5(lean_object*, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_internalizeCnstr___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_le(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_internalizeCnstr___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_contains___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setProof___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_Offset_mkTrans(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_contains___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setDist___spec__2___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__3;
 uint64_t lean_uint64_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_forM___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_forEachTargetOf___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
-LEAN_EXPORT lean_object* lean_process_new_offset_eq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_forIn_loop___at_Lean_Meta_Grind_Arith_Offset_checkInvariants___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_alreadyInternalized___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -58,7 +57,6 @@ size_t lean_uint64_to_usize(uint64_t);
 uint64_t lean_uint64_lor(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_getProof___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_getProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__6;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_getProof___closed__3;
 static lean_object* l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_propagatePending___spec__1___closed__2;
 lean_object* l_Lean_PersistentArray_push___rarg(lean_object*, lean_object*);
@@ -75,11 +73,11 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at___private_Lean_Meta_Tact
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_modifyAux___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setDist___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_AssocList_forIn_loop___at_Lean_Meta_Grind_Arith_Offset_checkInvariants___spec__2___lambda__1___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_getProof_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_AssocList_forM___at_Lean_Meta_Grind_Arith_Offset_addEdge_update___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_mkNode___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_updateCnstrsOf___spec__7(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__6;
 lean_object* l_Lean_Meta_Grind_pushEqCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_forM___at_Lean_Meta_Grind_Arith_Offset_addEdge_update___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_contains___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_alreadyInternalized___spec__4___boxed(lean_object*, lean_object*);
@@ -97,7 +95,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0_
 LEAN_EXPORT lean_object* l_Lean_AssocList_forM___at_Lean_Meta_Grind_Arith_Offset_addEdge_update___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_AssocList_forIn_loop___at_Lean_Meta_Grind_Arith_Offset_traceDists___spec__2___closed__2;
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_contains___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_alreadyInternalized___spec__1(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__2;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_propagatePending___spec__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_checkInvariants(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -108,10 +105,12 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0_
 lean_object* l_Lean_mkApp4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_propagatePending___spec__1___closed__6;
 LEAN_EXPORT lean_object* l_Lean_AssocList_replace___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setDist___spec__3(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__4;
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_AssocList_forIn_loop___at_Lean_Meta_Grind_Arith_Offset_checkInvariants___spec__2___lambda__2___closed__1;
+static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_addEdge___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_updateCnstrsOf___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_getDist_x3f___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_checkEq___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -122,9 +121,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at_
 LEAN_EXPORT lean_object* l_Lean_addTrace___at_Lean_Meta_Grind_Arith_Offset_traceDists___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_AssocList_forIn_loop___at_Lean_Meta_Grind_Arith_Offset_checkInvariants___spec__2___lambda__2___closed__4;
 extern lean_object* l_instInhabitedPUnit;
-static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setDist(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_internalizeCnstr___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_forM___at_Lean_Meta_Grind_Arith_Offset_addEdge_update___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
@@ -134,6 +131,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0_
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_updateCnstrsOf___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_getProof___closed__2;
 size_t lean_usize_of_nat(lean_object*);
+static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_mkProofForPath_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_AssocList_forIn_loop___at_Lean_Meta_Grind_Arith_Offset_traceDists___spec__2___closed__4;
 static lean_object* l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_propagatePending___spec__1___closed__4;
@@ -164,15 +162,13 @@ extern lean_object* l___private_Lean_Expr_0__Lean_natAddFn;
 static lean_object* l_Lean_AssocList_forIn_loop___at_Lean_Meta_Grind_Arith_Offset_traceDists___spec__2___closed__3;
 lean_object* l_Lean_Meta_Grind_closeGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_Grind_Arith_Offset_mkNode___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_updateCnstrsOf___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static uint64_t l_Lean_AssocList_forIn_loop___at_Lean_Meta_Grind_Arith_Offset_checkInvariants___spec__2___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_updateIfShorter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_modify___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setProof___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_check(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_forEachTargetOf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_internalizeCnstr___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_outOfBounds___rarg(lean_object*);
@@ -183,9 +179,9 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_updateCnstrsOf___spec__2(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setDist___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_internalizeCnstr___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_List_filterAuxM___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_updateCnstrsOf___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_Offset_isNatOffset_x3f(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_propagatePending___spec__1___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setUnsat___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_AssocList_forIn_loop___at_Lean_Meta_Grind_Arith_Offset_checkInvariants___spec__2___lambda__2___closed__3;
@@ -201,11 +197,14 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0_
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkNode___lambda__2___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_isShorter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setUnsat___closed__1;
+LEAN_EXPORT lean_object* lean_process_new_offset_eq_lit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___closed__3;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkNode___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_getProof_x3f___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setUnsat___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_alreadyInternalized___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Meta_Grind_isSameExpr_unsafe__1(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__1;
 static double l_Lean_addTrace___at_Lean_Meta_Grind_Arith_Offset_traceDists___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_modifyAux___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setDist___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_AssocList_forM___at_Lean_Meta_Grind_Arith_Offset_addEdge_update___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -215,12 +214,12 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at___private_Lean_Meta_Tact
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Meta_Grind_Arith_Offset_mkNode___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Expr_0__Lean_natLEPred;
 LEAN_EXPORT lean_object* l_Lean_AssocList_forM___at_Lean_Meta_Grind_Arith_Offset_addEdge_update___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_propagateEqTrue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_isRelevantParent(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterAuxM___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_checkToPropagate___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_AssocList_forIn_loop___at_Lean_Meta_Grind_Arith_Offset_checkInvariants___spec__2___lambda__1___closed__3;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setDist___closed__1;
+static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_addEdge___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_instMonadMetaM;
 LEAN_EXPORT lean_object* l_List_filterAuxM___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_checkToPropagate___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -228,6 +227,7 @@ static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkNode___lambda__2___closed__
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_internalize___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_internalizeTerm___closed__2;
 LEAN_EXPORT lean_object* l_Lean_AssocList_forM___at_Lean_Meta_Grind_Arith_Offset_addEdge_update___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__2;
 lean_object* lean_usize_to_nat(size_t);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setDist___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkNode___lambda__2___closed__3;
@@ -240,7 +240,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean
 LEAN_EXPORT lean_object* l_Lean_AssocList_forM___at_Lean_Meta_Grind_Arith_Offset_addEdge_update___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_Offset_isNatOffsetCnstr_x3f(lean_object*, lean_object*);
 double l_Float_ofScientific(lean_object*, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_insert___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setDist___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isTracingEnabledFor___at_Lean_Meta_Grind_updateLastTag___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_internalizeTerm(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -280,8 +279,8 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0_
 lean_object* l_Lean_indentExpr(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_mkProofForPath_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__5;
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_toMessageData___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setDist___spec__8___closed__3;
+static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_isShorter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_forM___at_Lean_Meta_Grind_Arith_Offset_addEdge_update___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setUnsat___spec__1___closed__4;
@@ -300,13 +299,13 @@ uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_Offset_mkPropagateEqFalseProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setDist___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_internalizeCnstr___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Meta_Grind_Arith_Offset_mkNode___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_updateCnstrsOf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_propagatePending___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_shift_left(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_forEachTargetOf___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___closed__3;
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_mkProofForPath(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_toMessageData___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setDist___spec__8___closed__4;
@@ -331,6 +330,7 @@ static lean_object* l_Lean_AssocList_forIn_loop___at_Lean_Meta_Grind_Arith_Offse
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_checkEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_isEqFalse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_pushEqFalse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_modify___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setDist___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Meta_Grind_Arith_isNatAdd(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Grind_Arith_Offset_mkNode___spec__6(lean_object*, size_t, lean_object*);
@@ -353,12 +353,14 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_mkNode___lambda__1(lean_
 static lean_object* l_Lean_Meta_Grind_Arith_Offset_mkNode___lambda__2___closed__8;
 lean_object* l_Lean_Meta_Grind_Arith_isNatNum_x3f(lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
+static lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__5;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_alreadyInternalized___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_checkEqTrue___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_internalizeTerm___closed__5;
 static lean_object* l_Lean_AssocList_forIn_loop___at_Lean_Meta_Grind_Arith_Offset_checkInvariants___spec__2___lambda__2___closed__5;
+LEAN_EXPORT lean_object* lean_process_new_offset_eq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_getProof___closed__1;
 lean_object* l_Lean_Meta_Grind_isEqTrue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -383,13 +385,11 @@ uint64_t l_Lean_Meta_TransparencyMode_toUInt64(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Arith_Offset_traceDists___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setUnsat___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_isEqParent___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_updateCnstrsOf___spec__5(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_getNodeId(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_updateCnstrsOf___spec__2___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_AssocList_contains___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setProof___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_addEdge_update(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_mkNode___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -19217,7 +19217,7 @@ lean_dec(x_3);
 return x_13;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -19225,29 +19225,29 @@ x_1 = lean_mk_string_unchecked("le_of_eq_1", 10, 10);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_propagatePending___spec__1___closed__2;
 x_2 = l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_propagatePending___spec__1___closed__3;
 x_3 = l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_propagatePending___spec__1___closed__4;
-x_4 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__1;
+x_4 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__1;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__2;
+x_2 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__2;
 x_3 = l_Lean_Expr_const___override(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__4() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -19255,29 +19255,29 @@ x_1 = lean_mk_string_unchecked("le_of_eq_2", 10, 10);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__5() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_propagatePending___spec__1___closed__2;
 x_2 = l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_propagatePending___spec__1___closed__3;
 x_3 = l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_propagatePending___spec__1___closed__4;
-x_4 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__4;
+x_4 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__4;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__6() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__5;
+x_2 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__5;
 x_3 = l_Lean_Expr_const___override(x_2, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
 lean_object* x_13; 
@@ -19320,7 +19320,7 @@ lean_inc(x_20);
 x_21 = lean_ctor_get(x_19, 1);
 lean_inc(x_21);
 lean_dec(x_19);
-x_22 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__3;
+x_22 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__3;
 lean_inc(x_20);
 lean_inc(x_2);
 lean_inc(x_1);
@@ -19343,7 +19343,7 @@ lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29;
 x_26 = lean_ctor_get(x_25, 1);
 lean_inc(x_26);
 lean_dec(x_25);
-x_27 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__6;
+x_27 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__6;
 x_28 = l_Lean_mkApp3(x_27, x_1, x_2, x_20);
 x_29 = l_Lean_Meta_Grind_Arith_Offset_addEdge(x_17, x_14, x_24, x_28, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_26);
 return x_29;
@@ -19487,7 +19487,7 @@ return x_45;
 }
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__1() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -19495,7 +19495,7 @@ x_1 = lean_mk_string_unchecked("eq", 2, 2);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__2() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -19503,19 +19503,19 @@ x_1 = lean_mk_string_unchecked("to", 2, 2);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__3() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Meta_Grind_Arith_Offset_mkNode___lambda__2___closed__1;
 x_2 = l_Lean_Meta_Grind_Arith_Offset_mkNode___lambda__2___closed__2;
-x_3 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__1;
-x_4 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__2;
+x_3 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__1;
+x_4 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__4() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -19523,11 +19523,11 @@ x_1 = lean_mk_string_unchecked(", ", 2, 2);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__5() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__4;
+x_1 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__4;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -19540,7 +19540,7 @@ x_12 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_1, x_2);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_13 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__3;
+x_13 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__3;
 x_14 = l_Lean_isTracingEnabledFor___at_Lean_Meta_Grind_updateLastTag___spec__1(x_13, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
@@ -19553,7 +19553,7 @@ x_17 = lean_ctor_get(x_14, 1);
 lean_inc(x_17);
 lean_dec(x_14);
 x_18 = lean_box(0);
-x_19 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1(x_1, x_2, x_18, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_17);
+x_19 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1(x_1, x_2, x_18, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_17);
 return x_19;
 }
 else
@@ -19572,7 +19572,7 @@ x_24 = l_Lean_Meta_Grind_Arith_Offset_mkNode___lambda__2___closed__7;
 lean_ctor_set_tag(x_14, 7);
 lean_ctor_set(x_14, 1, x_23);
 lean_ctor_set(x_14, 0, x_24);
-x_25 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__5;
+x_25 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__5;
 x_26 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_26, 0, x_14);
 lean_ctor_set(x_26, 1, x_25);
@@ -19590,7 +19590,7 @@ lean_inc(x_31);
 x_32 = lean_ctor_get(x_30, 1);
 lean_inc(x_32);
 lean_dec(x_30);
-x_33 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1(x_1, x_2, x_31, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_32);
+x_33 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1(x_1, x_2, x_31, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_32);
 lean_dec(x_31);
 return x_33;
 }
@@ -19606,7 +19606,7 @@ x_36 = l_Lean_Meta_Grind_Arith_Offset_mkNode___lambda__2___closed__7;
 x_37 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_37, 0, x_36);
 lean_ctor_set(x_37, 1, x_35);
-x_38 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__5;
+x_38 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__5;
 x_39 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_39, 0, x_37);
 lean_ctor_set(x_39, 1, x_38);
@@ -19624,7 +19624,7 @@ lean_inc(x_44);
 x_45 = lean_ctor_get(x_43, 1);
 lean_inc(x_45);
 lean_dec(x_43);
-x_46 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1(x_1, x_2, x_44, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_45);
+x_46 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1(x_1, x_2, x_44, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_45);
 lean_dec(x_44);
 return x_46;
 }
@@ -19651,24 +19651,24 @@ return x_48;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
 lean_object* x_13; 
-x_13 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+x_13 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_3);
 return x_13;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___closed__1() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Meta.Grind.Arith.Offset.processNewOffsetEqLitImpl", 54, 54);
+x_1 = lean_mk_string_unchecked("Lean.Meta.Grind.Arith.Offset.processNewEqLitImpl", 48, 48);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___closed__2() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -19676,20 +19676,20 @@ x_1 = lean_mk_string_unchecked("unreachable code has been reached", 33, 33);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___closed__3() {
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setUnsat___closed__5;
-x_2 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___closed__1;
+x_2 = l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___closed__1;
 x_3 = lean_unsigned_to_nat(360u);
 x_4 = lean_unsigned_to_nat(32u);
-x_5 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___closed__2;
+x_5 = l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
 lean_object* x_13; 
@@ -19700,7 +19700,7 @@ if (lean_obj_tag(x_13) == 0)
 lean_object* x_14; lean_object* x_15; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_14 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___closed__3;
+x_14 = l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___closed__3;
 x_15 = l_panic___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setUnsat___spec__1(x_14, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_15;
 }
@@ -19763,7 +19763,7 @@ x_28 = lean_ctor_get(x_26, 1);
 lean_inc(x_28);
 lean_dec(x_26);
 x_29 = lean_nat_to_int(x_16);
-x_30 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__3;
+x_30 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__3;
 lean_inc(x_27);
 lean_inc(x_1);
 lean_inc(x_2);
@@ -19788,7 +19788,7 @@ lean_inc(x_33);
 lean_dec(x_32);
 x_34 = lean_int_neg(x_29);
 lean_dec(x_29);
-x_35 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__6;
+x_35 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__6;
 x_36 = l_Lean_mkApp3(x_35, x_2, x_1, x_27);
 x_37 = l_Lean_Meta_Grind_Arith_Offset_addEdge(x_24, x_18, x_34, x_36, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_33);
 return x_37;
@@ -19945,7 +19945,7 @@ x_12 = l_Lean_Meta_Grind_isSameExpr_unsafe__1(x_1, x_2);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_13 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__3;
+x_13 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__3;
 x_14 = l_Lean_isTracingEnabledFor___at_Lean_Meta_Grind_updateLastTag___spec__1(x_13, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
@@ -19958,7 +19958,7 @@ x_17 = lean_ctor_get(x_14, 1);
 lean_inc(x_17);
 lean_dec(x_14);
 x_18 = lean_box(0);
-x_19 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1(x_2, x_1, x_18, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_17);
+x_19 = l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1(x_2, x_1, x_18, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_17);
 return x_19;
 }
 else
@@ -19977,7 +19977,7 @@ x_24 = l_Lean_Meta_Grind_Arith_Offset_mkNode___lambda__2___closed__7;
 lean_ctor_set_tag(x_14, 7);
 lean_ctor_set(x_14, 1, x_23);
 lean_ctor_set(x_14, 0, x_24);
-x_25 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__5;
+x_25 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__5;
 x_26 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_26, 0, x_14);
 lean_ctor_set(x_26, 1, x_25);
@@ -19995,7 +19995,7 @@ lean_inc(x_31);
 x_32 = lean_ctor_get(x_30, 1);
 lean_inc(x_32);
 lean_dec(x_30);
-x_33 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1(x_2, x_1, x_31, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_32);
+x_33 = l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1(x_2, x_1, x_31, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_32);
 lean_dec(x_31);
 return x_33;
 }
@@ -20011,7 +20011,7 @@ x_36 = l_Lean_Meta_Grind_Arith_Offset_mkNode___lambda__2___closed__7;
 x_37 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_37, 0, x_36);
 lean_ctor_set(x_37, 1, x_35);
-x_38 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__5;
+x_38 = l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__5;
 x_39 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_39, 0, x_37);
 lean_ctor_set(x_39, 1, x_38);
@@ -20029,7 +20029,7 @@ lean_inc(x_44);
 x_45 = lean_ctor_get(x_43, 1);
 lean_inc(x_45);
 lean_dec(x_43);
-x_46 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1(x_2, x_1, x_44, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_45);
+x_46 = l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1(x_2, x_1, x_44, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_45);
 lean_dec(x_44);
 return x_46;
 }
@@ -20056,11 +20056,11 @@ return x_48;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
 lean_object* x_13; 
-x_13 = l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+x_13 = l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_3);
 return x_13;
 }
@@ -21064,34 +21064,34 @@ l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Of
 lean_mark_persistent(l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_internalizeTerm___closed__5);
 l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_internalizeTerm___closed__6 = _init_l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_internalizeTerm___closed__6();
 lean_mark_persistent(l___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_internalizeTerm___closed__6);
-l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__1 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__1();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__1);
-l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__2 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__2();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__2);
-l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__3 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__3();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__3);
-l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__4 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__4();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__4);
-l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__5 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__5();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__5);
-l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__6 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__6();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___lambda__1___closed__6);
-l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__1 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__1();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__1);
-l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__2 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__2();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__2);
-l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__3 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__3();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__3);
-l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__4 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__4();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__4);
-l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__5 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__5();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqImpl___closed__5);
-l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___closed__1 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___closed__1();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___closed__1);
-l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___closed__2 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___closed__2();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___closed__2);
-l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___closed__3 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___closed__3();
-lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewOffsetEqLitImpl___lambda__1___closed__3);
+l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__1 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__1();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__1);
+l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__2 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__2();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__2);
+l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__3 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__3();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__3);
+l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__4 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__4();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__4);
+l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__5 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__5();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__5);
+l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__6 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__6();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___lambda__1___closed__6);
+l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__1 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__1();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__1);
+l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__2 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__2();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__2);
+l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__3 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__3();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__3);
+l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__4 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__4();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__4);
+l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__5 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__5();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewEqImpl___closed__5);
+l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___closed__1 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___closed__1();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___closed__1);
+l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___closed__2 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___closed__2();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___closed__2);
+l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___closed__3 = _init_l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___closed__3();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Offset_processNewEqLitImpl___lambda__1___closed__3);
 l_Lean_addTrace___at_Lean_Meta_Grind_Arith_Offset_traceDists___spec__1___closed__1 = _init_l_Lean_addTrace___at_Lean_Meta_Grind_Arith_Offset_traceDists___spec__1___closed__1();
 l_Lean_addTrace___at_Lean_Meta_Grind_Arith_Offset_traceDists___spec__1___closed__2 = _init_l_Lean_addTrace___at_Lean_Meta_Grind_Arith_Offset_traceDists___spec__1___closed__2();
 lean_mark_persistent(l_Lean_addTrace___at_Lean_Meta_Grind_Arith_Offset_traceDists___spec__1___closed__2);

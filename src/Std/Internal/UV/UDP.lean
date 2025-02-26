@@ -40,7 +40,8 @@ Creates a new UDP socket.
 opaque new : IO Socket
 
 /--
-Binds an UDP socket to a specific address.
+Binds an UDP socket to a specific address. Address reuse is enabled to allow rebinding the
+same address.
 -/
 @[extern "lean_uv_udp_bind"]
 opaque bind (socket : @& Socket) (addr : SocketAddress) : IO Unit

@@ -59,6 +59,7 @@ void initialize_libuv_udp_socket() {
 // =======================================
 // UDP Socket Operations
 
+/* Std.Internal.UV.UDP.Socket.new : IO Socket */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_new() {
     lean_uv_udp_socket_object * udp_socket = (lean_uv_udp_socket_object*)malloc(sizeof(lean_uv_udp_socket_object));
     udp_socket->m_promise_read = nullptr;
@@ -88,14 +89,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_new() {
     return lean_io_result_mk_ok(obj);
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_bind(b_obj_arg socket, b_obj_arg addr) {
+/* Std.Internal.UV.UDP.Socket.bind (socket : @& Socket) (addr : SocketAddress) : IO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_bind(b_obj_arg socket, obj_arg addr) {
     lean_uv_udp_socket_object * udp_socket = lean_to_uv_udp_socket(socket);
 
     sockaddr addr_ptr;
     lean_socket_address_to_sockaddr(addr, &addr_ptr);
 
     event_loop_lock(&global_ev);
-    int result = uv_udp_bind(udp_socket->m_uv_udp, (const struct sockaddr *)&addr_ptr, 0);
+    int result = uv_udp_bind(udp_socket->m_uv_udp, (sockaddr *)&addr_ptr, 0);
     event_loop_unlock(&global_ev);
 
     if (result < 0) {
@@ -105,14 +107,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_bind(b_obj_arg socket, b_obj_arg
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_connect(b_obj_arg socket, b_obj_arg addr) {
+/* Std.Internal.UV.UDP.Socket.connect (socket : @& Socket) (addr : SocketAddress) : IO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_connect(b_obj_arg socket, obj_arg addr) {
     lean_uv_udp_socket_object * udp_socket = lean_to_uv_udp_socket(socket);
 
     sockaddr addr_ptr;
     lean_socket_address_to_sockaddr(addr, &addr_ptr);
 
     event_loop_lock(&global_ev);
-    int result = uv_udp_connect(udp_socket->m_uv_udp, (const struct sockaddr *)&addr_ptr);
+    int result = uv_udp_connect(udp_socket->m_uv_udp, (sockaddr *)&addr_ptr);
     event_loop_unlock(&global_ev);
 
     if (result < 0) {
@@ -122,7 +125,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_connect(b_obj_arg socket, b_obj_
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, b_obj_arg data, b_obj_arg opt_addr) {
+/* Std.Internal.UV.UDP.Socket.send (socket : @& Socket) (data : ByteArray) (addr : Option SocketAddress) : IO (IO.Promise (Except IO.Error Unit)) */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg data, obj_arg opt_addr) {
     lean_uv_udp_socket_object * udp_socket = lean_to_uv_udp_socket(socket);
 
     size_t data_len = lean_sarray_size(data);
@@ -133,16 +137,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, b_obj_arg
     lean_object * promise = create_promise();
 
     uv_udp_send_t * send_uv = (uv_udp_send_t*)malloc(sizeof(uv_udp_send_t));
-    send_uv->data = (udp_send_data*)malloc(sizeof(udp_send_data));
+    udp_send_data * send_data = (udp_send_data*)malloc(sizeof(udp_send_data));
 
-    udp_send_data* send_data = (udp_send_data*)send_uv->data;
     send_data->promise = promise;
     send_data->data = data;
     send_data->socket = socket;
+    send_uv->data = send_data;
 
     lean_inc(promise);
     lean_inc(socket);
-
 
     sockaddr* addr_ptr = nullptr;
 
@@ -154,7 +157,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, b_obj_arg
 
     event_loop_lock(&global_ev);
 
-    int result = uv_udp_send(send_uv, udp_socket->m_uv_udp, &buf, 1, (const struct sockaddr *)addr_ptr, [](uv_udp_send_t* req, int status) {
+    int result = uv_udp_send(send_uv, udp_socket->m_uv_udp, &buf, 1, (sockaddr *)addr_ptr, [](uv_udp_send_t* req, int status) {
         udp_send_data * tup = (udp_send_data*) req->data;
         resolve_promise_with_status(tup->promise, status);
 
@@ -167,7 +170,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, b_obj_arg
 
     event_loop_unlock(&global_ev);
 
-    if (addr_ptr) {
+    if (addr_ptr != nullptr) {
         free(addr_ptr);
     }
 
@@ -181,6 +184,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, b_obj_arg
     return lean_io_result_mk_ok(promise);
 }
 
+/* Std.Internal.UV.UDP.Socket.recv (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (ByteArray × SocketAddress))) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t buffer_size) {
     lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
 
@@ -245,14 +249,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
 // =======================================
 // UDP Socket Utility Functions
 
+/* Std.Internal.UV.UDP.Socket.getPeerName (socket : Socket) : IO SocketAddress */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_getpeername(b_obj_arg socket) {
     lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
 
-    struct sockaddr addr_storage;
+    sockaddr addr_storage;
     int addr_len = sizeof(addr_storage);
 
     event_loop_lock(&global_ev);
-    int result = uv_udp_getpeername(udp_socket->m_uv_udp, (struct sockaddr*)&addr_storage, &addr_len);
+    int result = uv_udp_getpeername(udp_socket->m_uv_udp, (sockaddr*)&addr_storage, &addr_len);
     event_loop_unlock(&global_ev);
 
     if (result < 0) {
@@ -264,10 +269,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_getpeername(b_obj_arg socket) {
     return lean_io_result_mk_ok(lean_addr);
 }
 
+/* Std.Internal.UV.UDP.Socket.getSockName (socket : Socket) : IO SocketAddress */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_getsockname(b_obj_arg socket) {
     lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
 
-    struct sockaddr addr_storage;
+    sockaddr addr_storage;
     int addr_len = sizeof(addr_storage);
 
     event_loop_lock(&global_ev);
@@ -282,6 +288,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_getsockname(b_obj_arg socket) {
     return lean_io_result_mk_ok(lean_addr);
 }
 
+/* Std.Internal.UV.UDP.Socket.setBroadcast (socket : Socket) (on : Bool) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_broadcast(b_obj_arg socket, int32_t enable) {
     lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
 
@@ -296,6 +303,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_broadcast(b_obj_arg socket, 
     return lean_io_result_mk_ok(lean_box(0));
 }
 
+/* Std.Internal.UV.UDP.Socket.setMulticastLoop (socket : Socket) (on : Bool) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_loop(b_obj_arg socket, int32_t enable) {
     lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
 
@@ -310,6 +318,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_loop(b_obj_arg soc
     return lean_io_result_mk_ok(lean_box(0));
 }
 
+/* Std.Internal.UV.UDP.Socket.setMulticastTTL (socket : Socket) (ttl : UInt32) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_ttl(b_obj_arg socket, uint32_t ttl) {
     lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
 
@@ -324,7 +333,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_ttl(b_obj_arg sock
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_membership(b_obj_arg socket, b_obj_arg multicast_addr, b_obj_arg interface_addr, int32_t membership) {
+/* Std.Internal.UV.UDP.Socket.setMembership (socket : @& Socket) (multicast_addr interface_addr : String) (membership : Membership) : IO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_membership(b_obj_arg socket, obj_arg multicast_addr, obj_arg interface_addr, int32_t membership) {
     lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
 
     const char *multicast_addr_str = lean_string_cstr(multicast_addr);
@@ -341,8 +351,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_membership(b_obj_arg socket,
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_interface(b_obj_arg socket, b_obj_arg interface_addr) {
+/* Std.Internal.UV.UDP.Socket.setMulticastInterface (socket : @& Socket) (interface_addr : String) : IO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_interface(b_obj_arg socket, obj_arg interface_addr) {
     lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
 
     const char *interface_addr_str = lean_string_cstr(interface_addr);
@@ -358,6 +368,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_interface(b_obj_ar
     return lean_io_result_mk_ok(lean_box(0));
 }
 
+/* Std.Internal.UV.UDP.Socket.setTTL (socket : @& Socket) (ttl : UInt32) : IO Unit  */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_ttl(b_obj_arg socket, uint32_t ttl) {
     lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
     event_loop_lock(&global_ev);

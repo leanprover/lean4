@@ -20,14 +20,14 @@ open Std.Net
 namespace Socket
 
 /--
-A high-level wrapper around a TCP socket for the Server.
+A high-level wrapper around a TCP socket for the server.
 -/
 structure Server where
   private ofNative ::
     native : Internal.UV.TCP.Socket
 
 /--
-A high-level wrapper around a TCP socket for the Client.
+A high-level wrapper around a TCP socket for a client.
 -/
 structure Client where
   private ofNative ::
@@ -36,7 +36,7 @@ structure Client where
 namespace Server
 
 /--
-Creates a new TCP socket for the server.
+Creates a new TCP server socket.
 -/
 @[inline]
 def mk : IO Server := do
@@ -44,7 +44,8 @@ def mk : IO Server := do
   return Server.ofNative native
 
 /--
-Binds the server socket to the given address.
+Binds the server socket to the specified address. Address reuse is enabled to allow rebinding the
+same address.
 -/
 @[inline]
 def bind (s : Server) (addr : SocketAddress) : IO Unit :=
@@ -91,7 +92,7 @@ end Server
 namespace Client
 
 /--
-Creates a new TCP socket for the client.
+Creates a new TCP client socket.
 -/
 @[inline]
 def mk : IO Client := do
@@ -99,7 +100,8 @@ def mk : IO Client := do
   return Client.ofNative native
 
 /--
-Binds the client socket to the given address.
+Binds the server socket to the specified address. Address reuse is enabled to allow rebinding the
+same address.
 -/
 @[inline]
 def bind (s : Client) (addr : SocketAddress) : IO Unit :=
@@ -120,13 +122,6 @@ def send (s : Client) (data : ByteArray) : IO (AsyncTask Unit) :=
   AsyncTask.ofPromise <$> s.native.send data
 
 /--
-Tries to send data through the client socket.
--/
-@[inline]
-def trySend (s : Client) (data : ByteArray) : IO Unit :=
-  s.native.trySend data
-
-/--
 Receives data from the client socket.  If data is received, it’s wrapped in .some. If EOF is reached,
 the result is .none, indicating no more data is available.
 -/
@@ -135,7 +130,7 @@ def recv? (s : Client) (size : UInt64) : IO (AsyncTask (Option ByteArray)) :=
   AsyncTask.ofPromise <$> s.native.recv? size
 
 /--
-Shuts down the client socket.
+Shuts down the write side of the client socket.
 -/
 @[inline]
 def shutdown (s : Client) : IO (AsyncTask Unit) :=

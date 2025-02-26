@@ -276,21 +276,22 @@ partial def FixedParams.forallTelescope (fixedParams : FixedParams) (funIdx : Na
     assert! ys.size = fixedParams.size
     withErasedFVars zs (k ys)
   -/
-  go 0 type #[]
+  go 0 type (mkArray fixedParams.size (mkSort 0))
 where
   go i type xs := do
     match fixedParams.mappings[funIdx]![i]? with
-    | .some (Option.some _) =>
+    | .some (Option.some fixedParamIdx) =>
       forallBoundedTelescope type (some 1) fun xs' type => do
         assert! xs'.size = 1
-        assert! !(← inferType xs'[0]!).hasLooseBVars
-        go (i + 1) type (xs ++ xs')
+        let x := xs'[0]!
+        assert! !(← inferType x).hasLooseBVars
+        assert! fixedParamIdx < xs.size
+        go (i + 1) type (xs.set! fixedParamIdx x)
     | .some .none =>
       let type ← whnf type
       assert! type.isForall
       go (i + 1) type.bindingBody! xs
     | .none =>
-      -- TODO: Reorder xs if funIdx is not 0
       k xs
 
 
@@ -300,18 +301,16 @@ If `type` is the type of the `funIdx`'s function, instantiate the fixed paramter
 def FixedParams.instantiateForall (fixedParams : FixedParams) (funIdx : Nat) (type₀ : Expr) (xs : Array Expr) : MetaM Expr := do
   assert! xs.size = fixedParams.size
   let mask := fixedParams.mappings[funIdx]!.toList
-  go mask xs.toList type₀
+  go mask type₀
 where
-  go | [], [], type => pure type
-     | [], _, _ => panic! s!"instantiateForallFixedParams: Too many arguments {xs}"
-     | .some _::_, [], _ => panic! s!"instantiateForallFixedParams: Too few arguments {xs}"
-      -- TODO: Wrong for different order in non-first functions
-     | (.some _)::mask, x::xs, type => do
-        go mask xs (← Meta.instantiateForall type #[x])
-     | .none::mask, xs, type =>
+  go | [], type => pure type
+     | (.some fixedParamIdx)::mask, type => do
+        assert! fixedParamIdx < xs.size
+        go mask (← Meta.instantiateForall type #[xs[fixedParamIdx]!])
+     | .none::mask, type =>
         forallBoundedTelescope type (some 1) fun ys type => do
           assert! ys.size = 1
-          mkForallFVars ys (← go mask xs type)
+          mkForallFVars ys (← go mask type)
 
 /--
 If `type` is the body of the `funIdx`'s function, instantiate the fixed paramters.
@@ -319,40 +318,47 @@ If `type` is the body of the `funIdx`'s function, instantiate the fixed paramter
 def FixedParams.instantiateLambda (fixedParams : FixedParams) (funIdx : Nat) (type₀ : Expr) (xs : Array Expr) : MetaM Expr := do
   assert! xs.size = fixedParams.size
   let mask := fixedParams.mappings[funIdx]!.toList
-  go mask xs.toList type₀
+  go mask type₀
 where
-  go | [], [], type => pure type
-     | [], _, _ => panic! s!"instantiateLambdaFixedParams: Too many arguments {xs}"
-      -- TODO: Wrong for different order in non-first functions
-     | .some _::_, [], _ => panic! s!"instantiateLambdaFixedParams: Too few arguments {xs}"
-     | (.some _)::mask, x::xs, type => do
-        go mask xs (← Meta.instantiateLambda type #[x])
-     | .none::mask, xs, type =>
+  go | [], type => pure type
+     | (.some fixedParamIdx)::mask, type => do
+        assert! fixedParamIdx < xs.size
+        go mask (← Meta.instantiateLambda type #[xs[fixedParamIdx]!])
+     | .none::mask, type =>
         lambdaBoundedTelescope type 1 fun ys type => do
           assert! ys.size = 1
-          mkLambdaFVars ys (← go mask xs type)
+          mkLambdaFVars ys (← go mask type)
 
 /--
-If `xs` are arguments to the `funIdx`'s function, pick only the fixed ones.
+If `xs` are arguments to the `funIdx`'s function, pick only the fixed ones, and retun them in the
+canonical order.
 -/
 def FixedParams.pickFixed (fixedParams : FixedParams) (funIdx : Nat) (xs : Array α) : Array α := Id.run do
-  let mask := fixedParams.mappings[funIdx]!.map Option.isSome
+  let mask := fixedParams.mappings[funIdx]!
   assert! mask.size = xs.size
-  let mut ys := #[]
-  for h : i in [:xs.size] do
-      -- TODO: Wrong for different order in non-first functions
-    if mask[i]! then ys := ys.push xs[i]
-  pure ys
+  if h : xs.size = 0 then
+    pure #[]
+  else
+    let dummy := xs[0]
+    let ys := mkArray fixedParams.size dummy
+    go (mask.zip xs).toList ys
+where
+  go | [], ys => return ys
+     | (.some fixedParamIdx, x)::xs, ys => do
+        assert! fixedParamIdx < ys.size
+        go xs (ys.set! fixedParamIdx x)
+     | (.none, _) :: mask, ys =>
+        go mask ys
 
 /--
 If `xs` are arguments to the `funIdx`'s function, pick only the varying ones.
 -/
 def FixedParams.pickVarying (fixedParams : FixedParams) (funIdx : Nat) (xs : Array α) : Array α := Id.run do
-  let mask := fixedParams.mappings[funIdx]!.map Option.isSome
+  let mask := fixedParams.mappings[funIdx]!
   assert! mask.size = xs.size
   let mut ys := #[]
   for h : i in [:xs.size] do
-    if !mask[i]! then ys := ys.push xs[i]
+    if mask[i]!.isNone then ys := ys.push xs[i]
   pure ys
 
 partial def FixedParams.buildArgs (fixedParams : FixedParams) (funIdx : Nat) (fixedArgs varyingArgs : Array α) : Array α :=
@@ -362,16 +368,15 @@ partial def FixedParams.buildArgs (fixedParams : FixedParams) (funIdx : Nat) (fi
   go mask 0 0 #[]
 where
   go mask i j xs :=
-    if _ : i + j < mask.size then
-        -- TODO: Wrong for different order in non-first functions
-      if mask[i + j].isSome then
-        if _ : i < fixedArgs.size then
-          go mask (i + 1) j (xs.push fixedArgs[i])
+    if _ : i < mask.size then
+      if let some fixedParamIdx := mask[i] then
+        if _ : fixedParamIdx < fixedArgs.size then
+          go mask (i + 1) j (xs.push fixedArgs[fixedParamIdx])
         else
           panic! "FixedParams.buildArgs: too few fixed args"
       else
         if _ : j < varyingArgs.size then
-          go mask i (j + 1) (xs.push varyingArgs[j])
+          go mask (i + 1) (j + 1) (xs.push varyingArgs[j])
         else
           panic! "FixedParams.buildArgs: too few fixed args"
     else

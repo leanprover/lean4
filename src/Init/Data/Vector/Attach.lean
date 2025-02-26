@@ -473,6 +473,10 @@ def unattach {α : Type _} {p : α → Prop} (xs : Vector { x // p x } n) : Vect
     (xs.push a).unattach = xs.unattach.push a.1 := by
   simp only [unattach, Vector.map_push]
 
+@[simp] theorem mem_unattach {p : α → Prop} {xs : Vector { x // p x } n} {a} :
+    a ∈ xs.unattach ↔ ∃ h : p a, ⟨a, h⟩ ∈ xs := by
+  simp only [unattach, mem_map, Subtype.exists, exists_and_right, exists_eq_right]
+
 @[simp] theorem unattach_mk {p : α → Prop} {xs : Array { x // p x }} {h : xs.size = n} :
     (mk xs h).unattach = mk xs.unattach (by simpa using h) := by
   simp [unattach]
@@ -551,6 +555,18 @@ and simplifies these to the function directly taking the value.
   rcases xs with ⟨l, rfl⟩
   simp
   rw [Array.find?_subtype hf]
+
+@[simp] theorem all_subtype {p : α → Prop} {xs : Vector { x // p x } n} {f : { x // p x } → Bool} {g : α → Bool}
+    (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    xs.all f = xs.unattach.all g := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [hf]
+
+@[simp] theorem any_subtype {p : α → Prop} {xs : Vector { x // p x } n} {f : { x // p x } → Bool} {g : α → Bool}
+    (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    xs.any f = xs.unattach.any g := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [hf]
 
 /-! ### Simp lemmas pushing `unattach` inwards. -/
 

@@ -3496,6 +3496,239 @@ theorem replace_extract {xs : Array α} {i : Nat} :
 
 end replace
 
+/-! ## Logic -/
+
+/-! ### any / all -/
+
+theorem not_any_eq_all_not (xs : Array α) (p : α → Bool) : (!xs.any p) = xs.all fun a => !p a := by
+  rcases xs with ⟨xs⟩
+  simp [List.not_any_eq_all_not]
+
+theorem not_all_eq_any_not (xs : Array α) (p : α → Bool) : (!xs.all p) = xs.any fun a => !p a := by
+  rcases xs with ⟨xs⟩
+  simp [List.not_all_eq_any_not]
+
+theorem and_any_distrib_left (xs : Array α) (p : α → Bool) (q : Bool) :
+    (q && xs.any p) = xs.any fun a => q && p a := by
+  rcases xs with ⟨xs⟩
+  simp [List.and_any_distrib_left]
+
+theorem and_any_distrib_right (xs : Array α) (p : α → Bool) (q : Bool) :
+    (xs.any p && q) = xs.any fun a => p a && q := by
+  rcases xs with ⟨xs⟩
+  simp [List.and_any_distrib_right]
+
+theorem or_all_distrib_left (xs : Array α) (p : α → Bool) (q : Bool) :
+    (q || xs.all p) = xs.all fun a => q || p a := by
+  rcases xs with ⟨xs⟩
+  simp [List.or_all_distrib_left]
+
+theorem or_all_distrib_right (xs : Array α) (p : α → Bool) (q : Bool) :
+    (xs.all p || q) = xs.all fun a => p a || q := by
+  rcases xs with ⟨xs⟩
+  simp [List.or_all_distrib_right]
+
+theorem any_eq_not_all_not (xs : Array α) (p : α → Bool) : xs.any p = !xs.all (!p .) := by
+  simp only [not_all_eq_any_not, Bool.not_not]
+
+/-- Variant of `any_map` with a side condition for the `stop` argument. -/
+@[simp] theorem any_map' {xs : Array α} {p : β → Bool} (w : stop = xs.size):
+    (xs.map f).any p 0 stop = xs.any (p ∘ f) := by
+  subst w
+  rcases xs with ⟨xs⟩
+  rw [List.map_toArray]
+  simp [List.any_map]
+
+/-- Variant of `all_map` with a side condition for the `stop` argument. -/
+@[simp] theorem all_map' {xs : Array α} {p : β → Bool} (w : stop = xs.size):
+    (xs.map f).all p 0 stop = xs.all (p ∘ f) := by
+  subst w
+  rcases xs with ⟨xs⟩
+  rw [List.map_toArray]
+  simp [List.all_map]
+
+theorem any_map {xs : Array α} {p : β → Bool} : (xs.map f).any p = xs.any (p ∘ f) := by
+  simp
+
+theorem all_map {xs : Array α} {p : β → Bool} : (xs.map f).all p = xs.all (p ∘ f) := by
+  simp
+
+/-- Variant of `any_filter` with a side condition for the `stop` argument. -/
+@[simp] theorem any_filter' {xs : Array α} {p q : α → Bool} (w : stop = (xs.filter p).size) :
+    (xs.filter p).any q 0 stop = xs.any fun a => p a && q a := by
+  subst w
+  rcases xs with ⟨xs⟩
+  rw [List.filter_toArray]
+  simp [List.any_filter]
+
+/-- Variant of `all_filter` with a side condition for the `stop` argument. -/
+@[simp] theorem all_filter' {xs : Array α} {p q : α → Bool} (w : stop = (xs.filter p).size) :
+    (xs.filter p).all q 0 stop = xs.all fun a => p a → q a := by
+  subst w
+  rcases xs with ⟨xs⟩
+  rw [List.filter_toArray]
+  simp [List.all_filter]
+
+theorem any_filter {xs : Array α} {p q : α → Bool} :
+    (xs.filter p).any q 0 = xs.any fun a => p a && q a := by
+  simp
+
+theorem all_filter {xs : Array α} {p q : α → Bool} :
+    (xs.filter p).all q 0 = xs.all fun a => p a → q a := by
+  simp
+
+/-- Variant of `any_filterMap` with a side condition for the `stop` argument. -/
+@[simp] theorem any_filterMap' {xs : Array α} {f : α → Option β} {p : β → Bool} (w : stop = (xs.filterMap f).size) :
+    (xs.filterMap f).any p 0 stop = xs.any fun a => match f a with | some b => p b | none => false := by
+  subst w
+  rcases xs with ⟨xs⟩
+  rw [List.filterMap_toArray]
+  simp [List.any_filterMap]
+  rfl
+
+/-- Variant of `all_filterMap` with a side condition for the `stop` argument. -/
+@[simp] theorem all_filterMap' {xs : Array α} {f : α → Option β} {p : β → Bool} (w : stop = (xs.filterMap f).size) :
+    (xs.filterMap f).all p 0 stop = xs.all fun a => match f a with | some b => p b | none => true := by
+  subst w
+  rcases xs with ⟨xs⟩
+  rw [List.filterMap_toArray]
+  simp [List.all_filterMap]
+  rfl
+
+theorem any_filterMap {xs : Array α} {f : α → Option β} {p : β → Bool} :
+    (xs.filterMap f).any p 0 = xs.any fun a => match f a with | some b => p b | none => false := by
+  simp
+
+theorem all_filterMap {xs : Array α} {f : α → Option β} {p : β → Bool} :
+    (xs.filterMap f).all p 0 = xs.all fun a => match f a with | some b => p b | none => true := by
+  simp
+
+/-- Variant of `any_append` with a side condition for the `stop` argument. -/
+@[simp] theorem any_append' {xs ys : Array α} (w : stop = (xs ++ ys).size) :
+    (xs ++ ys).any f 0 stop = (xs.any f || ys.any f) := by
+  subst w
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  rw [List.append_toArray]
+  simp [List.any_append]
+
+/-- Variant of `all_append` with a side condition for the `stop` argument. -/
+@[simp] theorem all_append' {xs ys : Array α} (w : stop = (xs ++ ys).size) :
+    (xs ++ ys).all f 0 stop = (xs.all f && ys.all f) := by
+  subst w
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  rw [List.append_toArray]
+  simp [List.all_append]
+
+theorem any_append {xs ys : Array α} :
+    (xs ++ ys).any f 0 = (xs.any f || ys.any f) := by
+  simp
+
+theorem all_append {xs ys : Array α} :
+    (xs ++ ys).all f 0 = (xs.all f && ys.all f) := by
+  simp
+
+@[congr] theorem anyM_congr [Monad m]
+    {xs ys : Array α} (w : xs = ys) {p q : α → m Bool} (h : ∀ a, p a = q a) (wstart : start₁ = start₂) (wstop : stop₁ = stop₂) :
+    xs.anyM p start₁ stop₁ = ys.anyM q start₂ stop₂ := by
+  have : p = q := by funext a; apply h
+  subst this
+  subst w
+  subst wstart
+  subst wstop
+  rfl
+
+@[congr] theorem any_congr
+    {xs ys : Array α} (w : xs = ys) {p q : α → Bool} (h : ∀ a, p a = q a) (wstart : start₁ = start₂) (wstop : stop₁ = stop₂) :
+    xs.any p start₁ stop₁ = ys.any q start₂ stop₂ := by
+  unfold any
+  apply anyM_congr w h wstart wstop
+
+@[congr] theorem allM_congr [Monad m]
+    {xs ys : Array α} (w : xs = ys) {p q : α → m Bool} (h : ∀ a, p a = q a) (wstart : start₁ = start₂) (wstop : stop₁ = stop₂) :
+    xs.allM p start₁ stop₁ = ys.allM q start₂ stop₂ := by
+  have : p = q := by funext a; apply h
+  subst this
+  subst w
+  subst wstart
+  subst wstop
+  rfl
+
+@[congr] theorem all_congr
+    {xs ys : Array α} (w : xs = ys) {p q : α → Bool} (h : ∀ a, p a = q a) (wstart : start₁ = start₂) (wstop : stop₁ = stop₂) :
+    xs.all p start₁ stop₁ = ys.all q start₂ stop₂ := by
+  unfold all
+  apply allM_congr w h wstart wstop
+
+@[simp] theorem any_flatten' {xss : Array (Array α)} (w : stop = xss.flatten.size) : xss.flatten.any f 0 stop = xss.any (any · f) := by
+  subst w
+  cases xss using array₂_induction
+  simp [Function.comp_def]
+
+@[simp] theorem all_flatten' {xss : Array (Array α)} (w : stop = xss.flatten.size) : xss.flatten.all f 0 stop = xss.all (all · f) := by
+  subst w
+  cases xss using array₂_induction
+  simp [Function.comp_def]
+
+theorem any_flatten {xss : Array (Array α)} : xss.flatten.any f = xss.any (any · f) := by
+  simp
+
+theorem all_flatten {xss : Array (Array α)} : xss.flatten.all f = xss.all (all · f) := by
+  simp
+
+/-- Variant of `any_flatMap` with a side condition for the `stop` argument. -/
+@[simp] theorem any_flatMap' {xs : Array α} {f : α → Array β} {p : β → Bool} (w : stop = (xs.flatMap f).size) :
+    (xs.flatMap f).any p 0 stop = xs.any fun a => (f a).any p := by
+  subst w
+  rcases xs with ⟨xs⟩
+  rw [List.flatMap_toArray]
+  simp [List.any_flatMap]
+
+/-- Variant of `all_flatMap` with a side condition for the `stop` argument. -/
+@[simp] theorem all_flatMap' {xs : Array α} {f : α → Array β} {p : β → Bool} (w : stop = (xs.flatMap f).size) :
+    (xs.flatMap f).all p 0 stop = xs.all fun a => (f a).all p := by
+  subst w
+  rcases xs with ⟨xs⟩
+  rw [List.flatMap_toArray]
+  simp [List.all_flatMap]
+
+theorem any_flatMap {xs : Array α} {f : α → Array β} {p : β → Bool} :
+    (xs.flatMap f).any p 0 = xs.any fun a => (f a).any p := by
+  simp
+
+theorem all_flatMap {xs : Array α} {f : α → Array β} {p : β → Bool} :
+    (xs.flatMap f).all p 0 = xs.all fun a => (f a).all p := by
+  simp
+
+/-- Variant of `any_reverse` with a side condition for the `stop` argument. -/
+@[simp] theorem any_reverse' {xs : Array α} (w : stop = xs.size) : xs.reverse.any f 0 stop = xs.any f := by
+  subst w
+  rcases xs with ⟨xs⟩
+  rw [List.reverse_toArray]
+  simp [List.any_reverse]
+
+/-- Variant of `all_reverse` with a side condition for the `stop` argument. -/
+@[simp] theorem all_reverse' {xs : Array α} (w : stop = xs.size) : xs.reverse.all f 0 stop = xs.all f := by
+  subst w
+  rcases xs with ⟨xs⟩
+  rw [List.reverse_toArray]
+  simp [List.all_reverse]
+
+theorem any_reverse {xs : Array α} : xs.reverse.any f 0 = xs.any f := by
+  simp
+
+theorem all_reverse {xs : Array α} : xs.reverse.all f 0 = xs.all f := by
+  simp
+
+@[simp] theorem any_mkArray {n : Nat} {a : α} :
+    (mkArray n a).any f = if n = 0 then false else f a := by
+  induction n <;> simp_all [mkArray_succ']
+
+@[simp] theorem all_mkArray {n : Nat} {a : α} :
+    (mkArray n a).all f = if n = 0 then true else f a := by
+  induction n <;> simp_all +contextual [mkArray_succ']
+
 /-! Content below this point has not yet been aligned with `List`. -/
 
 /-! ### sum -/

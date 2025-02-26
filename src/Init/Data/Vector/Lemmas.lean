@@ -2585,6 +2585,161 @@ theorem replace_extract {xs : Vector α n} {i : Nat} :
 
 end replace
 
+/-! ## Logic -/
+
+/-! ### any / all -/
+
+theorem not_any_eq_all_not (xs : Vector α n) (p : α → Bool) : (!xs.any p) = xs.all fun a => !p a := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.not_any_eq_all_not]
+
+theorem not_all_eq_any_not (xs : Vector α n) (p : α → Bool) : (!xs.all p) = xs.any fun a => !p a := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.not_all_eq_any_not]
+
+theorem and_any_distrib_left (xs : Vector α n) (p : α → Bool) (q : Bool) :
+    (q && xs.any p) = xs.any fun a => q && p a := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.and_any_distrib_left]
+
+theorem and_any_distrib_right (xs : Vector α n) (p : α → Bool) (q : Bool) :
+    (xs.any p && q) = xs.any fun a => p a && q := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.and_any_distrib_right]
+
+theorem or_all_distrib_left (xs : Vector α n) (p : α → Bool) (q : Bool) :
+    (q || xs.all p) = xs.all fun a => q || p a := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.or_all_distrib_left]
+
+theorem or_all_distrib_right (xs : Vector α n) (p : α → Bool) (q : Bool) :
+    (xs.all p || q) = xs.all fun a => p a || q := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.or_all_distrib_right]
+
+theorem any_eq_not_all_not (xs : Vector α n) (p : α → Bool) : xs.any p = !xs.all (!p .) := by
+  simp only [not_all_eq_any_not, Bool.not_not]
+
+@[simp] theorem any_map {xs : Vector α n} {p : β → Bool} : (xs.map f).any p = xs.any (p ∘ f) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+@[simp] theorem all_map {xs : Vector α n} {p : β → Bool} : (xs.map f).all p = xs.all (p ∘ f) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+@[simp] theorem any_filter {xs : Vector α n} {p q : α → Bool} :
+    (xs.filter p).any q = xs.any fun a => p a && q a := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+@[simp] theorem all_filter {xs : Vector α n} {p q : α → Bool} :
+    (xs.filter p).all q = xs.all fun a => p a → q a := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+@[simp] theorem any_filterMap {xs : Vector α n} {f : α → Option β} {p : β → Bool} :
+    (xs.filterMap f).any p = xs.any fun a => match f a with | some b => p b | none => false := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+  rfl
+
+@[simp] theorem all_filterMap {xs : Vector α n} {f : α → Option β} {p : β → Bool} :
+    (xs.filterMap f).all p = xs.all fun a => match f a with | some b => p b | none => true := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+  rfl
+
+@[simp] theorem any_append {xs : Vector α n} {ys : Vector α m} :
+    (xs ++ ys).any f = (xs.any f || ys.any f) := by
+  rcases xs with ⟨xs, rfl⟩
+  rcases ys with ⟨ys, rfl⟩
+  simp
+
+@[simp] theorem all_append {xs : Vector α n} {ys : Vector α m} :
+    (xs ++ ys).all f = (xs.all f && ys.all f) := by
+  rcases xs with ⟨xs, rfl⟩
+  rcases ys with ⟨ys, rfl⟩
+  simp
+
+@[congr] theorem anyM_congr [Monad m]
+    {xs ys : Vector α n} (w : xs = ys) {p q : α → m Bool} (h : ∀ a, p a = q a) :
+    xs.anyM p = ys.anyM q := by
+  have : p = q := by funext a; apply h
+  subst this
+  subst w
+  rfl
+
+@[congr] theorem any_congr
+    {xs ys : Vector α n} (w : xs = ys) {p q : α → Bool} (h : ∀ a, p a = q a) :
+    xs.any p = ys.any q := by
+  unfold any
+  apply anyM_congr w h
+
+@[congr] theorem allM_congr [Monad m]
+    {xs ys : Vector α n} (w : xs = ys) {p q : α → m Bool} (h : ∀ a, p a = q a) :
+    xs.allM p = ys.allM q := by
+  have : p = q := by funext a; apply h
+  subst this
+  subst w
+  rfl
+
+@[congr] theorem all_congr
+    {xs ys : Vector α n} (w : xs = ys) {p q : α → Bool} (h : ∀ a, p a = q a) :
+    xs.all p = ys.all q := by
+  unfold all
+  apply allM_congr w h
+
+@[simp] theorem any_flatten {xss : Vector (Vector α n) m} : xss.flatten.any f = xss.any (any · f) := by
+  cases xss using vector₂_induction
+  simp
+
+@[simp] theorem all_flatten {xss : Vector (Vector α n) m} : xss.flatten.all f = xss.all (all · f) := by
+  cases xss using vector₂_induction
+  simp
+
+@[simp] theorem any_flatMap {xs : Vector α n} {f : α → Vector β m} {p : β → Bool} :
+    (xs.flatMap f).any p = xs.any fun a => (f a).any p := by
+  rcases xs with ⟨xs⟩
+  simp only [flatMap_mk, any_mk, Array.size_flatMap, size_toArray, Array.any_flatMap']
+  congr
+  funext
+  congr
+  simp [Vector.size_toArray]
+
+@[simp] theorem all_flatMap {xs : Vector α n} {f : α → Vector β m} {p : β → Bool} :
+    (xs.flatMap f).all p = xs.all fun a => (f a).all p := by
+  rcases xs with ⟨xs⟩
+  simp only [flatMap_mk, all_mk, Array.size_flatMap, size_toArray, Array.all_flatMap']
+  congr
+  funext
+  congr
+  simp [Vector.size_toArray]
+
+@[simp] theorem any_reverse {xs : Vector α n} : xs.reverse.any f  = xs.any f := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+@[simp] theorem all_reverse {xs : Vector α n} : xs.reverse.all f = xs.all f := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+@[simp] theorem any_cast {xs : Vector α n} : (xs.cast h).any f = xs.any f := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+@[simp] theorem all_cast {xs : Vector α n} : (xs.cast h).all f = xs.all f := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+@[simp] theorem any_mkVector {n : Nat} {a : α} :
+    (mkVector n a).any f = if n = 0 then false else f a := by
+  induction n <;> simp_all [mkVector_succ']
+
+@[simp] theorem all_mkVector {n : Nat} {a : α} :
+    (mkVector n a).all f = if n = 0 then true else f a := by
+  induction n <;> simp_all +contextual [mkVector_succ']
+
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 
 set_option linter.indexVariables false in

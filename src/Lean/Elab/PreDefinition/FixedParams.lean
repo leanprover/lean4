@@ -281,7 +281,7 @@ where
   go i type xs := do
     match fixedParams.mappings[funIdx]![i]? with
     | .some (Option.some fixedParamIdx) =>
-      forallBoundedTelescope type (some 1) fun xs' type => do
+      forallBoundedTelescope type (some 1) (cleanupAnnotations := true) fun xs' type => do
         assert! xs'.size = 1
         let x := xs'[0]!
         assert! !(← inferType x).hasLooseBVars

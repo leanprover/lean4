@@ -54,6 +54,7 @@ partial def DiseqCnstr.applySubsts (c : DiseqCnstr) : GoalM DiseqCnstr := withIn
 
 def DiseqCnstr.assert (c : DiseqCnstr) : GoalM Unit := do
   if (← inconsistent) then return ()
+  trace[grind.cutsat.assert] "{← c.pp}"
   let c ← c.norm
   let c ← c.applySubsts
   if c.p.isUnsatDiseq then
@@ -62,8 +63,14 @@ def DiseqCnstr.assert (c : DiseqCnstr) : GoalM Unit := do
   if c.isTrivial then
     trace[grind.cutsat.diseq.trivial] "{← c.pp}"
     return ()
+  let k := c.p.gcdCoeffs c.p.getConst
+  let c ← if k == 1 then
+    pure c
+  else
+    mkDiseqCnstr (c.p.div k) (.divCoeffs c)
   let .add _ x _ := c.p | c.throwUnexpected
   c.p.updateOccs
+  trace[grind.cutsat.diseq] "{← c.pp}"
   modify' fun s => { s with diseqs := s.diseqs.modify x (·.push c) }
   if (← c.satisfied) == .false then
     resetAssignmentFrom x

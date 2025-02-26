@@ -1,6 +1,7 @@
 #include "util/options.h"
 
-// update stage0
+// Dear CI: Please update stage0 after merging this.
+
 
 namespace lean {
 options get_default_options() {

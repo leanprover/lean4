@@ -2435,6 +2435,12 @@ theorem getElem?_swap (xs : Array α) (i j : Nat) (hi hj) (k : Nat) : (xs.swap i
   cases xs
   simp
 
+theorem getElem_eq_getElem_reverse {xs : Array α} {i} (h : i < xs.size) :
+    xs[i] = xs.reverse[xs.size - 1 - i]'(by simpa using Nat.sub_one_sub_lt_of_lt h) := by
+  rw [getElem_reverse]
+  congr
+  omega
+
 @[simp] theorem reverse_eq_empty_iff {xs : Array α} : xs.reverse = #[] ↔ xs = #[] := by
   cases xs
   simp

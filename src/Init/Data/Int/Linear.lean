@@ -1036,6 +1036,13 @@ theorem eq_diseq_subst (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly) (p�
   intro h₁ h₂
   simp [*]
 
+theorem diseq_of_core (ctx : Context) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
+    : eq_of_core_cert p₁ p₂ p₃ → p₁.denote' ctx ≠ p₂.denote' ctx → p₃.denote' ctx ≠ 0 := by
+  simp [eq_of_core_cert]
+  intro; subst p₃; simp
+  intro h; rw [← Int.sub_eq_zero] at h
+  rw [←Int.sub_eq_add_neg]; assumption
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

@@ -3756,7 +3756,7 @@ theorem msb_twoPow {i w: Nat} :
   omega
 
 theorem toInt_twoPow {w i : Nat} :
-    (BitVec.twoPow w i).toInt = if w ≤ i then 0 else (2 ^ i : Nat) * if i + 1 = w then (-1 : Int) else 1 := by
+    (BitVec.twoPow w i).toInt = if w ≤ i then 0 else (2^i : Nat) * if i + 1 = w then (-1 : Int) else 1 := by
   simp only [BitVec.toInt_eq_msb_cond, toNat_twoPow_eq_if]
   rcases w with _|w
   · simp
@@ -3768,7 +3768,7 @@ theorem toInt_twoPow {w i : Nat} :
       · simp [h, h', show i < w + 1 by omega]
 
 theorem toFin_twoPow {w i : Nat} :
-    (BitVec.twoPow w i).toFin = Fin.ofNat' (2 ^ w) (2 ^ i) := by
+    (BitVec.twoPow w i).toFin = Fin.ofNat' (2^w) (2^i) := by
   rcases w with rfl | w
   · simp [BitVec.twoPow, BitVec.toFin, toFin_shiftLeft, Fin.fin_one_eq_zero]
   · simp [BitVec.twoPow, BitVec.toFin, toFin_shiftLeft, Nat.shiftLeft_eq]

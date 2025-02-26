@@ -1043,6 +1043,17 @@ theorem diseq_of_core (ctx : Context) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
   intro h; rw [← Int.sub_eq_zero] at h
   rw [←Int.sub_eq_add_neg]; assumption
 
+def eq_of_le_ge_cert (p₁ p₂ : Poly) : Bool :=
+  p₂ == p₁.mul (-1)
+
+theorem eq_of_le_ge (ctx : Context) (p₁ : Poly) (p₂ : Poly)
+    : eq_of_le_ge_cert p₁ p₂ → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 → p₁.denote' ctx = 0 := by
+  simp [eq_of_le_ge_cert]
+  intro; subst p₂; simp
+  intro h₁ h₂
+  replace h₂ := Int.neg_le_of_neg_le h₂; simp at h₂
+  simp [Int.eq_iff_le_and_ge, *]
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

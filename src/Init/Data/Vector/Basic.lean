@@ -455,6 +455,9 @@ to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
 @[inline] def count [BEq α] (a : α) (xs : Vector α n) : Nat :=
   xs.toArray.count a
 
+@[inline] def replace [BEq α] (xs : Vector α n) (a b : α) : Vector α n :=
+  ⟨xs.toArray.replace a b, by simp⟩
+
 /--
 Pad a vector on the left with a given element.
 

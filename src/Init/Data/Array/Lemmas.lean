@@ -3421,6 +3421,81 @@ theorem eq_push_pop_back!_of_size_ne_zero [Inhabited α] {xs : Array α} (h : xs
       rw [getElem_push_eq, back!]
       simp [← getElem!_pos]
 
+/-! ### replace -/
+
+section replace
+variable [BEq α]
+
+@[simp] theorem size_replace {xs : Array α} : (xs.replace a b).size = xs.size := by
+  simp only [replace]
+  split <;> simp
+
+-- This hypothesis could probably be dropped from some of the lemmas below,
+-- by proving them direct from the definition rather than going via `List`.
+variable [LawfulBEq α]
+
+@[simp] theorem replace_of_not_mem {xs : Array α} (h : ¬ a ∈ xs) : xs.replace a b = xs := by
+  cases xs
+  simp_all
+
+theorem getElem?_replace {xs : Array α} {i : Nat} :
+    (xs.replace a b)[i]? = if xs[i]? == some a then if a ∈ xs.take i then some a else some b else xs[i]? := by
+  rcases xs with ⟨xs⟩
+  simp only [List.replace_toArray, List.getElem?_toArray, List.getElem?_replace, beq_iff_eq,
+    take_eq_extract, List.extract_toArray, List.extract_eq_drop_take, Nat.sub_zero, List.drop_zero,
+    mem_toArray]
+  split <;> rename_i h
+  · rw (occs := [2]) [if_pos]
+    simpa using h
+  · rw [if_neg]
+    simpa using h
+
+theorem getElem?_replace_of_ne {xs : Array α} {i : Nat} (h : xs[i]? ≠ some a) :
+    (xs.replace a b)[i]? = xs[i]? := by
+  simp_all [getElem?_replace]
+
+theorem getElem_replace {xs : Array α} {i : Nat} (h : i < xs.size) :
+    (xs.replace a b)[i]'(by simpa) = if xs[i] == a then if a ∈ xs.take i then a else b else xs[i] := by
+  apply Option.some.inj
+  rw [← getElem?_eq_getElem, getElem?_replace]
+  split <;> split <;> simp_all
+
+theorem getElem_replace_of_ne {xs : Array α} {i : Nat} {h : i < xs.size} (h' : xs[i] ≠ a) :
+    (xs.replace a b)[i]'(by simpa) = xs[i]'(h) := by
+  rw [getElem_replace h]
+  simp [h']
+
+theorem replace_append {xs ys : Array α} :
+    (xs ++ ys).replace a b = if a ∈ xs then xs.replace a b ++ ys else xs ++ ys.replace a b := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  simp only [List.append_toArray, List.replace_toArray, List.replace_append, mem_toArray]
+  split <;> simp
+
+theorem replace_append_left {xs ys : Array α} (h : a ∈ xs) :
+    (xs ++ ys).replace a b = xs.replace a b ++ ys := by
+  simp [replace_append, h]
+
+theorem replace_append_right {xs ys : Array α} (h : ¬ a ∈ xs) :
+    (xs ++ ys).replace a b = xs ++ ys.replace a b := by
+  simp [replace_append, h]
+
+theorem replace_extract {xs : Array α} {i : Nat} :
+    (xs.extract 0 i).replace a b = (xs.replace a b).extract 0 i := by
+  rcases xs with ⟨xs⟩
+  simp [List.replace_take]
+
+@[simp] theorem replace_mkArray_self {a : α} (h : 0 < n) :
+    (mkArray n a).replace a b = #[b] ++ mkArray (n - 1) a := by
+  cases n <;> simp_all [mkArray_succ', replace_append]
+
+@[simp] theorem replace_mkArray_ne {a b c : α} (h : !b == a) :
+    (mkArray n a).replace b c = mkArray n a := by
+  rw [replace_of_not_mem]
+  simp_all
+
+end replace
+
 /-! Content below this point has not yet been aligned with `List`. -/
 
 /-! ### sum -/

@@ -246,6 +246,9 @@ abbrev zipWithIndex_mk := @zipIdx_mk
 @[simp] theorem count_mk [BEq α] (xs : Array α) (h : xs.size = n) (a : α) :
     (Vector.mk xs h).count a = xs.count a := rfl
 
+@[simp] theorem replace_mk [BEq α] (xs : Array α) (h : xs.size = n) (a b) :
+    (Vector.mk xs h).replace a b = Vector.mk (xs.replace a b) (by simp [h]) := rfl
+
 @[simp] theorem eq_mk : xs = Vector.mk as h ↔ xs.toArray = as := by
   cases xs
   simp
@@ -405,6 +408,9 @@ theorem toArray_mapM_go [Monad m] [LawfulMonad m] (f : α → m β) (xs : Vector
     xs.toArray.count a = xs.count a := by
   cases xs
   simp
+
+@[simp] theorem replace_toArray [BEq α] (xs : Vector α n) (a b) :
+    xs.toArray.replace a b = (xs.replace a b).toArray := rfl
 
 @[simp] theorem find?_toArray (p : α → Bool) (xs : Vector α n) :
     xs.toArray.find? p = xs.find? p := by
@@ -2503,6 +2509,81 @@ theorem pop_append {xs : Vector α n} {ys : Vector α m} :
 
 @[simp] theorem pop_mkVector (n) (a : α) : (mkVector n a).pop = mkVector (n - 1) a := by
   ext <;> simp
+
+/-! ### replace -/
+
+section replace
+variable [BEq α]
+
+@[simp] theorem replace_cast {xs : Vector α n} {a b : α} :
+    (xs.cast h).replace a b = (xs.replace a b).cast (by simp [h]) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+-- This hypothesis could probably be dropped from some of the lemmas below,
+-- by proving them direct from the definition rather than going via `List`.
+variable [LawfulBEq α]
+
+@[simp] theorem replace_of_not_mem {xs : Vector α n} (h : ¬ a ∈ xs) : xs.replace a b = xs := by
+  rcases xs with ⟨xs, rfl⟩
+  simp_all
+
+theorem getElem?_replace {xs : Vector α n} {i : Nat} :
+    (xs.replace a b)[i]? = if xs[i]? == some a then if a ∈ xs.take i then some a else some b else xs[i]? := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.getElem?_replace]
+  split <;> rename_i h
+  · rw (occs := [2]) [if_pos]
+    simpa using h
+  · rw [if_neg]
+    simpa using h
+
+theorem getElem?_replace_of_ne {xs : Vector α n} {i : Nat} (h : xs[i]? ≠ some a) :
+    (xs.replace a b)[i]? = xs[i]? := by
+  simp_all [getElem?_replace]
+
+theorem getElem_replace {xs : Vector α n} {i : Nat} (h : i < n) :
+    (xs.replace a b)[i] = if xs[i] == a then if a ∈ xs.take i then a else b else xs[i] := by
+  apply Option.some.inj
+  rw [← getElem?_eq_getElem, getElem?_replace]
+  split <;> split <;> simp_all
+
+theorem getElem_replace_of_ne {xs : Vector α n} {i : Nat} {h : i < n} (h' : xs[i] ≠ a) :
+    (xs.replace a b)[i]'(by simpa) = xs[i]'(h) := by
+  rw [getElem_replace h]
+  simp [h']
+
+theorem replace_append {xs : Vector α n} {ys : Vector α m} :
+    (xs ++ ys).replace a b = if a ∈ xs then xs.replace a b ++ ys else xs ++ ys.replace a b := by
+  rcases xs with ⟨xs, rfl⟩
+  rcases ys with ⟨ys, rfl⟩
+  simp only [mk_append_mk, replace_mk, eq_mk, Array.replace_append]
+  split <;> simp_all
+
+theorem replace_append_left {xs : Vector α n} {ys : Vector α m} (h : a ∈ xs) :
+    (xs ++ ys).replace a b = xs.replace a b ++ ys := by
+  simp [replace_append, h]
+
+theorem replace_append_right {xs : Vector α n} {ys : Vector α m} (h : ¬ a ∈ xs) :
+    (xs ++ ys).replace a b = xs ++ ys.replace a b := by
+  simp [replace_append, h]
+
+theorem replace_extract {xs : Vector α n} {i : Nat} :
+    (xs.extract 0 i).replace a b = (xs.replace a b).extract 0 i := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.replace_extract]
+
+@[simp] theorem replace_mkArray_self {a : α} (h : 0 < n) :
+    (mkVector n a).replace a b = (#v[b] ++ mkVector (n - 1) a).cast (by omega) := by
+  match n, h with
+  | n + 1, _ => simp_all [mkVector_succ', replace_append]
+
+@[simp] theorem replace_mkArray_ne {a b c : α} (h : !b == a) :
+    (mkVector n a).replace b c = mkVector n a := by
+  rw [replace_of_not_mem]
+  simp_all
+
+end replace
 
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 

@@ -92,11 +92,11 @@ theorem insertMany [TransCmp cmp] {ρ} [ForIn Id ρ ((a : α) × β a)] {l : ρ}
     (h : t.WF) : WF (t.insertMany l) :=
   ⟨h.out.insertMany!⟩
 
-theorem ofList [TransCmp cmp] {l : List ((a : α) × β a)} {cmp} :
+theorem ofList [TransCmp cmp] {l : List ((a : α) × β a)} :
     (Raw.ofList l cmp).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.WF.insertMany Impl.WF.empty⟩
 
-theorem ofArray [TransCmp cmp] {l : Array ((a : α) × β a)} {cmp} :
+theorem ofArray [TransCmp cmp] {l : Array ((a : α) × β a)} :
     (Raw.ofArray l cmp).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.WF.insertMany Impl.WF.empty⟩
 
@@ -120,19 +120,23 @@ theorem constInsertMany [TransCmp cmp] {ρ} [ForIn Id ρ (α × β)] {l : ρ} {t
     (h : t.WF) : WF (Const.insertMany t l) :=
   ⟨h.out.constInsertMany!⟩
 
-theorem constOfList [TransCmp cmp] {l : List (α × β)} {cmp} :
+theorem constInsertManyIfNewUnit [TransCmp cmp] {ρ} [ForIn Id ρ α] {l : ρ} {t : Raw α Unit cmp}
+    (h : t.WF) : WF (Const.insertManyIfNewUnit t l) :=
+  ⟨h.out.constInsertManyIfNewUnit!⟩
+
+theorem constOfList [TransCmp cmp] {l : List (α × β)} :
     (Raw.Const.ofList l cmp).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.WF.constInsertMany Impl.WF.empty⟩
 
-theorem constOfArray [TransCmp cmp] {l : Array (α × β)} {cmp} :
+theorem constOfArray [TransCmp cmp] {l : Array (α × β)} :
     (Raw.Const.ofArray l cmp).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.WF.constInsertMany Impl.WF.empty⟩
 
-theorem unitOfList [TransCmp cmp] {l : List α} {cmp} :
+theorem unitOfList [TransCmp cmp] {l : List α} :
     (Raw.Const.unitOfList l cmp).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.WF.constInsertManyIfNewUnit Impl.WF.empty⟩
 
-theorem unitOfArray [TransCmp cmp] {l : Array α} {cmp} :
+theorem unitOfArray [TransCmp cmp] {l : Array α} :
     (Raw.Const.unitOfArray l cmp).WF :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.WF.constInsertManyIfNewUnit Impl.WF.empty⟩
 

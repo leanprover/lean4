@@ -251,7 +251,7 @@ structure FixedParams where
   telescope : Expr
   /-- For each function in the clique, a mapping from its parameters to the fixed parameters -/
   mappings : Array (Array (Option Nat))
-deriving Inhabited
+deriving Inhabited, Repr
 
 def getFixedParams (preDefs : Array PreDefinition) : MetaM FixedParams := do
   let info ← getFixedParamsInfo preDefs
@@ -292,7 +292,8 @@ def getFixedParams (preDefs : Array PreDefinition) : MetaM FixedParams := do
 Brings the fixed parameters from `type`, which should the the type of the `funIdx`'s function, into
 scope.
 -/
-partial def FixedParams.forallTelescope (fixedParams : FixedParams) (funIdx : Nat) (type : Expr) (k : Array Expr → MetaM α) : MetaM α := do
+private partial def FixedParams.forallTelescopeImpl (fixedParams : FixedParams) (funIdx : Nat)
+    (type : Expr) (k : Array Expr → MetaM α) : MetaM α := do
   /-
   -- Local implementation shortcut:
   -- We just bring all into scope and then remove the ones we didn't want.
@@ -326,6 +327,10 @@ where
       go (i + 1) type.bindingBody! xs
     | .none =>
       k xs
+
+def FixedParams.forallTelescope [MonadControlT MetaM n] [Monad n]
+    (fixedParams : FixedParams) (funIdx : Nat) (type : Expr) (k : Array Expr → n α) : n α := do
+  map1MetaM (fun k => FixedParams.forallTelescopeImpl fixedParams funIdx type k) k
 
 
 /--

@@ -929,13 +929,14 @@ Given a recursive definition `foo` defined via structural recursion, derive `foo
 if needed, and `foo.induct` for all functions in the group.
 See module doc for details.
  -/
-def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit := do
+def deriveInductionStructural (names : Array Name) (fixedParams : FixedParams) : MetaM Unit := do
   let infos ← names.mapM getConstInfoDefn
   -- First open up the fixed parameters everywhere
-  let (e', paramMask, motiveArities) ← lambdaBoundedTelescope infos[0]!.value numFixed fun xs _ => do
+  let (e', paramMask, motiveArities) ← fixedParams.forallTelescope 0 infos[0]!.type fun xs => do
     -- Now look at the body of an arbitrary of the functions (they are essentially the same
     -- up to the final projections)
-    let body ← instantiateLambda infos[0]!.value xs
+    let body ← fixedParams.instantiateLambda 0 infos[0]!.value xs
+    let body := body.eta
 
     lambdaTelescope body fun ys body => do
       -- The body is of the form (brecOn … ).2.2.1 extra1 extra2 etc; ignore the
@@ -947,7 +948,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
 
       let body := PProdN.stripProjs body
       let .const brecOnName us := f |
-        throwError "{infos[0]!.name}: unexpected body:{indentExpr infos[0]!.value}"
+        throwError "{infos[0]!.name}: unexpected body:{indentExpr infos[0]!.value}\ninstantiated to{indentExpr body}"
       unless isBRecOnRecursor (← getEnv) brecOnName do
         throwError "{infos[0]!.name}: expected .brecOn application, found:{indentExpr body}"
 
@@ -984,12 +985,12 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
         motives.mapM fun motive =>
           forallTelescopeReducing motive fun xs _ => pure xs.size
 
-
-      let recArgInfos ← infos.mapM fun info => do
+      let recArgInfos ← infos.mapIdxM fun funIdx info => do
         let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) info.name | throwError "{info.name} missing eqnInfo"
-        let value ← instantiateLambda info.value xs
+        let value ← fixedParams.instantiateLambda funIdx info.value xs
         let recArgInfo' ← lambdaTelescope value fun ys _ =>
-          Structural.getRecArgInfo info.name numFixed (xs ++ ys) eqnInfo.recArgPos
+          let args := fixedParams.buildArgs funIdx xs ys
+          Structural.getRecArgInfo info.name funIdx fixedParams args eqnInfo.recArgPos
         let #[recArgInfo] ← Structural.argsInGroup group xs value #[recArgInfo']
           | throwError "Structural.argsInGroup did not return a recArgInfo"
         pure recArgInfo
@@ -1007,23 +1008,24 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
         -- context, and are the parts relevant for every function in the mutual group
 
         -- Calculate the types of the induction motives (natural argument order) for each function
-        let motiveTypes ← infos.mapM fun info => do
-          lambdaTelescope (← instantiateLambda info.value xs) fun ys _ =>
+        let motiveTypes ← infos.mapIdxM fun funIdx info => do
+          lambdaTelescope (← fixedParams.instantiateLambda funIdx info.value xs) fun ys _ =>
             mkForallFVars ys (.sort levelZero)
-        let motiveArities ← infos.mapM fun info => do
-          lambdaTelescope (← instantiateLambda info.value xs) fun ys _ => pure ys.size
+        let motiveArities ← infos.mapIdxM fun funIdx info => do
+          lambdaTelescope (← fixedParams.instantiateLambda funIdx info.value xs) fun ys _ =>
+            pure ys.size
         let motiveNames := Array.ofFn (n := infos.size) fun ⟨i, _⟩ =>
           if infos.size = 1 then .mkSimple "motive" else .mkSimple s!"motive_{i+1}"
 
         withLocalDeclsDND (motiveNames.zip motiveTypes) fun motives => do
 
           -- Prepare the `isRecCall` that recognizes recursive calls
-          let fns := infos.map fun info =>
-            mkAppN (.const info.name (info.levelParams.map mkLevelParam)) xs
           let isRecCall : Expr → Option Expr := fun e => do
-            if let .some i := motives.idxOf? e.getAppFn then
-              if e.getAppNumArgs = motiveArities[i]! then
-                return mkAppN fns[i]! e.getAppArgs
+            if let .some funIdx := motives.idxOf? e.getAppFn then
+              if e.getAppNumArgs = motiveArities[funIdx]! then
+                let info := infos[funIdx]!
+                let args := fixedParams.buildArgs funIdx xs e.getAppArgs
+                return mkAppN (.const info.name (info.levelParams.map mkLevelParam)) args
             .none
 
           -- Motives with parameters reordered, to put indices and major first
@@ -1071,8 +1073,8 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
             for info in infos, recArgInfo in recArgInfos, idx in [:infos.size] do
               -- Take care to pick the `ys` from the type, to get the variable names expected
               -- by the user, but use the value arity
-              let arity ← lambdaTelescope (← instantiateLambda info.value xs) fun ys _ => pure ys.size
-              let e ← forallBoundedTelescope (← instantiateForall info.type xs) arity fun ys _ => do
+              let arity ← lambdaTelescope (← fixedParams.instantiateLambda idx info.value xs) fun ys _ => pure ys.size
+              let e ← forallBoundedTelescope (← fixedParams.instantiateForall idx info.type xs) arity fun ys _ => do
                 let (indicesMajor, rest) := recArgInfo.pickIndicesMajor ys
                 -- Find where in the function packing we are (TODO: abstract out)
                 let some indIdx := positions.findIdx? (·.contains idx) | panic! "invalid positions"
@@ -1216,7 +1218,7 @@ def deriveInduction (name : Name) : MetaM Unit := do
       if eqnInfo.argsPacker.numFuncs = 1 then
         setNaryFunIndInfo eqnInfo.fixedParams eqnInfo.declNames[0]! unaryInductName
     else if let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) name then
-      deriveInductionStructural eqnInfo.declNames eqnInfo.numFixed
+      deriveInductionStructural eqnInfo.declNames eqnInfo.fixedParams
     else
       throwError "constant '{name}' is not structurally or well-founded recursive"
 

@@ -72,9 +72,9 @@ where
       withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>
         go (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
 
-private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr)
-    (recArgInfos : Array RecArgInfo) : M (Array PreDefinition) := do
-  let values ← preDefs.mapM (instantiateLambda ·.value xs)
+private def elimMutualRecursion (preDefs : Array PreDefinition) (fixedParams : FixedParams)
+    (xs : Array Expr) (recArgInfos : Array RecArgInfo) : M (Array PreDefinition) := do
+  let values ← preDefs.mapIdxM (fixedParams.instantiateLambda · ·.value xs)
   let indInfo ← getConstInfoInduct recArgInfos[0]!.indGroupInst.all[0]!
   if ← isInductivePredicate indInfo.name then
     -- Here we branch off to the IndPred construction, but only for non-mutual functions
@@ -85,7 +85,8 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr
     let recArgInfo := recArgInfos[0]!
     let value := values[0]!
     let valueNew ← mkIndPredBRecOn recArgInfo value
-    let valueNew ← mkLambdaFVars xs valueNew
+    let valueNew ← lambdaTelescope value fun ys _ => do
+      mkLambdaFVars (fixedParams.buildArgs 0 xs ys) (mkAppN valueNew ys)
     trace[Elab.definition.structural] "Nonrecursive value:{indentExpr valueNew}"
     check valueNew
     return #[{ preDef with value := valueNew }]
@@ -106,12 +107,14 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr
   -- Assemble the individual `.brecOn` applications
   let valuesNew ← (Array.zip recArgInfos values).mapIdxM fun i (r, v) =>
     mkBrecOnApp positions i brecOnConst FArgs r v
-  -- Abstract over the fixed prefixed
-  let valuesNew ← valuesNew.mapM (mkLambdaFVars xs ·)
+  -- Abstract over the fixed prefixed, preserving the original parameter order
+  let valuesNew ← (values.zip valuesNew).mapIdxM fun i ⟨value, valueNew⟩ =>
+    lambdaTelescope value fun ys _ => do
+      mkLambdaFVars (fixedParams.buildArgs i xs ys) (mkAppN valueNew ys)
   return (Array.zip preDefs valuesNew).map fun ⟨preDef, valueNew⟩ => { preDef with value := valueNew }
 
 private def inferRecArgPos (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) :
-    M (Array Nat × (Array PreDefinition) × Nat) := do
+    M (Array Nat × (Array PreDefinition) × FixedParams) := do
   withoutModifyingEnv do
     preDefs.forM (addAsAxiom ·)
     let fnNames := preDefs.map (·.declName)
@@ -119,15 +122,16 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termMeasure?s : Arra
       return { preDef with value := (← preprocess preDef.value fnNames) }
 
     -- The syntactically fixed arguments
-    let maxNumFixed ← Mutual.getFixedPrefix preDefs
+    let fixedParams ← getFixedParams preDefs
 
-    lambdaBoundedTelescope preDefs[0]!.value maxNumFixed fun xs _ => do
-      assert! xs.size = maxNumFixed
-      let values ← preDefs.mapM (instantiateLambda ·.value xs)
+    fixedParams.forallTelescope 0 preDefs[0]!.type fun xs => do
+      let values ← preDefs.mapIdxM (fixedParams.instantiateLambda · ·.value xs)
 
-      tryAllArgs fnNames xs values termMeasure?s fun recArgInfos => do
+      tryAllArgs fnNames fixedParams xs values termMeasure?s fun recArgInfos => do
         let recArgPoss := recArgInfos.map (·.recArgPos)
         trace[Elab.definition.structural] "Trying argument set {recArgPoss}"
+        -- TODO: Reduce fixedParas
+        /-
         let numFixed := recArgInfos.foldl (·.min ·.numFixed) maxNumFixed
         if numFixed < maxNumFixed then
           trace[Elab.definition.structural] "Reduced numFixed from {maxNumFixed} to {numFixed}"
@@ -136,8 +140,10 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termMeasure?s : Arra
         let recArgInfos := recArgInfos.map ({· with numFixed := numFixed })
         withErasedFVars (xs.extract numFixed xs.size |>.map (·.fvarId!)) do
           let xs := xs[:numFixed]
-          let preDefs' ← elimMutualRecursion preDefs xs recArgInfos
-          return (recArgPoss, preDefs', numFixed)
+        -/
+        id do
+          let preDefs' ← elimMutualRecursion preDefs fixedParams xs recArgInfos
+          return (recArgPoss, preDefs', fixedParams)
 
 def reporttermMeasure (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
   if let some ref := preDef.termination.terminationBy?? then
@@ -150,7 +156,7 @@ def reporttermMeasure (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit :=
 
 def structuralRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) : TermElabM Unit := do
   let names := preDefs.map (·.declName)
-  let ((recArgPoss, preDefsNonRec, numFixed), state) ← run <| inferRecArgPos preDefs termMeasure?s
+  let ((recArgPoss, preDefsNonRec, fixedParams), state) ← run <| inferRecArgPos preDefs termMeasure?s
   for recArgPos in recArgPoss, preDef in preDefs do
     reporttermMeasure preDef recArgPos
   state.addMatchers.forM liftM
@@ -173,7 +179,7 @@ def structuralRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (
         for theorems and definitions that are propositions.
         See issue #2327
         -/
-        registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos numFixed
+        registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos fixedParams
     addSmartUnfoldingDef preDef recArgPos
     markAsRecursive preDef.declName
     generateEagerEqns preDef.declName

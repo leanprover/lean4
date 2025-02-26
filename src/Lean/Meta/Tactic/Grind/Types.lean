@@ -899,25 +899,12 @@ def hasType (t α : Expr) : MetaM Bool :=
 /--
 For each equality `b = c` in `parents`, executes `k b c` IF
 - `b = c` is equal to `False`, and
-- `a` is the equivalence class of `b` or `c`, and
-- type of `a` is definitionally equal to types of `b` and `c`.
 -/
-@[inline] def forEachDiseqOfCore (a : Expr) (parents : ParentSet) (k : (lhs : Expr) → (rhs : Expr) → GoalM Unit) : GoalM Unit := do
+@[inline] def forEachDiseq (parents : ParentSet) (k : (lhs : Expr) → (rhs : Expr) → GoalM Unit) : GoalM Unit := do
   for parent in parents do
-    let_expr Eq α b c := parent | continue
+    let_expr Eq _ b c := parent | continue
     if (← isEqFalse parent) then
-    if (← isEqv a b <||> isEqv a c) then
-    if (← hasType a α) then
       k b c
-
-/--
-For each equality `b = c` in `(← getParents a)`, executes `k b c` IF
-- `b = c` is equal to `False`, and
-- `a` is the equivalence class of `b` or `c`, and
-- type of `a` is definitionally equal to types of `b` and `c`.
--/
-@[inline] def forEachDiseqOf (a : Expr) (k : (lhs : Expr) → (rhs : Expr) → GoalM Unit) : GoalM Unit := do
-  forEachDiseqOfCore a (← getParents a) k
 
 /--
 Given `lhs` and `rhs` that are known to be disequal, checks whether
@@ -930,11 +917,11 @@ def propagateCutsatDiseq (lhs rhs : Expr) : GoalM Unit := do
   Arith.Cutsat.processNewDiseq e₁ e₂
 
 /--
-Traverses all known disequalities about `e`, and propagate the ones relevant to the
+Traverses disequalities in `parents`, and propagate the ones relevant to the
 cutsat module.
 -/
-def propagateCutsatDiseqs (e : Expr) : GoalM Unit := do
-  forEachDiseqOf e propagateCutsatDiseq
+def propagateCutsatDiseqs (parents : ParentSet) : GoalM Unit := do
+  forEachDiseq parents propagateCutsatDiseq
 
 /--
 Marks `e` as a term of interest to the cutsat module.
@@ -949,7 +936,7 @@ def markAsCutsatTerm (e : Expr) : GoalM Unit := do
     Arith.Cutsat.processNewEqLit e root.self
   else
     setENode root.self { root with cutsat? := some e }
-    propagateCutsatDiseqs root.self
+    propagateCutsatDiseqs (← getParents root.self)
 
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do

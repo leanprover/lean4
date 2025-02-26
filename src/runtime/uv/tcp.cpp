@@ -126,11 +126,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
 
     uv_connect_t * uv_connect = (uv_connect_t*)malloc(sizeof(uv_connect_t));
 
-    uv_connect->data = (tcp_connect_data*)malloc(sizeof(tcp_connect_data));
+    tcp_connect_data* connect_data = (tcp_connect_data*)malloc(sizeof(tcp_connect_data));
 
-    tcp_connect_data* connect_data = (tcp_connect_data*)uv_connect->data;
     connect_data->promise = promise;
     connect_data->socket = socket;
+    uv_connect->data = connect_data;
 
     lean_inc(promise);
 

@@ -17,9 +17,6 @@ private def _root_.Int.Linear.Poly.substVar (p : Poly) : GoalM (Option (Var × E
   let p := p.mul (-b) |>.combine (c.p.mul a)
   return some (x, c, p)
 
-def mkEqCnstr (p : Poly) (h : EqCnstrProof) : GoalM EqCnstr := do
-  return { p, h, id := (← mkCnstrId) }
-
 def EqCnstr.norm (c : EqCnstr) : GoalM EqCnstr := do
   let c ← if c.p.isSorted then
     pure c
@@ -54,6 +51,7 @@ partial def DiseqCnstr.applySubsts (c : DiseqCnstr) : GoalM DiseqCnstr := withIn
 
 def DiseqCnstr.assert (c : DiseqCnstr) : GoalM Unit := do
   if (← inconsistent) then return ()
+  trace[grind.cutsat.assert] "{← c.pp}"
   let c ← c.norm
   let c ← c.applySubsts
   if c.p.isUnsatDiseq then
@@ -62,8 +60,14 @@ def DiseqCnstr.assert (c : DiseqCnstr) : GoalM Unit := do
   if c.isTrivial then
     trace[grind.cutsat.diseq.trivial] "{← c.pp}"
     return ()
+  let k := c.p.gcdCoeffs c.p.getConst
+  let c ← if k == 1 then
+    pure c
+  else
+    mkDiseqCnstr (c.p.div k) (.divCoeffs c)
   let .add _ x _ := c.p | c.throwUnexpected
   c.p.updateOccs
+  trace[grind.cutsat.diseq] "{← c.pp}"
   modify' fun s => { s with diseqs := s.diseqs.modify x (·.push c) }
   if (← c.satisfied) == .false then
     resetAssignmentFrom x
@@ -173,7 +177,8 @@ private def updateOccs (k : Int) (x : Var) (c : EqCnstr) : GoalM Unit := do
   for y in ys do
     updateOccsAt k x c y
 
-def EqCnstr.assert (c : EqCnstr) : GoalM Unit := do
+@[export lean_grind_cutsat_assert_eq]
+def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
   if (← inconsistent) then return ()
   trace[grind.cutsat.assert] "{← c.pp}"
   let c ← c.norm

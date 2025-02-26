@@ -60,6 +60,13 @@ def DvdCnstr.getSolutions? (c : DvdCnstr) : GoalM (Option (Int × Int)) := do
   -- `x = k*d + -b*a'` for any k
   return some (d, -b*a')
 
+private partial def skipAssignment (x : Var)  : GoalM Unit := do
+  if x < (← get').assignment.size then
+    throwError "`grind` internal error, variable is already assigned"
+  modify' fun s => { s with assignment := s.assignment.push 0 }
+  if x > (← get').assignment.size then
+    skipAssignment x
+
 private partial def setAssignment (x : Var) (v : Int) : GoalM Unit := do
   if x == (← get').assignment.size then
     trace[grind.cutsat.assign] "{quoteIfNotAtom (← getVar x)} := {v}"
@@ -90,6 +97,9 @@ def resolveDvdConflict (c : DvdCnstr) : GoalM Unit := do
   (← mkDvdCnstr (a.gcd d) p (.elim c)).assert
 
 def decideVar (x : Var) : GoalM Unit := do
+  if (← eliminated x) then
+    skipAssignment x
+    return ()
   let lower? ← getBestLower? x
   let upper? ← getBestUpper? x
   let dvd? := (← get').dvds[x]!

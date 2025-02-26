@@ -31,24 +31,8 @@ inductive EqCnstrProof where
   | norm (c : EqCnstr)
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
-end
+  | ofLeGe (c₁ : LeCnstr) (c₂ : LeCnstr)
 
-mutual
-/-- A disequality constraint and its justification/proof. -/
-structure DiseqCnstr where
-  p  : Poly
-  h  : DiseqCnstrProof
-  id : Nat
-
-inductive DiseqCnstrProof where
-  | expr (h : Expr)
-  | core (p₁ p₂ : Poly) (h : Expr)
-  | norm (c : DiseqCnstr)
-  | divCoeffs (c : DiseqCnstr)
-  | subst (x : Var) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
-end
-
-mutual
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstr where
   d  : Int
@@ -81,6 +65,21 @@ inductive LeCnstrProof where
   | combine (c₁ c₂ : LeCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : LeCnstr)
   -- TODO: missing constructors
+end
+
+mutual
+/-- A disequality constraint and its justification/proof. -/
+structure DiseqCnstr where
+  p  : Poly
+  h  : DiseqCnstrProof
+  id : Nat
+
+inductive DiseqCnstrProof where
+  | expr (h : Expr)
+  | core (p₁ p₂ : Poly) (h : Expr)
+  | norm (c : DiseqCnstr)
+  | divCoeffs (c : DiseqCnstr)
+  | subst (x : Var) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
 end
 
 /--
@@ -148,7 +147,6 @@ structure State where
   /-
   TODO: support for storing
   - Disjuctions: they come from conflict resolution, and disequalities.
-  - Disequalities.
   - Linear integer terms appearing in the main module, and model-based equality propagation.
   -/
   deriving Inhabited

@@ -28,18 +28,18 @@ void lean_ipv6_addr_to_in6_addr(b_obj_arg ipv6_addr, in6_addr* out) {
     }
 }
 
-extern "C" void lean_socket_addr_to_sockaddr(b_obj_arg ip_addr, struct sockaddr* out) {
-    lean_object * socket_addr_obj = lean_ctor_get(ip_addr, 0);
-    lean_object * ip_addr_obj = lean_ctor_get(socket_addr_obj, 0);
+void lean_socket_address_to_sockaddr(b_obj_arg ip_addr, sockaddr* out) {
+    lean_object* socket_addr_obj = lean_ctor_get(ip_addr, 0);
+    lean_object* ip_addr_obj = lean_ctor_get(socket_addr_obj, 0);
     uint16_t port_obj = lean_ctor_get_uint16(socket_addr_obj, sizeof(void*)*1);
 
     if (lean_ptr_tag(ip_addr) == 0) {
-        struct sockaddr_in * cast = (struct sockaddr_in*)out;
+        sockaddr_in* cast = (sockaddr_in*)out;
         lean_ipv4_addr_to_in_addr(ip_addr_obj, &cast->sin_addr);
         cast->sin_family = AF_INET;
         cast->sin_port = htons(port_obj);
     } else {
-        struct sockaddr_in6 * cast = (struct sockaddr_in6*)out;
+        sockaddr_in6 * cast = (sockaddr_in6*)out;
         lean_ipv6_addr_to_in6_addr(ip_addr_obj, (in6_addr*)&cast->sin6_addr);
         cast->sin6_family = AF_INET6;
         cast->sin6_port = htons(port_obj);

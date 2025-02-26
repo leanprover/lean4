@@ -67,56 +67,56 @@ Gets the local address of the UDP socket.
 -/
 @[inline]
 def getSockName (s : Socket) : IO SocketAddress :=
-  s.native.getsockname
+  s.native.getSockName
 
 /--
 Gets the remote address of the UDP socket.
 -/
 @[inline]
 def getPeerName (s : Socket) : IO SocketAddress :=
-  s.native.getpeername
+  s.native.getPeerName
 
 /--
 Enables or disables broadcasting for the UDP socket.
 -/
 @[inline]
 def setBroadcast (s : Socket) (enable : Bool) : IO Unit :=
-  s.native.set_broadcast enable
+  s.native.setBroadcast enable
 
 /--
 Enables or disables multicast loopback for the UDP socket.
 -/
 @[inline]
 def setMulticastLoop (s : Socket) (enable : Bool) : IO Unit :=
-  s.native.set_multicast_loop enable
+  s.native.setMulticastLoop enable
 
 /--
 Sets the time-to-live (TTL) for multicast packets.
 -/
 @[inline]
 def setMulticastTTL (s : Socket) (ttl : UInt32) : IO Unit :=
-  s.native.set_multicast_ttl ttl
+  s.native.setMulticastTTL ttl
 
 /--
 Sets the membership for joining or leaving a multicast group.
 -/
 @[inline]
 def setMembership (s : Socket) (multicastAddr : String) (interfaceAddr : String) (membership : Internal.UV.UDP.Membership) : IO Unit :=
-  s.native.set_membership multicastAddr interfaceAddr membership
+  s.native.setMembership multicastAddr interfaceAddr membership
 
 /--
 Sets the multicast interface for sending packets.
 -/
 @[inline]
 def setMulticastInterface (s : Socket) (interfaceAddr : String) : IO Unit :=
-  s.native.set_multicast_interface interfaceAddr
+  s.native.setMulticastInterface interfaceAddr
 
 /--
 Sets the TTL for outgoing packets.
 -/
 @[inline]
 def setTTL (s : Socket) (ttl : UInt32) : IO Unit :=
-  s.native.set_ttl ttl
+  s.native.setTTL ttl
 
 end Socket
 

@@ -70,21 +70,21 @@ Gets the local address of the server socket.
 -/
 @[inline]
 def getSockName (s : Server) : IO SocketAddress :=
-  s.native.getsockname
+  s.native.getSockName
 
 /--
 Enables the Nagle algorithm for all client sockets accepted by this server socket.
 -/
 @[inline]
 def noDelay (s : Server) : IO Unit :=
-  s.native.nodelay
+  s.native.noDelay
 
 /--
 Enables TCP keep-alive for all client sockets accepted by this server socket.
 -/
 @[inline]
 def keepAlive (s : Server) (enable : Bool) (delay : Std.Time.Second.Offset) (_ : delay.val ≥ 1 := by decide) : IO Unit :=
-  s.native.keepalive enable delay.val.toNat.toUInt32
+  s.native.keepAlive enable delay.val.toNat.toUInt32
 
 end Server
 
@@ -124,7 +124,7 @@ Tries to send data through the client socket.
 -/
 @[inline]
 def trySend (s : Client) (data : ByteArray) : IO Unit :=
-  s.native.try_send data
+  s.native.trySend data
 
 /--
 Receives data from the client socket.  If data is received, it’s wrapped in .some. If EOF is reached,
@@ -146,28 +146,28 @@ Gets the remote address of the client socket.
 -/
 @[inline]
 def getPeerName (s : Client) : IO SocketAddress :=
-  s.native.getpeername
+  s.native.getPeerName
 
 /--
 Gets the local address of the client socket.
 -/
 @[inline]
 def getSockName (s : Client) : IO SocketAddress :=
-  s.native.getsockname
+  s.native.getSockName
 
 /--
 Enables the Nagle algorithm for the client socket.
 -/
 @[inline]
 def noDelay (s : Client) : IO Unit :=
-  s.native.nodelay
+  s.native.noDelay
 
 /--
 Enables TCP keep-alive with a specified delay for the client socket.
 -/
 @[inline]
 def keepAlive (s : Client) (enable : Bool) (delay : Std.Time.Second.Offset) (_ : delay.val ≥ 0 := by decide) : IO Unit :=
-  s.native.keepalive enable delay.val.toNat.toUInt32
+  s.native.keepAlive enable delay.val.toNat.toUInt32
 
 end Client
 

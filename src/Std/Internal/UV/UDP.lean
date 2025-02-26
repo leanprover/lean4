@@ -68,49 +68,49 @@ opaque recv (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Err
 Gets the remote address of a connected UDP socket.
 -/
 @[extern "lean_uv_udp_getpeername"]
-opaque getpeername (socket : @& Socket) : IO SocketAddress
+opaque getPeerName (socket : @& Socket) : IO SocketAddress
 
 /--
 Gets the local address of a bound UDP socket.
 -/
 @[extern "lean_uv_udp_getsockname"]
-opaque getsockname (socket : @& Socket) : IO SocketAddress
+opaque getSockName (socket : @& Socket) : IO SocketAddress
 
 /--
 Enables or disables broadcasting on a UDP socket.
 -/
 @[extern "lean_uv_udp_set_broadcast"]
-opaque set_broadcast (socket : @& Socket) (on : Bool) : IO Unit
+opaque setBroadcast (socket : @& Socket) (on : Bool) : IO Unit
 
 /--
 Enables or disables multicast loopback for a UDP socket.
 -/
 @[extern "lean_uv_udp_set_multicast_loop"]
-opaque set_multicast_loop (socket : @& Socket) (on : Bool) : IO Unit
+opaque setMulticastLoop (socket : @& Socket) (on : Bool) : IO Unit
 
 /--
 Sets the time-to-live (TTL) value for multicast packets.
 -/
 @[extern "lean_uv_udp_set_multicast_ttl"]
-opaque set_multicast_ttl (socket : @& Socket) (ttl : UInt32) : IO Unit
+opaque setMulticastTTL (socket : @& Socket) (ttl : UInt32) : IO Unit
 
 /--
 Sets the membership for joining or leaving a multicast group.
 -/
 @[extern "lean_uv_udp_set_membership"]
-opaque set_membership (socket : @& Socket) (multicast_addr interface_addr : String) (membership : Membership) : IO Unit
+opaque setMembership (socket : @& Socket) (multicast_addr interface_addr : String) (membership : Membership) : IO Unit
 
 /--
 Sets the multicast interface for sending packets.
 -/
 @[extern "lean_uv_udp_set_multicast_interface"]
-opaque set_multicast_interface (socket : @& Socket) (interface_addr : String) : IO Unit
+opaque setMulticastInterface (socket : @& Socket) (interface_addr : String) : IO Unit
 
 /--
 Sets the TTL value for outgoing packets.
 -/
 @[extern "lean_uv_udp_set_ttl"]
-opaque set_ttl (socket : @& Socket) (ttl : UInt32) : IO Unit
+opaque setTTL (socket : @& Socket) (ttl : UInt32) : IO Unit
 
 end Socket
 end UDP

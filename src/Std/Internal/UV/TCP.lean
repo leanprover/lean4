@@ -48,7 +48,7 @@ opaque send (socket : @& Socket) (data : ByteArray) : IO (IO.Promise (Except IO.
 Tries to send data through a TCP socket.
 -/
 @[extern "lean_uv_tcp_try_send"]
-opaque try_send (socket : @& Socket) (data : ByteArray) : IO Unit
+opaque trySend (socket : @& Socket) (data : ByteArray) : IO Unit
 
 /--
 Receives data from a TCP socket with a maximum size of size bytes. The promise resolves when data is
@@ -86,25 +86,25 @@ opaque shutdown (socket : @& Socket) : IO (IO.Promise (Except IO.Error Unit))
 Gets the remote address of a connected TCP socket.
 -/
 @[extern "lean_uv_tcp_getpeername"]
-opaque getpeername (socket : @& Socket) : IO SocketAddress
+opaque getPeerName (socket : @& Socket) : IO SocketAddress
 
 /--
 Gets the local address of a bound TCP socket.
 -/
 @[extern "lean_uv_tcp_getsockname"]
-opaque getsockname (socket : @& Socket) : IO SocketAddress
+opaque getSockName (socket : @& Socket) : IO SocketAddress
 
 /--
 Enables the Nagle algorithm for a TCP socket.
 -/
 @[extern "lean_uv_tcp_nodelay"]
-opaque nodelay (socket : @& Socket) : IO Unit
+opaque noDelay (socket : @& Socket) : IO Unit
 
 /--
 Enables TCP keep-alive for a socket. If delay is less than 1 then UV_EINVAL is returned.
 -/
 @[extern "lean_uv_tcp_keepalive"]
-opaque keepalive (socket : @& Socket) (enable : Int32) (delay : UInt32) : IO Unit
+opaque keepAlive (socket : @& Socket) (enable : Int32) (delay : UInt32) : IO Unit
 
 end Socket
 end TCP

@@ -215,7 +215,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
     return lean_io_result_mk_ok(promise);
 }
 
-/* Std.Internal.UV.TCP.Socket.try_send (socket : @& Socket) (data : ByteArray) : IO Unit */
+/* Std.Internal.UV.TCP.Socket.trySend (socket : @& Socket) (data : ByteArray) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_try_send(b_obj_arg socket, obj_arg data) {
     lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
 

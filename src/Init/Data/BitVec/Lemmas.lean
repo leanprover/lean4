@@ -3705,7 +3705,6 @@ theorem toNat_rotateRight {x : BitVec w} {r : Nat} :
 theorem twoPow_eq (w : Nat) (i : Nat) : twoPow w i = 1#w <<< i := by
   dsimp [twoPow]
 
-@[simp, bitvec_to_nat]
 theorem toNat_twoPow (w : Nat) (i : Nat) : (twoPow w i).toNat = 2^i % 2^w := by
   rcases w with rfl | w
   · simp [Nat.mod_one, toNat_of_zero_length]
@@ -3731,6 +3730,34 @@ theorem getLsbD_twoPow (i j : Nat) : (twoPow w i).getLsbD j = ((i < w) && (i = j
           simp at hi
         simp_all
 
+@[simp]
+theorem msb_twoPow {i w: Nat} :
+    (twoPow w i).msb = (decide (i < w) && decide (i = w - 1)) := by
+  simp only [BitVec.msb, getMsbD_eq_getLsbD, Nat.sub_zero, getLsbD_twoPow,
+    Bool.and_iff_right_iff_imp, Bool.and_eq_true, decide_eq_true_eq, and_imp]
+  intros
+  omega
+
+#check Nat.two_pow_pred_mod_two_pow
+
+theorem Nat.pow_mod_pow_of_lt {a b c : Nat} (ha : 1 < a) (h : b < c) : (a ^ b) % (a ^ c) = a ^ b := by
+  rw [Nat.mod_eq_of_lt]
+  rw [Nat.pow_lt_pow_iff_right ha]
+  exact h
+
+theorem Nat.shiftLeft_mod_shiftLeft {a b c : Nat} (ha : 0 < a) (h : b < c) : (a <<< b) % (a <<< c) = a <<< b := by
+  sorry
+
+theorem Nat.two_pow_eq {a : Nat} : 2 ^ a = 1 <<< a := by
+  simp [Nat.shiftLeft_eq]
+
+theorem Nat.two_mul_shiftLeft {a : Nat} : 2 * a <<< b = a <<< (b + 1) := by
+  rw [Nat.shiftLeft_succ]
+
+theorem Int.ofNat_shiftLeft_sub_ofNat_shiftLeft_succ (a b : Nat) :
+    ↑(a <<< b) - ↑(a <<< (b + 1)) = -((a <<< b) : Int) := by
+  sorry
+
 theorem toInt_twoPow {w i : Nat} :
     (BitVec.twoPow w i).toInt = (if w ≤ i then 0 else if i + 1 = w then -1 <<< i else 1 <<< i : Int) := by
   simp only [BitVec.twoPow, BitVec.toInt]
@@ -3740,11 +3767,133 @@ theorem toInt_twoPow {w i : Nat} :
     · simp [h]; norm_cast; omega
     · simp only [toNat_shiftLeft, toNat_ofNat, Nat.zero_lt_succ, Nat.one_mod_two_pow,
       Int.ofNat_emod, h, ↓reduceIte, Nat.add_right_cancel_iff]
-      have hy : (2 ^ i % 2 ^  (w + 1)) = 2 ^ i := by rw [Nat.mod_eq_of_lt (by rw [Nat.pow_lt_pow_iff_right (by omega)]; omega)]
+      have hy : (2 ^ i % 2 ^ (w + 1)) = 2 ^ i := by rw [Nat.mod_eq_of_lt (by rw [Nat.pow_lt_pow_iff_right (by omega)]; omega)]
       have hj : 2 * 2 ^ i = 2 ^ (i + 1) := by rw [Nat.pow_add, Nat.mul_comm]
       norm_cast
       simp only [Nat.shiftLeft_eq, Nat.one_mul, hy, hj]
-      by_cases i + 1 =  (w + 1)
+      by_cases i + 1 = (w + 1)
+      · simp [show i = w by omega]; omega
+      · simp [show 2 ^ (i + 1) < 2 ^ (w + 1) by rw [Nat.pow_lt_pow_iff_right (by omega)]; omega]
+        omega
+
+theorem toNat_one {w : Nat} : (1#w).toNat = 1 % 2^w := by
+  simp [toNat_ofNat]
+
+#check toInt_eq_msb_cond
+#check msb_twoPow
+
+theorem toNat_twoPow_of_le {i w : Nat} (h : w ≤ i): (twoPow w i).toNat = 0 := by
+  rw [toNat_twoPow]
+  apply Nat.mod_eq_zero_of_dvd
+  exact Nat.pow_dvd_pow_iff_le_right'.mpr h
+
+theorem toNat_twoPow_of_lt {i w : Nat} (h : i < w ): (twoPow w i).toNat = 2^i := by
+  rw [toNat_twoPow]
+  apply Nat.mod_eq_of_lt
+  apply Nat.pow_lt_pow_of_lt (by omega) (by omega)
+
+#eval Bool.toNat false -- 0
+#eval Bool.toNat true -- 1
+
+theorem toNat_twoPow_eq_cond' (i w : Nat) : (twoPow w i).toNat =  Bool.toNat (decide (i < w)) * 2^i := sorry
+
+theorem toInt_twoPow_sid {w i : Nat} :
+    (BitVec.twoPow w i).toInt = (2 ^ i : Nat) * ((if w ≤ i then 0 else if i + 1 = w then -1 else 1) : Int) := by
+  rcases w with _|w
+  · sorry
+  · rw [BitVec.toInt_eq_msb_cond, msb_twoPow]
+    simp only [Nat.add_one_sub_one, Bool.and_eq_true, decide_eq_true_eq,
+      Int.ofNat_emod, Nat.add_right_cancel_iff, Int.reduceNeg]
+    by_cases h : i = w
+    · simp only [h, Nat.lt_add_one, _root_.and_self, ↓reduceIte, Int.ofNat_emod, Int.reduceNeg]
+      rw [toNat_twoPow_of_lt (by omega)]
+      simp [show ¬ (w + 1 ≤ w) by omega]
+      omega
+    · simp only [h, and_false, if_false]
+      by_cases h' : w + 1 ≤ i
+      · rw [toNat_twoPow_of_le (by omega)]
+        simp only [h', if_true, Int.ofNat_emod, Int.reduceNeg]
+        -- The real problem is that we have toNat_twoPow in the simp-set that introduces modulo. @bollu thinks we should
+        -- maybe consider toNat_twoPow_eq_cond that introduces a case-split, but a cleaner one based on the index and width,
+        -- rather than the one based on 2^i % 2^w
+        exact rfl
+      · simp only [h', if_false]
+        rw [toNat_twoPow_of_lt (by omega)]
+        omega
+
+@[simp]
+theorem toNat_twoPow_eq_cond (i w : Nat) : (twoPow w i).toNat = if i < w then 2^i else 0 := by
+  by_cases h : i < w
+  · simp only [h, toNat_twoPow_of_lt, if_true]
+  · simp only [h, if_false]
+    rw [toNat_twoPow_of_le (by omega)]
+
+theorem toInt_twoPow_sid_plus_tobias {w i : Nat} :
+    (BitVec.twoPow w i).toInt = (2 ^ i : Nat) * ((if w ≤ i then 0 else if i + 1 = w then -1 else 1) : Int) := by
+  simp only [BitVec.toInt_eq_msb_cond]
+  rcases w with _|w
+  · simp
+  · by_cases h : i = w
+    · simp [h, show ¬ (w + 1 ≤ w) by omega]
+      omega
+    · by_cases h' : w + 1 ≤ i
+      · simp [h', show ¬ i < w + 1 by omega]
+      · simp [h, h', show i < w + 1 by omega]
+
+theorem toInt_twoPow {w i : Nat} :
+    (BitVec.twoPow w i).toInt = if w ≤ i then 0 else if i + 1 = w then - (2^i) else 2^i := by
+  simp only [BitVec.twoPow, BitVec.toInt]
+  rcases w with _|w
+  · simp
+  · by_cases h : w + 1 ≤ i
+    · simp [h]; omega
+    ·
+      simp only [toNat_shiftLeft, toNat_ofNat, Nat.zero_lt_succ, Nat.one_mod_two_pow,
+      Int.ofNat_emod, h, ↓reduceIte, Nat.add_right_cancel_iff, Nat.shiftLeft_eq]
+      rw_mod_cast [Nat.two_pow_eq, Nat.one_mul, Nat.two_pow_eq,
+        Nat.shiftLeft_mod_shiftLeft (by omega) (by omega),
+        Nat.two_mul_shiftLeft]
+      split
+      · split
+        ·
+          rename_i a b
+          subst b
+          simp at a
+        ·
+          simp
+      · split
+        ·
+          rename_i a
+          subst a
+          simp [Int.ofNat_shiftLeft_sub_ofNat_shiftLeft_succ]
+        ·
+
+          sorry
+      norm_cast
+
+
+
+
+      norm_cast
+      rw [Nat.shiftLeft_mod_shiftLeft]
+      norm_cast
+      simp
+
+
+
+
+
+
+
+
+      norm_cast
+      rw [@Nat.pow_mod_pow_of_lt 2 i (w + 1) (by omega) (by omega)]
+
+
+      have hy : (2 ^ i % 2 ^  (w + 1)) = 2 ^ i := @Nat.pow_mod_pow_of_lt (by omega) (by omega)
+      have hj : 2 * 2 ^ i = 2 ^ (i + 1) := by rw [Nat.pow_add_one']
+      simp only [Nat.shiftLeft_eq, Nat.one_mul, hy, hj]
+      by_cases i = w
       · simp [show i = w by omega]; omega
       · simp [show 2 ^ (i + 1) < 2 ^ (w + 1) by rw [Nat.pow_lt_pow_iff_right (by omega)]; omega]
         omega

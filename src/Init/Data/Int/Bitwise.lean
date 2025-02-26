@@ -47,4 +47,10 @@ protected def shiftRight : Int → Nat → Int
 
 instance : HShiftRight Int Nat Int := ⟨.shiftRight⟩
 
+protected def shiftLeft : Int → Nat → Int
+  | Int.ofNat n, s => Int.ofNat (n <<< s)
+  | Int.negSucc n, s => Int.negSucc (n <<< s)
+
+instance : HShiftLeft Int Nat Int := ⟨.shiftLeft⟩
+
 end Int

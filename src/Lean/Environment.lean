@@ -1473,9 +1473,12 @@ unsafe def Environment.freeRegions (env : Environment) : IO Unit :=
 
 def mkModuleData (env : Environment) : IO ModuleData := do
   let pExts ← persistentEnvExtensionsRef.get
-  let entries := pExts.map fun pExt =>
-    -- always get state from `checked` at the end; `async` would otherwise panic
-    let state := pExt.getState (asyncMode := .sync) env
+  let entries := pExts.map fun pExt => Id.run do
+    -- get state from `checked` at the end if `async`; it would otherwise panic
+    let mut asyncMode := pExt.toEnvExtension.asyncMode
+    if asyncMode matches .async then
+      asyncMode := .sync
+    let state := pExt.getState (asyncMode := asyncMode) env
     (pExt.name, pExt.exportEntriesFn state)
   let kenv := env.toKernelEnv
   let constNames := kenv.constants.foldStage2 (fun names name _ => names.push name) #[]

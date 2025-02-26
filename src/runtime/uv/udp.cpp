@@ -134,7 +134,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
 
     uv_buf_t buf = uv_buf_init(data_str, data_len);
 
-    lean_object * promise = create_promise();
+    lean_object * promise = lean_promise_new();
+    mark_mt(promise);
 
     uv_udp_send_t * send_uv = (uv_udp_send_t*)malloc(sizeof(uv_udp_send_t));
     udp_send_data * send_data = (udp_send_data*)malloc(sizeof(udp_send_data));
@@ -159,7 +160,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
 
     int result = uv_udp_send(send_uv, udp_socket->m_uv_udp, &buf, 1, (sockaddr *)addr_ptr, [](uv_udp_send_t* req, int status) {
         udp_send_data * tup = (udp_send_data*) req->data;
-        resolve_promise_with_status(tup->promise, status);
+        lean_promise_resolve_with_code(status, tup->promise);
 
         lean_dec(tup->socket);
         lean_dec(tup->data);
@@ -192,7 +193,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
         return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
     }
 
-    lean_object *promise = create_promise();
+    lean_object * promise = lean_promise_new();
+    mark_mt(promise);
+
     udp_socket->m_promise_read = promise;
     udp_socket->m_buffer_size = buffer_size;
     lean_inc(promise);
@@ -228,10 +231,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
             lean_ctor_set(prod, 0, byte_array);
             lean_ctor_set(prod, 1, addr_obj);
 
-            resolve_promise(promise, mk_ok_except(prod));
+            lean_promise_resolve(mk_except_ok(prod), promise);
         } else if (nread < 0) {
             lean_dec(byte_array);
-            resolve_promise(promise, mk_err_except(lean_decode_uv_error(nread, nullptr)));
+            lean_promise_resolve(mk_except_err(lean_decode_uv_error(nread, nullptr)), promise);
         }
 
         lean_dec(promise);

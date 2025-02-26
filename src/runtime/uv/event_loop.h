@@ -46,12 +46,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive(obj_arg /* w */ );
 
 // Helpers
 
-lean_object* unpack_io(lean_object* io);
-lean_object* create_promise();
-lean_object * mk_ok_except(lean_object * value);
-lean_object * mk_err_except(lean_object * value);
-
-void resolve_promise(lean_object* promise, lean_object* res);
-void resolve_promise_with_status(lean_object* promise, int status);
+void lean_promise_resolve_with_code(int status, obj_arg promise);
 
 }

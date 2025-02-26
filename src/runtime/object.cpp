@@ -1150,7 +1150,7 @@ extern "C" LEAN_EXPORT b_obj_res lean_io_wait_any_core(b_obj_arg task_list) {
     return g_task_manager->wait_any(task_list);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg) {
+obj_res lean_promise_new() {
     lean_always_assert(g_task_manager);
 
     bool keep_alive = false;
@@ -1165,11 +1165,20 @@ extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg) {
     lean_set_st_header((lean_object *)o, LeanPromise, 0);
     o->m_result = t; // the promise takes ownership of one task token
 
-    return io_result_mk_ok((lean_object *) o);
+    return (lean_object *) o;
+}
+
+void lean_promise_resolve(obj_arg value, b_obj_arg promise) {
+    g_task_manager->resolve(lean_to_promise(promise)->m_result, mk_option_some(value));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg) {
+    lean_object * o = lean_promise_new();
+    return io_result_mk_ok(o);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise, obj_arg) {
-    g_task_manager->resolve(lean_to_promise(promise)->m_result, mk_option_some(value));
+    lean_promise_resolve(value, promise);
     return io_result_mk_ok(box(0));
 }
 

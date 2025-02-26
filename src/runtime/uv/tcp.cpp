@@ -122,7 +122,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, obj_ar
     sockaddr addr_ptr;
     lean_socket_address_to_sockaddr(addr, &addr_ptr);
 
-    lean_object * promise = create_promise();
+    lean_object * promise = lean_promise_new();
+    mark_mt(promise);
 
     uv_connect_t * uv_connect = (uv_connect_t*)malloc(sizeof(uv_connect_t));
 
@@ -141,9 +142,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, obj_ar
 
     int result = uv_tcp_connect(uv_connect, tcp_socket->m_uv_tcp, (sockaddr *)&addr_ptr, [](uv_connect_t* req, int status) {
         tcp_connect_data* tup = (tcp_connect_data*) req->data;
-        resolve_promise_with_status(tup->promise, status);
+        lean_promise_resolve_with_code(status, tup->promise);
 
         // The event loop does not own the object anymore.
+        lean_dec(tup->promise);
         lean_dec(tup->socket);
 
         free(req->data);
@@ -171,7 +173,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 
     uv_buf_t buf = uv_buf_init(data_str, data_len);
 
-    lean_object * promise = create_promise();
+    lean_object * promise = lean_promise_new();
+    mark_mt(promise);
 
     uv_write_t * write_uv = (uv_write_t*)malloc(sizeof(uv_write_t));
     write_uv->data = (tcp_send_data*)malloc(sizeof(tcp_send_data));
@@ -190,7 +193,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
     int result = uv_write(write_uv, (uv_stream_t*)tcp_socket->m_uv_tcp, &buf, 1, [](uv_write_t * req, int status) {
         tcp_send_data * tup = (tcp_send_data*) req->data;
 
-        resolve_promise_with_status(tup->promise, status);
+        lean_promise_resolve_with_code(status, tup->promise);
 
         lean_dec(tup->promise);
         lean_dec(tup->data);
@@ -223,7 +226,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
         return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
     }
 
-    lean_object * promise = create_promise();
+    lean_object * promise = lean_promise_new();
+    mark_mt(promise);
+
     tcp_socket->m_promise_read = promise;
     tcp_socket->m_buffer_size = buffer_size;
     lean_inc(promise);
@@ -254,13 +259,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
 
         if (nread >= 0) {
             lean_sarray_set_size(byte_array, nread);
-            resolve_promise(promise, mk_ok_except(lean::mk_option_some(byte_array)));
+            lean_promise_resolve(mk_except_ok(lean::mk_option_some(byte_array)), promise);
         } else if (nread == UV_EOF) {
             lean_dec(byte_array);
-            resolve_promise(promise, mk_ok_except(lean::mk_option_none()));
+            lean_promise_resolve(mk_except_ok(lean::mk_option_none()), promise);
         } else if (nread < 0) {
             lean_dec(byte_array);
-            resolve_promise(promise, mk_err_except(lean_decode_uv_error(nread, nullptr)));
+            lean_promise_resolve(mk_except_err(lean_decode_uv_error(nread, nullptr)), promise);
         }
 
         lean_dec(promise);
@@ -308,7 +313,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
         lean_object * promise = tcp_socket->m_promise_accept;
 
         if (status < 0) {
-            resolve_promise_with_status(promise, status);
+            lean_promise_resolve_with_code(status, promise);
             lean_dec(promise);
             return;
         }
@@ -323,12 +328,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
 
         if (result < 0) {
             lean_dec(client);
-            resolve_promise_with_status(promise, result);
+            lean_promise_resolve_with_code(result, promise);
             lean_dec(promise);
             return;
         }
 
-        resolve_promise(promise, mk_ok_except(client));
+        lean_promise_resolve(mk_except_ok(client), promise);
         lean_dec(promise);
 
         // The accept increases the count and then the listen decreases
@@ -352,8 +357,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
         return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, mk_string("parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead")));
     }
 
-    lean_object * promise = create_promise();
-    lean_object * client = unpack_io(lean_uv_tcp_new());
+    lean_object * promise = lean_promise_new();
+    mark_mt(promise);
+
+    lean_object * client = lean_io_result_take_value(lean_uv_tcp_new());
 
     lean_uv_tcp_socket_object * client_socket = lean_to_uv_tcp_socket(client);
 
@@ -363,9 +370,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
 
     if (result < 0 && result != UV_EAGAIN) {
         lean_dec(client);
-        resolve_promise_with_status(promise, result);
+        lean_promise_resolve_with_code(result, promise);
     } else if (result >= 0) {
-        resolve_promise(promise, mk_ok_except(client));
+        lean_promise_resolve(mk_except_ok(client), promise);
     } else {
         // The event loop owns the object. It will be released in the listen
         lean_inc(socket);
@@ -386,7 +393,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
         return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, mk_string("shutdown already in progress")));
     }
 
-    lean_object * promise = create_promise();
+    lean_object * promise = lean_promise_new();
+    mark_mt(promise);
+
     tcp_socket->m_promise_shutdown = promise;
     lean_inc(promise);
 
@@ -401,9 +410,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
         lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket((lean_object*)req->data);
 
         if (status < 0) {
-            resolve_promise_with_status(tcp_socket->m_promise_shutdown, status);
+            lean_promise_resolve_with_code(status, tcp_socket->m_promise_shutdown);
         } else {
-            resolve_promise(tcp_socket->m_promise_shutdown, mk_ok_except(lean_box(0)));
+            lean_promise_resolve(mk_except_ok(lean_box(0)), tcp_socket->m_promise_shutdown);
         }
 
         lean_dec(tcp_socket->m_promise_shutdown);

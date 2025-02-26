@@ -797,7 +797,7 @@ theorem toListModel_insert [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl 
 ### `insert!`
 -/
 
-theorem WF.insert! [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β}
+theorem WF.insert! {_ : Ord α} [TransOrd α] {k : α} {v : β k} {l : Impl α β}
     (h : l.WF) : (l.insert! k v).WF := by
   simpa [insert_eq_insert!] using WF.insert (h := h.balanced) h
 
@@ -843,7 +843,7 @@ theorem toListModel_erase [Ord α] [TransOrd α] {k : α} {t : Impl α β} (htb 
 ### `erase!`
 -/
 
-theorem WF.erase! [Ord α] [TransOrd α] {k : α} {l : Impl α β}
+theorem WF.erase! {_ : Ord α} [TransOrd α] {k : α} {l : Impl α β}
     (h : l.WF) : (l.erase! k).WF := by
   simpa [erase_eq_erase!] using WF.erase (h := h.balanced) h
 
@@ -883,7 +883,7 @@ theorem toListModel_containsThenInsert [Ord α] [TransOrd α] {k : α} {v : β k
 ### containsThenInsert!
 -/
 
-theorem WF.containsThenInsert! [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β} (h : t.WF) :
+theorem WF.containsThenInsert! {_ : Ord α} [TransOrd α] {k : α} {v : β k} {t : Impl α β} (h : t.WF) :
     (t.containsThenInsert! k v).2.WF := by
   simpa [containsThenInsert!_snd_eq_containsThenInsert_snd, h.balanced] using WF.containsThenInsert (h := h.balanced) h
 
@@ -919,7 +919,7 @@ theorem ordered_insertIfNew! [Ord α] [TransOrd α] {k : α} {v : β k} {l : Imp
     (h : l.Balanced) (ho : l.Ordered) : (l.insertIfNew! k v).Ordered := by
   simpa [insertIfNew_eq_insertIfNew!] using ordered_insertIfNew h ho
 
-theorem WF.insertIfNew! [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β}
+theorem WF.insertIfNew! {_ : Ord α} [TransOrd α] {k : α} {v : β k} {l : Impl α β}
     (h : l.WF) : (l.insertIfNew! k v).WF := by
   simpa [insertIfNew_eq_insertIfNew!] using h.insertIfNew (h := h.balanced)
 
@@ -950,7 +950,7 @@ theorem ordered_containsThenInsertIfNew! [Ord α] [TransOrd α] {k : α} {v : β
     (h : l.Balanced) (ho : l.Ordered) : (l.containsThenInsertIfNew! k v).2.Ordered := by
   simpa [containsThenInsertIfNew!_snd_eq_insertIfNew!] using ordered_insertIfNew! h ho
 
-theorem WF.containsThenInsertIfNew! [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β}
+theorem WF.containsThenInsertIfNew! {_ : Ord α} [TransOrd α] {k : α} {v : β k} {l : Impl α β}
     (h : l.WF) : (l.containsThenInsertIfNew! k v).2.WF := by
   simpa [containsThenInsertIfNew!_snd_eq_insertIfNew!] using WF.insertIfNew! (h := h)
 
@@ -959,6 +959,17 @@ theorem toListModel_containsThenInsertIfNew! [Ord α] [TransOrd α] {k : α} {v 
     (t.containsThenInsertIfNew k v htb).2.impl.toListModel.Perm (insertEntryIfNew k v t.toListModel) := by
   rw [containsThenInsertIfNew_snd_eq_insertIfNew]
   exact toListModel_insertIfNew htb hto
+
+/-!
+### getThenInsertIfNew?!
+-/
+
+theorem WF.getThenInsertIfNew?! {_ : Ord α} [TransOrd α] [LawfulEqOrd α] {k : α} {v : β k} {t : Impl α β}
+    (h : t.WF) : (t.getThenInsertIfNew?! k v).2.WF := by
+  rw [getThenInsertIfNew?!.eq_def]
+  cases get? t k
+  · exact h.insertIfNew!
+  · exact h
 
 /-!
 ### filterMap
@@ -1089,6 +1100,17 @@ theorem ordered_mergeWith [Ord α] [TransOrd α] [LawfulEqOrd α] {t₁ t₂ : I
 namespace Const
 
 variable {β : Type v}
+
+/-!
+### getThenInsertIfNew?!
+-/
+
+theorem WF.getThenInsertIfNew?! [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {v : β} {t : Impl α β}
+    (h : t.WF) : (getThenInsertIfNew?! k v t).2.WF := by
+  rw [getThenInsertIfNew?!.eq_def]
+  cases get? t k
+  · exact h.insertIfNew!
+  · exact h
 
 /-!
 ### alter
@@ -1259,6 +1281,44 @@ end SameKeys
 theorem WF.filterMap [Ord α] {t : Impl α β} {h} {f : (a : α) → β a → Option (γ a)} (hwf : t.WF) :
     (t.filterMap f h).impl.WF :=
   .wf balanced_filterMap (ordered_filterMap hwf.ordered)
+
+/-!
+### filterMap!
+-/
+
+theorem filterMap_eq_filterMap! [Ord α] {t : Impl α β} {h} {f : (a : α) → β a → Option (γ a)} :
+    (t.filterMap f h).impl = t.filterMap! f := by
+  induction t with
+  | leaf => rfl
+  | inner sz k v _ _ ihl ihr =>
+    simp [filterMap, filterMap!]
+    cases f k v
+    · simp only [link2_eq_link2!, ihl, ihr, h.left, h.right]
+    · simp only [link_eq_link!, ihl, ihr, h.left, h.right]
+
+theorem WF.filterMap! {_ : Ord α} {t : Impl α β} {f : (a : α) → β a → Option (γ a)} (h : t.WF) :
+    (t.filterMap! f).WF := by
+  rw [← filterMap_eq_filterMap! (h := h.balanced)]
+  exact h.filterMap
+
+/-!
+### filter!
+-/
+
+theorem filter_eq_filter! [Ord α] {t : Impl α β} {h} {f : (a : α) → β a → Bool} :
+    (t.filter f h).impl = t.filter! f := by
+  induction t with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr =>
+    simp only [filter!, filter]
+    split
+    · simp only [ihl, ihr, link2_eq_link2!, h.left, h.right]
+    · simp only [ihl, ihr, link_eq_link!, h.left, h.right]
+
+theorem WF.filter! {_ : Ord α} {t : Impl α β} {f : (a : α) → β a → Bool} (h : t.WF) :
+    (t.filter! f).WF := by
+  rw [← filter_eq_filter! (h := h.balanced)]
+  exact h.filter
 
 /-!
 ### map

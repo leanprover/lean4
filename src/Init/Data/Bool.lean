@@ -12,10 +12,9 @@ namespace Bool
 /--
 Boolean “exclusive or”. `xor x y` can be written `x ^^ y`.
 
-`x ^^ y` is `true` when precisely one of `x` or `y` is `true`. Unlike `Bool.and` and `Bool.or`, it
-does not have short-circuiting behavior, because one argument's value never determines the final
-value. Also unlike `Bool.and` and `Bool.or`, there is no commonly-used corresponding propositional
-connective.
+`x ^^ y` is `true` when precisely one of `x` or `y` is `true`. Unlike `and` and `or`, it does not
+have short-circuiting behavior, because one argument's value never determines the final value. Also
+unlike `and` and `or`, there is no commonly-used corresponding propositional connective.
 
 Examples:
  * `false ^^ false = false`

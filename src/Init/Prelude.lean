@@ -565,8 +565,8 @@ The Boolean values, `true` and `false`.
 
 Logically speaking, this is equivalent to `Prop` (the type of propositions). The distinction is
 important for programming: both propositions and their proofs are erased in the code generator,
-while `Bool` corresponds to the type called `bool` or `boolean` in most programming languages and
-carries precisely one bit of run-time information.
+while `Bool` corresponds to the Boolean type in most programming languages and carries precisely one
+bit of run-time information.
 -/
 inductive Bool : Type where
   /-- The Boolean value `false`, not to be confused with the proposition `False`. -/

@@ -33,6 +33,8 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := c'.caching
   match c'.h with
   | .expr h =>
     return h
+  | .core p₁ p₂ h =>
+    return mkApp6 (mkConst ``Int.Linear.diseq_of_core) (← getContext) (toExpr p₁) (toExpr p₂) (toExpr c'.p) reflBoolTrue h
   | .norm c =>
     return mkApp5 (mkConst ``Int.Linear.diseq_norm) (← getContext) (toExpr c.p) (toExpr c'.p) reflBoolTrue (← c.toExprProof)
   | .divCoeffs c =>

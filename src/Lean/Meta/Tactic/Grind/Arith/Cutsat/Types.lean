@@ -42,6 +42,7 @@ structure DiseqCnstr where
 
 inductive DiseqCnstrProof where
   | expr (h : Expr)
+  | core (p₁ p₂ : Poly) (h : Expr)
   | norm (c : DiseqCnstr)
   | divCoeffs (c : DiseqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : DiseqCnstr)

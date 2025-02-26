@@ -112,25 +112,31 @@ private def propagateOffsetEq (rhsRoot lhsRoot : ENode) : GoalM Unit := do
 /--
 Helper function for combining `ENode.cutsat?` fields and propagating equalities
 to the offset constraint module.
+It returns a set of parents that should be traversed for disequality propagation.
 -/
-private def propagateCutsatEq (rhsRoot lhsRoot : ENode) : GoalM Unit := do
+private def propagateCutsatEq (rhsRoot lhsRoot : ENode) : GoalM ParentSet := do
   match lhsRoot.cutsat? with
   | some lhsCutsat =>
     if let some rhsCutsat := rhsRoot.cutsat? then
       Arith.Cutsat.processNewEq lhsCutsat rhsCutsat
+      return {}
     else if isIntNum rhsRoot.self then
       Arith.Cutsat.processNewEqLit lhsCutsat rhsRoot.self
+      return {}
     else
       -- We have to retrieve the node because other fields have been updated
       let rhsRoot ← getENode rhsRoot.self
       setENode rhsRoot.self { rhsRoot with cutsat? := lhsCutsat }
-      propagateCutsatDiseqs rhsRoot.self
+      getParents rhsRoot.self
   | none =>
     if let some rhsCutsat := rhsRoot.cutsat? then
       if isIntNum lhsRoot.self then
         Arith.Cutsat.processNewEqLit rhsCutsat lhsRoot.self
+        return {}
       else
-        propagateCutsatDiseqs lhsRoot.self
+        getParents lhsRoot.self
+    else
+      return {}
 
 /--
 Tries to apply beta-reductiong using the parent applications of the functions in `fns` with
@@ -229,7 +235,7 @@ where
     propagateBeta lams₁ fns₁
     propagateBeta lams₂ fns₂
     propagateOffsetEq rhsRoot lhsRoot
-    propagateCutsatEq rhsRoot lhsRoot
+    let parentsToPropagateDiseqs ← propagateCutsatEq rhsRoot lhsRoot
     resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
@@ -237,6 +243,7 @@ where
     unless (← isInconsistent) do
       for parent in parents do
         propagateUp parent
+      propagateCutsatDiseqs parentsToPropagateDiseqs
 
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
     traverseEqc lhs fun n =>

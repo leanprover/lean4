@@ -18,9 +18,10 @@ def mkVar (expr : Expr) : GoalM Var := do
   modify' fun s => { s with
     vars      := s.vars.push expr
     varMap    := s.varMap.insert { expr } var
-    dvdCnstrs := s.dvdCnstrs.push none
+    dvds      := s.dvds.push none
     lowers    := s.lowers.push {}
     uppers    := s.uppers.push {}
+    diseqs    := s.diseqs.push {}
     occurs    := s.occurs.push {}
     elimEqs   := s.elimEqs.push none
   }

@@ -1,4 +1,5 @@
 import Lean.DocString.Links
+import Lean.DocString
 import Lean.Elab.Command
 
 /-!
@@ -226,3 +227,49 @@ Stderr:
 -/
 #guard_msgs in
 #eval checkResultWithRoot "OVERRIDDEN_ROOT" "lean-manual://s"
+
+/-!
+# Syntax Errors in Manual Links
+
+Should an unvalidated docstring sneak into the environment, syntax errors in its Lean manual links
+are reported in the docstring.
+-/
+
+def bogus := "bogus"
+
+#eval Lean.addDocStringCore ``bogus
+  r#"See [the manual](lean-manual://invalid/link)
+
+It contains many things of lean-manual:// interest
+
+It contains many further things of even greater lean-manual://section/ interest
+
+It contains many further things of even greater lean-manual://section/aaaaa/bbbb interest
+"#
+
+/--
+info: See [the manual](lean-manual://invalid/link)
+
+It contains many things of lean-manual:// interest
+
+It contains many further things of even greater lean-manual://section/ interest
+
+It contains many further things of even greater lean-manual://section/aaaaa/bbbb interest
+
+
+**Syntax Errors in Lean Language Reference Links**
+
+The `lean-manual` URL scheme is used to link to the version of the Lean reference manual that
+corresponds to this version of Lean. Errors occurred while processing the links in this documentation:
+ * ```lean-manual://invalid/link```: Unknown documentation type 'invalid'. Expected 'section'.
+
+ * ```lean-manual://```: Missing documentation type
+
+ * ```lean-manual://section/```: Empty section ID
+
+ * ```lean-manual://section/aaaaa/bbbb```: Expected one item after 'section', but got [aaaaa, bbbb]
+-/
+#guard_msgs in
+#eval show CommandElabM Unit from do
+  let str ← Lean.findDocString? (← getEnv) ``bogus
+  str.forM (logInfo ·)

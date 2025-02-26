@@ -24,8 +24,8 @@ Cannot use parameter #1:
 Could not find a decreasing measure.
 The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-           n #1
-1) 8:14-23 =  ?
+            n #1
+1) 36:14-23 =  ?
 
 #1: sizeOf x2
 

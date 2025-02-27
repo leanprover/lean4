@@ -335,4 +335,28 @@ theorem containsThenInsert_snd [TransCmp cmp] (h : t.WF) {k : α} :
     (t.containsThenInsert k).2 = t.insert k :=
   ext <| TreeMap.Raw.containsThenInsertIfNew_snd h
 
+@[simp]
+theorem length_toList [TransCmp cmp] (h : t.WF) :
+    t.toList.length = t.size :=
+  DTreeMap.Raw.length_keys h
+
+@[simp]
+theorem isEmpty_toList :
+    t.toList.isEmpty = t.isEmpty  :=
+  DTreeMap.Raw.isEmpty_keys
+
+@[simp]
+theorem contains_toList [BEq α] [LawfulBEq α] [LawfulBEqCmp cmp] [TransCmp cmp] (h : t.WF) {k : α} :
+    t.toList.contains k = t.contains k :=
+  DTreeMap.Raw.contains_keys h
+
+@[simp]
+theorem mem_toList [LawfulEqCmp cmp] [TransCmp cmp] (h : t.WF) {k : α} :
+    k ∈ t.toList ↔ k ∈ t :=
+  DTreeMap.Raw.mem_keys h
+
+theorem distinct_toList [TransCmp cmp] (h : t.WF) :
+    t.toList.Pairwise (fun a b => ¬ cmp a b = .eq) :=
+  DTreeMap.Raw.distinct_keys h
+
 end Std.TreeSet.Raw

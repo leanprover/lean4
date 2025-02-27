@@ -733,7 +733,7 @@ theorem get?_eq_some_iff_exists_beq_and_mem_toList [EquivBEq α] [LawfulHashable
 theorem find?_toList_eq_some_iff_getKey?_eq_some_and_getElem?_eq_some
     [EquivBEq α] [LawfulHashable α] {k k' : α} {v : β} :
     m.toList.find? (fun a => a.1 == k) = some ⟨k', v⟩ ↔
-      m.getKey? k = some k' ∧ get? m k = some v :=
+      m.getKey? k = some k' ∧ m[k]? = some v :=
   DHashMap.Const.find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some
 
 theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]

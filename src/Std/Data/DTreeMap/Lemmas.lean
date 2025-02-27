@@ -935,7 +935,7 @@ theorem isEmpty_keys :
 @[simp]
 theorem contains_keys [BEq α] [LawfulBEq α] [LawfulBEqCmp cmp] [TransCmp cmp] {k : α} :
     t.keys.contains k = t.contains k :=
-  by exact Impl.contains_keys t.wf
+  Impl.contains_keys t.wf
 
 @[simp]
 theorem mem_keys [LawfulEqCmp cmp] [TransCmp cmp] {k : α} :

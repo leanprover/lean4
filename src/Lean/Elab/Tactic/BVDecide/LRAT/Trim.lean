@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
-import Lean.Data.RBMap
+import Init.Data.Nat.Fold
 import Std.Tactic.BVDecide.LRAT.Actions
 import Std.Data.HashMap
 
@@ -17,7 +17,6 @@ This module implements the LRAT trimming algorithm described in section 4 of
 namespace Lean.Elab.Tactic.BVDecide
 namespace LRAT
 
-open Lean (RBMap)
 open Std.Tactic.BVDecide.LRAT (IntAction)
 
 namespace trim
@@ -41,16 +40,17 @@ structure Context where
 
 structure State where
   /--
-  The set of used proof step ids.
+  For each proof step `i` contains  at index `i - initialId` `0` if `i` is unused, `1` if it is
+  used.
   -/
-  used : RBMap Nat Unit compare := {}
+  used : ByteArray
   /--
   A mapping from old proof step ids to new ones. Used such that the proof remains a sequence without
   gaps.
   -/
   mapped : Std.HashMap Nat Nat := {}
 
-abbrev M : Type → Type := ReaderT Context <| ExceptT String <| StateM State
+abbrev M : Type → Type := ReaderT Context <| StateM State
 
 namespace M
 
@@ -78,7 +78,8 @@ def run (proof : Array IntAction) (x : M α) : Except String α := do
     | .addEmpty id .. | .addRup id .. | .addRat id .. => acc.insert id a
     | .del .. => acc
   let proof := proof.foldl (init := {}) folder
-  ReaderT.run x { proof, initialId, addEmptyId } |>.run |>.run' {}
+  let used := Nat.fold proof.size (init := ByteArray.mkEmpty proof.size) (fun _ _ acc => acc.push 0)
+  return ReaderT.run x { proof, initialId, addEmptyId } |>.run' { used }
 
 @[inline]
 def getInitialId : M Nat := do
@@ -91,6 +92,10 @@ def getEmptyId : M Nat := do
   return ctx.addEmptyId
 
 @[inline]
+private def idIndex (id : Nat) : M Nat := do
+  return id - (← M.getInitialId)
+
+@[inline]
 def getProofStep (id : Nat) : M (Option IntAction) := do
   let ctx ← read
   return ctx.proof[id]?
@@ -98,19 +103,15 @@ def getProofStep (id : Nat) : M (Option IntAction) := do
 @[inline]
 def isUsed (id : Nat) : M Bool := do
   let s ← get
-  return s.used.contains id
+  return s.used[← idIndex id]! == 1
 
 @[inline]
 def markUsed (id : Nat) : M Unit := do
   -- If we are referring to a proof step that is not part of the proof, it is part of the CNF.
   -- We do not trim the CNF so just forget about the fact that this step was used.
-  if (← getProofStep id).isSome then
-    modify (fun s => { s with used := s.used.insert id () })
-
-@[inline]
-def getUsedSet : M (RBMap Nat Unit Ord.compare) := do
-  let s ← get
-  return s.used
+  if id >= (← M.getInitialId) then
+    let idx ← idIndex id
+    modify (fun s => { s with used := s.used.set! idx 1 })
 
 def registerIdMap (oldId : Nat) (newId : Nat) : M Unit := do
   modify (fun s => { s with mapped := s.mapped.insert oldId newId })
@@ -165,16 +166,16 @@ where
         | some step =>
           match step with
           | .addEmpty _ hints =>
-            let workList := hints.toList ++ workList
+            let workList := hints.toListAppend workList
             go workList
           | .addRup _ _ hints =>
-            let workList := hints.toList ++ workList
+            let workList := hints.toListAppend workList
             go workList
           | .addRat _ _ _ rupHints ratHints =>
             let folder acc a :=
-              a.fst :: a.snd.toList ++ acc
+              a.fst :: a.snd.toListAppend acc
             let ratHints := ratHints.foldl (init := []) folder
-            let workList := rupHints.toList ++ ratHints ++ workList
+            let workList := rupHints.toListAppend <| ratHints ++ workList
             go workList
           | .del .. => go workList
         | none => go workList
@@ -184,17 +185,19 @@ Map the set of used proof steps to a new LRAT proof that has no holes in the seq
 identifiers.
 -/
 def mapping : M (Array IntAction) := do
-  let used ← M.getUsedSet
-  let mut nextMapped ← M.getInitialId
-  let mut newProof := Array.mkEmpty used.size
-  for (id, _) in used do
-    M.registerIdMap id nextMapped
-    -- This should never panic as the use def analysis has already marked this step as being used
-    -- so it must exist.
-    let step := (← M.getProofStep id).get!
-    let newStep ← M.mapStep step
-    newProof := newProof.push newStep
-    nextMapped := nextMapped + 1
+  let emptyId ← M.getEmptyId
+  let initialId ← M.getInitialId
+  let mut nextMapped := initialId
+  let mut newProof := #[]
+  for id in [initialId:emptyId+1] do
+    if ← M.isUsed id then
+      M.registerIdMap id nextMapped
+      -- This should never panic as the use def analysis has already marked this step as being used
+      -- so it must exist.
+      let step := (← M.getProofStep id).get!
+      let newStep ← M.mapStep step
+      newProof := newProof.push newStep
+      nextMapped := nextMapped + 1
   return newProof
 
 def go : M (Array IntAction) := do

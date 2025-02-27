@@ -1060,7 +1060,7 @@ def le_of_le_diseq_cert (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
   p₃ == p₁.addConst 1
 
 theorem le_of_le_diseq (ctx : Context) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
-    : le_of_le_diseq_cert p₁ p₂ p₃ → p₁.denote ctx ≤ 0 → p₂.denote ctx ≠ 0 → p₃.denote ctx ≤ 0 := by
+    : le_of_le_diseq_cert p₁ p₂ p₃ → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≠ 0 → p₃.denote' ctx ≤ 0 := by
   simp [le_of_le_diseq_cert]
   have (a : Int) : a ≤ 0 → ¬ a = 0 → 1 + a ≤ 0 := by
     intro h₁ h₂; cases (Int.lt_or_gt_of_ne h₂)

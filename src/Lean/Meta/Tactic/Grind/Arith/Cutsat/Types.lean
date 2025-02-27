@@ -13,6 +13,54 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 
 export Int.Linear (Var Poly)
 
+/-!
+This module implements a model-based decision procedure for linear integer arithmetic,
+inspired by Section 4 of "Cutting to the Chase: Solving Linear Integer Arithmetic".
+Our implementation includes several enhancements and modifications:
+Key Features:
+- Extended constraint support (equality and disequality)
+- Optimized encoding of `Cooper-Left` rule using "big"-disjunction instead of fresh variables
+- Decision variable tracking for case splits (disequalities, `Cooper-Left`, `Cooper-Right`)
+
+Constraint Types:
+We handle four categories of linear polynomial constraints (where p is a linear polynomial):
+1. Equality:     `p = 0`
+2. Divisibility: `d ∣ p`
+3. Inequality:   `p ≤ 0`
+4. Disequality:  `p ≠ 0`
+
+Implementation Details:
+- Polynomials use `Int.Linear.Poly` with sorted linear monomials (leading monomial contains max variable)
+- Equalities are eliminated eagerly
+- Divisibility constraints are maintained in solved form (one constraint per variable) using `Div-Solve`
+
+Model Construction:
+The procedure builds a model incrementally, resolving conflicts through constraint generation.
+For example:
+Given a partial model `{x := 1}` and constraint `3 ∣ 3*y + x + 1`:
+- Cannot extend to `y` because `3 ∣ 3*y + 2` is unsatisfiable
+- Generate implied constraint `3 ∣ x + 1`
+- Force model update for `x`
+
+Variable Assignment:
+When assigning a variable `y`, we consider:
+- Best upper and lower bounds (inequalities)
+- Divisibility constraint
+- Disequality constraints
+`Cooper-Left` and `Cooper-Right` rules handle the combination of inequalities and divisibility.
+For unsatisfiable disequalities p ≠ 0, we generate case split: `p + 1 ≤ 0 ∨ -p + 1 ≤ 0`
+
+Contradiction Handling:
+- Check dependency on decision variables
+- If independent, use contradiction to close current grind goal
+- Otherwise, trigger backtracking
+
+Optimization:
+We employ rational approximation for model construction:
+- Continue with rational solutions when integer solutions aren't immediately found
+- Helps identify simpler unsatisfiability proofs before full integer model construction
+-/
+
 /-
 Remark: we will not define a parent structure `Cnstr` with the common
 fields until the compiler provides support for avoiding the performance overhead.

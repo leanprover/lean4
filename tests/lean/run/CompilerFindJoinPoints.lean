@@ -19,6 +19,11 @@ trace: [Compiler.test] Starting wrapper test findJoinPointsSizeLeq for findJoinP
 [Compiler.test] Wrapper test findJoinPointsSizeLeq for findJoinPoints occurrence 0 successful
 [Compiler.test] Starting post condition test findJoinPointsFix for findJoinPoints occurrence 0
 [Compiler.test] Post condition test findJoinPointsFix for findJoinPoints occurrence 0 successful
+---
+info: [Compiler.test] Starting wrapper test findJoinPointsSizeLeq for findJoinPoints occurrence 0
+[Compiler.test] Wrapper test findJoinPointsSizeLeq for findJoinPoints occurrence 0 successful
+[Compiler.test] Starting post condition test findJoinPointsFix for findJoinPoints occurrence 0
+[Compiler.test] Post condition test findJoinPointsFix for findJoinPoints occurrence 0 successful
 -/
 #guard_msgs in
 run_meta Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo, ``Lean.MetavarContext.MkBinding.collectForwardDeps]

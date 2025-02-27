@@ -441,9 +441,16 @@ def FixedParams.fixedArePrefix (fixedParams : FixedParams) : Bool :=
       (Array.range fixedParams.size).map Option.some ++
       mkArray (paramInfos.size - fixedParams.size) .none
 
-/-- See docstring below -/
-private def FixedParams.eraseImpl (fixedParams : FixedParams) (xs : Array Expr) (toErase : Array (Array Nat))
-    (k : FixedParams → Array Expr → MetaM α) : MetaM α := do
+/--
+If `xs` are the fixed parameters that are in scope, and `toErase` are, for each function, the
+positions of arguments that must no longer be fixed parameters, then this function splits partitions
+`xs` into those to keep and those to erase, and updates `FixedParams` accordingly.
+
+This is used in structural recursion, where we may discover that some fixed parameters are actually
+indices and need to be treated as varying, including all parameters that depend on them.
+-/
+def FixedParams.erase  (fixedParams : FixedParams) (xs : Array Expr)
+    (toErase : Array (Array Nat)) : (FixedParams × Array Expr × Array FVarId) := Id.run do
   assert! xs.all (·.isFVar)
   assert! fixedParams.size  = xs.size
   assert! toErase.size = fixedParams.mappings.size
@@ -478,25 +485,12 @@ private def FixedParams.eraseImpl (fixedParams : FixedParams) (xs : Array Expr) 
     else
       reindex := reindex.push (Option.some toKeep.size)
       toKeep := toKeep.push x
-  withErasedFVars fvarsToErase do
-    let fixedParams' : FixedParams := {
-      size := toKeep.size
-      mappings := fixedParams.mappings.map (·.map (·.bind (reindex[·]!)))
-      revDeps := fixedParams.revDeps
-    }
-    k fixedParams' toKeep
-
-/--
-If `xs` are the fixed parameters that are in scope, and `toErase` are, for each function, the
-positions of arguments that must no longer be fixed parameters, it removes those parameters from the
-context and updates `FixedParams` accordingly.
-
-This is used in structural recursion, where we may discover that some fixed parameters are actually
-indices and need to be treated as varying, including all parameters that depend on them.
--/
-def FixedParams.erase [MonadControlT MetaM n] [Monad n] (fixedParams : FixedParams) (xs : Array Expr) (toErase : Array (Array Nat))
-    (k : FixedParams → Array Expr → n α) : n α := do
-  map2MetaM (fun k => FixedParams.eraseImpl fixedParams xs toErase k) k
+  let fixedParams' : FixedParams := {
+    size := toKeep.size
+    mappings := fixedParams.mappings.map (·.map (·.bind (reindex[·]!)))
+    revDeps := fixedParams.revDeps
+  }
+  return (fixedParams', toKeep, fvarsToErase)
 
 end Lean.Elab
 

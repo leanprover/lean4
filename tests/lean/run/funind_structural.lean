@@ -118,18 +118,17 @@ def Tree.insert (t : Tree β) (k : Nat) (v : β) : Tree β :=
 termination_by structural t
 
 /--
-info: TreeExample.Tree.insert.induct.{u_1} {β : Type u_1} (motive : Tree β → Nat → β → Prop)
-  (case1 : ∀ (k : Nat) (v : β), motive Tree.leaf k v)
+info: TreeExample.Tree.insert.induct.{u_1} {β : Type u_1} (k : Nat) (motive : Tree β → Prop) (case1 : motive Tree.leaf)
   (case2 :
-    ∀ (k : Nat) (v : β) (left : Tree β) (key : Nat) (value : β) (right : Tree β),
-      k < key → motive left k v → motive (left.node key value right) k v)
+    ∀ (left : Tree β) (key : Nat) (value : β) (right : Tree β),
+      k < key → motive left → motive (left.node key value right))
   (case3 :
-    ∀ (k : Nat) (v : β) (left : Tree β) (key : Nat) (value : β) (right : Tree β),
-      ¬k < key → key < k → motive right k v → motive (left.node key value right) k v)
+    ∀ (left : Tree β) (key : Nat) (value : β) (right : Tree β),
+      ¬k < key → key < k → motive right → motive (left.node key value right))
   (case4 :
-    ∀ (k : Nat) (v : β) (left : Tree β) (key : Nat) (value : β) (right : Tree β),
-      ¬k < key → ¬key < k → motive (left.node key value right) k v)
-  (t : Tree β) (k : Nat) (v : β) : motive t k v
+    ∀ (left : Tree β) (key : Nat) (value : β) (right : Tree β),
+      ¬k < key → ¬key < k → motive (left.node key value right))
+  (t : Tree β) : motive t
 -/
 #guard_msgs in
 #check Tree.insert.induct

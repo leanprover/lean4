@@ -59,7 +59,7 @@ def RecArgInfo.pickIndicesMajor (info : RecArgInfo) (xs : Array Expr) : (Array E
   let mut otherVaryingArgs := #[]
   for h : i in [:xs.size] do
     unless indexMajorPos.contains i do
-      unless info.fixedParams.mappings[info.fnIdx]![i]!.isSome do
+      unless info.fixedParams.mappings[info.fnIdx]![i]?.join.isSome do
         otherVaryingArgs := otherVaryingArgs.push xs[i]
   return (indexMajorArgs, otherVaryingArgs)
 

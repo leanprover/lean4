@@ -130,24 +130,22 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termMeasure?s : Arra
       tryAllArgs fnNames fixedParams xs values termMeasure?s fun recArgInfos => do
         let recArgPoss := recArgInfos.map (·.recArgPos)
         trace[Elab.definition.structural] "Trying argument set {recArgPoss}"
-        let indexAndTargetPoss := recArgInfos.map (·.indicesAndRecArgPos)
-        -- TODO: Reduce fixedParas
-        /-
-        let numFixed := recArgInfos.foldl (·.min ·.numFixed) maxNumFixed
-        if numFixed < maxNumFixed then
-          trace[Elab.definition.structural] "Reduced numFixed from {maxNumFixed} to {numFixed}"
-        -- We may have decreased the number of arguments we consider fixed, so update
-        -- the recArgInfos, remove the extra arguments from local environment, and recalculate value
-        let recArgInfos := recArgInfos.map ({· with numFixed := numFixed })
-        withErasedFVars (xs.extract numFixed xs.size |>.map (·.fvarId!)) do
-          let xs := xs[:numFixed]
-        -/
-        -- TODO: Check that the funidngroup is still valid
-        fixedParams.erase xs indexAndTargetPoss fun fixedParams' xs' => do
-          let recArgInfos := recArgInfos.map ({· with fixedParams := fixedParams'})
-          if xs'.size != xs.size then
-            trace[Elab.definition.structural] "Reduced fixed params from {xs} to {xs'}"
-            trace[Elab.definition.structural] "New recArgInfos {repr recArgInfos}"
+        let (fixedParams', xs', toErase) := fixedParams.erase xs (recArgInfos.map (·.indicesAndRecArgPos))
+        -- We may have to turn some fixed parameters into varying parameters
+        let recArgInfos := recArgInfos.map ({· with fixedParams := fixedParams'})
+        if xs'.size != xs.size then
+          trace[Elab.definition.structural] "Reduced fixed params from {xs} to {xs'}, erasing {toErase.map mkFVar}"
+          trace[Elab.definition.structural] "New recArgInfos {repr recArgInfos}"
+        -- Check that the parameters of the IndGroupInsts are still fine
+          for recArgInfo in recArgInfos do
+            for indParam in recArgInfo.indGroupInst.params do
+              for y in toErase do
+                if (← dependsOn indParam y) then
+                  throwError "its type is an inductive datatype and the datatype parameter\
+                    {indentExpr indParam}\ndepends on the function parameter{indentExpr (mkFVar y)}\n\
+                    which cannot be fixed as it is in a index, or depends on on index, and indices \
+                    cannot be fixed parameters with structural recursion."
+        withErasedFVars toErase do
           let preDefs' ← elimMutualRecursion preDefs fixedParams' xs' recArgInfos
           return (recArgPoss, preDefs', fixedParams')
 

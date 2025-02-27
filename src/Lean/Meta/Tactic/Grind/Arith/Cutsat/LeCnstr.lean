@@ -72,6 +72,27 @@ private def findEq (c : LeCnstr) (isLower : Bool) : GoalM Bool := do
       return true
   return false
 
+/--
+Applies `p ≤ 0 → p ≠ 0 → p + 1 ≤ 0`
+-/
+private def refineWithDiseq (c : LeCnstr) : GoalM LeCnstr := do
+  let .add _ x _ := c.p | c.throwUnexpected
+  let mut c := c
+  repeat
+    let some c' ← refineWithDiseqStep? x c | return c
+    c := c'
+  return c
+where
+  refineWithDiseqStep? (x : Var) (c : LeCnstr) : GoalM (Option LeCnstr) := do
+    let s ← get'
+    let cs' := s.diseqs[x]!
+    for c' in cs' do
+      if c.p == c'.p || c.p.isNegEq c'.p then
+        -- Remove `c'`
+        modify' fun s => { s with diseqs := s.diseqs.modify x fun cs' => cs'.filter fun c => c.p != c'.p }
+        return some (← mkLeCnstr (c.p.addConst 1) (.ofLeDiseq c c'))
+    return none
+
 def LeCnstr.assert (c : LeCnstr) : GoalM Unit := do
   if (← inconsistent) then return ()
   let c ← c.norm
@@ -86,6 +107,7 @@ def LeCnstr.assert (c : LeCnstr) : GoalM Unit := do
   let isLower : Bool := a < 0
   if (← findEq c isLower) then
     return ()
+  let c ← refineWithDiseq c
   if isLower then
     trace[grind.cutsat.le.lower] "{← c.pp}"
     c.p.updateOccs

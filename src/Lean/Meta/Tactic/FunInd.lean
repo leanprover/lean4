@@ -931,6 +931,7 @@ See module doc for details.
  -/
 def deriveInductionStructural (names : Array Name) (fixedParams : FixedParams) : MetaM Unit := do
   let infos ← names.mapM getConstInfoDefn
+  assert! infos.size > 0
   -- First open up the fixed parameters everywhere
   let (e', paramMask, motiveArities) ← fixedParams.forallTelescope 0 infos[0]!.type fun xs => do
     -- Now look at the body of an arbitrary of the functions (they are essentially the same

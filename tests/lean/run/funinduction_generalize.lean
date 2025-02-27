@@ -1,3 +1,5 @@
+/- Uncomment after stage0 update
+
 /-!
 Checks the generalization behavior of `fun_induction`.
 
@@ -206,3 +208,5 @@ h : xs.isEmpty = true
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
   induction xs.take 2, ys using List.zipWith.induct generalizing xs
+
+-/

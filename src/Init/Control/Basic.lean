@@ -271,7 +271,7 @@ class MonadControl (m : semiOutParam (Type u → Type v)) (n : Type u → Type w
 class MonadControlT (m : Type u → Type v) (n : Type u → Type w) where
   stM      : Type u → Type u
   liftWith : {α : Type u} → (({β : Type u} → n β → m (stM β)) → m α) → n α
-  restoreM {α : Type u} : stM α → n α
+  restoreM {α : Type u} : m (stM α) → n α
 
 export MonadControlT (stM liftWith restoreM)
 
@@ -281,19 +281,19 @@ instance (m n o) [MonadControl n o] [MonadControlT m n] : MonadControlT m o wher
   liftWith f := MonadControl.liftWith fun x₂ => liftWith fun x₁ => f (x₁ ∘ x₂)
   restoreM := MonadControl.restoreM ∘ restoreM
 
-instance (m : Type u → Type v) [Pure m] : MonadControlT m m where
+instance (m : Type u → Type v) : MonadControlT m m where
   stM α := α
   liftWith f := f fun x => x
-  restoreM x := pure x
+  restoreM x := x
 
 @[always_inline, inline]
-def controlAt (m : Type u → Type v) {n : Type u → Type w} [MonadControlT m n] [Bind n] {α : Type u}
-    (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
-  liftWith f >>= restoreM
+def controlAt (m : Type u → Type v) {n : Type u → Type w} [MonadControlT m n] [Pure m] [Bind n]
+    {α : Type u} (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
+  liftWith f >>= restoreM ∘ pure
 
 @[always_inline, inline]
-def control {m : Type u → Type v} {n : Type u → Type w} [MonadControlT m n] [Bind n] {α : Type u}
-    (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
+def control {m : Type u → Type v} {n : Type u → Type w} [MonadControlT m n] [Pure m] [Bind n]
+    {α : Type u} (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
   controlAt m f
 
 /--

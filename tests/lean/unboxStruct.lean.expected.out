@@ -1,10 +1,9 @@
-
-[result]
-def test2 (x_1 : u32) (x_2 : obj) : obj :=
-  let x_3 : obj := foo x_1 x_2;
-  ret x_3
-def test2._boxed (x_1 : obj) (x_2 : obj) : obj :=
-  let x_3 : u32 := unbox x_1;
-  dec x_1;
-  let x_4 : obj := test2 x_3 x_2;
-  ret x_4
+[Compiler.IR] [result]
+    def test2 (x_1 : u32) (x_2 : obj) : obj :=
+      let x_3 : obj := foo x_1 x_2;
+      ret x_3
+    def test2._boxed (x_1 : obj) (x_2 : obj) : obj :=
+      let x_3 : u32 := unbox x_1;
+      dec x_1;
+      let x_4 : obj := test2 x_3 x_2;
+      ret x_4

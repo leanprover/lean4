@@ -254,7 +254,7 @@ structure FixedParams where
   mappings : Array (Array (Option Nat))
   /--
   The dependencies among the parameters. See `FixedParams.Info.revDeps`.
-  We need this for the `eraseFixedParams` operation.
+  We need this for the `FixedParams.erase` operation.
   -/
   revDeps : Array (Array (Array Nat))
 deriving Inhabited, Repr
@@ -440,6 +440,63 @@ def FixedParams.fixedArePrefix (fixedParams : FixedParams) : Bool :=
     paramInfos ==
       (Array.range fixedParams.size).map Option.some ++
       mkArray (paramInfos.size - fixedParams.size) .none
+
+/-- See docstring below -/
+private def FixedParams.eraseImpl (fixedParams : FixedParams) (xs : Array Expr) (toErase : Array (Array Nat))
+    (k : FixedParams → Array Expr → MetaM α) : MetaM α := do
+  assert! xs.all (·.isFVar)
+  assert! fixedParams.size  = xs.size
+  assert! toErase.size = fixedParams.mappings.size
+  -- Calculate a mask on the fixed parameters of variables to erase
+  let mut mask := mkArray fixedParams.size false
+  for funIdx in [:toErase.size], paramIdxs in toErase, mapping in fixedParams.mappings do
+    for paramIdx in paramIdxs do
+      assert! paramIdx < mapping.size
+      if let some fixedParamIdx := mapping[paramIdx]! then
+        mask := mask.set! fixedParamIdx true
+  -- Take the transitive closure under under `fixedParams.revDeps`.
+  let mut changed := true
+  while changed do
+    changed := false
+    for h : funIdx in [:fixedParams.mappings.size] do
+      for h : paramIdx₁ in [:fixedParams.mappings[funIdx].size] do
+        if let some fixedParamIdx₁ := fixedParams.mappings[funIdx][paramIdx₁] then
+          if mask[fixedParamIdx₁]! then
+            for paramIdx₂ in fixedParams.revDeps[funIdx]![paramIdx₁]! do
+              if let some fixedParamIdx₂ := fixedParams.mappings[funIdx][paramIdx₂]! then
+                if !mask[fixedParamIdx₂]! then
+                  mask := mask.set! fixedParamIdx₂ true
+                  changed := true
+  -- Calculate reindexing map, variables to keep, variables to erase
+  let mut reindex := #[]
+  let mut fvarsToErase :=#[]
+  let mut toKeep :=#[]
+  for i in [:mask.size], erase in mask, x in xs do
+    if erase then
+      reindex := reindex.push none
+      fvarsToErase := fvarsToErase.push x.fvarId!
+    else
+      reindex := reindex.push (Option.some toKeep.size)
+      toKeep := toKeep.push x
+  withErasedFVars fvarsToErase do
+    let fixedParams' : FixedParams := {
+      size := toKeep.size
+      mappings := fixedParams.mappings.map (·.map (·.bind (reindex[·]!)))
+      revDeps := fixedParams.revDeps
+    }
+    k fixedParams' toKeep
+
+/--
+If `xs` are the fixed parameters that are in scope, and `toErase` are, for each function, the
+positions of arguments that must no longer be fixed parameters, it removes those parameters from the
+context and updates `FixedParams` accordingly.
+
+This is used in structural recursion, where we may discover that some fixed parameters are actually
+indices and need to be treated as varying, including all parameters that depend on them.
+-/
+def FixedParams.erase [MonadControlT MetaM n] [Monad n] (fixedParams : FixedParams) (xs : Array Expr) (toErase : Array (Array Nat))
+    (k : FixedParams → Array Expr → n α) : n α := do
+  map2MetaM (fun k => FixedParams.eraseImpl fixedParams xs toErase k) k
 
 end Lean.Elab
 

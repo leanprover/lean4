@@ -39,6 +39,10 @@ structure RecArgInfo where
   indIdx       : Nat
 deriving Inhabited, Repr
 
+  /-- position of the argument and its indices we are recursing on, among all parameters -/
+def RecArgInfo.indicesAndRecArgPos (info : RecArgInfo) : Array Nat :=
+  info.indicesPos.push info.recArgPos
+
 /--
 If `xs` are the varing parameters of the functions, partitions them into indices and major
 arguments, and other parameters.

@@ -130,6 +130,7 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termMeasure?s : Arra
       tryAllArgs fnNames fixedParams xs values termMeasure?s fun recArgInfos => do
         let recArgPoss := recArgInfos.map (·.recArgPos)
         trace[Elab.definition.structural] "Trying argument set {recArgPoss}"
+        let indexAndTargetPoss := recArgInfos.map (·.indicesAndRecArgPos)
         -- TODO: Reduce fixedParas
         /-
         let numFixed := recArgInfos.foldl (·.min ·.numFixed) maxNumFixed
@@ -141,9 +142,14 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termMeasure?s : Arra
         withErasedFVars (xs.extract numFixed xs.size |>.map (·.fvarId!)) do
           let xs := xs[:numFixed]
         -/
-        id do
-          let preDefs' ← elimMutualRecursion preDefs fixedParams xs recArgInfos
-          return (recArgPoss, preDefs', fixedParams)
+        -- TODO: Check that the funidngroup is still valid
+        fixedParams.erase xs indexAndTargetPoss fun fixedParams' xs' => do
+          let recArgInfos := recArgInfos.map ({· with fixedParams := fixedParams'})
+          if xs'.size != xs.size then
+            trace[Elab.definition.structural] "Reduced fixed params from {xs} to {xs'}"
+            trace[Elab.definition.structural] "New recArgInfos {repr recArgInfos}"
+          let preDefs' ← elimMutualRecursion preDefs fixedParams' xs' recArgInfos
+          return (recArgPoss, preDefs', fixedParams')
 
 def reporttermMeasure (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
   if let some ref := preDef.termination.terminationBy?? then

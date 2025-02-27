@@ -1,7 +1,6 @@
 csimpAttr.lean:7:2-7:7: error: invalid 'csimp' theorem, only constant replacement theorems (e.g., `@f = @g`) are currently supported.
-
-[init]
-def f (x_1 : obj) : obj :=
-  let x_2 : obj := Nat.add x_1 x_1;
-  let x_3 : obj := Nat.add x_2 x_2;
-  ret x_3
+[Compiler.IR] [init]
+    def f (x_1 : obj) : obj :=
+      let x_2 : obj := Nat.add x_1 x_1;
+      let x_3 : obj := Nat.add x_2 x_2;
+      ret x_3

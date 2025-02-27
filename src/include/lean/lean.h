@@ -3025,6 +3025,10 @@ static inline lean_obj_res lean_nat_pred(b_lean_obj_arg n) {
     return lean_nat_sub(n, lean_box(1));
 }
 
+static inline lean_obj_res lean_manual_get_root(lean_obj_arg _unit) {
+    return lean_mk_string(LEAN_MANUAL_ROOT);
+}
+
 #ifdef __cplusplus
 }
 #endif

@@ -46,10 +46,11 @@ structure State where
   -/
   used : ByteArray
   /--
-  A mapping from old proof step ids to new ones. Used such that the proof remains a sequence without
+  For each proof step `i` contains at index `i - initialId` the step that `i` maps to in the new
+  proof or `0` if that step is not yet set. Used such that the proof remains a sequence without
   gaps.
   -/
-  mapped : Std.HashMap Nat Nat := {}
+  mapped : Array Nat
 
 abbrev M : Type → Type := ReaderT Context <| StateM State
 
@@ -80,7 +81,8 @@ def run (proof : Array IntAction) (x : M α) : Except String α := do
     | .del .. => acc
   let proof := proof.foldl (init := {}) folder
   let used := Nat.fold proof.size (init := ByteArray.mkEmpty proof.size) (fun _ _ acc => acc.push 0)
-  return ReaderT.run x { proof, initialId, addEmptyId } |>.run' { used }
+  let mapped := Array.mkArray proof.size 0
+  return ReaderT.run x { proof, initialId, addEmptyId } |>.run' { used, mapped }
 
 @[inline]
 def getInitialId : M Nat := do
@@ -114,8 +116,10 @@ def markUsed (id : Nat) : M Unit := do
     let idx ← idIndex id
     modify (fun s => { s with used := s.used.set! idx 1 })
 
+@[inline]
 def registerIdMap (oldId : Nat) (newId : Nat) : M Unit := do
-  modify (fun s => { s with mapped := s.mapped.insert oldId newId })
+  let idx ← idIndex oldId
+  modify (fun s => { s with mapped := s.mapped.set! idx newId })
 
 def mapStep (step : IntAction) : M IntAction := do
   match step with
@@ -141,8 +145,12 @@ def mapStep (step : IntAction) : M IntAction := do
 where
   @[inline]
   mapIdent (ident : Nat) : M Nat := do
-    let s ← get
-    return s.mapped[ident]? |>.getD ident
+    if ident < (← getInitialId) then
+      return ident
+    else
+      let s ← get
+      let newId := s.mapped[← idIndex ident]!
+      return newId
 
 end M
 

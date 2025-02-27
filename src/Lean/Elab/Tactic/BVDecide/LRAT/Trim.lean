@@ -210,8 +210,10 @@ end trim
 Trim the LRAT `proof` by removing all steps that are not used in reaching the empty clause
 conclusion.
 -/
-def trim (proof : Array IntAction) : Except String (Array IntAction) :=
-  trim.go.run proof
+def trim (proof : Array IntAction) : Except String (Array IntAction) := do
+  let foo ← trim.go.run proof
+  dbg_trace foo
+  return foo
 
 end LRAT
 end Lean.Elab.Tactic.BVDecide

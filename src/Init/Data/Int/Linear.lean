@@ -1054,6 +1054,20 @@ theorem eq_of_le_ge (ctx : Context) (p₁ : Poly) (p₂ : Poly)
   replace h₂ := Int.neg_le_of_neg_le h₂; simp at h₂
   simp [Int.eq_iff_le_and_ge, *]
 
+def le_of_le_diseq_cert (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
+  -- Remark: we can generate two different certificates in the future, and avoid the `||` in the certificate.
+  (p₂ == p₁ || p₂ == p₁.mul (-1)) &&
+  p₃ == p₁.addConst 1
+
+theorem le_of_le_diseq (ctx : Context) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
+    : le_of_le_diseq_cert p₁ p₂ p₃ → p₁.denote ctx ≤ 0 → p₂.denote ctx ≠ 0 → p₃.denote ctx ≤ 0 := by
+  simp [le_of_le_diseq_cert]
+  have (a : Int) : a ≤ 0 → ¬ a = 0 → 1 + a ≤ 0 := by
+    intro h₁ h₂; cases (Int.lt_or_gt_of_ne h₂)
+    next => apply Int.le_of_lt_add_one; rw [Int.add_comm, Int.add_lt_add_iff_right]; assumption
+    next h => have := Int.lt_of_le_of_lt h₁ h; simp at this
+  intro h; cases h <;> intro <;> subst p₂ p₃ <;> simp <;> apply this
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

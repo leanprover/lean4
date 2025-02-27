@@ -848,12 +848,10 @@ theorem all_push [BEq α] {xs : Array α} {a : α} {p : α → Bool} :
 
 /-! ### set -/
 
-@[simp] theorem getElem_set_self (xs : Array α) (i : Nat) (h : i < xs.size) (v : α) {j : Nat}
-      (eq : i = j) (p : j < (xs.set i v).size) :
-    (xs.set i v)[j]'p = v := by
+@[simp] theorem getElem_set_self (xs : Array α) (i : Nat) (h : i < xs.size) (v : α) :
+    (xs.set i v)[i]'(by simp [h]) = v := by
   cases xs
   simp
-  simp [set, ← getElem_toList, ←eq]
 
 @[deprecated getElem_set_self (since := "2024-12-11")]
 abbrev getElem_set_eq := @getElem_set_self
@@ -865,8 +863,8 @@ abbrev getElem_set_eq := @getElem_set_self
 abbrev getElem?_set_eq := @getElem?_set_self
 
 @[simp] theorem getElem_set_ne (xs : Array α) (i : Nat) (h' : i < xs.size) (v : α) {j : Nat}
-    (pj : j < (xs.set i v).size) (h : i ≠ j) :
-    (xs.set i v)[j]'pj = xs[j]'(size_set xs i v _ ▸ pj) := by
+    (pj : j < xs.size) (h : i ≠ j) :
+    (xs.set i v)[j]'(by simp [*]) = xs[j] := by
   simp only [set, ← getElem_toList, List.getElem_set_ne h]
 
 @[simp] theorem getElem?_set_ne (xs : Array α) (i : Nat) (h : i < xs.size) {j : Nat} (v : α)
@@ -875,8 +873,9 @@ abbrev getElem?_set_eq := @getElem?_set_self
 
 theorem getElem_set (xs : Array α) (i : Nat) (h' : i < xs.size) (v : α) (j : Nat)
     (h : j < (xs.set i v).size) :
-    (xs.set i v)[j]'h = if i = j then v else xs[j]'(size_set xs i v _ ▸ h) := by
-  by_cases p : i = j <;> simp [p]
+    (xs.set i v)[j] = if i = j then v else xs[j]'(by simpa using h) := by
+  simp at h
+  by_cases p : i = j <;> simp [p, h]
 
 theorem getElem?_set (xs : Array α) (i : Nat) (h : i < xs.size) (v : α) (j : Nat) :
     (xs.set i v)[j]? = if i = j then some v else xs[j]? := by
@@ -928,13 +927,12 @@ abbrev set!_is_setIfInBounds := @set!_eq_setIfInBounds
     simp [setIfInBounds, h]
 
 theorem getElem_setIfInBounds (xs : Array α) (i : Nat) (a : α) (j : Nat)
-    (hj : j < (xs.setIfInBounds i a).size) :
-    (xs.setIfInBounds i a)[j]'hj = if i = j then a else xs[j]'(by simpa using hj) := by
+    (hj : j < xs.size) :
+    (xs.setIfInBounds i a)[j]'(by simp [hj]) = if i = j then a else xs[j] := by
   simp only [setIfInBounds]
   split
   · simp [getElem_set]
-  · simp only [size_setIfInBounds] at hj
-    rw [if_neg]
+  · rw [if_neg]
     omega
 
 @[simp] theorem getElem_setIfInBounds_self (xs : Array α) {i : Nat} (a : α) (h : _) :
@@ -946,9 +944,9 @@ theorem getElem_setIfInBounds (xs : Array α) (i : Nat) (a : α) (j : Nat)
 abbrev getElem_setIfInBounds_eq := @getElem_setIfInBounds_self
 
 @[simp] theorem getElem_setIfInBounds_ne (xs : Array α) {i : Nat} (a : α) {j : Nat}
-    (hj : j < (xs.setIfInBounds i a).size) (h : i ≠ j) :
-    (xs.setIfInBounds i a)[j]'hj = xs[j]'(by simpa using hj) := by
-  simp [getElem_setIfInBounds, h]
+    (hj : j < xs.size) (h : i ≠ j) :
+    (xs.setIfInBounds i a)[j]'(by simpa using hj) = xs[j] := by
+  simp [getElem_setIfInBounds, hj, h]
 
 theorem getElem?_setIfInBounds {xs : Array α} {i j : Nat} {a : α}  :
     (xs.setIfInBounds i a)[j]? = if i = j then if i < xs.size then some a else none else xs[j]? := by
@@ -3512,7 +3510,7 @@ theorem getElem_modify {xs : Array α} {j i} (h : i < (xs.modify j f).size) :
     (xs.modify j f)[i] = if j = i then f (xs[i]'(by simpa using h)) else xs[i]'(by simpa using h) := by
   simp only [modify, modifyM, Id.run, Id.pure_eq]
   split
-  · simp only [Id.bind_eq, getElem_set _ _ (by simpa using h)]; split <;> simp [*]
+  · simp only [Id.bind_eq, getElem_set]; split <;> simp [*]
   · rw [if_neg (mt (by rintro rfl; exact h) (by simp_all))]
 
 @[simp] theorem toList_modify (xs : Array α) (f : α → α) :

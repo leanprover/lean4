@@ -98,28 +98,31 @@ instance (priority := low) : FamilyDef BuildData (.customTarget p t) (CustomData
 
 open Parser Command
 
-private def mkFacetDef
-  (doc? : Option (TSyntax ``docComment)) (id : Ident) (ty : Term) (kind : Name)
-: MacroM Command := do
+/-- Macro for declaring new `FacetData`. -/
+scoped macro (name := facetDataDecl)
+  doc?:optional(docComment) "facet_data " kind:ident facet:ident " : " ty:term
+: command => do
   let dty := mkCIdentFrom (← getRef) ``TargetData
-  let key := Name.quoteFrom id id.getId
-  let id := mkIdentFrom id (canonical := true) <| id.getId.modifyBase (kind ++ ·)
-  `($[$doc?]? family_def $id : $dty ($(quote kind) ++ $key) := $ty)
+  let kindName := Name.quoteFrom kind kind.getId
+  let facetName := Name.quoteFrom facet facet.getId
+  let id := mkIdentFrom facet (canonical := true) <|
+    facet.getId.modifyBase (kind.getId ++ ·)
+  `($[$doc?]? family_def $id : $dty ($kindName ++ $facetName) := $ty)
 
 /-- Macro for declaring new `PackageData`. -/
 scoped macro (name := packageDataDecl)
-  doc?:optional(docComment) "package_data " id:ident " : " ty:term
-: command => mkFacetDef doc? id ty `package
+  doc?:optional(docComment) "package_data " facet:ident " : " ty:term
+: command => `($[$doc?]? facet_data $(mkIdent `package) $facet : $ty)
 
 /-- Macro for declaring new `ModuleData`. -/
 scoped macro (name := moduleDataDecl)
-  doc?:optional(docComment) "module_data " id:ident " : " ty:term
-: command => mkFacetDef doc? id ty `module
+  doc?:optional(docComment) "module_data " facet:ident " : " ty:term
+: command => `($[$doc?]? facet_data $(mkIdent `module) $facet : $ty)
 
 /-- Macro for declaring new `LibraryData`. -/
 scoped macro (name := libraryDataDecl)
-  doc?:optional(docComment) "library_data " id:ident " : " ty:term
-: command => mkFacetDef doc? id ty `leanLib
+  doc?:optional(docComment) "library_data " facet:ident " : " ty:term
+: command => `($[$doc?]? facet_data $(mkIdent `leanLib) $facet : $ty)
 
 /-- Macro for declaring new `TargetData`. -/
 scoped macro (name := targetDataDecl)

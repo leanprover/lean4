@@ -227,7 +227,7 @@ instance (α) [BEq α] [LawfulBEq α] : LawfulBEq (Option α) where
 The minimum of two optional values.
 
 Note this treats `none` as the least element,
-as `min none x = min x none = none` for all `x : Option α`.
+so `min none x = min x none = none` for all `x : Option α`.
 Prior to nightly-2025-02-27, we instead had `min none (some x) = min (some x) none = some x`.
 -/
 protected def min [Min α] : Option α → Option α → Option α

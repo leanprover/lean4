@@ -1689,6 +1689,7 @@ theorem getElem_append {xs ys : Array α} (h : i < (xs ++ ys).size) :
   cases xs; cases ys
   simp [List.getElem_append]
 
+@[simp]
 theorem getElem_append_left {xs ys : Array α} {h : i < (xs ++ ys).size} (hlt : i < xs.size) :
     (xs ++ ys)[i] = xs[i] := by
   simp only [← getElem_toList]
@@ -1696,6 +1697,7 @@ theorem getElem_append_left {xs ys : Array α} {h : i < (xs ++ ys).size} (hlt : 
   conv => rhs; rw [← List.getElem_append_left (bs := ys.toList) (h' := h')]
   apply List.get_of_eq; rw [toList_append]
 
+@[simp]
 theorem getElem_append_right {xs ys : Array α} {h : i < (xs ++ ys).size} (hle : xs.size ≤ i) :
     (xs ++ ys)[i] = ys[i - xs.size]'(Nat.sub_lt_left_of_lt_add hle (size_append .. ▸ h)) := by
   simp only [← getElem_toList]

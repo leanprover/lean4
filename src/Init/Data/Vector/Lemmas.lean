@@ -1592,9 +1592,11 @@ theorem getElem_append (xs : Vector α n) (ys : Vector α m) (i : Nat) (hi : i <
   rcases ys with ⟨ys, rfl⟩
   simp [Array.getElem_append, hi]
 
+@[simp]
 theorem getElem_append_left {xs : Vector α n} {ys : Vector α m} {i : Nat} (hi : i < n) :
     (xs ++ ys)[i] = xs[i] := by simp [getElem_append, hi]
 
+@[simp]
 theorem getElem_append_right {xs : Vector α n} {ys : Vector α m} {i : Nat} (h : i < n + m) (hi : n ≤ i) :
     (xs ++ ys)[i] = ys[i - n] := by
   rw [getElem_append, dif_neg (by omega)]

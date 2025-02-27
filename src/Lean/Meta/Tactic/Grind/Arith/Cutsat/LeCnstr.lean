@@ -62,13 +62,13 @@ private def findEq (c : LeCnstr) (isLower : Bool) : GoalM Bool := do
   let cs' := if isLower then s.uppers[x]! else s.lowers[x]!
   for c' in cs' do
     if c.p.isNegEq c'.p then
-      let eq ← mkEqCnstr c.p (.ofLeGe c c')
-      eq.assert
       -- Remove `c'`
       if isLower then
         modify' fun s => { s with uppers := s.uppers.modify x fun cs' => cs'.filter fun c => c.p != c'.p }
       else
         modify' fun s => { s with lowers := s.lowers.modify x fun cs' => cs'.filter fun c => c.p != c'.p }
+      let eq ← mkEqCnstr c.p (.ofLeGe c c')
+      eq.assert
       return true
   return false
 

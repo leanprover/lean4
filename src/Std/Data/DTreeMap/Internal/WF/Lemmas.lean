@@ -1134,7 +1134,7 @@ variable {β : Type v}
 -/
 
 theorem WF.getThenInsertIfNew?! [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {v : β} {t : Impl α β}
-    (h : t.WF) : (getThenInsertIfNew?! k v t).2.WF := by
+    (h : t.WF) : (getThenInsertIfNew?! t k v).2.WF := by
   rw [getThenInsertIfNew?!.eq_def]
   cases get? t k
   · exact h.insertIfNew!
@@ -1334,7 +1334,7 @@ theorem WF.getThenInsertIfNew?! {_ : Ord α} [TransOrd α] [LawfulEqOrd α] {k :
   · exact h
 
 theorem WF.constGetThenInsertIfNew?! {β : Type v} {_ : Ord α} [TransOrd α] {k : α} {v : β} {t : Impl α β}
-    (h : t.WF) : (Const.getThenInsertIfNew?! k v t).2.WF := by
+    (h : t.WF) : (Const.getThenInsertIfNew?! t k v).2.WF := by
   rw [Const.getThenInsertIfNew?!.eq_def]
   cases Const.get? t k
   · exact h.insertIfNew!

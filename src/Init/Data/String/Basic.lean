@@ -1169,6 +1169,13 @@ end String
 
 namespace Char
 
+/--
+Constructs a singleton string that contains only the provided character.
+
+Examples:
+ * `'L'.toString = "L"`
+ * `'"'.toString = "\""`
+-/
 @[inline] protected def toString (c : Char) : String :=
   String.singleton c
 

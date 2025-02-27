@@ -645,6 +645,9 @@ Obtain the `BitVec` that contains the 2's complement representation of the `ISiz
 -/
 @[inline] def ISize.toBitVec (x : ISize) : BitVec System.Platform.numBits := x.toUSize.toBitVec
 
+theorem ISize.toBitVec.inj : {x y : ISize} → x.toBitVec = y.toBitVec → x = y
+  | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
+
 /-- Obtains the `ISize` that is 2's complement equivalent to the `USize`. -/
 @[inline] def USize.toISize (i : USize) : ISize := ISize.ofUSize i
 @[inline, deprecated USize.toISize (since := "2025-02-13"), inherit_doc USize.toISize]

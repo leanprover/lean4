@@ -119,15 +119,27 @@ However, we do reduce natural literals using the fact this opaque value is at le
 -/
 namespace ISize
 
--- def fromExpr (e : Expr) : SimpM (Option ISize) := do
---   let some (n, _) ← getOfNatValue? e ``ISize | return none
---   return USize.ofNat n
+def fromExpr (e : Expr) : SimpM (Option ISize) := do
+  if let some (n, _) ← getOfNatValue? e ``ISize then
+    return some (ISize.ofNat n)
+  let_expr Neg.neg _ _ a ← e | return none
+  let some (n, _) ← getOfNatValue? a ``ISize | return none
+  return some (ISize.ofInt (- n))
 
--- builtin_simproc [simp, seval] reduceToNat (USize.toNat _) := fun e => do
---   let_expr USize.toNat e ← e | return .continue
---   let some (n, _) ← getOfNatValue? e ``USize | return .continue
---   unless n < UInt32.size do return .continue
---   let e := toExpr n
---   let p ← mkDecideProof (← mkLT e (mkNatLit UInt32.size))
---   let p := mkApp2 (mkConst ``USize.toNat_ofNat_of_lt_32) e p
---   return .done { expr := e, proof? := p }
+builtin_simproc [simp, seval] reduceToNatClampNeg (ISize.toNatClampNeg _) := fun e => do
+  let_expr ISize.toNatClampNeg e ← e | return .continue
+  let some n ← fromExpr e | return .continue
+  unless n < UInt32.size do return .continue
+  let e := toExpr n
+  let p ← mkDecideProof (← mkLT e (mkNatLit UInt32.size))
+  let p := mkApp2 (mkConst ``USize.toNat_ofNat_of_lt_32) e p
+  return .done { expr := e, proof? := p }
+
+builtin_simproc [simp, seval] reduceToInt (ISize.toInt _) := fun e => do
+  let_expr ISize.toInt e ← e | return .continue
+  let some (n, _) ← getOfNatValue? e ``USize | return .continue
+  unless n < UInt32.size do return .continue
+  let e := toExpr n
+  let p ← mkDecideProof (← mkLT e (mkNatLit UInt32.size))
+  let p := mkApp2 (mkConst ``USize.toNat_ofNat_of_lt_32) e p
+  return .done { expr := e, proof? := p }

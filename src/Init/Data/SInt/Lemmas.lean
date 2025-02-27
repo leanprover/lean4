@@ -15,6 +15,8 @@ import Init.Data.BitVec.Lemmas
 
 @[simp] theorem ISize.toBitVec_neg (x : ISize) : (-x).toBitVec = -x.toBitVec := rfl
 @[simp] theorem ISize.toBitVec_zero : (0 : ISize).toBitVec = 0 := rfl
+@[simp] theorem ISize.toBitVec_ofNat (n : Nat) : (ofNat n).toBitVec = BitVec.ofNat _ n := rfl
+@[simp] theorem ISize.toBitVec_ofInt (i : Int) : (ofInt i).toBitVec = BitVec.ofInt _ i := rfl
 
 @[simp] theorem Int8.neg_zero : -(0 : Int8) = 0 := rfl
 @[simp] theorem Int16.neg_zero : -(0 : Int16) = 0 := rfl
@@ -26,66 +28,33 @@ theorem ISize.toNat_toBitVec_ofNat_of_lt {n : Nat} (h : n < 2^32) :
     (ofNat n).toBitVec.toNat = n :=
   Nat.mod_eq_of_lt (Nat.lt_of_lt_of_le h (by cases USize.size_eq <;> simp_all +decide))
 
--- theoremISize.toInt_ofNat_of_lt {n : Nat} (h : n < 2)
-
-theorem ISize.toNatClampNeg_ofNat_of_lt {n : Nat} (h : n < 2 ^ 31) : toNatClampNeg (ofNat n) = n := by
-  rw [toNatClampNeg, toInt, BitVec.toInt, if_pos, Int.toNat_ofNat,
-    ISize.toNat_toBitVec_ofNat_of_lt (Nat.lt_trans h (by decide))]
-  rw [ISize.toNat_toBitVec_ofNat_of_lt (Nat.lt_trans h (by decide))]
-  cases System.Platform.numBits_eq <;> simp_all <;> omega
-
-
-theorem Int.toNat_eq_zero {n : Int} : n.toNat = 0 ↔ n ≤ 0 := sorry
-
 theorem ISize.toInt_ofInt {n : Int} (hn : -2^31 ≤ n) (hn' : n < 2^31) : toInt (ofInt n) = n := by
-  rw [toInt]
+  rw [toInt, toBitVec_ofInt, BitVec.toInt_ofInt_eq_self] <;> cases System.Platform.numBits_eq
+    <;> (simp_all; try omega)
 
-theorem ISize.toNatClampNeg_ofInt_eq_zero {n : Int} (hn : -2^31 ≤ n) (hn' : n ≤ 0) : toNatClampNeg (ofInt n) = 0 := by
-  rw [toNatClampNeg, toInt_ofInt hn, Int.toNat_eq_zero]
-  · exact hn'
-  · omega
+theorem ISize.toNatClampNeg_ofInt_eq_zero {n : Int} (hn : -2^31 ≤ n) (hn' : n ≤ 0) :
+    toNatClampNeg (ofInt n) = 0 := by
+  rwa [toNatClampNeg, toInt_ofInt hn (by omega), Int.toNat_eq_zero]
 
-theorem ISize.neg_ofInt {n : Int} : -ofInt n = ofInt (-n) := by
-  apply ISize.toBitVec.inj
-  simp
+theorem ISize.neg_ofInt {n : Int} : -ofInt n = ofInt (-n) :=
+  toBitVec.inj (by simp [BitVec.ofInt_neg])
 
-theorem ISize.ofInt_eq_ofNat {n : Nat} : ofInt n = ofNat n := sorry
+theorem ISize.ofInt_eq_ofNat {n : Nat} : ofInt n = ofNat n :=
+  toBitVec.inj (by simp)
 
 theorem ISize.neg_ofNat {n : Nat} : -ofNat n = ofInt (-n) := by
-  rw [← ISize.neg_ofInt, ISize.ofInt_eq_ofNat]
+  rw [← neg_ofInt, ofInt_eq_ofNat]
 
--- theorem BitVec.toInt_pos
+theorem ISize.toNatClampNeg_ofNat_of_lt {n : Nat} (h : n < 2 ^ 31) :
+    toNatClampNeg (ofNat n) = n := by
+  rw [toNatClampNeg, ← ofInt_eq_ofNat, toInt_ofInt (by omega) (by omega), Int.toNat_ofNat]
 
-theorem ISize.toNatClampNeg_neg_ofNat_of_lt {n : Nat} (h₀ : 0 < n) (h : n < 2 ^ 31) : toNatClampNeg (-ofNat n) = 0 := by
-  rw [toNatClampNeg, toInt, Int.toNat_eq_zero]
-  apply Int.le_of_lt
-  rw [BitVec.toInt_neg_iff]
-  apply BitVec.msb_eq_true_iff_two_mul_ge.mp
-  simp
-  rw [neg_ofNat]
-  apply ISize.toNatClampNeg_ofInt_eq_zero
-  · omega
-  · omega
-  -- rw [toNatClampNeg]
-  -- by_cases hn : n = 0
-  -- · subst hn
+theorem ISize.toNatClampNeg_neg_ofNat_of_le {n : Nat} (h : n ≤ 2 ^ 31) :
+    toNatClampNeg (-ofNat n) = 0 := by
+  rw [neg_ofNat, toNatClampNeg_ofInt_eq_zero (by omega) (by omega)]
 
-  -- rw [toNatClampNeg, toInt, BitVec.toInt, if_neg, Int.toNat_eq_zero]
-  -- · apply Int.sub_left_le_of_le_add
-  --   simp
-  --   apply Int.le_of_lt
-  --   apply Int.emod_lt_of_pos
-  --   cases System.Platform.numBits_eq <;> simp_all
-  -- · simp only [toBitVec_neg, BitVec.toNat_neg, Nat.not_lt]
-  --   rw [ISize.toNat_toBitVec_ofNat_of_lt]
-  --   · cases System.Platform.numBits_eq
-  --     · simp_all
-  --       rw [Nat.mod_eq_of_lt]
-  --       · omega
-  --       ·
-  --   · omega
+theorem ISize.toInt_ofNat_of_lt {n : Nat} (h : n < 2 ^ 31) : toInt (ofNat n) = n := by
+  rw [← ofInt_eq_ofNat, toInt_ofInt (by omega) (by omega)]
 
-  -- rw [toNatClampNeg, toInt, BitVec.toInt, if_pos, Int.toNat_ofNat,
-  --   ISize.toNat_toBitVec_ofNat_of_lt (Nat.lt_trans h (by decide))]
-  -- rw [ISize.toNat_toBitVec_ofNat_of_lt (Nat.lt_trans h (by decide))]
-  -- cases System.Platform.numBits_eq <;> simp_all <;> omega
+theorem ISize.toInt_neg_ofNat_of_le {n : Nat} (h : n ≤ 2 ^ 31) : toInt (-ofNat n) = -n := by
+  rw [← ofInt_eq_ofNat, neg_ofInt, toInt_ofInt (by omega) (by omega)]

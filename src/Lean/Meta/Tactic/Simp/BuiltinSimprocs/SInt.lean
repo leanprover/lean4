@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Markus Himmel
 -/
 prelude
 import Lean.Meta.LitValues
-import Init.Data.SInt.Basic
+import Init.Data.SInt.Lemmas
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
 
@@ -128,18 +128,43 @@ def fromExpr (e : Expr) : SimpM (Option ISize) := do
 
 builtin_simproc [simp, seval] reduceToNatClampNeg (ISize.toNatClampNeg _) := fun e => do
   let_expr ISize.toNatClampNeg e ← e | return .continue
-  let some n ← fromExpr e | return .continue
-  unless n < UInt32.size do return .continue
+  if let some (n, _) ← getOfNatValue? e ``ISize then
+    unless n < 2 ^ 31 do return .continue
+    let e := toExpr n
+    let p ← mkDecideProof (← mkLT e (mkNatLit (2 ^ 31)))
+    let p := mkApp2 (mkConst ``ISize.toNatClampNeg_ofNat_of_lt) e p
+    return .done { expr := e, proof? := p }
+
+  let_expr Neg.neg _ _ a ← e | return .continue
+  let some (n, _) ← getOfNatValue? a ``ISize | return .continue
+  unless n ≤ 2 ^ 31 do return .continue
   let e := toExpr n
-  let p ← mkDecideProof (← mkLT e (mkNatLit UInt32.size))
-  let p := mkApp2 (mkConst ``USize.toNat_ofNat_of_lt_32) e p
-  return .done { expr := e, proof? := p }
+  let p ← mkDecideProof (← mkLE e (mkNatLit (2 ^ 31)))
+  let p := mkApp2 (mkConst ``ISize.toNatClampNeg_neg_ofNat_of_le) e p
+  return .done { expr := toExpr 0, proof? := p }
 
 builtin_simproc [simp, seval] reduceToInt (ISize.toInt _) := fun e => do
   let_expr ISize.toInt e ← e | return .continue
-  let some (n, _) ← getOfNatValue? e ``USize | return .continue
-  unless n < UInt32.size do return .continue
+  if let some (n, _) ← getOfNatValue? e ``ISize then
+    unless n < 2 ^ 31 do return .continue
+    let e := toExpr n
+    let p ← mkDecideProof (← mkLT e (mkNatLit (2 ^ 31)))
+    let p := mkApp2 (mkConst ``ISize.toInt_ofNat_of_lt) e p
+    return .done { expr := toExpr (n : Int), proof? := p }
+
+  let_expr Neg.neg _ _ a ← e | return .continue
+  let some (n, _) ← getOfNatValue? a ``ISize | return .continue
+  unless n ≤ 2 ^ 31 do return .continue
   let e := toExpr n
-  let p ← mkDecideProof (← mkLT e (mkNatLit UInt32.size))
-  let p := mkApp2 (mkConst ``USize.toNat_ofNat_of_lt_32) e p
-  return .done { expr := e, proof? := p }
+  let p ← mkDecideProof (← mkLE e (mkNatLit (2 ^ 31)))
+  let p := mkApp2 (mkConst ``ISize.toInt_neg_ofNat_of_le) e p
+  return .done { expr := (toExpr (-n : Int)), proof? := p }
+
+-- builtin_simproc [simp, seval] reduceToInt (ISize.toInt _) := fun e => do
+--   let_expr ISize.toInt e ← e | return .continue
+--   let some (n, _) ← getOfNatValue? e ``USize | return .continue
+--   unless n < UInt32.size do return .continue
+--   let e := toExpr n
+--   let p ← mkDecideProof (← mkLT e (mkNatLit UInt32.size))
+--   let p := mkApp2 (mkConst ``USize.toNat_ofNat_of_lt_32) e p
+--   return .done { expr := e, proof? := p }

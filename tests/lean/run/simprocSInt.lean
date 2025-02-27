@@ -185,34 +185,20 @@ end
 
 section
 
-variable (x : ISize)
+#check_simp ISize.toNatClampNeg 2147483648 !~>
+#check_simp ISize.toNatClampNeg 2147483647 ~> 2147483647
+#check_simp ISize.toNatClampNeg (-1) ~> 0
+#check_simp ISize.toNatClampNeg 0 ~> 0
+#check_simp ISize.toNatClampNeg 1 ~> 1
+#check_simp ISize.toNatClampNeg (-2147483649) !~>
+#check_simp ISize.toNatClampNeg (-2147483648) ~> 0
 
-example : (-5 : ISize).toNatClampNeg = 0 := sorry
-
-#check_simp x = - (-2) ~> x = 2
-#check_simp x = -0 ~> x = 0
-#check_simp x = - (-0) ~> x = 0
-#check_simp x = - (-9223372036854775808) ~> x = -9223372036854775808
-#check_simp x = - (-9223372036854775807) ~> x = 9223372036854775807
-#check_simp x = 2 + 3 ~> x = 5
-#check_simp x = -3 + 2 ~> x = -1
-#check_simp x = 2 * -3 ~> x = -6
-#check_simp x = 2 - 3 ~> x = -1
-#check_simp x = 2 - -3 ~> x = 5
-#check_simp x = 4 / -3 ~> x = -1
-#check_simp x = -5 % 3 ~> x = -2
-#check_simp True = ((3 : Int32) < -3) ~> False
-#check_simp True = ((3 : Int32) ≤ -2) ~> False
-#check_simp True = ((-3 : Int32) > 3) ~> False
-#check_simp True = ((-3 : Int32) ≥ 4) ~> False
-#check_simp True = ((3 : Int32) = -3) ~> False
-#check_simp True = ((-3 : Int32) ≠ -3) ~> False
-#check_simp True = ((3 : Int32) == -3) ~> False
-#check_simp True = ((-3 : Int32) != -3) ~> False
-#check_simp x = Int64.ofIntLE 5 (by decide) (by decide) ~> x = 5
-#check_simp x = Int64.ofIntLE (-5) (by decide) (by decide) ~> x = -5
-#check_simp x = Int64.ofNat 5 ~> x = 5
-#check_simp x = Int64.ofNat 18446744073709551617 ~> x = 1
-#check_simp x = Int64.ofNat 9223372036854775808 ~> x = -9223372036854775808
+#check_simp ISize.toInt 2147483648 !~>
+#check_simp ISize.toInt 2147483647 ~> 2147483647
+#check_simp ISize.toInt (-1) ~> -1
+#check_simp ISize.toInt 0 ~> 0
+#check_simp ISize.toInt 1 ~> 1
+#check_simp ISize.toInt (-2147483649) !~>
+#check_simp ISize.toInt (-2147483648) ~> -2147483648
 
 end

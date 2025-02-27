@@ -26,6 +26,28 @@ open Nat
 
 /-! ### range' -/
 
+@[simp] theorem size_range' {start size step} : (range' start size step).size = size := by
+  simp [range']
+
+@[simp] theorem toList_range' {start size step} :
+     (range' start size step).toList = List.range' start size step := by
+  apply List.ext_getElem <;> simp [range']
+
+@[simp]
+theorem getElem_range' {start size step : Nat} {i : Nat}
+    (h : i < (Array.range' start size step).size) :
+    (Array.range' start size step)[i] = start + step * i := by
+  simp [← getElem_toList]
+
+theorem getElem?_range' {start size step : Nat} {i : Nat} :
+    (Array.range' start size step)[i]? = if i < size then some (start + step * i) else none := by
+  simp [getElem?_def, getElem_range']
+
+@[simp] theorem _root_.List.toArray_range' (start size step : Nat) :
+    (List.range' start size step).toArray = Array.range' start size step := by
+  apply ext'
+  simp
+
 theorem range'_succ (s n step) : range' s (n + 1) step = #[s] ++ range' (s + step) n step := by
   rw [← toList_inj]
   simp [List.range'_succ]
@@ -119,6 +141,23 @@ theorem erase_range' :
   simp [List.erase_range']
 
 /-! ### range -/
+
+@[simp] theorem size_range {n : Nat} : (range n).size = n := by
+  simp [range]
+
+@[simp] theorem toList_range (n : Nat) : (range n).toList = List.range n := by
+  apply List.ext_getElem <;> simp [range]
+
+@[simp]
+theorem getElem_range {n : Nat} {i : Nat} (h : i < (Array.range n).size) : (Array.range n)[i] = i := by
+  simp [← getElem_toList]
+
+theorem getElem?_range {n : Nat} {i : Nat} : (Array.range n)[i]? = if i < n then some i else none := by
+  simp [getElem?_def, getElem_range]
+
+@[simp] theorem _root_.List.toArray_range (n : Nat) : (List.range n).toArray = Array.range n := by
+  apply ext'
+  simp
 
 theorem range_eq_range' (n : Nat) : range n = range' 0 n := by
   simp [range, range']

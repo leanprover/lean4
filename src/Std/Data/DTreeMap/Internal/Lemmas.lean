@@ -1472,26 +1472,28 @@ theorem length_keys [TransOrd α] (h : t.WF) :
   simp_to_model using List.length_keys_eq_length
 
 @[simp]
-theorem isEmpty_keys [TransOrd α] :
+theorem isEmpty_keys :
     t.keys.isEmpty = t.isEmpty  := by
   simp_to_model using List.isEmpty_keys_eq_isEmpty
 
 @[simp]
-theorem contains_keys [TransOrd α] {k : α} (h : t.WF) :
+theorem contains_keys [instBEq : BEq α] [LawfulBEq α] [LawfulBEqOrd α] [TransOrd α] {k : α} (h : t.WF) :
     t.keys.contains k = t.contains k := by
-  simp_to_model using List.containsKey_eq_keys_contains.symm
+  rw [contains_eq_containsKey h.ordered, ← eq_beqOfOrd_of_lawfulBEqOrd]
+  simp_to_model using (List.containsKey_eq_keys_contains (a := k) (l := t.toListModel)).symm
 
 @[simp]
-theorem mem_keys [LawfulBEq α] [TransOrd α] {k : α} (h : t.WF) :
+theorem mem_keys [LawfulEqOrd α] [TransOrd α] {k : α} (h : t.WF) :
     k ∈ t.keys ↔ k ∈ t := by
   simpa only [mem_iff_contains, ← List.contains_iff, ← Bool.eq_iff_iff] using contains_keys h
 
 theorem distinct_keys [TransOrd α] (h : t.WF) :
-    t.keys.Pairwise (fun a b => (a == b) = false) := by
+    t.keys.Pairwise (fun a b => ¬ compare a b = .eq) := by
+  simp only [← not_congr beq_iff_eq, ← beq_eq, Bool.not_eq_true]
   simp_to_model using h.ordered.distinctKeys.distinct
 
 @[simp]
-theorem map_sigma_fst_toList_eq_keys [TransOrd α] :
+theorem map_sigma_fst_toList_eq_keys :
     t.toList.map Sigma.fst = t.keys := by
   simp_to_model using (List.keys_eq_map ..).symm
 
@@ -1501,7 +1503,7 @@ theorem length_toList [TransOrd α] (h : t.WF) :
   simp_to_model
 
 @[simp]
-theorem isEmpty_toList [TransOrd α] :
+theorem isEmpty_toList :
     t.toList.isEmpty = t.isEmpty := by
   simp_to_model
 
@@ -1512,11 +1514,11 @@ theorem mem_toList_iff_get?_eq_some [TransOrd α] [LawfulEqOrd α] {k : α} {v :
 
 theorem find?_toList_eq_some_iff_get?_eq_some [TransOrd α] [LawfulEqOrd α] {k : α} {v : β k}
     (h : t.WF) :
-    t.toList.find? (·.1 == k) = some ⟨k, v⟩ ↔ t.get? k = some v := by
+    t.toList.find? (compare ·.1 k == .eq) = some ⟨k, v⟩ ↔ t.get? k = some v := by
   simp_to_model using List.find?_eq_some_iff_getValueCast?_eq_some
 
 theorem find?_toList_eq_none_iff_contains_eq_false [TransOrd α] {k : α} (h : t.WF) :
-    t.toList.find? (·.1 == k) = none ↔ t.contains k = false := by
+    t.toList.find? (compare ·.1 k == .eq) = none ↔ t.contains k = false := by
   simp_to_model using List.find?_eq_none_iff_containsKey_eq_false
 
 @[simp]
@@ -1525,7 +1527,8 @@ theorem find?_toList_eq_none_iff_not_mem [TransOrd α] {k : α} (h : t.WF) :
   simpa only [Bool.not_eq_true, mem_iff_contains] using find?_toList_eq_none_iff_contains_eq_false h
 
 theorem distinct_keys_toList [TransOrd α] (h : t.WF) :
-    t.toList.Pairwise (fun a b => (a.1 == b.1) = false) := by
+    t.toList.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq) := by
+  simp only [← beq_iff, Bool.not_eq_true]
   simp_to_model using List.pairwise_fst_eq_false
 
 namespace Const
@@ -1533,23 +1536,23 @@ namespace Const
 variable {β : Type v} {t : Impl α β}
 
 @[simp]
-theorem map_prod_fst_toList_eq_keys [TransOrd α] :
+theorem map_prod_fst_toList_eq_keys :
     (toList t).map Prod.fst = t.keys := by
   simp_to_model using List.map_prod_fst_map_toProd_eq_keys
 
 @[simp]
-theorem length_toList [TransOrd α] (h : t.WF) :
+theorem length_toList (h : t.WF) :
     (toList t).length = t.size := by
   simp_to_model using List.length_map
 
 @[simp]
-theorem isEmpty_toList [TransOrd α] :
+theorem isEmpty_toList :
     (toList t).isEmpty = t.isEmpty := by
   rw [Bool.eq_iff_iff, List.isEmpty_iff, isEmpty_eq_isEmpty, List.isEmpty_iff]
   simp_to_model using List.map_eq_nil_iff
 
 @[simp]
-theorem mem_toList_iff_get?_eq_some [TransOrd α] [LawfulBEq α] {k : α} {v : β} (h : t.WF) :
+theorem mem_toList_iff_get?_eq_some [TransOrd α] [LawfulEqOrd α] {k : α} {v : β} (h : t.WF) :
     (k, v) ∈ toList t ↔ get? t k = some v := by
   simp_to_model using List.mem_map_toProd_iff_getValue?_eq_some
 
@@ -1558,26 +1561,27 @@ theorem mem_toList_iff_getKey?_eq_some_and_get?_eq_some [TransOrd α] {k : α} {
     (k, v) ∈ toList t ↔ t.getKey? k = some k ∧ get? t k = some v := by
   simp_to_model using List.mem_map_toProd_iff_getKey?_eq_some_and_getValue?_eq_some
 
-theorem get?_eq_some_iff_exists_beq_and_mem_toList [TransOrd α] {k : α} {v : β} (h : t.WF) :
-    get? t k = some v ↔ ∃ (k' : α), k == k' ∧ (k', v) ∈ toList t := by
+theorem get?_eq_some_iff_exists_compare_eq_eq_and_mem_toList [TransOrd α] {k : α} {v : β} (h : t.WF) :
+    get? t k = some v ↔ ∃ (k' : α), compare k k' = .eq ∧ (k', v) ∈ toList t := by
   simp_to_model using List.getValue?_eq_some_iff_exists_beq_and_mem_toList
 
 theorem find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some [TransOrd α] {k k' : α} {v : β}
-    (h : t.WF) : (toList t).find? (fun a => a.1 == k) = some ⟨k', v⟩ ↔
+    (h : t.WF) : (toList t).find? (fun a => compare a.1 k == .eq) = some ⟨k', v⟩ ↔
       t.getKey? k = some k' ∧ get? t k = some v := by
   simp_to_model using List.find?_map_toProd_eq_some_iff_getKey?_eq_some_and_getValue?_eq_some
 
 theorem find?_toList_eq_none_iff_contains_eq_false [TransOrd α] {k : α} (h : t.WF) :
-    (toList t).find? (·.1 == k) = none ↔ t.contains k = false := by
+    (toList t).find? (compare ·.1 k == .eq) = none ↔ t.contains k = false := by
   simp_to_model using List.find?_map_eq_none_iff_containsKey_eq_false
 
 @[simp]
 theorem find?_toList_eq_none_iff_not_mem [TransOrd α] {k : α} (h : t.WF) :
-    (toList t).find? (·.1 == k) = none ↔ ¬ k ∈ t := by
+    (toList t).find? (compare ·.1 k == .eq) = none ↔ ¬ k ∈ t := by
   simpa only [Bool.not_eq_true, mem_iff_contains] using find?_toList_eq_none_iff_contains_eq_false h
 
 theorem distinct_keys_toList [TransOrd α] (h : t.WF) :
-    (toList t).Pairwise (fun a b => (a.1 == b.1) = false) := by
+    (toList t).Pairwise (fun a b => ¬ compare a.1 b.1 = .eq) := by
+  simp only [← beq_iff, Bool.not_eq_true]
   simp_to_model using List.pairwise_fst_eq_false_map_toProd
 
 end Const

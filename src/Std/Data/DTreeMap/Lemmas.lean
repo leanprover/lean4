@@ -922,4 +922,118 @@ theorem getThenInsertIfNew?_snd [TransCmp cmp] {k : α} {v : β} :
 
 end Const
 
+@[simp]
+theorem length_keys [TransCmp cmp] :
+    t.keys.length = t.size :=
+  Impl.length_keys t.wf
+
+@[simp]
+theorem isEmpty_keys :
+    t.keys.isEmpty = t.isEmpty  :=
+  Impl.isEmpty_keys
+
+@[simp]
+theorem contains_keys [BEq α] [LawfulBEq α] [LawfulBEqCmp cmp] [TransCmp cmp] {k : α} :
+    t.keys.contains k = t.contains k :=
+  by exact Impl.contains_keys t.wf
+
+@[simp]
+theorem mem_keys [LawfulEqCmp cmp] [TransCmp cmp] {k : α} :
+    k ∈ t.keys ↔ k ∈ t :=
+  Impl.mem_keys t.wf
+
+theorem distinct_keys [TransCmp cmp] :
+    t.keys.Pairwise (fun a b => ¬ cmp a b = .eq) :=
+  Impl.distinct_keys t.wf
+
+@[simp]
+theorem map_sigma_fst_toList_eq_keys :
+    t.toList.map Sigma.fst = t.keys :=
+  Impl.map_sigma_fst_toList_eq_keys
+
+@[simp]
+theorem length_toList [TransCmp cmp] :
+    t.toList.length = t.size :=
+  Impl.length_toList t.wf
+
+@[simp]
+theorem isEmpty_toList :
+    t.toList.isEmpty = t.isEmpty :=
+  Impl.isEmpty_toList
+
+@[simp]
+theorem mem_toList_iff_get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : β k} :
+    ⟨k, v⟩ ∈ t.toList ↔ t.get? k = some v :=
+  Impl.mem_toList_iff_get?_eq_some t.wf
+
+theorem find?_toList_eq_some_iff_get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : β k}
+    : t.toList.find? (cmp ·.1 k == .eq) = some ⟨k, v⟩ ↔ t.get? k = some v :=
+  Impl.find?_toList_eq_some_iff_get?_eq_some t.wf
+
+theorem find?_toList_eq_none_iff_contains_eq_false [TransCmp cmp] {k : α} :
+    t.toList.find? (cmp ·.1 k == .eq) = none ↔ t.contains k = false :=
+  Impl.find?_toList_eq_none_iff_contains_eq_false t.wf
+
+@[simp]
+theorem find?_toList_eq_none_iff_not_mem [TransCmp cmp] {k : α} :
+    t.toList.find? (cmp ·.1 k == .eq) = none ↔ ¬ k ∈ t := by
+  simpa only [Bool.not_eq_true, mem_iff_contains] using find?_toList_eq_none_iff_contains_eq_false
+
+theorem distinct_keys_toList [TransCmp cmp] :
+    t.toList.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq) :=
+  Impl.distinct_keys_toList t.wf
+
+namespace Const
+
+variable {β : Type v} {t : DTreeMap α β cmp}
+
+@[simp]
+theorem map_prod_fst_toList_eq_keys :
+    (toList t).map Prod.fst = t.keys :=
+  Impl.Const.map_prod_fst_toList_eq_keys
+
+@[simp]
+theorem length_toList :
+    (toList t).length = t.size :=
+  Impl.Const.length_toList t.wf
+
+@[simp]
+theorem isEmpty_toList :
+    (toList t).isEmpty = t.isEmpty :=
+  Impl.Const.isEmpty_toList
+
+@[simp]
+theorem mem_toList_iff_get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : β} :
+    (k, v) ∈ toList t ↔ get? t k = some v :=
+  Impl.Const.mem_toList_iff_get?_eq_some t.wf
+
+@[simp]
+theorem mem_toList_iff_getKey?_eq_some_and_get?_eq_some [TransCmp cmp] {k : α} {v : β} :
+    (k, v) ∈ toList t ↔ t.getKey? k = some k ∧ get? t k = some v :=
+  Impl.Const.mem_toList_iff_getKey?_eq_some_and_get?_eq_some t.wf
+
+theorem get?_eq_some_iff_exists_compare_eq_eq_and_mem_toList [TransCmp cmp] {k : α} {v : β} :
+    get? t k = some v ↔ ∃ (k' : α), cmp k k' = .eq ∧ (k', v) ∈ toList t :=
+  Impl.Const.get?_eq_some_iff_exists_compare_eq_eq_and_mem_toList t.wf
+
+theorem find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some [TransCmp cmp] {k k' : α} {v : β}
+    : (toList t).find? (fun a => cmp a.1 k = .eq) = some ⟨k', v⟩ ↔
+      t.getKey? k = some k' ∧ get? t k = some v :=
+  Impl.Const.find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some t.wf
+
+theorem find?_toList_eq_none_iff_contains_eq_false [TransCmp cmp] {k : α} :
+    (toList t).find? (cmp ·.1 k == .eq) = none ↔ t.contains k = false :=
+  Impl.Const.find?_toList_eq_none_iff_contains_eq_false t.wf
+
+@[simp]
+theorem find?_toList_eq_none_iff_not_mem [TransCmp cmp] {k : α} :
+    (toList t).find? (cmp ·.1 k == .eq) = none ↔ ¬ k ∈ t :=
+  Impl.Const.find?_toList_eq_none_iff_not_mem t.wf
+
+theorem distinct_keys_toList [TransCmp cmp] :
+    (toList t).Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq) :=
+  Impl.Const.distinct_keys_toList t.wf
+
+end Const
+
 end Std.DTreeMap

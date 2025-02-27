@@ -189,8 +189,8 @@ abbrev LeanLib.extraDepFacet := `extraDep
 library_data extraDep : Unit
 
 /-- A Lean binary executable. -/
-abbrev LeanExe.exeFacet := `leanExe
-target_data leanExe : FilePath
+abbrev LeanExe.exeFacet := `leanExe.exe
+target_data leanExe.exe : FilePath
 
 /-- A external library's static binary. -/
 abbrev ExternLib.staticFacet := `externLib.static

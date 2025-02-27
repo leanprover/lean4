@@ -24,6 +24,15 @@ as needed (via `target_data`).
 -/
 opaque TargetData (facet : Name) : Type
 
+/-- The type of the output of the `facet` of objects of `kind`. -/
+abbrev FacetData (kind facet : Name) := TargetData (kind ++ facet)
+
+instance [h : FamilyOut (FacetData kind) facet α] : FamilyDef TargetData (kind ++ facet) α :=
+  ⟨h.fam_eq⟩
+
+instance [h : FamilyDef TargetData (kind ++ facet) α] : FamilyDef (FacetData kind) facet α :=
+  ⟨h.fam_eq⟩
+
 /--
 The open type family which maps a module facet's name to its build data
 in the Lake build store. For example, the generated C file for `c`.
@@ -31,13 +40,7 @@ in the Lake build store. For example, the generated C file for `c`.
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `module_data`).
 -/
-abbrev ModuleData (facet : Name) := TargetData (`module ++ facet)
-
-instance [h : FamilyOut ModuleData facet α] : FamilyDef TargetData (`module ++ facet) α :=
-  ⟨by simp [h.fam_eq]⟩
-
-instance [h : FamilyDef TargetData (`module ++ facet) α] : FamilyDef ModuleData facet α :=
-  ⟨h.fam_eq⟩
+abbrev ModuleData := FacetData `module
 
 /--
 The open type family which maps a package facet's name to its build data
@@ -47,29 +50,17 @@ for the `deps` facet.
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `package_data`).
 -/
-abbrev PackageData (facet : Name) := TargetData (`package ++ facet)
-
-instance [h : FamilyOut PackageData facet α] : FamilyDef TargetData (`package ++ facet) α :=
-  ⟨by simp [h.fam_eq]⟩
-
-instance [h : FamilyDef TargetData (`package ++ facet) α] : FamilyDef PackageData facet α :=
-  ⟨h.fam_eq⟩
+abbrev PackageData := FacetData `package
 
 /-
-The open type family which maps a library facet's name to its build data
+The open type family which maps a Lean library facet's name to its build data
 in the Lake build store. For example, the generated static library for the
  `static` facet.
 
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `library_data`).
 -/
-abbrev LibraryData (facet : Name) := TargetData (`leanLib ++ facet)
-
-instance [h : FamilyOut LibraryData facet α] : FamilyDef TargetData (`leanLib ++ facet) α :=
-  ⟨by simp [h.fam_eq]⟩
-
-instance [h : FamilyDef TargetData (`leanLib ++ facet) α] : FamilyDef LibraryData facet α :=
-  ⟨h.fam_eq⟩
+abbrev LibraryData := FacetData `leanLib
 
 /--
 The open type family which maps a custom target (package × target name) to

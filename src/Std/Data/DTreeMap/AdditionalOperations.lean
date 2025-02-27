@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.DTreeMap.Raw
+import Std.Data.DTreeMap.Raw.Basic
 import Std.Data.DTreeMap.Internal.WF.Lemmas
 
 /-!
@@ -25,31 +25,16 @@ private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => �
 namespace Std.DTreeMap
 open Internal (Impl)
 
-namespace Raw
-
 /--
 Updates the values of the map by applying the given function to all mappings, keeping
 only those mappings where the function returns `some` value.
 -/
-def filterMap (f : (a : α) → β a → Option (γ a)) (t : Raw α β cmp) : Raw α γ cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨t.inner.filterMap! f⟩
-
-/-- Updates the values of the map by applying the given function to all mappings. -/
 @[inline]
-def map (f : (a : α) → β a → γ a) (t : Raw α β cmp) : Raw α γ cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨t.inner.map f⟩
-
-/-!
-We do not provide `get*GE`, `get*GT`, `get*LE` and `get*LT` functions for the raw trees.
--/
-
-end Raw
-
-@[inline, inherit_doc Raw.filterMap]
 def filterMap (f : (a : α) → β a → Option (γ a)) (t : DTreeMap α β cmp) : DTreeMap α γ cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.filterMap f t.wf.balanced |>.impl, t.wf.filterMap⟩
 
-@[inline, inherit_doc Raw.map]
+/-- Updates the values of the map by applying the given function to all mappings. -/
+@[inline]
 def map (f : (a : α) → β a → γ a) (t : DTreeMap α β cmp) : DTreeMap α γ cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.map f, t.wf.map⟩
 

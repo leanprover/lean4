@@ -14,7 +14,7 @@ This file develops the type `Std.TreeSet` of tree sets.
 Lemmas about the operations on `Std.Data.TreeSet` will be available in the
 module `Std.Data.TreeSet.Lemmas`.
 
-See the module `Std.Data.TreeSet.Raw` for a variant of this type which is safe to use in
+See the module `Std.Data.TreeSet.Raw.Basic` for a variant of this type which is safe to use in
 nested inductive types.
 -/
 
@@ -51,8 +51,8 @@ Internally, the tree sets are represented as size-bounded trees, a type of self-
 search tree with efficient order statistic lookups.
 
 These tree sets contain a bundled well-formedness invariant, which means that they cannot
-be used in nested inductive types. For these use cases, `Std.Data.TreeSet.Raw` and
-`Std.Data.TreeSet.Raw.WF` unbundle the invariant from the tree set. When in doubt, prefer
+be used in nested inductive types. For these use cases, `Std.Data.TreeSet.Raw.Basic` and
+`Std.Data.TreeSet.Raw.Basic.WF` unbundle the invariant from the tree set. When in doubt, prefer
 `TreeSet` over `TreeSet.Raw`.
 -/
 structure TreeSet (α : Type u) (cmp : α → α → Ordering := by exact compare) where

@@ -14,7 +14,7 @@ This file develops the type `Std.TreeMap` of tree maps.
 Lemmas about the operations on `Std.TreeMap` will be available in the
 module `Std.Data.TreeMap.Lemmas`.
 
-See the module `Std.Data.TreeMap.Raw` for a variant of this type which is safe to use in
+See the module `Std.Data.TreeMap.Raw.Basic` for a variant of this type which is safe to use in
 nested inductive types.
 -/
 
@@ -52,8 +52,8 @@ Internally, the tree maps are represented as size-bounded trees, a type of self-
 search tree with efficient order statistic lookups.
 
 These tree maps contain a bundled well-formedness invariant, which means that they cannot
-be used in nested inductive types. For these use cases, `Std.Data.TreeMap.Raw` and
-`Std.Data.TreeMap.Raw.WF` unbundle the invariant from the tree map. When in doubt, prefer
+be used in nested inductive types. For these use cases, `Std.Data.TreeMap.Raw.Basic` and
+`Std.Data.TreeMap.Raw.Basic.WF` unbundle the invariant from the tree map. When in doubt, prefer
 `TreeMap` over `TreeMap.Raw`.
 -/
 structure TreeMap (α : Type u) (β : Type v) (cmp : α → α → Ordering := by exact compare) where

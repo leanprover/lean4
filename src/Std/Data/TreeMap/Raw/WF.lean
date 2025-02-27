@@ -4,14 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.DTreeMap.RawWF
-import Std.Data.TreeMap.AdditionalOperations
-import Std.Data.TreeMap.Raw
+import Std.Data.DTreeMap.Raw.WF
+import Std.Data.TreeMap.Raw.AdditionalOperations
+import Std.Data.TreeMap.Raw.Basic
 
 /-!
 # Well-formedness proofs for raw tree maps
 
-This file contains well-formedness proofs about `Std.Data.TreeMap.Raw`. Most of the lemmas require
+This file contains well-formedness proofs about `Std.Data.TreeMap.Raw.Basic`. Most of the lemmas require
 `TransCmp cmp` for the comparison function `cmp`.
 -/
 

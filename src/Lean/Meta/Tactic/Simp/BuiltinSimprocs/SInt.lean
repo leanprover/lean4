@@ -119,13 +119,6 @@ However, we do reduce natural literals using the fact this opaque value is at le
 -/
 namespace ISize
 
-def fromExpr (e : Expr) : SimpM (Option ISize) := do
-  if let some (n, _) ← getOfNatValue? e ``ISize then
-    return some (ISize.ofNat n)
-  let_expr Neg.neg _ _ a ← e | return none
-  let some (n, _) ← getOfNatValue? a ``ISize | return none
-  return some (ISize.ofInt (- n))
-
 builtin_simproc [simp, seval] reduceToNatClampNeg (ISize.toNatClampNeg _) := fun e => do
   let_expr ISize.toNatClampNeg e ← e | return .continue
   if let some (n, _) ← getOfNatValue? e ``ISize then
@@ -158,4 +151,4 @@ builtin_simproc [simp, seval] reduceToInt (ISize.toInt _) := fun e => do
   let e := toExpr n
   let p ← mkDecideProof (← mkLE e (mkNatLit (2 ^ 31)))
   let p := mkApp2 (mkConst ``ISize.toInt_neg_ofNat_of_le) e p
-  return .done { expr := (toExpr (-n : Int)), proof? := p }
+  return .done { expr := toExpr (-n : Int), proof? := p }

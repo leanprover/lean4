@@ -64,10 +64,9 @@ inductive LeCnstrProof where
   | divCoeffs (c : LeCnstr)
   | combine (c₁ c₂ : LeCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : LeCnstr)
+  | ofLeDiseq (c₁ : LeCnstr) (c₂ : DiseqCnstr)
   -- TODO: missing constructors
-end
 
-mutual
 /-- A disequality constraint and its justification/proof. -/
 structure DiseqCnstr where
   p  : Poly
@@ -80,6 +79,7 @@ inductive DiseqCnstrProof where
   | norm (c : DiseqCnstr)
   | divCoeffs (c : DiseqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
+
 end
 
 /--

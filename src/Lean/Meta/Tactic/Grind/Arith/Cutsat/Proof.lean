@@ -92,8 +92,10 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := c'.caching do
         (← getContext) (toExpr x) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
         reflBoolTrue
         (← c₁.toExprProof) (← c₂.toExprProof)
-
-end
+  | .ofLeDiseq c₁ c₂ =>
+    return mkApp7 (mkConst ``Int.Linear.le_of_le_diseq)
+      (← getContext) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
+      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := c'.caching do
   match c'.h with
@@ -110,6 +112,8 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := c'.caching
     return mkApp8 (mkConst ``Int.Linear.eq_diseq_subst)
       (← getContext) (toExpr x) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+
+end
 
 def setInconsistent (h : UnsatProof) : GoalM Unit := do
   let hf ← withProofContext do
@@ -130,7 +134,6 @@ def setInconsistent (h : UnsatProof) : GoalM Unit := do
     | .diseq c =>
       trace[grind.cutsat.diseq.unsat] "{← c.pp}"
       return mkApp4 (mkConst ``Int.Linear.diseq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
-
   closeGoal hf
 
 end Lean.Meta.Grind.Arith.Cutsat

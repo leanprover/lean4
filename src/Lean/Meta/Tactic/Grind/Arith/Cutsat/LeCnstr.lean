@@ -51,26 +51,50 @@ def _root_.Int.Linear.Poly.isNegEq (p₁ p₂ : Poly) : Bool :=
   | .add a₁ x p₁, .add a₂ y p₂ => a₁ == -a₂ && x == y && isNegEq p₁ p₂
   | _, _ => false
 
+def LeCnstr.erase (c : LeCnstr) : GoalM Unit := do
+  let .add a x _ := c.p | c.throwUnexpected
+  if a < 0 then
+    modify' fun s => { s with lowers := s.lowers.modify x fun cs' => cs'.filter fun c' => c'.p != c.p }
+  else
+    modify' fun s => { s with uppers := s.uppers.modify x fun cs' => cs'.filter fun c' => c'.p != c.p }
+
 /--
 Given a lower (upper) bound constraint `c`, tries to find
 an imply equality by searching a upper (lower) bound constraint `c'` such that
 `c.p == -c'.p`
 -/
-private def findEq (c : LeCnstr) (isLower : Bool) : GoalM Bool := do
-  let .add _ x _ := c.p | c.throwUnexpected
+private def findEq (c : LeCnstr) : GoalM Bool := do
+  let .add a x _ := c.p | c.throwUnexpected
   let s ← get'
-  let cs' := if isLower then s.uppers[x]! else s.lowers[x]!
+  let cs' := if a < 0 then s.uppers[x]! else s.lowers[x]!
   for c' in cs' do
     if c.p.isNegEq c'.p then
+      c'.erase
       let eq ← mkEqCnstr c.p (.ofLeGe c c')
       eq.assert
-      -- Remove `c'`
-      if isLower then
-        modify' fun s => { s with uppers := s.uppers.modify x fun cs' => cs'.filter fun c => c.p != c'.p }
-      else
-        modify' fun s => { s with lowers := s.lowers.modify x fun cs' => cs'.filter fun c => c.p != c'.p }
       return true
   return false
+
+/--
+Applies `p ≤ 0 → p ≠ 0 → p + 1 ≤ 0`
+-/
+private def refineWithDiseq (c : LeCnstr) : GoalM LeCnstr := do
+  let .add _ x _ := c.p | c.throwUnexpected
+  let mut c := c
+  repeat
+    let some c' ← refineWithDiseqStep? x c | return c
+    c := c'
+  return c
+where
+  refineWithDiseqStep? (x : Var) (c : LeCnstr) : GoalM (Option LeCnstr) := do
+    let s ← get'
+    let cs' := s.diseqs[x]!
+    for c' in cs' do
+      if c.p == c'.p || c.p.isNegEq c'.p then
+        -- Remove `c'`
+        modify' fun s => { s with diseqs := s.diseqs.modify x fun cs' => cs'.filter fun c => c.p != c'.p }
+        return some (← mkLeCnstr (c.p.addConst 1) (.ofLeDiseq c c'))
+    return none
 
 def LeCnstr.assert (c : LeCnstr) : GoalM Unit := do
   if (← inconsistent) then return ()
@@ -83,10 +107,10 @@ def LeCnstr.assert (c : LeCnstr) : GoalM Unit := do
     trace[grind.cutsat.le.trivial] "{← c.pp}"
     return ()
   let .add a x _ := c.p | c.throwUnexpected
-  let isLower : Bool := a < 0
-  if (← findEq c isLower) then
+  if (← findEq c) then
     return ()
-  if isLower then
+  let c ← refineWithDiseq c
+  if a < 0 then
     trace[grind.cutsat.le.lower] "{← c.pp}"
     c.p.updateOccs
     modify' fun s => { s with lowers := s.lowers.modify x (·.push c) }

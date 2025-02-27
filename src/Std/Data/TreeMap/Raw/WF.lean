@@ -27,7 +27,7 @@ open DTreeMap.Raw renaming WF → InnerWF
 variable {α : Type u} {β : Type v} {cmp : α → α → Ordering} {t : Raw α β cmp}
 
 theorem empty : (empty : Raw α β cmp).WF :=
-  letI : Ord α := ⟨cmp⟩; ⟨InnerWF.empty⟩
+  ⟨InnerWF.empty⟩
 
 theorem emptyc : (∅ : Raw α β cmp).WF :=
   empty

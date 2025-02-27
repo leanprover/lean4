@@ -1,6 +1,5 @@
-
-[init]
-def f (x_1 : obj) (x_2 : obj) (x_3 : obj) : obj :=
-  let x_4 : obj := List.appendTR._rarg x_1 x_2;
-  let x_5 : obj := List.appendTR._rarg x_4 x_3;
-  ret x_5
+[Compiler.IR] [init]
+    def f (x_1 : obj) (x_2 : obj) (x_3 : obj) : obj :=
+      let x_4 : obj := List.appendTR._redArg x_1 x_2;
+      let x_5 : obj := List.appendTR._redArg x_4 x_3;
+      ret x_5

@@ -1,8 +1,6 @@
-
-[init]
-def f (x_1 : obj) : obj :=
-  let x_2 : obj := 0;
-  let x_3 : obj := List.lengthTRAux._rarg x_1 x_2;
-  let x_4 : obj := 2;
-  let x_5 : obj := Nat.mul x_4 x_3;
-  ret x_5
+[Compiler.IR] [init]
+    def f (x_1 : obj) : obj :=
+      let x_2 : obj := List.lengthTR._redArg x_1;
+      let x_3 : obj := 1;
+      let x_4 : obj := Nat.shiftLeft x_2 x_3;
+      ret x_4

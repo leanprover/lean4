@@ -135,7 +135,8 @@ def decideVar (x : Var) : GoalM Unit := do
       - `k ≥ cdiv (lower - b) d`
       - So, we take `x = (cdiv (lower - b) d)*d + b`
       -/
-      setAssignment x ((Int.Linear.cdiv (lower - b) d)*d + b)
+      let v : Int := (Int.Linear.cdiv (lower - b) d)*d + b
+      setAssignment x v
     else
       resolveDvdConflict c
   | none, some (upper, _), some c =>
@@ -147,7 +148,8 @@ def decideVar (x : Var) : GoalM Unit := do
       - `k ≤ (upper - b)/d`
       - So, we take `x = ((upper - b)/d)*d + b`
       -/
-      setAssignment x (((upper - b)/d)*d + b)
+      let v : Int := ((upper - b)/d)*d + b
+      setAssignment x v
     else
       resolveDvdConflict c
   | _, _, _ =>

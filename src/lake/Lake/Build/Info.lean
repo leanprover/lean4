@@ -125,6 +125,9 @@ definitions.
 
 target_data module : Module
 target_data package : Package
+target_data leanLib : LeanLib
+target_data leanExe : LeanExe
+target_data externLib : ExternLib
 
 /-- The direct local imports of the Lean module. -/
 abbrev Module.importsFacet := `imports

@@ -28,7 +28,8 @@ structure BuildSpec where
 
 @[inline] def mkConfigBuildSpec
   (info : BuildInfo)
-  (config : FacetConfig Fam ι facet) (h : BuildData info.key = Fam facet)
+  (config : FacetConfig kind facet)
+  (h : BuildData info.key = FacetData kind facet)
 : BuildSpec where
   info
   buildable := config.buildable

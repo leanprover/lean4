@@ -101,6 +101,12 @@ This is similar to `<|>`/`orElse`, but it is strict in the second argument. -/
   | some x,   some y => r x y
   | _, _             => False
 
+@[inline] protected def le (r : α → β → Prop) : Option α → Option β → Prop
+  | none,   some _ => True
+  | none,   none   => True
+  | some _, none   => False
+  | some x, some y => r x y
+
 instance (r : α → β → Prop) [s : DecidableRel r] : DecidableRel (Option.lt r)
   | none,   some _ => isTrue  trivial
   | some x, some y => s x y
@@ -217,18 +223,24 @@ instance (α) [BEq α] [LawfulBEq α] : LawfulBEq (Option α) where
 @[simp] theorem any_none : Option.any p none = false := rfl
 @[simp] theorem any_some : Option.any p (some x) = p x := rfl
 
-/-- The minimum of two optional values. -/
+/--
+The minimum of two optional values.
+
+Note this treats `none` as the least element,
+as `min none x = min x none = none` for all `x : Option α`.
+Prior to nightly-2025-02-27, we instead had `min none (some x) = min (some x) none = some x`.
+-/
 protected def min [Min α] : Option α → Option α → Option α
   | some x, some y => some (Min.min x y)
-  | some x, none => some x
-  | none, some y => some y
+  | some _, none => none
+  | none, some _ => none
   | none, none => none
 
 instance [Min α] : Min (Option α) where min := Option.min
 
 @[simp] theorem min_some_some [Min α] {a b : α} : min (some a) (some b) = some (min a b) := rfl
-@[simp] theorem min_some_none [Min α] {a : α} : min (some a) none = some a := rfl
-@[simp] theorem min_none_some [Min α] {b : α} : min none (some b) = some b := rfl
+@[simp] theorem min_some_none [Min α] {a : α} : min (some a) none = none := rfl
+@[simp] theorem min_none_some [Min α] {b : α} : min none (some b) = none := rfl
 @[simp] theorem min_none_none [Min α] : min (none : Option α) none = none := rfl
 
 /-- The maximum of two optional values. -/
@@ -250,6 +262,9 @@ end Option
 
 instance [LT α] : LT (Option α) where
   lt := Option.lt (· < ·)
+
+instance [LE α] : LE (Option α) where
+  le := Option.le (· ≤ ·)
 
 @[always_inline]
 instance : Functor Option where

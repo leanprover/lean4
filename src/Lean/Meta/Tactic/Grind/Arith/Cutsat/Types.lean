@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Int.Linear
+import Std.Internal.Rat
 import Lean.Data.PersistentArray
 import Lean.Meta.Tactic.Grind.ENodeKey
 import Lean.Meta.Tactic.Grind.Arith.Util
@@ -12,6 +13,7 @@ import Lean.Meta.Tactic.Grind.Arith.Util
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 export Int.Linear (Var Poly)
+export Std.Internal (Rat)
 
 /-!
 This module implements a model-based decision procedure for linear integer arithmetic,
@@ -189,7 +191,7 @@ structure State where
   -/
   occurs : PArray VarSet := {}
   /-- Partial assignment being constructed by cutsat. -/
-  assignment : PArray Int := {}
+  assignment : PArray Rat := {}
   /-- Next unique id for a constraint. -/
   nextCnstrId : Nat := 0
   /-

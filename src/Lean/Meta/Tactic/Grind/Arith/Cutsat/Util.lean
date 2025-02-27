@@ -71,7 +71,7 @@ def mkEqCnstr (p : Poly) (h : EqCnstrProof) : GoalM EqCnstr := do
 @[extern "lean_grind_cutsat_assert_eq"] -- forward definition
 opaque EqCnstr.assert (c : EqCnstr) : GoalM Unit
 
-private partial def shrink (a : PArray Int) (sz : Nat) : PArray Int :=
+private partial def shrink (a : PArray Rat) (sz : Nat) : PArray Rat :=
   if a.size > sz then
     shrink a.pop sz
   else
@@ -216,9 +216,9 @@ abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
 Tries to evaluate the polynomial `p` using the partial model/assignment built so far.
 The result is `none` if the polynomial contains variables that have not been assigned.
 -/
-def _root_.Int.Linear.Poly.eval? (p : Poly) : GoalM (Option Int) := do
+def _root_.Int.Linear.Poly.eval? (p : Poly) : GoalM (Option Rat) := do
   let a := (← get').assignment
-  let rec go (v : Int) : Poly → Option Int
+  let rec go (v : Rat) : Poly → Option Rat
     | .num k => some (v + k)
     | .add k x p =>
       if _ : x < a.size then
@@ -239,7 +239,8 @@ Returns `.true` if `c` is satisfied by the current partial model,
 -/
 def DvdCnstr.satisfied (c : DvdCnstr) : GoalM LBool := do
   let some v ← c.p.eval? | return .undef
-  return decide (c.d ∣ v) |>.toLBool
+  if v.den != 1 then return .false
+  return decide (c.d ∣ v.num) |>.toLBool
 
 def _root_.Int.Linear.Poly.satisfiedLe (p : Poly) : GoalM LBool := do
   let some v ← p.eval? | return .undef

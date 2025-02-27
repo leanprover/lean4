@@ -11,13 +11,13 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
-def getBestLower? (x : Var) : GoalM (Option (Int × LeCnstr)) := do
+def getBestLower? (x : Var) : GoalM (Option (Rat × LeCnstr)) := do
   let s ← get'
   let mut best? := none
   for c in s.lowers[x]! do
     let .add k _ p := c.p | c.throwUnexpected
     let some v ← p.eval? | c.throwUnexpected
-    let lower' := Int.Linear.cdiv v (-k)
+    let lower' := v / (-k)
     if let some (lower, _) := best? then
       if lower' > lower then
         best? := some (lower', c)
@@ -25,7 +25,7 @@ def getBestLower? (x : Var) : GoalM (Option (Int × LeCnstr)) := do
       best? := some (lower', c)
   return best?
 
-def getBestUpper? (x : Var) : GoalM (Option (Int × LeCnstr)) := do
+def getBestUpper? (x : Var) : GoalM (Option (Rat × LeCnstr)) := do
   let s ← get'
   let mut best? := none
   for c in s.uppers[x]! do
@@ -43,6 +43,8 @@ def DvdCnstr.getSolutions? (c : DvdCnstr) : GoalM (Option (Int × Int)) := do
   let d := c.d
   let .add a _ p := c.p | c.throwUnexpected
   let some b ← p.eval? | c.throwUnexpected
+  if b.den != 1 then return none
+  let b := b.num
   -- We must solve `d ∣ a*x + b`
   let g := d.gcd a
   if b % g != 0 then
@@ -67,7 +69,7 @@ private partial def skipAssignment (x : Var)  : GoalM Unit := do
   if x > (← get').assignment.size then
     skipAssignment x
 
-private partial def setAssignment (x : Var) (v : Int) : GoalM Unit := do
+private partial def setAssignment (x : Var) (v : Rat) : GoalM Unit := do
   if x == (← get').assignment.size then
     trace[grind.cutsat.assign] "{quoteIfNotAtom (← getVar x)} := {v}"
     modify' fun s => { s with assignment := s.assignment.push v }
@@ -111,6 +113,9 @@ def decideVar (x : Var) : GoalM Unit := do
   | none, some (upper, _), none =>
     setAssignment x upper
   | some (lower, c₁), some (upper, c₂), none =>
+    -- TODO: approx mode
+    let lower := lower.ceil
+    let upper := upper.floor
     if lower ≤ upper then
       setAssignment x lower
     else
@@ -122,6 +127,7 @@ def decideVar (x : Var) : GoalM Unit := do
     else
       resolveDvdConflict c
   | some (lower, _), none, some c =>
+    let lower := lower.ceil
     if let some (d, b) ← c.getSolutions? then
       /-
       - `x ≥ lower ∧ x = k*d + b`
@@ -133,6 +139,7 @@ def decideVar (x : Var) : GoalM Unit := do
     else
       resolveDvdConflict c
   | none, some (upper, _), some c =>
+    let upper := upper.floor
     if let some (d, b) ← c.getSolutions? then
       /-
       - `x ≤ upper ∧ x = k*d +  b`

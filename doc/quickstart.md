@@ -23,3 +23,5 @@ See [Setup](./setup.md) for supported platforms and other ways to set up Lean 4.
    ![setup guide](images/setup_guide.png)
 
 1. Once you have set up a project, you can build it by clicking on the ∀-symbol in the top right and selecting 'Project Actions… > Projects: Build Project'.
+
+1. If you created a standalone project, you can run the built executable from the command line. It will be in the directory `./.lake/build/bin/`, with a name based on the name of your project.

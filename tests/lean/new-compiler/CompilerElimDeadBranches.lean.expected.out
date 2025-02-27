@@ -1,12 +1,12 @@
 [Compiler.elimDeadBranches] Eliminating addSomeVal._redArg with #[("val.16", Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Nat.zero #[]),
+      ("_x.36",
+       Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Option.some #[Lean.Compiler.LCNF.UnreachableBranches.Value.top]),
+      ("val.20", Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Nat.zero #[]),
+      ("_x.35", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
       ("_x.37",
        Lean.Compiler.LCNF.UnreachableBranches.Value.ctor
          `Option.some
-         #[Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Nat.zero #[]]),
-      ("val.20", Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Nat.zero #[]),
-      ("_x.35", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
-      ("_x.36",
-       Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Option.some #[Lean.Compiler.LCNF.UnreachableBranches.Value.top])]
+         #[Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Nat.zero #[]])]
 [Compiler.elimDeadBranches] Threw away cases _x.37 branch Option.none
 [Compiler.elimDeadBranches] Threw away cases _x.37 branch Option.none
 [Compiler.elimDeadBranches] Eliminating addSomeVal with #[("x", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
@@ -47,21 +47,21 @@
           let _x.5 := some _ _x.4;
           return _x.5
 [Compiler.result] size: 1 def addSomeVal x : Option Nat := let _x.1 := addSomeVal._redArg; return _x.1
-[Compiler.elimDeadBranches] Eliminating monadic with #[("_x.207",
+[Compiler.elimDeadBranches] Eliminating monadic with #[("_x.205",
        Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Except.error #[Lean.Compiler.LCNF.UnreachableBranches.Value.top]),
       ("_x.211",
        Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Option.some #[Lean.Compiler.LCNF.UnreachableBranches.Value.top]),
-      ("a.208", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
-      ("a.206", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
-      ("_x.205",
+      ("y", Lean.Compiler.LCNF.UnreachableBranches.Value.top), ("a.208", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
+      ("_x.207",
        Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Except.error #[Lean.Compiler.LCNF.UnreachableBranches.Value.top]),
       ("_x.91",
        Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Except.ok #[Lean.Compiler.LCNF.UnreachableBranches.Value.top]),
-      ("x", Lean.Compiler.LCNF.UnreachableBranches.Value.top), ("val.64", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
-      ("val.200", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
       ("_x.212",
        Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Option.some #[Lean.Compiler.LCNF.UnreachableBranches.Value.top]),
-      ("_x.88", Lean.Compiler.LCNF.UnreachableBranches.Value.top), ("y", Lean.Compiler.LCNF.UnreachableBranches.Value.top)]
+      ("a.206", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
+      ("val.200", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
+      ("val.64", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
+      ("_x.88", Lean.Compiler.LCNF.UnreachableBranches.Value.top), ("x", Lean.Compiler.LCNF.UnreachableBranches.Value.top)]
 [Compiler.elimDeadBranches] Threw away cases _x.211 branch Option.none
 [Compiler.elimDeadBranches] Threw away cases _x.212 branch Option.none
 [Compiler.elimDeadBranches] Threw away cases _x.205 branch Except.ok

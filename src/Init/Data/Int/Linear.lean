@@ -1006,6 +1006,68 @@ theorem eq_of_core (ctx : Context) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
   intro; subst p₃; simp
   intro h; rw [h, ←Int.sub_eq_add_neg, Int.sub_self]
 
+def Poly.isUnsatDiseq (p : Poly) : Bool :=
+  match p with
+  | .num 0 => true
+  | _ => false
+
+theorem diseq_norm (ctx : Context) (p₁ p₂ : Poly) (h : p₁.norm == p₂) : p₁.denote' ctx ≠ 0 → p₂.denote' ctx ≠ 0 := by
+  simp at h
+  replace h := congrArg (Poly.denote ctx) h
+  simp at h
+  simp [*]
+
+theorem diseq_coeff (ctx : Context) (p p' : Poly) (k : Int) : eq_coeff_cert p p' k → p.denote' ctx ≠ 0 → p'.denote' ctx ≠ 0 := by
+  simp [eq_coeff_cert]
+  intro _ _; simp [mul_eq_zero_iff, *]
+
+theorem diseq_unsat (ctx : Context) (p : Poly) : p.isUnsatDiseq → p.denote' ctx ≠ 0 → False := by
+  simp [Poly.isUnsatDiseq] <;> split <;> simp
+
+def diseq_eq_subst_cert (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
+  let a := p₁.coeff x
+  let b := p₂.coeff x
+  a != 0 && p₃ == (p₁.mul b |>.combine (p₂.mul (-a)))
+
+theorem eq_diseq_subst (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
+    : diseq_eq_subst_cert x p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx ≠ 0 → p₃.denote' ctx ≠ 0 := by
+  simp [diseq_eq_subst_cert]
+  intros _ _; subst p₃
+  intro h₁ h₂
+  simp [*]
+
+theorem diseq_of_core (ctx : Context) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
+    : eq_of_core_cert p₁ p₂ p₃ → p₁.denote' ctx ≠ p₂.denote' ctx → p₃.denote' ctx ≠ 0 := by
+  simp [eq_of_core_cert]
+  intro; subst p₃; simp
+  intro h; rw [← Int.sub_eq_zero] at h
+  rw [←Int.sub_eq_add_neg]; assumption
+
+def eq_of_le_ge_cert (p₁ p₂ : Poly) : Bool :=
+  p₂ == p₁.mul (-1)
+
+theorem eq_of_le_ge (ctx : Context) (p₁ : Poly) (p₂ : Poly)
+    : eq_of_le_ge_cert p₁ p₂ → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 → p₁.denote' ctx = 0 := by
+  simp [eq_of_le_ge_cert]
+  intro; subst p₂; simp
+  intro h₁ h₂
+  replace h₂ := Int.neg_le_of_neg_le h₂; simp at h₂
+  simp [Int.eq_iff_le_and_ge, *]
+
+def le_of_le_diseq_cert (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
+  -- Remark: we can generate two different certificates in the future, and avoid the `||` in the certificate.
+  (p₂ == p₁ || p₂ == p₁.mul (-1)) &&
+  p₃ == p₁.addConst 1
+
+theorem le_of_le_diseq (ctx : Context) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
+    : le_of_le_diseq_cert p₁ p₂ p₃ → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≠ 0 → p₃.denote' ctx ≤ 0 := by
+  simp [le_of_le_diseq_cert]
+  have (a : Int) : a ≤ 0 → ¬ a = 0 → 1 + a ≤ 0 := by
+    intro h₁ h₂; cases (Int.lt_or_gt_of_ne h₂)
+    next => apply Int.le_of_lt_add_one; rw [Int.add_comm, Int.add_lt_add_iff_right]; assumption
+    next h => have := Int.lt_of_le_of_lt h₁ h; simp at this
+  intro h; cases h <;> intro <;> subst p₂ p₃ <;> simp <;> apply this
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

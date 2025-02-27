@@ -65,6 +65,12 @@ def mkCnstrId : GoalM Nat := do
   modify' fun s => { s with nextCnstrId := id + 1 }
   return id
 
+def mkEqCnstr (p : Poly) (h : EqCnstrProof) : GoalM EqCnstr := do
+  return { p, h, id := (← mkCnstrId) }
+
+@[extern "lean_grind_cutsat_assert_eq"] -- forward definition
+opaque EqCnstr.assert (c : EqCnstr) : GoalM Unit
+
 private partial def shrink (a : PArray Int) (sz : Nat) : PArray Int :=
   if a.size > sz then
     shrink a.pop sz
@@ -105,6 +111,20 @@ def DvdCnstr.denoteExpr (c : DvdCnstr) : GoalM Expr := do
 
 def DvdCnstr.throwUnexpected (c : DvdCnstr) : GoalM α := do
   throwError "`grind` internal error, unexpected{indentD (← c.pp)} "
+
+def DiseqCnstr.isTrivial (c : DiseqCnstr) : Bool :=
+  match c.p with
+  | .num k => k != 0
+  | _ => c.p.getConst % c.p.gcdCoeffs' != 0
+
+def DiseqCnstr.pp (c : DiseqCnstr) : GoalM MessageData := do
+  return m!"{← c.p.pp} ≠ 0"
+
+def DiseqCnstr.throwUnexpected (c : DiseqCnstr) : GoalM α := do
+  throwError "`grind` internal error, unexpected{indentD (← c.pp)}"
+
+def DiseqCnstr.denoteExpr (c : DiseqCnstr) : GoalM Expr := do
+  return mkNot (mkIntEq (← c.p.denoteExpr') (mkIntLit 0))
 
 def LeCnstr.isTrivial (c : LeCnstr) : Bool :=
   match c.p with
@@ -185,6 +205,7 @@ abbrev caching (id : Nat) (k : ProofM Expr) : ProofM Expr := do
 abbrev DvdCnstr.caching (c : DvdCnstr) (k : ProofM Expr) : ProofM Expr := Cutsat.caching c.id k
 abbrev LeCnstr.caching (c : LeCnstr) (k : ProofM Expr) : ProofM Expr := Cutsat.caching c.id k
 abbrev EqCnstr.caching (c : EqCnstr) (k : ProofM Expr) : ProofM Expr := Cutsat.caching c.id k
+abbrev DiseqCnstr.caching (c : DiseqCnstr) (k : ProofM Expr) : ProofM Expr := Cutsat.caching c.id k
 
 abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
   withLetDecl `ctx (mkApp (mkConst ``RArray) (mkConst ``Int)) (← toContextExpr) fun ctx => do
@@ -230,6 +251,14 @@ Returns `.true` if `c` is satisfied by the current partial model,
 -/
 def LeCnstr.satisfied (c : LeCnstr) : GoalM LBool := do
   c.p.satisfiedLe
+
+/--
+Returns `.true` if `c` is satisfied by the current partial model,
+`.undef` if `c` contains unassigned variables, and `.false` otherwise.
+-/
+def DiseqCnstr.satisfied (c : DiseqCnstr) : GoalM LBool := do
+  let some v ← c.p.eval? | return .undef
+  return v != 0 |>.toLBool
 
 /--
 Given a polynomial `p`, returns `some (x, k, c)` if `p` contains the monomial `k*x`,

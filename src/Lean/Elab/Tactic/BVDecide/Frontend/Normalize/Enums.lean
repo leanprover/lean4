@@ -274,11 +274,11 @@ partial def enumsPass : Pass where
 
       let simprocs ← Simp.SimprocsArray.add #[] ``enumsPassPost true
       let ⟨result?, _⟩ ←
-          simpGoal
-            goal
-            (ctx := simpCtx)
-            (simprocs := simprocs)
-            (fvarIdsToSimp := ← getPropHyps)
+        simpGoal
+          goal
+          (ctx := simpCtx)
+          (simprocs := simprocs)
+          (fvarIdsToSimp := ← getPropHyps)
       let some (_, newGoal) := result? | return none
       postprocess newGoal |>.run' {}
 where

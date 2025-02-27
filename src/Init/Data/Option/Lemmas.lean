@@ -654,6 +654,11 @@ theorem map_pmap {p : α → Prop} (g : β → γ) (f : ∀ a, p a → β) (o H)
     Option.map g (pmap f o H) = pmap (fun a h => g (f a h)) o H := by
   cases o <;> simp
 
+theorem pmap_map (o : Option α) (f : α → β) {p : β → Prop} (g : ∀ b, p b → γ) (H) :
+    pmap g (o.map f) H =
+      pmap (fun a h => g (f a) h) o (fun a m => H (f a) (mem_map_of_mem f m)) := by
+  cases o <;> simp
+
 /-! ### pelim -/
 
 @[simp] theorem pelim_none : pelim none b f = b := rfl

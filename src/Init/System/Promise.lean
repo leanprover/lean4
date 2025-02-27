@@ -73,5 +73,5 @@ def Promise.result := @Promise.result!
 /--
 Like `Promise.result`, but resolves to `dflt` if the promise is dropped without ever being resolved.
 -/
-def Promise.resultD (promise : Promise α) (dflt : α): Task α :=
+@[macro_inline] def Promise.resultD (promise : Promise α) (dflt : α) : Task α :=
   promise.result?.map (sync := true) (·.getD dflt)

@@ -98,6 +98,16 @@ theorem get?_empty [Ord α] [OrientedOrd α] [LawfulEqOrd α] {k : α} :
   rfl
 
 /-- Internal implementation detail of the tree map -/
+def getKey? [Ord α] {k : α} (c : Cell α β (compare k)) : Option α :=
+  match c.inner with
+  | none => none
+  | some p => some p.1
+
+@[simp]
+theorem getKey?_empty [Ord α] {k : α} : (Cell.empty : Cell α β (compare k)).getKey? = none :=
+  rfl
+
+/-- Internal implementation detail of the tree map -/
 def alter [Ord α] [OrientedOrd α] [LawfulEqOrd α] {k : α}
     (f : Option (β k) → Option (β k)) (c : Cell α β (compare k)) :
     Cell α β (compare k) :=

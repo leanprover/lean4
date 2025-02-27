@@ -17,8 +17,8 @@ import Init.Data.Stream
 `Vector α n` is a thin wrapper around `Array α` for arrays of fixed size `n`.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 /-- `Vector α n` is an `Array α` with size `n`. -/
 structure Vector (α : Type u) (n : Nat) extends Array α where
@@ -454,6 +454,9 @@ to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
 /-- Count the number of elements of a vector that are equal to `a`. -/
 @[inline] def count [BEq α] (a : α) (xs : Vector α n) : Nat :=
   xs.toArray.count a
+
+@[inline] def replace [BEq α] (xs : Vector α n) (a b : α) : Vector α n :=
+  ⟨xs.toArray.replace a b, by simp⟩
 
 /--
 Pad a vector on the left with a given element.

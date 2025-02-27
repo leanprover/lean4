@@ -152,14 +152,17 @@ up with DFS.
 -/
 partial def useAnalysis : M Unit := do
   let emptyId ← M.getEmptyId
-  go [emptyId]
+  go #[emptyId]
 where
-  go (workList : List Nat) : M Unit := do
-    match workList with
-    | [] => return ()
-    | id :: workList =>
+  go (worklist : Array Nat) : M Unit := do
+    let mut worklist := worklist
+    if h : worklist.size = 0 then
+      return ()
+    else
+      let id := worklist.back
+      worklist := worklist.pop
       if ← M.isUsed id then
-        go workList
+        go worklist
       else
         M.markUsed id
         let step? ← M.getProofStep id
@@ -167,19 +170,18 @@ where
         | some step =>
           match step with
           | .addEmpty _ hints =>
-            let workList := hints.toListAppend workList
-            go workList
+            worklist := worklist ++ hints
+            go worklist
           | .addRup _ _ hints =>
-            let workList := hints.toListAppend workList
-            go workList
+            worklist := worklist ++ hints
+            go worklist
           | .addRat _ _ _ rupHints ratHints =>
-            let folder acc a :=
-              a.fst :: a.snd.toListAppend acc
-            let ratHints := ratHints.foldl (init := []) folder
-            let workList := rupHints.toListAppend <| ratHints ++ workList
-            go workList
-          | .del .. => go workList
-        | none => go workList
+            let folder acc a := acc.push a.fst ++ a.snd
+            let ratHints := ratHints.foldl (init := Array.mkEmpty ratHints.size) folder
+            worklist := worklist ++ ratHints ++ rupHints
+            go worklist
+          | .del .. => go worklist
+        | none => go worklist
 
 /--
 Map the set of used proof steps to a new LRAT proof that has no holes in the sequence of proof

@@ -5,11 +5,6 @@ which can happen when those dependencies reduce away.
 
 def const (x : α) (_ : β) : α := x
 
-/-!
-This test contains functions with fixed parameter that have dependencies on varying parameter,
-but only in annotations (optional parameters).
--/
-
 private axiom test_sorry : ∀ {α}, α
 
 namespace Ex1

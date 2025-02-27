@@ -53,7 +53,7 @@ private def helperLemmaNames : Array Name :=
   #[``compare_eq_eq_iff_beq]
 
 private def queryNames : Array Name :=
-  #[``isEmpty_eq_isEmpty, ``contains_eq_containsKey, ``size_eq_length,
+  #[``isEmpty_eq_isEmpty, ``contains_eq_containsKey, ``size_eq_length, ``keys_eq_keys
     ``get?_eq_getValueCast?, ``Const.get?_eq_getValue?,
     ``get_eq_getValueCast, ``Const.get_eq_getValue,
     ``get!_eq_getValueCast!, ``Const.get!_eq_getValue!,
@@ -1462,6 +1462,134 @@ theorem getThenInsertIfNew?!_snd [TransOrd α] (h : t.WF) {k : α} {v : β} :
   · rw [get?_eq_getValue? h.ordered] at heq
     rw [insertIfNew!, contains_eq_containsKey h.ordered, List.containsKey_eq_isSome_getValue?, heq]
     rfl
+
+end Const
+
+@[simp]
+theorem length_keys [TransOrd α] :
+    t.keys.length = t.size := by
+  simp_to_model
+
+@[simp]
+theorem isEmpty_keys [TransOrd α]:
+    t.keys.isEmpty = t.isEmpty  :=
+  Raw₀.isEmpty_keys ⟨t.1, t.2.size_buckets_pos⟩ t.2
+
+@[simp]
+theorem contains_keys [TransOrd α] {k : α} :
+    t.keys.contains k = t.contains k :=
+  Raw₀.contains_keys ⟨t.1, _⟩ t.2
+
+@[simp]
+theorem mem_keys [LawfulBEq α] {k : α} :
+    k ∈ t.keys ↔ k ∈ t := by
+  rw [mem_iff_contains]
+  exact Raw₀.mem_keys ⟨t.1, _⟩ t.2
+
+theorem distinct_keys [TransOrd α] :
+    t.keys.Pairwise (fun a b => (a == b) = false) :=
+  Raw₀.distinct_keys ⟨t.1, t.2.size_buckets_pos⟩ t.2
+
+@[simp]
+theorem map_sigma_fst_toList_eq_keys [TransOrd α] :
+    t.1.toList.map Sigma.fst = t.1.keys  :=
+  Raw₀.map_sigma_fst_toList_eq_keys ⟨t.1, t.2.size_buckets_pos⟩
+
+@[simp]
+theorem length_toList [TransOrd α] :
+    t.toList.length = t.size :=
+  Raw₀.length_toList ⟨t.1, t.2.size_buckets_pos⟩ t.2
+
+@[simp]
+theorem isEmpty_toList [TransOrd α] :
+    t.toList.isEmpty = t.isEmpty :=
+  Raw₀.isEmpty_toList ⟨t.1, t.2.size_buckets_pos⟩ t.2
+
+@[simp]
+theorem mem_toList_iff_get?_eq_some [LawfulBEq α]
+    {k : α} {v : β k} :
+    ⟨k, v⟩ ∈ t.toList ↔ t.get? k = some v :=
+  Raw₀.mem_toList_iff_get?_eq_some ⟨t.1, t.2.size_buckets_pos⟩ t.2
+
+theorem find?_toList_eq_some_iff_get?_eq_some [LawfulBEq α]
+    {k : α} {v : β k} :
+    t.toList.find? (·.1 == k) = some ⟨k, v⟩ ↔ t.get? k = some v :=
+  Raw₀.find?_toList_eq_some_iff_get?_eq_some ⟨t.1, t.2.size_buckets_pos⟩ t.2
+
+theorem find?_toList_eq_none_iff_contains_eq_false [TransOrd α]
+    {k : α} :
+    t.toList.find? (·.1 == k) = none ↔ t.contains k = false :=
+  Raw₀.find?_toList_eq_none_iff_contains_eq_false ⟨t.1, t.2.size_buckets_pos⟩ t.2
+
+@[simp]
+theorem find?_toList_eq_none_iff_not_mem [TransOrd α]
+    {k : α} :
+    t.toList.find? (·.1 == k) = none ↔ ¬ k ∈ t := by
+  simp only [Bool.not_eq_true, mem_iff_contains]
+  apply Raw₀.find?_toList_eq_none_iff_contains_eq_false ⟨t.1, t.2.size_buckets_pos⟩ t.2
+
+theorem distinct_keys_toList [TransOrd α] :
+    t.toList.Pairwise (fun a b => (a.1 == b.1) = false) :=
+  Raw₀.distinct_keys_toList ⟨t.1, t.2.size_buckets_pos⟩ t.2
+
+namespace Const
+
+variable {β : Type v} {t : DHashMap α (fun _ => β)}
+
+@[simp]
+theorem map_prod_fst_toList_eq_keys [TransOrd α] :
+    (toList t).map Prod.fst = t.keys :=
+  Raw₀.Const.map_prod_fst_toList_eq_keys ⟨t.1, t.2.size_buckets_pos⟩
+
+@[simp]
+theorem length_toList [TransOrd α] :
+    (toList t).length = t.size :=
+  Raw₀.Const.length_toList ⟨t.1, t.2.size_buckets_pos⟩ t.2
+
+@[simp]
+theorem isEmpty_toList [TransOrd α] :
+    (toList t).isEmpty = t.isEmpty :=
+  Raw₀.Const.isEmpty_toList ⟨t.1, t.2.size_buckets_pos⟩ t.2
+
+@[simp]
+theorem mem_toList_iff_get?_eq_some [LawfulBEq α]
+    {k : α} {v : β} :
+    (k, v) ∈ toList t ↔ get? t k = some v :=
+  Raw₀.Const.mem_toList_iff_get?_eq_some ⟨t.1, t.2.size_buckets_pos⟩ t.2
+
+@[simp]
+theorem mem_toList_iff_getKey?_eq_some_and_get?_eq_some [TransOrd α]
+    {k : α} {v : β} :
+    (k, v) ∈ toList t ↔ t.getKey? k = some k ∧ get? t k = some v :=
+  Raw₀.Const.mem_toList_iff_getKey?_eq_some_and_get?_eq_some ⟨t.1, t.2.size_buckets_pos⟩ t.2
+
+theorem get?_eq_some_iff_exists_beq_and_mem_toList [TransOrd α]
+    {k : α} {v : β} :
+    get? t k = some v ↔ ∃ (k' : α), k == k' ∧ (k', v) ∈ toList t :=
+  Raw₀.Const.get?_eq_some_iff_exists_beq_and_mem_toList ⟨t.1, t.2.size_buckets_pos⟩ t.2
+
+theorem find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some
+    [TransOrd α] {k k' : α} {v : β} :
+    (toList t).find? (fun a => a.1 == k) = some ⟨k', v⟩ ↔
+      t.getKey? k = some k' ∧ get? t k = some v :=
+  Raw₀.Const.find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some
+    ⟨t.1, t.2.size_buckets_pos⟩ t.2
+
+theorem find?_toList_eq_none_iff_contains_eq_false [TransOrd α]
+    {k : α} :
+    (toList t).find? (·.1 == k) = none ↔ t.contains k = false :=
+  Raw₀.Const.find?_toList_eq_none_iff_contains_eq_false ⟨t.1, t.2.size_buckets_pos⟩ t.2
+
+@[simp]
+theorem find?_toList_eq_none_iff_not_mem [TransOrd α]
+    {k : α} :
+    (toList t).find? (·.1 == k) = none ↔ ¬ k ∈ t := by
+  simp only [Bool.not_eq_true, mem_iff_contains]
+  apply Raw₀.Const.find?_toList_eq_none_iff_contains_eq_false ⟨t.1, t.2.size_buckets_pos⟩ t.2
+
+theorem distinct_keys_toList [TransOrd α] :
+    (toList t).Pairwise (fun a b => (a.1 == b.1) = false) :=
+  Raw₀.Const.distinct_keys_toList ⟨t.1, t.2.size_buckets_pos⟩ t.2
 
 end Const
 

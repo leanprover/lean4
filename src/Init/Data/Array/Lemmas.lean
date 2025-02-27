@@ -3923,6 +3923,89 @@ theorem all_reverse {xs : Array α} : xs.reverse.all f 0 = xs.all f := by
 @[simp] theorem appendList_cons (xs : Array α) (a : α) (l : List α) :
     xs ++ (a :: l) = xs.push a ++ l := Array.ext' (by simp)
 
+/-! ### Preliminaries about `ofFn` -/
+
+@[simp] theorem size_ofFn_go {n} (f : Fin n → α) (i acc) :
+    (ofFn.go f i acc).size = acc.size + (n - i) := by
+  if hin : i < n then
+    unfold ofFn.go
+    have : 1 + (n - (i + 1)) = n - i :=
+      Nat.sub_sub .. ▸ Nat.add_sub_cancel' (Nat.le_sub_of_add_le (Nat.add_comm .. ▸ hin))
+    rw [dif_pos hin, size_ofFn_go f (i+1), size_push, Nat.add_assoc, this]
+  else
+    have : n - i = 0 := Nat.sub_eq_zero_of_le (Nat.le_of_not_lt hin)
+    unfold ofFn.go
+    simp [hin, this]
+termination_by n - i
+
+@[simp] theorem size_ofFn (f : Fin n → α) : (ofFn f).size = n := by simp [ofFn]
+
+theorem getElem_ofFn_go (f : Fin n → α) (i) {acc k}
+    (hki : k < n) (hin : i ≤ n) (hi : i = acc.size)
+    (hacc : ∀ j, ∀ hj : j < acc.size, acc[j] = f ⟨j, Nat.lt_of_lt_of_le hj (hi ▸ hin)⟩) :
+    haveI : acc.size + (n - acc.size) = n := Nat.add_sub_cancel' (hi ▸ hin)
+    (ofFn.go f i acc)[k]'(by simp [*]) = f ⟨k, hki⟩ := by
+  unfold ofFn.go
+  if hin : i < n then
+    have : 1 + (n - (i + 1)) = n - i :=
+      Nat.sub_sub .. ▸ Nat.add_sub_cancel' (Nat.le_sub_of_add_le (Nat.add_comm .. ▸ hin))
+    simp only [dif_pos hin]
+    rw [getElem_ofFn_go f (i+1) _ hin (by simp [*]) (fun j hj => ?hacc)]
+    cases (Nat.lt_or_eq_of_le <| Nat.le_of_lt_succ (by simpa using hj)) with
+    | inl hj => simp [getElem_push, hj, hacc j hj]
+    | inr hj => simp [getElem_push, *]
+  else
+    simp [hin, hacc k (Nat.lt_of_lt_of_le hki (Nat.le_of_not_lt (hi ▸ hin)))]
+termination_by n - i
+
+@[simp] theorem getElem_ofFn (f : Fin n → α) (i : Nat) (h) :
+    (ofFn f)[i] = f ⟨i, size_ofFn f ▸ h⟩ :=
+  getElem_ofFn_go _ _ _ (by simp) (by simp) nofun
+
+theorem getElem?_ofFn (f : Fin n → α) (i : Nat) :
+    (ofFn f)[i]? = if h : i < n then some (f ⟨i, h⟩) else none := by
+  simp [getElem?_def]
+
+/-! ### Preliminaries about `range` and `range'` -/
+
+@[simp] theorem size_range' {start size step} : (range' start size step).size = size := by
+  simp [range']
+
+@[simp] theorem toList_range' {start size step} :
+     (range' start size step).toList = List.range' start size step := by
+  apply List.ext_getElem <;> simp [range']
+
+@[simp]
+theorem getElem_range' {start size step : Nat} {i : Nat}
+    (h : i < (Array.range' start size step).size) :
+    (Array.range' start size step)[i] = start + step * i := by
+  simp [← getElem_toList]
+
+theorem getElem?_range' {start size step : Nat} {i : Nat} :
+    (Array.range' start size step)[i]? = if i < size then some (start + step * i) else none := by
+  simp [getElem?_def, getElem_range']
+
+@[simp] theorem _root_.List.toArray_range' (start size step : Nat) :
+    (List.range' start size step).toArray = Array.range' start size step := by
+  apply ext'
+  simp
+
+@[simp] theorem size_range {n : Nat} : (range n).size = n := by
+  simp [range]
+
+@[simp] theorem toList_range (n : Nat) : (range n).toList = List.range n := by
+  apply List.ext_getElem <;> simp [range]
+
+@[simp]
+theorem getElem_range {n : Nat} {i : Nat} (h : i < (Array.range n).size) : (Array.range n)[i] = i := by
+  simp [← getElem_toList]
+
+theorem getElem?_range {n : Nat} {i : Nat} : (Array.range n)[i]? = if i < n then some i else none := by
+  simp [getElem?_def, getElem_range]
+
+@[simp] theorem _root_.List.toArray_range (n : Nat) : (List.range n).toArray = Array.range n := by
+  apply ext'
+  simp
 
 /-! Content below this point has not yet been aligned with `List`. -/
 

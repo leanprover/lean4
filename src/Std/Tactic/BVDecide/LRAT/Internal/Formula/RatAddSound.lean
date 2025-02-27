@@ -5,7 +5,7 @@ Authors: Josh Clune
 -/
 prelude
 import Std.Tactic.BVDecide.LRAT.Internal.Formula.RatAddResult
-import Init.Data.Array.Range
+
 /-!
 This module contains the verification of RAT-based clause adding for the default LRAT checker
 implementation.

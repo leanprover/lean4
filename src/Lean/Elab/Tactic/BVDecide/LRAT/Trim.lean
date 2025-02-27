@@ -25,6 +25,7 @@ namespace trim
 The context used for trimming LRAT proofs.
 -/
 structure Context where
+  -- TODO: this should not need to be a hashmap right?
   /--
   The proof as a map from proof step ids to their actions.
   -/
@@ -211,9 +212,7 @@ Trim the LRAT `proof` by removing all steps that are not used in reaching the em
 conclusion.
 -/
 def trim (proof : Array IntAction) : Except String (Array IntAction) := do
-  let foo ← trim.go.run proof
-  dbg_trace foo
-  return foo
+  trim.go.run proof
 
 end LRAT
 end Lean.Elab.Tactic.BVDecide

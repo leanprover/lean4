@@ -19,7 +19,7 @@ private def replaceIndPredRecApp (fixedParams : FixedParams) (funType : Expr) (e
     let main ← mkFreshExprSyntheticOpaqueMVar (← inferType e)
     let args : Array Expr := e.getAppArgs
     assert! fixedParams.mappings.size = 1 -- NB: No mutual recursion here
-    let ys := fixedParams.pickFixed 0 args
+    let ys := fixedParams.pickVarying 0 args
     let lctx ← getLCtx
     let r ← lctx.anyM fun localDecl => do
       if localDecl.isAuxDecl then return false
@@ -27,7 +27,7 @@ private def replaceIndPredRecApp (fixedParams : FixedParams) (funType : Expr) (e
       unless t.getAppFn == funType do return false
       withTraceNodeBefore `Elab.definition.structural (do pure m!"trying {mkFVar localDecl.fvarId} : {localDecl.type}") do
         if ys.size < t.getAppNumArgs then
-          trace[Elab.definition.structural] "too few arguments. Underapplied recursive call?"
+          trace[Elab.definition.structural] "too few arguments, expected {t.getAppNumArgs}, found {ys.size}. Underapplied recursive call?"
           return false
         if (← (t.getAppArgs.zip ys).allM (fun (t,s) => isDefEq t s)) then
           main.mvarId!.assign (mkAppN (mkAppN localDecl.toExpr mvars) ys[t.getAppNumArgs:])

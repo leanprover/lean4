@@ -390,22 +390,27 @@ where
 
 /--
 If `xs` are arguments to the `funIdx`'s function, pick only the varying ones.
+Unless `pickFixed`, this function can handle over- or under-application.
 -/
 def FixedParams.pickVarying (fixedParams : FixedParams) (funIdx : Nat) (xs : Array α) : Array α := Id.run do
   let mask := fixedParams.mappings[funIdx]!
-  assert! mask.size = xs.size
   let mut ys := #[]
   for h : i in [:xs.size] do
-    if mask[i]!.isNone then ys := ys.push xs[i]
+    if mask[i]?.join.isNone then ys := ys.push xs[i]
   pure ys
 
+/--
+Intersperses the fixed and varying parameters to be in the original parameter order.
+Can handle over- or und-application (extra or missing varying args), as long
+as there are all varying parameters that go before fixed parameters.
+(We expect to always find all fixed parameters, else they woudn't be fixed parameters.)
+-/
 partial def FixedParams.buildArgs (fixedParams : FixedParams) (funIdx : Nat) (fixedArgs varyingArgs : Array α) : Array α :=
   let mask := fixedParams.mappings[funIdx]!
   assert! fixedArgs.size = fixedParams.size
-  assert! mask.size = fixedParams.size + varyingArgs.size
   go mask 0 0 #[]
 where
-  go mask i j xs :=
+  go mask i j (xs : Array α) :=
     if _ : i < mask.size then
       if let some fixedParamIdx := mask[i] then
         if _ : fixedParamIdx < fixedArgs.size then
@@ -416,9 +421,12 @@ where
         if _ : j < varyingArgs.size then
           go mask (i + 1) (j + 1) (xs.push varyingArgs[j])
         else
-          panic! "FixedParams.buildArgs: too few fixed args"
+          if mask[i:].all Option.isNone then
+            xs -- Under-application
+          else
+            panic! "FixedParams.buildArgs: too few varying args"
     else
-      xs
+      xs ++ varyingArgs[j:] -- (Possibly) over-application
 
 /--
 Are all fixed parameters a non-reordered prefix?

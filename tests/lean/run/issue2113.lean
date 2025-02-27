@@ -1,6 +1,8 @@
 inductive Foo {f: Nat}: {d: Nat} → (h: d ≤ f) → Type where
 | foo : Foo (Nat.zero_le _) → (Bool → Foo h) → Foo h
 
+set_option trace.Elab.definition.structural true
+
 /--
 error: fail to show termination for
   Foo.bar

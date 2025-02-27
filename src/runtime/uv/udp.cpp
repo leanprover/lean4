@@ -177,10 +177,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
     }
 
     if (result < 0) {
-        lean_dec(promise);
+        lean_dec(promise); // The structure does not own it.
+        lean_dec(promise); // We are not going to return it.
+        lean_dec(socket); // The loop does not own the object.
 
-        free(send_uv);
         free(send_uv->data);
+        free(send_uv);
 
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
@@ -192,6 +194,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t buffer_size) {
     lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
 
+    // Locking earlier to avoid parallelism issues with m_promise_read.
+    event_loop_lock(&global_ev);
+
     if (udp_socket->m_promise_read != nullptr) {
         return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
     }
@@ -202,8 +207,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
     udp_socket->m_promise_read = promise;
     udp_socket->m_buffer_size = buffer_size;
     lean_inc(promise);
-
-    event_loop_lock(&global_ev);
 
     lean_inc(socket);
 

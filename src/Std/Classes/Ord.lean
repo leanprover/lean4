@@ -279,8 +279,8 @@ end LawfulEq
 section LawfulBEq
 
 /--
-A typeclass for comparison functions satisfying `cmp a b = .eq` if and only if the logical equality
-`a = b` holds.
+A typeclass for comparison functions satisfying `cmp a b = .eq` if and only if the boolean equality
+`a == b` holds.
 -/
 class LawfulBEqCmp {α : Type u} [BEq α] (cmp : α → α → Ordering) : Prop where
   /-- If two values compare equal, then they are logically equal. -/
@@ -288,7 +288,7 @@ class LawfulBEqCmp {α : Type u} [BEq α] (cmp : α → α → Ordering) : Prop 
 
 /--
 A typeclass for types with a comparison function that satisfies `compare a b = .eq` if and only if
-the logical equality `a = b` holds.
+the boolean equality `a == b` holds.
 -/
 abbrev LawfulBEqOrd (α : Type u) [BEq α] [Ord α] := LawfulBEqCmp (compare : α → α → Ordering)
 

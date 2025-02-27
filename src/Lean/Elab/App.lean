@@ -1215,7 +1215,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     let fullName := Name.mkStr structName fieldName
     for localDecl in (← getLCtx) do
       if localDecl.isAuxDecl then
-        if let some localDeclFullName := (← read).auxDeclToFullName.find? localDecl.fvarId then
+        if let some localDeclFullName := (← getLCtx).auxDeclToFullName.find? localDecl.fvarId then
           if fullName == (privateToUserName? localDeclFullName).getD localDeclFullName then
             /- LVal notation is being used to make a "local" recursive call. -/
             return LValResolution.localRec structName fullName localDecl.toExpr

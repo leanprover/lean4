@@ -55,3 +55,12 @@ abbrev LibraryFacetConfig := FacetConfig `leanLib
 
 /-- A library facet declaration from a configuration file. -/
 abbrev LibraryFacetDecl := NamedConfigDecl LibraryFacetConfig
+
+/-- A library facet's declarative configuration. -/
+abbrev LeanLibFacetConfig := LibraryFacetConfig
+
+/-- A Lean executable facet's declarative configuration. -/
+abbrev LeanExeFacetConfig := FacetConfig `leanExe
+
+/-- An external library facet's declarative configuration. -/
+abbrev ExternLibFacetConfig := FacetConfig `externLib

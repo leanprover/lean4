@@ -5,9 +5,7 @@ Authors: Mac Malone
 -/
 prelude
 import Lake.Load.Resolve
-import Lake.Build.Module
-import Lake.Build.Package
-import Lake.Build.Library
+import Lake.Build.InitFacets
 
 /-! # Workspace Loader
 

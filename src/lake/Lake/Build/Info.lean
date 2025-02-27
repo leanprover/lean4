@@ -49,16 +49,19 @@ abbrev LeanLib.facetBuildKey (self : LeanLib) (facet : Name) : BuildKey :=
   .targetFacet self.pkg.name self.name (`leanLib ++ facet)
 
 abbrev LeanExe.buildKey (self : LeanExe) : BuildKey :=
-  .targetFacet self.pkg.name self.name exeFacet
+  .targetFacet self.pkg.name self.name (`leanExe ++ exeFacet)
+
+abbrev ExternLib.facetBuildKey (self : ExternLib) (facet : Name) : BuildKey :=
+  .targetFacet self.pkg.name self.name (`externLib ++ facet)
 
 abbrev ExternLib.staticBuildKey (self : ExternLib) : BuildKey :=
-  .targetFacet self.pkg.name self.name staticFacet
+  self.facetBuildKey staticFacet
 
 abbrev ExternLib.sharedBuildKey (self : ExternLib) : BuildKey :=
-  .targetFacet self.pkg.name self.name sharedFacet
+  self.facetBuildKey sharedFacet
 
 abbrev ExternLib.dynlibBuildKey (self : ExternLib) : BuildKey :=
-  .targetFacet self.pkg.name self.name dynlibFacet
+  self.facetBuildKey dynlibFacet
 
 /-! ### Build Info to Key -/
 
@@ -90,25 +93,25 @@ instance {p : NPackage n} [FamilyOut CustomData (n, t) α]
 : FamilyDef BuildData (BuildInfo.key (.target p.toPackage t)) α where
   fam_eq := by unfold BuildData; simp
 
-instance [FamilyOut TargetData (`leanLib ++ f) α]
+instance [FamilyOut (FacetData `leanLib) f α]
 : FamilyDef BuildData (BuildInfo.key (.libraryFacet l f)) α where
   fam_eq := by unfold BuildData; simp
 
-instance [FamilyOut TargetData LeanExe.exeFacet α]
+instance [h : FamilyOut (FacetData `leanExe) LeanExe.exeFacet α]
 : FamilyDef BuildData (BuildInfo.key (.leanExe x)) α where
-  fam_eq := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp only [← h.fam_eq]
 
-instance [FamilyOut TargetData ExternLib.staticFacet α]
+instance [h : FamilyOut (FacetData `externLib) ExternLib.staticFacet α]
 : FamilyDef BuildData (BuildInfo.key (.staticExternLib l)) α where
-  fam_eq := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp only [← h.fam_eq]
 
-instance [FamilyOut TargetData ExternLib.sharedFacet α]
+instance [h : FamilyOut (FacetData `externLib) ExternLib.sharedFacet α]
 : FamilyDef BuildData (BuildInfo.key (.sharedExternLib l)) α where
-  fam_eq := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp only [← h.fam_eq]
 
-instance [FamilyOut TargetData ExternLib.dynlibFacet α]
+instance [h : FamilyOut (FacetData `externLib) ExternLib.dynlibFacet α]
 : FamilyDef BuildData (BuildInfo.key (.dynlibExternLib l)) α where
-  fam_eq := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp only [← h.fam_eq]
 
 --------------------------------------------------------------------------------
 /-! ## Build Info & Facets                                                    -/
@@ -273,7 +276,7 @@ abbrev Package.transDeps (self : Package) : BuildInfo :=
 abbrev Package.target (target : Name) (self : Package) : BuildInfo :=
   .target self target
 
-/-- Build info of the Lean library's Lean binaries. -/
+/-- Build info for a facet of a Lean library. -/
 abbrev LeanLib.facet (self : LeanLib) (facet : Name) : BuildInfo :=
   .libraryFacet self facet
 

@@ -201,9 +201,9 @@ def foldl (f : δ → (a : α) → β a → δ) (init : δ) (t : Impl α β) : �
 def foldrM {m} [Monad m] (f : δ → (a : α) → β a → m δ) (init : δ) : Impl α β → m δ
   | .leaf => pure init
   | .inner _ k v l r => do
-    let right ← foldlM f init r
+    let right ← foldrM f init r
     let middle ← f right k v
-    foldlM f middle l
+    foldrM f middle l
 
 /-- Folds the given function over the mappings in the tree in descending order. -/
 @[inline]

@@ -19,6 +19,10 @@ info: [Compiler.test] Starting wrapper test pullInstancesSizeEq for pullInstance
 [Compiler.test] Wrapper test pullInstancesSizeEq for pullInstances occurrence 0 successful
 [Compiler.test] Starting post condition test pullInstancesFix for pullInstances occurrence 0
 [Compiler.test] Post condition test pullInstancesFix for pullInstances occurrence 0 successful
+[Compiler.test] Starting wrapper test pullInstancesSizeEq for pullInstances occurrence 0
+[Compiler.test] Wrapper test pullInstancesSizeEq for pullInstances occurrence 0 successful
+[Compiler.test] Starting post condition test pullInstancesFix for pullInstances occurrence 0
+[Compiler.test] Post condition test pullInstancesFix for pullInstances occurrence 0 successful
 -/
 #guard_msgs in
 run_meta Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo]

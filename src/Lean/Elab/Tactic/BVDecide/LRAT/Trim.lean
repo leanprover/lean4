@@ -25,7 +25,6 @@ namespace trim
 The context used for trimming LRAT proofs.
 -/
 structure Context where
-  -- TODO: this should not need to be a hashmap right?
   /--
   The proof as a map from proof step ids to their actions.
   -/

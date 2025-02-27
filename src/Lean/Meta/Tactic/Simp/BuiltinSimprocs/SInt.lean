@@ -159,12 +159,3 @@ builtin_simproc [simp, seval] reduceToInt (ISize.toInt _) := fun e => do
   let p ← mkDecideProof (← mkLE e (mkNatLit (2 ^ 31)))
   let p := mkApp2 (mkConst ``ISize.toInt_neg_ofNat_of_le) e p
   return .done { expr := (toExpr (-n : Int)), proof? := p }
-
--- builtin_simproc [simp, seval] reduceToInt (ISize.toInt _) := fun e => do
---   let_expr ISize.toInt e ← e | return .continue
---   let some (n, _) ← getOfNatValue? e ``USize | return .continue
---   unless n < UInt32.size do return .continue
---   let e := toExpr n
---   let p ← mkDecideProof (← mkLT e (mkNatLit UInt32.size))
---   let p := mkApp2 (mkConst ``USize.toNat_ofNat_of_lt_32) e p
---   return .done { expr := e, proof? := p }

@@ -77,6 +77,9 @@ Obtain the `BitVec` that contains the 2's complement representation of the `Int8
 -/
 @[inline] def Int8.toBitVec (x : Int8) : BitVec 8 := x.toUInt8.toBitVec
 
+theorem Int8.toBitVec.inj : {x y : Int8} → x.toBitVec = y.toBitVec → x = y
+  | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
+
 /-- Obtains the `Int8` that is 2's complement equivalent to the `UInt8`. -/
 @[inline] def UInt8.toInt8 (i : UInt8) : Int8 := Int8.ofUInt8 i
 @[inline, deprecated UInt8.toInt8 (since := "2025-02-13"), inherit_doc UInt8.toInt8]
@@ -212,6 +215,9 @@ abbrev Int16.size : Nat := 65536
 Obtain the `BitVec` that contains the 2's complement representation of the `Int16`.
 -/
 @[inline] def Int16.toBitVec (x : Int16) : BitVec 16 := x.toUInt16.toBitVec
+
+theorem Int16.toBitVec.inj : {x y : Int16} → x.toBitVec = y.toBitVec → x = y
+  | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
 
 /-- Obtains the `Int16` that is 2's complement equivalent to the `UInt16`. -/
 @[inline] def UInt16.toInt16 (i : UInt16) : Int16 := Int16.ofUInt16 i
@@ -352,6 +358,9 @@ abbrev Int32.size : Nat := 4294967296
 Obtain the `BitVec` that contains the 2's complement representation of the `Int32`.
 -/
 @[inline] def Int32.toBitVec (x : Int32) : BitVec 32 := x.toUInt32.toBitVec
+
+theorem Int32.toBitVec.inj : {x y : Int32} → x.toBitVec = y.toBitVec → x = y
+  | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
 
 /-- Obtains the `Int32` that is 2's complement equivalent to the `UInt32`. -/
 @[inline] def UInt32.toInt32 (i : UInt32) : Int32 := Int32.ofUInt32 i
@@ -496,6 +505,9 @@ abbrev Int64.size : Nat := 18446744073709551616
 Obtain the `BitVec` that contains the 2's complement representation of the `Int64`.
 -/
 @[inline] def Int64.toBitVec (x : Int64) : BitVec 64 := x.toUInt64.toBitVec
+
+theorem Int64.toBitVec.inj : {x y : Int64} → x.toBitVec = y.toBitVec → x = y
+  | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
 
 /-- Obtains the `Int64` that is 2's complement equivalent to the `UInt64`. -/
 @[inline] def UInt64.toInt64 (i : UInt64) : Int64 := Int64.ofUInt64 i

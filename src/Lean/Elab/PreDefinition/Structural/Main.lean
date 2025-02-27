@@ -141,10 +141,16 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termMeasure?s : Arra
             for indParam in recArgInfo.indGroupInst.params do
               for y in toErase do
                 if (← dependsOn indParam y) then
-                  throwError "its type is an inductive datatype and the datatype parameter\
-                    {indentExpr indParam}\ndepends on the function parameter{indentExpr (mkFVar y)}\n\
-                    which cannot be fixed as it is in a index, or depends on on index, and indices \
-                    cannot be fixed parameters with structural recursion."
+                  if indParam.isFVarOf y then
+                    throwError "its type is an inductive datatype and the datatype parameter\
+                      {indentExpr indParam}\n\
+                      which cannot be fixed as it is in a index, or depends on on index, and indices \
+                      cannot be fixed parameters with structural recursion."
+                  else
+                    throwError "its type is an inductive datatype and the datatype parameter\
+                      {indentExpr indParam}\ndepends on the function parameter{indentExpr (mkFVar y)}\n\
+                      which cannot be fixed as it is in a index, or depends on on index, and indices \
+                      cannot be fixed parameters with structural recursion."
         withErasedFVars toErase do
           let preDefs' ← elimMutualRecursion preDefs fixedParams' xs' recArgInfos
           return (recArgPoss, preDefs', fixedParams')

@@ -51,8 +51,8 @@ Internally, the tree sets are represented as size-bounded trees, a type of self-
 search tree with efficient order statistic lookups.
 
 These tree sets contain a bundled well-formedness invariant, which means that they cannot
-be used in nested inductive types. For these use cases, `Std.Data.TreeSet.Raw.Basic` and
-`Std.Data.TreeSet.Raw.Basic.WF` unbundle the invariant from the tree set. When in doubt, prefer
+be used in nested inductive types. For these use cases, `Std.TreeSet.Raw` and
+`Std.TreeSet.Raw.WF` unbundle the invariant from the tree set. When in doubt, prefer
 `TreeSet` over `TreeSet.Raw`.
 -/
 structure TreeSet (α : Type u) (cmp : α → α → Ordering := by exact compare) where

@@ -52,8 +52,8 @@ Internally, the tree maps are represented as size-bounded trees, a type of self-
 search tree with efficient order statistic lookups.
 
 These tree maps contain a bundled well-formedness invariant, which means that they cannot
-be used in nested inductive types. For these use cases, `Std.Data.TreeMap.Raw.Basic` and
-`Std.Data.TreeMap.Raw.Basic.WF` unbundle the invariant from the tree map. When in doubt, prefer
+be used in nested inductive types. For these use cases, `Std.TreeMap.Raw` and
+`Std.TreeMap.Raw.WF` unbundle the invariant from the tree map. When in doubt, prefer
 `TreeMap` over `TreeMap.Raw`.
 -/
 structure TreeMap (α : Type u) (β : Type v) (cmp : α → α → Ordering := by exact compare) where

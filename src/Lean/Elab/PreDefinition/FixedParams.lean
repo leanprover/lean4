@@ -247,10 +247,16 @@ details on the analysis.
 structure FixedParams where
   /-- Mumber of fixed parameter -/
   size : Nat
-  /-- A telescope (nested `.lamE` with a dummy body) representing the fixed parameters. TODO: Needed?-/
-  telescope : Expr
-  /-- For each function in the clique, a mapping from its parameters to the fixed parameters -/
+  /--
+  For each function in the clique, a mapping from its parameters to the fixed parameters.
+  For the first function, they appear in order; for other functions they may be reordered.
+   -/
   mappings : Array (Array (Option Nat))
+  /--
+  The dependencies among the parameters. See `FixedParams.Info.revDeps`.
+  We need this for the `eraseFixedParams` operation.
+  -/
+  revDeps : Array (Array (Array Nat))
 deriving Inhabited, Repr
 
 def getFixedParams (preDefs : Array PreDefinition) : MetaM FixedParams := do
@@ -259,17 +265,15 @@ def getFixedParams (preDefs : Array PreDefinition) : MetaM FixedParams := do
     let paramInfos := info.graph[0]!
     assert! xs.size = paramInfos.size
 
-    let mut ys := #[]
     let mut firstMapping := #[]
+    let mut size := 0
     for paramIdx in [:xs.size], x in xs, paramInfo? in paramInfos do
       if let some paramInfo := paramInfo? then
         assert! paramInfo[0]! = some paramIdx
-        firstMapping := firstMapping.push (some ys.size)
-        ys := ys.push x
+        firstMapping := firstMapping.push (some size)
+        size := size + 1
       else
         firstMapping := firstMapping.push none
-    let size := ys.size
-    let telescope ← mkLambdaFVars ys (.sort 0)
 
     let mut mappings := #[firstMapping]
     for h : funIdx in [1:info.graph.size] do
@@ -286,7 +290,7 @@ def getFixedParams (preDefs : Array PreDefinition) : MetaM FixedParams := do
           mapping := mapping.push none
       mappings := mappings.push mapping
 
-    return { size, telescope, mappings }
+    return { size, mappings, revDeps := info.revDeps }
 
 /--
 Brings the fixed parameters from `type`, which should the the type of the `funIdx`'s function, into

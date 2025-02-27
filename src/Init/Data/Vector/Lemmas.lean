@@ -2482,6 +2482,14 @@ theorem contains_iff_mem [BEq α] [LawfulBEq α] {xs : Vector α n} {a : α} :
   rcases xs with ⟨xs, rfl⟩
   simp
 
+/--
+Variant of `getElem_pop` that will sometimes fire when `getElem_pop` gets stuck because of
+defeq issues in the implicit size argument.
+-/
+@[simp] theorem getElem_pop' (xs : Vector α (n + 1)) (i : Nat) (h : i < n + 1 - 1) :
+    @getElem (Vector α n) Nat α (fun _ i => i < n) instGetElemNatLt xs.pop i h = xs[i] :=
+  getElem_pop h
+
 theorem getElem?_pop (xs : Vector α n) (i : Nat) :
     xs.pop[i]? = if i < n - 1 then xs[i]? else none := by
   rcases xs with ⟨xs, rfl⟩
@@ -2755,14 +2763,6 @@ set_option linter.indexVariables false in
   rcases xs with ⟨xs, rfl⟩
   simp
 
-/--
-Variant of `getElem_pop` that will sometimes fire when `getElem_pop` gets stuck because of
-defeq issues in the implicit size argument.
--/
-@[simp] theorem getElem_pop' (xs : Vector α (n + 1)) (i : Nat) (h : i < n + 1 - 1) :
-    @getElem (Vector α n) Nat α (fun _ i => i < n) instGetElemNatLt xs.pop i h = xs[i] :=
-  getElem_pop h
-
 @[simp] theorem push_pop_back (xs : Vector α (n + 1)) : xs.pop.push xs.back = xs := by
   ext i
   by_cases h : i < n
@@ -2825,11 +2825,6 @@ theorem swap_comm (xs : Vector α n) {i j : Nat} {hi hj} :
   cases xs
   simp only [swap_mk, mk.injEq]
   rw [Array.swap_comm]
-
-/-! ### range -/
-
-@[simp] theorem getElem_range (i : Nat) (hi : i < n) : (Vector.range n)[i] = i := by
-  simp [Vector.range]
 
 /-! ### take -/
 

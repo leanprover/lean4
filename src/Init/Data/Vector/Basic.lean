@@ -8,6 +8,7 @@ prelude
 import Init.Data.Array.Lemmas
 import Init.Data.Array.MapIdx
 import Init.Data.Array.InsertIdx
+import Init.Data.Array.Range
 import Init.Data.Range
 import Init.Data.Stream
 

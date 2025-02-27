@@ -144,6 +144,8 @@ end List
 
 namespace Array
 
+theorem size_eq_length_toList (xs : Array α) : xs.size = xs.toList.length := rfl
+
 @[deprecated toList_toArray (since := "2024-09-09")] abbrev data_toArray := @List.toList_toArray
 
 @[deprecated Array.toList (since := "2024-09-10")] abbrev Array.data := @Array.toList

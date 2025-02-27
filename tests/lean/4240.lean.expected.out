@@ -1,26 +1,28 @@
-
-[result]
-def MyOption.isSomeWithInstance._at.isSomeWithInstanceNat._spec_1 (x_1 : @& obj) : u8 :=
-  case x_1 : obj of
-  MyOption.none →
-    let x_2 : u8 := 0;
-    ret x_2
-  MyOption.some →
-    let x_3 : u8 := 1;
-    ret x_3
-def isSomeWithInstanceNat (x_1 : @& obj) : u8 :=
-  let x_2 : usize := 0;
-  let x_3 : obj := Array.uget ◾ x_1 x_2 ◾;
-  let x_4 : u8 := MyOption.isSomeWithInstance._at.isSomeWithInstanceNat._spec_1 x_3;
-  dec x_3;
-  ret x_4
-def MyOption.isSomeWithInstance._at.isSomeWithInstanceNat._spec_1._boxed (x_1 : obj) : obj :=
-  let x_2 : u8 := MyOption.isSomeWithInstance._at.isSomeWithInstanceNat._spec_1 x_1;
-  dec x_1;
-  let x_3 : obj := box x_2;
-  ret x_3
-def isSomeWithInstanceNat._boxed (x_1 : obj) : obj :=
-  let x_2 : u8 := isSomeWithInstanceNat x_1;
-  dec x_1;
-  let x_3 : obj := box x_2;
-  ret x_3
+[Compiler.IR] [result]
+    def MyOption.isSomeWithInstance._at_.isSomeWithInstanceNat.spec_0 (x_1 : @& obj) : u8 :=
+      case x_1 : obj of
+      MyOption.none →
+        let x_2 : obj := ctor_0[Bool.false];
+        let x_3 : u8 := unbox x_2;
+        ret x_3
+      MyOption.some →
+        let x_4 : obj := ctor_1[Bool.true];
+        let x_5 : u8 := unbox x_4;
+        ret x_5
+    def isSomeWithInstanceNat (x_1 : @& obj) : u8 :=
+      let x_2 : obj := 0;
+      let x_3 : usize := USize.ofNat x_2;
+      let x_4 : obj := Array.uget ◾ x_1 x_3 ◾;
+      let x_5 : u8 := MyOption.isSomeWithInstance._at_.isSomeWithInstanceNat.spec_0 x_4;
+      dec x_4;
+      ret x_5
+    def MyOption.isSomeWithInstance._at_.isSomeWithInstanceNat.spec_0._boxed (x_1 : obj) : obj :=
+      let x_2 : u8 := MyOption.isSomeWithInstance._at_.isSomeWithInstanceNat.spec_0 x_1;
+      dec x_1;
+      let x_3 : obj := box x_2;
+      ret x_3
+    def isSomeWithInstanceNat._boxed (x_1 : obj) : obj :=
+      let x_2 : u8 := isSomeWithInstanceNat x_1;
+      dec x_1;
+      let x_3 : obj := box x_2;
+      ret x_3

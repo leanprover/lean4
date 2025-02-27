@@ -49,6 +49,24 @@ partial def DiseqCnstr.applySubsts (c : DiseqCnstr) : GoalM DiseqCnstr := withIn
   let c ← mkDiseqCnstr p (.subst x c₁ c)
   applySubsts c
 
+/--
+Given a disequality `c`, tries to find an inequality to be refined using
+`p ≤ 0 → p ≠ 0 → p + 1 ≤ 0`
+-/
+private def DiseqCnstr.findLe (c : DiseqCnstr) : GoalM Bool := do
+  let .add _ x _ := c.p | c.throwUnexpected
+  let s ← get'
+  let go (atLower : Bool) : GoalM Bool := do
+    let cs' := if atLower then s.lowers[x]! else s.uppers[x]!
+    for c' in cs' do
+      if c.p == c'.p || c.p.isNegEq c'.p then
+        c'.erase
+        let le ← mkLeCnstr (c'.p.addConst 1) (.ofLeDiseq c' c)
+        le.assert
+        return true
+    return false
+  go true <||> go false
+
 def DiseqCnstr.assert (c : DiseqCnstr) : GoalM Unit := do
   if (← inconsistent) then return ()
   trace[grind.cutsat.assert] "{← c.pp}"
@@ -65,6 +83,8 @@ def DiseqCnstr.assert (c : DiseqCnstr) : GoalM Unit := do
     pure c
   else
     mkDiseqCnstr (c.p.div k) (.divCoeffs c)
+  if (← c.findLe) then
+    return ()
   let .add _ x _ := c.p | c.throwUnexpected
   c.p.updateOccs
   trace[grind.cutsat.diseq] "{← c.pp}"

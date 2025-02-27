@@ -27,8 +27,27 @@ theorem ex₄ (a b c d : Int) : a = 2*b + 2*c → a - 2*b - 2*d ≠ 0 → c ≠ 
 theorem ex₅ (a b c : Int) : c = a → a + b ≤ 3 → 2 < b + c → a + b = 3 := by
   grind
 
+theorem ex₆ (a b : Int) : 3 ≤ a + b → b + a ≠ 3 → a ≠ 4 - b → a ≠ 5 - b → a ≠ -b + 6 → b + a ≠ 7 → a + b ≠ 8 → b + a < 9 → False := by
+  grind
+
+theorem ex₇ (a b : Int) : b + a < 9 → 3 ≤ a + b → b + a ≠ 3 → a ≠ 4 - b → a ≠ 5 - b → a ≠ -b + 6 → b + a ≠ 7 → a + b ≠ 8 → False := by
+  grind
+
 #print ex₁
 #print ex₂
 #print ex₃
 #print ex₄
 #print ex₅
+#print ex₆
+
+example (a : Int) : 1 ≤ a → a ≠ 1 → a ≤ 2 → a ≠ 2 → False := by
+  grind
+
+example (a : Int) : 1 ≤ a → a ≤ 2 → a ≠ 1 → a ≠ 2 → False := by
+  grind
+
+example (a : Int) : a ≠ 2 → 1 ≤ a → a ≤ 2 → a ≠ 1 → False := by
+  grind
+
+example (a : Int) : a ≠ 1 → a ≠ 2 → 1 ≤ a → a ≤ 2 → False := by
+  grind

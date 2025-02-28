@@ -6,6 +6,7 @@ Authors: Henrik Böving
 prelude
 import Init.SimpLemmas
 import Init.Data.Bool
+import Init.Data.BitVec.Lemmas
 
 /-!
 This module contains the `Bool` simplifying part of the `bv_normalize` simp set.
@@ -53,6 +54,22 @@ theorem Bool.not_xor : ∀ (a b : Bool), !(a ^^ b) = (a == b) := by decide
 
 @[bv_normalize]
 theorem Bool.or_elim : ∀ (a b : Bool), (a || b) = !(!a && !b) := by decide
+
+@[bv_normalize]
+theorem Bool.not_beq_one : ∀ (a : BitVec 1), (!(a == 1#1)) = (a == 0#1) := by
+  decide
+
+@[bv_normalize]
+theorem Bool.not_beq_zero : ∀ (a : BitVec 1), (!(a == 0#1)) = (a == 1#1) := by
+  decide
+
+@[bv_normalize]
+theorem Bool.not_one_beq : ∀ (a : BitVec 1), (!(1#1 == a)) = (a == 0#1) := by
+  decide
+
+@[bv_normalize]
+theorem Bool.not_zero_beq : ∀ (a : BitVec 1), (!(0#1 == a)) = (a == 1#1) := by
+  decide
 
 theorem Bool.and_left (lhs rhs : Bool) (h : (lhs && rhs) = true) : lhs = true := by
   revert lhs rhs

@@ -282,6 +282,31 @@ example (a : BitVec 16) : a * 8#16 = a <<< 3 := by
 example (a : BitVec 16) : a + a = a <<< 1 := by
   bv_normalize
 
+-- NOT_EQUAL_BV1_BOOL
+example : ∀ (a : Bool), (!(a == true)) = (a == false) := by
+  bv_normalize
+
+example : ∀ (a : Bool), (!(a == false)) = (a == true) := by
+  bv_normalize
+
+example : ∀ (a : Bool), (!(true == a)) = (a == false) := by
+  bv_normalize
+
+example : ∀ (a : Bool), (!(false == a)) = (a == true) := by
+  bv_normalize
+
+example : ∀ (a : BitVec 1), (!(a == 1#1)) = (a == 0#1) := by
+  bv_normalize
+
+example : ∀ (a : BitVec 1), (!(a == 0#1)) = (a == 1#1) := by
+  bv_normalize
+
+example : ∀ (a : BitVec 1), (!(1#1 == a)) = (a == 0#1) := by
+  bv_normalize
+
+example : ∀ (a : BitVec 1), (!(0#1 == a)) = (a == 1#1) := by
+  bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

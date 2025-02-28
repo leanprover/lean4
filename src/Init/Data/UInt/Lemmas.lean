@@ -246,9 +246,6 @@ declare_uint_theorems UInt16 16
 declare_uint_theorems UInt32 32
 declare_uint_theorems UInt64 64
 declare_uint_theorems USize System.Platform.numBits
-set_option autoImplicit false
-
-
 
 @[simp] theorem USize.toNat_ofNat32 {n : Nat} {h : n < 4294967296} : (ofNat32 n h).toNat = n := rfl
 

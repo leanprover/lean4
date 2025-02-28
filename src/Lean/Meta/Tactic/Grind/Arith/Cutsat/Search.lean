@@ -9,6 +9,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.SearchM
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -16,9 +17,12 @@ private def checkIsNextVar (x : Var) : GoalM Unit := do
   if x != (← get').assignment.size then
     throwError "`grind` internal error, assigning variable out of order"
 
+private def traceAssignment (x : Var) (v : Rat) : GoalM Unit := do
+  trace[grind.cutsat.assign] "{quoteIfNotAtom (← getVar x)} := {v}"
+
 private def setAssignment (x : Var) (v : Rat) : GoalM Unit := do
   checkIsNextVar x
-  trace[grind.cutsat.assign] "{quoteIfNotAtom (← getVar x)} := {v}"
+  traceAssignment x v
   modify' fun s => { s with assignment := s.assignment.push v }
 
 private def skipAssignment (x : Var)  : GoalM Unit := do
@@ -27,6 +31,7 @@ private def skipAssignment (x : Var)  : GoalM Unit := do
 
 /-- Assign eliminated variables using `elimEqs` field. -/
 private def assignElimVars : GoalM Unit := do
+  if (← inconsistent) then return ()
   go (← get').elimStack
 where
   go (xs : List Var) : GoalM Unit := do
@@ -35,9 +40,14 @@ where
     | x :: xs =>
       let some c := (← get').elimEqs[x]!
         | throwError "`grind` internal error, eliminated variable must have equation associated with it"
-      let .add a _ p := c.p | c.throwUnexpected
-      let some v ← p.eval? | c.throwUnexpected
+      -- `x` may not be the max variable
+      let a := c.p.coeff x
+      if a == 0 then c.throwUnexpected
+      -- ensure `x` is 0 when evaluating `c.p`
+      modify' fun s => { s with assignment := s.assignment.set x 0 }
+      let some v ← c.p.eval? | c.throwUnexpected
       let v := (-v) / a
+      traceAssignment x v
       modify' fun s => { s with assignment := s.assignment.set x v }
       go xs
 
@@ -340,9 +350,16 @@ def searchAssigmentMain : SearchM Unit := do
     -- TODO: resolve unsat conflicts
     processVar x
 
+def traceModel : GoalM Unit := do
+  if (← isTracingEnabledFor `grind.cutsat.model) then
+    for (x, v) in (← mkModel (← get)) do
+      trace[grind.cutsat.model] "{quoteIfNotAtom x} := {v}"
+
 def searchAssigment : GoalM Unit := do
   -- TODO: .int case
   -- TODO:
   searchAssigmentMain .rat |>.run' {}
+  assignElimVars
+  traceModel
 
 end Lean.Meta.Grind.Arith.Cutsat

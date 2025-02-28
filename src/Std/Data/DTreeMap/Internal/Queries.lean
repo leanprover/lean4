@@ -198,16 +198,16 @@ def foldl (f : δ → (a : α) → β a → δ) (init : δ) (t : Impl α β) : �
 
 /-- Folds the given function over the mappings in the tree in descending order. -/
 @[specialize]
-def foldrM {m} [Monad m] (f : δ → (a : α) → β a → m δ) (init : δ) : Impl α β → m δ
+def foldrM {m} [Monad m] (f : (a : α) → β a → δ → m δ) (init : δ) : Impl α β → m δ
   | .leaf => pure init
   | .inner _ k v l r => do
     let right ← foldrM f init r
-    let middle ← f right k v
+    let middle ← f k v right
     foldrM f middle l
 
 /-- Folds the given function over the mappings in the tree in descending order. -/
 @[inline]
-def foldr (f : δ → (a : α) → β a → δ) (init : δ) (t : Impl α β) : δ :=
+def foldr (f : (a : α) → β a → δ → δ) (init : δ) (t : Impl α β) : δ :=
   Id.run (t.foldrM f init)
 
 /-- Applies the given function to the mappings in the tree in ascending order. -/
@@ -243,7 +243,7 @@ instance : ForIn m (Impl α β) ((a : α) × β a) where
 
 /-- Returns a `List` of the keys in order. -/
 @[inline] def keys (t : Impl α β) : List α :=
-  t.foldr (init := []) fun l k _ => k :: l
+  t.foldr (init := []) fun k _ l => k :: l
 
 /-- Returns an `Array` of the keys in order. -/
 @[inline] def keysArray (t : Impl α β) : Array α :=
@@ -251,7 +251,7 @@ instance : ForIn m (Impl α β) ((a : α) × β a) where
 
 /-- Returns a `List` of the values in order. -/
 @[inline] def values {β : Type v} (t : Impl α β) : List β :=
-  t.foldr (init := []) fun l _ v => v :: l
+  t.foldr (init := []) fun _ v l => v :: l
 
 /-- Returns an `Array` of the values in order. -/
 @[inline] def valuesArray {β : Type v} (t : Impl α β) : Array β :=
@@ -259,7 +259,7 @@ instance : ForIn m (Impl α β) ((a : α) × β a) where
 
 /-- Returns a `List` of the key/value pairs in order. -/
 @[inline] def toList (t : Impl α β) : List ((a : α) × β a) :=
-  t.foldr (init := []) fun l k v => ⟨k, v⟩ :: l
+  t.foldr (init := []) fun k v l => ⟨k, v⟩ :: l
 
 /-- Returns an `Array` of the key/value pairs in order. -/
 @[inline] def toArray (t : Impl α β) : Array ((a : α) × β a) :=
@@ -271,7 +271,7 @@ variable {β : Type v}
 
 /-- Returns a `List` of the key/value pairs in order. -/
 @[inline] def toList (t : Impl α β) : List (α × β) :=
-  t.foldr (init := []) fun l k v => (k, v) :: l
+  t.foldr (init := []) fun k v l => (k, v) :: l
 
 /-- Returns a `List` of the key/value pairs in order. -/
 @[inline] def toArray (t : Impl α β) : Array (α × β) :=

@@ -388,17 +388,17 @@ Monadically computes a value by folding the given function over the elements in 
 descending order.
 -/
 @[inline]
-def foldrM {m δ} [Monad m] (f : δ → (a : α) → m δ) (init : δ) (t : TreeSet α cmp) : m δ :=
-  t.inner.foldrM (fun c a _ => f c a) init
+def foldrM {m δ} [Monad m] (f : (a : α) → δ → m δ) (init : δ) (t : TreeSet α cmp) : m δ :=
+  t.inner.foldrM (fun a _ acc => f a acc) init
 
 /-- Folds the given function over the elements of the tree set in descending order. -/
 @[inline]
-def foldr (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
-  t.inner.foldr (fun c a _ => f c a) init
+def foldr (f : (a : α) → δ → δ) (init : δ) (t : TreeSet α cmp) : δ :=
+  t.inner.foldr (fun a _ acc => f a acc) init
 
 @[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
 def revFold (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
-  foldr f init t
+  foldr (fun a acc => f acc a) init t
 
 /-- Partitions a tree set into two tree sets based on a predicate. -/
 @[inline]
@@ -437,7 +437,7 @@ def all (t : TreeSet α cmp) (p : α → Bool) : Bool :=
 /-- Transforms the tree set into a list of elements in ascending order. -/
 @[inline]
 def toList (t : TreeSet α cmp) : List α :=
-  t.inner.inner.inner.foldr (fun l a _ => a :: l) ∅
+  t.inner.inner.inner.foldr (fun a _ l => a :: l) ∅
 
 /-- Transforms a list into a tree set. -/
 def ofList (l : List α) (cmp : α → α → Ordering := by exact compare) : TreeSet α cmp :=

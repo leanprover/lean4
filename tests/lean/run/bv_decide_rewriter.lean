@@ -351,6 +351,22 @@ example (cond : Bool) {a b c d : BitVec 8}
     (bif cond then ~~~a else c) = d := by
   bv_normalize
 
+-- ITE_ELSE_ITE_1
+example (cond : Bool) {a b c d : Bool}
+    (h : (bif cond then a else (bif cond then b else c)) = d) :
+    (bif cond then a else c) = d := by
+  bv_normalize
+
+example (cond : Bool) {a b c d : Bool}
+    (h : (bif cond then a else !(bif cond then b else c)) = d) :
+    (bif cond then a else !c) = d := by
+  bv_normalize
+
+example (cond : Bool) {a b c d : BitVec 8}
+    (h : (bif cond then a else ~~~(bif cond then b else c)) = d) :
+    (bif cond then a else ~~~c) = d := by
+  bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

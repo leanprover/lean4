@@ -27,21 +27,19 @@ instance : MonadLift IO Async where
   monadLift io := Async.mk (io >>= (pure ∘ AsyncTask.pure))
 
 /-- Joe is another client. -/
-def runJoe (addr: SocketAddress) : Async Unit := do
+def runJoe (addr : UInt16 → SocketAddress) : Async Unit := do
   let client ← UDP.Socket.mk
-  let clientAddr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8081
 
-  client.bind clientAddr
-  client.connect addr
+  client.bind (addr 8081)
+  client.connect (addr 8080)
 
   await (client.send (String.toUTF8 "hello robert!"))
 
 
-def acceptClose : IO Unit := do
-  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8080
+def acceptClose (addr : UInt16 → SocketAddress) : IO Unit := do
 
   let server ← UDP.Socket.mk
-  server.bind addr
+  server.bind (addr 8080)
 
   let res ← (runJoe addr).run
   res.block
@@ -52,4 +50,5 @@ def acceptClose : IO Unit := do
   assert! ("hello robert!" == String.fromUTF8! msg)
   assert! addr.port == 8081
 
-#eval acceptClose
+#eval acceptClose (SocketAddress.v4 ∘ SocketAddressV4.mk (.ofParts 0 0 0 0))
+#eval acceptClose (SocketAddress.v6 ∘ SocketAddressV6.mk (.ofParts 0 0 0 0 0 0 0 1))

@@ -28,7 +28,7 @@ void lean_ipv6_addr_to_in6_addr(b_obj_arg ipv6_addr, in6_addr* out) {
     }
 }
 
-void lean_socket_address_to_sockaddr(b_obj_arg ip_addr, sockaddr* out) {
+void lean_socket_address_to_sockaddr_storage(b_obj_arg ip_addr, sockaddr_storage* out) {
     lean_object* socket_addr_obj = lean_ctor_get(ip_addr, 0);
     lean_object* ip_addr_obj = lean_ctor_get(socket_addr_obj, 0);
     uint16_t port_obj = lean_ctor_get_uint16(socket_addr_obj, sizeof(void*)*1);

@@ -119,8 +119,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, obj_arg addr) {
     lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    sockaddr addr_ptr;
-    lean_socket_address_to_sockaddr(addr, &addr_ptr);
+    sockaddr_storage addr_ptr;
+    lean_socket_address_to_sockaddr_storage(addr, &addr_ptr);
 
     lean_object * promise = lean_promise_new();
     mark_mt(promise);
@@ -295,8 +295,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind(b_obj_arg socket, obj_arg addr) {
     lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    sockaddr addr_ptr;
-    lean_socket_address_to_sockaddr(addr, &addr_ptr);
+    sockaddr_storage addr_ptr;
+    lean_socket_address_to_sockaddr_storage(addr, &addr_ptr);
 
     event_loop_lock(&global_ev);
     int result = uv_tcp_bind(tcp_socket->m_uv_tcp, (sockaddr *)&addr_ptr, 0);

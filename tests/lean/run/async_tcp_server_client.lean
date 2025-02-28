@@ -56,9 +56,7 @@ def runRobert (server: TCP.Socket.Server) : Async Unit := do
 
   pure ()
 
-def clientServer : IO Unit := do
-  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8080
-
+def clientServer (addr : SocketAddress) : IO Unit := do
   let server ← TCP.Socket.Server.mk
   server.bind addr
   server.listen 128
@@ -87,4 +85,5 @@ def clientServer : IO Unit := do
   discard <| (runMike mike).run
   serverTask.block
 
-#eval clientServer
+#eval clientServer (SocketAddressV4.mk (.ofParts 127 0 0 1) 8080)
+#eval clientServer (SocketAddressV6.mk (.ofParts 0 0 0 0 0 0 0 1) 8080)

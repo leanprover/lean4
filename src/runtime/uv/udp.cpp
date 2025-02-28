@@ -93,8 +93,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_new() {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_bind(b_obj_arg socket, obj_arg addr) {
     lean_uv_udp_socket_object * udp_socket = lean_to_uv_udp_socket(socket);
 
-    sockaddr addr_ptr;
-    lean_socket_address_to_sockaddr(addr, &addr_ptr);
+    sockaddr_storage addr_ptr;
+    lean_socket_address_to_sockaddr_storage(addr, &addr_ptr);
 
     event_loop_lock(&global_ev);
     int result = uv_udp_bind(udp_socket->m_uv_udp, (sockaddr *)&addr_ptr, 0);
@@ -111,8 +111,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_bind(b_obj_arg socket, obj_arg a
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_connect(b_obj_arg socket, obj_arg addr) {
     lean_uv_udp_socket_object * udp_socket = lean_to_uv_udp_socket(socket);
 
-    sockaddr addr_ptr;
-    lean_socket_address_to_sockaddr(addr, &addr_ptr);
+    sockaddr_storage addr_ptr;
+    lean_socket_address_to_sockaddr_storage(addr, &addr_ptr);
 
     event_loop_lock(&global_ev);
     int result = uv_udp_connect(udp_socket->m_uv_udp, (sockaddr *)&addr_ptr);
@@ -148,12 +148,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
     lean_inc(promise);
     lean_inc(socket);
 
-    sockaddr* addr_ptr = nullptr;
+    sockaddr_storage* addr_ptr = nullptr;
 
     if (lean_obj_tag(opt_addr) == 1) {
         lean_object* addr = lean_ctor_get(opt_addr, 0);
-        addr_ptr = (sockaddr*)malloc(sizeof(sockaddr));
-        lean_socket_address_to_sockaddr(addr, addr_ptr);
+        addr_ptr = (sockaddr_storage*)malloc(sizeof(sockaddr_storage));
+        lean_socket_address_to_sockaddr_storage(addr, addr_ptr);
     }
 
     event_loop_lock(&global_ev);

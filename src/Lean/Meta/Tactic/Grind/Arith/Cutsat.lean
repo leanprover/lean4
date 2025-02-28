@@ -15,10 +15,12 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.SearchM
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 
 namespace Lean
 
 builtin_initialize registerTraceClass `grind.cutsat
+builtin_initialize registerTraceClass `grind.cutsat.model
 builtin_initialize registerTraceClass `grind.cutsat.subst
 builtin_initialize registerTraceClass `grind.cutsat.eq
 builtin_initialize registerTraceClass `grind.cutsat.eq.unsat (inherited := true)

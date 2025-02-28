@@ -1110,7 +1110,8 @@ theorem ordered_mergeWith [Ord α] [TransOrd α] [LawfulEqOrd α] {t₁ t₂ : I
 ### foldlM
 -/
 
-theorem foldlM_eq_foldlM {t : Impl α β} {m δ} [Monad m] [LawfulMonad m] {f : δ → (a : α) → β a → m δ} {init} :
+theorem foldlM_eq_foldlM {t : Impl α β} {m δ} [Monad m] [LawfulMonad m]
+    {f : δ → (a : α) → β a → m δ} {init} :
     t.foldlM (init := init) f = t.toListModel.foldlM (init := init) fun acc p => f acc p.1 p.2 := by
   induction t generalizing init with
   | leaf => rfl
@@ -1130,8 +1131,9 @@ theorem foldl_eq_foldl {t : Impl α β} {δ} {f : δ → (a : α) → β a → �
 ### foldrM
 -/
 
-theorem foldrM_eq_foldrM {t : Impl α β} {m δ} [Monad m] [LawfulMonad m] {f : δ → (a : α) → β a → m δ} {init} :
-    t.foldrM (init := init) f = t.toListModel.foldrM (init := init) fun p acc => f acc p.1 p.2 := by
+theorem foldrM_eq_foldrM {t : Impl α β} {m δ} [Monad m] [LawfulMonad m]
+    {f : (a : α) → β a → δ → m δ} {init} :
+    t.foldrM (init := init) f = t.toListModel.foldrM (init := init) fun p acc => f p.1 p.2 acc := by
   induction t generalizing init with
   | leaf => rfl
   | inner sz k v l r ihl ihr =>
@@ -1142,8 +1144,8 @@ theorem foldrM_eq_foldrM {t : Impl α β} {m δ} [Monad m] [LawfulMonad m] {f : 
 ### foldr
 -/
 
-theorem foldr_eq_foldr {t : Impl α β} {δ} {f : δ → (a : α) → β a → δ} {init} :
-    t.foldr (init := init) f = t.toListModel.foldr (init := init) fun p acc => f acc p.1 p.2 := by
+theorem foldr_eq_foldr {t : Impl α β} {δ} {f : (a : α) → β a → δ → δ} {init} :
+    t.foldr (init := init) f = t.toListModel.foldr (init := init) fun p acc => f p.1 p.2 acc := by
   rw [foldr, foldrM_eq_foldrM, List.foldr_eq_foldrM, Id.run]
 
 /-!

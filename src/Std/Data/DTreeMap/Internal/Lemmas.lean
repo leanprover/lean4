@@ -20,7 +20,7 @@ set_option autoImplicit false
 open Std.Internal.List
 open Std.Internal
 
-universe u v w
+universe u v
 
 namespace Std.DTreeMap.Internal.Impl
 
@@ -59,9 +59,7 @@ private def queryNames : Array Name :=
     ``get!_eq_getValueCast!, ``Const.get!_eq_getValue!,
     ``getD_eq_getValueCastD, ``Const.getD_eq_getValueD,
     ``getKey?_eq_getKey?, ``getKey_eq_getKey,
-    ``getKey!_eq_getKey!, ``getKeyD_eq_getKeyD,
-    ``keys_eq_keys, ``toList_eq_toListModel, ``Const.toList_eq_toListModel_map,
-    ``foldlM_eq_foldlM, ``foldl_eq_foldl]
+    ``getKey!_eq_getKey!, ``getKeyD_eq_getKeyD]
 
 private def modifyMap : Std.HashMap Name Name :=
   .ofList

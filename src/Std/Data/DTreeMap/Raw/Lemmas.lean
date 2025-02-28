@@ -1049,8 +1049,7 @@ section monadic
 
 variable {δ : Type w} {m : Type w → Type w}
 
-theorem foldlM_eq_foldlM_toList [Monad m] [LawfulMonad m]
-    {f : δ → (a : α) → β a → m δ} {init : δ} :
+theorem foldlM_eq_foldlM_toList [Monad m] [LawfulMonad m] {f : δ → (a : α) → β a → m δ} {init : δ} :
     t.foldlM f init = t.toList.foldlM (fun a b => f a b.1 b.2) init :=
   Impl.foldlM_eq_foldlM_toList
 
@@ -1058,8 +1057,7 @@ theorem foldl_eq_foldl_toList {f : δ → (a : α) → β a → δ} {init : δ} 
     t.foldl f init = t.toList.foldl (fun a b => f a b.1 b.2) init :=
   Impl.foldl_eq_foldl_toList
 
-theorem foldrM_eq_foldrM_toList [Monad m] [LawfulMonad m]
-    {f : (a : α) → β a → δ → m δ} {init : δ} :
+theorem foldrM_eq_foldrM_toList [Monad m] [LawfulMonad m] {f : (a : α) → β a → δ → m δ} {init : δ} :
     t.foldrM f init = t.toList.foldrM (fun a b => f a.1 a.2 b) init :=
   Impl.foldrM_eq_foldrM_toList
 
@@ -1085,8 +1083,7 @@ theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m]
     t.forIn (fun k v => f ⟨k, v⟩) init = ForIn.forIn t.toList init f :=
   Impl.forIn_eq_forIn_toList (f := f)
 
-theorem foldlM_eq_foldlM_keys [Monad m] [LawfulMonad m]
-    {f : δ → α → m δ} {init : δ} :
+theorem foldlM_eq_foldlM_keys [Monad m] [LawfulMonad m] {f : δ → α → m δ} {init : δ} :
     t.foldlM (fun d a _ => f d a) init = t.keys.foldlM f init :=
   Impl.foldlM_eq_foldlM_keys
 
@@ -1115,8 +1112,7 @@ namespace Const
 
 variable {β : Type v} {t : Raw α β cmp}
 
-theorem foldlM_eq_foldlM_toList [Monad m] [LawfulMonad m]
-    {f : δ → α → β → m δ} {init : δ} :
+theorem foldlM_eq_foldlM_toList [Monad m] [LawfulMonad m] {f : δ → α → β → m δ} {init : δ} :
     t.foldlM f init = (Const.toList t).foldlM (fun a b => f a b.1 b.2) init :=
   Impl.Const.foldlM_eq_foldlM_toList
 
@@ -1124,8 +1120,7 @@ theorem foldl_eq_foldl_toList {f : δ → α → β → δ} {init : δ} :
     t.foldl f init = (Const.toList t).foldl (fun a b => f a b.1 b.2) init :=
   Impl.Const.foldl_eq_foldl_toList
 
-theorem foldrM_eq_foldrM_toList [Monad m] [LawfulMonad m]
-    {f : α → β → δ → m δ} {init : δ} :
+theorem foldrM_eq_foldrM_toList [Monad m] [LawfulMonad m] {f : α → β → δ → m δ} {init : δ} :
     t.foldrM f init = (Const.toList t).foldrM (fun a b => f a.1 a.2 b) init :=
   Impl.Const.foldrM_eq_foldrM_toList
 

@@ -1105,6 +1105,7 @@ theorem ordered_mergeWith [Ord α] [TransOrd α] [LawfulEqOrd α] {t₁ t₂ : I
   induction t₂ generalizing t₁ with
   | leaf => exact hto
   | inner sz k v l r  ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
+
 /-!
 ### foldlM
 -/
@@ -1124,6 +1125,51 @@ theorem foldlM_eq_foldlM {t : Impl α β} {m δ} [Monad m] [LawfulMonad m] {f : 
 theorem foldl_eq_foldl {t : Impl α β} {δ} {f : δ → (a : α) → β a → δ} {init} :
     t.foldl (init := init) f = t.toListModel.foldl (init := init) fun acc p => f acc p.1 p.2 := by
   rw [foldl, foldlM_eq_foldlM, List.foldl_eq_foldlM, Id.run]
+
+/-!
+### foldrM
+-/
+
+theorem foldrM_eq_foldrM {t : Impl α β} {m δ} [Monad m] [LawfulMonad m] {f : δ → (a : α) → β a → m δ} {init} :
+    t.foldrM (init := init) f = t.toListModel.foldrM (init := init) fun p acc => f acc p.1 p.2 := by
+  induction t generalizing init with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr =>
+    simp only [foldrM, toListModel_inner, List.foldr_append, List.foldr_cons]
+    simp [ihl, ihr]
+
+/-!
+### foldr
+-/
+
+theorem foldr_eq_foldr {t : Impl α β} {δ} {f : δ → (a : α) → β a → δ} {init} :
+    t.foldr (init := init) f = t.toListModel.foldr (init := init) fun p acc => f acc p.1 p.2 := by
+  rw [foldr, foldrM_eq_foldrM, List.foldr_eq_foldrM, Id.run]
+
+/-!
+### toList
+-/
+
+theorem toList_eq_toListModel {t : Impl α β} :
+    t.toList = t.toListModel := by
+  rw [toList, foldr_eq_foldr]
+  induction t with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr => simp
+
+/-!
+### keys
+-/
+
+theorem keys_eq_keys {t : Impl α β} :
+    t.keys = t.toListModel.keys := by
+  rw [keys, foldr_eq_foldr, List.keys.eq_def]
+  simp
+  induction t.toListModel with
+  | nil => rfl
+  | cons e es ih =>
+    simp [ih]
+    rw [List.keys.eq_def]
 
 namespace Const
 
@@ -1242,6 +1288,17 @@ theorem ordered_mergeWith [Ord α] [TransOrd α] {t₁ t₂ : Impl α β} {f}
   induction t₂ generalizing t₁ with
   | leaf => exact hto
   | inner sz k v l r  ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
+
+/-!
+### toList
+-/
+
+theorem toList_eq_toListModel_map {t : Impl α β} :
+    Const.toList t = t.toListModel.map fun ⟨k, v⟩ => (k, v) := by
+  rw [toList, foldr_eq_foldr]
+  induction t with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr => simp
 
 end Const
 

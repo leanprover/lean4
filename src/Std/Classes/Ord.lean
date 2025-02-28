@@ -253,6 +253,9 @@ section LawfulEq
 /--
 A typeclass for comparison functions satisfying `cmp a b = .eq` if and only if the logical equality
 `a = b` holds.
+
+This typeclass distinguishes itself from `LawfulBEqCmp` by using logical equality (`=`) instead of
+boolean equality (`==`).
 -/
 class LawfulEqCmp {α : Type u} (cmp : α → α → Ordering) : Prop extends ReflCmp cmp where
   /-- If two values compare equal, then they are logically equal. -/
@@ -261,6 +264,9 @@ class LawfulEqCmp {α : Type u} (cmp : α → α → Ordering) : Prop extends Re
 /--
 A typeclass for types with a comparison function that satisfies `compare a b = .eq` if and only if
 the logical equality `a = b` holds.
+
+This typeclass distinguishes itself from `LawfulBEqOrd` by using logical equality (`=`) instead of
+boolean equality (`==`).
 -/
 abbrev LawfulEqOrd (α : Type u) [Ord α] := LawfulEqCmp (compare : α → α → Ordering)
 
@@ -276,6 +282,48 @@ theorem compare_beq_iff_eq {a b : α} : cmp a b == .eq ↔ a = b :=
 
 end LawfulEq
 
+section LawfulBEq
+
+/--
+A typeclass for comparison functions satisfying `cmp a b = .eq` if and only if the boolean equality
+`a == b` holds.
+
+This typeclass distinguishes itself from `LawfulEqCmp` by using boolean equality (`==`) instead of
+logical equality (`=`).
+-/
+class LawfulBEqCmp {α : Type u} [BEq α] (cmp : α → α → Ordering) : Prop where
+  /-- If two values compare equal, then they are logically equal. -/
+  compare_eq_iff_beq {a b : α} : cmp a b = .eq ↔ a == b
+
+/--
+A typeclass for types with a comparison function that satisfies `compare a b = .eq` if and only if
+the boolean equality `a == b` holds.
+
+This typeclass distinguishes itself from `LawfulEqOrd` by using boolean equality (`==`) instead of
+logical equality (`=`).
+-/
+abbrev LawfulBEqOrd (α : Type u) [BEq α] [Ord α] := LawfulBEqCmp (compare : α → α → Ordering)
+
+variable {α : Type u} [BEq α] {cmp : α → α → Ordering}
+
+instance [LawfulEqCmp cmp] [LawfulBEq α] :
+    LawfulBEqCmp cmp where
+  compare_eq_iff_beq := compare_eq_iff_eq.trans beq_iff_eq.symm
+
+theorem LawfulBEqCmp.equivBEq [inst : LawfulBEqCmp cmp] [TransCmp cmp] : EquivBEq α where
+  refl := inst.compare_eq_iff_beq.mp ReflCmp.compare_self
+  symm := by
+    simp only [← inst.compare_eq_iff_beq]
+    exact OrientedCmp.eq_symm
+  trans := by
+    simp only [← inst.compare_eq_iff_beq]
+    exact TransCmp.eq_trans
+
+instance LawfulBEqOrd.equivBEq [Ord α] [LawfulBEqOrd α] [TransOrd α] : EquivBEq α :=
+  LawfulBEqCmp.equivBEq (cmp := compare)
+
+end LawfulBEq
+
 namespace Internal
 
 variable {α : Type u}
@@ -290,6 +338,16 @@ def beqOfOrd [Ord α] : BEq α where
 
 @[local simp]
 theorem beq_eq [Ord α] {a b : α} : (a == b) = (compare a b == .eq) :=
+  rfl
+
+theorem beq_iff [Ord α] {a b : α} : (a == b) = true ↔ compare a b = .eq := by
+  rw [beq_eq, beq_iff_eq]
+
+theorem eq_beqOfOrd_of_lawfulBEqOrd [Ord α] (inst : BEq α) [instLawful : LawfulBEqOrd α] :
+    inst = beqOfOrd := by
+  cases inst; rename_i instBEq
+  congr; ext a b
+  rw [Bool.eq_iff_iff, beq_iff_eq, instLawful.compare_eq_iff_beq]
   rfl
 
 theorem equivBEq_of_transOrd [Ord α] [TransOrd α] : EquivBEq α where

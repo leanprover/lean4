@@ -964,9 +964,14 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
   Raw₀.distinct_keys ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
 @[simp]
+theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
+    m.1.toList.map Sigma.fst = m.1.keys  :=
+  Raw₀.map_fst_toList_eq_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp, deprecated map_fst_toList_eq_keys (since := "2025-02-28")]
 theorem map_sigma_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
     m.1.toList.map Sigma.fst = m.1.keys  :=
-  Raw₀.map_sigma_fst_toList_eq_keys ⟨m.1, m.2.size_buckets_pos⟩
+  Raw₀.map_fst_toList_eq_keys ⟨m.1, m.2.size_buckets_pos⟩
 
 @[simp]
 theorem length_toList [EquivBEq α] [LawfulHashable α] :
@@ -1010,9 +1015,14 @@ namespace Const
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
 
 @[simp]
+theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
+    (toList m).map Prod.fst = m.keys :=
+  Raw₀.Const.map_fst_toList_eq_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp, deprecated map_fst_toList_eq_keys (since := "2025-02-28")]
 theorem map_prod_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
     (toList m).map Prod.fst = m.keys :=
-  Raw₀.Const.map_prod_fst_toList_eq_keys ⟨m.1, m.2.size_buckets_pos⟩
+  Raw₀.Const.map_fst_toList_eq_keys ⟨m.1, m.2.size_buckets_pos⟩
 
 @[simp]
 theorem length_toList [EquivBEq α] [LawfulHashable α] :

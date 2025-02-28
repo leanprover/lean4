@@ -335,6 +335,22 @@ example : ∀ (c : Bool) (t e : BitVec 8), (e == (bif c then t else e)) = (!c ||
 example (c : Bool) : ((if c then 1#1 else 0#1) == 1#1) ↔ c := by
   bv_normalize
 
+-- ITE_THEN_ITE_1
+example (cond : Bool) {a b c d : Bool}
+    (h : (bif cond then (bif cond then a else b) else c) = d) :
+    (bif cond then a else c) = d := by
+  bv_normalize
+
+example (cond : Bool) {a b c d : Bool}
+    (h : (bif cond then !(bif cond then a else b) else c) = d) :
+    (bif cond then !a else c) = d := by
+  bv_normalize
+
+example (cond : Bool) {a b c d : BitVec 8}
+    (h : (bif cond then ~~~(bif cond then a else b) else c) = d) :
+    (bif cond then ~~~a else c) = d := by
+  bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

@@ -112,6 +112,21 @@ theorem BitVec.ite_same_else' :
   intro c t e
   cases c <;> simp [BEq.comm (a := t) (b := e)]
 
+@[bv_normalize]
+theorem Bool.ite_then_ite (cond : Bool) {a b c : α} :
+    (bif cond then (bif cond then a else b) else c) = (bif cond then a else c) := by
+  cases cond <;> simp
+
+@[bv_normalize]
+theorem Bool.ite_then_not_ite (cond : Bool) {a b c : Bool} :
+    (bif cond then !(bif cond then a else b) else c) = (bif cond then !a else c) := by
+  cases cond <;> simp
+
+@[bv_normalize]
+theorem BitVec.ite_then_not_ite (cond : Bool) {a b c : BitVec w} :
+    (bif cond then ~~~(bif cond then a else b) else c) = (bif cond then ~~~a else c) := by
+  cases cond <;> simp
+
 theorem Bool.and_left (lhs rhs : Bool) (h : (lhs && rhs) = true) : lhs = true := by
   revert lhs rhs
   decide

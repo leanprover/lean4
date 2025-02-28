@@ -142,6 +142,35 @@ theorem BitVec.ite_else_not_ite (cond : Bool) {a b c : BitVec w} :
     (bif cond then a else ~~~(bif cond then b else c)) = (bif cond then a else ~~~c) := by
   cases cond <;> simp
 
+@[bv_normalize]
+theorem Bool.ite_then_ite' (c0 c1 : Bool) {a b : α} :
+    (bif c0 then (bif c1 then a else b) else a) = (bif c0 && !c1 then b else a) := by
+  cases c0 <;> cases c1 <;> simp
+
+@[bv_normalize]
+theorem Bool.ite_then_not_ite' (c0 c1 : Bool) {a b : Bool} :
+    (bif c0 then !(bif c1 then !a else b) else a) = (bif c0 && !c1 then !b else a) := by
+  cases c0 <;> cases c1 <;> simp
+
+@[bv_normalize]
+theorem BitVec.ite_then_not_ite' (c0 c1 : Bool) {a b : BitVec w} :
+    (bif c0 then ~~~(bif c1 then ~~~a else b) else a) = (bif c0 && !c1 then ~~~b else a) := by
+  cases c0 <;> cases c1 <;> simp
+
+@[bv_normalize]
+theorem Bool.ite_else_ite' (c0 c1 : Bool) {a b : α} :
+    (bif c0 then a else (bif c1 then a else b)) = (bif !c0 && !c1 then b else a) := by
+  cases c0 <;> cases c1 <;> simp
+
+@[bv_normalize]
+theorem Bool.ite_else_not_ite' (c0 c1 : Bool) {a b : Bool} :
+    (bif c0 then a else !(bif c1 then !a else b)) = (bif !c0 && !c1 then !b else a) := by
+  cases c0 <;> cases c1 <;> simp
+
+@[bv_normalize]
+theorem BitVec.ite_else_not_ite' (c0 c1 : Bool) {a b : BitVec w} :
+    (bif c0 then a else ~~~(bif c1 then ~~~a else b)) = (bif !c0 && !c1 then ~~~b else a) := by
+  cases c0 <;> cases c1 <;> simp
 
 theorem Bool.and_left (lhs rhs : Bool) (h : (lhs && rhs) = true) : lhs = true := by
   revert lhs rhs

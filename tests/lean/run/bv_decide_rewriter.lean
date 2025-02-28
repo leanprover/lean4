@@ -367,6 +367,38 @@ example (cond : Bool) {a b c d : BitVec 8}
     (bif cond then a else ~~~c) = d := by
   bv_normalize
 
+-- ITE_THEN_ITE_2
+example (c0 c1 : Bool) {a b d : Bool}
+    (h : (bif c0 then (bif c1 then a else b) else a) = d) :
+    (bif c0 && !c1 then b else a) = d := by
+  bv_normalize
+
+example (c0 c1 : Bool) {a b d : Bool}
+    (h : (bif c0 then !(bif c1 then !a else b) else a) = d) :
+    (bif c0 && !c1 then !b else a) = d := by
+  bv_normalize
+
+example (c0 c1 : Bool) {a b d : BitVec 8}
+    (h : (bif c0 then ~~~(bif c1 then ~~~a else b) else a) = d) :
+    (bif c0 && !c1 then ~~~b else a) = d := by
+  bv_normalize
+
+-- ITE_ELSE_ITE_2
+example (c0 c1 : Bool) {a b d : Bool}
+    (h : (bif c0 then a else (bif c1 then a else b)) = d) :
+    (bif !c0 && !c1 then b else a) = d := by
+  bv_normalize
+
+example (c0 c1 : Bool) {a b d : Bool}
+    (h : (bif c0 then a else !(bif c1 then !a else b)) = d) :
+    (bif !c0 && !c1 then !b else a) = d := by
+  bv_normalize
+
+example (c0 c1 : Bool) {a b d : BitVec 8}
+    (h : (bif c0 then a else ~~~(bif c1 then ~~~a else b)) = d) :
+    (bif !c0 && !c1 then ~~~b else a) = d := by
+  bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

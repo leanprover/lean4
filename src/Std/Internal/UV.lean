@@ -10,4 +10,3 @@ import Init.System.Promise
 import Std.Internal.UV.Loop
 import Std.Internal.UV.Timer
 import Std.Internal.UV.TCP
-import Std.Internal.UV.UDP

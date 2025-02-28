@@ -439,11 +439,14 @@ private structure AsyncConsts where
 deriving Inhabited
 
 private def AsyncConsts.add (aconsts : AsyncConsts) (aconst : AsyncConst) : AsyncConsts :=
-  { aconsts with
+  let normalizedName := privateToUserName aconst.constInfo.name
+  if let some aconst' := aconsts.normalizedTrie.find? normalizedName then
+    panic! s!"AsyncConsts.add: duplicate normalized declaration name {aconst.constInfo.name} vs. {aconst'.constInfo.name}"
+  else { aconsts with
     size := aconsts.size + 1
     revList := aconst :: aconsts.revList
     map := aconsts.map.insert aconst.constInfo.name aconst
-    normalizedTrie := aconsts.normalizedTrie.insert (privateToUserName aconst.constInfo.name) aconst
+    normalizedTrie := aconsts.normalizedTrie.insert normalizedName aconst
   }
 
 private def AsyncConsts.find? (aconsts : AsyncConsts) (declName : Name) : Option AsyncConst :=
@@ -451,8 +454,9 @@ private def AsyncConsts.find? (aconsts : AsyncConsts) (declName : Name) : Option
 
 /-- Finds the constant in the collection that is a prefix of `declName`, if any. -/
 private def AsyncConsts.findPrefix? (aconsts : AsyncConsts) (declName : Name) : Option AsyncConst :=
-  -- as macro scopes are a strict suffix,
-  aconsts.normalizedTrie.findLongestPrefix? (privateToUserName declName.eraseMacroScopes)
+  -- as macro scopes are a strict suffix, we do not have to remove them before calling
+  -- `findLongestPrefix?`
+  aconsts.normalizedTrie.findLongestPrefix? (privateToUserName declName)
 
 /-- Context for `realizeConst` established by `enableRealizationsForConst`. -/
 private structure RealizationContext where
@@ -504,8 +508,8 @@ structure Environment where
   /-- Information about this asynchronous branch of the environment, if any. -/
   private asyncCtx?   : Option AsyncContext := none
   /--
-  Realized constants belonging to imported declarations. `none` only from `Environment.ofKernelEnv`,
-  which should never leak into general elaboration.
+  Realized constants belonging to imported declarations. Must be initialized by calling
+  `enableRealizationsForImports`.
   -/
   private realizedImportedConsts? : Option RealizationContext
   /--
@@ -643,6 +647,21 @@ def findConstVal? (env : Environment) (n : Name) : Option ConstantVal := do
   else if let some asyncConst := env.asyncConsts.find? n then
     return asyncConst.constInfo.toConstantVal
   else env.findNoAsync n |>.map (·.toConstantVal)
+
+/--
+Allows `realizeConst` calls for imported declarations in all derived environment branches.
+Realizations will run using the given environment and options to ensure deterministic results.
+This function should be called directly after `setMainModule` to ensure that all realized constants
+use consistent private prefixes.
+-/
+def enableRealizationsForImports (env : Environment) (opts : Options) : BaseIO Environment :=
+  return { env with realizedImportedConsts? := some {
+      -- safety: `RealizationContext` is private
+      env := unsafe unsafeCast env
+      opts
+      constsRef := (← IO.mkRef {})
+    }
+  }
 
 /--
 Allows `realizeConst` calls for the given declaration in all derived environment branches.
@@ -893,7 +912,10 @@ def imports (env : Environment) : Array Import :=
 def allImportedModuleNames (env : Environment) : Array Name :=
   env.header.moduleNames
 
-def setMainModule (env : Environment) (m : Name) : Environment :=
+def setMainModule (env : Environment) (m : Name) : Environment := Id.run do
+  if env.realizedImportedConsts?.isSome then
+    panic! "Environment.setMainModule: cannot set after `enableRealizationsForImports`"
+    return env
   env.modifyCheckedAsync ({ · with header.mainModule := m })
 
 def mainModule (env : Environment) : Name :=
@@ -1078,9 +1100,6 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
         {if asyncCtx.realizing then "realization" else "async"} context '{asyncCtx.declPrefix}'"
     return { env with checkedWithoutAsync.extensions := unsafe ext.modifyStateImpl env.checkedWithoutAsync.extensions f }
   | .local =>
-    if let some asyncCtx := env.asyncCtx?.filter (·.realizing) then
-      panic! s!"Environment.modifyState: environment extension is marked as `local` but used in \
-        realization context '{asyncCtx.declPrefix}'"
     return { env with checkedWithoutAsync.extensions := unsafe ext.modifyStateImpl env.checkedWithoutAsync.extensions f }
   | _ =>
     if ext.replay?.isNone then
@@ -1692,14 +1711,6 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
        Safety: There are no concurrent accesses to `env` at this point. -/
     env ← unsafe Runtime.markPersistent env
   env ← finalizePersistentExtensions env s.moduleData opts
-  env := { env with
-    realizedImportedConsts? := some {
-      -- safety: `RealizationContext` is private
-      env := unsafe unsafeCast env
-      opts
-      constsRef := (← IO.mkRef {})
-    }
-  }
   if leakEnv then
     /- Ensure the final environment including environment extension states is
        marked persistent as documented.
@@ -1870,6 +1881,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
         -- allow realizations to recursively realize other constants for `forConst`. Do note that
         -- this allows for recursive realization of `constName` itself, which will deadlock.
         realizedLocalConsts := realizeEnv.realizedLocalConsts.insert forConst ctx
+        realizedImportedConsts? := env.realizedImportedConsts?
       }
       -- ensure realized constants are nested below `forConst` and that environment extension
       -- modifications know they are in an async context
@@ -1882,7 +1894,8 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
 
       -- find new constants incl. nested realizations, add current extension state, and compute
       -- closure
-      let consts := realizeEnv'.asyncConsts.revList.take (realizeEnv'.asyncConsts.size - realizeEnv.asyncConsts.size)
+      let numNewConsts := realizeEnv'.asyncConsts.size - realizeEnv.asyncConsts.size
+      let consts := realizeEnv'.asyncConsts.revList.take numNewConsts |>.reverse
       let consts := consts.map fun c =>
         if c.exts?.isNone then
           { c with exts? := some <| .pure realizeEnv'.checkedWithoutAsync.extensions }
@@ -1892,7 +1905,11 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
       prom.resolve (consts, replay, dyn)
       pure (consts, replay, dyn)
     return ({ env with
-      asyncConsts := consts.foldl (·.add) env.asyncConsts
+      asyncConsts := consts.foldl (init := env.asyncConsts) fun consts c =>
+        if consts.find? c.constInfo.name |>.isSome then
+          consts
+        else
+          consts.add c
       checked := env.checked.map replay
     }, dyn)
 where

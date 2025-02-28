@@ -111,9 +111,7 @@ def isExact : Constraint → Bool
 
 theorem not_sat_of_isImpossible (h : isImpossible c) {t} : ¬ c.sat t := by
   rcases c with ⟨_ | l, _ | u⟩ <;> simp [isImpossible, sat] at h ⊢
-  intro w
-  rw [Int.not_le]
-  exact Int.lt_of_lt_of_le h w
+  exact Int.lt_of_lt_of_le h
 
 /--
 Scale a constraint by multiplying by an integer.
@@ -139,17 +137,14 @@ theorem scale_sat {c : Constraint} (k) (w : c.sat t) : (scale k c).sat (k * t) :
   · rcases c with ⟨_ | l, _ | u⟩ <;> split <;> rename_i h <;> simp_all [sat, flip, map]
     · replace h := Int.le_of_lt h
       exact Int.mul_le_mul_of_nonneg_left w h
-    · rw [Int.not_lt] at h
-      exact Int.mul_le_mul_of_nonpos_left h w
+    · exact Int.mul_le_mul_of_nonpos_left h w
     · replace h := Int.le_of_lt h
       exact Int.mul_le_mul_of_nonneg_left w h
-    · rw [Int.not_lt] at h
-      exact Int.mul_le_mul_of_nonpos_left h w
+    · exact Int.mul_le_mul_of_nonpos_left h w
     · constructor
       · exact Int.mul_le_mul_of_nonneg_left w.1 (Int.le_of_lt h)
       · exact Int.mul_le_mul_of_nonneg_left w.2 (Int.le_of_lt h)
-    · replace h := Int.not_lt.mp h
-      constructor
+    · constructor
       · exact Int.mul_le_mul_of_nonpos_left h w.2
       · exact Int.mul_le_mul_of_nonpos_left h w.1
 
@@ -210,21 +205,19 @@ theorem div_sat (c : Constraint) (t : Int) (k : Nat) (n : k ≠ 0) (h : (k : Int
   · simp_all [sat, div]
   · simp [sat, div] at w ⊢
     apply Int.le_of_sub_nonneg
-    rw [← Int.sub_ediv_of_dvd _ h, ← ge_iff_le, Int.div_nonneg_iff_of_pos n]
+    rw [← Int.sub_ediv_of_dvd _ h, Int.ediv_nonneg_iff_of_pos n]
     exact Int.sub_nonneg_of_le w
   · simp [sat, div] at w ⊢
     apply Int.le_of_sub_nonneg
-    rw [Int.sub_neg, ← Int.add_ediv_of_dvd_left h, ← ge_iff_le,
-      Int.div_nonneg_iff_of_pos n]
+    rw [Int.sub_neg, ← Int.add_ediv_of_dvd_left h, Int.ediv_nonneg_iff_of_pos n]
     exact Int.sub_nonneg_of_le w
   · simp [sat, div] at w ⊢
     constructor
     · apply Int.le_of_sub_nonneg
-      rw [Int.sub_neg, ← Int.add_ediv_of_dvd_left h, ← ge_iff_le,
-        Int.div_nonneg_iff_of_pos n]
+      rw [Int.sub_neg, ← Int.add_ediv_of_dvd_left h, Int.ediv_nonneg_iff_of_pos n]
       exact Int.sub_nonneg_of_le w.1
     · apply Int.le_of_sub_nonneg
-      rw [← Int.sub_ediv_of_dvd _ h, ← ge_iff_le, Int.div_nonneg_iff_of_pos n]
+      rw [← Int.sub_ediv_of_dvd _ h, Int.ediv_nonneg_iff_of_pos n]
       exact Int.sub_nonneg_of_le w.2
 
 /--

@@ -306,7 +306,7 @@ abbrev LawfulBEqOrd (α : Type u) [BEq α] [Ord α] := LawfulBEqCmp (compare : �
 
 variable {α : Type u} [BEq α] {cmp : α → α → Ordering}
 
-instance {α : Type u} {cmp : α → α → Ordering} [LawfulEqCmp cmp] [BEq α] [LawfulBEq α] :
+instance [LawfulEqCmp cmp] [LawfulBEq α] :
     LawfulBEqCmp cmp where
   compare_eq_iff_beq := compare_eq_iff_eq.trans beq_iff_eq.symm
 

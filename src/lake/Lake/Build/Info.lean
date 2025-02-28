@@ -46,13 +46,13 @@ abbrev Package.targetBuildKey (target : Name) (self : Package) : BuildKey :=
   .customTarget self.name target
 
 abbrev LeanLib.facetBuildKey (self : LeanLib) (facet : Name) : BuildKey :=
-  .targetFacet self.pkg.name self.name (`leanLib ++ facet)
+  .targetFacet self.pkg.name self.name `leanLib facet
 
 abbrev LeanExe.buildKey (self : LeanExe) : BuildKey :=
-  .targetFacet self.pkg.name self.name (`leanExe ++ exeFacet)
+  .targetFacet self.pkg.name self.name `leanExe exeFacet
 
 abbrev ExternLib.facetBuildKey (self : ExternLib) (facet : Name) : BuildKey :=
-  .targetFacet self.pkg.name self.name (`externLib ++ facet)
+  .targetFacet self.pkg.name self.name `externLib facet
 
 abbrev ExternLib.staticBuildKey (self : ExternLib) : BuildKey :=
   self.facetBuildKey staticFacet
@@ -93,23 +93,23 @@ instance {p : NPackage n} [FamilyOut CustomData (n, t) α]
 : FamilyDef BuildData (BuildInfo.key (.target p.toPackage t)) α where
   fam_eq := by unfold BuildData; simp
 
-instance [FamilyOut (FacetData `leanLib) f α]
+instance [FamilyOut LibraryData f α]
 : FamilyDef BuildData (BuildInfo.key (.libraryFacet l f)) α where
   fam_eq := by unfold BuildData; simp
 
-instance [h : FamilyOut (FacetData `leanExe) LeanExe.exeFacet α]
+instance [h : FamilyOut LeanExeData LeanExe.exeFacet α]
 : FamilyDef BuildData (BuildInfo.key (.leanExe x)) α where
   fam_eq := by unfold BuildData; simp only [← h.fam_eq]
 
-instance [h : FamilyOut (FacetData `externLib) ExternLib.staticFacet α]
+instance [h : FamilyOut ExternLibData ExternLib.staticFacet α]
 : FamilyDef BuildData (BuildInfo.key (.staticExternLib l)) α where
   fam_eq := by unfold BuildData; simp only [← h.fam_eq]
 
-instance [h : FamilyOut (FacetData `externLib) ExternLib.sharedFacet α]
+instance [h : FamilyOut ExternLibData ExternLib.sharedFacet α]
 : FamilyDef BuildData (BuildInfo.key (.sharedExternLib l)) α where
   fam_eq := by unfold BuildData; simp only [← h.fam_eq]
 
-instance [h : FamilyOut (FacetData `externLib) ExternLib.dynlibFacet α]
+instance [h : FamilyOut ExternLibData ExternLib.dynlibFacet α]
 : FamilyDef BuildData (BuildInfo.key (.dynlibExternLib l)) α where
   fam_eq := by unfold BuildData; simp only [← h.fam_eq]
 

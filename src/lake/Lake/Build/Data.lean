@@ -52,15 +52,32 @@ as needed (via `package_data`).
 -/
 abbrev PackageData := FacetData `package
 
-/-
+/--
 The open type family which maps a Lean library facet's name to its build data
 in the Lake build store. For example, the generated static library for the
- `static` facet.
+`static` facet.
 
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `library_data`).
 -/
 abbrev LibraryData := FacetData `leanLib
+
+@[inherit_doc LibraryData]
+abbrev LeanLibData := LibraryData
+
+/--
+The type family which maps a Lean executable facet's name to its build data
+in the Lake build store. For example, the generated executable for the
+`exe` facet.
+-/
+abbrev LeanExeData := FacetData `leanExe
+
+/--
+The type family which maps an external library facet's name to its build data
+in the Lake build store. For example, the generated static library for the
+`static` facet.
+-/
+abbrev ExternLibData := FacetData `externLib
 
 /--
 The open type family which maps a custom target (package × target name) to
@@ -84,12 +101,11 @@ abbrev BuildData : BuildKey → Type
 | .module _ => TargetData `module
 | .package _ => TargetData `package
 | .packageTarget p t => CustomData (p, t)
-| .facet _ f => TargetData f
+| .facet _ k f => FacetData k f
 
-instance (priority := low) : FamilyDef BuildData k (BuildData k) := ⟨rfl⟩
 instance (priority := low) : FamilyDef BuildData (.moduleFacet m f) (ModuleData f) := ⟨rfl⟩
 instance (priority := low) : FamilyDef BuildData (.packageFacet p f) (PackageData f) := ⟨rfl⟩
-instance (priority := low) : FamilyDef BuildData (.targetFacet p t f) (TargetData f) := ⟨rfl⟩
+instance (priority := low) : FamilyDef BuildData (.facet t k f) (FacetData k f) := ⟨rfl⟩
 instance (priority := low) : FamilyDef BuildData (.customTarget p t) (CustomData (p,t)) := ⟨rfl⟩
 
 --------------------------------------------------------------------------------

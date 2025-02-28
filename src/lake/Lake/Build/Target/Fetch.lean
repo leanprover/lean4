@@ -25,7 +25,7 @@ protected def BuildKey.fetch (self : BuildKey) [h : FamilyOut BuildData self α]
     have : FamilyOut BuildData (pkg.target targetName).key α :=
       ⟨by simpa [self_eq] using h.fam_eq⟩
     fetch <| pkg.target targetName
-  | facet key facetName =>
+  | facet key targetKind facetName =>
     -- TODO: Support this
     error s!"unsupported target '{self}': fetching builtin targets by key is not currently supported"
 

@@ -14,9 +14,9 @@ import Lake.Build.ExternLib
 
 namespace Lake
 
-/-- A two layer kind-facet-configuration map for the initial set of Lake facets. -/
-def initFacetConfigs : DNameMap fun k => (DNameMap (FacetConfig k)) :=
-  DNameMap.empty
+/-- The initial set of Lake facets. -/
+def initFacetConfigs : FacetMap :=
+  FacetMap.empty
   |>.insert `module Module.initFacetConfigs
   |>.insert `package Package.initFacetConfigs
   |>.insert `leanLib LeanLib.initFacetConfigs

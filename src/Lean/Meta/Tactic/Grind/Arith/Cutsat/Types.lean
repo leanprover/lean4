@@ -194,10 +194,20 @@ structure State where
   assignment : PArray Rat := {}
   /-- Next unique id for a constraint. -/
   nextCnstrId : Nat := 0
+  /--
+  `caseSplits` is `true` if cutsat is searching for model and already performed case splits.
+  This information is used to decide whether a conflict should immediately close the
+  current `grind` goal or not.
+  -/
+  caseSplits : Bool := false
+  /--
+  `conflict?` is `some ..` if a contradictory constraint was derived.
+  This field is only set when `caseSplits` is `true`. Otherwise, we
+  can convert `UnsatProof` into a Lean term and close the current `grind` goal.
+  -/
+  conflict? : Option UnsatProof := none
   /-
-  TODO: support for storing
-  - Disjuctions: they come from conflict resolution, and disequalities.
-  - Linear integer terms appearing in the main module, and model-based equality propagation.
+  TODO: Model-based theory combination.
   -/
   deriving Inhabited
 

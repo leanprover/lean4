@@ -67,7 +67,12 @@ structure Search.State where
 
 abbrev SearchM := ReaderT Search.Kind (StateRefT Search.State GoalM)
 
+/-- Returns `true` if approximations are allowed. -/
 def isApprox : SearchM Bool :=
   return (← read) == .rat
+
+/-- Sets `precise` to `false` to indicate that some constraint was not satisfied. -/
+def setImprecise : SearchM Unit := do
+  modify fun s => { s with precise := false }
 
 end Lean.Meta.Grind.Arith.Cutsat

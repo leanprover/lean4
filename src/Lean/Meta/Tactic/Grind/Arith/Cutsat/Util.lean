@@ -71,11 +71,16 @@ def mkEqCnstr (p : Poly) (h : EqCnstrProof) : GoalM EqCnstr := do
 @[extern "lean_grind_cutsat_assert_eq"] -- forward definition
 opaque EqCnstr.assert (c : EqCnstr) : GoalM Unit
 
-private partial def shrink (a : PArray Rat) (sz : Nat) : PArray Rat :=
-  if a.size > sz then
-    shrink a.pop sz
-  else
-    a
+-- TODO: PArray.shrink and PArray.resize
+
+partial def shrink (a : PArray Rat) (sz : Nat) : PArray Rat :=
+  if a.size > sz then shrink a.pop sz else a
+
+partial def resize (a : PArray Rat) (sz : Nat) : PArray Rat :=
+  if a.size > sz then shrink a sz else go a
+where
+  go (a : PArray Rat) : PArray Rat :=
+    if a.size < sz then go (a.push 0) else a
 
 /-- Resets the assingment of any variable bigger or equal to `x`. -/
 def resetAssignmentFrom (x : Var) : GoalM Unit := do

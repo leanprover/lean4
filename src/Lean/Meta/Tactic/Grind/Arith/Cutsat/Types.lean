@@ -132,6 +132,9 @@ inductive DiseqCnstrProof where
 
 end
 
+instance : Inhabited DvdCnstr where
+  default := { d := 0, p := .num 0, h := .expr default, id := 0 }
+
 /--
 A proof of `False`.
 Remark: We will later add support for a backtraking search inside of cutsat.

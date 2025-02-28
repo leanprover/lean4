@@ -718,7 +718,7 @@ theorem getElem?_eq_some_iff_exists_compare_eq_eq_and_mem_toList [TransCmp cmp] 
 
 theorem find?_toList_eq_some_iff_getKey?_eq_some_and_getElem?_eq_some [TransCmp cmp] (h : t.WF)
     {k k' : α} {v : β} :
-    t.toList.find? (fun a => cmp a.1 k = .eq) = some ⟨k', v⟩ ↔
+    t.toList.find? (cmp ·.1 k == .eq) = some ⟨k', v⟩ ↔
       t.getKey? k = some k' ∧ t[k]? = some v :=
   DTreeMap.Raw.Const.find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some h
 

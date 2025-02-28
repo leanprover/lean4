@@ -1017,7 +1017,7 @@ theorem get?_eq_some_iff_exists_compare_eq_eq_and_mem_toList [TransCmp cmp] {k :
   Impl.Const.get?_eq_some_iff_exists_compare_eq_eq_and_mem_toList t.wf
 
 theorem find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some [TransCmp cmp] {k k' : α} {v : β}
-    : (toList t).find? (fun a => cmp a.1 k = .eq) = some ⟨k', v⟩ ↔
+    : (toList t).find? (cmp ·.1 k == .eq) = some ⟨k', v⟩ ↔
       t.getKey? k = some k' ∧ get? t k = some v :=
   Impl.Const.find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some t.wf
 

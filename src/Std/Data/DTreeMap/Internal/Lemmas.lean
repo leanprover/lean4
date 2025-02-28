@@ -1514,7 +1514,7 @@ theorem find?_toList_eq_none_iff_contains_eq_false [TransOrd α] {k : α} (h : t
   simp_to_model using List.find?_eq_none_iff_containsKey_eq_false
 
 theorem find?_toList_eq_none_iff_not_mem [TransOrd α] {k : α} (h : t.WF) :
-    t.toList.find? (·.1 == k) = none ↔ ¬ k ∈ t := by
+    t.toList.find? (compare ·.1 k == .eq) = none ↔ ¬ k ∈ t := by
   simpa only [Bool.not_eq_true, mem_iff_contains] using find?_toList_eq_none_iff_contains_eq_false h
 
 theorem distinct_keys_toList [TransOrd α] (h : t.WF) :

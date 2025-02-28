@@ -1000,7 +1000,7 @@ interpolated string literal) to stderr. It should only be used for debugging.
   withPosition ("assert! " >> termParser) >> optSemicolon termParser
 /--
 `debug_assert! cond` panics if `cond` evaluates to `false` and the executing code has been built
-with debug assertions enabled (see Lake's `buildType`/`moreLeancArgs`).
+with debug assertions enabled (see the `debugAssertions` option).
 -/
 @[builtin_term_parser] def debugAssert := leading_parser:leadPrec
   withPosition ("debug_assert! " >> termParser) >> optSemicolon termParser

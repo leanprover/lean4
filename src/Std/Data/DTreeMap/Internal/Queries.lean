@@ -217,29 +217,23 @@ def forM {m} [Monad m] (f : (a : α) → β a → m PUnit) (t : Impl α β) : m 
 
 /-- Implementation detail. -/
 @[specialize]
-def forInStep {m} [Monad m] (f : δ → (a : α) → β a → m (ForInStep δ)) (init : δ) :
+def forInStep {m} [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) :
     Impl α β → m (ForInStep δ)
   | .leaf => pure (.yield init)
   | .inner _ k v l r => do
     match ← forInStep f init l with
     | ForInStep.done d => return (.done d)
     | ForInStep.yield d =>
-      match ← f d k v with
+      match ← f k v d with
       | ForInStep.done d => return (.done d)
       | ForInStep.yield d => forInStep f d r
 
 /-- Support for the `for` construct in `do` blocks. -/
 @[inline]
-def forIn {m} [Monad m] (f : δ → (a : α) → β a → m (ForInStep δ)) (init : δ) (t : Impl α β) : m δ := do
+def forIn {m} [Monad m] (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (t : Impl α β) : m δ := do
   match ← forInStep f init t with
   | ForInStep.done d => return d
   | ForInStep.yield d => return d
-
-instance : ForM m (Impl α β) ((a : α) × β a) where
-  forM m f := m.forM (fun a b => f ⟨a, b⟩)
-
-instance : ForIn m (Impl α β) ((a : α) × β a) where
-  forIn m init f := m.forIn (fun acc a b => f ⟨a, b⟩ acc) init
 
 /-- Returns a `List` of the keys in order. -/
 @[inline] def keys (t : Impl α β) : List α :=

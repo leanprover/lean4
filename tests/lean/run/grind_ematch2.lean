@@ -1,4 +1,4 @@
-attribute [grind =] Array.size_set Array.get_set_eq Array.get_set_ne
+attribute [grind =] Array.size_set Array.getElem_set_self Array.getElem_set_ne
 
 set_option grind.debug true
 set_option trace.grind.ematch.pattern true
@@ -43,7 +43,7 @@ example (as bs cs : Array α) (v₁ v₂ : α)
 /--
 info: [grind] Diagnostics
   [thm] E-Matching instances
-    [thm] Array.get_set_ne ↦ 3
+    [thm] Array.getElem_set_ne ↦ 3
     [thm] Array.size_set ↦ 3
   [grind] Simplifier
     [simp] tried theorems (max: 30, num: 2):
@@ -80,9 +80,9 @@ info: [diag] Diagnostics
 info: [grind.ematch.instance] Array.size_set: (cs.set i₃ v₃ ⋯).size = cs.size
 [grind.ematch.instance] Array.size_set: (bs.set i₂ v₂ ⋯).size = bs.size
 [grind.ematch.instance] Array.size_set: (as.set i₁ v₁ ⋯).size = as.size
-[grind.ematch.instance] Array.get_set_ne: ∀ (hj : j < cs.size), i₃ ≠ j → (cs.set i₃ v₃ ⋯)[j] = cs[j]
-[grind.ematch.instance] Array.get_set_ne: ∀ (hj : j < bs.size), i₂ ≠ j → (bs.set i₂ v₂ ⋯)[j] = bs[j]
-[grind.ematch.instance] Array.get_set_ne: ∀ (hj : j < as.size), i₁ ≠ j → (as.set i₁ v₁ ⋯)[j] = as[j]
+[grind.ematch.instance] Array.getElem_set_ne: ∀ (pj : j < cs.size), i₃ ≠ j → (cs.set i₃ v₃ ⋯)[j] = cs[j]
+[grind.ematch.instance] Array.getElem_set_ne: ∀ (pj : j < bs.size), i₂ ≠ j → (bs.set i₂ v₂ ⋯)[j] = bs[j]
+[grind.ematch.instance] Array.getElem_set_ne: ∀ (pj : j < as.size), i₁ ≠ j → (as.set i₁ v₁ ⋯)[j] = as[j]
 -/
 #guard_msgs (info) in
 example (as bs cs ds : Array α) (v₁ v₂ v₃ : α)

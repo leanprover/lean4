@@ -243,7 +243,7 @@ def link! (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
       if delta * szl < szr then
         balanceL! k'' v'' (link! k v l l'') r''
       else if delta * szr < szl then
-        balanceR! k' v' l' (link! k v r r')
+        balanceR! k' v' l' (link! k v r' r)
       else
         .inner (l.size + 1 + r.size) k v l r
 termination_by sizeOf l + sizeOf r

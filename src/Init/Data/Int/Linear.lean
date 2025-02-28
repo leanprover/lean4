@@ -531,8 +531,9 @@ def Poly.isValidLe (p : Poly) : Bool :=
   | .num k => k ≤ 0
   | _ => false
 
+attribute [-simp] Int.not_le in
 theorem le_eq_false (ctx : Context) (lhs rhs : Expr) : (lhs.sub rhs).norm.isUnsatLe → (lhs.denote ctx ≤ rhs.denote ctx) = False := by
-  simp [Poly.isUnsatLe] <;> split <;> simp
+  simp only [Poly.isUnsatLe] <;> split <;> simp
   next p k h =>
     intro h'
     replace h := congrArg (Poly.denote ctx) h
@@ -820,7 +821,7 @@ def le_neg_cert (p₁ p₂ : Poly) : Bool :=
 theorem le_neg (ctx : Context) (p₁ p₂ : Poly) : le_neg_cert p₁ p₂ → ¬ p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 := by
   simp [le_neg_cert]
   intro; subst p₂; simp; intro h
-  replace h : _ + 1 ≤ -0 := Int.neg_lt_neg <| Int.lt_of_not_ge h
+  replace h : _ + 1 ≤ -0 := Int.neg_lt_neg h
   simp at h
   exact h
 
@@ -846,9 +847,6 @@ theorem le_combine (ctx : Context) (p₁ p₂ p₃ : Poly)
 
 theorem le_unsat (ctx : Context) (p : Poly) : p.isUnsatLe → p.denote' ctx ≤ 0 → False := by
   simp [Poly.isUnsatLe]; split <;> simp
-  intro h₁ h₂
-  have := Int.lt_of_le_of_lt h₂ h₁
-  simp at this
 
 theorem eq_norm (ctx : Context) (p₁ p₂ : Poly) (h : p₁.norm == p₂) : p₁.denote' ctx = 0 → p₂.denote' ctx = 0 := by
   simp at h

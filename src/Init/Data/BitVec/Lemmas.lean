@@ -4118,9 +4118,7 @@ theorem sub_le_sub_iff_le {x y z : BitVec w} (hxz : z ≤ x) (hyz : z ≤ y) :
 
 theorem msb_eq_toInt {x : BitVec w}:
     x.msb = decide (x.toInt < 0) := by
-  by_cases h : x.msb <;>
-  · simp [h, toInt_eq_msb_cond]
-    omega
+  by_cases h : x.msb <;> simp [h, toInt_eq_msb_cond] <;> omega
 
 theorem msb_eq_toNat {x : BitVec w}:
     x.msb = decide (x.toNat ≥ 2 ^ (w - 1)) := by

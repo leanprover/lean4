@@ -133,10 +133,10 @@ protected theorem lt_of_not_ge {a b : Int} (h : ¬a ≤ b) : b < a :=
 protected theorem not_le_of_gt {a b : Int} (h : b < a) : ¬a ≤ b :=
   (Int.lt_iff_le_not_le.mp h).right
 
-protected theorem not_le {a b : Int} : ¬a ≤ b ↔ b < a :=
+@[simp] protected theorem not_le {a b : Int} : ¬a ≤ b ↔ b < a :=
   Iff.intro Int.lt_of_not_ge Int.not_le_of_gt
 
-protected theorem not_lt {a b : Int} : ¬a < b ↔ b ≤ a :=
+@[simp] protected theorem not_lt {a b : Int} : ¬a < b ↔ b ≤ a :=
   by rw [← Int.not_le, Decidable.not_not]
 
 protected theorem lt_trichotomy (a b : Int) : a < b ∨ a = b ∨ b < a :=

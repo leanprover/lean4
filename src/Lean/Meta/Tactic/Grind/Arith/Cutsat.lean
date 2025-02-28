@@ -14,6 +14,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.SearchM
 
 namespace Lean
 

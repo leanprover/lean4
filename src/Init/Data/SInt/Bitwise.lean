@@ -33,23 +33,23 @@ declare_bitwise_int_theorems Int64 64
 declare_bitwise_int_theorems ISize System.Platform.numBits
 
 @[simp, int_toBitVec]
-theorem Bool.toBitVec_toUInt8 {b : Bool} : b.toInt8.toBitVec = (BitVec.ofBool b).setWidth 8 := by
+theorem Bool.toBitVec_toInt8 {b : Bool} : b.toInt8.toBitVec = (BitVec.ofBool b).setWidth 8 := by
   cases b <;> simp [toInt8]
 
 @[simp, int_toBitVec]
-theorem Bool.toBitVec_toUInt16 {b : Bool} : b.toInt16.toBitVec = (BitVec.ofBool b).setWidth 16 := by
+theorem Bool.toBitVec_toInt16 {b : Bool} : b.toInt16.toBitVec = (BitVec.ofBool b).setWidth 16 := by
   cases b <;> simp [toInt16]
 
 @[simp, int_toBitVec]
-theorem Bool.toBitVec_toUInt32 {b : Bool} : b.toInt32.toBitVec = (BitVec.ofBool b).setWidth 32 := by
+theorem Bool.toBitVec_toInt32 {b : Bool} : b.toInt32.toBitVec = (BitVec.ofBool b).setWidth 32 := by
   cases b <;> simp [toInt32]
 
 @[simp, int_toBitVec]
-theorem Bool.toBitVec_toUInt64 {b : Bool} : b.toInt64.toBitVec = (BitVec.ofBool b).setWidth 64 := by
+theorem Bool.toBitVec_toInt64 {b : Bool} : b.toInt64.toBitVec = (BitVec.ofBool b).setWidth 64 := by
   cases b <;> simp [toInt64]
 
 @[simp, int_toBitVec]
-theorem Bool.toBitVec_toUSize {b : Bool} :
+theorem Bool.toBitVec_toISize {b : Bool} :
     b.toISize.toBitVec = (BitVec.ofBool b).setWidth System.Platform.numBits := by
   cases b
   · simp [toISize]

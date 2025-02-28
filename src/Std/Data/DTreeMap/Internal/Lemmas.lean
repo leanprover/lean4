@@ -1611,8 +1611,7 @@ theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : (a : α) × β a → 
 
 theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m]
     {f : (a : α) × β a → δ → m (ForInStep δ)} {init : δ} :
-    ForIn.forIn t init f = ForIn.forIn t.toList init f := by
-  rw [ForIn.forIn, instForInSigma]
+    t.forIn (fun k v => f ⟨k, v⟩) init = ForIn.forIn t.toList init f := by
   simp_to_model
 
 namespace Const
@@ -1633,8 +1632,8 @@ theorem foldrM_eq_foldrM_toList [Monad m] [LawfulMonad m]
     t.foldrM f init = (Const.toList t).foldrM (fun a b => f a.1 a.2 b) init := by
   simp_to_model using List.foldrM_eq_foldrM_toProd
 
-theorem foldr_eq_foldr_toList {f : δ → (a : α) → β → δ} {init : δ} :
-    t.foldr f init = (Const.toList t).foldr (fun a b => f a b.1 b.2) init := by
+theorem foldr_eq_foldr_toList {f : (a : α) → β → δ → δ} {init : δ} :
+    t.foldr f init = (Const.toList t).foldr (fun a b => f a.1 a.2 b) init := by
   simp_to_model using List.foldr_eq_foldr_toProd
 
 theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : (a : α) → β → m PUnit} :

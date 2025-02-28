@@ -987,11 +987,11 @@ theorem fold_eq_foldl_toList {f : δ → (a : α) → β → δ} {init : δ} :
 theorem foldRevM_eq_foldrM_toList [Monad m'] [LawfulMonad m']
     {f : δ → (a : α) → β → m' δ} {init : δ} :
     m.1.foldRevM f init = (Raw.Const.toList m.1).foldrM (fun a b => f b a.1 a.2) init := by
-  simp_to_model using List.foldrM_eq_foldrM_toProd
+  simp_to_model using List.foldrM_eq_foldrM_toProd'
 
 theorem foldRev_eq_foldr_toList {f : δ → (a : α) → β → δ} {init : δ} :
     m.1.foldRev f init = (Raw.Const.toList m.1).foldr (fun a b => f b a.1 a.2) init := by
-  simp_to_model using List.foldr_eq_foldr_toProd
+  simp_to_model using List.foldr_eq_foldr_toProd'
 
 theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : (a : α) → β → m' PUnit} :
     m.1.forM f = (Raw.Const.toList m.1).forM (fun a => f a.1 a.2) := by

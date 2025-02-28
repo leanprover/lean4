@@ -2106,6 +2106,14 @@ theorem foldl_eq_foldl_toProd {β : Type v} {δ : Type w}
   | cons hd tl ih => simp [ih]
 
 theorem foldrM_eq_foldrM_toProd {β : Type v} {δ : Type w} {m' : Type w → Type w} [Monad m']
+    [LawfulMonad m'] {l : List ((_ : α) × β)} {f : (a : α) → β → δ → m' δ} {init : δ} :
+    l.foldrM (fun a b => f a.1 a.2 b) init =
+      (l.map fun x => (x.1, x.2)).foldrM (fun a b => f a.1 a.2 b) init := by
+  induction l generalizing init with
+  | nil => simp
+  | cons hd tl ih => simp [ih]
+
+theorem foldrM_eq_foldrM_toProd' {β : Type v} {δ : Type w} {m' : Type w → Type w} [Monad m']
     [LawfulMonad m'] {l : List ((_ : α) × β)} {f : δ → (a : α) → β → m' δ} {init : δ} :
     l.foldrM (fun a b => f b a.1 a.2) init =
       (l.map fun x => (x.1, x.2)).foldrM (fun a b => f b a.1 a.2) init := by
@@ -2114,6 +2122,14 @@ theorem foldrM_eq_foldrM_toProd {β : Type v} {δ : Type w} {m' : Type w → Typ
   | cons hd tl ih => simp [ih]
 
 theorem foldr_eq_foldr_toProd {β : Type v} {δ : Type w}
+    {l : List ((_ : α) × β)} {f : (a : α) → β → δ → δ} {init : δ} :
+    l.foldr (fun a b => f a.1 a.2 b) init =
+      (l.map fun x => (x.1, x.2)).foldr (fun a b => f a.1 a.2 b) init := by
+  induction l generalizing init with
+  | nil => simp
+  | cons hd tl ih => simp [ih]
+
+theorem foldr_eq_foldr_toProd' {β : Type v} {δ : Type w}
     {l : List ((_ : α) × β)} {f : δ → (a : α) → β → δ} {init : δ} :
     l.foldr (fun a b => f b a.1 a.2) init =
       (l.map fun x => (x.1, x.2)).foldr (fun a b => f b a.1 a.2) init := by

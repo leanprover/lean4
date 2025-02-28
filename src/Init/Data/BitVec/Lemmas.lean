@@ -13,6 +13,7 @@ import Init.Data.Nat.Div.Lemmas
 import Init.Data.Nat.Mod
 import Init.Data.Nat.Div.Lemmas
 import Init.Data.Int.Bitwise.Lemmas
+import Init.Data.Int.LemmasAux
 import Init.Data.Int.Pow
 
 set_option linter.missingDocs true
@@ -568,6 +569,11 @@ theorem toInt_ofNat {n : Nat} (x : Nat) :
   have _ := Nat.two_pow_pos n
   have p : 0 ≤ i % (2^n : Nat) := by omega
   simp [toInt_eq_toNat_bmod, Int.toNat_of_nonneg p]
+
+theorem toInt_ofInt_eq_self {w : Nat} (hw : 0 < w) {n : Int}
+    (h : -2 ^ (w - 1) ≤ n) (h' : n < 2 ^ (w - 1)) : (BitVec.ofInt w n).toInt = n := by
+  have hw : w = (w - 1) + 1 := by omega
+  rw [toInt_ofInt, Int.bmod_eq_self_of_le] <;> (rw [hw]; simp [Int.natCast_pow]; omega)
 
 @[simp] theorem ofInt_natCast (w n : Nat) :
   BitVec.ofInt w (n : Int) = BitVec.ofNat w n := rfl
@@ -2692,6 +2698,9 @@ theorem toInt_neg {x : BitVec w} :
     (-x).toInt = (-x.toInt).bmod (2 ^ w) := by
   rw [← BitVec.zero_sub, toInt_sub]
   simp [BitVec.toInt_ofNat]
+
+theorem ofInt_neg {w : Nat} {n : Int} : BitVec.ofInt w (-n) = -BitVec.ofInt w n :=
+  eq_of_toInt_eq (by simp [toInt_neg])
 
 @[simp] theorem toFin_neg (x : BitVec n) :
     (-x).toFin = Fin.ofNat' (2^n) (2^n - x.toNat) :=

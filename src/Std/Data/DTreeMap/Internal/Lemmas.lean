@@ -20,7 +20,7 @@ set_option autoImplicit false
 open Std.Internal.List
 open Std.Internal
 
-universe u v
+universe u v w
 
 namespace Std.DTreeMap.Internal.Impl
 
@@ -60,7 +60,8 @@ private def queryNames : Array Name :=
     ``getD_eq_getValueCastD, ``Const.getD_eq_getValueD,
     ``getKey?_eq_getKey?, ``getKey_eq_getKey,
     ``getKey!_eq_getKey!, ``getKeyD_eq_getKeyD,
-    ``keys_eq_keys, ``toList_eq_toListModel, ``Const.toList_eq_toListModel_map]
+    ``keys_eq_keys, ``toList_eq_toListModel, ``Const.toList_eq_toListModel_map,
+    ``foldlM_eq_foldlM, ``foldl_eq_foldl]
 
 private def modifyMap : Std.HashMap Name Name :=
   .ofList
@@ -1570,5 +1571,83 @@ theorem distinct_keys_toList [TransOrd α] (h : t.WF) :
   simp_to_model using List.pairwise_fst_eq_false_map_toProd
 
 end Const
+
+section monadic
+
+variable {t : Impl α β} {δ : Type w} {m : Type w → Type w}
+
+theorem foldlM_eq_foldlM_toList [Monad m] [LawfulMonad m]
+    {f : δ → (a : α) → β a → m δ} {init : δ} :
+    t.foldlM f init = t.toList.foldlM (fun a b => f a b.1 b.2) init := by
+  simp_to_model
+
+theorem foldl_eq_foldl_toList {f : δ → (a : α) → β a → δ} {init : δ} :
+    t.foldl f init = t.toList.foldl (fun a b => f a b.1 b.2) init := by
+  simp_to_model
+
+@[simp]
+theorem forM_eq_forM [Monad m] [LawfulMonad m] {f : (a : α) → β a → m PUnit} :
+    t.forM f = ForM.forM t (fun a => f a.1 a.2) := rfl
+
+theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : (a : α) × β a → m PUnit} :
+    ForM.forM t f = ForM.forM t.toList f := by
+  rw [ForM.forM, instForMSigma]
+  simp_to_mode
+
+@[simp]
+theorem forIn_eq_forIn [Monad m] [LawfulMonad m]
+    {f : (a : α) → β a → δ → m (ForInStep δ)} {init : δ} :
+    DHashMap.forIn f init t = ForIn.forIn t init (fun a b => f a.1 a.2 b) := rfl
+
+theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m]
+    {f : (a : α) × β a → δ → m (ForInStep δ)} {init : δ} :
+    ForIn.forIn t init f = ForIn.forIn t.toList init f :=
+  Raw₀.forIn_eq_forIn_toList ⟨t.1, t.2.size_buckets_pos⟩
+
+namespace Const
+
+variable {β : Type v} {t : DHashMap α (fun _ => β)}
+
+theorem foldM_eq_foldlM_toList [Monad m] [LawfulMonad m]
+    {f : δ → (a : α) → β → m δ} {init : δ} :
+    t.foldM f init = (Const.toList t).foldlM (fun a b => f a b.1 b.2) init :=
+  Raw₀.Const.foldM_eq_foldlM_toList ⟨t.1, t.2.size_buckets_pos⟩
+
+theorem fold_eq_foldl_toList {f : δ → (a : α) → β → δ} {init : δ} :
+    t.fold f init = (Const.toList t).foldl (fun a b => f a b.1 b.2) init :=
+  Raw₀.Const.fold_eq_foldl_toList ⟨t.1, t.2.size_buckets_pos⟩
+
+theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : (a : α) → β → m PUnit} :
+    t.forM f = (Const.toList t).forM (fun a => f a.1 a.2) :=
+  Raw₀.Const.forM_eq_forM_toList ⟨t.1, t.2.size_buckets_pos⟩
+
+theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m]
+    {f : (a : α) → β → δ → m (ForInStep δ)} {init : δ} :
+    t.forIn f init = ForIn.forIn (Const.toList t) init (fun a b => f a.1 a.2 b) :=
+  Raw₀.Const.forIn_eq_forIn_toList ⟨t.1, t.2.size_buckets_pos⟩
+
+variable {t : DHashMap α (fun _ => Unit)}
+
+theorem foldM_eq_foldlM_keys [Monad m] [LawfulMonad m]
+    {f : δ → α → m δ} {init : δ} :
+    t.foldM (fun d a _ => f d a) init = t.keys.foldlM f init :=
+  Raw₀.Const.foldM_eq_foldlM_keys ⟨t.1, t.2.size_buckets_pos⟩
+
+theorem fold_eq_foldl_keys {f : δ → α → δ} {init : δ} :
+    t.fold (fun d a _ => f d a) init = t.keys.foldl f init :=
+  Raw₀.Const.fold_eq_foldl_keys ⟨t.1, t.2.size_buckets_pos⟩
+
+theorem forM_eq_forM_keys [Monad m] [LawfulMonad m] {f : α → m PUnit} :
+    t.forM (fun a _ => f a) = t.keys.forM f :=
+  Raw₀.Const.forM_eq_forM_keys ⟨t.1, t.2.size_buckets_pos⟩
+
+theorem forIn_eq_forIn_keys [Monad m] [LawfulMonad m]
+    {f : α → δ → m (ForInStep δ)} {init : δ} :
+    t.forIn (fun a _ d => f a d) init = ForIn.forIn t.keys init f :=
+  Raw₀.Const.forIn_eq_forIn_keys ⟨t.1, t.2.size_buckets_pos⟩
+
+end Const
+
+end monadic
 
 end Std.DTreeMap.Internal.Impl

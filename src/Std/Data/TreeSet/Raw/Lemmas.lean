@@ -18,7 +18,7 @@ These proofs can be obtained from `Std.Data.TreeSet.Raw.WF`.
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v
+universe u v w
 
 namespace Std.TreeSet.Raw
 
@@ -358,5 +358,38 @@ theorem mem_toList [LawfulEqCmp cmp] [TransCmp cmp] (h : t.WF) {k : α} :
 theorem distinct_toList [TransCmp cmp] (h : t.WF) :
     t.toList.Pairwise (fun a b => ¬ cmp a b = .eq) :=
   DTreeMap.Raw.distinct_keys h
+
+section monadic
+
+variable {δ : Type w} {m : Type w → Type w}
+
+theorem foldlM_eq_foldlM_toList [Monad m] [LawfulMonad m]
+    {f : δ → α → m δ} {init : δ} :
+    t.foldlM f init = t.toList.foldlM f init :=
+  TreeMap.Raw.foldlM_eq_foldlM_keys
+
+theorem foldl_eq_foldl_toList {f : δ → α → δ} {init : δ} :
+    t.foldl f init = t.toList.foldl f init :=
+  TreeMap.Raw.foldl_eq_foldl_keys
+
+theorem foldrM_eq_foldrM_toList [Monad m] [LawfulMonad m]
+    {f : α → δ → m δ} {init : δ} :
+    t.foldrM f init = t.toList.foldrM f init :=
+  TreeMap.Raw.foldrM_eq_foldrM_keys
+
+theorem foldr_eq_foldr_toList {f : α → δ → δ} {init : δ} :
+    t.foldr f init = t.toList.foldr f init :=
+  TreeMap.Raw.foldr_eq_foldr_keys
+
+theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : α → m PUnit} :
+    t.forM f = t.toList.forM f :=
+  TreeMap.Raw.forM_eq_forM_keys
+
+theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m]
+    {f : α → δ → m (ForInStep δ)} {init : δ} :
+    t.forIn f init = ForIn.forIn t.toList init f :=
+  TreeMap.Raw.forIn_eq_forIn_keys
+
+end monadic
 
 end Std.TreeSet.Raw

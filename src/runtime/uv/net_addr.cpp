@@ -87,7 +87,6 @@ lean_obj_res lean_sockaddr_to_socketaddress(const struct sockaddr* sockaddr) {
     if (sockaddr->sa_family == AF_INET) {
         const struct sockaddr_in* addr_in = (const struct sockaddr_in*)sockaddr;
         const in_addr* ipv4_addr = &addr_in->sin_addr;
-
         lean_obj_res lean_ipv4 = lean_in_addr_to_ipv4_addr(ipv4_addr);
         uint16_t port = ntohs(addr_in->sin_port);
         part = lean_mk_socketaddress(lean_ipv4, port);

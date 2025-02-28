@@ -71,6 +71,47 @@ theorem Bool.not_one_beq : ∀ (a : BitVec 1), (!(1#1 == a)) = (a == 0#1) := by
 theorem Bool.not_zero_beq : ∀ (a : BitVec 1), (!(0#1 == a)) = (a == 1#1) := by
   decide
 
+@[bv_normalize]
+theorem Bool.ite_same_then : ∀ (c t e : Bool), ((bif c then t else e) == t) = (c || (t == e)) := by
+  decide
+
+@[bv_normalize]
+theorem Bool.ite_same_then' : ∀ (c t e : Bool), (t == (bif c then t else e)) = (c || (t == e)) := by
+  decide
+
+@[bv_normalize]
+theorem Bool.ite_same_else : ∀ (c t e : Bool), ((bif c then t else e) == e) = (!c || (t == e)) := by
+  decide
+
+@[bv_normalize]
+theorem Bool.ite_same_else' :
+    ∀ (c t e : Bool), (e == (bif c then t else e)) = (!c || (t == e)) := by
+  decide
+
+@[bv_normalize]
+theorem BitVec.ite_same_then :
+    ∀ (c : Bool) (t e : BitVec w), ((bif c then t else e) == t) = (c || (t == e)) := by
+  intro c t e
+  cases c <;> simp [BEq.comm (a := t) (b := e)]
+
+@[bv_normalize]
+theorem BitVec.ite_same_then' :
+    ∀ (c : Bool) (t e : BitVec w), (t == (bif c then t else e)) = (c || (t == e)) := by
+  intro c t e
+  cases c <;> simp
+
+@[bv_normalize]
+theorem BitVec.ite_same_else :
+    ∀ (c : Bool) (t e : BitVec w), ((bif c then t else e) == e) = (!c || (t == e)) := by
+  intro c t e
+  cases c <;> simp
+
+@[bv_normalize]
+theorem BitVec.ite_same_else' :
+    ∀ (c : Bool) (t e : BitVec w), (e == (bif c then t else e)) = (!c || (t == e)) := by
+  intro c t e
+  cases c <;> simp [BEq.comm (a := t) (b := e)]
+
 theorem Bool.and_left (lhs rhs : Bool) (h : (lhs && rhs) = true) : lhs = true := by
   revert lhs rhs
   decide

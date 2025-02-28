@@ -307,6 +307,34 @@ example : ∀ (a : BitVec 1), (!(1#1 == a)) = (a == 0#1) := by
 example : ∀ (a : BitVec 1), (!(0#1 == a)) = (a == 1#1) := by
   bv_normalize
 
+-- ITE_SAME
+example : ∀ (c t e : Bool), ((bif c then t else e) == t) = (c || (t == e)) := by
+  bv_normalize
+
+example : ∀ (c t e : Bool), (t == (bif c then t else e)) = (c || (t == e)) := by
+  bv_normalize
+
+example : ∀ (c t e : Bool), ((bif c then t else e) == e) = (!c || (t == e)) := by
+  bv_normalize
+
+example : ∀ (c t e : Bool), (e == (bif c then t else e)) = (!c || (t == e)) := by
+  bv_normalize
+
+example : ∀ (c : Bool) (t e : BitVec 8), ((bif c then t else e) == t) = (c || (t == e)) := by
+  bv_normalize
+
+example : ∀ (c : Bool) (t e : BitVec 8), (t == (bif c then t else e)) = (c || (t == e)) := by
+  bv_normalize
+
+example : ∀ (c : Bool) (t e : BitVec 8), ((bif c then t else e) == e) = (!c || (t == e)) := by
+  bv_normalize
+
+example : ∀ (c : Bool) (t e : BitVec 8), (e == (bif c then t else e)) = (!c || (t == e)) := by
+  bv_normalize
+
+example (c : Bool) : ((if c then 1#1 else 0#1) == 1#1) ↔ c := by
+  bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

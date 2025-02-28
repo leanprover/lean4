@@ -17,7 +17,7 @@ open Nat
 This file defines the `Int` type as well as
 
 * coercions, conversions, and compatibility with numeric literals,
-* basic arithmetic operations add/sub/mul//pow,
+* basic arithmetic operations add/sub/mul/pow,
 * a few `Nat`-related operations such as `negOfNat` and `subNatNat`,
 * relations `<`/`≤`/`≥`/`>`, the `NonNeg` property and `min`/`max`,
 * decidability of equality, relations and `NonNeg`.

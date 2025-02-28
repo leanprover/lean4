@@ -105,11 +105,16 @@ where
       ← Int.neg_neg (_-_), Int.neg_sub, Int.sub_sub_self, Int.add_right_comm]
     exact congrArg (fun x => -(ofNat x + 1)) (Nat.mod_add_div ..)
 
+/-- Variant of `emod_add_ediv` with the multiplication written the other way around. -/
 theorem emod_add_ediv' (a b : Int) : a % b + a / b * b = a := by
   rw [Int.mul_comm]; exact emod_add_ediv ..
 
 theorem ediv_add_emod (a b : Int) : b * (a / b) + a % b = a := by
   rw [Int.add_comm]; exact emod_add_ediv ..
+
+/-- Variant of `ediv_add_emod` with the multiplication written the other way around. -/
+theorem ediv_add_emod' (a b : Int) : a / b * b + a % b = a := by
+  rw [Int.mul_comm]; exact ediv_add_emod ..
 
 theorem emod_def (a b : Int) : a % b = a - b * (a / b) := by
   rw [← Int.add_sub_cancel (a % b), emod_add_ediv]
@@ -169,13 +174,16 @@ theorem add_ediv_of_dvd_left {a b c : Int} (H : c ∣ a) : (a + b) / c = a / c +
 @[simp] theorem mul_ediv_cancel_left (b : Int) (H : a ≠ 0) : (a * b) / a = b :=
   Int.mul_comm .. ▸ Int.mul_ediv_cancel _ H
 
-theorem div_nonneg_iff_of_pos {a b : Int} (h : 0 < b) : a / b ≥ 0 ↔ a ≥ 0 := by
+theorem ediv_nonneg_iff_of_pos {a b : Int} (h : 0 < b) : 0 ≤ a / b ↔ 0 ≤ a := by
   rw [Int.div_def]
   match b, h with
   | Int.ofNat (b+1), _ =>
     rcases a with ⟨a⟩ <;> simp [Int.ediv]
     norm_cast
     simp
+
+@[deprecated ediv_nonneg_iff_of_pos (since := "2025-02-28")]
+abbrev div_nonneg_iff_of_pos := @ediv_nonneg_iff_of_pos
 
 /-! ### emod -/
 

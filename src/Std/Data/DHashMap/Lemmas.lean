@@ -1091,7 +1091,7 @@ theorem fold_eq_foldl_toList {f : δ → (a : α) → β a → δ} {init : δ} :
 
 @[simp]
 theorem forM_eq_forM [Monad m'] [LawfulMonad m'] {f : (a : α) → β a → m' PUnit} :
-    DHashMap.forM f m = ForM.forM m (fun a => f a.1 a.2):= rfl
+    DHashMap.forM f m = ForM.forM m (fun a => f a.1 a.2) := rfl
 
 theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : (a : α) × β a → m' PUnit} :
     ForM.forM m f = ForM.forM m.toList f :=

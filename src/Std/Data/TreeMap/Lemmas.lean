@@ -666,7 +666,7 @@ theorem isEmpty_keys :
   DTreeMap.isEmpty_keys
 
 @[simp]
-theorem contains_keys [BEq α] [LawfulBEq α] [LawfulBEqCmp cmp] [TransCmp cmp] {k : α} :
+theorem contains_keys [BEq α] [LawfulBEqCmp cmp] [TransCmp cmp] {k : α} :
     t.keys.contains k = t.contains k :=
   DTreeMap.contains_keys
 

@@ -1474,7 +1474,7 @@ theorem isEmpty_keys :
     t.keys.isEmpty = t.isEmpty  := by
   simp_to_model using List.isEmpty_keys_eq_isEmpty
 
-theorem contains_keys [instBEq : BEq α] [LawfulBEq α] [LawfulBEqOrd α] [TransOrd α] {k : α} (h : t.WF) :
+theorem contains_keys [instBEq : BEq α] [beqOrd : LawfulBEqOrd α] [TransOrd α] {k : α} (h : t.WF) :
     t.keys.contains k = t.contains k := by
   rw [contains_eq_containsKey h.ordered, ← eq_beqOfOrd_of_lawfulBEqOrd]
   simp_to_model using (List.containsKey_eq_keys_contains (a := k) (l := t.toListModel)).symm

@@ -292,9 +292,23 @@ the boolean equality `a == b` holds.
 -/
 abbrev LawfulBEqOrd (α : Type u) [BEq α] [Ord α] := LawfulBEqCmp (compare : α → α → Ordering)
 
+variable {α : Type u} [BEq α] {cmp : α → α → Ordering}
+
 instance {α : Type u} {cmp : α → α → Ordering} [LawfulEqCmp cmp] [BEq α] [LawfulBEq α] :
     LawfulBEqCmp cmp where
   compare_eq_iff_beq := compare_eq_iff_eq.trans beq_iff_eq.symm
+
+theorem LawfulBEqCmp.equivBEq [inst : LawfulBEqCmp cmp] [TransCmp cmp] : EquivBEq α where
+  refl := inst.compare_eq_iff_beq.mp ReflCmp.compare_self
+  symm := by
+    simp only [← inst.compare_eq_iff_beq]
+    exact OrientedCmp.eq_symm
+  trans := by
+    simp only [← inst.compare_eq_iff_beq]
+    exact TransCmp.eq_trans
+
+instance LawfulBEqOrd.equivBEq [Ord α] [LawfulBEqOrd α] [TransOrd α] : EquivBEq α :=
+  LawfulBEqCmp.equivBEq (cmp := compare)
 
 end LawfulBEq
 

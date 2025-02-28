@@ -346,7 +346,7 @@ theorem isEmpty_toList :
   DTreeMap.Raw.isEmpty_keys
 
 @[simp]
-theorem contains_toList [BEq α] [LawfulBEq α] [LawfulBEqCmp cmp] [TransCmp cmp] (h : t.WF) {k : α} :
+theorem contains_toList [BEq α] [LawfulBEqCmp cmp] [TransCmp cmp] (h : t.WF) {k : α} :
     t.toList.contains k = t.contains k :=
   DTreeMap.Raw.contains_keys h
 

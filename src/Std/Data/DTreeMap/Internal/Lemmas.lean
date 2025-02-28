@@ -59,7 +59,8 @@ private def queryNames : Array Name :=
     ``get!_eq_getValueCast!, ``Const.get!_eq_getValue!,
     ``getD_eq_getValueCastD, ``Const.getD_eq_getValueD,
     ``getKey?_eq_getKey?, ``getKey_eq_getKey,
-    ``getKey!_eq_getKey!, ``getKeyD_eq_getKeyD]
+    ``getKey!_eq_getKey!, ``getKeyD_eq_getKeyD,
+    ``keys_eq_keys, ``toList_eq_toListModel, ``Const.toList_eq_toListModel_map]
 
 private def modifyMap : Std.HashMap Name Name :=
   .ofList

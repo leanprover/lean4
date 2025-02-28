@@ -1488,7 +1488,7 @@ theorem distinct_keys [TransOrd α] (h : t.WF) :
   simp only [← not_congr beq_iff_eq, ← beq_eq, Bool.not_eq_true]
   simp_to_model using h.ordered.distinctKeys.distinct
 
-theorem map_sigma_fst_toList_eq_keys :
+theorem map_fst_toList_eq_keys :
     t.toList.map Sigma.fst = t.keys := by
   simp_to_model using (List.keys_eq_map ..).symm
 
@@ -1526,9 +1526,9 @@ namespace Const
 
 variable {β : Type v} {t : Impl α β}
 
-theorem map_prod_fst_toList_eq_keys :
+theorem map_fst_toList_eq_keys :
     (toList t).map Prod.fst = t.keys := by
-  simp_to_model using List.map_prod_fst_map_toProd_eq_keys
+  simp_to_model using List.map_fst_map_toProd_eq_keys
 
 theorem length_toList (h : t.WF) :
     (toList t).length = t.size := by

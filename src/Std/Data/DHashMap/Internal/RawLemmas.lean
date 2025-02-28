@@ -858,7 +858,7 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.keys.Pairwise (fun a b => (a == b) = false) := by
   simp_to_model using (Raw.WF.out h).distinct.distinct
 
-theorem map_sigma_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
+theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
     m.1.toList.map Sigma.fst = m.1.keys := by
   simp_to_model
   rw [List.keys_eq_map]
@@ -894,9 +894,9 @@ namespace Const
 
 variable {β : Type v} (m : Raw₀ α (fun _ => β))
 
-theorem map_prod_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
+theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
     (Raw.Const.toList m.1).map Prod.fst = m.1.keys := by
-  simp_to_model using List.map_prod_fst_map_toProd_eq_keys
+  simp_to_model using List.map_fst_map_toProd_eq_keys
 
 theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     (Raw.Const.toList m.1).length = m.1.size := by

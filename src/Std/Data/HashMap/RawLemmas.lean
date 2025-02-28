@@ -706,9 +706,14 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
   DHashMap.Raw.distinct_keys h.out
 
 @[simp]
+theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toList.map Prod.fst = m.keys :=
+  DHashMap.Raw.Const.map_fst_toList_eq_keys h.out
+
+@[simp, deprecated map_fst_toList_eq_keys (since := "2025-02_28")]
 theorem map_prod_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.map Prod.fst = m.keys :=
-  DHashMap.Raw.Const.map_prod_fst_toList_eq_keys h.out
+  DHashMap.Raw.Const.map_fst_toList_eq_keys h.out
 
 @[simp]
 theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :

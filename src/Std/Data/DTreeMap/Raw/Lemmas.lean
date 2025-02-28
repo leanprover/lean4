@@ -937,7 +937,7 @@ theorem length_keys [TransCmp cmp] (h : t.WF) :
 
 @[simp]
 theorem isEmpty_keys :
-    t.keys.isEmpty = t.isEmpty  :=
+    t.keys.isEmpty = t.isEmpty :=
   Impl.isEmpty_keys
 
 @[simp]
@@ -955,9 +955,9 @@ theorem distinct_keys [TransCmp cmp] (h : t.WF) :
   Impl.distinct_keys h.out
 
 @[simp]
-theorem map_sigma_fst_toList_eq_keys :
+theorem map_fst_toList_eq_keys :
     t.toList.map Sigma.fst = t.keys :=
-  Impl.map_sigma_fst_toList_eq_keys
+  Impl.map_fst_toList_eq_keys
 
 @[simp]
 theorem length_toList [TransCmp cmp] (h : t.WF) :
@@ -974,8 +974,8 @@ theorem mem_toList_iff_get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) 
     ⟨k, v⟩ ∈ t.toList ↔ t.get? k = some v :=
   Impl.mem_toList_iff_get?_eq_some h.out
 
-theorem find?_toList_eq_some_iff_get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} {v : β k}
-    : t.toList.find? (cmp ·.1 k == .eq) = some ⟨k, v⟩ ↔ t.get? k = some v :=
+theorem find?_toList_eq_some_iff_get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α}
+    {v : β k} : t.toList.find? (cmp ·.1 k == .eq) = some ⟨k, v⟩ ↔ t.get? k = some v :=
   Impl.find?_toList_eq_some_iff_get?_eq_some h.out
 
 theorem find?_toList_eq_none_iff_contains_eq_false [TransCmp cmp] (h : t.WF) {k : α} :
@@ -996,9 +996,9 @@ namespace Const
 variable {β : Type v} {t : Raw α β cmp}
 
 @[simp]
-theorem map_prod_fst_toList_eq_keys :
+theorem map_fst_toList_eq_keys :
     (toList t).map Prod.fst = t.keys :=
-  Impl.Const.map_prod_fst_toList_eq_keys
+  Impl.Const.map_fst_toList_eq_keys
 
 @[simp]
 theorem length_toList (h : t.WF) :
@@ -1024,8 +1024,9 @@ theorem get?_eq_some_iff_exists_compare_eq_eq_and_mem_toList [TransCmp cmp] (h :
     get? t k = some v ↔ ∃ (k' : α), cmp k k' = .eq ∧ (k', v) ∈ toList t :=
   Impl.Const.get?_eq_some_iff_exists_compare_eq_eq_and_mem_toList h
 
-theorem find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some [TransCmp cmp] (h : t.WF) {k k' : α} {v : β}
-    : (toList t).find? (fun a => cmp a.1 k = .eq) = some ⟨k', v⟩ ↔
+theorem find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some [TransCmp cmp] (h : t.WF)
+    {k k' : α} {v : β} :
+    (toList t).find? (fun a => cmp a.1 k = .eq) = some ⟨k', v⟩ ↔
       t.getKey? k = some k' ∧ get? t k = some v :=
   Impl.Const.find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some h.out
 

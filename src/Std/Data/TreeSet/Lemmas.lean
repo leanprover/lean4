@@ -341,7 +341,7 @@ theorem length_toList [TransCmp cmp] :
 
 @[simp]
 theorem isEmpty_toList :
-    t.toList.isEmpty = t.isEmpty  :=
+    t.toList.isEmpty = t.isEmpty :=
   DTreeMap.isEmpty_keys
 
 @[simp]

@@ -669,7 +669,7 @@ theorem length_keys [TransCmp cmp] (h : t.WF) :
 
 @[simp]
 theorem isEmpty_keys :
-    t.keys.isEmpty = t.isEmpty  :=
+    t.keys.isEmpty = t.isEmpty :=
   DTreeMap.Raw.isEmpty_keys
 
 @[simp]
@@ -687,9 +687,9 @@ theorem distinct_keys [TransCmp cmp] (h : t.WF) :
   DTreeMap.Raw.distinct_keys h
 
 @[simp]
-theorem map_prod_fst_toList_eq_keys :
+theorem map_fst_toList_eq_keys :
     (toList t).map Prod.fst = t.keys :=
-  DTreeMap.Raw.Const.map_prod_fst_toList_eq_keys
+  DTreeMap.Raw.Const.map_fst_toList_eq_keys
 
 @[simp]
 theorem length_toList (h : t.WF) :

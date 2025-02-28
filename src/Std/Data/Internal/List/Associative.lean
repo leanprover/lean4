@@ -1997,7 +1997,7 @@ theorem pairwise_fst_eq_false [BEq α] {l : List ((a : α) × β a)} (h : Distin
   rw [DistinctKeys.def] at h
   assumption
 
-theorem map_prod_fst_map_toProd_eq_keys {β : Type v} {l : List ((_ : α) × β)} :
+theorem map_fst_map_toProd_eq_keys {β : Type v} {l : List ((_ : α) × β)} :
     List.map Prod.fst (List.map (fun x => (x.fst, x.snd)) l) = List.keys l := by
   induction l with
   | nil => simp

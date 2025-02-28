@@ -1107,6 +1107,23 @@ theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
     ForIn.forIn m init f = ForIn.forIn m.toList init f :=
   Raw₀.forIn_eq_forIn_toList ⟨m.1, m.2.size_buckets_pos⟩
 
+theorem foldM_eq_foldlM_keys [Monad m'] [LawfulMonad m'] {f : δ → α → m' δ} {init : δ} :
+    m.foldM (fun d a _ => f d a) init = m.keys.foldlM f init :=
+  Raw₀.foldM_eq_foldlM_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem fold_eq_foldl_keys {f : δ → α → δ} {init : δ} :
+    m.fold (fun d a _ => f d a) init = m.keys.foldl f init :=
+  Raw₀.fold_eq_foldl_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem forM_eq_forM_keys [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
+    m.forM (fun a _ => f a) = m.keys.forM f :=
+  Raw₀.forM_eq_forM_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem forIn_eq_forIn_keys [Monad m'] [LawfulMonad m'] {f : α → δ → m' (ForInStep δ)}
+    {init : δ} :
+    m.forIn (fun a _ d => f a d) init = ForIn.forIn m.keys init f :=
+  Raw₀.forIn_eq_forIn_keys ⟨m.1, m.2.size_buckets_pos⟩
+
 namespace Const
 
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
@@ -1131,23 +1148,27 @@ theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
 
 variable {m : DHashMap α (fun _ => Unit)}
 
+@[deprecated DHashMap.foldM_eq_foldlM_keys (since := "2025-02-28")]
 theorem foldM_eq_foldlM_keys [Monad m'] [LawfulMonad m']
     {f : δ → α → m' δ} {init : δ} :
     m.foldM (fun d a _ => f d a) init = m.keys.foldlM f init :=
-  Raw₀.Const.foldM_eq_foldlM_keys ⟨m.1, m.2.size_buckets_pos⟩
+  Raw₀.foldM_eq_foldlM_keys ⟨m.1, m.2.size_buckets_pos⟩
 
+@[deprecated DHashMap.fold_eq_foldl_keys (since := "2025-02-28")]
 theorem fold_eq_foldl_keys {f : δ → α → δ} {init : δ} :
     m.fold (fun d a _ => f d a) init = m.keys.foldl f init :=
-  Raw₀.Const.fold_eq_foldl_keys ⟨m.1, m.2.size_buckets_pos⟩
+  Raw₀.fold_eq_foldl_keys ⟨m.1, m.2.size_buckets_pos⟩
 
+@[deprecated DHashMap.forM_eq_forM_keys (since := "2025-02-28")]
 theorem forM_eq_forM_keys [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
     m.forM (fun a _ => f a) = m.keys.forM f :=
-  Raw₀.Const.forM_eq_forM_keys ⟨m.1, m.2.size_buckets_pos⟩
+  Raw₀.forM_eq_forM_keys ⟨m.1, m.2.size_buckets_pos⟩
 
+@[deprecated DHashMap.forIn_eq_forIn_keys (since := "2025-02-28")]
 theorem forIn_eq_forIn_keys [Monad m'] [LawfulMonad m']
     {f : α → δ → m' (ForInStep δ)} {init : δ} :
     m.forIn (fun a _ d => f a d) init = ForIn.forIn m.keys init f :=
-  Raw₀.Const.forIn_eq_forIn_keys ⟨m.1, m.2.size_buckets_pos⟩
+  Raw₀.forIn_eq_forIn_keys ⟨m.1, m.2.size_buckets_pos⟩
 
 end Const
 

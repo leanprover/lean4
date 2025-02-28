@@ -1596,23 +1596,39 @@ theorem foldr_eq_foldr_toList {f : (a : α) → β a → δ → δ} {init : δ} 
     t.foldr f init = t.toList.foldr (fun a b => f a.1 a.2 b) init := by
   simp_to_model
 
--- @[simp]
--- theorem forM_eq_forM [Monad m] [LawfulMonad m] {f : (a : α) → β a → m PUnit} :
---     t.forM f = ForM.forM t (fun a => f a.1 a.2) := rfl
-
 theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : (a : α) × β a → m PUnit} :
     t.forM (fun k v => f ⟨k, v⟩) = ForM.forM t.toList f := by
   simp_to_model using rfl
-
--- @[simp]
--- theorem forIn_eq_forIn [Monad m] [LawfulMonad m]
---     {f : (a : α) → β a → δ → m (ForInStep δ)} {init : δ} :
---     t.forIn f init = ForIn.forIn t init (fun a b => f a.1 a.2 b) := rfl
 
 theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m]
     {f : (a : α) × β a → δ → m (ForInStep δ)} {init : δ} :
     t.forIn (fun k v => f ⟨k, v⟩) init = ForIn.forIn t.toList init f := by
   simp_to_model
+
+theorem foldlM_eq_foldlM_keys [Monad m] [LawfulMonad m] {f : δ → α → m δ} {init : δ} :
+    t.foldlM (fun d a _ => f d a) init = t.keys.foldlM f init := by
+  simp_to_model using List.foldlM_eq_foldlM_keys
+
+theorem foldl_eq_foldl_keys {f : δ → α → δ} {init : δ} :
+    t.foldl (fun d a _ => f d a) init = t.keys.foldl f init := by
+  simp_to_model using List.foldl_eq_foldl_keys
+
+theorem foldrM_eq_foldrM_keys [Monad m] [LawfulMonad m] {f : α → δ → m δ} {init : δ} :
+    t.foldrM (fun a _ d => f a d) init = t.keys.foldrM f init := by
+  simp_to_model using List.foldrM_eq_foldrM_keys
+
+theorem foldr_eq_foldr_keys {f : α → δ → δ} {init : δ} :
+    t.foldr (fun a _ d => f a d) init = t.keys.foldr f init := by
+  simp_to_model using List.foldr_eq_foldr_keys
+
+theorem forM_eq_forM_keys [Monad m] [LawfulMonad m] {f : α → m PUnit} :
+    t.forM (fun a _ => f a) = t.keys.forM f := by
+  simp_to_model using List.forM_eq_forM_keys
+
+theorem forIn_eq_forIn_keys [Monad m] [LawfulMonad m] {f : α → δ → m (ForInStep δ)}
+    {init : δ} :
+    t.forIn (fun a _ d => f a d) init = ForIn.forIn t.keys init f := by
+  simp_to_model using List.forIn_eq_forIn_keys
 
 namespace Const
 
@@ -1644,26 +1660,6 @@ theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m]
     {f : α → β → δ → m (ForInStep δ)} {init : δ} :
     t.forIn f init = ForIn.forIn (Const.toList t) init (fun a b => f a.1 a.2 b) := by
   simp_to_model using List.forIn_eq_forIn_toProd
-
-variable {t : Impl α Unit}
-
-theorem foldlM_eq_foldlM_keys [Monad m] [LawfulMonad m]
-    {f : δ → α → m δ} {init : δ} :
-    t.foldlM (fun d a _ => f d a) init = t.keys.foldlM f init := by
-  simp_to_model using List.foldlM_eq_foldlM_keys
-
-theorem foldl_eq_foldl_keys {f : δ → α → δ} {init : δ} :
-    t.foldl (fun d a _ => f d a) init = t.keys.foldl f init := by
-  simp_to_model using List.foldl_eq_foldl_keys
-
-theorem forM_eq_forM_keys [Monad m] [LawfulMonad m] {f : α → m PUnit} :
-    t.forM (fun a _ => f a) = t.keys.forM f := by
-  simp_to_model using List.forM_eq_forM_keys
-
-theorem forIn_eq_forIn_keys [Monad m] [LawfulMonad m]
-    {f : α → δ → m (ForInStep δ)} {init : δ} :
-    t.forIn (fun a _ d => f a d) init = ForIn.forIn t.keys init f := by
-  simp_to_model using List.forIn_eq_forIn_keys
 
 end Const
 

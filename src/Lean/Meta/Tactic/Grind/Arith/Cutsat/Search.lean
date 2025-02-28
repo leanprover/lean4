@@ -9,6 +9,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.SearchM
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -349,11 +350,16 @@ def searchAssigmentMain : SearchM Unit := do
     -- TODO: resolve unsat conflicts
     processVar x
 
+def traceModel : GoalM Unit := do
+  if (← isTracingEnabledFor `grind.cutsat.model) then
+    for (x, v) in (← mkModel (← get)) do
+      trace[grind.cutsat.model] "{quoteIfNotAtom x} := {v}"
+
 def searchAssigment : GoalM Unit := do
   -- TODO: .int case
   -- TODO:
   searchAssigmentMain .rat |>.run' {}
   assignElimVars
-
+  traceModel
 
 end Lean.Meta.Grind.Arith.Cutsat

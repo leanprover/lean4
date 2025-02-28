@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Int.Linear
+import Std.Internal.Rat
 import Lean.Data.PersistentArray
 import Lean.Meta.Tactic.Grind.ENodeKey
 import Lean.Meta.Tactic.Grind.Arith.Util
@@ -12,6 +13,7 @@ import Lean.Meta.Tactic.Grind.Arith.Util
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 export Int.Linear (Var Poly)
+export Std.Internal (Rat)
 
 /-!
 This module implements a model-based decision procedure for linear integer arithmetic,
@@ -130,6 +132,9 @@ inductive DiseqCnstrProof where
 
 end
 
+instance : Inhabited DvdCnstr where
+  default := { d := 0, p := .num 0, h := .expr default, id := 0 }
+
 /--
 A proof of `False`.
 Remark: We will later add support for a backtraking search inside of cutsat.
@@ -189,13 +194,23 @@ structure State where
   -/
   occurs : PArray VarSet := {}
   /-- Partial assignment being constructed by cutsat. -/
-  assignment : PArray Int := {}
+  assignment : PArray Rat := {}
   /-- Next unique id for a constraint. -/
   nextCnstrId : Nat := 0
+  /--
+  `caseSplits` is `true` if cutsat is searching for model and already performed case splits.
+  This information is used to decide whether a conflict should immediately close the
+  current `grind` goal or not.
+  -/
+  caseSplits : Bool := false
+  /--
+  `conflict?` is `some ..` if a contradictory constraint was derived.
+  This field is only set when `caseSplits` is `true`. Otherwise, we
+  can convert `UnsatProof` into a Lean term and close the current `grind` goal.
+  -/
+  conflict? : Option UnsatProof := none
   /-
-  TODO: support for storing
-  - Disjuctions: they come from conflict resolution, and disequalities.
-  - Linear integer terms appearing in the main module, and model-based equality propagation.
+  TODO: Model-based theory combination.
   -/
   deriving Inhabited
 

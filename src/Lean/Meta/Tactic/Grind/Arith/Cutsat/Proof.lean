@@ -115,8 +115,8 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := c'.caching
 
 end
 
-def setInconsistent (h : UnsatProof) : GoalM Unit := do
-  let hf ← withProofContext do
+def UnsatProof.toExprProof (h : UnsatProof) : GoalM Expr := do
+  withProofContext do
     match h with
     | .le c =>
       trace[grind.cutsat.le.unsat] "{← c.pp}"
@@ -134,6 +134,13 @@ def setInconsistent (h : UnsatProof) : GoalM Unit := do
     | .diseq c =>
       trace[grind.cutsat.diseq.unsat] "{← c.pp}"
       return mkApp4 (mkConst ``Int.Linear.diseq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
-  closeGoal hf
+
+def setInconsistent (h : UnsatProof) : GoalM Unit := do
+  if (← get').caseSplits then
+    -- Let the search procedure in `SearchM` resolve the conflict.
+    modify' fun s => { s with conflict? := some h }
+  else
+    let h ← h.toExprProof
+    closeGoal h
 
 end Lean.Meta.Grind.Arith.Cutsat

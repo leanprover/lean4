@@ -1482,25 +1482,30 @@ end TagDeclarationExtension
 /-- Environment extension for mapping declarations to values.
     Declarations must only be inserted into the mapping in the module where they were declared. -/
 
-def MapDeclarationExtension (α : Type) := PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
+structure MapDeclarationExtension (α : Type) extends PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
+deriving Inhabited
 
 def mkMapDeclarationExtension (name : Name := by exact decl_name%) : IO (MapDeclarationExtension α) :=
-  registerPersistentEnvExtension {
+  .mk <$> registerPersistentEnvExtension {
     name            := name,
     mkInitial       := pure {}
     addImportedFn   := fun _ => pure {}
     addEntryFn      := fun s (n, v) => s.insert n v
     exportEntriesFn := fun s => s.toArray
+    asyncMode       := .async
+    replay?         := some fun _ newState newConsts s =>
+      newConsts.foldl (init := s) fun s c =>
+        if let some a := newState.find? c then
+          s.insert c a
+        else s
   }
 
 namespace MapDeclarationExtension
 
-instance : Inhabited (MapDeclarationExtension α) :=
-  inferInstanceAs (Inhabited (PersistentEnvExtension ..))
-
 def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) (val : α) : Environment :=
   have : Inhabited Environment := ⟨env⟩
   assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `MapDeclarationExtension`
+  assert! env.asyncMayContain declName
   ext.addEntry env (declName, val)
 
 def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Option α :=
@@ -1509,12 +1514,12 @@ def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) 
     match (ext.getModuleEntries env modIdx).binSearch (declName, default) (fun a b => Name.quickLt a.1 b.1) with
     | some e => some e.2
     | none   => none
-  | none => (ext.getState env).find? declName
+  | none => (ext.findStateAsync env declName).find? declName
 
 def contains [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Bool :=
   match env.getModuleIdxFor? declName with
   | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains (declName, default) (fun a b => Name.quickLt a.1 b.1)
-  | none        => (ext.getState env).contains declName
+  | none        => (ext.findStateAsync env declName).contains declName
 
 end MapDeclarationExtension
 

@@ -353,5 +353,7 @@ def searchAssigment : GoalM Unit := do
   -- TODO: .int case
   -- TODO:
   searchAssigmentMain .rat |>.run' {}
+  assignElimVars
+
 
 end Lean.Meta.Grind.Arith.Cutsat

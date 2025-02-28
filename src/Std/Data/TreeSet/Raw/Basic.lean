@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
 prelude
-import Std.Data.TreeMap.Raw
+import Std.Data.TreeMap.Raw.Basic
 import Std.Data.TreeSet.Basic
 
 /-
@@ -18,7 +18,7 @@ available as `Std.TreeSet.Raw.WF` and we prove in this file that all operations 
 well-formedness. When in doubt, prefer `TreeSet` over `TreeSet.Raw`.
 
 Lemmas about the operations on `Std.TreeSet.Raw` will be available in the module
-`Std.Data.TreeSet.RawLemmas`.
+`Std.Data.TreeSet.Raw.Lemmas`.
 -/
 
 set_option autoImplicit false
@@ -36,7 +36,7 @@ namespace TreeSet
 Tree sets without a bundled well-formedness invariant, suitable for use in nested
 inductive types. The well-formedness invariant is called `Raw.WF`. When in doubt, prefer `TreeSet`
 over `TreeSet.Raw`. Lemmas about the operations on `Std.TreeSet.Raw` are available in the
-module `Std.Data.TreeSet.RawLemmas`.
+module `Std.Data.TreeSet.Raw.Lemmas`.
 
 A tree set stores elements of a certain type in a certain order. It depends on a comparator function
 that defines an ordering on the keys and provides efficient order-dependent queries, such as

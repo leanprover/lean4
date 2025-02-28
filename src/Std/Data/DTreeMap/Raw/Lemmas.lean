@@ -5,13 +5,14 @@ Authors: Markus Himmel, Paul Reichert
 -/
 prelude
 import Std.Data.DTreeMap.Internal.Lemmas
-import Std.Data.DTreeMap.Raw
+import Std.Data.DTreeMap.Raw.Basic
 
 /-!
 # Dependent tree map lemmas
 
-This file contains lemmas about `Std.Data.DTreeMap.Raw`. Most of the lemmas require
-`TransCmp cmp` for the comparison function `cmp`.
+This file contains lemmas about `Std.Data.DTreeMap.Raw.Basic`. Most of the lemmas require
+`TransCmp cmp` for the comparison function `cmp` and a proof that the involved maps are well-formed.
+These proofs can be obtained from `Std.Data.DTreeMap.Raw.WF`.
 -/
 
 set_option linter.missingDocs true

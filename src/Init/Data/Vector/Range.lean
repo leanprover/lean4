@@ -115,6 +115,9 @@ theorem range'_eq_append_iff : range' s (n + m) = xs ++ ys â†” xs = range' s n â
 
 /-! ### range -/
 
+@[simp] theorem getElem_range (i : Nat) (hi : i < n) : (Vector.range n)[i] = i := by
+  simp [Vector.range]
+
 theorem range_eq_range' (n : Nat) : range n = range' 0 n := by
   simp [range, range', Array.range_eq_range']
 

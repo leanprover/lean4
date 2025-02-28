@@ -4,14 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
 prelude
-import Std.Data.DTreeMap.RawLemmas
-import Std.Data.TreeMap.Raw
+import Std.Data.DTreeMap.Raw.Lemmas
+import Std.Data.TreeMap.Raw.Basic
 
 /-!
 # Tree map lemmas
 
-This file contains lemmas about `Std.Data.TreeMap.Raw`. Most of the lemmas require
+This file contains lemmas about `Std.Data.TreeMap.Raw.Basic`. Most of the lemmas require
 `TransCmp cmp` for the comparison function `cmp`.
+These proofs can be obtained from `Std.Data.TreeMap.Raw.WF`.
 -/
 
 set_option linter.missingDocs true

@@ -18,7 +18,7 @@ open Nat (succ)
 
 namespace Int
 
--- /-! ### dvd  -/
+/-! ### dvd  -/
 
 protected theorem dvd_def (a b : Int) : (a ∣ b) = Exists (fun c => b = a * c) := rfl
 
@@ -67,7 +67,7 @@ protected theorem dvd_neg {a b : Int} : a ∣ -b ↔ a ∣ b := by
 theorem ofNat_dvd_left {n : Nat} {z : Int} : (↑n : Int) ∣ z ↔ n ∣ z.natAbs := by
   rw [← natAbs_dvd_natAbs, natAbs_ofNat]
 
-/-! ### *div zero  -/
+/-! ### ediv zero  -/
 
 @[simp] theorem zero_ediv : ∀ b : Int, 0 / b = 0
   | ofNat _ => show ofNat _ = _ by simp
@@ -77,7 +77,7 @@ theorem ofNat_dvd_left {n : Nat} {z : Int} : (↑n : Int) ∣ z ↔ n ∣ z.natA
   | ofNat _ => show ofNat _ = _ by simp
   | -[_+1] => rfl
 
-/-! ### mod zero -/
+/-! ### emod zero -/
 
 @[simp] theorem zero_emod (b : Int) : 0 % b = 0 := rfl
 
@@ -88,7 +88,6 @@ theorem ofNat_dvd_left {n : Nat} {z : Int} : (↑n : Int) ∣ z ↔ n ∣ z.natA
 /-! ### ofNat mod -/
 
 @[simp, norm_cast] theorem ofNat_emod (m n : Nat) : (↑(m % n) : Int) = m % n := rfl
-
 
 /-! ### mod definitions -/
 

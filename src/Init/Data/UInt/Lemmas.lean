@@ -246,6 +246,9 @@ declare_uint_theorems UInt16 16
 declare_uint_theorems UInt32 32
 declare_uint_theorems UInt64 64
 declare_uint_theorems USize System.Platform.numBits
+set_option autoImplicit false
+
+
 
 @[simp] theorem USize.toNat_ofNat32 {n : Nat} {h : n < 4294967296} : (ofNat32 n h).toNat = n := rfl
 
@@ -287,6 +290,8 @@ theorem UInt32.size_le_usizeSize : UInt32.size ≤ USize.size := by
 theorem USize.size_eq_two_pow : USize.size = 2 ^ System.Platform.numBits := rfl
 theorem USize.toNat_lt_two_pow_numBits (n : USize) : n.toNat < 2 ^ System.Platform.numBits := n.toFin.isLt
 @[simp] theorem USize.toNat_lt (n : USize) : n.toNat < 2 ^ 64 := Nat.lt_of_lt_of_le n.toFin.isLt size_le
+theorem USize.size_le_uint64Size : USize.size ≤ UInt64.size := by
+  cases USize.size_eq <;> simp_all +decide
 
 theorem UInt8.toNat_lt_usizeSize (n : UInt8) : n.toNat < USize.size :=
   Nat.lt_of_lt_of_le n.toNat_lt (by cases USize.size_eq <;> simp_all)
@@ -373,7 +378,7 @@ theorem USize.size_dvd_uInt64Size : USize.size ∣ UInt64.size := by cases USize
 @[simp] theorem UInt32.toFin_toUSize (n : UInt32) :
   n.toUSize.toFin = n.toFin.castLE size_le_usizeSize := rfl
 
-@[simp] theorem USize.toFin_toUInt64 (n : USize) : n.toUInt64.toFin = n.toFin.castLE size_le_usizeSize := rfl
+@[simp] theorem USize.toFin_toUInt64 (n : USize) : n.toUInt64.toFin = n.toFin.castLE size_le_uint64Size := rfl
 
 @[simp] theorem UInt16.toBitVec_toUInt8 (n : UInt16) : n.toUInt8.toBitVec = n.toBitVec.setWidth 8 := rfl
 @[simp] theorem UInt32.toBitVec_toUInt8 (n : UInt32) : n.toUInt8.toBitVec = n.toBitVec.setWidth 8 := rfl

@@ -1460,6 +1460,7 @@ def mkTagDeclarationExtension (name : Name := by exact decl_name%) : IO TagDecla
     addImportedFn := fun _ => {},
     addEntryFn    := fun s n => s.insert n,
     toArrayFn     := fun es => es.toArray.qsort Name.quickLt
+    asyncMode     := .async
   }
 
 namespace TagDeclarationExtension
@@ -1470,12 +1471,13 @@ instance : Inhabited TagDeclarationExtension :=
 def tag (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : Environment :=
   have : Inhabited Environment := ⟨env⟩
   assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `TagDeclarationExtension`
+  assert! env.asyncMayContain declName
   ext.addEntry env declName
 
 def isTagged (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : Bool :=
   match env.getModuleIdxFor? declName with
   | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains declName Name.quickLt
-  | none        => (ext.getState env).contains declName
+  | none        => (ext.findStateAsync env declName).contains declName
 
 end TagDeclarationExtension
 

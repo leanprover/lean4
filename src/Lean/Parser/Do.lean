@@ -202,7 +202,7 @@ It should only be used for debugging.
   "assert! " >> termParser
 /--
 `debug_assert! cond` panics if `cond` evaluates to `false` and the executing code has been built
-with debug assertions enabled (see Lake's `buildType`/`moreLeancArgs`).
+with debug assertions enabled (see the `debugAssertions` option).
 -/
 @[builtin_doElem_parser] def doDebugAssert := leading_parser:leadPrec
   "debug_assert! " >> termParser

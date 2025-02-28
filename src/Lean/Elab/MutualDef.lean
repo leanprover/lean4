@@ -1062,16 +1062,20 @@ where
     async.commitSignature { name := header.declName, levelParams, type }
 
     let header := { header with modifiers.attrs := #[] }
-    let act ← wrapAsyncAsSnapshot (desc := s!"elaborating proof of {declId.declName}") fun _ => do
+    let cancelTk ← IO.CancelToken.new
+    let act ← wrapAsyncAsSnapshot (desc := s!"elaborating proof of {declId.declName}")
+        (cancelTk? := cancelTk) fun _ => do
       setEnv async.asyncEnv
       finishElab #[header]
       async.commitConst (← getEnv)
-      let checkAct ← wrapAsyncAsSnapshot (desc := s!"finishing proof of {declId.declName}") fun _ => do
+      let cancelTk ← IO.CancelToken.new
+      let checkAct ← wrapAsyncAsSnapshot (desc := s!"finishing proof of {declId.declName}")
+          (cancelTk? := cancelTk) fun _ => do
         processDeriving #[header]
         async.commitCheckEnv (← getEnv)
       let checkTask ← BaseIO.mapTask (t := (← getEnv).checked) fun _ => checkAct
-      Core.logSnapshotTask { range? := none, task := checkTask }
-    Core.logSnapshotTask { range? := none, task := (← BaseIO.asTask act) }
+      Core.logSnapshotTask { stx? := none, task := checkTask, cancelTk? := cancelTk }
+    Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask act), cancelTk? := cancelTk }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
   finishElab headers := withFunLocalDecls headers fun funFVars => do

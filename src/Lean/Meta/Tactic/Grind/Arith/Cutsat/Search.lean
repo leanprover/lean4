@@ -355,10 +355,34 @@ def processVar (x : Var) : SearchM Unit := do
 def hasAssignment : GoalM Bool := do
   return (← get').vars.size == (← get').assignment.size
 
-def resolveConflict (c : UnsatProof) : SearchM Bool := do
-  let decVars := c.collectDecVars.run (← get).decVars
-  throwError "NIY resolve conflict {decVars.toList.map (·.name)}"
-  -- TODO
+private def findCase (decVars : FVarIdSet) : SearchM Case := do
+  repeat
+    let numCases := (← get).cases.size
+    assert! numCases > 0
+    let case := (← get).cases[numCases-1]!
+    modify fun s => { s with cases := s.cases.pop }
+    if decVars.contains case.fvarId then
+      return case
+    -- Conflict does not depend on this case.
+    trace[grind.debug.cutsat.backtrack] "skipping {case.fvarId.name}"
+  unreachable!
+
+def resolveConflict (h : UnsatProof) : SearchM Bool := do
+  let decVars := h.collectDecVars.run (← get).decVars
+  if decVars.isEmpty then
+    closeGoal (← h.toExprProof)
+    return false
+  let c ← findCase decVars
+  modify' fun _  => c.saved
+  match c.kind with
+  | .diseq c₁ =>
+    let decVars := decVars.erase c.fvarId |>.toArray
+    let p' := c₁.p.mul (-1) |>.addConst 1
+    let c' ← mkLeCnstr p' (.ofDiseqSplit c₁ c.fvarId h decVars)
+    trace[grind.debug.cutsat.backtrack] "resolved diseq split: {← c'.pp}"
+    c'.assert
+    return true
+  | _ => throwError "NIY resolve conflict"
 
 /-- Search for an assignment/model for the linear constraints. -/
 def searchAssigmentMain : SearchM Unit := do

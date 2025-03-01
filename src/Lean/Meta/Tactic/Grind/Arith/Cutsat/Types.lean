@@ -117,7 +117,7 @@ inductive LeCnstrProof where
   | combine (c₁ c₂ : LeCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : LeCnstr)
   | ofLeDiseq (c₁ : LeCnstr) (c₂ : DiseqCnstr)
-  | ofDiseqSplit (c₁ : DiseqCnstr) (h : FVarId) (c₂ : FalseCnstr) (decVars : Array FVarId)
+  | ofDiseqSplit (c₁ : DiseqCnstr) (decVar : FVarId) (h : UnsatProof) (decVars : Array FVarId)
   -- TODO: missing constructors
 
 /-- A disequality constraint and its justification/proof. -/
@@ -133,10 +133,6 @@ inductive DiseqCnstrProof where
   | divCoeffs (c : DiseqCnstr)
   | neg (c : DiseqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
-
-structure FalseCnstr where
-  id : Nat
-  h  : UnsatProof
 
 /--
 A proof of `False`.
@@ -222,6 +218,7 @@ structure State where
   This is necessary because the same disequality may be in different conflicts.
   -/
   diseqSplits : PHashMap Poly FVarId := {}
+
   /-
   TODO: Model-based theory combination.
   -/

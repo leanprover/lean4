@@ -210,7 +210,6 @@ abbrev DvdCnstr.caching (c : DvdCnstr) (k : ProofM Expr) : ProofM Expr := Cutsat
 abbrev LeCnstr.caching (c : LeCnstr) (k : ProofM Expr) : ProofM Expr := Cutsat.caching c.id k
 abbrev EqCnstr.caching (c : EqCnstr) (k : ProofM Expr) : ProofM Expr := Cutsat.caching c.id k
 abbrev DiseqCnstr.caching (c : DiseqCnstr) (k : ProofM Expr) : ProofM Expr := Cutsat.caching c.id k
-abbrev FalseCnstr.caching (c : FalseCnstr) (k : ProofM Expr) : ProofM Expr := Cutsat.caching c.id k
 
 abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
   withLetDecl `ctx (mkApp (mkConst ``RArray) (mkConst ``Int)) (← toContextExpr) fun ctx => do

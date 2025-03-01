@@ -96,10 +96,10 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := c'.caching do
     return mkApp7 (mkConst ``Int.Linear.le_of_le_diseq)
       (← getContext) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
-  | .ofDiseqSplit c₁ h c₂ _ =>
+  | .ofDiseqSplit c₁ fvarId h _ =>
     let p₂ := c₁.p.addConst 1
-    let hFalse ← c₂.toExprProof
-    let hNot := mkLambda `h .default (mkIntLE (← p₂.denoteExpr') (mkIntLit 0)) (hFalse.abstract #[mkFVar h])
+    let hFalse ← h.toExprProofCore
+    let hNot := mkLambda `h .default (mkIntLE (← p₂.denoteExpr') (mkIntLit 0)) (hFalse.abstract #[mkFVar fvarId])
     return mkApp7 (mkConst ``Int.Linear.diseq_unsat_split)
       (← getContext) (toExpr c₁.p) (toExpr p₂) (toExpr c'.p) reflBoolTrue (← c₁.toExprProof) hNot
 
@@ -139,9 +139,6 @@ partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
   | .diseq c =>
     trace[grind.cutsat.diseq.unsat] "{← c.pp}"
     return mkApp4 (mkConst ``Int.Linear.diseq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
-
-partial def FalseCnstr.toExprProof (c' : FalseCnstr) : ProofM Expr := c'.caching do
-  c'.h.toExprProofCore
 
 end
 

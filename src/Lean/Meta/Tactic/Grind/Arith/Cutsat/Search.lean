@@ -276,7 +276,14 @@ def resolveRatDiseq (c₁ : LeCnstr) (c : DiseqCnstr) : SearchM Unit := do
     mkDiseqCnstr (c.p.mul (-1)) (.neg c)
   else
     pure c
-  let fvarId ← mkCase (.diseq c)
+  let fvarId ← if let some fvarId := (← get').diseqSplits.find? c.p then
+    trace[grind.debug.cutsat.diseq.split] "{← c.pp}, reusing {fvarId.name}"
+    pure fvarId
+  else
+    let fvarId ← mkCase (.diseq c)
+    trace[grind.debug.cutsat.diseq.split] "{← c.pp}, {fvarId.name}"
+    modify' fun s => { s with diseqSplits := s.diseqSplits.insert c.p fvarId }
+    pure fvarId
   let p₂ := c.p.addConst 1
   let c₂ ← mkLeCnstr p₂ (.expr (mkFVar fvarId))
   let b ← resolveRealLowerUpperConflict c₁ c₂
@@ -348,8 +355,9 @@ def processVar (x : Var) : SearchM Unit := do
 def hasAssignment : GoalM Bool := do
   return (← get').vars.size == (← get').assignment.size
 
-def resolveConflict (c : UnsatProof) : GoalM Bool := do
-  throwError "NIY resolve conflict"
+def resolveConflict (c : UnsatProof) : SearchM Bool := do
+  let decVars := c.collectDecVars.run (← get).decVars
+  throwError "NIY resolve conflict {decVars.toList.map (·.name)}"
   -- TODO
 
 /-- Search for an assignment/model for the linear constraints. -/

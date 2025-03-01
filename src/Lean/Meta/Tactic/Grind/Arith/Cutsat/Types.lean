@@ -15,6 +15,8 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 export Int.Linear (Var Poly)
 export Std.Internal (Rat)
 
+deriving instance Hashable for Poly
+
 /-!
 This module implements a model-based decision procedure for linear integer arithmetic,
 inspired by Section 4 of "Cutting to the Chase: Solving Linear Integer Arithmetic".
@@ -215,6 +217,11 @@ structure State where
   can convert `UnsatProof` into a Lean term and close the current `grind` goal.
   -/
   conflict? : Option UnsatProof := none
+  /--
+  Cache decision variables used when splitting on disequalities.
+  This is necessary because the same disequality may be in different conflicts.
+  -/
+  diseqSplits : PHashMap Poly FVarId := {}
   /-
   TODO: Model-based theory combination.
   -/

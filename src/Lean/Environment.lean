@@ -628,22 +628,15 @@ def addExtraName (env : Environment) (name : Name) : Environment :=
     env.modifyCheckedAsync fun env => { env with extraConstNames := env.extraConstNames.insert name }
 
 /-- `findAsync?` after `base` access -/
-private def findAsync?' (env : Environment) (n : Name) : Option AsyncConstantInfo := do
+private def findAsyncCore? (env : Environment) (n : Name) : Option AsyncConstantInfo := do
   if let some asyncConst := env.asyncConsts.find? n then
     -- Constant for which an asynchronous elaboration task was spawned
     return asyncConst.constInfo
-  if env.asyncMayContain n then
-    -- Constant definitely not generated in a different environment branch: return none, callers
-    -- have already checked this branch.
-    none
   if let some c := env.asyncConsts.findRec? n then
-    -- Constant generated in a different environment branch: wait for final kernel environment. Rare
-    -- case when only proofs are elaborated asynchronously as they are rarely inspected. Could be
-    -- optimized in the future by having the elaboration thread publish an (incremental?) map of
-    -- generated declarations before kernel checking (which must wait on all previous threads).
+    -- Constant generated in a different environment branch
     return c.constInfo
-  -- Not in the kernel environment nor in the name prefix of environment branch: undefined by
-  -- `addDeclCore` invariant.
+  -- Not in the kernel environment nor in the name prefix of a known environment branch: undefined
+  -- by `addDeclCore` invariant.
   none
 
 /--
@@ -654,7 +647,7 @@ def findAsync? (env : Environment) (n : Name) : Option AsyncConstantInfo := do
   -- Avoid going through `AsyncConstantInfo` for `base` access
   if let some c := env.base.constants.map₁[n]? then
     return .ofConstantInfo c
-  findAsync?' env n
+  findAsyncCore? env n
 
 /--
 Looks up the given declaration name in the environment, avoiding forcing any in-progress elaboration
@@ -664,7 +657,7 @@ def findConstVal? (env : Environment) (n : Name) : Option ConstantVal := do
   -- Avoid going through `AsyncConstantInfo` for `base` access
   if let some c := env.base.constants.map₁[n]? then
     return c.toConstantVal
-  env.findAsync?' n |>.map (·.toConstantVal)
+  env.findAsyncCore? n |>.map (·.toConstantVal)
 
 /--
 Allows `realizeConst` calls for imported declarations in all derived environment branches.
@@ -717,7 +710,7 @@ task if not yet complete.
 def find? (env : Environment) (n : Name) : Option ConstantInfo := do
   if let some c := env.base.constants.map₁[n]? then
     return c
-  env.findAsync?' n |>.map (·.toConstantInfo)
+  env.findAsyncCore? n |>.map (·.toConstantInfo)
 
 /-- Returns debug output about the asynchronous state of the environment. -/
 def dbgFormatAsyncState (env : Environment) : BaseIO String :=

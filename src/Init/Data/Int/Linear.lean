@@ -1020,6 +1020,9 @@ theorem diseq_coeff (ctx : Context) (p p' : Poly) (k : Int) : eq_coeff_cert p p'
   simp [eq_coeff_cert]
   intro _ _; simp [mul_eq_zero_iff, *]
 
+theorem diseq_neg (ctx : Context) (p p' : Poly) : p' == p.mul (-1) → p.denote' ctx ≠ 0 → p'.denote' ctx ≠ 0 := by
+  simp; intro _ _; simp [mul_eq_zero_iff, *]
+
 theorem diseq_unsat (ctx : Context) (p : Poly) : p.isUnsatDiseq → p.denote' ctx ≠ 0 → False := by
   simp [Poly.isUnsatDiseq] <;> split <;> simp
 

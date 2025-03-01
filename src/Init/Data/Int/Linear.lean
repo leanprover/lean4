@@ -1083,7 +1083,7 @@ theorem diseq_split (ctx : Context) (p₁ p₂ p₃ : Poly)
   next h => have := Int.add_one_le_of_lt h; rw [Int.add_comm]; simp [*]
   next h => have := Int.add_one_le_of_lt (Int.neg_lt_neg h); simp at this; simp [*]
 
-theorem diseq_unsat_split (ctx : Context) (p₁ p₂ p₃ : Poly)
+theorem diseq_split_resolve (ctx : Context) (p₁ p₂ p₃ : Poly)
     : diseq_split_cert p₁ p₂ p₃ → p₁.denote' ctx ≠ 0 → ¬p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
   intro h₁ h₂ h₃
   exact (diseq_split ctx p₁ p₂ p₃ h₁ h₂).resolve_left h₃

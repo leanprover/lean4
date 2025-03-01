@@ -100,7 +100,7 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := c'.caching do
     let p₂ := c₁.p.addConst 1
     let hFalse ← h.toExprProofCore
     let hNot := mkLambda `h .default (mkIntLE (← p₂.denoteExpr') (mkIntLit 0)) (hFalse.abstract #[mkFVar fvarId])
-    return mkApp7 (mkConst ``Int.Linear.diseq_unsat_split)
+    return mkApp7 (mkConst ``Int.Linear.diseq_split_resolve)
       (← getContext) (toExpr c₁.p) (toExpr p₂) (toExpr c'.p) reflBoolTrue (← c₁.toExprProof) hNot
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := c'.caching do

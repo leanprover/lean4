@@ -796,25 +796,23 @@ theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
     ForIn.forIn m init f = ForIn.forIn m.toList init f :=
   DHashMap.Raw.Const.forIn_eq_forIn_toList h.out
 
-variable {m : Raw α Unit}
-
 theorem foldM_eq_foldlM_keys [Monad m'] [LawfulMonad m'] (h : m.WF)
     {f : δ → α → m' δ} {init : δ} :
     m.foldM (fun d a _ => f d a) init = m.keys.foldlM f init :=
-  DHashMap.Raw.Const.foldM_eq_foldlM_keys h.out
+  DHashMap.Raw.foldM_eq_foldlM_keys h.out
 
 theorem fold_eq_foldl_keys (h : m.WF) {f : δ → α → δ} {init : δ} :
     m.fold (fun d a _ => f d a) init = m.keys.foldl f init :=
-  DHashMap.Raw.Const.fold_eq_foldl_keys h.out
+  DHashMap.Raw.fold_eq_foldl_keys h.out
 
 theorem forM_eq_forM_keys [Monad m'] [LawfulMonad m'] (h : m.WF) {f : α → m' PUnit} :
     m.forM (fun a _ => f a) = m.keys.forM f :=
-  DHashMap.Raw.Const.forM_eq_forM_keys h.out
+  DHashMap.Raw.forM_eq_forM_keys h.out
 
 theorem forIn_eq_forIn_keys [Monad m'] [LawfulMonad m'] (h : m.WF)
     {f : α → δ → m' (ForInStep δ)} {init : δ} :
     m.forIn (fun a _ d => f a d) init = ForIn.forIn m.keys init f :=
-  DHashMap.Raw.Const.forIn_eq_forIn_keys h.out
+  DHashMap.Raw.forIn_eq_forIn_keys h.out
 
 end monadic
 

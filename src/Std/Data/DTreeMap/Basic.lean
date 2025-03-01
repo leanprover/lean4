@@ -820,7 +820,7 @@ def forM (f : (a : α) → β a → m PUnit) (t : DTreeMap α β cmp) : m PUnit 
 /-- Support for the `for` loop construct in `do` blocks. Iteration happens in ascending order. -/
 @[inline]
 def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (t : DTreeMap α β cmp) : m δ :=
-  t.inner.forIn (fun c a b => f a b c) init
+  t.inner.forIn (fun a b acc => f a b acc) init
 
 instance : ForM m (DTreeMap α β cmp) ((a : α) × β a) where
   forM t f := t.forM (fun a b => f ⟨a, b⟩)

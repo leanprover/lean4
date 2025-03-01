@@ -584,7 +584,7 @@ def forM (f : (a : α) → β a → m PUnit) (t : Raw α β cmp) : m PUnit :=
 
 @[inline, inherit_doc DTreeMap.forIn]
 def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (t : Raw α β cmp) : m δ :=
-  t.inner.forIn (fun c a b => f a b c) init
+  t.inner.forIn (fun a b acc => f a b acc) init
 
 instance : ForM m (Raw α β cmp) ((a : α) × β a) where
   forM t f := t.forM (fun a b => f ⟨a, b⟩)

@@ -62,7 +62,7 @@ The prototypical example is `Int.ofNat`.
 
 This class and `IntCast` exist to allow different libraries with their own types that can be notated as natural numbers to have consistent `simp` normal forms without needing to create coercion simplification sets that are aware of all combinations. Libraries should make it easy to work with `NatCast` where possible. For instance, in Mathlib there will be such a homomorphism (and thus a `NatCast R` instance) whenever `R` is an additive monoid with a `1`.
 -/
-@[coe, reducible, match_pattern] protected def Nat.cast {R : Type u} [NatCast R] : Nat → R :=
+@[coe, reducible, inline, match_pattern] protected def Nat.cast {R : Type u} [NatCast R] : Nat → R :=
   NatCast.natCast
 
 -- see the notes about coercions into arbitrary types in the module doc-string

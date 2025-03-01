@@ -14,7 +14,7 @@ In principle, we only need to support two kinds of case split.
 - Cooper-Left, but we have 4 different variants of this one.
 -/
 inductive CaseKind where
-  | diseq
+  | diseq (d : DiseqCnstr)
   | copperLeft
   | copperDvdLeft
   | cooperRight
@@ -29,11 +29,6 @@ structure Case where
   we create a decision variable `h : p + 1 ≤ 0`
   -/
   fvarId : FVarId
-  /--
-  Decision variable as a Lean type. We use it to construct
-  the actual proof term.
-  -/
-  type   : Expr
   /--
   Snapshot of the cutsat state for backtracking purposes.
   We do not use a trail stack.
@@ -74,5 +69,14 @@ def isApprox : SearchM Bool :=
 /-- Sets `precise` to `false` to indicate that some constraint was not satisfied. -/
 def setImprecise : SearchM Unit := do
   modify fun s => { s with precise := false }
+
+def mkCase (kind : CaseKind) : SearchM FVarId := do
+  let fvarId ← mkFreshFVarId
+  let saved ← get'
+  modify fun s => { s with
+    cases   := s.cases.push { saved, fvarId, kind }
+    decVars := s.decVars.insert fvarId
+  }
+  return fvarId
 
 end Lean.Meta.Grind.Arith.Cutsat

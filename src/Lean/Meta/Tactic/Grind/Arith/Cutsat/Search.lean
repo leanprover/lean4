@@ -8,6 +8,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.SearchM
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 
@@ -265,8 +266,21 @@ def resolveCooperDvd (c₁ c₂ : LeCnstr) (c : DvdCnstr) : GoalM Unit := do
 def resolveCooperDiseq (c₁ : DiseqCnstr) (c₂ : LeCnstr) (_c? : Option DvdCnstr) : GoalM Unit := do
   throwError "Cooper-diseq NIY {← c₁.pp} {← c₂.pp}"
 
-def resolveRatDiseq (c₁ : LeCnstr) (c : DiseqCnstr) : GoalM Unit := do
-  throwError "diseq NIY {← c₁.pp} {← c.pp}"
+/--
+Given `c₁` of the form `-a₁*x + p₁ ≤ 0`, and `c` of the form `b*x + p ≠ 0`,
+splits `c` and resolve with `c₁`.
+Recall that a disequality
+-/
+def resolveRatDiseq (c₁ : LeCnstr) (c : DiseqCnstr) : SearchM Unit := do
+  let c ← if c.p.leadCoeff < 0 then
+    mkDiseqCnstr (c.p.mul (-1)) (.neg c)
+  else
+    pure c
+  let fvarId ← mkCase (.diseq c)
+  let p₂ := c.p.addConst 1
+  let c₂ ← mkLeCnstr p₂ (.expr (mkFVar fvarId))
+  let b ← resolveRealLowerUpperConflict c₁ c₂
+  assert! b
 
 def processVar (x : Var) : SearchM Unit := do
   if (← eliminated x) then

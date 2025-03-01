@@ -128,6 +128,7 @@ inductive DiseqCnstrProof where
   | core (p₁ p₂ : Poly) (h : Expr)
   | norm (c : DiseqCnstr)
   | divCoeffs (c : DiseqCnstr)
+  | neg (c : DiseqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
 
 end

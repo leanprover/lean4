@@ -556,6 +556,10 @@ private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → K
 private def setCheckedSync (env : Environment) (newChecked : Kernel.Environment) : Environment :=
   { env with checked := .pure newChecked, base := newChecked }
 
+/-- The declaration prefix to which the environment is restricted to, if any. -/
+def asyncPrefix? (env : Environment) : Option Name :=
+  env.asyncCtx?.map (·.declPrefix)
+
 /-- True while inside `realizeConst`'s `realize`. -/
 def isRealizing (env : Environment) : Bool :=
   env.asyncCtx?.any (·.realizing)

@@ -1067,6 +1067,19 @@ theorem le_of_le_diseq (ctx : Context) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
     next h => have := Int.lt_of_le_of_lt h₁ h; simp at this
   intro h; cases h <;> intro <;> subst p₂ p₃ <;> simp <;> apply this
 
+def diseq_split_cert (p₁ p₂ p₃ : Poly) : Bool :=
+  p₂ == p₁.addConst 1 &&
+  p₃ == (p₁.mul (-1)).addConst 1
+
+theorem diseq_split (ctx : Context) (p₁ p₂ p₃ : Poly)
+    : diseq_split_cert p₁ p₂ p₃ → p₁.denote' ctx ≠ 0 → p₂.denote' ctx ≤ 0 ∨ p₃.denote' ctx ≤ 0 := by
+  simp [diseq_split_cert]
+  intro _ _; subst p₂ p₃; simp
+  generalize p₁.denote ctx = p
+  intro h; cases Int.lt_or_gt_of_ne h
+  next h => have := Int.add_one_le_of_lt h; rw [Int.add_comm]; simp [*]
+  next h => have := Int.add_one_le_of_lt (Int.neg_lt_neg h); simp at this; simp [*]
+
 def OrOver (n : Nat) (p : Nat → Prop) : Prop :=
   match n with
   | 0 => False

@@ -51,5 +51,7 @@ builtin_initialize registerTraceClass `grind.cutsat.diseq.trivial (inherited := 
 
 builtin_initialize registerTraceClass `grind.debug.cutsat.eq
 builtin_initialize registerTraceClass `grind.debug.cutsat.diseq
+builtin_initialize registerTraceClass `grind.debug.cutsat.diseq.split
+builtin_initialize registerTraceClass `grind.debug.cutsat.backtrack
 
 end Lean

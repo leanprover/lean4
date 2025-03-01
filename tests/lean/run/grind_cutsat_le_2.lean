@@ -1,5 +1,5 @@
 set_option grind.warning false
--- set_option grind.debug true
+set_option grind.debug true
 open Int.Linear
 
 example (a b c d e : Int) :

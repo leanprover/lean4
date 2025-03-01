@@ -96,6 +96,12 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := c'.caching do
     return mkApp7 (mkConst ``Int.Linear.le_of_le_diseq)
       (← getContext) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .ofDiseqSplit c₁ fvarId h _ =>
+    let p₂ := c₁.p.addConst 1
+    let hFalse ← h.toExprProofCore
+    let hNot := mkLambda `h .default (mkIntLE (← p₂.denoteExpr') (mkIntLit 0)) (hFalse.abstract #[mkFVar fvarId])
+    return mkApp7 (mkConst ``Int.Linear.diseq_split_resolve)
+      (← getContext) (toExpr c₁.p) (toExpr p₂) (toExpr c'.p) reflBoolTrue (← c₁.toExprProof) hNot
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := c'.caching do
   match c'.h with
@@ -108,32 +114,36 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := c'.caching
   | .divCoeffs c =>
     let k := c.p.gcdCoeffs c.p.getConst
     return mkApp6 (mkConst ``Int.Linear.diseq_coeff) (← getContext) (toExpr c.p) (toExpr c'.p) (toExpr k) reflBoolTrue (← c.toExprProof)
+  | .neg c =>
+    return mkApp5 (mkConst ``Int.Linear.diseq_neg) (← getContext) (toExpr c.p) (toExpr c'.p) reflBoolTrue (← c.toExprProof)
   | .subst x c₁ c₂  =>
     return mkApp8 (mkConst ``Int.Linear.eq_diseq_subst)
       (← getContext) (toExpr x) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
 
+partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
+  match h with
+  | .le c =>
+    trace[grind.cutsat.le.unsat] "{← c.pp}"
+    return mkApp4 (mkConst ``Int.Linear.le_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
+  | .dvd c =>
+    trace[grind.cutsat.dvd.unsat] "{← c.pp}"
+    return mkApp5 (mkConst ``Int.Linear.dvd_unsat) (← getContext) (toExpr c.d) (toExpr c.p) reflBoolTrue (← c.toExprProof)
+  | .eq c =>
+    trace[grind.cutsat.eq.unsat] "{← c.pp}"
+    if c.p.isUnsatEq then
+      return mkApp4 (mkConst ``Int.Linear.eq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
+    else
+      let k := c.p.gcdCoeffs'
+      return mkApp5 (mkConst ``Int.Linear.eq_unsat_coeff) (← getContext) (toExpr c.p) (toExpr (Int.ofNat k)) reflBoolTrue (← c.toExprProof)
+  | .diseq c =>
+    trace[grind.cutsat.diseq.unsat] "{← c.pp}"
+    return mkApp4 (mkConst ``Int.Linear.diseq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
+
 end
 
 def UnsatProof.toExprProof (h : UnsatProof) : GoalM Expr := do
-  withProofContext do
-    match h with
-    | .le c =>
-      trace[grind.cutsat.le.unsat] "{← c.pp}"
-      return mkApp4 (mkConst ``Int.Linear.le_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
-    | .dvd c =>
-      trace[grind.cutsat.dvd.unsat] "{← c.pp}"
-      return mkApp5 (mkConst ``Int.Linear.dvd_unsat) (← getContext) (toExpr c.d) (toExpr c.p) reflBoolTrue (← c.toExprProof)
-    | .eq c =>
-      trace[grind.cutsat.eq.unsat] "{← c.pp}"
-      if c.p.isUnsatEq then
-        return mkApp4 (mkConst ``Int.Linear.eq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
-      else
-        let k := c.p.gcdCoeffs'
-        return mkApp5 (mkConst ``Int.Linear.eq_unsat_coeff) (← getContext) (toExpr c.p) (toExpr (Int.ofNat k)) reflBoolTrue (← c.toExprProof)
-    | .diseq c =>
-      trace[grind.cutsat.diseq.unsat] "{← c.pp}"
-      return mkApp4 (mkConst ``Int.Linear.diseq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
+  withProofContext do h.toExprProofCore
 
 def setInconsistent (h : UnsatProof) : GoalM Unit := do
   if (← get').caseSplits then
@@ -142,5 +152,71 @@ def setInconsistent (h : UnsatProof) : GoalM Unit := do
   else
     let h ← h.toExprProof
     closeGoal h
+
+/-!
+A cutsat proof may depend on decision variables.
+We collect them and perform non chronological backtracking.
+-/
+
+structure CollectDecVars.State where
+  visited : Std.HashSet Nat := {}
+  found : FVarIdSet := {}
+
+abbrev CollectDecVarsM := ReaderT FVarIdSet (StateM CollectDecVars.State)
+
+private def alreadyVisited (id : Nat) : CollectDecVarsM Bool := do
+  if (← get).visited.contains id then return true
+  modify fun s => { s with visited := s.visited.insert id }
+  return false
+
+private def markAsFound (fvarId : FVarId) : CollectDecVarsM Unit := do
+  modify fun s => { s with found := s.found.insert fvarId }
+
+private def collectExpr (e : Expr) : CollectDecVarsM Unit := do
+  let .fvar fvarId := e | return ()
+  if (← read).contains fvarId then
+    markAsFound fvarId
+
+mutual
+partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c'.id) do
+  match c'.h with
+  | .expr h => collectExpr h
+  | .core .. => return () -- Equalities coming from the core never contain cutsat decision variables
+  | .norm c | .divCoeffs c => c.collectDecVars
+  | .subst _ c₁ c₂ | .ofLeGe c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
+
+partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c'.id) do
+  match c'.h with
+  | .expr h => collectExpr h
+  | .norm c | .elim c | .divCoeffs c | .ofEq _ c => c.collectDecVars
+  | .solveCombine c₁ c₂ | .solveElim c₁ c₂ | .subst _ c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
+
+partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c'.id) do
+  match c'.h with
+  | .expr h => collectExpr h
+  | .notExpr .. => return () -- This kind of proof is used for connecting with the `grind` core.
+  | .norm c | .divCoeffs c => c.collectDecVars
+  | .combine c₁ c₂ | .subst _ c₁ c₂ | .ofLeDiseq c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
+  | .ofDiseqSplit _ _ _ decVars =>
+    -- Recall that we cache the decision variables used in this kind of proof
+    for fvar in decVars do
+      markAsFound fvar
+
+partial def DiseqCnstr.collectDecVars (c' : DiseqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c'.id) do
+  match c'.h with
+  | .expr h => collectExpr h
+  | .core .. => return () -- Disequalities coming from the core never contain cutsat decision variables
+  | .norm c | .divCoeffs c | .neg c => c.collectDecVars
+  | .subst _ c₁ c₂  => c₁.collectDecVars; c₂.collectDecVars
+
+end
+
+def UnsatProof.collectDecVars (h : UnsatProof) : CollectDecVarsM Unit := do
+  match h with
+  | .le c | .dvd c | .eq c | .diseq c => c.collectDecVars
+
+abbrev CollectDecVarsM.run (x : CollectDecVarsM Unit) (decVars : FVarIdSet) : FVarIdSet :=
+  let (_, s) := x decVars |>.run {}
+  s.found
 
 end Lean.Meta.Grind.Arith.Cutsat

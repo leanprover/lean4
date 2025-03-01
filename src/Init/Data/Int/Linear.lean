@@ -1020,6 +1020,9 @@ theorem diseq_coeff (ctx : Context) (p p' : Poly) (k : Int) : eq_coeff_cert p p'
   simp [eq_coeff_cert]
   intro _ _; simp [mul_eq_zero_iff, *]
 
+theorem diseq_neg (ctx : Context) (p p' : Poly) : p' == p.mul (-1) → p.denote' ctx ≠ 0 → p'.denote' ctx ≠ 0 := by
+  simp; intro _ _; simp [mul_eq_zero_iff, *]
+
 theorem diseq_unsat (ctx : Context) (p : Poly) : p.isUnsatDiseq → p.denote' ctx ≠ 0 → False := by
   simp [Poly.isUnsatDiseq] <;> split <;> simp
 
@@ -1066,6 +1069,24 @@ theorem le_of_le_diseq (ctx : Context) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
     next => apply Int.le_of_lt_add_one; rw [Int.add_comm, Int.add_lt_add_iff_right]; assumption
     next h => have := Int.lt_of_le_of_lt h₁ h; simp at this
   intro h; cases h <;> intro <;> subst p₂ p₃ <;> simp <;> apply this
+
+def diseq_split_cert (p₁ p₂ p₃ : Poly) : Bool :=
+  p₂ == p₁.addConst 1 &&
+  p₃ == (p₁.mul (-1)).addConst 1
+
+theorem diseq_split (ctx : Context) (p₁ p₂ p₃ : Poly)
+    : diseq_split_cert p₁ p₂ p₃ → p₁.denote' ctx ≠ 0 → p₂.denote' ctx ≤ 0 ∨ p₃.denote' ctx ≤ 0 := by
+  simp [diseq_split_cert]
+  intro _ _; subst p₂ p₃; simp
+  generalize p₁.denote ctx = p
+  intro h; cases Int.lt_or_gt_of_ne h
+  next h => have := Int.add_one_le_of_lt h; rw [Int.add_comm]; simp [*]
+  next h => have := Int.add_one_le_of_lt (Int.neg_lt_neg h); simp at this; simp [*]
+
+theorem diseq_split_resolve (ctx : Context) (p₁ p₂ p₃ : Poly)
+    : diseq_split_cert p₁ p₂ p₃ → p₁.denote' ctx ≠ 0 → ¬p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
+  intro h₁ h₂ h₃
+  exact (diseq_split ctx p₁ p₂ p₃ h₁ h₂).resolve_left h₃
 
 def OrOver (n : Nat) (p : Nat → Prop) : Prop :=
   match n with

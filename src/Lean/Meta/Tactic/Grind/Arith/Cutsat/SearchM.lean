@@ -77,6 +77,7 @@ def mkCase (kind : CaseKind) : SearchM FVarId := do
     cases   := s.cases.push { saved, fvarId, kind }
     decVars := s.decVars.insert fvarId
   }
+  modify' fun s => { s with caseSplits := true }
   return fvarId
 
 end Lean.Meta.Grind.Arith.Cutsat

@@ -115,6 +115,7 @@ inductive LeCnstrProof where
   | combine (c₁ c₂ : LeCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : LeCnstr)
   | ofLeDiseq (c₁ : LeCnstr) (c₂ : DiseqCnstr)
+  | ofDiseqSplit (c₁ : DiseqCnstr) (h : FVarId) (c₂ : FalseCnstr) (decVars : Array FVarId)
   -- TODO: missing constructors
 
 /-- A disequality constraint and its justification/proof. -/
@@ -131,10 +132,9 @@ inductive DiseqCnstrProof where
   | neg (c : DiseqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
 
-end
-
-instance : Inhabited DvdCnstr where
-  default := { d := 0, p := .num 0, h := .expr default, id := 0 }
+structure FalseCnstr where
+  id : Nat
+  h  : UnsatProof
 
 /--
 A proof of `False`.
@@ -145,6 +145,11 @@ inductive UnsatProof where
   | le (c : LeCnstr)
   | eq (c : EqCnstr)
   | diseq (c : DiseqCnstr)
+
+end
+
+instance : Inhabited DvdCnstr where
+  default := { d := 0, p := .num 0, h := .expr default, id := 0 }
 
 abbrev VarSet := RBTree Var compare
 

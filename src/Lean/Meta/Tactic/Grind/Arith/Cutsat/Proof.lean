@@ -96,6 +96,12 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := c'.caching do
     return mkApp7 (mkConst ``Int.Linear.le_of_le_diseq)
       (← getContext) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .ofDiseqSplit c₁ h c₂ _ =>
+    let p₂ := c₁.p.addConst 1
+    let hFalse ← c₂.toExprProof
+    let hNot := mkLambda `h .default (mkIntLE (← p₂.denoteExpr') (mkIntLit 0)) (hFalse.abstract #[mkFVar h])
+    return mkApp7 (mkConst ``Int.Linear.diseq_unsat_split)
+      (← getContext) (toExpr c₁.p) (toExpr p₂) (toExpr c'.p) reflBoolTrue (← c₁.toExprProof) hNot
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := c'.caching do
   match c'.h with
@@ -115,27 +121,32 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := c'.caching
       (← getContext) (toExpr x) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
 
+partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
+  match h with
+  | .le c =>
+    trace[grind.cutsat.le.unsat] "{← c.pp}"
+    return mkApp4 (mkConst ``Int.Linear.le_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
+  | .dvd c =>
+    trace[grind.cutsat.dvd.unsat] "{← c.pp}"
+    return mkApp5 (mkConst ``Int.Linear.dvd_unsat) (← getContext) (toExpr c.d) (toExpr c.p) reflBoolTrue (← c.toExprProof)
+  | .eq c =>
+    trace[grind.cutsat.eq.unsat] "{← c.pp}"
+    if c.p.isUnsatEq then
+      return mkApp4 (mkConst ``Int.Linear.eq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
+    else
+      let k := c.p.gcdCoeffs'
+      return mkApp5 (mkConst ``Int.Linear.eq_unsat_coeff) (← getContext) (toExpr c.p) (toExpr (Int.ofNat k)) reflBoolTrue (← c.toExprProof)
+  | .diseq c =>
+    trace[grind.cutsat.diseq.unsat] "{← c.pp}"
+    return mkApp4 (mkConst ``Int.Linear.diseq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
+
+partial def FalseCnstr.toExprProof (c' : FalseCnstr) : ProofM Expr := c'.caching do
+  c'.h.toExprProofCore
+
 end
 
 def UnsatProof.toExprProof (h : UnsatProof) : GoalM Expr := do
-  withProofContext do
-    match h with
-    | .le c =>
-      trace[grind.cutsat.le.unsat] "{← c.pp}"
-      return mkApp4 (mkConst ``Int.Linear.le_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
-    | .dvd c =>
-      trace[grind.cutsat.dvd.unsat] "{← c.pp}"
-      return mkApp5 (mkConst ``Int.Linear.dvd_unsat) (← getContext) (toExpr c.d) (toExpr c.p) reflBoolTrue (← c.toExprProof)
-    | .eq c =>
-      trace[grind.cutsat.eq.unsat] "{← c.pp}"
-      if c.p.isUnsatEq then
-        return mkApp4 (mkConst ``Int.Linear.eq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
-      else
-        let k := c.p.gcdCoeffs'
-        return mkApp5 (mkConst ``Int.Linear.eq_unsat_coeff) (← getContext) (toExpr c.p) (toExpr (Int.ofNat k)) reflBoolTrue (← c.toExprProof)
-    | .diseq c =>
-      trace[grind.cutsat.diseq.unsat] "{← c.pp}"
-      return mkApp4 (mkConst ``Int.Linear.diseq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
+  withProofContext do h.toExprProofCore
 
 def setInconsistent (h : UnsatProof) : GoalM Unit := do
   if (← get').caseSplits then

@@ -348,20 +348,22 @@ def processVar (x : Var) : SearchM Unit := do
 def hasAssignment : GoalM Bool := do
   return (← get').vars.size == (← get').assignment.size
 
-private def isDone : GoalM Bool := do
-  if (← hasAssignment) then
-    return true
-  if (← inconsistent) then
-    return true
-  return false
+def resolveConflict (c : UnsatProof) : GoalM Bool := do
+  throwError "NIY resolve conflict"
+  -- TODO
 
 /-- Search for an assignment/model for the linear constraints. -/
 def searchAssigmentMain : SearchM Unit := do
   repeat
-    if (← isDone) then
+    if (← hasAssignment) then
       return ()
+    if (← isInconsistent) then
+      -- `grind` state is inconsistent
+      return ()
+    if let some c := (← get').conflict? then
+      unless (← resolveConflict c) do
+        return ()
     let x : Var := (← get').assignment.size
-    -- TODO: resolve unsat conflicts
     processVar x
 
 def traceModel : GoalM Unit := do

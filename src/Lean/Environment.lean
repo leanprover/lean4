@@ -1351,6 +1351,18 @@ structure SimplePersistentEnvExtensionDescr (α σ : Type) where
   addImportedFn : Array (Array α) → σ
   toArrayFn     : List α → Array α := fun es => es.toArray
   asyncMode     : EnvExtension.AsyncMode := .mainOnly
+  replay?       : Option ((newEntries : List α) → (newState : σ) → σ → List α × σ) := none
+
+/--
+Returns a function suitable for `SimplePersistentEnvExtensionDescr.replay?` that replays all new
+entries onto the state using `addEntryFn`. `p` should filter out entries that have already been
+added to the state by a prior replay of the same realizable constant.
+-/
+def SimplePersistentEnvExtension.replayOfFilter (p : σ → α → Bool)
+    (addEntryFn : σ → α → σ) : List α → σ → σ → List α × σ :=
+  fun newEntries _ s =>
+    let newEntries := newEntries.filter (p s)
+    (newEntries, newEntries.foldl (init := s) addEntryFn)
 
 def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : SimplePersistentEnvExtensionDescr α σ) : IO (SimplePersistentEnvExtension α σ) :=
   registerPersistentEnvExtension {
@@ -1362,9 +1374,10 @@ def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : 
     exportEntriesFn := fun s => descr.toArrayFn s.1.reverse,
     statsFn := fun s => format "number of local entries: " ++ format s.1.length
     asyncMode := descr.asyncMode
-    replay? := some fun oldState newState _ (entries, s) =>
+    replay? := descr.replay?.map fun replay oldState newState _ (entries, s) =>
       let newEntries := newState.1.take (newState.1.length - oldState.1.length)
-      (newEntries ++ entries, newEntries.foldl descr.addEntryFn s)
+      let (newEntries, s) := replay newEntries newState.2 s
+      (entries ++ newEntries, s)
   }
 
 namespace SimplePersistentEnvExtension

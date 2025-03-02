@@ -77,7 +77,7 @@ ifeq "${CMAKE_SYSTEM_NAME}" "Windows"
 	@rm -f $@
 	"${LEANC}" -shared -o $@ \
 	  -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libInit.a.export ${CMAKE_BINARY_DIR}/lib/lean/libStd.a.export ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a -Wl,--no-whole-archive \
-	  -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libInit_shared.dll.a ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
+	  -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libInit_shared.dll.a ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} ${LINK_OPTS}
 else
 # create empty library on platforms without restrictive symbol limits; avoids costly indirections and troubles with cross-library exceptions
 	"${LEANC}" -shared -o $@ ${LIB}/temp/empty.c ${INIT_SHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} ${LINK_OPTS}
@@ -94,7 +94,7 @@ ifeq "${CMAKE_SYSTEM_NAME}" "Windows"
 # "half-way point" DLL to avoid symbol limit
 # include Lean.Meta.WHNF and leancpp except for `initialize.cpp`
 	"${LEANC}" -shared -o ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX} \
-	  ${LIB}/temp/Lean/Meta/WHNF.o.export -Wl,--start-group ${LIB}/lean/libLean.a.export -Wl,--whole-archive ${LIB}/temp/libleancpp_1.a -Wl,--no-whole-archive -Wl,--end-group -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared_1.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} -Wl,-Map=${LIB}/temp/libleanshared_1.map
+	  ${LIB}/temp/Lean/Meta/WHNF.o.export -Wl,--start-group ${LIB}/lean/libLean.a.export -Wl,--whole-archive ${LIB}/temp/libleancpp_1.a -Wl,--no-whole-archive -Wl,--end-group -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared_1.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} ${LINK_OPTS} -Wl,-Map=${LIB}/temp/libleanshared_1.map
 # now delete included symbols from libLean.a
 	cp ${LIB}/lean/libLean.a.export ${LIB}/temp/diff.a
 	sed -En 's/.*\s(\S*\.o\.export):.*/\1/p' ${LIB}/temp/libleanshared_1.map > ${LIB}/temp/diff.a.in
@@ -106,7 +106,7 @@ ifeq "${CMAKE_SYSTEM_NAME}" "Windows"
 	  -Wl,--whole-archive ${LIB}/temp/diff.a ${LIB}/temp/libleanshell.a ${LIB}/temp/libleaninitialize.a -Wl,--no-whole-archive -lleanshared_1 -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} ${LINK_OPTS}
 else
 # create empty library on platforms without restrictive symbol limits; avoids costly indirections and troubles with cross-library exceptions
-	"${LEANC}" -shared -o ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX} ${LIB}/temp/empty.c ${LEANSHARED_1_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
+	"${LEANC}" -shared -o ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX} ${LIB}/temp/empty.c ${LEANSHARED_1_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} ${LINK_OPTS}
 ifeq "${CMAKE_SYSTEM_NAME}" "Darwin"
 	"${LEANC}" -shared -o $@ \
 	  ${LIB}/temp/Lean.*o.export -Wl,-force_load,${LIB}/temp/libleanshell.a -lInit -lStd -lLean -lleancpp ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} ${LINK_OPTS}

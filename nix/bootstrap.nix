@@ -68,7 +68,7 @@ lib.warn "The Nix-based build is deprecated" rec {
       build = args: buildLeanPackage.override {
         lean = prevStage;
         leanc = writeShellScriptBin "leanc" ''
-          ${stdenv.cc}/bin/cc -O3 -DNDEBUG -fstack-clash-protection -fPIC -fvisibility=hidden -I${lean-bin-tools-unwrapped}/include "$@"
+          ${stdenv.cc}/bin/cc -O3 -DNDEBUG -fstack-clash-protection -fPIC -fvisibility=hidden -fwrapv -I${lean-bin-tools-unwrapped}/include "$@"
         '';
         # use same stage for retrieving dependencies
         lean-leanDeps = stage0;

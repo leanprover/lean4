@@ -31,7 +31,7 @@ endif()
 
 set(LEAN_EXTRA_LINKER_FLAGS "" CACHE STRING "Additional flags used by the linker")
 set(LEAN_EXTRA_CXX_FLAGS "" CACHE STRING "Additional flags used by the C++ compiler")
-set(LEAN_TEST_VARS "LEAN_CC_COMPILER_LAUNCHER=${CMAKE_C_COMPILER_LAUNCHER} LEAN_CC=${CMAKE_C_COMPILER}" CACHE STRING "Additional environment variables used when running tests")
+set(LEAN_TEST_VARS "LEAN_CC=${CMAKE_C_COMPILER}" CACHE STRING "Additional environment variables used when running tests")
 
 if (NOT CMAKE_BUILD_TYPE)
   message(STATUS "No build type selected, default to Release")
@@ -572,6 +572,21 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--whole-archive -lleanmanifest -Wl,--no-whole-archive")
 endif()
 
+# use Bash version for building stage 0 and 1, use Lean version afterwards
+if(${STAGE} EQUAL 0)
+  configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc${CMAKE_EXECUTABLE_SUFFIX}" @ONLY)
+  set(LEANC "${CMAKE_BINARY_DIR}/bin/leanc")
+else()
+  set(LEANC "${PREV_STAGE}/bin/leanc")
+endif()
+
+string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_CC "${LEANC_CC}")
+string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_FLAGS "${LEANC_INTERNAL_FLAGS}")
+string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_LINKER_FLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
+
+string(APPEND LEANC_OPTS " ${LEANC_EXTRA_CC_FLAGS} ${LEANC_INTERNAL_FLAGS}")
+set(LINK_OPTS "${LEANC_INTERNAL_LINKER_FLAGS} -L${CMAKE_BINARY_DIR}/lib/lean ${LEAN_EXTRA_LINKER_FLAGS}")
+
 if(${STAGE} GREATER 1)
   # reuse C++ parts, which don't change
   add_library(leanrt_initial-exec STATIC IMPORTED)
@@ -732,14 +747,6 @@ if(PREV_STAGE)
     DEPENDS update-stage0)
 endif()
 
-# use Bash version for building stage 0 and 1, use Lean version afterwards
-if(${STAGE} EQUAL 0)
-  configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc${CMAKE_EXECUTABLE_SUFFIX}" @ONLY)
-  set(LEANC "${CMAKE_BINARY_DIR}/bin/leanc")
-else()
-  set(LEANC "${PREV_STAGE}/bin/leanc")
-endif()
-
 if(${STAGE} GREATER 0 AND EXISTS ${LEAN_SOURCE_DIR}/Leanc.lean AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   configure_file("${LEAN_SOURCE_DIR}/Leanc.lean" "${CMAKE_BINARY_DIR}/leanc/Leanc.lean" @ONLY)
   add_custom_target(leanc ALL
@@ -797,13 +804,6 @@ if(LEAN_INSTALL_PREFIX)
   set(LEAN_INSTALL_SUFFIX "-${LOWER_SYSTEM_NAME}" CACHE STRING "If LEAN_INSTALL_PREFIX is set, append this value to CMAKE_INSTALL_PREFIX")
   set(CMAKE_INSTALL_PREFIX "${LEAN_INSTALL_PREFIX}/lean-${LEAN_VERSION_STRING}${LEAN_INSTALL_SUFFIX}")
 endif()
-
-string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_CC "${LEANC_CC}")
-string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_FLAGS "${LEANC_INTERNAL_FLAGS}")
-string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_LINKER_FLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
-
-string(APPEND LEANC_OPTS " ${LEANC_EXTRA_CC_FLAGS} ${LEANC_INTERNAL_FLAGS}")
-set(LINK_OPTS "${LEANC_INTERNAL_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS} -L${CMAKE_BINARY_DIR}/lib/lean")
 
 # Escape for `make`. Yes, twice.
 string(REPLACE "$" "\\\$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")

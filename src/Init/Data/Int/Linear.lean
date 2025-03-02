@@ -1117,14 +1117,14 @@ private theorem orOver_of_exists {n p} : (∃ k, k < n ∧ p k) → OrOver n p :
 
 private theorem ofNat_toNat {a : Int} : a ≥ 0 → Int.ofNat a.toNat = a := by cases a <;> simp
 private theorem ofNat_lt {a : Int} {n : Nat} : a ≥ 0 → a < Int.ofNat n → a.toNat < n := by cases a <;> simp
-@[local simp] theorem lcm_neg_left (a b : Int) : Int.lcm (-a) b = Int.lcm a b := by simp [Int.lcm]
-@[local simp] theorem lcm_neg_right (a b : Int) : Int.lcm a (-b) = Int.lcm a b := by simp [Int.lcm]
-@[local simp] theorem gcd_neg_left (a b : Int) : Int.gcd (-a) b = Int.gcd a b := by simp [Int.gcd]
-@[local simp] theorem gcd_neg_right (a b : Int) : Int.gcd a (-b) = Int.gcd a b := by simp [Int.gcd]
-@[local simp] theorem gcd_zero (a : Int) : Int.gcd a 0 = a.natAbs := by simp [Int.gcd]
-@[local simp] theorem lcm_one (a : Int) : Int.lcm a 1 = a.natAbs := by simp [Int.lcm]
+@[local simp] private theorem lcm_neg_left (a b : Int) : Int.lcm (-a) b = Int.lcm a b := by simp [Int.lcm]
+@[local simp] private theorem lcm_neg_right (a b : Int) : Int.lcm a (-b) = Int.lcm a b := by simp [Int.lcm]
+@[local simp] private theorem gcd_neg_left (a b : Int) : Int.gcd (-a) b = Int.gcd a b := by simp [Int.gcd]
+@[local simp] private theorem gcd_neg_right (a b : Int) : Int.gcd a (-b) = Int.gcd a b := by simp [Int.gcd]
+@[local simp] private theorem gcd_zero (a : Int) : Int.gcd a 0 = a.natAbs := by simp [Int.gcd]
+@[local simp] private theorem lcm_one (a : Int) : Int.lcm a 1 = a.natAbs := by simp [Int.lcm]
 
-theorem cooper_dvd_left_core
+private theorem cooper_dvd_left_core
     {a b c d s p q x : Int} (a_neg : a < 0) (b_pos : 0 < b) (d_pos : 0 < d)
     (h₁ : a * x + p ≤ 0)
     (h₂ : b * x + q ≤ 0)
@@ -1238,7 +1238,7 @@ theorem cooper_dvd_left_split_dvd2 (ctx : Context) (p₁ p₂ p₃ : Poly) (d : 
   simp [cooper_dvd_left_split_dvd2_cert, cooper_dvd_left_split]
   intros; subst d' p'; simp; assumption
 
-theorem cooper_left_core
+private theorem cooper_left_core
     {a b p q x : Int} (a_neg : a < 0) (b_pos : 0 < b)
     (h₁ : a * x + p ≤ 0)
     (h₂ : b * x + q ≤ 0)

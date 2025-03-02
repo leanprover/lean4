@@ -1332,6 +1332,46 @@ private theorem cooper_dvd_right_core
   exists k.toNat
   simp only [hlt, true_and, and_true, cast_toNat h₁, h₃, h₄, h₅]
 
+def cooper_dvd_right_cert (p₁ p₂ p₃ : Poly) (d : Int) (n : Nat) : Bool :=
+  p₁.casesOn (fun _ => false) fun a x _ =>
+  p₂.casesOn (fun _ => false) fun b y _ =>
+  p₃.casesOn (fun _ => false) fun c z _ =>
+   .and (x == y) <| .and (x == z) <|
+   .and (a < 0)  <| .and (b > 0)  <|
+   .and (d > 0)  <| n == Int.lcm b (b * d / Int.gcd (b * d) c)
+
+def cooper_dvd_right_split (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (k : Nat) : Prop :=
+  let p  := p₁.tail
+  let q  := p₂.tail
+  let s  := p₃.tail
+  let a  := p₁.leadCoeff
+  let b  := p₂.leadCoeff
+  let c  := p₃.leadCoeff
+  let p₁ := p.mul b |>.combine (q.mul (-a))
+  let p₂ := q.mul (-c) |>.combine (s.mul b)
+  (p₁.addConst ((-a)*k)).denote' ctx ≤ 0
+  ∧ b ∣ (q.addConst k).denote' ctx
+  ∧ b*d ∣ (p₂.addConst ((-c)*k)).denote' ctx
+
+theorem cooper_dvd_right (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (n : Nat)
+    : cooper_dvd_right_cert p₁ p₂ p₃ d n
+      → p₁.denote' ctx ≤ 0
+      → p₂.denote' ctx ≤ 0
+      → d ∣ p₃.denote' ctx
+      → OrOver n (cooper_dvd_right_split ctx p₁ p₂ p₃ d) := by
+ unfold cooper_dvd_right_split
+ cases p₁ <;> cases p₂ <;> cases p₃ <;> simp [cooper_dvd_right_cert, Poly.tail, -Poly.denote'_eq_denote]
+ next a x p b y q c z s =>
+ intro _ _; subst y z
+ intro ha hb hd
+ intro; subst n
+ simp only [Poly.denote'_add, Poly.leadCoeff]
+ intro h₁ h₂ h₃
+ have := cooper_dvd_right_core ha hb hd h₁ h₂ h₃
+ simp only [denote'_mul_combine_mul_addConst_eq]
+ simp only [denote'_addConst_eq, ←Int.neg_mul]
+ exact cooper_dvd_right_core ha hb hd h₁ h₂ h₃
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

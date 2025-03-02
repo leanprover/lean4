@@ -166,6 +166,8 @@ private def elabHeaders (views : Array DefView)
             view.value.eqWithInfoAndTraceReuse (← getOptions) old.bodyStx
           -- no syntax guard to store, we already did the necessary checks
           oldBodySnap? := guard reuseBody *> pure ⟨.missing, old.bodySnap⟩
+          if oldBodySnap?.isNone then
+            old.bodySnap.cancelRec
           oldTacSnap? := do
               guard reuseTac
               some ⟨(← old.tacStx?), (← old.tacSnap?)⟩
@@ -229,6 +231,7 @@ private def elabHeaders (views : Array DefView)
         snap.new.resolve <| some {
           diagnostics :=
             (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
+          moreSnaps := (← Core.getAndEmptySnapshotTasks)
           view := newHeader.toDefViewElabHeaderData
           state := newState
           tacStx?
@@ -428,6 +431,10 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
         if let some old := old.val.get then
           snap.new.resolve <| some old
           reusableResult? := some (old.value, old.state)
+        else
+          -- NOTE: this will eagerly cancel async tasks not associated with an inner snapshot, most
+          -- importantly kernel checking and compilation of the top-level declaration
+          old.val.cancelRec
 
     let (val, state) ← withRestoreOrSaveFull reusableResult? header.tacSnap? do
       withReuseContext header.value do
@@ -479,6 +486,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
       snap.new.resolve <| some {
         diagnostics :=
           (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
+        moreSnaps := (← Core.getAndEmptySnapshotTasks)
         state
         value := val
       }
@@ -1094,6 +1102,8 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
           return ⟨.missing, oldParsed.headerProcessedSnap⟩
         new := headerPromise
       } }
+      if snap.old?.isSome && (view.headerSnap?.bind (·.old?)).isNone then
+        snap.old?.forM (·.val.cancelRec)
       defs := defs.push {
         fullHeaderRef
         headerProcessedSnap := { stx? := d, task := headerPromise.resultD default }

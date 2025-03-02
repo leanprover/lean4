@@ -224,6 +224,8 @@ where
                     guard <| state.term.meta.core.traceState.traces.size == 0
                     guard <| traceState.traces.size == 0
                     return old.val.get
+                  if snap.old?.isSome && old?.isNone then
+                    snap.old?.forM (·.val.cancelRec)
                   let promise ← IO.Promise.new
                   -- Store new unfolding in the snapshot tree
                   snap.new.resolve {
@@ -233,6 +235,7 @@ where
                     finished := .finished stx' {
                       diagnostics := .empty
                       state? := (← Tactic.saveState)
+                      moreSnaps := #[]
                     }
                     next := #[{ stx? := stx', task := promise.resultD default }]
                   }

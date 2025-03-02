@@ -1149,6 +1149,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
     } else {
         FILE* handle = fdopen(req.result, "r+");
         object_ref pair = mk_cnstr(0, io_wrap_handle(handle), mk_string(req.path));
+        uv_fs_req_cleanup(&req);
         return lean_io_result_mk_ok(pair.steal());
     }
 }
@@ -1191,7 +1192,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempdir(lean_object * /* w */) {
         // If mkdtemp throws an error we cannot rely on path to contain a proper file name.
         return io_result_mk_error(decode_uv_error(ret, nullptr));
     } else {
-        return lean_io_result_mk_ok(mk_string(req.path));
+        obj_res res = lean_io_result_mk_ok(mk_string(req.path));
+        uv_fs_req_cleanup(&req);
+        return res;
     }
 }
 

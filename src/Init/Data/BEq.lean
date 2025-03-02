@@ -49,6 +49,14 @@ theorem BEq.symm_false [BEq α] [PartialEquivBEq α] {a b : α} : (a == b) = fal
 theorem BEq.trans [BEq α] [PartialEquivBEq α] {a b c : α} : a == b → b == c → a == c :=
   PartialEquivBEq.trans
 
+theorem BEq.congr_left [BEq α] [PartialEquivBEq α] {a b c : α} (h : a == b) :
+    (a == c) = (b == c) :=
+  Bool.eq_iff_iff.mpr ⟨BEq.trans (BEq.symm h), BEq.trans h⟩
+
+theorem BEq.congr_right [BEq α] [PartialEquivBEq α] {a b c : α} (h : b == c) :
+    (a == b) = (a == c) :=
+  Bool.eq_iff_iff.mpr ⟨fun h' => BEq.trans h' h, fun h' => BEq.trans h' (BEq.symm h)⟩
+
 theorem BEq.neq_of_neq_of_beq [BEq α] [PartialEquivBEq α] {a b c : α} :
     (a == b) = false → b == c → (a == c) = false :=
   fun h₁ h₂ => Bool.eq_false_iff.2 fun h₃ => Bool.eq_false_iff.1 h₁ (BEq.trans h₃ (BEq.symm h₂))

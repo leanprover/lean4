@@ -84,16 +84,16 @@ instance [ToJson α] [ToJson β] : ToJson (α × β) where
 
 instance : FromJson Name where
   fromJson? j := do
-    let s ← j.getStr?
-    if s == "[anonymous]" then
+    if j.isNull then
       return Name.anonymous
     else
+      let s ← j.getStr?
       let n := s.toName
       if n.isAnonymous then throw s!"expected a `Name`, got '{j}'"
       return n
 
 instance : ToJson Name where
-  toJson n := toString n
+  toJson n := if n.isAnonymous then .null else toString n
 
 /-- Note that `USize`s and `UInt64`s are stored as strings because JavaScript
 cannot represent 64-bit numbers. -/

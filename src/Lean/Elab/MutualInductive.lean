@@ -932,6 +932,7 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
           if (ctor.declId.getPos? (canonicalOnly := true)).isSome then
             Term.addTermInfo' ctor.declId (← mkConstWithLevelParams ctor.declName) (isBinder := true)
             enableRealizationsForConst ctor.declName
+        enableRealizationsForConst view.declName
     return res
 
 private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do

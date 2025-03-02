@@ -70,21 +70,21 @@ def deriveInduction (name : Name) : MetaM Unit := do
 
     let infos ← eqnInfo.declNames.mapM getConstInfoDefn
     -- First open up the fixed parameters everywhere
-    let e' ← lambdaBoundedTelescope infos[0]!.value eqnInfo.fixedPrefixSize fun xs _ => do
+    let e' ← eqnInfo.fixedParams.forallTelescope 0 infos[0]!.type fun xs => do
       -- Now look at the body of an arbitrary of the functions (they are essentially the same
       -- up to the final projections)
-      let body ← instantiateLambda infos[0]!.value xs
+      let body ← eqnInfo.fixedParams.instantiateLambda 0 infos[0]!.value xs
 
       -- The body should now be of the form of the form (fix … ).2.2.1
       -- We strip the projections (if present)
-      let body' := PProdN.stripProjs body
+      let body' := PProdN.stripProjs body.eta
       let some fixApp ← whnfUntil body' ``fix
         | throwError "Unexpected function body {body}"
       let_expr fix α instCCPOα F hmono := fixApp
         | throwError "Unexpected function body {body'}"
 
       let instCCPOs := CCPOProdProjs infos.size instCCPOα
-      let types ← infos.mapM (instantiateForall ·.type xs)
+      let types ← infos.mapIdxM (eqnInfo.fixedParams.instantiateForall · ·.type xs)
       let packedType ← PProdN.pack 0 types
       let motiveTypes ← types.mapM (mkArrow · (.sort 0))
       let motiveNames := numberNames motiveTypes.size "motive"
@@ -135,7 +135,11 @@ def deriveInduction (name : Name) : MetaM Unit := do
             let packedConclusion ← PProdN.pack 0 <| ←
               motives.mapIdxM fun i motive => do
                 let f ← mkConstWithLevelParams infos[i]!.name
-                return mkApp motive (mkAppN f xs)
+                let fEtaExpanded ← lambdaTelescope infos[i]!.value fun ys _ =>
+                  mkLambdaFVars ys (mkAppN f ys)
+                let fInst ← eqnInfo.fixedParams.instantiateLambda i fEtaExpanded xs
+                let fInst := fInst.eta
+                return mkApp motive fInst
             let e' ← mkExpectedTypeHint e' packedConclusion
             let e' ← mkLambdaFVars hs e'
             let e' ← mkLambdaFVars adms e'
@@ -229,8 +233,8 @@ def derivePartialCorrectness (name : Name) : MetaM Unit := do
 
     let infos ← eqnInfo.declNames.mapM getConstInfoDefn
     -- First open up the fixed parameters everywhere
-    let e' ← lambdaBoundedTelescope infos[0]!.value eqnInfo.fixedPrefixSize fun xs _ => do
-      let types ← infos.mapM (instantiateForall ·.type xs)
+    let e' ← eqnInfo.fixedParams.forallTelescope 0 infos[0]!.type fun xs => do
+      let types ← infos.mapIdxM (eqnInfo.fixedParams.instantiateForall · ·.type xs)
 
       -- for `f : α → β → Option γ`, we expect a `motive : α → β → γ → Prop`
       let motiveTypes ← types.mapM fun type =>

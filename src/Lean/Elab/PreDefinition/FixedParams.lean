@@ -298,22 +298,6 @@ scope.
 -/
 private partial def FixedParams.forallTelescopeImpl (fixedParams : FixedParams) (funIdx : Nat)
     (type : Expr) (k : Array Expr → MetaM α) : MetaM α := do
-  /-
-  -- Local implementation shortcut:
-  -- We just bring all into scope and then remove the ones we didn't want.
-  forallBoundedTelescope type (fixedParams.mappings[funIdx]!.size) fun xs _ => do
-    assert! xs.size = fixedParams.mappings[funIdx]!.size
-    let mut ys := #[]
-    let mut zs := #[]
-    for x in xs, paramInfo in fixedParams.mappings[funIdx]! do
-      -- TODO: Wrong for different order in non-first functions
-      if paramInfo.isSome then
-        ys := ys.push x
-      else
-        zs := zs.push x.fvarId!
-    assert! ys.size = fixedParams.size
-    withErasedFVars zs (k ys)
-  -/
   go 0 type (mkArray fixedParams.size (mkSort 0))
 where
   go i type xs := do
@@ -355,21 +339,25 @@ where
           mkForallFVars ys (← go mask type)
 
 /--
-If `type` is the body of the `funIdx`'s function, instantiate the fixed paramters.
+If `value` is the body of the `funIdx`'s function, instantiate the fixed paramters.
 -/
-def FixedParams.instantiateLambda (fixedParams : FixedParams) (funIdx : Nat) (type₀ : Expr) (xs : Array Expr) : MetaM Expr := do
+def FixedParams.instantiateLambda (fixedParams : FixedParams) (funIdx : Nat) (value₀ : Expr) (xs : Array Expr) : MetaM Expr := do
   assert! xs.size = fixedParams.size
   let mask := fixedParams.mappings[funIdx]!.toList
-  go mask type₀
+  go mask value₀
 where
-  go | [], type => pure type
-     | (.some fixedParamIdx)::mask, type => do
+  go | [], value => pure value
+     | (.some fixedParamIdx)::mask, value => do
         assert! fixedParamIdx < xs.size
-        go mask (← Meta.instantiateLambda type #[xs[fixedParamIdx]!])
+        go mask (← Meta.instantiateLambda value #[xs[fixedParamIdx]!])
      | .none::mask, type =>
-        lambdaBoundedTelescope type 1 fun ys type => do
-          assert! ys.size = 1
-          mkLambdaFVars ys (← go mask type)
+        if mask.all Option.isNone then
+          -- Nothing left to do. Also helpful if we may encounter an eta-contracted value
+          return type
+        else
+          lambdaBoundedTelescope type 1 fun ys value => do
+            assert! ys.size = 1
+            mkLambdaFVars ys (← go mask value)
 
 /--
 If `xs` are arguments to the `funIdx`'s function, pick only the fixed ones, and retun them in the

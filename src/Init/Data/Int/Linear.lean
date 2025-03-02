@@ -1405,6 +1405,74 @@ theorem cooper_dvd_right_split_dvd2 (ctx : Context) (p₁ p₂ p₃ : Poly) (d :
   simp [cooper_dvd_right_split_dvd2_cert, cooper_dvd_right_split]
   intros; subst d' p'; simp; assumption
 
+private theorem cooper_right_core
+    {a b p q x : Int} (a_neg : a < 0) (b_pos : 0 < b)
+    (h₁ : a * x + p ≤ 0)
+    (h₂ : b * x + q ≤ 0)
+    : OrOver b.natAbs fun k =>
+      b * p + (-a) * q + (-a) * k ≤ 0 ∧
+      b ∣ q + k := by
+  have d_pos : (0 : Int) < 1 := by decide
+  have h₃ : 1 ∣ 0*x + 0 := Int.one_dvd _
+  have h := cooper_dvd_right_core a_neg b_pos d_pos h₁ h₂ h₃
+  simp only [Int.mul_one, gcd_zero, Int.natAbs_of_nonneg (Int.le_of_lt b_pos), Int.ediv_neg,
+    Int.ediv_self (Int.ne_of_gt b_pos), Int.reduceNeg, lcm_neg_right, lcm_one,
+    Int.add_left_comm, Int.zero_mul, Int.mul_zero, Int.add_zero, Int.dvd_zero,
+    and_true, Int.neg_zero] at h
+  assumption
+
+def cooper_right_cert (p₁ p₂ : Poly) (n : Nat) : Bool :=
+  p₁.casesOn (fun _ => false) fun a x _ =>
+  p₂.casesOn (fun _ => false) fun b y _ =>
+  .and (x == y) <| .and (a < 0)  <| .and (b > 0) <| n == b.natAbs
+
+def cooper_right_split (ctx : Context) (p₁ p₂ : Poly) (k : Nat) : Prop :=
+  let p  := p₁.tail
+  let q  := p₂.tail
+  let a  := p₁.leadCoeff
+  let b  := p₂.leadCoeff
+  let p₁ := p.mul b |>.combine (q.mul (-a))
+  (p₁.addConst ((-a)*k)).denote' ctx ≤ 0
+  ∧ b ∣ (q.addConst k).denote' ctx
+
+theorem cooper_right (ctx : Context) (p₁ p₂ : Poly) (n : Nat)
+    : cooper_right_cert p₁ p₂ n
+      → p₁.denote' ctx ≤ 0
+      → p₂.denote' ctx ≤ 0
+      → OrOver n (cooper_right_split ctx p₁ p₂) := by
+ unfold cooper_right_split
+ cases p₁ <;> cases p₂ <;> simp [cooper_right_cert, Poly.tail, -Poly.denote'_eq_denote]
+ next a x p b y q =>
+ intro; subst y
+ intro ha hb
+ intro; subst n
+ simp only [Poly.denote'_add, Poly.leadCoeff]
+ intro h₁ h₂
+ have := cooper_right_core ha hb h₁ h₂
+ simp only [denote'_mul_combine_mul_addConst_eq]
+ simp only [denote'_addConst_eq, ←Int.neg_mul]
+ assumption
+
+def cooper_right_split_ineq_cert (p₁ p₂ : Poly) (k : Int) (a : Int) (p' : Poly) : Bool :=
+  let p  := p₁.tail
+  let q  := p₂.tail
+  let b  := p₂.leadCoeff
+  let p₂ := p.mul b |>.combine (q.mul (-a))
+  p₁.leadCoeff == a && p' == p₂.addConst ((-a)*k)
+
+theorem cooper_right_split_ineq (ctx : Context) (p₁ p₂ : Poly) (k : Nat) (a : Int) (p' : Poly)
+    : cooper_right_split ctx p₁ p₂ k → cooper_right_split_ineq_cert p₁ p₂ k a p' → p'.denote ctx ≤ 0 := by
+  simp [cooper_right_split_ineq_cert, cooper_right_split]
+  intros; subst a p'; simp [denote'_mul_combine_mul_addConst_eq]; assumption
+
+def cooper_right_split_dvd_cert (p₂ p' : Poly) (b : Int) (k : Int) : Bool :=
+  b == p₂.leadCoeff && p' == p₂.tail.addConst k
+
+theorem cooper_right_split_dvd (ctx : Context) (p₁ p₂ : Poly) (k : Nat) (b : Int) (p' : Poly)
+    : cooper_right_split ctx p₁ p₂ k → cooper_right_split_dvd_cert p₂ p' b k → b ∣ p'.denote ctx := by
+  simp [cooper_right_split_dvd_cert, cooper_right_split]
+  intros; subst b p'; simp; assumption
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

@@ -45,6 +45,7 @@ theorem val_ne_iff {a b : Fin n} : a.1 ≠ b.1 ↔ a ≠ b := not_congr val_inj
 theorem forall_iff {p : Fin n → Prop} : (∀ i, p i) ↔ ∀ i h, p ⟨i, h⟩ :=
   ⟨fun h i hi => h ⟨i, hi⟩, fun h ⟨i, hi⟩ => h i hi⟩
 
+/-- Restatement of `Fin.mk.injEq` as an `iff`. -/
 protected theorem mk.inj_iff {n a b : Nat} {ha : a < n} {hb : b < n} :
     (⟨a, ha⟩ : Fin n) = ⟨b, hb⟩ ↔ a = b := Fin.ext_iff
 
@@ -54,6 +55,14 @@ theorem eq_mk_iff_val_eq {a : Fin n} {k : Nat} {hk : k < n} :
     a = ⟨k, hk⟩ ↔ (a : Nat) = k := Fin.ext_iff
 
 theorem mk_val (i : Fin n) : (⟨i, i.isLt⟩ : Fin n) = i := Fin.eta ..
+
+@[simp] theorem mk_eq_zero {n a : Nat} {ha : a < n} [NeZero n] :
+    (⟨a, ha⟩ : Fin n) = 0 ↔ a = 0 :=
+  mk.inj_iff
+
+@[simp] theorem zero_eq_mk {n a : Nat} {ha : a < n} [NeZero n] :
+    0 = (⟨a, ha⟩ : Fin n) ↔ a = 0 := by
+  simp [eq_comm]
 
 @[simp] theorem val_ofNat' (n : Nat) [NeZero n] (a : Nat) :
   (Fin.ofNat' n a).val = a % n := rfl

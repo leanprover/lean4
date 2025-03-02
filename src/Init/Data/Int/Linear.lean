@@ -1421,6 +1421,39 @@ private theorem cooper_right_core
     and_true, Int.neg_zero] at h
   assumption
 
+def cooper_right_cert (p₁ p₂ : Poly) (n : Nat) : Bool :=
+  p₁.casesOn (fun _ => false) fun a x _ =>
+  p₂.casesOn (fun _ => false) fun b y _ =>
+  .and (x == y) <| .and (a < 0)  <| .and (b > 0) <| n == b.natAbs
+
+def cooper_right_split (ctx : Context) (p₁ p₂ : Poly) (k : Nat) : Prop :=
+  let p  := p₁.tail
+  let q  := p₂.tail
+  let a  := p₁.leadCoeff
+  let b  := p₂.leadCoeff
+  let p₁ := p.mul b |>.combine (q.mul (-a))
+  (p₁.addConst ((-a)*k)).denote' ctx ≤ 0
+  ∧ b ∣ (q.addConst k).denote' ctx
+
+theorem cooper_right (ctx : Context) (p₁ p₂ : Poly) (n : Nat)
+    : cooper_right_cert p₁ p₂ n
+      → p₁.denote' ctx ≤ 0
+      → p₂.denote' ctx ≤ 0
+      → OrOver n (cooper_right_split ctx p₁ p₂) := by
+ unfold cooper_right_split
+ cases p₁ <;> cases p₂ <;> simp [cooper_right_cert, Poly.tail, -Poly.denote'_eq_denote]
+ next a x p b y q =>
+ intro; subst y
+ intro ha hb
+ intro; subst n
+ simp only [Poly.denote'_add, Poly.leadCoeff]
+ intro h₁ h₂
+ have := cooper_right_core ha hb h₁ h₂
+ simp only [denote'_mul_combine_mul_addConst_eq]
+ simp only [denote'_addConst_eq, ←Int.neg_mul]
+ assumption
+
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

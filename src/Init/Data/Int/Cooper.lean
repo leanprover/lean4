@@ -228,20 +228,6 @@ theorem cooper_resolution_dvd_right
     · exact Int.mul_neg _ _ ▸ Int.neg_mul _ _ ▸ dvd
 
 /--
-Left Cooper resolution of an upper and lower bound.
--/
-theorem cooper_resolution_left
-    {a b p q : Int} (a_pos : 0 < a) (b_pos : 0 < b) :
-    (∃ x, p ≤ a * x ∧ b * x ≤ q) ↔
-    (∃ k : Int, 0 ≤ k ∧ k < a ∧ b * k + b * p ≤ a * q ∧ a ∣ k + p) := by
-  have h := cooper_resolution_dvd_left
-    a_pos b_pos Int.zero_lt_one (c := 1) (s := 0) (p := p) (q := q)
-  simp only [Int.mul_one, Int.one_mul, Int.mul_zero, Int.add_zero, gcd_one, Int.ofNat_one,
-    Int.ediv_one, lcm_self, Int.natAbs_of_nonneg (Int.le_of_lt a_pos), Int.one_dvd, and_true,
-    and_self] at h
-  exact h
-
-/--
 Right Cooper resolution of an upper and lower bound.
 -/
 theorem cooper_resolution_right
@@ -257,3 +243,5 @@ theorem cooper_resolution_right
     Int.ediv_one, lcm_self, Int.natAbs_of_nonneg (Int.le_of_lt b_pos), Int.one_dvd, and_true,
     and_self, ← Int.neg_eq_neg_one_mul, this] at h
   exact h
+
+end Int

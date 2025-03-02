@@ -1453,6 +1453,25 @@ theorem cooper_right (ctx : Context) (p₁ p₂ : Poly) (n : Nat)
  simp only [denote'_addConst_eq, ←Int.neg_mul]
  assumption
 
+def cooper_right_split_ineq_cert (p₁ p₂ : Poly) (k : Int) (a : Int) (p' : Poly) : Bool :=
+  let p  := p₁.tail
+  let q  := p₂.tail
+  let b  := p₂.leadCoeff
+  let p₂ := p.mul b |>.combine (q.mul (-a))
+  p₁.leadCoeff == a && p' == p₂.addConst ((-a)*k)
+
+theorem cooper_right_split_ineq (ctx : Context) (p₁ p₂ : Poly) (k : Nat) (a : Int) (p' : Poly)
+    : cooper_right_split ctx p₁ p₂ k → cooper_right_split_ineq_cert p₁ p₂ k a p' → p'.denote ctx ≤ 0 := by
+  simp [cooper_right_split_ineq_cert, cooper_right_split]
+  intros; subst a p'; simp [denote'_mul_combine_mul_addConst_eq]; assumption
+
+def cooper_right_split_dvd_cert (p₂ p' : Poly) (b : Int) (k : Int) : Bool :=
+  b == p₂.leadCoeff && p' == p₂.tail.addConst k
+
+theorem cooper_right_split_dvd (ctx : Context) (p₁ p₂ : Poly) (k : Nat) (b : Int) (p' : Poly)
+    : cooper_right_split ctx p₁ p₂ k → cooper_right_split_dvd_cert p₂ p' b k → b ∣ p'.denote ctx := by
+  simp [cooper_right_split_dvd_cert, cooper_right_split]
+  intros; subst b p'; simp; assumption
 
 end Int.Linear
 

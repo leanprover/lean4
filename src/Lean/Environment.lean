@@ -564,6 +564,10 @@ def asyncPrefix? (env : Environment) : Option Name :=
 def isRealizing (env : Environment) : Bool :=
   env.asyncCtx?.any (·.realizing)
 
+/-- Forgets about the asynchronous context restrictions. Used only for `withoutModifyingEnv`. -/
+def unlockAsync (env : Environment) : Environment :=
+  { env with asyncCtx? := none }
+
 /--
 Checks whether the given declaration name may potentially added, or have been added, to the current
 environment branch, which is the case either if this is the main branch or if the declaration name

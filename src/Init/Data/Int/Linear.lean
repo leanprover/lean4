@@ -1116,6 +1116,7 @@ private theorem orOver_of_exists {n p} : (∃ k, k < n ∧ p k) → OrOver n p :
   apply orOver_of_p h₁ h₂
 
 private theorem ofNat_toNat {a : Int} : a ≥ 0 → Int.ofNat a.toNat = a := by cases a <;> simp
+private theorem cast_toNat {a : Int} : a ≥ 0 → a.toNat = a := by cases a <;> simp
 private theorem ofNat_lt {a : Int} {n : Nat} : a ≥ 0 → a < Int.ofNat n → a.toNat < n := by cases a <;> simp
 @[local simp] private theorem lcm_neg_left (a b : Int) : Int.lcm (-a) b = Int.lcm a b := by simp [Int.lcm]
 @[local simp] private theorem lcm_neg_right (a b : Int) : Int.lcm a (-b) = Int.lcm a b := by simp [Int.lcm]
@@ -1306,6 +1307,31 @@ theorem cooper_left_split_dvd (ctx : Context) (p₁ p₂ : Poly) (k : Nat) (a : 
     : cooper_left_split ctx p₁ p₂ k → cooper_left_split_dvd_cert p₁ p' a k → a ∣ p'.denote ctx := by
   simp [cooper_left_split_dvd_cert, cooper_left_split]
   intros; subst a p'; simp; assumption
+
+private theorem cooper_dvd_right_core
+    {a b c d s p q x : Int} (a_neg : a < 0) (b_pos : 0 < b) (d_pos : 0 < d)
+    (h₁ : a * x + p ≤ 0)
+    (h₂ : b * x + q ≤ 0)
+    (h₃ : d ∣ c * x + s)
+    : OrOver (Int.lcm b (b * d / Int.gcd (b * d) c)) fun k =>
+      b * p + (-a) * q + (-a) * k ≤ 0 ∧
+      b ∣ q + k ∧
+      b * d ∣ (-c) * q + b * s + (-c) * k := by
+  have a_pos' : 0 < -a := by apply Int.neg_pos_of_neg; assumption
+  have h₁'    : p ≤ (-a)*x := by rw [Int.neg_mul, ← Lean.Omega.Int.add_le_zero_iff_le_neg']; assumption
+  have h₂'    : b * x ≤ -q := by rw [← Lean.Omega.Int.add_le_zero_iff_le_neg', Int.add_comm]; assumption
+  have ⟨k, h₁, h₂, h₃, h₄, h₅⟩ := Int.cooper_resolution_dvd_right a_pos' b_pos d_pos |>.mp ⟨x, h₁', h₂', h₃⟩
+  simp only [Int.neg_mul, neg_gcd, lcm_neg_left, Int.mul_neg, Int.neg_neg, Int.neg_dvd] at *
+  apply orOver_of_exists
+  have hlt := ofNat_lt h₁ h₂
+  replace h₃ := Int.add_le_add_right h₃ (-(a*q)); rw [Int.add_right_neg] at h₃
+  have : -(a * k) + b * p + -(a * q) = b * p + -(a * q) + -(a * k) := by ac_rfl
+  rw [this] at h₃; clear this
+  rw [Int.sub_neg, Int.add_comm] at h₄
+  have : -(c * k) + -(c * q) + b * s = -(c * q) + b * s + -(c * k) := by ac_rfl
+  rw [this] at h₅; clear this
+  exists k.toNat
+  simp only [hlt, true_and, and_true, cast_toNat h₁, h₃, h₄, h₅]
 
 end Int.Linear
 

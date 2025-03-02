@@ -1372,6 +1372,39 @@ theorem cooper_dvd_right (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (n : 
  simp only [denote'_addConst_eq, ←Int.neg_mul]
  exact cooper_dvd_right_core ha hb hd h₁ h₂ h₃
 
+def cooper_dvd_right_split_ineq_cert (p₁ p₂ : Poly) (k : Int) (a : Int) (p' : Poly) : Bool :=
+  let p  := p₁.tail
+  let q  := p₂.tail
+  let b  := p₂.leadCoeff
+  let p₂ := p.mul b |>.combine (q.mul (-a))
+  p₁.leadCoeff == a && p' == p₂.addConst ((-a)*k)
+
+theorem cooper_dvd_right_split_ineq (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (k : Nat) (a : Int) (p' : Poly)
+    : cooper_dvd_right_split ctx p₁ p₂ p₃ d k → cooper_dvd_right_split_ineq_cert p₁ p₂ k a p' → p'.denote ctx ≤ 0 := by
+  simp [cooper_dvd_right_split_ineq_cert, cooper_dvd_right_split]
+  intros; subst a p'; simp [denote'_mul_combine_mul_addConst_eq]; assumption
+
+def cooper_dvd_right_split_dvd1_cert (p₂ p' : Poly) (b : Int) (k : Int) : Bool :=
+  b == p₂.leadCoeff && p' == p₂.tail.addConst k
+
+theorem cooper_dvd_right_split_dvd1 (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (k : Nat) (b : Int) (p' : Poly)
+    : cooper_dvd_right_split ctx p₁ p₂ p₃ d k → cooper_dvd_right_split_dvd1_cert p₂ p' b k → b ∣ p'.denote ctx := by
+  simp [cooper_dvd_right_split_dvd1_cert, cooper_dvd_right_split]
+  intros; subst b p'; simp; assumption
+
+def cooper_dvd_right_split_dvd2_cert (p₂ p₃ : Poly) (d : Int) (k : Nat) (d' : Int) (p' : Poly): Bool :=
+  let q  := p₂.tail
+  let s  := p₃.tail
+  let b  := p₂.leadCoeff
+  let c  := p₃.leadCoeff
+  let p₂ := q.mul (-c) |>.combine (s.mul b)
+  d' == b*d && p' == p₂.addConst ((-c)*k)
+
+theorem cooper_dvd_right_split_dvd2 (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (k : Nat) (d' : Int) (p' : Poly)
+    : cooper_dvd_right_split ctx p₁ p₂ p₃ d k → cooper_dvd_right_split_dvd2_cert p₂ p₃ d k d' p' → d' ∣ p'.denote ctx := by
+  simp [cooper_dvd_right_split_dvd2_cert, cooper_dvd_right_split]
+  intros; subst d' p'; simp; assumption
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

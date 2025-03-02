@@ -26,6 +26,7 @@ theorem mem_subset_refl : mem_subset a1 a2 a1 a2 := by
   unfold mem_subset
   bv_normalize
 
+example (a b : Bool) : ((a = true) ↔ (b = true)) ↔ (a == b) := by bv_normalize
 example {x : BitVec 16} : 0#16 + x = x := by bv_normalize
 example {x : BitVec 16} : x + 0#16 = x := by bv_normalize
 example {x : BitVec 16} : x.setWidth 16 = x := by bv_normalize

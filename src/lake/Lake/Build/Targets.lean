@@ -10,9 +10,10 @@ import Lake.Config.Monad
 Utilities for fetching package, library, module, and executable targets and facets.
 -/
 
-namespace Lake
 open Lean (Name)
 open System (FilePath)
+
+namespace Lake
 
 /-! ## Package Facets & Targets -/
 

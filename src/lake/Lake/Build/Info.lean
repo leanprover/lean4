@@ -46,19 +46,22 @@ abbrev Package.targetBuildKey (target : Name) (self : Package) : BuildKey :=
   .customTarget self.name target
 
 abbrev LeanLib.facetBuildKey (self : LeanLib) (facet : Name) : BuildKey :=
-  .targetFacet self.pkg.name self.name (`leanLib ++ facet)
+  .targetFacet self.pkg.name self.name `leanLib facet
 
 abbrev LeanExe.buildKey (self : LeanExe) : BuildKey :=
-  .targetFacet self.pkg.name self.name exeFacet
+  .targetFacet self.pkg.name self.name `leanExe exeFacet
+
+abbrev ExternLib.facetBuildKey (self : ExternLib) (facet : Name) : BuildKey :=
+  .targetFacet self.pkg.name self.name `externLib facet
 
 abbrev ExternLib.staticBuildKey (self : ExternLib) : BuildKey :=
-  .targetFacet self.pkg.name self.name staticFacet
+  self.facetBuildKey staticFacet
 
 abbrev ExternLib.sharedBuildKey (self : ExternLib) : BuildKey :=
-  .targetFacet self.pkg.name self.name sharedFacet
+  self.facetBuildKey sharedFacet
 
 abbrev ExternLib.dynlibBuildKey (self : ExternLib) : BuildKey :=
-  .targetFacet self.pkg.name self.name dynlibFacet
+  self.facetBuildKey dynlibFacet
 
 /-! ### Build Info to Key -/
 
@@ -77,38 +80,38 @@ abbrev ExternLib.dynlibBuildKey (self : ExternLib) : BuildKey :=
 
 instance [FamilyOut ModuleData f α]
 : FamilyDef BuildData (BuildInfo.key (.moduleFacet m f)) α where
-  family_key_eq_type := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp
 
 instance [FamilyOut PackageData f α]
 : FamilyDef BuildData (BuildInfo.key (.packageFacet p f)) α where
-  family_key_eq_type := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp
 
 instance (priority := low) {p : NPackage n} : FamilyDef BuildData
   (.customTarget p.toPackage.name t) (CustomData (n,t)) := ⟨by simp⟩
 
 instance {p : NPackage n} [FamilyOut CustomData (n, t) α]
 : FamilyDef BuildData (BuildInfo.key (.target p.toPackage t)) α where
-  family_key_eq_type := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp
 
-instance [FamilyOut TargetData (`leanLib ++ f) α]
+instance [FamilyOut LibraryData f α]
 : FamilyDef BuildData (BuildInfo.key (.libraryFacet l f)) α where
-  family_key_eq_type := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp
 
-instance [FamilyOut TargetData LeanExe.exeFacet α]
+instance [h : FamilyOut LeanExeData LeanExe.exeFacet α]
 : FamilyDef BuildData (BuildInfo.key (.leanExe x)) α where
-  family_key_eq_type := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp only [← h.fam_eq]
 
-instance [FamilyOut TargetData ExternLib.staticFacet α]
+instance [h : FamilyOut ExternLibData ExternLib.staticFacet α]
 : FamilyDef BuildData (BuildInfo.key (.staticExternLib l)) α where
-  family_key_eq_type := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp only [← h.fam_eq]
 
-instance [FamilyOut TargetData ExternLib.sharedFacet α]
+instance [h : FamilyOut ExternLibData ExternLib.sharedFacet α]
 : FamilyDef BuildData (BuildInfo.key (.sharedExternLib l)) α where
-  family_key_eq_type := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp only [← h.fam_eq]
 
-instance [FamilyOut TargetData ExternLib.dynlibFacet α]
+instance [h : FamilyOut ExternLibData ExternLib.dynlibFacet α]
 : FamilyDef BuildData (BuildInfo.key (.dynlibExternLib l)) α where
-  family_key_eq_type := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp only [← h.fam_eq]
 
 --------------------------------------------------------------------------------
 /-! ## Build Info & Facets                                                    -/
@@ -122,6 +125,12 @@ These are defined here because they need configuration definitions
 (e.g., `Module`), whereas the facets there are needed by the configuration
 definitions.
 -/
+
+target_data module : Module
+target_data package : Package
+target_data leanLib : LeanLib
+target_data leanExe : LeanExe
+target_data externLib : ExternLib
 
 /-- The direct local imports of the Lean module. -/
 abbrev Module.importsFacet := `imports
@@ -267,7 +276,7 @@ abbrev Package.transDeps (self : Package) : BuildInfo :=
 abbrev Package.target (target : Name) (self : Package) : BuildInfo :=
   .target self target
 
-/-- Build info of the Lean library's Lean binaries. -/
+/-- Build info for a facet of a Lean library. -/
 abbrev LeanLib.facet (self : LeanLib) (facet : Name) : BuildInfo :=
   .libraryFacet self facet
 

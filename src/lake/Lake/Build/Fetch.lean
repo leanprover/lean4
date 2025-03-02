@@ -22,13 +22,14 @@ using the `fetch` function defined in this module.
 
 namespace Lake
 
-/-- The internal core monad of Lake builds. Not intended for user use. -/
+/-- The internal core monad of Lake builds. **Not intended for user use.** -/
+@[deprecated "Deprecated without replacement." (since := "2025-02-22")]
 abbrev CoreBuildM := BuildT LogIO
 
 /--
 A recursive build of a Lake build store that may encounter a cycle.
 
-An internal monad. Not intended for user use.
+An internal monad. **Not intended for user use.**
 -/
 abbrev RecBuildT (m : Type → Type) :=
   CallStackT BuildKey <| StateRefT' IO.RealWorld BuildStore <| BuildT m
@@ -43,18 +44,21 @@ instance [Monad m] [MonadError m] : MonadCycleOf BuildKey (RecBuildT m) where
 /--
 A recursive build of a Lake build store that may encounter a cycle.
 
-An internal monad. Not intended for user use.
+An internal monad. **Not intended for user use.**
 -/
 abbrev RecBuildM := RecBuildT LogIO
 
 /-- Run a recursive build. -/
-@[inline] def RecBuildM.run
-  (stack : CallStack BuildKey) (store : BuildStore) (build : RecBuildM α)
-: CoreBuildM (α × BuildStore) :=
+@[inline] def RecBuildT.run
+  [Monad m] [MonadLiftT (ST IO.RealWorld) m]
+  (stack : CallStack BuildKey) (store : BuildStore) (build : RecBuildT m α)
+: BuildT m (α × BuildStore) :=
   build stack |>.run store
 
 /-- Run a recursive build in a fresh build store. -/
-@[inline] def RecBuildM.run' (build : RecBuildM α) : CoreBuildM α := do
+@[inline] def RecBuildT.run'
+  [Monad m] [MonadLiftT (ST IO.RealWorld) m] (build : RecBuildT m α)
+: BuildT m α := do
   (·.1) <$> build.run {} {}
 
 /-- A build function for any element of the Lake build index. -/

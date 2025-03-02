@@ -229,7 +229,9 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
   | un op expr ih =>
     cases op with
     | not => simp [go, ih, hidx]
-    | shiftLeftConst => simp [go, ih, hidx]
+    | shiftLeftConst i =>
+      rename_i w
+      simp [go, ih, hidx, show idx - i < w by omega]
     | shiftRightConst =>
       simp only [go, denote_blastShiftRightConst, ih, dite_eq_ite, Bool.if_false_right, eval_un,
         BVUnOp.eval_shiftRightConst, BitVec.getLsbD_ushiftRight, Bool.and_iff_right_iff_imp,

@@ -65,20 +65,21 @@ def format_markdown_description(pr_number, description):
     link = f"[#{pr_number}](https://github.com/leanprover/lean4/pull/{pr_number})"
     return f"{link} {description}"
 
+def commit_types():
+    # see doc/dev/commit_convention.md
+    return ['feat', 'fix', 'doc', 'style', 'refactor', 'test', 'chore', 'perf']
+
 def count_commit_types(commits):
     counts = {
         'total': len(commits),
-        'feat': 0,
-        'fix': 0,
-        'refactor': 0,
-        'doc': 0,
-        'chore': 0
     }
+    for commit_type in commit_types():
+        counts[commit_type] = 0
     
     for _, first_line, _ in commits:
-        for commit_type in ['feat:', 'fix:', 'refactor:', 'doc:', 'chore:']:
-            if first_line.startswith(commit_type):
-                counts[commit_type.rstrip(':')] += 1
+        for commit_type in commit_types():
+            if first_line.startswith(f'{commit_type}:'):
+                counts[commit_type] += 1
                 break
     
     return counts
@@ -158,8 +159,9 @@ def main():
     counts = count_commit_types(commits)
     print(f"For this release, {counts['total']} changes landed. "
           f"In addition to the {counts['feat']} feature additions and {counts['fix']} fixes listed below "
-          f"there were {counts['refactor']} refactoring changes, {counts['doc']} documentation improvements "
-          f"and {counts['chore']} chores.\n")
+          f"there were {counts['refactor']} refactoring changes, {counts['doc']} documentation improvements, "
+          f"{counts['perf']} performance improvements, {counts['test']} improvements to the test suite "
+          f"and {counts['style'] + counts['chore']} other changes.\n")
 
     section_order = sort_sections_order()
     sorted_changelog = sorted(changelog.items(), key=lambda item: section_order.index(format_section_title(item[0])) if format_section_title(item[0]) in section_order else len(section_order))

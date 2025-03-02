@@ -11,85 +11,94 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
 
 namespace Lean.Meta.Grind.Arith.Cutsat
-abbrev DvdCnstrWithProof.isUnsat (cₚ : DvdCnstrWithProof) : Bool :=
-  cₚ.c.isUnsat
 
-abbrev DvdCnstrWithProof.isTrivial (cₚ : DvdCnstrWithProof) : Bool :=
-  cₚ.c.isTrivial
+def mkDvdCnstr (d : Int) (p : Poly) (h : DvdCnstrProof) : GoalM DvdCnstr := do
+  return { d, p, h, id := (← mkCnstrId) }
 
-abbrev DvdCnstrWithProof.satisfied (cₚ : DvdCnstrWithProof) : GoalM LBool :=
-  cₚ.c.satisfied
-
-def mkDvdCnstrWithProof (c : DvdCnstr) (h : DvdCnstrProof) : GoalM DvdCnstrWithProof := do
-  return { c, h, id := (← mkCnstrId) }
-
-def DvdCnstrWithProof.norm (cₚ : DvdCnstrWithProof) : GoalM DvdCnstrWithProof := do
-  let cₚ ← if cₚ.c.isSorted then
-    pure cₚ
+def DvdCnstr.norm (c : DvdCnstr) : GoalM DvdCnstr := do
+  let c ← if c.p.isSorted then
+    pure c
   else
-    mkDvdCnstrWithProof { k := cₚ.c.k, p := cₚ.c.p.norm } (.norm cₚ)
-  let g := cₚ.c.p.gcdCoeffs cₚ.c.k
-  if cₚ.c.p.getConst % g == 0 && g != 1 then
-    mkDvdCnstrWithProof (cₚ.c.div g) (.divCoeffs cₚ)
+    mkDvdCnstr c.d c.p.norm (.norm c)
+  let g := c.p.gcdCoeffs c.d
+  if c.p.getConst % g == 0 && g != 1 then
+    mkDvdCnstr (c.d/g) (c.p.div g) (.divCoeffs c)
   else
-    return cₚ
+    return c
+
+/--
+Given an equation `c₁` containing the monomial `a*x`, and a divisibility constraint `c₂`
+containing the monomial `b*x`, eliminate `x` by applying substitution.
+-/
+def DvdCnstr.applyEq (a : Int) (x : Var) (c₁ : EqCnstr) (b : Int) (c₂ : DvdCnstr) : GoalM DvdCnstr := do
+  let p := c₁.p
+  let q := c₂.p
+  let d := Int.ofNat (a * c₂.d).natAbs
+  let p := (q.mul a |>.combine (p.mul (-b)))
+  trace[grind.cutsat.subst] "{← getVar x}, {← c₁.pp}, {← c₂.pp}"
+  mkDvdCnstr d p (.subst x c₁ c₂)
+
+partial def DvdCnstr.applySubsts (c : DvdCnstr) : GoalM DvdCnstr := withIncRecDepth do
+  let some (b, x, c₁) ← c.p.findVarToSubst | return c
+  let a := c₁.p.coeff x
+  let c ← c.applyEq a x c₁ b
+  applySubsts c
 
 /-- Asserts divisibility constraint. -/
-partial def assertDvdCnstr (cₚ : DvdCnstrWithProof) : GoalM Unit := withIncRecDepth do
-  if (← isInconsistent) then return ()
-  let cₚ ← cₚ.norm
-  if cₚ.isUnsat then
-    trace[grind.cutsat.dvd.unsat] "{← cₚ.denoteExpr}"
-    let hf ← withProofContext do
-      return mkApp4 (mkConst ``Int.Linear.DvdCnstr.false_of_isUnsat_of_denote) (← getContext) (toExpr cₚ.c) reflBoolTrue (← cₚ.toExprProof)
-    closeGoal hf
-  else if cₚ.isTrivial then
-    trace[grind.cutsat.dvd.trivial] "{← cₚ.denoteExpr}"
+partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
+  if (← inconsistent) then return ()
+  let c ← c.norm
+  let c ← c.applySubsts
+  if c.isUnsat then
+    setInconsistent (.dvd c)
     return ()
+  if c.isTrivial then
+    trace[grind.cutsat.dvd.trivial] "{← c.pp}"
+    return ()
+  let d₁ := c.d
+  let .add a₁ x p₁ := c.p | c.throwUnexpected
+  if (← c.satisfied) == .false then
+    resetAssignmentFrom x
+  if let some c' := (← get').dvds[x]! then
+    trace[grind.cutsat.dvd.solve] "{← c.pp}, {← c'.pp}"
+    let d₂ := c'.d
+    let .add a₂ _ p₂ := c'.p | c'.throwUnexpected
+    let (d, α, β) := gcdExt (a₁*d₂) (a₂*d₁)
+    /-
+    We have that
+    `d = α*a₁*d₂ + β*a₂*d₁`
+    `d = gcd (a₁*d₂) (a₂*d₁)`
+    and two implied divisibility constraints:
+    - `d₁*d₂ ∣ d*x + α*d₂*p₁ + β*d₁*p₂`
+    - `d ∣ a₂*p₁ - a₁*p₂`
+    -/
+    let α_d₂_p₁ := p₁.mul (α*d₂)
+    let β_d₁_p₂ := p₂.mul (β*d₁)
+    let combine ← mkDvdCnstr (d₁*d₂) (.add d x (α_d₂_p₁.combine β_d₁_p₂)) (.solveCombine c c')
+    trace[grind.cutsat.dvd.solve.combine] "{← combine.pp}"
+    modify' fun s => { s with dvds := s.dvds.set x none}
+    combine.assert
+    let a₂_p₁ := p₁.mul a₂
+    let a₁_p₂ := p₂.mul (-a₁)
+    let elim ← mkDvdCnstr d (a₂_p₁.combine a₁_p₂) (.solveElim c c')
+    trace[grind.cutsat.dvd.solve.elim] "{← elim.pp}"
+    elim.assert
   else
-    let d₁ := cₚ.c.k
-    let .add a₁ x p₁ := cₚ.c.p | cₚ.throwUnexpected
-    if (← cₚ.satisfied) == .false then
-      resetAssignmentFrom x
-    if let some cₚ' := (← get').dvdCnstrs[x]! then
-      trace[grind.cutsat.dvd.solve] "{← cₚ.denoteExpr}, {← cₚ'.denoteExpr}"
-      let d₂ := cₚ'.c.k
-      let .add a₂ _ p₂ := cₚ'.c.p | cₚ'.throwUnexpected
-      let (d, α, β) := gcdExt (a₁*d₂) (a₂*d₁)
-      /-
-      We have that
-      `d = α*a₁*d₂ + β*a₂*d₁`
-      `d = gcd (a₁*d₂) (a₂*d₁)`
-      and two implied divisibility constraints:
-      - `d₁*d₂ ∣ d*x + α*d₂*p₁ + β*d₁*p₂`
-      - `d ∣ a₂*p₁ - a₁*p₂`
-      -/
-      let α_d₂_p₁ := p₁.mul (α*d₂)
-      let β_d₁_p₂ := p₂.mul (β*d₁)
-      let combine ← mkDvdCnstrWithProof { k := d₁*d₂, p := .add d x (α_d₂_p₁.combine β_d₁_p₂) } (.solveCombine cₚ cₚ')
-      trace[grind.cutsat.dvd.solve.combine] "{← combine.denoteExpr}"
-      modify' fun s => { s with dvdCnstrs := s.dvdCnstrs.set x none}
-      assertDvdCnstr combine
-      let a₂_p₁ := p₁.mul a₂
-      let a₁_p₂ := p₂.mul (-a₁)
-      let elim ← mkDvdCnstrWithProof { k := d, p := a₂_p₁.combine a₁_p₂ } (.solveElim cₚ cₚ')
-      trace[grind.cutsat.dvd.solve.elim] "{← elim.denoteExpr}"
-      assertDvdCnstr elim
-    else
-      trace[grind.cutsat.dvd.update] "{← cₚ.denoteExpr}"
-      modify' fun s => { s with dvdCnstrs := s.dvdCnstrs.set x (some cₚ) }
+    trace[grind.cutsat.dvd.update] "{← c.pp}"
+    c.p.updateOccs
+    modify' fun s => { s with dvds := s.dvds.set x (some c) }
 
 builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
   let_expr Dvd.dvd _ inst a b ← e | return ()
   unless (← isInstDvdInt inst) do return ()
-  let some k ← getIntValue? a
+  let some d ← getIntValue? a
     | reportIssue! "non-linear divisibility constraint found{indentExpr e}"
       return ()
   if (← isEqTrue e) then
     let p ← toPoly b
-    let cₚ ← mkDvdCnstrWithProof { k, p } (.expr (← mkOfEqTrue (← mkEqTrueProof e)))
-    trace[grind.cutsat.assert.dvd] "{← cₚ.denoteExpr}"
-    assertDvdCnstr cₚ
+    let c ← mkDvdCnstr d p (.expr (← mkOfEqTrue (← mkEqTrueProof e)))
+    trace[grind.cutsat.assert.dvd] "{← c.pp}"
+    c.assert
   else if (← isEqFalse e) then
     /-
     TODO: we have `¬ a ∣ b`, we should assert

@@ -13,8 +13,8 @@ import Init.Data.Array.Range
 # Lemmas about `Array.findSome?`, `Array.find?, `Array.findIdx`, `Array.findIdx?`, `Array.idxOf`.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 namespace Array
 
 open Nat
@@ -98,11 +98,6 @@ theorem getElem_zero_flatten {xss : Array (Array α)} (h) :
   have t := getElem?_zero_flatten xss
   simp [getElem?_eq_getElem, h] at t
   simp [← t]
-
-theorem back?_flatten {xss : Array (Array α)} :
-    (flatten xss).back? = (xss.findSomeRev? fun xs => xs.back?) := by
-  cases xss using array₂_induction
-  simp [List.getLast?_flatten, ← List.map_reverse, List.findSome?_map, Function.comp_def]
 
 theorem findSome?_mkArray : findSome? f (mkArray n a) = if n = 0 then none else f a := by
   simp [← List.toArray_replicate, List.findSome?_replicate]
@@ -303,24 +298,6 @@ theorem find?_eq_some_iff_getElem {xs : Array α} {p : α → Bool} {b : α} :
     xs.find? p = some b ↔ p b ∧ ∃ i h, xs[i] = b ∧ ∀ j : Nat, (hj : j < i) → !p xs[j] := by
   rcases xs with ⟨xs⟩
   simp [List.find?_eq_some_iff_getElem]
-
-/-! ### findFinIdx? -/
-
-@[simp] theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p #[] = none := rfl
-
--- We can't mark this as a `@[congr]` lemma since the head of the RHS is not `findFinIdx?`.
-theorem findFinIdx?_congr {p : α → Bool} {xs ys : Array α} (w : xs = ys) :
-    findFinIdx? p xs = (findFinIdx? p ys).map (fun i => i.cast (by simp [w])) := by
-  subst w
-  simp
-
-@[simp] theorem findFinIdx?_subtype {p : α → Prop} {xs : Array { x // p x }}
-    {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
-    xs.findFinIdx? f = (xs.unattach.findFinIdx? g).map (fun i => i.cast (by simp)) := by
-  cases xs
-  simp only [List.findFinIdx?_toArray, hf, List.findFinIdx?_subtype]
-  rw [findFinIdx?_congr List.unattach_toArray]
-  simp [Function.comp_def]
 
 /-! ### findIdx -/
 
@@ -547,6 +524,47 @@ theorem findIdx?_eq_some_le_of_findIdx?_eq_some {xs : Array α} {p q : α → Bo
   cases xs
   simp
 
+/-! ### findFinIdx? -/
+
+@[simp] theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p #[] = none := rfl
+
+-- We can't mark this as a `@[congr]` lemma since the head of the RHS is not `findFinIdx?`.
+theorem findFinIdx?_congr {p : α → Bool} {xs ys : Array α} (w : xs = ys) :
+    findFinIdx? p xs = (findFinIdx? p ys).map (fun i => i.cast (by simp [w])) := by
+  subst w
+  simp
+
+theorem findFinIdx?_eq_pmap_findIdx? {xs : Array α} {p : α → Bool} :
+    xs.findFinIdx? p =
+      (xs.findIdx? p).pmap
+        (fun i m => by simp [findIdx?_eq_some_iff_getElem] at m; exact ⟨i, m.choose⟩)
+        (fun i h => h) := by
+  simp [findIdx?_eq_map_findFinIdx?_val, Option.pmap_map]
+
+@[simp] theorem findFinIdx?_eq_none_iff {xs : Array α} {p : α → Bool} :
+    xs.findFinIdx? p = none ↔ ∀ x, x ∈ xs → ¬ p x := by
+  simp [findFinIdx?_eq_pmap_findIdx?]
+
+@[simp]
+theorem findFinIdx?_eq_some_iff {xs : Array α} {p : α → Bool} {i : Fin xs.size} :
+    xs.findFinIdx? p = some i ↔
+      p xs[i] ∧ ∀ j (hji : j < i), ¬p (xs[j]'(Nat.lt_trans hji i.2)) := by
+  simp only [findFinIdx?_eq_pmap_findIdx?, Option.pmap_eq_some_iff, findIdx?_eq_some_iff_getElem,
+    Bool.not_eq_true, Option.mem_def, exists_and_left, and_exists_self, Fin.getElem_fin]
+  constructor
+  · rintro ⟨a, ⟨h, w₁, w₂⟩, rfl⟩
+    exact ⟨w₁, fun j hji => by simpa using w₂ j hji⟩
+  · rintro ⟨h, w⟩
+    exact ⟨i, ⟨i.2, h, fun j hji => w ⟨j, by omega⟩ hji⟩, rfl⟩
+
+@[simp] theorem findFinIdx?_subtype {p : α → Prop} {xs : Array { x // p x }}
+    {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    xs.findFinIdx? f = (xs.unattach.findFinIdx? g).map (fun i => i.cast (by simp)) := by
+  cases xs
+  simp only [List.findFinIdx?_toArray, hf, List.findFinIdx?_subtype]
+  rw [findFinIdx?_congr List.unattach_toArray]
+  simp [Function.comp_def]
+
 /-! ### idxOf
 
 The verification API for `idxOf` is still incomplete.
@@ -584,10 +602,26 @@ The lemmas below should be made consistent with those for `findIdx?` (and proved
   rcases xs with ⟨xs⟩
   simp [List.idxOf?_eq_none_iff]
 
-/-! ### finIdxOf? -/
+/-! ### finIdxOf?
+
+The verification API for `finIdxOf?` is still incomplete.
+The lemmas below should be made consistent with those for `findFinIdx?` (and proved using them).
+-/
 
 theorem idxOf?_eq_map_finIdxOf?_val [BEq α] {xs : Array α} {a : α} :
     xs.idxOf? a = (xs.finIdxOf? a).map (·.val) := by
   simp [idxOf?, finIdxOf?, findIdx?_eq_map_findFinIdx?_val]
+
+@[simp] theorem finIdxOf?_empty [BEq α] : (#[] : Array α).finIdxOf? a = none := rfl
+
+@[simp] theorem finIdxOf?_eq_none_iff [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
+    xs.finIdxOf? a = none ↔ a ∉ xs := by
+  rcases xs with ⟨xs⟩
+  simp [List.finIdxOf?_eq_none_iff]
+
+@[simp] theorem finIdxOf?_eq_some_iff [BEq α] [LawfulBEq α] {xs : Array α} {a : α} {i : Fin xs.size} :
+    xs.finIdxOf? a = some i ↔ xs[i] = a ∧ ∀ j (_ : j < i), ¬xs[j] = a := by
+  rcases xs with ⟨xs⟩
+  simp [List.finIdxOf?_eq_some_iff]
 
 end Array

@@ -6,8 +6,8 @@ Author: Leonardo de Moura
 prelude
 import Init.Data.Nat.Linear
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 universe u
 
@@ -212,6 +212,7 @@ def mapMono (as : List α) (f : α → α) : List α :=
 
 /-! ## Additional lemmas required for bootstrapping `Array`. -/
 
+@[simp]
 theorem getElem_append_left {as bs : List α} (h : i < as.length) {h' : i < (as ++ bs).length} :
     (as ++ bs)[i] = as[i] := by
   induction as generalizing i with
@@ -221,6 +222,7 @@ theorem getElem_append_left {as bs : List α} (h : i < as.length) {h' : i < (as 
     | zero => rfl
     | succ i => apply ih
 
+@[simp]
 theorem getElem_append_right {as bs : List α} {i : Nat} (h₁ : as.length ≤ i) {h₂} :
     (as ++ bs)[i]'h₂ =
       bs[i - as.length]'(by rw [length_append] at h₂; exact Nat.sub_lt_left_of_lt_add h₁ h₂) := by

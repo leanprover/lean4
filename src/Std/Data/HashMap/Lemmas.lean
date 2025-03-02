@@ -58,10 +58,6 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) :
 @[simp] theorem contains_empty {a : α} {c} : (empty c : HashMap α β).contains a = false :=
   DHashMap.contains_empty
 
-@[simp] theorem get_eq_getElem {a : α} {h} : get m a h = m[a]'h := rfl
-@[simp] theorem get?_eq_getElem? {a : α} : get? m a = m[a]? := rfl
-@[simp] theorem get!_eq_getElem! [Inhabited β] {a : α} : get! m a = m[a]! := rfl
-
 @[simp] theorem not_mem_empty {a : α} {c} : ¬a ∈ (empty c : HashMap α β) :=
   DHashMap.not_mem_empty
 
@@ -206,6 +202,10 @@ theorem containsThenInsertIfNew_fst {k : α} {v : β} :
 theorem containsThenInsertIfNew_snd {k : α} {v : β} :
     (m.containsThenInsertIfNew k v).2 = m.insertIfNew k v :=
   ext DHashMap.containsThenInsertIfNew_snd
+
+@[simp] theorem get_eq_getElem {a : α} {h} : get m a h = m[a]'h := rfl
+@[simp] theorem get?_eq_getElem? {a : α} : get? m a = m[a]? := rfl
+@[simp] theorem get!_eq_getElem! [Inhabited β] {a : α} : get! m a = m[a]! := rfl
 
 @[simp]
 theorem getElem?_empty {a : α} {c} : (empty c : HashMap α β)[a]? = none :=
@@ -699,9 +699,14 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
   DHashMap.distinct_keys
 
 @[simp]
+theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
+    m.toList.map Prod.fst = m.keys :=
+  DHashMap.Const.map_fst_toList_eq_keys
+
+@[simp, deprecated map_fst_toList_eq_keys (since := "2025-02-28")]
 theorem map_prod_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
     m.toList.map Prod.fst = m.keys :=
-  DHashMap.Const.map_prod_fst_toList_eq_keys
+  DHashMap.Const.map_fst_toList_eq_keys
 
 @[simp]
 theorem length_toList [EquivBEq α] [LawfulHashable α] :
@@ -733,7 +738,7 @@ theorem get?_eq_some_iff_exists_beq_and_mem_toList [EquivBEq α] [LawfulHashable
 theorem find?_toList_eq_some_iff_getKey?_eq_some_and_getElem?_eq_some
     [EquivBEq α] [LawfulHashable α] {k k' : α} {v : β} :
     m.toList.find? (fun a => a.1 == k) = some ⟨k', v⟩ ↔
-      m.getKey? k = some k' ∧ get? m k = some v :=
+      m.getKey? k = some k' ∧ m[k]? = some v :=
   DHashMap.Const.find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some
 
 theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]

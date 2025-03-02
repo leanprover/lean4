@@ -137,12 +137,15 @@ def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
       message := s!"Cannot parse request params: {params.compress}\n{inner}" }
 
 structure RequestContext where
-  rpcSessions   : RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
-  srcSearchPath : SearchPath
-  doc           : FileWorker.EditableDocument
-  hLog          : IO.FS.Stream
-  initParams    : Lsp.InitializeParams
-  cancelTk      : RequestCancellationToken
+  rpcSessions       : RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
+  srcSearchPathTask : ServerTask SearchPath
+  doc               : FileWorker.EditableDocument
+  hLog              : IO.FS.Stream
+  initParams        : Lsp.InitializeParams
+  cancelTk          : RequestCancellationToken
+
+def RequestContext.srcSearchPath (rc : RequestContext) : SearchPath :=
+  rc.srcSearchPathTask.get
 
 abbrev RequestTask α := ServerTask (Except RequestError α)
 abbrev RequestT m := ReaderT RequestContext <| ExceptT RequestError m

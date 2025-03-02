@@ -11,8 +11,8 @@ import Init.Data.List.Zip
 # Lemmas about `Array.zip`, `Array.zipWith`, `Array.zipWithAll`, and `Array.unzip`.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Array
 
@@ -114,7 +114,7 @@ theorem map_zipWith {δ : Type _} (f : α → β) (g : γ → δ → α) (cs : A
   cases ds
   simp [List.map_zipWith]
 
-theorem take_zipWith : (zipWith f as bs).take n = zipWith f (as.take n) (bs.take n) := by
+theorem take_zipWith : (zipWith f as bs).take i = zipWith f (as.take i) (bs.take i) := by
   cases as
   cases bs
   simp [List.take_zipWith]

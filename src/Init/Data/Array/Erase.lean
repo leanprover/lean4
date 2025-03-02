@@ -12,8 +12,8 @@ import Init.Data.List.Nat.Basic
 # Lemmas about `Array.eraseP`, `Array.erase`, and `Array.eraseIdx`.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Array
 
@@ -281,6 +281,10 @@ theorem erase_eq_iff [LawfulBEq α] {a : α} {xs : Array α} :
 end erase
 
 /-! ### eraseIdx -/
+
+theorem eraseIdx_eq_eraseIdxIfInBounds {xs : Array α} {i : Nat} (h : i < xs.size) :
+    xs.eraseIdx i h = xs.eraseIdxIfInBounds i := by
+  simp [eraseIdxIfInBounds, h]
 
 theorem eraseIdx_eq_take_drop_succ (xs : Array α) (i : Nat) (h) : xs.eraseIdx i = xs.take i ++ xs.drop (i + 1) := by
   rcases xs with ⟨xs⟩

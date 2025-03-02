@@ -18,7 +18,7 @@ available as `Std.DTreeMap.Raw.WF` and we prove in this file that all operations
 well-formedness. When in doubt, prefer `DTreeMap` over `DTreeMap.Raw`.
 
 Lemmas about the operations on `Std.DTreeMap.Raw` will be available in the module
-`Std.Data.DTreeMap.RawLemmas`.
+`Std.Data.DTreeMap.Raw.Lemmas`.
 -/
 
 set_option autoImplicit false
@@ -38,7 +38,7 @@ open Internal (Impl)
 Dependent tree maps without a bundled well-formedness invariant, suitable for use in nested
 inductive types. The well-formedness invariant is called `Raw.WF`. When in doubt, prefer `DTreeMap`
 over `DTreeMap.Raw`. Lemmas about the operations on `Std.DTreeMap.Raw` are available in the
-module `Std.Data.DTreeMap.RawLemmas`.
+module `Std.Data.DTreeMap.Raw.Lemmas`.
 
 A tree map stores an assignment of keys to values. It depends on a comparator function that
 defines an ordering on the keys and provides efficient order-dependent queries, such as retrieval
@@ -406,12 +406,12 @@ variable {β : Type v}
 @[inline, inherit_doc DTreeMap.Const.getThenInsertIfNew?]
 def getThenInsertIfNew? (t : Raw α β cmp) (a : α) (b : β) : Option β × Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩
-  let p := Impl.Const.getThenInsertIfNew?! a b t.inner
+  let p := Impl.Const.getThenInsertIfNew?! t.inner a b
   (p.1, ⟨p.2⟩)
 
 @[inline, inherit_doc DTreeMap.Const.get?]
 def get? (t : Raw α β cmp) (a : α) : Option β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.get? a t.inner
+  letI : Ord α := ⟨cmp⟩; Impl.Const.get? t.inner a
 
 @[inline, inherit_doc get?, deprecated get? (since := "2025-02-12")]
 def find? (t : Raw α β cmp) (a : α) : Option β :=
@@ -419,11 +419,11 @@ def find? (t : Raw α β cmp) (a : α) : Option β :=
 
 @[inline, inherit_doc DTreeMap.Const.get]
 def get (t : Raw α β cmp) (a : α) (h : a ∈ t) : β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.get a t.inner h
+  letI : Ord α := ⟨cmp⟩; Impl.Const.get t.inner a h
 
 @[inline, inherit_doc DTreeMap.Const.get!]
 def get! (t : Raw α β cmp) (a : α) [Inhabited β] : β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.get! a t.inner
+  letI : Ord α := ⟨cmp⟩; Impl.Const.get! t.inner a
 
 @[inline, inherit_doc get!, deprecated get! (since := "2025-02-12")]
 def find! (t : Raw α β cmp) (a : α) [Inhabited β] : β :=
@@ -431,7 +431,7 @@ def find! (t : Raw α β cmp) (a : α) [Inhabited β] : β :=
 
 @[inline, inherit_doc DTreeMap.Const.getD]
 def getD (t : Raw α β cmp) (a : α) (fallback : β) : β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.getD a t.inner fallback
+  letI : Ord α := ⟨cmp⟩; Impl.Const.getD t.inner a fallback
 
 @[inline, inherit_doc getD, deprecated getD (since := "2025-02-12")]
 def findD (t : Raw α β cmp) (a : α) (fallback : β) : β :=
@@ -559,16 +559,16 @@ def fold (f : δ → (a : α) → β a → δ) (init : δ) (t : Raw α β cmp) :
   t.foldl f init
 
 @[inline, inherit_doc DTreeMap.foldrM]
-def foldrM (f : δ → (a : α) → β a → m δ) (init : δ) (t : Raw α β cmp) : m δ :=
+def foldrM (f : (a : α) → β a → δ → m δ) (init : δ) (t : Raw α β cmp) : m δ :=
   t.inner.foldrM f init
 
 @[inline, inherit_doc DTreeMap.foldr]
-def foldr (f : δ → (a : α) → β a → δ) (init : δ) (t : Raw α β cmp) : δ :=
+def foldr (f : (a : α) → β a → δ → δ) (init : δ) (t : Raw α β cmp) : δ :=
   t.inner.foldr f init
 
 @[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
 def revFold (f : δ → (a : α) → β a → δ) (init : δ) (t : Raw α β cmp) : δ :=
-  foldr f init t
+  foldr (fun k v acc => f acc k v) init t
 
 @[inline, inherit_doc DTreeMap.partition]
 def partition (f : (a : α) → β a → Bool) (t : Raw α β cmp) : Raw α β cmp × Raw α β cmp :=

@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Array.Basic
 
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 universe u v w
 

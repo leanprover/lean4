@@ -12,8 +12,8 @@ import Init.Data.List.Monadic
 # Lemmas about `Array.forIn'` and `Array.forIn`.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Array
 
@@ -22,6 +22,9 @@ open Nat
 /-! ## Monadic operations -/
 
 /-! ### mapM -/
+
+@[simp] theorem mapM_id {xs : Array α} {f : α → Id β} : xs.mapM f = xs.map f := by
+  induction xs; simp_all
 
 @[simp] theorem mapM_append [Monad m] [LawfulMonad m] (f : α → m β) {xs ys : Array α} :
     (xs ++ ys).mapM f = (return (← xs.mapM f) ++ (← ys.mapM f)) := by

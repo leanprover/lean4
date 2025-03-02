@@ -134,12 +134,13 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lake_instInhabitedEnv___closed__1;
-x_2 = lean_alloc_ctor(0, 5, 0);
+x_2 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
 lean_ctor_set(x_2, 2, x_1);
 lean_ctor_set(x_2, 3, x_1);
 lean_ctor_set(x_2, 4, x_1);
+lean_ctor_set(x_2, 5, x_1);
 return x_2;
 }
 }
@@ -2553,7 +2554,7 @@ x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
-x_9 = lean_ctor_get(x_7, 4);
+x_9 = lean_ctor_get(x_7, 5);
 lean_inc(x_9);
 lean_dec(x_7);
 x_10 = lean_alloc_ctor(1, 1, 0);

@@ -8,8 +8,9 @@ import Init.Data.Array.Mem
 import Init.Data.Array.Lemmas
 import Init.Data.Array.Count
 import Init.Data.List.Attach
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Array
 
@@ -554,6 +555,10 @@ def unattach {α : Type _} {p : α → Prop} (xs : Array { x // p x }) : Array �
     (xs.push a).unattach = xs.unattach.push a.1 := by
   simp only [unattach, Array.map_push]
 
+@[simp] theorem mem_unattach {p : α → Prop} {xs : Array { x // p x }} {a} :
+    a ∈ xs.unattach ↔ ∃ h : p a, ⟨a, h⟩ ∈ xs := by
+  simp only [unattach, mem_map, Subtype.exists, exists_and_right, exists_eq_right]
+
 @[simp] theorem size_unattach {p : α → Prop} {xs : Array { x // p x }} :
     xs.unattach.size = xs.size := by
   unfold unattach
@@ -674,6 +679,20 @@ and simplifies these to the function directly taking the value.
   cases xs
   simp
   rw [List.find?_subtype hf]
+
+@[simp] theorem all_subtype {p : α → Prop} {xs : Array { x // p x }} {f : { x // p x } → Bool} {g : α → Bool}
+    (hf : ∀ x h, f ⟨x, h⟩ = g x) (w : stop = xs.size) :
+    xs.all f 0 stop = xs.unattach.all g := by
+  subst w
+  rcases xs with ⟨xs⟩
+  simp [hf]
+
+@[simp] theorem any_subtype {p : α → Prop} {xs : Array { x // p x }} {f : { x // p x } → Bool} {g : α → Bool}
+    (hf : ∀ x h, f ⟨x, h⟩ = g x) (w : stop = xs.size) :
+    xs.any f 0 stop = xs.unattach.any g := by
+  subst w
+  rcases xs with ⟨xs⟩
+  simp [hf]
 
 /-! ### Simp lemmas pushing `unattach` inwards. -/
 

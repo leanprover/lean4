@@ -16,8 +16,8 @@ These are in a separate file from most of the list lemmas
 as they required importing more lemmas about natural numbers, and use `omega`.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
 
@@ -115,12 +115,12 @@ theorem take_set_of_le (a : α) {i j : Nat} (l : List α) (h : j ≤ i) :
 @[deprecated take_set_of_le (since := "2025-02-04")]
 abbrev take_set_of_lt := @take_set_of_le
 
-@[simp] theorem take_replicate (a : α) : ∀ i j : Nat, take i (replicate j a) = replicate (min i j) a
+@[simp] theorem take_replicate (a : α) : ∀ i n : Nat, take i (replicate n a) = replicate (min i n) a
   | n, 0 => by simp [Nat.min_zero]
   | 0, m => by simp [Nat.zero_min]
   | succ n, succ m => by simp [replicate_succ, succ_min_succ, take_replicate]
 
-@[simp] theorem drop_replicate (a : α) : ∀ i j : Nat, drop i (replicate j a) = replicate (j - i) a
+@[simp] theorem drop_replicate (a : α) : ∀ i n : Nat, drop i (replicate n a) = replicate (n - i) a
   | n, 0 => by simp
   | 0, m => by simp
   | succ n, succ m => by simp [replicate_succ, succ_sub_succ, drop_replicate]

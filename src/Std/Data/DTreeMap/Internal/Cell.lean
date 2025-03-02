@@ -43,7 +43,7 @@ def ofEq [Ord α] {k : α → Ordering} (k' : α) (v' : β k') (hcmp : ∀ [Orie
 
 /-- Create a cell with a matching key. Internal implementation detail of the tree map -/
 def of [Ord α] (k : α) (v : β k) : Cell α β (compare k) :=
-  .ofEq k v (by intro; simp)
+  .ofEq k v compare_self
 
 @[simp]
 theorem ofEq_inner [Ord α] {k : α → Ordering} {k' : α} {v' : β k'} {h} :
@@ -95,6 +95,16 @@ def get? [Ord α] [OrientedOrd α] [LawfulEqOrd α] {k : α} (c : Cell α β (co
 @[simp]
 theorem get?_empty [Ord α] [OrientedOrd α] [LawfulEqOrd α] {k : α} :
     (Cell.empty : Cell α β (compare k)).get? = none :=
+  rfl
+
+/-- Internal implementation detail of the tree map -/
+def getKey? [Ord α] {k : α} (c : Cell α β (compare k)) : Option α :=
+  match c.inner with
+  | none => none
+  | some p => some p.1
+
+@[simp]
+theorem getKey?_empty [Ord α] {k : α} : (Cell.empty : Cell α β (compare k)).getKey? = none :=
   rfl
 
 /-- Internal implementation detail of the tree map -/

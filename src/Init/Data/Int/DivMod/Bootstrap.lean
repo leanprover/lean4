@@ -18,7 +18,7 @@ open Nat (succ)
 
 namespace Int
 
--- /-! ### dvd  -/
+/-! ### dvd  -/
 
 protected theorem dvd_def (a b : Int) : (a ∣ b) = Exists (fun c => b = a * c) := rfl
 
@@ -67,7 +67,7 @@ protected theorem dvd_neg {a b : Int} : a ∣ -b ↔ a ∣ b := by
 theorem ofNat_dvd_left {n : Nat} {z : Int} : (↑n : Int) ∣ z ↔ n ∣ z.natAbs := by
   rw [← natAbs_dvd_natAbs, natAbs_ofNat]
 
-/-! ### *div zero  -/
+/-! ### ediv zero  -/
 
 @[simp] theorem zero_ediv : ∀ b : Int, 0 / b = 0
   | ofNat _ => show ofNat _ = _ by simp
@@ -77,7 +77,7 @@ theorem ofNat_dvd_left {n : Nat} {z : Int} : (↑n : Int) ∣ z ↔ n ∣ z.natA
   | ofNat _ => show ofNat _ = _ by simp
   | -[_+1] => rfl
 
-/-! ### mod zero -/
+/-! ### emod zero -/
 
 @[simp] theorem zero_emod (b : Int) : 0 % b = 0 := rfl
 
@@ -88,7 +88,6 @@ theorem ofNat_dvd_left {n : Nat} {z : Int} : (↑n : Int) ∣ z ↔ n ∣ z.natA
 /-! ### ofNat mod -/
 
 @[simp, norm_cast] theorem ofNat_emod (m n : Nat) : (↑(m % n) : Int) = m % n := rfl
-
 
 /-! ### mod definitions -/
 
@@ -106,11 +105,16 @@ where
       ← Int.neg_neg (_-_), Int.neg_sub, Int.sub_sub_self, Int.add_right_comm]
     exact congrArg (fun x => -(ofNat x + 1)) (Nat.mod_add_div ..)
 
+/-- Variant of `emod_add_ediv` with the multiplication written the other way around. -/
 theorem emod_add_ediv' (a b : Int) : a % b + a / b * b = a := by
   rw [Int.mul_comm]; exact emod_add_ediv ..
 
 theorem ediv_add_emod (a b : Int) : b * (a / b) + a % b = a := by
   rw [Int.add_comm]; exact emod_add_ediv ..
+
+/-- Variant of `ediv_add_emod` with the multiplication written the other way around. -/
+theorem ediv_add_emod' (a b : Int) : a / b * b + a % b = a := by
+  rw [Int.mul_comm]; exact ediv_add_emod ..
 
 theorem emod_def (a b : Int) : a % b = a - b * (a / b) := by
   rw [← Int.add_sub_cancel (a % b), emod_add_ediv]
@@ -170,13 +174,16 @@ theorem add_ediv_of_dvd_left {a b c : Int} (H : c ∣ a) : (a + b) / c = a / c +
 @[simp] theorem mul_ediv_cancel_left (b : Int) (H : a ≠ 0) : (a * b) / a = b :=
   Int.mul_comm .. ▸ Int.mul_ediv_cancel _ H
 
-theorem div_nonneg_iff_of_pos {a b : Int} (h : 0 < b) : a / b ≥ 0 ↔ a ≥ 0 := by
+theorem ediv_nonneg_iff_of_pos {a b : Int} (h : 0 < b) : 0 ≤ a / b ↔ 0 ≤ a := by
   rw [Int.div_def]
   match b, h with
   | Int.ofNat (b+1), _ =>
     rcases a with ⟨a⟩ <;> simp [Int.ediv]
     norm_cast
     simp
+
+@[deprecated ediv_nonneg_iff_of_pos (since := "2025-02-28")]
+abbrev div_nonneg_iff_of_pos := @ediv_nonneg_iff_of_pos
 
 /-! ### emod -/
 
@@ -299,6 +306,12 @@ protected theorem ediv_mul_cancel {a b : Int} (H : b ∣ a) : a / b * b = a :=
 
 protected theorem mul_ediv_cancel' {a b : Int} (H : a ∣ b) : a * (b / a) = b := by
   rw [Int.mul_comm, Int.ediv_mul_cancel H]
+
+theorem emod_pos_of_not_dvd {a b : Int} (h : ¬ a ∣ b) : a = 0 ∨ 0 < b % a := by
+  rw [dvd_iff_emod_eq_zero] at h
+  by_cases w : a = 0
+  · simp_all
+  · exact Or.inr (Int.lt_iff_le_and_ne.mpr ⟨emod_nonneg b w, Ne.symm h⟩)
 
 /-! ### bmod -/
 

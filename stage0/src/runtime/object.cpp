@@ -22,7 +22,13 @@ Author: Leonardo de Moura
 #include "runtime/io.h"
 #include "runtime/hash.h"
 
-#ifdef __GLIBC__
+#if defined(__GLIBC__) || defined(__APPLE__)
+    #define LEAN_SUPPORTS_BACKTRACE 1
+#else
+    #define LEAN_SUPPORTS_BACKTRACE 0
+#endif
+
+#if LEAN_SUPPORTS_BACKTRACE
 #include <execinfo.h>
 #include <unistd.h>
 #endif
@@ -106,7 +112,7 @@ static void panic_eprintln(char const * line) {
 }
 
 static void print_backtrace() {
-#ifdef __GLIBC__
+#if LEAN_SUPPORTS_BACKTRACE
     void * bt_buf[100];
     int nptrs = backtrace(bt_buf, sizeof(bt_buf) / sizeof(void *));
     if (char ** symbols = backtrace_symbols(bt_buf, nptrs)) {
@@ -131,7 +137,7 @@ extern "C" LEAN_EXPORT void lean_panic(char const * msg, bool force_stderr = fal
         } else {
             panic_eprintln(msg);
         }
-#ifdef __GLIBC__
+#if LEAN_SUPPORTS_BACKTRACE
         char * bt_env = getenv("LEAN_BACKTRACE");
         if (!bt_env || strcmp(bt_env, "0") != 0) {
             panic_eprintln("backtrace:");

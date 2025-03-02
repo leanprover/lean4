@@ -1053,9 +1053,14 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
   simp_to_raw using Raw₀.distinct_keys ⟨m, h.size_buckets_pos⟩ h
 
 @[simp]
+theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toList.map Sigma.fst = m.keys := by
+  apply Raw₀.map_fst_toList_eq_keys ⟨m, h.size_buckets_pos⟩
+
+@[simp, deprecated map_fst_toList_eq_keys (since := "2025-02-28")]
 theorem map_sigma_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.map Sigma.fst = m.keys := by
-  apply Raw₀.map_sigma_fst_toList_eq_keys ⟨m, h.size_buckets_pos⟩
+  apply Raw₀.map_fst_toList_eq_keys ⟨m, h.size_buckets_pos⟩
 
 @[simp]
 theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
@@ -1099,9 +1104,14 @@ namespace Const
 variable {β : Type v} {m : Raw α (fun _ => β)}
 
 @[simp]
+theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    (Raw.Const.toList m).map Prod.fst = m.keys := by
+  apply Raw₀.Const.map_fst_toList_eq_keys ⟨m, h.size_buckets_pos⟩
+
+@[simp, deprecated map_fst_toList_eq_keys (since := "2025-02-28")]
 theorem map_prod_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     (Raw.Const.toList m).map Prod.fst = m.keys := by
-  apply Raw₀.Const.map_prod_fst_toList_eq_keys ⟨m, h.size_buckets_pos⟩
+  apply Raw₀.Const.map_fst_toList_eq_keys ⟨m, h.size_buckets_pos⟩
 
 @[simp]
 theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :

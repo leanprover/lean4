@@ -14,7 +14,7 @@ This file develops the type `Std.DTreeMap` of dependent tree maps.
 Lemmas about the operations on `Std.DTreeMap` will be available in the
 module `Std.Data.DTreeMap.Lemmas`.
 
-See the module `Std.Data.DTreeMap.Raw` for a variant of this type which is safe to use in
+See the module `Std.Data.DTreeMap.Raw.Basic` for a variant of this type which is safe to use in
 nested inductive types.
 -/
 
@@ -629,12 +629,12 @@ variable {β : Type v}
 def getThenInsertIfNew? (t : DTreeMap α β cmp) (a : α) (b : β) :
     Option β × DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
-  let p := Impl.Const.getThenInsertIfNew? a b t.inner t.wf.balanced
+  let p := Impl.Const.getThenInsertIfNew? t.inner a b t.wf.balanced
   (p.1, ⟨p.2, t.wf.constGetThenInsertIfNew?⟩)
 
 @[inline, inherit_doc DTreeMap.get?]
 def get? (t : DTreeMap α β cmp) (a : α) : Option β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.get? a t.inner
+  letI : Ord α := ⟨cmp⟩; Impl.Const.get? t.inner a
 
 @[inline, inherit_doc get?, deprecated get? (since := "2025-02-12")]
 def find? (t : DTreeMap α β cmp) (a : α) : Option β :=
@@ -642,11 +642,11 @@ def find? (t : DTreeMap α β cmp) (a : α) : Option β :=
 
 @[inline, inherit_doc DTreeMap.get]
 def get (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.get a t.inner h
+  letI : Ord α := ⟨cmp⟩; Impl.Const.get t.inner a h
 
 @[inline, inherit_doc DTreeMap.get!]
 def get! (t : DTreeMap α β cmp) (a : α) [Inhabited β] : β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.get! a t.inner
+  letI : Ord α := ⟨cmp⟩; Impl.Const.get! t.inner a
 
 @[inline, inherit_doc get!, deprecated get! (since := "2025-02-12")]
 def find! (t : DTreeMap α β cmp) (a : α) [Inhabited β] : β :=
@@ -654,7 +654,7 @@ def find! (t : DTreeMap α β cmp) (a : α) [Inhabited β] : β :=
 
 @[inline, inherit_doc DTreeMap.getD]
 def getD (t : DTreeMap α β cmp) (a : α) (fallback : β) : β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.getD a t.inner fallback
+  letI : Ord α := ⟨cmp⟩; Impl.Const.getD t.inner a fallback
 
 @[inline, inherit_doc getD, deprecated getD (since := "2025-02-12")]
 def findD (t : DTreeMap α β cmp) (a : α) (fallback : β) : β :=
@@ -791,17 +791,17 @@ def fold (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β c
 
 /-- Folds the given monadic function over the mappings in the map in descending order. -/
 @[inline]
-def foldrM (f : δ → (a : α) → β a → m δ) (init : δ) (t : DTreeMap α β cmp) : m δ :=
+def foldrM (f : (a : α) → β a → δ → m δ) (init : δ) (t : DTreeMap α β cmp) : m δ :=
   t.inner.foldrM f init
 
 /-- Folds the given function over the mappings in the map in descending order. -/
 @[inline]
-def foldr (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
+def foldr (f : (a : α) → β a → δ → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
   t.inner.foldr f init
 
 @[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
 def revFold (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
-  foldr f init t
+  foldr (fun k v acc => f acc k v) init t
 
 /-- Partitions a tree map into two tree maps based on a predicate. -/
 @[inline] def partition (f : (a : α) → β a → Bool)

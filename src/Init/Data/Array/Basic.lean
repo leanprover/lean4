@@ -14,8 +14,8 @@ import Init.GetElem
 import Init.Data.List.ToArrayImpl
 import Init.Data.Array.Set
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 universe u v w
 
@@ -143,6 +143,8 @@ abbrev _root_.Array.size_toArray := @List.size_toArray
 end List
 
 namespace Array
+
+theorem size_eq_length_toList (xs : Array α) : xs.size = xs.toList.length := rfl
 
 @[deprecated toList_toArray (since := "2024-09-09")] abbrev data_toArray := @List.toList_toArray
 
@@ -1090,6 +1092,11 @@ def split (as : Array α) (p : α → Bool) : Array α × Array α :=
   as.foldl (init := (#[], #[])) fun (as, bs) a =>
     if p a then (as.push a, bs) else (as, bs.push a)
 
+def replace [BEq α] (xs : Array α) (a b : α) : Array α :=
+  match xs.finIdxOf? a with
+  | none => xs
+  | some i => xs.set i b
+
 /-! ### Lexicographic ordering -/
 
 instance instLT [LT α] : LT (Array α) := ⟨fun as bs => as.toList < bs.toList⟩
@@ -1101,6 +1108,20 @@ instance instLE [LT α] : LE (Array α) := ⟨fun as bs => as.toList ≤ bs.toLi
 
 We do not currently intend to provide verification theorems for these functions.
 -/
+
+/-! ### leftpad and rightpad -/
+
+/--
+Pads `l : Array α` on the left with repeated occurrences of `a : α` until it is of size `n`.
+If `l` is initially larger than `n`, just return `l`.
+-/
+def leftpad (n : Nat) (a : α) (xs : Array α) : Array α := mkArray (n - xs.size) a ++ xs
+
+/--
+Pads `l : Array α` on the right with repeated occurrences of `a : α` until it is of size `n`.
+If `l` is initially larger than `n`, just return `l`.
+-/
+def rightpad (n : Nat) (a : α) (xs : Array α) : Array α := xs ++ mkArray (n - xs.size) a
 
 /- ### reduceOption -/
 

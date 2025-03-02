@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
 prelude
-import Std.Data.TreeMap.Raw
+import Std.Data.TreeMap.Raw.Basic
 import Std.Data.TreeSet.Basic
 
 /-
@@ -18,7 +18,7 @@ available as `Std.TreeSet.Raw.WF` and we prove in this file that all operations 
 well-formedness. When in doubt, prefer `TreeSet` over `TreeSet.Raw`.
 
 Lemmas about the operations on `Std.TreeSet.Raw` will be available in the module
-`Std.Data.TreeSet.RawLemmas`.
+`Std.Data.TreeSet.Raw.Lemmas`.
 -/
 
 set_option autoImplicit false
@@ -36,7 +36,7 @@ namespace TreeSet
 Tree sets without a bundled well-formedness invariant, suitable for use in nested
 inductive types. The well-formedness invariant is called `Raw.WF`. When in doubt, prefer `TreeSet`
 over `TreeSet.Raw`. Lemmas about the operations on `Std.TreeSet.Raw` are available in the
-module `Std.Data.TreeSet.RawLemmas`.
+module `Std.Data.TreeSet.Raw.Lemmas`.
 
 A tree set stores elements of a certain type in a certain order. It depends on a comparator function
 that defines an ordering on the keys and provides efficient order-dependent queries, such as
@@ -272,16 +272,16 @@ def fold (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
   t.foldl f init
 
 @[inline, inherit_doc TreeSet.empty]
-def foldrM (f : δ → (a : α) → m δ) (init : δ) (t : Raw α cmp) : m δ :=
-  t.inner.foldrM (fun c a _ => f c a) init
+def foldrM (f : (a : α) → δ → m δ) (init : δ) (t : Raw α cmp) : m δ :=
+  t.inner.foldrM (fun a _ acc => f a acc) init
 
 @[inline, inherit_doc TreeSet.empty]
-def foldr (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
-  t.inner.foldr (fun c a _ => f c a) init
+def foldr (f : (a : α) → δ → δ) (init : δ) (t : Raw α cmp) : δ :=
+  t.inner.foldr (fun a _ acc => f a acc) init
 
 @[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
 def revFold (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
-  foldr f init t
+  foldr (fun a acc => f acc a) init t
 
 @[inline, inherit_doc TreeSet.partition]
 def partition (f : (a : α) → Bool) (t : Raw α cmp) : Raw α cmp × Raw α cmp :=
@@ -311,7 +311,7 @@ def all (t : Raw α cmp) (p : α → Bool) : Bool :=
 
 @[inline, inherit_doc TreeSet.empty]
 def toList (t : Raw α cmp) : List α :=
-  t.inner.inner.inner.foldr (fun l a _ => a :: l) ∅
+  t.inner.inner.inner.foldr (fun a _ l => a :: l) ∅
 
 @[inline, inherit_doc TreeSet.ofList]
 def ofList (l : List α) (cmp : α → α → Ordering := by exact compare) : Raw α cmp :=

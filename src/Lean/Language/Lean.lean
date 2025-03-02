@@ -425,6 +425,7 @@ where
         return { diagnostics, result? := none }
 
       let headerEnv := headerEnv.setMainModule setup.mainModuleName
+      let headerEnv ← headerEnv.enableRealizationsForImports setup.opts
       let mut traceState := default
       if trace.profiler.output.get? setup.opts |>.isSome then
         traceState := {

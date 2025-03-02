@@ -32,7 +32,7 @@ def Monitor.spinnerFrames :=
 
 /-- Context of the Lake build monitor. -/
 structure MonitorContext where
-  totalJobs : Nat
+  jobs : IO.Ref (Array OpaqueJob)
   out : IO.FS.Stream
   outLv : LogLevel
   failLv : LogLevel
@@ -45,7 +45,8 @@ structure MonitorContext where
 
 /-- State of the Lake build monitor. -/
 structure MonitorState where
-  jobNo : Nat := 1
+  jobNo : Nat := 0
+  totalJobs : Nat := 0
   failures : Array String
   resetCtrl : String
   lastUpdate : Nat
@@ -84,8 +85,8 @@ namespace Monitor
   flush (← read).out
 
 def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfinished.size) : MonitorM PUnit := do
-  let {jobNo, ..} ← get
-  let {totalJobs, useAnsi, showProgress, ..} ← read
+  let {jobNo, totalJobs, ..} ← get
+  let {useAnsi, showProgress, ..} ← read
   if showProgress ∧ useAnsi then
     let spinnerIcon ← modifyGet fun s =>
         (spinnerFrames[s.spinnerIdx], {s with spinnerIdx := s.spinnerIdx + ⟨1, by decide⟩})
@@ -99,8 +100,8 @@ def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfinished.si
     flush
 
 def reportJob (job : OpaqueJob) : MonitorM PUnit := do
-  let {jobNo, ..} ← get
-  let {totalJobs, failLv, outLv, showOptional, out, useAnsi, showProgress, minAction, ..} ← read
+  let {jobNo, totalJobs, ..} ← get
+  let {failLv, outLv, showOptional, out, useAnsi, showProgress, minAction, ..} ← read
   let {task, caption, optional} := job
   let {log, action, ..} := task.get.state
   let maxLv := log.maxLv
@@ -129,8 +130,10 @@ def reportJob (job : OpaqueJob) : MonitorM PUnit := do
       log.replay (logger := .stream out outLv useAnsi)
     flush
 
-def poll (jobs : Array OpaqueJob): MonitorM (Array OpaqueJob × Array OpaqueJob) := do
-  jobs.foldlM (init := (#[], #[])) fun (running, unfinished) job => do
+def poll (unfinished : Array OpaqueJob) : MonitorM (Array OpaqueJob × Array OpaqueJob) := do
+  let newJobs ← (← read).jobs.modifyGet ((·, #[]))
+  modify fun s => {s with totalJobs := s.totalJobs + newJobs.size}
+  let pollJobs := fun (running, unfinished) job => do
     match (← IO.getTaskState job.task) with
     | .finished =>
       reportJob job
@@ -140,6 +143,8 @@ def poll (jobs : Array OpaqueJob): MonitorM (Array OpaqueJob × Array OpaqueJob)
       return (running.push job, unfinished.push job)
     | .waiting =>
       return (running, unfinished.push job)
+  let r ← unfinished.foldlM pollJobs (#[], #[])
+  newJobs.foldlM pollJobs r
 
 def sleep : MonitorM PUnit := do
   let now ← IO.monoMsNow
@@ -150,15 +155,15 @@ def sleep : MonitorM PUnit := do
   let now ← IO.monoMsNow
   modify fun s => {s with lastUpdate := now}
 
-partial def loop (jobs : Array OpaqueJob) : MonitorM PUnit := do
-  let (running, unfinished) ← poll jobs
+partial def loop (unfinished : Array OpaqueJob) : MonitorM PUnit := do
+  let (running, unfinished) ← poll unfinished
   if h : 0 < unfinished.size then
     renderProgress running unfinished h
     sleep
     loop unfinished
 
-def main (jobs : Array OpaqueJob) : MonitorM PUnit := do
-  loop jobs
+def main (init : Array OpaqueJob) : MonitorM PUnit := do
+  loop init
   let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl := ""})
   unless resetCtrl.isEmpty do
     print resetCtrl
@@ -168,18 +173,18 @@ end Monitor
 
 /-- The job monitor function. An auxiliary definition for `runFetchM`. -/
 def monitorJobs
-  (jobs : Array OpaqueJob)
+  (initJobs : Array OpaqueJob)
+  (jobs : IO.Ref (Array OpaqueJob))
   (out : IO.FS.Stream)
   (failLv outLv : LogLevel)
   (minAction : JobAction)
   (showOptional useAnsi showProgress : Bool)
   (resetCtrl : String := "")
   (initFailures : Array String := #[])
-  (totalJobs := jobs.size)
   (updateFrequency := 100)
 : BaseIO (Array String) := do
   let ctx := {
-    totalJobs, out, failLv, outLv, minAction, showOptional
+    jobs, out, failLv, outLv, minAction, showOptional
     useAnsi, showProgress, updateFrequency
   }
   let s := {
@@ -187,7 +192,7 @@ def monitorJobs
     lastUpdate := ← IO.monoMsNow
     failures := initFailures
   }
-  let (_,s) ← Monitor.main jobs |>.run ctx s
+  let (_,s) ← Monitor.main initJobs |>.run ctx s
   return s.failures
 
 /--
@@ -204,41 +209,19 @@ def Workspace.runFetchM
   let outLv := cfg.outLv
   let failLv := cfg.failLv
   let showProgress := cfg.showProgress
-  let showAnsiProgress := showProgress ∧ useAnsi
   let ctx ← mkBuildContext ws cfg
   -- Job Computation
-  let caption := "Computing build jobs"
-  if showAnsiProgress then
-    print! out s!"⣿ [?/?] {caption}"
-    flush out
-  let (a?, log) ← ((withLoggedIO build).run.run'.run ctx).run?
-  let failed := log.hasEntries ∧ log.maxLv ≥ failLv
-  if failed ∨ (log.hasEntries ∧ log.maxLv ≥ outLv) then
-    let icon := log.maxLv.icon
-    let caption := s!"{icon} [?/?] {caption}"
-    if useAnsi then
-      let caption := Ansi.chalk log.maxLv.ansiColor caption
-      if showProgress then
-        print! out s!"{Ansi.resetLine}{caption}"
-      else
-        print! out caption
-    else
-      print! out caption
-    print! out "\n"
-    let outLv := if failed then .trace else outLv
-    log.replay (logger := .stream out outLv useAnsi)
-    flush out
-  let failures := if failed then #[caption] else #[]
+  let caption := "job computation"
+  let compute := Job.async build (caption := caption)
+  let job ← compute.run.run'.run ctx |>.run nilTrace
   -- Job Monitor
-  let jobs ← ctx.registeredJobs.get
-  let resetCtrl := if showAnsiProgress then Ansi.resetLine else ""
   let minAction := if cfg.verbosity = .verbose then .unknown else .fetch
   let showOptional := cfg.verbosity = .verbose
-  let failures ← monitorJobs jobs out failLv outLv minAction showOptional useAnsi showProgress
-    (resetCtrl := resetCtrl) (initFailures := failures)
+  let failures ← monitorJobs #[job] ctx.registeredJobs
+    out failLv outLv minAction showOptional useAnsi showProgress
   -- Failure Report
   if failures.isEmpty then
-    let some a := a?
+    let some a ← job.wait?
       | error "top-level build failed"
     return a
   else

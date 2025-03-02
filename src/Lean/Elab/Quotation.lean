@@ -190,7 +190,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
                 | $[some $ids:ident],* => $(quote inner)
                 | $[_%$ids],*          => Array.empty)
             | _ =>
-              let arr ← ids[:ids.size-1].foldrM (fun id arr => `(Array.zip $id:ident $arr)) ids.back!
+              let arr ← ids[:ids.size - 1].foldrM (fun id arr => `(Array.zip $id:ident $arr)) ids.back!
               `(Array.map (fun $(← mkTuple ids) => $(inner[0]!)) $arr)
           let arr ← if k == `sepBy then
             `(mkSepArray $arr $(getSepStxFromSplice arg))

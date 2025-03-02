@@ -97,7 +97,7 @@ section Const
 variable {β : Type v}
 
 theorem WF.constGetThenInsertIfNew? [Ord α] {t : Impl α β} {k v} {h : t.WF} :
-    (Impl.Const.getThenInsertIfNew? k v t h.balanced).2.WF := by
+    (Impl.Const.getThenInsertIfNew? t k v h.balanced).2.WF := by
   simp only [Impl.Const.getThenInsertIfNew?]
   split
   · exact h.insertIfNew

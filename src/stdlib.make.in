@@ -60,7 +60,7 @@ Lean: Std
 
 Lake:
 # lake is in its own subdirectory, so must adjust relative paths...
-	+"${LEAN_BIN}/leanmake" -C lake lib lib.export ../${LIB}/temp/LakeMain.o.export  PKG=Lake $(LEANMAKE_OPTS) OUT="../${LIB}" LIB_OUT="../${LIB}/lean" TEMP_OUT="../${LIB}/temp" OLEAN_OUT="../${LIB}/lean" LEAN_OPTS+="--plugin=${LAKE_PREV_PLUGIN}" EXTRA_SRC_ROOTS=LakeMain.lean
+	+"${LEAN_BIN}/leanmake" -C lake lib lib.export ../${LIB}/temp/LakeMain.o.export  PKG=Lake $(LEANMAKE_OPTS) OUT="../${LIB}" LIB_OUT="../${LIB}/lean" TEMP_OUT="../${LIB}/temp" OLEAN_OUT="../${LIB}/lean" LEAN_OPTS+="--plugin=${PREV_STAGE}/${CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}" EXTRA_SRC_ROOTS=LakeMain.lean
 
 endif
 
@@ -144,4 +144,4 @@ ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_D
 lean: ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}
 
 Leanc:
-	+"${LEAN_BIN}/leanmake" bin PKG=Leanc BIN_NAME=leanc${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS='${CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE} ${LINK_OPTS}' OUT="${CMAKE_BINARY_DIR}" OLEAN_OUT="${CMAKE_BINARY_DIR}"
+	+"${LEAN_BIN}/leanmake" bin PKG=Leanc BIN_NAME=leanc${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS='${CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE} ${LINK_OPTS}' OUT="${CMAKE_BINARY_DIR}" OLEAN_OUT="${CMAKE_BINARY_DIR}" LEAN_PATH="${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"

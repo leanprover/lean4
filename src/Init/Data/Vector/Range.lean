@@ -14,8 +14,8 @@ import Init.Data.Array.Range
 
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Vector
 
@@ -114,6 +114,9 @@ theorem range'_eq_append_iff : range' s (n + m) = xs ++ ys â†” xs = range' s n â
   simp [range'_eq_mk_range']
 
 /-! ### range -/
+
+@[simp] theorem getElem_range (i : Nat) (hi : i < n) : (Vector.range n)[i] = i := by
+  simp [Vector.range]
 
 theorem range_eq_range' (n : Nat) : range n = range' 0 n := by
   simp [range, range', Array.range_eq_range']

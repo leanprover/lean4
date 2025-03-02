@@ -15,8 +15,8 @@ import Init.Data.Array.Lex.Basic
 We prefer to pull `List.toArray` outwards past `Array` operations.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Array
 
@@ -43,6 +43,16 @@ theorem toArray_inj {as bs : List α} (h : as.toArray = bs.toArray) : as = bs :=
     cases bs with
     | nil => simp at h
     | cons b bs => simpa using h
+
+theorem toArray_eq_iff {as : List α} {bs : Array α} : as.toArray = bs ↔ as = bs.toList := by
+  cases bs
+  simp
+
+-- We can't make this a `@[simp]` lemma because `#[] = [].toArray` at reducible transparency,
+-- so this would loop with `toList_eq_nil_iff`
+theorem eq_toArray_iff {as : Array α} {bs : List α} : as = bs.toArray ↔ as.toList = bs := by
+  cases as
+  simp
 
 @[simp] theorem size_toArrayAux {as : List α} {xs : Array α} :
     (as.toArrayAux xs).size = xs.size + as.length := by
@@ -76,6 +86,21 @@ theorem toArray_cons (a : α) (l : List α) : (a :: l).toArray = #[a] ++ l.toArr
 @[simp] theorem back_toArray (l : List α) (h) :
     l.toArray.back = l.getLast (by simp at h; exact ne_nil_of_length_pos h) := by
   simp [back, List.getLast_eq_getElem]
+
+@[simp] theorem _root_.Array.getLast!_toList [Inhabited α] (xs : Array α) :
+    xs.toList.getLast! = xs.back! := by
+  rcases xs with ⟨xs⟩
+  simp
+
+@[simp] theorem _root_.Array.getLast?_toList (xs : Array α) :
+    xs.toList.getLast? = xs.back? := by
+  rcases xs with ⟨xs⟩
+  simp
+
+@[simp] theorem _root_.Array.getLast_toList (xs : Array α) (h) :
+    xs.toList.getLast h = xs.back (by simpa [ne_nil_iff_length_pos] using h) := by
+  rcases xs with ⟨xs⟩
+  simp
 
 @[simp] theorem set_toArray (l : List α) (i : Nat) (a : α) (h : i < l.length) :
     (l.toArray.set i a) = (l.set i a).toArray := rfl
@@ -514,8 +539,8 @@ private theorem popWhile_toArray_aux (p : α → Bool) (l : List α) :
 
 @[simp] theorem toArray_replicate (n : Nat) (v : α) : (List.replicate n v).toArray = mkArray n v := rfl
 
-@[deprecated toArray_replicate (since := "2024-12-13")]
-abbrev _root_.Array.mkArray_eq_toArray_replicate := @toArray_replicate
+theorem _root_.Array.mkArray_eq_toArray_replicate : mkArray n v = (List.replicate n v).toArray := by
+  simp
 
 @[simp] theorem flatMap_empty {β} (f : α → Array β) : (#[] : Array α).flatMap f = #[] := rfl
 
@@ -632,5 +657,47 @@ private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j
   · simp
   · simp only [size_toArray, Nat.not_le] at h'
     rw [List.insertIdx_of_length_lt (h := h')]
+
+@[simp]
+theorem replace_toArray [BEq α] [LawfulBEq α] (l : List α) (a b : α) :
+    l.toArray.replace a b = (l.replace a b).toArray := by
+  rw [Array.replace]
+  split <;> rename_i i h
+  · simp only [finIdxOf?_toArray, finIdxOf?_eq_none_iff] at h
+    rw [replace_of_not_mem]
+    simpa
+  · simp_all only [finIdxOf?_toArray, finIdxOf?_eq_some_iff, Fin.getElem_fin, set_toArray,
+      mk.injEq]
+    apply List.ext_getElem
+    · simp
+    · intro j h₁ h₂
+      rw [List.getElem_replace, List.getElem_set]
+      by_cases h₃ : j < i
+      · rw [if_neg (by omega), if_neg]
+        simp only [length_set] at h₁ h₃
+        simpa using h.2 ⟨j, by omega⟩ h₃
+      · by_cases h₃ : j = i
+        · rw [if_pos (by omega), if_pos, if_neg]
+          · simp only [mem_take_iff_getElem, not_exists]
+            intro k hk
+            simpa using h.2 ⟨k, by omega⟩ (by show k < i.1; omega)
+          · subst h₃
+            simpa using h.1
+        · rw [if_neg (by omega)]
+          split
+          · rw [if_pos]
+            · simp_all
+            · simp only [mem_take_iff_getElem]
+              simp only [length_set] at h₁
+              exact ⟨i, by omega, h.1⟩
+          · rfl
+
+@[simp] theorem leftpad_toArray (n : Nat) (a : α) (l : List α) :
+    Array.leftpad n a l.toArray = (leftpad n a l).toArray := by
+  simp [leftpad, Array.leftpad, ← toArray_replicate]
+
+@[simp] theorem rightpad_toArray (n : Nat) (a : α) (l : List α) :
+    Array.rightpad n a l.toArray = (rightpad n a l).toArray := by
+  simp [rightpad, Array.rightpad, ← toArray_replicate]
 
 end List

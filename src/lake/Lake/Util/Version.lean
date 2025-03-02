@@ -250,7 +250,8 @@ private def toResultExpr [ToExpr α] (x : Except String α) : Except String Expr
 /-- A Lake version literal. -/
 scoped syntax:max (name := verLit) "v!" noWs interpolatedStr(term) : term
 
-@[term_elab verLit] def elabVerLit : TermElab := fun stx expectedType? => do
+@[builtin_term_elab verLit]
+def elabVerLit : TermElab := fun stx expectedType? => do
   let `(v!$v) := stx | throwUnsupportedSyntax
   tryPostponeIfNoneOrMVar expectedType?
   let some expectedType := expectedType?

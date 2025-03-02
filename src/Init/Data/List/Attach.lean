@@ -8,8 +8,8 @@ import Init.Data.List.Count
 import Init.Data.Subtype
 import Init.BinderNameHint
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
 
@@ -190,7 +190,7 @@ theorem length_attachWith {p : α → Prop} {l H} : length (l.attachWith p H) = 
 
 @[simp]
 theorem pmap_eq_nil_iff {p : α → Prop} {f : ∀ a, p a → β} {l H} : pmap f l H = [] ↔ l = [] := by
-  rw [← length_eq_zero, length_pmap, length_eq_zero]
+  rw [← length_eq_zero_iff, length_pmap, length_eq_zero_iff]
 
 theorem pmap_ne_nil_iff {P : α → Prop} (f : (a : α) → P a → β) {xs : List α}
     (H : ∀ (a : α), a ∈ xs → P a) : xs.pmap f H ≠ [] ↔ xs ≠ [] := by
@@ -662,6 +662,10 @@ def unattach {α : Type _} {p : α → Prop} (l : List { x // p x }) : List α :
 @[simp] theorem unattach_cons {p : α → Prop} {a : { x // p x }} {l : List { x // p x }} :
   (a :: l).unattach = a.val :: l.unattach := rfl
 
+@[simp] theorem mem_unattach {p : α → Prop} {l : List { x // p x }} {a} :
+    a ∈ l.unattach ↔ ∃ h : p a, ⟨a, h⟩ ∈ l := by
+  simp only [unattach, mem_map, Subtype.exists, exists_and_right, exists_eq_right]
+
 @[simp] theorem length_unattach {p : α → Prop} {l : List { x // p x }} :
     l.unattach.length = l.length := by
   unfold unattach
@@ -765,6 +769,16 @@ and simplifies these to the function directly taking the value.
   | cons a l ih =>
     simp [hf, find?_cons]
     split <;> simp [ih]
+
+@[simp] theorem all_subtype {p : α → Prop} {l : List { x // p x }} {f : { x // p x } → Bool} {g : α → Bool}
+    (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    l.all f = l.unattach.all g := by
+  simp [all_eq, hf]
+
+@[simp] theorem any_subtype {p : α → Prop} {l : List { x // p x }} {f : { x // p x } → Bool} {g : α → Bool}
+    (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    l.any f = l.unattach.any g := by
+  simp [any_eq, hf]
 
 /-! ### Simp lemmas pushing `unattach` inwards. -/
 

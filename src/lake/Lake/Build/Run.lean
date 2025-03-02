@@ -92,10 +92,13 @@ def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfinished.si
         (spinnerFrames[s.spinnerIdx], {s with spinnerIdx := s.spinnerIdx + ⟨1, by decide⟩})
     let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl := Ansi.resetLine})
     let caption :=
+      -- Prefer the newest running job.
+      -- This avoids the monitor focusing too long on any one job.
+      -- (e.g., "Running job computation")
       if _ : 0 < running.size then
-        s!"Running {running[0].caption} (+ {running.size - 1} more)"
+        s!"Running {running[running.size - 1].caption} (+ {running.size - 1} more)"
       else
-        s!"Running {unfinished[0].caption}"
+        s!"Running {unfinished[unfinished.size - 1].caption}"
     print s!"{resetCtrl}{spinnerIcon} [{jobNo}/{totalJobs}] {caption}"
     flush
 

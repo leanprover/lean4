@@ -1,3 +1,5 @@
+/- Uncomment after stage0 update
+
 namespace ListEx
 
 theorem map_id (xs : List α) : List.map id xs = xs := by
@@ -20,6 +22,7 @@ theorem append_assoc :
   fun_induction List.append <;> simp_all only [List.append]
 
 end ListEx
+-/
 
 namespace Ex1
 

@@ -9,6 +9,7 @@ import Lean.Meta.Tactic.Rewrite
 import Lean.Meta.Tactic.Split
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Eqns
+import Lean.Elab.PreDefinition.FixedParams
 import Lean.Meta.ArgsPacker.Basic
 import Init.Data.Array.Basic
 import Init.Internal.Order.Basic
@@ -20,12 +21,12 @@ open Eqns
 structure EqnInfo extends EqnInfoCore where
   declNames       : Array Name
   declNameNonRec  : Name
-  fixedPrefixSize : Nat
+  fixedParams     : FixedParams
   deriving Inhabited
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
-def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat) : MetaM Unit := do
+def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedParams : FixedParams) : MetaM Unit := do
   preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   unless preDefs.all fun p => p.kind.isTheorem do
     unless (← preDefs.allM fun p => isProp p.type) do
@@ -33,7 +34,7 @@ def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fi
       modifyEnv fun env =>
         preDefs.foldl (init := env) fun env preDef =>
           eqnInfoExt.insert env preDef.declName { preDef with
-            declNames, declNameNonRec, fixedPrefixSize }
+            declNames, declNameNonRec, fixedParams }
 
 private def deltaLHSUntilFix (declName declNameNonRec : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let target ← mvarId.getType'

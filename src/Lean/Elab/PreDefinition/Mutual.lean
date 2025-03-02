@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Joachim Breitner
 -/
 prelude
 import Lean.Elab.PreDefinition.Basic
+import Lean.Elab.PreDefinition.FixedParams
 
 /-!
 This module contains code common to mutual-via-fixedpoint constructions, i.e.
@@ -26,8 +27,17 @@ where
       withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>
         go (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
 
-def getFixedPrefix (preDefs : Array PreDefinition) : MetaM Nat :=
-  withCommonTelescope preDefs fun xs vals => do
+def checkFixedParams (preDefs : Array PreDefinition) (fixedPrefixSize : Nat) : MetaM Unit := do
+  let fixedParams ← getFixedParams preDefs
+  for preDef in preDefs, mapping in fixedParams.mappings do
+    unless mapping[:fixedPrefixSize] = (Array.range fixedPrefixSize).map Option.some do
+      throwError "Fixed prefix mismatch for {preDef.declName}: Expeted {fixedPrefixSize}, but got {mapping}"
+
+/--
+Get the fixed parameter prefix. Legacy code until all users have been migrated to `FixedParams`.
+-/
+def getFixedPrefix (preDefs : Array PreDefinition) : MetaM Nat := do
+  let fixedPrefixSize ← withCommonTelescope preDefs fun xs vals => do
     let resultRef ← IO.mkRef xs.size
     for val in vals do
       if (← resultRef.get) == 0 then return 0
@@ -43,6 +53,8 @@ def getFixedPrefix (preDefs : Array PreDefinition) : MetaM Nat :=
         else
           return true
     resultRef.get
+  checkFixedParams preDefs fixedPrefixSize
+  return fixedPrefixSize
 
 def addPreDefsFromUnary (preDefs : Array PreDefinition) (preDefsNonrec : Array PreDefinition)
     (unaryPreDefNonRec : PreDefinition) : TermElabM Unit := do

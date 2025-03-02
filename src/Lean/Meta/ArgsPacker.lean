@@ -328,6 +328,8 @@ if they are all the same.
 
 -/
 def uncurryType (types : Array Expr) : MetaM Expr := do
+  if types.size = 1 then
+    return types[0]!
   let types ← types.mapM whnfForall
   types.forM fun type => do
     unless type.isForall do

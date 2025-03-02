@@ -1405,6 +1405,22 @@ theorem cooper_dvd_right_split_dvd2 (ctx : Context) (p₁ p₂ p₃ : Poly) (d :
   simp [cooper_dvd_right_split_dvd2_cert, cooper_dvd_right_split]
   intros; subst d' p'; simp; assumption
 
+private theorem cooper_right_core
+    {a b p q x : Int} (a_neg : a < 0) (b_pos : 0 < b)
+    (h₁ : a * x + p ≤ 0)
+    (h₂ : b * x + q ≤ 0)
+    : OrOver b.natAbs fun k =>
+      b * p + (-a) * q + (-a) * k ≤ 0 ∧
+      b ∣ q + k := by
+  have d_pos : (0 : Int) < 1 := by decide
+  have h₃ : 1 ∣ 0*x + 0 := Int.one_dvd _
+  have h := cooper_dvd_right_core a_neg b_pos d_pos h₁ h₂ h₃
+  simp only [Int.mul_one, gcd_zero, Int.natAbs_of_nonneg (Int.le_of_lt b_pos), Int.ediv_neg,
+    Int.ediv_self (Int.ne_of_gt b_pos), Int.reduceNeg, lcm_neg_right, lcm_one,
+    Int.add_left_comm, Int.zero_mul, Int.mul_zero, Int.add_zero, Int.dvd_zero,
+    and_true, Int.neg_zero] at h
+  assumption
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

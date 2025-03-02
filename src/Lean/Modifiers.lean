@@ -18,7 +18,10 @@ def isProtected (env : Environment) (n : Name) : Bool :=
   protectedExt.isTagged env n
 
 def mkPrivateName (env : Environment) (n : Name) : Name :=
-  Name.mkNum (privateHeader ++ env.mainModule) 0 ++ n
+  if isPrivateName n then
+    n
+  else
+    Name.mkNum (privateHeader ++ env.mainModule) 0 ++ n
 
 def isPrivateNameFromImportedModule (env : Environment) (n : Name) : Bool :=
   match privateToUserName? n with

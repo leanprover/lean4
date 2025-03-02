@@ -416,13 +416,18 @@ def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (
     trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
     let name := (Name.str declName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
+    -- determinism: `type` should be independent of the environment changes since `baseName` was
+    -- added
+    realizeConst declName name (doRealize name info type)
+  return thmNames
+where
+  doRealize name info type := withOptions (tactic.hygienic.set · false) do
     let value ← mkEqnProof declName type tryRefl
     let (type, value) ← removeUnusedEqnHypotheses type value
     addDecl <| Declaration.thmDecl {
       name, type, value
       levelParams := info.levelParams
     }
-  return thmNames
 
 /--
   Auxiliary method for `mkUnfoldEq`. The structure is based on `mkEqnTypes`.
@@ -465,9 +470,12 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
   go mvarId
 
 /-- Generate the "unfold" lemma for `declName`. -/
-def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {} {} do
-  withOptions (tactic.hygienic.set · false) do
-    let baseName := declName
+def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := do
+  let name := Name.str declName unfoldThmSuffix
+  realizeConst declName name (doRealize name)
+  return name
+where
+  doRealize name := withOptions (tactic.hygienic.set · false) do
     lambdaTelescope info.value fun xs body => do
       let us := info.levelParams.map mkLevelParam
       let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
@@ -475,12 +483,10 @@ def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {
       mkUnfoldProof declName goal.mvarId!
       let type ← mkForallFVars xs type
       let value ← mkLambdaFVars xs (← instantiateMVars goal)
-      let name := Name.str baseName unfoldThmSuffix
       addDecl <| Declaration.thmDecl {
         name, type, value
         levelParams := info.levelParams
       }
-      return name
 
 def getUnfoldFor? (declName : Name) (getInfo? : Unit → Option EqnInfoCore) : MetaM (Option Name) := do
   if let some info := getInfo? () then

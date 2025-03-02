@@ -132,7 +132,7 @@ partial_fixpoint
 /--
 error: Could not prove 'id5' to be monotone in its recursive calls:
   Cannot eliminate recursive call `id5` enclosed in
-    Result.ok id5
+    Result.ok fun t => id5 t
 -/
 #guard_msgs in
 def id5 (t : Tree Nat) : Result (Tree Nat) :=

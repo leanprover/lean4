@@ -350,12 +350,12 @@ where
      | (.some fixedParamIdx)::mask, value => do
         assert! fixedParamIdx < xs.size
         go mask (← Meta.instantiateLambda value #[xs[fixedParamIdx]!])
-     | .none::mask, type =>
+     | .none::mask, value =>
         if mask.all Option.isNone then
           -- Nothing left to do. Also helpful if we may encounter an eta-contracted value
-          return type
+          return value
         else
-          lambdaBoundedTelescope type 1 fun ys value => do
+          lambdaBoundedTelescope value 1 fun ys value => do
             assert! ys.size = 1
             mkLambdaFVars ys (← go mask value)
 
@@ -382,7 +382,7 @@ where
 
 /--
 If `xs` are arguments to the `funIdx`'s function, pick only the varying ones.
-Unless `pickFixed`, this function can handle over- or under-application.
+Unlike `pickFixed`, this function can handle over- or under-application.
 -/
 def FixedParams.pickVarying (fixedParams : FixedParams) (funIdx : Nat) (xs : Array α) : Array α := Id.run do
   let mask := fixedParams.mappings[funIdx]!

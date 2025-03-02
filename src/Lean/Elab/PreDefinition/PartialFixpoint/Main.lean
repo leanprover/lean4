@@ -20,15 +20,14 @@ open Lean.Order
 
 private def replaceRecApps (recFnNames : Array Name) (fixedParams : FixedParams) (f : Expr) (e : Expr) : MetaM Expr := do
   assert! recFnNames.size = fixedParams.mappings.size
-  let namesAndArities := recFnNames.zip (fixedParams.mappings.map (·.size))
   let t ← inferType f
-  return e.replace fun e =>
-    if let some idx := namesAndArities.findIdx? (fun (n, a) => e.isAppOfArity n a) then
-      let args := e.getAppArgs
-      let varying := fixedParams.pickVarying idx args
-      some <| mkAppN (PProdN.proj recFnNames.size idx t f) varying
-    else
-      none
+  return e.replace fun e => do
+    let fn := e.getAppFn
+    guard fn.isConst
+    let idx ← recFnNames.idxOf? fn.constName!
+    let args := e.getAppArgs
+    let varying := fixedParams.pickVarying idx args
+    return mkAppN (PProdN.proj recFnNames.size idx t f) varying
 
 /--
 For pretty error messages:
@@ -169,7 +168,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     trace[Elab.definition.partialFixpoint] "packedValue: {packedValue}"
 
     let declName :=
-      if preDefs.size = 1 then
+      if preDefs.size = 1 && fixedParams.fixedArePrefix then
         preDefs[0]!.declName
       else
         preDefs[0]!.declName ++ `mutual

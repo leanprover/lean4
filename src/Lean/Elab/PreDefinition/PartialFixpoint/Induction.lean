@@ -77,11 +77,11 @@ def deriveInduction (name : Name) : MetaM Unit := do
 
       -- The body should now be of the form of the form (fix … ).2.2.1
       -- We strip the projections (if present)
-      let body' := PProdN.stripProjs body.eta
+      let body' := PProdN.stripProjs body.eta -- TODO: Eta more carefully?
       let some fixApp ← whnfUntil body' ``fix
-        | throwError "Unexpected function body {body}"
+        | throwError "Unexpected function body {body}, could not whnfUntil fix"
       let_expr fix α instCCPOα F hmono := fixApp
-        | throwError "Unexpected function body {body'}"
+        | throwError "Unexpected function body {body'}, not an application of fix"
 
       let instCCPOs := CCPOProdProjs infos.size instCCPOα
       let types ← infos.mapIdxM (eqnInfo.fixedParams.instantiateForall · ·.type xs)

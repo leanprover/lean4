@@ -1201,7 +1201,6 @@ theorem cooper_dvd_left (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (n : N
  intro; subst n
  simp only [Poly.denote'_add, Poly.leadCoeff]
  intro h₁ h₂ h₃
- have := cooper_dvd_left_core ha hb hd h₁ h₂ h₃
  simp only [denote'_mul_combine_mul_addConst_eq]
  simp only [denote'_addConst_eq]
  exact cooper_dvd_left_core ha hb hd h₁ h₂ h₃

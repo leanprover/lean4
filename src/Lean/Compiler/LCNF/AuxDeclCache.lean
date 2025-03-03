@@ -10,10 +10,7 @@ import Lean.Compiler.LCNF.Internalize
 
 namespace Lean.Compiler.LCNF
 
-abbrev AuxDeclCache := PHashMap Decl Name
-
-builtin_initialize auxDeclCacheExt : EnvExtension AuxDeclCache ←
-  registerEnvExtension (pure {}) (asyncMode := .sync)  -- compilation is non-parallel anyway
+builtin_initialize auxDeclCacheExt : CacheExtension Decl Name ← CacheExtension.register
 
 inductive CacheAuxDeclResult where
   | new
@@ -22,11 +19,11 @@ inductive CacheAuxDeclResult where
 def cacheAuxDecl (decl : Decl) : CompilerM CacheAuxDeclResult := do
   let key := { decl with name := .anonymous }
   let key ← normalizeFVarIds key
-  match auxDeclCacheExt.getState (← getEnv) |>.find? key with
+  match (← auxDeclCacheExt.find? key) with
   | some declName =>
     return .alreadyCached declName
   | none =>
-    modifyEnv fun env => auxDeclCacheExt.modifyState env fun s => s.insert key decl.name
+    auxDeclCacheExt.insert key decl.name
     return .new
 
 end Lean.Compiler.LCNF

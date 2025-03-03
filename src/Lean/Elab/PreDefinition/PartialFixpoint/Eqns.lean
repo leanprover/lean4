@@ -21,12 +21,13 @@ open Eqns
 structure EqnInfo extends EqnInfoCore where
   declNames       : Array Name
   declNameNonRec  : Name
-  fixedParams     : FixedParams
+  fixedParamPerms : FixedParamPerms
   deriving Inhabited
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
-def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedParams : FixedParams) : MetaM Unit := do
+def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name)
+    (fixedParamPerms : FixedParamPerms) : MetaM Unit := do
   preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   unless preDefs.all fun p => p.kind.isTheorem do
     unless (← preDefs.allM fun p => isProp p.type) do
@@ -34,7 +35,7 @@ def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fi
       modifyEnv fun env =>
         preDefs.foldl (init := env) fun env preDef =>
           eqnInfoExt.insert env preDef.declName { preDef with
-            declNames, declNameNonRec, fixedParams }
+            declNames, declNameNonRec, fixedParamPerms }
 
 private def deltaLHSUntilFix (declName declNameNonRec : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let target ← mvarId.getType'

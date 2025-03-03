@@ -264,7 +264,7 @@ structure FixedParamPerms where
   revDeps : Array (Array (Array Nat))
 deriving Inhabited, Repr
 
-def getFixedParams (preDefs : Array PreDefinition) : MetaM FixedParamPerms := do
+def getFixedParamPerms (preDefs : Array PreDefinition) : MetaM FixedParamPerms := do
   let info ← getFixedParamsInfo preDefs
   lambdaTelescope preDefs[0]!.value fun xs _ => do
     let paramInfos := info.graph[0]!
@@ -299,6 +299,9 @@ def getFixedParams (preDefs : Array PreDefinition) : MetaM FixedParamPerms := do
 
 def FixedParamPerm.numFixed (perm : FixedParamPerm) : Nat :=
   perm.countP Option.isSome
+
+def FixedParamPerm.isFixed (perm : FixedParamPerm) (i : Nat) : Bool :=
+  perm[i]?.join.isSome
 
 /--
 Brings the fixed parameters from `type`, which should the the type of the `funIdx`'s function, into

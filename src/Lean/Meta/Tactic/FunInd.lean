@@ -695,10 +695,10 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     | fix@WellFounded.fix α _motive rel wf body target =>
       unless params.back! == target do
         throwError "functional induction: expected the target as last parameter{indentExpr e}"
-      let fixedParams := params.pop
+      let fixedParamPerms := params.pop
       let motiveType ← mkForallFVars #[target] (.sort levelZero)
       withLocalDeclD `motive motiveType fun motive => do
-        let fn := mkAppN (← mkConstWithLevelParams name) fixedParams
+        let fn := mkAppN (← mkConstWithLevelParams name) fixedParamPerms
         let isRecCall : Expr → Option Expr := fun e =>
           if e.isApp && e.appFn!.isFVarOf motive.fvarId! then
             mkApp fn e.appArg!
@@ -732,7 +732,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
         -- induction principle match the type of the function better.
         -- But this leads to avoidable parameters that make functional induction strictly less
         -- useful (e.g. when the unsued parameter mentions bound variables in the users' goal)
-        let (paramMask, e') ← mkLambdaFVarsMasked fixedParams e'
+        let (paramMask, e') ← mkLambdaFVarsMasked fixedParamPerms e'
         let e' ← instantiateMVars e'
         return (e', paramMask)
     | _ =>
@@ -787,17 +787,17 @@ def projectMutualInduct (names : Array Name) (mutualInduct : Name) : MetaM Unit 
 For a (non-mutual!) definition of `name`, uses the `FunIndInfo` associated with the `unaryInduct` and
 derives the one for the n-ary function.
 -/
-def setNaryFunIndInfo (fixedParams : FixedParams) (name : Name) (unaryInduct : Name) : MetaM Unit := do
-  assert!  fixedParams.mappings.size = 1 -- only non-mutual for now
+def setNaryFunIndInfo (fixedParamPerms : FixedParamPerms) (name : Name) (unaryInduct : Name) : MetaM Unit := do
+  assert!  fixedParamPerms.perms.size = 1 -- only non-mutual for now
   let funIndName := getFunInductName name
   unless funIndName = unaryInduct do
     let some unaryFunIndInfo ← getFunIndInfoForInduct? unaryInduct
       | throwError "Expected {unaryInduct} to have FunIndInfo"
-    let paramInfos := fixedParams.mappings[0]!
+    let fixedParamPerm := fixedParamPerms.perms[0]!
     let mut params := #[]
     let mut j := 0
-    for h : i in [:paramInfos.size] do
-      if paramInfos[i].isSome then
+    for h : i in [:fixedParamPerm.size] do
+      if fixedParamPerm[i].isSome then
         assert! j + 1 < unaryFunIndInfo.params.size
         params := params.push unaryFunIndInfo.params[j]!
         j := j + 1
@@ -929,14 +929,14 @@ Given a recursive definition `foo` defined via structural recursion, derive `foo
 if needed, and `foo.induct` for all functions in the group.
 See module doc for details.
  -/
-def deriveInductionStructural (names : Array Name) (fixedParams : FixedParams) : MetaM Unit := do
+def deriveInductionStructural (names : Array Name) (fixedParamPerms : FixedParamPerms) : MetaM Unit := do
   let infos ← names.mapM getConstInfoDefn
   assert! infos.size > 0
   -- First open up the fixed parameters everywhere
-  let (e', paramMask, motiveArities) ← fixedParams.forallTelescope 0 infos[0]!.type fun xs => do
+  let (e', paramMask, motiveArities) ← fixedParamPerms.perms[0]!.forallTelescope infos[0]!.type fun xs => do
     -- Now look at the body of an arbitrary of the functions (they are essentially the same
     -- up to the final projections)
-    let body ← fixedParams.instantiateLambda 0 infos[0]!.value xs
+    let body ← fixedParamPerms.perms[0]!.instantiateLambda infos[0]!.value xs
     let body := body.eta
 
     lambdaTelescope body fun ys body => do
@@ -988,10 +988,10 @@ def deriveInductionStructural (names : Array Name) (fixedParams : FixedParams) :
 
       let recArgInfos ← infos.mapIdxM fun funIdx info => do
         let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) info.name | throwError "{info.name} missing eqnInfo"
-        let value ← fixedParams.instantiateLambda funIdx info.value xs
+        let value ← fixedParamPerms.perms[funIdx]!.instantiateLambda info.value xs
         let recArgInfo' ← lambdaTelescope value fun ys _ =>
-          let args := fixedParams.buildArgs funIdx xs ys
-          Structural.getRecArgInfo info.name funIdx fixedParams args eqnInfo.recArgPos
+          let args := fixedParamPerms.perms[funIdx]!.buildArgs xs ys
+          Structural.getRecArgInfo info.name fixedParamPerms.perms[funIdx]! args eqnInfo.recArgPos
         let #[recArgInfo] ← Structural.argsInGroup group xs value #[recArgInfo']
           | throwError "Structural.argsInGroup did not return a recArgInfo"
         pure recArgInfo
@@ -1010,10 +1010,10 @@ def deriveInductionStructural (names : Array Name) (fixedParams : FixedParams) :
 
         -- Calculate the types of the induction motives (natural argument order) for each function
         let motiveTypes ← infos.mapIdxM fun funIdx info => do
-          lambdaTelescope (← fixedParams.instantiateLambda funIdx info.value xs) fun ys _ =>
+          lambdaTelescope (← fixedParamPerms.perms[funIdx]!.instantiateLambda info.value xs) fun ys _ =>
             mkForallFVars ys (.sort levelZero)
         let motiveArities ← infos.mapIdxM fun funIdx info => do
-          lambdaTelescope (← fixedParams.instantiateLambda funIdx info.value xs) fun ys _ =>
+          lambdaTelescope (← fixedParamPerms.perms[funIdx]!.instantiateLambda info.value xs) fun ys _ =>
             pure ys.size
         let motiveNames := Array.ofFn (n := infos.size) fun ⟨i, _⟩ =>
           if infos.size = 1 then .mkSimple "motive" else .mkSimple s!"motive_{i+1}"
@@ -1025,7 +1025,7 @@ def deriveInductionStructural (names : Array Name) (fixedParams : FixedParams) :
             if let .some funIdx := motives.idxOf? e.getAppFn then
               if e.getAppNumArgs = motiveArities[funIdx]! then
                 let info := infos[funIdx]!
-                let args := fixedParams.buildArgs funIdx xs e.getAppArgs
+                let args := fixedParamPerms.perms[funIdx]!.buildArgs xs e.getAppArgs
                 return mkAppN (.const info.name (info.levelParams.map mkLevelParam)) args
             .none
 
@@ -1074,8 +1074,8 @@ def deriveInductionStructural (names : Array Name) (fixedParams : FixedParams) :
             for info in infos, recArgInfo in recArgInfos, idx in [:infos.size] do
               -- Take care to pick the `ys` from the type, to get the variable names expected
               -- by the user, but use the value arity
-              let arity ← lambdaTelescope (← fixedParams.instantiateLambda idx info.value xs) fun ys _ => pure ys.size
-              let e ← forallBoundedTelescope (← fixedParams.instantiateForall idx info.type xs) arity fun ys _ => do
+              let arity ← lambdaTelescope (← fixedParamPerms.perms[idx]!.instantiateLambda info.value xs) fun ys _ => pure ys.size
+              let e ← forallBoundedTelescope (← fixedParamPerms.perms[idx]!.instantiateForall info.type xs) arity fun ys _ => do
                 let (indicesMajor, rest) := recArgInfo.pickIndicesMajor ys
                 -- Find where in the function packing we are (TODO: abstract out)
                 let some indIdx := positions.findIdx? (·.contains idx) | panic! "invalid positions"
@@ -1217,9 +1217,9 @@ def deriveInduction (name : Name) : MetaM Unit := do
       let unpackedInductName ← unpackMutualInduction eqnInfo unaryInductName
       projectMutualInduct eqnInfo.declNames unpackedInductName
       if eqnInfo.argsPacker.numFuncs = 1 then
-        setNaryFunIndInfo eqnInfo.fixedParams eqnInfo.declNames[0]! unaryInductName
+        setNaryFunIndInfo eqnInfo.fixedParamPerms eqnInfo.declNames[0]! unaryInductName
     else if let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) name then
-      deriveInductionStructural eqnInfo.declNames eqnInfo.fixedParams
+      deriveInductionStructural eqnInfo.declNames eqnInfo.fixedParamPerms
     else
       throwError "constant '{name}' is not structurally or well-founded recursive"
 

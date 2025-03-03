@@ -23,11 +23,11 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
   let termMeasures? := termMeasure?s.mapM id -- Either all or none, checked by `elabTerminationByHints`
   let preDefs ← preDefs.mapM fun preDef =>
     return { preDef with value := (← floatRecApp preDef.value) }
-  let (fixedParams, argsPacker, unaryPreDef, wfPreprocessProofs) ← withoutModifyingEnv do
+  let (fixedParamPerms, argsPacker, unaryPreDef, wfPreprocessProofs) ← withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef
-    let fixedParams ← getFixedParams preDefs
-    let varNamess ← preDefs.mapIdxM fun i preDef => varyingVarNames fixedParams i preDef
+    let fixedParamPerms ← getFixedParamPerms preDefs
+    let varNamess ← preDefs.mapIdxM fun i preDef => varyingVarNames fixedParamPerms i preDef
     for varNames in varNamess, preDef in preDefs do
       if varNames.isEmpty then
         throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any (non-fixed) arguments"
@@ -35,21 +35,21 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
     let (preDefsAttached, wfPreprocessProofs) ← Array.unzip <$> preDefs.mapM fun preDef => do
       let result ← preprocess preDef.value
       return ({preDef with value := result.expr}, result)
-    let unaryPreDef ← packMutual fixedParams argsPacker preDefsAttached
-    return (fixedParams, argsPacker, unaryPreDef, wfPreprocessProofs)
+    let unaryPreDef ← packMutual fixedParamPerms argsPacker preDefsAttached
+    return (fixedParamPerms, argsPacker, unaryPreDef, wfPreprocessProofs)
   trace[Elab.definition.wf] "unaryPreDef:{indentD unaryPreDef.value}"
 
   let wf : TerminationMeasures ← do
     if let some tms := termMeasures? then pure tms else
     -- No termination_by here, so use GuessLex to infer one
-    guessLex preDefs unaryPreDef fixedParams argsPacker
+    guessLex preDefs unaryPreDef fixedParamPerms argsPacker
 
-  let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedParams.size fun fixedArgs type => do
+  let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedParamPerms.numFixed fun fixedArgs type => do
     let type ← whnfForall type
     unless type.isForall do
       throwError "wfRecursion: expected unary function type: {type}"
     let packedArgType := type.bindingDomain!
-    elabWFRel (preDefs.map (·.declName)) unaryPreDef.declName fixedParams fixedArgs argsPacker packedArgType wf fun wfRel => do
+    elabWFRel (preDefs.map (·.declName)) unaryPreDef.declName fixedParamPerms fixedArgs argsPacker packedArgType wf fun wfRel => do
       trace[Elab.definition.wf] "wfRel: {wfRel}"
       let (value, envNew) ← withoutModifyingEnv' do
         addAsAxiom unaryPreDef
@@ -60,10 +60,10 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
       return { unaryPreDef with value }
 
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
-  let preDefsNonrec ← preDefsFromUnaryNonRec fixedParams argsPacker preDefs preDefNonRec
+  let preDefsNonrec ← preDefsFromUnaryNonRec fixedParamPerms argsPacker preDefs preDefNonRec
   Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
   let preDefs ← Mutual.cleanPreDefs preDefs
-  registerEqnsInfo preDefs preDefNonRec.declName fixedParams argsPacker
+  registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms argsPacker
   for preDef in preDefs, wfPreprocessProof in wfPreprocessProofs do
     unless preDef.kind.isTheorem do
       unless (← isProp preDef.type) do

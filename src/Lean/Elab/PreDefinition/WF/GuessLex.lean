@@ -16,6 +16,7 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Mutual
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.TerminationMeasure
+import Lean.Elab.PreDefinition.FixedParams
 import Lean.Elab.PreDefinition.WF.Basic
 import Lean.Data.Array
 
@@ -170,12 +171,12 @@ def withUserNames {α} (xs : Array Expr) (ns : Array Name) (k : MetaM α) : Meta
   withLCtx' lctx k
 
 /-- Create one measure for each (eligible) parameter of the given predefintion.  -/
-def simpleMeasures (preDefs : Array PreDefinition) (fixedParams : FixedParams)
+def simpleMeasures (preDefs : Array PreDefinition) (fixedParamPerms : FixedParamPerms)
     (userVarNamess : Array (Array Name)) : MetaM (Array (Array BasicMeasure)) := do
   let is_mutual : Bool := preDefs.size > 1
   preDefs.mapIdxM fun funIdx preDef => do
     lambdaTelescope preDef.value fun params _ => do
-      let xs := fixedParams.pickVarying funIdx params
+      let xs := fixedParamPerms.perms[funIdx]!.pickVarying params
       withUserNames xs userVarNamess[funIdx]! do
         let mut ret : Array BasicMeasure := #[]
         for x in xs do
@@ -341,25 +342,25 @@ def filterSubsumed (rcs : Array RecCallWithContext ) : Array RecCallWithContext 
 Traverse a unary `PreDefinition`, and returns a `WithRecCall` closure for each recursive
 call site.
 -/
-def collectRecCalls (unaryPreDef : PreDefinition) (fixedParams : FixedParams)
+def collectRecCalls (unaryPreDef : PreDefinition) (fixedParamPerms : FixedParamPerms)
     (argsPacker : ArgsPacker) : MetaM (Array RecCallWithContext) := withoutModifyingState do
   addAsAxiom unaryPreDef
-  lambdaBoundedTelescope unaryPreDef.value (fixedParams.size + 1) fun xs body => do
-    unless xs.size == fixedParams.size + 1 do
+  lambdaBoundedTelescope unaryPreDef.value (fixedParamPerms.numFixed + 1) fun xs body => do
+    unless xs.size == fixedParamPerms.numFixed + 1 do
       throwError "Unexpected number of lambdas in unary pre-definition"
-    let ys := xs[:fixedParams.size]
-    let param := xs[fixedParams.size]!
-    withRecApps unaryPreDef.declName fixedParams.size param body fun param args => do
-      unless args.size ≥ fixedParams.size + 1 do
+    let ys := xs[:fixedParamPerms.numFixed]
+    let param := xs[fixedParamPerms.numFixed]!
+    withRecApps unaryPreDef.declName fixedParamPerms.numFixed param body fun param args => do
+      unless args.size ≥ fixedParamPerms.numFixed + 1 do
         throwError "Insufficient arguments in recursive call"
-      let arg := args[fixedParams.size]!
+      let arg := args[fixedParamPerms.numFixed]!
       trace[Elab.definition.wf] "collectRecCalls: {unaryPreDef.declName} ({param}) → {unaryPreDef.declName} ({arg})"
       let some (caller, params) := argsPacker.unpack param
         | throwError "Cannot unpack param, unexpected expression:{indentExpr param}"
       let some (callee, args) := argsPacker.unpack arg
         | throwError "Cannot unpack arg, unexpected expression:{indentExpr arg}"
-      let callerParams := fixedParams.buildArgs caller ys params
-      let calleeArgs := fixedParams.buildArgs callee ys args
+      let callerParams := fixedParamPerms.perms[caller]!.buildArgs ys params
+      let calleeArgs := fixedParamPerms.perms[callee]!.buildArgs ys args
       RecCallWithContext.create (← getRef) caller callerParams callee calleeArgs
 
 /-- Is the expression a `<`-like comparison of `Nat` expressions -/
@@ -371,7 +372,7 @@ def isNatCmp (e : Expr) : Option (Expr × Expr) :=
   | GE.ge α _ e₁ e₂ => if α.isConstOf ``Nat then some (e₂, e₁) else none
   | _ => none
 
-def complexMeasures (preDefs : Array PreDefinition) (fixedParams : FixedParams)
+def complexMeasures (preDefs : Array PreDefinition) (fixedParamPerms : FixedParamPerms)
     (userVarNamess : Array (Array Name)) (recCalls : Array RecCallWithContext) :
     MetaM (Array (Array BasicMeasure)) := do
   preDefs.mapIdxM fun funIdx _preDef => do
@@ -381,7 +382,7 @@ def complexMeasures (preDefs : Array PreDefinition) (fixedParams : FixedParams)
       unless rc.caller = funIdx do continue
       -- Only look at calls where the parameters have not been refined
       unless rc.params.all (·.isFVar) do continue
-      let varyingParams := fixedParams.pickVarying funIdx rc.params
+      let varyingParams := fixedParamPerms.perms[funIdx]!.pickVarying rc.params
       let varyingFVars := varyingParams.map (·.fvarId!)
       let params := rc.params.map (·.fvarId!)
       measures ← rc.ctxt.run do
@@ -744,13 +745,13 @@ def mkProdElem (xs : Array Expr) : MetaM Expr := do
     let n := xs.size
     xs[0:n-1].foldrM (init:=xs[n-1]!) fun x p => mkAppM ``Prod.mk #[x,p]
 
-def toTerminationMeasures (preDefs : Array PreDefinition) (fixedParams : FixedParams)
+def toTerminationMeasures (preDefs : Array PreDefinition) (fixedParamPerms : FixedParamPerms)
     (userVarNamess : Array (Array Name)) (measuress : Array (Array BasicMeasure))
     (solution : Array MutualMeasure) : MetaM TerminationMeasures := do
   preDefs.mapIdxM fun funIdx preDef => do
     let measures := measuress[funIdx]!
     lambdaTelescope preDef.value fun params _ => do
-      let xs := fixedParams.pickVarying funIdx params
+      let xs := fixedParamPerms.perms[funIdx]!.pickVarying params
       withUserNames xs userVarNamess[funIdx]! do
         let args := solution.map fun
           | .args tmIdxs => measures[tmIdxs[funIdx]!]!.fn.beta params
@@ -783,19 +784,19 @@ terminates. See the module doc string for a high-level overview.
 The `preDefs` are used to determine arity and types of parameters; the bodies are ignored.
 -/
 def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
-    (fixedParams : FixedParams) (argsPacker : ArgsPacker) :
+    (fixedParamPerms : FixedParamPerms) (argsPacker : ArgsPacker) :
     MetaM TerminationMeasures := do
   let userVarNamess ← argsPacker.varNamess.mapM (naryVarNames ·)
   trace[Elab.definition.wf] "varNames is: {userVarNamess}"
 
   -- Collect all recursive calls and extract their context
-  let recCalls ← collectRecCalls unaryPreDef fixedParams argsPacker
+  let recCalls ← collectRecCalls unaryPreDef fixedParamPerms argsPacker
   let recCalls := filterSubsumed recCalls
 
   -- For every function, the measures we want to use
   -- (One for each non-forbiddend arg)
-  let basicMeassures₁ ← simpleMeasures preDefs fixedParams userVarNamess
-  let basicMeassures₂ ← complexMeasures preDefs fixedParams userVarNamess recCalls
+  let basicMeassures₁ ← simpleMeasures preDefs fixedParamPerms userVarNamess
+  let basicMeassures₂ ← complexMeasures preDefs fixedParamPerms userVarNamess recCalls
   let basicMeasures := Array.zipWith (· ++ ·) basicMeassures₁ basicMeassures₂
 
   -- The list of measures, including the measures that order functions.
@@ -804,7 +805,7 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
 
   -- If there is only one plausible measure, use that
   if let #[solution] := mutualMeasures then
-    let termMeasures ← toTerminationMeasures preDefs fixedParams userVarNamess basicMeasures #[solution]
+    let termMeasures ← toTerminationMeasures preDefs fixedParamPerms userVarNamess basicMeasures #[solution]
     reportTerminationMeasures preDefs termMeasures
     return termMeasures
 
@@ -813,7 +814,7 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
 
   match ← liftMetaM <| solve mutualMeasures callMatrix with
   | .some solution => do
-    let termMeasures ← toTerminationMeasures preDefs fixedParams userVarNamess basicMeasures solution
+    let termMeasures ← toTerminationMeasures preDefs fixedParamPerms userVarNamess basicMeasures solution
     reportTerminationMeasures preDefs termMeasures
     return termMeasures
   | .none =>

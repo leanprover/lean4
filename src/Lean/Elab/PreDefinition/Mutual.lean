@@ -5,7 +5,6 @@ Authors: Leonardo de Moura, Joachim Breitner
 -/
 prelude
 import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.FixedParams
 
 /-!
 This module contains code common to mutual-via-fixedpoint constructions, i.e.
@@ -26,35 +25,6 @@ where
     else
       withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>
         go (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
-
-def checkFixedParams (preDefs : Array PreDefinition) (fixedPrefixSize : Nat) : MetaM Unit := do
-  let fixedParams ← getFixedParams preDefs
-  for preDef in preDefs, mapping in fixedParams.mappings do
-    unless mapping[:fixedPrefixSize] = (Array.range fixedPrefixSize).map Option.some do
-      throwError "Fixed prefix mismatch for {preDef.declName}: Expeted {fixedPrefixSize}, but got {mapping}"
-
-/--
-Get the fixed parameter prefix. Legacy code until all users have been migrated to `FixedParams`.
--/
-def getFixedPrefix (preDefs : Array PreDefinition) : MetaM Nat := do
-  let fixedPrefixSize ← withCommonTelescope preDefs fun xs vals => do
-    let resultRef ← IO.mkRef xs.size
-    for val in vals do
-      if (← resultRef.get) == 0 then return 0
-      forEachExpr' val fun e => do
-        if preDefs.any fun preDef => e.isAppOf preDef.declName then
-          let args := e.getAppArgs
-          resultRef.modify (min args.size ·)
-          for arg in args, x in xs do
-            if !(← withoutProofIrrelevance <| withReducible <| isDefEq arg x) then
-              -- We continue searching if e's arguments are not a prefix of `xs`
-              return true
-          return false
-        else
-          return true
-    resultRef.get
-  checkFixedParams preDefs fixedPrefixSize
-  return fixedPrefixSize
 
 def addPreDefsFromUnary (preDefs : Array PreDefinition) (preDefsNonrec : Array PreDefinition)
     (unaryPreDefNonRec : PreDefinition) : TermElabM Unit := do

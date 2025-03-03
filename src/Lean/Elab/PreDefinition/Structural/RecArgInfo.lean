@@ -15,17 +15,15 @@ namespace Lean.Elab.Structural
 /--
 Information about the argument of interest of a structurally recursive function.
 
-The `Expr`s in this data structure expect the `fixedParams` to be in scope, but not the other
+The `Expr`s in this data structure expect the fixed parameters to be in scope, but not the other
 parameters of the function. This ensures that this data structure makes sense in the other functions
 of a mutually recursive group.
 -/
 structure RecArgInfo where
   /-- the name of the recursive function -/
   fnName       : Name
-  /-- The index of the recusive function -/
-  fnIdx        : Nat
   /-- Information which arguments are fixed -/
-  fixedParams  : FixedParams
+  fixedParamPerm : FixedParamPerm
   /-- position of the argument we are recursing on, among all parameters -/
   recArgPos    : Nat
   /-- position of the indices of the inductive datatype we are recursing on, among all parameters -/
@@ -49,7 +47,7 @@ arguments, and other parameters.
 -/
 def RecArgInfo.pickIndicesMajor (info : RecArgInfo) (xs : Array Expr) : (Array Expr × Array Expr) := Id.run do
   -- To simplify the index calculation, pad xs with dummy values where fixed parameters are
-  let xs := info.fixedParams.buildArgs info.fnIdx (mkArray info.fixedParams.size (mkSort 0)) xs
+  let xs := info.fixedParamPerm.buildArgs (mkArray info.fixedParamPerm.numFixed (mkSort 0)) xs
   -- First indices and major arg, using the order they appear in `info.indicesPos`
   let mut indexMajorArgs := #[]
   let indexMajorPos := info.indicesPos.push info.recArgPos
@@ -59,7 +57,7 @@ def RecArgInfo.pickIndicesMajor (info : RecArgInfo) (xs : Array Expr) : (Array E
   let mut otherVaryingArgs := #[]
   for h : i in [:xs.size] do
     unless indexMajorPos.contains i do
-      unless info.fixedParams.mappings[info.fnIdx]![i]?.join.isSome do
+      unless info.fixedParamPerm.isFixed i do
         otherVaryingArgs := otherVaryingArgs.push xs[i]
   return (indexMajorArgs, otherVaryingArgs)
 

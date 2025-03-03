@@ -12,14 +12,13 @@ import Lean.Elab.PreDefinition.Structural.RecArgInfo
 namespace Lean.Elab.Structural
 open Meta
 
-private def replaceIndPredRecApp (fixedParams : FixedParams) (funType : Expr) (e : Expr) : M Expr := do
+private def replaceIndPredRecApp (fixedParamPerm : FixedParamPerm) (funType : Expr) (e : Expr) : M Expr := do
   withoutProofIrrelevance do
   withTraceNode `Elab.definition.structural (fun _ => pure m!"eliminating recursive call {e}") do
     -- We want to replace `e` with an expression of the same type
     let main ← mkFreshExprSyntheticOpaqueMVar (← inferType e)
     let args : Array Expr := e.getAppArgs
-    assert! fixedParams.mappings.size = 1 -- NB: No mutual recursion here
-    let ys := fixedParams.pickVarying 0 args
+    let ys := fixedParamPerm.pickVarying args
     let lctx ← getLCtx
     let r ← lctx.anyM fun localDecl => do
       if localDecl.isAuxDecl then return false
@@ -64,7 +63,7 @@ private partial def replaceIndPredRecApps (recArgInfo : RecArgInfo) (funType : E
       let processApp (e : Expr) : M Expr := do
         e.withApp fun f args => do
           if f.isConstOf recArgInfo.fnName then
-            replaceIndPredRecApp recArgInfo.fixedParams funType e
+            replaceIndPredRecApp recArgInfo.fixedParamPerm funType e
           else
             return mkAppN (← loop f) (← args.mapM loop)
       match (← matchMatcherApp? e) with

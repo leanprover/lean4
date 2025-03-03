@@ -23,12 +23,12 @@ a mutual clique, they must be the same for all functions.
 
 This ensures the preconditions for `ArgsPacker.uncurryND`.
 -/
-def checkCodomains (names : Array Name) (fixedParams : FixedParams) (fixedArgs : Array Expr) (arities : Array Nat)
+def checkCodomains (names : Array Name) (fixedParamPerms : FixedParamPerms) (fixedArgs : Array Expr) (arities : Array Nat)
     (termMeasures : TerminationMeasures) : TermElabM Expr := do
   let mut codomains := #[]
   for name in names, funIdx in [:names.size], arity in arities, termMeasure in termMeasures do
     let measureType ← inferType termMeasure.fn
-    let measureType ← fixedParams.instantiateForall funIdx measureType fixedArgs
+    let measureType ← fixedParamPerms.perms[funIdx]!.instantiateForall measureType fixedArgs
     let codomain ← forallBoundedTelescope measureType arity fun xs codomain => do
       assert! xs.size = arity
       let fvars := xs.map (·.fvarId!)
@@ -54,15 +54,15 @@ If the `termMeasures` map the packed argument `argType` to `β`, then this funct
 continuation a value of type `WellFoundedRelation argType` that is derived from the instance
 for `WellFoundedRelation β` using `invImage`.
 -/
-def elabWFRel (declNames : Array Name) (unaryPreDefName : Name) (fixedParams : FixedParams)
+def elabWFRel (declNames : Array Name) (unaryPreDefName : Name) (fixedParamPerms : FixedParamPerms)
     (fixedArgs : Array Expr) (argsPacker : ArgsPacker) (argType : Expr) (termMeasures : TerminationMeasures)
     (k : Expr → TermElabM α) : TermElabM α := withDeclName unaryPreDefName do
   let α := argType
   let u ← getLevel α
-  let β ← checkCodomains declNames fixedParams fixedArgs argsPacker.arities termMeasures
+  let β ← checkCodomains declNames fixedParamPerms fixedArgs argsPacker.arities termMeasures
   let v ← getLevel β
   let fns ← termMeasures.mapIdxM fun i measure =>
-    fixedParams.instantiateLambda i measure.fn fixedArgs
+    fixedParamPerms.perms[i]!.instantiateLambda measure.fn fixedArgs
   let packedF ← argsPacker.uncurryND fns
   let inst ← synthInstance (.app (.const ``WellFoundedRelation [v]) β)
   let rel ← instantiateMVars (mkApp4 (.const ``invImage [u,v]) α β packedF inst)

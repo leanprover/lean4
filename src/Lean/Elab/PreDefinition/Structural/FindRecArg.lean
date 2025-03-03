@@ -59,10 +59,10 @@ private def hasBadParamDep? (ys : Array Expr) (indParams : Array Expr) : MetaM (
 Assemble the `RecArgInfo` for the `i`th parameter in the parameter list `xs`. This performs
 various sanity checks on the parameter (is it even of inductive type etc).
 -/
-def getRecArgInfo (fnName : Name) (funIdx : Nat) (fixedParams : FixedParams) (xs : Array Expr) (i : Nat) : MetaM RecArgInfo := do
-  assert! fixedParams.mappings[funIdx]!.size = xs.size
+def getRecArgInfo (fnName : Name) (fixedParamPerm : FixedParamPerm) (xs : Array Expr) (i : Nat) : MetaM RecArgInfo := do
+  assert! fixedParamPerm.size = xs.size
   if h : i < xs.size then
-    if fixedParams.mappings[funIdx]![i]!.isSome then
+    if fixedParamPerm.isFixed i then
       throwError "it is unchanged in the recursive calls"
     let x := xs[i]
     let localDecl ← getFVarLocalDecl x
@@ -81,8 +81,7 @@ def getRecArgInfo (fnName : Name) (funIdx : Nat) (fixedParams : FixedParams) (xs
       else if !indIndices.allDiff then
         throwError "its type {indInfo.name} is an inductive family and indices are not pairwise distinct{indentExpr xType}"
       else
-        -- TODO: Already reduce the fixedParams here? Maybe not needed
-        let ys := fixedParams.pickVarying funIdx xs
+        let ys := fixedParamPerm.pickVarying xs
         match (← hasBadIndexDep? ys indIndices) with
         | some (index, y) =>
           throwError "its type {indInfo.name} is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}"
@@ -99,8 +98,7 @@ def getRecArgInfo (fnName : Name) (funIdx : Nat) (fixedParams : FixedParams) (xs
               levels := us
               params := indParams }
             return { fnName       := fnName
-                     fnIdx        := funIdx
-                     fixedParams  := fixedParams
+                     fixedParamPerm := fixedParamPerm
                      recArgPos    := i
                      indicesPos   := indicesPos
                      indGroupInst := indGroupInst
@@ -117,24 +115,24 @@ The `xs` are the fixed parameters, `value` the body with the fixed prefix instan
 Takes the optional user annotation into account (`termMeasure?`). If this is given and the measure
 is unsuitable, throw an error.
 -/
-def getRecArgInfos (fnName : Name) (funIdx : Nat) (fixedParams : FixedParams) (xs : Array Expr)
+def getRecArgInfos (fnName : Name) (fixedParamPerm : FixedParamPerm) (xs : Array Expr)
     (value : Expr) (termMeasure? : Option TerminationMeasure) : MetaM (Array RecArgInfo × MessageData) := do
   lambdaTelescope value fun ys _ => do
     if let .some termMeasure := termMeasure? then
       -- User explicitly asked to use a certain measure, so throw errors eagerly
       let recArgInfo ← withRef termMeasure.ref do
         mapError (f := (m!"cannot use specified measure for structural recursion:{indentD ·}")) do
-          let args := fixedParams.buildArgs funIdx xs ys
-          getRecArgInfo fnName funIdx fixedParams args (← termMeasure.structuralArg)
+          let args := fixedParamPerm.buildArgs xs ys
+          getRecArgInfo fnName fixedParamPerm args (← termMeasure.structuralArg)
       return (#[recArgInfo], m!"")
     else
-      let args := fixedParams.buildArgs funIdx xs ys
+      let args := fixedParamPerm.buildArgs xs ys
       let mut recArgInfos := #[]
       let mut report : MessageData := m!""
       -- No `termination_by`, so try all, and remember the errors
       for idx in [:args.size] do
         try
-          let recArgInfo ← getRecArgInfo fnName funIdx fixedParams args idx
+          let recArgInfo ← getRecArgInfo fnName fixedParamPerm args idx
           recArgInfos := recArgInfos.push recArgInfo
         catch e =>
           report := report ++ (m!"Not considering parameter {← prettyParam args idx} of {fnName}:" ++
@@ -215,8 +213,7 @@ def argsInGroup (group : IndGroupInst) (xs : Array Expr) (value : Expr)
           let indicesPos := indIndices.map fun index => match (xs++ys).idxOf? index with | some i => i | none => unreachable!
           return .some
             { fnName       := recArgInfo.fnName
-              fnIdx        := recArgInfo.fnIdx
-              fixedParams  := recArgInfo.fixedParams
+              fixedParamPerm  := recArgInfo.fixedParamPerm
               recArgPos    := recArgInfo.recArgPos
               indicesPos   := indicesPos
               indGroupInst := group
@@ -237,13 +234,13 @@ def allCombinations (xss : Array (Array α)) : Option (Array (Array α)) :=
     some (go 0 #[])
 
 
-def tryAllArgs (fnNames : Array Name) (fixedParams : FixedParams) (xs : Array Expr)
+def tryAllArgs (fnNames : Array Name) (fixedParamPerms : FixedParamPerms) (xs : Array Expr)
    (values : Array Expr) (termMeasure?s : Array (Option TerminationMeasure)) (k : Array RecArgInfo → M α) : M α := do
   let mut report := m!""
   -- Gather information on all possible recursive arguments
   let mut recArgInfoss := #[]
-  for funIdx in [:fnNames.size], fnName in fnNames, value in values, termMeasure? in termMeasure?s do
-    let (recArgInfos, thisReport) ← getRecArgInfos fnName funIdx fixedParams xs value termMeasure?
+  for fnName in fnNames, value in values, termMeasure? in termMeasure?s, fixedParamPerm in fixedParamPerms.perms do
+    let (recArgInfos, thisReport) ← getRecArgInfos fnName fixedParamPerm xs value termMeasure?
     report := report ++ thisReport
     recArgInfoss := recArgInfoss.push recArgInfos
   -- Put non-indices first

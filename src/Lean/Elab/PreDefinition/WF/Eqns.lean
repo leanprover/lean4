@@ -22,15 +22,15 @@ structure EqnInfo extends EqnInfoCore where
   declNameNonRec  : Name
   fixedPrefixSize : Nat
   argsPacker      : ArgsPacker
-  fixedParams     : FixedParams
+  fixedParamPerms : FixedParamPerms
   deriving Inhabited
 
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
-def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedParams : FixedParams)
+def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedParamPerms : FixedParamPerms)
     (argsPacker : ArgsPacker) : MetaM Unit := do
-  let fixedPrefixSize := fixedParams.size -- TODO: Needs to be included in EqnInfo
+  let fixedPrefixSize := fixedParamPerms.numFixed
   preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   /-
   See issue #2327.
@@ -43,7 +43,7 @@ def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fi
       modifyEnv fun env =>
         preDefs.foldl (init := env) fun env preDef =>
           eqnInfoExt.insert env preDef.declName { preDef with
-            declNames, declNameNonRec, fixedPrefixSize, argsPacker, fixedParams }
+            declNames, declNameNonRec, fixedPrefixSize, argsPacker, fixedParamPerms }
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then

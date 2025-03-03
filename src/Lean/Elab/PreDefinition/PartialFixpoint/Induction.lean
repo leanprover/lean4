@@ -70,10 +70,10 @@ def deriveInduction (name : Name) : MetaM Unit := do
 
     let infos ← eqnInfo.declNames.mapM getConstInfoDefn
     -- First open up the fixed parameters everywhere
-    let e' ← eqnInfo.fixedParams.forallTelescope 0 infos[0]!.type fun xs => do
+    let e' ← eqnInfo.fixedParamPerms.perms[0]!.forallTelescope infos[0]!.type fun xs => do
       -- Now look at the body of an arbitrary of the functions (they are essentially the same
       -- up to the final projections)
-      let body ← eqnInfo.fixedParams.instantiateLambda 0 infos[0]!.value xs
+      let body ← eqnInfo.fixedParamPerms.perms[0]!.instantiateLambda infos[0]!.value xs
 
       -- The body should now be of the form of the form (fix … ).2.2.1
       -- We strip the projections (if present)
@@ -84,7 +84,7 @@ def deriveInduction (name : Name) : MetaM Unit := do
         | throwError "Unexpected function body {body'}, not an application of fix"
 
       let instCCPOs := CCPOProdProjs infos.size instCCPOα
-      let types ← infos.mapIdxM (eqnInfo.fixedParams.instantiateForall · ·.type xs)
+      let types ← infos.mapIdxM (eqnInfo.fixedParamPerms.perms[·]!.instantiateForall ·.type xs)
       let packedType ← PProdN.pack 0 types
       let motiveTypes ← types.mapM (mkArrow · (.sort 0))
       let motiveNames := numberNames motiveTypes.size "motive"
@@ -137,7 +137,7 @@ def deriveInduction (name : Name) : MetaM Unit := do
                 let f ← mkConstWithLevelParams infos[i]!.name
                 let fEtaExpanded ← lambdaTelescope infos[i]!.value fun ys _ =>
                   mkLambdaFVars ys (mkAppN f ys)
-                let fInst ← eqnInfo.fixedParams.instantiateLambda i fEtaExpanded xs
+                let fInst ← eqnInfo.fixedParamPerms.perms[i]!.instantiateLambda fEtaExpanded xs
                 let fInst := fInst.eta
                 return mkApp motive fInst
             let e' ← mkExpectedTypeHint e' packedConclusion
@@ -232,9 +232,10 @@ def derivePartialCorrectness (name : Name) : MetaM Unit := do
       throwError "{name} is not defined by partial_fixpoint"
 
     let infos ← eqnInfo.declNames.mapM getConstInfoDefn
+    let fixedParamPerm0 := eqnInfo.fixedParamPerms.perms[0]!
     -- First open up the fixed parameters everywhere
-    let e' ← eqnInfo.fixedParams.forallTelescope 0 infos[0]!.type fun xs => do
-      let types ← infos.mapIdxM (eqnInfo.fixedParams.instantiateForall · ·.type xs)
+    let e' ← fixedParamPerm0.forallTelescope infos[0]!.type fun xs => do
+      let types ← infos.mapIdxM (eqnInfo.fixedParamPerms.perms[·]!.instantiateForall ·.type xs)
 
       -- for `f : α → β → Option γ`, we expect a `motive : α → β → γ → Prop`
       let motiveTypes ← types.mapM fun type =>

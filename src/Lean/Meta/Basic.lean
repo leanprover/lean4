@@ -1664,6 +1664,21 @@ def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs
   withLocalDeclsD
     (declInfos.map (fun (name, typeCtor) => (name, fun _ => pure typeCtor))) k
 
+private def withAuxDeclImp (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → MetaM α) : MetaM α := do
+  let fvarId ← mkFreshFVarId
+  let ctx ← read
+  let lctx := ctx.lctx.mkAuxDecl fvarId shortDeclName type declName
+  let fvar := mkFVar fvarId
+  withReader (fun ctx => { ctx with lctx := lctx }) do
+    withNewFVar fvar type k
+
+/--
+  Declare an auxiliary local declaration `shortDeclName : type` for elaborating recursive
+  declaration `declName`, update the mapping `auxDeclToFullName`, and then execute `k`.
+-/
+def withAuxDecl (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → n α) : n α :=
+  map1MetaM (fun k => withAuxDeclImp shortDeclName type declName k) k
+
 private def withNewBinderInfosImp (bs : Array (FVarId × BinderInfo)) (k : MetaM α) : MetaM α := do
   let lctx := bs.foldl (init := (← getLCtx)) fun lctx (fvarId, bi) =>
       lctx.setBinderInfo fvarId bi

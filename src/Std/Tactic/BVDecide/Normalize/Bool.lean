@@ -275,9 +275,29 @@ theorem Bool.not_ite_beq {a b c : Bool} :
   decide +revert
 
 @[bv_normalize]
-theorem Bool._not_ite_beq' {a b c : Bool} :
+theorem Bool.not_ite_beq' {a b c : Bool} :
     ((!bif c then b else a) == a) = (c && (a == !b)) := by
   decide +revert
+
+@[bv_normalize]
+theorem BitVec.beq_not_ite {a b : BitVec (w + 1)} {c : Bool} :
+    (a == ~~~bif c then a else b) = (!c && (a == ~~~b)) := by
+  cases c <;> simp
+
+@[bv_normalize]
+theorem BitVec.beq_not_ite' {a b : BitVec (w + 1)} {c : Bool} :
+    (a == ~~~bif c then b else a) = (c && (a == ~~~b)) := by
+  cases c <;> simp
+
+@[bv_normalize]
+theorem BitVec.not_ite_beq {a b : BitVec (w + 1)} {c : Bool} :
+    ((~~~bif c then a else b) == a) = (!c && (~~~b == a)) := by
+  cases c <;> simp
+
+@[bv_normalize]
+theorem BitVec.not_ite_beq' {a b : BitVec (w + 1)} {c : Bool} :
+    ((~~~bif c then b else a) == a) = (c && (~~~b == a)) := by
+  cases c <;> simp
 
 theorem Bool.and_left (lhs rhs : Bool) (h : (lhs && rhs) = true) : lhs = true := by
   revert lhs rhs

@@ -516,6 +516,22 @@ example {a b c : Bool} : ((!bif c then a else b) == a) = (!c && (a == !b)) := by
 example {a b c : Bool} : ((!bif c then b else a) == a) = (c && (a == !b)) := by
   bv_normalize
 
+example {a b : BitVec 8} {c : Bool} :
+    (a == ~~~bif c then a else b) = (!c && (a == ~~~b)) := by
+  bv_normalize
+
+example {a b : BitVec 8} {c : Bool} :
+    (a == ~~~bif c then b else a) = (c && (a == ~~~b)) := by
+  bv_normalize
+
+example {a b : BitVec 8} {c : Bool} :
+    ((~~~bif c then a else b) == a) = (!c && (~~~b == a)) := by
+  bv_normalize
+
+example {a b : BitVec 8} {c : Bool} :
+    ((~~~bif c then b else a) == a) = (c && (~~~b == a)) := by
+  bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

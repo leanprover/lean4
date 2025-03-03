@@ -64,7 +64,7 @@ partial def structuresPass : Pass where
       if decl.isLet || decl.isImplementationDetail then
         return false
       else
-        let some const := decl.type.getAppFn.constName? | return false
+        let some const := (← instantiateMVars decl.type).getAppFn.constName? | return false
         return interesting.contains const
     match goals with
     | [goal] => postprocess goal interesting

@@ -339,6 +339,7 @@ def processVar (x : Var) : SearchM Unit := do
       setAssignment x v
       return ()
     if (← isApprox) then
+      setImprecise
       if lower < upper then
         setAssignment x <| findRatVal lower upper diseqVals
       else if let some c := findRatDiseq? lower diseqVals then
@@ -404,9 +405,13 @@ def traceModel : GoalM Unit := do
       trace[grind.cutsat.model] "{quoteIfNotAtom x} := {v}"
 
 def searchAssigment : GoalM Unit := do
-  -- TODO: .int case
-  -- TODO:
-  searchAssigmentMain .rat |>.run' {}
+  let (_, s) ← searchAssigmentMain .rat |>.run {}
+  if (← isInconsistent) then return ()
+  if !(← getConfig).qlia && !s.precise then
+    -- Search for a new model using `.int` mode.
+    modify' fun s => { s with assignment := {} }
+    searchAssigmentMain .int |>.run' {}
+    if (← isInconsistent) then return ()
   assignElimVars
   traceModel
 

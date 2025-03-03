@@ -733,11 +733,11 @@ theorem getKey!_eq_getKeyD_default [EquivBEq α] [LawfulHashable α] [Inhabited 
     m.getKey! a = m.getKeyD a default := by
   simp_to_model using List.getKey!_eq_getKeyD_default
 
-theorem getKeyD_congr [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.1.WF)
-    {k k' : α} (h : k == k') : m.getKey! k = m.getKey! k' := by
+theorem getKeyD_congr [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {k k' fallback : α} (h : k == k') : m.getKeyD k fallback = m.getKeyD k' fallback := by
   simp_to_model using List.getKeyD_congr
 
-theorem getKeyD_eq_of_contains [LawfulBEq α] [Inhabited α] (h : m.1.WF) {k fallback : α} :
+theorem getKeyD_eq_of_contains [LawfulBEq α] (h : m.1.WF) {k fallback : α} :
     m.contains k → m.getKeyD k fallback = k := by
   simp_to_model using List.getKeyD_eq_of_containsKey
 

@@ -671,7 +671,7 @@ theorem getKeyD_congr [BEq α] [EquivBEq α] {l : List ((a : α) × β a)}
     {k k' fallback : α} (h : k == k') : getKeyD k l fallback = getKeyD k' l fallback := by
   simp only [getKeyD_eq_getKey?, getKey?_congr h]
 
-theorem getKeyD_eq_of_containsKey [BEq α] [LawfulBEq α] [Inhabited α]
+theorem getKeyD_eq_of_containsKey [BEq α] [LawfulBEq α]
     {l : List ((a : α) × β a)} {k fallback : α} (h : containsKey k l) :
     getKeyD k l fallback = k := by
   simp only [← getKey_eq_getKeyD h, getKey_eq]

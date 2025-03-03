@@ -770,7 +770,7 @@ theorem forIn_eq_forIn [Monad m] [LawfulMonad m] {f : α → β → δ → m (Fo
 theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m]
     {f : α × β → δ → m (ForInStep δ)} {init : δ} :
     ForIn.forIn t init f = ForIn.forIn t.toList init f :=
-  DTreeMap.Raw.Const.forIn_eq_forIn_toList
+  DTreeMap.Raw.Const.forInUncurried_eq_forIn_toList
 
 theorem foldlM_eq_foldlM_keys [Monad m] [LawfulMonad m] {f : δ → α → m δ} {init : δ} :
     t.foldlM (fun d a _ => f d a) init = t.keys.foldlM f init :=

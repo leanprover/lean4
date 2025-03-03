@@ -637,6 +637,10 @@ theorem getKey_eq [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {a : α}
     getKey a l h = a := by
   simpa only [beq_iff_eq] using getKey_beq h
 
+theorem getKey?_eq_some [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {a : α}
+    (h : containsKey a l) : getKey? a l = some a := by
+  simp only [getKey?_eq_some_getKey h, getKey_eq]
+
 theorem getKey_congr [BEq α] [EquivBEq α] {l : List ((a : α) × β a)}
     {k k' : α} (h : k == k') {h'} {h''} : getKey k l h' = getKey k' l h'' := by
   simpa only [getKey?_eq_some_getKey, h', h'', Option.some.injEq] using getKey?_congr (l := l) h
@@ -663,6 +667,15 @@ theorem getKey_eq_getKeyD [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {
     getKey a l h = getKeyD a l fallback := by
   rw [getKeyD_eq_getKey?, getKey, Option.get_eq_getD]
 
+theorem getKeyD_congr [BEq α] [EquivBEq α] {l : List ((a : α) × β a)}
+    {k k' fallback : α} (h : k == k') : getKeyD k l fallback = getKeyD k' l fallback := by
+  simp only [getKeyD_eq_getKey?, getKey?_congr h]
+
+theorem getKeyD_eq_of_containsKey [BEq α] [LawfulBEq α] [Inhabited α]
+    {l : List ((a : α) × β a)} {k fallback : α} (h : containsKey k l) :
+    getKeyD k l fallback = k := by
+  simp only [← getKey_eq_getKeyD h, getKey_eq]
+
 theorem getKey?_eq_some_getKeyD [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {a fallback : α}
     (h : containsKey a l = true) :
     getKey? a l = some (getKeyD a l fallback) := by
@@ -688,6 +701,15 @@ theorem getKey!_eq_default [BEq α] [Inhabited α] {l : List ((a : α) × β a)}
 theorem getKey_eq_getKey! [BEq α] [Inhabited α] {l : List ((a : α) × β a)} {a : α}
     (h : containsKey a l = true) : getKey a l h = getKey! a l := by
   rw [getKey!_eq_getKey?, getKey, Option.get_eq_get!]
+
+theorem getKey!_congr [BEq α] [EquivBEq α] [Inhabited α] {l : List ((a : α) × β a)}
+    {k k' : α} (h : k == k') : getKey! k l = getKey! k' l := by
+  simp only [getKey!_eq_getKey?, getKey?_congr h]
+
+theorem getKey!_eq_of_containsKey [BEq α] [LawfulBEq α] [Inhabited α]
+    {l : List ((a : α) × β a)} {k : α} (h : containsKey k l) :
+    getKey! k l = k := by
+  simp only [← getKey_eq_getKey! h, getKey_eq]
 
 theorem getKey?_eq_some_getKey! [BEq α] [Inhabited α] {l : List ((a : α) × β a)} {a : α}
     (h : containsKey a l = true) :

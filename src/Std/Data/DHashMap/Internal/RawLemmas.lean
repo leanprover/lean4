@@ -586,6 +586,10 @@ theorem getKey?_all_beq [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} 
     (m.getKey? a).all (· == a) := by
   simp_to_model using List.getKey?_all_beq
 
+theorem getKey?_eq_some [LawfulBEq α] (h : m.1.WF) {a : α} :
+    m.contains a → m.getKey? a = some a := by
+  simp_to_model using List.getKey?_eq_some
+
 theorem getKey?_congr [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {k k' : α} (h : k == k') :
     m.getKey? k = m.getKey? k' := by
@@ -674,6 +678,14 @@ theorem getKey_eq_getKey! [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : 
     m.getKey a h = m.getKey! a := by
   simp_to_model using List.getKey_eq_getKey!
 
+theorem getKey!_congr [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.1.WF)
+    {k k' : α} (h : k == k') : m.getKey! k = m.getKey! k' := by
+  simp_to_model using List.getKey!_congr
+
+theorem getKey!_eq_of_contains [LawfulBEq α] [Inhabited α] (h : m.1.WF) {k : α} :
+    m.contains k → m.getKey! k = k := by
+  simp_to_model using List.getKey!_eq_of_containsKey
+
 theorem getKeyD_empty {a : α} {fallback : α} {c} :
     (empty c : Raw₀ α β).getKeyD a fallback = fallback := by
   simp [getKeyD, empty]
@@ -720,6 +732,14 @@ theorem getKey!_eq_getKeyD_default [EquivBEq α] [LawfulHashable α] [Inhabited 
     {a : α} :
     m.getKey! a = m.getKeyD a default := by
   simp_to_model using List.getKey!_eq_getKeyD_default
+
+theorem getKeyD_congr [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.1.WF)
+    {k k' : α} (h : k == k') : m.getKey! k = m.getKey! k' := by
+  simp_to_model using List.getKeyD_congr
+
+theorem getKeyD_eq_of_contains [LawfulBEq α] [Inhabited α] (h : m.1.WF) {k fallback : α} :
+    m.contains k → m.getKeyD k fallback = k := by
+  simp_to_model using List.getKeyD_eq_of_containsKey
 
 theorem isEmpty_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β k} :
     (m.insertIfNew k v).1.isEmpty = false := by

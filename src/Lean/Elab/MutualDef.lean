@@ -614,16 +614,25 @@ private def mkInitialUsedFVarsMap [Monad m] [MonadMCtx m] (sectionVars : Array E
   for mainFVarId in mainFVarIds do
     usedFVarMap := usedFVarMap.insert mainFVarId sectionVarSet
   for toLift in letRecsToLift do
-    let state := Lean.collectFVars {} toLift.val
-    let state := Lean.collectFVars state toLift.type
-    let mut set := state.fvarSet
+    let mut state := Lean.collectFVars {} toLift.val
+    state := Lean.collectFVars state toLift.type
+    let mut set := {}
     /- toLift.val may contain metavariables that are placeholders for nested let-recs. We should collect the fvarId
        for the associated let-rec because we need this information to compute the fixpoint later. -/
     let mvarIds := (toLift.val.collectMVars {}).result
     for mvarId in mvarIds do
-      match (← letRecsToLift.findSomeM? fun (toLift : LetRecToLift) => return if toLift.mvarId == (← getDelayedMVarRoot mvarId) then some toLift.fvarId else none) with
+      let root ← getDelayedMVarRoot mvarId
+      match (← letRecsToLift.findSomeM? fun (toLift : LetRecToLift) => return if toLift.mvarId == root then some toLift.fvarId else none) with
       | some fvarId => set := set.insert fvarId
-      | none        => pure ()
+      | none        =>
+        /- If the metavariable is not a nested let-rec, it may contribute additional free-variable
+           dependencies not caught in the fixed-point routine. In particular, delayed assignments
+           due to `match` expressions or tactic blocks induce fvar dependencies that we need to
+           account for (see #6927) but cannot ascertain through instantiation if those expressions
+           contain still-unassigned metavariable placeholders for other let-recs. -/
+        let some rootAssignment ← getExprMVarAssignment? root | continue
+        state := Lean.collectFVars state rootAssignment
+    set := state.fvarSet.union set
     usedFVarMap := usedFVarMap.insert toLift.fvarId set
   return usedFVarMap
 

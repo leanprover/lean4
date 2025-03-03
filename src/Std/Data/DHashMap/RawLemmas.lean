@@ -411,7 +411,7 @@ theorem get?_eq_some_get [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} {
 theorem get_eq_get [LawfulBEq α] (h : m.WF) {a : α} {h} : get m a h = m.get a h := by
   simp_to_raw using Raw₀.Const.get_eq_get
 
-theorem get_congr [LawfulBEq α] (h : m.WF) {a b : α} (hab : a == b) {h'} :
+theorem get_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (hab : a == b) {h'} :
     get m a h' = get m b ((mem_congr h hab).1 h') := by
   simp_to_raw using Raw₀.Const.get_congr
 
@@ -719,6 +719,22 @@ theorem getKey?_erase_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α}
     (m.erase k).getKey? k = none := by
   simp_to_raw using Raw₀.getKey?_erase_self
 
+theorem getKey?_beq [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+    (m.getKey? a).all (· == a) := by
+  simp_to_raw using Raw₀.getKey?_beq
+
+theorem getKey?_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k k' : α} (h' : k == k') :
+    m.getKey? k = m.getKey? k' := by
+  simp_to_raw using Raw₀.getKey?_congr
+
+theorem getKey?_eq_some_of_contains [LawfulBEq α] (h : m.WF) {k : α} :
+    m.contains k → m.getKey? k = some k := by
+  simp_to_raw using Raw₀.getKey?_eq_some
+
+theorem getKey?_eq_some [LawfulBEq α] (h : m.WF) {k : α} :
+    k ∈ m → m.getKey? k = some k := by
+  simpa only [mem_iff_contains] using getKey?_eq_some_of_contains h
+
 theorem getKey_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {v : β k} {h₁} :
     (m.insert k v).getKey a h₁ =
       if h₂ : k == a then
@@ -740,6 +756,19 @@ theorem getKey_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {h'
 theorem getKey?_eq_some_getKey [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} {h} :
     m.getKey? a = some (m.getKey a h) := by
   simp_to_raw using Raw₀.getKey?_eq_some_getKey
+
+theorem getKey_beq [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} (h') :
+    m.getKey a h' == a := by
+  simp_to_raw using Raw₀.getKey_beq
+
+theorem getKey_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k₁ k₂ : α}
+    (h' : k₁ == k₂) (h₁ : k₁ ∈ m) :
+    m.getKey k₁ h₁ = m.getKey k₂ (((mem_congr h h').mp h₁)) := by
+  simp_to_raw using Raw₀.getKey_congr
+
+theorem getKey_eq [LawfulBEq α] (h : m.WF) {k : α} (h') :
+    m.getKey k h' = k := by
+  simp_to_raw using Raw₀.getKey_eq
 
 @[simp]
 theorem getKey!_empty [Inhabited α] {a : α} {c} :
@@ -799,6 +828,18 @@ theorem getKey!_eq_get!_getKey? [EquivBEq α] [LawfulHashable α] [Inhabited α]
 theorem getKey_eq_getKey! [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.WF) {a : α} {h} :
     m.getKey a h = m.getKey! a := by
   simp_to_raw using Raw₀.getKey_eq_getKey!
+
+theorem getKey!_congr [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.WF)
+    {k₁ k₂ : α} (h' : k₁ == k₂) : m.getKey! k₁ = m.getKey! k₂ := by
+  simp_to_raw using Raw₀.getKey!_congr
+
+theorem getKey!_eq_of_contains [LawfulBEq α] [Inhabited α] (h : m.WF) {k : α} :
+    m.contains k → m.getKey! k = k := by
+  simp_to_raw using Raw₀.getKey!_eq_of_contains
+
+theorem getKey!_eq_of_mem [LawfulBEq α] [Inhabited α] (h : m.WF) {k : α} :
+    k ∈ m → m.getKey! k = k := by
+  simpa only [mem_iff_contains] using getKey!_eq_of_contains h
 
 @[simp]
 theorem getKeyD_empty {a fallback : α} {c} :
@@ -863,6 +904,18 @@ theorem getKey!_eq_getKeyD_default [EquivBEq α] [LawfulHashable α] [Inhabited 
     {a : α} :
     m.getKey! a = m.getKeyD a default := by
   simp_to_raw using Raw₀.getKey!_eq_getKeyD_default
+
+theorem getKeyD_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k₁ k₂ fallback : α}
+    (h' : k₁ == k₂) : m.getKeyD k₁ fallback = m.getKeyD k₂ fallback := by
+  simp_to_raw using Raw₀.getKeyD_congr
+
+theorem getKeyD_eq_of_contains [LawfulBEq α] (h : m.WF) {k fallback : α} :
+    m.contains k → m.getKeyD k fallback = k := by
+  simp_to_raw using Raw₀.getKeyD_eq_of_contains
+
+theorem getKeyD_eq_of_mem [LawfulBEq α] (h : m.WF) {k fallback : α} :
+    k ∈ m → m.getKeyD k fallback = k := by
+  simpa only [mem_iff_contains] using getKeyD_eq_of_contains h
 
 @[simp]
 theorem isEmpty_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β k} :

@@ -140,6 +140,8 @@ In particular, we say a *projection* is any instance with a type of the form
 ```
 where the first n parameters are not instance implicit
 (we show implicit parameters above, but explicit is accepted as well).
+This definition of a projection captures all the kinds of projections
+that the `structure`/`class` commands declare (both field and parent projections).
 -/
 private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
   withReducible do

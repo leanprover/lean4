@@ -845,7 +845,9 @@ private partial def elabStructInstView (s : StructInstView) (expectedType? : Opt
             let val ← ensureHasType d val
             cont val { field with val := FieldVal.nested sNew } (instMVars ++ instMVarsNew)
         | .default  =>
-          match d.getAutoParamTactic? with
+          let some fieldInfo := getFieldInfo? env s.structName fieldName
+            | withRef field.ref <| throwFailedToElabField fieldName s.structName m!"no such field '{fieldName}'"
+          match fieldInfo.autoParam? with
           | some (.const tacticDecl ..) =>
             match evalSyntaxConstant env (← getOptions) tacticDecl with
             | .error err       => throwError err
@@ -855,7 +857,7 @@ private partial def elabStructInstView (s : StructInstView) (expectedType? : Opt
               -- We add info to get reliable positions for messages from evaluating the tactic script.
               let info := field.ref.getHeadInfo.nonCanonicalSynthetic
               let stx := stx.raw.rewriteBottomUp (·.setInfo info)
-              let type := (d.getArg! 0).consumeTypeAnnotations
+              let type := d.consumeTypeAnnotations
               let mvar ← mkTacticMVar type stx (.fieldAutoParam fieldName s.structName)
               -- Note(kmill): We are adding terminfo to simulate a previous implementation that elaborated `tacticBlock`.
               -- (See the aforementioned `processExplicitArg` for a comment about this.)
@@ -1078,7 +1080,7 @@ def tryToSynthesizeDefault (structs : Array StructInstView) (allStructNames : Ar
       return false
     else if h : i < structs.size then
       let struct := structs[i]
-      match getDefaultFnForField? (← getEnv) struct.structName fieldName with
+      match getEffectiveDefaultFnForField? (← getEnv) struct.structName fieldName with
       | some defFn =>
         let cinfo ← getConstInfo defFn
         let mctx ← getMCtx
@@ -1141,7 +1143,7 @@ partial def propagateLoop (hierarchyDepth : Nat) (d : Nat) (struct : StructInstV
         let env := (← getEnv)
         let structs := (← read).allStructNames
         missingFields.filter fun fieldName => structs.all fun struct =>
-          (getDefaultFnForField? env struct fieldName).isNone
+          (getEffectiveDefaultFnForField? env struct fieldName).isNone
       let fieldsToReport :=
         if missingFieldsWithoutDefault.isEmpty then missingFields else missingFieldsWithoutDefault
       throwErrorAt field.ref "fields missing: {fieldsToReport.toList.map (s!"'{·}'") |> ", ".intercalate}"

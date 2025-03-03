@@ -5,7 +5,7 @@ See below for the checklist for release candidates.
 
 We'll use `v4.6.0` as the intended release version as a running example.
 
-- Run `scripts/release_checklist.py v4.6.0` to check the status of the release.
+- Run `script/release_checklist.py v4.6.0` to check the status of the release.
   This script is purely informational, idempotent, and safe to run at any stage of the release process.
 - `git checkout releases/v4.6.0`
   (This branch should already exist, from the release candidates.)

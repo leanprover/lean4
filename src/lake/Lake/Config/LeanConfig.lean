@@ -233,3 +233,12 @@ structure LeanConfig where
   -/
   plugins : TargetArray Dynlib := #[]
 deriving Inhabited, Repr
+
+/-- The options to pass to `lean` based on the build type. -/
+def BuildType.leanOptions : BuildType → Array LeanOption
+| debug => #[{ name := `debugAssertions, value := true }]
+| _ => #[]
+
+/-- The arguments to pass to `lean` based on the build type. -/
+def BuildType.leanArgs (t : BuildType) : Array String :=
+  t.leanOptions.map (·.asCliArg)

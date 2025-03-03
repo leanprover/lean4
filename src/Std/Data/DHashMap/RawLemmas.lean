@@ -1255,6 +1255,24 @@ theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
     ForIn.forIn m init f = ForIn.forIn m.toList init f :=
   Raw₀.forIn_eq_forIn_toList ⟨m, h.size_buckets_pos⟩
 
+theorem foldM_eq_foldlM_keys [Monad m'] [LawfulMonad m'] (h : m.WF)
+    {f : δ → α → m' δ} {init : δ} :
+    m.foldM (fun d a _ => f d a) init = m.keys.foldlM f init :=
+  Raw₀.foldM_eq_foldlM_keys ⟨m, h.size_buckets_pos⟩
+
+theorem fold_eq_foldl_keys (h : m.WF) {f : δ → α → δ} {init : δ} :
+    m.fold (fun d a _ => f d a) init = m.keys.foldl f init :=
+  Raw₀.fold_eq_foldl_keys ⟨m, h.size_buckets_pos⟩
+
+theorem forM_eq_forM_keys [Monad m'] [LawfulMonad m'] (h : m.WF) {f : α → m' PUnit} :
+    ForM.forM m (fun a => f a.1) = m.keys.forM f :=
+  Raw₀.forM_eq_forM_keys ⟨m, h.size_buckets_pos⟩
+
+theorem forIn_eq_forIn_keys [Monad m'] [LawfulMonad m'] (h : m.WF)
+    {f : α → δ → m' (ForInStep δ)} {init : δ} :
+    ForIn.forIn m init (fun a d => f a.1 d) = ForIn.forIn m.keys init f :=
+  Raw₀.forIn_eq_forIn_keys ⟨m, h.size_buckets_pos⟩
+
 namespace Const
 
 variable {β : Type v} {m : Raw α (fun _ => β)}
@@ -1268,10 +1286,39 @@ theorem fold_eq_foldl_toList (h : m.WF) {f : δ → (a : α) → β → δ} {ini
     m.fold f init = (Raw.Const.toList m).foldl (fun a b => f a b.1 b.2) init :=
   Raw₀.Const.fold_eq_foldl_toList ⟨m, h.size_buckets_pos⟩
 
+omit [BEq α] [Hashable α] in
+theorem forM_eq_forMUncurried [Monad m'] [LawfulMonad m']
+    {f : α → β → m' PUnit} :
+    Raw.forM f m = Const.forMUncurried (fun a => f a.1 a.2) m := rfl
+
+theorem forMUncurried_eq_forM_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
+    {f : α × β → m' PUnit} :
+    forMUncurried f m = (toList m).forM f :=
+  Raw₀.Const.forM_eq_forM_toList ⟨m, h.size_buckets_pos⟩
+
+/--
+Deprecated, use `forMUncurried_eq_forM_toList` together with `forM_eq_forMUncurried` instead.
+-/
+@[deprecated forMUncurried_eq_forM_toList (since := "2025-03-02")]
 theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] (h : m.WF) {f : (a : α) → β → m' PUnit} :
     m.forM f = (Raw.Const.toList m).forM (fun a => f a.1 a.2) :=
   Raw₀.Const.forM_eq_forM_toList ⟨m, h.size_buckets_pos⟩
 
+omit [BEq α] [Hashable α] in
+@[simp]
+theorem forIn_eq_forInUncurried [Monad m'] [LawfulMonad m']
+    {f : α → β → δ → m' (ForInStep δ)} {init : δ} :
+    forIn f init m = forInUncurried (fun a b => f a.1 a.2 b) init m := rfl
+
+theorem forInUncurried_eq_forIn_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
+    {f : α × β → δ → m' (ForInStep δ)} {init : δ} :
+    forInUncurried f init m = ForIn.forIn (toList m) init f :=
+  Raw₀.Const.forIn_eq_forIn_toList ⟨m, h.size_buckets_pos⟩
+
+/--
+Deprecated, use `forInUncurried_eq_forIn_toList` together with `forIn_eq_forInUncurried` instead.
+-/
+@[deprecated forInUncurried_eq_forIn_toList (since := "2025-03-02")]
 theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
     {f : (a : α) → β → δ → m' (ForInStep δ)} {init : δ} :
     m.forIn f init = ForIn.forIn (Raw.Const.toList m) init (fun a b => f a.1 a.2 b) :=
@@ -1279,23 +1326,27 @@ theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
 
 variable {m : Raw α (fun _ => Unit)}
 
+@[deprecated Raw.foldM_eq_foldlM_keys (since := "2025-02-28")]
 theorem foldM_eq_foldlM_keys [Monad m'] [LawfulMonad m'] (h : m.WF)
     {f : δ → α → m' δ} {init : δ} :
     m.foldM (fun d a _ => f d a) init = m.keys.foldlM f init :=
-  Raw₀.Const.foldM_eq_foldlM_keys ⟨m, h.size_buckets_pos⟩
+  Raw₀.foldM_eq_foldlM_keys ⟨m, h.size_buckets_pos⟩
 
+@[deprecated Raw.fold_eq_foldl_keys (since := "2025-02-28")]
 theorem fold_eq_foldl_keys (h : m.WF) {f : δ → α → δ} {init : δ} :
     m.fold (fun d a _ => f d a) init = m.keys.foldl f init :=
-  Raw₀.Const.fold_eq_foldl_keys ⟨m, h.size_buckets_pos⟩
+  Raw₀.fold_eq_foldl_keys ⟨m, h.size_buckets_pos⟩
 
+@[deprecated Raw.forM_eq_forM_keys (since := "2025-02-28")]
 theorem forM_eq_forM_keys [Monad m'] [LawfulMonad m'] (h : m.WF) {f : α → m' PUnit} :
     m.forM (fun a _ => f a) = m.keys.forM f :=
-  Raw₀.Const.forM_eq_forM_keys ⟨m, h.size_buckets_pos⟩
+  Raw₀.forM_eq_forM_keys ⟨m, h.size_buckets_pos⟩
 
+@[deprecated Raw.forIn_eq_forIn_keys (since := "2025-02-28")]
 theorem forIn_eq_forIn_keys [Monad m'] [LawfulMonad m'] (h : m.WF)
     {f : α → δ → m' (ForInStep δ)} {init : δ} :
     m.forIn (fun a _ d => f a d) init = ForIn.forIn m.keys init f :=
-  Raw₀.Const.forIn_eq_forIn_keys ⟨m, h.size_buckets_pos⟩
+  Raw₀.forIn_eq_forIn_keys ⟨m, h.size_buckets_pos⟩
 
 end Const
 

@@ -1110,7 +1110,7 @@ theorem ordered_mergeWith [Ord α] [TransOrd α] [LawfulEqOrd α] {t₁ t₂ : I
 ### foldlM
 -/
 
-theorem foldlM_eq_foldlM {t : Impl α β} {m δ} [Monad m] [LawfulMonad m]
+theorem foldlM_eq_foldlM_toListModel {t : Impl α β} {m δ} [Monad m] [LawfulMonad m]
     {f : δ → (a : α) → β a → m δ} {init} :
     t.foldlM (init := init) f = t.toListModel.foldlM (init := init) fun acc p => f acc p.1 p.2 := by
   induction t generalizing init with
@@ -1119,13 +1119,18 @@ theorem foldlM_eq_foldlM {t : Impl α β} {m δ} [Monad m] [LawfulMonad m]
     simp only [foldlM, toListModel_inner, List.foldl_append, List.foldl_cons]
     simp [ihl, ihr]
 
+theorem foldlM_toListModel_eq_foldlM {t : Impl α β} {m δ} [Monad m] [LawfulMonad m]
+    {f : δ → ((a : α) × β a) → m δ} {init} :
+    t.toListModel.foldlM (init := init) f = t.foldlM (init := init) fun acc k v => f acc ⟨k, v⟩ := by
+  rw [foldlM_eq_foldlM_toListModel]
+
 /-!
 ### foldl
 -/
 
 theorem foldl_eq_foldl {t : Impl α β} {δ} {f : δ → (a : α) → β a → δ} {init} :
     t.foldl (init := init) f = t.toListModel.foldl (init := init) fun acc p => f acc p.1 p.2 := by
-  rw [foldl, foldlM_eq_foldlM, List.foldl_eq_foldlM, Id.run]
+  rw [foldl, foldlM_eq_foldlM_toListModel, List.foldl_eq_foldlM, Id.run]
 
 /-!
 ### foldrM
@@ -1172,6 +1177,60 @@ theorem keys_eq_keys {t : Impl α β} :
   | cons e es ih =>
     simp [ih]
     rw [List.keys.eq_def]
+
+/-!
+### forM
+-/
+
+theorem forM_eq_forM {t: Impl α β} {m : Type w → Type w} [Monad m] [LawfulMonad m]
+    {f : (a : α) → β a → m PUnit} :
+    t.forM f = t.toListModel.forM (fun a => f a.1 a.2) := by
+  simp only [Impl.forM, foldlM_eq_foldlM_toListModel]
+  induction t.toListModel with
+  | nil => rfl
+  | cons e es ih => simp [ih]
+
+/-!
+### forIn
+-/
+
+theorem forInStep_eq_foldlM {δ : Type w} {t : Impl α β} {m : Type w → Type w} [Monad m] [LawfulMonad m]
+    {f : (a : α) → β a → δ → m (ForInStep δ)} {init : δ} :
+    t.forInStep f init = t.foldlM (init := .yield init) fun
+      | .yield d => fun k v => f k v d
+      | .done d => fun _ _ => pure (.done d) := by
+  induction t generalizing init with
+  | leaf => simp only [forInStep, foldlM]
+  | inner sz k v l r ihl ihr =>
+    simp [forInStep, foldlM, ihl, ihr]
+    congr; ext step
+    cases step
+    case yield =>
+      simp
+      congr; ext step
+      cases step
+      · simp
+        clear ihl ihr
+        apply Eq.symm
+        induction r <;> simp [foldlM, *]
+      · simp
+    case done =>
+      simp only [pure_bind]
+      clear ihl ihr
+      apply Eq.symm
+      induction r <;> simp [foldlM, *]
+
+
+theorem forIn_eq_forIn_toListModel {δ : Type w} {t : Impl α β} {m : Type w → Type w} [Monad m] [LawfulMonad m]
+    {f : (a : α) → β a → δ → m (ForInStep δ)} {init : δ} :
+    t.forIn f init = ForIn.forIn t.toListModel init (fun a d => f a.1 a.2 d) := by
+  rw [Impl.forIn, forInStep_eq_foldlM, List.forIn_eq_foldlM, foldlM_eq_foldlM_toListModel]
+  induction t.toListModel with
+  | nil => simp
+  | cons e es ih =>
+    simp only [List.foldlM_cons, bind_assoc, map_bind, map_eq_pure_bind]
+    congr; ext step
+    congr <;> ext step' <;> cases step' <;> rfl
 
 namespace Const
 

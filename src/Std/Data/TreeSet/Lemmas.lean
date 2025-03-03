@@ -17,7 +17,7 @@ This file contains lemmas about `Std.Data.TreeSet`. Most of the lemmas require
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v
+universe u v w
 
 namespace Std.TreeSet
 
@@ -357,5 +357,43 @@ theorem mem_toList [LawfulEqCmp cmp] [TransCmp cmp] {k : α} :
 theorem distinct_toList [TransCmp cmp] :
     t.toList.Pairwise (fun a b => ¬ cmp a b = .eq) :=
   DTreeMap.distinct_keys
+
+section monadic
+
+variable {δ : Type w} {m : Type w → Type w}
+
+theorem foldlM_eq_foldlM_toList [Monad m] [LawfulMonad m] {f : δ → α → m δ} {init : δ} :
+    t.foldlM f init = t.toList.foldlM f init :=
+  TreeMap.foldlM_eq_foldlM_keys
+
+theorem foldl_eq_foldl_toList {f : δ → α → δ} {init : δ} :
+    t.foldl f init = t.toList.foldl f init :=
+  TreeMap.foldl_eq_foldl_keys
+
+theorem foldrM_eq_foldrM_toList [Monad m] [LawfulMonad m] {f : α → δ → m δ} {init : δ} :
+    t.foldrM f init = t.toList.foldrM f init :=
+  TreeMap.foldrM_eq_foldrM_keys
+
+theorem foldr_eq_foldr_toList {f : α → δ → δ} {init : δ} :
+    t.foldr f init = t.toList.foldr f init :=
+  TreeMap.foldr_eq_foldr_keys
+
+@[simp]
+theorem forM_eq_forM [Monad m] [LawfulMonad m] {f : α → m PUnit} :
+    t.forM f = ForM.forM t f := rfl
+
+theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : α → m PUnit} :
+    ForM.forM t f = t.toList.forM f :=
+  TreeMap.forM_eq_forM_keys
+
+@[simp]
+theorem forIn_eq_forIn [Monad m] [LawfulMonad m] {f : α → δ → m (ForInStep δ)} {init : δ} :
+    t.forIn f init = ForIn.forIn t init f := rfl
+
+theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m] {f : α → δ → m (ForInStep δ)} {init : δ} :
+    ForIn.forIn t init f = ForIn.forIn t.toList init f :=
+  TreeMap.forIn_eq_forIn_keys
+
+end monadic
 
 end Std.TreeSet

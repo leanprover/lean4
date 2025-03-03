@@ -210,6 +210,26 @@ instance [BEq α] [Hashable α] : ForM m (DHashMap α β) ((a : α) × β a) whe
 instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
+namespace Const
+
+variable {β : Type v}
+
+/-!
+We do not define `ForM` and `ForIn` instances that are specialized to constant `β`. Instead, we
+define uncurried versions of `forM` and `forIn` that will be used in the `Const` lemmas and to
+define the `ForM` and `ForIn` instances for `HashMap`.
+-/
+
+@[inline, inherit_doc forM] def forMUncurried (f : α × β → m PUnit)
+    (b : DHashMap α (fun _ => β)) : m PUnit :=
+  b.forM fun a b => f ⟨a, b⟩
+
+@[inline, inherit_doc forIn] def forInUncurried
+    (f : α × β → δ → m (ForInStep δ)) (init : δ) (b : DHashMap α (fun _ => β)) : m δ :=
+  b.forIn (init := init) fun a b d => f ⟨a, b⟩ d
+
+end Const
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/

@@ -17,7 +17,7 @@ This file contains lemmas about `Std.Data.TreeMap`. Most of the lemmas require
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v
+universe u v w
 
 namespace Std.TreeMap
 
@@ -726,5 +726,69 @@ theorem find?_toList_eq_none_iff_not_mem [TransCmp cmp] {k : α} :
 theorem distinct_keys_toList [TransCmp cmp] :
     (toList t).Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq) :=
   DTreeMap.Const.distinct_keys_toList
+
+section monadic
+
+variable {δ : Type w} {m : Type w → Type w}
+
+theorem foldlM_eq_foldlM_toList [Monad m] [LawfulMonad m] {f : δ → α → β → m δ} {init : δ} :
+    t.foldlM f init = t.toList.foldlM (fun a b => f a b.1 b.2) init :=
+  DTreeMap.Const.foldlM_eq_foldlM_toList
+
+theorem foldl_eq_foldl_toList {f : δ → α → β → δ} {init : δ} :
+    t.foldl f init = t.toList.foldl (fun a b => f a b.1 b.2) init :=
+  DTreeMap.Const.foldl_eq_foldl_toList
+
+theorem foldrM_eq_foldrM_toList [Monad m] [LawfulMonad m] {f : α → β → δ → m δ} {init : δ} :
+    t.foldrM f init = t.toList.foldrM (fun a b => f a.1 a.2 b) init :=
+  DTreeMap.Const.foldrM_eq_foldrM_toList
+
+theorem foldr_eq_foldr_toList {f : α → β → δ → δ} {init : δ} :
+    t.foldr f init = t.toList.foldr (fun a b => f a.1 a.2 b) init :=
+  DTreeMap.Const.foldr_eq_foldr_toList
+
+@[simp]
+theorem forM_eq_forM [Monad m] [LawfulMonad m] {f : α → β → m PUnit} :
+    t.forM f = ForM.forM t (fun a => f a.1 a.2) := rfl
+
+theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : α × β → m PUnit} :
+    ForM.forM t f = ForM.forM t.toList f :=
+  DTreeMap.Const.forMUncurried_eq_forM_toList (f := f)
+
+@[simp]
+theorem forIn_eq_forIn [Monad m] [LawfulMonad m]
+    {f : α → β → δ → m (ForInStep δ)} {init : δ} :
+    t.forIn f init = ForIn.forIn t init (fun a d => f a.1 a.2 d) := rfl
+
+theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m]
+    {f : α × β → δ → m (ForInStep δ)} {init : δ} :
+    ForIn.forIn t init f = ForIn.forIn t.toList init f :=
+  DTreeMap.Const.forInUncurried_eq_forIn_toList
+
+theorem foldlM_eq_foldlM_keys [Monad m] [LawfulMonad m] {f : δ → α → m δ} {init : δ} :
+    t.foldlM (fun d a _ => f d a) init = t.keys.foldlM f init :=
+  DTreeMap.foldlM_eq_foldlM_keys
+
+theorem foldl_eq_foldl_keys {f : δ → α → δ} {init : δ} :
+    t.foldl (fun d a _ => f d a) init = t.keys.foldl f init :=
+  DTreeMap.foldl_eq_foldl_keys
+
+theorem foldrM_eq_foldrM_keys [Monad m] [LawfulMonad m] {f : α → δ → m δ} {init : δ} :
+    t.foldrM (fun a _ d => f a d) init = t.keys.foldrM f init :=
+  DTreeMap.foldrM_eq_foldrM_keys
+
+theorem foldr_eq_foldr_keys {f : α → δ → δ} {init : δ} :
+    t.foldr (fun a _ d => f a d) init = t.keys.foldr f init :=
+  DTreeMap.foldr_eq_foldr_keys
+
+theorem forM_eq_forM_keys [Monad m] [LawfulMonad m] {f : α → m PUnit} :
+    ForM.forM t (fun a => f a.1) = t.keys.forM f :=
+  DTreeMap.forM_eq_forM_keys
+
+theorem forIn_eq_forIn_keys [Monad m] [LawfulMonad m] {f : α → δ → m (ForInStep δ)} {init : δ} :
+    ForIn.forIn t init (fun a d => f a.1 d) = ForIn.forIn t.keys init f :=
+  DTreeMap.forIn_eq_forIn_keys
+
+end monadic
 
 end Std.TreeMap

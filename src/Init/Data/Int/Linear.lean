@@ -1093,7 +1093,7 @@ def OrOver (n : Nat) (p : Nat → Prop) : Prop :=
   | 0 => False
   | n+1 => p n ∨ OrOver n p
 
-theorem orOver_unsat {p} : ¬ OrOver 0 p := by simp [OrOver]
+theorem orOver_one {p} : OrOver 1 p → p 0 := by simp [OrOver]
 
 theorem orOver_resolve {n p} : OrOver (n+1) p → ¬ p n → OrOver n p := by
   intro h₁ h₂

@@ -240,10 +240,10 @@ def resolveRealLowerUpperConflict (c₁ c₂ : LeCnstr) : GoalM Bool := do
     return true
 
 def resolveCooperLeft (c₁ c₂ : LeCnstr) : GoalM Unit := do
-  throwError "Cooper-left NIY {← c₁.pp} {← c₂.pp}"
+  throwError "Cooper-left NIY {← c₁.pp}, {← c₂.pp}"
 
 def resolveCooperRight (c₁ c₂ : LeCnstr) : GoalM Unit := do
-  throwError "Cooper-right NIY {← c₁.pp} {← c₂.pp}"
+  throwError "Cooper-right NIY {← c₁.pp}, {← c₂.pp}"
 
 def resolveCooper (c₁ c₂ : LeCnstr) : GoalM Unit := do
   if c₁.p.leadCoeff.natAbs < c₂.p.leadCoeff.natAbs then
@@ -252,10 +252,10 @@ def resolveCooper (c₁ c₂ : LeCnstr) : GoalM Unit := do
     resolveCooperRight c₁ c₂
 
 def resolveCooperDvdLeft (c₁ c₂ : LeCnstr) (c : DvdCnstr) : GoalM Unit := do
-  throwError "Cooper-dvd-left NIY {← c₁.pp} {← c₂.pp} {← c.pp}"
+  throwError "Cooper-dvd-left NIY {← c₁.pp}, {← c₂.pp}, {← c.pp}"
 
 def resolveCooperDvdRight (c₁ c₂ : LeCnstr) (c : DvdCnstr) : GoalM Unit := do
-  throwError "Cooper-dvd-right NIY {← c₁.pp} {← c₂.pp} {← c.pp}"
+  throwError "Cooper-dvd-right NIY {← c₁.pp}, {← c₂.pp}, {← c.pp}"
 
 def resolveCooperDvd (c₁ c₂ : LeCnstr) (c : DvdCnstr) : GoalM Unit := do
   if c₁.p.leadCoeff.natAbs < c₂.p.leadCoeff.natAbs then
@@ -264,7 +264,7 @@ def resolveCooperDvd (c₁ c₂ : LeCnstr) (c : DvdCnstr) : GoalM Unit := do
     resolveCooperDvdRight c₁ c₂ c
 
 def resolveCooperDiseq (c₁ : DiseqCnstr) (c₂ : LeCnstr) (_c? : Option DvdCnstr) : GoalM Unit := do
-  throwError "Cooper-diseq NIY {← c₁.pp} {← c₂.pp}"
+  throwError "Cooper-diseq NIY {← c₁.pp}, {← c₂.pp}"
 
 /--
 Given `c₁` of the form `-a₁*x + p₁ ≤ 0`, and `c` of the form `b*x + p ≠ 0`,
@@ -322,6 +322,7 @@ def processVar (x : Var) : SearchM Unit := do
     let v := dvdSol.leAvoiding upper diseqVals
     setAssignment x v
   | some (lower, c₁), some (upper, c₂) =>
+    trace[grind.debug.cutsat.search] "{lower} ≤ {lower.ceil} ≤ {quoteIfNotAtom (← getVar x)} ≤ {upper.floor} ≤ {upper}"
     if lower > upper then
       let .true ← resolveRealLowerUpperConflict c₁ c₂
         | throwError "`grind` internal error, conflict resolution failed"
@@ -409,6 +410,7 @@ def searchAssigment : GoalM Unit := do
   if (← isInconsistent) then return ()
   if !(← getConfig).qlia && !s.precise then
     -- Search for a new model using `.int` mode.
+    trace[grind.debug.cutsat.search] "restart using Cooper resolution"
     modify' fun s => { s with assignment := {} }
     searchAssigmentMain .int |>.run' {}
     if (← isInconsistent) then return ()

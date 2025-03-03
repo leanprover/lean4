@@ -93,6 +93,25 @@ structure DvdCnstr where
   /-- Unique id for caching proofs in `ProofM` -/
   id : Nat
 
+/--
+- `cooper_left_split` (if `left` is `true` and `c₃?` is `none`)
+- `cooper_right_split` (if `left` is `false` and `c₃?` is `none`)
+- `cooper_dvd_left_split` (if `left` is `true` and `c₃?` is `some`)
+- `cooper_dvd_right_split` (if `left` is `false` and `c₃?` is `some`)
+-/
+structure CooperSplit where
+  left     : Bool
+  c₁       : LeCnstr
+  c₂       : LeCnstr
+  c₃?      : Option DvdCnstr
+  k        : Nat
+  h        : CooperSplitProof
+  id       : Nat
+
+inductive CooperSplitProof where
+  | case (h : FVarId)
+  | last (hs : Array (FVarId × UnsatProof)) (decVars : Array FVarId)
+
 inductive DvdCnstrProof where
   | expr (h : Expr)
   | norm (c : DvdCnstr)
@@ -102,8 +121,11 @@ inductive DvdCnstrProof where
   | elim (c : DvdCnstr)
   | ofEq (x : Var) (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : DvdCnstr)
+  | cooper₁ (c : CooperSplit)
+  /-- `c.c₃?` must be `some` -/
+  | cooper₂ (c : CooperSplit)
 
-/-- An inequality constraint and its justification/proof. -/
+/-- An inequalirty constraint and its justification/proof. -/
 structure LeCnstr where
   p  : Poly
   h  : LeCnstrProof
@@ -118,6 +140,8 @@ inductive LeCnstrProof where
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : LeCnstr)
   | ofLeDiseq (c₁ : LeCnstr) (c₂ : DiseqCnstr)
   | ofDiseqSplit (c₁ : DiseqCnstr) (decVar : FVarId) (h : UnsatProof) (decVars : Array FVarId)
+  | cooper (c : CooperSplit)
+
   -- TODO: missing constructors
 
 /-- A disequality constraint and its justification/proof. -/
@@ -145,6 +169,9 @@ inductive UnsatProof where
   | diseq (c : DiseqCnstr)
 
 end
+
+instance : Inhabited LeCnstr where
+  default := { p := .num 0, h := .expr default, id := 0 }
 
 instance : Inhabited DvdCnstr where
   default := { d := 0, p := .num 0, h := .expr default, id := 0 }

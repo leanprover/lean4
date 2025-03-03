@@ -52,7 +52,7 @@ private def unReplaceRecApps {α} (preDefs : Array PreDefinition) (fixedParams :
       let e := e.replace fun e => do
         if e == f then return packedFn else none
       -- And reduce projection and beta redexes
-      -- (This is a bit blunt; we could try harder to only replace the beta-redxe
+      -- (This is a bit blunt; we could try harder to only replace the projection and beta-redexes
       -- introduced above)
       let e ← PProdN.reduceProjs e
       let e ← Core.betaReduce e

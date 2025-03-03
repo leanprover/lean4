@@ -973,12 +973,29 @@ def isRoundDone : M Bool := do
   return (← get).progress && (← read).maxDistance > 0
 
 /-- Returns the `expr?` for the given field. -/
-def getFieldValue? (struct : StructInstView) (fieldName : Name) : Option Expr :=
+def getFieldValue?' (struct : StructInstView) (fieldName : Name) : Option Expr :=
   struct.fields.findSome? fun field =>
     if getFieldName field == fieldName then
       field.expr?
     else
       none
+
+partial def getFieldValue? (struct : StructInstView) (fieldName : Name) : MetaM (Option Expr) := do
+  for field in struct.fields do
+    let fieldName' := getFieldName field
+    if fieldName' == fieldName then
+      return field.expr?
+    if let .nested s' := field.val then
+      if let some val ← getFieldValue? s' fieldName then
+        return val
+    if let some info := getFieldInfo? (← getEnv) struct.structName fieldName' then
+      if info.subobject?.isSome then
+        if let some e := field.expr? then
+          try
+            return ← mkProjection e fieldName
+          catch _ =>
+            pure ()
+  return none
 
 /-- Instantiates a default value from the given default value declaration, if applicable. -/
 partial def mkDefaultValue? (struct : StructInstView) (cinfo : ConstantInfo) : TermElabM (Option Expr) :=
@@ -990,7 +1007,7 @@ where
   | .lam n d b c => withRef struct.ref do
     if c.isExplicit then
       let fieldName := n
-      match getFieldValue? struct fieldName with
+      match ← getFieldValue? struct fieldName with
       | none     => return none
       | some val =>
         let valType ← inferType val

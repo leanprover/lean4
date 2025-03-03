@@ -123,6 +123,10 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag
       - Merge the tag into `stable`
+- An awkward situtation that sometimes occurs (e.g. with Verso) is that one of these upstream dependencies has
+  already moved its `master`/`main` branch to a nightly toolchain that comes *after* the stable toolchain we are
+  targetting. In this case it is necessary to create a branch `releases/v4.6.0` from the last commit which was on
+  an earlier toolchain, moved that branch to the stable toolchain, and create the toolchain tag from that branch.
 - Run `script/release_checklist.py v4.6.0` again to check that everything is in order.
 - Finally, make an announcement!
   This should go in https://leanprover.zulipchat.com/#narrow/stream/113486-announce, with topic `v4.6.0`.

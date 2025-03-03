@@ -801,7 +801,8 @@ private partial def withStruct (view : StructView) (sourceStructNames : List Nam
       -- If we are currently in a subobject, then we can't use a subobject to represent this parent.
       withStructFields' (.otherParent structName) inSubobject? k
     else
-      if allFields.isEmpty || (← allFields.anyM hasFieldName) then
+      -- TODO(kmill): enable the empty fields check.
+      if /-allFields.isEmpty ||-/ (← allFields.anyM hasFieldName) then
         -- If there are no fields, we elect not to use a subobject (the constructor does not need to represent this parent at all)
         -- Or, if there is an overlapping field, we need to copy/reuse fields rather than embed the parent as a subobject.
         withStructFields' (.otherParent structName) none k
@@ -1222,10 +1223,13 @@ private def setSourceInstImplicit (type : Expr) : Expr :=
       type.updateForall! .instImplicit d b
   | _ => unreachable!
 
-private def setAllImplicit (type : Expr) : Expr :=
+private def setAllImplicitButSource (type : Expr) : Expr :=
   match type with
   | .forallE _ d b _ =>
-    type.updateForall! .implicit d (setAllImplicit b)
+    if b.isForall then
+      type.updateForall! .implicit d (setAllImplicitButSource b)
+    else
+      type
   | _ => type
 
 /--
@@ -1236,7 +1240,7 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
   let env ← getEnv
   let binfo := if view.isClass && isClass env parent.structName then BinderInfo.instImplicit else BinderInfo.default
   let mut declType ← instantiateMVars (← mkForallFVars params (← mkForallFVars #[source] parentType))
-  declType := setAllImplicit declType
+  declType := setAllImplicitButSource declType
   if view.isClass && isClass env parent.structName then
     declType := setSourceInstImplicit declType
 --  declType := declType.inferImplicit params.size true

@@ -432,6 +432,23 @@ example (c0 c1 : Bool) {a b d : BitVec 8}
     (bif !c0 && c1 then ~~~b else a) = d := by
   bv_normalize
 
+-- BV_MUL_ITE
+example {c : Bool} {a e : BitVec 8} :
+    (a * (bif c then 0#8 else e)) = (bif c then 0#8 else a * e) := by
+  bv_normalize
+
+example {c : Bool} {a t : BitVec 8} :
+    (a * (bif c then t else 0#8)) = (bif c then a * t else 0#8) := by
+  bv_normalize
+
+example {c : Bool} {a e : BitVec 8} :
+    ((bif c then 0#8 else e) * a) = (bif c then 0#8 else e * a) := by
+  bv_normalize
+
+example {c : Bool} {a t : BitVec 8} :
+    ((bif c then t else 0#8) * a) = (bif c then t * a else 0#8) := by
+  bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

@@ -199,6 +199,26 @@ theorem BitVec.ite_else_not_ite'' (c0 c1 : Bool) {a b : BitVec w} :
     (bif c0 then a else ~~~(bif c1 then b else ~~~a )) = (bif !c0 && c1 then ~~~b else a) := by
   cases c0 <;> cases c1 <;> simp
 
+@[bv_normalize]
+theorem BitVec.mul_ite_zero {c : Bool} {a e : BitVec w} :
+    (a * (bif c then 0#w else e)) = (bif c then 0#w else a * e) := by
+  cases c <;> simp
+
+@[bv_normalize]
+theorem BitVec.mul_ite_zero' {c : Bool} {a t : BitVec w} :
+    (a * (bif c then t else 0#w)) = (bif c then a * t else 0#w) := by
+  cases c <;> simp
+
+@[bv_normalize]
+theorem BitVec.mul_ite_zero'' {c : Bool} {a e : BitVec w} :
+    ((bif c then 0#w else e) * a) = (bif c then 0#w else e * a) := by
+  cases c <;> simp
+
+@[bv_normalize]
+theorem BitVec.mul_ite_zero''' {c : Bool} {a t : BitVec w} :
+    ((bif c then t else 0#w) * a) = (bif c then t * a else 0#w) := by
+  cases c <;> simp
+
 theorem Bool.and_left (lhs rhs : Bool) (h : (lhs && rhs) = true) : lhs = true := by
   revert lhs rhs
   decide

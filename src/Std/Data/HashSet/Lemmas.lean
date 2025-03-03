@@ -225,8 +225,8 @@ theorem get?_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
 theorem get?_erase_self [EquivBEq α] [LawfulHashable α] {k : α} : (m.erase k).get? k = none :=
   HashMap.getKey?_erase_self
 
-theorem get?_all_beq [EquivBEq α] [LawfulHashable α] {k : α} : (m.get? k).all (· == k) :=
-  HashMap.getKey?_all_beq
+theorem get?_beq [EquivBEq α] [LawfulHashable α] {k : α} : (m.get? k).all (· == k) :=
+  HashMap.getKey?_beq
 
 theorem get?_congr [EquivBEq α] [LawfulHashable α] {k k' : α} (h : k == k') :
     m.get? k = m.get? k' :=

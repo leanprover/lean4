@@ -582,9 +582,9 @@ theorem getKey?_eq_none [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} 
     m.contains a = false → m.getKey? a = none := by
   simp_to_model using List.getKey?_eq_none
 
-theorem getKey?_all_beq [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} :
+theorem getKey?_beq [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} :
     (m.getKey? a).all (· == a) := by
-  simp_to_model using List.getKey?_all_beq
+  simp_to_model using List.getKey?_beq
 
 theorem getKey?_eq_some [LawfulBEq α] (h : m.1.WF) {a : α} :
     m.contains a → m.getKey? a = some a := by

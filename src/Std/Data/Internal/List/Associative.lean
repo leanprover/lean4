@@ -580,7 +580,7 @@ theorem getKey?_eq_getEntry? [BEq α] {l : List ((a : α) × β a)} {a : α} :
     · rw [getEntry?_cons_of_false h, getKey?_cons_of_false h, ih]
     · rw [getEntry?_cons_of_true h, getKey?_cons_of_true h, Option.map_some']
 
-theorem getKey?_all_beq [BEq α] {l : List ((a : α) × β a)} {a : α} :
+theorem getKey?_beq [BEq α] {l : List ((a : α) × β a)} {a : α} :
     (getKey? a l).all (· == a) := by
   induction l using assoc_induction with
   | nil => rfl
@@ -630,7 +630,7 @@ theorem getKey_cons [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k}
 
 theorem getKey_beq [BEq α] {l : List ((a : α) × β a)} {a : α} (h : containsKey a l) :
     getKey a l h == a := by
-  simpa only [getKey?_eq_some_getKey h] using getKey?_all_beq (l := l) (a := a)
+  simpa only [getKey?_eq_some_getKey h] using getKey?_beq (l := l) (a := a)
 
 @[simp]
 theorem getKey_eq [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {a : α} (h : containsKey a l) :

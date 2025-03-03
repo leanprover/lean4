@@ -234,9 +234,9 @@ theorem get?_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
     (m.erase k).get? a = if k == a then none else m.get? a :=
   HashMap.Raw.getKey?_erase h.out
 
-theorem get?_all_beq [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+theorem get?_beq [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
     (m.get? k).all (· == k) :=
-  HashMap.Raw.getKey?_all_beq h.out
+  HashMap.Raw.getKey?_beq h.out
 
 theorem get?_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k k' : α} (h' : k == k') :
     m.get? k = m.get? k' :=
@@ -269,9 +269,9 @@ theorem get?_erase_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
     (m.erase k).get? k = none :=
   HashMap.Raw.getKey?_erase_self h.out
 
-theorem get_beq [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
-    (m.get? k).all (· == k) :=
-  HashMap.Raw.getKey?_all_beq h.out
+theorem get_beq [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} (h' : k ∈ m) :
+    m.get k h' == k :=
+  HashMap.Raw.getKey_beq h.out h'
 
 theorem get_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k₁ k₂ : α}
     (h' : k₁ == k₂) (h₁ : k₁ ∈ m) (h₂ : k₂ ∈ m) :

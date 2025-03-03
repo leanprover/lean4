@@ -719,9 +719,9 @@ theorem getKey?_erase_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α}
     (m.erase k).getKey? k = none := by
   simp_to_raw using Raw₀.getKey?_erase_self
 
-theorem getKey?_all_beq [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
+theorem getKey?_beq [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} :
     (m.getKey? a).all (· == a) := by
-  simp_to_raw using Raw₀.getKey?_all_beq
+  simp_to_raw using Raw₀.getKey?_beq
 
 theorem getKey?_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k k' : α} (h' : k == k') :
     m.getKey? k = m.getKey? k' := by

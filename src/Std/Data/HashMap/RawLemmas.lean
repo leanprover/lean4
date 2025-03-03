@@ -448,9 +448,9 @@ theorem getKey?_erase_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α}
     (m.erase k).getKey? k = none :=
   DHashMap.Raw.getKey?_erase_self h.out
 
-theorem getKey?_all_beq [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+theorem getKey?_beq [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
     (m.getKey? k).all (· == k) :=
-  DHashMap.Raw.getKey?_all_beq h.out
+  DHashMap.Raw.getKey?_beq h.out
 
 theorem getKey?_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k k' : α} (h' : k == k') :
     m.getKey? k = m.getKey? k' :=

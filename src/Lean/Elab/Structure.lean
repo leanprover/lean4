@@ -860,6 +860,7 @@ where
       let parentView := view.parents[i]
       withRef parentView.ref do
       -- The only use case for autobound implicits for parents might be outParams, but outParam is not propagated.
+      -- TODO(kmill): look into using `Term.synthesizeSyntheticMVarsNoPostponing` for each parent.
       let parentType ← whnf <| ← Term.withoutAutoBoundImplicit <| Term.elabType parentView.type
       if parentType.getAppFn == indFVar then
         logWarning "structure extends itself, skipping"
@@ -902,7 +903,26 @@ private def registerFailedToInferDefaultValue (fieldName : Name) (e : Expr) (ref
   Term.registerCustomErrorIfMVar (← instantiateMVars e) ref m!"failed to infer default value for field '{.ofConstName fieldName}'"
   Term.registerLevelMVarErrorExprInfo e ref m!"failed to infer universe levels in default value for field '{.ofConstName fieldName}'"
 
-private def elabFieldTypeValue (view : StructFieldView) : TermElabM (Option Expr × Option StructFieldDefault) :=
+/--
+Goes through all the natural mvars appearing in `e`, assigning any whose type is one of the inherited parents.
+-/
+private def solveParentMVars (e : Expr) : StructElabM Expr := do
+  let env ← getEnv
+  Term.synthesizeSyntheticMVars (postpone := .yes)
+  let mvars ← getMVarsNoDelayed e
+  for mvar in mvars do
+    unless ← mvar.isAssigned do
+      let decl ← mvar.getDecl
+      if decl.kind.isNatural then
+        if let .const name .. := (← whnf decl.type).getAppFn then
+          if isStructure env name then
+            if let some parentInfo ← findParentFieldInfo? name then
+              if ← isDefEq (← mvar.getType) (← inferType parentInfo.fvar) then
+                discard <| MVarId.checkedAssign mvar parentInfo.fvar
+  return e
+
+private def elabFieldTypeValue (view : StructFieldView) : StructElabM (Option Expr × Option StructFieldDefault) := do
+  let state ← get
   Term.withAutoBoundImplicit <| Term.withAutoBoundImplicitForbiddenPred (fun n => view.name == n) <| Term.elabBinders view.binders.getArgs fun params => do
     match view.type? with
     | none         =>
@@ -913,12 +933,14 @@ private def elabFieldTypeValue (view : StructFieldView) : TermElabM (Option Expr
         -- TODO: add forbidden predicate using `shortDeclName` from `view`
         let params ← Term.addAutoBoundImplicits params (view.nameId.getTailPos? (canonicalOnly := true))
         let value ← Term.withoutAutoBoundImplicit <| Term.elabTerm valStx none
+        let value ← runStructElabM (init := state) <| solveParentMVars value
         registerFailedToInferFieldType view.name (← inferType value) view.nameId
         registerFailedToInferDefaultValue view.name value valStx
         let value ← mkLambdaFVars params value
         return (none, StructFieldDefault.optParam value)
     | some typeStx =>
       let type ← Term.elabType typeStx
+      let type ← runStructElabM (init := state) <| solveParentMVars type
       registerFailedToInferFieldType view.name type typeStx
       Term.synthesizeSyntheticMVarsNoPostponing
       let params ← Term.addAutoBoundImplicits params (view.nameId.getTailPos? (canonicalOnly := true))
@@ -932,6 +954,7 @@ private def elabFieldTypeValue (view : StructFieldView) : TermElabM (Option Expr
           return (type, none)
       | some valStx =>
         let value ← Term.withoutAutoBoundImplicit <| Term.elabTermEnsuringType valStx type
+        let value ← runStructElabM (init := state) <| solveParentMVars value
         registerFailedToInferDefaultValue view.name value valStx
         Term.synthesizeSyntheticMVarsNoPostponing
         let type  ← mkForallFVars params type

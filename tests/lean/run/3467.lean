@@ -46,6 +46,7 @@ variable (a : A) (b : B) (c : C) (d : D)
 /-- info: d.toC.y : Nat -/
 #guard_msgs in #check d.y
 
+
 /-!
 Example resolution order failure
 -/

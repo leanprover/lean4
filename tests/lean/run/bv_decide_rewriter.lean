@@ -432,6 +432,106 @@ example (c0 c1 : Bool) {a b d : BitVec 8}
     (bif !c0 && c1 then ~~~b else a) = d := by
   bv_normalize
 
+-- BV_MUL_ITE
+example {c : Bool} {a e : BitVec 8} :
+    (a * (bif c then 0#8 else e)) = (bif c then 0#8 else a * e) := by
+  bv_normalize
+
+example {c : Bool} {a t : BitVec 8} :
+    (a * (bif c then t else 0#8)) = (bif c then a * t else 0#8) := by
+  bv_normalize
+
+example {c : Bool} {a e : BitVec 8} :
+    ((bif c then 0#8 else e) * a) = (bif c then 0#8 else e * a) := by
+  bv_normalize
+
+example {c : Bool} {a t : BitVec 8} :
+    ((bif c then t else 0#8) * a) = (bif c then t * a else 0#8) := by
+  bv_normalize
+
+-- EQAL_CONST_BV1
+example {b : Bool} {a : BitVec 1} :
+    ((a == 1#1) == b) = (a == bif b then 1#1 else 0#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    ((1#1 == a) == b) = (a == bif b then 1#1 else 0#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    (b == (a == 1#1)) = (a == bif b then 1#1 else 0#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    (b == (1#1 == a)) = (a == bif b then 1#1 else 0#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    ((a == 0#1) == b) = (a == bif b then 0#1 else 1#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    ((0#1 == a) == b) = (a == bif b then 0#1 else 1#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    (b == (a == 0#1)) = (a == bif b then 0#1 else 1#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    (b == (0#1 == a)) = (a == bif b then 0#1 else 1#1) := by
+  bv_normalize
+
+-- EQUAL_ITE_SAME
+example {c d : Bool} {a b : BitVec 8}
+    (h : (a == bif c then a else b) = d) :
+    (c || (a == b)) = d := by
+  bv_normalize
+
+example {c d : Bool} {a b : BitVec 8}
+    (h : (a == bif c then b else a) = d) :
+    (!c || (b == a)) = d := by
+  bv_normalize
+
+example {c d : Bool} {a b : BitVec 8}
+    (h : ((bif c then a else b) == a) = d) :
+    (c || (a == b)) = d := by
+  bv_normalize
+
+example {c d : Bool} {a b : BitVec 8}
+    (h : ((bif c then b else a) == a) = d) :
+    (!c || (b == a)) = d := by
+  bv_normalize
+
+-- EQUAL_ITE_INVERTED
+example {a b c : Bool} : (a == !bif c then a else b) = (!c && (a == !b)) := by
+  bv_normalize
+
+example {a b c : Bool} : (a == !bif c then b else a) = (c && (a == !b)) := by
+  bv_normalize
+
+example {a b c : Bool} : ((!bif c then a else b) == a) = (!c && (a == !b)) := by
+  bv_normalize
+
+example {a b c : Bool} : ((!bif c then b else a) == a) = (c && (a == !b)) := by
+  bv_normalize
+
+example {a b : BitVec 8} {c : Bool} :
+    (a == ~~~bif c then a else b) = (!c && (a == ~~~b)) := by
+  bv_normalize
+
+example {a b : BitVec 8} {c : Bool} :
+    (a == ~~~bif c then b else a) = (c && (a == ~~~b)) := by
+  bv_normalize
+
+example {a b : BitVec 8} {c : Bool} :
+    ((~~~bif c then a else b) == a) = (!c && (~~~b == a)) := by
+  bv_normalize
+
+example {a b : BitVec 8} {c : Bool} :
+    ((~~~bif c then b else a) == a) = (c && (~~~b == a)) := by
+  bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

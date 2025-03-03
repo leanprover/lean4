@@ -24,14 +24,19 @@ leanLibDir = "lib/lean"
 # Destination for static libraries
 nativeLibDir = "lib/lean"
 
+moreLeanArgs = [${LEAN_EXTRA_OPTS_TOML}]
+moreLeancArgs = [${LEANC_OPTS_TOML}]
+
 [[lean_lib]]
 name = "Init"
+defaultFacets = ["static", "static.export"]
 
 [[lean_lib]]
 name = "Std"
 
 [[lean_lib]]
 name = "Lean"
+defaultFacets = ["static", "static.export"]
 globs = [
   # Library root
   "Lean",
@@ -44,3 +49,9 @@ globs = [
 [[lean_lib]]
 name = "Lake"
 srcDir = "lake"
+defaultFacets = ["static", "static.export"]
+
+[[lean_lib]]
+name = "LakeMain"
+srcDir = "lake"
+globs = ["Lake.Main"]

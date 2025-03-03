@@ -32,7 +32,7 @@ structure Context where
   newConstants : Std.HashMap Name ConstantInfo
 
 structure State where
-  env : Environment
+  env : Kernel.Environment
   remaining : NameSet := {}
   pending : NameSet := {}
   postponedConstructors : NameSet := {}
@@ -160,10 +160,10 @@ def replay (newConstants : Std.HashMap Name ConstantInfo) (env : Environment) : 
     -- Later we may want to handle partial constants.
     if !ci.isUnsafe && !ci.isPartial then
       remaining := remaining.insert n
-  let (_, s) ← StateRefT'.run (s := { env, remaining }) do
+  let (_, s) ← StateRefT'.run (s := { env := env.toKernelEnv, remaining }) do
     ReaderT.run (r := { newConstants }) do
       for n in remaining do
         replayConstant n
       checkPostponedConstructors
       checkPostponedRecursors
-  return s.env
+  return .ofKernelEnv s.env

@@ -2223,12 +2223,13 @@ it is also not a "surrogate" character (the range `0xd800` to `0xdfff` inclusive
 abbrev UInt32.isValidChar (n : UInt32) : Prop :=
   n.toNat.isValidChar
 
-/-- The `Char` Type represents an unicode scalar value.
-    See http://www.unicode.org/glossary/#unicode_scalar_value). -/
+/--
+Characters are Unicode [scalar values](http://www.unicode.org/glossary/#unicode_scalar_value).
+-/
 structure Char where
-  /-- The underlying unicode scalar value as a `UInt32`. -/
+  /-- The underlying Unicode scalar value as a `UInt32`. -/
   val   : UInt32
-  /-- The value must be a legal codepoint. -/
+  /-- The value must be a legal scalar value. -/
   valid : val.isValidChar
 
 private theorem isValidChar_UInt32 {n : Nat} (h : n.isValidChar) : LT.lt n UInt32.size :=
@@ -2245,8 +2246,8 @@ def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char :=
   { val := ⟨BitVec.ofNatLT n (isValidChar_UInt32 h)⟩, valid := h }
 
 /--
-Convert a `Nat` into a `Char`. If the `Nat` does not encode a valid unicode scalar value,
-`'\0'` is returned instead.
+Converts a `Nat` into a `Char`. If the `Nat` does not encode a valid Unicode scalar value, `'\0'` is
+returned instead.
 -/
 @[noinline, match_pattern]
 def Char.ofNat (n : Nat) : Char :=

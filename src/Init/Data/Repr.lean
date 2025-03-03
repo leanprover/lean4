@@ -251,6 +251,14 @@ where
     let d1 := n % 16;
     hexDigitRepr d2 ++ hexDigitRepr d1
 
+/--
+Quotes the character to its representation as a character literal, surrounded by single quotes and
+escaped as necessary.
+
+Examples:
+ * `'L'.quote = "'L'"`
+ * `'"'.quote = "'\\\"'"`
+-/
 def Char.quote (c : Char) : String :=
   "'" ++ Char.quoteCore c ++ "'"
 

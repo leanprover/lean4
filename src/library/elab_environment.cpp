@@ -16,7 +16,7 @@ namespace lean {
    Updates an elab environment with a given kernel environment.
 
    NOTE: Ideally this language switching would not be necessary and we could do all this in Lean
-   only but the old code generator and `mk_projections` still need a C++ `elab_environment::add`
+   only but the old code generator still needs a C++ `elab_environment::add`
    that throws C++ exceptions. */
 extern "C" obj_res lean_elab_environment_update_base_after_kernel_add(obj_arg env, obj_arg kenv, obj_arg decl);
 

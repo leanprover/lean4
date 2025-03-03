@@ -175,12 +175,13 @@ private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
         mvarId.assign argVars[i]!
       assignMVarsIn (← inferType (.mvar mvarId))
 
-  -- Before anything, detect if this is a (generalized) projection and assign the parameters.
+  -- Before anything, detect if this is a (generalized) projection.
   -- See the comment about projections in this function's docstring.
   if let some idx := argBIs.findIdx? (·.isInstImplicit) then
     let argTy ← inferType argVars[idx]!
     argTy.withApp fun c tyArgs => do
-      -- If this is of the form `C argVars[0] argVars[1] ... argVars[idx-1]`, then treat it as the class being projected.
+      -- If this is of the form `C argVars[0] argVars[1] ... argVars[idx-1]`,
+      -- then we treat this instance as a projection; the arguments before this one are the type's parameters
       if c.isConst && tyArgs.size == idx && Nat.all idx fun i _ => argVars[i]! == tyArgs[i]! then
         assignMVarsIn (← inferType argMVars[idx]!)
 

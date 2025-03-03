@@ -1164,7 +1164,7 @@ theorem forInUncurried_eq_forIn_toList [Monad m'] [LawfulMonad m']
 /--
 Deprecated, use `forInUncurried_eq_forIn_toList` together with `forIn_eq_forInUncurried` instead.
 -/
-@[deprecated forMUncurried_eq_forM_toList (since := "2025-03-02")]
+@[deprecated forInUncurried_eq_forIn_toList (since := "2025-03-02")]
 theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
     {f : α × β → δ → m' (ForInStep δ)} {init : δ} :
     Const.forInUncurried f init m = ForIn.forIn (Const.toList m) init f :=

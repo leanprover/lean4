@@ -39,7 +39,6 @@ theorem starGizmo_foo [CommRing R] [StarRing' R] (x : R) : starGizmo x = x := rf
 namespace ReidMWE
 
 class A (α : Type u) where
-  someField : α
 
 class B (α : Type u) extends A α
 

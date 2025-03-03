@@ -805,9 +805,14 @@ private partial def withStruct (view : StructView) (sourceStructNames : List Nam
       -- If we are currently in a subobject, then we can't use a subobject to represent this parent.
       withStructFields' (.otherParent structName) inSubobject? k
     else
-      -- TODO(kmill): enable the empty fields check.
-      if /-allFields.isEmpty ||-/ (← allFields.anyM hasFieldName) then
-        -- If there are no fields, we elect not to use a subobject (the constructor does not need to represent this parent at all)
+      /-
+      If there are no fields, we can avoid representing this structure in the constructor.
+      This is mainly to support test files that define structures with no fields.
+      TODO(kmill): remove check that there are any fields so far.
+      This is to get around some oddities when parent projections are all no-ops (tests fail when it is removed).
+      -/
+      let elideParent := allFields.isEmpty && (← get).fields.any (·.kind.isInCtor)
+      if elideParent || (← allFields.anyM hasFieldName) then
         -- Or, if there is an overlapping field, we need to copy/reuse fields rather than embed the parent as a subobject.
         withStructFields' (.otherParent structName) none k
       else

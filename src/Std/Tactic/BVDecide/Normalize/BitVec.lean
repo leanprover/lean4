@@ -347,5 +347,17 @@ theorem BitVec.exctractLsb'_if {x y : BitVec w} (s l : Nat) :
     BitVec.extractLsb' s l (bif c then x else y) = bif c then (BitVec.extractLsb' s l x) else (BitVec.extractLsb' s l y) := by
   cases c <;> simp
 
+theorem BitVec.mul_beq_mul_short_circuit_left {x₁ x₂ y : BitVec w} :
+    (x₁ * y == x₂ * y) = !(!x₁ == x₂ && !x₁ * y == x₂ * y) := by
+  simp only [Bool.not_and, Bool.not_not, Bool.iff_or_self, beq_iff_eq]
+  intros
+  congr
+
+theorem BitVec.mul_beq_mul_short_circuit_right {x y₁ y₂ : BitVec w} :
+    (x * y₁ == x * y₂) = !(!y₁ == y₂ && !x * y₁ == x * y₂) := by
+  simp only [Bool.not_and, Bool.not_not, Bool.iff_or_self, beq_iff_eq]
+  intros
+  congr
+
 end Normalize
 end Std.Tactic.BVDecide

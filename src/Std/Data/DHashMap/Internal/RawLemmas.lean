@@ -354,7 +354,7 @@ theorem get?_eq_some_get [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α}
 theorem get_eq_get [LawfulBEq α] (h : m.1.WF) {a : α} {h} : get m a h = m.get a h := by
   simp_to_model using List.getValue_eq_getValueCast
 
-theorem get_congr [LawfulBEq α] (h : m.1.WF) {a b : α} (hab : a == b) {h'} :
+theorem get_congr [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a b : α} (hab : a == b) {h'} :
     get m a h' = get m b ((contains_congr _ h hab).symm.trans h') := by
   simp_to_model using List.getValue_congr
 
@@ -629,8 +629,8 @@ theorem getKey_eq [LawfulBEq α] (h : m.1.WF) {a : α} (h' : m.contains a) : m.g
   simp_to_model using List.getKey_eq
 
 theorem getKey_congr [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
-    {k k' : α} (h : k == k') (h' : m.contains k) (h'' : m.contains k') :
-    m.getKey k h' = m.getKey k' h'' := by
+    {k k' : α} (h' : k == k') (h'' : m.contains k) :
+    m.getKey k h'' = m.getKey k' ((contains_congr _ h h').symm.trans h'') := by
   simp_to_model using List.getKey_congr
 
 theorem getKey?_eq_some_getKey [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} {h'} :

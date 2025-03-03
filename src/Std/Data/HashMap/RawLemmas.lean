@@ -282,7 +282,7 @@ theorem getElem?_eq_some_getElem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a
     m[a]? = some (m[a]'h') :=
   @DHashMap.Raw.Const.get?_eq_some_get _ _ _ _ _ _ _ h.out _ h'
 
-theorem getElem_congr [LawfulBEq α] (h : m.WF) {a b : α} (hab : a == b) {h'} :
+theorem getElem_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (hab : a == b) {h'} :
     m[a]'h' = m[b]'((mem_congr h hab).1 h') :=
   DHashMap.Raw.Const.get_congr h.out hab (h' := h')
 
@@ -487,9 +487,9 @@ theorem getKey_beq [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} (h' : k
   DHashMap.Raw.getKey_beq h.out h'
 
 theorem getKey_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k₁ k₂ : α}
-    (h' : k₁ == k₂) (h₁ : k₁ ∈ m) (h₂ : k₂ ∈ m) :
-    m.getKey k₁ h₁ = m.getKey k₂ h₂ :=
-  DHashMap.Raw.getKey_congr h.out h' h₁ h₂
+    (h' : k₁ == k₂) (h₁ : k₁ ∈ m) :
+    m.getKey k₁ h₁ = m.getKey k₂ ((mem_congr h h').mp h₁) :=
+  DHashMap.Raw.getKey_congr h.out h' h₁
 
 theorem getKey_eq [LawfulBEq α] (h : m.WF) {k : α} (h' : k ∈ m) :
     m.getKey k h' = k :=

@@ -411,7 +411,7 @@ theorem get?_eq_some_get [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} {
 theorem get_eq_get [LawfulBEq α] (h : m.WF) {a : α} {h} : get m a h = m.get a h := by
   simp_to_raw using Raw₀.Const.get_eq_get
 
-theorem get_congr [LawfulBEq α] (h : m.WF) {a b : α} (hab : a == b) {h'} :
+theorem get_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (hab : a == b) {h'} :
     get m a h' = get m b ((mem_congr h hab).1 h') := by
   simp_to_raw using Raw₀.Const.get_congr
 
@@ -762,8 +762,8 @@ theorem getKey_beq [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} (h') :
   simp_to_raw using Raw₀.getKey_beq
 
 theorem getKey_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k₁ k₂ : α}
-    (h' : k₁ == k₂) (h₁ : m.contains k₁) (h₂ : m.contains k₂) :
-    m.getKey k₁ h₁ = m.getKey k₂ h₂ := by
+    (h' : k₁ == k₂) (h₁ : k₁ ∈ m) :
+    m.getKey k₁ h₁ = m.getKey k₂ (((mem_congr h h').mp h₁)) := by
   simp_to_raw using Raw₀.getKey_congr
 
 theorem getKey_eq [LawfulBEq α] (h : m.WF) {k : α} (h') :

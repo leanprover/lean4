@@ -274,9 +274,9 @@ theorem get_beq [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} (h' : k �
   HashMap.Raw.getKey_beq h.out h'
 
 theorem get_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k₁ k₂ : α}
-    (h' : k₁ == k₂) (h₁ : k₁ ∈ m) (h₂ : k₂ ∈ m) :
-    m.get k₁ h₁ = m.get k₂ h₂ :=
-  HashMap.Raw.getKey_congr h.out h' h₁ h₂
+    (h' : k₁ == k₂) (h₁ : k₁ ∈ m) :
+    m.get k₁ h₁ = m.get k₂ (((mem_congr h h').mp h₁)) :=
+  HashMap.Raw.getKey_congr h.out h' h₁
 
 theorem get_eq [LawfulBEq α] (h : m.WF) {k : α} (h' : m.contains k) :
     m.get k h' = k :=

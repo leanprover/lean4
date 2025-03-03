@@ -1480,8 +1480,8 @@ theorem ne_not_self {a : BitVec w} (h : 0 < w) : a ≠ ~~~a := by
 
 @[simp]
 theorem not_self_ne {a : BitVec w} (h : 0 < w) : ~~~a ≠ a := by
-  have : ∃ x, x < w := ⟨w - 1, by omega⟩
-  simp [BitVec.eq_of_getElem_eq_iff, this]
+  rw [ne_comm]
+  simp [h]
 
 /-! ### cast -/
 

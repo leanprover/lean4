@@ -2266,7 +2266,10 @@ constants are added to the environment.
 def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
     MetaM Unit := do
   let env ← getEnv
-  if env.contains constName then
+  -- If `constName` is already known on this branch, avoid the trace node. We should not use
+  -- `contains` as it could block as well as find realizations on other branches, which would lack
+  -- the relevant local environment extension state when accessed on this branch.
+  if env.containsOnBranch constName then
     return
   withTraceNode `Meta.realizeConst (fun _ => return constName) do
     let coreCtx ← readThe Core.Context

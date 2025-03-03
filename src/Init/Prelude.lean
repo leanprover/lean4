@@ -3332,17 +3332,15 @@ Unsafe implementation of `castError` using `unsafeCast`.
 We claim this is safe becase the representation of `.error e s` doesn't depend on the type `α`.
 -/
 @[inline]
-unsafe def castErrorImp (x : Result ε σ α) (h : Eq x (Result.error e s)) : Result ε σ β :=
-  match x with
-  | .ok ..    => .noConfusion h
-  | .error .. => unsafeCast x
+unsafe def castErrorImp {x : Result ε σ α} (_ : Eq x (Result.error e s)) : Result ε σ β :=
+  unsafeCast x
 
 /--
 Efficiently cast an error in `Result ε σ α` to an error in `Result ε σ β`.
 This function is a no-op in the compiler.
 -/
 @[implemented_by castErrorImp]
-def Result.castError (x : Result ε σ α) (h : Eq x (Result.error e s)) : Result ε σ β :=
+def castError {x : Result ε σ α} (h : Eq x (Result.error e s)) : Result ε σ β :=
   match x with
   | .ok ..     => .noConfusion h
   | .error e s => .error e s
@@ -3430,7 +3428,7 @@ protected def bind (x : EStateM ε σ α) (f : α → EStateM ε σ β) : EState
   let x := x s
   match h : x with
   | Result.ok a s    => f a s
-  | Result.error .. => x.castError h
+  | Result.error .. => castError h
 
 /-- The `map` operation of the `EStateM` monad. -/
 @[always_inline, inline]
@@ -3438,7 +3436,7 @@ protected def map (f : α → β) (x : EStateM ε σ α) : EStateM ε σ β := f
   let x := x s
   match h : x with
   | Result.ok a s    => Result.ok (f a) s
-  | Result.error .. => x.castError h
+  | Result.error .. => castError h
 
 /-- The `seqRight` operation of the `EStateM` monad. -/
 @[always_inline, inline]
@@ -3446,7 +3444,7 @@ protected def seqRight (x : EStateM ε σ α) (y : Unit → EStateM ε σ β) : 
   let x := x s
   match h : x with
   | Result.ok _ s    => y () s
-  | Result.error .. => x.castError h
+  | Result.error .. => castError h
 
 @[always_inline]
 instance instMonad : Monad (EStateM ε σ) where

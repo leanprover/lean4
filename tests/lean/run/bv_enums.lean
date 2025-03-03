@@ -1,4 +1,5 @@
 import Std.Tactic.BVDecide
+import Lean.Elab.Tactic.BVDecide
 
 namespace Ex1
 
@@ -94,3 +95,98 @@ example (a : Pair) (h : a.x ≥ 100) : False := by
   bv_decide
 
 end Ex3
+
+namespace Ex4
+
+inductive Foo where
+  | a
+  | b
+  | c
+
+def Foo.f1 : Foo → Foo
+  | .a => .b
+  | .b => .c
+  | .c => .a
+
+def Foo.f2 : Foo → Foo
+  | .a => .b
+  | _ => .c
+
+def Foo.f3 (f : Foo) (h : f ≠ .a) : Foo :=
+  match f with
+  | .b => .c
+  | .c => .c
+
+def Foo.f4 (f : Foo) (h : ∀ f : Foo, f ≠ .a) : Foo :=
+  match h2 : f with
+  | .a =>
+    have : False := by
+      specialize h f
+      contradiction
+    nomatch this
+  | .b => .c
+  | .c => .c
+
+open Lean Elab Tactic BVDecide
+
+
+
+theorem thm :
+  Foo.f1.match_1 (fun _ => α) x h1 h2 h3
+    =
+  bif Foo.enumToBitVec x == 0#2 then h1 ()
+  else bif Foo.enumToBitVec x == 1#2 then h2 ()
+  else bif Foo.enumToBitVec x == 2#2 then h3 () else h3 () :=
+  by cases x <;> rfl
+
+theorem thm :
+  Foo.f1.match_1 (fun _ => α) x h1 h2 h3
+    =
+  bif Foo.enumToBitVec x == 0#2 then h1 ()
+  else bif Foo.enumToBitVec x == 1#2 then h2 ()
+  else bif Foo.enumToBitVec x == 2#2 then h3 () else h3 () :=
+  Foo.recOn (motive := fun x =>
+      (match x with
+        | Foo.a => h1 ()
+        | Foo.b => h2 ()
+        | Foo.c => h3 ()) =
+        bif x.enumToBitVec == 0#2 then h1 ()
+        else bif x.enumToBitVec == 1#2 then h2 () else bif x.enumToBitVec == 2#2 then h3 () else h3 ())
+    x (Eq.refl (h1 ())) (Eq.refl (h2 ())) (Eq.refl (h3 ()))
+
+#print thm
+
+set_option pp.explicit true
+#print Foo.f1.match_1
+
+/-- info: true -/
+#guard_msgs in
+#eval show MetaM _ from do
+  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.matchIsSupported ``Foo.f1.match_1
+  return res matches some .simple
+
+/-- info: true -/
+#guard_msgs in
+#eval show MetaM _ from do
+  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.matchIsSupported ``Foo.f2.match_1
+  return res matches none
+
+/-- info: true -/
+#guard_msgs in
+#eval show MetaM _ from do
+  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.matchIsSupported ``Foo.f3.match_1
+  return res matches none
+
+/-- info: true -/
+#guard_msgs in
+#eval show MetaM _ from do
+  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.matchIsSupported ``Foo.f4.match_1
+  return res matches none
+
+/-- info: true -/
+#guard_msgs in
+#eval show MetaM _ from do
+  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.matchIsSupported ``Foo.f4.match_2
+  return res matches none
+
+end Ex4

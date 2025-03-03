@@ -42,6 +42,7 @@ let
   }));
 in {
   inherit cc buildLeanPackage llvmPackages;
+  inherit (lean) stage2;
   nixpkgs = pkgs;
   ciShell = writeShellScriptBin "ciShell" ''
     set -o pipefail

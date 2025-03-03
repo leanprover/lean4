@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
+import Init.Data.SInt.Basic
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
 import Lean.Elab.Tactic.BVDecide.Frontend.Attr
 import Lean.Elab.Tactic.Simp
@@ -14,7 +15,7 @@ This module contains the implementation of the pre processing pass for reducing 
 
 It:
 1. runs the `int_toBitVec` simp set
-2. If `USize.toBitVec` is used anywhere looks for equations of the form
+2. If `USize.toBitVec`/`ISize.toBitVec` is used anywhere looks for equations of the form
    `System.Platform.numBits = constant` (or flipped) and uses them to convert the system back to
    fixed width.
 -/
@@ -25,11 +26,12 @@ namespace Frontend.Normalize
 open Lean.Meta
 
 /--
-Contains information for the `USize` elimination pass.
+Contains information for the `USize`/`ISize` elimination pass.
 -/
-structure USizeState where
+structure SizeState where
   /--
-  Contains terms of the form `USize.toBitVec e` that we will translate to constant width `BitVec`.
+  Contains terms of the form `USize.toBitVec e` and `ISize.toBitVec e` that we will translate to
+  constant width `BitVec`.
   -/
   relevantTerms : Std.HashSet Expr := {}
   /--
@@ -37,16 +39,16 @@ structure USizeState where
   -/
   relevantHyps : Std.HashSet FVarId := {}
 
-private abbrev M := StateRefT USizeState MetaM
+private abbrev M := StateRefT SizeState MetaM
 
 namespace M
 
 @[inline]
-def addUSizeTerm (e : Expr) : M Unit := do
+def addSizeTerm (e : Expr) : M Unit := do
   modify fun s => { s with relevantTerms := s.relevantTerms.insert e }
 
 @[inline]
-def addUSizeHyp (f : FVarId) : M Unit := do
+def addSizeHyp (f : FVarId) : M Unit := do
   modify fun s => { s with relevantHyps := s.relevantHyps.insert f }
 
 end M
@@ -64,30 +66,30 @@ def intToBitVecPass : Pass where
     let hyps ← goal.getNondepPropHyps
     let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := hyps)
     let some (_, goal) := result? | return none
-    handleUSize goal |>.run' {}
+    handleSize goal |>.run' {}
 where
-  handleUSize (goal : MVarId) : M MVarId := do
-    if ← detectUSize goal then
-      replaceUSize goal
+  handleSize (goal : MVarId) : M MVarId := do
+    if ← detectSize goal then
+      replaceSize goal
     else
       return goal
 
-  detectUSize (goal : MVarId) : M Bool := do
+  detectSize (goal : MVarId) : M Bool := do
     goal.withContext do
       for hyp in ← getPropHyps do
         (← hyp.getType).forEachWhere
           (stopWhenVisited := true)
-          (·.isAppOfArity ``USize.toBitVec 1)
+          (fun e => e.isAppOfArity ``USize.toBitVec 1 || e.isAppOfArity ``ISize.toBitVec 1)
           fun e => do
-            M.addUSizeTerm e
-            M.addUSizeHyp hyp
+            M.addSizeTerm e
+            M.addSizeHyp hyp
 
       return !(← get).relevantTerms.isEmpty
 
   /--
-  Turn `goal` into a goal containing `BitVec const` instead of `USize`.
+  Turn `goal` into a goal containing `BitVec const` instead of `USize`/`ISize`.
   -/
-  replaceUSize (goal : MVarId) : M MVarId := do
+  replaceSize (goal : MVarId) : M MVarId := do
     if let some (numBits, numBitsEq) ← findNumBitsEq goal then
       goal.withContext do
         let relevantHyps := (← get).relevantHyps.toArray.map mkFVar
@@ -138,13 +140,14 @@ where
           numBitsEq
           (mkMVar newGoal)
         goal.assign <| mkAppN casesOn (relevantTerms ++ abstractedHyps)
-        -- remove all of the hold hypotheses about USize.toBitVec to prevent false counter examples
+        -- remove all of the hold hypotheses about USize.toBitVec/ISize.toBitVec to prevent
+        -- false counter examples
         (newGoal, _) ← newGoal.tryClearMany' (abstractedHyps.map Expr.fvarId!)
         -- intro both the new `BitVec const` as well as all hypotheses about them
         (_, newGoal) ← newGoal.introN (relevantTerms.size + abstractedHyps.size)
         return newGoal
     else
-      logWarning m!"Detected USize in the goal but no hypothesis about System.Platform.numBits, consider case splitting on {mkConst ``System.Platform.numBits_eq}"
+      logWarning m!"Detected USize/ISize in the goal but no hypothesis about System.Platform.numBits, consider case splitting on {mkConst ``System.Platform.numBits_eq}"
       return goal
 
   /--

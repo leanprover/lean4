@@ -143,3 +143,27 @@ example (a b c : Pair) (h1 : a ≠ b) (h2 : b = c) : a ≠ c := by
   bv_decide
 
 end Ex10
+
+namespace Ex11
+
+structure Pair where
+  x : UInt16
+  y : UInt16
+  h : x + y = 0
+
+example (a : Pair) (b : UInt16) : a.x + a.y + b ≤ b := by
+  bv_decide
+
+end Ex11
+
+namespace Ex12
+
+structure Pair where
+  x : Int16
+  y : Int16
+  h : x + y = 0
+
+example (a : Pair) (b : Int16) : a.x + a.y + b ≤ b := by
+  bv_decide
+
+end Ex12

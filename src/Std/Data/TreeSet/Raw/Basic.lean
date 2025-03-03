@@ -272,16 +272,16 @@ def fold (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
   t.foldl f init
 
 @[inline, inherit_doc TreeSet.empty]
-def foldrM (f : δ → (a : α) → m δ) (init : δ) (t : Raw α cmp) : m δ :=
-  t.inner.foldrM (fun c a _ => f c a) init
+def foldrM (f : (a : α) → δ → m δ) (init : δ) (t : Raw α cmp) : m δ :=
+  t.inner.foldrM (fun a _ acc => f a acc) init
 
 @[inline, inherit_doc TreeSet.empty]
-def foldr (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
-  t.inner.foldr (fun c a _ => f c a) init
+def foldr (f : (a : α) → δ → δ) (init : δ) (t : Raw α cmp) : δ :=
+  t.inner.foldr (fun a _ acc => f a acc) init
 
 @[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
 def revFold (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
-  foldr f init t
+  foldr (fun a acc => f acc a) init t
 
 @[inline, inherit_doc TreeSet.partition]
 def partition (f : (a : α) → Bool) (t : Raw α cmp) : Raw α cmp × Raw α cmp :=
@@ -311,7 +311,7 @@ def all (t : Raw α cmp) (p : α → Bool) : Bool :=
 
 @[inline, inherit_doc TreeSet.empty]
 def toList (t : Raw α cmp) : List α :=
-  t.inner.inner.inner.foldr (fun l a _ => a :: l) ∅
+  t.inner.inner.inner.foldr (fun a _ l => a :: l) ∅
 
 @[inline, inherit_doc TreeSet.ofList]
 def ofList (l : List α) (cmp : α → α → Ordering := by exact compare) : Raw α cmp :=

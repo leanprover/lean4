@@ -15,7 +15,7 @@ structures containing information about supported types into individual parts re
 
 The implementation runs cases recursively on all "interesting" types where a type is interesting if
 it is a non recursive structure and at least one of the following conditions hold:
-- it contains something of type `BitVec`/`UIntX`/`Bool`
+- it contains something of type `BitVec`/`UIntX`/`IntX`/`Bool`
 - it is parametrized by an interesting type
 - it contains another interesting type
 Afterwards we also:

@@ -46,9 +46,8 @@ def get' : GoalM State := do
 
 /-- Returns `true` if the cutsat state is inconsistent. -/
 def inconsistent : GoalM Bool := do
-  -- TODO: we will have a nested backtracking search in cutsat
-  -- and this function will have to be refined.
-  isInconsistent
+  if (← isInconsistent) then return true
+  return (← get').conflict?.isSome
 
 def getVars : GoalM (PArray Expr) :=
   return (← get').vars

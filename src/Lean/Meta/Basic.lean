@@ -2215,16 +2215,24 @@ private partial def setAllDiagRanges (snap : Language.SnapshotTree) (pos endPos 
       task := (← BaseIO.mapTask (t := task.task) (setAllDiagRanges · pos endPos)) })
   }
 
+open Language
+
+private structure RealizeConstantResult where
+  snap       : SnapshotTree
+  error? : Option Exception
+deriving TypeName
+
 /--
 Makes the helper constant `constName` that is derived from `forConst` available in the environment.
 `enableRealizationsForConst forConst` must have been called first on this environment branch. If
 this is the first environment branch requesting `constName` to be realized (atomically), `realize`
 is called with the environment and options at the time of calling `enableRealizationsForConst` if
-`forConst` is from the current module and the state just after importing otherwise, thus helping
-achieve deterministic results despite the non-deterministic choice of which thread is tasked with
-realization. In other words, the state after calling `realizeConst` is *as if* `realize` had been
-called immediately after `enableRealizationsForConst forConst`, though the effects of this call are
-visible only after calling `realizeConst`. See below for more details on the replayed effects.
+`forConst` is from the current module and the state just after importing (when
+`enableRealizationsForImports` should be called) otherwise, thus helping achieve deterministic
+results despite the non-deterministic choice of which thread is tasked with realization. In other
+words, the state after calling `realizeConst` is *as if* `realize` had been called immediately after
+`enableRealizationsForConst forConst`, though the effects of this call are visible only after
+calling `realizeConst`. See below for more details on the replayed effects.
 
 `realizeConst` cannot check what other data is captured in the `realize` closure,
 so it is best practice to extract it into a separate function and pay close attention to the passed
@@ -2241,20 +2249,29 @@ to add `constName` to the environment, an appropriate diagnostic is reported to 
 constants are added to the environment.
 -/
 def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
-    MetaM Unit := withTraceNode `Meta.realizeConst (fun _ => return constName) do
+    MetaM Unit := do
   let env ← getEnv
-  let coreCtx ← readThe Core.Context
-  -- these fields should be invariant throughout the file
-  let coreCtx := { fileName := coreCtx.fileName, fileMap := coreCtx.fileMap }
-  let (env, dyn) ← env.realizeConst forConst constName (realizeAndReport coreCtx)
-  if let some snap := dyn.get? Language.SnapshotTree then
-    let mut snap := snap
-    -- localize diagnostics
-    if let some range := (← getRef).getRange? then
-      let fileMap ← getFileMap
-      snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
-    Core.logSnapshotTask <| .finished (stx? := none) snap
-  setEnv env
+  if env.contains constName then
+    return
+  withTraceNode `Meta.realizeConst (fun _ => return constName) do
+    let coreCtx ← readThe Core.Context
+    let coreCtx := {
+      -- these fields should be invariant throughout the file
+      fileName := coreCtx.fileName, fileMap := coreCtx.fileMap
+      -- heartbeat limits inside `realizeAndReport` should be measured from this point on
+      initHeartbeats := (← IO.getNumHeartbeats)
+    }
+    let (env, dyn) ← env.realizeConst forConst constName (realizeAndReport coreCtx)
+    if let some res := dyn.get? RealizeConstantResult then
+      let mut snap := res.snap
+      -- localize diagnostics
+      if let some range := (← getRef).getRange? then
+        let fileMap ← getFileMap
+        snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
+      Core.logSnapshotTask <| .finished (stx? := none) snap
+      if let some e := res.error? then
+        throw e
+    setEnv env
 where
   -- similar to `wrapAsyncAsSnapshot` but not sufficiently so to share code
   realizeAndReport (coreCtx : Core.Context) env opts := do
@@ -2267,14 +2284,20 @@ where
           realize
           if !(← getEnv).contains constName then
             throwError "Lean.Meta.realizeConst: {constName} was not added to the environment"
-        catch e : Exception =>
-          logError e.toMessageData
         finally
           addTraceAsMessages
     let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO
     match res? with
-    | .ok ((output, ()), st) => pure (st.env, .mk (← Core.mkSnapshot output coreCtx st))
-    | .error _e => unreachable!; pure (env, .mk ({ diagnostics := .empty : Language.SnapshotLeaf}))
+    | .ok ((output, ()), st) => pure (st.env, .mk {
+      snap := (← Core.mkSnapshot output coreCtx st)
+      error? := none
+      : RealizeConstantResult
+    })
+    | .error e => pure (env, .mk {
+      snap := toSnapshotTree { diagnostics := .empty : Language.SnapshotLeaf}
+      error? := some e
+      : RealizeConstantResult
+    })
 
 end Meta
 

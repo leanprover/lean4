@@ -365,6 +365,16 @@ for incremental reporting during elaboration of a single command.
 def getAndEmptyMessageLog : CoreM MessageLog :=
   modifyGet fun s => (s.messages, { s with messages := s.messages.markAllReported })
 
+/--
+Returns the current set of tasks added by `logSnapshotTask` and then resets it. When
+saving/restoring state of an action that may have logged such tasks during incremental reuse, this
+function must be used to store them in the corresponding snapshot tree; otherwise, they will leak
+outside and may be cancelled by a later step, potentially leading to inconsistent state being
+reused.
+-/
+def getAndEmptySnapshotTasks : CoreM (Array (Language.SnapshotTask Language.SnapshotTree)) :=
+  modifyGet fun s => (s.snapshotTasks, { s with snapshotTasks := #[] })
+
 instance : MonadLog CoreM where
   getRef      := getRef
   getFileMap  := return (← read).fileMap
@@ -535,7 +545,9 @@ opaque compileDeclsOld (env : Environment) (opt : @& Options) (decls : @& List N
 -- `ref?` is used for error reporting if available
 partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
     (logErrors := true) : CoreM Unit := do
-  if !Elab.async.get (← getOptions) then
+  -- When inside `realizeConst`, do compilation synchronously so that `_cstage*` constants are found
+  -- by the replay code
+  if !Elab.async.get (← getOptions) || (← getEnv).isRealizing then
     doCompile
     return
   let env ← getEnv

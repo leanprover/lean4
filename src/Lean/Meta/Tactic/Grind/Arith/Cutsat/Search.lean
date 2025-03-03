@@ -8,7 +8,9 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.SearchM
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -16,9 +18,12 @@ private def checkIsNextVar (x : Var) : GoalM Unit := do
   if x != (← get').assignment.size then
     throwError "`grind` internal error, assigning variable out of order"
 
+private def traceAssignment (x : Var) (v : Rat) : GoalM Unit := do
+  trace[grind.cutsat.assign] "{quoteIfNotAtom (← getVar x)} := {v}"
+
 private def setAssignment (x : Var) (v : Rat) : GoalM Unit := do
   checkIsNextVar x
-  trace[grind.cutsat.assign] "{quoteIfNotAtom (← getVar x)} := {v}"
+  traceAssignment x v
   modify' fun s => { s with assignment := s.assignment.push v }
 
 private def skipAssignment (x : Var)  : GoalM Unit := do
@@ -27,6 +32,7 @@ private def skipAssignment (x : Var)  : GoalM Unit := do
 
 /-- Assign eliminated variables using `elimEqs` field. -/
 private def assignElimVars : GoalM Unit := do
+  if (← inconsistent) then return ()
   go (← get').elimStack
 where
   go (xs : List Var) : GoalM Unit := do
@@ -35,9 +41,14 @@ where
     | x :: xs =>
       let some c := (← get').elimEqs[x]!
         | throwError "`grind` internal error, eliminated variable must have equation associated with it"
-      let .add a _ p := c.p | c.throwUnexpected
-      let some v ← p.eval? | c.throwUnexpected
+      -- `x` may not be the max variable
+      let a := c.p.coeff x
+      if a == 0 then c.throwUnexpected
+      -- ensure `x` is 0 when evaluating `c.p`
+      modify' fun s => { s with assignment := s.assignment.set x 0 }
+      let some v ← c.p.eval? | c.throwUnexpected
       let v := (-v) / a
+      traceAssignment x v
       modify' fun s => { s with assignment := s.assignment.set x v }
       go xs
 
@@ -255,8 +266,28 @@ def resolveCooperDvd (c₁ c₂ : LeCnstr) (c : DvdCnstr) : GoalM Unit := do
 def resolveCooperDiseq (c₁ : DiseqCnstr) (c₂ : LeCnstr) (_c? : Option DvdCnstr) : GoalM Unit := do
   throwError "Cooper-diseq NIY {← c₁.pp} {← c₂.pp}"
 
-def resolveRatDiseq (c₁ : LeCnstr) (c : DiseqCnstr) : GoalM Unit := do
-  throwError "diseq NIY {← c₁.pp} {← c.pp}"
+/--
+Given `c₁` of the form `-a₁*x + p₁ ≤ 0`, and `c` of the form `b*x + p ≠ 0`,
+splits `c` and resolve with `c₁`.
+Recall that a disequality
+-/
+def resolveRatDiseq (c₁ : LeCnstr) (c : DiseqCnstr) : SearchM Unit := do
+  let c ← if c.p.leadCoeff < 0 then
+    mkDiseqCnstr (c.p.mul (-1)) (.neg c)
+  else
+    pure c
+  let fvarId ← if let some fvarId := (← get').diseqSplits.find? c.p then
+    trace[grind.debug.cutsat.diseq.split] "{← c.pp}, reusing {fvarId.name}"
+    pure fvarId
+  else
+    let fvarId ← mkCase (.diseq c)
+    trace[grind.debug.cutsat.diseq.split] "{← c.pp}, {fvarId.name}"
+    modify' fun s => { s with diseqSplits := s.diseqSplits.insert c.p fvarId }
+    pure fvarId
+  let p₂ := c.p.addConst 1
+  let c₂ ← mkLeCnstr p₂ (.expr (mkFVar fvarId))
+  let b ← resolveRealLowerUpperConflict c₁ c₂
+  assert! b
 
 def processVar (x : Var) : SearchM Unit := do
   if (← eliminated x) then
@@ -324,25 +355,59 @@ def processVar (x : Var) : SearchM Unit := do
 def hasAssignment : GoalM Bool := do
   return (← get').vars.size == (← get').assignment.size
 
-private def isDone : GoalM Bool := do
-  if (← hasAssignment) then
+private def findCase (decVars : FVarIdSet) : SearchM Case := do
+  repeat
+    let numCases := (← get).cases.size
+    assert! numCases > 0
+    let case := (← get).cases[numCases-1]!
+    modify fun s => { s with cases := s.cases.pop }
+    if decVars.contains case.fvarId then
+      return case
+    -- Conflict does not depend on this case.
+    trace[grind.debug.cutsat.backtrack] "skipping {case.fvarId.name}"
+  unreachable!
+
+def resolveConflict (h : UnsatProof) : SearchM Bool := do
+  let decVars := h.collectDecVars.run (← get).decVars
+  if decVars.isEmpty then
+    closeGoal (← h.toExprProof)
+    return false
+  let c ← findCase decVars
+  modify' fun _  => c.saved
+  match c.kind with
+  | .diseq c₁ =>
+    let decVars := decVars.erase c.fvarId |>.toArray
+    let p' := c₁.p.mul (-1) |>.addConst 1
+    let c' ← mkLeCnstr p' (.ofDiseqSplit c₁ c.fvarId h decVars)
+    trace[grind.debug.cutsat.backtrack] "resolved diseq split: {← c'.pp}"
+    c'.assert
     return true
-  if (← inconsistent) then
-    return true
-  return false
+  | _ => throwError "NIY resolve conflict"
 
 /-- Search for an assignment/model for the linear constraints. -/
 def searchAssigmentMain : SearchM Unit := do
   repeat
-    if (← isDone) then
+    if (← hasAssignment) then
       return ()
+    if (← isInconsistent) then
+      -- `grind` state is inconsistent
+      return ()
+    if let some c := (← get').conflict? then
+      unless (← resolveConflict c) do
+        return ()
     let x : Var := (← get').assignment.size
-    -- TODO: resolve unsat conflicts
     processVar x
+
+def traceModel : GoalM Unit := do
+  if (← isTracingEnabledFor `grind.cutsat.model) then
+    for (x, v) in (← mkModel (← get)) do
+      trace[grind.cutsat.model] "{quoteIfNotAtom x} := {v}"
 
 def searchAssigment : GoalM Unit := do
   -- TODO: .int case
   -- TODO:
   searchAssigmentMain .rat |>.run' {}
+  assignElimVars
+  traceModel
 
 end Lean.Meta.Grind.Arith.Cutsat

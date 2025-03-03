@@ -15,6 +15,8 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 export Int.Linear (Var Poly)
 export Std.Internal (Rat)
 
+deriving instance Hashable for Poly
+
 /-!
 This module implements a model-based decision procedure for linear integer arithmetic,
 inspired by Section 4 of "Cutting to the Chase: Solving Linear Integer Arithmetic".
@@ -115,6 +117,7 @@ inductive LeCnstrProof where
   | combine (c₁ c₂ : LeCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : LeCnstr)
   | ofLeDiseq (c₁ : LeCnstr) (c₂ : DiseqCnstr)
+  | ofDiseqSplit (c₁ : DiseqCnstr) (decVar : FVarId) (h : UnsatProof) (decVars : Array FVarId)
   -- TODO: missing constructors
 
 /-- A disequality constraint and its justification/proof. -/
@@ -128,12 +131,8 @@ inductive DiseqCnstrProof where
   | core (p₁ p₂ : Poly) (h : Expr)
   | norm (c : DiseqCnstr)
   | divCoeffs (c : DiseqCnstr)
+  | neg (c : DiseqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : DiseqCnstr)
-
-end
-
-instance : Inhabited DvdCnstr where
-  default := { d := 0, p := .num 0, h := .expr default, id := 0 }
 
 /--
 A proof of `False`.
@@ -144,6 +143,11 @@ inductive UnsatProof where
   | le (c : LeCnstr)
   | eq (c : EqCnstr)
   | diseq (c : DiseqCnstr)
+
+end
+
+instance : Inhabited DvdCnstr where
+  default := { d := 0, p := .num 0, h := .expr default, id := 0 }
 
 abbrev VarSet := RBTree Var compare
 
@@ -209,6 +213,12 @@ structure State where
   can convert `UnsatProof` into a Lean term and close the current `grind` goal.
   -/
   conflict? : Option UnsatProof := none
+  /--
+  Cache decision variables used when splitting on disequalities.
+  This is necessary because the same disequality may be in different conflicts.
+  -/
+  diseqSplits : PHashMap Poly FVarId := {}
+
   /-
   TODO: Model-based theory combination.
   -/

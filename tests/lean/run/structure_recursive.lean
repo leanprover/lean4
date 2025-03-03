@@ -123,7 +123,10 @@ structure RecS where
 /-!
 Incidental new feature: checking projections when the structure is Prop.
 -/
-/-- error: failed to generate projections for 'Prop' structure, field 'x' is not a proof -/
+/--
+error: failed to generate projection 'Exists'.x' for the 'Prop'-valued type 'Exists'', field must be a proof, but it has type
+  α
+-/
 #guard_msgs in
 structure Exists' {α : Sort _} (p : α → Prop) : Prop where
   x : α

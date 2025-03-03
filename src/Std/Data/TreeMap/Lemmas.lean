@@ -655,4 +655,76 @@ theorem getThenInsertIfNew?_snd [TransCmp cmp] {k : α} {v : β} :
     (getThenInsertIfNew? t k v).2 = t.insertIfNew k v :=
   ext <| DTreeMap.Const.getThenInsertIfNew?_snd
 
+@[simp]
+theorem length_keys [TransCmp cmp] :
+    t.keys.length = t.size :=
+  DTreeMap.length_keys
+
+@[simp]
+theorem isEmpty_keys :
+    t.keys.isEmpty = t.isEmpty :=
+  DTreeMap.isEmpty_keys
+
+@[simp]
+theorem contains_keys [BEq α] [LawfulBEqCmp cmp] [TransCmp cmp] {k : α} :
+    t.keys.contains k = t.contains k :=
+  DTreeMap.contains_keys
+
+@[simp]
+theorem mem_keys [LawfulEqCmp cmp] [TransCmp cmp] {k : α} :
+    k ∈ t.keys ↔ k ∈ t :=
+  DTreeMap.mem_keys
+
+theorem distinct_keys [TransCmp cmp] :
+    t.keys.Pairwise (fun a b => ¬ cmp a b = .eq) :=
+  DTreeMap.distinct_keys
+
+@[simp]
+theorem map_fst_toList_eq_keys :
+    (toList t).map Prod.fst = t.keys :=
+  DTreeMap.Const.map_fst_toList_eq_keys
+
+@[simp]
+theorem length_toList :
+    (toList t).length = t.size :=
+  DTreeMap.Const.length_toList
+
+@[simp]
+theorem isEmpty_toList :
+    (toList t).isEmpty = t.isEmpty :=
+  DTreeMap.Const.isEmpty_toList
+
+@[simp]
+theorem mem_toList_iff_getElem?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : β} :
+    (k, v) ∈ toList t ↔ t[k]? = some v :=
+  DTreeMap.Const.mem_toList_iff_get?_eq_some
+
+@[simp]
+theorem mem_toList_iff_getKey?_eq_some_and_getElem?_eq_some [TransCmp cmp] {k : α} {v : β} :
+    (k, v) ∈ toList t ↔ t.getKey? k = some k ∧ t[k]? = some v :=
+  DTreeMap.Const.mem_toList_iff_getKey?_eq_some_and_get?_eq_some
+
+theorem getElem?_eq_some_iff_exists_compare_eq_eq_and_mem_toList [TransCmp cmp] {k : α} {v : β} :
+    t[k]? = some v ↔ ∃ (k' : α), cmp k k' = .eq ∧ (k', v) ∈ toList t :=
+  DTreeMap.Const.get?_eq_some_iff_exists_compare_eq_eq_and_mem_toList
+
+theorem find?_toList_eq_some_iff_getKey?_eq_some_and_getElem?_eq_some [TransCmp cmp] {k k' : α}
+    {v : β} :
+    t.toList.find? (cmp ·.1 k == .eq) = some ⟨k', v⟩ ↔
+      t.getKey? k = some k' ∧ t[k]? = some v :=
+  DTreeMap.Const.find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some
+
+theorem find?_toList_eq_none_iff_contains_eq_false [TransCmp cmp] {k : α} :
+    (toList t).find? (cmp ·.1 k == .eq) = none ↔ t.contains k = false :=
+  DTreeMap.Const.find?_toList_eq_none_iff_contains_eq_false
+
+@[simp]
+theorem find?_toList_eq_none_iff_not_mem [TransCmp cmp] {k : α} :
+    (toList t).find? (cmp ·.1 k == .eq) = none ↔ ¬ k ∈ t :=
+  DTreeMap.Const.find?_toList_eq_none_iff_not_mem
+
+theorem distinct_keys_toList [TransCmp cmp] :
+    (toList t).Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq) :=
+  DTreeMap.Const.distinct_keys_toList
+
 end Std.TreeMap

@@ -539,8 +539,8 @@ theorem cond_decide {α} (p : Prop) [Decidable p] (t e : α) :
 @[simp] theorem cond_eq_false_distrib : ∀(c t f : Bool),
     (cond c t f = false) = ite (c = true) (t = false) (f = false) := by decide
 
-protected theorem cond_true  {α : Type u} {a b : α} : cond true  a b = a := cond_true  a b
-protected theorem cond_false {α : Type u} {a b : α} : cond false a b = b := cond_false a b
+protected theorem cond_true  {α : Sort u} {a b : α} : cond true  a b = a := cond_true  a b
+protected theorem cond_false {α : Sort u} {a b : α} : cond false a b = b := cond_false a b
 
 @[simp] theorem cond_true_left   : ∀(c f : Bool), cond c true f  = ( c || f) := by decide
 @[simp] theorem cond_false_left  : ∀(c f : Bool), cond c false f = (!c && f) := by decide

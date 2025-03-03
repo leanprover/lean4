@@ -49,6 +49,7 @@ LEAN_EXPORT uint8_t l_Lake_instOrdPos(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Util_Log_0__Lake_reprVerbosity____x40_Lake_Util_Log___hyg_10____closed__9;
 LEAN_EXPORT lean_object* l_Lake_logToStream___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_instMinLogLevel(uint8_t, uint8_t);
+lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_3114____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToStringLogEntry___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_AnsiMode_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Log_instAppend;
@@ -514,7 +515,6 @@ LEAN_EXPORT lean_object* l_Lake_ELog_orElse___rarg___lambda__1___boxed(lean_obje
 LEAN_EXPORT lean_object* l_Lake_ELogT_toLogT(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instOfNatPos;
 static lean_object* l___private_Lake_Util_Log_0__Lake_reprVerbosity____x40_Lake_Util_Log___hyg_10____closed__6;
-lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_3074____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LogT_replayLog___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Util_Log_0__Lake_fromJsonLogEntry____x40_Lake_Util_Log___hyg_1454____closed__12;
 lean_object* lean_array_mk(lean_object*);
@@ -3419,7 +3419,7 @@ x_12 = lean_ctor_get(x_3, 0);
 lean_inc(x_12);
 lean_dec(x_3);
 x_13 = l___private_Lake_Util_Log_0__Lake_toJsonLogEntry____x40_Lake_Util_Log___hyg_1402____closed__2;
-x_14 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_3074____spec__1(x_1, x_13);
+x_14 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_3114____spec__1(x_1, x_13);
 if (lean_obj_tag(x_14) == 0)
 {
 uint8_t x_15; 

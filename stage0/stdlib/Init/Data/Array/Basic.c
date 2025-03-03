@@ -80,6 +80,7 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Array_findM_x3f___spe
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Array_flatten___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_filter___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Array_foldl___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_replace(lean_object*);
 LEAN_EXPORT lean_object* l_Array_getMax_x3f___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_Array_Basic___hyg_1728_;
 static lean_object* l___aux__Init__Data__Array__Basic______macroRules__term_x23_x5b___x2c_x5d__1___closed__12;
@@ -349,6 +350,7 @@ LEAN_EXPORT lean_object* l_Array_filterM___rarg___boxed(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Array_flatMapM___spec__1___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Array_findRevM_x3f___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_back_x3f___rarg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Array_replace___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
 static lean_object* l_term_x23_x5b___x2c_x5d___closed__19;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Array_allM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -12776,6 +12778,37 @@ lean_object* x_3;
 x_3 = l_Array_split___rarg(x_1, x_2);
 lean_dec(x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Array_replace___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = l_Array_idxOfAux___rarg(x_1, x_2, x_3, x_5);
+if (lean_obj_tag(x_6) == 0)
+{
+lean_dec(x_4);
+return x_2;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; 
+x_7 = lean_ctor_get(x_6, 0);
+lean_inc(x_7);
+lean_dec(x_6);
+x_8 = lean_array_fset(x_2, x_7, x_4);
+lean_dec(x_7);
+return x_8;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Array_replace(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Array_replace___rarg), 4, 0);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Array_instLT(lean_object* x_1, lean_object* x_2) {

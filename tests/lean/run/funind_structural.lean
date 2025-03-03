@@ -72,9 +72,10 @@ theorem zip_length {α β} (xs : List α) (ys : List β) :
     simp [Nat.min_def]
     split <;> omega
 
-theorem zip_get?  {α β} (as : List α) (bs : List β) :
-    (List.zip as bs).get? i = match as.get? i, bs.get? i with
-      | some a, some b => some (a, b) | _, _ => none := by
+theorem zip_get? {i : Nat}  {α β} (as : List α) (bs : List β) :
+    (List.zip as bs)[i]? = match as[i]?, bs[i]? with
+      | some a, some b => some (a, b)
+      | _, _ => none := by
   induction as, bs using zip.induct generalizing i
     <;> cases i <;> simp_all
 
@@ -118,18 +119,17 @@ def Tree.insert (t : Tree β) (k : Nat) (v : β) : Tree β :=
 termination_by structural t
 
 /--
-info: TreeExample.Tree.insert.induct.{u_1} {β : Type u_1} (motive : Tree β → Nat → β → Prop)
-  (case1 : ∀ (k : Nat) (v : β), motive Tree.leaf k v)
+info: TreeExample.Tree.insert.induct.{u_1} {β : Type u_1} (k : Nat) (motive : Tree β → Prop) (case1 : motive Tree.leaf)
   (case2 :
-    ∀ (k : Nat) (v : β) (left : Tree β) (key : Nat) (value : β) (right : Tree β),
-      k < key → motive left k v → motive (left.node key value right) k v)
+    ∀ (left : Tree β) (key : Nat) (value : β) (right : Tree β),
+      k < key → motive left → motive (left.node key value right))
   (case3 :
-    ∀ (k : Nat) (v : β) (left : Tree β) (key : Nat) (value : β) (right : Tree β),
-      ¬k < key → key < k → motive right k v → motive (left.node key value right) k v)
+    ∀ (left : Tree β) (key : Nat) (value : β) (right : Tree β),
+      ¬k < key → key < k → motive right → motive (left.node key value right))
   (case4 :
-    ∀ (k : Nat) (v : β) (left : Tree β) (key : Nat) (value : β) (right : Tree β),
-      ¬k < key → ¬key < k → motive (left.node key value right) k v)
-  (t : Tree β) (k : Nat) (v : β) : motive t k v
+    ∀ (left : Tree β) (key : Nat) (value : β) (right : Tree β),
+      ¬k < key → ¬key < k → motive (left.node key value right))
+  (t : Tree β) : motive t
 -/
 #guard_msgs in
 #check Tree.insert.induct

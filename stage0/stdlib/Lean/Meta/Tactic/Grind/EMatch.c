@@ -6971,6 +6971,7 @@ x_23 = lean_ctor_get(x_3, 5);
 lean_inc(x_23);
 x_24 = l_Lean_Meta_Grind_Origin_key(x_23);
 lean_dec(x_23);
+lean_inc(x_24);
 x_25 = l_Lean_Meta_Match_isMatchEqnTheorem(x_22, x_24);
 if (x_25 == 0)
 {

@@ -3429,7 +3429,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_T
 _start:
 {
 lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; 
-x_9 = lean_ctor_get(x_2, 6);
+x_9 = lean_ctor_get(x_2, 5);
 x_10 = l_Lean_RBNode_any___at___private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable___spec__1(x_1, x_9);
 x_11 = lean_box(x_10);
 x_12 = lean_alloc_ctor(0, 2, 0);

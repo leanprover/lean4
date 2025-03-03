@@ -1082,6 +1082,7 @@ def tryToSynthesizeDefault (structs : Array StructInstView) (allStructNames : Ar
       let struct := structs[i]
       match getEffectiveDefaultFnForField? (← getEnv) struct.structName fieldName with
       | some defFn =>
+        trace[Elab.struct] "default fn for '{fieldName}' is '{.ofConstName defFn}'"
         let cinfo ← getConstInfo defFn
         let mctx ← getMCtx
         match (← mkDefaultValue? struct cinfo) with

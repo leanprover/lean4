@@ -109,7 +109,12 @@ open Nat Bool
 
 namespace Bool
 
-/-- At least two out of three booleans are true. -/
+/--
+At least two out of three Booleans are true.
+
+This function is typically used to model addition of binary numbers, to combine a carry bit with two
+addend bits.
+-/
 abbrev atLeastTwo (a b c : Bool) : Bool := a && b || a && c || b && c
 
 @[simp] theorem atLeastTwo_false_left  : atLeastTwo false b c = (b && c) := by simp [atLeastTwo]

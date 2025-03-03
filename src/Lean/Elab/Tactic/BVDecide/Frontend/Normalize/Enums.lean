@@ -223,28 +223,16 @@ builtin_initialize
     else
       return false
 
-builtin_simproc enumsPassPost ((_ : BitVec _) = (_ : BitVec _)) := fun e => do
-  let_expr Eq α lhs rhs := e | return .continue
-  let transform (e : Expr) : MetaM (Option Expr) := do
-    let .app (.const fn []) (.const arg []) := e | return none
-    let .str p s := fn | return none
-    if s != enumToBitVecSuffix then return none
-    if !(← isEnumType p) then return none
-    let .inductInfo inductiveInfo ← getConstInfo p | unreachable!
-    let ctors := inductiveInfo.ctors
-    let some ctorIdx := ctors.findIdx? (· == arg) | return none
-    let bvSize := getBitVecSize ctors.length
-    return some <| toExpr <| BitVec.ofNat bvSize ctorIdx
-
-  let newLhs? : Option Expr ← transform lhs
-  let newRhs? : Option Expr ← transform rhs
-
-  match newLhs?, newRhs? with
-  | .none, .none => return .continue
-  | newLhs?, newRhs? =>
-    let newLhs := newLhs?.getD lhs
-    let newRhs := newRhs?.getD rhs
-    return .visit { expr := mkApp3 (mkConst ``Eq [1]) α newLhs newRhs }
+def enumToBitVecCtor : Simp.Simproc := fun e => do
+  let .app (.const fn []) (.const arg []) := e | return .continue
+  let .str p s := fn | return .continue
+  if s != enumToBitVecSuffix then return .continue
+  if !(← isEnumType p) then return .continue
+  let .inductInfo inductiveInfo ← getConstInfo p | unreachable!
+  let ctors := inductiveInfo.ctors
+  let some ctorIdx := ctors.findIdx? (· == arg) | return .continue
+  let bvSize := getBitVecSize ctors.length
+  return .done { expr := toExpr <| BitVec.ofNat bvSize ctorIdx }
 
 partial def enumsPass : Pass where
   name := `enums
@@ -252,11 +240,16 @@ partial def enumsPass : Pass where
     goal.withContext do
       let interesting := (← PreProcessM.getTypeAnalysis).interestingEnums
       if interesting.isEmpty then return goal
+      let mut simprocs : Simprocs := {}
       let mut relevantLemmas : SimpTheoremsArray := #[]
       relevantLemmas ← relevantLemmas.addTheorem (.decl ``ne_eq) (← mkConstWithLevelParams ``ne_eq)
       for type in interesting do
         let lemma ← getEqIffEnumToBitVecEqFor type
         relevantLemmas ← relevantLemmas.addTheorem (.decl lemma) (mkConst lemma)
+
+        let enumToBitVec ← getEnumToBitVecFor type
+        let path : Array DiscrTree.Key := #[.const enumToBitVec 1, .star]
+        simprocs := simprocs.addCore path ``enumToBitVecCtor true (.inl enumToBitVecCtor)
 
       let cfg ← PreProcessM.getConfig
       let simpCtx ← Simp.mkContext
@@ -264,12 +257,11 @@ partial def enumsPass : Pass where
         (simpTheorems := relevantLemmas)
         (congrTheorems := ← getSimpCongrTheorems)
 
-      let simprocs ← Simp.SimprocsArray.add #[] ``enumsPassPost true
       let ⟨result?, _⟩ ←
         simpGoal
           goal
           (ctx := simpCtx)
-          (simprocs := simprocs)
+          (simprocs := #[simprocs])
           (fvarIdsToSimp := ← getPropHyps)
       let some (_, newGoal) := result? | return none
       postprocess newGoal |>.run' {}

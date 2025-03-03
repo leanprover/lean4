@@ -219,6 +219,46 @@ theorem BitVec.mul_ite_zero''' {c : Bool} {a t : BitVec w} :
     ((bif c then t else 0#w) * a) = (bif c then t * a else 0#w) := by
   cases c <;> simp
 
+@[bv_normalize]
+theorem BitVec.beq_one_eq_ite {b : Bool} {a : BitVec 1} :
+    ((a == 1#1) == b) = (a == bif b then 1#1 else 0#1) := by
+  decide +revert
+
+@[bv_normalize]
+theorem BitVec.one_beq_eq_ite {b : Bool} {a : BitVec 1} :
+    ((1#1 == a) == b) = (a == bif b then 1#1 else 0#1) := by
+  decide +revert
+
+@[bv_normalize]
+theorem BitVec.beq_one_eq_ite' {b : Bool} {a : BitVec 1} :
+    (b == (a == 1#1)) = (a == bif b then 1#1 else 0#1) := by
+  decide +revert
+
+@[bv_normalize]
+theorem BitVec.one_beq_eq_ite' {b : Bool} {a : BitVec 1} :
+    (b == (1#1 == a)) = (a == bif b then 1#1 else 0#1) := by
+  decide +revert
+
+@[bv_normalize]
+theorem BitVec.beq_zero_eq_ite {b : Bool} {a : BitVec 1} :
+    ((a == 0#1) == b) = (a == bif b then 0#1 else 1#1) := by
+  decide +revert
+
+@[bv_normalize]
+theorem BitVec.zero_beq_eq_ite {b : Bool} {a : BitVec 1} :
+    ((0#1 == a) == b) = (a == bif b then 0#1 else 1#1) := by
+  decide +revert
+
+@[bv_normalize]
+theorem BitVec.beq_zero_eq_ite' {b : Bool} {a : BitVec 1} :
+    (b == (a == 0#1)) = (a == bif b then 0#1 else 1#1) := by
+  decide +revert
+
+@[bv_normalize]
+theorem BitVec.zero_beq_eq_ite' {b : Bool} {a : BitVec 1} :
+    (b == (0#1 == a)) = (a == bif b then 0#1 else 1#1) := by
+  decide +revert
+
 theorem Bool.and_left (lhs rhs : Bool) (h : (lhs && rhs) = true) : lhs = true := by
   revert lhs rhs
   decide

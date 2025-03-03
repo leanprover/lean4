@@ -449,6 +449,39 @@ example {c : Bool} {a t : BitVec 8} :
     ((bif c then t else 0#8) * a) = (bif c then t * a else 0#8) := by
   bv_normalize
 
+-- EQAL_CONST_BV1
+example {b : Bool} {a : BitVec 1} :
+    ((a == 1#1) == b) = (a == bif b then 1#1 else 0#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    ((1#1 == a) == b) = (a == bif b then 1#1 else 0#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    (b == (a == 1#1)) = (a == bif b then 1#1 else 0#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    (b == (1#1 == a)) = (a == bif b then 1#1 else 0#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    ((a == 0#1) == b) = (a == bif b then 0#1 else 1#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    ((0#1 == a) == b) = (a == bif b then 0#1 else 1#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    (b == (a == 0#1)) = (a == bif b then 0#1 else 1#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    (b == (0#1 == a)) = (a == bif b then 0#1 else 1#1) := by
+  bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

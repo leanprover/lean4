@@ -94,7 +94,6 @@ builtin_initialize passManagerExt : PersistentEnvExtension Name (Name × PassMan
     addImportedFn := fun ns => return ([], ← ImportM.runCoreM <| runImportedDecls ns)
     addEntryFn := fun (installerDeclNames, _) (installerDeclName, managerNew) => (installerDeclName :: installerDeclNames, managerNew)
     exportEntriesFn := fun s => s.1.reverse.toArray
-    asyncMode := .sync
   }
 
 def getPassManager : CoreM PassManager :=

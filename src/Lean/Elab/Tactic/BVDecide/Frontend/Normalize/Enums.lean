@@ -37,11 +37,9 @@ Assuming that `declName` is an enum inductive construct a function of type `decl
 that maps `declName` constructors to their numeric indices as `BitVec`.
 -/
 def getEnumToBitVecFor (declName : Name) : MetaM Name := do
-  let env ← getEnv
   let enumToBitVecName := Name.str declName enumToBitVecSuffix
-  if env.contains enumToBitVecName then
-    return enumToBitVecName
-  else
+  realizeConst declName enumToBitVecName do
+    let env ← getEnv
     let .inductInfo inductiveInfo ← getConstInfo declName | throwError m!"{declName} is not an inductive."
     if !(← isEnumType declName) then
       throwError m!"{declName} is not an enum inductive."
@@ -67,18 +65,15 @@ def getEnumToBitVecFor (declName : Name) : MetaM Name := do
       hints := .regular (getMaxHeight env translator + 1)
       safety := .safe
     }
-    return enumToBitVecName
+  return enumToBitVecName
 
 /--
 Assuming that `declName` is an enum inductive, construct a proof of
 `∀ (x y : declName) : x = y ↔ x.enumToBitVec = y.enumToBitVec`.
 -/
 def getEqIffEnumToBitVecEqFor (declName : Name) : MetaM Name := do
-  let env ← getEnv
   let eqIffEnumToBitVecEqName := Name.str declName eqIffEnumToBitVecEqSuffix
-  if env.contains eqIffEnumToBitVecEqName then
-    return eqIffEnumToBitVecEqName
-  else
+  realizeConst declName eqIffEnumToBitVecEqName do
     /-
     We prove the lemma by constructing an inverse to `enumToBitVec` and use the fact that all
     invertible functions respect equality.
@@ -145,7 +140,7 @@ def getEqIffEnumToBitVecEqFor (declName : Name) : MetaM Name := do
       type := type
       value := value
     }
-    return eqIffEnumToBitVecEqName
+  return eqIffEnumToBitVecEqName
 where
   mkInverse {w : Nat} (input : Expr) (retType : Expr) (instBEq : Expr) (ctors : List Name)
       (counter : BitVec w) (acc : Expr) :
@@ -169,11 +164,8 @@ Assuming that `declName` is an enum inductive, construct a proof of
 constructors of `declName`.
 -/
 def getEnumToBitVecLeFor (declName : Name) : MetaM Name := do
-  let env ← getEnv
   let enumToBitVecLeName := Name.str declName enumToBitVecLeSuffix
-  if env.contains enumToBitVecLeName then
-    return enumToBitVecLeName
-  else
+  realizeConst declName enumToBitVecLeName do
     let enumToBitVec := mkConst (← getEnumToBitVecFor declName)
     let .inductInfo inductiveInfo ← getConstInfo declName | unreachable!
     let ctors := inductiveInfo.ctors
@@ -207,7 +199,7 @@ def getEnumToBitVecLeFor (declName : Name) : MetaM Name := do
       type := type
       value := value
     }
-    return enumToBitVecLeName
+  return enumToBitVecLeName
 
 
 builtin_initialize

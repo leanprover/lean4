@@ -44,7 +44,7 @@ private def unReplaceRecApps {α} (preDefs : Array PreDefinition) (fixedParamPer
       lambdaTelescope value fun xs _ =>
         let args := fixedParamPerms.perms[funIdx]!.buildArgs fixedArgs xs
         let call := mkAppN (.const preDef.declName (preDef.levelParams.map mkLevelParam)) args
-        mkLambdaFVars xs call
+        mkLambdaFVars (etaReduce := true) xs call
     let packedFn ← PProdN.mk 0 fns
     let e ← lambdaBoundedTelescope F 1 fun f e => do
       let f := f[0]!
@@ -188,7 +188,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
         let value := mkAppN value fixed
         let value := PProdN.proj preDefs.size fidx packedType value
         let value := mkAppN value varying
-        let value ← mkLambdaFVars params value
+        let value ← mkLambdaFVars (etaReduce := true) params value
         pure { preDef with value }
 
     Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec

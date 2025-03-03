@@ -86,7 +86,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (fixedParamPerms
     let value := values[0]!
     let valueNew ← mkIndPredBRecOn recArgInfo value
     let valueNew ← lambdaTelescope value fun ys _ => do
-      mkLambdaFVars (fixedParamPerms.perms[0]!.buildArgs xs ys) (mkAppN valueNew ys)
+      mkLambdaFVars (etaReduce := true) (fixedParamPerms.perms[0]!.buildArgs xs ys) (mkAppN valueNew ys)
     trace[Elab.definition.structural] "Nonrecursive value:{indentExpr valueNew}"
     check valueNew
     return #[{ preDef with value := valueNew }]
@@ -110,7 +110,9 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (fixedParamPerms
   -- Abstract over the fixed prefixed, preserving the original parameter order
   let valuesNew ← (values.zip valuesNew).mapIdxM fun i ⟨value, valueNew⟩ =>
     lambdaTelescope value fun ys _ => do
-      mkLambdaFVars (fixedParamPerms.perms[i]!.buildArgs xs ys) (mkAppN valueNew ys)
+      -- NB: Do not eta-contract here, other code (e.g. FunInd) expects this to have the
+      -- same number of head lambdas as the original definition
+      mkLambdaFVars (fixedParamPerms.perms[i]!.buildArgs xs ys) (valueNew.beta ys)
   return (Array.zip preDefs valuesNew).map fun ⟨preDef, valueNew⟩ => { preDef with value := valueNew }
 
 private def inferRecArgPos (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) :
@@ -145,13 +147,13 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termMeasure?s : Arra
                   if indParam.isFVarOf y then
                     throwError "its type is an inductive datatype and the datatype parameter\
                       {indentExpr indParam}\n\
-                      which cannot be fixed as it is in a index, or depends on on index, and indices \
-                      cannot be fixed parameters with structural recursion."
+                      which cannot be fixed as it is an index or depends on an index, and indices \
+                      cannot be fixed parameters when using structural recursion."
                   else
                     throwError "its type is an inductive datatype and the datatype parameter\
                       {indentExpr indParam}\ndepends on the function parameter{indentExpr (mkFVar y)}\n\
-                      which cannot be fixed as it is in a index, or depends on on index, and indices \
-                      cannot be fixed parameters with structural recursion."
+                      which cannot be fixed as it is an index or depends on an index, and indices \
+                      cannot be fixed parameters when using structural recursion."
         withErasedFVars toErase do
           let preDefs' ← elimMutualRecursion preDefs fixedParamPerms' xs' recArgInfos
           return (recArgPoss, preDefs', fixedParamPerms')

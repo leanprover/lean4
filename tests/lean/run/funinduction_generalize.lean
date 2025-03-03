@@ -1,5 +1,3 @@
-/- Uncomment after stage0 update
-
 /-!
 Checks the generalization behavior of `fun_induction`.
 
@@ -8,6 +6,11 @@ In particular that it behaves the same as `induction … using ….induct`.
 
 variable (xs ys : List Nat)
 variable (P : ∀ {α}, List α → Prop)
+
+-- We re-define this here to avoid stage0 complications
+def zipWith (f : α → β → γ) : (xs : List α) → (ys : List β) → List γ
+  | x::xs, y::ys => f x y :: zipWith f xs ys
+  | _,     _     => []
 
 /--
 error: unsolved goals
@@ -30,7 +33,7 @@ x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs �
 -/
 #guard_msgs in
 example : P (List.zip xs ys) := by
-  fun_induction List.zipWith _ xs ys
+  fun_induction zipWith _ xs ys
 
 
 /--
@@ -56,7 +59,7 @@ h : t✝.isEmpty = true
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
-  fun_induction List.zipWith _ xs ys
+  fun_induction zipWith _ xs ys
 
 
 /--
@@ -82,7 +85,7 @@ h : t✝.isEmpty = true
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
-  fun_induction List.zipWith _ xs (ys.take 2)
+  fun_induction zipWith _ xs (ys.take 2)
 
 /--
 error: unsolved goals
@@ -107,7 +110,7 @@ h : t✝.isEmpty = true
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
-  induction xs, ys.take 2 using List.zipWith.induct
+  induction xs, ys.take 2 using zipWith.induct
 
 /--
 error: unsolved goals
@@ -132,7 +135,7 @@ x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs �
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
-  fun_induction List.zipWith _ (xs.take 2) ys
+  fun_induction zipWith _ (xs.take 2) ys
 
 /--
 error: unsolved goals
@@ -157,7 +160,7 @@ x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs �
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
-  induction xs.take 2, ys using List.zipWith.induct
+  induction xs.take 2, ys using zipWith.induct
 
 /--
 error: unsolved goals
@@ -182,7 +185,7 @@ h : xs.isEmpty = true
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
-  fun_induction List.zipWith _ (xs.take 2) ys generalizing xs
+  fun_induction zipWith _ (xs.take 2) ys generalizing xs
 
 /--
 error: unsolved goals
@@ -207,6 +210,4 @@ h : xs.isEmpty = true
 -/
 #guard_msgs in
 example (h : xs.isEmpty) : P (List.zip xs ys) := by
-  induction xs.take 2, ys using List.zipWith.induct generalizing xs
-
--/
+  induction xs.take 2, ys using zipWith.induct generalizing xs

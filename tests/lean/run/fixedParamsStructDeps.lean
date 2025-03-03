@@ -17,7 +17,7 @@ error: failed to infer structural recursion:
 Cannot use parameters #4 of foo and #4 of bar:
   its type is an inductive datatype and the datatype parameter
     p1
-  which cannot be fixed as it is in a index, or depends on on index, and indices cannot be fixed parameters with structural recursion.
+  which cannot be fixed as it is an index or depends on an index, and indices cannot be fixed parameters when using structural recursion.
 -/
 #guard_msgs in
 mutual

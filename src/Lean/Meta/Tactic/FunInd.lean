@@ -986,6 +986,7 @@ def deriveInductionStructural (names : Array Name) (fixedParamPerms : FixedParam
         motives.mapM fun motive =>
           forallTelescopeReducing motive fun xs _ => pure xs.size
 
+      -- Recreate the recArgInfos. Maybe more robust and simpler to store relevant parts in the EqnInfos?
       let recArgInfos ← infos.mapIdxM fun funIdx info => do
         let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) info.name | throwError "{info.name} missing eqnInfo"
         let value ← fixedParamPerms.perms[funIdx]!.instantiateLambda info.value xs

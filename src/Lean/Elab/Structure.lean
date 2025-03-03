@@ -664,10 +664,11 @@ private partial def withStructField (view : StructView) (sourceStructNames : Lis
     -- It's a not-yet-seen field
     /- For `.fromSubobject`: the following `declName` is only used for creating the `_default` auxiliary declaration name when
        its default value is overridden, otherwise the `declName` is irrelevant, except to ensure a declaration is not already declared. -/
-    let declName := view.declName ++ fieldName
+    let mut declName := view.declName ++ fieldName
+    if inSubobject?.isNone then
+      declName ← applyVisibility (← toVisibility fieldInfo) declName
+      addDocString' declName (← findDocString? (← getEnv) fieldInfo.projFn)
     checkNotAlreadyDeclared declName
-    let declName ← applyVisibility (← toVisibility fieldInfo) declName
-    addDocString' declName (← findDocString? (← getEnv) fieldInfo.projFn)
     withLocalDecl fieldName fieldInfo.binderInfo (← reduceFieldProjs fieldType) fun fieldFVar => do
       let projExpr? ← inSubobject?.mapM fun subobject => mkProjection subobject fieldName
       addFieldInfo {
@@ -780,6 +781,9 @@ private partial def withStruct (view : StructView) (sourceStructNames : List Nam
     let allFields := getStructureFieldsFlattened env structName (includeSubobjectFields := false)
     let withStructFields' (kind : StructFieldKind) (inSubobject? : Option Expr) (k : StructFieldInfo → StructElabM α) : StructElabM α := do
       withStructFields view sourceStructNames structType inSubobject? fun structVal => do
+        if let some _ ← findFieldInfo? structFieldName then
+          throwErrorAt projRef "field '{structFieldName}' has already been declared\n\n\
+            The 'toParent : P' syntax can be used to adjust the name for the parent projection"
         -- Add default values
         for fieldName in allFields do
           if let some d ← getFieldDefault? structName fieldName none then
@@ -873,6 +877,9 @@ where
       if (← get).parents.any (·.structName == parentStructName) then
         logWarning m!"duplicate parent structure '{.ofConstName parentStructName}', skipping"
         go (i + 1)
+      else if (← get).parents.any (·.name == toParentName) then
+        throwError "field '{toParentName}' has already been declared\n\n\
+          The 'toParent : P' syntax can be used to adjust the name for the parent projection"
       else
         withParent view parentView.projRef rawToParentName toParentName parentType fun parentFieldInfo => do
           addParentInfo {
@@ -1083,6 +1090,7 @@ private partial def mkFlatCtorExpr (levelParams : List Name) (params : Array Exp
         mkAppM ``autoParam #[decl.type, tactic]
       | _ => pure decl.type
     let type ← zetaDeltaFVars (← instantiateMVars type) parentFVars
+    let type ← replaceIndFVars type
     return .lam decl.userName type (val.abstract #[fieldInfo.fvar]) decl.binderInfo
   val ← mkLambdaFVars params val
   val := val.inferImplicit params.size true
@@ -1092,10 +1100,11 @@ private partial def mkFlatCtorExpr (levelParams : List Name) (params : Array Exp
 private partial def mkFlatCtor (levelParams : List Name) (params : Array Expr) (structName : Name) (replaceIndFVars : Expr → MetaM Expr) :
     StructElabM Unit := do
   let val ← mkFlatCtorExpr levelParams params structName replaceIndFVars
-  trace[Elab.structure] "created flat constructor:{indentExpr val}"
+  withLCtx {} {} do trace[Elab.structure] "created flat constructor:{indentExpr val}"
   unless val.hasSyntheticSorry do
     let flatCtorName := mkFlatCtorOfStructName structName
-    addDecl <| Declaration.defnDecl (← mkDefinitionValInferrringUnsafe flatCtorName levelParams (← inferType val) val .abbrev)
+    let valType ← replaceIndFVars (← instantiateMVars (← inferType val))
+    addDecl <| Declaration.defnDecl (← mkDefinitionValInferrringUnsafe flatCtorName levelParams valType val .abbrev)
 
 private partial def checkResultingUniversesForFields (fieldInfos : Array StructFieldInfo) (u : Level) : TermElabM Unit := do
   for info in fieldInfos do
@@ -1166,9 +1175,10 @@ private def resolveFieldDefaults (structName : Name) : StructElabM Unit := do
       replaceFieldInfo { fieldInfo with resolvedDefault? := fieldInfo.default? }
     else if !fieldInfo.inheritedDefaults.isEmpty then
       let inheritedDefaults := fieldInfo.inheritedDefaults.insertionSort fun d1 d2 => resOrderMap.find! d1.1 < resOrderMap.find! d2.1
+      trace[Elab.structure] "inherited defaults for '{fieldInfo.name}' are {repr inheritedDefaults}"
       replaceFieldInfo { fieldInfo with
         inheritedDefaults
-        resolvedDefault? := fieldInfo.inheritedDefaults[0]?.map (·.2)
+        resolvedDefault? := inheritedDefaults[0]?.map (·.2)
       }
 
 private def addDefaults (params : Array Expr) (replaceIndFVars : Expr → MetaM Expr) : StructElabM Unit := do

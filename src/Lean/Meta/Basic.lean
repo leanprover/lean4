@@ -2255,8 +2255,12 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
     return
   withTraceNode `Meta.realizeConst (fun _ => return constName) do
     let coreCtx ← readThe Core.Context
-    -- these fields should be invariant throughout the file
-    let coreCtx := { fileName := coreCtx.fileName, fileMap := coreCtx.fileMap }
+    let coreCtx := {
+      -- these fields should be invariant throughout the file
+      fileName := coreCtx.fileName, fileMap := coreCtx.fileMap
+      -- heartbeat limits inside `realizeAndReport` should be measured from this point on
+      initHeartbeats := (← IO.getNumHeartbeats)
+    }
     let (env, dyn) ← env.realizeConst forConst constName (realizeAndReport coreCtx)
     if let some res := dyn.get? RealizeConstantResult then
       let mut snap := res.snap

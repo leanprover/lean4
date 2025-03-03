@@ -1068,6 +1068,38 @@ where
             unless (← processDefDeriving className header.declName) do
               throwError "failed to synthesize instance '{className}' for '{header.declName}'"
 
+private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
+    (defsParsedSnap : DefsParsedSnapshot) : TermElabM Unit := do
+  let tree := toSnapshotTree defsParsedSnap
+  let logGoalsAccomplishedAct ← Term.wrapAsyncAsSnapshot (cancelTk? := none) fun () => do
+    let logs := tree.getAll.map (·.diagnostics.msgLog)
+    let hasErrorOrWarning := logs.any fun log =>
+      log.reportedPlusUnreported.any fun msg =>
+        msg.severity matches .error || msg.severity matches .warning
+    if ! hasErrorOrWarning then
+      for d in defsParsedSnap.defs, view in views do
+        let logGoalsAccomplished :=
+          let msgData := .tagged `goalsAccomplished m!"Goals accomplished!"
+          logAt view.ref msgData (severity := .information) (isSilent := true)
+        match view.kind with
+        | .theorem =>
+          logGoalsAccomplished
+        | .example =>
+          let some processedSnap := d.headerProcessedSnap.get
+            | continue
+          if ! (← isProp processedSnap.view.type) then
+            continue
+          logGoalsAccomplished
+        | _ => continue
+  let logGoalsAccomplishedTask ← BaseIO.mapTask (t := ← tree.waitAll) fun _ =>
+    logGoalsAccomplishedAct
+  Core.logSnapshotTask {
+    stx? := none
+    -- Use first line of the mutual block to avoid covering the progress of the whole mutual block
+    reportingRange? := (← getRef).getPos?.map fun pos => ⟨pos, pos⟩
+    task := logGoalsAccomplishedTask
+  }
+
 end Term
 namespace Command
 
@@ -1110,11 +1142,14 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
       }
       reusedAllHeaders := reusedAllHeaders && view.headerSnap?.any (·.old?.isSome)
     views := views.push view
+  let defsParsedSnap := { defs, diagnostics := .empty : DefsParsedSnapshot }
   if let some snap := snap? then
     -- no non-fatal diagnostics at this point
-    snap.new.resolve <| .ofTyped { defs, diagnostics := .empty : DefsParsedSnapshot }
+    snap.new.resolve <| .ofTyped defsParsedSnap
   let sc ← getScope
-  runTermElabM fun vars => Term.elabMutualDef vars sc views
+  runTermElabM fun vars => do
+    Term.elabMutualDef vars sc views
+    Term.logGoalsAccomplishedSnapshotTask views defsParsedSnap
 
 builtin_initialize
   registerTraceClass `Elab.definition.mkClosure

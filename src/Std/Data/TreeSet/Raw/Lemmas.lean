@@ -382,12 +382,12 @@ theorem foldr_eq_foldr_toList {f : α → δ → δ} {init : δ} :
   TreeMap.Raw.foldr_eq_foldr_keys
 
 theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : α → m PUnit} :
-    t.forM f = t.toList.forM f :=
+    ForM.forM t f = t.toList.forM f :=
   TreeMap.Raw.forM_eq_forM_keys
 
 theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m]
     {f : α → δ → m (ForInStep δ)} {init : δ} :
-    t.forIn f init = ForIn.forIn t.toList init f :=
+    ForIn.forIn t init f = ForIn.forIn t.toList init f :=
   TreeMap.Raw.forIn_eq_forIn_keys
 
 end monadic

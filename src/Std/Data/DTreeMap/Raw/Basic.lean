@@ -584,13 +584,33 @@ def forM (f : (a : α) → β a → m PUnit) (t : Raw α β cmp) : m PUnit :=
 
 @[inline, inherit_doc DTreeMap.forIn]
 def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (t : Raw α β cmp) : m δ :=
-  t.inner.forIn (fun a b acc => f a b acc) init
+  t.inner.forIn f init
 
 instance : ForM m (Raw α β cmp) ((a : α) × β a) where
   forM t f := t.forM (fun a b => f ⟨a, b⟩)
 
 instance : ForIn m (Raw α β cmp) ((a : α) × β a) where
   forIn t init f := t.forIn (fun a b acc => f ⟨a, b⟩ acc) init
+
+namespace Const
+
+variable {β : Type v}
+
+/-!
+We do not define `ForM` and `ForIn` instances that are specialized to constant `β`. Instead, we
+define uncurried versions of `forM` and `forIn` that will be used in the `Const` lemmas and to
+define the `ForM` and `ForIn` instances for `DTreeMap.Raw`.
+-/
+
+@[inline, inherit_doc Raw.forM]
+def forMUncurried (f : α × β → m PUnit) (t : Raw α β cmp) : m PUnit :=
+  t.inner.forM fun a b => f ⟨a, b⟩
+
+@[inline, inherit_doc Raw.forIn]
+def forInUncurried (f : α × β → δ → m (ForInStep δ)) (init : δ) (t : Raw α β cmp) : m δ :=
+  t.inner.forIn (fun a b d => f ⟨a, b⟩ d) init
+
+end Const
 
 @[inline, inherit_doc DTreeMap.any]
 def any (t : Raw α β cmp) (p : (a : α) → β a → Bool) : Bool := Id.run $ do

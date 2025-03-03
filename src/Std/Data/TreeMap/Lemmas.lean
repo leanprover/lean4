@@ -751,9 +751,9 @@ theorem foldr_eq_foldr_toList {f : α → β → δ → δ} {init : δ} :
 theorem forM_eq_forM [Monad m] [LawfulMonad m] {f : α → β → m PUnit} :
     t.forM f = ForM.forM t (fun a => f a.1 a.2) := rfl
 
-theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : α → β → m PUnit} :
-    t.forM f = t.toList.forM (fun a => f a.1 a.2) :=
-  DTreeMap.Const.forM_eq_forM_toList (f := f)
+theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : α × β → m PUnit} :
+    ForM.forM t f = ForM.forM t.toList f :=
+  DTreeMap.Const.forMUncurried_eq_forM_toList (f := f)
 
 @[simp]
 theorem forIn_eq_forIn [Monad m] [LawfulMonad m]
@@ -761,8 +761,8 @@ theorem forIn_eq_forIn [Monad m] [LawfulMonad m]
     t.forIn f init = ForIn.forIn t init (fun a d => f a.1 a.2 d) := rfl
 
 theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m]
-    {f : α → β → δ → m (ForInStep δ)} {init : δ} :
-    t.forIn f init = ForIn.forIn t.toList init (fun a b => f a.1 a.2 b) :=
+    {f : α × β → δ → m (ForInStep δ)} {init : δ} :
+    ForIn.forIn t init f = ForIn.forIn t.toList init f :=
   DTreeMap.Const.forIn_eq_forIn_toList
 
 theorem foldlM_eq_foldlM_keys [Monad m] [LawfulMonad m] {f : δ → α → m δ} {init : δ} :
@@ -782,11 +782,11 @@ theorem foldr_eq_foldr_keys {f : α → δ → δ} {init : δ} :
   DTreeMap.foldr_eq_foldr_keys
 
 theorem forM_eq_forM_keys [Monad m] [LawfulMonad m] {f : α → m PUnit} :
-    t.forM (fun a _ => f a) = t.keys.forM f :=
+    ForM.forM t (fun a => f a.1) = t.keys.forM f :=
   DTreeMap.forM_eq_forM_keys
 
 theorem forIn_eq_forIn_keys [Monad m] [LawfulMonad m] {f : α → δ → m (ForInStep δ)} {init : δ} :
-    t.forIn (fun a _ d => f a d) init = ForIn.forIn t.keys init f :=
+    ForIn.forIn t init (fun a d => f a.1 d) = ForIn.forIn t.keys init f :=
   DTreeMap.forIn_eq_forIn_keys
 
 end monadic

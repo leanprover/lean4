@@ -383,7 +383,7 @@ theorem forM_eq_forM [Monad m] [LawfulMonad m] {f : α → m PUnit} :
     t.forM f = ForM.forM t f := rfl
 
 theorem forM_eq_forM_toList [Monad m] [LawfulMonad m] {f : α → m PUnit} :
-    t.forM f = t.toList.forM f :=
+    ForM.forM t f = t.toList.forM f :=
   TreeMap.forM_eq_forM_keys
 
 @[simp]
@@ -391,7 +391,7 @@ theorem forIn_eq_forIn [Monad m] [LawfulMonad m] {f : α → δ → m (ForInStep
     t.forIn f init = ForIn.forIn t init f := rfl
 
 theorem forIn_eq_forIn_toList [Monad m] [LawfulMonad m] {f : α → δ → m (ForInStep δ)} {init : δ} :
-    t.forIn f init = ForIn.forIn t.toList init f :=
+    ForIn.forIn t init f = ForIn.forIn t.toList init f :=
   TreeMap.forIn_eq_forIn_keys
 
 end monadic

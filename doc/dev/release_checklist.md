@@ -104,6 +104,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Create and push the tag
       - There is no `stable` branch; skip this step
     - [plausible](https://github.com/leanprover-community/plausible)
+    - Dependencies: `Batteries`
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag
       - There is no `stable` branch; skip this step

@@ -3341,9 +3341,7 @@ This function is a no-op in the compiler.
 -/
 @[implemented_by castErrorImp]
 def castError {x : Result ε σ α} (h : Eq x (Result.error e s)) : Result ε σ β :=
-  match x with
-  | .ok ..     => .noConfusion h
-  | .error e s => .error e s
+  Result.error e s
 
 end EStateM
 
@@ -3425,24 +3423,21 @@ def adaptExcept {ε' : Type u} (f : ε → ε') (x : EStateM ε σ α) : EStateM
 /-- The `bind` operation of the `EStateM` monad. -/
 @[always_inline, inline]
 protected def bind (x : EStateM ε σ α) (f : α → EStateM ε σ β) : EStateM ε σ β := fun s =>
-  let x := x s
-  match h : x with
+  match h : x s with
   | Result.ok a s    => f a s
   | Result.error .. => castError h
 
 /-- The `map` operation of the `EStateM` monad. -/
 @[always_inline, inline]
 protected def map (f : α → β) (x : EStateM ε σ α) : EStateM ε σ β := fun s =>
-  let x := x s
-  match h : x with
+  match h : x s with
   | Result.ok a s    => Result.ok (f a) s
   | Result.error .. => castError h
 
 /-- The `seqRight` operation of the `EStateM` monad. -/
 @[always_inline, inline]
 protected def seqRight (x : EStateM ε σ α) (y : Unit → EStateM ε σ β) : EStateM ε σ β := fun s =>
-  let x := x s
-  match h : x with
+  match h : x s with
   | Result.ok _ s    => y () s
   | Result.error .. => castError h
 

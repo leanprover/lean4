@@ -1116,12 +1116,12 @@ theorem fold_eq_foldl_keys {f : δ → α → δ} {init : δ} :
   Raw₀.fold_eq_foldl_keys ⟨m.1, m.2.size_buckets_pos⟩
 
 theorem forM_eq_forM_keys [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
-    m.forM (fun a _ => f a) = m.keys.forM f :=
+    ForM.forM m (fun a => f a.1) = m.keys.forM f :=
   Raw₀.forM_eq_forM_keys ⟨m.1, m.2.size_buckets_pos⟩
 
 theorem forIn_eq_forIn_keys [Monad m'] [LawfulMonad m'] {f : α → δ → m' (ForInStep δ)}
     {init : δ} :
-    m.forIn (fun a _ d => f a d) init = ForIn.forIn m.keys init f :=
+    ForIn.forIn m init (fun a d => f a.1 d) = ForIn.forIn m.keys init f :=
   Raw₀.forIn_eq_forIn_keys ⟨m.1, m.2.size_buckets_pos⟩
 
 namespace Const
@@ -1137,13 +1137,37 @@ theorem fold_eq_foldl_toList {f : δ → (a : α) → β → δ} {init : δ} :
     m.fold f init = (Const.toList m).foldl (fun a b => f a b.1 b.2) init :=
   Raw₀.Const.fold_eq_foldl_toList ⟨m.1, m.2.size_buckets_pos⟩
 
-theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : (a : α) → β → m' PUnit} :
-    m.forM f = (Const.toList m).forM (fun a => f a.1 a.2) :=
+theorem forM_eq_forMUncurried [Monad m'] [LawfulMonad m'] {f : α → β → m' PUnit} :
+    DHashMap.forM f m = forMUncurried (fun a => f a.1 a.2) m := rfl
+
+theorem forMUncurried_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : α × β → m' PUnit} :
+    Const.forMUncurried f m = (Const.toList m).forM f :=
   Raw₀.Const.forM_eq_forM_toList ⟨m.1, m.2.size_buckets_pos⟩
 
+/--
+Deprecated, use `forMUncurried_eq_forM_toList` together with `forM_eq_forMUncurried` instead.
+-/
+@[deprecated forMUncurried_eq_forM_toList (since := "2025-03-02")]
+theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : α → β → m' PUnit} :
+    DHashMap.forM f m = (Const.toList m).forM (fun a => f a.1 a.2) :=
+  Raw₀.Const.forM_eq_forM_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem forIn_eq_forInUncurried [Monad m'] [LawfulMonad m']
+    {f : α → β → δ → m' (ForInStep δ)} {init : δ} :
+    DHashMap.forIn f init m = forInUncurried (fun a b => f a.1 a.2 b) init m := rfl
+
+theorem forInUncurried_eq_forIn_toList [Monad m'] [LawfulMonad m']
+    {f : α × β → δ → m' (ForInStep δ)} {init : δ} :
+    Const.forInUncurried f init m = ForIn.forIn (Const.toList m) init f :=
+  Raw₀.Const.forIn_eq_forIn_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+/--
+Deprecated, use `forInUncurried_eq_forIn_toList` together with `forIn_eq_forInUncurried` instead.
+-/
+@[deprecated forMUncurried_eq_forM_toList (since := "2025-03-02")]
 theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
-    {f : (a : α) → β → δ → m' (ForInStep δ)} {init : δ} :
-    m.forIn f init = ForIn.forIn (Const.toList m) init (fun a b => f a.1 a.2 b) :=
+    {f : α × β → δ → m' (ForInStep δ)} {init : δ} :
+    Const.forInUncurried f init m = ForIn.forIn (Const.toList m) init f :=
   Raw₀.Const.forIn_eq_forIn_toList ⟨m.1, m.2.size_buckets_pos⟩
 
 variable {m : DHashMap α (fun _ => Unit)}

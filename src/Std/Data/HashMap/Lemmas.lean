@@ -775,7 +775,7 @@ theorem forM_eq_forM [Monad m'] [LawfulMonad m'] {f : (a : α) → β → m' PUn
 
 theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : α × β → m' PUnit} :
     ForM.forM m f = ForM.forM m.toList f :=
-  DHashMap.Const.forM_eq_forM_toList
+  DHashMap.Const.forMUncurried_eq_forM_toList
 
 @[simp]
 theorem forIn_eq_forIn [Monad m'] [LawfulMonad m']
@@ -785,7 +785,7 @@ theorem forIn_eq_forIn [Monad m'] [LawfulMonad m']
 theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
     {f : α × β → δ → m' (ForInStep δ)} {init : δ} :
     ForIn.forIn m init f = ForIn.forIn m.toList init f :=
-  DHashMap.Const.forIn_eq_forIn_toList
+  DHashMap.Const.forInUncurried_eq_forIn_toList
 
 theorem foldM_eq_foldlM_keys [Monad m'] [LawfulMonad m']
     {f : δ → α → m' δ} {init : δ} :
@@ -797,12 +797,12 @@ theorem fold_eq_foldl_keys {f : δ → α → δ} {init : δ} :
   DHashMap.fold_eq_foldl_keys
 
 theorem forM_eq_forM_keys [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
-    m.forM (fun a _ => f a) = m.keys.forM f :=
+    ForM.forM m (fun a => f a.1) = m.keys.forM f :=
   DHashMap.forM_eq_forM_keys
 
 theorem forIn_eq_forIn_keys [Monad m'] [LawfulMonad m']
     {f : α → δ → m' (ForInStep δ)} {init : δ} :
-    m.forIn (fun a _ d => f a d) init = ForIn.forIn m.keys init f :=
+    ForIn.forIn m init (fun a d => f a.1 d) = ForIn.forIn m.keys init f :=
   DHashMap.forIn_eq_forIn_keys
 
 end monadic

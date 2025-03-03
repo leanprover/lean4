@@ -398,7 +398,7 @@ theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
 @[simp]
 theorem forIn_eq_forIn [Monad m'] [LawfulMonad m']
     {f : α → δ → m' (ForInStep δ)} {init : δ} :
-    m.forIn f init = ForIn.forIn m init f := rfl
+    ForIn.forIn m init f = ForIn.forIn m init f := rfl
 
 theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
     {f : α → δ → m' (ForInStep δ)} {init : δ} :

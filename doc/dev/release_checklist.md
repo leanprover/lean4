@@ -160,6 +160,7 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
     git fetch nightly tag nightly-2024-02-29
     git checkout nightly-2024-02-29
     git checkout -b releases/v4.7.0
+    git push --set-upstream origin releases/v4.18.0
     ```
 - In `RELEASES.md` replace `Development in progress` in the `v4.7.0` section with `Release notes to be written.`
 - In `src/CMakeLists.txt`,

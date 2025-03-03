@@ -85,6 +85,9 @@ def parse_version(version_str):
 
 def is_version_gte(version1, version2):
     """Check if version1 >= version2, including proper handling of release candidates."""
+    # Check if version1 is a nightly toolchain
+    if version1.startswith("leanprover/lean4:nightly-"):
+        return False
     return parse_version(version1) >= parse_version(version2)
 
 def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token):

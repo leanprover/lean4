@@ -75,11 +75,12 @@ macro_rules
 | `(tactic| wf_trivial) => `(tactic|
     (first
       | assumption | apply Raw.WFImp.distinct
-      | apply Raw₀.wfImp_insertMany | apply Raw₀.Const.wfImp_insertMany
-      | apply Raw₀.Const.wfImp_insertManyIfNewUnit | apply Raw.WF.out
+      | apply Raw.WF.out
       | apply Raw.WF.insert₀ | apply Raw.WF.insertIfNew₀ | apply Raw.WF.erase₀
       | apply Raw.WF.alter₀ | apply Raw.WF.modify₀
       | apply Raw.WF.constAlter₀ | apply Raw.WF.constModify₀
+      | apply Raw₀.wf_insertMany₀ | apply Raw₀.Const.wf_insertMany₀
+      | apply Raw₀.Const.wf_insertManyIfNewUnit₀
       | apply Raw.WF.empty₀) <;> wf_trivial)
 
 /-- Internal implementation detail of the hash map -/

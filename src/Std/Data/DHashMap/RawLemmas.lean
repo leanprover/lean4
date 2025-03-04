@@ -32,38 +32,19 @@ open Lean Elab Meta Tactic
 
 private def baseNames : Array Name :=
   #[``Raw.empty_eq, ``Raw.emptyc_eq,
-    ``insert_eq, ``insert_val,
-    ``insertIfNew_eq, ``insertIfNew_val,
-    ``containsThenInsert_snd_eq, ``containsThenInsert_snd_val,
-    ``containsThenInsertIfNew_snd_eq, ``containsThenInsertIfNew_snd_val,
-    ``getThenInsertIfNew?_snd_eq, ``getThenInsertIfNew?_snd_val,
-    ``map_eq, ``map_val,
-    ``filter_eq, ``filter_val,
-    ``erase_eq, ``erase_val,
-    ``filterMap_eq, ``filterMap_val,
-    ``Const.getThenInsertIfNew?_snd_eq, ``Const.getThenInsertIfNew?_snd_val,
-    ``containsThenInsert_fst_eq, ``containsThenInsert_fst_val,
-    ``containsThenInsertIfNew_fst_eq, ``containsThenInsertIfNew_fst_val,
-    ``Const.get?_eq, ``Const.get?_val,
-    ``Const.get_eq, ``Const.get_val,
-    ``Const.getD_eq, ``Const.getD_val,
-    ``Const.get!_eq, ``Const.get!_val,
-    ``getThenInsertIfNew?_fst_eq, ``getThenInsertIfNew?_fst_val,
-    ``Const.getThenInsertIfNew?_fst_eq, ``Const.getThenInsertIfNew?_fst_val,
-    ``get?_eq, ``get?_val,
-    ``contains_eq, ``contains_val,
-    ``get_eq, ``get_val,
-    ``getD_eq, ``getD_val,
-    ``get!_eq, ``get!_val,
-    ``getKey?_eq, ``getKey?_val,
-    ``getKey_eq, ``getKey_val,
-    ``getKey!_eq, ``getKey!_val,
-    ``getKeyD_eq, ``getKeyD_val,
-    ``insertMany_eq, ``insertMany_val,
-    ``Const.insertMany_eq, ``Const.insertMany_val,
-    ``Const.insertManyIfNewUnit_eq, ``Const.insertManyIfNewUnit_val,
+    ``insert_eq, ``insertIfNew_eq, ``erase_eq, ``contains_eq,
+    ``containsThenInsert_fst_eq, ``containsThenInsert_snd_eq,
+    ``containsThenInsertIfNew_fst_eq, ``containsThenInsertIfNew_snd_eq,
+    ``getThenInsertIfNew?_fst_eq, ``getThenInsertIfNew?_snd_eq,
+    ``Const.getThenInsertIfNew?_snd_eq, ``Const.getThenInsertIfNew?_fst_eq,
+    ``map_eq, ``filter_eq, ``filterMap_eq,
+    ``get?_eq, ``get_eq, ``get!_eq, ``getD_eq,
+    ``Const.get?_eq, ``Const.get_eq, ``Const.getD_eq, ``Const.get!_eq,
+    ``getKey?_eq, ``getKey_eq, ``getKey!_eq, ``getKeyD_eq,
+    ``insertMany_eq, ``Const.insertMany_eq, ``Const.insertManyIfNewUnit_eq,
     ``ofList_eq, ``Const.ofList_eq, ``Const.unitOfList_eq,
-    ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq]
+    ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq,
+    ``Subtype.eta]
 
 /-- Internal implementation detail of the hash map -/
 scoped syntax "simp_to_raw" ("using" term)? : tactic
@@ -73,9 +54,9 @@ open Internal.Raw₀
 macro_rules
 | `(tactic| simp_to_raw $[using $using?]?) => do
   `(tactic|
-    (try simp (discharger := wf_trivial) only [$[$(Array.map Lean.mkIdent baseNames):term],*]
+    (try simp (discharger := with_reducible wf_trivial) only [$[$(Array.map Lean.mkIdent baseNames):term],*]
      $[apply $(using?.toArray):term];*)
-     <;> wf_trivial)
+     <;> with_reducible try wf_trivial)
 
 end Internal.Raw
 

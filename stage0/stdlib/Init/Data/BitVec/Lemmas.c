@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.BitVec.Lemmas
-// Imports: Init.Data.Bool Init.Data.BitVec.Basic Init.Data.Fin.Lemmas Init.Data.Nat.Lemmas Init.Data.Nat.Div.Lemmas Init.Data.Nat.Mod Init.Data.Nat.Div.Lemmas Init.Data.Int.Bitwise.Lemmas Init.Data.Int.Pow
+// Imports: Init.Data.Bool Init.Data.BitVec.Basic Init.Data.Fin.Lemmas Init.Data.Nat.Lemmas Init.Data.Nat.Div.Lemmas Init.Data.Nat.Mod Init.Data.Nat.Div.Lemmas Init.Data.Int.Bitwise.Lemmas Init.Data.Int.LemmasAux Init.Data.Int.Pow
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -669,6 +669,7 @@ lean_object* initialize_Init_Data_Nat_Div_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Mod(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Div_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Bitwise_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin, lean_object* w) {
@@ -697,6 +698,9 @@ res = initialize_Init_Data_Nat_Div_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Int_Bitwise_Lemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_LemmasAux(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Int_Pow(builtin, lean_io_mk_world());

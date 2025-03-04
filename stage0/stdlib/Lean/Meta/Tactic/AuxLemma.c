@@ -46,7 +46,7 @@ uint8_t l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40
 static lean_object* l_Lean_Meta_mkAuxLemma___closed__3;
 uint64_t l_Lean_Expr_hash(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-lean_object* l_Lean_registerEnvExtension___rarg(lean_object*, uint8_t, lean_object*);
+lean_object* l_Lean_registerEnvExtension___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Meta_mkAuxLemma___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_instInhabitedAuxLemmas___closed__1;
@@ -142,11 +142,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_51_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_51____closed__2;
-x_3 = 2;
-x_4 = l_Lean_registerEnvExtension___rarg(x_2, x_3, x_1);
-return x_4;
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
+x_2 = lean_box(0);
+x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_51____closed__2;
+x_4 = 2;
+x_5 = l_Lean_registerEnvExtension___rarg(x_3, x_2, x_4, x_1);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Meta_mkAuxLemma___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -983,7 +984,7 @@ x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec(x_11);
 x_14 = l_Lean_Meta_auxLemmasExt;
-x_15 = lean_ctor_get_uint8(x_14, sizeof(void*)*2);
+x_15 = lean_ctor_get_uint8(x_14, sizeof(void*)*3);
 x_16 = l_Lean_Meta_instInhabitedAuxLemmas;
 x_17 = l_Lean_Meta_mkAuxLemma___closed__1;
 lean_inc(x_13);
@@ -1532,7 +1533,7 @@ x_167 = lean_ctor_get(x_165, 0);
 lean_inc(x_167);
 lean_dec(x_165);
 x_168 = l_Lean_Meta_auxLemmasExt;
-x_169 = lean_ctor_get_uint8(x_168, sizeof(void*)*2);
+x_169 = lean_ctor_get_uint8(x_168, sizeof(void*)*3);
 x_170 = l_Lean_Meta_instInhabitedAuxLemmas;
 x_171 = l_Lean_Meta_mkAuxLemma___closed__1;
 lean_inc(x_167);

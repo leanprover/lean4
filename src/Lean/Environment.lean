@@ -624,7 +624,7 @@ private def findNoAsync (env : Environment) (n : Name) : Option ConstantInfo := 
 
 /--
 Looks up the given declaration name in the environment, avoiding forcing any in-progress elaboration
-tasks.
+tasks unless necessary.
 -/
 def findAsync? (env : Environment) (n : Name) : Option AsyncConstantInfo := do
   -- Check declarations already added to the kernel environment (e.g. because they were imported)
@@ -901,6 +901,13 @@ def AddConstAsyncResult.commitCheckEnv (res : AddConstAsyncResult) (env : Enviro
 
 def contains (env : Environment) (n : Name) : Bool :=
   env.findAsync? n |>.isSome
+
+/--
+Checks whether the given declaration is known on the current branch, in which case `findAsync?` will
+not block.
+-/
+def containsOnBranch (env : Environment) (n : Name) : Bool :=
+  (env.asyncConsts.find? n |>.isSome) || env.checkedWithoutAsync.constants.contains n
 
 def header (env : Environment) : EnvironmentHeader :=
   -- can be assumed to be in sync with `env.checked`; see `setMainModule`, the only modifier of the header

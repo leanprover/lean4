@@ -282,7 +282,7 @@ theorem getElem?_eq_some_getElem [EquivBEq α] [LawfulHashable α] (h : m.WF) {a
     m[a]? = some (m[a]'h') :=
   @DHashMap.Raw.Const.get?_eq_some_get _ _ _ _ _ _ _ h.out _ h'
 
-theorem getElem_congr [LawfulBEq α] (h : m.WF) {a b : α} (hab : a == b) {h'} :
+theorem getElem_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (hab : a == b) {h'} :
     m[a]'h' = m[b]'((mem_congr h hab).1 h') :=
   DHashMap.Raw.Const.get_congr h.out hab (h' := h')
 
@@ -448,6 +448,21 @@ theorem getKey?_erase_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α}
     (m.erase k).getKey? k = none :=
   DHashMap.Raw.getKey?_erase_self h.out
 
+theorem getKey?_beq [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    (m.getKey? k).all (· == k) :=
+  DHashMap.Raw.getKey?_beq h.out
+
+theorem getKey?_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k k' : α} (h' : k == k') :
+    m.getKey? k = m.getKey? k' :=
+  DHashMap.Raw.getKey?_congr h.out h'
+
+theorem getKey?_eq_some_of_contains [LawfulBEq α] (h : m.WF) {k : α} (h' : m.contains k) :
+    m.getKey? k = some k :=
+  DHashMap.Raw.getKey?_eq_some_of_contains h.out h'
+
+theorem getKey?_eq_some [LawfulBEq α] (h : m.WF) {k : α} (h' : k ∈ m) : m.getKey? k = some k :=
+  DHashMap.Raw.getKey?_eq_some h.out h'
+
 theorem getKey_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {v : β} {h₁} :
     (m.insert k v).getKey a h₁ =
       if h₂ : k == a then k else m.getKey a (mem_of_mem_insert h h₁ (Bool.eq_false_iff.2 h₂)) :=
@@ -466,6 +481,19 @@ theorem getKey_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {h'
 theorem getKey?_eq_some_getKey [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} {h' : a ∈ m} :
     m.getKey? a = some (m.getKey a h') :=
   @DHashMap.Raw.getKey?_eq_some_getKey _ _ _ _ _ _ _ h.out _ h'
+
+theorem getKey_beq [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} (h' : k ∈ m) :
+    m.getKey k h' == k :=
+  DHashMap.Raw.getKey_beq h.out h'
+
+theorem getKey_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k₁ k₂ : α}
+    (h' : k₁ == k₂) (h₁ : k₁ ∈ m) :
+    m.getKey k₁ h₁ = m.getKey k₂ ((mem_congr h h').mp h₁) :=
+  DHashMap.Raw.getKey_congr h.out h' h₁
+
+theorem getKey_eq [LawfulBEq α] (h : m.WF) {k : α} (h' : k ∈ m) :
+    m.getKey k h' = k :=
+  DHashMap.Raw.getKey_eq h.out h'
 
 @[simp]
 theorem getKey!_empty [Inhabited α] {a : α} {c} : (empty c : Raw α β).getKey! a = default :=
@@ -520,6 +548,18 @@ theorem getKey!_eq_get!_getKey? [EquivBEq α] [LawfulHashable α] [Inhabited α]
 theorem getKey_eq_getKey! [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.WF) {a : α} {h'} :
     m.getKey a h' = m.getKey! a :=
   DHashMap.Raw.getKey_eq_getKey! h.out
+
+theorem getKey!_congr [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.WF) {k k' : α}
+    (h' : k == k') : m.getKey! k = m.getKey! k' :=
+  DHashMap.Raw.getKey!_congr h.out h'
+
+theorem getKey!_eq_of_contains [LawfulBEq α] [Inhabited α] (h : m.WF) {k : α} (h' : m.contains k) :
+    m.getKey! k = k :=
+  DHashMap.Raw.getKey!_eq_of_contains h.out h'
+
+theorem getKey!_eq_of_mem [LawfulBEq α] [Inhabited α] (h : m.WF) {k : α} (h' : k ∈ m) :
+    m.getKey! k = k :=
+  DHashMap.Raw.getKey!_eq_of_mem h.out h'
 
 @[simp]
 theorem getKeyD_empty {a fallback : α} {c} :
@@ -580,6 +620,18 @@ theorem getKey!_eq_getKeyD_default [EquivBEq α] [LawfulHashable α] [Inhabited 
     {a : α} :
     m.getKey! a = m.getKeyD a default :=
   DHashMap.Raw.getKey!_eq_getKeyD_default h.out
+
+theorem getKeyD_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k k' fallback : α}
+    (h' : k == k') : m.getKeyD k fallback = m.getKeyD k' fallback :=
+  DHashMap.Raw.getKeyD_congr h.out h'
+
+theorem getKeyD_eq_of_contains [LawfulBEq α] (h : m.WF) {k fallback : α} (h' : m.contains k) :
+    m.getKeyD k fallback = k :=
+  DHashMap.Raw.getKeyD_eq_of_contains h.out h'
+
+theorem getKeyD_eq_of_mem [LawfulBEq α] (h : m.WF) {k fallback : α} (h' : k ∈ m) :
+    m.getKeyD k fallback = k :=
+  DHashMap.Raw.getKeyD_eq_of_mem h.out h'
 
 @[simp]
 theorem isEmpty_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β} :

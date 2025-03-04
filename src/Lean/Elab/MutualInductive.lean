@@ -336,7 +336,7 @@ private def withInductiveLocalDecls (rs : Array PreElabHeaderResult) (x : Array 
     let rec loop (i : Nat) (indFVars : Array Expr) := do
       if h : i < namesAndTypes.size then
         let (declName, shortDeclName, type) := namesAndTypes[i]
-        Term.withAuxDecl shortDeclName type declName fun indFVar => loop (i+1) (indFVars.push indFVar)
+        withAuxDecl shortDeclName type declName fun indFVar => loop (i+1) (indFVars.push indFVar)
       else
         x params indFVars
     loop 0 #[]

@@ -3968,26 +3968,25 @@ x_4 = 1;
 x_5 = 0;
 x_6 = l_Lean_Server_registerRpcProcedure___lambda__2___closed__6;
 x_7 = l_Lean_Server_handleRpcCall___closed__2;
-x_8 = lean_alloc_ctor(0, 8, 11);
+x_8 = lean_alloc_ctor(0, 7, 11);
 lean_ctor_set(x_8, 0, x_2);
-lean_ctor_set(x_8, 1, x_3);
-lean_ctor_set(x_8, 2, x_1);
-lean_ctor_set(x_8, 3, x_6);
-lean_ctor_set(x_8, 4, x_7);
+lean_ctor_set(x_8, 1, x_1);
+lean_ctor_set(x_8, 2, x_6);
+lean_ctor_set(x_8, 3, x_7);
+lean_ctor_set(x_8, 4, x_3);
 lean_ctor_set(x_8, 5, x_3);
-lean_ctor_set(x_8, 6, x_3);
-lean_ctor_set(x_8, 7, x_2);
-lean_ctor_set_uint8(x_8, sizeof(void*)*8, x_4);
-lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 1, x_4);
-lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 2, x_5);
-lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 3, x_4);
-lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 4, x_4);
-lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 5, x_5);
-lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 6, x_5);
-lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 7, x_5);
-lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 8, x_4);
-lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 9, x_5);
-lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 10, x_4);
+lean_ctor_set(x_8, 6, x_2);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7, x_4);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 1, x_4);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 2, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 3, x_4);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 4, x_4);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 5, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 6, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 7, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 8, x_4);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 9, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*7 + 10, x_4);
 return x_8;
 }
 }
@@ -4051,13 +4050,15 @@ return x_2;
 static lean_object* _init_l_Lean_Server_registerRpcProcedure___lambda__2___closed__11() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_33____closed__2;
-x_2 = l_Lean_Server_registerRpcProcedure___lambda__2___closed__6;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_33____closed__2;
+x_3 = l_Lean_Server_registerRpcProcedure___lambda__2___closed__6;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_3);
+lean_ctor_set(x_4, 2, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Server_registerRpcProcedure___lambda__2___closed__12() {

@@ -22,6 +22,9 @@ partial def typeAnalysisPass : Pass where
   name := `typeAnalysis
   run' goal := do
     checkContext goal
+    let analysis ← PreProcessM.getTypeAnalysis
+    trace[Meta.Tactic.bv] m!"Type analysis found structures: {analysis.interestingStructures.toList}"
+    trace[Meta.Tactic.bv] m!"Type analysis found enums: {analysis.interestingEnums.toList}"
     return goal
 where
   checkContext (goal : MVarId) : PreProcessM Unit := do

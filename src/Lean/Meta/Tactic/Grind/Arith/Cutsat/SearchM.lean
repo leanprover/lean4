@@ -7,7 +7,6 @@ prelude
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 
 namespace Lean.Meta.Grind.Arith.Cutsat
-
 /--
 In principle, we only need to support two kinds of case split.
 - Disequalities.
@@ -15,10 +14,7 @@ In principle, we only need to support two kinds of case split.
 -/
 inductive CaseKind where
   | diseq (d : DiseqCnstr)
-  | copperLeft
-  | copperDvdLeft
-  | cooperRight
-  | cooperDvdRight
+  | cooper (s : CooperSplitPred) (hs : Array (FVarId × UnsatProof))
   deriving Inhabited
 
 structure Case where

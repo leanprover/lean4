@@ -45,6 +45,9 @@ private partial def updateAlts (unrefinedArgType : Expr) (typeNew : Expr) (altNu
 
   We use `kabstract` to abstract the discriminants from `B[discrs]`.
 
+  We only abstract discriminants that are fvars, as else we might get a refined terms that cannot be
+  used where the original recursive function could be used; see #7322.
+
   This method assumes
   - the `matcherApp.motive` is a lambda abstraction where `xs.size == discrs.size`
   - each alternative is a lambda abstraction where `ys_i.size == matcherApp.altNumParams[i]`
@@ -63,6 +66,7 @@ def addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
       let discr     := matcherApp.discrs[i]
       if discr.isFVar then
         let motiveArg := motiveArgs[i]!
+        -- TODO: No need for `kabstract` if we know its a fvar!
         let eTypeAbst ← kabstract eTypeAbst discr
         return eTypeAbst.instantiate1 motiveArg
       else

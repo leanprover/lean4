@@ -24,3 +24,37 @@ theorem demo (distance : Nat) (idx : Nat) (a : Fin distance) (fuel : Nat) :
     · rfl
 termination_by fuel
 decreasing_by sorry
+
+structure Ev (p : Prop) : Type where
+  isTrue : p
+
+/--
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+---
+warning: declaration uses 'sorry'
+-/
+#guard_msgs in
+def bar (distance : Nat) (idx : Nat) (a : Fin distance) (fuel : Nat) :
+    Ev (a = if hidx : idx < distance then Fin.mk idx hidx else a) := by
+  cases fuel
+  · sorry
+  next fuel =>
+    split
+    · rw [(bar distance idx a fuel).isTrue]
+      sorry
+    · apply Ev.mk
+      rfl
+termination_by fuel
+decreasing_by sorry
+
+/--
+info: bar.induct (motive : Nat → Prop) (case1 : ∀ (x : Nat), (∀ (n : Nat), motive n) → motive x) (fuel : Nat) : motive fuel
+---
+warning: declaration uses 'sorry'
+-/
+#guard_msgs in
+#check bar.induct

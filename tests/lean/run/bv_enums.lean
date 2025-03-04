@@ -127,61 +127,55 @@ def Foo.f4 (f : Foo) (h : ∀ f : Foo, f ≠ .a) : Foo :=
   | .b => .c
   | .c => .c
 
-open Lean Elab Tactic BVDecide
 
 
-
-theorem thm :
-  Foo.f1.match_1 (fun _ => α) x h1 h2 h3
-    =
-  bif Foo.enumToBitVec x == 0#2 then h1 ()
-  else bif Foo.enumToBitVec x == 1#2 then h2 ()
-  else bif Foo.enumToBitVec x == 2#2 then h3 () else h3 () :=
-  Foo.recOn (motive := fun x =>
-      (match x with
-        | Foo.a => h1 ()
-        | Foo.b => h2 ()
-        | Foo.c => h3 ()) =
-        bif x.enumToBitVec == 0#2 then h1 ()
-        else bif x.enumToBitVec == 1#2 then h2 () else bif x.enumToBitVec == 2#2 then h3 () else h3 ())
-    x (Eq.refl (h1 ())) (Eq.refl (h2 ())) (Eq.refl (h3 ()))
-
-#print thm
-
-#check Foo.f1.match_1.eq_cond_enumToBitVec
-def foo := Foo.f1.match_1.eq_cond_enumToBitVec (BitVec 10) .a (fun _ => 0) (fun _ => 1) (fun _ => 2)
-
-set_option pp.explicit true in
-#print foo
+open Lean Meta
 
 /-- info: true -/
 #guard_msgs in
 #eval show MetaM _ from do
-  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.matchIsSupported ``Foo.f1.match_1
+  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f1.match_1
   return res matches some (.simpleEnum ..)
 
 /-- info: true -/
 #guard_msgs in
 #eval show MetaM _ from do
-  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.matchIsSupported ``Foo.f2.match_1
+  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f2.match_1
   return res matches none
 
 /-- info: true -/
 #guard_msgs in
 #eval show MetaM _ from do
-  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.matchIsSupported ``Foo.f3.match_1
+  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f3.match_1
   return res matches none
 
 /-- info: true -/
 #guard_msgs in
 #eval show MetaM _ from do
-  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.matchIsSupported ``Foo.f4.match_1
+  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f4.match_1
   return res matches none
 
 /-- info: true -/
 #guard_msgs in
 #eval show MetaM _ from do
-  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.matchIsSupported ``Foo.f4.match_2
+  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f4.match_2
   return res matches none
+
+def Foo.f5 : Foo → BitVec 2
+  | .a => 0
+  | .b => 1
+  | .c => 2
+
+theorem inj (foo1 foo2 : Foo) (h : foo1.f5 = foo2.f5) : foo1 = foo2 := by
+  unfold Foo.f5 at h
+  bv_decide
+
+-- TODO: float in enumToBitVec
+theorem different (foo : Foo) : foo.f1 ≠ foo := by
+  unfold Foo.f1
+  simp [Foo.f1.match_1.eq_cond_enumToBitVec]
+  bv_normalize
+  simp [Bool.apply_cond (f := Foo.enumToBitVec)] at *
+  bv_decide
 
 end Ex4

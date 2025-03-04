@@ -7,6 +7,7 @@ prelude
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow
+import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures
 import Lean.Meta.Tactic.Simp
 
 /-!
@@ -355,7 +356,13 @@ partial def enumsPass : Pass where
         let lemma ← getMatchEqCondForAux matcher kind
         relevantLemmas ← relevantLemmas.addTheorem (.decl lemma) (mkConst lemma)
 
+      -- Desugaring matches could have potentially revealed new opportunities to do stuff with
+      -- structures. Thus we must also re run lemmas that handle structure projections in the
+      -- presence of control flow.
       let cfg ← PreProcessM.getConfig
+      if cfg.structures then
+        (simprocs, relevantLemmas) ← addStructureSimpLemmas simprocs relevantLemmas
+
       let simpCtx ← Simp.mkContext
         (config := { failIfUnchanged := false, maxSteps := cfg.maxSteps })
         (simpTheorems := relevantLemmas)

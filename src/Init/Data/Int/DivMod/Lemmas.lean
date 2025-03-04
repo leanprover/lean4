@@ -892,20 +892,19 @@ theorem tmod_lt_of_pos (a : Int) {b : Int} (H : 0 < b) : tmod a b < b :=
 @[simp] theorem tmod_neg (a b : Int) : tmod a (-b) = tmod a b := by
   rw [tmod_def, tmod_def, Int.tdiv_neg, Int.neg_mul_neg]
 
-@[simp] theorem add_mul_tmod_self {a b c : Int} : (a + b * c).tmod c = a.tmod c := sorry --- just false
+@[simp] theorem neg_tmod (a b : Int) : tmod (-a) b = -tmod a b := by
+  rw [tmod_def, Int.neg_tdiv, Int.mul_neg, tmod_def]
+  omega
 
-@[simp] theorem add_mul_tmod_self_left (a b c : Int) : (a + b * c).tmod b = a.tmod b := sorry --- just false
-
-@[simp] theorem tmod_add_tmod (m n k : Int) : (m.tmod n + k).tmod n = (m + k).tmod n := sorry --- just false
-
-@[simp] theorem add_tmod_tmod (m n k : Int) : (m + n.tmod k).tmod k = (m + n).tmod k := sorry --- just false
-
-theorem add_tmod (a b n : Int) : (a + b).tmod n = (a.tmod n + b.tmod n).tmod n := sorry --- just false
-
-theorem add_tmod_eq_add_tmod_right {m n k : Int} (i : Int)
-    (H : m.tmod n = k.tmod n) : (m + i).tmod n = (k + i).tmod n := sorry --- just false
-
-theorem tmod_add_cancel_right {m n k : Int} (i) : (m + i).tmod n = (k + i).tmod n ↔ m.tmod n = k.tmod n := sorry --- just false
+-- The following statements for `tmod` are false:
+-- `add_mul_tmod_self {a b c : Int} : (a + b * c).tmod c = a.tmod c`
+-- `add_mul_tmod_self_left (a b c : Int) : (a + b * c).tmod b = a.tmod b`
+-- `tmod_add_tmod (m n k : Int) : (m.tmod n + k).tmod n = (m + k).tmod n`
+-- `add_tmod_tmod (m n k : Int) : (m + n.tmod k).tmod k = (m + n).tmod k`
+-- `add_tmod (a b n : Int) : (a + b).tmod n = (a.tmod n + b.tmod n).tmod n`
+-- `add_tmod_eq_add_tmod_right {m n k : Int} (i : Int) : (m.tmod n = k.tmod n) → (m + i).tmod n = (k + i).tmod n`
+-- `tmod_add_cancel_right {m n k : Int} (i) : (m + i).tmod n = (k + i).tmod n ↔ m.tmod n = k.tmod n`
+-- `sub_tmod (a b n : Int) : (a - b).tmod n = (a.tmod n - b.tmod n).tmod n`
 
 @[simp] theorem mul_tmod_left (a b : Int) : (a * b).tmod b = 0 :=
   if h : b = 0 then by simp [h, Int.mul_zero] else by
@@ -914,7 +913,26 @@ theorem tmod_add_cancel_right {m n k : Int} (i) : (m + i).tmod n = (k + i).tmod 
 @[simp] theorem mul_tmod_right (a b : Int) : (a * b).tmod a = 0 := by
   rw [Int.mul_comm, mul_tmod_left]
 
-theorem mul_tmod (a b n : Int) : (a * b).tmod n = (a.tmod n * b.tmod n).tmod n := sorry
+/--
+If a predicate on the integers is invariant under negation,
+then it is sufficient to prove it for the nonnegative integers.
+-/
+theorem wlog_sign {P : Int → Prop} (inv : ∀ a, P a ↔ P (-a)) (w : ∀ n : Nat, P n) (a : Int) : P a := by
+  cases a with
+  | ofNat n => exact w n
+  | negSucc n =>
+    rw [negSucc_eq, ← inv, ← ofNat_succ]
+    apply w
+
+theorem mul_tmod (a b n : Int) : (a * b).tmod n = (a.tmod n * b.tmod n).tmod n := by
+  induction a using wlog_sign
+  case inv => simp [Int.neg_inj]
+  induction b using wlog_sign
+  case inv => simp [Int.neg_inj]
+  induction n using wlog_sign
+  case inv => simp [Int.neg_inj]
+  simp only [← Int.natCast_mul, ← ofNat_tmod]
+  rw [Nat.mul_mod]
 
 @[simp] theorem tmod_self {a : Int} : a.tmod a = 0 := by
   have := mul_tmod_left 1 a; rwa [Int.one_mul] at this
@@ -923,10 +941,6 @@ theorem mul_tmod (a b n : Int) : (a * b).tmod n = (a.tmod n * b.tmod n).tmod n :
     (h : m ∣ k) : (n.tmod k).tmod m = n.tmod m := sorry
 
 @[simp] theorem tmod_tmod (a b : Int) : (a.tmod b).tmod b = a.tmod b := sorry
-
-theorem sub_tmod (a b n : Int) : (a - b).tmod n = (a.tmod n - b.tmod n).tmod n := by
-  apply (tmod_add_cancel_right b).mp
-  rw [Int.sub_add_cancel, ← Int.add_tmod_tmod, Int.sub_add_cancel, tmod_tmod]
 
 theorem tmod_eq_zero_of_dvd : ∀ {a b : Int}, a ∣ b → tmod b a = 0
   | _, _, ⟨_, rfl⟩ => mul_tmod_right ..

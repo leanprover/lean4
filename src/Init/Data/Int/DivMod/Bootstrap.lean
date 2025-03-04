@@ -158,6 +158,10 @@ theorem add_mul_ediv_right (a b : Int) {c : Int} (H : c ≠ 0) : (a + b * c) / c
       apply congrArg negSucc
       rw [Nat.mul_comm, Nat.sub_mul_div]; rwa [Nat.mul_comm]
 
+theorem add_mul_ediv_left (a : Int) {b : Int}
+    (c : Int) (H : b ≠ 0) : (a + b * c) / b = a / b + c :=
+  Int.mul_comm .. ▸ Int.add_mul_ediv_right _ _ H
+
 theorem add_ediv_of_dvd_right {a b c : Int} (H : c ∣ b) : (a + b) / c = a / c + b / c :=
   if h : c = 0 then by simp [h] else by
     let ⟨k, hk⟩ := H
@@ -195,16 +199,6 @@ theorem emod_lt_of_pos (a : Int) {b : Int} (H : 0 < b) : a % b < b :=
   match a, b, eq_succ_of_zero_lt H with
   | ofNat _, _, ⟨_, rfl⟩ => ofNat_lt.2 (Nat.mod_lt _ (Nat.succ_pos _))
   | -[_+1], _, ⟨_, rfl⟩ => Int.sub_lt_self _ (ofNat_lt.2 <| Nat.succ_pos _)
-
-theorem mul_ediv_self_le {x k : Int} (h : k ≠ 0) : k * (x / k) ≤ x :=
-  calc k * (x / k)
-    _ ≤ k * (x / k) + x % k := Int.le_add_of_nonneg_right (emod_nonneg x h)
-    _ = x                   := ediv_add_emod _ _
-
-theorem lt_mul_ediv_self_add {x k : Int} (h : 0 < k) : x < k * (x / k) + k :=
-  calc x
-    _ = k * (x / k) + x % k := (ediv_add_emod _ _).symm
-    _ < k * (x / k) + k     := Int.add_lt_add_left (emod_lt_of_pos x h) _
 
 @[simp] theorem add_mul_emod_self {a b c : Int} : (a + b * c) % c = a % c :=
   if cz : c = 0 then by
@@ -312,6 +306,18 @@ theorem emod_pos_of_not_dvd {a b : Int} (h : ¬ a ∣ b) : a = 0 ∨ 0 < b % a :
   by_cases w : a = 0
   · simp_all
   · exact Or.inr (Int.lt_iff_le_and_ne.mpr ⟨emod_nonneg b w, Ne.symm h⟩)
+
+/-! ### `/` and ordering -/
+
+theorem mul_ediv_self_le {x k : Int} (h : k ≠ 0) : k * (x / k) ≤ x :=
+  calc k * (x / k)
+    _ ≤ k * (x / k) + x % k := Int.le_add_of_nonneg_right (emod_nonneg x h)
+    _ = x                   := ediv_add_emod _ _
+
+theorem lt_mul_ediv_self_add {x k : Int} (h : 0 < k) : x < k * (x / k) + k :=
+  calc x
+    _ = k * (x / k) + x % k := (ediv_add_emod _ _).symm
+    _ < k * (x / k) + k     := Int.add_lt_add_left (emod_lt_of_pos x h) _
 
 /-! ### bmod -/
 

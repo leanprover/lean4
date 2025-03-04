@@ -19,3 +19,14 @@ theorem Q_of_decide : (1 + 1 = 2) → Q := fun _ => P.mk
 #guard_msgs in
 theorem bar_decide : Q := by
   simp (discharger := native_decide) [Q_of_decide]
+
+-- Try with backtracking
+
+theorem Q_of_decide' : (1 + 1 = 2) → False → Q := fun _ _ => P.mk
+
+theorem bar_decide' : Q := by
+  simp (discharger := native_decide) [Q_of_decide', Q_of_decide]
+
+theorem bar_decide'' : Q := by
+  try simp (discharger := native_decide) [Q_of_decide']
+  simp (discharger := native_decide) [Q_of_decide]

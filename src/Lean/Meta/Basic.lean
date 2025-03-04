@@ -2242,12 +2242,11 @@ Makes the helper constant `constName` that is derived from `forConst` available 
 `enableRealizationsForConst forConst` must have been called first on this environment branch. If
 this is the first environment branch requesting `constName` to be realized (atomically), `realize`
 is called with the environment and options at the time of calling `enableRealizationsForConst` if
-`forConst` is from the current module and the state just after importing (when
-`enableRealizationsForImports` should be called) otherwise, thus helping achieve deterministic
-results despite the non-deterministic choice of which thread is tasked with realization. In other
-words, the state after calling `realizeConst` is *as if* `realize` had been called immediately after
-`enableRealizationsForConst forConst`, though the effects of this call are visible only after
-calling `realizeConst`. See below for more details on the replayed effects.
+`forConst` is from the current module and the state just after importing  otherwise, thus helping
+achieve deterministic results despite the non-deterministic choice of which thread is tasked with
+realization. In other words, the state after calling `realizeConst` is *as if* `realize` had been
+called immediately after `enableRealizationsForConst forConst`, though the effects of this call are
+visible only after calling `realizeConst`. See below for more details on the replayed effects.
 
 `realizeConst` cannot check what other data is captured in the `realize` closure,
 so it is best practice to extract it into a separate function and pay close attention to the passed
@@ -2270,10 +2269,6 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
   -- `contains` as it could block as well as find realizations on other branches, which would lack
   -- the relevant local environment extension state when accessed on this branch.
   if env.containsOnBranch constName then
-    return
-  -- TODO: remove when Mathlib passes without it
-  if !Elab.async.get (← getOptions) then
-    realize
     return
   withTraceNode `Meta.realizeConst (fun _ => return constName) do
     let coreCtx ← readThe Core.Context

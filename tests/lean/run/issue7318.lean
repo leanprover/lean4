@@ -30,3 +30,27 @@ theorem bar_decide' : Q := by
 theorem bar_decide'' : Q := by
   try simp (discharger := native_decide) [Q_of_decide']
   simp (discharger := native_decide) [Q_of_decide]
+
+-- The following were tests from trying to reproduce a failure in mathlib that was in the end
+-- somewhere else. But maybe they are still useful in the future.
+
+theorem bar_decide_3 : Q := by
+  have q1 : Q := by apply Q_of_decide; native_decide
+  have q2 : Q := by apply Q_of_decide; native_decide
+  have h1 : 1 + 2 = 3 := by native_decide
+  have h2 : 2 + 3 = 5 := by native_decide
+  apply Q_of_decide
+  native_decide
+
+inductive Three where | A | B | C
+
+theorem bar_decide_4 (t : Three) : Q := by
+  cases t with
+  | A | B =>
+    rw [show Q ↔ True by apply iff_true_intro; apply Q_of_decide; native_decide]
+    trivial
+  | C =>
+    rw [show Q ↔ True by apply iff_true_intro; apply Q_of_decide; native_decide]
+    trivial
+
+-- In

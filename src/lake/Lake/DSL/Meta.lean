@@ -57,7 +57,10 @@ extern_lib linuxOnlyLib := ...
 scoped syntax (name := metaIf)
 "meta " "if " term " then " cmdDo (" else " cmdDo)? : command
 
-elab_rules : command | `(meta if $c then $t $[else $e?]?) => do
+@[builtin_command_elab metaIf]
+def elabMetaIf : CommandElab := fun stx => do
+  let `(meta if $c then $t $[else $e?]?) := stx
+    | throwErrorAt stx "ill-formed meta if command"
   if (← withRef c <| runTermElabM fun _ => evalTerm Bool (toTypeExpr Bool) c .unsafe) then
     let cmd := mkNullNode (expandCmdDo t)
     withMacroExpansion (← getRef) cmd <| elabCommand cmd
@@ -77,7 +80,7 @@ and produces an expression corresponding to the result via `ToExpr α`.
 -/
 scoped syntax:lead (name := runIO) "run_io " doSeq : term
 
-@[term_elab runIO]
+@[builtin_term_elab runIO]
 def elabRunIO : TermElab := fun stx expectedType? =>
   match stx with
   | `(run_io%$tk $t) => withRef t do

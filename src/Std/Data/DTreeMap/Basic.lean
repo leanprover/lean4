@@ -14,7 +14,7 @@ This file develops the type `Std.DTreeMap` of dependent tree maps.
 Lemmas about the operations on `Std.DTreeMap` will be available in the
 module `Std.Data.DTreeMap.Lemmas`.
 
-See the module `Std.Data.DTreeMap.Raw` for a variant of this type which is safe to use in
+See the module `Std.Data.DTreeMap.Raw.Basic` for a variant of this type which is safe to use in
 nested inductive types.
 -/
 
@@ -629,7 +629,7 @@ variable {β : Type v}
 def getThenInsertIfNew? (t : DTreeMap α β cmp) (a : α) (b : β) :
     Option β × DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
-  let p := Impl.Const.getThenInsertIfNew? a b t.inner t.wf.balanced
+  let p := Impl.Const.getThenInsertIfNew? t.inner a b t.wf.balanced
   (p.1, ⟨p.2, t.wf.constGetThenInsertIfNew?⟩)
 
 @[inline, inherit_doc DTreeMap.get?]
@@ -791,17 +791,17 @@ def fold (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β c
 
 /-- Folds the given monadic function over the mappings in the map in descending order. -/
 @[inline]
-def foldrM (f : δ → (a : α) → β a → m δ) (init : δ) (t : DTreeMap α β cmp) : m δ :=
+def foldrM (f : (a : α) → β a → δ → m δ) (init : δ) (t : DTreeMap α β cmp) : m δ :=
   t.inner.foldrM f init
 
 /-- Folds the given function over the mappings in the map in descending order. -/
 @[inline]
-def foldr (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
+def foldr (f : (a : α) → β a → δ → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
   t.inner.foldr f init
 
 @[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
 def revFold (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
-  foldr f init t
+  foldr (fun k v acc => f acc k v) init t
 
 /-- Partitions a tree map into two tree maps based on a predicate. -/
 @[inline] def partition (f : (a : α) → β a → Bool)
@@ -820,13 +820,33 @@ def forM (f : (a : α) → β a → m PUnit) (t : DTreeMap α β cmp) : m PUnit 
 /-- Support for the `for` loop construct in `do` blocks. Iteration happens in ascending order. -/
 @[inline]
 def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (t : DTreeMap α β cmp) : m δ :=
-  t.inner.forIn (fun c a b => f a b c) init
+  t.inner.forIn f init
 
 instance : ForM m (DTreeMap α β cmp) ((a : α) × β a) where
   forM t f := t.forM (fun a b => f ⟨a, b⟩)
 
 instance : ForIn m (DTreeMap α β cmp) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
+
+namespace Const
+
+variable {β : Type v}
+
+/-!
+We do not define `ForM` and `ForIn` instances that are specialized to constant `β`. Instead, we
+define uncurried versions of `forM` and `forIn` that will be used in the `Const` lemmas and to
+define the `ForM` and `ForIn` instances for `DTreeMap`.
+-/
+
+@[inline, inherit_doc DTreeMap.forM]
+def forMUncurried (f : α × β → m PUnit) (t : DTreeMap α β cmp) : m PUnit :=
+  t.inner.forM fun a b => f ⟨a, b⟩
+
+@[inline, inherit_doc DTreeMap.forIn]
+def forInUncurried (f : α × β → δ → m (ForInStep δ)) (init : δ) (t : DTreeMap α β cmp) : m δ :=
+  t.inner.forIn (fun a b acc => f ⟨a, b⟩ acc) init
+
+end Const
 
 /-- Check if any element satisfes the predicate, short-circuiting if a predicate fails. -/
 @[inline]

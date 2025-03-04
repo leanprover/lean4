@@ -133,11 +133,14 @@ protected theorem lt_of_not_ge {a b : Int} (h : ¬a ≤ b) : b < a :=
 protected theorem not_le_of_gt {a b : Int} (h : b < a) : ¬a ≤ b :=
   (Int.lt_iff_le_not_le.mp h).right
 
-protected theorem not_le {a b : Int} : ¬a ≤ b ↔ b < a :=
+@[simp] protected theorem not_le {a b : Int} : ¬a ≤ b ↔ b < a :=
   Iff.intro Int.lt_of_not_ge Int.not_le_of_gt
 
-protected theorem not_lt {a b : Int} : ¬a < b ↔ b ≤ a :=
+@[simp] protected theorem not_lt {a b : Int} : ¬a < b ↔ b ≤ a :=
   by rw [← Int.not_le, Decidable.not_not]
+
+protected theorem le_of_not_gt {a b : Int} (h : ¬ a > b) : a ≤ b :=
+  Int.not_lt.mp h
 
 protected theorem lt_trichotomy (a b : Int) : a < b ∨ a = b ∨ b < a :=
   if eq : a = b then .inr <| .inl eq else
@@ -938,6 +941,22 @@ protected theorem mul_self_le_mul_self {a b : Int} (h1 : 0 ≤ a) (h2 : a ≤ b)
 protected theorem mul_self_lt_mul_self {a b : Int} (h1 : 0 ≤ a) (h2 : a < b) : a * a < b * b :=
   Int.mul_lt_mul' (Int.le_of_lt h2) h2 h1 (Int.lt_of_le_of_lt h1 h2)
 
+protected theorem nonneg_of_mul_nonneg_left {a b : Int}
+    (h : 0 ≤ a * b) (hb : 0 < b) : 0 ≤ a :=
+  Int.le_of_not_gt fun ha => Int.not_le_of_gt (Int.mul_neg_of_neg_of_pos ha hb) h
+
+protected theorem nonneg_of_mul_nonneg_right {a b : Int}
+    (h : 0 ≤ a * b) (ha : 0 < a) : 0 ≤ b :=
+  Int.le_of_not_gt fun hb => Int.not_le_of_gt (Int.mul_neg_of_pos_of_neg ha hb) h
+
+protected theorem nonpos_of_mul_nonpos_left {a b : Int}
+    (h : a * b ≤ 0) (hb : 0 < b) : a ≤ 0 :=
+  Int.le_of_not_gt fun ha : a > 0 => Int.not_le_of_gt (Int.mul_pos ha hb) h
+
+protected theorem nonpos_of_mul_nonpos_right {a b : Int}
+    (h : a * b ≤ 0) (ha : 0 < a) : b ≤ 0 :=
+  Int.le_of_not_gt fun hb : b > 0 => Int.not_le_of_gt (Int.mul_pos ha hb) h
+
 /- ## sign -/
 
 @[simp] theorem sign_zero : sign 0 = 0 := rfl
@@ -1020,6 +1039,12 @@ theorem sign_eq_neg_one_iff_neg {a : Int} : sign a = -1 ↔ a < 0 :=
 
 @[simp] theorem sign_mul_self : sign i * i = natAbs i := by
   rw [Int.mul_comm, mul_sign_self]
+
+theorem sign_trichotomy (a : Int) : sign a = 1 ∨ sign a = 0 ∨ sign a = -1 := by
+  match a with
+  | 0 => simp
+  | .ofNat (_ + 1) => simp
+  | .negSucc _ => simp
 
 /- ## natAbs -/
 

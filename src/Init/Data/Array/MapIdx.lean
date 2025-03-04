@@ -6,6 +6,7 @@ Authors: Mario Carneiro, Kim Morrison
 prelude
 import Init.Data.Array.Lemmas
 import Init.Data.Array.Attach
+import Init.Data.Array.OfFn
 import Init.Data.List.MapIdx
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.

@@ -26,6 +26,7 @@ theorem mem_subset_refl : mem_subset a1 a2 a1 a2 := by
   unfold mem_subset
   bv_normalize
 
+example (a b : Bool) : ((a = true) ↔ (b = true)) ↔ (a == b) := by bv_normalize
 example {x : BitVec 16} : 0#16 + x = x := by bv_normalize
 example {x : BitVec 16} : x + 0#16 = x := by bv_normalize
 example {x : BitVec 16} : x.setWidth 16 = x := by bv_normalize
@@ -280,6 +281,255 @@ example (a : BitVec 16) : a * 8#16 = a <<< 3 := by
   bv_normalize
 
 example (a : BitVec 16) : a + a = a <<< 1 := by
+  bv_normalize
+
+-- NOT_EQUAL_BV1_BOOL
+example : ∀ (a : Bool), (!(a == true)) = (a == false) := by
+  bv_normalize
+
+example : ∀ (a : Bool), (!(a == false)) = (a == true) := by
+  bv_normalize
+
+example : ∀ (a : Bool), (!(true == a)) = (a == false) := by
+  bv_normalize
+
+example : ∀ (a : Bool), (!(false == a)) = (a == true) := by
+  bv_normalize
+
+example : ∀ (a : BitVec 1), (!(a == 1#1)) = (a == 0#1) := by
+  bv_normalize
+
+example : ∀ (a : BitVec 1), (!(a == 0#1)) = (a == 1#1) := by
+  bv_normalize
+
+example : ∀ (a : BitVec 1), (!(1#1 == a)) = (a == 0#1) := by
+  bv_normalize
+
+example : ∀ (a : BitVec 1), (!(0#1 == a)) = (a == 1#1) := by
+  bv_normalize
+
+-- ITE_SAME
+example : ∀ (c t e : Bool), ((bif c then t else e) == t) = (c || (t == e)) := by
+  bv_normalize
+
+example : ∀ (c t e : Bool), (t == (bif c then t else e)) = (c || (t == e)) := by
+  bv_normalize
+
+example : ∀ (c t e : Bool), ((bif c then t else e) == e) = (!c || (t == e)) := by
+  bv_normalize
+
+example : ∀ (c t e : Bool), (e == (bif c then t else e)) = (!c || (t == e)) := by
+  bv_normalize
+
+example : ∀ (c : Bool) (t e : BitVec 8), ((bif c then t else e) == t) = (c || (t == e)) := by
+  bv_normalize
+
+example : ∀ (c : Bool) (t e : BitVec 8), (t == (bif c then t else e)) = (c || (t == e)) := by
+  bv_normalize
+
+example : ∀ (c : Bool) (t e : BitVec 8), ((bif c then t else e) == e) = (!c || (t == e)) := by
+  bv_normalize
+
+example : ∀ (c : Bool) (t e : BitVec 8), (e == (bif c then t else e)) = (!c || (t == e)) := by
+  bv_normalize
+
+example (c : Bool) : ((if c then 1#1 else 0#1) == 1#1) ↔ c := by
+  bv_normalize
+
+-- ITE_THEN_ITE_1
+example (cond : Bool) {a b c d : Bool}
+    (h : (bif cond then (bif cond then a else b) else c) = d) :
+    (bif cond then a else c) = d := by
+  bv_normalize
+
+example (cond : Bool) {a b c d : Bool}
+    (h : (bif cond then !(bif cond then a else b) else c) = d) :
+    (bif cond then !a else c) = d := by
+  bv_normalize
+
+example (cond : Bool) {a b c d : BitVec 8}
+    (h : (bif cond then ~~~(bif cond then a else b) else c) = d) :
+    (bif cond then ~~~a else c) = d := by
+  bv_normalize
+
+-- ITE_ELSE_ITE_1
+example (cond : Bool) {a b c d : Bool}
+    (h : (bif cond then a else (bif cond then b else c)) = d) :
+    (bif cond then a else c) = d := by
+  bv_normalize
+
+example (cond : Bool) {a b c d : Bool}
+    (h : (bif cond then a else !(bif cond then b else c)) = d) :
+    (bif cond then a else !c) = d := by
+  bv_normalize
+
+example (cond : Bool) {a b c d : BitVec 8}
+    (h : (bif cond then a else ~~~(bif cond then b else c)) = d) :
+    (bif cond then a else ~~~c) = d := by
+  bv_normalize
+
+-- ITE_THEN_ITE_2
+example (c0 c1 : Bool) {a b d : Bool}
+    (h : (bif c0 then (bif c1 then a else b) else a) = d) :
+    (bif c0 && !c1 then b else a) = d := by
+  bv_normalize
+
+example (c0 c1 : Bool) {a b d : Bool}
+    (h : (bif c0 then !(bif c1 then !a else b) else a) = d) :
+    (bif c0 && !c1 then !b else a) = d := by
+  bv_normalize
+
+example (c0 c1 : Bool) {a b d : BitVec 8}
+    (h : (bif c0 then ~~~(bif c1 then ~~~a else b) else a) = d) :
+    (bif c0 && !c1 then ~~~b else a) = d := by
+  bv_normalize
+
+-- ITE_ELSE_ITE_2
+example (c0 c1 : Bool) {a b d : Bool}
+    (h : (bif c0 then a else (bif c1 then a else b)) = d) :
+    (bif !c0 && !c1 then b else a) = d := by
+  bv_normalize
+
+example (c0 c1 : Bool) {a b d : Bool}
+    (h : (bif c0 then a else !(bif c1 then !a else b)) = d) :
+    (bif !c0 && !c1 then !b else a) = d := by
+  bv_normalize
+
+example (c0 c1 : Bool) {a b d : BitVec 8}
+    (h : (bif c0 then a else ~~~(bif c1 then ~~~a else b)) = d) :
+    (bif !c0 && !c1 then ~~~b else a) = d := by
+  bv_normalize
+
+-- ITE_THEN_ITE_3
+example (c0 c1 : Bool) {a b d : Bool}
+    (h : (bif c0 then (bif c1 then b else a) else a) = d) :
+    (bif c0 && c1 then b else a) = d := by
+  bv_normalize
+
+example (c0 c1 : Bool) {a b d : Bool}
+    (h : (bif c0 then !(bif c1 then b else !a) else a) = d) :
+    (bif c0 && c1 then !b else a) = d := by
+  bv_normalize
+
+example (c0 c1 : Bool) {a b d : BitVec 8}
+    (h : (bif c0 then ~~~(bif c1 then b else ~~~a) else a) = d) :
+    (bif c0 && c1 then ~~~b else a) = d := by
+  bv_normalize
+
+-- ITE_ELSE_ITE_3
+example (c0 c1 : Bool) {a b d : Bool}
+    (h : (bif c0 then a else (bif c1 then b else a)) = d) :
+    (bif !c0 && c1 then b else a) = d := by
+  bv_normalize
+
+example (c0 c1 : Bool) {a b d : Bool}
+    (h : (bif c0 then a else !(bif c1 then b else !a)) = d) :
+    (bif !c0 && c1 then !b else a) = d := by
+  bv_normalize
+
+example (c0 c1 : Bool) {a b d : BitVec 8}
+    (h : (bif c0 then a else ~~~(bif c1 then b else ~~~a)) = d) :
+    (bif !c0 && c1 then ~~~b else a) = d := by
+  bv_normalize
+
+-- BV_MUL_ITE
+example {c : Bool} {a e : BitVec 8} :
+    (a * (bif c then 0#8 else e)) = (bif c then 0#8 else a * e) := by
+  bv_normalize
+
+example {c : Bool} {a t : BitVec 8} :
+    (a * (bif c then t else 0#8)) = (bif c then a * t else 0#8) := by
+  bv_normalize
+
+example {c : Bool} {a e : BitVec 8} :
+    ((bif c then 0#8 else e) * a) = (bif c then 0#8 else e * a) := by
+  bv_normalize
+
+example {c : Bool} {a t : BitVec 8} :
+    ((bif c then t else 0#8) * a) = (bif c then t * a else 0#8) := by
+  bv_normalize
+
+-- EQAL_CONST_BV1
+example {b : Bool} {a : BitVec 1} :
+    ((a == 1#1) == b) = (a == bif b then 1#1 else 0#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    ((1#1 == a) == b) = (a == bif b then 1#1 else 0#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    (b == (a == 1#1)) = (a == bif b then 1#1 else 0#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    (b == (1#1 == a)) = (a == bif b then 1#1 else 0#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    ((a == 0#1) == b) = (a == bif b then 0#1 else 1#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    ((0#1 == a) == b) = (a == bif b then 0#1 else 1#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    (b == (a == 0#1)) = (a == bif b then 0#1 else 1#1) := by
+  bv_normalize
+
+example {b : Bool} {a : BitVec 1} :
+    (b == (0#1 == a)) = (a == bif b then 0#1 else 1#1) := by
+  bv_normalize
+
+-- EQUAL_ITE_SAME
+example {c d : Bool} {a b : BitVec 8}
+    (h : (a == bif c then a else b) = d) :
+    (c || (a == b)) = d := by
+  bv_normalize
+
+example {c d : Bool} {a b : BitVec 8}
+    (h : (a == bif c then b else a) = d) :
+    (!c || (b == a)) = d := by
+  bv_normalize
+
+example {c d : Bool} {a b : BitVec 8}
+    (h : ((bif c then a else b) == a) = d) :
+    (c || (a == b)) = d := by
+  bv_normalize
+
+example {c d : Bool} {a b : BitVec 8}
+    (h : ((bif c then b else a) == a) = d) :
+    (!c || (b == a)) = d := by
+  bv_normalize
+
+-- EQUAL_ITE_INVERTED
+example {a b c : Bool} : (a == !bif c then a else b) = (!c && (a == !b)) := by
+  bv_normalize
+
+example {a b c : Bool} : (a == !bif c then b else a) = (c && (a == !b)) := by
+  bv_normalize
+
+example {a b c : Bool} : ((!bif c then a else b) == a) = (!c && (a == !b)) := by
+  bv_normalize
+
+example {a b c : Bool} : ((!bif c then b else a) == a) = (c && (a == !b)) := by
+  bv_normalize
+
+example {a b : BitVec 8} {c : Bool} :
+    (a == ~~~bif c then a else b) = (!c && (a == ~~~b)) := by
+  bv_normalize
+
+example {a b : BitVec 8} {c : Bool} :
+    (a == ~~~bif c then b else a) = (c && (a == ~~~b)) := by
+  bv_normalize
+
+example {a b : BitVec 8} {c : Bool} :
+    ((~~~bif c then a else b) == a) = (!c && (~~~b == a)) := by
+  bv_normalize
+
+example {a b : BitVec 8} {c : Bool} :
+    ((~~~bif c then b else a) == a) = (c && (~~~b == a)) := by
   bv_normalize
 
 section

@@ -8,6 +8,7 @@ prelude
 import Init.Data.Array.Lemmas
 import Init.Data.Array.MapIdx
 import Init.Data.Array.InsertIdx
+import Init.Data.Array.Range
 import Init.Data.Range
 import Init.Data.Stream
 
@@ -17,8 +18,8 @@ import Init.Data.Stream
 `Vector α n` is a thin wrapper around `Array α` for arrays of fixed size `n`.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 /-- `Vector α n` is an `Array α` with size `n`. -/
 structure Vector (α : Type u) (n : Nat) extends Array α where

@@ -59,7 +59,7 @@ partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
   let .add a₁ x p₁ := c.p | c.throwUnexpected
   if (← c.satisfied) == .false then
     resetAssignmentFrom x
-  if let some c' := (← get').dvdCnstrs[x]! then
+  if let some c' := (← get').dvds[x]! then
     trace[grind.cutsat.dvd.solve] "{← c.pp}, {← c'.pp}"
     let d₂ := c'.d
     let .add a₂ _ p₂ := c'.p | c'.throwUnexpected
@@ -76,7 +76,7 @@ partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
     let β_d₁_p₂ := p₂.mul (β*d₁)
     let combine ← mkDvdCnstr (d₁*d₂) (.add d x (α_d₂_p₁.combine β_d₁_p₂)) (.solveCombine c c')
     trace[grind.cutsat.dvd.solve.combine] "{← combine.pp}"
-    modify' fun s => { s with dvdCnstrs := s.dvdCnstrs.set x none}
+    modify' fun s => { s with dvds := s.dvds.set x none}
     combine.assert
     let a₂_p₁ := p₁.mul a₂
     let a₁_p₂ := p₂.mul (-a₁)
@@ -86,7 +86,7 @@ partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
   else
     trace[grind.cutsat.dvd.update] "{← c.pp}"
     c.p.updateOccs
-    modify' fun s => { s with dvdCnstrs := s.dvdCnstrs.set x (some c) }
+    modify' fun s => { s with dvds := s.dvds.set x (some c) }
 
 builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
   let_expr Dvd.dvd _ inst a b ← e | return ()

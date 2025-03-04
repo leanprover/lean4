@@ -333,7 +333,6 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___private_Lean_Elab_PreD
 lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_Lean_Elab_Term_ContainsPendingMVar_visit___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Eqns_removeUnusedEqnHypotheses_go___spec__21(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Eqns_mkEqnTypes_go___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Option_set___at_Lean_Elab_Term_withoutMacroStackAtErr___spec__1(lean_object*, lean_object*, uint8_t);
 uint64_t l_Lean_Expr_hash(lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_mkEqnProof_go___lambda__1___closed__4;
 static lean_object* l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_mkEqnProof_go___lambda__1___closed__7;
@@ -663,6 +662,7 @@ LEAN_EXPORT lean_object* l_Lean_mkFreshId___at_Lean_Elab_Eqns_removeUnusedEqnHyp
 lean_object* l_Lean_Meta_processPostponed(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_unfoldThmType___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(lean_object*, lean_object*, uint8_t);
 static lean_object* _init_l_Lean_Elab_Eqns_instInhabitedEqnInfoCore___closed__1() {
 _start:
 {
@@ -3641,7 +3641,7 @@ x_7 = lean_ctor_get(x_4, 2);
 lean_inc(x_7);
 x_8 = l_Lean_Elab_Eqns_tryURefl___closed__1;
 x_9 = 0;
-x_10 = l_Lean_Option_set___at_Lean_Elab_Term_withoutMacroStackAtErr___spec__1(x_7, x_8, x_9);
+x_10 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_7, x_8, x_9);
 x_11 = l_Lean_Elab_Eqns_tryURefl___closed__2;
 x_12 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_10, x_11);
 x_13 = lean_st_ref_get(x_5, x_6);
@@ -26122,13 +26122,15 @@ return x_5;
 static lean_object* _init_l_Lean_Elab_Eqns_removeUnusedEqnHypotheses___closed__4() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_Eqns_tryURefl___closed__4;
-x_2 = l_Lean_Elab_Eqns_removeUnusedEqnHypotheses___closed__3;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Elab_Eqns_tryURefl___closed__4;
+x_3 = l_Lean_Elab_Eqns_removeUnusedEqnHypotheses___closed__3;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_3);
+lean_ctor_set(x_4, 2, x_1);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_Eqns_removeUnusedEqnHypotheses(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -32868,7 +32870,7 @@ x_14 = lean_ctor_get(x_6, 2);
 lean_inc(x_14);
 x_15 = l_Lean_Elab_Eqns_mkEqns___closed__1;
 x_16 = 0;
-x_17 = l_Lean_Option_set___at_Lean_Elab_Term_withoutMacroStackAtErr___spec__1(x_14, x_15, x_16);
+x_17 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_14, x_15, x_16);
 x_18 = l_Lean_Elab_Eqns_tryURefl___closed__2;
 x_19 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_17, x_18);
 x_20 = lean_st_ref_get(x_7, x_11);
@@ -35812,7 +35814,7 @@ x_9 = lean_ctor_get(x_6, 2);
 lean_inc(x_9);
 x_10 = l_Lean_Elab_Eqns_mkEqns___closed__1;
 x_11 = 0;
-x_12 = l_Lean_Option_set___at_Lean_Elab_Term_withoutMacroStackAtErr___spec__1(x_9, x_10, x_11);
+x_12 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_9, x_10, x_11);
 x_13 = l_Lean_Elab_Eqns_tryURefl___closed__2;
 x_14 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_12, x_13);
 x_15 = lean_st_ref_get(x_7, x_8);

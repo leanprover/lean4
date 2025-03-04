@@ -195,6 +195,10 @@ def structuralRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (
         registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos fixedParamPerms
     addSmartUnfoldingDef preDef recArgPos
     markAsRecursive preDef.declName
+  for preDef in preDefs do
+    -- must happen in separate loop so realizations can see eqnInfos of all other preDefs
+    enableRealizationsForConst preDef.declName
+    -- must happen after `enableRealizationsForConst`
     generateEagerEqns preDef.declName
   applyAttributesOf preDefsNonRec AttributeApplicationTime.afterCompilation
 

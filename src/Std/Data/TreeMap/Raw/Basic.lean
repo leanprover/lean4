@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
 prelude
-import Std.Data.DTreeMap.Raw
+import Std.Data.DTreeMap.Raw.Basic
 
 /-
 # Tree maps with unbundled well-formedness invariant
@@ -17,7 +17,7 @@ available as `Std.TreeMap.Raw.WF` and we prove in this file that all operations 
 well-formedness. When in doubt, prefer `TreeMap` over `TreeMap.Raw`.
 
 Lemmas about the operations on `Std.TreeMap.Raw` will be available in the module
-`Std.Data.TreeMap.RawLemmas`.
+`Std.Data.TreeMap.Raw.Lemmas`.
 -/
 
 set_option autoImplicit false
@@ -35,7 +35,7 @@ namespace TreeMap
 Tree maps without a bundled well-formedness invariant, suitable for use in nested
 inductive types. The well-formedness invariant is called `Raw.WF`. When in doubt, prefer `TreeMap`
 over `TreeMap.Raw`. Lemmas about the operations on `Std.TreeMap.Raw` are available in the
-module `Std.Data.TreeMap.RawLemmas`.
+module `Std.Data.TreeMap.Raw.Lemmas`.
 
 A tree map stores an assignment of keys to values. It depends on a comparator function that
 defines an ordering on the keys and provides efficient order-dependent queries, such as retrieval
@@ -411,16 +411,16 @@ def fold (f : δ → (a : α) → β → δ) (init : δ) (t : Raw α β cmp) : �
   t.foldl f init
 
 @[inline, inherit_doc DTreeMap.Raw.foldrM]
-def foldrM (f : δ → (a : α) → β → m δ) (init : δ) (t : Raw α β cmp) : m δ :=
+def foldrM (f : (a : α) → β → δ → m δ) (init : δ) (t : Raw α β cmp) : m δ :=
   t.inner.foldrM f init
 
 @[inline, inherit_doc DTreeMap.Raw.foldr]
-def foldr (f : δ → (a : α) → β → δ) (init : δ) (t : Raw α β cmp) : δ :=
+def foldr (f : (a : α) → β → δ → δ) (init : δ) (t : Raw α β cmp) : δ :=
   t.inner.foldr f init
 
 @[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
 def revFold (f : δ → (a : α) → β → δ) (init : δ) (t : Raw α β cmp) : δ :=
-  foldr f init t
+  foldr (fun k v acc => f acc k v) init t
 
 @[inline, inherit_doc DTreeMap.Raw.partition]
 def partition (f : (a : α) → β → Bool) (t : Raw α β cmp) : Raw α β cmp × Raw α β cmp :=

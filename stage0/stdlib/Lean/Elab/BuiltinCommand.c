@@ -24719,13 +24719,15 @@ return x_2;
 static lean_object* _init_l_List_forIn_x27_loop___at_Lean_Elab_Command_elabCheckCore___spec__1___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_List_forIn_x27_loop___at_Lean_Elab_Command_elabCheckCore___spec__1___closed__2;
-x_2 = l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_Command_elabOpen___spec__15___closed__3;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = lean_box(0);
+x_2 = l_List_forIn_x27_loop___at_Lean_Elab_Command_elabCheckCore___spec__1___closed__2;
+x_3 = l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_Command_elabOpen___spec__15___closed__3;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_3);
+lean_ctor_set(x_4, 2, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_List_forIn_x27_loop___at_Lean_Elab_Command_elabCheckCore___spec__1___closed__4() {
@@ -32697,7 +32699,7 @@ lean_inc(x_1);
 x_25 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabOmit___spec__4(x_20, x_21, x_1);
 x_26 = lean_array_mk(x_4);
 x_27 = lean_box(0);
-x_28 = lean_ctor_get(x_6, 6);
+x_28 = lean_ctor_get(x_6, 5);
 lean_inc(x_28);
 x_56 = l_Lean_Elab_Command_elabOmit___lambda__1___closed__3;
 x_57 = l_Lean_RBNode_forIn_visit___at_Lean_Elab_Command_elabOmit___spec__14(x_27, x_28, x_56, x_6, x_7, x_8, x_9, x_10, x_11, x_24);

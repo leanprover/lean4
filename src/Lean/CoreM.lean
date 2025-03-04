@@ -194,7 +194,7 @@ protected def withFreshMacroScope (x : CoreM α) : CoreM α := do
 
 instance : MonadQuotation CoreM where
   getCurrMacroScope   := return (← read).currMacroScope
-  getMainModule       := return (← get).env.mainModule
+  getMainModule       := return (← getEnv).mainModule
   withFreshMacroScope := Core.withFreshMacroScope
 
 instance : Elab.MonadInfoTree CoreM where
@@ -365,6 +365,16 @@ for incremental reporting during elaboration of a single command.
 def getAndEmptyMessageLog : CoreM MessageLog :=
   modifyGet fun s => (s.messages, { s with messages := s.messages.markAllReported })
 
+/--
+Returns the current set of tasks added by `logSnapshotTask` and then resets it. When
+saving/restoring state of an action that may have logged such tasks during incremental reuse, this
+function must be used to store them in the corresponding snapshot tree; otherwise, they will leak
+outside and may be cancelled by a later step, potentially leading to inconsistent state being
+reused.
+-/
+def getAndEmptySnapshotTasks : CoreM (Array (Language.SnapshotTask Language.SnapshotTree)) :=
+  modifyGet fun s => (s.snapshotTasks, { s with snapshotTasks := #[] })
+
 instance : MonadLog CoreM where
   getRef      := getRef
   getFileMap  := return (← read).fileMap
@@ -413,6 +423,26 @@ register_builtin_option stderrAsMessages : Bool := {
   descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
 }
 
+/--
+Creates snapshot reporting given `withIsolatedStreams` output and diagnostics and traces from the
+given state.
+-/
+def mkSnapshot (output : String) (ctx : Context) (st : State)
+    (desc : String := by exact decl_name%.toString) : BaseIO Language.SnapshotTree := do
+  let mut msgs := st.messages
+  if !output.isEmpty then
+    msgs := msgs.add {
+      fileName := ctx.fileName
+      severity := MessageSeverity.information
+      pos      := ctx.fileMap.toPosition <| ctx.ref.getPos?.getD 0
+      data     := output
+    }
+  return .mk {
+    desc
+    diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog msgs)
+    traces := st.traceState
+  } st.snapshotTasks
+
 open Language in
 /--
 Wraps the given action for use in `BaseIO.asTask` etc., discarding its final state except for
@@ -443,20 +473,7 @@ def wrapAsyncAsSnapshot (act : Unit → CoreM Unit) (cancelTk? : Option IO.Cance
   let ctx ← readThe Core.Context
   return do
     match (← t.toBaseIO) with
-    | .ok (output, st) =>
-      let mut msgs := st.messages
-      if !output.isEmpty then
-        msgs := msgs.add {
-          fileName := ctx.fileName
-          severity := MessageSeverity.information
-          pos      := ctx.fileMap.toPosition <| ctx.ref.getPos?.getD 0
-          data     := output
-        }
-      return .mk {
-        desc
-        diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog msgs)
-        traces := st.traceState
-      } st.snapshotTasks
+    | .ok (output, st) => mkSnapshot output ctx st desc
     -- interrupt or abort exception as `try catch` above should have caught any others
     | .error _ => default
 
@@ -528,7 +545,9 @@ opaque compileDeclsOld (env : Environment) (opt : @& Options) (decls : @& List N
 -- `ref?` is used for error reporting if available
 partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
     (logErrors := true) : CoreM Unit := do
-  if !Elab.async.get (← getOptions) then
+  -- When inside `realizeConst`, do compilation synchronously so that `_cstage*` constants are found
+  -- by the replay code
+  if !Elab.async.get (← getOptions) || (← getEnv).isRealizing then
     doCompile
     return
   let env ← getEnv
@@ -645,6 +664,11 @@ def logMessageKind (kind : Name) : CoreM Bool := do
   else
     modify fun s => { s with messages.loggedKinds := s.messages.loggedKinds.insert kind }
     return true
+
+@[inherit_doc Environment.enableRealizationsForConst]
+def enableRealizationsForConst (n : Name) : CoreM Unit := do
+  let env ← (← getEnv).enableRealizationsForConst (← getOptions) n
+  setEnv env
 
 builtin_initialize
   registerTraceClass `Elab.async

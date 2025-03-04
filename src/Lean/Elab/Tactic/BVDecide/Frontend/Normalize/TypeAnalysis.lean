@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
+import Init.Data.SInt.Basic
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
 
 /-!
@@ -21,6 +22,9 @@ partial def typeAnalysisPass : Pass where
   name := `typeAnalysis
   run' goal := do
     checkContext goal
+    let analysis ← PreProcessM.getTypeAnalysis
+    trace[Meta.Tactic.bv] m!"Type analysis found structures: {analysis.interestingStructures.toList}"
+    trace[Meta.Tactic.bv] m!"Type analysis found enums: {analysis.interestingEnums.toList}"
     return goal
 where
   checkContext (goal : MVarId) : PreProcessM Unit := do
@@ -64,6 +68,11 @@ where
     | UInt32 => return true
     | UInt64 => return true
     | USize => return true
+    | Int8 => return true
+    | Int16 => return true
+    | Int32 => return true
+    | Int64 => return true
+    | ISize => return true
     | Bool => return true
     | _ =>
       let some const := expr.getAppFn.constName? | return false

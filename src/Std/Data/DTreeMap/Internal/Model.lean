@@ -235,6 +235,34 @@ def getDₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β)
   get?ₘ l k |>.getD fallback
 
 /--
+Model implementation of the `getKey?` function.
+Internal implementation detail of the tree map
+-/
+def getKey?ₘ [Ord α] (l : Impl α β) (k : α) : Option α :=
+  applyCell k l fun c _ => c.getKey?
+
+/--
+Model implementation of the `getKey` function.
+Internal implementation detail of the tree map
+-/
+def getKeyₘ [Ord α] (l : Impl α β) (k : α) (h : (getKey?ₘ l k).isSome) : α :=
+  getKey?ₘ l k |>.get h
+
+/--
+Model implementation of the `getKey!` function.
+Internal implementation detail of the tree map
+-/
+def getKey!ₘ [Ord α] (l : Impl α β) (k : α) [Inhabited α] : α :=
+  getKey?ₘ l k |>.get!
+
+/--
+Model implementation of the `getKeyD` function.
+Internal implementation detail of the tree map
+-/
+def getKeyDₘ [Ord α] (k : α) (l : Impl α β) (fallback : α) : α :=
+  getKey?ₘ l k |>.getD fallback
+
+/--
 Model implementation of the `insert` function.
 Internal implementation detail of the tree map
 -/
@@ -374,6 +402,45 @@ theorem getD_eq_getDₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l :
     split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
     all_goals simp_all [Cell.get?, Cell.ofEq]
   · simp only [getD, applyCell, Cell.get?_empty, Option.getD_none]
+
+theorem getKey?_eq_getKey?ₘ [Ord α] (k : α) (l : Impl α β) :
+    l.getKey? k = l.getKey?ₘ k := by
+  simp only [getKey?ₘ]
+  induction l
+  · simp only [applyCell, getKey?]
+    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
+    all_goals simp_all [Cell.getKey?, Cell.ofEq]
+  · simp [getKey?, applyCell]
+
+theorem getKey_eq_getKey? [Ord α] (k : α) (l : Impl α β) {h} :
+    l.getKey k h = l.getKey? k := by
+  induction l
+  · simp only [applyCell, getKey, getKey?]
+    split <;> rename_i ihl ihr hcmp <;> simp_all
+  · contradiction
+
+theorem getKey_eq_getKeyₘ [Ord α] (k : α) (l : Impl α β) {h} (h') :
+    l.getKey k h = l.getKeyₘ k h' := by
+  apply Option.some.inj
+  simp [getKey_eq_getKey?, getKey?_eq_getKey?ₘ, getKeyₘ]
+
+theorem getKey!_eq_getKey!ₘ [Ord α] (k : α) [Inhabited α] (l : Impl α β) :
+    l.getKey! k = l.getKey!ₘ k := by
+  simp only [getKey!ₘ, getKey?ₘ]
+  induction l
+  · simp only [applyCell, getKey!]
+    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
+    all_goals simp_all [Cell.getKey?, Cell.ofEq]
+  · simp only [getKey!, applyCell, Cell.getKey?_empty, Option.get!_none]; rfl
+
+theorem getKeyD_eq_getKeyDₘ [Ord α] (k : α) (l : Impl α β)
+    (fallback : α) : l.getKeyD k fallback = l.getKeyDₘ k fallback := by
+  simp only [getKeyDₘ, getKey?ₘ]
+  induction l
+  · simp only [applyCell, getKeyD]
+    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
+    all_goals simp_all [Cell.getKey?, Cell.ofEq]
+  · simp only [getKeyD, applyCell, Cell.getKey?_empty, Option.getD_none]
 
 theorem balanceL_eq_balance {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceL k v l r hlb hrb hlr = balance k v l r hlb hrb (Or.inl hlr.erase) := by
@@ -537,6 +604,42 @@ theorem containsThenInsertIfNew!_snd_eq_insertIfNew! [Ord α] (t : Impl α β) (
     (t.containsThenInsertIfNew! a b).2 = t.insertIfNew! a b:= by
   rw [containsThenInsertIfNew!, insertIfNew!]
   split <;> rfl
+
+theorem insertMin_eq_insertMin! [Ord α] {a b} {t : Impl α β} (htb) :
+    (t.insertMin a b htb).impl = t.insertMin! a b := by
+  cases a, b, t using insertMin!.fun_cases
+  · rfl
+  · simp only [insertMin!, insertMin, balanceL_eq_balanceL!, insertMin_eq_insertMin! htb.left]
+
+theorem insertMax_eq_insertMax! [Ord α] {a b} {t : Impl α β} (htb) :
+    (t.insertMax a b htb).impl = t.insertMax! a b := by
+  cases a, b, t using insertMax!.fun_cases
+  · rfl
+  · simp only [insertMax!, insertMax, balanceR_eq_balanceR!, insertMax_eq_insertMax! htb.right]
+
+theorem link_eq_link! [Ord α] {k v} {l r : Impl α β} (hlb hrb) :
+    (link k v l r hlb hrb).impl = link! k v l r := by
+  cases k, v, l, r using link!.fun_cases <;> rw [link, link!]
+  · rw [insertMin_eq_insertMin!]
+  · rw [insertMax_eq_insertMax!]
+  · split <;> simp only [balanceLErase_eq_balanceL!, link_eq_link! hlb hrb.left]
+  · split <;> simp only [balanceRErase_eq_balanceR!, balanceLErase_eq_balanceL!,
+      link_eq_link! hlb hrb.left, link_eq_link! hlb.right hrb]
+  · split
+    · simp only [balanceLErase_eq_balanceL!, link_eq_link! hlb hrb.left]
+    · simp only [Std.Internal.tree_tac]
+termination_by sizeOf l + sizeOf r
+
+theorem link2_eq_link2! [Ord α] {l r : Impl α β} (hlb hrb) :
+    (link2 l r hlb hrb).impl = link2! l r := by
+  cases l, r using link2!.fun_cases <;> rw [link2!, link2]
+  · split <;> simp only [balanceLErase_eq_balanceL!, link2_eq_link2! hlb hrb.left]
+  · split <;> simp only [balanceRErase_eq_balanceR!, balanceLErase_eq_balanceL!,
+      link2_eq_link2! hlb.right hrb, link2_eq_link2! hlb hrb.left]
+  · split
+    · simp only [balanceLErase_eq_balanceL!, link2_eq_link2! hlb hrb.left]
+    · simp only [Std.Internal.tree_tac, glue_eq_glue!]
+termination_by sizeOf l + sizeOf r
 
 namespace Const
 

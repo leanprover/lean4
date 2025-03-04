@@ -282,6 +282,10 @@ end erase
 
 /-! ### eraseIdx -/
 
+theorem eraseIdx_eq_eraseIdxIfInBounds {xs : Array α} {i : Nat} (h : i < xs.size) :
+    xs.eraseIdx i h = xs.eraseIdxIfInBounds i := by
+  simp [eraseIdxIfInBounds, h]
+
 theorem eraseIdx_eq_take_drop_succ (xs : Array α) (i : Nat) (h) : xs.eraseIdx i = xs.take i ++ xs.drop (i + 1) := by
   rcases xs with ⟨xs⟩
   simp only [List.size_toArray] at h

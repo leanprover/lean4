@@ -610,6 +610,71 @@ theorem getD_eq_getValueCastD [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α}
     t.getD k fallback = getValueCastD k t.toListModel fallback := by
   rw [getD_eq_getDₘ, getDₘ_eq_getValueCastD hto]
 
+/-!
+### `getKey?`
+-/
+
+theorem getKey?ₘ_eq_getKey? [Ord α] [TransOrd α] {k : α} {t : Impl α β}
+    (hto : t.Ordered) : t.getKey?ₘ k = List.getKey? k t.toListModel := by
+  rw [getKey?ₘ, applyCell_eq_apply_toListModel hto (fun l _ => List.getKey? k l)]
+  · rintro ⟨(_|p), hp⟩ -
+    · simp [Cell.getKey?]
+    · simp only [Cell.getKey?, Option.toList_some, List.getKey?, beq_eq,
+        compare_eq_iff_eq, Option.some_eq_dite_none_right, exists_prop, and_true]
+      simp [OrientedCmp.eq_symm (hp p rfl)]
+  · exact fun l₁ l₂ h => List.getKey?_of_perm
+  · exact fun l₁ l₂ h => List.getKey?_append_of_containsKey_eq_false
+
+theorem getKey?_eq_getKey? [Ord α] [TransOrd α] {k : α} {t : Impl α β}
+    (hto : t.Ordered) : t.getKey? k = List.getKey? k t.toListModel := by
+  rw [getKey?_eq_getKey?ₘ, getKey?ₘ_eq_getKey? hto]
+
+/-!
+### `getKey`
+-/
+
+theorem contains_eq_isSome_getKey?ₘ [Ord α] [TransOrd α] {k : α} {t : Impl α β}
+    (hto : t.Ordered) : contains k t = (t.getKey?ₘ k).isSome := by
+  rw [getKey?ₘ_eq_getKey? hto, contains_eq_containsKey hto, containsKey_eq_isSome_getKey?]
+
+theorem getKeyₘ_eq_getKey [Ord α] [TransOrd α] {k : α} {t : Impl α β} (h) {h'}
+    (hto : t.Ordered) : t.getKeyₘ k h' = List.getKey k t.toListModel h := by
+  simp only [getKeyₘ]
+  revert h'
+  rw [getKey?ₘ_eq_getKey? hto]
+  simp [getKey?_eq_some_getKey ‹_›]
+
+theorem getKey_eq_getKey [Ord α] [TransOrd α] {k : α} {t : Impl α β} {h}
+    (hto : t.Ordered): t.getKey k h = List.getKey k t.toListModel (contains_eq_containsKey hto ▸ h) := by
+  rw [getKey_eq_getKeyₘ, getKeyₘ_eq_getKey _ hto]
+  exact contains_eq_isSome_getKey?ₘ hto ▸ h
+
+/-!
+### `getKey!`
+-/
+
+theorem getKey!ₘ_eq_getKey! [Ord α] [TransOrd α] {k : α} [Inhabited α]
+    {t : Impl α β} (hto : t.Ordered) : t.getKey!ₘ k = List.getKey! k t.toListModel := by
+  simp [getKey!ₘ, getKey?ₘ_eq_getKey? hto, getKey!_eq_getKey?]
+
+theorem getKey!_eq_getKey! [Ord α] [TransOrd α] {k : α} [Inhabited α]
+    {t : Impl α β} (hto : t.Ordered) : t.getKey! k = List.getKey! k t.toListModel := by
+  rw [getKey!_eq_getKey!ₘ, getKey!ₘ_eq_getKey! hto]
+
+/-!
+### `getKeyD`
+-/
+
+theorem getKeyDₘ_eq_getKeyD [Ord α] [TransOrd α] {k : α}
+    {t : Impl α β} {fallback : α} (hto : t.Ordered) :
+    t.getKeyDₘ k fallback = List.getKeyD k t.toListModel fallback := by
+  simp [getKeyDₘ, getKey?ₘ_eq_getKey? hto, getKeyD_eq_getKey?]
+
+theorem getKeyD_eq_getKeyD [Ord α] [TransOrd α] {k : α}
+    {t : Impl α β} {fallback : α} (hto : t.Ordered) :
+    t.getKeyD k fallback = List.getKeyD k t.toListModel fallback := by
+  rw [getKeyD_eq_getKeyDₘ, getKeyDₘ_eq_getKeyD hto]
+
 namespace Const
 
 variable {β : Type v}
@@ -732,7 +797,7 @@ theorem toListModel_insert [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl 
 ### `insert!`
 -/
 
-theorem WF.insert! [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β}
+theorem WF.insert! {_ : Ord α} [TransOrd α] {k : α} {v : β k} {l : Impl α β}
     (h : l.WF) : (l.insert! k v).WF := by
   simpa [insert_eq_insert!] using WF.insert (h := h.balanced) h
 
@@ -778,7 +843,7 @@ theorem toListModel_erase [Ord α] [TransOrd α] {k : α} {t : Impl α β} (htb 
 ### `erase!`
 -/
 
-theorem WF.erase! [Ord α] [TransOrd α] {k : α} {l : Impl α β}
+theorem WF.erase! {_ : Ord α} [TransOrd α] {k : α} {l : Impl α β}
     (h : l.WF) : (l.erase! k).WF := by
   simpa [erase_eq_erase!] using WF.erase (h := h.balanced) h
 
@@ -818,7 +883,7 @@ theorem toListModel_containsThenInsert [Ord α] [TransOrd α] {k : α} {v : β k
 ### containsThenInsert!
 -/
 
-theorem WF.containsThenInsert! [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β} (h : t.WF) :
+theorem WF.containsThenInsert! {_ : Ord α} [TransOrd α] {k : α} {v : β k} {t : Impl α β} (h : t.WF) :
     (t.containsThenInsert! k v).2.WF := by
   simpa [containsThenInsert!_snd_eq_containsThenInsert_snd, h.balanced] using WF.containsThenInsert (h := h.balanced) h
 
@@ -854,7 +919,7 @@ theorem ordered_insertIfNew! [Ord α] [TransOrd α] {k : α} {v : β k} {l : Imp
     (h : l.Balanced) (ho : l.Ordered) : (l.insertIfNew! k v).Ordered := by
   simpa [insertIfNew_eq_insertIfNew!] using ordered_insertIfNew h ho
 
-theorem WF.insertIfNew! [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β}
+theorem WF.insertIfNew! {_ : Ord α} [TransOrd α] {k : α} {v : β k} {l : Impl α β}
     (h : l.WF) : (l.insertIfNew! k v).WF := by
   simpa [insertIfNew_eq_insertIfNew!] using h.insertIfNew (h := h.balanced)
 
@@ -885,7 +950,7 @@ theorem ordered_containsThenInsertIfNew! [Ord α] [TransOrd α] {k : α} {v : β
     (h : l.Balanced) (ho : l.Ordered) : (l.containsThenInsertIfNew! k v).2.Ordered := by
   simpa [containsThenInsertIfNew!_snd_eq_insertIfNew!] using ordered_insertIfNew! h ho
 
-theorem WF.containsThenInsertIfNew! [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β}
+theorem WF.containsThenInsertIfNew! {_ : Ord α} [TransOrd α] {k : α} {v : β k} {l : Impl α β}
     (h : l.WF) : (l.containsThenInsertIfNew! k v).2.WF := by
   simpa [containsThenInsertIfNew!_snd_eq_insertIfNew!] using WF.insertIfNew! (h := h)
 
@@ -991,6 +1056,26 @@ theorem ordered_alter [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {
   exact ordered_updateAtKey htb hto
 
 /-!
+### alter!
+-/
+
+theorem alter_eq_alter! [Ord α] [LawfulEqOrd α] {t : Impl α β} {a f} (htb) :
+    (alter a f t htb).impl = alter! a f t := by
+  induction t with
+  | leaf =>
+    rw [alter, alter!]
+    cases f none <;> rfl
+  | inner sz k' v' l' r' ihl ihr =>
+    rw [alter, alter!]
+    split
+    case h_1 => simp only [balance_eq_balance!, ihl htb.left]
+    case h_2 => simp only [balance_eq_balance!, ihr htb.right]
+    case h_3 =>
+      cases f (some _)
+      · exact glue_eq_glue!
+      · rfl
+
+/-!
 ### modify
 -/
 
@@ -1021,9 +1106,146 @@ theorem ordered_mergeWith [Ord α] [TransOrd α] [LawfulEqOrd α] {t₁ t₂ : I
   | leaf => exact hto
   | inner sz k v l r  ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
 
+/-!
+### foldlM
+-/
+
+theorem foldlM_eq_foldlM_toListModel {t : Impl α β} {m δ} [Monad m] [LawfulMonad m]
+    {f : δ → (a : α) → β a → m δ} {init} :
+    t.foldlM (init := init) f = t.toListModel.foldlM (init := init) fun acc p => f acc p.1 p.2 := by
+  induction t generalizing init with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr =>
+    simp only [foldlM, toListModel_inner, List.foldl_append, List.foldl_cons]
+    simp [ihl, ihr]
+
+theorem foldlM_toListModel_eq_foldlM {t : Impl α β} {m δ} [Monad m] [LawfulMonad m]
+    {f : δ → ((a : α) × β a) → m δ} {init} :
+    t.toListModel.foldlM (init := init) f = t.foldlM (init := init) fun acc k v => f acc ⟨k, v⟩ := by
+  rw [foldlM_eq_foldlM_toListModel]
+
+/-!
+### foldl
+-/
+
+theorem foldl_eq_foldl {t : Impl α β} {δ} {f : δ → (a : α) → β a → δ} {init} :
+    t.foldl (init := init) f = t.toListModel.foldl (init := init) fun acc p => f acc p.1 p.2 := by
+  rw [foldl, foldlM_eq_foldlM_toListModel, List.foldl_eq_foldlM, Id.run]
+
+/-!
+### foldrM
+-/
+
+theorem foldrM_eq_foldrM {t : Impl α β} {m δ} [Monad m] [LawfulMonad m]
+    {f : (a : α) → β a → δ → m δ} {init} :
+    t.foldrM (init := init) f = t.toListModel.foldrM (init := init) fun p acc => f p.1 p.2 acc := by
+  induction t generalizing init with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr =>
+    simp only [foldrM, toListModel_inner, List.foldr_append, List.foldr_cons]
+    simp [ihl, ihr]
+
+/-!
+### foldr
+-/
+
+theorem foldr_eq_foldr {t : Impl α β} {δ} {f : (a : α) → β a → δ → δ} {init} :
+    t.foldr (init := init) f = t.toListModel.foldr (init := init) fun p acc => f p.1 p.2 acc := by
+  rw [foldr, foldrM_eq_foldrM, List.foldr_eq_foldrM, Id.run]
+
+/-!
+### toList
+-/
+
+theorem toList_eq_toListModel {t : Impl α β} :
+    t.toList = t.toListModel := by
+  rw [toList, foldr_eq_foldr]
+  induction t with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr => simp
+
+/-!
+### keys
+-/
+
+theorem keys_eq_keys {t : Impl α β} :
+    t.keys = t.toListModel.keys := by
+  rw [keys, foldr_eq_foldr, List.keys.eq_def]
+  simp
+  induction t.toListModel with
+  | nil => rfl
+  | cons e es ih =>
+    simp [ih]
+    rw [List.keys.eq_def]
+
+/-!
+### forM
+-/
+
+theorem forM_eq_forM {t: Impl α β} {m : Type w → Type w} [Monad m] [LawfulMonad m]
+    {f : (a : α) → β a → m PUnit} :
+    t.forM f = t.toListModel.forM (fun a => f a.1 a.2) := by
+  simp only [Impl.forM, foldlM_eq_foldlM_toListModel]
+  induction t.toListModel with
+  | nil => rfl
+  | cons e es ih => simp [ih]
+
+/-!
+### forIn
+-/
+
+theorem forInStep_eq_foldlM {δ : Type w} {t : Impl α β} {m : Type w → Type w} [Monad m] [LawfulMonad m]
+    {f : (a : α) → β a → δ → m (ForInStep δ)} {init : δ} :
+    t.forInStep f init = t.foldlM (init := .yield init) fun
+      | .yield d => fun k v => f k v d
+      | .done d => fun _ _ => pure (.done d) := by
+  induction t generalizing init with
+  | leaf => simp only [forInStep, foldlM]
+  | inner sz k v l r ihl ihr =>
+    simp [forInStep, foldlM, ihl, ihr]
+    congr; ext step
+    cases step
+    case yield =>
+      simp
+      congr; ext step
+      cases step
+      · simp
+        clear ihl ihr
+        apply Eq.symm
+        induction r <;> simp [foldlM, *]
+      · simp
+    case done =>
+      simp only [pure_bind]
+      clear ihl ihr
+      apply Eq.symm
+      induction r <;> simp [foldlM, *]
+
+
+theorem forIn_eq_forIn_toListModel {δ : Type w} {t : Impl α β} {m : Type w → Type w} [Monad m] [LawfulMonad m]
+    {f : (a : α) → β a → δ → m (ForInStep δ)} {init : δ} :
+    t.forIn f init = ForIn.forIn t.toListModel init (fun a d => f a.1 a.2 d) := by
+  rw [Impl.forIn, forInStep_eq_foldlM, List.forIn_eq_foldlM, foldlM_eq_foldlM_toListModel]
+  induction t.toListModel with
+  | nil => simp
+  | cons e es ih =>
+    simp only [List.foldlM_cons, bind_assoc, map_bind, map_eq_pure_bind]
+    congr; ext step
+    congr <;> ext step' <;> cases step' <;> rfl
+
 namespace Const
 
 variable {β : Type v}
+
+/-!
+### getThenInsertIfNew?!
+-/
+
+theorem WF.getThenInsertIfNew?! [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {v : β} {t : Impl α β}
+    (h : t.WF) : (getThenInsertIfNew?! t k v).2.WF := by
+  rw [getThenInsertIfNew?!.eq_def]
+  cases get? t k
+  · exact h.insertIfNew!
+  · exact h
 
 /-!
 ### alter
@@ -1077,6 +1299,26 @@ theorem ordered_alter [Ord α] [TransOrd α] {t : Impl α β} {a f}
   exact ordered_updateAtKey htb hto
 
 /-!
+### alter!
+-/
+
+theorem alter_eq_alter! [Ord α] {t : Impl α β} {a f} (htb) :
+    (alter a f t htb).impl = alter! a f t := by
+  induction t with
+  | leaf =>
+    rw [alter, alter!]
+    cases f none <;> rfl
+  | inner sz k' v' l' r' ihl ihr =>
+    rw [alter, alter!]
+    cases compare a k'
+    case lt => simp only [balance_eq_balance!, ihl htb.left]
+    case gt => simp only [balance_eq_balance!, ihr htb.right]
+    case eq =>
+      cases f (some v')
+      · exact glue_eq_glue!
+      · rfl
+
+/-!
 ### modify
 -/
 
@@ -1107,6 +1349,17 @@ theorem ordered_mergeWith [Ord α] [TransOrd α] {t₁ t₂ : Impl α β} {f}
   induction t₂ generalizing t₁ with
   | leaf => exact hto
   | inner sz k v l r  ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
+
+/-!
+### toList
+-/
+
+theorem toList_eq_toListModel_map {t : Impl α β} :
+    Const.toList t = t.toListModel.map fun ⟨k, v⟩ => (k, v) := by
+  rw [toList, foldr_eq_foldr]
+  induction t with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr => simp
 
 end Const
 
@@ -1188,12 +1441,152 @@ theorem wf [Ord α] {t : Impl α β} {t' : Impl α β'} (hs : SameKeys t t') (h 
 end SameKeys
 
 /-!
+### getThenInsertIfNew?!
+-/
+
+theorem WF.getThenInsertIfNew?! {_ : Ord α} [TransOrd α] [LawfulEqOrd α] {k : α} {v : β k} {t : Impl α β}
+    (h : t.WF) : (t.getThenInsertIfNew?! k v).2.WF := by
+  rw [getThenInsertIfNew?!.eq_def]
+  cases get? t k
+  · exact h.insertIfNew!
+  · exact h
+
+theorem WF.constGetThenInsertIfNew?! {β : Type v} {_ : Ord α} [TransOrd α] {k : α} {v : β} {t : Impl α β}
+    (h : t.WF) : (Const.getThenInsertIfNew?! t k v).2.WF := by
+  rw [Const.getThenInsertIfNew?!.eq_def]
+  cases Const.get? t k
+  · exact h.insertIfNew!
+  · exact h
+
+/-!
+### `eraseMany!`
+-/
+
+theorem WF.eraseMany! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ α] {l : ρ}
+    {t : Impl α β} (h : t.WF) : (t.eraseMany! l).1.WF :=
+  (t.eraseMany! l).2 h (fun _ _ h' => h'.erase!)
+
+/-!
+### `insertMany!`
+-/
+
+theorem WF.insertMany! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ ((a : α) × β a)] {l : ρ}
+    {t : Impl α β} (h : t.WF) : (t.insertMany! l).1.WF :=
+  (t.insertMany! l).2 h (fun _ _ _ h' => h'.insert!)
+
+theorem WF.constInsertMany! {β : Type v} {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ (α × β)] {l : ρ}
+    {t : Impl α β} (h : t.WF) : (Const.insertMany! t l).1.WF :=
+  (Const.insertMany! t l).2 h (fun _ _ _ h' => h'.insert!)
+
+theorem WF.constInsertManyIfNewUnit! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ α] {l : ρ}
+    {t : Impl α Unit} (h : t.WF) : (Const.insertManyIfNewUnit! t l).1.WF :=
+  (Const.insertManyIfNewUnit! t l).2 h (fun _ _ h' => h'.insertIfNew!)
+
+/-!
+### alter!
+-/
+
+theorem WF.alter! {_ : Ord α} [LawfulEqOrd α] {t : Impl α β} {a f} (h : t.WF) :
+    (alter! a f t).WF := by
+  rw [← alter_eq_alter! h.balanced]
+  exact h.alter
+
+theorem WF.constAlter! {_ : Ord α} {β : Type v} {t : Impl α β} {a f} (h : t.WF) :
+    (Const.alter! a f t).WF := by
+  rw [← Const.alter_eq_alter! h.balanced]
+  exact h.constAlter
+
+/-!
+### mergeWith!
+-/
+
+theorem mergeWith_eq_mergeWith! {_ : Ord α} [LawfulEqOrd α] {mergeFn} {t₁ t₂ : Impl α β}
+    (h : t₁.Balanced) :
+    (mergeWith mergeFn t₁ t₂ h).impl = mergeWith! mergeFn t₁ t₂ := by
+  rw [mergeWith, mergeWith!]
+  induction t₂ generalizing t₁ with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr =>
+    simp only [foldl, foldlM, Id.run, bind]
+    simp only [foldl, Id.run, bind] at ihl ihr
+    rw [ihr]
+    congr
+    simp only [SizedBalancedTree.toBalancedTree]
+    rw [alter_eq_alter!]
+    congr
+    exact ihl h
+
+theorem WF.mergeWith! {_ : Ord α} [LawfulEqOrd α] {mergeFn} {t₁ t₂ : Impl α β} (h : t₁.WF) :
+    (Impl.mergeWith! mergeFn t₁ t₂).WF := by
+  rw [← mergeWith_eq_mergeWith! h.balanced]
+  exact h.mergeWith
+
+theorem Const.mergeWith_eq_mergeWith! {β : Type v} {_ : Ord α} {mergeFn} {t₁ t₂ : Impl α β}
+    (h : t₁.Balanced) :
+    (mergeWith mergeFn t₁ t₂ h).impl = mergeWith! mergeFn t₁ t₂ := by
+  rw [mergeWith, mergeWith!]
+  induction t₂ generalizing t₁ with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr =>
+    simp only [foldl, foldlM, Id.run, bind]
+    simp only [foldl, Id.run, bind] at ihl ihr
+    rw [ihr]
+    congr
+    simp only [SizedBalancedTree.toBalancedTree]
+    rw [alter_eq_alter!]
+    congr
+    exact ihl h
+
+theorem WF.constMergeWith! {β : Type v} {_ : Ord α} {mergeFn} {t₁ t₂ : Impl α β} (h : t₁.WF) :
+    (Impl.Const.mergeWith! mergeFn t₁ t₂).WF := by
+  rw [← Const.mergeWith_eq_mergeWith! h.balanced]
+  exact h.constMergeWith
+
+/-!
 ### filterMap
 -/
 
 theorem WF.filterMap [Ord α] {t : Impl α β} {h} {f : (a : α) → β a → Option (γ a)} (hwf : t.WF) :
     (t.filterMap f h).impl.WF :=
   .wf balanced_filterMap (ordered_filterMap hwf.ordered)
+
+/-!
+### filterMap!
+-/
+
+theorem filterMap_eq_filterMap! [Ord α] {t : Impl α β} {h} {f : (a : α) → β a → Option (γ a)} :
+    (t.filterMap f h).impl = t.filterMap! f := by
+  induction t with
+  | leaf => rfl
+  | inner sz k v _ _ ihl ihr =>
+    simp [filterMap, filterMap!]
+    cases f k v
+    · simp only [link2_eq_link2!, ihl, ihr, h.left, h.right]
+    · simp only [link_eq_link!, ihl, ihr, h.left, h.right]
+
+theorem WF.filterMap! {_ : Ord α} {t : Impl α β} {f : (a : α) → β a → Option (γ a)} (h : t.WF) :
+    (t.filterMap! f).WF := by
+  rw [← filterMap_eq_filterMap! (h := h.balanced)]
+  exact h.filterMap
+
+/-!
+### filter!
+-/
+
+theorem filter_eq_filter! [Ord α] {t : Impl α β} {h} {f : (a : α) → β a → Bool} :
+    (t.filter f h).impl = t.filter! f := by
+  induction t with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr =>
+    simp only [filter!, filter]
+    split
+    · simp only [ihl, ihr, link2_eq_link2!, h.left, h.right]
+    · simp only [ihl, ihr, link_eq_link!, h.left, h.right]
+
+theorem WF.filter! {_ : Ord α} {t : Impl α β} {f : (a : α) → β a → Bool} (h : t.WF) :
+    (t.filter! f).WF := by
+  rw [← filter_eq_filter! (h := h.balanced)]
+  exact h.filter
 
 /-!
 ### map

@@ -607,7 +607,9 @@ where
       let parentView := view.parents[i]
       withRef parentView.ref do
       -- The only use case for autobound implicits for parents might be outParams, but outParam is not propagated.
-      let parentType ← whnf <| ← Term.withoutAutoBoundImplicit <| Term.elabType parentView.type
+      let parentType ← Term.withoutAutoBoundImplicit <| Term.elabType parentView.type
+      Term.synthesizeSyntheticMVarsNoPostponing
+      let parentType ← whnf parentType
       if parentType.getAppFn == indFVar then
         logWarning "structure extends itself, skipping"
         return ← go (i + 1) infos parents
@@ -825,20 +827,18 @@ private partial def checkResultingUniversesForFields (fieldInfos : Array StructF
         which is not less than or equal to the structure's resulting universe level{indentD u}"
       throwErrorAt info.ref msg
 
-@[extern "lean_mk_projections"]
-private opaque mkProjections (env : Environment) (structName : Name) (projs : List Name) (isClass : Bool) : Except Kernel.Exception Environment
-
 private def addProjections (r : ElabHeaderResult) (fieldInfos : Array StructFieldInfo) : TermElabM Unit := do
-  if r.type.isProp then
-    if let some fieldInfo ← fieldInfos.findM? (not <$> Meta.isProof ·.fvar) then
-      throwErrorAt fieldInfo.ref m!"failed to generate projections for 'Prop' structure, field '{format fieldInfo.name}' is not a proof"
-  let projNames := fieldInfos |>.filter (!·.isFromSubobject) |>.map (·.declName)
-  let env ← getEnv
-  let env ← ofExceptKernelException (mkProjections env r.view.declName projNames.toList r.view.isClass)
-  setEnv env
+  let projDecls : Array StructProjDecl :=
+    fieldInfos
+    |>.filter (!·.isFromSubobject)
+    |>.map (fun info => { ref := info.ref, projName := info.declName })
+  mkProjections r.view.declName projDecls r.view.isClass
   for fieldInfo in fieldInfos do
     if fieldInfo.isSubobject then
       addDeclarationRangesFromSyntax fieldInfo.declName r.view.ref fieldInfo.ref
+  for decl in projDecls do
+    -- projections may generate equation theorems
+    enableRealizationsForConst decl.projName
 
 private def registerStructure (structName : Name) (infos : Array StructFieldInfo) : TermElabM Unit := do
   let fields ← infos.filterMapM fun info => do

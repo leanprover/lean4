@@ -127,6 +127,18 @@ private def ppOffset : M Unit := do
     ms := ms.push <| .trace { cls := `assign } m!"{quoteIfNotAtom e} := {val}" #[]
   pushMsg <| .trace { cls := `offset } "Assignment satisfying offset contraints" ms
 
+private def ppCutsat : M Unit := do
+  let goal ← read
+  let s := goal.arith.cutsat
+  let nodes := s.varMap
+  if nodes.isEmpty then return ()
+  let model ← Arith.Cutsat.mkModel goal
+  if model.isEmpty then return ()
+  let mut ms := #[]
+  for (e, val) in model do
+    ms := ms.push <| .trace { cls := `assign } m!"{quoteIfNotAtom e} := {val}" #[]
+  pushMsg <| .trace { cls := `cutsat } "Assignment satisfying integer contraints" ms
+
 private def ppThresholds (c : Grind.Config) : M Unit := do
   let goal ← read
   let maxGen := goal.enodes.foldl (init := 0) fun g _ n => Nat.max g n.generation
@@ -165,6 +177,7 @@ where
     ppCasesTrace
     ppActiveTheoremPatterns
     ppOffset
+    ppCutsat
     ppThresholds config
 
 end Lean.Meta.Grind

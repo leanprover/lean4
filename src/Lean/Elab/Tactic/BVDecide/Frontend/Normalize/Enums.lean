@@ -378,7 +378,7 @@ where
         modify fun s => s.push hyp
 
       for hyp in ← getPropHyps do
-        (← hyp.getType).forEachWhere (stopWhenVisited := true) filter processor
+        (← instantiateMVars (← hyp.getType)).forEachWhere (stopWhenVisited := true) filter processor
 
       let hyps ← get
       if hyps.isEmpty then

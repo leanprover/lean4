@@ -432,7 +432,7 @@ def GuessLexRel.toNatRel : GuessLexRel → Expr
 For a given recursive call, and a choice of parameter and argument index,
 try to prove equality, < or ≤.
 -/
-def evalRecCall (decrTactic? : Option DecreasingBy) (callerMeasures calleeMeasures : Array BasicMeasure)
+def evalRecCall (callerName: Name) (decrTactic? : Option DecreasingBy) (callerMeasures calleeMeasures : Array BasicMeasure)
   (rcc : RecCallWithContext) (callerMeasureIdx calleeMeasureIdx : Nat) : MetaM GuessLexRel := do
   rcc.ctxt.run do
     let callerMeasure := callerMeasures[callerMeasureIdx]!
@@ -452,26 +452,28 @@ def evalRecCall (decrTactic? : Option DecreasingBy) (callerMeasures calleeMeasur
         if rel = .eq then
           MVarId.refl mvarId
         else do
-          Lean.Elab.Term.TermElabM.run' do Term.withoutErrToSorry do
-            let remainingGoals ← Tactic.run mvarId do Tactic.withoutRecover do
-              applyCleanWfTactic
-              let tacticStx : Syntax ←
-                match decrTactic? with
-                | none => pure (← `(tactic| decreasing_tactic)).raw
-                | some decrTactic =>
-                  trace[Elab.definition.wf] "Using tactic {decrTactic.tactic.raw}"
-                  pure decrTactic.tactic.raw
-              Tactic.evalTactic tacticStx
-            remainingGoals.forM fun _ => throwError "goal not solved"
+          Lean.Elab.Term.TermElabM.run' do Term.withDeclName callerName do
+            Term.withoutErrToSorry do
+              let remainingGoals ← Tactic.run mvarId do Tactic.withoutRecover do
+                applyCleanWfTactic
+                let tacticStx : Syntax ←
+                  match decrTactic? with
+                  | none => pure (← `(tactic| decreasing_tactic)).raw
+                  | some decrTactic =>
+                    trace[Elab.definition.wf] "Using tactic {decrTactic.tactic.raw}"
+                    pure decrTactic.tactic.raw
+                Tactic.evalTactic tacticStx
+              remainingGoals.forM fun _ => throwError "goal not solved"
         trace[Elab.definition.wf] "inspectRecCall: success!"
         return rel
-      catch _e =>
-        trace[Elab.definition.wf] "Did not find {rel} proof: {goalsToMessageData [mvarId]}"
+      catch e =>
+        trace[Elab.definition.wf] "Did not find {rel} proof. Goal:{goalsToMessageData [mvarId]}\nError:{indentD e.toMessageData}"
         continue
     return .no_idea
 
 /- A cache for `evalRecCall` -/
 structure RecCallCache where mk'' ::
+  callerName : Name
   decrTactic? : Option DecreasingBy
   callerMeasures : Array BasicMeasure
   calleeMeasures : Array BasicMeasure
@@ -479,14 +481,15 @@ structure RecCallCache where mk'' ::
   cache : IO.Ref (Array (Array (Option GuessLexRel)))
 
 /-- Create a cache to memoize calls to `evalRecCall descTactic? rcc` -/
-def RecCallCache.mk (decrTactics : Array (Option DecreasingBy)) (measuress : Array (Array BasicMeasure))
+def RecCallCache.mk (funNames : Array Name) (decrTactics : Array (Option DecreasingBy)) (measuress : Array (Array BasicMeasure))
     (rcc : RecCallWithContext) :
     BaseIO RecCallCache := do
+  let callerName := funNames[rcc.caller]!
   let decrTactic? := decrTactics[rcc.caller]!
   let callerMeasures := measuress[rcc.caller]!
   let calleeMeasures := measuress[rcc.callee]!
   let cache ← IO.mkRef <| Array.mkArray callerMeasures.size (Array.mkArray calleeMeasures.size Option.none)
-  return { decrTactic?, callerMeasures, calleeMeasures, rcc, cache }
+  return { callerName, decrTactic?, callerMeasures, calleeMeasures, rcc, cache }
 
 /-- Run `evalRecCall` and cache there result -/
 def RecCallCache.eval (rc: RecCallCache) (callerMeasureIdx calleeMeasureIdx : Nat) : MetaM GuessLexRel := do
@@ -494,7 +497,7 @@ def RecCallCache.eval (rc: RecCallCache) (callerMeasureIdx calleeMeasureIdx : Na
   if let Option.some res := (← rc.cache.get)[callerMeasureIdx]![calleeMeasureIdx]! then
     return res
   else
-    let res ← evalRecCall rc.decrTactic? rc.callerMeasures rc.calleeMeasures rc.rcc callerMeasureIdx calleeMeasureIdx
+    let res ← evalRecCall  rc.callerName rc.decrTactic? rc.callerMeasures rc.calleeMeasures rc.rcc callerMeasureIdx calleeMeasureIdx
     rc.cache.modify (·.modify callerMeasureIdx (·.set! calleeMeasureIdx res))
     return res
 
@@ -809,7 +812,7 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
     reportTerminationMeasures preDefs termMeasures
     return termMeasures
 
-  let rcs ← recCalls.mapM (RecCallCache.mk (preDefs.map (·.termination.decreasingBy?)) basicMeasures ·)
+  let rcs ← recCalls.mapM (RecCallCache.mk (preDefs.map (·.declName)) (preDefs.map (·.termination.decreasingBy?)) basicMeasures ·)
   let callMatrix := rcs.map (inspectCall ·)
 
   match ← liftMetaM <| solve mutualMeasures callMatrix with

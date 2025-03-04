@@ -56,6 +56,11 @@ theorem BitVec.sle_iff_toInt_le {w : Nat} {b b' : BitVec w} : b.sle b' ↔ b.toI
 @[simp] theorem Int.toNat_le {m : Int} {n : Nat} : m.toNat ≤ n ↔ m ≤ n := by omega
 @[simp] theorem Int.toNat_lt' {m : Int} {n : Nat} (hn : 0 < n) : m.toNat < n ↔ m < n := by omega
 
+theorem UInt8.size_dvd_usizeSize : UInt8.size ∣ USize.size := by cases USize.size_eq <;> simp_all +decide
+theorem UInt16.size_dvd_usizeSize : UInt16.size ∣ USize.size := by cases USize.size_eq <;> simp_all +decide
+theorem UInt32.size_dvd_usizeSize : UInt32.size ∣ USize.size := by cases USize.size_eq <;> simp_all +decide
+theorem USize.size_dvd_uInt64Size : USize.size ∣ UInt64.size := by cases USize.size_eq <;> simp_all +decide
+
 end MoveMe
 
 open Lean in
@@ -184,13 +189,11 @@ theorem Int64.toInt_neg_ofNat_of_le {n : Nat} (h : n ≤ 2^63) : toInt (-ofNat n
 theorem ISize.toInt_neg_ofNat_of_le {n : Nat} (h : n ≤ 2 ^ 31) : toInt (-ofNat n) = -n := by
   rw [← ofInt_eq_ofNat, neg_ofInt, toInt_ofInt (by omega) (by omega)]
 
-@[simp] theorem Int8.toInt_zero : toInt 0 = 0 := rfl
-@[simp] theorem Int16.toInt_zero : toInt 0 = 0 := rfl
-@[simp] theorem Int32.toInt_zero : toInt 0 = 0 := rfl
-@[simp] theorem Int64.toInt_zero : toInt 0 = 0 := rfl
-@[simp] theorem ISize.toInt_zero : toInt 0 = 0 := by
-  erw [ISize.toInt_ofNat_of_lt, Int.Nat.cast_ofNat_Int]
-  simp
+theorem Int8.toInt_zero : toInt 0 = 0 := by simp
+theorem Int16.toInt_zero : toInt 0 = 0 := by simp
+theorem Int32.toInt_zero : toInt 0 = 0 := by simp
+theorem Int64.toInt_zero : toInt 0 = 0 := by simp
+theorem ISize.toInt_zero : toInt 0 = 0 := by simp
 
 @[simp] theorem ISize.toInt_minValue : ISize.minValue.toInt = -2^(System.Platform.numBits - 1) := by
   rw [minValue, toInt_ofInt_of_two_pow_numBits_le] <;> cases System.Platform.numBits_eq
@@ -497,6 +500,33 @@ theorem ISize.toFin_toBitVec (x : ISize) : x.toBitVec.toFin = x.toUSize.toFin :=
   · have := x.toInt_lt_two_pow_numBits
     cases System.Platform.numBits_eq <;> simp_all
 
+@[simp] theorem Int8.toInt_bmod_65536 (x : Int8) : x.toInt.bmod 65536 = x.toInt :=
+  Int.bmod_eq_self_of_le (Int.le_trans (by decide) x.le_toInt) (Int.lt_of_lt_of_le x.toInt_lt (by decide))
+@[simp] theorem Int8.toInt_bmod_4294967296 (x : Int8) : x.toInt.bmod 4294967296 = x.toInt :=
+  Int.bmod_eq_self_of_le (Int.le_trans (by decide) x.le_toInt) (Int.lt_of_lt_of_le x.toInt_lt (by decide))
+@[simp] theorem Int16.toInt_bmod_4294967296 (x : Int16) : x.toInt.bmod 4294967296 = x.toInt :=
+  Int.bmod_eq_self_of_le (Int.le_trans (by decide) x.le_toInt) (Int.lt_of_lt_of_le x.toInt_lt (by decide))
+@[simp] theorem Int8.toInt_bmod_18446744073709551616 (x : Int8) : x.toInt.bmod 18446744073709551616 = x.toInt :=
+  Int.bmod_eq_self_of_le (Int.le_trans (by decide) x.le_toInt) (Int.lt_of_lt_of_le x.toInt_lt (by decide))
+@[simp] theorem Int16.toInt_bmod_18446744073709551616 (x : Int16) : x.toInt.bmod 18446744073709551616 = x.toInt :=
+  Int.bmod_eq_self_of_le (Int.le_trans (by decide) x.le_toInt) (Int.lt_of_lt_of_le x.toInt_lt (by decide))
+@[simp] theorem Int32.toInt_bmod_18446744073709551616 (x : Int32) : x.toInt.bmod 18446744073709551616 = x.toInt :=
+  Int.bmod_eq_self_of_le (Int.le_trans (by decide) x.le_toInt) (Int.lt_of_lt_of_le x.toInt_lt (by decide))
+@[simp] theorem ISize.toInt_bmod_18446744073709551616 (x : ISize) : x.toInt.bmod 18446744073709551616 = x.toInt :=
+  Int.bmod_eq_self_of_le x.le_toInt x.toInt_lt
+@[simp] theorem Int8.toInt_bmod_two_pow_numBits (x : Int8) : x.toInt.bmod (2 ^ System.Platform.numBits) = x.toInt := by
+  refine Int.bmod_eq_self_of_le (Int.le_trans ?_ x.iSizeMinValue_le_toInt)
+    (Int.lt_of_le_sub_one (Int.le_trans x.toInt_le_iSizeMaxValue ?_))
+  all_goals cases System.Platform.numBits_eq <;> simp_all
+@[simp] theorem Int16.toInt_bmod_two_pow_numBits (x : Int16) : x.toInt.bmod (2 ^ System.Platform.numBits) = x.toInt := by
+  refine Int.bmod_eq_self_of_le (Int.le_trans ?_ x.iSizeMinValue_le_toInt)
+    (Int.lt_of_le_sub_one (Int.le_trans x.toInt_le_iSizeMaxValue ?_))
+  all_goals cases System.Platform.numBits_eq <;> simp_all
+@[simp] theorem Int32.toInt_bmod_two_pow_numBits (x : Int32) : x.toInt.bmod (2 ^ System.Platform.numBits) = x.toInt := by
+  refine Int.bmod_eq_self_of_le (Int.le_trans ?_ x.iSizeMinValue_le_toInt)
+    (Int.lt_of_le_sub_one (Int.le_trans x.toInt_le_iSizeMaxValue ?_))
+  all_goals cases System.Platform.numBits_eq <;> simp_all
+
 @[simp] theorem BitVec.ofInt_int8ToInt (x : Int8) : BitVec.ofInt 8 x.toInt = x.toBitVec := BitVec.eq_of_toInt_eq (by simp)
 @[simp] theorem BitVec.ofInt_int16ToInt (x : Int16) : BitVec.ofInt 16 x.toInt = x.toBitVec := BitVec.eq_of_toInt_eq (by simp)
 @[simp] theorem BitVec.ofInt_int32ToInt (x : Int32) : BitVec.ofInt 32 x.toInt = x.toBitVec := BitVec.eq_of_toInt_eq (by simp)
@@ -711,6 +741,154 @@ theorem ISize.ofNat_toNatClampNeg (x : ISize) (hx : 0 ≤ x) : ISize.ofNat x.toN
   ISize.toInt.inj (by rw [ISize.toInt_ofNat_of_lt_two_pow_numBits x.toNatClampNeg_lt_two_pow_numBits,
     cast_toNatClampNeg _ hx])
 
+theorem Int16.ofNat_int8ToNatClampNeg (x : Int8) (hx : 0 ≤ x) : Int16.ofNat x.toNatClampNeg = x.toInt16 :=
+  Int16.toInt.inj (by rw [Int16.toInt_ofNat_of_lt (Nat.lt_of_lt_of_le x.toNatClampNeg_lt (by decide)),
+    Int8.cast_toNatClampNeg _ hx, Int8.toInt_toInt16])
+theorem Int32.ofNat_int8ToNatClampNeg (x : Int8) (hx : 0 ≤ x) : Int32.ofNat x.toNatClampNeg = x.toInt32 :=
+  Int32.toInt.inj (by rw [Int32.toInt_ofNat_of_lt (Nat.lt_of_lt_of_le x.toNatClampNeg_lt (by decide)),
+    Int8.cast_toNatClampNeg _ hx, Int8.toInt_toInt32])
+theorem Int64.ofNat_int8ToNatClampNeg (x : Int8) (hx : 0 ≤ x) : Int64.ofNat x.toNatClampNeg = x.toInt64 :=
+  Int64.toInt.inj (by rw [Int64.toInt_ofNat_of_lt (Nat.lt_of_lt_of_le x.toNatClampNeg_lt (by decide)),
+    Int8.cast_toNatClampNeg _ hx, Int8.toInt_toInt64])
+theorem ISize.ofNat_int8ToNatClampNeg (x : Int8) (hx : 0 ≤ x) : ISize.ofNat x.toNatClampNeg = x.toISize :=
+  ISize.toInt.inj (by rw [ISize.toInt_ofNat_of_lt (Nat.lt_of_lt_of_le x.toNatClampNeg_lt (by decide)),
+    Int8.cast_toNatClampNeg _ hx, Int8.toInt_toISize])
 
+theorem Int32.ofNat_int16ToNatClampNeg (x : Int16) (hx : 0 ≤ x) : Int32.ofNat x.toNatClampNeg = x.toInt32 :=
+  Int32.toInt.inj (by rw [Int32.toInt_ofNat_of_lt (Nat.lt_of_lt_of_le x.toNatClampNeg_lt (by decide)),
+    Int16.cast_toNatClampNeg _ hx, Int16.toInt_toInt32])
+theorem Int64.ofNat_int16ToNatClampNeg (x : Int16) (hx : 0 ≤ x) : Int64.ofNat x.toNatClampNeg = x.toInt64 :=
+  Int64.toInt.inj (by rw [Int64.toInt_ofNat_of_lt (Nat.lt_of_lt_of_le x.toNatClampNeg_lt (by decide)),
+    Int16.cast_toNatClampNeg _ hx, Int16.toInt_toInt64])
+theorem ISize.ofNat_int16ToNatClampNeg (x : Int16) (hx : 0 ≤ x) : ISize.ofNat x.toNatClampNeg = x.toISize :=
+  ISize.toInt.inj (by rw [ISize.toInt_ofNat_of_lt (Nat.lt_of_lt_of_le x.toNatClampNeg_lt (by decide)),
+    Int16.cast_toNatClampNeg _ hx, Int16.toInt_toISize])
 
-  -- ISize.toInt.inj (by rw [ISize.toInt_ofNat_of_lt x.toNatClampNeg_lt, cast_toNatClampNeg _ hx])
+theorem Int64.ofNat_int32ToNatClampNeg (x : Int32) (hx : 0 ≤ x) : Int64.ofNat x.toNatClampNeg = x.toInt64 :=
+  Int64.toInt.inj (by rw [Int64.toInt_ofNat_of_lt (Nat.lt_of_lt_of_le x.toNatClampNeg_lt (by decide)),
+    Int32.cast_toNatClampNeg _ hx, Int32.toInt_toInt64])
+theorem ISize.ofNat_int32ToNatClampNeg (x : Int32) (hx : 0 ≤ x) : ISize.ofNat x.toNatClampNeg = x.toISize :=
+  ISize.toInt.inj (by rw [ISize.toInt_ofNat_of_lt (Nat.lt_of_lt_of_le x.toNatClampNeg_lt (by decide)),
+    Int32.cast_toNatClampNeg _ hx, Int32.toInt_toISize])
+
+@[simp] theorem Int8.toInt8_toInt16 (n : Int8) : n.toInt16.toInt8 = n :=
+  Int8.toInt.inj (by simp)
+@[simp] theorem Int8.toInt8_toInt32 (n : Int8) : n.toInt32.toInt8 = n :=
+  Int8.toInt.inj (by simp)
+@[simp] theorem Int8.toInt8_toInt64 (n : Int8) : n.toInt64.toInt8 = n :=
+  Int8.toInt.inj (by simp)
+@[simp] theorem Int8.toInt8_toISize (n : Int8) : n.toISize.toInt8 = n :=
+  Int8.toInt.inj (by simp)
+
+@[simp] theorem Int8.toInt16_toInt32 (n : Int8) : n.toInt32.toInt16 = n.toInt16 :=
+  Int16.toInt.inj (by simp)
+@[simp] theorem Int8.toInt16_toInt64 (n : Int8) : n.toInt64.toInt16 = n.toInt16 :=
+  Int16.toInt.inj (by simp)
+@[simp] theorem Int8.toInt16_toISize (n : Int8) : n.toISize.toInt16 = n.toInt16 :=
+  Int16.toInt.inj (by simp)
+
+@[simp] theorem Int8.toInt32_toInt16 (n : Int8) : n.toInt16.toInt32 = n.toInt32 :=
+  Int32.toInt.inj (by simp)
+@[simp] theorem Int8.toInt32_toInt64 (n : Int8) : n.toInt64.toInt32 = n.toInt32 :=
+  Int32.toInt.inj (by simp)
+@[simp] theorem Int8.toInt32_toISize (n : Int8) : n.toISize.toInt32 = n.toInt32 :=
+  Int32.toInt.inj (by simp)
+
+@[simp] theorem Int8.toInt64_toInt16 (n : Int8) : n.toInt16.toInt64 = n.toInt64 :=
+  Int64.toInt.inj (by simp)
+@[simp] theorem Int8.toInt64_toInt32 (n : Int8) : n.toInt32.toInt64 = n.toInt64 :=
+  Int64.toInt.inj (by simp)
+@[simp] theorem Int8.toInt64_toISize (n : Int8) : n.toISize.toInt64 = n.toInt64 :=
+  Int64.toInt.inj (by simp)
+
+@[simp] theorem Int8.toISize_toInt16 (n : Int8) : n.toInt16.toISize = n.toISize :=
+  ISize.toInt.inj (by simp)
+@[simp] theorem Int8.toISize_toInt32 (n : Int8) : n.toInt32.toISize = n.toISize :=
+  ISize.toInt.inj (by simp)
+@[simp] theorem Int8.toISize_toInt64 (n : Int8) : n.toInt64.toISize = n.toISize :=
+  ISize.toInt.inj (by simp)
+
+@[simp] theorem Int16.toInt8_toInt32 (n : Int16) : n.toInt32.toInt8 = n.toInt8 :=
+  Int8.toInt.inj (by simp)
+@[simp] theorem Int16.toInt8_toInt64 (n : Int16) : n.toInt64.toInt8 = n.toInt8 :=
+  Int8.toInt.inj (by simp)
+@[simp] theorem Int16.toInt8_toISize (n : Int16) : n.toISize.toInt8 = n.toInt8 :=
+  Int8.toInt.inj (by simp)
+
+@[simp] theorem Int16.toInt16_toInt32 (n : Int16) : n.toInt32.toInt16 = n :=
+  Int16.toInt.inj (by simp)
+@[simp] theorem Int16.toInt16_toInt64 (n : Int16) : n.toInt64.toInt16 = n :=
+  Int16.toInt.inj (by simp)
+@[simp] theorem Int16.toInt16_toISize (n : Int16) : n.toISize.toInt16 = n :=
+  Int16.toInt.inj (by simp)
+
+@[simp] theorem Int16.toInt32_toInt64 (n : Int16) : n.toInt64.toInt32 = n.toInt32 :=
+  Int32.toInt.inj (by simp)
+@[simp] theorem Int16.toInt32_toISize (n : Int16) : n.toISize.toInt32 = n.toInt32 :=
+  Int32.toInt.inj (by simp)
+
+@[simp] theorem Int16.toInt64_toInt32 (n : Int16) : n.toInt32.toInt64 = n.toInt64 :=
+  Int64.toInt.inj (by simp)
+@[simp] theorem Int16.toInt64_toISize (n : Int16) : n.toISize.toInt64 = n.toInt64 :=
+  Int64.toInt.inj (by simp)
+
+@[simp] theorem Int16.toISize_toInt32 (n : Int16) : n.toInt32.toISize = n.toISize :=
+  ISize.toInt.inj (by simp)
+@[simp] theorem Int16.toISize_toInt64 (n : Int16) : n.toInt64.toISize = n.toISize :=
+  ISize.toInt.inj (by simp)
+
+@[simp] theorem Int32.toInt8_toInt16 (n : Int32) : n.toInt16.toInt8 = n.toInt8 :=
+  Int8.toInt.inj (by simpa using Int.bmod_bmod_of_dvd (by decide))
+@[simp] theorem Int32.toInt8_toInt64 (n : Int32) : n.toInt64.toInt8 = n.toInt8 :=
+  Int8.toInt.inj (by simp)
+@[simp] theorem Int32.toInt8_toISize (n : Int32) : n.toISize.toInt8 = n.toInt8 :=
+  Int8.toInt.inj (by simp)
+
+@[simp] theorem Int32.toInt16_toInt64 (n : Int32) : n.toInt64.toInt16 = n.toInt16 :=
+  Int16.toInt.inj (by simp)
+@[simp] theorem Int32.toInt16_toISize (n : Int32) : n.toISize.toInt16 = n.toInt16 :=
+  Int16.toInt.inj (by simp)
+
+@[simp] theorem Int32.toInt32_toInt64 (n : Int32) : n.toInt64.toInt32 = n :=
+  Int32.toInt.inj (by simp)
+@[simp] theorem Int32.toInt32_toISize (n : Int32) : n.toISize.toInt32 = n :=
+  Int32.toInt.inj (by simp)
+
+@[simp] theorem Int32.toInt64_toISize (n : Int32) : n.toISize.toInt64 = n.toInt64 :=
+  Int64.toInt.inj (by simp)
+
+@[simp] theorem Int32.toISize_toInt64 (n : Int32) : n.toInt64.toISize = n.toISize :=
+  ISize.toInt.inj (by simp)
+
+@[simp] theorem Int64.toInt8_toInt16 (n : Int64) : n.toInt16.toInt8 = n.toInt8 :=
+  Int8.toInt.inj (by simpa using Int.bmod_bmod_of_dvd (by decide))
+@[simp] theorem Int64.toInt8_toInt32 (n : Int64) : n.toInt32.toInt8 = n.toInt8 :=
+  Int8.toInt.inj (by simpa using Int.bmod_bmod_of_dvd (by decide))
+@[simp] theorem Int64.toInt8_toISize (n : Int64) : n.toISize.toInt8 = n.toInt8 :=
+  Int8.toInt.inj (by simpa using Int.bmod_bmod_of_dvd UInt8.size_dvd_usizeSize)
+
+@[simp] theorem Int64.toInt16_toInt32 (n : Int64) : n.toInt32.toInt16 = n.toInt16 :=
+  Int16.toInt.inj (by simpa using Int.bmod_bmod_of_dvd (by decide))
+@[simp] theorem Int64.toInt16_toISize (n : Int64) : n.toISize.toInt16 = n.toInt16 :=
+  Int16.toInt.inj (by simpa using Int.bmod_bmod_of_dvd UInt16.size_dvd_usizeSize)
+
+@[simp] theorem Int64.toInt32_toISize (n : Int64) : n.toISize.toInt32 = n.toInt32 :=
+  Int32.toInt.inj (by simpa using Int.bmod_bmod_of_dvd UInt32.size_dvd_usizeSize)
+
+@[simp] theorem ISize.toInt8_toInt16 (n : ISize) : n.toInt16.toInt8 = n.toInt8 :=
+  Int8.toInt.inj (by simpa using Int.bmod_bmod_of_dvd (by decide))
+@[simp] theorem ISize.toInt8_toInt32 (n : ISize) : n.toInt32.toInt8 = n.toInt8 :=
+  Int8.toInt.inj (by simpa using Int.bmod_bmod_of_dvd (by decide))
+@[simp] theorem ISize.toInt8_toInt64 (n : ISize) : n.toInt64.toInt8 = n.toInt8 :=
+  Int8.toInt.inj (by simp)
+
+@[simp] theorem ISize.toInt16_toInt32 (n : ISize) : n.toInt32.toInt16 = n.toInt16 :=
+  Int16.toInt.inj (by simpa using Int.bmod_bmod_of_dvd (by decide))
+@[simp] theorem ISize.toInt16_toInt64 (n : ISize) : n.toInt64.toInt16 = n.toInt16 :=
+  Int16.toInt.inj (by simp)
+
+@[simp] theorem ISize.toInt32_toInt64 (n : ISize) : n.toInt64.toInt32 = n.toInt32 :=
+  Int32.toInt.inj (by simp)
+
+@[simp] theorem ISize.toISize_toInt64 (n : ISize) : n.toInt64.toISize = n :=
+  ISize.toInt.inj (by simp)

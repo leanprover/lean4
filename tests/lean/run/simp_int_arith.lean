@@ -310,14 +310,18 @@ info: theorem ex4 : ∀ (a b : Int), 6 ∣ a + (11 - a) + 3 * (a + 2 * b) - 11 �
 fun a b =>
   of_eq_true
     (Eq.trans
-      (congrArg (fun x => x ↔ 2 ∣ a + 2 * b)
-        (id
-          (norm_dvd_gcd (RArray.branch 1 (RArray.leaf b) (RArray.leaf a)) 6
-            ((((Expr.var 1).add ((Expr.num 11).sub (Expr.var 1))).add
-                  (Expr.mulL 3 ((Expr.var 1).add (Expr.mulL 2 (Expr.var 0))))).sub
-              (Expr.num 11))
-            2 (Poly.add 1 1 (Poly.add 2 0 (Poly.num 0))) 3 (Eq.refl true))))
-      (iff_self (2 ∣ a + 2 * b)))
+      (congr
+        (congrArg Iff
+          (Eq.trans
+            (id
+              (norm_dvd_gcd (RArray.branch 1 (RArray.leaf b) (RArray.leaf a)) 6
+                ((((Expr.var 1).add ((Expr.num 11).sub (Expr.var 1))).add
+                      (Expr.mulL 3 ((Expr.var 1).add (Expr.mulL 2 (Expr.var 0))))).sub
+                  (Expr.num 11))
+                2 (Poly.add 1 1 (Poly.add 2 0 (Poly.num 0))) 3 (Eq.refl true)))
+            Init.Data.Int.DivMod.Lemmas._auxLemma.2))
+        Init.Data.Int.DivMod.Lemmas._auxLemma.2)
+      (iff_self (2 ∣ a)))
 -/
 #guard_msgs (info) in
 open Lean in open Int.Linear in

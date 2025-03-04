@@ -32,7 +32,7 @@ private def getBitVecSize (domainSize : Nat) : Nat :=
 def enumToBitVecSuffix : String := "enumToBitVec"
 def eqIffEnumToBitVecEqSuffix : String := "eq_iff_enumToBitVec_eq"
 def enumToBitVecLeSuffix : String := "enumToBitVec_le"
-def matchEqCondSuffix : String := "match_eq_cond"
+def matchEqCondSuffix : String := "eq_cond_enumToBitVec"
 
 /--
 Assuming that `declName` is an enum inductive construct a function of type `declName → BitVec w`
@@ -68,6 +68,40 @@ def getEnumToBitVecFor (declName : Name) : MetaM Name := do
       safety := .safe
     }
   return enumToBitVecName
+
+/--
+Create a `cond` chain in `Type u` of the form:
+```
+bif input = 0#w then values[0] else bif input = 1#w then values[1] else ...
+```
+-/
+private def mkCondChain (u : Level) (w : Nat) (input : Expr) (retType : Expr) (values : List Expr)
+    (acc : Expr) : MetaM Expr := do
+  let instBEq ← synthInstance (mkApp (mkConst ``BEq [0]) (mkApp (mkConst ``BitVec) (toExpr w)))
+  return go u input retType instBEq values (BitVec.ofNat w 0) acc
+where
+  go {w : Nat} (u : Level) (input : Expr) (retType : Expr) (instBEq : Expr) (values : List Expr)
+    (counter : BitVec w) (acc : Expr) : Expr :=
+  match values with
+  | [] => acc
+  | value :: values =>
+    let eq :=
+      mkApp4
+        (mkConst ``BEq.beq [0])
+        (toTypeExpr <| BitVec w)
+        instBEq
+        input
+        (toExpr counter)
+    let acc := mkApp4 (mkConst ``cond [u]) retType eq value acc
+    go u input retType instBEq values (counter + 1) acc
+
+/--
+Build `declName.recOn.{0} (motive := motive) value (f context[0]) (f context[1]) ...`
+-/
+private def enumCases (declName : Name) (motive : Expr) (value : Expr) (context : List α)
+    (f : α → MetaM Expr) : MetaM Expr := do
+  let recOn := mkApp2 (mkConst (mkRecOnName declName) [0]) motive value
+  List.foldlM (init := recOn) (fun acc a => mkApp acc <$> f a) context
 
 /--
 Assuming that `declName` is an enum inductive, construct a proof of
@@ -106,8 +140,8 @@ def getEqIffEnumToBitVecEqFor (declName : Name) : MetaM Name := do
     -- the inverse of enumToBitVec
     let inverseValue ←
       withLocalDeclD `x bvType fun x => do
-        let instBeq ← synthInstance (mkApp (mkConst ``BEq [0]) bvType)
-        let inv := mkInverse x declType instBeq ctors (BitVec.ofNat bvSize 0) (mkConst ctors.head!)
+        let ctors := ctors.map mkConst
+        let inv ← mkCondChain 0 bvSize x declType ctors ctors.head!
         mkLambdaFVars #[x] inv
 
     let value ←
@@ -119,11 +153,9 @@ def getEqIffEnumToBitVecEqFor (declName : Name) : MetaM Name := do
               withLocalDeclD `y declType fun y =>
                 mkLambdaFVars #[y] <| mkApp3 (mkConst ``Eq [1]) declType (toBvToEnum y) y
 
-            let recOn := mkApp2 (mkConst (mkRecOnName declName) [0]) motive x
-            let folder acc ctor :=
-              let case := mkApp2 (mkConst ``Eq.refl [1]) declType (toBvToEnum (mkConst ctor))
-              mkApp acc case
-            let proof := List.foldl (init := recOn) folder ctors
+            let case ctor := do
+              return mkApp2 (mkConst ``Eq.refl [1]) declType (toBvToEnum (mkConst ctor))
+            let proof ← enumCases declName motive x ctors case
             mkLambdaFVars #[x] proof
 
         let value :=
@@ -143,22 +175,6 @@ def getEqIffEnumToBitVecEqFor (declName : Name) : MetaM Name := do
       value := value
     }
   return eqIffEnumToBitVecEqName
-where
-  mkInverse {w : Nat} (input : Expr) (retType : Expr) (instBEq : Expr) (ctors : List Name)
-      (counter : BitVec w) (acc : Expr) :
-      Expr :=
-    match ctors with
-    | [] => acc
-    | ctor :: ctors =>
-      let eq :=
-        mkApp4
-          (mkConst ``BEq.beq [0])
-          (toTypeExpr <| BitVec w)
-          instBEq
-          input
-          (toExpr counter)
-      let acc := mkApp4 (mkConst ``cond [1]) retType eq (mkConst ctor) acc
-      mkInverse input retType instBEq ctors (counter + 1) acc
 
 /--
 Assuming that `declName` is an enum inductive, construct a proof of
@@ -180,20 +196,15 @@ def getEnumToBitVecLeFor (declName : Name) : MetaM Name := do
     let mkStatement e := mkApp4 (mkConst ``LE.le [0]) bvType instLe (mkApp enumToBitVec e) maxValue
 
     -- ∀ (x : declName), enumToBitVec x ≤ BitVec.ofNat bvSize (domainSize - 1)
-    let (type, motive) ←
+    let (type, value) ←
       withLocalDeclD `x declType fun x => do
         let statement := mkStatement x
-        return (← mkForallFVars #[x] statement, ← mkLambdaFVars #[x] statement)
-
-    let value ←
-      withLocalDeclD `x declType fun x => do
-        let recOn := mkApp2 (mkConst (mkRecOnName declName) [0]) motive x
-        let folder acc ctor := do
+        let motive ← mkLambdaFVars #[x] statement
+        let case ctor := do
           let statement := mkStatement (mkConst ctor)
-          let proof ← mkDecideProof statement
-          return mkApp acc proof
-        let cases ← List.foldlM (init := recOn) folder ctors
-        mkLambdaFVars #[x] cases
+          mkDecideProof statement
+        let cases ← enumCases declName motive x ctors case
+        return (← mkForallFVars #[x] statement, ← mkLambdaFVars #[x] cases)
 
     addDecl <| .thmDecl {
       name := enumToBitVecLeName
@@ -292,8 +303,47 @@ assuming that it is a supported kind of match, see `matchIsSupported` for the cu
 variants.
 -/
 private def getMatchEqCondForAux (declName : Name) (kind : MatchKind) : MetaM Name := do
-  match kind with
-  | .simpleEnum inductiveInfo => return .anonymous -- TODO
+  let matchEqCondName := .str declName matchEqCondSuffix
+  realizeConst declName matchEqCondName do
+    let decl ←
+      match kind with
+      | .simpleEnum inductiveInfo => handleSimpleEnum declName matchEqCondName inductiveInfo
+    addDecl decl
+  return matchEqCondName
+where
+  handleSimpleEnum (declName : Name) (thmName : Name) (inductiveInfo : InductiveVal) :
+      MetaM Declaration := do
+    let uName ← mkFreshUserName `u
+    let u := .param uName
+    let (type, value) ←
+      withLocalDeclD `a (.sort (u.succ)) fun a => do
+      withLocalDeclD `x (mkConst inductiveInfo.name) fun x => do
+        let hType ← mkArrow (mkConst ``Unit) a
+        let hBinders := inductiveInfo.ctors.foldl (init := #[]) (fun acc _ => acc.push (`h, hType))
+        withLocalDeclsDND hBinders fun hs => do
+          let args := #[mkLambda `x .default (mkConst inductiveInfo.name) a , x] ++ hs
+          let lhs := mkAppN (mkConst declName [u.succ]) args
+          let enumToBitVec := mkConst (← getEnumToBitVecFor inductiveInfo.name)
+          let domainSize := inductiveInfo.ctors.length
+          let bvSize := getBitVecSize domainSize
+          let appliedHs := hs.toList.map (mkApp · (mkConst ``Unit.unit))
+          let rhs ← mkCondChain u bvSize (mkApp enumToBitVec x) a appliedHs appliedHs[0]!
+          let type := mkApp3 (mkConst ``Eq [u.succ]) a lhs rhs
+
+          let motive ← mkLambdaFVars #[x] type
+          let case h := do
+            return mkApp (mkConst ``Eq.refl [u.succ]) <| (mkApp h (mkConst ``Unit.unit))
+          let cases ← enumCases inductiveInfo.name motive x hs.toList case
+
+          let fvars := #[a, x] ++ hs
+          return (← mkForallFVars fvars type, ← mkLambdaFVars fvars cases)
+
+    return .thmDecl {
+      name := thmName
+      levelParams := [uName]
+      type := type
+      value := value
+    }
 
 /--
 Obtain a theorem that translates `.match_x` applications on enum inductives to chains of `cond`
@@ -317,24 +367,26 @@ def getMatchEqCondFor (declName : Name) : MetaM Name := do
 
 builtin_initialize
   registerReservedNamePredicate fun env name => Id.run do
-    let .str _ s := name | return false
+    let .str p s := name | return false
     s == enumToBitVecSuffix || s == eqIffEnumToBitVecEqSuffix || s == enumToBitVecLeSuffix ||
-    (s == matchEqCondSuffix && isMatcherCore env name)
+    (s == matchEqCondSuffix && isMatcherCore env p)
 
 builtin_initialize
   registerReservedNameAction fun name => do
     let .str p s := name | return false
-    unless ← isEnumType p do return false
-    if s == enumToBitVecSuffix then
-      discard <| MetaM.run' (getEnumToBitVecFor p)
-      return true
-    else if s == eqIffEnumToBitVecEqSuffix then
-      discard <| MetaM.run' (getEqIffEnumToBitVecEqFor p)
-      return true
-    else if s == enumToBitVecLeSuffix then
-      discard <| MetaM.run' (getEnumToBitVecLeFor p)
-      return true
-    else if (s == matchEqCondSuffix && (← isMatcher name)) then
+    if ← isEnumType p then
+      if s == enumToBitVecSuffix then
+        discard <| MetaM.run' (getEnumToBitVecFor p)
+        return true
+      else if s == eqIffEnumToBitVecEqSuffix then
+        discard <| MetaM.run' (getEqIffEnumToBitVecEqFor p)
+        return true
+      else if s == enumToBitVecLeSuffix then
+        discard <| MetaM.run' (getEnumToBitVecLeFor p)
+        return true
+      else
+        return false
+    else if (s == matchEqCondSuffix && (← isMatcher p)) then
       discard <| MetaM.run' (getMatchEqCondFor p)
       return true
     else

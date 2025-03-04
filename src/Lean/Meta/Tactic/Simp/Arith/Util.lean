@@ -9,7 +9,7 @@ import Lean.Expr
 
 namespace Lean.Meta.Simp.Arith
 /-
-To prevent the kernel from accidentially reducing the atoms in the equation while typechecking,
+To prevent the kernel from accidentally reducing the atoms in the equation while typechecking,
 we abstract over them.
 -/
 def withAbstractAtoms (atoms : Array Expr) (type : Name) (k : Array Expr → MetaM (Option (Expr × Expr))) :

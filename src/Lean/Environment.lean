@@ -991,7 +991,7 @@ end ConstantInfo
 Async access mode for environment extensions used in `EnvironmentExtension.get/set/modifyState`.
 Depending on their specific uses, extensions may opt out of the strict `sync` access mode in order
 to avoid blocking parallel elaboration and/or to optimize accesses. The access mode is set at
-environment extension registration time but can be overriden at `EnvironmentExtension.getState` in
+environment extension registration time but can be overridden at `EnvironmentExtension.getState` in
 order to weaken it for specific accesses.
 
 In all modes, the state stored into the `.olean` file for persistent environment extensions is the

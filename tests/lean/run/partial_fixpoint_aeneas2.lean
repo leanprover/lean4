@@ -24,7 +24,7 @@ namespace Primitives
     | arrayOutOfBounds: Error
     | maximumSizeExceeded: Error
     | panic: Error
-    -- Addded by Joachim
+    -- Added by Joachim
     | nontermination : Error
 
 

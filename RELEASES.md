@@ -1105,6 +1105,9 @@ now implicit).
 
 * [#6798](https://github.com/leanprover/lean4/pull/6798) deprecates the `-U` shorthand for the `--update` option.
 
+* [#7209](https://github.com/leanprover/lean4/pull/7209) fixes broken Lake tests on Windows' new MSYS2. As of MSYS2
+0.0.20250221, `OSTYPE` is now reported as `cygwin` instead of `msys`, which must be accounted for in a few Lake tests.
+
 ## Other
 
 * [#6479](https://github.com/leanprover/lean4/pull/6479) speeds up JSON serialisation by using a lookup table to check

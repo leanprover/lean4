@@ -156,7 +156,7 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := c'.caching
 
 partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s.id do
   match s.h with
-  | .case h => return mkFVar h
+  | .dec h => return mkFVar h
   | .last hs _ =>
     let p₁ := s.c₁.p
     let p₂ := s.c₂.p
@@ -258,7 +258,7 @@ partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do u
 
 partial def CooperSplit.collectDecVars (c' : CooperSplit) : CollectDecVarsM Unit := do unless (← alreadyVisited c'.id) do
   match c'.h with
-  | .case h => markAsFound h
+  | .dec h => markAsFound h
   | .last (decVars := decVars) .. => decVars.forM markAsFound
 
 partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c'.id) do

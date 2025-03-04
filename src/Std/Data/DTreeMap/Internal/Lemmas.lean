@@ -1673,26 +1673,6 @@ end Const
 
 end monadic
 
-@[simp]
-theorem insertMany_nil (h : t.WF) :
-    t.insertMany [] h.balanced = t := by
-  simp [insertMany, Id.run]
-
-@[simp]
-theorem insertMany!_nil :
-    t.insertMany! [] = t := by
-  simp [insertMany!, Id.run]
-
-@[simp]
-theorem insertMany_list_singleton (h : t.WF) {k : α} {v : β k} :
-    t.insertMany [⟨k, v⟩] h.balanced = (t.insert k v h.balanced).impl := by
-  simp [insertMany, Id.run]
-
-@[simp]
-theorem insertMany!_list_singleton {k : α} {v : β k} :
-    t.insertMany! [⟨k, v⟩] = t.insert! k v := by
-  simp [insertMany!, Id.run]
-
 theorem insertMany_cons (h : t.WF) {l : List ((a : α) × β a)} {k : α} {v : β k} :
     (t.insertMany (⟨k, v⟩ :: l) h.balanced).1 =
       ((t.insert k v h.balanced).impl.insertMany l h.insert.balanced).1 := by
@@ -2070,26 +2050,6 @@ namespace Const
 
 variable {β : Type v} {t : Impl α β}
 
-@[simp]
-theorem insertMany_nil (h : t.WF) :
-    insertMany t [] h.balanced = t := by
-  simp [insertMany, Id.run]
-
-@[simp]
-theorem insertMany!_nil :
-    insertMany! t [] = t := by
-  simp [insertMany!, Id.run]
-
-@[simp]
-theorem insertMany_list_singleton (h : t.WF) {k : α} {v : β} :
-    insertMany t [⟨k, v⟩] h.balanced = (t.insert k v h.balanced).impl := by
-  simp [insertMany, Id.run]
-
-@[simp]
-theorem insertMany!_list_singleton {k : α} {v : β} :
-    insertMany! t [⟨k, v⟩] = t.insert! k v := by
-  simp [insertMany!, Id.run]
-
 theorem insertMany_cons (h : t.WF) {l : List (α × β)} {k : α} {v : β} :
     (Const.insertMany t ((k, v) :: l) h.balanced).1 =
       (Const.insertMany (t.insert k v h.balanced).impl l h.insert.balanced).1 := by
@@ -2443,26 +2403,6 @@ theorem getD_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
   simp_to_model [Const.insertMany!] using List.getValueD_insertListConst_of_mem
 
 variable {t : Impl α Unit}
-
-@[simp]
-theorem insertManyIfNewUnit_nil (h : t.WF) :
-    insertManyIfNewUnit t [] h.balanced = t := by
-  simp [insertManyIfNewUnit, Id.run]
-
-@[simp]
-theorem insertManyIfNewUnit!_nil :
-    insertManyIfNewUnit! t [] = t := by
-  simp [insertManyIfNewUnit!, Id.run]
-
-@[simp]
-theorem insertManyIfNewUnit_list_singleton (h : t.WF) {k : α} :
-    insertManyIfNewUnit t [k] h.balanced = (t.insertIfNew k () h.balanced).impl := by
-  simp [insertManyIfNewUnit, Id.run]
-
-@[simp]
-theorem insertManyIfNewUnit!_list_singleton {k : α} :
-    insertManyIfNewUnit! t [k] = t.insertIfNew! k () := by
-  simp [insertManyIfNewUnit!, Id.run]
 
 theorem insertManyIfNewUnit_cons (h : t.WF) {l : List α} {k : α} :
     (insertManyIfNewUnit t (k :: l) h.balanced).1 =

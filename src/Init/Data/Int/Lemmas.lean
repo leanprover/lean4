@@ -78,7 +78,7 @@ theorem negSucc_eq (n : Nat) : -[n+1] = -((n : Int) + 1) := rfl
   | succ _ => rfl
   | -[_+1] => rfl
 
-protected theorem neg_inj {a b : Int} : -a = -b ↔ a = b :=
+@[simp] protected theorem neg_inj {a b : Int} : -a = -b ↔ a = b :=
   ⟨fun h => by rw [← Int.neg_neg a, ← Int.neg_neg b, h], congrArg _⟩
 
 @[simp] protected theorem neg_eq_zero : -a = 0 ↔ a = 0 := Int.neg_inj (b := 0)

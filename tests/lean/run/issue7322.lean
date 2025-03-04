@@ -51,10 +51,12 @@ def bar (distance : Nat) (idx : Nat) (a : Fin distance) (fuel : Nat) :
 termination_by fuel
 decreasing_by sorry
 
+set_option Elab.async false -- for stable message ordering in guard_msgs
+
 /--
-info: bar.induct (motive : Nat → Prop) (case1 : ∀ (x : Nat), (∀ (n : Nat), motive n) → motive x) (fuel : Nat) : motive fuel
----
 warning: declaration uses 'sorry'
+---
+info: bar.induct (motive : Nat → Prop) (case1 : ∀ (x : Nat), (∀ (n : Nat), motive n) → motive x) (fuel : Nat) : motive fuel
 -/
 #guard_msgs in
 #check bar.induct

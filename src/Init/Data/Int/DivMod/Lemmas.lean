@@ -924,13 +924,15 @@ theorem wlog_sign {P : Int → Prop} (inv : ∀ a, P a ↔ P (-a)) (w : ∀ n : 
     rw [negSucc_eq, ← inv, ← ofNat_succ]
     apply w
 
+attribute [local simp] Int.neg_inj
+
 theorem mul_tmod (a b n : Int) : (a * b).tmod n = (a.tmod n * b.tmod n).tmod n := by
   induction a using wlog_sign
-  case inv => simp [Int.neg_inj]
+  case inv => simp
   induction b using wlog_sign
-  case inv => simp [Int.neg_inj]
+  case inv => simp
   induction n using wlog_sign
-  case inv => simp [Int.neg_inj]
+  case inv => simp
   simp only [← Int.natCast_mul, ← ofNat_tmod]
   rw [Nat.mul_mod]
 
@@ -938,9 +940,19 @@ theorem mul_tmod (a b n : Int) : (a * b).tmod n = (a.tmod n * b.tmod n).tmod n :
   have := mul_tmod_left 1 a; rwa [Int.one_mul] at this
 
 @[simp] theorem tmod_tmod_of_dvd (n : Int) {m k : Int}
-    (h : m ∣ k) : (n.tmod k).tmod m = n.tmod m := sorry
+    (h : m ∣ k) : (n.tmod k).tmod m = n.tmod m := by
+  induction n using wlog_sign
+  case inv => simp
+  induction k using wlog_sign
+  case inv => simp [Int.dvd_neg]
+  induction m using wlog_sign
+  case inv => simp
+  simp only [← Int.natCast_mul, ← ofNat_tmod]
+  norm_cast at h
+  rw [Nat.mod_mod_of_dvd _ h]
 
-@[simp] theorem tmod_tmod (a b : Int) : (a.tmod b).tmod b = a.tmod b := sorry
+@[simp] theorem tmod_tmod (a b : Int) : (a.tmod b).tmod b = a.tmod b :=
+  tmod_tmod_of_dvd a (Int.dvd_refl b)
 
 theorem tmod_eq_zero_of_dvd : ∀ {a b : Int}, a ∣ b → tmod b a = 0
   | _, _, ⟨_, rfl⟩ => mul_tmod_right ..
@@ -1042,10 +1054,15 @@ theorem tdiv_dvd_tdiv : ∀ {a b c : Int}, a ∣ b → b ∣ c → b.tdiv a ∣ 
 -- Theorems about `tdiv` and ordering, whose `ediv` analogues are in `Bootstrap.lean`.
 
 theorem mul_tdiv_self_le {x k : Int} (h : 0 ≤ x) : k * (x.tdiv k) ≤ x := by
-  sorry
+  by_cases w : k = 0
+  · simp [w, h]
+  · rw [tdiv_eq_ediv_of_nonneg h]
+    apply mul_ediv_self_le w
 
 theorem lt_mul_tdiv_self_add {x k : Int} (h : 0 < k) : x < k * (x.tdiv k) + k := by
-  sorry
+  rw [tdiv_eq_ediv, sign_eq_one_of_pos h]
+  have := lt_mul_ediv_self_add (x := x) h
+  split <;> simp [Int.mul_add] <;> omega
 
 /-! ### fdiv -/
 
@@ -1053,17 +1070,13 @@ theorem lt_mul_tdiv_self_add {x k : Int} (h : 0 < k) : x < k * (x.tdiv k) + k :=
 -- because this is false, for example at `a = 2`, `b = 3`, as `-1 ≠ 0`.
 
 theorem add_mul_fdiv_right (a b : Int) {c : Int} (H : c ≠ 0) : (a + b * c).fdiv c = a.fdiv c + b := by
-  sorry
+  rw [fdiv_eq_ediv, add_mul_ediv_right _ _ H, fdiv_eq_ediv]
+  simp only [Int.dvd_add_left (Int.dvd_mul_left _ _)]
+  split <;> omega
 
 theorem add_mul_fdiv_left (a : Int) {b : Int}
     (c : Int) (H : b ≠ 0) : (a + b * c).fdiv b = a.fdiv b + c := by
   rw [Int.mul_comm, Int.add_mul_fdiv_right _ _ H]
-
-theorem add_fdiv_of_dvd_right {a b c : Int} (H : c ∣ b) : (a + b).fdiv c = a.fdiv c + b.fdiv c := by
-  sorry
-
-theorem add_fdiv_of_dvd_left {a b c : Int} (H : c ∣ a) : (a + b).fdiv c = a.fdiv c + b.fdiv c := by
-  rw [Int.add_comm, Int.add_fdiv_of_dvd_right H, Int.add_comm]
 
 @[simp] theorem mul_fdiv_cancel (a : Int) {b : Int} (H : b ≠ 0) : fdiv (a * b) b = a :=
   if b0 : 0 ≤ b then by
@@ -1078,6 +1091,16 @@ theorem add_fdiv_of_dvd_left {a b c : Int} (H : c ∣ a) : (a + b).fdiv c = a.fd
 
 @[simp] theorem mul_fdiv_cancel_left (b : Int) (H : a ≠ 0) : fdiv (a * b) a = b :=
   Int.mul_comm .. ▸ Int.mul_fdiv_cancel _ H
+
+theorem add_fdiv_of_dvd_right {a b c : Int} (H : c ∣ b) : (a + b).fdiv c = a.fdiv c + b.fdiv c := by
+  by_cases h : c = 0
+  · simp [h]
+  · obtain ⟨d, rfl⟩ := H
+    rw [add_mul_fdiv_left _ _ h]
+    simp [h]
+
+theorem add_fdiv_of_dvd_left {a b c : Int} (H : c ∣ a) : (a + b).fdiv c = a.fdiv c + b.fdiv c := by
+  rw [Int.add_comm, Int.add_fdiv_of_dvd_right H, Int.add_comm]
 
 theorem fdiv_nonneg {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : 0 ≤ a.fdiv b :=
   match a, b, eq_ofNat_of_zero_le Ha, eq_ofNat_of_zero_le Hb with

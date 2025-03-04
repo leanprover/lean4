@@ -115,9 +115,7 @@ where
           analyzeType (← instantiateMVars decl.type)
 
   analyzeType (expr : Expr) : PreProcessM Unit := do
-    trace[Meta.Tactic.bv] m!"Analyzing type {expr}"
     expr.forEachWhere Expr.isConst fun e => do
-      trace[Meta.Tactic.bv] m!"Analyzing expr {e}"
       let .const declName .. := e | unreachable!
       discard <| analyzeConst declName
 
@@ -126,7 +124,6 @@ where
   structures that contain it
   -/
   analyzeConst (n : Name) : PreProcessM Bool := do
-    trace[Meta.Tactic.bv] m!"Analyzing const {n}"
     if isBuiltIn n then return true
 
     let analysis ← PreProcessM.getTypeAnalysis

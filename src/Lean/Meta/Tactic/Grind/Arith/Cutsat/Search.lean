@@ -14,6 +14,39 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
+/-- Asserts constraints implied by a `CooperSplit`. -/
+def CooperSplit.assert (cs : CooperSplit) : GoalM Unit := do
+  let { c₁, c₂, c₃?, left, .. } := cs.pred
+  let k   := cs.k
+  let p₁  := c₁.p
+  let p₂  := c₂.p
+  let p   := p₁.tail
+  let q   := p₂.tail
+  let a   := p₁.leadCoeff
+  let b   := p₂.leadCoeff
+  let p₁' := p.mul b |>.combine (q.mul (-a))
+  let p₁' := p₁'.addConst <| if left then b*k else (-a)*k
+  let c₁' ← mkLeCnstr p₁' (.cooper cs)
+  c₁'.assert
+  let p₂' := if left then p else q
+  let p₂' := p₂'.addConst k
+  let c₂' ← mkDvdCnstr (if left then a else b) p₂' (.cooper₁ cs)
+  c₂'.assert
+  let some c₃ := c₃? | return ()
+  let p₃  := c₃.p
+  let d   := c₃.d
+  let s   := p₃.tail
+  let c   := p₃.leadCoeff
+  let c₃' ← if left then
+    let p₃' := p.mul c |>.combine (s.mul (-a))
+    let p₃' := p₃'.addConst (c*k)
+    mkDvdCnstr (a*d) p₃' (.cooper₂ cs)
+  else
+    let p₃' := q.mul (-c) |>.combine (s.mul b)
+    let p₃' := p₃'.addConst (-c*k)
+    mkDvdCnstr (b*d) p₃' (.cooper₂ cs)
+  c₃'.assert
+
 private def checkIsNextVar (x : Var) : GoalM Unit := do
   if x != (← get').assignment.size then
     throwError "`grind` internal error, assigning variable out of order"
@@ -239,29 +272,19 @@ def resolveRealLowerUpperConflict (c₁ c₂ : LeCnstr) : GoalM Bool := do
     c.assert
     return true
 
-def resolveCooperLeft (c₁ c₂ : LeCnstr) : GoalM Unit := do
-  throwError "Cooper-left NIY {← c₁.pp}, {← c₂.pp}"
+def resolveCooperPred (pred : CooperSplitPred) : SearchM Unit := do
+  let n := pred.numCases
+  let fvarId ← mkCase (.cooper pred #[])
+  let s : CooperSplit := { pred, k := n - 1, id := (← mkCnstrId), h := .dec fvarId }
+  s.assert
 
-def resolveCooperRight (c₁ c₂ : LeCnstr) : GoalM Unit := do
-  throwError "Cooper-right NIY {← c₁.pp}, {← c₂.pp}"
+def resolveCooper (c₁ c₂ : LeCnstr) : SearchM Unit := do
+  let left : Bool := c₁.p.leadCoeff.natAbs < c₂.p.leadCoeff.natAbs
+  resolveCooperPred { c₁, c₂, left, c₃? := none }
 
-def resolveCooper (c₁ c₂ : LeCnstr) : GoalM Unit := do
-  if c₁.p.leadCoeff.natAbs < c₂.p.leadCoeff.natAbs then
-    resolveCooperLeft c₁ c₂
-  else
-    resolveCooperRight c₁ c₂
-
-def resolveCooperDvdLeft (c₁ c₂ : LeCnstr) (c : DvdCnstr) : GoalM Unit := do
-  throwError "Cooper-dvd-left NIY {← c₁.pp}, {← c₂.pp}, {← c.pp}"
-
-def resolveCooperDvdRight (c₁ c₂ : LeCnstr) (c : DvdCnstr) : GoalM Unit := do
-  throwError "Cooper-dvd-right NIY {← c₁.pp}, {← c₂.pp}, {← c.pp}"
-
-def resolveCooperDvd (c₁ c₂ : LeCnstr) (c : DvdCnstr) : GoalM Unit := do
-  if c₁.p.leadCoeff.natAbs < c₂.p.leadCoeff.natAbs then
-    resolveCooperDvdLeft c₁ c₂ c
-  else
-    resolveCooperDvdRight c₁ c₂ c
+def resolveCooperDvd (c₁ c₂ : LeCnstr) (c₃ : DvdCnstr) : SearchM Unit := do
+  let left : Bool := c₁.p.leadCoeff.natAbs < c₂.p.leadCoeff.natAbs
+  resolveCooperPred { c₁, c₂, left, c₃? := some c₃ }
 
 def resolveCooperDiseq (c₁ : DiseqCnstr) (c₂ : LeCnstr) (_c? : Option DvdCnstr) : GoalM Unit := do
   throwError "Cooper-diseq NIY {← c₁.pp}, {← c₂.pp}"

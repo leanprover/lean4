@@ -272,8 +272,8 @@ def resolveRealLowerUpperConflict (c₁ c₂ : LeCnstr) : GoalM Bool := do
     c.assert
     return true
 
-def resolveCooperPred (_pred : CooperSplitPred) : GoalM Unit := do
-  throwError "Cooper pred NIY"
+def resolveCooperPred (pred : CooperSplitPred) : GoalM Unit := do
+  throwError "Cooper pred NIY {pred.numCases}"
 
 def resolveCooper (c₁ c₂ : LeCnstr) : GoalM Unit := do
   let left : Bool := c₁.p.leadCoeff.natAbs < c₂.p.leadCoeff.natAbs

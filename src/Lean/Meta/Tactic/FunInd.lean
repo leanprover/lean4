@@ -731,7 +731,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
         -- We used to pass (usedOnly := false) below in the hope that the types of the
         -- induction principle match the type of the function better.
         -- But this leads to avoidable parameters that make functional induction strictly less
-        -- useful (e.g. when the unsued parameter mentions bound variables in the users' goal)
+        -- useful (e.g. when the unused parameter mentions bound variables in the users' goal)
         let (paramMask, e') ← mkLambdaFVarsMasked fixedParams e'
         let e' ← instantiateMVars e'
         return (e', paramMask)
@@ -1086,7 +1086,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
           -- We used to pass (usedOnly := false) below in the hope that the types of the
           -- induction principle match the type of the function better.
           -- But this leads to avoidable parameters that make functional induction strictly less
-          -- useful (e.g. when the unsued parameter mentions bound variables in the users' goal)
+          -- useful (e.g. when the unused parameter mentions bound variables in the users' goal)
           let (paramMask, e') ← mkLambdaFVarsMasked xs e'
           let e' ← instantiateMVars e'
           trace[Meta.FunInd] "complete body of mutual induction principle:{indentExpr e'}"

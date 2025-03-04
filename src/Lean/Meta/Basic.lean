@@ -1633,7 +1633,7 @@ def withLocalDeclNoLocalInstanceUpdate (name : Name) (bi : BinderInfo) (type : E
 - a type constructor for the variable, where the array consists of all of the free variables
   defined prior to this one. This is needed because the type of the variable may depend on prior variables.
 
-See `withLocalDeclsD` and `withLocalDeclsDND` for simplier variants.
+See `withLocalDeclsD` and `withLocalDeclsDND` for simpler variants.
 -/
 partial def withLocalDecls
     [Inhabited α]

@@ -13,7 +13,7 @@ Configuration for `try?`.
 structure Config where
   /-- If `main` is `true`, all functions in the current module are considered for function induction, unfolding, etc. -/
   main := true
-  /-- If `name` is `true`, all functions in the same namespace are considere for function induction, unfolding, etc. -/
+  /-- If `name` is `true`, all functions in the same namespace are considered for function induction, unfolding, etc. -/
   name := true
   /-- If `targetOnly` is `true`, `try?` collects information using the goal target only. -/
   targetOnly := false

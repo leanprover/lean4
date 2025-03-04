@@ -94,7 +94,7 @@ h_3 : ¬g (i + 1) j ⋯ = i + j + 1
     [prop] j + 1 ≤ i
   [eqc] False propositions
     [prop] g (i + 1) j ⋯ = i + j + 1
-  [offset] Assignment satisfying offset contraints
+  [offset] Assignment satisfying offset constraints
     [assign] j := 0
     [assign] i := 1
     [assign] 「i + 1」 := 2

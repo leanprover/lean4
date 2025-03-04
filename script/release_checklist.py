@@ -181,6 +181,19 @@ def check_bump_branch_toolchain(url, bump_branch, github_token):
     print(f"  ✅ Bump branch correctly uses toolchain: {content}")
     return True
 
+def pr_exists_with_title(repo_url, title, github_token):
+    api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + "/pulls"
+    headers = {'Authorization': f'token {github_token}'} if github_token else {}
+    params = {'state': 'open'}
+    response = requests.get(api_url, headers=headers, params=params)
+    if response.status_code != 200:
+        return None
+    pull_requests = response.json()
+    for pr in pull_requests:
+        if pr['title'] == title:
+            return pr['number'], pr['html_url']
+    return None
+
 def main():
     github_token = get_github_token()
 
@@ -271,6 +284,13 @@ def main():
         on_target_toolchain = is_version_gte(lean_toolchain_content.strip(), toolchain)
         if not on_target_toolchain:
             print(f"  ❌ Not on target toolchain (needs ≥ {toolchain}, but {branch} is on {lean_toolchain_content.strip()})")
+            pr_title = f"chore: bump toolchain to {toolchain}"
+            pr_info = pr_exists_with_title(url, pr_title, github_token)
+            if pr_info:
+                pr_number, pr_url = pr_info
+                print(f"  ✅ PR with title '{pr_title}' exists: #{pr_number} ({pr_url})")
+            else:
+                print(f"  ❌ PR with title '{pr_title}' does not exist")
             repo_status[name] = False
             continue
         print(f"  ✅ On compatible toolchain (>= {toolchain})")

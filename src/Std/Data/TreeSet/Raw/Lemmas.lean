@@ -4,14 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
 prelude
-import Std.Data.TreeMap.RawLemmas
-import Std.Data.TreeSet.Raw
+import Std.Data.TreeMap.Raw.Lemmas
+import Std.Data.TreeSet.Raw.Basic
 
 /-!
 # Tree set lemmas
 
-This file contains lemmas about `Std.Data.TreeSet.Raw`. Most of the lemmas require
+This file contains lemmas about `Std.Data.TreeSet.Raw.Basic`. Most of the lemmas require
 `TransCmp cmp` for the comparison function `cmp`.
+These proofs can be obtained from `Std.Data.TreeSet.Raw.WF`.
 -/
 
 set_option linter.missingDocs true
@@ -333,5 +334,29 @@ theorem containsThenInsert_fst [TransCmp cmp] (h : t.WF) {k : α} :
 theorem containsThenInsert_snd [TransCmp cmp] (h : t.WF) {k : α} :
     (t.containsThenInsert k).2 = t.insert k :=
   ext <| TreeMap.Raw.containsThenInsertIfNew_snd h
+
+@[simp]
+theorem length_toList [TransCmp cmp] (h : t.WF) :
+    t.toList.length = t.size :=
+  DTreeMap.Raw.length_keys h
+
+@[simp]
+theorem isEmpty_toList :
+    t.toList.isEmpty = t.isEmpty :=
+  DTreeMap.Raw.isEmpty_keys
+
+@[simp]
+theorem contains_toList [BEq α] [LawfulBEqCmp cmp] [TransCmp cmp] (h : t.WF) {k : α} :
+    t.toList.contains k = t.contains k :=
+  DTreeMap.Raw.contains_keys h
+
+@[simp]
+theorem mem_toList [LawfulEqCmp cmp] [TransCmp cmp] (h : t.WF) {k : α} :
+    k ∈ t.toList ↔ k ∈ t :=
+  DTreeMap.Raw.mem_keys h
+
+theorem distinct_toList [TransCmp cmp] (h : t.WF) :
+    t.toList.Pairwise (fun a b => ¬ cmp a b = .eq) :=
+  DTreeMap.Raw.distinct_keys h
 
 end Std.TreeSet.Raw

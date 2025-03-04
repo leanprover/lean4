@@ -27681,7 +27681,7 @@ lean_dec(x_10);
 lean_dec(x_5);
 lean_dec(x_3);
 lean_inc(x_4);
-x_24 = l_Std_DTreeMap_Internal_Impl_link_x21___rarg(x_1, x_2, x_4, x_9);
+x_24 = l_Std_DTreeMap_Internal_Impl_link_x21___rarg(x_1, x_2, x_9, x_4);
 x_25 = !lean_is_exclusive(x_4);
 if (x_25 == 0)
 {

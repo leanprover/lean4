@@ -1272,11 +1272,23 @@ This operation traverses the expression tree.
 @[extern "lean_expr_has_loose_bvar"]
 opaque hasLooseBVar (e : @& Expr) (bvarIdx : @& Nat) : Bool
 
-/-- Return true if `e` contains the loose bound variable `bvarIdx` in an explicit parameter, or in the range if `tryRange == true`. -/
-def hasLooseBVarInExplicitDomain : Expr → Nat → Bool → Bool
-  | Expr.forallE _ d b bi, bvarIdx, tryRange =>
-    (bi.isExplicit && hasLooseBVar d bvarIdx) || hasLooseBVarInExplicitDomain b (bvarIdx+1) tryRange
-  | e, bvarIdx, tryRange => tryRange && hasLooseBVar e bvarIdx
+/--
+Returns true if `e` contains the loose bound variable `bvarIdx` in an explicit parameter,
+or in the range if `considerRange == true`.
+Additionally, if the bound variable appears in an implicit parameter,
+it transitively looks for that implicit parameter.
+-/
+-- This should be kept in sync with `lean::has_loose_bvars_in_domain`
+def hasLooseBVarInExplicitDomain (e : Expr) (bvarIdx : Nat) (considerRange : Bool) : Bool :=
+  match e with
+  | Expr.forallE _ d b bi =>
+    (hasLooseBVar d bvarIdx
+      && (bi.isExplicit
+          -- "Transitivity": bvar occurs in current implicit argument,
+          -- so we search for the current argument in the body.
+          || hasLooseBVarInExplicitDomain b 0 considerRange))
+    || hasLooseBVarInExplicitDomain b (bvarIdx+1) considerRange
+  | e => considerRange && hasLooseBVar e bvarIdx
 
 /--
 Lower the loose bound variables `>= s` in `e` by `d`.
@@ -1297,16 +1309,16 @@ opaque liftLooseBVars (e : @& Expr) (s d : @& Nat) : Expr
 It marks any parameter with an explicit binder annotation if there is another explicit arguments that depends on it or
 the resulting type if `considerRange == true`.
 
-Remark: we use this function to infer the bind annotations of inductive datatype constructors, and structure projections.
-When the `{}` annotation is used in these commands, we set `considerRange == false`.
+Remark: we use this function to infer the binder annotations of structure projections.
 -/
-def inferImplicit : Expr → Nat → Bool → Expr
-  | Expr.forallE n d b bi, i+1, considerRange =>
+-- This should be kept in synch with `lean::infer_implicit`
+def inferImplicit (e : Expr) (numParams : Nat) (considerRange : Bool) : Expr :=
+  match e, numParams with
+  | Expr.forallE n d b bi, i + 1 =>
     let b       := inferImplicit b i considerRange
     let newInfo := if bi.isExplicit && hasLooseBVarInExplicitDomain b 0 considerRange then BinderInfo.implicit else bi
     mkForall n newInfo d b
-  | e, 0, _ => e
-  | e, _, _ => e
+  | e, _ => e
 
 /--
 Instantiates the loose bound variables in `e` using the `subst` array,

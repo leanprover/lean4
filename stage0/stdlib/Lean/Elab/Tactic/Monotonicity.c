@@ -522,7 +522,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Loop_forIn_loop___at_Lean_Meta_Monotonicity_headBetaUnderLambda___spec__1___closed__1;
 x_2 = l_Lean_Loop_forIn_loop___at_Lean_Meta_Monotonicity_headBetaUnderLambda___spec__1___closed__2;
-x_3 = lean_unsigned_to_nat(1813u);
+x_3 = lean_unsigned_to_nat(1825u);
 x_4 = lean_unsigned_to_nat(19u);
 x_5 = l_Lean_Loop_forIn_loop___at_Lean_Meta_Monotonicity_headBetaUnderLambda___spec__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2925,13 +2925,15 @@ return x_5;
 static lean_object* _init_l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_245____lambda__5___closed__6() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_162____closed__7;
-x_2 = l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_245____lambda__5___closed__5;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_162____closed__7;
+x_3 = l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_245____lambda__5___closed__5;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_3);
+lean_ctor_set(x_4, 2, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_245____lambda__5___closed__7() {
@@ -8738,7 +8740,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Loop_forIn_loop___at_Lean_Meta_Monotonicity_headBetaUnderLambda___spec__1___closed__1;
 x_2 = l_Lean_Meta_Monotonicity_solveMonoStep___lambda__15___closed__7;
-x_3 = lean_unsigned_to_nat(1824u);
+x_3 = lean_unsigned_to_nat(1836u);
 x_4 = lean_unsigned_to_nat(20u);
 x_5 = l_Lean_Loop_forIn_loop___at_Lean_Meta_Monotonicity_headBetaUnderLambda___spec__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

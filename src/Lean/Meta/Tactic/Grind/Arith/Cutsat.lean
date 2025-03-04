@@ -14,10 +14,13 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.SearchM
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 
 namespace Lean
 
 builtin_initialize registerTraceClass `grind.cutsat
+builtin_initialize registerTraceClass `grind.cutsat.model
 builtin_initialize registerTraceClass `grind.cutsat.subst
 builtin_initialize registerTraceClass `grind.cutsat.eq
 builtin_initialize registerTraceClass `grind.cutsat.eq.unsat (inherited := true)
@@ -43,7 +46,13 @@ builtin_initialize registerTraceClass `grind.cutsat.le.upper (inherited := true)
 builtin_initialize registerTraceClass `grind.cutsat.assign
 builtin_initialize registerTraceClass `grind.cutsat.conflict
 
+builtin_initialize registerTraceClass `grind.cutsat.diseq
+builtin_initialize registerTraceClass `grind.cutsat.diseq.trivial (inherited := true)
+
 builtin_initialize registerTraceClass `grind.debug.cutsat.eq
 builtin_initialize registerTraceClass `grind.debug.cutsat.diseq
+builtin_initialize registerTraceClass `grind.debug.cutsat.diseq.split
+builtin_initialize registerTraceClass `grind.debug.cutsat.backtrack
+builtin_initialize registerTraceClass `grind.debug.cutsat.search
 
 end Lean

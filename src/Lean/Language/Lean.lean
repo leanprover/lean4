@@ -177,6 +177,55 @@ created from a quotation, the ref usually has to be changed to a less variable s
 simple example and the implementation of tactic `have` for a complex example.
 -/
 
+/-
+# Note [Incremental Cancellation]
+
+With incrementality, there is a tension between telling the elaboration of the previous document
+version(s) to stop processing as soon as possible in order to free resources for use in the current
+elaboration run and having the old version continue in case its results can be used as is so as not
+to duplicate effort.
+
+Before parallelism, we were able to use a single cancellation token for the entire elaboration of a
+specific document version. We could trigger the cancellation token as soon as we started elaborating
+a new version because the generated exceptions would prevent the elaborator from storing any
+half-elaborated state in snapshots that might then be picked up for reuse. This was a simple and
+sound solution, though it did mean we may have cancelled some work eagerly that could have been
+reused.
+
+This approach is no longer sound with parallelism: a tactic may have spawned async tasks (e.g.
+kernel checking of a helper definition) and then completed, creating a snapshot that references the
+result of the task e.g. via an asynchronous constant in the environment. If we then interrupted
+elaboration of that document version throughout all its tasks, we might end up with a snapshot that
+looks eligible for reuse but references data (eventually) resulting from cancellation. We could
+(asynchronously) wait for it to complete and then check whether it completed because of cancellation
+and redo its work in that case but that would be as wasteful as mentioned above and add new latency
+on top.
+
+Instead, we now make sure we cancel only the parts of elaboration we have ruled out for reuse, at
+the earliest point where we can decide that. We do this by storing cancellation tokens in the
+snapshot tree such that we can trigger all tokens of tasks belonging to a specific subtree
+(`SnapshotTask.cancelRec`; async tasks belonging to the subtree are usually collected via
+`Core.getAndEmptySnapshotTasks`). Thus when traversing the old snapshot tree, we need to be careful
+about cancelling any children we decide not to descend into. This is automated in e.g.
+`withNarrowedTacticReuse` but not in other places that do not lend themselves to abstraction into
+combinators. Note that we can still cancel parsing and elaboration below the changed command eagerly
+as we never consider them for reuse.
+
+This approach is still not optimal in the sense that async tasks in later snapshots not part of the
+current subtree are considered for cancellation only when elaboration reaches that point. Thus if
+inside a single proof we have some significant work done synchronously by one tactic and then
+significant work done asynchronously by a later tactic and neither tactic is eligible for reuse, the
+second task will only be cancelled after redoing the synchronous work up to the point of the second
+tactic. However, as tactics such as `bv_decide` that do significant kernel work do so synchronously
+at the moment in order to post-process any failures and as the most significant async work, that of
+checking/compiling/linting/... the top-level definition, is interrupted immediately when the mutual
+def elaborator notices that the body syntax has changed, this should not be a significant issue in
+practice. If we do want to optimize this, instead of cancelling subtrees of the snapshot tree, we
+would likely have to store an asynchronously resolved list of cancellation tokens associated with
+the tactic snapshot at hand *and all further snapshots* so that we can cancel them eagerly instead
+of waiting for elaboration to visit those later snapshots.
+-/
+
 set_option linter.missingDocs true
 
 namespace Lean.Language.Lean
@@ -425,6 +474,7 @@ where
         return { diagnostics, result? := none }
 
       let headerEnv := headerEnv.setMainModule setup.mainModuleName
+      let headerEnv ← headerEnv.enableRealizationsForImports setup.opts
       let mut traceState := default
       if trace.profiler.output.get? setup.opts |>.isSome then
         traceState := {
@@ -471,7 +521,7 @@ where
 
   parseCmd (old? : Option CommandParsedSnapshot) (parserState : Parser.ModuleParserState)
       (cmdState : Command.State) (prom : IO.Promise CommandParsedSnapshot) (sync : Bool)
-      (cancelTk : IO.CancelToken) : LeanProcessingM Unit := do
+      (parseCancelTk : IO.CancelToken) : LeanProcessingM Unit := do
     let ctx ← read
 
     let unchanged old newParserState : BaseIO Unit :=
@@ -519,13 +569,21 @@ where
       if stx.eqWithInfo old.stx then
         -- Here we must make sure to pass the *new* parser state; see NOTE in `unchanged`
         return (← unchanged old parserState)
-      -- on first change, make sure to cancel old invocation
-      -- TODO: cancel nested tasks on invalidation
-      old.elabSnap.cancelTk?.forM (·.set)
+      -- On first change, immediately cancel old invocation for all subsequent commands. This
+      -- includes setting the global parse cancellation token, which is stored in
+      -- `next?` below. Thus we can be sure that no further commands will start to elaborate in the
+      -- old invocation from this point on.
+      old.nextCmdSnap?.forM (·.cancelRec)
+      -- For the current command, we depend on the elaborator to either reuse parts of `old` or
+      -- cancel them as soon as reuse can be ruled out.
 
     -- check for cancellation, most likely during elaboration of previous command, before starting
     -- processing of next command
-    if (← cancelTk.isSet) then
+    if (← parseCancelTk.isSet) then
+      if let some old := old? then
+        -- all of `old` is discarded, so cancel all of it
+        toSnapshotTree old |>.children.forM (·.cancelRec)
+
       -- this is a bit ugly as we don't want to adjust our API with `Option`s just for cancellation
       -- (as no-one should look at this result in that case) but anything containing `Environment`
       -- is not `Inhabited`
@@ -563,19 +621,22 @@ where
       let nextCmdSnap? := next?.map ({
         stx? := none
         reportingRange? := some ⟨parserState.pos, ctx.input.endPos⟩
+        cancelTk? := parseCancelTk
         task := ·.result!
       })
       let diagnostics ← Snapshot.Diagnostics.ofMessageLog msgLog
 
+      -- use per-command cancellation token for elaboration so that
+      let elabCmdCancelTk ← IO.CancelToken.new
       prom.resolve {
         diagnostics, finishedSnap, nextCmdSnap?
         stx := stx', parserState := parserState'
-        elabSnap := { stx? := stx', task := elabPromise.result!, cancelTk? := some cancelTk }
+        elabSnap := { stx? := stx', task := elabPromise.result!, cancelTk? := some elabCmdCancelTk }
         reportSnap := { stx? := none, reportingRange? := initRange?, task := reportPromise.result! }
       }
       let cmdState ← doElab stx cmdState beginPos
         { old? := old?.map fun old => ⟨old.stx, old.elabSnap⟩, new := elabPromise }
-        finishedPromise cancelTk ctx
+        finishedPromise elabCmdCancelTk ctx
       let traceTask ←
         if (← isTracingEnabledForCore `Elab.snapshotTree cmdState.scopes.head!.opts) then
           -- We want to trace all of `CommandParsedSnapshot` but `traceTask` is part of it, so let's
@@ -609,7 +670,7 @@ where
           }
       if let some next := next? then
         -- We're definitely off the fast-forwarding path now
-        parseCmd none parserState cmdState next (sync := false) cancelTk ctx
+        parseCmd none parserState cmdState next (sync := false) elabCmdCancelTk ctx
 
   doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
       (snap : SnapshotBundle DynamicSnapshot) (finishedPromise : IO.Promise CommandFinishedSnapshot)

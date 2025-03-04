@@ -307,7 +307,11 @@ where
             return ⟨old.stx, (← old.next[i]?)⟩
           new := prom
         }
-        finished.resolve { diagnostics := .empty, state? := (← saveState) }
+        finished.resolve {
+          diagnostics := .empty
+          state? := (← saveState)
+          moreSnaps := (← Core.getAndEmptySnapshotTasks)
+        }
         return
 
     goWithIncremental #[]

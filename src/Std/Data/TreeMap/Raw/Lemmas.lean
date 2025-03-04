@@ -4,14 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
 prelude
-import Std.Data.DTreeMap.RawLemmas
-import Std.Data.TreeMap.Raw
+import Std.Data.DTreeMap.Raw.Lemmas
+import Std.Data.TreeMap.Raw.Basic
 
 /-!
 # Tree map lemmas
 
-This file contains lemmas about `Std.Data.TreeMap.Raw`. Most of the lemmas require
+This file contains lemmas about `Std.Data.TreeMap.Raw.Basic`. Most of the lemmas require
 `TransCmp cmp` for the comparison function `cmp`.
+These proofs can be obtained from `Std.Data.TreeMap.Raw.WF`.
 -/
 
 set_option linter.missingDocs true
@@ -660,5 +661,78 @@ theorem getThenInsertIfNew?_fst [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
 theorem getThenInsertIfNew?_snd [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
     (getThenInsertIfNew? t k v).2 = t.insertIfNew k v :=
   ext <| DTreeMap.Raw.Const.getThenInsertIfNew?_snd h
+
+@[simp]
+theorem length_keys [TransCmp cmp] (h : t.WF) :
+    t.keys.length = t.size :=
+  DTreeMap.Raw.length_keys h
+
+@[simp]
+theorem isEmpty_keys :
+    t.keys.isEmpty = t.isEmpty :=
+  DTreeMap.Raw.isEmpty_keys
+
+@[simp]
+theorem contains_keys [BEq α] [LawfulBEqCmp cmp] [TransCmp cmp] (h : t.WF) {k : α} :
+    t.keys.contains k = t.contains k :=
+  DTreeMap.Raw.contains_keys h
+
+@[simp]
+theorem mem_keys [LawfulEqCmp cmp] [TransCmp cmp] (h : t.WF) {k : α} :
+    k ∈ t.keys ↔ k ∈ t :=
+  DTreeMap.Raw.mem_keys h
+
+theorem distinct_keys [TransCmp cmp] (h : t.WF) :
+    t.keys.Pairwise (fun a b => ¬ cmp a b = .eq) :=
+  DTreeMap.Raw.distinct_keys h
+
+@[simp]
+theorem map_fst_toList_eq_keys :
+    (toList t).map Prod.fst = t.keys :=
+  DTreeMap.Raw.Const.map_fst_toList_eq_keys
+
+@[simp]
+theorem length_toList (h : t.WF) :
+    (toList t).length = t.size :=
+  DTreeMap.Raw.Const.length_toList h
+
+@[simp]
+theorem isEmpty_toList :
+    (toList t).isEmpty = t.isEmpty :=
+  DTreeMap.Raw.Const.isEmpty_toList
+
+@[simp]
+theorem mem_toList_iff_getElem?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} {v : β} :
+    (k, v) ∈ toList t ↔ t[k]? = some v :=
+  DTreeMap.Raw.Const.mem_toList_iff_get?_eq_some h
+
+@[simp]
+theorem mem_toList_iff_getKey?_eq_some_and_getElem?_eq_some [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+    (k, v) ∈ toList t ↔ t.getKey? k = some k ∧ t[k]? = some v :=
+  DTreeMap.Raw.Const.mem_toList_iff_getKey?_eq_some_and_get?_eq_some h
+
+theorem getElem?_eq_some_iff_exists_compare_eq_eq_and_mem_toList [TransCmp cmp] (h : t.WF) {k : α}
+    {v : β} :
+    t[k]? = some v ↔ ∃ (k' : α), cmp k k' = .eq ∧ (k', v) ∈ toList t :=
+  DTreeMap.Raw.Const.get?_eq_some_iff_exists_compare_eq_eq_and_mem_toList h
+
+theorem find?_toList_eq_some_iff_getKey?_eq_some_and_getElem?_eq_some [TransCmp cmp] (h : t.WF)
+    {k k' : α} {v : β} :
+    t.toList.find? (cmp ·.1 k == .eq) = some ⟨k', v⟩ ↔
+      t.getKey? k = some k' ∧ t[k]? = some v :=
+  DTreeMap.Raw.Const.find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some h
+
+theorem find?_toList_eq_none_iff_contains_eq_false [TransCmp cmp] (h : t.WF) {k : α} :
+    (toList t).find? (cmp ·.1 k == .eq) = none ↔ t.contains k = false :=
+  DTreeMap.Raw.Const.find?_toList_eq_none_iff_contains_eq_false h
+
+@[simp]
+theorem find?_toList_eq_none_iff_not_mem [TransCmp cmp] (h : t.WF) {k : α} :
+    (toList t).find? (cmp ·.1 k == .eq) = none ↔ ¬ k ∈ t :=
+  DTreeMap.Raw.Const.find?_toList_eq_none_iff_not_mem h
+
+theorem distinct_keys_toList [TransCmp cmp] (h : t.WF) :
+    (toList t).Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq) :=
+  DTreeMap.Raw.Const.distinct_keys_toList h
 
 end Std.TreeMap.Raw

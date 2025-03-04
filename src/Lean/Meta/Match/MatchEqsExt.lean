@@ -24,7 +24,10 @@ structure MatchEqnsExtState where
 
 /- We generate the equations and splitter on demand, and do not save them on .olean files. -/
 builtin_initialize matchEqnsExt : EnvExtension MatchEqnsExtState ←
-  registerEnvExtension (pure {})
+  -- Using `local` allows us to use the extension in `realizeConst` without specifying `replay?`.
+  -- The resulting state can still be accessed on the generated declarations using `findStateAsync`;
+  -- see below
+  registerEnvExtension (pure {}) (asyncMode := .local)
 
 def registerMatchEqns (matchDeclName : Name) (matchEqns : MatchEqns) : CoreM Unit := do
   modifyEnv fun env => matchEqnsExt.modifyState env fun { map, eqns } => {
@@ -41,7 +44,7 @@ opaque getEquationsFor (matchDeclName : Name) : MetaM MatchEqns
 /--
 Returns `true` if `declName` is the name of a `match` equational theorem.
 -/
-def isMatchEqnTheorem (env : Environment) (declName : Name) : Bool :=
-  matchEqnsExt.getState env |>.eqns.contains declName
+def isMatchEqnTheorem (env : Environment) (declName : Name) : Bool := Id.run do
+  matchEqnsExt.findStateAsync env declName |>.eqns.contains declName
 
 end Lean.Meta.Match

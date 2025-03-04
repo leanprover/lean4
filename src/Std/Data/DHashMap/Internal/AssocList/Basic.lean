@@ -170,6 +170,7 @@ def erase [BEq α] (a : α) : AssocList α β → AssocList α β
   | cons k v l => bif k == a then l else cons k v (l.erase a)
 
 /-- Internal implementation detail of the hash map -/
+@[specialize]
 def modify [BEq α] [LawfulBEq α] (a : α) (f : β a → β a) :
     AssocList α β → AssocList α β
   | nil => nil
@@ -182,6 +183,7 @@ def modify [BEq α] [LawfulBEq α] (a : α) (f : β a → β a) :
       cons k v (modify a f l)
 
 /-- Internal implementation detail of the hash map -/
+@[specialize]
 def alter [BEq α] [LawfulBEq α] (a : α) (f : Option (β a) → Option (β a)) :
     AssocList α β → AssocList α β
   | nil => match f none with
@@ -200,6 +202,7 @@ def alter [BEq α] [LawfulBEq α] (a : α) (f : Option (β a) → Option (β a))
 namespace Const
 
 /-- Internal implementation detail of the hash map -/
+@[specialize]
 def modify [BEq α] {β : Type v} (a : α) (f : β → β) :
     AssocList α (fun _ => β) → AssocList α (fun _ => β)
   | nil => nil
@@ -210,6 +213,7 @@ def modify [BEq α] {β : Type v} (a : α) (f : β → β) :
       cons k v (modify a f l)
 
 /-- Internal implementation detail of the hash map -/
+@[specialize]
 def alter [BEq α] {β : Type v} (a : α) (f : Option β → Option β) :
     AssocList α (fun _ => β) → AssocList α (fun _ => β)
   | nil => match f none with

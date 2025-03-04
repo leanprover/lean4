@@ -127,8 +127,6 @@ def Foo.f4 (f : Foo) (h : ∀ f : Foo, f ≠ .a) : Foo :=
   | .b => .c
   | .c => .c
 
-
-
 open Lean Meta
 
 /-- info: true -/
@@ -161,21 +159,21 @@ open Lean Meta
   let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f4.match_2
   return res matches none
 
-def Foo.f5 : Foo → BitVec 2
-  | .a => 0
-  | .b => 1
-  | .c => 2
+def Foo.f5 : Foo → BitVec 64
+  | .a => 37
+  | .b => 42
+  | .c => 22
 
 theorem inj (foo1 foo2 : Foo) (h : foo1.f5 = foo2.f5) : foo1 = foo2 := by
   unfold Foo.f5 at h
   bv_decide
 
--- TODO: float in enumToBitVec
 theorem different (foo : Foo) : foo.f1 ≠ foo := by
   unfold Foo.f1
-  simp [Foo.f1.match_1.eq_cond_enumToBitVec]
-  bv_normalize
-  simp [Bool.apply_cond (f := Foo.enumToBitVec)] at *
+  bv_decide
+
+theorem trip (foo : Foo) : foo.f1.f1.f1 = foo := by
+  unfold Foo.f1
   bv_decide
 
 end Ex4

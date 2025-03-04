@@ -6,6 +6,7 @@ Authors: Henrik Böving
 prelude
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
+import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow
 import Lean.Meta.Tactic.Simp
 import Init.Data.Range.Basic
 
@@ -344,6 +345,11 @@ partial def enumsPass : Pass where
         let enumToBitVec ← getEnumToBitVecFor type
         let path : Array DiscrTree.Key := #[.const enumToBitVec 1, .star]
         simprocs := simprocs.addCore path ``enumToBitVecCtor true (.inl enumToBitVecCtor)
+
+        let path := mkApplyUnaryControlDiscrPath type 0 enumToBitVec ``ite 5
+        simprocs := simprocs.addCore path ``applyIteSimproc false (.inl applyIteSimproc)
+        let path := mkApplyUnaryControlDiscrPath type 0 enumToBitVec ``cond 4
+        simprocs := simprocs.addCore path ``applyCondSimproc false (.inl applyCondSimproc)
 
       let interestingMatchers := analysis.interestingMatchers
       for (matcher, kind) in interestingMatchers do

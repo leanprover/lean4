@@ -60,10 +60,13 @@ def addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
       throwError "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
     let eType ← inferType e
     let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i _ eTypeAbst => do
-      let motiveArg := motiveArgs[i]!
       let discr     := matcherApp.discrs[i]
-      let eTypeAbst ← kabstract eTypeAbst discr
-      return eTypeAbst.instantiate1 motiveArg
+      if discr.isFVar then
+        let motiveArg := motiveArgs[i]!
+        let eTypeAbst ← kabstract eTypeAbst discr
+        return eTypeAbst.instantiate1 motiveArg
+      else
+        return eTypeAbst
     let motiveBody ← mkArrow eTypeAbst motiveBody
     let matcherLevels ← match matcherApp.uElimPos? with
       | none     => pure matcherApp.matcherLevels

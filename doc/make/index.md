@@ -1,6 +1,6 @@
-These are instructions to set up a working development environment for those who wish to make changes to Lean itself. It is part of the [Development Guide](doc/dev/index.md).
+These are instructions to set up a working development environment for those who wish to make changes to Lean itself. It is part of the [Development Guide](../dev/index.md).
 
-We strongly suggest that new users instead follow the [Quickstart](doc/quickstart.md) to get started using Lean, since this sets up an environment that can automatically manage multiple Lean toolchain versions, which is necessary when working within the Lean ecosystem.
+We strongly suggest that new users instead follow the [Quickstart](../quickstart.md) to get started using Lean, since this sets up an environment that can automatically manage multiple Lean toolchain versions, which is necessary when working within the Lean ecosystem.
 
 Requirements
 ------------

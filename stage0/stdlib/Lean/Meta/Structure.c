@@ -154,7 +154,6 @@ lean_inc(x_13);
 lean_dec(x_11);
 lean_inc(x_8);
 x_14 = l_Lean_isStructure(x_13, x_8);
-lean_dec(x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
@@ -207,7 +206,6 @@ lean_inc(x_27);
 lean_dec(x_25);
 lean_inc(x_8);
 x_28 = l_Lean_isStructure(x_27, x_8);
-lean_dec(x_27);
 if (x_28 == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 

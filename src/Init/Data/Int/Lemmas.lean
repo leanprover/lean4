@@ -129,6 +129,17 @@ theorem subNatNat_of_le {m n : Nat} (h : n ≤ m) : subNatNat m n = ↑(m - n) :
 theorem subNatNat_of_lt {m n : Nat} (h : m < n) : subNatNat m n = -[pred (n - m) +1] :=
   subNatNat_of_sub_eq_succ <| (Nat.succ_pred_eq_of_pos (Nat.sub_pos_of_lt h)).symm
 
+@[simp] theorem subNat_eq_zero_iff {a b : Nat} : subNatNat a b = 0 ↔ a = b := by
+  cases Nat.lt_or_ge a b with
+  | inl h =>
+    rw [subNatNat_of_lt h]
+    simpa using ne_of_lt h
+  | inr h =>
+    rw [subNatNat_of_le h]
+    norm_cast
+    rw [Nat.sub_eq_iff_eq_add' h]
+    simp
+
 /- # Additive group properties -/
 
 /- addition -/
@@ -225,7 +236,7 @@ attribute [local simp] subNatNat_self
 @[local simp] protected theorem add_right_neg (a : Int) : a + -a = 0 := by
   rw [Int.add_comm, Int.add_left_neg]
 
-@[simp] protected theorem neg_eq_of_add_eq_zero {a b : Int} (h : a + b = 0) : -a = b := by
+protected theorem neg_eq_of_add_eq_zero {a b : Int} (h : a + b = 0) : -a = b := by
   rw [← Int.add_zero (-a), ← h, ← Int.add_assoc, Int.add_left_neg, Int.zero_add]
 
 protected theorem eq_neg_of_eq_neg {a b : Int} (h : a = -b) : b = -a := by
@@ -326,26 +337,40 @@ theorem toNat_sub (m n : Nat) : toNat (m - n) = m - n := by
   · exact (Nat.add_sub_cancel_left ..).symm
   · dsimp; rw [Nat.add_assoc, Nat.sub_eq_zero_of_le (Nat.le_add_right ..)]; rfl
 
+theorem toNat_of_nonpos : ∀ {z : Int}, z ≤ 0 → z.toNat = 0
+  | 0, _ => rfl
+  | -[_+1], _ => rfl
+
+@[simp] theorem neg_ofNat_eq_negSucc_iff {a b : Nat} : - (a : Int) = -[b+1] ↔ a = b + 1 := by
+  rw [Int.neg_eq_comm]
+  rw [Int.neg_negSucc]
+  norm_cast
+  simp [eq_comm]
+
+@[simp] theorem neg_ofNat_eq_negSucc_add_one_iff {a b : Nat} : - (a : Int) = -[b+1] + 1 ↔ a = b := by
+  cases b with
+  | zero => simp; norm_cast
+  | succ b =>
+    rw [Int.neg_eq_comm, ← Int.negSucc_sub_one, Int.sub_add_cancel, Int.neg_negSucc]
+    norm_cast
+    simp [eq_comm]
+
 /- ## add/sub injectivity -/
 
-@[simp]
-protected theorem add_right_inj {i j : Int} (k : Int) : (i + k = j + k) ↔ i = j := by
+protected theorem add_left_inj {i j : Int} (k : Int) : (i + k = j + k) ↔ i = j := by
   apply Iff.intro
   · intro p
     rw [←Int.add_sub_cancel i k, ←Int.add_sub_cancel j k, p]
   · exact congrArg (· + k)
 
-@[simp]
-protected theorem add_left_inj {i j : Int} (k : Int) : (k + i = k + j) ↔ i = j := by
-  simp [Int.add_comm k]
+protected theorem add_right_inj {i j : Int} (k : Int) : (k + i = k + j) ↔ i = j := by
+  simp [Int.add_comm k, Int.add_left_inj]
 
-@[simp]
-protected theorem sub_left_inj {i j : Int} (k : Int) : (k - i = k - j) ↔ i = j := by
-  simp [Int.sub_eq_add_neg, Int.neg_inj]
+protected theorem sub_right_inj {i j : Int} (k : Int) : (k - i = k - j) ↔ i = j := by
+  simp [Int.sub_eq_add_neg, Int.neg_inj, Int.add_right_inj]
 
-@[simp]
-protected theorem sub_right_inj {i j : Int} (k : Int) : (i - k = j - k) ↔ i = j := by
-  simp [Int.sub_eq_add_neg]
+protected theorem sub_left_inj {i j : Int} (k : Int) : (i - k = j - k) ↔ i = j := by
+  simp [Int.sub_eq_add_neg, Int.add_left_inj]
 
 /- ## Ring properties -/
 

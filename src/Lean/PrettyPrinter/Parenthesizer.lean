@@ -8,6 +8,7 @@ import Lean.Parser.Extension
 import Lean.Parser.StrInterpolation
 import Lean.ParserCompiler.Attribute
 import Lean.PrettyPrinter.Basic
+import Lean.PrettyPrinter.Delaborator.Options
 
 
 /-!
@@ -82,8 +83,10 @@ namespace PrettyPrinter
 namespace Parenthesizer
 
 structure Context where
-  -- We need to store this `categoryParser` argument to deal with the implicit Pratt parser call in `trailingNode.parenthesizer`.
+  /-- We need to store this `categoryParser` argument to deal with the implicit Pratt parser call in `trailingNode.parenthesizer`. -/
   cat : Name := Name.anonymous
+  /-- Whether to add parentheses regardless of any other conditions. This is cached from the `pp.parens` option. -/
+  forceParens : Bool := false
 
 structure State where
   stxTrav : Syntax.Traverser
@@ -217,8 +220,13 @@ def maybeParenthesize (cat : Name) (canJuxtapose : Bool) (mkParen : Syntax → S
   let { minPrec := some minPrec, trailPrec := trailPrec, trailCat := trailCat, .. } ← get
     | trace[PrettyPrinter.parenthesize] "visited a syntax tree without precedences?!{line ++ format stx}"
   trace[PrettyPrinter.parenthesize] (m!"...precedences are {prec} >? {minPrec}" ++ if canJuxtapose then m!", {(trailPrec, trailCat)} <=? {(st.contPrec, st.contCat)}" else "")
-  -- Should we parenthesize?
-  if (prec > minPrec || canJuxtapose && match trailPrec, st.contPrec with | some trailPrec, some contPrec => trailCat == st.contCat && trailPrec <= contPrec | _, _ => false) then
+  /- Should we parenthesize?
+     * Note about forceParens mode: we don't insert outermost parentheses (we use the syntax traverser parents to detect this),
+       and we don't insert parentheses when we are at `maxPrec` (since this is effectively infinity).
+  -/
+  if (((← read).forceParens && !st.stxTrav.parents.isEmpty && minPrec < Parser.maxPrec)
+      || prec > minPrec
+      || canJuxtapose && match trailPrec, st.contPrec with | some trailPrec, some contPrec => trailCat == st.contCat && trailPrec <= contPrec | _, _ => false) then
       -- The recursive `visit` call, by the invariant, has moved to the preceding node. In order to parenthesize
       -- the original node, we must first move to the right, except if we already were at the left-most child in the first
       -- place.
@@ -260,7 +268,7 @@ def visitToken : Parenthesizer := do
   let stx ← getCur
   -- `orelse` may produce `choice` nodes for antiquotations
   if stx.getKind == `choice then
-    visitArgs $ stx.getArgs.size.forM fun _ => do
+    visitArgs $ stx.getArgs.size.forM fun _ _ => do
       orelse.parenthesizer p1 p2
   else
     -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
@@ -324,7 +332,7 @@ partial def parenthesizeCategoryCore (cat : Name) (_prec : Nat) : Parenthesizer 
   withReader (fun ctx => { ctx with cat := cat }) do
     let stx ← getCur
     if stx.getKind == `choice then
-      visitArgs $ stx.getArgs.size.forM fun _ => do
+      visitArgs $ stx.getArgs.size.forM fun _ _ => do
         parenthesizeCategoryCore cat _prec
     else
       withAntiquot.parenthesizer (mkAntiquot.parenthesizer' cat.toString cat (isPseudoKind := true)) (parenthesizerForKind stx.getKind)
@@ -462,7 +470,7 @@ def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec lhsPrec : Nat) (p : Pa
 @[combinator_parenthesizer manyNoAntiquot]
 def manyNoAntiquot.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   let stx ← getCur
-  visitArgs $ stx.getArgs.size.forM fun _ => p
+  visitArgs $ stx.getArgs.size.forM fun _ _ => p
 
 @[combinator_parenthesizer many1NoAntiquot]
 def many1NoAntiquot.parenthesizer (p : Parenthesizer) : Parenthesizer := do
@@ -540,16 +548,23 @@ instance : Coe (Parenthesizer → Parenthesizer → Parenthesizer) Parenthesizer
 end Parenthesizer
 open Parenthesizer
 
-/-- Add necessary parentheses in `stx` parsed by `parser`. -/
+/--
+Adds necessary parentheses in `stx` parsed by `parser`.
+-/
 def parenthesize (parenthesizer : Parenthesizer) (stx : Syntax) : CoreM Syntax := do
   trace[PrettyPrinter.parenthesize.input] "{format stx}"
+  let opts ← getOptions
   catchInternalId backtrackExceptionId
     (do
-      let (_, st) ← (parenthesizer {}).run { stxTrav := Syntax.Traverser.fromSyntax stx }
+      let (_, st) ← (parenthesizer { forceParens := getPPParens opts }).run { stxTrav := Syntax.Traverser.fromSyntax stx }
       pure st.stxTrav.cur)
     (fun _ => throwError "parenthesize: uncaught backtrack exception")
 
-def parenthesizeCategory (cat : Name) := parenthesize <| categoryParser.parenthesizer cat 0
+/--
+Adds necessary parentheses to the syntax in the given category (for example, `term`, `tactic`, or `command`).
+-/
+def parenthesizeCategory (cat : Name) (stx : Syntax) :=
+  parenthesize (categoryParser.parenthesizer cat 0) stx
 
 def parenthesizeTerm := parenthesizeCategory `term
 def parenthesizeTactic := parenthesizeCategory `tactic

@@ -113,3 +113,8 @@ example : True := by {
     -- All tactic completions expected
 --^ textDocument/completion
 }
+
+example : True := by
+  { skip -- All tactic completions expected
+     }
+  --^ textDocument/completion

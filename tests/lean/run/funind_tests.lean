@@ -139,13 +139,13 @@ def with_ite_tailrec : Nat → Nat
     if n % 2 = 0 then
       with_ite_tailrec n
     else
-      with_ite_tailrec n
+      with_ite_tailrec (n-1)
 termination_by n => n
 
 /--
 info: with_ite_tailrec.induct (motive : Nat → Prop) (case1 : motive 0)
   (case2 : ∀ (n : Nat), n % 2 = 0 → motive n → motive n.succ)
-  (case3 : ∀ (n : Nat), ¬n % 2 = 0 → motive n → motive n.succ) (a✝ : Nat) : motive a✝
+  (case3 : ∀ (n : Nat), ¬n % 2 = 0 → motive (n - 1) → motive n.succ) (a✝ : Nat) : motive a✝
 -/
 #guard_msgs in
 #check with_ite_tailrec.induct
@@ -200,6 +200,24 @@ info: with_dite_tailrec.induct (motive : Nat → Prop) (case1 : ∀ (x : Nat), x
 -/
 #guard_msgs in
 #check with_dite_tailrec.induct
+
+set_option linter.unusedVariables false in
+def with_bif_tailrec : Nat → Nat
+  | 0 => 0
+  | n+1 =>
+    bif n % 2 == 0 then
+      with_bif_tailrec n
+    else
+      with_bif_tailrec (n-1)
+termination_by n => n
+
+/--
+info: with_bif_tailrec.induct (motive : Nat → Prop) (case1 : motive 0)
+  (case2 : ∀ (n : Nat), (n % 2 == 0) = true → motive n → motive n.succ)
+  (case3 : ∀ (n : Nat), (n % 2 == 0) = false → motive (n - 1) → motive n.succ) (a✝ : Nat) : motive a✝
+-/
+#guard_msgs in
+#check with_bif_tailrec.induct
 
 set_option linter.unusedVariables false in
 def with_match_refining_tailrec : Nat → Nat
@@ -367,8 +385,8 @@ def unary (base : Nat) : Nat → Nat
 termination_by n => n
 
 /--
-info: UnusedExtraParams.unary.induct (base : Nat) (motive : Nat → Prop) (case1 : motive 0)
-  (case2 : ∀ (n : Nat), motive n → motive n.succ) (a✝ : Nat) : motive a✝
+info: UnusedExtraParams.unary.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive n.succ)
+  (a✝ : Nat) : motive a✝
 -/
 #guard_msgs in
 #check unary.induct
@@ -379,7 +397,7 @@ def binary (base : Nat) : Nat → Nat → Nat
 termination_by n => n
 
 /--
-info: UnusedExtraParams.binary.induct (base : Nat) (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 0 m)
+info: UnusedExtraParams.binary.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 0 m)
   (case2 : ∀ (n m : Nat), motive n m → motive n.succ m) (a✝ a✝¹ : Nat) : motive a✝ a✝¹
 -/
 #guard_msgs in
@@ -573,7 +591,7 @@ end RecCallInDisrs
 namespace EvenOdd
 
 mutual
-def even : Nat → Bool
+def even : (m : Nat) → Bool -- NB: Does this parameter name appear in the inductions?
   | 0 => true
   | n+1 => odd n
 termination_by n => n
@@ -585,7 +603,7 @@ end
 
 /--
 info: EvenOdd.even.induct (motive1 motive2 : Nat → Prop) (case1 : motive1 0) (case2 : ∀ (n : Nat), motive2 n → motive1 n.succ)
-  (case3 : motive2 0) (case4 : ∀ (n : Nat), motive1 n → motive2 n.succ) (a✝ : Nat) : motive1 a✝
+  (case3 : motive2 0) (case4 : ∀ (n : Nat), motive1 n → motive2 n.succ) (m : Nat) : motive1 m
 -/
 #guard_msgs in
 #check even.induct
@@ -596,6 +614,14 @@ info: EvenOdd.odd.induct (motive1 motive2 : Nat → Prop) (case1 : motive1 0) (c
 -/
 #guard_msgs in
 #check odd.induct
+
+/--
+info: EvenOdd.even.mutual_induct (motive1 motive2 : Nat → Prop) (case1 : motive1 0)
+  (case2 : ∀ (n : Nat), motive2 n → motive1 n.succ) (case3 : motive2 0)
+  (case4 : ∀ (n : Nat), motive1 n → motive2 n.succ) : (∀ (m : Nat), motive1 m) ∧ ∀ (a : Nat), motive2 a
+-/
+#guard_msgs in
+#check even.mutual_induct
 
 end EvenOdd
 
@@ -613,7 +639,7 @@ def Tree.map_forest (f : Tree → Tree) (ts : List Tree) : List Tree :=
 end
 
 /--
-info: Tree.Tree.map.induct (f : Tree → Tree) (motive1 : Tree → Prop) (motive2 : List Tree → Prop)
+info: Tree.Tree.map.induct (motive1 : Tree → Prop) (motive2 : List Tree → Prop)
   (case1 : ∀ (ts : List Tree), motive2 ts → motive1 (Tree.node ts))
   (case2 : ∀ (ts : List Tree), (∀ (t : Tree), t ∈ ts → motive1 t) → motive2 ts) (a✝ : Tree) : motive1 a✝
 -/
@@ -621,7 +647,7 @@ info: Tree.Tree.map.induct (f : Tree → Tree) (motive1 : Tree → Prop) (motive
 #check Tree.map.induct
 
 /--
-info: Tree.Tree.map_forest.induct (f : Tree → Tree) (motive1 : Tree → Prop) (motive2 : List Tree → Prop)
+info: Tree.Tree.map_forest.induct (motive1 : Tree → Prop) (motive2 : List Tree → Prop)
   (case1 : ∀ (ts : List Tree), motive2 ts → motive1 (Tree.node ts))
   (case2 : ∀ (ts : List Tree), (∀ (t : Tree), t ∈ ts → motive1 t) → motive2 ts) (ts : List Tree) : motive2 ts
 -/
@@ -629,7 +655,7 @@ info: Tree.Tree.map_forest.induct (f : Tree → Tree) (motive1 : Tree → Prop) 
 #check Tree.map_forest.induct
 
 /--
-info: Tree.Tree.map.mutual_induct (f : Tree → Tree) (motive1 : Tree → Prop) (motive2 : List Tree → Prop)
+info: Tree.Tree.map.mutual_induct (motive1 : Tree → Prop) (motive2 : List Tree → Prop)
   (case1 : ∀ (ts : List Tree), motive2 ts → motive1 (Tree.node ts))
   (case2 : ∀ (ts : List Tree), (∀ (t : Tree), t ∈ ts → motive1 t) → motive2 ts) :
   (∀ (a : Tree), motive1 a) ∧ ∀ (ts : List Tree), motive2 ts
@@ -650,8 +676,8 @@ def unary (fixed : Bool := false) (n : Nat := 0)  : Nat :=
 termination_by n
 
 /--
-info: DefaultArgument.unary.induct (fixed : Bool) (motive : Nat → Prop) (case1 : motive 0)
-  (case2 : ∀ (n : Nat), motive n → motive n.succ) (n : Nat) : motive n
+info: DefaultArgument.unary.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive n.succ)
+  (n : Nat) : motive n
 -/
 #guard_msgs in
 #check unary.induct
@@ -663,7 +689,7 @@ def foo (fixed : Bool := false) (n : Nat) (m : Nat := 0) : Nat :=
 termination_by n
 
 /--
-info: DefaultArgument.foo.induct (fixed : Bool) (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 0 m)
+info: DefaultArgument.foo.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 0 m)
   (case2 : ∀ (m n : Nat), motive n m → motive n.succ m) (n m : Nat) : motive n m
 -/
 #guard_msgs in

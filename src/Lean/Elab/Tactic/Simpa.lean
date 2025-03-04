@@ -36,9 +36,9 @@ deriving instance Repr for UseImplicitLambdaResult
     let stx ← `(tactic| simp $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]?)
     let { ctx, simprocs, dischargeWrapper } ←
       withMainContext <| mkSimpContext stx (eraseLocal := false)
-    let ctx := if unfold.isSome then { ctx with config.autoUnfold := true } else ctx
+    let ctx := if unfold.isSome then ctx.setAutoUnfold else ctx
     -- TODO: have `simpa` fail if it doesn't use `simp`.
-    let ctx := { ctx with config := { ctx.config with failIfUnchanged := false } }
+    let ctx := ctx.setFailIfUnchanged false
     dischargeWrapper.with fun discharge? => do
       let (some (_, g), stats) ← simpGoal (← getMainGoal) ctx (simprocs := simprocs)
           (simplifyTarget := true) (discharge? := discharge?)
@@ -95,7 +95,8 @@ deriving instance Repr for UseImplicitLambdaResult
       else
         g.assumption; pure stats
       if tactic.simp.trace.get (← getOptions) || squeeze.isSome then
-        let stx ← match ← mkSimpOnly stx stats.usedTheorems with
+        let usingArg : Option Term := usingArg.map (⟨·.raw.unsetTrailing⟩)
+        let stx ← match ← mkSimpOnly stx.raw.unsetTrailing stats.usedTheorems with
           | `(tactic| simp $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]?) =>
             if unfold.isSome then
               `(tactic| simpa! $cfg:optConfig $(disch)? $[only%$only]? $[[$args,*]]? $[using $usingArg]?)

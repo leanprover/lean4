@@ -104,17 +104,26 @@ def initSearchPath (leanSysroot : FilePath) (sp : SearchPath := ∅) : IO Unit :
 private def initSearchPathInternal : IO Unit := do
   initSearchPath (← getBuildDir)
 
+/-- Find the compiled `.olean` of a module in the `LEAN_PATH` search path. -/
 partial def findOLean (mod : Name) : IO FilePath := do
   let sp ← searchPathRef.get
   if let some fname ← sp.findWithExt "olean" mod then
     return fname
   else
     let pkg := FilePath.mk <| mod.getRoot.toString (escape := false)
-    let mut msg := s!"unknown module prefix '{pkg}'
+    throw <| IO.userError s!"unknown module prefix '{pkg}'\n\n\
+      No directory '{pkg}' or file '{pkg}.olean' in the search path entries:\n\
+      {"\n".intercalate <| sp.map (·.toString)}"
 
-No directory '{pkg}' or file '{pkg}.olean' in the search path entries:
-{"\n".intercalate <| sp.map (·.toString)}"
-    throw <| IO.userError msg
+/-- Find the `.lean` source of a module in a `LEAN_SRC_PATH` search path. -/
+partial def findLean (sp : SearchPath) (mod : Name) : IO FilePath := do
+  if let some fname ← sp.findWithExt "lean" mod then
+    return fname
+  else
+    let pkg := FilePath.mk <| mod.getRoot.toString (escape := false)
+    throw <| IO.userError s!"unknown module prefix '{pkg}'\n\n\
+      No directory '{pkg}' or file '{pkg}.lean' in the search path entries:\n\
+      {"\n".intercalate <| sp.map (·.toString)}"
 
 /-- Infer module name of source file name. -/
 @[export lean_module_name_of_file]

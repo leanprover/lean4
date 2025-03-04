@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Array.Basic
 
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 universe u v w
 
 structure Subarray (α : Type u)  where
@@ -14,15 +16,6 @@ structure Subarray (α : Type u)  where
   stop : Nat
   start_le_stop : start ≤ stop
   stop_le_array_size : stop ≤ array.size
-
-@[deprecated Subarray.array (since := "2024-04-13")]
-abbrev Subarray.as (s : Subarray α) : Array α := s.array
-
-@[deprecated Subarray.start_le_stop (since := "2024-04-13")]
-theorem Subarray.h₁ (s : Subarray α) : s.start ≤ s.stop := s.start_le_stop
-
-@[deprecated Subarray.stop_le_array_size (since := "2024-04-13")]
-theorem Subarray.h₂ (s : Subarray α) : s.stop ≤ s.array.size := s.stop_le_array_size
 
 namespace Subarray
 
@@ -48,7 +41,7 @@ instance : GetElem (Subarray α) Nat α fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
 
 @[inline] def getD (s : Subarray α) (i : Nat) (v₀ : α) : α :=
-  if h : i < s.size then s.get ⟨i, h⟩ else v₀
+  if h : i < s.size then s[i] else v₀
 
 abbrev get! [Inhabited α] (s : Subarray α) (i : Nat) : α :=
   getD s i default

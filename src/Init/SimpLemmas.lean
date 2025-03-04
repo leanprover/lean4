@@ -72,6 +72,21 @@ theorem let_body_congr {α : Sort u} {β : α → Sort v} {b b' : (a : α) → �
     (a : α) (h : ∀ x, b x = b' x) : (let x := a; b x) = (let x := a; b' x) :=
   (funext h : b = b') ▸ rfl
 
+theorem letFun_unused {α : Sort u} {β : Sort v} (a : α) {b b' : β} (h : b = b') : @letFun α (fun _ => β) a (fun _ => b) = b' :=
+  h
+
+theorem letFun_congr {α : Sort u} {β : Sort v}  {a a' : α} {f f' : α → β} (h₁ : a = a') (h₂ : ∀ x, f x = f' x)
+    : @letFun α (fun _ => β) a f = @letFun α (fun _ => β) a' f' := by
+  rw [h₁, funext h₂]
+
+theorem letFun_body_congr {α : Sort u} {β : Sort v}  (a : α) {f f' : α → β} (h : ∀ x, f x = f' x)
+    : @letFun α (fun _ => β) a f = @letFun α (fun _ => β) a f' := by
+  rw [funext h]
+
+theorem letFun_val_congr {α : Sort u} {β : Sort v} {a a' : α} {f : α → β} (h : a = a')
+    : @letFun α (fun _ => β) a f = @letFun α (fun _ => β) a' f := by
+  rw [h]
+
 @[congr]
 theorem ite_congr {x y u v : α} {s : Decidable b} [Decidable c]
     (h₁ : b = c) (h₂ : c → x = u) (h₃ : ¬ c → y = v) : ite b x y = ite c u v := by
@@ -138,6 +153,7 @@ instance : Std.LawfulIdentity Or False where
 @[simp] theorem false_implies (p : Prop) : (False → p) = True := eq_true False.elim
 @[simp] theorem forall_false (p : False → Prop) : (∀ h : False, p h) = True := eq_true (False.elim ·)
 @[simp] theorem implies_true (α : Sort u) : (α → True) = True := eq_true fun _ => trivial
+-- This is later proved by the simp lemma `forall_const`, but this is useful during bootstrapping.
 @[simp] theorem true_implies (p : Prop) : (True → p) = p := propext ⟨(· trivial), (fun _ => ·)⟩
 @[simp] theorem not_false_eq_true : (¬ False) = True := eq_true False.elim
 @[simp] theorem not_true_eq_false : (¬ True) = False := by decide
@@ -263,7 +279,7 @@ theorem Bool.not_eq_false' (b : Bool) : ((!b) = false) = (b = true) := by simp
   ⟨of_decide_eq_false, decide_eq_false⟩
 
 @[simp] theorem decide_not [g : Decidable p] [h : Decidable (Not p)] : decide (Not p) = !(decide p) := by
-  cases g <;> (rename_i gp; simp [gp]; rfl)
+  cases g <;> (rename_i gp; simp [gp])
 theorem not_decide_eq_true [h : Decidable p] : ((!decide p) = true) = ¬ p := by simp
 
 @[simp] theorem heq_eq_eq (a b : α) : HEq a b = (a = b) := propext <| Iff.intro eq_of_heq heq_of_eq
@@ -277,8 +293,10 @@ theorem beq_self_eq_true' [DecidableEq α] (a : α) : (a == a) = true := by simp
 @[simp] theorem bne_self_eq_false [BEq α] [LawfulBEq α] (a : α) : (a != a) = false := by simp [bne]
 theorem bne_self_eq_false' [DecidableEq α] (a : α) : (a != a) = false := by simp
 
-@[simp] theorem decide_False : decide False = false := rfl
-@[simp] theorem decide_True  : decide True  = true := rfl
+set_option linter.missingDocs false in
+@[deprecated decide_false (since := "2024-11-05")] abbrev decide_False := decide_false
+set_option linter.missingDocs false in
+@[deprecated decide_true  (since := "2024-11-05")] abbrev decide_True  := decide_true
 
 @[simp] theorem bne_iff_ne [BEq α] [LawfulBEq α] {a b : α} : a != b ↔ a ≠ b := by
   simp [bne]; rw [← beq_iff_eq (a := a) (b := b)]; simp [-beq_iff_eq]

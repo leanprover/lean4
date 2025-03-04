@@ -70,7 +70,7 @@ def StructureInfo.lt (i₁ i₂ : StructureInfo) : Bool :=
 
 def StructureInfo.getProjFn? (info : StructureInfo) (i : Nat) : Option Name :=
   if h : i < info.fieldNames.size then
-    let fieldName := info.fieldNames.get ⟨i, h⟩
+    let fieldName := info.fieldNames[i]
     info.fieldInfo.binSearch { fieldName := fieldName, projFn := default, subobject? := none, binderInfo := default } StructureFieldInfo.lt |>.map (·.projFn)
   else
     none
@@ -383,7 +383,7 @@ partial def computeStructureResolutionOrder [Monad m] [MonadEnv m]
   -- `resOrders` contains the resolution orders to merge.
   -- The parent list is inserted as a pseudo resolution order to ensure immediate parents come out in order,
   -- and it is added first to be the primary ordering constraint when there are ordering errors.
-  let mut resOrders := parentResOrders.insertAt 0 parentNames |>.filter (!·.isEmpty)
+  let mut resOrders := parentResOrders.insertIdx 0 parentNames |>.filter (!·.isEmpty)
 
   let mut resOrder : Array Name := #[structName]
   let mut defects : Array StructureResolutionOrderConflict := #[]

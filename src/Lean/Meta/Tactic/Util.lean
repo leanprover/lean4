@@ -60,7 +60,7 @@ def _root_.Lean.MVarId.admit (mvarId : MVarId) (synthetic := true) : MetaM Unit 
   mvarId.withContext do
     mvarId.checkNotAssigned `admit
     let mvarType ← mvarId.getType
-    let val ← mkSorry mvarType synthetic
+    let val ← mkLabeledSorry mvarType synthetic (unique := true)
     mvarId.assign val
 
 /-- Beta reduce the metavariable type head -/

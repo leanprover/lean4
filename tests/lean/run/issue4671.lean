@@ -5,7 +5,7 @@ inductive  A (n : Nat) : Type
   | b : A n → A n
 
 /--
-error: cannot use specified parameter for structural recursion:
+error: cannot use specified measure for structural recursion:
   its type is an inductive datatype
     A n
   and the datatype parameter
@@ -28,7 +28,7 @@ inductive Xn (e : Sigma.{0} (· → Type)) (α : Type) : Nat → Type where
 | mk2 {n} (s : e.1) (p : e.2 s → Xn e α n) : Xn e α n
 
 /--
-error: cannot use specified parameter for structural recursion:
+error: cannot use specified measure for structural recursion:
   its type is an inductive datatype
     Xn e (Xn e α n) m
   and the datatype parameter

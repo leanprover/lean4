@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Hashable
+import Init.Data.Int
 import Lean.Data.KVMap
 import Lean.Data.SMap
 import Lean.Level
@@ -508,7 +509,11 @@ with
         (t.data.hasLevelMVar || v.data.hasLevelMVar || b.data.hasLevelMVar)
         (t.data.hasLevelParam || v.data.hasLevelParam || b.data.hasLevelParam)
     | .lit l => mkData (mixHash 3 (hash l))
-deriving Inhabited, Repr
+deriving Repr
+
+instance : Inhabited Expr where
+  -- use a distinctive name to aid debugging
+  default := .const `_inhabitedExprDummy []
 
 namespace Expr
 
@@ -639,7 +644,7 @@ def mkFVar (fvarId : FVarId) : Expr :=
 /--
 `.mvar mvarId` is now the preferred form.
 This function is seldom used, metavariables are often created using functions such
-as `mkFresheExprMVar` at `MetaM`.
+as `mkFreshExprMVar` at `MetaM`.
 -/
 def mkMVar (mvarId : MVarId) : Expr :=
   .mvar mvarId
@@ -746,7 +751,7 @@ def mkAppN (f : Expr) (args : Array Expr) : Expr :=
   args.foldl mkApp f
 
 private partial def mkAppRangeAux (n : Nat) (args : Array Expr) (i : Nat) (e : Expr) : Expr :=
-  if i < n then mkAppRangeAux n args (i+1) (mkApp e (args.get! i)) else e
+  if i < n then mkAppRangeAux n args (i+1) (mkApp e args[i]!) else e
 
 /-- `mkAppRange f i j #[a_1, ..., a_i, ..., a_j, ... ]` ==> the expression `f a_i ... a_{j-1}` -/
 def mkAppRange (f : Expr) (i j : Nat) (args : Array Expr) : Expr :=
@@ -768,6 +773,11 @@ opaque quickLt (a : @& Expr) (b : @& Expr) : Bool
 /-- A total order for expressions that takes the structure into account (e.g., variable names). -/
 @[extern "lean_expr_lt"]
 opaque lt (a : @& Expr) (b : @& Expr) : Bool
+
+def quickComp (a b : Expr) : Ordering :=
+  if quickLt a b then .lt
+  else if quickLt b a then .gt
+  else .eq
 
 /--
 Return true iff `a` and `b` are alpha equivalent.
@@ -961,6 +971,10 @@ def bvarIdx! : Expr → Nat
 def fvarId! : Expr → FVarId
   | fvar n => n
   | _      => panic! "fvar expected"
+
+def fvarId? : Expr → Option FVarId
+  | fvar n => some n
+  | _      => none
 
 def mvarId! : Expr → MVarId
   | mvar n => n
@@ -1235,6 +1249,9 @@ def getRevArg!' : Expr → Nat → Expr
 @[inline] def getArgD (e : Expr) (i : Nat) (v₀ : Expr) (n := e.getAppNumArgs) : Expr :=
   getRevArgD e (n - i - 1) v₀
 
+/-- Return `true` if `e` contains any loose bound variables.
+
+This is a constant time operation. -/
 def hasLooseBVars (e : Expr) : Bool :=
   e.looseBVarRange > 0
 
@@ -1247,14 +1264,31 @@ def isArrow (e : Expr) : Bool :=
   | forallE _ _ b _ => !b.hasLooseBVars
   | _ => false
 
+/--
+Return `true` if `e` contains the specified loose bound variable with index `bvarIdx`.
+
+This operation traverses the expression tree.
+-/
 @[extern "lean_expr_has_loose_bvar"]
 opaque hasLooseBVar (e : @& Expr) (bvarIdx : @& Nat) : Bool
 
-/-- Return true if `e` contains the loose bound variable `bvarIdx` in an explicit parameter, or in the range if `tryRange == true`. -/
-def hasLooseBVarInExplicitDomain : Expr → Nat → Bool → Bool
-  | Expr.forallE _ d b bi, bvarIdx, tryRange =>
-    (bi.isExplicit && hasLooseBVar d bvarIdx) || hasLooseBVarInExplicitDomain b (bvarIdx+1) tryRange
-  | e, bvarIdx, tryRange => tryRange && hasLooseBVar e bvarIdx
+/--
+Returns true if `e` contains the loose bound variable `bvarIdx` in an explicit parameter,
+or in the range if `considerRange == true`.
+Additionally, if the bound variable appears in an implicit parameter,
+it transitively looks for that implicit parameter.
+-/
+-- This should be kept in sync with `lean::has_loose_bvars_in_domain`
+def hasLooseBVarInExplicitDomain (e : Expr) (bvarIdx : Nat) (considerRange : Bool) : Bool :=
+  match e with
+  | Expr.forallE _ d b bi =>
+    (hasLooseBVar d bvarIdx
+      && (bi.isExplicit
+          -- "Transitivity": bvar occurs in current implicit argument,
+          -- so we search for the current argument in the body.
+          || hasLooseBVarInExplicitDomain b 0 considerRange))
+    || hasLooseBVarInExplicitDomain b (bvarIdx+1) considerRange
+  | e => considerRange && hasLooseBVar e bvarIdx
 
 /--
 Lower the loose bound variables `>= s` in `e` by `d`.
@@ -1275,16 +1309,16 @@ opaque liftLooseBVars (e : @& Expr) (s d : @& Nat) : Expr
 It marks any parameter with an explicit binder annotation if there is another explicit arguments that depends on it or
 the resulting type if `considerRange == true`.
 
-Remark: we use this function to infer the bind annotations of inductive datatype constructors, and structure projections.
-When the `{}` annotation is used in these commands, we set `considerRange == false`.
+Remark: we use this function to infer the binder annotations of structure projections.
 -/
-def inferImplicit : Expr → Nat → Bool → Expr
-  | Expr.forallE n d b bi, i+1, considerRange =>
+-- This should be kept in synch with `lean::infer_implicit`
+def inferImplicit (e : Expr) (numParams : Nat) (considerRange : Bool) : Expr :=
+  match e, numParams with
+  | Expr.forallE n d b bi, i + 1 =>
     let b       := inferImplicit b i considerRange
     let newInfo := if bi.isExplicit && hasLooseBVarInExplicitDomain b 0 considerRange then BinderInfo.implicit else bi
     mkForall n newInfo d b
-  | e, 0, _ => e
-  | e, _, _ => e
+  | e, _ => e
 
 /--
 Instantiates the loose bound variables in `e` using the `subst` array,
@@ -1366,7 +1400,11 @@ See also `Lean.Expr.instantiateRange`, which instantiates with the "backwards" i
 @[extern "lean_expr_instantiate_rev_range"]
 opaque instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (subst : @& Array Expr) : Expr
 
-/-- Replace free (or meta) variables `xs` with loose bound variables. -/
+/-- Replace free (or meta) variables `xs` with loose bound variables,
+with `xs` ordered from outermost to innermost de Bruijn index.
+
+For example, `e := f x y` with `xs := #[x, y]` goes to `f #1 #0`,
+whereas `e := f x y` with `xs := #[y, x]` goes to `f #0 #1`. -/
 @[extern "lean_expr_abstract"]
 opaque abstract (e : @& Expr) (xs : @& Array Expr) : Expr
 
@@ -1445,7 +1483,7 @@ private partial def mkAppRevRangeAux (revArgs : Array Expr) (start : Nat) (b : E
   if i == start then b
   else
     let i := i - 1
-    mkAppRevRangeAux revArgs start (mkApp b (revArgs.get! i)) i
+    mkAppRevRangeAux revArgs start (mkApp b revArgs[i]!) i
 
 /-- `mkAppRevRange f b e args == mkAppRev f (revArgs.extract b e)` -/
 def mkAppRevRange (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : Expr :=
@@ -1630,6 +1668,23 @@ def isFalse (e : Expr) : Bool :=
 
 def isTrue (e : Expr) : Bool :=
   e.cleanupAnnotations.isConstOf ``True
+
+/--
+`getForallArity type` returns the arity of a `forall`-type. This function consumes nested annotations,
+and performs pending beta reductions. It does **not** use whnf.
+Examples:
+- If `a` is `Nat`, `getForallArity a` returns `0`
+- If `a` is `Nat → Bool`, `getForallArity a` returns `1`
+-/
+partial def getForallArity : Expr → Nat
+  | .mdata _ b       => getForallArity b
+  | .forallE _ _ b _ => getForallArity b + 1
+  | e                =>
+    if e.isHeadBetaTarget then
+      getForallArity e.headBeta
+    else
+      let e' := e.cleanupAnnotations
+      if e != e' then getForallArity e' else 0
 
 /--
 Checks if an expression is a "natural number numeral in normal form",
@@ -2106,16 +2161,13 @@ def mkInstLE : Expr := mkConst ``instLENat
 end Nat
 
 private def natAddFn : Expr :=
-  let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) nat nat nat Nat.mkInstHAdd
+  mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHAdd
 
 private def natSubFn : Expr :=
-  let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HSub.hSub [0, 0, 0]) nat nat nat Nat.mkInstHSub
+  mkApp4 (mkConst ``HSub.hSub [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHSub
 
 private def natMulFn : Expr :=
-  let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) nat nat nat Nat.mkInstHMul
+  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHMul
 
 /-- Given `a : Nat`, returns `Nat.succ a` -/
 def mkNatSucc (a : Expr) : Expr :=
@@ -2134,17 +2186,105 @@ def mkNatMul (a b : Expr) : Expr :=
   mkApp2 natMulFn a b
 
 private def natLEPred : Expr :=
-  mkApp2 (mkConst ``LE.le [0]) (mkConst ``Nat) Nat.mkInstLE
+  mkApp2 (mkConst ``LE.le [0]) Nat.mkType Nat.mkInstLE
 
 /-- Given `a b : Nat`, return `a ≤ b` -/
 def mkNatLE (a b : Expr) : Expr :=
   mkApp2 natLEPred a b
 
 private def natEqPred : Expr :=
-  mkApp (mkConst ``Eq [1]) (mkConst ``Nat)
+  mkApp (mkConst ``Eq [1]) Nat.mkType
 
 /-- Given `a b : Nat`, return `a = b` -/
 def mkNatEq (a b : Expr) : Expr :=
   mkApp2 natEqPred a b
+
+/-! Constants for Int typeclasses. -/
+namespace Int
+
+protected def mkType : Expr := mkConst ``Int
+
+def mkInstNeg : Expr := mkConst ``Int.instNegInt
+
+def mkInstAdd : Expr := mkConst ``Int.instAdd
+def mkInstHAdd : Expr := mkApp2 (mkConst ``instHAdd [levelZero]) Int.mkType mkInstAdd
+
+def mkInstSub : Expr := mkConst ``Int.instSub
+def mkInstHSub : Expr := mkApp2 (mkConst ``instHSub [levelZero]) Int.mkType mkInstSub
+
+def mkInstMul : Expr := mkConst ``Int.instMul
+def mkInstHMul : Expr := mkApp2 (mkConst ``instHMul [levelZero]) Int.mkType mkInstMul
+
+def mkInstDiv : Expr := mkConst ``Int.instDiv
+def mkInstHDiv : Expr := mkApp2 (mkConst ``instHDiv [levelZero]) Int.mkType mkInstDiv
+
+def mkInstMod : Expr := mkConst ``Int.instMod
+def mkInstHMod : Expr := mkApp2 (mkConst ``instHMod [levelZero]) Int.mkType mkInstMod
+
+def mkInstPow : Expr := mkConst ``Int.instNatPow
+def mkInstPowNat  : Expr := mkApp2 (mkConst ``instPowNat [levelZero]) Int.mkType mkInstPow
+def mkInstHPow : Expr := mkApp3 (mkConst ``instHPow [levelZero, levelZero]) Int.mkType Nat.mkType mkInstPowNat
+
+def mkInstLT : Expr := mkConst ``Int.instLTInt
+def mkInstLE : Expr := mkConst ``Int.instLEInt
+
+end Int
+
+private def intNegFn : Expr :=
+  mkApp2 (mkConst ``Neg.neg [0]) Int.mkType Int.mkInstNeg
+
+private def intAddFn : Expr :=
+  mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHAdd
+
+private def intSubFn : Expr :=
+  mkApp4 (mkConst ``HSub.hSub [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHSub
+
+private def intMulFn : Expr :=
+  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHMul
+
+/-- Given `a : Int`, returns `- a` -/
+def mkIntNeg (a : Expr) : Expr :=
+  mkApp intNegFn a
+
+/-- Given `a b : Int`, returns `a + b` -/
+def mkIntAdd (a b : Expr) : Expr :=
+  mkApp2 intAddFn a b
+
+/-- Given `a b : Int`, returns `a - b` -/
+def mkIntSub (a b : Expr) : Expr :=
+  mkApp2 intSubFn a b
+
+/-- Given `a b : Int`, returns `a * b` -/
+def mkIntMul (a b : Expr) : Expr :=
+  mkApp2 intMulFn a b
+
+private def intLEPred : Expr :=
+  mkApp2 (mkConst ``LE.le [0]) Int.mkType Int.mkInstLE
+
+/-- Given `a b : Int`, returns `a ≤ b` -/
+def mkIntLE (a b : Expr) : Expr :=
+  mkApp2 intLEPred a b
+
+private def intEqPred : Expr :=
+  mkApp (mkConst ``Eq [1]) Int.mkType
+
+/-- Given `a b : Int`, returns `a = b` -/
+def mkIntEq (a b : Expr) : Expr :=
+  mkApp2 intEqPred a b
+
+/-- Given `a b : Int`, returns `a ∣ b` -/
+def mkIntDvd (a b : Expr) : Expr :=
+  mkApp4 (mkConst ``Dvd.dvd [0]) Int.mkType (mkConst ``Int.instDvd) a b
+
+def mkIntLit (n : Int) : Expr :=
+  let r := mkRawNatLit n.natAbs
+  let r := mkApp3 (mkConst ``OfNat.ofNat [levelZero]) Int.mkType r (mkApp (mkConst ``instOfNat) r)
+  if n < 0 then
+    mkIntNeg r
+  else
+    r
+
+def reflBoolTrue : Expr :=
+  mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)
 
 end Lean

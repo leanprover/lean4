@@ -5,7 +5,9 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Expr
+import Lean.ToLevel
 import Init.Data.BitVec.Basic
+import Init.Data.SInt.Basic
 universe u
 
 namespace Lean
@@ -13,10 +15,15 @@ namespace Lean
 /--
 We use the `ToExpr` type class to convert values of type `α` into
 expressions that denote these values in Lean.
-Example:
+
+Examples:
 ```
 toExpr true = .const ``Bool.true []
+
+toTypeExpr Bool = .const ``Bool []
 ```
+
+See also `ToLevel` for representing universe levels as `Level` expressions.
 -/
 class ToExpr (α : Type u) where
   /-- Convert a value `a : α` into an expression that denotes `a` -/
@@ -91,6 +98,71 @@ instance : ToExpr USize where
     mkApp3 (.const ``OfNat.ofNat [0]) (mkConst ``USize) r
       (.app (.const ``USize.instOfNat []) r)
 
+instance : ToExpr Int8 where
+  toTypeExpr := mkConst ``Int8
+  toExpr i := if 0 ≤ i then
+    mkNat i.toNatClampNeg
+  else
+    mkApp3 (.const ``Neg.neg [0]) (.const ``Int8 []) (.const ``Int8.instNeg [])
+      (mkNat (-(i.toInt)).toNat)
+where
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int8 []) r
+        (.app (.const ``Int8.instOfNat []) r)
+
+instance : ToExpr Int16 where
+  toTypeExpr := mkConst ``Int16
+  toExpr i := if 0 ≤ i then
+    mkNat i.toNatClampNeg
+  else
+    mkApp3 (.const ``Neg.neg [0]) (.const ``Int16 []) (.const ``Int16.instNeg [])
+      (mkNat (-(i.toInt)).toNat)
+where
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int16 []) r
+        (.app (.const ``Int16.instOfNat []) r)
+
+instance : ToExpr Int32 where
+  toTypeExpr := mkConst ``Int32
+  toExpr i := if 0 ≤ i then
+    mkNat i.toNatClampNeg
+  else
+    mkApp3 (.const ``Neg.neg [0]) (.const ``Int32 []) (.const ``Int32.instNeg [])
+      (mkNat (-(i.toInt)).toNat)
+where
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int32 []) r
+        (.app (.const ``Int32.instOfNat []) r)
+
+instance : ToExpr Int64 where
+  toTypeExpr := mkConst ``Int64
+  toExpr i := if 0 ≤ i then
+    mkNat i.toNatClampNeg
+  else
+    mkApp3 (.const ``Neg.neg [0]) (.const ``Int64 []) (.const ``Int64.instNeg [])
+      (mkNat (-(i.toInt)).toNat)
+where
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int64 []) r
+        (.app (.const ``Int64.instOfNat []) r)
+
+instance : ToExpr ISize where
+  toTypeExpr := mkConst ``ISize
+  toExpr i := if 0 ≤ i then
+    mkNat i.toNatClampNeg
+  else
+    mkApp3 (.const ``Neg.neg [0]) (.const ``ISize []) (.const ``ISize.instNeg [])
+      (mkNat (-(i.toInt)).toNat)
+where
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``ISize []) r
+        (.app (.const ``ISize.instOfNat []) r)
+
 instance : ToExpr Bool where
   toExpr     := fun b => if b then mkConst ``Bool.true else mkConst ``Bool.false
   toTypeExpr := mkConst ``Bool
@@ -138,34 +210,35 @@ instance : ToExpr Name where
   toExpr     := Name.toExprAux
   toTypeExpr := mkConst ``Name
 
-instance [ToExpr α] : ToExpr (Option α) :=
+instance {α : Type u} [ToLevel.{u}] [ToExpr α] : ToExpr (Option α) :=
   let type := toTypeExpr α
   { toExpr     := fun o => match o with
-      | none   => mkApp (mkConst ``Option.none [levelZero]) type
-      | some a => mkApp2 (mkConst ``Option.some [levelZero]) type (toExpr a),
-    toTypeExpr := mkApp (mkConst ``Option [levelZero]) type }
+      | none   => mkApp (mkConst ``Option.none [toLevel.{u}]) type
+      | some a => mkApp2 (mkConst ``Option.some [toLevel.{u}]) type (toExpr a),
+    toTypeExpr := mkApp (mkConst ``Option [toLevel.{u}]) type }
 
 private def List.toExprAux [ToExpr α] (nilFn : Expr) (consFn : Expr) : List α → Expr
   | []    => nilFn
   | a::as => mkApp2 consFn (toExpr a) (toExprAux nilFn consFn as)
 
-instance [ToExpr α] : ToExpr (List α) :=
+instance {α : Type u} [ToLevel.{u}] [ToExpr α] : ToExpr (List α) :=
   let type := toTypeExpr α
-  let nil  := mkApp (mkConst ``List.nil [levelZero]) type
-  let cons := mkApp (mkConst ``List.cons [levelZero]) type
+  let nil  := mkApp (mkConst ``List.nil [toLevel.{u}]) type
+  let cons := mkApp (mkConst ``List.cons [toLevel.{u}]) type
   { toExpr     := List.toExprAux nil cons,
-    toTypeExpr := mkApp (mkConst ``List [levelZero]) type }
+    toTypeExpr := mkApp (mkConst ``List [toLevel.{u}]) type }
 
-instance [ToExpr α] : ToExpr (Array α) :=
+instance {α : Type u} [ToLevel.{u}] [ToExpr α] : ToExpr (Array α) :=
   let type := toTypeExpr α
-  { toExpr     := fun as => mkApp2 (mkConst ``List.toArray [levelZero]) type (toExpr as.toList),
-    toTypeExpr := mkApp (mkConst ``Array [levelZero]) type }
+  { toExpr     := fun as => mkApp2 (mkConst ``List.toArray [toLevel.{u}]) type (toExpr as.toList),
+    toTypeExpr := mkApp (mkConst ``Array [toLevel.{u}]) type }
 
-instance [ToExpr α] [ToExpr β] : ToExpr (α × β) :=
+instance {α : Type u} {β : Type v} [ToLevel.{u}] [ToLevel.{v}]
+    [ToExpr α] [ToExpr β] : ToExpr (α × β) :=
   let αType := toTypeExpr α
   let βType := toTypeExpr β
-  { toExpr     := fun ⟨a, b⟩ => mkApp4 (mkConst ``Prod.mk [levelZero, levelZero]) αType βType (toExpr a) (toExpr b),
-    toTypeExpr := mkApp2 (mkConst ``Prod [levelZero, levelZero]) αType βType }
+  { toExpr     := fun ⟨a, b⟩ => mkApp4 (mkConst ``Prod.mk [toLevel.{u}, toLevel.{v}]) αType βType (toExpr a) (toExpr b),
+    toTypeExpr := mkApp2 (mkConst ``Prod [toLevel.{u}, toLevel.{v}]) αType βType }
 
 instance : ToExpr Literal where
   toTypeExpr := mkConst ``Literal

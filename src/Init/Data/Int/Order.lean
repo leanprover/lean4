@@ -56,7 +56,7 @@ protected theorem le_total (a b : Int) : a ≤ b ∨ b ≤ a :=
     let ⟨k, (hk : m + k = n)⟩ := Nat.le.dest h
     le.intro k (by rw [← hk]; rfl)⟩
 
-theorem ofNat_zero_le (n : Nat) : 0 ≤ (↑n : Int) := ofNat_le.2 n.zero_le
+@[simp] theorem ofNat_zero_le (n : Nat) : 0 ≤ (↑n : Int) := ofNat_le.2 n.zero_le
 
 theorem eq_ofNat_of_zero_le {a : Int} (h : 0 ≤ a) : ∃ n : Nat, a = n := by
   have t := le.dest_sub h; rwa [Int.sub_zero] at t
@@ -133,10 +133,10 @@ protected theorem lt_of_not_ge {a b : Int} (h : ¬a ≤ b) : b < a :=
 protected theorem not_le_of_gt {a b : Int} (h : b < a) : ¬a ≤ b :=
   (Int.lt_iff_le_not_le.mp h).right
 
-protected theorem not_le {a b : Int} : ¬a ≤ b ↔ b < a :=
+@[simp] protected theorem not_le {a b : Int} : ¬a ≤ b ↔ b < a :=
   Iff.intro Int.lt_of_not_ge Int.not_le_of_gt
 
-protected theorem not_lt {a b : Int} : ¬a < b ↔ b ≤ a :=
+@[simp] protected theorem not_lt {a b : Int} : ¬a < b ↔ b ≤ a :=
   by rw [← Int.not_le, Decidable.not_not]
 
 protected theorem lt_trichotomy (a b : Int) : a < b ∨ a = b ∨ b < a :=
@@ -1011,10 +1011,15 @@ theorem sign_eq_neg_one_iff_neg {a : Int} : sign a = -1 ↔ a < 0 :=
     exact Int.le_add_one (ofNat_nonneg _)
   | .negSucc _ => simp +decide [sign]
 
-theorem mul_sign : ∀ i : Int, i * sign i = natAbs i
+@[simp] theorem mul_sign_self : ∀ i : Int, i * sign i = natAbs i
   | succ _ => Int.mul_one _
   | 0 => Int.mul_zero _
   | -[_+1] => Int.mul_neg_one _
+
+@[deprecated mul_sign_self (since := "2025-02-24")] abbrev mul_sign := @mul_sign_self
+
+@[simp] theorem sign_mul_self : sign i * i = natAbs i := by
+  rw [Int.mul_comm, mul_sign_self]
 
 /- ## natAbs -/
 

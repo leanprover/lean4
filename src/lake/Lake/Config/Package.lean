@@ -3,8 +3,10 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+prelude
 import Lake.Config.Opaque
 import Lake.Config.Defaults
+import Lake.Config.OutFormat
 import Lake.Config.LeanLibConfig
 import Lake.Config.LeanExeConfig
 import Lake.Config.ExternLibConfig
@@ -275,7 +277,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   Packages without a defined version default to `0.0.0`.
   -/
-  version : StdVer := v!"0.0.0"
+  version : StdVer := {}
 
   /--
   Git tags of this package's repository that should be treated as versions.
@@ -380,11 +382,9 @@ structure Package where
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
   relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile
   /-- The package's scope (e.g., in Reservoir). -/
-  scope : String := ""
+  scope : String
   /-- The URL to this package's Git remote. -/
-  remoteUrl : String := ""
-  /-- (Opaque references to) the package's direct dependencies. -/
-  opaqueDeps : Array OpaquePackage := #[]
+  remoteUrl : String
   /-- Dependency configurations for the package. -/
   depConfigs : Array Dependency := #[]
   /-- Lean library configurations for the package. -/
@@ -414,12 +414,9 @@ structure Package where
   /-- The driver used for `lake lint` when this package is the workspace root. -/
   lintDriver : String := config.lintDriver
 
-
 instance : Nonempty Package :=
   have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance
   ⟨by constructor <;> exact default⟩
-
-hydrate_opaque_type OpaquePackage Package
 
 instance : Hashable Package where hash pkg := hash pkg.config.name
 instance : BEq Package where beq p1 p2 := p1.config.name == p2.config.name
@@ -433,6 +430,9 @@ abbrev OrdPackageSet := OrdHashSet Package
 /-- The package's name. -/
 abbrev Package.name (self : Package) : Name :=
   self.config.name
+
+instance : ToText Package := ⟨(·.name.toString)⟩
+instance : ToJson Package := ⟨(toJson ·.name)⟩
 
 /-- A package with a name known at type-level. -/
 structure NPackage (name : Name) extends Package where
@@ -507,10 +507,6 @@ namespace Package
 /-- The package's `dir` joined with its `relReadmeFile`. -/
 @[inline] def readmeFile (self : Package) : FilePath  :=
   self.dir / self.config.readmeFile
-
-/-- The package's direct dependencies. -/
-@[inline] def deps (self : Package) : Array Package  :=
-  self.opaqueDeps.map (·.get)
 
 /-- The path to the package's Lake directory relative to `dir` (e.g., `.lake`). -/
 @[inline] def relLakeDir (_ : Package) : FilePath :=
@@ -599,6 +595,14 @@ namespace Package
 /-- The package's `backend` configuration. -/
 @[inline] def backend (self : Package) : Backend :=
   self.config.backend
+
+/-- The package's `dynlibs` configuration. -/
+@[inline] def dynlibs (self : Package) : TargetArray Dynlib :=
+  self.config.dynlibs
+
+/-- The package's `plugins` configuration. -/
+@[inline] def plugins (self : Package) : TargetArray Dynlib :=
+  self.config.plugins
 
 /-- The package's `leanOptions` configuration. -/
 @[inline] def leanOptions (self : Package) : Array LeanOption :=

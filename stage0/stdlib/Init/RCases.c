@@ -35,7 +35,6 @@ static lean_object* l_Lean_Parser_Tactic_rcases___closed__8;
 static lean_object* l_Lean_Parser_Tactic_rcases___closed__3;
 static lean_object* l_Lean_Parser_Tactic_rintro___closed__6;
 static lean_object* l_Lean_Parser_Tactic_rintroPat_binder___closed__4;
-extern lean_object* l_Lean_Parser_Tactic_casesTarget;
 static lean_object* l_Lean_Parser_Tactic_rcasesPat_quot___closed__11;
 static lean_object* l_Lean_Parser_Tactic_rcases___closed__7;
 static lean_object* l_Lean_Parser_Tactic_rcasesPat_explicit___closed__2;
@@ -122,6 +121,7 @@ static lean_object* l_Lean_Parser_Tactic_rcasesPat_explicit___closed__5;
 static lean_object* l_Lean_Parser_Tactic_rintroPat_quot___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_rcasesPat_one;
 static lean_object* l_Lean_Parser_Tactic_rcasesPat_quot___closed__6;
+extern lean_object* l_Lean_Parser_Tactic_elimTarget;
 static lean_object* l_Lean_Parser_Tactic_rcasesPat_tuple___closed__5;
 static lean_object* l_Lean_Parser_Tactic_rcasesPat_paren___closed__7;
 static lean_object* l_Lean_Parser_Tactic_rintroPat_binder___closed__6;
@@ -1487,7 +1487,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_rcases___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_Tactic_casesTarget;
+x_1 = l_Lean_Parser_Tactic_elimTarget;
 x_2 = l_Lean_Parser_Tactic_rcasesPat_tuple___closed__7;
 x_3 = l_Lean_Parser_Tactic_rcasesPat_tuple___closed__6;
 x_4 = 0;

@@ -200,7 +200,7 @@ where
     if explicit then
       let i := if i > 0 then i - 1 else i + xs.size
       if i < 0 || i ≥ xs.size then
-        throwError "invalid '{tacticName}' tactic, application has {xs.size} arguments but the index is out of bounds"
+        throwError "invalid '{tacticName}' tactic, application has {xs.size} argument(s) but the index is out of bounds"
       let idx := i.natAbs
       return (mkAppN f xs[0:idx], xs[idx:])
     else
@@ -217,7 +217,7 @@ where
           explicitIdxs := explicitIdxs.push k
       let i := if i > 0 then i - 1 else i + explicitIdxs.size
       if i < 0 || i ≥ explicitIdxs.size then
-        throwError "invalid '{tacticName}' tactic, application has {xs.size} explicit argument(s) but the index is out of bounds"
+        throwError "invalid '{tacticName}' tactic, application has {explicitIdxs.size} explicit argument(s) but the index is out of bounds"
       let idx := explicitIdxs[i.natAbs]!
       return (mkAppN f xs[0:idx], xs[idx:])
 

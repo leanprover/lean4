@@ -61,7 +61,9 @@ struct olean_header {
         0b0;
 #endif
     // 33 bytes: Lean version string, padded with '\0' to the right
-    // e.g. "4.12.0-nightly-2024-10-18". May not be null-terminated.
+    // e.g. "4.12.0-nightly-2024-10-18". Other suffixes after the version
+    // triple currently in use are `-rcN` for some `N` and `-pre` for any
+    // other non-release commit. Not necessarily null-terminated.
     char lean_version[33];
     // 81b008650766442a0dfa9faa796e4588c9d7d3a1
     // 40 bytes: build githash, padded with `\0` to the right
@@ -211,7 +213,7 @@ extern "C" LEAN_EXPORT object * lean_read_module_data(object * fname, object *) 
 #endif
             buffer = static_cast<char *>(malloc(size - sizeof(olean_header)));
             free_data = [=]() {
-                free(buffer);
+                free_sized(buffer, size - sizeof(olean_header));
             };
             in.read(buffer, size - sizeof(olean_header));
             if (!in) {
@@ -243,7 +245,7 @@ extern "C" LEAN_EXPORT object * lean_read_module_data(object * fname, object *) 
 def writeModule (env : Environment) (fname : String) : IO Unit := */
 extern "C" object * lean_write_module(object * env, object * fname, object *);
 
-void write_module(environment const & env, std::string const & olean_fn) {
+void write_module(elab_environment const & env, std::string const & olean_fn) {
     consume_io_result(lean_write_module(env.to_obj_arg(), mk_string(olean_fn), io_mk_world()));
 }
 }

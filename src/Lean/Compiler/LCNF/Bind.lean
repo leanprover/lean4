@@ -123,7 +123,10 @@ def FunDeclCore.etaExpand (decl : FunDecl) : CompilerM FunDecl := do
   decl.update decl.type params value
 
 def Decl.etaExpand (decl : Decl) : CompilerM Decl := do
-  let some (params, value) ← etaExpandCore? decl.type decl.params decl.value | return decl
-  return { decl with params, value }
+  match decl.value with
+  | .code code =>
+    let some (params, newCode) ← etaExpandCore? decl.type decl.params code | return decl
+    return { decl with params, value := .code newCode}
+  | .extern .. => return decl
 
 end Lean.Compiler.LCNF

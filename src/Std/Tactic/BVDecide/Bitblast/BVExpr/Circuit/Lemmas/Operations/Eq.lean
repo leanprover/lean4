@@ -30,9 +30,9 @@ theorem mkEq_denote_eq (aig : AIG α) (pair : AIG.BinaryRefVec aig w) (assign : 
   simp only [RefVec.denote_fold_and, RefVec.denote_zip, denote_mkBEqCached, beq_iff_eq]
   constructor
   · intro h
-    ext
-    rw [← hleft, ← hright]
-    · simp [h]
+    ext i h'
+    rw [← BitVec.getLsbD_eq_getElem, ← BitVec.getLsbD_eq_getElem, ← hleft, ← hright]
+    · simp [h, h']
     · omega
     · omega
   · intro h idx hidx

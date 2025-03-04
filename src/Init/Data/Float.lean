@@ -31,7 +31,7 @@ opaque floatSpec : FloatSpec := {
 structure Float where
   val : floatSpec.float
 
-instance : Inhabited Float := ⟨{ val := floatSpec.val }⟩
+instance : Nonempty Float := ⟨{ val := floatSpec.val }⟩
 
 @[extern "lean_float_add"] opaque Float.add : Float → Float → Float
 @[extern "lean_float_sub"] opaque Float.sub : Float → Float → Float
@@ -46,6 +46,25 @@ def Float.lt : Float → Float → Prop := fun a b =>
 
 def Float.le : Float → Float → Prop := fun a b =>
   floatSpec.le a.val b.val
+
+/--
+Raw transmutation from `UInt64`.
+
+Floats and UInts have the same endianness on all supported platforms.
+IEEE 754 very precisely specifies the bit layout of floats.
+-/
+@[extern "lean_float_of_bits"] opaque Float.ofBits : UInt64 → Float
+
+/--
+Raw transmutation to `UInt64`.
+
+Floats and UInts have the same endianness on all supported platforms.
+IEEE 754 very precisely specifies the bit layout of floats.
+
+Note that this function is distinct from `Float.toUInt64`, which attempts
+to preserve the numeric value, and not the bitwise value.
+-/
+@[extern "lean_float_to_bits"] opaque Float.toBits : Float → UInt64
 
 instance : Add Float := ⟨Float.add⟩
 instance : Sub Float := ⟨Float.sub⟩
@@ -115,7 +134,25 @@ Returns an undefined value if `x` is not finite.
 instance : ToString Float where
   toString := Float.toString
 
+/-- Obtains the `Float` whose value is the same as the given `UInt8`. -/
+@[extern "lean_uint8_to_float"] opaque UInt8.toFloat (n : UInt8) : Float
+/-- Obtains the `Float` whose value is the same as the given `UInt16`. -/
+@[extern "lean_uint16_to_float"] opaque UInt16.toFloat (n : UInt16) : Float
+/-- Obtains the `Float` whose value is the same as the given `UInt32`. -/
+@[extern "lean_uint32_to_float"] opaque UInt32.toFloat (n : UInt32) : Float
+/-- Obtains a `Float` whose value is near the given `UInt64`. It will be exactly the value of the
+given `UInt64` if such a `Float` exists. If no such `Float` exists, the returned value will either
+be the smallest `Float` this is larger than the given value, or the largest `Float` this is smaller
+than the given value. -/
 @[extern "lean_uint64_to_float"] opaque UInt64.toFloat (n : UInt64) : Float
+/-- Obtains a `Float` whose value is near the given `USize`. It will be exactly the value of the
+given `USize` if such a `Float` exists. If no such `Float` exists, the returned value will either
+be the smallest `Float` this is larger than the given value, or the largest `Float` this is smaller
+than the given value. -/
+@[extern "lean_usize_to_float"] opaque USize.toFloat (n : USize) : Float
+
+instance : Inhabited Float where
+  default := UInt64.toFloat 0
 
 instance : Repr Float where
   reprPrec n prec := if n < UInt64.toFloat 0 then Repr.addAppParen (toString n) prec else toString n

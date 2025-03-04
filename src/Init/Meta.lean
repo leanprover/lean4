@@ -7,6 +7,7 @@ Additional goodies for writing macros
 -/
 prelude
 import Init.MetaTypes
+import Init.Syntax
 import Init.Data.Array.GetLit
 import Init.Data.Option.BasicAux
 
@@ -92,7 +93,8 @@ def isLetterLike (c : Char) : Bool :=
 def isSubScriptAlnum (c : Char) : Bool :=
   isNumericSubscript c ||
   (0x2090 ≤ c.val && c.val ≤ 0x209c) ||
-  (0x1d62 ≤ c.val && c.val ≤ 0x1d6a)
+  (0x1d62 ≤ c.val && c.val ≤ 0x1d6a) ||
+  c.val == 0x2c7c
 
 @[inline] def isIdFirst (c : Char) : Bool :=
   c.isAlpha || c = '_' || isLetterLike c
@@ -373,6 +375,9 @@ partial def structEq : Syntax → Syntax → Bool
 instance : BEq Lean.Syntax := ⟨structEq⟩
 instance : BEq (Lean.TSyntax k) := ⟨(·.raw == ·.raw)⟩
 
+/--
+Finds the first `SourceInfo` from the back of `stx` or `none` if no `SourceInfo` can be found.
+-/
 partial def getTailInfo? : Syntax → Option SourceInfo
   | atom info _   => info
   | ident info .. => info
@@ -381,13 +386,38 @@ partial def getTailInfo? : Syntax → Option SourceInfo
   | node info _ _    => info
   | _             => none
 
+/--
+Finds the first `SourceInfo` from the back of `stx` or `SourceInfo.none`
+if no `SourceInfo` can be found.
+-/
 def getTailInfo (stx : Syntax) : SourceInfo :=
   stx.getTailInfo?.getD SourceInfo.none
 
+/--
+Finds the trailing size of the first `SourceInfo` from the back of `stx`.
+If no `SourceInfo` can be found or the first `SourceInfo` from the back of `stx` contains no
+trailing whitespace, the result is `0`.
+-/
 def getTrailingSize (stx : Syntax) : Nat :=
   match stx.getTailInfo? with
   | some (SourceInfo.original (trailing := trailing) ..) => trailing.bsize
   | _ => 0
+
+/--
+Finds the trailing whitespace substring of the first `SourceInfo` from the back of `stx`.
+If no `SourceInfo` can be found or the first `SourceInfo` from the back of `stx` contains
+no trailing whitespace, the result is `none`.
+-/
+def getTrailing? (stx : Syntax) : Option Substring :=
+  stx.getTailInfo.getTrailing?
+
+/--
+Finds the tail position of the trailing whitespace of the first `SourceInfo` from the back of `stx`.
+If no `SourceInfo` can be found or the first `SourceInfo` from the back of `stx` contains
+no trailing whitespace and lacks a tail position, the result is `none`.
+-/
+def getTrailingTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos :=
+  stx.getTailInfo.getTrailingTailPos? canonicalOnly
 
 /--
   Return substring of original input covering `stx`.
@@ -402,21 +432,20 @@ def getSubstring? (stx : Syntax) (withLeading := true) (withTrailing := true) : 
     }
   | _, _ => none
 
-@[specialize] private partial def updateLast {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
-  if i == 0 then
-    none
-  else
-    let i := i - 1
-    let v := a[i]!
+@[specialize] private partial def updateLast {α} (a : Array α) (f : α → Option α) (i : Fin (a.size + 1)) : Option (Array α) :=
+  match i with
+  | 0 => none
+  | ⟨i + 1, h⟩ =>
+    let v := a[i]'(Nat.succ_lt_succ_iff.mp h)
     match f v with
-    | some v => some <| a.set! i v
-    | none   => updateLast a f i
+    | some v => some <| a.set i v (Nat.succ_lt_succ_iff.mp h)
+    | none   => updateLast a f ⟨i, Nat.lt_of_succ_lt h⟩
 
 partial def setTailInfoAux (info : SourceInfo) : Syntax → Option Syntax
   | atom _ val             => some <| atom info val
   | ident _ rawVal val pre => some <| ident info rawVal val pre
   | node info' k args      =>
-    match updateLast args (setTailInfoAux info) args.size with
+    match updateLast args (setTailInfoAux info) ⟨args.size, by simp⟩ with
     | some args => some <| node info' k args
     | none      => none
   | _                      => none
@@ -442,7 +471,7 @@ def unsetTrailing (stx : Syntax) : Syntax :=
   if h : i < a.size then
     let v := a[i]
     match f v with
-    | some v => some <| a.set ⟨i, h⟩ v
+    | some v => some <| a.set i v h
     | none   => updateFirst a f (i+1)
   else
     none
@@ -651,6 +680,7 @@ private partial def decodeBinLitAux (s : String) (i : String.Pos) (val : Nat) : 
     let c := s.get i
     if c == '0' then decodeBinLitAux s (s.next i) (2*val)
     else if c == '1' then decodeBinLitAux s (s.next i) (2*val + 1)
+    else if c == '_' then decodeBinLitAux s (s.next i) val
     else none
 
 private partial def decodeOctalLitAux (s : String) (i : String.Pos) (val : Nat) : Option Nat :=
@@ -658,6 +688,7 @@ private partial def decodeOctalLitAux (s : String) (i : String.Pos) (val : Nat) 
   else
     let c := s.get i
     if '0' ≤ c && c ≤ '7' then decodeOctalLitAux s (s.next i) (8*val + c.toNat - '0'.toNat)
+    else if c == '_' then decodeOctalLitAux s (s.next i) val
     else none
 
 private def decodeHexDigit (s : String) (i : String.Pos) : Option (Nat × String.Pos) :=
@@ -672,13 +703,16 @@ private partial def decodeHexLitAux (s : String) (i : String.Pos) (val : Nat) : 
   if s.atEnd i then some val
   else match decodeHexDigit s i with
     | some (d, i) => decodeHexLitAux s i (16*val + d)
-    | none        => none
+    | none        =>
+      if s.get i == '_' then decodeHexLitAux s (s.next i) val
+      else none
 
 private partial def decodeDecimalLitAux (s : String) (i : String.Pos) (val : Nat) : Option Nat :=
   if s.atEnd i then some val
   else
     let c := s.get i
     if '0' ≤ c && c ≤ '9' then decodeDecimalLitAux s (s.next i) (10*val + c.toNat - '0'.toNat)
+    else if c == '_' then decodeDecimalLitAux s (s.next i) val
     else none
 
 def decodeNatLitVal? (s : String) : Option Nat :=
@@ -701,8 +735,8 @@ def decodeNatLitVal? (s : String) : Option Nat :=
 def isLit? (litKind : SyntaxNodeKind) (stx : Syntax) : Option String :=
   match stx with
   | Syntax.node _ k args =>
-    if k == litKind && args.size == 1 then
-      match args.get! 0 with
+    if h : k == litKind ∧ args.size = 1 then
+      match args[0]'(Nat.lt_of_sub_eq_succ h.2) with
       | (Syntax.atom _ val) => some val
       | _ => none
     else
@@ -745,6 +779,8 @@ where
       let c := s.get i
       if '0' ≤ c && c ≤ '9' then
         decodeAfterExp (s.next i) val e sign (10*exp + c.toNat - '0'.toNat)
+      else if c == '_' then
+        decodeAfterExp (s.next i) val e sign exp
       else
         none
 
@@ -765,6 +801,8 @@ where
       let c := s.get i
       if '0' ≤ c && c ≤ '9' then
         decodeAfterDot (s.next i) (10*val + c.toNat - '0'.toNat) (e+1)
+      else if c == '_' then
+        decodeAfterDot (s.next i) val e
       else if c == 'e' || c == 'E' then
         decodeExp (s.next i) val e
       else
@@ -777,6 +815,8 @@ where
       let c := s.get i
       if '0' ≤ c && c ≤ '9' then
         decode (s.next i) (10*val + c.toNat - '0'.toNat)
+      else if c == '_' then
+        decode (s.next i) val
       else if c == '.' then
         decodeAfterDot (s.next i) val 0
       else if c == 'e' || c == 'E' then
@@ -1469,25 +1509,35 @@ This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
 declare_simp_like_tactic simpAutoUnfold "simp! " (autoUnfold := true)
 
-/-- `simp_arith` is shorthand for `simp` with `arith := true` and `decide := true`.
-This enables the use of normalization by linear arithmetic. -/
-declare_simp_like_tactic simpArith "simp_arith " (arith := true) (decide := true)
+/--
+`simp_arith` has been deprecated. It was a shorthand for `simp +arith +decide`.
+Note that `+decide` is not needed for reducing arithmetic terms since simprocs have been added to Lean.
+-/
+syntax (name := simpArith) "simp_arith " optConfig (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 
-/-- `simp_arith!` is shorthand for `simp_arith` with `autoUnfold := true`.
-This will rewrite with all equation lemmas, which can be used to
-partially evaluate many definitions. -/
-declare_simp_like_tactic simpArithAutoUnfold "simp_arith! " (arith := true) (autoUnfold := true) (decide := true)
+/--
+`simp_arith!` has been deprecated. It was a shorthand for `simp! +arith +decide`.
+Note that `+decide` is not needed for reducing arithmetic terms since simprocs have been added to Lean.
+-/
+syntax (name := simpArithBang) "simp_arith! " optConfig (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 
 /-- `simp_all!` is shorthand for `simp_all` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
 declare_simp_like_tactic (all := true) simpAllAutoUnfold "simp_all! " (autoUnfold := true)
 
-/-- `simp_all_arith` combines the effects of `simp_all` and `simp_arith`. -/
-declare_simp_like_tactic (all := true) simpAllArith "simp_all_arith " (arith := true) (decide := true)
+/--
+`simp_all_arith` has been deprecated. It was a shorthand for `simp_all +arith +decide`.
+Note that `+decide` is not needed for reducing arithmetic terms since simprocs have been added to Lean.
+-/
+syntax (name := simpAllArith) "simp_all_arith" optConfig (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? : tactic
 
-/-- `simp_all_arith!` combines the effects of `simp_all`, `simp_arith` and `simp!`. -/
-declare_simp_like_tactic (all := true) simpAllArithAutoUnfold "simp_all_arith! " (arith := true) (autoUnfold := true) (decide := true)
+/--
+`simp_all_arith!` has been deprecated. It was a shorthand for `simp_all! +arith +decide`.
+Note that `+decide` is not needed for reducing arithmetic terms since simprocs have been added to Lean.
+-/
+syntax (name := simpAllArithBang) "simp_all_arith!" optConfig (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? : tactic
+
 
 /-- `dsimp!` is shorthand for `dsimp` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to

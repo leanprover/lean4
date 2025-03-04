@@ -2,13 +2,15 @@
 
 def v : Array Nat := Array.mk [1, 2, 3, 4]
 
+#guard v == #[1, 2, 3, 4, ]
+
 def w : Array Nat :=
 (mkArray 9 1).push 3
 
 #check @Array.casesOn
 
 def f : Fin w.size → Nat :=
-  w.get
+  fun i => w.get i i.isLt
 
 def arraySum (a : Array Nat) : Nat :=
 a.foldl Nat.add 0

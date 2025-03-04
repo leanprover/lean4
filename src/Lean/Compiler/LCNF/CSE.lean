@@ -102,7 +102,7 @@ end CSE
 Common sub-expression elimination
 -/
 def Decl.cse (decl : Decl) : CompilerM Decl := do
-  let value ← decl.value.cse
+  let value ← decl.value.mapCodeM (·.cse)
   return { decl with value }
 
 def cse (phase : Phase := .base) (occurrence := 0) : Pass :=

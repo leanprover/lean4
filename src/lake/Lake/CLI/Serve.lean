@@ -3,14 +3,16 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Load
 import Lake.Build
 import Lake.Util.MainM
 import Lean.Util.FileSetupInfo
 
-namespace Lake
 open Lean
 open System (FilePath)
+
+namespace Lake
 
 /-- Exit code to return if `setup-file` cannot find the config file. -/
 def noConfigFileCode : ExitCode := 2
@@ -32,23 +34,45 @@ def setupFile
   (loadConfig : LoadConfig) (path : FilePath) (imports : List String := [])
   (buildConfig : BuildConfig := {})
 : MainM PUnit := do
-  if (← configFileExists loadConfig.configFile) then
+  let configFile ← realConfigFile loadConfig.configFile
+  let isConfig := EIO.catchExceptions (h := fun _ => pure false) do
+    let path ← IO.FS.realPath path
+    return configFile.normalize == path.normalize
+  if configFile.toString.isEmpty then
+    exit noConfigFileCode
+  else if (← isConfig) then
+    IO.println <| Json.compress <| toJson {
+      paths := {
+        oleanPath := loadConfig.lakeEnv.leanPath
+        srcPath := loadConfig.lakeEnv.leanSrcPath
+        loadDynlibPaths := #[]
+        pluginPaths := #[loadConfig.lakeEnv.lake.sharedLib]
+      }
+      setupOptions := ⟨∅⟩
+      : FileSetupInfo
+    }
+  else
     if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
       IO.eprint errLog
-      IO.eprintln s!"Invalid Lake configuration.  Please restart the server after fixing the Lake configuration file."
+      IO.eprintln s!"Failed to configure the Lake workspace. Please restart the server after fixing the error above."
       exit 1
     let outLv := buildConfig.verbosity.minLogLv
-    let ws ← MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
+    let ws ← MainM.runLoggerIO (minLv := outLv) (ansiMode := .noAnsi) do
       loadWorkspace loadConfig
+    -- Imperfect heuristic for determine when the Lake plugin is needed.
+    let usesLake := imports.any (·.startsWith "Lake")
     let imports := imports.foldl (init := #[]) fun imps imp =>
       if let some mod := ws.findModule? imp.toName then imps.push mod else imps
-    let dynlibs ← MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
-      ws.runBuild (buildImportsAndDeps path imports) buildConfig
+    let {dynlibs, plugins} ←
+      MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
+        ws.runBuild (buildImportsAndDeps path imports) buildConfig
+    let plugins :=
+      if usesLake then plugins.push ws.lakeEnv.lake.sharedLib else plugins
     let paths : LeanPaths := {
       oleanPath := ws.leanPath
       srcPath := ws.leanSrcPath
       loadDynlibPaths := dynlibs
-      : LeanPaths
+      pluginPaths := plugins
     }
     let setupOptions : LeanOptions ← do
       let some moduleName ← searchModuleNameOfFileName path ws.leanSrcPath
@@ -62,8 +86,6 @@ def setupFile
       setupOptions
       : FileSetupInfo
     }
-  else
-    exit noConfigFileCode
 
 /--
 Start the Lean LSP for the `Workspace` loaded from `config`
@@ -71,7 +93,7 @@ with the given additional `args`.
 -/
 def serve (config : LoadConfig) (args : Array String) : IO UInt32 := do
   let (extraEnv, moreServerArgs) ← do
-    let (ws?, log) ← (loadWorkspace config).run?
+    let (ws?, log) ← (loadWorkspace config).captureLog
     log.replay (logger := MonadLog.stderr)
     if let some ws := ws? then
       let ctx := mkLakeContext ws

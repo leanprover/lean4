@@ -148,7 +148,7 @@ def eraseCodeDecls (decls : Array CodeDecl) : CompilerM Unit := do
 
 def eraseDecl (decl : Decl) : CompilerM Unit := do
   eraseParams decl.params
-  eraseCode decl.value
+  decl.value.forCodeM eraseCode
 
 abbrev Decl.erase (decl : Decl) : CompilerM Unit :=
   eraseDecl decl

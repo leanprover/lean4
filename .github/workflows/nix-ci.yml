@@ -110,14 +110,6 @@ jobs:
           # https://github.com/netlify/cli/issues/1809
           cp -r --dereference ./result ./dist
         if: matrix.name == 'Nix Linux'
-      - name: Check manual for broken links
-        id: lychee
-        uses: lycheeverse/lychee-action@v1.9.0
-        with:
-          fail: false  # report errors but do not block CI on temporary failures
-          # gmplib.org consistently times out from GH actions
-          # the GitHub token is to avoid rate limiting
-          args: --base './dist' --no-progress --github-token ${{ secrets.GITHUB_TOKEN }} --exclude 'gmplib.org' './dist/**/*.html'
       - name: Rebuild Nix Store Cache
         run: |
           rm -rf nix-store-cache || true
@@ -129,7 +121,7 @@ jobs:
           python3 -c 'import base64; print("alias="+base64.urlsafe_b64encode(bytes.fromhex("${{github.sha}}")).decode("utf-8").rstrip("="))' >> "$GITHUB_OUTPUT"
           echo "message=`git log -1 --pretty=format:"%s"`" >> "$GITHUB_OUTPUT"
       - name: Publish manual to Netlify
-        uses: nwtgck/actions-netlify@v2.0
+        uses: nwtgck/actions-netlify@v3.0
         id: publish-manual
         with:
           publish-dir: ./dist

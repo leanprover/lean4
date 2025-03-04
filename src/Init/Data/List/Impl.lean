@@ -16,6 +16,9 @@ If you import `Init.Data.List.Basic` but do not import this file,
 then at runtime you will get non-tail recursive versions of the following definitions.
 -/
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 /-! ## Basic `List` operations.
@@ -38,7 +41,7 @@ The following operations were already given `@[csimp]` replacements in `Init/Dat
 
 The following operations are given `@[csimp]` replacements below:
 `set`, `filterMap`, `foldr`, `append`, `bind`, `join`,
-`take`, `takeWhile`, `dropLast`, `replace`, `modify`, `erase`, `eraseIdx`, `zipWith`,
+`take`, `takeWhile`, `dropLast`, `replace`, `modify`, `insertIdx`, `erase`, `eraseIdx`, `zipWith`,
 `enumFrom`, and `intercalate`.
 
 -/
@@ -57,8 +60,8 @@ The following operations are given `@[csimp]` replacements below:
 
 @[csimp] theorem set_eq_setTR : @set = @setTR := by
   funext α l n a; simp [setTR]
-  let rec go (acc) : ∀ xs n, l = acc.toList ++ xs →
-    setTR.go l a xs n acc = acc.toList ++ xs.set n a
+  let rec go (acc) : ∀ xs i, l = acc.toList ++ xs →
+    setTR.go l a xs i acc = acc.toList ++ xs.set i a
   | [], _ => fun h => by simp [setTR.go, set, h]
   | x::xs, 0 => by simp [setTR.go, set]
   | x::xs, n+1 => fun h => by simp only [setTR.go, set]; rw [go _ xs] <;> simp [h]
@@ -91,19 +94,19 @@ The following operations are given `@[csimp]` replacements below:
 @[specialize] def foldrTR (f : α → β → β) (init : β) (l : List α) : β := l.toArray.foldr f init
 
 @[csimp] theorem foldr_eq_foldrTR : @foldr = @foldrTR := by
-  funext α β f init l; simp [foldrTR, Array.foldr_eq_foldr_toList, -Array.size_toArray]
+  funext α β f init l; simp only [foldrTR, ← Array.foldr_toList]
 
 /-! ### flatMap  -/
 
 /-- Tail recursive version of `List.flatMap`. -/
-@[inline] def flatMapTR (as : List α) (f : α → List β) : List β := go as #[] where
+@[inline] def flatMapTR (f : α → List β) (as : List α) : List β := go as #[] where
   /-- Auxiliary for `flatMap`: `flatMap.go f as = acc.toList ++ bind f as` -/
   @[specialize] go : List α → Array β → List β
   | [], acc => acc.toList
   | x::xs, acc => go xs (acc ++ f x)
 
 @[csimp] theorem flatMap_eq_flatMapTR : @List.flatMap = @flatMapTR := by
-  funext α β as f
+  funext α β f as
   let rec go : ∀ as acc, flatMapTR.go f as acc = acc.toList ++ as.flatMap f
     | [], acc => by simp [flatMapTR.go, flatMap]
     | x::xs, acc => by simp [flatMapTR.go, flatMap, go xs]
@@ -112,7 +115,7 @@ The following operations are given `@[csimp]` replacements below:
 /-! ### flatten -/
 
 /-- Tail recursive version of `List.flatten`. -/
-@[inline] def flattenTR (l : List (List α)) : List α := flatMapTR l id
+@[inline] def flattenTR (l : List (List α)) : List α := l.flatMapTR id
 
 @[csimp] theorem flatten_eq_flattenTR : @flatten = @flattenTR := by
   funext α l; rw [← List.flatMap_id, List.flatMap_eq_flatMapTR]; rfl
@@ -131,13 +134,13 @@ The following operations are given `@[csimp]` replacements below:
   | a::as, n+1, acc => go as n (acc.push a)
 
 @[csimp] theorem take_eq_takeTR : @take = @takeTR := by
-  funext α n l; simp [takeTR]
-  suffices ∀ xs acc, l = acc.toList ++ xs → takeTR.go l xs n acc = acc.toList ++ xs.take n from
+  funext α i l; simp [takeTR]
+  suffices ∀ xs acc, l = acc.toList ++ xs → takeTR.go l xs i acc = acc.toList ++ xs.take i from
     (this l #[] (by simp)).symm
-  intro xs; induction xs generalizing n with intro acc
-  | nil => cases n <;> simp [take, takeTR.go]
+  intro xs; induction xs generalizing i with intro acc
+  | nil => cases i <;> simp [take, takeTR.go]
   | cons x xs IH =>
-    cases n with simp only [take, takeTR.go]
+    cases i with simp only [take, takeTR.go]
     | zero => simp
     | succ n => intro h; rw [IH] <;> simp_all
 
@@ -207,13 +210,30 @@ def modifyTR (f : α → α) (n : Nat) (l : List α) : List α := go l n #[] whe
   | a :: l, 0, acc => acc.toListAppend (f a :: l)
   | a :: l, n+1, acc => go l n (acc.push a)
 
-theorem modifyTR_go_eq : ∀ l n, modifyTR.go f l n acc = acc.toList ++ modify f n l
+theorem modifyTR_go_eq : ∀ l i, modifyTR.go f l i acc = acc.toList ++ modify f i l
   | [], n => by cases n <;> simp [modifyTR.go, modify]
   | a :: l, 0 => by simp [modifyTR.go, modify]
   | a :: l, n+1 => by simp [modifyTR.go, modify, modifyTR_go_eq l]
 
 @[csimp] theorem modify_eq_modifyTR : @modify = @modifyTR := by
   funext α f n l; simp [modifyTR, modifyTR_go_eq]
+
+/-! ### insertIdx -/
+
+/-- Tail-recursive version of `insertIdx`. -/
+@[inline] def insertIdxTR (n : Nat) (a : α) (l : List α) : List α := go n l #[] where
+  /-- Auxiliary for `insertIdxTR`: `insertIdxTR.go a n l acc = acc.toList ++ insertIdx n a l`. -/
+  go : Nat → List α → Array α → List α
+  | 0, l, acc => acc.toListAppend (a :: l)
+  | _, [], acc => acc.toList
+  | n+1, a :: l, acc => go n l (acc.push a)
+
+theorem insertIdxTR_go_eq : ∀ i l, insertIdxTR.go a i l acc = acc.toList ++ insertIdx i a l
+  | 0, l | _+1, [] => by simp [insertIdxTR.go, insertIdx]
+  | n+1, a :: l => by simp [insertIdxTR.go, insertIdx, insertIdxTR_go_eq n l]
+
+@[csimp] theorem insertIdx_eq_insertIdxTR : @insertIdx = @insertIdxTR := by
+  funext α f n l; simp [insertIdxTR, insertIdxTR_go_eq]
 
 /-! ### erase -/
 
@@ -267,15 +287,15 @@ theorem modifyTR_go_eq : ∀ l n, modifyTR.go f l n acc = acc.toList ++ modify f
   | a::as, n+1, acc => go as n (acc.push a)
 
 @[csimp] theorem eraseIdx_eq_eraseIdxTR : @eraseIdx = @eraseIdxTR := by
-  funext α l n; simp [eraseIdxTR]
-  suffices ∀ xs acc, l = acc.toList ++ xs → eraseIdxTR.go l xs n acc = acc.toList ++ xs.eraseIdx n from
+  funext α l i; simp [eraseIdxTR]
+  suffices ∀ xs acc, l = acc.toList ++ xs → eraseIdxTR.go l xs i acc = acc.toList ++ xs.eraseIdx i from
     (this l #[] (by simp)).symm
-  intro xs; induction xs generalizing n with intro acc h
+  intro xs; induction xs generalizing i with intro acc h
   | nil => simp [eraseIdx, eraseIdxTR.go, h]
   | cons x xs IH =>
-    match n with
+    match i with
     | 0 => simp [eraseIdx, eraseIdxTR.go]
-    | n+1 =>
+    | i+1 =>
       simp only [eraseIdxTR.go, eraseIdx]
       rw [IH]; simp; simp; exact h
 
@@ -299,28 +319,50 @@ theorem modifyTR_go_eq : ∀ l n, modifyTR.go f l n acc = acc.toList ++ modify f
 
 /-! ## Ranges and enumeration -/
 
+/-! ### zipIdx -/
+
+/-- Tail recursive version of `List.zipIdx`. -/
+def zipIdxTR (l : List α) (n : Nat := 0) : List (α × Nat) :=
+  let as := l.toArray
+  (as.foldr (fun a (n, acc) => (n-1, (a, n-1) :: acc)) (n + as.size, [])).2
+
+@[csimp] theorem zipIdx_eq_zipIdxTR : @zipIdx = @zipIdxTR := by
+  funext α l n; simp only [zipIdxTR, size_toArray]
+  let f := fun (a : α) (n, acc) => (n-1, (a, n-1) :: acc)
+  let rec go : ∀ l i, l.foldr f (i + l.length, []) = (i, zipIdx l i)
+    | [], n => rfl
+    | a::as, n => by
+      rw [← show _ + as.length = n + (a::as).length from Nat.succ_add .., foldr, go as]
+      simp [zipIdx, f]
+  rw [← Array.foldr_toList]
+  simp +zetaDelta [go]
+
 /-! ### enumFrom -/
 
 /-- Tail recursive version of `List.enumFrom`. -/
+@[deprecated zipIdxTR (since := "2025-01-21")]
 def enumFromTR (n : Nat) (l : List α) : List (Nat × α) :=
-  let arr := l.toArray
-  (arr.foldr (fun a (n, acc) => (n-1, (n-1, a) :: acc)) (n + arr.size, [])).2
+  let as := l.toArray
+  (as.foldr (fun a (n, acc) => (n-1, (n-1, a) :: acc)) (n + as.size, [])).2
 
-@[csimp] theorem enumFrom_eq_enumFromTR : @enumFrom = @enumFromTR := by
-  funext α n l; simp [enumFromTR, -Array.size_toArray]
+set_option linter.deprecated false in
+@[deprecated zipIdx_eq_zipIdxTR (since := "2025-01-21"), csimp]
+theorem enumFrom_eq_enumFromTR : @enumFrom = @enumFromTR := by
+  funext α n l; simp only [enumFromTR, size_toArray]
   let f := fun (a : α) (n, acc) => (n-1, (n-1, a) :: acc)
   let rec go : ∀ l n, l.foldr f (n + l.length, []) = (n, enumFrom n l)
     | [], n => rfl
     | a::as, n => by
       rw [← show _ + as.length = n + (a::as).length from Nat.succ_add .., foldr, go as]
       simp [enumFrom, f]
-  rw [Array.foldr_eq_foldr_toList]
-  simp [go]
+  rw [← Array.foldr_toList]
+  simp +zetaDelta [go]
 
 /-! ## Other list operations -/
 
 /-! ### intercalate -/
 
+set_option linter.listVariables false in
 /-- Tail recursive version of `List.intercalate`. -/
 def intercalateTR (sep : List α) : List (List α) → List α
   | [] => []
@@ -333,6 +375,7 @@ where
   | x, [], acc => acc.toListAppend x
   | x, y::xs, acc => go sep y xs (acc ++ x ++ sep)
 
+set_option linter.listVariables false in
 @[csimp] theorem intercalate_eq_intercalateTR : @intercalate = @intercalateTR := by
   funext α sep l; simp [intercalate, intercalateTR]
   match l with

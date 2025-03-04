@@ -10,13 +10,13 @@ import Lean.Meta.InferType
 namespace Lean.Meta
 
 @[inline] private def checkFunInfoCache (fn : Expr) (maxArgs? : Option Nat) (k : MetaM FunInfo) : MetaM FunInfo := do
-  let t ← getTransparency
-  match (← get).cache.funInfo.find? ⟨t, fn, maxArgs?⟩ with
-  | some finfo => pure finfo
+  let key ← mkInfoCacheKey fn maxArgs?
+  match (← get).cache.funInfo.find? key with
+  | some finfo => return finfo
   | none       => do
     let finfo ← k
-    modify fun s => { s with cache := { s.cache with funInfo := s.cache.funInfo.insert ⟨t, fn, maxArgs?⟩ finfo } }
-    pure finfo
+    modify fun s => { s with cache := { s.cache with funInfo := s.cache.funInfo.insert key finfo } }
+    return finfo
 
 @[inline] private def whenHasVar {α} (e : Expr) (deps : α) (k : α → α) : α :=
   if e.hasFVar then k deps else deps
@@ -31,9 +31,9 @@ private def collectDeps (fvars : Array Expr) (e : Expr) : Array Nat :=
     | .proj _ _ e      => visit e deps
     | .mdata _ e       => visit e deps
     | .fvar ..         =>
-      match fvars.indexOf? e with
+      match fvars.idxOf? e with
       | none   => deps
-      | some i => if deps.contains i.val then deps else deps.push i.val
+      | some i => if deps.contains i then deps else deps.push i
     | _ => deps
   let deps := visit e #[]
   deps.qsort (fun i j => i < j)
@@ -82,7 +82,7 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
                   for h2 : i in [:args.size] do
                     if outParamPositions.contains i then
                       let arg := args[i]
-                      if let some idx := fvars.indexOf? arg then
+                      if let some idx := fvars.idxOf? arg then
                         if (← whnf (← inferType arg)).isForall then
                           paramInfo := paramInfo.modify idx fun info => { info with higherOrderOutParam := true }
                           higherOrderOutParams := higherOrderOutParams.insert arg.fvarId!

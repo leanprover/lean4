@@ -35,8 +35,6 @@ where
     | BitVec.ofNat _ _ => goBvLit x
     | HAnd.hAnd _ _ _ _ lhsExpr rhsExpr =>
       binaryReflection lhsExpr rhsExpr .and ``Std.Tactic.BVDecide.Reflect.BitVec.and_congr
-    | HOr.hOr _ _ _ _ lhsExpr rhsExpr =>
-      binaryReflection lhsExpr rhsExpr .or ``Std.Tactic.BVDecide.Reflect.BitVec.or_congr
     | HXor.hXor _ _ _ _ lhsExpr rhsExpr =>
       binaryReflection lhsExpr rhsExpr .xor ``Std.Tactic.BVDecide.Reflect.BitVec.xor_congr
     | HAdd.hAdd _ _ _ _ lhsExpr rhsExpr =>
@@ -60,8 +58,8 @@ where
           ``BVUnOp.shiftLeftConst
           ``Std.Tactic.BVDecide.Reflect.BitVec.shiftLeftNat_congr
       else
+        let_expr BitVec _ := β | return none
         shiftReflection
-          β
           distanceExpr
           innerExpr
           .shiftLeft
@@ -78,8 +76,8 @@ where
           ``BVUnOp.shiftRightConst
           ``Std.Tactic.BVDecide.Reflect.BitVec.shiftRightNat_congr
       else
+        let_expr BitVec _ := β | return none
         shiftReflection
-          β
           distanceExpr
           innerExpr
           .shiftRight
@@ -92,6 +90,13 @@ where
         innerExpr
         .arithShiftRightConst
         ``BVUnOp.arithShiftRightConst
+        ``Std.Tactic.BVDecide.Reflect.BitVec.arithShiftRightNat_congr
+    | BitVec.sshiftRight' _ _ innerExpr distanceExpr =>
+      shiftReflection
+        distanceExpr
+        innerExpr
+        .arithShiftRight
+        ``BVExpr.arithShiftRight
         ``Std.Tactic.BVDecide.Reflect.BitVec.arithShiftRight_congr
     | BitVec.zeroExtend _ newWidthExpr innerExpr =>
       let some newWidth ← getNatValue? newWidthExpr | return none
@@ -105,7 +110,8 @@ where
           inner.expr
       let proof := do
         let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
-        let innerProof ← inner.evalsAtAtoms
+        -- This is safe as `zeroExtend_congr` holds definitionally if the arguments are defeq.
+        let some innerProof ← inner.evalsAtAtoms | return none
         return mkApp5 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.zeroExtend_congr)
           newWidthExpr
           (toExpr inner.width)
@@ -125,7 +131,8 @@ where
           inner.expr
       let proof := do
         let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
-        let innerProof ← inner.evalsAtAtoms
+        -- This is safe as `zeroExtend_congr` holds definitionally if the arguments are defeq.
+        let some innerProof ← inner.evalsAtAtoms | return none
         return mkApp5 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.signExtend_congr)
           newWidthExpr
           (toExpr inner.width)
@@ -143,9 +150,13 @@ where
         lhs.expr rhs.expr
       let proof := do
         let lhsEval ← ReifiedBVExpr.mkEvalExpr lhs.width lhs.expr
-        let lhsProof ← lhs.evalsAtAtoms
-        let rhsProof ← rhs.evalsAtAtoms
         let rhsEval ← ReifiedBVExpr.mkEvalExpr rhs.width rhs.expr
+        let lhsProof? ← lhs.evalsAtAtoms
+        let rhsProof? ← rhs.evalsAtAtoms
+        let some (lhsProof, rhsProof) :=
+          M.simplifyBinaryProof'
+            (ReifiedBVExpr.mkBVRefl lhs.width) lhsEval lhsProof?
+            (ReifiedBVExpr.mkBVRefl rhs.width) rhsEval rhsProof? | return none
         return mkApp8 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.append_congr)
           (toExpr lhs.width) (toExpr rhs.width)
           lhsExpr lhsEval
@@ -162,7 +173,8 @@ where
         inner.expr
       let proof := do
         let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
-        let innerProof ← inner.evalsAtAtoms
+        -- This is safe as `zeroExtend_congr` holds definitionally if the arguments are defeq.
+        let some innerProof ← inner.evalsAtAtoms | return none
         return mkApp5 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.replicate_congr)
           (toExpr n)
           (toExpr inner.width)
@@ -182,7 +194,8 @@ where
         inner.expr
       let proof := do
         let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
-        let innerProof ← inner.evalsAtAtoms
+        -- This is safe as `zeroExtend_congr` holds definitionally if the arguments are defeq.
+        let some innerProof ← inner.evalsAtAtoms | return none
         return mkApp6 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.extract_congr)
           startExpr
           lenExpr
@@ -205,15 +218,12 @@ where
         .rotateRight
         ``BVUnOp.rotateRight
         ``Std.Tactic.BVDecide.Reflect.BitVec.rotateRight_congr
-    | ite _ discrExpr _ lhsExpr rhsExpr =>
-      let_expr Eq α discrExpr val := discrExpr | return none
-      let_expr Bool := α | return none
-      let_expr Bool.true := val | return none
-      let some atom ← ReifiedBVExpr.bitVecAtom x | return none
+    | cond _ discrExpr lhsExpr rhsExpr =>
+      let some atom ← ReifiedBVExpr.bitVecAtom x true | return none
       let some discr ← ReifiedBVLogical.of discrExpr | return none
       let some lhs ← goOrAtom lhsExpr | return none
       let some rhs ← goOrAtom rhsExpr | return none
-      addIfLemmas discr atom lhs rhs discrExpr x lhsExpr rhsExpr
+      addCondLemmas discr atom lhs rhs discrExpr x lhsExpr rhsExpr
       return some atom
     | _ => return none
 
@@ -226,7 +236,7 @@ where
     let res ← go x
     match res with
     | some exp => return some exp
-    | none => ReifiedBVExpr.bitVecAtom x
+    | none => ReifiedBVExpr.bitVecAtom x false
 
   shiftConstLikeReflection (distance : Nat) (innerExpr : Expr) (shiftOp : Nat → BVUnOp)
       (shiftOpName : Name) (congrThm : Name) :
@@ -258,11 +268,10 @@ where
     let some distance ← ReifiedBVExpr.getNatOrBvValue? β distanceExpr | return none
     shiftConstLikeReflection distance innerExpr shiftOp shiftOpName congrThm
 
-  shiftReflection (β : Expr) (distanceExpr : Expr) (innerExpr : Expr)
+  shiftReflection (distanceExpr : Expr) (innerExpr : Expr)
       (shiftOp : {m n : Nat} → BVExpr m → BVExpr n → BVExpr m) (shiftOpName : Name)
       (congrThm : Name) :
       LemmaM (Option ReifiedBVExpr) := do
-    let_expr BitVec _ ← β | return none
     let some inner ← goOrAtom innerExpr | return none
     let some distance ← goOrAtom distanceExpr | return none
     let bvExpr : BVExpr inner.width := shiftOp inner.bvExpr distance.bvExpr
@@ -295,11 +304,16 @@ where
       return none
 
   binaryCongrProof (lhs rhs : ReifiedBVExpr) (lhsExpr rhsExpr : Expr) (congrThm : Expr) :
-      M Expr := do
+      M (Option Expr) := do
     let lhsEval ← ReifiedBVExpr.mkEvalExpr lhs.width lhs.expr
-    let lhsProof ← lhs.evalsAtAtoms
-    let rhsProof ← rhs.evalsAtAtoms
     let rhsEval ← ReifiedBVExpr.mkEvalExpr rhs.width rhs.expr
+    let lhsProof? ← lhs.evalsAtAtoms
+    let rhsProof? ← rhs.evalsAtAtoms
+    let some (lhsProof, rhsProof) :=
+      M.simplifyBinaryProof
+        (ReifiedBVExpr.mkBVRefl lhs.width)
+        lhsEval lhsProof?
+        rhsEval rhsProof? | return none
     return mkApp6 congrThm lhsExpr rhsExpr lhsEval rhsEval lhsProof rhsProof
 
   unaryReflection (innerExpr : Expr) (op : BVUnOp) (congrThm : Name) :
@@ -310,13 +324,13 @@ where
     let proof := unaryCongrProof inner innerExpr (mkConst congrThm)
     return some ⟨inner.width, bvExpr, proof, expr⟩
 
-  unaryCongrProof (inner : ReifiedBVExpr) (innerExpr : Expr) (congrProof : Expr) : M Expr := do
+  unaryCongrProof (inner : ReifiedBVExpr) (innerExpr : Expr) (congrProof : Expr) : M (Option Expr) := do
     let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
-    let innerProof ← inner.evalsAtAtoms
+    let some innerProof ← inner.evalsAtAtoms | return none
     return mkApp4 congrProof (toExpr inner.width) innerExpr innerEval innerProof
 
   goBvLit (x : Expr) : M (Option ReifiedBVExpr) := do
-    let some ⟨_, bvVal⟩ ← getBitVecValue? x | return ← ReifiedBVExpr.bitVecAtom x
+    let some ⟨_, bvVal⟩ ← getBitVecValue? x | return ← ReifiedBVExpr.bitVecAtom x false
     ReifiedBVExpr.mkBVConst bvVal
 
 /--
@@ -373,10 +387,7 @@ where
       | Bool => gateReflection lhsExpr rhsExpr .beq
       | BitVec _ => goPred t
       | _ => return none
-    | ite _ discrExpr _ lhsExpr rhsExpr =>
-      let_expr Eq α discrExpr val := discrExpr | return none
-      let_expr Bool := α | return none
-      let_expr Bool.true := val | return none
+    | cond _ discrExpr lhsExpr rhsExpr =>
       let some discr ← goOrAtom discrExpr | return none
       let some lhs ← goOrAtom lhsExpr | return none
       let some rhs ← goOrAtom rhsExpr | return none

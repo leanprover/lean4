@@ -3,13 +3,13 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone, Gabriel Ebner
 -/
+prelude
 import Lake.Util.Log
 import Lake.Util.Name
 import Lake.Util.FilePath
 import Lake.Util.JsonObject
 import Lake.Util.Version
-import Lake.Load.Config
-import Lake.Config.Workspace
+import Lake.Config.Defaults
 
 open System Lean
 
@@ -49,7 +49,7 @@ That is, Lake ignores the `-` suffix.
 - `"1.0.0"`: Switches to a semantic versioning scheme
 - `"1.1.0"`: Add optional `scope` package entry field
 -/
-@[inline] def Manifest.version : StdVer := v!"1.1.0"
+@[inline] def Manifest.version : StdVer := {major := 1, minor := 1}
 
 /-- Manifest version `0.6.0` package entry. For backwards compatibility. -/
 inductive PackageEntryV6
@@ -190,37 +190,44 @@ protected def toJson (self : Manifest) : Json :=
 
 instance : ToJson Manifest := ⟨Manifest.toJson⟩
 
-protected def fromJson? (json : Json) : Except String Manifest := do
-  let obj ← JsonObject.fromJson? json
+def getVersion (obj : JsonObject) : Except String SemVerCore := do
+  let ver : Json ← obj.get "version" <|> obj.get "schemaVersion"
   let ver : SemVerCore ←
-    match (← obj.get "version" : Json) with
+    match ver with
     | (n : Nat) => pure {minor := n}
     | (s : String) => StdVer.parse s
-    | ver => throw s!"unknown manifest version format '{ver}'; \
+    | ver => throw s!"invalid version '{ver}'; \
       you may need to update your 'lean-toolchain'"
   if ver.major > 1 then
-    throw s!"manifest version '{ver}' is of a higher major version than this \
+    throw s!"schema version '{ver}' is of a higher major version than this \
       Lake's '{Manifest.version}'; you may need to update your 'lean-toolchain'"
-  else if ver < v!"0.5.0" then
+  else if ver < {minor := 5} then
     throw s!"incompatible manifest version '{ver}'"
   else
-    let name ← obj.getD "name" Name.anonymous
-    let lakeDir ← obj.getD "lakeDir" defaultLakeDir
-    let packagesDir? ← obj.get? "packagesDir"
-    let packages ←
-      if ver < v!"0.7.0" then
-        (·.map PackageEntry.ofV6) <$> obj.getD "packages" #[]
-      else
-        obj.getD "packages" #[]
-    return {name, lakeDir, packagesDir?, packages}
+    return ver
+
+def getPackages (ver : StdVer) (obj : JsonObject) : Except String (Array PackageEntry) := do
+  if ver < {minor := 7} then
+    (·.map PackageEntry.ofV6) <$> obj.getD "packages" #[]
+  else
+    obj.getD "packages" #[]
+
+protected def fromJson? (json : Json) : Except String Manifest := do
+  let obj ← JsonObject.fromJson? json
+  let ver ← getVersion obj
+  let name ← obj.getD "name" Name.anonymous
+  let lakeDir ← obj.getD "lakeDir" defaultLakeDir
+  let packagesDir? ← obj.get? "packagesDir"
+  let packages ← getPackages ver obj
+  return {name, lakeDir, packagesDir?, packages}
 
 instance : FromJson Manifest := ⟨Manifest.fromJson?⟩
 
 /-- Parse a `Manifest` from a string. -/
-def parse (s : String) : Except String Manifest := do
-  match Json.parse s with
+def parse (data : String) : Except String Manifest := do
+  match Json.parse data with
   | .ok json => fromJson? json
-  | .error e => throw s!"manifest is not valid JSON: {e}"
+  | .error e => throw s!"invalid JSON: {e}"
 
 /-- Parse a manifest file. -/
 def load (file : FilePath) : IO Manifest := do
@@ -239,7 +246,45 @@ def load? (file : FilePath) : IO (Option Manifest) := do
   | .error (.noFileOrDirectory ..) => return none
   | .error e => throw e
 
-/-- Save the manifest as JSON to a file. -/
-def saveToFile (self : Manifest) (manifestFile : FilePath) : IO PUnit := do
-  let jsonString := Json.pretty self.toJson
-  IO.FS.writeFile manifestFile <| jsonString.push '\n'
+/-- Serialize the manifest to a JSON file. -/
+def save (self : Manifest) (manifestFile : FilePath) : IO PUnit := do
+  let contents := Json.pretty self.toJson
+  IO.FS.writeFile manifestFile <| contents.push '\n'
+
+@[deprecated save (since := "2024-12-17")] abbrev saveToFile := @save
+
+/-- Deserialize package entries from a (partial) JSON manifest. -/
+def decodeEntries (data : Json)  : Except String (Array PackageEntry) := do
+  let obj ← JsonObject.fromJson? data
+  getPackages (← getVersion obj) obj
+
+/-- Deserialize manifest package entries from a JSON string. -/
+def parseEntries (data : String) : Except String (Array PackageEntry) := do
+  match Json.parse data with
+  | .ok json => decodeEntries json
+  | .error e => throw s!"invalid JSON: {e}"
+
+/-- Deserialize manifest package entries from a JSON file. -/
+def loadEntries (file : FilePath) : IO (Array PackageEntry) := do
+  let contents ← IO.FS.readFile file
+  match inline <| parseEntries contents with
+  | .ok a => return a
+  | .error e => error s!"{file}: {e}"
+
+/--
+Deserialize manifest package entries from a JSON file.
+Returns an empty array if the file does not exist.
+-/
+def tryLoadEntries (file : FilePath) : IO (Array PackageEntry) := do
+  match  (← inline (loadEntries file) |>.toBaseIO) with
+  | .ok a => return a
+  | .error (.noFileOrDirectory ..) => return #[]
+  | .error e => error s!"{file}: {e}"
+
+/-- Serialize manifest package entries to a JSON file. -/
+def saveEntries (file : FilePath) (entries : Array PackageEntry)  : IO PUnit := do
+  let contents := Json.pretty <| Json.mkObj [
+    ("schemaVersion", toJson version),
+    ("packages", toJson entries)
+  ]
+  IO.FS.writeFile file <| contents.push '\n'

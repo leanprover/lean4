@@ -10,6 +10,9 @@ import Init.Data.List.Sublist
 # Lemmas about `List.countP` and `List.count`.
 -/
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 open Nat
@@ -24,10 +27,10 @@ variable (p q : α → Bool)
 protected theorem countP_go_eq_add (l) : countP.go p l n = n + countP.go p l 0 := by
   induction l generalizing n with
   | nil => rfl
-  | cons head tail ih =>
+  | cons hd _ ih =>
     unfold countP.go
     rw [ih (n := n + 1), ih (n := n), ih (n := 1)]
-    if h : p head then simp [h, Nat.add_assoc] else simp [h]
+    if h : p hd then simp [h, Nat.add_assoc] else simp [h]
 
 @[simp] theorem countP_cons_of_pos (l) (pa : p a) : countP p (a :: l) = countP p l + 1 := by
   have : countP.go p (a :: l) 0 = countP.go p l 1 := show cond .. = _ by rw [pa]; rfl
@@ -40,14 +43,14 @@ protected theorem countP_go_eq_add (l) : countP.go p l n = n + countP.go p l 0 :
 theorem countP_cons (a : α) (l) : countP p (a :: l) = countP p l + if p a then 1 else 0 := by
   by_cases h : p a <;> simp [h]
 
-theorem countP_singleton (a : α) : countP p [a] = if p a then 1 else 0 := by
+@[simp] theorem countP_singleton (a : α) : countP p [a] = if p a then 1 else 0 := by
   simp [countP_cons]
 
 theorem length_eq_countP_add_countP (l) : length l = countP p l + countP (fun a => ¬p a) l := by
   induction l with
   | nil => rfl
-  | cons x h ih =>
-    if h : p x then
+  | cons hd _ ih =>
+    if h : p hd then
       rw [countP_cons_of_pos _ _ h, countP_cons_of_neg _ _ _, length, ih]
       · rw [Nat.add_assoc, Nat.add_comm _ 1, Nat.add_assoc]
       · simp [h]
@@ -84,7 +87,7 @@ theorem countP_le_length : countP p l ≤ l.length := by
   countP_pos_iff
 
 @[simp] theorem countP_eq_zero {p} : countP p l = 0 ↔ ∀ a ∈ l, ¬p a := by
-  simp only [countP_eq_length_filter, length_eq_zero, filter_eq_nil_iff]
+  simp only [countP_eq_length_filter, length_eq_zero_iff, filter_eq_nil_iff]
 
 @[simp] theorem countP_eq_length {p} : countP p l = l.length ↔ ∀ a ∈ l, p a := by
   rw [countP_eq_length_filter, filter_length_eq_length]
@@ -162,6 +165,10 @@ theorem countP_filterMap (p : β → Bool) (f : α → Option β) (l : List α) 
 
 @[deprecated countP_flatten (since := "2024-10-14")] abbrev countP_join := @countP_flatten
 
+theorem countP_flatMap (p : β → Bool) (l : List α) (f : α → List β) :
+    countP p (l.flatMap f) = sum (map (countP p ∘ f) l) := by
+  rw [List.flatMap, countP_flatten, map_map]
+
 @[simp] theorem countP_reverse (l : List α) : countP p l.reverse = countP p l := by
   simp [countP_eq_length_filter, filter_reverse]
 
@@ -206,7 +213,7 @@ theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
 
 theorem count_tail : ∀ (l : List α) (a : α) (h : l ≠ []),
       l.tail.count a = l.count a - if l.head h == a then 1 else 0
-  | head :: tail, a, _ => by simp [count_cons]
+  | _ :: _, a, _ => by simp [count_cons]
 
 theorem count_le_length (a : α) (l : List α) : count a l ≤ l.length := countP_le_length _
 
@@ -325,6 +332,9 @@ theorem count_filterMap {α} [BEq β] (b : β) (f : α → Option β) (l : List 
   obtain _ | b := f a
   · simp
   · simp
+
+theorem count_flatMap {α} [BEq β] (l : List α) (f : α → List β) (x : β) :
+    count x (l.flatMap f) = sum (map (count x ∘ f) l) := countP_flatMap _ _ _
 
 theorem count_erase (a b : α) :
     ∀ l : List α, count a (l.erase b) = count a l - if b == a then 1 else 0

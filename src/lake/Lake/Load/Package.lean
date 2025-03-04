@@ -3,6 +3,7 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Load.Lean
 import Lake.Load.Toml
 
@@ -28,6 +29,25 @@ def configFileExists (cfgFile : FilePath) : BaseIO Bool :=
     let leanFile := cfgFile.addExtension "lean"
     let tomlFile := cfgFile.addExtension "toml"
     leanFile.pathExists <||> tomlFile.pathExists
+
+/--
+Returns the absolute path of the configuration file (if it exists).
+Otherwise, returns an empty string.
+-/
+def realConfigFile (cfgFile : FilePath) : BaseIO FilePath := do
+  if cfgFile.extension.isSome then
+    realPath cfgFile
+  else
+    let realLeanFile ← realPath (cfgFile.addExtension "lean")
+    if realLeanFile.toString.isEmpty then
+      realPath (cfgFile.addExtension "toml")
+    else
+      return realLeanFile
+where
+  @[inline] realPath file := do
+    match (← (IO.FS.realPath file).toBaseIO) with
+    | .ok path => return if (← path.pathExists) then path else ""
+    | _ => return ""
 
 /--
 Loads a Lake package configuration (either Lean or TOML).

@@ -1,16 +1,16 @@
-structure Foo.{v, u_1} : {α : Sort u_1} → (α → Type v) → Sort (max u_1 (v + 1))
+structure Foo.{v, u_1} {α : Sort u_1} (β : α → Type v) : Sort (max u_1 (v + 1))
 number of parameters: 2
-constructor:
-Foo.mk : {α : Sort u_1} → {β : α → Type v} → (a : α) → β a → Foo β
 fields:
-a : α
-b : β self.a
+  Foo.a : α
+  Foo.b : β self.a
+constructor:
+  Foo.mk.{v, u_1} {α : Sort u_1} {β : α → Type v} (a : α) (b : β a) : Foo β
 structAutoBound.lean:9:15-9:16: error: a universe level named 'u' has already been declared
-structure Boo.{u, v} : Type u → Type v → Type (max u v)
+structure Boo.{u, v} (α : Type u) (β : Type v) : Type (max u v)
 number of parameters: 2
-constructor:
-Boo.mk : {α : Type u} → {β : Type v} → α → β → Boo α β
 fields:
-a : α
-b : β
+  Boo.a : α
+  Boo.b : β
+constructor:
+  Boo.mk.{u, v} {α : Type u} {β : Type v} (a : α) (b : β) : Boo α β
 structAutoBound.lean:18:10-18:44: error: unused universe parameter 'w'

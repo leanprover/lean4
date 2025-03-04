@@ -11,12 +11,9 @@ info: 12776324570088369205
 #eval (123456789012345678901).toUInt64.toNat
 
 /--
-error: application type mismatch
-  Lean.ofReduceBool false._nativeDecide_1 true (Eq.refl true)
-argument has type
-  true = true
-but function has type
-  Lean.reduceBool false._nativeDecide_1 = true → false._nativeDecide_1 = true
+error: tactic 'native_decide' evaluated that the proposition
+  (Nat.toUInt64 123456789012345678901).toNat = 123456789012345678901
+is false
 -/
 #guard_msgs in
 theorem false : False := by

@@ -546,7 +546,7 @@ private def processValue (p : Problem) : MetaM (Array Problem) := do
   subgoals.mapIdxM fun i subgoal => do
     trace[Meta.Match.match] "processValue subgoal\n{MessageData.ofGoal subgoal.mvarId}"
     if h : i < values.size then
-      let value := values.get ⟨i, h⟩
+      let value := values[i]
       -- (x = value) branch
       let subst := subgoal.subst
       trace[Meta.Match.match] "processValue subst: {subst.map.toList.map fun p => mkFVar p.1}, {subst.map.toList.map fun p => p.2}"
@@ -599,8 +599,8 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
   let sizes := collectArraySizes p
   let subgoals ← caseArraySizes p.mvarId x.fvarId! sizes
   subgoals.mapIdxM fun i subgoal => do
-    if i < sizes.size then
-      let size     := sizes.get! i
+    if h : i < sizes.size then
+      let size     := sizes[i]
       let subst    := subgoal.subst
       let elems    := subgoal.elems.toList
       let newVars  := elems.map mkFVar ++ xs
@@ -751,9 +751,9 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
 private def getUElimPos? (matcherLevels : List Level) (uElim : Level) : MetaM (Option Nat) :=
   if uElim == levelZero then
     return none
-  else match matcherLevels.toArray.indexOf? uElim with
+  else match matcherLevels.idxOf? uElim with
     | none => throwError "dependent match elimination failed, universe level not found"
-    | some pos => return some pos.val
+    | some pos => return some pos
 
 /- See comment at `mkMatcher` before `mkAuxDefinition` -/
 register_builtin_option bootstrap.genMatcherCode : Bool := {
@@ -784,6 +784,7 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
       modifyEnv fun env => matcherExt.modifyState env fun s => s.insert (result.value, compile) name
       addMatcherInfo name mi
       setInlineAttribute name
+      enableRealizationsForConst name
       if compile then
         compileDecl decl
     return (mkMatcherConst name, some addMatcher)
@@ -882,7 +883,7 @@ def mkMatcher (input : MkMatcherInput) (exceptionIfContainsSorry := false) : Met
       | none => pure ()
 
     trace[Meta.Match.debug] "matcher: {matcher}"
-    let unusedAltIdxs := lhss.length.fold (init := []) fun i r =>
+    let unusedAltIdxs := lhss.length.fold (init := []) fun i _ r =>
       if s.used.contains i then r else i::r
     return {
       matcher,

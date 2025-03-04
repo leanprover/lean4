@@ -33,7 +33,6 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
     cmdPos       := s.cmdPos
     fileName     := ctx.inputCtx.fileName
     fileMap      := ctx.inputCtx.fileMap
-    tacticCache? := none
     snap?        := none
     cancelTk?    := none
   }
@@ -102,7 +101,7 @@ partial def IO.processCommandsIncrementally (inputCtx : Parser.InputContext)
 where
   go initialSnap t commands :=
     let snap := t.get
-    let commands := commands.push snap.data
+    let commands := commands.push snap
     if let some next := snap.nextCmdSnap? then
       go initialSnap next.task commands
     else
@@ -115,9 +114,9 @@ where
       -- snapshots as they subsume any info trees reported incrementally by their children.
       let trees := commands.map (·.finishedSnap.get.infoTree?) |>.filterMap id |>.toPArray'
       return {
-        commandState := { snap.data.finishedSnap.get.cmdState with messages, infoState.trees := trees }
-        parserState := snap.data.parserState
-        cmdPos := snap.data.parserState.pos
+        commandState := { snap.finishedSnap.get.cmdState with messages, infoState.trees := trees }
+        parserState := snap.parserState
+        cmdPos := snap.parserState.pos
         commands := commands.map (·.stx)
         inputCtx, initialSnap
       }
@@ -142,15 +141,18 @@ def runFrontend
     (trustLevel : UInt32 := 0)
     (ileanFileName? : Option String := none)
     (jsonOutput : Bool := false)
+    (errorOnKinds : Array Name := #[])
+    (plugins : Array System.FilePath := #[])
     : IO (Environment × Bool) := do
   let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
   let opts := Language.Lean.internal.cmdlineSnapshots.setIfNotSet opts true
   let ctx := { inputCtx with }
   let processor := Language.Lean.process
-  let snap ← processor (fun _ => pure <| .ok { mainModuleName, opts, trustLevel }) none ctx
+  let snap ← processor (fun _ => pure <| .ok { mainModuleName, opts, trustLevel, plugins }) none ctx
   let snaps := Language.toSnapshotTree snap
-  snaps.runAndReport opts jsonOutput
+  let severityOverrides := errorOnKinds.foldl (·.insert · .error) {}
+  let hasErrors ← snaps.runAndReport opts jsonOutput severityOverrides
 
   if let some ileanFileName := ileanFileName? then
     let trees := snaps.getAll.flatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
@@ -164,11 +166,12 @@ def runFrontend
     | return (← mkEmptyEnvironment, false)
 
   if let some out := trace.profiler.output.get? opts then
-    let traceState := cmdState.traceState
-    let profile ← Firefox.Profile.export mainModuleName.toString startTime traceState opts
+    let traceStates := snaps.getAll.map (·.traces)
+    let profile ← Firefox.Profile.export mainModuleName.toString startTime traceStates opts
     IO.FS.writeFile ⟨out⟩ <| Json.compress <| toJson profile
 
-  let hasErrors := snaps.getAll.any (·.diagnostics.msgLog.hasErrors)
+  -- no point in freeing the snapshot graph and all referenced data this close to process exit
+  Runtime.forget snaps
   pure (cmdState.env, !hasErrors)
 
 

@@ -54,8 +54,13 @@ theorem shiftRight_congr (m n : Nat) (lhs : BitVec m) (rhs : BitVec n) (lhs' : B
     lhs >>> rhs = lhs' >>> rhs' := by
   simp[*]
 
-theorem arithShiftRight_congr (n : Nat) (w : Nat) (x x' : BitVec w) (h : x = x') :
+theorem arithShiftRightNat_congr (n : Nat) (w : Nat) (x x' : BitVec w) (h : x = x') :
     BitVec.sshiftRight x' n = BitVec.sshiftRight x n := by
+  simp[*]
+
+theorem arithShiftRight_congr (m n : Nat) (lhs : BitVec m) (rhs : BitVec n) (lhs' : BitVec m)
+    (rhs' : BitVec n) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
+    BitVec.sshiftRight' lhs rhs = BitVec.sshiftRight' lhs' rhs' := by
   simp[*]
 
 theorem add_congr (w : Nat) (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
@@ -118,12 +123,12 @@ theorem umod_congr (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2 : rhs' =
     (lhs' % rhs') = (lhs % rhs) := by
   simp[*]
 
-theorem if_true (discr : Bool) (lhs rhs : BitVec w) :
-    decide ((discr == true) = true → ((if discr = true then lhs else rhs) == lhs) = true) = true := by
+theorem cond_true (discr : Bool) (lhs rhs : BitVec w) :
+    (!discr || ((bif discr then lhs else rhs) == lhs)) = true := by
   cases discr <;> simp
 
-theorem if_false (discr : Bool) (lhs rhs : BitVec w) :
-    decide ((discr == false) = true → ((if discr = true then lhs else rhs) == rhs) = true) = true := by
+theorem cond_false (discr : Bool) (lhs rhs : BitVec w) :
+    (discr || ((bif discr then lhs else rhs) == rhs)) = true := by
   cases discr <;> simp
 
 end BitVec
@@ -145,13 +150,13 @@ theorem beq_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs)
     (lhs' == rhs') = (lhs == rhs) := by
   simp[*]
 
-theorem imp_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
-    (decide (lhs' → rhs')) = (decide (lhs → rhs)) := by
+theorem or_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
+    (lhs' || rhs') = (lhs || rhs) := by
   simp[*]
 
-theorem ite_congr (discr lhs rhs discr' lhs' rhs' : Bool) (h1 : discr' = discr) (h2 : lhs' = lhs)
+theorem cond_congr (discr lhs rhs discr' lhs' rhs' : Bool) (h1 : discr' = discr) (h2 : lhs' = lhs)
     (h3 : rhs' = rhs) :
-    (if discr' = true then lhs' else rhs') = (if discr = true then lhs else rhs) := by
+    (bif discr' then lhs' else rhs') = (bif discr then lhs else rhs) := by
   simp[*]
 
 theorem false_of_eq_true_of_eq_false (h₁ : x = true) (h₂ : x = false) : False := by

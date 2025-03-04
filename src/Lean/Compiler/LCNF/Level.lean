@@ -139,6 +139,10 @@ mutual
     | .jmp _ args => visitArgs args
 end
 
+def visitDeclValue : DeclValue → Visitor
+  | .code c => visitCode c
+  | .extern .. => id
+
 end CollectLevelParams
 
 open Lean.CollectLevelParams
@@ -149,7 +153,7 @@ Collect universe level parameters collecting in the type, parameters, and value,
 set `decl.levelParams` with the resulting value.
 -/
 def Decl.setLevelParams (decl : Decl) : Decl :=
-  let levelParams := (visitCode decl.value ∘ visitParams decl.params ∘ visitType decl.type) {} |>.params.toList
+  let levelParams := (visitDeclValue decl.value ∘ visitParams decl.params ∘ visitType decl.type) {} |>.params.toList
   { decl with levelParams }
 
 end Lean.Compiler.LCNF

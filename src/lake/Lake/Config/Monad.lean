@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Config.Context
 import Lake.Config.Workspace
 
@@ -44,6 +45,10 @@ abbrev MonadLake (m : Type → Type u) :=
 /-- Make a `Lake.Context` from a `Workspace`. -/
 @[inline] def mkLakeContext (ws : Workspace) : Lake.Context where
   opaqueWs := ws
+
+/-- Run a `LakeT` monad in the context of this workspace. -/
+@[inline] def Workspace.runLakeT (ws : Workspace) (x : LakeT m α) : m α :=
+  x.run (mkLakeContext ws)
 
 instance [MonadWorkspace m] [Functor m] : MonadLake m where
   read := (mkLakeContext ·) <$> getWorkspace

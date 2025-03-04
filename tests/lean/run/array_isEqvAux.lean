@@ -36,12 +36,12 @@ example : #[0, 1, 2].popWhile (· % 2 = 0) = #[0, 1] := by decide
 
 example : #[0, 1, 2].takeWhile (· % 2 = 0) = #[0] := by decide
 
-example : #[0, 1, 2].feraseIdx ⟨1, by decide⟩ = #[0, 2] := by decide
+example : #[0, 1, 2].eraseIdx 1 = #[0, 2] := by decide
 
-example : #[0, 1, 2].insertAt ⟨1, by decide⟩ 3 = #[0, 3, 1, 2] := by decide
+example : #[0, 1, 2].insertIdx 1 3 = #[0, 3, 1, 2] := by decide
 
 example : #[0, 1, 2].isPrefixOf #[0, 1, 2, 3] = true := by decide
 
-example : #[0, 1, 2].zipWith #[3, 4, 5] (· + ·) = #[3, 5, 7] := by decide
+example : Array.zipWith (· + ·) #[0, 1, 2] #[3, 4, 5] = #[3, 5, 7] := by decide
 
 example : #[0, 1, 2].allDiff = true := by decide

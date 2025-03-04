@@ -7,7 +7,7 @@ prelude
 import Init.Data.Int.Basic
 import Init.Data.Nat.Gcd
 import Init.Data.Nat.Lcm
-import Init.Data.Int.DivModLemmas
+import Init.Data.Int.DivMod.Lemmas
 
 /-!
 Definition and lemmas for gcd and lcm over Int

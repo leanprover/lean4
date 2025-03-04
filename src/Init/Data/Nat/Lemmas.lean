@@ -176,6 +176,9 @@ protected theorem add_pos_right (m) (h : 0 < n) : 0 < m + n :=
 protected theorem add_self_ne_one : ∀ n, n + n ≠ 1
   | n+1, h => by rw [Nat.succ_add, Nat.succ.injEq] at h; contradiction
 
+theorem le_iff_lt_add_one : x ≤ y ↔ x < y + 1 := by
+  omega
+
 /-! ## sub -/
 
 protected theorem sub_one (n) : n - 1 = pred n := rfl
@@ -224,6 +227,9 @@ protected theorem sub_le_iff_le_add' {a b c : Nat} : a - b ≤ c ↔ a ≤ b + c
 
 protected theorem le_sub_iff_add_le {n : Nat} (h : k ≤ m) : n ≤ m - k ↔ n + k ≤ m :=
   ⟨Nat.add_le_of_le_sub h, Nat.le_sub_of_add_le⟩
+
+theorem add_lt_iff_lt_sub_right {a b c : Nat} : a + b < c ↔ a < c - b := by
+  omega
 
 protected theorem add_le_of_le_sub' {n k m : Nat} (h : m ≤ k) : n ≤ k - m → m + n ≤ k :=
   Nat.add_comm .. ▸ Nat.add_le_of_le_sub h
@@ -616,6 +622,14 @@ protected theorem pos_of_mul_pos_right {a b : Nat} (h : 0 < a * b) : 0 < a := by
     0 < a * b ↔ 0 < a :=
   ⟨Nat.pos_of_mul_pos_right, fun w => Nat.mul_pos w h⟩
 
+protected theorem pos_of_lt_mul_left {a b c : Nat} (h : a < b * c) : 0 < c := by
+  replace h : 0 < b * c := by omega
+  exact Nat.pos_of_mul_pos_left h
+
+protected theorem pos_of_lt_mul_right {a b c : Nat} (h : a < b * c) : 0 < b := by
+  replace h : 0 < b * c := by omega
+  exact Nat.pos_of_mul_pos_right h
+
 /-! ### div/mod -/
 
 theorem mod_two_eq_zero_or_one (n : Nat) : n % 2 = 0 ∨ n % 2 = 1 :=
@@ -651,8 +665,8 @@ theorem sub_mul_mod {x k n : Nat} (h₁ : n*k ≤ x) : (x - n*k) % n = x % n := 
   | .inr npos => Nat.mod_eq_of_lt (mod_lt _ npos)
 
 theorem mul_mod (a b n : Nat) : a * b % n = (a % n) * (b % n) % n := by
-  rw (occs := .pos [1]) [← mod_add_div a n]
-  rw (occs := .pos [1]) [← mod_add_div b n]
+  rw (occs := [1]) [← mod_add_div a n]
+  rw (occs := [1]) [← mod_add_div b n]
   rw [Nat.add_mul, Nat.mul_add, Nat.mul_add,
     Nat.mul_assoc, Nat.mul_assoc, ← Nat.mul_add n, add_mul_mod_self_left,
     Nat.mul_comm _ (n * (b / n)), Nat.mul_assoc, add_mul_mod_self_left]
@@ -678,6 +692,10 @@ theorem add_mod (a b n : Nat) : (a + b) % n = ((a % n) + (b % n)) % n := by
 
 @[simp] theorem mod_mul_mod {a b c : Nat} : (a % c * b) % c = a * b % c := by
   rw [mul_mod, mod_mod, ← mul_mod]
+
+theorem mod_eq_sub (x w : Nat) : x % w = x - w * (x / w) := by
+  conv => rhs; congr; rw [← mod_add_div x w]
+  simp
 
 /-! ### pow -/
 
@@ -732,9 +750,6 @@ protected theorem mul_pow (a b n : Nat) : (a * b) ^ n = a ^ n * b ^ n := by
   | zero => rw [Nat.pow_zero, Nat.pow_zero, Nat.pow_zero, Nat.mul_one]
   | succ _ ih => rw [Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.mul_mul_mul_comm, ih]
 
-protected abbrev pow_le_pow_left := @pow_le_pow_of_le_left
-protected abbrev pow_le_pow_right := @pow_le_pow_of_le_right
-
 protected theorem one_lt_two_pow (h : n ≠ 0) : 1 < 2 ^ n :=
   match n, h with
   | n+1, _ => by
@@ -759,11 +774,6 @@ protected theorem one_le_two_pow : 1 ≤ 2 ^ n :=
 
 @[simp] theorem one_mod_two_pow (h : 0 < n) : 1 % 2 ^ n = 1 :=
   one_mod_two_pow_eq_one.mpr h
-
-protected theorem pow_pos (h : 0 < a) : 0 < a^n :=
-  match n with
-  | 0 => Nat.zero_lt_one
-  | _ + 1 => Nat.mul_pos (Nat.pow_pos h) h
 
 protected theorem pow_lt_pow_succ (h : 1 < a) : a ^ n < a ^ (n + 1) := by
   rw [← Nat.mul_one (a^n), Nat.pow_succ]
@@ -846,6 +856,18 @@ protected theorem pow_lt_pow_iff_pow_mul_le_pow {a n m : Nat} (h : 1 < a) :
   rw [←Nat.pow_add_one, Nat.pow_le_pow_iff_right (by omega), Nat.pow_lt_pow_iff_right (by omega)]
   omega
 
+protected theorem lt_pow_self {n a : Nat} (h : 1 < a) : n < a ^ n := by
+  induction n with
+  | zero => exact Nat.zero_lt_one
+  | succ _ ih => exact Nat.lt_of_lt_of_le (Nat.add_lt_add_right ih 1) (Nat.pow_lt_pow_succ h)
+
+protected theorem lt_two_pow_self : n < 2 ^ n :=
+  Nat.lt_pow_self Nat.one_lt_two
+
+@[simp]
+protected theorem mod_two_pow_self : n % 2 ^ n = n :=
+  Nat.mod_eq_of_lt Nat.lt_two_pow_self
+
 @[simp]
 theorem two_pow_pred_mul_two (h : 0 < w) :
     2 ^ (w - 1) * 2 = 2 ^ w := by
@@ -868,7 +890,7 @@ theorem le_log2 (h : n ≠ 0) : k ≤ n.log2 ↔ 2 ^ k ≤ n := by
       exact Nat.le_div_iff_mul_le (by decide)
     · simp only [le_zero_eq, succ_ne_zero, false_iff]
       refine mt (Nat.le_trans ?_) ‹_›
-      exact Nat.pow_le_pow_of_le_right Nat.zero_lt_two (Nat.le_add_left 1 k)
+      exact Nat.pow_le_pow_right Nat.zero_lt_two (Nat.le_add_left 1 k)
 
 theorem log2_lt (h : n ≠ 0) : n.log2 < k ↔ n < 2 ^ k := by
   rw [← Nat.not_le, ← Nat.not_le, le_log2 h]
@@ -973,11 +995,6 @@ theorem shiftLeft_add (m n : Nat) : ∀ k, m <<< (n + k) = (m <<< n) <<< k
   | 0 => rfl
   | k + 1 => by simp [← Nat.add_assoc, shiftLeft_add _ _ k, shiftLeft_succ]
 
-@[deprecated shiftLeft_add (since := "2024-06-02")]
-theorem shiftLeft_shiftLeft (m n : Nat) : ∀ k, (m <<< n) <<< k = m <<< (n + k)
-  | 0 => rfl
-  | k + 1 => by simp [← Nat.add_assoc, shiftLeft_shiftLeft _ _ k, shiftLeft_succ]
-
 @[simp] theorem shiftLeft_shiftRight (x n : Nat) : x <<< n >>> n = x := by
   rw [Nat.shiftLeft_eq, Nat.shiftRight_eq_div_pow, Nat.mul_div_cancel _ (Nat.two_pow_pos _)]
 
@@ -986,7 +1003,7 @@ theorem mul_add_div {m : Nat} (m_pos : m > 0) (x y : Nat) : (m * x + y) / m = x 
   | 0 => simp
   | x + 1 =>
     rw [Nat.mul_succ, Nat.add_assoc _ m, mul_add_div m_pos x (m+y), div_eq]
-    simp_arith [m_pos]; rw [Nat.add_comm, Nat.add_sub_cancel]
+    simp +arith [m_pos]; rw [Nat.add_comm, Nat.add_sub_cancel]
 
 theorem mul_add_mod (m x y : Nat) : (m * x + y) % m = y % m := by
   match x with
@@ -998,6 +1015,39 @@ theorem mul_add_mod (m x y : Nat) : (m * x + y) % m = y % m := by
   cases n
   · exact (m % 0).div_zero
   · case succ n => exact Nat.div_eq_of_lt (m.mod_lt n.succ_pos)
+
+theorem mod_eq_iff {a b c : Nat} :
+    a % b = c ↔ (b = 0 ∧ a = c) ∨ (c < b ∧ Exists fun k => a = b * k + c) :=
+  ⟨fun h =>
+    if w : b = 0 then
+      .inl ⟨w, by simpa [w] using h⟩
+    else
+      .inr ⟨by subst h; exact Nat.mod_lt a (zero_lt_of_ne_zero w),
+        a / b, by subst h; exact (div_add_mod a b).symm⟩,
+   by
+     rintro (⟨rfl, rfl⟩ | ⟨w, h, rfl⟩)
+     · simp_all
+     · rw [mul_add_mod, mod_eq_of_lt w]⟩
+
+theorem succ_mod_succ_eq_zero_iff {a b : Nat} :
+    (a + 1) % (b + 1) = 0 ↔ a % (b + 1) = b := by
+  symm
+  rw [mod_eq_iff, mod_eq_iff]
+  simp only [add_one_ne_zero, false_and, Nat.lt_add_one, true_and, false_or, and_self, zero_lt_succ,
+    Nat.add_zero]
+  constructor
+  · rintro ⟨k, rfl⟩
+    refine ⟨k + 1, ?_⟩
+    simp [Nat.add_mul, Nat.mul_add, Nat.add_assoc]
+  · rintro ⟨k, h⟩
+    cases k with
+    | zero => simp at h
+    | succ k =>
+      refine ⟨k, ?_⟩
+      simp only [Nat.mul_add, Nat.add_mul, Nat.one_mul, Nat.mul_one, ← Nat.add_assoc,
+        Nat.add_right_cancel_iff] at h
+      subst h
+      simp [Nat.add_mul]
 
 /-! ### Decidability of predicates -/
 
@@ -1029,3 +1079,31 @@ instance decidableExistsLT [h : DecidablePred p] : DecidablePred fun n => ∃ m 
 instance decidableExistsLE [DecidablePred p] : DecidablePred fun n => ∃ m : Nat, m ≤ n ∧ p m :=
   fun n => decidable_of_iff (∃ m, m < n + 1 ∧ p m)
     (exists_congr fun _ => and_congr_left' Nat.lt_succ_iff)
+
+/-- Dependent version of `decidableExistsLT`. -/
+instance decidableExistsLT' {p : (m : Nat) → m < k → Prop} [I : ∀ m h, Decidable (p m h)] :
+    Decidable (∃ m : Nat, ∃ h : m < k, p m h) :=
+  match k, p, I with
+  | 0, _, _ => isFalse (by simp)
+  | (k + 1), p, I => @decidable_of_iff _ ((∃ m, ∃ h : m < k, p m (by omega)) ∨ p k (by omega))
+      ⟨by rintro (⟨m, h, w⟩ | w); exact ⟨m, by omega, w⟩; exact ⟨k, by omega, w⟩,
+        fun ⟨m, h, w⟩ => if h' : m < k then .inl ⟨m, h', w⟩ else
+          by obtain rfl := (by omega : m = k); exact .inr w⟩
+      (@instDecidableOr _ _
+        (decidableExistsLT' (p := fun m h => p m (by omega)) (I := fun m h => I m (by omega)))
+        inferInstance)
+
+/-- Dependent version of `decidableExistsLE`. -/
+instance decidableExistsLE' {p : (m : Nat) → m ≤ k → Prop} [I : ∀ m h, Decidable (p m h)] :
+    Decidable (∃ m : Nat, ∃ h : m ≤ k, p m h) :=
+  decidable_of_iff (∃ m, ∃ h : m < k + 1, p m (by omega)) (exists_congr fun _ =>
+    ⟨fun ⟨h, w⟩ => ⟨le_of_lt_succ h, w⟩, fun ⟨h, w⟩ => ⟨lt_add_one_of_le h, w⟩⟩)
+
+/-! ### Results about `List.sum` specialized to `Nat` -/
+
+protected theorem sum_pos_iff_exists_pos {l : List Nat} : 0 < l.sum ↔ ∃ x ∈ l, 0 < x := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp [← ih]
+    omega

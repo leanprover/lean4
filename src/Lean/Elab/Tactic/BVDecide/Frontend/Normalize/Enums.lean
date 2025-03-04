@@ -155,7 +155,7 @@ where
           instBEq
           input
           (toExpr counter)
-      let acc := mkApp4 (mkConst ``cond [0]) retType eq (mkConst ctor) acc
+      let acc := mkApp4 (mkConst ``cond [1]) retType eq (mkConst ctor) acc
       mkInverse input retType instBEq ctors (counter + 1) acc
 
 /--

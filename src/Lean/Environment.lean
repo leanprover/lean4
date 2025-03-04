@@ -667,11 +667,14 @@ def enableRealizationsForImports (env : Environment) (opts : Options) : BaseIO E
 /--
 Allows `realizeConst` calls for the given declaration in all derived environment branches.
 Realizations will run using the given environment and options to ensure deterministic results. Note
-that while we check that the function isn't called too *early*, i.e. before the declaration is
-actually added to the environment, we cannot automatically check that it isn't called too *late*,
-i.e. before all environment extensions that may be relevant to realizations have been set. We do
-check that we are not calling it from a different branch than `c` was added on, which would be
-definitely too late.
+that while we check that the function isn't called before the declaration is actually added to the
+environment, we cannot automatically check that it isn't otherwise called too early in the sense
+that helper declarations and environment extension state that may be relevant to realizations may
+not have been added yet. We do check that we are not calling it from a different branch than `c` was
+added on, which would be definitely too late. Thus, this function should generally be called in
+elaborators calling `addDecl` (when that declaration is a plausible target for realization) at the
+latest possible point, i.e. at the very end of the elaborator or just before a first realization may
+be triggered if any.
 -/
 def enableRealizationsForConst (env : Environment) (opts : Options) (c : Name) :
     BaseIO Environment := do

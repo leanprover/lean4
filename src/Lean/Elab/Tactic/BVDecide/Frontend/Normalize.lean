@@ -6,6 +6,7 @@ Authors: Henrik Böving
 prelude
 import Lean.Elab.Tactic.FalseOrByContra
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Simproc
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Rewrite
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AndFlatten

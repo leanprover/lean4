@@ -5,6 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Simp
 import Lean.Meta.Injective
@@ -27,33 +28,6 @@ namespace Lean.Elab.Tactic.BVDecide
 namespace Frontend.Normalize
 
 open Lean.Meta
-
-
-def applyIteSimproc : Simp.Simproc := fun e => e.withApp fun proj args => do
-  if h : args.size ≠ 0 then
-    let_expr ite α c instDec t e := args.back | return .continue
-    let params := args.pop
-    let projApp := mkAppN proj params
-    let newT := mkApp projApp t
-    let newE := mkApp projApp e
-    let newIf ← mkAppOptM ``ite #[none, c, instDec, newT, newE]
-    let proof ← mkAppOptM ``apply_ite #[α, none, projApp, c, instDec, t, e]
-    return .visit { expr := newIf, proof? := some proof }
-  else
-    return .continue
-
-def applyCondSimproc : Simp.Simproc := fun e => e.withApp fun proj args => do
-  if h : args.size ≠ 0 then
-    let_expr cond α c t e := args.back | return .continue
-    let params := args.pop
-    let projApp := mkAppN proj params
-    let newT := mkApp projApp t
-    let newE := mkApp projApp e
-    let newCond ← mkAppOptM ``cond #[none, c, newT, newE]
-    let proof ← mkAppOptM ``Bool.apply_cond #[α, none, projApp, c, t, e]
-    return .visit { expr := newCond, proof? := some proof }
-  else
-    return .continue
 
 partial def structuresPass : Pass where
   name := `structures
@@ -90,9 +64,9 @@ where
           -- We use the simprocs with pre such that we push in projections eagerly in order to
           -- potentially not have to simplify complex structure expressions that we only project one
           -- element out of.
-          let path := mkDiscrPathFor const numParams proj ``ite 5
+          let path := mkApplyProjControlDiscrPath const numParams proj ``ite 5
           simprocs := simprocs.addCore path ``applyIteSimproc false (.inl applyIteSimproc)
-          let path := mkDiscrPathFor const numParams proj ``cond 4
+          let path := mkApplyProjControlDiscrPath const numParams proj ``cond 4
           simprocs := simprocs.addCore path ``applyCondSimproc false (.inl applyCondSimproc)
       let cfg ← PreProcessM.getConfig
       let simpCtx ← Simp.mkContext
@@ -107,20 +81,6 @@ where
           (fvarIdsToSimp := ← getPropHyps)
       let some (_, newGoal) := result? | return none
       return newGoal
-
-  /--
-  For `Prod.fst` and `ite` this function creates the path: `Prod.fst (ite (Prod _ _) _ _ _ _)`.
-  This path can be used to match on applications of structure projections onto control flow primitives.
-  -/
-  mkDiscrPathFor (struct : Name) (structParams : Nat) (projIdx : Nat) (controlFlow : Name)
-      (controlFlowParams : Nat) : Array DiscrTree.Key := Id.run do
-    let stars := structParams + controlFlowParams - 1
-    let mut path : Array DiscrTree.Key := Array.mkEmpty (3 + stars)
-    path := path.push <| .proj struct projIdx 0
-    path := path.push <| .const controlFlow controlFlowParams
-    path := path.push <| .const struct structParams
-    path := Nat.fold (init := path) stars (fun _ _ acc => acc.push .star)
-    return path
 
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

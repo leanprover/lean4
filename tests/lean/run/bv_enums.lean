@@ -183,3 +183,55 @@ example (h : f = Foo.a): Foo.a.f1 ≠ f := by
   bv_decide
 
 end Ex4
+
+namespace PingPong
+
+inductive Direction where
+  | goingDown
+  | goingUp
+
+structure State where
+  val : BitVec 16
+  low : BitVec 16
+  high : BitVec 16
+  direction : Direction
+
+def State.step (s : State) : State :=
+  match s.direction with
+  | .goingDown =>
+    if s.val = s.low then
+      { s with direction := .goingUp }
+    else
+      { s with val := s.val - 1 }
+  | .goingUp =>
+    if s.val = s.high then
+      { s with direction := .goingDown }
+    else
+      { s with val := s.val + 1 }
+
+def State.steps (s : State) (n : Nat) : State :=
+  match n with
+  | 0 => s
+  | n + 1 => (State.steps s n).step
+
+def Inv (s : State) : Prop := s.low ≤ s.val ∧ s.val ≤ s.high ∧ s.low < s.high
+
+example (s : State) (h : Inv s) (n : Nat) : Inv (State.steps s n) := by
+  induction n with
+  | zero => simp [State.steps, Inv] at *; bv_decide
+  | succ n ih =>
+    simp [State.steps, State.step, Inv] at *
+    bv_decide
+
+def foo (d : Direction) (s1 s2 : State) : State :=
+  match d with
+  | .goingDown => s1
+  | .goingUp => s2
+
+theorem bar (d1 d2 : Direction) (s1 s2 : State) (h : d1 ≠ d2) : foo d1 s1 s2 = foo d2 s2 s1 := by
+  unfold foo
+  bv_normalize
+  bv_decide
+  sorry
+
+end PingPong

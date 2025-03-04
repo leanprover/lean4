@@ -29,6 +29,36 @@ namespace Frontend.Normalize
 
 open Lean.Meta
 
+/--
+Add simp lemmas that we want to apply to structures that we find interesting to `simprocs` and
+`lemmas`.
+-/
+def addStructureSimpLemmas (simprocs : Simprocs) (lemmas : SimpTheoremsArray) :
+    PreProcessM (Simprocs × SimpTheoremsArray) := do
+  let mut simprocs := simprocs
+  let mut lemmas := lemmas
+  let interesting := (← PreProcessM.getTypeAnalysis).interestingStructures
+  let env ← getEnv
+  for const in interesting do
+    let constInfo ← getConstInfoInduct const
+    let ctorName := (← getConstInfoCtor constInfo.ctors.head!).name
+    let lemmaName := mkInjectiveEqTheoremNameFor ctorName
+    if (← getEnv).find? lemmaName |>.isSome then
+      trace[Meta.Tactic.bv] m!"Using injEq lemma: {lemmaName}"
+      let statement ← mkConstWithLevelParams lemmaName
+      lemmas ← lemmas.addTheorem (.decl lemmaName) statement
+    let fields := (getStructureInfo env const).fieldNames.size
+    let numParams := constInfo.numParams
+    for proj in [0:fields] do
+      -- We use the simprocs with pre such that we push in projections eagerly in order to
+      -- potentially not have to simplify complex structure expressions that we only project one
+      -- element out of.
+      let path := mkApplyProjControlDiscrPath const numParams proj ``ite 5
+      simprocs := simprocs.addCore path ``applyIteSimproc false (.inl applyIteSimproc)
+      let path := mkApplyProjControlDiscrPath const numParams proj ``cond 4
+      simprocs := simprocs.addCore path ``applyCondSimproc false (.inl applyCondSimproc)
+  return (simprocs, lemmas)
+
 partial def structuresPass : Pass where
   name := `structures
   run' goal := do
@@ -41,33 +71,15 @@ partial def structuresPass : Pass where
         let some const := (← instantiateMVars decl.type).getAppFn.constName? | return false
         return interesting.contains const
     match goals with
-    | [goal] => postprocess goal interesting
+    | [goal] => postprocess goal
     | _ => throwError "structures preprocessor generated more than 1 goal"
 where
-  postprocess (goal : MVarId) (interesting : Std.HashSet Name) : PreProcessM (Option MVarId) := do
-    let env ← getEnv
+  postprocess (goal : MVarId) : PreProcessM (Option MVarId) := do
     goal.withContext do
       let mut simprocs : Simprocs := {}
       let mut relevantLemmas : SimpTheoremsArray := #[]
       relevantLemmas ← relevantLemmas.addTheorem (.decl ``ne_eq) (← mkConstWithLevelParams ``ne_eq)
-      for const in interesting do
-        let constInfo ← getConstInfoInduct const
-        let ctorName := (← getConstInfoCtor constInfo.ctors.head!).name
-        let lemmaName := mkInjectiveEqTheoremNameFor ctorName
-        if (← getEnv).find? lemmaName |>.isSome then
-          trace[Meta.Tactic.bv] m!"Using injEq lemma: {lemmaName}"
-          let statement ← mkConstWithLevelParams lemmaName
-          relevantLemmas ← relevantLemmas.addTheorem (.decl lemmaName) statement
-        let fields := (getStructureInfo env const).fieldNames.size
-        let numParams := constInfo.numParams
-        for proj in [0:fields] do
-          -- We use the simprocs with pre such that we push in projections eagerly in order to
-          -- potentially not have to simplify complex structure expressions that we only project one
-          -- element out of.
-          let path := mkApplyProjControlDiscrPath const numParams proj ``ite 5
-          simprocs := simprocs.addCore path ``applyIteSimproc false (.inl applyIteSimproc)
-          let path := mkApplyProjControlDiscrPath const numParams proj ``cond 4
-          simprocs := simprocs.addCore path ``applyCondSimproc false (.inl applyCondSimproc)
+      (simprocs, relevantLemmas) ← addStructureSimpLemmas simprocs relevantLemmas
       let cfg ← PreProcessM.getConfig
       let simpCtx ← Simp.mkContext
         (config := { failIfUnchanged := false, maxSteps := cfg.maxSteps })

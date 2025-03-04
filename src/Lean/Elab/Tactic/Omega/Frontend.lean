@@ -681,7 +681,7 @@ def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
       omega hyps g' cfg
       -- Experiment: Always isolate (possibly large) omega proofs in their own declaration
       -- TODO: Reliably generate fresh names in a way that is compatible with async elab
-      let e ← mkAuxTheorem auxName (← g'.getType) (← instantiateMVars (mkMVar g'))
+      let e ← mkAuxTheorem (← mkFreshUserName auxName) (← g'.getType) (← instantiateMVars (mkMVar g'))
       g.assign e
 
 

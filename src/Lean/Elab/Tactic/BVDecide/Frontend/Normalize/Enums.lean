@@ -105,7 +105,7 @@ def getEqIffEnumToBitVecEqFor (declName : Name) : MetaM Name := do
     let inverseValue ←
       withLocalDeclD `x bvType fun x => do
         let instBeq ← synthInstance (mkApp (mkConst ``BEq [0]) bvType)
-        let inv ← mkInverse x declType instBeq ctors (BitVec.ofNat bvSize 0) (mkConst ctors.head!)
+        let inv := mkInverse x declType instBeq ctors (BitVec.ofNat bvSize 0) (mkConst ctors.head!)
         mkLambdaFVars #[x] inv
 
     let value ←
@@ -143,9 +143,10 @@ def getEqIffEnumToBitVecEqFor (declName : Name) : MetaM Name := do
   return eqIffEnumToBitVecEqName
 where
   mkInverse {w : Nat} (input : Expr) (retType : Expr) (instBEq : Expr) (ctors : List Name)
-      (counter : BitVec w) (acc : Expr) : Expr :=
+      (counter : BitVec w) (acc : Expr) :
+      Expr :=
     match ctors with
-    | [] => pure acc
+    | [] => acc
     | ctor :: ctors =>
       let eq :=
         mkApp4

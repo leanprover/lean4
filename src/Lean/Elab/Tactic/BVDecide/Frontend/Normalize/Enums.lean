@@ -5,6 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
 import Lean.Meta.Tactic.Simp
 import Init.Data.Range.Basic
 
@@ -214,89 +215,6 @@ def getEnumToBitVecLeFor (declName : Name) : MetaM Name := do
     }
   return enumToBitVecLeName
 
-
--- TODO(henrik): Add further match statements like matches with default cases
-/--
-The various kinds of matches supported by the match to cond infrastructure.
--/
-inductive MatchKind
-  /--
-  It is a full match statement on an enum inductive with one constructor handled per arm.
-  -/
-  | simpleEnum (info : InductiveVal)
-
-/--
-Determine whether `declName` is an enum inductive `.match_x` definition that is supported, see
-`MatchKind` for the supported shapes.
--/
-def matchIsSupported (declName : Name) : MetaM (Option MatchKind) := do
-  let some info ← getMatcherInfo? declName | return none
-  if info.discrInfos.size ≠ 1 then return none
-  if info.discrInfos[0]!.hName?.isSome then return none
-  let .defnInfo defnInfo ← getConstInfo declName | return none
-  let kind : Option MatchKind ←
-    forallTelescope defnInfo.type fun xs a => do
-      if xs.size < 2 then return none
-      -- Check that discriminator is `EnumInductive`
-      let discr := xs[1]!
-      let some discrTypeName := (← inferType discr).constName? | return none
-      if !(← isEnumType discrTypeName) then return none
-      let .inductInfo inductiveInfo ← getConstInfo discrTypeName | unreachable!
-
-      -- Check that motive is `EnumInductive → Sort u`
-      let motive := xs[0]!
-      let motiveType ← inferType motive
-      let some (.const domTypeName [], (.sort (.param ..))) := motiveType.arrow? | return none
-      if domTypeName != discrTypeName then return none
-
-      -- Check that remaining arguments are of form (Unit → motive EnumInductive.ctorN)
-      let numCtors := inductiveInfo.numCtors
-      if xs.size ≠ numCtors + 2 then return none
-      for i in [0:numCtors] do
-        let argType ← inferType <| xs[i + 2]!
-        let some (.const ``Unit [], (.app m (.const c []))) := argType.arrow? | return none
-        if m != motive then return none
-        if inductiveInfo.ctors[i]! != c then return none
-
-      -- Check that resulting type is `motive discr`
-      a.withApp fun fn arg => do
-        if fn != motive then return none
-        if h : arg.size ≠ 1 then
-          return none
-        else
-          if arg[0] != discr then return none
-          return some <| .simpleEnum inductiveInfo
-
-  match kind with
-  | some (.simpleEnum inductiveInfo) =>
-    lambdaTelescope defnInfo.value fun xs body =>
-      body.withApp fun fn args => do
-        -- Body is an application of `EnumInductive.casesOn`
-        if !fn.isConstOf (mkCasesOnName inductiveInfo.name) then return none
-        let numCtors := inductiveInfo.numCtors
-        if args.size ≠ numCtors + 2 then return none
-        -- first argument is `(fun x => motive x)`
-        let firstArgOk ← lambdaTelescope args[0]! fun arg body => do
-          if h : arg.size ≠ 1 then
-            return false
-          else
-            let arg := arg[0]
-            let .app fn arg' := body | return false
-            return fn == xs[0]! && arg == arg'
-
-        if !firstArgOk then return none
-
-        -- second argument is discr
-        if args[1]! != xs[1]! then return none
-
-        -- remaining arguments are of the form `(h_n Unit.unit)`
-        for i in [0:numCtors] do
-          let .app fn (.const ``Unit.unit []) := args[i + 2]! | return none
-          if fn != xs[i + 2]! then return none
-
-        return some <| .simpleEnum inductiveInfo
-  | none => return none
-
 /--
 Generate a theorem that translates `.match_x` applications on enum inductives to chains of `cond`,
 assuming that it is a supported kind of match, see `matchIsSupported` for the currently available
@@ -350,7 +268,7 @@ Obtain a theorem that translates `.match_x` applications on enum inductives to c
 applications. If the specific `.match_x` that this is being called on is unsupported return `none`.
 -/
 def getMatchEqCondFor? (declName : Name) : MetaM (Option Name) := do
-  if let some kind ← matchIsSupported declName then
+  if let some kind ← isSupportedMatch declName then
     return some (← getMatchEqCondForAux declName kind)
   else
     return none

@@ -321,6 +321,10 @@ def enumToBitVecCtor : Simp.Simproc := fun e => do
   let bvSize := getBitVecSize ctors.length
   return .done { expr := toExpr <| BitVec.ofNat bvSize ctorIdx }
 
+structure PostProcessState where
+  hyps : Array Hypothesis := #[]
+  seen : Std.HashSet Expr := {}
+
 partial def enumsPass : Pass where
   name := `enums
   run' goal :=
@@ -361,7 +365,7 @@ partial def enumsPass : Pass where
       let some (_, newGoal) := result? | return none
       postprocess newGoal |>.run' {}
 where
-  postprocess (goal : MVarId) : StateRefT (Array Hypothesis) MetaM MVarId :=
+  postprocess (goal : MVarId) : StateRefT PostProcessState MetaM MVarId :=
     goal.withContext do
       let filter e :=
         if let .app (.const (.str _ s) []) _ := e then
@@ -370,21 +374,22 @@ where
           false
 
       let processor e := do
+        if (← get).seen.contains e then return ()
         let .app (.const (.str enumType _) []) val := e | unreachable!
         let lemma := mkConst (← getEnumToBitVecLeFor enumType)
         let value := mkApp lemma val
         let type ← inferType value
         let hyp := { userName := .anonymous, type, value }
-        modify fun s => s.push hyp
+        modify fun s => { s with hyps := s.hyps.push hyp, seen := s.seen.insert e }
 
       for hyp in ← getPropHyps do
         (← instantiateMVars (← hyp.getType)).forEachWhere (stopWhenVisited := true) filter processor
 
-      let hyps ← get
-      if hyps.isEmpty then
+      let newHyps := (← get).hyps
+      if newHyps.isEmpty then
         return goal
       else
-        let (_, goal) ← goal.assertHypotheses hyps
+        let (_, goal) ← goal.assertHypotheses newHyps
         return goal
 
 end Frontend.Normalize

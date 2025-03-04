@@ -766,7 +766,6 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
       setInlineAttribute splitterName
       let result := { eqnNames, splitterName, splitterAltNumParams }
       registerMatchEqns matchDeclName result
-  enableRealizationsForConst matchDeclName
 
 builtin_initialize registerTraceClass `Meta.Match.matchEqs
 

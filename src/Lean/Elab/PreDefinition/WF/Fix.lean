@@ -17,6 +17,11 @@ import Lean.Util.HasConstCache
 namespace Lean.Elab.WF
 open Meta
 
+register_builtin_option debug.definition.wf.replaceRecApps : Bool := {
+    defValue := false
+    descr    := "Type check every step of the well-founded definition translation"
+  }
+
 /-
 Creates a subgoal for a recursive call, as an unsolved `MVar`. The goal is cleaned up, and
 the current syntax reference is stored in the `MVar`’s type as a `RecApp` marker, for
@@ -34,7 +39,6 @@ private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F
   trace[Elab.definition.wf] "replaceRecApps:{indentExpr e}"
   trace[Elab.definition.wf] "type of functorial {F} is{indentExpr (← inferType F)}"
   let e ← loop F e |>.run' {}
-  assert! (← isTypeCorrect e)
   return e
 where
   processRec (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
@@ -47,7 +51,6 @@ where
       let decreasingProp := (← whnf (← inferType r)).bindingDomain!
       let r := mkApp r (← mkDecreasingProof decreasingProp)
       let r := mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
-      assert! (← isTypeCorrect r)
       return r
 
   processApp (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
@@ -61,14 +64,15 @@ where
 
   loop (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     let e' ← loopGo F e
-    withTransparency .all do withNewMCtxDepth do
-      unless (← isTypeCorrect e') do
-        throwError "No preservation transforming {indentExpr e}\nto{indentExpr e'}"
-      let t1 ← inferType e
-      let t2 ← inferType e'
-      unless (← isDefEq t1 t2) do
-        let (t1, t2) ← addPPExplicitToExposeDiff t1 t2
-        throwError "Type not preserved transforming {indentExpr e}\nto{indentExpr e'}\nwas {indentExpr t1}\ngot {indentExpr t2}"
+    if (debug.definition.wf.replaceRecApps.get (← getOptions)) then
+      withTransparency .all do withNewMCtxDepth do
+        unless (← isTypeCorrect e') do
+          throwError "Type error introduced when transforming{indentExpr e}\nto{indentExpr e'}"
+        let t1 ← inferType e
+        let t2 ← inferType e'
+        unless (← isDefEq t1 t2) do
+          let (t1, t2) ← addPPExplicitToExposeDiff t1 t2
+          throwError "Type not preserved transforming{indentExpr e}\nto{indentExpr e'}\nType was{indentExpr t1}\nand now is{indentExpr t2}"
     return e'
 
   loopGo (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
@@ -100,15 +104,9 @@ where
               unless xs.size = numParams do
                 throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
               let FAlt := xs[numParams - 1]!
-              -- assert! (← isTypeCorrect altBody)
               let altBody' ← loop FAlt altBody
-              -- trace[Elab.definition.wf] "replaceRecApp: altBody:{indentExpr altBody}"
-              assert! (← isTypeCorrect altBody')
               mkLambdaFVars xs altBody'
-          assert! (← altsNew.allM (isTypeCorrect ·))
-          let r := { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
-          -- assert! (← isTypeCorrect r)
-          return r
+          return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
         else
           processApp F e
       | none => processApp F e

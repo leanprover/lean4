@@ -272,14 +272,17 @@ def resolveRealLowerUpperConflict (c₁ c₂ : LeCnstr) : GoalM Bool := do
     c.assert
     return true
 
-def resolveCooperPred (pred : CooperSplitPred) : GoalM Unit := do
-  throwError "Cooper pred NIY {pred.numCases}"
+def resolveCooperPred (pred : CooperSplitPred) : SearchM Unit := do
+  let n := pred.numCases
+  let fvarId ← mkCase (.cooper pred #[])
+  let s : CooperSplit := { pred, k := n - 1, id := (← mkCnstrId), h := .dec fvarId }
+  s.assert
 
-def resolveCooper (c₁ c₂ : LeCnstr) : GoalM Unit := do
+def resolveCooper (c₁ c₂ : LeCnstr) : SearchM Unit := do
   let left : Bool := c₁.p.leadCoeff.natAbs < c₂.p.leadCoeff.natAbs
   resolveCooperPred { c₁, c₂, left, c₃? := none }
 
-def resolveCooperDvd (c₁ c₂ : LeCnstr) (c₃ : DvdCnstr) : GoalM Unit := do
+def resolveCooperDvd (c₁ c₂ : LeCnstr) (c₃ : DvdCnstr) : SearchM Unit := do
   let left : Bool := c₁.p.leadCoeff.natAbs < c₂.p.leadCoeff.natAbs
   resolveCooperPred { c₁, c₂, left, c₃? := some c₃ }
 

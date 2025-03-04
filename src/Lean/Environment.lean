@@ -1898,6 +1898,64 @@ unsafe opaque evalConst (α) (env : @& Environment) (opts : @& Options) (constNa
 private def throwUnexpectedType {α} (typeName : Name) (constName : Name) : ExceptT String Id α :=
   throw ("unexpected type at '" ++ toString constName ++ "', `" ++ toString typeName ++ "` expected")
 
+/--
+Replays the difference between `newEnv` and `oldEnv` onto `dest`: the set of constants in `newEnv`
+but not `oldEnv` and the environment extension state for extensions defining `replay?`. If
+`skipExisting` is true, constants that are already in `dest` are not added. If `newEnv` and `dest`
+are not derived from `oldEnv`, the result is undefined.
+-/
+def replayConsts (oldEnv newEnv : Environment) (dest : Environment) (skipExisting := false) :
+    BaseIO Environment := do
+  let numNewConsts := newEnv.asyncConsts.size - oldEnv.asyncConsts.size
+  let consts := newEnv.asyncConsts.revList.take numNewConsts |>.reverse
+  let exts ← EnvExtension.envExtensionsRef.get
+  return { dest with
+    asyncConsts := consts.foldl (init := dest.asyncConsts) fun consts c =>
+      if skipExisting && (consts.find? c.constInfo.name).isSome then
+        consts
+      else
+        consts.add c
+    checked := dest.checked.map (replayKernel exts consts)
+  }
+where
+  replayKernel (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)
+      (kenv : Kernel.Environment) : Kernel.Environment := Id.run do
+    let mut kenv := kenv
+    for c in consts do
+      if skipExisting && (kenv.find? c.constInfo.name).isSome then
+        continue
+      let info := c.constInfo.toConstantInfo
+      if info.isUnsafe then
+        -- Checking unsafe declarations is not necessary for consistency, and it is necessary to
+        -- avoid checking them in the case of the old code generator, which adds ill-typed constants
+        -- to the kernel environment. We can delete this branch after removing the old code
+        -- generator.
+        kenv := kenv.add info
+        continue
+      -- for panics
+      let _ : Inhabited Kernel.Environment := ⟨kenv⟩
+      let decl ← match info with
+        | .thmInfo thm   => .thmDecl thm
+        | .defnInfo defn => .defnDecl defn
+        | _              =>
+          return panic! s!"{c.constInfo.name} must be definition/theorem"
+      -- realized kernel additions cannot be interrupted - which would be bad anyway as they can be
+      -- reused between snapshots
+      match kenv.addDeclCore 0 decl none with
+      | .ok kenv' => kenv := kenv'
+      | .error e =>
+        return panic! s!"failed to add {c.constInfo.name} to environment\n{e.toRawString}"
+    for ext in exts do
+      if let some replay := ext.replay? then
+        kenv := { kenv with
+          -- safety: like in `modifyState`, but that one takes an elab env instead of a kernel env
+          extensions := unsafe (ext.modifyStateImpl kenv.extensions <|
+            replay
+              (ext.getStateImpl oldEnv.toKernelEnv.extensions)
+              (ext.getStateImpl newEnv.toKernelEnv.extensions)
+              (consts.map (·.constInfo.name))) }
+    return kenv
+
 /-- Like `evalConst`, but first check that `constName` indeed is a declaration of type `typeName`.
     Note that this function cannot guarantee that `typeName` is in fact the name of the type `α`. -/
 unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (typeName : Name) (constName : Name) : ExceptT String Id α :=
@@ -1969,7 +2027,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
           { c with exts? := some <| .pure realizeEnv'.base.extensions }
         else c
       let exts ← EnvExtension.envExtensionsRef.get
-      let replay := (maybeAddToKernelEnv realizeEnv realizeEnv' consts · exts)
+      let replay := replayConsts.replayKernel (skipExisting := true) realizeEnv realizeEnv' exts consts
       prom.resolve (consts, replay, dyn)
       pure (consts, replay, dyn)
     return ({ env with
@@ -1983,47 +2041,6 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
         consts.foldl (init := allRealizations) fun allRealizations c =>
           allRealizations.insert c.constInfo.name c
     }, dyn)
-where
-  -- Adds `consts` if they haven't already been added by a previous branch. Note that this
-  -- conditional is deterministic because of the linearizing effect of `env.checked`.
-  maybeAddToKernelEnv (oldEnv newEnv : Environment) (consts : List AsyncConst)
-      (kenv : Kernel.Environment)
-      (exts : Array (EnvExtension EnvExtensionState)) : Kernel.Environment := Id.run do
-    let mut kenv := kenv
-    for c in consts do
-      if kenv.find? c.constInfo.name |>.isSome then
-        continue
-      let info := c.constInfo.toConstantInfo
-      if info.isUnsafe then
-        -- Checking unsafe declarations is not necessary for consistency, and it is necessary to
-        -- avoid checking them in the case of the old code generator, which adds ill-typed constants
-        -- to the kernel environment. We can delete this branch after removing the old code
-        -- generator.
-        kenv := kenv.add info
-        continue
-      -- for panics
-      let _ : Inhabited Kernel.Environment := ⟨kenv⟩
-      let decl ← match info with
-        | .thmInfo thm   => .thmDecl thm
-        | .defnInfo defn => .defnDecl defn
-        | _              =>
-          return panic! s!"{c.constInfo.name} must be definition/theorem"
-      -- realized kernel additions cannot be interrupted - which would be bad anyway as they can be
-      -- reused between snapshots
-      match kenv.addDeclCore 0 decl none with
-      | .ok kenv' => kenv := kenv'
-      | .error e =>
-        return panic! s!"failed to add {c.constInfo.name} to environment\n{e.toRawString}"
-    for ext in exts do
-      if let some replay := ext.replay? then
-        kenv := { kenv with
-          -- safety: like in `modifyState`, but that one takes an elab env instead of a kernel env
-          extensions := unsafe (ext.modifyStateImpl kenv.extensions <|
-            replay
-              (ext.getStateImpl oldEnv.toKernelEnv.extensions)
-              (ext.getStateImpl newEnv.toKernelEnv.extensions)
-              (consts.map (·.constInfo.name))) }
-    return kenv
 
 end Environment
 

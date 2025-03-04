@@ -1100,6 +1100,9 @@ theorem bmod_add_mul_cancel (x : Int) (n : Nat) (k : Int) : Int.bmod (x + n * k)
 theorem bmod_sub_cancel (x : Int) (n : Nat) : Int.bmod (x - n) n = Int.bmod x n := by
   simp [bmod_def]
 
+@[simp] theorem Int.bmod_sub_mul_cancel (x : Int) (n : Nat) (k : Int) : (x - n * k).bmod n = x.bmod n := by
+  rw [Int.sub_eq_add_neg, Int.neg_mul_eq_mul_neg, Int.bmod_add_mul_cancel]
+
 @[simp]
 theorem emod_add_bmod_congr (x : Int) (n : Nat) : Int.bmod (x%n + y) n = Int.bmod (x + y) n := by
   simp [Int.emod_def, Int.sub_eq_add_neg]

@@ -146,12 +146,11 @@ theorem Int64.neg_ofInt {n : Int} : -ofInt n = ofInt (-n) :=
 theorem ISize.neg_ofInt {n : Int} : -ofInt n = ofInt (-n) :=
   toBitVec.inj (by simp [BitVec.ofInt_neg])
 
-theorem Int8.ofInt_eq_ofNat {n : Nat} : ofInt n = ofNat n :=
-  toBitVec.inj (by simp)
-theorem Int64.ofInt_eq_ofNat {n : Nat} : ofInt n = ofNat n :=
-  toBitVec.inj (by simp)
-theorem ISize.ofInt_eq_ofNat {n : Nat} : ofInt n = ofNat n :=
-  toBitVec.inj (by simp)
+theorem Int8.ofInt_eq_ofNat {n : Nat} : ofInt n = ofNat n := toBitVec.inj (by simp)
+theorem Int16.ofInt_eq_ofNat {n : Nat} : ofInt n = ofNat n := toBitVec.inj (by simp)
+theorem Int32.ofInt_eq_ofNat {n : Nat} : ofInt n = ofNat n := toBitVec.inj (by simp)
+theorem Int64.ofInt_eq_ofNat {n : Nat} : ofInt n = ofNat n := toBitVec.inj (by simp)
+theorem ISize.ofInt_eq_ofNat {n : Nat} : ofInt n = ofNat n := toBitVec.inj (by simp)
 
 theorem ISize.neg_ofNat {n : Nat} : -ofNat n = ofInt (-n) := by
   rw [← neg_ofInt, ofInt_eq_ofNat]
@@ -167,10 +166,18 @@ theorem ISize.toNatClampNeg_neg_ofNat_of_le {n : Nat} (h : n ≤ 2 ^ 31) :
 
 theorem Int8.toInt_ofNat_of_lt {n : Nat} (h : n < 2 ^ 7) : toInt (ofNat n) = n := by
   rw [← ofInt_eq_ofNat, toInt_ofInt (by omega) (by omega)]
+theorem Int16.toInt_ofNat_of_lt {n : Nat} (h : n < 2 ^ 15) : toInt (ofNat n) = n := by
+  rw [← ofInt_eq_ofNat, toInt_ofInt (by omega) (by omega)]
+theorem Int32.toInt_ofNat_of_lt {n : Nat} (h : n < 2 ^ 31) : toInt (ofNat n) = n := by
+  rw [← ofInt_eq_ofNat, toInt_ofInt (by omega) (by omega)]
 theorem Int64.toInt_ofNat_of_lt {n : Nat} (h : n < 2 ^ 63) : toInt (ofNat n) = n := by
   rw [← ofInt_eq_ofNat, toInt_ofInt (by omega) (by omega)]
 theorem ISize.toInt_ofNat_of_lt {n : Nat} (h : n < 2 ^ 31) : toInt (ofNat n) = n := by
   rw [← ofInt_eq_ofNat, toInt_ofInt (by omega) (by omega)]
+theorem ISize.toInt_ofNat_of_lt_two_pow_numBits {n : Nat}
+    (h : n < 2 ^ (System.Platform.numBits - 1)) : toInt (ofNat n) = n := by
+  rw [← ofInt_eq_ofNat, toInt_ofInt_of_two_pow_numBits_le] <;>
+    cases System.Platform.numBits_eq <;> simp_all <;> omega
 
 theorem Int64.toInt_neg_ofNat_of_le {n : Nat} (h : n ≤ 2^63) : toInt (-ofNat n) = -n := by
   rw [← ofInt_eq_ofNat, neg_ofInt, toInt_ofInt (by omega) (by omega)]
@@ -304,16 +311,10 @@ theorem Int32.iSizeMinValue_le_toInt (x : Int32) : ISize.minValue.toInt ≤ x.to
 theorem Int32.toInt_le_iSizeMaxValue (x : Int32) : x.toInt ≤ ISize.maxValue.toInt :=
   Int.le_trans x.toInt_le (Int.le_trans (by decide) ISize.le_toInt_maxValue)
 
-theorem ISize.int64MinValue_le_toInt (x : ISize) : Int64.minValue.toInt ≤ x.toInt := by
-  -- TODO: cleanup once simprocs are available
-  erw [Int64.minValue, Int64.toInt_neg_ofNat_of_le]
-  · exact Int.le_trans (by decide) x.le_toInt
-  · simp
-theorem ISize.toInt_le_int64MaxValue (x : ISize) : x.toInt ≤ Int64.maxValue.toInt := by
-  -- TODO: cleanup once simprocs are available
-  erw [Int64.maxValue, Int64.toInt_ofNat_of_lt]
-  · exact Int.le_of_lt_add_one x.toInt_lt
-  · simp
+theorem ISize.int64MinValue_le_toInt (x : ISize) : Int64.minValue.toInt ≤ x.toInt :=
+  Int.le_trans (by decide) x.le_toInt
+theorem ISize.toInt_le_int64MaxValue (x : ISize) : x.toInt ≤ Int64.maxValue.toInt :=
+  Int.le_of_lt_add_one x.toInt_lt
 
 theorem Int8.toNatClampNeg_lt (x : Int8) : x.toNatClampNeg < 2 ^ 7 := (Int.toNat_lt' (by decide)).2 x.toInt_lt
 theorem Int16.toNatClampNeg_lt (x : Int16) : x.toNatClampNeg < 2 ^ 15 := (Int.toNat_lt' (by decide)).2 x.toInt_lt
@@ -589,15 +590,15 @@ theorem ISize.ofIntLE_int64ToInt (x : Int64) {h₁ h₂} : ISize.ofIntLE x.toInt
   · apply Int.lt_of_le_sub_one
     simpa using h₂
 
-@[simp] theorem Int8.ofIntLE_eq_ofIntTruncate {x : Int} {h₁ h₂} : (ofIntLE x h₁ h₂) = ofIntTruncate x := by
+theorem Int8.ofIntLE_eq_ofIntTruncate {x : Int} {h₁ h₂} : (ofIntLE x h₁ h₂) = ofIntTruncate x := by
   rw [ofIntTruncate, dif_pos h₁, dif_pos h₂]
-@[simp] theorem Int16.ofIntLE_eq_ofIntTruncate {x : Int} {h₁ h₂} : (ofIntLE x h₁ h₂) = ofIntTruncate x := by
+theorem Int16.ofIntLE_eq_ofIntTruncate {x : Int} {h₁ h₂} : (ofIntLE x h₁ h₂) = ofIntTruncate x := by
   rw [ofIntTruncate, dif_pos h₁, dif_pos h₂]
-@[simp] theorem Int32.ofIntLE_eq_ofIntTruncate {x : Int} {h₁ h₂} : (ofIntLE x h₁ h₂) = ofIntTruncate x := by
+theorem Int32.ofIntLE_eq_ofIntTruncate {x : Int} {h₁ h₂} : (ofIntLE x h₁ h₂) = ofIntTruncate x := by
   rw [ofIntTruncate, dif_pos h₁, dif_pos h₂]
-@[simp] theorem Int64.ofIntLE_eq_ofIntTruncate {x : Int} {h₁ h₂} : (ofIntLE x h₁ h₂) = ofIntTruncate x := by
+theorem Int64.ofIntLE_eq_ofIntTruncate {x : Int} {h₁ h₂} : (ofIntLE x h₁ h₂) = ofIntTruncate x := by
   rw [ofIntTruncate, dif_pos h₁, dif_pos h₂]
-@[simp] theorem ISize.ofIntLE_eq_ofIntTruncate {x : Int} {h₁ h₂} : (ofIntLE x h₁ h₂) = ofIntTruncate x := by
+theorem ISize.ofIntLE_eq_ofIntTruncate {x : Int} {h₁ h₂} : (ofIntLE x h₁ h₂) = ofIntTruncate x := by
   rw [ofIntTruncate, dif_pos h₁, dif_pos h₂]
 
 theorem Int8.toInt_ofIntTruncate {x : Int} (h₁ : Int8.minValue.toInt ≤ x)
@@ -698,5 +699,18 @@ theorem Int64.cast_toNatClampNeg (x : Int64) (hx : 0 ≤ x) : x.toNatClampNeg = 
 theorem ISize.cast_toNatClampNeg (x : ISize) (hx : 0 ≤ x) : x.toNatClampNeg = x.toInt := by
   rw [toNatClampNeg, toInt, Int.toNat_of_nonneg (by simpa using le_iff_toInt_le.1 hx)]
 
-theorem Int8.ofNat_toNatClampNeg_of_le (x : Int8) (hx : 0 ≤ x) : Int8.ofNat x.toNatClampNeg = x :=
+theorem Int8.ofNat_toNatClampNeg (x : Int8) (hx : 0 ≤ x) : Int8.ofNat x.toNatClampNeg = x :=
   Int8.toInt.inj (by rw [Int8.toInt_ofNat_of_lt x.toNatClampNeg_lt, cast_toNatClampNeg _ hx])
+theorem Int16.ofNat_toNatClampNeg (x : Int16) (hx : 0 ≤ x) : Int16.ofNat x.toNatClampNeg = x :=
+  Int16.toInt.inj (by rw [Int16.toInt_ofNat_of_lt x.toNatClampNeg_lt, cast_toNatClampNeg _ hx])
+theorem Int32.ofNat_toNatClampNeg (x : Int32) (hx : 0 ≤ x) : Int32.ofNat x.toNatClampNeg = x :=
+  Int32.toInt.inj (by rw [Int32.toInt_ofNat_of_lt x.toNatClampNeg_lt, cast_toNatClampNeg _ hx])
+theorem Int64.ofNat_toNatClampNeg (x : Int64) (hx : 0 ≤ x) : Int64.ofNat x.toNatClampNeg = x :=
+  Int64.toInt.inj (by rw [Int64.toInt_ofNat_of_lt x.toNatClampNeg_lt, cast_toNatClampNeg _ hx])
+theorem ISize.ofNat_toNatClampNeg (x : ISize) (hx : 0 ≤ x) : ISize.ofNat x.toNatClampNeg = x :=
+  ISize.toInt.inj (by rw [ISize.toInt_ofNat_of_lt_two_pow_numBits x.toNatClampNeg_lt_two_pow_numBits,
+    cast_toNatClampNeg _ hx])
+
+
+
+  -- ISize.toInt.inj (by rw [ISize.toInt_ofNat_of_lt x.toNatClampNeg_lt, cast_toNatClampNeg _ hx])

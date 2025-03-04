@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Cooper
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -65,6 +66,25 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := c'.caching do
     return mkApp10 (mkConst ``Int.Linear.eq_dvd_subst)
       (← getContext) (toExpr x) (toExpr c₁.p) (toExpr c₂.d) (toExpr c₂.p) (toExpr c'.d) (toExpr c'.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .cooper₁ c =>
+    let p₁ := c.c₁.p
+    let p₂ := c.c₂.p
+    match c.c₃? with
+    | none =>
+      let thmName := if c.left then ``Int.Linear.cooper_left_split_dvd else ``Int.Linear.cooper_right_split_dvd
+      return mkApp8 (mkConst thmName)
+        (← getContext) (toExpr p₁) (toExpr p₂) (toExpr c.k) (toExpr c'.d) (toExpr c'.p) (← c.toExprProof) reflBoolTrue
+    | some c₃ =>
+      let thmName := if c.left then ``Int.Linear.cooper_dvd_left_split_dvd1 else ``Int.Linear.cooper_dvd_right_split_dvd1
+      return mkApp10 (mkConst thmName)
+        (← getContext) (toExpr p₁) (toExpr p₂) (toExpr c₃.p) (toExpr c₃.d) (toExpr c.k) (toExpr c'.d) (toExpr c'.p) (← c.toExprProof) reflBoolTrue
+  | .cooper₂ c =>
+    let p₁ := c.c₁.p
+    let p₂ := c.c₂.p
+    let some c₃ := c.c₃? | throwError "`grind` internal error, unexpected `cooper₂` proof"
+    let thmName := if c.left then ``Int.Linear.cooper_dvd_left_split_dvd2 else ``Int.Linear.cooper_dvd_right_split_dvd2
+    return mkApp10 (mkConst thmName)
+      (← getContext) (toExpr p₁) (toExpr p₂) (toExpr c₃.p) (toExpr c₃.d) (toExpr c.k) (toExpr c'.d) (toExpr c'.p) (← c.toExprProof) reflBoolTrue
 
 partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := c'.caching do
   match c'.h with
@@ -102,6 +122,19 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := c'.caching do
     let hNot := mkLambda `h .default (mkIntLE (← p₂.denoteExpr') (mkIntLit 0)) (hFalse.abstract #[mkFVar fvarId])
     return mkApp7 (mkConst ``Int.Linear.diseq_split_resolve)
       (← getContext) (toExpr c₁.p) (toExpr p₂) (toExpr c'.p) reflBoolTrue (← c₁.toExprProof) hNot
+  | .cooper c =>
+    let p₁ := c.c₁.p
+    let p₂ := c.c₂.p
+    let coeff := if c.left then p₁.leadCoeff else p₂.leadCoeff
+    match c.c₃? with
+    | none =>
+      let thmName := if c.left then ``Int.Linear.cooper_left_split_ineq else ``Int.Linear.cooper_right_split_ineq
+      return mkApp8 (mkConst thmName)
+        (← getContext) (toExpr p₁) (toExpr p₂) (toExpr c.k) (toExpr coeff) (toExpr c'.p) (← c.toExprProof) reflBoolTrue
+    | some c₃ =>
+      let thmName := if c.left then ``Int.Linear.cooper_dvd_left_split_ineq else ``Int.Linear.cooper_dvd_right_split_ineq
+      return mkApp10 (mkConst thmName)
+        (← getContext) (toExpr p₁) (toExpr p₂) (toExpr c₃.p) (toExpr c₃.d) (toExpr c.k) (toExpr coeff) (toExpr c'.p) (← c.toExprProof) reflBoolTrue
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := c'.caching do
   match c'.h with
@@ -120,6 +153,44 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := c'.caching
     return mkApp8 (mkConst ``Int.Linear.eq_diseq_subst)
       (← getContext) (toExpr x) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+
+partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s.id do
+  match s.h with
+  | .dec h => return mkFVar h
+  | .last hs _ =>
+    let p₁ := s.c₁.p
+    let p₂ := s.c₂.p
+    let n := s.numCases
+    unless hs.size + 1 == n do
+      throwError "`grind` internal error, unexpected number of cases at `CopperSplit`"
+    let (base, pred) ← match s.c₃? with
+      | none =>
+        let thmName := if s.left then ``Int.Linear.cooper_left else ``Int.Linear.cooper_right
+        let predName := if s.left then ``Int.Linear.cooper_left_split else ``Int.Linear.cooper_right_split
+        let base := mkApp7 (mkConst thmName) (← getContext) (toExpr p₁) (toExpr p₂) (toExpr n)
+          reflBoolTrue (← s.c₁.toExprProof) (← s.c₂.toExprProof)
+        let pred := mkApp3 (mkConst predName) (← getContext) (toExpr p₁) (toExpr p₂)
+        pure (base, pred)
+      | some c₃ =>
+        let thmName := if s.left then ``Int.Linear.cooper_dvd_left else ``Int.Linear.cooper_dvd_right
+        let predName := if s.left then ``Int.Linear.cooper_dvd_left_split else ``Int.Linear.cooper_dvd_right_split
+        let base := mkApp10 (mkConst thmName) (← getContext) (toExpr p₁) (toExpr p₂) (toExpr c₃.p) (toExpr c₃.d) (toExpr n)
+          reflBoolTrue (← s.c₁.toExprProof) (← s.c₂.toExprProof) (← c₃.toExprProof)
+        let pred := mkApp5 (mkConst predName) (← getContext) (toExpr p₁) (toExpr p₂) (toExpr c₃.p) (toExpr c₃.d)
+        pure (base, pred)
+    -- `pred` is an expressions of the form `cooper_*_split ...` with type `Nat → Prop`
+    let mut k := n
+    let mut result := base -- `OrOver k (cooper_*_splti)
+    -- `result` is of the form `OrOver k pred`, we resolve it using `hs`
+    for (fvarId, c) in hs do
+      let type := mkApp pred (toExpr (k-1))
+      let h ← c.toExprProofCore -- proof of `False`
+      -- `hNotCase` is a proof for `¬ pred (k-1)`
+      let hNotCase := mkLambda `h .default type (h.abstract #[mkFVar fvarId])
+      result := mkApp4 (mkConst ``Int.Linear.orOver_resolve) (toExpr k) pred result hNotCase
+      k := k - 1
+    -- `result` is now a proof of `OrOver 1 pred`
+    return mkApp2 (mkConst ``Int.Linear.orOver_one) pred result
 
 partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
   match h with
@@ -185,9 +256,15 @@ partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do u
   | .norm c | .divCoeffs c => c.collectDecVars
   | .subst _ c₁ c₂ | .ofLeGe c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
 
+partial def CooperSplit.collectDecVars (c' : CooperSplit) : CollectDecVarsM Unit := do unless (← alreadyVisited c'.id) do
+  match c'.h with
+  | .dec h => markAsFound h
+  | .last (decVars := decVars) .. => decVars.forM markAsFound
+
 partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c'.id) do
   match c'.h with
   | .expr h => collectExpr h
+  | .cooper₁ c | .cooper₂ c
   | .norm c | .elim c | .divCoeffs c | .ofEq _ c => c.collectDecVars
   | .solveCombine c₁ c₂ | .solveElim c₁ c₂ | .subst _ c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
 
@@ -195,12 +272,9 @@ partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do u
   match c'.h with
   | .expr h => collectExpr h
   | .notExpr .. => return () -- This kind of proof is used for connecting with the `grind` core.
-  | .norm c | .divCoeffs c => c.collectDecVars
+  | .cooper c | .norm c | .divCoeffs c => c.collectDecVars
   | .combine c₁ c₂ | .subst _ c₁ c₂ | .ofLeDiseq c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
-  | .ofDiseqSplit _ _ _ decVars =>
-    -- Recall that we cache the decision variables used in this kind of proof
-    for fvar in decVars do
-      markAsFound fvar
+  | .ofDiseqSplit (decVars := decVars) .. => decVars.forM markAsFound
 
 partial def DiseqCnstr.collectDecVars (c' : DiseqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c'.id) do
   match c'.h with

@@ -5,9 +5,9 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+-- import Lean.Meta.Tactic.Grind.Arith.Cutsat.Cooper
 
 namespace Lean.Meta.Grind.Arith.Cutsat
-
 /--
 In principle, we only need to support two kinds of case split.
 - Disequalities.

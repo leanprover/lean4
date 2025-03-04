@@ -93,6 +93,40 @@ structure DvdCnstr where
   /-- Unique id for caching proofs in `ProofM` -/
   id : Nat
 
+/--
+The predicate of type `Nat → Prop`, which serves as the conclusion of the
+`cooper_left`, `cooper_right`, `cooper_dvd_left`, and `cooper_dvd_right` theorems.
+
+The specific predicate used is determined as follows:
+- `cooper_left_split` (if `left` is `true` and `c₃?` is `none`)
+- `cooper_right_split` (if `left` is `false` and `c₃?` is `none`)
+- `cooper_dvd_left_split` (if `left` is `true` and `c₃?` is `some`)
+- `cooper_dvd_right_split` (if `left` is `false` and `c₃?` is `some`)
+
+See `CooperSplitProof` for additional explanations.
+-/
+structure CooperSplit where
+  left     : Bool
+  c₁       : LeCnstr
+  c₂       : LeCnstr
+  c₃?      : Option DvdCnstr
+  k        : Nat
+  h        : CooperSplitProof
+  id       : Nat
+
+/--
+The `cooper_left`, `cooper_right`, `cooper_dvd_left`, and `cooper_dvd_right` theorems have a resulting type
+that is a big-or of the form `OrOver n (cooper_*_split ...)`. The predicate `(cooper_*_split ...)` has type `Nat → Prop`.
+The `cutsat` procedure performs case splitting on `(cooper_*_split ... (n-1))` down to `(cooper_*_split ... 1)`.
+If it derives `False` from each case, it uses `orOver_resolve` and `orOver_one` to deduce the final case,
+which has type `(cooper_*_split ... 0)`.
+-/
+inductive CooperSplitProof where
+  | /-- The first `n-1` cases are decisions (aka case-splits). -/
+    dec (h : FVarId)
+  | /-- The last case which has type `(cooper_*_split ... 0)` -/
+    last (hs : Array (FVarId × UnsatProof)) (decVars : Array FVarId)
+
 inductive DvdCnstrProof where
   | expr (h : Expr)
   | norm (c : DvdCnstr)
@@ -102,8 +136,11 @@ inductive DvdCnstrProof where
   | elim (c : DvdCnstr)
   | ofEq (x : Var) (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : DvdCnstr)
+  | cooper₁ (c : CooperSplit)
+  /-- `c.c₃?` must be `some` -/
+  | cooper₂ (c : CooperSplit)
 
-/-- An inequality constraint and its justification/proof. -/
+/-- An inequalirty constraint and its justification/proof. -/
 structure LeCnstr where
   p  : Poly
   h  : LeCnstrProof
@@ -118,6 +155,8 @@ inductive LeCnstrProof where
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : LeCnstr)
   | ofLeDiseq (c₁ : LeCnstr) (c₂ : DiseqCnstr)
   | ofDiseqSplit (c₁ : DiseqCnstr) (decVar : FVarId) (h : UnsatProof) (decVars : Array FVarId)
+  | cooper (c : CooperSplit)
+
   -- TODO: missing constructors
 
 /-- A disequality constraint and its justification/proof. -/
@@ -145,6 +184,9 @@ inductive UnsatProof where
   | diseq (c : DiseqCnstr)
 
 end
+
+instance : Inhabited LeCnstr where
+  default := { p := .num 0, h := .expr default, id := 0 }
 
 instance : Inhabited DvdCnstr where
   default := { d := 0, p := .num 0, h := .expr default, id := 0 }

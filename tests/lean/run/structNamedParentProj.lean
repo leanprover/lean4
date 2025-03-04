@@ -18,13 +18,21 @@ Non-atomic parent projections are not allowed.
 /-!
 Shadowing other fields is not allowed.
 -/
-/-- error: field 'x' has already been declared -/
-#guard_msgs in structure S' extends x : S
+/--
+error: field 'x' has already been declared
+
+The 'toParent : P' syntax can be used to adjust the name for the parent projection
+-/
+#guard_msgs in  structure S' extends x : S
 
 /-!
 Duplicate parent projections
 -/
-/-- error: field 'toP' has already been declared -/
+/--
+error: field 'toP' has already been declared
+
+The 'toParent : P' syntax can be used to adjust the name for the parent projection
+-/
 #guard_msgs in structure S' extends toP : S, toP : T
 
 /-!
@@ -33,16 +41,26 @@ Duplicate parent projections because from different namespaces
 structure NS1.S
 structure NS2.S
 /--
-error: field 'toS' has already been declared, use 'toParent : P' syntax to give a unique name for the parent projection
+error: field 'toS' has already been declared
+
+The 'toParent : P' syntax can be used to adjust the name for the parent projection
 -/
 #guard_msgs in structure S' extends NS1.S, NS2.S
 
 /-!
 Duplicate parent projections, when there are overlapping fields
 -/
-/-- error: field 'toS' has already been declared -/
+/--
+error: field 'toS' has already been declared
+
+The 'toParent : P' syntax can be used to adjust the name for the parent projection
+-/
 #guard_msgs in structure S' extends S, toS : U
-/-- error: field 'toP' has already been declared -/
+/--
+error: field 'toP' has already been declared
+
+The 'toParent : P' syntax can be used to adjust the name for the parent projection
+-/
 #guard_msgs in structure S' extends toP : S, toP : T
 
 /-!
@@ -51,7 +69,9 @@ Duplicate parent projections because from different namespaces, when there are d
 structure NS1.S' where x : Nat
 structure NS2.S' where x : Nat
 /--
-error: field 'toS'' has already been declared, use 'toParent : P' syntax to give a unique name for the parent projection
+error: field 'toS'' has already been declared
+
+The 'toParent : P' syntax can be used to adjust the name for the parent projection
 -/
 #guard_msgs in structure S' extends NS1.S', NS2.S'
 

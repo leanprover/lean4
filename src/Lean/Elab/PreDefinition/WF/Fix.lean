@@ -50,8 +50,7 @@ where
       let r := mkApp F (← loop F args[fixedPrefixSize]!)
       let decreasingProp := (← whnf (← inferType r)).bindingDomain!
       let r := mkApp r (← mkDecreasingProof decreasingProp)
-      let r := mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
-      return r
+      return mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
 
   processApp (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     if e.isAppOf recFnName then

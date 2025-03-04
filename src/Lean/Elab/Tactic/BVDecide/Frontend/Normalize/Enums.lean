@@ -8,7 +8,6 @@ import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow
 import Lean.Meta.Tactic.Simp
-import Init.Data.Range.Basic
 
 /-!
 This module contains the implementation of the pre processing pass for handling equality on

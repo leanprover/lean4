@@ -91,9 +91,9 @@ def isSupportedMatch (declName : Name) : MetaM (Option MatchKind) := do
   | none => return none
 
 def builtinTypes : Array Name :=
-  #[``BitVec,
+  #[``BitVec, ``Bool,
     ``UInt8, ``UInt16, ``UInt32, ``UInt64, ``USize,
-    ``Int8, ``Int16, ``Int32, ``Int64, ``ISize, ``Bool]
+    ``Int8, ``Int16, ``Int32, ``Int64, ``ISize]
 
 @[inline]
 def isBuiltIn (n : Name) : Bool := builtinTypes.contains n
@@ -168,8 +168,6 @@ where
     | _ =>
       let some const := expr.getAppFn.constName? | return false
       analyzeConst const
-
-
 
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

@@ -13,36 +13,42 @@ open Lean (Name)
 inductive BuildKey
 | module (module : Name)
 | package (package : Name)
-| packageTarget (package target : Name)
-| facet (target : BuildKey) (kind facet : Name)
+| packageTarget (package target kind : Name)
+| facet (target : BuildKey) (facet kind : Name)
 deriving Inhabited, Repr, DecidableEq, Hashable
 
 namespace BuildKey
 
 @[match_pattern] abbrev moduleFacet (module facet : Name) : BuildKey :=
-  .facet (.module module) `module facet
+  .facet (.module module) facet .anonymous
 
 @[match_pattern] abbrev packageFacet (package facet : Name) : BuildKey :=
-  .facet (.package package) `package facet
+  .facet (.package package) facet .anonymous
 
 @[match_pattern] abbrev targetFacet (package target kind facet : Name) : BuildKey :=
-  .facet (.packageTarget package target) kind facet
+  .facet (.packageTarget package target kind) facet .anonymous
 
 @[match_pattern] abbrev customTarget (package target : Name) : BuildKey :=
-  .packageTarget package target
+  .packageTarget package target .anonymous
+
+@[reducible] def kind : (self : BuildKey) → Name
+| module _ => `module
+| package _ => `package
+| packageTarget _ _ k => k
+| facet _ _ k => k
 
 def toString : (self : BuildKey) → String
 | module m => s!"+{m}"
 | package p => s!"@{p}"
-| packageTarget p t => s!"{p}/{t}"
-| facet t _ f => s!"{toString t}:{f}"
+| packageTarget p t _ => s!"{p}/{t}"
+| facet t f _ => s!"{toString t}:{f}"
 
 /-- Like the default `toString`, but without disambiguation markers. -/
 def toSimpleString : (self : BuildKey) → String
 | module m => s!"{m}"
 | package p => s!"{p}"
-| packageTarget p t => s!"{p}/{t}"
-| facet t _ f => s!"{toSimpleString t}:{f}"
+| packageTarget p t _ => s!"{p}/{t}"
+| facet t f _ => s!"{toSimpleString t}:{f}"
 
 instance : ToString BuildKey := ⟨(·.toString)⟩
 
@@ -57,21 +63,24 @@ def quickCmp (k k' : BuildKey) : Ordering :=
     | module .. => .gt
     | package p' => p.quickCmp p'
     | _ => .lt
-  | packageTarget p t =>
+  | packageTarget p t k =>
     match k' with
     | facet .. => .lt
-    | packageTarget p' t' =>
+    | packageTarget p' t' k' =>
       match p.quickCmp p' with
-      | .eq => t.quickCmp t'
+      | .eq =>
+        match t.quickCmp t' with
+        | .eq => k.quickCmp k'
+        | ord => ord
       | ord => ord
     | _=> .gt
-  | facet t k f =>
+  | facet t f k =>
     match k' with
-    | facet t' k' f' =>
+    | facet t' f' k' =>
       match t.quickCmp t' with
       | .eq =>
-        match k.quickCmp k' with
-        | .eq => f.quickCmp f'
+        match f.quickCmp f' with
+        | .eq => k.quickCmp k'
         | ord => ord
       | ord => ord
     | _ => .gt
@@ -91,22 +100,29 @@ theorem eq_of_quickCmp :
     intro k'; cases k'
     case package p' => simp
     all_goals (intro; contradiction)
-  | packageTarget p t =>
+  | packageTarget p t k =>
     unfold quickCmp
     intro k'; cases k'
-    case packageTarget p' t' =>
+    case packageTarget p' t' k' =>
       dsimp only; split
-      next p_eq => intro t_eq; rw [eq_of_cmp p_eq, eq_of_cmp t_eq]
+      next p_eq =>
+        split
+        next t_eq =>
+          intro k_eq
+          rw [eq_of_cmp p_eq, eq_of_cmp t_eq, eq_of_cmp k_eq]
+        next => intro; contradiction
       next => intro; contradiction
     all_goals (intro; contradiction)
-  | facet t k f ih =>
+  | facet t f k ih =>
     unfold quickCmp
     intro k'; cases k'
-    case facet t' k' f' =>
+    case facet t' f' k' =>
       dsimp only; split
       next t_eq =>
         split
-        next k_eq => intro f_eq; rw [ih t_eq, eq_of_cmp k_eq, eq_of_cmp f_eq]
+        next f_eq =>
+          intro k_eq
+          rw [ih t_eq, eq_of_cmp f_eq, eq_of_cmp k_eq]
         next => intro; contradiction
       next => intro; contradiction
     all_goals (intro; contradiction)

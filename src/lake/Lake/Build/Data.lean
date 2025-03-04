@@ -24,11 +24,14 @@ as needed (via `target_data`).
 -/
 opaque TargetData (facet : Name) : Type
 
-/-- The type of the output of the `facet` of objects of `kind`. -/
-abbrev FacetData (kind facet : Name) := TargetData (kind ++ facet)
+/--
+The open type family which maps a facet to its build data in
+the Lake build store. For example, the imports of a module.
 
-instance [h : FamilyOut (FacetData kind) facet α] : FamilyDef TargetData (kind ++ facet) α :=
-  ⟨h.fam_eq⟩
+It is an open type, meaning additional mappings can be add lazily
+as needed (via `facet_data`).
+-/
+abbrev FacetData (kind facet : Name) := TargetData (kind ++ facet)
 
 instance [h : FamilyDef TargetData (kind ++ facet) α] : FamilyDef (FacetData kind) facet α :=
   ⟨h.fam_eq⟩
@@ -80,13 +83,25 @@ in the Lake build store. For example, the generated static library for the
 abbrev ExternLibData := FacetData `externLib
 
 /--
-The open type family which maps a custom target (package × target name) to
-its build data in the Lake build store.
+The open type family which maps a custom package target
+(package × target name) to its build data in the Lake build store.
 
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `custom_data`).
 -/
-opaque CustomData (target : Name × Name) : Type
+opaque CustomDataFam (target : Name × Name) : Type
+
+/--
+The open type family which maps a custom package target
+to its build data in the Lake build store.
+
+It is an open type, meaning additional mappings can be add lazily
+as needed (via `custom_data`).
+-/
+abbrev CustomData (package target : Name) := CustomDataFam (package, target)
+
+instance [h : FamilyDef CustomDataFam (p, t) α] : FamilyDef (CustomData p) t α :=
+  ⟨h.fam_eq⟩
 
 --------------------------------------------------------------------------------
 /-! ## Build Data                                                             -/
@@ -100,13 +115,42 @@ modules facets, package facets, Lake target facets, and custom targets.
 abbrev BuildData : BuildKey → Type
 | .module _ => TargetData `module
 | .package _ => TargetData `package
-| .packageTarget p t => CustomData (p, t)
-| .facet _ k f => FacetData k f
+| .packageTarget p t .anonymous => CustomData p t
+| .packageTarget _ _ k => TargetData k
+| .facet t f .anonymous => FacetData t.kind f
+| .facet _ _ k => TargetData k
 
 instance (priority := low) : FamilyDef BuildData (.moduleFacet m f) (ModuleData f) := ⟨rfl⟩
 instance (priority := low) : FamilyDef BuildData (.packageFacet p f) (PackageData f) := ⟨rfl⟩
-instance (priority := low) : FamilyDef BuildData (.facet t k f) (FacetData k f) := ⟨rfl⟩
-instance (priority := low) : FamilyDef BuildData (.customTarget p t) (CustomData (p,t)) := ⟨rfl⟩
+instance (priority := low) : FamilyDef BuildData (.customTarget p t) (CustomData p t) := ⟨rfl⟩
+instance (priority := low) : FamilyDef BuildData (.facet t f .anonymous) (FacetData t.kind f) := ⟨rfl⟩
+instance (priority := low) : FamilyDef BuildData (.targetFacet p t `leanLib f) (LeanLibData f) := ⟨rfl⟩
+instance (priority := low) : FamilyDef BuildData (.targetFacet p t `leanExe f) (LeanExeData f) := ⟨rfl⟩
+instance (priority := low) : FamilyDef BuildData (.targetFacet p t `externLib f) (ExternLibData f) := ⟨rfl⟩
+
+instance [FamilyOut TargetData `module α]
+: FamilyDef BuildData (.module k) α where
+  fam_eq := by unfold BuildData; simp
+
+instance [FamilyOut TargetData `package α]
+: FamilyDef BuildData (.package k) α where
+  fam_eq := by unfold BuildData; simp
+
+instance [FamilyOut TargetData `leanLib α]
+: FamilyDef BuildData (.packageTarget p t `leanLib) α where
+  fam_eq := by unfold BuildData; simp
+
+instance [FamilyOut TargetData `leanExe α]
+: FamilyDef BuildData (.packageTarget p t `leanExe) α where
+  fam_eq := by unfold BuildData; simp
+
+instance [FamilyOut TargetData `externLib α]
+: FamilyDef BuildData (.packageTarget p t `externLib) α where
+  fam_eq := by unfold BuildData; simp
+
+theorem BuildKey.data_eq_of_kind {k : BuildKey} :
+  ¬ k.kind.isAnonymous → (BuildData k) = TargetData k.kind
+:= by unfold BuildData; split <;> simp [BuildKey.kind, Lean.Name.isAnonymous]
 
 --------------------------------------------------------------------------------
 /-! ## Macros for Declaring Build Data                                        -/
@@ -118,12 +162,12 @@ open Parser Command
 scoped macro (name := facetDataDecl)
   doc?:optional(docComment) "facet_data " kind:ident facet:ident " : " ty:term
 : command => do
-  let dty := mkCIdentFrom (← getRef) ``TargetData
+  let fam := mkCIdentFrom (← getRef) ``TargetData
   let kindName := Name.quoteFrom kind kind.getId
   let facetName := Name.quoteFrom facet facet.getId
   let id := mkIdentFrom facet (canonical := true) <|
     facet.getId.modifyBase (kind.getId ++ ·)
-  `($[$doc?]? family_def $id : $dty ($kindName ++ $facetName) := $ty)
+  `($[$doc?]? family_def $id : $fam ($kindName ++ $facetName) := $ty)
 
 /-- Macro for declaring new `PackageData`. -/
 scoped macro (name := packageDataDecl)
@@ -144,16 +188,16 @@ scoped macro (name := libraryDataDecl)
 scoped macro (name := targetDataDecl)
   doc?:optional(docComment) "target_data " id:ident " : " ty:term
 : command => do
-  let dty := mkCIdentFrom (← getRef) ``TargetData
-  let key := Name.quoteFrom id id.getId
-  `($[$doc?]? family_def $id : $dty $key := $ty)
+  let fam := mkCIdentFrom (← getRef) ``TargetData
+  let idx := Name.quoteFrom id id.getId
+  `($[$doc?]? family_def $id : $fam $idx := $ty)
 
 /-- Macro for declaring new `CustomData`. -/
 scoped macro (name := customDataDecl)
   doc?:optional(docComment) "custom_data " pkg:ident tgt:ident " : " ty:term
 : command => do
-  let dty := mkCIdentFrom (← getRef) ``CustomData
+  let fam := mkCIdentFrom (← getRef) ``CustomDataFam
   let id := mkIdentFrom tgt (pkg.getId ++ tgt.getId)
   let pkg := Name.quoteFrom pkg pkg.getId
   let tgt := Name.quoteFrom pkg tgt.getId
-  `($[$doc?]? family_def $id : $dty ($pkg, $tgt) := $ty)
+  `($[$doc?]? family_def $id : $fam ($pkg, $tgt) := $ty)

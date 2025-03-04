@@ -158,7 +158,7 @@ instance [FamilyDef f a b] : FamilyOut f a b where
   fam_eq := FamilyDef.fam_eq
 
 /-- The identity relation. -/
-@[default_instance 0] instance : FamilyDef f a (f a) where
+@[default_instance 0] instance (priority := 0) : FamilyDef f a (f a) where
   fam_eq := rfl
 
 /-- The constant type family. -/
@@ -170,7 +170,7 @@ instance : FamilyDef (fun _ => b) a b where
   cast FamilyOut.fam_eq.symm b
 
 /-- Cast a datum from a general type family to its specific type. -/
-@[macro_inline] def ofFamily  [FamilyOut F a β] (b : F a) : β :=
+@[macro_inline] def ofFamily [FamilyOut F a β] (b : F a) : β :=
   cast FamilyOut.fam_eq b
 
 open Lean in
@@ -186,7 +186,7 @@ of an axiom `Fam.foo : Fam 0 = Nat` and an instance of `FamilyDef`
 that uses this axiom for the index `0`.
 -/
 scoped macro (name := familyDef)
-  doc?:optional(Parser.Command.docComment)
+  doc?:optional(Lean.Parser.Command.docComment)
   "family_def " id:ident " : " fam:ident idx:term " := " val:term
 : command => do
   let tid := extractMacroScopes fam.getId |>.name

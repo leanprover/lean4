@@ -87,9 +87,9 @@ instance [FamilyOut PackageData f α]
   fam_eq := by unfold BuildData; simp
 
 instance (priority := low) {p : NPackage n} : FamilyDef BuildData
-  (.customTarget p.toPackage.name t) (CustomData (n,t)) := ⟨by simp⟩
+  (.customTarget p.toPackage.name t) (CustomData n t) := ⟨by simp⟩
 
-instance {p : NPackage n} [FamilyOut CustomData (n, t) α]
+instance {p : NPackage n} [FamilyOut (CustomData n) t α]
 : FamilyDef BuildData (BuildInfo.key (.target p.toPackage t)) α where
   fam_eq := by unfold BuildData; simp
 

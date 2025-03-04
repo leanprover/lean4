@@ -225,8 +225,10 @@ def elabTerminationByHints (preDefs : Array PreDefinition) : TermElabM (Array (O
   preDefs.mapM fun preDef => do
     let arity ← lambdaTelescope preDef.value fun xs _ => pure xs.size
     let hints := preDef.termination
+    let cleanPredefM := forallTelescopeReducing preDef.type mkForallFVars true
+    let cleanPredef ← cleanPredefM
     hints.terminationBy?.mapM
-      (TerminationMeasure.elab preDef.declName preDef.type arity hints.extraParams ·)
+      (TerminationMeasure.elab preDef.declName cleanPredef arity hints.extraParams ·)
 
 def shouldUseStructural (preDefs : Array PreDefinition) : Bool :=
   preDefs.any fun preDef =>

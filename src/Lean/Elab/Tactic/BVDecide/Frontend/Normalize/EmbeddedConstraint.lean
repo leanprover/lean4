@@ -20,7 +20,7 @@ open Lean.Meta
 
 /--
 Substitute embedded constraints. That is look for hypotheses of the form `h : x = true` and use
-them to substitute occurences of `x` within other hypotheses. Additionally this drops all
+them to substitute occurrences of `x` within other hypotheses. Additionally this drops all
 redundant top level hypotheses.
 -/
 def embeddedConstraintPass : Pass where

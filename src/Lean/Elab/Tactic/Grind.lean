@@ -94,7 +94,7 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
           params := { params with casesTypes := params.casesTypes.insert declName false }
           if let some info ← isInductivePredicate? declName then
             -- If it is an inductive predicate,
-            -- we also add the contructors (intro rules) as E-matching rules
+            -- we also add the constructors (intro rules) as E-matching rules
             for ctor in info.ctors do
               params ← withRef p <| addEMatchTheorem params ctor .default
         else
@@ -117,7 +117,7 @@ where
       if kind != .eqLhs && kind != .default then
         throwError "invalid `grind` parameter, `{declName}` is a definition, the only acceptable (and redundant) modifier is '='"
       let some thms ← Grind.mkEMatchEqTheoremsForDef? declName
-        | throwError "failed to genereate equation theorems for `{declName}`"
+        | throwError "failed to generate equation theorems for `{declName}`"
       return { params with extra := params.extra ++ thms.toPArray' }
     | _ =>
       throwError "invalid `grind` parameter, `{declName}` is not a theorem, definition, or inductive type"

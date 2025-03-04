@@ -405,7 +405,7 @@ no element of the index matches the given value. -/
   (xs.toArray.findFinIdx? p).map (Fin.cast xs.size_toArray)
 
 /--
-Note that the universe level is contrained to `Type` here,
+Note that the universe level is constrained to `Type` here,
 to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
 -/
 @[inline] def findM? {α : Type} {m : Type → Type} [Monad m] (f : α → m Bool) (as : Vector α n) : m (Option α) :=
@@ -415,7 +415,7 @@ to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
   as.toArray.findSomeM? f
 
 /--
-Note that the universe level is contrained to `Type` here,
+Note that the universe level is constrained to `Type` here,
 to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
 -/
 @[inline] def findRevM? {α : Type} {m : Type → Type} [Monad m] (f : α → m Bool) (as : Vector α n) : m (Option α) :=

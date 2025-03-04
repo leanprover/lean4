@@ -221,7 +221,7 @@ The supported formats include:
 # Macros
 
 In order to help the user build dates easily, there are a lot of macros available for creating dates.
-The `.sssssssss` can be ommited in most cases.
+The `.sssssssss` can be omitted in most cases.
 
 
 - **`date("uuuu-MM-dd")`**: Represents a date in the `uuuu-MM-dd` format, where `uuuu` refers to the year.

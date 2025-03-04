@@ -296,9 +296,10 @@ private def isAlreadyNormalizedCheap : Level → Bool
 
 /- Auxiliary function used at `normalize` -/
 private def mkIMaxAux : Level → Level → Level
-  | _,    zero => zero
-  | zero, u    => u
-  | u₁,   u₂   => if u₁ == u₂ then u₁ else mkLevelIMax u₁ u₂
+  | _,    zero   => zero
+  | zero, u      => u
+  | succ zero, u => u
+  | u₁,   u₂     => if u₁ == u₂ then u₁ else mkLevelIMax u₁ u₂
 
 /- Auxiliary function used at `normalize` -/
 @[specialize] private partial def getMaxArgsAux (normalize : Level → Level) : Level → Bool → Array Level → Array Level

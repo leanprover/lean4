@@ -90,6 +90,14 @@ def isSupportedMatch (declName : Name) : MetaM (Option MatchKind) := do
         return some <| .simpleEnum inductiveInfo
   | none => return none
 
+def builtinTypes : Array Name :=
+  #[``BitVec,
+    ``UInt8, ``UInt16, ``UInt32, ``UInt64, ``USize,
+    ``Int8, ``Int16, ``Int32, ``Int64, ``ISize, ``Bool]
+
+@[inline]
+def isBuiltIn (n : Name) : Bool := builtinTypes.contains n
+
 partial def typeAnalysisPass : Pass where
   name := `typeAnalysis
   run' goal := do
@@ -104,19 +112,28 @@ where
     goal.withContext do
       for decl in ← getLCtx do
         if !decl.isLet && !decl.isImplementationDetail then
-          let type := decl.type
-          if !(← typeCasesRelevant type) then
-            lookForMatches type
+          analyzeType decl.type
 
-  constInteresting (n : Name) : PreProcessM Bool := do
+  analyzeType (expr : Expr) : PreProcessM Unit := do
+    expr.forEachWhere Expr.isConst fun e => do
+      let .const declName .. := e | unreachable!
+      discard <| analyzeConst declName
+
+  /--
+  Returns true if the const is something that we would like to see revealed by case splitting on
+  structures that contain it
+  -/
+  analyzeConst (n : Name) : PreProcessM Bool := do
+    if isBuiltIn n then return true
+
     let analysis ← PreProcessM.getTypeAnalysis
     if analysis.interestingStructures.contains n || analysis.interestingEnums.contains n then
       return true
-    else if analysis.uninteresting.contains n then
+    else if analysis.uninteresting.contains n || analysis.interestingMatchers.contains n then
       return false
 
     if isStructure (← getEnv) n then
-      if ← interestingStructure n then
+      if ← analyzeStructure n then
         PreProcessM.markInterestingStructure n
         return true
       else
@@ -125,11 +142,17 @@ where
     else if ← isEnumType n then
       PreProcessM.markInterestingEnum n
       return true
+    else if let some kind ← isSupportedMatch n then
+      PreProcessM.markInterestingMatcher n kind
+      return false
     else
       PreProcessM.markUninterestingConst n
       return false
 
-  interestingStructure (n : Name) : PreProcessM Bool := do
+  /--
+  Returns true if the structure contains fields of interest.
+  -/
+  analyzeStructure (n : Name) : PreProcessM Bool := do
     let constInfo ← getConstInfoInduct n
     if constInfo.isRec then
       return false
@@ -142,26 +165,11 @@ where
   typeCasesRelevant (expr : Expr) : PreProcessM Bool := do
     match_expr expr with
     | BitVec n => return (← getNatValue? n).isSome
-    | UInt8 => return true
-    | UInt16 => return true
-    | UInt32 => return true
-    | UInt64 => return true
-    | USize => return true
-    | Int8 => return true
-    | Int16 => return true
-    | Int32 => return true
-    | Int64 => return true
-    | ISize => return true
-    | Bool => return true
     | _ =>
       let some const := expr.getAppFn.constName? | return false
-      constInteresting const
+      analyzeConst const
 
-  lookForMatches (expr : Expr) : PreProcessM Unit := do
-    expr.forEachWhere Expr.isConst fun e => do
-      let .const declName .. := e | unreachable!
-      if let some kind ← isSupportedMatch declName then
-        PreProcessM.markInterestingMatcher declName kind
+
 
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

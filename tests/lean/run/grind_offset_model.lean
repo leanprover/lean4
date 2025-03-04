@@ -18,7 +18,7 @@ h_1 : ¬g (i + 1) j = i + 1
     [prop] j + 1 ≤ i
   [eqc] False propositions
     [prop] g (i + 1) j = i + 1
-  [offset] Assignment satisfying offset contraints
+  [offset] Assignment satisfying offset constraints
     [assign] j := 0
     [assign] i := 1
     [assign] 「i + 1」 := 2
@@ -39,7 +39,7 @@ h : 101 ≤ i
     [prop] 101 ≤ i
   [eqc] True propositions
     [prop] 101 ≤ i
-  [offset] Assignment satisfying offset contraints
+  [offset] Assignment satisfying offset constraints
     [assign] 「0」 := 0
     [assign] i := 101
 -/
@@ -58,7 +58,7 @@ h : i ≤ 99
     [prop] i ≤ 99
   [eqc] True propositions
     [prop] i ≤ 99
-  [offset] Assignment satisfying offset contraints
+  [offset] Assignment satisfying offset constraints
     [assign] i := 99
     [assign] 「0」 := 0
 -/
@@ -81,7 +81,7 @@ h_1 : i ≤ j + 99
     [prop] i ≤ j + 99
   [eqc] Equivalence classes
     [eqc] {g (n + 1) m, a}
-  [offset] Assignment satisfying offset contraints
+  [offset] Assignment satisfying offset constraints
     [assign] 「n + 1」 := 1
     [assign] n := 0
     [assign] 「0」 := 0
@@ -107,7 +107,7 @@ h_1 : i + 101 ≤ j
     [prop] i + 101 ≤ j
   [eqc] Equivalence classes
     [eqc] {g (n + 1) m, a}
-  [offset] Assignment satisfying offset contraints
+  [offset] Assignment satisfying offset constraints
     [assign] 「n + 1」 := 1
     [assign] n := 0
     [assign] 「0」 := 0

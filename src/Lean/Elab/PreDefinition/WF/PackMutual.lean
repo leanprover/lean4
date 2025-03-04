@@ -9,7 +9,7 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.WF.Eqns
 
 /-!
-This module contains roughly everything neede to turn mutual n-ary functions into a single unary
+This module contains roughly everything needed to turn mutual n-ary functions into a single unary
 function, as used by well-founded recursion.
 -/
 

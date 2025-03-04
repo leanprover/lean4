@@ -58,7 +58,7 @@ example (b : Bool) : b = b := by
 
 
 /-!
-Even if at least one suceeds, the entire tactic fails if any fails, stopping the tactic script.
+Even if at least one succeeds, the entire tactic fails if any fails, stopping the tactic script.
 -/
 /--
 error: type mismatch

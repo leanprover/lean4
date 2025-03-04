@@ -1017,7 +1017,7 @@ be eagerly evaluated (see `ite`).
 `Bool.dcond b (fun h => x) (fun h => y)` is the same as `if h _ : b then x else y`,
 but optimized for a boolean condition. It can also be written as `bif b then x else y`.
 This is `@[macro_inline]` because `x` and `y` should not be eagerly evaluated (see `dite`).
-This definition intendend for metaprogramming use, and does not come with a suitable API.
+This definition intended for metaprogramming use, and does not come with a suitable API.
 -/
 @[macro_inline]
 protected def Bool.dcond {α : Sort u} (c : Bool) (x : Eq c true → α) (y : Eq c false → α) : α :=

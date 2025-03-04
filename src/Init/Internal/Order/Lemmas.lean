@@ -16,14 +16,14 @@ This file contains monotonicity lemmas for higher-order monadic operations (e.g.
 standard library. This allows recursive definitions using `partial_fixpoint` to use nested
 recursion.
 
-Ideally, every higher-order monadic funciton in the standard library has a lemma here. At the time
+Ideally, every higher-order monadic function in the standard library has a lemma here. At the time
 of writing, this file covers functions from
 
 * Init/Data/Option/Basic.lean
 * Init/Data/List/Control.lean
 * Init/Data/Array/Basic.lean
 
-in the order of their apperance there. No automation to check the exhaustiveness exists yet.
+in the order of their appearance there. No automation to check the exhaustiveness exists yet.
 
 The lemma statements are written manually, but follow a predictable scheme, and could be automated.
 Likewise, the proofs are written very naively. Most of them could be handled by a tactic like

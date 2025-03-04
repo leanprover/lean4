@@ -75,7 +75,7 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
       if (← isMatcherApp e) then
         if let .reduced _ ← reduceMatcher? e then
           -- When instantiating `match`-equations, we add `match`-applications that can be reduced,
-          -- and consequently don't need to be splitted.
+          -- and consequently don't need to be split.
           return ()
         else
           addSplitCandidate e

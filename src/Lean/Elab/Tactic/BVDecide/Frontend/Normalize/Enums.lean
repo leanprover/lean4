@@ -11,7 +11,7 @@ import Lean.Meta.Tactic.Simp
 This module contains the implementation of the pre processing pass for handling equality on
 enum inductive types.
 
-The implementation generates mappings from enum inductives occuring in the goal to sufficiently
+The implementation generates mappings from enum inductives occurring in the goal to sufficiently
 large `BitVec` and replaces equality on the enum inductives with equality on these mapping
 functions.
 -/

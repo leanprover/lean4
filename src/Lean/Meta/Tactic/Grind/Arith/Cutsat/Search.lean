@@ -16,7 +16,8 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 
 /-- Asserts constraints implied by a `CooperSplit`. -/
 def CooperSplit.assert (cs : CooperSplit) : GoalM Unit := do
-  let { c₁, c₂, c₃?, k, left, .. } := cs
+  let { c₁, c₂, c₃?, left, .. } := cs.pred
+  let k   := cs.k
   let p₁  := c₁.p
   let p₂  := c₂.p
   let p   := p₁.tail
@@ -271,29 +272,16 @@ def resolveRealLowerUpperConflict (c₁ c₂ : LeCnstr) : GoalM Bool := do
     c.assert
     return true
 
-def resolveCooperLeft (c₁ c₂ : LeCnstr) : GoalM Unit := do
-  throwError "Cooper-left NIY {← c₁.pp}, {← c₂.pp}"
-
-def resolveCooperRight (c₁ c₂ : LeCnstr) : GoalM Unit := do
-  throwError "Cooper-right NIY {← c₁.pp}, {← c₂.pp}"
+def resolveCooperPred (_pred : CooperSplitPred) : GoalM Unit := do
+  throwError "Cooper pred NIY"
 
 def resolveCooper (c₁ c₂ : LeCnstr) : GoalM Unit := do
-  if c₁.p.leadCoeff.natAbs < c₂.p.leadCoeff.natAbs then
-    resolveCooperLeft c₁ c₂
-  else
-    resolveCooperRight c₁ c₂
+  let left : Bool := c₁.p.leadCoeff.natAbs < c₂.p.leadCoeff.natAbs
+  resolveCooperPred { c₁, c₂, left, c₃? := none }
 
-def resolveCooperDvdLeft (c₁ c₂ : LeCnstr) (c : DvdCnstr) : GoalM Unit := do
-  throwError "Cooper-dvd-left NIY {← c₁.pp}, {← c₂.pp}, {← c.pp}"
-
-def resolveCooperDvdRight (c₁ c₂ : LeCnstr) (c : DvdCnstr) : GoalM Unit := do
-  throwError "Cooper-dvd-right NIY {← c₁.pp}, {← c₂.pp}, {← c.pp}"
-
-def resolveCooperDvd (c₁ c₂ : LeCnstr) (c : DvdCnstr) : GoalM Unit := do
-  if c₁.p.leadCoeff.natAbs < c₂.p.leadCoeff.natAbs then
-    resolveCooperDvdLeft c₁ c₂ c
-  else
-    resolveCooperDvdRight c₁ c₂ c
+def resolveCooperDvd (c₁ c₂ : LeCnstr) (c₃ : DvdCnstr) : GoalM Unit := do
+  let left : Bool := c₁.p.leadCoeff.natAbs < c₂.p.leadCoeff.natAbs
+  resolveCooperPred { c₁, c₂, left, c₃? := some c₃ }
 
 def resolveCooperDiseq (c₁ : DiseqCnstr) (c₂ : LeCnstr) (_c? : Option DvdCnstr) : GoalM Unit := do
   throwError "Cooper-diseq NIY {← c₁.pp}, {← c₂.pp}"

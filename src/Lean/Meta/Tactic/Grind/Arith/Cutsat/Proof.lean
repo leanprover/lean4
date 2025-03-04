@@ -66,22 +66,24 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := c'.caching do
       (← getContext) (toExpr x) (toExpr c₁.p) (toExpr c₂.d) (toExpr c₂.p) (toExpr c'.d) (toExpr c'.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .cooper₁ s =>
-    let p₁ := s.c₁.p
-    let p₂ := s.c₂.p
-    match s.c₃? with
+    let { c₁, c₂, c₃?, left } := s.pred
+    let p₁ := c₁.p
+    let p₂ := c₂.p
+    match c₃? with
     | none =>
-      let thmName := if s.left then ``Int.Linear.cooper_left_split_dvd else ``Int.Linear.cooper_right_split_dvd
+      let thmName := if left then ``Int.Linear.cooper_left_split_dvd else ``Int.Linear.cooper_right_split_dvd
       return mkApp8 (mkConst thmName)
         (← getContext) (toExpr p₁) (toExpr p₂) (toExpr s.k) (toExpr c'.d) (toExpr c'.p) (← s.toExprProof) reflBoolTrue
     | some c₃ =>
-      let thmName := if s.left then ``Int.Linear.cooper_dvd_left_split_dvd1 else ``Int.Linear.cooper_dvd_right_split_dvd1
+      let thmName := if left then ``Int.Linear.cooper_dvd_left_split_dvd1 else ``Int.Linear.cooper_dvd_right_split_dvd1
       return mkApp10 (mkConst thmName)
         (← getContext) (toExpr p₁) (toExpr p₂) (toExpr c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr c'.d) (toExpr c'.p) (← s.toExprProof) reflBoolTrue
   | .cooper₂ s =>
-    let p₁ := s.c₁.p
-    let p₂ := s.c₂.p
-    let some c₃ := s.c₃? | throwError "`grind` internal error, unexpected `cooper₂` proof"
-    let thmName := if s.left then ``Int.Linear.cooper_dvd_left_split_dvd2 else ``Int.Linear.cooper_dvd_right_split_dvd2
+    let { c₁, c₂, c₃?, left } := s.pred
+    let p₁ := c₁.p
+    let p₂ := c₂.p
+    let some c₃ := c₃? | throwError "`grind` internal error, unexpected `cooper₂` proof"
+    let thmName := if left then ``Int.Linear.cooper_dvd_left_split_dvd2 else ``Int.Linear.cooper_dvd_right_split_dvd2
     return mkApp10 (mkConst thmName)
       (← getContext) (toExpr p₁) (toExpr p₂) (toExpr c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr c'.d) (toExpr c'.p) (← s.toExprProof) reflBoolTrue
 
@@ -122,16 +124,17 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := c'.caching do
     return mkApp7 (mkConst ``Int.Linear.diseq_split_resolve)
       (← getContext) (toExpr c₁.p) (toExpr p₂) (toExpr c'.p) reflBoolTrue (← c₁.toExprProof) hNot
   | .cooper s =>
-    let p₁ := s.c₁.p
-    let p₂ := s.c₂.p
-    let coeff := if s.left then p₁.leadCoeff else p₂.leadCoeff
-    match s.c₃? with
+    let { c₁, c₂, c₃?, left } := s.pred
+    let p₁ := c₁.p
+    let p₂ := c₂.p
+    let coeff := if left then p₁.leadCoeff else p₂.leadCoeff
+    match c₃? with
     | none =>
-      let thmName := if s.left then ``Int.Linear.cooper_left_split_ineq else ``Int.Linear.cooper_right_split_ineq
+      let thmName := if left then ``Int.Linear.cooper_left_split_ineq else ``Int.Linear.cooper_right_split_ineq
       return mkApp8 (mkConst thmName)
         (← getContext) (toExpr p₁) (toExpr p₂) (toExpr s.k) (toExpr coeff) (toExpr c'.p) (← s.toExprProof) reflBoolTrue
     | some c₃ =>
-      let thmName := if s.left then ``Int.Linear.cooper_dvd_left_split_ineq else ``Int.Linear.cooper_dvd_right_split_ineq
+      let thmName := if left then ``Int.Linear.cooper_dvd_left_split_ineq else ``Int.Linear.cooper_dvd_right_split_ineq
       return mkApp10 (mkConst thmName)
         (← getContext) (toExpr p₁) (toExpr p₂) (toExpr c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr coeff) (toExpr c'.p) (← s.toExprProof) reflBoolTrue
 
@@ -157,24 +160,25 @@ partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s
   match s.h with
   | .dec h => return mkFVar h
   | .last hs _ =>
-    let p₁ := s.c₁.p
-    let p₂ := s.c₂.p
-    let n := s.numCases
+    let { c₁, c₂, c₃?, left } := s.pred
+    let p₁ := c₁.p
+    let p₂ := c₂.p
+    let n := s.pred.numCases
     unless hs.size + 1 == n do
       throwError "`grind` internal error, unexpected number of cases at `CopperSplit`"
-    let (base, pred) ← match s.c₃? with
+    let (base, pred) ← match c₃? with
       | none =>
-        let thmName := if s.left then ``Int.Linear.cooper_left else ``Int.Linear.cooper_right
-        let predName := if s.left then ``Int.Linear.cooper_left_split else ``Int.Linear.cooper_right_split
+        let thmName := if left then ``Int.Linear.cooper_left else ``Int.Linear.cooper_right
+        let predName := if left then ``Int.Linear.cooper_left_split else ``Int.Linear.cooper_right_split
         let base := mkApp7 (mkConst thmName) (← getContext) (toExpr p₁) (toExpr p₂) (toExpr n)
-          reflBoolTrue (← s.c₁.toExprProof) (← s.c₂.toExprProof)
+          reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
         let pred := mkApp3 (mkConst predName) (← getContext) (toExpr p₁) (toExpr p₂)
         pure (base, pred)
       | some c₃ =>
-        let thmName := if s.left then ``Int.Linear.cooper_dvd_left else ``Int.Linear.cooper_dvd_right
-        let predName := if s.left then ``Int.Linear.cooper_dvd_left_split else ``Int.Linear.cooper_dvd_right_split
+        let thmName := if left then ``Int.Linear.cooper_dvd_left else ``Int.Linear.cooper_dvd_right
+        let predName := if left then ``Int.Linear.cooper_dvd_left_split else ``Int.Linear.cooper_dvd_right_split
         let base := mkApp10 (mkConst thmName) (← getContext) (toExpr p₁) (toExpr p₂) (toExpr c₃.p) (toExpr c₃.d) (toExpr n)
-          reflBoolTrue (← s.c₁.toExprProof) (← s.c₂.toExprProof) (← c₃.toExprProof)
+          reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof) (← c₃.toExprProof)
         let pred := mkApp5 (mkConst predName) (← getContext) (toExpr p₁) (toExpr p₂) (toExpr c₃.p) (toExpr c₃.d)
         pure (base, pred)
     -- `pred` is an expressions of the form `cooper_*_split ...` with type `Nat → Prop`

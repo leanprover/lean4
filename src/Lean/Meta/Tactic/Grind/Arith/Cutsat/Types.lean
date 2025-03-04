@@ -103,16 +103,22 @@ The specific predicate used is determined as follows:
 - `cooper_dvd_left_split` (if `left` is `true` and `c₃?` is `some`)
 - `cooper_dvd_right_split` (if `left` is `false` and `c₃?` is `some`)
 
-See `CooperSplitProof` for additional explanations.
+See `CooperSplit`
 -/
-structure CooperSplit where
+structure CooperSplitPred where
   left     : Bool
   c₁       : LeCnstr
   c₂       : LeCnstr
   c₃?      : Option DvdCnstr
-  k        : Nat
-  h        : CooperSplitProof
-  id       : Nat
+
+/--
+An instance of the `CooperSplitPred` at `k`.
+-/
+structure CooperSplit where
+  pred  : CooperSplitPred
+  k     : Nat
+  h     : CooperSplitProof
+  id    : Nat
 
 /--
 The `cooper_left`, `cooper_right`, `cooper_dvd_left`, and `cooper_dvd_right` theorems have a resulting type
@@ -191,8 +197,11 @@ instance : Inhabited LeCnstr where
 instance : Inhabited DvdCnstr where
   default := { d := 0, p := .num 0, h := .expr default, id := 0 }
 
+instance : Inhabited CooperSplitPred where
+  default := { left := false, c₁ := default, c₂ := default, c₃? := none }
+
 instance : Inhabited CooperSplit where
-  default := { left := false, c₁ := default, c₂ := default, c₃? := none, k := 0, h := .dec default, id := 0 }
+  default := { pred := default, k := 0, h := .dec default, id := 0 }
 
 abbrev VarSet := RBTree Var compare
 

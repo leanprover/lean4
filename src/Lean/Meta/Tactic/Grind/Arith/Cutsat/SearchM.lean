@@ -14,7 +14,7 @@ In principle, we only need to support two kinds of case split.
 -/
 inductive CaseKind where
   | diseq (d : DiseqCnstr)
-  | copper (s : CooperSplit) (hs : Array (FVarId × UnsatProof))
+  | copper (s : CooperSplitPred) (hs : Array (FVarId × UnsatProof))
   deriving Inhabited
 
 structure Case where

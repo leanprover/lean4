@@ -954,7 +954,7 @@ structure AddMonoidHom (M : Type _) (N : Type _) [AddZeroClass M] [AddZeroClass 
 
 infixr:25 " →+ " => AddMonoidHom
 
-class AddMonoidHomClass (F M N : Type _) [AddZeroClass M] [AddZeroClass N] [FunLike F M N] : Prop
+class AddMonoidHomClass (F : Type _) (M N : outParam (Type _)) [AddZeroClass M] [AddZeroClass N] [FunLike F M N] : Prop
   extends AddHomClass F M N, ZeroHomClass F M N
 
 section One

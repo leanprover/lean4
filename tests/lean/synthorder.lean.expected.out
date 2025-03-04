@@ -19,9 +19,20 @@ all remaining arguments have metavariables:
       Three α β
       One β
       TwoHalf β
-[Meta.synthOrder] synthesizing the arguments of @C1.toNonempty in the order [2]:
+[Meta.synthOrder] synthesizing the arguments of @C1.toNonempty in the order [2, 1]:
       C1 α
-synthorder.lean:36:0-36:104: error: cannot find synthesization order for instance @toNonempty' with type
-  ∀ {α : Type} [inst : DecidableEq α] {inst : Inhabited α} [inst : C1 α], Nonempty α
-all remaining arguments have metavariables:
-  @C1 α ?inst
+      Inhabited α
+[Meta.synthOrder] synthesizing the arguments of @C1.toNonempty' in the order [1, 3, 2]:
+      DecidableEq α
+      C1 α
+      Inhabited α
+[Meta.synthOrder] synthesizing the arguments of @instC1 in the order [1]:
+      Inhabited α
+instC1
+[Meta.synthOrder] synthesizing the arguments of @C2.toNonempty' in the order [1, 3, 2]:
+      DecidableEq α
+      C1 α
+      Inhabited α
+[Meta.synthOrder] synthesizing the arguments of @instC1_1 in the order [1]:
+      Inhabited α
+C2.toNonempty'

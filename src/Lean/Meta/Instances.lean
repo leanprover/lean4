@@ -160,6 +160,15 @@ private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
     else
       return #[]
 
+  -- Gets positions of all instance implicit arguments of `classTy`.
+  let getMixinPositionsOf (classTy : Expr) : MetaM (Array Nat) := do
+    forallTelescopeReducing (← inferType classTy.getAppFn) fun args _ => do
+      let mut pos := #[]
+      for arg in args, i in [:args.size] do
+        if (← arg.fvarId!.getDecl).binderInfo.isInstImplicit then
+          pos := pos.push i
+      return pos
+
   -- Create both metavariables and free variables for the instance args
   -- We will successively pick subgoals where all non-out-params have been
   -- assigned already. After picking such a "ready" subgoal, we assign the
@@ -175,16 +184,6 @@ private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
         mvarId.assign argVars[i]!
       assignMVarsIn (← inferType (.mvar mvarId))
 
-  -- Before anything, detect if this is a (generalized) projection.
-  -- See the comment about projections in this function's docstring.
-  if let some idx := argBIs.findIdx? (·.isInstImplicit) then
-    let argTy ← inferType argVars[idx]!
-    argTy.withApp fun c tyArgs => do
-      -- If this is of the form `C argVars[0] argVars[1] ... argVars[idx-1]`,
-      -- then we treat this instance as a projection; the arguments before this one are the type's parameters
-      if c.isConst && tyArgs.size == idx && Nat.all idx fun i _ => argVars[i]! == tyArgs[i]! then
-        assignMVarsIn (← inferType argMVars[idx]!)
-
   -- We start by assigning all metavariables in non-out-params of the return value.
   -- These are assumed to not be mvars during TC search (or at least not assignable)
   let tyOutParams ← getSemiOutParamPositionsOf ty
@@ -197,18 +196,30 @@ private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
   -- non-out-params are mvar-free.
   let mut synthed := #[]
   let mut toSynth := List.range argMVars.size |>.filter (argBIs[·]! == .instImplicit) |>.toArray
+  -- Not every instance argument will have instance implicits. Record the positions of instance arguments for mixin calculations.
+  let instArgs ← List.range argMVars.size |>.filterM (fun i => return (← Meta.isClass? (← inferType argMVars[i]!)).isSome)
   while !toSynth.isEmpty do
-    let next? ← toSynth.findM? fun i => do
+    let next? ← toSynth.findSomeM? fun i => do
       let argTy ← instantiateMVars (← inferType argMVars[i]!)
       forallTelescopeReducing argTy fun _ argTy => do
       let argTy ← whnf argTy
       let argOutParams ← getSemiOutParamPositionsOf argTy
+      let argMixinParams ← getMixinPositionsOf argTy
       let argTyArgs := argTy.getAppArgs
+      let mut mixins : Array Nat := #[]
       for i in [:argTyArgs.size], argTyArg in argTyArgs do
-        if !argOutParams.contains i && argTyArg.hasExprMVar then
-          return false
-      return true
-    let next ←
+        if argOutParams.contains i then
+          pure ()
+        else if argMixinParams.contains i then
+          let mvars ← getMVars argTyArg
+          for mvar in mvars do
+            if let some idx := argMVars.findIdx? (· == .mvar mvar) then
+              if instArgs.contains idx && !mixins.contains idx then
+                mixins := mixins.push idx
+        else if argTyArg.hasExprMVar then
+          return none
+      return some (i, mixins)
+    let (next, mixins) ←
       match next? with
       | some next => pure next
       | none =>
@@ -219,9 +230,10 @@ private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
           throwError m!"\
             cannot find synthesization order for instance {inst} with type{indentExpr instTy}\n\
             all remaining arguments have metavariables:{typeLines}"
-        pure toSynth[0]!
+        pure (toSynth[0]!, #[])
+    let mixins := mixins |>.filter (!synthed.contains ·)
     synthed := synthed.push next
-    toSynth := toSynth.filter (· != next)
+    toSynth := toSynth.filter (fun i => i != next && !mixins.contains i) ++ mixins
     assignMVarsIn (← inferType argMVars[next]!)
     assignMVarsIn argMVars[next]!
 

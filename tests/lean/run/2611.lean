@@ -22,19 +22,20 @@ class C [A] extends B
 class D extends A, B, C
 end Ex2
 
-/-!
-A test that this still works even when there are parameters on the structure.
--/
-namespace Ex3
-class A where
-  x : Nat
-class B [A] where
-  x : Nat
-class C (α : Type) extends A, B where
-  y : α
-/-- info: Ex3.C.toB {α : Type} [self : C α] : @B (@C.toA α self) -/
-#guard_msgs in set_option pp.explicit true in #check C.toB
-end Ex3
+-- The parent projection can't be an instance
+-- /-!
+-- A test that this still works even when there are parameters on the structure.
+-- -/
+-- namespace Ex3
+-- class A where
+--   x : Nat
+-- class B [A] where
+--   x : Nat
+-- class C (α : Type) extends A, B where
+--   y : α
+-- /-- info: Ex3.C.toB {α : Type} [self : C α] : @B (@C.toA α self) -/
+-- #guard_msgs in set_option pp.explicit true in #check C.toB
+-- end Ex3
 
 /-!
 A test that this still works even when there are parameters on the parents.

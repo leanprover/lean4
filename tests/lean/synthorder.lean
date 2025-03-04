@@ -32,5 +32,20 @@ signatures as subobject parents. This is a test to see that the synth order can 
 class C1 (α : Type) [Inhabited α]
 -- Simulating a projection to another parent.
 instance C1.toNonempty {α : Type} {inst : Inhabited α} [C1 α] : Nonempty α := ⟨default⟩
--- The parameters must come in a fixed order to be recognized as a projection.
+-- The parameters must come in a fixed order to be recognized as a projection. (TODO: not true now)
 instance C1.toNonempty' {α : Type} [DecidableEq α] {inst : Inhabited α} [C1 α] : Nonempty α := ⟨default⟩
+
+instance [Inhabited α] : C1 α := {}
+
+#synth C1 Nat
+
+class MyNonempty (α : Type _) : Prop where
+  nonempty : ∃ _ : α, True
+
+class C2 (α : Type) [Inhabited α]
+instance C2.toNonempty' {α : Type} [DecidableEq α] {inst : Inhabited α} [C1 α] : MyNonempty α := ⟨⟨default, trivial⟩⟩
+
+instance [Inhabited α] : C1 α := {}
+
+-- This synthesizes
+#synth MyNonempty Nat

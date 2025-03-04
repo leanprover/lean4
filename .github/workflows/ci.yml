@@ -142,7 +142,7 @@ jobs:
                 "release": false,
                 "check-level": 2,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
                 // foreign code may be linked against more recent glibc
@@ -157,7 +157,7 @@ jobs:
                 "release": true,
                 "check-level": 0,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
                 // foreign code may be linked against more recent glibc
@@ -194,7 +194,7 @@ jobs:
                 "release": true,
                 "check-level": 2,
                 "shell": "bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
@@ -206,7 +206,7 @@ jobs:
                 "release": true,
                 "check-level": 0,
                 "shell": "bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-aarch64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
@@ -220,7 +220,7 @@ jobs:
                 "CMAKE_OPTIONS": "-G \"Unix Makefiles\"",
                 // for reasons unknown, interactivetests are flaky on Windows
                 "CTEST_OPTIONS": "--repeat until-pass:2",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
                 "binary-check": "ldd"
               },
@@ -231,7 +231,7 @@ jobs:
                 "release": true,
                 "check-level": 2,
                 "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-aarch64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*"
               },
               {

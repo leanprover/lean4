@@ -1310,12 +1310,92 @@ protected theorem sign_eq_fdiv_abs (a : Int) : sign a = a.fdiv (natAbs a) :=
 
 /-! ### properties of `fdiv` and `fmod` -/
 
+theorem mul_fdiv_cancel_of_fmod_eq_zero {a b : Int} (H : a.fmod b = 0) : b * (a.fdiv b) = a := by
+  have := fmod_add_fdiv a b; rwa [H, Int.zero_add] at this
+
+theorem fdiv_mul_cancel_of_fmod_eq_zero {a b : Int} (H : a.fmod b = 0) : (a.fdiv b) * b= a := by
+  rw [Int.mul_comm, mul_fdiv_cancel_of_fmod_eq_zero H]
+
+theorem dvd_of_fmod_eq_zero {a b : Int} (H : b.fmod a = 0) : a ∣ b :=
+  ⟨b.fdiv a, (mul_fdiv_cancel_of_fmod_eq_zero H).symm⟩
+
+theorem dvd_iff_fmod_eq_zero {a b : Int} : a ∣ b ↔ b.fmod a = 0 :=
+  ⟨fmod_eq_zero_of_dvd, dvd_of_fmod_eq_zero⟩
+
+@[simp] theorem neg_mul_fmod_right (a b : Int) : (-(a * b)).fmod a = 0 := by
+  rw [← dvd_iff_fmod_eq_zero, Int.dvd_neg]
+  exact Int.dvd_mul_right a b
+
+@[simp] theorem neg_mul_fmod_left (a b : Int) : (-(a * b)).fmod b = 0 := by
+  rw [← dvd_iff_fmod_eq_zero, Int.dvd_neg]
+  exact Int.dvd_mul_left a b
+
+protected theorem fdiv_mul_cancel {a b : Int} (H : b ∣ a) : a.fdiv b * b = a :=
+  fdiv_mul_cancel_of_fmod_eq_zero (fmod_eq_zero_of_dvd H)
+
+protected theorem mul_fdiv_cancel' {a b : Int} (H : a ∣ b) : a * b.fdiv a = b := by
+  rw [Int.mul_comm, Int.fdiv_mul_cancel H]
+
+protected theorem eq_mul_of_fdiv_eq_right {a b c : Int}
+    (H1 : b ∣ a) (H2 : a.fdiv b = c) : a = b * c := by rw [← H2, Int.mul_fdiv_cancel' H1]
+
+@[simp] theorem neg_fmod_self (a : Int) : (-a).fmod a = 0 := by
+  rw [← dvd_iff_fmod_eq_zero, Int.dvd_neg]
+  exact Int.dvd_refl a
+
+theorem lt_fdiv_add_one_mul_self (a : Int) {b : Int} (H : 0 < b) : a < (a.fdiv b + 1) * b := by
+  rw [Int.add_mul, Int.one_mul, Int.mul_comm]
+  exact Int.lt_add_of_sub_left_lt <| Int.fmod_def .. ▸ fmod_lt_of_pos _ H
+
+protected theorem fdiv_eq_iff_eq_mul_right {a b c : Int}
+    (H : b ≠ 0) (H' : b ∣ a) : a.fdiv b = c ↔ a = b * c :=
+  ⟨Int.eq_mul_of_fdiv_eq_right H', Int.fdiv_eq_of_eq_mul_right H⟩
+
+protected theorem fdiv_eq_iff_eq_mul_left {a b c : Int}
+    (H : b ≠ 0) (H' : b ∣ a) : a.fdiv b = c ↔ a = c * b := by
+  rw [Int.mul_comm]; exact Int.fdiv_eq_iff_eq_mul_right H H'
+
+protected theorem eq_mul_of_fdiv_eq_left {a b c : Int}
+    (H1 : b ∣ a) (H2 : a.fdiv b = c) : a = c * b := by
+  rw [Int.mul_comm, Int.eq_mul_of_fdiv_eq_right H1 H2]
+
+protected theorem eq_zero_of_fdiv_eq_zero {d n : Int} (h : d ∣ n) (H : n.fdiv d = 0) : n = 0 := by
+  rw [← Int.mul_fdiv_cancel' h, H, Int.mul_zero]
+
+@[simp] protected theorem fdiv_left_inj {a b d : Int}
+    (hda : d ∣ a) (hdb : d ∣ b) : a.fdiv d = b.fdiv d ↔ a = b := by
+  refine ⟨fun h => ?_, congrArg (fdiv · d)⟩
+  rw [← Int.mul_fdiv_cancel' hda, ← Int.mul_fdiv_cancel' hdb, h]
+
+protected theorem mul_fdiv_assoc (a : Int) : ∀ {b c : Int}, c ∣ b → (a * b).fdiv c = a * (b.fdiv c)
+  | _, c, ⟨d, rfl⟩ =>
+    if cz : c = 0 then by simp [cz, Int.mul_zero] else by
+      rw [Int.mul_left_comm, Int.mul_fdiv_cancel_left _ cz, Int.mul_fdiv_cancel_left _ cz]
+
+protected theorem mul_fdiv_assoc' (b : Int) {a c : Int} (h : c ∣ a) :
+    (a * b).fdiv c = a.fdiv c * b := by
+  rw [Int.mul_comm, Int.mul_fdiv_assoc _ h, Int.mul_comm]
+
+theorem fdiv_dvd_fdiv : ∀ {a b c : Int}, a ∣ b → b ∣ c → b.fdiv a ∣ c.fdiv a
+  | a, _, _, ⟨b, rfl⟩, ⟨c, rfl⟩ => by
+    by_cases az : a = 0
+    · simp [az]
+    · rw [Int.mul_fdiv_cancel_left _ az, Int.mul_assoc, Int.mul_fdiv_cancel_left _ az]
+      apply Int.dvd_mul_right
+
 /-! ### `fdiv` and ordering -/
 
 -- Theorems about `fdiv` and ordering, whose `ediv` analogues are in `Bootstrap.lean`.
 
-theorem lt_fdiv_add_one_mul_self (a : Int) {b : Int} (H : 0 < b) : a < (a.fdiv b + 1) * b :=
-  Int.fdiv_eq_ediv_of_nonneg _ (Int.le_of_lt H) ▸ lt_ediv_add_one_mul_self a H
+theorem mul_fdiv_self_le {x k : Int} (h : 0 < k) : k * (x.fdiv k) ≤ x := by
+  rw [fdiv_eq_ediv]
+  have := mul_ediv_self_le (x := x) (k := k)
+  split <;> simp <;> omega
+
+theorem lt_mul_fdiv_self_add {x k : Int} (h : 0 < k) : x < k * (x.fdiv k) + k := by
+  rw [fdiv_eq_ediv]
+  have := lt_mul_ediv_self_add (x := x) h
+  split <;> simp <;> omega
 
 /-! ### bmod -/
 

@@ -3339,7 +3339,7 @@ unsafe def castErrorImp {x : Result ε σ α} (_ : Eq x (Result.error e s)) : Re
 Efficiently cast an error in `Result ε σ α` to an error in `Result ε σ β`.
 This function is a no-op in the compiler.
 -/
-@[reducible, implemented_by castErrorImp]
+@[implemented_by castErrorImp]
 def castError {x : Result ε σ α} (h : Eq x (Result.error e s)) : Result ε σ β :=
   Result.error e s
 

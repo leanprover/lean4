@@ -204,34 +204,35 @@ def groupGoalsByFunction (argsPacker : ArgsPacker) (numFuncs : Nat) (goals : Arr
     r := r.modify funidx (·.push goal)
   return r
 
-def solveDecreasingGoals (argsPacker : ArgsPacker) (decrTactics : Array (Option DecreasingBy)) (value : Expr) : MetaM Expr := do
+def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decrTactics : Array (Option DecreasingBy)) (value : Expr) : MetaM Expr := do
   let goals ← getMVarsNoDelayed value
   let goals ← assignSubsumed goals
   let goalss ← groupGoalsByFunction argsPacker decrTactics.size goals
-  for goals in goalss, decrTactic? in decrTactics do
+  for funName in funNames, goals in goalss, decrTactic? in decrTactics do
     Lean.Elab.Term.TermElabM.run' do
-    match decrTactic? with
-    | none => do
-      for goal in goals do
-        let type ← goal.getType
-        let some ref := getRecAppSyntax? (← goal.getType)
-          | throwError "MVar not annotated as a recursive call:{indentExpr type}"
-        withRef ref <| applyDefaultDecrTactic goal
-    | some decrTactic => withRef decrTactic.ref do
-      unless goals.isEmpty do -- unlikely to be empty
-        -- make info from `runTactic` available
-        goals.forM fun goal => pushInfoTree (.hole goal)
-        let remainingGoals ← Tactic.run goals[0]! do
-          Tactic.setGoals goals.toList
-          applyCleanWfTactic
-          Tactic.withTacticInfoContext decrTactic.ref do
-            Tactic.evalTactic decrTactic.tactic
-        unless remainingGoals.isEmpty do
-          Term.reportUnsolvedGoals remainingGoals
+    Term.withDeclName funName do
+      match decrTactic? with
+      | none => do
+        for goal in goals do
+          let type ← goal.getType
+          let some ref := getRecAppSyntax? (← goal.getType)
+            | throwError "MVar not annotated as a recursive call:{indentExpr type}"
+          withRef ref <| applyDefaultDecrTactic goal
+      | some decrTactic => withRef decrTactic.ref do
+        unless goals.isEmpty do -- unlikely to be empty
+          -- make info from `runTactic` available
+          goals.forM fun goal => pushInfoTree (.hole goal)
+          let remainingGoals ← Tactic.run goals[0]! do
+            Tactic.setGoals goals.toList
+            applyCleanWfTactic
+            Tactic.withTacticInfoContext decrTactic.ref do
+              Tactic.evalTactic decrTactic.tactic
+          unless remainingGoals.isEmpty do
+            Term.reportUnsolvedGoals remainingGoals
   instantiateMVars value
 
 def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsPacker)
-    (wfRel : Expr) (decrTactics : Array (Option DecreasingBy)) : TermElabM Expr := do
+    (wfRel : Expr) (funNames : Array Name) (decrTactics : Array (Option DecreasingBy)) : TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
   let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
     let x := x[0]!
@@ -254,7 +255,7 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsP
       let val := preDef.value.beta (prefixArgs.push x)
       let val ← processSumCasesOn x F val fun x F val => do
         processPSigmaCasesOn x F val (replaceRecApps preDef.declName prefixArgs.size)
-      let val ← solveDecreasingGoals argsPacker decrTactics val
+      let val ← solveDecreasingGoals funNames argsPacker decrTactics val
       mkLambdaFVars prefixArgs (mkApp wfFix (← mkLambdaFVars #[x, F] val))
 
 end Lean.Elab.WF

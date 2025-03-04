@@ -33,46 +33,67 @@ def mkTargetFacetBuild
 : FetchM (Job (TargetData facet)) :=
   cast (by rw [← h.fam_eq]) build
 
-@[inline] private def FacetConfig.recBuild
-  [h : FamilyOut TargetData kind α]
-  (self : FacetConfig kind facet) (info : α)
-: FetchM (Job (FacetData kind facet)) :=
-  self.fetchFn <| cast (by simp) info
-
 /-!
 ## Topologically-based Recursive Build Using the Index
 -/
 
 /-- Recursive build function for anything in the Lake build index. -/
-def recBuildWithIndex : (info : BuildInfo) → FetchM (Job (BuildData info.key))
-| .moduleFacet mod facet => do
-  if let some config := (← getWorkspace).findModuleFacetConfig? facet then
-    config.recBuild mod
-  else
-    error s!"do not know how to fetch module facet `{facet}`"
-| .packageFacet pkg facet => do
-  if let some config := (← getWorkspace).findPackageFacetConfig? facet then
-    config.recBuild pkg
-  else
-    error s!"do not know how to fetch package facet `{facet}`"
-| .target pkg target =>
-  if let some config := pkg.findTargetConfig? target then
-    config.fetchFn pkg
-  else
-    error s!"could not fetch `{target}` of `{pkg.name}` -- target not found"
-| .libraryFacet lib facet => do
-  if let some config := (← getWorkspace).findLibraryFacetConfig? facet then
-    config.recBuild lib
-  else
-    error s!"do not know how to fetch library facet `{facet}`"
-| .leanExe exe =>
-  LeanExe.exeFacetConfig.recBuild exe
-| .staticExternLib lib =>
-  ExternLib.staticFacetConfig.recBuild lib
-| .sharedExternLib lib =>
-  ExternLib.sharedFacetConfig.recBuild lib
-| .dynlibExternLib lib =>
-  ExternLib.dynlibFacetConfig.recBuild lib
+def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) :=
+  match info with
+  | .target pkg target kind => do
+    match kind with
+    | .anonymous =>
+      if let some config := pkg.findTargetConfig? target then
+        config.fetchFn pkg
+      else
+        error s!"invalid target '{info}': custom target '{target}' not found in package '{pkg.name}'"
+    | `leanLib =>
+      let some lib := pkg.findLeanLib? target
+        | error s!"invalid target '{info}': Lean library '{target}' not found in package '{pkg.name}'"
+      return Job.pure <| toFamily lib
+    | `leanExe =>
+      let some exe := pkg.findLeanExe? target
+        | error s!"invalid target '{info}': Lean executable '{target}' not found in package '{pkg.name}'"
+      return Job.pure <| toFamily exe
+    | `externLib =>
+      let some lib := pkg.findExternLib? target
+        | error s!"invalid target '{info}': external library '{target}' not found in package '{pkg.name}'"
+      return Job.pure <| toFamily lib
+    | _ =>
+      error s!"invalid target '{info}': unknown target kind '{kind}'"
+  | .facet target data facet => do
+    match h:target.kind with
+    | `module =>
+      if let some config := (← getWorkspace).findModuleFacetConfig? facet then
+        cast (by simp [h]) <| config.fetchFn <| h.ndrec data
+      else
+        error s!"invalid target '{info}': unknown module facet`{facet}`"
+    | `package =>
+      if let some config := (← getWorkspace).findPackageFacetConfig? facet then
+        cast (by simp [h]) <| config.fetchFn <| h.ndrec data
+      else
+        error s!"invalid target '{info}': unknown package facet`{facet}`"
+    | `leanLib =>
+      if let some config := (← getWorkspace).findLibraryFacetConfig? facet then
+        cast (by simp [h]) <| config.fetchFn <| h.ndrec data
+      else
+        error s!"invalid target '{info}': unknown library facet `{facet}`"
+    | `leanExe =>
+      let `exe := facet
+        | error s!"invalid target '{info}': unknown executable facet '{facet}'"
+      cast (by simp [h]) <| LeanExe.exeFacetConfig.fetchFn <| h.ndrec data
+    | `externLib =>
+      match facet with
+      | `static =>
+        cast (by simp [h]) <| ExternLib.staticFacetConfig.fetchFn <| h.ndrec data
+      | `shared =>
+        cast (by simp [h]) <| ExternLib.sharedFacetConfig.fetchFn <| h.ndrec data
+      | `dynlib =>
+        cast (by simp [h]) <| ExternLib.dynlibFacetConfig.fetchFn <| h.ndrec data
+      | _ =>
+        error s!"invalid target '{info}': unknown external library facet '{facet}'"
+    | _ =>
+      error s!"invalid target '{info}': unknown target kind '{target.kind}'"
 
 /-- Recursive build function with memoization. -/
 def recFetchWithIndex : (info : BuildInfo) → RecBuildM (Job (BuildData info.key)) :=

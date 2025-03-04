@@ -13,20 +13,23 @@ open Lean (Name)
 inductive BuildKey
 | module (module : Name)
 | package (package : Name)
-| packageTarget (package target kind : Name)
-| facet (target : BuildKey) (facet kind : Name)
+| packageTarget (package target : Name) (kind := Name.anonymous)
+| facet (target : BuildKey) (facet : Name) (kind := Name.anonymous)
 deriving Inhabited, Repr, DecidableEq, Hashable
 
 namespace BuildKey
 
-@[match_pattern] abbrev moduleFacet (module facet : Name) : BuildKey :=
-  .facet (.module module) facet .anonymous
+@[match_pattern] abbrev moduleFacet
+  (module facet : Name) (kind := Name.anonymous)
+: BuildKey := .facet (.module module) facet kind
 
-@[match_pattern] abbrev packageFacet (package facet : Name) : BuildKey :=
-  .facet (.package package) facet .anonymous
+@[match_pattern] abbrev packageFacet
+  (package facet : Name) (kind := Name.anonymous)
+: BuildKey := .facet (.package package) facet kind
 
-@[match_pattern] abbrev targetFacet (package target kind facet : Name) : BuildKey :=
-  .facet (.packageTarget package target kind) facet .anonymous
+@[match_pattern] abbrev targetFacet
+  (package target targetKind facet : Name) (facetKind := Name.anonymous)
+: BuildKey := .facet (.packageTarget package target targetKind) facet facetKind
 
 @[match_pattern] abbrev customTarget (package target : Name) : BuildKey :=
   .packageTarget package target .anonymous

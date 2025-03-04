@@ -1566,7 +1566,7 @@ theorem WF.constInsertManyIfNewUnit! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id �
 
 namespace Const
 
-variable {β : Type}
+variable {β : Type v}
 
 theorem insertMany_eq_insertMany! {_ : Ord α} [TransOrd α] {l : List (α × β)}
     {t : Impl α β} (h : t.Balanced) :

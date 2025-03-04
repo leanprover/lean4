@@ -325,18 +325,26 @@ partial def enumsPass : Pass where
   name := `enums
   run' goal :=
     goal.withContext do
-      let interesting := (← PreProcessM.getTypeAnalysis).interestingEnums
-      if interesting.isEmpty then return goal
+      let analysis ← PreProcessM.getTypeAnalysis
+      let interestingEnums := analysis.interestingEnums
+      -- invariant: if there is no interesting enums there also can't be interesting matchers
+      if interestingEnums.isEmpty then return goal
+
       let mut simprocs : Simprocs := {}
       let mut relevantLemmas : SimpTheoremsArray := #[]
       relevantLemmas ← relevantLemmas.addTheorem (.decl ``ne_eq) (← mkConstWithLevelParams ``ne_eq)
-      for type in interesting do
+      for type in interestingEnums do
         let lemma ← getEqIffEnumToBitVecEqFor type
         relevantLemmas ← relevantLemmas.addTheorem (.decl lemma) (mkConst lemma)
 
         let enumToBitVec ← getEnumToBitVecFor type
         let path : Array DiscrTree.Key := #[.const enumToBitVec 1, .star]
         simprocs := simprocs.addCore path ``enumToBitVecCtor true (.inl enumToBitVecCtor)
+
+      let interestingMatchers := analysis.interestingMatchers
+      for (matcher, kind) in interestingMatchers do
+        let lemma ← getMatchEqCondForAux matcher kind
+        relevantLemmas ← relevantLemmas.addTheorem (.decl lemma) (mkConst lemma)
 
       let cfg ← PreProcessM.getConfig
       let simpCtx ← Simp.mkContext

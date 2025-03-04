@@ -607,7 +607,9 @@ where
       let parentView := view.parents[i]
       withRef parentView.ref do
       -- The only use case for autobound implicits for parents might be outParams, but outParam is not propagated.
-      let parentType ← whnf <| ← Term.withoutAutoBoundImplicit <| Term.elabType parentView.type
+      let parentType ← Term.withoutAutoBoundImplicit <| Term.elabType parentView.type
+      Term.synthesizeSyntheticMVarsNoPostponing
+      let parentType ← whnf parentType
       if parentType.getAppFn == indFVar then
         logWarning "structure extends itself, skipping"
         return ← go (i + 1) infos parents

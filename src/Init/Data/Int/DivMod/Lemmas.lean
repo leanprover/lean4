@@ -40,6 +40,17 @@ protected theorem dvd_add_left {a b c : Int} (H : a ∣ c) : a ∣ b + c ↔ a �
 protected theorem dvd_add_right {a b c : Int} (H : a ∣ b) : a ∣ b + c ↔ a ∣ c := by
   rw [Int.add_comm, Int.dvd_add_left H]
 
+@[simp] protected theorem dvd_add_mul_self {a b c : Int} : a ∣ b + c * a ↔ a ∣ b := by
+  rw [Int.dvd_add_left (Int.dvd_mul_left c a)]
+
+@[simp] protected theorem dvd_add_self_mul {a b c : Int} : a ∣ b + a * c ↔ a ∣ b := by
+  rw [Int.mul_comm, Int.dvd_add_mul_self]
+
+@[simp] protected theorem dvd_mul_self_add {a b c : Int} : a ∣ b * a + c ↔ a ∣ c := by
+  rw [Int.add_comm, Int.dvd_add_mul_self]
+
+@[simp] protected theorem dvd_self_mul_add {a b c : Int} : a ∣ a * b + c ↔ a ∣ c := by
+  rw [Int.mul_comm, Int.dvd_mul_self_add]
 protected theorem dvd_iff_dvd_of_dvd_sub {a b c : Int} (H : a ∣ b - c) : a ∣ b ↔ a ∣ c :=
   ⟨fun h => Int.sub_sub_self b c ▸ Int.dvd_sub h H,
    fun h => Int.sub_add_cancel b c ▸ Int.dvd_add H h⟩
@@ -1107,7 +1118,13 @@ theorem fdiv_nonneg {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : 0 ≤ a.fdiv b :
   | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => ofNat_fdiv .. ▸ ofNat_zero_le _
 
 theorem fdiv_nonneg_of_nonpos_of_nonpos {a b : Int} (Ha : a ≤ 0) (Hb : b ≤ 0) : 0 ≤ a.fdiv b := by
-  sorry
+  rw [fdiv_eq_ediv]
+  by_cases ha : a = 0
+  · simp [ha]
+  · by_cases hb : b = 0
+    · simp [hb]
+    · have : 0 < a / b := ediv_pos_of_neg_of_neg (by omega) (by omega)
+      split <;> omega
 
 unseal Nat.div in
 theorem fdiv_nonpos_of_nonneg_of_nonpos : ∀ {a b : Int}, 0 ≤ a → b ≤ 0 → a.fdiv b ≤ 0
@@ -1122,14 +1139,27 @@ theorem fdiv_neg_of_neg_of_pos : ∀ {a b : Int}, a < 0 → 0 < b → a.fdiv b <
 @[deprecated fdiv_neg_of_neg_of_pos (since := "2025-03-04")]
 abbrev fdiv_neg := @fdiv_neg_of_neg_of_pos
 
-theorem fdiv_eq_zero_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a.fdiv b = 0 := by sorry
+theorem fdiv_eq_zero_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a.fdiv b = 0 := by
+  rw [fdiv_eq_ediv, if_pos, Int.sub_zero]
+  · apply ediv_eq_zero_of_lt (by omega) (by omega)
+  · left; omega
 
 @[simp] theorem mul_fdiv_mul_of_pos {a : Int}
-    (b c : Int) (H : 0 < a) : (a * b).fdiv (a * c) = b.fdiv c := by sorry
+    (b c : Int) (H : 0 < a) : (a * b).fdiv (a * c) = b.fdiv c := by
+  rw [fdiv_eq_ediv, mul_ediv_mul_of_pos _ _ H, fdiv_eq_ediv]
+  congr 2
+  simp [Int.mul_dvd_mul_iff_left (Int.ne_of_gt H)]
+  constructor
+  · rintro (h | h)
+    · exact .inl (Int.nonneg_of_mul_nonneg_right h H)
+    · exact .inr h
+  · rintro (h | h)
+    · exact .inl (Int.mul_nonneg (by omega) h)
+    · exact .inr h
 
 @[simp] theorem mul_fdiv_mul_of_pos_left
     (a : Int) {b : Int} (c : Int) (H : 0 < b) : (a * b).fdiv (c * b) = a.fdiv c := by
-  sorry
+  rw [Int.mul_comm a b, Int.mul_comm c b, Int.mul_fdiv_mul_of_pos _ _ H]
 
 @[simp] theorem fdiv_one : ∀ a : Int, a.fdiv 1 = a
   | 0 => rfl
@@ -1156,7 +1186,30 @@ protected theorem eq_fdiv_of_mul_eq_left {a b c : Int}
 
 -- `neg_fdiv : ∀ a b : Int, (-a).fdiv b = -(a.fdiv b)` is untrue.
 
-protected theorem neg_fdiv_neg (a b : Int) : (-a).fdiv (-b) = a.fdiv b := by sorry
+protected theorem neg_fdiv_neg (a b : Int) : (-a).fdiv (-b) = a.fdiv b := by
+  match a, b with
+  | 0, 0 => rfl
+  | 0, ofNat b => simp
+  | 0, -[b+1] => simp
+  | ofNat (a + 1), 0 => simp
+  | ofNat (a + 1), ofNat (b + 1) =>
+    unfold fdiv
+    simp only [ofNat_eq_coe, natCast_add, Nat.cast_ofNat_Int, Nat.succ_eq_add_one]
+    rw [← negSucc_eq, ← negSucc_eq]
+  | ofNat (a + 1), -[b+1] =>
+    unfold fdiv
+    simp only [ofNat_eq_coe, natCast_add, Nat.cast_ofNat_Int, Nat.succ_eq_add_one]
+    rw [← negSucc_eq, neg_negSucc]
+  | -[a+1], 0 => simp
+  | -[a+1], ofNat (b + 1) =>
+    unfold fdiv
+    simp only [ofNat_eq_coe, natCast_add, Nat.cast_ofNat_Int, Nat.succ_eq_add_one]
+    rw [neg_negSucc, ← negSucc_eq]
+  | -[a+1], -[b+1] =>
+    unfold fdiv
+    simp only [ofNat_eq_coe, ofNat_ediv, Nat.succ_eq_add_one, natCast_add, Nat.cast_ofNat_Int]
+    rw [neg_negSucc, neg_negSucc]
+    simp
 
 -- `natAbs_fdiv (a b : Int) : natAbs (a.fdiv b) = (natAbs a).div (natAbs b)` is untrue.
 
@@ -1184,20 +1237,39 @@ theorem fmod_lt_of_pos (a : Int) {b : Int} (H : 0 < b) : a.fmod b < b :=
 
 -- There is no `fmod_neg : ∀ {a b : Int}, a.fmod (-b) = -a.fmod b` as this is false.
 
-@[simp] theorem add_mul_fmod_self {a b c : Int} : (a + b * c).fmod c = a.fmod c := sorry
+@[simp] theorem add_mul_fmod_self {a b c : Int} : (a + b * c).fmod c = a.fmod c := by
+  rw [fmod_eq_emod, add_mul_emod_self, fmod_eq_emod]
+  simp
 
-@[simp] theorem add_mul_fmod_self_left (a b c : Int) : (a + b * c).fmod b = a.fmod b := sorry
+@[simp] theorem add_mul_fmod_self_left (a b c : Int) : (a + b * c).fmod b = a.fmod b := by
+  rw [Int.mul_comm, Int.add_mul_fmod_self]
 
-@[simp] theorem fmod_add_fmod (m n k : Int) : (m.fmod n + k).fmod n = (m + k).fmod n := sorry
+@[simp] theorem fmod_add_fmod (m n k : Int) : (m.fmod n + k).fmod n = (m + k).fmod n := by
+  by_cases h : n = 0
+  · simp [h]
+  rw [fmod_def, fmod_def]
+  conv => rhs; rw [fmod_def]
+  have : m - n * m.fdiv n + k = m + k + n * (- m.fdiv n) := by simp [Int.mul_neg]; omega
+  rw [this, add_fdiv_of_dvd_right (Int.dvd_mul_right ..), Int.mul_add, mul_fdiv_cancel_left _ h]
+  omega
 
-@[simp] theorem add_fmod_fmod (m n k : Int) : (m + n.fmod k).fmod k = (m + n).fmod k := sorry
+@[simp] theorem add_fmod_fmod (m n k : Int) : (m + n.fmod k).fmod k = (m + n).fmod k := by
+  rw [Int.add_comm, Int.fmod_add_fmod, Int.add_comm]
 
-theorem add_fmod (a b n : Int) : (a + b).fmod n = (a.fmod n + b.fmod n).fmod n := sorry
+theorem add_fmod (a b n : Int) : (a + b).fmod n = (a.fmod n + b.fmod n).fmod n := by
+  simp
 
 theorem add_fmod_eq_add_fmod_right {m n k : Int} (i : Int)
-    (H : m.fmod n = k.fmod n) : (m + i).fmod n = (k + i).fmod n := sorry
+    (H : m.fmod n = k.fmod n) : (m + i).fmod n = (k + i).fmod n := by
+  rw [add_fmod]
+  conv => rhs; rw [add_fmod]
+  rw [H]
 
-theorem fmod_add_cancel_right {m n k : Int} (i) : (m + i).fmod n = (k + i).fmod n ↔ m.fmod n = k.fmod n := sorry
+theorem fmod_add_cancel_right {m n k : Int} (i) : (m + i).fmod n = (k + i).fmod n ↔ m.fmod n = k.fmod n :=
+  ⟨fun H => by
+    have := add_fmod_eq_add_fmod_right (-i) H
+    rwa [Int.add_neg_cancel_right, Int.add_neg_cancel_right] at this,
+  add_fmod_eq_add_fmod_right _⟩
 
 @[simp] theorem mul_fmod_left (a b : Int) : (a * b).fmod b = 0 :=
   if h : b = 0 then by simp [h, Int.mul_zero] else by
@@ -1206,15 +1278,23 @@ theorem fmod_add_cancel_right {m n k : Int} (i) : (m + i).fmod n = (k + i).fmod 
 @[simp] theorem mul_fmod_right (a b : Int) : (a * b).fmod a = 0 := by
   rw [Int.mul_comm, mul_fmod_left]
 
-theorem mul_fmod (a b n : Int) : (a * b).fmod n = (a.fmod n * b.fmod n).fmod n := sorry
+theorem mul_fmod (a b n : Int) : (a * b).fmod n = (a.fmod n * b.fmod n).fmod n := by
+  conv => lhs; rw [
+    ← fmod_add_fdiv a n, ← fmod_add_fdiv' b n, Int.add_mul, Int.mul_add, Int.mul_add,
+    Int.mul_assoc, Int.mul_assoc, ← Int.mul_add n _ _, add_mul_fmod_self_left,
+    ← Int.mul_assoc, add_mul_fmod_self]
 
 @[simp] theorem fmod_self {a : Int} : a.fmod a = 0 := by
   have := mul_fmod_left 1 a; rwa [Int.one_mul] at this
 
 @[simp] theorem fmod_fmod_of_dvd (n : Int) {m k : Int}
-    (h : m ∣ k) : (n.fmod k).fmod m = n.fmod m := sorry
+    (h : m ∣ k) : (n.fmod k).fmod m = n.fmod m := by
+  conv => rhs; rw [← fmod_add_fdiv n k]
+  match k, h with
+  | _, ⟨t, rfl⟩ => rw [Int.mul_assoc, add_mul_fmod_self_left]
 
-@[simp] theorem fmod_fmod (a b : Int) : (a.fmod b).fmod b = a.fmod b := sorry
+@[simp] theorem fmod_fmod (a b : Int) : (a.fmod b).fmod b = a.fmod b :=
+  fmod_fmod_of_dvd _ (Int.dvd_refl b)
 
 theorem sub_fmod (a b n : Int) : (a - b).fmod n = (a.fmod n - b.fmod n).fmod n := by
   apply (fmod_add_cancel_right b).mp
@@ -1230,7 +1310,9 @@ theorem fmod_eq_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a.fmod b = a := 
 
 -- lemmas about `fmod` without `emod` analogues
 
-theorem fdiv_sign : ∀ a b, a.fdiv (sign b) = a * sign b := by sorry
+theorem fdiv_sign {a b : Int} : a.fdiv (sign b) = a * sign b := by
+  rw [fdiv_eq_ediv]
+  rcases sign_trichotomy b with h | h | h <;> simp [h]
 
 protected theorem sign_eq_fdiv_abs (a : Int) : sign a = a.fdiv (natAbs a) :=
   if az : a = 0 then by simp [az] else

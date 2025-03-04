@@ -32,18 +32,23 @@ private def mkDecreasingProof (decreasingProp : Expr) : TermElabM Expr := do
 
 private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F : Expr) (e : Expr) : TermElabM Expr := do
   trace[Elab.definition.wf] "replaceRecApps:{indentExpr e}"
-  trace[Elab.definition.wf] "{F} : {← inferType F}"
-  loop F e |>.run' {}
+  trace[Elab.definition.wf] "type of functorial {F} is{indentExpr (← inferType F)}"
+  let e ← loop F e |>.run' {}
+  assert! (← isTypeCorrect e)
+  return e
 where
   processRec (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     if e.getAppNumArgs < fixedPrefixSize + 1 then
+      trace[Elab.definition.wf] "replaceRecApp: eta-expanding{indentExpr e}"
       loop F (← etaExpand e)
     else
       let args := e.getAppArgs
       let r := mkApp F (← loop F args[fixedPrefixSize]!)
       let decreasingProp := (← whnf (← inferType r)).bindingDomain!
       let r := mkApp r (← mkDecreasingProof decreasingProp)
-      return mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
+      let r := mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
+      assert! (← isTypeCorrect r)
+      return r
 
   processApp (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     if e.isAppOf recFnName then
@@ -55,6 +60,18 @@ where
     modifyGet (·.contains e)
 
   loop (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
+    let e' ← loopGo F e
+    withTransparency .all do withNewMCtxDepth do
+      unless (← isTypeCorrect e') do
+        throwError "No preservation transforming {indentExpr e}\nto{indentExpr e'}"
+      let t1 ← inferType e
+      let t2 ← inferType e'
+      unless (← isDefEq t1 t2) do
+        let (t1, t2) ← addPPExplicitToExposeDiff t1 t2
+        throwError "Type not preserved transforming {indentExpr e}\nto{indentExpr e'}\nwas {indentExpr t1}\ngot {indentExpr t2}"
+    return e'
+
+  loopGo (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     if !(← containsRecFn e) then
       return e
     match e with
@@ -83,8 +100,15 @@ where
               unless xs.size = numParams do
                 throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
               let FAlt := xs[numParams - 1]!
-              mkLambdaFVars xs (← loop FAlt altBody)
-          return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
+              -- assert! (← isTypeCorrect altBody)
+              let altBody' ← loop FAlt altBody
+              -- trace[Elab.definition.wf] "replaceRecApp: altBody:{indentExpr altBody}"
+              assert! (← isTypeCorrect altBody')
+              mkLambdaFVars xs altBody'
+          assert! (← altsNew.allM (isTypeCorrect ·))
+          let r := { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
+          -- assert! (← isTypeCorrect r)
+          return r
         else
           processApp F e
       | none => processApp F e

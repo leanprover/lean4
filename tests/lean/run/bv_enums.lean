@@ -137,14 +137,6 @@ theorem thm :
   bif Foo.enumToBitVec x == 0#2 then h1 ()
   else bif Foo.enumToBitVec x == 1#2 then h2 ()
   else bif Foo.enumToBitVec x == 2#2 then h3 () else h3 () :=
-  by cases x <;> rfl
-
-theorem thm :
-  Foo.f1.match_1 (fun _ => α) x h1 h2 h3
-    =
-  bif Foo.enumToBitVec x == 0#2 then h1 ()
-  else bif Foo.enumToBitVec x == 1#2 then h2 ()
-  else bif Foo.enumToBitVec x == 2#2 then h3 () else h3 () :=
   Foo.recOn (motive := fun x =>
       (match x with
         | Foo.a => h1 ()
@@ -156,14 +148,17 @@ theorem thm :
 
 #print thm
 
-set_option pp.explicit true
-#print Foo.f1.match_1
+#check Foo.f1.match_1.eq_cond_enumToBitVec
+def foo := Foo.f1.match_1.eq_cond_enumToBitVec (BitVec 10) .a (fun _ => 0) (fun _ => 1) (fun _ => 2)
+
+set_option pp.explicit true in
+#print foo
 
 /-- info: true -/
 #guard_msgs in
 #eval show MetaM _ from do
   let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.matchIsSupported ``Foo.f1.match_1
-  return res matches some .simple
+  return res matches some (.simpleEnum ..)
 
 /-- info: true -/
 #guard_msgs in

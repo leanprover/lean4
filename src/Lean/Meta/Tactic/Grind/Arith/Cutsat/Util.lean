@@ -278,4 +278,17 @@ def _root_.Int.Linear.Poly.findVarToSubst (p : Poly) : GoalM (Option (Int × Var
     else
       findVarToSubst p
 
+def CooperSplit.numCases (s : CooperSplit) : Nat :=
+  let a  := s.c₁.p.leadCoeff
+  let b  := s.c₂.p.leadCoeff
+  match s.c₃? with
+  | none => if s.left then a.natAbs else b.natAbs
+  | some c₃ =>
+    let c  := c₃.p.leadCoeff
+    let d  := c₃.d
+    if s.left then
+      Int.lcm a (a * d / Int.gcd (a * d) c)
+    else
+      Int.lcm b (b * d / Int.gcd (b * d) c)
+
 end Lean.Meta.Grind.Arith.Cutsat

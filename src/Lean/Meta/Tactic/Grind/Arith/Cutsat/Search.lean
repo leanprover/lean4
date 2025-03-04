@@ -14,6 +14,38 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
+/-- Asserts constraints implied by a `CooperSplit`. -/
+def CooperSplit.assert (cs : CooperSplit) : GoalM Unit := do
+  let { c₁, c₂, c₃?, k, left, .. } := cs
+  let p₁  := c₁.p
+  let p₂  := c₂.p
+  let p   := p₁.tail
+  let q   := p₂.tail
+  let a   := p₁.leadCoeff
+  let b   := p₂.leadCoeff
+  let p₁' := p.mul b |>.combine (q.mul (-a))
+  let p₁' := p₁'.addConst <| if left then b*k else (-a)*k
+  let c₁' ← mkLeCnstr p₁' (.cooper cs)
+  c₁'.assert
+  let p₂' := if left then p else q
+  let p₂' := p₂'.addConst k
+  let c₂' ← mkDvdCnstr (if left then a else b) p₂' (.cooper₁ cs)
+  c₂'.assert
+  let some c₃ := c₃? | return ()
+  let p₃  := c₃.p
+  let d   := c₃.d
+  let s   := p₃.tail
+  let c   := p₃.leadCoeff
+  let c₃' ← if left then
+    let p₃' := p.mul c |>.combine (s.mul (-a))
+    let p₃' := p₃'.addConst (c*k)
+    mkDvdCnstr (a*d) p₃' (.cooper₂ cs)
+  else
+    let p₃' := q.mul (-c) |>.combine (s.mul b)
+    let p₃' := p₃'.addConst (-c*k)
+    mkDvdCnstr (b*d) p₃' (.cooper₂ cs)
+  c₃'.assert
+
 private def checkIsNextVar (x : Var) : GoalM Unit := do
   if x != (← get').assignment.size then
     throwError "`grind` internal error, assigning variable out of order"

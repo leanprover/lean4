@@ -191,6 +191,9 @@ instance : Inhabited LeCnstr where
 instance : Inhabited DvdCnstr where
   default := { d := 0, p := .num 0, h := .expr default, id := 0 }
 
+instance : Inhabited CooperSplit where
+  default := { left := false, c₁ := default, c₂ := default, c₃? := none, k := 0, h := .dec default, id := 0 }
+
 abbrev VarSet := RBTree Var compare
 
 /-- State of the cutsat procedure. -/

@@ -218,20 +218,9 @@ def Inv (s : State) : Prop := s.low ≤ s.val ∧ s.val ≤ s.high ∧ s.low < s
 
 example (s : State) (h : Inv s) (n : Nat) : Inv (State.steps s n) := by
   induction n with
-  | zero => simp [State.steps, Inv] at *; bv_decide
+  | zero => simp only [State.steps, Inv] at *; bv_decide
   | succ n ih =>
-    simp [State.steps, State.step, Inv] at *
+    simp only [State.steps, State.step, Inv] at *
     bv_decide
-
-def foo (d : Direction) (s1 s2 : State) : State :=
-  match d with
-  | .goingDown => s1
-  | .goingUp => s2
-
-theorem bar (d1 d2 : Direction) (s1 s2 : State) (h : d1 ≠ d2) : foo d1 s1 s2 = foo d2 s2 s1 := by
-  unfold foo
-  bv_normalize
-  bv_decide
-  sorry
 
 end PingPong

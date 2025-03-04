@@ -2271,6 +2271,10 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
   -- the relevant local environment extension state when accessed on this branch.
   if env.containsOnBranch constName then
     return
+  -- TODO: remove when Mathlib passes without it
+  if !Elab.async.get (← getOptions) then
+    realize
+    return
   withTraceNode `Meta.realizeConst (fun _ => return constName) do
     let coreCtx ← readThe Core.Context
     let coreCtx := {

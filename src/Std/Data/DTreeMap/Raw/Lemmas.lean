@@ -1228,9 +1228,9 @@ theorem get_insertMany_list_of_mem [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF)
 theorem get!_insertMany_list_of_contains_eq_false [TransCmp cmp]
     [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp] (h : t.WF)
     {l : List ((a : α) × β a)} {k : α} [Inhabited (β k)]
-    (h' : (l.map Sigma.fst).contains k = false) :
+    (contains_eq_false : (l.map Sigma.fst).contains k = false) :
     (t.insertMany l).get! k = t.get! k :=
-  Impl.get!_insertMany!_list_of_contains_eq_false h h'
+  Impl.get!_insertMany!_list_of_contains_eq_false h contains_eq_false
 
 theorem get!_insertMany_list_of_mem [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF)
     {l : List ((a : α) × β a)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β k} [Inhabited (β k')]
@@ -1255,9 +1255,9 @@ theorem getD_insertMany_list_of_mem [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF)
 
 theorem getKey?_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
     (h : t.WF) {l : List ((a : α) × β a)} {k : α}
-    (h' : (l.map Sigma.fst).contains k = false) :
+    (contains_eq_false : (l.map Sigma.fst).contains k = false) :
     (t.insertMany l).getKey? k = t.getKey? k :=
-  Impl.getKey?_insertMany!_list_of_contains_eq_false h h'
+  Impl.getKey?_insertMany!_list_of_contains_eq_false h contains_eq_false
 
 theorem getKey?_insertMany_list_of_mem [TransCmp cmp] (h : t.WF)
     {l : List ((a : α) × β a)}

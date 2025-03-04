@@ -2000,11 +2000,11 @@ theorem getKeyD_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
   rw [compare_eq_eq_iff_beq] at k_beq
   simp_to_model [insertMany!] using List.getKeyD_insertList_of_mem
 
-theorem size_insertMany_list [TransOrd α] (h : t.WF)
+theorem size_insertMany_list [BEq α] [LawfulBEqOrd α] [TransOrd α] (h : t.WF)
     {l : List ((a : α) × β a)} (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) :
     (∀ (a : α), t.contains a → (l.map Sigma.fst).contains a = false) →
     (t.insertMany l h.balanced).1.size = t.size + l.length := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
+  simp only [LawfulBEqOrd.compare_eq_iff_beq, Bool.not_eq_true] at distinct
   simp_to_model [insertMany] using List.length_insertList
 
 theorem size_insertMany!_list [BEq α] [LawfulBEqOrd α] [TransOrd α] (h : t.WF)
@@ -2069,7 +2069,7 @@ theorem insertMany!_cons {l : List (α × β)} {k : α} {v : β} :
   · simp
 
 @[simp]
-theorem contains_insertMany_list [TransOrd α] (h : t.WF)
+theorem contains_insertMany_list [BEq α] [LawfulBEqOrd α] [TransOrd α] (h : t.WF)
     {l : List (α × β)} {k : α} :
     (Const.insertMany t l h.balanced).1.contains k = (t.contains k || (l.map Prod.fst).contains k) := by
   simp_to_model [Const.insertMany] using List.containsKey_insertListConst
@@ -2079,6 +2079,12 @@ theorem contains_insertMany!_list [BEq α] [LawfulBEqOrd α] [TransOrd α] (h : 
     {l : List (α × β)} {k : α} :
     (Const.insertMany! t l).1.contains k = (t.contains k || (l.map Prod.fst).contains k) := by
   simp_to_model [Const.insertMany!] using List.containsKey_insertListConst
+
+@[simp]
+theorem mem_insertMany_list [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF)
+    {l : List (α × β)} {k : α} :
+    k ∈ (insertMany t l h.balanced).1 ↔ k ∈ t ∨ (l.map Prod.fst).contains k := by
+  simp [mem_iff_contains, contains_insertMany_list h]
 
 @[simp]
 theorem mem_insertMany!_list [BEq α] [TransOrd α] [LawfulBEqOrd α] (h : t.WF)

@@ -924,17 +924,6 @@ theorem tmod_lt_of_pos (a : Int) {b : Int} (H : 0 < b) : tmod a b < b :=
 @[simp] theorem mul_tmod_right (a b : Int) : (a * b).tmod a = 0 := by
   rw [Int.mul_comm, mul_tmod_left]
 
-/--
-If a predicate on the integers is invariant under negation,
-then it is sufficient to prove it for the nonnegative integers.
--/
-theorem wlog_sign {P : Int → Prop} (inv : ∀ a, P a ↔ P (-a)) (w : ∀ n : Nat, P n) (a : Int) : P a := by
-  cases a with
-  | ofNat n => exact w n
-  | negSucc n =>
-    rw [negSucc_eq, ← inv, ← ofNat_succ]
-    apply w
-
 attribute [local simp] Int.neg_inj
 
 theorem mul_tmod (a b n : Int) : (a * b).tmod n = (a.tmod n * b.tmod n).tmod n := by

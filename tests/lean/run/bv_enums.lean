@@ -98,6 +98,8 @@ end Ex3
 
 namespace Ex4
 
+-- pattern matching
+
 inductive Foo where
   | a
   | b
@@ -164,15 +166,19 @@ def Foo.f5 : Foo → BitVec 64
   | .b => 42
   | .c => 22
 
-theorem inj (foo1 foo2 : Foo) (h : foo1.f5 = foo2.f5) : foo1 = foo2 := by
-  unfold Foo.f5 at h
+example : ∀ (x y : Foo), x.f5 = y.f5 → x = y := by
+  unfold Foo.f5
   bv_decide
 
-theorem different (foo : Foo) : foo.f1 ≠ foo := by
+example (foo : Foo) : foo.f1 ≠ foo := by
   unfold Foo.f1
   bv_decide
 
-theorem trip (foo : Foo) : foo.f1.f1.f1 = foo := by
+example (x : Foo) : x.f1.f1.f1 = x := by
+  unfold Foo.f1
+  bv_decide
+
+example (h : f = Foo.a): Foo.a.f1 ≠ f := by
   unfold Foo.f1
   bv_decide
 

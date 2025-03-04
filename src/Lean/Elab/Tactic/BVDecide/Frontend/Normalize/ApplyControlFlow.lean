@@ -6,6 +6,11 @@ Authors: Henrik Böving
 prelude
 import Lean.Meta.Tactic.Simp
 
+/-!
+This modules contains simprocs and functions to compute discrimination tree keys in order to
+construct simp sets that apply `apply_ite` and `Bool.apply_cond` to specific functions.
+-/
+
 namespace Lean.Elab.Tactic.BVDecide
 namespace Frontend.Normalize
 
@@ -52,7 +57,7 @@ def mkApplyProjControlDiscrPath (struct : Name) (structParams : Nat) (projIdx : 
   return path
 
 /--
-For `f` and `ite` this function creates the path: `f (ite (Type _ _) _ _ _ _)`.
+For `f`, `SomeType α β` and `ite` this function creates the path: `f (ite (SomeType _ _) _ _ _ _)`.
 This path can be used to match on applications of unary functions onto control flow primitives.
 -/
 def mkApplyUnaryControlDiscrPath (type : Name) (typeParams : Nat) (constName : Name)

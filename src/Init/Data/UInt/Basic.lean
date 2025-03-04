@@ -65,6 +65,9 @@ instance : Xor UInt8       := ⟨UInt8.xor⟩
 instance : ShiftLeft UInt8  := ⟨UInt8.shiftLeft⟩
 instance : ShiftRight UInt8 := ⟨UInt8.shiftRight⟩
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_uint8"]
 def Bool.toUInt8 (b : Bool) : UInt8 := if b then 1 else 0
 
@@ -137,6 +140,9 @@ instance : Xor UInt16       := ⟨UInt16.xor⟩
 instance : ShiftLeft UInt16  := ⟨UInt16.shiftLeft⟩
 instance : ShiftRight UInt16 := ⟨UInt16.shiftRight⟩
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_uint16"]
 def Bool.toUInt16 (b : Bool) : UInt16 := if b then 1 else 0
 
@@ -211,6 +217,9 @@ instance : Xor UInt32       := ⟨UInt32.xor⟩
 instance : ShiftLeft UInt32  := ⟨UInt32.shiftLeft⟩
 instance : ShiftRight UInt32 := ⟨UInt32.shiftRight⟩
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_uint32"]
 def Bool.toUInt32 (b : Bool) : UInt32 := if b then 1 else 0
 
@@ -270,6 +279,9 @@ instance : Xor UInt64       := ⟨UInt64.xor⟩
 instance : ShiftLeft UInt64  := ⟨UInt64.shiftLeft⟩
 instance : ShiftRight UInt64 := ⟨UInt64.shiftRight⟩
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_uint64"]
 def Bool.toUInt64 (b : Bool) : UInt64 := if b then 1 else 0
 
@@ -376,6 +388,9 @@ instance : Xor USize        := ⟨USize.xor⟩
 instance : ShiftLeft USize  := ⟨USize.shiftLeft⟩
 instance : ShiftRight USize := ⟨USize.shiftRight⟩
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_usize"]
 def Bool.toUSize (b : Bool) : USize := if b then 1 else 0
 

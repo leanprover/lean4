@@ -75,7 +75,6 @@ mutual
 structure EqCnstr where
   p  : Poly
   h  : EqCnstrProof
-  id : Nat
 
 inductive EqCnstrProof where
   | expr (h : Expr)
@@ -90,8 +89,6 @@ structure DvdCnstr where
   d  : Int
   p  : Poly
   h  : DvdCnstrProof
-  /-- Unique id for caching proofs in `ProofM` -/
-  id : Nat
 
 /--
 The predicate of type `Nat → Prop`, which serves as the conclusion of the
@@ -118,7 +115,6 @@ structure CooperSplit where
   pred  : CooperSplitPred
   k     : Nat
   h     : CooperSplitProof
-  id    : Nat
 
 /--
 The `cooper_left`, `cooper_right`, `cooper_dvd_left`, and `cooper_dvd_right` theorems have a resulting type
@@ -150,7 +146,6 @@ inductive DvdCnstrProof where
 structure LeCnstr where
   p  : Poly
   h  : LeCnstrProof
-  id : Nat
 
 inductive LeCnstrProof where
   | expr (h : Expr)
@@ -169,7 +164,6 @@ inductive LeCnstrProof where
 structure DiseqCnstr where
   p  : Poly
   h  : DiseqCnstrProof
-  id : Nat
 
 inductive DiseqCnstrProof where
   | expr (h : Expr)
@@ -192,16 +186,16 @@ inductive UnsatProof where
 end
 
 instance : Inhabited LeCnstr where
-  default := { p := .num 0, h := .expr default, id := 0 }
+  default := { p := .num 0, h := .expr default }
 
 instance : Inhabited DvdCnstr where
-  default := { d := 0, p := .num 0, h := .expr default, id := 0 }
+  default := { d := 0, p := .num 0, h := .expr default }
 
 instance : Inhabited CooperSplitPred where
   default := { left := false, c₁ := default, c₂ := default, c₃? := none }
 
 instance : Inhabited CooperSplit where
-  default := { pred := default, k := 0, h := .dec default, id := 0 }
+  default := { pred := default, k := 0, h := .dec default }
 
 abbrev VarSet := RBTree Var compare
 

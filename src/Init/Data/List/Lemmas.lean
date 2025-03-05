@@ -2536,18 +2536,18 @@ theorem flatMap_reverse {β} (l : List α) (f : α → List β) : (l.reverse.fla
   induction l <;> simp_all
 
 theorem foldl_eq_foldlM (f : β → α → β) (b) (l : List α) :
-    l.foldl f b = l.foldlM (m := Id) f b := by
-  induction l generalizing b <;> simp [*, foldl]
+    l.foldl f b = (l.foldlM (m := Id) (pure <| f · ·) b).run := by
+  induction l generalizing b <;> simp [*]
 
 theorem foldr_eq_foldrM (f : α → β → β) (b) (l : List α) :
-    l.foldr f b = l.foldrM (m := Id) f b := by
-  induction l <;> simp [*, foldr]
+    l.foldr f b = (l.foldrM (m := Id) (pure <| f · ·) b).run := by
+  induction l generalizing b <;> simp [*]
 
-@[simp] theorem id_run_foldlM (f : β → α → Id β) (b) (l : List α) :
-    Id.run (l.foldlM f b) = l.foldl f b := (foldl_eq_foldlM f b l).symm
+theorem id_run_foldlM (f : β → α → Id β) (b) (l : List α) :
+    Id.run (l.foldlM f b) = l.foldl (f · · |>.run) b := (foldl_eq_foldlM f b l).symm
 
-@[simp] theorem id_run_foldrM (f : α → β → Id β) (b) (l : List α) :
-    Id.run (l.foldrM f b) = l.foldr f b := (foldr_eq_foldrM f b l).symm
+theorem id_run_foldrM (f : α → β → Id β) (b) (l : List α) :
+    Id.run (l.foldrM f b) = l.foldr (f · · |>.run) b := (foldr_eq_foldrM f b l).symm
 
 @[simp] theorem foldlM_reverse [Monad m] (l : List α) (f : β → α → m β) (b) :
     l.reverse.foldlM f b = l.foldrM (fun x y => f y x) b := rfl

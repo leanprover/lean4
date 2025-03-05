@@ -300,8 +300,6 @@ theorem LawfulBEqCmp.not_compare_eq_iff_beq_eq_false {α : Type u} [BEq α] {cmp
   rw [Bool.eq_false_iff, ne_eq, not_congr]
   exact compare_eq_iff_beq
 
-export LawfulBEqCmp (compare_eq_iff_beq not_compare_eq_iff_beq_eq_false)
-
 /--
 A typeclass for types with a comparison function that satisfies `compare a b = .eq` if and only if
 the boolean equality `a == b` holds.
@@ -315,11 +313,13 @@ variable {α : Type u} [BEq α] {cmp : α → α → Ordering}
 
 theorem LawfulBEqOrd.compare_eq_iff_beq {α : Type u} {_ : Ord α} {_ : BEq α}
     [LawfulBEqOrd α] {a b : α} : compare a b = .eq ↔ (a == b) = true :=
-  Std.compare_eq_iff_beq
+  LawfulBEqCmp.compare_eq_iff_beq
 
 theorem LawfulBEqOrd.not_compare_eq_iff_beq_eq_false {α : Type u} {_ : BEq α} {_ : Ord α}
     [LawfulBEqOrd α] {a b : α} : ¬ compare a b = .eq ↔ (a == b) = false :=
-  Std.not_compare_eq_iff_beq_eq_false
+  LawfulBEqCmp.not_compare_eq_iff_beq_eq_false
+
+export LawfulBEqOrd (compare_eq_iff_beq not_compare_eq_iff_beq_eq_false)
 
 instance [LawfulEqCmp cmp] [LawfulBEq α] :
     LawfulBEqCmp cmp where

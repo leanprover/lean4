@@ -207,7 +207,7 @@ def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
     setInconsistent (.eq c)
     return ()
   if c.isTrivial then
-    trace[grind.cutsat.le.trivial] "{← c.pp}"
+    trace[grind.cutsat.eq.trivial] "{← c.pp}"
     return ()
   let k := c.p.gcdCoeffs'
   if c.p.getConst % k > 0 then

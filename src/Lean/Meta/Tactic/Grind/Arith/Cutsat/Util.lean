@@ -291,4 +291,7 @@ def CooperSplitPred.numCases (pred : CooperSplitPred) : Nat :=
     else
       Int.lcm b (b * d / Int.gcd (b * d) c)
 
+def CooperSplitPred.pp (pred : CooperSplitPred) : GoalM MessageData := do
+  return m!"{← pred.c₁.pp}, {← pred.c₂.pp}, {← if let some c₃ := pred.c₃? then c₃.pp else pure "none"}"
+
 end Lean.Meta.Grind.Arith.Cutsat

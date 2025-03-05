@@ -27,10 +27,12 @@ def CooperSplit.assert (cs : CooperSplit) : GoalM Unit := do
   let p₁' := p.mul b |>.combine (q.mul (-a))
   let p₁' := p₁'.addConst <| if left then b*k else (-a)*k
   let c₁' ← mkLeCnstr p₁' (.cooper cs)
+  trace[grind.debug.cutsat.cooper] "{← c₁'.pp}"
   c₁'.assert
   let p₂' := if left then p else q
   let p₂' := p₂'.addConst k
   let c₂' ← mkDvdCnstr (if left then a else b) p₂' (.cooper₁ cs)
+  trace[grind.debug.cutsat.cooper] "dvd₁: {← c₂'.pp}"
   c₂'.assert
   let some c₃ := c₃? | return ()
   let p₃  := c₃.p
@@ -45,6 +47,7 @@ def CooperSplit.assert (cs : CooperSplit) : GoalM Unit := do
     let p₃' := q.mul (-c) |>.combine (s.mul b)
     let p₃' := p₃'.addConst (-c*k)
     mkDvdCnstr (b*d) p₃' (.cooper₂ cs)
+  trace[grind.debug.cutsat.cooper] "dvd₂: {← c₃'.pp}"
   c₃'.assert
 
 private def checkIsNextVar (x : Var) : GoalM Unit := do
@@ -266,15 +269,18 @@ def resolveRealLowerUpperConflict (c₁ c₂ : LeCnstr) : GoalM Bool := do
   let .add a₂ _ p₂ := c₂.p | c₂.throwUnexpected
   let p := p₁.mul a₂.natAbs |>.combine (p₂.mul a₁.natAbs)
   if (← p.satisfiedLe) != .false then
+    trace[grind.cutsat.conflict] "not resolved"
     return false
   else
     let c ← mkLeCnstr p (.combine c₁ c₂)
+    trace[grind.cutsat.conflict] "resolved: {← c.pp}"
     c.assert
     return true
 
 def resolveCooperPred (pred : CooperSplitPred) : SearchM Unit := do
+  trace[grind.cutsat.conflict] "{← pred.pp}"
   let n := pred.numCases
-  let fvarId ← mkCase (.cooper pred #[])
+  let fvarId ← mkCase (.cooper pred #[] {})
   let s : CooperSplit := { pred, k := n - 1, id := (← mkCnstrId), h := .dec fvarId }
   s.assert
 
@@ -314,6 +320,7 @@ def resolveRatDiseq (c₁ : LeCnstr) (c : DiseqCnstr) : SearchM Unit := do
 
 def processVar (x : Var) : SearchM Unit := do
   if (← eliminated x) then
+    trace[grind.debug.cutsat.search] "eliminated: {← getVar x}"
     /-
     Variable has been eliminated, and will be assigned later after we have assigned
     variables that have not been eliminated.
@@ -325,6 +332,7 @@ def processVar (x : Var) : SearchM Unit := do
     if let some solutions ← c.getSolutions? then
       pure solutions
     else
+      trace[grind.debug.cutsat.search] "dvd conflict: {← c.pp}"
       resolveDvdConflict c
       return ()
   else
@@ -421,6 +429,7 @@ def searchAssigmentMain : SearchM Unit := do
       unless (← resolveConflict c) do
         return ()
     let x : Var := (← get').assignment.size
+    trace[grind.debug.cutsat.search] "next var: {← getVar x}"
     processVar x
 
 def traceModel : GoalM Unit := do

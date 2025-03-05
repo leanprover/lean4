@@ -71,6 +71,7 @@ private def findEq (c : LeCnstr) : GoalM Bool := do
     if c.p.isNegEq c'.p then
       c'.erase
       let eq ← mkEqCnstr c.p (.ofLeGe c c')
+      trace[grind.debug.cutsat.eq] "new eq: {← eq.pp}"
       eq.assert
       return true
   return false
@@ -101,6 +102,7 @@ def LeCnstr.assert (c : LeCnstr) : GoalM Unit := do
   let c ← c.norm
   let c ← c.applySubsts
   if c.isUnsat then
+    trace[grind.cutsat.le.unsat] "{← c.pp}"
     setInconsistent (.le c)
     return ()
   if c.isTrivial then

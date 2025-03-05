@@ -47,9 +47,11 @@ partial def DvdCnstr.applySubsts (c : DvdCnstr) : GoalM DvdCnstr := withIncRecDe
 /-- Asserts divisibility constraint. -/
 partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
   if (← inconsistent) then return ()
+  trace[grind.cutsat.dvd] "{← c.pp}"
   let c ← c.norm
   let c ← c.applySubsts
   if c.isUnsat then
+    trace[grind.cutsat.dvd.unsat] "{← c.pp}"
     setInconsistent (.dvd c)
     return ()
   if c.isTrivial then

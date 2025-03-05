@@ -62,38 +62,11 @@ def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) :=
     | _ =>
       error s!"invalid target '{info}': unknown target kind '{kind}'"
   | .facet target data facet => do
-    match h:target.kind with
-    | `module =>
-      if let some config := (← getWorkspace).findModuleFacetConfig? facet then
-        cast (by simp [h]) <| config.fetchFn <| h.ndrec data
-      else
-        error s!"invalid target '{info}': unknown module facet`{facet}`"
-    | `package =>
-      if let some config := (← getWorkspace).findPackageFacetConfig? facet then
-        cast (by simp [h]) <| config.fetchFn <| h.ndrec data
-      else
-        error s!"invalid target '{info}': unknown package facet`{facet}`"
-    | `leanLib =>
-      if let some config := (← getWorkspace).findLibraryFacetConfig? facet then
-        cast (by simp [h]) <| config.fetchFn <| h.ndrec data
-      else
-        error s!"invalid target '{info}': unknown library facet `{facet}`"
-    | `leanExe =>
-      let `exe := facet
-        | error s!"invalid target '{info}': unknown executable facet '{facet}'"
-      cast (by simp [h]) <| LeanExe.exeFacetConfig.fetchFn <| h.ndrec data
-    | `externLib =>
-      match facet with
-      | `static =>
-        cast (by simp [h]) <| ExternLib.staticFacetConfig.fetchFn <| h.ndrec data
-      | `shared =>
-        cast (by simp [h]) <| ExternLib.sharedFacetConfig.fetchFn <| h.ndrec data
-      | `dynlib =>
-        cast (by simp [h]) <| ExternLib.dynlibFacetConfig.fetchFn <| h.ndrec data
-      | _ =>
-        error s!"invalid target '{info}': unknown external library facet '{facet}'"
-    | _ =>
-      error s!"invalid target '{info}': unknown target kind '{target.kind}'"
+    if let some config :=  (← getWorkspace).findFacet? target.kind facet then
+      config.fetchFn data
+    else
+      error s!"invalid target '{info}': unknown facet`{facet}`"
+
 
 /-- Recursive build function with memoization. -/
 def recFetchWithIndex : (info : BuildInfo) → RecBuildM (Job (BuildData info.key)) :=

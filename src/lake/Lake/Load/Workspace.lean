@@ -27,9 +27,7 @@ def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
     root
     lakeEnv := config.lakeEnv
     lakeArgs? := config.lakeArgs?
-    moduleFacetConfigs := initModuleFacetConfigs
-    packageFacetConfigs := initPackageFacetConfigs
-    libraryFacetConfigs := initLibraryFacetConfigs
+    facetConfigs := initFacetConfigs
   }
   if let some env := env? then
     IO.ofExcept <| ws.addFacetsFromEnv env config.leanOpts

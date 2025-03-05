@@ -6,7 +6,7 @@ on:
     types: [opened, labeled]
 
 jobs:
-  check-pr-body:
+  check-awaiting-mathlib:
     runs-on: ubuntu-latest
     steps:
       - name: Check awaiting-mathlib label

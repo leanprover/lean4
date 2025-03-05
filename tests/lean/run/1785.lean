@@ -11,8 +11,8 @@ noncomputable
 def char (R : Type) [∀ n, OfNat R n] : Nat := 0
 
 /--
-error: failed to compile definition, compiler IR check failed at 'bug._rarg'. Error: depends on
-declaration 'char', which has no executable code; consider marking definition as 'noncomputable'
+error: failed to compile definition, compiler IR check failed at 'bug._redArg'. Error: depends
+on declaration 'char', which has no executable code; consider marking definition as 'noncomputable'
 -/
 #guard_msgs in
 def bug (R : Type) [∀ n, OfNat R n] : R :=

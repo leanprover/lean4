@@ -1,20 +1,17 @@
-[Compiler.elimDeadBranches] Eliminating addSomeVal._redArg with #[("val.16", Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Nat.zero #[]),
-      ("_x.36",
-       Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Option.some #[Lean.Compiler.LCNF.UnreachableBranches.Value.top]),
-      ("val.20", Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Nat.zero #[]),
-      ("_x.35", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
-      ("_x.37",
+[Compiler.elimDeadBranches] Eliminating addSomeVal with #[("_x.13",
        Lean.Compiler.LCNF.UnreachableBranches.Value.ctor
          `Option.some
-         #[Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Nat.zero #[]])]
-[Compiler.elimDeadBranches] Threw away cases _x.37 branch Option.none
-[Compiler.elimDeadBranches] Threw away cases _x.37 branch Option.none
-[Compiler.elimDeadBranches] Eliminating addSomeVal with #[("x", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
-      ("_x.38",
+         #[Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Nat.zero #[]]),
+      ("val.16", Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Nat.zero #[]),
+      ("val.20", Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Nat.zero #[]),
+      ("x", Lean.Compiler.LCNF.UnreachableBranches.Value.top), ("_x.35", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
+      ("_x.36",
        Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Option.some #[Lean.Compiler.LCNF.UnreachableBranches.Value.top])]
+[Compiler.elimDeadBranches] Threw away cases _x.13 branch Option.none
+[Compiler.elimDeadBranches] Threw away cases _x.13 branch Option.none
 [Compiler.elimDeadBranches] size: 11
-    def addSomeVal._redArg : Option Nat :=
-      let _x.1 := someVal._redArg;
+    def addSomeVal x : Option Nat :=
+      let _x.1 := someVal x;
       cases _x.1 : Option Nat
       | Option.none =>
         ⊥
@@ -28,13 +25,9 @@
           let _x.6 := Nat.add _x.3 _x.5;
           let _x.7 := some _ _x.6;
           return _x.7
-[Compiler.elimDeadBranches] size: 1
-    def addSomeVal x : Option Nat :=
-      let _x.1 := addSomeVal._redArg;
-      return _x.1
 [Compiler.result] size: 9
-    def addSomeVal._redArg : Option Nat :=
-      let _x.1 := someVal._redArg;
+    def addSomeVal x : Option Nat :=
+      let _x.1 := someVal x;
       cases _x.1 : Option Nat
       | Option.none =>
         ⊥
@@ -46,38 +39,37 @@
           let _x.4 := 0;
           let _x.5 := some _ _x.4;
           return _x.5
-[Compiler.result] size: 1 def addSomeVal x : Option Nat := let _x.1 := addSomeVal._redArg; return _x.1
-[Compiler.elimDeadBranches] Eliminating monadic with #[("_x.207",
-       Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Except.error #[Lean.Compiler.LCNF.UnreachableBranches.Value.bot]),
-      ("_x.91",
-       Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Except.ok #[Lean.Compiler.LCNF.UnreachableBranches.Value.top]),
-      ("_x.205",
-       Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Except.error #[Lean.Compiler.LCNF.UnreachableBranches.Value.bot]),
-      ("val.200", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
-      ("y", Lean.Compiler.LCNF.UnreachableBranches.Value.top), ("val.64", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
-      ("_x.211",
+[Compiler.elimDeadBranches] Eliminating monadic with #[("y", Lean.Compiler.LCNF.UnreachableBranches.Value.top), ("a.422", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
+      ("_x.414",
        Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Option.some #[Lean.Compiler.LCNF.UnreachableBranches.Value.top]),
-      ("a.208", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
-      ("_x.88", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
-      ("a.206", Lean.Compiler.LCNF.UnreachableBranches.Value.bot),
-      ("_x.212",
+      ("x", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
+      ("_x.423",
+       Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Except.error #[Lean.Compiler.LCNF.UnreachableBranches.Value.top]),
+      ("val.416", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
+      ("val.64", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
+      ("_x.124", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
+      ("a.424", Lean.Compiler.LCNF.UnreachableBranches.Value.top),
+      ("_x.421",
+       Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Except.error #[Lean.Compiler.LCNF.UnreachableBranches.Value.top]),
+      ("_x.61",
        Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Option.some #[Lean.Compiler.LCNF.UnreachableBranches.Value.top]),
-      ("x", Lean.Compiler.LCNF.UnreachableBranches.Value.top)]
-[Compiler.elimDeadBranches] Threw away cases _x.211 branch Option.none
-[Compiler.elimDeadBranches] Threw away cases _x.212 branch Option.none
-[Compiler.elimDeadBranches] Threw away cases _x.205 branch Except.ok
+      ("_x.127",
+       Lean.Compiler.LCNF.UnreachableBranches.Value.ctor `Except.ok #[Lean.Compiler.LCNF.UnreachableBranches.Value.top])]
+[Compiler.elimDeadBranches] Threw away cases _x.61 branch Option.none
+[Compiler.elimDeadBranches] Threw away cases _x.414 branch Option.none
+[Compiler.elimDeadBranches] Threw away cases _x.421 branch Except.ok
 [Compiler.elimDeadBranches] size: 15
     def monadic x y : Except String Nat :=
       jp _jp.1 : Except String Nat :=
         let _x.2 := Nat.add x y;
         let _x.3 := Except.ok _ _ _x.2;
         return _x.3;
-      let _x.4 := addSomeVal._redArg;
+      let _x.4 := addSomeVal x;
       cases _x.4 : Except String Nat
       | Option.none =>
         ⊥
       | Option.some val.5 =>
-        let _x.6 := addSomeVal._redArg;
+        let _x.6 := addSomeVal y;
         cases _x.6 : Except String Nat
         | Option.none =>
           ⊥
@@ -89,21 +81,22 @@
             return _x.10
           | Except.ok a.11 =>
             ⊥
-[Compiler.result] size: 12
+[Compiler.result] size: 13
     def monadic x y : Except String Nat :=
-      let _x.1 := addSomeVal._redArg;
+      let _x.1 := addSomeVal x;
       cases _x.1 : Except String Nat
       | Option.none =>
         ⊥
       | Option.some val.2 =>
-        cases _x.1 : Except String Nat
+        let _x.3 := addSomeVal y;
+        cases _x.3 : Except String Nat
         | Option.none =>
           ⊥
-        | Option.some val.3 =>
-          let _x.4 := throwMyError val.2 val.3;
-          cases _x.4 : Except String Nat
-          | Except.error a.5 =>
-            let _x.6 := Except.error _ _ a.5;
-            return _x.6
-          | Except.ok a.7 =>
+        | Option.some val.4 =>
+          let _x.5 := throwMyError val.2 val.4;
+          cases _x.5 : Except String Nat
+          | Except.error a.6 =>
+            let _x.7 := Except.error _ _ a.6;
+            return _x.7
+          | Except.ok a.8 =>
             ⊥

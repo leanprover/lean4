@@ -1,4 +1,4 @@
-[Compiler.result] size: 18
+[Compiler.result] size: 20
     def foo n : Syntax :=
       let _x.1 := Syntax.missing;
       let _x.2 := 1;
@@ -16,6 +16,8 @@
       let _x.14 := Syntax.ident _x.4 _x.10 _x.12 _x.13;
       let _x.15 := "+";
       let _x.16 := Syntax.atom _x.4 _x.15;
-      let _x.17 := Lean.instQuoteNatNumLitKind._elam_0 n;
-      let _x.18 := Syntax.node3 _x.4 _x.8 _x.14 _x.16 _x.17;
-      return _x.18
+      let _x.17 := Nat.reprFast.0 n;
+      let _x.18 := SourceInfo.none;
+      let _x.19 := @Syntax.mkNumLit _x.17 _x.18;
+      let _x.20 := Syntax.node3 _x.4 _x.8 _x.14 _x.16 _x.19;
+      return _x.20

@@ -19,7 +19,8 @@ info: [Compiler.test] Starting wrapper test findJoinPointsSizeLeq for findJoinPo
 [Compiler.test] Wrapper test findJoinPointsSizeLeq for findJoinPoints occurrence 0 successful
 [Compiler.test] Starting post condition test findJoinPointsFix for findJoinPoints occurrence 0
 [Compiler.test] Post condition test findJoinPointsFix for findJoinPoints occurrence 0 successful
-[Compiler.test] Starting wrapper test findJoinPointsSizeLeq for findJoinPoints occurrence 0
+---
+info: [Compiler.test] Starting wrapper test findJoinPointsSizeLeq for findJoinPoints occurrence 0
 [Compiler.test] Wrapper test findJoinPointsSizeLeq for findJoinPoints occurrence 0 successful
 [Compiler.test] Starting post condition test findJoinPointsFix for findJoinPoints occurrence 0
 [Compiler.test] Post condition test findJoinPointsFix for findJoinPoints occurrence 0 successful

@@ -73,17 +73,18 @@ where
     let proofExpr := (← instantiateMVars (mkMVar goal)).headBeta
     let proofMVars ← getMVars proofExpr
     let hasMVars := !proofMVars.isEmpty
-    let suggestion ← mkExactSuggestionSyntax proofExpr (useRefine := hasMVars) (exposeNames := false)
+    let (suggestion, _) ←
+      mkExactSuggestionSyntax proofExpr (useRefine := hasMVars) (exposeNames := false)
     let mut exposeNames := false
     try evalTacticWithState initialState suggestion
     catch _ =>
       exposeNames := true
-      let suggestion ← mkExactSuggestionSyntax proofExpr (useRefine := hasMVars) (exposeNames := true)
+      let (suggestion, messageData) ←
+        mkExactSuggestionSyntax proofExpr (useRefine := hasMVars) (exposeNames := true)
       try evalTacticWithState initialState suggestion
       catch _ =>
-        let suggestionStr ← SuggestionText.prettyExtra suggestion
         let msg := m!"found a {if hasMVars then "partial " else ""}proof, \
-                      but the corresponding tactic failed:{indentD suggestionStr}\n\n\
+                      but the corresponding tactic failed:{indentD messageData}\n\n\
                       It may be possible to correct this proof by adding type annotations or \
                       eliminating unnecessary function abstractions."
         if errorOnInvalid then throwError msg else logInfo msg

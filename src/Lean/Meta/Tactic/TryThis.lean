@@ -433,22 +433,28 @@ def addSuggestions (ref : Syntax) (suggestions : Array Suggestion)
 
 /--
 Returns the syntax for an `exact` or `refine` (as indicated by `useRefine`) tactic corresponding to
-`e`. If `exposeNames` is `true`, prepends the tactic with `expose_names.` Note that the tactic is
+`e` as well as a `MessageData` representation with hover information.
+If `exposeNames` is `true`, prepends the tactic with `expose_names.` Note that the tactic is
 always generated within `withExposedNames` to avoid generating unprintable characters.
 -/
-def mkExactSuggestionSyntax (e : Expr) (useRefine : Bool) (exposeNames : Bool) : MetaM (TSyntax `tactic) :=
+def mkExactSuggestionSyntax (e : Expr) (useRefine : Bool) (exposeNames : Bool) :
+    MetaM (TSyntax `tactic × MessageData) :=
   withOptions (pp.mvars.set · false) <| withExposedNames do
   let exprStx ← delabToRefinableSyntax e
   let tac ← if useRefine then `(tactic| refine $exprStx) else `(tactic| exact $exprStx)
   let tacSeq ← if exposeNames then `(tactic| (expose_names; $tac)) else pure tac
-  return tacSeq
+  -- We must add the message context here to account for exposed names
+  let exprMessage ← addMessageContext <| MessageData.ofExpr e
+  let tacMessage := if useRefine then m!"refine {exprMessage}" else m!"exact {exprMessage}"
+  let tacSeqMessage := if exposeNames then m!"(expose_names; {tacMessage})" else tacMessage
+  return (tacSeq, tacSeqMessage)
 
 private def addExactSuggestionCore (addSubgoalsMsg : Bool) (exposeNames : Bool) (e : Expr) :
     MetaM Suggestion :=
   withOptions (pp.mvars.set · false) do
   let mvars ← getMVars e
-  let mut suggestion ← mkExactSuggestionSyntax e (useRefine := !mvars.isEmpty) exposeNames
-  let messageData? ← SuggestionText.prettyExtra suggestion
+  let mut (suggestion, messageData?) ←
+    mkExactSuggestionSyntax e (useRefine := !mvars.isEmpty) exposeNames
   let postInfo? ← if !addSubgoalsMsg || mvars.isEmpty then pure none else
     let mut str := "\nRemaining subgoals:"
     for g in mvars do

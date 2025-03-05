@@ -822,7 +822,7 @@ theorem contains_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] (h :
 @[simp]
 theorem mem_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] (h : t.WF)
     {l : List (α × β)} {k : α} :
-    k ∈ t.insertMany l ↔  k ∈ t ∨ (l.map Prod.fst).contains k :=
+    k ∈ t.insertMany l ↔ k ∈ t ∨ (l.map Prod.fst).contains k :=
   DTreeMap.Raw.Const.mem_insertMany_list h
 
 theorem mem_of_mem_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] (h : t.WF)
@@ -1046,7 +1046,7 @@ theorem getKey!_insertManyIfNewUnit_list_of_not_mem_of_mem [TransCmp cmp]
 
 theorem getKey!_insertManyIfNewUnit_list_of_mem [TransCmp cmp]
     [Inhabited α] (h : t.WF) {l : List α} {k : α} (mem : k ∈ t):
-    getKey! (insertManyIfNewUnit t l) k = getKey! t k  :=
+    getKey! (insertManyIfNewUnit t l) k = getKey! t k :=
   DTreeMap.Raw.Const.getKey!_insertManyIfNewUnit_list_of_mem h mem
 
 theorem getKeyD_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false

@@ -468,7 +468,7 @@ theorem get!_insertMany_list_of_not_mem_of_mem [TransCmp cmp]
 
 theorem get!_insertMany_list_of_mem [TransCmp cmp]
     [Inhabited α] (h : t.WF) {l : List α} {k : α} (mem : k ∈ t):
-    get! (insertMany t l) k = get! t k  :=
+    get! (insertMany t l) k = get! t k :=
   TreeMap.Raw.getKey!_insertManyIfNewUnit_list_of_mem h mem
 
 theorem getD_insertMany_list_of_not_mem_of_contains_eq_false

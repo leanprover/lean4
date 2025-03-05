@@ -428,7 +428,7 @@ theorem mem_of_mem_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
   TreeMap.mem_of_mem_insertManyIfNewUnit_list contains_eq_false
 
 theorem get?_insertMany_list_of_not_mem_of_contains_eq_false
-    [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]  {l : List α} {k : α}
+    [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α} {k : α}
     (not_mem : ¬ k ∈ t) (contains_eq_false : l.contains k = false) :
     get? (insertMany t l) k = none :=
   TreeMap.getKey?_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
@@ -458,25 +458,25 @@ theorem get_insertMany_list_of_not_mem_of_mem [TransCmp cmp]
   TreeMap.getKey_insertManyIfNewUnit_list_of_not_mem_of_mem k_eq not_mem distinct mem
 
 theorem get!_insertMany_list_of_not_mem_of_contains_eq_false
-    [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] [Inhabited α]  {l : List α} {k : α}
+    [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] [Inhabited α] {l : List α} {k : α}
     (not_mem : ¬ k ∈ t) (contains_eq_false : l.contains k = false) :
     get! (insertMany t l) k = default :=
   TreeMap.getKey!_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
     not_mem contains_eq_false
 
 theorem get!_insertMany_list_of_not_mem_of_mem [TransCmp cmp]
-    [Inhabited α]  {l : List α} {k k' : α} (k_eq : cmp k k' = .eq)
+    [Inhabited α] {l : List α} {k k' : α} (k_eq : cmp k k' = .eq)
     (not_mem : ¬ k ∈ t) (distinct : l.Pairwise (fun a b => ¬ cmp a b = .eq)) (mem : k ∈ l) :
     get! (insertMany t l) k' = k :=
   TreeMap.getKey!_insertManyIfNewUnit_list_of_not_mem_of_mem k_eq not_mem distinct mem
 
 theorem get!_insertMany_list_of_mem [TransCmp cmp]
-    [Inhabited α]  {l : List α} {k : α} (mem : k ∈ t):
-    get! (insertMany t l) k = get! t k  :=
+    [Inhabited α] {l : List α} {k : α} (mem : k ∈ t):
+    get! (insertMany t l) k = get! t k :=
   TreeMap.getKey!_insertManyIfNewUnit_list_of_mem mem
 
 theorem getD_insertMany_list_of_not_mem_of_contains_eq_false
-    [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]  {l : List α} {k fallback : α}
+    [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α} {k fallback : α}
     (not_mem : ¬ k ∈ t) (contains_eq_false : l.contains k = false) :
     getD (insertMany t l) k fallback = fallback :=
   TreeMap.getKeyD_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
@@ -511,7 +511,7 @@ theorem size_insertMany_list_le [TransCmp cmp]
   TreeMap.size_insertManyIfNewUnit_list_le
 
 @[simp]
-theorem isEmpty_insertMany_list [TransCmp cmp]  {l : List α} :
+theorem isEmpty_insertMany_list [TransCmp cmp] {l : List α} :
     (insertMany t l).isEmpty = (t.isEmpty && l.isEmpty) :=
   TreeMap.isEmpty_insertManyIfNewUnit_list
 

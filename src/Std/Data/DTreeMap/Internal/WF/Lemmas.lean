@@ -1011,7 +1011,7 @@ theorem filter_eq_filterMap [Ord α] {t : Impl α β} {h} {f : (a : α) → β a
     t.filter f h = t.filterMap (fun k v => if f k v then some v else none) h := by
   induction t with
   | leaf => rfl
-  | inner  sz k v l r ihl ihr =>
+  | inner sz k v l r ihl ihr =>
     simp [filter, filterMap]
     cases hf : f k v <;> rw [ihl, ihr] <;> rfl
 
@@ -1120,7 +1120,7 @@ theorem ordered_mergeWith [Ord α] [TransOrd α] [LawfulEqOrd α] {t₁ t₂ : I
     (t₁.mergeWith f t₂ htb).impl.Ordered := by
   induction t₂ generalizing t₁ with
   | leaf => exact hto
-  | inner sz k v l r  ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
+  | inner sz k v l r ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
 
 /-!
 ### foldlM
@@ -1364,7 +1364,7 @@ theorem ordered_mergeWith [Ord α] [TransOrd α] {t₁ t₂ : Impl α β} {f}
     (mergeWith f t₁ t₂ htb).impl.Ordered := by
   induction t₂ generalizing t₁ with
   | leaf => exact hto
-  | inner sz k v l r  ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
+  | inner sz k v l r ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
 
 /-!
 ### toList

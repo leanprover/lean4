@@ -627,14 +627,8 @@ def addExtraName (env : Environment) (name : Name) : Environment :=
   else
     env.modifyCheckedAsync fun env => { env with extraConstNames := env.extraConstNames.insert name }
 
-/--
-Looks up the given declaration name in the environment, avoiding forcing any in-progress elaboration
-tasks unless necessary.
--/
-def findAsync? (env : Environment) (n : Name) : Option AsyncConstantInfo := do
-  -- Check imported declarations first as that should be the most common case.
-  if let some c := env.base.constants.map₁[n]? then
-    return .ofConstantInfo c
+/-- `findAsync?` after `base` access -/
+private def findAsync?' (env : Environment) (n : Name) : Option AsyncConstantInfo := do
   if let some asyncConst := env.asyncConsts.find? n then
     -- Constant for which an asynchronous elaboration task was spawned
     return asyncConst.constInfo
@@ -654,10 +648,23 @@ def findAsync? (env : Environment) (n : Name) : Option AsyncConstantInfo := do
 
 /--
 Looks up the given declaration name in the environment, avoiding forcing any in-progress elaboration
+tasks unless necessary.
+-/
+def findAsync? (env : Environment) (n : Name) : Option AsyncConstantInfo := do
+  -- Avoid going through `AsyncConstantInfo` for `base` access
+  if let some c := env.base.constants.map₁[n]? then
+    return .ofConstantInfo c
+  findAsync?' env n
+
+/--
+Looks up the given declaration name in the environment, avoiding forcing any in-progress elaboration
 tasks for declaration bodies (which are not accessible from `ConstantVal`).
 -/
 def findConstVal? (env : Environment) (n : Name) : Option ConstantVal := do
-  env.findAsync? n |>.map (·.toConstantVal)
+  -- Avoid going through `AsyncConstantInfo` for `base` access
+  if let some c := env.base.constants.map₁[n]? then
+    return c.toConstantVal
+  env.findAsync?' n |>.map (·.toConstantVal)
 
 /--
 Allows `realizeConst` calls for imported declarations in all derived environment branches.
@@ -704,8 +711,10 @@ def enableRealizationsForConst (env : Environment) (opts : Options) (c : Name) :
 Looks up the given declaration name in the environment, blocking on the corresponding elaboration
 task if not yet complete.
 -/
-def find? (env : Environment) (n : Name) : Option ConstantInfo :=
-  env.findAsync? n |>.map (·.toConstantInfo)
+def find? (env : Environment) (n : Name) : Option ConstantInfo := do
+  if let some c := env.base.constants.map₁[n]? then
+    return c
+  env.findAsync?' n |>.map (·.toConstantInfo)
 
 /-- Returns debug output about the asynchronous state of the environment. -/
 def dbgFormatAsyncState (env : Environment) : BaseIO String :=

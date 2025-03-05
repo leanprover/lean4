@@ -213,8 +213,13 @@ where
       return some mod
     let modName ← match modName? with
       | .ok (some modName) => pure modName
-      | .ok none => pure .anonymous -- `.anonymous` occurs in untitled files
-      | .error err => throw <| .ofIoError err
+      -- `.anonymous` occurs in untitled files (`.ok none` case).
+      -- There is an intentional bug here where the `.error _` case spits out `.anonymous`.
+      -- This means that we don't correctly update inlay hint locations when the file for this
+      -- file worker has been deleted. As of writing this, there are no inlay hints that use this
+      -- field anyways.
+      -- In the future, we should resolve this by caching the module name in `DocumentMeta`.
+      | _ => pure .anonymous
     let mut updatedOldInlayHints := #[]
     for ihi in oldInlayHints do
       let mut ihi := ihi

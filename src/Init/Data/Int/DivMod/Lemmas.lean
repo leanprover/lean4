@@ -628,27 +628,30 @@ theorem lt_ediv_add_one_mul_self (a : Int) {b : Int} (H : 0 < b) : a < (a / b + 
   rw [Int.add_mul, Int.one_mul, Int.mul_comm]
   exact Int.lt_add_of_sub_left_lt <| Int.emod_def .. ▸ emod_lt_of_pos _ H
 
-theorem neg_ediv {a b : Int} (hb : b ≠ 0) : (-a) / b = -(a / b) - if b ∣ a then 0 else b.sign := by
-  conv => lhs; rw [← ediv_add_emod a b]
-  rw [Int.neg_add, ← Int.mul_neg, mul_add_ediv_left _ _ hb]
-  split <;> rename_i h
-  · rw [emod_eq_zero_of_dvd h]
-    simp
-  · if hb : 0 < b then
-      rw [Int.sign_eq_one_of_pos hb, ediv_eq_neg_one_of_neg_of_le]
-      · omega
-      · have : 0 < a % b := (emod_pos_of_not_dvd h).resolve_left (by omega)
-        omega
-      · have := emod_lt_of_pos a hb
-        omega
-    else
-      replace hb : b < 0 := by omega
-      rw [Int.sign_eq_neg_one_of_neg hb, Int.ediv_eq_one_of_neg_of_le]
-      · omega
-      · have : 0 < a % b := (emod_pos_of_not_dvd h).resolve_left (by omega)
-        omega
-      · have := emod_lt_of_neg a hb
-        omega
+theorem neg_ediv {a b : Int} : (-a) / b = -(a / b) - if b ∣ a then 0 else b.sign := by
+  if hb : b = 0 then
+    simp [hb]
+  else
+    conv => lhs; rw [← ediv_add_emod a b]
+    rw [Int.neg_add, ← Int.mul_neg, mul_add_ediv_left _ _ hb]
+    split <;> rename_i h
+    · rw [emod_eq_zero_of_dvd h]
+      simp
+    · if hb : 0 < b then
+        rw [Int.sign_eq_one_of_pos hb, ediv_eq_neg_one_of_neg_of_le]
+        · omega
+        · have : 0 < a % b := (emod_pos_of_not_dvd h).resolve_left (by omega)
+          omega
+        · have := emod_lt_of_pos a hb
+          omega
+      else
+        replace hb : b < 0 := by omega
+        rw [Int.sign_eq_neg_one_of_neg hb, Int.ediv_eq_one_of_neg_of_le]
+        · omega
+        · have : 0 < a % b := (emod_pos_of_not_dvd h).resolve_left (by omega)
+          omega
+        · have := emod_lt_of_neg a hb
+          omega
 
 theorem natAbs_ediv_le_natAbs (a b : Int) : natAbs (a / b) ≤ natAbs a :=
   match b, eq_nat_or_neg b with
@@ -1334,7 +1337,21 @@ protected theorem eq_fdiv_of_mul_eq_left {a b c : Int}
 @[simp] protected theorem fdiv_self {a : Int} (H : a ≠ 0) : a.fdiv a = 1 := by
   have := Int.mul_fdiv_cancel 1 H; rwa [Int.one_mul] at this
 
--- `neg_fdiv : ∀ a b : Int, (-a).fdiv b = -(a.fdiv b)` is untrue.
+theorem neg_fdiv {a b : Int} : (-a).fdiv b = -(a.fdiv b) - if b = 0 ∨ b ∣ a then 0 else 1 := by
+  rw [fdiv_eq_ediv, fdiv_eq_ediv, neg_ediv]
+  simp
+  by_cases h : b ∣ a
+  · simp [h]
+  · simp [h]
+    by_cases h' : 0 ≤ b
+    · by_cases h'' : b = 0
+      · simp [h'']
+      · simp only [h', ↓reduceIte, Int.sub_zero, h'']
+        replace h' : 0 < b := by omega
+        rw [sign_eq_one_of_pos (by omega)]
+    · simp only [h', ↓reduceIte]
+      rw [sign_eq_neg_one_of_neg (by omega), if_neg (by omega)]
+      omega
 
 @[simp] protected theorem neg_fdiv_neg (a b : Int) : (-a).fdiv (-b) = a.fdiv b := by
   match a, b with
@@ -1597,7 +1614,7 @@ theorem natAbs_fdiv_le_natAbs (a b : Int) : natAbs (a.fdiv b) ≤ natAbs a := by
     | .negSucc a, .negSucc b, h =>
       simp [negSucc_eq]
       norm_cast
-      rw [Int.neg_ediv (by omega), if_neg (by simpa using h.2)]
+      rw [Int.neg_ediv, if_neg (by simpa using h.2)]
       norm_cast
       rw [sign_eq_one_of_pos (by omega), Int.sub_eq_add_neg, ← Int.neg_add, natAbs_neg,
         Int.sub_add_cancel, natAbs_neg, natAbs_ofNat]

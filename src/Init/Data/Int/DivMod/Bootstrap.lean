@@ -53,7 +53,7 @@ protected theorem dvd_mul_left (a b : Int) : b ∣ a * b := ⟨_, Int.mul_comm .
   constructor <;> exact fun ⟨k, e⟩ =>
     ⟨-k, by simp [e, Int.neg_mul, Int.mul_neg, Int.neg_neg]⟩
 
-protected theorem dvd_neg {a b : Int} : a ∣ -b ↔ a ∣ b := by
+@[simp] protected theorem dvd_neg {a b : Int} : a ∣ -b ↔ a ∣ b := by
   constructor <;> exact fun ⟨k, e⟩ =>
     ⟨-k, by simp [← e, Int.neg_mul, Int.mul_neg, Int.neg_neg]⟩
 

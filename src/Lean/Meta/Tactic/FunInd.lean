@@ -673,10 +673,10 @@ Given a unary definition `foo` defined via `WellFounded.fixF`, derive a suitable
  -/
 def deriveUnaryInduction (name : Name) : MetaM Name := do
   let inductName := getFunInductName name
-  if ← hasConst inductName then return inductName
-
+  realizeConst name inductName (doRealize inductName)
+  return inductName
+where doRealize (inductName : Name) := do
   let info ← getConstInfoDefn name
-
   let varNames ← forallTelescope info.type fun xs _ => xs.mapM (·.fvarId!.getUserName)
 
   -- Uses of WellFounded.fix can be partially applied. Here we eta-expand the body
@@ -762,7 +762,6 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
       levelMask := usMask
       params := paramMask.map (cond · .param .dropped) ++ #[.target]
   }
-  return inductName
 
 /--
 Given `foo.mutual_induct`, defined `foo.induct`, `bar.induct` etc.
@@ -774,7 +773,7 @@ def projectMutualInduct (names : Array Name) (mutualInduct : Name) : MetaM Unit 
 
   for name in names, idx in [:names.size] do
     let inductName := getFunInductName name
-    unless ← hasConst inductName do
+    realizeConst name inductName do
       let value ← forallTelescope ci.type fun xs _body => do
         let value := .const ci.name (levelParams.map mkLevelParam)
         let value := mkAppN value xs
@@ -873,8 +872,9 @@ def unpackMutualInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name) : Meta
   else
     -- If there is no mutual recursion, we generate the `foo.induct` directly.
     getFunInductName eqnInfo.declNames[0]!
-  if ← hasConst inductName then return inductName
-
+  realizeConst eqnInfo.declNames[0]! inductName (doRealize inductName)
+  return inductName
+where doRealize inductName := do
   let ci ← getConstInfo unaryInductName
   let us := ci.levelParams
   let value := .const ci.name (us.map mkLevelParam)
@@ -910,7 +910,6 @@ def unpackMutualInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name) : Meta
 
   addDecl <| Declaration.thmDecl
     { name := inductName, levelParams := ci.levelParams, type, value }
-  return inductName
 
 
 def withLetDecls {α} (name : Name) (ts : Array Expr) (es : Array Expr) (k : Array Expr → MetaM α) : MetaM α := do
@@ -930,6 +929,13 @@ if needed, and `foo.induct` for all functions in the group.
 See module doc for details.
  -/
 def deriveInductionStructural (names : Array Name) (fixedParamPerms : FixedParamPerms) : MetaM Unit := do
+  let inductName :=
+    if names.size = 1 then
+      getFunInductName names[0]!
+    else
+      getMutualInductName names[0]!
+  realizeConst names[0]! inductName (doRealize inductName)
+where doRealize inductName := do
   let infos ← names.mapM getConstInfoDefn
   assert! infos.size > 0
   -- First open up the fixed parameters everywhere
@@ -1118,12 +1124,6 @@ def deriveInductionStructural (names : Array Name) (fixedParamPerms : FixedParam
   let usMask := funUs.map (levelParams.contains ·)
   let us := maskArray usMask funUs |>.toList
 
-  let inductName :=
-    if names.size = 1 then
-      getFunInductName names[0]!
-    else
-      getMutualInductName names[0]!
-
   addDecl <| Declaration.thmDecl
     { name := inductName, levelParams := us, type := eTyp, value := e' }
 
@@ -1153,6 +1153,8 @@ targets that are unchanged in each case, so simplify applying the lemma when the
 are not variables, to avoid having to generalize them.
 -/
 def deriveCases (name : Name) : MetaM Unit := do
+  let casesName := getFunCasesName name
+  realizeConst name casesName do
   mapError (f := (m!"Cannot derive functional cases principle (please report this issue)\n{indentD ·}")) do
     let info ← getConstInfo name
     let value ←
@@ -1197,7 +1199,6 @@ def deriveCases (name : Name) : MetaM Unit := do
     let usMask := funUs.map (levelParams.contains ·)
     let us := maskArray usMask funUs |>.toList
 
-    let casesName := getFunCasesName info.name
     addDecl <| Declaration.thmDecl
       { name := casesName, levelParams := us, type := eTyp, value := e' }
 

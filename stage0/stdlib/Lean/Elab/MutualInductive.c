@@ -562,6 +562,7 @@ lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_contains___at___private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_AccLevelState_push___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_instInhabitedInductiveElabStep2___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_accLevel_go___closed__8;
+lean_object* l_Lean_enableRealizationsForConst(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Command_withCtorRef___spec__1___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_computeFixedIndexBitMask_go___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getSepArgs(lean_object*);
@@ -27538,6 +27539,7 @@ x_26 = lean_ctor_get(x_18, 2);
 lean_inc(x_26);
 lean_dec(x_18);
 lean_inc(x_9);
+lean_inc(x_26);
 x_27 = l_Lean_mkConstWithLevelParams___at_Lean_Elab_Term_expandDeclId___spec__7(x_26, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 if (lean_obj_tag(x_27) == 0)
 {
@@ -27559,21 +27561,27 @@ lean_inc(x_1);
 x_31 = l_Lean_Elab_Term_addTermInfo_x27(x_19, x_28, x_1, x_2, x_30, x_20, x_9, x_10, x_11, x_12, x_13, x_14, x_29);
 if (lean_obj_tag(x_31) == 0)
 {
-lean_object* x_32; size_t x_33; size_t x_34; lean_object* x_35; 
+lean_object* x_32; lean_object* x_33; lean_object* x_34; size_t x_35; size_t x_36; lean_object* x_37; 
 x_32 = lean_ctor_get(x_31, 1);
 lean_inc(x_32);
 lean_dec(x_31);
-x_33 = 1;
-x_34 = lean_usize_add(x_7, x_33);
-x_35 = lean_box(0);
-x_7 = x_34;
-x_8 = x_35;
-x_15 = x_32;
+lean_inc(x_13);
+x_33 = l_Lean_enableRealizationsForConst(x_26, x_13, x_14, x_32);
+x_34 = lean_ctor_get(x_33, 1);
+lean_inc(x_34);
+lean_dec(x_33);
+x_35 = 1;
+x_36 = lean_usize_add(x_7, x_35);
+x_37 = lean_box(0);
+x_7 = x_36;
+x_8 = x_37;
+x_15 = x_34;
 goto _start;
 }
 else
 {
-uint8_t x_37; 
+uint8_t x_39; 
+lean_dec(x_26);
 lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
@@ -27582,29 +27590,30 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_2);
 lean_dec(x_1);
-x_37 = !lean_is_exclusive(x_31);
-if (x_37 == 0)
+x_39 = !lean_is_exclusive(x_31);
+if (x_39 == 0)
 {
 return x_31;
 }
 else
 {
-lean_object* x_38; lean_object* x_39; lean_object* x_40; 
-x_38 = lean_ctor_get(x_31, 0);
-x_39 = lean_ctor_get(x_31, 1);
-lean_inc(x_39);
-lean_inc(x_38);
+lean_object* x_40; lean_object* x_41; lean_object* x_42; 
+x_40 = lean_ctor_get(x_31, 0);
+x_41 = lean_ctor_get(x_31, 1);
+lean_inc(x_41);
+lean_inc(x_40);
 lean_dec(x_31);
-x_40 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_40, 0, x_38);
-lean_ctor_set(x_40, 1, x_39);
-return x_40;
+x_42 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_42, 0, x_40);
+lean_ctor_set(x_42, 1, x_41);
+return x_42;
 }
 }
 }
 else
 {
-uint8_t x_41; 
+uint8_t x_43; 
+lean_dec(x_26);
 lean_dec(x_19);
 lean_dec(x_14);
 lean_dec(x_13);
@@ -27614,23 +27623,23 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_2);
 lean_dec(x_1);
-x_41 = !lean_is_exclusive(x_27);
-if (x_41 == 0)
+x_43 = !lean_is_exclusive(x_27);
+if (x_43 == 0)
 {
 return x_27;
 }
 else
 {
-lean_object* x_42; lean_object* x_43; lean_object* x_44; 
-x_42 = lean_ctor_get(x_27, 0);
-x_43 = lean_ctor_get(x_27, 1);
-lean_inc(x_43);
-lean_inc(x_42);
+lean_object* x_44; lean_object* x_45; lean_object* x_46; 
+x_44 = lean_ctor_get(x_27, 0);
+x_45 = lean_ctor_get(x_27, 1);
+lean_inc(x_45);
+lean_inc(x_44);
 lean_dec(x_27);
-x_44 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_44, 0, x_42);
-lean_ctor_set(x_44, 1, x_43);
-return x_44;
+x_46 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_46, 0, x_44);
+lean_ctor_set(x_46, 1, x_45);
+return x_46;
 }
 }
 }

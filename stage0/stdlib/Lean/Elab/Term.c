@@ -629,7 +629,6 @@ static lean_object* l_Lean_Elab_Term_instMonadMacroAdapterTermElabM___closed__3;
 lean_object* lean_io_promise_resolve(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_elabUsingElabFnsAux___lambda__1___closed__1;
 extern lean_object* l_Lean_Elab_instInhabitedInfoTree;
-LEAN_EXPORT lean_object* l_Lean_Option_set___at_Lean_Elab_Term_withoutMacroStackAtErr___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_levelMVarToParam___lambda__1___boxed(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_logAt___at_Lean_Elab_Term_MVarErrorInfo_logError___spec__2___closed__2;
@@ -1001,7 +1000,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_Term_0__Lean
 static lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_Term___hyg_18870____closed__9;
 LEAN_EXPORT lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Term___hyg_21481____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at_Lean_Elab_Term_mkCoe___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Option_set___at_Lean_Elab_Term_withoutMacroStackAtErr___spec__1(lean_object*, lean_object*, uint8_t);
 uint64_t l_Lean_Expr_hash(lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Term___hyg_21402____closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1981,6 +1979,7 @@ static lean_object* l_Lean_Linter_checkDeprecated___at___private_Lean_Elab_Term_
 uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_406_(uint8_t, uint8_t);
 uint8_t l_Lean_MessageLog_hasErrors(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_withDeclName___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(lean_object*, lean_object*, uint8_t);
 static lean_object* _init_l_Lean_Elab_Term_instInhabitedSyntheticMVarKind___closed__1() {
 _start:
 {
@@ -38027,19 +38026,6 @@ lean_dec(x_1);
 return x_12;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Option_set___at_Lean_Elab_Term_withoutMacroStackAtErr___spec__1(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_ctor_get(x_2, 0);
-lean_inc(x_4);
-lean_dec(x_2);
-x_5 = lean_alloc_ctor(1, 0, 1);
-lean_ctor_set_uint8(x_5, 0, x_3);
-x_6 = l_Lean_KVMap_insertCore(x_1, x_4, x_5);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_withoutMacroStackAtErr___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -38051,7 +38037,7 @@ lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_obje
 x_10 = lean_ctor_get(x_6, 2);
 x_11 = l_Lean_Elab_addMacroStack___at_Lean_Elab_Term_instAddErrorMessageContextTermElabM___spec__1___closed__1;
 x_12 = 0;
-x_13 = l_Lean_Option_set___at_Lean_Elab_Term_withoutMacroStackAtErr___spec__1(x_10, x_11, x_12);
+x_13 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_10, x_11, x_12);
 lean_ctor_set(x_6, 2, x_13);
 x_14 = lean_apply_7(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_14;
@@ -38088,7 +38074,7 @@ lean_inc(x_15);
 lean_dec(x_6);
 x_29 = l_Lean_Elab_addMacroStack___at_Lean_Elab_Term_instAddErrorMessageContextTermElabM___spec__1___closed__1;
 x_30 = 0;
-x_31 = l_Lean_Option_set___at_Lean_Elab_Term_withoutMacroStackAtErr___spec__1(x_17, x_29, x_30);
+x_31 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_17, x_29, x_30);
 x_32 = lean_alloc_ctor(0, 12, 2);
 lean_ctor_set(x_32, 0, x_15);
 lean_ctor_set(x_32, 1, x_16);
@@ -38115,16 +38101,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Elab_Term_withoutMacroStackAtErr___rarg), 8, 0);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Option_set___at_Lean_Elab_Term_withoutMacroStackAtErr___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = lean_unbox(x_3);
-lean_dec(x_3);
-x_5 = l_Lean_Option_set___at_Lean_Elab_Term_withoutMacroStackAtErr___spec__1(x_1, x_2, x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_Lean_Elab_Term_ContainsPendingMVar_visit___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

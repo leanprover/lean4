@@ -205,6 +205,8 @@ private def elabHeaders (views : Array DefView)
               let pendingMVarIds ← getMVars type
               discard <| logUnassignedUsingErrorInfos pendingMVarIds <|
                 getPendingMVarErrorMessage views
+              -- Abstract proofs occuring in the type of the definition
+              type ← Meta.abstractNestedProofs declName type
             let newHeader : DefViewElabHeaderData := {
               declName, shortDeclName, type, levelNames, binderIds
               numParams := xs.size

@@ -254,7 +254,6 @@ static lean_object* l_Lean_PrettyPrinter_Delaborator_delab___lambda__2___closed_
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_mkAppUnexpanderAttribute___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabFor___closed__1;
 lean_object* l_Lean_Elab_addConstInfo___at_Lean_PrettyPrinter_mkFormatterAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Option_set___at_Lean_Elab_Term_withoutMacroStackAtErr___spec__1(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_attrApp__delab_____closed__8;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_annotateTermInfoUnlessAnnotated___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
@@ -483,6 +482,7 @@ static lean_object* l_Lean_PrettyPrinter_Delaborator_shouldOmitProof___lambda__1
 static lean_object* l_Lean_PrettyPrinter_Delaborator___aux__Lean__PrettyPrinter__Delaborator__Basic______macroRules__Lean__PrettyPrinter__Delaborator__attrApp__delab____1___closed__11;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_instMonadStateOfHoleIteratorDelabM___closed__4;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_mkAppUnexpanderAttribute___closed__5;
+lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(lean_object*, lean_object*, uint8_t);
 static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_105____closed__1() {
 _start:
 {
@@ -12354,7 +12354,7 @@ x_24 = lean_ctor_get(x_18, 1);
 lean_inc(x_24);
 lean_dec(x_18);
 x_25 = 1;
-x_26 = l_Lean_Option_set___at_Lean_Elab_Term_withoutMacroStackAtErr___spec__1(x_10, x_11, x_25);
+x_26 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_10, x_11, x_25);
 x_27 = lean_box(0);
 x_28 = l_Lean_PrettyPrinter_delabCore___rarg___lambda__5(x_1, x_2, x_3, x_26, x_27, x_5, x_6, x_7, x_8, x_24);
 return x_28;

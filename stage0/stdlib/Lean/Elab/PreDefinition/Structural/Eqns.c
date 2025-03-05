@@ -92,7 +92,6 @@ lean_object* l_Lean_Elab_Eqns_deltaRHS_x3f(lean_object*, lean_object*, lean_obje
 lean_object* l_Lean_Elab_Eqns_getUnfoldFor_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
-lean_object* l_Lean_Option_set___at_Lean_Elab_Term_withoutMacroStackAtErr___spec__1(lean_object*, lean_object*, uint8_t);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_go___lambda__1___closed__1;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_MapDeclarationExtension_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -184,6 +183,7 @@ static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_
 static lean_object* l_Lean_Elab_Structural_mkEqns___closed__3;
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_go___lambda__1___closed__7;
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_go___lambda__1___closed__17;
+lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(lean_object*, lean_object*, uint8_t);
 static lean_object* _init_l_Lean_Elab_Structural_instInhabitedEqnInfo___closed__1() {
 _start:
 {
@@ -3375,7 +3375,7 @@ x_13 = lean_ctor_get(x_4, 2);
 lean_inc(x_13);
 x_14 = l_Lean_Elab_Structural_mkEqns___closed__1;
 x_15 = 0;
-x_16 = l_Lean_Option_set___at_Lean_Elab_Term_withoutMacroStackAtErr___spec__1(x_13, x_14, x_15);
+x_16 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_13, x_14, x_15);
 x_17 = l_Lean_Elab_Structural_mkEqns___closed__2;
 x_18 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_16, x_17);
 x_19 = lean_st_ref_get(x_5, x_6);

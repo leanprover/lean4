@@ -655,6 +655,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitFnArgs(size_t, size_t, uint8_t, 
 uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_callLeanIsExclusive(size_t, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_buildIfThen_____closed__3;
+lean_object* l_panic___at___private_Lean_Environment_0__Lean_Environment_mkFallbackConstInfo___spec__1(lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_emitApp___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_getLLVMModule___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_callLeanIOMkWorld___closed__2;
@@ -815,7 +816,6 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_IR_EmitLLVM_emitJmp___lambda__2___closed__2;
 static lean_object* l_Lean_IR_EmitLLVM_emitDeclInit___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_IR_emitLLVM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic___at_Lean_Environment_addConstAsync___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_toCInitName(size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_callLeanBox(size_t, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_collectUsedDecls(lean_object*, lean_object*, lean_object*);
@@ -58662,7 +58662,7 @@ if (lean_obj_tag(x_92) == 0)
 {
 lean_object* x_142; lean_object* x_143; 
 x_142 = l_Lean_IR_EmitLLVM_emitMainFn___lambda__6___closed__8;
-x_143 = l_panic___at_Lean_Environment_addConstAsync___spec__2(x_142);
+x_143 = l_panic___at___private_Lean_Environment_0__Lean_Environment_mkFallbackConstInfo___spec__1(x_142);
 x_94 = x_143;
 goto block_141;
 }

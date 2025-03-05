@@ -70,7 +70,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_saveEqnCandidate___lambda__1(
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_Try_Collector_checkInductive___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_Meta_Try_Collector_main_go___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Meta_FunInd_Collector_visit___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Try_Collector_OrdSet_isEmpty___rarg(lean_object*);
 static lean_object* l_Lean_Meta_Try_Collector_instInhabitedOrdSet___rarg___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_saveFunInd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -94,7 +93,6 @@ lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0_
 lean_object* l_Lean_Meta_getEqnsFor_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_mkPtrSet___rarg(lean_object*);
-lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Meta_FunInd_Collector_visit___spec__4(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_getEqDefDecl_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Try_Collector_OrdSet_insert___at_Lean_Meta_Try_Collector_saveLibSearchCandidates___spec__1___closed__1;
@@ -119,6 +117,7 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_collect(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_isEligible___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_OrdSet_isEmpty___rarg___boxed(lean_object*);
+uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Expr_NumObjs_visit___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_inCurrentModule___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_getEqDefDecl_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -204,6 +203,7 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_saveFunInd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at_Lean_Meta_Try_Collector_checkInductive___spec__1___closed__4;
 size_t lean_usize_land(size_t, size_t);
+lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Expr_NumObjs_visit___spec__2(lean_object*);
 extern lean_object* l_Lean_instHashableName;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 static lean_object* _init_l_Lean_Meta_Try_Collector_instInhabitedOrdSet___rarg___closed__1() {
@@ -4355,7 +4355,7 @@ x_29 = lean_usize_sub(x_27, x_28);
 x_30 = lean_usize_land(x_26, x_29);
 x_31 = lean_array_uget(x_14, x_30);
 lean_dec(x_14);
-x_32 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Meta_FunInd_Collector_visit___spec__1(x_1, x_31);
+x_32 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Expr_NumObjs_visit___spec__1(x_1, x_31);
 lean_dec(x_31);
 if (x_32 == 0)
 {
@@ -4378,7 +4378,7 @@ lean_dec(x_90);
 x_92 = lean_usize_sub(x_91, x_28);
 x_93 = lean_usize_land(x_26, x_92);
 x_94 = lean_array_uget(x_89, x_93);
-x_95 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Meta_FunInd_Collector_visit___spec__1(x_1, x_94);
+x_95 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Expr_NumObjs_visit___spec__1(x_1, x_94);
 if (x_95 == 0)
 {
 lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; uint8_t x_106; 
@@ -4404,7 +4404,7 @@ lean_dec(x_104);
 if (x_106 == 0)
 {
 lean_object* x_107; lean_object* x_108; lean_object* x_109; 
-x_107 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Meta_FunInd_Collector_visit___spec__4(x_100);
+x_107 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Expr_NumObjs_visit___spec__2(x_100);
 lean_ctor_set(x_85, 1, x_107);
 lean_ctor_set(x_85, 0, x_97);
 x_108 = lean_st_ref_set(x_2, x_85, x_86);
@@ -4453,7 +4453,7 @@ lean_dec(x_116);
 x_118 = lean_usize_sub(x_117, x_28);
 x_119 = lean_usize_land(x_26, x_118);
 x_120 = lean_array_uget(x_115, x_119);
-x_121 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Meta_FunInd_Collector_visit___spec__1(x_1, x_120);
+x_121 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Expr_NumObjs_visit___spec__1(x_1, x_120);
 if (x_121 == 0)
 {
 lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; uint8_t x_132; 
@@ -4479,7 +4479,7 @@ lean_dec(x_130);
 if (x_132 == 0)
 {
 lean_object* x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; 
-x_133 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Meta_FunInd_Collector_visit___spec__4(x_126);
+x_133 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Expr_NumObjs_visit___spec__2(x_126);
 x_134 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_134, 0, x_123);
 lean_ctor_set(x_134, 1, x_133);

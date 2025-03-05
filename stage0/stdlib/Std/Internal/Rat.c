@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Rat
-// Imports: Init.NotationExtra Init.Data.ToString.Macro Init.Data.Int.DivMod.Basic Init.Data.Nat.Gcd
+// Imports: Init.NotationExtra Init.Data.ToString.Macro Init.Data.Int.DivMod.Basic Init.Data.Int.Linear Init.Data.Nat.Gcd
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,14 +16,12 @@ extern "C" {
 lean_object* lean_nat_gcd(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_instBEqRat;
 LEAN_EXPORT lean_object* l_Std_Internal_Rat_add(lean_object*, lean_object*);
-lean_object* lean_int_mod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_mkRat(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Rat_instDiv___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Std_Internal_Rat_0__Std_Internal_decEqRat____x40_Std_Internal_Rat___hyg_111_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Rat_instLE;
 LEAN_EXPORT lean_object* l_Std_Internal_instReprRat(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Rat_div___boxed(lean_object*, lean_object*);
-static lean_object* l_Std_Internal_Rat_floor___closed__1;
 LEAN_EXPORT lean_object* l_Std_Internal_Rat_instSub;
 LEAN_EXPORT lean_object* l_Std_Internal_Rat_instAdd;
 LEAN_EXPORT uint8_t l___private_Std_Internal_Rat_0__Std_Internal_beqRat____x40_Std_Internal_Rat___hyg_37_(lean_object*, lean_object*);
@@ -53,6 +51,7 @@ static lean_object* l_Std_Internal_Rat_instSub___closed__1;
 LEAN_EXPORT lean_object* l_Std_Internal_Rat_ceil(lean_object*);
 static lean_object* l_Std_Internal_instInhabitedRat___closed__2;
 LEAN_EXPORT lean_object* l_Std_Internal_Rat_lt___boxed(lean_object*, lean_object*);
+lean_object* l_Int_Linear_cdiv(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Internal_Rat_instDecidableLe(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_instToStringRat___closed__1;
 LEAN_EXPORT lean_object* l_Std_Internal_instReprRat___boxed(lean_object*, lean_object*);
@@ -1094,15 +1093,6 @@ return x_8;
 }
 }
 }
-static lean_object* _init_l_Std_Internal_Rat_floor___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_nat_to_int(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Internal_Rat_floor(lean_object* x_1) {
 _start:
 {
@@ -1113,37 +1103,24 @@ x_3 = lean_unsigned_to_nat(1u);
 x_4 = lean_nat_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 lean_dec(x_1);
 x_6 = lean_nat_to_int(x_2);
-x_7 = lean_int_mod(x_5, x_6);
+x_7 = lean_int_ediv(x_5, x_6);
 lean_dec(x_6);
-x_8 = l_Std_Internal_instInhabitedRat___closed__1;
-x_9 = lean_int_dec_lt(x_5, x_8);
 lean_dec(x_5);
-if (x_9 == 0)
-{
 return x_7;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; 
-x_10 = l_Std_Internal_Rat_floor___closed__1;
-x_11 = lean_int_sub(x_7, x_10);
-lean_dec(x_7);
-return x_11;
-}
-}
-else
-{
-lean_object* x_12; 
+lean_object* x_8; 
 lean_dec(x_2);
-x_12 = lean_ctor_get(x_1, 0);
-lean_inc(x_12);
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
 lean_dec(x_1);
-return x_12;
+return x_8;
 }
 }
 }
@@ -1157,37 +1134,24 @@ x_3 = lean_unsigned_to_nat(1u);
 x_4 = lean_nat_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 lean_dec(x_1);
 x_6 = lean_nat_to_int(x_2);
-x_7 = lean_int_mod(x_5, x_6);
+x_7 = l_Int_Linear_cdiv(x_5, x_6);
 lean_dec(x_6);
-x_8 = l_Std_Internal_instInhabitedRat___closed__1;
-x_9 = lean_int_dec_lt(x_8, x_5);
 lean_dec(x_5);
-if (x_9 == 0)
-{
 return x_7;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; 
-x_10 = l_Std_Internal_Rat_floor___closed__1;
-x_11 = lean_int_add(x_7, x_10);
-lean_dec(x_7);
-return x_11;
-}
-}
-else
-{
-lean_object* x_12; 
+lean_object* x_8; 
 lean_dec(x_2);
-x_12 = lean_ctor_get(x_1, 0);
-lean_inc(x_12);
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
 lean_dec(x_1);
-return x_12;
+return x_8;
 }
 }
 }
@@ -1351,6 +1315,7 @@ return x_3;
 lean_object* initialize_Init_NotationExtra(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_DivMod_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_Linear(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Gcd(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Rat(uint8_t builtin, lean_object* w) {
@@ -1364,6 +1329,9 @@ res = initialize_Init_Data_ToString_Macro(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Int_DivMod_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Linear(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Gcd(builtin, lean_io_mk_world());
@@ -1391,8 +1359,6 @@ l_Std_Internal_instReprRat___closed__2 = _init_l_Std_Internal_instReprRat___clos
 lean_mark_persistent(l_Std_Internal_instReprRat___closed__2);
 l_Std_Internal_mkRat___closed__1 = _init_l_Std_Internal_mkRat___closed__1();
 lean_mark_persistent(l_Std_Internal_mkRat___closed__1);
-l_Std_Internal_Rat_floor___closed__1 = _init_l_Std_Internal_Rat_floor___closed__1();
-lean_mark_persistent(l_Std_Internal_Rat_floor___closed__1);
 l_Std_Internal_Rat_instLT = _init_l_Std_Internal_Rat_instLT();
 lean_mark_persistent(l_Std_Internal_Rat_instLT);
 l_Std_Internal_Rat_instLE = _init_l_Std_Internal_Rat_instLE();

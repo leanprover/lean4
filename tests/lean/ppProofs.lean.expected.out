@@ -31,7 +31,7 @@ context:
 b : β
 a : α
 h : α = β
-⊢ id h ▸ a = b
+⊢ _example.proof_1 h ▸ a = b
 let x := ⋯;
 0 : Nat
 let x := Nat.le_succ 1;

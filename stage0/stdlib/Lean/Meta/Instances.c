@@ -360,7 +360,7 @@ LEAN_EXPORT lean_object* l_List_filterTR_loop___at___private_Lean_Meta_Instances
 LEAN_EXPORT lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_4312____spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_3706____closed__11;
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_3706____lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 uint64_t lean_uint64_shift_left(uint64_t, uint64_t);
 lean_object* l_Lean_ScopedEnvExtension_addCore___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_erase___at_Lean_Meta_Instances_eraseCore___spec__1(lean_object*, lean_object*);
@@ -15569,21 +15569,26 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_Meta_getDefaultInstancesPriorities___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 lean_dec(x_1);
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc(x_4);
 lean_dec(x_3);
-x_5 = l_Lean_Meta_instInhabitedDefaultInstances;
-x_6 = l_Lean_Meta_addDefaultInstance___lambda__1___closed__1;
-x_7 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_5, x_6, x_2);
-x_8 = lean_ctor_get(x_7, 1);
-lean_inc(x_8);
-lean_dec(x_7);
-x_9 = lean_apply_2(x_4, lean_box(0), x_8);
-return x_9;
+x_5 = l_Lean_Meta_defaultInstanceExtension;
+x_6 = lean_ctor_get(x_5, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*3);
+lean_dec(x_6);
+x_8 = l_Lean_Meta_instInhabitedDefaultInstances;
+x_9 = l_Lean_Meta_addDefaultInstance___lambda__1___closed__1;
+x_10 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_8, x_9, x_2, x_7);
+x_11 = lean_ctor_get(x_10, 1);
+lean_inc(x_11);
+lean_dec(x_10);
+x_12 = lean_apply_2(x_4, lean_box(0), x_11);
+return x_12;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_getDefaultInstancesPriorities___rarg(lean_object* x_1, lean_object* x_2) {
@@ -15612,36 +15617,41 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Meta_getDefaultInstances___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec(x_1);
 x_5 = lean_ctor_get(x_4, 1);
 lean_inc(x_5);
 lean_dec(x_4);
-x_6 = l_Lean_Meta_instInhabitedDefaultInstances;
-x_7 = l_Lean_Meta_addDefaultInstance___lambda__1___closed__1;
-x_8 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_6, x_7, x_3);
-x_9 = lean_ctor_get(x_8, 0);
-lean_inc(x_9);
-lean_dec(x_8);
-x_10 = l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(x_9, x_2);
-lean_dec(x_9);
-if (lean_obj_tag(x_10) == 0)
+x_6 = l_Lean_Meta_defaultInstanceExtension;
+x_7 = lean_ctor_get(x_6, 0);
+lean_inc(x_7);
+x_8 = lean_ctor_get_uint8(x_7, sizeof(void*)*3);
+lean_dec(x_7);
+x_9 = l_Lean_Meta_instInhabitedDefaultInstances;
+x_10 = l_Lean_Meta_addDefaultInstance___lambda__1___closed__1;
+x_11 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_9, x_10, x_3, x_8);
+x_12 = lean_ctor_get(x_11, 0);
+lean_inc(x_12);
+lean_dec(x_11);
+x_13 = l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(x_12, x_2);
+lean_dec(x_12);
+if (lean_obj_tag(x_13) == 0)
 {
-lean_object* x_11; lean_object* x_12; 
-x_11 = lean_box(0);
-x_12 = lean_apply_2(x_5, lean_box(0), x_11);
-return x_12;
+lean_object* x_14; lean_object* x_15; 
+x_14 = lean_box(0);
+x_15 = lean_apply_2(x_5, lean_box(0), x_14);
+return x_15;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; 
-x_13 = lean_ctor_get(x_10, 0);
-lean_inc(x_13);
-lean_dec(x_10);
-x_14 = lean_apply_2(x_5, lean_box(0), x_13);
-return x_14;
+lean_object* x_16; lean_object* x_17; 
+x_16 = lean_ctor_get(x_13, 0);
+lean_inc(x_16);
+lean_dec(x_13);
+x_17 = lean_apply_2(x_5, lean_box(0), x_16);
+return x_17;
 }
 }
 }

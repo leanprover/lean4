@@ -136,7 +136,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_CheckAssignmentQuick_check_unsafe__1___boxe
 LEAN_EXPORT lean_object* lean_checked_assign(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_cacheResult___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__5(lean_object*, lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 uint64_t lean_uint64_lor(uint64_t, uint64_t);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_checkMVar___spec__11(lean_object*, lean_object*, size_t, size_t);
@@ -288,7 +287,6 @@ static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___c
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEqCacheKind_noConfusion___rarg___lambda__1(lean_object*);
 extern lean_object* l_Lean_trace_profiler_useHeartbeats;
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__10;
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_Expr_mvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_checkMVar___spec__33___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -668,10 +666,8 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_ExprDefEq___hyg_21138___
 lean_object* l_Lean_Meta_getResetPostponed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at_Lean_Meta_CheckAssignment_checkMVar___spec__38(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___lambda__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__5___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__6(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqQuickOther___closed__4;
 uint8_t l_Lean_LocalDecl_isLet(lean_object*);
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_typeOccursCheck___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Meta_ParamInfo_isInstImplicit(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckAssignment_checkMVar___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -859,6 +855,7 @@ lean_object* l_Lean_Meta_unfoldDefinition_x3f(lean_object*, uint8_t, lean_object
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqProj_isDefEqSingleton___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unfoldDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckAssignment_checkMVar___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Expr_FoldConstsImpl_fold_visit___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkTypesAndAssign___lambda__1___closed__3;
 lean_object* l_StateRefT_x27_lift(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
@@ -1018,7 +1015,6 @@ lean_object* l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(lean
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqArgs___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_CheckAssignment_checkMVar___lambda__5___closed__3;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_ExprDefEq___hyg_45____closed__3;
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isDefEqNative(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1052,7 +1048,6 @@ lean_object* l_Lean_LocalDecl_value_x3f(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_Meta_CheckAssignment_checkMVar___lambda__2___closed__2;
 lean_object* l_Lean_LocalDecl_toExpr(lean_object*);
-LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__2(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqEtaStruct_go___closed__5;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_checkMVar___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_backward_isDefEq_lazyProjDelta;
@@ -1120,6 +1115,7 @@ uint8_t l_Lean_Meta_ParamInfo_isExplicit(lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__12;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_CheckAssignment_checkMVar___spec__57___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Meta_CheckAssignment_checkMVar___spec__45___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Expr_FoldConstsImpl_fold_visit___spec__2(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_expandDelayedAssigned_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqLeft___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -58924,245 +58920,6 @@ return x_13;
 }
 }
 }
-LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__2(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-uint8_t x_3; 
-x_3 = 0;
-return x_3;
-}
-else
-{
-lean_object* x_4; lean_object* x_5; size_t x_6; size_t x_7; uint8_t x_8; 
-x_4 = lean_ctor_get(x_2, 0);
-x_5 = lean_ctor_get(x_2, 2);
-x_6 = lean_ptr_addr(x_4);
-x_7 = lean_ptr_addr(x_1);
-x_8 = lean_usize_dec_eq(x_6, x_7);
-if (x_8 == 0)
-{
-x_2 = x_5;
-goto _start;
-}
-else
-{
-uint8_t x_10; 
-x_10 = 1;
-return x_10;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__5(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_3) == 0)
-{
-lean_dec(x_1);
-return x_2;
-}
-else
-{
-uint8_t x_4; 
-x_4 = !lean_is_exclusive(x_3);
-if (x_4 == 0)
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint64_t x_9; uint64_t x_10; uint64_t x_11; uint64_t x_12; uint64_t x_13; uint64_t x_14; uint64_t x_15; size_t x_16; size_t x_17; size_t x_18; size_t x_19; size_t x_20; lean_object* x_21; lean_object* x_22; 
-x_5 = lean_ctor_get(x_3, 0);
-x_6 = lean_ctor_get(x_3, 2);
-x_7 = lean_array_get_size(x_2);
-lean_inc(x_1);
-lean_inc(x_5);
-x_8 = lean_apply_1(x_1, x_5);
-x_9 = lean_unbox_uint64(x_8);
-lean_dec(x_8);
-x_10 = 32;
-x_11 = lean_uint64_shift_right(x_9, x_10);
-x_12 = lean_uint64_xor(x_9, x_11);
-x_13 = 16;
-x_14 = lean_uint64_shift_right(x_12, x_13);
-x_15 = lean_uint64_xor(x_12, x_14);
-x_16 = lean_uint64_to_usize(x_15);
-x_17 = lean_usize_of_nat(x_7);
-lean_dec(x_7);
-x_18 = 1;
-x_19 = lean_usize_sub(x_17, x_18);
-x_20 = lean_usize_land(x_16, x_19);
-x_21 = lean_array_uget(x_2, x_20);
-lean_ctor_set(x_3, 2, x_21);
-x_22 = lean_array_uset(x_2, x_20, x_3);
-x_2 = x_22;
-x_3 = x_6;
-goto _start;
-}
-else
-{
-lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; uint64_t x_29; uint64_t x_30; uint64_t x_31; uint64_t x_32; uint64_t x_33; uint64_t x_34; uint64_t x_35; size_t x_36; size_t x_37; size_t x_38; size_t x_39; size_t x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
-x_24 = lean_ctor_get(x_3, 0);
-x_25 = lean_ctor_get(x_3, 1);
-x_26 = lean_ctor_get(x_3, 2);
-lean_inc(x_26);
-lean_inc(x_25);
-lean_inc(x_24);
-lean_dec(x_3);
-x_27 = lean_array_get_size(x_2);
-lean_inc(x_1);
-lean_inc(x_24);
-x_28 = lean_apply_1(x_1, x_24);
-x_29 = lean_unbox_uint64(x_28);
-lean_dec(x_28);
-x_30 = 32;
-x_31 = lean_uint64_shift_right(x_29, x_30);
-x_32 = lean_uint64_xor(x_29, x_31);
-x_33 = 16;
-x_34 = lean_uint64_shift_right(x_32, x_33);
-x_35 = lean_uint64_xor(x_32, x_34);
-x_36 = lean_uint64_to_usize(x_35);
-x_37 = lean_usize_of_nat(x_27);
-lean_dec(x_27);
-x_38 = 1;
-x_39 = lean_usize_sub(x_37, x_38);
-x_40 = lean_usize_land(x_36, x_39);
-x_41 = lean_array_uget(x_2, x_40);
-x_42 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_42, 0, x_24);
-lean_ctor_set(x_42, 1, x_25);
-lean_ctor_set(x_42, 2, x_41);
-x_43 = lean_array_uset(x_2, x_40, x_42);
-x_2 = x_43;
-x_3 = x_26;
-goto _start;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__5___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__6(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-return x_1;
-}
-else
-{
-uint8_t x_3; 
-x_3 = !lean_is_exclusive(x_2);
-if (x_3 == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; size_t x_7; uint64_t x_8; uint64_t x_9; uint64_t x_10; uint64_t x_11; uint64_t x_12; uint64_t x_13; uint64_t x_14; uint64_t x_15; uint64_t x_16; size_t x_17; size_t x_18; size_t x_19; size_t x_20; size_t x_21; lean_object* x_22; lean_object* x_23; 
-x_4 = lean_ctor_get(x_2, 0);
-x_5 = lean_ctor_get(x_2, 2);
-x_6 = lean_array_get_size(x_1);
-x_7 = lean_ptr_addr(x_4);
-x_8 = lean_usize_to_uint64(x_7);
-x_9 = 11;
-x_10 = lean_uint64_mix_hash(x_8, x_9);
-x_11 = 32;
-x_12 = lean_uint64_shift_right(x_10, x_11);
-x_13 = lean_uint64_xor(x_10, x_12);
-x_14 = 16;
-x_15 = lean_uint64_shift_right(x_13, x_14);
-x_16 = lean_uint64_xor(x_13, x_15);
-x_17 = lean_uint64_to_usize(x_16);
-x_18 = lean_usize_of_nat(x_6);
-lean_dec(x_6);
-x_19 = 1;
-x_20 = lean_usize_sub(x_18, x_19);
-x_21 = lean_usize_land(x_17, x_20);
-x_22 = lean_array_uget(x_1, x_21);
-lean_ctor_set(x_2, 2, x_22);
-x_23 = lean_array_uset(x_1, x_21, x_2);
-x_1 = x_23;
-x_2 = x_5;
-goto _start;
-}
-else
-{
-lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; size_t x_29; uint64_t x_30; uint64_t x_31; uint64_t x_32; uint64_t x_33; uint64_t x_34; uint64_t x_35; uint64_t x_36; uint64_t x_37; uint64_t x_38; size_t x_39; size_t x_40; size_t x_41; size_t x_42; size_t x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; 
-x_25 = lean_ctor_get(x_2, 0);
-x_26 = lean_ctor_get(x_2, 1);
-x_27 = lean_ctor_get(x_2, 2);
-lean_inc(x_27);
-lean_inc(x_26);
-lean_inc(x_25);
-lean_dec(x_2);
-x_28 = lean_array_get_size(x_1);
-x_29 = lean_ptr_addr(x_25);
-x_30 = lean_usize_to_uint64(x_29);
-x_31 = 11;
-x_32 = lean_uint64_mix_hash(x_30, x_31);
-x_33 = 32;
-x_34 = lean_uint64_shift_right(x_32, x_33);
-x_35 = lean_uint64_xor(x_32, x_34);
-x_36 = 16;
-x_37 = lean_uint64_shift_right(x_35, x_36);
-x_38 = lean_uint64_xor(x_35, x_37);
-x_39 = lean_uint64_to_usize(x_38);
-x_40 = lean_usize_of_nat(x_28);
-lean_dec(x_28);
-x_41 = 1;
-x_42 = lean_usize_sub(x_40, x_41);
-x_43 = lean_usize_land(x_39, x_42);
-x_44 = lean_array_uget(x_1, x_43);
-x_45 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_45, 0, x_25);
-lean_ctor_set(x_45, 1, x_26);
-lean_ctor_set(x_45, 2, x_44);
-x_46 = lean_array_uset(x_1, x_43, x_45);
-x_1 = x_46;
-x_2 = x_27;
-goto _start;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_array_get_size(x_2);
-x_5 = lean_nat_dec_lt(x_1, x_4);
-lean_dec(x_4);
-if (x_5 == 0)
-{
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_6 = lean_array_fget(x_2, x_1);
-x_7 = lean_box(0);
-x_8 = lean_array_fset(x_2, x_1, x_7);
-x_9 = l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__5___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__6(x_3, x_6);
-x_10 = lean_unsigned_to_nat(1u);
-x_11 = lean_nat_add(x_1, x_10);
-lean_dec(x_1);
-x_1 = x_11;
-x_2 = x_8;
-x_3 = x_9;
-goto _start;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__3(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_2 = lean_array_get_size(x_1);
-x_3 = lean_unsigned_to_nat(2u);
-x_4 = lean_nat_mul(x_2, x_3);
-lean_dec(x_2);
-x_5 = lean_box(0);
-x_6 = lean_mk_array(x_4, x_5);
-x_7 = lean_unsigned_to_nat(0u);
-x_8 = l_Std_DHashMap_Internal_Raw_u2080_expand_go___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__4(x_7, x_1, x_6);
-return x_8;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___lambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -59403,7 +59160,7 @@ x_57 = 1;
 x_58 = lean_usize_sub(x_56, x_57);
 x_59 = lean_usize_land(x_55, x_58);
 x_60 = lean_array_uget(x_43, x_59);
-x_61 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__2(x_1, x_60);
+x_61 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Expr_FoldConstsImpl_fold_visit___spec__1(x_1, x_60);
 if (x_61 == 0)
 {
 lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; uint8_t x_72; 
@@ -59429,7 +59186,7 @@ lean_dec(x_70);
 if (x_72 == 0)
 {
 lean_object* x_73; 
-x_73 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__3(x_66);
+x_73 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Expr_FoldConstsImpl_fold_visit___spec__2(x_66);
 lean_ctor_set(x_17, 1, x_73);
 lean_ctor_set(x_17, 0, x_63);
 switch (lean_obj_tag(x_1)) {
@@ -60409,7 +60166,7 @@ x_275 = 1;
 x_276 = lean_usize_sub(x_274, x_275);
 x_277 = lean_usize_land(x_273, x_276);
 x_278 = lean_array_uget(x_261, x_277);
-x_279 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__2(x_1, x_278);
+x_279 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Expr_FoldConstsImpl_fold_visit___spec__1(x_1, x_278);
 if (x_279 == 0)
 {
 lean_object* x_280; lean_object* x_281; lean_object* x_282; lean_object* x_283; lean_object* x_284; lean_object* x_285; lean_object* x_286; lean_object* x_287; lean_object* x_288; lean_object* x_289; uint8_t x_290; 
@@ -60435,7 +60192,7 @@ lean_dec(x_288);
 if (x_290 == 0)
 {
 lean_object* x_291; lean_object* x_292; 
-x_291 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__3(x_284);
+x_291 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Expr_FoldConstsImpl_fold_visit___spec__2(x_284);
 x_292 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_292, 0, x_281);
 lean_ctor_set(x_292, 1, x_291);
@@ -61481,7 +61238,7 @@ x_25 = lean_usize_sub(x_23, x_24);
 x_26 = lean_usize_land(x_22, x_25);
 x_27 = lean_array_uget(x_10, x_26);
 lean_dec(x_10);
-x_28 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__2(x_1, x_27);
+x_28 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Expr_FoldConstsImpl_fold_visit___spec__1(x_1, x_27);
 lean_dec(x_27);
 if (x_28 == 0)
 {
@@ -61565,17 +61322,6 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_8 = lean_box(x_7);
 return x_8;
-}
-}
-LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__2(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-x_4 = lean_box(x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___lambda__1___boxed(lean_object* x_1, lean_object* x_2) {
@@ -61836,7 +61582,7 @@ x_18 = 1;
 x_19 = lean_usize_sub(x_17, x_18);
 x_20 = lean_usize_land(x_16, x_19);
 x_21 = lean_array_uget(x_4, x_20);
-x_22 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__2(x_1, x_21);
+x_22 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Expr_FoldConstsImpl_fold_visit___spec__1(x_1, x_21);
 if (x_22 == 0)
 {
 uint8_t x_23; 
@@ -61869,7 +61615,7 @@ lean_dec(x_34);
 if (x_36 == 0)
 {
 lean_object* x_37; uint8_t x_38; lean_object* x_39; lean_object* x_40; 
-x_37 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__3(x_30);
+x_37 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Expr_FoldConstsImpl_fold_visit___spec__2(x_30);
 lean_ctor_set(x_2, 1, x_37);
 lean_ctor_set(x_2, 0, x_27);
 x_38 = 0;
@@ -61917,7 +61663,7 @@ lean_dec(x_52);
 if (x_54 == 0)
 {
 lean_object* x_55; lean_object* x_56; uint8_t x_57; lean_object* x_58; lean_object* x_59; 
-x_55 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Meta_CheckAssignmentQuick_checkImpl_visit___spec__3(x_48);
+x_55 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Expr_FoldConstsImpl_fold_visit___spec__2(x_48);
 x_56 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_56, 0, x_45);
 lean_ctor_set(x_56, 1, x_55);

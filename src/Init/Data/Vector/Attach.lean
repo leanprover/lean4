@@ -226,7 +226,7 @@ theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {xs : Vector α n
 @[simp]
 theorem getElem?_attachWith {xs : Vector α n} {i : Nat} {P : α → Prop} {H : ∀ a ∈ xs, P a} :
     (xs.attachWith P H)[i]? = xs[i]?.pmap Subtype.mk (fun _ a => H _ (mem_of_getElem? a)) :=
-  getElem?_pmap ..
+  getElem?_pmap (h := H) ..
 
 @[simp]
 theorem getElem?_attach {xs : Vector α n} {i : Nat} :
@@ -237,7 +237,7 @@ theorem getElem?_attach {xs : Vector α n} {i : Nat} :
 theorem getElem_attachWith {xs : Vector α n} {P : α → Prop} {H : ∀ a ∈ xs, P a}
     {i : Nat} (h : i < n) :
     (xs.attachWith P H)[i] = ⟨xs[i]'(by simpa using h), H _ (getElem_mem (by simpa using h))⟩ :=
-  getElem_pmap _ _ h
+  getElem_pmap _ H h
 
 @[simp]
 theorem getElem_attach {xs : Vector α n} {i : Nat} (h : i < n) :

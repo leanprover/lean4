@@ -653,7 +653,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_decimalNumberFn_parseOptExp___boxed__cons
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Basic_0__Lean_Parser_isToken___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_takeWhile1Fn(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_nodeFn(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_registerEnvExtension___rarg(lean_object*, uint8_t, lean_object*);
+lean_object* l_Lean_registerEnvExtension___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_peekTokenAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Parser_indexed___spec__4___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Parser_indexed___spec__3(lean_object*);
@@ -25977,11 +25977,12 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Basic___hyg_9471_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Basic___hyg_9471____closed__1;
-x_3 = 2;
-x_4 = l_Lean_registerEnvExtension___rarg(x_2, x_3, x_1);
-return x_4;
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
+x_2 = lean_box(0);
+x_3 = l_Lean_Parser_initFn____x40_Lean_Parser_Basic___hyg_9471____closed__1;
+x_4 = 2;
+x_5 = l_Lean_registerEnvExtension___rarg(x_3, x_2, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Parser_categoryParserFn___lambda__1___closed__1() {
@@ -26036,7 +26037,7 @@ x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 lean_dec(x_4);
 x_6 = l_Lean_Parser_categoryParserFnExtension;
-x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*2);
+x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*3);
 x_8 = l_Lean_Parser_categoryParserFn___closed__2;
 x_9 = l_Lean_Parser_categoryParserFn___closed__3;
 x_10 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___rarg(x_8, x_9, x_5, x_7);

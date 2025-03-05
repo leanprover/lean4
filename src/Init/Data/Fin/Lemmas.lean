@@ -907,7 +907,7 @@ protected theorem mul_one (k : Fin (n + 1)) : k * 1 = k := by
   | n+1 => simp [Fin.ext_iff, mul_def, Nat.mod_eq_of_lt (is_lt k)]
 
 protected theorem mul_comm (a b : Fin n) : a * b = b * a :=
-  Fin.ext <| by rw [mul_def, mul_def, Nat.mul_comm]
+  Fin.ext <| by rw [mul_def, mul_def]; unfold mul_def.proof_1; rw [Nat.mul_comm]
 instance : Std.Commutative (α := Fin n) (· * ·) := ⟨Fin.mul_comm⟩
 
 protected theorem mul_assoc (a b c : Fin n) : a * b * c = a * (b * c) := by

@@ -474,6 +474,9 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 #elif defined(LEAN_WINDOWS)
     // "best practice" according to https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-seterrormode
     SetErrorMode(SEM_FAILCRITICALERRORS);
+    // properly formats Unicode characters on the Windows console
+    // see https://github.com/leanprover/lean4/issues/4291
+    SetConsoleOutputCP(CP_UTF8);
 #endif
     auto init_start = std::chrono::steady_clock::now();
     lean::initializer init;

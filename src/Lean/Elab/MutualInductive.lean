@@ -910,6 +910,24 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
           let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe
           Term.ensureNoUnassignedMVars decl
           addDecl decl
+
+          -- For nested inductive types, the kernel adds a variable number of auxiliary recursors.
+          -- Let the elaborator know about them as well. (Other auxiliaries have already been
+          -- registered by `addDecl` via `Declaration.getNames`.)
+          -- NOTE: If we want to make inductive elaboration parallel, this should switch to using
+          -- reserved names.
+          for indType in indTypes do
+            let mut i := 1
+            while true do
+              let auxRecName := indType.name ++ `rec |>.appendIndexAfter i
+              let env ← getEnv
+              let some const := env.toKernelEnv.find? auxRecName | break
+              let res ← env.addConstAsync auxRecName .recursor
+              res.commitConst res.asyncEnv (info? := const)
+              res.commitCheckEnv res.asyncEnv
+              setEnv res.mainEnv
+              i := i + 1
+
           let replaceIndFVars (e : Expr) : MetaM Expr := do
             let indFVar2Const := mkIndFVar2Const views indFVars levelParams
             return (← instantiateMVars e).replace fun e' =>

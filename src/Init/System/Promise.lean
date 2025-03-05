@@ -75,3 +75,10 @@ Like `Promise.result`, but resolves to `dflt` if the promise is dropped without 
 -/
 @[macro_inline] def Promise.resultD (promise : Promise α) (dflt : α) : Task α :=
   promise.result?.map (sync := true) (·.getD dflt)
+
+/--
+Checks whether the promise has already been resolved, i.e. whether access to `result*` will return
+immediately.
+-/
+def Promise.isResolved (promise : Promise α) : BaseIO Bool :=
+  IO.hasFinished promise.result?

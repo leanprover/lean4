@@ -24,10 +24,11 @@ def withEnv [Monad m] [MonadFinally m] [MonadEnv m] (env : Environment) (x : m �
   finally
     setEnv saved
 
-def isInductive [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
-  match (← getEnv).find? declName with
-  | some (ConstantInfo.inductInfo ..) => return true
-  | _ => return false
+def isInductiveCore (env : Environment) (declName : Name) : Bool :=
+  env.find? declName matches some (.inductInfo ..)
+
+def isInductive [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
+  return isInductiveCore (← getEnv) declName
 
 def isRecCore (env : Environment) (declName : Name) : Bool :=
   match env.find? declName with

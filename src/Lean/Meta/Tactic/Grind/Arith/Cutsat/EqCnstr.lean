@@ -17,20 +17,17 @@ private def _root_.Int.Linear.Poly.substVar (p : Poly) : GoalM (Option (Var × E
   let p := p.mul (-b) |>.combine (c.p.mul a)
   return some (x, c, p)
 
-def EqCnstr.norm (c : EqCnstr) : GoalM EqCnstr := do
-  let c ← if c.p.isSorted then
-    pure c
+def EqCnstr.norm (c : EqCnstr) : EqCnstr :=
+  if c.p.isSorted then
+    c
   else
-    mkEqCnstr c.p.norm (.norm c)
+    { p := c.p.norm, h := .norm c }
 
-def mkDiseqCnstr (p : Poly) (h : DiseqCnstrProof) : GoalM DiseqCnstr := do
-  return { p, h, id := (← mkCnstrId) }
-
-def DiseqCnstr.norm (c : DiseqCnstr) : GoalM DiseqCnstr := do
-  let c ← if c.p.isSorted then
-    pure c
+def DiseqCnstr.norm (c : DiseqCnstr) : DiseqCnstr :=
+  if c.p.isSorted then
+    c
   else
-    mkDiseqCnstr c.p.norm (.norm c)
+    { p := c.p.norm, h := .norm c }
 
 /--
 Given an equation `c₁` containing the monomial `a*x`, and a disequality constraint `c₂`
@@ -41,13 +38,12 @@ def DiseqCnstr.applyEq (a : Int) (x : Var) (c₁ : EqCnstr) (b : Int) (c₂ : Di
   let q := c₂.p
   let p := p.mul b |>.combine (q.mul (-a))
   trace[grind.cutsat.subst] "{← getVar x}, {← c₁.pp}, {← c₂.pp}"
-  mkDiseqCnstr p (.subst x c₁ c₂)
+  return { p, h := .subst x c₁ c₂ }
 
 partial def DiseqCnstr.applySubsts (c : DiseqCnstr) : GoalM DiseqCnstr := withIncRecDepth do
   let some (x, c₁, p) ← c.p.substVar | return c
   trace[grind.cutsat.subst] "{← getVar x}, {← c.pp}, {← c₁.pp}"
-  let c ← mkDiseqCnstr p (.subst x c₁ c)
-  applySubsts c
+  applySubsts { p, h := .subst x c₁ c }
 
 /--
 Given a disequality `c`, tries to find an inequality to be refined using
@@ -61,8 +57,7 @@ private def DiseqCnstr.findLe (c : DiseqCnstr) : GoalM Bool := do
     for c' in cs' do
       if c.p == c'.p || c.p.isNegEq c'.p then
         c'.erase
-        let le ← mkLeCnstr (c'.p.addConst 1) (.ofLeDiseq c' c)
-        le.assert
+        { p := c'.p.addConst 1, h := .ofLeDiseq c' c : LeCnstr }.assert
         return true
     return false
   go true <||> go false
@@ -70,8 +65,7 @@ private def DiseqCnstr.findLe (c : DiseqCnstr) : GoalM Bool := do
 def DiseqCnstr.assert (c : DiseqCnstr) : GoalM Unit := do
   if (← inconsistent) then return ()
   trace[grind.cutsat.assert] "{← c.pp}"
-  let c ← c.norm
-  let c ← c.applySubsts
+  let c ← c.norm.applySubsts
   if c.p.isUnsatDiseq then
     setInconsistent (.diseq c)
     return ()
@@ -79,10 +73,10 @@ def DiseqCnstr.assert (c : DiseqCnstr) : GoalM Unit := do
     trace[grind.cutsat.diseq.trivial] "{← c.pp}"
     return ()
   let k := c.p.gcdCoeffs c.p.getConst
-  let c ← if k == 1 then
-    pure c
+  let c := if k == 1 then
+    c
   else
-    mkDiseqCnstr (c.p.div k) (.divCoeffs c)
+    { p := c.p.div k, h := .divCoeffs c }
   if (← c.findLe) then
     return ()
   let .add _ x _ := c.p | c.throwUnexpected
@@ -114,8 +108,7 @@ where
 partial def EqCnstr.applySubsts (c : EqCnstr) : GoalM EqCnstr := withIncRecDepth do
   let some (x, c₁, p) ← c.p.substVar | return c
   trace[grind.cutsat.subst] "{← getVar x}, {← c.pp}, {← c₁.pp}"
-  let c ← mkEqCnstr p (.subst x c₁ c)
-  applySubsts c
+  applySubsts { p, h := .subst x c₁ c : EqCnstr }
 
 private def updateDvdCnstr (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
   let some c' := (← get').dvds[y]! | return ()
@@ -201,8 +194,7 @@ private def updateOccs (k : Int) (x : Var) (c : EqCnstr) : GoalM Unit := do
 def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
   if (← inconsistent) then return ()
   trace[grind.cutsat.assert] "{← c.pp}"
-  let c ← c.norm
-  let c ← c.applySubsts
+  let c ← c.norm.applySubsts
   if c.p.isUnsatEq then
     setInconsistent (.eq c)
     return ()
@@ -213,10 +205,10 @@ def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
   if c.p.getConst % k > 0 then
     setInconsistent (.eq c)
     return ()
-  let c ← if k == 1 then
-    pure c
+  let c := if k == 1 then
+    c
   else
-    mkEqCnstr (c.p.div k) (.divCoeffs c)
+    { p := c.p.div k, h := .divCoeffs c }
   trace[grind.cutsat.eq] "{← c.pp}"
   let some (k, x) := c.p.pickVarToElim? | c.throwUnexpected
   updateOccs k x c
@@ -225,8 +217,7 @@ def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
   if k.natAbs != 1 then
     let p := c.p.insert (-k) x
     let d := Int.ofNat k.natAbs
-    let c ← mkDvdCnstr d p (.ofEq x c)
-    c.assert
+    { d, p, h := .ofEq x c : DvdCnstr }.assert
   modify' fun s => { s with
     elimEqs := s.elimEqs.set x (some c)
     elimStack := x :: s.elimStack
@@ -248,8 +239,7 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
   let p₁ ← exprAsPoly a
   let p₂ ← exprAsPoly b
   let p := p₁.combine (p₂.mul (-1))
-  let c ← mkEqCnstr p (.core p₁ p₂ (← mkEqProof a b))
-  c.assert
+  { p, h := .core p₁ p₂ (← mkEqProof a b) : EqCnstr }.assert
 
 @[export lean_process_cutsat_eq_lit]
 def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
@@ -258,11 +248,11 @@ def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
   let p₁ ← exprAsPoly a
   let h ← mkEqProof a ke
   let c ← if k == 0 then
-    mkEqCnstr p₁ (.expr h)
+    pure { p := p₁, h := .expr h : EqCnstr }
   else
     let p₂ ← exprAsPoly ke
     let p := p₁.combine (p₂.mul (-1))
-    mkEqCnstr p (.core p₁ p₂ h)
+    pure { p, h := .core p₁ p₂ h : EqCnstr }
   c.assert
 
 @[export lean_process_cutsat_diseq]
@@ -272,11 +262,11 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
   let some h ← mkDiseqProof? a b
     | throwError "internal `grind` error, failed to build disequality proof for{indentExpr a}\nand{indentExpr b}"
   let c ← if let some 0 ← getIntValue? b then
-    mkDiseqCnstr p₁ (.expr h)
+    pure { p := p₁, h := .expr h : DiseqCnstr }
   else
     let p₂ ← exprAsPoly b
     let p := p₁.combine (p₂.mul (-1))
-    mkDiseqCnstr p (.core p₁ p₂ h)
+    pure {p, h := .core p₁ p₂ h : DiseqCnstr }
   c.assert
 
 /-- Different kinds of terms internalized by this module. -/

@@ -1513,8 +1513,8 @@ theorem insertManyIfNewUnit_list_singleton {k : α} :
   rfl
 
 theorem insertManyIfNewUnit_cons {l : List α} {k : α} :
-    (insertManyIfNewUnit t (k :: l)).1 = (insertManyIfNewUnit (t.insertIfNew k ()) l).1 :=
-  Impl.Const.insertManyIfNewUnit!_cons
+    insertManyIfNewUnit t (k :: l) = insertManyIfNewUnit (t.insertIfNew k ()) l :=
+  ext <| Impl.Const.insertManyIfNewUnit!_cons
 
 @[simp]
 theorem contains_insertManyIfNewUnit_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] (h : t.WF)

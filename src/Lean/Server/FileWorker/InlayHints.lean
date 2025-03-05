@@ -98,15 +98,17 @@ def applyEditToHint? (hintMod : Name) (ihi : Elab.InlayHintInfo) (range : String
   }
 
 structure InlayHintState where
-  oldInlayHints      : Array Elab.InlayHintInfo
-  oldFinishedSnaps   : Nat
-  lastEditTimestamp? : Option Nat
+  oldInlayHints           : Array Elab.InlayHintInfo
+  oldFinishedSnaps        : Nat
+  lastEditTimestamp?      : Option Nat
+  isFirstRequestAfterEdit : Bool
   deriving TypeName, Inhabited
 
 def InlayHintState.init : InlayHintState := {
   oldInlayHints := #[]
   oldFinishedSnaps := 0
   lastEditTimestamp? := none
+  isFirstRequestAfterEdit := false
 }
 
 def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
@@ -115,6 +117,20 @@ def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
   let text := ctx.doc.meta.text
   let range := text.lspRangeToUtf8Range p.range
   let srcSearchPath := ctx.srcSearchPath
+  if s.isFirstRequestAfterEdit then
+    -- We immediately respond to the first inlay hint request after an edit with the old inlay hints,
+    -- without waiting for the edit delay.
+    -- The reason for this is that in VS Code, when it hasn't received a new set of inlay hints,
+    -- edits to the document visually move all old inlay hints, but do not actually update other
+    -- fields, like the `textEdit` field. This means that e.g. inlay hint insertion will insert
+    -- the inlay hint at the wrong position.
+    -- To reduce the size of the window for this race condition, we attempt to minimize the delay
+    -- after an edit, providing VS Code with a set of old inlay hints that we have already updated
+    -- correctly for VS Code ASAP.
+    let lspInlayHints ← s.oldInlayHints.mapM (·.toLspInlayHint srcSearchPath text)
+    let r := { response := lspInlayHints, isComplete := false }
+    let s := { s with isFirstRequestAfterEdit := false }
+    return (r, s)
   -- We delay sending inlay hints by 3000ms to avoid inlay hint flickering on the client.
   -- VS Code already has a mechanism for this, but it is not sufficient.
   let inlayHintEditDelayMs := 3000
@@ -170,6 +186,7 @@ def handleInlayHintsDidChange (p : DidChangeTextDocumentParams)
     oldInlayHints := updatedOldInlayHints
     oldFinishedSnaps := 0
     lastEditTimestamp?
+    isFirstRequestAfterEdit := true
   }
 
 where

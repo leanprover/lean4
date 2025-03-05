@@ -47,6 +47,7 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
       string(APPEND CADICAL_CXXFLAGS " -DNUNLOCKED")
     endif()
+    string(APPEND CADICAL_CXXFLAGS " -DNCLOSEFROM")
     ExternalProject_add(cadical
       PREFIX cadical
       GIT_REPOSITORY https://github.com/arminbiere/cadical

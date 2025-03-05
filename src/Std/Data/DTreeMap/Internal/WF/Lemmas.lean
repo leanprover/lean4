@@ -1486,12 +1486,18 @@ theorem WF.eraseMany! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ α] {l : ρ}
 ### `insertMany`
 -/
 
-theorem insertMany_eq_foldl {_ : Ord α} [TransOrd α] {l : List ((a : α) × β a)}
-    {t : Impl α β} (h : t.Balanced) :
+theorem insertMany!_eq_foldl {_ : Ord α} {l : List ((a : α) × β a)} {t : Impl α β} :
+    (t.insertMany! l).val = l.foldl (init := t) fun acc ⟨k, v⟩ => acc.insert! k v := by
+  simp [insertMany!, Id.run, ← List.foldl_hom Subtype.val]
+
+theorem insertMany_eq_foldl {_ : Ord α} {l : List ((a : α) × β a)} {t : Impl α β} (h : t.Balanced) :
     (t.insertMany l h).val = l.foldl (init := t) fun acc ⟨k, v⟩ => acc.insert! k v := by
-  simp only [insertMany, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl]
-  rw [← List.foldl_hom Subtype.val]
-  simp only [insert_eq_insert!, implies_true]
+  simp [insertMany, Id.run, insert_eq_insert!, ← List.foldl_hom Subtype.val]
+
+theorem insertMany_eq_insertMany! {_ : Ord α} {l : List ((a : α) × β a)}
+    {t : Impl α β} (h : t.Balanced) :
+    (t.insertMany l h).val = (t.insertMany! l).val := by
+  simp only [insertMany_eq_foldl, insertMany!_eq_foldl]
 
 theorem toListModel_insertMany_list {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
     {l : List ((a : α) × β a)}
@@ -1504,6 +1510,23 @@ theorem toListModel_insertMany_list {_ : Ord α} [BEq α] [LawfulBEqOrd α] [Tra
     refine (ih h.insert!).trans ?_
     exact insertList_perm_of_perm_first (toListModel_insert! h.balanced h.ordered)
       h.insert!.ordered.distinctKeys
+
+theorem toListModel_insertMany!_list {_ : Ord α} [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} {t : Impl α β} (h : t.WF) :
+    List.Perm (t.insertMany! l).val.toListModel (t.toListModel.insertList l) := by
+  simpa only [← insertMany_eq_insertMany! h.balanced] using toListModel_insertMany_list h
+
+theorem WF.insertMany! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ ((a : α) × β a)] {l : ρ}
+    {t : Impl α β} (h : t.WF) : (t.insertMany! l).1.WF :=
+  (t.insertMany! l).2 h (fun _ _ _ h' => h'.insert!)
+
+theorem WF.constInsertMany! {β : Type v} {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ (α × β)] {l : ρ}
+    {t : Impl α β} (h : t.WF) : (Const.insertMany! t l).1.WF :=
+  (Const.insertMany! t l).2 h (fun _ _ _ h' => h'.insert!)
+
+theorem WF.constInsertManyIfNewUnit! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ α] {l : ρ}
+    {t : Impl α Unit} (h : t.WF) : (Const.insertManyIfNewUnit! t l).1.WF :=
+  (Const.insertManyIfNewUnit! t l).2 h (fun _ _ h' => h'.insertIfNew!)
 
 namespace Const
 
@@ -1551,36 +1574,6 @@ theorem toListModel_insertManyIfNewUnit_list {_ : Ord α} [TransOrd α] [instBEq
       h.insertIfNew!.ordered.distinctKeys
 
 end Const
-
-/-!
-### `insertMany!`
--/
-
-theorem insertMany_eq_insertMany! {_ : Ord α} {l : List ((a : α) × β a)}
-    {t : Impl α β} (h : t.Balanced) :
-    (t.insertMany l h).val = (t.insertMany! l).val := by
-  simp only [insertMany, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl, insertMany!]
-  rw [← List.foldl_hom Subtype.val, ← List.foldl_hom Subtype.val]
-  · exact fun x y => insert! y.1 y.2 x
-  · simp
-  · simp [insert_eq_insert!]
-
-theorem toListModel_insertMany!_list {_ : Ord α} [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    {l : List ((a : α) × β a)} {t : Impl α β} (h : t.WF) :
-    List.Perm (t.insertMany! l).val.toListModel (t.toListModel.insertList l) := by
-  simpa only [← insertMany_eq_insertMany! h.balanced] using toListModel_insertMany_list h
-
-theorem WF.insertMany! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ ((a : α) × β a)] {l : ρ}
-    {t : Impl α β} (h : t.WF) : (t.insertMany! l).1.WF :=
-  (t.insertMany! l).2 h (fun _ _ _ h' => h'.insert!)
-
-theorem WF.constInsertMany! {β : Type v} {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ (α × β)] {l : ρ}
-    {t : Impl α β} (h : t.WF) : (Const.insertMany! t l).1.WF :=
-  (Const.insertMany! t l).2 h (fun _ _ _ h' => h'.insert!)
-
-theorem WF.constInsertManyIfNewUnit! {_ : Ord α} [TransOrd α] {ρ} [ForIn Id ρ α] {l : ρ}
-    {t : Impl α Unit} (h : t.WF) : (Const.insertManyIfNewUnit! t l).1.WF :=
-  (Const.insertManyIfNewUnit! t l).2 h (fun _ _ h' => h'.insertIfNew!)
 
 namespace Const
 

@@ -1676,20 +1676,11 @@ end monadic
 theorem insertMany_cons (h : t.WF) {l : List ((a : α) × β a)} {k : α} {v : β k} :
     (t.insertMany (⟨k, v⟩ :: l) h.balanced).1 =
       ((t.insert k v h.balanced).impl.insertMany l h.insert.balanced).1 := by
-  simp only [insertMany, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl, List.foldl_cons]
-  rw [← List.foldl_hom Subtype.val, ← List.foldl_hom Subtype.val]
-  · exact fun t e => t.insert! e.1 e.2
-  · simp [insert_eq_insert!]
-  · simp [insert_eq_insert!]
+  simp [insertMany_eq_foldl, insert_eq_insert!]
 
 theorem insertMany!_cons {l : List ((a : α) × β a)} {k : α} {v : β k} :
     (t.insertMany! (⟨k, v⟩ :: l)).1 = ((t.insert! k v).insertMany! l).1 := by
-  simp only [insertMany!, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl,
-    List.foldl_cons]
-  rw [← List.foldl_hom Subtype.val, ← List.foldl_hom Subtype.val]
-  · exact fun t e => t.insert! e.1 e.2
-  · simp
-  · simp
+  simp [insertMany!_eq_foldl]
 
 @[simp]
 theorem contains_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)

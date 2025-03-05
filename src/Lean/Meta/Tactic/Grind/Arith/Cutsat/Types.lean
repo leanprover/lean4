@@ -182,6 +182,7 @@ inductive UnsatProof where
   | le (c : LeCnstr)
   | eq (c : EqCnstr)
   | diseq (c : DiseqCnstr)
+  | cooper (c₁ c₂ : LeCnstr) (c₃ : DvdCnstr)
 
 end
 

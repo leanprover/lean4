@@ -127,7 +127,7 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
     let { c₁, c₂, c₃?, left } := s.pred
     let p₁ := c₁.p
     let p₂ := c₂.p
-    let coeff := if left then p₁.leadCoeff else p₂.leadCoeff
+    let coeff := if left then p₂.leadCoeff else p₁.leadCoeff
     match c₃? with
     | none =>
       let thmName := if left then ``Int.Linear.cooper_left_split_ineq else ``Int.Linear.cooper_right_split_ineq

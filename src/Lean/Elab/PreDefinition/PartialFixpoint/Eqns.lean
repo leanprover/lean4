@@ -68,9 +68,12 @@ private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   return mvarNew.mvarId!
 
 /-- Generate the "unfold" lemma for `declName`. -/
-def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := withLCtx {} {} do
-  withOptions (tactic.hygienic.set · false) do
-    let baseName := declName
+def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := do
+  let name := Name.str declName unfoldThmSuffix
+  realizeConst declName name (doRealize name)
+  return name
+where
+  doRealize name := withOptions (tactic.hygienic.set · false) do
     lambdaTelescope info.value fun xs body => do
       let us := info.levelParams.map mkLevelParam
       let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
@@ -92,12 +95,10 @@ def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := withLCtx {} {}
           throwError "failed to generate unfold theorem for '{declName}':\n{e.toMessageData}"
       let type ← mkForallFVars xs type
       let value ← mkLambdaFVars xs goal
-      let name := Name.str baseName unfoldThmSuffix
       addDecl <| Declaration.thmDecl {
         name, type, value
         levelParams := info.levelParams
       }
-      return name
 
 def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
   let name := Name.str declName unfoldThmSuffix

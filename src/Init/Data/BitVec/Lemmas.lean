@@ -324,6 +324,9 @@ theorem getMsbD_ofNatLt {n x i : Nat} (h : x < 2^n) :
 @[simp, bitvec_to_nat] theorem toNat_ofNat (x w : Nat) : (BitVec.ofNat w x).toNat = x % 2^w := by
   simp [BitVec.toNat, BitVec.ofNat, Fin.ofNat']
 
+theorem ofNatLT_eq_ofNat {w : Nat} {n : Nat} (hn) : BitVec.ofNatLT n hn = BitVec.ofNat w n :=
+  eq_of_toNat_eq (by simp [Nat.mod_eq_of_lt hn])
+
 @[simp] theorem toFin_ofNat (x : Nat) : toFin (BitVec.ofNat w x) = Fin.ofNat' (2^w) x := rfl
 
 -- Remark: we don't use `[simp]` here because simproc` subsumes it for literals.

@@ -7,6 +7,8 @@ prelude
 import Init.Data.SInt.Basic
 import Init.Data.BitVec.Bitblast
 import Init.Data.Int.LemmasAux
+import Init.Data.UInt.Lemmas
+
 
 open Lean in
 set_option hygiene false in
@@ -835,3 +837,26 @@ theorem ISize.ofNat_int32ToNatClampNeg (x : Int32) (hx : 0 ≤ x) : ISize.ofNat 
 
 @[simp] theorem ISize.toISize_toInt64 (n : ISize) : n.toInt64.toISize = n :=
   ISize.toInt.inj (by simp)
+
+theorem UInt8.toInt8_ofNatLT {n : Nat} (hn) : (UInt8.ofNatLT n hn).toInt8 = Int8.ofNat n :=
+  Int8.toBitVec.inj (by simp [BitVec.ofNatLT_eq_ofNat])
+theorem UInt16.toInt16_ofNatLT {n : Nat} (hn) : (UInt16.ofNatLT n hn).toInt16 = Int16.ofNat n :=
+  Int16.toBitVec.inj (by simp [BitVec.ofNatLT_eq_ofNat])
+theorem UInt32.toInt32_ofNatLT {n : Nat} (hn) : (UInt32.ofNatLT n hn).toInt32 = Int32.ofNat n :=
+  Int32.toBitVec.inj (by simp [BitVec.ofNatLT_eq_ofNat])
+theorem UInt64.toInt64_ofNatLT {n : Nat} (hn) : (UInt64.ofNatLT n hn).toInt64 = Int64.ofNat n :=
+  Int64.toBitVec.inj (by simp [BitVec.ofNatLT_eq_ofNat])
+theorem USize.toISize_ofNatLT {n : Nat} (hn) : (USize.ofNatLT n hn).toISize = ISize.ofNat n :=
+  ISize.toBitVec.inj (by simp [BitVec.ofNatLT_eq_ofNat])
+
+@[simp] theorem UInt8.toInt8_ofNat {n : Nat} : (UInt8.ofNat n).toInt8 = Int8.ofNat n := rfl
+@[simp] theorem UInt16.toInt16_ofNat {n : Nat} : (UInt16.ofNat n).toInt16 = Int16.ofNat n := rfl
+@[simp] theorem UInt32.toInt32_ofNat {n : Nat} : (UInt32.ofNat n).toInt32 = Int32.ofNat n := rfl
+@[simp] theorem UInt64.toInt64_ofNat {n : Nat} : (UInt64.ofNat n).toInt64 = Int64.ofNat n := rfl
+@[simp] theorem USize.toISize_ofNat {n : Nat} : (USize.ofNat n).toISize = ISize.ofNat n := rfl
+
+@[simp] theorem UInt8.toInt8_ofBitVec (b) : (UInt8.ofBitVec b).toInt8 = Int8.ofBitVec b := rfl
+@[simp] theorem UInt16.toInt16_ofBitVec (b) : (UInt16.ofBitVec b).toInt16 = Int16.ofBitVec b := rfl
+@[simp] theorem UInt32.toInt32_ofBitVec (b) : (UInt32.ofBitVec b).toInt32 = Int32.ofBitVec b := rfl
+@[simp] theorem UInt64.toInt64_ofBitVec (b) : (UInt64.ofBitVec b).toInt64 = Int64.ofBitVec b := rfl
+@[simp] theorem USize.toInt8_ofBitVec (b) : (USize.ofBitVec b).toISize = ISize.ofBitVec b := rfl

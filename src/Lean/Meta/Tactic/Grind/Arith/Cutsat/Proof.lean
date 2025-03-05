@@ -190,7 +190,7 @@ partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s
       let h ← c.toExprProofCore -- proof of `False`
       -- `hNotCase` is a proof for `¬ pred (k-1)`
       let hNotCase := mkLambda `h .default type (h.abstract #[mkFVar fvarId])
-      result := mkApp4 (mkConst ``Int.Linear.orOver_resolve) (toExpr k) pred result hNotCase
+      result := mkApp4 (mkConst ``Int.Linear.orOver_resolve) (toExpr (k-1)) pred result hNotCase
       k := k - 1
     -- `result` is now a proof of `OrOver 1 pred`
     return mkApp2 (mkConst ``Int.Linear.orOver_one) pred result

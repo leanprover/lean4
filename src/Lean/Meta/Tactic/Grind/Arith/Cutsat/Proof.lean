@@ -257,6 +257,10 @@ partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do u
   | .subst _ c₁ c₂ | .ofLeGe c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
 
 partial def CooperSplit.collectDecVars (s : CooperSplit) : CollectDecVarsM Unit := do unless (← alreadyVisited s) do
+  s.pred.c₁.collectDecVars
+  s.pred.c₂.collectDecVars
+  if let some c₃ := s.pred.c₃? then
+    c₃.collectDecVars
   match s.h with
   | .dec h => markAsFound h
   | .last (decVars := decVars) .. => decVars.forM markAsFound

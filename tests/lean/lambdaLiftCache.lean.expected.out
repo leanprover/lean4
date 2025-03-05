@@ -2,13 +2,9 @@
     def foo._lam_0 x x.1 : Nat :=
       let _x.2 := Nat.add x.1 x;
       return _x.2
-[Compiler.saveMono] size: 2
-    def foo x xs : List Nat :=
-      let _f.1 := foo._lam_0 x;
-      let _x.2 := List.map._at_.map.spec_0 _f.1 xs;
-      return _x.2
+[Compiler.saveMono] size: 2 def foo x xs : List Nat := let _f.1 := foo._lam_0 x; let _x.2 := map _f.1 xs; return _x.2
 [Compiler.saveMono] size: 2
     def boo x xs : List Nat :=
       let _f.1 := foo._lam_0 x;
-      let _x.2 := List.map._at_.map.spec_0 _f.1 xs;
+      let _x.2 := map _f.1 xs;
       return _x.2

@@ -719,6 +719,32 @@ theorem getKey?_eq_some_getKey! [BEq α] [Inhabited α] {l : List ((a : α) × �
 theorem getKey!_eq_getKeyD_default [BEq α] [EquivBEq α] [Inhabited α] {l : List ((a : α) × β a)}
     {a : α} : getKey! a l = getKeyD a l default := rfl
 
+theorem getEntry?_eq_getValueCast? [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)}
+    {a : α} : getEntry? a l = (getValueCast? a l).map (fun v => ⟨a, v⟩) := by
+  induction l using assoc_induction with
+  | nil => rfl
+  | cons k v l ih =>
+    simp only [getEntry?_cons, getValueCast?_cons, cond_eq_if]
+    split
+    · rename_i h
+      simp only [beq_iff_eq] at h
+      subst h
+      rfl
+    · exact ih
+
+theorem getEntry_eq_getKey_getValue [BEq α] {β : Type v} {l : List ((_ : α) × β)}
+    {a : α} (h : containsKey a l) : getEntry a l h = ⟨getKey a l h, getValue a l h⟩ := by
+  induction l using assoc_induction with
+  | nil => contradiction
+  | cons k v l ih =>
+    match h' : k == a with
+    | true =>
+      simp only [getEntry_cons_of_beq, getKey_cons, getValue_cons_of_beq, h', reduceDIte]
+    | false =>
+      simp only [getEntry_cons_of_false, getKey_cons, getValue_cons_of_false, h',
+        Bool.false_eq_true, reduceDIte]
+      apply ih
+
 /-- Internal implementation detail of the hash map -/
 def replaceEntry [BEq α] (k : α) (v : β k) : List ((a : α) × β a) → List ((a : α) × β a)
   | [] => []
@@ -1888,6 +1914,29 @@ theorem getEntry?_ext [BEq α] [EquivBEq α] {l l' : List ((a : α) × β a)} (h
     · rw [← getEntry?_congr hk', ← getEntry?_congr hk', getEntry?_eq_none.2 hl.containsKey_eq_false,
           getEntry?_eq_none.2 (hl'.perm hl''.symm).containsKey_eq_false]
 
+theorem getValueCast?_ext [BEq α] [LawfulBEq α] {l l' : List ((a : α) × β a)} (hl : DistinctKeys l)
+    (hl' : DistinctKeys l') (h : ∀ a, getValueCast? a l = getValueCast? a l') : Perm l l' := by
+  apply getEntry?_ext hl hl'
+  intro a
+  simp only [getEntry?_eq_getValueCast?, h]
+
+theorem getKey?_getValue?_ext [BEq α] [EquivBEq α] {β : Type v}
+    {l l' : List ((_ : α) × β)} (hl : DistinctKeys l) (hl' : DistinctKeys l')
+    (h : ∀ a, getKey? a l = getKey? a l' ∧ getValue? a l = getValue? a l') : Perm l l' := by
+  apply getEntry?_ext hl hl'
+  intro a
+  specialize h a
+  by_cases h' : containsKey a l'
+  · simp only [getKey?_eq_some_getKey h'] at h
+    have h'' := containsKey_eq_isSome_getKey?.trans (h.1 ▸ rfl : (getKey? a l).isSome = true)
+    simp only [getKey?_eq_some_getKey, getValue?_eq_some_getValue,
+      getEntry?_eq_some_getEntry, h', h'', Option.some.injEq,
+      getEntry_eq_getKey_getValue, Sigma.mk.injEq] at h ⊢
+    exact ⟨h.1, h.2 ▸ .rfl⟩
+  · simp only [getKey?_eq_none, h'] at h
+    have h'' := containsKey_eq_isSome_getKey?.trans (h.1 ▸ rfl : (getKey? a l).isSome = false)
+    simp only [getEntry?_eq_none.mpr, h', h'']
+
 theorem replaceEntry_of_perm [BEq α] [EquivBEq α] {l l' : List ((a : α) × β a)} {k : α} {v : β k}
     (hl : DistinctKeys l) (h : Perm l l') : Perm (replaceEntry k v l) (replaceEntry k v l') := by
   apply getEntry?_ext hl.replaceEntry (hl.perm h.symm).replaceEntry
@@ -1897,6 +1946,12 @@ theorem insertEntry_of_perm [BEq α] [EquivBEq α] {l l' : List ((a : α) × β 
     (hl : DistinctKeys l) (h : Perm l l') : Perm (insertEntry k v l) (insertEntry k v l') := by
   apply getEntry?_ext hl.insertEntry (hl.perm h.symm).insertEntry
   simp [getEntry?_insertEntry, getEntry?_of_perm hl h]
+
+theorem insertEntryIfNew_of_perm [BEq α] [EquivBEq α] {l l' : List ((a : α) × β a)}
+    {k : α} {v : β k} (hl : DistinctKeys l) (h : Perm l l') :
+    Perm (insertEntryIfNew k v l) (insertEntryIfNew k v l') := by
+  apply getEntry?_ext hl.insertEntryIfNew (hl.perm h.symm).insertEntryIfNew
+  simp [getEntry?_insertEntryIfNew, getEntry?_of_perm hl h, containsKey_of_perm h]
 
 theorem eraseKey_of_perm [BEq α] [EquivBEq α] {l l' : List ((a : α) × β a)} {k : α}
     (hl : DistinctKeys l) (h : Perm l l') : Perm (eraseKey k l) (eraseKey k l') := by
@@ -3703,6 +3758,11 @@ theorem modifyKey_eq_alterKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β 
   split <;> next h =>
     simp [h, insertEntry, containsKey_eq_isSome_getValueCast?, eraseKey_of_containsKey_eq_false]
 
+theorem modifyKey_of_perm [BEq α] [LawfulBEq α] {l l' : List ((a : α) × β a)}
+    {k : α} {f : β k → β k} (hl : DistinctKeys l) (h : Perm l l') :
+    Perm (modifyKey k f l) (modifyKey k f l') := by
+  simp only [modifyKey_eq_alterKey, alterKey_of_perm hl h]
+
 theorem getValueCast?_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {f : β k → β k}
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getValueCast? k' (modifyKey k f l) =
@@ -3854,6 +3914,11 @@ theorem modifyKey_eq_alterKey (k : α) (f : β → β) (l : List ((_ : α) × β
   rw [modifyKey, alterKey, Option.map.eq_def]
   split <;> next h =>
     simp [h, insertEntry, containsKey_eq_isSome_getValue?, eraseKey_of_containsKey_eq_false]
+
+theorem modifyKey_of_perm [EquivBEq α] {l l' : List ((_ : α) × β)} {k : α} {f : β → β}
+    (hl : DistinctKeys l) (h : Perm l l') :
+    Perm (modifyKey k f l) (modifyKey k f l') := by
+  simp only [modifyKey_eq_alterKey, alterKey_of_perm hl h]
 
 theorem length_modifyKey (k : α) (f : β → β) (l : List ((_ : α) × β)) :
     (modifyKey k f l).length = l.length := by

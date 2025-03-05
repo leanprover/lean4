@@ -47,6 +47,14 @@ instance : Trans (Perm (α := α)) (Perm (α := α)) (Perm (α := α)) where
 
 theorem perm_comm {l₁ l₂ : List α} : l₁ ~ l₂ ↔ l₂ ~ l₁ := ⟨Perm.symm, Perm.symm⟩
 
+protected theorem Perm.congr_left {l₁ l₂ : List α} (h : l₁ ~ l₂) (l₃ : List α) :
+    l₁ ~ l₃ ↔ l₂ ~ l₃ :=
+  ⟨h.symm.trans, h.trans⟩
+
+protected theorem Perm.congr_right {l₁ l₂ : List α} (h : l₁ ~ l₂) (l₃ : List α) :
+    l₃ ~ l₁ ↔ l₃ ~ l₂ :=
+  ⟨fun h' => h'.trans h, fun h' => h'.trans h.symm⟩
+
 theorem Perm.swap' (x y : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) : y :: x :: l₁ ~ x :: y :: l₂ :=
   (swap ..).trans <| p.cons _ |>.cons _
 

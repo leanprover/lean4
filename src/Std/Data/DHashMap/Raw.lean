@@ -58,6 +58,14 @@ instance : Inhabited (Raw α β) where
   default := ∅
 
 /--
+Two hash maps are equivalent in the sense of `Equiv` iff
+all the keys and values are equal.
+-/
+structure Equiv (m₁ m₂ : Raw α β) : Prop where
+  /-- Internal implementation detail of the hash map -/
+  perm_toListModel : (toListModel m₁.2).Perm (toListModel m₂.2)
+
+/--
 Inserts the given mapping into the map. If there is already a mapping for the given key, then both
 key and value will be replaced.
 

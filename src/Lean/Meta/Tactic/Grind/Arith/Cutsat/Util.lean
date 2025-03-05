@@ -294,4 +294,8 @@ def CooperSplitPred.numCases (pred : CooperSplitPred) : Nat :=
 def CooperSplitPred.pp (pred : CooperSplitPred) : GoalM MessageData := do
   return m!"{← pred.c₁.pp}, {← pred.c₂.pp}, {← if let some c₃ := pred.c₃? then c₃.pp else pure "none"}"
 
+def UnsatProof.pp (h : UnsatProof) : GoalM MessageData := do
+  match h with
+  | .le c | .eq c | .dvd c | .diseq c => c.pp
+
 end Lean.Meta.Grind.Arith.Cutsat

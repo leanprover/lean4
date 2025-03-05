@@ -220,7 +220,7 @@ def UnsatProof.toExprProof (h : UnsatProof) : GoalM Expr := do
   withProofContext do h.toExprProofCore
 
 def setInconsistent (h : UnsatProof) : GoalM Unit := do
-  trace[grind.debug.cutsat.conflict] "setInconsistent, already in conflict{← inconsistent}"
+  trace[grind.debug.cutsat.conflict] "setInconsistent [{← inconsistent}]: {← h.pp}"
   if (← get').caseSplits then
     -- Let the search procedure in `SearchM` resolve the conflict.
     modify' fun s => { s with conflict? := some h }

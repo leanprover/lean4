@@ -86,6 +86,8 @@ builtin_initialize specExtension : SimplePersistentEnvExtension SpecEntry SpecSt
     addImportedFn := fun _ => {}
     toArrayFn     := fun s => sortEntries s.toArray
     asyncMode     := .sync
+    replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
+      (!·.specInfo.contains ·.declName) SpecState.addEntry
   }
 
 /--

@@ -2543,7 +2543,7 @@ section Equiv
 
 variable (m₁ m₂ : Raw₀ α β)
 
-theorem isEmpty_of_equiv [EquivBEq α] [LawfulHashable α]
+theorem isEmpty_eq_of_equiv [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1) :
     m₁.1.isEmpty = m₂.1.isEmpty := by
   simp_to_model [isEmpty] using List.Perm.isEmpty_eq h.1
@@ -2633,6 +2633,10 @@ theorem modify_equiv_congr [LawfulBEq α] (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) 
     {k : α} (f : β k → β k) : (m₁.modify k f).1 ≈ (m₂.modify k f).1 := by
   simp_to_model [Equiv, modify] using List.modifyKey_of_perm _ h.1
 
+theorem equiv_of_forall_get?_eq [LawfulBEq α] (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) :
+    (∀ k, m₁.get? k = m₂.get? k) → m₁.1 ≈ m₂.1 := by
+  simp_to_model [get?, Equiv] using List.getValueCast?_ext
+
 namespace Const
 
 variable {β : Type v} (m₁ m₂ : Raw₀ α fun _ => β)
@@ -2679,6 +2683,10 @@ theorem alter_equiv_congr (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ 
 theorem modify_equiv_congr (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1)
     {k : α} (f : β → β) : (modify m₁ k f).1 ≈ (modify m₂ k f).1 := by
   simp_to_model [Equiv, Const.modify] using List.Const.modifyKey_of_perm _ h.1
+
+theorem equiv_of_forall_getKey?_eq_and_get?_eq (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) :
+    (∀ k, m₁.getKey? k = m₂.getKey? k ∧ get? m₁ k = get? m₂ k) → m₁.1 ≈ m₂.1 := by
+  simp_to_model [getKey?, Const.get?, Equiv] using List.getKey?_getValue?_ext
 
 end Const
 

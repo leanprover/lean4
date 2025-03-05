@@ -435,23 +435,23 @@ theorem get?_insertMany_list_of_not_mem_of_contains_eq_false
     not_mem contains_eq_false
 
 theorem get?_insertMany_list_of_not_mem_of_mem [TransCmp cmp]
-     {l : List α} {k k' : α} (k_eq : cmp k k' = .eq)
+    {l : List α} {k k' : α} (k_eq : cmp k k' = .eq)
     (not_mem : ¬ k ∈ t) (distinct : l.Pairwise (fun a b => ¬ cmp a b = .eq)) (mem : k ∈ l) :
     get? (insertMany t l) k' = some k :=
   TreeMap.getKey?_insertManyIfNewUnit_list_of_not_mem_of_mem k_eq not_mem distinct mem
 
 theorem get?_insertMany_list_of_mem [TransCmp cmp]
-     {l : List α} {k : α} (mem : k ∈ t) :
+    {l : List α} {k : α} (mem : k ∈ t) :
     get? (insertMany t l) k = get? t k :=
   TreeMap.getKey?_insertManyIfNewUnit_list_of_mem mem
 
 theorem get_insertMany_list_of_mem [TransCmp cmp]
-     {l : List α} {k : α} {h'} (contains : k ∈ t) :
+    {l : List α} {k : α} {h'} (contains : k ∈ t) :
     get (insertMany t l) k h' = get t k contains :=
   TreeMap.getKey_insertManyIfNewUnit_list_of_mem contains
 
 theorem get_insertMany_list_of_not_mem_of_mem [TransCmp cmp]
-     {l : List α}
+    {l : List α}
     {k k' : α} (k_eq : cmp k k' = .eq) {h'} (not_mem : ¬ k ∈ t)
     (distinct : l.Pairwise (fun a b => ¬ cmp a b = .eq)) (mem : k ∈ l) :
     get (insertMany t l) k' h' = k :=
@@ -483,13 +483,13 @@ theorem getD_insertMany_list_of_not_mem_of_contains_eq_false
     not_mem contains_eq_false
 
 theorem getD_insertMany_list_of_not_mem_of_mem [TransCmp cmp]
-     {l : List α} {k k' fallback : α} (k_eq : cmp k k' = .eq)
+    {l : List α} {k k' fallback : α} (k_eq : cmp k k' = .eq)
     (not_mem : ¬ k ∈ t) (distinct : l.Pairwise (fun a b => ¬ cmp a b = .eq)) (mem : k ∈ l) :
     getD (insertMany t l) k' fallback = k :=
   TreeMap.getKeyD_insertManyIfNewUnit_list_of_not_mem_of_mem k_eq not_mem distinct mem
 
 theorem getD_insertMany_list_of_mem [TransCmp cmp]
-     {l : List α} {k fallback : α} (mem : k ∈ t) :
+    {l : List α} {k fallback : α} (mem : k ∈ t) :
     getD (insertMany t l) k fallback = getD t k fallback :=
   TreeMap.getKeyD_insertManyIfNewUnit_list_of_mem mem
 

@@ -823,7 +823,7 @@ theorem mem_of_mem_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
   DTreeMap.Const.mem_of_mem_insertMany_list
 
 theorem getKey?_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
-     {l : List (α × β)} {k : α}
+    {l : List (α × β)} {k : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     (t.insertMany l).getKey? k = t.getKey? k :=
   DTreeMap.Const.getKey?_insertMany_list_of_contains_eq_false contains_eq_false
@@ -837,7 +837,7 @@ theorem getKey?_insertMany_list_of_mem [TransCmp cmp]
   DTreeMap.Const.getKey?_insertMany_list_of_mem k_eq distinct mem
 
 theorem getKey_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
-     {l : List (α × β)} {k : α}
+    {l : List (α × β)} {k : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false)
     {h'} :
     (t.insertMany l).getKey k h' =
@@ -868,7 +868,7 @@ theorem getKey!_insertMany_list_of_mem [TransCmp cmp] [Inhabited α]
   DTreeMap.Const.getKey!_insertMany_list_of_mem k_eq distinct mem
 
 theorem getKeyD_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
-     {l : List (α × β)} {k fallback : α}
+    {l : List (α × β)} {k fallback : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     (t.insertMany l).getKeyD k fallback = t.getKeyD k fallback :=
   DTreeMap.Const.getKeyD_insertMany_list_of_contains_eq_false contains_eq_false
@@ -910,7 +910,7 @@ theorem getElem?_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α]
   DTreeMap.Const.get?_insertMany_list_of_contains_eq_false contains_eq_false
 
 theorem getElem?_insertMany_list_of_mem [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
-     {l : List (α × β)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β}
+    {l : List (α × β)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β}
     (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) :
     (t.insertMany l)[k']? = some v :=
   DTreeMap.Const.get?_insertMany_list_of_mem k_eq distinct mem
@@ -1001,23 +1001,23 @@ theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
     not_mem contains_eq_false
 
 theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_mem [TransCmp cmp]
-     {l : List α} {k k' : α} (k_eq : cmp k k' = .eq)
+    {l : List α} {k k' : α} (k_eq : cmp k k' = .eq)
     (not_mem : ¬ k ∈ t) (distinct : l.Pairwise (fun a b => ¬ cmp a b = .eq)) (mem : k ∈ l) :
     getKey? (insertManyIfNewUnit t l) k' = some k :=
   DTreeMap.Const.getKey?_insertManyIfNewUnit_list_of_not_mem_of_mem k_eq not_mem distinct mem
 
 theorem getKey?_insertManyIfNewUnit_list_of_mem [TransCmp cmp]
-     {l : List α} {k : α} (mem : k ∈ t) :
+    {l : List α} {k : α} (mem : k ∈ t) :
     getKey? (insertManyIfNewUnit t l) k = getKey? t k :=
   DTreeMap.Const.getKey?_insertManyIfNewUnit_list_of_mem mem
 
 theorem getKey_insertManyIfNewUnit_list_of_mem [TransCmp cmp]
-     {l : List α} {k : α} {h'} (contains : k ∈ t) :
+    {l : List α} {k : α} {h'} (contains : k ∈ t) :
     getKey (insertManyIfNewUnit t l) k h' = getKey t k contains :=
   DTreeMap.Const.getKey_insertManyIfNewUnit_list_of_mem contains
 
 theorem getKey_insertManyIfNewUnit_list_of_not_mem_of_mem [TransCmp cmp]
-     {l : List α}
+    {l : List α}
     {k k' : α} (k_eq : cmp k k' = .eq) {h'} (not_mem : ¬ k ∈ t)
     (distinct : l.Pairwise (fun a b => ¬ cmp a b = .eq)) (mem : k ∈ l) :
     getKey (insertManyIfNewUnit t l) k' h' = k :=
@@ -1049,13 +1049,13 @@ theorem getKeyD_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
     not_mem contains_eq_false
 
 theorem getKeyD_insertManyIfNewUnit_list_of_not_mem_of_mem [TransCmp cmp]
-     {l : List α} {k k' fallback : α} (k_eq : cmp k k' = .eq)
+    {l : List α} {k k' fallback : α} (k_eq : cmp k k' = .eq)
     (not_mem : ¬ k ∈ t) (distinct : l.Pairwise (fun a b => ¬ cmp a b = .eq)) (mem : k ∈ l) :
     getKeyD (insertManyIfNewUnit t l) k' fallback = k :=
   DTreeMap.Const.getKeyD_insertManyIfNewUnit_list_of_not_mem_of_mem k_eq not_mem distinct mem
 
 theorem getKeyD_insertManyIfNewUnit_list_of_mem [TransCmp cmp]
-     {l : List α} {k fallback : α} (mem : k ∈ t) :
+    {l : List α} {k fallback : α} (mem : k ∈ t) :
     getKeyD (insertManyIfNewUnit t l) k fallback = getKeyD t k fallback :=
   DTreeMap.Const.getKeyD_insertManyIfNewUnit_list_of_mem mem
 

@@ -78,13 +78,14 @@ where
     try evalTacticWithState initialState suggestion
     catch _ =>
       exposeNames := true
-      let suggestion' ← mkExactSuggestionSyntax proofExpr (useRefine := hasMVars) (exposeNames := true)
-      try evalTacticWithState initialState suggestion'
+      let suggestion ← mkExactSuggestionSyntax proofExpr (useRefine := hasMVars) (exposeNames := true)
+      try evalTacticWithState initialState suggestion
       catch _ =>
         let suggestionStr ← SuggestionText.prettyExtra suggestion
-        -- Pretty-print the version without `expose_names` so variable names match the Infoview
         let msg := m!"found a {if hasMVars then "partial " else ""}proof, \
-                      but the corresponding tactic failed:{indentD suggestionStr}"
+                      but the corresponding tactic failed:{indentD suggestionStr}\n\n\
+                      It may be possible to correct this proof by adding type annotations or \
+                      eliminating unnecessary function abstractions."
         if errorOnInvalid then throwError msg else logInfo msg
         return
     addExactSuggestion ref proofExpr (addSubgoalsMsg := addSubgoalsMsg) (exposeNames := exposeNames)

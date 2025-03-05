@@ -50,10 +50,8 @@ scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff]
 
 open Lean
 
-theorem compare_eq_eq_iff_beq {k a : α} : compare k a = .eq ↔ k == a := beq_iff_eq.symm
-
 private def helperLemmaNames : Array Name :=
-  #[``compare_eq_eq_iff_beq]
+  #[``compare_eq_iff_beq]
 
 private def queryNames : Array Name :=
   #[``isEmpty_eq_isEmpty, ``contains_eq_containsKey, ``size_eq_length,
@@ -1530,7 +1528,7 @@ theorem find?_toList_eq_none_iff_not_mem [TransOrd α] {k : α} (h : t.WF) :
 
 theorem distinct_keys_toList [TransOrd α] (h : t.WF) :
     t.toList.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq) := by
-  simp only [← beq_iff, Bool.not_eq_true]
+  simp only [compare_eq_iff_beq, Bool.not_eq_true]
   simp_to_model using List.pairwise_fst_eq_false
 
 namespace Const
@@ -1577,7 +1575,7 @@ theorem find?_toList_eq_none_iff_not_mem [TransOrd α] {k : α} (h : t.WF) :
 
 theorem distinct_keys_toList [TransOrd α] (h : t.WF) :
     (toList t).Pairwise (fun a b => ¬ compare a.1 b.1 = .eq) := by
-  simp only [← beq_iff, Bool.not_eq_true]
+  simp only [compare_eq_iff_beq, Bool.not_eq_true]
   simp_to_model using List.pairwise_fst_eq_false_map_toProd
 
 end Const
@@ -1745,8 +1743,7 @@ theorem get?_insertMany_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
     (mem : ⟨k, v⟩ ∈ l) :
     (t.insertMany l h.balanced).1.get? k' =
       some (cast (by congr; apply compare_eq_iff_eq.mp k_beq) v) := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [insertMany] using List.getValueCast?_insertList_of_mem
 
 theorem get?_insertMany!_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
@@ -1754,8 +1751,7 @@ theorem get?_insertMany!_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : ⟨k, v⟩ ∈ l) :
     (t.insertMany! l).1.get? k' = some (cast (by congr; apply compare_eq_iff_eq.mp k_beq) v) := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [insertMany!] using List.getValueCast?_insertList_of_mem
 
 theorem get_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
@@ -1783,8 +1779,7 @@ theorem get_insertMany_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
     {h'} :
     (t.insertMany l h.balanced).1.get k' h' =
       cast (by congr; apply compare_eq_iff_eq.mp k_beq) v := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [insertMany] using List.getValueCast_insertList_of_mem
 
 theorem get_insertMany!_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
@@ -1793,8 +1788,7 @@ theorem get_insertMany!_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
     (mem : ⟨k, v⟩ ∈ l)
     {h'} :
     (t.insertMany! l).1.get k' h' = cast (by congr; apply compare_eq_iff_eq.mp k_beq) v := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [insertMany!] using List.getValueCast_insertList_of_mem
 
 theorem get!_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
@@ -1816,8 +1810,7 @@ theorem get!_insertMany_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
     (mem : ⟨k, v⟩ ∈ l) :
     (t.insertMany l h.balanced).1.get! k' =
       cast (by congr; apply compare_eq_iff_eq.mp k_beq) v := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [insertMany] using List.getValueCast!_insertList_of_mem
 
 theorem get!_insertMany!_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
@@ -1825,8 +1818,7 @@ theorem get!_insertMany!_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : ⟨k, v⟩ ∈ l) :
     (t.insertMany! l).1.get! k' = cast (by congr; apply compare_eq_iff_eq.mp k_beq) v := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [insertMany!] using List.getValueCast!_insertList_of_mem
 
 theorem getD_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
@@ -1847,8 +1839,7 @@ theorem getD_insertMany_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
     (mem : ⟨k, v⟩ ∈ l) :
     (t.insertMany l h.balanced).1.getD k' fallback =
       cast (by congr; apply compare_eq_iff_eq.mp k_beq) v := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [insertMany] using List.getValueCastD_insertList_of_mem
 
 theorem getD_insertMany!_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
@@ -1856,8 +1847,7 @@ theorem getD_insertMany!_list_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : ⟨k, v⟩ ∈ l) :
     (t.insertMany! l).1.getD k' fallback = cast (by congr; apply compare_eq_iff_eq.mp k_beq) v := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [insertMany!] using List.getValueCastD_insertList_of_mem
 
 theorem getKey?_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
@@ -1878,8 +1868,7 @@ theorem getKey?_insertMany_list_of_mem [TransOrd α] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : k ∈ l.map Sigma.fst) :
     (t.insertMany l h.balanced).1.getKey? k' = some k := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [insertMany] using List.getKey?_insertList_of_mem
 
 theorem getKey?_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
@@ -1888,8 +1877,7 @@ theorem getKey?_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : k ∈ l.map Sigma.fst) :
     (t.insertMany! l).1.getKey? k' = some k := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [insertMany!] using List.getKey?_insertList_of_mem
 
 theorem getKey_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
@@ -1915,8 +1903,7 @@ theorem getKey_insertMany_list_of_mem [TransOrd α] (h : t.WF)
     (mem : k ∈ l.map Sigma.fst)
     {h'} :
     (t.insertMany l h.balanced).1.getKey k' h' = k := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [insertMany] using List.getKey_insertList_of_mem
 
 theorem getKey_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
@@ -1926,8 +1913,7 @@ theorem getKey_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     (mem : k ∈ l.map Sigma.fst)
     {h'} :
     (t.insertMany! l).1.getKey k' h' = k := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [insertMany!] using List.getKey_insertList_of_mem
 
 theorem getKey!_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
@@ -1948,8 +1934,7 @@ theorem getKey!_insertMany_list_of_mem [TransOrd α] [Inhabited α] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : k ∈ l.map Sigma.fst) :
     (t.insertMany l h.balanced).1.getKey! k' = k := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [insertMany] using List.getKey!_insertList_of_mem
 
 theorem getKey!_insertMany!_list_of_mem [TransOrd α] [Inhabited α] (h : t.WF)
@@ -1958,8 +1943,7 @@ theorem getKey!_insertMany!_list_of_mem [TransOrd α] [Inhabited α] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : k ∈ l.map Sigma.fst) :
     (t.insertMany! l).1.getKey! k' = k := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [insertMany!] using List.getKey!_insertList_of_mem
 
 theorem getKeyD_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
@@ -1980,8 +1964,7 @@ theorem getKeyD_insertMany_list_of_mem [TransOrd α] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : k ∈ l.map Sigma.fst) :
     (t.insertMany l h.balanced).1.getKeyD k' fallback = k := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [insertMany] using List.getKeyD_insertList_of_mem
 
 theorem getKeyD_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
@@ -1990,22 +1973,21 @@ theorem getKeyD_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : k ∈ l.map Sigma.fst) :
     (t.insertMany! l).1.getKeyD k' fallback = k := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [insertMany!] using List.getKeyD_insertList_of_mem
 
 theorem size_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
     {l : List ((a : α) × β a)} (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) :
     (∀ (a : α), t.contains a → (l.map Sigma.fst).contains a = false) →
     (t.insertMany l h.balanced).1.size = t.size + l.length := by
-  simp only [LawfulBEqOrd.compare_eq_iff_beq, Bool.not_eq_true] at distinct
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct
   simp_to_model [insertMany] using List.length_insertList
 
 theorem size_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
     {l : List ((a : α) × β a)} (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) :
     (∀ (a : α), t.contains a → (l.map Sigma.fst).contains a = false) →
     (t.insertMany! l).1.size = t.size + l.length := by
-  simp only [LawfulBEqOrd.compare_eq_iff_beq, Bool.not_eq_true] at distinct
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct
   simp_to_model [insertMany!] using List.length_insertList
 
 theorem size_le_size_insertMany_list [TransOrd α] (h : t.WF)
@@ -2047,20 +2029,11 @@ variable {β : Type v} {t : Impl α β}
 theorem insertMany_cons (h : t.WF) {l : List (α × β)} {k : α} {v : β} :
     (Const.insertMany t ((k, v) :: l) h.balanced).1 =
       (Const.insertMany (t.insert k v h.balanced).impl l h.insert.balanced).1 := by
-  simp only [insertMany, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl, List.foldl_cons]
-  rw [← List.foldl_hom Subtype.val, ← List.foldl_hom Subtype.val]
-  · exact fun t e => t.insert! e.1 e.2
-  · simp [insert_eq_insert!]
-  · simp [insert_eq_insert!]
+  simp [insertMany_eq_foldl, insert_eq_insert!]
 
 theorem insertMany!_cons {l : List (α × β)} {k : α} {v : β} :
     (Const.insertMany! t ((k, v) :: l)).1 = (Const.insertMany! (t.insert! k v) l).1 := by
-  simp only [insertMany!, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl,
-    List.foldl_cons]
-  rw [← List.foldl_hom Subtype.val, ← List.foldl_hom Subtype.val]
-  · exact fun t e => t.insert! e.1 e.2
-  · simp
-  · simp
+  simp [insertMany!_eq_foldl]
 
 @[simp]
 theorem contains_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
@@ -2126,8 +2099,7 @@ theorem getKey?_insertMany_list_of_mem [TransOrd α] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : k ∈ l.map Prod.fst) :
     (insertMany t l h.balanced).1.getKey? k' = some k := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [Const.insertMany] using List.getKey?_insertListConst_of_mem
 
 theorem getKey?_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
@@ -2136,8 +2108,7 @@ theorem getKey?_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : k ∈ l.map Prod.fst) :
     (insertMany! t l).1.getKey? k' = some k := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [Const.insertMany!] using List.getKey?_insertListConst_of_mem
 
 theorem getKey_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
@@ -2163,8 +2134,7 @@ theorem getKey_insertMany_list_of_mem [TransOrd α] (h : t.WF)
     (mem : k ∈ l.map Prod.fst)
     {h'} :
     (insertMany t l h.balanced).1.getKey k' h' = k := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [Const.insertMany] using List.getKey_insertListConst_of_mem
 
 theorem getKey_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
@@ -2174,8 +2144,7 @@ theorem getKey_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     (mem : k ∈ l.map Prod.fst)
     {h'} :
     (insertMany! t l).1.getKey k' h' = k := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [Const.insertMany!] using List.getKey_insertListConst_of_mem
 
 theorem getKey!_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
@@ -2196,8 +2165,7 @@ theorem getKey!_insertMany_list_of_mem [TransOrd α] [Inhabited α] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : k ∈ l.map Prod.fst) :
     (insertMany t l h.balanced).1.getKey! k' = k := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [Const.insertMany] using List.getKey!_insertListConst_of_mem
 
 theorem getKey!_insertMany!_list_of_mem [TransOrd α] [Inhabited α] (h : t.WF)
@@ -2206,8 +2174,7 @@ theorem getKey!_insertMany!_list_of_mem [TransOrd α] [Inhabited α] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : k ∈ l.map Prod.fst) :
     (insertMany! t l).1.getKey! k' = k := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [Const.insertMany!] using List.getKey!_insertListConst_of_mem
 
 theorem getKeyD_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
@@ -2228,8 +2195,7 @@ theorem getKeyD_insertMany_list_of_mem [TransOrd α] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : k ∈ l.map Prod.fst) :
     (insertMany t l h.balanced).1.getKeyD k' fallback = k := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [Const.insertMany] using List.getKeyD_insertListConst_of_mem
 
 theorem getKeyD_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
@@ -2238,8 +2204,7 @@ theorem getKeyD_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq))
     (mem : k ∈ l.map Prod.fst) :
     (insertMany! t l).1.getKeyD k' fallback = k := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [Const.insertMany!] using List.getKeyD_insertListConst_of_mem
 
 theorem size_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
@@ -2247,7 +2212,7 @@ theorem size_insertMany_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) :
     (∀ (a : α), t.contains a → (l.map Prod.fst).contains a = false) →
     (insertMany t l h.balanced).1.size = t.size + l.length := by
-  simp only [LawfulBEqOrd.compare_eq_iff_beq, Bool.not_eq_true] at distinct
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct
   simp_to_model [Const.insertMany] using List.length_insertListConst
 
 theorem size_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
@@ -2255,7 +2220,7 @@ theorem size_insertMany!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) :
     (∀ (a : α), t.contains a → (l.map Prod.fst).contains a = false) →
     (insertMany! t l).1.size = t.size + l.length := by
-  simp only [LawfulBEqOrd.compare_eq_iff_beq, Bool.not_eq_true] at distinct
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct
   simp_to_model [Const.insertMany!] using List.length_insertListConst
 
 theorem size_le_size_insertMany_list [TransOrd α] (h : t.WF)
@@ -2306,16 +2271,14 @@ theorem get?_insertMany_list_of_mem [TransOrd α] (h : t.WF)
     {l : List (α × β)} {k k' : α} (k_beq : compare k k' = .eq) {v : β}
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) :
     get? (insertMany t l h.balanced).1 k' = v := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [Const.insertMany] using List.getValue?_insertListConst_of_mem
 
 theorem get?_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     {l : List (α × β)} {k k' : α} (k_beq : compare k k' = .eq) {v : β}
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) :
     get? (insertMany! t l).1 k' = v := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [Const.insertMany!] using List.getValue?_insertListConst_of_mem
 
 theorem get_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
@@ -2337,16 +2300,14 @@ theorem get_insertMany_list_of_mem [TransOrd α] (h : t.WF)
     {l : List (α × β)} {k k' : α} (k_beq : compare k k' = .eq) {v : β}
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) {h'} :
     get (insertMany t l h.balanced).1 k' h' = v := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [Const.insertMany] using List.getValue_insertListConst_of_mem
 
 theorem get_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     {l : List (α × β)} {k k' : α} (k_beq : compare k k' = .eq) {v : β}
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) {h'} :
     get (insertMany! t l).1 k' h' = v := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [Const.insertMany!] using List.getValue_insertListConst_of_mem
 
 theorem get!_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α]
@@ -2365,16 +2326,14 @@ theorem get!_insertMany_list_of_mem [TransOrd α] [Inhabited β] (h : t.WF)
     {l : List (α × β)} {k k' : α} (k_beq : compare k k' = .eq) {v : β}
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) :
     get! (insertMany t l h.balanced).1 k' = v := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [Const.insertMany] using List.getValue!_insertListConst_of_mem
 
 theorem get!_insertMany!_list_of_mem [TransOrd α] [Inhabited β] (h : t.WF)
     {l : List (α × β)} {k k' : α} (k_beq : compare k k' = .eq) {v : β}
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) :
     get! (insertMany! t l).1 k' = v := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [Const.insertMany!] using List.getValue!_insertListConst_of_mem
 
 theorem getD_insertMany_list_of_contains_eq_false [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
@@ -2393,16 +2352,14 @@ theorem getD_insertMany_list_of_mem [TransOrd α] (h : t.WF)
     {l : List (α × β)} {k k' : α} (k_beq : compare k k' = .eq) {v fallback : β}
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) :
     getD (insertMany t l h.balanced).1 k' fallback = v := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [Const.insertMany] using List.getValueD_insertListConst_of_mem
 
 theorem getD_insertMany!_list_of_mem [TransOrd α] (h : t.WF)
     {l : List (α × β)} {k k' : α} (k_beq : compare k k' = .eq) {v fallback : β}
     (distinct : l.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) :
     getD (insertMany! t l).1 k' fallback = v := by
-  simp only [← beq_iff, Bool.not_eq_true] at distinct
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct k_beq
   simp_to_model [Const.insertMany!] using List.getValueD_insertListConst_of_mem
 
 variable {t : Impl α Unit}
@@ -2410,21 +2367,11 @@ variable {t : Impl α Unit}
 theorem insertManyIfNewUnit_cons (h : t.WF) {l : List α} {k : α} :
     (insertManyIfNewUnit t (k :: l) h.balanced).1 =
       (insertManyIfNewUnit (t.insertIfNew k () h.balanced).impl l h.insertIfNew.balanced).1 := by
-  simp only [insertManyIfNewUnit, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl,
-    List.foldl_cons]
-  rw [← List.foldl_hom Subtype.val, ← List.foldl_hom Subtype.val]
-  · exact fun t e => t.insertIfNew! e ()
-  · simp [insertIfNew_eq_insertIfNew!]
-  · simp [insertIfNew_eq_insertIfNew!]
+  simp [insertManyIfNewUnit_eq_foldl, insertIfNew_eq_insertIfNew!]
 
 theorem insertManyIfNewUnit!_cons {l : List α} {k : α} :
     (insertManyIfNewUnit! t (k :: l)).1 = (insertManyIfNewUnit! (t.insertIfNew! k ()) l).1 := by
-  simp only [insertManyIfNewUnit!, Id.run, Id.pure_eq, Id.bind_eq, List.forIn_yield_eq_foldl,
-    List.foldl_cons]
-  rw [← List.foldl_hom Subtype.val, ← List.foldl_hom Subtype.val]
-  · exact fun t e => t.insertIfNew! e ()
-  · simp
-  · simp
+  simp [insertManyIfNewUnit!_eq_foldl]
 
 @[simp]
 theorem contains_insertManyIfNewUnit_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (h : t.WF)
@@ -2488,8 +2435,8 @@ theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_mem [TransOrd α]
     (h : t.WF) {l : List α} {k k' : α} (k_beq : compare k k' = .eq) :
     ¬ k ∈ t → l.Pairwise (fun a b => ¬ compare a b = .eq) → k ∈ l →
       getKey? (insertManyIfNewUnit t l h.balanced).1 k' = some k := by
-  simp only [LawfulBEqOrd.compare_eq_iff_beq, Bool.not_eq_true, mem_iff_contains]
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true, mem_iff_contains]
+  rw [compare_eq_iff_beq] at k_beq
   simp_to_model [Const.insertManyIfNewUnit] using
     List.getKey?_insertListIfNewUnit_of_contains_eq_false_of_mem
 
@@ -2497,8 +2444,8 @@ theorem getKey?_insertManyIfNewUnit!_list_of_not_mem_of_mem [TransOrd α]
     (h : t.WF) {l : List α} {k k' : α} (k_beq : compare k k' = .eq) :
     ¬ k ∈ t → l.Pairwise (fun a b => ¬ compare a b = .eq) → k ∈ l →
       getKey? (insertManyIfNewUnit! t l).1 k' = some k := by
-  simp only [LawfulBEqOrd.compare_eq_iff_beq, Bool.not_eq_true, mem_iff_contains]
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true, mem_iff_contains]
+  rw [compare_eq_iff_beq] at k_beq
   simp_to_model [Const.insertManyIfNewUnit!] using
     List.getKey?_insertListIfNewUnit_of_contains_eq_false_of_mem
 
@@ -2529,8 +2476,8 @@ theorem getKey_insertManyIfNewUnit_list_of_not_mem_of_mem [TransOrd α]
     {k k' : α} (k_beq : compare k k' = .eq) {h'} :
     ¬ k ∈ t → l.Pairwise (fun a b => ¬ compare a b = .eq) → k ∈ l →
       getKey (insertManyIfNewUnit t l h.balanced).1 k' h' = k := by
-  simp only [LawfulBEqOrd.compare_eq_iff_beq, Bool.not_eq_true, mem_iff_contains]
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true, mem_iff_contains]
+  rw [compare_eq_iff_beq] at k_beq
   simp_to_model [Const.insertManyIfNewUnit] using
     List.getKey_insertListIfNewUnit_of_contains_eq_false_of_mem
 
@@ -2539,8 +2486,8 @@ theorem getKey_insertManyIfNewUnit!_list_of_not_mem_of_mem [TransOrd α]
     {k k' : α} (k_beq : compare k k' = .eq) {h'} :
     ¬ k ∈ t → l.Pairwise (fun a b => ¬ compare a b = .eq) → k ∈ l →
       getKey (insertManyIfNewUnit! t l).1 k' h' = k := by
-  simp only [LawfulBEqOrd.compare_eq_iff_beq, Bool.not_eq_true, mem_iff_contains]
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true, mem_iff_contains]
+  rw [compare_eq_iff_beq] at k_beq
   simp_to_model [Const.insertManyIfNewUnit!] using
     List.getKey_insertListIfNewUnit_of_contains_eq_false_of_mem
 
@@ -2574,8 +2521,8 @@ theorem getKey!_insertManyIfNewUnit_list_of_not_mem_of_mem [TransOrd α]
     [Inhabited α] (h : t.WF) {l : List α} {k k' : α} (k_beq : compare k k' = .eq) :
     ¬ k ∈ t → l.Pairwise (fun a b => ¬ compare a b = .eq) → k ∈ l →
       getKey! (insertManyIfNewUnit t l h.balanced).1 k' = k := by
-  simp only [LawfulBEqOrd.compare_eq_iff_beq, Bool.not_eq_true, mem_iff_contains]
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true, mem_iff_contains]
+  rw [compare_eq_iff_beq] at k_beq
   simp_to_model [Const.insertManyIfNewUnit] using
     List.getKey!_insertListIfNewUnit_of_contains_eq_false_of_mem
 
@@ -2583,8 +2530,8 @@ theorem getKey!_insertManyIfNewUnit!_list_of_not_mem_of_mem [TransOrd α]
     [Inhabited α] (h : t.WF) {l : List α} {k k' : α} (k_beq : compare k k' = .eq) :
     ¬ k ∈ t → l.Pairwise (fun a b => ¬ compare a b = .eq) → k ∈ l →
       getKey! (insertManyIfNewUnit! t l).1 k' = k := by
-  simp only [LawfulBEqOrd.compare_eq_iff_beq, Bool.not_eq_true, mem_iff_contains]
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true, mem_iff_contains]
+  rw [compare_eq_iff_beq] at k_beq
   simp_to_model [Const.insertManyIfNewUnit!] using
     List.getKey!_insertListIfNewUnit_of_contains_eq_false_of_mem
 
@@ -2618,8 +2565,8 @@ theorem getKeyD_insertManyIfNewUnit_list_of_not_mem_of_mem [TransOrd α]
     (h : t.WF) {l : List α} {k k' fallback : α} (k_beq : compare k k' = .eq) :
     ¬ k ∈ t → l.Pairwise (fun a b => ¬ compare a b = .eq) → k ∈ l →
       getKeyD (insertManyIfNewUnit t l h.balanced).1 k' fallback = k := by
-  simp only [LawfulBEqOrd.compare_eq_iff_beq, Bool.not_eq_true, mem_iff_contains]
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true, mem_iff_contains]
+  rw [compare_eq_iff_beq] at k_beq
   simp_to_model [Const.insertManyIfNewUnit] using
     List.getKeyD_insertListIfNewUnit_of_contains_eq_false_of_mem
 
@@ -2627,8 +2574,8 @@ theorem getKeyD_insertManyIfNewUnit!_list_of_not_mem_of_mem [TransOrd α]
     (h : t.WF) {l : List α} {k k' fallback : α} (k_beq : compare k k' = .eq) :
     ¬ k ∈ t → l.Pairwise (fun a b => ¬ compare a b = .eq) → k ∈ l →
       getKeyD (insertManyIfNewUnit! t l).1 k' fallback = k := by
-  simp only [LawfulBEqOrd.compare_eq_iff_beq, Bool.not_eq_true, mem_iff_contains]
-  rw [compare_eq_eq_iff_beq] at k_beq
+  simp only [compare_eq_iff_beq, Bool.not_eq_true, mem_iff_contains]
+  rw [compare_eq_iff_beq] at k_beq
   simp_to_model [Const.insertManyIfNewUnit!] using
     List.getKeyD_insertListIfNewUnit_of_contains_eq_false_of_mem
 
@@ -2649,7 +2596,7 @@ theorem size_insertManyIfNewUnit_list [TransOrd α] [BEq α] [LawfulBEqOrd α] (
     (distinct : l.Pairwise (fun a b => ¬ compare a b = .eq)) :
     (∀ (a : α), a ∈ t → l.contains a = false) →
     (insertManyIfNewUnit t l h.balanced).1.size = t.size + l.length := by
-  simp only [LawfulBEqOrd.compare_eq_iff_beq, Bool.not_eq_true] at distinct
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct
   simp only [mem_iff_contains]
   simp_to_model [Const.insertManyIfNewUnit] using List.length_insertListIfNewUnit
 
@@ -2658,7 +2605,7 @@ theorem size_insertManyIfNewUnit!_list [TransOrd α] [BEq α] [LawfulBEqOrd α] 
     (distinct : l.Pairwise (fun a b => ¬ compare a b = .eq)) :
     (∀ (a : α), a ∈ t → l.contains a = false) →
     (insertManyIfNewUnit! t l).1.size = t.size + l.length := by
-  simp only [LawfulBEqOrd.compare_eq_iff_beq, Bool.not_eq_true] at distinct
+  simp only [compare_eq_iff_beq, Bool.not_eq_true] at distinct
   simp only [mem_iff_contains]
   simp_to_model [Const.insertManyIfNewUnit!] using List.length_insertListIfNewUnit
 

@@ -428,7 +428,7 @@ protected theorem mul_le_mul_of_nonpos_left {a b c : Int}
 
 /- ## natAbs -/
 
-@[simp] theorem natAbs_ofNat (n : Nat) : natAbs ↑n = n := rfl
+@[simp, norm_cast] theorem natAbs_ofNat (n : Nat) : natAbs ↑n = n := rfl
 @[simp] theorem natAbs_negSucc (n : Nat) : natAbs -[n+1] = n.succ := rfl
 @[simp] theorem natAbs_zero : natAbs (0 : Int) = (0 : Nat) := rfl
 @[simp] theorem natAbs_one : natAbs (1 : Int) = (1 : Nat) := rfl
@@ -963,7 +963,7 @@ protected theorem nonpos_of_mul_nonpos_right {a b : Int}
 @[simp] theorem sign_one : sign 1 = 1 := rfl
 theorem sign_neg_one : sign (-1) = -1 := rfl
 
-@[simp] theorem sign_of_add_one (x : Nat) : Int.sign (x + 1) = 1 := rfl
+@[simp, norm_cast] theorem sign_of_add_one (x : Nat) : Int.sign (x + 1) = 1 := rfl
 @[simp] theorem sign_negSucc (x : Nat) : Int.sign (Int.negSucc x) = -1 := rfl
 
 theorem natAbs_sign (z : Int) : z.sign.natAbs = if z = 0 then 0 else 1 :=

@@ -298,7 +298,9 @@ class LawfulBEqCmp {α : Type u} [BEq α] (cmp : α → α → Ordering) : Prop 
 theorem LawfulBEqCmp.not_compare_eq_iff_beq_eq_false {α : Type u} [BEq α] {cmp}
     [LawfulBEqCmp (α := α) cmp] {a b : α} : ¬ cmp a b = .eq ↔ (a == b) = false := by
   rw [Bool.eq_false_iff, ne_eq, not_congr]
-  exact LawfulBEqCmp.compare_eq_iff_beq
+  exact compare_eq_iff_beq
+
+export LawfulBEqCmp (compare_eq_iff_beq not_compare_eq_iff_beq_eq_false)
 
 /--
 A typeclass for types with a comparison function that satisfies `compare a b = .eq` if and only if
@@ -311,13 +313,13 @@ abbrev LawfulBEqOrd (α : Type u) [BEq α] [Ord α] := LawfulBEqCmp (compare : �
 
 variable {α : Type u} [BEq α] {cmp : α → α → Ordering}
 
-theorem LawfulBEqOrd.compare_eq_iff_beq {α : Type u} {_ : BEq α} {_ : Ord α}
+theorem LawfulBEqOrd.compare_eq_iff_beq {α : Type u} {_ : Ord α} {_ : BEq α}
     [LawfulBEqOrd α] {a b : α} : compare a b = .eq ↔ (a == b) = true :=
-  LawfulBEqCmp.compare_eq_iff_beq
+  Std.compare_eq_iff_beq
 
 theorem LawfulBEqOrd.not_compare_eq_iff_beq_eq_false {α : Type u} {_ : BEq α} {_ : Ord α}
     [LawfulBEqOrd α] {a b : α} : ¬ compare a b = .eq ↔ (a == b) = false :=
-  LawfulBEqCmp.not_compare_eq_iff_beq_eq_false
+  Std.not_compare_eq_iff_beq_eq_false
 
 instance [LawfulEqCmp cmp] [LawfulBEq α] :
     LawfulBEqCmp cmp where

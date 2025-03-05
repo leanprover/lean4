@@ -441,7 +441,8 @@ deriving Inhabited
 private def AsyncConsts.add (aconsts : AsyncConsts) (aconst : AsyncConst) : AsyncConsts :=
   let normalizedName := privateToUserName aconst.constInfo.name
   if let some aconst' := aconsts.normalizedTrie.find? normalizedName then
-    panic! s!"AsyncConsts.add: duplicate normalized declaration name {aconst.constInfo.name} vs. {aconst'.constInfo.name}"
+    let _ : Inhabited AsyncConsts := ⟨aconsts⟩
+    panic! s!"duplicate normalized declaration name {aconst.constInfo.name} vs. {aconst'.constInfo.name}"
   else { aconsts with
     size := aconsts.size + 1
     revList := aconst :: aconsts.revList
@@ -666,19 +667,24 @@ def enableRealizationsForImports (env : Environment) (opts : Options) : BaseIO E
 /--
 Allows `realizeConst` calls for the given declaration in all derived environment branches.
 Realizations will run using the given environment and options to ensure deterministic results. Note
-that while we check that the function isn't called too *early*, i.e. before the declaration is
-actually added to the environment, we cannot automatically check that it isn't called too *late*,
-i.e. before all environment extensions that may be relevant to realizations have been set. We do
-check that we are not calling it from a different branch than `c` was added on, which would be
-definitely too late.
+that while we check that the function isn't called before the declaration is actually added to the
+environment, we cannot automatically check that it isn't otherwise called too early in the sense
+that helper declarations and environment extension state that may be relevant to realizations may
+not have been added yet. We do check that we are not calling it from a different branch than `c` was
+added on, which would be definitely too late. Thus, this function should generally be called in
+elaborators calling `addDecl` (when that declaration is a plausible target for realization) at the
+latest possible point, i.e. at the very end of the elaborator or just before a first realization may
+be triggered if any.
 -/
 def enableRealizationsForConst (env : Environment) (opts : Options) (c : Name) :
     BaseIO Environment := do
   if env.findAsync? c |>.isNone then
-    panic! s!"Environment.enableRealizationsForConst: declaration {c} not found in environment"
+    panic! s!"declaration {c} not found in environment"
+    return env
   if let some asyncCtx := env.asyncCtx? then
     if !asyncCtx.mayContain c then
-      panic! s!"Environment.enableRealizationsForConst: {c} is outside current context {asyncCtx.declPrefix}"
+      panic! s!"{c} is outside current context {asyncCtx.declPrefix}"
+      return env
   if env.realizedLocalConsts.contains c then
     return env
   return { env with realizedLocalConsts := env.realizedLocalConsts.insert c {
@@ -806,7 +812,7 @@ private def mkFallbackConstInfo (constName : Name) (kind : ConstantKind) : Const
     | .axiom  => .axiomInfo { fallbackVal with
       isUnsafe := false
     }
-    | k => panic! s!"Environment.mkFallbackConstInfo: unsupported constant kind {repr k}"
+    | k => panic! s!"unsupported constant kind {repr k}"
 
 /--
 Starts the asynchronous addition of a constant to the environment. The environment is split into a
@@ -921,8 +927,8 @@ def allImportedModuleNames (env : Environment) : Array Name :=
 
 def setMainModule (env : Environment) (m : Name) : Environment := Id.run do
   if env.realizedImportedConsts?.isSome then
-    panic! "Environment.setMainModule: cannot set after `enableRealizationsForImports`"
-    return env
+    let _ : Inhabited Environment := ⟨env⟩
+    return panic! "cannot set after `enableRealizationsForImports`"
   env.modifyCheckedAsync ({ · with header.mainModule := m })
 
 def mainModule (env : Environment) : Name :=
@@ -1068,6 +1074,7 @@ private unsafe def setStateImpl {σ} (ext : EnvExtension σ) (exts : Array EnvEx
   if h : ext.idx < exts.size then
     exts.set ext.idx (unsafeCast s)
   else
+    -- do not return an empty array on panic, avoiding follow-up out-of-bounds accesses
     have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
     panic! invalidExtMsg
 
@@ -1078,6 +1085,7 @@ private unsafe def modifyStateImpl {σ : Type} (ext : EnvExtension σ) (exts : A
       let s : σ := f s
       unsafeCast s
   else
+    -- do not return an empty array on panic, avoiding follow-up out-of-bounds accesses
     have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
     panic! invalidExtMsg
 
@@ -1099,11 +1107,13 @@ Note that in modes `sync` and `async`, `f` will be called twice, on the local an
 state.
 -/
 def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment := Id.run do
+  -- for panics
+  let _ : Inhabited Environment := ⟨env⟩
   -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
   match ext.asyncMode with
   | .mainOnly =>
     if let some asyncCtx := env.asyncCtx? then
-      panic! s!"Environment.modifyState: environment extension is marked as `mainOnly` but used in \
+      return panic! s!"environment extension is marked as `mainOnly` but used in \
         {if asyncCtx.realizing then "realization" else "async"} context '{asyncCtx.declPrefix}'"
     return { env with checkedWithoutAsync.extensions := unsafe ext.modifyStateImpl env.checkedWithoutAsync.extensions f }
   | .local =>
@@ -1111,7 +1121,7 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
   | _ =>
     if ext.replay?.isNone then
       if let some asyncCtx := env.asyncCtx?.filter (·.realizing) then
-        panic! s!"Environment.modifyState: environment extension must set `replay?` field to be \
+        return panic! s!"environment extension must set `replay?` field to be \
           used in realization context '{asyncCtx.declPrefix}'"
     env.modifyCheckedAsync fun env =>
       { env with extensions := unsafe ext.modifyStateImpl env.extensions f }
@@ -1129,7 +1139,7 @@ private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension
   -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
   match asyncMode with
   | .sync     => ext.getStateImpl env.checked.get.extensions
-  | .async    => panic! "EnvExtension.getState: called on `async` extension, use `findStateAsync` \
+  | .async    => panic! "called on `async` extension, use `findStateAsync` \
     instead or pass `(asyncMode := .local)` to explicitly access local state"
   | _         => ext.getStateImpl env.checkedWithoutAsync.extensions
 
@@ -1950,17 +1960,19 @@ where
         -- generator.
         kenv := kenv.add info
         continue
-      let decl := match info with
+      -- for panics
+      let _ : Inhabited Kernel.Environment := ⟨kenv⟩
+      let decl ← match info with
         | .thmInfo thm   => .thmDecl thm
         | .defnInfo defn => .defnDecl defn
-        | _              => panic! s!"Environment.realizeConst: {c.constInfo.name} must be definition/theorem"
+        | _              =>
+          return panic! s!"{c.constInfo.name} must be definition/theorem"
       -- realized kernel additions cannot be interrupted - which would be bad anyway as they can be
       -- reused between snapshots
       match kenv.addDeclCore 0 decl none with
       | .ok kenv' => kenv := kenv'
       | .error e =>
-        let _ : Inhabited Kernel.Environment := ⟨kenv⟩
-        panic! s!"Environment.realizeConst: failed to add {c.constInfo.name} to environment\n{e.toRawString}"
+        return panic! s!"failed to add {c.constInfo.name} to environment\n{e.toRawString}"
     for ext in exts do
       if let some replay := ext.replay? then
         kenv := { kenv with

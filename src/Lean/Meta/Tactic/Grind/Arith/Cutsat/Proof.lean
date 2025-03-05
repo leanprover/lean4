@@ -14,7 +14,7 @@ private def DvdCnstr.get_d_a (c : DvdCnstr) : GoalM (Int × Int) := do
   return (d, a)
 
 mutual
-partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := c'.caching do
+partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
   match c'.h with
   | .expr h =>
     return h
@@ -34,7 +34,7 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := c'.caching do
       (← getContext) (toExpr c₁.p) (toExpr c₂.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
 
-partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := c'.caching do
+partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
   match c'.h with
   | .expr h =>
     return h
@@ -87,7 +87,7 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := c'.caching do
     return mkApp10 (mkConst thmName)
       (← getContext) (toExpr p₁) (toExpr p₂) (toExpr c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr c'.d) (toExpr c'.p) (← s.toExprProof) reflBoolTrue
 
-partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := c'.caching do
+partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
   match c'.h with
   | .expr h =>
     return h
@@ -127,7 +127,7 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := c'.caching do
     let { c₁, c₂, c₃?, left } := s.pred
     let p₁ := c₁.p
     let p₂ := c₂.p
-    let coeff := if left then p₁.leadCoeff else p₂.leadCoeff
+    let coeff := if left then p₂.leadCoeff else p₁.leadCoeff
     match c₃? with
     | none =>
       let thmName := if left then ``Int.Linear.cooper_left_split_ineq else ``Int.Linear.cooper_right_split_ineq
@@ -138,7 +138,7 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := c'.caching do
       return mkApp10 (mkConst thmName)
         (← getContext) (toExpr p₁) (toExpr p₂) (toExpr c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr coeff) (toExpr c'.p) (← s.toExprProof) reflBoolTrue
 
-partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := c'.caching do
+partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
   match c'.h with
   | .expr h =>
     return h
@@ -156,7 +156,7 @@ partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := c'.caching
       (← getContext) (toExpr x) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
 
-partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s.id do
+partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s do
   match s.h with
   | .dec h => return mkFVar h
   | .last hs _ =>
@@ -190,7 +190,7 @@ partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s
       let h ← c.toExprProofCore -- proof of `False`
       -- `hNotCase` is a proof for `¬ pred (k-1)`
       let hNotCase := mkLambda `h .default type (h.abstract #[mkFVar fvarId])
-      result := mkApp4 (mkConst ``Int.Linear.orOver_resolve) (toExpr k) pred result hNotCase
+      result := mkApp4 (mkConst ``Int.Linear.orOver_resolve) (toExpr (k-1)) pred result hNotCase
       k := k - 1
     -- `result` is now a proof of `OrOver 1 pred`
     return mkApp2 (mkConst ``Int.Linear.orOver_one) pred result
@@ -198,20 +198,16 @@ partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s
 partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
   match h with
   | .le c =>
-    trace[grind.cutsat.le.unsat] "{← c.pp}"
     return mkApp4 (mkConst ``Int.Linear.le_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
   | .dvd c =>
-    trace[grind.cutsat.dvd.unsat] "{← c.pp}"
     return mkApp5 (mkConst ``Int.Linear.dvd_unsat) (← getContext) (toExpr c.d) (toExpr c.p) reflBoolTrue (← c.toExprProof)
   | .eq c =>
-    trace[grind.cutsat.eq.unsat] "{← c.pp}"
     if c.p.isUnsatEq then
       return mkApp4 (mkConst ``Int.Linear.eq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
     else
       let k := c.p.gcdCoeffs'
       return mkApp5 (mkConst ``Int.Linear.eq_unsat_coeff) (← getContext) (toExpr c.p) (toExpr (Int.ofNat k)) reflBoolTrue (← c.toExprProof)
   | .diseq c =>
-    trace[grind.cutsat.diseq.unsat] "{← c.pp}"
     return mkApp4 (mkConst ``Int.Linear.diseq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
 
 end
@@ -220,6 +216,7 @@ def UnsatProof.toExprProof (h : UnsatProof) : GoalM Expr := do
   withProofContext do h.toExprProofCore
 
 def setInconsistent (h : UnsatProof) : GoalM Unit := do
+  trace[grind.debug.cutsat.conflict] "setInconsistent [{← inconsistent}]: {← h.pp}"
   if (← get').caseSplits then
     -- Let the search procedure in `SearchM` resolve the conflict.
     modify' fun s => { s with conflict? := some h }
@@ -233,14 +230,14 @@ We collect them and perform non chronological backtracking.
 -/
 
 structure CollectDecVars.State where
-  visited : Std.HashSet Nat := {}
+  visited : Std.HashSet UInt64 := {}
   found : FVarIdSet := {}
-
 abbrev CollectDecVarsM := ReaderT FVarIdSet (StateM CollectDecVars.State)
 
-private def alreadyVisited (id : Nat) : CollectDecVarsM Bool := do
-  if (← get).visited.contains id then return true
-  modify fun s => { s with visited := s.visited.insert id }
+private def alreadyVisited (c : α) : CollectDecVarsM Bool := do
+  let addr := unsafe (ptrAddrUnsafe c).toUInt64 >>> 2
+  if (← get).visited.contains addr then return true
+  modify fun s => { s with visited := s.visited.insert addr }
   return false
 
 private def markAsFound (fvarId : FVarId) : CollectDecVarsM Unit := do
@@ -252,26 +249,30 @@ private def collectExpr (e : Expr) : CollectDecVarsM Unit := do
     markAsFound fvarId
 
 mutual
-partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c'.id) do
+partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
   | .expr h => collectExpr h
   | .core .. => return () -- Equalities coming from the core never contain cutsat decision variables
   | .norm c | .divCoeffs c => c.collectDecVars
   | .subst _ c₁ c₂ | .ofLeGe c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
 
-partial def CooperSplit.collectDecVars (s : CooperSplit) : CollectDecVarsM Unit := do unless (← alreadyVisited s.id) do
+partial def CooperSplit.collectDecVars (s : CooperSplit) : CollectDecVarsM Unit := do unless (← alreadyVisited s) do
+  s.pred.c₁.collectDecVars
+  s.pred.c₂.collectDecVars
+  if let some c₃ := s.pred.c₃? then
+    c₃.collectDecVars
   match s.h with
   | .dec h => markAsFound h
   | .last (decVars := decVars) .. => decVars.forM markAsFound
 
-partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c'.id) do
+partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
   | .expr h => collectExpr h
   | .cooper₁ c | .cooper₂ c
   | .norm c | .elim c | .divCoeffs c | .ofEq _ c => c.collectDecVars
   | .solveCombine c₁ c₂ | .solveElim c₁ c₂ | .subst _ c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
 
-partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c'.id) do
+partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
   | .expr h => collectExpr h
   | .notExpr .. => return () -- This kind of proof is used for connecting with the `grind` core.
@@ -279,7 +280,7 @@ partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do u
   | .combine c₁ c₂ | .subst _ c₁ c₂ | .ofLeDiseq c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
   | .ofDiseqSplit (decVars := decVars) .. => decVars.forM markAsFound
 
-partial def DiseqCnstr.collectDecVars (c' : DiseqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c'.id) do
+partial def DiseqCnstr.collectDecVars (c' : DiseqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
   | .expr h => collectExpr h
   | .core .. => return () -- Disequalities coming from the core never contain cutsat decision variables

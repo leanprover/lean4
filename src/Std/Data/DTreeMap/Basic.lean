@@ -820,13 +820,33 @@ def forM (f : (a : α) → β a → m PUnit) (t : DTreeMap α β cmp) : m PUnit 
 /-- Support for the `for` loop construct in `do` blocks. Iteration happens in ascending order. -/
 @[inline]
 def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (t : DTreeMap α β cmp) : m δ :=
-  t.inner.forIn (fun c a b => f a b c) init
+  t.inner.forIn f init
 
 instance : ForM m (DTreeMap α β cmp) ((a : α) × β a) where
   forM t f := t.forM (fun a b => f ⟨a, b⟩)
 
 instance : ForIn m (DTreeMap α β cmp) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
+
+namespace Const
+
+variable {β : Type v}
+
+/-!
+We do not define `ForM` and `ForIn` instances that are specialized to constant `β`. Instead, we
+define uncurried versions of `forM` and `forIn` that will be used in the `Const` lemmas and to
+define the `ForM` and `ForIn` instances for `DTreeMap`.
+-/
+
+@[inline, inherit_doc DTreeMap.forM]
+def forMUncurried (f : α × β → m PUnit) (t : DTreeMap α β cmp) : m PUnit :=
+  t.inner.forM fun a b => f ⟨a, b⟩
+
+@[inline, inherit_doc DTreeMap.forIn]
+def forInUncurried (f : α × β → δ → m (ForInStep δ)) (init : δ) (t : DTreeMap α β cmp) : m δ :=
+  t.inner.forIn (fun a b acc => f ⟨a, b⟩ acc) init
+
+end Const
 
 /-- Check if any element satisfes the predicate, short-circuiting if a predicate fails. -/
 @[inline]

@@ -22,10 +22,6 @@ after replaying any inductive definitions occurring in `constantMap`.
 * a verifier for an `Environment`, by sending everything to the kernel, or
 * a mechanism to safely transfer constants from one `Environment` to another.
 
-## Deprecation note
-
-We've decided that this code should live in the `https://github.com/leanprover/lean4checker` repository,
-rather than the core distribution. This code is now deprecated, and will be removed in a future release.
 -/
 
 namespace Lean.Environment
@@ -36,7 +32,7 @@ structure Context where
   newConstants : Std.HashMap Name ConstantInfo
 
 structure State where
-  env : Kernel.Environment
+  env : Environment
   remaining : NameSet := {}
   pending : NameSet := {}
   postponedConstructors : NameSet := {}
@@ -157,7 +153,6 @@ open Replay
 Throws a `IO.userError` if the kernel rejects a constant,
 or if there are malformed recursors or constructors for inductive types.
 -/
-@[deprecated "Use the `lean4checker` package instead" (since := "2025-03-04")]
 def replay (newConstants : Std.HashMap Name ConstantInfo) (env : Environment) : IO Environment := do
   let mut remaining : NameSet := ∅
   for (n, ci) in newConstants.toList do
@@ -165,10 +160,10 @@ def replay (newConstants : Std.HashMap Name ConstantInfo) (env : Environment) : 
     -- Later we may want to handle partial constants.
     if !ci.isUnsafe && !ci.isPartial then
       remaining := remaining.insert n
-  let (_, s) ← StateRefT'.run (s := { env := env.toKernelEnv, remaining }) do
+  let (_, s) ← StateRefT'.run (s := { env, remaining }) do
     ReaderT.run (r := { newConstants }) do
       for n in remaining do
         replayConstant n
       checkPostponedConstructors
       checkPostponedRecursors
-  return .ofKernelEnv s.env
+  return s.env

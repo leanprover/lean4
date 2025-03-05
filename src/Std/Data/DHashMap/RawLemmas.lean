@@ -32,38 +32,19 @@ open Lean Elab Meta Tactic
 
 private def baseNames : Array Name :=
   #[``Raw.empty_eq, ``Raw.emptyc_eq,
-    ``insert_eq, ``insert_val,
-    ``insertIfNew_eq, ``insertIfNew_val,
-    ``containsThenInsert_snd_eq, ``containsThenInsert_snd_val,
-    ``containsThenInsertIfNew_snd_eq, ``containsThenInsertIfNew_snd_val,
-    ``getThenInsertIfNew?_snd_eq, ``getThenInsertIfNew?_snd_val,
-    ``map_eq, ``map_val,
-    ``filter_eq, ``filter_val,
-    ``erase_eq, ``erase_val,
-    ``filterMap_eq, ``filterMap_val,
-    ``Const.getThenInsertIfNew?_snd_eq, ``Const.getThenInsertIfNew?_snd_val,
-    ``containsThenInsert_fst_eq, ``containsThenInsert_fst_val,
-    ``containsThenInsertIfNew_fst_eq, ``containsThenInsertIfNew_fst_val,
-    ``Const.get?_eq, ``Const.get?_val,
-    ``Const.get_eq, ``Const.get_val,
-    ``Const.getD_eq, ``Const.getD_val,
-    ``Const.get!_eq, ``Const.get!_val,
-    ``getThenInsertIfNew?_fst_eq, ``getThenInsertIfNew?_fst_val,
-    ``Const.getThenInsertIfNew?_fst_eq, ``Const.getThenInsertIfNew?_fst_val,
-    ``get?_eq, ``get?_val,
-    ``contains_eq, ``contains_val,
-    ``get_eq, ``get_val,
-    ``getD_eq, ``getD_val,
-    ``get!_eq, ``get!_val,
-    ``getKey?_eq, ``getKey?_val,
-    ``getKey_eq, ``getKey_val,
-    ``getKey!_eq, ``getKey!_val,
-    ``getKeyD_eq, ``getKeyD_val,
-    ``insertMany_eq, ``insertMany_val,
-    ``Const.insertMany_eq, ``Const.insertMany_val,
-    ``Const.insertManyIfNewUnit_eq, ``Const.insertManyIfNewUnit_val,
+    ``insert_eq, ``insertIfNew_eq, ``erase_eq, ``contains_eq,
+    ``containsThenInsert_fst_eq, ``containsThenInsert_snd_eq,
+    ``containsThenInsertIfNew_fst_eq, ``containsThenInsertIfNew_snd_eq,
+    ``getThenInsertIfNew?_fst_eq, ``getThenInsertIfNew?_snd_eq,
+    ``Const.getThenInsertIfNew?_snd_eq, ``Const.getThenInsertIfNew?_fst_eq,
+    ``map_eq, ``filter_eq, ``filterMap_eq,
+    ``get?_eq, ``get_eq, ``get!_eq, ``getD_eq,
+    ``Const.get?_eq, ``Const.get_eq, ``Const.getD_eq, ``Const.get!_eq,
+    ``getKey?_eq, ``getKey_eq, ``getKey!_eq, ``getKeyD_eq,
+    ``insertMany_eq, ``Const.insertMany_eq, ``Const.insertManyIfNewUnit_eq,
     ``ofList_eq, ``Const.ofList_eq, ``Const.unitOfList_eq,
-    ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq]
+    ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq,
+    ``Subtype.eta]
 
 /-- Internal implementation detail of the hash map -/
 scoped syntax "simp_to_raw" ("using" term)? : tactic
@@ -73,9 +54,9 @@ open Internal.Raw₀
 macro_rules
 | `(tactic| simp_to_raw $[using $using?]?) => do
   `(tactic|
-    (try simp (discharger := wf_trivial) only [$[$(Array.map Lean.mkIdent baseNames):term],*]
+    (try simp (discharger := with_reducible wf_trivial) only [$[$(Array.map Lean.mkIdent baseNames):term],*]
      $[apply $(using?.toArray):term];*)
-     <;> wf_trivial)
+     <;> with_reducible try wf_trivial)
 
 end Internal.Raw
 
@@ -1255,6 +1236,24 @@ theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
     ForIn.forIn m init f = ForIn.forIn m.toList init f :=
   Raw₀.forIn_eq_forIn_toList ⟨m, h.size_buckets_pos⟩
 
+theorem foldM_eq_foldlM_keys [Monad m'] [LawfulMonad m'] (h : m.WF)
+    {f : δ → α → m' δ} {init : δ} :
+    m.foldM (fun d a _ => f d a) init = m.keys.foldlM f init :=
+  Raw₀.foldM_eq_foldlM_keys ⟨m, h.size_buckets_pos⟩
+
+theorem fold_eq_foldl_keys (h : m.WF) {f : δ → α → δ} {init : δ} :
+    m.fold (fun d a _ => f d a) init = m.keys.foldl f init :=
+  Raw₀.fold_eq_foldl_keys ⟨m, h.size_buckets_pos⟩
+
+theorem forM_eq_forM_keys [Monad m'] [LawfulMonad m'] (h : m.WF) {f : α → m' PUnit} :
+    ForM.forM m (fun a => f a.1) = m.keys.forM f :=
+  Raw₀.forM_eq_forM_keys ⟨m, h.size_buckets_pos⟩
+
+theorem forIn_eq_forIn_keys [Monad m'] [LawfulMonad m'] (h : m.WF)
+    {f : α → δ → m' (ForInStep δ)} {init : δ} :
+    ForIn.forIn m init (fun a d => f a.1 d) = ForIn.forIn m.keys init f :=
+  Raw₀.forIn_eq_forIn_keys ⟨m, h.size_buckets_pos⟩
+
 namespace Const
 
 variable {β : Type v} {m : Raw α (fun _ => β)}
@@ -1268,10 +1267,39 @@ theorem fold_eq_foldl_toList (h : m.WF) {f : δ → (a : α) → β → δ} {ini
     m.fold f init = (Raw.Const.toList m).foldl (fun a b => f a b.1 b.2) init :=
   Raw₀.Const.fold_eq_foldl_toList ⟨m, h.size_buckets_pos⟩
 
+omit [BEq α] [Hashable α] in
+theorem forM_eq_forMUncurried [Monad m'] [LawfulMonad m']
+    {f : α → β → m' PUnit} :
+    Raw.forM f m = Const.forMUncurried (fun a => f a.1 a.2) m := rfl
+
+theorem forMUncurried_eq_forM_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
+    {f : α × β → m' PUnit} :
+    forMUncurried f m = (toList m).forM f :=
+  Raw₀.Const.forM_eq_forM_toList ⟨m, h.size_buckets_pos⟩
+
+/--
+Deprecated, use `forMUncurried_eq_forM_toList` together with `forM_eq_forMUncurried` instead.
+-/
+@[deprecated forMUncurried_eq_forM_toList (since := "2025-03-02")]
 theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] (h : m.WF) {f : (a : α) → β → m' PUnit} :
     m.forM f = (Raw.Const.toList m).forM (fun a => f a.1 a.2) :=
   Raw₀.Const.forM_eq_forM_toList ⟨m, h.size_buckets_pos⟩
 
+omit [BEq α] [Hashable α] in
+@[simp]
+theorem forIn_eq_forInUncurried [Monad m'] [LawfulMonad m']
+    {f : α → β → δ → m' (ForInStep δ)} {init : δ} :
+    forIn f init m = forInUncurried (fun a b => f a.1 a.2 b) init m := rfl
+
+theorem forInUncurried_eq_forIn_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
+    {f : α × β → δ → m' (ForInStep δ)} {init : δ} :
+    forInUncurried f init m = ForIn.forIn (toList m) init f :=
+  Raw₀.Const.forIn_eq_forIn_toList ⟨m, h.size_buckets_pos⟩
+
+/--
+Deprecated, use `forInUncurried_eq_forIn_toList` together with `forIn_eq_forInUncurried` instead.
+-/
+@[deprecated forInUncurried_eq_forIn_toList (since := "2025-03-02")]
 theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
     {f : (a : α) → β → δ → m' (ForInStep δ)} {init : δ} :
     m.forIn f init = ForIn.forIn (Raw.Const.toList m) init (fun a b => f a.1 a.2 b) :=
@@ -1279,23 +1307,27 @@ theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
 
 variable {m : Raw α (fun _ => Unit)}
 
+@[deprecated Raw.foldM_eq_foldlM_keys (since := "2025-02-28")]
 theorem foldM_eq_foldlM_keys [Monad m'] [LawfulMonad m'] (h : m.WF)
     {f : δ → α → m' δ} {init : δ} :
     m.foldM (fun d a _ => f d a) init = m.keys.foldlM f init :=
-  Raw₀.Const.foldM_eq_foldlM_keys ⟨m, h.size_buckets_pos⟩
+  Raw₀.foldM_eq_foldlM_keys ⟨m, h.size_buckets_pos⟩
 
+@[deprecated Raw.fold_eq_foldl_keys (since := "2025-02-28")]
 theorem fold_eq_foldl_keys (h : m.WF) {f : δ → α → δ} {init : δ} :
     m.fold (fun d a _ => f d a) init = m.keys.foldl f init :=
-  Raw₀.Const.fold_eq_foldl_keys ⟨m, h.size_buckets_pos⟩
+  Raw₀.fold_eq_foldl_keys ⟨m, h.size_buckets_pos⟩
 
+@[deprecated Raw.forM_eq_forM_keys (since := "2025-02-28")]
 theorem forM_eq_forM_keys [Monad m'] [LawfulMonad m'] (h : m.WF) {f : α → m' PUnit} :
     m.forM (fun a _ => f a) = m.keys.forM f :=
-  Raw₀.Const.forM_eq_forM_keys ⟨m, h.size_buckets_pos⟩
+  Raw₀.forM_eq_forM_keys ⟨m, h.size_buckets_pos⟩
 
+@[deprecated Raw.forIn_eq_forIn_keys (since := "2025-02-28")]
 theorem forIn_eq_forIn_keys [Monad m'] [LawfulMonad m'] (h : m.WF)
     {f : α → δ → m' (ForInStep δ)} {init : δ} :
     m.forIn (fun a _ d => f a d) init = ForIn.forIn m.keys init f :=
-  Raw₀.Const.forIn_eq_forIn_keys ⟨m, h.size_buckets_pos⟩
+  Raw₀.forIn_eq_forIn_keys ⟨m, h.size_buckets_pos⟩
 
 end Const
 

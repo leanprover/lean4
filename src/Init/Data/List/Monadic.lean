@@ -330,8 +330,7 @@ theorem forIn'_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
   simp only [forIn'_eq_foldlM]
   induction l.attach generalizing init <;> simp_all
 
-@[simp, deprecated forIn'_pure_yield_eq_foldl (since := "2025-03-05")]
-theorem forIn'_yield_eq_foldl
+@[simp] theorem forIn'_yield_eq_foldl
     (l : List α) (f : (a : α) → a ∈ l → β → β) (init : β) :
     (forIn' (m := Id) l init (fun a m b => pure <| .yield (f a m b))).run =
       l.attach.foldl (fun b ⟨a, h⟩ => f a h b) init :=
@@ -386,9 +385,8 @@ theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
 @[simp] theorem forIn_yield_eq_foldl
     (l : List α) (f : α → β → β) (init : β) :
     (forIn (m := Id) l init (fun a b => pure <| .yield (f a b))).run =
-      l.foldl (fun b a => f a b) init := by
-  simp only [forIn_eq_foldlM]
-  induction l generalizing init <;> simp_all
+      l.foldl (fun b a => f a b) init :=
+  forIn_pure_yield_eq_foldl _ _ _
 
 @[simp] theorem forIn_map [Monad m] [LawfulMonad m]
     (l : List α) (g : α → β) (f : β → γ → m (ForInStep γ)) :

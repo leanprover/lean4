@@ -1068,7 +1068,7 @@ theorem mem_of_mem_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h
 
 theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
     [EquivBEq α] [LawfulHashable α] (h : m.WF) {l : List α} {k : α}
-    (not_mem : ¬ k ∈ m) (contains_eq_false: l.contains k = false) :
+    (not_mem : ¬ k ∈ m) (contains_eq_false : l.contains k = false) :
     getKey? (insertManyIfNewUnit m l) k = none :=
   DHashMap.Raw.Const.getKey?_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
     h.out not_mem contains_eq_false

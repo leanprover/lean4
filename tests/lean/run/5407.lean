@@ -22,7 +22,9 @@ theorem odd_iff {n : Nat} : Odd n ↔ n % 2 = 1 := by
 
 /--
 error: found a proof, but the corresponding tactic failed:
-  exact fun a => (fun {n} => odd_iff.mpr) a
+  (expose_names; exact fun a => (fun {n} => odd_iff.mpr) a)
+
+It may be possible to correct this proof by adding type annotations or eliminating unnecessary function abstractions.
 -/
 #guard_msgs in
 example {n : Nat} : n % 2 = 1 → Odd n :=
@@ -51,23 +53,46 @@ inductive EqExplicit {α} : α → α → Prop
   | intro : (a b : α) → a = b → EqExplicit a b
 /--
 error: found a proof, but the corresponding tactic failed:
-  exact EqExplicit.intro (fun f => (fun g x => g x) f) id rfl
+  (expose_names; exact EqExplicit.intro (fun f => (fun g x => g x) f) id rfl)
+
+It may be possible to correct this proof by adding type annotations or eliminating unnecessary function abstractions.
 -/
 #guard_msgs in
 example : EqExplicit (fun (f : α → β) => (fun g x => g x) f) id := by
   exact?
 
+/-! Suggests `expose_names` if a name in the syntax contains macro scopes -/
+/--
+info: Try this: (expose_names; exact h)
+-/
+#guard_msgs in
+example {P : Prop} : P → P := by
+  intro
+  exact?
+
+/-! Does *not* suggest `expose_names` when the inaccessible name is an implicit argument. -/
+opaque D : Nat → Type
+axiom c_of_d {n : Nat} : D n → C
+/-- info: Try this: exact c_of_d x -/
+#guard_msgs in
+example : (n : Nat) → D n → C := by
+  intro
+  intro x
+  exact?
+
 /-! `apply?` logs info instead of erroring -/
-opaque D : Prop
-axiom option1 : A → D
-axiom option2 {_ : B} : D
+opaque E : Prop
+axiom option1 : A → E
+axiom option2 {_ : B} : E
 /--
 info: Try this: refine option1 ?_
 ---
 info: found a partial proof, but the corresponding tactic failed:
-  refine option2
+  (expose_names; refine option2)
+
+It may be possible to correct this proof by adding type annotations or eliminating unnecessary function abstractions.
 ---
 warning: declaration uses 'sorry'
 -/
 #guard_msgs in
-example : D := by apply?
+example : E := by apply?

@@ -433,11 +433,12 @@ def addSuggestions (ref : Syntax) (suggestions : Array Suggestion)
 
 /--
 Returns the syntax for an `exact` or `refine` (as indicated by `useRefine`) tactic corresponding to
-`e`. If `exposeNames` is `true`, prepends the tactic with `expose_names.`
+`e`. If `exposeNames` is `true`, prepends the tactic with `expose_names.` Note that the tactic is
+always generated within `withExposedNames` to avoid generating unprintable characters.
 -/
 def mkExactSuggestionSyntax (e : Expr) (useRefine : Bool) (exposeNames : Bool) : MetaM (TSyntax `tactic) :=
-  withOptions (pp.mvars.set · false) do
-  let exprStx ← (if exposeNames then withExposedNames else id) <| delabToRefinableSyntax e
+  withOptions (pp.mvars.set · false) <| withExposedNames do
+  let exprStx ← delabToRefinableSyntax e
   let tac ← if useRefine then `(tactic| refine $exprStx) else `(tactic| exact $exprStx)
   let tacSeq ← if exposeNames then `(tactic| (expose_names; $tac)) else pure tac
   return tacSeq

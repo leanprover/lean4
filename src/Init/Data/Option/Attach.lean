@@ -150,15 +150,19 @@ theorem map_attachWith_eq_pmap {o : Option α} {P : α → Prop} {H : ∀ (a : �
       o.pmap (fun a (h : a ∈ o ∧ P a) => f ⟨a, h.2⟩) (fun a h => ⟨h, H a h⟩) := by
   cases o <;> simp
 
-@[simp]
+@[simp] -- NB: Not a good simp lemma without abstracting the proof on the LHS it seems
 theorem map_attach_eq_attachWith {o : Option α} {p : α → Prop} (f : ∀ a, a ∈ o → p a) :
     o.attach.map (fun x => ⟨x.1, f x.1 x.2⟩) = o.attachWith p f := by
   cases o <;> simp_all [Function.comp_def]
 
+set_option pp.proofs true
 theorem attach_bind {o : Option α} {f : α → Option β} :
     (o.bind f).attach =
       o.attach.bind fun ⟨x, h⟩ => (f x).attach.map fun ⟨y, h'⟩ => ⟨y, mem_bind_iff.mpr ⟨x, h, h'⟩⟩ := by
-  cases o <;> simp
+  unfold attach_bind.proof_1
+  cases o
+  · simp
+  · simp [- Option.map_attach_eq_attachWith]
 
 theorem bind_attach {o : Option α} {f : {x // x ∈ o} → Option β} :
     o.attach.bind f = o.pbind fun a h => f ⟨a, h⟩ := by

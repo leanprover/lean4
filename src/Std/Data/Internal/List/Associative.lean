@@ -1180,12 +1180,15 @@ theorem getEntry?_insertEntry [BEq α] [PartialEquivBEq α] {l : List ((a : α) 
   · rw [insertEntry_of_containsKey_eq_false hl, getEntry?_cons, cond_eq_if]
   · simp [insertEntry_of_containsKey hl, getEntry?_replaceEntry, hl]
 
+set_option pp.proofs true
 theorem getValueCast?_insertEntry [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {k a : α}
     {v : β k} : getValueCast? a (insertEntry k v l) =
       if h : k == a then some (cast (congrArg β (eq_of_beq h)) v) else getValueCast? a l := by
   cases hl : containsKey k l
   · rw [insertEntry_of_containsKey_eq_false hl, getValueCast?_cons]
-  · rw [insertEntry_of_containsKey hl, getValueCast?_replaceEntry, hl]
+  · rw [insertEntry_of_containsKey hl, getValueCast?_replaceEntry]
+    unfold getValueCast?_replaceEntry.proof_1
+    rw [hl]
     split <;> simp_all
 
 theorem getValueCast?_insertEntry_self [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {k : α}
@@ -1358,6 +1361,7 @@ theorem getValueCast?_insertEntryIfNew [BEq α] [LawfulBEq α] {l : List ((a : �
     {v : β k} : getValueCast? a (insertEntryIfNew k v l) =
       if h : k == a ∧ containsKey k l = false then some (cast (congrArg β (eq_of_beq h.1)) v)
       else getValueCast? a l := by
+  unfold getValueCast?_insertEntryIfNew.proof_1
   cases h : containsKey k l
   · rw [insertEntryIfNew_of_containsKey_eq_false h, getValueCast?_cons]
     split <;> simp_all

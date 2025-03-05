@@ -62,7 +62,7 @@ info: [diag] Diagnostics
     [reduction] Array.size ↦ 6907
     [reduction] Array.toList ↦ 1851
     [reduction] autoParam ↦ 1675
-    [reduction] outParam ↦ 168
+    [reduction] outParam ↦ 172
     [reduction] Ne ↦ 60
     [reduction] GT.gt ↦ 46
     [reduction] List.casesOn ↦ 24

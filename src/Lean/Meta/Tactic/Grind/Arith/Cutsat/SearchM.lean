@@ -14,7 +14,7 @@ In principle, we only need to support two kinds of case split.
 -/
 inductive CaseKind where
   | diseq (d : DiseqCnstr)
-  | cooper (s : CooperSplitPred) (hs : Array (FVarId × UnsatProof))
+  | cooper (s : CooperSplitPred) (hs : Array (FVarId × UnsatProof)) (decVars : FVarIdSet)
   deriving Inhabited
 
 structure Case where
@@ -74,6 +74,7 @@ def mkCase (kind : CaseKind) : SearchM FVarId := do
     decVars := s.decVars.insert fvarId
   }
   modify' fun s => { s with caseSplits := true }
+  trace[grind.debug.cutsat.backtrack] "mkCase fvarId: {fvarId.name}"
   return fvarId
 
 end Lean.Meta.Grind.Arith.Cutsat

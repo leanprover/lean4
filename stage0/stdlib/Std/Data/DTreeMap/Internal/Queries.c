@@ -2049,7 +2049,7 @@ x_17 = lean_ctor_get(x_7, 0);
 lean_inc(x_17);
 lean_dec(x_7);
 lean_inc(x_2);
-x_18 = lean_apply_3(x_2, x_17, x_3, x_4);
+x_18 = lean_apply_3(x_2, x_3, x_4, x_17);
 x_19 = lean_alloc_closure((void*)(l_Std_DTreeMap_Internal_Impl_forInStep___rarg___lambda__1), 4, 3);
 lean_closure_set(x_19, 0, x_1);
 lean_closure_set(x_19, 1, x_2);

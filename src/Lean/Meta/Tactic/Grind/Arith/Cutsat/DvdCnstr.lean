@@ -12,19 +12,16 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
-def mkDvdCnstr (d : Int) (p : Poly) (h : DvdCnstrProof) : GoalM DvdCnstr := do
-  return { d, p, h, id := (← mkCnstrId) }
-
-def DvdCnstr.norm (c : DvdCnstr) : GoalM DvdCnstr := do
-  let c ← if c.p.isSorted then
-    pure c
+def DvdCnstr.norm (c : DvdCnstr) : DvdCnstr :=
+  let c := if c.p.isSorted then
+    c
   else
-    mkDvdCnstr c.d c.p.norm (.norm c)
+    { d := c.d, p := c.p.norm, h :=.norm c }
   let g := c.p.gcdCoeffs c.d
   if c.p.getConst % g == 0 && g != 1 then
-    mkDvdCnstr (c.d/g) (c.p.div g) (.divCoeffs c)
+    { d := c.d/g, p := c.p.div g, h := .divCoeffs c }
   else
-    return c
+    c
 
 /--
 Given an equation `c₁` containing the monomial `a*x`, and a divisibility constraint `c₂`
@@ -36,7 +33,7 @@ def DvdCnstr.applyEq (a : Int) (x : Var) (c₁ : EqCnstr) (b : Int) (c₂ : DvdC
   let d := Int.ofNat (a * c₂.d).natAbs
   let p := (q.mul a |>.combine (p.mul (-b)))
   trace[grind.cutsat.subst] "{← getVar x}, {← c₁.pp}, {← c₂.pp}"
-  mkDvdCnstr d p (.subst x c₁ c₂)
+  return { d, p, h := .subst x c₁ c₂ }
 
 partial def DvdCnstr.applySubsts (c : DvdCnstr) : GoalM DvdCnstr := withIncRecDepth do
   let some (b, x, c₁) ← c.p.findVarToSubst | return c
@@ -47,9 +44,10 @@ partial def DvdCnstr.applySubsts (c : DvdCnstr) : GoalM DvdCnstr := withIncRecDe
 /-- Asserts divisibility constraint. -/
 partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
   if (← inconsistent) then return ()
-  let c ← c.norm
-  let c ← c.applySubsts
+  trace[grind.cutsat.dvd] "{← c.pp}"
+  let c ← c.norm.applySubsts
   if c.isUnsat then
+    trace[grind.cutsat.dvd.unsat] "{← c.pp}"
     setInconsistent (.dvd c)
     return ()
   if c.isTrivial then
@@ -74,13 +72,13 @@ partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
     -/
     let α_d₂_p₁ := p₁.mul (α*d₂)
     let β_d₁_p₂ := p₂.mul (β*d₁)
-    let combine ← mkDvdCnstr (d₁*d₂) (.add d x (α_d₂_p₁.combine β_d₁_p₂)) (.solveCombine c c')
+    let combine := { d := d₁*d₂, p := .add d x (α_d₂_p₁.combine β_d₁_p₂), h := .solveCombine c c' : DvdCnstr }
     trace[grind.cutsat.dvd.solve.combine] "{← combine.pp}"
     modify' fun s => { s with dvds := s.dvds.set x none}
     combine.assert
     let a₂_p₁ := p₁.mul a₂
     let a₁_p₂ := p₂.mul (-a₁)
-    let elim ← mkDvdCnstr d (a₂_p₁.combine a₁_p₂) (.solveElim c c')
+    let elim := { d, p := a₂_p₁.combine a₁_p₂, h := .solveElim c c' : DvdCnstr }
     trace[grind.cutsat.dvd.solve.elim] "{← elim.pp}"
     elim.assert
   else
@@ -96,7 +94,7 @@ builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
       return ()
   if (← isEqTrue e) then
     let p ← toPoly b
-    let c ← mkDvdCnstr d p (.expr (← mkOfEqTrue (← mkEqTrueProof e)))
+    let c := { d, p, h := .expr (← mkOfEqTrue (← mkEqTrueProof e)) : DvdCnstr }
     trace[grind.cutsat.assert.dvd] "{← c.pp}"
     c.assert
   else if (← isEqFalse e) then

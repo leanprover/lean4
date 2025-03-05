@@ -26,25 +26,30 @@ def CooperSplit.assert (cs : CooperSplit) : GoalM Unit := do
   let b   := p₂.leadCoeff
   let p₁' := p.mul b |>.combine (q.mul (-a))
   let p₁' := p₁'.addConst <| if left then b*k else (-a)*k
-  let c₁' ← mkLeCnstr p₁' (.cooper cs)
+  let c₁' := { p := p₁', h := .cooper cs : LeCnstr }
+  trace[grind.debug.cutsat.cooper] "{← c₁'.pp}"
   c₁'.assert
+  if (← inconsistent) then return ()
   let p₂' := if left then p else q
   let p₂' := p₂'.addConst k
-  let c₂' ← mkDvdCnstr (if left then a else b) p₂' (.cooper₁ cs)
+  let c₂' := { d := if left then a else b, p := p₂', h := .cooper₁ cs : DvdCnstr }
+  trace[grind.debug.cutsat.cooper] "dvd₁: {← c₂'.pp}"
   c₂'.assert
+  if (← inconsistent) then return ()
   let some c₃ := c₃? | return ()
   let p₃  := c₃.p
   let d   := c₃.d
   let s   := p₃.tail
   let c   := p₃.leadCoeff
-  let c₃' ← if left then
+  let c₃' := if left then
     let p₃' := p.mul c |>.combine (s.mul (-a))
     let p₃' := p₃'.addConst (c*k)
-    mkDvdCnstr (a*d) p₃' (.cooper₂ cs)
+    { d := a*d, p := p₃', h := .cooper₂ cs : DvdCnstr }
   else
     let p₃' := q.mul (-c) |>.combine (s.mul b)
     let p₃' := p₃'.addConst (-c*k)
-    mkDvdCnstr (b*d) p₃' (.cooper₂ cs)
+    { d := b*d, p := p₃', h := .cooper₂ cs : DvdCnstr }
+  trace[grind.debug.cutsat.cooper] "dvd₂: {← c₃'.pp}"
   c₃'.assert
 
 private def checkIsNextVar (x : Var) : GoalM Unit := do
@@ -178,7 +183,7 @@ def resolveDvdConflict (c : DvdCnstr) : GoalM Unit := do
   trace[grind.cutsat.conflict] "{← c.pp}"
   let d := c.d
   let .add a _ p := c.p | c.throwUnexpected
-  (← mkDvdCnstr (a.gcd d) p (.elim c)).assert
+  { d := a.gcd d, p, h := .elim c : DvdCnstr }.assert
 
 /--
 Given a divisibility constraint solution space `s := { b, d }`,
@@ -266,17 +271,19 @@ def resolveRealLowerUpperConflict (c₁ c₂ : LeCnstr) : GoalM Bool := do
   let .add a₂ _ p₂ := c₂.p | c₂.throwUnexpected
   let p := p₁.mul a₂.natAbs |>.combine (p₂.mul a₁.natAbs)
   if (← p.satisfiedLe) != .false then
+    trace[grind.cutsat.conflict] "not resolved"
     return false
   else
-    let c ← mkLeCnstr p (.combine c₁ c₂)
+    let c := { p, h := .combine c₁ c₂ : LeCnstr }
+    trace[grind.cutsat.conflict] "resolved: {← c.pp}"
     c.assert
     return true
 
 def resolveCooperPred (pred : CooperSplitPred) : SearchM Unit := do
+  trace[grind.cutsat.conflict] "[{pred.numCases}]: {← pred.pp}"
   let n := pred.numCases
-  let fvarId ← mkCase (.cooper pred #[])
-  let s : CooperSplit := { pred, k := n - 1, id := (← mkCnstrId), h := .dec fvarId }
-  s.assert
+  let fvarId ← mkCase (.cooper pred #[] {})
+  { pred, k := n - 1, h := .dec fvarId : CooperSplit }.assert
 
 def resolveCooper (c₁ c₂ : LeCnstr) : SearchM Unit := do
   let left : Bool := c₁.p.leadCoeff.natAbs < c₂.p.leadCoeff.natAbs
@@ -295,10 +302,10 @@ splits `c` and resolve with `c₁`.
 Recall that a disequality
 -/
 def resolveRatDiseq (c₁ : LeCnstr) (c : DiseqCnstr) : SearchM Unit := do
-  let c ← if c.p.leadCoeff < 0 then
-    mkDiseqCnstr (c.p.mul (-1)) (.neg c)
+  let c := if c.p.leadCoeff < 0 then
+    { p := c.p.mul (-1), h := .neg c : DiseqCnstr }
   else
-    pure c
+    c
   let fvarId ← if let some fvarId := (← get').diseqSplits.find? c.p then
     trace[grind.debug.cutsat.diseq.split] "{← c.pp}, reusing {fvarId.name}"
     pure fvarId
@@ -308,12 +315,13 @@ def resolveRatDiseq (c₁ : LeCnstr) (c : DiseqCnstr) : SearchM Unit := do
     modify' fun s => { s with diseqSplits := s.diseqSplits.insert c.p fvarId }
     pure fvarId
   let p₂ := c.p.addConst 1
-  let c₂ ← mkLeCnstr p₂ (.expr (mkFVar fvarId))
+  let c₂ := { p := p₂, h := .expr (mkFVar fvarId) : LeCnstr }
   let b ← resolveRealLowerUpperConflict c₁ c₂
   assert! b
 
 def processVar (x : Var) : SearchM Unit := do
   if (← eliminated x) then
+    trace[grind.debug.cutsat.search] "eliminated: {← getVar x}"
     /-
     Variable has been eliminated, and will be assigned later after we have assigned
     variables that have not been eliminated.
@@ -325,6 +333,7 @@ def processVar (x : Var) : SearchM Unit := do
     if let some solutions ← c.getSolutions? then
       pure solutions
     else
+      trace[grind.debug.cutsat.search] "dvd conflict: {← c.pp}"
       resolveDvdConflict c
       return ()
   else
@@ -392,36 +401,57 @@ private def findCase (decVars : FVarIdSet) : SearchM Case := do
     trace[grind.debug.cutsat.backtrack] "skipping {case.fvarId.name}"
   unreachable!
 
-def resolveConflict (h : UnsatProof) : SearchM Bool := do
+private def union (vs₁ vs₂ : FVarIdSet) : FVarIdSet :=
+  vs₁.fold (init := vs₂) (·.insert ·)
+
+def resolveConflict (h : UnsatProof) : SearchM Unit := do
+  trace[grind.debug.cutsat.backtrack] "resolve conflict, decision stack: {(← get).cases.toList.map fun c => c.fvarId.name}"
   let decVars := h.collectDecVars.run (← get).decVars
+  trace[grind.debug.cutsat.backtrack] "dec vars: {decVars.toList.map (·.name)}"
   if decVars.isEmpty then
+    trace[grind.debug.cutsat.backtrack] "close goal: {← h.pp}"
     closeGoal (← h.toExprProof)
-    return false
+    return ()
   let c ← findCase decVars
   modify' fun _  => c.saved
+  trace[grind.debug.cutsat.backtrack] "backtracking {c.fvarId.name}"
+  let decVars := decVars.erase c.fvarId
   match c.kind with
   | .diseq c₁ =>
-    let decVars := decVars.erase c.fvarId |>.toArray
+    let decVars := decVars.toArray
     let p' := c₁.p.mul (-1) |>.addConst 1
-    let c' ← mkLeCnstr p' (.ofDiseqSplit c₁ c.fvarId h decVars)
+    let c' := { p := p', h := .ofDiseqSplit c₁ c.fvarId h decVars : LeCnstr }
     trace[grind.debug.cutsat.backtrack] "resolved diseq split: {← c'.pp}"
     c'.assert
-    return true
-  | _ => throwError "NIY resolve conflict"
+  | .cooper pred hs decVars' =>
+    let decVars' := union decVars decVars'
+    let n := pred.numCases
+    let hs := hs.push (c.fvarId, h)
+    trace[grind.debug.cutsat.backtrack] "cooper #{hs.size + 1}, {← pred.pp}, {hs.map fun p => p.1.name}"
+    let s ← if hs.size + 1 < n then
+      let fvarId ← mkCase (.cooper pred hs decVars')
+      pure { pred, k := n - hs.size - 1, h := .dec fvarId : CooperSplit }
+    else
+      let decVars' := decVars'.toArray
+      trace[grind.debug.cutsat.backtrack] "cooper last case, {← pred.pp}, dec vars: {decVars'.map (·.name)}"
+      pure { pred, k := 0, h := .last hs decVars' : CooperSplit }
+    s.assert
 
 /-- Search for an assignment/model for the linear constraints. -/
 def searchAssigmentMain : SearchM Unit := do
   repeat
+    trace[grind.debug.cutsat.search] "main loop"
     if (← hasAssignment) then
       return ()
     if (← isInconsistent) then
       -- `grind` state is inconsistent
       return ()
     if let some c := (← get').conflict? then
-      unless (← resolveConflict c) do
-        return ()
-    let x : Var := (← get').assignment.size
-    processVar x
+      resolveConflict c
+    else
+      let x : Var := (← get').assignment.size
+      trace[grind.debug.cutsat.search] "next var: {← getVar x}"
+      processVar x
 
 def traceModel : GoalM Unit := do
   if (← isTracingEnabledFor `grind.cutsat.model) then
@@ -436,6 +466,7 @@ def searchAssigment : GoalM Unit := do
     trace[grind.debug.cutsat.search] "restart using Cooper resolution"
     modify' fun s => { s with assignment := {} }
     searchAssigmentMain .int |>.run' {}
+    trace[grind.debug.cutsat.search] "after search int model, inconsistent: {← isInconsistent}"
     if (← isInconsistent) then return ()
   assignElimVars
   traceModel

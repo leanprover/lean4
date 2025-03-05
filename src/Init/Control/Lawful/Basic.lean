@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Leonardo de Moura, Mario Carneiro
 -/
 prelude
+import Init.Ext
 import Init.SimpLemmas
 import Init.Meta
 
@@ -186,6 +187,8 @@ theorem LawfulMonad.mk' (m : Type u → Type v) [Monad m]
 /-! # Id -/
 
 namespace Id
+
+@[ext] theorem ext {x y : Id α} (h : x.run = y.run) : x = y := h
 
 instance : LawfulMonad Id := by
   refine LawfulMonad.mk' _ ?_ ?_ ?_ <;> intros <;> rfl

@@ -2553,28 +2553,28 @@ section Raw
 -- these lemmas work without any instance or well-formedness assumptions
 
 variable {α : Type u}
-variable {β : α → Type v} (m₁ m₂ : Raw₀ α β)
+variable {β : α → Type v} (m₁ m₂ : Raw α β)
 
-theorem equiv_iff_toList_perm_toList (m₁ m₂ : Raw α β) :
-    m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList := by
+theorem equiv_iff_toList_perm_toList : m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList := by
   simp_to_model [toList, Equiv]
 
-theorem keys_perm_keys_of_equiv (m₁ m₂ : Raw α β) (h : m₁ ~m m₂) :
-    m₁.keys.Perm m₂.keys := by
+theorem keys_perm_keys_of_equiv (h : m₁ ~m m₂) : m₁.keys.Perm m₂.keys := by
   simp_to_model [keys]
   simp only [List.keys_eq_map]
   exact h.1.map _
 
-theorem filter_equiv_congr (m₁ m₂ : Raw₀ α β) (h : m₁.1 ~m m₂.1)
-    (f : (a : α) → β a → Bool) : (m₁.filter f).1 ~m (m₂.filter f).1 := by
+variable (m₁ m₂ : Raw₀ α β)
+
+theorem filter_equiv_congr (h : m₁.1 ~m m₂.1) {f : (a : α) → β a → Bool} :
+    (m₁.filter f).1 ~m (m₂.filter f).1 := by
   simp_to_model [filter, Equiv] using h.1.filter _
 
 theorem map_equiv_congr {γ : α → Type w} (m₁ m₂ : Raw₀ α β) (h : m₁.1 ~m m₂.1)
-    (f : (a : α) → β a → γ a) : (m₁.map f).1 ~m (m₂.map f).1 := by
+    {f : (a : α) → β a → γ a} : (m₁.map f).1 ~m (m₂.map f).1 := by
   simp_to_model [map, Equiv] using h.1.map _
 
-theorem filterMap_equiv_congr {β : α → Type v} {γ : α → Type w} (m₁ m₂ : Raw₀ α β) (h : m₁.1 ~m m₂.1)
-    (f : (a : α) → β a → Option (γ a)) : (m₁.filterMap f).1 ~m (m₂.filterMap f).1 := by
+theorem filterMap_equiv_congr {γ : α → Type w} (h : m₁.1 ~m m₂.1)
+    {f : (a : α) → β a → Option (γ a)} : (m₁.filterMap f).1 ~m (m₂.filterMap f).1 := by
   simp_to_model [filterMap, Equiv] using h.1.filterMap _
 
 namespace Const

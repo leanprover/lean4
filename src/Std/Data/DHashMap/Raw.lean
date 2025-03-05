@@ -6,6 +6,7 @@ Authors: Markus Himmel
 prelude
 import Init.Data.BEq
 import Init.Data.Hashable
+import Init.Data.List.Perm
 import Std.Data.DHashMap.Internal.Defs
 
 /-
@@ -56,6 +57,22 @@ instance : EmptyCollection (Raw α β) where
 
 instance : Inhabited (Raw α β) where
   default := ∅
+
+/--
+Two hash maps are equivalent in the sense of `Equiv` iff
+all the keys and values are equal.
+-/
+structure Equiv [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Prop where
+  /-- Internal implementation detail of the hash map -/
+  perm_toListModel : (toListModel m₁.2).Perm (toListModel m₂.2)
+
+instance [BEq α] [Hashable α] : Setoid (Raw α β) where
+  r := Equiv
+  iseqv := {
+    refl _ := ⟨.rfl⟩
+    symm | ⟨h⟩ => ⟨h.symm⟩
+    trans | ⟨h⟩, ⟨h'⟩ => ⟨h.trans h'⟩
+  }
 
 /--
 Inserts the given mapping into the map. If there is already a mapping for the given key, then both

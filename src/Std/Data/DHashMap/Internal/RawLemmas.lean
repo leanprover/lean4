@@ -126,7 +126,9 @@ private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSynta
      ⟨`foldRevM, (``Raw.foldRevM_eq_foldrM_toListModel, #[])⟩,
      ⟨`foldRev, (``Raw.foldRev_eq_foldr_toListModel, #[])⟩,
      ⟨`forIn, (``Raw.forIn_eq_forIn_toListModel, #[])⟩,
-     ⟨`forM, (``Raw.forM_eq_forM_toListModel, #[])⟩]
+     ⟨`forM, (``Raw.forM_eq_forM_toListModel, #[])⟩,
+     ⟨`Equiv, (``Raw.equiv_iff_perm_toListModel,
+      #[`(_root_.List.Perm.congr_left), `(_root_.List.Perm.congr_right)])⟩]
 
 /-- Internal implementation detail of the hash map -/
 scoped syntax "simp_to_model" (" [" (ident,*) "]")? ("using" term)? : tactic
@@ -2536,6 +2538,151 @@ theorem getKeyD_modify_self (h : m.1.WF) [Inhabited α] {k fallback : α} {f : �
 end Const
 
 end Modify
+
+section Equiv
+
+variable (m₁ m₂ : Raw₀ α β)
+
+theorem isEmpty_of_equiv [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1) :
+    m₁.1.isEmpty = m₂.1.isEmpty := by
+  simp_to_model [isEmpty] using List.Perm.isEmpty_eq h.1
+
+theorem contains_eq_of_equiv [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1) {k : α} :
+    m₁.contains k = m₂.contains k := by
+  simp_to_model [contains] using List.containsKey_of_perm h.1
+
+theorem size_eq_of_equiv [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1) :
+    m₁.1.size = m₂.1.size := by
+  simp_to_model [size] using List.Perm.length_eq h.1
+
+theorem get?_eq_of_equiv [LawfulBEq α] (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1) {k : α} :
+    m₁.get? k = m₂.get? k := by
+  simp_to_model [get?] using List.getValueCast?_of_perm _ h.1
+
+theorem get_eq_of_equiv [LawfulBEq α] (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1)
+    {k : α} (h' : m₁.contains k) :
+    m₁.get k h' = m₂.get k ((contains_eq_of_equiv _ _ h₁ h₂ h).symm.trans h') := by
+  simp_to_model [get] using List.getValueCast_of_perm _ h.1
+
+theorem get!_eq_of_equiv [LawfulBEq α] (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1)
+    {k : α} [Inhabited (β k)] : m₁.get! k = m₂.get! k := by
+  simp_to_model [get!] using List.getValueCast!_of_perm _ h.1
+
+theorem getD_eq_of_equiv [LawfulBEq α] (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1)
+    {k : α} {fallback : β k} : m₁.getD k fallback = m₂.getD k fallback := by
+  simp_to_model [getD] using List.getValueCastD_of_perm _ h.1
+
+theorem getKey?_eq_of_equiv [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1) {k : α} :
+    m₁.getKey? k = m₂.getKey? k := by
+  simp_to_model [getKey?] using List.getKey?_of_perm _ h.1
+
+theorem getKey_eq_of_equiv [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1) {k : α} (h' : m₁.contains k) :
+    m₁.getKey k h' = m₂.getKey k ((contains_eq_of_equiv _ _ h₁ h₂ h).symm.trans h') := by
+  simp_to_model [getKey] using List.getKey_of_perm _ h.1
+
+theorem getKey!_eq_of_equiv [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1) {k : α} :
+    m₁.getKey! k = m₂.getKey! k := by
+  simp_to_model [getKey!] using List.getKey!_of_perm _ h.1
+
+theorem getKeyD_eq_of_equiv [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1) {k fallback : α} :
+    m₁.getKeyD k fallback = m₂.getKeyD k fallback := by
+  simp_to_model [getKeyD] using List.getKeyD_of_perm _ h.1
+
+theorem toList_perm_toList_of_equiv [EquivBEq α] [LawfulHashable α]
+    (h : m₁.1 ≈ m₂.1) : m₁.1.toList.Perm m₂.1.toList := by
+  simp_to_model [toList] using h.1
+
+theorem keys_perm_keys_of_equiv [EquivBEq α] [LawfulHashable α]
+    (h : m₁.1 ≈ m₂.1) : m₁.1.keys.Perm m₂.1.keys := by
+  simp_to_model [keys]
+  simp only [List.keys_eq_map]
+  exact h.1.map _
+
+theorem insert_equiv_congr [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1)
+    {k : α} {v : β k} : (m₁.insert k v).1 ≈ (m₂.insert k v).1 := by
+  simp_to_model [Equiv, insert] using List.insertEntry_of_perm _ h.1
+
+theorem erase_equiv_congr [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1)
+    {k : α} : (m₁.erase k).1 ≈ (m₂.erase k).1 := by
+  simp_to_model [Equiv, erase] using List.eraseKey_of_perm _ h.1
+
+theorem insertIfNew_equiv_congr [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1)
+    {k : α} {v : β k} : (m₁.insertIfNew k v).1 ≈ (m₂.insertIfNew k v).1 := by
+  simp_to_model [Equiv, insertIfNew] using List.insertEntryIfNew_of_perm _ h.1
+
+theorem insertMany_list_equiv_congr [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1) {l : List ((a : α) × β a)} :
+    (m₁.insertMany l).1.1 ≈ (m₂.insertMany l).1.1 := by
+  simp_to_model [Equiv, insertMany] using List.insertList_perm_of_perm_first h.1
+
+theorem alter_equiv_congr [LawfulBEq α] (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1)
+    {k : α} (f : Option (β k) → Option (β k)) : (m₁.alter k f).1 ≈ (m₂.alter k f).1 := by
+  simp_to_model [Equiv, alter] using List.alterKey_of_perm _ h.1
+
+theorem modify_equiv_congr [LawfulBEq α] (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1)
+    {k : α} (f : β k → β k) : (m₁.modify k f).1 ≈ (m₂.modify k f).1 := by
+  simp_to_model [Equiv, modify] using List.modifyKey_of_perm _ h.1
+
+namespace Const
+
+variable {β : Type v} (m₁ m₂ : Raw₀ α fun _ => β)
+variable [EquivBEq α] [LawfulHashable α]
+
+theorem get?_eq_of_equiv (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1) {k : α} :
+    get? m₁ k = get? m₂ k := by
+  simp_to_model [Const.get?] using List.getValue?_of_perm _ h.1
+
+theorem get_eq_of_equiv (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1)
+    {k : α} (h' : m₁.contains k) :
+    get m₁ k h' = get m₂ k ((contains_eq_of_equiv _ _ h₁ h₂ h).symm.trans h') := by
+  simp_to_model [Const.get] using List.getValue_of_perm _ h.1
+
+theorem get!_eq_of_equiv (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1)
+    {k : α} [Inhabited β] : get! m₁ k = get! m₂ k := by
+  simp_to_model [Const.get!] using List.getValue!_of_perm _ h.1
+
+theorem getD_eq_of_equiv (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1)
+    {k : α} {fallback : β} : getD m₁ k fallback = getD m₂ k fallback := by
+  simp_to_model [Const.getD] using List.getValueD_of_perm _ h.1
+
+omit [EquivBEq α] [LawfulHashable α] in
+
+theorem toList_perm_toList_of_equiv (h : m₁.1 ≈ m₂.1) :
+    (Raw.Const.toList m₁.1).Perm (Raw.Const.toList m₂.1) := by
+  simp_to_model [Const.toList]
+  exact h.1.map _
+
+theorem insertMany_list_equiv_congr (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1)
+    {l : List (α × β)} : (insertMany m₁ l).1.1 ≈ (insertMany m₂ l).1.1 := by
+  simp_to_model [Equiv, Const.insertMany] using List.insertList_perm_of_perm_first h.1
+
+theorem insertManyIfNewUnit_list_equiv_congr {m₁ m₂ : Raw₀ α fun _ => Unit}
+    (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1) {l : List α} :
+    (insertManyIfNewUnit m₁ l).1.1 ≈ (insertManyIfNewUnit m₂ l).1.1 := by
+  simp_to_model [Equiv, Const.insertManyIfNewUnit]
+    using List.insertListIfNewUnit_perm_of_perm_first h.1
+
+theorem alter_equiv_congr (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1)
+    {k : α} (f : Option β → Option β) : (alter m₁ k f).1 ≈ (alter m₂ k f).1 := by
+  simp_to_model [Equiv, Const.alter] using List.Const.alterKey_of_perm _ h.1
+
+theorem modify_equiv_congr (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ≈ m₂.1)
+    {k : α} (f : β → β) : (modify m₁ k f).1 ≈ (modify m₂ k f).1 := by
+  simp_to_model [Equiv, Const.modify] using List.Const.modifyKey_of_perm _ h.1
+
+end Const
+
+end Equiv
 
 end Raw₀
 

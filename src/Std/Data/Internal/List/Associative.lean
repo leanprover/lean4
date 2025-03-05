@@ -1898,6 +1898,12 @@ theorem insertEntry_of_perm [BEq α] [EquivBEq α] {l l' : List ((a : α) × β 
   apply getEntry?_ext hl.insertEntry (hl.perm h.symm).insertEntry
   simp [getEntry?_insertEntry, getEntry?_of_perm hl h]
 
+theorem insertEntryIfNew_of_perm [BEq α] [EquivBEq α] {l l' : List ((a : α) × β a)}
+    {k : α} {v : β k} (hl : DistinctKeys l) (h : Perm l l') :
+    Perm (insertEntryIfNew k v l) (insertEntryIfNew k v l') := by
+  apply getEntry?_ext hl.insertEntryIfNew (hl.perm h.symm).insertEntryIfNew
+  simp [getEntry?_insertEntryIfNew, getEntry?_of_perm hl h, containsKey_of_perm h]
+
 theorem eraseKey_of_perm [BEq α] [EquivBEq α] {l l' : List ((a : α) × β a)} {k : α}
     (hl : DistinctKeys l) (h : Perm l l') : Perm (eraseKey k l) (eraseKey k l') := by
   apply getEntry?_ext hl.eraseKey (hl.perm h.symm).eraseKey
@@ -3703,6 +3709,11 @@ theorem modifyKey_eq_alterKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β 
   split <;> next h =>
     simp [h, insertEntry, containsKey_eq_isSome_getValueCast?, eraseKey_of_containsKey_eq_false]
 
+theorem modifyKey_of_perm [BEq α] [LawfulBEq α] {l l' : List ((a : α) × β a)}
+    {k : α} {f : β k → β k} (hl : DistinctKeys l) (h : Perm l l') :
+    Perm (modifyKey k f l) (modifyKey k f l') := by
+  simp only [modifyKey_eq_alterKey, alterKey_of_perm hl h]
+
 theorem getValueCast?_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {f : β k → β k}
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getValueCast? k' (modifyKey k f l) =
@@ -3854,6 +3865,11 @@ theorem modifyKey_eq_alterKey (k : α) (f : β → β) (l : List ((_ : α) × β
   rw [modifyKey, alterKey, Option.map.eq_def]
   split <;> next h =>
     simp [h, insertEntry, containsKey_eq_isSome_getValue?, eraseKey_of_containsKey_eq_false]
+
+theorem modifyKey_of_perm [EquivBEq α] {l l' : List ((_ : α) × β)} {k : α} {f : β → β}
+    (hl : DistinctKeys l) (h : Perm l l') :
+    Perm (modifyKey k f l) (modifyKey k f l') := by
+  simp only [modifyKey_eq_alterKey, alterKey_of_perm hl h]
 
 theorem length_modifyKey (k : α) (f : β → β) (l : List ((_ : α) × β)) :
     (modifyKey k f l).length = l.length := by

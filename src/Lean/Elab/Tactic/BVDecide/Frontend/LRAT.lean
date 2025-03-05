@@ -33,13 +33,7 @@ structure TacticContext where
   config : BVDecideConfig
 
 def TacticContext.new (lratPath : System.FilePath) (config : BVDecideConfig) :
-    Lean.Elab.TermElabM TacticContext := do
-  -- Account for: https://github.com/arminbiere/cadical/issues/112
-  let config :=
-    if System.Platform.isWindows then
-      { config with binaryProofs := false }
-    else
-      config
+    TermElabM TacticContext := do
   let exprDef ← Lean.Elab.Term.mkAuxName `_expr_def
   let certDef ← Lean.Elab.Term.mkAuxName `_cert_def
   let reflectionDef ← Lean.Elab.Term.mkAuxName `_reflection_def

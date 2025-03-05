@@ -361,6 +361,10 @@ protected theorem sub_lt_self (a : Int) {b : Int} (h : 0 < b) : a - b < a :=
 
 theorem add_one_le_of_lt {a b : Int} (H : a < b) : a + 1 ≤ b := H
 
+protected theorem le_iff_lt_add_one {a b : Int} : a ≤ b ↔ a < b + 1 := by
+  rw [Int.lt_iff_add_one_le]
+  exact (Int.add_le_add_iff_right 1).symm
+
 /- ### Order properties and multiplication -/
 
 

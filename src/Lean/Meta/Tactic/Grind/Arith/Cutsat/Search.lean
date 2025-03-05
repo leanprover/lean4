@@ -400,22 +400,40 @@ private def findCase (decVars : FVarIdSet) : SearchM Case := do
     trace[grind.debug.cutsat.backtrack] "skipping {case.fvarId.name}"
   unreachable!
 
+private def union (vs₁ vs₂ : FVarIdSet) : FVarIdSet :=
+  vs₁.fold (init := vs₂) (·.insert ·)
+
 def resolveConflict (h : UnsatProof) : SearchM Bool := do
+  trace[grind.debug.cutsat.backtrack] "resolve conflict, decision stack: {(← get).cases.toList.map fun c => c.fvarId.name}"
   let decVars := h.collectDecVars.run (← get).decVars
   if decVars.isEmpty then
     closeGoal (← h.toExprProof)
     return false
   let c ← findCase decVars
   modify' fun _  => c.saved
+  trace[grind.debug.cutsat.backtrack] "backtracking {c.fvarId.name}"
+  let decVars := decVars.erase c.fvarId
   match c.kind with
   | .diseq c₁ =>
-    let decVars := decVars.erase c.fvarId |>.toArray
+    let decVars := decVars.toArray
     let p' := c₁.p.mul (-1) |>.addConst 1
     let c' ← mkLeCnstr p' (.ofDiseqSplit c₁ c.fvarId h decVars)
     trace[grind.debug.cutsat.backtrack] "resolved diseq split: {← c'.pp}"
     c'.assert
     return true
-  | _ => throwError "NIY resolve conflict"
+  | .cooper pred hs decVars' =>
+    let decVars' := union decVars decVars'
+    let n := pred.numCases
+    let hs := hs.push (c.fvarId, h)
+    trace[grind.debug.cutsat.backtrack] "cooper #{hs.size + 1}, {← pred.pp}"
+    let s ← if hs.size + 1 < n then
+      let fvarId ← mkCase (.cooper pred hs decVars')
+      pure { pred, k := n - hs.size - 1, id := (← mkCnstrId), h := .dec fvarId : CooperSplit }
+    else
+      let decVars' := decVars'.toArray
+      pure { pred, k := 0, id := (← mkCnstrId), h := .last hs decVars' : CooperSplit }
+    s.assert
+    return true
 
 /-- Search for an assignment/model for the linear constraints. -/
 def searchAssigmentMain : SearchM Unit := do

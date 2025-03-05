@@ -1,45 +1,26 @@
-
-[init]
-def sefFn (x_1 : obj) (x_2 : obj) : obj :=
-  case x_1 : obj of
-  Lean.Expr.bvar._impl →
-    ret x_1
-  Lean.Expr.fvar._impl →
-    ret x_1
-  Lean.Expr.mvar._impl →
-    ret x_1
-  Lean.Expr.sort._impl →
-    ret x_1
-  Lean.Expr.const._impl →
-    ret x_1
-  Lean.Expr.app._impl →
-    let x_3 : obj := proj[0] x_1;
-    let x_4 : obj := proj[1] x_1;
-    let x_5 : usize := ptrAddrUnsafe ◾ x_3;
-    let x_6 : usize := ptrAddrUnsafe ◾ x_2;
-    let x_7 : u8 := USize.decEq x_5 x_6;
-    case x_7 : obj of
-    Bool.false →
-      let x_8 : obj := Lean.Expr.app._override x_2 x_4;
-      ret x_8
-    Bool.true →
-      let x_9 : usize := ptrAddrUnsafe ◾ x_4;
-      let x_10 : u8 := USize.decEq x_9 x_9;
-      case x_10 : obj of
-      Bool.false →
-        let x_11 : obj := Lean.Expr.app._override x_2 x_4;
-        ret x_11
-      Bool.true →
+[Compiler.IR] [init]
+    def sefFn (x_1 : obj) (x_2 : obj) : obj :=
+      case x_1 : obj of
+      Lean.Expr.app._impl →
+        let x_3 : u64 := sproj[2, 0] x_1;
+        let x_4 : obj := proj[0] x_1;
+        let x_5 : obj := proj[1] x_1;
+        block_6 (x_7 : u8) :=
+          case x_7 : obj of
+          Bool.false →
+            let x_8 : obj := Lean.Expr.app._override x_2 x_5;
+            ret x_8
+          Bool.true →
+            ret x_1;
+        let x_9 : usize := ptrAddrUnsafe ◾ x_4;
+        let x_10 : usize := ptrAddrUnsafe ◾ x_2;
+        let x_11 : u8 := USize.decEq x_9 x_10;
+        case x_11 : obj of
+        Bool.false →
+          jmp block_6 x_11
+        Bool.true →
+          let x_12 : usize := ptrAddrUnsafe ◾ x_5;
+          let x_13 : u8 := USize.decEq x_12 x_12;
+          jmp block_6 x_13
+      default →
         ret x_1
-  Lean.Expr.lam._impl →
-    ret x_1
-  Lean.Expr.forallE._impl →
-    ret x_1
-  Lean.Expr.letE._impl →
-    ret x_1
-  Lean.Expr.lit._impl →
-    ret x_1
-  Lean.Expr.mdata._impl →
-    ret x_1
-  Lean.Expr.proj._impl →
-    ret x_1

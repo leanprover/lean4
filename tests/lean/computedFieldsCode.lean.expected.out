@@ -1,191 +1,236 @@
-
-[result]
-def Exp.casesOn._override._rarg (x_1 : obj) (x_2 : obj) (x_3 : obj) (x_4 : @& obj) (x_5 : @& obj) (x_6 : @& obj) (x_7 : @& obj) (x_8 : @& obj) : obj :=
-  case x_1 : obj of
-  Exp.var._impl →
-    dec x_3;
-    let x_9 : u32 := sproj[0, 8] x_1;
-    dec x_1;
-    let x_10 : obj := box x_9;
-    let x_11 : obj := app x_2 x_10;
-    ret x_11
-  Exp.app._impl →
-    dec x_2;
-    let x_12 : obj := proj[0] x_1;
-    inc x_12;
-    let x_13 : obj := proj[1] x_1;
-    inc x_13;
-    dec x_1;
-    let x_14 : obj := app x_3 x_12 x_13;
-    ret x_14
-  Exp.a1._impl →
-    dec x_3;
-    dec x_2;
-    inc x_4;
-    ret x_4
-  Exp.a2._impl →
-    dec x_3;
-    dec x_2;
-    inc x_5;
-    ret x_5
-  Exp.a3._impl →
-    dec x_3;
-    dec x_2;
-    inc x_6;
-    ret x_6
-  Exp.a4._impl →
-    dec x_3;
-    dec x_2;
-    inc x_7;
-    ret x_7
-  Exp.a5._impl →
-    dec x_3;
-    dec x_2;
-    inc x_8;
-    ret x_8
-def Exp.casesOn._override (x_1 : ◾) : obj :=
-  let x_2 : obj := pap Exp.casesOn._override._rarg._boxed;
-  ret x_2
-def Exp.casesOn._override._rarg._boxed (x_1 : obj) (x_2 : obj) (x_3 : obj) (x_4 : obj) (x_5 : obj) (x_6 : obj) (x_7 : obj) (x_8 : obj) : obj :=
-  let x_9 : obj := Exp.casesOn._override._rarg x_1 x_2 x_3 x_4 x_5 x_6 x_7 x_8;
-  dec x_8;
-  dec x_7;
-  dec x_6;
-  dec x_5;
-  dec x_4;
-  ret x_9
-
-[result]
-def Exp.var._override (x_1 : u32) : obj :=
-  let x_2 : u64 := UInt32.toUInt64 x_1;
-  let x_3 : u64 := 1000;
-  let x_4 : u64 := UInt64.add x_2 x_3;
-  let x_5 : obj := ctor_0.0.12[Exp.var._impl];
-  sset x_5[0, 0] : u64 := x_4;
-  sset x_5[0, 8] : u32 := x_1;
-  ret x_5
-def Exp.app._override (x_1 : obj) (x_2 : obj) : obj :=
-  let x_3 : u64 := Exp.hash._override x_1;
-  let x_4 : u64 := Exp.hash._override x_2;
-  let x_5 : u64 := mixHash x_3 x_4;
-  let x_6 : obj := ctor_1.0.8[Exp.app._impl] x_1 x_2;
-  sset x_6[2, 0] : u64 := x_5;
-  ret x_6
-def Exp.a1._override : obj :=
-  let x_1 : obj := ctor_2[Exp.a1._impl];
-  ret x_1
-def Exp.a2._override : obj :=
-  let x_1 : obj := ctor_3[Exp.a2._impl];
-  ret x_1
-def Exp.a3._override : obj :=
-  let x_1 : obj := ctor_4[Exp.a3._impl];
-  ret x_1
-def Exp.a4._override : obj :=
-  let x_1 : obj := ctor_5[Exp.a4._impl];
-  ret x_1
-def Exp.a5._override : obj :=
-  let x_1 : obj := ctor_6[Exp.a5._impl];
-  ret x_1
-def Exp.hash._override (x_1 : @& obj) : u64 :=
-  case x_1 : obj of
-  Exp.var._impl →
-    let x_2 : u64 := sproj[0, 0] x_1;
-    ret x_2
-  Exp.app._impl →
-    let x_3 : u64 := sproj[2, 0] x_1;
-    ret x_3
-  default →
-    let x_4 : u64 := 42;
-    ret x_4
-def Exp.var._override._boxed (x_1 : obj) : obj :=
-  let x_2 : u32 := unbox x_1;
-  dec x_1;
-  let x_3 : obj := Exp.var._override x_2;
-  ret x_3
-def Exp.hash._override._boxed (x_1 : obj) : obj :=
-  let x_2 : u64 := Exp.hash._override x_1;
-  dec x_1;
-  let x_3 : obj := box x_2;
-  ret x_3
-
-[result]
-def f._closed_1 : obj :=
-  let x_1 : u32 := 10;
-  let x_2 : obj := Exp.var._override x_1;
-  ret x_2
-def f._closed_2 : obj :=
-  let x_1 : obj := f._closed_1;
-  let x_2 : obj := ctor_5[Exp.a4._impl];
-  let x_3 : obj := Exp.app._override x_1 x_2;
-  ret x_3
-def f._closed_3 : u64 :=
-  let x_1 : obj := f._closed_2;
-  let x_2 : u64 := Exp.hash._override x_1;
-  dec x_1;
-  ret x_2
-def f : u64 :=
-  let x_1 : u64 := f._closed_3;
-  ret x_1
-
-[result]
-def g (x_1 : @& obj) : u8 :=
-  case x_1 : obj of
-  Exp.a3._impl →
-    let x_2 : u8 := 1;
-    ret x_2
-  default →
-    let x_3 : u8 := 0;
-    ret x_3
-def g._boxed (x_1 : obj) : obj :=
-  let x_2 : u8 := g x_1;
-  dec x_1;
-  let x_3 : obj := box x_2;
-  ret x_3
-
-[result]
-def hash' (x_1 : @& obj) : obj :=
-  case x_1 : obj of
-  Exp.var._impl →
-    let x_2 : u32 := sproj[0, 8] x_1;
-    let x_3 : obj := UInt32.toNat x_2;
-    ret x_3
-  Exp.app._impl →
-    let x_4 : obj := proj[0] x_1;
-    let x_5 : obj := proj[1] x_1;
-    let x_6 : obj := hash' x_4;
-    let x_7 : obj := hash' x_5;
-    let x_8 : obj := Nat.add x_6 x_7;
-    dec x_7;
-    dec x_6;
-    ret x_8
-  default →
-    let x_9 : obj := 42;
-    ret x_9
-def hash'._boxed (x_1 : obj) : obj :=
-  let x_2 : obj := hash' x_1;
-  dec x_1;
-  ret x_2
-
-[result]
-def getAppFn (x_1 : @& obj) : obj :=
-  case x_1 : obj of
-  Exp.app._impl →
-    let x_2 : obj := proj[0] x_1;
-    let x_3 : obj := getAppFn x_2;
-    ret x_3
-  default →
-    inc x_1;
-    ret x_1
-def getAppFn._boxed (x_1 : obj) : obj :=
-  let x_2 : obj := getAppFn x_1;
-  dec x_1;
-  ret x_2
-
-[result]
-def Exp.f (x_1 : @& obj) : obj :=
-  let x_2 : obj := getAppFn x_1;
-  ret x_2
-def Exp.f._boxed (x_1 : obj) : obj :=
-  let x_2 : obj := Exp.f x_1;
-  dec x_1;
-  ret x_2
+[Compiler.IR] [result]
+    def Exp.casesOn._override._redArg (x_1 : obj) (x_2 : obj) (x_3 : obj) (x_4 : @& obj) (x_5 : @& obj) (x_6 : @& obj) (x_7 : @& obj) (x_8 : @& obj) : obj :=
+      case x_1 : obj of
+      Exp.var._impl →
+        dec x_3;
+        let x_9 : u32 := sproj[0, 8] x_1;
+        dec x_1;
+        let x_10 : obj := box x_9;
+        let x_11 : obj := app x_2 x_10;
+        ret x_11
+      Exp.app._impl →
+        dec x_2;
+        let x_12 : obj := proj[0] x_1;
+        inc x_12;
+        let x_13 : obj := proj[1] x_1;
+        inc x_13;
+        dec x_1;
+        let x_14 : obj := app x_3 x_12 x_13;
+        ret x_14
+      Exp.a1._impl →
+        dec x_3;
+        dec x_2;
+        inc x_4;
+        ret x_4
+      Exp.a2._impl →
+        dec x_3;
+        dec x_2;
+        inc x_5;
+        ret x_5
+      Exp.a3._impl →
+        dec x_3;
+        dec x_2;
+        inc x_6;
+        ret x_6
+      Exp.a4._impl →
+        dec x_3;
+        dec x_2;
+        inc x_7;
+        ret x_7
+      Exp.a5._impl →
+        dec x_3;
+        dec x_2;
+        inc x_8;
+        ret x_8
+    def Exp.casesOn._override (x_1 : ◾) (x_2 : obj) (x_3 : obj) (x_4 : obj) (x_5 : @& obj) (x_6 : @& obj) (x_7 : @& obj) (x_8 : @& obj) (x_9 : @& obj) : obj :=
+      case x_2 : obj of
+      Exp.var._impl →
+        dec x_4;
+        let x_10 : u32 := sproj[0, 8] x_2;
+        dec x_2;
+        let x_11 : obj := box x_10;
+        let x_12 : obj := app x_3 x_11;
+        ret x_12
+      Exp.app._impl →
+        dec x_3;
+        let x_13 : obj := proj[0] x_2;
+        inc x_13;
+        let x_14 : obj := proj[1] x_2;
+        inc x_14;
+        dec x_2;
+        let x_15 : obj := app x_4 x_13 x_14;
+        ret x_15
+      Exp.a1._impl →
+        dec x_4;
+        dec x_3;
+        inc x_5;
+        ret x_5
+      Exp.a2._impl →
+        dec x_4;
+        dec x_3;
+        inc x_6;
+        ret x_6
+      Exp.a3._impl →
+        dec x_4;
+        dec x_3;
+        inc x_7;
+        ret x_7
+      Exp.a4._impl →
+        dec x_4;
+        dec x_3;
+        inc x_8;
+        ret x_8
+      Exp.a5._impl →
+        dec x_4;
+        dec x_3;
+        inc x_9;
+        ret x_9
+    def Exp.casesOn._override._redArg._boxed (x_1 : obj) (x_2 : obj) (x_3 : obj) (x_4 : obj) (x_5 : obj) (x_6 : obj) (x_7 : obj) (x_8 : obj) : obj :=
+      let x_9 : obj := Exp.casesOn._override._redArg x_1 x_2 x_3 x_4 x_5 x_6 x_7 x_8;
+      dec x_8;
+      dec x_7;
+      dec x_6;
+      dec x_5;
+      dec x_4;
+      ret x_9
+    def Exp.casesOn._override._boxed (x_1 : obj) (x_2 : obj) (x_3 : obj) (x_4 : obj) (x_5 : obj) (x_6 : obj) (x_7 : obj) (x_8 : obj) (x_9 : obj) : obj :=
+      let x_10 : obj := Exp.casesOn._override x_1 x_2 x_3 x_4 x_5 x_6 x_7 x_8 x_9;
+      dec x_9;
+      dec x_8;
+      dec x_7;
+      dec x_6;
+      dec x_5;
+      ret x_10
+[Compiler.IR] [result]
+    def Exp.var._override (x_1 : u32) : obj :=
+      let x_2 : u64 := UInt32.toUInt64 x_1;
+      let x_3 : obj := 1000;
+      let x_4 : u64 := UInt64.ofNat x_3;
+      let x_5 : u64 := UInt64.add x_2 x_4;
+      let x_6 : obj := ctor_0.0.12[Exp.var._impl];
+      sset x_6[0, 0] : u64 := x_5;
+      sset x_6[0, 8] : u32 := x_1;
+      ret x_6
+    def Exp.app._override (x_1 : obj) (x_2 : obj) : obj :=
+      let x_3 : u64 := Exp.hash._override x_1;
+      let x_4 : u64 := Exp.hash._override x_2;
+      let x_5 : u64 := mixHash x_3 x_4;
+      let x_6 : obj := ctor_1.0.8[Exp.app._impl] x_1 x_2;
+      sset x_6[2, 0] : u64 := x_5;
+      ret x_6
+    def Exp.a1._override : obj :=
+      let x_1 : obj := ctor_2[Exp.a1._impl];
+      ret x_1
+    def Exp.a2._override : obj :=
+      let x_1 : obj := ctor_3[Exp.a2._impl];
+      ret x_1
+    def Exp.a3._override : obj :=
+      let x_1 : obj := ctor_4[Exp.a3._impl];
+      ret x_1
+    def Exp.a4._override : obj :=
+      let x_1 : obj := ctor_5[Exp.a4._impl];
+      ret x_1
+    def Exp.a5._override : obj :=
+      let x_1 : obj := ctor_6[Exp.a5._impl];
+      ret x_1
+    def Exp.hash._override (x_1 : @& obj) : u64 :=
+      case x_1 : obj of
+      Exp.var._impl →
+        let x_2 : u64 := sproj[0, 0] x_1;
+        ret x_2
+      Exp.app._impl →
+        let x_3 : u64 := sproj[2, 0] x_1;
+        ret x_3
+      default →
+        let x_4 : obj := 42;
+        let x_5 : u64 := UInt64.ofNat x_4;
+        ret x_5
+    def Exp.var._override._boxed (x_1 : obj) : obj :=
+      let x_2 : u32 := unbox x_1;
+      dec x_1;
+      let x_3 : obj := Exp.var._override x_2;
+      ret x_3
+    def Exp.hash._override._boxed (x_1 : obj) : obj :=
+      let x_2 : u64 := Exp.hash._override x_1;
+      dec x_1;
+      let x_3 : obj := box x_2;
+      ret x_3
+[Compiler.IR] [result]
+    def f : u64 :=
+      let x_1 : obj := 10;
+      let x_2 : u32 := UInt32.ofNat x_1;
+      let x_3 : obj := Exp.var._override x_2;
+      let x_4 : obj := ctor_5[Exp.a4._impl];
+      let x_5 : obj := Exp.app._override x_3 x_4;
+      let x_6 : u64 := Exp.hash._override x_5;
+      dec x_5;
+      ret x_6
+[Compiler.IR] [result]
+    def g (x_1 : @& obj) : u8 :=
+      let x_2 : obj := ctor_0[Bool.false];
+      case x_1 : obj of
+      Exp.var._impl →
+        let x_3 : u8 := unbox x_2;
+        ret x_3
+      Exp.app._impl →
+        let x_4 : u8 := unbox x_2;
+        ret x_4
+      Exp.a3._impl →
+        let x_5 : obj := ctor_1[Bool.true];
+        let x_6 : u8 := unbox x_5;
+        ret x_6
+      default →
+        let x_7 : u8 := unbox x_2;
+        ret x_7
+    def g._boxed (x_1 : obj) : obj :=
+      let x_2 : u8 := g x_1;
+      dec x_1;
+      let x_3 : obj := box x_2;
+      ret x_3
+[Compiler.IR] [result]
+    def hash' (x_1 : @& obj) : obj :=
+      case x_1 : obj of
+      Exp.var._impl →
+        let x_2 : u32 := sproj[0, 8] x_1;
+        let x_3 : obj := UInt32.toNat x_2;
+        ret x_3
+      Exp.app._impl →
+        let x_4 : obj := proj[0] x_1;
+        let x_5 : obj := proj[1] x_1;
+        let x_6 : obj := hash' x_4;
+        let x_7 : obj := hash' x_5;
+        let x_8 : obj := Nat.add x_6 x_7;
+        dec x_7;
+        dec x_6;
+        ret x_8
+      default →
+        let x_9 : obj := 42;
+        ret x_9
+    def hash'._boxed (x_1 : obj) : obj :=
+      let x_2 : obj := hash' x_1;
+      dec x_1;
+      ret x_2
+[Compiler.IR] [result]
+    def getAppFn (x_1 : @& obj) : obj :=
+      case x_1 : obj of
+      Exp.app._impl →
+        let x_2 : obj := proj[0] x_1;
+        let x_3 : obj := getAppFn x_2;
+        ret x_3
+      default →
+        inc x_1;
+        ret x_1
+    def getAppFn._boxed (x_1 : obj) : obj :=
+      let x_2 : obj := getAppFn x_1;
+      dec x_1;
+      ret x_2
+[Compiler.IR] [result]
+    def Exp.f (x_1 : obj) : obj :=
+      inc x_1;
+      let x_2 : obj := Exp.app._override x_1 x_1;
+      let x_3 : obj := proj[0] x_2;
+      inc x_3;
+      dec x_2;
+      let x_4 : obj := getAppFn x_3;
+      dec x_3;
+      ret x_4

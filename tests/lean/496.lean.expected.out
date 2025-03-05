@@ -1,2 +1,2 @@
-496.lean:3:4-3:8: error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'foo', and it does not have executable code
-496.lean:9:4-9:8: error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'bla1', and it does not have executable code
+496.lean:3:4-3:8: error: axiom 'foo' not supported by code generator; consider marking definition as 'noncomputable'
+496.lean:9:4-9:8: error: failed to compile definition, compiler IR check failed at 'bla2'. Error: depends on declaration 'bla1', which has no executable code; consider marking definition as 'noncomputable'

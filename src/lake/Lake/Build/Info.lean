@@ -33,16 +33,14 @@ inductive BuildInfo
 abbrev Module.buildKey (self : Module) : BuildKey :=
   .module self.keyName
 
-abbrev Module.facetBuildKey
-  (facet : Name) (self : Module) (kind := Name.anonymous)
-: BuildKey := .moduleFacet self.keyName facet kind
+abbrev Module.facetBuildKey (facet : Name) (self : Module) : BuildKey :=
+  .moduleFacet self.keyName facet
 
 abbrev Package.buildKey (self : Package) : BuildKey :=
   .package self.name
 
-abbrev Package.facetBuildKey
-  (facet : Name) (self : Package) (kind := Name.anonymous)
-: BuildKey := .packageFacet self.name facet kind
+abbrev Package.facetBuildKey (facet : Name) (self : Package) : BuildKey :=
+  .packageFacet self.name facet
 
 abbrev Package.targetBuildKey
   (target : Name) (self : Package) (kind := Name.anonymous)
@@ -63,9 +61,8 @@ abbrev LeanExe.exeBuildKey (self : LeanExe) : BuildKey :=
 abbrev ExternLib.buildKey (self : ExternLib) : BuildKey :=
   .packageTarget self.pkg.name self.name `externLib
 
-abbrev ExternLib.facetBuildKey
-  (facet : Name) (self : ExternLib) (kind := Name.anonymous)
-: BuildKey := .targetFacet self.pkg.name self.name `externLib facet kind
+abbrev ExternLib.facetBuildKey (facet : Name) (self : ExternLib) : BuildKey :=
+  .targetFacet self.pkg.name self.name `externLib facet
 
 abbrev ExternLib.staticBuildKey (self : ExternLib) : BuildKey :=
   self.facetBuildKey staticFacet

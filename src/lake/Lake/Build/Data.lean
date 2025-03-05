@@ -117,13 +117,12 @@ abbrev BuildData : BuildKey → Type
 | .package _ => TargetData `package
 | .packageTarget p t .anonymous => CustomData p t
 | .packageTarget _ _ k => TargetData k
-| .facet t f .anonymous => FacetData t.kind f
-| .facet _ _ k => TargetData k
+| .facet t f => FacetData t.kind f
 
 instance (priority := low) : FamilyDef BuildData (.moduleFacet m f) (ModuleData f) := ⟨rfl⟩
 instance (priority := low) : FamilyDef BuildData (.packageFacet p f) (PackageData f) := ⟨rfl⟩
 instance (priority := low) : FamilyDef BuildData (.customTarget p t) (CustomData p t) := ⟨rfl⟩
-instance (priority := low) : FamilyDef BuildData (.facet t f .anonymous) (FacetData t.kind f) := ⟨rfl⟩
+instance (priority := low) : FamilyDef BuildData (.facet t f) (FacetData t.kind f) := ⟨rfl⟩
 instance (priority := low) : FamilyDef BuildData (.targetFacet p t `leanLib f) (LeanLibData f) := ⟨rfl⟩
 instance (priority := low) : FamilyDef BuildData (.targetFacet p t `leanExe f) (LeanExeData f) := ⟨rfl⟩
 instance (priority := low) : FamilyDef BuildData (.targetFacet p t `externLib f) (ExternLibData f) := ⟨rfl⟩

@@ -14,22 +14,19 @@ inductive BuildKey
 | module (module : Name)
 | package (package : Name)
 | packageTarget (package target : Name) (kind := Name.anonymous)
-| facet (target : BuildKey) (facet : Name) (kind := Name.anonymous)
+| facet (target : BuildKey) (facet : Name)
 deriving Inhabited, Repr, DecidableEq, Hashable
 
 namespace BuildKey
 
-@[match_pattern] abbrev moduleFacet
-  (module facet : Name) (kind := Name.anonymous)
-: BuildKey := .facet (.module module) facet kind
+@[match_pattern] abbrev moduleFacet (module facet : Name) : BuildKey :=
+  .facet (.module module) facet
 
-@[match_pattern] abbrev packageFacet
-  (package facet : Name) (kind := Name.anonymous)
-: BuildKey := .facet (.package package) facet kind
+@[match_pattern] abbrev packageFacet (package facet : Name) : BuildKey :=
+  .facet (.package package) facet
 
-@[match_pattern] abbrev targetFacet
-  (package target targetKind facet : Name) (facetKind := Name.anonymous)
-: BuildKey := .facet (.packageTarget package target targetKind) facet facetKind
+@[match_pattern] abbrev targetFacet (package target kind facet : Name) : BuildKey :=
+  .facet (.packageTarget package target kind) facet
 
 @[match_pattern] abbrev customTarget (package target : Name) : BuildKey :=
   .packageTarget package target .anonymous
@@ -38,20 +35,20 @@ namespace BuildKey
 | module _ => `module
 | package _ => `package
 | packageTarget _ _ k => k
-| facet _ _ k => k
+| facet _ _ => .anonymous
 
 def toString : (self : BuildKey) → String
 | module m => s!"+{m}"
 | package p => s!"@{p}"
 | packageTarget p t _ => s!"{p}/{t}"
-| facet t f _ => s!"{toString t}:{f}"
+| facet t f => s!"{toString t}:{f}"
 
 /-- Like the default `toString`, but without disambiguation markers. -/
 def toSimpleString : (self : BuildKey) → String
 | module m => s!"{m}"
 | package p => s!"{p}"
 | packageTarget p t _ => s!"{p}/{t}"
-| facet t f _ => s!"{toSimpleString t}:{f}"
+| facet t f => s!"{toSimpleString t}:{f}"
 
 instance : ToString BuildKey := ⟨(·.toString)⟩
 
@@ -77,14 +74,11 @@ def quickCmp (k k' : BuildKey) : Ordering :=
         | ord => ord
       | ord => ord
     | _=> .gt
-  | facet t f k =>
+  | facet t f =>
     match k' with
-    | facet t' f' k' =>
+    | facet t' f' =>
       match t.quickCmp t' with
-      | .eq =>
-        match f.quickCmp f' with
-        | .eq => k.quickCmp k'
-        | ord => ord
+      | .eq => f.quickCmp f'
       | ord => ord
     | _ => .gt
 
@@ -116,17 +110,12 @@ theorem eq_of_quickCmp :
         next => intro; contradiction
       next => intro; contradiction
     all_goals (intro; contradiction)
-  | facet t f k ih =>
+  | facet t f ih =>
     unfold quickCmp
     intro k'; cases k'
-    case facet t' f' k' =>
+    case facet t' f'' =>
       dsimp only; split
-      next t_eq =>
-        split
-        next f_eq =>
-          intro k_eq
-          rw [ih t_eq, eq_of_cmp f_eq, eq_of_cmp k_eq]
-        next => intro; contradiction
+      next t_eq => intro f_eq; rw [ih t_eq, eq_of_cmp f_eq]
       next => intro; contradiction
     all_goals (intro; contradiction)
 

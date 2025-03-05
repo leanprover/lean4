@@ -23,9 +23,7 @@ private def BuildKey.fetchCore (self : BuildKey) : FetchM (Job (BuildData self))
     let some pkg ← findPackage? pkgName
       | error s!"invalid target '{self}': package '{pkgName}' not found in workspace"
     fetch <| pkg.target target kind
-  | facet target facetName dataKind =>
-    let .anonymous := dataKind
-      | error s!"invalid target '{self}': facets do not currently support non-anonymous data kinds"
+  | facet target facetName =>
     if h : target.kind.isAnonymous then
       error s!"invalid target '{self}': facet of opaque target kind '{target.kind}'"
     else

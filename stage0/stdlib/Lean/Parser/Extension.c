@@ -133,6 +133,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_getParserAliasInfo(lean_object*, lean_obj
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3784____closed__5;
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_4323____closed__6;
 lean_object* l_Lean_Parser_andthenFn(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_Environment_dbgFormatAsyncState___spec__25___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_mkUnexpectedError(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_ParserExtension_mkInitial(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_withOpenFn(lean_object*, lean_object*, lean_object*);
@@ -213,7 +214,6 @@ static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_86__
 LEAN_EXPORT lean_object* l___auto____x40_Lean_Parser_Extension___hyg_5750_;
 lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Parser_throwUnknownParserCategory(lean_object*);
-lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_Environment_dbgFormatAsyncState___spec__5___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Parser_getParserAliasInfo___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3784_(lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -383,7 +383,7 @@ static lean_object* l_Lean_Parser_mkParserOfConstantUnsafe___closed__7;
 lean_object* l_Lean_KVMap_setBool(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Parser_parserAliases2infoRef;
 static lean_object* l_Lean_Parser_registerBuiltinParserAttribute___closed__3;
-lean_object* l_Lean_registerEnvExtension___rarg(lean_object*, uint8_t, lean_object*);
+lean_object* l_Lean_registerEnvExtension___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Parser_resolveParserNameCore___lambda__2___closed__1;
 lean_object* l_Lean_Data_Trie_find_x3f_loop___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
@@ -10553,7 +10553,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_Parser_getSyn
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_PersistentHashMap_foldlMAux___at_Lean_Environment_dbgFormatAsyncState___spec__5___rarg(x_2, x_1, x_3);
+x_4 = l_Lean_PersistentHashMap_foldlMAux___at_Lean_Environment_dbgFormatAsyncState___spec__25___rarg(x_2, x_1, x_3);
 return x_4;
 }
 }
@@ -10587,7 +10587,7 @@ lean_inc(x_5);
 lean_dec(x_4);
 x_6 = lean_box(0);
 x_7 = l_Lean_Parser_getSyntaxNodeKinds___closed__1;
-x_8 = l_Lean_PersistentHashMap_foldlMAux___at_Lean_Environment_dbgFormatAsyncState___spec__5___rarg(x_7, x_5, x_6);
+x_8 = l_Lean_PersistentHashMap_foldlMAux___at_Lean_Environment_dbgFormatAsyncState___spec__25___rarg(x_7, x_5, x_6);
 lean_dec(x_5);
 return x_8;
 }
@@ -15686,11 +15686,12 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_6522_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_6522____closed__1;
-x_3 = 2;
-x_4 = l_Lean_registerEnvExtension___rarg(x_2, x_3, x_1);
-return x_4;
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
+x_2 = lean_box(0);
+x_3 = l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_6522____closed__1;
+x_4 = 2;
+x_5 = l_Lean_registerEnvExtension___rarg(x_3, x_2, x_4, x_1);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Parser_resolveParserNameCore_isParser___closed__1() {
@@ -16308,7 +16309,7 @@ _start:
 lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_5 = lean_box(0);
 x_6 = l_Lean_Parser_aliasExtension;
-x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*2);
+x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*3);
 x_8 = l_Lean_Parser_resolveParserNameCore___lambda__2___closed__2;
 x_9 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___rarg(x_5, x_8, x_1, x_7);
 x_10 = l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(x_9, x_2);

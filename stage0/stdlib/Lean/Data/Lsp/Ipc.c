@@ -49,6 +49,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Lsp_Ipc_waitForMessage_loop
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_collectDiagnostics(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_collectDiagnostics_loop___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__25;
+extern lean_object* l_instInhabitedError;
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__52;
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_opt___at___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJsonDiagnosticWith____x40_Lean_Data_Lsp_Diagnostics___hyg_1455____spec__7(lean_object*, lean_object*);
@@ -97,7 +98,6 @@ static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__39;
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___spec__5___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspNotification___at_Lean_Lsp_Ipc_shutdown___spec__4(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__15;
-extern lean_object* l_IO_instInhabitedError;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Lsp_Ipc_waitForMessage_loop___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__6;
 static lean_object* l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___spec__5___closed__6;
@@ -521,7 +521,7 @@ static lean_object* _init_l_panic___at_Lean_Lsp_Ipc_shutdown___spec__3___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_IO_instInhabitedError;
+x_1 = l_instInhabitedError;
 x_2 = lean_alloc_closure((void*)(l_EStateM_instInhabited___rarg), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;

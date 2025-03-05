@@ -39,7 +39,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_cacheAuxDecl___lambda__1(lean_obje
 static size_t l_Lean_PersistentHashMap_findAux___at_Lean_Compiler_LCNF_cacheAuxDecl___spec__2___closed__2;
 extern lean_object* l_Lean_Compiler_LCNF_instBEqDecl;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_AuxDeclCache___hyg_9____closed__1;
-lean_object* l_Lean_registerEnvExtension___rarg(lean_object*, uint8_t, lean_object*);
+lean_object* l_Lean_registerEnvExtension___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Compiler_LCNF_cacheAuxDecl___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Compiler_LCNF_cacheAuxDecl___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -102,11 +102,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_AuxDeclCache___hyg_9_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_AuxDeclCache___hyg_9____closed__3;
-x_3 = 0;
-x_4 = l_Lean_registerEnvExtension___rarg(x_2, x_3, x_1);
-return x_4;
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
+x_2 = lean_box(0);
+x_3 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_AuxDeclCache___hyg_9____closed__3;
+x_4 = 0;
+x_5 = l_Lean_registerEnvExtension___rarg(x_3, x_2, x_4, x_1);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Compiler_LCNF_cacheAuxDecl___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -913,7 +914,7 @@ x_17 = lean_ctor_get(x_15, 0);
 lean_inc(x_17);
 lean_dec(x_15);
 x_18 = l_Lean_Compiler_LCNF_auxDeclCacheExt;
-x_19 = lean_ctor_get_uint8(x_18, sizeof(void*)*2);
+x_19 = lean_ctor_get_uint8(x_18, sizeof(void*)*3);
 x_20 = l_Lean_Compiler_LCNF_cacheAuxDecl___closed__1;
 x_21 = l_Lean_Compiler_LCNF_cacheAuxDecl___closed__2;
 x_22 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___rarg(x_20, x_21, x_17, x_19);
@@ -1060,7 +1061,7 @@ x_61 = lean_ctor_get(x_59, 0);
 lean_inc(x_61);
 lean_dec(x_59);
 x_62 = l_Lean_Compiler_LCNF_auxDeclCacheExt;
-x_63 = lean_ctor_get_uint8(x_62, sizeof(void*)*2);
+x_63 = lean_ctor_get_uint8(x_62, sizeof(void*)*3);
 x_64 = l_Lean_Compiler_LCNF_cacheAuxDecl___closed__1;
 x_65 = l_Lean_Compiler_LCNF_cacheAuxDecl___closed__2;
 x_66 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___rarg(x_64, x_65, x_61, x_63);
@@ -1251,7 +1252,7 @@ x_113 = lean_ctor_get(x_110, 0);
 lean_inc(x_113);
 lean_dec(x_110);
 x_114 = l_Lean_Compiler_LCNF_auxDeclCacheExt;
-x_115 = lean_ctor_get_uint8(x_114, sizeof(void*)*2);
+x_115 = lean_ctor_get_uint8(x_114, sizeof(void*)*3);
 x_116 = l_Lean_Compiler_LCNF_cacheAuxDecl___closed__1;
 x_117 = l_Lean_Compiler_LCNF_cacheAuxDecl___closed__2;
 x_118 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___rarg(x_116, x_117, x_113, x_115);

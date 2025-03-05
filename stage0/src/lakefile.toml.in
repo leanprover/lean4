@@ -44,3 +44,4 @@ globs = [
 [[lean_lib]]
 name = "Lake"
 srcDir = "lake"
+moreLeanArgs = ["--plugin=${PREV_STAGE}/${CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}"]

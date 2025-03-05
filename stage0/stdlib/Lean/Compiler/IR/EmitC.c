@@ -455,6 +455,7 @@ static lean_object* l_Lean_IR_EmitC_toCType___closed__6;
 uint8_t l_Lean_IR_isTailCallTo(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitFnDeclAux___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
+lean_object* l_panic___at___private_Lean_Environment_0__Lean_Environment_mkFallbackConstInfo___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitDel(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_ExplicitBoxing_isBoxedName(lean_object*);
 lean_object* l_Lean_IR_getUnboxOpName(lean_object*);
@@ -583,7 +584,6 @@ static lean_object* l_Lean_IR_EmitC_emitDeclInit___closed__2;
 LEAN_EXPORT uint8_t l_Lean_IR_EmitC_getDecl___lambda__1(lean_object*);
 LEAN_EXPORT uint8_t l_Nat_anyTR_loop___at_Lean_IR_EmitC_overwriteParam___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic___at_Lean_Environment_addConstAsync___spec__2(lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__2___closed__7;
 lean_object* l_Lean_IR_collectUsedDecls(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__15;
@@ -3065,7 +3065,7 @@ if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_68; lean_object* x_69; 
 x_68 = l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__20;
-x_69 = l_panic___at_Lean_Environment_addConstAsync___spec__2(x_68);
+x_69 = l_panic___at___private_Lean_Environment_0__Lean_Environment_mkFallbackConstInfo___spec__1(x_68);
 x_24 = x_69;
 goto block_67;
 }
@@ -3556,7 +3556,7 @@ static lean_object* _init_l_Lean_IR_EmitC_emitMainFn___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("\n  #if defined(WIN32) || defined(_WIN32)\n  #include <windows.h>\n  #endif\n\n  int main(int argc, char ** argv) {\n  #if defined(WIN32) || defined(_WIN32)\n  SetErrorMode(SEM_FAILCRITICALERRORS);\n  #endif\n  lean_object* in; lean_object* res;", 236, 236);
+x_1 = lean_mk_string_unchecked("\n  #if defined(WIN32) || defined(_WIN32)\n  #include <windows.h>\n  #endif\n\n  int main(int argc, char ** argv) {\n  #if defined(WIN32) || defined(_WIN32)\n  SetErrorMode(SEM_FAILCRITICALERRORS);\n  SetConsoleOutputCP(CP_UTF8);\n  #endif\n  lean_object* in; lean_object* res;", 267, 267);
 return x_1;
 }
 }

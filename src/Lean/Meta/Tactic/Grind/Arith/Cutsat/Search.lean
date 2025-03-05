@@ -279,8 +279,22 @@ def resolveRealLowerUpperConflict (c₁ c₂ : LeCnstr) : GoalM Bool := do
     c.assert
     return true
 
+def resolveCooperUnary (pred : CooperSplitPred) : SearchM Bool := do
+  let some c₃ := pred.c₃? | return false
+  let .add (-1) _ (.num a) := pred.c₁.p | return false
+  let .add 1 _ (.num b) := pred.c₂.p | return false
+  let .add c _ (.num e) := c₃.p | return false
+  let d := c₃.d
+  let (1, α, _) := gcdExt c d | return false
+  unless -b < Int.Linear.cdiv (a - -α * e % d) d * d + -α * e % d do
+    return false
+  setInconsistent (.cooper pred.c₁ pred.c₂ c₃)
+  return true
+
 def resolveCooperPred (pred : CooperSplitPred) : SearchM Unit := do
   trace[grind.cutsat.conflict] "[{pred.numCases}]: {← pred.pp}"
+  if (← resolveCooperUnary pred) then
+    return
   let n := pred.numCases
   let fvarId ← mkCase (.cooper pred #[] {})
   { pred, k := n - 1, h := .dec fvarId : CooperSplit }.assert

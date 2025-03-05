@@ -7,3 +7,6 @@ example (x y : Int) :
     7*x - 9*y ≤ 4 → False := by
   -- `omega` fails in this example
   grind
+
+example (x : Int) : 100 ≤ x → x ≤ 10000 → 20000 ∣ 3*x → False := by
+  grind

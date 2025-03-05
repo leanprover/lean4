@@ -10,7 +10,7 @@ example (f : Nat → Nat) : f x = 0 → f x + 1 = y := by
 
 example (f : Nat → Nat) : let _  : f x = 0 := sorryAx _ false; f x + 1 = y := by
   simp (config := { contextual := true, zeta := false })
-  guard_target =ₛ let _  : f x = 0 := sorryAx _ false; 1 = y
+  guard_target = let _  : f x = 0 := sorryAx _ false; 1 = y
   sorry
 
 def overlap : Nat → Nat
@@ -47,5 +47,5 @@ example : (if p x then g x else g x + 1) + g x = y := by
 
 example : (let _  : p x := sorryAx _ false; g x + 1 = y) ↔ g x = y := by
   simp (config := { zeta := false }) (discharger := assumption)
-  guard_target =ₛ (let _  : p x := sorryAx _ false; x + 1 = y) ↔ g x = y
+  guard_target = (let _  : p x := sorryAx _ false; x + 1 = y) ↔ g x = y
   sorry

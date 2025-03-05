@@ -12,8 +12,8 @@ set_option trace.grind.cutsat.model true
 
 /--
 info: [grind.cutsat.model] c := 3
-[grind.cutsat.model] a := 7
 [grind.cutsat.model] b := 0
+[grind.cutsat.model] a := 7
 [grind.cutsat.model] d := 2
 -/
 #guard_msgs (info) in
@@ -26,8 +26,8 @@ example (a b c d e : Int) :
 
 /--
 info: [grind.cutsat.model] c := -9
-[grind.cutsat.model] a := 17
 [grind.cutsat.model] b := -9
+[grind.cutsat.model] a := 17
 -/
 #guard_msgs (info) in
 example (a b c : Int) :

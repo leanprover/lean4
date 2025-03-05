@@ -7,7 +7,7 @@ example : (5 : Fin 4) = x := by
 
 example : (1 : Fin 4) = x := by
   fail_if_success simp
-  guard_target =ₛ 1 = x
+  guard_target = 1 = x -- not =ₛ since we abstract proofs in declaration headers
   sorry
 
 example : 17#4 = x := by

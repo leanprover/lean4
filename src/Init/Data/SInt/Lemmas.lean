@@ -9,7 +9,6 @@ import Init.Data.BitVec.Bitblast
 import Init.Data.Int.LemmasAux
 import Init.Data.UInt.Lemmas
 
-
 open Lean in
 set_option hygiene false in
 macro "declare_int_theorems" typeName:ident _bits:term:arg : command => do

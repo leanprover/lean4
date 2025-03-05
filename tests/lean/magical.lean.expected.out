@@ -6,3 +6,4 @@ but the projected value is not, it has type
   Nat
 magical.lean:5:8-5:18: error: (kernel) invalid projection
   h.2
+magical.lean:5:8-5:18: error: (kernel) unknown constant 'witness_eq.proof_1'

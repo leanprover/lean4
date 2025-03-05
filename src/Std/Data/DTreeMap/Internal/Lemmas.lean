@@ -2726,4 +2726,282 @@ theorem getKeyD_insertMany_empty_list_of_mem [TransOrd α]
     (insertMany empty l WF.empty.balanced).1.getKeyD k' fallback = k := by
   rw [getKeyD_insertMany_list_of_mem WF.empty k_beq distinct mem]
 
+theorem size_insertMany_empty_list [TransOrd α] (h : t.WF)
+    {l : List ((a : α) × β a)} (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
+    (insertMany empty l WF.empty.balanced).1.size = l.length := by
+  rw [size_insertMany_list WF.empty distinct]
+  · simp only [size_empty, Nat.zero_add]
+  · simp only [contains_empty, Bool.false_eq_true, false_implies, implies_true]
+
+theorem size_insertMany_empty_list_le [EquivBEq α]
+    {l : List ((a : α) × β a)} :
+    (insertMany empty l).1.size ≤ l.length := by
+  rw [← Nat.zero_add l.length]
+  apply (size_insertMany_list_le _ Raw.WF.empty₀)
+
+theorem isEmpty_insertMany_empty_list [EquivBEq α]
+    {l : List ((a : α) × β a)} :
+    (insertMany empty l).1.1.isEmpty = l.isEmpty := by
+  simp [isEmpty_insertMany_list _ Raw.WF.empty₀]
+
+namespace Const
+variable {β : Type v}
+
+@[simp]
+theorem insertMany_empty_list_nil :
+    (insertMany empty ([] : List (α × β))).1 = empty := by
+  simp only [insertMany_nil]
+
+@[simp]
+theorem insertMany_empty_list_singleton {k : α} {v : β} :
+    (insertMany empty [⟨k, v⟩]).1 = empty.insert k v := by
+  simp only [insertMany_list_singleton]
+
+theorem insertMany_empty_list_cons {k : α} {v : β}
+    {tl : List (α × β)} :
+    (insertMany empty (⟨k, v⟩ :: tl)) = (insertMany (empty.insert k v) tl).1 := by
+  rw [insertMany_cons]
+
+theorem contains_insertMany_empty_list [EquivBEq α]
+    {l : List (α × β)} {k : α} :
+    (insertMany (empty : Raw₀ α (fun _ => β)) l).1.contains k = (l.map Prod.fst).contains k := by
+  simp [contains_insertMany_list _ Raw.WF.empty₀]
+
+theorem get?_insertMany_empty_list_of_contains_eq_false [LawfulBEq α]
+    {l : List (α × β)} {k : α}
+    (h : (l.map Prod.fst).contains k = false) :
+    get? (insertMany (empty : Raw₀ α (fun _ => β)) l).1 k = none := by
+  rw [get?_insertMany_list_of_contains_eq_false _ Raw.WF.empty₀ h]
+  apply get?_empty
+
+theorem get?_insertMany_empty_list_of_mem [LawfulBEq α]
+    {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : ⟨k, v⟩ ∈ l) :
+    get? (insertMany (empty : Raw₀ α (fun _ => β)) l) k' = some v := by
+  rw [get?_insertMany_list_of_mem _ Raw.WF.empty₀ k_beq distinct mem]
+
+theorem get_insertMany_empty_list_of_mem [LawfulBEq α]
+    {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : ⟨k, v⟩ ∈ l)
+    {h} :
+    get (insertMany (empty : Raw₀ α (fun _ => β)) l) k' h = v := by
+  rw [get_insertMany_list_of_mem _ Raw.WF.empty₀ k_beq distinct mem]
+
+theorem get!_insertMany_empty_list_of_contains_eq_false [LawfulBEq α]
+    {l : List (α × β)} {k : α} [Inhabited β]
+    (h : (l.map Prod.fst).contains k = false) :
+    get! (insertMany (empty : Raw₀ α (fun _ => β)) l) k = (default : β) := by
+  rw [get!_insertMany_list_of_contains_eq_false _ Raw.WF.empty₀ h]
+  apply get!_empty
+
+theorem get!_insertMany_empty_list_of_mem [LawfulBEq α]
+    {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} [Inhabited β]
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : ⟨k, v⟩ ∈ l) :
+    get! (insertMany (empty : Raw₀ α (fun _ => β)) l) k' = v := by
+  rw [get!_insertMany_list_of_mem _ Raw.WF.empty₀ k_beq distinct mem]
+
+theorem getD_insertMany_empty_list_of_contains_eq_false [LawfulBEq α]
+    {l : List (α × β)} {k : α} {fallback : β}
+    (contains_eq_false : (l.map Prod.fst).contains k = false) :
+    getD (insertMany (empty : Raw₀ α (fun _ => β)) l) k fallback = fallback := by
+  rw [getD_insertMany_list_of_contains_eq_false _ Raw.WF.empty₀ contains_eq_false]
+  apply getD_empty
+
+theorem getD_insertMany_empty_list_of_mem [LawfulBEq α]
+    {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} {fallback : β}
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : ⟨k, v⟩ ∈ l) :
+    getD (insertMany (empty : Raw₀ α (fun _ => β)) l) k' fallback = v := by
+  rw [getD_insertMany_list_of_mem _ Raw.WF.empty₀ k_beq distinct mem]
+
+theorem getKey?_insertMany_empty_list_of_contains_eq_false [EquivBEq α]
+    {l : List (α × β)} {k : α}
+    (h : (l.map Prod.fst).contains k = false) :
+    (insertMany (empty : Raw₀ α (fun _ => β)) l).1.getKey? k = none := by
+  rw [getKey?_insertMany_list_of_contains_eq_false _ Raw.WF.empty₀ h]
+  apply getKey?_empty
+
+theorem getKey?_insertMany_empty_list_of_mem [EquivBEq α]
+    {l : List (α × β)}
+    {k k' : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : k ∈ l.map Prod.fst) :
+    (insertMany (empty : Raw₀ α (fun _ => β)) l).1.getKey? k' = some k := by
+  rw [getKey?_insertMany_list_of_mem _ Raw.WF.empty₀ k_beq distinct mem]
+
+theorem getKey_insertMany_empty_list_of_mem [EquivBEq α]
+    {l : List (α × β)}
+    {k k' : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : k ∈ l.map Prod.fst)
+    {h'} :
+    (insertMany (empty : Raw₀ α (fun _ => β)) l).1.getKey k' h' = k := by
+  rw [getKey_insertMany_list_of_mem _ Raw.WF.empty₀ k_beq distinct mem]
+
+theorem getKey!_insertMany_empty_list_of_contains_eq_false [EquivBEq α]
+    [Inhabited α] {l : List (α × β)} {k : α}
+    (h : (l.map Prod.fst).contains k = false) :
+    (insertMany (empty : Raw₀ α (fun _ => β)) l).1.getKey! k = default := by
+  rw [getKey!_insertMany_list_of_contains_eq_false _ Raw.WF.empty₀ h]
+  apply getKey!_empty
+
+theorem getKey!_insertMany_empty_list_of_mem [EquivBEq α] [Inhabited α]
+    {l : List (α × β)}
+    {k k' : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : k ∈ l.map Prod.fst) :
+    (insertMany (empty : Raw₀ α (fun _ => β)) l).1.getKey! k' = k := by
+  rw [getKey!_insertMany_list_of_mem _ Raw.WF.empty₀ k_beq distinct mem]
+
+theorem getKeyD_insertMany_empty_list_of_contains_eq_false [EquivBEq α]
+    {l : List (α × β)} {k fallback : α}
+    (h : (l.map Prod.fst).contains k = false) :
+    (insertMany (empty : Raw₀ α (fun _ => β)) l).1.getKeyD k fallback = fallback := by
+  rw [getKeyD_insertMany_list_of_contains_eq_false _ Raw.WF.empty₀ h]
+  apply getKeyD_empty
+
+theorem getKeyD_insertMany_empty_list_of_mem [EquivBEq α]
+    {l : List (α × β)}
+    {k k' fallback : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
+    (mem : k ∈ l.map Prod.fst) :
+    (insertMany (empty : Raw₀ α (fun _ => β)) l).1.getKeyD k' fallback = k := by
+  rw [getKeyD_insertMany_list_of_mem _ Raw.WF.empty₀ k_beq distinct mem]
+
+theorem size_insertMany_empty_list [EquivBEq α]
+    {l : List (α × β)} (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
+    (insertMany (empty : Raw₀ α (fun _ => β)) l).1.size = l.length := by
+  rw [size_insertMany_list _ Raw.WF.empty₀ distinct]
+  · simp only [size_empty, Nat.zero_add]
+  · simp only [contains_empty, Bool.false_eq_true, false_implies, implies_true]
+
+theorem size_insertMany_empty_list_le [EquivBEq α]
+    {l : List (α × β)} :
+    (insertMany (empty : Raw₀ α (fun _ => β)) l).1.size ≤ l.length := by
+  rw [← Nat.zero_add l.length]
+  apply (size_insertMany_list_le _ Raw.WF.empty₀)
+
+theorem isEmpty_insertMany_empty_list [EquivBEq α]
+    {l : List (α × β)} :
+    (insertMany (empty : Raw₀ α (fun _ => β)) l).1.1.isEmpty = l.isEmpty := by
+  simp [isEmpty_insertMany_list _ Raw.WF.empty₀]
+
+@[simp]
+theorem insertManyIfNewUnit_empty_list_nil :
+    insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) ([] : List α) =
+      (empty : Raw₀ α (fun _ => Unit)) := by
+  simp
+
+@[simp]
+theorem insertManyIfNewUnit_empty_list_singleton {k : α} :
+    (insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) [k]).1 = empty.insertIfNew k () := by
+  simp
+
+theorem insertManyIfNewUnit_empty_list_cons {hd : α} {tl : List α} :
+    insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) (hd :: tl) =
+      (insertManyIfNewUnit (empty.insertIfNew hd ()) tl).1 := by
+  rw [insertManyIfNewUnit_cons]
+
+theorem contains_insertManyIfNewUnit_empty_list [EquivBEq α]
+    {l : List α} {k : α} :
+    (insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) l).1.contains k = l.contains k := by
+  simp [contains_insertManyIfNewUnit_list _ Raw.WF.empty₀]
+
+theorem getKey?_insertManyIfNewUnit_empty_list_of_contains_eq_false [EquivBEq α]
+    {l : List α} {k : α} (h' : l.contains k = false) :
+    getKey? (insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) l).1 k = none := by
+  exact getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false _ Raw.WF.empty₀
+    contains_empty h'
+
+theorem getKey?_insertManyIfNewUnit_empty_list_of_mem [EquivBEq α]
+    {l : List α} {k k' : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l) :
+    getKey? (insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) l).1 k' = some k := by
+  exact getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_mem _ Raw.WF.empty₀ k_beq
+    contains_empty distinct mem
+
+theorem getKey_insertManyIfNewUnit_empty_list_of_mem [EquivBEq α]
+    {l : List α}
+    {k k' : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a == b) = false))
+    (mem : k ∈ l) {h'} :
+    getKey (insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) l).1 k' h' = k := by
+  exact getKey_insertManyIfNewUnit_list_of_contains_eq_false_of_mem _ Raw.WF.empty₀ k_beq
+    contains_empty distinct mem
+
+theorem getKey!_insertManyIfNewUnit_empty_list_of_contains_eq_false [EquivBEq α]
+    [Inhabited α] {l : List α} {k : α}
+    (h' : l.contains k = false) :
+    getKey! (insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) l).1 k = default := by
+  exact getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false _ Raw.WF.empty₀
+    contains_empty h'
+
+theorem getKey!_insertManyIfNewUnit_empty_list_of_mem [EquivBEq α]
+    [Inhabited α] {l : List α} {k k' : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a == b) = false))
+    (mem : k ∈ l) :
+    getKey! (insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) l).1 k' = k := by
+  exact getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_mem _ Raw.WF.empty₀ k_beq
+    contains_empty distinct mem
+
+theorem getKeyD_insertManyIfNewUnit_empty_list_of_contains_eq_false [EquivBEq α]
+    {l : List α} {k fallback : α}
+    (h' : l.contains k = false) :
+    getKeyD (insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) l).1 k fallback = fallback := by
+  exact getKeyD_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
+    _ Raw.WF.empty₀ contains_empty h'
+
+theorem getKeyD_insertManyIfNewUnit_empty_list_of_mem [EquivBEq α]
+    {l : List α} {k k' fallback : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a == b) = false))
+    (mem : k ∈ l) :
+    getKeyD (insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) l).1 k' fallback = k := by
+  exact getKeyD_insertManyIfNewUnit_list_of_contains_eq_false_of_mem _ Raw.WF.empty₀ k_beq
+    contains_empty distinct mem
+
+theorem size_insertManyIfNewUnit_empty_list [EquivBEq α]
+    {l : List α}
+    (distinct : l.Pairwise (fun a b => (a == b) = false)) :
+    (insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) l).1.size = l.length := by
+  simp [size_insertManyIfNewUnit_list _ Raw.WF.empty₀ distinct]
+
+theorem size_insertManyIfNewUnit_empty_list_le [EquivBEq α]
+    {l : List α} :
+    (insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) l).1.size ≤ l.length := by
+  apply Nat.le_trans (size_insertManyIfNewUnit_list_le _ Raw.WF.empty₀)
+  simp
+
+theorem isEmpty_insertManyIfNewUnit_empty_list [EquivBEq α]
+    {l : List α} :
+    (insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) l).1.1.isEmpty = l.isEmpty := by
+  rw [isEmpty_insertManyIfNewUnit_list _ Raw.WF.empty₀]
+  simp
+
+theorem get?_insertManyIfNewUnit_empty_list [EquivBEq α]
+    {l : List α} {k : α} :
+    get? (insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) l) k =
+      if l.contains k then some () else none := by
+  rw [get?_insertManyIfNewUnit_list _ Raw.WF.empty₀]
+  simp
+
+theorem get_insertManyIfNewUnit_empty_list
+    {l : List α} {k : α} {h} :
+    get (insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) l) k h = () := by
+  simp
+
+theorem get!_insertManyIfNewUnit_empty_list
+    {l : List α} {k : α} :
+    get! (insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) l) k = () := by
+  simp
+
+theorem getD_insertManyIfNewUnit_empty_list
+    {l : List α} {k : α} {fallback : Unit} :
+    getD (insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) l) k fallback = () := by
+  simp
+
+end Const
+
 end Std.DTreeMap.Internal.Impl

@@ -7,6 +7,8 @@ prelude
 import Lean.Elab.Tactic.Omega.Core
 import Lean.Elab.Tactic.FalseOrByContra
 import Lean.Elab.Tactic.Config
+import Lean.Elab.MutualDef
+import Lean.Meta.Closure
 
 /-!
 # Frontend to the `omega` tactic.
@@ -670,12 +672,19 @@ open Lean Elab Tactic Parser.Tactic
 
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. -/
 def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
+  let n := (← readThe Term.Context).declName?.getD `omega -- Hack
   liftMetaFinishingTactic fun g => do
     let some g ← g.falseOrByContra | return ()
     g.withContext do
+      let g' := (← mkFreshExprSyntheticOpaqueMVar (← g.getType)).mvarId!
       let hyps := (← getLocalHyps).toList
       trace[omega] "analyzing {hyps.length} hypotheses:\n{← hyps.mapM inferType}"
-      omega hyps g cfg
+      omega hyps g' cfg
+      -- Experiment: Always isolate (possibly large) omega proofs in their own declaration
+      -- TODO: Reliably generate fresh names in a way that is compatible with async elab
+      let e ← mkAuxTheorem (← mkFreshUserName n) (← g'.getType) (← instantiateMVarsProfiling (mkMVar g'))
+      g.assign e
+
 
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. This
 `TacticM Unit` frontend with default configuration can be used as an Aesop rule, for example via

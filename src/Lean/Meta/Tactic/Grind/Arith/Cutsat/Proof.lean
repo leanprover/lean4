@@ -198,20 +198,16 @@ partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s
 partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
   match h with
   | .le c =>
-    trace[grind.cutsat.le.unsat] "{← c.pp}"
     return mkApp4 (mkConst ``Int.Linear.le_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
   | .dvd c =>
-    trace[grind.cutsat.dvd.unsat] "{← c.pp}"
     return mkApp5 (mkConst ``Int.Linear.dvd_unsat) (← getContext) (toExpr c.d) (toExpr c.p) reflBoolTrue (← c.toExprProof)
   | .eq c =>
-    trace[grind.cutsat.eq.unsat] "{← c.pp}"
     if c.p.isUnsatEq then
       return mkApp4 (mkConst ``Int.Linear.eq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
     else
       let k := c.p.gcdCoeffs'
       return mkApp5 (mkConst ``Int.Linear.eq_unsat_coeff) (← getContext) (toExpr c.p) (toExpr (Int.ofNat k)) reflBoolTrue (← c.toExprProof)
   | .diseq c =>
-    trace[grind.cutsat.diseq.unsat] "{← c.pp}"
     return mkApp4 (mkConst ``Int.Linear.diseq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
 
 end

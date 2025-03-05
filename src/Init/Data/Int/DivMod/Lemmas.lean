@@ -1221,6 +1221,77 @@ theorem lt_mul_tdiv_self_add {x k : Int} (h : 0 < k) : x < k * (x.tdiv k) + k :=
   have := lt_mul_ediv_self_add (x := x) h
   split <;> simp [Int.mul_add] <;> omega
 
+-- Theorems about `tdiv` and ordering, whose `ediv` analogues proved above.
+
+protected theorem tdiv_mul_le (a : Int) {b : Int} (hb : b ≠ 0) : a.tdiv b * b ≤ a + if 0 ≤ a then 0 else (b.natAbs - 1) :=
+  Int.le_of_sub_nonneg <| by
+    rw [Int.mul_comm, Int.add_comm, Int.add_sub_assoc, ← tmod_def]
+    split
+    · simp_all [tmod_nonneg]
+    · match b, hb with
+      | .ofNat (b + 1), _ =>
+        have := lt_tmod_of_pos a (Int.ofNat_pos.2 (b.succ_pos))
+        simp_all
+        omega
+      | .negSucc b, _ =>
+        simp only [negSucc_eq, natAbs_neg, tmod_neg]
+        have := lt_tmod_of_pos (b := b + 1) a (by omega)
+        omega
+
+protected theorem tdiv_le_of_le_mul {a b c : Int} (Hc : 0 < c) (H' : a ≤ b * c) : a.tdiv c ≤ b + if 0 ≤ a then 0 else 1 :=
+  le_of_mul_le_mul_right (Int.le_trans (Int.tdiv_mul_le _ (by omega))
+    (by
+      split
+      · simpa using H'
+      · simp [Int.add_mul]
+        omega)) Hc
+
+-- protected theorem mul_lt_of_lt_tdiv {a b c : Int} (H : 0 < c) (H3 : a < b.tdiv c) : a * c < b :=
+--   Int.lt_of_not_ge <| mt (Int.tdiv_le_of_le_mul H) (Int.not_le_of_gt H3)
+
+-- protected theorem mul_le_of_le_tdiv {a b c : Int} (H1 : 0 < c) (H2 : a ≤ b.tdiv c) : a * c ≤ b :=
+--   Int.le_trans (Int.mul_le_mul_of_nonneg_right H2 (Int.le_of_lt H1))
+--     (Int.tdiv_mul_le _ (Int.ne_of_gt H1))
+
+-- protected theorem tdiv_lt_of_lt_mul {a b c : Int} (H : 0 < c) (H' : a < b * c) : a.tdiv c < b :=
+--   Int.lt_of_not_ge <| mt (Int.mul_le_of_le_tdiv H) (Int.not_le_of_gt H')
+
+protected theorem le_tdiv_of_mul_le {a b c : Int} (H1 : 0 < c) (H2 : a * c ≤ b) : a ≤ b.tdiv c :=
+  le_of_lt_add_one <|
+    lt_of_mul_lt_mul_right (Int.lt_of_le_of_lt H2 (lt_tdiv_add_one_mul_self _ H1)) (Int.le_of_lt H1)
+
+-- protected theorem le_tdiv_iff_mul_le {a b c : Int} (H : 0 < c) : a ≤ b.tdiv c ↔ a * c ≤ b :=
+--   ⟨Int.mul_le_of_le_tdiv H, Int.le_tdiv_of_mul_le H⟩
+
+protected theorem tdiv_le_tdiv {a b c : Int} (H : 0 < c) (H' : a ≤ b) : a.tdiv c ≤ b.tdiv c :=
+  Int.le_tdiv_of_mul_le H (Int.le_trans (Int.tdiv_mul_le _ (Int.ne_of_gt H)) H')
+
+protected theorem lt_mul_of_tdiv_lt {a b c : Int} (H1 : 0 < c) (H2 : a.tdiv c < b) : a < b * c :=
+  Int.lt_of_not_ge <| mt (Int.le_tdiv_of_mul_le H1) (Int.not_le_of_gt H2)
+
+-- protected theorem tdiv_lt_iff_lt_mul {a b c : Int} (H : 0 < c) : a.tdiv c < b ↔ a < b * c :=
+--   ⟨Int.lt_mul_of_tdiv_lt H, Int.tdiv_lt_of_lt_mul H⟩
+
+protected theorem le_mul_of_tdiv_le {a b c : Int} (H1 : 0 ≤ b) (H2 : b ∣ a) (H3 : a.tdiv b ≤ c) :
+    a ≤ c * b := by
+  rw [← Int.tdiv_mul_cancel H2]; exact Int.mul_le_mul_of_nonneg_right H3 H1
+
+protected theorem lt_tdiv_of_mul_lt {a b c : Int} (H1 : 0 ≤ b) (H2 : b ∣ c) (H3 : a * b < c) :
+    a < c.tdiv b :=
+  Int.lt_of_not_ge <| mt (Int.le_mul_of_tdiv_le H1 H2) (Int.not_le_of_gt H3)
+
+-- protected theorem lt_tdiv_iff_mul_lt {a b : Int} {c : Int} (H : 0 < c) (H' : c ∣ b) :
+--     a < b.tdiv c ↔ a * c < b :=
+--   ⟨Int.mul_lt_of_lt_tdiv H, Int.lt_tdiv_of_mul_lt (Int.le_of_lt H) H'⟩
+
+theorem tdiv_pos_of_pos_of_dvd {a b : Int} (H1 : 0 < a) (H2 : 0 ≤ b) (H3 : b ∣ a) : 0 < a.tdiv b :=
+  Int.lt_tdiv_of_mul_lt H2 H3 (by rwa [Int.zero_mul])
+
+theorem tdiv_eq_tdiv_of_mul_eq_mul {a b c d : Int}
+    (H2 : d ∣ c) (H3 : b ≠ 0) (H4 : d ≠ 0) (H5 : a * d = b * c) : a.tdiv b = c.tdiv d :=
+  Int.tdiv_eq_of_eq_mul_right H3 <| by
+    rw [← Int.mul_tdiv_assoc _ H2]; exact (Int.tdiv_eq_of_eq_mul_left H4 H5.symm).symm
+
 /-! ### fdiv -/
 
 -- There is no theorem `fdiv_neg : ∀ a b : Int, a.fdiv (-b) = -(a.fdiv b)`

@@ -428,7 +428,7 @@ def resolveConflict (h : UnsatProof) : SearchM Unit := do
     let decVars' := union decVars decVars'
     let n := pred.numCases
     let hs := hs.push (c.fvarId, h)
-    trace[grind.debug.cutsat.backtrack] "cooper #{hs.size + 1}, {← pred.pp}"
+    trace[grind.debug.cutsat.backtrack] "cooper #{hs.size + 1}, {← pred.pp}, {hs.map fun p => p.1.name}"
     let s ← if hs.size + 1 < n then
       let fvarId ← mkCase (.cooper pred hs decVars')
       pure { pred, k := n - hs.size - 1, id := (← mkCnstrId), h := .dec fvarId : CooperSplit }

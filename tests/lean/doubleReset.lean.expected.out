@@ -1,37 +1,33 @@
-
-[reset_reuse]
-def Array.mapMUnsafe.map._at.applyProjectionRules._spec_1._rarg (x_1 : obj) (x_2 : usize) (x_3 : usize) (x_4 : obj) : obj :=
-  let x_5 : u8 := USize.decLt x_3 x_2;
-  case x_5 : obj of
-  Bool.false →
-    ret x_4
-  Bool.true →
-    let x_6 : obj := Array.uget ◾ x_4 x_3 ◾;
-    let x_7 : obj := 0;
-    let x_8 : obj := Array.uset ◾ x_4 x_3 x_7 ◾;
-    let x_9 : obj := proj[0] x_6;
-    case x_9 : obj of
-    Prod.mk →
-      case x_9 : obj of
-      Prod.mk →
+[Compiler.IR] [reset_reuse]
+    def Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0._redArg (x_1 : obj) (x_2 : usize) (x_3 : usize) (x_4 : obj) : obj :=
+      let x_5 : u8 := USize.decLt x_3 x_2;
+      case x_5 : obj of
+      Bool.false →
+        ret x_4
+      Bool.true →
+        let x_6 : obj := Array.uget ◾ x_4 x_3 ◾;
+        let x_7 : obj := ctor_0[Nat.zero];
+        let x_8 : obj := Array.uset ◾ x_4 x_3 x_7 ◾;
+        let x_9 : obj := proj[0] x_6;
         let x_10 : obj := proj[0] x_9;
         let x_11 : obj := proj[1] x_9;
-        let x_18 : obj := reset[2] x_9;
-        let x_12 : obj := reuse x_18 in ctor_0[Prod.mk] x_10 x_11;
+        let x_12 : obj := ctor_0[Prod.mk] x_10 x_11;
         let x_13 : obj := ctor_0[Prod.mk] x_12 x_1;
-        let x_14 : usize := 1;
-        let x_15 : usize := USize.add x_3 x_14;
-        let x_16 : obj := Array.uset ◾ x_8 x_3 x_13 ◾;
-        let x_17 : obj := Array.mapMUnsafe.map._at.applyProjectionRules._spec_1._rarg x_1 x_2 x_15 x_16;
-        ret x_17
-def Array.mapMUnsafe.map._at.applyProjectionRules._spec_1 (x_1 : ◾) (x_2 : ◾) (x_3 : ◾) : obj :=
-  let x_4 : obj := pap Array.mapMUnsafe.map._at.applyProjectionRules._spec_1._rarg;
-  ret x_4
-def applyProjectionRules._rarg (x_1 : obj) (x_2 : obj) : obj :=
-  let x_3 : usize := Array.usize ◾ x_1;
-  let x_4 : usize := 0;
-  let x_5 : obj := Array.mapMUnsafe.map._at.applyProjectionRules._spec_1._rarg x_2 x_3 x_4 x_1;
-  ret x_5
-def applyProjectionRules (x_1 : ◾) (x_2 : ◾) (x_3 : ◾) : obj :=
-  let x_4 : obj := pap applyProjectionRules._rarg;
-  ret x_4
+        let x_14 : obj := 1;
+        let x_15 : usize := USize.ofNat x_14;
+        let x_16 : usize := USize.add x_3 x_15;
+        let x_17 : obj := Array.uset ◾ x_8 x_3 x_13 ◾;
+        let x_18 : obj := Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0._redArg x_1 x_2 x_16 x_17;
+        ret x_18
+    def Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0 (x_1 : ◾) (x_2 : ◾) (x_3 : ◾) (x_4 : obj) (x_5 : usize) (x_6 : usize) (x_7 : obj) : obj :=
+      let x_8 : obj := Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0._redArg x_4 x_5 x_6 x_7;
+      ret x_8
+    def applyProjectionRules._redArg (x_1 : obj) (x_2 : obj) : obj :=
+      let x_3 : usize := Array.usize ◾ x_1;
+      let x_4 : obj := 0;
+      let x_5 : usize := USize.ofNat x_4;
+      let x_6 : obj := Array.mapMUnsafe.map._at_.applyProjectionRules.spec_0._redArg x_2 x_3 x_5 x_1;
+      ret x_6
+    def applyProjectionRules (x_1 : ◾) (x_2 : ◾) (x_3 : ◾) (x_4 : obj) (x_5 : obj) : obj :=
+      let x_6 : obj := applyProjectionRules._redArg x_4 x_5;
+      ret x_6

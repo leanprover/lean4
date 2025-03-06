@@ -3202,6 +3202,7 @@ then `x / y` is nonnegative, thus `toInt` and `toNat` coincide.
 theorem toInt_udiv_of_msb {x : BitVec w} (h : x.msb = false) (y : BitVec w) :
     (x / y).toInt = x.toNat / y.toNat := by
   simp [toInt_eq_msb_cond, msb_udiv_eq_false_of h]
+  norm_cast
 
 /-! ### umod -/
 

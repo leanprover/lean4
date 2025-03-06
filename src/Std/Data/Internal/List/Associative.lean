@@ -1922,19 +1922,20 @@ theorem getValueCast?_ext [BEq α] [LawfulBEq α] {l l' : List ((a : α) × β a
 
 theorem getKey?_getValue?_ext [BEq α] [EquivBEq α] {β : Type v}
     {l l' : List ((_ : α) × β)} (hl : DistinctKeys l) (hl' : DistinctKeys l')
-    (h : ∀ a, getKey? a l = getKey? a l' ∧ getValue? a l = getValue? a l') : Perm l l' := by
+    (hk : ∀ a, getKey? a l = getKey? a l') (hv : ∀ a, getValue? a l = getValue? a l') :
+    Perm l l' := by
   apply getEntry?_ext hl hl'
   intro a
-  specialize h a
+  specialize hk a; specialize hv a
   by_cases h' : containsKey a l'
-  · simp only [getKey?_eq_some_getKey h'] at h
-    have h'' := containsKey_eq_isSome_getKey?.trans (h.1 ▸ rfl : (getKey? a l).isSome = true)
+  · simp only [getKey?_eq_some_getKey h'] at hk
+    have h'' := containsKey_eq_isSome_getKey?.trans (hk ▸ rfl : (getKey? a l).isSome = true)
     simp only [getKey?_eq_some_getKey, getValue?_eq_some_getValue,
       getEntry?_eq_some_getEntry, h', h'', Option.some.injEq,
-      getEntry_eq_getKey_getValue, Sigma.mk.injEq] at h ⊢
-    exact ⟨h.1, h.2 ▸ .rfl⟩
-  · simp only [getKey?_eq_none, h'] at h
-    have h'' := containsKey_eq_isSome_getKey?.trans (h.1 ▸ rfl : (getKey? a l).isSome = false)
+      getEntry_eq_getKey_getValue, Sigma.mk.injEq] at hk hv ⊢
+    exact ⟨hk, hv ▸ .rfl⟩
+  · simp only [getKey?_eq_none, h'] at hk
+    have h'' := containsKey_eq_isSome_getKey?.trans (hk ▸ rfl : (getKey? a l).isSome = false)
     simp only [getEntry?_eq_none.mpr, h', h'']
 
 theorem replaceEntry_of_perm [BEq α] [EquivBEq α] {l l' : List ((a : α) × β a)} {k : α} {v : β k}

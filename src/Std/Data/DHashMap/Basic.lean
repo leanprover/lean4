@@ -71,6 +71,11 @@ instance [BEq α] [Hashable α] : EmptyCollection (DHashMap α β) where
 instance [BEq α] [Hashable α] : Inhabited (DHashMap α β) where
   default := ∅
 
+@[inherit_doc Raw.Equiv]
+structure Equiv (m₁ m₂ : DHashMap α β) where
+  /-- Internal implementation detail of the hash map -/
+  inner : m₁.1.Equiv m₂.1
+
 @[inline, inherit_doc Raw.insert] def insert (m : DHashMap α β) (a : α)
     (b : β a) : DHashMap α β :=
   ⟨Raw₀.insert ⟨m.1, m.2.size_buckets_pos⟩ a b, .insert₀ m.2⟩

@@ -2579,7 +2579,7 @@ theorem filterMap_equiv_congr {γ : α → Type w} (h : m₁.1 ~m m₂.1)
 
 namespace Const
 
-theorem Const.equiv_iff_toList_perm_toList {β : Type v} (m₁ m₂ : Raw α fun _ => β) :
+theorem equiv_iff_toList_perm_toList {β : Type v} (m₁ m₂ : Raw α fun _ => β) :
     m₁ ~m m₂ ↔ (Raw.Const.toList m₁).Perm (Raw.Const.toList m₂) := by
   simp_to_model [Const.toList, Equiv]
   constructor
@@ -2588,7 +2588,7 @@ theorem Const.equiv_iff_toList_perm_toList {β : Type v} (m₁ m₂ : Raw α fun
     have := h.map (fun (x, y) => (⟨x, y⟩ : (_ : α) × β))
     simpa only [List.map_map, Function.comp_def, List.map_id'] using this
 
-theorem Const.equiv_iff_keys_perm_keys (m₁ m₂ : Raw α fun _ => Unit) :
+theorem equiv_iff_keys_perm_keys (m₁ m₂ : Raw α fun _ => Unit) :
     m₁ ~m m₂ ↔ m₁.keys.Perm m₂.keys := by
   simp_to_model [keys, Equiv]
   simp only [List.keys_eq_map]
@@ -2728,8 +2728,8 @@ theorem modify_equiv_congr (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ~m 
     {k : α} (f : β → β) : (modify m₁ k f).1 ~m (modify m₂ k f).1 := by
   simp_to_model [Equiv, Const.modify] using List.Const.modifyKey_of_perm _ h.1
 
-theorem equiv_of_forall_getKey?_eq_and_get?_eq (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) :
-    (∀ k, m₁.getKey? k = m₂.getKey? k ∧ get? m₁ k = get? m₂ k) → m₁.1 ~m m₂.1 := by
+theorem equiv_of_forall_getKey?_eq_of_forall_get?_eq (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) :
+    (∀ k, m₁.getKey? k = m₂.getKey? k) → (∀ k, get? m₁ k = get? m₂ k) → m₁.1 ~m m₂.1 := by
   simp_to_model [getKey?, Const.get?, Equiv] using List.getKey?_getValue?_ext
 
 end Const

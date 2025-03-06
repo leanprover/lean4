@@ -1464,28 +1464,21 @@ protected theorem tdiv_le_of_le_mul {a b c : Int} (Hc : 0 < c) (H' : a ≤ b * c
       · simp [Int.add_mul]
         omega)) Hc
 
--- protected theorem mul_lt_of_lt_tdiv {a b c : Int} (H : 0 < c) (H3 : a < b.tdiv c) : a * c < b :=
---   Int.lt_of_not_ge <| mt (Int.tdiv_le_of_le_mul H) (Int.not_le_of_gt H3)
-
--- protected theorem mul_le_of_le_tdiv {a b c : Int} (H1 : 0 < c) (H2 : a ≤ b.tdiv c) : a * c ≤ b :=
---   Int.le_trans (Int.mul_le_mul_of_nonneg_right H2 (Int.le_of_lt H1))
---     (Int.tdiv_mul_le _ (Int.ne_of_gt H1))
-
--- protected theorem tdiv_lt_of_lt_mul {a b c : Int} (H : 0 < c) (H' : a < b * c) : a.tdiv c < b :=
---   Int.lt_of_not_ge <| mt (Int.mul_le_of_le_tdiv H) (Int.not_le_of_gt H')
+-- We don't provide `tdiv` analogues of the lemmas
+-- `mul_lt_of_lt_ediv`
+-- `mul_le_of_le_ediv`
+-- `ediv_lt_of_lt_mul`
+-- `le_ediv_iff_mul_le`
+-- `ediv_lt_iff_lt_mul`
+-- `lt_ediv_iff_mul_lt`
+-- as they would require quite awkward statements.
 
 protected theorem le_tdiv_of_mul_le {a b c : Int} (H1 : 0 < c) (H2 : a * c ≤ b) : a ≤ b.tdiv c :=
   le_of_lt_add_one <|
     lt_of_mul_lt_mul_right (Int.lt_of_le_of_lt H2 (lt_tdiv_add_one_mul_self _ H1)) (Int.le_of_lt H1)
 
--- protected theorem le_tdiv_iff_mul_le {a b c : Int} (H : 0 < c) : a ≤ b.tdiv c ↔ a * c ≤ b :=
---   ⟨Int.mul_le_of_le_tdiv H, Int.le_tdiv_of_mul_le H⟩
-
 protected theorem lt_mul_of_tdiv_lt {a b c : Int} (H1 : 0 < c) (H2 : a.tdiv c < b) : a < b * c :=
   Int.lt_of_not_ge <| mt (Int.le_tdiv_of_mul_le H1) (Int.not_le_of_gt H2)
-
--- protected theorem tdiv_lt_iff_lt_mul {a b c : Int} (H : 0 < c) : a.tdiv c < b ↔ a < b * c :=
---   ⟨Int.lt_mul_of_tdiv_lt H, Int.tdiv_lt_of_lt_mul H⟩
 
 protected theorem le_mul_of_tdiv_le {a b c : Int} (H1 : 0 ≤ b) (H2 : b ∣ a) (H3 : a.tdiv b ≤ c) :
     a ≤ c * b := by
@@ -1494,10 +1487,6 @@ protected theorem le_mul_of_tdiv_le {a b c : Int} (H1 : 0 ≤ b) (H2 : b ∣ a) 
 protected theorem lt_tdiv_of_mul_lt {a b c : Int} (H1 : 0 ≤ b) (H2 : b ∣ c) (H3 : a * b < c) :
     a < c.tdiv b :=
   Int.lt_of_not_ge <| mt (Int.le_mul_of_tdiv_le H1 H2) (Int.not_le_of_gt H3)
-
--- protected theorem lt_tdiv_iff_mul_lt {a b : Int} {c : Int} (H : 0 < c) (H' : c ∣ b) :
---     a < b.tdiv c ↔ a * c < b :=
---   ⟨Int.mul_lt_of_lt_tdiv H, Int.lt_tdiv_of_mul_lt (Int.le_of_lt H) H'⟩
 
 theorem tdiv_pos_of_pos_of_dvd {a b : Int} (H1 : 0 < a) (H2 : 0 ≤ b) (H3 : b ∣ a) : 0 < a.tdiv b :=
   Int.lt_tdiv_of_mul_lt H2 H3 (by rwa [Int.zero_mul])
@@ -1591,9 +1580,6 @@ protected theorem tdiv_le_tdiv {a b c : Int} (H : 0 < c) (H' : a ≤ b) : a.tdiv
 
 /-! ### fdiv -/
 
--- There is no theorem `fdiv_neg : ∀ a b : Int, a.fdiv (-b) = -(a.fdiv b)`
--- because this is false, for example at `a = 2`, `b = 3`, as `-1 ≠ 0`.
-
 theorem add_mul_fdiv_right (a b : Int) {c : Int} (H : c ≠ 0) : (a + b * c).fdiv c = a.fdiv c + b := by
   rw [fdiv_eq_ediv, add_mul_ediv_right _ _ H, fdiv_eq_ediv]
   simp only [Int.dvd_add_left (Int.dvd_mul_left _ _)]
@@ -1670,9 +1656,6 @@ abbrev fdiv_nonpos := @fdiv_nonpos_of_nonneg_of_nonpos
 
 theorem fdiv_neg_of_neg_of_pos : ∀ {a b : Int}, a < 0 → 0 < b → a.fdiv b < 0
   | -[_+1], succ _, _, _ => negSucc_lt_zero _
-
-@[deprecated fdiv_neg_of_neg_of_pos (since := "2025-03-04")]
-abbrev fdiv_neg := @fdiv_neg_of_neg_of_pos
 
 theorem fdiv_eq_zero_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a.fdiv b = 0 := by
   rw [fdiv_eq_ediv, if_pos, Int.sub_zero]
@@ -1760,9 +1743,21 @@ theorem neg_fdiv {a b : Int} : (-a).fdiv b = -(a.fdiv b) - if b = 0 ∨ b ∣ a 
     rw [neg_negSucc, neg_negSucc]
     simp
 
--- `natAbs_fdiv (a b : Int) : natAbs (a.fdiv b) = (natAbs a).div (natAbs b)` is untrue.
+theorem fdiv_neg {a b : Int} (h : b ≠ 0) : a.fdiv (-b) = if b ∣ a then -(a.fdiv b) else -(a.fdiv b) - 1 := by
+  rw [← Int.neg_fdiv_neg, Int.neg_neg, neg_fdiv]
+  simp only [h, false_or]
+  split <;> omega
 
--- TODO `sign_fdiv`, `natAbs_fdiv`
+/-!
+One could prove the following, but as the statements are quite awkward, so far it doesn't seem worthwhile.
+```
+theorem natAbs_fdiv {a b : Int} (h : b ≠ 0) :
+    natAbs (a.fdiv b) = a.natAbs / b.natAbs + if a.sign = b.sign ∨ b ∣ a then 0 else 1 := ...
+
+theorem sign_fdiv (a b : Int) :
+    sign (a.fdiv b) = if a.sign = b.sign ∧ natAbs a < natAbs b then 0 else sign a * sign b := ...
+```
+-/
 
 /-! ### fmod -/
 
@@ -1860,7 +1855,7 @@ theorem fmod_eq_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a.fmod b = a := 
   rw [fmod_def, Int.neg_fdiv_neg, fmod_def, Int.neg_mul]
   omega
 
--- TODO `sign_fmod`, `natAbs_fmod`
+-- Are `sign_fmod`, `natAbs_fmod` useful?
 
 /-! ### properties of `fdiv` and `fmod` -/
 

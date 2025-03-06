@@ -121,7 +121,7 @@ theorem emod_def (a b : Int) : a % b = a - b * (a / b) := by
 
 /-! ### `/` ediv -/
 
-@[simp] protected theorem ediv_neg : ∀ a b : Int, a / (-b) = -(a / b)
+@[simp] theorem ediv_neg : ∀ a b : Int, a / (-b) = -(a / b)
   | ofNat m, 0 => show ofNat (m / 0) = -↑(m / 0) by rw [Nat.div_zero]; rfl
   | ofNat _, -[_+1] => (Int.neg_neg _).symm
   | ofNat _, succ _ | -[_+1], 0 | -[_+1], succ _ | -[_+1], -[_+1] => rfl

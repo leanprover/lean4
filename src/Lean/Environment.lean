@@ -950,7 +950,7 @@ def AddConstAsyncResult.commitCheckEnv (res : AddConstAsyncResult) (env : Enviro
   res.allRealizationsPromise.resolve env.allRealizations.get
 
 /-- Checks whether `findAsync?` would return a result. -/
-def contains (env : Environment) (n : Name) (skipRealize := false) : Bool :=
+def contains (env : Environment) (n : Name) (skipRealize := true) : Bool :=
   env.findAsync? (skipRealize := skipRealize) n |>.isSome
 
 /--

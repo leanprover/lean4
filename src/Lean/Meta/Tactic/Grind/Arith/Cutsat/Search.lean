@@ -460,6 +460,7 @@ def resolveConflict (h : UnsatProof) : SearchM Unit := do
 def searchAssigmentMain : SearchM Unit := do
   repeat
     trace[grind.debug.cutsat.search] "main loop"
+    checkSystem "cutsat"
     if (← hasAssignment) then
       return ()
     if (← isInconsistent) then

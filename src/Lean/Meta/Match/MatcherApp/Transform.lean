@@ -37,21 +37,27 @@ private partial def updateAlts (unrefinedArgType : Expr) (typeNew : Expr) (altNu
     else
       throwError "failed to add argument to matcher application, argument type was not refined by `casesOn`"
 
-/-- Given
-  - matcherApp `match_i As (fun xs => motive[xs]) discrs (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining`, and
-  - expression `e : B[discrs]`,
-  Construct the term
-  `match_i As (fun xs => B[xs] -> motive[xs]) discrs (fun ys_1 (y : B[C_1[ys_1]]) => alt_1) ... (fun ys_n (y : B[C_n[ys_n]]) => alt_n) e remaining`.
+/--
+Given
+- matcherApp `match_i As (fun xs => motive[xs]) discrs (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining`, and
+- expression `e : B[discrs]`,
+Construct the term
+`match_i As (fun xs => B[xs] -> motive[xs]) discrs (fun ys_1 (y : B[C_1[ys_1]]) => alt_1) ... (fun ys_n (y : B[C_n[ys_n]]) => alt_n) e remaining`.
 
-  We use `kabstract` to abstract the discriminants from `B[discrs]`.
+We only abstract discriminants that are fvars.  We used to use `kabstract` to abstract all
+discriminants from `B[discrs]`, but that changes the type of the arg in ways that make it no
+longer compatible with the original recursive function (issue #7322).
 
-  This method assumes
-  - the `matcherApp.motive` is a lambda abstraction where `xs.size == discrs.size`
-  - each alternative is a lambda abstraction where `ys_i.size == matcherApp.altNumParams[i]`
+If this is still not great, then we could try to use `kabstract`, but only on the last paramter
+of the `arg` (the termination proof obligation).
 
-  This is used in `Lean.Elab.PreDefinition.WF.Fix` when replacing recursive calls with calls to
-  the argument provided by `fix` to refine type of the local variable used for recursive calls,
-  which may mention `major`. See there for how to use this function.
+This method assumes
+- the `matcherApp.motive` is a lambda abstraction where `xs.size == discrs.size`
+- each alternative is a lambda abstraction where `ys_i.size == matcherApp.altNumParams[i]`
+
+This is used in `Lean.Elab.PreDefinition.WF.Fix` when replacing recursive calls with calls to
+the argument provided by `fix` to refine type of the local variable used for recursive calls,
+which may mention `major`. See there for how to use this function.
 -/
 def addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
   lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
@@ -59,11 +65,13 @@ def addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
       -- This error can only happen if someone implemented a transformation that rewrites the motive created by `mkMatcher`.
       throwError "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
     let eType ← inferType e
-    let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i _ eTypeAbst => do
-      let motiveArg := motiveArgs[i]!
+    let eTypeAbst := matcherApp.discrs.size.foldRev (init := eType) fun i _ eTypeAbst =>
       let discr     := matcherApp.discrs[i]
-      let eTypeAbst ← kabstract eTypeAbst discr
-      return eTypeAbst.instantiate1 motiveArg
+      if discr.isFVar then
+        let motiveArg := motiveArgs[i]!
+        eTypeAbst.replaceFVar discr motiveArg
+      else
+        eTypeAbst
     let motiveBody ← mkArrow eTypeAbst motiveBody
     let matcherLevels ← match matcherApp.uElimPos? with
       | none     => pure matcherApp.matcherLevels

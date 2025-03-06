@@ -53,5 +53,8 @@ builtin_initialize registerTraceClass `grind.debug.cutsat.eq
 builtin_initialize registerTraceClass `grind.debug.cutsat.diseq
 builtin_initialize registerTraceClass `grind.debug.cutsat.diseq.split
 builtin_initialize registerTraceClass `grind.debug.cutsat.backtrack
+builtin_initialize registerTraceClass `grind.debug.cutsat.search
+builtin_initialize registerTraceClass `grind.debug.cutsat.cooper
+builtin_initialize registerTraceClass `grind.debug.cutsat.conflict
 
 end Lean

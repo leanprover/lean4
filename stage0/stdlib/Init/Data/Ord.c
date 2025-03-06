@@ -167,6 +167,46 @@ LEAN_EXPORT uint8_t l_instOrdUSize(size_t, size_t);
 LEAN_EXPORT lean_object* l_instOrdUSize___boxed(lean_object*, lean_object*);
 static lean_object* l_Ordering_noConfusion___rarg___closed__1;
 LEAN_EXPORT lean_object* l_instOrdChar___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_box(x_1);
+if (lean_obj_tag(x_4) == 1)
+{
+lean_dec(x_3);
+lean_inc(x_2);
+return x_2;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; 
+lean_dec(x_4);
+x_5 = lean_box(x_1);
+x_6 = lean_apply_2(x_3, x_5, lean_box(0));
+return x_6;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_1);
+lean_dec(x_1);
+x_5 = l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter___rarg(x_4, x_2, x_3);
+lean_dec(x_2);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Ordering_toCtorIdx(uint8_t x_1) {
 _start:
 {
@@ -577,46 +617,6 @@ lean_dec(x_1);
 x_3 = l_Ordering_isGE(x_2);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_box(x_1);
-if (lean_obj_tag(x_4) == 1)
-{
-lean_dec(x_3);
-lean_inc(x_2);
-return x_2;
-}
-else
-{
-lean_object* x_5; lean_object* x_6; 
-lean_dec(x_4);
-x_5 = lean_box(x_1);
-x_6 = lean_apply_2(x_3, x_5, lean_box(0));
-return x_6;
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = lean_unbox(x_1);
-lean_dec(x_1);
-x_5 = l___private_Init_Data_Ord_0__Ordering_then_match__1_splitter___rarg(x_4, x_2, x_3);
-lean_dec(x_2);
-return x_5;
 }
 }
 LEAN_EXPORT uint8_t l_compareOfLessAndEq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5) {

@@ -1664,6 +1664,21 @@ def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs
   withLocalDeclsD
     (declInfos.map (fun (name, typeCtor) => (name, fun _ => pure typeCtor))) k
 
+private def withAuxDeclImp (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → MetaM α) : MetaM α := do
+  let fvarId ← mkFreshFVarId
+  let ctx ← read
+  let lctx := ctx.lctx.mkAuxDecl fvarId shortDeclName type declName
+  let fvar := mkFVar fvarId
+  withReader (fun ctx => { ctx with lctx := lctx }) do
+    withNewFVar fvar type k
+
+/--
+  Declare an auxiliary local declaration `shortDeclName : type` for elaborating recursive
+  declaration `declName`, update the mapping `auxDeclToFullName`, and then execute `k`.
+-/
+def withAuxDecl (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → n α) : n α :=
+  map1MetaM (fun k => withAuxDeclImp shortDeclName type declName k) k
+
 private def withNewBinderInfosImp (bs : Array (FVarId × BinderInfo)) (k : MetaM α) : MetaM α := do
   let lctx := bs.foldl (init := (← getLCtx)) fun lctx (fvarId, bi) =>
       lctx.setBinderInfo fvarId bi
@@ -2251,12 +2266,23 @@ constants are added to the environment.
 def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
     MetaM Unit := do
   let env ← getEnv
-  if env.contains constName then
+  -- If `constName` is already known on this branch, avoid the trace node. We should not use
+  -- `contains` as it could block as well as find realizations on other branches, which would lack
+  -- the relevant local environment extension state when accessed on this branch.
+  if env.containsOnBranch constName then
+    return
+  -- TODO: remove when Mathlib passes without it
+  if !Elab.async.get (← getOptions) then
+    realize
     return
   withTraceNode `Meta.realizeConst (fun _ => return constName) do
     let coreCtx ← readThe Core.Context
-    -- these fields should be invariant throughout the file
-    let coreCtx := { fileName := coreCtx.fileName, fileMap := coreCtx.fileMap }
+    let coreCtx := {
+      -- these fields should be invariant throughout the file
+      fileName := coreCtx.fileName, fileMap := coreCtx.fileMap
+      -- heartbeat limits inside `realizeAndReport` should be measured from this point on
+      initHeartbeats := (← IO.getNumHeartbeats)
+    }
     let (env, dyn) ← env.realizeConst forConst constName (realizeAndReport coreCtx)
     if let some res := dyn.get? RealizeConstantResult then
       let mut snap := res.snap

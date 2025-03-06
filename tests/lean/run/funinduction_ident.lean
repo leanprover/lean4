@@ -1,23 +1,36 @@
+-- We re-define these here to avoid stage0 complications
+def map (f : α → β) : List α → List β
+  | []    => []
+  | a::as => f a :: map f as
+
+def zipWith (f : α → β → γ) : (xs : List α) → (ys : List β) → List γ
+  | x::xs, y::ys => f x y :: zipWith f xs ys
+  | _,     _     => []
+
+def append : (xs ys : List α) → List α
+  | [],    bs => bs
+  | a::as, bs => a :: append as bs
+
 namespace ListEx
 
-theorem map_id (xs : List α) : List.map id xs = xs := by
-  fun_induction List.map <;> simp_all only [List.map, id]
+theorem map_id (xs : List α) : map id xs = xs := by
+  fun_induction map <;> simp_all only [map, id]
 
 -- This works because collect ignores `.dropped` arguments
 
 theorem map_map (f : α → β) (g : β → γ) xs :
-  List.map g (List.map f xs) = List.map (g ∘ f) xs := by
-  fun_induction List.map <;> simp_all only [List.map, Function.comp]
+  map g (map f xs) = map (g ∘ f) xs := by
+  fun_induction map <;> simp_all only [map, Function.comp]
 
 -- This should genuinely not work, but have a good error message
 
 /--
-error: found more than one suitable call of 'List.append' in the goal. Please include the desired arguments.
+error: found more than one suitable call of 'append' in the goal. Please include the desired arguments.
 -/
 #guard_msgs in
 theorem append_assoc :
-  List.append xs (List.append ys zs) = List.append (List.append xs ys) zs := by
-  fun_induction List.append <;> simp_all only [List.append]
+  append xs (append ys zs) = append (append xs ys) zs := by
+  fun_induction append <;> simp_all only [append]
 
 end ListEx
 

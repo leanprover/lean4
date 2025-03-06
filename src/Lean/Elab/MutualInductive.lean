@@ -336,7 +336,7 @@ private def withInductiveLocalDecls (rs : Array PreElabHeaderResult) (x : Array 
     let rec loop (i : Nat) (indFVars : Array Expr) := do
       if h : i < namesAndTypes.size then
         let (declName, shortDeclName, type) := namesAndTypes[i]
-        Term.withAuxDecl shortDeclName type declName fun indFVar => loop (i+1) (indFVars.push indFVar)
+        withAuxDecl shortDeclName type declName fun indFVar => loop (i+1) (indFVars.push indFVar)
       else
         x params indFVars
     loop 0 #[]
@@ -961,6 +961,8 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
       IndPredBelow.mkBelow view0.declName
       for e in elabs do
         mkInjectiveTheorems e.view.declName
+    for e in elabs do
+      enableRealizationsForConst e.view.declName
     return res
 
 /-- Ensures that there are no conflicts among or between the type and constructor names defined in `elabs`. -/

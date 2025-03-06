@@ -16405,13 +16405,15 @@ return x_2;
 static lean_object* _init_l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_addConstImportData___rarg___lambda__2___closed__8() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_LazyDiscrTree_Cache_empty___closed__2;
-x_2 = l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_addConstImportData___rarg___lambda__2___closed__4;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_LazyDiscrTree_Cache_empty___closed__2;
+x_3 = l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_addConstImportData___rarg___lambda__2___closed__4;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_3);
+lean_ctor_set(x_4, 2, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_addConstImportData___rarg___lambda__2___closed__9() {
@@ -21014,7 +21016,7 @@ lean_dec(x_34);
 x_37 = lean_ctor_get(x_35, 0);
 lean_inc(x_37);
 lean_dec(x_35);
-x_38 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
+x_38 = lean_ctor_get_uint8(x_1, sizeof(void*)*3);
 x_39 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___rarg(x_32, x_1, x_37, x_38);
 x_40 = lean_st_ref_get(x_39, x_36);
 x_41 = lean_ctor_get(x_40, 0);
@@ -21338,7 +21340,7 @@ lean_dec(x_115);
 x_118 = lean_ctor_get(x_116, 0);
 lean_inc(x_118);
 lean_dec(x_116);
-x_119 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
+x_119 = lean_ctor_get_uint8(x_1, sizeof(void*)*3);
 x_120 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___rarg(x_113, x_1, x_118, x_119);
 x_121 = lean_st_ref_get(x_120, x_117);
 x_122 = lean_ctor_get(x_121, 0);
@@ -21643,7 +21645,7 @@ lean_dec(x_190);
 x_193 = lean_ctor_get(x_191, 0);
 lean_inc(x_193);
 lean_dec(x_191);
-x_194 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
+x_194 = lean_ctor_get_uint8(x_1, sizeof(void*)*3);
 x_195 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___rarg(x_188, x_1, x_193, x_194);
 x_196 = lean_st_ref_get(x_195, x_192);
 x_197 = lean_ctor_get(x_196, 0);
@@ -21963,7 +21965,7 @@ lean_dec(x_268);
 x_271 = lean_ctor_get(x_269, 0);
 lean_inc(x_271);
 lean_dec(x_269);
-x_272 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
+x_272 = lean_ctor_get_uint8(x_1, sizeof(void*)*3);
 x_273 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___rarg(x_266, x_1, x_271, x_272);
 x_274 = lean_st_ref_get(x_273, x_270);
 x_275 = lean_ctor_get(x_274, 0);

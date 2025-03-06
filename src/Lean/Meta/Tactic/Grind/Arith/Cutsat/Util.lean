@@ -64,9 +64,6 @@ def mkCnstrId : GoalM Nat := do
   modify' fun s => { s with nextCnstrId := id + 1 }
   return id
 
-def mkEqCnstr (p : Poly) (h : EqCnstrProof) : GoalM EqCnstr := do
-  return { p, h, id := (← mkCnstrId) }
-
 @[extern "lean_grind_cutsat_assert_eq"] -- forward definition
 opaque EqCnstr.assert (c : EqCnstr) : GoalM Unit
 
@@ -189,7 +186,7 @@ def toContextExpr : GoalM Expr := do
     return RArray.toExpr (mkConst ``Int) id (RArray.leaf (mkIntLit 0))
 
 structure ProofM.State where
-  cache : Std.HashMap Nat Expr := {}
+  cache : Std.HashMap UInt64 Expr := {}
 
 /-- Auxiliary monad for constructing cutsat proofs. -/
 abbrev ProofM := ReaderT Expr (StateRefT ProofM.State GoalM)
@@ -198,18 +195,14 @@ abbrev ProofM := ReaderT Expr (StateRefT ProofM.State GoalM)
 abbrev getContext : ProofM Expr := do
   read
 
-abbrev caching (id : Nat) (k : ProofM Expr) : ProofM Expr := do
-  if let some h := (← get).cache[id]? then
+abbrev caching (c : α) (k : ProofM Expr) : ProofM Expr := do
+  let addr := unsafe (ptrAddrUnsafe c).toUInt64 >>> 2
+  if let some h := (← get).cache[addr]? then
     return h
   else
     let h ← k
-    modify fun s => { s with cache := s.cache.insert id h }
+    modify fun s => { s with cache := s.cache.insert addr h }
     return h
-
-abbrev DvdCnstr.caching (c : DvdCnstr) (k : ProofM Expr) : ProofM Expr := Cutsat.caching c.id k
-abbrev LeCnstr.caching (c : LeCnstr) (k : ProofM Expr) : ProofM Expr := Cutsat.caching c.id k
-abbrev EqCnstr.caching (c : EqCnstr) (k : ProofM Expr) : ProofM Expr := Cutsat.caching c.id k
-abbrev DiseqCnstr.caching (c : DiseqCnstr) (k : ProofM Expr) : ProofM Expr := Cutsat.caching c.id k
 
 abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
   withLetDecl `ctx (mkApp (mkConst ``RArray) (mkConst ``Int)) (← toContextExpr) fun ctx => do
@@ -277,5 +270,25 @@ def _root_.Int.Linear.Poly.findVarToSubst (p : Poly) : GoalM (Option (Int × Var
       return some (k, x, c)
     else
       findVarToSubst p
+
+def CooperSplitPred.numCases (pred : CooperSplitPred) : Nat :=
+  let a  := pred.c₁.p.leadCoeff
+  let b  := pred.c₂.p.leadCoeff
+  match pred.c₃? with
+  | none => if pred.left then a.natAbs else b.natAbs
+  | some c₃ =>
+    let c  := c₃.p.leadCoeff
+    let d  := c₃.d
+    if pred.left then
+      Int.lcm a (a * d / Int.gcd (a * d) c)
+    else
+      Int.lcm b (b * d / Int.gcd (b * d) c)
+
+def CooperSplitPred.pp (pred : CooperSplitPred) : GoalM MessageData := do
+  return m!"{← pred.c₁.pp}, {← pred.c₂.pp}, {← if let some c₃ := pred.c₃? then c₃.pp else pure "none"}"
+
+def UnsatProof.pp (h : UnsatProof) : GoalM MessageData := do
+  match h with
+  | .le c | .eq c | .dvd c | .diseq c => c.pp
 
 end Lean.Meta.Grind.Arith.Cutsat

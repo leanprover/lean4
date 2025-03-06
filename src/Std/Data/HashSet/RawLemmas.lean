@@ -234,6 +234,22 @@ theorem get?_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
     (m.erase k).get? a = if k == a then none else m.get? a :=
   HashMap.Raw.getKey?_erase h.out
 
+theorem get?_beq [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+    (m.get? k).all (· == k) :=
+  HashMap.Raw.getKey?_beq h.out
+
+theorem get?_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k k' : α} (h' : k == k') :
+    m.get? k = m.get? k' :=
+  HashMap.Raw.getKey?_congr h.out h'
+
+theorem get?_eq_some_of_contains [LawfulBEq α] (h : m.WF) {k : α} (h' : m.contains k) :
+    m.get? k = some k :=
+  HashMap.Raw.getKey?_eq_some_of_contains h.out h'
+
+theorem get?_eq_some [LawfulBEq α] (h : m.WF) {k : α} (h' : k ∈ m) :
+    m.get? k = some k :=
+  HashMap.Raw.getKey?_eq_some h.out h'
+
 theorem get_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {h₁} :
     (m.insert k).get a h₁ =
       if h₂ : k == a ∧ ¬k ∈ m then k else m.get a (mem_of_mem_insert' h h₁ h₂) :=
@@ -252,6 +268,19 @@ theorem get?_eq_some_get [EquivBEq α] [LawfulHashable α] (h : m.WF) {a : α} {
 theorem get?_erase_self [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
     (m.erase k).get? k = none :=
   HashMap.Raw.getKey?_erase_self h.out
+
+theorem get_beq [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} (h' : k ∈ m) :
+    m.get k h' == k :=
+  HashMap.Raw.getKey_beq h.out h'
+
+theorem get_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k₁ k₂ : α}
+    (h' : k₁ == k₂) (h₁ : k₁ ∈ m) :
+    m.get k₁ h₁ = m.get k₂ (((mem_congr h h').mp h₁)) :=
+  HashMap.Raw.getKey_congr h.out h' h₁
+
+theorem get_eq [LawfulBEq α] (h : m.WF) {k : α} (h' : m.contains k) :
+    m.get k h' = k :=
+  HashMap.Raw.getKey_eq h.out h'
 
 @[simp]
 theorem get!_empty [Inhabited α] {a : α} {c} : (empty c : Raw α).get! a = default :=
@@ -302,6 +331,17 @@ theorem get!_eq_get!_get? [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : 
 theorem get_eq_get! [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.WF) {a : α} {h'} :
     m.get a h' = m.get! a :=
   HashMap.Raw.getKey_eq_getKey! h.out
+
+theorem get!_congr [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.WF) {k k' : α}
+    (h' : k == k') : m.get! k = m.get! k' :=
+  HashMap.Raw.getKey!_congr h.out h'
+
+theorem get!_eq_of_contains [LawfulBEq α] [Inhabited α] (h : m.WF) {k : α} (h' : m.contains k) :
+    m.get! k = k :=
+  HashMap.Raw.getKey!_eq_of_contains h.out h'
+
+theorem get!_eq_of_mem [LawfulBEq α] [Inhabited α] (h : m.WF) {k : α} (h' : k ∈ m) : m.get! k = k :=
+  HashMap.Raw.getKey!_eq_of_mem h.out h'
 
 @[simp]
 theorem getD_empty {a fallback : α} {c} : (empty c : Raw α).getD a fallback = fallback :=
@@ -357,6 +397,18 @@ theorem get!_eq_getD_default [EquivBEq α] [LawfulHashable α] [Inhabited α] (h
     {a : α} :
     m.get! a = m.getD a default :=
   HashMap.Raw.getKey!_eq_getKeyD_default h.out
+
+theorem getD_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {k k' fallback : α}
+    (h' : k == k') : m.getD k fallback = m.getD k' fallback :=
+  HashMap.Raw.getKeyD_congr h.out h'
+
+theorem getD_eq_of_contains [LawfulBEq α] (h : m.WF) {k fallback : α} (h' : m.contains k) :
+    m.getD k fallback = k :=
+  HashMap.Raw.getKeyD_eq_of_contains h.out h'
+
+theorem getD_eq_of_mem [LawfulBEq α] (h : m.WF) {k fallback : α} (h' : k ∈ m) :
+    m.getD k fallback = k :=
+  HashMap.Raw.getKeyD_eq_of_mem h.out h'
 
 @[simp]
 theorem containsThenInsert_fst (h : m.WF) {k : α} : (m.containsThenInsert k).1 = m.contains k :=

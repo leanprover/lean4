@@ -2302,37 +2302,10 @@ def Char.utf8Size (c : Char) : Nat :=
       (ite (LE.le v (UInt32.ofNatLT 0xFFFF (of_decide_eq_true rfl))) 3 4))
 
 /--
-`Option α` is the type of values which are either `some a` for some `a : α`,
-or `none`. In functional programming languages, this type is used to represent
-the possibility of failure, or sometimes nullability.
+Optional values, which are either `some` around a value from the underlying type or `none`.
 
-For example, the function `HashMap.get? : HashMap α β → α → Option β` looks up
-a specified key `a : α` inside the map. Because we do not know in advance
-whether the key is actually in the map, the return type is `Option β`, where
-`none` means the value was not in the map, and `some b` means that the value
-was found and `b` is the value retrieved.
-
-The `xs[i]` syntax, which is used to index into collections, has a variant
-`xs[i]?` that returns an optional value depending on whether the given index
-is valid. For example, if `m : HashMap α β` and `a : α`, then `m[a]?` is
-equivalent to `HashMap.get? m a`.
-
-To extract a value from an `Option α`, we use pattern matching:
-```
-def map (f : α → β) (x : Option α) : Option β :=
-  match x with
-  | some a => some (f a)
-  | none => none
-```
-We can also use `if let` to pattern match on `Option` and get the value
-in the branch:
-```
-def map (f : α → β) (x : Option α) : Option β :=
-  if let some a := x then
-    some (f a)
-  else
-    none
-```
+`Option` can represent nullable types or computations that might fail. In the codomain of a function
+type, it can also represent partiality.
 -/
 inductive Option (α : Type u) where
   /-- No value. -/
@@ -2348,11 +2321,14 @@ instance {α} : Inhabited (Option α) where
   default := none
 
 /--
-Get with default. If `opt : Option α` and `dflt : α`, then `opt.getD dflt`
-returns `a` if `opt = some a` and `dflt` otherwise.
+Gets an optional value, returning a given default on `none`.
 
-This function is `@[macro_inline]`, so `dflt` will not be evaluated unless
-`opt` turns out to be `none`.
+This function is `@[macro_inline]`, so `dflt` will not be evaluated unless `opt` turns out to be
+`none`.
+
+Examples:
+ * `(some "hello").getD "goodbye" = "hello"`
+ * `none.getD "goodbye" = "hello"`
 -/
 @[macro_inline] def Option.getD (opt : Option α) (dflt : α) : α :=
   match opt with
@@ -2360,8 +2336,14 @@ This function is `@[macro_inline]`, so `dflt` will not be evaluated unless
   | none => dflt
 
 /--
-Map a function over an `Option` by applying the function to the contained
-value if present.
+Apply a function to an optional value, if present.
+
+From the perspective of `Option` as a container with at most one value, this is analogous to
+`List.map`. It can also be accessed via the `Functor Option` instance.
+
+Examples:
+ * `(none : Option Nat).map (· + 1) = none`
+ * `(some 3).map (· + 1) = some 4`
 -/
 @[inline] protected def Option.map (f : α → β) : Option α → Option β
   | some x => some (f x)

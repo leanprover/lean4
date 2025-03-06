@@ -79,6 +79,12 @@ instance [Repr α] : Repr (ULift.{v} α) where
 instance : Repr Unit where
   reprPrec _ _ := "()"
 
+/--
+Returns a representation of an optional value that should be able to be parsed as an equivalent
+optional value.
+
+This function is typically accessed through the `Repr (Option α)` instance.
+-/
 protected def Option.repr [Repr α] : Option α → Nat → Format
   | none,    _   => "none"
   | some a, prec => Repr.addAppParen ("some " ++ reprArg a) prec

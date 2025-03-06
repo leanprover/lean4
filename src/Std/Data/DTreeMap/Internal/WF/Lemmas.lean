@@ -1507,8 +1507,8 @@ theorem mergeWith_eq_mergeWith! {_ : Ord α} [LawfulEqOrd α] {mergeFn} {t₁ t�
   induction t₂ generalizing t₁ with
   | leaf => rfl
   | inner sz k v l r ihl ihr =>
-    simp only [foldl, foldlM, bind]
-    simp only [foldl, bind] at ihl ihr
+    simp only [foldl, foldlM, pure_bind, Id.run_bind]
+    simp only [foldl] at ihl ihr
     rw [ihr]
     congr
     simp only [SizedBalancedTree.toBalancedTree]
@@ -1528,8 +1528,8 @@ theorem Const.mergeWith_eq_mergeWith! {β : Type v} {_ : Ord α} {mergeFn} {t₁
   induction t₂ generalizing t₁ with
   | leaf => rfl
   | inner sz k v l r ihl ihr =>
-    simp only [foldl, foldlM, bind]
-    simp only [foldl, bind] at ihl ihr
+    simp only [foldl, foldlM, Id.run_bind, pure_bind]
+    simp only [foldl] at ihl ihr
     rw [ihr]
     congr
     simp only [SizedBalancedTree.toBalancedTree]

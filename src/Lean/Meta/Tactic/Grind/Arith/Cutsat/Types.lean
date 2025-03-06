@@ -267,10 +267,14 @@ structure State where
   This is necessary because the same disequality may be in different conflicts.
   -/
   diseqSplits : PHashMap Poly FVarId := {}
-
-  /-
-  TODO: Model-based theory combination.
+  /--
+  Pairs `(x, n)` s.t. we have expanded the theorems
+  - `Int.Linear.ediv_emod`
+  - `Int.Linear.emod_nonneg`
+  - `Int.Linear.emod_le`
   -/
+  divMod : PHashSet (Expr × Int) := {}
+  /- TODO: Model-based theory combination. -/
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Cutsat

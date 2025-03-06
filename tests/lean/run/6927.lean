@@ -70,10 +70,10 @@ Cannot use parameters n of Ex2.outer.middle.inner and n of Ex2.outer.middle:
 Could not find a decreasing measure.
 The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-Call from Ex2.outer.middle.inner to Ex2.outer.middle at 111:6-20:
+Call from Ex2.outer.middle.inner to Ex2.outer.middle at 89:6-20:
   n✝ n
 n  ? ?
-Call from Ex2.outer.middle to Ex2.outer.middle.inner at 113:4-11:
+Call from Ex2.outer.middle to Ex2.outer.middle.inner at 91:4-11:
    n
 n✝ _
 n  _

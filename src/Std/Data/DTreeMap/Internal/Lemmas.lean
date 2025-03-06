@@ -41,6 +41,8 @@ scoped macro "wf_trivial" : tactic => `(tactic|
     | apply WF.insertMany | apply WF.insertMany!
     | apply WF.constInsertMany | apply WF.constInsertMany!
     | apply WF.constInsertManyIfNewUnit | apply WF.constInsertManyIfNewUnit!
+    | apply WF.alter | apply WF.alter! | apply WF.constAlter | apply WF.constAlter!
+    | apply WF.modify | apply WF.constModify
     | apply Ordered.distinctKeys
     | assumption
     ))
@@ -118,7 +120,7 @@ theorem isEmpty_empty : isEmpty (empty : Impl α β) := by
 
 theorem mem_iff_contains {k : α} : k ∈ t ↔ t.contains k :=
   Iff.rfl
-/-
+
 theorem isEmpty_insert [TransOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.insert k v h.balanced).impl.isEmpty = false := by
   simp_to_model [insert] using List.isEmpty_insertEntry
@@ -3028,7 +3030,7 @@ theorem getD_insertManyIfNewUnit_empty_list
   simp
 
 end Const
- -/
+
 section Alter
 
 theorem isEmpty_alter_eq_isEmpty_erase [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
@@ -3039,290 +3041,850 @@ theorem isEmpty_alter_eq_isEmpty_erase [TransOrd α] [LawfulEqOrd α] (h : t.WF)
 
 theorem isEmpty_alter!_eq_isEmpty_erase [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
-    (t.alter! k f).isEmpty =
-      ((t.erase! k).isEmpty && (f (t.get? k)).isNone) := by
+    (t.alter! k f).isEmpty = ((t.erase! k).isEmpty && (f (t.get? k)).isNone) := by
   simp_to_model [alter!, erase!, isEmpty, get?] using List.isEmpty_alterKey_eq_isEmpty_eraseKey
 
 @[simp]
-theorem isEmpty_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {f : Option (β k) → Option (β k)} :
-    (t.alter k f).1.isEmpty = (((t.isEmpty || (t.size == 1 && t.contains k))) &&
-      (f (t.get? k)).isNone) := by
+theorem isEmpty_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
+    haveI : BEq Nat := instBEqOfDecidableEq
+    (t.alter k f h.balanced).1.isEmpty =
+      (((t.isEmpty || (t.size == 1 && t.contains k))) && (f (t.get? k)).isNone) := by
   simp_to_model [alter, isEmpty, size, contains, get?] using List.isEmpty_alterKey
 
-theorem contains_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α} {f : Option (β k) → Option (β k)} :
-    (t.alter k f).contains k' = if k == k' then (f (t.get? k)).isSome else t.contains k' := by
+@[simp]
+theorem isEmpty_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
+    haveI : BEq Nat := instBEqOfDecidableEq
+    (t.alter! k f).isEmpty =
+      (((t.isEmpty || (t.size == 1 && t.contains k))) && (f (t.get? k)).isNone) := by
+  simp_to_model [alter!, isEmpty, size, contains, get?] using List.isEmpty_alterKey
+
+theorem contains_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter k f h.balanced).1.contains k' =
+      if compare k k' = .eq then (f (t.get? k)).isSome else t.contains k' := by
   simp_to_model [alter, contains, get?] using List.containsKey_alterKey
 
-theorem size_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {f : Option (β k) → Option (β k)} :
-    (t.alter k f).1.size =
+theorem contains_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter! k f).contains k' =
+      if compare k k' = .eq then (f (t.get? k)).isSome else t.contains k' := by
+  simp_to_model [alter!, contains, get?] using List.containsKey_alterKey
+
+theorem mem_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+    {f : Option (β k) → Option (β k)} :
+    k' ∈ (t.alter k f h.balanced).1 ↔
+      if compare k k' = .eq then (f (t.get? k)).isSome = true else k' ∈ t := by
+  simp [mem_iff_contains, contains_alter h]
+
+theorem mem_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+    {f : Option (β k) → Option (β k)} :
+    k' ∈ t.alter! k f ↔
+      if compare k k' = .eq then (f (t.get? k)).isSome = true else k' ∈ t := by
+  simp [mem_iff_contains, contains_alter! h]
+
+theorem mem_alter_of_beq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k': α}
+    {f : Option (β k) → Option (β k)}
+    (he : compare k k' = .eq) :
+    k' ∈ (t.alter k f h.balanced).1 ↔ (f (t.get? k)).isSome := by
+  rw [mem_alter h, if_pos he]
+
+theorem mem_alter!_of_beq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k': α}
+    {f : Option (β k) → Option (β k)}
+    (he : compare k k' = .eq) :
+    k' ∈ t.alter! k f ↔ (f (t.get? k)).isSome := by
+  rw [mem_alter! h, if_pos he]
+
+@[simp]
+theorem contains_alter_self [TransOrd α] [LawfulEqOrd α] {k : α} (h : t.WF)
+    {f : Option (β k) → Option (β k)} :
+    (t.alter k f h.balanced).1.contains k = (f (t.get? k)).isSome := by
+  simp only [contains_alter h, compare_eq_iff_eq, reduceIte]
+
+@[simp]
+theorem contains_alter!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter! k f).contains k = (f (t.get? k)).isSome := by
+  simp only [contains_alter! h, compare_eq_iff_eq, reduceIte]
+
+@[simp]
+theorem mem_alter_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
+    k ∈ (t.alter k f h.balanced).1 ↔ (f (t.get? k)).isSome := by
+  rw [mem_iff_contains, contains_alter_self h]
+
+@[simp]
+theorem mem_alter!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
+    k ∈ t.alter! k f ↔ (f (t.get? k)).isSome := by
+  rw [mem_iff_contains, contains_alter!_self h]
+
+theorem contains_alter_of_beq_eq_false [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+    {f : Option (β k) → Option (β k)} (he : ¬ compare k k' = .eq) :
+    (t.alter k f h.balanced).1.contains k' = t.contains k' := by
+  simp only [contains_alter h, he, beq_iff_eq, reduceIte]
+
+theorem contains_alter!_of_beq_eq_false [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+    {f : Option (β k) → Option (β k)} (he : ¬ compare k k' = .eq) :
+    (t.alter! k f).contains k' = t.contains k' := by
+  simp only [contains_alter! h, he, beq_iff_eq, reduceIte]
+
+theorem mem_alter_of_beq_eq_false [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+    {f : Option (β k) → Option (β k)} (he : ¬ compare k k' = .eq) :
+    k' ∈ (t.alter k f h.balanced).1 ↔ k' ∈ t := by
+  simp only [mem_iff_contains, contains_alter_of_beq_eq_false h he]
+
+theorem mem_alter!_of_beq_eq_false [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+    {f : Option (β k) → Option (β k)} (he : ¬ compare k k' = .eq) :
+    k' ∈ t.alter! k f ↔ k' ∈ t := by
+  simp only [mem_iff_contains, contains_alter!_of_beq_eq_false h he]
+
+theorem size_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter k f h.balanced).1.size =
       if t.contains k && (f (t.get? k)).isNone then
         t.size - 1
       else if !t.contains k && (f (t.get? k)).isSome then
         t.size + 1
       else
         t.size := by
-  simp_to_model [alter, contains, get?, size] using List.length_alterKey'
+  simp_to_model [alter] using List.length_alterKey'
 
-theorem size_alter_eq_add_one [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {f : Option (β k) → Option (β k)}
-    (h₁ : t.contains k = false) (h₂ : (f (t.get? k)).isSome) :
-    (t.alter k f).1.size = t.size + 1 := by
-  simp [size_alter, h, h₁, h₂]
+theorem size_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter! k f).size =
+      if t.contains k && (f (t.get? k)).isNone then
+        t.size - 1
+      else if !t.contains k && (f (t.get? k)).isSome then
+        t.size + 1
+      else
+        t.size := by
+  simp_to_model [alter!] using List.length_alterKey'
 
-theorem size_alter_eq_sub_one [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {f : Option (β k) → Option (β k)}
-    (h₁ : t.contains k) (h₂ : (f (t.get? k)).isNone) :
-    (t.alter k f).1.size = t.size - 1 := by
-  simp [size_alter, h, h₁, h₂]
-#exit
+theorem size_alter_eq_add_one [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} (h₁ : k ∉ t) (h₂ : (f (t.get? k)).isSome) :
+    (t.alter k f h.balanced).1.size = t.size + 1 := by
+  simp_all [mem_iff_contains, size_alter]
+
+theorem size_alter!_eq_add_one [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} (h₁ : k ∉ t) (h₂ : (f (t.get? k)).isSome) :
+    (t.alter! k f).size = t.size + 1 := by
+  simp_all [mem_iff_contains, size_alter!]
+
+theorem size_alter_eq_sub_one [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} (h₁ : k ∈ t) (h₂ : (f (t.get? k)).isNone) :
+    (t.alter k f h.balanced).1.size = t.size - 1 := by
+  simp_all [mem_iff_contains, size_alter]
+
+theorem size_alter!_eq_sub_one [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} (h₁ : k ∈ t) (h₂ : (f (t.get? k)).isNone) :
+    (t.alter! k f).size = t.size - 1 := by
+  simp_all [mem_iff_contains, size_alter!]
+
 theorem size_alter_eq_self_of_not_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
-    {f : Option (β k) → Option (β k)} (h₁ : t.contains k = false) (h₂ : (f (t.get? k)).isNone) :
-    (t.alter k f).1.size = t.size := by
-  simp [size_alter, h, h₁, h₂]
+    {f : Option (β k) → Option (β k)} (h₁ : ¬ k ∈ t) (h₂ : (f (t.get? k)).isNone) :
+    (t.alter k f h.balanced).1.size = t.size := by
+  simp_all [mem_iff_contains, size_alter]
+
+theorem size_alter!_eq_self_of_not_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} (h₁ : ¬ k ∈ t) (h₂ : (f (t.get? k)).isNone) :
+    (t.alter! k f).size = t.size := by
+  simp_all [mem_iff_contains, size_alter!]
 
 theorem size_alter_eq_self_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
-    {f : Option (β k) → Option (β k)} (h₁ : t.contains k) (h₂ : (f (t.get? k)).isSome) :
-    (t.alter k f).1.size = t.size := by
-  simp [size_alter, h, h₁, Option.isSome_iff_ne_none.mp h₂]
+    {f : Option (β k) → Option (β k)} (h₁ : k ∈ t) (h₂ : (f (t.get? k)).isSome) :
+    (t.alter k f h.balanced).1.size = t.size := by
+  simp_all [mem_iff_contains, size_alter, Option.isSome_iff_ne_none]
 
-theorem size_alter_le_size [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {f : Option (β k) → Option (β k)} :
-    (t.alter k f).1.size ≤ t.size + 1 := by
+theorem size_alter!_eq_self_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} (h₁ : k ∈ t) (h₂ : (f (t.get? k)).isSome) :
+    (t.alter! k f).size = t.size := by
+  simp_all [mem_iff_contains, size_alter!, Option.isSome_iff_ne_none]
+
+theorem size_alter_le_size [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter k f h.balanced).1.size ≤ t.size + 1 := by
   simp [size_alter, h]
   split <;> try split
   all_goals omega
 
-theorem size_le_size_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {f : Option (β k) → Option (β k)} :
-    t.size - 1 ≤ (t.alter k f).1.size := by
+theorem size_alter!_le_size [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter! k f).size ≤ t.size + 1 := by
+  simp [size_alter!, h]
+  split <;> try split
+  all_goals omega
+
+theorem size_le_size_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
+    t.size - 1 ≤ (t.alter k f h.balanced).1.size := by
   simp [size_alter, h]
   split <;> try split
   all_goals omega
 
-theorem get?_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α} {f : Option (β k) → Option (β k)} :
-    (t.alter k f).get? k' =
-      if h : k == k' then
-        cast (congrArg (Option ∘ β) (eq_of_beq h)) (f (t.get? k))
+theorem size_le_size_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
+    t.size - 1 ≤ (t.alter! k f).size := by
+  simp [size_alter!, h]
+  split <;> try split
+  all_goals omega
+
+theorem get?_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter k f h.balanced).1.get? k' =
+      if h : compare k k' = .eq then
+        cast (congrArg (Option ∘ β) (compare_eq_iff_eq.mp h)) (f (t.get? k))
       else
         t.get? k' := by
   simp_to_model [alter, get?] using List.getValueCast?_alterKey
 
-theorem get_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α} {f : Option (β k) → Option (β k)}
-    (hc : (t.alter k f).contains k') :
-    (t.alter k f).get k' hc =
-      if heq : k == k' then
-        haveI h' : (f (t.get? k)).isSome := by rwa [contains_alter _ h, if_pos heq] at hc
-        cast (congrArg β (eq_of_beq heq)) <| (f (t.get? k)).get <| h'
+theorem get?_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter! k f).get? k' =
+      if h : compare k k' = .eq then
+        cast (congrArg (Option ∘ β) (compare_eq_iff_eq.mp h)) (f (t.get? k))
       else
-        haveI h' : t.contains k' := by rwa [contains_alter _ h, if_neg heq] at hc
+        t.get? k' := by
+  simp_to_model [alter!, get?] using List.getValueCast?_alterKey
+
+@[simp]
+theorem get?_alter_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter k f h.balanced).1.get? k = f (t.get? k) := by
+  simp [get?_alter h]
+
+@[simp]
+theorem get?_alter!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter! k f).get? k = f (t.get? k) := by
+  simp [get?_alter! h]
+
+theorem get_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+    {f : Option (β k) → Option (β k)} {hc : k' ∈ (t.alter k f h.balanced).1} :
+    (t.alter k f h.balanced).1.get k' hc =
+      if heq : compare k k' = .eq then
+        haveI h' : (f (t.get? k)).isSome := mem_alter_of_beq h heq |>.mp hc
+        cast (congrArg β (compare_eq_iff_eq.mp heq)) <| (f (t.get? k)).get <| h'
+      else
+        haveI h' : k' ∈ t := mem_alter_of_beq_eq_false h heq |>.mp hc
         t.get k' h' := by
   simp_to_model [alter, contains, get, get?] using List.getValueCast_alterKey
 
-theorem get_alter_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {f : Option (β k) → Option (β k)}
-    {hc : (t.alter k f).contains k} :
-    haveI h' : (f (t.get? k)).isSome := by rwa [contains_alter _ h, beq_self_eq_true] at hc
-    (t.alter k f).get k hc = (f (t.get? k)).get h' := by
+theorem get_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+    {f : Option (β k) → Option (β k)} {hc : k' ∈ (t.alter! k f)} :
+    (t.alter! k f).get k' hc =
+      if heq : compare k k' = .eq then
+        haveI h' : (f (t.get? k)).isSome := mem_alter!_of_beq h heq |>.mp hc
+        cast (congrArg β (compare_eq_iff_eq.mp heq)) <| (f (t.get? k)).get <| h'
+      else
+        haveI h' : k' ∈ t := mem_alter!_of_beq_eq_false h heq |>.mp hc
+        t.get k' h' := by
+  simp_to_model [alter!, contains, get, get?] using List.getValueCast_alterKey
+
+@[simp]
+theorem get_alter_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} {hc : k ∈ (t.alter k f h.balanced).1} :
+    haveI h' : (f (t.get? k)).isSome := mem_alter_self h |>.mp hc
+    (t.alter k f h.balanced).1.get k hc = (f (t.get? k)).get h' := by
   simp_to_model [alter, get, get?] using List.getValueCast_alterKey_self
 
-theorem get!_alter [TransOrd α] [LawfulEqOrd α] {k k' : α} (h : t.WF) [Inhabited (β k')]
+@[simp]
+theorem get_alter!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} {hc : k ∈ t.alter! k f} :
+    haveI h' : (f (t.get? k)).isSome := mem_alter!_self h |>.mp hc
+    (t.alter! k f).get k hc = (f (t.get? k)).get h' := by
+  simp_to_model [alter!, get, get?] using List.getValueCast_alterKey_self
+
+theorem get!_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α} [Inhabited (β k')]
     {f : Option (β k) → Option (β k)} :
-    (t.alter k f).get! k' =
-      if heq : k == k' then
-        (f (t.get? k)).map (cast (congrArg β (eq_of_beq heq))) |>.get!
+    (t.alter k f h.balanced).1.get! k' =
+      if heq : compare k k' = .eq then
+        (f (t.get? k)).map (cast (congrArg β (compare_eq_iff_eq.mp heq))) |>.get!
       else
         t.get! k' := by
   simp_to_model [alter, get?, get!] using List.getValueCast!_alterKey
 
-theorem getD_alter [TransOrd α] [LawfulEqOrd α] {k k' : α} {fallback : β k'} (h : t.WF)
+theorem get!_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α} [Inhabited (β k')]
     {f : Option (β k) → Option (β k)} :
-    (t.alter k f).getD k' fallback =
-      if heq : k == k' then
-        f (t.get? k) |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD fallback
+    (t.alter! k f).get! k' =
+      if heq : compare k k' = .eq then
+        (f (t.get? k)).map (cast (congrArg β (compare_eq_iff_eq.mp heq))) |>.get!
+      else
+        t.get! k' := by
+  simp_to_model [alter!, get?, get!] using List.getValueCast!_alterKey
+
+private theorem Option.map_cast_apply {γ γ' : Type u} (h : γ = γ') (x : Option γ) :
+    Option.map (cast h) x = cast (congrArg Option h) x := by
+  cases h; cases x <;> simp
+
+@[simp]
+theorem get!_alter_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} [Inhabited (β k)]
+    {f : Option (β k) → Option (β k)} :
+    (t.alter k f h.balanced).1.get! k = (f (t.get? k)).get! := by
+  simp [get!_alter h, Option.map_cast_apply]
+
+@[simp]
+theorem get!_alter!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} [Inhabited (β k)]
+    {f : Option (β k) → Option (β k)} :
+    (t.alter! k f).get! k = (f (t.get? k)).get! := by
+  simp [get!_alter! h, Option.map_cast_apply]
+
+theorem getD_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α} {fallback : β k'}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter k f h.balanced).1.getD k' fallback =
+      if heq : compare k k' = .eq then
+        f (t.get? k) |>.map (cast (congrArg β <| compare_eq_iff_eq.mp heq)) |>.getD fallback
       else
         t.getD k' fallback := by
   simp_to_model [alter, getD, get?] using List.getValueCastD_alterKey
 
+theorem getD_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α} {fallback : β k'}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter! k f).getD k' fallback =
+      if heq : compare k k' = .eq then
+        f (t.get? k) |>.map (cast (congrArg β <| compare_eq_iff_eq.mp heq)) |>.getD fallback
+      else
+        t.getD k' fallback := by
+  simp_to_model [alter!, getD, get?] using List.getValueCastD_alterKey
+
 private theorem cast_eq_id {α : Type u} : cast (rfl : α = α) = id := by rfl
 
-theorem getD_alter_self [TransOrd α] [LawfulEqOrd α] {k : α} {fallback : β k} (h : t.WF)
+@[simp]
+theorem getD_alter_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {fallback : β k}
     {f : Option (β k) → Option (β k)} :
-    (t.alter k f).getD k fallback = (f (t.get? k)).getD fallback := by
-  simp only [getD_alter, h, beq_self_eq_true, reduceDIte, cast_eq_id, Option.map_id_fun, id_eq]
+    (t.alter k f h.balanced).1.getD k fallback = (f (t.get? k)).getD fallback := by
+  simp only [getD_alter, h, compare_eq_iff_eq, reduceDIte, cast_eq_id, Option.map_id_fun, id_eq]
 
-theorem getKey?_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α} {f : Option (β k) → Option (β k)} :
-    (t.alter k f).getKey? k' =
-      if k == k' then
+@[simp]
+theorem getD_alter!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {fallback : β k}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter! k f).getD k fallback = (f (t.get? k)).getD fallback := by
+  simp only [getD_alter!, h, compare_eq_iff_eq, reduceDIte, cast_eq_id, Option.map_id_fun, id_eq]
+
+theorem getKey?_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter k f h.balanced).1.getKey? k' =
+      if compare k k' = .eq then
         if (f (t.get? k)).isSome then some k else none
       else
         t.getKey? k' := by
   simp_to_model [alter, getKey?, get?] using List.getKey?_alterKey
 
-theorem getKey!_alter [TransOrd α] [LawfulEqOrd α] [Inhabited α] {k k' : α} (h : t.WF)
-    {f : Option (β k) → Option (β k)} : (t.alter k f).getKey! k' =
-      if k == k' then
+theorem getKey?_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter! k f).getKey? k' =
+      if compare k k' = .eq then
+        if (f (t.get? k)).isSome then some k else none
+      else
+        t.getKey? k' := by
+  simp_to_model [alter!, getKey?, get?] using List.getKey?_alterKey
+
+theorem getKey?_alter_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter k f h.balanced).1.getKey? k = if (f (t.get? k)).isSome then some k else none := by
+  simp [getKey?_alter h]
+
+theorem getKey?_alter!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter! k f).getKey? k = if (f (t.get? k)).isSome then some k else none := by
+  simp [getKey?_alter! h]
+
+theorem getKey!_alter [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k k' : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter k f h.balanced).1.getKey! k' =
+      if compare k k' = .eq then
         if (f (t.get? k)).isSome then k else default
       else
         t.getKey! k' := by
   simp_to_model [alter, get?, getKey!] using List.getKey!_alterKey
 
-theorem getKey_alter [TransOrd α] [LawfulEqOrd α] [Inhabited α] {k k' : α} (h : t.WF)
-    {f : Option (β k) → Option (β k)} (hc : (t.alter k f).contains k') :
-    (t.alter k f).getKey k' hc =
-      if heq : k == k' then
+theorem getKey!_alter! [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k k' : α}
+    {f : Option (β k) → Option (β k)} : (t.alter! k f).getKey! k' =
+      if compare k k' = .eq then
+        if (f (t.get? k)).isSome then k else default
+      else
+        t.getKey! k' := by
+  simp_to_model [alter!, get?, getKey!] using List.getKey!_alterKey
+
+theorem getKey!_alter_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter k f h.balanced).1.getKey! k = if (f (t.get? k)).isSome then k else default := by
+  simp [getKey!_alter h]
+
+theorem getKey!_alter!_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter! k f).getKey! k = if (f (t.get? k)).isSome then k else default := by
+  simp [getKey!_alter! h]
+
+theorem getKey_alter [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k k' : α}
+    {f : Option (β k) → Option (β k)} (hc : k' ∈ (t.alter k f h.balanced).1) :
+    (t.alter k f h.balanced).1.getKey k' hc =
+      if heq : compare k k' = .eq then
         k
       else
-        haveI h' : t.contains k' := by rwa [contains_alter _ h, if_neg heq] at hc
+        haveI h' : t.contains k' := mem_alter_of_beq_eq_false h heq |>.mp hc
         t.getKey k' h' := by
   simp_to_model [alter, getKey, contains] using List.getKey_alterKey
 
-theorem getKeyD_alter [TransOrd α] [LawfulEqOrd α] {k k' fallback : α} (h : t.WF)
+theorem getKey_alter! [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k k' : α}
+    {f : Option (β k) → Option (β k)} (hc : k' ∈ t.alter! k f) :
+    (t.alter! k f).getKey k' hc =
+      if heq : compare k k' = .eq then
+        k
+      else
+        haveI h' : t.contains k' := mem_alter!_of_beq_eq_false h heq |>.mp hc
+        t.getKey k' h' := by
+  simp_to_model [alter!, getKey, contains] using List.getKey_alterKey
+
+@[simp]
+theorem getKey_alter_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} {hc : k ∈ (t.alter k f h.balanced).1} :
+    (t.alter k f h.balanced).1.getKey k hc = k := by
+  simp [getKey_alter h]
+
+@[simp]
+theorem getKey_alter!_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k : α}
+    {f : Option (β k) → Option (β k)} {hc : k ∈ t.alter! k f} :
+    (t.alter! k f).getKey k hc = k := by
+  simp [getKey_alter! h]
+
+theorem getKeyD_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' fallback : α}
     {f : Option (β k) → Option (β k)} :
-    (t.alter k f).getKeyD k' fallback =
-      if k == k' then
+    (t.alter k f h.balanced).1.getKeyD k' fallback =
+      if compare k k' = .eq then
         if (f (t.get? k)).isSome then k else fallback
       else
         t.getKeyD k' fallback := by
   simp_to_model [alter, getKeyD, get?] using List.getKeyD_alterKey
 
-namespace Const
-
-variable {β : Type v} [EquivBEq α] [LawfulHashable α] (t : Raw₀ α (fun _ => β))
-
-theorem isEmpty_alter_eq_isEmpty_erase (h : t.WF)  {k : α} {f : Option β → Option β} :
-    (Const.alter t k f).1.isEmpty = ((t.erase k).1.isEmpty && (f (Const.get? t k)).isNone) := by
-  simp_to_model [Const.alter, erase, isEmpty, Const.get?]
-    using List.Const.isEmpty_alterKey_eq_isEmpty_eraseKey
+theorem getKeyD_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' fallback : α}
+    {f : Option (β k) → Option (β k)} :
+    (t.alter! k f).getKeyD k' fallback =
+      if compare k k' = .eq then
+        if (f (t.get? k)).isSome then k else fallback
+      else
+        t.getKeyD k' fallback := by
+  simp_to_model [alter!, getKeyD, get?] using List.getKeyD_alterKey
 
 @[simp]
-theorem isEmpty_alter (h : t.WF) {k : α} {f : Option β → Option β} :
-    (Const.alter t k f).1.isEmpty = ((t.isEmpty || (t.size == 1 && t.contains k)) &&
-      (f (Const.get? t k)).isNone) := by
-  simp_to_model [Const.alter, isEmpty, size, contains, Const.get?] using List.Const.isEmpty_alterKey
+theorem getKeyD_alter_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k : α}
+    {fallback : α} {f : Option (β k) → Option (β k)} :
+    (t.alter k f h.balanced).1.getKeyD k fallback = if (f (t.get? k)).isSome then k else fallback := by
+  simp [getKeyD_alter h]
 
-theorem contains_alter (h : t.WF) {k k' : α} {f : Option β → Option β} :
-    (Const.alter t k f).contains k' =
-      if k == k' then
-        (f (Const.get? t k)).isSome
-      else
-        t.contains k' := by
-  simp_to_model [Const.alter, Const.get?, contains] using List.Const.containsKey_alterKey
+@[simp]
+theorem getKeyD_alter!_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k : α}
+    {fallback : α} {f : Option (β k) → Option (β k)} :
+    (t.alter! k f).getKeyD k fallback = if (f (t.get? k)).isSome then k else fallback := by
+  simp [getKeyD_alter! h]
 
-theorem size_alter (h : t.WF) {k : α} {f : Option β → Option β} :
-    (Const.alter t k f).1.size =
-      if t.contains k && (f (Const.get? t k)).isNone then
+namespace Const
+
+variable {β : Type v} {t : Impl α β}
+
+theorem isEmpty_alter_eq_isEmpty_erase [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+    (Const.alter k f t h.balanced).1.isEmpty =
+      ((t.erase k h.balanced).1.isEmpty && (f (get? t k)).isNone) := by
+  simp_to_model [Const.alter, erase] using List.Const.isEmpty_alterKey_eq_isEmpty_eraseKey
+
+theorem isEmpty_alter!_eq_isEmpty_erase [TransOrd α] (h : t.WF) {k : α}
+    {f : Option β → Option β} :
+    (alter! k f t).isEmpty = ((t.erase! k).isEmpty && (f (get? t k)).isNone) := by
+  simp_to_model [Const.alter!, erase!] using List.Const.isEmpty_alterKey_eq_isEmpty_eraseKey
+
+@[simp]
+theorem isEmpty_alter [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+    haveI : BEq Nat := instBEqOfDecidableEq
+    (alter k f t h.balanced).1.isEmpty =
+      (((t.isEmpty || (t.size == 1 && t.contains k))) && (f (get? t k)).isNone) := by
+  simp_to_model [Const.alter] using List.Const.isEmpty_alterKey
+
+@[simp]
+theorem isEmpty_alter! [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+    haveI : BEq Nat := instBEqOfDecidableEq
+    (alter! k f t).isEmpty =
+      (((t.isEmpty || (t.size == 1 && t.contains k))) && (f (get? t k)).isNone) := by
+  simp_to_model [Const.alter!] using List.Const.isEmpty_alterKey
+
+theorem contains_alter [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+    (alter k f t h.balanced).1.contains k' =
+      if compare k k' = .eq then (f (get? t k)).isSome else t.contains k' := by
+  simp_to_model [Const.alter] using List.Const.containsKey_alterKey
+
+theorem contains_alter! [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+    (alter! k f t).contains k' =
+      if compare k k' = .eq then (f (get? t k)).isSome else t.contains k' := by
+  simp_to_model [Const.alter!] using List.Const.containsKey_alterKey
+
+theorem mem_alter [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+    k' ∈ (alter k f t h.balanced).1 ↔
+      if compare k k' = .eq then (f (get? t k)).isSome = true else k' ∈ t := by
+  simp [mem_iff_contains, contains_alter h]
+
+theorem mem_alter! [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+    k' ∈ alter! k f t ↔
+      if compare k k' = .eq then (f (get? t k)).isSome = true else k' ∈ t := by
+  simp [mem_iff_contains, contains_alter! h]
+
+theorem mem_alter_of_beq [TransOrd α] (h : t.WF) {k k': α} {f : Option β → Option β}
+    (he : compare k k' = .eq) :
+    k' ∈ (alter k f t h.balanced).1 ↔ (f (get? t k)).isSome := by
+  rw [mem_alter h, if_pos he]
+
+theorem mem_alter!_of_beq [TransOrd α] (h : t.WF) {k k': α} {f : Option β → Option β}
+    (he : compare k k' = .eq) :
+    k' ∈ alter! k f t ↔ (f (get? t k)).isSome := by
+  rw [mem_alter! h, if_pos he]
+
+@[simp]
+theorem contains_alter_self [TransOrd α] {k : α} (h : t.WF) {f : Option β → Option β} :
+    (alter k f t h.balanced).1.contains k = (f (get? t k)).isSome := by
+  simp only [contains_alter h, beq_iff_eq, compare_self, reduceIte]
+
+@[simp]
+theorem contains_alter!_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+    (alter! k f t).contains k = (f (get? t k)).isSome := by
+  simp only [contains_alter! h, beq_iff_eq, compare_self, reduceIte]
+
+@[simp]
+theorem mem_alter_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+    k ∈ (alter k f t h.balanced).1 ↔ (f (get? t k)).isSome := by
+  rw [mem_iff_contains, contains_alter_self h]
+
+@[simp]
+theorem mem_alter!_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+    k ∈ alter! k f t ↔ (f (get? t k)).isSome := by
+  rw [mem_iff_contains, contains_alter!_self h]
+
+theorem contains_alter_of_beq_eq_false [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β}
+    (he : ¬ compare k k' = .eq) :
+    (alter k f t h.balanced).1.contains k' = t.contains k' := by
+  simp only [contains_alter h, he, beq_iff_eq, reduceIte]
+
+theorem contains_alter!_of_beq_eq_false [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β}
+    (he : ¬ compare k k' = .eq) :
+    (alter! k f t).contains k' = t.contains k' := by
+  simp only [contains_alter! h, he, beq_iff_eq, reduceIte]
+
+theorem mem_alter_of_beq_eq_false [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β}
+    (he : ¬ compare k k' = .eq) :
+    k' ∈ (alter k f t h.balanced).1 ↔ k' ∈ t := by
+  simp only [mem_iff_contains, contains_alter_of_beq_eq_false h he]
+
+theorem mem_alter!_of_beq_eq_false [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β}
+    (he : ¬ compare k k' = .eq) :
+    k' ∈ alter! k f t ↔ k' ∈ t := by
+  simp only [mem_iff_contains, contains_alter!_of_beq_eq_false h he]
+
+theorem size_alter [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+    (alter k f t h.balanced).1.size =
+      if t.contains k && (f (get? t k)).isNone then
         t.size - 1
-      else if !t.contains k && (f (Const.get? t k)).isSome then
+      else if !t.contains k && (f (get? t k)).isSome then
         t.size + 1
       else
         t.size := by
-  simp_to_model [Const.alter, size, contains, Const.get?] using List.Const.length_alterKey'
+  simp_to_model [Const.alter] using List.Const.length_alterKey'
 
-theorem size_alter_eq_add_one (h : t.WF) {k : α} {f : Option β → Option β}
-    (h₁ : t.contains k = false) (h₂ : (f (Const.get? t k)).isSome) :
-    (Const.alter t k f).1.size = t.size + 1 := by
-  simp [size_alter, h, h₁, h₂]
+theorem size_alter! [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+    (alter! k f t).size =
+      if t.contains k && (f (get? t k)).isNone then
+        t.size - 1
+      else if !t.contains k && (f (get? t k)).isSome then
+        t.size + 1
+      else
+        t.size := by
+  simp_to_model [Const.alter!] using List.Const.length_alterKey'
 
-theorem size_alter_eq_sub_one (h : t.WF) {k : α} {f : Option β → Option β}
-    (h₁ : t.contains k) (h₂ : (f (Const.get? t k)).isNone) :
-    (Const.alter t k f).1.size = t.size - 1 := by
-  simp [size_alter, h, h₁, h₂]
+theorem size_alter_eq_add_one [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+    (h₁ : k ∉ t) (h₂ : (f (get? t k)).isSome) :
+    (alter k f t h.balanced).1.size = t.size + 1 := by
+  simp_all [mem_iff_contains, size_alter]
 
-theorem size_alter_eq_self_of_not_mem (h : t.WF) {k : α} {f : Option β → Option β}
-    (h₁ : t.contains k = false) (h₂ : (f (Const.get? t k)).isNone) :
-    (Const.alter t k f).1.size = t.size := by
-  simp [size_alter, h, h₁, h₂]
+theorem size_alter!_eq_add_one [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+    (h₁ : k ∉ t) (h₂ : (f (get? t k)).isSome) :
+    (alter! k f t).size = t.size + 1 := by
+  simp_all [mem_iff_contains, size_alter!]
 
-theorem size_alter_eq_self_of_mem (h : t.WF) {k : α} {f : Option β → Option β}
-    (h₁ : t.contains k) (h₂ : (f (Const.get? t k)).isSome) :
-    (Const.alter t k f).1.size = t.size := by
-  simp [size_alter, h, h₁, Option.isSome_iff_ne_none.mp h₂]
+theorem size_alter_eq_sub_one [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+    (h₁ : k ∈ t) (h₂ : (f (get? t k)).isNone) :
+    (alter k f t h.balanced).1.size = t.size - 1 := by
+  simp_all [mem_iff_contains, size_alter]
 
-theorem size_alter_le_size [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
-    (Const.alter t k f).1.size ≤ t.size + 1 := by
+theorem size_alter!_eq_sub_one [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+    (h₁ : k ∈ t) (h₂ : (f (get? t k)).isNone) :
+    (alter! k f t).size = t.size - 1 := by
+  simp_all [mem_iff_contains, size_alter!]
+
+theorem size_alter_eq_self_of_not_mem [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+    (h₁ : ¬ k ∈ t) (h₂ : (f (get? t k)).isNone) :
+    (alter k f t h.balanced).1.size = t.size := by
+  simp_all [mem_iff_contains, size_alter]
+
+theorem size_alter!_eq_self_of_not_mem [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+    (h₁ : ¬ k ∈ t) (h₂ : (f (get? t k)).isNone) :
+    (alter! k f t).size = t.size := by
+  simp_all [mem_iff_contains, size_alter!]
+
+theorem size_alter_eq_self_of_mem [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+    (h₁ : k ∈ t) (h₂ : (f (get? t k)).isSome) :
+    (alter k f t h.balanced).1.size = t.size := by
+  simp_all [mem_iff_contains, size_alter, Option.isSome_iff_ne_none]
+
+theorem size_alter!_eq_self_of_mem [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+    (h₁ : k ∈ t) (h₂ : (f (get? t k)).isSome) :
+    (alter! k f t).size = t.size := by
+  simp_all [mem_iff_contains, size_alter!, Option.isSome_iff_ne_none]
+
+theorem size_alter_le_size [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+    (alter k f t h.balanced).1.size ≤ t.size + 1 := by
   simp [size_alter, h]
   split <;> try split
   all_goals omega
 
-theorem size_le_size_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
-    t.size - 1 ≤ (Const.alter t k f).1.size := by
+theorem size_alter!_le_size [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+    (alter! k f t).size ≤ t.size + 1 := by
+  simp [size_alter!, h]
+  split <;> try split
+  all_goals omega
+
+theorem size_le_size_alter [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+    t.size - 1 ≤ (alter k f t h.balanced).1.size := by
   simp [size_alter, h]
   split <;> try split
   all_goals omega
 
-theorem get?_alter (h : t.WF) {k k' : α} {f : Option β → Option β} :
-    Const.get? (Const.alter t k f) k' =
-      if k == k' then
-        f (Const.get? t k)
+theorem size_le_size_alter! [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+    t.size - 1 ≤ (alter! k f t).size := by
+  simp [size_alter!, h]
+  split <;> try split
+  all_goals omega
+
+theorem get?_alter [TransOrd α] (h : t.WF) {k k' : α}
+    {f : Option β → Option β} :
+    get? (alter k f t h.balanced).1 k' =
+      if compare k k' = .eq then
+        f (get? t k)
       else
-        Const.get? t k' := by
-  simp_to_model [Const.alter, Const.get?] using List.Const.getValue?_alterKey
+        get? t k' := by
+  simp_to_model [Const.alter] using List.Const.getValue?_alterKey
 
-theorem get_alter (h : t.WF) {k k' : α} {f : Option β → Option β}
-    (hc : (Const.alter t k f).contains k') :
-    Const.get (Const.alter t k f) k' hc =
-      if heq : k == k' then
-        haveI h' : (f (Const.get? t k)).isSome := by rwa [contains_alter _ h, if_pos heq] at hc
-        (f (Const.get? t k)).get <| h'
+theorem get?_alter! [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+    get? (alter! k f t) k' =
+      if compare k k' = .eq then
+        f (get? t k)
       else
-        haveI h' : t.contains k' := by rwa [contains_alter _ h, if_neg heq] at hc
-        Const.get t k' h' := by
-  simp_to_model [Const.alter, Const.get, Const.get?] using List.Const.getValue_alterKey
+        get? t k' := by
+  simp_to_model [Const.alter!] using List.Const.getValue?_alterKey
 
-theorem get_alter_self (h : t.WF) {k : α} {f : Option β → Option β}
-    {hc : (Const.alter t k f).contains k} :
-    haveI h' : (f (Const.get? t k)).isSome := by rwa [contains_alter _ h, BEq.refl] at hc
-    Const.get (Const.alter t k f) k hc = (f (Const.get? t k)).get h' := by
-  simp_to_model [Const.alter, Const.get?, Const.get] using List.Const.getValue_alterKey_self
+@[simp]
+theorem get?_alter_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+    get? (alter k f t h.balanced).1 k = f (get? t k) := by
+  simp [get?_alter h]
 
-theorem get!_alter {k k' : α} (h : t.WF) [Inhabited β] {f : Option β → Option β} :
-    Const.get! (Const.alter t k f) k' =
-      if k == k' then
-        (f (Const.get? t k)).get!
+@[simp]
+theorem get?_alter!_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+    get? (alter! k f t) k = f (get? t k) := by
+  simp [get?_alter! h]
+
+theorem get_alter [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β}
+    {hc : k' ∈ (alter k f t h.balanced).1} :
+    get (alter k f t h.balanced).1 k' hc =
+      if heq : compare k k' = .eq then
+        haveI h' : (f (get? t k)).isSome := mem_alter_of_beq h heq |>.mp hc
+        (f (get? t k)).get h'
       else
-        Const.get! t k' := by
-  simp_to_model [Const.alter, Const.get!, Const.get?] using List.Const.getValue!_alterKey
+        haveI h' : k' ∈ t := mem_alter_of_beq_eq_false h heq |>.mp hc
+        get t k' h' := by
+  simp_to_model [Const.alter] using List.Const.getValue_alterKey
 
-theorem getD_alter {k k' : α} {fallback : β} (h : t.WF) {f : Option β → Option β} :
-    Const.getD (Const.alter t k f) k' fallback =
-      if k == k' then
-        f (Const.get? t k) |>.getD fallback
+theorem get_alter! [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β}
+    {hc : k' ∈ (alter! k f t)} :
+    get (alter! k f t) k' hc =
+      if heq : compare k k' = .eq then
+        haveI h' : (f (get? t k)).isSome := mem_alter!_of_beq h heq |>.mp hc
+        (f (get? t k)).get h'
       else
-        Const.getD t k' fallback := by
-  simp_to_model [Const.alter, Const.get?, Const.getD] using List.Const.getValueD_alterKey
+        haveI h' : k' ∈ t := mem_alter!_of_beq_eq_false h heq |>.mp hc
+        get t k' h' := by
+  simp_to_model [Const.alter!] using List.Const.getValue_alterKey
 
-theorem getD_alter_self {k : α} {fallback : β} (h : t.WF) {f : Option β → Option β} :
-    Const.getD (Const.alter t k f) k fallback = (f (Const.get? t k)).getD fallback := by
-  simp only [h, getD_alter, BEq.refl, reduceIte]
+@[simp]
+theorem get_alter_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+    {hc : k ∈ (alter k f t h.balanced).1} :
+    haveI h' : (f (get? t k)).isSome := mem_alter_self h |>.mp hc
+    get (alter k f t h.balanced).1 k hc = (f (get? t k)).get h' := by
+  simp_to_model [Const.alter, get, get?] using List.Const.getValue_alterKey_self
 
-theorem getKey?_alter (h : t.WF) {k k' : α} {f : Option β → Option β} :
-    (Const.alter t k f).getKey? k' =
-      if k == k' then
-        if (f (Const.get? t k)).isSome then some k else none
+@[simp]
+theorem get_alter!_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β}
+    {hc : k ∈ alter! k f t} :
+    haveI h' : (f (get? t k)).isSome := mem_alter!_self h |>.mp hc
+    get (alter! k f t) k hc = (f (get? t k)).get h' := by
+  simp_to_model [Const.alter!] using List.Const.getValue_alterKey_self
+
+theorem get!_alter [TransOrd α] (h : t.WF) {k k' : α} [Inhabited β] {f : Option β → Option β} :
+    get! (alter k f t h.balanced).1 k' =
+      if compare k k' = .eq then
+        (f (get? t k)).get!
+      else
+        get! t k' := by
+  simp_to_model [Const.alter] using List.Const.getValue!_alterKey
+
+theorem get!_alter! [TransOrd α] (h : t.WF) {k k' : α} [Inhabited β] {f : Option β → Option β} :
+    get! (alter! k f t) k' =
+      if compare k k' = .eq then
+        (f (get? t k)).get!
+      else
+        get! t k' := by
+  simp_to_model [Const.alter!] using List.Const.getValue!_alterKey
+
+@[simp]
+theorem get!_alter_self [TransOrd α] (h : t.WF) {k : α} [Inhabited β] {f : Option β → Option β} :
+    get! (alter k f t h.balanced).1 k = (f (get? t k)).get! := by
+  simp [get!_alter h, Option.map_cast_apply]
+
+@[simp]
+theorem get!_alter!_self [TransOrd α] (h : t.WF) {k : α} [Inhabited β] {f : Option β → Option β} :
+    get! (alter! k f t) k = (f (get? t k)).get! := by
+  simp [get!_alter! h, Option.map_cast_apply]
+
+theorem getD_alter [TransOrd α] (h : t.WF) {k k' : α} {fallback : β} {f : Option β → Option β} :
+    getD (alter k f t h.balanced).1 k' fallback =
+      if compare k k' = .eq then
+        f (get? t k) |>.getD fallback
+      else
+        getD t k' fallback := by
+  simp_to_model [Const.alter] using List.Const.getValueD_alterKey
+
+theorem getD_alter! [TransOrd α] (h : t.WF) {k k' : α} {fallback : β} {f : Option β → Option β} :
+    getD (alter! k f t) k' fallback =
+      if compare k k' = .eq then
+        f (get? t k) |>.getD fallback
+      else
+        getD t k' fallback := by
+  simp_to_model [Const.alter!] using List.Const.getValueD_alterKey
+
+@[simp]
+theorem getD_alter_self [TransOrd α] (h : t.WF) {k : α} {fallback : β} {f : Option β → Option β} :
+    getD (alter k f t h.balanced).1 k fallback = (f (get? t k)).getD fallback := by
+  simp only [h, getD_alter, compare_self, beq_iff_eq, reduceIte]
+
+@[simp]
+theorem getD_alter!_self [TransOrd α] (h : t.WF) {k : α} {fallback : β} {f : Option β → Option β} :
+    getD (alter! k f t) k fallback = (f (get? t k)).getD fallback := by
+  simp only [h, getD_alter!, compare_self, beq_iff_eq, reduceIte]
+
+theorem getKey?_alter [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+    (alter k f t h.balanced).1.getKey? k' =
+      if compare k k' = .eq then
+        if (f (get? t k)).isSome then some k else none
       else
         t.getKey? k' := by
-  simp_to_model [Const.alter, Const.get?, getKey?] using List.Const.getKey?_alterKey
+  simp_to_model [Const.alter] using List.Const.getKey?_alterKey
 
-theorem getKey!_alter [Inhabited α] {k k' : α} (h : t.WF) {f : Option β → Option β} :
-    (Const.alter t k f).getKey! k' =
-      if k == k' then
-        if (f (Const.get? t k)).isSome then k else default
+theorem getKey?_alter! [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+    (alter! k f t).getKey? k' =
+      if compare k k' = .eq then
+        if (f (get? t k)).isSome then some k else none
+      else
+        t.getKey? k' := by
+  simp_to_model [Const.alter!] using List.Const.getKey?_alterKey
+
+theorem getKey?_alter_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+    (alter k f t h.balanced).1.getKey? k = if (f (get? t k)).isSome then some k else none := by
+  simp [getKey?_alter h]
+
+theorem getKey?_alter!_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
+    (alter! k f t).getKey? k = if (f (get? t k)).isSome then some k else none := by
+  simp [getKey?_alter! h]
+
+theorem getKey!_alter [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+    (alter k f t h.balanced).1.getKey! k' =
+      if compare k k' = .eq then
+        if (f (get? t k)).isSome then k else default
       else
         t.getKey! k' := by
-  simp_to_model [Const.alter, Const.get?, getKey!] using List.Const.getKey!_alterKey
+  simp_to_model [Const.alter] using List.Const.getKey!_alterKey
 
-theorem getKey_alter [Inhabited α] {k k' : α} (h : t.WF) {f : Option β → Option β}
-    (hc : (Const.alter t k f).contains k') :
-    (Const.alter t k f).getKey k' hc =
-      if heq : k == k' then
+theorem getKey!_alter! [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+    (alter! k f t).getKey! k' =
+      if compare k k' = .eq then
+        if (f (get? t k)).isSome then k else default
+      else
+        t.getKey! k' := by
+  simp_to_model [Const.alter!] using List.Const.getKey!_alterKey
+
+theorem getKey!_alter_self [TransOrd α] [Inhabited α] (h : t.WF) {k : α} {f : Option β → Option β} :
+    (alter k f t h.balanced).1.getKey! k = if (f (get? t k)).isSome then k else default := by
+  simp [getKey!_alter h]
+
+theorem getKey!_alter!_self [TransOrd α] [Inhabited α] (h : t.WF) {k : α}
+    {f : Option β → Option β} :
+    (alter! k f t).getKey! k = if (f (get? t k)).isSome then k else default := by
+  simp [getKey!_alter! h]
+
+theorem getKey_alter [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} {f : Option β → Option β}
+    (hc : k' ∈ (alter k f t h.balanced).1) :
+    (alter k f t h.balanced).1.getKey k' hc =
+      if heq : compare k k' = .eq then
         k
       else
-        haveI h' : t.contains k' := by rwa [contains_alter _ h, if_neg heq] at hc
+        haveI h' : t.contains k' := mem_alter_of_beq_eq_false h heq |>.mp hc
         t.getKey k' h' := by
-  simp_to_model [Const.alter, Const.get?, getKey] using List.Const.getKey_alterKey
+  simp_to_model [Const.alter] using List.Const.getKey_alterKey
 
-theorem getKeyD_alter {k k' fallback : α} (h : t.WF) {f : Option β → Option β} :
-    (Const.alter t k f).getKeyD k' fallback =
-      if k == k' then
-        if (f (Const.get? t k)).isSome then k else fallback
+theorem getKey_alter! [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} {f : Option β → Option β}
+    (hc : k' ∈ alter! k f t) :
+    (alter! k f t).getKey k' hc =
+      if heq : compare k k' = .eq then
+        k
+      else
+        haveI h' : t.contains k' := mem_alter!_of_beq_eq_false h heq |>.mp hc
+        t.getKey k' h' := by
+  simp_to_model [Const.alter!] using List.Const.getKey_alterKey
+
+@[simp]
+theorem getKey_alter_self [TransOrd α] [Inhabited α] (h : t.WF) {k : α} {f : Option β → Option β}
+    {hc : k ∈ (alter k f t h.balanced).1} :
+    (alter k f t h.balanced).1.getKey k hc = k := by
+  simp [getKey_alter h]
+
+@[simp]
+theorem getKey_alter!_self [TransOrd α] [Inhabited α] (h : t.WF) {k : α} {f : Option β → Option β}
+    {hc : k ∈ alter! k f t} :
+    (alter! k f t).getKey k hc = k := by
+  simp [getKey_alter! h]
+
+theorem getKeyD_alter [TransOrd α] (h : t.WF) {k k' fallback : α} {f : Option β → Option β} :
+    (alter k f t h.balanced).1.getKeyD k' fallback =
+      if compare k k' = .eq then
+        if (f (get? t k)).isSome then k else fallback
       else
         t.getKeyD k' fallback := by
-  simp_to_model [Const.alter, Const.get?, getKeyD] using List.Const.getKeyD_alterKey
+  simp_to_model [Const.alter] using List.Const.getKeyD_alterKey
+
+theorem getKeyD_alter! [TransOrd α] (h : t.WF) {k k' fallback : α} {f : Option β → Option β} :
+    (alter! k f t).getKeyD k' fallback =
+      if compare k k' = .eq then
+        if (f (get? t k)).isSome then k else fallback
+      else
+        t.getKeyD k' fallback := by
+  simp_to_model [Const.alter!] using List.Const.getKeyD_alterKey
+
+@[simp]
+theorem getKeyD_alter_self [TransOrd α] [Inhabited α] (h : t.WF) {k : α} {fallback : α}
+    {f : Option β → Option β} :
+    (alter k f t h.balanced).1.getKeyD k fallback =
+      if (f (get? t k)).isSome then k else fallback := by
+  simp [getKeyD_alter h]
+
+@[simp]
+theorem getKeyD_alter!_self [TransOrd α] [Inhabited α] (h : t.WF) {k : α} {fallback : α}
+    {f : Option β → Option β} :
+    (alter! k f t).getKeyD k fallback = if (f (get? t k)).isSome then k else fallback := by
+  simp [getKeyD_alter! h]
 
 end Const
 
@@ -3334,248 +3896,254 @@ variable [TransOrd α] [LawfulEqOrd α]
 
 @[simp]
 theorem isEmpty_modify (h : t.WF) {k : α} {f : β k → β k} :
-    (t.modify k f).1.isEmpty = t.isEmpty := by
-  simp_to_model [modify, isEmpty] using List.isEmpty_modifyKey
+    (t.modify k f).isEmpty = t.isEmpty := by
+  simp_to_model [modify] using List.isEmpty_modifyKey
 
 theorem contains_modify (h : t.WF) {k k' : α} {f : β k → β k} :
     (t.modify k f).contains k' = t.contains k' := by
-  simp_to_model [modify, contains] using List.containsKey_modifyKey
+  simp_to_model [modify] using List.containsKey_modifyKey
+
+theorem mem_modify (h : t.WF) {k k' : α} {f : β k → β k} :
+    k' ∈ t.modify k f ↔ k' ∈ t := by
+  simp [mem_iff_contains, contains_modify h]
 
 theorem size_modify (h : t.WF) {k : α} {f : β k → β k} :
-    (t.modify k f).1.size = t.size := by
-  simp_to_model [modify, size] using List.length_modifyKey
+    (t.modify k f).size = t.size := by
+  simp_to_model [modify] using List.length_modifyKey
 
 theorem get?_modify (h : t.WF) {k k' : α} {f : β k → β k} :
     (t.modify k f).get? k' =
-      if h : k == k' then
-        (cast (congrArg (Option ∘ β) (eq_of_beq h)) ((t.get? k).map f))
+      if h : compare k k' = .eq then
+        (cast (congrArg (Option ∘ β) (compare_eq_iff_eq.mp h)) ((t.get? k).map f))
       else
         t.get? k' := by
-  simp_to_model [modify, get?] using List.getValueCast?_modifyKey
+  simp_to_model [modify] using List.getValueCast?_modifyKey
 
 @[simp]
 theorem get?_modify_self (h : t.WF) {k : α} {f : β k → β k} :
     (t.modify k f).get? k = (t.get? k).map f := by
-  simp_to_model [modify, get?] using List.getValueCast?_modifyKey_self
+  simp_to_model [modify] using List.getValueCast?_modifyKey_self
 
-theorem get_modify (h : t.WF) {k k' : α} {f : β k → β k}
-    (hc : (t.modify k f).contains k') :
+theorem get_modify (h : t.WF) {k k' : α} {f : β k → β k} {hc : k' ∈ t.modify k f} :
     (t.modify k f).get k' hc =
-      if heq : k == k' then
-        haveI h' : t.contains k := by rwa [contains_modify _ h, ← eq_of_beq heq] at hc
-        cast (congrArg β (eq_of_beq heq)) <| f (t.get k h')
+      if heq : compare k k' = .eq then
+        haveI h' : k ∈ t := by rwa [mem_modify h, ← compare_eq_iff_eq.mp heq] at hc
+        cast (congrArg β (compare_eq_iff_eq.mp heq)) <| f (t.get k h')
       else
-        haveI h' : t.contains k' := by rwa [contains_modify _ h] at hc
+        haveI h' : k' ∈ t := by rwa [mem_modify h] at hc
         t.get k' h' := by
-  simp_to_model [modify, contains, get] using List.getValueCast_modifyKey
+  simp_to_model [modify] using List.getValueCast_modifyKey
 
 @[simp]
-theorem get_modify_self (h : t.WF) {k : α} {f : β k → β k} {hc : (t.modify k f).contains k} :
-    haveI h' : t.contains k := by rwa [contains_modify _ h] at hc
+theorem get_modify_self (h : t.WF) {k : α} {f : β k → β k} {hc : k ∈ t.modify k f} :
+    haveI h' : k ∈ t := mem_modify h |>.mp hc
     (t.modify k f).get k hc = f (t.get k h') := by
-  simp_to_model [modify, get] using List.getValueCast_modifyKey_self
+  simp_to_model [modify] using List.getValueCast_modifyKey_self
 
 theorem get!_modify (h : t.WF) {k k' : α} [hi : Inhabited (β k')] {f : β k → β k} :
     (t.modify k f).get! k' =
-      if heq : k == k' then
-        t.get? k |>.map f |>.map (cast (congrArg β (eq_of_beq heq))) |>.get!
+      if heq : compare k k' = .eq then
+        t.get? k |>.map f |>.map (cast (congrArg β (compare_eq_iff_eq.mp heq))) |>.get!
       else
         t.get! k' := by
-  simp_to_model [modify, get!, get?] using List.getValueCast!_modifyKey
+  simp_to_model [modify] using List.getValueCast!_modifyKey
 
 @[simp]
 theorem get!_modify_self (h : t.WF) {k : α} [Inhabited (β k)] {f : β k → β k} :
     (t.modify k f).get! k = ((t.get? k).map f).get! := by
-  simp_to_model [modify, get!, get?] using List.getValueCast!_modifyKey_self
+  simp_to_model [modify] using List.getValueCast!_modifyKey_self
 
 theorem getD_modify (h : t.WF) {k k' : α} {fallback : β k'} {f : β k → β k} :
     (t.modify k f).getD k' fallback =
-      if heq : k == k' then
-        t.get? k |>.map f |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD fallback
+      if heq : compare k k' = .eq then
+        t.get? k |>.map f |>.map (cast (congrArg β <| compare_eq_iff_eq.mp heq)) |>.getD fallback
       else
         t.getD k' fallback := by
-  simp_to_model [modify, getD, get?] using List.getValueCastD_modifyKey
+  simp_to_model [modify] using List.getValueCastD_modifyKey
 
 @[simp]
 theorem getD_modify_self (h : t.WF) {k : α} {fallback : β k} {f : β k → β k} :
     (t.modify k f).getD k fallback = ((t.get? k).map f).getD fallback := by
-  simp_to_model [modify, get?, getD] using List.getValueCastD_modifyKey_self
+  simp_to_model [modify] using List.getValueCastD_modifyKey_self
 
 theorem getKey?_modify (h : t.WF) {k k' : α} {f : β k → β k} :
     (t.modify k f).getKey? k' =
-      if k == k' then
-        if t.contains k then some k else none
+      if compare k k' = .eq then
+        if k ∈ t then some k else none
       else
         t.getKey? k' := by
-  simp_to_model [modify, getKey?, contains] using List.getKey?_modifyKey
+  simp_to_model [modify] using List.getKey?_modifyKey
 
 theorem getKey?_modify_self (h : t.WF) {k : α} {f : β k → β k} :
-    (t.modify k f).getKey? k = if t.contains k then some k else none := by
-  simp_to_model [modify, getKey?, contains] using List.getKey?_modifyKey_self
+    (t.modify k f).getKey? k = if k ∈ t then some k else none := by
+  simp_to_model [modify] using List.getKey?_modifyKey_self
 
 theorem getKey!_modify (h : t.WF) [Inhabited α] {k k' : α} {f : β k → β k} :
     (t.modify k f).getKey! k' =
-      if k == k' then
-        if t.contains k then k else default
+      if compare k k' = .eq then
+        if k ∈ t then k else default
       else
         t.getKey! k' := by
-  simp_to_model [modify, getKey!, contains] using List.getKey!_modifyKey
+  simp_to_model [modify] using List.getKey!_modifyKey
 
 theorem getKey!_modify_self (h : t.WF) [Inhabited α] {k : α} {f : β k → β k} :
-    (t.modify k f).getKey! k = if t.contains k then k else default := by
-  simp_to_model [modify, getKey!, contains] using List.getKey!_modifyKey_self
+    (t.modify k f).getKey! k = if k ∈ t then k else default := by
+  simp_to_model [modify] using List.getKey!_modifyKey_self
 
 theorem getKey_modify (h : t.WF) [Inhabited α] {k k' : α} {f : β k → β k}
     (hc : (t.modify k f).contains k') :
     (t.modify k f).getKey k' hc =
-      if heq : k == k' then
+      if compare k k' = .eq then
         k
       else
-        haveI h' : t.contains k' := by rwa [contains_modify _ h] at hc
+        haveI h' : k' ∈ t := mem_modify h |>.mp hc
         t.getKey k' h' := by
-  simp_to_model [modify, contains, getKey] using List.getKey_modifyKey
+  simp_to_model [modify] using List.getKey_modifyKey
 
 @[simp]
 theorem getKey_modify_self (h : t.WF) [Inhabited α] {k : α} {f : β k → β k}
-    (hc : (t.modify k f).contains k) : (t.modify k f).getKey k hc = k := by
-  simp_to_model [modify, contains, getKey] using List.getKey_modifyKey_self
+    (hc : k ∈ t.modify k f) : (t.modify k f).getKey k hc = k := by
+  simp_to_model [modify] using List.getKey_modifyKey_self
 
 theorem getKeyD_modify (h : t.WF) {k k' fallback : α} {f : β k → β k} :
     (t.modify k f).getKeyD k' fallback =
-      if k == k' then
-        if t.contains k then k else fallback
+      if compare k k' = .eq then
+        if k ∈ t then k else fallback
       else
         t.getKeyD k' fallback := by
-  simp_to_model [modify, getKeyD, contains] using List.getKeyD_modifyKey
+  simp_to_model [modify] using List.getKeyD_modifyKey
 
 theorem getKeyD_modify_self (h : t.WF) [Inhabited α] {k fallback : α} {f : β k → β k} :
-    (t.modify k f).getKeyD k fallback = if t.contains k then k else fallback := by
-  simp_to_model [modify, getKeyD, contains] using List.getKeyD_modifyKey_self
+    (t.modify k f).getKeyD k fallback = if k ∈ t then k else fallback := by
+  simp_to_model [modify] using List.getKeyD_modifyKey_self
 
 namespace Const
 
-variable {β : Type v} [EquivBEq α] [LawfulHashable α] (t : Raw₀ α (fun _ => β))
-omit [TransOrd α] [LawfulEqOrd α]
+variable {β : Type v} {t : Impl α β}
+omit [LawfulEqOrd α]
 
 @[simp]
-theorem isEmpty_modify (t : Raw₀ α (fun _ => β)) (h : t.WF) {k : α} {f : β → β} :
-    (Const.modify t k f).1.isEmpty = t.isEmpty := by
-  simp_to_model [Const.modify, isEmpty] using List.Const.isEmpty_modifyKey
+theorem isEmpty_modify (h : t.WF) {k : α} {f : β → β} :
+    (modify k f t).isEmpty = t.isEmpty := by
+  simp_to_model [Const.modify] using List.Const.isEmpty_modifyKey
 
 theorem contains_modify (h : t.WF) {k k' : α} {f : β → β} :
-    (Const.modify t k f).contains k' = t.contains k' := by
-  simp_to_model [Const.modify, contains] using List.Const.containsKey_modifyKey
+    (modify k f t).contains k' = t.contains k' := by
+  simp_to_model [Const.modify] using List.Const.containsKey_modifyKey
+
+theorem mem_modify (h : t.WF) {k k' : α} {f : β → β} :
+    k' ∈ modify k f t ↔ k' ∈ t := by
+  simp [mem_iff_contains, contains_modify h]
 
 theorem size_modify (h : t.WF) {k : α} {f : β → β} :
-    (Const.modify t k f).1.size = t.size := by
-  simp_to_model [Const.modify, size] using List.Const.length_modifyKey
+    (modify k f t).size = t.size := by
+  simp_to_model [Const.modify] using List.Const.length_modifyKey
 
 theorem get?_modify (h : t.WF) {k k' : α} {f : β → β} :
-    Const.get? (Const.modify t k f) k' =
-      if k == k' then
-        (Const.get? t k).map f
+    get? (modify k f t) k' =
+      if compare k k' = .eq then
+        (get? t k).map f
       else
-        Const.get? t k' := by
-  simp_to_model [Const.modify, Const.get?] using List.Const.getValue?_modifyKey
+        get? t k' := by
+  simp_to_model [Const.modify] using List.Const.getValue?_modifyKey
 
 @[simp]
 theorem get?_modify_self (h : t.WF) {k : α} {f : β → β} :
-    Const.get? (Const.modify t k f) k = (Const.get? t k).map f := by
-  simp_to_model [Const.modify, Const.get?] using List.Const.getValue?_modifyKey_self
+    get? (modify k f t) k = (get? t k).map f := by
+  simp_to_model [Const.modify] using List.Const.getValue?_modifyKey_self
 
-theorem get_modify (h : t.WF) {k k' : α} {f : β → β}
-    (hc : (Const.modify t k f).contains k') :
-    Const.get (Const.modify t k f) k' hc =
-      if heq : k == k' then
-        haveI h' : t.contains k := by rwa [contains_modify _ h, ← contains_congr _ h heq] at hc
-        f (Const.get t k h')
+theorem get_modify (h : t.WF) {k k' : α} {f : β → β} {hc : k' ∈ modify k f t} :
+    get (modify k f t) k' hc =
+      if heq : compare k k' = .eq then
+        haveI h' : k ∈ t := mem_congr h heq |>.mpr <| mem_modify h |>.mp hc
+        f (get t k h')
       else
-        haveI h' : t.contains k' := by rwa [contains_modify _ h] at hc
-        Const.get t k' h' := by
-  simp_to_model [Const.modify, Const.get] using List.Const.getValue_modifyKey
+        haveI h' : k' ∈ t := mem_modify h |>.mp hc
+        get t k' h' := by
+  simp_to_model [Const.modify] using List.Const.getValue_modifyKey
 
 @[simp]
-theorem get_modify_self (h : t.WF) {k : α} {f : β → β} {hc : (Const.modify t k f).contains k} :
-    haveI h' : t.contains k := by rwa [contains_modify _ h] at hc
-    Const.get (Const.modify t k f) k hc = f (Const.get t k h') := by
-  simp_to_model [Const.modify, Const.get] using List.Const.getValue_modifyKey_self
+theorem get_modify_self (h : t.WF) {k : α} {f : β → β} {hc : k ∈ modify k f t} :
+    haveI h' : k ∈ t := mem_modify h |>.mp hc
+    get (modify k f t) k hc = f (get t k h') := by
+  simp_to_model [Const.modify] using List.Const.getValue_modifyKey_self
 
 theorem get!_modify (h : t.WF) {k k' : α} [hi : Inhabited β] {f : β → β} :
-    Const.get! (Const.modify t k f) k' =
-      if k == k' then
-        Const.get? t k |>.map f |>.get!
+    get! (modify k f t) k' =
+      if compare k k' = .eq then
+        get? t k |>.map f |>.get!
       else
-        Const.get! t k' := by
-  simp_to_model [Const.modify, Const.get?, Const.get!] using List.Const.getValue!_modifyKey
+        get! t k' := by
+  simp_to_model [Const.modify] using List.Const.getValue!_modifyKey
 
 @[simp]
-theorem get!_modify_self (h : t.WF) {k : α} [Inhabited (β)] {f : β → β} :
-    Const.get! (Const.modify t k f) k = ((Const.get? t k).map f).get! := by
-  simp_to_model [Const.modify, Const.get!, Const.get?] using List.Const.getValue!_modifyKey_self
+theorem get!_modify_self (h : t.WF) {k : α} [Inhabited β] {f : β → β} :
+    get! (modify k f t) k = ((get? t k).map f).get! := by
+  simp_to_model [Const.modify] using List.Const.getValue!_modifyKey_self
 
 theorem getD_modify (h : t.WF) {k k' : α} {fallback : β} {f : β → β} :
-    Const.getD (Const.modify t k f) k' fallback =
-      if k == k' then
-        Const.get? t k |>.map f |>.getD fallback
+    getD (modify k f t) k' fallback =
+      if compare k k' = .eq then
+        get? t k |>.map f |>.getD fallback
       else
-        Const.getD t k' fallback := by
-  simp_to_model [Const.modify, Const.get?, Const.getD] using List.Const.getValueD_modifyKey
+        getD t k' fallback := by
+  simp_to_model [Const.modify] using List.Const.getValueD_modifyKey
 
 @[simp]
 theorem getD_modify_self (h : t.WF) {k : α} {fallback : β} {f : β → β} :
-    Const.getD (Const.modify t k f) k fallback = ((Const.get? t k).map f).getD fallback := by
-  simp_to_model [Const.modify, Const.getD, Const.get?] using List.Const.getValueD_modifyKey_self
+    getD (modify k f t) k fallback = ((get? t k).map f).getD fallback := by
+  simp_to_model [Const.modify] using List.Const.getValueD_modifyKey_self
 
 theorem getKey?_modify (h : t.WF) {k k' : α} {f : β → β} :
-    (Const.modify t k f).getKey? k' =
-      if k == k' then
-        if t.contains k then some k else none
+    (modify k f t).getKey? k' =
+      if compare k k' = .eq then
+        if k ∈ t then some k else none
       else
         t.getKey? k' := by
-  simp_to_model [Const.modify, contains, getKey?] using List.Const.getKey?_modifyKey
+  simp_to_model [Const.modify] using List.Const.getKey?_modifyKey
 
 theorem getKey?_modify_self (h : t.WF) {k : α} {f : β → β} :
-    (Const.modify t k f).getKey? k = if t.contains k then some k else none := by
-  simp_to_model [Const.modify, contains, getKey?] using List.Const.getKey?_modifyKey_self
+    (modify k f t).getKey? k = if k ∈ t then some k else none := by
+  simp_to_model [Const.modify] using List.Const.getKey?_modifyKey_self
 
 theorem getKey!_modify (h : t.WF) [Inhabited α] {k k' : α} {f : β → β} :
-    (Const.modify t k f).getKey! k' =
-      if k == k' then
-        if t.contains k then k else default
+    (modify k f t).getKey! k' =
+      if compare k k' = .eq then
+        if k ∈ t then k else default
       else
         t.getKey! k' := by
-  simp_to_model [Const.modify, contains, getKey!] using List.Const.getKey!_modifyKey
+  simp_to_model [Const.modify] using List.Const.getKey!_modifyKey
 
 theorem getKey!_modify_self (h : t.WF) [Inhabited α] {k : α} {f : β → β} :
-    (Const.modify t k f).getKey! k = if t.contains k then k else default := by
-  simp_to_model [Const.modify, contains, getKey!] using List.Const.getKey!_modifyKey_self
+    (modify k f t).getKey! k = if k ∈ t then k else default := by
+  simp_to_model [Const.modify] using List.Const.getKey!_modifyKey_self
 
 theorem getKey_modify (h : t.WF) [Inhabited α] {k k' : α} {f : β → β}
-    (hc : (Const.modify t k f).contains k') :
-    (Const.modify t k f).getKey k' hc =
-      if heq : k == k' then
+    (hc : (modify k f t).contains k') :
+    (modify k f t).getKey k' hc =
+      if compare k k' = .eq then
         k
       else
-        haveI h' : t.contains k' := by rwa [contains_modify _ h] at hc
+        haveI h' : k' ∈ t := mem_modify h |>.mp hc
         t.getKey k' h' := by
-  simp_to_model [Const.modify, getKey] using List.Const.getKey_modifyKey
+  simp_to_model [Const.modify] using List.Const.getKey_modifyKey
 
 @[simp]
 theorem getKey_modify_self (h : t.WF) [Inhabited α] {k : α} {f : β → β}
-    (hc : (Const.modify t k f).contains k) : (Const.modify t k f).getKey k hc = k := by
-  simp_to_model [Const.modify, getKey] using List.Const.getKey_modifyKey_self
+    (hc : k ∈ modify k f t) : (modify k f t).getKey k hc = k := by
+  simp_to_model [Const.modify] using List.Const.getKey_modifyKey_self
 
 theorem getKeyD_modify (h : t.WF) {k k' fallback : α} {f : β → β} :
-    (Const.modify t k f).getKeyD k' fallback =
-      if k == k' then
-        if t.contains k then k else fallback
+    (modify k f t).getKeyD k' fallback =
+      if compare k k' = .eq then
+        if k ∈ t then k else fallback
       else
         t.getKeyD k' fallback := by
-  simp_to_model [Const.modify, getKeyD, contains] using List.Const.getKeyD_modifyKey
+  simp_to_model [Const.modify] using List.Const.getKeyD_modifyKey
 
 theorem getKeyD_modify_self (h : t.WF) [Inhabited α] {k fallback : α} {f : β → β} :
-    (Const.modify t k f).getKeyD k fallback = if t.contains k then k else fallback := by
-  simp_to_model [Const.modify, getKeyD, contains] using List.Const.getKeyD_modifyKey_self
+    (modify k f t).getKeyD k fallback = if k ∈ t then k else fallback := by
+  simp_to_model [Const.modify] using List.Const.getKeyD_modifyKey_self
 
 end Const
 

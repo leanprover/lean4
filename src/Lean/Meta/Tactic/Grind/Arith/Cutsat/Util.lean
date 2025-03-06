@@ -186,7 +186,8 @@ def toContextExpr : GoalM Expr := do
     return RArray.toExpr (mkConst ``Int) id (RArray.leaf (mkIntLit 0))
 
 structure ProofM.State where
-  cache : Std.HashMap UInt64 Expr := {}
+  cache       : Std.HashMap UInt64 Expr := {}
+  polyMap     : Std.HashMap Poly Expr := {}
 
 /-- Auxiliary monad for constructing cutsat proofs. -/
 abbrev ProofM := ReaderT Expr (StateRefT ProofM.State GoalM)
@@ -204,9 +205,29 @@ abbrev caching (c : α) (k : ProofM Expr) : ProofM Expr := do
     modify fun s => { s with cache := s.cache.insert addr h }
     return h
 
+def mkPolyDecl (p : Poly) : ProofM Expr := do
+  if let some e := (← get).polyMap[p]? then
+    return e
+  let x := mkFVar (← mkFreshFVarId)
+  modify fun s => { s with
+    polyMap := s.polyMap.insert p x
+  }
+  return x
+
 abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
   withLetDecl `ctx (mkApp (mkConst ``RArray) (mkConst ``Int)) (← toContextExpr) fun ctx => do
-    let h ← x ctx |>.run' {}
+    go ctx |>.run' {}
+where
+  go : ProofM Expr := do
+    let mut h ← x
+    let ps := (← get).polyMap.toArray
+    h := h.abstract <| ps.map (·.2)
+    let polyType := mkConst ``Int.Linear.Poly
+    let mut i := ps.size
+    for (p, _) in ps.reverse do
+      h := mkLet ((`p).appendIndexAfter i) polyType (toExpr p) h
+      i := i - 1
+    let ctx ← read
     mkLetFVars #[ctx] h
 
 /--

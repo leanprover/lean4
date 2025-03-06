@@ -3418,7 +3418,7 @@ theorem getKey!_alter!_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t
   simp [getKey!_alter! h]
 
 theorem getKey_alter [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k k' : α}
-    {f : Option (β k) → Option (β k)} (hc : k' ∈ (t.alter k f h.balanced).1) :
+    {f : Option (β k) → Option (β k)} {hc : k' ∈ (t.alter k f h.balanced).1} :
     (t.alter k f h.balanced).1.getKey k' hc =
       if heq : compare k k' = .eq then
         k
@@ -3428,7 +3428,7 @@ theorem getKey_alter [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k
   simp_to_model [alter, getKey, contains] using List.getKey_alterKey
 
 theorem getKey_alter! [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k k' : α}
-    {f : Option (β k) → Option (β k)} (hc : k' ∈ t.alter! k f) :
+    {f : Option (β k) → Option (β k)} {hc : k' ∈ t.alter! k f} :
     (t.alter! k f).getKey k' hc =
       if heq : compare k k' = .eq then
         k
@@ -3826,7 +3826,7 @@ theorem getKey!_alter!_self [TransOrd α] [Inhabited α] (h : t.WF) {k : α}
   simp [getKey!_alter! h]
 
 theorem getKey_alter [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} {f : Option β → Option β}
-    (hc : k' ∈ (alter k f t h.balanced).1) :
+    {hc : k' ∈ (alter k f t h.balanced).1} :
     (alter k f t h.balanced).1.getKey k' hc =
       if heq : compare k k' = .eq then
         k
@@ -3836,7 +3836,7 @@ theorem getKey_alter [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} {f : Op
   simp_to_model [Const.alter] using List.Const.getKey_alterKey
 
 theorem getKey_alter! [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} {f : Option β → Option β}
-    (hc : k' ∈ alter! k f t) :
+    {hc : k' ∈ alter! k f t} :
     (alter! k f t).getKey k' hc =
       if heq : compare k k' = .eq then
         k
@@ -3991,7 +3991,7 @@ theorem getKey!_modify_self (h : t.WF) [Inhabited α] {k : α} {f : β k → β 
   simp_to_model [modify] using List.getKey!_modifyKey_self
 
 theorem getKey_modify (h : t.WF) [Inhabited α] {k k' : α} {f : β k → β k}
-    (hc : (t.modify k f).contains k') :
+    {hc : (t.modify k f).contains k'} :
     (t.modify k f).getKey k' hc =
       if compare k k' = .eq then
         k
@@ -4002,7 +4002,7 @@ theorem getKey_modify (h : t.WF) [Inhabited α] {k k' : α} {f : β k → β k}
 
 @[simp]
 theorem getKey_modify_self (h : t.WF) [Inhabited α] {k : α} {f : β k → β k}
-    (hc : k ∈ t.modify k f) : (t.modify k f).getKey k hc = k := by
+    {hc : k ∈ t.modify k f} : (t.modify k f).getKey k hc = k := by
   simp_to_model [modify] using List.getKey_modifyKey_self
 
 theorem getKeyD_modify (h : t.WF) {k k' fallback : α} {f : β k → β k} :
@@ -4119,7 +4119,7 @@ theorem getKey!_modify_self (h : t.WF) [Inhabited α] {k : α} {f : β → β} :
   simp_to_model [Const.modify] using List.Const.getKey!_modifyKey_self
 
 theorem getKey_modify (h : t.WF) [Inhabited α] {k k' : α} {f : β → β}
-    (hc : (modify k f t).contains k') :
+    {hc : (modify k f t).contains k'} :
     (modify k f t).getKey k' hc =
       if compare k k' = .eq then
         k
@@ -4130,7 +4130,7 @@ theorem getKey_modify (h : t.WF) [Inhabited α] {k k' : α} {f : β → β}
 
 @[simp]
 theorem getKey_modify_self (h : t.WF) [Inhabited α] {k : α} {f : β → β}
-    (hc : k ∈ modify k f t) : (modify k f t).getKey k hc = k := by
+    {hc : k ∈ modify k f t} : (modify k f t).getKey k hc = k := by
   simp_to_model [Const.modify] using List.Const.getKey_modifyKey_self
 
 theorem getKeyD_modify (h : t.WF) {k k' fallback : α} {f : β → β} :

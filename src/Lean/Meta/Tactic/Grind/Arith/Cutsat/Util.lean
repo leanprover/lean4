@@ -290,5 +290,6 @@ def CooperSplitPred.pp (pred : CooperSplitPred) : GoalM MessageData := do
 def UnsatProof.pp (h : UnsatProof) : GoalM MessageData := do
   match h with
   | .le c | .eq c | .dvd c | .diseq c => c.pp
+  | .cooper c₁ c₂ c₃ => return m!"{← c₁.pp}, {← c₂.pp}, {← c₃.pp}"
 
 end Lean.Meta.Grind.Arith.Cutsat

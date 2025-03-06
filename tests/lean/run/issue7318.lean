@@ -21,7 +21,7 @@ theorem bar_decide : Q := by
 
 -- Try with backtracking
 
-theorem Q_of_decide' : (1 + 1 = 2) → False → Q := fun _ _ => P.mk
+theorem Q_of_decide' : (1 + 2 = 3) → False → Q := fun _ _ => P.mk
 
 theorem bar_decide' : Q := by
   simp (discharger := native_decide) [Q_of_decide', Q_of_decide]

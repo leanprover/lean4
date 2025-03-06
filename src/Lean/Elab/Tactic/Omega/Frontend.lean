@@ -672,17 +672,17 @@ open Lean Elab Tactic Parser.Tactic
 
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. -/
 def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
-  let n := (← readThe Term.Context).declName?.getD `omega -- Hack
+  let auxName ← Term.mkAuxName `omega
   liftMetaFinishingTactic fun g => do
     let some g ← g.falseOrByContra | return ()
     g.withContext do
-      let g' := (← mkFreshExprSyntheticOpaqueMVar (← g.getType)).mvarId!
+      let type ← g.getType
+      let g' ← mkFreshExprSyntheticOpaqueMVar type
       let hyps := (← getLocalHyps).toList
       trace[omega] "analyzing {hyps.length} hypotheses:\n{← hyps.mapM inferType}"
-      omega hyps g' cfg
-      -- Experiment: Always isolate (possibly large) omega proofs in their own declaration
-      -- TODO: Reliably generate fresh names in a way that is compatible with async elab
-      let e ← mkAuxTheorem (← mkFreshUserName n) (← g'.getType) (← instantiateMVarsProfiling (mkMVar g')) (zetaDelta := true)
+      omega hyps g'.mvarId! cfg
+      -- Omega proofs are typically rather large, so hide them in a separate definition
+      let e ← mkAuxTheorem auxName type (← instantiateMVarsProfiling g') (zetaDelta := true)
       g.assign e
 
 

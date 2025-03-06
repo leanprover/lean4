@@ -2909,6 +2909,8 @@ theorem filter (f : (a : α) → β a → Bool) (h : m₁.Equiv m₂) : (m₁.fi
 theorem of_forall_get?_eq [LawfulBEq α] (h : ∀ k, m₁.get? k = m₂.get? k) : m₁.Equiv m₂ :=
   ⟨Raw₀.equiv_of_forall_get?_eq ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ m₁.2 m₂.2 h⟩
 
+section Const
+
 variable {β : Type v} {m₁ m₂ : DHashMap α fun _ => β}
 
 theorem constToList_perm (h : m₁.Equiv m₂) : (Const.toList m₁).Perm (Const.toList m₂) :=
@@ -2955,6 +2957,8 @@ theorem constAlter [EquivBEq α] [LawfulHashable α] (k : α) (f : Option β →
 theorem constModify [EquivBEq α] [LawfulHashable α] (k : α) (f : β → β) (h : m₁.Equiv m₂) :
     (Const.modify m₁ k f).Equiv (Const.modify m₂ k f) :=
   ⟨Raw₀.Const.modify_equiv_congr ⟨m₁.1, _⟩ ⟨m₂.1, _⟩ m₁.2 m₂.2 h.1 f⟩
+
+end Const
 
 end Equiv
 

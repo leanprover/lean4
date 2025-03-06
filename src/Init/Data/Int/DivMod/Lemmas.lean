@@ -556,9 +556,6 @@ protected theorem eq_ediv_of_mul_eq_left {a b c : Int}
 @[simp] protected theorem neg_ediv_self (a : Int) (h : a ≠ 0) : (-a) / a = -1 := by
   rw [neg_ediv_of_dvd (Int.dvd_refl a), Int.ediv_self h]
 
--- There are no theorems `neg_ediv : ∀ {a b : Int}, (-a) / b = - (a / b)` or
--- `neg_ediv_neg: ∀ {a b : Int},  (-a) / (-b) = a / b` because these are false.
-
 theorem sign_ediv (a b : Int) : sign (a / b) = if 0 ≤ a ∧ a < b.natAbs then 0 else sign a * sign b := by
   induction b using wlog_sign
   case inv => simp; split <;> simp
@@ -768,9 +765,6 @@ theorem natAbs_emod_of_nonneg {a : Int} (h : 0 ≤ a) (b : Int) :
   match a, b, h with
   | (a : Nat), (b : Nat), _ => norm_cast
   | (a : Nat), negSucc b, _ => simp [negSucc_eq]; norm_cast
-
-theorem natAbs_sub_of_nonneg_of_le {a b : Int} (h₁ : 0 ≤ b) (h₂ : b ≤ a) :
-    (a - b).natAbs = a.natAbs - b.natAbs := by omega
 
 theorem natAbs_emod (a : Int) {b : Int} (hb : b ≠ 0):
     natAbs (a % b) = if 0 ≤ a ∨ b ∣ a then natAbs a % natAbs b else natAbs b - natAbs a % natAbs b := by
@@ -2074,6 +2068,9 @@ theorem lt_mul_fdiv_self_add {x k : Int} (h : 0 < k) : x < k * (x.fdiv k) + k :=
   rw [fdiv_eq_ediv]
   have := lt_mul_ediv_self_add (x := x) h
   split <;> simp <;> omega
+
+-- We do not currently prove the theorems about `fdiv` and ordering,
+-- whose `ediv` analogues are proved above.
 
 /-! ### bmod -/
 

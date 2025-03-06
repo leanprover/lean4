@@ -477,6 +477,13 @@ theorem natAbs_of_nonneg {a : Int} (H : 0 ≤ a) : (natAbs a : Int) = a :=
 theorem ofNat_natAbs_of_nonpos {a : Int} (H : a ≤ 0) : (natAbs a : Int) = -a := by
   rw [← natAbs_neg, natAbs_of_nonneg (Int.neg_nonneg_of_nonpos H)]
 
+theorem natAbs_sub_of_nonneg_of_le {a b : Int} (h₁ : 0 ≤ b) (h₂ : b ≤ a) :
+    (a - b).natAbs = a.natAbs - b.natAbs := by
+  rw [← Int.ofNat_inj]
+  rw [natAbs_of_nonneg, ofNat_sub, natAbs_of_nonneg (Int.le_trans h₁ h₂), natAbs_of_nonneg h₁]
+  · rwa [← Int.ofNat_le, natAbs_of_nonneg h₁, natAbs_of_nonneg (Int.le_trans h₁ h₂)]
+  · exact Int.sub_nonneg_of_le h₂
+
 /-! ### toNat -/
 
 theorem toNat_eq_max : ∀ a : Int, (toNat a : Int) = max a 0

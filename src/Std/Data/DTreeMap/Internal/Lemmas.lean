@@ -2983,7 +2983,6 @@ theorem size_insertManyIfNewUnit_empty_list [TransOrd α]
     {l : List α}
     (distinct : l.Pairwise (fun a b => ¬ compare a b = .eq)) :
     (insertManyIfNewUnit (empty : Impl α Unit) l WF.empty.balanced).1.size = l.length := by
-  -- TODO: Why doesn't simp [size_insertManyIfNewUnit_list WF.empty distinct] work?
   rw [size_insertManyIfNewUnit_list WF.empty distinct]
   · simp [size_empty]
   · simp [not_mem_empty]

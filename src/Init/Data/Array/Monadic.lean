@@ -23,8 +23,11 @@ open Nat
 
 /-! ### mapM -/
 
-@[simp] theorem mapM_id {xs : Array α} {f : α → Id β} : xs.mapM f = xs.map f := by
+@[simp] theorem mapM_pure [Monad m] [LawfulMonad m] (xs : Array α) (f : α → β) :
+    xs.mapM (m := m) (pure <| f ·) = pure (xs.map f) := by
   induction xs; simp_all
+@[simp] theorem mapM_id {xs : Array α} {f : α → Id β} : xs.mapM f = xs.map f :=
+  mapM_pure _ _
 
 @[simp] theorem mapM_append [Monad m] [LawfulMonad m] (f : α → m β) {xs ys : Array α} :
     (xs ++ ys).mapM f = (return (← xs.mapM f) ++ (← ys.mapM f)) := by
@@ -174,10 +177,9 @@ theorem forIn'_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
 
 @[simp] theorem forIn'_yield_eq_foldl
     (xs : Array α) (f : (a : α) → a ∈ xs → β → β) (init : β) :
-    forIn' (m := Id) xs init (fun a m b => .yield (f a m b)) =
-      xs.attach.foldl (fun b ⟨a, h⟩ => f a h b) init := by
-  rcases xs with ⟨xs⟩
-  simp [List.foldl_map]
+    (forIn' (m := Id) xs init (fun a m b => pure <| .yield (f a m b))).run =
+      xs.attach.foldl (fun b ⟨a, h⟩ => f a h b) init :=
+  forIn'_pure_yield_eq_foldl _ _ _
 
 @[simp] theorem forIn'_map [Monad m] [LawfulMonad m]
     (xs : Array α) (g : α → β) (f : (b : β) → b ∈ xs.map g → γ → m (ForInStep γ)) :
@@ -216,10 +218,9 @@ theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
 
 @[simp] theorem forIn_yield_eq_foldl
     (xs : Array α) (f : α → β → β) (init : β) :
-    forIn (m := Id) xs init (fun a b => .yield (f a b)) =
-      xs.foldl (fun b a => f a b) init := by
-  rcases xs with ⟨xs⟩
-  simp [List.foldl_map]
+    (forIn (m := Id) xs init (fun a b => pure <| .yield (f a b))).run =
+      xs.foldl (fun b a => f a b) init :=
+  forIn_pure_yield_eq_foldl _ _ _
 
 @[simp] theorem forIn_map [Monad m] [LawfulMonad m]
     (xs : Array α) (g : α → β) (f : β → γ → m (ForInStep γ)) :

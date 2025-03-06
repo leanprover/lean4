@@ -63,7 +63,7 @@ theorem isEmpty_eq_isEmpty [BEq α] [Hashable α] {m : Raw α β} (h : Raw.WFImp
 theorem fold_eq {l : Raw α β} {f : γ → (a : α) → β a → γ} {init : γ} :
     l.fold f init = l.buckets.foldl (fun acc l => l.foldl f acc) init := by
   simp only [Raw.fold, Raw.foldM, ← Array.foldlM_toList, Array.foldl_toList,
-    ← List.foldl_eq_foldlM, Id.run, AssocList.foldl]
+    ← List.foldl_eq_foldlM, AssocList.foldl]
 
 theorem fold_cons_apply {l : Raw α β} {acc : List γ} (f : (a : α) → β a → γ) :
     l.fold (fun acc k v => f k v :: acc) acc =
@@ -86,7 +86,7 @@ theorem fold_cons_key {l : Raw α β} {acc : List α} :
 theorem foldRev_eq {l : Raw α β} {f : γ → (a : α) → β a → γ} {init : γ} :
     l.foldRev f init = l.buckets.foldr (fun l acc => l.foldr (fun a b g => f g a b) acc) init := by
   simp only [Raw.foldRev, Raw.foldRevM, ← Array.foldrM_toList, Array.foldr_toList,
-    ← List.foldr_eq_foldrM, Id.run, AssocList.foldr]
+    ← List.foldr_eq_foldrM, AssocList.foldr]
 
 theorem foldRev_cons_apply {l : Raw α β} {acc : List γ} (f : (a : α) → β a → γ) :
     l.foldRev (fun acc k v => f k v :: acc) acc =

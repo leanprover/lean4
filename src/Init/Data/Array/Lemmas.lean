@@ -2984,12 +2984,6 @@ theorem foldlM_push [Monad m] [LawfulMonad m] (xs : Array α) (a : α) (f : β �
     (xs.push a).foldlM f b = xs.foldlM f b >>= fun b => f b a := by
   simp
 
-theorem foldl_eq_foldlM (f : β → α → β) (b) (xs : Array α) :
-    xs.foldl f b start stop = (xs.foldlM (m := Id) (pure <| f · ·) b start stop).run := rfl
-
-theorem foldr_eq_foldrM (f : α → β → β) (b) (xs : Array α) :
-    xs.foldr f b start stop = (xs.foldrM (m := Id) (pure <| f · ·) b start stop).run := rfl
-
 @[simp] theorem foldlM_pure [Monad m] [LawfulMonad m] (f : β → α → β) (b) (xs : Array α) :
     xs.foldlM (m := m) (pure <| f · ·) b start stop = pure (xs.foldl f b start stop) := by
   rw [foldl, foldlM_start_stop, ← foldlM_toList, List.foldlM_pure, foldl_toList, foldl, ← foldlM_start_stop]
@@ -2997,6 +2991,12 @@ theorem foldr_eq_foldrM (f : α → β → β) (b) (xs : Array α) :
 @[simp] theorem foldrM_pure [Monad m] [LawfulMonad m] (f : α → β → β) (b) (xs : Array α) :
     xs.foldrM (m := m) (pure <| f · ·) b start stop = pure (xs.foldr f b start stop) := by
   rw [foldr, foldrM_start_stop, ← foldrM_toList, List.foldrM_pure, foldr_toList, foldr, ← foldrM_start_stop]
+
+theorem foldl_eq_foldlM (f : β → α → β) (b) (xs : Array α) :
+    xs.foldl f b start stop = (xs.foldlM (m := Id) (pure <| f · ·) b start stop).run := rfl
+
+theorem foldr_eq_foldrM (f : α → β → β) (b) (xs : Array α) :
+    xs.foldr f b start stop = (xs.foldrM (m := Id) (pure <| f · ·) b start stop).run := rfl
 
 @[simp] theorem id_run_foldlM (f : β → α → Id β) (b) (xs : Array α) :
     Id.run (xs.foldlM f b start stop) = xs.foldl f b start stop := rfl
@@ -3247,17 +3247,16 @@ theorem foldrM_append [Monad m] [LawfulMonad m] (f : α → β → m β) (b) (xs
 
 @[simp] theorem foldr_append' (f : α → β → β) (b) (xs ys : Array α)
     (w : start = xs.size + ys.size) :
-    (xs ++ ys).foldr f b start 0 = xs.foldr f (ys.foldr f b) := by
-  subst w
-  simp [foldr_eq_foldrM, -foldrM_pure]
+    (xs ++ ys).foldr f b start 0 = xs.foldr f (ys.foldr f b) :=
+  foldrM_append' _ _ _ _ w
 
 theorem foldl_append {β : Type _} (f : β → α → β) (b) (xs ys : Array α) :
-    (xs ++ ys).foldl f b = ys.foldl f (xs.foldl f b) := by
-  simp [foldl_eq_foldlM, -foldlM_pure]
+    (xs ++ ys).foldl f b = ys.foldl f (xs.foldl f b) :=
+  foldlM_append _ _ _ _
 
 theorem foldr_append (f : α → β → β) (b) (xs ys : Array α) :
-    (xs ++ ys).foldr f b = xs.foldr f (ys.foldr f b) := by
-  simp [foldr_eq_foldrM, -foldrM_pure]
+    (xs ++ ys).foldr f b = xs.foldr f (ys.foldr f b) :=
+  foldrM_append _ _ _ _
 
 @[simp] theorem foldl_flatten' (f : β → α → β) (b : β) (xss : Array (Array α))
     (w : stop = xss.flatten.size) :
@@ -3285,21 +3284,21 @@ theorem foldr_flatten (f : α → β → β) (b : β) (xss : Array (Array α)) :
 
 /-- Variant of `foldl_reverse` with a side condition for the `stop` argument. -/
 @[simp] theorem foldl_reverse' (xs : Array α) (f : β → α → β) (b) (w : stop = xs.size) :
-    xs.reverse.foldl f b 0 stop = xs.foldr (fun x y => f y x) b := by
-  set_option trace.Meta.Tactic.simp.rewrite true in
-  simp [w, foldl_eq_foldlM, foldr_eq_foldrM]
+    xs.reverse.foldl f b 0 stop = xs.foldr (fun x y => f y x) b :=
+  foldlM_reverse' _ _ _ w
 
 /-- Variant of `foldr_reverse` with a side condition for the `start` argument. -/
 @[simp] theorem foldr_reverse' (xs : Array α) (f : α → β → β) (b) (w : start = xs.size) :
-    xs.reverse.foldr f b start 0 = xs.foldl (fun x y => f y x) b := by
-  simp [w, foldl_eq_foldlM, foldr_eq_foldrM]
+    xs.reverse.foldr f b start 0 = xs.foldl (fun x y => f y x) b :=
+  foldrM_reverse' _ _ _ w
 
 theorem foldl_reverse (xs : Array α) (f : β → α → β) (b) :
-    xs.reverse.foldl f b = xs.foldr (fun x y => f y x) b := by simp [foldl_eq_foldlM, foldr_eq_foldrM]
+    xs.reverse.foldl f b = xs.foldr (fun x y => f y x) b :=
+  foldlM_reverse _ _ _
 
 theorem foldr_reverse (xs : Array α) (f : α → β → β) (b) :
     xs.reverse.foldr f b = xs.foldl (fun x y => f y x) b :=
-  (foldl_reverse ..).symm.trans <| by simp
+  foldrM_reverse _ _ _
 
 theorem foldl_eq_foldr_reverse (xs : Array α) (f : β → α → β) (b) :
     xs.foldl f b = xs.reverse.foldr (fun x y => f y x) b := by simp
@@ -3510,15 +3509,16 @@ theorem pop_append {xs ys : Array α} :
 /-! ### modify -/
 
 @[simp] theorem size_modify (xs : Array α) (i : Nat) (f : α → α) : (xs.modify i f).size = xs.size := by
-  unfold modify modifyM Id.run
+  unfold modify modifyM
   split <;> simp
 
 theorem getElem_modify {xs : Array α} {j i} (h : i < (xs.modify j f).size) :
     (xs.modify j f)[i] = if j = i then f (xs[i]'(by simpa using h)) else xs[i]'(by simpa using h) := by
-  simp only [modify, modifyM, Id.run, Id.pure_eq]
+  simp only [modify, modifyM, Id.run_pure, Id.run_bind]
   split
-  · simp only [Id.bind_eq, getElem_set]; split <;> simp [*]
-  · rw [if_neg (mt (by rintro rfl; exact h) (by simp_all))]
+  · simp only [Id.run_bind, Id.run_pure, getElem_set]; split <;> simp [*]
+  · simp only [Id.run_pure]
+    rw [if_neg (mt (by rintro rfl; exact h) (by simp_all))]
 
 @[simp] theorem toList_modify (xs : Array α) (f : α → α) :
     (xs.modify i f).toList = xs.toList.modify f i := by
@@ -4265,12 +4265,12 @@ namespace Array
 @[simp] theorem findSomeRev?_eq_findSome?_reverse (f : α → Option β) (xs : Array α) :
     xs.findSomeRev? f = xs.reverse.findSome? f := by
   cases xs
-  simp [findSomeRev?, Id.run]
+  simp [findSomeRev?]
 
 @[simp] theorem findRev?_eq_find?_reverse (f : α → Bool) (xs : Array α) :
     xs.findRev? f = xs.reverse.find? f := by
   cases xs
-  simp [findRev?, Id.run]
+  simp [findRev?]
 
 /-! ### unzip -/
 

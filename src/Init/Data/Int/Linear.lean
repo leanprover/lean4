@@ -1582,6 +1582,46 @@ theorem cooper_unsat (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (α β : 
   rw [Int.one_mul] at h₅
   exact cooper_unsat' h₁ h₂ h₃ h₄ h₅ h₆
 
+theorem ediv_emod (x y : Int) : -1 * x + y * (x / y) + x % y = 0 := by
+  rw [Int.add_assoc, Int.ediv_add_emod x y, Int.add_comm]
+  simp
+  rw [← Int.sub_eq_add_neg, Int.sub_self]
+
+theorem emod_nonneg (x y : Int) : y != 0 → -1 * (x % y) ≤ 0 := by
+  simp; intro h
+  have := Int.neg_le_neg (Int.emod_nonneg x h)
+  simp at this
+  assumption
+
+def emod_le_cert (y n : Int) : Bool :=
+  y != 0 && n == 1 - y.natAbs
+
+theorem emod_le (x y : Int) (n : Int) : emod_le_cert y n → x % y + n ≤ 0 := by
+  simp [emod_le_cert]
+  intro h₁
+  cases Int.lt_or_gt_of_ne h₁
+  next h =>
+    rw [Int.ofNat_natAbs_of_nonpos (Int.le_of_lt h)]
+    simp only [Int.sub_neg]
+    intro; subst n
+    rw [Int.add_assoc, Int.add_left_comm]
+    apply Int.add_le_of_le_sub_left
+    rw [Int.zero_sub, Int.add_comm]
+    have : 0 < -y := by
+      have := Int.neg_lt_neg h
+      rw [Int.neg_zero] at this
+      assumption
+    have := Int.emod_lt_of_pos x this
+    rw [Int.emod_neg] at this
+    exact this
+  next h =>
+    rw [Int.natAbs_of_nonneg (Int.le_of_lt h)]
+    intro; subst n
+    rw [Int.sub_eq_add_neg, Int.add_assoc, Int.add_left_comm]
+    apply Int.add_le_of_le_sub_left
+    simp only [Int.add_comm, Int.sub_neg, Int.add_zero]
+    exact Int.emod_lt_of_pos x h
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

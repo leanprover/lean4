@@ -231,6 +231,18 @@ theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
   rcases xs with ⟨xs⟩
   simp
 
+/-! ### allM and anyM -/
+
+@[simp] theorem anyM_pure [Monad m] [LawfulMonad m] (p : α → Bool) (xs : Array α) :
+    xs.anyM (m := m) (pure <| p ·) = pure (xs.any p) := by
+  cases xs
+  simp
+
+@[simp] theorem allM_pure [Monad m] [LawfulMonad m] (p : α → Bool) (xs : Array α) :
+    xs.allM (m := m) (pure <| p ·) = pure (xs.all p) := by
+  cases xs
+  simp
+
 end Array
 
 namespace List

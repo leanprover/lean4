@@ -399,7 +399,7 @@ theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
     forIn (l.map g) init f = forIn l init fun a y => f (g a) y := by
   induction l generalizing init <;> simp_all
 
-/-! ### allM -/
+/-! ### allM and anyM -/
 
 theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] (p : α → m Bool) (as : List α) :
     allM p as = (! ·) <$> anyM ((! ·) <$> p ·) as := by
@@ -410,6 +410,18 @@ theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] (p : α → m Bool) (as :
     congr
     funext b
     split <;> simp_all
+
+@[simp] theorem anyM_pure [Monad m] [LawfulMonad m] (p : α → Bool) (as : List α) :
+    as.anyM (m := m) (pure <| p ·) = pure (as.any p) := by
+  induction as with
+  | nil => simp
+  | cons a as ih =>
+    simp only [anyM, ih, pure_bind, all_cons]
+    split <;> simp_all
+
+@[simp] theorem allM_pure [Monad m] [LawfulMonad m] (p : α → Bool) (as : List α) :
+    as.allM (m := m) (pure <| p ·) = pure (as.all p) := by
+  simp [allM_eq_not_anyM_not, all_eq_not_any_not]
 
 /-! ### Recognizing higher order functions using a function that only depends on the value. -/
 

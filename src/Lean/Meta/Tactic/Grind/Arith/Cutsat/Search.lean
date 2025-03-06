@@ -275,7 +275,11 @@ def resolveRealLowerUpperConflict (c₁ c₂ : LeCnstr) : GoalM Bool := do
     trace[grind.cutsat.conflict] "not resolved"
     return false
   else
-    let c := { p, h := .combine c₁ c₂ : LeCnstr }
+    let k := p.gcdCoeffs'
+    let c := if k == 1 then
+      { p, h := .combine c₁ c₂ : LeCnstr }
+    else
+      { p := p.div k, h := .combineDivCoeffs c₁ c₂ k : LeCnstr }
     trace[grind.cutsat.conflict] "resolved: {← c.pp}"
     c.assert
     return true

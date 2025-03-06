@@ -61,12 +61,12 @@ theorem thm1' : ∀ x < 100, x * x ≤ 10000 := by decide +kernel
 -- (Note: when run within VS Code, these tests fail since the auxLemmas have a `lean.run` prefix.)
 /--
 info: theorem thm1 : ∀ (x : Nat), x < 100 → x * x ≤ 10000 :=
-decideTacticKernel._auxLemma.3
+decideTacticKernel._auxLemma_3
 -/
 #guard_msgs in #print thm1
 /--
 info: theorem thm1' : ∀ (x : Nat), x < 100 → x * x ≤ 10000 :=
-decideTacticKernel._auxLemma.3
+decideTacticKernel._auxLemma_3
 -/
 #guard_msgs in #print thm1'
 

@@ -3149,6 +3149,11 @@ theorem constModify [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m
     (Const.modify m₁ k f).Equiv (Const.modify m₂ k f) := by
   simp_to_raw using Raw₀.Const.modify_equiv_congr
 
+theorem of_forall_getKey?_eq_of_forall_constGet?_eq [EquivBEq α] [LawfulHashable α]
+    (h₁ : m₁.WF) (h₂ : m₂.WF) : (∀ k, m₁.getKey? k = m₂.getKey? k) →
+    (∀ k, Const.get? m₁ k = Const.get? m₂ k) → m₁.Equiv m₂ := by
+  simp_to_raw using Raw₀.Const.equiv_of_forall_getKey?_eq_of_forall_get?_eq
+
 end Const
 
 end Equiv

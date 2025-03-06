@@ -245,6 +245,7 @@ theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
 
 /-! ### findM? and findSomeM? -/
 
+@[simp]
 theorem findM?_pure {m} [Monad m] [LawfulMonad m] (p : α → Bool) (xs : Array α) :
     findM? (m := m) (pure <| p ·) xs = pure (xs.find? p) := by
   cases xs

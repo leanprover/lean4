@@ -226,6 +226,7 @@ def findM? {m : Type → Type u} [Monad m] {α : Type} (p : α → m Bool) : Lis
     | true  => pure (some a)
     | false => findM? p as
 
+@[simp]
 theorem findM?_pure {m} [Monad m] [LawfulMonad m] (p : α → Bool) (as : List α) :
     findM? (m := m) (pure <| p ·) as = pure (as.find? p) := by
   induction as with

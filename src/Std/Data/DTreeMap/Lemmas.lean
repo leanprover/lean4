@@ -1160,4 +1160,605 @@ end Const
 
 end monadic
 
+@[simp]
+theorem insertMany_nil :
+    t.insertMany [] = t :=
+  rfl
+
+@[simp]
+theorem insertMany_list_singleton {k : α} {v : β k} :
+    t.insertMany [⟨k, v⟩] = t.insert k v :=
+  rfl
+
+theorem insertMany_cons {l : List ((a : α) × β a)} {k : α} {v : β k} :
+    t.insertMany (⟨k, v⟩ :: l) = (t.insert k v).insertMany l :=
+  ext <| Impl.insertMany_cons t.wf
+
+@[simp]
+theorem contains_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} {k : α} :
+    (t.insertMany l).contains k = (t.contains k || (l.map Sigma.fst).contains k) :=
+  Impl.contains_insertMany_list t.wf
+
+@[simp]
+theorem mem_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} {k : α} :
+    k ∈ t.insertMany l ↔ k ∈ t ∨ (l.map Sigma.fst).contains k :=
+  Impl.mem_insertMany_list t.wf
+
+theorem mem_of_mem_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} {k : α} :
+    k ∈ t.insertMany l → (l.map Sigma.fst).contains k = false → k ∈ t :=
+  Impl.mem_of_mem_insertMany_list t.wf
+
+theorem get?_insertMany_list_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] [BEq α]
+    [LawfulBEqCmp cmp] {l : List ((a : α) × β a)} {k : α}
+    (contains_eq_false : (l.map Sigma.fst).contains k = false) :
+    (t.insertMany l).get? k = t.get? k :=
+  Impl.get?_insertMany_list_of_contains_eq_false t.wf contains_eq_false
+
+theorem get?_insertMany_list_of_mem [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β k}
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) :
+    (t.insertMany l).get? k' = some (cast (by congr; apply compare_eq_iff_eq.mp k_eq) v) :=
+  Impl.get?_insertMany_list_of_mem t.wf k_eq distinct mem
+
+theorem get_insertMany_list_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] [BEq α]
+    [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} {k : α}
+    (contains : (l.map Sigma.fst).contains k = false)
+    {h'} :
+    (t.insertMany l).get k h' =
+    t.get k (mem_of_mem_insertMany_list h' contains) :=
+  Impl.get_insertMany_list_of_contains_eq_false t.wf contains
+
+theorem get_insertMany_list_of_mem [TransCmp cmp] [LawfulEqCmp cmp]
+    {l : List ((a : α) × β a)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β k}
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : ⟨k, v⟩ ∈ l)
+    {h'} :
+    (t.insertMany l).get k' h' = cast (by congr; apply compare_eq_iff_eq.mp k_eq) v :=
+  Impl.get_insertMany_list_of_mem t.wf k_eq distinct mem
+
+theorem get!_insertMany_list_of_contains_eq_false [TransCmp cmp]
+    [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} {k : α} [Inhabited (β k)]
+    (contains_eq_false : (l.map Sigma.fst).contains k = false) :
+    (t.insertMany l).get! k = t.get! k :=
+  Impl.get!_insertMany_list_of_contains_eq_false t.wf contains_eq_false
+
+theorem get!_insertMany_list_of_mem [TransCmp cmp] [LawfulEqCmp cmp]
+    {l : List ((a : α) × β a)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β k} [Inhabited (β k')]
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : ⟨k, v⟩ ∈ l) :
+    (t.insertMany l).get! k' = cast (by congr; apply compare_eq_iff_eq.mp k_eq) v :=
+  Impl.get!_insertMany_list_of_mem t.wf k_eq distinct mem
+
+theorem getD_insertMany_list_of_contains_eq_false [TransCmp cmp]
+    [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} {k : α} {fallback : β k}
+    (contains_eq_false : (l.map Sigma.fst).contains k = false) :
+    (t.insertMany l).getD k fallback = t.getD k fallback :=
+  Impl.getD_insertMany_list_of_contains_eq_false t.wf contains_eq_false
+
+theorem getD_insertMany_list_of_mem [TransCmp cmp] [LawfulEqCmp cmp]
+    {l : List ((a : α) × β a)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β k} {fallback : β k'}
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : ⟨k, v⟩ ∈ l) :
+    (t.insertMany l).getD k' fallback = cast (by congr; apply compare_eq_iff_eq.mp k_eq) v :=
+  Impl.getD_insertMany_list_of_mem t.wf k_eq distinct mem
+
+theorem getKey?_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} {k : α}
+    (contains_eq_false : (l.map Sigma.fst).contains k = false) :
+    (t.insertMany l).getKey? k = t.getKey? k :=
+  Impl.getKey?_insertMany_list_of_contains_eq_false t.wf contains_eq_false
+
+theorem getKey?_insertMany_list_of_mem [TransCmp cmp]
+    {l : List ((a : α) × β a)}
+    {k k' : α} (k_eq : cmp k k' = .eq)
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : k ∈ l.map Sigma.fst) :
+    (t.insertMany l).getKey? k' = some k :=
+  Impl.getKey?_insertMany_list_of_mem t.wf k_eq distinct mem
+
+theorem getKey_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} {k : α}
+    (contains_eq_false : (l.map Sigma.fst).contains k = false)
+    {h'} :
+    (t.insertMany l).getKey k h' =
+    t.getKey k (mem_of_mem_insertMany_list h' contains_eq_false) :=
+  Impl.getKey_insertMany_list_of_contains_eq_false t.wf contains_eq_false
+
+theorem getKey_insertMany_list_of_mem [TransCmp cmp]
+    {l : List ((a : α) × β a)}
+    {k k' : α} (k_eq : cmp k k' = .eq)
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : k ∈ l.map Sigma.fst)
+    {h'} :
+    (t.insertMany l).getKey k' h' = k :=
+  Impl.getKey_insertMany_list_of_mem t.wf k_eq distinct mem
+
+theorem getKey!_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    [Inhabited α] {l : List ((a : α) × β a)} {k : α}
+    (contains_eq_false : (l.map Sigma.fst).contains k = false) :
+    (t.insertMany l).getKey! k = t.getKey! k :=
+  Impl.getKey!_insertMany_list_of_contains_eq_false t.wf contains_eq_false
+
+theorem getKey!_insertMany_list_of_mem [TransCmp cmp] [Inhabited α]
+    {l : List ((a : α) × β a)}
+    {k k' : α} (k_eq : cmp k k' = .eq)
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : k ∈ l.map Sigma.fst) :
+    (t.insertMany l).getKey! k' = k :=
+  Impl.getKey!_insertMany_list_of_mem t.wf k_eq distinct mem
+
+theorem getKeyD_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} {k fallback : α}
+    (contains_eq_false : (l.map Sigma.fst).contains k = false) :
+    (t.insertMany l).getKeyD k fallback = t.getKeyD k fallback :=
+  Impl.getKeyD_insertMany_list_of_contains_eq_false t.wf contains_eq_false
+
+theorem getKeyD_insertMany_list_of_mem [TransCmp cmp]
+    {l : List ((a : α) × β a)}
+    {k k' fallback : α} (k_eq : cmp k k' = .eq)
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : k ∈ l.map Sigma.fst) :
+    (t.insertMany l).getKeyD k' fallback = k :=
+  Impl.getKeyD_insertMany_list_of_mem t.wf k_eq distinct mem
+
+theorem size_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq)) :
+    (∀ (a : α), a ∈ t → (l.map Sigma.fst).contains a = false) →
+    (t.insertMany l).size = t.size + l.length :=
+  Impl.size_insertMany_list t.wf distinct
+
+theorem size_le_size_insertMany_list [TransCmp cmp]
+    {l : List ((a : α) × β a)} :
+    t.size ≤ (t.insertMany l).size :=
+  Impl.size_le_size_insertMany_list t.wf
+
+theorem size_insertMany_list_le [TransCmp cmp]
+    {l : List ((a : α) × β a)} :
+    (t.insertMany l).size ≤ t.size + l.length :=
+  Impl.size_insertMany_list_le t.wf
+
+@[simp]
+theorem isEmpty_insertMany_list [TransCmp cmp]
+    {l : List ((a : α) × β a)} :
+    (t.insertMany l).isEmpty = (t.isEmpty && l.isEmpty) :=
+  Impl.isEmpty_insertMany_list t.wf
+
+namespace Const
+
+variable {β : Type v} {t : DTreeMap α β cmp}
+
+@[simp]
+theorem insertMany_nil :
+    insertMany t [] = t :=
+  rfl
+
+@[simp]
+theorem insertMany_list_singleton {k : α} {v : β} :
+    insertMany t [⟨k, v⟩] = t.insert k v :=
+  rfl
+
+theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} :
+    Const.insertMany t ((k, v) :: l) = Const.insertMany (t.insert k v) l :=
+  ext <| Impl.Const.insertMany_cons t.wf
+
+@[simp]
+theorem contains_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List (α × β)} {k : α} :
+    (Const.insertMany t l).contains k = (t.contains k || (l.map Prod.fst).contains k) :=
+  Impl.Const.contains_insertMany_list t.wf
+
+@[simp]
+theorem mem_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List (α × β)} {k : α} :
+    k ∈ Const.insertMany t l ↔ k ∈ t ∨ (l.map Prod.fst).contains k :=
+  Impl.Const.mem_insertMany_list t.wf
+
+theorem mem_of_mem_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ( α × β )} {k : α} :
+    k ∈ insertMany t l → (l.map Prod.fst).contains k = false → k ∈ t :=
+  Impl.Const.mem_of_mem_insertMany_list t.wf
+
+theorem getKey?_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List (α × β)} {k : α}
+    (contains_eq_false : (l.map Prod.fst).contains k = false) :
+    (insertMany t l).getKey? k = t.getKey? k :=
+  Impl.Const.getKey?_insertMany_list_of_contains_eq_false t.wf contains_eq_false
+
+theorem getKey?_insertMany_list_of_mem [TransCmp cmp]
+    {l : List (α × β)}
+    {k k' : α} (k_eq : cmp k k' = .eq)
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : k ∈ l.map Prod.fst) :
+    (insertMany t l).getKey? k' = some k :=
+  Impl.Const.getKey?_insertMany_list_of_mem t.wf k_eq distinct mem
+
+theorem getKey_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List (α × β)} {k : α}
+    (contains_eq_false : (l.map Prod.fst).contains k = false)
+    {h'} :
+    (insertMany t l).getKey k h' =
+    t.getKey k (mem_of_mem_insertMany_list h' contains_eq_false) :=
+  Impl.Const.getKey_insertMany_list_of_contains_eq_false t.wf contains_eq_false
+
+theorem getKey_insertMany_list_of_mem [TransCmp cmp]
+    {l : List (α × β)}
+    {k k' : α} (k_eq : cmp k k' = .eq)
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : k ∈ l.map Prod.fst)
+    {h'} :
+    (insertMany t l).getKey k' h' = k :=
+  Impl.Const.getKey_insertMany_list_of_mem t.wf k_eq distinct mem
+
+theorem getKey!_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    [Inhabited α] {l : List (α × β)} {k : α}
+    (contains_eq_false : (l.map Prod.fst).contains k = false) :
+    (insertMany t l).getKey! k = t.getKey! k :=
+  Impl.Const.getKey!_insertMany_list_of_contains_eq_false t.wf contains_eq_false
+
+theorem getKey!_insertMany_list_of_mem [TransCmp cmp] [Inhabited α]
+    {l : List (α × β)}
+    {k k' : α} (k_eq : cmp k k' = .eq)
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : k ∈ l.map Prod.fst) :
+    (insertMany t l).getKey! k' = k :=
+  Impl.Const.getKey!_insertMany_list_of_mem t.wf k_eq distinct mem
+
+theorem getKeyD_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List (α × β)} {k fallback : α}
+    (contains_eq_false : (l.map Prod.fst).contains k = false) :
+    (insertMany t l).getKeyD k fallback = t.getKeyD k fallback :=
+  Impl.Const.getKeyD_insertMany_list_of_contains_eq_false t.wf contains_eq_false
+
+theorem getKeyD_insertMany_list_of_mem [TransCmp cmp]
+    {l : List (α × β)}
+    {k k' fallback : α} (k_eq : cmp k k' = .eq)
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : k ∈ l.map Prod.fst) :
+    (insertMany t l).getKeyD k' fallback = k :=
+  Impl.Const.getKeyD_insertMany_list_of_mem t.wf k_eq distinct mem
+
+theorem size_insertMany_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List (α × β)}
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq)) :
+    (∀ (a : α), a ∈ t → (l.map Prod.fst).contains a = false) →
+    (insertMany t l).size = t.size + l.length :=
+  Impl.Const.size_insertMany_list t.wf distinct
+
+theorem size_le_size_insertMany_list [TransCmp cmp]
+    {l : List (α × β)} :
+    t.size ≤ (insertMany t l).size :=
+  Impl.Const.size_le_size_insertMany_list t.wf
+
+theorem size_insertMany_list_le [TransCmp cmp]
+    {l : List (α × β)} :
+    (insertMany t l).size ≤ t.size + l.length :=
+  Impl.Const.size_insertMany_list_le t.wf
+
+@[simp]
+theorem isEmpty_insertMany_list [TransCmp cmp]
+    {l : List (α × β)} :
+    (insertMany t l).isEmpty = (t.isEmpty && l.isEmpty) :=
+  Impl.Const.isEmpty_insertMany_list t.wf
+
+theorem get?_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List (α × β)} {k : α}
+    (contains_eq_false : (l.map Prod.fst).contains k = false) :
+    get? (insertMany t l) k = get? t k :=
+  Impl.Const.get?_insertMany_list_of_contains_eq_false t.wf contains_eq_false
+
+theorem get?_insertMany_list_of_mem [TransCmp cmp]
+    {l : List (α × β)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β}
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) :
+    get? (insertMany t l) k' = v :=
+  Impl.Const.get?_insertMany_list_of_mem t.wf k_eq distinct mem
+
+theorem get_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List (α × β)} {k : α}
+    (contains_eq_false : (l.map Prod.fst).contains k = false)
+    {h'} :
+    get (insertMany t l) k h' = get t k (mem_of_mem_insertMany_list h' contains_eq_false) :=
+  Impl.Const.get_insertMany_list_of_contains_eq_false t.wf contains_eq_false
+
+theorem get_insertMany_list_of_mem [TransCmp cmp]
+    {l : List (α × β)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β}
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) {h'} :
+    get (insertMany t l) k' h' = v :=
+  Impl.Const.get_insertMany_list_of_mem t.wf k_eq distinct mem
+
+theorem get!_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    [Inhabited β] {l : List (α × β)} {k : α}
+    (contains_eq_false : (l.map Prod.fst).contains k = false) :
+    get! (insertMany t l) k = get! t k :=
+  Impl.Const.get!_insertMany_list_of_contains_eq_false t.wf contains_eq_false
+
+theorem get!_insertMany_list_of_mem [TransCmp cmp] [Inhabited β]
+    {l : List (α × β)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β}
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) :
+    get! (insertMany t l) k' = v :=
+  Impl.Const.get!_insertMany_list_of_mem t.wf k_eq distinct mem
+
+theorem getD_insertMany_list_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List (α × β)} {k : α} {fallback : β}
+    (contains_eq_false : (l.map Prod.fst).contains k = false) :
+    getD (insertMany t l) k fallback = getD t k fallback :=
+  Impl.Const.getD_insertMany_list_of_contains_eq_false t.wf contains_eq_false
+
+theorem getD_insertMany_list_of_mem [TransCmp cmp]
+    {l : List (α × β)} {k k' : α} (k_eq : cmp k k' = .eq) {v fallback : β}
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq)) (mem : ⟨k, v⟩ ∈ l) :
+    getD (insertMany t l) k' fallback = v :=
+  Impl.Const.getD_insertMany_list_of_mem t.wf k_eq distinct mem
+
+variable {t : DTreeMap α Unit cmp}
+
+@[simp]
+theorem insertManyIfNewUnit_nil :
+    insertManyIfNewUnit t [] = t :=
+  rfl
+
+@[simp]
+theorem insertManyIfNewUnit_list_singleton {k : α} :
+    insertManyIfNewUnit t [k] = t.insertIfNew k () :=
+  rfl
+
+theorem insertManyIfNewUnit_cons {l : List α} {k : α} :
+    insertManyIfNewUnit t (k :: l) = insertManyIfNewUnit (t.insertIfNew k ()) l :=
+  ext <| Impl.Const.insertManyIfNewUnit_cons t.wf
+
+@[simp]
+theorem contains_insertManyIfNewUnit_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List α} {k : α} :
+    (insertManyIfNewUnit t l).contains k = (t.contains k || l.contains k) :=
+  Impl.Const.contains_insertManyIfNewUnit_list t.wf
+
+@[simp]
+theorem mem_insertManyIfNewUnit_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List α} {k : α} :
+    k ∈ insertManyIfNewUnit t l ↔ k ∈ t ∨ l.contains k :=
+  Impl.Const.mem_insertManyIfNewUnit_list t.wf
+
+theorem mem_of_mem_insertManyIfNewUnit_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List α} {k : α} (contains_eq_false : l.contains k = false) :
+    k ∈ insertManyIfNewUnit t l → k ∈ t :=
+  Impl.Const.mem_of_mem_insertManyIfNewUnit_list t.wf contains_eq_false
+
+theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
+    [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α} {k : α} :
+    ¬ k ∈ t → l.contains k = false → getKey? (insertManyIfNewUnit t l) k = none :=
+  Impl.Const.getKey?_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false t.wf
+
+theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_mem [TransCmp cmp]
+    {l : List α} {k k' : α} (k_eq : cmp k k' = .eq) :
+    ¬ k ∈ t → l.Pairwise (fun a b => ¬ cmp a b = .eq) → k ∈ l →
+      getKey? (insertManyIfNewUnit t l) k' = some k :=
+  Impl.Const.getKey?_insertManyIfNewUnit_list_of_not_mem_of_mem t.wf k_eq
+
+theorem getKey?_insertManyIfNewUnit_list_of_mem [TransCmp cmp]
+    {l : List α} {k : α} :
+    k ∈ t → getKey? (insertManyIfNewUnit t l) k = getKey? t k :=
+  Impl.Const.getKey?_insertManyIfNewUnit_list_of_mem t.wf
+
+theorem getKey_insertManyIfNewUnit_list_of_mem [TransCmp cmp]
+    {l : List α} {k : α} {h'} (contains : k ∈ t) :
+    getKey (insertManyIfNewUnit t l) k h' = getKey t k contains :=
+  Impl.Const.getKey_insertManyIfNewUnit_list_of_mem t.wf contains
+
+theorem getKey_insertManyIfNewUnit_list_of_not_mem_of_mem [TransCmp cmp]
+    {l : List α}
+    {k k' : α} (k_eq : cmp k k' = .eq) {h'} :
+    ¬ k ∈ t → l.Pairwise (fun a b => ¬ cmp a b = .eq) → k ∈ l →
+      getKey (insertManyIfNewUnit t l) k' h' = k :=
+  Impl.Const.getKey_insertManyIfNewUnit_list_of_not_mem_of_mem t.wf k_eq
+
+theorem getKey!_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
+    [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] [Inhabited α] {l : List α} {k : α} :
+    ¬ k ∈ t → l.contains k = false →
+      getKey! (insertManyIfNewUnit t l) k = default :=
+  Impl.Const.getKey!_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false t.wf
+
+theorem getKey!_insertManyIfNewUnit_list_of_not_mem_of_mem [TransCmp cmp]
+    [Inhabited α] {l : List α} {k k' : α} (k_eq : cmp k k' = .eq) :
+    ¬ k ∈ t → l.Pairwise (fun a b => ¬ cmp a b = .eq) → k ∈ l →
+      getKey! (insertManyIfNewUnit t l) k' = k :=
+  Impl.Const.getKey!_insertManyIfNewUnit_list_of_not_mem_of_mem t.wf k_eq
+
+theorem getKey!_insertManyIfNewUnit_list_of_mem [TransCmp cmp]
+    [Inhabited α] {l : List α} {k : α} :
+    k ∈ t → getKey! (insertManyIfNewUnit t l) k = getKey! t k :=
+  Impl.Const.getKey!_insertManyIfNewUnit_list_of_mem t.wf
+
+theorem getKeyD_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
+    [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α} {k fallback : α} :
+    ¬ k ∈ t → l.contains k = false → getKeyD (insertManyIfNewUnit t l) k fallback = fallback :=
+  Impl.Const.getKeyD_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false t.wf
+
+theorem getKeyD_insertManyIfNewUnit_list_of_not_mem_of_mem [TransCmp cmp]
+    {l : List α} {k k' fallback : α} (k_eq : cmp k k' = .eq) :
+    ¬ k ∈ t → l.Pairwise (fun a b => ¬ cmp a b = .eq) → k ∈ l →
+      getKeyD (insertManyIfNewUnit t l) k' fallback = k :=
+  Impl.Const.getKeyD_insertManyIfNewUnit_list_of_not_mem_of_mem t.wf k_eq
+
+theorem getKeyD_insertManyIfNewUnit_list_of_mem [TransCmp cmp]
+    {l : List α} {k fallback : α} :
+    k ∈ t → getKeyD (insertManyIfNewUnit t l) k fallback = getKeyD t k fallback :=
+  Impl.Const.getKeyD_insertManyIfNewUnit_list_of_mem t.wf
+
+theorem size_insertManyIfNewUnit_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List α}
+    (distinct : l.Pairwise (fun a b => ¬ cmp a b = .eq)) :
+    (∀ (a : α), a ∈ t → l.contains a = false) →
+    (insertManyIfNewUnit t l).size = t.size + l.length :=
+  Impl.Const.size_insertManyIfNewUnit_list t.wf distinct
+
+theorem size_le_size_insertManyIfNewUnit_list [TransCmp cmp]
+    {l : List α} :
+    t.size ≤ (insertManyIfNewUnit t l).size :=
+  Impl.Const.size_le_size_insertManyIfNewUnit_list t.wf
+
+theorem size_insertManyIfNewUnit_list_le [TransCmp cmp]
+    {l : List α} :
+    (insertManyIfNewUnit t l).size ≤ t.size + l.length :=
+  Impl.Const.size_insertManyIfNewUnit_list_le t.wf
+
+@[simp]
+theorem isEmpty_insertManyIfNewUnit_list [TransCmp cmp] {l : List α} :
+    (insertManyIfNewUnit t l).isEmpty = (t.isEmpty && l.isEmpty) :=
+  Impl.Const.isEmpty_insertManyIfNewUnit_list t.wf
+
+@[simp]
+theorem get?_insertManyIfNewUnit_list [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List α} {k : α} :
+    get? (insertManyIfNewUnit t l) k =
+      if k ∈ t ∨ l.contains k then some () else none :=
+  Impl.Const.get?_insertManyIfNewUnit_list t.wf
+
+@[simp]
+theorem get_insertManyIfNewUnit_list {l : List α} {k : α} {h'} :
+    get (insertManyIfNewUnit t l) k h' = () :=
+  rfl
+
+@[simp]
+theorem get!_insertManyIfNewUnit_list {l : List α} {k : α} :
+    get! (insertManyIfNewUnit t l) k = () :=
+  rfl
+
+@[simp]
+theorem getD_insertManyIfNewUnit_list
+    {l : List α} {k : α} {fallback : Unit} :
+    getD (insertManyIfNewUnit t l) k fallback = () :=
+  rfl
+
+end Const
+
+@[simp]
+theorem ofList_nil :
+    ofList ([] : List ((a : α) × (β a))) cmp = ∅ :=
+  rfl
+
+@[simp]
+theorem ofList_singleton {k : α} {v : β k} :
+    ofList [⟨k, v⟩] cmp = (∅ : DTreeMap α β cmp).insert k v :=
+  rfl
+
+theorem ofList_cons {k : α} {v : β k} {tl : List ((a : α) × (β a))} :
+    ofList (⟨k, v⟩ :: tl) cmp = ((∅ : DTreeMap α β cmp).insert k v).insertMany tl :=
+  ext <| Impl.insertMany_empty_list_cons
+
+@[simp]
+theorem contains_ofList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} {k : α} :
+    (ofList l cmp).contains k = (l.map Sigma.fst).contains k := by
+  simp [ofList, contains, Impl.ofList]
+  exact Impl.contains_insertMany_empty_list (instOrd := ⟨cmp⟩) (k := k) (l := l)
+
+@[simp]
+theorem mem_ofList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} {k : α} :
+    k ∈ ofList l cmp ↔ (l.map Sigma.fst).contains k := by
+  simp [mem_iff_contains]
+
+theorem get?_ofList_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} {k : α}
+    (contains_eq_false : (l.map Sigma.fst).contains k = false) :
+    (ofList l cmp).get? k = none :=
+  Impl.get?_insertMany_empty_list_of_contains_eq_false contains_eq_false
+
+theorem get?_ofList_of_mem [TransCmp cmp] [LawfulEqCmp cmp]
+    {l : List ((a : α) × β a)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β k}
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : ⟨k, v⟩ ∈ l) :
+    (ofList l cmp).get? k' = some (cast (by congr; apply compare_eq_iff_eq.mp k_eq) v) :=
+  Impl.get?_insertMany_empty_list_of_mem k_eq distinct mem
+
+theorem get_ofList_of_mem [TransCmp cmp] [LawfulEqCmp cmp]
+    {l : List ((a : α) × β a)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β k}
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : ⟨k, v⟩ ∈ l)
+    {h} :
+    (ofList l cmp).get k' h = cast (by congr; apply compare_eq_iff_eq.mp k_eq) v :=
+  Impl.get_insertMany_empty_list_of_mem k_eq distinct mem
+
+theorem get!_ofList_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} {k : α} [Inhabited (β k)]
+    (contains_eq_false : (l.map Sigma.fst).contains k = false) :
+    (ofList l cmp).get! k = default :=
+  Impl.get!_insertMany_empty_list_of_contains_eq_false contains_eq_false
+
+theorem get!_ofList_of_mem [TransCmp cmp] [LawfulEqCmp cmp]
+    {l : List ((a : α) × β a)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β k} [Inhabited (β k')]
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : ⟨k, v⟩ ∈ l) :
+    (ofList l cmp).get! k' = cast (by congr; apply compare_eq_iff_eq.mp k_eq) v :=
+  Impl.get!_insertMany_empty_list_of_mem k_eq distinct mem
+
+theorem getD_ofList_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} {k : α} {fallback : β k}
+    (contains_eq_false : (l.map Sigma.fst).contains k = false) :
+    (ofList l cmp).getD k fallback = fallback :=
+  Impl.getD_insertMany_empty_list_of_contains_eq_false contains_eq_false
+
+theorem getD_ofList_of_mem [TransCmp cmp] [LawfulEqCmp cmp]
+    {l : List ((a : α) × β a)} {k k' : α} (k_eq : cmp k k' = .eq) {v : β k} {fallback : β k'}
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : ⟨k, v⟩ ∈ l) :
+    (ofList l cmp).getD k' fallback = cast (by congr; apply compare_eq_iff_eq.mp k_eq) v :=
+  Impl.getD_insertMany_empty_list_of_mem k_eq distinct mem
+
+theorem getKey?_ofList_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} {k : α}
+    (contains_eq_false : (l.map Sigma.fst).contains k = false) :
+    (ofList l cmp).getKey? k = none :=
+  Impl.getKey?_insertMany_empty_list_of_contains_eq_false contains_eq_false
+
+theorem getKey?_ofList_of_mem [TransCmp cmp]
+    {l : List ((a : α) × β a)}
+    {k k' : α} (k_eq : cmp k k' = .eq)
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : k ∈ l.map Sigma.fst) :
+    (ofList l cmp).getKey? k' = some k :=
+  Impl.getKey?_insertMany_empty_list_of_mem k_eq distinct mem
+
+theorem getKey_ofList_of_mem [TransCmp cmp]
+    {l : List ((a : α) × β a)}
+    {k k' : α} (k_eq : cmp k k' = .eq)
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : k ∈ l.map Sigma.fst)
+    {h'} :
+    (ofList l cmp).getKey k' h' = k :=
+  Impl.getKey_insertMany_empty_list_of_mem k_eq distinct mem
+
+theorem getKey!_ofList_of_contains_eq_false [TransCmp cmp] [Inhabited α] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} {k : α}
+    (contains_eq_false : (l.map Sigma.fst).contains k = false) :
+    (ofList l cmp).getKey! k = default :=
+  Impl.getKey!_insertMany_empty_list_of_contains_eq_false contains_eq_false
+
+theorem getKey!_ofList_of_mem [TransCmp cmp] [Inhabited α]
+    {l : List ((a : α) × β a)}
+    {k k' : α} (k_eq : cmp k k' = .eq)
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : k ∈ l.map Sigma.fst) :
+    (ofList l cmp).getKey! k' = k :=
+  Impl.getKey!_insertMany_empty_list_of_mem k_eq distinct mem
+
+theorem getKeyD_ofList_of_contains_eq_false [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp]
+    {l : List ((a : α) × β a)} {k fallback : α}
+    (contains_eq_false : (l.map Sigma.fst).contains k = false) :
+    (ofList l cmp).getKeyD k fallback = fallback :=
+  Impl.getKeyD_insertMany_empty_list_of_contains_eq_false contains_eq_false
+
+theorem getKeyD_ofList_of_mem [TransCmp cmp]
+    {l : List ((a : α) × β a)}
+    {k k' fallback : α} (k_eq : cmp k k' = .eq)
+    (distinct : l.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq))
+    (mem : k ∈ l.map Sigma.fst) :
+    (ofList l cmp).getKeyD k' fallback = k :=
+  Impl.getKeyD_insertMany_empty_list_of_mem k_eq distinct mem
+
 end Std.DTreeMap

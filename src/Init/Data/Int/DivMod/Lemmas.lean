@@ -885,7 +885,7 @@ theorem ediv_sign : ∀ a b, a / sign b = a * sign b
   | _, 0 => by simp [sign, Int.mul_zero]
   | _, -[_+1] => by simp [sign, Int.mul_neg, Int.mul_one]
 
-protected theorem sign_eq_ediv_abs (a : Int) : sign a = a / (natAbs a) :=
+protected theorem sign_eq_ediv_natAbs (a : Int) : sign a = a / (natAbs a) :=
   if az : a = 0 then by simp [az] else
     (Int.ediv_eq_of_eq_mul_left (ofNat_ne_zero.2 <| natAbs_ne_zero.2 az)
       (sign_mul_natAbs _).symm).symm

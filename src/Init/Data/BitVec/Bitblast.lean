@@ -478,6 +478,36 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
         case zero => exact hmsb
         case succ => exact getMsbD_x _ hi (by omega)
 
+/-- This is false if `v < w` and `b = intMin`. See also `signExtend_neg_of_ne_intMin`. -/
+@[simp] theorem signExtend_neg_of_le {v w : Nat} (h : w ≤ v) (b : BitVec v) :
+    (-b).signExtend w = -b.signExtend w := by
+  apply BitVec.eq_of_getElem_eq
+  intro i hi
+  simp only [getElem_signExtend, getElem_neg]
+  rw [dif_pos (by omega), dif_pos (by omega)]
+  simp only [getLsbD_signExtend, Bool.and_eq_true, decide_eq_true_eq, Bool.ite_eq_true_distrib,
+    Bool.bne_right_inj, decide_eq_decide]
+  exact ⟨fun ⟨j, hj₁, hj₂⟩ => ⟨j, ⟨hj₁, ⟨by omega, by rwa [if_pos (by omega)]⟩⟩⟩,
+    fun ⟨j, hj₁, hj₂, hj₃⟩ => ⟨j, hj₁, by rwa [if_pos (by omega)] at hj₃⟩⟩
+
+/-- This is false if `v < w` and `b = intMin`. See also `signExtend_neg_of_le`. -/
+@[simp] theorem signExtend_neg_of_ne_intMin {v w : Nat} (b : BitVec v) (hb : b ≠ intMin v) :
+    (-b).signExtend w = -b.signExtend w := by
+  refine (by omega : w ≤ v ∨ v < w).elim (fun h => signExtend_neg_of_le h b) (fun h => ?_)
+  apply BitVec.eq_of_toInt_eq
+  rw [toInt_signExtend_of_le (by omega), toInt_neg_of_ne_intMin hb, toInt_neg_of_ne_intMin,
+    toInt_signExtend_of_le (by omega)]
+  apply ne_of_apply_ne BitVec.toInt
+  rw [toInt_signExtend_of_le (by omega), toInt_intMin_of_pos (by omega)]
+  have := b.le_toInt
+  have : -2 ^ w < -2 ^ v := by
+    apply Int.neg_lt_neg
+    norm_cast
+    rwa [Nat.pow_lt_pow_iff_right (by omega)]
+  have : 2 * b.toInt ≠ -2 ^ w := by omega
+  rw [(show w = w - 1 + 1 by omega), Int.pow_succ] at this
+  omega
+
 /-! ### abs -/
 
 theorem msb_abs {w : Nat} {x : BitVec w} :

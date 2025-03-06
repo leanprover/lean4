@@ -3,4 +3,6 @@
 #check_simp (-64 : Int32).toBitVec ~> 4294967232#32
 #check_simp (-64 : Int64).toBitVec ~> 18446744073709551552#64
 
+#check_simp (-64 : Int16).toInt8 ~> -64
+
 -- see also simprocSInt.lean

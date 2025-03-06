@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lake.Build.Executable
-import Lake.Build.ExternLib
+import Lake.Config.Monad
 import Lake.Build.Topological
 
 /-!
@@ -62,11 +61,10 @@ def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) :=
     | _ =>
       error s!"invalid target '{info}': unknown target kind '{kind}'"
   | .facet target data facet => do
-    if let some config :=  (← getWorkspace).findFacet? target.kind facet then
+    if let some config := (← getWorkspace).findFacetConfig? target.kind facet then
       config.fetchFn data
     else
       error s!"invalid target '{info}': unknown facet`{facet}`"
-
 
 /-- Recursive build function with memoization. -/
 def recFetchWithIndex : (info : BuildInfo) → RecBuildM (Job (BuildData info.key)) :=

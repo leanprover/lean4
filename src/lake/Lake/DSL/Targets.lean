@@ -5,7 +5,9 @@ Authors: Mac Malone
 -/
 prelude
 import Lake.DSL.DeclUtil
-import Lake.Build.Index
+import Lake.Config.FacetConfig
+import Lake.Config.TargetConfig
+import Lake.Build.Job
 
 /-! # DSL for Targets & Facets
 Macros for declaring Lake targets and facets.

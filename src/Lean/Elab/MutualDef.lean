@@ -1073,24 +1073,24 @@ private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
   let tree := toSnapshotTree defsParsedSnap
   let logGoalsAccomplishedAct ← Term.wrapAsyncAsSnapshot (cancelTk? := none) fun () => do
     let logs := tree.getAll.map (·.diagnostics.msgLog)
-    let hasErrorOrWarning := logs.any fun log =>
-      log.reportedPlusUnreported.any fun msg =>
-        msg.severity matches .error || msg.severity matches .warning
-    if ! hasErrorOrWarning then
-      for d in defsParsedSnap.defs, view in views do
-        let logGoalsAccomplished :=
-          let msgData := .tagged `goalsAccomplished m!"Goals accomplished!"
-          logAt view.ref msgData (severity := .information) (isSilent := true)
-        match view.kind with
-        | .theorem =>
-          logGoalsAccomplished
-        | .example =>
-          let some processedSnap := d.headerProcessedSnap.get
-            | continue
-          if ! (← isProp processedSnap.view.type) then
-            continue
-          logGoalsAccomplished
-        | _ => continue
+    let hasError := logs.any (·.hasErrors)
+    let hasSorry := hasSorry (← getRef)
+    if hasError || hasSorry then
+      return
+    for d in defsParsedSnap.defs, view in views do
+      let logGoalsAccomplished :=
+        let msgData := .tagged `goalsAccomplished m!"Goals accomplished!"
+        logAt view.ref msgData (severity := .information) (isSilent := true)
+      match view.kind with
+      | .theorem =>
+        logGoalsAccomplished
+      | .example =>
+        let some processedSnap := d.headerProcessedSnap.get
+          | continue
+        if ! (← isProp processedSnap.view.type) then
+          continue
+        logGoalsAccomplished
+      | _ => continue
   let logGoalsAccomplishedTask ← BaseIO.mapTask (t := ← tree.waitAll) fun _ =>
     logGoalsAccomplishedAct
   Core.logSnapshotTask {
@@ -1099,6 +1099,12 @@ private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
     reportingRange? := (← getRef).getPos?.map fun pos => ⟨pos, pos⟩
     task := logGoalsAccomplishedTask
   }
+where
+  -- Syntactical check to avoid potentially expensive `Expr` traversal
+  hasSorry (stx : Syntax) : Bool :=
+    stx.find? (fun
+      | `(sorry) | `(tactic| sorry) | `(tactic| admit) => true
+      | _ => false) |>.isSome
 
 end Term
 namespace Command

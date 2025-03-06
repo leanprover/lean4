@@ -337,7 +337,7 @@ where
     if type.getAppFn.isMVar then
       throwUnknownExpectedType
     else
-      throwError "invalid \{...} notation, {kind} type is not of the form (C ...){indentExpr type}"
+      throwError "invalid \{...} notation, {kind} type is not of the form 'C ...'{indentExpr type}"
 
 /--
 A component of a left-hand side for a field appearing in structure instance syntax.

@@ -622,7 +622,7 @@ private def mkInitialUsedFVarsMap [Monad m] [MonadMCtx m] (sectionVars : Array E
     let mvarIds := (toLift.val.collectMVars {}).result
     for mvarId in mvarIds do
       let root ← getDelayedMVarRoot mvarId
-      match (← letRecsToLift.findSomeM? fun (toLift : LetRecToLift) => return if toLift.mvarId == root then some toLift.fvarId else none) with
+      match letRecsToLift.findSome? fun (toLift : LetRecToLift) => if toLift.mvarId == root then some toLift.fvarId else none with
       | some fvarId => set := set.insert fvarId
       | none        =>
         /- If the metavariable is not a nested let-rec, it may contribute additional free-variable

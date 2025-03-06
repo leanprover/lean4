@@ -73,7 +73,7 @@ partial def visit (e : Expr) : M Expr := do
         | .forallE ..  => forallTelescope e fun xs b => visitBinders xs do mkForallFVars xs (← visit b)
         | .mdata _ b   => return e.updateMData! (← visit b)
         | .proj _ _ b  => return e.updateProj! (← visit b)
-        | .app f a     => return e.updateApp! (← visit f) (← visit a)
+        | .app ..      => e.withApp fun f args => return mkAppN (← visit f) (← args.mapM visit)
         | _            => pure e
 
 end AbstractNestedProofs

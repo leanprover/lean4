@@ -23,6 +23,12 @@ instance [ToFormat α] : ToFormat (List α) where
 instance [ToFormat α] : ToFormat (Array α) where
   format a := "#" ++ format a.toList
 
+/--
+Formats an optional value, with no expectation that the Lean parser should be able to parse the
+result.
+
+This function is usually accessed through the `ToFormat (Option α)` instance.
+-/
 def Option.format {α : Type u} [ToFormat α] : Option α → Format
   | none   => "none"
   | some a => "some " ++ Std.format a

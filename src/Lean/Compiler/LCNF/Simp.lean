@@ -57,7 +57,7 @@ partial def Decl.simp (decl : Decl) (config : Config) : CompilerM Decl := do
     by keeping `inlineDefs := true`, we can pre-compute the `pure` and `bind` methods for `TermElabM`.
     -/
     if (← inBasePhase <&&> Meta.isInstance decl.name) then
-      unless decl.inlineable do
+      unless decl.inlineable || decl.name == `instHashableByteArray do
         inlineDefs := false
     /-
     We do not eta-expand or inline partial applications in template like code.

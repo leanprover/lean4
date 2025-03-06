@@ -114,19 +114,19 @@ def forRevM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit)
 
 @[inline]
 def foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : Subarray α) : β :=
-  Id.run <| as.foldlM f (init := init)
+  Id.run <| as.foldlM (pure <| f · ·) (init := init)
 
 @[inline]
 def foldr {α : Type u} {β : Type v} (f : α → β → β) (init : β) (as : Subarray α) : β :=
-  Id.run <| as.foldrM f (init := init)
+  Id.run <| as.foldrM (pure <| f · ·) (init := init)
 
 @[inline]
 def any {α : Type u} (p : α → Bool) (as : Subarray α) : Bool :=
-  Id.run <| as.anyM p
+  Id.run <| as.anyM (pure <| p ·)
 
 @[inline]
 def all {α : Type u} (p : α → Bool) (as : Subarray α) : Bool :=
-  Id.run <| as.allM p
+  Id.run <| as.allM (pure <| p ·)
 
 @[inline]
 def findSomeRevM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Subarray α) (f : α → m (Option β)) : m (Option β) :=
@@ -148,7 +148,7 @@ def findRevM? {α : Type} {m : Type → Type w} [Monad m] (as : Subarray α) (p 
 
 @[inline]
 def findRev? {α : Type} (as : Subarray α) (p : α → Bool) : Option α :=
-  Id.run <| as.findRevM? p
+  Id.run <| as.findRevM? (pure <| p ·)
 
 end Subarray
 

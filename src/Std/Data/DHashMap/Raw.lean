@@ -344,7 +344,7 @@ map in some order.
 
 /-- Folds the given function over the mappings in the hash map in some order. -/
 @[inline] def fold (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
-  Id.run (b.foldM f init)
+  Id.run (b.foldM (pure <| f · · ·) init)
 
 /--
 Monadically computes a value by folding the given function over the mappings in the hash
@@ -357,7 +357,7 @@ map in the reverse order used by `foldM`.
 Folds the given function over the mappings in the hash map in the reverse order used
 by `foldM`. -/
 @[inline] def foldRev (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
-  Id.run (b.foldRevM f init)
+  Id.run (b.foldRevM (pure <| f · · ·) init)
 
 /-- Carries out a monadic action on each mapping in the hash map in some order. -/
 @[inline] def forM (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=

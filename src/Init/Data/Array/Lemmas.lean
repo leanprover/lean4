@@ -2999,10 +2999,10 @@ theorem foldr_eq_foldrM (f : α → β → β) (b) (xs : Array α) :
     xs.foldr f b start stop = (xs.foldrM (m := Id) (pure <| f · ·) b start stop).run := rfl
 
 @[simp] theorem id_run_foldlM (f : β → α → Id β) (b) (xs : Array α) :
-    Id.run (xs.foldlM f b start stop) = xs.foldl f b start stop := rfl
+    Id.run (xs.foldlM f b start stop) = xs.foldl (f · · |>.run) b start stop := rfl
 
 @[simp] theorem id_run_foldrM (f : α → β → Id β) (b) (xs : Array α) :
-    Id.run (xs.foldrM f b start stop) = xs.foldr f b start stop := rfl
+    Id.run (xs.foldrM f b start stop) = xs.foldr (f · · |>.run) b start stop := rfl
 
 /-- Variant of `foldlM_reverse` with a side condition for the `stop` argument. -/
 @[simp] theorem foldlM_reverse' [Monad m] (xs : Array α) (f : β → α → m β) (b)

@@ -2206,10 +2206,10 @@ theorem foldr_eq_foldrM (f : α → β → β) (b) (xs : Vector α n) :
     xs.foldr f b = (xs.foldrM (m := Id) (pure <| f · ·) b).run := rfl
 
 @[simp] theorem id_run_foldlM (f : β → α → Id β) (b) (xs : Vector α n) :
-    Id.run (xs.foldlM f b) = xs.foldl f b := (foldl_eq_foldlM f b xs).symm
+    Id.run (xs.foldlM f b) = xs.foldl (f · · |>.run) b := (foldl_eq_foldlM f b xs).symm
 
 @[simp] theorem id_run_foldrM (f : α → β → Id β) (b) (xs : Vector α n) :
-    Id.run (xs.foldrM f b) = xs.foldr f b := (foldr_eq_foldrM f b xs).symm
+    Id.run (xs.foldrM f b) = xs.foldr (f · · |>.run) b := (foldr_eq_foldrM f b xs).symm
 
 @[simp] theorem foldlM_reverse [Monad m] (xs : Vector α n) (f : β → α → m β) (b) :
     xs.reverse.foldlM f b = xs.foldrM (fun x y => f y x) b := by

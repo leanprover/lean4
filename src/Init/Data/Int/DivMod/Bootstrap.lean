@@ -183,8 +183,6 @@ theorem ediv_nonneg_iff_of_pos {a b : Int} (h : 0 < b) : 0 ≤ a / b ↔ 0 ≤ a
   match b, h with
   | Int.ofNat (b+1), _ =>
     rcases a with ⟨a⟩ <;> simp [Int.ediv]
-    norm_cast
-    simp
 
 @[deprecated ediv_nonneg_iff_of_pos (since := "2025-02-28")]
 abbrev div_nonneg_iff_of_pos := @ediv_nonneg_iff_of_pos

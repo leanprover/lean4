@@ -163,5 +163,7 @@ clean:
 .PRECIOUS: $(BC_OUT)/%.bc $(C_OUT)/%.c $(TEMP_OUT)/%.o $(TEMP_OUT)/%.o.export
 
 ifndef C_ONLY
+ifndef UNSAFE_ASSUME_OLD
 include $(DEPS)
+endif
 endif

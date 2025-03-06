@@ -75,13 +75,18 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
     trace[Elab.definition.structural.eqns] "eqnType {i}: {type}"
     let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
+    -- determinism: `type` should be independent of the environment changes since `baseName` was
+    -- added
+    realizeConst baseName name (doRealize name type)
+  return thmNames
+where
+  doRealize name type := withOptions (tactic.hygienic.set · false) do
     let value ← mkProof info.declName type
     let (type, value) ← removeUnusedEqnHypotheses type value
     addDecl <| Declaration.thmDecl {
       name, type, value
       levelParams := info.levelParams
     }
-  return thmNames
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 

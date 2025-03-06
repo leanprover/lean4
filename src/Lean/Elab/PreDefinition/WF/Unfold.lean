@@ -75,8 +75,9 @@ private partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Un
         throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
 
 def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessProof : Simp.Result) : MetaM Unit := do
+  let baseName := preDef.declName
+  let name := Name.str baseName unfoldThmSuffix
   withOptions (tactic.hygienic.set · false) do
-    let baseName := preDef.declName
     lambdaTelescope preDef.value fun xs body => do
       let us := preDef.levelParams.map mkLevelParam
       let lhs := mkAppN (Lean.mkConst preDef.declName us) xs
@@ -93,7 +94,6 @@ def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessPr
       let value ← instantiateMVars main
       let type ← mkForallFVars xs type
       let value ← mkLambdaFVars xs value
-      let name := Name.str baseName unfoldThmSuffix
       addDecl <| Declaration.thmDecl {
         name, type, value
         levelParams := preDef.levelParams

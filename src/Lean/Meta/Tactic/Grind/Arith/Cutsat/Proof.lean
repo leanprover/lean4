@@ -209,6 +209,12 @@ partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
       return mkApp5 (mkConst ``Int.Linear.eq_unsat_coeff) (← getContext) (toExpr c.p) (toExpr (Int.ofNat k)) reflBoolTrue (← c.toExprProof)
   | .diseq c =>
     return mkApp4 (mkConst ``Int.Linear.diseq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
+  | .cooper c₁ c₂ c₃ =>
+    let .add c _ _ := c₃.p | c₃.throwUnexpected
+    let d := c₃.d
+    let (_, α, β) := gcdExt c d
+    let h := mkApp7 (mkConst ``Int.Linear.cooper_unsat) (← getContext) (toExpr c₁.p) (toExpr c₂.p) (toExpr c₃.p) (toExpr c₃.d) (toExpr α) (toExpr β)
+    return mkApp4 h reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof) (← c₃.toExprProof)
 
 end
 
@@ -292,6 +298,7 @@ end
 def UnsatProof.collectDecVars (h : UnsatProof) : CollectDecVarsM Unit := do
   match h with
   | .le c | .dvd c | .eq c | .diseq c => c.collectDecVars
+  | .cooper c₁ c₂ c₃ => c₁.collectDecVars; c₂.collectDecVars; c₃.collectDecVars
 
 abbrev CollectDecVarsM.run (x : CollectDecVarsM Unit) (decVars : FVarIdSet) : FVarIdSet :=
   let (_, s) := x decVars |>.run {}

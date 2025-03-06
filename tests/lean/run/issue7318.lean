@@ -16,13 +16,12 @@ theorem bar : Q := by
 
 theorem Q_of_decide : (1 + 1 = 2) → Q := fun _ => P.mk
 
-#guard_msgs in
 theorem bar_decide : Q := by
   simp (discharger := native_decide) [Q_of_decide]
 
 -- Try with backtracking
 
-theorem Q_of_decide' : (1 + 1 = 2) → False → Q := fun _ _ => P.mk
+theorem Q_of_decide' : (1 + 2 = 3) → False → Q := fun _ _ => P.mk
 
 theorem bar_decide' : Q := by
   simp (discharger := native_decide) [Q_of_decide', Q_of_decide]
@@ -53,4 +52,12 @@ theorem bar_decide_4 (t : Three) : Q := by
     rw [show Q ↔ True by apply iff_true_intro; apply Q_of_decide; native_decide]
     trivial
 
--- In
+-- Check if messages from dischargers still appear
+
+/--
+info: case simp.discharger
+⊢ 1 + 1 = 2
+-/
+#guard_msgs in
+theorem bar_decide_with_message : Q := by
+  simp (discharger := trace_state; native_decide) [Q_of_decide]

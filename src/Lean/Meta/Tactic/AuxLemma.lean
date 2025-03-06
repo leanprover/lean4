@@ -29,7 +29,7 @@ def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) : MetaM Na
   let env ← getEnv
   let s := auxLemmasExt.getState env
   let mkNewAuxLemma := do
-    let auxName := Name.mkNum (env.mainModule ++ `_auxLemma) s.idx
+    let auxName := (env.mainModule ++ `_auxLemma).appendIndexAfter s.idx
     addDecl <| Declaration.thmDecl {
       name := auxName
       levelParams, type, value

@@ -29,6 +29,12 @@ open Nat
 
 /-! ### mapM -/
 
+@[simp]
+theorem mapM_pure [Monad m] [LawfulMonad m] {xs : Vector α n} (f : α → β) :
+    xs.mapM (m := m) (pure <| f ·) = pure (xs.map f) := by
+  apply map_toArray_inj.mp
+  simp
+
 @[congr] theorem mapM_congr [Monad m] {xs ys : Vector α n} (w : xs = ys)
     {f : α → m β} :
     xs.mapM f = ys.mapM f := by

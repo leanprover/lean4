@@ -13,6 +13,6 @@ set_option pp.proofs true
 
 variable (x : Foo 2)
 
-/-- info: x : Foo 2 sorry -/
+/-- info: x : Foo 2 (Decidable.byContradiction fun a => aux_2 a) -/
 #guard_msgs in
 #check x

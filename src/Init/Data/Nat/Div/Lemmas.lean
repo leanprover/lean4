@@ -107,12 +107,12 @@ theorem succ_div_of_mod_ne_zero {a b : Nat} (h : (a + 1) % b ≠ 0) :
     (a + 1) / b = a / b := by
   rw [succ_div_of_not_dvd (by rwa [dvd_iff_mod_eq_zero])]
 
-theorem succ_div {a b : Nat} : (a + 1) / b = a / b + if b ∣ a + 1 then 1 else 0 := by
+protected theorem succ_div {a b : Nat} : (a + 1) / b = a / b + if b ∣ a + 1 then 1 else 0 := by
   split <;> rename_i h
   · simp [succ_div_of_dvd h]
   · simp [succ_div_of_not_dvd h]
 
-theorem add_div {a b c : Nat} (h : 0 < c) :
+protected theorem add_div {a b c : Nat} (h : 0 < c) :
     (a + b) / c = a / c + b / c + if c ≤ a % c + b % c then 1 else 0 := by
   conv => lhs; rw [← Nat.div_add_mod a c]
   rw [Nat.add_assoc, mul_add_div h]

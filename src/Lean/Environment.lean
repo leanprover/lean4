@@ -1878,7 +1878,11 @@ def displayStats (env : Environment) : IO Unit := do
   IO.println ("number of extensions:                  " ++ toString env.base.extensions.size);
   pExtDescrs.forM fun extDescr => do
     IO.println ("extension '" ++ toString extDescr.name ++ "'")
-    let s := extDescr.toEnvExtension.getState env
+    -- get state from `checked` at the end if `async`; it would otherwise panic
+    let mut asyncMode := extDescr.toEnvExtension.asyncMode
+    if asyncMode matches .async then
+      asyncMode := .sync
+    let s := extDescr.toEnvExtension.getState (asyncMode := asyncMode) env
     let fmt := extDescr.statsFn s.state
     unless fmt.isNil do IO.println ("  " ++ toString (Format.nest 2 (extDescr.statsFn s.state)))
     IO.println ("  number of imported entries: " ++ toString (s.importedEntries.foldl (fun sum es => sum + es.size) 0))

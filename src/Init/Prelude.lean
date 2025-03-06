@@ -2788,10 +2788,20 @@ class Bind (m : Type u → Type v) where
 
 export Bind (bind)
 
-/-- The typeclass which supplies the `pure` function. See `Monad`. -/
+/--
+The `pure` function is overloaded via `Pure` instances.
+
+`Pure` is typically accessed via `Monad` or `Applicative` instances.
+-/
 class Pure (f : Type u → Type v) where
-  /-- If `a : α`, then `pure a : f α` represents a monadic action that does
-  nothing and returns `a`. -/
+  /--
+  Given `a : α`, then `pure a : f α` represents an action that does nothing and returns `a`.
+
+  Examples:
+  * `(pure "hello" : Option String) = some "hello"`
+  * `(pure "hello" : Except (Array String) String) = Except.ok "hello"`
+  * `(pure "hello" : StateM Nat String).run 105 = ("hello", 105)`
+  -/
   pure {α : Type u} : α → f α
 
 export Pure (pure)

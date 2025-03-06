@@ -645,12 +645,14 @@ def withoutHeedElabAsElim [MonadFunctorT TermElabM m] : m α → m α :=
   monadMap (m := TermElabM) withoutHeedElabAsElimImp
 
 /--
-  Execute `x` but discard changes performed at `Term.State` and `Meta.State`.
-  Recall that the `Environment` and `InfoState` are at `Core.State`. Thus, any updates to it will
-  be preserved. This method is useful for performing computations where all
-  metavariable must be resolved or discarded.
-  The `InfoTree`s are not discarded, however, and wrapped in `InfoTree.Context`
-  to store their metavariable context. -/
+Execute `x` but discard changes performed at `Term.State` and `Meta.State`.
+Recall that the `Environment`, `InfoState` and messages are at `Core.State`.  Thus, any updates to
+it will be preserved.
+This method is useful for performing computations where all metavariable must be resolved or
+discarded.
+The `InfoTree`s are not discarded, however, and wrapped in `InfoTree.Context`
+to store their metavariable context.
+-/
 def withoutModifyingElabMetaStateWithInfo (x : TermElabM α) : TermElabM α := do
   let s ← get
   let sMeta ← getThe Meta.State

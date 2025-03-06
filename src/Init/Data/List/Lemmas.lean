@@ -2535,13 +2535,21 @@ theorem flatMap_reverse {β} (l : List α) (f : α → List β) : (l.reverse.fla
   simp only [foldrM]
   induction l <;> simp_all
 
+@[simp] theorem foldlM_pure [Monad m] [LawfulMonad m] (f : β → α → β) (b) (l : List α) :
+    l.foldlM (m := m) (pure <| f · ·) b = pure (l.foldl f b) := by
+  induction l generalizing b <;> simp [*]
+
+@[simp] theorem foldrM_pure [Monad m] [LawfulMonad m] (f : α → β → β) (b) (l : List α) :
+    l.foldrM (m := m) (pure <| f · ·) b = pure (l.foldr f b) := by
+  induction l generalizing b <;> simp [*]
+
 theorem foldl_eq_foldlM (f : β → α → β) (b) (l : List α) :
     l.foldl f b = (l.foldlM (m := Id) (pure <| f · ·) b).run := by
-  induction l generalizing b <;> simp [*]
+  simp
 
 theorem foldr_eq_foldrM (f : α → β → β) (b) (l : List α) :
     l.foldr f b = (l.foldrM (m := Id) (pure <| f · ·) b).run := by
-  induction l generalizing b <;> simp [*]
+  simp
 
 theorem id_run_foldlM (f : β → α → Id β) (b) (l : List α) :
     Id.run (l.foldlM f b) = l.foldl (f · · |>.run) b := (foldl_eq_foldlM f b l).symm
@@ -2640,10 +2648,10 @@ theorem foldr_map_hom (g : α → β) (f : α → α → α) (f' : β → β →
   induction l <;> simp [*]
 
 @[simp] theorem foldl_append {β : Type _} (f : β → α → β) (b) (l l' : List α) :
-    (l ++ l').foldl f b = l'.foldl f (l.foldl f b) := by simp [foldl_eq_foldlM]
+    (l ++ l').foldl f b = l'.foldl f (l.foldl f b) := by simp [foldl_eq_foldlM, -foldlM_pure]
 
 @[simp] theorem foldr_append (f : α → β → β) (b) (l l' : List α) :
-    (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by simp [foldr_eq_foldrM]
+    (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by simp [foldr_eq_foldrM, -foldrM_pure]
 
 theorem foldl_flatten (f : β → α → β) (b : β) (L : List (List α)) :
     (flatten L).foldl f b = L.foldl (fun b l => l.foldl f b) b := by
@@ -2654,7 +2662,8 @@ theorem foldr_flatten (f : α → β → β) (b : β) (L : List (List α)) :
   induction L <;> simp_all
 
 @[simp] theorem foldl_reverse (l : List α) (f : β → α → β) (b) :
-    l.reverse.foldl f b = l.foldr (fun x y => f y x) b := by simp [foldl_eq_foldlM, foldr_eq_foldrM]
+    l.reverse.foldl f b = l.foldr (fun x y => f y x) b := by
+  simp [foldl_eq_foldlM, foldr_eq_foldrM, -foldrM_pure]
 
 @[simp] theorem foldr_reverse (l : List α) (f : α → β → β) (b) :
     l.reverse.foldr f b = l.foldl (fun x y => f y x) b :=

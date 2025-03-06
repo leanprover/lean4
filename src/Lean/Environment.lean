@@ -949,8 +949,14 @@ def AddConstAsyncResult.commitCheckEnv (res : AddConstAsyncResult) (env : Enviro
   res.checkedEnvPromise.resolve env.checked.get
   res.allRealizationsPromise.resolve env.allRealizations.get
 
-/-- Checks whether `findAsync?` would return a result. -/
-def contains (env : Environment) (n : Name) (skipRealize := false) : Bool :=
+/--
+Checks whether `findAsync?` would return a result.
+
+NOTE: Unlike `findAsync`, this function defaults `skipRealize` to `true` to avoid unnecessary
+blocking on realizations, which should always be brought into scope by running `realizeConst`, which
+does its own, optimized existence check.
+-/
+def contains (env : Environment) (n : Name) (skipRealize := true) : Bool :=
   env.findAsync? (skipRealize := skipRealize) n |>.isSome
 
 /--

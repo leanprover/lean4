@@ -14,8 +14,9 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 private def _root_.Int.Linear.Poly.substVar (p : Poly) : GoalM (Option (Var × EqCnstr × Poly)) := do
   let some (a, x, c) ← p.findVarToSubst | return none
   let b := c.p.coeff x
-  let p := p.mul (-b) |>.combine (c.p.mul a)
-  return some (x, c, p)
+  let p' := p.mul (-b) |>.combine (c.p.mul a)
+  trace[grind.debug.cutsat.subst] "{← p.pp}, {a}, {← getVar x}, {← c.pp}, {b}, {← p'.pp}"
+  return some (x, c, p')
 
 def EqCnstr.norm (c : EqCnstr) : EqCnstr :=
   if c.p.isSorted then
@@ -211,6 +212,11 @@ def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
     { p := c.p.div k, h := .divCoeffs c }
   trace[grind.cutsat.eq] "{← c.pp}"
   let some (k, x) := c.p.pickVarToElim? | c.throwUnexpected
+  trace[grind.debug.cutsat.subst] ">> {← getVar x}, {← c.pp}"
+  modify' fun s => { s with
+    elimEqs := s.elimEqs.set x (some c)
+    elimStack := x :: s.elimStack
+  }
   updateOccs k x c
   if (← inconsistent) then return ()
   -- assert a divisibility constraint IF `|k| != 1`
@@ -218,10 +224,6 @@ def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
     let p := c.p.insert (-k) x
     let d := Int.ofNat k.natAbs
     { d, p, h := .ofEq x c : DvdCnstr }.assert
-  modify' fun s => { s with
-    elimEqs := s.elimEqs.set x (some c)
-    elimStack := x :: s.elimStack
-  }
 
 private def exprAsPoly (a : Expr) : GoalM Poly := do
   if let some p := (← get').terms.find? { expr := a } then

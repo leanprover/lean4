@@ -194,7 +194,7 @@ theorem cmod_eq_zero_iff_emod_eq_zero (a b : Int) : cmod a b = 0 ↔ a%b = 0 := 
   unfold cmod
   have := @Int.emod_eq_emod_iff_emod_sub_eq_zero  b b a
   simp at this
-  simp [Int.neg_emod, ← this, Eq.comm]
+  simp [Int.neg_emod_eq_sub_emod, ← this, Eq.comm]
 
 private abbrev div_mul_cancel_of_mod_zero :=
   @Int.ediv_mul_cancel_of_emod_eq_zero
@@ -1472,6 +1472,155 @@ theorem cooper_right_split_dvd (ctx : Context) (p₁ p₂ : Poly) (k : Nat) (b :
     : cooper_right_split ctx p₁ p₂ k → cooper_right_split_dvd_cert p₂ p' b k → b ∣ p'.denote' ctx := by
   simp [cooper_right_split_dvd_cert, cooper_right_split]
   intros; subst b p'; simp; assumption
+
+private theorem one_emod_eq_one {a : Int} (h : a > 1) : 1 % a = 1 := by
+  have aux₁ := Int.ediv_add_emod 1 a
+  have : 1 / a = 0 := Int.ediv_eq_zero_of_lt (by decide) h
+  simp [this] at aux₁
+  assumption
+
+private theorem ex_of_dvd {α β a b d x : Int}
+    (h₀ : d > 1)
+    (h₁ : d ∣ a*x + b)
+    (h₂ : α * a + β * d = 1)
+    : ∃ k, x = k * d + (- α * b) % d := by
+  have ⟨k, h₁⟩ := h₁
+  have aux₁ : (α * a) % d = 1 := by
+    replace h₂ := congrArg (· % d) h₂; simp at h₂
+    rw [one_emod_eq_one h₀] at h₂
+    assumption
+  have : ((α * a) * x) % d = (- α * b) % d := by
+    replace h₁ := congrArg (α * ·) h₁; simp only at h₁
+    rw [Int.mul_add] at h₁
+    replace h₁ := congrArg (· - α * b) h₁; simp only [Int.add_sub_cancel] at h₁
+    rw [← Int.mul_assoc, Int.mul_left_comm, Int.sub_eq_add_neg] at h₁
+    replace h₁ := congrArg (· % d) h₁; simp only at h₁
+    rw [Int.add_emod, Int.mul_emod_right, Int.zero_add, Int.emod_emod, ← Int.neg_mul] at h₁
+    assumption
+  have : x % d = (- α * b) % d := by
+    rw [Int.mul_emod, aux₁, Int.one_mul, Int.emod_emod] at this
+    assumption
+  have : x = (x / d)*d + (- α * b) % d := by
+    conv => lhs; rw [← Int.ediv_add_emod x d]
+    rw [Int.mul_comm, this]
+  exists x / d
+
+private theorem cdiv_le {a d k : Int} : d > 0 → a ≤ k * d → cdiv a d ≤ k := by
+  intro h₁ h₂
+  simp [cdiv]
+  replace h₂ := Int.neg_le_neg h₂
+  rw [← Int.neg_mul] at h₂
+  replace h₂ := Int.le_ediv_of_mul_le h₁ h₂
+  replace h₂ := Int.neg_le_neg h₂
+  simp at h₂
+  assumption
+
+private theorem cooper_unsat'_helper {a b d c k x : Int}
+    (d_pos : d > 0)
+    (h₁ : x = k * d + c)
+    (h₂ : a ≤ x)
+    (h₃ : x ≤ b)
+    : ¬ b < (cdiv (a - c) d) * d + c := by
+  intro h₄
+  have aux₁ : cdiv (a - c) d ≤ k := by
+    rw [h₁] at h₂
+    replace h₂ := Int.sub_right_le_of_le_add h₂
+    exact cdiv_le d_pos h₂
+  have aux₂ : cdiv (a - c) d * d ≤ k * d := Int.mul_le_mul_of_nonneg_right aux₁ (Int.le_of_lt d_pos)
+  have aux₃ : cdiv (a - c) d * d + c ≤ k * d + c := Int.add_le_add_right aux₂ _
+  have aux₄ : cdiv (a - c) d * d + c ≤ x := by rw [←h₁] at aux₃; assumption
+  have aux₅ : cdiv (a - c) d * d + c ≤ b := Int.le_trans aux₄ h₃
+  have := Int.lt_of_le_of_lt aux₅ h₄
+  exact Int.lt_irrefl _ this
+
+private theorem cooper_unsat' {a c b d e α β x : Int}
+    (h₁ : d > 1)
+    (h₂ : d ∣ c*x + e)
+    (h₃ : α * c + β * d = 1)
+    (h₄ : (-1)*x + a ≤ 0)
+    (h₅ : x + b ≤ 0)
+    (h₆ : -b < cdiv (a - -α * e % d) d * d + -α * e % d)
+    : False := by
+  have ⟨k, h⟩ := ex_of_dvd h₁ h₂ h₃
+  have d_pos : d > 0 := Int.lt_trans (by decide) h₁
+  replace h₄ := Int.le_neg_add_of_add_le h₄; simp at h₄
+  replace h₅ := Int.neg_le_neg (Int.le_neg_add_of_add_le h₅); simp at h₅
+  have := cooper_unsat'_helper d_pos h h₄ h₅
+  exact this h₆
+
+abbrev Poly.casesOnAdd (p : Poly) (k : Int → Var → Poly → Bool) : Bool :=
+  p.casesOn (fun _  => false) k
+
+abbrev Poly.casesOnNum (p : Poly) (k : Int → Bool) : Bool :=
+  p.casesOn k (fun _ _ _ => false)
+
+def cooper_unsat_cert (p₁ p₂ p₃ : Poly) (d : Int) (α β : Int) : Bool :=
+  p₁.casesOnAdd fun k₁ x p₁ =>
+  p₂.casesOnAdd fun k₂ y p₂ =>
+  p₃.casesOnAdd fun c z p₃ =>
+  p₁.casesOnNum fun a =>
+  p₂.casesOnNum fun b =>
+  p₃.casesOnNum fun e =>
+  (k₁ == -1) |>.and (k₂ == 1) |>.and
+  (x == y) |>.and (x == z) |>.and
+  (d > 1) |>.and (α * c + β * d == 1) |>.and
+  (-b < cdiv (a - -α * e % d) d * d + -α * e % d)
+
+theorem cooper_unsat (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (α β : Int)
+   : cooper_unsat_cert p₁ p₂ p₃ d α β →
+     p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 → d ∣ p₃.denote' ctx → False := by
+  unfold cooper_unsat_cert <;> cases p₁ <;> cases p₂ <;> cases p₃ <;> simp only [Poly.casesOnAdd,
+    Bool.false_eq_true, Poly.denote'_add, mul_def, add_def, false_implies]
+  next k₁ x p₁ k₂ y p₂ c z p₃ =>
+  cases p₁ <;> cases p₂ <;> cases p₃ <;> simp only [Poly.casesOnNum, Int.reduceNeg,
+    Bool.and_eq_true, beq_iff_eq, decide_eq_true_eq, and_imp, Bool.false_eq_true,
+    mul_def, add_def, false_implies, Poly.denote]
+  next a b e =>
+  intro _ _ _ _; subst k₁ k₂ y z
+  intro h₁ h₃ h₆; generalize Var.denote ctx x = x'
+  intro h₄ h₅ h₂
+  rw [Int.one_mul] at h₅
+  exact cooper_unsat' h₁ h₂ h₃ h₄ h₅ h₆
+
+theorem ediv_emod (x y : Int) : -1 * x + y * (x / y) + x % y = 0 := by
+  rw [Int.add_assoc, Int.ediv_add_emod x y, Int.add_comm]
+  simp
+  rw [← Int.sub_eq_add_neg, Int.sub_self]
+
+theorem emod_nonneg (x y : Int) : y != 0 → -1 * (x % y) ≤ 0 := by
+  simp; intro h
+  have := Int.neg_le_neg (Int.emod_nonneg x h)
+  simp at this
+  assumption
+
+def emod_le_cert (y n : Int) : Bool :=
+  y != 0 && n == 1 - y.natAbs
+
+theorem emod_le (x y : Int) (n : Int) : emod_le_cert y n → x % y + n ≤ 0 := by
+  simp [emod_le_cert]
+  intro h₁
+  cases Int.lt_or_gt_of_ne h₁
+  next h =>
+    rw [Int.ofNat_natAbs_of_nonpos (Int.le_of_lt h)]
+    simp only [Int.sub_neg]
+    intro; subst n
+    rw [Int.add_assoc, Int.add_left_comm]
+    apply Int.add_le_of_le_sub_left
+    rw [Int.zero_sub, Int.add_comm]
+    have : 0 < -y := by
+      have := Int.neg_lt_neg h
+      rw [Int.neg_zero] at this
+      assumption
+    have := Int.emod_lt_of_pos x this
+    rw [Int.emod_neg] at this
+    exact this
+  next h =>
+    rw [Int.natAbs_of_nonneg (Int.le_of_lt h)]
+    intro; subst n
+    rw [Int.sub_eq_add_neg, Int.add_assoc, Int.add_left_comm]
+    apply Int.add_le_of_le_sub_left
+    simp only [Int.add_comm, Int.sub_neg, Int.add_zero]
+    exact Int.emod_lt_of_pos x h
 
 end Int.Linear
 

@@ -2984,6 +2984,14 @@ theorem foldlM_push [Monad m] [LawfulMonad m] (xs : Array α) (a : α) (f : β �
     (xs.push a).foldlM f b = xs.foldlM f b >>= fun b => f b a := by
   simp
 
+@[simp] theorem foldlM_pure [Monad m] [LawfulMonad m] (f : β → α → β) (b) (xs : Array α) :
+    xs.foldlM (m := m) (pure <| f · ·) b start stop = pure (xs.foldl f b start stop) := by
+  rw [foldl, foldlM_start_stop, ← foldlM_toList, List.foldlM_pure, foldl_toList, foldl, ← foldlM_start_stop]
+
+@[simp] theorem foldrM_pure [Monad m] [LawfulMonad m] (f : α → β → β) (b) (xs : Array α) :
+    xs.foldrM (m := m) (pure <| f · ·) b start stop = pure (xs.foldr f b start stop) := by
+  rw [foldr, foldrM_start_stop, ← foldrM_toList, List.foldrM_pure, foldr_toList, foldr, ← foldrM_start_stop]
+
 theorem foldl_eq_foldlM (f : β → α → β) (b) (xs : Array α) :
     xs.foldl f b start stop = xs.foldlM (m := Id) f b start stop := by
   simp [foldl, Id.run]

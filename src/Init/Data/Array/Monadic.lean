@@ -23,8 +23,12 @@ open Nat
 
 /-! ### mapM -/
 
-@[simp] theorem mapM_id {xs : Array α} {f : α → Id β} : xs.mapM f = xs.map f := by
+@[simp] theorem mapM_pure [Monad m] [LawfulMonad m] (xs : Array α) (f : α → β) :
+    xs.mapM (m := m) (pure <| f ·) = pure (xs.map f) := by
   induction xs; simp_all
+
+@[simp] theorem mapM_id {xs : Array α} {f : α → Id β} : xs.mapM f = xs.map f :=
+  mapM_pure _ _
 
 @[simp] theorem mapM_append [Monad m] [LawfulMonad m] (f : α → m β) {xs ys : Array α} :
     (xs ++ ys).mapM f = (return (← xs.mapM f) ++ (← ys.mapM f)) := by

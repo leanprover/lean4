@@ -556,9 +556,17 @@ private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → K
 private def setCheckedSync (env : Environment) (newChecked : Kernel.Environment) : Environment :=
   { env with checked := .pure newChecked, base := newChecked }
 
+/-- The declaration prefix to which the environment is restricted to, if any. -/
+def asyncPrefix? (env : Environment) : Option Name :=
+  env.asyncCtx?.map (·.declPrefix)
+
 /-- True while inside `realizeConst`'s `realize`. -/
 def isRealizing (env : Environment) : Bool :=
   env.asyncCtx?.any (·.realizing)
+
+/-- Forgets about the asynchronous context restrictions. Used only for `withoutModifyingEnv`. -/
+def unlockAsync (env : Environment) : Environment :=
+  { env with asyncCtx? := none }
 
 /--
 Checks whether the given declaration name may potentially added, or have been added, to the current
@@ -1453,6 +1461,7 @@ def mkTagDeclarationExtension (name : Name := by exact decl_name%) : IO TagDecla
     addImportedFn := fun _ => {},
     addEntryFn    := fun s n => s.insert n,
     toArrayFn     := fun es => es.toArray.qsort Name.quickLt
+    asyncMode     := .async
   }
 
 namespace TagDeclarationExtension
@@ -1463,12 +1472,13 @@ instance : Inhabited TagDeclarationExtension :=
 def tag (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : Environment :=
   have : Inhabited Environment := ⟨env⟩
   assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `TagDeclarationExtension`
+  assert! env.asyncMayContain declName
   ext.addEntry env declName
 
 def isTagged (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : Bool :=
   match env.getModuleIdxFor? declName with
   | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains declName Name.quickLt
-  | none        => (ext.getState env).contains declName
+  | none        => (ext.findStateAsync env declName).contains declName
 
 end TagDeclarationExtension
 
@@ -1861,7 +1871,11 @@ def displayStats (env : Environment) : IO Unit := do
   IO.println ("number of extensions:                  " ++ toString env.base.extensions.size);
   pExtDescrs.forM fun extDescr => do
     IO.println ("extension '" ++ toString extDescr.name ++ "'")
-    let s := extDescr.toEnvExtension.getState env
+    -- get state from `checked` at the end if `async`; it would otherwise panic
+    let mut asyncMode := extDescr.toEnvExtension.asyncMode
+    if asyncMode matches .async then
+      asyncMode := .sync
+    let s := extDescr.toEnvExtension.getState (asyncMode := asyncMode) env
     let fmt := extDescr.statsFn s.state
     unless fmt.isNil do IO.println ("  " ++ toString (Format.nest 2 (extDescr.statsFn s.state)))
     IO.println ("  number of imported entries: " ++ toString (s.importedEntries.foldl (fun sum es => sum + es.size) 0))

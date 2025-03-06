@@ -64,6 +64,7 @@ Assign final attributes to the definitions. Assumes the EqnInfos to be already p
 def addPreDefAttributes (preDefs : Array PreDefinition) : TermElabM Unit := do
   for preDef in preDefs do
     markAsRecursive preDef.declName
+    -- must happen before `generateEagerEqns`
     enableRealizationsForConst preDef.declName
     generateEagerEqns preDef.declName
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation

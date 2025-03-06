@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.CoreM
+import Lean.Namespace
 
 namespace Lean
 

@@ -8,6 +8,7 @@ import Lean.Data.OpenDecl
 import Lean.Hygiene
 import Lean.Modifiers
 import Lean.Exception
+import Lean.Namespace
 
 namespace Lean
 /-!

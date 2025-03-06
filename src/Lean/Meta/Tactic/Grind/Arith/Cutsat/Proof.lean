@@ -186,16 +186,16 @@ partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s
     -- `pred` is an expressions of the form `cooper_*_split ...` with type `Nat → Prop`
     let mut k := n
     let mut result := base -- `OrOver k (cooper_*_splti)
-    -- `result` is of the form `OrOver k pred`, we resolve it using `hs`
+    result := mkApp3 (mkConst ``Int.Linear.orOver_cases) (toExpr (n-1)) pred result
     for (fvarId, c) in hs do
       let type := mkApp pred (toExpr (k-1))
       let h ← c.toExprProofCore -- proof of `False`
       -- `hNotCase` is a proof for `¬ pred (k-1)`
       let hNotCase := mkLambda `h .default type (h.abstract #[mkFVar fvarId])
-      result := mkApp4 (mkConst ``Int.Linear.orOver_resolve) (toExpr (k-1)) pred result hNotCase
+      result := mkApp result hNotCase
       k := k - 1
-    -- `result` is now a proof of `OrOver 1 pred`
-    return mkApp2 (mkConst ``Int.Linear.orOver_one) pred result
+    -- `result` is now a proof of `p 0`
+    return result
 
 partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
   match h with

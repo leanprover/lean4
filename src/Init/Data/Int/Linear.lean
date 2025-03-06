@@ -1102,6 +1102,16 @@ theorem orOver_resolve {n p} : OrOver (n+1) p → ¬ p n → OrOver n p := by
   · contradiction
   · assumption
 
+def OrOver_cases_type (n : Nat) (p : Nat → Prop) : Prop :=
+  match n with
+  | 0 => p 0
+  | n+1 => ¬ p (n+1) → OrOver_cases_type n p
+
+theorem orOver_cases {n p} : OrOver (n+1) p → OrOver_cases_type n p := by
+  induction n <;> simp [OrOver_cases_type]
+  next => exact orOver_one
+  next n ih => intro h₁ h₂; exact ih (orOver_resolve h₁ h₂)
+
 private theorem orOver_of_p {i n p} (h₁ : i < n) (h₂ : p i) : OrOver n p := by
   induction n
   next => simp at h₁

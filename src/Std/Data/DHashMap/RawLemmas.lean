@@ -2994,6 +2994,10 @@ theorem symm : m₁ ~m m₂ → m₂ ~m m₁
   | ⟨h⟩ => ⟨h.symm⟩
 theorem trans : m₁ ~m m₂ → m₂ ~m m₃ → m₁ ~m m₃
   | ⟨h₁⟩, ⟨h₂⟩ => ⟨h₁.trans h₂⟩
+theorem comm : m₁ ~m m₂ ↔ m₂ ~m m₁ := ⟨symm, symm⟩
+theorem congr_left (h : m₁ ~m m₂) : m₁ ~m m₃ ↔ m₂ ~m m₃ := ⟨h.symm.trans, h.trans⟩
+theorem congr_right (h : m₁ ~m m₂) : m₃ ~m m₁ ↔ m₃ ~m m₂ :=
+  ⟨fun h' => h'.trans h, fun h' => h'.trans h.symm⟩
 
 theorem toList_perm (h : m₁ ~m m₂) : m₁.toList.Perm m₂.toList :=
   (Raw₀.equiv_iff_toList_perm_toList m₁ m₂).mp h

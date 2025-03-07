@@ -2825,6 +2825,10 @@ theorem symm : m₁ ~m m₂ → m₂ ~m m₁
   | ⟨⟨h⟩⟩ => ⟨⟨h.symm⟩⟩
 theorem trans : m₁ ~m m₂ → m₂ ~m m₃ → m₁ ~m m₃
   | ⟨⟨h₁⟩⟩, ⟨⟨h₂⟩⟩ => ⟨⟨h₁.trans h₂⟩⟩
+theorem comm : m₁ ~m m₂ ↔ m₂ ~m m₁ := ⟨symm, symm⟩
+theorem congr_left (h : m₁ ~m m₂) : m₁ ~m m₃ ↔ m₂ ~m m₃ := ⟨h.symm.trans, h.trans⟩
+theorem congr_right (h : m₁ ~m m₂) : m₃ ~m m₁ ↔ m₃ ~m m₂ :=
+  ⟨fun h' => h'.trans h, fun h' => h'.trans h.symm⟩
 
 theorem isEmpty_eq [EquivBEq α] [LawfulHashable α] (h : m₁ ~m m₂) : m₁.isEmpty = m₂.isEmpty :=
   Raw₀.isEmpty_eq_of_equiv ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ m₁.2 m₂.2 h.1
@@ -2974,13 +2978,24 @@ end Const
 
 end Equiv
 
+@[simp]
 theorem equiv_empty_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :
     m ~m empty c ↔ m.isEmpty :=
   ⟨fun ⟨h⟩ => (Raw₀.equiv_empty_iff_isEmpty ⟨m.1, m.2.size_buckets_pos⟩ m.2).mp h,
     fun h => ⟨(Raw₀.equiv_empty_iff_isEmpty ⟨m.1, m.2.size_buckets_pos⟩ m.2).mpr h⟩⟩
 
+@[simp]
 theorem equiv_emptyc_iff_isEmpty [EquivBEq α] [LawfulHashable α] : m ~m ∅ ↔ m.isEmpty :=
   equiv_empty_iff_isEmpty
+
+@[simp]
+theorem empty_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :
+    empty c ~m m ↔ m.isEmpty :=
+  Equiv.comm.trans equiv_empty_iff_isEmpty
+
+@[simp]
+theorem emptyc_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] : ∅ ~m m ↔ m.isEmpty :=
+  empty_equiv_iff_isEmpty
 
 theorem equiv_iff_toList_perm {m₁ m₂ : DHashMap α β} [EquivBEq α] [LawfulHashable α] :
     m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList :=

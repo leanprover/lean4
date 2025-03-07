@@ -511,14 +511,60 @@ example
   bv_omega
 
 -- This smaller example exhibits the same problem.
-example
+-- set_option debug.skipKernelTC true
+theorem ex1
     (n : Nat)
     (addr2 addr1 : BitVec 16)
     (h0 : n ≤ 65536)
     (h1 : addr2 + 65535#16 - addr1 ≤ BitVec.ofNat 16 (n - 1))
-    (h2 : addr2 - addr1 ≤ addr2 + 65535#16 - addr1) :
+    (h2 : (addr2.toNat + (2 ^ 16 - addr1.toNat)) % 2 ^ 16 ≤
+      ((addr2.toNat + 65535 % 2 ^ 16) % 2 ^ 16 + (2 ^ 16 - addr1.toNat)) % 2 ^ 16)
+      :
     n = 65536 := by
-  bv_omega
+  simp only [bitvec_to_nat] at *
+  omega
+
+theorem ex2 (n : Nat) (addr2 addr1 : BitVec 16)
+    (h1 : (addr2.toNat + 65535 % 2 ^ 16) % 2 ^ 16 ≤ 123 % 2 ^ 16) :
+    False := by
+  sorry
+
+/-- error: (kernel) deep recursion detected -/
+#guard_msgs in
+theorem ex3 (n : Nat) (addr2 addr1 : BitVec 16)
+    (h1 : addr2 + 65535#16 ≤ 123) :
+    False := by
+  simp only [bitvec_to_nat] at *
+  exact ex2 n addr2 addr1 h1
+#print ex3
+
+/-- error: (kernel) deep recursion detected -/
+#guard_msgs in
+theorem ex (addr2 : BitVec 16) :
+  (addr2.toNat + 65535 % 2 ^ 16) % 2 ^ 16 ≤ 123 % 2 ^ 16 ↔
+    (addr2 + 65535#16).toNat ≤ (123#16).toNat := by
+  -- simp only [toNat_add, toNat_ofNat]
+  -- but not with:
+  -- rw [toNat_add, toNat_ofNat, toNat_ofNat]
+  -- and not with
+  simp -implicitDefEqProofs only [toNat_add, toNat_ofNat]
+
+/--
+info: theorem ex : ∀ (addr2 : BitVec 16),
+  (addr2.toNat + 65535 % 2 ^ 16) % 2 ^ 16 ≤ 123 % 2 ^ 16 ↔ (addr2 + 65535#16).toNat ≤ (123#16).toNat :=
+fun addr2 =>
+  of_eq_true
+    (Eq.trans
+      (congrArg (Iff ((addr2.toNat + 65535 % 2 ^ 16) % 2 ^ 16 ≤ 123 % 2 ^ 16))
+        (congr (congrArg (fun x => LE.le ((addr2.toNat + x) % 2 ^ 16)) (toNat_ofNat 65535 16)) (toNat_ofNat 123 16)))
+      (iff_self ((addr2.toNat + 65535 % 2 ^ 16) % 2 ^ 16 ≤ 123 % 2 ^ 16)))
+-/
+#guard_msgs in
+#print ex
+
+
+theorem toNat_add' {w} (x y : BitVec w) : (x + y).toNat = (x.toNat + y.toNat) % 2^w := rfl
+theorem toNat_add'' (x y : BitVec 32) : (x + y).toNat = (x.toNat + y.toNat) % 2^(16+16) := rfl
 
 /-! ### Error messages -/
 

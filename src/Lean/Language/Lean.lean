@@ -298,20 +298,17 @@ register_builtin_option internal.cmdlineSnapshots : Bool := {
 }
 
 /--
-Parses values of options registered during import and left by the C++ frontend as strings, fails if
-any option names remain unknown.
+Parses values of options registered during import and left by the C++ frontend as strings.
+Removes `weak` prefixes from both parsed and unparsed options and fails if any option names remain
+unknown.
 -/
 def reparseOptions (opts : Options) : IO Options := do
-  let mut opts := opts
+  let mut opts' := {}
   let decls ← getOptionDecls
   for (name, val) in opts do
-    let .ofString val := val
-      | continue  -- Already parsed by C++
     -- Options can be prefixed with `weak` in order to turn off the error when the option is not
     -- defined
     let weak := name.getRoot == `weak
-    if weak then
-      opts := opts.erase name
     let name := name.replacePrefix `weak Name.anonymous
     let some decl := decls.find? name
       | unless weak do
@@ -319,11 +316,14 @@ def reparseOptions (opts : Options) : IO Options := do
 
 If the option is defined in this library, use '-D{`weak ++ name}' to set it conditionally"
 
+    let .ofString val := val
+      | opts' := opts'.insert name val  -- Already parsed by C++
+
     match decl.defValue with
     | .ofBool _ =>
       match val with
-      | "true"  => opts := opts.insert name true
-      | "false" => opts := opts.insert name false
+      | "true"  => opts' := opts'.insert name true
+      | "false" => opts' := opts'.insert name false
       | _ =>
         throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
           it must be true/false"
@@ -331,12 +331,12 @@ If the option is defined in this library, use '-D{`weak ++ name}' to set it cond
       let some val := val.toNat?
         | throw <| .userError s!"invalid -D parameter, invalid configuration option '{val}' value, \
             it must be a natural number"
-      opts := opts.insert name val
-    | .ofString _ => opts := opts.insert name val
+      opts' := opts'.insert name val
+    | .ofString _ => opts' := opts'.insert name val
     | _ => throw <| .userError s!"invalid -D parameter, configuration option '{name}' \
               cannot be set in the command line, use set_option command"
 
-  return opts
+  return opts'
 
 private def getNiceCommandStartPos? (stx : Syntax) : Option String.Pos := do
   let mut stx := stx

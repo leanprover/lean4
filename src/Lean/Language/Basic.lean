@@ -287,7 +287,7 @@ def reportMessages (msgLog : MessageLog) (opts : Options)
         {msg with severity}
       else
         msg
-    if ! msg.isSilent then
+    unless msg.isSilent do
       if json then
         let j ← msg.toJson
         IO.println j.compress

@@ -2487,11 +2487,10 @@ theorem get?_modify_self (h : t.WF) {k : α} {f : β k → β k} :
 theorem get_modify (h : t.WF) {k k' : α} {f : β k → β k} {hc : k' ∈ t.modify k f} :
     (t.modify k f).get k' hc =
       if heq : cmp k k' = .eq then
-        -- TODO
-        haveI h' : k ∈ t := by rwa [mem_modify h, ← compare_eq_iff_eq.mp heq] at hc
+        haveI h' : k ∈ t := mem_congr h heq |>.mpr <| mem_modify h |>.mp hc
         cast (congrArg β (compare_eq_iff_eq.mp heq)) <| f (t.get k h')
       else
-        haveI h' : k' ∈ t := by rwa [mem_modify h] at hc
+        haveI h' : k' ∈ t := (mem_modify h).mp hc
         t.get k' h' :=
   Impl.get_modify h
 

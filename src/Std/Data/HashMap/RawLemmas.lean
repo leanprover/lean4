@@ -1960,6 +1960,22 @@ theorem of_forall_getElem?_eq [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
     DHashMap.Raw.Const.get?_eq_get? h₁.1 ▸
     DHashMap.Raw.Const.get?_eq_get? h₂.1 ▸ h k⟩
 
+theorem of_forall_getKey?_unit_eq [EquivBEq α] [LawfulHashable α]
+    {m₁ m₂ : HashMap.Raw α Unit} (h₁ : m₁.WF) (h₂ : m₂.WF)
+    (h : ∀ k, m₁.getKey? k = m₂.getKey? k) : m₁ ~m m₂ :=
+  ⟨.of_forall_getKey?_unit_eq h₁.1 h₂.1 h⟩
+
+theorem of_forall_contains_unit_eq [LawfulBEq α]
+    {m₁ m₂ : HashMap.Raw α Unit} (h₁ : m₁.WF) (h₂ : m₂.WF)
+    (h : ∀ k, m₁.contains k = m₂.contains k) : m₁ ~m m₂ :=
+  ⟨.of_forall_contains_unit_eq h₁.1 h₂.1 h⟩
+
+theorem of_forall_mem_unit_iff [LawfulBEq α]
+    {m₁ m₂ : HashMap.Raw α Unit} (h₁ : m₁.WF) (h₂ : m₂.WF)
+    (h : ∀ k, k ∈ m₁ ↔ k ∈ m₂) : m₁ ~m m₂ :=
+  ⟨.of_forall_mem_unit_iff h₁.1 h₂.1 h⟩
+
+
 end Equiv
 
 theorem equiv_empty_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} (h : m.WF) :

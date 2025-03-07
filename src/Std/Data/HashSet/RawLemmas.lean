@@ -770,26 +770,16 @@ theorem filter (h₁ : m₁.WF) (h₂ : m₂.WF) (f : α → Bool) (h : m₁ ~m 
   ⟨h.1.filter h₁.1 h₂.1 _⟩
 
 theorem of_forall_get?_eq [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    (hk : ∀ k, m₁.get? k = m₂.get? k) : m₁ ~m m₂ :=
-  ⟨.of_forall_getKey?_eq_of_forall_getElem?_eq h₁.1 h₂.1 hk fun k => by
-    specialize hk k
-    by_cases h : k ∈ m₂
-    · rw [get?_eq_some_get h₂ (h' := h)] at hk
-      have h' : k ∈ m₁ := (contains_eq_isSome_get? h₁).trans (hk ▸ Option.isSome_some)
-      simp only [HashMap.Raw.getElem?_eq_some_getElem h₂.1 (h' := h),
-        HashMap.Raw.getElem?_eq_some_getElem h₁.1 (h' := h')]
-    · rw [get?_eq_none h₂ h] at hk
-      have h' := (contains_eq_isSome_get? h₁).trans (hk ▸ Option.isSome_none)
-      simp only [HashMap.Raw.getElem?_eq_none h₂.1 h,
-        HashMap.Raw.getElem?_eq_none_of_contains_eq_false h₁.1 h']⟩
+    (h : ∀ k, m₁.get? k = m₂.get? k) : m₁ ~m m₂ :=
+  ⟨.of_forall_getKey?_unit_eq h₁.1 h₂.1 h⟩
+
+theorem of_forall_contains_eq [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    (h : ∀ k, m₁.contains k = m₂.contains k) : m₁ ~m m₂ :=
+  ⟨.of_forall_contains_unit_eq h₁.1 h₂.1 h⟩
 
 theorem of_forall_mem_iff [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
-    (hk : ∀ k, k ∈ m₁ ↔ k ∈ m₂) : m₁ ~m m₂ :=
-  .of_forall_get?_eq h₁ h₂ fun k => by
-    specialize hk k
-    by_cases h : k ∈ m₂
-    · simp only [get?_eq_some h₂ h, get?_eq_some h₁ (hk.mpr h)]
-    · simp only [get?_eq_none h₂ h, get?_eq_none h₁ ((not_congr hk).mpr h)]
+    (h : ∀ k, k ∈ m₁ ↔ k ∈ m₂) : m₁ ~m m₂ :=
+  ⟨.of_forall_mem_unit_iff h₁.1 h₂.1 h⟩
 
 end Equiv
 

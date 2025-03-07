@@ -1938,6 +1938,29 @@ theorem getKey?_getValue?_ext [BEq α] [EquivBEq α] {β : Type v}
     have h'' := containsKey_eq_isSome_getKey?.trans (hk ▸ rfl : (getKey? a l).isSome = false)
     simp only [getEntry?_eq_none.mpr, h', h'']
 
+theorem getKey?_ext [BEq α] [EquivBEq α]
+    {l l' : List ((_ : α) × Unit)} (hl : DistinctKeys l) (hl' : DistinctKeys l')
+    (h : ∀ a, getKey? a l = getKey? a l') : Perm l l' := by
+  apply getKey?_getValue?_ext hl hl' h
+  intro a
+  specialize h a
+  by_cases h' : containsKey a l'
+  · rw [getKey?_eq_some_getKey h'] at h
+    have h'' := containsKey_eq_isSome_getKey?.trans (h ▸ Option.isSome_some)
+    simp only [getValue?_eq_some_getValue, h', h'']
+  · rw [getKey?_eq_none ((Bool.not_eq_true _).mp h')] at h
+    have h'' := containsKey_eq_isSome_getKey?.trans (h ▸ Option.isSome_none)
+    simp only [getValue?_eq_none.mpr, h', h'']
+
+theorem containsKey_ext [BEq α] [LawfulBEq α]
+    {l l' : List ((_ : α) × Unit)} (hl : DistinctKeys l) (hl' : DistinctKeys l')
+    (h : ∀ a, containsKey a l = containsKey a l') : Perm l l' := by
+  apply getKey?_ext hl hl'
+  intro a
+  by_cases h' : containsKey a l'
+  · simp only [getKey?_eq_some, h', (h a).trans h']
+  · simp only [getKey?_eq_none, h', (h a).trans ((Bool.not_eq_true _).mp h')]
+
 theorem replaceEntry_of_perm [BEq α] [EquivBEq α] {l l' : List ((a : α) × β a)} {k : α} {v : β k}
     (hl : DistinctKeys l) (h : Perm l l') : Perm (replaceEntry k v l) (replaceEntry k v l') := by
   apply getEntry?_ext hl.replaceEntry (hl.perm h.symm).replaceEntry

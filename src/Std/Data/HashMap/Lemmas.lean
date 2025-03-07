@@ -1973,6 +1973,18 @@ theorem of_forall_getElem?_eq [LawfulBEq α] (h : ∀ k : α, m₁[k]? = m₂[k]
     DHashMap.Const.get?_eq_get? (m := m₁.1) ▸
     DHashMap.Const.get?_eq_get? (m := m₂.1) ▸ h k⟩
 
+theorem of_forall_getKey?_unit_eq [EquivBEq α] [LawfulHashable α]
+    {m₁ m₂ : HashMap α Unit} (h : ∀ k, m₁.getKey? k = m₂.getKey? k) : m₁ ~m m₂ :=
+  ⟨.of_forall_getKey?_unit_eq h⟩
+
+theorem of_forall_contains_unit_eq [LawfulBEq α]
+    {m₁ m₂ : HashMap α Unit} (h : ∀ k, m₁.contains k = m₂.contains k) : m₁ ~m m₂ :=
+  ⟨.of_forall_contains_unit_eq h⟩
+
+theorem of_forall_mem_unit_iff [LawfulBEq α]
+    {m₁ m₂ : HashMap α Unit} (h : ∀ k, k ∈ m₁ ↔ k ∈ m₂) : m₁ ~m m₂ :=
+  ⟨.of_forall_mem_unit_iff h⟩
+
 end Equiv
 
 section Equiv

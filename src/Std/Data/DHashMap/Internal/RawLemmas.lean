@@ -2737,6 +2737,15 @@ theorem equiv_of_forall_getKey?_eq_of_forall_get?_eq (h₁ : m₁.1.WF) (h₂ : 
     (∀ k, m₁.getKey? k = m₂.getKey? k) → (∀ k, get? m₁ k = get? m₂ k) → m₁.1 ~m m₂.1 := by
   simp_to_model [getKey?, Const.get?, Equiv] using List.getKey?_getValue?_ext
 
+theorem equiv_of_forall_getKey?_unit_eq {m₁ m₂ : Raw₀ α fun _ => Unit}
+    (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) : (∀ k, m₁.getKey? k = m₂.getKey? k) → m₁.1 ~m m₂.1 := by
+  simp_to_model [getKey?, Equiv] using List.getKey?_ext
+
+theorem equiv_of_forall_contains_unit_eq {α : Type u} [BEq α] [Hashable α] [LawfulBEq α]
+    {m₁ m₂ : Raw₀ α fun _ => Unit} (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) :
+    (∀ k, m₁.contains k = m₂.contains k) → m₁.1 ~m m₂.1 := by
+  simp_to_model [contains, Equiv] using List.containsKey_ext
+
 end Const
 
 end Equiv

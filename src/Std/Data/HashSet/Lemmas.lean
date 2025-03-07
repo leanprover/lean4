@@ -734,24 +734,14 @@ theorem filter (f : α → Bool) (h : m₁ ~m m₂) : m₁.filter f ~m m₂.filt
   ⟨h.1.filter _⟩
 
 theorem of_forall_get?_eq [EquivBEq α] [LawfulHashable α]
-    (hk : ∀ k, m₁.get? k = m₂.get? k) : m₁ ~m m₂ :=
-  ⟨.of_forall_getKey?_eq_of_forall_getElem?_eq hk fun k => by
-    specialize hk k
-    by_cases h : k ∈ m₂
-    · rw [get?_eq_some_get (h' := h)] at hk
-      have h' : k ∈ m₁ := contains_eq_isSome_get?.trans (hk ▸ Option.isSome_some)
-      simp only [HashMap.getElem?_eq_some_getElem (h' := h),
-        HashMap.getElem?_eq_some_getElem (h' := h')]
-    · rw [get?_eq_none h] at hk
-      have h' : m₁.contains k = false := contains_eq_isSome_get?.trans (hk ▸ Option.isSome_none)
-      simp only [HashMap.getElem?_eq_none h, HashMap.getElem?_eq_none_of_contains_eq_false h']⟩
+    (h : ∀ k, m₁.get? k = m₂.get? k) : m₁ ~m m₂ :=
+  ⟨.of_forall_getKey?_unit_eq h⟩
 
-theorem of_forall_mem_iff [LawfulBEq α] (hk : ∀ k, k ∈ m₁ ↔ k ∈ m₂) : m₁ ~m m₂ :=
-  .of_forall_get?_eq fun k => by
-    specialize hk k
-    by_cases h : k ∈ m₂
-    · simp only [get?_eq_some h, get?_eq_some (hk.mpr h)]
-    · simp only [get?_eq_none h, get?_eq_none ((not_congr hk).mpr h)]
+theorem of_forall_contains_eq [LawfulBEq α] (h : ∀ k, m₁.contains k = m₂.contains k) : m₁ ~m m₂ :=
+  ⟨.of_forall_contains_unit_eq h⟩
+
+theorem of_forall_mem_iff [LawfulBEq α] (h : ∀ k, k ∈ m₁ ↔ k ∈ m₂) : m₁ ~m m₂ :=
+  ⟨.of_forall_mem_unit_iff h⟩
 
 end Equiv
 

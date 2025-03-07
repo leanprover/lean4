@@ -3165,6 +3165,21 @@ theorem of_forall_getKey?_eq_of_forall_constGet?_eq [EquivBEq α] [LawfulHashabl
     (∀ k, Const.get? m₁ k = Const.get? m₂ k) → m₁ ~m m₂ := by
   simp_to_raw using Raw₀.Const.equiv_of_forall_getKey?_eq_of_forall_get?_eq
 
+theorem of_forall_getKey?_unit_eq [EquivBEq α] [LawfulHashable α]
+    {m₁ m₂ : DHashMap.Raw α fun _ => Unit} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (∀ k, m₁.getKey? k = m₂.getKey? k) → m₁ ~m m₂ := by
+  simp_to_raw using Raw₀.Const.equiv_of_forall_getKey?_unit_eq
+
+theorem of_forall_contains_unit_eq [LawfulBEq α]
+    {m₁ m₂ : DHashMap.Raw α fun _ => Unit} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (∀ k, m₁.contains k = m₂.contains k) → m₁ ~m m₂ := by
+  simp_to_raw using Raw₀.Const.equiv_of_forall_contains_unit_eq
+
+theorem of_forall_mem_unit_iff [LawfulBEq α]
+    {m₁ m₂ : DHashMap.Raw α fun _ => Unit} (h₁ : m₁.WF) (h₂ : m₂.WF) :
+    (∀ k, k ∈ m₁ ↔ k ∈ m₂) → m₁ ~m m₂ := by
+  simpa only [mem_iff_contains, Bool.coe_iff_coe] using of_forall_contains_unit_eq h₁ h₂
+
 end Const
 
 end Equiv

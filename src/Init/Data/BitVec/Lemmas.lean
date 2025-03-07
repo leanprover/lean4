@@ -2064,14 +2064,18 @@ theorem msb_signExtend {x : BitVec w} :
   · simp [h, BitVec.msb, getMsbD_signExtend, show ¬ (v - w = 0) by omega]
 
 /-- Sign extending to a width smaller than the starting width is a truncation. -/
-theorem signExtend_eq_setWidth_of_lt (x : BitVec w) {v : Nat} (hv : v ≤ w):
+theorem signExtend_eq_setWidth_of_le (x : BitVec w) {v : Nat} (hv : v ≤ w) :
   x.signExtend v = x.setWidth v := by
   ext i h
   simp [getElem_signExtend, show i < w by omega]
 
+@[deprecated signExtend_eq_setWidth_of_le (since := "2025-03-07")]
+theorem signExtend_eq_setWidth_of_lt (x : BitVec w) {v : Nat} (hv : v ≤ w) :
+  x.signExtend v = x.setWidth v := signExtend_eq_setWidth_of_le x hv
+
 /-- Sign extending to the same bitwidth is a no op. -/
 @[simp] theorem signExtend_eq (x : BitVec w) : x.signExtend w = x := by
-  rw [signExtend_eq_setWidth_of_lt _ (Nat.le_refl _), setWidth_eq]
+  rw [signExtend_eq_setWidth_of_le _ (Nat.le_refl _), setWidth_eq]
 
 /-- Sign extending to a larger bitwidth depends on the msb.
 If the msb is false, then the result equals the original value.
@@ -2108,7 +2112,7 @@ theorem toNat_signExtend (x : BitVec w) {v : Nat} :
     (x.signExtend v).toNat = (x.setWidth v).toNat + if x.msb then 2^v - 2^w else 0 := by
   by_cases h : v ≤ w
   · have : 2^v ≤ 2^w := Nat.pow_le_pow_right Nat.two_pos h
-    simp [signExtend_eq_setWidth_of_lt x h, toNat_setWidth, Nat.sub_eq_zero_of_le this]
+    simp [signExtend_eq_setWidth_of_le x h, toNat_setWidth, Nat.sub_eq_zero_of_le this]
   · have : 2^w ≤ 2^v := Nat.pow_le_pow_right Nat.two_pos (by omega)
     rw [toNat_signExtend_of_le x (by omega), toNat_setWidth, Nat.mod_eq_of_lt (by omega)]
 
@@ -2144,7 +2148,7 @@ and we compute a modulo by `2^v`.
 -/
 theorem toInt_signExtend_eq_toNat_bmod_of_le {x : BitVec w} (hv : v ≤ w) :
     (x.signExtend v).toInt = Int.bmod x.toNat (2^v) := by
-  simp [signExtend_eq_setWidth_of_lt _ hv]
+  simp [signExtend_eq_setWidth_of_le _ hv]
 
 /--
 Interpreting the sign extension of `(x : BitVec w)` to width `v`

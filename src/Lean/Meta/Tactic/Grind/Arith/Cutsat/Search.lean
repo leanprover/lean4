@@ -312,19 +312,7 @@ def resolveCooperDvd (c₁ c₂ : LeCnstr) (c₃ : DvdCnstr) : SearchM Unit := d
   let left : Bool := c₁.p.leadCoeff.natAbs < c₂.p.leadCoeff.natAbs
   resolveCooperPred { c₁, c₂, left, c₃? := some c₃ }
 
-def resolveCooperDiseq (c₁ : DiseqCnstr) (c₂ : LeCnstr) (_c? : Option DvdCnstr) : GoalM Unit := do
-  throwError "Cooper-diseq NIY {← c₁.pp}, {← c₂.pp}"
-
-/--
-Given `c₁` of the form `-a₁*x + p₁ ≤ 0`, and `c` of the form `b*x + p ≠ 0`,
-splits `c` and resolve with `c₁`.
-Recall that a disequality
--/
-def resolveRatDiseq (c₁ : LeCnstr) (c : DiseqCnstr) : SearchM Unit := do
-  let c := if c.p.leadCoeff < 0 then
-    { p := c.p.mul (-1), h := .neg c : DiseqCnstr }
-  else
-    c
+def DiseqCnstr.split (c : DiseqCnstr) : SearchM LeCnstr := do
   let fvarId ← if let some fvarId := (← get').diseqSplits.find? c.p then
     trace[grind.debug.cutsat.diseq.split] "{← c.pp}, reusing {fvarId.name}"
     pure fvarId
@@ -334,7 +322,34 @@ def resolveRatDiseq (c₁ : LeCnstr) (c : DiseqCnstr) : SearchM Unit := do
     modify' fun s => { s with diseqSplits := s.diseqSplits.insert c.p fvarId }
     pure fvarId
   let p₂ := c.p.addConst 1
-  let c₂ := { p := p₂, h := .expr (mkFVar fvarId) : LeCnstr }
+  return { p := p₂, h := .expr (mkFVar fvarId) }
+
+/--
+Given `c₁` of the form `a₁*x + p₁ ≠ 0`, and `c₂` of the form `b*x + p ≤ 0`
+splits `c₁` and resolve with `c₂`.
+-/
+def resolveCooperDiseq (c₁ : DiseqCnstr) (c₂ : LeCnstr) (c₃? : Option DvdCnstr) : SearchM Unit := do
+  -- Ensure the coefficient is positive
+  let c₁ := if c₁.p.leadCoeff > 0 then
+    { p := c₁.p.mul (-1), h := .neg c₁ : DiseqCnstr }
+  else
+    c₁
+  let c₁ ← c₁.split
+  if let some c₃ := c₃? then
+    resolveCooperDvd c₁ c₂ c₃
+  else
+    resolveCooper c₁ c₂
+
+/--
+Given `c₁` of the form `-a₁*x + p₁ ≤ 0`, and `c` of the form `b*x + p ≠ 0`,
+splits `c` and resolve with `c₁`.
+-/
+def resolveRatDiseq (c₁ : LeCnstr) (c : DiseqCnstr) : SearchM Unit := do
+  let c := if c.p.leadCoeff < 0 then
+    { p := c.p.mul (-1), h := .neg c : DiseqCnstr }
+  else
+    c
+  let c₂ ← c.split
   let b ← resolveRealLowerUpperConflict c₁ c₂
   assert! b
 

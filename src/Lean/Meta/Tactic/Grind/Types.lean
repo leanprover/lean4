@@ -578,7 +578,9 @@ def markTheoremInstance (proof : Expr) (assignment : Array Expr) : GoalM Bool :=
 def addNewFact (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
   if grind.debug.get (← getOptions) then
     unless (← withReducible <| isDefEq (← inferType proof) prop) do
-      throwError "`grind` internal error, trying to assert{indentExpr prop}\nwith proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\nwhich is not definitionally equal with `reducible` transparency setting}"
+      throwError "`grind` internal error, trying to assert{indentExpr prop}\n\
+        with proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\n\
+        which is not definitionally equal with `reducible` transparency setting}"
   modify fun s => { s with newFacts := s.newFacts.enqueue { proof, prop, generation } }
 
 /-- Adds a new theorem instance produced using E-matching. -/
@@ -720,7 +722,9 @@ def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
     unless proof == congrPlaceholderProof do
       let expectedType ← if isHEq then mkHEq lhs rhs else mkEq lhs rhs
       unless (← withReducible <| isDefEq (← inferType proof) expectedType) do
-        throwError "`grind` internal error, trying to assert equality{indentExpr expectedType}\nwith proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\nwhich is not definitionally equal with `reducible` transparency setting}"
+        throwError "`grind` internal error, trying to assert equality{indentExpr expectedType}\n\
+            with proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\n\
+            which is not definitionally equal with `reducible` transparency setting}"
       trace[grind.debug] "pushEqCore: {expectedType}"
   modify fun s => { s with newEqs := s.newEqs.push { lhs, rhs, proof, isHEq } }
 

@@ -26,7 +26,7 @@ theorem mkUlt_denote_eq (aig : AIG α) (lhs rhs : BitVec w) (input : BinaryRefVe
     (assign : α → Bool)
     (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign⟧ = lhs.getLsbD idx)
     (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign⟧ = rhs.getLsbD idx) :
-    ⟦(mkUlt aig input).aig, (mkUlt aig input).ref, assign⟧ = BitVec.ult lhs rhs := by
+    ⟦mkUlt aig input, assign⟧ = BitVec.ult lhs rhs := by
   rw [BitVec.ult_eq_not_carry]
   unfold mkUlt
   simp only [denote_projected_entry, denote_mkNotCached, denote_projected_entry']
@@ -42,11 +42,8 @@ theorem mkUlt_denote_eq (aig : AIG α) (lhs rhs : BitVec w) (input : BinaryRefVe
   · dsimp only
     intro idx hidx
     rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-    · simp only [RefVec.get_cast, Ref.gate_cast, BitVec.getLsbD_not, hidx, decide_true,
-        Bool.true_and]
-      rw [BVExpr.bitblast.denote_blastNot]
-      congr 1
-      apply hright
+    · simp only [RefVec.get_cast, Ref.cast_eq, hidx, BitVec.getLsbD_eq_getElem, BitVec.getElem_not]
+      rw [BVExpr.bitblast.denote_blastNot, hright, BitVec.getLsbD_eq_getElem]
     · simp [Ref.hgate]
 
 end BVPred

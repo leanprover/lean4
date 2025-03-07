@@ -61,12 +61,12 @@ theorem blastDivSubtractShift_denote_mem_prefix (aig : AIG α) (falseRef trueRef
     (n d q r : AIG.RefVec aig w) (wn wr : Nat) (start : Nat) (hstart) :
     ⟦
       (blastDivSubtractShift aig falseRef trueRef n d wn wr q r).aig,
-      ⟨start, by apply Nat.lt_of_lt_of_le; exact hstart; apply blastDivSubtractShift_le_size⟩,
+      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply blastDivSubtractShift_le_size⟩,
       assign
     ⟧
       =
-    ⟦aig, ⟨start, hstart⟩, assign⟧ := by
-  apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
+    ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
+  apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
     apply blastDivSubtractShift_decl_eq
@@ -95,58 +95,60 @@ theorem denote_blastDivSubtractShift_q (aig : AIG α) (assign : α → Bool) (lh
   unfold blastDivSubtractShift BitVec.divSubtractShift
   dsimp only
   rw [AIG.LawfulVecOperator.denote_mem_prefix (f := AIG.RefVec.ite)]
-  . simp only [RefVec.get_cast, Ref.gate_cast]
+  . simp only [Ref.cast_eq, RefVec.cast_cast, RefVec.get_cast]
     rw [AIG.RefVec.denote_ite]
-    rw [BVPred.mkUlt_denote_eq (lhs := rbv.shiftConcat (lhs.getLsbD (wn - 1))) (rhs := rhs)]
-    · split
-      · next hdiscr =>
-        rw [← Normalize.BitVec.lt_ult] at hdiscr
-        simp only [Ref.cast_eq, id_eq, Int.reduceNeg, RefVec.get_cast, hdiscr, ↓reduceIte]
-        rw [AIG.LawfulOperator.denote_mem_prefix (f := BVPred.mkUlt)]
+    conv =>
+      rhs
+      rw [apply_ite (f := BitVec.DivModState.q)]
+      rw [apply_ite (f := (BitVec.getLsbD · idx))]
+    apply ite_congr
+    · rw [BVPred.mkUlt_denote_eq (assign := assign) (lhs := rbv.shiftConcat (lhs.getLsbD (wn - 1))) (rhs := rhs)]
+      · simp [Std.Tactic.BVDecide.Normalize.BitVec.lt_ult]
+      · intro idx hidx
+        simp only [RefVec.get_cast, Ref.cast_eq]
         rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastSub)]
         rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
+        rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
         rw [denote_blastShiftConcat_eq_shiftConcat]
-        · intro idx hidx
-          rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
-          · simp [hq]
-          · simp [Ref.hgate]
-        · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
+        · simp [hr]
+        · rw [BVPred.denote_getD_eq_getLsbD]
+          · simp [hleft]
           · simp [hfalse]
-          · simp [Ref.hgate]
-      · next hdiscr =>
-        rw [← Normalize.BitVec.lt_ult] at hdiscr
-        simp only [Ref.cast_eq, id_eq, Int.reduceNeg, RefVec.get_cast, hdiscr, ↓reduceIte]
-        rw [AIG.LawfulOperator.denote_mem_prefix (f := BVPred.mkUlt)]
+      · intro idx hidx
+        simp only [RefVec.get_cast, Ref.cast_eq]
         rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastSub)]
-        rw [denote_blastShiftConcat_eq_shiftConcat]
-        · intro idx hidx
-          rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
-          rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
-          · simp [hq]
-          · simp [Ref.hgate]
-        · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
-          rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
-          · simp [htrue]
-          · simp [Ref.hgate]
-    · intro idx hidx
+        rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
+        rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
+        rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
+        · simp [hright]
+        · simp [Ref.hgate]
+    · intro h
+      simp only [RefVec.get_cast, Ref.cast_eq]
+      rw [AIG.LawfulOperator.denote_mem_prefix (f := BVPred.mkUlt)]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastSub)]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
-      . simp only [Ref.cast_eq, id_eq, Int.reduceNeg, RefVec.get_cast]
-        rw [denote_blastShiftConcat_eq_shiftConcat]
-        . simp [hr]
-        . dsimp only
-          rw [BVPred.denote_getD_eq_getLsbD]
-          · exact hleft
-          · exact hfalse
-      . simp [Ref.hgate]
-    · intro idx hidx
+      rw [denote_blastShiftConcat_eq_shiftConcat]
+      · intro idx hidx
+        rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
+        · simp [hq]
+        · simp [Ref.hgate]
+      · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
+        · simp [hfalse]
+        · simp [Ref.hgate]
+    · intro h
+      simp only [RefVec.get_cast, Ref.cast_eq]
+      rw [AIG.LawfulOperator.denote_mem_prefix (f := BVPred.mkUlt)]
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastSub)]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
-      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
-      . simp [hright]
-      . simp [Ref.hgate]
+      rw [denote_blastShiftConcat_eq_shiftConcat]
+      · intro idx hidx
+        rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
+        rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
+        · simp [hq]
+        · simp [Ref.hgate]
+      · rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
+        rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftConcat)]
+        · simp [htrue]
+        · simp [Ref.hgate]
   . simp [Ref.hgate]
 
 theorem denote_blastDivSubtractShift_r (aig : AIG α) (assign : α → Bool) (lhs rhs : BitVec w)
@@ -378,12 +380,12 @@ theorem go_denote_mem_prefix (aig : AIG α) (curr : Nat) (falseRef trueRef : AIG
     (n d q r : AIG.RefVec aig w) (wn wr : Nat) (start : Nat) (hstart) :
     ⟦
       (go aig curr falseRef trueRef n d wn wr q r).aig,
-      ⟨start, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
+      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
       assign
     ⟧
       =
-    ⟦aig, ⟨start, hstart⟩, assign⟧ := by
-  apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
+    ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
+  apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
     apply go_decl_eq

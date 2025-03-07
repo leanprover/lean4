@@ -1524,7 +1524,7 @@ theorem getKey_alter [TransCmp cmp] [Inhabited α] {k k' : α} {f : Option β �
       if heq : cmp k k' = .eq then
         k
       else
-        haveI h' : t.contains k' := mem_alter_of_not_compare_eq heq |>.mp hc
+        haveI h' : k' ∈ t := mem_alter_of_not_compare_eq heq |>.mp hc
         t.getKey k' h' :=
   DTreeMap.Const.getKey_alter
 

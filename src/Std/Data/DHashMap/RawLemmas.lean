@@ -2308,12 +2308,13 @@ theorem mem_alter_of_beq_eq_false [LawfulBEq α] {k k' : α} {f : Option (β k) 
 
 theorem size_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
     (m.alter k f).size =
-      if m.contains k && (f (m.get? k)).isNone then
+      if k ∈ m ∧ (f (m.get? k)).isNone then
         m.size - 1
-      else if !m.contains k && (f (m.get? k)).isSome then
+      else if k ∉ m ∧ (f (m.get? k)).isSome then
         m.size + 1
       else
         m.size := by
+  simp only [mem_iff_contains]
   simp_to_raw using Raw₀.size_alter
 
 theorem size_alter_eq_add_one [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
@@ -2520,13 +2521,14 @@ theorem mem_alter_of_beq_eq_false [EquivBEq α] [LawfulHashable α] {k k' : α}
 
 theorem size_alter [LawfulBEq α] {k : α} {f : Option β → Option β} (h : m.WF) :
     (Const.alter m k f).size =
-      if m.contains k && (f (Const.get? m k)).isNone then
+      if k ∈ m ∧ (f (Const.get? m k)).isNone then
         m.size - 1
-      else if !m.contains k && (f (Const.get? m k)).isSome then
+      else if ¬ k ∈ m ∧ (f (Const.get? m k)).isSome then
         m.size + 1
       else
         m.size := by
-  simp_to_raw using Raw₀.Const.size_alter
+  simp only [mem_iff_contains]
+  simp_to_raw using Raw₀.Const.size_alter (m := ⟨m, h.size_buckets_pos⟩) (k := k)
 
 theorem size_alter_eq_add_one [LawfulBEq α] {k : α} {f : Option β → Option β}
     (h : m.WF) (h₁ : k ∉ m) (h₂ : (f (Const.get? m k)).isSome) :

@@ -2044,14 +2044,12 @@ theorem isEmpty_alter [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α}
 
 theorem contains_alter [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} :
-    (t.alter k f).contains k' =
-      if cmp k k' = .eq then (f (t.get? k)).isSome else t.contains k' :=
+    (t.alter k f).contains k' = if cmp k k' = .eq then (f (t.get? k)).isSome else t.contains k' :=
   Impl.contains_alter! h
 
 theorem mem_alter [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} :
-    k' ∈ t.alter k f ↔
-      if cmp k k' = .eq then (f (t.get? k)).isSome = true else k' ∈ t :=
+    k' ∈ t.alter k f ↔ if cmp k k' = .eq then (f (t.get? k)).isSome = true else k' ∈ t :=
   Impl.mem_alter! h
 
 theorem mem_alter_of_compare_eq [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k': α}
@@ -2219,7 +2217,7 @@ theorem getKey_alter [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF) 
       if heq : cmp k k' = .eq then
         k
       else
-        haveI h' : t.contains k' := mem_alter_of_not_compare_eq h heq |>.mp hc
+        haveI h' : k' ∈ t := mem_alter_of_not_compare_eq h heq |>.mp hc
         t.getKey k' h' :=
   Impl.getKey_alter! h
 
@@ -2452,7 +2450,11 @@ end Alter
 
 section Modify
 
-variable [TransCmp cmp] [LawfulEqCmp cmp]
+variable [TransCmp cmp]
+
+section Dependent
+
+variable [LawfulEqCmp cmp]
 
 @[simp]
 theorem isEmpty_modify (h : t.WF) {k : α} {f : β k → β k} :
@@ -2577,10 +2579,11 @@ theorem getKeyD_modify_self (h : t.WF) [Inhabited α] {k fallback : α} {f : β 
     (t.modify k f).getKeyD k fallback = if k ∈ t then k else fallback :=
   Impl.getKeyD_modify_self h
 
+end Dependent
+
 namespace Const
 
 variable {β : Type v} {t : Raw α β cmp}
-omit [LawfulEqCmp cmp]
 
 @[simp]
 theorem isEmpty_modify (h : t.WF) {k : α} {f : β → β} :

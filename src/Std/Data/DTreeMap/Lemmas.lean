@@ -2080,9 +2080,9 @@ theorem mem_alter_of_not_compare_eq [TransCmp cmp] [LawfulEqCmp cmp] {k k' : α}
 theorem size_alter [TransCmp cmp] [LawfulEqCmp cmp] {k : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter k f).size =
-      if t.contains k && (f (t.get? k)).isNone then
+      if k ∈ t ∧ (f (t.get? k)).isNone then
         t.size - 1
-      else if !t.contains k && (f (t.get? k)).isSome then
+      else if k ∉ t ∧ (f (t.get? k)).isSome then
         t.size + 1
       else
         t.size :=
@@ -2214,7 +2214,7 @@ theorem getKey_alter [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] {k k' : α}
       if heq : cmp k k' = .eq then
         k
       else
-        haveI h' : t.contains k' := mem_alter_of_not_compare_eq heq |>.mp hc
+        haveI h' : k' ∈ t := mem_alter_of_not_compare_eq heq |>.mp hc
         t.getKey k' h' :=
   Impl.getKey_alter t.wf
 
@@ -2292,9 +2292,9 @@ theorem mem_alter_of_not_compare_eq [TransCmp cmp] {k k' : α} {f : Option β �
 
 theorem size_alter [TransCmp cmp] {k : α} {f : Option β → Option β} :
     (alter t k f).size =
-      if t.contains k && (f (get? t k)).isNone then
+      if k ∈ t ∧ (f (get? t k)).isNone then
         t.size - 1
-      else if !t.contains k && (f (get? t k)).isSome then
+      else if k ∉ t ∧ (f (get? t k)).isSome then
         t.size + 1
       else
         t.size :=
@@ -2447,7 +2447,11 @@ end Alter
 
 section Modify
 
-variable [TransCmp cmp] [LawfulEqCmp cmp]
+variable [TransCmp cmp]
+
+section Dependent
+
+variable [LawfulEqCmp cmp]
 
 @[simp]
 theorem isEmpty_modify {k : α} {f : β k → β k} :
@@ -2482,7 +2486,6 @@ theorem get?_modify_self {k : α} {f : β k → β k} :
 theorem get_modify {k k' : α} {f : β k → β k} {hc : k' ∈ t.modify k f} :
     (t.modify k f).get k' hc =
       if heq : cmp k k' = .eq then
-        -- TODO
         haveI h' : k ∈ t := mem_congr heq |>.mpr <| mem_modify.mp hc
         cast (congrArg β (compare_eq_iff_eq.mp heq)) <| f (t.get k h')
       else
@@ -2573,10 +2576,11 @@ theorem getKeyD_modify_self [Inhabited α] {k fallback : α} {f : β k → β k}
     (t.modify k f).getKeyD k fallback = if k ∈ t then k else fallback :=
   Impl.getKeyD_modify_self t.wf
 
+end Dependent
+
 namespace Const
 
 variable {β : Type v} {t : DTreeMap α β cmp}
-omit [LawfulEqCmp cmp]
 
 @[simp]
 theorem isEmpty_modify {k : α} {f : β → β} :

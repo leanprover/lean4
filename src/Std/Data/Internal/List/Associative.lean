@@ -3137,9 +3137,9 @@ theorem length_alterKey {k : α} {f : Option (β k) → Option (β k)} {l : List
 
 theorem length_alterKey' {k : α} {f : Option (β k) → Option (β k)} {l : List ((a : α) × β a)} :
     (alterKey k f l).length =
-      if containsKey k l && (f (getValueCast? k l)).isNone then
+      if containsKey k l ∧ (f (getValueCast? k l)).isNone then
         l.length - 1
-      else if !containsKey k l && (f (getValueCast? k l)).isSome then
+      else if containsKey k l = false ∧ (f (getValueCast? k l)).isSome then
         l.length + 1
       else
         l.length := by
@@ -3404,9 +3404,9 @@ theorem length_alterKey {k : α} {f : Option β → Option β} {l : List ((_ : �
 
 theorem length_alterKey' {k : α} {f : Option β → Option β} {l : List ((_ : α) × β)} :
     (alterKey k f l).length =
-      if containsKey k l && (f (getValue? k l)).isNone then
+      if containsKey k l ∧ (f (getValue? k l)).isNone then
         l.length - 1
-      else if !containsKey k l && (f (getValue? k l)).isSome then
+      else if containsKey k l = false ∧ (f (getValue? k l)).isSome then
         l.length + 1
       else
         l.length := by

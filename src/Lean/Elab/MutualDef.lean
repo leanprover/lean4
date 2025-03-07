@@ -1075,13 +1075,16 @@ is error-free and contains no syntactical `sorry`s.
 -/
 private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
     (defsParsedSnap : DefsParsedSnapshot) : TermElabM Unit := do
-  let tree := toSnapshotTree defsParsedSnap
+  let snaps := #[SnapshotTask.finished none (toSnapshotTree defsParsedSnap)] ++
+    (← getThe Core.State).snapshotTasks
+  let tree := SnapshotTree.mk { diagnostics := .empty } snaps
   let logGoalsAccomplishedAct ← Term.wrapAsyncAsSnapshot (cancelTk? := none) fun () => do
     -- NOTE: `waitAll` below ensures `getAll` will not block here
     let logs := tree.getAll.map (·.diagnostics.msgLog)
-    let hasError := logs.any (·.hasErrors)
-    let hasSorry := hasSorry (← getRef)
-    if hasError || hasSorry then
+    let hasErrorOrSorry := logs.any fun log =>
+      log.reportedPlusUnreported.any fun msg =>
+        msg.severity matches .error || msg.data.hasTag (· == `hasSorry)
+    if hasErrorOrSorry then
       return
     for d in defsParsedSnap.defs, view in views do
       let logGoalsAccomplished :=
@@ -1105,12 +1108,6 @@ private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
     reportingRange? := (← getRef).getPos?.map fun pos => ⟨pos, pos⟩
     task := logGoalsAccomplishedTask
   }
-where
-  -- Syntactical check to avoid potentially expensive `Expr` traversal
-  hasSorry (stx : Syntax) : Bool :=
-    stx.find? (fun
-      | `(sorry) | `(tactic| sorry) | `(tactic| admit) => true
-      | _ => false) |>.isSome
 
 end Term
 namespace Command

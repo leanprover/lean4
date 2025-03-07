@@ -11685,6 +11685,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; uint8_t x_9; 
 x_8 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__1;
+lean_inc(x_4);
 lean_inc(x_1);
 x_9 = l_Lean_TagDeclarationExtension_isTagged(x_8, x_1, x_4);
 if (x_9 == 0)
@@ -11774,6 +11775,7 @@ if (x_23 == 0)
 {
 lean_object* x_24; uint8_t x_25; 
 x_24 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__1;
+lean_inc(x_4);
 lean_inc(x_1);
 x_25 = l_Lean_TagDeclarationExtension_isTagged(x_24, x_1, x_4);
 if (x_25 == 0)
@@ -16078,6 +16080,7 @@ x_57 = lean_ctor_get(x_55, 0);
 lean_inc(x_57);
 lean_dec(x_55);
 x_58 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__1;
+lean_inc(x_15);
 x_59 = l_Lean_TagDeclarationExtension_isTagged(x_58, x_57, x_15);
 if (x_59 == 0)
 {

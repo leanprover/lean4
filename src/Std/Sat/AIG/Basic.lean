@@ -349,9 +349,9 @@ where
 A vector of references into `aig`. This is the `AIG` analog of `BitVec`.
 -/
 structure RefVec (aig : AIG α) (w : Nat) where
-  refs : Array Nat
+  refs : Array (Nat × Bool)
   hlen : refs.size = w
-  hrefs : ∀ (h : i < w), refs[i] < aig.decls.size
+  hrefs : ∀ (h : i < w), refs[i].1 < aig.decls.size
 
 /--
 A sequence of references bundled with their AIG.

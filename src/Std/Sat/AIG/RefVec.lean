@@ -24,8 +24,8 @@ def empty : RefVec aig 0 where
 @[inline]
 def cast' {aig1 aig2 : AIG α} (s : RefVec aig1 len)
     (h :
-      (∀ {i : Nat} (h : i < len), s.refs[i]'(by have := s.hlen; omega) < aig1.decls.size)
-        → ∀ {i : Nat} (h : i < len), s.refs[i]'(by have := s.hlen; omega) < aig2.decls.size) :
+      (∀ {i : Nat} (h : i < len), (s.refs[i]'(by have := s.hlen; omega)).1 < aig1.decls.size)
+        → ∀ {i : Nat} (h : i < len), (s.refs[i]'(by have := s.hlen; omega)).1 < aig2.decls.size) :
     RefVec aig2 len :=
   { s with
     hrefs := by
@@ -49,13 +49,13 @@ def cast {aig1 aig2 : AIG α} (s : RefVec aig1 len) (h : aig1.decls.size ≤ aig
 def get (s : RefVec aig len) (idx : Nat) (hidx : idx < len) : Ref aig :=
   let ⟨refs, hlen, hrefs⟩ := s
   let ref := refs[idx]'(by rw [hlen]; assumption)
-  ⟨ref, by apply hrefs; assumption⟩
+  ⟨ref.1, ref.2, by apply hrefs; assumption⟩
 
 @[inline]
 def push (s : RefVec aig len) (ref : AIG.Ref aig) : RefVec aig (len + 1) :=
   let ⟨refs, hlen, hrefs⟩ := s
   ⟨
-    refs.push ref.gate,
+    refs.push (ref.gate, ref.invert),
     by simp [hlen],
     by
       intro i hi
@@ -86,6 +86,8 @@ theorem get_push_ref_lt (s : RefVec aig len) (ref : AIG.Ref aig) (idx : Nat)
   cases ref
   simp only [Ref.mk.injEq]
   rw [Array.getElem_push_lt]
+  · simp
+  · simp [hlen, hidx]
 
 @[simp]
 theorem get_cast {aig1 aig2 : AIG α} (s : RefVec aig1 len) (idx : Nat) (hidx : idx < len)
@@ -126,6 +128,9 @@ theorem get_append (lhs : RefVec aig lw) (rhs : RefVec aig rw) (idx : Nat)
   split
   · simp [Ref.mk.injEq]
     rw [Array.getElem_append_left]
+    · simp
+    · rw [lhs.hlen]
+      assumption
   · simp only [Ref.mk.injEq]
     rw [Array.getElem_append_right]
     · simp [lhs.hlen]
@@ -153,7 +158,7 @@ theorem get_out_bound (s : RefVec aig len) (idx : Nat) (alt : Ref aig) (hidx : l
 
 def countKnown [Inhabited α] (aig : AIG α) (s : RefVec aig len) : Nat := Id.run do
   let folder acc ref :=
-    let decl := aig.decls[ref]!
+    let decl := aig.decls[ref.1]!
     match decl with
     | .const .. => acc + 1
     | _ => acc

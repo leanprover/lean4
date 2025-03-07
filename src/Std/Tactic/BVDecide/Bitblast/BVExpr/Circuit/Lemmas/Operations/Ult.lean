@@ -42,11 +42,8 @@ theorem mkUlt_denote_eq (aig : AIG α) (lhs rhs : BitVec w) (input : BinaryRefVe
   · dsimp only
     intro idx hidx
     rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
-    · simp only [RefVec.get_cast, Ref.gate_cast, BitVec.getLsbD_not, hidx, decide_true,
-        Bool.true_and]
-      rw [BVExpr.bitblast.denote_blastNot]
-      congr 1
-      apply hright
+    · simp only [RefVec.get_cast, Ref.cast_eq, hidx, BitVec.getLsbD_eq_getElem, BitVec.getElem_not]
+      rw [BVExpr.bitblast.denote_blastNot, hright, BitVec.getLsbD_eq_getElem]
     · simp [Ref.hgate]
 
 end BVPred

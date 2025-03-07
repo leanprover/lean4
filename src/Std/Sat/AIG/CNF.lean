@@ -129,7 +129,7 @@ theorem satAssignment_inl : (cnfSatAssignment aig assign1) (.inl x) = assign1 x 
 
 @[simp]
 theorem satAssignment_inr :
-    (cnfSatAssignment aig assign1) (.inr x) = ⟦aig, ⟨x.val, x.isLt⟩, assign1⟧ := by
+    (cnfSatAssignment aig assign1) (.inr x) = ⟦aig, ⟨x.val, false, x.isLt⟩, assign1⟧ := by
   simp [cnfSatAssignment, mixAssigns]
 
 /--
@@ -156,7 +156,7 @@ structure Cache.Inv (cnf : CNF (CNFVar aig)) (marks : Array Bool) (hmarks : mark
   -/
   heval : ∀ (assign : CNFVar aig → Bool) (_heval : cnf.eval assign = true) (idx : Nat)
             (hbound : idx < aig.decls.size) (_hmark : marks[idx]'(by omega) = true),
-              ⟦aig, ⟨idx, hbound⟩, projectLeftAssign assign⟧ = (projectRightAssign assign) idx hbound
+              ⟦aig, ⟨idx, false, hbound⟩, projectLeftAssign assign⟧ = (projectRightAssign assign) idx hbound
 
 
 /--
@@ -287,7 +287,7 @@ def Cache.addConst (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size
           · next heq =>
             simp only [heq, CNF.eval_append, Decl.constToCNF_eval, Bool.and_eq_true, beq_iff_eq]
               at htip heval
-            simp only [denote_idx_const htip, projectRightAssign_property, heval]
+            simp [denote_idx_const htip, projectRightAssign_property, heval]
           · next heq =>
             simp only [CNF.eval_append, Decl.constToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
             have := cache.inv.heval assign heval.right idx hbound hmarked
@@ -376,7 +376,7 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
               at htip heval
             have hleval := cache.inv.heval assign heval.right lhs (by omega) hl
             have hreval := cache.inv.heval assign heval.right rhs (by omega) hr
-            simp only [denote_idx_gate htip, hleval, projectRightAssign_property, hreval, heval]
+            cases linv <;> cases rinv <;> simp [denote_idx_gate htip, hleval, projectRightAssign_property, hreval, heval]
           · next heq =>
             simp only [CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
             have := cache.inv.heval assign heval.right idx hbound hmarked
@@ -439,7 +439,7 @@ theorem State.Inv_gateToCNF {aig : AIG Nat} {h}
         rinv)
     := by
   intro assign1
-  simp [CNF.sat_def, denote_idx_gate heq]
+  cases linv <;> cases rinv <;> simp [CNF.sat_def, denote_idx_gate heq]
 
 /--
 The state to accumulate CNF clauses as we run our Tseitin transformation on the AIG.
@@ -566,10 +566,12 @@ theorem State.unsat_def (state : State aig) :
   rfl
 
 @[simp]
-theorem State.eval_eq : State.eval assign state = state.cnf.eval assign := by simp [State.eval]
+theorem State.eval_eq : State.eval assign state = state.cnf.eval assign := by
+  simp [State.eval]
 
 @[simp]
-theorem State.sat_iff : State.Sat assign state ↔ state.cnf.Sat assign := by simp [State.sat_def]
+theorem State.sat_iff : State.Sat assign state ↔ state.cnf.Sat assign := by
+  simp [State.sat_def]
 
 @[simp]
 theorem State.unsat_iff : State.Unsat state ↔ state.cnf.Unsat := by simp [State.unsat_def]
@@ -581,7 +583,7 @@ Convert an AIG into CNF, starting at some entry node.
 -/
 def toCNF (entry : Entrypoint Nat) : CNF Nat :=
   let ⟨state, _⟩ := go entry.aig entry.ref.gate entry.ref.hgate (toCNF.State.empty entry.aig)
-  let cnf : CNF (CNFVar entry.aig) := [(.inr ⟨entry.ref.gate, entry.ref.hgate⟩, true)] :: state.cnf
+  let cnf : CNF (CNFVar entry.aig) := [(.inr ⟨entry.ref.gate, entry.ref.hgate⟩, !entry.ref.invert)] :: state.cnf
   cnf.relabel inj
 where
   inj {aig : AIG Nat} (var : CNFVar aig) : Nat :=
@@ -664,8 +666,8 @@ theorem toCNF.go_sat (aig : AIG Nat) (start : Nat) (h1 : start < aig.decls.size)
   rw [State.sat_iff]
   simp [this]
 
-theorem toCNF.go_as_denote' (aig : AIG Nat) (start) (h1) (assign1) :
-    ⟦aig, ⟨start, h1⟩, assign1⟧ → (go aig start h1 (.empty aig)).val.eval (cnfSatAssignment aig assign1) := by
+theorem toCNF.go_as_denote' (aig : AIG Nat) (start) (inv) (h1) (assign1) :
+    ⟦aig, ⟨start, inv, h1⟩, assign1⟧ → (go aig start h1 (.empty aig)).val.eval (cnfSatAssignment aig assign1) := by
   have := go_sat aig start h1 assign1 (.empty aig)
   simp only [State.Sat, CNF.sat_def] at this
   simp [this]
@@ -674,26 +676,25 @@ theorem toCNF.go_as_denote' (aig : AIG Nat) (start) (h1) (assign1) :
 Connect SAT results about the CNF to SAT results about the AIG.
 -/
 theorem toCNF.go_as_denote (aig : AIG Nat) (start) (h1) (assign1) :
-    ((⟦aig, ⟨start, h1⟩, assign1⟧ && (go aig start h1 (.empty aig)).val.eval (cnfSatAssignment aig assign1)) = sat?)
+    ((⟦aig, ⟨start, inv, h1⟩, assign1⟧ && (go aig start h1 (.empty aig)).val.eval (cnfSatAssignment aig assign1)) = sat?)
       →
-    (⟦aig, ⟨start, h1⟩, assign1⟧ = sat?) := by
-  have := go_as_denote' aig start h1 assign1
+    (⟦aig, ⟨start, inv, h1⟩, assign1⟧ = sat?) := by
+  have := go_as_denote' aig start inv h1 assign1
   by_cases CNF.eval (cnfSatAssignment aig assign1) (go aig start h1 (State.empty aig)).val.cnf <;> simp_all
 
 /--
 Connect SAT results about the AIG to SAT results about the CNF.
 -/
-theorem toCNF.denote_as_go {assign : AIG.CNFVar aig → Bool}:
-    (⟦aig, ⟨start, h1⟩, projectLeftAssign assign⟧ = false)
+theorem toCNF.denote_as_go {assign : AIG.CNFVar aig → Bool} :
+    (⟦aig, ⟨start, inv, h1⟩, projectLeftAssign assign⟧ = false)
       →
-    CNF.eval assign (([(.inr ⟨start, h1⟩, true)] :: (go aig start h1 (.empty aig)).val.cnf)) = false := by
+    CNF.eval assign (([(.inr ⟨start, h1⟩, !inv)] :: (go aig start h1 (.empty aig)).val.cnf)) = false := by
   intro h
   match heval1:(go aig start h1 (State.empty aig)).val.cnf.eval assign with
   | true =>
     have heval2 := (go aig start h1 (.empty aig)).val.cache.inv.heval
     specialize heval2 assign heval1 start h1 go_marks
-    simp only [h, projectRightAssign_property, Bool.false_eq] at heval2
-    simp [heval2]
+    cases inv <;> simp_all
   | false =>
     simp [heval1]
 
@@ -707,7 +708,7 @@ theorem toCNF_equisat (entry : Entrypoint Nat) : (toCNF entry).Unsat ↔ entry.U
     · intro h assign1
       apply toCNF.go_as_denote
       specialize h (toCNF.cnfSatAssignment entry.aig assign1)
-      simpa using h
+      rcases entry with ⟨_, ⟨_, _ | _, _⟩⟩ <;> simpa using h
     · intro h assign
       apply toCNF.denote_as_go
       specialize h (toCNF.projectLeftAssign assign)

@@ -313,8 +313,6 @@ theorem mkGateCached.go_eval_eq_mkGate_eval {aig : AIG α} {input : BinaryInput 
           simp only [Bool.and_eq_true, beq_iff_eq] at hif
           rcases hif with ⟨hifeq, hinv⟩
           simp [hifeq, hinv]
-          -- obviously true, maybe build a simp lemma
-          sorry
         · simp [mkGate, denote]
 
 /--

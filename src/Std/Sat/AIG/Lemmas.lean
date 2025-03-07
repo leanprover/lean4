@@ -79,7 +79,14 @@ theorem Ref.denote_not {aig : AIG α} {ref : Ref aig} :
 @[simp]
 theorem denote_not_invert {aig : AIG α} {gate} {inv} {hgate} :
     ⟦aig, ⟨gate, !inv, hgate⟩, assign⟧ = !⟦aig, ⟨gate, inv, hgate⟩, assign⟧ := by
-  sorry
+  unfold denote
+  simp
+
+@[simp]
+theorem denote_invert_true {aig : AIG α} {gate} {hgate} :
+    ⟦aig, ⟨gate, true, hgate⟩, assign⟧ = !⟦aig, ⟨gate, false, hgate⟩, assign⟧ := by
+  unfold denote
+  simp
 
 /--
 `AIG.mkGate` never shrinks the underlying AIG.

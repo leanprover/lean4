@@ -221,12 +221,12 @@ theorem go_denote_mem_prefix {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr
     (discr : Ref aig) (lhs rhs : RefVec aig w) (s : RefVec aig curr) (start : Nat) (hstart) :
     ⟦
       (go aig curr hcurr discr lhs rhs s).aig,
-      ⟨start, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
+      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
       assign
     ⟧
       =
-    ⟦aig, ⟨start, hstart⟩, assign⟧ := by
-  apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
+    ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
+  apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
     apply go_decl_eq

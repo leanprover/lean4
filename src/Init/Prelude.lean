@@ -817,58 +817,64 @@ theorem ULift.up_down {α : Type u} (b : ULift.{v} α) : Eq (up (down b)) b := r
 theorem ULift.down_up {α : Type u} (a : α) : Eq (down (up.{v} a)) a := rfl
 
 /--
-`Decidable p` is a data-carrying class that supplies a proof that `p` is
-either `true` or `false`. It is equivalent to `Bool` (and in fact it has the
-same code generation as `Bool`) together with a proof that the `Bool` is
-true iff `p` is.
+Either a proof that `p` is true or a proof that `p` is false. This is equivalent to a `Bool` paired
+with a proof that the `Bool` is `true` if and only if `p` is true.
 
-`Decidable` instances are used to infer "computation strategies" for
-propositions, so that you can have the convenience of writing propositions
-inside `if` statements and executing them (which actually executes the inferred
-decidability instance instead of the proposition, which has no code).
+`Decidable` instances are primarily used via `if`-expressions and the tactic `decide`. In
+conditional expressions, the `Decidable` instance for the proposition is used to select a branch. At
+run time, this case distinction code is identical to that which would be generated for a
+`Bool`-based conditional. In proofs, the tactic `decide` synthesizes an instance of `Decidable p`,
+attempts to reduce it to `isTrue h`, and then succeeds with the proof `h` if it can.
 
-If a proposition `p` is `Decidable`, then `(by decide : p)` will prove it by
-evaluating the decidability instance to `isTrue h` and returning `h`.
-
-Because `Decidable` carries data,
-when writing `@[simp]` lemmas which include a `Decidable` instance on the LHS,
-it is best to use `{_ : Decidable p}` rather than `[Decidable p]`
-so that non-canonical instances can be found via unification rather than
-typeclass search.
+Because `Decidable` carries data, when writing `@[simp]` lemmas which include a `Decidable` instance
+on the LHS, it is best to use `{_ : Decidable p}` rather than `[Decidable p]` so that non-canonical
+instances can be found via unification rather than instance synthesis.
 -/
 class inductive Decidable (p : Prop) where
-  /-- Prove that `p` is decidable by supplying a proof of `¬p` -/
+  /-- Proves that `p` is decidable by supplying a proof of `¬p` -/
   | isFalse (h : Not p) : Decidable p
-  /-- Prove that `p` is decidable by supplying a proof of `p` -/
+  /-- Proves that `p` is decidable by supplying a proof of `p` -/
   | isTrue (h : p) : Decidable p
 
 /--
-Convert a decidable proposition into a boolean value.
+Converts a decidable proposition into a `Bool`.
 
-If `p : Prop` is decidable, then `decide p : Bool` is the boolean value
-which is `true` if `p` is true and `false` if `p` is false.
+If `p : Prop` is decidable, then `decide p : Bool` is the Boolean value
+that is `true` if `p` is true and `false` if `p` is false.
 -/
 @[inline_if_reduce, nospecialize] def Decidable.decide (p : Prop) [h : Decidable p] : Bool :=
   h.casesOn (fun _ => false) (fun _ => true)
 
 export Decidable (isTrue isFalse decide)
 
-/-- A decidable predicate. See `Decidable`. -/
+/--
+A decidable predicate.
+
+A predicate is decidable if the corresponding proposition is `Decidable` for each possible argument.
+-/
 abbrev DecidablePred {α : Sort u} (r : α → Prop) :=
   (a : α) → Decidable (r a)
 
-/-- A decidable relation. See `Decidable`. -/
+/--
+A decidable relation.
+
+A relation is decidable if the corresponding proposition is `Decidable` for all possible arguments.
+-/
 abbrev DecidableRel {α : Sort u} {β : Sort v} (r : α → β → Prop) :=
   (a : α) → (b : β) → Decidable (r a b)
 
 /--
-Asserts that `α` has decidable equality, that is, `a = b` is decidable
-for all `a b : α`. See `Decidable`.
+Propositional equality is `Decidable` for all elements of a type.
+
+In other words, an instance of `DecidableEq α` is a means of deciding the proposition `a = b` is
+for all `a b : α`.
 -/
 abbrev DecidableEq (α : Sort u) :=
   (a b : α) → Decidable (Eq a b)
 
-/-- Proves that `a = b` is decidable given `DecidableEq α`. -/
+/--
+Checks whether two terms of a type are equal using the type's `DecidableEq` instance.
+-/
 def decEq {α : Sort u} [inst : DecidableEq α] (a b : α) : Decidable (Eq a b) :=
   inst a b
 

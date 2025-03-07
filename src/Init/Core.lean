@@ -946,9 +946,10 @@ namespace Decidable
 variable {p q : Prop}
 
 /--
-Synonym for `dite` (dependent if-then-else). We can construct an element `q`
-(of any sort, not just a proposition) by cases on whether `p` is true or false,
-provided `p` is decidable.
+Construct a `q` if some proposition `p` is decidable, and both the truth and falsity of `p` are
+sufficient to construct a `q`.
+
+This is a synonym for `dite`, the dependent if-then-else operator.
 -/
 @[macro_inline] def byCases {q : Sort u} [dec : Decidable p] (h1 : p → q) (h2 : ¬p → q) : q :=
   match dec with

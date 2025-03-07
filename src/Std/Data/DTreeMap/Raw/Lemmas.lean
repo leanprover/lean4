@@ -2446,4 +2446,268 @@ end Const
 
 end Alter
 
+section Modify
+
+variable [TransCmp cmp]
+
+section Dependent
+
+variable [LawfulEqCmp cmp]
+
+@[simp]
+theorem isEmpty_modify (h : t.WF) {k : α} {f : β k → β k} :
+    (t.modify k f).isEmpty = t.isEmpty :=
+  Impl.isEmpty_modify h
+
+theorem contains_modify (h : t.WF) {k k' : α} {f : β k → β k} :
+    (t.modify k f).contains k' = t.contains k' :=
+  Impl.contains_modify h
+
+theorem mem_modify (h : t.WF) {k k' : α} {f : β k → β k} :
+    k' ∈ t.modify k f ↔ k' ∈ t :=
+  Impl.mem_modify h
+
+theorem size_modify (h : t.WF) {k : α} {f : β k → β k} :
+    (t.modify k f).size = t.size :=
+  Impl.size_modify h
+
+theorem get?_modify (h : t.WF) {k k' : α} {f : β k → β k} :
+    (t.modify k f).get? k' =
+      if h : cmp k k' = .eq then
+        (cast (congrArg (Option ∘ β) (compare_eq_iff_eq.mp h)) ((t.get? k).map f))
+      else
+        t.get? k' :=
+  Impl.get?_modify h
+
+@[simp]
+theorem get?_modify_self (h : t.WF) {k : α} {f : β k → β k} :
+    (t.modify k f).get? k = (t.get? k).map f :=
+  Impl.get?_modify_self h
+
+theorem get_modify (h : t.WF) {k k' : α} {f : β k → β k} {hc : k' ∈ t.modify k f} :
+    (t.modify k f).get k' hc =
+      if heq : cmp k k' = .eq then
+        haveI h' : k ∈ t := mem_congr h heq |>.mpr <| mem_modify h |>.mp hc
+        cast (congrArg β (compare_eq_iff_eq.mp heq)) <| f (t.get k h')
+      else
+        haveI h' : k' ∈ t := (mem_modify h).mp hc
+        t.get k' h' :=
+  Impl.get_modify h
+
+@[simp]
+theorem get_modify_self (h : t.WF) {k : α} {f : β k → β k} {hc : k ∈ t.modify k f} :
+    haveI h' : k ∈ t := mem_modify h |>.mp hc
+    (t.modify k f).get k hc = f (t.get k h') :=
+  Impl.get_modify_self h
+
+theorem get!_modify (h : t.WF) {k k' : α} [hi : Inhabited (β k')] {f : β k → β k} :
+    (t.modify k f).get! k' =
+      if heq : cmp k k' = .eq then
+        t.get? k |>.map f |>.map (cast (congrArg β (compare_eq_iff_eq.mp heq))) |>.get!
+      else
+        t.get! k' :=
+  Impl.get!_modify h
+
+@[simp]
+theorem get!_modify_self (h : t.WF) {k : α} [Inhabited (β k)] {f : β k → β k} :
+    (t.modify k f).get! k = ((t.get? k).map f).get! :=
+  Impl.get!_modify_self h
+
+theorem getD_modify (h : t.WF) {k k' : α} {fallback : β k'} {f : β k → β k} :
+    (t.modify k f).getD k' fallback =
+      if heq : cmp k k' = .eq then
+        t.get? k |>.map f |>.map (cast (congrArg β <| compare_eq_iff_eq.mp heq)) |>.getD fallback
+      else
+        t.getD k' fallback :=
+  Impl.getD_modify h
+
+@[simp]
+theorem getD_modify_self (h : t.WF) {k : α} {fallback : β k} {f : β k → β k} :
+    (t.modify k f).getD k fallback = ((t.get? k).map f).getD fallback :=
+  Impl.getD_modify_self h
+
+theorem getKey?_modify (h : t.WF) {k k' : α} {f : β k → β k} :
+    (t.modify k f).getKey? k' =
+      if cmp k k' = .eq then
+        if k ∈ t then some k else none
+      else
+        t.getKey? k' :=
+  Impl.getKey?_modify h
+
+theorem getKey?_modify_self (h : t.WF) {k : α} {f : β k → β k} :
+    (t.modify k f).getKey? k = if k ∈ t then some k else none :=
+  Impl.getKey?_modify_self h
+
+theorem getKey!_modify (h : t.WF) [Inhabited α] {k k' : α} {f : β k → β k} :
+    (t.modify k f).getKey! k' =
+      if cmp k k' = .eq then
+        if k ∈ t then k else default
+      else
+        t.getKey! k' :=
+  Impl.getKey!_modify h
+
+theorem getKey!_modify_self (h : t.WF) [Inhabited α] {k : α} {f : β k → β k} :
+    (t.modify k f).getKey! k = if k ∈ t then k else default :=
+  Impl.getKey!_modify_self h
+
+theorem getKey_modify (h : t.WF) [Inhabited α] {k k' : α} {f : β k → β k}
+    {hc : (t.modify k f).contains k'} :
+    (t.modify k f).getKey k' hc =
+      if cmp k k' = .eq then
+        k
+      else
+        haveI h' : k' ∈ t := mem_modify h |>.mp hc
+        t.getKey k' h' :=
+  Impl.getKey_modify h
+
+@[simp]
+theorem getKey_modify_self (h : t.WF) [Inhabited α] {k : α} {f : β k → β k}
+    {hc : k ∈ t.modify k f} : (t.modify k f).getKey k hc = k :=
+  Impl.getKey_modify_self h
+
+theorem getKeyD_modify (h : t.WF) {k k' fallback : α} {f : β k → β k} :
+    (t.modify k f).getKeyD k' fallback =
+      if cmp k k' = .eq then
+        if k ∈ t then k else fallback
+      else
+        t.getKeyD k' fallback :=
+  Impl.getKeyD_modify h
+
+theorem getKeyD_modify_self (h : t.WF) [Inhabited α] {k fallback : α} {f : β k → β k} :
+    (t.modify k f).getKeyD k fallback = if k ∈ t then k else fallback :=
+  Impl.getKeyD_modify_self h
+
+end Dependent
+
+namespace Const
+
+variable {β : Type v} {t : Raw α β cmp}
+
+@[simp]
+theorem isEmpty_modify (h : t.WF) {k : α} {f : β → β} :
+    (modify t k f).isEmpty = t.isEmpty :=
+  Impl.Const.isEmpty_modify h
+
+theorem contains_modify (h : t.WF) {k k' : α} {f : β → β} :
+    (modify t k f).contains k' = t.contains k' :=
+  Impl.Const.contains_modify h
+
+theorem mem_modify (h : t.WF) {k k' : α} {f : β → β} :
+    k' ∈ modify t k f ↔ k' ∈ t :=
+  Impl.Const.mem_modify h
+
+theorem size_modify (h : t.WF) {k : α} {f : β → β} :
+    (modify t k f).size = t.size :=
+  Impl.Const.size_modify h
+
+theorem get?_modify (h : t.WF) {k k' : α} {f : β → β} :
+    get? (modify t k f) k' =
+      if cmp k k' = .eq then
+        (get? t k).map f
+      else
+        get? t k' :=
+  Impl.Const.get?_modify h
+
+@[simp]
+theorem get?_modify_self (h : t.WF) {k : α} {f : β → β} :
+    get? (modify t k f) k = (get? t k).map f :=
+  Impl.Const.get?_modify_self h
+
+theorem get_modify (h : t.WF) {k k' : α} {f : β → β} {hc : k' ∈ modify t k f} :
+    get (modify t k f) k' hc =
+      if heq : cmp k k' = .eq then
+        haveI h' : k ∈ t := mem_congr h heq |>.mpr <| mem_modify h |>.mp hc
+        f (get t k h')
+      else
+        haveI h' : k' ∈ t := mem_modify h |>.mp hc
+        get t k' h' :=
+  Impl.Const.get_modify h
+
+@[simp]
+theorem get_modify_self (h : t.WF) {k : α} {f : β → β} {hc : k ∈ modify t k f} :
+    haveI h' : k ∈ t := mem_modify h |>.mp hc
+    get (modify t k f) k hc = f (get t k h') :=
+  Impl.Const.get_modify_self h
+
+theorem get!_modify (h : t.WF) {k k' : α} [hi : Inhabited β] {f : β → β} :
+    get! (modify t k f) k' =
+      if cmp k k' = .eq then
+        get? t k |>.map f |>.get!
+      else
+        get! t k' :=
+  Impl.Const.get!_modify h
+
+@[simp]
+theorem get!_modify_self (h : t.WF) {k : α} [Inhabited β] {f : β → β} :
+    get! (modify t k f) k = ((get? t k).map f).get! :=
+  Impl.Const.get!_modify_self h
+
+theorem getD_modify (h : t.WF) {k k' : α} {fallback : β} {f : β → β} :
+    getD (modify t k f) k' fallback =
+      if cmp k k' = .eq then
+        get? t k |>.map f |>.getD fallback
+      else
+        getD t k' fallback :=
+  Impl.Const.getD_modify h
+
+@[simp]
+theorem getD_modify_self (h : t.WF) {k : α} {fallback : β} {f : β → β} :
+    getD (modify t k f) k fallback = ((get? t k).map f).getD fallback :=
+  Impl.Const.getD_modify_self h
+
+theorem getKey?_modify (h : t.WF) {k k' : α} {f : β → β} :
+    (modify t k f).getKey? k' =
+      if cmp k k' = .eq then
+        if k ∈ t then some k else none
+      else
+        t.getKey? k' :=
+  Impl.Const.getKey?_modify h
+
+theorem getKey?_modify_self (h : t.WF) {k : α} {f : β → β} :
+    (modify t k f).getKey? k = if k ∈ t then some k else none :=
+  Impl.Const.getKey?_modify_self h
+
+theorem getKey!_modify (h : t.WF) [Inhabited α] {k k' : α} {f : β → β} :
+    (modify t k f).getKey! k' =
+      if cmp k k' = .eq then
+        if k ∈ t then k else default
+      else
+        t.getKey! k' :=
+  Impl.Const.getKey!_modify h
+
+theorem getKey!_modify_self (h : t.WF) [Inhabited α] {k : α} {f : β → β} :
+    (modify t k f).getKey! k = if k ∈ t then k else default :=
+  Impl.Const.getKey!_modify_self h
+
+theorem getKey_modify (h : t.WF) [Inhabited α] {k k' : α} {f : β → β}
+    {hc : (modify t k f).contains k'} :
+    (modify t k f).getKey k' hc =
+      if cmp k k' = .eq then
+        k
+      else
+        haveI h' : k' ∈ t := mem_modify h |>.mp hc
+        t.getKey k' h' :=
+  Impl.Const.getKey_modify h
+
+@[simp]
+theorem getKey_modify_self (h : t.WF) [Inhabited α] {k : α} {f : β → β}
+    {hc : k ∈ modify t k f} : (modify t k f).getKey k hc = k :=
+  Impl.Const.getKey_modify_self h
+
+theorem getKeyD_modify (h : t.WF) {k k' fallback : α} {f : β → β} :
+    (modify t k f).getKeyD k' fallback =
+      if cmp k k' = .eq then
+        if k ∈ t then k else fallback
+      else
+        t.getKeyD k' fallback :=
+  Impl.Const.getKeyD_modify h
+
+theorem getKeyD_modify_self (h : t.WF) [Inhabited α] {k fallback : α} {f : β → β} :
+    (modify t k f).getKeyD k fallback = if k ∈ t then k else fallback :=
+  Impl.Const.getKeyD_modify_self h
+
+end Const
+
+end Modify
+
 end Std.DTreeMap.Raw

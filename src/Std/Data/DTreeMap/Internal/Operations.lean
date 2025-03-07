@@ -784,7 +784,7 @@ def modify [Ord α] [LawfulEqOrd α] (k : α) (f : β k → β k) (t : Impl α �
     | .eq => .inner sz k (f <| cast (congrArg β <| compare_eq_iff_eq.mp h).symm v') l r
 
 @[Std.Internal.tree_tac]
-theorem aux_size_modify [Ord α] [LawfulEqOrd α] {k f} {t : Impl α β} :
+theorem size_modify [Ord α] [LawfulEqOrd α] {k f} {t : Impl α β} :
     (t.modify k f).size = t.size := by
   unfold modify
   split <;> (try split) <;> rfl
@@ -891,7 +891,7 @@ def modify [Ord α] (k : α) (f : β → β) (t : Impl α β) :
     | .eq => .inner sz k (f v') l r
 
 @[Std.Internal.tree_tac]
-theorem aux_size_modify [Ord α] {k f} {t : Impl α β} :
+theorem size_modify [Ord α] {k f} {t : Impl α β} :
     (modify k f t).size = t.size := by
   unfold modify
   split <;> (try split) <;> rfl

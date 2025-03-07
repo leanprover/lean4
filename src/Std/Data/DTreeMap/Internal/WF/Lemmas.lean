@@ -1116,11 +1116,6 @@ theorem ordered_modify [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} 
     (htb : t.Balanced) (hto : t.Ordered) : (modify a f t).Ordered :=
   modify_eq_alter htb ▸ ordered_alter htb hto
 
-theorem toListModel_modify [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {a f}
-    (htb : t.Balanced) (hto : t.Ordered) :
-    List.Perm (modify a f t).toListModel (modifyKey a f t.toListModel) := by
-  simpa only [modify_eq_alter htb, modifyKey_eq_alterKey] using toListModel_alter htb hto
-
 /-!
 ### mergeWith
 -/
@@ -1369,11 +1364,6 @@ theorem modify_eq_alter [Ord α] [TransOrd α] {t : Impl α β} {a f}
 theorem ordered_modify [Ord α] [TransOrd α] {t : Impl α β} {a f}
     (htb : t.Balanced) (hto : t.Ordered) : (modify a f t).Ordered :=
   modify_eq_alter htb ▸ ordered_alter htb hto
-
-theorem toListModel_modify [Ord α] [TransOrd α] {t : Impl α β} {a f}
-    (htb : t.Balanced) (hto : t.Ordered) :
-    List.Perm (modify a f t).toListModel (Const.modifyKey a f t.toListModel) := by
-  simpa only [modify_eq_alter htb, Const.modifyKey_eq_alterKey] using toListModel_alter htb hto
 
 /-!
 ### mergeWith

@@ -66,11 +66,11 @@ Implemented by efficient native code.
 -/
 @[extern "lean_int_ediv"]
 def ediv : (@& Int) → (@& Int) → Int
-  | ofNat m, ofNat n => ofNat (m / n)
-  | ofNat m, -[n+1]  => -ofNat (m / succ n)
+  | ofNat m, ofNat n => ofNat (Nat.div m n)
+  | ofNat m, -[n+1]  => -ofNat (Nat.div m (succ n))
   | -[_+1],  0       => 0
-  | -[m+1],  ofNat (succ n) => -[m / succ n +1]
-  | -[m+1],  -[n+1]  => ofNat (succ (m / succ n))
+  | -[m+1],  ofNat (succ n) => -[Nat.div m (succ n) +1]
+  | -[m+1],  -[n+1]  => ofNat (succ (Nat.div m (succ n)))
 
 /--
 Integer modulus. This version of integer modulus uses the E-rounding convention

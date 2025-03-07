@@ -241,7 +241,7 @@ Notes:
 -/
 def Poly.div (k : Int) : Poly → Poly
   | .num k' => .num (cdiv k' k)
-  | .add k' x p => .add (k'/k) x (div k p)
+  | .add k' x p => .add (Int.ediv k' k) x (div k p)
 
 /--
 Returns `true` if `k` divides all coefficients and the constant of the given

@@ -499,6 +499,9 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
 
     if (!cheap_rec && !cheap_proj) {
         m_st->m_whnf_core.insert(mk_pair(e, r));
+        // double badness = unordered_map_badness(m_st->m_whnf_core);
+        // if (badness > 10)
+        //     fprintf(stderr, "m_whnf_core badness: %f\n", badness );
     }
     return r;
 }
@@ -522,6 +525,7 @@ optional<expr> type_checker::unfold_definition_core(expr const & e) {
                 if (m_diag) {
                     m_diag->record_unfold(d->get_name());
                 }
+                // std::cerr << d->get_name() << std::endl;
                 return some_expr(instantiate_value_lparams(*d, const_levels(e)));
             }
         }
@@ -675,6 +679,9 @@ expr type_checker::whnf(expr const & e) {
 
     expr t = e;
     while (true) {
+        // double badness = unordered_map_badness(m_st->m_whnf);
+        // if (badness > 10)
+        //     fprintf(stderr, "m_whnf badness: %f\n", badness );
         expr t1 = whnf_core(t);
         if (auto v = reduce_native(env(), t1)) {
             m_st->m_whnf.insert(mk_pair(e, *v));

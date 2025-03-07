@@ -9,6 +9,19 @@ Author: Leonardo de Moura
 #include <functional>
 #include "kernel/expr.h"
 
+template <class Map>
+double unordered_map_badness(Map const& map)
+{
+    auto const lambda = map.size() / double(map.bucket_count());
+
+    auto cost = 0.;
+    for (auto const& [k, _] : map)
+        cost += map.bucket_size(map.bucket(k));
+    cost /= map.size();
+
+    return std::max(0., cost / (1 + lambda) - 1);
+}
+
 namespace lean {
 // Maps based on structural equality. That is, two keys are equal iff they are structurally equal
 template<typename T>

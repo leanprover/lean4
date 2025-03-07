@@ -187,8 +187,7 @@ theorem cmod_gt_of_pos (a : Int) {b : Int} (h : 0 < b) : cmod a b > -b :=
 
 theorem cmod_nonpos (a : Int) {b : Int} (h : b ≠ 0) : cmod a b ≤ 0 := by
   have := Int.neg_le_neg (Int.emod_nonneg (-a) h)
-  simp at this
-  assumption
+  simpa [cmod] using this
 
 theorem cmod_eq_zero_iff_emod_eq_zero (a b : Int) : cmod a b = 0 ↔ a%b = 0 := by
   unfold cmod
@@ -1009,7 +1008,7 @@ theorem eq_le_subst_nonpos (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly)
   intro h
   intro; subst p₃
   intro h₁ h₂
-  simp [*]
+  simp [*, -Int.neg_nonpos_iff]
   replace h₂ := Int.mul_le_mul_of_nonpos_left h₂ h; simp at h₂; clear h
   rw [← Int.neg_zero]
   apply Int.neg_le_neg
@@ -1071,7 +1070,7 @@ def eq_of_le_ge_cert (p₁ p₂ : Poly) : Bool :=
 theorem eq_of_le_ge (ctx : Context) (p₁ : Poly) (p₂ : Poly)
     : eq_of_le_ge_cert p₁ p₂ → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 → p₁.denote' ctx = 0 := by
   simp [eq_of_le_ge_cert]
-  intro; subst p₂; simp
+  intro; subst p₂; simp [-Int.neg_nonpos_iff]
   intro h₁ h₂
   replace h₂ := Int.neg_le_of_neg_le h₂; simp at h₂
   simp [Int.eq_iff_le_and_ge, *]

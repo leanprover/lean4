@@ -11,7 +11,7 @@ Author: Sofia Rodrigues
 
 namespace lean {
 
-static lean_external_class * g_uv_tcp_socket_external_class = NULL;
+static lean_external_class* g_uv_tcp_socket_external_class = NULL;
 void initialize_libuv_tcp_socket();
 
 #ifndef LEAN_EMSCRIPTEN
@@ -20,18 +20,18 @@ void initialize_libuv_tcp_socket();
 // Structure for managing a single TCP socket object, including promise handling,
 // connection state, and read/write buffers.
 typedef struct {
-    uv_tcp_t *      m_uv_tcp;           // LibUV TCP handle.
-    lean_object *   m_promise_accept;   // The associated promise for asynchronous results for accepting new sockets.
-    lean_object *   m_promise_read;     // The associated promise for asynchronous results for reading from the socket.
-    lean_object *   m_promise_shutdown; // The associated promise for asynchronous results to shutdown the socket.
-    lean_object *   m_client;           // Cached client that is going to be used in the next accept.
-    lean_object *   m_byte_array;       // TThe received data stored.
+    uv_tcp_t*      m_uv_tcp;           // LibUV TCP handle.
+    lean_object*   m_promise_accept;   // The associated promise for asynchronous results for accepting new sockets.
+    lean_object*   m_promise_read;     // The associated promise for asynchronous results for reading from the socket.
+    lean_object*   m_promise_shutdown; // The associated promise for asynchronous results to shutdown the socket.
+    lean_object*   m_client;           // Cached client that is going to be used in the next accept.
+    lean_object*   m_byte_array;       // TThe received data stored.
 } lean_uv_tcp_socket_object;
 
 // =======================================
 // Tcp socket object manipulation functions.
-static inline lean_object* lean_uv_tcp_socket_new(lean_uv_tcp_socket_object * s) { return lean_alloc_external(g_uv_tcp_socket_external_class, s); }
-static inline lean_uv_tcp_socket_object* lean_to_uv_tcp_socket(lean_object * o) { return (lean_uv_tcp_socket_object*)(lean_get_external_data(o)); }
+static inline lean_object* lean_uv_tcp_socket_new(lean_uv_tcp_socket_object* s) { return lean_alloc_external(g_uv_tcp_socket_external_class, s); }
+static inline lean_uv_tcp_socket_object* lean_to_uv_tcp_socket(lean_object* o) { return (lean_uv_tcp_socket_object*)(lean_get_external_data(o)); }
 
 #endif
 

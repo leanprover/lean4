@@ -367,6 +367,23 @@ by `foldM`. -/
 
 end Internal
 
+/--
+Monadically computes a value by folding the given function over the mappings in the hash
+map in the reverse order used by `foldM`.
+-/
+@[inline, deprecated "Deprecated without replacement. If the order does not matter, use foldM."
+  (since := "2025-03-07")]
+def foldRevM (f : δ → (a : α) → β a → m δ) (init : δ) (b : Raw α β) : m δ :=
+  b.buckets.foldrM (fun l acc => l.foldrM (fun a b d => f d a b) acc) init
+
+/--
+Folds the given function over the mappings in the hash map in the reverse order used
+by `foldM`. -/
+@[inline, deprecated "Deprecated without replacement. If the order does not matter, use fold."
+  (since := "2025-03-07")]
+def foldRev (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
+  Id.run (Internal.foldRevM f init b)
+
 /-- Carries out a monadic action on each mapping in the hash map in some order. -/
 @[inline] def forM (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=
   b.buckets.forM (AssocList.forM f)

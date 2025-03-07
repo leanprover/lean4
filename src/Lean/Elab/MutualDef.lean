@@ -1068,10 +1068,16 @@ where
             unless (← processDefDeriving className header.declName) do
               throwError "failed to synthesize instance '{className}' for '{header.declName}'"
 
+/--
+Logs a snapshot task that waits for the entire snapshot tree in `defsParsedSnap` and then logs a
+`goalsAccomplished` silent message for theorems and `Prop`-typed examples if the entire mutual block
+is error-free and contains no syntactical `sorry`s.
+-/
 private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
     (defsParsedSnap : DefsParsedSnapshot) : TermElabM Unit := do
   let tree := toSnapshotTree defsParsedSnap
   let logGoalsAccomplishedAct ← Term.wrapAsyncAsSnapshot (cancelTk? := none) fun () => do
+    -- NOTE: `waitAll` below ensures `getAll` will not block here
     let logs := tree.getAll.map (·.diagnostics.msgLog)
     let hasError := logs.any (·.hasErrors)
     let hasSorry := hasSorry (← getRef)

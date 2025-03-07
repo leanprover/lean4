@@ -143,7 +143,7 @@ def getDiseqValues (x : Var) : SearchM (Array (Rat × DiseqCnstr)) := do
       -- if `k` does not divide `v`, we can just ignore the disequality.
       let v := v.num
       if v % k == 0 then
-        r := r.push (v / k, c)
+        r := r.push ((-v)/k, c)
   return r
 
 /--

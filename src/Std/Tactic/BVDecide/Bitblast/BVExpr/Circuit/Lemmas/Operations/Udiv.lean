@@ -43,7 +43,7 @@ theorem denote_blastShiftConcat (aig : AIG α) (target : ShiftConcatInput aig w)
   intro idx hidx
   unfold blastShiftConcat
   have hidx_lt : idx < 1 + w := by omega
-  by_cases hidx_eq : idx = 0 <;> simp_arith [hidx_lt, hidx_eq, RefVec.get_append]
+  by_cases hidx_eq : idx = 0 <;> simp +arith [hidx_lt, hidx_eq, RefVec.get_append]
 
 theorem denote_blastShiftConcat_eq_shiftConcat (aig : AIG α) (target : ShiftConcatInput aig w)
   (x : BitVec w) (b : Bool) (assign : α → Bool)
@@ -54,7 +54,8 @@ theorem denote_blastShiftConcat_eq_shiftConcat (aig : AIG α) (target : ShiftCon
         =
       (BitVec.shiftConcat x b).getLsbD idx := by
   intro idx hidx
-  simp [BitVec.getLsbD_shiftConcat, hidx, denote_blastShiftConcat, hx, hb]
+  simp [BitVec.getLsbD_shiftConcat, hidx, denote_blastShiftConcat, hx, hb, ← BitVec.getLsbD_eq_getElem]
+
 
 theorem blastDivSubtractShift_denote_mem_prefix (aig : AIG α) (falseRef trueRef : AIG.Ref aig)
     (n d q r : AIG.RefVec aig w) (wn wr : Nat) (start : Nat) (hstart) :

@@ -18,7 +18,7 @@ It is not immediately obvious but this is a surprisingly expensive check without
 some optimizations.  The main complication is that it can be difficult to
 determine what constitutes a "use" apart from direct references to a variable
 that we can easily find in the info tree.  For example, we would like this to be
-considered a use of `x`: 
+considered a use of `x`:
 ```
 def foo (x : Nat) : Nat := by assumption
 ```
@@ -196,7 +196,7 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
 /-- `inductive Foo where | unused : Foo` -/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
   stack.matches [`null, none, `null, none, ``Lean.Parser.Command.inductive] &&
-  (stack.get? 3 |>.any fun (stx, pos) =>
+  (stack[3]? |>.any fun (stx, pos) =>
     pos == 0 &&
     [``Lean.Parser.Command.optDeclSig, ``Lean.Parser.Command.declSig].any (stx.isOfKind ·)))
 
@@ -206,7 +206,7 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
 -/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
   stack.matches [`null, none, `null, ``Lean.Parser.Command.optDeclSig, none] &&
-  (stack.get? 4 |>.any fun (stx, _) =>
+  (stack[4]? |>.any fun (stx, _) =>
     [``Lean.Parser.Command.ctor, ``Lean.Parser.Command.structSimpleBinder].any (stx.isOfKind ·)))
 
 /--
@@ -215,7 +215,7 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
 -/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
   stack.matches [`null, none, `null, ``Lean.Parser.Command.declSig, none] &&
-  (stack.get? 4 |>.any fun (stx, _) =>
+  (stack[4]? |>.any fun (stx, _) =>
     [``Lean.Parser.Command.opaque, ``Lean.Parser.Command.axiom].any (stx.isOfKind ·)))
 
 /--
@@ -225,10 +225,10 @@ Definition with foreign definition
 -/
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
   stack.matches [`null, none, `null, none, none, ``Lean.Parser.Command.declaration] &&
-  (stack.get? 3 |>.any fun (stx, _) =>
+  (stack[3]? |>.any fun (stx, _) =>
     stx.isOfKind ``Lean.Parser.Command.optDeclSig ||
     stx.isOfKind ``Lean.Parser.Command.declSig) &&
-  (stack.get? 5 |>.any fun (stx, _) => match stx[0] with
+  (stack[5]? |>.any fun (stx, _) => match stx[0] with
     | `(Lean.Parser.Command.declModifiersT| $[$_:docComment]? @[$[$attrs:attr],*] $[$vis]? $[noncomputable]?) =>
       attrs.any (fun attr => attr.raw.isOfKind ``Parser.Attr.extern || attr matches `(attr| implemented_by $_))
     | _ => false))
@@ -247,8 +247,8 @@ Function argument in let declaration (when `linter.unusedVariables.funArgs` is f
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
   !getLinterUnusedVariablesFunArgs opts &&
   stack.matches [`null, none, `null, ``Lean.Parser.Term.letIdDecl, none] &&
-  (stack.get? 3 |>.any fun (_, pos) => pos == 1) &&
-  (stack.get? 5 |>.any fun (stx, _) => !stx.isOfKind ``Lean.Parser.Command.whereStructField))
+  (stack[3]? |>.any fun (_, pos) => pos == 1) &&
+  (stack[5]? |>.any fun (stx, _) => !stx.isOfKind ``Lean.Parser.Term.structInstField))
 
 /--
 Function argument in declaration signature (when `linter.unusedVariables.funArgs` is false)
@@ -257,7 +257,7 @@ Function argument in declaration signature (when `linter.unusedVariables.funArgs
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
   !getLinterUnusedVariablesFunArgs opts &&
   stack.matches [`null, none, `null, none] &&
-  (stack.get? 3 |>.any fun (stx, pos) =>
+  (stack[3]? |>.any fun (stx, pos) =>
     pos == 0 &&
     [``Lean.Parser.Command.optDeclSig, ``Lean.Parser.Command.declSig].any (stx.isOfKind ·)))
 
@@ -390,22 +390,21 @@ where
         -- set if `analyzeTactics` is unset, tactic infos are present, and we're inside the body
         let ignored ← read
         match info with
+        | .ofCustomInfo ti =>
+          if !linter.unusedVariables.analyzeTactics.get ci.options then
+            if let some bodyInfo := ti.value.get? Elab.Term.BodyInfo then
+              if let some value := bodyInfo.value? then
+                -- the body is the only `Expr` we will analyze in this case
+                -- NOTE: we include it even if no tactics are present as at least for parameters we want
+                -- to lint only truly unused binders
+                let (e, _) := instantiateMVarsCore ci.mctx value
+                modify fun s => { s with
+                  assignments := s.assignments.push (.insert {} ⟨.anonymous⟩ e) }
+                let tacticsPresent := children.any (·.findInfo? (· matches .ofTacticInfo ..) |>.isSome)
+                withReader (· || tacticsPresent) do
+                  go children.toArray ci
+                return false
         | .ofTermInfo ti =>
-          -- NOTE: we have to do this check *before* `ignored` because nested bodies (e.g. from
-          -- nested `let rec`s) do need to be included to find all `Expr` uses of the top-level
-          -- parameters
-          if ti.elaborator == `MutualDef.body &&
-              !linter.unusedVariables.analyzeTactics.get ci.options then
-            -- the body is the only `Expr` we will analyze in this case
-            -- NOTE: we include it even if no tactics are present as at least for parameters we want
-            -- to lint only truly unused binders
-            let (e, _) := instantiateMVarsCore ci.mctx ti.expr
-            modify fun s => { s with
-              assignments := s.assignments.push (.insert {} ⟨.anonymous⟩ e) }
-            let tacticsPresent := children.any (·.findInfo? (· matches .ofTacticInfo ..) |>.isSome)
-            withReader (· || tacticsPresent) do
-              go children.toArray ci
-            return false
           if ignored then return true
           match ti.expr with
           | .const .. =>
@@ -441,22 +440,20 @@ where
               -- Found a direct use, keep track of it
               modify fun s => { s with fvarUses := s.fvarUses.insert id }
           | _ => pure ()
-          return true
         | .ofTacticInfo ti =>
           -- When ignoring new binders, no need to look at intermediate tactic states either as
           -- references to binders outside the body will be covered by the body `Expr`
           if ignored then return true
           -- Keep track of the `MetavarContext` after a tactic for later
           modify fun s => { s with assignments := s.assignments.push ti.mctxAfter.eAssignment }
-          return true
         | .ofFVarAliasInfo i =>
           if ignored then return true
           -- record any aliases we find
           modify fun s =>
             let id := followAliases s.fvarAliases i.baseId
             { s with fvarAliases := s.fvarAliases.insert i.id id }
-          return true
-        | _ => return true)
+        | _ => pure ()
+        return true)
   /-- Since declarations attach the declaration info to the `declId`,
   we skip that to get to the `.ident` if possible. -/
   skipDeclIdIfPresent (stx : Syntax) : Syntax :=
@@ -464,6 +461,12 @@ where
       stx[0]
     else
       stx
+
+private def hasSorry (stx : Syntax) : Bool :=
+  stx.find? (fun
+    -- `@[unused_variables_ignore_fn]` can be used to extend this list
+    | `(sorry) | `(tactic| sorry) | `(tactic| admit) => true
+    | _ => false) |>.isSome
 
 /-- Reports unused variable warnings on each command. Use `linter.unusedVariables` to disable. -/
 def unusedVariables : Linter where
@@ -478,10 +481,12 @@ def unusedVariables : Linter where
     let some cmdStxRange := cmdStx.getRange?
       | return
 
-    let infoTrees := (← get).infoState.trees.toArray
-
-    if (← infoTrees.anyM (·.hasSorry)) then
+    -- We used to look for `sorry` on the `Expr` level, which is more robust, but just too expensive
+    -- on huge declarations (see e.g. `omega_stress` benchmark).
+    if hasSorry cmdStx then
       return
+
+    let infoTrees := (← get).infoState.trees.toArray
 
     -- Run the main collection pass, resulting in `s : References`.
     let (_, s) ← (collectReferences infoTrees cmdStxRange).run {}

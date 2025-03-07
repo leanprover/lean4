@@ -34,12 +34,7 @@ theorem get_mem : ∀ {o : Option α} (h : isSome o), o.get h ∈ o
 theorem get_of_mem : ∀ {o : Option α} (h : isSome o), a ∈ o → o.get h = a
   | _, _, rfl => rfl
 
-theorem not_mem_none (a : α) : a ∉ (none : Option α) := nofun
-
-@[simp] theorem some_get : ∀ {x : Option α} (h : isSome x), some (x.get h) = x
-| some _, _ => rfl
-
-@[simp] theorem get_some (x : α) (h : isSome (some x)) : (some x).get h = x := rfl
+@[simp] theorem not_mem_none (a : α) : a ∉ (none : Option α) := nofun
 
 theorem getD_of_ne_none {x : Option α} (hx : x ≠ none) (y : α) : some (x.getD y) = x := by
   cases x; {contradiction}; rw [getD_some]
@@ -60,7 +55,9 @@ theorem get_eq_getD {fallback : α} : (o : Option α) → {h : o.isSome} → o.g
 theorem some_get! [Inhabited α] : (o : Option α) → o.isSome → some (o.get!) = o
   | some _, _ => rfl
 
-theorem get!_eq_getD_default [Inhabited α] (o : Option α) : o.get! = o.getD default := rfl
+theorem get!_eq_getD [Inhabited α] (o : Option α) : o.get! = o.getD default := rfl
+
+@[deprecated get!_eq_getD (since := "2024-11-18")] abbrev get!_eq_getD_default := @get!_eq_getD
 
 theorem mem_unique {o : Option α} {a b : α} (ha : a ∈ o) (hb : b ∈ o) : a = b :=
   some.inj <| ha ▸ hb
@@ -73,18 +70,10 @@ theorem mem_unique {o : Option α} {a b : α} (ha : a ∈ o) (hb : b ∈ o) : a 
 theorem eq_none_iff_forall_not_mem : o = none ↔ ∀ a, a ∉ o :=
   ⟨fun e a h => by rw [e] at h; (cases h), fun h => ext <| by simp; exact h⟩
 
-@[simp] theorem isSome_none : @isSome α none = false := rfl
-
-@[simp] theorem isSome_some : isSome (some a) = true := rfl
-
 theorem isSome_iff_exists : isSome x ↔ ∃ a, x = some a := by cases x <;> simp [isSome]
 
 theorem isSome_eq_isSome : (isSome x = isSome y) ↔ (x = none ↔ y = none) := by
   cases x <;> cases y <;> simp
-
-@[simp] theorem isNone_none : @isNone α none = true := rfl
-
-@[simp] theorem isNone_some : isNone (some a) = false := rfl
 
 @[simp] theorem not_isSome : isSome a = false ↔ a.isNone = true := by
   cases a <;> simp
@@ -218,6 +207,15 @@ theorem comp_map (h : β → γ) (g : α → β) (x : Option α) : x.map (h ∘ 
     Option.map g ∘ Option.map f = Option.map (g ∘ f) := by funext x; simp
 
 theorem mem_map_of_mem (g : α → β) (h : a ∈ x) : g a ∈ Option.map g x := h.symm ▸ map_some' ..
+
+theorem map_inj_right {f : α → β} {o o' : Option α} (w : ∀ x y, f x = f y → x = y) :
+    o.map f = o'.map f ↔ o = o' := by
+  cases o with
+  | none => cases o' <;> simp
+  | some a =>
+    cases o' with
+    | none => simp
+    | some a' => simpa using ⟨fun h => w _ _ h, fun h => congrArg f h⟩
 
 @[simp] theorem map_if {f : α → β} [Decidable c] :
      (if c then some a else none).map f = if c then some (f a) else none := by
@@ -377,6 +375,9 @@ end choice
 @[simp] theorem some_or : (some a).or o = some a := rfl
 @[simp] theorem none_or : none.or o = o := rfl
 
+theorem or_eq_right_of_none {o o' : Option α} (h : o = none) : o.or o' = o' := by
+  cases h; simp
+
 @[deprecated some_or (since := "2024-11-03")] theorem or_some : (some a).or o = some a := rfl
 
 /-- This will be renamed to `or_some` once the existing deprecated lemma is removed. -/
@@ -405,6 +406,10 @@ instance : Std.Associative (or (α := α)) := ⟨@or_assoc _⟩
 @[simp]
 theorem or_none : or o none = o := by
   cases o <;> rfl
+
+theorem or_eq_left_of_none {o o' : Option α} (h : o' = none) : o.or o' = o := by
+  cases h; simp
+
 instance : Std.LawfulIdentity (or (α := α)) none where
   left_id := @none_or _
   right_id := @or_none _
@@ -639,5 +644,109 @@ theorem pbind_eq_some_iff {o : Option α} {f : (a : α) → a ∈ o → Option �
     · exact fun w => ⟨h a rfl, w⟩
     · rintro ⟨h, rfl⟩
       rfl
+
+@[simp]
+theorem pmap_eq_map (p : α → Prop) (f : α → β) (o : Option α) (H) :
+    @pmap _ _ p (fun a _ => f a) o H = Option.map f o := by
+  cases o <;> simp
+
+theorem map_pmap {p : α → Prop} (g : β → γ) (f : ∀ a, p a → β) (o H) :
+    Option.map g (pmap f o H) = pmap (fun a h => g (f a h)) o H := by
+  cases o <;> simp
+
+theorem pmap_map (o : Option α) (f : α → β) {p : β → Prop} (g : ∀ b, p b → γ) (H) :
+    pmap g (o.map f) H =
+      pmap (fun a h => g (f a) h) o (fun a m => H (f a) (mem_map_of_mem f m)) := by
+  cases o <;> simp
+
+/-! ### pelim -/
+
+@[simp] theorem pelim_none : pelim none b f = b := rfl
+@[simp] theorem pelim_some : pelim (some a) b f = f a rfl := rfl
+
+@[simp] theorem pelim_eq_elim : pelim o b (fun a _ => f a) = o.elim b f := by
+  cases o <;> simp
+
+@[simp] theorem elim_pmap {p : α → Prop} (f : (a : α) → p a → β) (o : Option α)
+    (H : ∀ (a : α), a ∈ o → p a) (g : γ) (g' : β → γ) :
+    (o.pmap f H).elim g g' =
+       o.pelim g (fun a h => g' (f a (H a h))) := by
+  cases o <;> simp
+
+/-! ### LT and LE -/
+
+@[simp] theorem not_lt_none [LT α] {a : Option α} : ¬ a < none := by cases a <;> simp [LT.lt, Option.lt]
+@[simp] theorem none_lt_some [LT α] {a : α} : none < some a := by simp [LT.lt, Option.lt]
+@[simp] theorem some_lt_some [LT α] {a b : α} : some a < some b ↔ a < b := by simp [LT.lt, Option.lt]
+
+@[simp] theorem none_le [LE α] {a : Option α} : none ≤ a := by cases a <;> simp [LE.le, Option.le]
+@[simp] theorem not_some_le_none [LE α] {a : α} : ¬ some a ≤ none := by simp [LE.le, Option.le]
+@[simp] theorem some_le_some [LE α] {a b : α} : some a ≤ some b ↔ a ≤ b := by simp [LE.le, Option.le]
+
+/-! ### min and max -/
+
+theorem min_eq_left [LE α] [Min α] (min_eq_left : ∀ x y : α, x ≤ y → min x y = x)
+    {a b : Option α} (h : a ≤ b) : min a b = a := by
+  cases a <;> cases b <;> simp_all
+
+theorem min_eq_right [LE α] [Min α] (min_eq_right : ∀ x y : α, y ≤ x → min x y = y)
+    {a b : Option α} (h : b ≤ a) : min a b = b := by
+  cases a <;> cases b <;> simp_all
+
+theorem min_eq_left_of_lt [LT α] [Min α] (min_eq_left : ∀ x y : α, x < y → min x y = x)
+    {a b : Option α} (h : a < b) : min a b = a := by
+  cases a <;> cases b <;> simp_all
+
+theorem min_eq_right_of_lt [LT α] [Min α] (min_eq_right : ∀ x y : α, y < x → min x y = y)
+    {a b : Option α} (h : b < a) : min a b = b := by
+  cases a <;> cases b <;> simp_all
+
+theorem min_eq_or [LE α] [Min α] (min_eq_or : ∀ x y : α, min x y = x ∨ min x y = y)
+    {a b : Option α} : min a b = a ∨ min a b = b := by
+  cases a <;> cases b <;> simp_all
+
+theorem min_le_left [LE α] [Min α] (min_le_left : ∀ x y : α, min x y ≤ x)
+    {a b : Option α} : min a b ≤ a := by
+  cases a <;> cases b <;> simp_all
+
+theorem min_le_right [LE α] [Min α] (min_le_right : ∀ x y : α, min x y ≤ y)
+    {a b : Option α} : min a b ≤ b := by
+  cases a <;> cases b <;> simp_all
+
+theorem le_min [LE α] [Min α] (le_min : ∀ x y z : α, x ≤ min y z ↔ x ≤ y ∧ x ≤ z)
+    {a b c : Option α} : a ≤ min b c ↔ a ≤ b ∧ a ≤ c := by
+  cases a <;> cases b <;> cases c <;> simp_all
+
+theorem max_eq_left [LE α] [Max α] (max_eq_left : ∀ x y : α, x ≤ y → max x y = y)
+    {a b : Option α} (h : a ≤ b) : max a b = b := by
+  cases a <;> cases b <;> simp_all
+
+theorem max_eq_right [LE α] [Max α] (max_eq_right : ∀ x y : α, y ≤ x → max x y = x)
+    {a b : Option α} (h : b ≤ a) : max a b = a := by
+  cases a <;> cases b <;> simp_all
+
+theorem max_eq_left_of_lt [LT α] [Max α] (max_eq_left : ∀ x y : α, x < y → max x y = y)
+    {a b : Option α} (h : a < b) : max a b = b := by
+  cases a <;> cases b <;> simp_all
+
+theorem max_eq_right_of_lt [LT α] [Max α] (max_eq_right : ∀ x y : α, y < x → max x y = x)
+    {a b : Option α} (h : b < a) : max a b = a := by
+  cases a <;> cases b <;> simp_all
+
+theorem max_eq_or [LE α] [Max α] (max_eq_or : ∀ x y : α, max x y = x ∨ max x y = y)
+    {a b : Option α} : max a b = a ∨ max a b = b := by
+  cases a <;> cases b <;> simp_all
+
+theorem left_le_max [LE α] [Max α] (le_refl : ∀ x : α, x ≤ x) (left_le_max : ∀ x y : α, x ≤ max x y)
+    {a b : Option α} : a ≤ max a b := by
+  cases a <;> cases b <;> simp_all
+
+theorem right_le_max [LE α] [Max α] (le_refl : ∀ x : α, x ≤ x) (right_le_max : ∀ x y : α, y ≤ max x y)
+    {a b : Option α} : b ≤ max a b := by
+  cases a <;> cases b <;> simp_all
+
+theorem max_le [LE α] [Max α] (max_le : ∀ x y z : α, max x y ≤ z ↔ x ≤ z ∧ y ≤ z)
+    {a b c : Option α} : max a b ≤ c ↔ a ≤ c ∧ b ≤ c := by
+  cases a <;> cases b <;> cases c <;> simp_all
 
 end Option

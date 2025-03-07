@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Notation
-// Imports: Init.Data.Nat.Div
+// Imports: Init.Data.Nat.Div.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -92,10 +92,10 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 static lean_object* l_term_x5b___x5d___closed__17;
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1___closed__1;
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1___closed__5;
 static lean_object* l_Lean___aux__Init__Data__List__Notation______macroRules__term_x5b___x5d__1_expandListLit___closed__7;
 lean_object* l_String_toSubstring_x27(lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term_x5b___x5d___closed__10;
 static lean_object* _init_l_term_x5b___x5d___closed__1() {
 _start:
@@ -910,13 +910,13 @@ return x_51;
 }
 }
 }
-lean_object* initialize_Init_Data_Nat_Div(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Nat_Div_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Notation(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat_Div(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Nat_Div_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_term_x5b___x5d___closed__1 = _init_l_term_x5b___x5d___closed__1();

@@ -9,6 +9,9 @@ import Init.Control.Id
 import Init.Control.Lawful
 import Init.Data.List.Basic
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 universe u v w u₁ u₂
 
@@ -98,6 +101,7 @@ def forA {m : Type u → Type v} [Applicative m] {α : Type w} (as : List α) (f
   | []      => pure ⟨⟩
   | a :: as => f a *> forA as f
 
+
 @[specialize]
 def filterAuxM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) : List α → List α → m (List α)
   | [],     acc => pure acc
@@ -127,13 +131,26 @@ Applies the monadic function `f` on every element `x` in the list, left-to-right
 results `y` for which `f x` returns `some y`.
 -/
 @[inline]
-def filterMapM {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m (Option β)) (as : List α) : m (List β) :=
+def filterMapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (Option β)) (as : List α) : m (List β) :=
   let rec @[specialize] loop
     | [],     bs => pure bs.reverse
     | a :: as, bs => do
       match (← f a) with
       | none   => loop as bs
       | some b => loop as (b::bs)
+  loop as []
+
+/--
+Applies the monadic function `f` on every element `x` in the list, left-to-right, and returns the
+concatenation of the results.
+-/
+@[inline]
+def flatMapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (List β)) (as : List α) : m (List β) :=
+  let rec @[specialize] loop
+    | [],     bs => pure bs.reverse.flatten
+    | a :: as, bs => do
+      let bs' ← f a
+      loop as (bs' :: bs)
   loop as []
 
 /--
@@ -147,7 +164,7 @@ foldlM f x₀ [a, b, c] = do
 ```
 -/
 @[specialize]
-protected def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s → α → m s) → (init : s) → List α → m s
+def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s → α → m s) → (init : s) → List α → m s
   | _, s, []      => pure s
   | f, s, a :: as => do
     let s' ← f s a
@@ -254,9 +271,10 @@ theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] (p : α → m Bool) (as :
     | [], b, _    => pure b
     | a::as', b, h => do
       have : a ∈ as := by
+        clear f
         have ⟨bs, h⟩ := h
         subst h
-        exact mem_append_of_mem_right _ (Mem.head ..)
+        exact mem_append_right _ (Mem.head ..)
       match (← f a this b) with
       | ForInStep.done b  => pure b
       | ForInStep.yield b =>
@@ -269,6 +287,7 @@ instance : ForIn' m (List α) α inferInstance where
 
 -- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
 
+-- We simplify `List.forIn'` to `forIn'`.
 @[simp] theorem forIn'_eq_forIn' [Monad m] : @List.forIn' α β m _ = forIn' := rfl
 
 @[simp] theorem forIn'_nil [Monad m] (f : (a : α) → a ∈ [] → β → m (ForInStep β)) (b : β) : forIn' [] b f = pure b :=
@@ -279,6 +298,9 @@ instance : ForIn' m (List α) α inferInstance where
 
 instance : ForM m (List α) α where
   forM := List.forM
+
+-- We simplify `List.forM` to `forM`.
+@[simp] theorem forM_eq_forM [Monad m] : @List.forM m _ α = forM := rfl
 
 @[simp] theorem forM_nil  [Monad m] (f : α → m PUnit) : forM [] f = pure ⟨⟩ :=
   rfl

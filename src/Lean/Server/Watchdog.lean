@@ -6,7 +6,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 prelude
 import Init.System.IO
-import Init.System.Mutex
+import Std.Sync.Mutex
 import Init.Data.ByteArray
 import Lean.Data.RBMap
 
@@ -18,6 +18,7 @@ import Lean.Data.Lsp
 import Lean.Server.Utils
 import Lean.Server.Requests
 import Lean.Server.References
+import Lean.Server.ServerTask
 
 /-!
 For general server architecture, see `README.md`. This module implements the watchdog process.
@@ -113,8 +114,8 @@ section FileWorker
   structure FileWorker where
     doc                : DocumentMeta
     proc               : Process.Child workerCfg
-    exitCode           : IO.Mutex (Option UInt32)
-    commTask           : Task WorkerEvent
+    exitCode           : Std.Mutex (Option UInt32)
+    commTask           : ServerTask WorkerEvent
     state              : WorkerState
     -- This should not be mutated outside of namespace FileWorker,
     -- as it is used as shared mutable state
@@ -310,9 +311,9 @@ section ServerM
 
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
-  private partial def forwardMessages (fw : FileWorker) : ServerM (Task WorkerEvent) := do
-    let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
-    return task.map fun
+  private partial def forwardMessages (fw : FileWorker) : ServerM (ServerTask WorkerEvent) := do
+    let task ← ServerTask.IO.asTask (loop $ ←read)
+    return task.mapCheap fun
       | Except.ok ev   => ev
       | Except.error e => WorkerEvent.ioError e
   where
@@ -392,7 +393,7 @@ section ServerM
       -- open session for `kill` above
       setsid        := true
     }
-    let exitCode ← IO.Mutex.new none
+    let exitCode ← Std.Mutex.new none
     let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
     let initialDependencyBuildMode := m.dependencyBuildMode
     let updatedDependencyBuildMode :=
@@ -811,33 +812,35 @@ section NotificationHandling
     terminateFileWorker p.textDocument.uri
 
   def handleDidChangeWatchedFiles (p : DidChangeWatchedFilesParams) : ServerM Unit := do
-    let importData ← (← read).importData.get
-    let references := (← read).references
-    let oleanSearchPath ← Lean.searchPathRef.get
-    let ileans ← oleanSearchPath.findAllWithExt "ilean"
-    for change in p.changes do
-      let some path := fileUriToPath? change.uri
-        | continue
-      match path.extension with
-      | "lean" =>
-        let dependents := importData.importedBy.findD change.uri ∅
+    let changes := p.changes.filterMap fun c => do return (c, ← fileUriToPath? c.uri)
+    let leanChanges := changes.filter fun (_, path) => path.extension == "lean"
+    let ileanChanges := changes.filter fun (_, path) => path.extension == "ilean"
+    if ! leanChanges.isEmpty then
+      let importData ← (← read).importData.get
+      for (c, _) in leanChanges do
+        let dependents := importData.importedBy.findD c.uri ∅
         for dependent in dependents do
-          notifyAboutStaleDependency dependent change.uri
-      | "ilean" =>
-        if let FileChangeType.Deleted := change.type then
+          notifyAboutStaleDependency dependent c.uri
+    if ! ileanChanges.isEmpty then
+      let references := (← read).references
+      let oleanSearchPath ← Lean.searchPathRef.get
+      for (c, path) in ileanChanges do
+        if let FileChangeType.Deleted := c.type then
           references.modify (fun r => r.removeIlean path)
-        else if ileans.contains path then
-          try
-            let ilean ← Ilean.load path
-            if let FileChangeType.Changed := change.type then
-              references.modify (fun r => r.removeIlean path |>.addIlean path ilean)
-            else
-              references.modify (fun r => r.addIlean path ilean)
-          catch
-            -- ilean vanished, ignore error
-            | .noFileOrDirectory .. => references.modify (·.removeIlean path)
-            | e => throw e
-      | _ => continue
+          continue
+        let isIleanInSearchPath := (← searchModuleNameOfFileName path oleanSearchPath).isSome
+        if ! isIleanInSearchPath then
+          continue
+        try
+          let ilean ← Ilean.load path
+          if let FileChangeType.Changed := c.type then
+            references.modify (fun r => r.removeIlean path |>.addIlean path ilean)
+          else
+            references.modify (fun r => r.addIlean path ilean)
+        catch
+          -- ilean vanished, ignore error
+          | .noFileOrDirectory .. => references.modify (·.removeIlean path)
+          | e => throw e
 
   def handleCancelRequest (p : CancelParams) : ServerM Unit := do
     let fileWorkers ← (←read).fileWorkersRef.get
@@ -989,18 +992,18 @@ section MainLoop
     | clientMsg (msg : JsonRpc.Message)
     | clientError (e : IO.Error)
 
-  def runClientTask : ServerM (Task ServerEvent) := do
+  def runClientTask : ServerM (ServerTask ServerEvent) := do
     let st ← read
     let readMsgAction : IO ServerEvent := do
       /- Runs asynchronously. -/
       let msg ← st.hIn.readLspMessage
       pure <| ServerEvent.clientMsg msg
-    let clientTask := (← IO.asTask (prio := Task.Priority.dedicated) readMsgAction).map fun
+    let clientTask := (← ServerTask.IO.asTask readMsgAction).mapCheap fun
       | Except.ok ev   => ev
       | Except.error e => ServerEvent.clientError e
     return clientTask
 
-  partial def mainLoop (clientTask : Task ServerEvent) : ServerM Unit := do
+  partial def mainLoop (clientTask : ServerTask ServerEvent) : ServerM Unit := do
     let st ← read
     let workers ← st.fileWorkersRef.get
     let mut workerTasks := #[]
@@ -1015,9 +1018,9 @@ section MainLoop
       -- `WorkerState.crashed _ .clientToFileWorkerForwarding`, since the forwarding task
       -- exit code may still contain valuable information in this case (e.g. that the imports changed).
       if !(fw.state matches WorkerState.crashed _ .fileWorkerToClientForwarding) then
-        workerTasks := workerTasks.push <| fw.commTask.map (ServerEvent.workerEvent fw)
+        workerTasks := workerTasks.push <| fw.commTask.mapCheap (ServerEvent.workerEvent fw)
 
-    let ev ← IO.waitAny (clientTask :: workerTasks.toList)
+    let ev ← ServerTask.waitAny (clientTask :: workerTasks.toList)
     match ev with
     | ServerEvent.clientMsg msg =>
       match msg with
@@ -1094,6 +1097,9 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     resolveProvider? := true,
     codeActionKinds? := some #["quickfix", "refactor"]
   }
+  inlayHintProvider? := some {
+    resolveProvider? := false
+  }
 }
 
 def initAndRunWatchdogAux : ServerM Unit := do
@@ -1161,7 +1167,7 @@ results in requests that need references.
 def startLoadingReferences (references : IO.Ref References) : IO Unit := do
   -- Discard the task; there isn't much we can do about this failing,
   -- but we should try to continue server operations regardless
-  let _ ← IO.asTask (prio := Task.Priority.dedicated) do
+  let _ ← ServerTask.IO.asTask do
     let oleanSearchPath ← Lean.searchPathRef.get
     for path in ← oleanSearchPath.findAllWithExt "ilean" do
       try

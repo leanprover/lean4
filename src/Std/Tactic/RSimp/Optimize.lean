@@ -46,7 +46,8 @@ def optimize (declName : Name) : MetaM Unit := do
   let .some se ← getSimpExtension? `rsimp | throwError "simp set 'rsimp' not found"
   -- TODO: zeta := false seems reasonable, we do not want to duplicate terms
   -- but it can produce type-incorrect terms here.
-  let ctx : Simp.Context := { config := {}, simpTheorems := #[(← se.getTheorems)], congrTheorems := (← Meta.getSimpCongrTheorems) }
+
+  let ctx : Simp.Context ← Simp.mkContext (config := {}) (simpTheorems := #[(← se.getTheorems)]) (congrTheorems := (← Meta.getSimpCongrTheorems) )
   let (res, _stats) ← simp rhs0 ctx #[(← Simp.getSimprocs)] none
   let rhs := res.expr
   let proof ← mkEqTrans rwProof (← res.getProof)

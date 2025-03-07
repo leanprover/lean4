@@ -213,7 +213,7 @@ def SimprocEntry.tryD (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM
   | .inr proc => return (← proc e).addExtraArgs extraArgs
 
 def simprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Expr) : SimpM Step := do
-  let candidates ← s.getMatchWithExtra e (getDtConfig (← getConfig))
+  let candidates ← withSimpIndexConfig <| s.getMatchWithExtra e
   if candidates.isEmpty then
     let tag := if post then "post" else "pre"
     trace[Debug.Meta.Tactic.simp] "no {tag}-simprocs found for {e}"
@@ -250,7 +250,7 @@ def simprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Ex
       return .continue
 
 def dsimprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Expr) : SimpM DStep := do
-  let candidates ← s.getMatchWithExtra e (getDtConfig (← getConfig))
+  let candidates ← withSimpIndexConfig <| s.getMatchWithExtra e
   if candidates.isEmpty then
     let tag := if post then "post" else "pre"
     trace[Debug.Meta.Tactic.simp] "no {tag}-simprocs found for {e}"

@@ -7,7 +7,7 @@ The integers, with addition, multiplication, and subtraction.
 -/
 prelude
 import Init.Data.Cast
-import Init.Data.Nat.Div
+import Init.Data.Nat.Div.Basic
 
 set_option linter.missingDocs true -- keep it documented
 open Nat
@@ -17,10 +17,12 @@ open Nat
 This file defines the `Int` type as well as
 
 * coercions, conversions, and compatibility with numeric literals,
-* basic arithmetic operations add/sub/mul/div/mod/pow,
+* basic arithmetic operations add/sub/mul/pow,
 * a few `Nat`-related operations such as `negOfNat` and `subNatNat`,
 * relations `<`/`≤`/`≥`/`>`, the `NonNeg` property and `min`/`max`,
 * decidability of equality, relations and `NonNeg`.
+
+Division and modulus operations are defined in `Init.Data.Int.DivMod.Basic`.
 -/
 
 /--

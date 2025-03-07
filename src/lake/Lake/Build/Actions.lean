@@ -3,6 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone, Siddharth Bhat
 -/
+prelude
 import Lake.Util.Proc
 import Lake.Util.NativeLib
 import Lake.Util.IO
@@ -20,7 +21,7 @@ def compileLeanModule
   (leanFile : FilePath)
   (oleanFile? ileanFile? cFile? bcFile?: Option FilePath)
   (leanPath : SearchPath := []) (rootDir : FilePath := ".")
-  (dynlibs : Array FilePath := #[]) (dynlibPath : SearchPath := {})
+  (dynlibs : Array FilePath := #[]) (plugins : Array FilePath := #[])
   (leanArgs : Array String := #[]) (lean : FilePath := "lean")
 : LogIO Unit := do
   let mut args := leanArgs ++
@@ -38,15 +39,16 @@ def compileLeanModule
     createParentDirs bcFile
     args := args ++ #["-b", bcFile.toString]
   for dynlib in dynlibs do
-    args := args.push s!"--load-dynlib={dynlib}"
+    args := args ++ #["--load-dynlib", dynlib.toString]
+  for plugin in plugins do
+    args := args ++ #["--plugin", plugin.toString]
   args := args.push "--json"
   withLogErrorPos do
   let out ← rawProc {
     args
     cmd := lean.toString
     env := #[
-      ("LEAN_PATH", leanPath.toString),
-      (sharedLibPathEnvVar, (← getSearchPath sharedLibPathEnvVar) ++ dynlibPath |>.toString)
+      ("LEAN_PATH", leanPath.toString)
     ]
   }
   unless out.stdout.isEmpty do
@@ -63,7 +65,7 @@ def compileLeanModule
     unless txt.isEmpty do
       logInfo s!"stdout:\n{txt}"
   unless out.stderr.isEmpty do
-    logInfo s!"stderr:\n{out.stderr}"
+    logInfo s!"stderr:\n{out.stderr.trim}"
   if out.exitCode ≠ 0 then
     error s!"Lean exited with code {out.exitCode}"
 
@@ -87,6 +89,17 @@ def compileStaticLib
     args := #["rcs", libFile.toString] ++ oFiles.map toString
   }
 
+private def getMacOSXDeploymentEnv : BaseIO (Array (String × Option String)) := do
+  -- It is difficult to identify the correct minor version here, leading to linking warnings like:
+  -- `ld64.lld: warning: /usr/lib/system/libsystem_kernel.dylib has version 13.5.0, which is newer than target minimum of 13.0.0`
+  -- In order to suppress these we set the MACOSX_DEPLOYMENT_TARGET variable into the far future.
+  if System.Platform.isOSX then
+    match (← IO.getEnv "MACOSX_DEPLOYMENT_TARGET") with
+    | some _ => return #[]
+    | none => return #[("MACOSX_DEPLOYMENT_TARGET", some "99.0")]
+  else
+    return #[]
+
 def compileSharedLib
   (libFile : FilePath) (linkArgs : Array String)
   (linker : FilePath := "cc")
@@ -95,6 +108,7 @@ def compileSharedLib
   proc {
     cmd := linker.toString
     args := #["-shared", "-o", libFile.toString] ++ linkArgs
+    env := ← getMacOSXDeploymentEnv
   }
 
 def compileExe
@@ -105,6 +119,7 @@ def compileExe
   proc {
     cmd := linker.toString
     args := #["-o", binFile.toString] ++ linkFiles.map toString ++ linkArgs
+    env := ← getMacOSXDeploymentEnv
   }
 
 /-- Download a file using `curl`, clobbering any existing file. -/

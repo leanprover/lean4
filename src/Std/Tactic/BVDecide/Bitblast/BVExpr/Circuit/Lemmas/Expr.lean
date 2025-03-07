@@ -77,13 +77,9 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     simp only [go, denote_blastAppend, RefVec.get_cast, Ref.cast_eq, eval_append,
       BitVec.getLsbD_append]
     split
-    · next hsplit =>
-      simp only [hsplit, decide_true, cond_true]
-      rw [rih]
-    · next hsplit =>
-      simp only [hsplit, decide_false, cond_false]
-      rw [go_denote_mem_prefix, lih]
-  | replicate n expr ih => simp [go, ih, hidx]
+    · next hsplit => rw [rih]
+    · next hsplit => rw [go_denote_mem_prefix, lih]
+  | replicate n expr ih => simp [go, ih, hidx, ← BitVec.getLsbD_eq_getElem]
   | signExtend v inner ih =>
     rename_i originalWidth
     generalize hgo : (go aig (signExtend v inner)).val = res
@@ -95,7 +91,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       rw [blastSignExtend_empty_eq_zeroExtend] at hgo
       · rw [← hgo]
         simp only [eval_signExtend]
-        rw [BitVec.signExtend_eq_not_setWidth_not_of_msb_false]
+        rw [BitVec.signExtend_eq_setWidth_of_msb_false]
         · simp only [denote_blastZeroExtend, ih, dite_eq_ite, Bool.if_false_right,
             BitVec.getLsbD_setWidth, hidx, decide_true, Bool.true_and, Bool.and_iff_right_iff_imp,
             decide_eq_true_eq]
@@ -233,7 +229,9 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
   | un op expr ih =>
     cases op with
     | not => simp [go, ih, hidx]
-    | shiftLeftConst => simp [go, ih, hidx]
+    | shiftLeftConst i =>
+      rename_i w
+      simp [go, ih, hidx, show idx - i < w by omega]
     | shiftRightConst =>
       simp only [go, denote_blastShiftRightConst, ih, dite_eq_ite, Bool.if_false_right, eval_un,
         BVUnOp.eval_shiftRightConst, BitVec.getLsbD_ushiftRight, Bool.and_iff_right_iff_imp,
@@ -241,8 +239,8 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       intro h
       apply BitVec.lt_of_getLsbD
       assumption
-    | rotateLeft => simp [go, ih, hidx]
-    | rotateRight => simp [go, ih, hidx]
+    | rotateLeft => simp [go, ih, hidx, ← BitVec.getLsbD_eq_getElem]
+    | rotateRight => simp [go, ih, hidx, ← BitVec.getLsbD_eq_getElem]
     | arithShiftRightConst n =>
       rename_i w
       have : ¬(w ≤ idx) := by omega

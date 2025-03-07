@@ -1,21 +1,21 @@
 {"textDocument": {"uri": "file:///completionPrefixIssue.lean"},
  "position": {"line": 1, "character": 64}}
 {"items":
- [{"sortText": "0",
-   "label": "veryLongDefinitionName",
+ [{"label": "veryLongDefinitionName",
    "kind": 6,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionPrefixIssue.lean"},
      "position": {"line": 1, "character": 64}},
-    "id": {"fvar": {"id": "_uniq.29"}}}},
-  {"sortText": "1",
-   "label": "veryLongDefinitionNameVeryLongDefinitionName",
+    "id": {"fvar": {"id": "_uniq.29"}},
+    "cPos": 0}},
+  {"label": "veryLongDefinitionNameVeryLongDefinitionName",
    "kind": 21,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionPrefixIssue.lean"},
      "position": {"line": 1, "character": 64}},
     "id":
-    {"const": {"declName": "veryLongDefinitionNameVeryLongDefinitionName"}}}}],
- "isIncomplete": true}
+    {"const": {"declName": "veryLongDefinitionNameVeryLongDefinitionName"}},
+    "cPos": 0}}],
+ "isIncomplete": false}

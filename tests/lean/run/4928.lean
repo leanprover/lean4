@@ -1,17 +1,16 @@
 /--
 error: tactic 'fail' failed
-x y : Nat
-⊢ x - 1 < x
+z : Nat
+⊢ z - 1 < z
 -/
 #guard_msgs in
-def g (x : Nat) (y : Nat) : Nat := g (x - 1) y
-termination_by x
+def g (z : Nat) (y : Nat) : Nat := g (z - 1) y
+termination_by z
 decreasing_by fail
 
 /--
 error: tactic 'fail' failed
 x : List Nat
-y : Nat
 ⊢ sizeOf x.tail < sizeOf x
 -/
 #guard_msgs in
@@ -22,7 +21,6 @@ decreasing_by fail
 /--
 error: tactic 'fail' failed
 x : List Nat
-y : Nat
 ⊢ x.tail.length < x.length
 -/
 #guard_msgs in
@@ -33,7 +31,6 @@ decreasing_by fail
 /--
 error: tactic 'fail' failed
 x : List Nat
-y : Nat
 ⊢ x.tail.length < x.length
 -/
 #guard_msgs in
@@ -49,13 +46,8 @@ end
 /--
 error: tactic 'fail' failed
 x : List Nat
-y : Nat
-⊢ (invImage
-        (fun x =>
-          PSum.casesOn x (fun _x => PSigma.casesOn _x fun x y => x.length) fun _x =>
-            PSigma.casesOn _x fun x y => x.length)
-        instWellFoundedRelationOfSizeOf).1
-    (PSum.inr ⟨x.tail, y⟩) (PSum.inl ⟨x, y⟩)
+⊢ (invImage (fun x => PSum.casesOn x (fun x => x.length) fun x => x.length) instWellFoundedRelationOfSizeOf).1
+    (PSum.inr x.tail) (PSum.inl x)
 -/
 #guard_msgs in
 set_option debug.rawDecreasingByGoal true in

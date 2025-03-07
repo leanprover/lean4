@@ -57,8 +57,8 @@ private def generalizedFieldInfo (c : Name) (args : Array Expr) : MetaM (Name ×
   -- Search for the first argument that could be used for field notation
   -- and make sure it is the first explicit argument.
   forallBoundedTelescope info.type args.size fun params _ => do
-    for i in [0:params.size] do
-      let fvarId := params[i]!.fvarId!
+    for h : i in [0:params.size] do
+      let fvarId := params[i].fvarId!
       -- If there is a motive, we will treat this as a sort of control flow structure and so we won't use field notation.
       -- Plus, recursors tend to be riskier when using dot notation.
       if (← fvarId.getUserName) == `motive then

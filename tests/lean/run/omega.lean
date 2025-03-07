@@ -466,6 +466,12 @@ example (z : Int) : z.toNat = 0 ↔ z ≤ 0 := by
 example (z : Int) (a : Fin z.toNat) (h : 0 ≤ z) : ↑↑a ≤ z := by
   omega
 
+/-! ### Int.negSucc
+Make sure we aren't stopped by stray `Int.negSucc` terms.
+-/
+
+example (x : Int) (h : Int.negSucc 0 < x ∧ x < 1) : x = 0 := by omega
+
 /-! ### BitVec -/
 open BitVec
 
@@ -492,7 +498,7 @@ example (x y : BitVec 64) (_ : x < (y.truncate 32).zeroExtend 64) :
 -- This example, reported from LNSym,
 -- started failing when we changed the definition of `Fin.sub` in https://github.com/leanprover/lean4/pull/4421.
 -- When we use the new definition, `omega` produces a proof term that the kernel is very slow on.
--- To work around this for now, I've removed `BitVec.toNat_sub` from the `bv_toNat` simp set,
+-- To work around this for now, I've removed `BitVec.toNat_sub` from the `bitvec_to_nat` simp set,
 -- and replaced it with `BitVec.toNat_sub'` which uses the old definition for subtraction.
 -- This is only a workaround, and I would like to understand why the term chokes the kernel.
 example
@@ -513,54 +519,6 @@ example
     (h2 : addr2 - addr1 ≤ addr2 + 65535#16 - addr1) :
     n = 65536 := by
   bv_omega
-
--- From https://github.com/leanprover/lean4/issues/5315
--- This used to fail with an unexpected bound variable error.
-
-def simple_foldl (f: β → α → β) (a: Array α) (i: Nat) (b: β): β :=
-  if h: i < a.size then
-    simple_foldl f a (i+1) (f b a[i])
-  else
-    b
-
-/--
-error: omega could not prove the goal:
-No usable constraints found. You may need to unfold definitions so `omega` can see linear arithmetic facts about `Nat` and `Int`, which may also involve multiplication, division, and modular remainder by constants.
--/
-#guard_msgs in
-theorem simple_fold_monotonic₁ (a: Array α) (f: β → α → β) (i: Nat) {P: α → β → Prop} {x: α}
-  (base: P x b)
-  (mono: ∀ x x' y, P x y → P x (f y x')): P x (simple_foldl f a i b) := by
-    unfold simple_foldl
-    split <;> try trivial
-    apply simple_fold_monotonic₁
-    . apply mono; exact base
-    . exact mono
-  termination_by a.size - i
-  decreasing_by
-    exfalso
-    rename_i a b
-    clear a b mono base
-    rename_i a; clear a
-    clear base
-    clear x
-    rename_i a; clear a
-    clear x
-    clear P
-    rename_i a; clear a
-    clear P
-    clear i
-    rename_i a; clear a
-    clear i
-    clear f
-    rename_i a; clear a
-    clear f
-    clear a
-    rename_i a; clear a
-    clear a
-    clear b
-    rename_i a
-    omega
 
 /-! ### Error messages -/
 

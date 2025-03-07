@@ -80,7 +80,7 @@ partial def merge (v1 v2 : Value) : Value :=
   | top, _ | _, top => top
   | ctor i1 vs1, ctor i2 vs2 =>
     if i1 == i2 then
-      ctor i1 (vs1.zipWith vs2 merge)
+      ctor i1 (Array.zipWith merge vs1 vs2)
     else
       choice [v1, v2]
   | choice vs1, choice vs2 =>
@@ -248,6 +248,7 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (Name × 
     addImportedFn := fun _ => {}
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
     toArrayFn := fun s => s.toArray.qsort decLt
+    asyncMode := .sync  -- compilation is non-parallel anyway
   }
 
 /--
@@ -513,7 +514,9 @@ def inferStep : InterpM Bool := do
     let currentVal ← getFunVal idx
     withReader (fun ctx => { ctx with currFnIdx := idx }) do
       decl.params.forM fun p => updateVarAssignment p.fvarId .top
-      interpCode decl.value
+      match decl.value with
+      | .code code .. => interpCode code
+      | .extern .. => updateCurrFnSummary .top
     let newVal ← getFunVal idx
     if currentVal != newVal then
       return true
@@ -538,7 +541,7 @@ Use the information produced by the abstract interpreter to:
 -/
 partial def elimDead (assignment : Assignment) (decl : Decl) : CompilerM Decl := do
   trace[Compiler.elimDeadBranches] s!"Eliminating {decl.name} with {repr (← assignment.toArray |>.mapM (fun (name, val) => do return (toString (← getBinderName name), val)))}"
-  return { decl with value := (← go decl.value) }
+  return { decl with value := (← decl.value.mapCodeM go) }
 where
   go (code : Code) : CompilerM Code := do
     match code with
@@ -587,15 +590,15 @@ def Decl.elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
     refer to the docstring of `Decl.safe`.
     -/
     if decls[i]!.safe then .bot else .top
-  let mut funVals := decls.size.fold (init := .empty) fun i p => p.push (initialVal i)
+  let mut funVals := decls.size.fold (init := .empty) fun i _ p => p.push (initialVal i)
   let ctx := { decls }
   let mut state := { assignments, funVals }
   (_, state) ← inferMain |>.run ctx |>.run state
   funVals := state.funVals
   assignments := state.assignments
   modifyEnv fun e =>
-    decls.size.fold (init := e) fun i env =>
-      addFunctionSummary env decls[i]!.name funVals[i]!
+    decls.size.fold (init := e) fun i _ env =>
+      addFunctionSummary env decls[i].name funVals[i]!
 
   decls.mapIdxM fun i decl => if decl.safe then elimDead assignments[i]! decl else return decl
 

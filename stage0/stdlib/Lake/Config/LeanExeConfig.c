@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.LeanExeConfig
-// Imports: Init Lake.Build.Facets Lake.Config.LeanConfig
+// Imports: Lake.Build.Facets Lake.Config.LeanConfig
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -47,7 +47,7 @@ x_1 = lean_box(0);
 x_2 = 0;
 x_3 = l_Lake_instInhabitedLeanExeConfig___lambda__1___closed__1;
 x_4 = 2;
-x_5 = lean_alloc_ctor(0, 9, 2);
+x_5 = lean_alloc_ctor(0, 11, 2);
 lean_ctor_set(x_5, 0, x_3);
 lean_ctor_set(x_5, 1, x_3);
 lean_ctor_set(x_5, 2, x_3);
@@ -57,8 +57,10 @@ lean_ctor_set(x_5, 5, x_3);
 lean_ctor_set(x_5, 6, x_3);
 lean_ctor_set(x_5, 7, x_3);
 lean_ctor_set(x_5, 8, x_1);
-lean_ctor_set_uint8(x_5, sizeof(void*)*9, x_2);
-lean_ctor_set_uint8(x_5, sizeof(void*)*9 + 1, x_4);
+lean_ctor_set(x_5, 9, x_3);
+lean_ctor_set(x_5, 10, x_3);
+lean_ctor_set_uint8(x_5, sizeof(void*)*11, x_2);
+lean_ctor_set_uint8(x_5, sizeof(void*)*11 + 1, x_4);
 return x_5;
 }
 }
@@ -118,7 +120,6 @@ x_3 = l_Lake_instInhabitedLeanExeConfig___lambda__1(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Build_Facets(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_LeanConfig(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -126,9 +127,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Config_LeanExeConfig(uint8_t builtin, l
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Build_Facets(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

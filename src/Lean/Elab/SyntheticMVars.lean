@@ -149,8 +149,8 @@ where
         -- Succeeded. Collect new TC problems
         trace[Elab.defaultInstance] "isDefEq worked {mkMVar mvarId} : {← inferType (mkMVar mvarId)} =?= {candidate} : {← inferType candidate}"
         let mut pending := []
-        for i in [:bis.size] do
-          if bis[i]! == BinderInfo.instImplicit then
+        for h : i in [:bis.size] do
+          if bis[i] == BinderInfo.instImplicit then
             pending := mvars[i]!.mvarId! :: pending
         synthesizePending pending
       else

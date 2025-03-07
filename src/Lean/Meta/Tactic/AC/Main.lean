@@ -188,12 +188,10 @@ def post (e : Expr) : SimpM Simp.Step := do
   | e, _ => return Simp.Step.done { expr := e }
 
 def rewriteUnnormalized (mvarId : MVarId) : MetaM MVarId := do
-  let simpCtx :=
-    {
-      simpTheorems  := {}
-      congrTheorems := (← getSimpCongrTheorems)
-      config        := Simp.neutralConfig
-    }
+  let simpCtx ← Simp.mkContext
+      (simpTheorems  := {})
+      (congrTheorems := (← getSimpCongrTheorems))
+      (config        := Simp.neutralConfig)
   let tgt ← instantiateMVars (← mvarId.getType)
   let (res, _) ← Simp.main tgt simpCtx (methods := { post })
   applySimpResultToTarget mvarId tgt res
@@ -207,12 +205,10 @@ def rewriteUnnormalizedRefl (goal : MVarId) : MetaM Unit := do
 
 def acNfHypMeta (goal : MVarId) (fvarId : FVarId) : MetaM (Option MVarId) := do
   goal.withContext do
-    let simpCtx :=
-    {
-      simpTheorems  := {}
-      congrTheorems := (← getSimpCongrTheorems)
-      config        := Simp.neutralConfig
-    }
+    let simpCtx ← Simp.mkContext
+      (simpTheorems  := {})
+      (congrTheorems := (← getSimpCongrTheorems))
+      (config        := Simp.neutralConfig)
     let tgt ← instantiateMVars (← fvarId.getType)
     let (res, _) ← Simp.main tgt simpCtx (methods := { post })
     return (← applySimpResultToLocalDecl goal fvarId res false).map (·.snd)

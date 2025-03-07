@@ -47,7 +47,7 @@ pure f <*> pure x = pure (f x)
 u <*> pure y = pure (· y) <*> u
 ```
 -/
-class LawfulApplicative (f : Type u → Type v) [Applicative f] extends LawfulFunctor f : Prop where
+class LawfulApplicative (f : Type u → Type v) [Applicative f] : Prop extends LawfulFunctor f where
   seqLeft_eq  (x : f α) (y : f β)     : x <* y = const β <$> x <*> y
   seqRight_eq (x : f α) (y : f β)     : x *> y = const α id <$> x <*> y
   pure_seq    (g : α → β) (x : f α)   : pure g <*> x = g <$> x
@@ -77,7 +77,7 @@ x >>= f >>= g = x >>= (fun x => f x >>= g)
 
 `LawfulMonad.mk'` is an alternative constructor containing useful defaults for many fields.
 -/
-class LawfulMonad (m : Type u → Type v) [Monad m] extends LawfulApplicative m : Prop where
+class LawfulMonad (m : Type u → Type v) [Monad m] : Prop extends LawfulApplicative m where
   bind_pure_comp (f : α → β) (x : m α) : x >>= (fun a => pure (f a)) = f <$> x
   bind_map       {α β : Type u} (f : m (α → β)) (x : m α) : f >>= (. <$> x) = f <*> x
   pure_bind      (x : α) (f : α → m β) : pure x >>= f = f x
@@ -106,7 +106,7 @@ theorem seq_eq_bind_map {α β : Type u} [Monad m] [LawfulMonad m] (f : m (α �
 theorem bind_congr [Bind m] {x : m α} {f g : α → m β} (h : ∀ a, f a = g a) : x >>= f = x >>= g := by
   simp [funext h]
 
-@[simp] theorem bind_pure_unit [Monad m] [LawfulMonad m] {x : m PUnit} : (x >>= fun _ => pure ⟨⟩) = x := by
+theorem bind_pure_unit [Monad m] [LawfulMonad m] {x : m PUnit} : (x >>= fun _ => pure ⟨⟩) = x := by
   rw [bind_pure]
 
 theorem map_congr [Functor m] {x : m α} {f g : α → β} (h : ∀ a, f a = g a) : (f <$> x : m β) = g <$> x := by
@@ -133,8 +133,25 @@ theorem seqLeft_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x <* y
   rw [← bind_pure_comp]
   simp only [bind_assoc, pure_bind]
 
-@[simp] theorem Functor.map_unit [Monad m] [LawfulMonad m] {a : m PUnit} : (fun _ => PUnit.unit) <$> a = a := by
+theorem Functor.map_unit [Monad m] [LawfulMonad m] {a : m PUnit} : (fun _ => PUnit.unit) <$> a = a := by
   simp [map]
+
+/--
+This is just a duplicate of `LawfulApplicative.map_pure`,
+but sometimes applies when that doesn't.
+
+It is named with a prime to avoid conflict with the inherited field `LawfulMonad.map_pure`.
+-/
+@[simp] theorem LawfulMonad.map_pure' [Monad m] [LawfulMonad m] {a : α} :
+    (f <$> pure a : m β) = pure (f a) := by
+  simp only [map_pure]
+
+/--
+This is just a duplicate of `Functor.map_map`, but sometimes applies when that doesn't.
+-/
+@[simp] theorem LawfulMonad.map_map {m} [Monad m] [LawfulMonad m] {x : m α} :
+    g <$> f <$> x = (fun a => g (f a)) <$> x := by
+  simp only [Functor.map_map]
 
 /--
 An alternative constructor for `LawfulMonad` which has more

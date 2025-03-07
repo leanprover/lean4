@@ -1,20 +1,20 @@
 {"textDocument": {"uri": "file:///dotIdCompletion.lean"},
  "position": {"line": 4, "character": 5}}
 {"items":
- [{"sortText": "0",
-   "label": "true",
+ [{"label": "truth",
    "kind": 4,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///dotIdCompletion.lean"},
      "position": {"line": 4, "character": 5}},
-    "id": {"const": {"declName": "Boo.true"}}}},
-  {"sortText": "1",
-   "label": "truth",
+    "id": {"const": {"declName": "Boo.truth"}},
+    "cPos": 0}},
+  {"label": "true",
    "kind": 4,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///dotIdCompletion.lean"},
      "position": {"line": 4, "character": 5}},
-    "id": {"const": {"declName": "Boo.truth"}}}}],
- "isIncomplete": true}
+    "id": {"const": {"declName": "Boo.true"}},
+    "cPos": 0}}],
+ "isIncomplete": false}

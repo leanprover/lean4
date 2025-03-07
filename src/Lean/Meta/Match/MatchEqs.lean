@@ -74,7 +74,7 @@ where
           matchConstRec f (fun _ => return none) fun recVal _ => do
             if recVal.getMajorIdx >= args.size then
               return none
-            let major := args[recVal.getMajorIdx]!
+            let major := args[recVal.getMajorIdx]!.consumeMData
             if major.isFVar then
               return some major.fvarId!
             else
@@ -129,9 +129,9 @@ where
           let typeNew := b.instantiate1 y
           if let some (_, lhs, rhs) ← matchEq? d then
             if lhs.isFVar && ys.contains lhs && args.contains lhs && isNamedPatternProof typeNew y then
-               let some j  := ys.getIdx? lhs | unreachable!
+               let some j  := ys.finIdxOf? lhs | unreachable!
                let ys      := ys.eraseIdx j
-               let some k  := args.getIdx? lhs | unreachable!
+               let some k  := args.idxOf? lhs | unreachable!
                let mask    := mask.set! k false
                let args    := args.map fun arg => if arg == lhs then rhs else arg
                let arg     ← mkEqRefl rhs
@@ -222,16 +222,16 @@ private def contradiction (mvarId : MVarId) : MetaM Bool :=
   Auxiliary tactic that tries to replace as many variables as possible and then apply `contradiction`.
   We use it to discard redundant hypotheses.
 -/
-partial def trySubstVarsAndContradiction (mvarId : MVarId) : MetaM Bool :=
+partial def trySubstVarsAndContradiction (mvarId : MVarId) (forbidden : FVarIdSet := {}) : MetaM Bool :=
   commitWhen do
     let mvarId ← substVars mvarId
-    match (← injections mvarId) with
+    match (← injections mvarId (forbidden := forbidden)) with
     | .solved => return true -- closed goal
-    | .subgoal mvarId' _ =>
+    | .subgoal mvarId' _ forbidden =>
       if mvarId' == mvarId then
         contradiction mvarId
       else
-        trySubstVarsAndContradiction mvarId'
+        trySubstVarsAndContradiction mvarId' forbidden
 
 private def processNextEq : M Bool := do
   let s ← get
@@ -322,6 +322,11 @@ private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.with
           | none => pure ()
   throwError "substSomeVar failed"
 
+private def unfoldElimOffset (mvarId : MVarId) : MetaM MVarId := do
+  if Option.isNone <| (← mvarId.getType).find? fun e => e.isConstOf ``Nat.elimOffset then
+    throwError "goal's target does not contain `Nat.elimOffset`"
+  mvarId.deltaTarget (· == ``Nat.elimOffset)
+
 /--
   Helper method for proving a conditional equational theorem associated with an alternative of
   the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem. -/
@@ -342,6 +347,8 @@ where
       (do mvarId.refl; return #[])
       <|>
       (do mvarId.contradiction { genDiseq := true }; return #[])
+      <|>
+      (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
       <|>
       (casesOnStuckLHS mvarId)
       <|>
@@ -366,7 +373,7 @@ private partial def withSplitterAlts (altTypes : Array Expr) (f : Array Expr →
   let rec go (i : Nat) (xs : Array Expr) : MetaM α := do
     if h : i < altTypes.size then
       let hName := (`h).appendIndexAfter (i+1)
-      withLocalDeclD hName (altTypes.get ⟨i, h⟩) fun x =>
+      withLocalDeclD hName altTypes[i] fun x =>
         go (i+1) (xs.push x)
     else
       f xs
@@ -375,7 +382,8 @@ private partial def withSplitterAlts (altTypes : Array Expr) (f : Array Expr →
 inductive InjectionAnyResult where
   | solved
   | failed
-  | subgoal (mvarId : MVarId)
+  /-- `fvarId` refers to the local declaration selected for the application of the `injection` tactic. -/
+  | subgoal (fvarId : FVarId) (mvarId : MVarId)
 
 private def injectionAnyCandidate? (type : Expr) : MetaM (Option (Expr × Expr)) := do
   if let some (_, lhs, rhs) ← matchEq? type then
@@ -385,21 +393,28 @@ private def injectionAnyCandidate? (type : Expr) : MetaM (Option (Expr × Expr))
       return some (lhs, rhs)
   return none
 
-private def injectionAny (mvarId : MVarId) : MetaM InjectionAnyResult := do
+/--
+Try applying `injection` to a local declaration that is not in `forbidden`.
+
+We use `forbidden` because the `injection` tactic might fail to clear the variable if there are forward dependencies.
+See `proveSubgoalLoop` for additional details.
+-/
+private def injectionAny (mvarId : MVarId) (forbidden : FVarIdSet := {}) : MetaM InjectionAnyResult := do
   mvarId.withContext do
     for localDecl in (← getLCtx) do
-      if let some (lhs, rhs) ← injectionAnyCandidate? localDecl.type then
-        unless (← isDefEq lhs rhs) do
-          let lhs ← whnf lhs
-          let rhs ← whnf rhs
-          unless lhs.isRawNatLit && rhs.isRawNatLit do
-            try
-              match (← injection mvarId localDecl.fvarId) with
-              | InjectionResult.solved  => return InjectionAnyResult.solved
-              | InjectionResult.subgoal mvarId .. => return InjectionAnyResult.subgoal mvarId
-            catch ex =>
-              trace[Meta.Match.matchEqs] "injectionAnyFailed at {localDecl.userName}, error\n{ex.toMessageData}"
-              pure ()
+      unless forbidden.contains localDecl.fvarId do
+        if let some (lhs, rhs) ← injectionAnyCandidate? localDecl.type then
+          unless (← isDefEq lhs rhs) do
+            let lhs ← whnf lhs
+            let rhs ← whnf rhs
+            unless lhs.isRawNatLit && rhs.isRawNatLit do
+              try
+                match (← injection mvarId localDecl.fvarId) with
+                | InjectionResult.solved  => return InjectionAnyResult.solved
+                | InjectionResult.subgoal mvarId .. => return InjectionAnyResult.subgoal localDecl.fvarId mvarId
+              catch ex =>
+                trace[Meta.Match.matchEqs] "injectionAnyFailed at {localDecl.userName}, error\n{ex.toMessageData}"
+                pure ()
     return InjectionAnyResult.failed
 
 
@@ -525,7 +540,7 @@ where
           let rec go (i : Nat) (motiveTypeArgsNew : Array Expr) : ConvertM Expr := do
             assert! motiveTypeArgsNew.size == i
             if h : i < motiveTypeArgs.size then
-              let motiveTypeArg := motiveTypeArgs.get ⟨i, h⟩
+              let motiveTypeArg := motiveTypeArgs[i]
               if i < isAlt.size && isAlt[i]! then
                 let altNew := argsNew[6+i]! -- Recall that `Eq.ndrec` has 6 arguments
                 let altTypeNew ← inferType altNew
@@ -557,8 +572,8 @@ where
         let mut minorBodyNew := minor
         -- We have to extend the mapping to make sure `convertTemplate` can "fix" occurrences of the refined minor premises
         let mut m ← read
-        for i in [:isAlt.size] do
-          if isAlt[i]! then
+        for h : i in [:isAlt.size] do
+          if isAlt[i] then
             -- `convertTemplate` will correct occurrences of the alternative
             let alt := args[6+i]! -- Recall that `Eq.ndrec` has 6 arguments
             let some (_, numParams, argMask) := m.find? alt.fvarId! | unreachable!
@@ -601,27 +616,32 @@ where
         let eNew := mkAppN eNew mvars
         return TransformStep.done eNew
 
-  proveSubgoalLoop (mvarId : MVarId) : MetaM Unit := do
+  /-
+  `forbidden` tracks variables that we have already applied `injection`.
+  Recall that the `injection` tactic may not be able to eliminate them when
+  they have forward dependencies.
+  -/
+  proveSubgoalLoop (mvarId : MVarId) (forbidden : FVarIdSet) : MetaM Unit := do
     trace[Meta.Match.matchEqs] "proveSubgoalLoop\n{mvarId}"
     if (← mvarId.contradictionQuick) then
       return ()
-    match (← injectionAny mvarId) with
-    | InjectionAnyResult.solved => return ()
-    | InjectionAnyResult.failed =>
+    match (← injectionAny mvarId forbidden) with
+    | .solved => return ()
+    | .failed =>
       let mvarId' ← substVars mvarId
       if mvarId' == mvarId then
         if (← mvarId.contradictionCore {}) then
           return ()
         throwError "failed to generate splitter for match auxiliary declaration '{matchDeclName}', unsolved subgoal:\n{MessageData.ofGoal mvarId}"
       else
-        proveSubgoalLoop mvarId'
-    | InjectionAnyResult.subgoal mvarId => proveSubgoalLoop mvarId
+        proveSubgoalLoop mvarId' forbidden
+    | .subgoal fvarId mvarId => proveSubgoalLoop mvarId (forbidden.insert fvarId)
 
   proveSubgoal (mvarId : MVarId) : MetaM Unit := do
     trace[Meta.Match.matchEqs] "subgoal {mkMVar mvarId}, {repr (← mvarId.getDecl).kind}, {← mvarId.isAssigned}\n{MessageData.ofGoal mvarId}"
     let (_, mvarId) ← mvarId.intros
     let mvarId ← mvarId.tryClearMany (alts.map (·.fvarId!))
-    proveSubgoalLoop mvarId
+    proveSubgoalLoop mvarId {}
 
 /--
   Create new alternatives (aka minor premises) by replacing `discrs` with `patterns` at `alts`.
@@ -636,21 +656,22 @@ private partial def withNewAlts (numDiscrEqs : Nat) (discrs : Array Expr) (patte
 where
   go (i : Nat) (altsNew : Array Expr) : MetaM α := do
    if h : i < alts.size then
-     let alt := alts.get ⟨i, h⟩
-     let altLocalDecl ← getFVarLocalDecl alt
+     let altLocalDecl ← getFVarLocalDecl alts[i]
      let typeNew := altLocalDecl.type.replaceFVars discrs patterns
      withLocalDecl altLocalDecl.userName altLocalDecl.binderInfo typeNew fun altNew =>
        go (i+1) (altsNew.push altNew)
    else
      k altsNew
 
-/--
-  Create conditional equations and splitter for the given match auxiliary declaration. -/
-private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := withLCtx {} {} do
-  trace[Meta.Match.matchEqs] "mkEquationsFor '{matchDeclName}'"
-  withConfig (fun c => { c with etaStruct := .none }) do
+/-
+Creates conditional equations and splitter for the given match auxiliary declaration.
+
+See also `getEquationsFor`.
+-/
+@[export lean_get_match_equations_for]
+def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
   /-
-  Remark: user have requested the `split` tactic to be available for writing code.
+  Remark: users have requested the `split` tactic to be available for writing code.
   Thus, the `splitter` declaration must be a definition instead of a theorem.
   Moreover, the `splitter` is generated on demand, and we currently
   can't import the same definition from different modules. Thus, we must
@@ -658,6 +679,12 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
   -/
   let baseName := mkPrivateName (← getEnv) matchDeclName
   let splitterName := baseName ++ `splitter
+  -- NOTE: `go` will generate both splitter and equations but we use the splitter as the "key" for
+  -- `realizeConst` as well as for looking up the resultant environment extension sate via
+  -- `findStateAsync`.
+  realizeConst matchDeclName splitterName (go baseName splitterName)
+  return matchEqnsExt.findStateAsync (← getEnv) splitterName |>.map.find! matchDeclName
+where go baseName splitterName := withConfig (fun c => { c with etaStruct := .none }) do
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
   let some matchInfo ← getMatcherInfo? matchDeclName | throwError "'{matchDeclName}' is not a matcher function"
@@ -739,14 +766,6 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
       setInlineAttribute splitterName
       let result := { eqnNames, splitterName, splitterAltNumParams }
       registerMatchEqns matchDeclName result
-      return result
-
-/- See header at `MatchEqsExt.lean` -/
-@[export lean_get_match_equations_for]
-def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
-  match matchEqnsExt.getState (← getEnv) |>.map.find? matchDeclName with
-  | some matchEqns => return matchEqns
-  | none => mkEquationsFor matchDeclName
 
 builtin_initialize registerTraceClass `Meta.Match.matchEqs
 

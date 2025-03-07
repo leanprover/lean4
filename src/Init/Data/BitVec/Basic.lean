@@ -25,16 +25,17 @@ set_option linter.missingDocs true
 
 namespace BitVec
 
+@[inline, deprecated BitVec.ofNatLT (since := "2025-02-13"), inherit_doc BitVec.ofNatLT]
+protected def ofNatLt {n : Nat} (i : Nat) (p : i < 2 ^ n) : BitVec n :=
+  BitVec.ofNatLT i p
+
 section Nat
 
 instance natCastInst : NatCast (BitVec w) := ⟨BitVec.ofNat w⟩
 
-@[deprecated isLt (since := "2024-03-12")]
-theorem toNat_lt (x : BitVec n) : x.toNat < 2^n := x.isLt
-
 /-- Theorem for normalizing the bit vector literal representation. -/
 -- TODO: This needs more usage data to assess which direction the simp should go.
-@[simp, bv_toNat] theorem ofNat_eq_ofNat : @OfNat.ofNat (BitVec n) i _ = .ofNat n i := rfl
+@[simp, bitvec_to_nat] theorem ofNat_eq_ofNat : @OfNat.ofNat (BitVec n) i _ = .ofNat n i := rfl
 
 -- Note. Mathlib would like this to go the other direction.
 @[simp] theorem natCast_eq_ofNat (w x : Nat) : @Nat.cast (BitVec w) _ x = .ofNat w x := rfl
@@ -58,12 +59,12 @@ end subsingleton
 section zero_allOnes
 
 /-- Return a bitvector `0` of size `n`. This is the bitvector with all zero bits. -/
-protected def zero (n : Nat) : BitVec n := .ofNatLt 0 (Nat.two_pow_pos n)
+protected def zero (n : Nat) : BitVec n := .ofNatLT 0 (Nat.two_pow_pos n)
 instance : Inhabited (BitVec n) where default := .zero n
 
 /-- Bit vector of size `n` where all bits are `1`s -/
 def allOnes (n : Nat) : BitVec n :=
-  .ofNatLt (2^n - 1) (Nat.le_of_eq (Nat.sub_add_cancel (Nat.two_pow_pos n)))
+  .ofNatLT (2^n - 1) (Nat.le_of_eq (Nat.sub_add_cancel (Nat.two_pow_pos n)))
 
 end zero_allOnes
 
@@ -126,6 +127,7 @@ instance : GetElem (BitVec w) Nat Bool fun _ i => i < w where
 theorem getElem_eq_testBit_toNat (x : BitVec w) (i : Nat) (h : i < w) :
   x[i] = x.toNat.testBit i := rfl
 
+@[simp]
 theorem getLsbD_eq_getElem {x : BitVec w} {i : Nat} (h : i < w) :
     x.getLsbD i = x[i] := rfl
 
@@ -141,7 +143,7 @@ protected def toInt (x : BitVec n) : Int :=
     (x.toNat : Int) - (2^n : Nat)
 
 /-- The `BitVec` with value `(2^n + (i mod 2^n)) mod 2^n`.  -/
-protected def ofInt (n : Nat) (i : Int) : BitVec n := .ofNatLt (i % (Int.ofNat (2^n))).toNat (by
+protected def ofInt (n : Nat) (i : Int) : BitVec n := .ofNatLT (i % (Int.ofNat (2^n))).toNat (by
   apply (Int.toNat_lt _).mpr
   · apply Int.emod_lt_of_pos
     exact Int.ofNat_pos.mpr (Nat.two_pow_pos _)
@@ -160,17 +162,22 @@ section Syntax
 syntax:max num noWs "#" noWs term:max : term
 macro_rules | `($i:num#$n) => `(BitVec.ofNat $n $i)
 
+/-- not `ofNat_zero` -/
+recommended_spelling "zero" for "0#n" in [BitVec.ofNat, «term__#__»]
+/-- not `ofNat_one` -/
+recommended_spelling "one" for "1#n" in [BitVec.ofNat, «term__#__»]
+
 /-- Unexpander for bit vector literals. -/
 @[app_unexpander BitVec.ofNat] def unexpandBitVecOfNat : Lean.PrettyPrinter.Unexpander
   | `($(_) $n $i:num) => `($i:num#$n)
   | _ => throw ()
 
-/-- Notation for bit vector literals without truncation. `i#'lt` is a shorthand for `BitVec.ofNatLt i lt`. -/
+/-- Notation for bit vector literals without truncation. `i#'lt` is a shorthand for `BitVec.ofNatLT i lt`. -/
 scoped syntax:max term:max noWs "#'" noWs term:max : term
-macro_rules | `($i#'$p) => `(BitVec.ofNatLt $i $p)
+macro_rules | `($i#'$p) => `(BitVec.ofNatLT $i $p)
 
 /-- Unexpander for bit vector literals without truncation. -/
-@[app_unexpander BitVec.ofNatLt] def unexpandBitVecOfNatLt : Lean.PrettyPrinter.Unexpander
+@[app_unexpander BitVec.ofNatLT] def unexpandBitVecOfNatLt : Lean.PrettyPrinter.Unexpander
   | `($(_) $i $p) => `($i#'$p)
   | _ => throw ()
 
@@ -354,17 +361,17 @@ end relations
 section cast
 
 /-- `cast eq x` embeds `x` into an equal `BitVec` type. -/
-@[inline] def cast (eq : n = m) (x : BitVec n) : BitVec m := .ofNatLt x.toNat (eq ▸ x.isLt)
+@[inline] protected def cast (eq : n = m) (x : BitVec n) : BitVec m := .ofNatLT x.toNat (eq ▸ x.isLt)
 
 @[simp] theorem cast_ofNat {n m : Nat} (h : n = m) (x : Nat) :
-    cast h (BitVec.ofNat n x) = BitVec.ofNat m x := by
+    (BitVec.ofNat n x).cast h = BitVec.ofNat m x := by
   subst h; rfl
 
 @[simp] theorem cast_cast {n m k : Nat} (h₁ : n = m) (h₂ : m = k) (x : BitVec n) :
-    cast h₂ (cast h₁ x) = cast (h₁ ▸ h₂) x :=
+    (x.cast h₁).cast h₂ = x.cast (h₁ ▸ h₂) :=
   rfl
 
-@[simp] theorem cast_eq {n : Nat} (h : n = n) (x : BitVec n) : cast h x = x := rfl
+@[simp] theorem cast_eq {n : Nat} (h : n = n) (x : BitVec n) : x.cast h = x := rfl
 
 /--
 Extraction of bits `start` to `start + len - 1` from a bit vector of size `n` to yield a
@@ -382,12 +389,13 @@ SMT-Lib name: `extract`.
 def extractLsb (hi lo : Nat) (x : BitVec n) : BitVec (hi - lo + 1) := extractLsb' lo _ x
 
 /--
-A version of `setWidth` that requires a proof, but is a noop.
+A version of `setWidth` that requires a proof the new width is at least as large,
+and is a computational noop.
 -/
 def setWidth' {n w : Nat} (le : n ≤ w) (x : BitVec n) : BitVec w :=
   x.toNat#'(by
     apply Nat.lt_of_lt_of_le x.isLt
-    exact Nat.pow_le_pow_of_le_right (by trivial) le)
+    exact Nat.pow_le_pow_right (by trivial) le)
 
 @[deprecated setWidth' (since := "2024-09-18"), inherit_doc setWidth'] abbrev zeroExtend' := @setWidth'
 
@@ -671,5 +679,28 @@ def ofBoolListBE : (bs : List Bool) → BitVec bs.length
 def ofBoolListLE : (bs : List Bool) → BitVec bs.length
 | [] => 0#0
 | b :: bs => concat (ofBoolListLE bs) b
+
+/-! ## Overflow -/
+
+/-- `uaddOverflow x y` returns `true` if addition of `x` and `y` results in *unsigned* overflow.
+
+  SMT-Lib name: `bvuaddo`.
+-/
+def uaddOverflow {w : Nat} (x y : BitVec w) : Bool := x.toNat + y.toNat ≥ 2 ^ w
+
+/-- `saddOverflow x y` returns `true` if addition of `x` and `y` results in *signed* overflow,
+treating `x` and `y` as 2's complement signed bitvectors.
+
+  SMT-Lib name: `bvsaddo`.
+-/
+def saddOverflow {w : Nat} (x y : BitVec w) : Bool :=
+  (x.toInt + y.toInt ≥ 2 ^ (w - 1)) || (x.toInt + y.toInt < - 2 ^ (w - 1))
+
+/- ### reverse -/
+
+/-- Reverse the bits in a bitvector. -/
+def reverse : {w : Nat} → BitVec w → BitVec w
+  | 0, x => x
+  | w + 1, x => concat (reverse (x.truncate w)) (x.msb)
 
 end BitVec

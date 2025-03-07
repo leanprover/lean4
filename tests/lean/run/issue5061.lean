@@ -8,7 +8,7 @@ def test (a: Array Nat) : Nat := @fin_max _ fun i =>
     with_reducible apply Fin.val_lt_of_le
     fail_if_success with_reducible apply Fin.val_lt_of_le;
     exact Nat.le_refl _
-  a.get ⟨i, h⟩
+  a[i]
 
 set_option pp.mvars false
 
@@ -30,4 +30,4 @@ set_option maxRecDepth 40 in
 def test2 (a: Array Nat) : Nat := @fin_max _ fun i =>
   let h : i < a.size := by
     get_elem_tactic
-  a.get ⟨i, h⟩
+  a[i]

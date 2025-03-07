@@ -1024,11 +1024,11 @@ theorem fold_eq_foldl_toList {f : δ → (a : α) → β a → δ} {init : δ} :
 
 theorem foldRevM_eq_foldrM_toList [Monad m'] [LawfulMonad m']
     {f : δ → (a : α) → β a → m' δ} {init : δ} :
-    m.1.foldRevM f init = m.1.toList.foldrM (fun a b => f b a.1 a.2) init := by
+    Raw.Internal.foldRevM f init m.1 = m.1.toList.foldrM (fun a b => f b a.1 a.2) init := by
   simp_to_model [foldRevM, toList]
 
 theorem foldRev_eq_foldr_toList {f : δ → (a : α) → β a → δ} {init : δ} :
-    m.1.foldRev f init = m.1.toList.foldr (fun a b => f b a.1 a.2) init := by
+    Raw.Internal.foldRev f init m.1 = m.1.toList.foldr (fun a b => f b a.1 a.2) init := by
   simp_to_model [foldRev, toList]
 
 theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : (a : α) → β a → m' PUnit} :
@@ -1051,11 +1051,13 @@ theorem fold_eq_foldl_keys {f : δ → α → δ} {init : δ} :
 
 theorem foldRevM_eq_foldrM_keys [Monad m'] [LawfulMonad m']
     {f : δ → (a : α) → m' δ} {init : δ} :
-    m.1.foldRevM (fun d a _ => f d a) init = m.1.keys.foldrM (fun a b => f b a) init := by
+    Raw.Internal.foldRevM (fun d a _ => f d a) init m.1 =
+      m.1.keys.foldrM (fun a b => f b a) init := by
   simp_to_model [foldRevM, keys] using List.foldrM_eq_foldrM_keys'
 
 theorem foldRev_eq_foldr_keys {f : δ → (a : α) → δ} {init : δ} :
-    m.1.foldRev (fun d a _ => f d a) init = m.1.keys.foldr (fun a b => f b a) init := by
+    Raw.Internal.foldRev (fun d a _ => f d a) init m.1 =
+      m.1.keys.foldr (fun a b => f b a) init := by
   simp_to_model [foldRev, keys] using List.foldr_eq_foldr_keys'
 
 theorem forM_eq_forM_keys [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
@@ -1082,11 +1084,14 @@ theorem fold_eq_foldl_toList {f : δ → (a : α) → β → δ} {init : δ} :
 
 theorem foldRevM_eq_foldrM_toList [Monad m'] [LawfulMonad m']
     {f : δ → (a : α) → β → m' δ} {init : δ} :
-    m.1.foldRevM f init = (Raw.Const.toList m.1).foldrM (fun a b => f b a.1 a.2) init := by
+    Raw.Internal.foldRevM f init m.1 =
+      (Raw.Const.toList m.1).foldrM (fun a b => f b a.1 a.2) init := by
+  have :=Raw.foldRevM_eq_foldrM_toListModel (m := m') (b := m.1) (init := init) (f := f)
+
   simp_to_model [foldRevM, Const.toList] using List.foldrM_eq_foldrM_toProd'
 
 theorem foldRev_eq_foldr_toList {f : δ → (a : α) → β → δ} {init : δ} :
-    m.1.foldRev f init = (Raw.Const.toList m.1).foldr (fun a b => f b a.1 a.2) init := by
+    Raw.Internal.foldRev f init m.1 = (Raw.Const.toList m.1).foldr (fun a b => f b a.1 a.2) init := by
   simp_to_model [foldRev, Const.toList] using List.foldr_eq_foldr_toProd'
 
 theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : (a : α) → β → m' PUnit} :

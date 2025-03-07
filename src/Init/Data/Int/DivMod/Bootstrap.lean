@@ -70,11 +70,11 @@ theorem ofNat_dvd_left {n : Nat} {z : Int} : (↑n : Int) ∣ z ↔ n ∣ z.natA
 /-! ### ediv zero  -/
 
 @[simp] theorem zero_ediv : ∀ b : Int, 0 / b = 0
-  | ofNat _ => show ofNat _ = _ by simp
-  | -[_+1] => show -ofNat _ = _ by simp
+  | ofNat _ => sorry -- show ofNat _ = _ by simp
+  | -[_+1] => sorry -- show -ofNat _ = _ by simp
 
 @[simp] protected theorem ediv_zero : ∀ a : Int, a / 0 = 0
-  | ofNat _ => show ofNat _ = _ by simp
+  | ofNat _ => sorry -- show ofNat _ = _ by simp
   | -[_+1] => rfl
 
 /-! ### emod zero -/
@@ -128,35 +128,36 @@ theorem emod_def (a b : Int) : a % b = a - b * (a / b) := by
 
 protected theorem div_def (a b : Int) : a / b = Int.ediv a b := rfl
 
-theorem add_mul_ediv_right (a b : Int) {c : Int} (H : c ≠ 0) : (a + b * c) / c = a / c + b :=
-  suffices ∀ {{a b c : Int}}, 0 < c → (a + b * c).ediv c = a.ediv c + b from
-    match Int.lt_trichotomy c 0 with
-    | Or.inl hlt => by
-      rw [← Int.neg_inj, ← Int.ediv_neg, Int.neg_add, ← Int.ediv_neg, ← Int.neg_mul_neg]
-      exact this (Int.neg_pos_of_neg hlt)
-    | Or.inr (Or.inl HEq) => absurd HEq H
-    | Or.inr (Or.inr hgt) => this hgt
-  suffices ∀ {k n : Nat} {a : Int}, (a + n * k.succ).ediv k.succ = a.ediv k.succ + n from
-    fun a b c H => match c, eq_succ_of_zero_lt H, b with
-      | _, ⟨_, rfl⟩, ofNat _ => this
-      | _, ⟨k, rfl⟩, -[n+1] => show (a - n.succ * k.succ).ediv k.succ = a.ediv k.succ - n.succ by
-        rw [← Int.add_sub_cancel (ediv ..), ← this, Int.sub_add_cancel]
-  fun {k n} => @fun
-  | ofNat _ => congrArg ofNat <| Nat.add_mul_div_right _ _ k.succ_pos
-  | -[m+1] => by
-    show ((n * k.succ : Nat) - m.succ : Int).ediv k.succ = n - (m / k.succ + 1 : Nat)
-    by_cases h : m < n * k.succ
-    · rw [← Int.ofNat_sub h, ← Int.ofNat_sub ((Nat.div_lt_iff_lt_mul k.succ_pos).2 h)]
-      apply congrArg ofNat
-      rw [Nat.mul_comm, Nat.mul_sub_div]; rwa [Nat.mul_comm]
-    · have h := Nat.not_lt.1 h
-      have H {a b : Nat} (h : a ≤ b) : (a : Int) + -((b : Int) + 1) = -[b - a +1] := by
-        rw [negSucc_eq, Int.ofNat_sub h]
-        simp only [Int.sub_eq_add_neg, Int.neg_add, Int.neg_neg, Int.add_left_comm, Int.add_assoc]
-      show ediv (↑(n * succ k) + -((m : Int) + 1)) (succ k) = n + -(↑(m / succ k) + 1 : Int)
-      rw [H h, H ((Nat.le_div_iff_mul_le k.succ_pos).2 h)]
-      apply congrArg negSucc
-      rw [Nat.mul_comm, Nat.sub_mul_div]; rwa [Nat.mul_comm]
+theorem add_mul_ediv_right (a b : Int) {c : Int} (H : c ≠ 0) : (a + b * c) / c = a / c + b := by
+  sorry
+  -- suffices ∀ {{a b c : Int}}, 0 < c → (a + b * c).ediv c = a.ediv c + b from
+  --   match Int.lt_trichotomy c 0 with
+  --   | Or.inl hlt => by
+  --     rw [← Int.neg_inj, ← Int.ediv_neg, Int.neg_add, ← Int.ediv_neg, ← Int.neg_mul_neg]
+  --     exact this (Int.neg_pos_of_neg hlt)
+  --   | Or.inr (Or.inl HEq) => absurd HEq H
+  --   | Or.inr (Or.inr hgt) => this hgt
+  -- suffices ∀ {k n : Nat} {a : Int}, (a + n * k.succ).ediv k.succ = a.ediv k.succ + n from
+  --   fun a b c H => match c, eq_succ_of_zero_lt H, b with
+  --     | _, ⟨_, rfl⟩, ofNat _ => this
+  --     | _, ⟨k, rfl⟩, -[n+1] => show (a - n.succ * k.succ).ediv k.succ = a.ediv k.succ - n.succ by
+  --       rw [← Int.add_sub_cancel (ediv ..), ← this, Int.sub_add_cancel]
+  -- fun {k n} => @fun
+  -- | ofNat _ => congrArg ofNat <| Nat.add_mul_div_right _ _ k.succ_pos
+  -- | -[m+1] => by
+  --   show ((n * k.succ : Nat) - m.succ : Int).ediv k.succ = n - (m / k.succ + 1 : Nat)
+  --   by_cases h : m < n * k.succ
+  --   · rw [← Int.ofNat_sub h, ← Int.ofNat_sub ((Nat.div_lt_iff_lt_mul k.succ_pos).2 h)]
+  --     apply congrArg ofNat
+  --     rw [Nat.mul_comm, Nat.mul_sub_div]; rwa [Nat.mul_comm]
+  --   · have h := Nat.not_lt.1 h
+  --     have H {a b : Nat} (h : a ≤ b) : (a : Int) + -((b : Int) + 1) = -[b - a +1] := by
+  --       rw [negSucc_eq, Int.ofNat_sub h]
+  --       simp only [Int.sub_eq_add_neg, Int.neg_add, Int.neg_neg, Int.add_left_comm, Int.add_assoc]
+  --     show ediv (↑(n * succ k) + -((m : Int) + 1)) (succ k) = n + -(↑(m / succ k) + 1 : Int)
+  --     rw [H h, H ((Nat.le_div_iff_mul_le k.succ_pos).2 h)]
+  --     apply congrArg negSucc
+  --     rw [Nat.mul_comm, Nat.sub_mul_div]; rwa [Nat.mul_comm]
 
 theorem add_mul_ediv_left (a : Int) {b : Int}
     (c : Int) (H : b ≠ 0) : (a + b * c) / b = a / b + c :=

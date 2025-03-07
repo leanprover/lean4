@@ -471,23 +471,25 @@ theorem ediv_eq_zero_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a / b = 0 :
   | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => congrArg Nat.cast <| Nat.div_eq_of_lt <| ofNat_lt.1 H2
 
 theorem ediv_eq_neg_one_of_neg_of_le {a b : Int} (H1 : a < 0) (H2 : -a ≤ b) : a / b = -1 := by
-  match a, b, H1, H2 with
-  | negSucc a', ofNat (b' + 1), H1, H2 =>
-    rw [Int.div_def, ediv, Int.negSucc_eq, Int.neg_inj]
-    norm_cast
-    rw [Nat.add_left_eq_self, Nat.div_eq_zero_iff_lt (by omega)]
-    simp [Int.negSucc_eq] at H2
-    omega
+  sorry
+  -- match a, b, H1, H2 with
+  -- | negSucc a', ofNat (b' + 1), H1, H2 =>
+  --   rw [Int.div_def, ediv, Int.negSucc_eq, Int.neg_inj]
+  --   norm_cast
+  --   rw [Nat.add_left_eq_self, Nat.div_eq_zero_iff_lt (by omega)]
+  --   simp [Int.negSucc_eq] at H2
+  --   omega
 
 theorem ediv_eq_one_of_neg_of_le {a b : Int} (H1 : a < 0) (H2 : b ≤ a) : a / b = 1 := by
-  match a, b, H1, H2 with
-  | negSucc a', ofNat n', H1, H2 => simp [Int.negSucc_eq] at H2; omega
-  | negSucc a', negSucc b', H1, H2 =>
-    rw [Int.div_def, ediv, ofNat_eq_coe]
-    norm_cast
-    rw [Nat.succ_eq_add_one, Nat.add_left_eq_self, Nat.div_eq_zero_iff_lt (by omega)]
-    simp [Int.negSucc_eq] at H2
-    omega
+  sorry
+  -- match a, b, H1, H2 with
+  -- | negSucc a', ofNat n', H1, H2 => simp [Int.negSucc_eq] at H2; omega
+  -- | negSucc a', negSucc b', H1, H2 =>
+  --   rw [Int.div_def, ediv, ofNat_eq_coe]
+  --   norm_cast
+  --   rw [Nat.succ_eq_add_one, Nat.add_left_eq_self, Nat.div_eq_zero_iff_lt (by omega)]
+  --   simp [Int.negSucc_eq] at H2
+  --   omega
 
 theorem one_ediv (b : Int) : 1 / b = if b.natAbs = 1 then b else 0 := by
   induction b using wlog_sign

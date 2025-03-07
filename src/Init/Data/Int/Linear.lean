@@ -315,26 +315,28 @@ attribute [local simp] sub_fold neg_fold
 attribute [local simp] Poly.div Poly.divAll
 
 theorem Poly.denote_div_eq_of_divAll (ctx : Context) (p : Poly) (k : Int) : p.divAll k → (p.div k).denote ctx * k = p.denote ctx := by
-  induction p with
-  | num _ => simp; intro h; rw [← cdiv_eq_div_of_divides h]; exact div_mul_cancel_of_mod_zero h
-  | add k' v p ih =>
-    simp; intro h₁ h₂
-    replace h₁ := div_mul_cancel_of_mod_zero h₁
-    have ih := ih h₂
-    simp [ih]
-    apply congrArg (denote ctx p + ·)
-    rw [Int.mul_right_comm, h₁]
+  sorry
+  -- induction p with
+  -- | num _ => simp; intro h; rw [← cdiv_eq_div_of_divides h]; exact div_mul_cancel_of_mod_zero h
+  -- | add k' v p ih =>
+  --   simp; intro h₁ h₂
+  --   replace h₁ := div_mul_cancel_of_mod_zero h₁
+  --   have ih := ih h₂
+  --   simp [ih]
+  --   apply congrArg (denote ctx p + ·)
+  --   rw [Int.mul_right_comm, h₁]
 
 attribute [local simp] Poly.divCoeffs Poly.getConst
 
 theorem Poly.denote_div_eq_of_divCoeffs (ctx : Context) (p : Poly) (k : Int) : p.divCoeffs k → (p.div k).denote ctx * k + cmod p.getConst k = p.denote ctx := by
-  induction p with
-  | num k' => simp; rw [Int.mul_comm, cdiv_add_cmod]
-  | add k' v p ih =>
-    simp; intro h₁ h₂
-    replace h₁ := div_mul_cancel_of_mod_zero h₁
-    rw [← ih h₂]
-    rw [Int.mul_right_comm, h₁, Int.add_assoc]
+  sorry
+  -- induction p with
+  -- | num k' => simp; rw [Int.mul_comm, cdiv_add_cmod]
+  -- | add k' v p ih =>
+  --   simp; intro h₁ h₂
+  --   replace h₁ := div_mul_cancel_of_mod_zero h₁
+  --   rw [← ih h₂]
+  --   rw [Int.mul_right_comm, h₁, Int.add_assoc]
 
 attribute [local simp] Expr.denote
 

@@ -520,6 +520,12 @@ optional<constant_info> type_checker::is_delta(expr const & e) const {
 
 optional<expr> type_checker::unfold_definition_core(expr const & e) {
     if (is_constant(e)) {
+        if (e == *g_nat_pow)
+            throw kernel_exception(env(), "type checker failure, about to unfold Nat.pow");
+
+        if (e == *g_nat_div)
+            throw kernel_exception(env(), "type checker failure, about to unfold Nat.div");
+
         if (auto d = is_delta(e)) {
             if (length(const_levels(e)) == d->get_num_lparams()) {
                 if (m_diag) {
@@ -537,6 +543,19 @@ optional<expr> type_checker::unfold_definition_core(expr const & e) {
 optional<expr> type_checker::unfold_definition(expr const & e) {
     if (is_app(e)) {
         expr f0 = get_app_fn(e);
+        if (is_constant(f0)) {
+            if (f0 == *g_nat_pow) {
+                std::cerr << e << std::endl;
+                std::cerr.flush();
+                throw kernel_exception(env(), "type checker failure, about to unfold Nat.pow");
+            }
+
+            if (f0 == *g_nat_div) {
+                std::cerr << e << std::endl;
+                std::cerr.flush();
+                throw kernel_exception(env(), "type checker failure, about to unfold Nat.div");
+            }
+        };
         if (auto f  = unfold_definition_core(f0)) {
             buffer<expr> args;
             get_app_rev_args(e, args);
@@ -591,9 +610,15 @@ static inline nat get_nat_val(expr const & e) {
 
 template<typename F> optional<expr> type_checker::reduce_bin_nat_op(F const & f, expr const & e) {
     expr arg1 = whnf(app_arg(app_fn(e)));
-    if (!is_nat_lit_ext(arg1)) return none_expr();
+    if (!is_nat_lit_ext(arg1)) {
+        std::cerr << "Could not reduce first argument " << arg1 << std::endl;
+        return none_expr();
+    }
     expr arg2 = whnf(app_arg(e));
-    if (!is_nat_lit_ext(arg2)) return none_expr();
+    if (!is_nat_lit_ext(arg2)) {
+        std::cerr << "Could not reduce second argument " << arg2 << std::endl;
+        return none_expr();
+    }
     nat v1 = get_nat_val(arg1);
     nat v2 = get_nat_val(arg2);
     return some_expr(mk_lit(literal(nat(f(v1.raw(), v2.raw())))));
@@ -622,7 +647,7 @@ template<typename F> optional<expr> type_checker::reduce_bin_nat_pred(F const & 
 }
 
 optional<expr> type_checker::reduce_nat(expr const & e) {
-    if (has_fvar(e)) return none_expr();
+    // if (has_fvar(e)) return none_expr();
     unsigned nargs = get_app_num_args(e);
     if (nargs == 1) {
         expr const & f = app_fn(e);
@@ -682,6 +707,7 @@ expr type_checker::whnf(expr const & e) {
         // double badness = unordered_map_badness(m_st->m_whnf);
         // if (badness > 10)
         //     fprintf(stderr, "m_whnf badness: %f\n", badness );
+        // std::cerr << "Reducing: " << t << std::endl;
         expr t1 = whnf_core(t);
         if (auto v = reduce_native(env(), t1)) {
             m_st->m_whnf.insert(mk_pair(e, *v));

@@ -2813,19 +2813,39 @@ class Pure (f : Type u → Type v) where
 export Pure (pure)
 
 /--
-In functional programming, a "functor" is a function on types `F : Type u → Type v`
-equipped with an operator called `map` or `<$>` such that if `f : α → β` then
-`map f : F α → F β`, so `f <$> x : F β` if `x : F α`. This corresponds to the
-category-theory notion of [functor](https://en.wikipedia.org/wiki/Functor) in
-the special case where the category is the category of types and functions
-between them, except that this class supplies only the operations and not the
-laws (see `LawfulFunctor`).
+A functor in the sense used in functional programming, which means a function `f : Type u → Type v`
+has a way of mapping a function over its contents. This `map` operator is written `<$>`, and
+overloaded via `Functor` instances.
+
+This `map` function should respect identity and function composition. In other words, for all terms
+`v : f α`, it should be the case that:
+
+ * `id <$> v = v`
+
+ * For all functions `h : β → γ` and `g : α → β`, `(h ∘ g) <$> v = h <$> g <$> v`
+
+While all `Functor` instances should live up to these requirements, they are not required to _prove_
+that they do. Proofs may be required or provided via the `LawfulFunctor` class.
+
+Assuming that instances are lawful, this definition corresponds to the category-theoretic notion of
+[functor](https://en.wikipedia.org/wiki/Functor) in the special case where the category is the
+category of types and functions between them.
 -/
 class Functor (f : Type u → Type v) : Type (max (u+1) v) where
-  /-- If `f : α → β` and `x : F α` then `f <$> x : F β`. -/
+  /--
+  Applies a function inside a functor. This is used to overload the `<$>` operator.
+
+  When mapping a constant function, use `Functor.mapConst` instead, because it may be more
+  efficient.
+  -/
   map : {α β : Type u} → (α → β) → f α → f β
-  /-- The special case `const a <$> x`, which can sometimes be implemented more
-  efficiently. -/
+  /--
+  Mapping a constant function.
+
+  Given `a : α` and `v : f α`, `mapConst a v` is equivalent to `Function.const _ a <$> v`. For some
+  functors, this can be implemented more efficiently; for all other functors, the default
+  implementation may be used.
+  -/
   mapConst : {α β : Type u} → α → f β → f α := Function.comp map (Function.const _)
 
 /-- The typeclass which supplies the `<*>` "seq" function. See `Applicative`. -/

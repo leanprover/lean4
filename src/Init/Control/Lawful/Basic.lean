@@ -13,17 +13,26 @@ open Function
   rfl
 
 /--
-The `Functor` typeclass only contains the operations of a functor.
-`LawfulFunctor` further asserts that these operations satisfy the laws of a functor,
-including the preservation of the identity and composition laws:
-```
-id <$> x = x
-(h ∘ g) <$> x = h <$> g <$> x
-```
+A functor satisfies the functor laws.
+
+The `Functor` class only contains the operations of a functor, but does not require that instances
+prove they satisfy the laws of a functor. A `LawfulFunctor` instance includes proofs that the laws
+are satisfied. Because `Functor` instances may provide optimized implementations of `mapConst`,
+`LawfulFunctor` instances must also prove that the optimized implementation is equivalent to the
+standard implementation.
 -/
 class LawfulFunctor (f : Type u → Type v) [Functor f] : Prop where
+  /--
+  The `mapConst` implementation is equivalent to the default implementation.
+  -/
   map_const          : (Functor.mapConst : α → f β → f α) = Functor.map ∘ const β
+  /--
+  The `map` implementation preserves identity.
+  -/
   id_map   (x : f α) : id <$> x = x
+  /--
+  The `map` implementation preserves function composition.
+  -/
   comp_map (g : α → β) (h : β → γ) (x : f α) : (h ∘ g) <$> x = h <$> g <$> x
 
 export LawfulFunctor (map_const id_map comp_map)

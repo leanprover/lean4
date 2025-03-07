@@ -2002,10 +2002,6 @@ theorem equiv_iff_toList_perm [EquivBEq α] [LawfulHashable α] :
     m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList :=
   ⟨Equiv.toList_perm, Equiv.of_toList_perm⟩
 
-theorem equiv_iff_keys_unit_perm [EquivBEq α] [LawfulHashable α]
-    {m₁ m₂ : HashMap α Unit} : m₁ ~m m₂ ↔ m₁.keys.Perm m₂.keys :=
-  ⟨Equiv.keys_perm, Equiv.of_keys_unit_perm⟩
-
 end Equiv
 
 end Std.HashMap

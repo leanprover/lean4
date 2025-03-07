@@ -235,8 +235,8 @@ theorem get?_congr [EquivBEq α] [LawfulHashable α] {k k' : α} (h : k == k') :
 theorem get?_eq_some_of_contains [LawfulBEq α] {k : α} (h : m.contains k) : m.get? k = some k :=
   HashMap.getKey?_eq_some_of_contains h
 
-theorem get?_eq_some_of_mem [LawfulBEq α] {k : α} (h : k ∈ m) : m.get? k = some k :=
-  HashMap.getKey?_eq_some_of_contains h
+theorem get?_eq_some [LawfulBEq α] {k : α} (h : k ∈ m) : m.get? k = some k :=
+  HashMap.getKey?_eq_some h
 
 theorem get_insert [EquivBEq α] [LawfulHashable α] {k a : α} {h₁} :
     (m.insert k).get a h₁ =
@@ -667,5 +667,121 @@ theorem isEmpty_ofList [EquivBEq α] [LawfulHashable α]
   HashMap.isEmpty_unitOfList
 
 end
+
+namespace Equiv
+
+variable {m m₁ m₂ m₃ : HashSet α}
+
+theorem refl (m : HashSet α) : m ~m m := ⟨.rfl⟩
+theorem rfl : m ~m m := ⟨.rfl⟩
+theorem symm : m₁ ~m m₂ → m₂ ~m m₁
+  | ⟨h⟩ => ⟨h.symm⟩
+theorem trans : m₁ ~m m₂ → m₂ ~m m₃ → m₁ ~m m₃
+  | ⟨h₁⟩, ⟨h₂⟩ => ⟨h₁.trans h₂⟩
+theorem comm : m₁ ~m m₂ ↔ m₂ ~m m₁ := ⟨symm, symm⟩
+theorem congr_left (h : m₁ ~m m₂) : m₁ ~m m₃ ↔ m₂ ~m m₃ := ⟨h.symm.trans, h.trans⟩
+theorem congr_right (h : m₁ ~m m₂) : m₃ ~m m₁ ↔ m₃ ~m m₂ :=
+  ⟨fun h' => h'.trans h, fun h' => h'.trans h.symm⟩
+
+theorem isEmpty_eq [EquivBEq α] [LawfulHashable α] (h : m₁ ~m m₂) : m₁.isEmpty = m₂.isEmpty :=
+  h.1.isEmpty_eq
+
+theorem size_eq [EquivBEq α] [LawfulHashable α] (h : m₁ ~m m₂) : m₁.size = m₂.size :=
+  h.1.size_eq
+
+theorem contains_eq [EquivBEq α] [LawfulHashable α] {k : α} (h : m₁ ~m m₂) :
+    m₁.contains k = m₂.contains k :=
+  h.1.contains_eq
+
+theorem mem_iff [EquivBEq α] [LawfulHashable α] {k : α} (h : m₁ ~m m₂) : k ∈ m₁ ↔ k ∈ m₂ :=
+  h.1.mem_iff
+
+theorem toList_perm (h : m₁ ~m m₂) : m₁.toList.Perm m₂.toList :=
+  h.1.keys_perm
+
+theorem of_toList_perm (h : m₁.toList.Perm m₂.toList) : m₁ ~m m₂ :=
+  ⟨.of_keys_unit_perm h⟩
+
+theorem get?_eq [EquivBEq α] [LawfulHashable α] {k : α} (h : m₁ ~m m₂) :
+    m₁.get? k = m₂.get? k :=
+  h.1.getKey?_eq
+
+theorem get_eq [EquivBEq α] [LawfulHashable α] {k : α} (hk : k ∈ m₁) (h : m₁ ~m m₂) :
+    m₁.get k hk = m₂.get k (h.mem_iff.mp hk) :=
+  h.1.getKey_eq hk
+
+theorem get!_eq [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α} (h : m₁ ~m m₂) :
+    m₁.get! k = m₂.get! k :=
+  h.1.getKey!_eq
+
+theorem getD_eq [EquivBEq α] [LawfulHashable α] {k fallback : α} (h : m₁ ~m m₂) :
+    m₁.getD k fallback = m₂.getD k fallback :=
+  h.1.getKeyD_eq
+
+theorem insert [EquivBEq α] [LawfulHashable α] (k : α) (h : m₁ ~m m₂) :
+    m₁.insert k ~m m₂.insert k :=
+  ⟨h.1.insertIfNew k ()⟩
+
+theorem erase [EquivBEq α] [LawfulHashable α] (k : α) (h : m₁ ~m m₂) :
+    m₁.erase k ~m m₂.erase k :=
+  ⟨h.1.erase k⟩
+
+theorem insertMany_list [EquivBEq α] [LawfulHashable α] (l : List α) (h : m₁ ~m m₂) :
+    m₁.insertMany l ~m m₂.insertMany l :=
+  ⟨h.1.insertManyIfNewUnit_list l⟩
+
+theorem filter (f : α → Bool) (h : m₁ ~m m₂) : m₁.filter f ~m m₂.filter f :=
+  ⟨h.1.filter _⟩
+
+theorem of_forall_get?_eq [EquivBEq α] [LawfulHashable α]
+    (hk : ∀ k, m₁.get? k = m₂.get? k) : m₁ ~m m₂ :=
+  ⟨.of_forall_getKey?_eq_of_forall_getElem?_eq hk fun k => by
+    specialize hk k
+    by_cases h : k ∈ m₂
+    · rw [get?_eq_some_get (h' := h)] at hk
+      have h' : k ∈ m₁ := contains_eq_isSome_get?.trans (hk ▸ Option.isSome_some)
+      simp only [HashMap.getElem?_eq_some_getElem (h' := h),
+        HashMap.getElem?_eq_some_getElem (h' := h')]
+    · rw [get?_eq_none h] at hk
+      have h' : m₁.contains k = false := contains_eq_isSome_get?.trans (hk ▸ Option.isSome_none)
+      simp only [HashMap.getElem?_eq_none h, HashMap.getElem?_eq_none_of_contains_eq_false h']⟩
+
+theorem of_forall_mem_iff [LawfulBEq α] (hk : ∀ k, k ∈ m₁ ↔ k ∈ m₂) : m₁ ~m m₂ :=
+  .of_forall_get?_eq fun k => by
+    specialize hk k
+    by_cases h : k ∈ m₂
+    · simp only [get?_eq_some h, get?_eq_some (hk.mpr h)]
+    · simp only [get?_eq_none h, get?_eq_none ((not_congr hk).mpr h)]
+
+end Equiv
+
+section Equiv
+
+variable {m m₁ m₂ : HashSet α}
+
+@[simp]
+theorem equiv_empty_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :
+    m ~m empty c ↔ m.isEmpty :=
+  ⟨fun ⟨h⟩ => HashMap.equiv_empty_iff_isEmpty.mp h,
+    fun h => ⟨HashMap.equiv_empty_iff_isEmpty.mpr h⟩⟩
+
+@[simp]
+theorem equiv_emptyc_iff_isEmpty [EquivBEq α] [LawfulHashable α] : m ~m ∅ ↔ m.isEmpty :=
+  equiv_empty_iff_isEmpty
+
+@[simp]
+theorem empty_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :
+    empty c ~m m ↔ m.isEmpty :=
+  Equiv.comm.trans equiv_empty_iff_isEmpty
+
+@[simp]
+theorem emptyc_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] : ∅ ~m m ↔ m.isEmpty :=
+  empty_equiv_iff_isEmpty
+
+theorem equiv_iff_toList_perm [EquivBEq α] [LawfulHashable α] :
+    m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList :=
+  ⟨Equiv.toList_perm, Equiv.of_toList_perm⟩
+
+end Equiv
 
 end Std.HashSet

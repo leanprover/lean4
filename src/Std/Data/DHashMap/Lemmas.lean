@@ -2401,7 +2401,7 @@ theorem size_alter [LawfulBEq α] {k : α} {f : Option β → Option β} :
     (Const.alter m k f).size =
       if k ∈ m ∧ (f (Const.get? m k)).isNone then
         m.size - 1
-      else if ¬ k ∈ m ∧ (f (Const.get? m k)).isSome then
+      else if k ∉ m ∧ (f (Const.get? m k)).isSome then
         m.size + 1
       else
         m.size :=

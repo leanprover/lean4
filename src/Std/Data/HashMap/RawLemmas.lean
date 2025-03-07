@@ -1875,19 +1875,19 @@ theorem mem_iff [EquivBEq α] [LawfulHashable α] {k : α} (h₁ : m₁.WF) (h�
     (h : m₁ ~m m₂) : k ∈ m₁ ↔ k ∈ m₂ :=
   h.1.mem_iff h₁.1 h₂.1
 
-theorem getElem?_eq [LawfulBEq α] {k : α} (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ ~m m₂) :
-    m₁[k]? = m₂[k]? :=
+theorem getElem?_eq [EquivBEq α] [LawfulHashable α] {k : α} (h₁ : m₁.WF) (h₂ : m₂.WF)
+    (h : m₁ ~m m₂) : m₁[k]? = m₂[k]? :=
   h.1.constGet?_eq h₁.1 h₂.1
 
-theorem getElem_eq [LawfulBEq α] {k : α} (h₁ : m₁.WF) (h₂ : m₂.WF) (hk : k ∈ m₁) (h : m₁ ~m m₂) :
-    m₁[k] = m₂[k]'((h.mem_iff h₁ h₂).mp hk) :=
+theorem getElem_eq [EquivBEq α] [LawfulHashable α] {k : α} (h₁ : m₁.WF) (h₂ : m₂.WF)
+    (hk : k ∈ m₁) (h : m₁ ~m m₂) : m₁[k] = m₂[k]'((h.mem_iff h₁ h₂).mp hk) :=
   h.1.constGet_eq h₁.1 h₂.1 hk
 
-theorem getElem!_eq [LawfulBEq α] {k : α} [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF)
+theorem getElem!_eq [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited β] (h₁ : m₁.WF) (h₂ : m₂.WF)
     (h : m₁ ~m m₂) : m₁[k]! = m₂[k]! :=
   h.1.constGet!_eq h₁.1 h₂.1
 
-theorem getD_eq [LawfulBEq α] {k : α} {fallback : β} (h₁ : m₁.WF) (h₂ : m₂.WF)
+theorem getD_eq [EquivBEq α] [LawfulHashable α] {k : α} {fallback : β} (h₁ : m₁.WF) (h₂ : m₂.WF)
     (h : m₁ ~m m₂) : m₁.getD k fallback = m₂.getD k fallback :=
   h.1.constGetD_eq h₁.1 h₂.1
 
@@ -1928,11 +1928,13 @@ theorem insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] {m₁ m₂ : 
     m₁.insertManyIfNewUnit l ~m m₂.insertManyIfNewUnit l :=
   ⟨h.1.constInsertManyIfNewUnit_list h₁.1 h₂.1 l⟩
 
-theorem alter [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF) (k : α) (f : Option β → Option β)
+theorem alter [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    (k : α) (f : Option β → Option β)
     (h : m₁ ~m m₂) : m₁.alter k f ~m m₂.alter k f :=
   ⟨h.1.constAlter h₁.1 h₂.1 k f⟩
 
-theorem modify [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF) (k : α) (f : β → β)
+theorem modify [EquivBEq α] [LawfulHashable α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+    (k : α) (f : β → β)
     (h : m₁ ~m m₂) : m₁.modify k f ~m m₂.modify k f :=
   ⟨h.1.constModify h₁.1 h₂.1 k f⟩
 
@@ -1947,12 +1949,12 @@ theorem filterMap (h₁ : m₁.WF) (h₂ : m₂.WF) (f : α → β → Option γ
     m₁.filterMap f ~m m₂.filterMap f :=
   ⟨h.1.filterMap h₁.1 h₂.1 f⟩
 
-theorem of_forall_getKey?_eq_of_forall_constGet?_eq [EquivBEq α] [LawfulHashable α]
+theorem of_forall_getKey?_eq_of_forall_getElem?_eq [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.WF) (h₂ : m₂.WF) (hk : ∀ k, m₁.getKey? k = m₂.getKey? k)
     (hv : ∀ k : α, m₁[k]? = m₂[k]?) : m₁ ~m m₂ :=
   ⟨.of_forall_getKey?_eq_of_forall_constGet?_eq h₁.1 h₂.1 hk hv⟩
 
-theorem of_forall_get?_eq [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
+theorem of_forall_getElem?_eq [LawfulBEq α] (h₁ : m₁.WF) (h₂ : m₂.WF)
     (h : ∀ k : α, m₁[k]? = m₂[k]?) : m₁ ~m m₂ :=
   ⟨.of_forall_get?_eq h₁.1 h₂.1 fun k =>
     DHashMap.Raw.Const.get?_eq_get? h₁.1 ▸

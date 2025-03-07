@@ -3575,9 +3575,9 @@ theorem mem_alter!_of_not_compare_eq [TransOrd α] (h : t.WF) {k k' : α} {f : O
 
 theorem size_alter [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
     (alter k f t h.balanced).1.size =
-      if t.contains k && (f (get? t k)).isNone then
+      if k ∈ t ∧ (f (get? t k)).isNone then
         t.size - 1
-      else if !t.contains k && (f (get? t k)).isSome then
+      else if k ∉ t ∧ (f (get? t k)).isSome then
         t.size + 1
       else
         t.size := by
@@ -3585,9 +3585,9 @@ theorem size_alter [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option �
 
 theorem size_alter! [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
     (alter! k f t).size =
-      if t.contains k && (f (get? t k)).isNone then
+      if k ∈ t ∧ (f (get? t k)).isNone then
         t.size - 1
-      else if !t.contains k && (f (get? t k)).isSome then
+      else if k ∉ t ∧ (f (get? t k)).isSome then
         t.size + 1
       else
         t.size := by

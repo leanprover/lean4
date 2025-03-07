@@ -82,7 +82,7 @@ where doAdd := do
   profileitM Exception "type checking" (← getOptions) do
     withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
       if !(← MonadLog.hasErrors) && decl.hasSorry then
-        logWarning m!"declaration uses 'sorry'"
+        logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
       let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
         |> ofExceptKernelException
       setEnv env

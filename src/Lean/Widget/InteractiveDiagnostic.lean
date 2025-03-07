@@ -234,14 +234,19 @@ def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool
     | .information => .information
     | .warning     => .warning
     | .error       => .error
+  let isSilent? := if m.isSilent then some true else none
   let source? := some "Lean 4"
   let tags? :=
     if m.data.isDeprecationWarning then some #[.deprecated]
     else if m.data.isUnusedVariableWarning then some #[.unnecessary]
     else none
+  let leanTags? :=
+    if m.data.hasTag (· == `Tactic.unsolvedGoals) then some #[.unsolvedGoals]
+    else if m.data.hasTag (· == `goalsAccomplished) then some #[.goalsAccomplished]
+    else none
   let message := match (← msgToInteractive m.data hasWidgets |>.toBaseIO) with
     | .ok msg => msg
     | .error ex => TaggedText.text s!"[error when printing message: {ex.toString}]"
-  pure { range, fullRange? := some fullRange, severity?, source?, message, tags? }
+  pure { range, fullRange? := some fullRange, severity?, source?, message, tags?, leanTags?, isSilent? }
 
 end Lean.Widget

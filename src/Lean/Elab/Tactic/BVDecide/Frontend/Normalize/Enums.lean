@@ -11,12 +11,16 @@ import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures
 import Lean.Meta.Tactic.Simp
 
 /-!
-This module contains the implementation of the pre processing pass for handling equality on
-enum inductive types.
+This module contains the implementation of the pre processing pass for handling enum inductive
+types.
 
-The implementation generates mappings from enum inductives occuring in the goal to sufficiently
-large `BitVec` and replaces equality on the enum inductives with equality on these mapping
-functions.
+The implementation:
+1. generates mappings from enum inductives occuring in the goal to sufficiently large `BitVec` and
+   replaces equality on the enum inductives with equality on these mapping functions.
+2. Constant folds these mappings if appropriate.
+3. Adds bounds on the values returned by the mappings if the size of the enum inductive does not fit
+   into a power of two.
+4. Handles applications of these mappings to `ite`, `cond` and basic match statements.
 -/
 
 namespace Lean.Elab.Tactic.BVDecide
@@ -266,21 +270,11 @@ where
 
 /--
 Obtain a theorem that translates `.match_x` applications on enum inductives to chains of `cond`
-applications. If the specific `.match_x` that this is being called on is unsupported return `none`.
--/
-def getMatchEqCondFor? (declName : Name) : MetaM (Option Name) := do
-  if let some kind ← isSupportedMatch declName then
-    return some (← getMatchEqCondForAux declName kind)
-  else
-    return none
-
-/--
-Obtain a theorem that translates `.match_x` applications on enum inductives to chains of `cond`
 applications. If the specific `.match_x` that this is being called on is unsupported throw an error.
 -/
 def getMatchEqCondFor (declName : Name) : MetaM Name := do
-  if let some thm ← getMatchEqCondFor? declName then
-    return thm
+  if let some kind ← isSupportedMatch declName then
+    return (← getMatchEqCondForAux declName kind)
   else
     throwError m!"{matchEqCondSuffix} lemma could not be established for {declName}"
 
@@ -311,6 +305,11 @@ builtin_initialize
     else
       return false
 
+/--
+This simproc should be set up to trigger on expressions of the form `EnumInductive.enumToBitVec x`.
+It will check if `x` is a constructor and if that is the case constant fold it to the corresponding
+`BitVec` value.
+-/
 def enumToBitVecCtor : Simp.Simproc := fun e => do
   let .app (.const fn []) (.const arg []) := e | return .continue
   let .str p s := fn | return .continue
@@ -322,8 +321,17 @@ def enumToBitVecCtor : Simp.Simproc := fun e => do
   let bvSize := getBitVecSize ctors.length
   return .done { expr := toExpr <| BitVec.ofNat bvSize ctorIdx }
 
-structure PostProcessState where
+/--
+The state used for the post processing part of `enumsPass`.
+-/
+private structure PostProcessState where
+  /--
+  Hypotheses that bound results of `enumToBitVec` applications as appropriate.
+  -/
   hyps : Array Hypothesis := #[]
+  /--
+  A cache of terms we have already collected bounds for such that they don't get duplicated.
+  -/
   seen : Std.HashSet Expr := {}
 
 partial def enumsPass : Pass where
@@ -337,13 +345,13 @@ partial def enumsPass : Pass where
 
       let mut simprocs : Simprocs := {}
       let mut relevantLemmas : SimpTheoremsArray := #[]
-      relevantLemmas ← relevantLemmas.addTheorem (.decl ``ne_eq) (← mkConstWithLevelParams ``ne_eq)
+      relevantLemmas ← relevantLemmas.addTheorem (.decl ``ne_eq) (mkConst ``ne_eq)
       for type in interestingEnums do
         let lemma ← getEqIffEnumToBitVecEqFor type
         relevantLemmas ← relevantLemmas.addTheorem (.decl lemma) (mkConst lemma)
 
         let enumToBitVec ← getEnumToBitVecFor type
-        let path : Array DiscrTree.Key := #[.const enumToBitVec 1, .star]
+        let path := #[.const enumToBitVec 1, .star]
         simprocs := simprocs.addCore path ``enumToBitVecCtor true (.inl enumToBitVecCtor)
 
         let path := mkApplyUnaryControlDiscrPath type 0 enumToBitVec ``ite 5
@@ -386,6 +394,12 @@ where
           false
 
       let processor e := do
+        /-
+        It is important that we maintain our own cache here in addition to the one of
+        `forEachWhere`. This is because we call `forEachWhere` on multiple hypotheses and two
+        hypotheses could contain the same term but we still do not wan't to duplicate bounds
+        hypotheses for it.
+        -/
         if (← get).seen.contains e then return ()
         let .app (.const (.str enumType _) []) val := e | unreachable!
         let lemma := mkConst (← getEnumToBitVecLeFor enumType)

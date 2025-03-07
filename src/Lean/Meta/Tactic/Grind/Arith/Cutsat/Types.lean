@@ -153,6 +153,7 @@ inductive LeCnstrProof where
   | norm (c : LeCnstr)
   | divCoeffs (c : LeCnstr)
   | combine (c₁ c₂ : LeCnstr)
+  | combineDivCoeffs (c₁ c₂ : LeCnstr) (k : Int)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : LeCnstr)
   | ofLeDiseq (c₁ : LeCnstr) (c₂ : DiseqCnstr)
   | ofDiseqSplit (c₁ : DiseqCnstr) (decVar : FVarId) (h : UnsatProof) (decVars : Array FVarId)

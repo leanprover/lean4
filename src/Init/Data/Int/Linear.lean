@@ -846,6 +846,26 @@ theorem le_combine (ctx : Context) (p₁ p₂ p₃ : Poly)
   · rw [← Int.zero_mul (Poly.denote ctx p₂)]; apply Int.mul_le_mul_of_nonpos_right <;> simp [*]
   · rw [← Int.zero_mul (Poly.denote ctx p₁)]; apply Int.mul_le_mul_of_nonpos_right <;> simp [*]
 
+def le_combine_coeff_cert (p₁ p₂ p₃ : Poly) (k : Int) : Bool :=
+  let a₁ := p₁.leadCoeff.natAbs
+  let a₂ := p₂.leadCoeff.natAbs
+  let p  := p₁.mul a₂ |>.combine (p₂.mul a₁)
+  k > 0 && (p.divCoeffs k && p₃ == p.div k)
+
+theorem le_combine_coeff (ctx : Context) (p₁ p₂ p₃ : Poly) (k : Int)
+    : le_combine_coeff_cert p₁ p₂ p₃ k → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
+  simp only [le_combine_coeff_cert, gt_iff_lt, Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq, and_imp]
+  let a₁ := p₁.leadCoeff.natAbs
+  let a₂ := p₂.leadCoeff.natAbs
+  generalize h : (p₁.mul a₂ |>.combine (p₂.mul a₁)) = p
+  intro h₁ h₂ h₃ h₄ h₅
+  have := le_combine ctx p₁ p₂ p
+  simp only [le_combine_cert, beq_iff_eq] at this
+  have aux₁ := this h.symm h₄ h₅
+  have := le_coeff ctx p p₃ k
+  simp only [le_coeff_cert, gt_iff_lt, Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq, and_imp] at this
+  exact this h₁ h₂ h₃ aux₁
+
 theorem le_unsat (ctx : Context) (p : Poly) : p.isUnsatLe → p.denote' ctx ≤ 0 → False := by
   simp [Poly.isUnsatLe]; split <;> simp
 
@@ -1101,6 +1121,16 @@ theorem orOver_resolve {n p} : OrOver (n+1) p → ¬ p n → OrOver n p := by
   cases h₁
   · contradiction
   · assumption
+
+def OrOver_cases_type (n : Nat) (p : Nat → Prop) : Prop :=
+  match n with
+  | 0 => p 0
+  | n+1 => ¬ p (n+1) → OrOver_cases_type n p
+
+theorem orOver_cases {n p} : OrOver (n+1) p → OrOver_cases_type n p := by
+  induction n <;> simp [OrOver_cases_type]
+  next => exact orOver_one
+  next n ih => intro h₁ h₂; exact ih (orOver_resolve h₁ h₂)
 
 private theorem orOver_of_p {i n p} (h₁ : i < n) (h₂ : p i) : OrOver n p := by
   induction n

@@ -42,6 +42,7 @@ def Expr.denote (ctx : Context) : Expr → Int
   | .var v    => v.denote ctx
   | .mulL k e => Int.mul k (denote ctx e)
   | .mulR e k => Int.mul (denote ctx e) k
+termination_by structural e => e
 
 inductive Poly where
   | num (k : Int)
@@ -52,6 +53,7 @@ def Poly.denote (ctx : Context) (p : Poly) : Int :=
   match p with
   | .num k => k
   | .add k v p => Int.add (Int.mul k (v.denote ctx)) (denote ctx p)
+termination_by structural p
 
 /--
 Similar to `Poly.denote`, but produces a denotation better for `simp +arith`.
@@ -69,6 +71,7 @@ where
     | .num k => Int.add r k
     | .add 1 v p => go (Int.add r (v.denote ctx)) p
     | .add k v p => go (Int.add r (Int.mul k (v.denote ctx))) p
+  termination_by structural p
 
 theorem Poly.denote'_go_eq_denote (ctx : Context) (p : Poly) (r : Int) : denote'.go ctx r p = p.denote ctx + r := by
   induction r, p using denote'.go.induct ctx <;> simp [denote'.go, denote]
@@ -86,6 +89,7 @@ def Poly.addConst (p : Poly) (k : Int) : Poly :=
   match p with
   | .num k' => .num (k+k')
   | .add k' v' p => .add k' v' (addConst p k)
+termination_by structural p
 
 def Poly.insert (k : Int) (v : Var) (p : Poly) : Poly :=
   match p with
@@ -100,17 +104,20 @@ def Poly.insert (k : Int) (v : Var) (p : Poly) : Poly :=
         .add (Int.add k k') v' p
     else
       .add k' v' (insert k v p)
+termination_by structural p
 
 /-- Normalizes the given polynomial by fusing monomial and constants. -/
 def Poly.norm (p : Poly) : Poly :=
   match p with
   | .num k => .num k
   | .add k v p => (norm p).insert k v
+termination_by structural p
 
 def Poly.append (p₁ p₂ : Poly) : Poly :=
   match p₁ with
   | .num k₁ => p₂.addConst k₁
   | .add k x p₁ => .add k x (append p₁ p₂)
+termination_by structural p₁
 
 def Poly.combine' (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
   match fuel with
@@ -130,6 +137,8 @@ def Poly.combine' (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
       .add a₁ x₁ (combine' fuel p₁ (.add a₂ x₂ p₂))
     else
       .add a₂ x₂ (combine' fuel (.add a₁ x₁ p₁) p₂)
+termination_by structural fuel
+
 
 def Poly.combine (p₁ p₂ : Poly) : Poly :=
   combine' 100000000 p₁ p₂
@@ -146,6 +155,7 @@ where
     | .mulL k a
     | .mulR a k => bif k == 0 then id else go (Int.mul coeff k) a
     | .neg a    => go (-coeff) a
+  termination_by structural e => e
 
 /-- Converts the given expression into a polynomial, and then normalizes it. -/
 def Expr.norm (e : Expr) : Poly :=
@@ -255,6 +265,7 @@ def Poly.mul (p : Poly) (k : Int) : Poly :=
   match p with
   | .num k' => .num (k*k')
   | .add k' v p => .add (k*k') v (mul p k)
+termination_by structural p
 
 @[simp] theorem Poly.denote_mul (ctx : Context) (p : Poly) (k : Int) : (p.mul k).denote ctx = k * p.denote ctx := by
   induction p <;> simp [mul, denote, *]

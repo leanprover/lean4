@@ -1407,9 +1407,9 @@ theorem mem_alter_of_not_compare_eq [TransCmp cmp] (h : t.WF) {k k' : α} {f : O
 
 theorem size_alter [TransCmp cmp] (h : t.WF) {k : α} {f : Option β → Option β} :
     (alter t k f).size =
-      if t.contains k && (f t[k]?).isNone then
+      if k ∈ t ∧ (f t[k]?).isNone then
         t.size - 1
-      else if !t.contains k && (f t[k]?).isSome then
+      else if k ∉ t ∧ (f t[k]?).isSome then
         t.size + 1
       else
         t.size :=

@@ -122,8 +122,9 @@ def send (s : Client) (data : ByteArray) : IO (AsyncTask Unit) :=
   AsyncTask.ofPromise <$> s.native.send data
 
 /--
-Receives data from the client socket.  If data is received, it’s wrapped in .some. If EOF is reached,
-the result is .none, indicating no more data is available.
+Receives data from the client socket. If data is received, it’s wrapped in .some. If EOF is reached,
+the result is .none, indicating no more data is available. Receiving data in parallel on the same
+socket is not supported. Instead, we recommend binding multiple sockets to the same address.
 -/
 @[inline]
 def recv? (s : Client) (size : UInt64) : IO (AsyncTask (Option ByteArray)) :=

@@ -155,9 +155,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, obj_ar
     if (result < 0) {
         lean_dec(promise); // The structure does not own it.
         lean_dec(promise); // We are not going to return it.
+        lean_dec(socket);
 
-        free(uv_connect);
         free(uv_connect->data);
+        free(uv_connect);
 
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
@@ -211,6 +212,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
         lean_dec(promise); // We are not going to return it.
         lean_dec(socket);
 
+        lean_dec(data);
+
         free(write_uv->data);
         free(write_uv);
 
@@ -220,7 +223,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
     return lean_io_result_mk_ok(promise);
 }
 
-/* Std.Internal.UV.TCP.Socket.recv? (socket : @& Socket) : IO (IO.Promise (Except IO.Error (Option ByteArray))) */
+/* Std.Internal.UV.TCP.Socket.recv? (socket : Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (Option ByteArray))) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t buffer_size) {
     lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
 
@@ -327,6 +330,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
         if (status < 0) {
             lean_promise_resolve_with_code(status, promise);
             lean_dec(promise);
+            tcp_socket->m_promise_accept = nullptr;
             return;
         }
 

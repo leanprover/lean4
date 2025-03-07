@@ -138,46 +138,50 @@ recommended_spelling "iff" for "↔" in [Iff, «term_↔_»]
 recommended_spelling "iff" for "<->" in [Iff, «term_<->_»]
 
 /--
-`Sum α β`, or `α ⊕ β`, is the disjoint union of types `α` and `β`.
-An element of `α ⊕ β` is either of the form `.inl a` where `a : α`,
-or `.inr b` where `b : β`.
+The disjoint union of types `α` and `β`, ordinarily written `α ⊕ β`.
+
+An element of `α ⊕ β` is either an `a : α` wrapped in `Sum.inl` or a `b : β` wrapped in `Sum.inr`.
+`α ⊕ β` is not equivalent to the set-theoretic union of `α` and `β` because its values include an
+indication of which of the two types was chosen. The union of a singleton set with itself contains
+one element, while `Unit ⊕ Unit` contains distinct values `inl ()` and `inr ()`.
 -/
 inductive Sum (α : Type u) (β : Type v) where
-  /-- Left injection into the sum type `α ⊕ β`. If `a : α` then `.inl a : α ⊕ β`. -/
+  /-- Left injection into the sum type `α ⊕ β`. -/
   | inl (val : α) : Sum α β
-  /-- Right injection into the sum type `α ⊕ β`. If `b : β` then `.inr b : α ⊕ β`. -/
+  /-- Right injection into the sum type `α ⊕ β`. -/
   | inr (val : β) : Sum α β
 
 @[inherit_doc] infixr:30 " ⊕ " => Sum
 
 /--
-`PSum α β`, or `α ⊕' β`, is the disjoint union of types `α` and `β`.
-It differs from `α ⊕ β` in that it allows `α` and `β` to have arbitrary sorts
-`Sort u` and `Sort v`, instead of restricting to `Type u` and `Type v`. This means
-that it can be used in situations where one side is a proposition, like `True ⊕' Nat`.
+The disjoint union of arbitrary sorts `α` `β`, or `α ⊕' β`.
 
-The reason this is not the default is that this type lives in the universe `Sort (max 1 u v)`,
-which can cause problems for universe level unification,
-because the equation `max 1 u v = ?u + 1` has no solution in level arithmetic.
-`PSum` is usually only used in automation that constructs sums of arbitrary types.
+It differs from `α ⊕ β` in that it allows `α` and `β` to have arbitrary sorts `Sort u` and `Sort v`,
+instead of restricting them to `Type u` and `Type v`. This means that it can be used in situations
+where one side is a proposition, like `True ⊕' Nat`. However, the resulting universe level
+constraints are often more difficult to solve than those that result from `Sum`.
 -/
 inductive PSum (α : Sort u) (β : Sort v) where
-  /-- Left injection into the sum type `α ⊕' β`. If `a : α` then `.inl a : α ⊕' β`. -/
+  /-- Left injection into the sum type `α ⊕' β`.-/
   | inl (val : α) : PSum α β
-  /-- Right injection into the sum type `α ⊕' β`. If `b : β` then `.inr b : α ⊕' β`. -/
+  /-- Right injection into the sum type `α ⊕' β`. -/
   | inr (val : β) : PSum α β
 
 @[inherit_doc] infixr:30 " ⊕' " => PSum
 
 /--
-`PSum α β` is inhabited if `α` is inhabited.
-This is not an instance to avoid non-canonical instances.
+If the left type in a sum is inhabited then the sum is inhabited.
+
+This is not an instance to avoid non-canonical instances when both the left and right types are
+inhabited.
 -/
-@[reducible] def  PSum.inhabitedLeft {α β} [Inhabited α] : Inhabited (PSum α β) := ⟨PSum.inl default⟩
+@[reducible] def PSum.inhabitedLeft {α β} [Inhabited α] : Inhabited (PSum α β) := ⟨PSum.inl default⟩
 
 /--
-`PSum α β` is inhabited if `β` is inhabited.
-This is not an instance to avoid non-canonical instances.
+If the right type in a sum is inhabited then the sum is inhabited.
+
+This is not an instance to avoid non-canonical instances when both the left and right types are
+inhabited.
 -/
 @[reducible] def PSum.inhabitedRight {α β} [Inhabited β] : Inhabited (PSum α β) := ⟨PSum.inr default⟩
 
@@ -1222,12 +1226,12 @@ end Subtype
 section
 variable {α : Type u} {β : Type v}
 
-/-- This is not an instance to avoid non-canonical instances. -/
-@[reducible] def Sum.inhabitedLeft [Inhabited α] : Inhabited (Sum α β) where
+@[reducible, inherit_doc PSum.inhabitedLeft]
+def Sum.inhabitedLeft [Inhabited α] : Inhabited (Sum α β) where
   default := Sum.inl default
 
-/-- This is not an instance to avoid non-canonical instances. -/
-@[reducible] def Sum.inhabitedRight [Inhabited β] : Inhabited (Sum α β) where
+@[reducible, inherit_doc PSum.inhabitedRight]
+def Sum.inhabitedRight [Inhabited β] : Inhabited (Sum α β) where
   default := Sum.inr default
 
 instance Sum.nonemptyLeft [h : Nonempty α] : Nonempty (Sum α β) :=

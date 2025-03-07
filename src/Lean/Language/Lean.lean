@@ -317,7 +317,7 @@ def reparseOptions (opts : Options) : IO Options := do
 If the option is defined in this library, use '-D{`weak ++ name}' to set it conditionally"
 
     let .ofString val := val
-      | opts' := opts'.insert name val  -- Already parsed by C++
+      | opts' := opts'.insert name val  -- Already parsed
 
     match decl.defValue with
     | .ofBool _ =>

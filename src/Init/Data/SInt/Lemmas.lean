@@ -8,6 +8,7 @@ import Init.Data.SInt.Basic
 import Init.Data.BitVec.Bitblast
 import Init.Data.Int.LemmasAux
 import Init.Data.UInt.Lemmas
+import Init.System.Platform
 
 open Lean in
 set_option hygiene false in
@@ -35,12 +36,6 @@ declare_int_theorems Int16 16
 declare_int_theorems Int32 32
 declare_int_theorems Int64 64
 declare_int_theorems ISize System.Platform.numBits
-
--- TODO
-@[simp] theorem System.Platform.le_numBits : 32 ≤ System.Platform.numBits := by
-  cases System.Platform.numBits_eq <;> simp_all
-@[simp] theorem System.Platform.numBits_le : System.Platform.numBits ≤ 64 := by
-  cases System.Platform.numBits_eq <;> simp_all
 
 theorem Int8.toInt.inj {x y : Int8} (h : x.toInt = y.toInt) : x = y := Int8.toBitVec.inj (BitVec.eq_of_toInt_eq h)
 theorem Int8.toInt_inj {x y : Int8} : x.toInt = y.toInt ↔ x = y := ⟨Int8.toInt.inj, fun h => h ▸ rfl⟩

@@ -85,7 +85,9 @@ private def modifyMap : Std.HashMap Name Name :=
      (`alter, ``toListModel_alter),
      (`alter!, ``toListModel_alter!),
      (`Const.alter, ``Const.toListModel_alter),
-     (`Const.alter!, ``Const.toListModel_alter!)]
+     (`Const.alter!, ``Const.toListModel_alter!),
+     (`modify, ``toListModel_modify),
+     (`Const.modify, ``Const.toListModel_modify)]
 
 private def congrNames : MacroM (Array (TSyntax `term)) := do
   return #[← `(_root_.List.Perm.isEmpty_eq), ← `(containsKey_of_perm),

@@ -51,9 +51,9 @@ theorem computeSize_eq {buckets : Array (AssocList α β)} :
 
 namespace Raw
 
-theorem equiv_iff_perm_toListModel {m₁ m₂ : Raw α β} :
+theorem equiv_iff_toListModel_perm {m₁ m₂ : Raw α β} :
     m₁.Equiv m₂ ↔ toListModel m₁.2 ~ toListModel m₂.2 :=
-  ⟨Raw.Equiv.perm_toListModel, Raw.Equiv.mk⟩
+  ⟨Raw.Equiv.impl, Raw.Equiv.mk⟩
 
 theorem size_eq_length [BEq α] [Hashable α] {m : Raw α β} (h : Raw.WFImp m) :
     m.size = (toListModel m.buckets).length :=

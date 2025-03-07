@@ -63,7 +63,9 @@ all the keys and values are equal.
 -/
 structure Equiv (m₁ m₂ : Raw α β) : Prop where
   /-- Internal implementation detail of the hash map -/
-  perm_toListModel : (toListModel m₁.2).Perm (toListModel m₂.2)
+  impl : (toListModel m₁.2).Perm (toListModel m₂.2)
+
+@[inherit_doc] scoped infixl:50 " ~m " => Raw.Equiv
 
 /--
 Inserts the given mapping into the map. If there is already a mapping for the given key, then both

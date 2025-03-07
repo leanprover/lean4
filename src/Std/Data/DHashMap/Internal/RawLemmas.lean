@@ -25,8 +25,6 @@ variable {α : Type u} {β : α → Type v}
 
 namespace Std.DHashMap.Internal
 
-@[inherit_doc] scoped infixl:50 " ~m " => Raw.Equiv
-
 section empty
 
 @[simp]
@@ -134,7 +132,7 @@ private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSynta
      ⟨`foldRev, (``Raw.foldRev_eq_foldr_toListModel, #[])⟩,
      ⟨`forIn, (``Raw.forIn_eq_forIn_toListModel, #[])⟩,
      ⟨`forM, (``Raw.forM_eq_forM_toListModel, #[])⟩,
-     ⟨`Equiv, (``Raw.equiv_iff_perm_toListModel,
+     ⟨`Equiv, (``Raw.equiv_iff_toListModel_perm,
       #[`(_root_.List.Perm.congr_left), `(_root_.List.Perm.congr_right)])⟩]
 
 /-- Internal implementation detail of the hash map -/
@@ -2548,6 +2546,8 @@ end Modify
 
 section Equiv
 
+open scoped DHashMap.Raw
+
 section Raw
 
 -- these lemmas work without any instance or well-formedness assumptions
@@ -2603,6 +2603,11 @@ end Const
 end Raw
 
 variable (m₁ m₂ : Raw₀ α β)
+
+theorem equiv_empty_iff_isEmpty [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {c : Nat} :
+    m.1 ~m (empty c).1 ↔ m.1.isEmpty := by
+  simp_to_model [Equiv, isEmpty]
+  simp only [toListModel_buckets_empty, List.perm_nil, List.isEmpty_iff]
 
 theorem isEmpty_eq_of_equiv [EquivBEq α] [LawfulHashable α]
     (h₁ : m₁.1.WF) (h₂ : m₂.1.WF) (h : m₁.1 ~m m₂.1) :

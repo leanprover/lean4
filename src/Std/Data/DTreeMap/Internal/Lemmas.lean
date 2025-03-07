@@ -3084,13 +3084,13 @@ theorem mem_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
       if compare k k' = .eq then (f (t.get? k)).isSome = true else k' ∈ t := by
   simp [mem_iff_contains, contains_alter! h]
 
-theorem mem_alter_of_beq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k': α}
+theorem mem_alter_of_compare_eq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k': α}
     {f : Option (β k) → Option (β k)}
     (he : compare k k' = .eq) :
     k' ∈ (t.alter k f h.balanced).1 ↔ (f (t.get? k)).isSome := by
   rw [mem_alter h, if_pos he]
 
-theorem mem_alter!_of_beq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k': α}
+theorem mem_alter!_of_compare_eq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k': α}
     {f : Option (β k) → Option (β k)}
     (he : compare k k' = .eq) :
     k' ∈ t.alter! k f ↔ (f (t.get? k)).isSome := by
@@ -3120,25 +3120,25 @@ theorem mem_alter!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
     k ∈ t.alter! k f ↔ (f (t.get? k)).isSome := by
   rw [mem_iff_contains, contains_alter!_self h]
 
-theorem contains_alter_of_beq_eq_false [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+theorem contains_alter_of_not_compare_eq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} (he : ¬ compare k k' = .eq) :
     (t.alter k f h.balanced).1.contains k' = t.contains k' := by
   simp only [contains_alter h, he, beq_iff_eq, reduceIte]
 
-theorem contains_alter!_of_beq_eq_false [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+theorem contains_alter!_of_not_compare_eq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} (he : ¬ compare k k' = .eq) :
     (t.alter! k f).contains k' = t.contains k' := by
   simp only [contains_alter! h, he, beq_iff_eq, reduceIte]
 
-theorem mem_alter_of_beq_eq_false [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+theorem mem_alter_of_not_compare_eq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} (he : ¬ compare k k' = .eq) :
     k' ∈ (t.alter k f h.balanced).1 ↔ k' ∈ t := by
-  simp only [mem_iff_contains, contains_alter_of_beq_eq_false h he]
+  simp only [mem_iff_contains, contains_alter_of_not_compare_eq h he]
 
-theorem mem_alter!_of_beq_eq_false [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
+theorem mem_alter!_of_not_compare_eq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} (he : ¬ compare k k' = .eq) :
     k' ∈ t.alter! k f ↔ k' ∈ t := by
-  simp only [mem_iff_contains, contains_alter!_of_beq_eq_false h he]
+  simp only [mem_iff_contains, contains_alter!_of_not_compare_eq h he]
 
 theorem size_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
@@ -3264,10 +3264,10 @@ theorem get_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} {hc : k' ∈ (t.alter k f h.balanced).1} :
     (t.alter k f h.balanced).1.get k' hc =
       if heq : compare k k' = .eq then
-        haveI h' : (f (t.get? k)).isSome := mem_alter_of_beq h heq |>.mp hc
+        haveI h' : (f (t.get? k)).isSome := mem_alter_of_compare_eq h heq |>.mp hc
         cast (congrArg β (compare_eq_iff_eq.mp heq)) <| (f (t.get? k)).get <| h'
       else
-        haveI h' : k' ∈ t := mem_alter_of_beq_eq_false h heq |>.mp hc
+        haveI h' : k' ∈ t := mem_alter_of_not_compare_eq h heq |>.mp hc
         t.get k' h' := by
   simp_to_model [alter, contains, get, get?] using List.getValueCast_alterKey
 
@@ -3275,10 +3275,10 @@ theorem get_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} {hc : k' ∈ (t.alter! k f)} :
     (t.alter! k f).get k' hc =
       if heq : compare k k' = .eq then
-        haveI h' : (f (t.get? k)).isSome := mem_alter!_of_beq h heq |>.mp hc
+        haveI h' : (f (t.get? k)).isSome := mem_alter!_of_compare_eq h heq |>.mp hc
         cast (congrArg β (compare_eq_iff_eq.mp heq)) <| (f (t.get? k)).get <| h'
       else
-        haveI h' : k' ∈ t := mem_alter!_of_beq_eq_false h heq |>.mp hc
+        haveI h' : k' ∈ t := mem_alter!_of_not_compare_eq h heq |>.mp hc
         t.get k' h' := by
   simp_to_model [alter!, contains, get, get?] using List.getValueCast_alterKey
 
@@ -3423,7 +3423,7 @@ theorem getKey_alter [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k
       if heq : compare k k' = .eq then
         k
       else
-        haveI h' : t.contains k' := mem_alter_of_beq_eq_false h heq |>.mp hc
+        haveI h' : t.contains k' := mem_alter_of_not_compare_eq h heq |>.mp hc
         t.getKey k' h' := by
   simp_to_model [alter, getKey, contains] using List.getKey_alterKey
 
@@ -3433,7 +3433,7 @@ theorem getKey_alter! [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {
       if heq : compare k k' = .eq then
         k
       else
-        haveI h' : t.contains k' := mem_alter!_of_beq_eq_false h heq |>.mp hc
+        haveI h' : t.contains k' := mem_alter!_of_not_compare_eq h heq |>.mp hc
         t.getKey k' h' := by
   simp_to_model [alter!, getKey, contains] using List.getKey_alterKey
 
@@ -3470,7 +3470,8 @@ theorem getKeyD_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k k' fallback 
 @[simp]
 theorem getKeyD_alter_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k : α}
     {fallback : α} {f : Option (β k) → Option (β k)} :
-    (t.alter k f h.balanced).1.getKeyD k fallback = if (f (t.get? k)).isSome then k else fallback := by
+    (t.alter k f h.balanced).1.getKeyD k fallback =
+      if (f (t.get? k)).isSome then k else fallback := by
   simp [getKeyD_alter h]
 
 @[simp]
@@ -3527,12 +3528,12 @@ theorem mem_alter! [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Optio
       if compare k k' = .eq then (f (get? t k)).isSome = true else k' ∈ t := by
   simp [mem_iff_contains, contains_alter! h]
 
-theorem mem_alter_of_beq [TransOrd α] (h : t.WF) {k k': α} {f : Option β → Option β}
+theorem mem_alter_of_compare_eq [TransOrd α] (h : t.WF) {k k': α} {f : Option β → Option β}
     (he : compare k k' = .eq) :
     k' ∈ (alter k f t h.balanced).1 ↔ (f (get? t k)).isSome := by
   rw [mem_alter h, if_pos he]
 
-theorem mem_alter!_of_beq [TransOrd α] (h : t.WF) {k k': α} {f : Option β → Option β}
+theorem mem_alter!_of_compare_eq [TransOrd α] (h : t.WF) {k k': α} {f : Option β → Option β}
     (he : compare k k' = .eq) :
     k' ∈ alter! k f t ↔ (f (get? t k)).isSome := by
   rw [mem_alter! h, if_pos he]
@@ -3557,25 +3558,25 @@ theorem mem_alter!_self [TransOrd α] (h : t.WF) {k : α} {f : Option β → Opt
     k ∈ alter! k f t ↔ (f (get? t k)).isSome := by
   rw [mem_iff_contains, contains_alter!_self h]
 
-theorem contains_alter_of_beq_eq_false [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β}
-    (he : ¬ compare k k' = .eq) :
+theorem contains_alter_of_not_compare_eq [TransOrd α] (h : t.WF) {k k' : α}
+    {f : Option β → Option β} (he : ¬ compare k k' = .eq) :
     (alter k f t h.balanced).1.contains k' = t.contains k' := by
   simp only [contains_alter h, he, beq_iff_eq, reduceIte]
 
-theorem contains_alter!_of_beq_eq_false [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β}
-    (he : ¬ compare k k' = .eq) :
+theorem contains_alter!_of_not_compare_eq [TransOrd α] (h : t.WF) {k k' : α}
+    {f : Option β → Option β} (he : ¬ compare k k' = .eq) :
     (alter! k f t).contains k' = t.contains k' := by
   simp only [contains_alter! h, he, beq_iff_eq, reduceIte]
 
-theorem mem_alter_of_beq_eq_false [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β}
+theorem mem_alter_of_not_compare_eq [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β}
     (he : ¬ compare k k' = .eq) :
     k' ∈ (alter k f t h.balanced).1 ↔ k' ∈ t := by
-  simp only [mem_iff_contains, contains_alter_of_beq_eq_false h he]
+  simp only [mem_iff_contains, contains_alter_of_not_compare_eq h he]
 
-theorem mem_alter!_of_beq_eq_false [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β}
+theorem mem_alter!_of_not_compare_eq [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option β}
     (he : ¬ compare k k' = .eq) :
     k' ∈ alter! k f t ↔ k' ∈ t := by
-  simp only [mem_iff_contains, contains_alter!_of_beq_eq_false h he]
+  simp only [mem_iff_contains, contains_alter!_of_not_compare_eq h he]
 
 theorem size_alter [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
     (alter k f t h.balanced).1.size =
@@ -3692,10 +3693,10 @@ theorem get_alter [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Option
     {hc : k' ∈ (alter k f t h.balanced).1} :
     get (alter k f t h.balanced).1 k' hc =
       if heq : compare k k' = .eq then
-        haveI h' : (f (get? t k)).isSome := mem_alter_of_beq h heq |>.mp hc
+        haveI h' : (f (get? t k)).isSome := mem_alter_of_compare_eq h heq |>.mp hc
         (f (get? t k)).get h'
       else
-        haveI h' : k' ∈ t := mem_alter_of_beq_eq_false h heq |>.mp hc
+        haveI h' : k' ∈ t := mem_alter_of_not_compare_eq h heq |>.mp hc
         get t k' h' := by
   simp_to_model [Const.alter] using List.Const.getValue_alterKey
 
@@ -3703,10 +3704,10 @@ theorem get_alter! [TransOrd α] (h : t.WF) {k k' : α} {f : Option β → Optio
     {hc : k' ∈ (alter! k f t)} :
     get (alter! k f t) k' hc =
       if heq : compare k k' = .eq then
-        haveI h' : (f (get? t k)).isSome := mem_alter!_of_beq h heq |>.mp hc
+        haveI h' : (f (get? t k)).isSome := mem_alter!_of_compare_eq h heq |>.mp hc
         (f (get? t k)).get h'
       else
-        haveI h' : k' ∈ t := mem_alter!_of_beq_eq_false h heq |>.mp hc
+        haveI h' : k' ∈ t := mem_alter!_of_not_compare_eq h heq |>.mp hc
         get t k' h' := by
   simp_to_model [Const.alter!] using List.Const.getValue_alterKey
 
@@ -3831,7 +3832,7 @@ theorem getKey_alter [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} {f : Op
       if heq : compare k k' = .eq then
         k
       else
-        haveI h' : t.contains k' := mem_alter_of_beq_eq_false h heq |>.mp hc
+        haveI h' : t.contains k' := mem_alter_of_not_compare_eq h heq |>.mp hc
         t.getKey k' h' := by
   simp_to_model [Const.alter] using List.Const.getKey_alterKey
 
@@ -3841,7 +3842,7 @@ theorem getKey_alter! [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} {f : O
       if heq : compare k k' = .eq then
         k
       else
-        haveI h' : t.contains k' := mem_alter!_of_beq_eq_false h heq |>.mp hc
+        haveI h' : t.contains k' := mem_alter!_of_not_compare_eq h heq |>.mp hc
         t.getKey k' h' := by
   simp_to_model [Const.alter!] using List.Const.getKey_alterKey
 

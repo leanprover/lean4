@@ -2054,11 +2054,11 @@ theorem mem_alter [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k' : α}
       if cmp k k' = .eq then (f (t.get? k)).isSome = true else k' ∈ t :=
   Impl.mem_alter! h
 
-theorem mem_alter_of_beq [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k': α}
+theorem mem_alter_of_compare_eq [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k': α}
     {f : Option (β k) → Option (β k)}
     (he : cmp k k' = .eq) :
     k' ∈ t.alter k f ↔ (f (t.get? k)).isSome :=
-  Impl.mem_alter!_of_beq h he
+  Impl.mem_alter!_of_compare_eq h he
 
 @[simp]
 theorem contains_alter_self [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α}
@@ -2072,15 +2072,15 @@ theorem mem_alter_self [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α}
     k ∈ t.alter k f ↔ (f (t.get? k)).isSome :=
   Impl.mem_alter!_self h
 
-theorem contains_alter_of_beq_eq_false [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k' : α}
+theorem contains_alter_of_not_compare_eq [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} (he : ¬ cmp k k' = .eq) :
     (t.alter k f).contains k' = t.contains k' :=
-  Impl.contains_alter!_of_beq_eq_false h he
+  Impl.contains_alter!_of_not_compare_eq h he
 
-theorem mem_alter_of_beq_eq_false [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k' : α}
+theorem mem_alter_of_not_compare_eq [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} (he : ¬ cmp k k' = .eq) :
     k' ∈ t.alter k f ↔ k' ∈ t :=
-  Impl.mem_alter!_of_beq_eq_false h he
+  Impl.mem_alter!_of_not_compare_eq h he
 
 theorem size_alter [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
@@ -2142,10 +2142,10 @@ theorem get_alter [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k k' : α}
     {f : Option (β k) → Option (β k)} {hc : k' ∈ (t.alter k f)} :
     (t.alter k f).get k' hc =
       if heq : cmp k k' = .eq then
-        haveI h' : (f (t.get? k)).isSome := mem_alter_of_beq h heq |>.mp hc
+        haveI h' : (f (t.get? k)).isSome := mem_alter_of_compare_eq h heq |>.mp hc
         cast (congrArg β (compare_eq_iff_eq.mp heq)) <| (f (t.get? k)).get <| h'
       else
-        haveI h' : k' ∈ t := mem_alter_of_beq_eq_false h heq |>.mp hc
+        haveI h' : k' ∈ t := mem_alter_of_not_compare_eq h heq |>.mp hc
         t.get k' h' :=
   Impl.get_alter! h
 
@@ -2219,7 +2219,7 @@ theorem getKey_alter [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF) 
       if heq : cmp k k' = .eq then
         k
       else
-        haveI h' : t.contains k' := mem_alter_of_beq_eq_false h heq |>.mp hc
+        haveI h' : t.contains k' := mem_alter_of_not_compare_eq h heq |>.mp hc
         t.getKey k' h' :=
   Impl.getKey_alter! h
 
@@ -2270,10 +2270,10 @@ theorem mem_alter [TransCmp cmp] (h : t.WF) {k k' : α} {f : Option β → Optio
       if cmp k k' = .eq then (f (get? t k)).isSome = true else k' ∈ t :=
   Impl.Const.mem_alter! h
 
-theorem mem_alter_of_beq [TransCmp cmp] (h : t.WF) {k k': α} {f : Option β → Option β}
+theorem mem_alter_of_compare_eq [TransCmp cmp] (h : t.WF) {k k': α} {f : Option β → Option β}
     (he : cmp k k' = .eq) :
     k' ∈ alter t k f ↔ (f (get? t k)).isSome :=
-  Impl.Const.mem_alter!_of_beq h he
+  Impl.Const.mem_alter!_of_compare_eq h he
 
 @[simp]
 theorem contains_alter_self [TransCmp cmp] (h : t.WF) {k : α} {f : Option β → Option β} :
@@ -2285,15 +2285,15 @@ theorem mem_alter_self [TransCmp cmp] (h : t.WF) {k : α} {f : Option β → Opt
     k ∈ alter t k f ↔ (f (get? t k)).isSome :=
   Impl.Const.mem_alter!_self h
 
-theorem contains_alter_of_beq_eq_false [TransCmp cmp] (h : t.WF) {k k' : α} {f : Option β → Option β}
-    (he : ¬ cmp k k' = .eq) :
+theorem contains_alter_of_not_compare_eq [TransCmp cmp] (h : t.WF) {k k' : α}
+    {f : Option β → Option β} (he : ¬ cmp k k' = .eq) :
     (alter t k f).contains k' = t.contains k' :=
-  Impl.Const.contains_alter!_of_beq_eq_false h he
+  Impl.Const.contains_alter!_of_not_compare_eq h he
 
-theorem mem_alter_of_beq_eq_false [TransCmp cmp] (h : t.WF) {k k' : α} {f : Option β → Option β}
+theorem mem_alter_of_not_compare_eq [TransCmp cmp] (h : t.WF) {k k' : α} {f : Option β → Option β}
     (he : ¬ cmp k k' = .eq) :
     k' ∈ alter t k f ↔ k' ∈ t :=
-  Impl.Const.mem_alter!_of_beq_eq_false h he
+  Impl.Const.mem_alter!_of_not_compare_eq h he
 
 theorem size_alter [TransCmp cmp] (h : t.WF) {k : α} {f : Option β → Option β} :
     (alter t k f).size =
@@ -2350,10 +2350,10 @@ theorem get_alter [TransCmp cmp] (h : t.WF) {k k' : α} {f : Option β → Optio
     {hc : k' ∈ (alter t k f)} :
     get (alter t k f) k' hc =
       if heq : cmp k k' = .eq then
-        haveI h' : (f (get? t k)).isSome := mem_alter_of_beq h heq |>.mp hc
+        haveI h' : (f (get? t k)).isSome := mem_alter_of_compare_eq h heq |>.mp hc
         (f (get? t k)).get h'
       else
-        haveI h' : k' ∈ t := mem_alter_of_beq_eq_false h heq |>.mp hc
+        haveI h' : k' ∈ t := mem_alter_of_not_compare_eq h heq |>.mp hc
         get t k' h' :=
   Impl.Const.get_alter! h
 
@@ -2386,7 +2386,8 @@ theorem getD_alter [TransCmp cmp] (h : t.WF) {k k' : α} {fallback : β} {f : Op
   Impl.Const.getD_alter! h
 
 @[simp]
-theorem getD_alter_self [TransCmp cmp] (h : t.WF) {k : α} {fallback : β} {f : Option β → Option β} :
+theorem getD_alter_self [TransCmp cmp] (h : t.WF) {k : α} {fallback : β}
+    {f : Option β → Option β} :
     getD (alter t k f) k fallback = (f (get? t k)).getD fallback :=
   Impl.Const.getD_alter!_self h
 
@@ -2421,7 +2422,7 @@ theorem getKey_alter [TransCmp cmp] [Inhabited α] (h : t.WF) {k k' : α} {f : O
       if heq : cmp k k' = .eq then
         k
       else
-        haveI h' : t.contains k' := mem_alter_of_beq_eq_false h heq |>.mp hc
+        haveI h' : t.contains k' := mem_alter_of_not_compare_eq h heq |>.mp hc
         t.getKey k' h' :=
   Impl.Const.getKey_alter! h
 
@@ -2708,6 +2709,5 @@ theorem getKeyD_modify_self (h : t.WF) [Inhabited α] {k fallback : α} {f : β 
 end Const
 
 end Modify
-
 
 end Std.DTreeMap.Raw

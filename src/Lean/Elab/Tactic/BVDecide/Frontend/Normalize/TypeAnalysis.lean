@@ -27,68 +27,65 @@ def isSupportedMatch (declName : Name) : MetaM (Option MatchKind) := do
   if info.discrInfos.size ≠ 1 then return none
   if info.discrInfos[0]!.hName?.isSome then return none
   let .defnInfo defnInfo ← getConstInfo declName | return none
-  let kind : Option MatchKind ←
-    forallTelescope defnInfo.type fun xs a => do
-      if xs.size < 2 then return none
-      -- Check that discriminator is `EnumInductive`
-      let discr := xs[1]!
-      let some discrTypeName := (← inferType discr).constName? | return none
-      if !(← isEnumType discrTypeName) then return none
-      let .inductInfo inductiveInfo ← getConstInfo discrTypeName | unreachable!
+  forallTelescope defnInfo.type fun xs a => do
+    if xs.size < 2 then return none
+    -- Check that discriminator is `EnumInductive`
+    let discr := xs[1]!
+    let some discrTypeName := (← inferType discr).constName? | return none
+    if !(← isEnumType discrTypeName) then return none
+    let .inductInfo inductiveInfo ← getConstInfo discrTypeName | unreachable!
 
-      -- Check that motive is `EnumInductive → Sort u`
-      let motive := xs[0]!
-      let motiveType ← inferType motive
-      let some (.const domTypeName [], (.sort (.param ..))) := motiveType.arrow? | return none
-      if domTypeName != discrTypeName then return none
+    -- Check that motive is `EnumInductive → Sort u`
+    let motive := xs[0]!
+    let motiveType ← inferType motive
+    let some (.const domTypeName [], (.sort (.param ..))) := motiveType.arrow? | return none
+    if domTypeName != discrTypeName then return none
 
-      -- Check that remaining arguments are of form (Unit → motive EnumInductive.ctorN)
-      let numCtors := inductiveInfo.numCtors
-      if xs.size ≠ numCtors + 2 then return none
-      for i in [0:numCtors] do
-        let argType ← inferType <| xs[i + 2]!
-        let some (.const ``Unit [], (.app m (.const c []))) := argType.arrow? | return none
-        if m != motive then return none
-        if inductiveInfo.ctors[i]! != c then return none
+    -- Check that remaining arguments are of form (Unit → motive EnumInductive.ctorN)
+    let numCtors := inductiveInfo.numCtors
+    if xs.size ≠ numCtors + 2 then return none
+    for i in [0:numCtors] do
+      let argType ← inferType <| xs[i + 2]!
+      let some (.const ``Unit [], (.app m (.const c []))) := argType.arrow? | return none
+      if m != motive then return none
+      if inductiveInfo.ctors[i]! != c then return none
 
-      -- Check that resulting type is `motive discr`
-      a.withApp fun fn arg => do
-        if fn != motive then return none
-        if h : arg.size ≠ 1 then
-          return none
-        else
-          if arg[0] != discr then return none
-          return some <| .simpleEnum inductiveInfo
-
-  match kind with
-  | some (.simpleEnum inductiveInfo) =>
+    -- Check that resulting type is `motive discr`
+    a.withApp fun fn arg => do
+      if fn != motive then return none
+      if arg.size != 1 then return none
+      if arg[0]! != discr then return none
+      if ← verifySimpleEnum defnInfo inductiveInfo then
+        return some <| .simpleEnum inductiveInfo
+      else
+        return none
+where
+  verifySimpleEnum (defnInfo : DefinitionVal) (inductiveInfo : InductiveVal) :
+      MetaM Bool := do
     lambdaTelescope defnInfo.value fun xs body =>
       body.withApp fun fn args => do
         -- Body is an application of `EnumInductive.casesOn`
-        if !fn.isConstOf (mkCasesOnName inductiveInfo.name) then return none
+        if !fn.isConstOf (mkCasesOnName inductiveInfo.name) then return false
         let numCtors := inductiveInfo.numCtors
-        if args.size ≠ numCtors + 2 then return none
+        if args.size ≠ numCtors + 2 then return false
         -- first argument is `(fun x => motive x)`
-        let firstArgOk ← lambdaTelescope args[0]! fun arg body => do
-          if h : arg.size ≠ 1 then
-            return false
-          else
-            let arg := arg[0]
-            let .app fn arg' := body | return false
-            return fn == xs[0]! && arg == arg'
+        let firstArgOk ← lambdaTelescope args[0]! fun args body => do
+          if args.size != 1 then return false
+          let arg := args[0]!
+          let .app fn arg' := body | return false
+          return fn == xs[0]! && arg == arg'
 
-        if !firstArgOk then return none
+        if !firstArgOk then return false
 
         -- second argument is discr
-        if args[1]! != xs[1]! then return none
+        if args[1]! != xs[1]! then return false
 
         -- remaining arguments are of the form `(h_n Unit.unit)`
         for i in [0:numCtors] do
-          let .app fn (.const ``Unit.unit []) := args[i + 2]! | return none
-          if fn != xs[i + 2]! then return none
+          let .app fn (.const ``Unit.unit []) := args[i + 2]! | return false
+          if fn != xs[i + 2]! then return false
 
-        return some <| .simpleEnum inductiveInfo
-  | none => return none
+        return true
 
 def builtinTypes : Array Name :=
   #[``BitVec, ``Bool,
@@ -121,7 +118,7 @@ where
 
   /--
   Returns true if the const is something that we would like to see revealed by case splitting on
-  structures that contain it
+  structures that contain it.
   -/
   analyzeConst (n : Name) : PreProcessM Bool := do
     if isBuiltIn n then return true
@@ -150,7 +147,7 @@ where
       return false
 
   /--
-  Returns true if the structure contains fields of interest.
+  Returns true if the structure is appropriate for case splitting and contains fields of interest.
   -/
   analyzeStructure (n : Name) : PreProcessM Bool := do
     let constInfo ← getConstInfoInduct n

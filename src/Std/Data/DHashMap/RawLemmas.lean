@@ -2235,8 +2235,7 @@ theorem isEmpty_unitOfList [EquivBEq α] [LawfulHashable α]
 @[simp]
 theorem get?_unitOfList [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :
-    get? (unitOfList l) k =
-    if l.contains k then some () else none := by
+    get? (unitOfList l) k = if l.contains k then some () else none := by
   simp_to_raw using Raw₀.Const.get?_insertManyIfNewUnit_empty_list
 
 @[simp]

@@ -50,7 +50,7 @@ theorem ex₃ (x y : Int) :
 theorem ex₄ (x y : Int) :
     5 ≤ 2*x + y → 3*x + 2*y ≤ 14 → 7 ∣ x → 4 ∣ y → y ≥ 4 → False := by
   grind
-
+open Int.Linear
 #print ex₁
 #print ex₂
 #print ex₃

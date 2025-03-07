@@ -1485,25 +1485,30 @@ end TagDeclarationExtension
 /-- Environment extension for mapping declarations to values.
     Declarations must only be inserted into the mapping in the module where they were declared. -/
 
-def MapDeclarationExtension (α : Type) := PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
+structure MapDeclarationExtension (α : Type) extends PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
+deriving Inhabited
 
 def mkMapDeclarationExtension (name : Name := by exact decl_name%) : IO (MapDeclarationExtension α) :=
-  registerPersistentEnvExtension {
+  .mk <$> registerPersistentEnvExtension {
     name            := name,
     mkInitial       := pure {}
     addImportedFn   := fun _ => pure {}
     addEntryFn      := fun s (n, v) => s.insert n v
     exportEntriesFn := fun s => s.toArray
+    asyncMode       := .async
+    replay?         := some fun _ newState newConsts s =>
+      newConsts.foldl (init := s) fun s c =>
+        if let some a := newState.find? c then
+          s.insert c a
+        else s
   }
 
 namespace MapDeclarationExtension
 
-instance : Inhabited (MapDeclarationExtension α) :=
-  inferInstanceAs (Inhabited (PersistentEnvExtension ..))
-
 def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) (val : α) : Environment :=
   have : Inhabited Environment := ⟨env⟩
   assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `MapDeclarationExtension`
+  assert! env.asyncMayContain declName
   ext.addEntry env (declName, val)
 
 def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Option α :=
@@ -1512,12 +1517,12 @@ def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) 
     match (ext.getModuleEntries env modIdx).binSearch (declName, default) (fun a b => Name.quickLt a.1 b.1) with
     | some e => some e.2
     | none   => none
-  | none => (ext.getState env).find? declName
+  | none => (ext.findStateAsync env declName).find? declName
 
 def contains [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Bool :=
   match env.getModuleIdxFor? declName with
   | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains (declName, default) (fun a b => Name.quickLt a.1 b.1)
-  | none        => (ext.getState env).contains declName
+  | none        => (ext.findStateAsync env declName).contains declName
 
 end MapDeclarationExtension
 
@@ -1795,27 +1800,6 @@ unsafe def withImportModules {α : Type} (imports : Array Import) (opts : Option
   let env ← importModules imports opts trustLevel
   try act env finally env.freeRegions
 
-/--
-Environment extension for tracking all `namespace` declared by users.
--/
-builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSSet ←
-  registerSimplePersistentEnvExtension {
-    addImportedFn   := fun as =>
-      /-
-      We compute a `HashMap Name Unit` and then convert to `NameSSet` to improve Lean startup time.
-      Note: we have used `perf` to profile Lean startup cost when processing a file containing just `import Lean`.
-      6.18% of the runtime is here. It was 9.31% before the `HashMap` optimization.
-      -/
-      let capacity := as.foldl (init := 0) fun r e => r + e.size
-      let map : Std.HashMap Name Unit := Std.HashMap.empty capacity
-      let map := mkStateFromImportedEntries (fun map name => map.insert name ()) map as
-      SMap.fromHashMap map |>.switch
-    addEntryFn      := fun s n => s.insert n
-    -- Namespaces from local helper constants can be disregarded in other environment branches. We
-    -- do *not* want `getNamespaceSet` to have to wait on all prior branches.
-    asyncMode       := .local
-  }
-
 @[inherit_doc Kernel.Environment.enableDiag]
 def Kernel.enableDiag (env : Lean.Environment) (flag : Bool) : Lean.Environment :=
   env.modifyCheckedAsync (·.enableDiag flag)
@@ -1833,18 +1817,6 @@ def Kernel.setDiagnostics (env : Lean.Environment) (diag : Diagnostics) : Lean.E
   env.modifyCheckedAsync (·.setDiagnostics diag)
 
 namespace Environment
-
-/-- Register a new namespace in the environment. -/
-def registerNamespace (env : Environment) (n : Name) : Environment :=
-  if (namespacesExt.getState env).contains n then env else namespacesExt.addEntry env n
-
-/-- Return `true` if `n` is the name of a namespace in `env`. -/
-def isNamespace (env : Environment) (n : Name) : Bool :=
-  (namespacesExt.getState env).contains n
-
-/-- Return a set containing all namespaces in `env`. -/
-def getNamespaceSet (env : Environment) : NameSSet :=
-  namespacesExt.getState env
 
 @[export lean_elab_environment_update_base_after_kernel_add]
 private def updateBaseAfterKernelAdd (env : Environment) (kenv : Kernel.Environment) (decl : Declaration) : Environment :=

@@ -45,7 +45,7 @@ def tacticToDischarge (tacticCode : Syntax) : TacticM (IO.Ref Term.State × Simp
         /- We must only save messages and info tree changes. Recall that `simp` uses temporary metavariables (`withNewMCtxDepth`).
            So, we must not save references to them at `Term.State`.
         -/
-        withoutModifyingStateWithInfoAndMessages do
+        Term.withoutModifyingElabMetaStateWithInfo do
           Term.withSynthesize (postpone := .no) do
             Term.runTactic (report := false) mvar.mvarId! tacticCode .term
           let result ← instantiateMVars mvar

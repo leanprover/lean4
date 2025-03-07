@@ -67,6 +67,11 @@ def push (s : RefVec aig len) (ref : AIG.Ref aig) : RefVec aig (len + 1) :=
   ⟩
 
 @[simp]
+theorem cast_cast {aig1 aig2 aig3 : AIG α} (s : RefVec aig1 len)
+    (h1 : aig1.decls.size ≤ aig2.decls.size) (h2 : aig2.decls.size ≤ aig3.decls.size) :
+    (s.cast h1).cast h2 = s.cast (Nat.le_trans h1 h2) := by rfl
+
+@[simp]
 theorem get_push_ref_eq (s : RefVec aig len) (ref : AIG.Ref aig) :
     (s.push ref).get len (by omega) = ref := by
   have := s.hlen

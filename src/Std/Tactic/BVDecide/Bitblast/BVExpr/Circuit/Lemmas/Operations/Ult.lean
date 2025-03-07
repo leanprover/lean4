@@ -26,7 +26,7 @@ theorem mkUlt_denote_eq (aig : AIG α) (lhs rhs : BitVec w) (input : BinaryRefVe
     (assign : α → Bool)
     (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign⟧ = lhs.getLsbD idx)
     (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign⟧ = rhs.getLsbD idx) :
-    ⟦(mkUlt aig input).aig, (mkUlt aig input).ref, assign⟧ = BitVec.ult lhs rhs := by
+    ⟦mkUlt aig input, assign⟧ = BitVec.ult lhs rhs := by
   rw [BitVec.ult_eq_not_carry]
   unfold mkUlt
   simp only [denote_projected_entry, denote_mkNotCached, denote_projected_entry']

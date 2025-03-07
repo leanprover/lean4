@@ -121,7 +121,7 @@ Tseitin transformation. This is done by combining the atom assignment with an as
 auxiliary variables, that just evaluates the AIG at the corresponding node.
 -/
 def cnfSatAssignment (aig : AIG Nat) (assign1 : Nat → Bool) : CNFVar aig → Bool :=
-  mixAssigns assign1 (fun idx => ⟦aig, ⟨idx.val, idx.isLt⟩, assign1⟧)
+  mixAssigns assign1 (fun idx => ⟦aig, ⟨idx.val, false, idx.isLt⟩, assign1⟧)
 
 @[simp]
 theorem satAssignment_inl : (cnfSatAssignment aig assign1) (.inl x) = assign1 x := by

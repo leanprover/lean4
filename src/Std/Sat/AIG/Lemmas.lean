@@ -27,25 +27,15 @@ theorem Ref.gate_cast {aig1 aig2 : AIG α} (ref : Ref aig1)
 @[simp]
 theorem Ref.cast_eq {aig1 aig2 : AIG α} (ref : Ref aig1)
     (h : aig1.decls.size ≤ aig2.decls.size) :
-    (ref.cast h) = ⟨ref.gate, by have := ref.hgate; omega⟩ := rfl
+    (ref.cast h) = ⟨ref.gate, ref.invert, by have := ref.hgate; omega⟩ := rfl
 
 @[simp]
-theorem Fanin.ref_cast {aig1 aig2 : AIG α} (fanin : Fanin aig1)
-    (h : aig1.decls.size ≤ aig2.decls.size) :
-    (fanin.cast h).ref = fanin.ref.cast h := rfl
-
-@[simp]
-theorem Fanin.inv_cast {aig1 aig2 : AIG α} (fanin : Fanin aig1)
-    (h : aig1.decls.size ≤ aig2.decls.size) :
-    (fanin.cast h).inv = fanin.inv := rfl
-
-@[simp]
-theorem GateInput.lhs_cast {aig1 aig2 : AIG α} (input : GateInput aig1)
+theorem BinaryInput.lhs_cast {aig1 aig2 : AIG α} (input : BinaryInput aig1)
     (h : aig1.decls.size ≤ aig2.decls.size) :
     (input.cast h).lhs = input.lhs.cast h := rfl
 
 @[simp]
-theorem GateInput.rhs_cast {aig1 aig2 : AIG α} (input : GateInput aig1)
+theorem BinaryInput.rhs_cast {aig1 aig2 : AIG α} (input : BinaryInput aig1)
     (h : aig1.decls.size ≤ aig2.decls.size) :
     (input.cast h).rhs = input.rhs.cast h := rfl
 
@@ -56,26 +46,52 @@ theorem BinaryInput.each_cast {aig1 aig2 : AIG α} (lhs rhs : Ref aig1)
   simp [BinaryInput.cast]
 
 @[simp]
+theorem BinaryInput_invert_lhs {aig : AIG α} (input : BinaryInput aig) (linv rinv : Bool) :
+    (input.invert linv rinv).lhs = ⟨input.lhs.gate, linv ^^ input.lhs.invert, input.lhs.hgate⟩ := by
+  simp [BinaryInput.invert, Ref.flip]
+
+@[simp]
+theorem BinaryInput_invert_rhs {aig : AIG α} (input : BinaryInput aig) (linv rinv : Bool) :
+    (input.invert linv rinv).rhs = ⟨input.rhs.gate, rinv ^^ input.rhs.invert, input.rhs.hgate⟩ := by
+  simp [BinaryInput.invert, Ref.flip]
+
+@[simp]
 theorem denote_projected_entry {entry : Entrypoint α} :
     ⟦entry.aig, entry.ref, assign⟧ = ⟦entry, assign⟧ := by
   cases entry; simp
 
 @[simp]
 theorem denote_projected_entry' {entry : Entrypoint α} :
-    ⟦entry.aig, ⟨entry.ref.gate, entry.ref.hgate⟩, assign⟧ = ⟦entry, assign⟧ := by
+    ⟦entry.aig, ⟨entry.ref.gate, entry.ref.invert, entry.ref.hgate⟩, assign⟧ = ⟦entry, assign⟧ := by
   cases entry; simp
+
+@[simp]
+theorem Ref.denote_flip {aig : AIG α} {ref : Ref aig} {inv : Bool} :
+    ⟦aig, ref.flip inv, assign⟧ = (⟦aig, ref, assign⟧ ^^ inv) := by
+  unfold denote
+  cases ref <;> cases inv <;> simp [Ref.flip] 
+
+@[simp]
+theorem Ref.denote_not {aig : AIG α} {ref : Ref aig} :
+    ⟦aig, ref.not, assign⟧ = !⟦aig, ref, assign⟧ := by
+  simp [Ref.not]
+
+@[simp]
+theorem denote_not_invert {aig : AIG α} {gate} {inv} {hgate} :
+    ⟦aig, ⟨gate, !inv, hgate⟩, assign⟧ = !⟦aig, ⟨gate, inv, hgate⟩, assign⟧ := by
+  sorry
 
 /--
 `AIG.mkGate` never shrinks the underlying AIG.
 -/
-theorem mkGate_le_size (aig : AIG α) (input : GateInput aig) :
+theorem mkGate_le_size (aig : AIG α) (input : BinaryInput aig) :
     aig.decls.size ≤ (aig.mkGate input).aig.decls.size := by
-  simp +arith [mkGate]
+  simp [mkGate]
 
 /--
 The AIG produced by `AIG.mkGate` agrees with the input AIG on all indices that are valid for both.
 -/
-theorem mkGate_decl_eq idx (aig : AIG α) (input : GateInput aig) {h : idx < aig.decls.size} :
+theorem mkGate_decl_eq idx (aig : AIG α) (input : BinaryInput aig) {h : idx < aig.decls.size} :
     have := mkGate_le_size aig input
     (aig.mkGate input).aig.decls[idx]'(by omega) = aig.decls[idx] := by
   simp only [mkGate, Array.getElem_push]
@@ -83,17 +99,17 @@ theorem mkGate_decl_eq idx (aig : AIG α) (input : GateInput aig) {h : idx < aig
   · rfl
   · contradiction
 
-instance : LawfulOperator α GateInput mkGate where
+instance : LawfulOperator α BinaryInput mkGate where
   le_size := mkGate_le_size
   decl_eq := by
     intros
     apply mkGate_decl_eq
 
 @[simp]
-theorem denote_mkGate {aig : AIG α} {input : GateInput aig} :
+theorem denote_mkGate {aig : AIG α} {input : BinaryInput aig} :
     ⟦aig.mkGate input, assign⟧
       =
-    ((⟦aig, input.lhs.ref, assign⟧ ^^ input.lhs.inv) && (⟦aig, input.rhs.ref, assign⟧ ^^ input.rhs.inv)) := by
+    (⟦aig, input.lhs, assign⟧ && ⟦aig, input.rhs, assign⟧) := by
   conv =>
     lhs
     unfold denote denote.go
@@ -107,18 +123,12 @@ theorem denote_mkGate {aig : AIG α} {input : GateInput aig} :
   · next heq =>
     rw [mkGate, Array.getElem_push_eq] at heq
     injection heq with heq1 heq2 heq3 heq4
-    dsimp only
+    simp only [← heq1, mkGate, ← heq3, ← heq2, ← heq4, Bool.bne_false, denote]
     congr 2
-    · unfold denote
-      simp only [heq1]
-      apply denote.go_eq_of_isPrefix
-      apply LawfulOperator.isPrefix_aig
-    · simp [heq3]
-    · unfold denote
-      simp only [heq2]
-      apply denote.go_eq_of_isPrefix
-      apply LawfulOperator.isPrefix_aig
-    · simp [heq4]
+    · apply denote.go_eq_of_isPrefix
+      simp
+    · apply denote.go_eq_of_isPrefix
+      simp
 
 /--
 `AIG.mkAtom` never shrinks the underlying AIG.
@@ -154,7 +164,7 @@ theorem denote_mkAtom {aig : AIG α} :
   · next heq =>
     rw [mkAtom, Array.getElem_push_eq] at heq
     injection heq with heq
-    rw [heq]
+    simp [heq, mkAtom]
   · next heq =>
     rw [mkAtom, Array.getElem_push_eq] at heq
     contradiction
@@ -190,7 +200,7 @@ theorem denote_mkConst {aig : AIG α} : ⟦(aig.mkConst val), assign⟧ = val :=
   · next heq =>
     rw [mkConst, Array.getElem_push_eq] at heq
     injection heq with heq
-    rw [heq]
+    simp [heq, mkConst]
   · next heq =>
     rw [mkConst, Array.getElem_push_eq] at heq
     contradiction
@@ -202,7 +212,7 @@ theorem denote_mkConst {aig : AIG α} : ⟦(aig.mkConst val), assign⟧ = val :=
 If an index contains a `Decl.const` we know how to denote it.
 -/
 theorem denote_idx_const {aig : AIG α} {hstart} (h : aig.decls[start]'hstart = .const b) :
-    ⟦aig, ⟨start, hstart⟩, assign⟧ = b := by
+    ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = (b ^^ invert) := by
   unfold denote denote.go
   split <;> simp_all
 
@@ -210,7 +220,7 @@ theorem denote_idx_const {aig : AIG α} {hstart} (h : aig.decls[start]'hstart = 
 If an index contains a `Decl.atom` we know how to denote it.
 -/
 theorem denote_idx_atom {aig : AIG α} {hstart} (h : aig.decls[start] = .atom a) :
-    ⟦aig, ⟨start, hstart⟩, assign⟧ = assign a := by
+    ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = (assign a ^^ invert) := by
   unfold denote denote.go
   split <;> simp_all
 
@@ -218,13 +228,13 @@ theorem denote_idx_atom {aig : AIG α} {hstart} (h : aig.decls[start] = .atom a)
 If an index contains a `Decl.gate` we know how to denote it.
 -/
 theorem denote_idx_gate {aig : AIG α} {hstart} (h : aig.decls[start] = .gate lhs rhs linv rinv) :
-    ⟦aig, ⟨start, hstart⟩, assign⟧
+    ⟦aig, ⟨start, invert, hstart⟩, assign⟧
       =
-    (
-      (⟦aig, ⟨lhs, by have := aig.invariant hstart h; omega⟩, assign⟧ ^^ linv)
+    ((
+      (⟦aig, ⟨lhs, linv, by have := aig.invariant hstart h; omega⟩, assign⟧)
         &&
-      (⟦aig, ⟨rhs, by have := aig.invariant hstart h; omega⟩, assign⟧ ^^ rinv)
-    ) := by
+      (⟦aig, ⟨rhs, rinv, by have := aig.invariant hstart h; omega⟩, assign⟧)
+    ) ^^ invert) := by
   unfold denote
   conv =>
     lhs
@@ -247,15 +257,15 @@ theorem idx_trichotomy (aig : AIG α) (hstart : start < aig.decls.size) {prop : 
   | .gate lhs rhs linv rinv => apply hgate; assumption
 
 theorem denote_idx_trichotomy {aig : AIG α} {hstart : start < aig.decls.size}
-    (hconst : ∀ b, aig.decls[start]'hstart = .const b → ⟦aig, ⟨start, hstart⟩, assign⟧ = res)
-    (hatom : ∀ a, aig.decls[start]'hstart = .atom a → ⟦aig, ⟨start, hstart⟩, assign⟧ = res)
+    (hconst : ∀ b, aig.decls[start]'hstart = .const b → ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = res)
+    (hatom : ∀ a, aig.decls[start]'hstart = .atom a → ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = res)
     (hgate :
       ∀ lhs rhs linv rinv,
         aig.decls[start]'hstart = .gate lhs rhs linv rinv
           →
-        ⟦aig, ⟨start, hstart⟩, assign⟧ = res
+        ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = res
     ) :
-    ⟦aig, ⟨start, hstart⟩, assign⟧ = res := by
+    ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = res := by
   apply idx_trichotomy aig hstart
   · exact hconst
   · exact hatom
@@ -264,32 +274,32 @@ theorem denote_idx_trichotomy {aig : AIG α} {hstart : start < aig.decls.size}
 theorem mem_def {aig : AIG α} {a : α} : (a ∈ aig) ↔ ((.atom a) ∈ aig.decls) := by
   simp [Membership.mem, Mem]
 
-theorem denote_congr (assign1 assign2 : α → Bool) (aig : AIG α) (idx : Nat)
+theorem denote_congr (assign1 assign2 : α → Bool) (aig : AIG α) (idx : Nat) (invert : Bool)
     (hidx : idx < aig.decls.size) (h : ∀ a, a ∈ aig → assign1 a = assign2 a) :
-    ⟦aig, ⟨idx, hidx⟩, assign1⟧ = ⟦aig, ⟨idx, hidx⟩, assign2⟧ := by
+    ⟦aig, ⟨idx, invert, hidx⟩, assign1⟧ = ⟦aig, ⟨idx, invert, hidx⟩, assign2⟧ := by
   apply denote_idx_trichotomy
   · intro b heq
     simp [denote_idx_const heq]
   · intro a heq
-    simp only [denote_idx_atom heq]
+    simp only [denote_idx_atom heq, Bool.bne_left_inj]
     apply h
-    rw [mem_def, ← heq, Array.mem_def]
-    apply Array.getElem_mem_toList
+    simp [mem_def, ← heq]
   · intro lhs rhs linv rinv heq
     simp only [denote_idx_gate heq]
     have := aig.invariant hidx heq
-    rw [denote_congr assign1 assign2 aig lhs (by omega) h]
-    rw [denote_congr assign1 assign2 aig rhs (by omega) h]
+    rw [denote_congr assign1 assign2 aig lhs _ (by omega) h]
+    rw [denote_congr assign1 assign2 aig rhs _ (by omega) h]
 
 theorem of_isConstant {aig : AIG α} {assign : α → Bool} {ref : Ref aig} {b : Bool} :
     aig.isConstant ref b → ⟦aig, ref, assign⟧ = b := by
-  rcases ref with ⟨gate, hgate⟩
+  rcases ref with ⟨gate, invert, hgate⟩
   intro h
   unfold isConstant at h
   dsimp only at h
   split at h
-  · rw [denote_idx_const]
-    simp_all
+  · next heq =>
+    rw [denote_idx_const (h := heq)]
+    cases invert <;> simp_all
   · contradiction
 
 end AIG

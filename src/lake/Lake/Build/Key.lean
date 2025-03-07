@@ -17,6 +17,12 @@ inductive BuildKey
 | facet (target : BuildKey) (facet : Name)
 deriving Inhabited, Repr, DecidableEq, Hashable
 
+/-- The kind identifier for facets of a package. -/
+abbrev Package.facetKind : Name := `package
+
+/-- The kind identifier for facets of a (Lean) module. -/
+abbrev Module.facetKind : Name := `module
+
 namespace BuildKey
 
 @[match_pattern] abbrev moduleFacet (module facet : Name) : BuildKey :=
@@ -32,8 +38,8 @@ namespace BuildKey
   .packageTarget package target .anonymous
 
 @[reducible] def kind : (self : BuildKey) → Name
-| module _ => `module
-| package _ => `package
+| module _ => Module.facetKind
+| package _ => Package.facetKind
 | packageTarget _ _ k => k
 | facet _ _ => .anonymous
 

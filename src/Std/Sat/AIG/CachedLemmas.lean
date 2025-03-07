@@ -296,10 +296,10 @@ theorem mkGateCached.go_eval_eq_mkGate_eval {aig : AIG α} {input : BinaryInput 
     · next heq _ _ _ =>
       rcases input with ⟨_, ⟨rhs, rinv, hrgate⟩⟩
       simp_all [denote_idx_const heq]
-    · next heq _ _ _ _ =>
+    · next heq _ _ _ _ _ =>
       rcases input with ⟨⟨lhs, linv, hlgate⟩, _⟩
       simp_all [denote_idx_const heq]
-    · next heq _ _ _ =>
+    · next heq _ _ _ _ _ =>
       rcases input with ⟨⟨lhs, linv, hlgate⟩, _⟩
       simp_all [denote_idx_const heq]
     · rcases input with ⟨⟨lhs, linv, hlgate⟩, ⟨rhs, rinv, hrgate⟩⟩

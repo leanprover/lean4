@@ -102,11 +102,11 @@ where
       | _, .const true, _, true | _, .const false, _, false =>
         mkConstCached ⟨decls, cache, inv⟩ false
       -- Left Neutrality
-      | .const true, _, false, false | .const false, _, true, false =>
-        ⟨⟨decls, cache, inv⟩, rhs, false, by assumption⟩
+      | .const true, _, false, _ | .const false, _, true, _ =>
+        ⟨⟨decls, cache, inv⟩, rhs, rinv, by assumption⟩
       -- Right Neutrality
-      | _, .const true, false, false | _, .const false, false, true =>
-        ⟨⟨decls, cache, inv⟩, lhs, false, by assumption⟩
+      | _, .const true, _, false | _, .const false, _, true =>
+        ⟨⟨decls, cache, inv⟩, lhs, linv, by assumption⟩
       | _, _, _, _ =>
         if lhs == rhs && linv == false && rinv == false then
           -- Idempotency rule

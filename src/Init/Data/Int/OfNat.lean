@@ -9,7 +9,6 @@ import Init.Data.Int.DivMod
 import Init.Data.RArray
 
 namespace Int.OfNat
-
 /-!
 Helper definitions and theorems for converting `Nat` expressions into `Int` one.
 We use them to implement the arithmetic theories in `grind`
@@ -51,15 +50,15 @@ theorem Expr.denoteAsInt_eq (ctx : Context) (e : Expr) : e.denoteAsInt ctx = e.d
   induction e <;> simp [denote, denoteAsInt, Int.ofNat_ediv, *] <;> rfl
 
 theorem Expr.eq (ctx : Context) (lhs rhs : Expr)
-    : lhs.denote ctx = rhs.denote ctx ↔ lhs.denoteAsInt ctx = rhs.denoteAsInt ctx := by
+    : (lhs.denote ctx = rhs.denote ctx) = (lhs.denoteAsInt ctx = rhs.denoteAsInt ctx) := by
   simp [denoteAsInt_eq, Int.ofNat_inj]
 
 theorem Expr.le (ctx : Context) (lhs rhs : Expr)
-    : lhs.denote ctx ≤ rhs.denote ctx ↔ lhs.denoteAsInt ctx ≤ rhs.denoteAsInt ctx := by
+    : (lhs.denote ctx ≤ rhs.denote ctx) = (lhs.denoteAsInt ctx ≤ rhs.denoteAsInt ctx) := by
   simp [denoteAsInt_eq, Int.ofNat_le]
 
 theorem Expr.dvd (ctx : Context) (lhs rhs : Expr)
-    : lhs.denote ctx ∣ rhs.denote ctx ↔ lhs.denoteAsInt ctx ∣ rhs.denoteAsInt ctx := by
+    : (lhs.denote ctx ∣ rhs.denote ctx) = (lhs.denoteAsInt ctx ∣ rhs.denoteAsInt ctx) := by
   simp [denoteAsInt_eq, Int.ofNat_dvd]
 
 end Int.OfNat

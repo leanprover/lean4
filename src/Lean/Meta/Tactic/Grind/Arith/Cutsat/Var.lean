@@ -11,11 +11,8 @@ import Lean.Meta.Tactic.Grind.Canon
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 private def assertNatCast (e : Expr) : GoalM Unit := do
-  trace[Meta.debug] "1. e: {e}"
   let_expr NatCast.natCast _ inst a := e | return ()
-  trace[Meta.debug] "2. e: {e}"
   let_expr instNatCastInt := inst | return ()
-  trace[Meta.debug] "3. e: {e}"
   addProof <| mkApp (mkConst ``Int.Linear.natCast_nonneg) a
 
 private def assertHelpers (e : Expr) : GoalM Unit := do

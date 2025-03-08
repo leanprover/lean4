@@ -153,7 +153,8 @@ def propagateNatLe (e : Expr) (_eqTrue : Bool) : GoalM Unit := do
   let lhs' ← toLinearExpr lhs gen
   let rhs' ← toLinearExpr rhs gen
   let p := lhs'.sub rhs' |>.norm
-  trace[grind.debug.cutsat.nat] "{← p.pp} ≤ 0"
+  trace[grind.debug.cutsat.nat] "{lhs} ≤ {rhs}"
+  trace[grind.debug.cutsat.nat] "{← p.pp}"
   -- TODO: WIP
   return ()
 

@@ -466,43 +466,45 @@ theorem eq_of_heq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
   this α α a a' h rfl
 
 /--
-Product type (aka pair). You can use `α × β` as notation for `Prod α β`.
-Given `a : α` and `b : β`, `Prod.mk a b : Prod α β`. You can use `(a, b)`
-as notation for `Prod.mk a b`. Moreover, `(a, b, c)` is notation for
-`Prod.mk a (Prod.mk b c)`.
-Given `p : Prod α β`, `p.1 : α` and `p.2 : β`. They are short for `Prod.fst p`
-and `Prod.snd p` respectively. You can also write `p.fst` and `p.snd`.
-For more information: [Constructors with Arguments](https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html?highlight=Prod#constructors-with-arguments)
+The product type, usually written `α × β`. Product types are also called pair or tuple types.
+Elements of this type are pairs in which the first element is an `α` and the second element is a
+`β`.
+
+Products nest to the right, so `(x, y, z) : α × β × γ` is equivalent to `(x, (y, z)) : α × (β × γ)`.
 -/
 structure Prod (α : Type u) (β : Type v) where
-  /-- Constructs a pair from two terms. -/
+  /--
+  Constructs a pair. This is usually written `(x, y)` instead of `Prod.mk x y`.
+  -/
   mk ::
-  /-- The first projection out of a pair. if `p : α × β` then `p.1 : α`. -/
+  /-- The first element of a pair. -/
   fst : α
-  /-- The second projection out of a pair. if `p : α × β` then `p.2 : β`. -/
+  /-- The second element of a pair. -/
   snd : β
 
 attribute [unbox] Prod
 
 /--
-Similar to `Prod`, but `α` and `β` can be propositions.
-You can use `α ×' β` as notation for `PProd α β`.
-We use this type internally to automatically generate the `brecOn` recursor.
+A product type in which the types may be propositions, usually written `α ×' β`.
+
+This type is primarily used internally and as an implementation detail of proof automation. It is
+rarely useful in hand-written code.
 -/
 structure PProd (α : Sort u) (β : Sort v) where
-  /-- The first projection out of a pair. if `p : PProd α β` then `p.1 : α`. -/
+  /-- The first element of a pair. -/
   fst : α
-  /-- The second projection out of a pair. if `p : PProd α β` then `p.2 : β`. -/
+  /-- The second element of a pair. -/
   snd : β
 
 /--
-Similar to `Prod`, but `α` and `β` are in the same universe.
-We say `MProd` is the universe monomorphic product type.
+A product type in which both `α` and `β` are in the same universe.
+
+It is called `MProd` is because it is the *universe-monomorphic* product type.
 -/
 structure MProd (α β : Type u) where
-  /-- The first projection out of a pair. if `p : MProd α β` then `p.1 : α`. -/
+  /-- The first element of a pair. -/
   fst : α
-  /-- The second projection out of a pair. if `p : MProd α β` then `p.2 : β`. -/
+  /-- The second element of a pair. -/
   snd : β
 
 /--

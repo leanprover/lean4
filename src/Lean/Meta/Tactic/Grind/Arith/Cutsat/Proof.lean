@@ -169,6 +169,14 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
     return mkApp7 (mkConst ``Int.Linear.le_of_le_diseq)
       (← getContext) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .dvdTight c₁ c₂ =>
+    return mkApp8 (mkConst ``Int.Linear.dvd_le_tight)
+      (← getContext) (toExpr c₁.d) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
+      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .negDvdTight c₁ c₂ =>
+    return mkApp8 (mkConst ``Int.Linear.dvd_neg_le_tight)
+      (← getContext) (toExpr c₁.d) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
+      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .ofDiseqSplit c₁ fvarId h _ =>
     let p₂ := c₁.p.addConst 1
     let hFalse ← h.toExprProofCore
@@ -335,7 +343,9 @@ partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do u
   | .expr h => collectExpr h
   | .notExpr .. => return () -- This kind of proof is used for connecting with the `grind` core.
   | .cooper c | .norm c | .divCoeffs c => c.collectDecVars
-  | .combine c₁ c₂ | .combineDivCoeffs c₁ c₂ _ | .subst _ c₁ c₂ | .ofLeDiseq c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
+  | .dvdTight c₁ c₂ | .negDvdTight c₁ c₂
+  | .combine c₁ c₂ | .combineDivCoeffs c₁ c₂ _
+  | .subst _ c₁ c₂ | .ofLeDiseq c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
   | .ofDiseqSplit (decVars := decVars) .. => decVars.forM markAsFound
 
 partial def DiseqCnstr.collectDecVars (c' : DiseqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do

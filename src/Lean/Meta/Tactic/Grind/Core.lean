@@ -222,7 +222,13 @@ where
     updateRoots lhs rhsNode.root
     trace_goal[grind.debug] "{← ppENodeRef lhs} new root {← ppENodeRef rhsNode.root}, {← ppENodeRef (← getRoot lhs)}"
     reinsertParents parents
-    propagateEqcDown lhs
+    /-
+    Remark: we used to `propagateDown` here, but this was problematic
+    because it limits what the propagator can do because several invariants do not
+    hold until we complete all updates.
+    -/
+    -- TODO: improve performance: we only need to collect terms that may propagate.
+    let toPropagateDown ← getEqc lhs
     setENode lhsNode.root { (← getENode lhsRoot.self) with -- We must retrieve `lhsRoot` since it was updated.
       next := rhsRoot.next
     }
@@ -243,16 +249,13 @@ where
     unless (← isInconsistent) do
       for parent in parents do
         propagateUp parent
+      for e in toPropagateDown do
+        propagateDown e
       propagateCutsatDiseqs parentsToPropagateDiseqs
 
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
     traverseEqc lhs fun n =>
       setENode n.self { n with root := rootNew }
-
-  propagateEqcDown (lhs : Expr) : GoalM Unit := do
-    traverseEqc lhs fun n =>
-      unless (← isInconsistent) do
-        propagateDown n.self
 
 /-- Ensures collection of equations to be processed is empty. -/
 private def resetNewEqs : GoalM Unit :=

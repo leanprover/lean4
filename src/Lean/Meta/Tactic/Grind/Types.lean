@@ -894,6 +894,10 @@ def isIntNum (e : Expr) : Bool :=
     isNonnegIntNum e
   | _ => isNonnegIntNum e
 
+/-- Returns `true` if `e` is a numeral supported by cutsat. -/
+def isNum (e : Expr) : Bool :=
+  isNatNum e || isIntNum e
+
 /--
 Returns `true` if type of `t` is definitionally equal to `α`
 -/

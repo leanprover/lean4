@@ -120,7 +120,7 @@ private def propagateCutsatEq (rhsRoot lhsRoot : ENode) : GoalM ParentSet := do
     if let some rhsCutsat := rhsRoot.cutsat? then
       Arith.Cutsat.processNewEq lhsCutsat rhsCutsat
       return {}
-    else if isIntNum rhsRoot.self then
+    else if isNum rhsRoot.self then
       Arith.Cutsat.processNewEqLit lhsCutsat rhsRoot.self
       return {}
     else
@@ -130,7 +130,7 @@ private def propagateCutsatEq (rhsRoot lhsRoot : ENode) : GoalM ParentSet := do
       getParents rhsRoot.self
   | none =>
     if let some rhsCutsat := rhsRoot.cutsat? then
-      if isIntNum lhsRoot.self then
+      if isNum lhsRoot.self then
         Arith.Cutsat.processNewEqLit rhsCutsat lhsRoot.self
         return {}
       else

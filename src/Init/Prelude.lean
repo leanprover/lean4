@@ -1877,17 +1877,24 @@ theorem System.Platform.numBits_eq : Or (Eq numBits 32) (Eq numBits 64) :=
   (getNumBits ()).property
 
 /--
-`Fin n` is a natural number `i` with the constraint that `0 ≤ i < n`.
-It is the "canonical type with `n` elements".
+Natural numbers less than some upper bound.
+
+In particular, a `Fin n` is a natural number `i` with the constraint that `i < n`. It is the
+canonical type with `n` elements.
 -/
 @[pp_using_anonymous_constructor]
 structure Fin (n : Nat) where
   /-- Creates a `Fin n` from `i : Nat` and a proof that `i < n`. -/
   mk ::
-  /-- If `i : Fin n`, then `i.val : ℕ` is the described number. It can also be
-  written as `i.1` or just `i` when the target type is known. -/
+  /--
+  The number that is strictly less than `n`.
+
+  `Fin.val` is a coercion, so any `Fin n` can be used in a position where a `Nat` is expected.
+  -/
   val  : Nat
-  /-- If `i : Fin n`, then `i.2` is a proof that `i.1 < n`. -/
+  /--
+  The number `val` is strictly less than the bound `n`.
+  -/
   isLt : LT.lt val n
 
 attribute [coe] Fin.val

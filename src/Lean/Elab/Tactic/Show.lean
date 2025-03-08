@@ -13,37 +13,28 @@ open Meta
 -/
 
 def elabShow (newType : Term) : TacticM Unit := do
-  let goals ← getGoals
-  go newType goals []
+  let (goal :: goals) ← getGoals | throwNoGoalsToBeSolved
+  go newType goal goals []
 where
-  go (newType : Term) (l : List MVarId) (prev : List MVarId) : TacticM Unit := do
+  go (newType : Term) (goal : MVarId) (l : List MVarId) (prev : List MVarId) : TacticM Unit := do
     match l with
-    | [] => throwError "tactic 'show' failed, no goal unifies"
-    | goal :: goals =>
-      if goals.isEmpty then
-        -- optimization for last goal
-        try
-          tryGoal newType goal goals prev
-        catch _ =>
-          throwError "tactic 'show' failed, no goal unifies"
-      else
-        let mstate ← getThe Meta.State
-        let info ← getInfoState
-        try
-          tryGoal newType goal goals prev
-        catch _ =>
-          -- we might otherwise have multiple instances of term elab information
-          setInfoState info
-          set mstate
-          go newType goals (goal :: prev)
+    | [] => -- last goal
+      Tactic.tryCatch
+        (tryGoal newType goal [] prev)
+        (fun e => throwNestedTacticEx `show e)
+    | x :: l' =>
+      let state ← saveState
+      Tactic.tryCatch (tryGoal newType goal l prev) fun _ => do
+        state.restore true
+        go newType x l' (goal :: prev)
   tryGoal (newType : Term) (goal : MVarId) (l : List MVarId) (prev : List MVarId) : TacticM Unit := do
     let type ← goal.getType
     let tag ← goal.getTag
-    let (tgt', mvars) ← goal.withContext
-      (withCollectingNewGoalsFrom (elabChange type newType) tag `show)
-    let goal' ← goal.replaceTargetDefEq tgt'
-    let newGoals := goal' :: prev.reverseAux (mvars ++ l)
-    setGoals newGoals
+    goal.withContext do
+      let (tgt', mvars) ← withCollectingNewGoalsFrom (elabChange type newType) tag `show
+      let goal' ← goal.replaceTargetDefEq tgt'
+      let newGoals := goal' :: prev.reverseAux (mvars ++ l)
+      setGoals newGoals
 
 @[builtin_tactic «show»] elab_rules : tactic
   | `(tactic| show $newType:term) => elabShow newType

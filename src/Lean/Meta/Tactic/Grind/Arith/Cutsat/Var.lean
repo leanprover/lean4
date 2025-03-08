@@ -13,7 +13,7 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 private def assertNatCast (e : Expr) : GoalM Unit := do
   let_expr NatCast.natCast _ inst a := e | return ()
   let_expr instNatCastInt := inst | return ()
-  addProof <| mkApp (mkConst ``Int.Linear.natCast_nonneg) a
+  pushNewProof <| mkApp (mkConst ``Int.Linear.natCast_nonneg) a
 
 private def assertHelpers (e : Expr) : GoalM Unit := do
   assertNatCast e

@@ -258,30 +258,19 @@ where
       setENode n.self { n with root := rootNew }
 
 /-- Ensures collection of equations to be processed is empty. -/
-private def resetNewEqs : GoalM Unit :=
-  modify fun s => { s with newEqs := #[] }
+private def resetNewFacts : GoalM Unit :=
+  modify fun s => { s with newFacts := #[] }
 
 /-- Pops and returns the next equality to be processed. -/
-private def popNextEq? : GoalM (Option NewEq) := do
-  let r := (← get).newEqs.back?
+private def popNextFact? : GoalM (Option NewFact) := do
+  let r := (← get).newFacts.back?
   if r.isSome then
-    modify fun s => { s with newEqs := s.newEqs.pop }
+    modify fun s => { s with newFacts := s.newFacts.pop }
   return r
-
-@[export lean_grind_process_new_eqs]
-private def processNewEqsImpl : GoalM Unit := do
-  repeat
-    if (← isInconsistent) then
-      resetNewEqs
-      return ()
-    checkSystem "grind"
-    let some { lhs, rhs, proof, isHEq } := (← popNextEq?)
-      | return ()
-    addEqStep lhs rhs proof isHEq
 
 private def addEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   addEqStep lhs rhs proof isHEq
-  processNewEqsImpl
+  processNewFacts
 
 /-- Adds a new equality `lhs = rhs`. It assumes `lhs` and `rhs` have already been internalized. -/
 private def addEq (lhs rhs proof : Expr) : GoalM Unit := do
@@ -303,14 +292,9 @@ def addNewEq (lhs rhs proof : Expr) (generation : Nat) : GoalM Unit := do
   internalize rhs generation eq
   addEq lhs rhs proof
 
-/-- Adds a new `fact` justified by the given proof and using the given generation. -/
-@[export lean_grind_add]
-def addImpl (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
-  if fact.isTrue then return ()
+private def addFactStep (fact : Expr) (proof : Expr) (generation : Nat) : GoalM Unit := do
   storeFact fact
   trace_goal[grind.assert] "{fact}"
-  if (← isInconsistent) then return ()
-  resetNewEqs
   let_expr Not p := fact
     | go fact false
   go p true
@@ -342,5 +326,29 @@ where
       internalize lhs generation p
       internalize rhs generation p
       addEqCore lhs rhs proof isHEq
+
+@[export lean_grind_process_new_facts]
+private def processNewFactsImpl : GoalM Unit := do
+  repeat
+    if (← isInconsistent) then
+      resetNewFacts
+      return ()
+    checkSystem "grind"
+    let some next := (← popNextFact?)
+      | return ()
+    match next with
+    | .eq lhs rhs proof isHEq => addEqStep lhs rhs proof isHEq
+    | .fact prop proof gen => addFactStep prop proof gen
+
+/-- Adds a new `fact` justified by the given proof and using the given generation. -/
+def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
+  if fact.isTrue then return ()
+  if (← isInconsistent) then return ()
+  resetNewFacts
+  addFactStep fact proof generation
+
+/-- Adds a new hypothesis. -/
+def addHypothesis (fvarId : FVarId) (generation := 0) : GoalM Unit := do
+  add (← fvarId.getType) (mkFVar fvarId) generation
 
 end Lean.Meta.Grind

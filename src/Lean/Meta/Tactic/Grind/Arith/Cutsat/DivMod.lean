@@ -16,9 +16,9 @@ private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
   modify' fun s => { s with divMod := s.divMod.insert (a, b) }
   let n : Int := 1 - b.natAbs
   let b := mkIntLit b
-  addProof <| mkApp2 (mkConst ``Int.Linear.ediv_emod) a b
-  addProof <| mkApp3 (mkConst ``Int.Linear.emod_nonneg) a b reflBoolTrue
-  addProof <| mkApp4 (mkConst ``Int.Linear.emod_le) a b (toExpr n) reflBoolTrue
+  pushNewProof <| mkApp2 (mkConst ``Int.Linear.ediv_emod) a b
+  pushNewProof <| mkApp3 (mkConst ``Int.Linear.emod_nonneg) a b reflBoolTrue
+  pushNewProof <| mkApp4 (mkConst ``Int.Linear.emod_le) a b (toExpr n) reflBoolTrue
 
 builtin_grind_propagator propagateDiv ↑HDiv.hDiv := fun e => do
   let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()

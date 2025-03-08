@@ -317,12 +317,10 @@ structure ENode where
 def ENode.isCongrRoot (n : ENode) :=
   isSameExpr n.self n.congr
 
-/-- New equality to be processed. -/
-structure NewEq where
-  lhs   : Expr
-  rhs   : Expr
-  proof : Expr
-  isHEq : Bool
+/-- New equalities and facts to be processed. -/
+inductive NewFact where
+  | eq (lhs rhs proof : Expr) (isHEq : Bool)
+  | fact (prop proof : Expr) (generation : Nat)
 
 abbrev ENodeMap := PHashMap ENodeKey ENode
 
@@ -428,8 +426,8 @@ instance : BEq PreInstance where
 
 abbrev PreInstanceSet := PHashSet PreInstance
 
-/-- New fact to be processed. -/
-structure NewFact where
+/-- New raw fact to be preprocessed, and then asserted. -/
+structure NewRawFact where
   proof      : Expr
   prop       : Expr
   generation : Nat
@@ -511,14 +509,14 @@ structure Goal where
   it is its unique id.
   -/
   appMap       : PHashMap HeadIndex (List Expr) := {}
-  /-- Equations to be processed. -/
-  newEqs       : Array NewEq := #[]
+  /-- Equations and propositions to be processed. -/
+  newFacts       : Array NewFact := #[]
   /-- `inconsistent := true` if `ENode`s for `True` and `False` are in the same equivalence class. -/
   inconsistent : Bool := false
   /-- Next unique index for creating ENodes -/
   nextIdx      : Nat := 0
   /-- new facts to be preprocessed and then asserted. -/
-  newRawFacts  : Std.Queue NewFact := ∅
+  newRawFacts  : Std.Queue NewRawFact := ∅
   /-- Asserted facts -/
   facts      : PArray Expr := {}
   /-- Cached extensionality theorems for types. -/
@@ -726,7 +724,7 @@ def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
             with proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\n\
             which is not definitionally equal with `reducible` transparency setting}"
       trace[grind.debug] "pushEqCore: {expectedType}"
-  modify fun s => { s with newEqs := s.newEqs.push { lhs, rhs, proof, isHEq } }
+  modify fun s => { s with newFacts := s.newFacts.push <| .eq lhs rhs proof isHEq }
 
 /-- Return `true` if `a` and `b` have the same type. -/
 def hasSameType (a b : Expr) : MetaM Bool :=
@@ -761,6 +759,21 @@ def pushEqBoolTrue (a proof : Expr) : GoalM Unit := do
 /-- Pushes `a = Bool.false` with `proof` to `newEqs`. -/
 def pushEqBoolFalse (a proof : Expr) : GoalM Unit := do
   pushEq a (← getBoolFalseExpr) proof
+
+/--
+Push a new fact into the todo list. This function assumes the fact is in `grind` normal
+form. For facts that need to be preprocessed, use `addNewRawFact` instead.
+-/
+def pushNewFact (fact : Expr) (proof : Expr) (generation : Nat := 0) : GoalM Unit := do
+  modify fun s => { s with newFacts := s.newFacts.push <| .fact fact proof generation }
+
+/--
+Infer the type of the proof, and invokes `pushNewFact`. It assumes the type/proposition
+is in `grind` normal form. Only `shareCommon` is used.
+-/
+def pushNewProof (proof : Expr) (generation : Nat := 0) : GoalM Unit := do
+  let fact ← shareCommon (← inferType proof)
+  modify fun s => { s with newFacts := s.newFacts.push <| .fact fact proof generation }
 
 /--
 Records that `parent` is a parent of `child`. This function actually stores the
@@ -989,8 +1002,8 @@ opaque mkHEqProof (a b : Expr) : GoalM Expr
 opaque internalize (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit
 
 -- Forward definition
-@[extern "lean_grind_process_new_eqs"]
-opaque processNewEqs : GoalM Unit
+@[extern "lean_grind_process_new_facts"]
+opaque processNewFacts : GoalM Unit
 
 /--
 Returns a proof that `a = b` if they have the same type. Otherwise, returns a proof of `HEq a b`.
@@ -1189,13 +1202,5 @@ then using the result to perform `isDefEq x val`.
 def synthesizeInstanceAndAssign (x type : Expr) : MetaM Bool := do
   let .some val ← trySynthInstance type | return false
   isDefEq x val
-
-/-- Adds a new `fact` justified by the given proof and using the given generation. -/
-@[extern "lean_grind_add"] -- forward definition
-opaque add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit
-
-/-- Adds a new hypothesis. -/
-def addHypothesis (fvarId : FVarId) (generation := 0) : GoalM Unit := do
-  add (← fvarId.getType) (mkFVar fvarId) generation
 
 end Lean.Meta.Grind

@@ -1,6 +1,6 @@
-showTactic.lean:12:2: error: tactic 'show' failed, nested error:
+showTactic.lean:12:2-12:2: error: tactic 'show' failed, nested error:
 'change' tactic failed, pattern
-  ?m.1485 = 4
+  ?m = 4
 is not definitionally equal to target
   x = 3
 case refine_1
@@ -48,8 +48,8 @@ x : Nat
 case refine_2.refine_2.refine_2
 x : Nat
 ⊢ x = 3
-showTactic.lean:23:7: error: unknown identifier 'b'
-showTactic.lean:14:71: error: unsolved goals
+showTactic.lean:23:7-23:8: error: unknown identifier 'b'
+showTactic.lean:14:71-23:12: error: unsolved goals
 case refine_1
 x : Nat
 ⊢ sorry = 3

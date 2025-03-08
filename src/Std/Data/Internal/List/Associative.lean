@@ -193,7 +193,6 @@ private def Option.dmap : (o : Option α) → (f : (a : α) → (o = some a) →
 @[simp] private theorem Option.dmap_some (a : α) (f : (a' : α) → (some a = some a') → β) :
     Option.dmap (some a) f = some (f a rfl) := rfl
 
-@[local congr]
 private theorem Option.dmap_congr {o o' : Option α} {f : (a : α) → (o = some a) → β} (h : o = o') :
     Option.dmap o f = Option.dmap o' (fun a h' => f a (h ▸ h')) := by
   cases h; rfl
@@ -4151,32 +4150,6 @@ end Modify
 
 section FilterMap
 
-theorem getEntry?_filterMap' [BEq α] [EquivBEq α]
-    {f : ((a : α) × β a) → Option (((a : α) × γ a))}
-    (hf : ∀ p, (f p).all (·.1 == p.1))
-    {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
-    getEntry? k (l.filterMap f) = (getEntry? k l).bind f := by
-  induction l using assoc_induction with
-  | nil => rfl
-  | cons k' v l ih =>
-    simp only [getEntry?, cond_eq_if]
-    simp only [distinctKeys_cons_iff] at hl
-    specialize ih hl.1
-    specialize hf ⟨k', v⟩
-    split
-    · rename_i h
-      simp only [List.filterMap_cons, Option.some_bind]
-      simp only [containsKey_congr h] at hl
-      split
-      · simp only [ih, ‹f _ = _›, Option.none_bind, getEntry?_eq_none.mpr hl.2]
-      · rw [‹f _ = _›, Option.all_some, BEq.congr_right h] at hf
-        rw [getEntry?_cons, hf, ‹f _ = _›, cond_true]
-    · simp only [List.filterMap_cons]
-      split
-      · exact ih
-      · rw [‹f _ = _›, Option.all_some] at hf
-        rw [getEntry?_cons, BEq.congr_left hf, (Bool.not_eq_true (_ == _)).mp ‹_›, ih, cond_false]
-
 theorem Option.all_eq_true (p : α → Bool) (x : Option α) :
     x.all p = true ↔ ∀ y ∈ x, p y := by
   cases x <;> simp
@@ -4203,6 +4176,54 @@ theorem Option.dmap_map {α β γ : Type _} (x : Option α) (f : α → β)
 
 theorem Option.dmap_id {α : Type _} (x : Option α) : Option.dmap x (fun a _ => a) = x := by
   cases x <;> rfl
+
+theorem Option.bind_guard (x : Option α) (p : α → Prop) [DecidablePred p] :
+    x.bind (Option.guard p) = x.filter p := by
+  cases x
+  · rfl
+  · simp only [Option.some_bind, Option.guard, Option.filter_some, decide_eq_true_eq]
+
+theorem getEntry?_filterMap' [BEq α] [EquivBEq α]
+    {f : ((a : α) × β a) → Option (((a : α) × γ a))}
+    (hf : ∀ p, (f p).all (·.1 == p.1))
+    {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
+    getEntry? k (l.filterMap f) = (getEntry? k l).bind f := by
+  induction l using assoc_induction with
+  | nil => rfl
+  | cons k' v l ih =>
+    simp only [getEntry?, cond_eq_if]
+    simp only [distinctKeys_cons_iff] at hl
+    specialize ih hl.1
+    specialize hf ⟨k', v⟩
+    split
+    · rename_i h
+      simp only [List.filterMap_cons, Option.some_bind]
+      simp only [containsKey_congr h] at hl
+      split
+      · simp only [ih, ‹f _ = _›, Option.none_bind, getEntry?_eq_none.mpr hl.2]
+      · rw [‹f _ = _›, Option.all_some, BEq.congr_right h] at hf
+        rw [getEntry?_cons, hf, ‹f _ = _›, cond_true]
+    · simp only [List.filterMap_cons]
+      split
+      · exact ih
+      · rw [‹f _ = _›, Option.all_some] at hf
+        rw [getEntry?_cons, BEq.congr_left hf, (Bool.not_eq_true (_ == _)).mp ‹_›, ih, cond_false]
+
+theorem getEntry?_map' [BEq α] [EquivBEq α]
+    {f : ((a : α) × β a) → ((a : α) × γ a)}
+    (hf : ∀ p, (f p).1 == p.1)
+    {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
+    getEntry? k (l.map f) = (getEntry? k l).map f := by
+  rw [← List.filterMap_eq_map, getEntry?_filterMap' hf hl, ← Option.map_eq_bind]
+
+theorem getEntry?_filter [BEq α] [EquivBEq α]
+    {f : ((a : α) × β a) → Bool}
+    {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
+    getEntry? k (l.filter f) = (getEntry? k l).filter f := by
+  rw [← List.filterMap_eq_filter, getEntry?_filterMap' _ hl, Option.bind_guard]
+  simp only [Bool.decide_eq_true]
+  intro p
+  simp
 
 theorem getEntry?_filterMap [BEq α] [EquivBEq α]
     {f : (a : α) → β a → Option (γ a)}

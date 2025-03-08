@@ -1,0 +1,112 @@
+showTactic.lean:12:2: error: tactic 'show' failed, nested error:
+'change' tactic failed, pattern
+  ?m.1485 = 4
+is not definitionally equal to target
+  x = 3
+case refine_1
+x : Nat
+⊢ x = 0 + 0
+
+case refine_2.refine_1
+x : Nat
+⊢ x = 1
+
+case refine_2.refine_2.refine_1
+x : Nat
+⊢ x = 2
+
+case refine_2.refine_2.refine_2
+x : Nat
+⊢ x = 3
+case refine_2.refine_2.refine_2
+x : Nat
+⊢ x = 3
+
+case refine_1
+x : Nat
+⊢ x = 0 + 0
+
+case refine_2.refine_1
+x : Nat
+⊢ x = 1
+
+case refine_2.refine_2.refine_1
+x : Nat
+⊢ x = 2
+case refine_1
+x : Nat
+⊢ x = 0
+
+case refine_2.refine_1
+x : Nat
+⊢ x = 1
+
+case refine_2.refine_2.refine_1
+x : Nat
+⊢ x = 2
+
+case refine_2.refine_2.refine_2
+x : Nat
+⊢ x = 3
+showTactic.lean:23:7: error: unknown identifier 'b'
+showTactic.lean:14:71: error: unsolved goals
+case refine_1
+x : Nat
+⊢ sorry = 3
+
+case refine_2.refine_2.refine_2
+a : Nat
+⊢ a = 3
+
+case refine_2.refine_2.refine_1
+z : Nat
+⊢ z + 0 = 2
+
+case refine_2.refine_1
+y : Nat
+⊢ y = 1
+case refine_2.refine_2.refine_1
+z : Nat
+⊢ z + 0 = 2
+
+case refine_1
+x : Nat
+⊢ x = 0
+
+case refine_2.refine_1
+y : Nat
+⊢ y = 1
+
+case refine_2.refine_2.refine_2
+a : Nat
+⊢ a = 3
+case refine_2.refine_2.refine_2
+a : Nat
+⊢ a = 3
+
+case refine_2.refine_2.refine_1
+z : Nat
+⊢ z + 0 = 2
+
+case refine_1
+x : Nat
+⊢ x = 0
+
+case refine_2.refine_1
+y : Nat
+⊢ y = 1
+case refine_1
+x : Nat
+⊢ x = 0
+
+case refine_2.refine_2.refine_2
+a : Nat
+⊢ a = 3
+
+case refine_2.refine_2.refine_1
+z : Nat
+⊢ z + 0 = 2
+
+case refine_2.refine_1
+y : Nat
+⊢ y = 1

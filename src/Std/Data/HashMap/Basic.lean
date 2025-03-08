@@ -72,6 +72,13 @@ instance [BEq α] [Hashable α] : EmptyCollection (HashMap α β) where
 instance [BEq α] [Hashable α] : Inhabited (HashMap α β) where
   default := ∅
 
+@[inherit_doc DHashMap.Equiv]
+structure Equiv (m₁ m₂ : HashMap α β) where
+  /-- Internal implementation detail of the hash map -/
+  inner : m₁.1.Equiv m₂.1
+
+@[inherit_doc] scoped infixl:50 " ~m " => Equiv
+
 @[inline, inherit_doc DHashMap.insert] def insert (m : HashMap α β) (a : α)
     (b : β) : HashMap α β :=
   ⟨m.inner.insert a b⟩

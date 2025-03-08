@@ -136,7 +136,7 @@ private def toPolyLe? (e : Expr) : GoalM (Option Poly) := do
 Given an expression `e` that is in `True` (or `False` equivalence class), if `e` is an
 integer inequality, asserts it to the cutsat state.
 -/
-def propagateIfIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
+def propagateIfSupportedLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   let some p ← toPolyLe? e | return ()
   let c ← if eqTrue then
     pure { p, h := .expr (← mkOfEqTrue (← mkEqTrueProof e)) : LeCnstr }

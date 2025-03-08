@@ -4515,7 +4515,7 @@ abbrev signExtend_eq_not_zeroExtend_not_of_msb_false  := @signExtend_eq_setWidth
 abbrev signExtend_eq_not_zeroExtend_not_of_msb_true := @signExtend_eq_not_setWidth_not_of_msb_true
 
 @[deprecated signExtend_eq_setWidth_of_lt (since := "2024-09-18")]
-abbrev signExtend_eq_truncate_of_lt := @signExtend_eq_setWidth_of_lt
+abbrev signExtend_eq_truncate_of_lt := @signExtend_eq_setWidth_of_le
 
 @[deprecated truncate_append (since := "2024-09-18")]
 abbrev truncate_append := @setWidth_append

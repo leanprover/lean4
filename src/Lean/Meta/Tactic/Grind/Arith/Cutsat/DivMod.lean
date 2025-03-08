@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
-import Lean.Meta.Tactic.Grind.Core
+import Lean.Meta.Tactic.Grind.Canon
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 

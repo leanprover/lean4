@@ -200,4 +200,9 @@ def canon (e : Expr) : GoalM Expr := do
   trace_goal[grind.debug.canon] "{e}"
   unsafe Canon.canonImpl e
 
+/-- Given `h : p`, asserts `p`. It assumes `inferType h` is in `grind` normal form. -/
+def addProof (h : Expr) (generation := 0) : GoalM Unit := do
+  let prop ← shareCommon (← canon (← inferType h))
+  add prop h generation
+
 end Lean.Meta.Grind

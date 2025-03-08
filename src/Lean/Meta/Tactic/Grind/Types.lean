@@ -1186,4 +1186,12 @@ def synthesizeInstanceAndAssign (x type : Expr) : MetaM Bool := do
   let .some val ← trySynthInstance type | return false
   isDefEq x val
 
+/-- Adds a new `fact` justified by the given proof and using the given generation. -/
+@[extern "lean_grind_add"] -- forward definition
+opaque add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit
+
+/-- Adds a new hypothesis. -/
+def addHypothesis (fvarId : FVarId) (generation := 0) : GoalM Unit := do
+  add (← fvarId.getType) (mkFVar fvarId) generation
+
 end Lean.Meta.Grind

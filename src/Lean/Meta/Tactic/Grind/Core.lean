@@ -301,7 +301,8 @@ def addNewEq (lhs rhs proof : Expr) (generation : Nat) : GoalM Unit := do
   addEq lhs rhs proof
 
 /-- Adds a new `fact` justified by the given proof and using the given generation. -/
-def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
+@[export lean_grind_add]
+def addImpl (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
   if fact.isTrue then return ()
   storeFact fact
   trace_goal[grind.assert] "{fact}"
@@ -338,16 +339,5 @@ where
       internalize lhs generation p
       internalize rhs generation p
       addEqCore lhs rhs proof isHEq
-
-/-- Adds a new hypothesis. -/
-def addHypothesis (fvarId : FVarId) (generation := 0) : GoalM Unit := do
-  add (← fvarId.getType) (mkFVar fvarId) generation
-
-/--
-Given `h : p`, asserts `p`. It assumes `inferType h` is in `grind` normal form.
--/
-def addProof (h : Expr) (generation := 0) : GoalM Unit := do
-  let prop ← shareCommon (← canon (← inferType h))
-  add prop h generation
 
 end Lean.Meta.Grind

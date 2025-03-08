@@ -89,6 +89,7 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
     return mkApp7 (mkConst ``Int.Linear.dvd_elim) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (toExpr c'.d) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
   | .divCoeffs c =>
     let g := c.p.gcdCoeffs c.d
+    let g := if c.d < 0 then -g else g
     return mkApp8 (mkConst ``Int.Linear.dvd_coeff) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (toExpr c'.d) (← mkPolyDecl c'.p) (toExpr g) reflBoolTrue (← c.toExprProof)
   | .solveCombine c₁ c₂ =>
     let (d₁, a₁) ← c₁.get_d_a

@@ -4163,14 +4163,16 @@ theorem getEntry?_map' [BEq α] [EquivBEq α]
     (hf : ∀ p, (f p).1 == p.1)
     {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
     getEntry? k (l.map f) = (getEntry? k l).map f := by
-  rw [← List.filterMap_eq_map, getEntry?_filterMap' hf, ← Option.map_eq_bind]
+  rw [← List.filterMap_eq_map, getEntry?_filterMap' hf hl, ← Option.map_eq_bind]
 
 theorem getEntry?_filter [BEq α] [EquivBEq α]
     {f : ((a : α) × β a) → Bool}
     {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
     getEntry? k (l.filter f) = (getEntry? k l).filter f := by
-  rw [← List.filterMap_eq_filter, getEntry?_filterMap', Option.bind_guard]
+  rw [← List.filterMap_eq_filter, getEntry?_filterMap' _ hl, Option.bind_guard]
   simp only [Bool.decide_eq_true]
+  intro p
+  simp
 
 theorem getEntry?_filterMap [BEq α] [EquivBEq α]
     {f : (a : α) → β a → Option (γ a)}

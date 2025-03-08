@@ -4333,6 +4333,18 @@ theorem length_filterMap_eq_length_iff [BEq α] [LawfulBEq α] {f : (a : α) →
     rw [getValueCast_of_mem hx distinct] at h
     exact h
 
+theorem length_filterMap_eq_length_iff_const {β : Type v} {γ : Type w} [BEq α] [LawfulBEq α] {f : (_ : α) → β → Option γ}
+    {l : List ((_ : α) × β)} (distinct : DistinctKeys l) :
+    (l.filterMap fun p => (f p.1 p.2).map (fun x => (⟨p.1, x⟩ : (_ : α) × γ))).length = l.length ↔
+      ∀ (a : α) (h : containsKey a l), (f a (getValue a l h)).isSome := by
+  simp only [getValue_eq_getValueCast]
+  apply length_filterMap_eq_length_iff (f:= fun a b => f a b) distinct
+
+theorem length_filterMap_eq_length_iff_unit [BEq α] [LawfulBEq α] {f : (_ : α) → Option Unit}
+    {l : List ((_ : α) × Unit)} (distinct : DistinctKeys l) :
+    (l.filterMap fun p => (f p.1).map (fun _ => (⟨p.1, ()⟩ : (_ : α) × Unit))).length = l.length ↔
+      ∀ (a: α), containsKey a l →  (f a).isSome := by
+  rw [length_filterMap_eq_length_iff_const (f:= fun a _ => f a) distinct]
 end FilterMap
 
 end Std.Internal.List

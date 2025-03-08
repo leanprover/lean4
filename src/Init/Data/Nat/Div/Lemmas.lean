@@ -27,8 +27,8 @@ theorem div_le_iff_le_mul (h : 0 < k) : x / k ≤ y ↔ x ≤ y * k + k - 1 := b
   omega
 
 -- TODO: reprove `div_eq_of_lt_le` in terms of this:
-protected theorem div_eq_iff (h : 0 < k) : x / k = y ↔ x ≤ y * k + k - 1 ∧ y * k ≤ x := by
-  rw [Nat.eq_iff_le_and_ge, le_div_iff_mul_le h, Nat.div_le_iff_le_mul h]
+protected theorem div_eq_iff (h : 0 < k) : x / k = y ↔ y * k ≤ x ∧ x ≤ y * k + k - 1 := by
+  rw [Nat.eq_iff_le_and_ge, and_comm, le_div_iff_mul_le h, Nat.div_le_iff_le_mul h]
 
 theorem lt_of_div_eq_zero (h : 0 < k) (h' : x / k = 0) : x < k := by
   rw [Nat.div_eq_iff h] at h'
@@ -98,18 +98,34 @@ theorem succ_div_of_not_dvd {a b : Nat} (h : ¬ b ∣ a + 1) :
     rw [eq_comm, Nat.div_eq_iff (by simp)]
     constructor
     · rw [Nat.div_mul_self_eq_mod_sub_self]
-      have : (a + 1) % (b + 1) < b + 1 := Nat.mod_lt _ (by simp)
       omega
     · rw [Nat.div_mul_self_eq_mod_sub_self]
+      have : (a + 1) % (b + 1) < b + 1 := Nat.mod_lt _ (by simp)
       omega
 
 theorem succ_div_of_mod_ne_zero {a b : Nat} (h : (a + 1) % b ≠ 0) :
     (a + 1) / b = a / b := by
   rw [succ_div_of_not_dvd (by rwa [dvd_iff_mod_eq_zero])]
 
-theorem succ_div {a b : Nat} : (a + 1) / b = a / b + if b ∣ a + 1 then 1 else 0 := by
+protected theorem succ_div {a b : Nat} : (a + 1) / b = a / b + if b ∣ a + 1 then 1 else 0 := by
   split <;> rename_i h
   · simp [succ_div_of_dvd h]
   · simp [succ_div_of_not_dvd h]
+
+protected theorem add_div {a b c : Nat} (h : 0 < c) :
+    (a + b) / c = a / c + b / c + if c ≤ a % c + b % c then 1 else 0 := by
+  conv => lhs; rw [← Nat.div_add_mod a c]
+  rw [Nat.add_assoc, mul_add_div h]
+  conv => lhs; rw [← Nat.div_add_mod b c]
+  rw [Nat.add_comm (a % c), Nat.add_assoc, mul_add_div h, ← Nat.add_assoc, Nat.add_comm (b % c)]
+  congr
+  rw [Nat.div_eq_iff h]
+  constructor
+  · split <;> rename_i h
+    · simpa using h
+    · simp
+  · have := mod_lt a h
+    have := mod_lt b h
+    split <;> · simp; omega
 
 end Nat

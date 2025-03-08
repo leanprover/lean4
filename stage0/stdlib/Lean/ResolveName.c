@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ResolveName
-// Imports: Lean.Data.OpenDecl Lean.Hygiene Lean.Modifiers Lean.Exception
+// Imports: Lean.Data.OpenDecl Lean.Hygiene Lean.Modifiers Lean.Exception Lean.Namespace
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2873,6 +2873,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9;
 x_6 = lean_ctor_get(x_2, 0);
 x_7 = lean_ctor_get(x_2, 1);
 x_8 = l_List_filterTR_loop___at_Lean_getAliases___spec__1___closed__1;
+lean_inc(x_6);
 lean_inc(x_1);
 x_9 = l_Lean_TagDeclarationExtension_isTagged(x_8, x_1, x_6);
 if (x_9 == 0)
@@ -2903,6 +2904,7 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_2);
 x_14 = l_List_filterTR_loop___at_Lean_getAliases___spec__1___closed__1;
+lean_inc(x_12);
 lean_inc(x_1);
 x_15 = l_Lean_TagDeclarationExtension_isTagged(x_14, x_1, x_12);
 if (x_15 == 0)
@@ -3324,6 +3326,7 @@ else
 {
 lean_object* x_12; uint8_t x_13; 
 x_12 = l_List_filterTR_loop___at_Lean_getAliases___spec__1___closed__1;
+lean_inc(x_4);
 lean_inc(x_1);
 x_13 = l_Lean_TagDeclarationExtension_isTagged(x_12, x_1, x_4);
 if (x_13 == 0)
@@ -4286,7 +4289,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__1;
 x_2 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__2;
-x_3 = lean_unsigned_to_nat(200u);
+x_3 = lean_unsigned_to_nat(201u);
 x_4 = lean_unsigned_to_nat(9u);
 x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -6018,7 +6021,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__1;
 x_2 = l_Lean_ensureNonAmbiguous___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(364u);
+x_3 = lean_unsigned_to_nat(365u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -11426,6 +11429,7 @@ lean_object* initialize_Lean_Data_OpenDecl(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Hygiene(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Modifiers(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Exception(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Namespace(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_ResolveName(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -11441,6 +11445,9 @@ res = initialize_Lean_Modifiers(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Exception(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Namespace(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_throwReservedNameNotAvailable___rarg___closed__1 = _init_l_Lean_throwReservedNameNotAvailable___rarg___closed__1();

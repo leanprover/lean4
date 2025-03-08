@@ -1091,7 +1091,7 @@ static lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_
 uint8_t l_Lean_isLitKind(lean_object*);
 static lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__16___closed__3;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___spec__23___lambda__3___closed__3;
-lean_object* l_Lean_logAt___at___private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore___spec__8(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_logAt___at___private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore___spec__8(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__23___closed__13;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___spec__2(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -44698,7 +44698,7 @@ x_41 = l_Std_DHashMap_Internal_AssocList_contains___at___private_Lean_Elab_Quota
 lean_dec(x_40);
 if (x_41 == 0)
 {
-lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; uint8_t x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; 
+lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; uint8_t x_52; uint8_t x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; 
 x_42 = lean_array_fget(x_1, x_6);
 x_43 = lean_unsigned_to_nat(1u);
 x_44 = lean_nat_add(x_6, x_43);
@@ -44712,32 +44712,33 @@ x_50 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_50, 0, x_49);
 x_51 = l_Lean_MessageData_ofFormat(x_50);
 x_52 = 2;
+x_53 = 0;
 lean_inc(x_13);
-x_53 = l_Lean_logAt___at___private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore___spec__8(x_42, x_51, x_52, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
+x_54 = l_Lean_logAt___at___private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore___spec__8(x_42, x_51, x_52, x_53, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_42);
-x_54 = lean_ctor_get(x_53, 1);
-lean_inc(x_54);
-lean_dec(x_53);
-x_55 = lean_ctor_get(x_4, 2);
-x_56 = lean_nat_add(x_6, x_55);
+x_55 = lean_ctor_get(x_54, 1);
+lean_inc(x_55);
+lean_dec(x_54);
+x_56 = lean_ctor_get(x_4, 2);
+x_57 = lean_nat_add(x_6, x_56);
 lean_dec(x_6);
-x_57 = lean_box(0);
-x_5 = x_57;
-x_6 = x_56;
+x_58 = lean_box(0);
+x_5 = x_58;
+x_6 = x_57;
 x_7 = lean_box(0);
 x_8 = lean_box(0);
-x_15 = x_54;
+x_15 = x_55;
 goto _start;
 }
 else
 {
-lean_object* x_59; lean_object* x_60; lean_object* x_61; 
-x_59 = lean_ctor_get(x_4, 2);
-x_60 = lean_nat_add(x_6, x_59);
+lean_object* x_60; lean_object* x_61; lean_object* x_62; 
+x_60 = lean_ctor_get(x_4, 2);
+x_61 = lean_nat_add(x_6, x_60);
 lean_dec(x_6);
-x_61 = lean_box(0);
-x_5 = x_61;
-x_6 = x_60;
+x_62 = lean_box(0);
+x_5 = x_62;
+x_6 = x_61;
 x_7 = lean_box(0);
 x_8 = lean_box(0);
 goto _start;
@@ -44745,13 +44746,13 @@ goto _start;
 }
 else
 {
-lean_object* x_63; lean_object* x_64; lean_object* x_65; 
-x_63 = lean_ctor_get(x_4, 2);
-x_64 = lean_nat_add(x_6, x_63);
+lean_object* x_64; lean_object* x_65; lean_object* x_66; 
+x_64 = lean_ctor_get(x_4, 2);
+x_65 = lean_nat_add(x_6, x_64);
 lean_dec(x_6);
-x_65 = lean_box(0);
-x_5 = x_65;
-x_6 = x_64;
+x_66 = lean_box(0);
+x_5 = x_66;
+x_6 = x_65;
 x_7 = lean_box(0);
 x_8 = lean_box(0);
 goto _start;

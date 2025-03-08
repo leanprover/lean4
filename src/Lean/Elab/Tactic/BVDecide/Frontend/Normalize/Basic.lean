@@ -16,6 +16,16 @@ namespace Frontend.Normalize
 
 open Lean.Meta
 
+-- TODO(henrik): Add further match statements like matches with default cases
+/--
+The various kinds of matches supported by the match to cond infrastructure.
+-/
+inductive MatchKind
+  /--
+  It is a full match statement on an enum inductive with one constructor handled per arm.
+  -/
+  | simpleEnum (info : InductiveVal)
+
 /--
 Contains the result of the type analysis to be used in the structures and enums pass.
 -/
@@ -28,6 +38,10 @@ structure TypeAnalysis where
   Inductives enums that are interesting for the enums pass.
   -/
   interestingEnums : Std.HashSet Name := {}
+  /--
+  `func.match_x` auxiliary declarations that we consider interesting.
+  -/
+  interestingMatchers : Std.HashMap Name MatchKind := {}
   /--
   Other types that we've seen that are not interesting, currently only used as a cache.
   -/
@@ -87,7 +101,11 @@ def markInterestingEnum (n : Name) : PreProcessM Unit := do
   modifyTypeAnalysis (fun s => { s with interestingEnums := s.interestingEnums.insert n })
 
 @[inline]
-def markUninterestingType (n : Name) : PreProcessM Unit := do
+def markInterestingMatcher (n : Name) (k : MatchKind) : PreProcessM Unit := do
+  modifyTypeAnalysis (fun s => { s with interestingMatchers := s.interestingMatchers.insert n k })
+
+@[inline]
+def markUninterestingConst (n : Name) : PreProcessM Unit := do
   modifyTypeAnalysis (fun s => { s with uninteresting := s.uninteresting.insert n })
 
 @[inline]

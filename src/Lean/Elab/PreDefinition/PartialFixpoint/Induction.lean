@@ -63,7 +63,9 @@ private def numberNames (n : Nat) (base : String) : Array Name :=
   .ofFn (n := n) fun ⟨i, _⟩ =>
     if n == 1 then .mkSimple base else .mkSimple s!"{base}_{i+1}"
 
-def deriveInduction (name : Name) : MetaM Unit := do
+def deriveInduction (name : Name) : MetaM Unit :=
+  let inductName := name ++ `fixpoint_induct
+  realizeConst name inductName do
   mapError (f := (m!"Cannot derive fixpoint induction principle (please report this issue)\n{indentD ·}")) do
     let some eqnInfo := eqnInfoExt.find? (← getEnv) name |
       throwError "{name} is not defined by partial_fixpoint"
@@ -156,7 +158,6 @@ def deriveInduction (name : Name) : MetaM Unit := do
     -- Prune unused level parameters, preserving the original order
     let us := infos[0]!.levelParams.filter (params.contains ·)
 
-    let inductName := name ++ `fixpoint_induct
     addDecl <| Declaration.thmDecl
       { name := inductName, levelParams := us, type := eTyp, value := e' }
 
@@ -223,6 +224,8 @@ def mkOptionAdm (motive : Expr) : MetaM Expr := do
     pure inst
 
 def derivePartialCorrectness (name : Name) : MetaM Unit := do
+  let inductName := name ++ `partial_correctness
+  realizeConst name inductName do
   let fixpointInductThm := name ++ `fixpoint_induct
   unless (← getEnv).contains fixpointInductThm do
     deriveInduction name
@@ -278,7 +281,6 @@ def derivePartialCorrectness (name : Name) : MetaM Unit := do
     -- Prune unused level parameters, preserving the original order
     let us := infos[0]!.levelParams.filter (params.contains ·)
 
-    let inductName := name ++ `partial_correctness
     addDecl <| Declaration.thmDecl
       { name := inductName, levelParams := us, type := eTyp, value := e' }
 

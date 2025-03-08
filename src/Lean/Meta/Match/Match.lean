@@ -762,7 +762,8 @@ register_builtin_option bootstrap.genMatcherCode : Bool := {
   descr := "disable code generation for auxiliary matcher function"
 }
 
-builtin_initialize matcherExt : EnvExtension (PHashMap (Expr × Bool) Name) ← registerEnvExtension (pure {})
+builtin_initialize matcherExt : EnvExtension (PHashMap (Expr × Bool) Name) ←
+  registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep it local
 
 /-- Similar to `mkAuxDefinition`, but uses the cache `matcherExt`.
    It also returns an Boolean that indicates whether a new matcher function was added to the environment or not. -/

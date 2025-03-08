@@ -295,6 +295,11 @@ class LawfulBEqCmp {α : Type u} [BEq α] (cmp : α → α → Ordering) : Prop 
   /-- If two values compare equal, then they are logically equal. -/
   compare_eq_iff_beq {a b : α} : cmp a b = .eq ↔ a == b
 
+theorem LawfulBEqCmp.not_compare_eq_iff_beq_eq_false {α : Type u} [BEq α] {cmp}
+    [LawfulBEqCmp (α := α) cmp] {a b : α} : ¬ cmp a b = .eq ↔ (a == b) = false := by
+  rw [Bool.eq_false_iff, ne_eq, not_congr]
+  exact compare_eq_iff_beq
+
 /--
 A typeclass for types with a comparison function that satisfies `compare a b = .eq` if and only if
 the boolean equality `a == b` holds.
@@ -305,6 +310,16 @@ logical equality (`=`).
 abbrev LawfulBEqOrd (α : Type u) [BEq α] [Ord α] := LawfulBEqCmp (compare : α → α → Ordering)
 
 variable {α : Type u} [BEq α] {cmp : α → α → Ordering}
+
+theorem LawfulBEqOrd.compare_eq_iff_beq {α : Type u} {_ : Ord α} {_ : BEq α}
+    [LawfulBEqOrd α] {a b : α} : compare a b = .eq ↔ (a == b) = true :=
+  LawfulBEqCmp.compare_eq_iff_beq
+
+theorem LawfulBEqOrd.not_compare_eq_iff_beq_eq_false {α : Type u} {_ : BEq α} {_ : Ord α}
+    [LawfulBEqOrd α] {a b : α} : ¬ compare a b = .eq ↔ (a == b) = false :=
+  LawfulBEqCmp.not_compare_eq_iff_beq_eq_false
+
+export LawfulBEqOrd (compare_eq_iff_beq not_compare_eq_iff_beq_eq_false)
 
 instance [LawfulEqCmp cmp] [LawfulBEq α] :
     LawfulBEqCmp cmp where
@@ -322,6 +337,20 @@ theorem LawfulBEqCmp.equivBEq [inst : LawfulBEqCmp cmp] [TransCmp cmp] : EquivBE
 instance LawfulBEqOrd.equivBEq [Ord α] [LawfulBEqOrd α] [TransOrd α] : EquivBEq α :=
   LawfulBEqCmp.equivBEq (cmp := compare)
 
+theorem LawfulBEqCmp.lawfulBEq [inst : LawfulBEqCmp cmp] [LawfulEqCmp cmp] : LawfulBEq α where
+  rfl := by simp [← inst.compare_eq_iff_beq, compare_eq_iff_eq]
+  eq_of_beq := by simp [← inst.compare_eq_iff_beq, compare_eq_iff_eq]
+
+instance LawfulBEqOrd.lawfulBEq [Ord α] [LawfulBEqOrd α] [LawfulEqOrd α] : LawfulBEq α :=
+  LawfulBEqCmp.lawfulBEq (cmp := compare)
+
+instance LawfulBEqCmp.lawfulBEqCmp [inst : LawfulBEqCmp cmp] [LawfulBEq α] : LawfulEqCmp cmp where
+  compare_self := by simp only [compare_eq_iff_beq, beq_self_eq_true, implies_true]
+  eq_of_compare := by simp only [compare_eq_iff_beq, beq_iff_eq, imp_self, implies_true]
+
+theorem LawfulBEqOrd.lawfulBEqOrd [Ord α] [LawfulBEqOrd α] [LawfulBEq α] : LawfulEqOrd α :=
+  LawfulBEqCmp.lawfulBEqCmp
+
 end LawfulBEq
 
 namespace Internal
@@ -335,6 +364,9 @@ verification machinery for tree maps to the verification machinery for hash maps
 @[local instance]
 def beqOfOrd [Ord α] : BEq α where
   beq a b := compare a b == .eq
+
+instance {_ : Ord α} : LawfulBEqOrd α where
+  compare_eq_iff_beq {a b} := by simp only [beqOfOrd, beq_iff_eq]
 
 @[local simp]
 theorem beq_eq [Ord α] {a b : α} : (a == b) = (compare a b == .eq) :=

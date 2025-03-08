@@ -347,6 +347,12 @@ structure BaseMessage (α : Type u) where
   /-- If `true`, report range as given; see `msgToInteractiveDiagnostic`. -/
   keepFullRange : Bool := false
   severity      : MessageSeverity := .error
+  /--
+  If `true`, filter this message from non-language server output.
+  In the language server, silent messages are served as silent diagnostics.
+  See also `DiagnosticWith.isSilent?`.
+  -/
+  isSilent      : Bool := false
   caption       : String          := ""
   /-- The content of the message. -/
   data          : α

@@ -45,7 +45,7 @@ def propagateBetaEqs (lams : Array Expr) (f : Expr) (args : Array Expr) : GoalM 
           h ← mkCongrFun h arg
         let eq ← mkEq lhs rhs
         trace_goal[grind.beta] "{eq}, using {lam}"
-        addNewFact h eq (gen+1)
+        addNewRawFact h eq (gen+1)
 
 private def isPropagateBetaTarget (e : Expr) : GoalM Bool := do
   let .app f _ := e | return false

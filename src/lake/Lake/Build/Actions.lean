@@ -56,7 +56,8 @@ def compileLeanModule
       if let .ok (msg : SerialMessage) := Json.parse ln >>= fromJson? then
         unless txt.isEmpty do
           logInfo s!"stdout:\n{txt}"
-        logSerialMessage msg
+        unless msg.isSilent do
+          logSerialMessage msg
         return txt
       else if txt.isEmpty && ln.isEmpty then
         return txt

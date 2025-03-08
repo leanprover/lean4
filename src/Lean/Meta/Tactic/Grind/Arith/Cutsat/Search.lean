@@ -91,18 +91,48 @@ where
       modify' fun s => { s with assignment := s.assignment.set x v }
       go xs
 
+private def eqCoeffs (p₁ p₂ : Poly) (neg : Bool) :=
+  match p₁, p₂ with
+  | .num _, .num _ => true
+  | .add k₁ x₁ p₁, .add k₂ x₂ p₂ =>
+    (if neg then k₁ == -k₂ else k₁ == k₂) && x₁ == x₂ && eqCoeffs p₁ p₂ neg
+  | _, _ => false
+
+def tightUsingDvd (c : LeCnstr) (dvd? : Option DvdCnstr) : GoalM LeCnstr := do
+  let some dvd := dvd? | return c
+  let d  := dvd.d
+  let b₁ := dvd.p.getConst
+  if eqCoeffs dvd.p c.p false then
+    let b₂ := c.p.getConst
+    if (b₂ - b₁) % d != 0 then
+      let b₂' := b₁ - d * ((b₁ - b₂) / d)
+      trace[grind.debug.cutsat.dvd.le] "[pos] {← c.pp}, {← dvd.pp}, {b₂'}"
+      let p := c.p.addConst (b₂'-b₂)
+      return { p, h := .dvdTight dvd c }
+  if eqCoeffs dvd.p c.p true then
+    let b₁ := -b₁
+    let b₂ := c.p.getConst
+    if (b₂ - b₁) % d != 0 then
+      let b₂' := b₁ - d * ((b₁ - b₂) / d)
+      trace[grind.debug.cutsat.dvd.le] "[neg] {← c.pp}, {← dvd.pp}, {b₂'}"
+      let p := c.p.addConst (b₂'-b₂)
+      return { p, h := .negDvdTight dvd c }
+  return c
+
 /--
 Assuming all variables smaller than `x` have already been assigned,
 returns the best lower bound for `x` using the given partial assignment and
 inequality constraints where `x` is the maximal variable.
 -/
-def getBestLower? (x : Var) : GoalM (Option (Rat × LeCnstr)) := do
+def getBestLower? (x : Var) (dvd? : Option DvdCnstr) : GoalM (Option (Rat × LeCnstr)) := do
   let s ← get'
   let mut best? := none
   for c in s.lowers[x]! do
+    let c ← tightUsingDvd c dvd?
     let .add k _ p := c.p | c.throwUnexpected
     let some v ← p.eval? | c.throwUnexpected
     let lower' := v / (-k)
+    trace[grind.debug.cutsat.getBestLower] "k: {k}, x: {x}, p: {repr p}, v: {v}, best?: {best?.map (·.1)}, c: {← c.pp}"
     if let some (lower, _) := best? then
       if lower' > lower then
         best? := some (lower', c)
@@ -115,10 +145,11 @@ Assuming all variables smaller than `x` have already been assigned,
 returns the best upper bound for `x` using the given partial assignment and
 inequality constraints where `x` is the maximal variable.
 -/
-def getBestUpper? (x : Var) : GoalM (Option (Rat × LeCnstr)) := do
+def getBestUpper? (x : Var) (dvd? : Option DvdCnstr) : GoalM (Option (Rat × LeCnstr)) := do
   let s ← get'
   let mut best? := none
   for c in s.uppers[x]! do
+    let c ← tightUsingDvd c dvd?
     let .add k _ p := c.p | c.throwUnexpected
     let some v ← p.eval? | c.throwUnexpected
     let upper' := (-v) / k
@@ -336,7 +367,12 @@ def resolveCooperDiseq (c₁ : DiseqCnstr) (c₂ : LeCnstr) (c₃? : Option DvdC
     c₁
   let c₁ ← c₁.split
   if let some c₃ := c₃? then
-    resolveCooperDvd c₁ c₂ c₃
+    -- After the `c₁.split`, the real shadow may resolve the conflict
+    trace[grind.debug.cutsat.cooper.diseq] "{← c₁.pp}, {← c₂.pp}, {← c₃.pp}"
+    if (← resolveRealLowerUpperConflict c₁ c₂) then
+      return ()
+    else
+      resolveCooperDvd c₁ c₂ c₃
   else
     resolveCooper c₁ c₂
 
@@ -363,7 +399,8 @@ def processVar (x : Var) : SearchM Unit := do
     skipAssignment x
     return ()
   -- Solution space for divisibility constraint is `x = k*d + b`
-  let dvdSol ← if let some c := (← get').dvds[x]! then
+  let dvd? := (← get').dvds[x]!
+  let dvdSol ← if let some c := dvd? then
     if let some solutions ← c.getSolutions? then
       pure solutions
     else
@@ -372,8 +409,8 @@ def processVar (x : Var) : SearchM Unit := do
       return ()
   else
     pure {}
-  let lower? ← getBestLower? x
-  let upper? ← getBestUpper? x
+  let lower? ← getBestLower? x dvd?
+  let upper? ← getBestUpper? x dvd?
   let diseqVals ← getDiseqValues x
   match lower?, upper? with
   | none, none =>
@@ -391,6 +428,7 @@ def processVar (x : Var) : SearchM Unit := do
     setAssignment x v
   | some (lower, c₁), some (upper, c₂) =>
     trace[grind.debug.cutsat.search] "{lower} ≤ {lower.ceil} ≤ {quoteIfNotAtom (← getVar x)} ≤ {upper.floor} ≤ {upper}"
+    trace[grind.debug.cutsat.getBestLower] "lower: {lower}, c₁: {← c₁.pp}"
     if lower > upper then
       let .true ← resolveRealLowerUpperConflict c₁ c₂
         | throwError "`grind` internal error, conflict resolution failed"
@@ -417,8 +455,8 @@ def processVar (x : Var) : SearchM Unit := do
         setAssignment x lower
     else
       match r with
-      | .dvd => resolveCooperDvd c₁ c₂ (← get').dvds[x]!.get!
-      | .diseq c => resolveCooperDiseq c c₂ (← get').dvds[x]!
+      | .dvd => resolveCooperDvd c₁ c₂ dvd?.get!
+      | .diseq c => resolveCooperDiseq c c₂ dvd?
       | _ => unreachable!
 
 /-- Returns `true` if we already have a complete assignment / model. -/
@@ -470,6 +508,7 @@ def resolveConflict (h : UnsatProof) : SearchM Unit := do
     else
       let decVars' := decVars'.toArray
       trace[grind.debug.cutsat.backtrack] "cooper last case, {← pred.pp}, dec vars: {decVars'.map (·.name)}"
+      trace[grind.debug.cutsat.proof] "CooperSplit.last"
       pure { pred, k := 0, h := .last hs decVars' : CooperSplit }
     s.assert
 
@@ -487,7 +526,7 @@ def searchAssigmentMain : SearchM Unit := do
       resolveConflict c
     else
       let x : Var := (← get').assignment.size
-      trace[grind.debug.cutsat.search] "next var: {← getVar x}"
+      trace[grind.debug.cutsat.search] "next var: {← getVar x}, {x}, {(← get').assignment.toList}"
       processVar x
 
 def traceModel : GoalM Unit := do

@@ -51,15 +51,18 @@ builtin_initialize registerTraceClass `grind.cutsat.diseq
 builtin_initialize registerTraceClass `grind.cutsat.diseq.trivial (inherited := true)
 
 builtin_initialize registerTraceClass `grind.debug.cutsat.eq
+builtin_initialize registerTraceClass `grind.debug.cutsat.dvd.le
 builtin_initialize registerTraceClass `grind.debug.cutsat.diseq
 builtin_initialize registerTraceClass `grind.debug.cutsat.diseq.split
 builtin_initialize registerTraceClass `grind.debug.cutsat.backtrack
 builtin_initialize registerTraceClass `grind.debug.cutsat.search
 builtin_initialize registerTraceClass `grind.debug.cutsat.cooper
+builtin_initialize registerTraceClass `grind.debug.cutsat.cooper.diseq
 builtin_initialize registerTraceClass `grind.debug.cutsat.conflict
 builtin_initialize registerTraceClass `grind.debug.cutsat.assign
 builtin_initialize registerTraceClass `grind.debug.cutsat.subst
-
+builtin_initialize registerTraceClass `grind.debug.cutsat.getBestLower
 builtin_initialize registerTraceClass `grind.debug.cutsat.nat
+builtin_initialize registerTraceClass `grind.debug.cutsat.proof
 
 end Lean

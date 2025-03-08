@@ -67,8 +67,10 @@ def mkCnstrId : GoalM Nat := do
 @[extern "lean_grind_cutsat_assert_eq"] -- forward definition
 opaque EqCnstr.assert (c : EqCnstr) : GoalM Unit
 
--- TODO: PArray.shrink and PArray.resize
+@[extern "lean_grind_cutsat_assert_le"] -- forward definition
+opaque LeCnstr.assert (c : LeCnstr) : GoalM Unit
 
+-- TODO: PArray.shrink and PArray.resize
 partial def shrink (a : PArray Rat) (sz : Nat) : PArray Rat :=
   if a.size > sz then shrink a.pop sz else a
 

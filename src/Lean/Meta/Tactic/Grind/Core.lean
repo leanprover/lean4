@@ -343,4 +343,11 @@ where
 def addHypothesis (fvarId : FVarId) (generation := 0) : GoalM Unit := do
   add (← fvarId.getType) (mkFVar fvarId) generation
 
+/--
+Given `h : p`, asserts `p`. It assumes `inferType h` is in `grind` normal form.
+-/
+def addProof (h : Expr) (generation := 0) : GoalM Unit := do
+  let prop ← shareCommon (← canon (← inferType h))
+  add prop h generation
+
 end Lean.Meta.Grind

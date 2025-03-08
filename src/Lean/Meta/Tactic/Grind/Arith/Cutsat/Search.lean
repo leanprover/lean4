@@ -230,7 +230,7 @@ partial def DvdSolution.geAvoiding (s : DvdSolution) (v : Int) (dvals : Array (R
 partial def DvdSolution.leAvoiding (s : DvdSolution) (v : Int) (dvals : Array (Rat × DiseqCnstr)) : Int :=
   let v := s.le v
   if inDiseqValues v dvals then
-    geAvoiding s (v-1) dvals
+    leAvoiding s (v-1) dvals
   else
     v
 
@@ -382,10 +382,12 @@ def processVar (x : Var) : SearchM Unit := do
   | some (lower, _), none =>
     let lower := lower.ceil
     let v := dvdSol.geAvoiding lower diseqVals
+    trace[grind.debug.cutsat.search] "{lower} ≤ {quoteIfNotAtom (← getVar x)} := {v}"
     setAssignment x v
   | none, some (upper, _) =>
     let upper := upper.floor
     let v := dvdSol.leAvoiding upper diseqVals
+    trace[grind.debug.cutsat.search] "{quoteIfNotAtom (← getVar x)} := {v} ≤ {upper}"
     setAssignment x v
   | some (lower, c₁), some (upper, c₂) =>
     trace[grind.debug.cutsat.search] "{lower} ≤ {lower.ceil} ≤ {quoteIfNotAtom (← getVar x)} ≤ {upper.floor} ≤ {upper}"

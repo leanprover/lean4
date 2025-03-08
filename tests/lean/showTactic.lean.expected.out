@@ -1,4 +1,4 @@
-showTactic.lean:12:2-12:2: error: tactic 'show' failed, nested error:
+showTactic.lean:12:2-12:12: error: tactic 'show' failed, nested error:
 'change' tactic failed, pattern
   ?m = 4
 is not definitionally equal to target

@@ -802,6 +802,10 @@ syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tacti
 macro_rules
   | `(tactic| let rec $d) => `(tactic| refine_lift let rec $d; ?_)
 
+-- TODO: remove after stage0 update
+macro_rules
+  | `(tactic| show $e:term) => `(tactic| refine_lift show $e from ?_)
+
 /-- Similar to `refine_lift`, but using `refine'` -/
 macro "refine_lift' " e:term : tactic => `(tactic| focus (refine' no_implicit_lambda% $e; rotate_right))
 /-- Similar to `have`, but using `refine'` -/

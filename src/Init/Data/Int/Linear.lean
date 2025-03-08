@@ -250,14 +250,24 @@ def Poly.divCoeffs (k : Int) : Poly → Bool
 /--
 `p.mul k` multiplies all coefficients and constant of the polynomial `p` by `k`.
 -/
-def Poly.mul (p : Poly) (k : Int) : Poly :=
+def Poly.mul' (p : Poly) (k : Int) : Poly :=
   match p with
   | .num k' => .num (k*k')
-  | .add k' v p => .add (k*k') v (mul p k)
+  | .add k' v p => .add (k*k') v (mul' p k)
+
+def Poly.mul (p : Poly) (k : Int) : Poly :=
+  if k == 0 then
+    .num 0
+  else
+    p.mul' k
 
 @[simp] theorem Poly.denote_mul (ctx : Context) (p : Poly) (k : Int) : (p.mul k).denote ctx = k * p.denote ctx := by
-  induction p <;> simp [mul, denote, *]
-  rw [Int.mul_assoc, Int.mul_add]
+  simp [mul]
+  split
+  next => simp [*, denote]
+  next =>
+    induction p <;> simp [mul', denote, *]
+    rw [Int.mul_assoc, Int.mul_add]
 
 attribute [local simp] Int.add_comm Int.add_assoc Int.add_left_comm Int.add_mul Int.mul_add
 attribute [local simp] Poly.insert Poly.denote Poly.norm Poly.addConst

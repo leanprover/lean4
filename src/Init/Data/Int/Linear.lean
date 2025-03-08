@@ -1651,7 +1651,7 @@ theorem emod_le (x y : Int) (n : Int) : emod_le_cert y n → x % y + n ≤ 0 := 
     simp only [Int.add_comm, Int.sub_neg, Int.add_zero]
     exact Int.emod_lt_of_pos x h
 
-theorem natCast_nonneg (x : Nat) : (-1:Int) * ↑x ≤ 0 := by
+theorem natCast_nonneg (x : Nat) : (-1:Int) * NatCast.natCast x ≤ 0 := by
   simp
 
 end Int.Linear

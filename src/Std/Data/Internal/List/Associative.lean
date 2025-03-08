@@ -193,6 +193,7 @@ private def Option.dmap : (o : Option α) → (f : (a : α) → (o = some a) →
 @[simp] private theorem Option.dmap_some (a : α) (f : (a' : α) → (some a = some a') → β) :
     Option.dmap (some a) f = some (f a rfl) := rfl
 
+@[local congr]
 private theorem Option.dmap_congr {o o' : Option α} {f : (a : α) → (o = some a) → β} (h : o = o') :
     Option.dmap o f = Option.dmap o' (fun a h' => f a (h ▸ h')) := by
   cases h; rfl
@@ -4096,5 +4097,82 @@ theorem constModifyKey_eq_modifyKey {β : Type v} [BEq α] [LawfulBEq α] {k : �
   cases getValueCast? k l <;> rfl
 
 end Modify
+
+section FilterMap
+
+theorem getEntry?_filterMap' [BEq α] [EquivBEq α]
+    {f : ((a : α) × β a) → Option (((a : α) × γ a))}
+    (hf : ∀ p, (f p).all (·.1 == p.1))
+    {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
+    getEntry? k (l.filterMap f) = (getEntry? k l).bind f := by
+  induction l using assoc_induction with
+  | nil => rfl
+  | cons k' v l ih =>
+    simp only [getEntry?, cond_eq_if]
+    simp only [distinctKeys_cons_iff] at hl
+    specialize ih hl.1
+    specialize hf ⟨k', v⟩
+    split
+    · rename_i h
+      simp only [List.filterMap_cons, Option.some_bind]
+      simp only [containsKey_congr h] at hl
+      split
+      · simp only [ih, ‹f _ = _›, Option.none_bind, getEntry?_eq_none.mpr hl.2]
+      · rw [‹f _ = _›, Option.all_some, BEq.congr_right h] at hf
+        rw [getEntry?_cons, hf, ‹f _ = _›, cond_true]
+    · simp only [List.filterMap_cons]
+      split
+      · exact ih
+      · rw [‹f _ = _›, Option.all_some] at hf
+        rw [getEntry?_cons, BEq.congr_left hf, (Bool.not_eq_true (_ == _)).mp ‹_›, ih, cond_false]
+
+theorem Option.all_eq_true (p : α → Bool) (x : Option α) :
+    x.all p = true ↔ ∀ y ∈ x, p y := by
+  cases x <;> simp
+
+theorem Option.any_eq_true (p : α → Bool) (x : Option α) :
+    x.any p = true ↔ ∃ y ∈ x, p y := by
+  cases x <;> simp
+
+theorem Option.dmap_bind {α β γ : Type _} (x : Option α) (f : α → Option β)
+    (g : (a : β) → x.bind f = some a → γ) :
+    Option.dmap (x.bind f) g =
+      x.pbind (fun a h => Option.dmap (f a) (fun b h' => g b (h ▸ h'.symm ▸ rfl))) := by
+  cases x <;> rfl
+
+theorem Option.bind_dmap_left {α β γ : Type _} (x : Option α)
+    (f : (a : α) → x = some a → β) (g : β → Option γ) :
+    (Option.dmap x f).bind g = x.pbind (fun a h => g (f a h)) := by
+  cases x <;> rfl
+
+theorem Option.dmap_map {α β γ : Type _} (x : Option α) (f : α → β)
+    (g : (a : β) → x.map f = some a → γ) :
+    Option.dmap (x.map f) g = Option.dmap x (fun a h => g (f a) (h ▸ rfl)) := by
+  cases x <;> rfl
+
+theorem Option.dmap_id {α : Type _} (x : Option α) : Option.dmap x (fun a _ => a) = x := by
+  cases x <;> rfl
+
+theorem getEntry?_filterMap [BEq α] [EquivBEq α]
+    {f : (a : α) → β a → Option (γ a)}
+    {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
+    getEntry? k (l.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩)) =
+      (getEntry? k l).bind fun p => (f p.1 p.2).map (⟨p.1, ·⟩) := by
+  refine getEntry?_filterMap' ?_ hl
+  intro p
+  simp [Option.all_eq_true]
+
+theorem getValueCast?_filterMap [BEq α] [LawfulBEq α]
+    {f : (a : α) → β a → Option (γ a)}
+    {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
+    getValueCast? k (l.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩)) =
+      (getValueCast? k l).bind (f k) := by
+  simp only [getValueCast?_eq_getEntry?, Option.dmap_congr (getEntry?_filterMap hl)]
+  simp only [Option.dmap_bind, Option.bind_dmap_left, Option.dmap_map]
+  congr; funext a h
+  cases beq_iff_eq.mp (getEntry?_eq_some h)
+  simp only [cast_eq, Option.dmap_id]
+
+end FilterMap
 
 end Std.Internal.List

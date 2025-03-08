@@ -192,6 +192,9 @@ instance : ShiftLeft Int8   := ⟨Int8.shiftLeft⟩
 instance : ShiftRight Int8  := ⟨Int8.shiftRight⟩
 instance : DecidableEq Int8 := Int8.decEq
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_int8"]
 def Bool.toInt8 (b : Bool) : Int8 := if b then 1 else 0
 
@@ -335,6 +338,9 @@ instance : ShiftLeft Int16   := ⟨Int16.shiftLeft⟩
 instance : ShiftRight Int16  := ⟨Int16.shiftRight⟩
 instance : DecidableEq Int16 := Int16.decEq
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_int16"]
 def Bool.toInt16 (b : Bool) : Int16 := if b then 1 else 0
 
@@ -482,6 +488,9 @@ instance : ShiftLeft Int32   := ⟨Int32.shiftLeft⟩
 instance : ShiftRight Int32  := ⟨Int32.shiftRight⟩
 instance : DecidableEq Int32 := Int32.decEq
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_int32"]
 def Bool.toInt32 (b : Bool) : Int32 := if b then 1 else 0
 
@@ -633,6 +642,9 @@ instance : ShiftLeft Int64   := ⟨Int64.shiftLeft⟩
 instance : ShiftRight Int64  := ⟨Int64.shiftRight⟩
 instance : DecidableEq Int64 := Int64.decEq
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_int64"]
 def Bool.toInt64 (b : Bool) : Int64 := if b then 1 else 0
 
@@ -795,6 +807,9 @@ instance : ShiftLeft ISize   := ⟨ISize.shiftLeft⟩
 instance : ShiftRight ISize  := ⟨ISize.shiftRight⟩
 instance : DecidableEq ISize := ISize.decEq
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_isize"]
 def Bool.toISize (b : Bool) : ISize := if b then 1 else 0
 

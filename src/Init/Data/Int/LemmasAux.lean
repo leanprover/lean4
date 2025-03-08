@@ -77,4 +77,21 @@ theorem bmod_bmod_of_dvd {a : Int} {n m : Nat} (hnm : n ∣ m) :
 @[simp] theorem toNat_le {m : Int} {n : Nat} : m.toNat ≤ n ↔ m ≤ n := by omega
 @[simp] theorem toNat_lt' {m : Int} {n : Nat} (hn : 0 < n) : m.toNat < n ↔ m < n := by omega
 
+@[simp] protected theorem neg_nonpos_iff (i : Int) : -i ≤ 0 ↔ 0 ≤ i := by omega
+
+@[simp] theorem zero_le_ofNat (n : Nat) : 0 ≤ ((no_index (OfNat.ofNat n)) : Int) :=
+  ofNat_nonneg _
+
+@[simp] theorem neg_natCast_le_natCast (n m : Nat) : -(n : Int) ≤ (m : Int) :=
+  Int.le_trans (by simp) (ofNat_zero_le m)
+
+@[simp] theorem neg_natCast_le_ofNat (n m : Nat) : -(n : Int) ≤ (no_index (OfNat.ofNat m)) :=
+  Int.le_trans (by simp) (ofNat_zero_le m)
+
+@[simp] theorem neg_ofNat_le_ofNat (n m : Nat) : -(no_index (OfNat.ofNat n)) ≤ (no_index (OfNat.ofNat m)) :=
+  Int.le_trans (by simp) (ofNat_zero_le m)
+
+@[simp] theorem neg_ofNat_le_natCast (n m : Nat) : -(no_index (OfNat.ofNat n)) ≤ (m : Int) :=
+  Int.le_trans (by simp) (ofNat_zero_le m)
+
 end Int

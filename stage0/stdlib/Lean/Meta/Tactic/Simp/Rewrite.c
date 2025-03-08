@@ -21661,6 +21661,7 @@ lean_object* x_12; lean_object* x_13; lean_object* x_14;
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 lean_dec(x_11);
+lean_inc(x_12);
 x_13 = l_Lean_Meta_getMatcherInfo_x3f___at_Lean_Meta_Simp_simpMatch___spec__1(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
@@ -22086,7 +22087,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_10;
 }
 }

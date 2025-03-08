@@ -60,4 +60,6 @@ builtin_initialize registerTraceClass `grind.debug.cutsat.conflict
 builtin_initialize registerTraceClass `grind.debug.cutsat.assign
 builtin_initialize registerTraceClass `grind.debug.cutsat.subst
 
+builtin_initialize registerTraceClass `grind.debug.cutsat.nat
+
 end Lean

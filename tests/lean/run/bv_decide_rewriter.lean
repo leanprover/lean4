@@ -532,6 +532,10 @@ example {a b : BitVec 8} {c : Bool} :
     ((~~~bif c then b else a) == a) = (c && (~~~b == a)) := by
   bv_normalize
 
+-- remove casts
+example {a : BitVec 8} : a = a.cast rfl := by
+  bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

@@ -187,8 +187,7 @@ theorem cmod_gt_of_pos (a : Int) {b : Int} (h : 0 < b) : cmod a b > -b :=
 
 theorem cmod_nonpos (a : Int) {b : Int} (h : b ≠ 0) : cmod a b ≤ 0 := by
   have := Int.neg_le_neg (Int.emod_nonneg (-a) h)
-  simp at this
-  assumption
+  simpa [cmod] using this
 
 theorem cmod_eq_zero_iff_emod_eq_zero (a b : Int) : cmod a b = 0 ↔ a%b = 0 := by
   unfold cmod
@@ -846,6 +845,26 @@ theorem le_combine (ctx : Context) (p₁ p₂ p₃ : Poly)
   · rw [← Int.zero_mul (Poly.denote ctx p₂)]; apply Int.mul_le_mul_of_nonpos_right <;> simp [*]
   · rw [← Int.zero_mul (Poly.denote ctx p₁)]; apply Int.mul_le_mul_of_nonpos_right <;> simp [*]
 
+def le_combine_coeff_cert (p₁ p₂ p₃ : Poly) (k : Int) : Bool :=
+  let a₁ := p₁.leadCoeff.natAbs
+  let a₂ := p₂.leadCoeff.natAbs
+  let p  := p₁.mul a₂ |>.combine (p₂.mul a₁)
+  k > 0 && (p.divCoeffs k && p₃ == p.div k)
+
+theorem le_combine_coeff (ctx : Context) (p₁ p₂ p₃ : Poly) (k : Int)
+    : le_combine_coeff_cert p₁ p₂ p₃ k → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
+  simp only [le_combine_coeff_cert, gt_iff_lt, Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq, and_imp]
+  let a₁ := p₁.leadCoeff.natAbs
+  let a₂ := p₂.leadCoeff.natAbs
+  generalize h : (p₁.mul a₂ |>.combine (p₂.mul a₁)) = p
+  intro h₁ h₂ h₃ h₄ h₅
+  have := le_combine ctx p₁ p₂ p
+  simp only [le_combine_cert, beq_iff_eq] at this
+  have aux₁ := this h.symm h₄ h₅
+  have := le_coeff ctx p p₃ k
+  simp only [le_coeff_cert, gt_iff_lt, Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq, and_imp] at this
+  exact this h₁ h₂ h₃ aux₁
+
 theorem le_unsat (ctx : Context) (p : Poly) : p.isUnsatLe → p.denote' ctx ≤ 0 → False := by
   simp [Poly.isUnsatLe]; split <;> simp
 
@@ -989,7 +1008,7 @@ theorem eq_le_subst_nonpos (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly)
   intro h
   intro; subst p₃
   intro h₁ h₂
-  simp [*]
+  simp [*, -Int.neg_nonpos_iff]
   replace h₂ := Int.mul_le_mul_of_nonpos_left h₂ h; simp at h₂; clear h
   rw [← Int.neg_zero]
   apply Int.neg_le_neg
@@ -1051,7 +1070,7 @@ def eq_of_le_ge_cert (p₁ p₂ : Poly) : Bool :=
 theorem eq_of_le_ge (ctx : Context) (p₁ : Poly) (p₂ : Poly)
     : eq_of_le_ge_cert p₁ p₂ → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 → p₁.denote' ctx = 0 := by
   simp [eq_of_le_ge_cert]
-  intro; subst p₂; simp
+  intro; subst p₂; simp [-Int.neg_nonpos_iff]
   intro h₁ h₂
   replace h₂ := Int.neg_le_of_neg_le h₂; simp at h₂
   simp [Int.eq_iff_le_and_ge, *]
@@ -1101,6 +1120,16 @@ theorem orOver_resolve {n p} : OrOver (n+1) p → ¬ p n → OrOver n p := by
   cases h₁
   · contradiction
   · assumption
+
+def OrOver_cases_type (n : Nat) (p : Nat → Prop) : Prop :=
+  match n with
+  | 0 => p 0
+  | n+1 => ¬ p (n+1) → OrOver_cases_type n p
+
+theorem orOver_cases {n p} : OrOver (n+1) p → OrOver_cases_type n p := by
+  induction n <;> simp [OrOver_cases_type]
+  next => exact orOver_one
+  next n ih => intro h₁ h₂; exact ih (orOver_resolve h₁ h₂)
 
 private theorem orOver_of_p {i n p} (h₁ : i < n) (h₂ : p i) : OrOver n p := by
   induction n
@@ -1621,6 +1650,9 @@ theorem emod_le (x y : Int) (n : Int) : emod_le_cert y n → x % y + n ≤ 0 := 
     apply Int.add_le_of_le_sub_left
     simp only [Int.add_comm, Int.sub_neg, Int.add_zero]
     exact Int.emod_lt_of_pos x h
+
+theorem natCast_nonneg (x : Nat) : (-1:Int) * NatCast.natCast x ≤ 0 := by
+  simp
 
 end Int.Linear
 

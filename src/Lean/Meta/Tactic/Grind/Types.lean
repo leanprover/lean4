@@ -517,8 +517,8 @@ structure Goal where
   inconsistent : Bool := false
   /-- Next unique index for creating ENodes -/
   nextIdx      : Nat := 0
-  /-- new facts to be processed. -/
-  newFacts     : Std.Queue NewFact := ∅
+  /-- new facts to be preprocessed and then asserted. -/
+  newRawFacts  : Std.Queue NewFact := ∅
   /-- Asserted facts -/
   facts      : PArray Expr := {}
   /-- Cached extensionality theorems for types. -/
@@ -574,19 +574,19 @@ def markTheoremInstance (proof : Expr) (assignment : Array Expr) : GoalM Bool :=
   modify fun s => { s with ematch.preInstances := s.ematch.preInstances.insert k }
   return true
 
-/-- Adds a new fact `prop` with proof `proof` to the queue for processing. -/
-def addNewFact (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
+/-- Adds a new fact `prop` with proof `proof` to the queue for preprocessing and the assertion. -/
+def addNewRawFact (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
   if grind.debug.get (← getOptions) then
     unless (← withReducible <| isDefEq (← inferType proof) prop) do
       throwError "`grind` internal error, trying to assert{indentExpr prop}\n\
         with proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\n\
         which is not definitionally equal with `reducible` transparency setting}"
-  modify fun s => { s with newFacts := s.newFacts.enqueue { proof, prop, generation } }
+  modify fun s => { s with newRawFacts := s.newRawFacts.enqueue { proof, prop, generation } }
 
 /-- Adds a new theorem instance produced using E-matching. -/
 def addTheoremInstance (thm : EMatchTheorem) (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
   saveEMatchTheorem thm
-  addNewFact proof prop generation
+  addNewRawFact proof prop generation
   modify fun s => { s with ematch.numInstances := s.ematch.numInstances + 1 }
 
 /-- Returns `true` if the maximum number of instances has been reached. -/

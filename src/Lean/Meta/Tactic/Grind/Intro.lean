@@ -214,9 +214,9 @@ def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : GrindTactic' := f
 
 /-- Asserts next fact in the `goal` fact queue. -/
 def assertNext : GrindTactic := fun goal => do
-  let some (fact, newFacts) := goal.newFacts.dequeue?
+  let some (fact, newRawFacts) := goal.newRawFacts.dequeue?
     | return none
-  assertAt fact.proof fact.prop fact.generation { goal with newFacts }
+  assertAt fact.proof fact.prop fact.generation { goal with newRawFacts }
 
 /-- Asserts all facts in the `goal` fact queue. -/
 partial def assertAll : GrindTactic :=

@@ -10,8 +10,8 @@ open Lean
 
 namespace Lake
 
-builtin_initialize dirExt : EnvExtension (Option System.FilePath) ←
+initialize dirExt : EnvExtension (Option System.FilePath) ←
   registerEnvExtension (pure none)
 
-builtin_initialize optsExt : EnvExtension (Option (NameMap String)) ←
+initialize optsExt : EnvExtension (Option (NameMap String)) ←
   registerEnvExtension (pure none)

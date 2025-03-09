@@ -10,7 +10,7 @@ open Lean
 
 namespace Lake
 
-builtin_initialize
+initialize
   registerBuiltinAttribute {
     ref             := by exact decl_name%
     name            := `test_runner

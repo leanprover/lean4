@@ -44,7 +44,7 @@ The `mod` parameter (and its type specifier) is optional.
 scoped syntax (name := moduleFacetDecl)
 (docComment)? (Term.attributes)? "module_facet " buildDeclSig : command
 
-@[builtin_macro moduleFacetDecl]
+@[macro moduleFacetDecl]
 def expandModuleFacetDecl : Macro := fun stx => do
   let `(moduleFacetDecl|$(doc?)? $(attrs?)? module_facet%$kw $sig) := stx
     | Macro.throwErrorAt stx "ill-formed module facet declaration"
@@ -83,7 +83,7 @@ The `pkg` parameter (and its type specifier) is optional.
 scoped syntax (name := packageFacetDecl)
 (docComment)? (Term.attributes)? "package_facet " buildDeclSig : command
 
-@[builtin_macro packageFacetDecl]
+@[macro packageFacetDecl]
 def expandPackageFacetDecl : Macro := fun stx => do
   let `(packageFacetDecl|$(doc?)? $(attrs?)? package_facet%$kw $sig) := stx
     | Macro.throwErrorAt stx "ill-formed package facet declaration"
@@ -122,7 +122,7 @@ The `lib` parameter (and its type specifier) is optional.
 scoped syntax (name := libraryFacetDecl)
 (docComment)? (Term.attributes)? "library_facet " buildDeclSig : command
 
-@[builtin_macro libraryFacetDecl]
+@[macro libraryFacetDecl]
 def expandLibraryFacetDecl : Macro := fun stx => do
   let `(libraryFacetDecl|$(doc?)? $(attrs?)? library_facet%$kw $sig) := stx
     | Macro.throwErrorAt stx "ill-formed library facet declaration"
@@ -168,7 +168,7 @@ provided is the package in which the target is defined.
 scoped syntax (name := targetDecl)
 (docComment)? (Term.attributes)? "target " buildDeclSig : command
 
-@[builtin_macro targetDecl]
+@[macro targetDecl]
 def expandTargetDecl : Macro := fun stx => do
   let `(targetDecl|$(doc?)? $(attrs?)? target%$kw $sig) := stx
     | Macro.throwErrorAt stx "ill-formed target declaration"
@@ -203,7 +203,7 @@ lean_lib «target-name» where /- config opts -/
 scoped syntax (name := leanLibDecl)
 (docComment)? (Term.attributes)? "lean_lib " structDeclSig : command
 
-@[builtin_command_elab leanLibDecl]
+@[command_elab leanLibDecl]
 def elabLeanLibDecl : CommandElab := fun stx => do
   let `(leanLibDecl|$(doc?)? $(attrs?)? lean_lib%$kw $sig) := stx
     | throwErrorAt stx "ill-formed lean_lib declaration"
@@ -231,7 +231,7 @@ lean_exe «target-name» where /- config opts -/
 scoped syntax (name := leanExeDecl)
 (docComment)? (Term.attributes)? "lean_exe " structDeclSig : command
 
-@[builtin_command_elab leanExeDecl]
+@[command_elab leanExeDecl]
 def elabLeanExeDecl : CommandElab := fun stx => do
   let `(leanExeDecl|$(doc?)? $(attrs?)? lean_exe%$kw $sig) := stx
     | throwErrorAt stx "ill-formed lean_exe declaration"
@@ -274,7 +274,7 @@ The term should build the external library's **static** library.
 scoped syntax (name := externLibDecl)
 (docComment)? (Term.attributes)? "extern_lib " externLibDeclSpec : command
 
-@[builtin_macro externLibDecl]
+@[macro externLibDecl]
 def expandExternLibDecl : Macro := fun stx => do
   let `(externLibDecl|$(doc?)? $(attrs?)? extern_lib%$kw $spec) := stx
     | Macro.throwErrorAt stx "ill-formed external library declaration"

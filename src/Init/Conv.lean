@@ -183,6 +183,9 @@ match [a, b] with
 simplifies to `a`. -/
 syntax (name := simpMatch) "simp_match" : conv
 
+/-- Removes one or more hypotheses from the local context. -/
+syntax (name := clear) "clear" (ppSpace colGt term:max)+ : conv
+
 /-- Executes the given tactic block without converting `conv` goal into a regular goal. -/
 syntax (name := nestedTacticCore) "tactic'" " => " tacticSeq : conv
 

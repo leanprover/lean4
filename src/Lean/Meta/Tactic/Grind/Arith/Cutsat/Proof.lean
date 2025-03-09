@@ -60,6 +60,7 @@ private def DvdCnstr.get_d_a (c : DvdCnstr) : GoalM (Int × Int) := do
 
 mutual
 partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
+  trace[grind.debug.cutsat.proof] "{← c'.pp}"
   match c'.h with
   | .expr h =>
     return h
@@ -80,6 +81,7 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
 
 partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
+  trace[grind.debug.cutsat.proof] "{← c'.pp}"
   match c'.h with
   | .expr h =>
     return h
@@ -89,6 +91,7 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
     return mkApp7 (mkConst ``Int.Linear.dvd_elim) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (toExpr c'.d) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
   | .divCoeffs c =>
     let g := c.p.gcdCoeffs c.d
+    let g := if c.d < 0 then -g else g
     return mkApp8 (mkConst ``Int.Linear.dvd_coeff) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (toExpr c'.d) (← mkPolyDecl c'.p) (toExpr g) reflBoolTrue (← c.toExprProof)
   | .solveCombine c₁ c₂ =>
     let (d₁, a₁) ← c₁.get_d_a
@@ -135,6 +138,7 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
       (← s.toExprProof) reflBoolTrue
 
 partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
+  trace[grind.debug.cutsat.proof] "{← c'.pp}"
   match c'.h with
   | .expr h =>
     return h
@@ -169,6 +173,14 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
     return mkApp7 (mkConst ``Int.Linear.le_of_le_diseq)
       (← getContext) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .dvdTight c₁ c₂ =>
+    return mkApp8 (mkConst ``Int.Linear.dvd_le_tight)
+      (← getContext) (toExpr c₁.d) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
+      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
+  | .negDvdTight c₁ c₂ =>
+    return mkApp8 (mkConst ``Int.Linear.dvd_neg_le_tight)
+      (← getContext) (toExpr c₁.d) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
+      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
   | .ofDiseqSplit c₁ fvarId h _ =>
     let p₂ := c₁.p.addConst 1
     let hFalse ← h.toExprProofCore
@@ -191,6 +203,7 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
         (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c₃.p) (toExpr c₃.d) (toExpr s.k) (toExpr coeff) (← mkPolyDecl c'.p) (← s.toExprProof) reflBoolTrue
 
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
+  trace[grind.debug.cutsat.proof] "{← c'.pp}"
   match c'.h with
   | .expr h =>
     return h
@@ -236,6 +249,7 @@ partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s
     -- `pred` is an expressions of the form `cooper_*_split ...` with type `Nat → Prop`
     let mut k := n
     let mut result := base -- `OrOver k (cooper_*_splti)
+    trace[grind.debug.cutsat.proof] "orOver_cases {n}"
     result := mkApp3 (mkConst ``Int.Linear.orOver_cases) (toExpr (n-1)) pred result
     for (fvarId, c) in hs do
       let type := mkApp pred (toExpr (k-1))
@@ -248,6 +262,7 @@ partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s
     return result
 
 partial def UnsatProof.toExprProofCore (h : UnsatProof) : ProofM Expr := do
+  trace[grind.debug.cutsat.proof] "{← h.pp}"
   match h with
   | .le c =>
     return mkApp4 (mkConst ``Int.Linear.le_unsat) (← getContext) (← mkPolyDecl c.p) reflBoolTrue (← c.toExprProof)
@@ -335,7 +350,9 @@ partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do u
   | .expr h => collectExpr h
   | .notExpr .. => return () -- This kind of proof is used for connecting with the `grind` core.
   | .cooper c | .norm c | .divCoeffs c => c.collectDecVars
-  | .combine c₁ c₂ | .combineDivCoeffs c₁ c₂ _ | .subst _ c₁ c₂ | .ofLeDiseq c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
+  | .dvdTight c₁ c₂ | .negDvdTight c₁ c₂
+  | .combine c₁ c₂ | .combineDivCoeffs c₁ c₂ _
+  | .subst _ c₁ c₂ | .ofLeDiseq c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
   | .ofDiseqSplit (decVars := decVars) .. => decVars.forM markAsFound
 
 partial def DiseqCnstr.collectDecVars (c' : DiseqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do

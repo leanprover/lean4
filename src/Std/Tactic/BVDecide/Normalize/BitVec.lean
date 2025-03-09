@@ -363,5 +363,15 @@ theorem BitVec.exctractLsb'_if {x y : BitVec w} (s l : Nat) :
     BitVec.extractLsb' s l (bif c then x else y) = bif c then (BitVec.extractLsb' s l x) else (BitVec.extractLsb' s l y) := by
   cases c <;> simp
 
+-- Used in simproc because of - normalization
+theorem BitVec.ones_mul (a : BitVec w) : -1#w * a = -a := by
+  rw [_root_.BitVec.neg_mul]
+  simp
+
+-- Used in simproc because of - normalization
+theorem BitVec.mul_ones (a : BitVec w) : a * -1#w = -a := by
+  rw [_root_.BitVec.mul_neg]
+  simp
+
 end Normalize
 end Std.Tactic.BVDecide

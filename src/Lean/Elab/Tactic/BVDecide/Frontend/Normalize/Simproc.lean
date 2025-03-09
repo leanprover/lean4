@@ -41,7 +41,7 @@ builtin_simproc [bv_normalize] eqToBEq (((_ : Bool) = (_ : Bool))) := fun e => d
     let proof := mkApp2 (mkConst ``Bool.eq_to_beq) lhs rhs
     return .done { expr := new, proof? := some proof }
 
-builtin_simproc [bv_normalize] andOnes ((_ : BitVec _) &&& (BitVec.ofNat _ _ : BitVec _)) := fun e => do
+builtin_simproc [bv_normalize] andOnes ((_ : BitVec _) &&& (BitVec.ofNat _ _)) := fun e => do
   let_expr HAnd.hAnd _ _ _ _ lhs rhs := e | return .continue
   let some ⟨w, rhsValue⟩ ← getBitVecValue? rhs | return .continue
   if rhsValue == -1#w then
@@ -50,7 +50,7 @@ builtin_simproc [bv_normalize] andOnes ((_ : BitVec _) &&& (BitVec.ofNat _ _ : B
   else
     return .continue
 
-builtin_simproc [bv_normalize] onesAnd ((BitVec.ofNat _ _ : BitVec _) &&& (_ : BitVec _)) := fun e => do
+builtin_simproc [bv_normalize] onesAnd ((BitVec.ofNat _ _) &&& (_ : BitVec _)) := fun e => do
   let_expr HAnd.hAnd _ _ _ _ lhs rhs := e | return .continue
   let some ⟨w, lhsValue⟩ ← getBitVecValue? lhs | return .continue
   if lhsValue == -1#w then
@@ -59,7 +59,7 @@ builtin_simproc [bv_normalize] onesAnd ((BitVec.ofNat _ _ : BitVec _) &&& (_ : B
   else
     return .continue
 
-builtin_simproc [bv_normalize] maxUlt (BitVec.ult (BitVec.ofNat _ _ : BitVec _) (_ : BitVec _)) := fun e => do
+builtin_simproc [bv_normalize] maxUlt (BitVec.ult (BitVec.ofNat _ _) (_ : BitVec _)) := fun e => do
   let_expr BitVec.ult _ lhs rhs := e | return .continue
   let some ⟨w, lhsValue⟩ ← getBitVecValue? lhs | return .continue
   if lhsValue == -1#w then
@@ -110,7 +110,7 @@ builtin_simproc [bv_normalize] bv_udiv_of_two_pow (((_ : BitVec _) / (BitVec.ofN
       proof? := some proof
   }
 
-builtin_simproc [bv_normalize] bv_equal_const_not (~~~(_ : BitVec _) == (BitVec.ofNat _ _ : BitVec _)) := fun e => do
+builtin_simproc [bv_normalize] bv_equal_const_not (~~~(_ : BitVec _) == (BitVec.ofNat _ _)) := fun e => do
   let_expr BEq.beq α inst outerLhs rhs := e | return .continue
   let some ⟨w, rhsVal⟩ ← getBitVecValue? rhs | return .continue
   let_expr Complement.complement _ _ lhs := outerLhs | return .continue
@@ -122,7 +122,7 @@ builtin_simproc [bv_normalize] bv_equal_const_not (~~~(_ : BitVec _) == (BitVec.
       rhs
   return .visit { expr := expr, proof? := some proof }
 
-builtin_simproc [bv_normalize] bv_equal_const_not' ((BitVec.ofNat _ _ : BitVec _) == ~~~(_ : BitVec _)) := fun e => do
+builtin_simproc [bv_normalize] bv_equal_const_not' ((BitVec.ofNat _ _) == ~~~(_ : BitVec _)) := fun e => do
   let_expr BEq.beq α inst lhs outerRhs := e | return .continue
   let some ⟨w, lhsVal⟩ ← getBitVecValue? lhs | return .continue
   let_expr Complement.complement _ _ rhs := outerRhs | return .continue
@@ -134,7 +134,7 @@ builtin_simproc [bv_normalize] bv_equal_const_not' ((BitVec.ofNat _ _ : BitVec _
       rhs
   return .visit { expr := expr, proof? := some proof }
 
-builtin_simproc [bv_normalize] bv_and_eq_allOnes ((_ : BitVec _) &&& (_ : BitVec _) == (BitVec.ofNat _ _ : BitVec _)) := fun e => do
+builtin_simproc [bv_normalize] bv_and_eq_allOnes ((_ : BitVec _) &&& (_ : BitVec _) == (BitVec.ofNat _ _)) := fun e => do
   let_expr BEq.beq α instBEq outerLhs rhs := e | return .continue
   let some ⟨w, rhsVal⟩ ← getBitVecValue? rhs | return .continue
   if -1#w != rhsVal then return .continue
@@ -149,7 +149,7 @@ builtin_simproc [bv_normalize] bv_and_eq_allOnes ((_ : BitVec _) &&& (_ : BitVec
       lrhs
   return .visit { expr := expr, proof? := some proof }
 
-builtin_simproc [bv_normalize] bv_allOnes_eq_and ((BitVec.ofNat _ _ : BitVec _) == (_ : BitVec _) &&& (_ : BitVec _)) := fun e => do
+builtin_simproc [bv_normalize] bv_allOnes_eq_and ((BitVec.ofNat _ _) == (_ : BitVec _) &&& (_ : BitVec _)) := fun e => do
   let_expr BEq.beq α instBEq lhs outerRhs := e | return .continue
   let some ⟨w, lhsVal⟩ ← getBitVecValue? lhs | return .continue
   if -1#w != lhsVal then return .continue
@@ -193,23 +193,37 @@ where
     else
       none
 
-builtin_simproc [bv_normalize] bv_twoPow_mul ((BitVec.ofNat _ _) * (_ : BitVec _)) :=
-  fun e => do
-    let_expr HMul.hMul _ _ _ _ lhsExpr rhs := e | return .continue
-    let some ⟨w, lhs⟩ ← getBitVecValue? lhsExpr | return .continue
-    let some pow := isTwoPow lhs | return .continue
-    let expr ← mkAppM ``HShiftLeft.hShiftLeft #[rhs, toExpr pow]
-    let proof := mkApp3 (mkConst ``BitVec.twoPow_mul_eq_shiftLeft) (toExpr w) rhs (toExpr pow)
-    return .visit { expr := expr, proof? := some proof }
+builtin_simproc [bv_normalize] bv_twoPow_mul ((BitVec.ofNat _ _) * (_ : BitVec _)) := fun e => do
+  let_expr HMul.hMul _ _ _ _ lhsExpr rhs := e | return .continue
+  let some ⟨w, lhs⟩ ← getBitVecValue? lhsExpr | return .continue
+  let some pow := isTwoPow lhs | return .continue
+  let expr ← mkAppM ``HShiftLeft.hShiftLeft #[rhs, toExpr pow]
+  let proof := mkApp3 (mkConst ``BitVec.twoPow_mul_eq_shiftLeft) (toExpr w) rhs (toExpr pow)
+  return .visit { expr := expr, proof? := some proof }
 
-builtin_simproc [bv_normalize] bv_mul_twoPow ((_ : BitVec _) * (BitVec.ofNat _ _)) :=
-  fun e => do
-    let_expr HMul.hMul _ _ _ _ lhs rhsExpr := e | return .continue
-    let some ⟨w, rhs⟩ ← getBitVecValue? rhsExpr | return .continue
-    let some pow := isTwoPow rhs | return .continue
-    let expr ← mkAppM ``HShiftLeft.hShiftLeft #[lhs, toExpr pow]
-    let proof := mkApp3 (mkConst ``BitVec.mul_twoPow_eq_shiftLeft) (toExpr w) lhs (toExpr pow)
-    return .visit { expr := expr, proof? := some proof }
+builtin_simproc [bv_normalize] bv_mul_twoPow ((_ : BitVec _) * (BitVec.ofNat _ _)) := fun e => do
+  let_expr HMul.hMul _ _ _ _ lhs rhsExpr := e | return .continue
+  let some ⟨w, rhs⟩ ← getBitVecValue? rhsExpr | return .continue
+  let some pow := isTwoPow rhs | return .continue
+  let expr ← mkAppM ``HShiftLeft.hShiftLeft #[lhs, toExpr pow]
+  let proof := mkApp3 (mkConst ``BitVec.mul_twoPow_eq_shiftLeft) (toExpr w) lhs (toExpr pow)
+  return .visit { expr := expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_ones_mul ((BitVec.ofNat _ _) * (_ : BitVec _)) := fun e => do
+  let_expr HMul.hMul _ _ _ _ lhsExpr rhs := e | return .continue
+  let some ⟨w, lhs⟩ ← getBitVecValue? lhsExpr | return .continue
+  if -1#w != lhs then return .continue
+  let expr ← mkAppM ``Neg.neg #[rhs]
+  let proof := mkApp2 (mkConst ``BitVec.ones_mul) (toExpr w) rhs
+  return .visit { expr := expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_mul_ones ((_ : BitVec _) * (BitVec.ofNat _ _)) := fun e => do
+  let_expr HMul.hMul _ _ _ _ lhs rhsExpr := e | return .continue
+  let some ⟨w, rhs⟩ ← getBitVecValue? rhsExpr | return .continue
+  if -1#w != rhs then return .continue
+  let expr ← mkAppM ``Neg.neg #[lhs]
+  let proof := mkApp2 (mkConst ``BitVec.mul_ones) (toExpr w) lhs
+  return .visit { expr := expr, proof? := some proof }
 
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

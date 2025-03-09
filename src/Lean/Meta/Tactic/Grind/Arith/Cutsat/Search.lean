@@ -30,12 +30,14 @@ def CooperSplit.assert (cs : CooperSplit) : GoalM Unit := do
   trace[grind.debug.cutsat.cooper] "{← c₁'.pp}"
   c₁'.assert
   if (← inconsistent) then return ()
-  let p₂' := if left then p else q
-  let p₂' := p₂'.addConst k
-  let c₂' := { d := if left then a else b, p := p₂', h := .cooper₁ cs : DvdCnstr }
-  trace[grind.debug.cutsat.cooper] "dvd₁: {← c₂'.pp}"
-  c₂'.assert
-  if (← inconsistent) then return ()
+  let d := if left then a else b
+  if d.natAbs != 1 then
+    let p₂' := if left then p else q
+    let p₂' := p₂'.addConst k
+    let c₂' := { d, p := p₂', h := .cooper₁ cs : DvdCnstr }
+    trace[grind.debug.cutsat.cooper] "dvd₁: {← c₂'.pp}"
+    c₂'.assert
+    if (← inconsistent) then return ()
   let some c₃ := c₃? | return ()
   let p₃  := c₃.p
   let d   := c₃.d

@@ -73,7 +73,7 @@ private def getSimpContext : MetaM Simp.Context := do
   Simp.mkContext
     (simpTheorems  := #[simpTheorems])
     (congrTheorems := {})
-    (config        := { Simp.neutralConfig with dsimp := false })
+    (config        := { Simp.neutralConfig with dsimp := true })
 
 def isWfParam? (e : Expr) : Option Expr :=
   if e.isAppOfArity ``wfParam 2 then
@@ -143,7 +143,7 @@ def preprocess (e : Expr) : MetaM Simp.Result := do
         return .continue
     let result := { result with expr := e'' }
 
-    trace[Elab.definition.wf] "Attach-introduction:{indentExpr e}\nto{indentExpr e'}\ncleaned up as{indentExpr e''}"
+    trace[Elab.definition.wf] "Attach-introduction:{indentExpr e'}\nto{indentExpr result.expr}\ncleaned up as{indentExpr e''}"
     result.addLambdas xs
 
 end Lean.Elab.WF

@@ -1925,10 +1925,6 @@ protected abbrev recOnSubsingleton₂
 end
 end Quotient
 
-section
-variable {α : Type u}
-variable (r : α → α → Prop)
-
 instance Quotient.decidableEq {α : Sort u} {s : Setoid α} [d : ∀ (a b : α), Decidable (a ≈ b)]
     : DecidableEq (Quotient s) :=
   fun (q₁ q₂ : Quotient s) =>

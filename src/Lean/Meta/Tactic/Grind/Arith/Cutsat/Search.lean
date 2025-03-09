@@ -366,13 +366,11 @@ def resolveCooperDiseq (c₁ : DiseqCnstr) (c₂ : LeCnstr) (c₃? : Option DvdC
   else
     c₁
   let c₁ ← c₁.split
+  -- After the `c₁.split`, the real shadow may resolve the conflict
+  if (← resolveRealLowerUpperConflict c₁ c₂) then
+    return ()
   if let some c₃ := c₃? then
-    -- After the `c₁.split`, the real shadow may resolve the conflict
-    trace[grind.debug.cutsat.cooper.diseq] "{← c₁.pp}, {← c₂.pp}, {← c₃.pp}"
-    if (← resolveRealLowerUpperConflict c₁ c₂) then
-      return ()
-    else
-      resolveCooperDvd c₁ c₂ c₃
+    resolveCooperDvd c₁ c₂ c₃
   else
     resolveCooper c₁ c₂
 

@@ -68,7 +68,6 @@ def mkCnstrId : GoalM Nat := do
 opaque EqCnstr.assert (c : EqCnstr) : GoalM Unit
 
 -- TODO: PArray.shrink and PArray.resize
-
 partial def shrink (a : PArray Rat) (sz : Nat) : PArray Rat :=
   if a.size > sz then shrink a.pop sz else a
 

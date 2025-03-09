@@ -536,6 +536,12 @@ example {a b : BitVec 8} {c : Bool} :
 example {a : BitVec 8} : a = a.cast rfl := by
   bv_normalize
 
+-- BitVec.mul_neg
+example {a : BitVec 8} : a * -1 = -a := by bv_normalize
+example {a : BitVec 8} : -1 * a = -a := by bv_normalize
+example {a : BitVec 8} : -1 * a + a = 0 := by bv_normalize
+example {a : BitVec 8} : a + -1 * a = 0 := by bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

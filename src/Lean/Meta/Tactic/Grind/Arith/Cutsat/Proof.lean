@@ -230,7 +230,7 @@ partial def CooperSplit.toExprProof (s : CooperSplit) : ProofM Expr := caching s
     let p₂ := c₂.p
     let n := s.pred.numCases
     unless hs.size + 1 == n do
-      throwError "`grind` internal error, unexpected number of cases at `CopperSplit`"
+      throwError "`grind` internal error, unexpected number of cases at `CopperSplit` hs.size: {hs.size}, n: {n}, left: {left}\nc₁: {← c₁.pp}\nc₂: {← c₂.pp}\nc₃: {← if let some c₃ := c₃? then c₃.pp else pure ""}"
     let (base, pred) ← match c₃? with
       | none =>
         let thmName := if left then ``Int.Linear.cooper_left else ``Int.Linear.cooper_right

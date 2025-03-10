@@ -438,12 +438,12 @@ and simplifies these to the function directly taking the value.
   | nil => simp
   | cons a l ih => simp [ih, hf]
 
-@[wf_preprocess] theorem foldlM_wfParam [Monad m] (xs : List α) (f : β → α → m β) :
-    (wfParam xs).foldlM f = xs.attach.unattach.foldlM f := by
+@[wf_preprocess] theorem foldlM_wfParam [Monad m] (xs : List α) (f : β → α → m β) (init : β) :
+    (wfParam xs).foldlM f init = xs.attach.unattach.foldlM f init := by
   simp [wfParam]
 
-@[wf_preprocess] theorem foldlM_unattach [Monad m] (P : α → Prop) (xs : List (Subtype P)) (f : β → α → m β) :
-    xs.unattach.foldlM f = xs.foldlM fun b ⟨x, h⟩ =>
+@[wf_preprocess] theorem foldlM_unattach [Monad m] (P : α → Prop) (xs : List (Subtype P)) (f : β → α → m β) (init : β):
+    xs.unattach.foldlM f init = xs.foldlM (init := init) fun b ⟨x, h⟩ =>
       binderNameHint b f <| binderNameHint x (f b) <| binderNameHint h () <|
       f b (wfParam x) := by
   simp [wfParam]
@@ -465,12 +465,12 @@ and simplifies these to the function directly taking the value.
     funext b
     simp [hf]
 
-@[wf_preprocess] theorem foldrM_wfParam [Monad m] [LawfulMonad m] (xs : List α) (f : α → β → m β) :
-    (wfParam xs).foldrM f = xs.attach.unattach.foldrM f := by
+@[wf_preprocess] theorem foldrM_wfParam [Monad m] [LawfulMonad m] (xs : List α) (f : α → β → m β) (init : β) :
+    (wfParam xs).foldrM f init = xs.attach.unattach.foldrM f init := by
   simp [wfParam]
 
-@[wf_preprocess] theorem foldrM_unattach [Monad m] [LawfulMonad m] (P : α → Prop) (xs : List (Subtype P)) (f : α → β → m β) :
-    xs.unattach.foldrM f = xs.foldrM fun ⟨x, h⟩ b =>
+@[wf_preprocess] theorem foldrM_unattach [Monad m] [LawfulMonad m] (P : α → Prop) (xs : List (Subtype P)) (f : α → β → m β) (init : β) :
+    xs.unattach.foldrM f init = xs.foldrM (init := init) fun ⟨x, h⟩ b =>
       binderNameHint x f <| binderNameHint h () <| binderNameHint b (f x) <|
       f (wfParam x) b := by
   simp [wfParam]

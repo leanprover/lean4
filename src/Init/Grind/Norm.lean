@@ -123,10 +123,11 @@ init_grind_norm
   Nat.add_eq Nat.sub_eq Nat.mul_eq Nat.zero_eq Nat.le_eq
   -- Int
   Int.lt_eq
+  Int.emod_neg Int.ediv_zero Int.emod_zero
   -- GT GE
   ge_eq gt_eq
   -- Int op folding
-  Int.add_def Int.mul_def
+  Int.add_def Int.mul_def Int.ofNat_eq_coe
   Int.Linear.sub_fold Int.Linear.neg_fold
   -- Int divides
   Int.one_dvd Int.zero_dvd

@@ -6227,6 +6227,7 @@ lean_inc(x_14);
 x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_14);
 x_16 = l_Lean_Meta_getMatcherInfo_x3f___at___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_loopGo___spec__2___rarg(x_14, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc(x_17);
@@ -8631,7 +8632,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_10;
 }
 }

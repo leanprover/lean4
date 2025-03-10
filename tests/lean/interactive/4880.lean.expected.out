@@ -47,6 +47,7 @@
    {"start": {"line": 34, "character": 13},
     "end": {"line": 35, "character": 0}},
    "message": "unsolved goals\n⊢ A",
+   "leanTags": [1],
    "fullRange":
    {"start": {"line": 34, "character": 13},
     "end": {"line": 36, "character": 0}}}]}

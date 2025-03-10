@@ -163,6 +163,7 @@ attribute [bv_normalize] BitVec.not_not
 attribute [bv_normalize] decide_true
 attribute [bv_normalize] decide_false
 attribute [bv_normalize] decide_not
+attribute [bv_normalize] BitVec.cast_eq
 
 end Constant
 
@@ -240,10 +241,25 @@ theorem BitVec.not_neg'' (x : BitVec w) : ~~~(1#w + x) = ~~~x + -1#w := by
 theorem BitVec.add_same (a : BitVec w) : a + a = a * 2#w := by
   rw [BitVec.mul_two]
 
-theorem BitVec.add_const_left (a b c : BitVec w) : a + (b + c) = (a + b) + c := by ac_rfl
-theorem BitVec.add_const_right (a b c : BitVec w) : a + (b + c) = (a + c) + b := by ac_rfl
-theorem BitVec.add_const_left' (a b c : BitVec w) : (a + b) + c = (a + c) + b := by ac_rfl
-theorem BitVec.add_const_right' (a b c : BitVec w) : (a + b) + c = (b + c) + a := by ac_rfl
+@[bv_normalize]
+theorem BitVec.add_const_left :
+    BitVec.ofNat w a + (BitVec.ofNat w b + c) = (BitVec.ofNat w a + BitVec.ofNat w b) + c := by
+  ac_rfl
+
+@[bv_normalize]
+theorem BitVec.add_const_right :
+    BitVec.ofNat w a + (b + BitVec.ofNat w c) = (BitVec.ofNat w a + BitVec.ofNat w c) + b := by
+  ac_rfl
+
+@[bv_normalize]
+theorem BitVec.add_const_left' :
+    (BitVec.ofNat w a + b) + BitVec.ofNat w c = (BitVec.ofNat w a + BitVec.ofNat w c) + b := by
+  ac_rfl
+
+@[bv_normalize]
+theorem BitVec.add_const_right' {a : BitVec w} :
+    (a + BitVec.ofNat w b) + BitVec.ofNat w c = (BitVec.ofNat w b + BitVec.ofNat w c) + a := by
+  ac_rfl
 
 attribute [bv_normalize] BitVec.mul_zero
 attribute [bv_normalize] BitVec.zero_mul
@@ -346,6 +362,16 @@ attribute [bv_normalize] BitVec.extractLsb'_xor
 theorem BitVec.exctractLsb'_if {x y : BitVec w} (s l : Nat) :
     BitVec.extractLsb' s l (bif c then x else y) = bif c then (BitVec.extractLsb' s l x) else (BitVec.extractLsb' s l y) := by
   cases c <;> simp
+
+-- Used in simproc because of - normalization
+theorem BitVec.ones_mul (a : BitVec w) : -1#w * a = -a := by
+  rw [_root_.BitVec.neg_mul]
+  simp
+
+-- Used in simproc because of - normalization
+theorem BitVec.mul_ones (a : BitVec w) : a * -1#w = -a := by
+  rw [_root_.BitVec.mul_neg]
+  simp
 
 end Normalize
 end Std.Tactic.BVDecide

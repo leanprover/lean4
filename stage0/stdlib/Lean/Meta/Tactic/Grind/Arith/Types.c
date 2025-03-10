@@ -19,6 +19,7 @@ static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__8;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__5;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__1;
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__4;
+extern lean_object* l_Lean_PersistentHashMap_empty___at_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState___spec__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState;
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_instInhabitedState___closed__2;
@@ -111,30 +112,32 @@ return x_4;
 static lean_object* _init_l_Lean_Meta_Grind_Arith_instInhabitedState___closed__8() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_1 = lean_box(0);
 x_2 = lean_box(0);
 x_3 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__4;
 x_4 = l_Lean_Meta_Grind_Arith_instInhabitedState___closed__6;
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = 0;
-x_7 = lean_alloc_ctor(0, 14, 1);
-lean_ctor_set(x_7, 0, x_3);
-lean_ctor_set(x_7, 1, x_4);
-lean_ctor_set(x_7, 2, x_3);
-lean_ctor_set(x_7, 3, x_3);
-lean_ctor_set(x_7, 4, x_3);
-lean_ctor_set(x_7, 5, x_3);
-lean_ctor_set(x_7, 6, x_3);
-lean_ctor_set(x_7, 7, x_1);
-lean_ctor_set(x_7, 8, x_4);
-lean_ctor_set(x_7, 9, x_3);
-lean_ctor_set(x_7, 10, x_3);
-lean_ctor_set(x_7, 11, x_5);
-lean_ctor_set(x_7, 12, x_2);
-lean_ctor_set(x_7, 13, x_4);
-lean_ctor_set_uint8(x_7, sizeof(void*)*14, x_6);
-return x_7;
+x_7 = l_Lean_PersistentHashMap_empty___at_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState___spec__1;
+x_8 = lean_alloc_ctor(0, 15, 1);
+lean_ctor_set(x_8, 0, x_3);
+lean_ctor_set(x_8, 1, x_4);
+lean_ctor_set(x_8, 2, x_3);
+lean_ctor_set(x_8, 3, x_3);
+lean_ctor_set(x_8, 4, x_3);
+lean_ctor_set(x_8, 5, x_3);
+lean_ctor_set(x_8, 6, x_3);
+lean_ctor_set(x_8, 7, x_1);
+lean_ctor_set(x_8, 8, x_4);
+lean_ctor_set(x_8, 9, x_3);
+lean_ctor_set(x_8, 10, x_3);
+lean_ctor_set(x_8, 11, x_5);
+lean_ctor_set(x_8, 12, x_2);
+lean_ctor_set(x_8, 13, x_4);
+lean_ctor_set(x_8, 14, x_7);
+lean_ctor_set_uint8(x_8, sizeof(void*)*15, x_6);
+return x_8;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_Arith_instInhabitedState___closed__9() {

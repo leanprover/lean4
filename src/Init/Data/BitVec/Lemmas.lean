@@ -638,17 +638,20 @@ theorem toInt_lt {w : Nat} {x : BitVec w} : 2 * x.toInt < 2 ^ w := by
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
     norm_cast; omega
 
+theorem toInt_lt' {w : Nat} {x : BitVec w} : x.toInt < 2 ^ (w - 1) := by
+  by_cases h : w = 0
+  · subst h
+    simp [BitVec.eq_nil x]
+  · have := toInt_lt (w := w) (x := x)
+    generalize x.toInt = x at *
+    rw [(show w = w - 1 + 1 by omega), Int.pow_succ] at this
+    omega
+
 theorem toInt_le {w : Nat} {x : BitVec w} : 2 * x.toInt ≤ 2 ^ w - 1 :=
   Int.le_sub_one_of_lt toInt_lt
 
-theorem toInt_lt_of_pos {w : Nat} (hw : 0 < w) {x : BitVec w} : x.toInt < 2 ^ (w - 1) := by
-  have := toInt_lt (w := w) (x := x)
-  generalize x.toInt = x at *
-  rw [(show w = w - 1 + 1 by omega), Int.pow_succ] at this
-  omega
-
-theorem toInt_le_of_pos {w : Nat} (hw : 0 < w) {x : BitVec w} : x.toInt ≤ 2 ^ (w - 1) - 1 :=
-  Int.le_sub_one_of_lt (toInt_lt_of_pos hw)
+theorem toInt_le' {w : Nat} {x : BitVec w} : x.toInt ≤ 2 ^ (w - 1) - 1 := by
+  exact Int.le_sub_one_of_lt (toInt_lt')
 
 /--
 `x.toInt` is greater than or equal to `-2^(w-1)`.
@@ -662,11 +665,14 @@ theorem le_toInt {w : Nat} {x : BitVec w} : -2 ^ w ≤ 2 * x.toInt := by
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
     norm_cast; omega
 
-theorem le_toInt_of_pos {w : Nat} (hw : 0 < w) (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
-  have := le_toInt (w := w) (x := x)
-  generalize x.toInt = x at *
-  rw [(show w = w - 1 + 1 by omega), Int.pow_succ] at this
-  omega
+theorem le_toInt' {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
+  by_cases h : w = 0
+  · subst h
+    simp [BitVec.eq_nil x]
+  · have := le_toInt (w := w) (x := x)
+    generalize x.toInt = x at *
+    rw [(show w = w - 1 + 1 by omega), Int.pow_succ] at this
+    omega
 
 /-! ### slt -/
 

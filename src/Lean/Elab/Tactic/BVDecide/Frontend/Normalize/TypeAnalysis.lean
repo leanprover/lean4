@@ -81,8 +81,7 @@ def isSupportedMatch (declName : Name) : MetaM (Option MatchKind) := do
         if args.size != 1 then return false
         let input := args[0]!
         if !(← inferType input).isConstOf discrTypeName then return false
-        dom.withApp fun fn arg =>
-          return fn == motive && arg.size == 1 && arg[0]! == input
+        return dom.withApp fun fn arg => fn == motive && arg.size == 1 && arg[0]! == input
 
       if !defaultOk then return none
 

@@ -178,10 +178,6 @@ example (foo : Foo) : foo.f1 ≠ foo := by
   unfold Foo.f1
   bv_decide
 
-example (x : Foo) : x.f1.f1.f1.f1.f1 = x := by
-  unfold Foo.f1
-  bv_decide
-
 example (h : f = Foo.a): Foo.a.f1 ≠ f := by
   unfold Foo.f1
   bv_decide

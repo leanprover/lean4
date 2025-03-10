@@ -72,12 +72,12 @@ def get? [Ord α] [LawfulEqOrd α] (t : Impl α β) (k : α) : Option (β k) :=
     | .eq => some (cast (congrArg β (compare_eq_iff_eq.mp h).symm) v')
 
 /-- Returns the value for the key `k`. -/
-def get [Ord α] [LawfulEqOrd α] (t : Impl α β) (k : α) (hlk : t.contains k = true) : β k :=
+def get [Ord α] [LawfulEqOrd α] (t : Impl α β) (k : α) (hlk : k ∈ t) : β k :=
   match t with
   | .inner _ k' v' l r =>
     match h : compare k k' with
-    | .lt => get l k (by simpa [contains, h] using hlk)
-    | .gt => get r k (by simpa [contains, h] using hlk)
+    | .lt => get l k (by simpa [instMembershipOfOrd, contains, h] using hlk)
+    | .gt => get r k (by simpa [instMembershipOfOrd, contains, h] using hlk)
     | .eq => cast (congrArg β (compare_eq_iff_eq.mp h).symm) v'
 
 /-- Returns the value for the key `k`, or panics if such a key does not exist. -/
@@ -156,8 +156,8 @@ def get [Ord α] (t : Impl α δ) (k : α) (hlk : t.contains k = true) : δ :=
   match t with
   | .inner _ k' v' l r =>
     match h : compare k k' with
-    | .lt => get l k (by simpa [contains, h] using hlk)
-    | .gt => get r k (by simpa [contains, h] using hlk)
+    | .lt => get l k (by simpa [instMembershipOfOrd, contains, h] using hlk)
+    | .gt => get r k (by simpa [instMembershipOfOrd, contains, h] using hlk)
     | .eq => v'
 
 /-- Returns the value for the key `k`, or panics if such a key does not exist. -/

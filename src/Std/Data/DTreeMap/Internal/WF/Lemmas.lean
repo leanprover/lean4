@@ -1091,6 +1091,11 @@ theorem alter_eq_alter! [Ord α] [LawfulEqOrd α] {t : Impl α β} {a f} (htb) :
       · exact glue_eq_glue!
       · rfl
 
+theorem toListModel_alter! [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {a f}
+    (htb : t.Balanced) (hto : t.Ordered) :
+    List.Perm (t.alter! a f).toListModel (alterKey a f t.toListModel) := by
+  simpa only [alter_eq_alter!] using toListModel_alter htb hto
+
 /-!
 ### modify
 -/
@@ -1333,6 +1338,11 @@ theorem alter_eq_alter! [Ord α] {t : Impl α β} {a f} (htb) :
       cases f (some v')
       · exact glue_eq_glue!
       · rfl
+
+theorem toListModel_alter! [Ord α] [TransOrd α] {t : Impl α β} {a f}
+    (htb : t.Balanced) (hto : t.Ordered) :
+    List.Perm (alter! a f t).toListModel (Const.alterKey a f t.toListModel) := by
+  simpa only [alter_eq_alter!] using toListModel_alter htb hto
 
 /-!
 ### modify

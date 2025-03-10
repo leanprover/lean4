@@ -2195,9 +2195,9 @@ theorem mem_alter_of_beq_eq_false [LawfulBEq α] {k k' : α} {f : Option (β k) 
 
 theorem size_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).size =
-      if m.contains k && (f (m.get? k)).isNone then
+      if k ∈ m ∧ (f (m.get? k)).isNone then
         m.size - 1
-      else if !m.contains k && (f (m.get? k)).isSome then
+      else if k ∉ m ∧ (f (m.get? k)).isSome then
         m.size + 1
       else
         m.size :=
@@ -2400,9 +2400,9 @@ theorem mem_alter_of_beq_eq_false [EquivBEq α] [LawfulHashable α] {k k' : α}
 
 theorem size_alter [LawfulBEq α] {k : α} {f : Option β → Option β} :
     (Const.alter m k f).size =
-      if m.contains k && (f (Const.get? m k)).isNone then
+      if k ∈ m ∧ (f (Const.get? m k)).isNone then
         m.size - 1
-      else if !m.contains k && (f (Const.get? m k)).isSome then
+      else if k ∉ m ∧ (f (Const.get? m k)).isSome then
         m.size + 1
       else
         m.size :=

@@ -574,20 +574,30 @@ inductive Bool : Type where
 export Bool (false true)
 
 /--
-`Subtype p`, usually written as `{x : α // p x}`, is a type which
-represents all the elements `x : α` for which `p x` is true. It is structurally
-a pair-like type, so if you have `x : α` and `h : p x` then
-`⟨x, h⟩ : {x // p x}`. An element `s : {x // p x}` will coerce to `α` but
-you can also make it explicit using `s.1` or `s.val`.
+All the elements of a type that satisfy a predicate.
+
+`Subtype p`, usually written `{ x : α // p x }` or `{ x // p x }`, contains all elements `x : α` for
+which `p x` is true. Its constructor is a pair of the value and the proof that it satisfies the
+predicate. In run-time code, `{ x : α // p x }` is represented identically to `α`.
+
+There is a coercion from `{ x : α // p x }` to `α`, so elements of a subtype may be used where the
+underlying type is expected.
+
+Examples:
+ * `{ n : Nat // n % 2 = 0 }` is the type of even numbers.
+ * `{ xs : Array String // xs.size = 5 }` is the type of arrays with five `String`s.
+ * Given `xs : List α`, `List { x : α // x ∈ xs }` is the type of lists in which all elements are
+   contained in `xs`.
 -/
 @[pp_using_anonymous_constructor]
 structure Subtype {α : Sort u} (p : α → Prop) where
-  /-- If `s : {x // p x}` then `s.val : α` is the underlying element in the base
-  type. You can also write this as `s.1`, or simply as `s` when the type is
-  known from context. -/
+  /--
+  The value in the underlying type that satisfies the predicate.
+  -/
   val : α
-  /-- If `s : {x // p x}` then `s.2` or `s.property` is the assertion that
-  `p s.1`, that is, that `s` is in fact an element for which `p` holds. -/
+  /--
+  The proof that `val` satisfies the predicate `p`.
+  -/
   property : p val
 
 set_option linter.unusedVariables.funArgs false in

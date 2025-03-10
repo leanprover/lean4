@@ -16,15 +16,20 @@ namespace Frontend.Normalize
 
 open Lean.Meta
 
--- TODO(henrik): Add further match statements like matches with default cases
 /--
 The various kinds of matches supported by the match to cond infrastructure.
 -/
 inductive MatchKind
   /--
   It is a full match statement on an enum inductive with one constructor handled per arm.
+  The ctors are listed in the order they occur in the match statement in `ctors`.
   -/
-  | simpleEnum (info : InductiveVal)
+  | simpleEnum (info : InductiveVal) (ctors : Array ConstructorVal)
+  /--
+  It is a match statement on an enum inductive with a default arm, all explicitly handled ctors
+  are listed in `ctors` in the order they occur in the match statement.
+  -/
+  | enumWithDefault (info : InductiveVal) (ctors : Array ConstructorVal)
 
 /--
 Contains the result of the type analysis to be used in the structures and enums pass.

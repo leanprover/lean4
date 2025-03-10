@@ -60,7 +60,7 @@ private partial def mkErrorMessage (c : InputContext) (pos : String.Pos) (stk : 
 where
   -- Error recovery might lead to there being some "junk" on the stack
   lastTrailing (s : SyntaxStack) : Option Substring :=
-    s.toSubarray.findSomeRevM? (m := Id) fun stx =>
+    Id.run <| s.toSubarray.findSomeRevM? fun stx =>
       if let .original (trailing := trailing) .. := stx.getTailInfo then pure (some trailing)
         else none
 

@@ -82,6 +82,6 @@ termination_by lo hi => hi.1 - lo.1
   else binInsertAux lt merge add as k ⟨0, by omega⟩ ⟨as.size - 1, by omega⟩ (by simp) (by simpa using h')
 
 @[inline] def binInsert {α : Type u} (lt : α → α → Bool) (as : Array α) (k : α) : Array α :=
-  Id.run <| binInsertM lt (fun _ => k) (fun _ => k) as k
+  Id.run <| binInsertM lt (fun _ => pure k) (fun _ => pure k) as k
 
 end Array

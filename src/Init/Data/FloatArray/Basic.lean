@@ -160,7 +160,7 @@ def foldlM {β : Type v} {m : Type v → Type w} [Monad m] (f : β → Float →
 
 @[inline]
 def foldl {β : Type v} (f : β → Float → β) (init : β) (as : FloatArray) (start := 0) (stop := as.size) : β :=
-  Id.run <| as.foldlM f init start stop
+  Id.run <| as.foldlM (pure <| f · ·) init start stop
 
 end FloatArray
 

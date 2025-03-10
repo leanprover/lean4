@@ -354,7 +354,7 @@ map in some order.
 
 /-- Folds the given function over the mappings in the hash map in some order. -/
 @[inline] def fold (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
-  Id.run (b.foldM f init)
+  Id.run (b.foldM (pure <| f · · ·) init)
 
 namespace Internal
 
@@ -373,7 +373,7 @@ Internal implementation detail of the hash map.
 Folds the given function over the mappings in the hash map in the reverse order used
 by `foldM`. -/
 @[inline] def foldRev (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
-  Id.run (foldRevM f init b)
+  Id.run (foldRevM (pure <| f · · ·) init b)
 
 end Internal
 
@@ -392,7 +392,7 @@ by `foldM`. -/
 @[inline, deprecated "Deprecated without replacement. If the order does not matter, use fold."
   (since := "2025-03-07")]
 def foldRev (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
-  Id.run (Internal.foldRevM f init b)
+  Id.run (Internal.foldRevM (pure <| f · · ·) init b)
 
 /-- Carries out a monadic action on each mapping in the hash map in some order. -/
 @[inline] def forM (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=

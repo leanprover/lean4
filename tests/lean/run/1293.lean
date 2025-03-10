@@ -1,5 +1,5 @@
 theorem modifySize {A : Type u} (as : Array A) (f : A → A) (n : Nat) : (as.modify n f).size = as.size := by
-  simp [Array.modify, Array.modifyM, Id.run]; split <;> simp [Id.run]
+  simp [Array.modify, Array.modifyM]; split <;> simp
 
 structure Idx (p : Array String) where
   n : Fin p.size

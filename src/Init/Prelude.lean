@@ -114,36 +114,31 @@ abbrev inferInstanceAs (α : Sort u) [i : α] : α := i
 
 set_option bootstrap.inductiveCheckResultingUniverse false in
 /--
-The unit type, the canonical type with one element, named `unit` or `()`.
-This is the universe-polymorphic version of `Unit`; it is preferred to use
-`Unit` instead where applicable.
-For more information about universe levels: [Types as objects](https://lean-lang.org/theorem_proving_in_lean4/dependent_type_theory.html#types-as-objects)
+The canonical universe-polymorphic type with just one element.
+
+It should be used in contexts that require a type to be universe polymorphic, thus disallowing
+`Unit`.
 -/
 inductive PUnit : Sort u where
-  /-- `PUnit.unit : PUnit` is the canonical element of the unit type. -/
+  /-- The only element of the universe-polymorphic unit type. -/
   | unit : PUnit
 
 /--
-The unit type, the canonical type with one element, named `unit` or `()`.
-In other words, it describes only a single value, which consists of said constructor applied
-to no arguments whatsoever.
-The `Unit` type is similar to `void` in languages derived from C.
+The canonical type with one element. This element is written `()`.
 
-`Unit` is actually defined as `PUnit.{1}` where `PUnit` is the universe
-polymorphic version. The `Unit` should be preferred over `PUnit` where possible to avoid
-unnecessary universe parameters.
-
-In functional programming, `Unit` is the return type of things that "return
-nothing", since a type with one element conveys no additional information.
-When programming with monads, the type `m Unit` represents an action that has
-some side effects but does not return a value, while `m α` would be an action
-that has side effects and returns a value of type `α`.
+`Unit` has a number of uses:
+ * It can be used to model control flow that returns from a function call without providing other
+   information.
+ * Monadic actions that return `Unit` have side effects without computing values.
+ * In polymorphic types, it can be used to indicate that no data is to be stored in a particular
+   field.
 -/
 abbrev Unit : Type := PUnit
 
 /--
-`Unit.unit : Unit` is the canonical element of the unit type.
-It can also be written as `()`.
+The only element of the unit type.
+
+It can be written as an empty tuple: `()`.
 -/
 @[match_pattern] abbrev Unit.unit : Unit := PUnit.unit
 
@@ -471,43 +466,45 @@ theorem eq_of_heq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
   this α α a a' h rfl
 
 /--
-Product type (aka pair). You can use `α × β` as notation for `Prod α β`.
-Given `a : α` and `b : β`, `Prod.mk a b : Prod α β`. You can use `(a, b)`
-as notation for `Prod.mk a b`. Moreover, `(a, b, c)` is notation for
-`Prod.mk a (Prod.mk b c)`.
-Given `p : Prod α β`, `p.1 : α` and `p.2 : β`. They are short for `Prod.fst p`
-and `Prod.snd p` respectively. You can also write `p.fst` and `p.snd`.
-For more information: [Constructors with Arguments](https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html?highlight=Prod#constructors-with-arguments)
+The product type, usually written `α × β`. Product types are also called pair or tuple types.
+Elements of this type are pairs in which the first element is an `α` and the second element is a
+`β`.
+
+Products nest to the right, so `(x, y, z) : α × β × γ` is equivalent to `(x, (y, z)) : α × (β × γ)`.
 -/
 structure Prod (α : Type u) (β : Type v) where
-  /-- Constructs a pair from two terms. -/
+  /--
+  Constructs a pair. This is usually written `(x, y)` instead of `Prod.mk x y`.
+  -/
   mk ::
-  /-- The first projection out of a pair. if `p : α × β` then `p.1 : α`. -/
+  /-- The first element of a pair. -/
   fst : α
-  /-- The second projection out of a pair. if `p : α × β` then `p.2 : β`. -/
+  /-- The second element of a pair. -/
   snd : β
 
 attribute [unbox] Prod
 
 /--
-Similar to `Prod`, but `α` and `β` can be propositions.
-You can use `α ×' β` as notation for `PProd α β`.
-We use this type internally to automatically generate the `brecOn` recursor.
+A product type in which the types may be propositions, usually written `α ×' β`.
+
+This type is primarily used internally and as an implementation detail of proof automation. It is
+rarely useful in hand-written code.
 -/
 structure PProd (α : Sort u) (β : Sort v) where
-  /-- The first projection out of a pair. if `p : PProd α β` then `p.1 : α`. -/
+  /-- The first element of a pair. -/
   fst : α
-  /-- The second projection out of a pair. if `p : PProd α β` then `p.2 : β`. -/
+  /-- The second element of a pair. -/
   snd : β
 
 /--
-Similar to `Prod`, but `α` and `β` are in the same universe.
-We say `MProd` is the universe monomorphic product type.
+A product type in which both `α` and `β` are in the same universe.
+
+It is called `MProd` is because it is the *universe-monomorphic* product type.
 -/
 structure MProd (α β : Type u) where
-  /-- The first projection out of a pair. if `p : MProd α β` then `p.1 : α`. -/
+  /-- The first element of a pair. -/
   fst : α
-  /-- The second projection out of a pair. if `p : MProd α β` then `p.2 : β`. -/
+  /-- The second element of a pair. -/
   snd : β
 
 /--
@@ -822,58 +819,64 @@ theorem ULift.up_down {α : Type u} (b : ULift.{v} α) : Eq (up (down b)) b := r
 theorem ULift.down_up {α : Type u} (a : α) : Eq (down (up.{v} a)) a := rfl
 
 /--
-`Decidable p` is a data-carrying class that supplies a proof that `p` is
-either `true` or `false`. It is equivalent to `Bool` (and in fact it has the
-same code generation as `Bool`) together with a proof that the `Bool` is
-true iff `p` is.
+Either a proof that `p` is true or a proof that `p` is false. This is equivalent to a `Bool` paired
+with a proof that the `Bool` is `true` if and only if `p` is true.
 
-`Decidable` instances are used to infer "computation strategies" for
-propositions, so that you can have the convenience of writing propositions
-inside `if` statements and executing them (which actually executes the inferred
-decidability instance instead of the proposition, which has no code).
+`Decidable` instances are primarily used via `if`-expressions and the tactic `decide`. In
+conditional expressions, the `Decidable` instance for the proposition is used to select a branch. At
+run time, this case distinction code is identical to that which would be generated for a
+`Bool`-based conditional. In proofs, the tactic `decide` synthesizes an instance of `Decidable p`,
+attempts to reduce it to `isTrue h`, and then succeeds with the proof `h` if it can.
 
-If a proposition `p` is `Decidable`, then `(by decide : p)` will prove it by
-evaluating the decidability instance to `isTrue h` and returning `h`.
-
-Because `Decidable` carries data,
-when writing `@[simp]` lemmas which include a `Decidable` instance on the LHS,
-it is best to use `{_ : Decidable p}` rather than `[Decidable p]`
-so that non-canonical instances can be found via unification rather than
-typeclass search.
+Because `Decidable` carries data, when writing `@[simp]` lemmas which include a `Decidable` instance
+on the LHS, it is best to use `{_ : Decidable p}` rather than `[Decidable p]` so that non-canonical
+instances can be found via unification rather than instance synthesis.
 -/
 class inductive Decidable (p : Prop) where
-  /-- Prove that `p` is decidable by supplying a proof of `¬p` -/
+  /-- Proves that `p` is decidable by supplying a proof of `¬p` -/
   | isFalse (h : Not p) : Decidable p
-  /-- Prove that `p` is decidable by supplying a proof of `p` -/
+  /-- Proves that `p` is decidable by supplying a proof of `p` -/
   | isTrue (h : p) : Decidable p
 
 /--
-Convert a decidable proposition into a boolean value.
+Converts a decidable proposition into a `Bool`.
 
-If `p : Prop` is decidable, then `decide p : Bool` is the boolean value
-which is `true` if `p` is true and `false` if `p` is false.
+If `p : Prop` is decidable, then `decide p : Bool` is the Boolean value
+that is `true` if `p` is true and `false` if `p` is false.
 -/
 @[inline_if_reduce, nospecialize] def Decidable.decide (p : Prop) [h : Decidable p] : Bool :=
   h.casesOn (fun _ => false) (fun _ => true)
 
 export Decidable (isTrue isFalse decide)
 
-/-- A decidable predicate. See `Decidable`. -/
+/--
+A decidable predicate.
+
+A predicate is decidable if the corresponding proposition is `Decidable` for each possible argument.
+-/
 abbrev DecidablePred {α : Sort u} (r : α → Prop) :=
   (a : α) → Decidable (r a)
 
-/-- A decidable relation. See `Decidable`. -/
+/--
+A decidable relation.
+
+A relation is decidable if the corresponding proposition is `Decidable` for all possible arguments.
+-/
 abbrev DecidableRel {α : Sort u} {β : Sort v} (r : α → β → Prop) :=
   (a : α) → (b : β) → Decidable (r a b)
 
 /--
-Asserts that `α` has decidable equality, that is, `a = b` is decidable
-for all `a b : α`. See `Decidable`.
+Propositional equality is `Decidable` for all elements of a type.
+
+In other words, an instance of `DecidableEq α` is a means of deciding the proposition `a = b` is
+for all `a b : α`.
 -/
 abbrev DecidableEq (α : Sort u) :=
   (a b : α) → Decidable (Eq a b)
 
-/-- Proves that `a = b` is decidable given `DecidableEq α`. -/
+/--
+Checks whether two terms of a type are equal using the type's `DecidableEq` instance.
+-/
 def decEq {α : Sort u} [inst : DecidableEq α] (a b : α) : Decidable (Eq a b) :=
   inst a b
 
@@ -1876,17 +1879,24 @@ theorem System.Platform.numBits_eq : Or (Eq numBits 32) (Eq numBits 64) :=
   (getNumBits ()).property
 
 /--
-`Fin n` is a natural number `i` with the constraint that `0 ≤ i < n`.
-It is the "canonical type with `n` elements".
+Natural numbers less than some upper bound.
+
+In particular, a `Fin n` is a natural number `i` with the constraint that `i < n`. It is the
+canonical type with `n` elements.
 -/
 @[pp_using_anonymous_constructor]
 structure Fin (n : Nat) where
   /-- Creates a `Fin n` from `i : Nat` and a proof that `i < n`. -/
   mk ::
-  /-- If `i : Fin n`, then `i.val : ℕ` is the described number. It can also be
-  written as `i.1` or just `i` when the target type is known. -/
+  /--
+  The number that is strictly less than `n`.
+
+  `Fin.val` is a coercion, so any `Fin n` can be used in a position where a `Nat` is expected.
+  -/
   val  : Nat
-  /-- If `i : Fin n`, then `i.2` is a proof that `i.1 < n`. -/
+  /--
+  The number `val` is strictly less than the bound `n`.
+  -/
   isLt : LT.lt val n
 
 attribute [coe] Fin.val
@@ -2307,37 +2317,10 @@ def Char.utf8Size (c : Char) : Nat :=
       (ite (LE.le v (UInt32.ofNatLT 0xFFFF (of_decide_eq_true rfl))) 3 4))
 
 /--
-`Option α` is the type of values which are either `some a` for some `a : α`,
-or `none`. In functional programming languages, this type is used to represent
-the possibility of failure, or sometimes nullability.
+Optional values, which are either `some` around a value from the underlying type or `none`.
 
-For example, the function `HashMap.get? : HashMap α β → α → Option β` looks up
-a specified key `a : α` inside the map. Because we do not know in advance
-whether the key is actually in the map, the return type is `Option β`, where
-`none` means the value was not in the map, and `some b` means that the value
-was found and `b` is the value retrieved.
-
-The `xs[i]` syntax, which is used to index into collections, has a variant
-`xs[i]?` that returns an optional value depending on whether the given index
-is valid. For example, if `m : HashMap α β` and `a : α`, then `m[a]?` is
-equivalent to `HashMap.get? m a`.
-
-To extract a value from an `Option α`, we use pattern matching:
-```
-def map (f : α → β) (x : Option α) : Option β :=
-  match x with
-  | some a => some (f a)
-  | none => none
-```
-We can also use `if let` to pattern match on `Option` and get the value
-in the branch:
-```
-def map (f : α → β) (x : Option α) : Option β :=
-  if let some a := x then
-    some (f a)
-  else
-    none
-```
+`Option` can represent nullable types or computations that might fail. In the codomain of a function
+type, it can also represent partiality.
 -/
 inductive Option (α : Type u) where
   /-- No value. -/
@@ -2353,11 +2336,14 @@ instance {α} : Inhabited (Option α) where
   default := none
 
 /--
-Get with default. If `opt : Option α` and `dflt : α`, then `opt.getD dflt`
-returns `a` if `opt = some a` and `dflt` otherwise.
+Gets an optional value, returning a given default on `none`.
 
-This function is `@[macro_inline]`, so `dflt` will not be evaluated unless
-`opt` turns out to be `none`.
+This function is `@[macro_inline]`, so `dflt` will not be evaluated unless `opt` turns out to be
+`none`.
+
+Examples:
+ * `(some "hello").getD "goodbye" = "hello"`
+ * `none.getD "goodbye" = "hello"`
 -/
 @[macro_inline] def Option.getD (opt : Option α) (dflt : α) : α :=
   match opt with
@@ -2365,8 +2351,14 @@ This function is `@[macro_inline]`, so `dflt` will not be evaluated unless
   | none => dflt
 
 /--
-Map a function over an `Option` by applying the function to the contained
-value if present.
+Apply a function to an optional value, if present.
+
+From the perspective of `Option` as a container with at most one value, this is analogous to
+`List.map`. It can also be accessed via the `Functor Option` instance.
+
+Examples:
+ * `(none : Option Nat).map (· + 1) = none`
+ * `(some 3).map (· + 1) = some 4`
 -/
 @[inline] protected def Option.map (f : α → β) : Option α → Option β
   | some x => some (f x)
@@ -2808,28 +2800,58 @@ class Bind (m : Type u → Type v) where
 
 export Bind (bind)
 
-/-- The typeclass which supplies the `pure` function. See `Monad`. -/
+/--
+The `pure` function is overloaded via `Pure` instances.
+
+`Pure` is typically accessed via `Monad` or `Applicative` instances.
+-/
 class Pure (f : Type u → Type v) where
-  /-- If `a : α`, then `pure a : f α` represents a monadic action that does
-  nothing and returns `a`. -/
+  /--
+  Given `a : α`, then `pure a : f α` represents an action that does nothing and returns `a`.
+
+  Examples:
+  * `(pure "hello" : Option String) = some "hello"`
+  * `(pure "hello" : Except (Array String) String) = Except.ok "hello"`
+  * `(pure "hello" : StateM Nat String).run 105 = ("hello", 105)`
+  -/
   pure {α : Type u} : α → f α
 
 export Pure (pure)
 
 /--
-In functional programming, a "functor" is a function on types `F : Type u → Type v`
-equipped with an operator called `map` or `<$>` such that if `f : α → β` then
-`map f : F α → F β`, so `f <$> x : F β` if `x : F α`. This corresponds to the
-category-theory notion of [functor](https://en.wikipedia.org/wiki/Functor) in
-the special case where the category is the category of types and functions
-between them, except that this class supplies only the operations and not the
-laws (see `LawfulFunctor`).
+A functor in the sense used in functional programming, which means a function `f : Type u → Type v`
+has a way of mapping a function over its contents. This `map` operator is written `<$>`, and
+overloaded via `Functor` instances.
+
+This `map` function should respect identity and function composition. In other words, for all terms
+`v : f α`, it should be the case that:
+
+ * `id <$> v = v`
+
+ * For all functions `h : β → γ` and `g : α → β`, `(h ∘ g) <$> v = h <$> g <$> v`
+
+While all `Functor` instances should live up to these requirements, they are not required to _prove_
+that they do. Proofs may be required or provided via the `LawfulFunctor` class.
+
+Assuming that instances are lawful, this definition corresponds to the category-theoretic notion of
+[functor](https://en.wikipedia.org/wiki/Functor) in the special case where the category is the
+category of types and functions between them.
 -/
 class Functor (f : Type u → Type v) : Type (max (u+1) v) where
-  /-- If `f : α → β` and `x : F α` then `f <$> x : F β`. -/
+  /--
+  Applies a function inside a functor. This is used to overload the `<$>` operator.
+
+  When mapping a constant function, use `Functor.mapConst` instead, because it may be more
+  efficient.
+  -/
   map : {α β : Type u} → (α → β) → f α → f β
-  /-- The special case `const a <$> x`, which can sometimes be implemented more
-  efficiently. -/
+  /--
+  Mapping a constant function.
+
+  Given `a : α` and `v : f α`, `mapConst a v` is equivalent to `Function.const _ a <$> v`. For some
+  functors, this can be implemented more efficiently; for all other functors, the default
+  implementation may be used.
+  -/
   mapConst : {α β : Type u} → α → f β → f α := Function.comp map (Function.const _)
 
 /-- The typeclass which supplies the `<*>` "seq" function. See `Applicative`. -/

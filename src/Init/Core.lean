@@ -138,46 +138,50 @@ recommended_spelling "iff" for "↔" in [Iff, «term_↔_»]
 recommended_spelling "iff" for "<->" in [Iff, «term_<->_»]
 
 /--
-`Sum α β`, or `α ⊕ β`, is the disjoint union of types `α` and `β`.
-An element of `α ⊕ β` is either of the form `.inl a` where `a : α`,
-or `.inr b` where `b : β`.
+The disjoint union of types `α` and `β`, ordinarily written `α ⊕ β`.
+
+An element of `α ⊕ β` is either an `a : α` wrapped in `Sum.inl` or a `b : β` wrapped in `Sum.inr`.
+`α ⊕ β` is not equivalent to the set-theoretic union of `α` and `β` because its values include an
+indication of which of the two types was chosen. The union of a singleton set with itself contains
+one element, while `Unit ⊕ Unit` contains distinct values `inl ()` and `inr ()`.
 -/
 inductive Sum (α : Type u) (β : Type v) where
-  /-- Left injection into the sum type `α ⊕ β`. If `a : α` then `.inl a : α ⊕ β`. -/
+  /-- Left injection into the sum type `α ⊕ β`. -/
   | inl (val : α) : Sum α β
-  /-- Right injection into the sum type `α ⊕ β`. If `b : β` then `.inr b : α ⊕ β`. -/
+  /-- Right injection into the sum type `α ⊕ β`. -/
   | inr (val : β) : Sum α β
 
 @[inherit_doc] infixr:30 " ⊕ " => Sum
 
 /--
-`PSum α β`, or `α ⊕' β`, is the disjoint union of types `α` and `β`.
-It differs from `α ⊕ β` in that it allows `α` and `β` to have arbitrary sorts
-`Sort u` and `Sort v`, instead of restricting to `Type u` and `Type v`. This means
-that it can be used in situations where one side is a proposition, like `True ⊕' Nat`.
+The disjoint union of arbitrary sorts `α` `β`, or `α ⊕' β`.
 
-The reason this is not the default is that this type lives in the universe `Sort (max 1 u v)`,
-which can cause problems for universe level unification,
-because the equation `max 1 u v = ?u + 1` has no solution in level arithmetic.
-`PSum` is usually only used in automation that constructs sums of arbitrary types.
+It differs from `α ⊕ β` in that it allows `α` and `β` to have arbitrary sorts `Sort u` and `Sort v`,
+instead of restricting them to `Type u` and `Type v`. This means that it can be used in situations
+where one side is a proposition, like `True ⊕' Nat`. However, the resulting universe level
+constraints are often more difficult to solve than those that result from `Sum`.
 -/
 inductive PSum (α : Sort u) (β : Sort v) where
-  /-- Left injection into the sum type `α ⊕' β`. If `a : α` then `.inl a : α ⊕' β`. -/
+  /-- Left injection into the sum type `α ⊕' β`.-/
   | inl (val : α) : PSum α β
-  /-- Right injection into the sum type `α ⊕' β`. If `b : β` then `.inr b : α ⊕' β`. -/
+  /-- Right injection into the sum type `α ⊕' β`. -/
   | inr (val : β) : PSum α β
 
 @[inherit_doc] infixr:30 " ⊕' " => PSum
 
 /--
-`PSum α β` is inhabited if `α` is inhabited.
-This is not an instance to avoid non-canonical instances.
+If the left type in a sum is inhabited then the sum is inhabited.
+
+This is not an instance to avoid non-canonical instances when both the left and right types are
+inhabited.
 -/
-@[reducible] def  PSum.inhabitedLeft {α β} [Inhabited α] : Inhabited (PSum α β) := ⟨PSum.inl default⟩
+@[reducible] def PSum.inhabitedLeft {α β} [Inhabited α] : Inhabited (PSum α β) := ⟨PSum.inl default⟩
 
 /--
-`PSum α β` is inhabited if `β` is inhabited.
-This is not an instance to avoid non-canonical instances.
+If the right type in a sum is inhabited then the sum is inhabited.
+
+This is not an instance to avoid non-canonical instances when both the left and right types are
+inhabited.
 -/
 @[reducible] def PSum.inhabitedRight {α β} [Inhabited β] : Inhabited (PSum α β) := ⟨PSum.inr default⟩
 
@@ -188,47 +192,58 @@ instance PSum.nonemptyRight [h : Nonempty β] : Nonempty (PSum α β) :=
   Nonempty.elim h (fun b => ⟨PSum.inr b⟩)
 
 /--
-`Sigma β`, also denoted `Σ a : α, β a` or `(a : α) × β a`, is the type of dependent pairs
-whose first component is `a : α` and whose second component is `b : β a`
-(so the type of the second component can depend on the value of the first component).
-It is sometimes known as the dependent sum type, since it is the type level version
-of an indexed summation.
+Dependent pairs, in which the second element's type depends on the value of the first element. The
+type `Sigma β` is typically written `Σ a : α, β a` or `(a : α) × β a`.
+
+Although its values are pairs, `Sigma` is sometimes known as the *dependent sum type*, since it is
+the type level version of an indexed summation.
 -/
 @[pp_using_anonymous_constructor]
 structure Sigma {α : Type u} (β : α → Type v) where
-  /-- Constructor for a dependent pair. If `a : α` and `b : β a` then `⟨a, b⟩ : Sigma β`.
-  (This will usually require a type ascription to determine `β`
-  since it is not determined from `a` and `b` alone.) -/
+  /--
+  Constructs a dependent pair.
+
+  Using this constructor in a context in which the type is not known usually requires a type
+  ascription to determine `β`. This is because the desired relationship between the two values can't
+  generally be determined automatically.
+  -/
   mk ::
-  /-- The first component of a dependent pair. If `p : @Sigma α β` then `p.1 : α`. -/
+  /--
+  The first component of a dependent pair.
+  -/
   fst : α
-  /-- The second component of a dependent pair. If `p : Sigma β` then `p.2 : β p.1`. -/
+  /--
+  The second component of a dependent pair. Its type depends on the first component.
+  -/
   snd : β fst
 
 attribute [unbox] Sigma
 
 /--
-`PSigma β`, also denoted `Σ' a : α, β a` or `(a : α) ×' β a`, is the type of dependent pairs
-whose first component is `a : α` and whose second component is `b : β a`
-(so the type of the second component can depend on the value of the first component).
-It differs from `Σ a : α, β a` in that it allows `α` and `β` to have arbitrary sorts
-`Sort u` and `Sort v`, instead of restricting to `Type u` and `Type v`. This means
-that it can be used in situations where one side is a proposition, like `(p : Nat) ×' p = p`.
+Fully universe-polymorphic dependent pairs, in which the second element's type depends on the value
+of the first element and both types are allowed to be propositions. The type `PSigma β` is typically
+written `Σ' a : α, β a` or `(a : α) ×' β a`.
 
-The reason this is not the default is that this type lives in the universe `Sort (max 1 u v)`,
-which can cause problems for universe level unification,
-because the equation `max 1 u v = ?u + 1` has no solution in level arithmetic.
-`PSigma` is usually only used in automation that constructs pairs of arbitrary types.
+In practice, this generality leads to universe level constraints that are difficult to solve, so
+`PSigma` is rarely used in manually-written code. It is usually only used in automation that
+constructs pairs of arbitrary types.
+
+To pair a value with a proof that a predicate holds for it, use `Subtype`. To demonstrate that a
+value exists that satisfies a predicate, use `Exists`. A dependent pair with a proposition as its
+first component is not typically useful due to proof irrelevance: there's no point in depending on a
+specific proof because all proofs are equal anyway.
 -/
 @[pp_using_anonymous_constructor]
 structure PSigma {α : Sort u} (β : α → Sort v) where
-  /-- Constructor for a dependent pair. If `a : α` and `b : β a` then `⟨a, b⟩ : PSigma β`.
-  (This will usually require a type ascription to determine `β`
-  since it is not determined from `a` and `b` alone.) -/
+  /-- Constructs a fully universe-polymorphic dependent pair. -/
   mk ::
-  /-- The first component of a dependent pair. If `p : @Sigma α β` then `p.1 : α`. -/
+  /--
+  The first component of a dependent pair.
+  -/
   fst : α
-  /-- The second component of a dependent pair. If `p : Sigma β` then `p.2 : β p.1`. -/
+  /--
+  The second component of a dependent pair. Its type depends on the first component.
+  -/
   snd : β fst
 
 /--
@@ -935,9 +950,10 @@ namespace Decidable
 variable {p q : Prop}
 
 /--
-Synonym for `dite` (dependent if-then-else). We can construct an element `q`
-(of any sort, not just a proposition) by cases on whether `p` is true or false,
-provided `p` is decidable.
+Construct a `q` if some proposition `p` is decidable, and both the truth and falsity of `p` are
+sufficient to construct a `q`.
+
+This is a synonym for `dite`, the dependent if-then-else operator.
 -/
 @[macro_inline] def byCases {q : Sort u} [dec : Decidable p] (h1 : p → q) (h2 : ¬p → q) : q :=
   match dec with
@@ -1210,12 +1226,12 @@ end Subtype
 section
 variable {α : Type u} {β : Type v}
 
-/-- This is not an instance to avoid non-canonical instances. -/
-@[reducible] def Sum.inhabitedLeft [Inhabited α] : Inhabited (Sum α β) where
+@[reducible, inherit_doc PSum.inhabitedLeft]
+def Sum.inhabitedLeft [Inhabited α] : Inhabited (Sum α β) where
   default := Sum.inl default
 
-/-- This is not an instance to avoid non-canonical instances. -/
-@[reducible] def Sum.inhabitedRight [Inhabited β] : Inhabited (Sum α β) where
+@[reducible, inherit_doc PSum.inhabitedRight]
+def Sum.inhabitedRight [Inhabited β] : Inhabited (Sum α β) where
   default := Sum.inr default
 
 instance Sum.nonemptyLeft [h : Nonempty α] : Nonempty (Sum α β) :=
@@ -1275,7 +1291,12 @@ instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
 instance [BEq α] [BEq β] : BEq (α × β) where
   beq := fun (a₁, b₁) (a₂, b₂) => a₁ == a₂ && b₁ == b₂
 
-/-- Lexicographical order for products -/
+/--
+Lexicographical order for products.
+
+Two pairs are lexicographically ordered if their first elements are ordered or if their first
+elements are equal and their second elements are ordered.
+-/
 def Prod.lexLt [LT α] [LT β] (s : α × β) (t : α × β) : Prop :=
   s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)
 
@@ -1291,8 +1312,11 @@ theorem Prod.lexLt_def [LT α] [LT β] (s t : α × β) : (Prod.lexLt s t) = (s.
 theorem Prod.eta (p : α × β) : (p.1, p.2) = p := rfl
 
 /--
-`Prod.map f g : α₁ × β₁ → α₂ × β₂` maps across a pair
-by applying `f` to the first component and `g` to the second.
+Transforms a pair by applying functions to both elements.
+
+Examples:
+ * `(1, 2).map (· + 1) (· * 3) = (2, 6)`
+ * `(1, 2).map toString (· * 3) = ("1", 6)`
 -/
 def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
     (f : α₁ → α₂) (g : β₁ → β₂) : α₁ × β₁ → α₂ × β₂

@@ -190,7 +190,7 @@ theorem foldl_succ_last (f : α → Fin (n+1) → α) (x) :
   | succ n ih => rw [foldl_succ, ih (f · ·.succ), foldl_succ]; simp [succ_castSucc]
 
 theorem foldl_eq_foldlM (f : α → Fin n → α) (x) :
-    foldl n f x = foldlM (m:=Id) n f x := by
+    foldl n f x = (foldlM (m := Id) n (pure <| f · ·) x).run := by
   induction n generalizing x <;> simp [foldl_succ, foldlM_succ, *]
 
 /-! ### foldr -/
@@ -223,7 +223,7 @@ theorem foldr_succ_last (f : Fin (n+1) → α → α) (x) :
   | succ n ih => rw [foldr_succ, ih (f ·.succ), foldr_succ]; simp [succ_castSucc]
 
 theorem foldr_eq_foldrM (f : Fin n → α → α) (x) :
-    foldr n f x = foldrM (m:=Id) n f x := by
+    foldr n f x = (foldrM (m := Id) n (pure <| f · ·) x).run := by
   induction n <;> simp [foldr_succ, foldrM_succ, *]
 
 theorem foldl_rev (f : Fin n → α → α) (x) :

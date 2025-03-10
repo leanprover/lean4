@@ -4276,6 +4276,15 @@ theorem Option.isSome_of_mem {x : Option α} {y : α} (h : y ∈ x) : x.isSome :
 theorem Option.isSome_of_eq_some {x : Option α} {y : α} (h : x = some y) : x.isSome := by
   rw [h, Option.isSome_some]
 
+theorem Option.get_inj {o1 o2 : Option α} {h1} {h2} :
+    o1.get h1 = o2.get h2 ↔ o1 = o2 := by
+  cases o1 with
+  | some a =>
+    cases o2 with
+    | some b => simp
+    | none => simp at h2
+  | none => simp at h1
+
 theorem getEntry?_filterMap' [BEq α] [EquivBEq α]
     {f : ((a : α) × β a) → Option (((a : α) × γ a))}
     (hf : ∀ p, (f p).all (·.1 == p.1))
@@ -4384,15 +4393,7 @@ theorem getValueCast?_map [BEq α] [LawfulBEq α]
 theorem getKey?_map [BEq α] [EquivBEq α] {f : (a : α) → β a → γ a}
     {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
     getKey? k (l.map fun p => ⟨p.1, f p.1 p.2⟩) = getKey? k l := by
-  simp [getKey?_eq_getEntry?, getEntry?_map]
-  induction l with
-  | nil => simp
-  | cons hd tl ih =>
-    simp only [List.map_cons, getEntry?]
-    by_cases hd_k : hd.fst == k
-    · simp [hd_k]
-    · rw [distinctKeys_cons_iff] at hl
-      simp [hd_k, ih (And.left hl)]
+  simp only [getKey?_eq_getEntry?, getEntry?_map hl, Option.map_map, Function.comp_def]
 
 theorem containsKey_map [BEq α] [EquivBEq α] {f : (a : α) → β a → γ a}
     {l : List ((a : α) × β a)} {k : α} :
@@ -4401,29 +4402,20 @@ theorem containsKey_map [BEq α] [EquivBEq α] {f : (a : α) → β a → γ a}
   | nil => simp
   | cons hd tl ih => simp [containsKey, ih]
 
-theorem Option.get_eq_get {o1 o2 : Option α} {h1} {h2} :
-    o1.get h1 = o2.get h2 ↔ o1 = o2 := by
-  cases o1 with
-  | some a =>
-    cases o2 with
-    | some b => simp
-    | none => simp at h2
-  | none => simp at h1
-
 theorem getKey_map [BEq α] [EquivBEq α] {f : (a : α) → β a → γ a}
     {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) {h} :
-    getKey k (l.map fun p => ⟨p.1, f p.1 p.2⟩) h = getKey k l (by rw [← containsKey_map]; exact h) := by
-  simp [getKey, Option.get_eq_get, getKey?_map hl]
+    getKey k (l.map fun p => ⟨p.1, f p.1 p.2⟩) h = getKey k l (containsKey_map.symm.trans h) := by
+  simp only [getKey, Option.get_inj, getKey?_map hl]
 
 theorem getKey!_map [BEq α] [EquivBEq α] [Inhabited α] {f : (a : α) → β a → γ a}
     {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
     getKey! k (l.map fun p => ⟨p.1, f p.1 p.2⟩) = getKey! k l := by
-  simp [getKey!_eq_getKey?, getKey?_map hl]
+  simp only [getKey!_eq_getKey?, getKey?_map hl]
 
 theorem getKeyD_map [BEq α] [EquivBEq α] {f : (a : α) → β a → γ a}
     {l : List ((a : α) × β a)} {k : α} {fallback : α} (hl : DistinctKeys l) :
     getKeyD k (l.map fun p => ⟨p.1, f p.1 p.2⟩) fallback = getKeyD k l fallback := by
-  simp [getKeyD_eq_getKey?, getKey?_map hl]
+  simp only [getKeyD_eq_getKey?, getKey?_map hl]
 
 theorem length_filterMap_eq_length_iff [BEq α] [LawfulBEq α] {f : (a : α) → β a → Option (γ a)}
     {l : List ((a : α) × β a)} (distinct : DistinctKeys l):
@@ -4442,6 +4434,8 @@ theorem length_filterMap_eq_length_iff [BEq α] [LawfulBEq α] {f : (a : α) →
     rw [getValueCast_of_mem hx distinct] at h
     exact h
 
+namespace Const
+
 theorem getKey_getValue_mem [BEq α] [EquivBEq α] {β : Type v} {l : List ((_ : α) × β)} {k : α} {h} :
     ⟨getKey k l h, getValue k l h⟩ ∈ l := by
   induction l with
@@ -4453,8 +4447,8 @@ theorem getKey_getValue_mem [BEq α] [EquivBEq α] {β : Type v} {l : List ((_ :
     · rw [getKey_cons, getValue_cons]
       simp [hd_k, ih]
 
-theorem length_filterMap_eq_length_iff_const {β : Type v} {γ : Type w} [BEq α] [EquivBEq α] {f : (_ : α) → β → Option γ}
-    {l : List ((_ : α) × β)} (distinct : DistinctKeys l) :
+theorem length_filterMap_eq_length_iff {β : Type v} {γ : Type w} [BEq α] [EquivBEq α]
+    {f : (_ : α) → β → Option γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) :
     (l.filterMap fun p => (f p.1 p.2).map (fun x => (⟨p.1, x⟩ : (_ : α) × γ))).length = l.length ↔
       ∀ (a : α) (h : containsKey a l), (f (getKey a l h) (getValue a l h)).isSome := by
   rw [List.filterMap_length_eq_length]
@@ -4470,11 +4464,7 @@ theorem length_filterMap_eq_length_iff_const {β : Type v} {γ : Type w} [BEq α
     simp [getValue_of_mem hx distinct, getKey_of_mem hx distinct] at h
     exact h
 
-theorem length_filterMap_eq_length_iff_unit [BEq α] [EquivBEq α] {f : (_ : α) → Option Unit}
-    {l : List ((_ : α) × Unit)} (distinct : DistinctKeys l) :
-    (l.filterMap fun p => (f p.1).map (fun _ => (⟨p.1, ()⟩ : (_ : α) × Unit))).length = l.length ↔
-      ∀ (a: α) (h : containsKey a l), (f (getKey a l h)).isSome := by
-  rw [length_filterMap_eq_length_iff_const (f:= fun a _ => f a) distinct]
+end Const
 
 end FilterMap
 

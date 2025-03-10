@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura, François G. Dorais, Mario Carneiro, Mac Malone
+Authors: Leonardo de Moura, François G. Dorais, Mario Carneiro, Mac Malone, Markus Himmel
 -/
 prelude
 import Init.Data.UInt.Basic
@@ -27,7 +27,10 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   @[deprecated toNat_ofBitVec (since := "2025-02-12")]
   theorem toNat_mk : (ofBitVec a).toNat = a.toNat := rfl
 
-  @[simp] theorem toNat_ofNat {n : Nat} : (ofNat n).toNat = n % 2 ^ $bits := BitVec.toNat_ofNat ..
+  @[simp] theorem toNat_ofNat' {n : Nat} : (ofNat n).toNat = n % 2 ^ $bits := BitVec.toNat_ofNat ..
+
+  -- Not `simp` because we have simprocs which will avoid the modulo.
+  theorem toNat_ofNat {n : Nat} : toNat (no_index (OfNat.ofNat n)) = n % 2 ^ $bits := toNat_ofNat'
 
   @[simp] theorem toNat_ofNatLT {n : Nat} {h : n < size} : (ofNatLT n h).toNat = n := BitVec.toNat_ofNatLT ..
 
@@ -55,11 +58,16 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   theorem mk_toBitVec_eq : ∀ (a : $typeName), ofBitVec a.toBitVec = a
     | ⟨_, _⟩ => rfl
 
+  @[deprecated "Use `toNat_toBitVec` and `toNat_ofNat_of_lt`." (since := "2025-03-05")]
   theorem toBitVec_eq_of_lt {a : Nat} : a < size → (ofNat a).toBitVec.toNat = a :=
     Nat.mod_eq_of_lt
 
-  theorem toNat_ofNat_of_lt {n : Nat} (h : n < size) : (ofNat n).toNat = n := by
-    rw [toNat, toBitVec_eq_of_lt h]
+  theorem toBitVec_ofNat' (n : Nat) : (ofNat n).toBitVec = BitVec.ofNat _ n := rfl
+
+  theorem toNat_ofNat_of_lt' {n : Nat} (h : n < size) : (ofNat n).toNat = n := by
+    rw [toNat, toBitVec_ofNat', BitVec.toNat_ofNat, Nat.mod_eq_of_lt h]
+  theorem toNat_ofNat_of_lt {n : Nat} (h : n < size) : toNat (OfNat.ofNat n) = n :=
+    toNat_ofNat_of_lt' h
 
   @[int_toBitVec] theorem le_def {a b : $typeName} : a ≤ b ↔ a.toBitVec ≤ b.toBitVec := .rfl
 
@@ -151,10 +159,10 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   protected theorem toNat_lt_size (a : $typeName) : a.toNat < size := a.toBitVec.isLt
 
   open $typeName (toNat_mod toNat_lt_size) in
-  protected theorem toNat_mod_lt {m : Nat} : ∀ (u : $typeName), m > 0 → toNat (u % ofNat m) < m := by
+  protected theorem toNat_mod_lt {m : Nat} : ∀ (u : $typeName), 0 < m → toNat (u % ofNat m) < m := by
     intro u h1
     by_cases h2 : m < size
-    · rw [toNat_mod, toNat_ofNat_of_lt h2]
+    · rw [toNat_mod, toNat_ofNat_of_lt' h2]
       apply Nat.mod_lt _ h1
     · apply Nat.lt_of_lt_of_le
       · apply toNat_lt_size
@@ -258,16 +266,20 @@ theorem USize.toNat_ofNat_of_lt_32 {n : Nat} (h : n < 4294967296) : toNat (ofNat
   toNat_ofNat_of_lt (Nat.lt_of_lt_of_le h USize.le_size)
 
 theorem UInt32.toNat_lt_of_lt {n : UInt32} {m : Nat} (h : m < size) : n < ofNat m → n.toNat < m := by
-  simp [-toNat_toBitVec, lt_def, BitVec.lt_def, UInt32.toNat, toBitVec_eq_of_lt h]
+  rw [lt_def, BitVec.lt_def, toNat_toBitVec, toNat_toBitVec, toNat_ofNat_of_lt' h]
+  exact id
 
 theorem UInt32.lt_toNat_of_lt {n : UInt32} {m : Nat} (h : m < size) : ofNat m < n → m < n.toNat := by
-  simp [-toNat_toBitVec, lt_def, BitVec.lt_def, UInt32.toNat, toBitVec_eq_of_lt h]
+  rw [lt_def, BitVec.lt_def, toNat_toBitVec, toNat_toBitVec, toNat_ofNat_of_lt' h]
+  exact id
 
 theorem UInt32.toNat_le_of_le {n : UInt32} {m : Nat} (h : m < size) : n ≤ ofNat m → n.toNat ≤ m := by
-  simp [-toNat_toBitVec, le_def, BitVec.le_def, UInt32.toNat, toBitVec_eq_of_lt h]
+  rw [le_def, BitVec.le_def, toNat_toBitVec, toNat_toBitVec, toNat_ofNat_of_lt' h]
+  exact id
 
 theorem UInt32.le_toNat_of_le {n : UInt32} {m : Nat} (h : m < size) : ofNat m ≤ n → m ≤ n.toNat := by
-  simp [-toNat_toBitVec, le_def, BitVec.le_def, UInt32.toNat, toBitVec_eq_of_lt h]
+  rw [le_def, BitVec.le_def, toNat_toBitVec, toNat_toBitVec, toNat_ofNat_of_lt' h]
+  exact id
 
 @[simp] theorem UInt8.toNat_lt (n : UInt8) : n.toNat < 2 ^ 8 := n.toFin.isLt
 @[simp] theorem UInt16.toNat_lt (n : UInt16) : n.toNat < 2 ^ 16 := n.toFin.isLt
@@ -310,6 +322,15 @@ theorem USize.size_dvd_uInt64Size : USize.size ∣ UInt64.size := by cases USize
   Nat.mod_mod_of_dvd _ UInt32.size_dvd_usizeSize
 @[simp] theorem mod_uInt64Size_uSizeSize (n : Nat) : n % UInt64.size % USize.size = n % USize.size :=
   Nat.mod_mod_of_dvd _ USize.size_dvd_uInt64Size
+
+@[simp] theorem USize.size_sub_one_mod_uint8Size : (USize.size - 1) % UInt8.size = UInt8.size - 1 := by
+  cases USize.size_eq <;> simp_all +decide
+@[simp] theorem USize.size_sub_one_mod_uint16Size : (USize.size - 1) % UInt16.size = UInt16.size - 1 := by
+  cases USize.size_eq <;> simp_all +decide
+@[simp] theorem USize.size_sub_one_mod_uint32Size : (USize.size - 1) % UInt32.size = UInt32.size - 1 := by
+  cases USize.size_eq <;> simp_all +decide
+@[simp] theorem UInt64.size_sub_one_mod_uSizeSize : 18446744073709551615 % USize.size = USize.size - 1 := by
+  cases USize.size_eq <;> simp_all +decide
 
 @[simp] theorem UInt8.toNat_mod_size (n : UInt8) : n.toNat % UInt8.size = n.toNat := Nat.mod_eq_of_lt n.toNat_lt
 @[simp] theorem UInt8.toNat_mod_uInt16Size (n : UInt8) : n.toNat % UInt16.size = n.toNat := Nat.mod_eq_of_lt (Nat.lt_trans n.toNat_lt (by decide))
@@ -785,3 +806,541 @@ theorem USize.ofNatTruncate_eq_ofNat (n : Nat) (hn : n < USize.size) :
 -- @[simp] theorem UInt64.toUSize_toUInt32 (n : UInt64) : n.toUInt32.toUSize = ? :=
 -- @[simp] theorem USize.toUInt64_toUInt32 (n : USize) : n.toUInt32.toUInt64 = ? :=
 -- @[simp] theorem USize.toUSize_toUInt32 (n : USize) : n.toInt32.toUSize = ? :=
+
+@[simp] theorem UInt8.toNat_ofFin (x : Fin UInt8.size) : (UInt8.ofFin x).toNat = x.val := rfl
+@[simp] theorem UInt16.toNat_ofFin (x : Fin UInt16.size) : (UInt16.ofFin x).toNat = x.val := rfl
+@[simp] theorem UInt32.toNat_ofFin (x : Fin UInt32.size) : (UInt32.ofFin x).toNat = x.val := rfl
+@[simp] theorem UInt64.toNat_ofFin (x : Fin UInt64.size) : (UInt64.ofFin x).toNat = x.val := rfl
+@[simp] theorem USize.toNat_ofFin (x : Fin USize.size) : (USize.ofFin x).toNat = x.val := rfl
+
+theorem UInt8.toNat_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt8.size) :
+    (UInt8.ofNatTruncate n).toNat = n := by rw [UInt8.ofNatTruncate, dif_pos hn, toNat_ofNatLT]
+theorem UInt16.toNat_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt16.size) :
+    (UInt16.ofNatTruncate n).toNat = n := by rw [UInt16.ofNatTruncate, dif_pos hn, toNat_ofNatLT]
+theorem UInt32.toNat_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt32.size) :
+    (UInt32.ofNatTruncate n).toNat = n := by rw [UInt32.ofNatTruncate, dif_pos hn, toNat_ofNatLT]
+theorem UInt64.toNat_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt64.size) :
+    (UInt64.ofNatTruncate n).toNat = n := by rw [UInt64.ofNatTruncate, dif_pos hn, toNat_ofNatLT]
+theorem USize.toNat_ofNatTruncate_of_lt {n : Nat} (hn : n < USize.size) :
+    (USize.ofNatTruncate n).toNat = n := by rw [USize.ofNatTruncate, dif_pos hn, toNat_ofNatLT]
+
+theorem UInt8.toNat_ofNatTruncate_of_le {n : Nat} (hn : UInt8.size ≤ n) :
+    (UInt8.ofNatTruncate n).toNat = UInt8.size - 1 := by rw [ofNatTruncate, dif_neg (by omega), toNat_ofNatLT]
+theorem UInt16.toNat_ofNatTruncate_of_le {n : Nat} (hn : UInt16.size ≤ n) :
+    (UInt16.ofNatTruncate n).toNat = UInt16.size - 1 := by rw [ofNatTruncate, dif_neg (by omega), toNat_ofNatLT]
+theorem UInt32.toNat_ofNatTruncate_of_le {n : Nat} (hn : UInt32.size ≤ n) :
+    (UInt32.ofNatTruncate n).toNat = UInt32.size - 1 := by rw [ofNatTruncate, dif_neg (by omega), toNat_ofNatLT]
+theorem UInt64.toNat_ofNatTruncate_of_le {n : Nat} (hn : UInt64.size ≤ n) :
+    (UInt64.ofNatTruncate n).toNat = UInt64.size - 1 := by rw [ofNatTruncate, dif_neg (by omega), toNat_ofNatLT]
+theorem USize.toNat_ofNatTruncate_of_le {n : Nat} (hn : USize.size ≤ n) :
+    (USize.ofNatTruncate n).toNat = USize.size - 1 := by rw [ofNatTruncate, dif_neg (by omega), toNat_ofNatLT]
+
+@[simp] theorem UInt8.toFin_ofNatLT {n : Nat} (hn) : (UInt8.ofNatLT n hn).toFin = ⟨n, hn⟩ := rfl
+@[simp] theorem UInt16.toFin_ofNatLT {n : Nat} (hn) : (UInt16.ofNatLT n hn).toFin = ⟨n, hn⟩ := rfl
+@[simp] theorem UInt32.toFin_ofNatLT {n : Nat} (hn) : (UInt32.ofNatLT n hn).toFin = ⟨n, hn⟩ := rfl
+@[simp] theorem UInt64.toFin_ofNatLT {n : Nat} (hn) : (UInt64.ofNatLT n hn).toFin = ⟨n, hn⟩ := rfl
+@[simp] theorem USize.toFin_ofNatLT {n : Nat} (hn) : (USize.ofNatLT n hn).toFin = ⟨n, hn⟩ := rfl
+
+@[simp] theorem UInt8.toFin_ofNat' {n : Nat} : (UInt8.ofNat n).toFin = Fin.ofNat' _ n := rfl
+@[simp] theorem UInt16.toFin_ofNat' {n : Nat} : (UInt16.ofNat n).toFin = Fin.ofNat' _ n := rfl
+@[simp] theorem UInt32.toFin_ofNat' {n : Nat} : (UInt32.ofNat n).toFin = Fin.ofNat' _ n := rfl
+@[simp] theorem UInt64.toFin_ofNat' {n : Nat} : (UInt64.ofNat n).toFin = Fin.ofNat' _ n := rfl
+@[simp] theorem USize.toFin_ofNat' {n : Nat} : (USize.ofNat n).toFin = Fin.ofNat' _ n := rfl
+
+@[simp] theorem UInt8.toFin_ofBitVec {b} : (UInt8.ofBitVec b).toFin = b.toFin := rfl
+@[simp] theorem UInt16.toFin_ofBitVec {b} : (UInt16.ofBitVec b).toFin = b.toFin := rfl
+@[simp] theorem UInt32.toFin_ofBitVec {b} : (UInt32.ofBitVec b).toFin = b.toFin := rfl
+@[simp] theorem UInt64.toFin_ofBitVec {b} : (UInt64.ofBitVec b).toFin = b.toFin := rfl
+@[simp] theorem USize.toFin_ofBitVec {b} : (USize.ofBitVec b).toFin = b.toFin := rfl
+
+theorem UInt8.toFin_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt8.size) :
+    (UInt8.ofNatTruncate n).toFin = ⟨n, hn⟩ :=
+  Fin.val_inj.1 (by simp [toNat_ofNatTruncate_of_lt hn])
+theorem UInt16.toFin_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt16.size) :
+    (UInt16.ofNatTruncate n).toFin = ⟨n, hn⟩ :=
+  Fin.val_inj.1 (by simp [toNat_ofNatTruncate_of_lt hn])
+theorem UInt32.toFin_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt32.size) :
+    (UInt32.ofNatTruncate n).toFin = ⟨n, hn⟩ :=
+  Fin.val_inj.1 (by simp [toNat_ofNatTruncate_of_lt hn])
+theorem UInt64.toFin_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt64.size) :
+    (UInt64.ofNatTruncate n).toFin = ⟨n, hn⟩ :=
+  Fin.val_inj.1 (by simp [toNat_ofNatTruncate_of_lt hn])
+theorem USize.toFin_ofNatTruncate_of_lt {n : Nat} (hn : n < USize.size) :
+    (USize.ofNatTruncate n).toFin = ⟨n, hn⟩ :=
+  Fin.val_inj.1 (by simp [toNat_ofNatTruncate_of_lt hn])
+
+theorem UInt8.toFin_ofNatTruncate_of_le {n : Nat} (hn : UInt8.size ≤ n) :
+    (UInt8.ofNatTruncate n).toFin = ⟨UInt8.size - 1, by decide⟩ :=
+  Fin.val_inj.1 (by simp [toNat_ofNatTruncate_of_le hn])
+theorem UInt16.toFin_ofNatTruncate_of_le {n : Nat} (hn : UInt16.size ≤ n) :
+    (UInt16.ofNatTruncate n).toFin = ⟨UInt16.size - 1, by decide⟩ :=
+  Fin.val_inj.1 (by simp [toNat_ofNatTruncate_of_le hn])
+theorem UInt32.toFin_ofNatTruncate_of_le {n : Nat} (hn : UInt32.size ≤ n) :
+    (UInt32.ofNatTruncate n).toFin = ⟨UInt32.size - 1, by decide⟩ :=
+  Fin.val_inj.1 (by simp [toNat_ofNatTruncate_of_le hn])
+theorem UInt64.toFin_ofNatTruncate_of_le {n : Nat} (hn : UInt64.size ≤ n) :
+    (UInt64.ofNatTruncate n).toFin = ⟨UInt64.size - 1, by decide⟩ :=
+  Fin.val_inj.1 (by simp [toNat_ofNatTruncate_of_le hn])
+theorem USize.toFin_ofNatTruncate_of_le {n : Nat} (hn : USize.size ≤ n) :
+    (USize.ofNatTruncate n).toFin = ⟨USize.size - 1, by cases USize.size_eq <;> simp_all⟩ :=
+  Fin.val_inj.1 (by simp [toNat_ofNatTruncate_of_le hn])
+
+@[simp] theorem UInt8.toBitVec_ofNatLT {n : Nat} (hn : n < UInt8.size) :
+    (UInt8.ofNatLT n hn).toBitVec = BitVec.ofNatLT n hn := rfl
+@[simp] theorem UInt16.toBitVec_ofNatLT {n : Nat} (hn : n < UInt16.size) :
+    (UInt16.ofNatLT n hn).toBitVec = BitVec.ofNatLT n hn := rfl
+@[simp] theorem UInt32.toBitVec_ofNatLT {n : Nat} (hn : n < UInt32.size) :
+    (UInt32.ofNatLT n hn).toBitVec = BitVec.ofNatLT n hn := rfl
+@[simp] theorem UInt64.toBitVec_ofNatLT {n : Nat} (hn : n < UInt64.size) :
+    (UInt64.ofNatLT n hn).toBitVec = BitVec.ofNatLT n hn := rfl
+@[simp] theorem USize.toBitVec_ofNatLT {n : Nat} (hn : n < USize.size) :
+    (USize.ofNatLT n hn).toBitVec = BitVec.ofNatLT n hn := rfl
+
+@[simp] theorem UInt8.toBitVec_ofFin (n : Fin UInt8.size) : (UInt8.ofFin n).toBitVec = BitVec.ofFin n := rfl
+@[simp] theorem UInt16.toBitVec_ofFin (n : Fin UInt16.size) : (UInt16.ofFin n).toBitVec = BitVec.ofFin n := rfl
+@[simp] theorem UInt32.toBitVec_ofFin (n : Fin UInt32.size) : (UInt32.ofFin n).toBitVec = BitVec.ofFin n := rfl
+@[simp] theorem UInt64.toBitVec_ofFin (n : Fin UInt64.size) : (UInt64.ofFin n).toBitVec = BitVec.ofFin n := rfl
+@[simp] theorem USize.toBitVec_ofFin (n : Fin USize.size) : (USize.ofFin n).toBitVec = BitVec.ofFin n := rfl
+
+@[simp] theorem UInt8.toBitVec_ofBitVec (n) : (UInt8.ofBitVec n).toBitVec = n := rfl
+@[simp] theorem UInt16.toBitVec_ofBitVec (n) : (UInt16.ofBitVec n).toBitVec = n := rfl
+@[simp] theorem UInt32.toBitVec_ofBitVec (n) : (UInt32.ofBitVec n).toBitVec = n := rfl
+@[simp] theorem UInt64.toBitVec_ofBitVec (n) : (UInt64.ofBitVec n).toBitVec = n := rfl
+@[simp] theorem USize.toBitVec_ofBitVec (n) : (USize.ofBitVec n).toBitVec = n := rfl
+
+theorem UInt8.toBitVec_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt8.size) :
+    (UInt8.ofNatTruncate n).toBitVec = BitVec.ofNatLT n hn :=
+  BitVec.eq_of_toNat_eq (by simp [toNat_ofNatTruncate_of_lt hn])
+theorem UInt16.toBitVec_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt16.size) :
+    (UInt16.ofNatTruncate n).toBitVec = BitVec.ofNatLT n hn :=
+  BitVec.eq_of_toNat_eq (by simp [toNat_ofNatTruncate_of_lt hn])
+theorem UInt32.toBitVec_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt32.size) :
+    (UInt32.ofNatTruncate n).toBitVec = BitVec.ofNatLT n hn :=
+  BitVec.eq_of_toNat_eq (by simp [toNat_ofNatTruncate_of_lt hn])
+theorem UInt64.toBitVec_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt64.size) :
+    (UInt64.ofNatTruncate n).toBitVec = BitVec.ofNatLT n hn :=
+  BitVec.eq_of_toNat_eq (by simp [toNat_ofNatTruncate_of_lt hn])
+theorem USize.toBitVec_ofNatTruncate_of_lt {n : Nat} (hn : n < USize.size) :
+    (USize.ofNatTruncate n).toBitVec = BitVec.ofNatLT n hn :=
+  BitVec.eq_of_toNat_eq (by simp [toNat_ofNatTruncate_of_lt hn])
+
+theorem UInt8.toBitVec_ofNatTruncate_of_le {n : Nat} (hn : UInt8.size ≤ n) :
+    (UInt8.ofNatTruncate n).toBitVec = BitVec.ofNatLT (UInt8.size - 1) (by decide) :=
+  BitVec.eq_of_toNat_eq (by simp [toNat_ofNatTruncate_of_le hn])
+theorem UInt16.toBitVec_ofNatTruncate_of_le {n : Nat} (hn : UInt16.size ≤ n) :
+    (UInt16.ofNatTruncate n).toBitVec = BitVec.ofNatLT (UInt16.size - 1) (by decide) :=
+  BitVec.eq_of_toNat_eq (by simp [toNat_ofNatTruncate_of_le hn])
+theorem UInt32.toBitVec_ofNatTruncate_of_le {n : Nat} (hn : UInt32.size ≤ n) :
+    (UInt32.ofNatTruncate n).toBitVec = BitVec.ofNatLT (UInt32.size - 1) (by decide) :=
+  BitVec.eq_of_toNat_eq (by simp [toNat_ofNatTruncate_of_le hn])
+theorem UInt64.toBitVec_ofNatTruncate_of_le {n : Nat} (hn : UInt64.size ≤ n) :
+    (UInt64.ofNatTruncate n).toBitVec = BitVec.ofNatLT (UInt64.size - 1) (by decide) :=
+  BitVec.eq_of_toNat_eq (by simp [toNat_ofNatTruncate_of_le hn])
+theorem USize.toBitVec_ofNatTruncate_of_le {n : Nat} (hn : USize.size ≤ n) :
+    (USize.ofNatTruncate n).toBitVec = BitVec.ofNatLT (USize.size - 1) (by cases USize.size_eq <;> simp_all) :=
+  BitVec.eq_of_toNat_eq (by simp [toNat_ofNatTruncate_of_le hn])
+
+@[simp] theorem UInt16.toUInt8_ofNatLT {n : Nat} (hn) : (UInt16.ofNatLT n hn).toUInt8 = UInt8.ofNat n := rfl
+@[simp] theorem UInt32.toUInt8_ofNatLT {n : Nat} (hn) : (UInt32.ofNatLT n hn).toUInt8 = UInt8.ofNat n := rfl
+@[simp] theorem UInt64.toUInt8_ofNatLT {n : Nat} (hn) : (UInt64.ofNatLT n hn).toUInt8 = UInt8.ofNat n := rfl
+@[simp] theorem USize.toUInt8_ofNatLT {n : Nat} (hn) : (USize.ofNatLT n hn).toUInt8 = UInt8.ofNat n := rfl
+
+@[simp] theorem UInt16.toUInt8_ofFin (n) : (UInt16.ofFin n).toUInt8 = UInt8.ofNat n.val := rfl
+@[simp] theorem UInt32.toUInt8_ofFin (n) : (UInt32.ofFin n).toUInt8 = UInt8.ofNat n.val := rfl
+@[simp] theorem UInt64.toUInt8_ofFin (n) : (UInt64.ofFin n).toUInt8 = UInt8.ofNat n.val := rfl
+@[simp] theorem USize.toUInt8_ofFin (n) : (USize.ofFin n).toUInt8 = UInt8.ofNat n.val := rfl
+
+@[simp] theorem UInt16.toUInt8_ofBitVec (b) : (UInt16.ofBitVec b).toUInt8 = UInt8.ofBitVec (b.setWidth _) := rfl
+@[simp] theorem UInt32.toUInt8_ofBitVec (b) : (UInt32.ofBitVec b).toUInt8 = UInt8.ofBitVec (b.setWidth _) := rfl
+@[simp] theorem UInt64.toUInt8_ofBitVec (b) : (UInt64.ofBitVec b).toUInt8 = UInt8.ofBitVec (b.setWidth _) := rfl
+@[simp] theorem USize.toUInt8_ofBitVec (b) : (USize.ofBitVec b).toUInt8 = UInt8.ofBitVec (b.setWidth _) :=
+  UInt8.toNat.inj (by simp)
+
+@[simp] theorem UInt16.toUInt8_ofNat' (n : Nat) : (UInt16.ofNat n).toUInt8 = UInt8.ofNat n := UInt8.toNat.inj (by simp)
+@[simp] theorem UInt32.toUInt8_ofNat' (n : Nat) : (UInt32.ofNat n).toUInt8 = UInt8.ofNat n := UInt8.toNat.inj (by simp)
+@[simp] theorem UInt64.toUInt8_ofNat' (n : Nat) : (UInt64.ofNat n).toUInt8 = UInt8.ofNat n := UInt8.toNat.inj (by simp)
+@[simp] theorem USize.toUInt8_ofNat' (n : Nat) : (USize.ofNat n).toUInt8 = UInt8.ofNat n := UInt8.toNat.inj (by simp)
+
+@[simp] theorem UInt16.toUInt8_ofNat {n : Nat} : toUInt8 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := toUInt8_ofNat' _
+@[simp] theorem UInt32.toUInt8_ofNat {n : Nat} : toUInt8 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := toUInt8_ofNat' _
+@[simp] theorem UInt64.toUInt8_ofNat {n : Nat} : toUInt8 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := toUInt8_ofNat' _
+@[simp] theorem USize.toUInt8_ofNat {n : Nat} : toUInt8 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := toUInt8_ofNat' _
+
+theorem UInt16.toUInt8_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt16.size) :
+    (UInt16.ofNatTruncate n).toUInt8 = UInt8.ofNat n := by rw [ofNatTruncate, dif_pos hn, toUInt8_ofNatLT]
+theorem UInt32.toUInt8_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt32.size) :
+    (UInt32.ofNatTruncate n).toUInt8 = UInt8.ofNat n := by rw [ofNatTruncate, dif_pos hn, toUInt8_ofNatLT]
+theorem UInt64.toUInt8_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt64.size) :
+    (UInt64.ofNatTruncate n).toUInt8 = UInt8.ofNat n := by rw [ofNatTruncate, dif_pos hn, toUInt8_ofNatLT]
+theorem USize.toUInt8_ofNatTruncate_of_lt {n : Nat} (hn : n < USize.size) :
+    (USize.ofNatTruncate n).toUInt8 = UInt8.ofNat n := by rw [ofNatTruncate, dif_pos hn, toUInt8_ofNatLT]
+
+theorem UInt16.toUInt8_ofNatTruncate_of_le {n : Nat} (hn : UInt16.size ≤ n) :
+    (UInt16.ofNatTruncate n).toUInt8 = UInt8.ofNatLT (UInt8.size - 1) (by decide) :=
+  UInt8.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+theorem UInt32.toUInt8_ofNatTruncate_of_le {n : Nat} (hn : UInt32.size ≤ n) :
+    (UInt32.ofNatTruncate n).toUInt8 = UInt8.ofNatLT (UInt8.size - 1) (by decide) :=
+  UInt8.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+theorem UInt64.toUInt8_ofNatTruncate_of_le {n : Nat} (hn : UInt64.size ≤ n) :
+    (UInt64.ofNatTruncate n).toUInt8 = UInt8.ofNatLT (UInt8.size - 1) (by decide) :=
+  UInt8.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+theorem USize.toUInt8_ofNatTruncate_of_le {n : Nat} (hn : USize.size ≤ n) :
+    (USize.ofNatTruncate n).toUInt8 = UInt8.ofNatLT (UInt8.size - 1) (by decide) :=
+  UInt8.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+
+@[simp] theorem UInt32.toUInt16_ofNatLT {n : Nat} (hn) : (UInt32.ofNatLT n hn).toUInt16 = UInt16.ofNat n := rfl
+@[simp] theorem UInt64.toUInt16_ofNatLT {n : Nat} (hn) : (UInt64.ofNatLT n hn).toUInt16 = UInt16.ofNat n := rfl
+@[simp] theorem USize.toUInt16_ofNatLT {n : Nat} (hn) : (USize.ofNatLT n hn).toUInt16 = UInt16.ofNat n := rfl
+
+@[simp] theorem UInt32.toUInt16_ofFin (n) : (UInt32.ofFin n).toUInt16 = UInt16.ofNat n.val := rfl
+@[simp] theorem UInt64.toUInt16_ofFin (n) : (UInt64.ofFin n).toUInt16 = UInt16.ofNat n.val := rfl
+@[simp] theorem USize.toUInt16_ofFin (n) : (USize.ofFin n).toUInt16 = UInt16.ofNat n.val := rfl
+
+@[simp] theorem UInt32.toUInt16_ofBitVec (b) : (UInt32.ofBitVec b).toUInt16 = UInt16.ofBitVec (b.setWidth _) := rfl
+@[simp] theorem UInt64.toUInt16_ofBitVec (b) : (UInt64.ofBitVec b).toUInt16 = UInt16.ofBitVec (b.setWidth _) := rfl
+@[simp] theorem USize.toUInt16_ofBitVec (b) : (USize.ofBitVec b).toUInt16 = UInt16.ofBitVec (b.setWidth _) :=
+  UInt16.toNat.inj (by simp)
+
+@[simp] theorem UInt32.toUInt16_ofNat' (n : Nat) : (UInt32.ofNat n).toUInt16 = UInt16.ofNat n := UInt16.toNat.inj (by simp)
+@[simp] theorem UInt64.toUInt16_ofNat' (n : Nat) : (UInt64.ofNat n).toUInt16 = UInt16.ofNat n := UInt16.toNat.inj (by simp)
+@[simp] theorem USize.toUInt16_ofNat' (n : Nat) : (USize.ofNat n).toUInt16 = UInt16.ofNat n := UInt16.toNat.inj (by simp)
+
+@[simp] theorem UInt32.toUInt16_ofNat {n : Nat} : toUInt16 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := UInt32.toUInt16_ofNat' _
+@[simp] theorem UInt64.toUInt16_ofNat {n : Nat} : toUInt16 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := UInt64.toUInt16_ofNat' _
+@[simp] theorem USize.toUInt16_ofNat {n : Nat} : toUInt16 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := USize.toUInt16_ofNat' _
+
+theorem UInt32.toUInt16_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt32.size) :
+    (UInt32.ofNatTruncate n).toUInt16 = UInt16.ofNat n := by rw [ofNatTruncate, dif_pos hn, toUInt16_ofNatLT]
+theorem UInt64.toUInt16_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt64.size) :
+    (UInt64.ofNatTruncate n).toUInt16 = UInt16.ofNat n := by rw [ofNatTruncate, dif_pos hn, toUInt16_ofNatLT]
+theorem USize.toUInt16_ofNatTruncate_of_lt {n : Nat} (hn : n < USize.size) :
+    (USize.ofNatTruncate n).toUInt16 = UInt16.ofNat n := by rw [ofNatTruncate, dif_pos hn, toUInt16_ofNatLT]
+
+theorem UInt32.toUInt16_ofNatTruncate_of_le {n : Nat} (hn : UInt32.size ≤ n) :
+    (UInt32.ofNatTruncate n).toUInt16 = UInt16.ofNatLT (UInt16.size - 1) (by decide) :=
+  UInt16.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+theorem UInt64.toUInt16_ofNatTruncate_of_le {n : Nat} (hn : UInt64.size ≤ n) :
+    (UInt64.ofNatTruncate n).toUInt16 = UInt16.ofNatLT (UInt16.size - 1) (by decide) :=
+  UInt16.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+theorem USize.toUInt16_ofNatTruncate_of_le {n : Nat} (hn : USize.size ≤ n) :
+    (USize.ofNatTruncate n).toUInt16 = UInt16.ofNatLT (UInt16.size - 1) (by decide) :=
+  UInt16.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+
+@[simp] theorem UInt64.toUInt32_ofNatLT {n : Nat} (hn) : (UInt64.ofNatLT n hn).toUInt32 = UInt32.ofNat n := rfl
+@[simp] theorem USize.toUInt32_ofNatLT {n : Nat} (hn) : (USize.ofNatLT n hn).toUInt32 = UInt32.ofNat n := rfl
+
+@[simp] theorem UInt64.toUInt32_ofFin (n) : (UInt64.ofFin n).toUInt32 = UInt32.ofNat n.val := rfl
+@[simp] theorem USize.toUInt32_ofFin (n) : (USize.ofFin n).toUInt32 = UInt32.ofNat n.val := rfl
+
+@[simp] theorem UInt64.toUInt32_ofBitVec (b) : (UInt64.ofBitVec b).toUInt32 = UInt32.ofBitVec (b.setWidth _) := rfl
+@[simp] theorem USize.toUInt32_ofBitVec (b) : (USize.ofBitVec b).toUInt32 = UInt32.ofBitVec (b.setWidth _) :=
+  UInt32.toNat.inj (by simp)
+
+@[simp] theorem UInt64.toUInt32_ofNat' (n : Nat) : (UInt64.ofNat n).toUInt32 = UInt32.ofNat n := UInt32.toNat.inj (by simp)
+@[simp] theorem USize.toUInt32_ofNat' (n : Nat) : (USize.ofNat n).toUInt32 = UInt32.ofNat n := UInt32.toNat.inj (by simp)
+
+@[simp] theorem UInt64.toUInt32_ofNat {n : Nat} : toUInt32 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := UInt64.toUInt32_ofNat' _
+@[simp] theorem USize.toUInt32_ofNat {n : Nat} : toUInt32 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := USize.toUInt32_ofNat' _
+
+theorem UInt64.toUInt32_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt64.size) :
+    (UInt64.ofNatTruncate n).toUInt32 = UInt32.ofNat n := by rw [ofNatTruncate, dif_pos hn, toUInt32_ofNatLT]
+theorem USize.toUInt32_ofNatTruncate_of_lt {n : Nat} (hn : n < USize.size) :
+    (USize.ofNatTruncate n).toUInt32 = UInt32.ofNat n := by rw [ofNatTruncate, dif_pos hn, toUInt32_ofNatLT]
+
+theorem UInt64.toUInt32_ofNatTruncate_of_le {n : Nat} (hn : UInt64.size ≤ n) :
+    (UInt64.ofNatTruncate n).toUInt32 = UInt32.ofNatLT (UInt32.size - 1) (by decide) :=
+  UInt32.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+theorem USize.toUInt32_ofNatTruncate_of_le {n : Nat} (hn : USize.size ≤ n) :
+    (USize.ofNatTruncate n).toUInt32 = UInt32.ofNatLT (UInt32.size - 1) (by decide) :=
+  UInt32.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+
+@[simp] theorem UInt64.toUSize_ofNatLT {n : Nat} (hn) : (UInt64.ofNatLT n hn).toUSize = USize.ofNat n := rfl
+
+@[simp] theorem UInt64.toUSize_ofFin (n) : (UInt64.ofFin n).toUSize = USize.ofNat n.val := rfl
+
+@[simp] theorem UInt64.toUSize_ofBitVec (b) : (UInt64.ofBitVec b).toUSize = USize.ofBitVec (b.setWidth _) :=
+  USize.toNat.inj (by simp)
+
+@[simp] theorem UInt64.toUSize_ofNat' (n : Nat) : (UInt64.ofNat n).toUSize = USize.ofNat n := USize.toNat.inj (by simp)
+
+@[simp] theorem UInt64.toUSize_ofNat {n : Nat} : toUSize (no_index (OfNat.ofNat n)) = OfNat.ofNat n := UInt64.toUSize_ofNat' _
+
+theorem UInt64.toUSize_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt64.size) :
+    (UInt64.ofNatTruncate n).toUSize = USize.ofNat n := by rw [ofNatTruncate, dif_pos hn, toUSize_ofNatLT]
+
+theorem UInt64.toUSize_ofNatTruncate_of_le {n : Nat} (hn : UInt64.size ≤ n) :
+    (UInt64.ofNatTruncate n).toUSize = USize.ofNatLT (USize.size - 1) (by cases USize.size_eq <;> simp_all) :=
+  USize.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+
+theorem UInt8.toUInt16_ofNatLT {n : Nat} (h) :
+    (UInt8.ofNatLT n h).toUInt16 = UInt16.ofNatLT n (Nat.lt_of_lt_of_le h (by decide)) := rfl
+theorem UInt8.toUInt32_ofNatLT {n : Nat} (h) :
+    (UInt8.ofNatLT n h).toUInt32 = UInt32.ofNatLT n (Nat.lt_of_lt_of_le h (by decide)) := rfl
+theorem UInt8.toUInt64_ofNatLT {n : Nat} (h) :
+    (UInt8.ofNatLT n h).toUInt64 = UInt64.ofNatLT n (Nat.lt_of_lt_of_le h (by decide)) := rfl
+theorem UInt8.toUSize_ofNatLT {n : Nat} (h) :
+    (UInt8.ofNatLT n h).toUSize = USize.ofNatLT n (Nat.lt_of_lt_of_le h size_le_usizeSize) := rfl
+
+theorem UInt8.toUInt16_ofFin {n} :
+  (UInt8.ofFin n).toUInt16 = UInt16.ofNatLT n.val (Nat.lt_of_lt_of_le n.isLt (by decide)) := rfl
+theorem UInt8.toUInt32_ofFin {n} :
+  (UInt8.ofFin n).toUInt32 = UInt32.ofNatLT n.val (Nat.lt_of_lt_of_le n.isLt (by decide)) := rfl
+theorem UInt8.toUInt64_ofFin {n} :
+  (UInt8.ofFin n).toUInt64 = UInt64.ofNatLT n.val (Nat.lt_of_lt_of_le n.isLt (by decide)) := rfl
+theorem UInt8.toUSize_ofFin {n} :
+  (UInt8.ofFin n).toUSize = USize.ofNatLT n.val (Nat.lt_of_lt_of_le n.isLt size_le_usizeSize) := rfl
+
+@[simp] theorem UInt8.toUInt16_ofBitVec {b} : (UInt8.ofBitVec b).toUInt16 = UInt16.ofBitVec (b.setWidth _) := rfl
+@[simp] theorem UInt8.toUInt32_ofBitVec {b} : (UInt8.ofBitVec b).toUInt32 = UInt32.ofBitVec (b.setWidth _) := rfl
+@[simp] theorem UInt8.toUInt64_ofBitVec {b} : (UInt8.ofBitVec b).toUInt64 = UInt64.ofBitVec (b.setWidth _) := rfl
+@[simp] theorem UInt8.toUSize_ofBitVec {b} : (UInt8.ofBitVec b).toUSize = USize.ofBitVec (b.setWidth _) :=
+  USize.toBitVec_inj.1 (by simp)
+
+theorem UInt8.toUInt16_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt8.size) :
+    (UInt8.ofNatTruncate n).toUInt16 = UInt16.ofNatLT n (Nat.lt_of_lt_of_le hn (by decide)) :=
+  UInt16.toNat.inj (by simp [toNat_ofNatTruncate_of_lt hn])
+theorem UInt8.toUInt32_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt8.size) :
+    (UInt8.ofNatTruncate n).toUInt32 = UInt32.ofNatLT n (Nat.lt_of_lt_of_le hn (by decide)) :=
+  UInt32.toNat.inj (by simp [toNat_ofNatTruncate_of_lt hn])
+theorem UInt8.toUInt64_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt8.size) :
+    (UInt8.ofNatTruncate n).toUInt64 = UInt64.ofNatLT n (Nat.lt_of_lt_of_le hn (by decide)) :=
+  UInt64.toNat.inj (by simp [toNat_ofNatTruncate_of_lt hn])
+theorem UInt8.toUSize_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt8.size) :
+    (UInt8.ofNatTruncate n).toUSize = USize.ofNatLT n (Nat.lt_of_lt_of_le hn size_le_usizeSize) :=
+  USize.toNat.inj (by simp [toNat_ofNatTruncate_of_lt hn])
+
+theorem UInt8.toUInt16_ofNatTruncate_of_le {n : Nat} (hn : UInt8.size ≤ n) :
+    (UInt8.ofNatTruncate n).toUInt16 = UInt16.ofNatLT (UInt8.size - 1) (by decide) :=
+  UInt16.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+theorem UInt8.toUInt32_ofNatTruncate_of_le {n : Nat} (hn : UInt8.size ≤ n) :
+    (UInt8.ofNatTruncate n).toUInt32 = UInt32.ofNatLT (UInt8.size - 1) (by decide) :=
+  UInt32.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+theorem UInt8.toUInt64_ofNatTruncate_of_le {n : Nat} (hn : UInt8.size ≤ n) :
+    (UInt8.ofNatTruncate n).toUInt64 = UInt64.ofNatLT (UInt8.size - 1) (by decide) :=
+  UInt64.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+theorem UInt8.toUSize_ofNatTruncate_of_le {n : Nat} (hn : UInt8.size ≤ n) :
+    (UInt8.ofNatTruncate n).toUSize = USize.ofNatLT (UInt8.size - 1) (Nat.lt_of_lt_of_le (by decide) size_le_usizeSize) :=
+  USize.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+
+theorem UInt16.toUInt32_ofNatLT {n : Nat} (h) :
+    (UInt16.ofNatLT n h).toUInt32 = UInt32.ofNatLT n (Nat.lt_of_lt_of_le h (by decide)) := rfl
+theorem UInt16.toUInt64_ofNatLT {n : Nat} (h) :
+    (UInt16.ofNatLT n h).toUInt64 = UInt64.ofNatLT n (Nat.lt_of_lt_of_le h (by decide)) := rfl
+theorem UInt16.toUSize_ofNatLT {n : Nat} (h) :
+    (UInt16.ofNatLT n h).toUSize = USize.ofNatLT n (Nat.lt_of_lt_of_le h size_le_usizeSize) := rfl
+
+theorem UInt16.toUInt32_ofFin {n} :
+  (UInt16.ofFin n).toUInt32 = UInt32.ofNatLT n.val (Nat.lt_of_lt_of_le n.isLt (by decide)) := rfl
+theorem UInt16.toUInt64_ofFin {n} :
+  (UInt16.ofFin n).toUInt64 = UInt64.ofNatLT n.val (Nat.lt_of_lt_of_le n.isLt (by decide)) := rfl
+theorem UInt16.toUSize_ofFin {n} :
+  (UInt16.ofFin n).toUSize = USize.ofNatLT n.val (Nat.lt_of_lt_of_le n.isLt size_le_usizeSize) := rfl
+
+@[simp] theorem UInt16.toUInt32_ofBitVec {b} : (UInt16.ofBitVec b).toUInt32 = UInt32.ofBitVec (b.setWidth _) := rfl
+@[simp] theorem UInt16.toUInt64_ofBitVec {b} : (UInt16.ofBitVec b).toUInt64 = UInt64.ofBitVec (b.setWidth _) := rfl
+@[simp] theorem UInt16.toUSize_ofBitVec {b} : (UInt16.ofBitVec b).toUSize = USize.ofBitVec (b.setWidth _) :=
+  USize.toBitVec_inj.1 (by simp)
+
+theorem UInt16.toUInt32_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt16.size) :
+    (UInt16.ofNatTruncate n).toUInt32 = UInt32.ofNatLT n (Nat.lt_of_lt_of_le hn (by decide)) :=
+  UInt32.toNat.inj (by simp [toNat_ofNatTruncate_of_lt hn])
+theorem UInt16.toUInt64_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt16.size) :
+    (UInt16.ofNatTruncate n).toUInt64 = UInt64.ofNatLT n (Nat.lt_of_lt_of_le hn (by decide)) :=
+  UInt64.toNat.inj (by simp [toNat_ofNatTruncate_of_lt hn])
+theorem UInt16.toUSize_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt16.size) :
+    (UInt16.ofNatTruncate n).toUSize = USize.ofNatLT n (Nat.lt_of_lt_of_le hn size_le_usizeSize) :=
+  USize.toNat.inj (by simp [toNat_ofNatTruncate_of_lt hn])
+
+theorem UInt16.toUInt32_ofNatTruncate_of_le {n : Nat} (hn : UInt16.size ≤ n) :
+    (UInt16.ofNatTruncate n).toUInt32 = UInt32.ofNatLT (UInt16.size - 1) (by decide) :=
+  UInt32.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+theorem UInt16.toUInt64_ofNatTruncate_of_le {n : Nat} (hn : UInt16.size ≤ n) :
+    (UInt16.ofNatTruncate n).toUInt64 = UInt64.ofNatLT (UInt16.size - 1) (by decide) :=
+  UInt64.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+theorem UInt16.toUSize_ofNatTruncate_of_le {n : Nat} (hn : UInt16.size ≤ n) :
+    (UInt16.ofNatTruncate n).toUSize = USize.ofNatLT (UInt16.size - 1) (Nat.lt_of_lt_of_le (by decide) size_le_usizeSize) :=
+  USize.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+
+theorem UInt32.toUInt64_ofNatLT {n : Nat} (h) :
+    (UInt32.ofNatLT n h).toUInt64 = UInt64.ofNatLT n (Nat.lt_of_lt_of_le h (by decide)) := rfl
+theorem UInt32.toUSize_ofNatLT {n : Nat} (h) :
+    (UInt32.ofNatLT n h).toUSize = USize.ofNatLT n (Nat.lt_of_lt_of_le h size_le_usizeSize) := rfl
+
+theorem UInt32.toUInt64_ofFin {n} :
+  (UInt32.ofFin n).toUInt64 = UInt64.ofNatLT n.val (Nat.lt_of_lt_of_le n.isLt (by decide)) := rfl
+theorem UInt32.toUSize_ofFin {n} :
+  (UInt32.ofFin n).toUSize = USize.ofNatLT n.val (Nat.lt_of_lt_of_le n.isLt size_le_usizeSize) := rfl
+
+@[simp] theorem UInt32.toUInt64_ofBitVec {b} : (UInt32.ofBitVec b).toUInt64 = UInt64.ofBitVec (b.setWidth _) := rfl
+@[simp] theorem UInt32.toUSize_ofBitVec {b} : (UInt32.ofBitVec b).toUSize = USize.ofBitVec (b.setWidth _) :=
+  USize.toBitVec_inj.1 (by simp)
+
+theorem UInt32.toUInt64_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt32.size) :
+    (UInt32.ofNatTruncate n).toUInt64 = UInt64.ofNatLT n (Nat.lt_of_lt_of_le hn (by decide)) :=
+  UInt64.toNat.inj (by simp [toNat_ofNatTruncate_of_lt hn])
+theorem UInt32.toUSize_ofNatTruncate_of_lt {n : Nat} (hn : n < UInt32.size) :
+    (UInt32.ofNatTruncate n).toUSize = USize.ofNatLT n (Nat.lt_of_lt_of_le hn size_le_usizeSize) :=
+  USize.toNat.inj (by simp [toNat_ofNatTruncate_of_lt hn])
+
+theorem UInt32.toUInt64_ofNatTruncate_of_le {n : Nat} (hn : UInt32.size ≤ n) :
+    (UInt32.ofNatTruncate n).toUInt64 = UInt64.ofNatLT (UInt32.size - 1) (by decide) :=
+  UInt64.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+theorem UInt32.toUSize_ofNatTruncate_of_le {n : Nat} (hn : UInt32.size ≤ n) :
+    (UInt32.ofNatTruncate n).toUSize = USize.ofNatLT (UInt32.size - 1) (Nat.lt_of_lt_of_le (by decide) size_le_usizeSize) :=
+  USize.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+
+theorem USize.toUInt64_ofNatLT {n : Nat} (h) :
+    (USize.ofNatLT n h).toUInt64 = UInt64.ofNatLT n (Nat.lt_of_lt_of_le h size_le_uint64Size) := rfl
+
+theorem USize.toUInt64_ofFin {n} :
+  (USize.ofFin n).toUInt64 = UInt64.ofNatLT n.val (Nat.lt_of_lt_of_le n.isLt size_le_uint64Size) := rfl
+
+@[simp] theorem USize.toUInt64_ofBitVec {b} : (USize.ofBitVec b).toUInt64 = UInt64.ofBitVec (b.setWidth _) :=
+  UInt64.toBitVec_inj.1 (by simp)
+
+theorem USize.toUInt64_ofNatTruncate_of_lt {n : Nat} (hn : n < USize.size) :
+    (USize.ofNatTruncate n).toUInt64 = UInt64.ofNatLT n (Nat.lt_of_lt_of_le hn size_le_uint64Size) :=
+  UInt64.toNat.inj (by simp [toNat_ofNatTruncate_of_lt hn])
+
+theorem USize.toUInt64_ofNatTruncate_of_le {n : Nat} (hn : USize.size ≤ n) :
+    (USize.ofNatTruncate n).toUInt64 = UInt64.ofNatLT (USize.size - 1) (by cases USize.size_eq <;> simp_all +decide) :=
+  UInt64.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+
+@[simp] theorem UInt8.toUInt16_ofNat' {n : Nat} (hn : n < UInt8.size) : (UInt8.ofNat n).toUInt16 = UInt16.ofNat n := by
+  rw [← UInt8.ofNatLT_eq_ofNat (h := hn), toUInt16_ofNatLT, UInt16.ofNatLT_eq_ofNat]
+@[simp] theorem UInt8.toUInt32_ofNat' {n : Nat} (hn : n < UInt8.size) : (UInt8.ofNat n).toUInt32 = UInt32.ofNat n := by
+  rw [← UInt8.ofNatLT_eq_ofNat (h := hn), toUInt32_ofNatLT, UInt32.ofNatLT_eq_ofNat]
+@[simp] theorem UInt8.toUInt64_ofNat' {n : Nat} (hn : n < UInt8.size) : (UInt8.ofNat n).toUInt64 = UInt64.ofNat n := by
+  rw [← UInt8.ofNatLT_eq_ofNat (h := hn), toUInt64_ofNatLT, UInt64.ofNatLT_eq_ofNat]
+@[simp] theorem UInt8.toUSize_ofNat' {n : Nat} (hn : n < UInt8.size) : (UInt8.ofNat n).toUSize = USize.ofNat n := by
+  rw [← UInt8.ofNatLT_eq_ofNat (h := hn), toUSize_ofNatLT, USize.ofNatLT_eq_ofNat]
+
+@[simp] theorem UInt16.toUInt32_ofNat' {n : Nat} (hn : n < UInt16.size) : (UInt16.ofNat n).toUInt32 = UInt32.ofNat n := by
+  rw [← UInt16.ofNatLT_eq_ofNat (h := hn), toUInt32_ofNatLT, UInt32.ofNatLT_eq_ofNat]
+@[simp] theorem UInt16.toUInt64_ofNat' {n : Nat} (hn : n < UInt16.size) : (UInt16.ofNat n).toUInt64 = UInt64.ofNat n := by
+  rw [← UInt16.ofNatLT_eq_ofNat (h := hn), toUInt64_ofNatLT, UInt64.ofNatLT_eq_ofNat]
+@[simp] theorem UInt16.toUSize_ofNat' {n : Nat} (hn : n < UInt16.size) : (UInt16.ofNat n).toUSize = USize.ofNat n := by
+  rw [← UInt16.ofNatLT_eq_ofNat (h := hn), toUSize_ofNatLT, USize.ofNatLT_eq_ofNat]
+
+@[simp] theorem UInt32.toUInt64_ofNat' {n : Nat} (hn : n < UInt32.size) : (UInt32.ofNat n).toUInt64 = UInt64.ofNat n := by
+  rw [← UInt32.ofNatLT_eq_ofNat (h := hn), toUInt64_ofNatLT, UInt64.ofNatLT_eq_ofNat]
+@[simp] theorem UInt32.toUSize_ofNat' {n : Nat} (hn : n < UInt32.size) : (UInt32.ofNat n).toUSize = USize.ofNat n := by
+  rw [← UInt32.ofNatLT_eq_ofNat (h := hn), toUSize_ofNatLT, USize.ofNatLT_eq_ofNat]
+
+@[simp] theorem USize.toUInt64_ofNat' {n : Nat} (hn : n < USize.size) : (USize.ofNat n).toUInt64 = UInt64.ofNat n := by
+  rw [← USize.ofNatLT_eq_ofNat (h := hn), toUInt64_ofNatLT, UInt64.ofNatLT_eq_ofNat]
+
+@[simp] theorem UInt8.toUInt16_ofNat {n : Nat} (hn : n < 256) : toUInt16 (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  UInt8.toUInt16_ofNat' hn
+@[simp] theorem UInt8.toUInt32_ofNat {n : Nat} (hn : n < 256) : toUInt32 (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  UInt8.toUInt32_ofNat' hn
+@[simp] theorem UInt8.toUInt64_ofNat {n : Nat} (hn : n < 256) : toUInt64 (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  UInt8.toUInt64_ofNat' hn
+@[simp] theorem UInt8.toUSize_ofNat {n : Nat} (hn : n < 256) : toUSize (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  UInt8.toUSize_ofNat' hn
+
+@[simp] theorem UInt16.toUInt32_ofNat {n : Nat} (hn : n < 65536) : toUInt32 (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  UInt16.toUInt32_ofNat' hn
+@[simp] theorem UInt16.toUInt64_ofNat {n : Nat} (hn : n < 65536) : toUInt64 (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  UInt16.toUInt64_ofNat' hn
+@[simp] theorem UInt16.toUSize_ofNat {n : Nat} (hn : n < 65536) : toUSize (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  UInt16.toUSize_ofNat' hn
+
+@[simp] theorem UInt32.toUInt64_ofNat {n : Nat} (hn : n < 4294967296) : toUInt64 (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  UInt32.toUInt64_ofNat' hn
+@[simp] theorem UInt32.toUSize_ofNat {n : Nat} (hn : n < 4294967296) : toUSize (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  UInt32.toUSize_ofNat' hn
+
+@[simp] theorem USize.toUInt64_ofNat {n : Nat} (hn : n < 4294967296) : toUInt64 (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  USize.toUInt64_ofNat' (Nat.lt_of_lt_of_le hn UInt32.size_le_usizeSize)
+
+@[simp] theorem UInt8.ofNatLT_finVal (n : Fin UInt8.size) : UInt8.ofNatLT n.val n.isLt = UInt8.ofFin n := rfl
+@[simp] theorem UInt16.ofNatLT_finVal (n : Fin UInt16.size) : UInt16.ofNatLT n.val n.isLt = UInt16.ofFin n := rfl
+@[simp] theorem UInt32.ofNatLT_finVal (n : Fin UInt32.size) : UInt32.ofNatLT n.val n.isLt = UInt32.ofFin n := rfl
+@[simp] theorem UInt64.ofNatLT_finVal (n : Fin UInt64.size) : UInt64.ofNatLT n.val n.isLt = UInt64.ofFin n := rfl
+@[simp] theorem USize.ofNatLT_finVal (n : Fin USize.size) : USize.ofNatLT n.val n.isLt = USize.ofFin n := rfl
+
+@[simp] theorem UInt8.ofNatLT_bitVecToNat (n : BitVec 8) : UInt8.ofNatLT n.toNat n.isLt = UInt8.ofBitVec n := rfl
+@[simp] theorem UInt16.ofNatLT_bitVecToNat (n : BitVec 16) : UInt16.ofNatLT n.toNat n.isLt = UInt16.ofBitVec n := rfl
+@[simp] theorem UInt32.ofNatLT_bitVecToNat (n : BitVec 32) : UInt32.ofNatLT n.toNat n.isLt = UInt32.ofBitVec n := rfl
+@[simp] theorem UInt64.ofNatLT_bitVecToNat (n : BitVec 64) : UInt64.ofNatLT n.toNat n.isLt = UInt64.ofBitVec n := rfl
+@[simp] theorem USize.ofNatLT_bitVecToNat (n : BitVec System.Platform.numBits) : USize.ofNatLT n.toNat n.isLt = USize.ofBitVec n := rfl
+
+@[simp] theorem UInt8.ofNat_finVal (n : Fin UInt8.size) : UInt8.ofNat n.val = UInt8.ofFin n := by
+  rw [← ofNatLT_eq_ofNat (h := n.isLt), ofNatLT_finVal]
+@[simp] theorem UInt16.ofNat_finVal (n : Fin UInt16.size) : UInt16.ofNat n.val = UInt16.ofFin n := by
+  rw [← ofNatLT_eq_ofNat (h := n.isLt), ofNatLT_finVal]
+@[simp] theorem UInt32.ofNat_finVal (n : Fin UInt32.size) : UInt32.ofNat n.val = UInt32.ofFin n := by
+  rw [← ofNatLT_eq_ofNat (h := n.isLt), ofNatLT_finVal]
+@[simp] theorem UInt64.ofNat_finVal (n : Fin UInt64.size) : UInt64.ofNat n.val = UInt64.ofFin n := by
+  rw [← ofNatLT_eq_ofNat (h := n.isLt), ofNatLT_finVal]
+@[simp] theorem USize.ofNat_finVal (n : Fin USize.size) : USize.ofNat n.val = USize.ofFin n := by
+  rw [← ofNatLT_eq_ofNat (h := n.isLt), ofNatLT_finVal]
+
+@[simp] theorem UInt8.ofNat_bitVecToNat (n : BitVec 8) : UInt8.ofNat n.toNat = UInt8.ofBitVec n := by
+  rw [← ofNatLT_eq_ofNat (h := n.isLt), ofNatLT_bitVecToNat]
+@[simp] theorem UInt16.ofNat_bitVecToNat (n : BitVec 16) : UInt16.ofNat n.toNat = UInt16.ofBitVec n := by
+  rw [← ofNatLT_eq_ofNat (h := n.isLt), ofNatLT_bitVecToNat]
+@[simp] theorem UInt32.ofNat_bitVecToNat (n : BitVec 32) : UInt32.ofNat n.toNat = UInt32.ofBitVec n := by
+  rw [← ofNatLT_eq_ofNat (h := n.isLt), ofNatLT_bitVecToNat]
+@[simp] theorem UInt64.ofNat_bitVecToNat (n : BitVec 64) : UInt64.ofNat n.toNat = UInt64.ofBitVec n := by
+  rw [← ofNatLT_eq_ofNat (h := n.isLt), ofNatLT_bitVecToNat]
+@[simp] theorem USize.ofNat_bitVecToNat (n : BitVec System.Platform.numBits) : USize.ofNat n.toNat = USize.ofBitVec n := by
+  rw [← ofNatLT_eq_ofNat (h := n.isLt), ofNatLT_bitVecToNat]
+
+@[simp] theorem UInt8.ofNatTruncate_finVal (n : Fin UInt8.size) : UInt8.ofNatTruncate n.val = UInt8.ofFin n := by
+  rw [ofNatTruncate_eq_ofNat _ n.isLt, UInt8.ofNat_finVal]
+@[simp] theorem UInt16.ofNatTruncate_finVal (n : Fin UInt16.size) : UInt16.ofNatTruncate n.val = UInt16.ofFin n := by
+  rw [ofNatTruncate_eq_ofNat _ n.isLt, UInt16.ofNat_finVal]
+@[simp] theorem UInt32.ofNatTruncate_finVal (n : Fin UInt32.size) : UInt32.ofNatTruncate n.val = UInt32.ofFin n := by
+  rw [ofNatTruncate_eq_ofNat _ n.isLt, UInt32.ofNat_finVal]
+@[simp] theorem UInt64.ofNatTruncate_finVal (n : Fin UInt64.size) : UInt64.ofNatTruncate n.val = UInt64.ofFin n := by
+  rw [ofNatTruncate_eq_ofNat _ n.isLt, UInt64.ofNat_finVal]
+@[simp] theorem USize.ofNatTruncate_finVal (n : Fin USize.size) : USize.ofNatTruncate n.val = USize.ofFin n := by
+  rw [ofNatTruncate_eq_ofNat _ n.isLt, USize.ofNat_finVal]
+
+@[simp] theorem UInt8.ofNatTruncate_bitVecToNat (n : BitVec 8) : UInt8.ofNatTruncate n.toNat = UInt8.ofBitVec n := by
+  rw [ofNatTruncate_eq_ofNat _ n.isLt, ofNat_bitVecToNat]
+@[simp] theorem UInt16.ofNatTruncate_bitVecToNat (n : BitVec 16) : UInt16.ofNatTruncate n.toNat = UInt16.ofBitVec n := by
+  rw [ofNatTruncate_eq_ofNat _ n.isLt, ofNat_bitVecToNat]
+@[simp] theorem UInt32.ofNatTruncate_bitVecToNat (n : BitVec 32) : UInt32.ofNatTruncate n.toNat = UInt32.ofBitVec n := by
+  rw [ofNatTruncate_eq_ofNat _ n.isLt, ofNat_bitVecToNat]
+@[simp] theorem UInt64.ofNatTruncate_bitVecToNat (n : BitVec 64) : UInt64.ofNatTruncate n.toNat = UInt64.ofBitVec n := by
+  rw [ofNatTruncate_eq_ofNat _ n.isLt, ofNat_bitVecToNat]
+@[simp] theorem USize.ofNatTruncate_bitVecToNat (n : BitVec System.Platform.numBits) : USize.ofNatTruncate n.toNat = USize.ofBitVec n := by
+  rw [ofNatTruncate_eq_ofNat _ n.isLt, ofNat_bitVecToNat]
+
+@[simp] theorem UInt8.ofFin_mk {n : Nat} (hn) : UInt8.ofFin (Fin.mk n hn) = UInt8.ofNatLT n hn := rfl
+@[simp] theorem UInt16.ofFin_mk {n : Nat} (hn) : UInt16.ofFin (Fin.mk n hn) = UInt16.ofNatLT n hn := rfl
+@[simp] theorem UInt32.ofFin_mk {n : Nat} (hn) : UInt32.ofFin (Fin.mk n hn) = UInt32.ofNatLT n hn := rfl
+@[simp] theorem UInt64.ofFin_mk {n : Nat} (hn) : UInt64.ofFin (Fin.mk n hn) = UInt64.ofNatLT n hn := rfl
+@[simp] theorem USize.ofFin_mk {n : Nat} (hn) : USize.ofFin (Fin.mk n hn) = USize.ofNatLT n hn := rfl
+
+@[simp] theorem UInt8.ofFin_bitVecToFin (n : BitVec 8) : UInt8.ofFin n.toFin = UInt8.ofBitVec n := rfl
+@[simp] theorem UInt16.ofFin_bitVecToFin (n : BitVec 16) : UInt16.ofFin n.toFin = UInt16.ofBitVec n := rfl
+@[simp] theorem UInt32.ofFin_bitVecToFin (n : BitVec 32) : UInt32.ofFin n.toFin = UInt32.ofBitVec n := rfl
+@[simp] theorem UInt64.ofFin_bitVecToFin (n : BitVec 64) : UInt64.ofFin n.toFin = UInt64.ofBitVec n := rfl
+@[simp] theorem USize.ofFin_bitVecToFin (n : BitVec System.Platform.numBits) : USize.ofFin n.toFin = USize.ofBitVec n := rfl
+
+@[simp] theorem UInt8.ofBitVec_ofNatLT {n : Nat} (hn) : UInt8.ofBitVec (BitVec.ofNatLT n hn) = UInt8.ofNatLT n hn := rfl
+@[simp] theorem UInt16.ofBitVec_ofNatLT {n : Nat} (hn) : UInt16.ofBitVec (BitVec.ofNatLT n hn) = UInt16.ofNatLT n hn := rfl
+@[simp] theorem UInt32.ofBitVec_ofNatLT {n : Nat} (hn) : UInt32.ofBitVec (BitVec.ofNatLT n hn) = UInt32.ofNatLT n hn := rfl
+@[simp] theorem UInt64.ofBitVec_ofNatLT {n : Nat} (hn) : UInt64.ofBitVec (BitVec.ofNatLT n hn) = UInt64.ofNatLT n hn := rfl
+@[simp] theorem USize.ofBitVec_ofNatLT {n : Nat} (hn) : USize.ofBitVec (BitVec.ofNatLT n hn) = USize.ofNatLT n hn := rfl
+
+@[simp] theorem UInt8.ofBitVec_ofFin (n) : UInt8.ofBitVec (BitVec.ofFin n) = UInt8.ofFin n := rfl
+@[simp] theorem UInt16.ofBitVec_ofFin (n) : UInt16.ofBitVec (BitVec.ofFin n) = UInt16.ofFin n := rfl
+@[simp] theorem UInt32.ofBitVec_ofFin (n) : UInt32.ofBitVec (BitVec.ofFin n) = UInt32.ofFin n := rfl
+@[simp] theorem UInt64.ofBitVec_ofFin (n) : UInt64.ofBitVec (BitVec.ofFin n) = UInt64.ofFin n := rfl
+@[simp] theorem USize.ofBitVec_ofFin (n) : USize.ofBitVec (BitVec.ofFin n) = USize.ofFin n := rfl
+
+@[simp] theorem BitVec.ofNat_uInt8ToNat (n : UInt8) : BitVec.ofNat 8 n.toNat = n.toBitVec :=
+  BitVec.eq_of_toNat_eq (by simp)
+@[simp] theorem BitVec.ofNat_uInt16ToNat (n : UInt16) : BitVec.ofNat 16 n.toNat = n.toBitVec :=
+  BitVec.eq_of_toNat_eq (by simp)
+@[simp] theorem BitVec.ofNat_uInt32ToNat (n : UInt32) : BitVec.ofNat 32 n.toNat = n.toBitVec :=
+  BitVec.eq_of_toNat_eq (by simp)
+@[simp] theorem BitVec.ofNat_uInt64ToNat (n : UInt64) : BitVec.ofNat 64 n.toNat = n.toBitVec :=
+  BitVec.eq_of_toNat_eq (by simp)
+@[simp] theorem BitVec.ofNat_uSizeToNat (n : USize) : BitVec.ofNat System.Platform.numBits n.toNat = n.toBitVec :=
+  BitVec.eq_of_toNat_eq (by simp)

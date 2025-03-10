@@ -324,7 +324,24 @@ theorem getMsbD_ofNatLt {n x i : Nat} (h : x < 2^n) :
 @[simp, bitvec_to_nat] theorem toNat_ofNat (x w : Nat) : (BitVec.ofNat w x).toNat = x % 2^w := by
   simp [BitVec.toNat, BitVec.ofNat, Fin.ofNat']
 
+theorem ofNatLT_eq_ofNat {w : Nat} {n : Nat} (hn) : BitVec.ofNatLT n hn = BitVec.ofNat w n :=
+  eq_of_toNat_eq (by simp [Nat.mod_eq_of_lt hn])
+
 @[simp] theorem toFin_ofNat (x : Nat) : toFin (BitVec.ofNat w x) = Fin.ofNat' (2^w) x := rfl
+
+@[simp] theorem finMk_toNat (x : BitVec w) : Fin.mk x.toNat x.isLt = x.toFin := rfl
+
+@[simp] theorem toFin_ofNatLT {n : Nat} (h : n < 2 ^ w) : (BitVec.ofNatLT n h).toFin = Fin.mk n h := rfl
+
+@[simp] theorem toFin_ofFin (n : Fin (2 ^ w)) : (BitVec.ofFin n).toFin = n := rfl
+@[simp] theorem ofFin_toFin (x : BitVec w) : BitVec.ofFin x.toFin = x := rfl
+
+@[simp] theorem ofNatLT_finVal (n : Fin (2 ^ w)) : BitVec.ofNatLT n.val n.isLt = BitVec.ofFin n := rfl
+
+@[simp] theorem ofNatLT_toNat (x : BitVec w) : BitVec.ofNatLT x.toNat x.isLt = x := rfl
+
+@[simp] theorem ofNat_finVal (n : Fin (2 ^ w)) : BitVec.ofNat w n.val = BitVec.ofFin n := by
+  rw [← BitVec.ofNatLT_eq_ofNat n.isLt, ofNatLT_finVal]
 
 -- Remark: we don't use `[simp]` here because simproc` subsumes it for literals.
 -- If `x` and `n` are not literals, applying this theorem eagerly may not be a good idea.
@@ -621,6 +638,18 @@ theorem toInt_lt {w : Nat} {x : BitVec w} : 2 * x.toInt < 2 ^ w := by
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
     norm_cast; omega
 
+theorem toInt_le {w : Nat} {x : BitVec w} : 2 * x.toInt ≤ 2 ^ w - 1 :=
+  Int.le_sub_one_of_lt toInt_lt
+
+theorem toInt_lt_of_pos {w : Nat} (hw : 0 < w) {x : BitVec w} : x.toInt < 2 ^ (w - 1) := by
+  have := toInt_lt (w := w) (x := x)
+  generalize x.toInt = x at *
+  rw [(show w = w - 1 + 1 by omega), Int.pow_succ] at this
+  omega
+
+theorem toInt_le_of_pos {w : Nat} (hw : 0 < w) {x : BitVec w} : x.toInt ≤ 2 ^ (w - 1) - 1 :=
+  Int.le_sub_one_of_lt (toInt_lt_of_pos hw)
+
 /--
 `x.toInt` is greater than or equal to `-2^(w-1)`.
 We phrase the fact in terms of `2^w` to prevent a case split on `w=0` when the lemma is used.
@@ -632,6 +661,12 @@ theorem le_toInt {w : Nat} {x : BitVec w} : -2 ^ w ≤ 2 * x.toInt := by
   · rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.two_mul, Nat.add_sub_cancel]
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
     norm_cast; omega
+
+theorem le_toInt_of_pos {w : Nat} (hw : 0 < w) (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
+  have := le_toInt (w := w) (x := x)
+  generalize x.toInt = x at *
+  rw [(show w = w - 1 + 1 by omega), Int.pow_succ] at this
+  omega
 
 /-! ### slt -/
 
@@ -2061,14 +2096,18 @@ theorem msb_signExtend {x : BitVec w} :
   · simp [h, BitVec.msb, getMsbD_signExtend, show ¬ (v - w = 0) by omega]
 
 /-- Sign extending to a width smaller than the starting width is a truncation. -/
-theorem signExtend_eq_setWidth_of_lt (x : BitVec w) {v : Nat} (hv : v ≤ w):
+theorem signExtend_eq_setWidth_of_le (x : BitVec w) {v : Nat} (hv : v ≤ w) :
   x.signExtend v = x.setWidth v := by
   ext i h
   simp [getElem_signExtend, show i < w by omega]
 
+@[deprecated signExtend_eq_setWidth_of_le (since := "2025-03-07")]
+theorem signExtend_eq_setWidth_of_lt (x : BitVec w) {v : Nat} (hv : v ≤ w) :
+  x.signExtend v = x.setWidth v := signExtend_eq_setWidth_of_le x hv
+
 /-- Sign extending to the same bitwidth is a no op. -/
 @[simp] theorem signExtend_eq (x : BitVec w) : x.signExtend w = x := by
-  rw [signExtend_eq_setWidth_of_lt _ (Nat.le_refl _), setWidth_eq]
+  rw [signExtend_eq_setWidth_of_le _ (Nat.le_refl _), setWidth_eq]
 
 /-- Sign extending to a larger bitwidth depends on the msb.
 If the msb is false, then the result equals the original value.
@@ -2105,7 +2144,7 @@ theorem toNat_signExtend (x : BitVec w) {v : Nat} :
     (x.signExtend v).toNat = (x.setWidth v).toNat + if x.msb then 2^v - 2^w else 0 := by
   by_cases h : v ≤ w
   · have : 2^v ≤ 2^w := Nat.pow_le_pow_right Nat.two_pos h
-    simp [signExtend_eq_setWidth_of_lt x h, toNat_setWidth, Nat.sub_eq_zero_of_le this]
+    simp [signExtend_eq_setWidth_of_le x h, toNat_setWidth, Nat.sub_eq_zero_of_le this]
   · have : 2^w ≤ 2^v := Nat.pow_le_pow_right Nat.two_pos (by omega)
     rw [toNat_signExtend_of_le x (by omega), toNat_setWidth, Nat.mod_eq_of_lt (by omega)]
 
@@ -2141,7 +2180,7 @@ and we compute a modulo by `2^v`.
 -/
 theorem toInt_signExtend_eq_toNat_bmod_of_le {x : BitVec w} (hv : v ≤ w) :
     (x.signExtend v).toInt = Int.bmod x.toNat (2^v) := by
-  simp [signExtend_eq_setWidth_of_lt _ hv]
+  simp [signExtend_eq_setWidth_of_le _ hv]
 
 /--
 Interpreting the sign extension of `(x : BitVec w)` to width `v`
@@ -2164,8 +2203,6 @@ theorem toInt_signExtend (x : BitVec w) :
 theorem toInt_signExtend_eq_toInt_bmod_of_le (x : BitVec w) (h : v ≤ w) :
     (x.signExtend v).toInt = x.toInt.bmod (2 ^ v) := by
   rw [BitVec.toInt_signExtend, Nat.min_eq_left h]
-
-attribute [simp] BitVec.signExtend_eq
 
 /-! ### append -/
 
@@ -3199,6 +3236,7 @@ then `x / y` is nonnegative, thus `toInt` and `toNat` coincide.
 theorem toInt_udiv_of_msb {x : BitVec w} (h : x.msb = false) (y : BitVec w) :
     (x / y).toInt = x.toNat / y.toNat := by
   simp [toInt_eq_msb_cond, msb_udiv_eq_false_of h]
+  norm_cast
 
 /-! ### umod -/
 
@@ -3998,7 +4036,6 @@ theorem toNat_intMin : (intMin w).toNat = 2 ^ (w - 1) % 2 ^ w := by
 /--
 The RHS is zero in case `w = 0` which is modeled by wrapping the expression in `... % 2 ^ w`.
 -/
-@[simp]
 theorem toInt_intMin {w : Nat} :
     (intMin w).toInt = -((2 ^ (w - 1) % 2 ^ w) : Nat) := by
   by_cases h : w = 0
@@ -4010,10 +4047,16 @@ theorem toInt_intMin {w : Nat} :
     rw [Nat.mul_comm]
     simp [w_pos]
 
+theorem toInt_intMin_of_pos {v : Nat} (hv : 0 < v) : (intMin v).toInt = -2 ^ (v - 1) := by
+  rw [toInt_intMin, Nat.mod_eq_of_lt]
+  · simp [Int.natCast_pow]
+  · rw [Nat.pow_lt_pow_iff_right (by omega)]
+    omega
+
 theorem toInt_intMin_le (x : BitVec w) :
     (intMin w).toInt ≤ x.toInt := by
   cases w
-  case zero => simp [@of_length_zero x]
+  case zero => simp [toInt_intMin, @of_length_zero x]
   case succ w =>
     simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod]
     have : 0 < 2 ^ w := Nat.two_pow_pos w
@@ -4504,7 +4547,7 @@ abbrev signExtend_eq_not_zeroExtend_not_of_msb_false  := @signExtend_eq_setWidth
 abbrev signExtend_eq_not_zeroExtend_not_of_msb_true := @signExtend_eq_not_setWidth_not_of_msb_true
 
 @[deprecated signExtend_eq_setWidth_of_lt (since := "2024-09-18")]
-abbrev signExtend_eq_truncate_of_lt := @signExtend_eq_setWidth_of_lt
+abbrev signExtend_eq_truncate_of_lt := @signExtend_eq_setWidth_of_le
 
 @[deprecated truncate_append (since := "2024-09-18")]
 abbrev truncate_append := @setWidth_append

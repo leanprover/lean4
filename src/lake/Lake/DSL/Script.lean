@@ -36,7 +36,7 @@ script «script-name» (args) do
 scoped syntax (name := scriptDecl)
 (docComment)?  optional(Term.attributes) "script " scriptDeclSpec : command
 
-@[builtin_macro scriptDecl]
+@[macro scriptDecl]
 def expandScriptDecl : Macro
 | `($[$doc?]? $[$attrs?]? script%$kw $name $[$args?]? do $seq $[$wds?:whereDecls]?) => do
   `($[$doc?]? $[$attrs?]? script%$kw $name $[$args?]? := do $seq $[$wds?:whereDecls]?)

@@ -964,6 +964,7 @@ if (x_14 == 0)
 {
 lean_object* x_15; uint8_t x_16; 
 x_15 = l_Lean_findDeclarationRanges_x3f___at_Lean_Server_locationLinksFromDecl___spec__1___closed__1;
+lean_inc(x_1);
 x_16 = l_Lean_TagDeclarationExtension_isTagged(x_15, x_10, x_1);
 if (x_16 == 0)
 {

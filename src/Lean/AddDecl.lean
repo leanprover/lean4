@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.CoreM
+import Lean.Namespace
 
 namespace Lean
 
@@ -46,9 +47,9 @@ where go env
 def addDecl (decl : Declaration) : CoreM Unit := do
   -- register namespaces for newly added constants; this used to be done by the kernel itself
   -- but that is incompatible with moving it to a separate task
+  -- NOTE: we do not use `getTopLevelNames` here so that inductive types are registered as
+  -- namespaces
   modifyEnv (decl.getNames.foldl registerNamePrefixes)
-  if let .inductDecl _ _ types _ := decl then
-    modifyEnv (types.foldl (registerNamePrefixes · <| ·.name ++ `rec))
 
   if !Elab.async.get (← getOptions) then
     return (← doAdd)
@@ -79,9 +80,9 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
 where doAdd := do
   profileitM Exception "type checking" (← getOptions) do
-    withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getNames}") do
+    withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
       if !(← MonadLog.hasErrors) && decl.hasSorry then
-        logWarning m!"declaration uses 'sorry'"
+        logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
       let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
         |> ofExceptKernelException
       setEnv env

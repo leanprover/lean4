@@ -24,10 +24,11 @@ def withEnv [Monad m] [MonadFinally m] [MonadEnv m] (env : Environment) (x : m �
   finally
     setEnv saved
 
-def isInductive [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
-  match (← getEnv).find? declName with
-  | some (ConstantInfo.inductInfo ..) => return true
-  | _ => return false
+def isInductiveCore (env : Environment) (declName : Name) : Bool :=
+  env.find? declName matches some (.inductInfo ..)
+
+def isInductive [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
+  return isInductiveCore (← getEnv) declName
 
 def isRecCore (env : Environment) (declName : Name) : Bool :=
   match env.find? declName with
@@ -38,8 +39,9 @@ def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
   return isRecCore (← getEnv) declName
 
 @[inline] def withoutModifyingEnv [Monad m] [MonadEnv m] [MonadFinally m] {α : Type} (x : m α) : m α := do
-  let env ← getEnv
-  try x finally setEnv env
+  -- Allow `x` to define new declarations even outside the asynchronous prefix (if any) as all
+  -- results will be discarded anway.
+  withEnv (← getEnv).unlockAsync x
 
 /-- Similar to `withoutModifyingEnv`, but also returns the updated environment -/
 @[inline] def withoutModifyingEnv' [Monad m] [MonadEnv m] [MonadFinally m] {α : Type} (x : m α) : m (α × Environment) := do

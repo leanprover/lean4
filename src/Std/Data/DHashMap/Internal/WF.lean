@@ -51,6 +51,10 @@ theorem computeSize_eq {buckets : Array (AssocList α β)} :
 
 namespace Raw
 
+theorem equiv_iff_toListModel_perm {m₁ m₂ : Raw α β} :
+    m₁.Equiv m₂ ↔ toListModel m₁.2 ~ toListModel m₂.2 :=
+  ⟨Raw.Equiv.impl, Raw.Equiv.mk⟩
+
 theorem size_eq_length [BEq α] [Hashable α] {m : Raw α β} (h : Raw.WFImp m) :
     m.size = (toListModel m.buckets).length :=
   h.size_eq
@@ -84,12 +88,13 @@ theorem fold_cons_key {l : Raw α β} {acc : List α} :
   rw [fold_cons_apply, keys_eq_map, map_reverse]
 
 theorem foldRev_eq {l : Raw α β} {f : γ → (a : α) → β a → γ} {init : γ} :
-    l.foldRev f init = l.buckets.foldr (fun l acc => l.foldr (fun a b g => f g a b) acc) init := by
-  simp only [Raw.foldRev, Raw.foldRevM, ← Array.foldrM_toList, Array.foldr_toList,
+    Raw.Internal.foldRev f init l =
+      l.buckets.foldr (fun l acc => l.foldr (fun a b g => f g a b) acc) init := by
+  simp only [Raw.Internal.foldRev, Raw.Internal.foldRevM, ← Array.foldrM_toList, Array.foldr_toList,
     ← List.foldr_eq_foldrM, Id.run, AssocList.foldr]
 
 theorem foldRev_cons_apply {l : Raw α β} {acc : List γ} (f : (a : α) → β a → γ) :
-    l.foldRev (fun acc k v => f k v :: acc) acc =
+    Raw.Internal.foldRev (fun acc k v => f k v :: acc) acc l =
       ((toListModel l.buckets).map (fun p => f p.1 p.2)) ++ acc := by
   rw [foldRev_eq, ← Array.foldr_toList, toListModel]
   induction l.buckets.toList generalizing acc with
@@ -99,16 +104,17 @@ theorem foldRev_cons_apply {l : Raw α β} {acc : List γ} (f : (a : α) → β 
       simp
 
 theorem foldRev_cons {l : Raw α β} {acc : List ((a : α) × β a)} :
-    l.foldRev (fun acc k v => ⟨k, v⟩ :: acc) acc = toListModel l.buckets ++ acc := by
+    Raw.Internal.foldRev (fun acc k v => ⟨k, v⟩ :: acc) acc l = toListModel l.buckets ++ acc := by
   simp [foldRev_cons_apply]
 
 theorem foldRev_cons_mk {β : Type v} {l : Raw α (fun _ => β)} {acc : List (α × β)} :
-    l.foldRev (fun acc k v => (k, v) :: acc) acc =
+    Raw.Internal.foldRev (fun acc k v => (k, v) :: acc) acc l =
       (toListModel l.buckets).map (fun ⟨k, v⟩ => (k, v)) ++ acc := by
   simp [foldRev_cons_apply]
 
 theorem foldRev_cons_key {l : Raw α β} {acc : List α} :
-    l.foldRev (fun acc k _ => k :: acc) acc = List.keys (toListModel l.buckets) ++ acc := by
+    Raw.Internal.foldRev (fun acc k _ => k :: acc) acc l =
+      List.keys (toListModel l.buckets) ++ acc := by
   rw [foldRev_cons_apply, keys_eq_map]
 
 theorem foldM_eq_foldlM_toListModel {δ : Type w} {m : Type w → Type w } [Monad m] [LawfulMonad m]
@@ -134,8 +140,9 @@ theorem fold_eq_foldl_toListModel {l : Raw α β} {f : γ → (a : α) → β a 
 
 theorem foldRevM_eq_foldrM_toListModel {δ : Type w} {m : Type w → Type w } [Monad m] [LawfulMonad m]
     {f : δ → (a : α) → β a → m δ} {init : δ} {b : Raw α β} :
-    b.foldRevM f init = (toListModel b.buckets).foldrM (fun a b => f b a.1 a.2) init := by
-  simp only [Raw.foldRevM, ← Array.foldrM_toList, toListModel]
+    Raw.Internal.foldRevM f init b =
+      (toListModel b.buckets).foldrM (fun a b => f b a.1 a.2) init := by
+  simp only [Raw.Internal.foldRevM, ← Array.foldrM_toList, toListModel]
   induction b.buckets.toList generalizing init with
   | nil => simp
   | cons hd tl ih =>
@@ -150,8 +157,9 @@ theorem foldRevM_eq_foldrM_toListModel {δ : Type w} {m : Type w → Type w } [M
       rw [ih]
 
 theorem foldRev_eq_foldr_toListModel {l : Raw α β} {f : γ → (a : α) → β a → γ} {init : γ} :
-    l.foldRev f init = (toListModel l.buckets).foldr (fun a b => f b a.1 a.2) init := by
-  simp [Raw.foldRev, foldRevM_eq_foldrM_toListModel]
+    Raw.Internal.foldRev f init l =
+      (toListModel l.buckets).foldr (fun a b => f b a.1 a.2) init := by
+  simp [Raw.Internal.foldRev, foldRevM_eq_foldrM_toListModel]
 
 theorem toList_eq_toListModel {m : Raw α β} : m.toList = toListModel m.buckets := by
   simp [Raw.toList, foldRev_cons]

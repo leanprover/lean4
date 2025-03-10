@@ -77,7 +77,7 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_computeStructureResolu
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_computeStructureResolutionOrder_selectParent___spec__7(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_computeStructureResolutionOrder___spec__14___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_EnvExtension_modifyState___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_EnvExtension_modifyState___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_computeStructureResolutionOrder___spec__7(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_setStructureParents___spec__1(lean_object*, lean_object*);
@@ -5626,13 +5626,15 @@ return x_4;
 LEAN_EXPORT lean_object* l___private_Lean_Structure_0__Lean_setStructureResolutionOrder___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_alloc_closure((void*)(l___private_Lean_Structure_0__Lean_setStructureResolutionOrder___rarg___lambda__1), 3, 2);
 lean_closure_set(x_4, 0, x_1);
 lean_closure_set(x_4, 1, x_2);
-x_5 = l___private_Lean_Structure_0__Lean_getStructureResolutionOrder_x3f___closed__1;
-x_6 = l_Lean_EnvExtension_modifyState___rarg(x_5, x_3, x_4);
-return x_6;
+x_5 = l_Lean_structureResolutionExt;
+x_6 = lean_ctor_get_uint8(x_5, sizeof(void*)*3);
+x_7 = l___private_Lean_Structure_0__Lean_getStructureResolutionOrder_x3f___closed__1;
+x_8 = l_Lean_EnvExtension_modifyState___rarg(x_7, x_3, x_4, x_6);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Structure_0__Lean_setStructureResolutionOrder___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

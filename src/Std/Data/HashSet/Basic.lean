@@ -71,6 +71,15 @@ instance [BEq α] [Hashable α] : Inhabited (HashSet α) where
   default := ∅
 
 /--
+Two hash sets are equivalent in the sense of `Equiv` iff all their values are equal.
+-/
+structure Equiv (m₁ m₂ : HashSet α) where
+  /-- Internal implementation detail of the hash map -/
+  inner : m₁.1.Equiv m₂.1
+
+@[inherit_doc] scoped infixl:50 " ~m " => Equiv
+
+/--
 Inserts the given element into the set. If the hash set already contains an element that is
 equal (with regard to `==`) to the given element, then the hash set is returned unchanged.
 

@@ -68,7 +68,6 @@ def mkCnstrId : GoalM Nat := do
 opaque EqCnstr.assert (c : EqCnstr) : GoalM Unit
 
 -- TODO: PArray.shrink and PArray.resize
-
 partial def shrink (a : PArray Rat) (sz : Nat) : PArray Rat :=
   if a.size > sz then shrink a.pop sz else a
 
@@ -185,30 +184,6 @@ def toContextExpr : GoalM Expr := do
   else
     return RArray.toExpr (mkConst ``Int) id (RArray.leaf (mkIntLit 0))
 
-structure ProofM.State where
-  cache : Std.HashMap UInt64 Expr := {}
-
-/-- Auxiliary monad for constructing cutsat proofs. -/
-abbrev ProofM := ReaderT Expr (StateRefT ProofM.State GoalM)
-
-/-- Returns a Lean expression representing the variable context used to construct cutsat proofs. -/
-abbrev getContext : ProofM Expr := do
-  read
-
-abbrev caching (c : α) (k : ProofM Expr) : ProofM Expr := do
-  let addr := unsafe (ptrAddrUnsafe c).toUInt64 >>> 2
-  if let some h := (← get).cache[addr]? then
-    return h
-  else
-    let h ← k
-    modify fun s => { s with cache := s.cache.insert addr h }
-    return h
-
-abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
-  withLetDecl `ctx (mkApp (mkConst ``RArray) (mkConst ``Int)) (← toContextExpr) fun ctx => do
-    let h ← x ctx |>.run' {}
-    mkLetFVars #[ctx] h
-
 /--
 Tries to evaluate the polynomial `p` using the partial model/assignment built so far.
 The result is `none` if the polynomial contains variables that have not been assigned.
@@ -290,5 +265,6 @@ def CooperSplitPred.pp (pred : CooperSplitPred) : GoalM MessageData := do
 def UnsatProof.pp (h : UnsatProof) : GoalM MessageData := do
   match h with
   | .le c | .eq c | .dvd c | .diseq c => c.pp
+  | .cooper c₁ c₂ c₃ => return m!"{← c₁.pp}, {← c₂.pp}, {← c₃.pp}"
 
 end Lean.Meta.Grind.Arith.Cutsat

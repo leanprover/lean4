@@ -5006,6 +5006,7 @@ lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
+lean_inc(x_10);
 x_12 = l_Lean_Meta_getMatcherInfo_x3f___at_Lean_Meta_reduceMatcher_x3f___spec__1(x_10, x_3, x_4, x_5, x_6, x_7);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
@@ -7455,6 +7456,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_g
 _start:
 {
 lean_object* x_11; lean_object* x_12; 
+lean_inc(x_1);
 x_11 = l_Lean_Meta_getMatcherInfo_x3f___at_Lean_Meta_reduceMatcher_x3f___spec__1(x_1, x_6, x_7, x_8, x_9, x_10);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
@@ -11208,6 +11210,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Split_applyMatchSplitter(lean_object* x_1, 
 _start:
 {
 lean_object* x_11; lean_object* x_12; 
+lean_inc(x_2);
 x_11 = l_Lean_Meta_getMatcherInfo_x3f___at_Lean_Meta_reduceMatcher_x3f___spec__1(x_2, x_6, x_7, x_8, x_9, x_10);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);

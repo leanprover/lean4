@@ -9,6 +9,8 @@ import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -136,7 +138,7 @@ private def toPolyLe? (e : Expr) : GoalM (Option Poly) := do
 Given an expression `e` that is in `True` (or `False` equivalence class), if `e` is an
 integer inequality, asserts it to the cutsat state.
 -/
-def propagateIfIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
+def propagateIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   let some p ← toPolyLe? e | return ()
   let c ← if eqTrue then
     pure { p, h := .expr (← mkOfEqTrue (← mkEqTrueProof e)) : LeCnstr }
@@ -144,5 +146,23 @@ def propagateIfIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
     pure { p := p.mul (-1) |>.addConst 1, h := .notExpr p (← mkOfEqFalse (← mkEqFalseProof e)) : LeCnstr }
   trace[grind.cutsat.assert.le] "{← c.pp}"
   c.assert
+
+def propagateNatLe (e : Expr) (_eqTrue : Bool) : GoalM Unit := do
+  let some (lhs, rhs, _h) ← Int.OfNat.toIntLe? e | return ()
+  let gen ← getGeneration e
+  let lhs' ← toLinearExpr lhs gen
+  let rhs' ← toLinearExpr rhs gen
+  let p := lhs'.sub rhs' |>.norm
+  trace[grind.debug.cutsat.nat] "{lhs} ≤ {rhs}"
+  trace[grind.debug.cutsat.nat] "{← p.pp}"
+  -- TODO: WIP
+  return ()
+
+def propagateIfSupportedLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
+  let_expr LE.le α _ _ _ := e | return ()
+  if α.isConstOf ``Nat then
+    propagateNatLe e eqTrue
+  else
+    propagateIntLe e eqTrue
 
 end Lean.Meta.Grind.Arith.Cutsat

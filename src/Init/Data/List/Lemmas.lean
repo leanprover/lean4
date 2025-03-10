@@ -2535,6 +2535,14 @@ theorem flatMap_reverse {β} (l : List α) (f : α → List β) : (l.reverse.fla
   simp only [foldrM]
   induction l <;> simp_all
 
+@[simp] theorem foldlM_pure [Monad m] [LawfulMonad m] (f : β → α → β) (b) (l : List α) :
+    l.foldlM (m := m) (pure <| f · ·) b = pure (l.foldl f b) := by
+  induction l generalizing b <;> simp [*]
+
+@[simp] theorem foldrM_pure [Monad m] [LawfulMonad m] (f : α → β → β) (b) (l : List α) :
+    l.foldrM (m := m) (pure <| f · ·) b = pure (l.foldr f b) := by
+  induction l generalizing b <;> simp [*]
+
 theorem foldl_eq_foldlM (f : β → α → β) (b) (l : List α) :
     l.foldl f b = l.foldlM (m := Id) f b := by
   induction l generalizing b <;> simp [*, foldl]

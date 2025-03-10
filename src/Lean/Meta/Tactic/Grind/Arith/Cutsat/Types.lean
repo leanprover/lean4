@@ -153,12 +153,13 @@ inductive LeCnstrProof where
   | norm (c : LeCnstr)
   | divCoeffs (c : LeCnstr)
   | combine (c₁ c₂ : LeCnstr)
+  | combineDivCoeffs (c₁ c₂ : LeCnstr) (k : Int)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : LeCnstr)
   | ofLeDiseq (c₁ : LeCnstr) (c₂ : DiseqCnstr)
   | ofDiseqSplit (c₁ : DiseqCnstr) (decVar : FVarId) (h : UnsatProof) (decVars : Array FVarId)
   | cooper (c : CooperSplit)
-
-  -- TODO: missing constructors
+  | dvdTight (c₁ : DvdCnstr) (c₂ : LeCnstr)
+  | negDvdTight (c₁ : DvdCnstr) (c₂ : LeCnstr)
 
 /-- A disequality constraint and its justification/proof. -/
 structure DiseqCnstr where
@@ -182,6 +183,7 @@ inductive UnsatProof where
   | le (c : LeCnstr)
   | eq (c : EqCnstr)
   | diseq (c : DiseqCnstr)
+  | cooper (c₁ c₂ : LeCnstr) (c₃ : DvdCnstr)
 
 end
 
@@ -266,10 +268,14 @@ structure State where
   This is necessary because the same disequality may be in different conflicts.
   -/
   diseqSplits : PHashMap Poly FVarId := {}
-
-  /-
-  TODO: Model-based theory combination.
+  /--
+  Pairs `(x, n)` s.t. we have expanded the theorems
+  - `Int.Linear.ediv_emod`
+  - `Int.Linear.emod_nonneg`
+  - `Int.Linear.emod_le`
   -/
+  divMod : PHashSet (Expr × Int) := {}
+  /- TODO: Model-based theory combination. -/
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Cutsat

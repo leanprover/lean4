@@ -53,7 +53,7 @@ protected theorem dvd_mul_left (a b : Int) : b ∣ a * b := ⟨_, Int.mul_comm .
   constructor <;> exact fun ⟨k, e⟩ =>
     ⟨-k, by simp [e, Int.neg_mul, Int.mul_neg, Int.neg_neg]⟩
 
-protected theorem dvd_neg {a b : Int} : a ∣ -b ↔ a ∣ b := by
+@[simp] protected theorem dvd_neg {a b : Int} : a ∣ -b ↔ a ∣ b := by
   constructor <;> exact fun ⟨k, e⟩ =>
     ⟨-k, by simp [← e, Int.neg_mul, Int.mul_neg, Int.neg_neg]⟩
 
@@ -121,7 +121,7 @@ theorem emod_def (a b : Int) : a % b = a - b * (a / b) := by
 
 /-! ### `/` ediv -/
 
-@[simp] protected theorem ediv_neg : ∀ a b : Int, a / (-b) = -(a / b)
+@[simp] theorem ediv_neg : ∀ a b : Int, a / (-b) = -(a / b)
   | ofNat m, 0 => show ofNat (m / 0) = -↑(m / 0) by rw [Nat.div_zero]; rfl
   | ofNat _, -[_+1] => (Int.neg_neg _).symm
   | ofNat _, succ _ | -[_+1], 0 | -[_+1], succ _ | -[_+1], -[_+1] => rfl
@@ -183,8 +183,6 @@ theorem ediv_nonneg_iff_of_pos {a b : Int} (h : 0 < b) : 0 ≤ a / b ↔ 0 ≤ a
   match b, h with
   | Int.ofNat (b+1), _ =>
     rcases a with ⟨a⟩ <;> simp [Int.ediv]
-    norm_cast
-    simp
 
 @[deprecated ediv_nonneg_iff_of_pos (since := "2025-02-28")]
 abbrev div_nonneg_iff_of_pos := @ediv_nonneg_iff_of_pos

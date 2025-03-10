@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.SInt.Lemmas
-// Imports: Init.Data.SInt.Basic Init.Data.BitVec.Lemmas
+// Imports: Init.Data.SInt.Basic Init.Data.BitVec.Bitblast Init.Data.Int.LemmasAux Init.Data.UInt.Lemmas Init.System.Platform
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1676,7 +1676,7 @@ static lean_object* _init_l___aux__Init__Data__SInt__Lemmas______macroRules__com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("toBitVec_ofNat", 14, 14);
+x_1 = lean_mk_string_unchecked("toBitVec_ofNat'", 15, 15);
 return x_1;
 }
 }
@@ -1866,7 +1866,7 @@ static lean_object* _init_l___aux__Init__Data__SInt__Lemmas______macroRules__com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("toBitVec_ofNatOfNat", 19, 19);
+x_1 = lean_mk_string_unchecked("toBitVec_ofNat", 14, 14);
 return x_1;
 }
 }
@@ -2738,7 +2738,10 @@ return x_4;
 }
 }
 lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_BitVec_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_BitVec_Bitblast(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_System_Platform(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_SInt_Lemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -2747,7 +2750,16 @@ _G_initialized = true;
 res = initialize_Init_Data_SInt_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_BitVec_Lemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_BitVec_Bitblast(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_LemmasAux(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt_Lemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_System_Platform(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_commandDeclare__int__theorems_______closed__1 = _init_l_commandDeclare__int__theorems_______closed__1();

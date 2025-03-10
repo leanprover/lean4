@@ -141,25 +141,27 @@ structure EqnsExtState where
 
 /- We generate the equations on demand. -/
 builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
-  registerEnvExtension (pure {})
+  registerEnvExtension (pure {}) (asyncMode := .local)
 
 /--
 Simple equation theorem for nonrecursive definitions.
 -/
 private def mkSimpleEqThm (declName : Name) (suffix := Name.mkSimple unfoldThmSuffix) : MetaM (Option Name) := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
-    lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
-      let lhs := mkAppN (mkConst info.name <| info.levelParams.map mkLevelParam) xs
-      let type  ← mkForallFVars xs (← mkEq lhs body)
-      let value ← mkLambdaFVars xs (← mkEqRefl lhs)
-      let name := declName ++ suffix
-      addDecl <| Declaration.thmDecl {
-        name, type, value
-        levelParams := info.levelParams
-      }
-      return some name
+    let name := declName ++ suffix
+    realizeConst declName name (doRealize name info)
+    return some name
   else
     return none
+where doRealize name info := do
+  lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
+    let lhs := mkAppN (mkConst info.name <| info.levelParams.map mkLevelParam) xs
+    let type  ← mkForallFVars xs (← mkEq lhs body)
+    let value ← mkLambdaFVars xs (← mkEqRefl lhs)
+    addDecl <| Declaration.thmDecl {
+      name, type, value
+      levelParams := info.levelParams
+    }
 
 /--
 Returns `some declName` if `thmName` is an equational theorem for `declName`.

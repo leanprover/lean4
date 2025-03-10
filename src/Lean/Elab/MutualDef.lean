@@ -1075,12 +1075,17 @@ is error-free and contains no syntactical `sorry`s.
 -/
 private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
     (defsParsedSnap : DefsParsedSnapshot) : TermElabM Unit := do
+  if Lean.internal.cmdlineSnapshots.get (← getOptions) then
+    -- Skip 'goals accomplished' task if we are on the command line.
+    -- These messages are only used in the language server.
+    return
+  let currentLog ← Core.getMessageLog
   let snaps := #[SnapshotTask.finished none (toSnapshotTree defsParsedSnap)] ++
     (← getThe Core.State).snapshotTasks
   let tree := SnapshotTree.mk { diagnostics := .empty } snaps
   let logGoalsAccomplishedAct ← Term.wrapAsyncAsSnapshot (cancelTk? := none) fun () => do
     -- NOTE: `waitAll` below ensures `getAll` will not block here
-    let logs := tree.getAll.map (·.diagnostics.msgLog)
+    let logs := tree.getAll.map (·.diagnostics.msgLog) |>.push currentLog
     let hasErrorOrSorry := logs.any fun log =>
       log.reportedPlusUnreported.any fun msg =>
         msg.severity matches .error || msg.data.hasTag (· == `hasSorry)

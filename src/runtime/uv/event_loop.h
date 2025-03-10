@@ -44,4 +44,8 @@ void event_loop_run_loop(event_loop_t *event_loop);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg options, obj_arg /* w */ );
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive(obj_arg /* w */ );
 
+// Helpers
+
+void lean_promise_resolve_with_code(int status, obj_arg promise);
+
 }

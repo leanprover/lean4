@@ -4271,19 +4271,42 @@ theorem Option.isSome_bind {α β : Type _} (x : Option α) (f : α → Option �
   cases x <;> rfl
 
 theorem Option.isSome_of_mem {x : Option α} {y : α} (h : y ∈ x) : x.isSome := by
-  rw [h, Option.isSome_some]
+  cases x <;> trivial
 
 theorem Option.isSome_of_eq_some {x : Option α} {y : α} (h : x = some y) : x.isSome := by
-  rw [h, Option.isSome_some]
+  cases x <;> trivial
 
 theorem Option.get_inj {o1 o2 : Option α} {h1} {h2} :
     o1.get h1 = o2.get h2 ↔ o1 = o2 := by
-  cases o1 with
-  | some a =>
-    cases o2 with
-    | some b => simp
-    | none => simp at h2
-  | none => simp at h1
+  match o1, o2, h1, h2 with
+  | some a, some b, _, _ => simp only [Option.get_some, Option.some.injEq]
+
+theorem Option.isSome_of_any {x : Option α} {p : α → Bool} (h : x.any p) : x.isSome := by
+  cases x <;> trivial
+
+theorem Option.isSome_of_isSome_bind {α β : Type _} {x : Option α} {f : α → Option β}
+    (h : (x.bind f).isSome) : x.isSome := by
+  cases x <;> trivial
+
+theorem Option.isSome_apply_of_isSome_bind {α β : Type _} {x : Option α} {f : α → Option β}
+    (h : (x.bind f).isSome) : (f (x.get (isSome_of_isSome_bind h))).isSome := by
+  cases x <;> trivial
+
+theorem Option.get_bind {α β : Type _} {x : Option α} {f : α → Option β} (h : (x.bind f).isSome) :
+    (x.bind f).get h = (f (x.get (isSome_of_isSome_bind h))).get
+      (isSome_apply_of_isSome_bind h) := by
+  cases x <;> trivial
+
+theorem Option.isSome_of_isSome_filter {α : Type _} {x : Option α} {f : α → Bool}
+    (h : (x.filter f).isSome) : x.isSome := by
+  cases x <;> trivial
+
+theorem Option.get_filter {α : Type _} {x : Option α} {f : α → Bool} (h : (x.filter f).isSome) :
+    (x.filter f).get h = x.get (isSome_of_isSome_filter h) := by
+  cases x
+  · contradiction
+  · unfold Option.filter
+    simp only [Option.get_ite, Option.get_some]
 
 theorem getEntry?_filterMap' [BEq α] [EquivBEq α]
     {f : ((a : α) × β a) → Option (((a : α) × γ a))}
@@ -4355,6 +4378,25 @@ theorem containsKey_of_containsKey_filterMap' [BEq α] [EquivBEq α]
   obtain ⟨y, hy, _⟩ := h
   exact Option.isSome_of_mem hy
 
+theorem containsKey_of_containsKey_filterMap [BEq α] [EquivBEq α]
+    {f : (a : α) → β a → Option (γ a)}
+    {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l)
+    (h : containsKey k (l.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩))) :
+    containsKey k l := by
+  rw [containsKey_of_containsKey_filterMap' _ hl h]
+  intro p
+  simp [Option.all_eq_true]
+
+theorem containsKey_of_containsKey_filter [BEq α] [EquivBEq α]
+    {f : (a : α) → β a → Bool}
+    {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l)
+    (h : containsKey k (l.filter fun p => f p.1 p.2)) :
+    containsKey k l := by
+  rw [← List.filterMap_eq_filter] at h
+  rw [containsKey_of_containsKey_filterMap' _ hl h]
+  intro p
+  simp only [Option.all_guard, BEq.refl, Bool.or_true]
+
 theorem getValueCast?_filterMap [BEq α] [LawfulBEq α]
     {f : (a : α) → β a → Option (γ a)}
     {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
@@ -4416,6 +4458,18 @@ theorem getKeyD_map [BEq α] [EquivBEq α] {f : (a : α) → β a → γ a}
     {l : List ((a : α) × β a)} {k : α} {fallback : α} (hl : DistinctKeys l) :
     getKeyD k (l.map fun p => ⟨p.1, f p.1 p.2⟩) fallback = getKeyD k l fallback := by
   simp only [getKeyD_eq_getKey?, getKey?_map hl]
+
+theorem getKey_filterMap [BEq α] [EquivBEq α] {f : (a : α) → β a → Option (γ a)}
+    {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) {h} :
+    getKey k (l.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩)) h =
+      getKey k l (containsKey_of_containsKey_filterMap hl h) := by
+  simp only [getKey, getKey?_eq_getEntry?, getEntry?_filterMap hl, Option.get_map, Option.get_bind]
+
+theorem getKey_filter [BEq α] [EquivBEq α] {f : (a : α) → β a → Bool}
+    {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) {h} :
+    getKey k (l.filter fun p => f p.1 p.2) h =
+      getKey k l (containsKey_of_containsKey_filter hl h) := by
+  simp only [getKey, getKey?_eq_getEntry?, getEntry?_filter hl, Option.get_map, Option.get_filter]
 
 theorem length_filterMap_eq_length_iff [BEq α] [LawfulBEq α] {f : (a : α) → β a → Option (γ a)}
     {l : List ((a : α) × β a)} (distinct : DistinctKeys l):

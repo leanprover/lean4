@@ -15,7 +15,7 @@ private def findBest?
     (gt : α → α → Bool)
     (f : ContextInfo → Info → PersistentArray InfoTree → Option α)
     : Option α :=
-  infoTree.visitM (m := Id) (postNode := choose) |>.join
+  (Id.run <| infoTree.visitM (postNode := choose)).join
 where
   choose
       (ctx : ContextInfo)

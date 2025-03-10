@@ -356,7 +356,7 @@ def modifyM [Monad m] (xs : Array α) (i : Nat) (f : α → m α) : m (Array α)
 
 @[inline]
 def modify (xs : Array α) (i : Nat) (f : α → α) : Array α :=
-  Id.run <| modifyM xs i f
+  Id.run <| modifyM xs i (pure <| f ·)
 
 set_option linter.indexVariables false in -- Changing `idx` causes bootstrapping issues, haven't investigated.
 @[inline]
@@ -646,11 +646,11 @@ def forRevM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit)
 
 @[inline]
 def foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : Array α) (start := 0) (stop := as.size) : β :=
-  Id.run <| as.foldlM f init start stop
+  Id.run <| as.foldlM (pure <| f · ·) init start stop
 
 @[inline]
 def foldr {α : Type u} {β : Type v} (f : α → β → β) (init : β) (as : Array α) (start := as.size) (stop := 0) : β :=
-  Id.run <| as.foldrM f init start stop
+  Id.run <| as.foldrM (pure <| f · ·) init start stop
 
 /-- Sum of an array.
 
@@ -669,7 +669,7 @@ def count {α : Type u} [BEq α] (a : α) (as : Array α) : Nat :=
 
 @[inline]
 def map {α : Type u} {β : Type v} (f : α → β) (as : Array α) : Array β :=
-  Id.run <| as.mapM f
+  Id.run <| as.mapM (pure <| f ·)
 
 instance : Functor Array where
   map := map
@@ -677,11 +677,11 @@ instance : Functor Array where
 /-- Variant of `mapIdx` which receives the index as a `Fin as.size`. -/
 @[inline]
 def mapFinIdx {α : Type u} {β : Type v} (as : Array α) (f : (i : Nat) → α → (h : i < as.size) → β) : Array β :=
-  Id.run <| as.mapFinIdxM f
+  Id.run <| as.mapFinIdxM (pure <| f · · ·)
 
 @[inline]
 def mapIdx {α : Type u} {β : Type v} (f : Nat → α → β) (as : Array α) : Array β :=
-  Id.run <| as.mapIdxM f
+  Id.run <| as.mapIdxM (pure <| f · ·)
 
 /-- Turns `#[a, b]` into `#[(a, 0), (b, 1)]`. -/
 def zipIdx (xs : Array α) (start := 0) : Array (α × Nat) :=
@@ -699,7 +699,7 @@ def find? {α : Type u} (p : α → Bool) (as : Array α) : Option α :=
 
 @[inline]
 def findSome? {α : Type u} {β : Type v} (f : α → Option β) (as : Array α) : Option β :=
-  Id.run <| as.findSomeM? f
+  Id.run <| as.findSomeM? (pure <| f ·)
 
 @[inline]
 def findSome! {α : Type u} {β : Type v} [Inhabited β] (f : α → Option β) (xs : Array α) : β :=
@@ -709,11 +709,11 @@ def findSome! {α : Type u} {β : Type v} [Inhabited β] (f : α → Option β) 
 
 @[inline]
 def findSomeRev? {α : Type u} {β : Type v} (f : α → Option β) (as : Array α) : Option β :=
-  Id.run <| as.findSomeRevM? f
+  Id.run <| as.findSomeRevM? (pure <| f ·)
 
 @[inline]
 def findRev? {α : Type} (p : α → Bool) (as : Array α) : Option α :=
-  Id.run <| as.findRevM? p
+  Id.run <| as.findRevM? (pure <| p ·)
 
 @[inline]
 def findIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option Nat :=
@@ -785,11 +785,11 @@ def getIdx? [BEq α] (xs : Array α) (v : α) : Option Nat :=
 
 @[inline]
 def any (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool :=
-  Id.run <| as.anyM p start stop
+  Id.run <| as.anyM (pure <| p ·) start stop
 
 @[inline]
 def all (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool :=
-  Id.run <| as.allM p start stop
+  Id.run <| as.allM (pure <| p ·) start stop
 
 /-- `as.contains a` is true if there is some element `b` in `as` such that `a == b`. -/
 def contains [BEq α] (as : Array α) (a : α) : Bool :=
@@ -886,7 +886,7 @@ def filterMapM [Monad m] (f : α → m (Option β)) (as : Array α) (start := 0)
 
 @[inline]
 def filterMap (f : α → Option β) (as : Array α) (start := 0) (stop := as.size) : Array β :=
-  Id.run <| as.filterMapM f (start := start) (stop := stop)
+  Id.run <| as.filterMapM (pure <| f ·) (start := start) (stop := stop)
 
 @[specialize]
 def getMax? (as : Array α) (lt : α → α → Bool) : Option α :=

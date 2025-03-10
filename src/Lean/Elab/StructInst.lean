@@ -514,7 +514,7 @@ def StructInstView.modifyFieldsM {m : Type → Type} [Monad m] (s : StructInstVi
   | { ref, structName, params, fields, sources } => return { ref, structName, params, fields := (← f fields), sources }
 
 def StructInstView.modifyFields (s : StructInstView) (f : List Field → List Field) : StructInstView :=
-  Id.run <| s.modifyFieldsM f
+  Id.run <| s.modifyFieldsM (pure <| f ·)
 
 /-- Expands name field LHSs with multi-component names into multi-component LHSs. -/
 private def expandCompositeFields (s : StructInstView) : StructInstView :=

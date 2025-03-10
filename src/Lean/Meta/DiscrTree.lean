@@ -795,7 +795,7 @@ Fold the values stored in a `Trie`.
 -/
 @[inline]
 def foldValues (f : σ → α → σ) (init : σ) (t : Trie α) : σ :=
-  Id.run <| t.foldValuesM (init := init) f
+  Id.run <| t.foldValuesM (init := init) (pure <| f · ·)
 
 /--
 The number of values stored in a `Trie`.
@@ -835,7 +835,7 @@ Fold over the values stored in a `DiscrTree`.
 -/
 @[inline]
 def foldValues (f : σ → α → σ) (init : σ) (t : DiscrTree α) : σ :=
-  Id.run <| t.foldValuesM (init := init) f
+  Id.run <| t.foldValuesM (init := init) (pure <| f · ·)
 
 /--
 Check for the presence of a value satisfying a predicate.

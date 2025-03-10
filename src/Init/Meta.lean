@@ -1211,7 +1211,7 @@ def filterSepElemsM {m : Type → Type} [Monad m] (a : Array Syntax) (p : Syntax
   filterSepElemsMAux a p 0 #[]
 
 def filterSepElems (a : Array Syntax) (p : Syntax → Bool) : Array Syntax :=
-  Id.run <| a.filterSepElemsM p
+  Id.run <| a.filterSepElemsM (pure <| p ·)
 
 private partial def mapSepElemsMAux {m : Type → Type} [Monad m] (a : Array Syntax) (f : Syntax → m Syntax) (i : Nat) (acc : Array Syntax) : m (Array Syntax) := do
   if h : i < a.size then
@@ -1228,7 +1228,7 @@ def mapSepElemsM {m : Type → Type} [Monad m] (a : Array Syntax) (f : Syntax �
   mapSepElemsMAux a f 0 #[]
 
 def mapSepElems (a : Array Syntax) (f : Syntax → Syntax) : Array Syntax :=
-  Id.run <| a.mapSepElemsM f
+  Id.run <| a.mapSepElemsM (pure <| f ·)
 
 end Array
 

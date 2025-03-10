@@ -1971,7 +1971,7 @@ def foldArgsM (s : Syntax) (f : Syntax → β → m β) (b : β) : m β :=
   s.getArgs.foldlM (flip f) b
 
 def foldArgs (s : Syntax) (f : Syntax → β → β) (b : β) : β :=
-  Id.run (s.foldArgsM f b)
+  Id.run (s.foldArgsM (pure <| f · ·) b)
 
 def forArgsM (s : Syntax) (f : Syntax → m Unit) : m Unit :=
   s.foldArgsM (fun s _ => f s) ()

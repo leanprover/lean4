@@ -76,7 +76,7 @@ def depth (p : Pos) :=
 
 /-- Returns true if `pred` is true for each coordinate in `p`.-/
 def all (pred : Nat → Bool) (p : Pos) : Bool :=
-  OptionT.run (m := Id) (foldrM (fun n a => if pred n then pure a else failure) p ()) |>.isSome
+  (Id.run <| OptionT.run (foldrM (fun n a => if pred n then pure a else failure) p ())) |>.isSome
 
 def append : Pos → Pos → Pos := foldl push
 

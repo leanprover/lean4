@@ -73,4 +73,4 @@ if the result of each `f a` is a pointer equal value `a`.
   as.mapM f
 
 @[inline] def Array.mapMono (as : Array α) (f : α → α) : Array α :=
-  Id.run <| as.mapMonoM f
+  Id.run <| as.mapMonoM (pure <| f ·)

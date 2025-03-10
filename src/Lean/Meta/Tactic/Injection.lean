@@ -33,10 +33,13 @@ def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCor
     let go (type prf : Expr) : MetaM InjectionResultCore := do
       match type.eq? with
       | none           => throwTacticEx `injection mvarId "equality expected"
-      | some (_, a, b) =>
+      | some (α, a, b) =>
         let target ← mvarId.getType
         match (← isConstructorApp'? a), (← isConstructorApp'? b) with
         | some aCtor, some bCtor =>
+          unless (← hasNoConfusionDecl aCtor.induct) do
+            throwTacticEx `injection mvarId m!"the type{indentExpr α}\nlacks a no-confusion principle, \
+              so 'injection' cannot prove the injectivity or distinctness of its constructors"
           -- We use the default transparency because `a` and `b` may be builtin literals.
           let val ← withTransparency .default <| mkNoConfusion target prf
           if aCtor.name != bCtor.name then
@@ -72,7 +75,6 @@ def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCor
 inductive InjectionResult where
   | solved
   | subgoal (mvarId : MVarId) (newEqs : Array FVarId) (remainingNames : List Name)
-
 
 def injectionIntro (mvarId : MVarId) (numEqs : Nat) (newNames : List Name) (tryToClear := true) : MetaM InjectionResult :=
   let rec go : Nat → MVarId → Array FVarId → List Name → MetaM InjectionResult

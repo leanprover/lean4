@@ -1892,7 +1892,7 @@ def addAutoBoundImplicits' (xs : Array Expr) (type : Expr) (k : Array Expr → E
 
 def mkAuxName (suffix : Name) : TermElabM Name := do
   match (← read).declName? with
-  | none          => throwError "auxiliary declaration cannot be created when declaration name is not available"
+  | none          => Lean.mkAuxName (mkPrivateName (← getEnv) `aux) 1
   | some declName => Lean.mkAuxName (declName ++ suffix) 1
 
 builtin_initialize registerTraceClass `Elab.letrec

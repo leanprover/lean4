@@ -1093,22 +1093,28 @@ theorem nonempty_of_exists {α : Sort u} {p : α → Prop} : Exists (fun x => p 
 /-! # Subsingleton -/
 
 /--
-A "subsingleton" is a type with at most one element.
-In other words, it is either empty, or has a unique element.
-All propositions are subsingletons because of proof irrelevance, but some other types
-are subsingletons as well and they inherit many of the same properties as propositions.
-`Subsingleton α` is a typeclass, so it is usually used as an implicit argument and
-inferred by typeclass inference.
+A _subsingleton_ is a type with at most one element. It is either empty or has a unique element.
+
+All propositions are subsingletons because of proof irrelevance: false propositions are empty, and
+all proofs of a true proposition are equal to one another. Some non-propositional types are also
+subsingletons.
 -/
 class Subsingleton (α : Sort u) : Prop where
-  /-- Construct a proof that `α` is a subsingleton by showing that any two elements are equal. -/
+  /-- Prove that `α` is a subsingleton by showing that any two elements are equal. -/
   intro ::
   /-- Any two elements of a subsingleton are equal. -/
   allEq : (a b : α) → a = b
 
+/--
+If a type is a subsingleton, then all of its elements are equal.
+-/
 protected theorem Subsingleton.elim {α : Sort u} [h : Subsingleton α] : (a b : α) → a = b :=
   h.allEq
 
+/--
+If two types are equal and one of them is a subsingleton, then all of their elements are
+[heterogeneously equal](lean-manual://section/HEq).
+-/
 protected theorem Subsingleton.helim {α β : Sort u} [h₁ : Subsingleton α] (h₂ : α = β) (a : α) (b : β) : HEq a b := by
   subst h₂
   apply heq_of_eq
@@ -1146,22 +1152,21 @@ theorem recSubsingleton
   | isFalse h => h₄ h
 
 /--
-An equivalence relation `~ : α → α → Prop` is a relation that is:
+An equivalence relation `r : α → α → Prop` is a relation that is
 
-* reflexive: `x ~ x`
-* symmetric: `x ~ y` implies `y ~ x`
-* transitive: `x ~ y` and `y ~ z` implies `x ~ z`
+* reflexive: `r x x`,
+* symmetric: `r x y` implies `r y x`, and
+* transitive: `r x y` and `r y z` implies `r x z`.
 
-Equality is an equivalence relation, and equivalence relations share many of
-the properties of equality. In particular, `Quot α r` is most well behaved
-when `r` is an equivalence relation, and in this case we use `Quotient` instead.
+Equality is an equivalence relation, and equivalence relations share many of the properties of
+equality.
 -/
 structure Equivalence {α : Sort u} (r : α → α → Prop) : Prop where
-  /-- An equivalence relation is reflexive: `x ~ x` -/
+  /-- An equivalence relation is reflexive: `r x x` -/
   refl  : ∀ x, r x x
-  /-- An equivalence relation is symmetric: `x ~ y` implies `y ~ x` -/
+  /-- An equivalence relation is symmetric: `r x y` implies `r y x` -/
   symm  : ∀ {x y}, r x y → r y x
-  /-- An equivalence relation is transitive: `x ~ y` and `y ~ z` implies `x ~ z` -/
+  /-- An equivalence relation is transitive: `r x y` and `r y z` implies `r x z` -/
   trans : ∀ {x y z}, r x y → r y z → r x z
 
 /-- The empty relation is the relation on `α` which is always `False`. -/
@@ -1370,7 +1375,8 @@ instance : DecidableEq PUnit :=
 
 /--
 A setoid is a type with a distinguished equivalence relation, denoted `≈`.
-This is mainly used as input to the `Quotient` type constructor.
+
+The `Quotient` type constructor requires a `Setoid` instance.
 -/
 class Setoid (α : Sort u) where
   /-- `x ≈ y` is the distinguished equivalence relation of a setoid. -/
@@ -1385,12 +1391,15 @@ namespace Setoid
 
 variable {α : Sort u} [Setoid α]
 
+/-- A setoid's equivalence relation is reflexive. -/
 theorem refl (a : α) : a ≈ a :=
   iseqv.refl a
 
+/-- A setoid's equivalence relation is symmetric. -/
 theorem symm {a b : α} (hab : a ≈ b) : b ≈ a :=
   iseqv.symm hab
 
+/-- A setoid's equivalence relation is transitive. -/
 theorem trans {a b c : α} (hab : a ≈ b) (hbc : b ≈ c) : a ≈ c :=
   iseqv.trans hab hbc
 
@@ -2137,28 +2146,39 @@ instance Pi.instSubsingleton {α : Sort u} {β : α → Sort v} [∀ a, Subsingl
 /-! # Squash -/
 
 /--
-`Squash α` is the quotient of `α` by the always true relation.
-It is empty if `α` is empty, otherwise it is a singleton.
-(Thus it is unconditionally a `Subsingleton`.)
-It is the "universal `Subsingleton`" mapped from `α`.
+The quotient of `α` by the universal relation. The elements of `Squash α` are those of `α`, but all
+of them are equal and cannot be distinguished.
 
-It is similar to `Nonempty α`, which has the same properties, but unlike
-`Nonempty` this is a `Type u`, that is, it is "data", and the compiler
-represents an element of `Squash α` the same as `α` itself
-(as compared to `Nonempty α`, whose elements are represented by a dummy value).
+`Squash α` is a `Subsingleton`: it is empty if `α` is empty, otherwise it has just one element. It
+is the “universal `Subsingleton`” mapped from `α`.
 
-`Squash.lift` will extract a value in any subsingleton `β` from a function on `α`,
-while `Nonempty.rec` can only do the same when `β` is a proposition.
+`Nonempty α` also has these properties. It is a proposition, which means that its elements (i.e.
+proofs) are erased from compiled code and represented by a dummy value. `Squash α` is a `Type u`,
+and its representation in compiled code is identical to that of `α`.
+
+Consequently, `Squash.lift` may extract an `α` value into any subsingleton type `β`, while
+`Nonempty.rec` can only do the same when `β` is a proposition.
 -/
 def Squash (α : Sort u) := Quot (fun (_ _ : α) => True)
 
-/-- The canonical quotient map into `Squash α`. -/
+/--
+Places a value into its squash type, in which it cannot be distinguished from any other.
+-/
 def Squash.mk {α : Sort u} (x : α) : Squash α := Quot.mk _ x
 
+/--
+A reasoning principle that allows proofs about squashed types to assume that all values are
+constructed with `Squash.mk`.
+-/
 theorem Squash.ind {α : Sort u} {motive : Squash α → Prop} (h : ∀ (a : α), motive (Squash.mk a)) : ∀ (q : Squash α), motive q :=
   Quot.ind h
 
-/-- If `β` is a subsingleton, then a function `α → β` lifts to `Squash α → β`. -/
+/--
+Extracts a squashed value into any subsingleton type.
+
+If `β` is a subsingleton, a function `α → β` cannot distinguish between elements of `α` and thus
+automatically respects the universal relation that `Squash` quotients with.
+-/
 @[inline] def Squash.lift {α β} [Subsingleton β] (s : Squash α) (f : α → β) : β :=
   Quot.lift f (fun _ _ _ => Subsingleton.elim _ _) s
 

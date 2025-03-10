@@ -2018,12 +2018,13 @@ theorem contains_alter [LawfulBEq α] (h : m.1.WF) {k k' : α} {f : Option (β k
 
 theorem size_alter [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).1.size =
-      if m.contains k && (f (m.get? k)).isNone then
+      if m.contains k ∧ (f (m.get? k)).isNone then
         m.1.size - 1
-      else if !m.contains k && (f (m.get? k)).isSome then
+      else if ¬ m.contains k ∧ (f (m.get? k)).isSome then
         m.1.size + 1
       else
         m.1.size := by
+  simp only [Bool.not_eq_true]
   simp_to_model [alter, contains, get?, size] using List.length_alterKey'
 
 theorem size_alter_eq_add_one [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)}
@@ -2168,12 +2169,13 @@ theorem contains_alter (h : m.1.WF) {k k' : α} {f : Option β → Option β} :
 
 theorem size_alter (h : m.1.WF) {k : α} {f : Option β → Option β} :
     (Const.alter m k f).1.size =
-      if m.contains k && (f (Const.get? m k)).isNone then
+      if m.contains k ∧ (f (Const.get? m k)).isNone then
         m.1.size - 1
-      else if !m.contains k && (f (Const.get? m k)).isSome then
+      else if ¬ m.contains k ∧ (f (Const.get? m k)).isSome then
         m.1.size + 1
       else
         m.1.size := by
+  simp only [Bool.not_eq_true]
   simp_to_model [Const.alter, size, contains, Const.get?] using List.Const.length_alterKey'
 
 theorem size_alter_eq_add_one (h : m.1.WF) {k : α} {f : Option β → Option β}

@@ -273,6 +273,13 @@ example (a b : BitVec 16) (c : Bool) :
     BitVec.extractLsb' 1 12 (if c then a else b) = if c then BitVec.extractLsb' 1 12 a else BitVec.extractLsb' 1 12 b := by
   bv_normalize
 
+-- extractLsb full
+example (a : BitVec 16) : a.extractLsb' 0 16 = a := by
+  bv_normalize
+
+example (a : BitVec 16) : a.extractLsb 15 0 = a := by
+  bv_normalize
+
 -- mul with twoPow
 example (a : BitVec 16) : 8#16 * a = a <<< 3 := by
   bv_normalize

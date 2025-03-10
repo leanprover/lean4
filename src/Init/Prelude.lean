@@ -3562,14 +3562,14 @@ instance nonBacktrackable : Backtrackable PUnit σ where
 
 end EStateM
 
-/-- A class for types that can be hashed into a `UInt64`. -/
+/-- Types that can be hashed into a `UInt64`. -/
 class Hashable (α : Sort u) where
-  /-- Hashes the value `a : α` into a `UInt64`. -/
+  /-- Hashes a value into a `UInt64`. -/
   hash : α → UInt64
 
 export Hashable (hash)
 
-/-- An opaque hash mixing operation, used to implement hashing for tuples. -/
+/-- An opaque hash mixing operation, used to implement hashing for products. -/
 @[extern "lean_uint64_mix_hash"]
 opaque mixHash (u₁ u₂ : UInt64) : UInt64
 

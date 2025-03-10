@@ -70,7 +70,8 @@ structure Config where
   /-- If `clean` is `true`, `grind` uses `expose_names` and only generates accessible names. -/
   clean : Bool := true
   /--
-  If `qlia` is `true`, `grind` may generate counterexamples for integer constraints using rational numbers.
+  If `qlia` is `true`, `grind` may generate counterexamples for integer constraints
+  using rational numbers, and ignoring divisibility constraints.
   This approach is cheaper but incomplete. -/
   qlia : Bool := false
   deriving Inhabited, BEq

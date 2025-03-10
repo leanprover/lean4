@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BVDecide.Frontend.Normalize
-// Imports: Lean.Elab.Tactic.FalseOrByContra Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Simproc Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Rewrite Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AndFlatten Lean.Elab.Tactic.BVDecide.Frontend.Normalize.EmbeddedConstraint Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AC Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures Lean.Elab.Tactic.BVDecide.Frontend.Normalize.IntToBitVec Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Enums Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
+// Imports: Lean.Elab.Tactic.FalseOrByContra Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Simproc Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Rewrite Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AndFlatten Lean.Elab.Tactic.BVDecide.Frontend.Normalize.EmbeddedConstraint Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AC Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures Lean.Elab.Tactic.BVDecide.Frontend.Normalize.IntToBitVec Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Enums Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3721,6 +3721,7 @@ return x_6;
 }
 lean_object* initialize_Lean_Elab_Tactic_FalseOrByContra(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_ApplyControlFlow(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Rewrite(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_AndFlatten(uint8_t builtin, lean_object*);
@@ -3739,6 +3740,9 @@ res = initialize_Lean_Elab_Tactic_FalseOrByContra(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_ApplyControlFlow(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Simproc(builtin, lean_io_mk_world());

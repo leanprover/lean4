@@ -9,14 +9,150 @@ import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
 
 /-!
 This file implements the type analysis pass for the structures and enum inductives pass. It figures
-out which types that occur either directly or transitively (e.g. through being contained in a
-structure) qualify for further treatment by the structures or enum pass.
+out which types and matches that occur either directly or transitively (e.g. through being
+contained in a structure) qualify for further treatment by the structures or enum pass.
 -/
 
 namespace Lean.Elab.Tactic.BVDecide
 namespace Frontend.Normalize
 
 open Lean.Meta
+
+/--
+Determine whether `declName` is an enum inductive `.match_x` definition that is supported, see
+`MatchKind` for the supported shapes.
+-/
+def isSupportedMatch (declName : Name) : MetaM (Option MatchKind) := do
+  let some info ← getMatcherInfo? declName | return none
+  if info.discrInfos.size ≠ 1 then return none
+  if info.discrInfos[0]!.hName?.isSome then return none
+  let .defnInfo defnInfo ← getConstInfo declName | return none
+  forallTelescope defnInfo.type fun xs a => do
+    if xs.size < 2 then return none
+    -- Check that discriminator is `EnumInductive`
+    let discr := xs[1]!
+    let some discrTypeName := (← inferType discr).constName? | return none
+    if !(← isEnumType discrTypeName) then return none
+    let .inductInfo inductiveInfo ← getConstInfo discrTypeName | unreachable!
+
+    -- Check that motive is `EnumInductive → Sort u`
+    let motive := xs[0]!
+    let motiveType ← inferType motive
+    let some (.const domTypeName [], (.sort (.param ..))) := motiveType.arrow? | return none
+    if domTypeName != discrTypeName then return none
+
+    -- Check that resulting type is `motive discr`
+    let retTypeOk ← a.withApp fun fn arg =>
+      return fn == motive && arg.size == 1 && arg[0]! == discr
+    if !retTypeOk then return none
+
+    let numCtors := inductiveInfo.numCtors
+    if xs.size == numCtors + 2 then
+      -- Probably a full match
+
+      -- Check that all parameters are `h_n EnumInductive.ctor`
+      let mut handledCtors := Array.mkEmpty numCtors
+      for i in [0:numCtors] do
+        let argType ← inferType xs[i + 2]!
+        let some (.const ``Unit [], (.app m (.const c []))) := argType.arrow? | return none
+        if m != motive then return none
+        let .ctorInfo ctorInfo ← getConstInfo c | return none
+        handledCtors := handledCtors.push ctorInfo
+
+      if !(← verifySimpleEnum defnInfo inductiveInfo handledCtors) then return none
+
+      return some <| .simpleEnum inductiveInfo handledCtors
+    else if xs.size > 2 then
+      -- Probably a match with default case
+
+      -- Check that all parameters except the last are `h_n EnumInductive.ctor`
+      let numConcreteCases := xs.size - 3 -- minus motive, discr and default case
+      let mut handledCtors := Array.mkEmpty (xs.size - 3)
+      for i in [0:numConcreteCases] do
+        let argType ← inferType xs[i + 2]!
+        let some (.const ``Unit [], (.app m (.const c []))) := argType.arrow? | return none
+        if m != motive then return none
+        let .ctorInfo ctorInfo ← getConstInfo c | return none
+        handledCtors := handledCtors.push ctorInfo
+
+      -- Check that the last parameter looks like a default case one
+      let defaultArgType ← inferType xs[xs.size - 1]!
+      let defaultOk ← forallTelescope defaultArgType fun args dom => do
+        if args.size != 1 then return false
+        let input := args[0]!
+        if !(← inferType input).isConstOf discrTypeName then return false
+        return dom.withApp fun fn arg => fn == motive && arg.size == 1 && arg[0]! == input
+
+      if !defaultOk then return none
+
+      if !(← verifyEnumWithDefault defnInfo inductiveInfo handledCtors) then return none
+      return some <| .enumWithDefault inductiveInfo handledCtors
+    else
+      return none
+where
+  verifySimpleCasesOnApp (inductiveInfo : InductiveVal) (fn : Expr) (args : Array Expr)
+      (params : Array Expr) : MetaM Bool := do
+    -- Body is an application of `EnumInductive.casesOn`
+    if !fn.isConstOf (mkCasesOnName inductiveInfo.name) then return false
+    if args.size != inductiveInfo.numCtors + 2 then return false
+    -- first argument is `(fun x => motive x)`
+    let firstArgOk ← lambdaTelescope args[0]! fun args body => do
+      if args.size != 1 then return false
+      let arg := args[0]!
+      let .app fn arg' := body | return false
+      return fn == params[0]! && arg == arg'
+
+    if !firstArgOk then return false
+
+    -- second argument is discr
+    return args[1]! == params[1]!
+
+  verifySimpleEnum (defnInfo : DefinitionVal) (inductiveInfo : InductiveVal)
+      (ctors : Array ConstructorVal) : MetaM Bool := do
+    lambdaTelescope defnInfo.value fun params body =>
+      body.withApp fun fn args => do
+        if !(← verifySimpleCasesOnApp inductiveInfo fn args params) then return false
+
+        -- remaining arguments are of the form `(h_n Unit.unit)`
+        for i in [0:inductiveInfo.numCtors] do
+          let .app fn (.const ``Unit.unit []) := args[i + 2]! | return false
+          let some (_, .app _ (.const relevantCtor [])) := (← inferType fn).arrow? | unreachable!
+          let some ctorIdx := ctors.findIdx? (·.name == relevantCtor) | unreachable!
+          if fn != params[ctorIdx + 2]! then return false
+
+        return true
+
+  verifyEnumWithDefault (defnInfo : DefinitionVal) (inductiveInfo : InductiveVal)
+      (ctors : Array ConstructorVal) : MetaM Bool := do
+    lambdaTelescope defnInfo.value fun params body =>
+      body.withApp fun fn args => do
+        if !(← verifySimpleCasesOnApp inductiveInfo fn args params) then return false
+
+        /-
+        Remaining arguments are of the form:
+        - `(h_n Unit.unit)` if the constructor is handled explicitly
+        - `(h_n InductiveEnum.ctor)` if the constructor is handled as part of the default case
+        -/
+        for i in [0:inductiveInfo.numCtors] do
+          let .app fn (.const argName []) := args[i + 2]! | return false
+          if argName == ``Unit.unit then
+            let some (_, .app _ (.const relevantCtor [])) := (← inferType fn).arrow? | unreachable!
+            let some ctorIdx := ctors.findIdx? (·.name == relevantCtor) | unreachable!
+            if fn != params[ctorIdx + 2]! then return false
+          else
+            let .ctorInfo ctorInfo ← getConstInfo argName | return false
+            if ctorInfo.cidx != i then return false
+            if fn != params[params.size - 1]! then return false
+
+        return true
+
+def builtinTypes : Array Name :=
+  #[``BitVec, ``Bool,
+    ``UInt8, ``UInt16, ``UInt32, ``UInt64, ``USize,
+    ``Int8, ``Int16, ``Int32, ``Int64, ``ISize]
+
+@[inline]
+def isBuiltIn (n : Name) : Bool := builtinTypes.contains n
 
 partial def typeAnalysisPass : Pass where
   name := `typeAnalysis
@@ -25,58 +161,69 @@ partial def typeAnalysisPass : Pass where
     let analysis ← PreProcessM.getTypeAnalysis
     trace[Meta.Tactic.bv] m!"Type analysis found structures: {analysis.interestingStructures.toList}"
     trace[Meta.Tactic.bv] m!"Type analysis found enums: {analysis.interestingEnums.toList}"
+    trace[Meta.Tactic.bv] m!"Type analysis found matchers: {analysis.interestingMatchers.keys}"
     return goal
 where
   checkContext (goal : MVarId) : PreProcessM Unit := do
     goal.withContext do
       for decl in ← getLCtx do
         if !decl.isLet && !decl.isImplementationDetail then
-          discard <| typeInteresting decl.type
+          analyzeType (← instantiateMVars decl.type)
 
-  constInteresting (n : Name) : PreProcessM Bool := do
+  analyzeType (expr : Expr) : PreProcessM Unit := do
+    expr.forEachWhere Expr.isConst fun e => do
+      let .const declName .. := e | unreachable!
+      discard <| analyzeConst declName
+
+  /--
+  Returns true if the const is something that we would like to see revealed by case splitting on
+  structures that contain it.
+  -/
+  analyzeConst (n : Name) : PreProcessM Bool := do
+    if isBuiltIn n then return true
+
     let analysis ← PreProcessM.getTypeAnalysis
     if analysis.interestingStructures.contains n || analysis.interestingEnums.contains n then
       return true
-    else if analysis.uninteresting.contains n then
+    else if analysis.uninteresting.contains n || analysis.interestingMatchers.contains n then
       return false
 
-    let env ← getEnv
-    if isStructure env n then
-      let constInfo ← getConstInfoInduct n
-      if constInfo.isRec then
-        PreProcessM.markUninterestingType n
-        return false
-
-      let ctorTyp := (← getConstInfoCtor constInfo.ctors.head!).type
-      let analyzer state arg := do return state || (← typeInteresting (← arg.fvarId!.getType))
-      let interesting ← forallTelescope ctorTyp fun args _ => args.foldlM (init := false) analyzer
-      if interesting then
+    if isStructure (← getEnv) n then
+      if ← analyzeStructure n then
         PreProcessM.markInterestingStructure n
-      return interesting
+        return true
+      else
+        PreProcessM.markUninterestingConst n
+        return false
     else if ← isEnumType n then
       PreProcessM.markInterestingEnum n
       return true
+    else if let some kind ← isSupportedMatch n then
+      PreProcessM.markInterestingMatcher n kind
+      return false
     else
-      PreProcessM.markUninterestingType n
+      PreProcessM.markUninterestingConst n
       return false
 
-  typeInteresting (expr : Expr) : PreProcessM Bool := do
+  /--
+  Returns true if the structure is appropriate for case splitting and contains fields of interest.
+  -/
+  analyzeStructure (n : Name) : PreProcessM Bool := do
+    let constInfo ← getConstInfoInduct n
+    if constInfo.isRec then
+      return false
+
+    let ctorTyp := (← getConstInfoCtor constInfo.ctors.head!).type
+    let analyzer state arg := do return state || (← typeCasesRelevant (← arg.fvarId!.getType))
+    let interesting ← forallTelescope ctorTyp fun args _ => args.foldlM (init := false) analyzer
+    return interesting
+
+  typeCasesRelevant (expr : Expr) : PreProcessM Bool := do
     match_expr expr with
     | BitVec n => return (← getNatValue? n).isSome
-    | UInt8 => return true
-    | UInt16 => return true
-    | UInt32 => return true
-    | UInt64 => return true
-    | USize => return true
-    | Int8 => return true
-    | Int16 => return true
-    | Int32 => return true
-    | Int64 => return true
-    | ISize => return true
-    | Bool => return true
     | _ =>
       let some const := expr.getAppFn.constName? | return false
-      constInteresting const
+      analyzeConst const
 
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

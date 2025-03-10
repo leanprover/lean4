@@ -91,7 +91,7 @@ theorem add_neg_one (i : Int) : i + -1 = i - 1 := rfl
 
 /- ## basic properties of subNatNat -/
 
--- @[elabAsElim] -- TODO(Mario): unexpected eliminator resulting type
+@[elab_as_elim]
 theorem subNatNat_elim (m n : Nat) (motive : Nat → Nat → Int → Prop)
     (hp : ∀ i n, motive (n + i) n i)
     (hn : ∀ i m, motive m (m + i + 1) -[i+1]) :
@@ -268,6 +268,17 @@ protected theorem add_left_cancel {a b c : Int} (h : a + b = a + c) : b = c := b
   apply Int.add_left_cancel (a := a + b)
   rw [Int.add_right_neg, Int.add_comm a, ← Int.add_assoc, Int.add_assoc b,
     Int.add_right_neg, Int.add_zero, Int.add_right_neg]
+
+/--
+If a predicate on the integers is invariant under negation,
+then it is sufficient to prove it for the nonnegative integers.
+-/
+theorem wlog_sign {P : Int → Prop} (inv : ∀ a, P a ↔ P (-a)) (w : ∀ n : Nat, P n) (a : Int) : P a := by
+  cases a with
+  | ofNat n => exact w n
+  | negSucc n =>
+    rw [negSucc_eq, ← inv, ← ofNat_succ]
+    apply w
 
 /- ## subtraction -/
 

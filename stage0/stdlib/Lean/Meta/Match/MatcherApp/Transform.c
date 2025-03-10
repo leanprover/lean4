@@ -20714,6 +20714,7 @@ x_20 = l_Lean_isAuxRecursorWithSuffix(x_17, x_18, x_19);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
+lean_inc(x_18);
 x_21 = l_Lean_Meta_getMatcherInfo_x3f___at_Lean_Meta_reduceMatcher_x3f___spec__1(x_18, x_8, x_9, x_10, x_11, x_16);
 x_22 = lean_ctor_get(x_21, 0);
 lean_inc(x_22);
@@ -20851,6 +20852,7 @@ x_55 = l_Lean_isAuxRecursorWithSuffix(x_52, x_53, x_54);
 if (x_55 == 0)
 {
 lean_object* x_56; lean_object* x_57; 
+lean_inc(x_53);
 x_56 = l_Lean_Meta_getMatcherInfo_x3f___at_Lean_Meta_reduceMatcher_x3f___spec__1(x_53, x_8, x_9, x_10, x_11, x_51);
 x_57 = lean_ctor_get(x_56, 0);
 lean_inc(x_57);

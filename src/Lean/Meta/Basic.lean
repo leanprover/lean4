@@ -2302,24 +2302,27 @@ where
       IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get opts) do
         -- catch all exceptions
         let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
-        try
+        observing do
           realize
           if !(← getEnv).contains constName then
             throwError "Lean.Meta.realizeConst: {constName} was not added to the environment"
-        finally
-          addTraceAsMessages
+        <* addTraceAsMessages
     let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO
     match res? with
-    | .ok ((output, ()), st) => pure (st.env, .mk {
+    | .ok ((output, err?), st) => pure (st.env, .mk {
       snap := (← Core.mkSnapshot output coreCtx st)
-      error? := none
+      error? := match err? with
+        | .ok ()   => none
+        | .error e => some e
       : RealizeConstantResult
     })
-    | .error e => pure (env, .mk {
-      snap := toSnapshotTree { diagnostics := .empty : Language.SnapshotLeaf}
-      error? := some e
-      : RealizeConstantResult
-    })
+    | _ =>
+      let _ : Inhabited (Environment × Dynamic) := ⟨env, .mk {
+        snap := (← Core.mkSnapshot "" coreCtx { env })
+        error? := none
+        : RealizeConstantResult
+      }⟩
+      unreachable!
 
 end Meta
 

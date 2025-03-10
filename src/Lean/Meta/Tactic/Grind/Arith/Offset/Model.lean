@@ -73,6 +73,10 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
     -/
     if (!(← isLitValue e) && (isNatOffset? e).isNone && isNatNum? e != some 0) || grind.debug.get (← getOptions) then
       r := r.push (e, val)
+  r := r.qsort fun (e₁, _) (e₂, _) => e₁.lt e₂
+  if (← isTracingEnabledFor `grind.offset.model) then
+    for (x, v) in r do
+      trace[grind.offset.model] "{quoteIfNotAtom x} := {v}"
   return r
 
 end Lean.Meta.Grind.Arith.Offset

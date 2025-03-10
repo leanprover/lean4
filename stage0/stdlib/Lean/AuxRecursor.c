@@ -327,6 +327,7 @@ _start:
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = l_Lean_markAuxRecursor___closed__1;
+lean_inc(x_2);
 x_4 = l_Lean_TagDeclarationExtension_isTagged(x_3, x_1, x_2);
 if (x_4 == 0)
 {
@@ -568,7 +569,6 @@ _start:
 lean_object* x_3; uint8_t x_4; 
 x_3 = l_Lean_markNoConfusion___closed__1;
 x_4 = l_Lean_TagDeclarationExtension_isTagged(x_3, x_1, x_2);
-lean_dec(x_2);
 return x_4;
 }
 }

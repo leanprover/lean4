@@ -69,6 +69,13 @@ instance : EmptyCollection (Raw α β) where
 instance : Inhabited (Raw α β) where
   default := ∅
 
+@[inherit_doc DHashMap.Raw.Equiv]
+structure Equiv (m₁ m₂ : Raw α β) where
+  /-- Internal implementation detail of the hash map -/
+  inner : m₁.1.Equiv m₂.1
+
+@[inherit_doc] scoped infixl:50 " ~m " => Equiv
+
 set_option linter.unusedVariables false in
 @[inline, inherit_doc DHashMap.Raw.insert] def insert [beq : BEq α] [Hashable α] (m : Raw α β)
     (a : α) (b : β) : Raw α β :=

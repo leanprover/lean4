@@ -268,7 +268,10 @@ This option can only be set on the command line, not in the lakefile or via `set
               return (← ref.get).bind (·.get? MemorizedInteractiveDiagnostics) then
             pure memorized.diags
           else
-            let diags ← node.element.diagnostics.msgLog.toArray.mapM
+            let mut msgs := node.element.diagnostics.msgLog.toArray
+            if ! ctx.initParams.capabilities.silentDiagnosticSupport then
+              msgs := msgs.filter (! ·.isSilent)
+            let diags ← msgs.mapM
               (Widget.msgToInteractiveDiagnostic doc.meta.text · ctx.clientHasWidgets)
             if let some cacheRef := node.element.diagnostics.interactiveDiagsRef? then
               cacheRef.set <| some <| .mk { diags : MemorizedInteractiveDiagnostics }

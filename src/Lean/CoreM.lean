@@ -44,6 +44,13 @@ register_builtin_option Elab.async : Bool := {
       `Lean.Command.State.snapshotTasks`."
 }
 
+/-- Performance option used by cmdline driver. -/
+register_builtin_option internal.cmdlineSnapshots : Bool := {
+  defValue := false
+  descr    := "reduce information stored in snapshots to the minimum necessary \
+    for the cmdline driver: diagnostics per command and final full snapshot"
+}
+
 /--
 If the `diagnostics` option is not already set, gives a message explaining this option.
 Begins with a `\n\n`, so an error message can look like `m!"some error occurred{useDiagnosticMsg}"`.

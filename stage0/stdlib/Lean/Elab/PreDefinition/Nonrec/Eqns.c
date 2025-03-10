@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm_doRealize___spec__1___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm___spec__1___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Nonrec_getEqnsFor_x3f___lambda__1___closed__1;
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Nonrec_initFn____x40_Lean_Elab_PreDefinition_Nonrec_Eqns___hyg_408_(lean_object*);
@@ -472,7 +472,7 @@ x_9 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_Nonrec_Eqns
 lean_closure_set(x_9, 0, x_2);
 lean_closure_set(x_9, 1, x_1);
 x_10 = 1;
-x_11 = l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm___spec__1___rarg(x_8, x_9, x_10, x_3, x_4, x_5, x_6, x_7);
+x_11 = l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm_doRealize___spec__1___rarg(x_8, x_9, x_10, x_3, x_4, x_5, x_6, x_7);
 return x_11;
 }
 }
@@ -1278,6 +1278,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Nonrec_getEqnsFor_x3f(lean_object* x_1, lea
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+lean_inc(x_1);
 x_7 = l_Lean_Meta_isRecursiveDefinition(x_1, x_4, x_5, x_6);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);

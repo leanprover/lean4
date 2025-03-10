@@ -68,8 +68,10 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
     unless preDef.kind.isTheorem do
       unless (← isProp preDef.type) do
         WF.mkUnfoldEq preDef preDefNonRec.declName wfPreprocessProof
-  Mutual.addPreDefAttributes preDefs
+  -- must happen before `addPreDefAttributes` enables realizations for the top-level functions,
+  -- which may need to use realizations on `preDefNonRec`
   enableRealizationsForConst preDefNonRec.declName
+  Mutual.addPreDefAttributes preDefs
 
 builtin_initialize registerTraceClass `Elab.definition.wf
 

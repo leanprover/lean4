@@ -361,6 +361,10 @@ protected theorem sub_lt_self (a : Int) {b : Int} (h : 0 < b) : a - b < a :=
 
 theorem add_one_le_of_lt {a b : Int} (H : a < b) : a + 1 ≤ b := H
 
+protected theorem le_iff_lt_add_one {a b : Int} : a ≤ b ↔ a < b + 1 := by
+  rw [Int.lt_iff_add_one_le]
+  exact (Int.add_le_add_iff_right 1).symm
+
 /- ### Order properties and multiplication -/
 
 
@@ -428,7 +432,7 @@ protected theorem mul_le_mul_of_nonpos_left {a b c : Int}
 
 /- ## natAbs -/
 
-@[simp] theorem natAbs_ofNat (n : Nat) : natAbs ↑n = n := rfl
+@[simp, norm_cast] theorem natAbs_ofNat (n : Nat) : natAbs ↑n = n := rfl
 @[simp] theorem natAbs_negSucc (n : Nat) : natAbs -[n+1] = n.succ := rfl
 @[simp] theorem natAbs_zero : natAbs (0 : Int) = (0 : Nat) := rfl
 @[simp] theorem natAbs_one : natAbs (1 : Int) = (1 : Nat) := rfl
@@ -472,6 +476,13 @@ theorem natAbs_of_nonneg {a : Int} (H : 0 ≤ a) : (natAbs a : Int) = a :=
 
 theorem ofNat_natAbs_of_nonpos {a : Int} (H : a ≤ 0) : (natAbs a : Int) = -a := by
   rw [← natAbs_neg, natAbs_of_nonneg (Int.neg_nonneg_of_nonpos H)]
+
+theorem natAbs_sub_of_nonneg_of_le {a b : Int} (h₁ : 0 ≤ b) (h₂ : b ≤ a) :
+    (a - b).natAbs = a.natAbs - b.natAbs := by
+  rw [← Int.ofNat_inj]
+  rw [natAbs_of_nonneg, ofNat_sub, natAbs_of_nonneg (Int.le_trans h₁ h₂), natAbs_of_nonneg h₁]
+  · rwa [← Int.ofNat_le, natAbs_of_nonneg h₁, natAbs_of_nonneg (Int.le_trans h₁ h₂)]
+  · exact Int.sub_nonneg_of_le h₂
 
 /-! ### toNat -/
 

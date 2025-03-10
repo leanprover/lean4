@@ -1,0 +1,64 @@
+/-
+Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Leonardo de Moura
+-/
+prelude
+import Init.Data.Int.Lemmas
+import Init.Data.Int.DivMod
+import Init.Data.RArray
+
+namespace Int.OfNat
+/-!
+Helper definitions and theorems for converting `Nat` expressions into `Int` one.
+We use them to implement the arithmetic theories in `grind`
+-/
+
+abbrev Var := Nat
+abbrev Context := Lean.RArray Nat
+def Var.denote (ctx : Context) (v : Var) : Nat :=
+  ctx.get v
+
+inductive Expr where
+  | num  (v : Nat)
+  | var  (i : Var)
+  | add  (a b : Expr)
+  | mul  (a b : Expr)
+  | div  (a b : Expr)
+  | mod  (a b : Expr)
+
+def Expr.denote (ctx : Context) : Expr → Nat
+  | .num k    => k
+  | .var v    => v.denote ctx
+  | .add a b  => Nat.add (denote ctx a) (denote ctx b)
+  | .mul a b  => Nat.mul (denote ctx a) (denote ctx b)
+  | .div a b  => Nat.div (denote ctx a) (denote ctx b)
+  | .mod a b  => Nat.mod (denote ctx a) (denote ctx b)
+
+def Expr.denoteAsInt (ctx : Context) : Expr → Int
+  | .num k    => Int.ofNat k
+  | .var v    => Int.ofNat (v.denote ctx)
+  | .add a b  => Int.add (denoteAsInt ctx a) (denoteAsInt ctx b)
+  | .mul a b  => Int.mul (denoteAsInt ctx a) (denoteAsInt ctx b)
+  | .div a b  => Int.ediv (denoteAsInt ctx a) (denoteAsInt ctx b)
+  | .mod a b  => Int.emod (denoteAsInt ctx a) (denoteAsInt ctx b)
+
+@[local simp] private theorem fold_div (a b : Nat) : a.div b = a / b := rfl
+@[local simp] private theorem fold_mod (a b : Nat) : a.mod b = a % b := rfl
+
+theorem Expr.denoteAsInt_eq (ctx : Context) (e : Expr) : e.denoteAsInt ctx = e.denote ctx := by
+  induction e <;> simp [denote, denoteAsInt, Int.ofNat_ediv, *] <;> rfl
+
+theorem Expr.eq (ctx : Context) (lhs rhs : Expr)
+    : (lhs.denote ctx = rhs.denote ctx) = (lhs.denoteAsInt ctx = rhs.denoteAsInt ctx) := by
+  simp [denoteAsInt_eq, Int.ofNat_inj]
+
+theorem Expr.le (ctx : Context) (lhs rhs : Expr)
+    : (lhs.denote ctx ≤ rhs.denote ctx) = (lhs.denoteAsInt ctx ≤ rhs.denoteAsInt ctx) := by
+  simp [denoteAsInt_eq, Int.ofNat_le]
+
+theorem Expr.dvd (ctx : Context) (lhs rhs : Expr)
+    : (lhs.denote ctx ∣ rhs.denote ctx) = (lhs.denoteAsInt ctx ∣ rhs.denoteAsInt ctx) := by
+  simp [denoteAsInt_eq, Int.ofNat_dvd]
+
+end Int.OfNat

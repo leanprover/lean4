@@ -1528,6 +1528,7 @@ lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
+lean_inc(x_10);
 x_12 = l_Lean_Meta_getMatcherInfo_x3f___at_Lean_Meta_reduceMatcher_x3f___spec__1(x_10, x_3, x_4, x_5, x_6, x_7);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);

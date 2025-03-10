@@ -23,6 +23,7 @@ t 2
    "range":
    {"start": {"line": 2, "character": 22}, "end": {"line": 3, "character": 0}},
    "message": "unsolved goals\nthis : Nat → Nat → True\n⊢ True",
+   "leanTags": [1],
    "fullRange":
    {"start": {"line": 2, "character": 22},
     "end": {"line": 10, "character": 11}}}]}
@@ -52,6 +53,7 @@ t 2
    "range":
    {"start": {"line": 3, "character": 9}, "end": {"line": 3, "character": 16}},
    "message": "unsolved goals\n⊢ Nat",
+   "leanTags": [1],
    "fullRange":
    {"start": {"line": 3, "character": 9},
     "end": {"line": 3, "character": 16}}}]}
@@ -83,6 +85,7 @@ s
    "range":
    {"start": {"line": 3, "character": 12}, "end": {"line": 3, "character": 16}},
    "message": "unsolved goals\ncase zero\n⊢ True",
+   "leanTags": [1],
    "fullRange":
    {"start": {"line": 3, "character": 12},
     "end": {"line": 3, "character": 16}}}]}
@@ -94,6 +97,7 @@ s
    "range":
    {"start": {"line": 2, "character": 6}, "end": {"line": 2, "character": 10}},
    "message": "unsolved goals\n⊢ True",
+   "leanTags": [1],
    "fullRange":
    {"start": {"line": 2, "character": 6}, "end": {"line": 2, "character": 10}}},
   {"source": "Lean 4",

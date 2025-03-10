@@ -26,9 +26,11 @@ def target : String := getTarget ()
 theorem numBits_pos : 0 < numBits := by
   cases numBits_eq <;> next h => simp [h]
 
+@[simp]
 theorem le_numBits : 32 ≤ numBits := by
   cases numBits_eq <;> next h => simp [h]
 
+@[simp]
 theorem numBits_le : numBits ≤ 64 := by
   cases numBits_eq <;> next h => simp [h]
 

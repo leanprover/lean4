@@ -27296,6 +27296,7 @@ lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
+lean_inc(x_10);
 x_12 = l_Lean_Meta_getMatcherInfo_x3f___at_Lean_PrettyPrinter_Delaborator_delabAppMatch___spec__1(x_10, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
@@ -27445,7 +27446,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_9;
 }
 }

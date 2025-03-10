@@ -40,7 +40,9 @@ This pair satisfies `0 ≤ emod x y < natAbs y` for `y ≠ 0`.
 /--
 Integer division. This version of integer division uses the E-rounding convention
 (euclidean division), in which `Int.emod x y` satisfies `0 ≤ emod x y < natAbs y` for `y ≠ 0`
-and `Int.ediv` is the unique function satisfying `emod x y + (ediv x y) * y = x`.
+and `Int.ediv` is the unique function satisfying `emod x y + (ediv x y) * y = x` for `y ≠ 0`.
+
+This means that `Int.ediv x y = floor (x / y)` when `y > 0` and `Int.ediv x y = ceil (x / y)` when `y < 0`.
 
 This is the function powering the `/` notation on integers.
 
@@ -109,7 +111,7 @@ instance : Div Int where
 instance : Mod Int where
   mod := Int.emod
 
-@[simp, norm_cast] theorem ofNat_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := rfl
+@[norm_cast] theorem ofNat_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := rfl
 
 theorem ofNat_ediv_ofNat {a b : Nat} : (↑a / ↑b : Int) = (a / b : Nat) := rfl
 @[norm_cast]
@@ -164,6 +166,9 @@ def tdiv : (@& Int) → (@& Int) → Int
   to pair with `Int.tdiv`, meaning that `tmod a b + b * (tdiv a b) = a`
   unconditionally (see [`Int.tmod_add_tdiv`][theo tmod_add_tdiv]). In
   particular, `a % 0 = a`.
+
+  `tmod` satisfies `natAbs (tmod a b) = natAbs a % natAbs b`,
+  and when `b` does not divide `a`, `tmod a b` has the same sign as `a`.
 
   [t-rounding]: https://dl.acm.org/doi/pdf/10.1145/128861.128862
   [theo tmod_add_tdiv]: https://leanprover-community.github.io/mathlib4_docs/find/?pattern=Int.tmod_add_tdiv#doc

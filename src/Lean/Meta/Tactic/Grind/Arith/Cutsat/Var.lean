@@ -6,8 +6,17 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.IntInstTesters
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+import Lean.Meta.Tactic.Grind.Canon
 
 namespace Lean.Meta.Grind.Arith.Cutsat
+
+private def assertNatCast (e : Expr) : GoalM Unit := do
+  let_expr NatCast.natCast _ inst a := e | return ()
+  let_expr instNatCastInt := inst | return ()
+  pushNewProof <| mkApp (mkConst ``Int.Linear.natCast_nonneg) a
+
+private def assertHelpers (e : Expr) : GoalM Unit := do
+  assertNatCast e
 
 /-- Creates a new variable in the cutsat module. -/
 def mkVar (expr : Expr) : GoalM Var := do
@@ -26,6 +35,7 @@ def mkVar (expr : Expr) : GoalM Var := do
     elimEqs   := s.elimEqs.push none
   }
   markAsCutsatTerm expr
+  assertHelpers expr
   return var
 
 def isInt (e : Expr) : GoalM Bool := do

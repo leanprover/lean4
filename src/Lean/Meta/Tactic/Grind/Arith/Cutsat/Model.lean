@@ -94,6 +94,6 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Rat)) := do
   for (e, v) in model do
     unless isInterpretedTerm e do
       r := r.push (e, v)
-  return r
+  return r.qsort fun (e₁, _) (e₂, _) => e₁.lt e₂
 
 end Lean.Meta.Grind.Arith.Cutsat

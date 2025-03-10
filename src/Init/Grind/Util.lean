@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Core
+import Init.Classical
 
 namespace Lean.Grind
 
@@ -77,5 +78,23 @@ def offsetUnexpander : PrettyPrinter.Unexpander := fun stx => do
   | `($_ $lhs:term $rhs:term) => `($lhs + $rhs)
   | _ => throw ()
 
+/--
+A marker to indicate that a proposition has already been normalized and should not
+be processed again.
+
+This prevents issues when case-splitting on the condition `c` of an if-then-else
+expression. Without this marker, the negated condition `¬c` might be rewritten into
+an alternative form `c'`, which `grind` may not recognize as equivalent to `¬c`.
+As a result, `grind` could fail to propagate that `if c then a else b` simplifies to `b`
+in the `¬c` branch.
+-/
+def alreadyNorm (p : Prop) : Prop := p
+
+/--
+`Classical.em` variant where disjuncts are marked with `alreadyNorm` gadget.
+See comment at `alreadyNorm`
+-/
+theorem em (p : Prop) : alreadyNorm p ∨ alreadyNorm (¬ p) :=
+  Classical.em p
 
 end Lean.Grind

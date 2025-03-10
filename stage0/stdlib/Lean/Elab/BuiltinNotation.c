@@ -615,7 +615,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Term_expandHave_declRange__1___clos
 static lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_elabParserMacroAux___closed__21;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabCoe___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabLeadingParserMacro_declRange__1___closed__1;
-lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoCtor___at_Lean_Elab_Term_elabAnonymousCtor___spec__1___closed__3;
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabRunElab__1___closed__3;
 static lean_object* l_Lean_Elab_Term_elabDebugAssert___lambda__1___closed__4;
@@ -855,6 +854,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabHaveI___lambda__3(lean_object*, le
 static lean_object* l___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_withLocalIdentFor___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabSorry_declRange__1___closed__4;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_exprDependsOn___at___private_Lean_Elab_BuiltinNotation_0__Lean_Elab_Term_isSubstCandidate___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabSorry_declRange__1___closed__3;
 lean_object* l_Lean_throwError___at_Lean_Elab_Term_synthesizeInstMVarCore___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -30625,7 +30625,7 @@ lean_object* x_23; lean_object* x_24;
 x_23 = lean_ctor_get(x_15, 0);
 lean_inc(x_23);
 lean_dec(x_15);
-x_24 = l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1(x_23, x_3, x_4, x_5, x_6, x_7, x_8, x_12);
+x_24 = l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__2(x_23, x_3, x_4, x_5, x_6, x_7, x_8, x_12);
 lean_dec(x_3);
 return x_24;
 }

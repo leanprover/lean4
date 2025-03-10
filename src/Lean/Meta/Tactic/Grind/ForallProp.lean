@@ -91,7 +91,7 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
       let u ← getLevel α
       let prop := mkApp2 (mkConst ``Exists [u]) α (mkLambda n bi α (mkNot p))
       let proof := mkApp3 (mkConst ``Grind.of_forall_eq_false [u]) α (mkLambda n bi α p) (← mkEqFalseProof e)
-      addNewFact proof prop (← getGeneration e)
+      addNewRawFact proof prop (← getGeneration e)
     else
       let h ← mkEqFalseProof e
       pushEqTrue a <| mkApp3 (mkConst ``Grind.eq_true_of_imp_eq_false) a b h
@@ -101,7 +101,7 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
       trace_goal[grind.eqResolution] "{e}, {e'}"
       let h := mkOfEqTrueCore e (← mkEqTrueProof e)
       let h' := mkApp h' h
-      addNewFact h' e' (← getGeneration e)
+      addNewRawFact h' e' (← getGeneration e)
     else
       if b.hasLooseBVars then
         addLocalEMatchTheorems e

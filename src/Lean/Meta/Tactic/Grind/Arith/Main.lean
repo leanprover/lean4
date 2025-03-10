@@ -30,11 +30,11 @@ builtin_grind_propagator propagateLE ↓LE.le := fun e => do
   if (← isEqTrue e) then
     if let some c ← Offset.isCnstr? e then
       Offset.assertTrue c (← mkEqTrueProof e)
-    Cutsat.propagateIfIntLe e (eqTrue := true)
+    Cutsat.propagateIfSupportedLe e (eqTrue := true)
   if (← isEqFalse e) then
     if let some c ← Offset.isCnstr? e then
       Offset.assertFalse c (← mkEqFalseProof e)
-    Cutsat.propagateIfIntLe e (eqTrue := false)
+    Cutsat.propagateIfSupportedLe e (eqTrue := false)
 
 def check : GrindTactic := fun goal => do
   let (progress, goal) ← GoalM.run goal do

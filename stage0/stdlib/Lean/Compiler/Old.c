@@ -25,7 +25,6 @@ uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Compiler_checkIsDefinition___lambda__1(lean_object*);
 static lean_object* l_Lean_Compiler_isEagerLambdaLiftingName___closed__1;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-lean_object* l_List_mapTR_loop___at_Lean_Declaration_getNames___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__5;
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__4;
 LEAN_EXPORT lean_object* lean_is_unsafe_rec_name(lean_object*);
@@ -37,6 +36,7 @@ LEAN_EXPORT lean_object* lean_mk_unsafe_rec_name(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lean_is_eager_lambda_lifting_name(lean_object*);
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__3;
+lean_object* l_List_mapTR_loop___at_Lean_Declaration_getTopLevelNames___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* _init_l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1() {
 _start:
@@ -145,7 +145,7 @@ x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec(x_1);
 x_5 = lean_box(0);
-x_6 = l_List_mapTR_loop___at_Lean_Declaration_getNames___spec__1(x_4, x_5);
+x_6 = l_List_mapTR_loop___at_Lean_Declaration_getTopLevelNames___spec__1(x_4, x_5);
 return x_6;
 }
 case 6:

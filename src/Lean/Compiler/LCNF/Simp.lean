@@ -42,30 +42,13 @@ def Decl.simp? (decl : Decl) : SimpM (Option Decl) := do
 partial def Decl.simp (decl : Decl) (config : Config) : CompilerM Decl := do
   let mut config := config
   if (← isTemplateLike decl) then
-    let mut inlineDefs := config.inlineDefs
-    /-
-    At the base phase, we don't inline definitions occurring in instances.
-    Reason: we eagerly lambda lift local functions occurring at instances before saving their code at the end of the base
-    phase. The goal is to make them cheap to inline in actual code. By inlining definitions we would be just generating extra
-    work for the lambda lifter.
-
-    There is an exception: inlineable instances. This is important for auxiliary instances such as
-    ```
-    @[always_inline]
-    instance : Monad TermElabM := let i := inferInstanceAs (Monad TermElabM); { pure := i.pure, bind := i.bind }
-    ```
-    by keeping `inlineDefs := true`, we can pre-compute the `pure` and `bind` methods for `TermElabM`.
-    -/
-    if (← inBasePhase <&&> Meta.isInstance decl.name) then
-      unless decl.inlineable do
-        inlineDefs := false
     /-
     We do not eta-expand or inline partial applications in template like code.
     Recall we don't want to generate code for them.
     Remark: by eta-expanding partial applications in instances, we also make the simplifier
     work harder when inlining instance projections.
     -/
-    config := { config with etaPoly := false, inlinePartial := false, inlineDefs }
+    config := { config with etaPoly := false, inlinePartial := false }
   go decl config
 where
   go (decl : Decl) (config : Config) : CompilerM Decl := do

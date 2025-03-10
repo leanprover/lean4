@@ -138,7 +138,7 @@ private def reorderCtorArgs (ctorType : Expr) : MetaM Expr := do
     else
       let r ← mkForallFVars (bsPrefix ++ as) type
       /- `r` already contains the resulting type.
-         To be able to produce more better error messages, we copy the first `bsPrefix.size` binder names from `C` to `r`.
+         To be able to produce better error messages, we copy the first `bsPrefix.size` binder names from `C` to `r`.
          This is important when some of constructor parameters were inferred using the auto-bound implicit feature.
          For example, in the following declaration.
          ```
@@ -178,7 +178,8 @@ private def elabCtors (indFVars : Array Expr) (params : Array Expr) (r : ElabHea
           match ctorView.type? with
           | none          =>
             if indFamily then
-              throwError "constructor resulting type must be specified in inductive family declaration"
+              throwError "Missing resulting type for constructor '{ctorView.declName}': \
+                Its resulting type must be specified because it is part of an inductive family declaration"
             return mkAppN indFVar params
           | some ctorType =>
             let type ← Term.elabType ctorType
@@ -188,9 +189,20 @@ private def elabCtors (indFVars : Array Expr) (params : Array Expr) (r : ElabHea
             let type ← checkParamOccs type
             forallTelescopeReducing type fun _ resultingType => do
               unless resultingType.getAppFn == indFVar do
-                throwError "unexpected constructor resulting type{indentExpr resultingType}"
+                let lazyAppMsg := MessageData.ofLazyM do
+                  if let some fvarId := indFVar.fvarId? then
+                    if let some decl := (← getLCtx).find? fvarId then
+                      if (← whnfD decl.type).isForall then
+                        return m!" an application of"
+                  return m!""
+                throwErrorAt ctorType "Unexpected resulting type for constructor '{ctorView.declName}': \
+                  Expected{lazyAppMsg}{indentExpr indFVar}\nbut found{indentExpr resultingType}"
               unless (← isType resultingType) do
-                throwError "unexpected constructor resulting type, type expected{indentExpr resultingType}"
+                let lazyMsg := MessageData.ofLazyM do
+                  let resultingTypeType ← inferType resultingType
+                  return indentExpr resultingTypeType
+                throwErrorAt ctorType "Unexpected resulting type for constructor '{ctorView.declName}': \
+                  Expected a type, but found{indentExpr resultingType}\nof type{lazyMsg}"
             return type
         let type ← elabCtorType
         Term.synthesizeSyntheticMVarsNoPostponing
@@ -229,18 +241,31 @@ private def elabCtors (indFVars : Array Expr) (params : Array Expr) (r : ElabHea
         trace[Elab.inductive] "{ctorView.declName} : {type}"
         return { name := ctorView.declName, type }
 where
+  /--
+  Ensures that the arguments to recursive occurrences of the type family being defined match the
+  parameters from the inductive definition.
+  -/
   checkParamOccs (ctorType : Expr) : MetaM Expr :=
     let visit (e : Expr) : MetaM TransformStep := do
       let f := e.getAppFn
       if indFVars.contains f then
         let mut args := e.getAppArgs
         unless args.size ≥ params.size do
-          throwError "unexpected inductive type occurrence{indentExpr e}"
+          let expected := mkAppN f params
+          let msg := m!"Missing parameters in occurrence of inductive type: Found{indentExpr e}\nbut expected{indentExpr expected}"
+          let noteMsg := m!"All occurrences of an inductive type in the types of its constructors must include its fixed parameters. \
+                            To omit a parameter, make it an index instead."
+          throwError msg ++ .note noteMsg
         for h : i in [:params.size] do
           let param := params[i]
           let arg := args[i]!
           unless (← isDefEq param arg) do
-            throwError "inductive datatype parameter mismatch{indentExpr arg}\nexpected{indentExpr param}"
+            let (arg, param) ← addPPExplicitToExposeDiff arg param
+            let msg := m!"Mismatched inductive type parameters in{indentExpr e}\n\
+                          The provided argument{indentExpr arg}\nis not definitionally equal to the expected parameter{indentExpr param}"
+            let noteMsg := m!"The value of parameter '{param}' must be fixed throughout the inductive declaration. \
+                              Consider making this parameter an index if it must vary between occurrences in constructor types."
+            throwError msg ++ .note noteMsg
           args := args.set! i param
         return TransformStep.done (mkAppN f args)
       else

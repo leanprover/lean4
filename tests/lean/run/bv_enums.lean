@@ -104,20 +104,23 @@ inductive Foo where
   | a
   | b
   | c
+  | d
+  | e
 
 def Foo.f1 : Foo → Foo
   | .a => .b
   | .b => .c
-  | .c => .a
+  | .c => .d
+  | .d => .e
+  | .e => .a
 
 def Foo.f2 : Foo → Foo
-  | .a => .b
+  | .a => .c
   | _ => .c
 
 def Foo.f3 (f : Foo) (h : f ≠ .a) : Foo :=
   match f with
-  | .b => .c
-  | .c => .c
+  | _ => .c
 
 def Foo.f4 (f : Foo) (h : ∀ f : Foo, f ≠ .a) : Foo :=
   match h2 : f with
@@ -126,8 +129,7 @@ def Foo.f4 (f : Foo) (h : ∀ f : Foo, f ≠ .a) : Foo :=
       specialize h f
       contradiction
     nomatch this
-  | .b => .c
-  | .c => .c
+  | _ => .c
 
 open Lean Meta
 
@@ -141,7 +143,7 @@ open Lean Meta
 #guard_msgs in
 #eval show MetaM _ from do
   let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f2.match_1
-  return res matches none
+  return res matches some (.enumWithDefault ..)
 
 /-- info: true -/
 #guard_msgs in
@@ -165,6 +167,8 @@ def Foo.f5 : Foo → BitVec 64
   | .a => 37
   | .b => 42
   | .c => 22
+  | .d => 11
+  | .e => 13
 
 example : ∀ (x y : Foo), x.f5 = y.f5 → x = y := by
   unfold Foo.f5
@@ -174,12 +178,53 @@ example (foo : Foo) : foo.f1 ≠ foo := by
   unfold Foo.f1
   bv_decide
 
-example (x : Foo) : x.f1.f1.f1 = x := by
+example (x : Foo) : x.f1.f1.f1.f1.f1 = x := by
   unfold Foo.f1
   bv_decide
 
 example (h : f = Foo.a): Foo.a.f1 ≠ f := by
   unfold Foo.f1
+  bv_decide
+
+example (x : Foo) : x.f2 = .c := by
+  unfold Foo.f2
+  bv_decide
+
+-- Reordering
+def Foo.f6 : Foo → Foo
+  | .c => .d
+  | .b => .c
+  | .a => .b
+  | .e => .a
+  | .d => .e
+
+def Foo.f7 : Foo → Foo
+  | .d => .c
+  | .a => .c
+  | .b => .c
+  | _ => .c
+
+/-- info: true -/
+#guard_msgs in
+#eval show MetaM _ from do
+  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f6.match_1
+  return res matches some (.simpleEnum ..)
+
+/-- info: true -/
+#guard_msgs in
+#eval show MetaM _ from do
+  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f7.match_1
+  return res matches some (.enumWithDefault ..)
+
+example (x : Foo) : x.f1 = x.f6 := by
+  unfold Foo.f1 Foo.f6
+  bv_decide
+
+#print Ex4.Foo.f7.match_1.eq_cond_enumToBitVec
+
+
+example (x : Foo) : x.f2 = x.f7 := by
+  unfold Foo.f2 Foo.f7
   bv_decide
 
 end Ex4

@@ -30,6 +30,13 @@ structure IsPrefix (decls1 decls2 : Array (Decl α)) : Prop where
     -/
     idx_eq : ∀ idx (h : idx < decls1.size), decls2[idx]'(by omega) = decls1[idx]'h
 
+@[simp]
+theorem IsPrefix_push {decls : Array (Decl α)} : IsPrefix decls (decls.push decl) := by
+  apply IsPrefix.of
+  · intro idx hidx
+    simp [hidx, Array.getElem_push]
+  · simp
+
 /--
 If `decls1` is a prefix of `decls2` and we start evaluating `decls2` at an
 index in bounds of `decls1` we can evaluate at `decls1`.
@@ -69,11 +76,12 @@ variable {α : Type} [Hashable α] [DecidableEq α]
 @[inherit_doc denote.go_eq_of_isPrefix]
 theorem denote.eq_of_isPrefix (entry : Entrypoint α) (newAIG : AIG α)
       (hprefix : IsPrefix entry.aig.decls newAIG.decls) :
-    ⟦newAIG, ⟨entry.ref.gate, (by have := entry.ref.hgate; have := hprefix.size_le; omega)⟩, assign⟧
+    ⟦newAIG, ⟨entry.ref.gate, entry.ref.invert, (by have := entry.ref.hgate; have := hprefix.size_le; omega)⟩, assign⟧
       =
     ⟦entry, assign⟧
     := by
   unfold denote
+  rw [Bool.bne_left_inj]
   apply denote.go_eq_of_isPrefix
   assumption
 
@@ -129,7 +137,7 @@ theorem le_size_of_le_aig_size (aig : AIG α) (input : β aig) (h : x ≤ aig.de
 
 @[simp]
 theorem denote_input_entry (entry : Entrypoint α) {input} {h} :
-    ⟦(f entry.aig input).aig, ⟨entry.ref.gate, h⟩, assign⟧
+    ⟦(f entry.aig input).aig, ⟨entry.ref.gate, entry.ref.invert, h⟩, assign⟧
       =
     ⟦entry, assign⟧ :=  by
   apply denote.eq_of_isPrefix
@@ -143,10 +151,10 @@ theorem denote_cast_entry (entry : Entrypoint α) {input} {h} :
   simp [Ref.cast]
 
 theorem denote_mem_prefix {aig : AIG α} {input} (h) :
-    ⟦(f aig input).aig, ⟨start, by apply lt_size_of_lt_aig_size; omega⟩, assign⟧
+    ⟦(f aig input).aig, ⟨start, invert, by apply lt_size_of_lt_aig_size; omega⟩, assign⟧
       =
-    ⟦aig, ⟨start, h⟩, assign⟧ :=  by
-  rw [denote_input_entry ⟨aig, start, h⟩]
+    ⟦aig, ⟨start, invert, h⟩, assign⟧ :=  by
+  rw [denote_input_entry ⟨aig, start, invert, h⟩]
 
 end LawfulOperator
 

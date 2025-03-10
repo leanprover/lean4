@@ -187,8 +187,7 @@ theorem cmod_gt_of_pos (a : Int) {b : Int} (h : 0 < b) : cmod a b > -b :=
 
 theorem cmod_nonpos (a : Int) {b : Int} (h : b ≠ 0) : cmod a b ≤ 0 := by
   have := Int.neg_le_neg (Int.emod_nonneg (-a) h)
-  simp at this
-  assumption
+  simpa [cmod] using this
 
 theorem cmod_eq_zero_iff_emod_eq_zero (a b : Int) : cmod a b = 0 ↔ a%b = 0 := by
   unfold cmod
@@ -251,14 +250,24 @@ def Poly.divCoeffs (k : Int) : Poly → Bool
 /--
 `p.mul k` multiplies all coefficients and constant of the polynomial `p` by `k`.
 -/
-def Poly.mul (p : Poly) (k : Int) : Poly :=
+def Poly.mul' (p : Poly) (k : Int) : Poly :=
   match p with
   | .num k' => .num (k*k')
-  | .add k' v p => .add (k*k') v (mul p k)
+  | .add k' v p => .add (k*k') v (mul' p k)
+
+def Poly.mul (p : Poly) (k : Int) : Poly :=
+  if k == 0 then
+    .num 0
+  else
+    p.mul' k
 
 @[simp] theorem Poly.denote_mul (ctx : Context) (p : Poly) (k : Int) : (p.mul k).denote ctx = k * p.denote ctx := by
-  induction p <;> simp [mul, denote, *]
-  rw [Int.mul_assoc, Int.mul_add]
+  simp [mul]
+  split
+  next => simp [*, denote]
+  next =>
+    induction p <;> simp [mul', denote, *]
+    rw [Int.mul_assoc, Int.mul_add]
 
 attribute [local simp] Int.add_comm Int.add_assoc Int.add_left_comm Int.add_mul Int.mul_add
 attribute [local simp] Poly.insert Poly.denote Poly.norm Poly.addConst
@@ -1009,7 +1018,7 @@ theorem eq_le_subst_nonpos (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly)
   intro h
   intro; subst p₃
   intro h₁ h₂
-  simp [*]
+  simp [*, -Int.neg_nonpos_iff]
   replace h₂ := Int.mul_le_mul_of_nonpos_left h₂ h; simp at h₂; clear h
   rw [← Int.neg_zero]
   apply Int.neg_le_neg
@@ -1071,7 +1080,7 @@ def eq_of_le_ge_cert (p₁ p₂ : Poly) : Bool :=
 theorem eq_of_le_ge (ctx : Context) (p₁ : Poly) (p₂ : Poly)
     : eq_of_le_ge_cert p₁ p₂ → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 → p₁.denote' ctx = 0 := by
   simp [eq_of_le_ge_cert]
-  intro; subst p₂; simp
+  intro; subst p₂; simp [-Int.neg_nonpos_iff]
   intro h₁ h₂
   replace h₂ := Int.neg_le_of_neg_le h₂; simp at h₂
   simp [Int.eq_iff_le_and_ge, *]
@@ -1651,6 +1660,88 @@ theorem emod_le (x y : Int) (n : Int) : emod_le_cert y n → x % y + n ≤ 0 := 
     apply Int.add_le_of_le_sub_left
     simp only [Int.add_comm, Int.sub_neg, Int.add_zero]
     exact Int.emod_lt_of_pos x h
+
+theorem natCast_nonneg (x : Nat) : (-1:Int) * NatCast.natCast x ≤ 0 := by
+  simp
+
+private theorem dvd_le_tight' {d p b₁ b₂ : Int} (hd : d > 0) (h₁ : d ∣ p + b₁) (h₂ : p + b₂ ≤ 0)
+    : p + (b₁ - d*((b₁-b₂) / d)) ≤ 0 := by
+  have ⟨k, h⟩ := h₁
+  replace h₁ : p = d*k - b₁ := by
+    replace h := congrArg (· - b₁) h
+    simp only [Int.add_sub_cancel] at h
+    assumption
+  replace h₂ : d*k - b₁ + b₂ ≤ 0 := by
+    rw [h₁] at h₂; assumption
+  have : d*k ≤ b₁ - b₂ := by
+    rw [Int.sub_eq_add_neg, Int.add_assoc, Lean.Omega.Int.add_le_zero_iff_le_neg,
+        Int.neg_add, Int.neg_neg, ← Int.sub_eq_add_neg] at h₂
+    assumption
+  replace this : k ≤ (b₁ - b₂)/d := by
+    rw [Int.mul_comm] at this; exact Int.le_ediv_of_mul_le hd this
+  replace this := Int.mul_le_mul_of_nonneg_left this (Int.le_of_lt hd)
+  rw [←h] at this
+  replace this := Int.sub_nonpos_of_le this
+  rw [Int.add_sub_assoc] at this
+  exact this
+
+private theorem eq_neg_addConst_add (ctx : Context) (p : Poly)
+    : p.denote' ctx = (p.addConst (-p.getConst)).denote' ctx + p.getConst := by
+  simp only [Poly.denote'_eq_denote, Poly.denote_addConst, Int.add_comm, Int.add_left_comm]
+  rw [Int.add_right_neg]
+  simp
+
+def dvd_le_tight_cert (d : Int) (p₁ p₂ p₃ : Poly) : Bool :=
+  let b₁ := p₁.getConst
+  let b₂ := p₂.getConst
+  let p  := p₁.addConst (-b₁)
+  d > 0 && (p₂ == p.addConst b₂ && p₃ == p.addConst (b₁ - d*((b₁ - b₂)/d)))
+
+theorem dvd_le_tight (ctx : Context) (d : Int) (p₁ p₂ p₃ : Poly)
+    : dvd_le_tight_cert d p₁ p₂ p₃ → d ∣ p₁.denote' ctx → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
+  simp only [dvd_le_tight_cert, gt_iff_lt, Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq, and_imp]
+  generalize p₂.getConst = b₂
+  intro hd _ _; subst p₂ p₃
+  have := eq_neg_addConst_add ctx p₁
+  revert this
+  generalize p₁.getConst = b₁
+  generalize p₁.addConst (-b₁) = p
+  intro h₁; rw [h₁]; clear h₁
+  simp only [denote'_addConst_eq]
+  simp only [Poly.denote'_eq_denote]
+  exact dvd_le_tight' hd
+
+def dvd_neg_le_tight_cert (d : Int) (p₁ p₂ p₃ : Poly) : Bool :=
+  let b₁ := p₁.getConst
+  let b₂ := p₂.getConst
+  let p  := p₁.addConst (-b₁)
+  let b₁ := -b₁
+  let p  := p.mul (-1)
+  d > 0 && (p₂ == p.addConst b₂ && p₃ == p.addConst (b₁ - d*((b₁ - b₂)/d)))
+
+theorem Poly.mul_minus_one_getConst_eq (p : Poly) : (p.mul (-1)).getConst = -p.getConst := by
+  simp [Poly.mul, Poly.getConst]
+  induction p <;> simp [Poly.mul', Poly.getConst, *]
+
+theorem dvd_neg_le_tight (ctx : Context) (d : Int) (p₁ p₂ p₃ : Poly)
+    : dvd_neg_le_tight_cert d p₁ p₂ p₃ → d ∣ p₁.denote' ctx → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
+  simp only [dvd_neg_le_tight_cert, gt_iff_lt, Bool.and_eq_true, decide_eq_true_eq, beq_iff_eq, and_imp]
+  generalize p₂.getConst = b₂
+  intro hd _ _; subst p₂ p₃
+  simp only [Poly.denote'_eq_denote, Int.reduceNeg, Poly.denote_addConst, Poly.denote_mul,
+    Int.mul_add, Int.neg_mul, Int.one_mul, Int.mul_neg, Int.neg_neg, Int.add_comm, Int.add_assoc]
+  intro h₁ h₂
+  replace h₁ := Int.dvd_neg.mpr h₁
+  have := eq_neg_addConst_add ctx (p₁.mul (-1))
+  simp [Poly.mul_minus_one_getConst_eq] at this
+  rw [← Int.add_assoc] at this
+  rw [this] at h₁; clear this
+  rw [← Int.add_assoc]
+  revert h₁ h₂
+  generalize -Poly.denote ctx p₁ + p₁.getConst = p
+  generalize -p₁.getConst = b₁
+  intro h₁ h₂; rw [Int.add_comm] at h₁
+  exact dvd_le_tight' hd h₂ h₁
 
 end Int.Linear
 

@@ -18,6 +18,7 @@ def DvdCnstr.norm (c : DvdCnstr) : DvdCnstr :=
   else
     { d := c.d, p := c.p.norm, h :=.norm c }
   let g := c.p.gcdCoeffs c.d
+  let g := if c.d < 0 then -g else g
   if c.p.getConst % g == 0 && g != 1 then
     { d := c.d/g, p := c.p.div g, h := .divCoeffs c }
   else

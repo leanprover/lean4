@@ -77,7 +77,7 @@ where
   detectSize (goal : MVarId) : M Bool := do
     goal.withContext do
       for hyp in ← getPropHyps do
-        (← hyp.getType).forEachWhere
+        (← instantiateMVars (← hyp.getType)).forEachWhere
           (stopWhenVisited := true)
           (fun e => e.isAppOfArity ``USize.toBitVec 1 || e.isAppOfArity ``ISize.toBitVec 1)
           fun e => do
@@ -157,7 +157,7 @@ where
   findNumBitsEq (goal : MVarId) : MetaM (Option (Nat × Expr)) := do
     goal.withContext do
       for hyp in ← getPropHyps do
-        match_expr ← hyp.getType with
+        match_expr ← instantiateMVars (← hyp.getType) with
         | Eq eqTyp lhs rhs =>
           if lhs.isConstOf ``System.Platform.numBits then
             let some val ← getNatValue? rhs | return none

@@ -66,13 +66,42 @@ inductive DiagnosticTag where
 
 instance : FromJson DiagnosticTag := ⟨fun j =>
   match j.getNat? with
-  | Except.ok 1 => return DiagnosticTag.unnecessary
-  | Except.ok 2 => return DiagnosticTag.deprecated
-  | _      => throw "unknown DiagnosticTag"⟩
+  | Except.ok 1  => return DiagnosticTag.unnecessary
+  | Except.ok 2  => return DiagnosticTag.deprecated
+  | _            => throw "unknown DiagnosticTag"⟩
 
 instance : ToJson DiagnosticTag := ⟨fun
-  | DiagnosticTag.unnecessary => (1 : Nat)
-  | DiagnosticTag.deprecated  => (2 : Nat)⟩
+  | DiagnosticTag.unnecessary   => (1 : Nat)
+  | DiagnosticTag.deprecated    => (2 : Nat)⟩
+
+/--
+Custom diagnostic tags provided by the language server.
+We use a separate diagnostic field for this to avoid confusing LSP clients with our custom tags.
+-/
+inductive LeanDiagnosticTag where
+  /--
+  Diagnostics representing an "unsolved goals" error.
+  Corresponds to `MessageData.tagged `Tactic.unsolvedGoals ..`.
+  -/
+  | unsolvedGoals
+  /--
+  Diagnostics representing a "goals accomplished" silent message.
+  Corresponds to `MessageData.tagged `goalsAccomplished ..`.
+  -/
+  | goalsAccomplished
+  deriving Inhabited, BEq, Ord
+
+instance : FromJson LeanDiagnosticTag where
+  fromJson? j :=
+    match j.getNat? with
+    | .ok 1 => return LeanDiagnosticTag.unsolvedGoals
+    | .ok 2 => return LeanDiagnosticTag.goalsAccomplished
+    | _     => throw "unknown LeanDiagnosticTag"
+
+instance : ToJson LeanDiagnosticTag where
+  toJson
+  | .unsolvedGoals => (1 : Nat)
+  | .goalsAccomplished => (2 : Nat)
 
 /-- Represents a related message and source code location for a diagnostic.
     This should be used to point to code locations that cause or are related to
@@ -94,6 +123,13 @@ structure DiagnosticWith (α : Type) where
   /-- Extension: preserve semantic range of errors when truncating them for display purposes. -/
   fullRange? : Option Range := some range
   severity? : Option DiagnosticSeverity := none
+  /--
+  Extension: whether this diagnostic should not be displayed as a regular diagnostic in the editor.
+  In VS Code, this means that the diagnostic does not have a squiggly and is not displayed in
+  the InfoView under 'All Messages', but it is still displayed under 'Messages'.
+  Defaults to `false`.
+  -/
+  isSilent? : Option Bool := none
   /-- The diagnostic's code, which might appear in the user interface. -/
   code? : Option DiagnosticCode := none
   /-- A human-readable string describing the source of this diagnostic, e.g. 'typescript' or 'super lint'. -/
@@ -104,6 +140,8 @@ structure DiagnosticWith (α : Type) where
   message : α
   /-- Additional metadata about the diagnostic. -/
   tags? : Option (Array DiagnosticTag) := none
+  /-- Additional Lean-specific metadata about the diagnostic. -/
+  leanTags? : Option (Array LeanDiagnosticTag) := none
   /-- An array of related diagnostic information, e.g. when symbol-names within a scope collide all definitions can be marked via this property. -/
   relatedInformation? : Option (Array DiagnosticRelatedInformation) := none
   /-- A data entry field that is preserved between a `textDocument/publishDiagnostics` notification and `textDocument/codeAction` request. -/

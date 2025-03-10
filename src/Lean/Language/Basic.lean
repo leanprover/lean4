@@ -287,12 +287,13 @@ def reportMessages (msgLog : MessageLog) (opts : Options)
         {msg with severity}
       else
         msg
-    if json then
-      let j ← msg.toJson
-      IO.println j.compress
-    else
-      let s ← msg.toString includeEndPos
-      IO.print s
+    unless msg.isSilent do
+      if json then
+        let j ← msg.toJson
+        IO.println j.compress
+      else
+        let s ← msg.toString includeEndPos
+        IO.print s
     return hasErrors || msg.severity matches .error
 
 /--

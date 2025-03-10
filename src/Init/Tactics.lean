@@ -1347,7 +1347,7 @@ syntax (name := omega) "omega" optConfig : tactic
 Currently the preprocessor is implemented as `try simp only [bitvec_to_nat] at *`.
 `bitvec_to_nat` is a `@[simp]` attribute that you can (cautiously) add to more theorems.
 -/
-macro "bv_omega" : tactic => `(tactic| (try simp only [bitvec_to_nat] at *) <;> omega)
+macro "bv_omega" : tactic => `(tactic| (try simp -implicitDefEqProofs only [bitvec_to_nat] at *) <;> omega)
 
 /-- Implementation of `ac_nf` (the full `ac_nf` calls `trivial` afterwards). -/
 syntax (name := acNf0) "ac_nf0" (location)? : tactic

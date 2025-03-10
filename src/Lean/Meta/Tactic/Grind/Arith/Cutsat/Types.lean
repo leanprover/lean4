@@ -158,8 +158,8 @@ inductive LeCnstrProof where
   | ofLeDiseq (c₁ : LeCnstr) (c₂ : DiseqCnstr)
   | ofDiseqSplit (c₁ : DiseqCnstr) (decVar : FVarId) (h : UnsatProof) (decVars : Array FVarId)
   | cooper (c : CooperSplit)
-
-  -- TODO: missing constructors
+  | dvdTight (c₁ : DvdCnstr) (c₂ : LeCnstr)
+  | negDvdTight (c₁ : DvdCnstr) (c₂ : LeCnstr)
 
 /-- A disequality constraint and its justification/proof. -/
 structure DiseqCnstr where

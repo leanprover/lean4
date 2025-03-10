@@ -186,6 +186,7 @@ if (x_4 == 0)
 {
 lean_object* x_5; uint8_t x_6; 
 x_5 = l___private_Lean_Meta_CompletionName_0__Lean_Meta_isBlacklisted___closed__1;
+lean_inc(x_2);
 lean_inc(x_1);
 x_6 = l_Lean_TagDeclarationExtension_isTagged(x_5, x_1, x_2);
 if (x_6 == 0)
@@ -198,6 +199,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; uint8_t x_9; 
 x_8 = l_Lean_Meta_addToCompletionBlackList___closed__1;
+lean_inc(x_2);
 lean_inc(x_1);
 x_9 = l_Lean_TagDeclarationExtension_isTagged(x_8, x_1, x_2);
 if (x_9 == 0)

@@ -79,32 +79,18 @@ end
 def g (i : Nat) (j : Nat) (_ : i > j := by omega) := i + j
 
 /--
-error: `grind` failed
-case grind
-i j : Nat
-h : j + 1 < i + 1
-h_2 : j + 1 ≤ i
-h_3 : ¬g (i + 1) j ⋯ = i + j + 1
-⊢ False
-[grind] Goal diagnostics
-  [facts] Asserted facts
-    [prop] j + 1 ≤ i
-    [prop] ¬g (i + 1) j ⋯ = i + j + 1
-  [eqc] True propositions
-    [prop] j + 1 ≤ i
-  [eqc] False propositions
-    [prop] g (i + 1) j ⋯ = i + j + 1
-  [offset] Assignment satisfying offset contraints
-    [assign] j := 0
-    [assign] i := 1
-    [assign] 「i + 1」 := 2
-    [assign] 「0」 := 0
-    [assign] 「i + j + 1」 := 1
-    [assign] 「i + j」 := 0
+info: [grind.offset.model] i := 1
+[grind.offset.model] j := 0
+[grind.offset.model] 「0」 := 0
+[grind.offset.model] 「i + j」 := 0
+[grind.offset.model] 「i + 1」 := 2
+[grind.offset.model] 「i + j + 1」 := 1
 -/
-#guard_msgs (error) in
+#guard_msgs (info) in
+set_option trace.grind.offset.model true in
 example (i j : Nat) (h : i + 1 > j + 1) : g (i+1) j = f ((fun x => x) i) + f j + 1 := by
-  grind
+  fail_if_success grind
+  sorry
 
 structure Point where
   x : Nat

@@ -561,16 +561,17 @@ theorem Or.neg_resolve_left  (h : Or (Not a) b) (ha : a) : b := h.elim (absurd h
 theorem Or.neg_resolve_right (h : Or a (Not b)) (nb : b) : a := h.elim id (absurd nb)
 
 /--
-`Bool` is the type of boolean values, `true` and `false`. Classically,
-this is equivalent to `Prop` (the type of propositions), but the distinction
-is important for programming, because values of type `Prop` are erased in the
-code generator, while `Bool` corresponds to the type called `bool` or `boolean`
-in most programming languages.
+The Boolean values, `true` and `false`.
+
+Logically speaking, this is equivalent to `Prop` (the type of propositions). The distinction is
+important for programming: both propositions and their proofs are erased in the code generator,
+while `Bool` corresponds to the Boolean type in most programming languages and carries precisely one
+bit of run-time information.
 -/
 inductive Bool : Type where
-  /-- The boolean value `false`, not to be confused with the proposition `False`. -/
+  /-- The Boolean value `false`, not to be confused with the proposition `False`. -/
   | false : Bool
-  /-- The boolean value `true`, not to be confused with the proposition `True`. -/
+  /-- The Boolean value `true`, not to be confused with the proposition `True`. -/
   | true : Bool
 
 export Bool (false true)
@@ -900,7 +901,12 @@ theorem of_decide_eq_self_eq_true [inst : DecidableEq α] (a : α) : Eq (decide 
   | isTrue  _  => rfl
   | isFalse h₁ => absurd rfl h₁
 
-/-- Decidable equality for Bool -/
+/--
+Decides whether two Booleans are equal.
+
+This function should normally be called via the `DecidableEq Bool` instance that it exists to
+support.
+-/
 @[inline] def Bool.decEq (a b : Bool) : Decidable (Eq a b) :=
    match a, b with
    | false, false => isTrue rfl
@@ -1002,10 +1008,14 @@ instance [dp : Decidable p] : Decidable (Not p) :=
 /-! # Boolean operators -/
 
 /--
-`cond b x y` is the same as `if b then x else y`, but optimized for a
-boolean condition. It can also be written as `bif b then x else y`.
-This is `@[macro_inline]` because `x` and `y` should not
-be eagerly evaluated (see `ite`).
+The conditional function.
+
+`cond c x y` is the same as `if c then x else y`, but optimized for a Boolean condition rather than
+a decidable proposition. It can also be written using the notation `bif c then x else y`.
+
+Just like `ite`, `cond` is declared `@[macro_inline]`, which causes applications of `cond` to be
+unfolded. As a result, `x` and `y` are not evaluated at runtime until one of them is selected, and
+only the selected branch is evaluated.
 -/
 @[macro_inline] def cond {α : Sort u} (c : Bool) (x y : α) : α :=
   match c with
@@ -1014,10 +1024,18 @@ be eagerly evaluated (see `ite`).
 
 
 /--
-`Bool.dcond b (fun h => x) (fun h => y)` is the same as `if h _ : b then x else y`,
-but optimized for a boolean condition. It can also be written as `bif b then x else y`.
-This is `@[macro_inline]` because `x` and `y` should not be eagerly evaluated (see `dite`).
-This definition intendend for metaprogramming use, and does not come with a suitable API.
+The dependent conditional function, in which each branch is provided with a local assumption about
+the condition's value. This allows the value to be used in proofs as well as for control flow.
+
+`dcond c (fun h => x) (fun h => y)` is the same as `if h : c then x else y`, but optimized for a
+Boolean condition rather than a decidable proposition. Unlike the non-dependent version `cond`,
+there is no special notation for `dcond`.
+
+Just like `ite`, `dite`, and `cond`, `dcond` is declared `@[macro_inline]`, which causes
+applications of `dcond` to be unfolded. As a result, `x` and `y` are not evaluated at runtime until
+one of them is selected, and only the selected branch is evaluated. `dcond` is intended for
+metaprogramming use, rather than for use in verified programs, so behavioral lemmas are not
+provided.
 -/
 @[macro_inline]
 protected def Bool.dcond {α : Sort u} (c : Bool) (x : Eq c true → α) (y : Eq c false → α) : α :=
@@ -1026,10 +1044,13 @@ protected def Bool.dcond {α : Sort u} (c : Bool) (x : Eq c true → α) (y : Eq
   | false => y rfl
 
 /--
-`or x y`, or `x || y`, is the boolean "or" operation (not to be confused
-with `Or : Prop → Prop → Prop`, which is the propositional connective).
-It is `@[macro_inline]` because it has C-like short-circuiting behavior:
-if `x` is true then `y` is not evaluated.
+Boolean “or”, also known as disjunction. `or x y` can be written `x || y`.
+
+The corresponding propositional connective is `Or : Prop → Prop → Prop`, written with the `∨`
+operator.
+
+The Boolean `or` is a `@[macro_inline]` function in order to give it short-circuiting evaluation:
+if `x` is `true` then `y` is not evaluated at runtime.
 -/
 @[macro_inline] def Bool.or (x y : Bool) : Bool :=
   match x with
@@ -1037,10 +1058,13 @@ if `x` is true then `y` is not evaluated.
   | false => y
 
 /--
-`and x y`, or `x && y`, is the boolean "and" operation (not to be confused
-with `And : Prop → Prop → Prop`, which is the propositional connective).
-It is `@[macro_inline]` because it has C-like short-circuiting behavior:
-if `x` is false then `y` is not evaluated.
+Boolean “and”, also known as conjunction. `and x y` can be written `x && y`.
+
+The corresponding propositional connective is `And : Prop → Prop → Prop`, written with the `∧`
+operator.
+
+The Boolean `and` is a `@[macro_inline]` function in order to give it short-circuiting evaluation:
+if `x` is `false` then `y` is not evaluated at runtime.
 -/
 @[macro_inline] def Bool.and (x y : Bool) : Bool :=
   match x with
@@ -1048,8 +1072,10 @@ if `x` is false then `y` is not evaluated.
   | true  => y
 
 /--
-`not x`, or `!x`, is the boolean "not" operation (not to be confused
-with `Not : Prop → Prop`, which is the propositional connective).
+Boolean negation, also known as Boolean complement. `not x` can be written `!x`.
+
+This is a function that maps the value `true` to `false` and the value `false` to `true`. The
+propositional connective is `Not : Prop → Prop`.
 -/
 @[inline] def Bool.not : Bool → Bool
   | true  => false
@@ -2223,12 +2249,13 @@ it is also not a "surrogate" character (the range `0xd800` to `0xdfff` inclusive
 abbrev UInt32.isValidChar (n : UInt32) : Prop :=
   n.toNat.isValidChar
 
-/-- The `Char` Type represents an unicode scalar value.
-    See http://www.unicode.org/glossary/#unicode_scalar_value). -/
+/--
+Characters are Unicode [scalar values](http://www.unicode.org/glossary/#unicode_scalar_value).
+-/
 structure Char where
-  /-- The underlying unicode scalar value as a `UInt32`. -/
+  /-- The underlying Unicode scalar value as a `UInt32`. -/
   val   : UInt32
-  /-- The value must be a legal codepoint. -/
+  /-- The value must be a legal scalar value. -/
   valid : val.isValidChar
 
 private theorem isValidChar_UInt32 {n : Nat} (h : n.isValidChar) : LT.lt n UInt32.size :=
@@ -2245,8 +2272,8 @@ def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char :=
   { val := ⟨BitVec.ofNatLT n (isValidChar_UInt32 h)⟩, valid := h }
 
 /--
-Convert a `Nat` into a `Char`. If the `Nat` does not encode a valid unicode scalar value,
-`'\0'` is returned instead.
+Converts a `Nat` into a `Char`. If the `Nat` does not encode a valid Unicode scalar value, `'\0'` is
+returned instead.
 -/
 @[noinline, match_pattern]
 def Char.ofNat (n : Nat) : Char :=

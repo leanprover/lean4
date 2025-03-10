@@ -163,6 +163,7 @@ attribute [bv_normalize] BitVec.not_not
 attribute [bv_normalize] decide_true
 attribute [bv_normalize] decide_false
 attribute [bv_normalize] decide_not
+attribute [bv_normalize] BitVec.cast_eq
 
 end Constant
 

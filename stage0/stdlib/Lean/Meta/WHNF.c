@@ -1012,7 +1012,6 @@ if (x_11 == 0)
 lean_object* x_12; uint8_t x_13; lean_object* x_14; 
 x_12 = l_Lean_Meta_isAuxDef___closed__1;
 x_13 = l_Lean_TagDeclarationExtension_isTagged(x_12, x_10, x_1);
-lean_dec(x_1);
 x_14 = lean_box(x_13);
 lean_ctor_set(x_7, 0, x_14);
 return x_7;
@@ -1047,7 +1046,6 @@ if (x_20 == 0)
 lean_object* x_21; uint8_t x_22; lean_object* x_23; lean_object* x_24; 
 x_21 = l_Lean_Meta_isAuxDef___closed__1;
 x_22 = l_Lean_TagDeclarationExtension_isTagged(x_21, x_19, x_1);
-lean_dec(x_1);
 x_23 = lean_box(x_22);
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
@@ -17634,6 +17632,7 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec(x_7);
+lean_inc(x_8);
 x_10 = l_Lean_Meta_getMatcherInfo_x3f___at_Lean_Meta_reduceMatcher_x3f___spec__1(x_8, x_2, x_3, x_4, x_5, x_6);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
@@ -17823,7 +17822,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_7;
 }
 }
@@ -24190,6 +24188,7 @@ x_102 = l_Lean_Environment_find_x3f(x_98, x_101);
 if (lean_obj_tag(x_102) == 0)
 {
 lean_object* x_103; lean_object* x_104; 
+lean_inc(x_99);
 x_103 = l_Lean_Meta_getMatcherInfo_x3f___at_Lean_Meta_reduceMatcher_x3f___spec__1(x_99, x_3, x_4, x_5, x_6, x_97);
 x_104 = lean_ctor_get(x_103, 0);
 lean_inc(x_104);
@@ -24351,6 +24350,7 @@ else
 {
 lean_object* x_140; lean_object* x_141; 
 lean_dec(x_134);
+lean_inc(x_99);
 x_140 = l_Lean_Meta_getMatcherInfo_x3f___at_Lean_Meta_reduceMatcher_x3f___spec__1(x_99, x_3, x_4, x_5, x_6, x_97);
 x_141 = lean_ctor_get(x_140, 0);
 lean_inc(x_141);
@@ -24594,6 +24594,7 @@ x_201 = l_Lean_Environment_find_x3f(x_197, x_200);
 if (lean_obj_tag(x_201) == 0)
 {
 lean_object* x_202; lean_object* x_203; 
+lean_inc(x_198);
 x_202 = l_Lean_Meta_getMatcherInfo_x3f___at_Lean_Meta_reduceMatcher_x3f___spec__1(x_198, x_3, x_4, x_5, x_6, x_196);
 x_203 = lean_ctor_get(x_202, 0);
 lean_inc(x_203);
@@ -24714,6 +24715,7 @@ else
 {
 lean_object* x_226; lean_object* x_227; 
 lean_dec(x_220);
+lean_inc(x_198);
 x_226 = l_Lean_Meta_getMatcherInfo_x3f___at_Lean_Meta_reduceMatcher_x3f___spec__1(x_198, x_3, x_4, x_5, x_6, x_196);
 x_227 = lean_ctor_get(x_226, 0);
 lean_inc(x_227);

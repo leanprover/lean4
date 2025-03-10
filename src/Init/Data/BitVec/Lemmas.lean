@@ -329,6 +329,20 @@ theorem ofNatLT_eq_ofNat {w : Nat} {n : Nat} (hn) : BitVec.ofNatLT n hn = BitVec
 
 @[simp] theorem toFin_ofNat (x : Nat) : toFin (BitVec.ofNat w x) = Fin.ofNat' (2^w) x := rfl
 
+@[simp] theorem finMk_toNat (x : BitVec w) : Fin.mk x.toNat x.isLt = x.toFin := rfl
+
+@[simp] theorem toFin_ofNatLT {n : Nat} (h : n < 2 ^ w) : (BitVec.ofNatLT n h).toFin = Fin.mk n h := rfl
+
+@[simp] theorem toFin_ofFin (n : Fin (2 ^ w)) : (BitVec.ofFin n).toFin = n := rfl
+@[simp] theorem ofFin_toFin (x : BitVec w) : BitVec.ofFin x.toFin = x := rfl
+
+@[simp] theorem ofNatLT_finVal (n : Fin (2 ^ w)) : BitVec.ofNatLT n.val n.isLt = BitVec.ofFin n := rfl
+
+@[simp] theorem ofNatLT_toNat (x : BitVec w) : BitVec.ofNatLT x.toNat x.isLt = x := rfl
+
+@[simp] theorem ofNat_finVal (n : Fin (2 ^ w)) : BitVec.ofNat w n.val = BitVec.ofFin n := by
+  rw [← BitVec.ofNatLT_eq_ofNat n.isLt, ofNatLT_finVal]
+
 -- Remark: we don't use `[simp]` here because simproc` subsumes it for literals.
 -- If `x` and `n` are not literals, applying this theorem eagerly may not be a good idea.
 theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :

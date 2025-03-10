@@ -352,7 +352,12 @@ section choice
 
 attribute [local instance] Classical.propDecidable
 
-/-- An arbitrary `some a` with `a : α` if `α` is nonempty, and otherwise `none`. -/
+/--
+An optional arbitrary element of a given type.
+
+If `α` is non-empty, then there exists some `v : α` and this arbitrary element is `some v`.
+Otherwise, it is `none`.
+-/
 noncomputable def choice (α : Type _) : Option α :=
   if h : Nonempty α then some (Classical.choice h) else none
 

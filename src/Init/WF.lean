@@ -241,9 +241,18 @@ variable {α : Type u} {β : Type v}
 variable  (ra  : α → α → Prop)
 variable  (rb  : β → β → Prop)
 
--- Lexicographical order based on ra and rb
+/--
+A lexicographical order based on the orders `ra` and `rb` for the elements of pairs.
+-/
 protected inductive Lex : α × β → α × β → Prop where
+  /--
+  If the first projections of two pairs are ordered, then they are lexicographically ordered.
+  -/
   | left  {a₁} (b₁) {a₂} (b₂) (h : ra a₁ a₂) : Prod.Lex (a₁, b₁) (a₂, b₂)
+  /--
+  If the first projections of two pairs are equal, then they are lexicographically ordered if the
+  second projections are ordered.
+  -/
   | right (a) {b₁ b₂} (h : rb b₁ b₂)         : Prod.Lex (a, b₁)  (a, b₂)
 
 theorem lex_def {r : α → α → Prop} {s : β → β → Prop} {p q : α × β} :

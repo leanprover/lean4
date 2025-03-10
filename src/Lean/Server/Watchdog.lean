@@ -547,7 +547,7 @@ section ServerM
 
   def terminateFileWorker (uri : DocumentUri) : ServerM Unit := do
     let some fw ← findFileWorker? uri
-        | return
+      | return
     setWorkerState fw .terminating
     eraseFileWorker uri
     try

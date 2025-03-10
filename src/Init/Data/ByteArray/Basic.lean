@@ -199,7 +199,7 @@ def foldlM {β : Type v} {m : Type v → Type w} [Monad m] (f : β → UInt8 →
 
 @[inline]
 def foldl {β : Type v} (f : β → UInt8 → β) (init : β) (as : ByteArray) (start := 0) (stop := as.size) : β :=
-  Id.run <| as.foldlM f init start stop
+  Id.run <| as.foldlM (pure <| f · ·) init start stop
 
 /-- Iterator over the bytes (`UInt8`) of a `ByteArray`.
 

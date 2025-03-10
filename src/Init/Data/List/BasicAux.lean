@@ -208,7 +208,7 @@ if the result of each `f a` is a pointer equal value `a`.
   | a :: as => return (← f a) :: (← mapMonoM as f)
 
 def mapMono (as : List α) (f : α → α) : List α :=
-  Id.run <| as.mapMonoM f
+  Id.run <| as.mapMonoM (pure <| f ·)
 
 /-! ## Additional lemmas required for bootstrapping `Array`. -/
 

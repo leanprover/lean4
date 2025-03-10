@@ -25,6 +25,11 @@ inductive MatchKind
   It is a full match statement on an enum inductive with one constructor handled per arm.
   -/
   | simpleEnum (info : InductiveVal)
+  /--
+  It's a match statement on an enum inductive with a default arm, all explicitly handled ctors
+  are listed in `ctors`.
+  -/
+  | enumWithDefault (info : InductiveVal) (ctors : Array ConstructorVal)
 
 /--
 Contains the result of the type analysis to be used in the structures and enums pass.

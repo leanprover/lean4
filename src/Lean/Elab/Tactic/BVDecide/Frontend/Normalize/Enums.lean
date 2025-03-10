@@ -231,6 +231,7 @@ private def getMatchEqCondForAux (declName : Name) (kind : MatchKind) : MetaM Na
     let decl ←
       match kind with
       | .simpleEnum inductiveInfo => handleSimpleEnum declName matchEqCondName inductiveInfo
+      | .enumWithDefault .. => throwError "Enum with default"
     addDecl decl
   return matchEqCondName
 where

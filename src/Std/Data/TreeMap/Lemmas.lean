@@ -1357,7 +1357,6 @@ theorem isEmpty_alter_eq_isEmpty_erase [TransCmp cmp] {k : α}
 
 @[simp]
 theorem isEmpty_alter [TransCmp cmp] {k : α} {f : Option β → Option β} :
-    haveI : BEq Nat := instBEqOfDecidableEq
     (alter t k f).isEmpty =
       (((t.isEmpty || (t.size == 1 && t.contains k))) && (f t[k]?).isNone) :=
   DTreeMap.Const.isEmpty_alter

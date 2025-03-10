@@ -2037,7 +2037,6 @@ theorem isEmpty_alter_eq_isEmpty_erase [TransCmp cmp] [LawfulEqCmp cmp] (h : t.W
 @[simp]
 theorem isEmpty_alter [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
-    haveI : BEq Nat := instBEqOfDecidableEq
     (t.alter k f).isEmpty =
       (((t.isEmpty || (t.size == 1 && t.contains k))) && (f (t.get? k)).isNone) :=
   Impl.isEmpty_alter! h
@@ -2253,7 +2252,6 @@ theorem isEmpty_alter_eq_isEmpty_erase [TransCmp cmp] (h : t.WF) {k : α}
 
 @[simp]
 theorem isEmpty_alter [TransCmp cmp] (h : t.WF) {k : α} {f : Option β → Option β} :
-    haveI : BEq Nat := instBEqOfDecidableEq
     (alter t k f).isEmpty =
       (((t.isEmpty || (t.size == 1 && t.contains k))) && (f (get? t k)).isNone) :=
   Impl.Const.isEmpty_alter! h

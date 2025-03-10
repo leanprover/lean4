@@ -46,7 +46,7 @@ syntax declField :=
 @[inherit_doc declField] abbrev DeclField := TSyntax ``declField
 
 syntax structVal :=
-  "{" manyIndent(group(declField ", "?)) "}"
+  "{" structInstFields(sepByIndentSemicolon(declField)) "}"
 
 syntax declValDo :=
   ppSpace Term.do (Term.whereDecls)?
@@ -55,7 +55,7 @@ syntax declValStruct :=
   ppSpace structVal (Term.whereDecls)?
 
 syntax declValWhere :=
-  " where " sepByIndentSemicolon(declField) (Term.whereDecls)?
+  " where " structInstFields(sepByIndentSemicolon(declField)) (Term.whereDecls)?
 
 syntax simpleDeclSig :=
   ident Term.typeSpec declValSimple
@@ -87,7 +87,7 @@ structure Field where
   ref : Syntax
   val : Term
 
-open Lean Elab Command
+open Lean Syntax Elab Command
 
 def elabConfigDecl
   (tyName : Name)
@@ -95,7 +95,7 @@ def elabConfigDecl
   (doc? : Option DocComment) (attrs : Array AttrInstance)
   (name? : Option Name := none)
 : CommandElabM PUnit := do
-  let mkCmd (bodyRef : Syntax) (nameStx? : Option IdentOrStr) (fs : TSyntaxArray ``declField) wds? := do
+  let mkCmd (whereInfo : SourceInfo) (nameStx? : Option IdentOrStr) (fs : TSyntaxArray ``declField) wds? := do
     let mut m := mkNameMap Field
     let nameId? := nameStx?.map expandIdentOrStrAsIdent
     if let some id := nameId? then
@@ -109,8 +109,12 @@ def elabConfigDecl
         m := m.insert fieldName {ref := id, val}
       else
         logWarningAt id m!"unknown '{.ofConstName tyName}' field '{fieldName}'"
-    let fs ← m.foldM (init := #[]) fun a k {ref, val} => withRef ref do
-      return a.push <| ← `(Term.structInstField| $(← mkIdentFromRef k true):ident := $val)
+    let fs ← m.foldM (init := #[]) fun a k {ref, val} => do
+      let id := mkIdentFrom ref k true
+      -- An unhygienic quotation is used to avoid introducing source info
+      -- which will break field auto-completion.
+      let fieldStx := Unhygienic.run `(Term.structInstField| $id:ident := $val)
+      return a.push fieldStx
     let ty := mkCIdentFrom (← getRef) tyName
     let declId ← id do
       if let some id := nameId? then
@@ -123,14 +127,22 @@ def elabConfigDecl
           mkIdentFromRef name
         else
           Elab.Term.mkFreshIdent (← getRef)
-    let defn ← withRef bodyRef `({$[$fs:structInstField],*})
-    let cmd ← `($[$doc?]? @[$attrs,*] abbrev $declId : $ty := $defn $[$wds?:whereDecls]?)
+    /-
+    Quotation syntax produces synthetic source information.
+    However, field auto-completion requires the trailing position of this token,
+    which can only be obtained from the original source info. Thus, we must
+    construct this token manually to preserve its original source info.
+    -/
+    let whereTk := atom whereInfo "where"
+    let fields := mkNode ``Term.structInstFields #[mkSep fs mkNullNode]
+    let whereStx := mkNode ``whereStructInst #[whereTk, fields, mkOptionalNode wds?]
+    let cmd ← `($[$doc?]? @[$attrs,*] abbrev $declId : $ty $whereStx:whereStructInst)
     withMacroExpansion sig cmd <| elabCommand cmd
   match sig with
   | `(structDeclSig| $nameStx:identOrStr) =>
-    mkCmd (← getRef) nameStx #[] none
+    mkCmd .none nameStx #[] none
   | `(structDeclSig| $[$nameStx?]? where%$tk $fs;* $[$wds?:whereDecls]?) =>
-    mkCmd tk nameStx? fs.getElems wds?
-  | `(structDeclSig| $[$nameStx?]? { $[$fs $[,]?]* }%$tk $[$wds?:whereDecls]?) =>
-    mkCmd tk nameStx? fs wds?
+    mkCmd tk.getHeadInfo nameStx? fs.getElems wds?
+  | `(structDeclSig| $[$nameStx?]? {%$tk $fs;* } $[$wds?:whereDecls]?) =>
+    mkCmd tk.getHeadInfo nameStx? fs wds?
   | stx => throwErrorAt stx "ill-formed configuration syntax"

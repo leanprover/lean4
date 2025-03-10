@@ -87,7 +87,6 @@ lean_object* l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_elabCommandAtFrontend___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_processCommand___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_IO_processCommandsIncrementally_go___spec__5(size_t, size_t, lean_object*);
-extern lean_object* l_Lean_Language_Lean_internal_cmdlineSnapshots;
 lean_object* lean_task_get_own(lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_setIfNotSet___at_Lean_Elab_runFrontend___spec__1(lean_object*, lean_object*, uint8_t);
@@ -150,6 +149,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_getParserState___boxed(lean_object
 uint8_t l_Lean_KVMap_contains(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_parseCommand(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_runFrontend___lambda__5(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_internal_cmdlineSnapshots;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_runCommandElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_runFrontend___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3452,7 +3452,7 @@ static lean_object* _init_l_Lean_Elab_runFrontend___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Language_Lean_internal_cmdlineSnapshots;
+x_1 = l_Lean_internal_cmdlineSnapshots;
 return x_1;
 }
 }

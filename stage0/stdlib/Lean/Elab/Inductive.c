@@ -151,7 +151,6 @@ uint8_t l_Array_contains___at_Lean_Meta_setMVarUserNamesAt___spec__1(lean_object
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_liftExcept___at_Lean_Elab_liftMacroM___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_mapM_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_elabCtors___spec__2___lambda__6___closed__2;
-lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___at_Lean_Elab_Term_processDefDeriving___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabDeclAttrs___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_expandMacroImpl_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getDeclarationSelectionRef(lean_object*);
@@ -337,6 +336,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_elabAttr___at___private_Lean_Elab_Inductive
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___spec__10___rarg(lean_object*);
 static lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___closed__6;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_reorderCtorArgs___spec__4___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___at_Lean_Elab_Term_processDefDeriving___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ResolveName_resolveGlobalName(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
@@ -465,7 +465,7 @@ lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);
 lean_ctor_set(x_18, 2, x_15);
 x_19 = l_Lean_Elab_getDeclarationSelectionRef(x_1);
-x_20 = l_Lean_Elab_addDeclarationRangesFromSyntax___at_Lean_Elab_Term_processDefDeriving___spec__5(x_3, x_18, x_19, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+x_20 = l_Lean_Elab_addDeclarationRangesFromSyntax___at_Lean_Elab_Term_processDefDeriving___spec__6(x_3, x_18, x_19, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_19);
 lean_dec(x_18);
 return x_20;
@@ -3380,7 +3380,7 @@ x_45 = lean_ctor_get(x_44, 1);
 lean_inc(x_45);
 lean_dec(x_44);
 lean_inc(x_36);
-x_46 = l_Lean_Elab_addDeclarationRangesFromSyntax___at_Lean_Elab_Term_processDefDeriving___spec__5(x_36, x_2, x_17, x_5, x_6, x_7, x_8, x_9, x_10, x_45);
+x_46 = l_Lean_Elab_addDeclarationRangesFromSyntax___at_Lean_Elab_Term_processDefDeriving___spec__6(x_36, x_2, x_17, x_5, x_6, x_7, x_8, x_9, x_10, x_45);
 lean_dec(x_5);
 x_47 = !lean_is_exclusive(x_46);
 if (x_47 == 0)

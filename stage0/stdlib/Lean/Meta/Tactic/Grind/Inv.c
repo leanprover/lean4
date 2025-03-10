@@ -103,7 +103,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_ch
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkParents___spec__3___lambda__3(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forIn___at_Lean_Meta_Grind_checkInvariants___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkParents___spec__3___lambda__2___closed__6;
-lean_object* l_Lean_throwError___at_Lean_Meta_Grind_addNewFact___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Loop_forIn_loop___at___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkEqc___spec__7___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Goal_checkInvariants(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_checkInvariants___closed__2;
@@ -209,6 +208,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_ch
 static lean_object* l_Lean_Loop_forIn_loop___at___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkEqc___spec__7___closed__2;
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkParents___spec__3___lambda__2___closed__5;
 static lean_object* l_panic___at___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkParents___spec__2___closed__2;
+lean_object* l_Lean_throwError___at_Lean_Meta_Grind_addNewRawFact___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findEntryAtAux___at___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkEqc___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkProofs___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkMatchCondParent___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3089,7 +3089,7 @@ x_27 = l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Gr
 x_28 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);
-x_29 = l_Lean_throwError___at_Lean_Meta_Grind_addNewFact___spec__1(x_28, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_19);
+x_29 = l_Lean_throwError___at_Lean_Meta_Grind_addNewRawFact___spec__1(x_28, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_19);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -3140,7 +3140,7 @@ x_42 = l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Gr
 x_43 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
-x_44 = l_Lean_throwError___at_Lean_Meta_Grind_addNewFact___spec__1(x_43, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_34);
+x_44 = l_Lean_throwError___at_Lean_Meta_Grind_addNewRawFact___spec__1(x_43, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_34);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -3645,7 +3645,7 @@ x_94 = l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Gr
 x_95 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_95, 0, x_93);
 lean_ctor_set(x_95, 1, x_94);
-x_96 = l_Lean_throwError___at_Lean_Meta_Grind_addNewFact___spec__1(x_95, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_86);
+x_96 = l_Lean_throwError___at_Lean_Meta_Grind_addNewRawFact___spec__1(x_95, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_86);
 x_97 = !lean_is_exclusive(x_96);
 if (x_97 == 0)
 {

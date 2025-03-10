@@ -198,7 +198,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Command_expandMutualNamespace__1___
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabInitialize___lambda__1___closed__30;
 extern lean_object* l_Lean_Elab_Command_commandElabAttribute;
-lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___at_Lean_Elab_Term_processDefDeriving___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Command_expandMutualPreamble__1(lean_object*);
 static lean_object* l_Lean_Elab_Command_elabInitialize___lambda__1___closed__43;
 static lean_object* l_Lean_Elab_Command_elabInitialize___lambda__3___closed__6;
@@ -439,6 +438,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Command_expandMutualNamespace_declR
 lean_object* l_Lean_Syntax_setInfo(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabDeclaration_declRange__1___closed__3;
 static lean_object* l_Lean_Elab_Command_elabInitialize___lambda__1___closed__34;
+lean_object* l_Lean_Elab_addDeclarationRangesFromSyntax___at_Lean_Elab_Term_processDefDeriving___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabMutual___lambda__1___closed__1;
 static lean_object* l_Lean_Elab_Command_expandNamespacedDeclaration___closed__1;
 lean_object* l_Array_mkArray1___rarg(lean_object*);
@@ -1623,7 +1623,7 @@ lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);
 lean_ctor_set(x_18, 2, x_15);
 x_19 = l_Lean_Elab_getDeclarationSelectionRef(x_1);
-x_20 = l_Lean_Elab_addDeclarationRangesFromSyntax___at_Lean_Elab_Term_processDefDeriving___spec__5(x_3, x_18, x_19, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+x_20 = l_Lean_Elab_addDeclarationRangesFromSyntax___at_Lean_Elab_Term_processDefDeriving___spec__6(x_3, x_18, x_19, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_19);
 lean_dec(x_18);
 return x_20;

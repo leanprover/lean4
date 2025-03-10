@@ -170,7 +170,12 @@ def main():
         section_title = format_section_title(label) if label != "Uncategorised" else "Uncategorised"
         print(f"## {section_title}\n")
         for _, entry in sorted(entries, key=lambda x: x[0]):
-            print(f"* {entry}\n")
+            # Split entry into lines and indent all lines after the first
+            lines = entry.splitlines()
+            print(f"* {lines[0]}")
+            for line in lines[1:]:
+                print(f"  {line}")
+            print()  # Empty line after each entry
 
 if __name__ == "__main__":
     main()

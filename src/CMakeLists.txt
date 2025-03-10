@@ -175,6 +175,10 @@ string(APPEND LEANC_EXTRA_CC_FLAGS " -fstack-clash-protection")
 string(APPEND CMAKE_CXX_FLAGS " -fwrapv")
 string(APPEND LEANC_EXTRA_CC_FLAGS " -fwrapv")
 
+if(${STAGE} EQUAL 1)
+  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE=false")
+endif()
+
 if(NOT MULTI_THREAD)
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
   set(AUTO_THREAD_FINALIZATION OFF)

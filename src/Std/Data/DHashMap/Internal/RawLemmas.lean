@@ -81,8 +81,7 @@ macro_rules
       | apply Raw.WF.constAlter₀ | apply Raw.WF.constModify₀
       | apply Raw₀.wf_insertMany₀ | apply Raw₀.Const.wf_insertMany₀
       | apply Raw₀.Const.wf_insertManyIfNewUnit₀
-      | apply Raw.WF.filter₀
-      -- TODO: map₀ and filterMap₀
+      | apply Raw.WF.filter₀ | apply Raw₀.wf_map₀ | apply Raw₀.wf_filterMap₀
       | apply Raw.WF.empty₀) <;> wf_trivial)
 
 /-- Internal implementation detail of the hash map -/

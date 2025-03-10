@@ -624,6 +624,18 @@ theorem toInt_lt {w : Nat} {x : BitVec w} : 2 * x.toInt < 2 ^ w := by
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
     norm_cast; omega
 
+theorem toInt_le {w : Nat} {x : BitVec w} : 2 * x.toInt ≤ 2 ^ w - 1 :=
+  Int.le_sub_one_of_lt toInt_lt
+
+theorem toInt_lt_of_pos {w : Nat} (hw : 0 < w) {x : BitVec w} : x.toInt < 2 ^ (w - 1) := by
+  have := toInt_lt (w := w) (x := x)
+  generalize x.toInt = x at *
+  rw [(show w = w - 1 + 1 by omega), Int.pow_succ] at this
+  omega
+
+theorem toInt_le_of_pos {w : Nat} (hw : 0 < w) {x : BitVec w} : x.toInt ≤ 2 ^ (w - 1) - 1 :=
+  Int.le_sub_one_of_lt (toInt_lt_of_pos hw)
+
 /--
 `x.toInt` is greater than or equal to `-2^(w-1)`.
 We phrase the fact in terms of `2^w` to prevent a case split on `w=0` when the lemma is used.
@@ -635,6 +647,12 @@ theorem le_toInt {w : Nat} {x : BitVec w} : -2 ^ w ≤ 2 * x.toInt := by
   · rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.two_mul, Nat.add_sub_cancel]
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
     norm_cast; omega
+
+theorem le_toInt_of_pos {w : Nat} (hw : 0 < w) (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
+  have := le_toInt (w := w) (x := x)
+  generalize x.toInt = x at *
+  rw [(show w = w - 1 + 1 by omega), Int.pow_succ] at this
+  omega
 
 /-! ### slt -/
 

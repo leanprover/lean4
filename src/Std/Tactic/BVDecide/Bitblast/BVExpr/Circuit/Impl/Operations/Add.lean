@@ -197,6 +197,8 @@ theorem go_le_size (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : AIG.R
   dsimp only
   split
   · refine Nat.le_trans ?_ (by apply go_le_size)
+    unfold mkFullAdder
+    dsimp only
     apply AIG.LawfulOperator.le_size_of_le_aig_size (f := mkFullAdderCarry)
     apply AIG.LawfulOperator.le_size (f := mkFullAdderOut)
   · simp

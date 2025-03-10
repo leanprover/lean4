@@ -7,6 +7,7 @@ Authors: Wojciech Nawrocki, Marc Huisinga
 prelude
 import Lean.Server.FileWorker.InlayHints
 import Lean.Server.FileWorker.SemanticHighlighting
+import Lean.Server.FileWorker.RequestHandling.Hover
 import Lean.Server.Completion
 import Lean.Server.References
 
@@ -69,8 +70,9 @@ def handleHover (p : HoverParams)
     : RequestM (RequestTask (Option Hover)) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let mkHover (s : String) (r : String.Range) : Hover := {
-    contents := {
+  let mkHover (s : String) (r : String.Range) : Hover :=
+  let s := Hover.rewriteExamples s
+  { contents := {
       kind := MarkupKind.markdown
       value := s
     }

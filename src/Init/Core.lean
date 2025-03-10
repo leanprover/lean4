@@ -52,8 +52,6 @@ attribute [simp] namedPattern
 /--
 `Empty.elim : Empty → C` says that a value of any type can be constructed from
 `Empty`. This can be thought of as a compiler-checked assertion that a code path is unreachable.
-
-This is a non-dependent variant of `Empty.rec`.
 -/
 @[macro_inline] def Empty.elim {C : Sort u} : Empty → C := Empty.rec
 
@@ -63,8 +61,6 @@ instance : DecidableEq Empty := fun a => a.elim
 /--
 `PEmpty.elim : Empty → C` says that a value of any type can be constructed from
 `PEmpty`. This can be thought of as a compiler-checked assertion that a code path is unreachable.
-
-This is a non-dependent variant of `PEmpty.rec`.
 -/
 @[macro_inline] def PEmpty.elim {C : Sort _} : PEmpty → C := fun a => nomatch a
 

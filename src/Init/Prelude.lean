@@ -200,14 +200,18 @@ For more information: [Propositional Logic](https://lean-lang.org/theorem_provin
 inductive False : Prop
 
 /--
-The empty type. It has no constructors. The `Empty.rec`
-eliminator expresses the fact that anything follows from the empty type.
+The empty type. It has no constructors.
+
+Use `Empty.elim` in contexts where a value of type `Empty` is in scope.
 -/
 inductive Empty : Type
 
 set_option bootstrap.inductiveCheckResultingUniverse false in
 /--
-The universe-polymorphic empty type. Prefer `Empty` or `False` where
+The universe-polymorphic empty type, with no constructors.
+
+`PEmpty` can be used in any universe, but this flexibility can lead to worse error messages and more
+challenges with universe level unification. Prefer the type `Empty` or the proposition `False` when
 possible.
 -/
 inductive PEmpty : Sort u where

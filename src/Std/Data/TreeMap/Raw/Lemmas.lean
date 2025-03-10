@@ -472,6 +472,7 @@ theorem getKey_congr [TransCmp cmp] (h : t.WF) {k₁ k₂ : α} (h' : cmp k₁ k
     (h₁ : k₁ ∈ t) : t.getKey k₁ h₁ = t.getKey k₂ ((mem_congr h h').mp h₁) :=
   DTreeMap.Raw.getKey_congr h h' h₁
 
+@[simp]
 theorem getKey_eq [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp] (h : t.WF) {k : α}
     (h' : k ∈ t) : t.getKey k h' = k :=
   DTreeMap.Raw.getKey_eq h h'

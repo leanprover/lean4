@@ -686,6 +686,7 @@ theorem getKey_congr [TransCmp cmp] {k₁ k₂ : α} (h' : cmp k₁ k₂ = .eq)
     (h₁ : k₁ ∈ t) : t.getKey k₁ h₁ = t.getKey k₂ ((mem_congr h').mp h₁) :=
   Impl.getKey_congr t.wf h' h₁
 
+@[simp]
 theorem getKey_eq [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp] {k : α}
     (h' : k ∈ t) : t.getKey k h' = k :=
   Impl.getKey_eq t.wf h'

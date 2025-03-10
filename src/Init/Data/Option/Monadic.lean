@@ -53,9 +53,9 @@ theorem forIn'_pure_yield_eq_pelim [Monad m] [LawfulMonad m]
   cases o <;> simp
 
 @[simp] theorem forIn'_id_yield_eq_pelim
-    (o : Option α) (f : (a : α) → a ∈ o → β → β) (b : β) :
-    (forIn' (m := Id) o b (fun a m b => pure <| .yield (f a m b))).run =
-      o.pelim b (fun a h => f a h b) :=
+    (o : Option α) (f : (a : α) → a ∈ o → β → Id β) (b : β) :
+    (forIn' o b (fun a m b => .yield <$> f a m b)).run =
+      o.pelim b (fun a h => f a h b |>.run) :=
   forIn'_pure_yield_eq_pelim _ _ _
 
 @[simp] theorem forIn'_map [Monad m] [LawfulMonad m]
@@ -82,9 +82,9 @@ theorem forIn_pure_yield_eq_elim [Monad m] [LawfulMonad m]
   cases o <;> simp
 
 @[simp] theorem forIn_id_yield_eq_elim
-    (o : Option α) (f : (a : α) → β → β) (b : β) :
-    (forIn (m := Id) o b (fun a b => pure <| .yield (f a b))).run =
-      o.elim b (fun a => f a b) :=
+    (o : Option α) (f : (a : α) → β → Id β) (b : β) :
+    (forIn o b (fun a b => .yield <$> f a b)).run =
+      o.elim b (fun a => f a b |>.run) :=
   forIn_pure_yield_eq_elim _ _ _
 
 @[simp] theorem forIn_map [Monad m] [LawfulMonad m]

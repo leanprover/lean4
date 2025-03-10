@@ -237,9 +237,9 @@ theorem findM?_pure {m} [Monad m] [LawfulMonad m] (p : α → Bool) (as : List �
     | true  => simp
     | false => simp [ih]
 
-@[deprecated findM?_pure (since := "2025-03-05")]
-theorem findM?_id (p : α → Bool) (as : List α) :
-    findM? (m := Id) (pure <| p ·) as = pure (as.find? p) :=
+@[simp]
+theorem findM?_id (p : α → Id Bool) (as : List α) :
+    (findM? p as).run = as.find? (p · |>.run) :=
   findM?_pure _ _
 
 @[specialize]
@@ -261,9 +261,8 @@ theorem findSomeM?_pure [Monad m] [LawfulMonad m] (f : α → Option β) (as : L
     | some b => simp
     | none   => simp [ih]
 
-@[deprecated findSomeM?_pure (since := "2025-03-05")]
-theorem findSomeM?_id (f : α → Option β) (as : List α) :
-    findSomeM? (m := Id) (pure <| f ·) as = pure (as.findSome? f) :=
+theorem findSomeM?_id (f : α → Id (Option β)) (as : List α) :
+    (findSomeM? f as).run = as.findSome? (f · |>.run) :=
   findSomeM?_pure _ _
 
 theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] (p : α → m Bool) (as : List α) :

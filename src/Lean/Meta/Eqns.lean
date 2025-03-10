@@ -86,9 +86,7 @@ builtin_initialize registerReservedNamePredicate fun env n =>
   | .str p s =>
     (isEqnReservedNameSuffix s || s == unfoldThmSuffix || s == eqUnfoldThmSuffix)
     && env.isSafeDefinition p
-    -- Remark: `f.match_<idx>.eq_<idx>` are private definitions and are not treated as reserved names
-    -- Reason: `f.match_<idx>.splitter is generated at the same time, and can eliminate into type.
-    -- Thus, it cannot be defined in different modules since it is not a theorem, and is used to generate code.
+    -- Remark: `f.match_<idx>.eq_<idx>` are handled separately in `Lean.Meta.Match.MatchEqs`.
     && !isMatcherCore env p
   | _ => false
 
@@ -289,7 +287,7 @@ def getUnfoldEqnFor? (declName : Name) (nonRec := false) : MetaM (Option Name) :
 builtin_initialize
   registerReservedNameAction fun name => do
     let .str p s := name | return false
-    unless (← getEnv).isSafeDefinition p do return false
+    unless (← getEnv).isSafeDefinition p && !isMatcherCore (← getEnv) p do return false
     if isEqnReservedNameSuffix s then
       return (← MetaM.run' <| getEqnsFor? p).isSome
     if s == unfoldThmSuffix then

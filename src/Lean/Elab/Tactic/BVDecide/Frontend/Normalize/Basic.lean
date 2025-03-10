@@ -23,11 +23,12 @@ The various kinds of matches supported by the match to cond infrastructure.
 inductive MatchKind
   /--
   It is a full match statement on an enum inductive with one constructor handled per arm.
+  The ctors are listed in the order they occur in in `ctors`.
   -/
-  | simpleEnum (info : InductiveVal)
+  | simpleEnum (info : InductiveVal) (ctors : Array ConstructorVal)
   /--
   It's a match statement on an enum inductive with a default arm, all explicitly handled ctors
-  are listed in `ctors`.
+  are listed in `ctors` in the order they occur in the match arguments.
   -/
   | enumWithDefault (info : InductiveVal) (ctors : Array ConstructorVal)
 

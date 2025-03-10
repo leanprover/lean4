@@ -2492,9 +2492,6 @@ theorem mem_of_mem_getLast? {l : List α} {a : α} (h : a ∈ getLast? l) : a �
 
 @[deprecated reverse_eq_append_iff (since := "2024-09-05")] abbrev reverse_eq_append := @reverse_eq_append_iff
 
-theorem reverse_concat (l : List α) (a : α) : (l ++ [a]).reverse = a :: l.reverse := by
-  rw [reverse_append]; rfl
-
 theorem reverse_eq_concat {xs ys : List α} {a : α} :
     xs.reverse = ys ++ [a] ↔ xs = a :: ys.reverse := by
   rw [reverse_eq_iff, reverse_concat]
@@ -2522,41 +2519,6 @@ theorem flatMap_reverse {β} (l : List α) (f : α → List β) : (l.reverse.fla
   eq_replicate_iff.2
     ⟨by rw [length_reverse, length_replicate],
      fun _ h => eq_of_mem_replicate (mem_reverse.1 h)⟩
-
-/--! ### filterM -/
-
-theorem filterAuxM_append_right [Monad m] [LawfulMonad m] {as acc₁ acc₂ : List α} {p : α → m Bool} :
-    filterAuxM p as (acc₁ ++ acc₂) = (· ++ acc₂) <$> filterAuxM p as acc₁ := by
-  induction as generalizing acc₁ with
-  | nil => simp [filterAuxM]
-  | cons a as ih =>
-    simp only [filterAuxM, map_bind]
-    congr 1
-    ext pa
-    cases pa <;> simp only [← cons_append, cond_true, cond_false, ih]
-
-theorem filterAuxM_eq_map [Monad m] [LawfulMonad m] {as acc : List α} {p : α → m Bool} :
-    filterAuxM p as acc = (· ++ acc) <$> filterAuxM p as [] := by
-  simpa using filterAuxM_append_right (acc₁ := [])
-
-theorem filterM_cons {m} [Monad m] [LawfulMonad m] {a : α} {as : List α} {p : α → m Bool} :
-    filterM p (a :: as) =
-      (do let pa ← p a; if pa then .cons a <$> filterM p as else filterM p as) := by
-  simp only [filterM, filterAuxM, bind_pure_comp, map_bind, Functor.map_map]
-  congr 1
-  ext pa
-  cases pa
-  · simp
-  rw [filterAuxM_eq_map]
-  simp
-
-@[simp]
-theorem filterM_pure {m} [Monad m] [LawfulMonad m] {α : Type} (p : α → Bool) (as : List α) :
-    filterM (m := m) (pure <| p ·) as = pure (as.filter p) := by
-  induction as with
-  | nil => simp [filterM_nil]
-  | cons a as ih =>
-    by_cases h : p a <;> simp [filterM_cons, filter, ih, h]
 
 /-! ### foldlM and foldrM -/
 

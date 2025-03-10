@@ -1210,27 +1210,35 @@ abbrev DecidableLT (α : Type u) [LT α] := DecidableRel (LT.lt : α → α → 
 /-- Abbreviation for `DecidableRel (· ≤ · : α → α → Prop)`. -/
 abbrev DecidableLE (α : Type u) [LE α] := DecidableRel (LE.le : α → α → Prop)
 
-/-- `Max α` is the typeclass which supports the operation `max x y` where `x y : α`.-/
+/--
+An overloaded operation to find the greater of two values of type `α`.
+-/
 class Max (α : Type u) where
-  /-- The maximum operation: `max x y`. -/
+  /-- Returns the greater of its two arguments. -/
   max : α → α → α
 
 export Max (max)
 
-/-- Implementation of the `max` operation using `≤`. -/
+/--
+Constructs a `Max` instance from a decidable `≤` operation.
+-/
 -- Marked inline so that `min x y + max x y` can be optimized to a single branch.
 @[inline]
 def maxOfLe [LE α] [DecidableRel (@LE.le α _)] : Max α where
   max x y := ite (LE.le x y) y x
 
-/-- `Min α` is the typeclass which supports the operation `min x y` where `x y : α`.-/
+/--
+An overloaded operation to find the lesser of two values of type `α`.
+-/
 class Min (α : Type u) where
-  /-- The minimum operation: `min x y`. -/
+  /-- Returns the lesser of its two arguments. -/
   min : α → α → α
 
 export Min (min)
 
-/-- Implementation of the `min` operation using `≤`. -/
+/--
+Constructs a `Min` instance from a decidable `≤` operation.
+-/
 -- Marked inline so that `min x y + max x y` can be optimized to a single branch.
 @[inline]
 def minOfLe [LE α] [DecidableRel (@LE.le α _)] : Min α where
@@ -2829,10 +2837,18 @@ def Array.extract (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : A
   let sz' := Nat.sub (min stop as.size) start
   loop sz' start (mkEmpty sz')
 
-/-- The typeclass which supplies the `>>=` "bind" function. See `Monad`. -/
+/--
+The `>>=` operator is overloaded via instances of `bind`.
+
+`Bind` is typically used via `Monad`, which extends it.
+-/
 class Bind (m : Type u → Type v) where
-  /-- If `x : m α` and `f : α → m β`, then `x >>= f : m β` represents the
-  result of executing `x` to get a value of type `α` and then passing it to `f`. -/
+  /--
+  Sequences two computations, allowing the second to depend on the value computed by the first.
+
+  If `x : m α` and `f : α → m β`, then `x >>= f : m β` represents the result of executing `x` to get
+  a value of type `α` and then passing it to `f`.
+  -/
   bind : {α β : Type u} → m α → (α → m β) → m β
 
 export Bind (bind)
@@ -2891,45 +2907,81 @@ class Functor (f : Type u → Type v) : Type (max (u+1) v) where
   -/
   mapConst : {α β : Type u} → α → f β → f α := Function.comp map (Function.const _)
 
-/-- The typeclass which supplies the `<*>` "seq" function. See `Applicative`. -/
-class Seq (f : Type u → Type v) : Type (max (u+1) v) where
-  /-- If `mf : F (α → β)` and `mx : F α`, then `mf <*> mx : F β`.
-  In a monad this is the same as `do let f ← mf; x ← mx; pure (f x)`:
-  it evaluates first the function, then the argument, and applies one to the other.
+/--
+The `<*>` operator is overloaded using the function `Seq.seq`.
 
-  To avoid surprising evaluation semantics, `mx` is taken "lazily", using a
-  `Unit → f α` function. -/
+While `<$>` from the class `Functor` allows an ordinary function to be mapped over its contents,
+`<*>` allows a function that's “inside” the functor to be applied. When thinking about `f` as
+possible side effects, this captures evaluation order: `seq` arranges for the effects that produce
+the function to occur prior to those that produce the argument value.
+
+For most applications, `Applicative` or `Monad` should be used rather than `Seq` itself.
+-/
+class Seq (f : Type u → Type v) : Type (max (u+1) v) where
+  /--
+  The implementation of the `<*>` operator.
+
+  In a monad, `mf <*> mx` is the same as `do let f ← mf; x ← mx; pure (f x)`: it evaluates the
+  function first, then the argument, and applies one to the other.
+
+  To avoid surprising evaluation semantics, `mx` is taken "lazily", using a `Unit → f α` function.
+  -/
   seq : {α β : Type u} → f (α → β) → (Unit → f α) → f β
 
-/-- The typeclass which supplies the `<*` "seqLeft" function. See `Applicative`. -/
-class SeqLeft (f : Type u → Type v) : Type (max (u+1) v) where
-  /-- If `x : F α` and `y : F β`, then `x <* y` evaluates `x`, then `y`,
-  and returns the result of `x`.
+/--
+The `<*` operator is overloaded using `seqLeft`.
 
-  To avoid surprising evaluation semantics, `y` is taken "lazily", using a
-  `Unit → f β` function. -/
+When thinking about `f` as potential side effects, `<*` evaluates first the left and then the right
+argument for their side effects, discarding the value of the right argument and returning the value
+of the left argument.
+
+For most applications, `Applicative` or `Monad` should be used rather than `SeqLeft` itself.
+-/
+class SeqLeft (f : Type u → Type v) : Type (max (u+1) v) where
+  /--
+  Sequences the effects of two terms, discarding the value of the second. This function is usually
+  invoked via the `<*` operator.
+
+  Given `x : f α` and `y : f β`, `x <* y` runs `x`, then runs `y`, and finally returns the result of
+  `x`.
+
+  The evaluation of the second argument is delayed by wrapping it in a function, enabling
+  “short-circuiting” behavior from `f`.
+  -/
   seqLeft : {α β : Type u} → f α → (Unit → f β) → f α
 
-/-- The typeclass which supplies the `*>` "seqRight" function. See `Applicative`. -/
-class SeqRight (f : Type u → Type v) : Type (max (u+1) v) where
-  /-- If `x : F α` and `y : F β`, then `x *> y` evaluates `x`, then `y`,
-  and returns the result of `y`.
+/--
+The `*>` operator is overloaded using `seqRight`.
 
-  To avoid surprising evaluation semantics, `y` is taken "lazily", using a
-  `Unit → f β` function. -/
+When thinking about `f` as potential side effects, `*>` evaluates first the left and then the right
+argument for their side effects, discarding the value of the left argument and returning the value
+of the right argument.
+
+For most applications, `Applicative` or `Monad` should be used rather than `SeqLeft` itself.
+-/
+class SeqRight (f : Type u → Type v) : Type (max (u+1) v) where
+  /--
+  Sequences the effects of two terms, discarding the value of the first. This function is usually
+  invoked via the `*>` operator.
+
+  Given `x : f α` and `y : f β`, `x *> y` runs `x`, then runs `y`, and finally returns the result of
+  `y`.
+
+  The evaluation of the second argument is delayed by wrapping it in a function, enabling
+  “short-circuiting” behavior from `f`.
+  -/
   seqRight : {α β : Type u} → f α → (Unit → f β) → f β
 
 /--
-An [applicative functor](https://en.wikipedia.org/wiki/Applicative_functor) is
-an intermediate structure between `Functor` and `Monad`. It mainly consists of
-two operations:
+An [applicative functor](lean-manual://section/monads-and-do) is more powerful than a `Functor`, but
+less powerful than a `Monad`.
 
-* `pure : α → F α`
-* `seq : F (α → β) → F α → F β` (written as `<*>`)
+Applicative functors capture sequencing of effects with the `<*>` operator, overloaded as `seq`, but
+not data-dependent effects. The results of earlier computations cannot be used to control later
+effects.
 
-The `seq` operator gives a notion of evaluation order to the effects, where
-the first argument is executed before the second, but unlike a monad the results
-of earlier computations cannot be used to define later actions.
+Applicative functors should satisfy four laws. Instances of `Applicative` are not required to prove
+that they satisfy these laws, which are part of the `LawfulApplicative` class.
 -/
 class Applicative (f : Type u → Type v) extends Functor f, Pure f, Seq f, SeqLeft f, SeqRight f where
   map      := fun x y => Seq.seq (pure x) fun _ => y
@@ -2937,19 +2989,18 @@ class Applicative (f : Type u → Type v) extends Functor f, Pure f, Seq f, SeqL
   seqRight := fun a b => Seq.seq (Functor.map (Function.const _ id) a) b
 
 /--
-A [monad](https://en.wikipedia.org/wiki/Monad_(functional_programming)) is a
-structure which abstracts the concept of sequential control flow.
-It mainly consists of two operations:
+[Monads](https://en.wikipedia.org/wiki/Monad_(functional_programming)) are an abstraction of
+sequential control flow and side effects used in functional programming. Monads allow both
+sequencing of effects and data-dependent effects: the values that result from an early step may
+influence the effects carried out in a later step.
 
-* `pure : α → F α`
-* `bind : F α → (α → F β) → F β` (written as `>>=`)
+The `Monad` API may be used directly. However, it is most commonly accessed through
+[`do`-notation](lean-manual://section/do-notation).
 
-Like many functional programming languages, Lean makes extensive use of monads
-for structuring programs. In particular, the `do` notation is a very powerful
-syntax over monad operations, and it depends on a `Monad` instance.
-
-See [the `do` notation](https://lean-lang.org/lean4/doc/do.html)
-chapter of the manual for details.
+Most `Monad` instances provide implementations of `pure` and `bind`, and use default implementations
+for the other methods inherited from `Applicative`. Monads should satisfy certain laws, but
+instances are not required to prove this. An instance of `LawfulMonad` expresses that a given
+monad's operations are lawful.
 -/
 class Monad (m : Type u → Type v) : Type (max (u+1) v) extends Applicative m, Bind m where
   map      f x := bind x (Function.comp pure f)

@@ -293,9 +293,9 @@ where
           let enumToBitVec := mkConst (← getEnumToBitVecFor inductiveInfo.name)
           let domainSize := inductiveInfo.ctors.length
           let bvSize := getBitVecSize domainSize
-          let default := hs.back!
+          let hdefault := hs.back!
           let concrete := hs.take <| hs.size - 1
-          let appliedDefault := mkApp default x
+          let appliedDefault := mkApp hdefault x
           let appliedConcrete := concrete.toList.map (mkApp · (mkConst ``Unit.unit))
           let getBitVec i := BitVec.ofNat bvSize ctors[i]!.cidx
           let rhs ← mkCondChain u (mkApp enumToBitVec x) a getBitVec appliedConcrete appliedDefault
@@ -308,20 +308,23 @@ where
              |>.qsort (·.1 < ·.1)
              |>.toList
 
-          let rec intersperseDefault hs idx :=
+          let rec intersperseDefault hs idx acc :=
             if idx == inductiveInfo.numCtors then
-              hs
+              acc.reverse
             else
               match hs with
               | [] =>
-                (idx, mkApp default (mkConst (inductiveInfo.ctors[idx]!))) :: intersperseDefault hs (idx + 1)
+                let new := (idx, mkApp hdefault (mkConst (inductiveInfo.ctors[idx]!)))
+                intersperseDefault hs (idx + 1) (new :: acc)
               | hs@((cidx, h) :: tail) =>
                 if cidx == idx then
-                  (cidx, mkApp h (mkConst ``Unit.unit)) :: intersperseDefault tail (idx + 1)
+                  let new := (idx, mkApp h (mkConst ``Unit.unit))
+                  intersperseDefault tail (idx + 1) (new :: acc)
                 else
-                  (idx, mkApp default (mkConst (inductiveInfo.ctors[idx]!))) :: intersperseDefault hs (idx + 1)
+                  let new := (idx, mkApp hdefault (mkConst (inductiveInfo.ctors[idx]!)))
+                  intersperseDefault hs (idx + 1) (new :: acc)
 
-          let caseProofs := (intersperseDefault sortedConcreteHs 0).map (·.2)
+          let caseProofs := (intersperseDefault sortedConcreteHs 0 []).map (·.2)
 
           let case h := do
             return mkApp2 (mkConst ``Eq.refl [u]) a h

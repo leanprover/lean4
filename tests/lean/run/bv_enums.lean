@@ -220,9 +220,6 @@ example (x : Foo) : x.f1 = x.f6 := by
   unfold Foo.f1 Foo.f6
   bv_decide
 
-#print Ex4.Foo.f7.match_1.eq_cond_enumToBitVec
-
-
 example (x : Foo) : x.f2 = x.f7 := by
   unfold Foo.f2 Foo.f7
   bv_decide

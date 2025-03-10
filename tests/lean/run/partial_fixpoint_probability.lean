@@ -43,7 +43,7 @@ axiom ENNReal.sup_le : ∀ {α} (a : ENNReal) (s : α → ENNReal) (h : ∀ (i :
 end
 
 
-/-- Distribtions (not normalized, which is curcial, else we don't have ⊥.) -/
+/-- Distributions (not normalized, which is curcial, else we don't have ⊥.) -/
 def Distr (α : Type) : Type := α → ENNReal
 
 noncomputable def Distr.join : Distr (Distr α) → Distr α := fun dd x =>

@@ -94,7 +94,7 @@ info: Tree.pruneRevAndMap'.induct.{u_1} {α : Type u_1} (motive : Tree α → Pr
 #guard_msgs in
 #check Tree.pruneRevAndMap'.induct
 
--- Check that wfParam propagates trough let-expressions
+-- Check that wfParam propagates through let-expressions
 
 /--
 error: failed to prove termination, possible solutions:

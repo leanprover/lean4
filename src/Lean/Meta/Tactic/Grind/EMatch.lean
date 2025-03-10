@@ -25,7 +25,7 @@ inductive Cnstr where
   deriving Inhabited
 
 /--
-Internal "marker" for representing unassigned elemens in the `assignment` field.
+Internal "marker" for representing unassigned elements in the `assignment` field.
 This is a small hack to avoid one extra level of indirection by using `Option Expr` at `assignment`.
 -/
 private def unassigned : Expr := mkConst (Name.mkSimple "[grind_unassigned]")
@@ -39,7 +39,7 @@ Choice point for the backtracking search.
 The state of the procedure contains a stack of choices.
 -/
 structure Choice where
-  /-- Contraints to be processed. -/
+  /-- Constraints to be processed. -/
   cnstrs     : List Cnstr
   /-- Maximum term generation found so far. -/
   gen        : Nat
@@ -121,7 +121,7 @@ private def pushChoice (c : Choice) : M Unit :=
 
 /--
 Matches arguments of pattern `p` with term `e`. Returns `some` if successful,
-and `none` otherwise. It may update `c`s assignment and list of contraints to be
+and `none` otherwise. It may update `c`s assignment and list of constraints to be
 processed.
 -/
 private partial def matchArgs? (c : Choice) (p : Expr) (e : Expr) : OptionT GoalM Choice := do
@@ -144,7 +144,7 @@ private partial def matchArgsPrefix? (c : Choice) (p : Expr) (e : Expr) : Option
 /--
 Matches pattern `p` with term `e` with respect to choice `c`.
 We traverse the equivalence class of `e` looking for applications compatible with `p`.
-For each candidate application, we match the arguments and may update `c`s assignments and contraints.
+For each candidate application, we match the arguments and may update `c`s assignments and constraints.
 We add the updated choices to the choice stack.
 -/
 private partial def processMatch (c : Choice) (p : Expr) (e : Expr) : M Unit := do
@@ -197,7 +197,7 @@ private partial def processOffset (c : Choice) (pArg : Expr) (k : Nat) (e : Expr
     curr ← getNext curr
     if isSameExpr curr e then break
 
-/-- Processes `continue` contraint used to implement multi-patterns. -/
+/-- Processes `continue` constraint used to implement multi-patterns. -/
 private def processContinue (c : Choice) (p : Expr) : M Unit := do
   let some apps := (← getThe Goal).appMap.find? p.toHeadIndex
     | return ()

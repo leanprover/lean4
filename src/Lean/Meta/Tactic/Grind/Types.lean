@@ -195,7 +195,7 @@ def getMaxGeneration : GrindM Nat := do
   return (← getConfig).gen
 
 /--
-Abtracts nested proofs in `e`. This is a preprocessing step performed before internalization.
+Abstracts nested proofs in `e`. This is a preprocessing step performed before internalization.
 -/
 def abstractNestedProofs (e : Expr) : GrindM Expr := do
   let nextIdx := (← get).nextThmIdx

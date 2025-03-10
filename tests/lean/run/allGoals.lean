@@ -301,46 +301,46 @@ theorem idEq (a : α) : id a = a :=
 
 /--
 info: case sunday
-⊢ Weekday.sunday.previous.next = id Weekday.sunday
+⊢ sunday.previous.next = id sunday
 
 case monday
-⊢ Weekday.monday.previous.next = id Weekday.monday
+⊢ monday.previous.next = id monday
 
 case tuesday
-⊢ Weekday.tuesday.previous.next = id Weekday.tuesday
+⊢ tuesday.previous.next = id tuesday
 
 case wednesday
-⊢ Weekday.wednesday.previous.next = id Weekday.wednesday
+⊢ wednesday.previous.next = id wednesday
 
 case thursday
-⊢ Weekday.thursday.previous.next = id Weekday.thursday
+⊢ thursday.previous.next = id thursday
 
 case friday
-⊢ Weekday.friday.previous.next = id Weekday.friday
+⊢ friday.previous.next = id friday
 
 case saturday
-⊢ Weekday.saturday.previous.next = id Weekday.saturday
+⊢ saturday.previous.next = id saturday
 ---
 info: case sunday
-⊢ Weekday.sunday.previous.next = Weekday.sunday
+⊢ sunday.previous.next = sunday
 
 case monday
-⊢ Weekday.monday.previous.next = Weekday.monday
+⊢ monday.previous.next = monday
 
 case tuesday
-⊢ Weekday.tuesday.previous.next = Weekday.tuesday
+⊢ tuesday.previous.next = tuesday
 
 case wednesday
-⊢ Weekday.wednesday.previous.next = Weekday.wednesday
+⊢ wednesday.previous.next = wednesday
 
 case thursday
-⊢ Weekday.thursday.previous.next = Weekday.thursday
+⊢ thursday.previous.next = thursday
 
 case friday
-⊢ Weekday.friday.previous.next = Weekday.friday
+⊢ friday.previous.next = friday
 
 case saturday
-⊢ Weekday.saturday.previous.next = Weekday.saturday
+⊢ saturday.previous.next = saturday
 -/
 #guard_msgs in
 theorem Weekday.test (d : Weekday) : next (previous d) = id d := by
@@ -352,25 +352,25 @@ theorem Weekday.test (d : Weekday) : next (previous d) = id d := by
 
 /--
 info: case sunday
-⊢ Weekday.sunday.previous.next = Weekday.sunday
+⊢ sunday.previous.next = sunday
 
 case monday
-⊢ Weekday.monday.previous.next = Weekday.monday
+⊢ monday.previous.next = monday
 
 case tuesday
-⊢ Weekday.tuesday.previous.next = Weekday.tuesday
+⊢ tuesday.previous.next = tuesday
 
 case wednesday
-⊢ Weekday.wednesday.previous.next = Weekday.wednesday
+⊢ wednesday.previous.next = wednesday
 
 case thursday
-⊢ Weekday.thursday.previous.next = Weekday.thursday
+⊢ thursday.previous.next = thursday
 
 case friday
-⊢ Weekday.friday.previous.next = Weekday.friday
+⊢ friday.previous.next = friday
 
 case saturday
-⊢ Weekday.saturday.previous.next = Weekday.saturday
+⊢ saturday.previous.next = saturday
 -/
 #guard_msgs in
 theorem Weekday.test2 (d : Weekday) : next (previous d) = id d := by

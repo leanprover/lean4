@@ -103,15 +103,20 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
    withMainContext do
      changeLhs (← zetaReduce (← getLhs))
 
-/-- Removes the hypothesis referred to by `fvarId` from the context of the currently focused `conv`
+/--
+Removes the hypothesis referred to by `fvarId` from the context of the currently focused `conv`
 goal, provided that `fvarId` is not referenced by another hypothesis or the current `conv`-focused
-target. -/
+target.
+-/
 def convClear (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId := do
   let (lhs, rhs) ← getLhsRhsCore mvarId
   unless rhs.isMVar do
     return (← mvarId.clear fvarId)
-  -- Clear from the RHS mvar's context so that it isn't detected as a dependent
+  let rhsKind ← rhs.mvarId!.getKind
+  -- Clear the fvar from the RHS mvar's context so that it isn't detected as a dependent. Note that
+  -- `clear` always produces a synthetic-opaque mvar, so we need to reset its kind afterward
   let rhs' ← rhs.mvarId!.clear fvarId
+  rhs'.setKind rhsKind
   let mvarId' ← mvarId.replaceTargetDefEq (mkLHSGoalRaw (← mkEq lhs (mkMVar rhs')))
   let mvarIdCleared ← mvarId'.clear fvarId
   return mvarIdCleared

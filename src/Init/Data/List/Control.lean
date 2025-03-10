@@ -118,6 +118,11 @@ def filterM {m : Type → Type v} [Monad m] {α : Type} (p : α → m Bool) (as 
   let as ← filterAuxM p as []
   pure as.reverse
 
+@[simp]
+theorem filterM_nil {m} [Monad m] [LawfulMonad m] {α : Type} (p : α → m Bool) :
+    filterM p [] = pure [] := by
+  simp [filterM, filterAuxM]
+
 /--
 Applies the monadic predicate `p` on every element in the list, right-to-left, and returns those
 elements `x` for which `p x` returns `true`.
@@ -125,6 +130,11 @@ elements `x` for which `p x` returns `true`.
 @[inline]
 def filterRevM {m : Type → Type v} [Monad m] {α : Type} (p : α → m Bool) (as : List α) : m (List α) :=
   filterAuxM p as.reverse []
+
+@[simp]
+theorem filterRevM_nil {m} [Monad m] {α : Type} (p : α → m Bool) :
+    filterRevM p [] = pure [] := by
+  simp [filterRevM, filterAuxM]
 
 /--
 Applies the monadic function `f` on every element `x` in the list, left-to-right, and returns those

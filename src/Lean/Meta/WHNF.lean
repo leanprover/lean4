@@ -760,7 +760,7 @@ mutual
             else
               return none
           if smartUnfolding.get (← getOptions) then
-            match ((← getEnv).find? (mkSmartUnfoldingNameFor fInfo.name)) with
+            match ((← getEnv).find? (skipRealize := true) (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(.defnInfo _) =>
               -- We use `preserveMData := true` to make sure the smart unfolding annotation are not erased in an over-application.
               deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (preserveMData := true) (fun _ => pure none) fun e₁ => do

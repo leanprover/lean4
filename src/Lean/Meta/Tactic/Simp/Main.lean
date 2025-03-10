@@ -458,11 +458,14 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   let cfg ← getConfig
   unless cfg.dsimp do
     return e
+  let dsimpCache := (← get).dsimpCache
+  modify fun s => { s with dsimpCache := {} }
   let m ← getMethods
   let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit
   let post := m.dpost >> dsimpReduce
-  withInDSimp do
-  transform (usedLetOnly := cfg.zeta || cfg.zetaUnused) e (pre := pre) (post := post)
+  let (e, dsimpCache) ← withInDSimp do StateRefT'.run (s := dsimpCache) <| (transform.visit (usedLetOnly := cfg.zeta || cfg.zetaUnused) (pre := pre) (post := post)) e
+  modify fun s => { s with dsimpCache }
+  return e
 
 def visitFn (e : Expr) : SimpM Result := do
   let f := e.getAppFn

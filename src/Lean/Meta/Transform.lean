@@ -73,6 +73,10 @@ end Core
 
 namespace Meta
 
+local instance {m} [MonadLiftT MetaM m] : MonadLiftT (ST IO.RealWorld) m where
+  monadLift x := liftMetaM (liftM x)
+local instance {m} [MonadLiftT MetaM m] : STWorld IO.RealWorld m := ⟨⟩
+
 /--
   Similar to `Core.transform`, but terms provided to `pre` and `post` do not contain loose bound variables.
   So, it is safe to use any `MetaM` method at `pre` and `post`.
@@ -88,8 +92,6 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
     (usedLetOnly := false)
     (skipConstInApp := false)
     : m Expr := do
-  let _ : STWorld IO.RealWorld m := ⟨⟩
-  let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := MetaM) (liftM (m := ST IO.RealWorld) x) }
   let rec visit (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
     checkCache { val := e : ExprStructEq } fun _ => Meta.withIncRecDepth do
       let rec visitPost (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do

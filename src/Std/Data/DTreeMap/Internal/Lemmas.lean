@@ -27,7 +27,7 @@ namespace Std.DTreeMap.Internal.Impl
 variable {α : Type u} {β : α → Type v} {instOrd : Ord α} {t : Impl α β}
 private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
-attribute [local instance] beqOfOrd
+attribute [local instance low] beqOfOrd
 attribute [local instance] equivBEq_of_transOrd
 attribute [local instance] lawfulBEq_of_lawfulEqOrd
 
@@ -115,9 +115,6 @@ macro_rules
 
 theorem isEmpty_empty : isEmpty (empty : Impl α β) := by
   simp [Impl.isEmpty_eq_isEmpty]
-
-theorem mem_iff_contains {k : α} : k ∈ t ↔ t.contains k :=
-  Iff.rfl
 
 theorem isEmpty_insert [TransOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.insert k v h.balanced).impl.isEmpty = false := by
@@ -220,7 +217,6 @@ theorem size_empty : (empty : Impl α β).size = 0 :=
   rfl
 
 theorem isEmpty_eq_size_eq_zero (h : t.WF) :
-    letI : BEq Nat := instBEqOfDecidableEq
     t.isEmpty = (t.size == 0) := by
   simp_to_model
   rw [Bool.eq_iff_iff, List.isEmpty_iff_length_eq_zero, Nat.beq_eq_true_eq]
@@ -3045,15 +3041,14 @@ theorem isEmpty_alter!_eq_isEmpty_erase [TransOrd α] [LawfulEqOrd α] (h : t.WF
 @[simp]
 theorem isEmpty_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
-    haveI : BEq Nat := instBEqOfDecidableEq
     (t.alter k f h.balanced).1.isEmpty =
       (((t.isEmpty || (t.size == 1 && t.contains k))) && (f (t.get? k)).isNone) := by
+  letI : BEq α := beqOfOrd
   simp_to_model [alter] using List.isEmpty_alterKey
 
 @[simp]
 theorem isEmpty_alter! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
-    haveI : BEq Nat := instBEqOfDecidableEq
     (t.alter! k f).isEmpty =
       (((t.isEmpty || (t.size == 1 && t.contains k))) && (f (t.get? k)).isNone) := by
   simp_to_model [alter!] using List.isEmpty_alterKey
@@ -3489,14 +3484,12 @@ theorem isEmpty_alter!_eq_isEmpty_erase [TransOrd α] (h : t.WF) {k : α}
 
 @[simp]
 theorem isEmpty_alter [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
-    haveI : BEq Nat := instBEqOfDecidableEq
     (alter k f t h.balanced).1.isEmpty =
       (((t.isEmpty || (t.size == 1 && t.contains k))) && (f (get? t k)).isNone) := by
   simp_to_model [Const.alter] using List.Const.isEmpty_alterKey
 
 @[simp]
 theorem isEmpty_alter! [TransOrd α] (h : t.WF) {k : α} {f : Option β → Option β} :
-    haveI : BEq Nat := instBEqOfDecidableEq
     (alter! k f t).isEmpty =
       (((t.isEmpty || (t.size == 1 && t.contains k))) && (f (get? t k)).isNone) := by
   simp_to_model [Const.alter!] using List.Const.isEmpty_alterKey

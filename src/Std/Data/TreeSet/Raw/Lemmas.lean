@@ -253,6 +253,7 @@ theorem get_congr [TransCmp cmp] (h : t.WF) {k₁ k₂ : α} (h' : cmp k₁ k₂
     (h₁ : k₁ ∈ t) : t.get k₁ h₁ = t.get k₂ ((mem_congr h h').mp h₁) :=
   TreeMap.Raw.getKey_congr h h' h₁
 
+@[simp]
 theorem get_eq [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp] (h : t.WF) {k : α}
     (h' : k ∈ t) : t.get k h' = k :=
   TreeMap.Raw.getKey_eq h h'

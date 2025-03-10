@@ -36,7 +36,7 @@ instance : Monad (ExceptCpsT ε m) where
 instance : LawfulMonad (ExceptCpsT σ m) := by
   refine LawfulMonad.mk' _ ?_ ?_ ?_ <;> intros <;> rfl
 
-instance : MonadExceptOf ε (ExceptCpsT ε m) where
+instance (priority := high) : MonadExceptOf ε (ExceptCpsT ε m) where
   throw e  := fun _ _ k => k e
   tryCatch x handle := fun _ k₁ k₂ => x _ k₁ (fun e => handle e _ k₁ k₂)
 

@@ -145,7 +145,7 @@ def uriEscapeByte (b : UInt8) (s := "") : String :=
     return s
 
 abbrev foldlUtf8 (c : Char) (f : σ → UInt8 → σ) (init : σ) : σ :=
-  Id.run <| foldlUtf8M c f init
+  Id.run <| foldlUtf8M c (pure <| f · ·) init
 
 example : foldlUtf8 c (fun l b => b::l) List.nil = (String.utf8EncodeChar c).reverse := by
   simp only [foldlUtf8M, String.utf8EncodeChar, Id.run]

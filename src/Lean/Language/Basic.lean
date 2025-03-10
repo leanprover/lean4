@@ -309,7 +309,7 @@ def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options)
 
 /-- Waits on and returns all snapshots in the tree. -/
 def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
-  Id.run <| s.foldM (·.push ·) #[]
+  Id.run <| s.foldM (pure <| ·.push ·) #[]
 
 /-- Returns a task that waits on all snapshots in the tree. -/
 def SnapshotTree.waitAll : SnapshotTree → BaseIO (Task Unit)

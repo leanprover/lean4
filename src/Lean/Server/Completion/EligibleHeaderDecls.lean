@@ -23,8 +23,8 @@ def getEligibleHeaderDecls (env : Environment) : IO EligibleHeaderDecls := do
   eligibleHeaderDeclsRef.modifyGet fun
     | some eligibleHeaderDecls => (eligibleHeaderDecls, some eligibleHeaderDecls)
     | none =>
-      let (_, eligibleHeaderDecls) :=
-        StateT.run (m := Id) (s := {}) do
+      let (_, eligibleHeaderDecls) := Id.run <|
+        StateT.run (s := {}) do
           -- `map₁` are the header decls
           env.constants.map₁.forM fun declName c => do
             modify fun eligibleHeaderDecls =>

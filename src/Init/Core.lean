@@ -1764,48 +1764,101 @@ end Quot
 
 set_option linter.unusedVariables.funArgs false in
 /--
-`Quotient α s` is the same as `Quot α r`, but it is specialized to a setoid `s`
-(that is, an equivalence relation) instead of an arbitrary relation.
-Prefer `Quotient` over `Quot` if your relation is actually an equivalence relation.
+Quotient types coarsen the propositional equality for a type so that terms related by some
+equivalence relation are considered equal. The equivalence relation is given by an instance of
+`Setoid`.
+
+Set-theoretically, `Quotient s` can seen as the set of equivalence classes of `α` modulo the
+`Setoid` instance's relation `s.r`. Functions from `Quotient s` must prove that they respect `s.r`:
+to define a function `f : Quotient s → β`, it is necessary to provide `f' : α → β` and prove that
+for all `x : α` and `y : α`, `s.r x y → f' x = f' y`. `Quotient.lift` implements this operation.
+
+The key quotient operators are:
+ * `Quotient.mk` places elements of the underlying type `α` into the quotient.
+ * `Quotient.lift` allows the definition of functions from the quotient to some other type.
+ * `Quotient.sound` asserts the equality of elements related by `r`
+ * `Quotient.ind` is used to write proofs about quotients by assuming that all elements are
+   constructed with `Quotient.mk`.
+
+`Quotient` is built on top of the primitive quotient type `Quot`, which does not require a proof
+that the relation is an equivalence relation. `Quotient` should be used instead of `Quot` for
+relations that actually are equivalence relations.
 -/
 def Quotient {α : Sort u} (s : Setoid α) :=
   @Quot α Setoid.r
 
 namespace Quotient
 
-/-- The canonical quotient map into a `Quotient`. -/
+/--
+Places an element of a type into the quotient that equates terms according to an equivalence
+relation.
+
+The setoid instance is provided explicitly. `Quotient.mk'` uses instance synthesis instead.
+
+Given `v : α`, `Quotient.mk s v : Quotient s` is like `v`, except all observations of `v`'s value
+must respect `s.r`. `Quotient.lift` allows values in a quotient to be mapped to other types, so long
+as the mapping respects `s.r`.
+-/
 @[inline]
 protected def mk {α : Sort u} (s : Setoid α) (a : α) : Quotient s :=
   Quot.mk Setoid.r a
 
 /--
-The canonical quotient map into a `Quotient`.
-(This synthesizes the setoid by typeclass inference.)
+Places an element of a type into the quotient that equates terms according to an equivalence
+relation.
+
+The equivalence relation is found by synthesizing a `Setoid` instance. `Quotient.mk` instead expects
+the instance to be provided explicitly.
+
+Given `v : α`, `Quotient.mk' v : Quotient s` is like `v`, except all observations of `v`'s value
+must respect `s.r`. `Quotient.lift` allows values in a quotient to be mapped to other types, so long
+as the mapping respects `s.r`.
+
 -/
 protected def mk' {α : Sort u} [s : Setoid α] (a : α) : Quotient s :=
   Quotient.mk s a
 
 /--
-The analogue of `Quot.sound`: If `a` and `b` are related by the equivalence relation,
-then they have equal equivalence classes.
+The **quotient axiom**, which asserts the equality of elements related in the setoid.
+
+Because `Quotient` is built on a lower-level type `Quot`, `Quotient.sound` is implemented as a
+theorem. It is derived from `Quot.sound`, the soundness axiom for the lower-level quotient type
+`Quot`.
 -/
 theorem sound {α : Sort u} {s : Setoid α} {a b : α} : a ≈ b → Quotient.mk s a = Quotient.mk s b :=
   Quot.sound
 
 /--
-The analogue of `Quot.lift`: if `f : α → β` respects the equivalence relation `≈`,
-then it lifts to a function on `Quotient s` such that `lift f h (mk a) = f a`.
+Lifts a function from an underlying type to a function on a quotient, requiring that it respects the
+quotient's equivalence relation.
+
+Given `s : Setoid α` and a quotient `Quotient s`, applying a function `f : α → β` requires a proof
+`h` that `f` respects the equivalence relation `s.r`. In this case, the function
+`Quotient.lift f h : Quotient s → β` computes the same values as `f`.
+
+`Quotient.liftOn` is a version of this operation that takes the quotient value as its first explicit
+parameter.
 -/
 protected abbrev lift {α : Sort u} {β : Sort v} {s : Setoid α} (f : α → β) : ((a b : α) → a ≈ b → f a = f b) → Quotient s → β :=
   Quot.lift f
 
-/-- The analogue of `Quot.ind`: every element of `Quotient s` is of the form `Quotient.mk s a`. -/
+/--
+A reasoning principle for quotients that allows proofs about quotients to assume that all values are
+constructed with `Quotient.mk`.
+-/
 protected theorem ind {α : Sort u} {s : Setoid α} {motive : Quotient s → Prop} : ((a : α) → motive (Quotient.mk s a)) → (q : Quotient s) → motive q :=
   Quot.ind
 
 /--
-The analogue of `Quot.liftOn`: if `f : α → β` respects the equivalence relation `≈`,
-then it lifts to a function on `Quotient s` such that `liftOn (mk a) f h = f a`.
+Lifts a function from an underlying type to a function on a quotient, requiring that it respects the
+quotient's equivalence relation.
+
+Given `s : Setoid α` and a quotient value `q : Quotient s`, applying a function `f : α → β` requires
+a proof `c` that `f` respects the equivalence relation `s.r`. In this case, the term
+`Quotient.liftOn q f h : β` reduces to the result of applying `f` to the underlying `α` value.
+
+`Quotient.lift` is a version of this operation that takes the quotient value last, rather than
+first.
 -/
 protected abbrev liftOn {α : Sort u} {β : Sort v} {s : Setoid α} (q : Quotient s) (f : α → β) (c : (a b : α) → a ≈ b → f a = f b) : β :=
   Quot.liftOn q f c
@@ -1826,7 +1879,21 @@ variable {α : Sort u}
 variable {s : Setoid α}
 variable {motive : Quotient s → Sort v}
 
-/-- The analogue of `Quot.rec` for `Quotient`. See `Quot.rec`. -/
+/--
+A dependent recursion principle for `Quotient`. It is analogous to the
+[recursor](lean-manual://section/recursors) for a structure, and can be used when the resulting type
+is not necessarily a proposition.
+
+While it is very general, this recursor can be tricky to use. The following simpler alternatives may
+be easier to use:
+
+ * `Quotient.lift` is useful for defining non-dependent functions.
+ * `Quotient.ind` is useful for proving theorems about quotients.
+ * `Quotient.recOnSubsingleton` can be used whenever the target type is a `Subsingleton`.
+ * `Quotient.hrecOn` uses heterogeneous equality instead of rewriting with `Quotient.sound`.
+
+`Quotient.recOn` is a version of this recursor that takes the quotient parameter first.
+-/
 @[inline, elab_as_elim]
 protected def rec
     (f : (a : α) → motive (Quotient.mk s a))
@@ -1835,7 +1902,21 @@ protected def rec
     : motive q :=
   Quot.rec f h q
 
-/-- The analogue of `Quot.recOn` for `Quotient`. See `Quot.recOn`. -/
+/--
+A dependent recursion principle for `Quotient`. It is analogous to the
+[recursor](lean-manual://section/recursors) for a structure, and can be used when the resulting type
+is not necessarily a proposition.
+
+While it is very general, this recursor can be tricky to use. The following simpler alternatives may
+be easier to use:
+
+ * `Quotient.lift` is useful for defining non-dependent functions.
+ * `Quotient.ind` is useful for proving theorems about quotients.
+ * `Quotient.recOnSubsingleton` can be used whenever the target type is a `Subsingleton`.
+ * `Quotient.hrecOn` uses heterogeneous equality instead of rewriting with `Quotient.sound`.
+
+`Quotient.rec` is a version of this recursor that takes the quotient parameter last.
+-/
 @[elab_as_elim]
 protected abbrev recOn
     (q : Quotient s)
@@ -1844,7 +1925,15 @@ protected abbrev recOn
     : motive q :=
   Quot.recOn q f h
 
-/-- The analogue of `Quot.recOnSubsingleton` for `Quotient`. See `Quot.recOnSubsingleton`. -/
+/--
+An alternative recursion or induction principle for quotients that can be used when the target type
+is a subsingleton, in which all elements are equal.
+
+In these cases, the proof that the function respects the quotient's equivalence relation is trivial,
+so any function can be lifted.
+
+`Quotient.rec` does not assume that the target type is a subsingleton.
+-/
 @[elab_as_elim]
 protected abbrev recOnSubsingleton
     [h : (a : α) → Subsingleton (motive (Quotient.mk s a))]
@@ -1853,7 +1942,13 @@ protected abbrev recOnSubsingleton
     : motive q :=
   Quot.recOnSubsingleton (h := h) q f
 
-/-- The analogue of `Quot.hrecOn` for `Quotient`. See `Quot.hrecOn`. -/
+/--
+A dependent recursion principle for `Quotient` that uses [heterogeneous
+equality](lean-manual://section/HEq), analogous to a [recursor](lean-manual://section/recursors) for
+a structure.
+
+`Quotient.recOn` is a version of this recursor that uses `Eq` instead of `HEq`.
+-/
 @[elab_as_elim]
 protected abbrev hrecOn
     (q : Quotient s)
@@ -1868,7 +1963,13 @@ universe uA uB uC
 variable {α : Sort uA} {β : Sort uB} {φ : Sort uC}
 variable {s₁ : Setoid α} {s₂ : Setoid β}
 
-/-- Lift a binary function to a quotient on both arguments. -/
+/--
+Lifts a binary function from the underlying types to a binary function on quotients. The function
+must respect both quotients' equivalence relations.
+
+`Quotient.lift` is a version of this operation for unary functions. `Quotient.liftOn₂` is a version
+that take the quotient parameters first.
+-/
 protected abbrev lift₂
     (f : α → β → φ)
     (c : (a₁ : α) → (b₁ : β) → (a₂ : α) → (b₂ : β) → a₁ ≈ a₂ → b₁ ≈ b₂ → f a₁ b₁ = f a₂ b₂)
@@ -1879,7 +1980,13 @@ protected abbrev lift₂
   induction q₂ using Quotient.ind
   apply c; assumption; apply Setoid.refl
 
-/-- Lift a binary function to a quotient on both arguments. -/
+/--
+Lifts a binary function from the underlying types to a binary function on quotients. The function
+must respect both quotients' equivalence relations.
+
+`Quotient.liftOn` is a version of this operation for unary functions. `Quotient.lift₂` is a version
+that take the quotient parameters last.
+-/
 protected abbrev liftOn₂
     (q₁ : Quotient s₁)
     (q₂ : Quotient s₂)
@@ -1944,6 +2051,9 @@ private theorem rel.refl {s : Setoid α} (q : Quotient s) : rel q q :=
 private theorem rel_of_eq {s : Setoid α} {q₁ q₂ : Quotient s} : q₁ = q₂ → rel q₁ q₂ :=
   fun h => Eq.ndrecOn h (rel.refl q₁)
 
+/--
+If two values are equal in a quotient, then they are related by its equivalence relation.
+-/
 theorem exact {s : Setoid α} {a b : α} : Quotient.mk s a = Quotient.mk s b → a ≈ b :=
   fun h => rel_of_eq h
 
@@ -1954,7 +2064,13 @@ universe uA uB uC
 variable {α : Sort uA} {β : Sort uB}
 variable {s₁ : Setoid α} {s₂ : Setoid β}
 
-/-- Lift a binary function to a quotient on both arguments. -/
+/--
+An alternative induction or recursion operator for defining binary operations on quotients that can
+be used when the target type is a subsingleton.
+
+In these cases, the proof that the function respects the quotient's equivalence relation is trivial,
+so any function can be lifted.
+-/
 @[elab_as_elim]
 protected abbrev recOnSubsingleton₂
     {motive : Quotient s₁ → Quotient s₂ → Sort uC}

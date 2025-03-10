@@ -401,18 +401,14 @@ necessary to provide `f' : α → β` and prove that for all `x : α` and `y : �
 `Quot` is a built-in primitive:
  * `Quot.mk` places elements of the underlying type `α` into the quotient.
  * `Quot.lift` allows the definition of functions from the quotient to some other type.
- * `Quot.sound` asserts the equality of elements related by `r`
+ * `Quot.sound` asserts the equality of elements related by `r`.
  * `Quot.ind` is used to write proofs about quotients by assuming that all elements are constructed
-   with `Quot.mk`; it is analogous to the [recursor](lean-manual://section/recursors) for a
-   structure.
+   with `Quot.mk`.
 
 The relation `r` is not required to be an equivalence relation; the resulting quotient type's
 equality extends `r` to an equivalence as a consequence of the rules for equality and quotients.
 When `r` is an equivalence relation, it can be more convenient to use the higher-level type
 `Quotient`.
-
-[Quotient types](lean-manual://section/quotients) are described in more detail in the Lean Language
-Reference.
 -/
 add_decl_doc Quot
 
@@ -425,13 +421,9 @@ observations of `v`'s value must respect `r`.
 `Quot.mk` is a built-in primitive:
  * `Quot` is the built-in quotient type.
  * `Quot.lift` allows the definition of functions from the quotient to some other type.
- * `Quot.sound` asserts the equality of elements related by `r`
+ * `Quot.sound` asserts the equality of elements related by `r`.
  * `Quot.ind` is used to write proofs about quotients by assuming that all elements are constructed
-   with `Quot.mk`; it is analogous to the [recursor](lean-manual://section/recursors) for a
-   structure.
-
-[Quotient types](lean-manual://section/quotients) are described in more detail in the Lean Language
-Reference.
+   with `Quot.mk`.
 -/
 add_decl_doc Quot.mk
 
@@ -446,10 +438,7 @@ be used when the resulting type is not necessarily a proposition.
  * `Quot` is the built-in quotient type.
  * `Quot.mk` places elements of the underlying type `α` into the quotient.
  * `Quot.lift` allows the definition of functions from the quotient to some other type.
- * `Quot.sound` asserts the equality of elements related by `r`
-
-[Quotient types](lean-manual://section/quotients) are described in more detail in the Lean Language
-Reference.
+ * `Quot.sound` asserts the equality of elements related by `r`.
 -/
 add_decl_doc Quot.ind
 
@@ -458,7 +447,7 @@ Lifts a function from an underlying type to a function on a quotient, requiring 
 quotient's relation.
 
 Given a relation `r : α → α → Prop` and a quotient `Quot r`, applying a function `f : α → β`
-requires a proof `a` that `f` respects `r`. In this case, `Quot.lift f h : Quot r → β` computes the
+requires a proof `a` that `f` respects `r`. In this case, `Quot.lift f a : Quot r → β` computes the
 same values as `f`.
 
 Lean's type theory includes a [definitional reduction](lean-manual://section/type-theory) from
@@ -471,9 +460,6 @@ Lean's type theory includes a [definitional reduction](lean-manual://section/typ
  * `Quot.ind` is used to write proofs about quotients by assuming that all elements are constructed
    with `Quot.mk`; it is analogous to the [recursor](lean-manual://section/recursors) for a
    structure.
-
-[Quotient types](lean-manual://section/quotients) are described in more detail in the Lean Language
-Reference.
 -/
 add_decl_doc Quot.lift
 

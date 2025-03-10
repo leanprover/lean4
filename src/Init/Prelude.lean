@@ -2625,11 +2625,14 @@ attribute [nospecialize] Inhabited
 `Array α` is the type of [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array)
 with elements from `α`. This type has special support in the runtime.
 
-An array has a size and a capacity; the size is `Array.size` but the capacity
-is not observable from Lean code. Arrays perform best when unshared; as long
+Arrays perform best when unshared; as long
 as they are used "linearly" all updates will be performed destructively on the
 array, so it has comparable performance to mutable arrays in imperative
 programming languages.
+
+An array has a size and a capacity; the size is `Array.size` but the capacity
+is not observable from Lean code. `Array.mkEmpty n` creates an array which is equal to `#[]`,
+but internally allocates an array of capacity `n`.
 
 From the point of view of proofs `Array α` is just a wrapper around `List α`.
 -/

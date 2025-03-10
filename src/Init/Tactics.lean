@@ -791,10 +791,11 @@ The `let` tactic is for adding definitions to the local context of the main goal
 -/
 macro "let " d:letDecl : tactic => `(tactic| refine_lift let $d:letDecl; ?_)
 /--
-`show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
- performs the unification, and replaces the target with the unified version of `t`.
+`show t` declares that the current goal is `t`.
+
+If `t` does not match the current goal, the tactic fails.
 -/
-macro "show " e:term : tactic => `(tactic| refine_lift show $e from ?_) -- TODO: fix, see comment
+macro "show " e:term : tactic => `(tactic| refine_lift show $e from ?_)
 /-- `let rec f : t := e` adds a recursive definition `f` to the current goal.
 The syntax is the same as term-mode `let rec`. -/
 syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tactic

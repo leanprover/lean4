@@ -6,6 +6,7 @@ Authors: Mac Malone, Gabriel Ebner, Sebastian Ullrich
 prelude
 import Lake.Util.Lock
 import Lake.Build.Index
+import Lake.Build.Job
 
 /-! # Build Runner
 

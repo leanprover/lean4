@@ -65,7 +65,7 @@ def collectPackageFacetArray
   let mut res : Array (Job α) := #[]
   for ⟨k, v⟩ in self do
     match k with
-    | .packageFacet _ f =>
+    | .packageFacet p f =>
       if h : f = facet then
         have of_data := by unfold BuildData; simp [h]
         res := res.push <| cast of_data v
@@ -74,19 +74,20 @@ def collectPackageFacetArray
 
 /-- Derive an array of built target facets from the store. -/
 def collectTargetFacetArray
-  (self : BuildStore) (facet : Name) [FamilyOut TargetData facet α]
+  (self : BuildStore) (kind facet : Name) [FamilyOut (FacetData kind) facet α]
 : Array (Job α) := Id.run do
   let mut res : Array (Job α) := #[]
   for ⟨k, v⟩ in self do
     match k with
-    | .targetFacet _ _ f =>
-      if h : f = facet then
-        have of_data := by unfold BuildData; simp [h]
-        res := res.push <| cast of_data v
+    | .targetFacet _ _ k f =>
+      if hk : k = kind then
+        if hf : f = facet then
+          have of_data := by unfold BuildData; simp [hk, hf]
+          res := res.push <| cast of_data v
     | _ => pure ()
   return res
 
 /-- Derive an array of built external shared libraries from the store. -/
 def collectSharedExternLibs
-  (self : BuildStore) [FamilyOut TargetData `externLib.shared α]
-: Array (Job α) := self.collectTargetFacetArray `externLib.shared
+  (self : BuildStore) [FamilyOut ExternLibData `shared α]
+: Array (Job α) := self.collectTargetFacetArray ExternLib.facetKind `shared

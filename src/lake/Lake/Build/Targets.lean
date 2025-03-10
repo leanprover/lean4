@@ -10,9 +10,10 @@ import Lake.Config.Monad
 Utilities for fetching package, library, module, and executable targets and facets.
 -/
 
-namespace Lake
 open Lean (Name)
 open System (FilePath)
+
+namespace Lake
 
 /-! ## Package Facets & Targets -/
 
@@ -25,7 +26,7 @@ def Package.fetchTargetJob
 /-- Fetch the build result of a target. -/
 protected def TargetDecl.fetch
   (self : TargetDecl)
-  [FamilyOut CustomData (self.pkg, self.name) α]
+  [FamilyOut (CustomData self.pkg) self.name α]
 : FetchM (Job α) := do
   let some pkg ← findPackage? self.pkg
     | error s!"package '{self.pkg}' of target '{self.name}' does not exist in workspace"

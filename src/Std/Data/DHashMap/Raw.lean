@@ -356,7 +356,11 @@ map in some order.
 @[inline] def fold (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
   Id.run (b.foldM f init)
 
+namespace Internal
+
 /--
+Internal implementation detail of the hash map.
+
 Monadically computes a value by folding the given function over the mappings in the hash
 map in the reverse order used by `foldM`.
 -/
@@ -364,10 +368,31 @@ map in the reverse order used by `foldM`.
   b.buckets.foldrM (fun l acc => l.foldrM (fun a b d => f d a b) acc) init
 
 /--
+Internal implementation detail of the hash map.
+
 Folds the given function over the mappings in the hash map in the reverse order used
 by `foldM`. -/
 @[inline] def foldRev (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
-  Id.run (b.foldRevM f init)
+  Id.run (foldRevM f init b)
+
+end Internal
+
+/--
+Monadically computes a value by folding the given function over the mappings in the hash
+map in the reverse order used by `foldM`.
+-/
+@[inline, deprecated "Deprecated without replacement. If the order does not matter, use foldM."
+  (since := "2025-03-07")]
+def foldRevM (f : δ → (a : α) → β a → m δ) (init : δ) (b : Raw α β) : m δ :=
+  b.buckets.foldrM (fun l acc => l.foldrM (fun a b d => f d a b) acc) init
+
+/--
+Folds the given function over the mappings in the hash map in the reverse order used
+by `foldM`. -/
+@[inline, deprecated "Deprecated without replacement. If the order does not matter, use fold."
+  (since := "2025-03-07")]
+def foldRev (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
+  Id.run (Internal.foldRevM f init b)
 
 /-- Carries out a monadic action on each mapping in the hash map in some order. -/
 @[inline] def forM (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=
@@ -443,7 +468,7 @@ only those mappings where the function returns `some` value.
 
 /-- Returns a list of all values present in the hash map in some order. -/
 @[inline] def values {β : Type v} (m : Raw α (fun _ => β)) : List β :=
-  m.foldRev (fun acc _ v => v :: acc) []
+  Internal.foldRev (fun acc _ v => v :: acc) [] m
 
 /-- Returns an array of all values present in the hash map in some order. -/
 @[inline] def valuesArray {β : Type v} (m : Raw α (fun _ => β)) : Array β :=
@@ -509,18 +534,18 @@ end Unverified
 
 /-- Transforms the hash map into a list of mappings in some order. -/
 @[inline] def toList (m : Raw α β) : List ((a : α) × β a) :=
-  m.foldRev (fun acc k v => ⟨k, v⟩ :: acc) []
+  Internal.foldRev (fun acc k v => ⟨k, v⟩ :: acc) [] m
 
 @[inline, inherit_doc Raw.toList] def Const.toList {β : Type v} (m : Raw α (fun _ => β)) :
     List (α × β) :=
-  m.foldRev (fun acc k v => ⟨k, v⟩ :: acc) []
+  Internal.foldRev (fun acc k v => ⟨k, v⟩ :: acc) [] m
 
 instance [Repr α] [(a : α) → Repr (β a)] : Repr (Raw α β) where
   reprPrec m prec := Repr.addAppParen ("Std.DHashMap.Raw.ofList " ++ reprArg m.toList) prec
 
 /-- Returns a list of all keys present in the hash map in some order. -/
 @[inline] def keys (m : Raw α β) : List α :=
-  m.foldRev (fun acc k _ => k :: acc) []
+  Internal.foldRev (fun acc k _ => k :: acc) [] m
 
 /-- Creates a hash map from a list of mappings. If the same key appears multiple times, the last
 occurrence takes precedence. -/

@@ -1205,3 +1205,51 @@ theorem USize.toUInt64_ofNatTruncate_of_lt {n : Nat} (hn : n < USize.size) :
 theorem USize.toUInt64_ofNatTruncate_of_le {n : Nat} (hn : USize.size ≤ n) :
     (USize.ofNatTruncate n).toUInt64 = UInt64.ofNatLT (USize.size - 1) (by cases USize.size_eq <;> simp_all +decide) :=
   UInt64.toNat.inj (by simp [toNat_ofNatTruncate_of_le hn])
+
+@[simp] theorem UInt8.toUInt16_ofNat' {n : Nat} (hn : n < UInt8.size) : (UInt8.ofNat n).toUInt16 = UInt16.ofNat n := by
+  rw [← UInt8.ofNatLT_eq_ofNat (h := hn), toUInt16_ofNatLT, UInt16.ofNatLT_eq_ofNat]
+@[simp] theorem UInt8.toUInt32_ofNat' {n : Nat} (hn : n < UInt8.size) : (UInt8.ofNat n).toUInt32 = UInt32.ofNat n := by
+  rw [← UInt8.ofNatLT_eq_ofNat (h := hn), toUInt32_ofNatLT, UInt32.ofNatLT_eq_ofNat]
+@[simp] theorem UInt8.toUInt64_ofNat' {n : Nat} (hn : n < UInt8.size) : (UInt8.ofNat n).toUInt64 = UInt64.ofNat n := by
+  rw [← UInt8.ofNatLT_eq_ofNat (h := hn), toUInt64_ofNatLT, UInt64.ofNatLT_eq_ofNat]
+@[simp] theorem UInt8.toUSize_ofNat' {n : Nat} (hn : n < UInt8.size) : (UInt8.ofNat n).toUSize = USize.ofNat n := by
+  rw [← UInt8.ofNatLT_eq_ofNat (h := hn), toUSize_ofNatLT, USize.ofNatLT_eq_ofNat]
+
+@[simp] theorem UInt16.toUInt32_ofNat' {n : Nat} (hn : n < UInt16.size) : (UInt16.ofNat n).toUInt32 = UInt32.ofNat n := by
+  rw [← UInt16.ofNatLT_eq_ofNat (h := hn), toUInt32_ofNatLT, UInt32.ofNatLT_eq_ofNat]
+@[simp] theorem UInt16.toUInt64_ofNat' {n : Nat} (hn : n < UInt16.size) : (UInt16.ofNat n).toUInt64 = UInt64.ofNat n := by
+  rw [← UInt16.ofNatLT_eq_ofNat (h := hn), toUInt64_ofNatLT, UInt64.ofNatLT_eq_ofNat]
+@[simp] theorem UInt16.toUSize_ofNat' {n : Nat} (hn : n < UInt16.size) : (UInt16.ofNat n).toUSize = USize.ofNat n := by
+  rw [← UInt16.ofNatLT_eq_ofNat (h := hn), toUSize_ofNatLT, USize.ofNatLT_eq_ofNat]
+
+@[simp] theorem UInt32.toUInt64_ofNat' {n : Nat} (hn : n < UInt32.size) : (UInt32.ofNat n).toUInt64 = UInt64.ofNat n := by
+  rw [← UInt32.ofNatLT_eq_ofNat (h := hn), toUInt64_ofNatLT, UInt64.ofNatLT_eq_ofNat]
+@[simp] theorem UInt32.toUSize_ofNat' {n : Nat} (hn : n < UInt32.size) : (UInt32.ofNat n).toUSize = USize.ofNat n := by
+  rw [← UInt32.ofNatLT_eq_ofNat (h := hn), toUSize_ofNatLT, USize.ofNatLT_eq_ofNat]
+
+@[simp] theorem USize.toUInt64_ofNat' {n : Nat} (hn : n < USize.size) : (USize.ofNat n).toUInt64 = UInt64.ofNat n := by
+  rw [← USize.ofNatLT_eq_ofNat (h := hn), toUInt64_ofNatLT, UInt64.ofNatLT_eq_ofNat]
+
+@[simp] theorem UInt8.toUInt16_ofNat {n : Nat} (hn : n < 256) : toUInt16 (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  UInt8.toUInt16_ofNat' hn
+@[simp] theorem UInt8.toUInt32_ofNat {n : Nat} (hn : n < 256) : toUInt32 (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  UInt8.toUInt32_ofNat' hn
+@[simp] theorem UInt8.toUInt64_ofNat {n : Nat} (hn : n < 256) : toUInt64 (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  UInt8.toUInt64_ofNat' hn
+@[simp] theorem UInt8.toUSize_ofNat {n : Nat} (hn : n < 256) : toUSize (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  UInt8.toUSize_ofNat' hn
+
+@[simp] theorem UInt16.toUInt32_ofNat {n : Nat} (hn : n < 65536) : toUInt32 (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  UInt16.toUInt32_ofNat' hn
+@[simp] theorem UInt16.toUInt64_ofNat {n : Nat} (hn : n < 65536) : toUInt64 (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  UInt16.toUInt64_ofNat' hn
+@[simp] theorem UInt16.toUSize_ofNat {n : Nat} (hn : n < 65536) : toUSize (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  UInt16.toUSize_ofNat' hn
+
+@[simp] theorem UInt32.toUInt64_ofNat {n : Nat} (hn : n < 4294967296) : toUInt64 (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  UInt32.toUInt64_ofNat' hn
+@[simp] theorem UInt32.toUSize_ofNat {n : Nat} (hn : n < 4294967296) : toUSize (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  UInt32.toUSize_ofNat' hn
+
+@[simp] theorem USize.toUInt64_ofNat {n : Nat} (hn : n < 4294967296) : toUInt64 (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
+  USize.toUInt64_ofNat' (Nat.lt_of_lt_of_le hn UInt32.size_le_usizeSize)

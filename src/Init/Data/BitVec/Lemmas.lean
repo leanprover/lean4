@@ -2064,14 +2064,18 @@ theorem msb_signExtend {x : BitVec w} :
   · simp [h, BitVec.msb, getMsbD_signExtend, show ¬ (v - w = 0) by omega]
 
 /-- Sign extending to a width smaller than the starting width is a truncation. -/
-theorem signExtend_eq_setWidth_of_lt (x : BitVec w) {v : Nat} (hv : v ≤ w):
+theorem signExtend_eq_setWidth_of_le (x : BitVec w) {v : Nat} (hv : v ≤ w) :
   x.signExtend v = x.setWidth v := by
   ext i h
   simp [getElem_signExtend, show i < w by omega]
 
+@[deprecated signExtend_eq_setWidth_of_le (since := "2025-03-07")]
+theorem signExtend_eq_setWidth_of_lt (x : BitVec w) {v : Nat} (hv : v ≤ w) :
+  x.signExtend v = x.setWidth v := signExtend_eq_setWidth_of_le x hv
+
 /-- Sign extending to the same bitwidth is a no op. -/
 @[simp] theorem signExtend_eq (x : BitVec w) : x.signExtend w = x := by
-  rw [signExtend_eq_setWidth_of_lt _ (Nat.le_refl _), setWidth_eq]
+  rw [signExtend_eq_setWidth_of_le _ (Nat.le_refl _), setWidth_eq]
 
 /-- Sign extending to a larger bitwidth depends on the msb.
 If the msb is false, then the result equals the original value.
@@ -2108,7 +2112,7 @@ theorem toNat_signExtend (x : BitVec w) {v : Nat} :
     (x.signExtend v).toNat = (x.setWidth v).toNat + if x.msb then 2^v - 2^w else 0 := by
   by_cases h : v ≤ w
   · have : 2^v ≤ 2^w := Nat.pow_le_pow_right Nat.two_pos h
-    simp [signExtend_eq_setWidth_of_lt x h, toNat_setWidth, Nat.sub_eq_zero_of_le this]
+    simp [signExtend_eq_setWidth_of_le x h, toNat_setWidth, Nat.sub_eq_zero_of_le this]
   · have : 2^w ≤ 2^v := Nat.pow_le_pow_right Nat.two_pos (by omega)
     rw [toNat_signExtend_of_le x (by omega), toNat_setWidth, Nat.mod_eq_of_lt (by omega)]
 
@@ -2144,7 +2148,7 @@ and we compute a modulo by `2^v`.
 -/
 theorem toInt_signExtend_eq_toNat_bmod_of_le {x : BitVec w} (hv : v ≤ w) :
     (x.signExtend v).toInt = Int.bmod x.toNat (2^v) := by
-  simp [signExtend_eq_setWidth_of_lt _ hv]
+  simp [signExtend_eq_setWidth_of_le _ hv]
 
 /--
 Interpreting the sign extension of `(x : BitVec w)` to width `v`
@@ -2167,8 +2171,6 @@ theorem toInt_signExtend (x : BitVec w) :
 theorem toInt_signExtend_eq_toInt_bmod_of_le (x : BitVec w) (h : v ≤ w) :
     (x.signExtend v).toInt = x.toInt.bmod (2 ^ v) := by
   rw [BitVec.toInt_signExtend, Nat.min_eq_left h]
-
-attribute [simp] BitVec.signExtend_eq
 
 /-! ### append -/
 
@@ -4002,7 +4004,6 @@ theorem toNat_intMin : (intMin w).toNat = 2 ^ (w - 1) % 2 ^ w := by
 /--
 The RHS is zero in case `w = 0` which is modeled by wrapping the expression in `... % 2 ^ w`.
 -/
-@[simp]
 theorem toInt_intMin {w : Nat} :
     (intMin w).toInt = -((2 ^ (w - 1) % 2 ^ w) : Nat) := by
   by_cases h : w = 0
@@ -4014,10 +4015,16 @@ theorem toInt_intMin {w : Nat} :
     rw [Nat.mul_comm]
     simp [w_pos]
 
+theorem toInt_intMin_of_pos {v : Nat} (hv : 0 < v) : (intMin v).toInt = -2 ^ (v - 1) := by
+  rw [toInt_intMin, Nat.mod_eq_of_lt]
+  · simp [Int.natCast_pow]
+  · rw [Nat.pow_lt_pow_iff_right (by omega)]
+    omega
+
 theorem toInt_intMin_le (x : BitVec w) :
     (intMin w).toInt ≤ x.toInt := by
   cases w
-  case zero => simp [@of_length_zero x]
+  case zero => simp [toInt_intMin, @of_length_zero x]
   case succ w =>
     simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod]
     have : 0 < 2 ^ w := Nat.two_pow_pos w
@@ -4508,7 +4515,7 @@ abbrev signExtend_eq_not_zeroExtend_not_of_msb_false  := @signExtend_eq_setWidth
 abbrev signExtend_eq_not_zeroExtend_not_of_msb_true := @signExtend_eq_not_setWidth_not_of_msb_true
 
 @[deprecated signExtend_eq_setWidth_of_lt (since := "2024-09-18")]
-abbrev signExtend_eq_truncate_of_lt := @signExtend_eq_setWidth_of_lt
+abbrev signExtend_eq_truncate_of_lt := @signExtend_eq_setWidth_of_le
 
 @[deprecated truncate_append (since := "2024-09-18")]
 abbrev truncate_append := @setWidth_append

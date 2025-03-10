@@ -202,3 +202,5 @@ section
 #check_simp ISize.toInt (-2147483648) ~> -2147483648
 
 end
+
+-- see also simpSInt.lean

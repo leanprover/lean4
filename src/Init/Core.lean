@@ -698,9 +698,11 @@ Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead
 recommended_spelling "bne" for "!=" in [bne, «term_!=_»]
 
 /--
-`LawfulBEq α` is a typeclass which asserts that the `BEq α` implementation
-(which supplies the `a == b` notation) coincides with logical equality `a = b`.
-In other words, `a == b` implies `a = b`, and `a == a` is true.
+A Boolean equality test coincides with propositional equality.
+
+In other words:
+ * `a == b` implies `a = b`.
+ * `a == a` is true.
 -/
 class LawfulBEq (α : Type u) [BEq α] : Prop where
   /-- If `a == b` evaluates to `true`, then `a` and `b` are equal in the logic. -/

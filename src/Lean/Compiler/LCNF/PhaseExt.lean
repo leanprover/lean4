@@ -21,22 +21,21 @@ private abbrev findAtSorted? (decls : Array Decl) (declName : Name) : Option Dec
   let tmpDecl := { tmpDecl with name := declName }
   decls.binSearch tmpDecl declLt
 
-abbrev DeclExt := PersistentEnvExtension Decl Decl DeclExtState
+abbrev DeclExt := SimplePersistentEnvExtension Decl DeclExtState
 
 def mkDeclExt (name : Name := by exact decl_name%) : IO DeclExt := do
-  registerPersistentEnvExtension {
+  registerSimplePersistentEnvExtension {
     name            := name
-    mkInitial       := return {}
-    addImportedFn   := fun _ => return {}
+    addImportedFn   := fun _ => {}
     addEntryFn      := fun decls decl => decls.insert decl.name decl
-    exportEntriesFn := fun s =>
-      let decls := s.foldl (init := #[]) fun decls _ decl => decls.push decl
-      sortDecls decls
+    toArrayFn       := (sortDecls ·.toArray)
     asyncMode       := .sync  -- compilation is non-parallel anyway
+    replay?         := some <| SimplePersistentEnvExtension.replayOfFilter
+      (fun s d => !s.contains d.name) (fun decls decl => decls.insert decl.name decl)
   }
 
-builtin_initialize baseExt : PersistentEnvExtension Decl Decl DeclExtState ← mkDeclExt
-builtin_initialize monoExt : PersistentEnvExtension Decl Decl DeclExtState ← mkDeclExt
+builtin_initialize baseExt : DeclExt ← mkDeclExt
+builtin_initialize monoExt : DeclExt ← mkDeclExt
 
 def getDeclCore? (env : Environment) (ext : DeclExt) (declName : Name) : Option Decl :=
   match env.getModuleIdxFor? declName with

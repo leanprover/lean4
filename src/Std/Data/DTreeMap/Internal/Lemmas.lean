@@ -3043,7 +3043,6 @@ theorem isEmpty_alter [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     (t.alter k f h.balanced).1.isEmpty =
       (((t.isEmpty || (t.size == 1 && t.contains k))) && (f (t.get? k)).isNone) := by
-  letI : BEq α := beqOfOrd
   simp_to_model [alter] using List.isEmpty_alterKey
 
 @[simp]

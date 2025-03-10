@@ -458,8 +458,7 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   let cfg ← getConfig
   unless cfg.dsimp do
     return e
-  let dsimpCache := (← get).dsimpCache
-  modify fun s => { s with dsimpCache := {} }
+  let dsimpCache ← modifyGet fun s => (s.dsimpCache, { s with dsimpCache := {} })
   let m ← getMethods
   let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit
   let post := m.dpost >> dsimpReduce

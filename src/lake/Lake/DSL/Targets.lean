@@ -5,7 +5,9 @@ Authors: Mac Malone
 -/
 prelude
 import Lake.DSL.DeclUtil
-import Lake.Build.Index
+import Lake.Config.FacetConfig
+import Lake.Config.TargetConfig
+import Lake.Build.Job
 
 /-! # DSL for Targets & Facets
 Macros for declaring Lake targets and facets.
@@ -147,7 +149,7 @@ def expandLibraryFacetDecl : Macro := fun stx => do
 
 abbrev mkTargetDecl
   (α) (pkgName target : Name)
-  [FormatQuery α] [FamilyDef CustomData (pkgName, target) α]
+  [FormatQuery α] [FamilyDef (CustomData pkgName) target α]
   (f : NPackage pkgName → FetchM (Job α))
 : TargetDecl := .mk pkgName target <| mkTargetJobConfig fun pkg => do
   withRegisterJob (pkg.target target |>.key.toSimpleString)
@@ -180,7 +182,7 @@ def expandTargetDecl : Macro := fun stx => do
   let name := Name.quoteFrom id id.getId
   let pkgName := mkIdentFrom id `_package.name
   let pkg ← expandOptSimpleBinder pkg?
-  `(family_def $id : CustomData ($pkgName, $name) := $ty
+  `(family_def $id : CustomDataFam ($pkgName, $name) := $ty
     $[$doc?]? @[$attrs,*] abbrev $id :=
       Lake.DSL.mkTargetDecl $ty $pkgName $name (fun $pkg => $defn)
     $[$wds?:whereDecls]?)
@@ -251,7 +253,7 @@ instance : Coe LeanExeDecl Command where
 
 abbrev mkExternLibDecl
   (pkgName name : Name)
-  [FamilyDef CustomData (pkgName, .str name "static")  FilePath]
+  [FamilyDef (CustomData pkgName) (.str name "static") FilePath]
 : ExternLibDecl := .mk pkgName name {getPath := cast (by simp)}
 
 syntax externLibDeclSpec :=

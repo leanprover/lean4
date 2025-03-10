@@ -21,6 +21,7 @@ static lean_object* l_Lean_Compiler_LCNF_PP_ppCode___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PrettyPrinter_0__Lean_Compiler_LCNF_PP_join(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PP_ppExpr___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppLetDecl___closed__3;
+lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(lean_object*, lean_object*, uint8_t);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PP_ppAlt___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppArg___closed__7;
@@ -200,7 +201,6 @@ lean_object* l_Std_Format_indentD(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PP_ppArg___closed__10;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppArg___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppLetDecl___closed__2;
-lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PrettyPrinter_0__Lean_Compiler_LCNF_indentD(lean_object* x_1) {
 _start:
 {
@@ -4977,7 +4977,7 @@ x_7 = lean_ctor_get(x_4, 2);
 lean_inc(x_7);
 x_8 = l_Lean_Compiler_LCNF_PP_run___rarg___closed__1;
 x_9 = 0;
-x_10 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_7, x_8, x_9);
+x_10 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_7, x_8, x_9);
 x_11 = l_Lean_Compiler_LCNF_PP_run___rarg___closed__2;
 x_12 = l_Lean_Option_get___at_Lean_Compiler_LCNF_toConfigOptions___spec__2(x_10, x_11);
 x_13 = lean_st_ref_get(x_5, x_6);

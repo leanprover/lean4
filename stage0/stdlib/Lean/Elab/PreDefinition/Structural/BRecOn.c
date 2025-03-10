@@ -108,7 +108,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefi
 LEAN_EXPORT lean_object* l_panic___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__13___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_toBelowAux___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_getMatcherInfo_x3f___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_withLocalDecls_loop___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_withBelowDict___spec__11___rarg___closed__1;
 static lean_object* l_Lean_Elab_Structural_searchPProd___rarg___closed__6;
@@ -4611,20 +4611,20 @@ x_10 = lean_st_ref_get(x_8, x_9);
 x_11 = !lean_is_exclusive(x_10);
 if (x_11 == 0)
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; 
 x_12 = lean_ctor_get(x_10, 0);
 x_13 = lean_ctor_get(x_10, 1);
 x_14 = lean_ctor_get(x_12, 0);
 lean_inc(x_14);
 lean_dec(x_12);
+x_15 = 0;
 lean_inc(x_2);
-x_15 = l_Lean_Environment_find_x3f(x_14, x_2);
-if (lean_obj_tag(x_15) == 0)
+x_16 = l_Lean_Environment_find_x3f(x_14, x_2, x_15);
+if (lean_obj_tag(x_16) == 0)
 {
-uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 lean_free_object(x_10);
-x_16 = 0;
-x_17 = l_Lean_MessageData_ofConstName(x_2, x_16);
+x_17 = l_Lean_MessageData_ofConstName(x_2, x_15);
 x_18 = l_Lean_getConstInfo___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__3___closed__2;
 x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
@@ -4640,16 +4640,16 @@ else
 {
 lean_object* x_23; 
 lean_dec(x_2);
-x_23 = lean_ctor_get(x_15, 0);
+x_23 = lean_ctor_get(x_16, 0);
 lean_inc(x_23);
-lean_dec(x_15);
+lean_dec(x_16);
 lean_ctor_set(x_10, 0, x_23);
 return x_10;
 }
 }
 else
 {
-lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; lean_object* x_28; 
 x_24 = lean_ctor_get(x_10, 0);
 x_25 = lean_ctor_get(x_10, 1);
 lean_inc(x_25);
@@ -4658,13 +4658,13 @@ lean_dec(x_10);
 x_26 = lean_ctor_get(x_24, 0);
 lean_inc(x_26);
 lean_dec(x_24);
+x_27 = 0;
 lean_inc(x_2);
-x_27 = l_Lean_Environment_find_x3f(x_26, x_2);
-if (lean_obj_tag(x_27) == 0)
+x_28 = l_Lean_Environment_find_x3f(x_26, x_2, x_27);
+if (lean_obj_tag(x_28) == 0)
 {
-uint8_t x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
-x_28 = 0;
-x_29 = l_Lean_MessageData_ofConstName(x_2, x_28);
+lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
+x_29 = l_Lean_MessageData_ofConstName(x_2, x_27);
 x_30 = l_Lean_getConstInfo___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__3___closed__2;
 x_31 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
@@ -4680,9 +4680,9 @@ else
 {
 lean_object* x_35; lean_object* x_36; 
 lean_dec(x_2);
-x_35 = lean_ctor_get(x_27, 0);
+x_35 = lean_ctor_get(x_28, 0);
 lean_inc(x_35);
-lean_dec(x_27);
+lean_dec(x_28);
 x_36 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set(x_36, 1, x_25);
@@ -4745,20 +4745,20 @@ x_10 = lean_st_ref_get(x_8, x_9);
 x_11 = !lean_is_exclusive(x_10);
 if (x_11 == 0)
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; 
 x_12 = lean_ctor_get(x_10, 0);
 x_13 = lean_ctor_get(x_10, 1);
 x_14 = lean_ctor_get(x_12, 0);
 lean_inc(x_14);
 lean_dec(x_12);
+x_15 = 0;
 lean_inc(x_2);
-x_15 = l_Lean_Environment_find_x3f(x_14, x_2);
-if (lean_obj_tag(x_15) == 0)
+x_16 = l_Lean_Environment_find_x3f(x_14, x_2, x_15);
+if (lean_obj_tag(x_16) == 0)
 {
-uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 lean_free_object(x_10);
-x_16 = 0;
-x_17 = l_Lean_MessageData_ofConstName(x_2, x_16);
+x_17 = l_Lean_MessageData_ofConstName(x_2, x_15);
 x_18 = l_Lean_getConstInfo___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__3___closed__2;
 x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
@@ -4774,16 +4774,16 @@ else
 {
 lean_object* x_23; 
 lean_dec(x_2);
-x_23 = lean_ctor_get(x_15, 0);
+x_23 = lean_ctor_get(x_16, 0);
 lean_inc(x_23);
-lean_dec(x_15);
+lean_dec(x_16);
 lean_ctor_set(x_10, 0, x_23);
 return x_10;
 }
 }
 else
 {
-lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; lean_object* x_28; 
 x_24 = lean_ctor_get(x_10, 0);
 x_25 = lean_ctor_get(x_10, 1);
 lean_inc(x_25);
@@ -4792,13 +4792,13 @@ lean_dec(x_10);
 x_26 = lean_ctor_get(x_24, 0);
 lean_inc(x_26);
 lean_dec(x_24);
+x_27 = 0;
 lean_inc(x_2);
-x_27 = l_Lean_Environment_find_x3f(x_26, x_2);
-if (lean_obj_tag(x_27) == 0)
+x_28 = l_Lean_Environment_find_x3f(x_26, x_2, x_27);
+if (lean_obj_tag(x_28) == 0)
 {
-uint8_t x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
-x_28 = 0;
-x_29 = l_Lean_MessageData_ofConstName(x_2, x_28);
+lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
+x_29 = l_Lean_MessageData_ofConstName(x_2, x_27);
 x_30 = l_Lean_getConstInfo___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___spec__3___closed__2;
 x_31 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
@@ -4814,9 +4814,9 @@ else
 {
 lean_object* x_35; lean_object* x_36; 
 lean_dec(x_2);
-x_35 = lean_ctor_get(x_27, 0);
+x_35 = lean_ctor_get(x_28, 0);
 lean_inc(x_35);
-lean_dec(x_27);
+lean_dec(x_28);
 x_36 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set(x_36, 1, x_25);

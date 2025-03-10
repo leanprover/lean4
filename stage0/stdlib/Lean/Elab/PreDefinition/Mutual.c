@@ -18,6 +18,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_withEnableInfoTree___at_Lean_Elab_Mutual_ad
 LEAN_EXPORT lean_object* l_Lean_Elab_Mutual_addPreDefsFromUnary___lambda__1___boxed(lean_object*);
 extern lean_object* l_Lean_Elab_instInhabitedPreDefinition;
 static lean_object* l_Lean_setReducibilityStatus___at_Lean_Elab_Mutual_addPreDefAttributes___spec__1___closed__1;
+lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(lean_object*, lean_object*, uint8_t);
 extern lean_object* l_Lean_allowUnsafeReducibility;
 lean_object* l_Lean_Meta_generateEagerEqns(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Mutual_withCommonTelescope_go___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -113,7 +114,6 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Mutual_withCommonTelescope___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_setReducibilityStatus___at_Lean_Elab_Mutual_addPreDefAttributes___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Mutual_withCommonTelescope_go___spec__1(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
@@ -1262,7 +1262,7 @@ x_22 = lean_ctor_get(x_8, 2);
 lean_inc(x_22);
 x_23 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__2;
 x_24 = 1;
-x_25 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_22, x_23, x_24);
+x_25 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_22, x_23, x_24);
 x_26 = l_Lean_Elab_Mutual_addPreDefsFromUnary___closed__3;
 x_27 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_25, x_26);
 x_28 = lean_st_ref_get(x_9, x_10);

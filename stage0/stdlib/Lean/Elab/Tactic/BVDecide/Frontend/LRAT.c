@@ -23,6 +23,7 @@ LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Fro
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Lean_Elab_Tactic_BVDecide_Frontend_instToExprIntAction___spec__3___closed__1;
 lean_object* l_Lean_mkNatLit(lean_object*);
+lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_runExternal___spec__3___lambda__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, double, double, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_ofFile(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -396,7 +397,6 @@ double lean_float_sub(double, double);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___rarg___lambda__3___closed__1;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___lambda__6___closed__2;
 LEAN_EXPORT lean_object* l_IO_ofExcept___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___spec__4(lean_object*, lean_object*);
-lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Option_get___at_Lean_Elab_Tactic_BVDecide_Frontend_TacticContext_new_determineSolver___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -10611,7 +10611,7 @@ x_77 = lean_ctor_get(x_9, 2);
 lean_inc(x_77);
 x_78 = l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___rarg___closed__13;
 x_79 = 0;
-x_80 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_77, x_78, x_79);
+x_80 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_77, x_78, x_79);
 x_81 = l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___rarg___closed__14;
 x_82 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_80, x_81);
 x_83 = lean_st_ref_get(x_10, x_55);

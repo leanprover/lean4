@@ -256,15 +256,13 @@ where
           let getBitVec i := BitVec.ofNat bvSize ctors[i]!.cidx
           let rhs ← mkCondChain u (mkApp enumToBitVec x) a getBitVec appliedHs appliedHs[0]!
           let type := mkApp3 (mkConst ``Eq [u]) a lhs rhs
-
           let motive ← mkLambdaFVars #[x] type
-          let case h := do
-            return mkApp2 (mkConst ``Eq.refl [u]) a (mkApp h (mkConst ``Unit.unit))
           let sortedHs :=
             hs
              |>.mapIdx (fun i h => (ctors[i]!.cidx, h))
              |>.qsort (·.1 < ·.1)
-             |>.map (·.2)
+          let case h := do
+            return mkApp2 (mkConst ``Eq.refl [u]) a (mkApp h.2 (mkConst ``Unit.unit))
           let cases ← enumCases inductiveInfo.name motive x sortedHs.toList case
 
           let fvars := #[a, x] ++ hs
@@ -300,7 +298,6 @@ where
           let getBitVec i := BitVec.ofNat bvSize ctors[i]!.cidx
           let rhs ← mkCondChain u (mkApp enumToBitVec x) a getBitVec appliedConcrete appliedDefault
           let type := mkApp3 (mkConst ``Eq [u]) a lhs rhs
-
           let motive ← mkLambdaFVars #[x] type
           let sortedConcreteHs :=
             concrete
@@ -324,10 +321,9 @@ where
                   let new := (idx, mkApp hdefault (mkConst (inductiveInfo.ctors[idx]!)))
                   intersperseDefault hs (idx + 1) (new :: acc)
 
-          let caseProofs := (intersperseDefault sortedConcreteHs 0 []).map (·.2)
-
+          let caseProofs := intersperseDefault sortedConcreteHs 0 []
           let case h := do
-            return mkApp2 (mkConst ``Eq.refl [u]) a h
+            return mkApp2 (mkConst ``Eq.refl [u]) a h.2
           let cases ← enumCases inductiveInfo.name motive x caseProofs case
 
           let fvars := #[a, x] ++ hs

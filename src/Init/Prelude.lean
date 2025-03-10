@@ -33,35 +33,26 @@ expression.
 @[inline] def id {α : Sort u} (a : α) : α := a
 
 /--
-Function composition is the act of pipelining the result of one function, to the input of another, creating an entirely new function.
-Example:
-```
-#eval Function.comp List.reverse (List.drop 2) [3, 2, 4, 1]
--- [1, 4]
-```
-You can use the notation `f ∘ g` as shorthand for `Function.comp f g`.
-```
-#eval (List.reverse ∘ List.drop 2) [3, 2, 4, 1]
--- [1, 4]
-```
-A simpler way of thinking about it, is that `List.reverse ∘ List.drop 2`
-is equivalent to `fun xs => List.reverse (List.drop 2 xs)`,
-the benefit is that the meaning of composition is obvious,
-and the representation is compact.
+Function composition, usually written with the infix operator `∘`. A new function is created from
+two existing functions, where one function's output is used as input to the other.
+
+Examples:
+ * `Function.comp List.reverse (List.drop 2) [3, 2, 4, 1] = [1, 4]`
+ * `(List.reverse ∘ List.drop 2) [3, 2, 4, 1] = [1, 4]`
 -/
 @[inline] def Function.comp {α : Sort u} {β : Sort v} {δ : Sort w} (f : β → δ) (g : α → β) : α → δ :=
   fun x => f (g x)
 
 /--
-The constant function. If `a : α`, then `Function.const β a : β → α` is the
-"constant function with value `a`", that is, `Function.const β a b = a`.
-```
-example (b : Bool) : Function.const Bool 10 b = 10 :=
-  rfl
+The constant function that ignores its argument.
 
-#check Function.const Bool 10
--- Bool → Nat
-```
+If `a : α`, then `Function.const β a : β → α` is the “constant function with value `a`”. For all
+arguments `b : β`, `Function.const β a b = a`.
+
+Examples:
+ * `Function.const Bool 10 true = 10`
+ * `Function.const Bool 10 false = 10`
+ * `Function.const String 10 "any string" = 10`
 -/
 @[inline] def Function.const {α : Sort u} (β : Sort v) (a : α) : β → α :=
   fun _ => a

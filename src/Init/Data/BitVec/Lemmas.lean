@@ -2332,6 +2332,17 @@ theorem shiftLeft_eq_concat_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
   · simp [hi']
   · simp [hi', show i - n < w by omega]
 
+/-- Combine adjacent `extractLsb'` operations into a single `extractLsb'`. -/
+theorem extractLsb'_append_extractLsb'_eq_extractLsb' {x : BitVec w} (h : start₂ = start₁ + len₁) :
+    ((x.extractLsb' start₂ len₂) ++ (x.extractLsb' start₁ len₁)) =
+    (x.extractLsb' start₁ (len₁ + len₂)).cast (by omega) := by
+  ext i h
+  simp only [getElem_append, getElem_extractLsb', dite_eq_ite, getElem_cast, ite_eq_left_iff,
+    Nat.not_lt]
+  intros hi
+  congr 1
+  omega
+
 /-! ### rev -/
 
 theorem getLsbD_rev (x : BitVec w) (i : Fin w) :

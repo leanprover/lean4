@@ -1648,7 +1648,7 @@ theorem getKey!_modify_self [TransCmp cmp] [Inhabited α] {k : α} {f : β → �
   DTreeMap.Const.getKey!_modify_self
 
 theorem getKey_modify [TransCmp cmp] [Inhabited α] {k k' : α} {f : β → β}
-    {hc : (modify t k f).contains k'} :
+    {hc : k' ∈ modify t k f} :
     (modify t k f).getKey k' hc =
       if cmp k k' = .eq then
         k

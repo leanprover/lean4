@@ -2548,7 +2548,7 @@ theorem getKey!_modify_self [Inhabited α] {k : α} {f : β k → β k} :
   Impl.getKey!_modify_self t.wf
 
 theorem getKey_modify [Inhabited α] {k k' : α} {f : β k → β k}
-    {hc : (t.modify k f).contains k'} :
+    {hc : k' ∈ t.modify k f} :
     (t.modify k f).getKey k' hc =
       if cmp k k' = .eq then
         k
@@ -2677,7 +2677,7 @@ theorem getKey!_modify_self [Inhabited α] {k : α} {f : β → β} :
   Impl.Const.getKey!_modify_self t.wf
 
 theorem getKey_modify [Inhabited α] {k k' : α} {f : β → β}
-    {hc : (modify t k f).contains k'} :
+    {hc : k' ∈ modify t k f} :
     (modify t k f).getKey k' hc =
       if cmp k k' = .eq then
         k

@@ -3979,7 +3979,7 @@ theorem getKey!_modify_self (h : t.WF) [Inhabited α] {k : α} {f : β k → β 
   simp_to_model [modify] using List.getKey!_modifyKey_self
 
 theorem getKey_modify (h : t.WF) [Inhabited α] {k k' : α} {f : β k → β k}
-    {hc : (t.modify k f).contains k'} :
+    {hc : k' ∈ t.modify k f} :
     (t.modify k f).getKey k' hc =
       if compare k k' = .eq then
         k
@@ -4108,7 +4108,7 @@ theorem getKey!_modify_self (h : t.WF) [Inhabited α] {k : α} {f : β → β} :
   simp_to_model [Const.modify] using List.Const.getKey!_modifyKey_self
 
 theorem getKey_modify (h : t.WF) [Inhabited α] {k k' : α} {f : β → β}
-    {hc : (modify k f t).contains k'} :
+    {hc : k' ∈ modify k f t} :
     (modify k f t).getKey k' hc =
       if compare k k' = .eq then
         k

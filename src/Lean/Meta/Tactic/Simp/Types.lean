@@ -259,6 +259,13 @@ abbrev SimpM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
 @[inline] def withInDSimp : SimpM α → SimpM α :=
   withTheReader Context (fun ctx => { ctx with inDSimp := true })
 
+@[inline] def withInDSimpWithCache (k : ExprStructMap Expr → SimpM (α × ExprStructMap Expr)) : SimpM α := do
+  -- replace the cache in the state to ensure the old cache is used linearly.
+  let dsimpCache ← modifyGet fun s => (s.dsimpCache, { s with dsimpCache := {} })
+  let (x, dsimpCache) ← withInDSimp (k dsimpCache)
+  modify fun s => { s with dsimpCache }
+  return x
+
 /--
 Executes `x` using a `MetaM` configuration for indexing terms.
 It is inferred from `Simp.Config`.

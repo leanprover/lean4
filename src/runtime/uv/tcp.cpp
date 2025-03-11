@@ -499,7 +499,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getsockname(b_obj_arg socket) {
     return lean_io_result_mk_ok(lean_addr);
 }
 
-/* Std.Internal.UV.TCP.Socket.nodelay (socket : @& Socket) : IO Unit */
+/* Std.Internal.UV.TCP.Socket.noDelay (socket : @& Socket) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_nodelay(b_obj_arg socket) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
@@ -514,7 +514,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_nodelay(b_obj_arg socket) {
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-/* Std.Internal.UV.TCP.Socket.keepalive (socket : @& Socket) (enable : Int32) (delay : UInt32) : IO Unit */
+/* Std.Internal.UV.TCP.Socket.keepAlive (socket : @& Socket) (enable : Int32) (delay : UInt32) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int32_t enable, uint32_t delay) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 

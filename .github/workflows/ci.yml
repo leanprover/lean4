@@ -262,6 +262,7 @@ jobs:
               // }
             ];
             console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`);
+            const isPr = "${{ github.event_name }}" == "pull_request";
             const filter = (job) => {
               if (job["name"] === "macOS aarch64") {
                 // Special handling for MacOS aarch64, we want:
@@ -269,7 +270,7 @@ jobs:
                 // 2. To skip it in merge queues as it takes longer than the Linux build and adds
                 //    little value in the merge queue
                 // 3. To run it in release (obviously)
-                return level == 0 || level >= 2;
+                return isPr || level >= 2;
               } else {
                 return level >= job["check-level"];
               }

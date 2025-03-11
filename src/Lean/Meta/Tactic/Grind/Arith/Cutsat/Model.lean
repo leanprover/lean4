@@ -59,7 +59,7 @@ private def isInterpretedTerm (e : Expr) : Bool :=
   || e.isAppOf ``Neg.neg -- TODO add missing ones
 
 /--
-Construct a model that statisfies all constraints in the cutsat model.
+Construct a model that satisfies all constraints in the cutsat model.
 It also assigns values to integer terms that have not been internalized by the
 cutsat model.
 

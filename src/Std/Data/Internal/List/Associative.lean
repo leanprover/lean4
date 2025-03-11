@@ -4318,6 +4318,11 @@ theorem Option.get_filter {α : Type _} {x : Option α} {f : α → Bool} (h : (
   · unfold Option.filter
     simp only [Option.get_ite, Option.get_some]
 
+theorem Option.guard_eq_map (p : (a : α) × β a → Prop) [DecidablePred p] :
+    Option.guard p  = fun x => Option.map (fun y => ⟨x.1, y⟩) (if p x then some x.2 else none) := by
+  funext x
+  simp [Option.guard]
+
 theorem Sigma.snd_congr {x x' : (a : α) × β a} (h : x = x') :
     x.snd = cast (congrArg (β ·.fst) h.symm) x'.snd := by
   cases h; rfl
@@ -4602,6 +4607,39 @@ theorem length_filterMap_eq_length_iff [BEq α] [LawfulBEq α] {f : (a : α) →
     rw [getValueCast_of_mem hx distinct] at h
     exact h
 
+theorem key_getValueCast_mem [BEq α] [LawfulBEq α]
+    {l : List ((a : α) × β a)} {a : α} (h : containsKey a l = true) :
+    ⟨a, getValueCast a l h⟩ ∈ l := by
+  induction l with
+  | nil => simp at h
+  | cons hd tl ih =>
+    by_cases hd_a : hd.1 == a
+    · simp [getValueCast, getValueCast?, hd_a, Sigma.ext_iff, LawfulBEq.eq_of_beq hd_a]
+    · rw [containsKey_cons] at h
+      simp [hd_a] at h
+      simp [getValueCast, getValueCast?, hd_a]
+      exact Or.inr (ih h)
+
+
+theorem forall_mem_iff_forall_contains_getKey_getValue [BEq α] [LawfulBEq α]
+    {l : List ((a : α) × β a)} {p : (a : α) → β a → Prop} (distinct : DistinctKeys l):
+    (∀ (x : (a : α) × β a), x ∈ l → p x.1 x.2) ↔
+      ∀ (a: α) (h : containsKey a l), p a (getValueCast a l h) := by
+  constructor
+  · intro h a ha
+    specialize h ⟨a, getValueCast a l ha⟩
+    apply h (key_getValueCast_mem ha)
+  · intro h x hx
+    rw [← getValueCast_of_mem hx distinct]
+    apply h
+
+theorem length_filter_eq_length_iff [BEq α] [LawfulBEq α] {f : (a : α) → β a → Bool}
+    {l : List ((a : α) × β a)} (distinct : DistinctKeys l):
+    (l.filter fun p => (f p.1 p.2)).length = l.length ↔
+      ∀ (a : α) (h : containsKey a l), (f a (getValueCast a l h)) = true := by
+  simp [← List.filterMap_eq_filter, Option.guard_eq_map, length_filterMap_eq_length_iff,
+    forall_mem_iff_forall_contains_getKey_getValue (p := fun a b => f a b = true) distinct]
+
 namespace Const
 
 theorem getKey_getValue_mem [BEq α] [EquivBEq α] {β : Type v} {l : List ((_ : α) × β)} {k : α} {h} :
@@ -4614,6 +4652,19 @@ theorem getKey_getValue_mem [BEq α] [EquivBEq α] {β : Type v} {l : List ((_ :
       simp [hd_k]
     · rw [getKey_cons, getValue_cons]
       simp [hd_k, ih]
+
+theorem forall_mem_iff_forall_contains_getKey_getValue [BEq α] [EquivBEq α] {β : Type v}
+    {l : List ((_ : α) × β)} {p : α → β → Prop} (distinct : DistinctKeys l):
+    (∀ (x : (_ : α) × β), x ∈ l → p x.1 x.2) ↔
+      ∀ (a: α) (h : containsKey a l), p (getKey a l h) (getValue a l h) := by
+  constructor
+  · intro h a ha
+    specialize h ⟨getKey a l ha, getValue a l ha⟩
+    apply h getKey_getValue_mem
+  · intro h x hx
+    rw [← getKey_of_mem hx distinct (h':=containsKey_of_mem hx),
+      ← getValue_of_mem hx distinct (h':=containsKey_of_mem hx)]
+    apply h
 
 theorem length_filterMap_eq_length_iff {β : Type v} {γ : Type w} [BEq α] [EquivBEq α]
     {f : (_ : α) → β → Option γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) :
@@ -4631,6 +4682,13 @@ theorem length_filterMap_eq_length_iff {β : Type v} {γ : Type w} [BEq α] [Equ
     specialize h x.1 (containsKey_of_mem hx)
     simp [getValue_of_mem hx distinct, getKey_of_mem hx distinct] at h
     exact h
+
+theorem length_filter_eq_length_iff {β : Type v} [BEq α] [EquivBEq α]
+    {f : (_ : α) → β → Bool} {l : List ((_ : α) × β)} (distinct : DistinctKeys l):
+    (l.filter fun p => (f p.1 p.2)).length = l.length ↔
+      ∀ (a : α) (h : containsKey a l), (f (getKey a l h) (getValue a l h)) = true := by
+  simp [← List.filterMap_eq_filter, Option.guard_eq_map, length_filterMap_eq_length_iff,
+    forall_mem_iff_forall_contains_getKey_getValue (p := fun a b => f a b = true) distinct]
 
 end Const
 

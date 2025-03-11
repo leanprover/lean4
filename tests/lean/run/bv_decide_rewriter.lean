@@ -555,6 +555,12 @@ example {a : BitVec 8} : a >>> 3 = 0#3 ++ BitVec.extractLsb' 3 5 a := by bv_norm
 example {a : BitVec 8} : a >>> 8 = 0 := by bv_normalize
 example {a : BitVec 8} : a >>> 12 = 0 := by bv_normalize
 
+-- SHL_CONST
+example {a : BitVec 8} : a <<< 1 = BitVec.extractLsb' 0 7 a ++ 0#1 := by bv_normalize
+example {a : BitVec 8} : a <<< 3 = BitVec.extractLsb' 0 5 a ++ 0#3 := by bv_normalize
+example {a : BitVec 8} : a <<< 8 = 0 := by bv_normalize
+example {a : BitVec 8} : a <<< 12 = 0 := by bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

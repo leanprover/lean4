@@ -577,6 +577,13 @@ example {x : BitVec 8} : 2 &&& (10 &&& x) = 2 &&& x := by bv_normalize
 example {x : BitVec 8} : 8#4 ++ (4#4 ++ x) = 132#8 ++ x := by bv_normalize
 example {x : BitVec 8} : (x ++ 4#4) ++ 8#4 = x ++ 72#8 := by bv_normalize
 
+-- BV_CONCAT_EXTRACT
+example {x : BitVec 8} : x.extractLsb' 3 5 ++ x.extractLsb' 1 2 = x.extractLsb' 1 7 := by
+  bv_normalize
+
+example {x : BitVec 8} :
+    (~~~x.extractLsb' 3 5) ++ (~~~x.extractLsb' 1 2) = ~~~x.extractLsb' 1 7 := by
+  bv_normalize
 
 section
 

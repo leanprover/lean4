@@ -9,6 +9,14 @@ import Init.Data.Char.Basic
 
 universe u
 
+/--
+Creates a string that contains the characters in a list, in order.
+
+Examples:
+ * `['L', '∃', '∀', 'N'].asString = "L∃∀N"`
+ * `[].asString = ""`
+ * `['a', 'a', 'a'].asString = "aaa"`
+-/
 def List.asString (s : List Char) : String :=
   ⟨s⟩
 

@@ -4677,22 +4677,8 @@ theorem isEmpty_filterMap_eq_false [BEq α] [LawfulBEq α] {f : (a : α) → β 
     {l : List ((a : α) × β a)} (distinct : DistinctKeys l) :
     (l.filterMap fun p => (f p.1 p.2).map (fun x => (⟨p.1, x⟩ : (a : α) × γ a))).isEmpty = false ↔
       ∃ (k : α) (h : containsKey k l = true), (f k (getValueCast k l h)).isSome := by
-  simp only [isEmpty_eq_false_iff_exists_isSome_getValueCast?]
-  constructor
-  · intro h
-    rcases h with ⟨a, h⟩
-    rw [getValueCast?_filterMap distinct] at h
-    simp only [Option.isSome_bind, Option.any_eq_true, Option.mem_def] at h
-    rcases h with ⟨b, h1, h2⟩
-    exists a
-    simp [getValueCast, h1, h2, containsKey_of_getValueCast?_eq_some]
-  · intro h
-    rcases h with ⟨k, h', h⟩
-    exists k
-    rw [getValueCast?_filterMap distinct]
-    simp only [Option.isSome_bind, Option.any_eq_true, Option.mem_def]
-    exists (getValueCast k l h')
-    simp [h, getValueCast?_eq_some_getValueCast h']
+  rw [Bool.eq_false_iff, Ne.eq_1, isEmpty_filterMap_eq_true distinct]
+  simp [Option.ne_none_iff_isSome]
 
 theorem isEmpty_filter_eq_true [BEq α] [LawfulBEq α] {f : (a : α) → β a → Bool}
     {l : List ((a : α) × β a)} (distinct : DistinctKeys l) :
@@ -4760,12 +4746,54 @@ theorem length_filter_eq_length_iff {β : Type v} [BEq α] [EquivBEq α]
   simp [← List.filterMap_eq_filter, Option.guard_eq_map, length_filterMap_eq_length_iff,
     forall_mem_iff_forall_contains_getKey_getValue (p := fun a b => f a b = true) distinct]
 
+theorem length_filter_eq_length_iff_unit [BEq α] [EquivBEq α]
+    {f : (_ : α) → Bool} {l : List ((_ : α) × Unit)} (distinct : DistinctKeys l):
+    (l.filter fun p => (f p.1)).length = l.length ↔
+      ∀ (a : α) (h : containsKey a l), (f (getKey a l h)) = true := by
+  simp [← List.filterMap_eq_filter, Option.guard_eq_map, length_filterMap_eq_length_iff,
+    forall_mem_iff_forall_contains_getKey_getValue (p := fun a b => f a = true) distinct]
+
 theorem isEmpty_filterMap_eq_true [BEq α] [EquivBEq α] {β : Type v} {γ : Type w}
     {f : (_ : α) → β → Option γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) :
     (l.filterMap fun p => (f p.1 p.2).map (fun x => (⟨p.1, x⟩ : (_ : α) × γ))).isEmpty = true ↔
       ∀ (k : α) (h : containsKey k l = true), f (getKey k l h) (getValue k l h) = none := by
   simp [List.isEmpty_iff, List.filterMap_eq_nil_iff, Option.map_eq_none',
   forall_mem_iff_forall_contains_getKey_getValue (p:= fun a b => f a b = none) distinct]
+
+theorem isEmpty_filterMap_eq_false [BEq α] [EquivBEq α] {β : Type v} {γ : Type w}
+    {f : (_ : α) → β → Option γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) :
+    (l.filterMap fun p => (f p.1 p.2).map (fun x => (⟨p.1, x⟩ : (_ : α) × γ))).isEmpty = false ↔
+      ∃ (k : α) (h : containsKey k l = true), (f (getKey k l h) (getValue k l h)).isSome := by
+  rw [Bool.eq_false_iff, Ne.eq_1, isEmpty_filterMap_eq_true distinct]
+  simp [Option.ne_none_iff_isSome]
+
+theorem isEmpty_filter_eq_true [BEq α] [EquivBEq α] {β : Type v}
+    {f : (_ : α) → β → Bool} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) :
+    (l.filter fun p => (f p.1 p.2)).isEmpty = true ↔
+      ∀ (k : α) (h : containsKey k l = true), f (getKey k l h) (getValue k l h) = false := by
+  simp [List.isEmpty_iff, List.filterMap_eq_nil_iff, Option.map_eq_none',
+  forall_mem_iff_forall_contains_getKey_getValue (p:= fun a b => f a b = false) distinct]
+
+theorem isEmpty_filter_eq_false [BEq α] [EquivBEq α] {β : Type v}
+    {f : (_ : α) → β → Bool} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) :
+    (l.filter fun p => (f p.1 p.2)).isEmpty = false ↔
+      ∃ (k : α) (h : containsKey k l = true), f (getKey k l h) (getValue k l h) = true := by
+  rw [Bool.eq_false_iff, Ne.eq_1, isEmpty_filter_eq_true distinct]
+  simp [Option.ne_none_iff_isSome]
+
+theorem isEmpty_filter_eq_true_unit [BEq α] [EquivBEq α]
+    {f : (_ : α) → Bool} {l : List ((_ : α) × Unit)} (distinct : DistinctKeys l) :
+    (l.filter fun p => (f p.1)).isEmpty = true ↔
+      ∀ (k : α) (h : containsKey k l = true), f (getKey k l h) = false := by
+  simp [List.isEmpty_iff, List.filterMap_eq_nil_iff, Option.map_eq_none',
+  forall_mem_iff_forall_contains_getKey_getValue (p:= fun a b => f a = false) distinct]
+
+theorem isEmpty_filter_eq_false_unit [BEq α] [EquivBEq α]
+    {f : (_ : α) → Bool} {l : List ((_ : α) × Unit)} (distinct : DistinctKeys l) :
+    (l.filter fun p => (f p.1)).isEmpty = false ↔
+      ∃ (k : α) (h : containsKey k l = true), f (getKey k l h)  = true := by
+  rw [Bool.eq_false_iff, Ne.eq_1, isEmpty_filter_eq_true_unit distinct]
+  simp [Option.ne_none_iff_isSome]
 
 end Const
 

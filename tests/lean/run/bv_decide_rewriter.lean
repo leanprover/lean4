@@ -291,16 +291,16 @@ example (a : BitVec 16) : a + a = a <<< 1 := by
   bv_normalize
 
 -- NOT_EQUAL_BV1_BOOL
-example : ∀ (a : Bool), (!(a == true)) = (a == false) := by
+example : ∀ (a : Bool), (!(a == true)) = (!a) := by
   bv_normalize
 
-example : ∀ (a : Bool), (!(a == false)) = (a == true) := by
+example : ∀ (a : Bool), (!(a == false)) = a := by
   bv_normalize
 
-example : ∀ (a : Bool), (!(true == a)) = (a == false) := by
+example : ∀ (a : Bool), (!(true == a)) = !a := by
   bv_normalize
 
-example : ∀ (a : Bool), (!(false == a)) = (a == true) := by
+example : ∀ (a : Bool), (!(false == a)) = a := by
   bv_normalize
 
 example : ∀ (a : BitVec 1), (!(a == 1#1)) = (a == 0#1) := by
@@ -560,6 +560,18 @@ example {a : BitVec 8} : a <<< 1 = BitVec.extractLsb' 0 7 a ++ 0#1 := by bv_norm
 example {a : BitVec 8} : a <<< 3 = BitVec.extractLsb' 0 5 a ++ 0#3 := by bv_normalize
 example {a : BitVec 8} : a <<< 8 = 0 := by bv_normalize
 example {a : BitVec 8} : a <<< 12 = 0 := by bv_normalize
+
+-- EQUAL_CONST_BV_ADD
+example {a : BitVec 8} (h : a + 5 = 7) : a = 2 := by bv_normalize
+example {a : BitVec 8} (h : 5 + a = 7) : a = 2 := by bv_normalize
+example {a : BitVec 8} (h : 7 = a + 5) : a = 2 := by bv_normalize
+example {a : BitVec 8} (h : 7 = 5 + a) : a = 2 := by bv_normalize
+
+-- BV_AND_CONST
+example {x : BitVec 8} : (10 &&& x) &&& 2 = 2 &&& x := by bv_normalize
+example {x : BitVec 8} : (x &&& 10) &&& 2 = 2 &&& x := by bv_normalize
+example {x : BitVec 8} : 2 &&& (x &&& 10) = 2 &&& x := by bv_normalize
+example {x : BitVec 8} : 2 &&& (10 &&& x) = 2 &&& x := by bv_normalize
 
 section
 

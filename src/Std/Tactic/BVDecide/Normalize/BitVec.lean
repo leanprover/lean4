@@ -375,5 +375,49 @@ theorem BitVec.mul_ones (a : BitVec w) : a * -1#w = -a := by
   rw [_root_.BitVec.mul_neg]
   simp
 
+-- All push a to the lhs as the rhs is guaranteed to be a constant so this form improves sharing.
+@[bv_normalize]
+theorem BitVec.add_const_beq_const {a : BitVec w} :
+    ((a + BitVec.ofNat w b) == BitVec.ofNat w c) = (a == BitVec.ofNat w c - BitVec.ofNat w b) := by
+  rw [Bool.eq_iff_iff]
+  simp [BitVec.eq_sub_iff_add_eq]
+
+@[bv_normalize]
+theorem BitVec.const_add_beq_const :
+    ((BitVec.ofNat w b + a) == BitVec.ofNat w c) = (a == BitVec.ofNat w c - BitVec.ofNat w b) := by
+  rw [Bool.eq_iff_iff, BitVec.add_comm _ a]
+  simp [BitVec.eq_sub_iff_add_eq]
+
+@[bv_normalize]
+theorem BitVec.const_beq_add_const_beq :
+    (BitVec.ofNat w c == (a + BitVec.ofNat w b)) = (a == BitVec.ofNat w c - BitVec.ofNat w b) := by
+  rw [Bool.eq_iff_iff, Bool.beq_comm]
+  simp [BitVec.eq_sub_iff_add_eq]
+
+@[bv_normalize]
+theorem BitVec.const_beq_const_add_beq :
+    (BitVec.ofNat w c == (BitVec.ofNat w b + a)) = (a == BitVec.ofNat w c - BitVec.ofNat w b) := by
+  rw [Bool.eq_iff_iff, BitVec.add_comm _ a, Bool.beq_comm]
+  simp [BitVec.eq_sub_iff_add_eq]
+
+@[bv_normalize]
+theorem BitVec.and_const_left :
+    BitVec.ofNat w a &&& (BitVec.ofNat w b &&& c) = (BitVec.ofNat w a &&& BitVec.ofNat w b) &&& c := by
+  ac_rfl
+
+@[bv_normalize]
+theorem BitVec.and_const_right :
+    BitVec.ofNat w a &&& (b &&& BitVec.ofNat w c) = (BitVec.ofNat w a &&& BitVec.ofNat w c) &&& b := by
+  ac_rfl
+
+@[bv_normalize]
+theorem BitVec.and_const_left' :
+    (BitVec.ofNat w a &&& b) &&& BitVec.ofNat w c = (BitVec.ofNat w a &&& BitVec.ofNat w c) &&& b := by
+  ac_rfl
+
+@[bv_normalize]
+theorem BitVec.and_const_right' {a : BitVec w} :
+    (a &&& BitVec.ofNat w b) &&& BitVec.ofNat w c = (BitVec.ofNat w b &&& BitVec.ofNat w c) &&& a := by
+  ac_rfl
 end Normalize
 end Std.Tactic.BVDecide

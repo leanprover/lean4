@@ -2113,11 +2113,11 @@ theorem toInt_sshiftRight {x : BitVec w} {n : Nat} :
 @[simp]
 theorem sshiftRight_eq' (x : BitVec w) : x.sshiftRight' y = x.sshiftRight y.toNat := rfl
 
-theorem toNat_sshiftRight_of_msb_true' {x y : BitVec w} (h : x.msb = true) :
+theorem toNat_sshiftRight'_of_msb_true {x y : BitVec w} (h : x.msb = true) :
     (x.sshiftRight' y).toNat = 2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> y.toNat := by
   rw [sshiftRight_eq', toNat_sshiftRight_of_msb_true h]
 
-theorem toNat_sshiftRight_of_msb_false' {x y : BitVec w} (h : x.msb = false) :
+theorem toNat_sshiftRight'_of_msb_false {x y : BitVec w} (h : x.msb = false) :
     (x.sshiftRight' y).toNat = x.toNat >>> y.toNat := by
   rw [sshiftRight_eq', toNat_sshiftRight_of_msb_false h]
 
@@ -2128,11 +2128,11 @@ theorem toNat_sshiftRight' {x y : BitVec w} :
       else x.toNat >>> y.toNat := by
   rw [sshiftRight_eq', toNat_sshiftRight]
 
-theorem toFin_sshiftRight_of_msb_true' {x y : BitVec w} (h : x.msb = true) :
+theorem toFin_sshiftRight'_of_msb_true {x y : BitVec w} (h : x.msb = true) :
     (x.sshiftRight' y).toFin = Fin.ofNat' (2^w) (2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> y.toNat) := by
   rw [sshiftRight_eq', toFin_sshiftRight_of_msb_true h]
 
-theorem toFin_sshiftRight_of_msb_false' {x y : BitVec w} (h : x.msb = false) :
+theorem toFin_sshiftRight'_of_msb_false {x y : BitVec w} (h : x.msb = false) :
     (x.sshiftRight' y).toFin = Fin.ofNat' (2^w) (x.toNat >>> y.toNat) := by
   rw [sshiftRight_eq', toFin_sshiftRight_of_msb_false h]
 

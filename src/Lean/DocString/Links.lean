@@ -148,6 +148,6 @@ This is intended to be used before saving a docstring that is later subject to r
 def validateBuiltinDocString (docString : String) : IO Unit := do
   let (errs, _) ← rewriteManualLinksCore docString
   if !errs.isEmpty then
-    throw <|IO.userError <|
+    throw <| IO.userError <|
       s!"Errors in builtin documentation comment:\n" ++
       String.join (errs.toList.map fun (⟨s, e⟩, msg) => s!" * {repr <| docString.extract s e}:\n    {msg}\n")

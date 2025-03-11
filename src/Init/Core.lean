@@ -226,9 +226,9 @@ structure PSigma {α : Sort u} (β : α → Sort v) where
   (This will usually require a type ascription to determine `β`
   since it is not determined from `a` and `b` alone.) -/
   mk ::
-  /-- The first component of a dependent pair. If `p : @Sigma α β` then `p.1 : α`. -/
+  /-- The first component of a dependent pair. If `p : @PSigma α β` then `p.1 : α`. -/
   fst : α
-  /-- The second component of a dependent pair. If `p : Sigma β` then `p.2 : β p.1`. -/
+  /-- The second component of a dependent pair. If `p : PSigma β` then `p.2 : β p.1`. -/
   snd : β fst
 
 /--

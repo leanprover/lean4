@@ -647,13 +647,12 @@ theorem getKey?_congr [TransCmp cmp] {k k' : α} (h' : cmp k k' = .eq) :
     t.getKey? k = t.getKey? k' :=
   Impl.getKey?_congr t.wf h'
 
-theorem getKey?_eq_some_of_contains [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp]
-    {k : α} (h' : t.contains k) :
+theorem getKey?_eq_some_of_contains [TransCmp cmp] [LawfulEqCmp cmp] {k : α} (h' : t.contains k) :
     t.getKey? k = some k :=
   Impl.getKey?_eq_some_of_contains t.wf h'
 
-theorem getKey?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp] {k : α}
-    (h' : k ∈ t) : t.getKey? k = some k :=
+theorem getKey?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] {k : α} (h' : k ∈ t) :
+    t.getKey? k = some k :=
   Impl.getKey?_eq_some_of_contains t.wf h'
 
 theorem getKey_insert [TransCmp cmp] {k a : α} {v : β k} {h₁} :
@@ -687,7 +686,7 @@ theorem getKey_congr [TransCmp cmp] {k₁ k₂ : α} (h' : cmp k₁ k₂ = .eq)
   Impl.getKey_congr t.wf h' h₁
 
 @[simp]
-theorem getKey_eq [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp] {k : α}
+theorem getKey_eq [TransCmp cmp] [LawfulEqCmp cmp] {k : α}
     (h' : k ∈ t) : t.getKey k h' = k :=
   Impl.getKey_eq t.wf h'
 
@@ -746,12 +745,12 @@ theorem getKey!_congr [TransCmp cmp] [Inhabited α] {k k' : α} (h' : cmp k k' =
     t.getKey! k = t.getKey! k' :=
   Impl.getKey!_congr t.wf h'
 
-theorem getKey!_eq_of_contains [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp]
-    [Inhabited α] {k : α} (h' : t.contains k) :
+theorem getKey!_eq_of_contains [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] {k : α}
+    (h' : t.contains k) :
     t.getKey! k = k :=
   Impl.getKey!_eq_of_contains t.wf h'
 
-theorem getKey!_eq_of_mem [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp] [Inhabited α]
+theorem getKey!_eq_of_mem [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α]
     {k : α} (h' : k ∈ t) :
     t.getKey! k = k :=
   Impl.getKey!_eq_of_mem t.wf h'
@@ -817,13 +816,13 @@ theorem getKeyD_congr [TransCmp cmp] {k k' fallback : α} (h' : cmp k k' = .eq) 
     t.getKeyD k fallback = t.getKeyD k' fallback :=
   Impl.getKeyD_congr t.wf h'
 
-theorem getKeyD_eq_of_contains [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp]
-    {k fallback : α} (h' : t.contains k) :
+theorem getKeyD_eq_of_contains [TransCmp cmp] [LawfulEqCmp cmp] {k fallback : α}
+    (h' : t.contains k) :
     t.getKeyD k fallback = k :=
   Impl.getKeyD_eq_of_contains t.wf h'
 
-theorem getKeyD_eq_of_mem [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp]
-    {k fallback : α} (h' : k ∈ t) : t.getKeyD k fallback = k :=
+theorem getKeyD_eq_of_mem [TransCmp cmp] [LawfulEqCmp cmp] {k fallback : α} (h' : k ∈ t) :
+    t.getKeyD k fallback = k :=
   Impl.getKeyD_eq_of_contains t.wf h'
 
 @[simp]

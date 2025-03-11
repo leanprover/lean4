@@ -435,13 +435,12 @@ theorem getKey?_congr [TransCmp cmp] (h : t.WF) {k k' : α} (h' : cmp k k' = .eq
     t.getKey? k = t.getKey? k' :=
   DTreeMap.Raw.getKey?_congr h h'
 
-theorem getKey?_eq_some_of_contains [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp]
-    (h : t.WF) {k : α} (h' : t.contains k) :
+theorem getKey?_eq_some_of_contains [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α}
+    (h' : t.contains k) :
     t.getKey? k = some k :=
   DTreeMap.Raw.getKey?_eq_some_of_contains h h'
 
-theorem getKey?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp] (h : t.WF)
-    {k : α} (h' : k ∈ t) :
+theorem getKey?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} (h' : k ∈ t) :
     t.getKey? k = some k :=
   DTreeMap.Raw.getKey?_eq_some_of_contains h h'
 
@@ -473,8 +472,8 @@ theorem getKey_congr [TransCmp cmp] (h : t.WF) {k₁ k₂ : α} (h' : cmp k₁ k
   DTreeMap.Raw.getKey_congr h h' h₁
 
 @[simp]
-theorem getKey_eq [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp] (h : t.WF) {k : α}
-    (h' : k ∈ t) : t.getKey k h' = k :=
+theorem getKey_eq [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} (h' : k ∈ t) :
+    t.getKey k h' = k :=
   DTreeMap.Raw.getKey_eq h h'
 
 @[simp]
@@ -532,13 +531,13 @@ theorem getKey!_congr [TransCmp cmp] [Inhabited α] (h : t.WF) {k k' : α} (h' :
     t.getKey! k = t.getKey! k' :=
   DTreeMap.Raw.getKey!_congr h h'
 
-theorem getKey!_eq_of_contains [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp]
-    [Inhabited α] (h : t.WF) {k : α} (h' : t.contains k) :
+theorem getKey!_eq_of_contains [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF) {k : α}
+    (h' : t.contains k) :
     t.getKey! k = k :=
   DTreeMap.Raw.getKey!_eq_of_contains h h'
 
-theorem getKey!_eq_of_mem [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp] [Inhabited α]
-    (h : t.WF) {k : α} (h' : k ∈ t) :
+theorem getKey!_eq_of_mem [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF) {k : α}
+    (h' : k ∈ t) :
     t.getKey! k = k :=
   DTreeMap.Raw.getKey!_eq_of_mem h h'
 
@@ -603,13 +602,13 @@ theorem getKeyD_congr [TransCmp cmp] (h : t.WF) {k k' fallback : α} (h' : cmp k
     t.getKeyD k fallback = t.getKeyD k' fallback :=
   DTreeMap.Raw.getKeyD_congr h h'
 
-theorem getKeyD_eq_of_contains [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp]
-    (h : t.WF) {k fallback : α} (h' : t.contains k) :
+theorem getKeyD_eq_of_contains [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k fallback : α}
+    (h' : t.contains k) :
     t.getKeyD k fallback = k :=
   DTreeMap.Raw.getKeyD_eq_of_contains h h'
 
-theorem getKeyD_eq_of_mem [TransCmp cmp] [LawfulEqCmp cmp] [BEq α] [LawfulBEqCmp cmp] (h : t.WF)
-    {k fallback : α} (h' : k ∈ t) : t.getKeyD k fallback = k :=
+theorem getKeyD_eq_of_mem [TransCmp cmp] [LawfulEqCmp cmp] {k fallback : α} (h' : k ∈ t) :
+    t.getKeyD k fallback = k :=
   DTreeMap.Raw.getKeyD_eq_of_contains h h'
 
 @[simp]

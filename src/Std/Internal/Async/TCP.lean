@@ -85,7 +85,7 @@ Enables TCP keep-alive for all client sockets accepted by this server socket.
 -/
 @[inline]
 def keepAlive (s : Server) (enable : Bool) (delay : Std.Time.Second.Offset) (_ : delay.val ≥ 1 := by decide) : IO Unit :=
-  s.native.keepAlive enable delay.val.toNat.toUInt32
+  s.native.keepAlive enable.toInt8 delay.val.toNat.toUInt32
 
 end Server
 
@@ -163,7 +163,7 @@ Enables TCP keep-alive with a specified delay for the client socket.
 -/
 @[inline]
 def keepAlive (s : Client) (enable : Bool) (delay : Std.Time.Second.Offset) (_ : delay.val ≥ 0 := by decide) : IO Unit :=
-  s.native.keepAlive enable delay.val.toNat.toUInt32
+  s.native.keepAlive enable.toInt8 delay.val.toNat.toUInt32
 
 end Client
 

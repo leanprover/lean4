@@ -61,13 +61,13 @@ def clientServer (addr : SocketAddress) : IO Unit := do
   server.bind addr
   server.listen 128
 
-  assert! (← server.getSockName).port == 8080
+  assert! (← server.getSockName).port == addr.port
 
   let joe ← TCP.Socket.Client.mk
   let task ← joe.connect addr
   task.block
 
-  assert! (← joe.getPeerName).port == 8080
+  assert! (← joe.getPeerName).port == addr.port
 
   joe.noDelay
 
@@ -75,7 +75,7 @@ def clientServer (addr : SocketAddress) : IO Unit := do
   let task ← mike.connect addr
   task.block
 
-  assert! (← mike.getPeerName).port == 8080
+  assert! (← mike.getPeerName).port == addr.port
 
   mike.noDelay
 
@@ -85,5 +85,5 @@ def clientServer (addr : SocketAddress) : IO Unit := do
   discard <| (runMike mike).run
   serverTask.block
 
-#eval clientServer (SocketAddressV4.mk (.ofParts 127 0 0 1) 8080)
-#eval clientServer (SocketAddressV6.mk (.ofParts 0 0 0 0 0 0 0 1) 8080)
+#eval clientServer (SocketAddressV4.mk (.ofParts 127 0 0 1) 9000)
+#eval clientServer (SocketAddressV6.mk (.ofParts 0 0 0 0 0 0 0 1) 9000)

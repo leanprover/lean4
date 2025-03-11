@@ -6,6 +6,7 @@ Authors: Henrik Böving, Sofia Rodrigues
 prelude
 import Init.System.IO
 import Init.System.Promise
+import Init.Data.SInt
 import Std.Net
 
 namespace Std
@@ -99,7 +100,7 @@ opaque noDelay (socket : @& Socket) : IO Unit
 Enables TCP keep-alive for a socket. If delay is less than 1 then UV_EINVAL is returned.
 -/
 @[extern "lean_uv_tcp_keepalive"]
-opaque keepAlive (socket : @& Socket) (enable : Int32) (delay : UInt32) : IO Unit
+opaque keepAlive (socket : @& Socket) (enable : Int8) (delay : UInt32) : IO Unit
 
 end Socket
 end TCP

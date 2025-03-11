@@ -138,6 +138,10 @@ theorem bind_comm {f : α → β → Option γ} (a : Option α) (b : Option β) 
 theorem bind_assoc (x : Option α) (f : α → Option β) (g : β → Option γ) :
     (x.bind f).bind g = x.bind fun y => (f y).bind g := by cases x <;> rfl
 
+theorem bind_congr {α β} {o : Option α} {f g : α → Option β} :
+    (h : ∀ {a}, o = some a → f a = g a) → o.bind f = o.bind g := by
+  cases o <;> simp
+
 theorem join_eq_some : x.join = some a ↔ x = some (some a) := by
   simp [bind_eq_some]
 

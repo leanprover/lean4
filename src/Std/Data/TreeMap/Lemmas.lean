@@ -426,9 +426,9 @@ theorem getKey?_erase_self [TransCmp cmp] {k : α} :
     (t.erase k).getKey? k = none :=
   DTreeMap.getKey?_erase_self
 
-theorem getKey?_beq [TransCmp cmp] {k : α} :
+theorem compare_getKey?_self [TransCmp cmp] {k : α} :
     (t.getKey? k).all (cmp · k = .eq) :=
-  DTreeMap.getKey?_beq
+  DTreeMap.compare_getKey?_self
 
 theorem getKey?_congr [TransCmp cmp] {k k' : α} (h' : cmp k k' = .eq) :
     t.getKey? k = t.getKey? k' :=
@@ -462,9 +462,9 @@ theorem getKey?_eq_some_getKey [TransCmp cmp] {a : α} {h'} :
     t.getKey? a = some (t.getKey a h') :=
   DTreeMap.getKey?_eq_some_getKey
 
-theorem getKey_beq [TransCmp cmp] {k : α} (h' : k ∈ t) :
+theorem compare_getKey_self [TransCmp cmp] {k : α} (h' : k ∈ t) :
     cmp (t.getKey k h') k = .eq :=
-  DTreeMap.getKey_beq h'
+  DTreeMap.compare_getKey_self h'
 
 theorem getKey_congr [TransCmp cmp] {k₁ k₂ : α} (h' : cmp k₁ k₂ = .eq)
     (h₁ : k₁ ∈ t) : t.getKey k₁ h₁ = t.getKey k₂ ((mem_congr h').mp h₁) :=

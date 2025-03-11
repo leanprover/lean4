@@ -213,7 +213,7 @@ theorem get?_erase_self [TransCmp cmp] {k : α} :
 
 theorem get?_beq [TransCmp cmp] {k : α} :
     (t.get? k).all (cmp · k = .eq) :=
-  DTreeMap.getKey?_beq
+  DTreeMap.compare_getKey?_self
 
 theorem get?_congr [TransCmp cmp] {k k' : α} (h' : cmp k k' = .eq) :
     t.get? k = t.get? k' :=
@@ -245,7 +245,7 @@ theorem get?_eq_some_get [TransCmp cmp] {a : α} {h'} :
 
 theorem get_beq [TransCmp cmp] {k : α} (h' : k ∈ t) :
     cmp (t.get k h') k = .eq :=
-  DTreeMap.getKey_beq h'
+  DTreeMap.compare_getKey_self h'
 
 theorem get_congr [TransCmp cmp] {k₁ k₂ : α} (h' : cmp k₁ k₂ = .eq)
     (h₁ : k₁ ∈ t) : t.get k₁ h₁ = t.get k₂ ((mem_congr h').mp h₁) :=

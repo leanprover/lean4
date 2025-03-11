@@ -274,9 +274,9 @@ def RewriteResult.newGoal (r : RewriteResult) : Option Expr :=
   else
     some r.result.eNew
 
-def RewriteResult.addSuggestion (ref : Syntax) (r : RewriteResult) : Elab.TermElabM Unit := do
+def RewriteResult.addSuggestion (ref : Syntax) (r : RewriteResult) : Elab.Tactic.TacticM Unit := do
   withMCtx r.mctx do
-    Tactic.TryThis.addRewriteSuggestion ref [(r.expr, r.symm)] (type? := r.newGoal) (origSpan? := ← getRef)
+    Tactic.TryThis.addRewriteSuggestion ref [(r.expr, r.symm)] (type? := r.newGoal) (origSpan? := ← getRef) (checkState? := (← saveState))
 
 structure RewriteResultConfig where
   stopAtRfl : Bool

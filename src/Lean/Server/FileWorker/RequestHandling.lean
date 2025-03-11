@@ -5,9 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
 prelude
+import Lean.Server.FileWorker.ExampleHover
 import Lean.Server.FileWorker.InlayHints
 import Lean.Server.FileWorker.SemanticHighlighting
-import Lean.Server.FileWorker.RequestHandling.Hover
 import Lean.Server.Completion
 import Lean.Server.References
 
@@ -71,13 +71,14 @@ def handleHover (p : HoverParams)
   let doc ← readDoc
   let text := doc.meta.text
   let mkHover (s : String) (r : String.Range) : Hover :=
-  let s := Hover.rewriteExamples s
-  { contents := {
-      kind := MarkupKind.markdown
-      value := s
+    let s := Hover.rewriteExamples s
+    {
+      contents := {
+        kind := MarkupKind.markdown
+        value := s
+      }
+      range? := r.toLspRange text
     }
-    range? := r.toLspRange text
-  }
 
   let hoverPos := text.lspPosToUtf8Pos p.position
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)

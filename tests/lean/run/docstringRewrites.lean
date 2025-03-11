@@ -257,7 +257,7 @@ It contains many further things of even greater lean-manual://section/ interest
 It contains many further things of even greater lean-manual://section/aaaaa/bbbb interest
 
 
-**Syntax Errors in Lean Language Reference Links**
+**❌ Syntax Errors in Lean Language Reference Links**
 
 The `lean-manual` URL scheme is used to link to the version of the Lean reference manual that
 corresponds to this version of Lean. Errors occurred while processing the links in this documentation

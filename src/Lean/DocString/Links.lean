@@ -61,22 +61,22 @@ def rewriteManualLinksCore (s : String) : BaseIO (Array (String.Range × String)
     iter := iter.next' h
 
     if lookingAt scheme iter.prev then
-        let start := iter.prev.forward scheme.length
-        let mut iter' := start
-        while h' : iter'.hasNext do
-          let c' := iter'.curr' h'
-          iter' := iter'.next' h'
-          if !urlChar c' || iter'.atEnd then
-            match rw (start.extract iter'.prev) with
-            | .error err =>
-              errors := errors.push (⟨iter.prev.i, iter'.prev.i⟩, err)
-              out := out.push c
-              break
-            | .ok path =>
-              out := out ++ (← manualRoot) ++ path
-              out := out.push c'
-              iter := iter'
-              break
+      let start := iter.prev.forward scheme.length
+      let mut iter' := start
+      while h' : iter'.hasNext do
+        let c' := iter'.curr' h'
+        iter' := iter'.next' h'
+        if !urlChar c' || iter'.atEnd then
+          match rw (start.extract iter'.prev) with
+          | .error err =>
+            errors := errors.push (⟨iter.prev.i, iter'.prev.i⟩, err)
+            out := out.push c
+            break
+          | .ok path =>
+            out := out ++ (← manualRoot) ++ path
+            out := out.push c'
+            iter := iter'
+            break
     else
       out := out.push c
   pure (errors, out)
@@ -99,16 +99,8 @@ where
   /--
   Returns `true` if `goal` is a prefix of the string at the position pointed to by `iter`.
   -/
-  lookingAt (goal : String) (iter : String.Iterator) : Bool := Id.run do
-    let mut iter := iter
-    let mut iter' := goal.iter
-    while h : (iter.hasNext ∧ iter'.hasNext) do
-      have ⟨h, h'⟩ := h
-      if iter.curr' h == iter'.curr' h' then
-        iter := iter.next' h
-        iter' := iter'.next' h'
-      else return false
-    return !iter'.hasNext
+  lookingAt (goal : String) (iter : String.Iterator) : Bool :=
+    iter.s.substrEq iter.i goal 0 goal.endPos.byteIdx
 
   rw (path : String) : Except String String := do
     match path.splitOn "/" with
@@ -134,7 +126,7 @@ def rewriteManualLinks (docString : String) : BaseIO String := do
   let (errs, str) ← rewriteManualLinksCore docString
   if !errs.isEmpty then
     let errReport :=
-      r#"**Syntax Errors in Lean Language Reference Links**
+      r#"**❌ Syntax Errors in Lean Language Reference Links**
 
 The `lean-manual` URL scheme is used to link to the version of the Lean reference manual that
 corresponds to this version of Lean. Errors occurred while processing the links in this documentation

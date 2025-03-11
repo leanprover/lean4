@@ -232,7 +232,7 @@ structure Diagnostics where
 structure State where
   cache        : Cache := {}
   congrCache   : CongrCache := {}
-  dsimpCache   : Std.HashMap ExprStructEq Expr := {}
+  dsimpCache   : ExprStructMap Expr := {}
   usedTheorems : UsedSimps := {}
   numSteps     : Nat := 0
   diag         : Diagnostics := {}

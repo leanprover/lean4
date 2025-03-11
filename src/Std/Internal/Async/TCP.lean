@@ -20,14 +20,14 @@ open Std.Net
 namespace Socket
 
 /--
-A high-level wrapper around a TCP socket for the server.
+Represents a TCP server socket, managing incoming client connections.
 -/
 structure Server where
   private ofNative ::
     native : Internal.UV.TCP.Socket
 
 /--
-A high-level wrapper around a TCP socket for a client.
+Represents a TCP client socket, used to connect to a server.
 -/
 structure Client where
   private ofNative ::

@@ -39,7 +39,7 @@ void lean_socket_address_to_sockaddr_storage(b_obj_arg ip_addr, sockaddr_storage
         cast->sin_family = AF_INET;
         cast->sin_port = htons(port_obj);
     } else {
-        sockaddr_in6 * cast = (sockaddr_in6*)out;
+        sockaddr_in6* cast = (sockaddr_in6*)out;
         lean_ipv6_addr_to_in6_addr(ip_addr_obj, (in6_addr*)&cast->sin6_addr);
         cast->sin6_family = AF_INET6;
         cast->sin6_port = htons(port_obj);

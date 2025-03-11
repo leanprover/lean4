@@ -11,9 +11,6 @@ namespace lean {
 
 #ifndef LEAN_EMSCRIPTEN
 
-#define UV_OK 1
-#define UV_ERROR 0
-
 // Stores all the things needed to connect to a TCP socket.
 typedef struct {
     lean_object* promise;
@@ -138,7 +135,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, obj_ar
 
     event_loop_lock(&global_ev);
 
-    int result = uv_tcp_connect(uv_connect, tcp_socket->m_uv_tcp, (sockaddr *)&addr_ptr, [](uv_connect_t* req, int status) {
+    int result = uv_tcp_connect(uv_connect, tcp_socket->m_uv_tcp, (sockaddr*)&addr_ptr, [](uv_connect_t* req, int status) {
         tcp_connect_data* tup = (tcp_connect_data*) req->data;
         lean_promise_resolve_with_code(status, tup->promise);
 
@@ -171,22 +168,22 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
     size_t data_len = lean_sarray_size(data);
-    char* data_str = (char *)lean_sarray_cptr(data);
+    char* data_str = (char*)lean_sarray_cptr(data);
 
     uv_buf_t buf = uv_buf_init(data_str, data_len);
 
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
 
-    uv_write_t* write_uv = (uv_write_t *)malloc(sizeof(uv_write_t));
-    write_uv->data = (tcp_send_data *)malloc(sizeof(tcp_send_data));
+    uv_write_t* write_uv = (uv_write_t*)malloc(sizeof(uv_write_t));
+    write_uv->data = (tcp_send_data*)malloc(sizeof(tcp_send_data));
 
     tcp_send_data* send_data = (tcp_send_data*)write_uv->data;
     send_data->promise = promise;
     send_data->data = data;
     send_data->socket = socket;
 
-    // These eobjects are going to enter the loop and be owned by it
+    // These objects are going to enter the loop and be owned by it
     lean_inc(promise);
     lean_inc(socket);
 
@@ -231,6 +228,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
     event_loop_lock(&global_ev);
 
     if (tcp_socket->m_byte_array != nullptr) {
+        event_loop_unlock(&global_ev);
         return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
     }
 
@@ -302,7 +300,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind(b_obj_arg socket, obj_arg a
     lean_socket_address_to_sockaddr_storage(addr, &addr_ptr);
 
     event_loop_lock(&global_ev);
-    int result = uv_tcp_bind(tcp_socket->m_uv_tcp, (sockaddr *)&addr_ptr, 0);
+    int result = uv_tcp_bind(tcp_socket->m_uv_tcp, (sockaddr*)&addr_ptr, 0);
     event_loop_unlock(&global_ev);
 
     if (result < 0) {
@@ -414,6 +412,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
     event_loop_lock(&global_ev);
 
     if (tcp_socket->m_promise_shutdown != nullptr) {
+        event_loop_unlock(&global_ev);
         return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, mk_string("shutdown already in progress")));
     }
 
@@ -461,7 +460,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
     return lean_io_result_mk_ok(promise);
 }
 
-/* Std.Internal.UV.TCP.Socket.getpeername (socket : @& Socket) : IO SocketAddress */
+/* Std.Internal.UV.TCP.Socket.getPeerName (socket : @& Socket) : IO SocketAddress */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getpeername(b_obj_arg socket) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
@@ -481,7 +480,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getpeername(b_obj_arg socket) {
     return lean_io_result_mk_ok(lean_addr);
 }
 
-/* Std.Internal.UV.TCP.Socket.getsockname (socket : @& Socket) : IO SocketAddress */
+/* Std.Internal.UV.TCP.Socket.getSockName (socket : @& Socket) : IO SocketAddress */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getsockname(b_obj_arg socket) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
@@ -529,8 +528,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int3
 
     return lean_io_result_mk_ok(lean_box(0));
 }
-}
-
 #else
 
 // =======================================
@@ -611,3 +608,4 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int3
     );
 }
 #endif
+}

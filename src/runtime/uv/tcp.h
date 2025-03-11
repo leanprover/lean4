@@ -25,7 +25,7 @@ typedef struct {
     lean_object*   m_promise_read;     // The associated promise for asynchronous results for reading from the socket.
     lean_object*   m_promise_shutdown; // The associated promise for asynchronous results to shutdown the socket.
     lean_object*   m_client;           // Cached client that is going to be used in the next accept.
-    lean_object*   m_byte_array;       // TThe received data stored.
+    lean_object*   m_byte_array;       //  Buffer for storing data received via `recv_start`.
 } lean_uv_tcp_socket_object;
 
 // =======================================

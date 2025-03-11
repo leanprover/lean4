@@ -2335,7 +2335,7 @@ theorem setWidth_eq_append_extractLsb' {v : Nat} {x : BitVec v} {w : Nat} :
 /--
 A `(x : BitVec v)` set to a width `w ≥ v` equals `(w - v)` zeros, followed by `x`.
 -/
-theorem setWidth_eq_concat {v : Nat} {x : BitVec v} {w : Nat} (h : v ≤ w) :
+theorem setWidth_eq_append {v : Nat} {x : BitVec v} {w : Nat} (h : v ≤ w) :
     x.setWidth w = ((0#(w - v)) ++ x).cast (by omega) := by
   rw [setWidth_eq_append_extractLsb']
   ext i hi

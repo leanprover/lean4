@@ -23,7 +23,6 @@ Implementation of the `exact?` tactic.
 -/
 def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireClose : Bool) :
     TacticM Unit := do
-  let mvar ← getMainGoal
   let initialState ← saveState
   let (_, goal) ← (← getMainGoal).intros
   goal.withContext do

@@ -573,6 +573,11 @@ example {x : BitVec 8} : (x &&& 10) &&& 2 = 2 &&& x := by bv_normalize
 example {x : BitVec 8} : 2 &&& (x &&& 10) = 2 &&& x := by bv_normalize
 example {x : BitVec 8} : 2 &&& (10 &&& x) = 2 &&& x := by bv_normalize
 
+-- BV_CONCAT_CONST
+example {x : BitVec 8} : 8#4 ++ (4#4 ++ x) = 132#8 ++ x := by bv_normalize
+example {x : BitVec 8} : (x ++ 4#4) ++ 8#4 = x ++ 72#8 := by bv_normalize
+
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

@@ -11,7 +11,6 @@ import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Not
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftLeft
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftRight
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Add
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ZeroExtend
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Append
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Replicate
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Extract
@@ -67,11 +66,6 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     simp [go, denote_blastConst]
   | var =>
     simp [go, hidx, denote_blastVar]
-  | zeroExtend v inner ih =>
-    simp only [go, denote_blastZeroExtend, ih, dite_eq_ite, Bool.if_false_right,
-      eval_zeroExtend, BitVec.getLsbD_setWidth, hidx, decide_true, Bool.true_and,
-      Bool.and_iff_right_iff_imp, decide_eq_true_eq]
-    apply BitVec.lt_of_getLsbD
   | append lhs rhs lih rih =>
     rename_i lw rw
     simp only [go, denote_blastAppend, RefVec.get_cast, Ref.cast_eq, eval_append,
@@ -229,16 +223,6 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
   | un op expr ih =>
     cases op with
     | not => simp [go, ih, hidx]
-    | shiftLeftConst i =>
-      rename_i w
-      simp [go, ih, hidx, show idx - i < w by omega]
-    | shiftRightConst =>
-      simp only [go, denote_blastShiftRightConst, ih, dite_eq_ite, Bool.if_false_right, eval_un,
-        BVUnOp.eval_shiftRightConst, BitVec.getLsbD_ushiftRight, Bool.and_iff_right_iff_imp,
-        decide_eq_true_eq]
-      intro h
-      apply BitVec.lt_of_getLsbD
-      assumption
     | rotateLeft => simp [go, ih, hidx, ← BitVec.getLsbD_eq_getElem]
     | rotateRight => simp [go, ih, hidx, ← BitVec.getLsbD_eq_getElem]
     | arithShiftRightConst n =>

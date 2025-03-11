@@ -442,27 +442,57 @@ def mkExactSuggestionSyntax (e : Expr) (useRefine : Bool) (exposeNames : Bool) :
   withOptions (pp.mvars.set · false) <| withExposedNames do
   let exprStx ← delabToRefinableSyntax e
   let tac ← if useRefine then `(tactic| refine $exprStx) else `(tactic| exact $exprStx)
-  let tacSeq ← if exposeNames then `(tactic| (expose_names; $tac)) else pure tac
+  let tacSeq ← if exposeNames then `(tactic| · expose_names; $tac) else pure tac
   -- We must add the message context here to account for exposed names
   let exprMessage ← addMessageContext <| MessageData.ofExpr e
   let tacMessage := if useRefine then m!"refine {exprMessage}" else m!"exact {exprMessage}"
-  let tacSeqMessage := if exposeNames then m!"(expose_names; {tacMessage})" else tacMessage
+  let tacSeqMessage := if exposeNames then m!"· expose_names; {tacMessage}" else tacMessage
   return (tacSeq, tacSeqMessage)
 
-private def addExactSuggestionCore (addSubgoalsMsg : Bool) (exposeNames : Bool) (e : Expr) :
-    MetaM Suggestion :=
+section ExactSuggestions
+open Tactic
+private def evalTacticWithState (initialState : Tactic.SavedState) (tac : TSyntax `tactic) : TacticM Unit := do
+  let currState ← saveState
+  initialState.restore
+  try
+    Term.withoutErrToSorry <| withoutRecover <| evalTactic tac
+  finally
+    currState.restore
+
+-- TODO: find a less expensive way to determine if `expose_names` is needed
+-- We can't (a) check the `Syntax` object for unprintable identifierss, since shadowed identifiers
+-- are printable but type-incorrect; nor can we (b) check `Expr`s pre-delab for unprintable or
+-- shadowed names because they may be implicit and thus may not be printed depending on the user's
+-- delaboration config
+private def addExactSuggestionCore (addSubgoalsMsg : Bool) (checkState? : Option Tactic.SavedState) (e : Expr) :
+    TacticM (Suggestion ⊕ MessageData) :=
   withOptions (pp.mvars.set · false) do
   let mvars ← getMVars e
-  let mut (suggestion, messageData?) ←
-    mkExactSuggestionSyntax e (useRefine := !mvars.isEmpty) exposeNames
-  let postInfo? ← if !addSubgoalsMsg || mvars.isEmpty then pure none else
-    let mut str := "\nRemaining subgoals:"
-    for g in mvars do
-      -- TODO: use a MessageData.ofExpr instead of rendering to string
-      let e ← PrettyPrinter.ppExpr (← instantiateMVars (← g.getType))
-      str := str ++ Format.pretty ("\n⊢ " ++ e)
-    pure str
-  pure { suggestion, postInfo?, messageData? }
+  let hasMVars := !mvars.isEmpty
+  let mut (suggestion, messageData) ← mkExactSuggestionSyntax e (useRefine := hasMVars) (exposeNames := false)
+  match checkState? with
+  | none => return .inl suggestion
+  | some checkState =>
+    try
+      evalTacticWithState checkState suggestion
+    catch _ =>
+      (suggestion, messageData) ← mkExactSuggestionSyntax e (useRefine := hasMVars) (exposeNames := true)
+      try
+        evalTacticWithState checkState suggestion
+      catch _ =>
+        let msg := m!"found a {if hasMVars then "partial " else ""}proof, \
+                      but the corresponding tactic failed:{indentD messageData}\n\n\
+                      It may be possible to correct this proof by adding type annotations or \
+                      eliminating unnecessary function abstractions."
+        return .inr msg
+    let postInfo? ← if !addSubgoalsMsg || mvars.isEmpty then pure none else
+      let mut str := "\nRemaining subgoals:"
+      for g in mvars do
+        -- TODO: use a MessageData.ofExpr instead of rendering to string
+        let e ← PrettyPrinter.ppExpr (← instantiateMVars (← g.getType))
+        str := str ++ Format.pretty ("\n⊢ " ++ e)
+      pure str
+    return .inl { suggestion, postInfo?, messageData? := messageData }
 
 /-- Add an `exact e` or `refine e` suggestion.
 
@@ -475,15 +505,23 @@ The parameters are:
   `Remaining subgoals:`
 * `codeActionPrefix?`: an optional string to be used as the prefix of the replacement text if the
   suggestion does not have a custom `toCodeActionTitle?`. If not provided, `"Try this: "` is used.
-* `exposeNames`: if true (default false), will insert `expose_names` prior to the generated tactic
+* `checkState?`: if passed, the tactic state in which the generated tactic will be validated,
+  inserting `expose_names` if necessary.
 -/
 def addExactSuggestion (ref : Syntax) (e : Expr)
+    -- TODO: rename `addSubgoalsMsg` to reflect its broader interpretation
     (origSpan? : Option Syntax := none) (addSubgoalsMsg := false)
-    (codeActionPrefix? : Option String := none) (exposeNames := false) : MetaM Unit := do
-  addSuggestion ref (← addExactSuggestionCore addSubgoalsMsg exposeNames e)
-    (origSpan? := origSpan?) (codeActionPrefix? := codeActionPrefix?)
+    (codeActionPrefix? : Option String := none)
+    (checkState? : Option Tactic.SavedState := none) : TacticM Unit := do
+  match (← addExactSuggestionCore addSubgoalsMsg checkState? e) with
+  | .inl suggestion =>
+    addSuggestion ref suggestion
+      (origSpan? := origSpan?) (codeActionPrefix? := codeActionPrefix?)
+  | .inr message =>
+    if addSubgoalsMsg then logInfo message else throwError message
 
-/-- Add `exact e` or `refine e` suggestions.
+/-- Add `exact e` or `refine e` suggestions if they can be successfully generated; for those that
+cannot, display messages indicating the invalid generated tactics.
 
 The parameters are:
 * `ref`: the span of the info diagnostic
@@ -495,12 +533,26 @@ The parameters are:
 * `codeActionPrefix?`: an optional string to be used as the prefix of the replacement text for all
   suggestions which do not have a custom `toCodeActionTitle?`. If not provided, `"Try this: "` is
   used.
+* `checkState?`: if passed, the tactic state in which the generated tactics will be validated,
+  inserting `expose_names` if necessary.
 -/
 def addExactSuggestions (ref : Syntax) (es : Array Expr)
+    -- TODO: rename `addSubgoalsMsg` as above
     (origSpan? : Option Syntax := none) (addSubgoalsMsg := false)
-    (codeActionPrefix? : Option String := none) (exposeNames := false) : MetaM Unit := do
-  let suggestions ← es.mapM <| addExactSuggestionCore addSubgoalsMsg exposeNames
+    (codeActionPrefix? : Option String := none)
+    (checkState? : Option Tactic.SavedState := none) : TacticM Unit := do
+  let suggestionOrMessages ← es.mapM <| addExactSuggestionCore addSubgoalsMsg checkState?
+  let mut suggestions : Array Suggestion := #[]
+  let mut messages : Array MessageData := #[]
+  for suggestionOrMessage in suggestionOrMessages do
+    match suggestionOrMessage with
+    | .inl suggestion => suggestions := suggestions.push suggestion
+    | .inr message => messages := messages.push message
   addSuggestions ref suggestions (origSpan? := origSpan?) (codeActionPrefix? := codeActionPrefix?)
+  for message in messages do
+    logInfo message
+
+end ExactSuggestions
 
 /-- Add a term suggestion.
 

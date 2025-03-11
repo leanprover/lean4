@@ -22,7 +22,7 @@ theorem odd_iff {n : Nat} : Odd n ↔ n % 2 = 1 := by
 
 /--
 error: found a proof, but the corresponding tactic failed:
-  (expose_names; exact fun a => (fun {n} => odd_iff.mpr) a)
+  · expose_names; exact odd_iff.mpr h
 
 It may be possible to correct this proof by adding type annotations or eliminating unnecessary function abstractions.
 -/
@@ -38,9 +38,7 @@ opaque C : Prop
 axiom imp : A → B → C
 axiom a : A
 axiom b : B
-/--
-info: Try this: (expose_names; exact imp h_1 h)
--/
+/-- info: Try this: · expose_names; exact imp h_1 h -/
 #guard_msgs in
 example : C := by
   have h : A := a
@@ -53,7 +51,7 @@ inductive EqExplicit {α} : α → α → Prop
   | intro : (a b : α) → a = b → EqExplicit a b
 /--
 error: found a proof, but the corresponding tactic failed:
-  (expose_names; exact EqExplicit.intro (fun f => (fun g x => g x) f) id rfl)
+  · expose_names; exact EqExplicit.intro (fun f => (fun g x => g x) f) id rfl
 
 It may be possible to correct this proof by adding type annotations or eliminating unnecessary function abstractions.
 -/
@@ -62,9 +60,7 @@ example : EqExplicit (fun (f : α → β) => (fun g x => g x) f) id := by
   exact?
 
 /-! Suggests `expose_names` if a name in the syntax contains macro scopes -/
-/--
-info: Try this: (expose_names; exact h)
--/
+/-- info: Try this: · expose_names; exact h -/
 #guard_msgs in
 example {P : Prop} : P → P := by
   intro
@@ -88,7 +84,7 @@ axiom option2 {_ : B} : E
 info: Try this: refine option1 ?_
 ---
 info: found a partial proof, but the corresponding tactic failed:
-  (expose_names; refine option2)
+  · expose_names; refine option2
 
 It may be possible to correct this proof by adding type annotations or eliminating unnecessary function abstractions.
 ---

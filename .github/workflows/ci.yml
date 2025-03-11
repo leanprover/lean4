@@ -204,7 +204,8 @@ jobs:
                 "os": "macos-14",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
-                "check-level": 0,
+                // special cased below
+                // "check-level": 0,
                 "shell": "bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
@@ -260,8 +261,20 @@ jobs:
               //   "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean|leanruntest_tempfile.lean\\.|leanruntest_libuv\\.lean\""
               // }
             ];
-            console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`)
-            return matrix.filter((job) => level >= job["check-level"])
+            console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`);
+            const filter = (job) => {
+              if (job["name"] === "macOS aarch64") {
+                // Special handling for MacOS aarch64, we want:
+                // 1. To run it in PRs so Mac devs get PR toolchains
+                // 2. To skip it in merge queues as it takes longer than the Linux build and adds
+                //    little value in the merge queue
+                // 3. To run it in release (obviously)
+                return level == 0 || level >= 2;
+              } else {
+                return level >= job["check-level"];
+              }
+            };
+            return matrix.filter(filter);
 
   build:
     needs: [configure]

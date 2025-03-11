@@ -2044,7 +2044,7 @@ theorem toInt_shiftRight_lt {x : BitVec w} {n : Nat} :
   norm_cast at *
   omega
 
-theorem lt_toInt_shiftRight {x : BitVec w} {n : Nat} :
+theorem le_toInt_shiftRight {x : BitVec w} {n : Nat} :
     -(2 ^ (w - 1)) ≤ x.toInt >>> n := by
   have := @Int.le_shiftRight_of_nonpos x.toInt n
   have := @Int.le_shiftRight_of_nonneg x.toInt n
@@ -2104,7 +2104,7 @@ theorem toInt_sshiftRight {x : BitVec w} {n : Nat} :
     simp [BitVec.eq_nil x]
   · rw [sshiftRight, toInt_ofInt, ←Nat.two_pow_pred_add_two_pow_pred (by omega)]
     have := @toInt_shiftRight_lt w x n
-    have := @lt_toInt_shiftRight w x n
+    have := @le_toInt_shiftRight w x n
     norm_cast at *
     exact Int.bmod_eq_self_of_le (by omega) (by omega)
 

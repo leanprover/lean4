@@ -38,12 +38,12 @@ theorem negOfNat_eq : negOfNat n = -ofNat n := rfl
 
 /-! ## These are only for internal use -/
 
-@[local simp] private theorem ofNat_add_ofNat (m n : Nat) : (↑m + ↑n : Int) = ↑(m + n) := rfl
-@[local simp] private theorem ofNat_add_negSucc (m n : Nat) : ↑m + -[n+1] = subNatNat m (succ n) := rfl
-@[local simp] private theorem negSucc_add_ofNat (m n : Nat) : -[m+1] + ↑n = subNatNat n (succ m) := rfl
-@[local simp] private theorem negSucc_add_negSucc (m n : Nat) : -[m+1] + -[n+1] = -[succ (m + n) +1] := rfl
+@[local simp] theorem ofNat_add_ofNat (m n : Nat) : (↑m + ↑n : Int) = ↑(m + n) := rfl
+@[local simp] theorem ofNat_add_negSucc (m n : Nat) : ↑m + -[n+1] = subNatNat m (succ n) := rfl
+@[local simp] theorem negSucc_add_ofNat (m n : Nat) : -[m+1] + ↑n = subNatNat n (succ m) := rfl
+@[local simp] theorem negSucc_add_negSucc (m n : Nat) : -[m+1] + -[n+1] = -[succ (m + n) +1] := rfl
 
-@[local simp] private theorem ofNat_mul_ofNat (m n : Nat) : (↑m * ↑n : Int) = ↑(m * n) := rfl
+@[local simp] theorem ofNat_mul_ofNat (m n : Nat) : (↑m * ↑n : Int) = ↑(m * n) := rfl
 @[local simp] private theorem ofNat_mul_negSucc' (m n : Nat) : ↑m * -[n+1] = negOfNat (m * succ n) := rfl
 @[local simp] private theorem negSucc_mul_ofNat' (m n : Nat) : -[m+1] * ↑n = negOfNat (succ m * n) := rfl
 @[local simp] private theorem negSucc_mul_negSucc' (m n : Nat) :

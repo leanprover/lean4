@@ -2181,14 +2181,14 @@ theorem append_def (x : BitVec v) (y : BitVec w) :
     (x ++ y).toNat = x.toNat <<< n ||| y.toNat :=
   rfl
 
-@[simp] theorem getLsbD_append {x : BitVec n} {y : BitVec m} :
+theorem getLsbD_append {x : BitVec n} {y : BitVec m} :
     getLsbD (x ++ y) i = if i < m then getLsbD y i else getLsbD x (i - m) := by
   simp only [append_def, getLsbD_or, getLsbD_shiftLeftZeroExtend, getLsbD_setWidth']
   by_cases h : i < m
   · simp [h]
   · simp_all [h]
 
-@[simp] theorem getElem_append {x : BitVec n} {y : BitVec m} (h : i < n + m) :
+theorem getElem_append {x : BitVec n} {y : BitVec m} (h : i < n + m) :
     (x ++ y)[i] = if h : i < m then y[i] else x[i - m] := by
   simp only [append_def]
   by_cases h' : i < m

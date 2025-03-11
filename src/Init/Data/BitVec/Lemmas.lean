@@ -2322,15 +2322,11 @@ followed by the low `(min v w) bits of `x`
 theorem setWidth_eq_append_extractLsb' {v : Nat} {x : BitVec v} {w : Nat} :
     x.setWidth w = ((0#(w - v)) ++ x.extractLsb' 0 (min v w)).cast (by omega) := by
   ext i hi
-  simp only [getElem_setWidth, getElem_cast, getElem_append]
+  simp only [getElem_cast, getElem_append]
   by_cases hiv : i < v
   · simp [hi]
     omega
-  · simp only [getElem_extractLsb', Nat.zero_add, getElem_zero, dite_eq_ite, Bool.if_false_right,
-    Bool.iff_and_self, decide_eq_true_eq]
-    intros hcontra
-    have : x.getLsbD i = false := getLsbD_ge x i (by omega)
-    simp [this] at hcontra
+  · simp [getLsbD_ge x i (by omega)]
 
 /--
 A `(x : BitVec v)` set to a width `w ≥ v` equals `(w - v)` zeros, followed by `x`.
@@ -2339,14 +2335,11 @@ theorem setWidth_eq_append {v : Nat} {x : BitVec v} {w : Nat} (h : v ≤ w) :
     x.setWidth w = ((0#(w - v)) ++ x).cast (by omega) := by
   rw [setWidth_eq_append_extractLsb']
   ext i hi
-  simp only [getElem_cast, getElem_append, getElem_extractLsb', Nat.zero_add, getElem_zero,
-    dite_eq_ite, Bool.if_false_right]
+  simp only [getElem_cast, getElem_append]
   by_cases hiv : i < v
   · simp [hiv]
     omega
-  · simp only [hiv, ↓reduceDIte, Bool.and_eq_false_imp, decide_eq_true_eq]
-    intros hmin
-    apply getLsbD_ge x i (by omega)
+  · simp [hiv, getLsbD_ge x i (by omega)]
 
 theorem ushiftRight_eq_extractLsb'_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
     x >>> n = ((0#n) ++ (x.extractLsb' n (w - n))).cast (by omega) := by

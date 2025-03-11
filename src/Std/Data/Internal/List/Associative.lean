@@ -9,7 +9,6 @@ import Init.Data.Nat.Simproc
 import Init.Data.List.Perm
 import Init.Data.List.Find
 import Init.Data.List.Monadic
-import Std.Classes.Ord
 import Std.Data.Internal.List.Defs
 
 /-!
@@ -4412,6 +4411,14 @@ theorem snd_eq_getValueCast_of_getEntry?_eq_some [BEq α] [LawfulBEq α]
   simp only [Sigma.snd_congr (Option.get_congr h), cast_cast]
   rfl
 
+theorem eq_getKey_getValue_of_getEntry?_eq_some [BEq α] [EquivBEq α] {β : Type v}
+    {l : List ((_ : α) × β)} {k : α}
+    {y : (_ : α) × β} (h : getEntry? k l = some y) :
+    haveI h' := containsKey_eq_isSome_getEntry?.trans (Option.isSome_of_eq_some h)
+    y = ⟨getKey k l h', getValue k l h'⟩ := by
+  simp only [getKey, getKey?_eq_getEntry?, getValue, getValue?_eq_getEntry?, h,
+    Option.get_map, Option.get_some]
+
 theorem isSome_apply_of_containsKey_filterMap [BEq α] [LawfulBEq α]
     {f : (a : α) → β a → Option (γ a)}
     {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l)
@@ -4421,8 +4428,18 @@ theorem isSome_apply_of_containsKey_filterMap [BEq α] [LawfulBEq α]
   simp only [Option.isSome_bind, Option.isSome_map', Option.any_eq_true] at h
   obtain ⟨y, (hy : _ = _), hy'⟩ := h
   cases eq_of_beq (getEntry?_eq_some hy)
-  simp only [snd_eq_getValueCast_of_getEntry?_eq_some hy] at hy'
-  exact hy'
+  simpa only [snd_eq_getValueCast_of_getEntry?_eq_some hy] using hy'
+
+theorem Const.isSome_apply_of_containsKey_filterMap [BEq α] [EquivBEq α] {β : Type v} {γ : Type w}
+    {f : α → β → Option γ}
+    {l : List ((_ : α) × β)} {k : α} (hl : DistinctKeys l)
+    (h : containsKey k (l.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩ : γ → (_ : α) × γ))) :
+    haveI h' := containsKey_of_containsKey_filterMap hl h
+    (f (getKey k l h') (getValue k l h')).isSome := by
+  simp only [containsKey_eq_isSome_getEntry?, getEntry?_filterMap hl] at h
+  simp only [Option.isSome_bind, Option.isSome_map', Option.any_eq_true] at h
+  obtain ⟨y, (hy : _ = _), hy'⟩ := h
+  simpa only [eq_getKey_getValue_of_getEntry?_eq_some hy] using hy'
 
 theorem containsKey_of_containsKey_filter [BEq α] [EquivBEq α]
     {f : (a : α) → β a → Bool}
@@ -4541,6 +4558,32 @@ theorem getKey_filter [BEq α] [EquivBEq α] {f : (a : α) → β a → Bool}
     getKey k (l.filter fun p => f p.1 p.2) h =
       getKey k l (containsKey_of_containsKey_filter hl h) := by
   simp only [getKey, getKey?_eq_getEntry?, getEntry?_filter hl, Option.get_map, Option.get_filter]
+
+theorem getValue_map [BEq α] [EquivBEq α] {β : Type v} {γ : Type w}
+    {f : α → β → γ}
+    {l : List ((_ : α) × β)} {k : α} (hl : DistinctKeys l) {h} :
+    getValue k (l.map fun p => ⟨p.1, f p.1 p.2⟩) h =
+      haveI h' := containsKey_map.symm.trans h
+      f (getKey k l h') (getValue k l h') := by
+  simp only [getKey, getKey?_eq_getEntry?, getValue, getValue?_eq_getEntry?, getEntry?_map hl,
+    Option.get_map]
+
+theorem getValue_filterMap [BEq α] [EquivBEq α] {β : Type v} {γ : Type w}
+    {f : α → β → Option γ}
+    {l : List ((_ : α) × β)} {k : α} (hl : DistinctKeys l) {h} :
+    getValue k (l.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩ : γ → (_ : α) × γ)) h =
+      haveI h' := containsKey_of_containsKey_filterMap hl h
+      haveI h'' := Const.isSome_apply_of_containsKey_filterMap hl h
+      (f (getKey k l h') (getValue k l h')).get h'' := by
+  simp only [getKey, getKey?_eq_getEntry?, getValue, getValue?_eq_getEntry?,
+    getEntry?_filterMap hl, Option.get_map, Option.get_bind]
+
+theorem getValue_filter [BEq α] [EquivBEq α] {β : Type v} {f : α → β → Bool}
+    {l : List ((_ : α) × β)} {k : α} (hl : DistinctKeys l) {h} :
+    getValue k (l.filter fun p => f p.1 p.2) h =
+      getValue k l (containsKey_of_containsKey_filter hl h) := by
+  simp only [getValue, getValue?_eq_getEntry?, getEntry?_filter hl,
+    Option.get_map, Option.get_filter]
 
 theorem length_filterMap_eq_length_iff [BEq α] [LawfulBEq α] {f : (a : α) → β a → Option (γ a)}
     {l : List ((a : α) × β a)} (distinct : DistinctKeys l):

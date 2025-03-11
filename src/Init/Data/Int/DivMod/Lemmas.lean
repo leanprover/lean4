@@ -912,7 +912,7 @@ theorem le_of_mul_le_mul_right {a b c : Int} (w : b * a ≤ c * a) (h : 0 < a) :
 protected theorem ediv_le_of_le_mul {a b c : Int} (H : 0 < c) (H' : a ≤ b * c) : a / c ≤ b :=
   le_of_mul_le_mul_right (Int.le_trans (Int.ediv_mul_le _ (Int.ne_of_gt H)) H') H
 
-protected theorem ediv_nonpos_of_nonpos_of_pos {n s : Int} (h : n ≤ 0) (h2 : 0 < s) : n / s ≤ 0 :=
+protected theorem ediv_nonpos_of_nonpos_of_neg {n s : Int} (h : n ≤ 0) (h2 : 0 < s) : n / s ≤ 0 :=
   Int.ediv_le_of_le_mul h2 (by simp [h])
 
 protected theorem mul_lt_of_lt_ediv {a b c : Int} (H : 0 < c) (H3 : a < b / c) : a * c < b :=

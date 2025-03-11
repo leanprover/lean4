@@ -79,7 +79,7 @@ theorem shiftRight_le_of_nonpos {n : Int} {s : Nat} (h : n ≤ 0) : (n >>> s) �
   by_cases h' : s = 0
   · simp [h', h]
   · have : 1 < 2 ^ s := Nat.one_lt_two_pow (by omega)
-    have rl : n / 2 ^ s ≤ 0 := Int.ediv_nonpos_of_nonpos_of_pos (by omega) (by norm_cast at *; omega)
+    have rl : n / 2 ^ s ≤ 0 := Int.ediv_nonpos_of_nonpos_of_neg (by omega) (by norm_cast at *; omega)
     norm_cast at *
 
 end Int

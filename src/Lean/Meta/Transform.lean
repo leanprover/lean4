@@ -80,8 +80,10 @@ local instance {m} [MonadLiftT MetaM m] : MonadLiftT (ST IO.RealWorld) m where
 /--
 Similar to `Meta.transform`, but allows the use of a pre-existing cache.
 
-Warning: It is important that there are no other references to `cache` when it is passed to
-`transformWithCache`, to avoid unnecessary copying of the hash map.
+Warnings:
+- For the cache to be valid, is must always use the same `pre` and `post` functions.
+- It is important that there are no other references to `cache` when it is passed to
+  `transformWithCache`, to avoid unnecessary copying of the hash map.
 -/
 @[inline]
 partial def transformWithCache {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]

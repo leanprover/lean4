@@ -112,9 +112,9 @@ where
         |>.foldl (· ++ ·) {}
       -- In contrast to messages, we should collect info trees only from the top-level command
       -- snapshots as they subsume any info trees reported incrementally by their children.
-      let trees := commands.map (·.finishedSnap.get.infoTree?) |>.filterMap id |>.toPArray'
+      let trees := commands.map (·.infoTreeSnap.get.infoTree?) |>.filterMap id |>.toPArray'
       return {
-        commandState := { snap.finishedSnap.get.cmdState with messages, infoState.trees := trees }
+        commandState := { snap.resultSnap.get.cmdState with messages, infoState.trees := trees }
         parserState := snap.parserState
         cmdPos := snap.parserState.pos
         commands := commands.map (·.stx)

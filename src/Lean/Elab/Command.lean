@@ -226,13 +226,16 @@ private def runCore (x : CoreM α) : CommandElabM α := do
   }
   let (ea, coreS) ← liftM x
   modify fun s => { s with
-    env               := coreS.env
-    nextMacroScope    := coreS.nextMacroScope
-    ngen              := coreS.ngen
-    infoState.trees   := s.infoState.trees.append coreS.infoState.trees
-    traceState.traces := coreS.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }
-    snapshotTasks     := coreS.snapshotTasks
-    messages          := s.messages ++ coreS.messages
+    env                      := coreS.env
+    nextMacroScope           := coreS.nextMacroScope
+    ngen                     := coreS.ngen
+    infoState.trees          := s.infoState.trees.append coreS.infoState.trees
+    -- we assume substitution of `assingment` has already happened, but for lazy assignments we only
+    -- do it at the very end
+    infoState.lazyAssignment := coreS.infoState.lazyAssignment
+    traceState.traces        := coreS.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }
+    snapshotTasks            := coreS.snapshotTasks
+    messages                 := s.messages ++ coreS.messages
   }
   return ea
 
@@ -299,20 +302,20 @@ Interrupt and abort exceptions are caught but not logged.
   EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
 
 @[inherit_doc Core.wrapAsync]
-def wrapAsync (act : Unit → CommandElabM α) (cancelTk? : Option IO.CancelToken) :
-    CommandElabM (EIO Exception α) := do
+def wrapAsync {α β : Type} (act : α → CommandElabM β) (cancelTk? : Option IO.CancelToken) :
+    CommandElabM (α → EIO Exception β) := do
   let ctx ← read
   let ctx := { ctx with cancelTk? }
   let st ← get
-  return act () |>.run ctx |>.run' st
+  return (act · |>.run ctx |>.run' st)
 
 open Language in
 @[inherit_doc Core.wrapAsyncAsSnapshot]
 -- `CoreM` and `CommandElabM` are too different to meaningfully share this code
-def wrapAsyncAsSnapshot (act : Unit → CommandElabM Unit) (cancelTk? : Option IO.CancelToken)
+def wrapAsyncAsSnapshot {α : Type} (act : α → CommandElabM Unit) (cancelTk? : Option IO.CancelToken)
     (desc : String := by exact decl_name%.toString) :
-    CommandElabM (BaseIO SnapshotTree) := do
-  let t ← wrapAsync (cancelTk? := cancelTk?) fun _ => do
+    CommandElabM (α → BaseIO SnapshotTree) := do
+  let f ← wrapAsync (cancelTk? := cancelTk?) fun a => do
     IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get (← getOptions)) do
       let tid ← IO.getTID
       -- reset trace state and message log so as not to report them twice
@@ -323,15 +326,15 @@ def wrapAsyncAsSnapshot (act : Unit → CommandElabM Unit) (cancelTk? : Option I
       }
       try
         withTraceNode `Elab.async (fun _ => return desc) do
-          act ()
+          act a
       catch e =>
         logError e.toMessageData
       finally
         addTraceAsMessages
       get
   let ctx ← read
-  return do
-    match (← t.toBaseIO) with
+  return fun a => do
+    match (← (f a).toBaseIO) with
     | .ok (output, st) =>
       let mut msgs := st.messages
       if !output.isEmpty then
@@ -353,6 +356,7 @@ def wrapAsyncAsSnapshot (act : Unit → CommandElabM Unit) (cancelTk? : Option I
 def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CommandElabM Unit :=
   modify fun s => { s with snapshotTasks := s.snapshotTasks.push task }
 
+open Language in
 def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
   if !Elab.async.get (← getOptions) then
     withoutModifyingEnv do
@@ -362,8 +366,13 @@ def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
   -- We only start one task for all linters for now as most linters are fast and we simply want
   -- to unblock elaboration of the next command
   let cancelTk ← IO.CancelToken.new
-  let lintAct ← wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => runLinters stx
-  logSnapshotTask { stx? := none, task := (← BaseIO.asTask lintAct), cancelTk? := cancelTk }
+  let lintAct ← wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun infoSt => do
+    modifyInfoState fun _ => infoSt
+    runLinters stx
+
+  -- linters should have access to the complete info tree
+  let task ← BaseIO.mapTask (t := (← getInfoState).substituteLazy) lintAct
+  logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
 
 protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
 protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
@@ -579,11 +588,7 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
     if let some snap := (← read).snap? then
       snap.new.resolve default
 
-    -- note the order: first process current messages & info trees, then add back old messages & trees,
-    -- then convert new traces to messages
-    let mut msgs := (← get).messages
-    for tree in (← getInfoTrees) do
-      trace[Elab.info] (← tree.format)
+    let msgs := (← get).messages
     modify fun st => { st with
       messages := initMsgs ++ msgs
       infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }

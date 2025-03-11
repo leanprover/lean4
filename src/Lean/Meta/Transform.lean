@@ -73,25 +73,25 @@ end Core
 
 namespace Meta
 
+local instance {m} [MonadLiftT MetaM m] : STWorld IO.RealWorld m := ⟨⟩
 local instance {m} [MonadLiftT MetaM m] : MonadLiftT (ST IO.RealWorld) m where
   monadLift x := liftMetaM (liftM x)
-local instance {m} [MonadLiftT MetaM m] : STWorld IO.RealWorld m := ⟨⟩
 
 /--
-  Similar to `Core.transform`, but terms provided to `pre` and `post` do not contain loose bound variables.
-  So, it is safe to use any `MetaM` method at `pre` and `post`.
+Similar to `Meta.transform`, but allows the use of a pre-existing cache.
 
-  If `skipConstInApp := true`, then for an expression `mkAppN (.const f) args`, the subexpression
-  `.const f` is not visited again. Put differently: every `.const f` is visited once, with its
-  arguments if present, on its own otherwise.
- -/
-partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
+Warning: It is important that there are no other references to `cache` when it is passed to
+`transformWithCache`, to avoid unnecessary copying of the hash map.
+-/
+@[inline]
+partial def transformWithCache {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
     (input : Expr)
+    (cache : Std.HashMap ExprStructEq Expr)
     (pre   : Expr → m TransformStep := fun _ => return .continue)
     (post  : Expr → m TransformStep := fun e => return .done e)
     (usedLetOnly := false)
     (skipConstInApp := false)
-    : m Expr := do
+    : m (Expr × Std.HashMap ExprStructEq Expr) :=
   let rec visit (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
     checkCache { val := e : ExprStructEq } fun _ => Meta.withIncRecDepth do
       let rec visitPost (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
@@ -136,7 +136,28 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
         | .mdata _ b     => visitPost (e.updateMData! (← visit b))
         | .proj _ _ b    => visitPost (e.updateProj! (← visit b))
         | _              => visitPost e
-  visit input |>.run
+  StateRefT'.run (visit input) cache
+
+/--
+Similar to `Core.transform`, but terms provided to `pre` and `post` do not contain loose bound variables.
+So, it is safe to use any `MetaM` method at `pre` and `post`.
+
+Warning: `pre` and `post` should not depend on variables in the local context introduced by `transform`.
+This is in order to allow aggressive caching.
+
+If `skipConstInApp := true`, then for an expression `mkAppN (.const f) args`, the subexpression
+`.const f` is not visited again. Put differently: every `.const f` is visited once, with its
+arguments if present, on its own otherwise.
+-/
+def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
+    (input : Expr)
+    (pre   : Expr → m TransformStep := fun _ => return .continue)
+    (post  : Expr → m TransformStep := fun e => return .done e)
+    (usedLetOnly := false)
+    (skipConstInApp := false)
+    : m Expr := do
+  let (e, _) ← transformWithCache input {} pre post usedLetOnly skipConstInApp
+  return e
 
 -- TODO: add options to distinguish zeta and zetaDelta reduction
 def zetaReduce (e : Expr) : MetaM Expr := do

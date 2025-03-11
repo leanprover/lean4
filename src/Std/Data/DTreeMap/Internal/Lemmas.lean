@@ -1013,7 +1013,7 @@ theorem getKey?_erase!_self [TransOrd α] (h : t.WF) {k : α} :
 theorem compare_getKey?_self [TransOrd α] (h : t.WF) {k : α} :
     (t.getKey? k).all (compare · k = .eq) := by
   simp only [compare_eq_iff_beq, Bool.decide_eq_true]
-  simp_to_model using List.compare_getKey?_self
+  simp_to_model using List.getKey?_beq
 
 theorem getKey?_congr [TransOrd α] (h : t.WF) {k k' : α} (h' : compare k k' = .eq) :
     t.getKey? k = t.getKey? k' := by
@@ -1067,7 +1067,7 @@ theorem getKey?_eq_some_getKey [TransOrd α] (h : t.WF) {a : α} {h'} :
 
 theorem compare_getKey_self [TransOrd α] (h : t.WF) {k : α} (h' : k ∈ t) :
     compare (t.getKey k h') k = .eq := by
-  simp_to_model using List.compare_getKey_self
+  simp_to_model using List.getKey_beq
 
 theorem getKey_congr [TransOrd α] (h : t.WF) {k₁ k₂ : α} (h' : compare k₁ k₂ = .eq)
     (h₁ : k₁ ∈ t) : t.getKey k₁ h₁ = t.getKey k₂ ((mem_congr h h').mp h₁) := by

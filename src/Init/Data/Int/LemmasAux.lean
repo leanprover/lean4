@@ -15,6 +15,32 @@ import Init.Omega
 
 namespace Int
 
+/-! ### miscellaneous lemmas -/
+
+@[simp] theorem natCast_le_zero : {n : Nat} → (n : Int) ≤ 0 ↔ n = 0 := by omega
+
+protected theorem sub_eq_iff_eq_add {b a c : Int} : a - b = c ↔ a = c + b := by omega
+protected theorem sub_eq_iff_eq_add' {b a c : Int} : a - b = c ↔ a = b + c := by omega
+
+@[simp] protected theorem neg_nonpos_iff (i : Int) : -i ≤ 0 ↔ 0 ≤ i := by omega
+
+@[simp] theorem zero_le_ofNat (n : Nat) : 0 ≤ ((no_index (OfNat.ofNat n)) : Int) :=
+  ofNat_nonneg _
+
+@[simp] theorem neg_natCast_le_natCast (n m : Nat) : -(n : Int) ≤ (m : Int) :=
+  Int.le_trans (by simp) (ofNat_zero_le m)
+
+@[simp] theorem neg_natCast_le_ofNat (n m : Nat) : -(n : Int) ≤ (no_index (OfNat.ofNat m)) :=
+  Int.le_trans (by simp) (ofNat_zero_le m)
+
+@[simp] theorem neg_ofNat_le_ofNat (n m : Nat) : -(no_index (OfNat.ofNat n)) ≤ (no_index (OfNat.ofNat m)) :=
+  Int.le_trans (by simp) (ofNat_zero_le m)
+
+@[simp] theorem neg_ofNat_le_natCast (n m : Nat) : -(no_index (OfNat.ofNat n)) ≤ (m : Int) :=
+  Int.le_trans (by simp) (ofNat_zero_le m)
+
+/-! ### toNat -/
+
 @[simp] theorem toNat_sub' (a : Int) (b : Nat) : (a - b).toNat = a.toNat - b := by
   symm
   simp only [Int.toNat]
@@ -39,16 +65,12 @@ namespace Int
   simp [toNat]
   split <;> simp_all <;> omega
 
-theorem bmod_neg_iff {m : Nat} {x : Int} (h2 : -m ≤ x) (h1 : x < m) :
-    (x.bmod m) < 0 ↔ (-(m / 2) ≤ x ∧ x < 0) ∨ ((m + 1) / 2 ≤ x) := by
-  simp only [Int.bmod_def]
-  by_cases xpos : 0 ≤ x
-  · rw [Int.emod_eq_of_lt xpos (by omega)]; omega
-  · rw [Int.add_emod_self.symm, Int.emod_eq_of_lt (by omega) (by omega)]; omega
-
-@[simp] theorem natCast_le_zero : {n : Nat} → (n : Int) ≤ 0 ↔ n = 0 := by omega
-
 @[simp] theorem toNat_eq_zero : ∀ {n : Int}, n.toNat = 0 ↔ n ≤ 0 := by omega
+
+@[simp] theorem toNat_le {m : Int} {n : Nat} : m.toNat ≤ n ↔ m ≤ n := by omega
+@[simp] theorem toNat_lt' {m : Int} {n : Nat} (hn : 0 < n) : m.toNat < n ↔ m < n := by omega
+
+/-! ### natAbs -/
 
 theorem eq_zero_of_dvd_of_natAbs_lt_natAbs {d n : Int} (h : d ∣ n) (h₁ : n.natAbs < d.natAbs) :
     n = 0 := by
@@ -56,6 +78,53 @@ theorem eq_zero_of_dvd_of_natAbs_lt_natAbs {d n : Int} (h : d ∣ n) (h₁ : n.n
   rw [natAbs_mul] at h₁
   suffices ¬ 0 < a.natAbs by simp [Int.natAbs_eq_zero.1 (Nat.eq_zero_of_not_pos this)]
   exact fun h => Nat.lt_irrefl _ (Nat.lt_of_le_of_lt (Nat.le_mul_of_pos_right d.natAbs h) h₁)
+
+/-! ### min and max -/
+
+@[simp] protected theorem min_assoc : ∀ (a b c : Int), min (min a b) c = min a (min b c) := by omega
+instance : Std.Associative (α := Nat) min := ⟨Nat.min_assoc⟩
+
+@[simp] protected theorem min_self_assoc {m n : Int} : min m (min m n) = min m n := by
+  rw [← Int.min_assoc, Int.min_self]
+
+@[simp] protected theorem min_self_assoc' {m n : Int} : min n (min m n) = min n m := by
+  rw [Int.min_comm m n, ← Int.min_assoc, Int.min_self]
+
+@[simp] protected theorem max_assoc (a b c : Int) : max (max a b) c = max a (max b c) := by omega
+instance : Std.Associative (α := Nat) max := ⟨Nat.max_assoc⟩
+
+@[simp] protected theorem max_self_assoc {m n : Int} : max m (max m n) = max m n := by
+  rw [← Int.max_assoc, Int.max_self]
+
+@[simp] protected theorem max_self_assoc' {m n : Int} : max n (max m n) = max n m := by
+  rw [Int.max_comm m n, ← Int.max_assoc, Int.max_self]
+
+protected theorem max_min_distrib_left (a b c : Int) : max a (min b c) = min (max a b) (max a c) := by omega
+
+protected theorem min_max_distrib_left (a b c : Int) : min a (max b c) = max (min a b) (min a c) := by omega
+
+protected theorem max_min_distrib_right (a b c : Int) :
+    max (min a b) c = min (max a c) (max b c) := by omega
+
+protected theorem min_max_distrib_right (a b c : Int) :
+    min (max a b) c = max (min a c) (min b c) := by omega
+
+protected theorem sub_min_sub_right (a b c : Int) : min (a - c) (b - c) = min a b - c := by omega
+
+protected theorem sub_max_sub_right (a b c : Int) : max (a - c) (b - c) = max a b - c := by omega
+
+protected theorem sub_min_sub_left (a b c : Int) : min (a - b) (a - c) = a - max b c := by omega
+
+protected theorem sub_max_sub_left (a b c : Int) : max (a - b) (a - c) = a - min b c := by omega
+
+/-! ### bmod -/
+
+theorem bmod_neg_iff {m : Nat} {x : Int} (h2 : -m ≤ x) (h1 : x < m) :
+    (x.bmod m) < 0 ↔ (-(m / 2) ≤ x ∧ x < 0) ∨ ((m + 1) / 2 ≤ x) := by
+  simp only [Int.bmod_def]
+  by_cases xpos : 0 ≤ x
+  · rw [Int.emod_eq_of_lt xpos (by omega)]; omega
+  · rw [Int.add_emod_self.symm, Int.emod_eq_of_lt (by omega) (by omega)]; omega
 
 theorem bmod_eq_self_of_le {n : Int} {m : Nat} (hn' : -(m / 2) ≤ n) (hn : n < (m + 1) / 2) :
     n.bmod m = n := by
@@ -65,33 +134,10 @@ theorem bmod_eq_self_of_le {n : Int} {m : Nat} (hn' : -(m / 2) ≤ n) (hn : n < 
   apply eq_zero_of_dvd_of_natAbs_lt_natAbs Int.dvd_bmod_sub_self
   omega
 
-protected theorem sub_eq_iff_eq_add {b a c : Int} : a - b = c ↔ a = c + b := by omega
-protected theorem sub_eq_iff_eq_add' {b a c : Int} : a - b = c ↔ a = b + c := by omega
-
 theorem bmod_bmod_of_dvd {a : Int} {n m : Nat} (hnm : n ∣ m) :
     (a.bmod m).bmod n = a.bmod n := by
   rw [← Int.sub_eq_iff_eq_add.2 (bmod_add_bdiv a m).symm]
   obtain ⟨k, rfl⟩ := hnm
   simp [Int.mul_assoc]
-
-@[simp] theorem toNat_le {m : Int} {n : Nat} : m.toNat ≤ n ↔ m ≤ n := by omega
-@[simp] theorem toNat_lt' {m : Int} {n : Nat} (hn : 0 < n) : m.toNat < n ↔ m < n := by omega
-
-@[simp] protected theorem neg_nonpos_iff (i : Int) : -i ≤ 0 ↔ 0 ≤ i := by omega
-
-@[simp] theorem zero_le_ofNat (n : Nat) : 0 ≤ ((no_index (OfNat.ofNat n)) : Int) :=
-  ofNat_nonneg _
-
-@[simp] theorem neg_natCast_le_natCast (n m : Nat) : -(n : Int) ≤ (m : Int) :=
-  Int.le_trans (by simp) (ofNat_zero_le m)
-
-@[simp] theorem neg_natCast_le_ofNat (n m : Nat) : -(n : Int) ≤ (no_index (OfNat.ofNat m)) :=
-  Int.le_trans (by simp) (ofNat_zero_le m)
-
-@[simp] theorem neg_ofNat_le_ofNat (n m : Nat) : -(no_index (OfNat.ofNat n)) ≤ (no_index (OfNat.ofNat m)) :=
-  Int.le_trans (by simp) (ofNat_zero_le m)
-
-@[simp] theorem neg_ofNat_le_natCast (n m : Nat) : -(no_index (OfNat.ofNat n)) ≤ (m : Int) :=
-  Int.le_trans (by simp) (ofNat_zero_le m)
 
 end Int

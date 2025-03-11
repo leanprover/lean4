@@ -2326,7 +2326,8 @@ theorem setWidth_eq_append_extractLsb' {v : Nat} {x : BitVec v} {w : Nat} :
   by_cases hiv : i < v
   · simp [hi]
     omega
-  · simp [hi]
+  · simp only [getElem_extractLsb', Nat.zero_add, getElem_zero, dite_eq_ite, Bool.if_false_right,
+    Bool.iff_and_self, decide_eq_true_eq]
     intros hcontra
     have : x.getLsbD i = false := getLsbD_ge x i (by omega)
     simp [this] at hcontra
@@ -2343,7 +2344,7 @@ theorem setWidth_eq_concat {v : Nat} {x : BitVec v} {w : Nat} (h : v ≤ w) :
   by_cases hiv : i < v
   · simp [hiv]
     omega
-  · simp [hiv]
+  · simp only [hiv, ↓reduceDIte, Bool.and_eq_false_imp, decide_eq_true_eq]
     intros hmin
     apply getLsbD_ge x i (by omega)
 

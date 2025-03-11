@@ -30,8 +30,6 @@ example (a b : Bool) : ((a = true) ↔ (b = true)) ↔ (a == b) := by bv_normali
 example {x : BitVec 16} : 0#16 + x = x := by bv_normalize
 example {x : BitVec 16} : x + 0#16 = x := by bv_normalize
 example {x : BitVec 16} : x.setWidth 16 = x := by bv_normalize
-example : (0#w).setWidth 32 = 0#32 := by bv_normalize
-example : (0#w).getLsbD i = false := by bv_normalize
 example {x : BitVec 0} : x.getLsbD i = false := by bv_normalize
 example {x : BitVec 16} {b : Bool} : (x.concat b).getLsbD 0 = b := by bv_normalize
 example {x : BitVec 16} : 1 * x = x := by bv_normalize

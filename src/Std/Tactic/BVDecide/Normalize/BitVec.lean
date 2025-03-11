@@ -37,9 +37,8 @@ theorem BitVec.gt_ult (x y : BitVec w) : x > y ↔ (y.ult x = true) := by
 theorem BitVec.ge_ule (x y : BitVec w) : x ≥ y ↔ ((!x.ult y) = true) := by
   simp [BitVec.le_ult]
 
-@[bv_normalize]
-theorem BitVec.truncate_eq_zeroExtend (x : BitVec w) : x.truncate n = x.zeroExtend n := by
-  rfl
+attribute [bv_normalize] BitVec.zeroExtend_eq_setWidth
+attribute [bv_normalize] BitVec.truncate_eq_setWidth
 
 attribute [bv_normalize] BitVec.extractLsb
 attribute [bv_normalize] BitVec.msb_eq_getLsbD_last
@@ -151,8 +150,6 @@ section Constant
 
 attribute [bv_normalize] BitVec.add_zero
 attribute [bv_normalize] BitVec.zero_add
-attribute [bv_normalize] BitVec.setWidth_eq
-attribute [bv_normalize] BitVec.setWidth_zero
 attribute [bv_normalize] BitVec.getLsbD_zero
 attribute [bv_normalize] BitVec.getLsbD_zero_length
 attribute [bv_normalize] BitVec.getLsbD_concat_zero

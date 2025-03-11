@@ -60,25 +60,28 @@ def rewriteManualLinksCore (s : String) : BaseIO (Array (String.Range × String)
     let c := iter.curr' h
     iter := iter.next' h
 
-    if lookingAt scheme iter.prev then
-      let start := iter.prev.forward scheme.length
-      let mut iter' := start
-      while h' : iter'.hasNext do
-        let c' := iter'.curr' h'
-        iter' := iter'.next' h'
-        if !urlChar c' || iter'.atEnd then
-          match rw (start.extract iter'.prev) with
-          | .error err =>
-            errors := errors.push (⟨iter.prev.i, iter'.prev.i⟩, err)
-            out := out.push c
-            break
-          | .ok path =>
-            out := out ++ (← manualRoot) ++ path
-            out := out.push c'
-            iter := iter'
-            break
-    else
+    if !lookingAt scheme iter.prev then
       out := out.push c
+      continue
+
+    let start := iter.prev.forward scheme.length
+    let mut iter' := start
+    while h' : iter'.hasNext do
+      let c' := iter'.curr' h'
+      iter' := iter'.next' h'
+      if urlChar c' && !iter'.atEnd then
+        continue
+      match rw (start.extract iter'.prev) with
+      | .error err =>
+        errors := errors.push (⟨iter.prev.i, iter'.prev.i⟩, err)
+        out := out.push c
+        break
+      | .ok path =>
+        out := out ++ (← manualRoot) ++ path
+        out := out.push c'
+        iter := iter'
+        break
+
   pure (errors, out)
 
 where

@@ -8,7 +8,9 @@ import Init.Data.BEq
 import Init.Data.Nat.Simproc
 import Init.Data.List.Perm
 import Init.Data.List.Find
+import Init.Data.List.MinMax
 import Init.Data.List.Monadic
+import Init.Data.List.Sort.Lemmas
 import Std.Classes.Ord
 import Std.Data.Internal.List.Defs
 
@@ -4124,12 +4126,142 @@ theorem constModifyKey_eq_modifyKey {β : Type v} [BEq α] [LawfulBEq α] {k : �
 end Modify
 
 @[local instance]
+def leSigmaOfOrd [Ord α] : LE ((a : α) × β a) where
+  le a b := (compare a.1 b.1).isLE
+
+local instance [Ord α] : DecidableLE ((a : α) × β a) :=
+  fun a b => inferInstanceAs <| Decidable (compare a.1 b.1).isLE
+
+theorem leSigmaOfOrd_total [Ord α] [OrientedOrd α] (a b : (a : α) × β a) :
+    a ≤ b ∨ b ≤ a := by
+  simp only [leSigmaOfOrd]
+  rw [← OrientedCmp.isGE_iff_isLE]
+  cases compare b.fst a.fst <;> simp
+
+@[local instance]
 def minSigmaOfOrd [Ord α] : Min ((a : α) × β a) where
   min a b := if compare a.1 b.1 |>.isLE then a else b
+
+def min?'' [Ord α] (l : List ((a : α) × β a)) : Option ((a : α) × β a) :=
+  l.mergeSort.head?
+
+theorem distinctKeys_iff_pairwise [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} :
+    DistinctKeys l ↔ List.Pairwise (fun a b => (a == b) = false) (keys l) :=
+  ⟨DistinctKeys.distinct, DistinctKeys.mk⟩
+
+theorem fst_mem_keys_of_mem [BEq α] [EquivBEq α] {a : (a : α) × β a} {l : List ((a : α) × β a)}
+    (hm : a ∈ l) : a.1 ∈ keys l := by
+  induction hm <;> simp [keys, *]
+
+theorem DistinctKeys.eq_of_mem_of_beq [BEq α] [EquivBEq α] {a b : (a : α) × β a} {l : List ((a : α) × β a)} (hma : a ∈ l) (hmb : b ∈ l) (he : a.1 == b.1) (hd : DistinctKeys l) :
+    a = b := by
+  rw [distinctKeys_iff_pairwise] at *
+  induction hma
+  · cases hmb
+    · rfl
+    · simp [pairwise_cons.mp hd |>.1 b.1 <| fst_mem_keys_of_mem ‹_›] at he
+  · rename_i _ ih
+    have hd := pairwise_cons.mp hd
+    cases hmb
+    · simp [BEq.symm_false <| hd.1 a.1 <| fst_mem_keys_of_mem ‹_›] at he
+    · exact ih ‹_› hd.2
+
+def eq_of_sorted_of_distinctKeys [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l l' : List ((a : α) × β a)}
+    (hl : l.Pairwise LE.le) (hl' : l'.Pairwise LE.le) (hd : DistinctKeys l) (hp : List.Perm l l') :
+    l = l' := by
+  refine hp.eq_of_sorted ?_ hl hl'
+  intro a b ha hb hle hge
+  replace hb := hp.mem_iff.mpr hb
+  apply hd.eq_of_mem_of_beq ha hb
+  exact compare_eq_iff_beq.mp <| TransCmp.isLE_antisymm hle hge
+
+private theorem sorted_mergeSort' [Ord α] [TransOrd α] (l : List ((a : α) × β a)) :
+    l.mergeSort.Pairwise LE.le := by
+  suffices h : l.mergeSort.Pairwise fun a b => decide (a ≤ b) = true by simpa using h
+  apply l.sorted_mergeSort
+  · simpa using fun _ _ _ => TransCmp.isLE_trans
+  · simpa using leSigmaOfOrd_total
+
+theorem min?''_of_perm [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l l' : List ((a : α) × β a)}
+    (hd : DistinctKeys l) (hp : List.Perm l l') :
+    min?'' l = min?'' l' := by
+  simp only [min?'']
+  congr 1
+  apply eq_of_sorted_of_distinctKeys
+  · apply List.sorted_mergeSort'
+  · apply List.sorted_mergeSort'
+  · exact hd.perm <| l.mergeSort_perm _
+  · exact (l.mergeSort_perm _).trans <| hp.trans (l'.mergeSort_perm _).symm
+
+theorem sorted_replaceEntry_of_sorted [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {k v} {l : List ((a : α) × β a)} (h : l.Pairwise LE.le) :
+    (replaceEntry k v l).Pairwise LE.le := by sorry
+
+theorem min?''_replaceEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (k : α) (v : β k)
+    (l : List ((a : α) × β a)) (hd : DistinctKeys l) :
+    min?'' (replaceEntry k v l) =
+      (min?'' l).map fun e => if e.1 == k then ⟨k, v⟩ else e := by
+  -- simp [min?''_of_perm hd (l.mergeSort_perm fun a b => decide (a ≤ b)).symm]
+  rw [min?''_of_perm hd.replaceEntry <| replaceEntry_of_perm hd
+    (l.mergeSort_perm fun a b => decide (a ≤ b)).symm]
+  simp only [min?'']
+  rw [List.mergeSort_of_sorted]
+  induction l.mergeSort with
+  | nil => simp
+  | cons e es ih =>
+    simp [replaceEntry, cond_eq_if, apply_ite List.head?, apply_ite some]
+  · simp only [decide_eq_true_eq]
+    apply sorted_replaceEntry_of_sorted
+    apply sorted_mergeSort'
+
+theorem min?_insertKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (k : α) (v : β k) (l : List ((a : α) × β a))
+    (hd : DistinctKeys l) :
+    min?'' (insertEntry k v l) =
+      some (match min?'' l with
+        | none => ⟨k, v⟩
+        | some w => if compare k w.fst |>.isLE then ⟨k, v⟩ else w) := by
+  simp [insertEntry, cond_eq_if]
+  split
+  · rename_i h
+    rw [min?''_of_perm hd.replaceEntry <| replaceEntry_of_perm hd (l.mergeSort_perm fun a b => decide (a ≤ b)).symm]
+    simp only [min?'']
+    rw [List.mergeSort_of_sorted]
+    replace h := containsKey_of_perm (List.mergeSort_perm l fun a b => decide (a ≤ b)).symm ▸ h
+    revert h
+    have := sorted_mergeSort' l
+    revert this
+    induction l.mergeSort with
+    | nil => simp
+    | cons e es ih =>
+      intro hs h
+      simp [replaceEntry, cond_eq_if, apply_ite List.head?, apply_ite some]
+      congr
+      by_cases h : e.fst == k
+      · simp [← compare_eq_iff_beq] at *
+
+
+    · sorry
+
+
+
+
+
 
 /-- Like `List.min?`, but using an `Ord` typeclass instead of a `Min` typeclass. -/
 def min?' [Ord α] (xs : List ((a : α) × β a)) : Option ((a : α) × β a) :=
   xs.min?
+
+theorem List.min?_eq_head? {α : Type u} [Min α] {l : List α}
+    (h : l.Pairwise (fun a b => min a b = a)) : l.min? = l.head? := by
+  cases l with
+  | nil => rfl
+  | cons x l =>
+    rw [List.head?_cons, List.min?_cons', Option.some.injEq]
+    induction l generalizing x with
+    | nil => simp
+    | cons y l ih =>
+      have hx : min x y = x := List.rel_of_pairwise_cons h (List.mem_cons_self _ _)
+      rw [List.foldl_cons, ih _ (hx.symm ▸ h.sublist (by simp)), hx]
 
 theorem min_def [Ord α] {p q : (a : α) × β a} :
     min p q = if compare p.1 q.1 |>.isLE then p else q :=
@@ -4144,6 +4276,10 @@ theorem min_eq_left [Ord α] {p q : (a : α) × β a} (h : compare p.1 q.1 |>.is
 
 theorem min_eq_left_of_lt [Ord α] {p q : (a : α) × β a} (h : compare p.1 q.1 = .lt) : min p q = p :=
   min_eq_left (Ordering.isLE_of_eq_lt h)
+
+theorem min?'_eq_head? [Ord α] {l : List ((a : α) × β a)}
+    (hl : l.Pairwise (fun a b => compare a.1 b.1 = .lt)) : min?' l = l.head? := by
+  rw [min?', List.min?_eq_head? (hl.imp min_eq_left_of_lt)]
 
 -- Is this provable without `TransOrd`?
 local instance [Ord α] [TransOrd α] : Std.Associative (min : (a : α) × β a → (a : α) × β a → (a : α) × β a) where
@@ -4246,27 +4382,6 @@ theorem mem_min? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (l : List ((a
     cases min?_cons_mem e es
     · simp_all
     · cases es <;> simp_all [min?_cons]
-
-theorem distinctKeys_iff_pairwise [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} :
-    DistinctKeys l ↔ List.Pairwise (fun a b => (a == b) = false) (keys l) :=
-  ⟨DistinctKeys.distinct, DistinctKeys.mk⟩
-
-theorem fst_mem_keys_of_mem [BEq α] [EquivBEq α] {a : (a : α) × β a} {l : List ((a : α) × β a)}
-    (hm : a ∈ l) : a.1 ∈ keys l := by
-  induction hm <;> simp [keys, *]
-
-theorem DistinctKeys.eq_of_mem_of_beq [BEq α] [EquivBEq α] {a b : (a : α) × β a} {l : List ((a : α) × β a)} (hma : a ∈ l) (hmb : b ∈ l) (he : a.1 == b.1) (hd : DistinctKeys l) :
-    a = b := by
-  rw [distinctKeys_iff_pairwise] at *
-  induction hma
-  · cases hmb
-    · rfl
-    · simp [pairwise_cons.mp hd |>.1 b.1 <| fst_mem_keys_of_mem ‹_›] at he
-  · rename_i _ ih
-    have hd := pairwise_cons.mp hd
-    cases hmb
-    · simp [BEq.symm_false <| hd.1 a.1 <| fst_mem_keys_of_mem ‹_›] at he
-    · exact ih ‹_› hd.2
 
 theorem eq_min?_iff'' [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (a : (a : α) × β a) {l : List ((a : α) × β a)} (he : l.isEmpty = false) (hd : DistinctKeys l) :
     (min?' l).get (min?_isSome_of_isEmpty_eq_false he) = a ↔ a ∈ l ∧ ∀ b : α, containsKey b l → (compare a.fst b).isLE := by

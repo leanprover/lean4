@@ -679,6 +679,7 @@ theorem le_two_mul_toInt {w : Nat} {x : BitVec w} : -2 ^ w ≤ 2 * x.toInt := by
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
     norm_cast; omega
 
+<<<<<<< HEAD
 theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
   by_cases h : w = 0
   · subst h
@@ -686,6 +687,14 @@ theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
   · have := le_two_mul_toInt (w := w) (x := x)
     generalize x.toInt = x at *
     rw [(show w = w - 1 + 1 by omega), Int.pow_succ] at this
+=======
+theorem le_toInt {w : Nat} {x : BitVec w} : -2 ^ (w - 1) ≤ x.toInt := by
+  by_cases h : w = 0
+  · subst h
+    simp [eq_nil x]
+  · have := @le_two_mul_toInt w x
+    rw_mod_cast [← Nat.two_pow_pred_add_two_pow_pred (by omega), Int.mul_comm, Int.natCast_add] at this
+>>>>>>> 9e519f7352 (Finish renaming)
     omega
 
 /-! ### slt -/

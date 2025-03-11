@@ -10,6 +10,42 @@ set_option guard_msgs.diff true
 
 open Lean Elab Command
 
+/-!
+# Check All Built-In Docstrings
+
+Manual links in built-in docstrings aren't validated when adding them, so they are checked here.
+
+This is an over-approximation: it checks all the docstrings in Lean.
+-/
+
+/-!
+First, define one broken builtin docstring to make sure that the test actually catches them.
+-/
+def check := 5
+#eval addBuiltinDocString `check "Here's a broken manual link: lean-manual://oops\n"
+
+/-!
+Now validate the docstrings.
+-/
+
+/--
+error: Docstring errors for 'check': ⏎
+   • "lean-manual://oops":
+    Unknown documentation type 'oops'. Expected 'section'.
+-/
+#guard_msgs in
+#eval show CommandElabM Unit from do
+  let env ← getEnv
+  for (x, _) in env.constants do
+    if let some str ← findSimpleDocString? env x (includeBuiltin := true) then
+      let (errs, _) ← rewriteManualLinksCore str
+      if !errs.isEmpty then
+        let errMsgs := errs.map fun (⟨s, e⟩, msg) => m!" • {repr <| str.extract s e}:{indentD msg}"
+        logError <| m!"Docstring errors for '{x}': {indentD <| MessageData.joinSep errMsgs.toList "\n"}\n\n"
+
+
+/-! # Test Link Rewriting -/
+
 /--
 Tests the result of the link rewriting procedure.
 

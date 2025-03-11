@@ -22,13 +22,10 @@ builtin_initialize docStringExt : MapDeclarationExtension String ← mkMapDeclar
 /--
 Adds a builtin docstring to the compiler.
 
-Any links to the Lean reference manual are validated, and an IO exception is thrown if invalid links
-are present.
+Links to the Lean manual aren't validated.
 -/
+-- See the test `lean/run/docstringRewrites.lean` for the validation of builtin docstring links
 def addBuiltinDocString (declName : Name) (docString : String) : IO Unit := do
-  -- In practice, this will not happen, because this code is only called from contexts where the
-  -- links have been pre-validated. The check is in place in case this situation ever changes.
-  validateBuiltinDocString docString
   builtinDocStrings.modify (·.insert declName docString.removeLeadingSpaces)
 
 def addDocStringCore [Monad m] [MonadError m] [MonadEnv m] (declName : Name) (docString : String) : m Unit := do

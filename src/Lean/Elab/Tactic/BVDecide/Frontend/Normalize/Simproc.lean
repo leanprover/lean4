@@ -225,5 +225,43 @@ builtin_simproc [bv_normalize] bv_mul_ones ((_ : BitVec _) * (BitVec.ofNat _ _))
   let proof := mkApp2 (mkConst ``BitVec.mul_ones) (toExpr w) lhs
   return .visit { expr := expr, proof? := some proof }
 
+builtin_simproc [bv_normalize] bv_elim_ushiftRight_const ((_ : BitVec _) >>> (_ : Nat)) := fun e => do
+  let_expr HShiftRight.hShiftRight bvType _ _ _ lhsExpr rhsExpr := e | return .continue
+  let some rhs ← getNatValue? rhsExpr | return .continue
+  let_expr BitVec wExpr := bvType | return .continue
+  let some w ← getNatValue? wExpr | return .continue
+  if rhs < w then
+    let zero := toExpr 0#rhs
+    let extract := mkApp4 (mkConst ``BitVec.extractLsb') wExpr rhsExpr (toExpr (w - rhs)) lhsExpr
+    let concat ← mkAppM ``HAppend.hAppend #[zero, extract]
+    let expr := mkApp4 (mkConst ``BitVec.cast) wExpr wExpr (← mkEqRefl wExpr) concat
+    let h ← mkDecideProof (← mkLt rhsExpr wExpr)
+    let proof := mkApp4 (mkConst ``BitVec.ushiftRight_eq_extractLsb'_of_lt) wExpr lhsExpr rhsExpr h
+    return .done { expr := expr, proof? := some proof }
+  else
+    let expr := toExpr 0#w
+    let h ← mkDecideProof (← mkLe wExpr rhsExpr)
+    let proof := mkApp4 (mkConst ``BitVec.ushiftRight_eq_zero) wExpr lhsExpr rhsExpr h
+    return .done { expr := expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_elim_shiftLeft_const ((_ : BitVec _) <<< (_ : Nat)) := fun e => do
+  let_expr HShiftLeft.hShiftLeft bvType _ _ _ lhsExpr rhsExpr := e | return .continue
+  let some rhs ← getNatValue? rhsExpr | return .continue
+  let_expr BitVec wExpr := bvType | return .continue
+  let some w ← getNatValue? wExpr | return .continue
+  if rhs < w then
+    let zero := toExpr 0#rhs
+    let extract := mkApp4 (mkConst ``BitVec.extractLsb') wExpr (toExpr 0) (toExpr (w - rhs)) lhsExpr
+    let concat ← mkAppM ``HAppend.hAppend #[extract, zero]
+    let expr := mkApp4 (mkConst ``BitVec.cast) wExpr wExpr (← mkEqRefl wExpr) concat
+    let h ← mkDecideProof (← mkLt rhsExpr wExpr)
+    let proof := mkApp4 (mkConst ``BitVec.shiftLeft_eq_concat_of_lt) wExpr lhsExpr rhsExpr h
+    return .done { expr := expr, proof? := some proof }
+  else
+    let expr := toExpr 0#w
+    let h ← mkDecideProof (← mkLe wExpr rhsExpr)
+    let proof := mkApp4 (mkConst ``BitVec.shiftLeft_eq_zero) wExpr lhsExpr rhsExpr h
+    return .done { expr := expr, proof? := some proof }
+
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

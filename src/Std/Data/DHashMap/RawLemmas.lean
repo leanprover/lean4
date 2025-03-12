@@ -31,7 +31,7 @@ namespace Internal.Raw
 open Lean Elab Meta Tactic
 
 private def baseNames : Array Name :=
-  #[``Raw.empty_eq, ``Raw.emptyc_eq,
+  #[``Raw.emptyWithCapacity_eq, ``Raw.empty_eq,
     ``insert_eq, ``insertIfNew_eq, ``erase_eq, ``contains_eq,
     ``containsThenInsert_fst_eq, ``containsThenInsert_snd_eq,
     ``containsThenInsertIfNew_fst_eq, ``containsThenInsertIfNew_snd_eq,
@@ -67,12 +67,16 @@ open Internal.Raw₀ Internal.Raw
 variable {m : Raw α β}
 
 @[simp]
-theorem size_empty {c} : (empty c : Raw α β).size = 0 := by
-  simp_to_raw using Raw₀.size_empty
+theorem size_emptyWithCapacity {c} : (emptyWithCapacity c : Raw α β).size = 0 := by
+  simp_to_raw using Raw₀.size_emptyWithCapacity
 
 @[simp]
-theorem size_emptyc : (∅ : Raw α β).size = 0 :=
-  size_empty
+theorem size_empty : (∅ : Raw α β).size = 0 :=
+  size_emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated size_empty (since := "2025-03-11")]
+abbrev size_emptyc := @size_empty
 
 theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) := by
   simp [isEmpty]
@@ -80,12 +84,16 @@ theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) := by
 variable [BEq α] [Hashable α]
 
 @[simp]
-theorem isEmpty_empty {c} : (empty c : Raw α β).isEmpty := by
-  simp_to_raw using Raw₀.isEmpty_empty
+theorem isEmpty_emptyWithCapacity {c} : (emptyWithCapacity c : Raw α β).isEmpty := by
+  simp_to_raw using Raw₀.isEmpty_emptyWithCapacity
 
 @[simp]
-theorem isEmpty_emptyc : (∅ : Raw α β).isEmpty :=
-  isEmpty_empty
+theorem isEmpty_empty : (∅ : Raw α β).isEmpty :=
+  isEmpty_emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated isEmpty_empty (since := "2025-03-11")]
+abbrev isEmpty_emptyc := @isEmpty_empty
 
 @[simp]
 theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} {v : β k} :
@@ -103,10 +111,10 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (hab :
     a ∈ m ↔ b ∈ m := by
   simp [mem_iff_contains, contains_congr h hab]
 
-@[simp] theorem contains_empty {a : α} {c} : (empty c : Raw α β).contains a = false := by
-  simp_to_raw using Raw₀.contains_empty
+@[simp] theorem contains_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : Raw α β).contains a = false := by
+  simp_to_raw using Raw₀.contains_emptyWithCapacity
 
-@[simp] theorem not_mem_empty {a : α} {c} : ¬a ∈ (empty c : Raw α β) := by
+@[simp] theorem not_mem_emptyWithCapacity {a : α} {c} : ¬a ∈ (emptyWithCapacity c : Raw α β) := by
   simp [mem_iff_contains]
 
 @[simp] theorem contains_emptyc {a : α} : (∅ : Raw α β).contains a = false :=

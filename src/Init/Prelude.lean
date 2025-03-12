@@ -2658,7 +2658,7 @@ array, so it has comparable performance to mutable arrays in imperative
 programming languages.
 
 An array has a size and a capacity; the size is `Array.size` but the capacity
-is not observable from Lean code. `Array.mkEmpty n` creates an array which is equal to `#[]`,
+is not observable from Lean code. `Array.emptyWithCapacity n` creates an array which is equal to `#[]`,
 but internally allocates an array of capacity `n`.
 
 From the point of view of proofs `Array α` is just a wrapper around `List α`.

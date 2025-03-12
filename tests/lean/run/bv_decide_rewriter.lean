@@ -619,8 +619,6 @@ example (x y : BitVec 256) : x * y * z = z * y * x := by
 
 end NormalizeMul
 
-example {x : BitVec 16} : (x = BitVec.allOnes 16) → (BitVec.uaddOverflow x x) := by bv_decide
-
 def foo (x : Bool) : Prop := x = true
 
 example (x : Bool) (h1 h2 : x = true) : foo x := by

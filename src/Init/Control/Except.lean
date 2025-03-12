@@ -202,8 +202,12 @@ instance (ε) : MonadExceptOf ε (Except ε) where
 namespace MonadExcept
 variable {ε : Type u} {m : Type v → Type w}
 
-/-- Alternative orelse operator that allows to select which exception should be used.
-    The default is to use the first exception since the standard `orelse` uses the second. -/
+/--
+An alternative unconditional error recovery operator that allows callers to specify which exception
+to throw in cases where both operations throw exceptions.
+
+By default, the first is thrown, because the `<|>` operator throws the second.
+-/
 @[always_inline, inline]
 def orelse' [MonadExcept ε m] {α : Type v} (t₁ t₂ : m α) (useFirstEx := true) : m α :=
   tryCatch t₁ fun e₁ => tryCatch t₂ fun e₂ => throw (if useFirstEx then e₁ else e₂)

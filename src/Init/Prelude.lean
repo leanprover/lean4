@@ -3127,54 +3127,65 @@ instance {ε : Type u} {α : Type v} [Inhabited ε] : Inhabited (Except ε α) w
   default := Except.error default
 
 /--
-An implementation of Haskell's [`MonadError`] class. A `MonadError ε m` is a
-monad `m` with two operations:
+Exception monads provide the ability to throw errors and handle errors.
 
-* `throw : ε → m α` "throws an error" of type `ε` to the nearest enclosing
-  catch block
-* `tryCatch (body : m α) (handler : ε → m α) : m α` will catch any errors in
-  `body` and pass the resulting error to `handler`.
-  Errors in `handler` will not be caught.
+In this class, `ε` is a `semiOutParam`, which means that it can influence the choice of instance.
+`MonadExcept ε` provides the same operations, but requires that `ε` be inferrable from `m`.
 
-The `try ... catch e => ...` syntax inside `do` blocks is sugar for the
-`tryCatch` operation.
-
-  [`MonadError`]: https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-Except.html#t:MonadError
+`tryCatchThe`, which takes an explicit exception type, is used to desugar `try ... catch ...` steps
+inside `do`-blocks when the handlers have type annotations.
 -/
 class MonadExceptOf (ε : semiOutParam (Type u)) (m : Type v → Type w) where
-  /-- `throw : ε → m α` "throws an error" of type `ε` to the nearest enclosing
-  catch block. -/
+  /--
+  Throws an exception of type `ε` to the nearest enclosing `catch`.
+  -/
   throw {α : Type v} : ε → m α
-  /-- `tryCatch (body : m α) (handler : ε → m α) : m α` will catch any errors in
-  `body` and pass the resulting error to `handler`.
-  Errors in `handler` will not be caught. -/
+  /--
+  Catches errors thrown in `body`, passing them to `handler`. Errors in `handler` are not caught.
+  -/
   tryCatch {α : Type v} (body : m α) (handler : ε → m α) : m α
 
 /--
-This is the same as `throw`, but allows specifying the particular error type
-in case the monad supports throwing more than one type of error.
+Throws an exception, with the exception type specified explicitly. This is useful when a monad
+supports throwing more than one type of exception.
+
+Use `throw` for a version that expects the exception type to be inferred from `m`.
 -/
 abbrev throwThe (ε : Type u) {m : Type v → Type w} [MonadExceptOf ε m] {α : Type v} (e : ε) : m α :=
   MonadExceptOf.throw e
 
 /--
-This is the same as `tryCatch`, but allows specifying the particular error type
-in case the monad supports throwing more than one type of error.
+Catches errors, recovering using `handle`. The exception type is specified explicitly. This is useful when a monad
+supports throwing or handling more than one type of exception.
+
+Use `tryCatch`, for a version that expects the exception type to be inferred from `m`.
 -/
 abbrev tryCatchThe (ε : Type u) {m : Type v → Type w} [MonadExceptOf ε m] {α : Type v} (x : m α) (handle : ε → m α) : m α :=
   MonadExceptOf.tryCatch x handle
 
-/-- Similar to `MonadExceptOf`, but `ε` is an `outParam` for convenience. -/
-class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) where
-  /-- `throw : ε → m α` "throws an error" of type `ε` to the nearest enclosing
-  catch block. -/
-  throw {α : Type v} : ε → m α
-  /-- `tryCatch (body : m α) (handler : ε → m α) : m α` will catch any errors in
-  `body` and pass the resulting error to `handler`.
-  Errors in `handler` will not be caught. -/
-  tryCatch {α : Type v} : m α → (ε → m α) → m α
+/--
+Exception monads provide the ability to throw errors and handle errors.
 
-/-- "Unwraps" an `Except ε α` to get the `α`, or throws the exception otherwise. -/
+In this class, `ε` is an `outParam`, which means that it is inferred from `m`. `MonadExceptOf ε`
+provides the same operations, but allows `ε` to influence instance synthesis.
+
+`MonadExcept.tryCatch` is used to desugar `try ... catch ...` steps inside `do`-blocks when the
+handlers do not have exception type annotations.
+-/
+class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) where
+  /--
+  Throws an exception of type `ε` to the nearest enclosing `catch`.
+  -/
+  throw {α : Type v} : ε → m α
+  /--
+  Catches errors thrown in `body`, passing them to `handler`. Errors in `handler` are not caught.
+  -/
+  tryCatch {α : Type v} : (body : m α) → (handler : ε → m α) → m α
+
+/--
+Re-interprets an `Except ε` action in an exception monad `m`, succeeding if it succeeds and throwing
+an exception if it throws an exception.
+-/
 def MonadExcept.ofExcept [Monad m] [MonadExcept ε m] : Except ε α → m α
   | .ok a    => pure a
   | .error e => throw e
@@ -3188,7 +3199,12 @@ instance (ε : Type u) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcep
 namespace MonadExcept
 variable {ε : Type u} {m : Type v → Type w}
 
-/-- A `MonadExcept` can implement `t₁ <|> t₂` as `try t₁ catch _ => t₂`. -/
+/--
+Unconditional error recovery that ignores which exception was thrown. Usually used via the `<|>`
+operator.
+
+If both computations throw exceptions, then the result is the second exception.
+-/
 @[inline] protected def orElse [MonadExcept ε m] {α : Type v} (t₁ : m α) (t₂ : Unit → m α) : m α :=
   tryCatch t₁ fun _ => t₂ ()
 

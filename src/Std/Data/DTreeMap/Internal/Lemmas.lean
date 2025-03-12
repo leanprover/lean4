@@ -4141,9 +4141,9 @@ end Modify
 
 section Min
 
-theorem min?_empty [TransOrd α] :
+theorem min?_empty :
     (empty : Impl α β).min? = none := by
-  simp_to_model; empty
+  unfold min?; rfl
 
 -- theorem mem?_min_iff
 

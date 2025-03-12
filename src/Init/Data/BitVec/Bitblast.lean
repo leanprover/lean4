@@ -504,7 +504,7 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
     toInt_signExtend_of_le (by omega)]
   apply ne_of_apply_ne BitVec.toInt
   rw [toInt_signExtend_of_le (by omega), toInt_intMin_of_pos (by omega)]
-  have := b.le_toInt
+  have := b.le_two_mul_toInt
   have : -2 ^ w < -2 ^ v := by
     apply Int.neg_lt_neg
     norm_cast
@@ -1288,8 +1288,8 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
   simp only [saddOverflow]
   rcases w with _|w
   · revert x y; decide
-  · have := le_toInt (x := x); have := toInt_lt (x := x)
-    have := le_toInt (x := y); have := toInt_lt (x := y)
+  · have := le_two_mul_toInt (x := x); have := two_mul_toInt_lt (x := x)
+    have := le_two_mul_toInt (x := y); have := two_mul_toInt_lt (x := y)
     simp only [← decide_or, msb_eq_toInt, decide_beq_decide, toInt_add, ← decide_not, ← decide_and,
       decide_eq_decide]
     rw_mod_cast [Int.bmod_neg_iff (by omega) (by omega)]

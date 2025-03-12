@@ -25,6 +25,7 @@ static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed__10;
 static lean_object* l_Lean_Meta_Tactic_TryThis_instInhabitedSuggestion___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_addSuggestionCore___closed__1;
 double lean_float_mul(double, double);
+lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed__22;
 lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree(lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_warning___closed__9;
@@ -497,7 +498,6 @@ lean_object* l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_i
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___spec__1___closed__8;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed__69;
-lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(lean_object*, lean_object*, uint8_t);
 static lean_object* _init_l_Lean_Meta_Tactic_TryThis_tryThisWidget___closed__1() {
 _start:
 {
@@ -1606,7 +1606,7 @@ x_8 = lean_ctor_get(x_4, 2);
 lean_inc(x_8);
 x_9 = l_Lean_Meta_Tactic_TryThis_delabToRefinableSyntax___closed__1;
 x_10 = 0;
-x_11 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_8, x_9, x_10);
+x_11 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_8, x_9, x_10);
 x_12 = l_Lean_Meta_Tactic_TryThis_delabToRefinableSyntax___closed__2;
 x_13 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_11, x_12);
 x_14 = lean_st_ref_get(x_5, x_6);
@@ -5783,7 +5783,7 @@ x_10 = lean_ctor_get(x_6, 2);
 lean_inc(x_10);
 x_11 = l_Lean_Meta_Tactic_TryThis_mkExactSuggestionSyntax___closed__1;
 x_12 = 0;
-x_13 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_10, x_11, x_12);
+x_13 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_10, x_11, x_12);
 x_14 = l_Lean_Meta_Tactic_TryThis_delabToRefinableSyntax___closed__2;
 x_15 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_13, x_14);
 x_16 = lean_st_ref_get(x_7, x_8);
@@ -6755,7 +6755,7 @@ x_9 = lean_ctor_get(x_6, 2);
 lean_inc(x_9);
 x_10 = l_Lean_Meta_Tactic_TryThis_mkExactSuggestionSyntax___closed__1;
 x_11 = 0;
-x_12 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_9, x_10, x_11);
+x_12 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_9, x_10, x_11);
 x_13 = l_Lean_Meta_Tactic_TryThis_delabToRefinableSyntax___closed__2;
 x_14 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_12, x_13);
 x_15 = lean_st_ref_get(x_7, x_8);

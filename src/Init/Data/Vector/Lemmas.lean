@@ -2189,6 +2189,16 @@ theorem extract_empty (start stop : Nat) :
   rcases xs with ⟨xs, rfl⟩
   simp
 
+@[simp]
+theorem foldlM_pure [Monad m] [LawfulMonad m] (f : β → α → β) (b) (xs : Vector α n) :
+    xs.foldlM (m := m) (pure <| f · ·) b = pure (xs.foldl f b) :=
+  Array.foldlM_pure _ _ _
+
+@[simp]
+theorem foldrM_pure [Monad m] [LawfulMonad m] (f : α → β → β) (b) (xs : Vector α n) :
+    xs.foldrM (m := m) (pure <| f · ·) b = pure (xs.foldr f b) :=
+  Array.foldrM_pure _ _ _
+
 theorem foldl_eq_foldlM (f : β → α → β) (b) (xs : Vector α n) :
     xs.foldl f b = xs.foldlM (m := Id) f b := by
   rcases xs with ⟨xs, rfl⟩
@@ -2828,7 +2838,7 @@ theorem swap_comm (xs : Vector α n) {i j : Nat} {hi hj} :
 
 /-! ### take -/
 
-@[simp] theorem getElem_take (xs : Vector α n) (j : Nat) (hi : i < min n j) :
+@[simp] theorem getElem_take (xs : Vector α n) (j : Nat) (hi : i < min j n) :
     (xs.take j)[i] = xs[i] := by
   cases xs
   simp

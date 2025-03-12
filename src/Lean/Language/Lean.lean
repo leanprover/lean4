@@ -290,13 +290,6 @@ structure SetupImportsResult where
   /-- Lean plugins to load as part of the environment setup. -/
   plugins : Array System.FilePath := #[]
 
-/-- Performance option used by cmdline driver. -/
-register_builtin_option internal.cmdlineSnapshots : Bool := {
-  defValue := false
-  descr    := "reduce information stored in snapshots to the minimum necessary \
-    for the cmdline driver: diagnostics per command and final full snapshot"
-}
-
 /--
 Parses values of options registered during import and left by the C++ frontend as strings.
 Removes `weak` prefixes from both parsed and unparsed options and fails if any option names remain
@@ -474,7 +467,6 @@ where
         return { diagnostics, result? := none }
 
       let headerEnv := headerEnv.setMainModule setup.mainModuleName
-      let headerEnv ← headerEnv.enableRealizationsForImports setup.opts
       let mut traceState := default
       if trace.profiler.output.get? setup.opts |>.isSome then
         traceState := {

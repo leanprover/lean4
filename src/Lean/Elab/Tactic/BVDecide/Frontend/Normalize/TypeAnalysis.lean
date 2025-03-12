@@ -41,49 +41,108 @@ def isSupportedMatch (declName : Name) : MetaM (Option MatchKind) := do
     let some (.const domTypeName [], (.sort (.param ..))) := motiveType.arrow? | return none
     if domTypeName != discrTypeName then return none
 
-    -- Check that remaining arguments are of form (Unit → motive EnumInductive.ctorN)
-    let numCtors := inductiveInfo.numCtors
-    if xs.size ≠ numCtors + 2 then return none
-    for i in [0:numCtors] do
-      let argType ← inferType <| xs[i + 2]!
-      let some (.const ``Unit [], (.app m (.const c []))) := argType.arrow? | return none
-      if m != motive then return none
-      if inductiveInfo.ctors[i]! != c then return none
-
     -- Check that resulting type is `motive discr`
-    a.withApp fun fn arg => do
-      if fn != motive then return none
-      if arg.size != 1 then return none
-      if arg[0]! != discr then return none
-      if ← verifySimpleEnum defnInfo inductiveInfo then
-        return some <| .simpleEnum inductiveInfo
-      else
-        return none
+    let retTypeOk ← a.withApp fun fn arg =>
+      return fn == motive && arg.size == 1 && arg[0]! == discr
+    if !retTypeOk then return none
+
+    let numCtors := inductiveInfo.numCtors
+    if xs.size == numCtors + 2 then
+      -- Probably a full match
+
+      -- Check that all parameters are `h_n EnumInductive.ctor`
+      let mut handledCtors := Array.mkEmpty numCtors
+      for i in [0:numCtors] do
+        let argType ← inferType xs[i + 2]!
+        let some (.const ``Unit [], (.app m (.const c []))) := argType.arrow? | return none
+        if m != motive then return none
+        let .ctorInfo ctorInfo ← getConstInfo c | return none
+        handledCtors := handledCtors.push ctorInfo
+
+      if !(← verifySimpleEnum defnInfo inductiveInfo handledCtors) then return none
+
+      return some <| .simpleEnum inductiveInfo handledCtors
+    else if xs.size > 2 then
+      -- Probably a match with default case
+
+      -- Check that all parameters except the last are `h_n EnumInductive.ctor`
+      let numConcreteCases := xs.size - 3 -- minus motive, discr and default case
+      let mut handledCtors := Array.mkEmpty (xs.size - 3)
+      for i in [0:numConcreteCases] do
+        let argType ← inferType xs[i + 2]!
+        let some (.const ``Unit [], (.app m (.const c []))) := argType.arrow? | return none
+        if m != motive then return none
+        let .ctorInfo ctorInfo ← getConstInfo c | return none
+        handledCtors := handledCtors.push ctorInfo
+
+      -- Check that the last parameter looks like a default case one
+      let defaultArgType ← inferType xs[xs.size - 1]!
+      let defaultOk ← forallTelescope defaultArgType fun args dom => do
+        if args.size != 1 then return false
+        let input := args[0]!
+        if !(← inferType input).isConstOf discrTypeName then return false
+        return dom.withApp fun fn arg => fn == motive && arg.size == 1 && arg[0]! == input
+
+      if !defaultOk then return none
+
+      if !(← verifyEnumWithDefault defnInfo inductiveInfo handledCtors) then return none
+      return some <| .enumWithDefault inductiveInfo handledCtors
+    else
+      return none
 where
-  verifySimpleEnum (defnInfo : DefinitionVal) (inductiveInfo : InductiveVal) :
-      MetaM Bool := do
-    lambdaTelescope defnInfo.value fun xs body =>
+  verifySimpleCasesOnApp (inductiveInfo : InductiveVal) (fn : Expr) (args : Array Expr)
+      (params : Array Expr) : MetaM Bool := do
+    -- Body is an application of `EnumInductive.casesOn`
+    if !fn.isConstOf (mkCasesOnName inductiveInfo.name) then return false
+    if args.size != inductiveInfo.numCtors + 2 then return false
+    -- first argument is `(fun x => motive x)`
+    let firstArgOk ← lambdaTelescope args[0]! fun args body => do
+      if args.size != 1 then return false
+      let arg := args[0]!
+      let .app fn arg' := body | return false
+      return fn == params[0]! && arg == arg'
+
+    if !firstArgOk then return false
+
+    -- second argument is discr
+    return args[1]! == params[1]!
+
+  verifySimpleEnum (defnInfo : DefinitionVal) (inductiveInfo : InductiveVal)
+      (ctors : Array ConstructorVal) : MetaM Bool := do
+    lambdaTelescope defnInfo.value fun params body =>
       body.withApp fun fn args => do
-        -- Body is an application of `EnumInductive.casesOn`
-        if !fn.isConstOf (mkCasesOnName inductiveInfo.name) then return false
-        let numCtors := inductiveInfo.numCtors
-        if args.size ≠ numCtors + 2 then return false
-        -- first argument is `(fun x => motive x)`
-        let firstArgOk ← lambdaTelescope args[0]! fun args body => do
-          if args.size != 1 then return false
-          let arg := args[0]!
-          let .app fn arg' := body | return false
-          return fn == xs[0]! && arg == arg'
-
-        if !firstArgOk then return false
-
-        -- second argument is discr
-        if args[1]! != xs[1]! then return false
+        if !(← verifySimpleCasesOnApp inductiveInfo fn args params) then return false
 
         -- remaining arguments are of the form `(h_n Unit.unit)`
-        for i in [0:numCtors] do
+        for i in [0:inductiveInfo.numCtors] do
           let .app fn (.const ``Unit.unit []) := args[i + 2]! | return false
-          if fn != xs[i + 2]! then return false
+          let some (_, .app _ (.const relevantCtor [])) := (← inferType fn).arrow? | unreachable!
+          let some ctorIdx := ctors.findIdx? (·.name == relevantCtor) | unreachable!
+          if fn != params[ctorIdx + 2]! then return false
+
+        return true
+
+  verifyEnumWithDefault (defnInfo : DefinitionVal) (inductiveInfo : InductiveVal)
+      (ctors : Array ConstructorVal) : MetaM Bool := do
+    lambdaTelescope defnInfo.value fun params body =>
+      body.withApp fun fn args => do
+        if !(← verifySimpleCasesOnApp inductiveInfo fn args params) then return false
+
+        /-
+        Remaining arguments are of the form:
+        - `(h_n Unit.unit)` if the constructor is handled explicitly
+        - `(h_n InductiveEnum.ctor)` if the constructor is handled as part of the default case
+        -/
+        for i in [0:inductiveInfo.numCtors] do
+          let .app fn (.const argName []) := args[i + 2]! | return false
+          if argName == ``Unit.unit then
+            let some (_, .app _ (.const relevantCtor [])) := (← inferType fn).arrow? | unreachable!
+            let some ctorIdx := ctors.findIdx? (·.name == relevantCtor) | unreachable!
+            if fn != params[ctorIdx + 2]! then return false
+          else
+            let .ctorInfo ctorInfo ← getConstInfo argName | return false
+            if ctorInfo.cidx != i then return false
+            if fn != params[params.size - 1]! then return false
 
         return true
 

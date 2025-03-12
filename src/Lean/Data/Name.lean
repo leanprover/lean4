@@ -132,6 +132,7 @@ def isInternalDetail : Name → Bool
       || matchPrefix s "eq_"
       || matchPrefix s "match_"
       || matchPrefix s "proof_"
+      || matchPrefix s "omega_"
       || p.isInternalOrNum
   | .num _ _     => true
   | p            => p.isInternalOrNum

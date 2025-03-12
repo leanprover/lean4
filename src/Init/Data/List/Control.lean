@@ -227,14 +227,19 @@ def findM? {m : Type → Type u} [Monad m] {α : Type} (p : α → m Bool) : Lis
     | false => findM? p as
 
 @[simp]
-theorem findM?_id (p : α → Bool) (as : List α) : findM? (m := Id) p as = as.find? p := by
+theorem findM?_pure {m} [Monad m] [LawfulMonad m] (p : α → Bool) (as : List α) :
+    findM? (m := m) (pure <| p ·) as = pure (as.find? p) := by
   induction as with
   | nil => rfl
   | cons a as ih =>
     simp only [findM?, find?]
     cases p a with
-    | true  => rfl
-    | false => rw [ih]; rfl
+    | true  => simp
+    | false => simp [ih]
+
+@[simp]
+theorem findM?_id (p : α → Bool) (as : List α) : findM? (m := Id) p as = as.find? p :=
+  findM?_pure _ _
 
 @[specialize]
 def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (Option β)) : List α → m (Option β)
@@ -245,14 +250,19 @@ def findSomeM? {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
     | none   => findSomeM? f as
 
 @[simp]
-theorem findSomeM?_id (f : α → Option β) (as : List α) : findSomeM? (m := Id) f as = as.findSome? f := by
+theorem findSomeM?_pure [Monad m] [LawfulMonad m] (f : α → Option β) (as : List α) :
+    findSomeM? (m := m) (pure <| f ·) as = pure (as.findSome? f) := by
   induction as with
   | nil => rfl
   | cons a as ih =>
     simp only [findSomeM?, findSome?]
     cases f a with
-    | some b => rfl
-    | none   => rw [ih]; rfl
+    | some b => simp
+    | none   => simp [ih]
+
+@[simp]
+theorem findSomeM?_id (f : α → Option β) (as : List α) : findSomeM? (m := Id) f as = as.findSome? f :=
+  findSomeM?_pure _ _
 
 theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] (p : α → m Bool) (as : List α) :
     as.findM? p = as.findSomeM? fun a => return if (← p a) then some a else none := by

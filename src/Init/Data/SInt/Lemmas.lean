@@ -268,14 +268,14 @@ theorem Int64.toInt_maxValue : Int64.maxValue.toInt = 2 ^ 63 - 1 := rfl
 @[simp] theorem ISize.toBitVec_toInt32 (x : ISize) : x.toInt32.toBitVec = x.toBitVec.signExtend 32 := rfl
 @[simp] theorem ISize.toBitVec_toInt64 (x : ISize) : x.toInt64.toBitVec = x.toBitVec.signExtend 64 := rfl
 
-theorem Int8.toInt_lt (x : Int8) : x.toInt < 2 ^ 7 := Int.lt_of_mul_lt_mul_left BitVec.toInt_lt (by decide)
-theorem Int8.le_toInt (x : Int8) : -2 ^ 7 ≤ x.toInt := Int.le_of_mul_le_mul_left BitVec.le_toInt (by decide)
-theorem Int16.toInt_lt (x : Int16) : x.toInt < 2 ^ 15 := Int.lt_of_mul_lt_mul_left BitVec.toInt_lt (by decide)
-theorem Int16.le_toInt (x : Int16) : -2 ^ 15 ≤ x.toInt := Int.le_of_mul_le_mul_left BitVec.le_toInt (by decide)
-theorem Int32.toInt_lt (x : Int32) : x.toInt < 2 ^ 31 := Int.lt_of_mul_lt_mul_left BitVec.toInt_lt (by decide)
-theorem Int32.le_toInt (x : Int32) : -2 ^ 31 ≤ x.toInt := Int.le_of_mul_le_mul_left BitVec.le_toInt (by decide)
-theorem Int64.toInt_lt (x : Int64) : x.toInt < 2 ^ 63 := Int.lt_of_mul_lt_mul_left BitVec.toInt_lt (by decide)
-theorem Int64.le_toInt (x : Int64) : -2 ^ 63 ≤ x.toInt := Int.le_of_mul_le_mul_left BitVec.le_toInt (by decide)
+theorem Int8.toInt_lt (x : Int8) : x.toInt < 2 ^ 7 := Int.lt_of_mul_lt_mul_left BitVec.two_mul_toInt_lt (by decide)
+theorem Int8.le_toInt (x : Int8) : -2 ^ 7 ≤ x.toInt := Int.le_of_mul_le_mul_left BitVec.le_two_mul_toInt (by decide)
+theorem Int16.toInt_lt (x : Int16) : x.toInt < 2 ^ 15 := Int.lt_of_mul_lt_mul_left BitVec.two_mul_toInt_lt (by decide)
+theorem Int16.le_toInt (x : Int16) : -2 ^ 15 ≤ x.toInt := Int.le_of_mul_le_mul_left BitVec.le_two_mul_toInt (by decide)
+theorem Int32.toInt_lt (x : Int32) : x.toInt < 2 ^ 31 := Int.lt_of_mul_lt_mul_left BitVec.two_mul_toInt_lt (by decide)
+theorem Int32.le_toInt (x : Int32) : -2 ^ 31 ≤ x.toInt := Int.le_of_mul_le_mul_left BitVec.le_two_mul_toInt (by decide)
+theorem Int64.toInt_lt (x : Int64) : x.toInt < 2 ^ 63 := Int.lt_of_mul_lt_mul_left BitVec.two_mul_toInt_lt (by decide)
+theorem Int64.le_toInt (x : Int64) : -2 ^ 63 ≤ x.toInt := Int.le_of_mul_le_mul_left BitVec.le_two_mul_toInt (by decide)
 theorem ISize.toInt_lt_two_pow_numBits (x : ISize) : x.toInt < 2 ^ (System.Platform.numBits - 1) := by
   have := x.toBitVec.toInt_lt; cases System.Platform.numBits_eq <;> simp_all <;> omega
 theorem ISize.two_pow_numBits_le_toInt (x : ISize) : -2 ^ (System.Platform.numBits - 1) ≤ x.toInt := by
@@ -1406,3 +1406,77 @@ theorem ISize.toInt64_ofIntLE {n : Int} (h₁ h₂) :
 @[simp] theorem ISize.toInt64_ofNat {n : Nat} (h : n ≤ 2147483647) :
     toInt64 (no_index (OfNat.ofNat n)) = OfNat.ofNat n :=
   ISize.toInt64_ofNat' (by rw [toInt_maxValue]; cases System.Platform.numBits_eq <;> simp_all <;> omega)
+
+@[simp] theorem Int8.ofIntLE_bitVecToInt (n : BitVec 8) :
+    Int8.ofIntLE n.toInt n.le_toInt n.toInt_le = Int8.ofBitVec n :=
+  Int8.toBitVec.inj (by simp)
+@[simp] theorem Int16.ofIntLE_bitVecToInt (n : BitVec 16) :
+    Int16.ofIntLE n.toInt n.le_toInt n.toInt_le = Int16.ofBitVec n :=
+  Int16.toBitVec.inj (by simp)
+@[simp] theorem Int32.ofIntLE_bitVecToInt (n : BitVec 32) :
+    Int32.ofIntLE n.toInt n.le_toInt n.toInt_le = Int32.ofBitVec n :=
+  Int32.toBitVec.inj (by simp)
+@[simp] theorem Int64.ofIntLE_bitVecToInt (n : BitVec 64) :
+    Int64.ofIntLE n.toInt n.le_toInt n.toInt_le = Int64.ofBitVec n :=
+  Int64.toBitVec.inj (by simp)
+@[simp] theorem ISize.ofIntLE_bitVecToInt (n : BitVec System.Platform.numBits) :
+    ISize.ofIntLE n.toInt (toInt_minValue ▸ n.le_toInt)
+    (toInt_maxValue ▸ n.toInt_le) = ISize.ofBitVec n :=
+  ISize.toBitVec.inj (by simp)
+
+theorem Int8.ofBitVec_ofNatLT (n : Nat) (hn) : Int8.ofBitVec (BitVec.ofNatLT n hn) = Int8.ofNat n :=
+  Int8.toBitVec.inj (by simp [BitVec.ofNatLT_eq_ofNat hn])
+theorem Int16.ofBitVec_ofNatLT (n : Nat) (hn) : Int16.ofBitVec (BitVec.ofNatLT n hn) = Int16.ofNat n :=
+  Int16.toBitVec.inj (by simp [BitVec.ofNatLT_eq_ofNat hn])
+theorem Int32.ofBitVec_ofNatLT (n : Nat) (hn) : Int32.ofBitVec (BitVec.ofNatLT n hn) = Int32.ofNat n :=
+  Int32.toBitVec.inj (by simp [BitVec.ofNatLT_eq_ofNat hn])
+theorem Int64.ofBitVec_ofNatLT (n : Nat) (hn) : Int64.ofBitVec (BitVec.ofNatLT n hn) = Int64.ofNat n :=
+  Int64.toBitVec.inj (by simp [BitVec.ofNatLT_eq_ofNat hn])
+theorem ISize.ofBitVec_ofNatLT (n : Nat) (hn) : ISize.ofBitVec (BitVec.ofNatLT n hn) = ISize.ofNat n :=
+  ISize.toBitVec.inj (by simp [BitVec.ofNatLT_eq_ofNat hn])
+
+@[simp] theorem Int8.ofBitVec_ofNat (n : Nat) : Int8.ofBitVec (BitVec.ofNat 8 n) = Int8.ofNat n := rfl
+@[simp] theorem Int16.ofBitVec_ofNat (n : Nat) : Int16.ofBitVec (BitVec.ofNat 16 n) = Int16.ofNat n := rfl
+@[simp] theorem Int32.ofBitVec_ofNat (n : Nat) : Int32.ofBitVec (BitVec.ofNat 32 n) = Int32.ofNat n := rfl
+@[simp] theorem Int64.ofBitVec_ofNat (n : Nat) : Int64.ofBitVec (BitVec.ofNat 64 n) = Int64.ofNat n := rfl
+@[simp] theorem ISize.ofBitVec_ofNat (n : Nat) : ISize.ofBitVec (BitVec.ofNat System.Platform.numBits n) = ISize.ofNat n := rfl
+
+@[simp] theorem Int8.ofBitVec_ofInt (n : Int) : Int8.ofBitVec (BitVec.ofInt 8 n) = Int8.ofInt n := rfl
+@[simp] theorem Int16.ofBitVec_ofInt (n : Int) : Int16.ofBitVec (BitVec.ofInt 16 n) = Int16.ofInt n := rfl
+@[simp] theorem Int32.ofBitVec_ofInt (n : Int) : Int32.ofBitVec (BitVec.ofInt 32 n) = Int32.ofInt n := rfl
+@[simp] theorem Int64.ofBitVec_ofInt (n : Int) : Int64.ofBitVec (BitVec.ofInt 64 n) = Int64.ofInt n := rfl
+@[simp] theorem ISize.ofBitVec_ofInt (n : Int) : ISize.ofBitVec (BitVec.ofInt System.Platform.numBits n) = ISize.ofInt n := rfl
+
+@[simp] theorem Int8.ofNat_bitVecToNat (n : BitVec 8) : Int8.ofNat n.toNat = Int8.ofBitVec n :=
+  Int8.toBitVec.inj (by simp)
+@[simp] theorem Int16.ofNat_bitVecToNat (n : BitVec 16) : Int16.ofNat n.toNat = Int16.ofBitVec n :=
+  Int16.toBitVec.inj (by simp)
+@[simp] theorem Int32.ofNat_bitVecToNat (n : BitVec 32) : Int32.ofNat n.toNat = Int32.ofBitVec n :=
+  Int32.toBitVec.inj (by simp)
+@[simp] theorem Int64.ofNat_bitVecToNat (n : BitVec 64) : Int64.ofNat n.toNat = Int64.ofBitVec n :=
+  Int64.toBitVec.inj (by simp)
+@[simp] theorem ISize.ofNat_bitVecToNat (n : BitVec System.Platform.numBits) : ISize.ofNat n.toNat = ISize.ofBitVec n :=
+  ISize.toBitVec.inj (by simp)
+
+@[simp] theorem Int8.ofInt_bitVecToInt (n : BitVec 8) : Int8.ofInt n.toInt = Int8.ofBitVec n :=
+  Int8.toBitVec.inj (by simp)
+@[simp] theorem Int16.ofInt_bitVecToInt (n : BitVec 16) : Int16.ofInt n.toInt = Int16.ofBitVec n :=
+  Int16.toBitVec.inj (by simp)
+@[simp] theorem Int32.ofInt_bitVecToInt (n : BitVec 32) : Int32.ofInt n.toInt = Int32.ofBitVec n :=
+  Int32.toBitVec.inj (by simp)
+@[simp] theorem Int64.ofInt_bitVecToInt (n : BitVec 64) : Int64.ofInt n.toInt = Int64.ofBitVec n :=
+  Int64.toBitVec.inj (by simp)
+@[simp] theorem ISize.ofInt_bitVecToInt (n : BitVec System.Platform.numBits) : ISize.ofInt n.toInt = ISize.ofBitVec n :=
+  ISize.toBitVec.inj (by simp)
+
+@[simp] theorem Int8.ofIntTruncate_bitVecToInt (n : BitVec 8) : Int8.ofIntTruncate n.toInt = Int8.ofBitVec n :=
+  Int8.toBitVec.inj (by simp [toBitVec_ofIntTruncate (n.le_toInt) (n.toInt_le)])
+@[simp] theorem Int16.ofIntTruncate_bitVecToInt (n : BitVec 16) : Int16.ofIntTruncate n.toInt = Int16.ofBitVec n :=
+  Int16.toBitVec.inj (by simp [toBitVec_ofIntTruncate (n.le_toInt) (n.toInt_le)])
+@[simp] theorem Int32.ofIntTruncate_bitVecToInt (n : BitVec 32) : Int32.ofIntTruncate n.toInt = Int32.ofBitVec n :=
+  Int32.toBitVec.inj (by simp [toBitVec_ofIntTruncate (n.le_toInt) (n.toInt_le)])
+@[simp] theorem Int64.ofIntTruncate_bitVecToInt (n : BitVec 64) : Int64.ofIntTruncate n.toInt = Int64.ofBitVec n :=
+  Int64.toBitVec.inj (by simp [toBitVec_ofIntTruncate (n.le_toInt) (n.toInt_le)])
+@[simp] theorem ISize.ofIntTruncate_bitVecToInt (n : BitVec System.Platform.numBits) : ISize.ofIntTruncate n.toInt = ISize.ofBitVec n :=
+  ISize.toBitVec.inj (by simp [toBitVec_ofIntTruncate (toInt_minValue ▸ n.le_toInt)
+    (toInt_maxValue ▸ n.toInt_le) ])

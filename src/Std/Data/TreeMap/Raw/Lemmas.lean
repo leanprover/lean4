@@ -968,6 +968,8 @@ theorem getD_insertMany_list_of_mem [TransCmp cmp] (h : t.WF)
     (t.insertMany l).getD k' fallback = v :=
   DTreeMap.Raw.Const.getD_insertMany_list_of_mem h k_eq distinct mem
 
+section Unit
+
 variable {t : Raw α Unit cmp}
 
 @[simp]
@@ -1110,6 +1112,8 @@ theorem getD_insertManyIfNewUnit_list
     {l : List α} {k : α} {fallback : Unit} :
     getD (insertManyIfNewUnit t l) k fallback = () :=
   rfl
+
+end Unit
 
 @[simp]
 theorem ofList_nil :
@@ -1351,5 +1355,333 @@ theorem getElem!_unitOfList {l : List α} {k : α} :
 theorem getD_unitOfList {l : List α} {k : α} {fallback : Unit} :
     getD (unitOfList l cmp) k fallback = () :=
   DTreeMap.Raw.Const.getD_unitOfList
+
+section Alter
+
+theorem isEmpty_alter_eq_isEmpty_erase [TransCmp cmp] (h : t.WF) {k : α}
+    {f : Option β → Option β} :
+    (alter t k f).isEmpty = ((t.erase k).isEmpty && (f t[k]?).isNone) :=
+   DTreeMap.Raw.Const.isEmpty_alter_eq_isEmpty_erase h
+
+@[simp]
+theorem isEmpty_alter [TransCmp cmp] (h : t.WF) {k : α} {f : Option β → Option β} :
+    (alter t k f).isEmpty =
+      (((t.isEmpty || (t.size == 1 && t.contains k))) && (f t[k]?).isNone) :=
+  DTreeMap.Raw.Const.isEmpty_alter h
+
+theorem contains_alter [TransCmp cmp] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+    (alter t k f).contains k' =
+      if cmp k k' = .eq then (f t[k]?).isSome else t.contains k' :=
+  DTreeMap.Raw.Const.contains_alter h
+
+theorem mem_alter [TransCmp cmp] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+    k' ∈ alter t k f ↔
+      if cmp k k' = .eq then (f t[k]?).isSome = true else k' ∈ t :=
+  DTreeMap.Raw.Const.mem_alter h
+
+theorem mem_alter_of_compare_eq [TransCmp cmp] (h : t.WF) {k k': α} {f : Option β → Option β}
+    (he : cmp k k' = .eq) :
+    k' ∈ alter t k f ↔ (f t[k]?).isSome :=
+  DTreeMap.Raw.Const.mem_alter_of_compare_eq h he
+
+@[simp]
+theorem contains_alter_self [TransCmp cmp] (h : t.WF) {k : α} {f : Option β → Option β} :
+    (alter t k f).contains k = (f t[k]?).isSome :=
+  DTreeMap.Raw.Const.contains_alter_self h
+
+@[simp]
+theorem mem_alter_self [TransCmp cmp] (h : t.WF) {k : α} {f : Option β → Option β} :
+    k ∈ alter t k f ↔ (f t[k]?).isSome :=
+  DTreeMap.Raw.Const.mem_alter_self h
+
+theorem contains_alter_of_not_compare_eq [TransCmp cmp] (h : t.WF) {k k' : α}
+    {f : Option β → Option β} (he : ¬ cmp k k' = .eq) :
+    (alter t k f).contains k' = t.contains k' :=
+  DTreeMap.Raw.Const.contains_alter_of_not_compare_eq h he
+
+theorem mem_alter_of_not_compare_eq [TransCmp cmp] (h : t.WF) {k k' : α} {f : Option β → Option β}
+    (he : ¬ cmp k k' = .eq) :
+    k' ∈ alter t k f ↔ k' ∈ t :=
+  DTreeMap.Raw.Const.mem_alter_of_not_compare_eq h he
+
+theorem size_alter [TransCmp cmp] (h : t.WF) {k : α} {f : Option β → Option β} :
+    (alter t k f).size =
+      if k ∈ t ∧ (f t[k]?).isNone then
+        t.size - 1
+      else if k ∉ t ∧ (f t[k]?).isSome then
+        t.size + 1
+      else
+        t.size :=
+  DTreeMap.Raw.Const.size_alter h
+
+theorem size_alter_eq_add_one [TransCmp cmp] (h : t.WF) {k : α} {f : Option β → Option β}
+    (h₁ : k ∉ t) (h₂ : (f t[k]?).isSome) :
+    (alter t k f).size = t.size + 1 :=
+  DTreeMap.Raw.Const.size_alter_eq_add_one h h₁ h₂
+
+theorem size_alter_eq_sub_one [TransCmp cmp] (h : t.WF) {k : α} {f : Option β → Option β}
+    (h₁ : k ∈ t) (h₂ : (f t[k]?).isNone) :
+    (alter t k f).size = t.size - 1 :=
+  DTreeMap.Raw.Const.size_alter_eq_sub_one h h₁ h₂
+
+theorem size_alter_eq_self_of_not_mem [TransCmp cmp] (h : t.WF) {k : α} {f : Option β → Option β}
+    (h₁ : ¬ k ∈ t) (h₂ : (f t[k]?).isNone) :
+    (alter t k f).size = t.size :=
+  DTreeMap.Raw.Const.size_alter_eq_self_of_not_mem h h₁ h₂
+
+theorem size_alter_eq_self_of_mem [TransCmp cmp] (h : t.WF) {k : α} {f : Option β → Option β}
+    (h₁ : k ∈ t) (h₂ : (f t[k]?).isSome) :
+    (alter t k f).size = t.size :=
+  DTreeMap.Raw.Const.size_alter_eq_self_of_mem h h₁ h₂
+
+theorem size_alter_le_size [TransCmp cmp] (h : t.WF) {k : α} {f : Option β → Option β} :
+    (alter t k f).size ≤ t.size + 1 :=
+  DTreeMap.Raw.Const.size_alter_le_size h
+
+theorem size_le_size_alter [TransCmp cmp] (h : t.WF) {k : α} {f : Option β → Option β} :
+    t.size - 1 ≤ (alter t k f).size :=
+  DTreeMap.Raw.Const.size_le_size_alter h
+
+theorem getElem?_alter [TransCmp cmp] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+    (alter t k f)[k']? =
+      if cmp k k' = .eq then
+        f t[k]?
+      else
+        t[k']? :=
+  DTreeMap.Raw.Const.get?_alter h
+
+@[simp]
+theorem getElem?_alter_self [TransCmp cmp] (h : t.WF) {k : α} {f : Option β → Option β} :
+    (alter t k f)[k]? = f t[k]? :=
+  DTreeMap.Raw.Const.get?_alter_self h
+
+theorem getElem_alter [TransCmp cmp] (h : t.WF) {k k' : α} {f : Option β → Option β}
+    {hc : k' ∈ (alter t k f)} :
+    (alter t k f)[k']'hc =
+      if heq : cmp k k' = .eq then
+        haveI h' : (f t[k]?).isSome := mem_alter_of_compare_eq h heq |>.mp hc
+        f t[k]? |>.get h'
+      else
+        haveI h' : k' ∈ t := mem_alter_of_not_compare_eq h heq |>.mp hc
+        t[k']'h' :=
+  DTreeMap.Raw.Const.get_alter h
+
+@[simp]
+theorem getElem_alter_self [TransCmp cmp] (h : t.WF) {k : α} {f : Option β → Option β}
+    {hc : k ∈ alter t k f} :
+    haveI h' : (f t[k]?).isSome := mem_alter_self h |>.mp hc
+    (alter t k f)[k]'hc = (f t[k]?).get h' :=
+  DTreeMap.Raw.Const.get_alter_self h
+
+theorem getElem!_alter [TransCmp cmp] (h : t.WF) {k k' : α} [Inhabited β] {f : Option β → Option β} :
+    (alter t k f)[k']! =
+      if cmp k k' = .eq then
+        f t[k]? |>.get!
+      else
+        t[k']! :=
+  DTreeMap.Raw.Const.get!_alter h
+
+@[simp]
+theorem getElem!_alter_self [TransCmp cmp] (h : t.WF) {k : α} [Inhabited β] {f : Option β → Option β} :
+    (alter t k f)[k]! = (f t[k]?).get! :=
+  DTreeMap.Raw.Const.get!_alter_self h
+
+theorem getD_alter [TransCmp cmp] (h : t.WF) {k k' : α} {fallback : β} {f : Option β → Option β} :
+    getD (alter t k f) k' fallback =
+      if cmp k k' = .eq then
+        f t[k]? |>.getD fallback
+      else
+        getD t k' fallback :=
+  DTreeMap.Raw.Const.getD_alter h
+
+@[simp]
+theorem getD_alter_self [TransCmp cmp] (h : t.WF) {k : α} {fallback : β}
+    {f : Option β → Option β} :
+    getD (alter t k f) k fallback = (f t[k]?).getD fallback :=
+  DTreeMap.Raw.Const.getD_alter_self h
+
+theorem getKey?_alter [TransCmp cmp] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+    (alter t k f).getKey? k' =
+      if cmp k k' = .eq then
+        if (f t[k]?).isSome then some k else none
+      else
+        t.getKey? k' :=
+  DTreeMap.Raw.Const.getKey?_alter h
+
+theorem getKey?_alter_self [TransCmp cmp] (h : t.WF) {k : α} {f : Option β → Option β} :
+    (alter t k f).getKey? k = if (f t[k]?).isSome then some k else none :=
+  DTreeMap.Raw.Const.getKey?_alter_self h
+
+theorem getKey!_alter [TransCmp cmp] [Inhabited α] (h : t.WF) {k k' : α} {f : Option β → Option β} :
+    (alter t k f).getKey! k' =
+      if cmp k k' = .eq then
+        if (f t[k]?).isSome then k else default
+      else
+        t.getKey! k' :=
+  DTreeMap.Raw.Const.getKey!_alter h
+
+theorem getKey!_alter_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k : α}
+    {f : Option β → Option β} :
+    (alter t k f).getKey! k = if (f t[k]?).isSome then k else default :=
+  DTreeMap.Raw.Const.getKey!_alter_self h
+
+theorem getKey_alter [TransCmp cmp] [Inhabited α] (h : t.WF) {k k' : α} {f : Option β → Option β}
+    {hc : k' ∈ alter t k f} :
+    (alter t k f).getKey k' hc =
+      if heq : cmp k k' = .eq then
+        k
+      else
+        haveI h' : k' ∈ t := mem_alter_of_not_compare_eq h heq |>.mp hc
+        t.getKey k' h' :=
+  DTreeMap.Raw.Const.getKey_alter h
+
+@[simp]
+theorem getKey_alter_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k : α} {f : Option β → Option β}
+    {hc : k ∈ alter t k f} :
+    (alter t k f).getKey k hc = k :=
+  DTreeMap.Raw.Const.getKey_alter_self h
+
+theorem getKeyD_alter [TransCmp cmp] (h : t.WF) {k k' fallback : α} {f : Option β → Option β} :
+    (alter t k f).getKeyD k' fallback =
+      if cmp k k' = .eq then
+        if (f t[k]?).isSome then k else fallback
+      else
+        t.getKeyD k' fallback :=
+  DTreeMap.Raw.Const.getKeyD_alter h
+
+@[simp]
+theorem getKeyD_alter_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k : α} {fallback : α}
+    {f : Option β → Option β} :
+    (alter t k f).getKeyD k fallback = if (f t[k]?).isSome then k else fallback :=
+  DTreeMap.Raw.Const.getKeyD_alter_self h
+
+end Alter
+
+section Modify
+
+@[simp]
+theorem isEmpty_modify [TransCmp cmp] (h : t.WF) {k : α} {f : β → β} :
+    (modify t k f).isEmpty = t.isEmpty :=
+  DTreeMap.Raw.Const.isEmpty_modify h
+
+theorem contains_modify [TransCmp cmp] (h : t.WF) {k k' : α} {f : β → β} :
+    (modify t k f).contains k' = t.contains k' :=
+  DTreeMap.Raw.Const.contains_modify h
+
+theorem mem_modify [TransCmp cmp] (h : t.WF) {k k' : α} {f : β → β} :
+    k' ∈ modify t k f ↔ k' ∈ t :=
+  DTreeMap.Raw.Const.mem_modify h
+
+theorem size_modify [TransCmp cmp] (h : t.WF) {k : α} {f : β → β} :
+    (modify t k f).size = t.size :=
+  DTreeMap.Raw.Const.size_modify h
+
+theorem getElem?_modify [TransCmp cmp] (h : t.WF) {k k' : α} {f : β → β} :
+    (modify t k f)[k']? =
+      if cmp k k' = .eq then
+        t[k]?.map f
+      else
+        t[k']? :=
+  DTreeMap.Raw.Const.get?_modify h
+
+@[simp]
+theorem getElem?_modify_self [TransCmp cmp] (h : t.WF) {k : α} {f : β → β} :
+    (modify t k f)[k]? = t[k]?.map f :=
+  DTreeMap.Raw.Const.get?_modify_self h
+
+theorem getElem_modify [TransCmp cmp] (h : t.WF) {k k' : α} {f : β → β} {hc : k' ∈ modify t k f} :
+    (modify t k f)[k']'hc =
+      if heq : cmp k k' = .eq then
+        haveI h' : k ∈ t := mem_congr h heq |>.mpr <| mem_modify h |>.mp hc
+        f (t[k]'h')
+      else
+        haveI h' : k' ∈ t := mem_modify h |>.mp hc
+        t[k']'h' :=
+  DTreeMap.Raw.Const.get_modify h
+
+@[simp]
+theorem getElem_modify_self [TransCmp cmp] (h : t.WF) {k : α} {f : β → β} {hc : k ∈ modify t k f} :
+    haveI h' : k ∈ t := mem_modify h |>.mp hc
+    (modify t k f)[k]'hc = f (t[k]'h') :=
+  DTreeMap.Raw.Const.get_modify_self h
+
+theorem getElem!_modify [TransCmp cmp] (h : t.WF) {k k' : α} [hi : Inhabited β] {f : β → β} :
+    (modify t k f)[k']! =
+      if cmp k k' = .eq then
+        t[k]? |>.map f |>.get!
+      else
+        t[k']! :=
+  DTreeMap.Raw.Const.get!_modify h
+
+@[simp]
+theorem getElem!_modify_self [TransCmp cmp] (h : t.WF) {k : α} [Inhabited β] {f : β → β} :
+    (modify t k f)[k]! = (t[k]?.map f).get! :=
+  DTreeMap.Raw.Const.get!_modify_self h
+
+theorem getD_modify [TransCmp cmp] (h : t.WF) {k k' : α} {fallback : β} {f : β → β} :
+    getD (modify t k f) k' fallback =
+      if cmp k k' = .eq then
+        t[k]?.map f |>.getD fallback
+      else
+        getD t k' fallback :=
+  DTreeMap.Raw.Const.getD_modify h
+
+@[simp]
+theorem getD_modify_self [TransCmp cmp] (h : t.WF) {k : α} {fallback : β} {f : β → β} :
+    getD (modify t k f) k fallback = (t[k]?.map f).getD fallback :=
+  DTreeMap.Raw.Const.getD_modify_self h
+
+theorem getKey?_modify [TransCmp cmp] (h : t.WF) {k k' : α} {f : β → β} :
+    (modify t k f).getKey? k' =
+      if cmp k k' = .eq then
+        if k ∈ t then some k else none
+      else
+        t.getKey? k' :=
+  DTreeMap.Raw.Const.getKey?_modify h
+
+theorem getKey?_modify_self [TransCmp cmp] (h : t.WF) {k : α} {f : β → β} :
+    (modify t k f).getKey? k = if k ∈ t then some k else none :=
+  DTreeMap.Raw.Const.getKey?_modify_self h
+
+theorem getKey!_modify [TransCmp cmp] (h : t.WF) [Inhabited α] {k k' : α} {f : β → β} :
+    (modify t k f).getKey! k' =
+      if cmp k k' = .eq then
+        if k ∈ t then k else default
+      else
+        t.getKey! k' :=
+  DTreeMap.Raw.Const.getKey!_modify h
+
+theorem getKey!_modify_self [TransCmp cmp] (h : t.WF) [Inhabited α] {k : α} {f : β → β} :
+    (modify t k f).getKey! k = if k ∈ t then k else default :=
+  DTreeMap.Raw.Const.getKey!_modify_self h
+
+theorem getKey_modify [TransCmp cmp] (h : t.WF) [Inhabited α] {k k' : α} {f : β → β}
+    {hc : k' ∈ modify t k f} :
+    (modify t k f).getKey k' hc =
+      if cmp k k' = .eq then
+        k
+      else
+        haveI h' : k' ∈ t := mem_modify h |>.mp hc
+        t.getKey k' h' :=
+  DTreeMap.Raw.Const.getKey_modify h
+
+@[simp]
+theorem getKey_modify_self [TransCmp cmp] (h : t.WF) [Inhabited α] {k : α} {f : β → β}
+    {hc : k ∈ modify t k f} : (modify t k f).getKey k hc = k :=
+  DTreeMap.Raw.Const.getKey_modify_self h
+
+theorem getKeyD_modify [TransCmp cmp] (h : t.WF) {k k' fallback : α} {f : β → β} :
+    (modify t k f).getKeyD k' fallback =
+      if cmp k k' = .eq then
+        if k ∈ t then k else fallback
+      else
+        t.getKeyD k' fallback :=
+  DTreeMap.Raw.Const.getKeyD_modify h
+
+theorem getKeyD_modify_self [TransCmp cmp] (h : t.WF) [Inhabited α] {k fallback : α} {f : β → β} :
+    (modify t k f).getKeyD k fallback = if k ∈ t then k else fallback :=
+  DTreeMap.Raw.Const.getKeyD_modify_self h
+
+end Modify
 
 end Std.TreeMap.Raw

@@ -36,8 +36,6 @@ instance : ToExpr BVUnOp where
   toExpr x :=
     match x with
     | .not => mkConst ``BVUnOp.not
-    | .shiftLeftConst n => mkApp (mkConst ``BVUnOp.shiftLeftConst) (toExpr n)
-    | .shiftRightConst n => mkApp (mkConst ``BVUnOp.shiftRightConst) (toExpr n)
     | .rotateLeft n => mkApp (mkConst ``BVUnOp.rotateLeft) (toExpr n)
     | .rotateRight n => mkApp (mkConst ``BVUnOp.rotateRight) (toExpr n)
     | .arithShiftRightConst n => mkApp (mkConst ``BVUnOp.arithShiftRightConst) (toExpr n)
@@ -50,8 +48,6 @@ where
   go {w : Nat} : BVExpr w → Expr
   | .var idx => mkApp2 (mkConst ``BVExpr.var) (toExpr w) (toExpr idx)
   | .const val => mkApp2 (mkConst ``BVExpr.const) (toExpr w) (toExpr val)
-  | .zeroExtend (w := oldWidth) val inner =>
-    mkApp3 (mkConst ``BVExpr.zeroExtend) (toExpr oldWidth) (toExpr val) (go inner)
   | .signExtend (w := oldWidth) val inner =>
     mkApp3 (mkConst ``BVExpr.signExtend) (toExpr oldWidth) (toExpr val) (go inner)
   | .bin lhs op rhs => mkApp4 (mkConst ``BVExpr.bin) (toExpr w) (go lhs) (toExpr op) (go rhs)

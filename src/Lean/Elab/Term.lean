@@ -484,15 +484,15 @@ def withoutTacticReuse [Monad m] [MonadWithReaderOf Context m] [MonadOptions m]
   }) act
 
 @[inherit_doc Core.wrapAsyncAsSnapshot]
-def wrapAsyncAsSnapshot (act : Unit → TermElabM Unit) (cancelTk? : Option IO.CancelToken)
+def wrapAsyncAsSnapshot {α : Type} (act : α → TermElabM Unit) (cancelTk? : Option IO.CancelToken)
     (desc : String := by exact decl_name%.toString) :
-    TermElabM (BaseIO Language.SnapshotTree) := do
+    TermElabM (α → BaseIO Language.SnapshotTree) := do
   let ctx ← read
   let st ← get
   let metaCtx ← readThe Meta.Context
   let metaSt ← getThe Meta.State
-  Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk?) (desc := desc) fun _ =>
-    act () |>.run ctx |>.run' st |>.run' metaCtx metaSt
+  Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk?) (desc := desc) fun a =>
+    act a |>.run ctx |>.run' st |>.run' metaCtx metaSt
 
 abbrev TermElabResult (α : Type) := EStateM.Result Exception SavedState α
 

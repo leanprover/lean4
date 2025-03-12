@@ -262,27 +262,6 @@ inductive Exception where
   | interrupted
 deriving Nonempty
 
-/-- Basic `Exception` formatting without `MessageData` dependency. -/
-private def Exception.toRawString : Kernel.Exception → String
-  | unknownConstant _ constName       => s!"(kernel) unknown constant '{constName}'"
-  | alreadyDeclared _ constName       => s!"(kernel) constant has already been declared '{constName}'"
-  | declTypeMismatch _ _ _ => s!"(kernel) declaration type mismatch"
-  | declHasMVars _ constName _        => s!"(kernel) declaration has metavariables '{constName}'"
-  | declHasFVars _ constName _        => s!"(kernel) declaration has free variables '{constName}'"
-  | funExpected _ _ e                 => s!"(kernel) function expected: {e}"
-  | typeExpected _ _ e                => s!"(kernel) type expected: {e}"
-  | letTypeMismatch  _ _ n _ _        => s!"(kernel) let-declaration type mismatch '{n}'"
-  | exprTypeMismatch _ _ e _          => s!"(kernel) type mismatch at {e}"
-  | appTypeMismatch  _ _ e fnType argType =>
-    s!"application type mismatch: {e}\nargument has type {argType}\nbut function has type {fnType}"
-  | invalidProj _ _ e                 => s!"(kernel) invalid projection {e}"
-  | thmTypeIsNotProp _ constName type => s!"(kernel) type of theorem '{constName}' is not a proposition: {type}"
-  | other msg                         => s!"(kernel) {msg}"
-  | deterministicTimeout              => "(kernel) deterministic timeout"
-  | excessiveMemory                   => "(kernel) excessive memory consumption detected"
-  | deepRecursion                     => "(kernel) deep recursion detected"
-  | interrupted                       => "(kernel) interrupted"
-
 namespace Environment
 
 @[export lean_environment_find]
@@ -489,7 +468,7 @@ private structure RealizationContext where
   changes onto a derived kernel environment, and auxiliary data (always `SnapshotTree` in builtin
   uses, but untyped to avoid cyclic module references).
   -/
-  constsRef : IO.Ref (NameMap (Task (List AsyncConst × (Kernel.Environment → Kernel.Environment) × Dynamic)))
+  constsRef : IO.Ref (NameMap (Task (List AsyncConst × (Kernel.Environment → Except Kernel.Exception Kernel.Environment) × Dynamic)))
 
 /--
 Elaboration-specific extension of `Kernel.Environment` that adds tracking of asynchronously
@@ -1927,11 +1906,11 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
         consts
       else
         consts.add c
-    checked := dest.checked.map (replayKernel exts consts)
+    checked := dest.checked.map fun kenv => replayKernel exts consts kenv |>.toOption.getD kenv
   }
 where
   replayKernel (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)
-      (kenv : Kernel.Environment) : Kernel.Environment := Id.run do
+      (kenv : Kernel.Environment) : Except Kernel.Exception Kernel.Environment := do
     let mut kenv := kenv
     for c in consts do
       if skipExisting && (kenv.find? c.constInfo.name).isSome then
@@ -1947,16 +1926,13 @@ where
       -- for panics
       let _ : Inhabited Kernel.Environment := ⟨kenv⟩
       let decl ← match info with
-        | .thmInfo thm   => .thmDecl thm
-        | .defnInfo defn => .defnDecl defn
+        | .thmInfo thm   => pure <| .thmDecl thm
+        | .defnInfo defn => pure <| .defnDecl defn
         | _              =>
           return panic! s!"{c.constInfo.name} must be definition/theorem"
       -- realized kernel additions cannot be interrupted - which would be bad anyway as they can be
       -- reused between snapshots
-      match kenv.addDeclCore 0 decl none with
-      | .ok kenv' => kenv := kenv'
-      | .error e =>
-        return panic! s!"failed to add {c.constInfo.name} to environment\n{e.toRawString}"
+      kenv ← ofExcept <| kenv.addDeclCore 0 decl none
     for ext in exts do
       if let some replay := ext.replay? then
         kenv := { kenv with
@@ -1992,7 +1968,7 @@ def hasUnsafe (env : Environment) (e : Expr) : Bool :=
 /-- Plumbing function for `Lean.Meta.realizeConst`; see documentation there. -/
 def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     (realize : Environment → Options → BaseIO (Environment × Dynamic)) :
-    IO (Environment × Dynamic) := do
+    IO (Environment × Task (Option Kernel.Exception) × Dynamic) := do
   -- the following code is inherently non-deterministic in number of heartbeats, reset them at the
   -- end
   let heartbeats ← IO.getNumHeartbeats
@@ -2045,19 +2021,25 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
       let replay := replayConsts.replayKernel (skipExisting := true) realizeEnv realizeEnv' exts consts
       prom.resolve (consts, replay, dyn)
       pure (consts, replay, dyn)
+    let exPromise ← IO.Promise.new
     let env := { env with
       asyncConsts := consts.foldl (init := env.asyncConsts) fun consts c =>
         if consts.find? c.constInfo.name |>.isSome then
           consts
         else
           consts.add c
-      checked := env.checked.map replay
+      checked := (← BaseIO.mapTask (t := env.checked) fun kenv => do
+        match replay kenv with
+        | .ok kenv => return kenv
+        | .error e =>
+          exPromise.resolve e
+          return kenv)
       allRealizations := env.allRealizations.map (sync := true) fun allRealizations =>
         consts.foldl (init := allRealizations) fun allRealizations c =>
           allRealizations.insert c.constInfo.name c
     }
     IO.setNumHeartbeats heartbeats
-    return (env, dyn)
+    return (env, exPromise.result?, dyn)
 
 end Environment
 

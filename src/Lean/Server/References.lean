@@ -263,7 +263,7 @@ all identifiers that are being collapsed into one.
 -/
 partial def combineIdents (trees : Array InfoTree) (refs : Array Reference) : Array Reference := Id.run do
   -- Deduplicate definitions based on their exact range
-  let mut posMap : Std.HashMap Lsp.Range RefIdent := Std.HashMap.empty
+  let mut posMap : Std.HashMap Lsp.Range RefIdent := ∅
   for ref in refs do
     if let { ident, range, isBinder := true, .. } := ref then
       posMap := posMap.insert range ident
@@ -318,7 +318,7 @@ where
       canonicalRepresentative := idMap[canonicalRepresentative]
     return canonicalRepresentative
 
-  buildIdMap posMap := Id.run <| StateT.run' (s := Std.HashMap.empty) do
+  buildIdMap posMap := Id.run <| StateT.run' (s := ∅) do
     -- map fvar defs to overlapping fvar defs/uses
     for ref in refs do
       let baseId := ref.ident
@@ -348,7 +348,7 @@ are added to the `aliases` of the representative of the group.
 Yields to separate groups for declaration and usages if `allowSimultaneousBinderUse` is set.
 -/
 def dedupReferences (refs : Array Reference) (allowSimultaneousBinderUse := false) : Array Reference := Id.run do
-  let mut refsByIdAndRange : Std.HashMap (RefIdent × Option Bool × Lsp.Range) Reference := Std.HashMap.empty
+  let mut refsByIdAndRange : Std.HashMap (RefIdent × Option Bool × Lsp.Range) Reference := ∅
   for ref in refs do
     let isBinder := if allowSimultaneousBinderUse then some ref.isBinder else none
     let key := (ref.ident, isBinder, ref.range)

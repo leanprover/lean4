@@ -30,7 +30,7 @@ instance : Hashable Module where hash m := hash m.keyName
 instance : BEq Module where beq m n := m.keyName == n.keyName
 
 abbrev ModuleSet := Std.HashSet Module
-@[inline] def ModuleSet.empty : ModuleSet := Std.HashSet.empty
+@[inline] def ModuleSet.empty : ModuleSet := ∅
 
 abbrev OrdModuleSet := OrdHashSet Module
 @[inline] def OrdModuleSet.empty : OrdModuleSet := OrdHashSet.empty

@@ -69,9 +69,12 @@ mutual
   partial def pullDecls (code : Code) : PullM Code := do
     match code with
     | .cases c =>
-      withCheckpoint do
-        let alts ← c.alts.mapMonoM pullAlt
-        return code.updateAlts! alts
+      if c.typeName == ``Decidable then
+        return code
+      else
+        withCheckpoint do
+          let alts ← c.alts.mapMonoM pullAlt
+          return code.updateAlts! alts
     | .let decl k =>
       if (← shouldPull decl) then
         pullDecls k

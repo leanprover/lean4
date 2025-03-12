@@ -277,8 +277,11 @@ abbrev zipWithIndex_mk := @zipIdx_mk
 
 @[simp] theorem toArray_empty : (#v[] : Vector α 0).toArray = #[] := rfl
 
-@[simp] theorem toArray_mkEmpty (cap) :
-    (Vector.mkEmpty (α := α) cap).toArray = Array.mkEmpty cap := rfl
+@[simp] theorem toArray_emptyWithCapacity (cap) :
+    (Vector.emptyWithCapacity (α := α) cap).toArray = Array.emptyWithCapacity cap := rfl
+
+@[deprecated toArray_emptyWithCapacity (since := "2025-03-12")]
+abbrev toArray_mkEmpty := @toArray_emptyWithCapacity
 
 @[simp] theorem toArray_eraseIdx (xs : Vector α n) (i) (h) :
     (xs.eraseIdx i h).toArray = xs.toArray.eraseIdx i (by simp [h]) := rfl
@@ -509,8 +512,11 @@ theorem toList_append (xs : Vector α m) (ys : Vector α n) :
 
 theorem toList_empty : (#v[] : Vector α 0).toArray = #[] := by simp
 
-theorem toList_mkEmpty (cap) :
-    (Vector.mkEmpty (α := α) cap).toList = [] := rfl
+theorem toList_emptyWithCapacity (cap) :
+    (Vector.emptyWithCapacity (α := α) cap).toList = [] := rfl
+
+@[deprecated toList_emptyWithCapacity (since := "2025-03-12")]
+abbrev toList_mkEmpty := @toList_emptyWithCapacity
 
 theorem toList_eraseIdx (xs : Vector α n) (i) (h) :
     (xs.eraseIdx i h).toList = xs.toList.eraseIdx i := by simp

@@ -32,12 +32,20 @@ instance : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExceptOf ε (EStat
 instance : OrElse (EIO ε α) := ⟨MonadExcept.orElse⟩
 instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
 
-/-- An `EIO` monad that cannot throw exceptions. -/
+/--
+An `IO` monad that cannot throw exceptions.
+-/
 def BaseIO := EIO Empty
 
 instance : Monad BaseIO := inferInstanceAs (Monad (EIO Empty))
 instance : MonadFinally BaseIO := inferInstanceAs (MonadFinally (EIO Empty))
 
+/--
+Runs a `BaseIO` action, which cannot throw an exception, in any other `EIO` monad.
+
+This function is usually used implicitly via [automatic monadic
+lifting](lean-manual://section/lifting-monads) rather being than called explicitly.
+-/
 @[always_inline, inline]
 def BaseIO.toEIO (act : BaseIO α) : EIO ε α :=
   fun s => match act s with
@@ -65,6 +73,12 @@ def EIO.ofExcept (e : Except ε α) : EIO ε α :=
 open IO (Error) in
 abbrev IO : Type → Type := EIO Error
 
+/--
+Runs a `BaseIO` action, which cannot throw an exception, as an `IO` action.
+
+This function is usually used implicitly via [automatic monadic
+lifting](lean-manual://section/lifting-monads) rather than being called explicitly.
+-/
 @[inline] def BaseIO.toIO (act : BaseIO α) : IO α :=
   act
 
@@ -104,34 +118,72 @@ set_option compiler.extract_closed false in
 namespace BaseIO
 
 /--
-  Run `act` in a separate `Task`.
-  This is similar to Haskell's [`unsafeInterleaveIO`](http://hackage.haskell.org/package/base-4.14.0.0/docs/System-IO-Unsafe.html#v:unsafeInterleaveIO),
-  except that the `Task` is started eagerly as usual. Thus pure accesses to the `Task` do not influence the impure `act`
-  computation.
-  Unlike with pure tasks created by `Task.spawn`, tasks created by this function will be run even if the last reference
-  to the task is dropped. The `act` should manually check for cancellation via `IO.checkCanceled` if it wants to react
-  to that. -/
+Runs `act` in a separate `Task`, with priority `prio`.
+
+Running the resulting `BaseIO` action causes the task to be started eagerly. Pure accesses to the
+`Task` do not influence the impure `act`.
+
+Unlike pure tasks created by `Task.spawn`, tasks created by this function will run even if the last
+reference to the task is dropped. The `act` should explicitly check for cancellation via
+`IO.checkCanceled` if it should be terminated or otherwise react to the last reference being
+dropped.
+-/
 @[extern "lean_io_as_task"]
 opaque asTask (act : BaseIO α) (prio := Task.Priority.default) : BaseIO (Task α) :=
   Task.pure <$> act
 
-/-- See `BaseIO.asTask`. -/
+/--
+Creates a new task that waits for `t` to complete and then runs the `IO` action `f` on its result.
+This new task has priority `prio`.
+
+Running the resulting `BaseIO` action causes the task to be started eagerly. Unlike pure tasks
+created by `Task.spawn`, tasks created by this function will run even if the last reference to the
+task is dropped. The `act` should explicitly check for cancellation via `IO.checkCanceled` if it
+should be terminated or otherwise react to the last reference being dropped.
+-/
 @[extern "lean_io_map_task"]
 opaque mapTask (f : α → BaseIO β) (t : Task α) (prio := Task.Priority.default) (sync := false) :
     BaseIO (Task β) :=
   Task.pure <$> f t.get
 
-/-- See `BaseIO.asTask`. -/
+/--
+Creates a new task that waits for `t` to complete, runs the `IO` action `f` on its result, and then
+continues as the resulting task. This new task has priority `prio`.
+
+Running the resulting `BaseIO` action causes this new task to be started eagerly. Unlike pure tasks
+created by `Task.spawn`, tasks created by this function will run even if the last reference to the
+task is dropped. The `act` should explicitly check for cancellation via `IO.checkCanceled` if it
+should be terminated or otherwise react to the last reference being dropped.
+-/
 @[extern "lean_io_bind_task"]
 opaque bindTask (t : Task α) (f : α → BaseIO (Task β)) (prio := Task.Priority.default)
     (sync := false) : BaseIO (Task β) :=
   f t.get
 
-/-- Like `BaseIO.mapTask, but ignores the result. -/
+/--
+Creates a new task that waits for `t` to complete and then runs the `IO` action `f` on its result.
+This new task has priority `prio`.
+
+This is a version of `BaseIO.mapTask` that ignores the result value.
+
+Running the resulting `BaseIO` action causes the task to be started eagerly. Unlike pure tasks
+created by `Task.spawn`, tasks created by this function will run even if the last reference to the
+task is dropped. The `act` should explicitly check for cancellation via `IO.checkCanceled` if it
+should be terminated or otherwise react to the last reference being dropped.
+-/
 def chainTask (t : Task α) (f : α → BaseIO Unit) (prio := Task.Priority.default)
     (sync := false) : BaseIO Unit :=
   discard <| BaseIO.mapTask f t prio sync
 
+/--
+Creates a new task that waits for all the tasks in the list `tasks` to complete, and then runs the
+`IO` action `f` on their results. This new task has priority `prio`.
+
+Running the resulting `BaseIO` action causes the task to be started eagerly. Unlike pure tasks
+created by `Task.spawn`, tasks created by this function will run even if the last reference to the
+task is dropped. The `act` should explicitly check for cancellation via `IO.checkCanceled` if it
+should be terminated or otherwise react to the last reference being dropped.
+-/
 def mapTasks (f : List α → BaseIO β) (tasks : List (Task α)) (prio := Task.Priority.default)
     (sync := false) : BaseIO (Task β) :=
   go tasks []

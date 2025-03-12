@@ -396,12 +396,12 @@ both sides.
 def bvAcNfHypTactic (fvarId : FVarId) : TacticM Unit :=
   liftMetaTactic1 fun goal => bvAcNfHypMeta goal fvarId
 
-def bvAcNormalizePass (maxSteps : Nat) : Pass where
+def bvAcNormalizePass : Pass where
   name := `bv_ac_nf
   run' goal := do
     let mut newGoal := goal
     for hyp in (← goal.getNondepPropHyps) do
-      if let .some nextGoal ← bvAcNfHypMeta newGoal hyp maxSteps then
+      if let .some nextGoal ← bvAcNfHypMeta newGoal hyp (← read).maxSteps then
         newGoal := nextGoal
     return newGoal
 

@@ -659,6 +659,19 @@ instance [Monad m] [∀ α, PartialOrder (m α)] [∀ α, CCPO (m α)] [MonoBind
 
 end mono_bind
 
+section coinductive_predicates
+instance inst_coind_po: PartialOrder Prop where
+  rel x y := y → x -- NB: Dual
+  rel_refl := fun x => x
+  rel_trans h₁ h₂ := fun x => h₁ (h₂ x)
+  rel_antisymm h₁ h₂ := propext ⟨h₂, h₁⟩
+
+instance inst_coind_CCPO : CCPO Prop where
+  csup c := ∀ p, c p → p
+  csup_spec := fun _ =>
+    ⟨fun h y hcy hx => h hx y hcy, fun h hx y hcy => h y hcy hx ⟩
+end coinductive_predicates
+
 namespace Example
 
 def findF (P : Nat → Bool) (rec : Nat → Option Nat) (x : Nat) : Option Nat :=

@@ -77,24 +77,29 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
   assert! preDefs.size = hints.size
 
   -- We check if the functions were defined in terms of `greatest_fixpoint` syntax
-  let is_greatest := hints.any (·.greatest?)
   -- We check if the
   -- For every function of type `∀ x y, r x y`, an CCPO instance
   -- ∀ x y, CCPO (r x y), but crucially constructed using `instCCPOPi`
   let ccpoInsts ← preDefs.mapIdxM fun i preDef => withRef hints[i]!.ref do
     lambdaTelescope preDef.value fun xs _body => do
       let type ← instantiateForall preDef.type xs
-      trace[Elab.definition.partialFixpoint] "Type is {type}"
+      let isGreatest := preDef.termination.partialFixpoint?.any (·.greatest?)
       let inst ←
-        try
-          synthInstance (← mkAppM ``CCPO #[type])
-        catch _ =>
-          trace[Elab.definition.partialFixpoint] "No CCPO instance found for {preDef.declName}, trying inhabitation"
-          let msg := m!"failed to compile definition '{preDef.declName}' using `partial_fixpoint`"
-          let w ← mkInhabitantFor msg #[] preDef.type
-          let instNonempty ← mkAppM ``Nonempty.intro #[mkAppN w xs]
-          let classicalWitness ← mkAppOptM ``Classical.ofNonempty #[none, instNonempty]
-          mkAppOptM ``FlatOrder.instCCPO #[none, classicalWitness]
+        if isGreatest then
+          if !type.isProp then
+            throwError "`greatest_fixpoint` can be only used to define predicates"
+          else
+            mkAppOptM ``inst_coind_CCPO #[]
+        else
+          try
+            synthInstance (← mkAppM ``CCPO #[type])
+          catch _ =>
+            trace[Elab.definition.partialFixpoint] "No CCPO instance found for {preDef.declName}, trying inhabitation"
+            let msg := m!"failed to compile definition '{preDef.declName}' using `partial_fixpoint`"
+            let w ← mkInhabitantFor msg #[] preDef.type
+            let instNonempty ← mkAppM ``Nonempty.intro #[mkAppN w xs]
+            let classicalWitness ← mkAppOptM ``Classical.ofNonempty #[none, instNonempty]
+            mkAppOptM ``FlatOrder.instCCPO #[none, classicalWitness]
       mkLambdaFVars xs inst
 
   let declNames := preDefs.map (·.declName)

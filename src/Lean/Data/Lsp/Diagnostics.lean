@@ -145,33 +145,11 @@ structure DiagnosticWith (α : Type) where
   /-- An array of related diagnostic information, e.g. when symbol-names within a scope collide all definitions can be marked via this property. -/
   relatedInformation? : Option (Array DiagnosticRelatedInformation) := none
   /-- A data entry field that is preserved between a `textDocument/publishDiagnostics` notification and `textDocument/codeAction` request. -/
-  data?: Option Json := none
+  data? : Option Json := none
   deriving Inhabited, BEq, ToJson, FromJson
 
 def DiagnosticWith.fullRange (d : DiagnosticWith α) : Range :=
   d.fullRange?.getD d.range
-
-attribute [local instance] Ord.arrayOrd in
-/-- Restriction of `DiagnosticWith` to properties that are displayed to users in the InfoView. -/
-private structure DiagnosticWith.UserVisible (α : Type) where
-  range               : Range
-  fullRange?          : Option Range
-  severity?           : Option DiagnosticSeverity
-  code?               : Option DiagnosticCode
-  source?             : Option String
-  message             : α
-  tags?               : Option (Array DiagnosticTag)
-  relatedInformation? : Option (Array DiagnosticRelatedInformation)
-  deriving Ord
-
-/-- Extracts user-visible properties from the given `DiagnosticWith`. -/
-private def DiagnosticWith.UserVisible.ofDiagnostic (d : DiagnosticWith α)
-    : DiagnosticWith.UserVisible α :=
-  { d with }
-
-/-- Compares `DiagnosticWith` instances modulo non-user-facing properties. -/
-def compareByUserVisible [Ord α] (a b : DiagnosticWith α) : Ordering :=
-  compare (DiagnosticWith.UserVisible.ofDiagnostic a) (DiagnosticWith.UserVisible.ofDiagnostic b)
 
 abbrev Diagnostic := DiagnosticWith String
 

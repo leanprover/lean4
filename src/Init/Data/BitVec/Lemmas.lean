@@ -2556,6 +2556,31 @@ theorem not_extractLsb'_append_not_extractLsb'_eq_not_extractLsb' {x : BitVec w}
     congr 1
     omega
 
+/-- A sign extension of `x : BitVec w` equals high bits of either `0` or `1` depending on `x.msb`,
+followed by the low bits of `x`. -/
+theorem signExtend_eq_append_extractLsb' {w v : Nat} {x : BitVec w} :
+    x.signExtend v =
+    ((if x.msb then allOnes (v - w) else 0#(v - w)) ++ x.extractLsb' 0 (min w v)).cast (by omega) := by
+  ext i hi
+  simp only [getElem_cast]
+  cases hx : x.msb
+  · simp only [hx, signExtend_eq_setWidth_of_msb_false, getElem_setWidth, Bool.false_eq_true,
+      ↓reduceIte, getElem_append, getElem_extractLsb', Nat.zero_add, getElem_zero, dite_eq_ite,
+      Bool.if_false_right, Bool.iff_and_self, decide_eq_true_eq]
+    intros hi
+    have hw : i < w := lt_of_getLsbD hi
+    omega
+  · simp [signExtend_eq_not_setWidth_not_of_msb_true hx, getElem_append, Nat.lt_min, hi]
+
+/-- A sign extension of `x : BitVec w` to a larger bitwidth `v ≥ w`
+equals high bits of either `0` or `1` depending on `x.msb`, followed by `x`. -/
+theorem signExtend_eq_append_of_le {w v : Nat} {x : BitVec w} (h : w ≤ v) :
+    x.signExtend v =
+    ((if x.msb then allOnes (v - w) else 0#(v - w)) ++ x).cast (by omega) := by
+  ext i hi
+  cases hx : x.msb <;>
+    simp [getElem_cast, hx, getElem_append, getElem_signExtend]
+
 /-! ### rev -/
 
 theorem getLsbD_rev (x : BitVec w) (i : Fin w) :

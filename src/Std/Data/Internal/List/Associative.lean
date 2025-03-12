@@ -4214,7 +4214,15 @@ theorem min?''_replaceEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (k
     apply sorted_replaceEntry_of_sorted
     apply sorted_mergeSort'
 
-theorem min?_insertKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (k : α) (v : β k) (l : List ((a : α) × β a))
+theorem le_of_sorted_cons [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (k e) (l : List ((a : α) × β a))
+    (h : (e :: l).Pairwise LE.le) (he : containsKey k (e :: l)) :
+    (compare e.1 k).isLE := by
+  simp [containsKey] at h he
+  cases he
+  · exact Ordering.isLE_of_eq_eq <| compare_eq_iff_beq.mpr ‹_›
+  · sorry --exact h.1 _ sorry
+
+theorem min?''_insertKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (k : α) (v : β k) (l : List ((a : α) × β a))
     (hd : DistinctKeys l) :
     min?'' (insertEntry k v l) =
       some (match min?'' l with
@@ -4236,16 +4244,14 @@ theorem min?_insertKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (k : α
       intro hs h
       simp [replaceEntry, cond_eq_if, apply_ite List.head?, apply_ite some]
       congr
-      by_cases h : e.fst == k
-      · simp [← compare_eq_iff_beq] at *
-
-
-    · sorry
-
-
-
-
-
+      rw [Bool.eq_iff_iff, ← compare_eq_iff_beq]
+      by_cases h : compare e.fst k = .eq
+      · simp_all [← compare_eq_iff_beq, OrientedCmp.eq_swap (a := k) (cmp := compare)]
+      · have := le_of_sorted_cons k e es hs ‹_›
+        simp only [false_iff, Bool.not_eq_true, Ordering.isLE_eq_false, OrientedCmp.gt_iff_lt, h]
+        cases h : compare e.fst k <;> simp_all
+    · simpa using sorted_replaceEntry_of_sorted <| sorted_mergeSort' _
+  · sorry
 
 /-- Like `List.min?`, but using an `Ord` typeclass instead of a `Min` typeclass. -/
 def min?' [Ord α] (xs : List ((a : α) × β a)) : Option ((a : α) × β a) :=

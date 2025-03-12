@@ -1780,8 +1780,8 @@ theorem apply_min?ₘ [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) 
       contradiction
   rw [hc, List.nil_append, List.nil_append, min?'_eq_head? (by simpa [hc] using h₂)]
 
-theorem apply_min? [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
-    l.min? = Std.DHashMap.Internal.List.min?' l.toListModel := by
+theorem min?_eq_min?' [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
+    l.min? = Std.Internal.List.min?' l.toListModel := by
   rw [min?_eq_min?ₘ, apply_min?ₘ hlo]
 
 end Std.DTreeMap.Internal.Impl

@@ -2569,10 +2569,8 @@ theorem signExtend_eq_append_extractLsb' {w v : Nat} {x : BitVec w} :
       ↓reduceIte, getElem_append, getElem_extractLsb', Nat.zero_add, getElem_zero, dite_eq_ite,
       Bool.if_false_right, Bool.iff_and_self, decide_eq_true_eq]
     intros hi
-    by_cases hw : i < w
-    · omega
-    · have hw₂ : i < w := lt_of_getLsbD hi
-      omega
+    have hw : i < w := lt_of_getLsbD hi
+    omega
   · simp only [signExtend_eq_not_setWidth_not_of_msb_true hx, getElem_not, getElem_setWidth,
       getLsbD_not, Bool.not_and, Bool.not_not, hx, ↓reduceIte, getElem_append, getElem_extractLsb',
       Nat.zero_add, getElem_allOnes, dite_eq_ite, Bool.if_true_right]

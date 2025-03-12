@@ -12,9 +12,9 @@ import Init.Data.Array.Basic
 The result of a comparison according to a total order.
 
 The relationship between the compared items may be:
- * `lt`: less than
- * `eq`: equal
- * `gt`: greater than
+ * `Ordering.lt`: less than
+ * `Ordering.eq`: equal
+ * `Ordering.gt`: greater than
 -/
 inductive Ordering where
   | /-- Less than. -/

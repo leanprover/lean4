@@ -59,7 +59,8 @@ collection with at most one element, the function is applied to the element if p
 final result is empty if either the initial or the resulting collections are empty.
 
 This function is often accessed via the `>>=` operator from the `Bind (Option α)` instance, or
-implicitly via `do`-notation, but it is also idiomatic to call it using generalized field notation.
+implicitly via `do`-notation, but it is also idiomatic to call it using [generalized field
+notation](lean-manual://section/generalized-field-notation).
 
 Examples:
  * `none.bind (fun x => some x) = none`
@@ -408,7 +409,7 @@ instance (α) [BEq α] [LawfulBEq α] : LawfulBEq (Option α) where
 The minimum of two optional values, with `none` treated as the least element. This function is
 usually accessed through the `Min (Option α)` instance, rather than directly.
 
-Prior to nightly-2025-02-27, `none` was treated as the greatest element, so
+Prior to `nightly-2025-02-27`, `none` was treated as the greatest element, so
 `min none (some x) = min (some x) none = some x`.
 
 Examples:
@@ -418,7 +419,6 @@ Examples:
  * `Option.min none (some 5) = none`
  * `Option.min none none = none`
 -/
-
 protected def min [Min α] : Option α → Option α → Option α
   | some x, some y => some (Min.min x y)
   | some _, none => none

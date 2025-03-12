@@ -19,7 +19,7 @@ lean_object* lean_nat_abs(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Omega_Int_0__Int_neg_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-static lean_object* l___private_Init_Omega_Int_0__Int_neg_match__1_splitter___rarg___closed__1;
+LEAN_EXPORT lean_object* l___private_Init_Omega_Int_0__Int_neg_match__1_splitter___rarg___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Omega_Int_0__Int_neg_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l___private_Init_Omega_Int_0__Int_neg_match__1_splitter___rarg___closed__1() {
 _start:

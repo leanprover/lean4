@@ -338,6 +338,14 @@ theorem dfold_succ {n : Nat} {α : (i : Nat) → (h : i ≤ n + 1 := by omega) �
   erw [dfoldCast_eq_dfoldCast_iff]
   exact le_add_left 0 (n + 1)
 
+@[simp] theorem dfoldRev_zero {α : (i : Nat) → (h : i ≤ n + 1 := by omega) → Type u} (f : (i : Nat) → i < 0 → α i → α (i + 1)) (init : α) :
+    dfoldRev 0 f init = init := by simp [dfoldRev]
+
+@[simp] theorem dfoldRev_succ {n : Nat} {α : (i : Nat) → (h : i ≤ n + 1 := by omega) → Type u}
+    (f : (i : Nat) → (h : i < n + 1) → α (i + 1) → α i) (init : α (n + 1)) :
+    dfoldRev (n + 1) f init = dfoldRev n (α := fun i h => α i) (fun i h => f i (by omega)) (f n (by omega) init) := by
+  simp [dfoldRev]
+
 end Nat
 
 namespace Prod

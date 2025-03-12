@@ -136,19 +136,16 @@ example : (n : Nat) → D n → C := by
   intro _ d
   show_term apply c_of_d d
 
+
 /-! `rw?` exhibits the same behavior as above. -/
 namespace Rw
 
 opaque A : Type
 @[instance] axiom inst : Inhabited A
-noncomputable opaque a : A
-
-axiom eq (a' : A) : a = a'
-
 opaque Foo (a a' : A) : Prop
 
-axiom t : Foo a a
-
+noncomputable opaque a : A
+axiom eq (a' : A) : a = a'
 /--
 info: Try this: (expose_names; rw [eq a'])
 -- Foo a' a'
@@ -162,12 +159,20 @@ example : (a' : A) → Foo a a' := by
   intro
   rw?
 
+noncomputable opaque a₁ : A
+axiom eq_imp {a' : A} : a₁ = a'
+/--
+info: found an applicable rewrite lemma, but the corresponding tactic failed:
+  rw [eq_imp]
+  -- Foo a' a'
 
-axiom eq_imp {a' : A} : a = a'
-example : (a' : A) → Foo a a' := by
+It may be possible to correct this proof by adding type annotations, explicitly specifying implicit arguments, or eliminating unnecessary function abstractions.
+---
+error: unsolved goals
+a'✝ : A
+⊢ Foo a'✝ a'✝
+-/
+#guard_msgs in
+example : (a' : A) → Foo a₁ a' := by
   intro
-  -- FIXME: the goal this displays is wrong
-  -- The current `isDefEq` workaround doesn't work, and may also be too slow for `apply?`
-  -- TODO: this is a different output than we get on Lean nightly -- we're not changing anything
-  -- in the parts of the code this commit touches, so it must be upstream? Debug.
   rw?

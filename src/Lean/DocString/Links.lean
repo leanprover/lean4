@@ -11,11 +11,8 @@ set_option linter.missingDocs true
 
 namespace Lean
 
-/- After a stage0 update:
-@[extern "lean_get_manual_root"]
+@[extern "lean_manual_get_root"]
 private opaque getManualRoot : Unit → String
--/
-private def getManualRoot : Unit → String := fun () => ""
 
 private def fallbackManualRoot := "https://lean-lang.org/doc/reference/latest/"
 

@@ -13,10 +13,20 @@ import Init.Coe
 namespace Except
 variable {ε : Type u}
 
+/--
+A successful computation in the `Except ε` monad: `a` is returned, and no exception is thrown.
+-/
 @[always_inline, inline]
 protected def pure (a : α) : Except ε α :=
   Except.ok a
 
+/--
+Transforms a successful result with a function, doing nothing when an exception is thrown.
+
+Examples:
+ * `(pure 2 : Except String Nat).map toString = pure 2`
+ * `(throw "Error" : Except String Nat).map toString = throw "Error"`
+-/
 @[always_inline, inline]
 protected def map (f : α → β) : Except ε α → Except ε β
   | Except.error err => Except.error err
@@ -27,36 +37,78 @@ protected def map (f : α → β) : Except ε α → Except ε β
   intro e
   simp [Except.map]; cases e <;> rfl
 
+/--
+Transforms exceptions with a function, doing nothing on successful results.
+
+Examples:
+ * `(pure 2 : Except String Nat).mapError (·.length) = pure 2`
+ * `(throw "Error" : Except String Nat).mapError (·.length) = throw 5`
+-/
 @[always_inline, inline]
 protected def mapError (f : ε → ε') : Except ε α → Except ε' α
   | Except.error err => Except.error <| f err
   | Except.ok v      => Except.ok v
 
+/--
+Sequences two operations that may throw exceptions, allowing the second to depend on the value
+returned by the first.
+
+If the first operation throws an exception, then it is the result of the computation. If the first
+succeeds but the second throws an exception, then that exception is the result. If both succeed,
+then the result is the result of the second computation.
+
+This is the implementation of the `>>=` operator for `Except ε`.
+-/
 @[always_inline, inline]
 protected def bind (ma : Except ε α) (f : α → Except ε β) : Except ε β :=
   match ma with
   | Except.error err => Except.error err
   | Except.ok v      => f v
 
-/-- Returns true if the value is `Except.ok`, false otherwise. -/
+/-- Returns `true` if the value is `Except.ok`, `false` otherwise. -/
 @[always_inline, inline]
 protected def toBool : Except ε α → Bool
   | Except.ok _    => true
   | Except.error _ => false
 
+@[inherit_doc Except.toBool]
 abbrev isOk : Except ε α → Bool := Except.toBool
 
+/--
+Returns `none` if an exception was thrown, or `some` around the value on success.
+
+Examples:
+ * `(pure 10 : Except String Nat).toOption = some 10`
+ * `(throw "Failure" : Except String Nat).toOption = none`
+-/
 @[always_inline, inline]
 protected def toOption : Except ε α → Option α
   | Except.ok a    => some a
   | Except.error _ => none
 
+/--
+Handles exceptions thrown in the `Except ε` monad.
+
+If `ma` is successful, its result is returned. If it throws an exception, then `handle` is invoked
+on the exception's value.
+
+Examples:
+ * `(pure 2 : Except String Nat).tryCatch (pure ·.length) = pure 2`
+ * `(throw "Error" : Except String Nat).tryCatch (pure ·.length) = pure 5`
+ * `(throw "Error" : Except String Nat).tryCatch (fun x => throw ("E: " ++ x)) = throw "E: Error"`
+-/
 @[always_inline, inline]
 protected def tryCatch (ma : Except ε α) (handle : ε → Except ε α) : Except ε α :=
   match ma with
   | Except.ok a    => Except.ok a
   | Except.error e => handle e
 
+/--
+Recovers from exceptions thrown in the `Except ε` monad. Typically used via the `<|>` operator.
+
+`Except.tryCatch` is a related operator that allows the recovery procedure to depend on _which_
+exception was thrown.
+-/
 def orElseLazy (x : Except ε α) (y : Unit → Except ε α) : Except ε α :=
   match x with
   | Except.ok a    => Except.ok a

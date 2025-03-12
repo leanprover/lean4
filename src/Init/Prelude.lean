@@ -3108,10 +3108,12 @@ instance monadFunctorRefl (m) : MonadFunctorT m m where
   monadMap f := f
 
 /--
-`Except ε α` is a type which represents either an error of type `ε`, or an "ok"
-value of type `α`. The error type is listed first because
-`Except ε : Type → Type` is a `Monad`: the pure operation is `ok` and the bind
-operation returns the first encountered `error`.
+`Except ε α` is a type which represents either an error of type `ε` or a successful result with a
+value of type `α`.
+
+`Except ε : Type u → Type v` is a `Monad` that represents computations that may throw exceptions:
+the `pure` operation is `Except.ok` and the `bind` operation returns the first encountered
+`Except.error`.
 -/
 inductive Except (ε : Type u) (α : Type v) where
   /-- A failure value of type `ε` -/

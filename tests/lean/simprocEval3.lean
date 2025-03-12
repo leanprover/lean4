@@ -40,6 +40,16 @@ example : foo x = (3+2)*2 := by
   trace_state
   rw [foo]
 
+example : foo x = min 20 10 := by
+  simp only [seval]
+  trace_state
+  rw [foo]
+
+example  : foo x = max 5 10 := by
+  simp only [seval]
+  trace_state
+  rw [foo]
+
 
 def boo (_ : Nat) := True
 

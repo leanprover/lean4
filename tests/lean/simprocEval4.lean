@@ -50,6 +50,16 @@ example : Int.natAbs (foo x) = Int.natAbs (- (8 + 2)) := by
   trace_state
   simp [foo]
 
+example : foo x = min 20 10 := by
+  simp only [seval]
+  trace_state
+  rw [foo]
+
+example  : foo x = max 5 10 := by
+  simp only [seval]
+  trace_state
+  rw [foo]
+
 def boo (_ : Nat) := True
 
 example : boo x ↔ (2 : Int) < 3 := by
@@ -91,3 +101,4 @@ example (h : x) : x = ((3 : Int) ≠ 4) := by
   simp
   trace_state
   assumption
+

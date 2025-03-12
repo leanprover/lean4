@@ -116,7 +116,7 @@ def markUninterestingConst (n : Name) : PreProcessM Unit := do
 @[inline]
 def run (cfg : BVDecideConfig) (goal : MVarId) (x : PreProcessM α) : MetaM α := do
   let hyps ← goal.withContext do getPropHyps
-  ReaderT.run x cfg |>.run' { rewriteCache := Std.HashSet.empty hyps.size }
+  ReaderT.run x cfg |>.run' { rewriteCache := Std.HashSet.emptyWithCapacity hyps.size }
 
 end PreProcessM
 

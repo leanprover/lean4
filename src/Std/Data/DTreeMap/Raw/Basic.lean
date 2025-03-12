@@ -107,7 +107,7 @@ instance : Insert ((a : α) × β a) (Raw α β cmp) where
   insert e s := s.insert e.1 e.2
 
 instance : LawfulSingleton ((a : α) × β a) (Raw α β cmp) where
-  insert_emptyc_eq _ := rfl
+  insert_empty_eq _ := rfl
 
 @[inline, inherit_doc DTreeMap.insertIfNew]
 def insertIfNew (t : Raw α β cmp) (a : α) (b : β a) : Raw α β cmp :=

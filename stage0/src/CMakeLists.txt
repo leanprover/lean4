@@ -31,7 +31,7 @@ endif()
 
 set(LEAN_EXTRA_LINKER_FLAGS "" CACHE STRING "Additional flags used by the linker")
 set(LEAN_EXTRA_CXX_FLAGS "" CACHE STRING "Additional flags used by the C++ compiler")
-set(LEAN_TEST_VARS "LEAN_CC_COMPILER_LAUNCHER=${CMAKE_C_COMPILER_LAUNCHER} LEAN_CC=${CMAKE_C_COMPILER}" CACHE STRING "Additional environment variables used when running tests")
+set(LEAN_TEST_VARS "LEAN_CC=${CMAKE_C_COMPILER}" CACHE STRING "Additional environment variables used when running tests")
 
 if (NOT CMAKE_BUILD_TYPE)
   message(STATUS "No build type selected, default to Release")
@@ -330,7 +330,6 @@ if(CCACHE AND NOT CMAKE_CXX_COMPILER_LAUNCHER AND NOT CMAKE_C_COMPILER_LAUNCHER)
   if(CCACHE_PATH)
     set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PATH}")
     set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PATH}")
-    string(APPEND LEAN_TEST_VARS " LEAN_CC_COMPILER_LAUNCHER=${CCACHE_PATH}")
   else()
     message(WARNING "Failed to find ccache, prepare for longer and redundant builds...")
   endif()
@@ -456,14 +455,14 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC -ftls-model=initial-exec")
   string(APPEND LEANC_EXTRA_CC_FLAGS " -fPIC")
   string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,-rpath=\\$$ORIGIN/..:\\$$ORIGIN")
-  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive")
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=$ORIGIN/../lib:$ORIGIN/../lib/lean")
+  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/temp/libLake.a.export -Wl,--no-whole-archive")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=\\\$ORIGIN/../lib:\\\$ORIGIN/../lib/lean")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(APPEND CMAKE_CXX_FLAGS " -ftls-model=initial-exec")
   string(APPEND INIT_SHARED_LINKER_FLAGS " -install_name @rpath/libInit_shared.dylib")
   string(APPEND LEANSHARED_1_LINKER_FLAGS " -install_name @rpath/libleanshared_1.dylib")
   string(APPEND LEANSHARED_LINKER_FLAGS " -install_name @rpath/libleanshared.dylib")
-  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -install_name @rpath/libLake_shared.dylib")
+  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/temp/libLake.a.export -install_name @rpath/libLake_shared.dylib")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC")
@@ -542,9 +541,6 @@ install(DIRECTORY ${LEAN_BINARY_DIR}/share/ DESTINATION share)
 include_directories(${LEAN_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})  # version.h etc., "private" headers
 include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" headers
-
-# Lean code only needs this one include
-string(APPEND LEANC_OPTS " -I${CMAKE_BINARY_DIR}/include")
 
 # Use CMake profile C++ flags for building Lean libraries, but do not embed in `leanc`
 string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
@@ -732,14 +728,8 @@ if(PREV_STAGE)
     DEPENDS update-stage0)
 endif()
 
-# use Bash version for building stage 0 and 1, use Lean version afterwards
-if(${STAGE} EQUAL 0)
-  configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc${CMAKE_EXECUTABLE_SUFFIX}" @ONLY)
-  set(LEANC "${CMAKE_BINARY_DIR}/bin/leanc")
-else()
-  set(LEANC "${PREV_STAGE}/bin/leanc")
-endif()
-
+# use Bash version for building, use Lean version in bin/ for tests & distribution
+configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/leanc.sh" @ONLY)
 if(${STAGE} GREATER 0 AND EXISTS ${LEAN_SOURCE_DIR}/Leanc.lean AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   configure_file("${LEAN_SOURCE_DIR}/Leanc.lean" "${CMAKE_BINARY_DIR}/leanc/Leanc.lean" @ONLY)
   add_custom_target(leanc ALL
@@ -764,11 +754,7 @@ add_custom_target(clean-olean
   DEPENDS clean-stdlib)
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/" DESTINATION lib
-  PATTERN temp
-  PATTERN "*.export"
-  PATTERN "*.hash"
-  PATTERN "*.trace"
-  EXCLUDE)
+  PATTERN temp EXCLUDE)
 
 # symlink source into expected installation location for go-to-definition, if file system allows it
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
@@ -798,29 +784,10 @@ if(LEAN_INSTALL_PREFIX)
   set(CMAKE_INSTALL_PREFIX "${LEAN_INSTALL_PREFIX}/lean-${LEAN_VERSION_STRING}${LEAN_INSTALL_SUFFIX}")
 endif()
 
-string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_CC "${LEANC_CC}")
-string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_FLAGS "${LEANC_INTERNAL_FLAGS}")
-string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_LINKER_FLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
-
-string(APPEND LEANC_OPTS " ${LEANC_EXTRA_CC_FLAGS} ${LEANC_INTERNAL_FLAGS}")
-set(LINK_OPTS "${LEANC_INTERNAL_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS} -L${CMAKE_BINARY_DIR}/lib/lean")
-
 # Escape for `make`. Yes, twice.
-string(REPLACE "$" "\\\$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
+string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
 string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE "${CMAKE_EXE_LINKER_FLAGS_MAKE}")
 configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
-
-# hacky
-function(toml_escape IN OUTVAR)
-  if(IN)
-    string(STRIP "${IN}" OUT)
-    string(REPLACE " " "\", \"" OUT "${OUT}")
-    set(${OUTVAR} "\"${OUT}\"" PARENT_SCOPE)
-  endif()
-endfunction()
-toml_escape("${LEAN_EXTRA_MAKE_OPTS}" LEAN_EXTRA_OPTS_TOML)
-toml_escape("${LEANC_OPTS}" LEANC_OPTS_TOML)
-toml_escape("${LINK_OPTS}" LINK_OPTS_TOML)
 
 if(USE_LAKE AND STAGE EQUAL 1)
   configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${LEAN_SOURCE_DIR}/lakefile.toml)

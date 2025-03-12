@@ -330,7 +330,6 @@ if(CCACHE AND NOT CMAKE_CXX_COMPILER_LAUNCHER AND NOT CMAKE_C_COMPILER_LAUNCHER)
   if(CCACHE_PATH)
     set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PATH}")
     set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PATH}")
-    string(APPEND LEAN_TEST_VARS " LEAN_CC_COMPILER_LAUNCHER=${CCACHE_PATH}")
   else()
     message(WARNING "Failed to find ccache, prepare for longer and redundant builds...")
   endif()
@@ -572,21 +571,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--whole-archive -lleanmanifest -Wl,--no-whole-archive")
 endif()
 
-# use Bash version for building stage 0 and 1, use Lean version afterwards
-if(${STAGE} EQUAL 0)
-  configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc${CMAKE_EXECUTABLE_SUFFIX}" @ONLY)
-  set(LEANC "${CMAKE_BINARY_DIR}/bin/leanc")
-else()
-  set(LEANC "${PREV_STAGE}/bin/leanc")
-endif()
-
-string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_CC "${LEANC_CC}")
-string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_FLAGS "${LEANC_INTERNAL_FLAGS}")
-string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_LINKER_FLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
-
-string(APPEND LEANC_OPTS " ${LEANC_EXTRA_CC_FLAGS} ${LEANC_INTERNAL_FLAGS}")
-set(LINK_OPTS "${LEANC_INTERNAL_LINKER_FLAGS} -L${CMAKE_BINARY_DIR}/lib/lean ${LEAN_EXTRA_LINKER_FLAGS}")
-
 if(${STAGE} GREATER 1)
   # reuse C++ parts, which don't change
   add_library(leanrt_initial-exec STATIC IMPORTED)
@@ -747,6 +731,8 @@ if(PREV_STAGE)
     DEPENDS update-stage0)
 endif()
 
+# use Bash version for building, use Lean version in bin/ for tests & distribution
+configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/leanc.sh" @ONLY)
 if(${STAGE} GREATER 0 AND EXISTS ${LEAN_SOURCE_DIR}/Leanc.lean AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   configure_file("${LEAN_SOURCE_DIR}/Leanc.lean" "${CMAKE_BINARY_DIR}/leanc/Leanc.lean" @ONLY)
   add_custom_target(leanc ALL
@@ -818,9 +804,15 @@ function(toml_escape IN OUTVAR)
     set(${OUTVAR} "\"${OUT}\"" PARENT_SCOPE)
   endif()
 endfunction()
+string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_CC "${LEANC_CC}")
+string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_FLAGS "${LEANC_INTERNAL_FLAGS}")
+string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_LINKER_FLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
+set(LEANC_OPTS_TOML "${LEANC_OPTS} ${LEANC_EXTRA_CC_FLAGS} ${LEANC_INTERNAL_FLAGS}")
+set(LINK_OPTS_TOML "${LEANC_INTERNAL_LINKER_FLAGS} -L${CMAKE_BINARY_DIR}/lib/lean ${LEAN_EXTRA_LINKER_FLAGS}")
+
 toml_escape("${LEAN_EXTRA_MAKE_OPTS}" LEAN_EXTRA_OPTS_TOML)
-toml_escape("${LEANC_OPTS}" LEANC_OPTS_TOML)
-toml_escape("${LINK_OPTS}" LINK_OPTS_TOML)
+toml_escape("${LEANC_OPTS_TOML}" LEANC_OPTS_TOML)
+toml_escape("${LINK_OPTS_TOML}" LINK_OPTS_TOML)
 
 if(USE_LAKE AND STAGE EQUAL 1)
   configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${LEAN_SOURCE_DIR}/lakefile.toml)

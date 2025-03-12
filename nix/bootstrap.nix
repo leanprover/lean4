@@ -31,7 +31,9 @@ lib.warn "The Nix-based build is deprecated" rec {
     installPhase = ''
       mkdir $out $leanc_src
       mv bin/ include/ share/ $out/
+      mv leanc.sh $out/bin/leanc
       mv leanc/Leanc.lean $leanc_src/
+      substituteInPlace $out/bin/leanc --replace '$root' "$out" --replace " sed " " ${gnused}/bin/sed "
       substituteInPlace $out/bin/leanmake --replace "make" "${gnumake}/bin/make"
       substituteInPlace $out/share/lean/lean.mk --replace "/usr/bin/env bash" "${bash}/bin/bash"
     '';
@@ -67,9 +69,7 @@ lib.warn "The Nix-based build is deprecated" rec {
       desc = "stage${toString stage}";
       build = args: buildLeanPackage.override {
         lean = prevStage;
-        leanc = writeShellScriptBin "leanc" ''
-          ${stdenv.cc}/bin/cc -O3 -DNDEBUG -fstack-clash-protection -fPIC -fvisibility=hidden -fwrapv -I${lean-bin-tools-unwrapped}/include "$@"
-        '';
+        leanc = lean-bin-tools-unwrapped;
         # use same stage for retrieving dependencies
         lean-leanDeps = stage0;
         lean-final = self;
@@ -112,7 +112,7 @@ lib.warn "The Nix-based build is deprecated" rec {
       depRoots = symlinkJoin { name = "depRoots"; paths = map (l: l.depRoots) stdlib; };
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; roots = [ "Leanc" ]; };
-      stdlibLinkFlags = "${lib.concatMapStringsSep " " (l: "-L${l.staticLib}") stdlib} -L${leancpp}/lib/lean -lgmp -L${gmp}/lib -luv -L${libuv}/lib";
+      stdlibLinkFlags = "${lib.concatMapStringsSep " " (l: "-L${l.staticLib}") stdlib} -L${leancpp}/lib/lean";
       libInit_shared = runCommand "libInit_shared" { buildInputs = [ stdenv.cc ]; libName = "libInit_shared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
         mkdir $out
         touch empty.c
@@ -125,7 +125,7 @@ lib.warn "The Nix-based build is deprecated" rec {
       '';
       leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; libName = "libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
         mkdir $out
-        cc -shared ${lib.optionalString stdenv.isLinux "-Wl,-Bsymbolic"} \
+        LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared ${lib.optionalString stdenv.isLinux "-Wl,-Bsymbolic"} \
           -Wl,--whole-archive ${leancpp}/lib/temp/libleanshell.a -lInit -lStd -lLean -lleancpp ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive -lstdc++ \
           -lm ${stdlibLinkFlags} \
           $(${llvmPackages.libllvm.dev}/bin/llvm-config --ldflags --libs) \

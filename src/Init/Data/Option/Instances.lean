@@ -88,10 +88,6 @@ def pbind : (o : Option α) → (f : (a : α) → a ∈ o → Option β) → Opt
 Given a function from the elements of `α` that satisfy `p` to `β` and a proof that an optional value
 satisfies `p` if it's present, applies the function to the value.
 
-Partial map. If `f : Π a, p a → β` is a partial function defined on `a : α` satisfying `p`, then
-`pmap f x h` is essentially the same as `map f x` but is defined only when all members of `x`
-satisfy `p`, using the proof to apply `f`.
-
 Examples:
 ```lean example
 def attach (v : Option α) : Option { y : α // y ∈ v } :=

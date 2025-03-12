@@ -619,6 +619,11 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
   | constAlter₀ {α} {β : Type v} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a}
       {f : Option β → Option β} : WF m → WF (Raw₀.Const.alter ⟨m, h⟩ a f).1
 
+-- TODO: this needs to be deprecated, but there is a bootstrapping issue.
+-- @[deprecated WF.emptyWithCapacity₀ (since := "2025-03-12")]
+@[inherit_doc Raw.WF.emptyWithCapacity₀]
+abbrev WF.empty₀ := @WF.emptyWithCapacity₀
+
 /-- Internal implementation detail of the hash map -/
 theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 < m.buckets.size
   | wf h₁ _ => h₁

@@ -92,7 +92,7 @@ instance  : MonadHashMapCacheAdapter α β (MonadStateCacheT α β m) where
   modifyCache f := (modify f : StateT ..)
 
 @[always_inline, inline] def run {σ} (x : MonadStateCacheT α β m σ) : m σ :=
-  x.run' Std.HashMap.empty
+  x.run' ∅
 
 instance : Monad (MonadStateCacheT α β m) := inferInstanceAs (Monad (StateT _ _))
 instance : MonadLift m (MonadStateCacheT α β m) := inferInstanceAs (MonadLift m (StateT _ _))

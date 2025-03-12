@@ -2571,10 +2571,7 @@ theorem signExtend_eq_append_extractLsb' {w v : Nat} {x : BitVec w} :
     intros hi
     have hw : i < w := lt_of_getLsbD hi
     omega
-  · simp only [signExtend_eq_not_setWidth_not_of_msb_true hx, getElem_not, getElem_setWidth,
-      getLsbD_not, Bool.not_and, Bool.not_not, hx, ↓reduceIte, getElem_append, getElem_extractLsb',
-      Nat.zero_add, getElem_allOnes, dite_eq_ite, Bool.if_true_right]
-    by_cases hw : i < w <;> simp [hw] <;> omega
+  · simp [signExtend_eq_not_setWidth_not_of_msb_true hx, getElem_append, Nat.lt_min, hi]
 
 /-- A sign extension of `x : BitVec w` to a larger bitwidth `v ≥ w`
 equals high bits of either `0` or `1` depending on `x.msb`, followed by `x`. -/

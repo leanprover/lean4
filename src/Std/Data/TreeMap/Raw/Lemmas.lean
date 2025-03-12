@@ -607,7 +607,7 @@ theorem getKeyD_eq_of_contains [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k fa
     t.getKeyD k fallback = k :=
   DTreeMap.Raw.getKeyD_eq_of_contains h h'
 
-theorem getKeyD_eq_of_mem [TransCmp cmp] [LawfulEqCmp cmp] {k fallback : α} (h' : k ∈ t) :
+theorem getKeyD_eq_of_mem [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k fallback : α} (h' : k ∈ t) :
     t.getKeyD k fallback = k :=
   DTreeMap.Raw.getKeyD_eq_of_contains h h'
 

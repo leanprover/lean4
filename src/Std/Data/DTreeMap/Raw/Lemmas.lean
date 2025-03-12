@@ -655,7 +655,7 @@ theorem getKey?_eq_some_of_contains [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) 
     t.getKey? k = some k :=
   Impl.getKey?_eq_some_of_contains h h'
 
-theorem getKey?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] {k : α} (h' : k ∈ t) :
+theorem getKey?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} (h' : k ∈ t) :
     t.getKey? k = some k :=
   Impl.getKey?_eq_some_of_contains h h'
 

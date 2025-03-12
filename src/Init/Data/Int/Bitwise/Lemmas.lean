@@ -5,12 +5,13 @@ Authors: Siddharth Bhat, Jeremy Avigad
 -/
 prelude
 import Init.Data.Nat.Bitwise.Lemmas
-import Init.Data.Int.Bitwise
+import Init.Data.Int.Bitwise.Basic
 import Init.Data.Int.DivMod.Lemmas
 
 namespace Int
 
 theorem shiftRight_eq (n : Int) (s : Nat) : n >>> s = Int.shiftRight n s := rfl
+
 @[simp]
 theorem natCast_shiftRight (n s : Nat) : (n : Int) >>> s = n >>> s := rfl
 

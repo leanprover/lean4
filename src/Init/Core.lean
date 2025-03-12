@@ -226,9 +226,9 @@ structure PSigma {α : Sort u} (β : α → Sort v) where
   (This will usually require a type ascription to determine `β`
   since it is not determined from `a` and `b` alone.) -/
   mk ::
-  /-- The first component of a dependent pair. If `p : @Sigma α β` then `p.1 : α`. -/
+  /-- The first component of a dependent pair. If `p : @PSigma α β` then `p.1 : α`. -/
   fst : α
-  /-- The second component of a dependent pair. If `p : Sigma β` then `p.2 : β p.1`. -/
+  /-- The second component of a dependent pair. If `p : PSigma β` then `p.2 : β p.1`. -/
   snd : β fst
 
 /--
@@ -514,10 +514,21 @@ export Singleton (singleton)
 class LawfulSingleton (α : Type u) (β : Type v) [EmptyCollection β] [Insert α β] [Singleton α β] :
     Prop where
   /-- `insert x ∅ = {x}` -/
-  insert_emptyc_eq (x : α) : (insert x ∅ : β) = singleton x
-export LawfulSingleton (insert_emptyc_eq)
+  insert_empty_eq (x : α) : (insert x ∅ : β) = singleton x
+export LawfulSingleton (insert_empty_eq)
 
-attribute [simp] insert_emptyc_eq
+attribute [simp] insert_empty_eq
+
+@[deprecated insert_empty_eq (since := "2025-03-12")]
+theorem insert_emptyc_eq [EmptyCollection β] [Insert α β] [Singleton α β]
+    [LawfulSingleton α β] (x : α) : (insert x ∅ : β) = singleton x :=
+  insert_empty_eq _
+
+@[deprecated insert_empty_eq (since := "2025-03-12")]
+theorem LawfulSingleton.insert_emptyc_eq [EmptyCollection β] [Insert α β] [Singleton α β]
+    [LawfulSingleton α β] (x : α) : (insert x ∅ : β) = singleton x :=
+  insert_empty_eq _
+
 
 /-- Type class used to implement the notation `{ a ∈ c | p a }` -/
 class Sep (α : outParam <| Type u) (γ : Type v) where

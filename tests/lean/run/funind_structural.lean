@@ -67,10 +67,7 @@ theorem zip_length {α β} (xs : List α) (ys : List β) :
   induction xs, ys using zip.induct
   case case1 => simp [zip]
   case case2 => simp [zip]
-  case case3 =>
-    simp [zip, *]
-    simp [Nat.min_def]
-    split <;> omega
+  case case3 => simp [zip, *]
 
 theorem zip_get? {i : Nat}  {α β} (as : List α) (bs : List β) :
     (List.zip as bs)[i]? = match as[i]?, bs[i]? with

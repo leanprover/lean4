@@ -263,5 +263,112 @@ builtin_simproc [bv_normalize] bv_elim_shiftLeft_const ((_ : BitVec _) <<< (_ : 
     let proof := mkApp4 (mkConst ``BitVec.shiftLeft_eq_zero) wExpr lhsExpr rhsExpr h
     return .done { expr := expr, proof? := some proof }
 
+builtin_simproc [bv_normalize] bv_concat_extract
+    ((HAppend.hAppend (α := BitVec (no_index _)) (β := BitVec (no_index _)) (γ := BitVec (no_index _))
+        (BitVec.extractLsb' _ _ _)
+        (BitVec.extractLsb' _ _ _)))
+    := fun e => do
+  let_expr HAppend.hAppend _ _ _ _ lhsExpr rhsExpr := e | return .continue
+  let_expr BitVec.extractLsb' wExpr lstartExpr llenExpr lhsVal := lhsExpr | return .continue
+  let some lstart ← getNatValue? lstartExpr | return .continue
+  let some llen ← getNatValue? llenExpr | return .continue
+  let_expr BitVec.extractLsb' _ rstartExpr rlenExpr rhsVal := rhsExpr | return .continue
+  let some rstart ← getNatValue? rstartExpr | return .continue
+  let some rlen ← getNatValue? rlenExpr | return .continue
+  if lhsVal != rhsVal then return .continue
+  if lstart != rstart + rlen then return .continue
+  let newLenExpr := toExpr (llen + rlen)
+  let extract := mkApp4 (mkConst ``BitVec.extractLsb') wExpr rstartExpr newLenExpr lhsVal
+  let expr := mkApp4 (mkConst ``BitVec.cast) newLenExpr newLenExpr (← mkEqRefl newLenExpr) extract
+  let proof :=
+    mkApp7
+      (mkConst ``BitVec.extractLsb'_append_extractLsb'_eq_extractLsb')
+      wExpr
+      lstartExpr
+      rstartExpr
+      rlenExpr
+      llenExpr
+      lhsVal
+      (← mkEqRefl lstartExpr)
+  return .visit { expr := expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_concat_not_extract
+    ((HAppend.hAppend (α := BitVec (no_index _)) (β := BitVec (no_index _)) (γ := BitVec (no_index _))
+        (Complement.complement (α := BitVec (no_index _)) (BitVec.extractLsb' _ _ _))
+        (Complement.complement (α := BitVec (no_index _)) (BitVec.extractLsb' _ _ _))))
+    := fun e => do
+  let_expr HAppend.hAppend _ _ _ _ lhsExpr rhsExpr := e | return .continue
+  let_expr Complement.complement _ _ lhsExpr := lhsExpr | return .continue
+  let_expr Complement.complement _ _ rhsExpr := rhsExpr | return .continue
+  let_expr BitVec.extractLsb' wExpr lstartExpr llenExpr lhsVal := lhsExpr | return .continue
+  let some lstart ← getNatValue? lstartExpr | return .continue
+  let some llen ← getNatValue? llenExpr | return .continue
+  let_expr BitVec.extractLsb' _ rstartExpr rlenExpr rhsVal := rhsExpr | return .continue
+  let some rstart ← getNatValue? rstartExpr | return .continue
+  let some rlen ← getNatValue? rlenExpr | return .continue
+  if lhsVal != rhsVal then return .continue
+  if lstart != rstart + rlen then return .continue
+  let newLenExpr := toExpr (llen + rlen)
+  let extract := mkApp4 (mkConst ``BitVec.extractLsb') wExpr rstartExpr newLenExpr lhsVal
+  let not ← mkAppM ``Complement.complement #[extract]
+  let expr := mkApp4 (mkConst ``BitVec.cast) newLenExpr newLenExpr (← mkEqRefl newLenExpr) not
+  let proof :=
+    mkApp7
+      (mkConst ``BitVec.not_extractLsb'_append_not_extractLsb'_eq_not_extractLsb')
+      wExpr
+      lstartExpr
+      rstartExpr
+      rlenExpr
+      llenExpr
+      lhsVal
+      (← mkEqRefl lstartExpr)
+  return .visit { expr := expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_elim_setWidth (BitVec.setWidth _ _) := fun e => do
+  let_expr BitVec.setWidth oldWidthExpr newWidthExpr targetExpr := e | return .continue
+  let some oldWidth ← getNatValue? oldWidthExpr | return .continue
+  let some newWidth ← getNatValue? newWidthExpr | return .continue
+  if newWidth ≤ oldWidth then
+    let extract :=
+      mkApp4
+        (mkConst ``BitVec.extractLsb')
+        oldWidthExpr
+        (toExpr 0)
+        newWidthExpr
+        targetExpr
+    let expr :=
+      mkApp4
+        (mkConst ``BitVec.cast)
+        newWidthExpr
+        newWidthExpr
+        (← mkEqRefl newWidthExpr)
+        extract
+    let proof :=
+      mkApp4
+        (mkConst ``BitVec.setWidth_eq_extractLsb')
+        oldWidthExpr
+        targetExpr
+        newWidthExpr
+        (← mkDecideProof (← mkLe newWidthExpr oldWidthExpr))
+    return .visit { expr := expr, proof? := some proof }
+  else
+    let lhs := toExpr 0#(newWidth - oldWidth)
+    let concat ← mkAppM ``HAppend.hAppend #[lhs ,targetExpr]
+    let expr :=
+      mkApp4
+        (mkConst ``BitVec.cast)
+        newWidthExpr
+        newWidthExpr
+        (← mkEqRefl newWidthExpr)
+        concat
+    let proof :=
+      mkApp4
+        (mkConst ``BitVec.setWidth_eq_append)
+        oldWidthExpr
+        targetExpr
+        newWidthExpr
+        (← mkDecideProof (← mkLe oldWidthExpr newWidthExpr))
+    return .visit { expr := expr, proof? := some proof }
+
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

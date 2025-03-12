@@ -58,7 +58,6 @@ def elabConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
   let (env, messages) ← processHeader header leanOpts inputCtx messages
   let env := env.setMainModule configModuleName
-  let env ← env.enableRealizationsForImports leanOpts
 
   -- Configure extensions
   let env := dirExt.setState env pkgDir

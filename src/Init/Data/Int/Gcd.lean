@@ -11,6 +11,10 @@ import Init.Data.Int.DivMod.Lemmas
 
 /-!
 Definition and lemmas for gcd and lcm over Int
+
+## Future work
+Most of the material about `Nat.gcd` and `Nat.lcm` from `Init.Data.Nat.Gcd` and `Init.Data.Nat.Lcm`
+has analogues for `Int.gcd` and `Int.lcm` that should be added to this file.
 -/
 namespace Int
 

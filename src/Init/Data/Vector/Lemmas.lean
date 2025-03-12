@@ -2838,7 +2838,7 @@ theorem swap_comm (xs : Vector α n) {i j : Nat} {hi hj} :
 
 /-! ### take -/
 
-@[simp] theorem getElem_take (xs : Vector α n) (j : Nat) (hi : i < min n j) :
+@[simp] theorem getElem_take (xs : Vector α n) (j : Nat) (hi : i < min j n) :
     (xs.take j)[i] = xs[i] := by
   cases xs
   simp

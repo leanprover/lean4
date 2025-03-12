@@ -103,7 +103,7 @@ instance : Insert α (Raw α cmp) where
   insert e s := s.insert e
 
 instance : LawfulSingleton α (Raw α cmp) where
-  insert_emptyc_eq _ := rfl
+  insert_empty_eq _ := rfl
 
 @[inline, inherit_doc TreeSet.empty]
 def containsThenInsert (t : Raw α cmp) (a : α) : Bool × Raw α cmp :=

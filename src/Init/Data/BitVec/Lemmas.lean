@@ -2556,8 +2556,7 @@ theorem not_extractLsb'_append_not_extractLsb'_eq_not_extractLsb' {x : BitVec w}
     congr 1
     omega
 
-/-- A sign extension of `x : BitVec w`
-equals high bits of either `0` or `1` depending on `x.msb`,
+/-- A sign extension of `x : BitVec w` equals high bits of either `0` or `1` depending on `x.msb`,
 followed by the low bits of `x`. -/
 theorem signExtend_eq_append_extractLsb' {w v : Nat} {x : BitVec w} :
     x.signExtend v =

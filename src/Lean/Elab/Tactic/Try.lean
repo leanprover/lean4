@@ -72,7 +72,7 @@ def evalSuggestExact : TacticM (TSyntax `tactic) := do
       `(tactic| exact $stx)
     else withExposedNames do
       let stx ← PrettyPrinter.delab proof
-      `(tactic| · expose_names; exact $stx)
+      `(tactic| (expose_names; exact $stx))
     checkTactic savedState tac
     setGoals mvarIds
     return tac
@@ -609,7 +609,7 @@ private def mkFunIndStx (uniques : NameSet) (expr : Expr) (cont : TSyntax `tacti
         pure tac₁
       else
         -- if it has inaccessible names, still try without, in case they are all implicit
-        let tac₂ ← `(tactic| · expose_names; $tac₁)
+        let tac₂ ← `(tactic| (expose_names; $tac₁))
         mkFirstStx #[tac₁, tac₂]
 
 private def mkAllFunIndStx (info : Try.Info) (cont : TSyntax `tactic) : MetaM (TSyntax `tactic) := do

@@ -45,7 +45,7 @@ def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireCl
       for (_, suggestionMCtx) in suggestions do
         withMCtx suggestionMCtx do
           addExactSuggestion ref (← instantiateMVars (mkMVar goal)).headBeta
-            (addSubgoalsMsg := true) (checkState? := initialState)
+            (checkState? := initialState) (addSubgoalsMsg := true) (tacticErrorAsInfo := true)
       if suggestions.isEmpty then logError "apply? didn't find any relevant lemmas"
       admitGoal goal
 

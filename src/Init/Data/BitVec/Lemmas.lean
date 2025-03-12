@@ -2564,19 +2564,19 @@ theorem signExtend_eq_append_extractLsb' {w v : Nat} {x : BitVec w} :
     ((if x.msb then allOnes (v - w) else 0#(v - w)) ++ x.extractLsb' 0 (min w v)).cast (by omega) := by
   ext i hi
   simp only [getElem_cast]
-  by_cases hx : x.msb
-  · simp only [signExtend_eq_not_setWidth_not_of_msb_true hx, getElem_not, getElem_setWidth,
-    getLsbD_not, Bool.not_and, Bool.not_not, hx, ↓reduceIte, getElem_append, getElem_extractLsb',
-    Nat.zero_add, getElem_allOnes, dite_eq_ite, Bool.if_true_right]
-    by_cases hw : i < w <;> simp [hw] <;> omega
+  cases hx : x.msb
   · simp only [hx, signExtend_eq_setWidth_of_msb_false, getElem_setWidth, Bool.false_eq_true,
-    ↓reduceIte, getElem_append, getElem_extractLsb', Nat.zero_add, getElem_zero, dite_eq_ite,
-    Bool.if_false_right, Bool.iff_and_self, decide_eq_true_eq]
+      ↓reduceIte, getElem_append, getElem_extractLsb', Nat.zero_add, getElem_zero, dite_eq_ite,
+      Bool.if_false_right, Bool.iff_and_self, decide_eq_true_eq]
     intros hi
     by_cases hw : i < w
     · omega
-    · have hcontra : i < w := lt_of_getLsbD hi
+    · have hw₂ : i < w := lt_of_getLsbD hi
       omega
+  · simp only [signExtend_eq_not_setWidth_not_of_msb_true hx, getElem_not, getElem_setWidth,
+      getLsbD_not, Bool.not_and, Bool.not_not, hx, ↓reduceIte, getElem_append, getElem_extractLsb',
+      Nat.zero_add, getElem_allOnes, dite_eq_ite, Bool.if_true_right]
+    by_cases hw : i < w <;> simp [hw] <;> omega
 
 /-- A sign extension of `x : BitVec w` to a larger bitwidth `v ≥ w`
 equals high bits of either `0` or `1` depending on `x.msb`, followed by `x`. -/
@@ -2584,7 +2584,7 @@ theorem signExtend_eq_append_of_le {w v : Nat} {x : BitVec w} (h : w ≤ v) :
     x.signExtend v =
     ((if x.msb then allOnes (v - w) else 0#(v - w)) ++ x).cast (by omega) := by
   ext i hi
-  by_cases hx : x.msb <;>
+  cases hx : x.msb <;>
     simp [getElem_cast, hx, getElem_append, getElem_signExtend]
 
 /-! ### rev -/

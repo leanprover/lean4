@@ -59,7 +59,10 @@ def elimAsList {motive : Vector α n → Sort u}
   | ⟨⟨xs⟩, ha⟩ => mk xs ha
 
 /-- Make an empty vector with pre-allocated capacity. -/
-@[inline] def mkEmpty (capacity : Nat) : Vector α 0 := ⟨.mkEmpty capacity, rfl⟩
+@[inline] def emptyWithCapacity (capacity : Nat) : Vector α 0 := ⟨.mkEmpty capacity, rfl⟩
+
+@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
+abbrev mkEmpty := @emptyWithCapacity
 
 /-- Makes a vector of size `n` with all cells containing `v`. -/
 @[inline] def mkVector (n) (v : α) : Vector α n := ⟨mkArray n v, by simp⟩

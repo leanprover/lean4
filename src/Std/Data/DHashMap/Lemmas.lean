@@ -30,12 +30,16 @@ namespace Std.DHashMap
 variable {m : DHashMap α β}
 
 @[simp]
-theorem isEmpty_empty {c} : (empty c : DHashMap α β).isEmpty :=
-  Raw₀.isEmpty_empty
+theorem isEmpty_emptyWithCapacity {c} : (emptyWithCapacity c : DHashMap α β).isEmpty :=
+  Raw₀.isEmpty_emptyWithCapacity
 
 @[simp]
-theorem isEmpty_emptyc : (∅ : DHashMap α β).isEmpty :=
-  isEmpty_empty
+theorem isEmpty_empty : (∅ : DHashMap α β).isEmpty :=
+  isEmpty_emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated isEmpty_empty (since := "2025-03-12")]
+abbrev isEmpty_emptyc := @isEmpty_empty
 
 @[simp]
 theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
@@ -52,17 +56,26 @@ theorem contains_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == 
 theorem mem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : a ∈ m ↔ b ∈ m := by
   simp [mem_iff_contains, contains_congr hab]
 
-@[simp] theorem contains_empty {a : α} {c} : (empty c : DHashMap α β).contains a = false :=
-  Raw₀.contains_empty
+@[simp]
+theorem contains_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : DHashMap α β).contains a = false :=
+  Raw₀.contains_emptyWithCapacity
 
-@[simp] theorem not_mem_empty {a : α} {c} : ¬a ∈ (empty c : DHashMap α β) := by
+@[simp] theorem not_mem_emptyWithCapacity {a : α} {c} : ¬a ∈ (emptyWithCapacity c : DHashMap α β) := by
   simp [mem_iff_contains]
 
-@[simp] theorem contains_emptyc {a : α} : (∅ : DHashMap α β).contains a = false :=
-  contains_empty
+@[simp] theorem contains_empty {a : α} : (∅ : DHashMap α β).contains a = false :=
+  contains_emptyWithCapacity
 
-@[simp] theorem not_mem_emptyc {a : α} : ¬a ∈ (∅ : DHashMap α β) :=
-  not_mem_empty
+set_option linter.missingDocs false in
+@[deprecated contains_empty (since := "2025-03-12")]
+abbrev contains_emptyc := @contains_empty
+
+@[simp] theorem not_mem_empty {a : α} : ¬a ∈ (∅ : DHashMap α β) :=
+  not_mem_emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated not_mem_empty (since := "2025-03-12")]
+abbrev not_mem_emptyc := @not_mem_empty
 
 theorem contains_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
     m.isEmpty → m.contains a = false :=
@@ -119,12 +132,16 @@ theorem mem_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
     k ∈ m.insert k v := by simp
 
 @[simp]
-theorem size_empty {c} : (empty c : DHashMap α β).size = 0 :=
-  Raw₀.size_empty
+theorem size_emptyWithCapacity {c} : (emptyWithCapacity c : DHashMap α β).size = 0 :=
+  Raw₀.size_emptyWithCapacity
 
 @[simp]
-theorem size_emptyc : (∅ : DHashMap α β).size = 0 :=
-  size_empty
+theorem size_empty : (∅ : DHashMap α β).size = 0 :=
+  size_emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated size_empty (since := "2025-03-12")]
+abbrev size_emptyc := @size_empty
 
 theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) := rfl
 
@@ -141,12 +158,16 @@ theorem size_insert_le [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
   Raw₀.size_insert_le ⟨m.1, _⟩ m.2
 
 @[simp]
-theorem erase_empty {k : α} {c : Nat} : (empty c : DHashMap α β).erase k = empty c :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.erase_empty (k := k)) :) -- Lean code is happy
+theorem erase_emptyWithCapacity {k : α} {c : Nat} : (emptyWithCapacity c : DHashMap α β).erase k = emptyWithCapacity c :=
+  Subtype.eq (congrArg Subtype.val (Raw₀.erase_emptyWithCapacity (k := k)) :)
 
 @[simp]
-theorem erase_emptyc {k : α} : (∅ : DHashMap α β).erase k = ∅ :=
-  erase_empty
+theorem erase_empty {k : α} : (∅ : DHashMap α β).erase k = ∅ :=
+  erase_emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated erase_empty (since := "2025-03-12")]
+abbrev erase_emptyc := @erase_empty
 
 @[simp]
 theorem isEmpty_erase [EquivBEq α] [LawfulHashable α] {k : α} :
@@ -200,12 +221,16 @@ theorem containsThenInsertIfNew_snd {k : α} {v : β k} :
   Subtype.eq <| (congrArg Subtype.val (Raw₀.containsThenInsertIfNew_snd _ (k := k)) :)
 
 @[simp]
-theorem get?_empty [LawfulBEq α] {a : α} {c} : (empty c : DHashMap α β).get? a = none :=
-  Raw₀.get?_empty
+theorem get?_emptyWithCapacity [LawfulBEq α] {a : α} {c} : (emptyWithCapacity c : DHashMap α β).get? a = none :=
+  Raw₀.get?_emptyWithCapacity
 
 @[simp]
-theorem get?_emptyc [LawfulBEq α] {a : α} : (∅ : DHashMap α β).get? a = none :=
-  get?_empty
+theorem get?_empty [LawfulBEq α] {a : α} : (∅ : DHashMap α β).get? a = none :=
+  get?_emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated get?_empty (since := "2025-03-12")]
+abbrev get?_emptyc := @get?_empty
 
 theorem get?_of_isEmpty [LawfulBEq α] {a : α} : m.isEmpty = true → m.get? a = none :=
   Raw₀.get?_of_isEmpty ⟨m.1, _⟩ m.2
@@ -241,12 +266,16 @@ namespace Const
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
 
 @[simp]
-theorem get?_empty {a : α} {c} : get? (empty c : DHashMap α (fun _ => β)) a = none :=
-  Raw₀.Const.get?_empty
+theorem get?_emptyWithCapacity {a : α} {c} : get? (emptyWithCapacity c : DHashMap α (fun _ => β)) a = none :=
+  Raw₀.Const.get?_emptyWithCapacity
 
 @[simp]
-theorem get?_emptyc {a : α} : get? (∅ : DHashMap α (fun _ => β)) a = none :=
-  get?_empty
+theorem get?_empty {a : α} : get? (∅ : DHashMap α (fun _ => β)) a = none :=
+  get?_emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated get?_empty (since := "2025-03-12")]
+abbrev get?_emptyc := @get?_empty
 
 theorem get?_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
     m.isEmpty = true → get? m a = none :=
@@ -342,14 +371,18 @@ theorem get_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) {h
 end Const
 
 @[simp]
-theorem get!_empty [LawfulBEq α] {a : α} [Inhabited (β a)] {c} :
-    (empty c : DHashMap α β).get! a = default :=
-  Raw₀.get!_empty
+theorem get!_emptyWithCapacity [LawfulBEq α] {a : α} [Inhabited (β a)] {c} :
+    (emptyWithCapacity c : DHashMap α β).get! a = default :=
+  Raw₀.get!_emptyWithCapacity
 
 @[simp]
-theorem get!_emptyc [LawfulBEq α] {a : α} [Inhabited (β a)] :
+theorem get!_empty [LawfulBEq α] {a : α} [Inhabited (β a)] :
     (∅ : DHashMap α β).get! a = default :=
-  get!_empty
+  get!_emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated get!_empty (since := "2025-03-12")]
+abbrev get!_emptyc := @get!_empty
 
 theorem get!_of_isEmpty [LawfulBEq α] {a : α} [Inhabited (β a)] :
     m.isEmpty = true → m.get! a = default :=
@@ -403,13 +436,17 @@ namespace Const
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
 
 @[simp]
-theorem get!_empty [Inhabited β] {a : α} {c} :
-    get! (empty c : DHashMap α (fun _ => β)) a = default :=
-  Raw₀.Const.get!_empty
+theorem get!_emptyWithCapacity [Inhabited β] {a : α} {c} :
+    get! (emptyWithCapacity c : DHashMap α (fun _ => β)) a = default :=
+  Raw₀.Const.get!_emptyWithCapacity
 
 @[simp]
-theorem get!_emptyc [Inhabited β] {a : α} : get! (∅ : DHashMap α (fun _ => β)) a = default :=
-  get!_empty
+theorem get!_empty [Inhabited β] {a : α} : get! (∅ : DHashMap α (fun _ => β)) a = default :=
+  get!_emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated get!_empty (since := "2025-03-12")]
+abbrev get!_emptyc := @get!_empty
 
 theorem get!_of_isEmpty [EquivBEq α] [LawfulHashable α] [Inhabited β] {a : α} :
     m.isEmpty = true → get! m a = default :=
@@ -468,14 +505,18 @@ theorem get!_congr [EquivBEq α] [LawfulHashable α] [Inhabited β] {a b : α} (
 end Const
 
 @[simp]
-theorem getD_empty [LawfulBEq α] {a : α} {fallback : β a} {c} :
-    (empty c : DHashMap α β).getD a fallback = fallback :=
-  Raw₀.getD_empty
+theorem getD_emptyWithCapacity [LawfulBEq α] {a : α} {fallback : β a} {c} :
+    (emptyWithCapacity c : DHashMap α β).getD a fallback = fallback :=
+  Raw₀.getD_emptyWithCapacity
 
 @[simp]
-theorem getD_emptyc [LawfulBEq α] {a : α} {fallback : β a} :
+theorem getD_empty [LawfulBEq α] {a : α} {fallback : β a} :
     (∅ : DHashMap α β).getD a fallback = fallback :=
-  getD_empty
+  getD_emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated getD_empty (since := "2025-03-12")]
+abbrev getD_emptyc := @getD_empty
 
 theorem getD_of_isEmpty [LawfulBEq α] {a : α} {fallback : β a} :
     m.isEmpty = true → m.getD a fallback = fallback :=
@@ -533,14 +574,18 @@ namespace Const
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
 
 @[simp]
-theorem getD_empty {a : α} {fallback : β} {c} :
-    getD (empty c : DHashMap α (fun _ => β)) a fallback = fallback :=
-  Raw₀.Const.getD_empty
+theorem getD_emptyWithCapacity {a : α} {fallback : β} {c} :
+    getD (emptyWithCapacity c : DHashMap α (fun _ => β)) a fallback = fallback :=
+  Raw₀.Const.getD_emptyWithCapacity
 
 @[simp]
-theorem getD_emptyc {a : α} {fallback : β} :
+theorem getD_empty {a : α} {fallback : β} :
     getD (∅ : DHashMap α (fun _ => β)) a fallback = fallback :=
-  getD_empty
+  getD_emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated getD_empty (since := "2025-03-12")]
+abbrev getD_emptyc := @getD_empty
 
 theorem getD_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} {fallback : β} :
     m.isEmpty = true → getD m a fallback = fallback :=
@@ -603,12 +648,16 @@ theorem getD_congr [EquivBEq α] [LawfulHashable α] {a b : α} {fallback : β} 
 end Const
 
 @[simp]
-theorem getKey?_empty {a : α} {c} : (empty c : DHashMap α β).getKey? a = none :=
-  Raw₀.getKey?_empty
+theorem getKey?_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : DHashMap α β).getKey? a = none :=
+  Raw₀.getKey?_emptyWithCapacity
 
 @[simp]
-theorem getKey?_emptyc {a : α} : (∅ : DHashMap α β).getKey? a = none :=
-  Raw₀.getKey?_empty
+theorem getKey?_empty {a : α} : (∅ : DHashMap α β).getKey? a = none :=
+  getKey?_emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated getKey?_empty (since := "2025-03-12")]
+abbrev getKey?_emptyc := @getKey?_empty
 
 theorem getKey?_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
     m.isEmpty = true → m.getKey? a = none :=
@@ -691,14 +740,18 @@ theorem getKey_eq [LawfulBEq α] {k : α} (h : k ∈ m) : m.getKey k h = k :=
   Raw₀.getKey_eq ⟨m.1, _⟩ m.2 h
 
 @[simp]
-theorem getKey!_empty [Inhabited α] {a : α} {c} :
-    (empty c : DHashMap α β).getKey! a = default :=
-  Raw₀.getKey!_empty
+theorem getKey!_emptyWithCapacity [Inhabited α] {a : α} {c} :
+    (emptyWithCapacity c : DHashMap α β).getKey! a = default :=
+  Raw₀.getKey!_emptyWithCapacity
 
 @[simp]
-theorem getKey!_emptyc [Inhabited α] {a : α} :
+theorem getKey!_empty [Inhabited α] {a : α} :
     (∅ : DHashMap α β).getKey! a = default :=
-  getKey!_empty
+  getKey!_emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated getKey!_empty (since := "2025-03-12")]
+abbrev getKey!_emptyc := @getKey!_empty
 
 theorem getKey!_of_isEmpty [EquivBEq α] [LawfulHashable α] [Inhabited α] {a : α} :
     m.isEmpty = true → m.getKey! a = default :=
@@ -760,14 +813,18 @@ theorem getKey!_eq_of_mem [LawfulBEq α] [Inhabited α] {k : α} (h : k ∈ m) :
   getKey!_eq_of_contains h
 
 @[simp]
-theorem getKeyD_empty {a fallback : α} {c} :
-    (empty c : DHashMap α β).getKeyD a fallback = fallback :=
-  Raw₀.getKeyD_empty
+theorem getKeyD_emptyWithCapacity {a fallback : α} {c} :
+    (emptyWithCapacity c : DHashMap α β).getKeyD a fallback = fallback :=
+  Raw₀.getKeyD_emptyWithCapacity
 
 @[simp]
-theorem getKeyD_emptyc {a fallback : α} :
+theorem getKeyD_empty {a fallback : α} :
     (∅ : DHashMap α β).getKeyD a fallback = fallback :=
-  getKeyD_empty
+  getKeyD_emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated getKeyD_empty (since := "2025-03-12")]
+abbrev getKeyD_emptyc := @getKeyD_empty
 
 theorem getKeyD_of_isEmpty [EquivBEq α] [LawfulHashable α] {a fallback : α} :
     m.isEmpty = true → m.getKeyD a fallback = fallback :=
@@ -1753,22 +1810,22 @@ namespace DHashMap
 @[simp]
 theorem ofList_nil :
     ofList ([] : List ((a : α) × (β a))) = ∅ :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_empty_list_nil (α := α)) :)
+  Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_emptyWithCapacity_list_nil (α := α)) :)
 
 @[simp]
 theorem ofList_singleton {k : α} {v : β k} :
     ofList [⟨k, v⟩] = (∅: DHashMap α β).insert k v :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_empty_list_singleton (α := α)) :)
+  Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_emptyWithCapacity_list_singleton (α := α)) :)
 
 theorem ofList_cons {k : α} {v : β k} {tl : List ((a : α) × (β a))} :
     ofList (⟨k, v⟩ :: tl) = ((∅ : DHashMap α β).insert k v).insertMany tl :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_empty_list_cons (α := α)) :)
+  Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_emptyWithCapacity_list_cons (α := α)) :)
 
 @[simp]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} {k : α} :
     (ofList l).contains k = (l.map Sigma.fst).contains k :=
-  Raw₀.contains_insertMany_empty_list
+  Raw₀.contains_insertMany_emptyWithCapacity_list
 
 @[simp]
 theorem mem_ofList [EquivBEq α] [LawfulHashable α]
@@ -1780,14 +1837,14 @@ theorem get?_ofList_of_contains_eq_false [LawfulBEq α]
     {l : List ((a : α) × β a)} {k : α}
     (contains_eq_false : (l.map Sigma.fst).contains k = false) :
     (ofList l).get? k = none :=
-  Raw₀.get?_insertMany_empty_list_of_contains_eq_false contains_eq_false
+  Raw₀.get?_insertMany_emptyWithCapacity_list_of_contains_eq_false contains_eq_false
 
 theorem get?_ofList_of_mem [LawfulBEq α]
     {l : List ((a : α) × β a)} {k k' : α} (k_beq : k == k') {v : β k}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l) :
     (ofList l).get? k' = some (cast (by congr; apply LawfulBEq.eq_of_beq k_beq) v) :=
-  Raw₀.get?_insertMany_empty_list_of_mem k_beq distinct mem
+  Raw₀.get?_insertMany_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem get_ofList_of_mem [LawfulBEq α]
     {l : List ((a : α) × β a)} {k k' : α} (k_beq : k == k') {v : β k}
@@ -1795,39 +1852,39 @@ theorem get_ofList_of_mem [LawfulBEq α]
     (mem : ⟨k, v⟩ ∈ l)
     {h} :
     (ofList l).get k' h = cast (by congr; apply LawfulBEq.eq_of_beq k_beq) v :=
-  Raw₀.get_insertMany_empty_list_of_mem k_beq distinct mem
+  Raw₀.get_insertMany_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem get!_ofList_of_contains_eq_false [LawfulBEq α]
     {l : List ((a : α) × β a)} {k : α} [Inhabited (β k)]
     (contains_eq_false : (l.map Sigma.fst).contains k = false) :
     (ofList l).get! k = default :=
-  Raw₀.get!_insertMany_empty_list_of_contains_eq_false contains_eq_false
+  Raw₀.get!_insertMany_emptyWithCapacity_list_of_contains_eq_false contains_eq_false
 
 theorem get!_ofList_of_mem [LawfulBEq α]
     {l : List ((a : α) × β a)} {k k' : α} (k_beq : k == k') {v : β k} [Inhabited (β k')]
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l) :
     (ofList l).get! k' = cast (by congr; apply LawfulBEq.eq_of_beq k_beq) v :=
-  Raw₀.get!_insertMany_empty_list_of_mem k_beq distinct mem
+  Raw₀.get!_insertMany_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem getD_ofList_of_contains_eq_false [LawfulBEq α]
     {l : List ((a : α) × β a)} {k : α} {fallback : β k}
     (contains_eq_false : (l.map Sigma.fst).contains k = false) :
     (ofList l).getD k fallback = fallback :=
-  Raw₀.getD_insertMany_empty_list_of_contains_eq_false contains_eq_false
+  Raw₀.getD_insertMany_emptyWithCapacity_list_of_contains_eq_false contains_eq_false
 
 theorem getD_ofList_of_mem [LawfulBEq α]
     {l : List ((a : α) × β a)} {k k' : α} (k_beq : k == k') {v : β k} {fallback : β k'}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l) :
     (ofList l).getD k' fallback = cast (by congr; apply LawfulBEq.eq_of_beq k_beq) v :=
-  Raw₀.getD_insertMany_empty_list_of_mem k_beq distinct mem
+  Raw₀.getD_insertMany_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem getKey?_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} {k : α}
     (contains_eq_false : (l.map Sigma.fst).contains k = false) :
     (ofList l).getKey? k = none :=
-  Raw₀.getKey?_insertMany_empty_list_of_contains_eq_false contains_eq_false
+  Raw₀.getKey?_insertMany_emptyWithCapacity_list_of_contains_eq_false contains_eq_false
 
 theorem getKey?_ofList_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)}
@@ -1835,7 +1892,7 @@ theorem getKey?_ofList_of_mem [EquivBEq α] [LawfulHashable α]
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : k ∈ l.map Sigma.fst) :
     (ofList l).getKey? k' = some k :=
-  Raw₀.getKey?_insertMany_empty_list_of_mem k_beq distinct mem
+  Raw₀.getKey?_insertMany_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem getKey_ofList_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)}
@@ -1844,13 +1901,13 @@ theorem getKey_ofList_of_mem [EquivBEq α] [LawfulHashable α]
     (mem : k ∈ l.map Sigma.fst)
     {h} :
     (ofList l).getKey k' h = k :=
-  Raw₀.getKey_insertMany_empty_list_of_mem k_beq distinct mem
+  Raw₀.getKey_insertMany_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem getKey!_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α] [Inhabited α]
     {l : List ((a : α) × β a)} {k : α}
     (contains_eq_false : (l.map Sigma.fst).contains k = false) :
     (ofList l).getKey! k = default :=
-  Raw₀.getKey!_insertMany_empty_list_of_contains_eq_false contains_eq_false
+  Raw₀.getKey!_insertMany_emptyWithCapacity_list_of_contains_eq_false contains_eq_false
 
 theorem getKey!_ofList_of_mem [EquivBEq α] [LawfulHashable α] [Inhabited α]
     {l : List ((a : α) × β a)}
@@ -1858,13 +1915,13 @@ theorem getKey!_ofList_of_mem [EquivBEq α] [LawfulHashable α] [Inhabited α]
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : k ∈ l.map Sigma.fst) :
     (ofList l).getKey! k' = k :=
-  Raw₀.getKey!_insertMany_empty_list_of_mem k_beq distinct mem
+  Raw₀.getKey!_insertMany_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem getKeyD_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} {k fallback : α}
     (contains_eq_false : (l.map Sigma.fst).contains k = false) :
     (ofList l).getKeyD k fallback = fallback :=
-  Raw₀.getKeyD_insertMany_empty_list_of_contains_eq_false contains_eq_false
+  Raw₀.getKeyD_insertMany_emptyWithCapacity_list_of_contains_eq_false contains_eq_false
 
 theorem getKeyD_ofList_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)}
@@ -1872,23 +1929,23 @@ theorem getKeyD_ofList_of_mem [EquivBEq α] [LawfulHashable α]
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : k ∈ l.map Sigma.fst) :
     (ofList l).getKeyD k' fallback = k :=
-  Raw₀.getKeyD_insertMany_empty_list_of_mem k_beq distinct mem
+  Raw₀.getKeyD_insertMany_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem size_ofList [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
     (ofList l).size = l.length :=
-  Raw₀.size_insertMany_empty_list distinct
+  Raw₀.size_insertMany_emptyWithCapacity_list distinct
 
 theorem size_ofList_le [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} :
     (ofList l).size ≤ l.length :=
-  Raw₀.size_insertMany_empty_list_le
+  Raw₀.size_insertMany_emptyWithCapacity_list_le
 
 @[simp]
 theorem isEmpty_ofList [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} :
     (ofList l).isEmpty = l.isEmpty :=
-  Raw₀.isEmpty_insertMany_empty_list
+  Raw₀.isEmpty_insertMany_emptyWithCapacity_list
 
 namespace Const
 
@@ -1897,22 +1954,22 @@ variable {β : Type v}
 @[simp]
 theorem ofList_nil :
     ofList ([] : List (α × β)) = ∅ :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_empty_list_nil (α:= α)) :)
+  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_emptyWithCapacity_list_nil (α:= α)) :)
 
 @[simp]
 theorem ofList_singleton {k : α} {v : β} :
     ofList [⟨k, v⟩] = (∅ : DHashMap α (fun _ => β)).insert k v :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_empty_list_singleton (α:= α)) :)
+  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_emptyWithCapacity_list_singleton (α:= α)) :)
 
 theorem ofList_cons {k : α} {v : β} {tl : List (α × β)} :
     ofList (⟨k, v⟩ :: tl) = insertMany ((∅ : DHashMap α (fun _ => β)).insert k v) tl :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_empty_list_cons (α:= α)) :)
+  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_emptyWithCapacity_list_cons (α:= α)) :)
 
 @[simp]
 theorem contains_ofList [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α} :
     (ofList l).contains k = (l.map Prod.fst).contains k :=
-  Raw₀.Const.contains_insertMany_empty_list
+  Raw₀.Const.contains_insertMany_emptyWithCapacity_list
 
 @[simp]
 theorem mem_ofList [EquivBEq α] [LawfulHashable α]
@@ -1924,14 +1981,14 @@ theorem get?_ofList_of_contains_eq_false [LawfulBEq α]
     {l : List (α × β)} {k : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     get? (ofList l) k = none :=
-  Raw₀.Const.get?_insertMany_empty_list_of_contains_eq_false contains_eq_false
+  Raw₀.Const.get?_insertMany_emptyWithCapacity_list_of_contains_eq_false contains_eq_false
 
 theorem get?_ofList_of_mem [LawfulBEq α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l) :
     get? (ofList l) k' = some v :=
-  Raw₀.Const.get?_insertMany_empty_list_of_mem k_beq distinct mem
+  Raw₀.Const.get?_insertMany_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem get_ofList_of_mem [LawfulBEq α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
@@ -1939,39 +1996,39 @@ theorem get_ofList_of_mem [LawfulBEq α]
     (mem : ⟨k, v⟩ ∈ l)
     {h} :
     get (ofList l) k' h = v :=
-  Raw₀.Const.get_insertMany_empty_list_of_mem k_beq distinct mem
+  Raw₀.Const.get_insertMany_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem get!_ofList_of_contains_eq_false [LawfulBEq α]
     {l : List (α × β)} {k : α} [Inhabited β]
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     get! (ofList l) k = (default : β) :=
-  Raw₀.Const.get!_insertMany_empty_list_of_contains_eq_false contains_eq_false
+  Raw₀.Const.get!_insertMany_emptyWithCapacity_list_of_contains_eq_false contains_eq_false
 
 theorem get!_ofList_of_mem [LawfulBEq α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} [Inhabited β]
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l) :
     get! (ofList l) k' = v :=
-  Raw₀.Const.get!_insertMany_empty_list_of_mem k_beq distinct mem
+  Raw₀.Const.get!_insertMany_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem getD_ofList_of_contains_eq_false [LawfulBEq α]
     {l : List (α × β)} {k : α} {fallback : β}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     getD (ofList l) k fallback = fallback :=
-  Raw₀.Const.getD_insertMany_empty_list_of_contains_eq_false contains_eq_false
+  Raw₀.Const.getD_insertMany_emptyWithCapacity_list_of_contains_eq_false contains_eq_false
 
 theorem getD_ofList_of_mem [LawfulBEq α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} {fallback : β}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l) :
     getD (ofList l) k' fallback = v :=
-  Raw₀.Const.getD_insertMany_empty_list_of_mem k_beq distinct mem
+  Raw₀.Const.getD_insertMany_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem getKey?_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     (ofList l).getKey? k = none :=
-  Raw₀.Const.getKey?_insertMany_empty_list_of_contains_eq_false contains_eq_false
+  Raw₀.Const.getKey?_insertMany_emptyWithCapacity_list_of_contains_eq_false contains_eq_false
 
 theorem getKey?_ofList_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)}
@@ -1979,7 +2036,7 @@ theorem getKey?_ofList_of_mem [EquivBEq α] [LawfulHashable α]
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : k ∈ l.map Prod.fst) :
     (ofList l).getKey? k' = some k :=
-  Raw₀.Const.getKey?_insertMany_empty_list_of_mem k_beq distinct mem
+  Raw₀.Const.getKey?_insertMany_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem getKey_ofList_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)}
@@ -1988,13 +2045,13 @@ theorem getKey_ofList_of_mem [EquivBEq α] [LawfulHashable α]
     (mem : k ∈ l.map Prod.fst)
     {h} :
     (ofList l).getKey k' h = k :=
-  Raw₀.Const.getKey_insertMany_empty_list_of_mem k_beq distinct mem
+  Raw₀.Const.getKey_insertMany_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem getKey!_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     [Inhabited α] {l : List (α × β)} {k : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     (ofList l).getKey! k = default :=
-  Raw₀.Const.getKey!_insertMany_empty_list_of_contains_eq_false contains_eq_false
+  Raw₀.Const.getKey!_insertMany_emptyWithCapacity_list_of_contains_eq_false contains_eq_false
 
 theorem getKey!_ofList_of_mem [EquivBEq α] [LawfulHashable α] [Inhabited α]
     {l : List (α × β)}
@@ -2002,13 +2059,13 @@ theorem getKey!_ofList_of_mem [EquivBEq α] [LawfulHashable α] [Inhabited α]
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : k ∈ l.map Prod.fst) :
     (ofList l).getKey! k' = k :=
-  Raw₀.Const.getKey!_insertMany_empty_list_of_mem k_beq distinct mem
+  Raw₀.Const.getKey!_insertMany_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem getKeyD_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k fallback : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     (ofList l).getKeyD k fallback = fallback :=
-  Raw₀.Const.getKeyD_insertMany_empty_list_of_contains_eq_false contains_eq_false
+  Raw₀.Const.getKeyD_insertMany_emptyWithCapacity_list_of_contains_eq_false contains_eq_false
 
 theorem getKeyD_ofList_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)}
@@ -2016,44 +2073,44 @@ theorem getKeyD_ofList_of_mem [EquivBEq α] [LawfulHashable α]
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : k ∈ l.map Prod.fst) :
     (ofList l).getKeyD k' fallback = k :=
-  Raw₀.Const.getKeyD_insertMany_empty_list_of_mem k_beq distinct mem
+  Raw₀.Const.getKeyD_insertMany_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem size_ofList [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
     (ofList l).size = l.length :=
-  Raw₀.Const.size_insertMany_empty_list distinct
+  Raw₀.Const.size_insertMany_emptyWithCapacity_list distinct
 
 theorem size_ofList_le [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} :
     (ofList l).size ≤ l.length :=
-  Raw₀.Const.size_insertMany_empty_list_le
+  Raw₀.Const.size_insertMany_emptyWithCapacity_list_le
 
 @[simp]
 theorem isEmpty_ofList [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} :
     (ofList l).isEmpty = l.isEmpty :=
-  Raw₀.Const.isEmpty_insertMany_empty_list
+  Raw₀.Const.isEmpty_insertMany_emptyWithCapacity_list
 
 @[simp]
 theorem unitOfList_nil :
     unitOfList ([] : List α) = ∅ :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertManyIfNewUnit_empty_list_nil (α := α)) :)
+  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertManyIfNewUnit_emptyWithCapacity_list_nil (α := α)) :)
 
 @[simp]
 theorem unitOfList_singleton {k : α} :
     unitOfList [k] = (∅ : DHashMap α (fun _ => Unit)).insertIfNew k () :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertManyIfNewUnit_empty_list_singleton (α := α)) :)
+  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertManyIfNewUnit_emptyWithCapacity_list_singleton (α := α)) :)
 
 theorem unitOfList_cons {hd : α} {tl : List α} :
     unitOfList (hd :: tl) =
       insertManyIfNewUnit ((∅ : DHashMap α (fun _ => Unit)).insertIfNew hd ()) tl :=
-  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertManyIfNewUnit_empty_list_cons (α := α)) :)
+  Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertManyIfNewUnit_emptyWithCapacity_list_cons (α := α)) :)
 
 @[simp]
 theorem contains_unitOfList [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :
     (unitOfList l).contains k = l.contains k :=
-  Raw₀.Const.contains_insertManyIfNewUnit_empty_list
+  Raw₀.Const.contains_insertManyIfNewUnit_emptyWithCapacity_list
 
 @[simp]
 theorem mem_unitOfList [EquivBEq α] [LawfulHashable α]
@@ -2064,13 +2121,13 @@ theorem mem_unitOfList [EquivBEq α] [LawfulHashable α]
 theorem getKey?_unitOfList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} (contains_eq_false : l.contains k = false) :
     getKey? (unitOfList l) k = none :=
-  Raw₀.Const.getKey?_insertManyIfNewUnit_empty_list_of_contains_eq_false contains_eq_false
+  Raw₀.Const.getKey?_insertManyIfNewUnit_emptyWithCapacity_list_of_contains_eq_false contains_eq_false
 
 theorem getKey?_unitOfList_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List α} {k k' : α} (k_beq : k == k')
     (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l) :
     getKey? (unitOfList l) k' = some k :=
-  Raw₀.Const.getKey?_insertManyIfNewUnit_empty_list_of_mem k_beq distinct mem
+  Raw₀.Const.getKey?_insertManyIfNewUnit_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem getKey_unitOfList_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List α}
@@ -2078,69 +2135,69 @@ theorem getKey_unitOfList_of_mem [EquivBEq α] [LawfulHashable α]
     (distinct : l.Pairwise (fun a b => (a == b) = false))
     (mem : k ∈ l) {h} :
     getKey (unitOfList l) k' h = k :=
-  Raw₀.Const.getKey_insertManyIfNewUnit_empty_list_of_mem k_beq distinct mem
+  Raw₀.Const.getKey_insertManyIfNewUnit_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem getKey!_unitOfList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     [Inhabited α] {l : List α} {k : α}
     (contains_eq_false : l.contains k = false) :
     getKey! (unitOfList l) k = default :=
-  Raw₀.Const.getKey!_insertManyIfNewUnit_empty_list_of_contains_eq_false contains_eq_false
+  Raw₀.Const.getKey!_insertManyIfNewUnit_emptyWithCapacity_list_of_contains_eq_false contains_eq_false
 
 theorem getKey!_unitOfList_of_mem [EquivBEq α] [LawfulHashable α]
     [Inhabited α] {l : List α} {k k' : α} (k_beq : k == k')
     (distinct : l.Pairwise (fun a b => (a == b) = false))
     (mem : k ∈ l) :
     getKey! (unitOfList l) k' = k :=
-  Raw₀.Const.getKey!_insertManyIfNewUnit_empty_list_of_mem k_beq distinct mem
+  Raw₀.Const.getKey!_insertManyIfNewUnit_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem getKeyD_unitOfList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List α} {k fallback : α}
     (contains_eq_false : l.contains k = false) :
     getKeyD (unitOfList l) k fallback = fallback :=
-  Raw₀.Const.getKeyD_insertManyIfNewUnit_empty_list_of_contains_eq_false contains_eq_false
+  Raw₀.Const.getKeyD_insertManyIfNewUnit_emptyWithCapacity_list_of_contains_eq_false contains_eq_false
 
 theorem getKeyD_unitOfList_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List α} {k k' fallback : α} (k_beq : k == k')
     (distinct : l.Pairwise (fun a b => (a == b) = false))
     (mem : k ∈ l) :
     getKeyD (unitOfList l) k' fallback = k :=
-  Raw₀.Const.getKeyD_insertManyIfNewUnit_empty_list_of_mem k_beq distinct mem
+  Raw₀.Const.getKeyD_insertManyIfNewUnit_emptyWithCapacity_list_of_mem k_beq distinct mem
 
 theorem size_unitOfList [EquivBEq α] [LawfulHashable α]
     {l : List α}
     (distinct : l.Pairwise (fun a b => (a == b) = false)) :
     (unitOfList l).size = l.length :=
-  Raw₀.Const.size_insertManyIfNewUnit_empty_list distinct
+  Raw₀.Const.size_insertManyIfNewUnit_emptyWithCapacity_list distinct
 
 theorem size_unitOfList_le [EquivBEq α] [LawfulHashable α]
     {l : List α} :
     (unitOfList l).size ≤ l.length :=
-  Raw₀.Const.size_insertManyIfNewUnit_empty_list_le
+  Raw₀.Const.size_insertManyIfNewUnit_emptyWithCapacity_list_le
 
 @[simp]
 theorem isEmpty_unitOfList [EquivBEq α] [LawfulHashable α]
     {l : List α} :
     (unitOfList l).isEmpty = l.isEmpty :=
-  Raw₀.Const.isEmpty_insertManyIfNewUnit_empty_list
+  Raw₀.Const.isEmpty_insertManyIfNewUnit_emptyWithCapacity_list
 
 @[simp]
 theorem get?_unitOfList [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :
     get? (unitOfList l) k =
     if l.contains k then some () else none :=
-  Raw₀.Const.get?_insertManyIfNewUnit_empty_list
+  Raw₀.Const.get?_insertManyIfNewUnit_emptyWithCapacity_list
 
 @[simp]
 theorem get_unitOfList
     {l : List α} {k : α} {h} :
     get (unitOfList l) k h = () :=
-  Raw₀.Const.get_insertManyIfNewUnit_empty_list
+  Raw₀.Const.get_insertManyIfNewUnit_emptyWithCapacity_list
 
 @[simp]
 theorem get!_unitOfList
     {l : List α} {k : α} :
     get! (unitOfList l) k = () :=
-  Raw₀.Const.get!_insertManyIfNewUnit_empty_list
+  Raw₀.Const.get!_insertManyIfNewUnit_emptyWithCapacity_list
 
 @[simp]
 theorem getD_unitOfList
@@ -2991,23 +3048,30 @@ end Const
 end Equiv
 
 @[simp]
-theorem equiv_empty_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :
-    m ~m empty c ↔ m.isEmpty :=
-  ⟨fun ⟨h⟩ => (Raw₀.equiv_empty_iff_isEmpty ⟨m.1, m.2.size_buckets_pos⟩ m.2).mp h,
-    fun h => ⟨(Raw₀.equiv_empty_iff_isEmpty ⟨m.1, m.2.size_buckets_pos⟩ m.2).mpr h⟩⟩
+theorem equiv_emptyWithCapacity_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :
+    m ~m emptyWithCapacity c ↔ m.isEmpty :=
+  ⟨fun ⟨h⟩ => (Raw₀.equiv_emptyWithCapacity_iff_isEmpty ⟨m.1, m.2.size_buckets_pos⟩ m.2).mp h,
+    fun h => ⟨(Raw₀.equiv_emptyWithCapacity_iff_isEmpty ⟨m.1, m.2.size_buckets_pos⟩ m.2).mpr h⟩⟩
 
 @[simp]
-theorem equiv_emptyc_iff_isEmpty [EquivBEq α] [LawfulHashable α] : m ~m ∅ ↔ m.isEmpty :=
-  equiv_empty_iff_isEmpty
+theorem equiv_empty_iff_isEmpty [EquivBEq α] [LawfulHashable α] : m ~m ∅ ↔ m.isEmpty :=
+  equiv_emptyWithCapacity_iff_isEmpty
+
+set_option linter.missingDocs false in
+@[deprecated equiv_empty_iff_isEmpty (since := "2025-03-11")]
+abbrev equiv_emptyc_iff_isEmpty := @equiv_empty_iff_isEmpty
+
+theorem empty_equivWithCapacity_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :
+    emptyWithCapacity c ~m m ↔ m.isEmpty :=
+  Equiv.comm.trans equiv_emptyWithCapacity_iff_isEmpty
 
 @[simp]
-theorem empty_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :
-    empty c ~m m ↔ m.isEmpty :=
-  Equiv.comm.trans equiv_empty_iff_isEmpty
+theorem empty_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] : ∅ ~m m ↔ m.isEmpty :=
+  empty_equivWithCapacity_iff_isEmpty
 
-@[simp]
-theorem emptyc_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] : ∅ ~m m ↔ m.isEmpty :=
-  empty_equiv_iff_isEmpty
+set_option linter.missingDocs false in
+@[deprecated empty_equiv_iff_isEmpty (since := "2025-03-11")]
+abbrev emptyc_equiv_iff_isEmpty := @empty_equiv_iff_isEmpty
 
 theorem equiv_iff_toList_perm {m₁ m₂ : DHashMap α β} [EquivBEq α] [LawfulHashable α] :
     m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList :=

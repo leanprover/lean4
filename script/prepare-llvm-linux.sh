@@ -39,8 +39,8 @@ $CP $GLIBC/lib/*crt* stage1/lib/
 # runtime
 (cd llvm; $CP --parents lib/clang/*/lib/*/{clang_rt.*.o,libclang_rt.builtins*} ../stage1)
 $CP llvm/lib/*/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a $LIBUV/lib/libuv.a stage1/lib/
-# LLVM 15 appears to ship the dependencies in 'llvm/lib/<target-triple>/' and 'llvm/include/<target-triple>/'
-# but clang-15 that we use to compile is linked against 'llvm/lib/' and 'llvm/include'
+# LLVM 19 appears to ship the dependencies in 'llvm/lib/<target-triple>/' and 'llvm/include/<target-triple>/'
+# but clang-19 that we use to compile is linked against 'llvm/lib/' and 'llvm/include'
 # https://github.com/llvm/llvm-project/issues/54955
 $CP llvm/lib/*/lib{c++,c++abi,unwind}.* llvm/lib/
 $CP llvm-host/lib/*/lib{c++,c++abi,unwind}.* llvm-host/lib/

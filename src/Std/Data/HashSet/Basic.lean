@@ -62,7 +62,7 @@ use the empty collection notations `∅` and `{}` to create an empty hash set wi
 capacity.
 -/
 @[inline] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) : HashSet α :=
-  ⟨HashMap.empty capacity⟩
+  ⟨HashMap.emptyWithCapacity capacity⟩
 
 @[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
 abbrev empty := @emptyWithCapacity

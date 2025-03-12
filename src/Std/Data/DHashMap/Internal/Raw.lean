@@ -24,13 +24,11 @@ namespace Std.DHashMap.Internal
 
 namespace Raw
 
-theorem emptyWithCapacity_eq [BEq α] [Hashable α] {c : Nat} : (Raw.emptyWithCapacity c : Raw α β) = (Raw₀.emptyWithCapacity c).1 := rfl
+-- TODO: the next two lemmas need to be renamed, but there is a bootstrapping obstacle.
 
-theorem empty_eq [BEq α] [Hashable α] : (∅ : Raw α β) = Raw₀.emptyWithCapacity.1 := rfl
+theorem empty_eq [BEq α] [Hashable α] {c : Nat} : (Raw.emptyWithCapacity c : Raw α β) = (Raw₀.emptyWithCapacity c).1 := rfl
 
-set_option linter.missingDocs false in
-@[deprecated empty_eq (since := "2025-03-11")]
-abbrev emptyc_eq := @empty_eq
+theorem emptyc_eq [BEq α] [Hashable α] : (∅ : Raw α β) = Raw₀.emptyWithCapacity.1 := rfl
 
 theorem insert_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {a : α} {b : β a} :
     m.insert a b = (Raw₀.insert ⟨m, h.size_buckets_pos⟩ a b).1 := by

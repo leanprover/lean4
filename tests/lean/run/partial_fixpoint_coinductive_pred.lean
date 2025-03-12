@@ -6,7 +6,7 @@ Without an induction principle this isn't so useful, though.
 -/
 
 open Lean.Order
-
+set_option trace.Elab.definition.partialFixpoint true
 instance : PartialOrder Prop where
   rel x y := y → x -- NB: Dual
   rel_refl := fun x => x
@@ -43,7 +43,7 @@ coinductive infinite_chain step : α → Prop where
 -/
 def infinite_chain {α} (step : α → Option α) (x : α) : Prop :=
   ∃ y, step x = some y ∧ infinite_chain step y
-partial_fixpoint
+greatest_fixpoint
 
 theorem infinite_chain.intro {α} (step : α → Option α) (y x : α) :
     step x = some y → infinite_chain step y → infinite_chain step x := by

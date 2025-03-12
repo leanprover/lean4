@@ -756,6 +756,16 @@ the syntax `partial_fixpoint monotonicity by $tac` the proof can be done manuall
               checkColGt "indented monotonicity proof" >> termParser))
 
 /--
+  Todo: add comment
+-/
+def greatestFixpoint := leading_parser
+  withPosition (
+    "greatest_fixpoint" >>
+    optional (checkColGt "indentation" >> nonReservedSymbol "monotonicity " >>
+              checkColGt "indented monotonicity proof" >> termParser))
+
+
+/--
 Manually prove that the termination measure (as specified with `termination_by` or inferred)
 decreases at each recursive call.
 
@@ -771,7 +781,7 @@ Forces the use of well-founded recursion and is hence incompatible with
 Termination hints are `termination_by` and `decreasing_by`, in that order.
 -/
 @[builtin_doc] def suffix := leading_parser
-  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy <|> partialFixpoint)) >> optional decreasingBy
+  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy <|> partialFixpoint <|> greatestFixpoint)) >> optional decreasingBy
 
 end Termination
 namespace Term

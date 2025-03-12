@@ -33,10 +33,11 @@ structure DecreasingBy where
   tactic    : TSyntax ``Lean.Parser.Tactic.tacticSeq
   deriving Inhabited
 
-/-- A single `partial_fixpoint` clause -/
+/-- A single `partial_fixpoint` or `greatest_fixpoint` clause -/
 structure PartialFixpoint where
   ref       : Syntax
   term?     : Option Term
+  greatest? : Bool := false
   deriving Inhabited
 
 /--
@@ -137,10 +138,12 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
         pure (some {ref := t, structural := s.isSome, vars := #[], body})
       | `(terminationBy?|termination_by?) => pure none
       | `(partialFixpoint|partial_fixpoint $[monotonicity $_]?) => pure none
+      | `(greatestFixpoint|greatest_fixpoint $[monotonicity $_]?) => pure none
       | _ => throwErrorAt t "unexpected `termination_by` syntax"
       else pure none
     let partialFixpoint? : Option PartialFixpoint ← if let some t := t? then match t with
-      | `(partialFixpoint|partial_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?})
+      | `(partialFixpoint|partial_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?, greatest? := false})
+      | `(greatestFixpoint|greatest_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?, greatest? := true})
       | _ => pure none
       else pure none
     let decreasingBy? ← d?.mapM fun d => match d with

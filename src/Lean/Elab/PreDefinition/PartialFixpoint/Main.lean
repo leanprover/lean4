@@ -72,14 +72,19 @@ def mkMonoPProd (hmono₁ hmono₂ : Expr) : MetaM Expr := do
   mkAppOptM ``PProd.monotone_mk #[none, none, none, inst₁, inst₂, inst, none, none, hmono₁, hmono₂]
 
 def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
-  -- We expect all functions in the clique to have `partial_fixpoint` syntax
+  -- We expect all functions in the clique to have `partial_fixpoint` or `greatest_fixpoint` syntax
   let hints := preDefs.filterMap (·.termination.partialFixpoint?)
   assert! preDefs.size = hints.size
+
+  -- We check if the functions were defined in terms of `greatest_fixpoint` syntax
+  let is_greatest := hints.any (·.greatest?)
+  -- We check if the
   -- For every function of type `∀ x y, r x y`, an CCPO instance
   -- ∀ x y, CCPO (r x y), but crucially constructed using `instCCPOPi`
   let ccpoInsts ← preDefs.mapIdxM fun i preDef => withRef hints[i]!.ref do
     lambdaTelescope preDef.value fun xs _body => do
       let type ← instantiateForall preDef.type xs
+      trace[Elab.definition.partialFixpoint] "Type is {type}"
       let inst ←
         try
           synthInstance (← mkAppM ``CCPO #[type])

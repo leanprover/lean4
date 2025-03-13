@@ -4770,14 +4770,19 @@ theorem getValueD_filter {β : Type v} [BEq α] [EquivBEq α] {fallback : β}
   simp [getValueD_eq_getValue?, Option.getD, getValue?_filter, distinct]
 
 theorem getValue?_map {β : Type v} {γ : Type w} [BEq α] [EquivBEq α]
-    {f : (_ : α) → β → γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) {k : α} :
+    {f : (_ : α) → β → γ} {l : List ((_ : α) × β)} (hl : DistinctKeys l) {k : α} :
     getValue? k (l.map fun p => ⟨p.1, f p.1 p.2⟩) =
-      (getKey? k l).bind (fun k' => (getValue? k l).map (fun v => f k' v)) := by
-  simp only [getValue?_eq_getEntry?, distinct, getEntry?_map, Option.map_bind,
-    getKey?_eq_getEntry?, Option.bind_map]
-  cases getEntry? k l with
-  | none => simp
-  | some x =>simp
+      (getValue? k l).pmap (fun v h => f (getKey k l h) v)
+        (fun _ h => containsKey_eq_isSome_getValue?.trans (Option.isSome_of_mem h)) := by
+  simp only [getValue?_eq_getEntry?, getEntry?_map hl, Option.map_map, Function.comp_def,
+    getKey, getKey?_eq_getEntry?, Option.get_map, Option.pmap_map]
+  ext a
+  simp only [Option.mem_def, Option.map_eq_some', Option.pmap_eq_some_iff, exists_and_left]
+  conv =>
+    enter [2, 1, x]
+    apply and_congr_right_eq (fun h => ?rw); case rw =>
+    simp only [Option.get_congr h, Option.get_some, eq_comm (a := a)]
+    simp only [exists_prop_of_true (containsKey_eq_isSome_getEntry?.trans (Option.isSome_of_mem h))]
 
 theorem getValue!_map {β : Type v} {γ : Type w} [BEq α] [EquivBEq α] [Inhabited γ]
     {f : (_ : α) → β → γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) {k : α} :

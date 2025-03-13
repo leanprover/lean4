@@ -1916,7 +1916,7 @@ but not `oldEnv` and the environment extension state for extensions defining `re
 `skipExisting` is true, constants that are already in `dest` are not added. If `newEnv` and `dest`
 are not derived from `oldEnv`, the result is undefined.
 -/
-def replayConsts (oldEnv newEnv : Environment) (dest : Environment) (skipExisting := false) :
+def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExisting := false) :
     BaseIO Environment := do
   let numNewConsts := newEnv.asyncConsts.size - oldEnv.asyncConsts.size
   let consts := newEnv.asyncConsts.revList.take numNewConsts |>.reverse

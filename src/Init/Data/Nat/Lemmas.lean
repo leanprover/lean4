@@ -934,6 +934,25 @@ theorem mod_eq_iff {a b c : Nat} :
      · simp_all
      · rw [mul_add_mod, mod_eq_of_lt w]⟩
 
+theorem mod_eq_sub_iff {a b c : Nat} (h₁ : 0 < c) (h : c ≤ b) : a % b = b - c ↔ b ∣ a + c := by
+  rw [Nat.mod_eq_iff]
+  refine ⟨?_, ?_⟩
+  · rintro (⟨rfl, rfl⟩|⟨hlt, ⟨k, hk⟩⟩)
+    · simp; omega
+    · refine ⟨k + 1, ?_⟩
+      rw [← Nat.add_sub_assoc h] at hk
+      rw [Nat.mul_succ, eq_comm]
+      apply Nat.eq_add_of_sub_eq (by omega) hk.symm
+  · rintro ⟨k, hk⟩
+    obtain (rfl|hb) := Nat.eq_zero_or_pos b
+    · obtain rfl : c = 0 := by omega
+      refine Or.inl ⟨rfl, by simpa using hk⟩
+    · have : k ≠ 0 := by rintro rfl; omega
+      refine Or.inr ⟨by omega, ⟨k - 1, ?_⟩⟩
+      rw [← Nat.add_sub_assoc h, eq_comm]
+      apply Nat.sub_eq_of_eq_add
+      rw [mul_sub_one, Nat.sub_add_cancel (Nat.le_mul_of_pos_right _ (by omega)), hk]
+
 theorem succ_mod_succ_eq_zero_iff {a b : Nat} :
     (a + 1) % (b + 1) = 0 ↔ a % (b + 1) = b := by
   symm

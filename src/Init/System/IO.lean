@@ -88,6 +88,9 @@ lifting](lean-manual://section/lifting-monads) rather than being called explicit
 @[inline] def EIO.toIO' (act : EIO ε α) : IO (Except ε α) :=
   act.toBaseIO
 
+/--
+Runs an `IO` action in some other `EIO` monad, using `f` to translate `IO` exceptions.
+-/
 @[inline] def IO.toEIO (f : IO.Error → ε) (act : IO α) : EIO ε α :=
   act.adaptExcept f
 
@@ -133,8 +136,8 @@ opaque asTask (act : BaseIO α) (prio := Task.Priority.default) : BaseIO (Task �
   Task.pure <$> act
 
 /--
-Creates a new task that waits for `t` to complete and then runs the `IO` action `f` on its result.
-This new task has priority `prio`.
+Creates a new task that waits for `t` to complete and then runs the `BaseIO` action `f` on its
+result. This new task has priority `prio`.
 
 Running the resulting `BaseIO` action causes the task to be started eagerly. Unlike pure tasks
 created by `Task.spawn`, tasks created by this function will run even if the last reference to the
@@ -202,16 +205,45 @@ end BaseIO
 
 namespace EIO
 
-/-- `EIO` specialization of `BaseIO.asTask`. -/
+/--
+Runs `act` in a separate `Task`, with priority `prio`. Because `EIO ε` actions may throw an exception
+of type `ε`, the result of the task is an `Except ε α`.
+
+Running the resulting `IO` action causes the task to be started eagerly. Pure accesses to the `Task`
+do not influence the impure `act`.
+
+Unlike pure tasks created by `Task.spawn`, tasks created by this function will run even if the last
+reference to the task is dropped. The `act` should explicitly check for cancellation via
+`IO.checkCanceled` if it should be terminated or otherwise react to the last reference being
+dropped.
+-/
 @[inline] def asTask (act : EIO ε α) (prio := Task.Priority.default) : BaseIO (Task (Except ε α)) :=
   act.toBaseIO.asTask prio
 
-/-- `EIO` specialization of `BaseIO.mapTask`. -/
+/--
+Creates a new task that waits for `t` to complete and then runs the `IO` action `f` on its result.
+This new task has priority `prio`.
+
+Running the resulting `BaseIO` action causes the task to be started eagerly. Unlike pure tasks
+created by `Task.spawn`, tasks created by this function will run even if the last reference to the
+task is dropped. The `act` should explicitly check for cancellation via `IO.checkCanceled` if it
+should be terminated or otherwise react to the last reference being dropped. Because `EIO ε` actions
+may throw an exception of type `ε`, the result of the task is an `Except ε α`.
+-/
 @[inline] def mapTask (f : α → EIO ε β) (t : Task α) (prio := Task.Priority.default)
     (sync := false) : BaseIO (Task (Except ε β)) :=
   BaseIO.mapTask (fun a => f a |>.toBaseIO) t prio sync
 
-/-- `EIO` specialization of `BaseIO.bindTask`. -/
+/--
+Creates a new task that waits for `t` to complete, runs the `EIO ε` action `f` on its result, and
+then continues as the resulting task. This new task has priority `prio`.
+
+Running the resulting `BaseIO` action causes this new task to be started eagerly. Unlike pure tasks
+created by `Task.spawn`, tasks created by this function will run even if the last reference to the
+task is dropped. The `act` should explicitly check for cancellation via `IO.checkCanceled` if it
+should be terminated or otherwise react to the last reference being dropped. Because `EIO ε` actions
+may throw an exception of type `ε`, the result of the task is an `Except ε α`.
+-/
 @[inline] def bindTask (t : Task α) (f : α → EIO ε (Task (Except ε β)))
     (prio := Task.Priority.default) (sync := false) : BaseIO (Task (Except ε β)) :=
   BaseIO.bindTask t (fun a => f a |>.catchExceptions fun e => return Task.pure <| Except.error e)
@@ -231,38 +263,89 @@ end EIO
 
 namespace IO
 
+/--
+Converts an `Except ε` action into an `IO` action.
+
+If the `Except ε` action throws an exception, then the exception type's `ToString` instance is used
+to convert it into an `IO.Error`, which is thrown. Otherwise, the value is returned.
+-/
 def ofExcept [ToString ε] (e : Except ε α) : IO α :=
   match e with
   | Except.ok a    => pure a
   | Except.error e => throw (IO.userError (toString e))
 
+/--
+Creates an IO action that will invoke `fn` if and when it is executed, returning the result.
+-/
 def lazyPure (fn : Unit → α) : IO α :=
   pure (fn ())
 
-/-- Monotonically increasing time since an unspecified past point in milliseconds. No relation to wall clock time. -/
+/--
+Monotonically increasing time since an unspecified past point in milliseconds. There is no relation
+to wall clock time.
+-/
 @[extern "lean_io_mono_ms_now"] opaque monoMsNow : BaseIO Nat
 
-/-- Monotonically increasing time since an unspecified past point in nanoseconds. No relation to wall clock time. -/
+/--
+Monotonically increasing time since an unspecified past point in nanoseconds. There is no relation
+to wall clock time.
+-/
 @[extern "lean_io_mono_nanos_now"] opaque monoNanosNow : BaseIO Nat
 
-/-- Read bytes from a system entropy source. Not guaranteed to be cryptographically secure.
-If `nBytes = 0`, return immediately with an empty buffer. -/
+/--
+Reads bytes from a system entropy source. It is not guaranteed to be cryptographically secure.
+
+If `nBytes` is `0`, returns immediately with an empty buffer.
+-/
 @[extern "lean_io_get_random_bytes"] opaque getRandomBytes (nBytes : USize) : IO ByteArray
 
+/--
+Pauses execution for the specified number of milliseconds.
+-/
 def sleep (ms : UInt32) : BaseIO Unit :=
   -- TODO: add a proper primitive for IO.sleep
   fun s => dbgSleep ms fun _ => EStateM.Result.ok () s
 
-/-- `IO` specialization of `EIO.asTask`. -/
+/--
+Runs `act` in a separate `Task`, with priority `prio`. Because `IO` actions may throw an exception
+of type `IO.Error`, the result of the task is an `Except IO.Error α`.
+
+Running the resulting `BaseIO` action causes the task to be started eagerly. Pure accesses to the
+`Task` do not influence the impure `act`. Because `IO` actions may throw an exception of type
+`IO.Error`, the result of the task is an `Except IO.Error α`.
+
+Unlike pure tasks created by `Task.spawn`, tasks created by this function will run even if the last
+reference to the task is dropped. The `act` should explicitly check for cancellation via
+`IO.checkCanceled` if it should be terminated or otherwise react to the last reference being
+dropped.
+-/
 @[inline] def asTask (act : IO α) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error α)) :=
   EIO.asTask act prio
 
-/-- `IO` specialization of `EIO.mapTask`. -/
+/--
+Creates a new task that waits for `t` to complete and then runs the `IO` action `f` on its result.
+This new task has priority `prio`.
+
+Running the resulting `BaseIO` action causes the task to be started eagerly. Unlike pure tasks
+created by `Task.spawn`, tasks created by this function will run even if the last reference to the
+task is dropped. The `act` should explicitly check for cancellation via `IO.checkCanceled` if it
+should be terminated or otherwise react to the last reference being dropped. Because `IO` actions
+may throw an exception of type `IO.Error`, the result of the task is an `Except IO.Error α`.
+-/
 @[inline] def mapTask (f : α → IO β) (t : Task α) (prio := Task.Priority.default) (sync := false) :
     BaseIO (Task (Except IO.Error β)) :=
   EIO.mapTask f t prio sync
 
-/-- `IO` specialization of `EIO.bindTask`. -/
+/--
+Creates a new task that waits for `t` to complete, runs the `IO` action `f` on its result, and then
+continues as the resulting task. This new task has priority `prio`.
+
+Running the resulting `BaseIO` action causes this new task to be started eagerly. Unlike pure tasks
+created by `Task.spawn`, tasks created by this function will run even if the last reference to the
+task is dropped. The `act` should explicitly check for cancellation via `IO.checkCanceled` if it
+should be terminated or otherwise react to the last reference being dropped. Because `IO` actions
+may throw an exception of type `IO.Error`, the result of the task is an `Except IO.Error α`.
+-/
 @[inline] def bindTask (t : Task α) (f : α → IO (Task (Except IO.Error β)))
     (prio := Task.Priority.default) (sync := false) : BaseIO (Task (Except IO.Error β)) :=
   EIO.bindTask t f prio sync
@@ -277,28 +360,35 @@ def chainTask (t : Task α) (f : α → IO Unit) (prio := Task.Priority.default)
     (sync := false) : BaseIO (Task (Except IO.Error β)) :=
   EIO.mapTasks f tasks prio sync
 
-/-- Check if the task's cancellation flag has been set by calling `IO.cancel` or dropping the last reference to the task. -/
+/--
+Checks whether the current task's cancellation flag has been set by calling `IO.cancel` or by
+dropping the last reference to the task.
+-/
 @[extern "lean_io_check_canceled"] opaque checkCanceled : BaseIO Bool
 
-/-- Request cooperative cancellation of the task. The task must explicitly call `IO.checkCanceled` to react to the cancellation. -/
+/--
+Requests cooperative cancellation of the task. The task must explicitly call `IO.checkCanceled` to
+react to the cancellation.
+-/
 @[extern "lean_io_cancel"] opaque cancel : @& Task α → BaseIO Unit
 
 /-- The current state of a `Task` in the Lean runtime's task manager. -/
 inductive TaskState
   /--
   The `Task` is waiting to be run.
-  It can be waiting for dependencies to complete or
-  sitting in the task manager queue waiting for a thread to run on.
+
+  It can be waiting for dependencies to complete or sitting in the task manager queue waiting for a
+  thread to run on.
   -/
   | waiting
   /--
-  The `Task` is actively running on a thread or,
-  in the case of a `Promise`, waiting for a call to `IO.Promise.resolve`.
+  The `Task` is actively running on a thread or, in the case of a `Promise`, waiting for a call to
+  `IO.Promise.resolve`.
   -/
   | running
   /--
-  The `Task` has finished running and its result is available.
-  Calling `Task.get` or `IO.wait` on the task will not block.
+  The `Task` has finished running and its result is available. Calling `Task.get` or `IO.wait` on
+  the task will not block.
   -/
   | finished
   deriving Inhabited, Repr, DecidableEq, Ord
@@ -308,6 +398,9 @@ instance : LE TaskState := leOfOrd
 instance : Min TaskState := minOfLe
 instance : Max TaskState := maxOfLe
 
+/--
+Converts a task state to a string.
+-/
 protected def TaskState.toString : TaskState → String
   | .waiting => "waiting"
   | .running => "running"
@@ -316,27 +409,39 @@ protected def TaskState.toString : TaskState → String
 instance : ToString TaskState := ⟨TaskState.toString⟩
 
 /--
-Returns current state of the `Task` in the Lean runtime's task manager.
+Returns the current state of a task in the Lean runtime's task manager.
 
-Note that for tasks derived from `Promise`s, `waiting` and `running` should be considered
+For tasks derived from `Promise`s, the states `waiting` and `running` should be considered
 equivalent.
 -/
 @[extern "lean_io_get_task_state"] opaque getTaskState : @& Task α → BaseIO TaskState
 
-/-- Check if the task has finished execution, at which point calling `Task.get` will return immediately. -/
+/--
+Checks whether the task has finished execution, at which point calling `Task.get` will return
+immediately.
+-/
 @[inline] def hasFinished (task : Task α) : BaseIO Bool := do
   return (← getTaskState task) matches .finished
 
-/-- Wait for the task to finish, then return its result. -/
+/--
+Waits for the task to finish, then returns its result.
+-/
 @[extern "lean_io_wait"] opaque wait (t : Task α) : BaseIO α :=
   return t.get
 
-/-- Wait until any of the tasks in the given list has finished, then return its result. -/
+/--
+Waits until any of the tasks in the list has finished, then return its result.
+-/
 @[extern "lean_io_wait_any"] opaque waitAny (tasks : @& List (Task α))
     (h : tasks.length > 0 := by exact Nat.zero_lt_succ _) : BaseIO α :=
   return tasks[0].get
 
-/-- Helper method for implementing "deterministic" timeouts. It is the number of "small" memory allocations performed by the current execution thread. -/
+/--
+Returns the number of _heartbeats_ that have occurred during the current thread's execution. The
+heartbeat count is the number of “small” memory allocations performed in a thread.
+
+Heartbeats used to implement timeouts that are more deterministic across different hardware.
+-/
 @[extern "lean_io_get_num_heartbeats"] opaque getNumHeartbeats : BaseIO Nat
 
 /--
@@ -347,8 +452,11 @@ counting heartbeats of code whose execution time is non-deterministic.
 
 /--
 Adjusts the heartbeat counter of the current thread by the given amount. This can be useful to give
-allocation-avoiding code additional "weight" and is also used to adjust the counter after resuming
+allocation-avoiding code additional “weight” and is also used to adjust the counter after resuming
 from a snapshot.
+
+Heartbeats are a means of implementing “deterministic” timeouts. The heartbeat counter is the number
+of “small” memory allocations performed on the current execution thread.
 -/
 def addHeartbeats (count : Nat) : BaseIO Unit := do
   let n ← getNumHeartbeats
@@ -509,6 +617,11 @@ Use `IO.getStderr` to get the current standard error stream.
 -/
 @[extern "lean_get_set_stderr"] opaque setStderr : FS.Stream → BaseIO FS.Stream
 
+/--
+Iterates an `IO` action. Starting with an initial state, the action is applied repeatedly until it
+returns a final value in `Sum.inr`. Each time it returns `Sum.inl`, the returned value is treated as
+a new sate.
+-/
 @[specialize] partial def iterate (a : α) (f : α → IO (Sum α β)) : IO β := do
   let v ← f a
   match v with
@@ -664,8 +777,18 @@ temporary directory is removed.
 
 end FS
 
+/--
+Returns the value of the environment variable `var`, or `none` if it is not present in the
+environment.
+-/
 @[extern "lean_io_getenv"] opaque getEnv (var : @& String) : BaseIO (Option String)
+/--
+Returns the file name of the currently-running executable.
+-/
 @[extern "lean_io_app_path"] opaque appPath : IO FilePath
+/--
+Returns the current working directory of the executing process.
+-/
 @[extern "lean_io_current_dir"] opaque currentDir : IO FilePath
 
 namespace FS
@@ -927,17 +1050,33 @@ def withStderr [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (h : FS.Stream) 
   let prev ← setStderr h
   try x finally discard <| setStderr prev
 
+/--
+Converts `s` to a string using its `ToString α` instance, and prints it to the current standard
+output (as determined by `IO.getStdout`).
+-/
 def print [ToString α] (s : α) : IO Unit := do
   let out ← getStdout
   out.putStr <| toString s
 
+/--
+Converts `s` to a string using its `ToString α` instance, and prints it with a trailing newline to
+the current standard output (as determined by `IO.getStdout`).
+-/
 def println [ToString α] (s : α) : IO Unit :=
   print ((toString s).push '\n')
 
+/--
+Converts `s` to a string using its `ToString α` instance, and prints it to the current standard
+error (as determined by `IO.getStderr`).
+-/
 def eprint [ToString α] (s : α) : IO Unit := do
   let out ← getStderr
   out.putStr <| toString s
 
+/--
+Converts `s` to a string using its `ToString α` instance, and prints it with a trailing newline to
+the current standard error (as determined by `IO.getStderr`).
+-/
 def eprintln [ToString α] (s : α) : IO Unit :=
   eprint <| toString s |>.push '\n'
 
@@ -949,10 +1088,13 @@ private def eprintAux (s : String) : IO Unit :=
 private def eprintlnAux (s : String) : IO Unit :=
   eprintln s
 
+/--
+Returns the directory that the current executable is located in.
+-/
 def appDir : IO FilePath := do
   let p ← appPath
   let some p ← pure p.parent
-    | throw <| IO.userError s!"System.IO.appDir: unexpected filename '{p}'"
+    | throw <| IO.userError s!"IO.appDir: unexpected filename '{p}'"
   FS.realPath p
 
 namespace FS
@@ -1265,7 +1407,7 @@ def FileRight.flags (acc : FileRight) : UInt32 :=
 @[extern "lean_chmod"] opaque Prim.setAccessRights (filename : @& FilePath) (mode : UInt32) : IO Unit
 
 /--
-Sets the POSIX-style access rights for a file.
+Sets the POSIX-style permissions for a file.
 -/
 def setAccessRights (filename : FilePath) (mode : FileRight) : IO Unit :=
   Prim.setAccessRights filename mode.flags
@@ -1275,6 +1417,9 @@ abbrev Ref (α : Type) := ST.Ref IO.RealWorld α
 
 instance : MonadLift (ST IO.RealWorld) BaseIO := ⟨id⟩
 
+/--
+Creates a new mutable reference cell that contains `a`.
+-/
 def mkRef (a : α) : BaseIO (IO.Ref α) :=
   ST.mkRef a
 

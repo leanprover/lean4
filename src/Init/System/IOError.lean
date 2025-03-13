@@ -52,6 +52,11 @@ inductive IO.Error where
 instance : Inhabited IO.Error where
   default := .userError "(`Inhabited.default` for `IO.Error`)"
 
+/--
+Constructs an `IO.Error` from a string.
+
+`IO.Error` is the type of exceptions thrown by the `IO` monad.
+-/
 @[export lean_mk_io_user_error]
 def IO.userError (s : String) : IO.Error :=
   IO.Error.userError s

@@ -1059,17 +1059,22 @@ where
 
     -- TODO: parallelize header elaboration as well? Would have to refactor auto implicits catch,
     -- makes `@[simp]` etc harder?
-    let type ← withHeaderSecVars vars sc #[header] fun vars => do
-      mkForallFVars vars header.type >>= instantiateMVars
-    let allUserLevelNames := getAllUserLevelNames #[header]
-    let type ← withLevelNames allUserLevelNames <| levelMVarToParam type
 
-    -- in the case of theorems, the decl level params are those of the header
-    let mut s : CollectLevelParams.State := {}
-    s := collectLevelParams s type
-    let scopeLevelNames ← getLevelNames
-    let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
-    async.commitSignature { name := header.declName, levelParams, type }
+    -- commit signature; take level params from type only
+    withHeaderSecVars vars sc #[header] fun vars => do
+      let type ← mkForallFVars vars header.type
+      let allUserLevelNames := getAllUserLevelNames #[header]
+      let type ← withLevelNames allUserLevelNames <| levelMVarToParam type
+      -- NOTE: instantiation must happen after `levelMVarToParam`, otherwise there can be
+      -- normalization differences to the corresponding code in `finishElab`
+      let type ← instantiateMVars type
+
+      -- in the case of theorems, the decl level params are those of the header
+      let mut s : CollectLevelParams.State := {}
+      s := collectLevelParams s type
+      let scopeLevelNames ← getLevelNames
+      let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
+      async.commitSignature { name := header.declName, levelParams, type }
 
     -- attributes should be applied on the main thread; see below
     let header := { header with modifiers.attrs := #[] }

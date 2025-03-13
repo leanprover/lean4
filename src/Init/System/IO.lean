@@ -765,34 +765,59 @@ Writes the contents of the string to the stream, followed by a newline.
 def Stream.putStrLn (strm : FS.Stream) (s : String) : IO Unit :=
   strm.putStr (s.push '\n')
 
+/-- An entry in a directory on a filesystem. -/
 structure DirEntry where
+  /-- The directory in which the entry is found. -/
   root     : FilePath
+  /-- The name of the entry. -/
   fileName : String
   deriving Repr
 
+/-- The path of the file indicated by the directory entry. -/
 def DirEntry.path (entry : DirEntry) : FilePath :=
   entry.root / entry.fileName
 
+/-- Types of files that may be found on a filesystem. -/
 inductive FileType where
+  /-- Directories don't have contents, but may contain other files. -/
   | dir
+  /-- Ordinary files that have contents and are not directories. -/
   | file
+  /-- Symbolic links that are pointers to other named files. -/
   | symlink
+  /-- Files that are neither ordinary files, directories, or symbolic links. -/
   | other
   deriving Repr, BEq
 
+/--
+Low-level system time, tracked in whole seconds and additional nanoseconds.
+-/
 structure SystemTime where
+  /-- The number of whole seconds. -/
   sec  : Int
+  /-- The number of additional nanoseconds. -/
   nsec : UInt32
   deriving Repr, BEq, Ord, Inhabited
 
 instance : LT SystemTime := ltOfOrd
 instance : LE SystemTime := leOfOrd
 
+/--
+File metadata.
+
+The metadata for a file can be accessed with `System.FilePath.metadata`.
+-/
 structure Metadata where
   --permissions : ...
+  /-- File access time. -/
   accessed : SystemTime
+  /-- File modification time. -/
   modified : SystemTime
+  /-- The size of the file in bytes. -/
   byteSize : UInt64
+  /--
+  Whether the file is an ordinary file, a directory, a symbolic link, or some other kind of file.
+  -/
   type     : FileType
   deriving Repr
 

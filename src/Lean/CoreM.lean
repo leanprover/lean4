@@ -462,11 +462,12 @@ def wrapAsyncAsSnapshot (act : Unit → CoreM Unit) (cancelTk? : Option IO.Cance
   let t ← wrapAsync (cancelTk? := cancelTk?) fun _ => do
     IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
       let tid ← IO.getTID
-      -- reset trace state and message log so as not to report them twice
+      -- reset trace/info state and message log so as not to report them twice
       modify fun st => { st with
         messages := st.messages.markAllReported
         traceState := { tid }
         snapshotTasks := #[]
+        infoState := {}
       }
       try
         withTraceNode `Elab.async (fun _ => return desc) do

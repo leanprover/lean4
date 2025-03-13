@@ -137,9 +137,14 @@ def mapTasks (f : List α → BaseIO β) (tasks : List (Task α)) (prio := Task.
   go tasks []
 where
   go
+    | [], as =>
+      if sync then
+        return .pure (← f as.reverse)
+      else
+        f as.reverse |>.asTask prio
+    | [t], as => BaseIO.mapTask (fun a => f (a :: as).reverse) t prio sync
     | t::ts, as =>
       BaseIO.bindTask t (fun a => go ts (a :: as)) prio sync
-    | [], as => f as.reverse |>.asTask prio
 
 end BaseIO
 

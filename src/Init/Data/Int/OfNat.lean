@@ -43,9 +43,6 @@ def Expr.denoteAsInt (ctx : Context) : Expr → Int
   | .div a b  => Int.ediv (denoteAsInt ctx a) (denoteAsInt ctx b)
   | .mod a b  => Int.emod (denoteAsInt ctx a) (denoteAsInt ctx b)
 
-@[local simp] private theorem fold_div (a b : Nat) : a.div b = a / b := rfl
-@[local simp] private theorem fold_mod (a b : Nat) : a.mod b = a % b := rfl
-
 theorem Expr.denoteAsInt_eq (ctx : Context) (e : Expr) : e.denoteAsInt ctx = e.denote ctx := by
   induction e <;> simp [denote, denoteAsInt, Int.ofNat_ediv, *] <;> rfl
 

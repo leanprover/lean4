@@ -97,6 +97,26 @@ theorem bot_le (x : α) : ⊥ ⊑ x := by
   · intro x hx; contradiction
 
 end CCPO
+section complete_lattice
+  class complete_lattice (α : Sort u) extends PartialOrder α where
+  /--
+  The least upper bound of a an arbitrary subset in the complete_lattice.
+  -/
+  sup : (α → Prop) → α
+  sup_spec {c : α → Prop} : sup c ⊑ x ↔ (∀ y, c y → y ⊑ x)
+
+
+open PartialOrder complete_lattice
+
+variable {α  : Sort u} [complete_lattice α]
+
+theorem sup_le {c : α → Prop} : (∀ y, c y → y ⊑ x) → sup c ⊑ x :=
+  (sup_spec).mpr
+
+theorem le_sup {c : α → Prop} {y : α} (hy : c y) : y ⊑ sup c :=
+  sup_spec.mp rel_refl y hy
+
+end complete_lattice
 
 section monotone
 
@@ -207,6 +227,49 @@ def admissible_pi (P : α → β → Prop)
     fun c hchain h y => hadm₁ y c hchain fun x hx => h x hx y
 
 end admissibility
+
+section lattice_fix
+open PartialOrder complete_lattice
+
+variable {α  : Sort u} [complete_lattice α]
+
+variable {c : α → Prop}
+
+
+def gfp (f : α → α) : α :=
+    sup (fun c => c ⊑ f c)
+
+
+theorem gfp_postfixed {f : α → α} {hm : monotone f} :
+    (gfp f) ⊑ f (gfp f) := by
+    apply sup_le
+    intro y hy
+    suffices h : f y ⊑ f (sup fun c => c ⊑ f c) from
+    by
+      apply rel_trans
+      exact hy
+      exact h
+    apply hm
+    apply le_sup
+    trivial
+
+theorem gfp_prefixed {f : α → α} {hm : monotone f} :
+  f (gfp f) ⊑ (gfp f) := by
+  apply le_sup
+  apply hm
+  apply gfp_postfixed
+  trivial
+
+-- Knaster-Tarski fixpoint theorem
+theorem gfp_fix {f : α → α} {hm : monotone f} :
+  gfp f = f (gfp f) := by
+  apply rel_antisymm
+  apply gfp_postfixed
+  exact hm
+  apply gfp_prefixed
+  exact hm
+
+end lattice_fix
 
 section fix
 

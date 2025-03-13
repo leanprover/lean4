@@ -23,6 +23,7 @@ Implementation of the `exact?` tactic.
 -/
 def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireClose : Bool) :
     TacticM Unit := do
+  let mvar ← getMainGoal
   let initialState ← saveState
   let (_, goal) ← (← getMainGoal).intros
   goal.withContext do
@@ -35,7 +36,7 @@ def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireCl
     match (← librarySearch goal tactic allowFailure) with
     -- Found goal that closed problem
     | none =>
-      addExactSuggestion ref (← instantiateMVars (mkMVar goal)).headBeta (checkState? := initialState)
+      addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta (checkState? := initialState)
     -- Found suggestions
     | some suggestions =>
       if requireClose then
@@ -44,7 +45,7 @@ def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireCl
       reportOutOfHeartbeats `apply? ref
       for (_, suggestionMCtx) in suggestions do
         withMCtx suggestionMCtx do
-          addExactSuggestion ref (← instantiateMVars (mkMVar goal)).headBeta
+          addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta
             (checkState? := initialState) (addSubgoalsMsg := true) (tacticErrorAsInfo := true)
       if suggestions.isEmpty then logError "apply? didn't find any relevant lemmas"
       admitGoal goal

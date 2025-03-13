@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__11;
 static lean_object* l_Lean_Elab_instInhabitedInfo___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedElabInfo;
@@ -55,6 +54,7 @@ static size_t l_Lean_Elab_instInhabitedTermInfo___closed__5;
 static lean_object* l_Lean_Elab_instInhabitedTacticInfo___closed__2;
 static lean_object* l_Lean_Elab_instInhabitedMacroExpansionInfo___closed__1;
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__1;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Elab_instInhabitedElabInfo___closed__1() {
 _start:
 {
@@ -98,7 +98,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

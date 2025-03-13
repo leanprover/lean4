@@ -39,7 +39,6 @@ static lean_object* l_List_term___x7e_____closed__3;
 LEAN_EXPORT lean_object* l_List_countP(lean_object*);
 LEAN_EXPORT lean_object* l_List_unzipTR___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr___at_List_sum___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_List_enum___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_List_join(lean_object*);
 LEAN_EXPORT lean_object* l_List_min_x3f(lean_object*);
@@ -574,6 +573,7 @@ LEAN_EXPORT lean_object* l_List_foldr___at_List_unzipTR___spec__1(lean_object*, 
 static lean_object* l_List___aux__Init__Data__List__Basic______macroRules__List__term___x3c_x3a_x2b____1___closed__6;
 static lean_object* l___auto____x40_Init_Data_List_Basic___hyg_2188____closed__35;
 static lean_object* l___auto____x40_Init_Data_List_Basic___hyg_2188____closed__13;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l_List_term___x3c_x3a_x2b_____closed__5;
 static lean_object* l_List_term___x7e_____closed__2;
 static lean_object* l___auto____x40_Init_Data_List_Basic___hyg_2188____closed__10;
@@ -1191,7 +1191,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

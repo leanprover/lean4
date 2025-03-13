@@ -1822,6 +1822,7 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp
 static lean_object* l___regBuiltin_Lean_PrettyPrinter_Delaborator_delabNameMkStr__5___closed__1;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_coeDelaborator_delabHead___lambda__3___closed__3;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_withTypeAscription___closed__6;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabSeqRight___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabDIte___lambda__1___closed__1;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delabDIte___closed__4;
@@ -3667,7 +3668,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -26158,7 +26159,7 @@ x_16 = l_Array_toSubarray___rarg(x_2, x_14, x_15);
 x_17 = l_Array_ofSubarray___rarg(x_16);
 lean_dec(x_16);
 x_18 = lean_array_get_size(x_17);
-x_19 = lean_mk_empty_array_with_capacity(x_18);
+x_19 = l_Array_emptyWithCapacity(lean_box(0), x_18);
 x_20 = lean_unsigned_to_nat(0u);
 x_21 = l_Array_mapFinIdxM_map___at_Lean_PrettyPrinter_Delaborator_delabAppMatch___spec__18(x_1, x_14, x_17, x_17, x_18, x_20, lean_box(0), x_19, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_17);

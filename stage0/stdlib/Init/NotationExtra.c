@@ -46,7 +46,6 @@ static lean_object* l___aux__Init__NotationExtra______macroRules__term_x25_x5b__
 static lean_object* l___aux__Init__NotationExtra______macroRules__term_x7b___x7d__1___closed__5;
 LEAN_EXPORT lean_object* l_unexpandEqNDRec(lean_object*, lean_object*, lean_object*);
 static lean_object* l_termExists___x2c_____closed__7;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_cdotTk___closed__9;
 static lean_object* l___aux__Init__NotationExtra______macroRules__tacticFunext________1___lambda__2___closed__4;
 static lean_object* l_term_u2203___x2c_____closed__3;
@@ -819,6 +818,7 @@ static lean_object* l_Lean_unifConstraint___closed__8;
 static lean_object* l_Lean_solveTactic___closed__4;
 static lean_object* l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_____closed__20;
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__term__Matches___x7c__1___closed__24;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l_term___xd7____1___closed__7;
 LEAN_EXPORT lean_object* l_Lean_convCalc__;
 static lean_object* l_Lean_Parser_Command_classAbbrev___closed__11;
@@ -1510,7 +1510,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

@@ -43,7 +43,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rintroContinue_loop___rarg(le
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__51(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore(lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRIntro_declRange__1___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_finish___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__4___closed__2;
@@ -684,6 +683,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__1
 lean_object* l_Lean_Elab_Tactic_ElimApp_setMotiveArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_parse___closed__6;
 static lean_object* l_Lean_Elab_Tactic_RCases___aux__Lean__Elab__Tactic__RCases______macroRules__Lean__Elab__Tactic__RCases__termList_u03a3__1___closed__4;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__51___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_termList_u03a0____x40_Lean_Elab_Tactic_RCases___hyg_539____closed__6;
 static lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__8___closed__2;
@@ -942,7 +942,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

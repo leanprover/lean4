@@ -26,7 +26,6 @@ static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__17;
 static lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1___closed__16;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__19;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1443____closed__30;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___auto____x40_Init_GetElem___hyg_1443____closed__28;
 static lean_object* l_term_____x5b___x5d___x3f___closed__4;
 LEAN_EXPORT lean_object* l_term_____x5b___x5d___x21;
@@ -315,6 +314,7 @@ lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l___auto____x40_Init_GetElem___hyg_1443____closed__10;
 LEAN_EXPORT lean_object* l_term_____x5b___x5d;
 static lean_object* l_term_____x5b___x5d___x3f___closed__8;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_GetElem_0__List_get_x21Internal___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__30;
 LEAN_EXPORT lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d___x21__1(lean_object*, lean_object*, lean_object*);
@@ -1735,7 +1735,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

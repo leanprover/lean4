@@ -36,7 +36,6 @@ static lean_object* l_Lake_PackageConfig_mkSyntax_quoteVerTags_x3f___closed__11;
 static lean_object* l_Lake_LeanVer_quote___closed__3;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_mkSyntax___spec__5(lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_instQuoteBoolMkStr1__lake___closed__2;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instQuoteBuildTypeMkStr1;
 static lean_object* l_Lake_LeanLibConfig_mkSyntax___closed__7;
 static lean_object* l_Lake_LeanLibConfig_mkSyntax___closed__27;
@@ -593,6 +592,7 @@ lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lake_addDeclField___rarg___closed__4;
 extern lean_object* l_Lake_defaultLeanLibDir;
 static lean_object* l_Lake_LeanVer_quote___closed__7;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkLeanConfig___closed__6;
 static lean_object* l_Lake_Glob_quote___closed__2;
 static lean_object* l_Lake_LeanExeConfig_mkSyntax___closed__14;
@@ -737,7 +737,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

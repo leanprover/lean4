@@ -429,39 +429,84 @@ file.
 opaque FS.Handle : Type := Unit
 
 /--
-  A pure-Lean abstraction of POSIX streams. We use `Stream`s for the standard streams stdin/stdout/stderr so we can
-  capture output of `#eval` commands into memory. -/
+A pure-Lean abstraction of POSIX streams. These streams may represent an underlying POSIX stream or
+be implemented by Lean code.
+
+Because standard input, standard output, and standard error are all `IO.FS.Stream`s that can be
+overridden, Lean code may capture and redirect input and output.
+-/
 structure FS.Stream where
+  /--
+  Flushes the stream's output buffers.
+  -/
   flush   : IO Unit
   /--
-Read up to the given number of bytes from the stream.
-If the returned array is empty, an end-of-file marker has been reached.
-Note that EOF does not actually close a stream, so further reads may block and return more data.
+  Reads up to the given number of bytes from the stream.
+
+  If the returned array is empty, an end-of-file marker (EOF) has been reached. An EOF does not
+  actually close a stream, so further reads may block and return more data.
   -/
   read    : USize → IO ByteArray
+  /--
+  Writes the provided bytes to the stream.
+
+  If the stream represents a physical output device such as a file on disk, then the results may be
+  buffered. Call `FS.Stream.flush` to synchronize their contents.
+  -/
   write   : ByteArray → IO Unit
   /--
-Read text up to (including) the next line break from the stream.
-If the returned string is empty, an end-of-file marker has been reached.
-Note that EOF does not actually close a stream, so further reads may block and return more data.
+  Reads text up to and including the next newline from the stream.
+
+  If the returned string is empty, an end-of-file marker (EOF) has been reached.
+  An EOF does not actually close a stream, so further reads may block and return more data.
   -/
   getLine : IO String
+  /--
+  Writes the provided string to the stream.
+  -/
   putStr  : String → IO Unit
-  /-- Returns true if a stream refers to a Windows console or Unix terminal. -/
+  /-- Returns `true` if a stream refers to a Windows console or Unix terminal. -/
   isTty   : BaseIO Bool
   deriving Inhabited
 
 open FS
 
+/--
+Returns the current thread's standard input stream.
+
+Use `IO.setStdin` to replace the current thread's standard input stream.
+-/
 @[extern "lean_get_stdin"] opaque getStdin  : BaseIO FS.Stream
+/--
+Returns the current thread's standard output stream.
+
+Use `IO.setStdout` to replace the current thread's standard output stream.
+-/
 @[extern "lean_get_stdout"] opaque getStdout : BaseIO FS.Stream
+/--
+Returns the current thread's standard error stream.
+
+Use `IO.setStderr` to replace the current thread's standard error stream.
+-/
 @[extern "lean_get_stderr"] opaque getStderr : BaseIO FS.Stream
 
-/-- Replaces the stdin stream of the current thread and returns its previous value. -/
+/--
+Replaces the standard input stream of the current thread and returns its previous value.
+
+Use `IO.getStdin` to get the current standard input stream.
+-/
 @[extern "lean_get_set_stdin"] opaque setStdin  : FS.Stream → BaseIO FS.Stream
-/-- Replaces the stdout stream of the current thread and returns its previous value. -/
+/--
+Replaces the standard output stream of the current thread and returns its previous value.
+
+Use `IO.getStdout` to get the current standard output stream.
+-/
 @[extern "lean_get_set_stdout"] opaque setStdout : FS.Stream → BaseIO FS.Stream
-/-- Replaces the stderr stream of the current thread and returns its previous value. -/
+/--
+Replaces the standard error stream of the current thread and returns its previous value.
+
+Use `IO.getStderr` to get the current standard error stream.
+-/
 @[extern "lean_get_set_stderr"] opaque setStderr : FS.Stream → BaseIO FS.Stream
 
 @[specialize] partial def iterate (a : α) (f : α → IO (Sum α β)) : IO β := do
@@ -677,6 +722,10 @@ def writeFile (fname : FilePath) (content : String) : IO Unit := do
   let h ← Handle.mk fname Mode.write
   h.putStr content
 
+
+/--
+Writes the contents of the string to the stream, followed by a newline.
+-/
 def Stream.putStrLn (strm : FS.Stream) (s : String) : IO Unit :=
   strm.putStr (s.push '\n')
 
@@ -781,10 +830,18 @@ def readFile (fname : FilePath) : IO String := do
 
 end FS
 
+/--
+Runs an action with the specified stream `h` as standard input, restoring the original standard
+input stream afterwards.
+-/
 def withStdin [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStdin h
   try x finally discard <| setStdin prev
 
+/--
+Runs an action with the specified stream `h` as standard output, restoring the original standard
+output stream afterwards.
+-/
 def withStdout [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStdout h
   try
@@ -792,6 +849,10 @@ def withStdout [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (h : FS.Stream) 
   finally
     discard <| setStdout prev
 
+/--
+Runs an action with the specified stream `h` as standard error, restoring the original standard
+error stream afterwards.
+-/
 def withStderr [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStderr h
   try x finally discard <| setStderr prev
@@ -1093,10 +1154,25 @@ def ofHandle (h : Handle) : Stream where
   putStr  := Handle.putStr h
   isTty   := Handle.isTty h
 
+/--
+A byte buffer that can simulate a file in memory.
+
+Use `IO.FS.Stream.ofBuffer` to create a stream from a buffer.
+-/
 structure Buffer where
+  /-- The contents of the buffer. -/
   data : ByteArray := ByteArray.empty
+  /-- The read/write cursor's position in the buffer. -/
   pos  : Nat := 0
 
+/--
+Creates a stream from a mutable reference to a buffer.
+
+The resulting stream simulates a file, mutating the contents of the reference in response to writes
+and reading from it in response to reads. These streams can be used with `IO.withStdin`,
+`IO.setStdin`, and the corresponding operators for standard output and standard error to redirect
+input and output.
+-/
 def ofBuffer (r : Ref Buffer) : Stream where
   flush   := pure ()
   read    := fun n => r.modifyGet fun b =>
@@ -1122,7 +1198,10 @@ def ofBuffer (r : Ref Buffer) : Stream where
 
 end Stream
 
-/-- Run action with `stdin` emptied and `stdout+stderr` captured into a `String`. -/
+/--
+Runs an action with `stdin` emptied and `stdout` and `stderr` captured into a `String`. If
+`isolateStderr` is `false`, only `stdout` is captured.
+-/
 def withIsolatedStreams [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (x : m α)
     (isolateStderr := true) : m (String × α) := do
   let bIn ← mkRef { : Stream.Buffer }

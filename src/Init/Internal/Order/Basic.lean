@@ -269,6 +269,9 @@ theorem gfp_fix {f : α → α} {hm : monotone f} :
   apply gfp_prefixed
   exact hm
 
+theorem gfp_coinduction {f : α → α} :
+  x ⊑ f x → x ⊑ gfp f := fun hx => le_sup hx
+
 end lattice_fix
 
 section fix

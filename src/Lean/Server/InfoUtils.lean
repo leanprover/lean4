@@ -444,23 +444,4 @@ partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos) : Option
   -- In the case `f a b`, where `f` is an identifier, the term goal at `f` should be the goal for the full application `f a b`.
   hoverableInfoAt? t hoverPos (includeStop := true) (omitAppFns := true)
 
-partial def InfoTree.hasSorry : InfoTree → IO Bool :=
-  go none
-where go ci?
-  | .context ci t => go (ci.mergeIntoOuter? ci?) t
-  | .node i cs =>
-    match ci?, i with
-    | some ci, .ofTermInfo ti
-    | some ci, .ofDelabTermInfo ti => do
-      -- NOTE: `instantiateMVars` can potentially be expensive but we rely on the elaborator
-      -- creating a fully instantiated `MutualDef.body` term info node which has the implicit effect
-      -- of making the `instantiateMVars` here a no-op and avoids further recursing into the body
-      let expr ← ti.runMetaM ci (instantiateMVars ti.expr)
-      return expr.hasSorry
-      -- we assume that `cs` are subterms of `ti.expr` and
-      -- thus do not have to be checked as well
-    | _, _ =>
-      cs.anyM (go ci?)
-  | _ => return false
-
 end Lean.Elab

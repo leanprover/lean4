@@ -20,7 +20,7 @@ partial def pushProjs (bs : Array FnBody) (alts : Array Alt) (altsF : Array Inde
     let push (x : VarId) :=
         if !ctxF.contains x.idx then
           let alts := alts.mapIdx fun i alt => alt.modifyBody fun b' =>
-             if (altsF.get! i).contains x.idx then b.setBody b'
+             if altsF[i]!.contains x.idx then b.setBody b'
              else b'
           let altsF  := altsF.map fun s => if s.contains x.idx then b.collectFreeIndices s else s
           pushProjs bs alts altsF ctx ctxF

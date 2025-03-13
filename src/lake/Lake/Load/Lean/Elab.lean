@@ -69,6 +69,8 @@ def elabConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
 
   -- Log messages
   for msg in s.commandState.messages.toList do
+    if msg.isSilent then
+      continue
     match msg.severity with
     | MessageSeverity.information => logInfo (← msg.toString)
     | MessageSeverity.warning     => logWarning (← msg.toString)

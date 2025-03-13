@@ -1,8 +1,15 @@
 {"textDocument": {"uri": "file:///completion4.lean"},
  "position": {"line": 7, "character": 4}}
 {"items":
- [{"sortText": "0",
-   "label": "fn1",
+ [{"label": "pred",
+   "kind": 5,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completion4.lean"},
+     "position": {"line": 7, "character": 4}},
+    "id": {"const": {"declName": "S.pred"}},
+    "cPos": 1}},
+  {"label": "fn1",
    "kind": 5,
    "data":
    {"params":
@@ -10,30 +17,27 @@
      "position": {"line": 7, "character": 4}},
     "id": {"const": {"declName": "S.fn1"}},
     "cPos": 1}},
-  {"sortText": "1",
-   "label": "fn2",
+  {"label": "fn2",
    "kind": 5,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completion4.lean"},
      "position": {"line": 7, "character": 4}},
     "id": {"const": {"declName": "S.fn2"}},
-    "cPos": 1}},
-  {"sortText": "2",
-   "label": "pred",
-   "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion4.lean"},
-     "position": {"line": 7, "character": 4}},
-    "id": {"const": {"declName": "S.pred"}},
     "cPos": 1}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///completion4.lean"},
  "position": {"line": 11, "character": 10}}
 {"items":
- [{"sortText": "0",
-   "label": "fn1",
+ [{"label": "pred",
+   "kind": 5,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completion4.lean"},
+     "position": {"line": 11, "character": 10}},
+    "id": {"const": {"declName": "S.pred"}},
+    "cPos": 1}},
+  {"label": "fn1",
    "kind": 5,
    "data":
    {"params":
@@ -41,30 +45,27 @@
      "position": {"line": 11, "character": 10}},
     "id": {"const": {"declName": "S.fn1"}},
     "cPos": 1}},
-  {"sortText": "1",
-   "label": "fn2",
+  {"label": "fn2",
    "kind": 5,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completion4.lean"},
      "position": {"line": 11, "character": 10}},
     "id": {"const": {"declName": "S.fn2"}},
-    "cPos": 1}},
-  {"sortText": "2",
-   "label": "pred",
-   "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion4.lean"},
-     "position": {"line": 11, "character": 10}},
-    "id": {"const": {"declName": "S.pred"}},
     "cPos": 1}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///completion4.lean"},
  "position": {"line": 16, "character": 11}}
 {"items":
- [{"sortText": "0",
-   "label": "fn1",
+ [{"label": "pred",
+   "kind": 5,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completion4.lean"},
+     "position": {"line": 16, "character": 11}},
+    "id": {"const": {"declName": "S.pred"}},
+    "cPos": 1}},
+  {"label": "fn1",
    "kind": 5,
    "data":
    {"params":
@@ -72,30 +73,27 @@
      "position": {"line": 16, "character": 11}},
     "id": {"const": {"declName": "S.fn1"}},
     "cPos": 1}},
-  {"sortText": "1",
-   "label": "fn2",
+  {"label": "fn2",
    "kind": 5,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completion4.lean"},
      "position": {"line": 16, "character": 11}},
     "id": {"const": {"declName": "S.fn2"}},
-    "cPos": 1}},
-  {"sortText": "2",
-   "label": "pred",
-   "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion4.lean"},
-     "position": {"line": 16, "character": 11}},
-    "id": {"const": {"declName": "S.pred"}},
     "cPos": 1}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///completion4.lean"},
  "position": {"line": 20, "character": 21}}
 {"items":
- [{"sortText": "0",
-   "label": "fn1",
+ [{"label": "pred",
+   "kind": 5,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completion4.lean"},
+     "position": {"line": 20, "character": 21}},
+    "id": {"const": {"declName": "S.pred"}},
+    "cPos": 1}},
+  {"label": "fn1",
    "kind": 5,
    "data":
    {"params":
@@ -103,22 +101,12 @@
      "position": {"line": 20, "character": 21}},
     "id": {"const": {"declName": "S.fn1"}},
     "cPos": 1}},
-  {"sortText": "1",
-   "label": "fn2",
+  {"label": "fn2",
    "kind": 5,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completion4.lean"},
      "position": {"line": 20, "character": 21}},
     "id": {"const": {"declName": "S.fn2"}},
-    "cPos": 1}},
-  {"sortText": "2",
-   "label": "pred",
-   "kind": 5,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completion4.lean"},
-     "position": {"line": 20, "character": 21}},
-    "id": {"const": {"declName": "S.pred"}},
     "cPos": 1}}],
- "isIncomplete": true}
+ "isIncomplete": false}

@@ -6,6 +6,7 @@ set_option debug.moduleNameAtTimeout false
 /--
 error: (deterministic) timeout, maximum number of heartbeats (100) has been reached
 Use `set_option maxHeartbeats <num>` to set the limit.
+
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in

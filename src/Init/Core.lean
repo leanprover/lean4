@@ -226,9 +226,9 @@ structure PSigma {α : Sort u} (β : α → Sort v) where
   (This will usually require a type ascription to determine `β`
   since it is not determined from `a` and `b` alone.) -/
   mk ::
-  /-- The first component of a dependent pair. If `p : @Sigma α β` then `p.1 : α`. -/
+  /-- The first component of a dependent pair. If `p : @PSigma α β` then `p.1 : α`. -/
   fst : α
-  /-- The second component of a dependent pair. If `p : Sigma β` then `p.2 : β p.1`. -/
+  /-- The second component of a dependent pair. If `p : PSigma β` then `p.2 : β p.1`. -/
   snd : β fst
 
 /--
@@ -514,10 +514,21 @@ export Singleton (singleton)
 class LawfulSingleton (α : Type u) (β : Type v) [EmptyCollection β] [Insert α β] [Singleton α β] :
     Prop where
   /-- `insert x ∅ = {x}` -/
-  insert_emptyc_eq (x : α) : (insert x ∅ : β) = singleton x
-export LawfulSingleton (insert_emptyc_eq)
+  insert_empty_eq (x : α) : (insert x ∅ : β) = singleton x
+export LawfulSingleton (insert_empty_eq)
 
-attribute [simp] insert_emptyc_eq
+attribute [simp] insert_empty_eq
+
+@[deprecated insert_empty_eq (since := "2025-03-12")]
+theorem insert_emptyc_eq [EmptyCollection β] [Insert α β] [Singleton α β]
+    [LawfulSingleton α β] (x : α) : (insert x ∅ : β) = singleton x :=
+  insert_empty_eq _
+
+@[deprecated insert_empty_eq (since := "2025-03-12")]
+theorem LawfulSingleton.insert_emptyc_eq [EmptyCollection β] [Insert α β] [Singleton α β]
+    [LawfulSingleton α β] (x : α) : (insert x ∅ : β) = singleton x :=
+  insert_empty_eq _
+
 
 /-- Type class used to implement the notation `{ a ∈ c | p a }` -/
 class Sep (α : outParam <| Type u) (γ : Type v) where
@@ -1925,10 +1936,6 @@ protected abbrev recOnSubsingleton₂
 end
 end Quotient
 
-section
-variable {α : Type u}
-variable (r : α → α → Prop)
-
 instance Quotient.decidableEq {α : Sort u} {s : Setoid α} [d : ∀ (a b : α), Decidable (a ≈ b)]
     : DecidableEq (Quotient s) :=
   fun (q₁ q₂ : Quotient s) =>
@@ -2020,7 +2027,7 @@ free variables. The frontend automatically declares a fresh auxiliary constant `
 
 Warning: by using this feature, the Lean compiler and interpreter become part of your trusted code base.
 This is extra 30k lines of code. More importantly, you will probably not be able to check your development using
-external type checkers (e.g., Trepplein) that do not implement this feature.
+external type checkers that do not implement this feature.
 Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
 So, you are mainly losing the capability of type checking your development using external checkers.
 
@@ -2055,7 +2062,7 @@ decidability instance can be evaluated to `true` using the lean compiler / inter
 
 Warning: by using this feature, the Lean compiler and interpreter become part of your trusted code base.
 This is extra 30k lines of code. More importantly, you will probably not be able to check your development using
-external type checkers (e.g., Trepplein) that do not implement this feature.
+external type checkers that do not implement this feature.
 Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
 So, you are mainly losing the capability of type checking your development using external checkers.
 -/
@@ -2066,7 +2073,7 @@ The axiom `ofReduceNat` is used to perform proofs by reflection. See `reduceBool
 
 Warning: by using this feature, the Lean compiler and interpreter become part of your trusted code base.
 This is extra 30k lines of code. More importantly, you will probably not be able to check your development using
-external type checkers (e.g., Trepplein) that do not implement this feature.
+external type checkers that do not implement this feature.
 Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
 So, you are mainly losing the capability of type checking your development using external checkers.
 -/
@@ -2125,7 +2132,7 @@ class LeftIdentity (op : α → β → β) (o : outParam α) : Prop
 `LawfulLeftIdentify op o` indicates `o` is a verified left identity of
 `op`.
 -/
-class LawfulLeftIdentity (op : α → β → β) (o : outParam α) extends LeftIdentity op o : Prop where
+class LawfulLeftIdentity (op : α → β → β) (o : outParam α) : Prop extends LeftIdentity op o where
   /-- Left identity `o` is an identity. -/
   left_id : ∀ a, op o a = a
 
@@ -2141,7 +2148,7 @@ class RightIdentity (op : α → β → α) (o : outParam β) : Prop
 `LawfulRightIdentify op o` indicates `o` is a verified right identity of
 `op`.
 -/
-class LawfulRightIdentity (op : α → β → α) (o : outParam β) extends RightIdentity op o : Prop where
+class LawfulRightIdentity (op : α → β → α) (o : outParam β) : Prop extends RightIdentity op o where
   /-- Right identity `o` is an identity. -/
   right_id : ∀ a, op a o = a
 
@@ -2151,13 +2158,13 @@ class LawfulRightIdentity (op : α → β → α) (o : outParam β) extends Righ
 This class does not require a proof that `o` is an identity, and is used
 primarily for inferring the identity using class resolution.
 -/
-class Identity (op : α → α → α) (o : outParam α) extends LeftIdentity op o, RightIdentity op o : Prop
+class Identity (op : α → α → α) (o : outParam α) : Prop extends LeftIdentity op o, RightIdentity op o
 
 /--
 `LawfulIdentity op o` indicates `o` is a verified left and right
 identity of `op`.
 -/
-class LawfulIdentity (op : α → α → α) (o : outParam α) extends Identity op o, LawfulLeftIdentity op o, LawfulRightIdentity op o : Prop
+class LawfulIdentity (op : α → α → α) (o : outParam α) : Prop extends Identity op o, LawfulLeftIdentity op o, LawfulRightIdentity op o
 
 /--
 `LawfulCommIdentity` can simplify defining instances of `LawfulIdentity`
@@ -2168,7 +2175,7 @@ This class is intended for simplifying defining instances of
 `LawfulIdentity` and functions needed commutative operations with
 identity should just add a `LawfulIdentity` constraint.
 -/
-class LawfulCommIdentity (op : α → α → α) (o : outParam α) [hc : Commutative op] extends LawfulIdentity op o : Prop where
+class LawfulCommIdentity (op : α → α → α) (o : outParam α) [hc : Commutative op] : Prop extends LawfulIdentity op o where
   left_id a := Eq.trans (hc.comm o a) (right_id a)
   right_id a := Eq.trans (hc.comm a o) (left_id a)
 

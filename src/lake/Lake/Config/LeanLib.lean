@@ -101,22 +101,23 @@ Otherwise, falls back to the package's.
   self.config.nativeFacets shouldExport
 
 /--
+The build type for modules of this library.
+That is, the minimum of package's `buildType` and the library's  `buildType`.
+-/
+@[inline] def buildType (self : LeanLib) : BuildType :=
+  min self.pkg.buildType self.config.buildType
+
+/--
 The arguments to pass to `lean --server` when running the Lean language server.
 `serverOptions` is the accumulation of:
+- the build type's `leanOptions`
 - the package's `leanOptions`
 - the package's `moreServerOptions`
 - the library's `leanOptions`
 - the library's `moreServerOptions`
 -/
 @[inline] def serverOptions (self : LeanLib) : Array LeanOption :=
-  self.pkg.moreServerOptions ++ self.config.leanOptions ++ self.config.moreServerOptions
-
-/--
-The build type for modules of this library.
-That is, the minimum of package's `buildType` and the library's  `buildType`.
--/
-@[inline] def buildType (self : LeanLib) : BuildType :=
-  min self.pkg.buildType self.config.buildType
+  self.buildType.leanOptions ++ self.pkg.moreServerOptions ++ self.config.leanOptions ++ self.config.moreServerOptions
 
 /--
 The backend type for modules of this library.
@@ -143,13 +144,14 @@ The targets of the package plus the targets of the library (in that order).
 /--
 The arguments to pass to `lean` when compiling the library's Lean files.
 `leanArgs` is the accumulation of:
+- the build type's `leanArgs`
 - the package's `leanOptions`
 - the package's `moreLeanArgs`
 - the library's `leanOptions`
 - the library's `moreLeanArgs`
 -/
 @[inline] def leanArgs (self : LeanLib) : Array String :=
-  self.pkg.moreLeanArgs ++ self.config.leanOptions.map (·.asCliArg) ++ self.config.moreLeanArgs
+  self.buildType.leanArgs ++ self.pkg.moreLeanArgs ++ self.config.leanOptions.map (·.asCliArg) ++ self.config.moreLeanArgs
 
 /--
 The arguments to weakly pass to `lean` when compiling the library's Lean files.

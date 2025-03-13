@@ -122,6 +122,8 @@ example : Vector Nat :=
 
 Every file should start with a copyright header, imports (in the standard library, this always includes a `prelude` declaration) and a module documentation string. There should not be a blank line between the copyright header and the imports. There should be a blank line between the imports and the module documentation string.
 
+If you explicitly declare universe variables, do so at the top of the file, after the module documentation.
+
 Correct:
 ```lean
 /-
@@ -137,6 +139,8 @@ import Init.Data.List.Find
 /-!
 **# Lemmas about `List.eraseP` and `List.erase`.**
 -/
+
+universe u u'
 ```
 
 Syntax that is not supposed to be user-facing must be scoped. New public syntax must always be discussed explicitly in an RFC.
@@ -285,6 +289,15 @@ structure Iterator where
 deriving Inhabited
 ```
 
+## Notation and Unicode
+
+We generally prefer to use notation as available. We usually prefer the Unicode versions of notations over non-Unicode alternatives.
+
+There are some rules and exceptions regarding specific notations which are listed below:
+
+* Sigma types: use `(a : α) × β a` instead of `Σ a, β a` or `Sigma β`.
+* Function arrows: use `fun a => f x` instead of `fun x ↦ f x` or `λ x => f x` or any other variant.
+
 ## Language constructs
 
 ### Pattern matching, induction etc.
@@ -402,6 +415,35 @@ instance [Inhabited α] : Inhabited (Descr α β σ) where
     toOLeanEntry := default
     addEntry     := fun s _ => s
   }
+```
+
+### Declaring structures
+
+When defining structure types, do not parenthesize structure fields.
+
+When declaring a structure type with a custom constructor name, put the custom name on its own line, indented like the
+structure fields, and add a documentation comment.
+
+Correct:
+
+```lean
+/--
+A bitvector of the specified width.
+
+This is represented as the underlying `Nat` number in both the runtime
+and the kernel, inheriting all the special support for `Nat`.
+-/
+structure BitVec (w : Nat) where
+  /--
+  Constructs a `BitVec w` from a number less than `2^w`.
+  O(1), because we use `Fin` as the internal representation of a bitvector.
+  -/
+  ofFin ::
+  /--
+  Interprets a bitvector as a number less than `2^w`.
+  O(1), because we use `Fin` as the internal representation of a bitvector.
+  -/
+  toFin : Fin (2 ^ w)
 ```
 
 ## Tactic proofs

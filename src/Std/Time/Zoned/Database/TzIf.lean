@@ -243,7 +243,7 @@ private def parseAbbreviations (times : Array LocalTimeType) (n : UInt32) : Pars
 
   for time in times do
     for indx in [time.abbreviationIndex.toNat:n.toNat] do
-      let char := chars.get! indx
+      let char := chars[indx]!
       if char = 0 then
         strings := strings.push current
         current := ""

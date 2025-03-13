@@ -22,11 +22,11 @@ example (as bs : Array α) (v : α)
 
 set_option trace.grind.ematch.instance true
 
-attribute [grind =] Array.get_set_ne
+attribute [grind =] Array.getElem_set_ne
 
 /--
 info: [grind.ematch.instance] Array.size_set: (as.set i v ⋯).size = as.size
-[grind.ematch.instance] Array.get_set_ne: ∀ (hj : j < as.size), i ≠ j → (as.set i v ⋯)[j] = as[j]
+[grind.ematch.instance] Array.getElem_set_ne: ∀ (pj : j < as.size), i ≠ j → (as.set i v ⋯)[j] = as[j]
 -/
 #guard_msgs (info) in
 example (as bs cs : Array α) (v : α)

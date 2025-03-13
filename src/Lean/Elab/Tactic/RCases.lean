@@ -545,8 +545,9 @@ def rintro (pats : TSyntaxArray `rintroPat) (ty? : Option Term)
     let pat ← match pat? with
       | some pat => RCasesPatt.parse pat
       | none     => pure $ RCasesPatt.tuple tk []
-    let tgts := tgts.getElems.map fun tgt =>
-      (if tgt.raw[0].isNone then none else some ⟨tgt.raw[0][0]⟩, tgt.raw[1])
+    let tgts ← tgts.getElems.mapM fun tgt => do
+      let view ← mkTargetView tgt
+      pure (view.hIdent?, view.term)
     let g ← getMainGoal
     g.withContext do replaceMainGoal (← RCases.rcases tgts pat g)
   | _ => throwUnsupportedSyntax

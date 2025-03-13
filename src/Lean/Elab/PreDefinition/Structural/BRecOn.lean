@@ -155,7 +155,8 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
               try toBelow below recArgInfo.indGroupInst.params.size positions fnIdx recArg
               catch _ => throwError "failed to eliminate recursive application{indentExpr e}"
             -- We don't pass the fixed parameters, the indices and the major arg to `f`, only the rest
-            let (_, fArgs) := recArgInfo.pickIndicesMajor args[recArgInfo.numFixed:]
+            let ys := recArgInfo.fixedParamPerm.pickVarying args
+            let (_, fArgs) := recArgInfo.pickIndicesMajor ys
             let fArgs ← fArgs.mapM (replaceRecApps recArgInfos positions below ·)
             return mkAppN f fArgs
           else

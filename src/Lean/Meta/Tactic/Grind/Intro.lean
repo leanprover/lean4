@@ -24,6 +24,14 @@ private inductive IntroResult where
   deriving Inhabited
 
 /--
+Returns `true` if `e` is marked with the `alreadyNorm` gadget.
+See `alreadyNorm` documentation for additional details
+-/
+private def isAlreadyNorm? (e : Expr) : Option Expr :=
+  let_expr Lean.Grind.alreadyNorm c := e | none
+  some c
+
+/--
 Similar to `Grind.preprocess`, but does not simplify `e` if
 `isMatchCondCandidate` (aka `Simp.isEqnThmHypothesis`) is `true`.
 We added this feature because it may be coming from external sources
@@ -31,13 +39,15 @@ We added this feature because it may be coming from external sources
 -/
 private def preprocessHypothesis (e : Expr) : GoalM Simp.Result := do
   if isMatchCondCandidate e then
-    preprocess (markAsMatchCond e)
+    preprocess (markAsPreMatchCond e)
+  else if let some c := isAlreadyNorm? e then
+    let c ← shareCommon (← canon c)
+    return { expr := c }
   else
     preprocess e
 
 /--
 Helper function for `mkCleanName`.
-Creates a base name for creating a clean name for `name`.
 It ensures base name is a simple `Name` and does not have a `_<idx>` suffix
 -/
 private def mkBaseName (name : Name) (type : Expr) : MetaM Name := do
@@ -141,7 +151,11 @@ private def isEagerCasesCandidate (goal : Goal) (type : Expr) : Bool := Id.run d
   return goal.split.casesTypes.isEagerSplit declName
 
 private def applyCases? (goal : Goal) (fvarId : FVarId) : GrindM (Option (List Goal)) := goal.mvarId.withContext do
-  let type ← whnfD (← fvarId.getType)
+  /-
+  Remark: we used to use `whnfD`. This was a mistake, we don't want to unfold user-defined abstractions.
+  Example: `a ∣ b` is defined as `∃ x, b = a * x`
+  -/
+  let type ← whnf (← fvarId.getType)
   if isEagerCasesCandidate goal type then
     if let .const declName _ := type.getAppFn then
       saveCases declName true
@@ -200,9 +214,9 @@ def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : GrindTactic' := f
 
 /-- Asserts next fact in the `goal` fact queue. -/
 def assertNext : GrindTactic := fun goal => do
-  let some (fact, newFacts) := goal.newFacts.dequeue?
+  let some (fact, newRawFacts) := goal.newRawFacts.dequeue?
     | return none
-  assertAt fact.proof fact.prop fact.generation { goal with newFacts }
+  assertAt fact.proof fact.prop fact.generation { goal with newRawFacts }
 
 /-- Asserts all facts in the `goal` fact queue. -/
 partial def assertAll : GrindTactic :=

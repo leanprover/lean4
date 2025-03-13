@@ -1,3 +1,4 @@
 forErrors.lean:3:29-3:30: error: failed to synthesize
   ToStream α ?m
+
 Additional diagnostic information may be available using the `set_option diagnostics true` command.

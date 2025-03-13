@@ -17,7 +17,7 @@ def elabInfoTrees : CommandElab
       logError "Info trees are disabled, can not use `#info_trees`."
     else
       elabCommand cmd
-      let infoTrees ← getInfoTrees
+      let infoTrees := (← getInfoState).substituteLazy.get.trees
       for t in infoTrees do
         logInfoAt tk (← t.format)
   | _ => throwUnsupportedSyntax

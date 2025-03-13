@@ -77,6 +77,9 @@ Obtain the `BitVec` that contains the 2's complement representation of the `Int8
 -/
 @[inline] def Int8.toBitVec (x : Int8) : BitVec 8 := x.toUInt8.toBitVec
 
+theorem Int8.toBitVec.inj : {x y : Int8} → x.toBitVec = y.toBitVec → x = y
+  | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
+
 /-- Obtains the `Int8` that is 2's complement equivalent to the `UInt8`. -/
 @[inline] def UInt8.toInt8 (i : UInt8) : Int8 := Int8.ofUInt8 i
 @[inline, deprecated UInt8.toInt8 (since := "2025-02-13"), inherit_doc UInt8.toInt8]
@@ -103,9 +106,15 @@ def Int8.neg (i : Int8) : Int8 := ⟨⟨-i.toBitVec⟩⟩
 
 instance : ToString Int8 where
   toString i := toString i.toInt
+instance : Repr Int8 where
+  reprPrec i prec := reprPrec i.toInt prec
+instance : ReprAtom Int8 := ⟨⟩
 
-instance : OfNat Int8 n := ⟨Int8.ofNat n⟩
-instance : Neg Int8 where
+instance : Hashable Int8 where
+  hash i := i.toUInt8.toUInt64
+
+instance Int8.instOfNat : OfNat Int8 n := ⟨Int8.ofNat n⟩
+instance Int8.instNeg : Neg Int8 where
   neg := Int8.neg
 
 /-- The maximum value an `Int8` may attain, that is, `2^7 - 1 = 127`. -/
@@ -148,6 +157,10 @@ def Int8.shiftLeft (a b : Int8) : Int8 := ⟨⟨a.toBitVec <<< (b.toBitVec.smod 
 def Int8.shiftRight (a b : Int8) : Int8 := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod 8)⟩⟩
 @[extern "lean_int8_complement"]
 def Int8.complement (a : Int8) : Int8 := ⟨⟨~~~a.toBitVec⟩⟩
+/-- Computes the absolute value of the signed integer. This function is equivalent to
+`if a < 0 then -a else a`, so in particular `Int8.minValue` will be mapped to `Int8.minValue`. -/
+@[extern "lean_int8_abs"]
+def Int8.abs (a : Int8) : Int8 := ⟨⟨a.toBitVec.abs⟩⟩
 
 @[extern "lean_int8_dec_eq"]
 def Int8.decEq (a b : Int8) : Decidable (a = b) :=
@@ -179,6 +192,9 @@ instance : ShiftLeft Int8   := ⟨Int8.shiftLeft⟩
 instance : ShiftRight Int8  := ⟨Int8.shiftRight⟩
 instance : DecidableEq Int8 := Int8.decEq
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_int8"]
 def Bool.toInt8 (b : Bool) : Int8 := if b then 1 else 0
 
@@ -202,6 +218,9 @@ abbrev Int16.size : Nat := 65536
 Obtain the `BitVec` that contains the 2's complement representation of the `Int16`.
 -/
 @[inline] def Int16.toBitVec (x : Int16) : BitVec 16 := x.toUInt16.toBitVec
+
+theorem Int16.toBitVec.inj : {x y : Int16} → x.toBitVec = y.toBitVec → x = y
+  | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
 
 /-- Obtains the `Int16` that is 2's complement equivalent to the `UInt16`. -/
 @[inline] def UInt16.toInt16 (i : UInt16) : Int16 := Int16.ofUInt16 i
@@ -233,9 +252,15 @@ def Int16.neg (i : Int16) : Int16 := ⟨⟨-i.toBitVec⟩⟩
 
 instance : ToString Int16 where
   toString i := toString i.toInt
+instance : Repr Int16 where
+  reprPrec i prec := reprPrec i.toInt prec
+instance : ReprAtom Int16 := ⟨⟩
 
-instance : OfNat Int16 n := ⟨Int16.ofNat n⟩
-instance : Neg Int16 where
+instance : Hashable Int16 where
+  hash i := i.toUInt16.toUInt64
+
+instance Int16.instOfNat : OfNat Int16 n := ⟨Int16.ofNat n⟩
+instance Int16.instNeg : Neg Int16 where
   neg := Int16.neg
 
 /-- The maximum value an `Int16` may attain, that is, `2^15 - 1 = 32767`. -/
@@ -278,6 +303,10 @@ def Int16.shiftLeft (a b : Int16) : Int16 := ⟨⟨a.toBitVec <<< (b.toBitVec.sm
 def Int16.shiftRight (a b : Int16) : Int16 := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod 16)⟩⟩
 @[extern "lean_int16_complement"]
 def Int16.complement (a : Int16) : Int16 := ⟨⟨~~~a.toBitVec⟩⟩
+/-- Computes the absolute value of the signed integer. This function is equivalent to
+`if a < 0 then -a else a`, so in particular `Int16.minValue` will be mapped to `Int16.minValue`. -/
+@[extern "lean_int16_abs"]
+def Int16.abs (a : Int16) : Int16 := ⟨⟨a.toBitVec.abs⟩⟩
 
 @[extern "lean_int16_dec_eq"]
 def Int16.decEq (a b : Int16) : Decidable (a = b) :=
@@ -309,6 +338,9 @@ instance : ShiftLeft Int16   := ⟨Int16.shiftLeft⟩
 instance : ShiftRight Int16  := ⟨Int16.shiftRight⟩
 instance : DecidableEq Int16 := Int16.decEq
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_int16"]
 def Bool.toInt16 (b : Bool) : Int16 := if b then 1 else 0
 
@@ -332,6 +364,9 @@ abbrev Int32.size : Nat := 4294967296
 Obtain the `BitVec` that contains the 2's complement representation of the `Int32`.
 -/
 @[inline] def Int32.toBitVec (x : Int32) : BitVec 32 := x.toUInt32.toBitVec
+
+theorem Int32.toBitVec.inj : {x y : Int32} → x.toBitVec = y.toBitVec → x = y
+  | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
 
 /-- Obtains the `Int32` that is 2's complement equivalent to the `UInt32`. -/
 @[inline] def UInt32.toInt32 (i : UInt32) : Int32 := Int32.ofUInt32 i
@@ -367,9 +402,15 @@ def Int32.neg (i : Int32) : Int32 := ⟨⟨-i.toBitVec⟩⟩
 
 instance : ToString Int32 where
   toString i := toString i.toInt
+instance : Repr Int32 where
+  reprPrec i prec := reprPrec i.toInt prec
+instance : ReprAtom Int32 := ⟨⟩
 
-instance : OfNat Int32 n := ⟨Int32.ofNat n⟩
-instance : Neg Int32 where
+instance : Hashable Int32 where
+  hash i := i.toUInt32.toUInt64
+
+instance Int32.instOfNat : OfNat Int32 n := ⟨Int32.ofNat n⟩
+instance Int32.instNeg : Neg Int32 where
   neg := Int32.neg
 
 /-- The maximum value an `Int32` may attain, that is, `2^31 - 1 = 2147483647`. -/
@@ -412,6 +453,10 @@ def Int32.shiftLeft (a b : Int32) : Int32 := ⟨⟨a.toBitVec <<< (b.toBitVec.sm
 def Int32.shiftRight (a b : Int32) : Int32 := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod 32)⟩⟩
 @[extern "lean_int32_complement"]
 def Int32.complement (a : Int32) : Int32 := ⟨⟨~~~a.toBitVec⟩⟩
+/-- Computes the absolute value of the signed integer. This function is equivalent to
+`if a < 0 then -a else a`, so in particular `Int32.minValue` will be mapped to `Int32.minValue`. -/
+@[extern "lean_int32_abs"]
+def Int32.abs (a : Int32) : Int32 := ⟨⟨a.toBitVec.abs⟩⟩
 
 @[extern "lean_int32_dec_eq"]
 def Int32.decEq (a b : Int32) : Decidable (a = b) :=
@@ -443,6 +488,9 @@ instance : ShiftLeft Int32   := ⟨Int32.shiftLeft⟩
 instance : ShiftRight Int32  := ⟨Int32.shiftRight⟩
 instance : DecidableEq Int32 := Int32.decEq
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_int32"]
 def Bool.toInt32 (b : Bool) : Int32 := if b then 1 else 0
 
@@ -466,6 +514,9 @@ abbrev Int64.size : Nat := 18446744073709551616
 Obtain the `BitVec` that contains the 2's complement representation of the `Int64`.
 -/
 @[inline] def Int64.toBitVec (x : Int64) : BitVec 64 := x.toUInt64.toBitVec
+
+theorem Int64.toBitVec.inj : {x y : Int64} → x.toBitVec = y.toBitVec → x = y
+  | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
 
 /-- Obtains the `Int64` that is 2's complement equivalent to the `UInt64`. -/
 @[inline] def UInt64.toInt64 (i : UInt64) : Int64 := Int64.ofUInt64 i
@@ -505,9 +556,15 @@ def Int64.neg (i : Int64) : Int64 := ⟨⟨-i.toBitVec⟩⟩
 
 instance : ToString Int64 where
   toString i := toString i.toInt
+instance : Repr Int64 where
+  reprPrec i prec := reprPrec i.toInt prec
+instance : ReprAtom Int64 := ⟨⟩
 
-instance : OfNat Int64 n := ⟨Int64.ofNat n⟩
-instance : Neg Int64 where
+instance : Hashable Int64 where
+  hash i := i.toUInt64
+
+instance Int64.instOfNat : OfNat Int64 n := ⟨Int64.ofNat n⟩
+instance Int64.instNeg : Neg Int64 where
   neg := Int64.neg
 
 /-- The maximum value an `Int64` may attain, that is, `2^63 - 1 = 9223372036854775807`. -/
@@ -550,6 +607,10 @@ def Int64.shiftLeft (a b : Int64) : Int64 := ⟨⟨a.toBitVec <<< (b.toBitVec.sm
 def Int64.shiftRight (a b : Int64) : Int64 := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod 64)⟩⟩
 @[extern "lean_int64_complement"]
 def Int64.complement (a : Int64) : Int64 := ⟨⟨~~~a.toBitVec⟩⟩
+/-- Computes the absolute value of the signed integer. This function is equivalent to
+`if a < 0 then -a else a`, so in particular `Int64.minValue` will be mapped to `Int64.minValue`. -/
+@[extern "lean_int64_abs"]
+def Int64.abs (a : Int64) : Int64 := ⟨⟨a.toBitVec.abs⟩⟩
 
 @[extern "lean_int64_dec_eq"]
 def Int64.decEq (a b : Int64) : Decidable (a = b) :=
@@ -581,6 +642,9 @@ instance : ShiftLeft Int64   := ⟨Int64.shiftLeft⟩
 instance : ShiftRight Int64  := ⟨Int64.shiftRight⟩
 instance : DecidableEq Int64 := Int64.decEq
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_int64"]
 def Bool.toInt64 (b : Bool) : Int64 := if b then 1 else 0
 
@@ -604,6 +668,9 @@ abbrev ISize.size : Nat := 2^System.Platform.numBits
 Obtain the `BitVec` that contains the 2's complement representation of the `ISize`.
 -/
 @[inline] def ISize.toBitVec (x : ISize) : BitVec System.Platform.numBits := x.toUSize.toBitVec
+
+theorem ISize.toBitVec.inj : {x y : ISize} → x.toBitVec = y.toBitVec → x = y
+  | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
 
 /-- Obtains the `ISize` that is 2's complement equivalent to the `USize`. -/
 @[inline] def USize.toISize (i : USize) : ISize := ISize.ofUSize i
@@ -653,16 +720,21 @@ def ISize.neg (i : ISize) : ISize := ⟨⟨-i.toBitVec⟩⟩
 
 instance : ToString ISize where
   toString i := toString i.toInt
+instance : Repr ISize where
+  reprPrec i prec := reprPrec i.toInt prec
+instance : ReprAtom ISize := ⟨⟩
 
-instance : OfNat ISize n := ⟨ISize.ofNat n⟩
-instance : Neg ISize where
+instance : Hashable ISize where
+  hash i := i.toUSize.toUInt64
+
+instance ISize.instOfNat : OfNat ISize n := ⟨ISize.ofNat n⟩
+instance ISize.instNeg : Neg ISize where
   neg := ISize.neg
 
 /-- The maximum value an `ISize` may attain, that is, `2^(System.Platform.numBits - 1) - 1`. -/
 abbrev ISize.maxValue : ISize := .ofInt (2 ^ (System.Platform.numBits - 1) - 1)
--- 9223372036854775807
 /-- The minimum value an `ISize` may attain, that is, `-2^(System.Platform.numBits - 1)`. -/
-abbrev ISize.minValue : ISize := .ofInt (2 ^ (System.Platform.numBits - 1))
+abbrev ISize.minValue : ISize := .ofInt (-2 ^ (System.Platform.numBits - 1))
 
 /-- Constructs an `ISize` from an `Int` which is known to be in bounds. -/
 @[inline]
@@ -700,6 +772,10 @@ def ISize.shiftLeft (a b : ISize) : ISize := ⟨⟨a.toBitVec <<< (b.toBitVec.sm
 def ISize.shiftRight (a b : ISize) : ISize := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod System.Platform.numBits)⟩⟩
 @[extern "lean_isize_complement"]
 def ISize.complement (a : ISize) : ISize := ⟨⟨~~~a.toBitVec⟩⟩
+/-- Computes the absolute value of the signed integer. This function is equivalent to
+`if a < 0 then -a else a`, so in particular `ISize.minValue` will be mapped to `ISize.minValue`. -/
+@[extern "lean_isize_abs"]
+def ISize.abs (a : ISize) : ISize := ⟨⟨a.toBitVec.abs⟩⟩
 
 @[extern "lean_isize_dec_eq"]
 def ISize.decEq (a b : ISize) : Decidable (a = b) :=
@@ -731,6 +807,9 @@ instance : ShiftLeft ISize   := ⟨ISize.shiftLeft⟩
 instance : ShiftRight ISize  := ⟨ISize.shiftRight⟩
 instance : DecidableEq ISize := ISize.decEq
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_isize"]
 def Bool.toISize (b : Bool) : ISize := if b then 1 else 0
 

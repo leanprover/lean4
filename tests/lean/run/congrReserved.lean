@@ -1,16 +1,16 @@
 import Lean
 
 /--
-info: Vector.extract.hcongr_5.{u_1} (α α' : Type u_1) (e_1 : α = α') (n n' : Nat) (e_2 : n = n') (v : Vector α n)
-  (v' : Vector α' n') (e_3 : HEq v v') (start start' : Nat) (e_4 : start = start') (stop stop' : Nat)
-  (e_5 : stop = stop') : HEq (v.extract start stop) (v'.extract start' stop')
+info: Vector.extract.hcongr_5.{u_1} (α α' : Type u_1) (e_1 : α = α') (n n' : Nat) (e_2 : n = n') (xs : Vector α n)
+  (xs' : Vector α' n') (e_3 : HEq xs xs') (start start' : Nat) (e_4 : start = start') (stop stop' : Nat)
+  (e_5 : stop = stop') : HEq (xs.extract start stop) (xs'.extract start' stop')
 -/
 #guard_msgs in
 #check Vector.extract.hcongr_5
 
 /--
-info: Vector.extract.congr_simp.{u_1} {α : Type u_1} {n : Nat} (v v✝ : Vector α n) (e_v : v = v✝) (start stop : Nat) :
-  v.extract start stop = v✝.extract start stop
+info: Vector.extract.congr_simp.{u_1} {α : Type u_1} {n : Nat} (xs xs✝ : Vector α n) (e_xs : xs = xs✝) (start stop : Nat) :
+  xs.extract start stop = xs✝.extract start stop
 -/
 #guard_msgs in
 #check Vector.extract.congr_simp

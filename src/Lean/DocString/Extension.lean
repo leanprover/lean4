@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.DeclarationRange
+import Lean.DocString.Links
 import Lean.MonadEnv
 import Init.Data.String.Extra
 
@@ -18,17 +19,23 @@ namespace Lean
 private builtin_initialize builtinDocStrings : IO.Ref (NameMap String) ← IO.mkRef {}
 builtin_initialize docStringExt : MapDeclarationExtension String ← mkMapDeclarationExtension
 
-def addBuiltinDocString (declName : Name) (docString : String) : IO Unit :=
+/--
+Adds a builtin docstring to the compiler.
+
+Links to the Lean manual aren't validated.
+-/
+-- See the test `lean/run/docstringRewrites.lean` for the validation of builtin docstring links
+def addBuiltinDocString (declName : Name) (docString : String) : IO Unit := do
   builtinDocStrings.modify (·.insert declName docString.removeLeadingSpaces)
 
-def addDocString [Monad m] [MonadError m] [MonadEnv m] (declName : Name) (docString : String) : m Unit := do
+def addDocStringCore [Monad m] [MonadError m] [MonadEnv m] (declName : Name) (docString : String) : m Unit := do
   unless (← getEnv).getModuleIdxFor? declName |>.isNone do
     throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
   modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
 
-def addDocString' [Monad m] [MonadError m] [MonadEnv m] (declName : Name) (docString? : Option String) : m Unit :=
+def addDocStringCore' [Monad m] [MonadError m] [MonadEnv m] (declName : Name) (docString? : Option String) : m Unit :=
   match docString? with
-  | some docString => addDocString declName docString
+  | some docString => addDocStringCore declName docString
   | none => return ()
 
 /--

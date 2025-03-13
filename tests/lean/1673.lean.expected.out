@@ -4,7 +4,7 @@ with errors
 failed to infer structural recursion:
 Not considering parameter n of foo.a:
   it is unchanged in the recursive calls
-Not considering parameter nope of foo.a:
+Not considering parameter #2 of foo.a:
   it is unchanged in the recursive calls
 no parameters suitable for structural recursion
 

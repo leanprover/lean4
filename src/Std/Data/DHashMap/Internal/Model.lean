@@ -197,7 +197,7 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
     (hg : ∀ {l l'}, Perm (g (l ++ l')) (g l ++ g l')) :
     Perm (toListModel (updateAllBuckets m.1.buckets f)) (g (toListModel m.1.2)) := by
   have hg₀ : g [] = [] := by
-    rw [← List.length_eq_zero]
+    rw [← List.length_eq_zero_iff]
     have := (hg (l := []) (l' := [])).length_eq
     rw [List.length_append, List.append_nil] at this
     omega

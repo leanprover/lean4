@@ -20,7 +20,7 @@ def sortExprs (es : Array Expr) (lt := true) : Array Expr × Perm :=
     es.qsort fun (e₁, _) (e₂, _) => e₁.lt e₂
   else
     es.qsort fun (e₁, _) (e₂, _) => e₂.lt e₁
-  let (_, perm) := es.foldl (init := (0, Std.HashMap.empty)) fun (i, perm) (_, j) => (i+1, perm.insert j i)
+  let (_, perm) := es.foldl (init := (0, ∅)) fun (i, perm) (_, j) => (i+1, perm.insert j i)
   let es := es.map (·.1)
   (es, perm)
 

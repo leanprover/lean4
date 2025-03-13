@@ -6,6 +6,7 @@ Authors: Henrik Böving
 prelude
 import Lean.Elab.Tactic.FalseOrByContra
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Simproc
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Rewrite
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AndFlatten
@@ -56,6 +57,22 @@ where
     if cfg.structures || cfg.enums then
       g := (← typeAnalysisPass.run g).get!
 
+    /-
+    There is a tension between the structures and enums pass at play:
+    1. Enums should run before structures as it could convert matches on enums into `cond`
+       chains. This in turn can be used by the structures pass to float projections into control
+       flow which might be necessary.
+    2. Structures should run before enums as it could reveal new facts about enums that we might
+       need to handle. For example a structure might contain a field that contains a fact about
+       some enum. This fact needs to be processed properly by the enums pass
+
+    To resolve this tension we do the following:
+    1. Run the structures pass (if enabled)
+    2. Run the enums pass (if enabled)
+    3. Within the enums pass we rerun the part of the structures pass that could profit from the
+       enums pass as described above. This comes down to adding a few more lemmas to a simp
+       invocation that is going to happen in the enums pass anyway and should thus be cheap.
+    -/
     if cfg.structures then
       let some g' ← structuresPass.run g | return none
       g := g'

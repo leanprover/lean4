@@ -161,6 +161,7 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
     if compile && shouldGenCodeFor preDef then
       compileDecl decl
     if applyAttrAfterCompilation then
+      enableRealizationsForConst preDef.declName
       generateEagerEqns preDef.declName
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 

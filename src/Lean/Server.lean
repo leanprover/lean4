@@ -9,3 +9,4 @@ import Lean.Server.Watchdog
 import Lean.Server.FileWorker
 import Lean.Server.Rpc
 import Lean.Server.CodeActions
+import Lean.Server.Test

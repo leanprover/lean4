@@ -417,7 +417,7 @@ def mkHCongrWithArityForConst? (declName : Name) (levels : List Level) (numArgs 
       executeReservedNameAction thmName
     let proof := mkConst thmName levels
     let type ← inferType proof
-    let some argKinds := congrKindsExt.getState (← getEnv) |>.find? thmName
+    let some argKinds := congrKindsExt.find? (← getEnv) thmName
       | unreachable!
     return some { proof, type, argKinds }
   catch _ =>
@@ -434,7 +434,7 @@ def mkCongrSimpForConst? (declName : Name) (levels : List Level) : MetaM (Option
       executeReservedNameAction thmName
     let proof := mkConst thmName levels
     let type ← inferType proof
-    let some argKinds := congrKindsExt.getState (← getEnv) |>.find? thmName
+    let some argKinds := congrKindsExt.find? (← getEnv) thmName
       | unreachable!
     return some { proof, type, argKinds }
   catch _ =>

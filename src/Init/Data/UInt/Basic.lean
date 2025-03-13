@@ -65,6 +65,9 @@ instance : Xor UInt8       := ⟨UInt8.xor⟩
 instance : ShiftLeft UInt8  := ⟨UInt8.shiftLeft⟩
 instance : ShiftRight UInt8 := ⟨UInt8.shiftRight⟩
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_uint8"]
 def Bool.toUInt8 (b : Bool) : UInt8 := if b then 1 else 0
 
@@ -137,6 +140,9 @@ instance : Xor UInt16       := ⟨UInt16.xor⟩
 instance : ShiftLeft UInt16  := ⟨UInt16.shiftLeft⟩
 instance : ShiftRight UInt16 := ⟨UInt16.shiftRight⟩
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_uint16"]
 def Bool.toUInt16 (b : Bool) : UInt16 := if b then 1 else 0
 
@@ -211,6 +217,9 @@ instance : Xor UInt32       := ⟨UInt32.xor⟩
 instance : ShiftLeft UInt32  := ⟨UInt32.shiftLeft⟩
 instance : ShiftRight UInt32 := ⟨UInt32.shiftRight⟩
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_uint32"]
 def Bool.toUInt32 (b : Bool) : UInt32 := if b then 1 else 0
 
@@ -270,6 +279,9 @@ instance : Xor UInt64       := ⟨UInt64.xor⟩
 instance : ShiftLeft UInt64  := ⟨UInt64.shiftLeft⟩
 instance : ShiftRight UInt64 := ⟨UInt64.shiftRight⟩
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_uint64"]
 def Bool.toUInt64 (b : Bool) : UInt64 := if b then 1 else 0
 
@@ -295,11 +307,16 @@ def USize.mk (bitVec : BitVec System.Platform.numBits) : USize :=
 def USize.ofNatCore (n : Nat) (h : n < USize.size) : USize :=
   USize.ofNatLT n h
 
-theorem usize_size_le : USize.size ≤ 18446744073709551616 := by
-  cases usize_size_eq <;> next h => rw [h]; decide
+@[simp] theorem USize.le_size : 2 ^ 32 ≤ USize.size := by cases USize.size_eq <;> simp_all
+@[simp] theorem USize.size_le : USize.size ≤ 2 ^ 64 := by cases USize.size_eq <;> simp_all
 
-theorem le_usize_size : 4294967296 ≤ USize.size := by
-  cases usize_size_eq <;> next h => rw [h]; decide
+@[deprecated USize.size_le (since := "2025-02-24")]
+theorem usize_size_le : USize.size ≤ 18446744073709551616 :=
+  USize.size_le
+
+@[deprecated USize.le_size (since := "2025-02-24")]
+theorem le_usize_size : 4294967296 ≤ USize.size :=
+  USize.le_size
 
 @[extern "lean_usize_mul"]
 def USize.mul (a b : USize) : USize := ⟨a.toBitVec * b.toBitVec⟩
@@ -326,7 +343,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_of_nat"]
 def USize.ofNat32 (n : @& Nat) (h : n < 4294967296) : USize :=
-  USize.ofNatLT n (Nat.lt_of_lt_of_le h le_usize_size)
+  USize.ofNatLT n (Nat.lt_of_lt_of_le h USize.le_size)
 @[extern "lean_uint8_to_usize"]
 def UInt8.toUSize (a : UInt8) : USize :=
   USize.ofNat32 a.toBitVec.toNat (Nat.lt_trans a.toBitVec.isLt (by decide))
@@ -351,7 +368,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_to_uint64"]
 def USize.toUInt64 (a : USize) : UInt64 :=
-  UInt64.ofNatLT a.toBitVec.toNat (Nat.lt_of_lt_of_le a.toBitVec.isLt usize_size_le)
+  UInt64.ofNatLT a.toBitVec.toNat (Nat.lt_of_lt_of_le a.toBitVec.isLt USize.size_le)
 
 instance : Mul USize       := ⟨USize.mul⟩
 instance : Mod USize       := ⟨USize.mod⟩
@@ -371,6 +388,9 @@ instance : Xor USize        := ⟨USize.xor⟩
 instance : ShiftLeft USize  := ⟨USize.shiftLeft⟩
 instance : ShiftRight USize := ⟨USize.shiftRight⟩
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_usize"]
 def Bool.toUSize (b : Bool) : USize := if b then 1 else 0
 

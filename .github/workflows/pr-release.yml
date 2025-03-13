@@ -34,7 +34,7 @@ jobs:
       - name: Download artifact from the previous workflow.
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: download-artifact
-        uses: dawidd6/action-download-artifact@v8 # https://github.com/marketplace/actions/download-workflow-artifact
+        uses: dawidd6/action-download-artifact@v9 # https://github.com/marketplace/actions/download-workflow-artifact
         with:
           run_id: ${{ github.event.workflow_run.id }}
           path: artifacts
@@ -155,6 +155,20 @@ jobs:
           fi
 
           if [[ -n "$MESSAGE" ]]; then
+            # Check if force-mathlib-ci label is present
+            LABELS="$(curl --retry 3 --location --silent \
+                          -H "Authorization: token ${{ secrets.MATHLIB4_COMMENT_BOT }}" \
+                          -H "Accept: application/vnd.github.v3+json" \
+                          "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/labels" \
+                          | jq -r '.[].name')"
+            
+            if echo "$LABELS" | grep -q "^force-mathlib-ci$"; then
+              echo "force-mathlib-ci label detected, forcing CI despite issues"
+              MESSAGE="Forcing Mathlib CI because the \`force-mathlib-ci\` label is present, despite problem: $MESSAGE"
+              FORCE_CI=true
+            else
+              MESSAGE="$MESSAGE You can force Mathlib CI using the \`force-mathlib-ci\` label."
+            fi
 
             echo "Checking existing messages"
 
@@ -201,7 +215,12 @@ jobs:
             else
               echo "The message already exists in the comment body."
             fi
-            echo "mathlib_ready=false" >> "$GITHUB_OUTPUT"
+
+            if [[ "$FORCE_CI" == "true" ]]; then
+              echo "mathlib_ready=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "mathlib_ready=false" >> "$GITHUB_OUTPUT"
+            fi
           else
             echo "mathlib_ready=true" >> "$GITHUB_OUTPUT"
           fi
@@ -252,7 +271,7 @@ jobs:
           if git ls-remote --heads --tags --exit-code origin "nightly-testing-${MOST_RECENT_NIGHTLY}" >/dev/null; then
             BASE="nightly-testing-${MOST_RECENT_NIGHTLY}"
           else
-            echo "This shouldn't be possible: couldn't find a 'nightly-testing-${MOST_RECENT_NIGHTLY}' tag at Batteries. Falling back to 'nightly-testing'."
+            echo "Couldn't find a 'nightly-testing-${MOST_RECENT_NIGHTLY}' tag at Batteries. Falling back to 'nightly-testing'."
             BASE=nightly-testing
           fi
 
@@ -316,7 +335,7 @@ jobs:
           if git ls-remote --heads --tags --exit-code origin "nightly-testing-${MOST_RECENT_NIGHTLY}" >/dev/null; then
             BASE="nightly-testing-${MOST_RECENT_NIGHTLY}"
           else
-            echo "This shouldn't be possible: couldn't find a 'nightly-testing-${MOST_RECENT_NIGHTLY}' branch at Mathlib. Falling back to 'nightly-testing'."
+            echo "Couldn't find a 'nightly-testing-${MOST_RECENT_NIGHTLY}' branch at Mathlib. Falling back to 'nightly-testing'."
             BASE=nightly-testing
           fi
 

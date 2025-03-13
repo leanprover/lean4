@@ -151,12 +151,15 @@ where
       else
         go cs c? (c::cs')
 
+private def mkGrindEM (c : Expr) :=
+  mkApp (mkConst ``Lean.Grind.em) c
+
 /-- Constructs a major premise for the `cases` tactic used by `grind`. -/
 private def mkCasesMajor (c : Expr) : GoalM Expr := do
   match_expr c with
   | And a b => return mkApp3 (mkConst ``Grind.or_of_and_eq_false) a b (← mkEqFalseProof c)
-  | ite _ c _ _ _ => return mkEM c
-  | dite _ c _ _ _ => return mkEM c
+  | ite _ c _ _ _ => return mkGrindEM c
+  | dite _ c _ _ _ => return mkGrindEM c
   | Eq _ a b =>
     if (← isEqTrue c) then
       return mkApp3 (mkConst ``Grind.of_eq_eq_true) a b (← mkEqTrueProof c)

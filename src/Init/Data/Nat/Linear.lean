@@ -431,19 +431,22 @@ attribute [local simp] Poly.denote_le_cancel_eq
 theorem Expr.denote_toPoly_go (ctx : Context) (e : Expr) :
   (toPoly.go k e p).denote ctx = k * e.denote ctx + p.denote ctx := by
   induction k, e using Expr.toPoly.go.induct generalizing p with
-  | case1 k k' =>
-    simp only [toPoly.go]
-    by_cases h : k' == 0
-    · simp [h, eq_of_beq h]
-    · simp [h, Var.denote]
-  | case2 k i => simp [toPoly.go]
-  | case3 k a b iha ihb => simp [toPoly.go, iha, ihb]
-  | case4 k k' a ih
-  | case5 k a k' ih =>
+  | case1 k k' h =>
+    simp [toPoly.go, eq_of_beq h]
+  | case2 k k' h =>
+    simp [toPoly.go, h, Var.denote]
+  | case3 k i => simp [toPoly.go]
+  | case4 k a b iha ihb => simp [toPoly.go, iha, ihb]
+  | case5 k k' a h => simp [toPoly.go, h, eq_of_beq h]
+  | case6 k a k' h ih =>
     simp only [toPoly.go, denote, mul_eq]
-    by_cases h : k' == 0
-    · simp [h, eq_of_beq h]
-    · simp [h, cond_false, ih, Nat.mul_assoc]
+    simp [h, cond_false, ih, Nat.mul_assoc]
+  | case7 k a k' h =>
+    simp only [toPoly.go, denote, mul_eq]
+    simp [h, eq_of_beq h]
+  | case8 k a k' h ih =>
+    simp only [toPoly.go, denote, mul_eq]
+    simp [h, cond_false, ih, Nat.mul_assoc]
 
 theorem Expr.denote_toPoly (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.denote ctx := by
   simp [toPoly, Expr.denote_toPoly_go]

@@ -18,10 +18,13 @@ attribute [extern "lean_byte_array_data"] ByteArray.data
 
 namespace ByteArray
 @[extern "lean_mk_empty_byte_array"]
-def mkEmpty (c : @& Nat) : ByteArray :=
+def emptyWithCapacity (c : @& Nat) : ByteArray :=
   { data := #[] }
 
-def empty : ByteArray := mkEmpty 0
+@[deprecated emptyWithCapacity (since := "2025-03-12")]
+abbrev mkEmpty := emptyWithCapacity
+
+def empty : ByteArray := emptyWithCapacity 0
 
 instance : Inhabited ByteArray where
   default := empty
@@ -47,7 +50,7 @@ def uget : (a : @& ByteArray) → (i : USize) → (h : i.toNat < a.size := by ge
 
 @[extern "lean_byte_array_get"]
 def get! : (@& ByteArray) → (@& Nat) → UInt8
-  | ⟨bs⟩, i => bs.get! i
+  | ⟨bs⟩, i => bs[i]!
 
 @[extern "lean_byte_array_fget"]
 def get : (a : @& ByteArray) → (i : @& Nat) → (h : i < a.size := by get_elem_tactic) → UInt8

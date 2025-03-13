@@ -8,8 +8,8 @@
   # old nixpkgs used for portable release with older glibc (2.26)
   inputs.nixpkgs-older.url = "github:NixOS/nixpkgs/0b307aa73804bbd7a7172899e59ae0b8c347a62d";
   inputs.nixpkgs-older.flake = false;
-  # for cadical 1.9.5; sync with CMakeLists.txt
-  inputs.nixpkgs-cadical.url = "github:NixOS/nixpkgs/12bf09802d77264e441f48e25459c10c93eada2e";
+  # for cadical 2.1.2; sync with CMakeLists.txt by taking commit from https://www.nixhub.io/packages/cadical
+  inputs.nixpkgs-cadical.url = "github:NixOS/nixpkgs/199169a2135e6b864a888e89a2ace345703c025d";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = inputs: inputs.flake-utils.lib.eachDefaultSystem (system:

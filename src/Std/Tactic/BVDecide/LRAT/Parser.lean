@@ -332,7 +332,7 @@ Serialize `proof` into the binary LRAT format as a `ByteArray`.
 -/
 partial def lratProofToBinary (proof : Array IntAction) : ByteArray :=
   -- we will definitely need at least 4 bytes per add step and almost exclusively produce add.
-  go 0 (ByteArray.mkEmpty (4 * proof.size))
+  go 0 (ByteArray.emptyWithCapacity (4 * proof.size))
 where
   go (idx : Nat) (acc : ByteArray) : ByteArray :=
     if h : idx < proof.size then

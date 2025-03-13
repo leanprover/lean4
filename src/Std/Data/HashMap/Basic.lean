@@ -62,21 +62,31 @@ structure HashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
 
 namespace HashMap
 
-@[inline, inherit_doc DHashMap.empty] def empty [BEq α] [Hashable α] (capacity := 8) :
+@[inline, inherit_doc DHashMap.empty] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) :
     HashMap α β :=
-  ⟨DHashMap.empty capacity⟩
+  ⟨DHashMap.emptyWithCapacity capacity⟩
+
+@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
+abbrev empty := @emptyWithCapacity
 
 instance [BEq α] [Hashable α] : EmptyCollection (HashMap α β) where
-  emptyCollection := empty
+  emptyCollection := emptyWithCapacity
 
 instance [BEq α] [Hashable α] : Inhabited (HashMap α β) where
   default := ∅
+
+@[inherit_doc DHashMap.Equiv]
+structure Equiv (m₁ m₂ : HashMap α β) where
+  /-- Internal implementation detail of the hash map -/
+  inner : m₁.1.Equiv m₂.1
+
+@[inherit_doc] scoped infixl:50 " ~m " => Equiv
 
 @[inline, inherit_doc DHashMap.insert] def insert (m : HashMap α β) (a : α)
     (b : β) : HashMap α β :=
   ⟨m.inner.insert a b⟩
 
-instance : Singleton (α × β) (HashMap α β) := ⟨fun ⟨a, b⟩ => HashMap.empty.insert a b⟩
+instance : Singleton (α × β) (HashMap α β) := ⟨fun ⟨a, b⟩ => (∅ : HashMap α β).insert a b⟩
 
 instance : Insert (α × β) (HashMap α β) := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
 
@@ -199,18 +209,9 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
     HashMap α Unit :=
   ⟨DHashMap.Const.unitOfList l⟩
 
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
-
-@[inline, inherit_doc DHashMap.filter] def filter (f : α → β → Bool)
-    (m : HashMap α β) : HashMap α β :=
-  ⟨m.inner.filter f⟩
-
-@[inline, inherit_doc DHashMap.partition] def partition (f : α → β → Bool)
-    (m : HashMap α β) : HashMap α β × HashMap α β :=
-  let ⟨l, r⟩ := m.inner.partition f
-  ⟨⟨l⟩, ⟨r⟩⟩
+@[inline, inherit_doc DHashMap.Const.toList] def toList (m : HashMap α β) :
+    List (α × β) :=
+  DHashMap.Const.toList m.inner
 
 @[inline, inherit_doc DHashMap.foldM] def foldM {m : Type w → Type w}
     [Monad m] {γ : Type w} (f : γ → α → β → m γ) (init : γ) (b : HashMap α β) : m γ :=
@@ -234,9 +235,18 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForM m (HashMap α β)
 instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
 
-@[inline, inherit_doc DHashMap.Const.toList] def toList (m : HashMap α β) :
-    List (α × β) :=
-  DHashMap.Const.toList m.inner
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
+@[inline, inherit_doc DHashMap.filter] def filter (f : α → β → Bool)
+    (m : HashMap α β) : HashMap α β :=
+  ⟨m.inner.filter f⟩
+
+@[inline, inherit_doc DHashMap.partition] def partition (f : α → β → Bool)
+    (m : HashMap α β) : HashMap α β × HashMap α β :=
+  let ⟨l, r⟩ := m.inner.partition f
+  ⟨⟨l⟩, ⟨r⟩⟩
 
 @[inline, inherit_doc DHashMap.Const.toArray] def toArray (m : HashMap α β) :
     Array (α × β) :=

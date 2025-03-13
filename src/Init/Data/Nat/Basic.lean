@@ -500,6 +500,9 @@ protected theorem le_of_add_le_add_right {a b c : Nat} : a + b ≤ c + b → a �
 @[simp] protected theorem add_le_add_iff_right {n : Nat} : m + n ≤ k + n ↔ m ≤ k :=
   ⟨Nat.le_of_add_le_add_right, fun h => Nat.add_le_add_right h _⟩
 
+@[simp] protected theorem add_le_add_iff_left {n : Nat} : n + m ≤ n + k ↔ m ≤ k :=
+  ⟨Nat.le_of_add_le_add_left, fun h => Nat.add_le_add_left h _⟩
+
 /-! ### le/lt -/
 
 protected theorem lt_asymm {a b : Nat} (h : a < b) : ¬ b < a := Nat.not_lt.2 (Nat.le_of_lt h)
@@ -709,6 +712,16 @@ protected theorem le_of_mul_le_mul_left {a b c : Nat} (h : c * a ≤ c * b) (hc 
     have h' : c * b < c * a := Nat.mul_lt_mul_of_pos_left hlt hc
     absurd h (Nat.not_le_of_gt h')
 
+protected theorem le_of_mul_le_mul_right {a b c : Nat} (h : a * c ≤ b * c) (hc : 0 < c) : a ≤ b := by
+  rw [Nat.mul_comm a c, Nat.mul_comm b c] at h
+  exact Nat.le_of_mul_le_mul_left h hc
+
+protected theorem mul_le_mul_left_iff {n m k : Nat} (w : 0 < k) : k * n ≤ k * m ↔ n ≤ m :=
+  ⟨fun h => Nat.le_of_mul_le_mul_left h w, fun h => mul_le_mul_left _ h⟩
+
+protected theorem mul_le_mul_right_iff {n m k : Nat} (w : 0 < k) : n * k ≤ m * k ↔ n ≤ m :=
+  ⟨fun h => Nat.le_of_mul_le_mul_right h w, fun h => mul_le_mul_right _ h⟩
+
 protected theorem eq_of_mul_eq_mul_left {m k n : Nat} (hn : 0 < n) (h : n * m = n * k) : m = k :=
   Nat.le_antisymm (Nat.le_of_mul_le_mul_left (Nat.le_of_eq h) hn)
                   (Nat.le_of_mul_le_mul_left (Nat.le_of_eq h.symm) hn)
@@ -726,34 +739,48 @@ protected theorem pow_add_one (n m : Nat) : n^(m + 1) = n^m * n :=
 
 protected theorem pow_zero (n : Nat) : n^0 = 1 := rfl
 
-theorem pow_le_pow_of_le_left {n m : Nat} (h : n ≤ m) : ∀ (i : Nat), n^i ≤ m^i
+theorem pow_le_pow_left {n m : Nat} (h : n ≤ m) : ∀ (i : Nat), n^i ≤ m^i
   | 0      => Nat.le_refl _
-  | succ i => Nat.mul_le_mul (pow_le_pow_of_le_left h i) h
+  | succ i => Nat.mul_le_mul (pow_le_pow_left h i) h
 
-theorem pow_le_pow_of_le_right {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤ j → n^i ≤ n^j
+theorem pow_le_pow_right {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤ j → n^i ≤ n^j
   | 0,      h =>
     have : i = 0 := eq_zero_of_le_zero h
     this.symm ▸ Nat.le_refl _
   | succ j, h =>
     match le_or_eq_of_le_succ h with
     | Or.inl h => show n^i ≤ n^j * n from
-      have : n^i * 1 ≤ n^j * n := Nat.mul_le_mul (pow_le_pow_of_le_right hx h) hx
+      have : n^i * 1 ≤ n^j * n := Nat.mul_le_mul (pow_le_pow_right hx h) hx
       Nat.mul_one (n^i) ▸ this
     | Or.inr h =>
       h.symm ▸ Nat.le_refl _
 
-theorem pos_pow_of_pos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n^m :=
-  pow_le_pow_of_le_right h (Nat.zero_le _)
+set_option linter.missingDocs false in
+@[deprecated Nat.pow_le_pow_left (since := "2025-02-17")]
+abbrev pow_le_pow_of_le_left := @pow_le_pow_left
+
+set_option linter.missingDocs false in
+@[deprecated Nat.pow_le_pow_right (since := "2025-02-17")]
+abbrev pow_le_pow_of_le_right := @pow_le_pow_right
+
+protected theorem pow_pos (h : 0 < a) : 0 < a^n :=
+  match n with
+  | 0 => Nat.zero_lt_one
+  | _ + 1 => Nat.mul_pos (Nat.pow_pos h) h
+
+set_option linter.missingDocs false in
+@[deprecated Nat.pow_pos (since := "2025-02-17")]
+abbrev pos_pow_of_pos := @Nat.pow_pos
 
 @[simp] theorem zero_pow_of_pos (n : Nat) (h : 0 < n) : 0 ^ n = 0 := by
   cases n with
   | zero => cases h
   | succ n => simp [Nat.pow_succ]
 
-protected theorem two_pow_pos (w : Nat) : 0 < 2^w := Nat.pos_pow_of_pos _ (by decide)
+protected theorem two_pow_pos (w : Nat) : 0 < 2^w := Nat.pow_pos (by decide)
 
 instance {n m : Nat} [NeZero n] : NeZero (n^m) :=
-  ⟨Nat.ne_zero_iff_zero_lt.mpr (Nat.pos_pow_of_pos m (pos_of_neZero _))⟩
+  ⟨Nat.ne_zero_iff_zero_lt.mpr (Nat.pow_pos (pos_of_neZero _))⟩
 
 /-! # min/max -/
 

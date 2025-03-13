@@ -117,7 +117,7 @@ up to this point, with respect to `cs`. The initial decisions are:
 - `unknown` otherwise
 -/
 def initialDecisions (cs : Cases) : BaseFloatM (Std.HashMap FVarId Decision) := do
-  let mut map := Std.HashMap.empty (← read).decls.length
+  let mut map := Std.HashMap.emptyWithCapacity (← read).decls.length
   let folder val acc := do
     if let .let decl := val then
       if (← ignore? decl) then
@@ -148,7 +148,7 @@ Compute the initial new arms. This will just set up a map from all arms of
 `cs` to empty `Array`s, plus one additional entry for `dont`.
 -/
 def initialNewArms (cs : Cases) : Std.HashMap Decision (List CodeDecl) := Id.run do
-  let mut map := Std.HashMap.empty (cs.alts.size + 1)
+  let mut map := Std.HashMap.emptyWithCapacity (cs.alts.size + 1)
   map := map.insert .dont []
   cs.alts.foldr (init := map) fun val acc => acc.insert (.ofAlt val) []
 

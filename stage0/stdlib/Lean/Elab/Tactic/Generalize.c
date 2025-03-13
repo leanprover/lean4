@@ -29,7 +29,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalGeneralize___lambda__4___boxed(l
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalGeneralize_declRange__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Elab_Tactic_evalGeneralize___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalGeneralize__1___closed__3;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_evalGeneralize___spec__6___boxed(lean_object**);
@@ -68,6 +67,7 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_eval
 uint8_t l_Lean_LocalDecl_isImplementationDetail(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalGeneralize__1___closed__10;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalGeneralize__1___closed__9;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalGeneralize__1___closed__7;
 lean_object* l_Lean_Elab_Term_addLocalVarInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Elab_Tactic_evalGeneralize___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

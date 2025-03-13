@@ -12,6 +12,7 @@ calcErrors.lean:24:8-24:11: error: invalid 'calc' step, relation expected
   p a
 calcErrors.lean:31:8-31:13: error: invalid 'calc' step, failed to synthesize `Trans` instance
   Trans p p ?m
+
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 calcErrors.lean:41:7-41:12: error: invalid 'calc' step, left-hand side is
   γ : Sort u_1

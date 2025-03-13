@@ -1036,6 +1036,9 @@ def seqToTerm (action : Syntax) (k : Syntax) : M Syntax := withRef action <| wit
   else if action.getKind == ``Parser.Term.doAssert then
     let cond := action[1]
     `(assert! $cond; $k)
+  else if action.getKind == ``Parser.Term.doDebugAssert then
+    let cond := action[1]
+    `(debugAssert| debug_assert! $cond; $k)
   else
     let action ← withRef action ``(($action : $((←read).m) PUnit))
     ``(Bind.bind $action (fun (_ : PUnit) => $k))
@@ -1764,6 +1767,8 @@ mutual
           else if k == ``Parser.Term.doDbgTrace then
             return mkSeq doElem (← doSeqToCode doElems)
           else if k == ``Parser.Term.doAssert then
+            return mkSeq doElem (← doSeqToCode doElems)
+          else if k == ``Parser.Term.doDebugAssert then
             return mkSeq doElem (← doSeqToCode doElems)
           else if k == ``Parser.Term.doNested then
             let nestedDoSeq := doElem[1]

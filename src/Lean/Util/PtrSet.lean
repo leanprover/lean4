@@ -28,7 +28,7 @@ unsafe def PtrSet (α : Type) :=
   Std.HashSet (Ptr α)
 
 unsafe def mkPtrSet {α : Type} (capacity : Nat := 64) : PtrSet α :=
-  Std.HashSet.empty capacity
+  Std.HashSet.emptyWithCapacity capacity
 
 unsafe abbrev PtrSet.insert (s : PtrSet α) (a : α) : PtrSet α :=
   Std.HashSet.insert s { value := a }
@@ -43,7 +43,7 @@ unsafe def PtrMap (α : Type) (β : Type) :=
   Std.HashMap (Ptr α) β
 
 unsafe def mkPtrMap {α β : Type} (capacity : Nat := 64) : PtrMap α β :=
-  Std.HashMap.empty capacity
+  Std.HashMap.emptyWithCapacity capacity
 
 unsafe abbrev PtrMap.insert (s : PtrMap α β) (a : α) (b : β) : PtrMap α β :=
   Std.HashMap.insert s { value := a } b

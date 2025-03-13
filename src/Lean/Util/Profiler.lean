@@ -285,7 +285,7 @@ def Profile.export (name : String) (startTime : Float) (traceStates : Array Trac
     let traces := traceStates.map (·.traces.toArray)
     -- sort traces of thread by start time
     let traces := traces.qsort (fun tr1 tr2 =>
-      let f tr := tr.get? 0 |>.bind (getFirstStart? ·.msg) |>.getD 0
+      let f tr := tr[0]? |>.bind (getFirstStart? ·.msg) |>.getD 0
       f tr1 < f tr2)
     let mut traces := traces.flatMap id |>.map (·.msg)
     if tid = 0 then

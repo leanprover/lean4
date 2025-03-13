@@ -21,7 +21,6 @@ structure BVDecideConfig where
   trimProofs : Bool := true
   /--
   Whether to use the binary LRAT proof format.
-  Currently set to false and ignored on Windows due to a bug in CaDiCal.
   -/
   binaryProofs : Bool := true
   /--

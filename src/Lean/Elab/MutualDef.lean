@@ -166,6 +166,8 @@ private def elabHeaders (views : Array DefView)
             view.value.eqWithInfoAndTraceReuse (← getOptions) old.bodyStx
           -- no syntax guard to store, we already did the necessary checks
           oldBodySnap? := guard reuseBody *> pure ⟨.missing, old.bodySnap⟩
+          if oldBodySnap?.isNone then
+            old.bodySnap.cancelRec
           oldTacSnap? := do
               guard reuseTac
               some ⟨(← old.tacStx?), (← old.tacSnap?)⟩
@@ -229,6 +231,7 @@ private def elabHeaders (views : Array DefView)
         snap.new.resolve <| some {
           diagnostics :=
             (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
+          moreSnaps := (← Core.getAndEmptySnapshotTasks)
           view := newHeader.toDefViewElabHeaderData
           state := newState
           tacStx?
@@ -428,6 +431,10 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
         if let some old := old.val.get then
           snap.new.resolve <| some old
           reusableResult? := some (old.value, old.state)
+        else
+          -- NOTE: this will eagerly cancel async tasks not associated with an inner snapshot, most
+          -- importantly kernel checking and compilation of the top-level declaration
+          old.val.cancelRec
 
     let (val, state) ← withRestoreOrSaveFull reusableResult? header.tacSnap? do
       withReuseContext header.value do
@@ -479,6 +486,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
       snap.new.resolve <| some {
         diagnostics :=
           (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
+        moreSnaps := (← Core.getAndEmptySnapshotTasks)
         state
         value := val
       }
@@ -606,16 +614,26 @@ private def mkInitialUsedFVarsMap [Monad m] [MonadMCtx m] (sectionVars : Array E
   for mainFVarId in mainFVarIds do
     usedFVarMap := usedFVarMap.insert mainFVarId sectionVarSet
   for toLift in letRecsToLift do
-    let state := Lean.collectFVars {} toLift.val
-    let state := Lean.collectFVars state toLift.type
-    let mut set := state.fvarSet
+    let mut state := Lean.collectFVars {} toLift.val
+    state := Lean.collectFVars state toLift.type
+    let mut set := {}
     /- toLift.val may contain metavariables that are placeholders for nested let-recs. We should collect the fvarId
        for the associated let-rec because we need this information to compute the fixpoint later. -/
     let mvarIds := (toLift.val.collectMVars {}).result
     for mvarId in mvarIds do
-      match (← letRecsToLift.findSomeM? fun (toLift : LetRecToLift) => return if toLift.mvarId == (← getDelayedMVarRoot mvarId) then some toLift.fvarId else none) with
+      let root ← getDelayedMVarRoot mvarId
+      match letRecsToLift.findSome? fun (toLift : LetRecToLift) => if toLift.mvarId == root then some toLift.fvarId else none with
       | some fvarId => set := set.insert fvarId
-      | none        => pure ()
+      | none        =>
+        /- If the metavariable is not a nested let-rec, it may contribute additional free-variable
+           dependencies not caught in the fixed-point routine. In particular, delayed assignments
+           due to `match` expressions or tactic blocks induce fvar dependencies that we need to
+           account for (see #6927) but cannot ascertain through instantiation if those expressions
+           contain still-unassigned metavariable placeholders for other let-recs. See Note
+           [Delayed-Assigned Metavariables in Free Variable Collection] for more information. -/
+        let some rootAssignment ← getExprMVarAssignment? root | continue
+        state := Lean.collectFVars state rootAssignment
+    set := state.fvarSet.union set
     usedFVarMap := usedFVarMap.insert toLift.fvarId set
   return usedFVarMap
 
@@ -1060,6 +1078,52 @@ where
             unless (← processDefDeriving className header.declName) do
               throwError "failed to synthesize instance '{className}' for '{header.declName}'"
 
+/--
+Logs a snapshot task that waits for the entire snapshot tree in `defsParsedSnap` and then logs a
+`goalsAccomplished` silent message for theorems and `Prop`-typed examples if the entire mutual block
+is error-free and contains no syntactical `sorry`s.
+-/
+private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
+    (defsParsedSnap : DefsParsedSnapshot) : TermElabM Unit := do
+  if Lean.internal.cmdlineSnapshots.get (← getOptions) then
+    -- Skip 'goals accomplished' task if we are on the command line.
+    -- These messages are only used in the language server.
+    return
+  let currentLog ← Core.getMessageLog
+  let snaps := #[SnapshotTask.finished none (toSnapshotTree defsParsedSnap)] ++
+    (← getThe Core.State).snapshotTasks
+  let tree := SnapshotTree.mk { diagnostics := .empty } snaps
+  let logGoalsAccomplishedAct ← Term.wrapAsyncAsSnapshot (cancelTk? := none) fun () => do
+    -- NOTE: `waitAll` below ensures `getAll` will not block here
+    let logs := tree.getAll.map (·.diagnostics.msgLog) |>.push currentLog
+    let hasErrorOrSorry := logs.any fun log =>
+      log.reportedPlusUnreported.any fun msg =>
+        msg.severity matches .error || msg.data.hasTag (· == `hasSorry)
+    if hasErrorOrSorry then
+      return
+    for d in defsParsedSnap.defs, view in views do
+      let logGoalsAccomplished :=
+        let msgData := .tagged `goalsAccomplished m!"Goals accomplished!"
+        logAt view.ref msgData (severity := .information) (isSilent := true)
+      match view.kind with
+      | .theorem =>
+        logGoalsAccomplished
+      | .example =>
+        let some processedSnap := d.headerProcessedSnap.get
+          | continue
+        if ! (← isProp processedSnap.view.type) then
+          continue
+        logGoalsAccomplished
+      | _ => continue
+  let logGoalsAccomplishedTask ← BaseIO.mapTask (t := ← tree.waitAll) fun _ =>
+    logGoalsAccomplishedAct
+  Core.logSnapshotTask {
+    stx? := none
+    -- Use first line of the mutual block to avoid covering the progress of the whole mutual block
+    reportingRange? := (← getRef).getPos?.map fun pos => ⟨pos, pos⟩
+    task := logGoalsAccomplishedTask
+  }
+
 end Term
 namespace Command
 
@@ -1094,20 +1158,55 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
           return ⟨.missing, oldParsed.headerProcessedSnap⟩
         new := headerPromise
       } }
+      if snap.old?.isSome && (view.headerSnap?.bind (·.old?)).isNone then
+        snap.old?.forM (·.val.cancelRec)
       defs := defs.push {
         fullHeaderRef
         headerProcessedSnap := { stx? := d, task := headerPromise.resultD default }
       }
       reusedAllHeaders := reusedAllHeaders && view.headerSnap?.any (·.old?.isSome)
     views := views.push view
+  let defsParsedSnap := { defs, diagnostics := .empty : DefsParsedSnapshot }
   if let some snap := snap? then
     -- no non-fatal diagnostics at this point
-    snap.new.resolve <| .ofTyped { defs, diagnostics := .empty : DefsParsedSnapshot }
+    snap.new.resolve <| .ofTyped defsParsedSnap
   let sc ← getScope
-  runTermElabM fun vars => Term.elabMutualDef vars sc views
+  runTermElabM fun vars => do
+    Term.elabMutualDef vars sc views
+    Term.logGoalsAccomplishedSnapshotTask views defsParsedSnap
 
 builtin_initialize
   registerTraceClass `Elab.definition.mkClosure
 
 end Command
 end Lean.Elab
+
+/-!
+# Note [Delayed-Assigned Metavariables in Free Variable Collection]
+
+Nested declarations using `let rec` should compile correctly even when nested within expressions
+that are elaborated using delayed metavariable assignments, such as `match` expressions and tactic
+blocks. Previously, declaring a `let rec` within such an expression in the following fashion
+```lean
+def f x :=
+  let rec g :=
+    match ... with
+    | pat =>
+      let rec h := ... g ...
+      ... x ...
+```
+where `g` depends on some free variable bound by `f` (like `x` above) would cause `MutualClosure` to
+fail to detect that transitive fvar dependency of `h` (which must pass it as an argument to `g`),
+leading to an unbound fvar in the body of `h` that was ultimately fed to the kernel. This occurred
+because `MutualClosure` processes let-recs from most to least nested. Initially, the body of `g` is
+an application of the delayed-assigned metavariable generated by `match` elaboration; the root
+metavariable of that delayed assignment is, in turn, assigned to an expression that refers to the
+mvar that will eventually be assigned to `g` once we process that declaration. Therefore, when we
+initially process the most-nested declaration `h` (before `g`), we cannot instantiate the
+`match`-expression mvar's delayed assignment (since the metavariable that will eventually be
+assigned to the yet-unprocessed `g` remains unassigned). Thus, we do not detect any of the fvar
+dependencies of `g` in the `match` body -- namely, that corresponding to `x`, which `h` should
+therefore also take as a parameter. This also caused a knock-on effect in certain situations,
+wherein `h` would compile as an `axiom` rather than as `opaque`, rendering `f` erroneously
+noncomputable.
+-/

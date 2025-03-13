@@ -42,7 +42,7 @@ theorem insertRatUnits_postcondition {n : Nat} (f : DefaultFormula n)
     apply Or.inl
     simp only [Fin.getElem_fin, ne_eq, true_and, Bool.not_eq_true, exists_and_right]
     intro j
-    simp only [hf.1, Array.size_toArray, List.length_nil] at j
+    simp only [hf.1, List.size_toArray, List.length_nil] at j
     exact Fin.elim0 j
   exact insertUnitInvariant_insertUnit_fold f.assignments hf.2 f.ratUnits f.assignments hsize false units h0
 

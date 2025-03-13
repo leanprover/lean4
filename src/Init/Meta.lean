@@ -735,8 +735,8 @@ def decodeNatLitVal? (s : String) : Option Nat :=
 def isLit? (litKind : SyntaxNodeKind) (stx : Syntax) : Option String :=
   match stx with
   | Syntax.node _ k args =>
-    if k == litKind && args.size == 1 then
-      match args.get! 0 with
+    if h : k == litKind ∧ args.size = 1 then
+      match args[0]'(Nat.lt_of_sub_eq_succ h.2) with
       | (Syntax.atom _ val) => some val
       | _ => none
     else

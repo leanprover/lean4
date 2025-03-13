@@ -14,8 +14,8 @@ Most of the results are deferred to `Data.Init.List.Nat.Range`, where more resul
 natural arithmetic are available.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
 
@@ -33,7 +33,7 @@ theorem range'_succ (s n step) : range' s (n + 1) step = s :: range' (s + step) 
   | _ + 1 => congrArg succ (length_range' _ _ _)
 
 @[simp] theorem range'_eq_nil_iff : range' s n step = [] ↔ n = 0 := by
-  rw [← length_eq_zero, length_range']
+  rw [← length_eq_zero_iff, length_range']
 
 @[deprecated range'_eq_nil_iff (since := "2025-01-29")] abbrev range'_eq_nil := @range'_eq_nil_iff
 
@@ -74,7 +74,7 @@ theorem mem_range' : ∀{n}, m ∈ range' s n step ↔ ∃ i < n, m = s + step *
     rw [exists_comm]; simp [Nat.mul_succ, Nat.add_assoc, Nat.add_comm]
 
 theorem getElem?_range' (s step) :
-    ∀ {i j : Nat}, i < j → (range' s j step)[i]? = some (s + step * i)
+    ∀ {i n : Nat}, i < n → (range' s n step)[i]? = some (s + step * i)
   | 0, n + 1, _ => by simp [range'_succ]
   | m + 1, n + 1, h => by
     simp only [range'_succ, getElem?_cons_succ]
@@ -147,10 +147,10 @@ theorem range_loop_range' : ∀ s n : Nat, range.loop s (range' s n) = range' 0 
 theorem range_eq_range' (n : Nat) : range n = range' 0 n :=
   (range_loop_range' n 0).trans <| by rw [Nat.zero_add]
 
-theorem getElem?_range {i j : Nat} (h : i < j) : (range j)[i]? = some i := by
+theorem getElem?_range {i n : Nat} (h : i < n) : (range n)[i]? = some i := by
   simp [range_eq_range', getElem?_range' _ _ h]
 
-@[simp] theorem getElem_range {i : Nat} (j) (h : j < (range i).length) : (range i)[j] = j := by
+@[simp] theorem getElem_range {n : Nat} (j) (h : j < (range n).length) : (range n)[j] = j := by
   simp [range_eq_range']
 
 theorem range_succ_eq_map (n : Nat) : range (n + 1) = 0 :: map succ (range n) := by
@@ -164,7 +164,7 @@ theorem range'_eq_map_range (s n : Nat) : range' s n = map (s + ·) (range n) :=
   simp only [range_eq_range', length_range']
 
 @[simp] theorem range_eq_nil {n : Nat} : range n = [] ↔ n = 0 := by
-  rw [← length_eq_zero, length_range]
+  rw [← length_eq_zero_iff, length_range]
 
 theorem range_ne_nil {n : Nat} : range n ≠ [] ↔ n ≠ 0 := by
   cases n <;> simp
@@ -183,9 +183,9 @@ theorem range_subset {m n : Nat} : range m ⊆ range n ↔ m ≤ n := by
 theorem range_succ (n : Nat) : range (succ n) = range n ++ [n] := by
   simp only [range_eq_range', range'_1_concat, Nat.zero_add]
 
-theorem range_add (a b : Nat) : range (a + b) = range a ++ (range b).map (a + ·) := by
+theorem range_add (n m : Nat) : range (n + m) = range n ++ (range m).map (n + ·) := by
   rw [← range'_eq_map_range]
-  simpa [range_eq_range', Nat.add_comm] using (range'_append_1 0 a b).symm
+  simpa [range_eq_range', Nat.add_comm] using (range'_append_1 0 n m).symm
 
 theorem head?_range (n : Nat) : (range n).head? = if n = 0 then none else some 0 := by
   induction n with
@@ -209,15 +209,15 @@ theorem getLast?_range (n : Nat) : (range n).getLast? = if n = 0 then none else 
 @[simp] theorem getLast_range (n : Nat) (h) : (range n).getLast h = n - 1 := by
   cases n with
   | zero => simp at h
-  | succ n => simp [getLast?_range, getLast_eq_iff_getLast_eq_some]
+  | succ n => simp [getLast?_range, getLast_eq_iff_getLast?_eq_some]
 
 /-! ### zipIdx -/
 
 @[simp]
-theorem zipIdx_eq_nil_iff {l : List α} {n : Nat} : List.zipIdx l n = [] ↔ l = [] := by
+theorem zipIdx_eq_nil_iff {l : List α} {i : Nat} : List.zipIdx l i = [] ↔ l = [] := by
   cases l <;> simp
 
-@[simp] theorem length_zipIdx : ∀ {l : List α} {n}, (zipIdx l n).length = l.length
+@[simp] theorem length_zipIdx : ∀ {l : List α} {i}, (zipIdx l i).length = l.length
   | [], _ => rfl
   | _ :: _, _ => congrArg Nat.succ length_zipIdx
 
@@ -231,16 +231,16 @@ theorem getElem?_zipIdx :
     exact (getElem?_zipIdx l (n + 1) m).trans <| by rw [Nat.add_right_comm]; rfl
 
 @[simp]
-theorem getElem_zipIdx (l : List α) (n) (i : Nat) (h : i < (l.zipIdx n).length) :
-    (l.zipIdx n)[i] = (l[i]'(by simpa [length_zipIdx] using h), n + i) := by
+theorem getElem_zipIdx (l : List α) (j) (i : Nat) (h : i < (l.zipIdx j).length) :
+    (l.zipIdx j)[i] = (l[i]'(by simpa [length_zipIdx] using h), j + i) := by
   simp only [length_zipIdx] at h
   rw [getElem_eq_getElem?_get]
   simp only [getElem?_zipIdx, getElem?_eq_getElem h]
   simp
 
 @[simp]
-theorem tail_zipIdx (l : List α) (n : Nat) : (zipIdx l n).tail = zipIdx l.tail (n + 1) := by
-  induction l generalizing n with
+theorem tail_zipIdx (l : List α) (i : Nat) : (zipIdx l i).tail = zipIdx l.tail (i + 1) := by
+  induction l generalizing i with
   | nil => simp
   | cons _ l ih => simp [ih, zipIdx_cons]
 
@@ -248,44 +248,44 @@ theorem map_snd_add_zipIdx_eq_zipIdx (l : List α) (n k : Nat) :
     map (Prod.map id (· + n)) (zipIdx l k) = zipIdx l (n + k) :=
   ext_getElem? fun i ↦ by simp [(· ∘ ·), Nat.add_comm, Nat.add_left_comm]; rfl
 
-theorem zipIdx_cons' (n : Nat) (x : α) (xs : List α) :
-    zipIdx (x :: xs) n = (x, n) :: (zipIdx xs n).map (Prod.map id (· + 1)) := by
+theorem zipIdx_cons' (i : Nat) (x : α) (xs : List α) :
+    zipIdx (x :: xs) i = (x, i) :: (zipIdx xs i).map (Prod.map id (· + 1)) := by
   rw [zipIdx_cons, Nat.add_comm, ← map_snd_add_zipIdx_eq_zipIdx]
 
 @[simp]
-theorem zipIdx_map_snd (n) :
-    ∀ (l : List α), map Prod.snd (zipIdx l n) = range' n l.length
+theorem zipIdx_map_snd (i) :
+    ∀ (l : List α), map Prod.snd (zipIdx l i) = range' i l.length
   | [] => rfl
   | _ :: _ => congrArg (cons _) (zipIdx_map_snd _ _)
 
 @[simp]
-theorem zipIdx_map_fst : ∀ (n) (l : List α), map Prod.fst (zipIdx l n) = l
+theorem zipIdx_map_fst : ∀ (i) (l : List α), map Prod.fst (zipIdx l i) = l
   | _, [] => rfl
   | _, _ :: _ => congrArg (cons _) (zipIdx_map_fst _ _)
 
-theorem zipIdx_eq_zip_range' (l : List α) {n : Nat} : l.zipIdx n = l.zip (range' n l.length) :=
+theorem zipIdx_eq_zip_range' (l : List α) {i : Nat} : l.zipIdx i = l.zip (range' i l.length) :=
   zip_of_prod (zipIdx_map_fst _ _) (zipIdx_map_snd _ _)
 
 @[simp]
-theorem unzip_zipIdx_eq_prod (l : List α) {n : Nat} :
-    (l.zipIdx n).unzip = (l, range' n l.length) := by
+theorem unzip_zipIdx_eq_prod (l : List α) {i : Nat} :
+    (l.zipIdx i).unzip = (l, range' i l.length) := by
   simp only [zipIdx_eq_zip_range', unzip_zip, length_range']
 
 /-- Replace `zipIdx` with a starting index `n+1` with `zipIdx` starting from `n`,
 followed by a `map` increasing the indices by one. -/
-theorem zipIdx_succ (l : List α) (n : Nat) :
-    l.zipIdx (n + 1) = (l.zipIdx n).map (fun ⟨a, i⟩ => (a, i + 1)) := by
-  induction l generalizing n with
+theorem zipIdx_succ (l : List α) (i : Nat) :
+    l.zipIdx (i + 1) = (l.zipIdx i).map (fun ⟨a, i⟩ => (a, i + 1)) := by
+  induction l generalizing i with
   | nil => rfl
-  | cons _ _ ih => simp only [zipIdx_cons, ih (n + 1), map_cons]
+  | cons _ _ ih => simp only [zipIdx_cons, ih (i + 1), map_cons]
 
 /-- Replace `zipIdx` with a starting index with `zipIdx` starting from 0,
 followed by a `map` increasing the indices. -/
-theorem zipIdx_eq_map_add (l : List α) (n : Nat) :
-    l.zipIdx n = l.zipIdx.map (fun ⟨a, i⟩ => (a, n + i)) := by
-  induction l generalizing n with
+theorem zipIdx_eq_map_add (l : List α) (i : Nat) :
+    l.zipIdx i = l.zipIdx.map (fun ⟨a, j⟩ => (a, i + j)) := by
+  induction l generalizing i with
   | nil => rfl
-  | cons _ _ ih => simp [ih (n+1), zipIdx_succ, Nat.add_assoc, Nat.add_comm 1]
+  | cons _ _ ih => simp [ih (i+1), zipIdx_succ, Nat.add_assoc, Nat.add_comm 1]
 
 /-! ### enumFrom -/
 

@@ -47,7 +47,7 @@ def convertUt : Bool → UTLocal
 Converts a given time index into a `LocalTimeType` by using a time zone (`tz`) and its identifier.
 -/
 def convertLocalTimeType (index : Nat) (tz : TZif.TZifV1) (identifier : String) : Option LocalTimeType := do
-  let localType ← tz.localTimeTypes.get? index
+  let localType ← tz.localTimeTypes[index]?
   let offset := Offset.ofSeconds <| .ofInt localType.gmtOffset
   let abbreviation ← tz.abbreviations.getD index (offset.toIsoString true)
   let wallflag := convertWall (tz.stdWallIndicators.getD index true)
@@ -66,10 +66,10 @@ def convertLocalTimeType (index : Nat) (tz : TZif.TZifV1) (identifier : String) 
 Converts a transition.
 -/
 def convertTransition (times: Array LocalTimeType) (index : Nat) (tz : TZif.TZifV1) : Option Transition := do
-  let time := tz.transitionTimes.get! index
+  let time := tz.transitionTimes[index]!
   let time := Second.Offset.ofInt time
-  let indice := tz.transitionIndices.get! index
-  return { time, localTimeType := times.get! indice.toNat }
+  let indice := tz.transitionIndices[index]!
+  return { time, localTimeType := times[indice.toNat]! }
 
 /--
 Converts a `TZif.TZifV1` structure to a `ZoneRules` structure.

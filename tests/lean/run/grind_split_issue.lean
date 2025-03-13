@@ -12,7 +12,7 @@ s : Nat
 h : 0 = s
 h_1 : HEq ⋯ ⋯
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] X c 0
     [prop] 0 = s

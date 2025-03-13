@@ -39,7 +39,7 @@ Given `h : HEq a b`, returns a proof `a = b` if `heq == false`.
 Otherwise, it returns `h`.
 -/
 private def mkEqOfHEqIfNeeded (h : Expr) (heq : Bool) : MetaM Expr := do
-  if heq then return h else mkEqOfHEq h
+  if heq then return h else mkEqOfHEq h (check := false)
 
 /--
 Given `lhs` and `rhs` that are in the same equivalence class,
@@ -240,7 +240,7 @@ mutual
     else if heq then
       mkHEqOfEq lhsEqRhs
     else
-      mkEqOfHEq lhsEqRhs
+      mkEqOfHEq lhsEqRhs (check := false)
 
 end
 

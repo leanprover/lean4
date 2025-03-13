@@ -2044,7 +2044,7 @@ LEAN_EXPORT lean_object* l_Lake_getLake___rarg___lambda__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_ctor_get(x_1, 4);
+x_2 = lean_ctor_get(x_1, 5);
 lean_inc(x_2);
 return x_2;
 }

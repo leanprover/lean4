@@ -82,13 +82,16 @@ builtin_initialize extension : SimplePersistentEnvExtension Entry State ←
   registerSimplePersistentEnvExtension {
     addEntryFn    := State.addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries State.addEntry {} es).switch
+    asyncMode     := .async
   }
 
 def addMatcherInfo (env : Environment) (matcherName : Name) (info : MatcherInfo) : Environment :=
+  let _ : Inhabited Environment := ⟨env⟩
+  assert! env.asyncMayContain matcherName
   extension.addEntry env { name := matcherName, info := info }
 
 def getMatcherInfo? (env : Environment) (declName : Name) : Option MatcherInfo :=
-  (extension.getState env).map.find? declName
+  (extension.findStateAsync env declName).map.find? declName
 
 end Extension
 

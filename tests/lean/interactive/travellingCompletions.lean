@@ -3,10 +3,10 @@ import Lean
 
 
 -- https://github.com/leanprover/lean4/issues/4455
-def aaaaaaaa := 1
+def Foo.aaaaaaaa := 1
 
-#eval ([1,2,3].map λ c => aaaaaaa).length
-                               --^ textDocument/completion
+#eval ([1,2,3].map λ c => Foo.aaaaaaa).length
+                                   --^ textDocument/completion
 
 
 

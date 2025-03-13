@@ -146,6 +146,7 @@ builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
     pushEq a b <| mkOfEqTrueCore e (← mkEqTrueProof e)
   else if (← isEqFalse e) then
     let_expr Eq α lhs rhs := e | return ()
+    propagateCutsatDiseq lhs rhs
     let thms ← getExtTheorems α
     if !thms.isEmpty then
       /-
@@ -200,7 +201,7 @@ builtin_grind_propagator propagateDIte ↑dite := fun e => do
      pushEq e r <| mkApp8 (mkConst ``Grind.dite_cond_eq_true' f.constLevels!) α c h a b r h₁ h₂
   else if (← isEqFalse c) then
      let h₁ ← mkEqFalseProof c
-     let bh₁ := mkApp b (mkApp2 (mkConst ``of_eq_false) c h₁)
+     let bh₁ := mkApp b (mkOfEqFalseCore c h₁)
      let p ← preprocess bh₁
      let r := p.expr
      let h₂ ← p.getProof

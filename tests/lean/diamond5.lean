@@ -12,6 +12,10 @@ set_option structureDiamondWarning false
 
 def D.toC (x : Nat) := x
 
+/-- error: 'D.toC' has already been declared -/
+#guard_msgs in
 class D (α : Type) extends B α, C α
+
+class D (α : Type) extends B α, toC_1 : C α
 
 #check D.toC_1

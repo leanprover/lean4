@@ -8,6 +8,7 @@ import Init.Data.BEq
 import Init.Data.Nat.Simproc
 import Init.Data.List.Perm
 import Init.Data.List.Find
+import Init.Data.List.Monadic
 import Std.Classes.Ord
 import Std.Data.Internal.List.Defs
 
@@ -29,7 +30,7 @@ open List (Perm Sublist pairwise_cons erase_sublist filter_sublist)
 
 namespace Std.Internal.List
 
-attribute [-simp] List.isEmpty_eq_false
+attribute [-simp] List.isEmpty_eq_false_iff
 
 @[elab_as_elim]
 theorem assoc_induction {motive : List ((a : α) × β a) → Prop} (nil : motive [])
@@ -48,6 +49,12 @@ def getEntry? [BEq α] (a : α) : List ((a : α) × β a) → Option ((a : α) �
     getEntry? a ([] : List ((a : α) × β a)) = none := rfl
 theorem getEntry?_cons [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} :
     getEntry? a (⟨k, v⟩ :: l) = bif k == a then some ⟨k, v⟩ else getEntry? a l := rfl
+
+theorem getEntry?_eq_find [BEq α] {k : α} {l : List ((a : α) × β a)} :
+    getEntry? k l = l.find? (·.1 == k) := by
+  induction l using assoc_induction with
+  | nil => simp
+  | cons k' v t ih => cases h : k' == k <;> simp_all [List.find?_cons, getEntry?_cons]
 
 theorem getEntry?_cons_of_true [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} (h : k == a) :
     getEntry? a (⟨k, v⟩ :: l) = some ⟨k, v⟩ := by
@@ -194,6 +201,14 @@ private theorem Option.dmap_congr {o o' : Option α} {f : (a : α) → (o = some
 private theorem Option.isSome_dmap {o : Option α} {f : (a : α) → (o = some a) → β} :
     (Option.dmap o f).isSome = o.isSome := by
   cases o <;> rfl
+
+private theorem Option.dmap_eq_some {o : Option α} {f : (a : α) → (o = some a) → β} (b : β) :
+    (Option.dmap o f) = some b ↔ ∃ (a : α) (h : o = some a), f a h = b := by
+  cases o with
+  | none => simp
+  | some a =>
+    simp only [dmap_some, Option.some.injEq]
+    exact ⟨by rintro rfl; exact ⟨a, rfl, rfl⟩, by rintro ⟨_, rfl, h⟩; exact h⟩
 
 end
 
@@ -565,9 +580,36 @@ theorem getKey?_eq_getEntry? [BEq α] {l : List ((a : α) × β a)} {a : α} :
     · rw [getEntry?_cons_of_false h, getKey?_cons_of_false h, ih]
     · rw [getEntry?_cons_of_true h, getKey?_cons_of_true h, Option.map_some']
 
+theorem getKey?_beq [BEq α] {l : List ((a : α) × β a)} {a : α} :
+    (getKey? a l).all (· == a) := by
+  induction l using assoc_induction with
+  | nil => rfl
+  | cons k v l ih =>
+    rw [getKey?_cons, cond_eq_if]
+    split <;> assumption
+
+theorem getKey?_congr [BEq α] [EquivBEq α] {l : List ((a : α) × β a)}
+    {k k' : α} (h : k == k') : getKey? k l = getKey? k' l := by
+  induction l with
+  | nil => rfl
+  | cons x l ih =>
+    rw [getKey?_cons, getKey?_cons, BEq.congr_right h, ih]
+
 theorem containsKey_eq_isSome_getKey? [BEq α] {l : List ((a : α) × β a)} {a : α} :
     containsKey a l = (getKey? a l).isSome := by
   simp [containsKey_eq_isSome_getEntry?, getKey?_eq_getEntry?]
+
+theorem getEntry?_eq_some_iff_getKey?_eq_some_getValue?_eq_some [BEq α] {β : Type v}
+    {l : List ((_ : α) × β)} {k k' : α} {v : β} :
+    getEntry? k l = some ⟨k', v⟩ ↔ getKey? k l = some k' ∧ getValue? k l = some v := by
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    simp [getEntry?, getKey?, getValue?, cond_eq_if]
+    split
+    · rename_i h
+      simp [Sigma.ext_iff]
+    · rw [ih]
 
 /-- Internal implementation detail of the hash map -/
 def getKey [BEq α] (a : α) (l : List ((a : α) × β a)) (h : containsKey a l) : α :=
@@ -585,6 +627,23 @@ theorem getKey_cons [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k}
   split
   · rfl
   · exact getKey?_eq_some_getKey _
+
+theorem getKey_beq [BEq α] {l : List ((a : α) × β a)} {a : α} (h : containsKey a l) :
+    getKey a l h == a := by
+  simpa only [getKey?_eq_some_getKey h] using getKey?_beq (l := l) (a := a)
+
+@[simp]
+theorem getKey_eq [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {a : α} (h : containsKey a l) :
+    getKey a l h = a := by
+  simpa only [beq_iff_eq] using getKey_beq h
+
+theorem getKey?_eq_some [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {a : α}
+    (h : containsKey a l) : getKey? a l = some a := by
+  simp only [getKey?_eq_some_getKey h, getKey_eq]
+
+theorem getKey_congr [BEq α] [EquivBEq α] {l : List ((a : α) × β a)}
+    {k k' : α} (h : k == k') {h'} {h''} : getKey k l h' = getKey k' l h'' := by
+  simpa only [getKey?_eq_some_getKey, h', h'', Option.some.injEq] using getKey?_congr (l := l) h
 
 /-- Internal implementation detail of the hash map -/
 def getKeyD [BEq α] (a : α) (l : List ((a : α) × β a)) (fallback : α) : α :=
@@ -607,6 +666,15 @@ theorem getKey_eq_getKeyD [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {
     (h : containsKey a l = true) :
     getKey a l h = getKeyD a l fallback := by
   rw [getKeyD_eq_getKey?, getKey, Option.get_eq_getD]
+
+theorem getKeyD_congr [BEq α] [EquivBEq α] {l : List ((a : α) × β a)}
+    {k k' fallback : α} (h : k == k') : getKeyD k l fallback = getKeyD k' l fallback := by
+  simp only [getKeyD_eq_getKey?, getKey?_congr h]
+
+theorem getKeyD_eq_of_containsKey [BEq α] [LawfulBEq α]
+    {l : List ((a : α) × β a)} {k fallback : α} (h : containsKey k l) :
+    getKeyD k l fallback = k := by
+  simp only [← getKey_eq_getKeyD h, getKey_eq]
 
 theorem getKey?_eq_some_getKeyD [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {a fallback : α}
     (h : containsKey a l = true) :
@@ -634,6 +702,15 @@ theorem getKey_eq_getKey! [BEq α] [Inhabited α] {l : List ((a : α) × β a)} 
     (h : containsKey a l = true) : getKey a l h = getKey! a l := by
   rw [getKey!_eq_getKey?, getKey, Option.get_eq_get!]
 
+theorem getKey!_congr [BEq α] [EquivBEq α] [Inhabited α] {l : List ((a : α) × β a)}
+    {k k' : α} (h : k == k') : getKey! k l = getKey! k' l := by
+  simp only [getKey!_eq_getKey?, getKey?_congr h]
+
+theorem getKey!_eq_of_containsKey [BEq α] [LawfulBEq α] [Inhabited α]
+    {l : List ((a : α) × β a)} {k : α} (h : containsKey k l) :
+    getKey! k l = k := by
+  simp only [← getKey_eq_getKey! h, getKey_eq]
+
 theorem getKey?_eq_some_getKey! [BEq α] [Inhabited α] {l : List ((a : α) × β a)} {a : α}
     (h : containsKey a l = true) :
     getKey? a l = some (getKey! a l) := by
@@ -641,6 +718,32 @@ theorem getKey?_eq_some_getKey! [BEq α] [Inhabited α] {l : List ((a : α) × �
 
 theorem getKey!_eq_getKeyD_default [BEq α] [EquivBEq α] [Inhabited α] {l : List ((a : α) × β a)}
     {a : α} : getKey! a l = getKeyD a l default := rfl
+
+theorem getEntry?_eq_getValueCast? [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)}
+    {a : α} : getEntry? a l = (getValueCast? a l).map (fun v => ⟨a, v⟩) := by
+  induction l using assoc_induction with
+  | nil => rfl
+  | cons k v l ih =>
+    simp only [getEntry?_cons, getValueCast?_cons, cond_eq_if]
+    split
+    · rename_i h
+      simp only [beq_iff_eq] at h
+      subst h
+      rfl
+    · exact ih
+
+theorem getEntry_eq_getKey_getValue [BEq α] {β : Type v} {l : List ((_ : α) × β)}
+    {a : α} (h : containsKey a l) : getEntry a l h = ⟨getKey a l h, getValue a l h⟩ := by
+  induction l using assoc_induction with
+  | nil => contradiction
+  | cons k v l ih =>
+    match h' : k == a with
+    | true =>
+      simp only [getEntry_cons_of_beq, getKey_cons, getValue_cons_of_beq, h', reduceDIte]
+    | false =>
+      simp only [getEntry_cons_of_false, getKey_cons, getValue_cons_of_false, h',
+        Bool.false_eq_true, reduceDIte]
+      apply ih
 
 /-- Internal implementation detail of the hash map -/
 def replaceEntry [BEq α] (k : α) (v : β k) : List ((a : α) × β a) → List ((a : α) × β a)
@@ -1303,7 +1406,7 @@ theorem insertEntryIfNew_of_containsKey_eq_false [BEq α] {l : List ((a : α) ×
   simp_all [insertEntryIfNew]
 
 theorem DistinctKeys.insertEntryIfNew [BEq α] [PartialEquivBEq α] {k : α} {v : β k}
-    {l : List ((a : α) × β a)} (h: DistinctKeys l):
+    {l : List ((a : α) × β a)} (h : DistinctKeys l) :
     DistinctKeys (insertEntryIfNew k v l) := by
   simp only [Std.Internal.List.insertEntryIfNew, cond_eq_if]
   split
@@ -1811,6 +1914,53 @@ theorem getEntry?_ext [BEq α] [EquivBEq α] {l l' : List ((a : α) × β a)} (h
     · rw [← getEntry?_congr hk', ← getEntry?_congr hk', getEntry?_eq_none.2 hl.containsKey_eq_false,
           getEntry?_eq_none.2 (hl'.perm hl''.symm).containsKey_eq_false]
 
+theorem getValueCast?_ext [BEq α] [LawfulBEq α] {l l' : List ((a : α) × β a)} (hl : DistinctKeys l)
+    (hl' : DistinctKeys l') (h : ∀ a, getValueCast? a l = getValueCast? a l') : Perm l l' := by
+  apply getEntry?_ext hl hl'
+  intro a
+  simp only [getEntry?_eq_getValueCast?, h]
+
+theorem getKey?_getValue?_ext [BEq α] [EquivBEq α] {β : Type v}
+    {l l' : List ((_ : α) × β)} (hl : DistinctKeys l) (hl' : DistinctKeys l')
+    (hk : ∀ a, getKey? a l = getKey? a l') (hv : ∀ a, getValue? a l = getValue? a l') :
+    Perm l l' := by
+  apply getEntry?_ext hl hl'
+  intro a
+  specialize hk a; specialize hv a
+  by_cases h' : containsKey a l'
+  · simp only [getKey?_eq_some_getKey h'] at hk
+    have h'' := containsKey_eq_isSome_getKey?.trans (hk ▸ rfl : (getKey? a l).isSome = true)
+    simp only [getKey?_eq_some_getKey, getValue?_eq_some_getValue,
+      getEntry?_eq_some_getEntry, h', h'', Option.some.injEq,
+      getEntry_eq_getKey_getValue, Sigma.mk.injEq] at hk hv ⊢
+    exact ⟨hk, hv ▸ .rfl⟩
+  · simp only [getKey?_eq_none, h'] at hk
+    have h'' := containsKey_eq_isSome_getKey?.trans (hk ▸ rfl : (getKey? a l).isSome = false)
+    simp only [getEntry?_eq_none.mpr, h', h'']
+
+theorem getKey?_ext [BEq α] [EquivBEq α]
+    {l l' : List ((_ : α) × Unit)} (hl : DistinctKeys l) (hl' : DistinctKeys l')
+    (h : ∀ a, getKey? a l = getKey? a l') : Perm l l' := by
+  apply getKey?_getValue?_ext hl hl' h
+  intro a
+  specialize h a
+  by_cases h' : containsKey a l'
+  · rw [getKey?_eq_some_getKey h'] at h
+    have h'' := containsKey_eq_isSome_getKey?.trans (h ▸ Option.isSome_some)
+    simp only [getValue?_eq_some_getValue, h', h'']
+  · rw [getKey?_eq_none ((Bool.not_eq_true _).mp h')] at h
+    have h'' := containsKey_eq_isSome_getKey?.trans (h ▸ Option.isSome_none)
+    simp only [getValue?_eq_none.mpr, h', h'']
+
+theorem containsKey_ext [BEq α] [LawfulBEq α]
+    {l l' : List ((_ : α) × Unit)} (hl : DistinctKeys l) (hl' : DistinctKeys l')
+    (h : ∀ a, containsKey a l = containsKey a l') : Perm l l' := by
+  apply getKey?_ext hl hl'
+  intro a
+  by_cases h' : containsKey a l'
+  · simp only [getKey?_eq_some, h', (h a).trans h']
+  · simp only [getKey?_eq_none, h', (h a).trans ((Bool.not_eq_true _).mp h')]
+
 theorem replaceEntry_of_perm [BEq α] [EquivBEq α] {l l' : List ((a : α) × β a)} {k : α} {v : β k}
     (hl : DistinctKeys l) (h : Perm l l') : Perm (replaceEntry k v l) (replaceEntry k v l') := by
   apply getEntry?_ext hl.replaceEntry (hl.perm h.symm).replaceEntry
@@ -1820,6 +1970,12 @@ theorem insertEntry_of_perm [BEq α] [EquivBEq α] {l l' : List ((a : α) × β 
     (hl : DistinctKeys l) (h : Perm l l') : Perm (insertEntry k v l) (insertEntry k v l') := by
   apply getEntry?_ext hl.insertEntry (hl.perm h.symm).insertEntry
   simp [getEntry?_insertEntry, getEntry?_of_perm hl h]
+
+theorem insertEntryIfNew_of_perm [BEq α] [EquivBEq α] {l l' : List ((a : α) × β a)}
+    {k : α} {v : β k} (hl : DistinctKeys l) (h : Perm l l') :
+    Perm (insertEntryIfNew k v l) (insertEntryIfNew k v l') := by
+  apply getEntry?_ext hl.insertEntryIfNew (hl.perm h.symm).insertEntryIfNew
+  simp [getEntry?_insertEntryIfNew, getEntry?_of_perm hl h, containsKey_of_perm h]
 
 theorem eraseKey_of_perm [BEq α] [EquivBEq α] {l l' : List ((a : α) × β a)} {k : α}
     (hl : DistinctKeys l) (h : Perm l l') : Perm (eraseKey k l) (eraseKey k l') := by
@@ -1943,6 +2099,257 @@ theorem eraseKey_append_of_containsKey_right_eq_false [BEq α] {l l' : List ((a 
     · rw [cond_false, cond_false, ih, List.cons_append]
     · rw [cond_true, cond_true]
 
+theorem mem_iff_getValueCast?_eq_some [BEq α] [LawfulBEq α] {k : α} {v : β k}
+    {l : List ((a : α) × β a)} (h : DistinctKeys l) :
+    ⟨k, v⟩ ∈ l ↔ getValueCast? k l = some v := by
+  rw [mem_iff_getEntry?_eq_some h, getValueCast?_eq_getEntry?, Option.dmap_eq_some]
+  refine ⟨?_, ?_⟩
+  · intro hkv
+    refine ⟨⟨k, v⟩, hkv, by simp⟩
+  · rintro ⟨⟨k', v'⟩, hkv, hkv'⟩
+    obtain rfl := beq_iff_eq.1 (getEntry?_eq_some hkv)
+    simpa [hkv]
+
+theorem find?_eq_some_iff_getValueCast?_eq_some [BEq α] [LawfulBEq α]
+    {l : List ((a : α) × β a)} {k : α} {v : β k} (h : DistinctKeys l) :
+    List.find? (fun x => x.fst == k) l = some ⟨k, v⟩ ↔ getValueCast? k l = some v := by
+  rw [← getEntry?_eq_find, ← mem_iff_getEntry?_eq_some (p := ⟨k, v⟩) h,
+    ← mem_iff_getValueCast?_eq_some h]
+
+theorem find?_eq_none_iff_containsKey_eq_false [BEq α] [PartialEquivBEq α]
+    {l : List ((a : α) × β a)} {k : α} :
+    List.find? (fun x => x.fst == k) l = none ↔ containsKey k l = false := by
+  simp [List.find?_eq_none, containsKey_eq_false_iff, BEq.comm]
+
+theorem pairwise_fst_eq_false [BEq α] {l : List ((a : α) × β a)} (h : DistinctKeys l) :
+    List.Pairwise (fun a b => (a.fst == b.fst) = false) l := by
+  rw [DistinctKeys.def] at h
+  assumption
+
+theorem map_fst_map_toProd_eq_keys {β : Type v} {l : List ((_ : α) × β)} :
+    List.map Prod.fst (List.map (fun x => (x.fst, x.snd)) l) = List.keys l := by
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [List.map_cons, keys]
+    congr
+
+theorem find?_map_eq_none_iff_containsKey_eq_false [BEq α] [PartialEquivBEq α]
+    {β : Type v} {l : List ((_ : α) × β)} {k : α} :
+    List.find? (fun x => x.fst == k) (l.map (fun x => (x.fst, x.snd))) = none ↔
+      containsKey k l = false := by
+  simp [List.find?_eq_none, containsKey_eq_false_iff, BEq.comm]
+
+theorem mem_map_toProd_iff_mem {β : Type v} {k : α} {v : β} {l : List ((_ : α) × β)} :
+    ⟨k, v⟩ ∈ l ↔ (k, v) ∈ l.map (fun x => (x.fst, x.snd)) := by
+  simp only [List.mem_map, Prod.mk.injEq]
+  constructor
+  · intro h
+    exists ⟨k, v⟩
+  · intro h
+    rcases h with ⟨a, a_l, a_k, a_v⟩
+    simp [← a_k, ←a_v, a_l]
+
+theorem mem_iff_getValue?_eq_some [BEq α] [LawfulBEq α] {β : Type v} {k : α} {v : β}
+    {l : List ((_ : α) × β)} (h : DistinctKeys l) :
+    ⟨k, v⟩ ∈ l ↔ getValue? k l = some v := by
+  simp only [mem_iff_getEntry?_eq_some h, getValue?_eq_getEntry?, Option.map_eq_some']
+  constructor
+  · intro h
+    exists ⟨k, v⟩
+  · intro h
+    rcases h with ⟨a, h, a_v⟩
+    simp [h, ← a_v, Sigma.ext_iff]
+    apply LawfulBEq.eq_of_beq (getEntry?_eq_some h)
+
+theorem mem_map_toProd_iff_getValue?_eq_some [BEq α] [LawfulBEq α] {β : Type v} {k : α} {v : β}
+    {l : List ((_ : α) × β)} (h : DistinctKeys l) :
+    ⟨k, v⟩ ∈ l.map (fun x => (x.fst, x.snd)) ↔ getValue? k l = some v := by
+  rw [← mem_map_toProd_iff_mem]
+  exact mem_iff_getValue?_eq_some h
+
+theorem find?_map_toProd_eq_some_iff_getKey?_eq_some_and_getValue?_eq_some [BEq α] [EquivBEq α]
+    {β : Type v} {k k': α} {v : β} {l : List ((_ : α) × β)} :
+    (l.map (fun x => (x.fst, x.snd))).find? (fun a => a.1 == k) = some (k', v) ↔
+      getKey? k l = some k' ∧ getValue? k l = some v := by
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [List.map_cons, List.find?_cons_eq_some, Prod.mk.injEq, Bool.not_eq_eq_eq_not,
+      Bool.not_true, Option.map_eq_some', getKey?, cond_eq_if, getValue?]
+    by_cases hdfst_k: hd.fst == k
+    · simp only [hdfst_k, true_and, Bool.true_eq_false, false_and, or_false, ↓reduceIte,
+      Option.some.injEq]
+    · simp only [hdfst_k, Bool.false_eq_true, false_and, true_and, false_or, ↓reduceIte]
+      rw [ih]
+
+theorem mem_iff_getKey?_eq_some_and_getValue?_eq_some [BEq α] [EquivBEq α]
+    {β : Type v} {k: α} {v : β} {l : List ((_ : α) × β)} (h : DistinctKeys l) :
+    ⟨k, v⟩ ∈ l ↔ getKey? k l = some k ∧ getValue? k l = some v := by
+  rw [mem_iff_getEntry?_eq_some h, getEntry?_eq_some_iff_getKey?_eq_some_getValue?_eq_some]
+
+theorem getValue?_eq_some_iff_exists_beq_and_mem_toList {β : Type v} [BEq α] [EquivBEq α]
+    {l : List ((_ : α) × β)} {k: α} {v : β} (h : DistinctKeys l) :
+    getValue? k l = some v ↔ ∃ k', (k == k') = true ∧ (k', v) ∈ l.map (fun x => (x.fst, x.snd)) := by
+  simp only [getValue?_eq_getEntry?, Option.map_eq_some', ← mem_map_toProd_iff_mem,
+    mem_iff_getEntry?_eq_some h]
+  constructor
+  · intro h'
+    rcases h' with ⟨a, h', a_v⟩
+    exists a.1
+    have k_afst : a.fst == k := getEntry?_eq_some h'
+    simp [k_afst, getEntry?_congr k_afst, ← a_v, h', BEq.symm]
+  · intro h'
+    rcases h' with ⟨k', k_k', h'⟩
+    exists ⟨k', v⟩
+    simp only [and_true, getEntry?_congr k_k', h']
+
+
+theorem mem_map_toProd_iff_getKey?_eq_some_and_getValue?_eq_some [BEq α] [EquivBEq α]
+    {β : Type v} {k: α} {v : β} {l : List ((_ : α) × β)} (h : DistinctKeys l) :
+    (k, v) ∈ l.map (fun x => (x.fst, x.snd)) ↔ getKey? k l = some k ∧ getValue? k l = some v := by
+  rw [← mem_map_toProd_iff_mem]
+  exact mem_iff_getKey?_eq_some_and_getValue?_eq_some h
+
+theorem pairwise_fst_eq_false_map_toProd [BEq α] {β : Type v}
+    {l : List ((_ : α) × β)} (h : DistinctKeys l) :
+    List.Pairwise (fun a b => (a.fst == b.fst) = false) (List.map (fun x => (x.fst, x.snd)) l) := by
+  rw [DistinctKeys.def] at h
+  simp [List.pairwise_map]
+  assumption
+
+theorem foldlM_eq_foldlM_toProd {β : Type v} {δ : Type w} {m' : Type w → Type w} [Monad m']
+    [LawfulMonad m'] {l : List ((_ : α) × β)} {f : δ → (a : α) → β → m' δ} {init : δ} :
+    l.foldlM (fun a b => f a b.fst b.snd) init =
+      (l.map fun x => (x.1, x.2)).foldlM (fun a b => f a b.fst b.snd) init := by
+  induction l generalizing init with
+  | nil => simp
+  | cons hd tl ih => simp [ih]
+
+theorem foldl_eq_foldl_toProd {β : Type v} {δ : Type w}
+    {l : List ((_ : α) × β)} {f : δ → (a : α) → β → δ} {init : δ} :
+    l.foldl (fun a b => f a b.fst b.snd) init =
+      (l.map fun x => (x.1, x.2)).foldl (fun a b => f a b.fst b.snd) init := by
+  induction l generalizing init with
+  | nil => simp
+  | cons hd tl ih => simp [ih]
+
+theorem foldrM_eq_foldrM_toProd {β : Type v} {δ : Type w} {m' : Type w → Type w} [Monad m']
+    [LawfulMonad m'] {l : List ((_ : α) × β)} {f : (a : α) → β → δ → m' δ} {init : δ} :
+    l.foldrM (fun a b => f a.1 a.2 b) init =
+      (l.map fun x => (x.1, x.2)).foldrM (fun a b => f a.1 a.2 b) init := by
+  induction l generalizing init with
+  | nil => simp
+  | cons hd tl ih => simp [ih]
+
+theorem foldrM_eq_foldrM_toProd' {β : Type v} {δ : Type w} {m' : Type w → Type w} [Monad m']
+    [LawfulMonad m'] {l : List ((_ : α) × β)} {f : δ → (a : α) → β → m' δ} {init : δ} :
+    l.foldrM (fun a b => f b a.1 a.2) init =
+      (l.map fun x => (x.1, x.2)).foldrM (fun a b => f b a.1 a.2) init := by
+  induction l generalizing init with
+  | nil => simp
+  | cons hd tl ih => simp [ih]
+
+theorem foldr_eq_foldr_toProd {β : Type v} {δ : Type w}
+    {l : List ((_ : α) × β)} {f : (a : α) → β → δ → δ} {init : δ} :
+    l.foldr (fun a b => f a.1 a.2 b) init =
+      (l.map fun x => (x.1, x.2)).foldr (fun a b => f a.1 a.2 b) init := by
+  induction l generalizing init with
+  | nil => simp
+  | cons hd tl ih => simp [ih]
+
+theorem foldr_eq_foldr_toProd' {β : Type v} {δ : Type w}
+    {l : List ((_ : α) × β)} {f : δ → (a : α) → β → δ} {init : δ} :
+    l.foldr (fun a b => f b a.1 a.2) init =
+      (l.map fun x => (x.1, x.2)).foldr (fun a b => f b a.1 a.2) init := by
+  induction l generalizing init with
+  | nil => simp
+  | cons hd tl ih => simp [ih]
+
+theorem forM_eq_forM_toProd {β : Type v} {m' : Type w → Type w} [Monad m']
+    [LawfulMonad m'] {l : List ((_ : α) × β)} {f : (a : α) → β → m' PUnit} :
+    forM l (fun a => f a.1 a.2) = forM (l.map (fun x => (x.1, x.2))) fun a => f a.1 a.2 := by
+  cases l with
+  | nil => simp
+  | cons hd tl => simp
+
+theorem forIn_eq_forIn_toProd {β : Type v} {δ : Type w} {m' : Type w → Type w} [Monad m']
+    [LawfulMonad m'] {l : List ((_ : α) × β)} {f : (a : α) → β → δ → m' (ForInStep δ)} {init : δ} :
+    ForIn.forIn l init (fun a d => f a.1 a.2 d) =
+      ForIn.forIn (l.map (fun x => (x.1, x.2))) init fun a d => f a.1 a.2 d := by
+  cases l  with
+  | nil => simp
+  | cons hd tl => simp
+
+theorem foldlM_eq_foldlM_keys {δ : Type w} {m' : Type w → Type w} [Monad m'] [LawfulMonad m']
+    {l : List ((a : α) × β a)} {f : δ → α → m' δ} {init : δ} :
+    l.foldlM (fun a b => f a b.1) init = (keys l).foldlM f init := by
+  induction l generalizing init with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [List.foldlM_cons, keys]
+    congr
+    simp [ih]
+
+theorem foldl_eq_foldl_keys {δ : Type w}
+    {l : List ((a : α) × β a)} {f : δ → α → δ} {init : δ} :
+    l.foldl (fun a b => f a b.1) init = (keys l).foldl f init := by
+  induction l generalizing init with
+  | nil => simp
+  | cons hd tl ih => simp [List.foldlM_cons, keys, ih]
+
+theorem foldrM_eq_foldrM_keys {δ : Type w} {m' : Type w → Type w} [Monad m'] [LawfulMonad m']
+    {l : List ((a : α) × β a)} {f : α → δ → m' δ} {init : δ} :
+    l.foldrM (fun a b => f a.1 b) init = (keys l).foldrM f init := by
+  induction l generalizing init with
+  | nil => simp
+  | cons hd tl ih =>
+    simp [keys, ih]
+
+theorem foldrM_eq_foldrM_keys' {δ : Type w} {m' : Type w → Type w} [Monad m'] [LawfulMonad m']
+    {l : List ((a : α) × β a)} {f : δ → α → m' δ} {init : δ} :
+    l.foldrM (fun a b => f b a.1) init = (keys l).foldrM (fun a b => f b a) init := by
+  induction l generalizing init with
+  | nil => simp
+  | cons hd tl ih =>
+    simp [keys, ih]
+
+theorem foldr_eq_foldr_keys {δ : Type w}
+    {l : List ((a : α) × β a)} {f : α → δ → δ} {init : δ} :
+    l.foldr (fun a b => f a.1 b) init = (keys l).foldr f init := by
+  induction l generalizing init with
+  | nil => simp
+  | cons hd tl ih => simp [keys, ih]
+
+theorem foldr_eq_foldr_keys' {δ : Type w}
+    {l : List ((a : α) × β a)} {f : δ → α → δ} {init : δ} :
+    l.foldr (fun a b => f b a.1) init = (keys l).foldr (fun a b => f b a) init := by
+  induction l generalizing init with
+  | nil => simp
+  | cons hd tl ih => simp [keys, ih]
+
+theorem forM_eq_forM_keys {m' : Type w → Type w} [Monad m'] [LawfulMonad m']
+    {l : List ((a : α) × β a)} {f : α → m' PUnit} :
+    l.forM (fun a => f a.1) = (keys l).forM f := by
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [List.forM_eq_forM, List.forM_cons, keys]
+    congr
+    funext x
+    apply ih
+
+theorem forIn_eq_forIn_keys {δ : Type w} {m' : Type w → Type w} [Monad m'] [LawfulMonad m']
+    {f : α → δ → m' (ForInStep δ)} {init : δ} {l : List ((a : α) × β a)} :
+    ForIn.forIn l init (fun a d => f a.fst d) = ForIn.forIn (keys l) init f := by
+  induction l generalizing init with
+  | nil => simp
+  | cons hd tl ih =>
+    simp [keys]
+    congr
+    funext x
+    cases x <;> simp[ih]
+
 /-- Internal implementation detail of the hash map -/
 def insertList [BEq α] (l toInsert : List ((a : α) × β a)) : List ((a : α) × β a) :=
   match toInsert with
@@ -2056,8 +2463,8 @@ theorem getValueCast?_insertList_of_contains_eq_false [BEq α] [LawfulBEq α]
 
 theorem getValueCast?_insertList_of_mem [BEq α] [LawfulBEq α]
     {l toInsert : List ((a : α) × β a)}
-    {k k' : α} (k_beq : k == k') {v : β k}
     (distinct_l : DistinctKeys l)
+    {k k' : α} (k_beq : k == k') {v : β k}
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ toInsert) :
     getValueCast? k' (insertList l toInsert) =
@@ -2084,15 +2491,15 @@ theorem getValueCast_insertList_of_contains_eq_false [BEq α] [LawfulBEq α]
 
 theorem getValueCast_insertList_of_mem [BEq α] [LawfulBEq α]
     {l toInsert : List ((a : α) × β a)}
-    {k k' : α} (k_beq : k == k') (v : β k)
     (distinct_l : DistinctKeys l)
+    {k k' : α} (k_beq : k == k') (v : β k)
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ toInsert)
     {h} :
     getValueCast k' (insertList l toInsert) h =
     cast (by congr; exact LawfulBEq.eq_of_beq k_beq) v := by
   rw [← Option.some_inj, ← getValueCast?_eq_some_getValueCast,
-    getValueCast?_insertList_of_mem k_beq distinct_l distinct_toInsert mem]
+    getValueCast?_insertList_of_mem distinct_l k_beq distinct_toInsert mem]
 
 theorem getValueCast!_insertList_of_contains_eq_false [BEq α] [LawfulBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α} [Inhabited (β k)]
@@ -2103,14 +2510,14 @@ theorem getValueCast!_insertList_of_contains_eq_false [BEq α] [LawfulBEq α]
 
 theorem getValueCast!_insertList_of_mem [BEq α] [LawfulBEq α]
     {l toInsert : List ((a : α) × β a)}
-    {k k' : α} (k_beq : k == k') (v : β k) [Inhabited (β k')]
     (distinct_l : DistinctKeys l)
+    {k k' : α} (k_beq : k == k') (v : β k) [Inhabited (β k')]
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ toInsert) :
     getValueCast! k' (insertList l toInsert) =
     cast (by congr; exact LawfulBEq.eq_of_beq k_beq) v := by
   rw [getValueCast!_eq_getValueCast?,
-    getValueCast?_insertList_of_mem k_beq distinct_l distinct_toInsert mem, Option.get!_some]
+    getValueCast?_insertList_of_mem distinct_l k_beq distinct_toInsert mem, Option.get!_some]
 
 theorem getValueCastD_insertList_of_contains_eq_false [BEq α] [LawfulBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α} {fallback : β k}
@@ -2121,14 +2528,14 @@ theorem getValueCastD_insertList_of_contains_eq_false [BEq α] [LawfulBEq α]
 
 theorem getValueCastD_insertList_of_mem [BEq α] [LawfulBEq α]
     {l toInsert : List ((a : α) × β a)}
-    {k k' : α} (k_beq : k == k') {v : β k} {fallback : β k'}
     (distinct_l : DistinctKeys l)
+    {k k' : α} (k_beq : k == k') {v : β k} {fallback : β k'}
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ toInsert) :
     getValueCastD k' (insertList l toInsert) fallback =
     cast (by congr; exact LawfulBEq.eq_of_beq k_beq) v := by
   rw [getValueCastD_eq_getValueCast?,
-    getValueCast?_insertList_of_mem k_beq distinct_l distinct_toInsert mem, Option.getD_some]
+    getValueCast?_insertList_of_mem distinct_l k_beq distinct_toInsert mem, Option.getD_some]
 
 theorem getKey?_insertList_of_contains_eq_false [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)} {k : α}
@@ -2140,8 +2547,8 @@ theorem getKey?_insertList_of_contains_eq_false [BEq α] [EquivBEq α]
 
 theorem getKey?_insertList_of_mem [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)}
-    {k k' : α} (k_beq : k == k')
     (distinct_l : DistinctKeys l)
+    {k k' : α} (k_beq : k == k')
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : k ∈ toInsert.map Sigma.fst) :
     getKey? k' (insertList l toInsert) = some k := by
@@ -2161,14 +2568,14 @@ theorem getKey_insertList_of_contains_eq_false [BEq α] [EquivBEq α]
 
 theorem getKey_insertList_of_mem [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)}
-    {k k' : α} (k_beq : k == k')
     (distinct_l : DistinctKeys l)
+    {k k' : α} (k_beq : k == k')
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : k ∈ toInsert.map Sigma.fst)
     {h} :
     getKey k' (insertList l toInsert) h = k := by
   rw [← Option.some_inj, ← getKey?_eq_some_getKey,
-    getKey?_insertList_of_mem k_beq distinct_l distinct_toInsert mem]
+    getKey?_insertList_of_mem distinct_l k_beq distinct_toInsert mem]
 
 theorem getKey!_insertList_of_contains_eq_false [BEq α] [EquivBEq α] [Inhabited α]
     {l toInsert : List ((a : α) × β a)} {k : α}
@@ -2178,12 +2585,12 @@ theorem getKey!_insertList_of_contains_eq_false [BEq α] [EquivBEq α] [Inhabite
 
 theorem getKey!_insertList_of_mem [BEq α] [EquivBEq α] [Inhabited α]
     {l toInsert : List ((a : α) × β a)}
-    {k k' : α} (k_beq : k == k')
     (distinct_l : DistinctKeys l)
+    {k k' : α} (k_beq : k == k')
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : k ∈ toInsert.map Sigma.fst) :
     getKey! k' (insertList l toInsert) = k := by
-  rw [getKey!_eq_getKey?, getKey?_insertList_of_mem k_beq distinct_l distinct_toInsert mem,
+  rw [getKey!_eq_getKey?, getKey?_insertList_of_mem distinct_l k_beq distinct_toInsert mem,
     Option.get!_some]
 
 theorem getKeyD_insertList_of_contains_eq_false [BEq α] [EquivBEq α]
@@ -2194,12 +2601,12 @@ theorem getKeyD_insertList_of_contains_eq_false [BEq α] [EquivBEq α]
 
 theorem getKeyD_insertList_of_mem [BEq α] [EquivBEq α]
     {l toInsert : List ((a : α) × β a)}
-    {k k' fallback : α} (k_beq : k == k')
     (distinct_l : DistinctKeys l)
+    {k k' fallback : α} (k_beq : k == k')
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : k ∈ toInsert.map Sigma.fst) :
     getKeyD k' (insertList l toInsert) fallback = k := by
-  rw [getKeyD_eq_getKey?, getKey?_insertList_of_mem k_beq distinct_l distinct_toInsert mem,
+  rw [getKeyD_eq_getKey?, getKey?_insertList_of_mem distinct_l k_beq distinct_toInsert mem,
     Option.getD_some]
 
 theorem perm_insertList [BEq α] [EquivBEq α]
@@ -2299,13 +2706,13 @@ theorem getKey?_insertListConst_of_contains_eq_false [BEq α] [EquivBEq α]
 
 theorem getKey?_insertListConst_of_mem [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)}
-    {k k' : α} (k_beq : k == k')
     (distinct_l : DistinctKeys l)
+    {k k' : α} (k_beq : k == k')
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : k ∈ toInsert.map Prod.fst) :
     getKey? k' (insertListConst l toInsert) = some k := by
   unfold insertListConst
-  apply getKey?_insertList_of_mem k_beq distinct_l
+  apply getKey?_insertList_of_mem distinct_l k_beq
   · simpa [List.pairwise_map]
   · simp only [List.map_map, Prod.fst_comp_toSigma]
     exact mem
@@ -2321,14 +2728,14 @@ theorem getKey_insertListConst_of_contains_eq_false [BEq α] [EquivBEq α]
 
 theorem getKey_insertListConst_of_mem [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)}
-    {k k' : α} (k_beq : k == k')
     (distinct_l : DistinctKeys l)
+    {k k' : α} (k_beq : k == k')
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : k ∈ toInsert.map Prod.fst)
     {h} :
     getKey k' (insertListConst l toInsert) h = k := by
   rw [← Option.some_inj, ← getKey?_eq_some_getKey,
-    getKey?_insertListConst_of_mem k_beq distinct_l distinct_toInsert mem]
+    getKey?_insertListConst_of_mem distinct_l k_beq distinct_toInsert mem]
 
 theorem getKey!_insertListConst_of_contains_eq_false [BEq α] [EquivBEq α] [Inhabited α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k : α}
@@ -2339,12 +2746,12 @@ theorem getKey!_insertListConst_of_contains_eq_false [BEq α] [EquivBEq α] [Inh
 
 theorem getKey!_insertListConst_of_mem [BEq α] [EquivBEq α] [Inhabited α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)}
-    {k k' : α} (k_beq : k == k')
     (distinct_l : DistinctKeys l)
+    {k k' : α} (k_beq : k == k')
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : k ∈ toInsert.map Prod.fst) :
     getKey! k' (insertListConst l toInsert) = k := by
-  rw [getKey!_eq_getKey?, getKey?_insertListConst_of_mem k_beq distinct_l distinct_toInsert mem,
+  rw [getKey!_eq_getKey?, getKey?_insertListConst_of_mem distinct_l k_beq distinct_toInsert mem,
     Option.get!_some]
 
 theorem getKeyD_insertListConst_of_contains_eq_false [BEq α] [EquivBEq α]
@@ -2356,12 +2763,12 @@ theorem getKeyD_insertListConst_of_contains_eq_false [BEq α] [EquivBEq α]
 
 theorem getKeyD_insertListConst_of_mem [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)}
-    {k k' fallback : α} (k_beq : k == k')
     (distinct_l : DistinctKeys l)
+    {k k' fallback : α} (k_beq : k == k')
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : k ∈ toInsert.map Prod.fst) :
     getKeyD k' (insertListConst l toInsert) fallback = k := by
-  rw [getKeyD_eq_getKey?, getKey?_insertListConst_of_mem k_beq distinct_l distinct_toInsert mem,
+  rw [getKeyD_eq_getKey?, getKey?_insertListConst_of_mem distinct_l k_beq distinct_toInsert mem,
     Option.getD_some]
 
 theorem length_insertListConst [BEq α] [EquivBEq α]
@@ -2408,8 +2815,8 @@ theorem getValue?_insertListConst_of_contains_eq_false [BEq α] [PartialEquivBEq
 
 theorem getValue?_insertListConst_of_mem [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)}
-    {k k' : α} (k_beq : k == k') {v : β}
     (distinct_l : DistinctKeys l)
+    {k k' : α} (k_beq : k == k') {v : β}
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ toInsert) :
     getValue? k' (insertListConst l toInsert) = v := by
@@ -2444,14 +2851,14 @@ theorem getValue_insertListConst_of_contains_eq_false [BEq α] [PartialEquivBEq 
 
 theorem getValue_insertListConst_of_mem [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)}
-    {k k' : α} (k_beq : k == k') {v : β}
     (distinct_l : DistinctKeys l)
+    {k k' : α} (k_beq : k == k') {v : β}
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ toInsert)
     {h} :
     getValue k' (insertListConst l toInsert) h = v := by
   rw [← Option.some_inj, ← getValue?_eq_some_getValue,
-    getValue?_insertListConst_of_mem k_beq distinct_l distinct_toInsert mem]
+    getValue?_insertListConst_of_mem distinct_l k_beq distinct_toInsert mem]
 
 theorem getValue!_insertListConst_of_contains_eq_false [BEq α] [PartialEquivBEq α] [Inhabited β]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k : α}
@@ -2461,13 +2868,14 @@ theorem getValue!_insertListConst_of_contains_eq_false [BEq α] [PartialEquivBEq
   rw [getValue?_insertListConst_of_contains_eq_false not_contains]
 
 theorem getValue!_insertListConst_of_mem [BEq α] [EquivBEq α] [Inhabited β]
-    {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k k' : α} {v: β} (k_beq : k == k')
+    {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k k' : α} {v: β}
     (distinct_l : DistinctKeys l)
+    (k_beq : k == k')
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (mem : ⟨k, v⟩ ∈ toInsert):
+    (mem : ⟨k, v⟩ ∈ toInsert) :
     getValue! k' (insertListConst l toInsert) = v := by
   rw [getValue!_eq_getValue?,
-    getValue?_insertListConst_of_mem k_beq distinct_l distinct_toInsert mem, Option.get!_some]
+    getValue?_insertListConst_of_mem distinct_l k_beq distinct_toInsert mem, Option.get!_some]
 
 theorem getValueD_insertListConst_of_contains_eq_false [BEq α] [PartialEquivBEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k : α} {fallback : β}
@@ -2477,13 +2885,14 @@ theorem getValueD_insertListConst_of_contains_eq_false [BEq α] [PartialEquivBEq
   rw [getValue?_insertListConst_of_contains_eq_false not_contains]
 
 theorem getValueD_insertListConst_of_mem [BEq α] [EquivBEq α]
-    {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k k' : α} {v fallback: β} (k_beq : k == k')
+    {l : List ((_ : α) × β)} {toInsert : List (α × β)} {k k' : α} {v fallback: β}
     (distinct_l : DistinctKeys l)
+    (k_beq : k == k')
     (distinct_toInsert : toInsert.Pairwise (fun a b => (a.1 == b.1) = false))
-    (mem : ⟨k, v⟩ ∈ toInsert):
+    (mem : ⟨k, v⟩ ∈ toInsert) :
     getValueD k' (insertListConst l toInsert) fallback= v := by
   simp only [getValueD_eq_getValue?]
-  rw [getValue?_insertListConst_of_mem k_beq distinct_l distinct_toInsert mem, Option.getD_some]
+  rw [getValue?_insertListConst_of_mem distinct_l k_beq distinct_toInsert mem, Option.getD_some]
 
 /-- Internal implementation detail of the hash map -/
 def insertListIfNewUnit [BEq α] (l: List ((_ : α) × Unit)) (toInsert: List α) :
@@ -2511,7 +2920,7 @@ theorem insertListIfNewUnit_perm_of_perm_first [BEq α] [EquivBEq α] {l1 l2 : L
     · apply DistinctKeys.insertEntryIfNew distinct
 
 theorem DistinctKeys.insertListIfNewUnit [BEq α] [PartialEquivBEq α] {l : List ((_ : α) × Unit)}
-    {toInsert : List α} (distinct: DistinctKeys l):
+    {toInsert : List α} (distinct: DistinctKeys l) :
     DistinctKeys (insertListIfNewUnit l toInsert) := by
   induction toInsert generalizing l with
   | nil => simp [List.insertListIfNewUnit, distinct]
@@ -2592,7 +3001,7 @@ theorem getKey?_insertListIfNewUnit_of_contains_eq_false_of_mem [BEq α] [EquivB
     {l : List ((_ : α) × Unit)} {toInsert : List α}
     {k k' : α} (k_beq : k == k')
     (mem' : containsKey k l = false)
-    (distinct : toInsert.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ toInsert):
+    (distinct : toInsert.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ toInsert) :
     getKey? k' (insertListIfNewUnit l toInsert) = some k := by
   simp only [getKey?_eq_getEntry?, getEntry?_insertListIfNewUnit, Option.map_eq_some',
     Option.or_eq_some, getEntry?_eq_none]
@@ -2609,7 +3018,7 @@ theorem getKey?_insertListIfNewUnit_of_contains_eq_false_of_mem [BEq α] [EquivB
 theorem getKey?_insertListIfNewUnit_of_contains [BEq α] [EquivBEq α]
     {l : List ((_ : α) × Unit)} {toInsert : List α}
     {k : α}
-    (h : containsKey k l = true):
+    (h : containsKey k l = true) :
     getKey? k (insertListIfNewUnit l toInsert) = getKey? k l := by
   rw [containsKey_eq_isSome_getEntry?] at h
   simp [getKey?_eq_getEntry?, getEntry?_insertListIfNewUnit, Option.or_of_isSome h]
@@ -2627,7 +3036,7 @@ theorem getKey_insertListIfNewUnit_of_contains_eq_false_of_mem [BEq α] [EquivBE
 theorem getKey_insertListIfNewUnit_of_contains [BEq α] [EquivBEq α]
     {l : List ((_ : α) × Unit)} {toInsert : List α}
     {k : α}
-    (contains : containsKey k l = true) {h}:
+    (contains : containsKey k l = true) {h} :
     getKey k (insertListIfNewUnit l toInsert) h = getKey k l contains := by
   rw [← Option.some_inj, ← getKey?_eq_some_getKey, ← getKey?_eq_some_getKey,
     getKey?_insertListIfNewUnit_of_contains contains]
@@ -2728,14 +3137,14 @@ theorem length_insertListIfNewUnit [BEq α] [EquivBEq α]
         apply And.right distinct_both
 
 theorem length_le_length_insertListIfNewUnit [BEq α] [EquivBEq α]
-    {l : List ((_ : α) × Unit)} {toInsert : List α}:
+    {l : List ((_ : α) × Unit)} {toInsert : List α} :
     l.length ≤ (insertListIfNewUnit l toInsert).length := by
   induction toInsert generalizing l with
   | nil => apply Nat.le_refl
   | cons hd tl ih => exact Nat.le_trans length_le_length_insertEntryIfNew ih
 
 theorem length_insertListIfNewUnit_le [BEq α] [EquivBEq α]
-    {l : List ((_ : α) × Unit)} {toInsert : List α}:
+    {l : List ((_ : α) × Unit)} {toInsert : List α} :
     (insertListIfNewUnit l toInsert).length ≤ l.length + toInsert.length := by
   induction toInsert generalizing l with
   | nil => simp only [insertListIfNewUnit, List.length_nil, Nat.add_zero, Nat.le_refl]
@@ -2755,7 +3164,7 @@ theorem isEmpty_insertListIfNewUnit [BEq α]
     rw [insertListIfNewUnit, List.isEmpty_cons, ih, isEmpty_insertEntryIfNew]
     simp
 
-theorem getValue?_list_unit [BEq α] {l : List ((_ : α) × Unit)} {k : α}:
+theorem getValue?_list_unit [BEq α] {l : List ((_ : α) × Unit)} {k : α} :
     getValue? k l = if containsKey k l = true then some () else none := by
   induction l with
   | nil => simp
@@ -2766,7 +3175,7 @@ theorem getValue?_list_unit [BEq α] {l : List ((_ : α) × Unit)} {k : α}:
     · simp [hd_k, ih]
 
 theorem getValue?_insertListIfNewUnit [BEq α] [PartialEquivBEq α]
-    {l : List ((_ : α) × Unit)} {toInsert : List α} {k : α}:
+    {l : List ((_ : α) × Unit)} {toInsert : List α} {k : α} :
     getValue? k (insertListIfNewUnit l toInsert) =
     if containsKey k l ∨ toInsert.contains k then some () else none := by
   simp [containsKey_insertListIfNewUnit, getValue?_list_unit]
@@ -2807,9 +3216,9 @@ theorem length_alterKey {k : α} {f : Option (β k) → Option (β k)} {l : List
 
 theorem length_alterKey' {k : α} {f : Option (β k) → Option (β k)} {l : List ((a : α) × β a)} :
     (alterKey k f l).length =
-      if containsKey k l && (f (getValueCast? k l)).isNone then
+      if containsKey k l ∧ (f (getValueCast? k l)).isNone then
         l.length - 1
-      else if !containsKey k l && (f (getValueCast? k l)).isSome then
+      else if containsKey k l = false ∧ (f (getValueCast? k l)).isSome then
         l.length + 1
       else
         l.length := by
@@ -3013,7 +3422,7 @@ theorem getKey!_alterKey [Inhabited α] {k k' : α} {f : Option (β k) → Optio
   · next heq =>
     rfl
 
-theorem getKey_alterKey [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)}
+theorem getKey_alterKey {k k' : α} {f : Option (β k) → Option (β k)}
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) (hc : containsKey k' (alterKey k f l)) :
     getKey k' (alterKey k f l) hc =
       if heq : k == k' then
@@ -3074,9 +3483,9 @@ theorem length_alterKey {k : α} {f : Option β → Option β} {l : List ((_ : �
 
 theorem length_alterKey' {k : α} {f : Option β → Option β} {l : List ((_ : α) × β)} :
     (alterKey k f l).length =
-      if containsKey k l && (f (getValue? k l)).isNone then
+      if containsKey k l ∧ (f (getValue? k l)).isNone then
         l.length - 1
-      else if !containsKey k l && (f (getValue? k l)).isSome then
+      else if containsKey k l = false ∧ (f (getValue? k l)).isSome then
         l.length + 1
       else
         l.length := by
@@ -3127,7 +3536,7 @@ theorem alterKey_cons_perm {k : α} {f : Option β → Option β} {k' : α} {v' 
 theorem isEmpty_alterKey_eq_isEmpty_eraseKey {k : α} {f : Option β → Option β}
     {l : List ((_ : α) × β)} :
     (alterKey k f l).isEmpty = ((eraseKey k l).isEmpty && (f (getValue? k l)).isNone) := by
-  simp only [alterKey, List.isEmpty_eq_true]
+  simp only [alterKey, List.isEmpty_iff]
   split <;> { next heq => simp [heq] }
 
 theorem isEmpty_alterKey {k : α} {f : Option β → Option β} {l : List ((_ : α) × β)} :
@@ -3286,7 +3695,7 @@ theorem getKey!_alterKey [EquivBEq α] [Inhabited α] {k k' : α} {f : Option β
         getKey! k' l := by
   simp [hl, getKey!_eq_getKey?, getKey?_alterKey, apply_ite Option.get!]
 
-theorem getKey_alterKey [EquivBEq α] [Inhabited α] {k k' : α} {f : Option β → Option β}
+theorem getKey_alterKey [EquivBEq α] {k k' : α} {f : Option β → Option β}
     (l : List ((_ : α) × β)) (hl : DistinctKeys l) (hc : containsKey k' (alterKey k f l)) :
     getKey k' (alterKey k f l) hc =
       if heq : k == k' then
@@ -3375,8 +3784,13 @@ theorem modifyKey_eq_alterKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β 
   split <;> next h =>
     simp [h, insertEntry, containsKey_eq_isSome_getValueCast?, eraseKey_of_containsKey_eq_false]
 
+theorem modifyKey_of_perm [BEq α] [LawfulBEq α] {l l' : List ((a : α) × β a)}
+    {k : α} {f : β k → β k} (hl : DistinctKeys l) (h : Perm l l') :
+    Perm (modifyKey k f l) (modifyKey k f l') := by
+  simp only [modifyKey_eq_alterKey, alterKey_of_perm hl h]
+
 theorem getValueCast?_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {f : β k → β k}
-    (l : List ((a : α) × β a)) (hl : DistinctKeys l):
+    (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getValueCast? k' (modifyKey k f l) =
       if h : k == k' then
         (cast (congrArg (Option ∘ β) (eq_of_beq h)) ((getValueCast? k l).map f))
@@ -3472,7 +3886,7 @@ theorem getKey!_modifyKey_self [BEq α] [LawfulBEq α] [Inhabited α] {k : α} {
     getKey! k (modifyKey k f l) = if containsKey k l then k else default := by
   simp [getKey!_modifyKey, hl]
 
-theorem getKey_modifyKey [BEq α] [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k}
+theorem getKey_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {f : β k → β k}
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) (h : containsKey k' (modifyKey k f l)) :
     getKey k' (modifyKey k f l) h =
       if k == k' then
@@ -3480,13 +3894,13 @@ theorem getKey_modifyKey [BEq α] [LawfulBEq α] [Inhabited α] {k k' : α} {f :
       else
         haveI h' : containsKey k' l := by rwa [containsKey_modifyKey] at h
         getKey k' l h' := by
-  simp [modifyKey_eq_alterKey, getKey_alterKey, hl, ← dite_eq_ite]
+  simp only [modifyKey_eq_alterKey, getKey_alterKey, hl, ← dite_eq_ite]
 
 @[simp]
-theorem getKey_modifyKey_self [BEq α] [LawfulBEq α] [Inhabited α] {k : α} {f : β k → β k}
-    (l : List ((a : α) × β a)) (hl : DistinctKeys l) (h : containsKey k (modifyKey k f l)) :
+theorem getKey_modifyKey_self [BEq α] [LawfulBEq α] {k : α} {f : β k → β k}
+    (l : List ((a : α) × β a)) (_ : DistinctKeys l) (h : containsKey k (modifyKey k f l)) :
     getKey k (modifyKey k f l) h = k := by
-  simp [getKey_modifyKey, hl]
+  simp only [getKey_eq]
 
 theorem getKeyD_modifyKey [BEq α] [LawfulBEq α] {k k' fallback : α} {f : β k → β k}
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
@@ -3497,7 +3911,7 @@ theorem getKeyD_modifyKey [BEq α] [LawfulBEq α] {k k' fallback : α} {f : β k
         getKeyD k' l fallback := by
   simp [modifyKey_eq_alterKey, getKeyD_alterKey, containsKey_eq_isSome_getValueCast?, hl]
 
-theorem getKeyD_modifyKey_self [BEq α] [LawfulBEq α] [Inhabited α] {k fallback : α} {f : β k → β k}
+theorem getKeyD_modifyKey_self [BEq α] [LawfulBEq α] {k fallback : α} {f : β k → β k}
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getKeyD k (modifyKey k f l) fallback = if containsKey k l then k else fallback := by
   simp [getKeyD_modifyKey, hl]
@@ -3526,6 +3940,11 @@ theorem modifyKey_eq_alterKey (k : α) (f : β → β) (l : List ((_ : α) × β
   rw [modifyKey, alterKey, Option.map.eq_def]
   split <;> next h =>
     simp [h, insertEntry, containsKey_eq_isSome_getValue?, eraseKey_of_containsKey_eq_false]
+
+theorem modifyKey_of_perm [EquivBEq α] {l l' : List ((_ : α) × β)} {k : α} {f : β → β}
+    (hl : DistinctKeys l) (h : Perm l l') :
+    Perm (modifyKey k f l) (modifyKey k f l') := by
+  simp only [modifyKey_eq_alterKey, alterKey_of_perm hl h]
 
 theorem length_modifyKey (k : α) (f : β → β) (l : List ((_ : α) × β)) :
     (modifyKey k f l).length = l.length := by
@@ -3637,7 +4056,7 @@ theorem getKey!_modifyKey_self [EquivBEq α] [Inhabited α] {k : α} {f : β →
     getKey! k (modifyKey k f l) = if containsKey k l then k else default := by
   simp [getKey!_modifyKey, hl]
 
-theorem getKey_modifyKey [EquivBEq α] [Inhabited α] {k k' : α} {f : β → β} (l : List ((_ : α) × β))
+theorem getKey_modifyKey [EquivBEq α] {k k' : α} {f : β → β} (l : List ((_ : α) × β))
     (hl : DistinctKeys l) (h : containsKey k' (modifyKey k f l)) :
     getKey k' (modifyKey k f l) h =
       if k == k' then
@@ -3645,11 +4064,11 @@ theorem getKey_modifyKey [EquivBEq α] [Inhabited α] {k k' : α} {f : β → β
       else
         haveI h' : containsKey k' l := by rwa [containsKey_modifyKey] at h
         getKey k' l h' := by
-  simp [modifyKey_eq_alterKey, getKey_alterKey, hl]
+  simp only [modifyKey_eq_alterKey, getKey_alterKey, hl]
   rfl
 
 @[simp]
-theorem getKey_modifyKey_self [EquivBEq α] [Inhabited α] {k : α} {f : β → β}
+theorem getKey_modifyKey_self [EquivBEq α] {k : α} {f : β → β}
     (l : List ((_ : α) × β)) (hl : DistinctKeys l) (h : containsKey k (modifyKey k f l)) :
     getKey k (modifyKey k f l) h = k := by
   simp [getKey_modifyKey, hl]
@@ -3663,7 +4082,7 @@ theorem getKeyD_modifyKey [EquivBEq α] {k k' fallback : α} {f : β → β} (l 
         getKeyD k' l fallback := by
   simp [modifyKey_eq_alterKey, getKeyD_alterKey, containsKey_eq_isSome_getValue?, hl]
 
-theorem getKeyD_modifyKey_self [EquivBEq α] [Inhabited α] {k fallback : α} {f : β → β}
+theorem getKeyD_modifyKey_self [EquivBEq α] {k fallback : α} {f : β → β}
     (l : List ((_ : α) × β)) (hl : DistinctKeys l) :
     getKeyD k (modifyKey k f l) fallback = if containsKey k l then k else fallback := by
   simp [getKeyD_modifyKey, hl]

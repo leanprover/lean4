@@ -133,7 +133,7 @@ cautious when applying it to larger workloads.
 partial def lcs (left right : Subarray α) : Array α := Id.run do
   let (pref, left, right) := matchPrefix left right
   let (left, right, suff) := matchSuffix left right
-  let mut hist : Histogram α left.size right.size := .empty
+  let mut hist : Histogram α left.size right.size := (∅ : Std.HashMap ..)
   for h : i in [0:left.size] do
     hist := hist.addLeft ⟨i, Membership.get_elem_helper h rfl⟩ left[i]
   for h : i in [0:right.size] do

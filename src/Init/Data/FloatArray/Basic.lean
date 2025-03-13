@@ -17,11 +17,14 @@ attribute [extern "lean_float_array_data"] FloatArray.data
 
 namespace FloatArray
 @[extern "lean_mk_empty_float_array"]
-def mkEmpty (c : @& Nat) : FloatArray :=
+def emptyWithCapacity (c : @& Nat) : FloatArray :=
   { data := #[] }
 
+@[deprecated emptyWithCapacity (since := "2025-03-12")]
+abbrev mkEmpty := emptyWithCapacity
+
 def empty : FloatArray :=
-  mkEmpty 0
+  emptyWithCapacity 0
 
 instance : Inhabited FloatArray where
   default := empty
@@ -47,11 +50,11 @@ def uget : (a : @& FloatArray) → (i : USize) → i.toNat < a.size → Float
 
 @[extern "lean_float_array_fget"]
 def get : (ds : @& FloatArray) → (i : @& Nat) → (h : i < ds.size := by get_elem_tactic) → Float
-  | ⟨ds⟩, i, h => ds.get i h
+  | ⟨ds⟩, i, h => ds[i]
 
 @[extern "lean_float_array_get"]
 def get! : (@& FloatArray) → (@& Nat) → Float
-  | ⟨ds⟩, i => ds.get! i
+  | ⟨ds⟩, i => ds[i]!
 
 def get? (ds : FloatArray) (i : Nat) : Option Float :=
   if h : i < ds.size then

@@ -177,7 +177,7 @@ def back (stack : SyntaxStack) : Syntax :=
 
 def get! (stack : SyntaxStack) (i : Nat) : Syntax :=
   if i < stack.size then
-    stack.raw.get! (stack.drop + i)
+    stack.raw[stack.drop + i]!
   else
     panic! "SyntaxStack.get!: element is inaccessible"
 

@@ -78,6 +78,7 @@ variable [ToString α] [ToString β]
 /--
 error: failed to synthesize
   ToString α
+
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
@@ -88,6 +89,7 @@ theorem t8 (a : α) (b : β) : True :=
 /--
 error: failed to synthesize
   ToString β
+
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
@@ -98,10 +100,12 @@ theorem t9 (a : α) (b : β) : True :=
 /--
 error: failed to synthesize
   ToString α
+
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ---
 error: failed to synthesize
   ToString β
+
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in

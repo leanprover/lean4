@@ -351,7 +351,7 @@ theorem monotone_forIn'_loop {α : Type uu}
     monotone (fun x => Array.forIn'.loop as (f x) i h b) := by
   induction i, h, b using Array.forIn'.loop.induct with
   | case1 => apply monotone_const
-  | case2 _ _ _ _ _ _ _ ih =>
+  | case2 _ _ _ _ _ _ ih =>
     apply monotone_bind
     · apply monotone_apply
       apply monotone_apply
@@ -424,7 +424,7 @@ theorem monotone_foldrM_fold
     unfold Array.foldrM.fold
     simp only [↓reduceIte, *]
     apply monotone_const
-  | case3 _ _ _ _ _ _ ih =>
+  | case3 _ _ _ _ _ ih =>
     unfold Array.foldrM.fold
     simp only [reduceCtorEq, ↓reduceIte, *]
     apply monotone_bind
@@ -601,7 +601,7 @@ theorem monotone_findSomeRevM?
   | case1 =>
     unfold Array.findSomeRevM?.find
     apply monotone_const
-  | case2 _ _ _ _ ih =>
+  | case2 _ _ _ ih =>
     unfold Array.findSomeRevM?.find
     apply monotone_bind
     · apply monotone_apply

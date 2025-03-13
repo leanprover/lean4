@@ -363,7 +363,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
       -- this is only relevant for declarations added without a declaration range
       -- in particular `Quot.mk` et al which are added by `init_quot`
       addDeclarationRangesFromSyntax declName stx id
-    addDocString declName (← getDocStringText doc)
+    addDocString declName doc
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab Lean.Parser.Command.include] def elabInclude : CommandElab

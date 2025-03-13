@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 static lean_object* l___auto____x40_Init_Control_Lawful_Basic___hyg_2125____closed__29;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___auto____x40_Init_Control_Lawful_Basic___hyg_2125____closed__25;
 static lean_object* l___auto____x40_Init_Control_Lawful_Basic___hyg_2125____closed__15;
 static lean_object* l___auto____x40_Init_Control_Lawful_Basic___hyg_2125____closed__27;
@@ -53,6 +52,7 @@ static lean_object* l___auto____x40_Init_Control_Lawful_Basic___hyg_2125____clos
 LEAN_EXPORT lean_object* l___auto____x40_Init_Control_Lawful_Basic___hyg_2219_;
 static lean_object* l___auto____x40_Init_Control_Lawful_Basic___hyg_2125____closed__14;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Control_Lawful_Basic___hyg_2125____closed__11;
 static lean_object* l___auto____x40_Init_Control_Lawful_Basic___hyg_2125____closed__2;
 static lean_object* _init_l___auto____x40_Init_Control_Lawful_Basic___hyg_2125____closed__1() {
@@ -104,7 +104,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

@@ -57,10 +57,9 @@ static lean_object* l_Lake_Package_loadFromEnv___closed__1;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lake_Workspace_addModuleFacetConfig(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lake_Package_loadFromEnv___spec__19___closed__2;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_loadFromEnv___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_loadFromEnv___lambda__1___closed__1;
-lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_Workspace_addFacetsFromEnv___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lake_unsafeEvalConstCheck_throwUnexpectedType(lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lake_Package_loadFromEnv___spec__21___closed__1;
@@ -158,6 +157,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_loadFromEnv___lambda__1(lean_object*, le
 static lean_object* l_Lake_PackageConfig_loadFromEnv___closed__2;
 extern lean_object* l_Lake_lintDriverAttr;
 static lean_object* l_Lake_Package_loadFromEnv___closed__6;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lake_mkTagMap___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Package_loadFromEnv___spec__24___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Workspace_addPackageFacetConfig(lean_object*, lean_object*, lean_object*);
@@ -337,67 +337,68 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lake_unsafeEvalConstCheck(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; 
+uint8_t x_6; lean_object* x_7; 
+x_6 = 0;
 lean_inc(x_5);
 lean_inc(x_1);
-x_6 = l_Lean_Environment_find_x3f(x_1, x_5);
-if (lean_obj_tag(x_6) == 0)
+x_7 = l_Lean_Environment_find_x3f(x_1, x_5, x_6);
+if (lean_obj_tag(x_7) == 0)
 {
-uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 lean_dec(x_4);
 lean_dec(x_1);
-x_7 = 1;
-x_8 = l_Lake_unsafeEvalConstCheck_throwUnexpectedType___rarg___closed__1;
-x_9 = l_Lean_Name_toString(x_5, x_7, x_8);
-x_10 = l_Lake_unsafeEvalConstCheck___closed__1;
-x_11 = lean_string_append(x_10, x_9);
-lean_dec(x_9);
-x_12 = l_Lake_unsafeEvalConstCheck___closed__2;
-x_13 = lean_string_append(x_11, x_12);
-x_14 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_14, 0, x_13);
-return x_14;
+x_8 = 1;
+x_9 = l_Lake_unsafeEvalConstCheck_throwUnexpectedType___rarg___closed__1;
+x_10 = l_Lean_Name_toString(x_5, x_8, x_9);
+x_11 = l_Lake_unsafeEvalConstCheck___closed__1;
+x_12 = lean_string_append(x_11, x_10);
+lean_dec(x_10);
+x_13 = l_Lake_unsafeEvalConstCheck___closed__2;
+x_14 = lean_string_append(x_12, x_13);
+x_15 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_15, 0, x_14);
+return x_15;
 }
 else
 {
-lean_object* x_15; lean_object* x_16; 
-x_15 = lean_ctor_get(x_6, 0);
-lean_inc(x_15);
-lean_dec(x_6);
-x_16 = l_Lean_ConstantInfo_type(x_15);
-lean_dec(x_15);
-if (lean_obj_tag(x_16) == 4)
-{
-lean_object* x_17; uint8_t x_18; 
-x_17 = lean_ctor_get(x_16, 0);
-lean_inc(x_17);
+lean_object* x_16; lean_object* x_17; 
+x_16 = lean_ctor_get(x_7, 0);
+lean_inc(x_16);
+lean_dec(x_7);
+x_17 = l_Lean_ConstantInfo_type(x_16);
 lean_dec(x_16);
-x_18 = lean_name_eq(x_17, x_4);
-lean_dec(x_17);
-if (x_18 == 0)
+if (lean_obj_tag(x_17) == 4)
 {
-lean_object* x_19; 
-lean_dec(x_1);
-x_19 = l_Lake_unsafeEvalConstCheck_throwUnexpectedType___rarg(x_4, x_5);
-return x_19;
-}
-else
+lean_object* x_18; uint8_t x_19; 
+x_18 = lean_ctor_get(x_17, 0);
+lean_inc(x_18);
+lean_dec(x_17);
+x_19 = lean_name_eq(x_18, x_4);
+lean_dec(x_18);
+if (x_19 == 0)
 {
 lean_object* x_20; 
-lean_dec(x_4);
-x_20 = lean_eval_const(x_1, x_2, x_5);
-lean_dec(x_5);
 lean_dec(x_1);
+x_20 = l_Lake_unsafeEvalConstCheck_throwUnexpectedType___rarg(x_4, x_5);
 return x_20;
-}
 }
 else
 {
 lean_object* x_21; 
-lean_dec(x_16);
+lean_dec(x_4);
+x_21 = lean_eval_const(x_1, x_2, x_5);
+lean_dec(x_5);
 lean_dec(x_1);
-x_21 = l_Lake_unsafeEvalConstCheck_throwUnexpectedType___rarg(x_4, x_5);
 return x_21;
+}
+}
+else
+{
+lean_object* x_22; 
+lean_dec(x_17);
+lean_dec(x_1);
+x_22 = l_Lake_unsafeEvalConstCheck_throwUnexpectedType___rarg(x_4, x_5);
+return x_22;
 }
 }
 }

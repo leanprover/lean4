@@ -138,8 +138,16 @@ def UInt32.toUInt64 (a : UInt32) : UInt64 := ⟨⟨a.toNat, Nat.lt_trans a.toBit
 
 instance UInt64.instOfNat : OfNat UInt64 n := ⟨UInt64.ofNat n⟩
 
-@[deprecated usize_size_pos (since := "2024-11-24")] theorem usize_size_gt_zero : USize.size > 0 :=
-  usize_size_pos
+@[deprecated USize.size_eq (since := "2025-02-24")]
+theorem usize_size_eq : USize.size = 4294967296 ∨ USize.size = 18446744073709551616 :=
+  USize.size_eq
+
+@[deprecated USize.size_pos (since := "2025-02-24")]
+theorem usize_size_pos : 0 < USize.size :=
+  USize.size_pos
+
+@[deprecated USize.size_pos (since := "2024-11-24")] theorem usize_size_gt_zero : USize.size > 0 :=
+  USize.size_pos
 
 /-- Converts a `USize` into the corresponding `Fin USize.size`. -/
 def USize.toFin (x : USize) : Fin USize.size := x.toBitVec.toFin
@@ -155,7 +163,7 @@ def USize.ofNatTruncate (n : Nat) : USize :=
   if h : n < USize.size then
     USize.ofNatLT n h
   else
-    USize.ofNatLT (USize.size - 1) (Nat.pred_lt (Nat.ne_zero_of_lt usize_size_pos))
+    USize.ofNatLT (USize.size - 1) (Nat.pred_lt (Nat.ne_zero_of_lt USize.size_pos))
 abbrev Nat.toUSize := USize.ofNat
 @[extern "lean_usize_to_nat"]
 def USize.toNat (n : USize) : Nat := n.toBitVec.toNat

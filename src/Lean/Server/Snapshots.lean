@@ -39,9 +39,11 @@ def msgLog (s : Snapshot) : MessageLog :=
   s.cmdState.messages
 
 def infoTree (s : Snapshot) : InfoTree :=
+  -- TODO: we should not block here!
+  let infoState := s.cmdState.infoState.substituteLazy.get
   -- the parser returns exactly one command per snapshot, and the elaborator creates exactly one node per command
-  assert! s.cmdState.infoState.trees.size == 1
-  s.cmdState.infoState.trees[0]!
+  assert! infoState.trees.size == 1
+  infoState.trees[0]!
 
 def isAtEnd (s : Snapshot) : Bool :=
   Parser.isTerminalCommand s.stx

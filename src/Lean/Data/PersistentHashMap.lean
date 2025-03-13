@@ -149,7 +149,7 @@ partial def findAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.s
 partial def findAux [BEq α] : Node α β → USize → α → Option β
   | Node.entries entries, h, k =>
     let j     := (mod2Shift h shift).toNat
-    match entries.get! j with
+    match entries[j]! with
     | Entry.null       => none
     | Entry.ref node   => findAux node (div2Shift h shift) k
     | Entry.entry k' v => if k == k' then some v else none
@@ -180,7 +180,7 @@ partial def findEntryAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : k
 partial def findEntryAux [BEq α] : Node α β → USize → α → Option (α × β)
   | Node.entries entries, h, k =>
     let j     := (mod2Shift h shift).toNat
-    match entries.get! j with
+    match entries[j]! with
     | Entry.null       => none
     | Entry.ref node   => findEntryAux node (div2Shift h shift) k
     | Entry.entry k' v => if k == k' then some (k', v) else none
@@ -199,7 +199,7 @@ partial def containsAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : ke
 partial def containsAux [BEq α] : Node α β → USize → α → Bool
   | Node.entries entries, h, k =>
     let j     := (mod2Shift h shift).toNat
-    match entries.get! j with
+    match entries[j]! with
     | Entry.null       => false
     | Entry.ref node   => containsAux node (div2Shift h shift) k
     | Entry.entry k' _ => k == k'
@@ -242,7 +242,7 @@ partial def eraseAux [BEq α] : Node α β → USize → α → Node α β
     | none     => n
   | n@(Node.entries entries), h, k =>
     let j       := (mod2Shift h shift).toNat
-    let entry   := entries.get! j
+    let entry   := entries[j]!
     match entry with
     | Entry.null       => n
     | Entry.entry k' _ =>

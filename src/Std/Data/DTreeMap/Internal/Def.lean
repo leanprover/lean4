@@ -35,3 +35,43 @@ def delta : Nat := 3
 operations are. -/
 @[inline, Std.Internal.tree_tac]
 def ratio : Nat := 2
+
+variable {α : Type u} {β : α → Type v}
+
+namespace Impl
+
+/-!
+## `size`
+
+In contrast to other functions, `size` is defined here because it is required to define the
+`Balanced` predicate (see `Std.Data.DTreeMap.Internal.Balanced`).
+-/
+
+/-- The size information stored in the tree. -/
+@[inline]
+def size : Impl α β → Nat
+  | inner sz _ _ _ _ => sz
+  | leaf => 0
+
+@[Std.Internal.tree_tac] theorem size_leaf : (Impl.leaf : Impl α β).size = 0 := rfl
+@[Std.Internal.tree_tac] theorem size_inner {sz k v l r} : (Impl.inner sz k v l r : Impl α β).size = sz := rfl
+
+/-!
+## `toListModel`
+
+`toListModel` is defined here because it is required to define the `Ordered` predicate.
+-/
+
+/--
+Flattens a tree into a list of key-value pairs. This function is defined for verification
+purposes and should not be executed because it is very inefficient.
+-/
+def toListModel : Impl α β → List ((a : α) × β a)
+  | .leaf => []
+  | .inner _ k v l r => l.toListModel ++ ⟨k, v⟩ :: r.toListModel
+
+@[simp] theorem toListModel_leaf : (.leaf : Impl α β).toListModel = [] := rfl
+@[simp] theorem toListModel_inner {sz k v l r} :
+  (.inner sz k v l r : Impl α β).toListModel = l.toListModel ++ ⟨k, v⟩ :: r.toListModel := rfl
+
+end Std.DTreeMap.Internal.Impl

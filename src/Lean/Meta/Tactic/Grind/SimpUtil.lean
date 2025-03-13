@@ -41,7 +41,7 @@ protected def getSimprocs : MetaM (Array Simprocs) := do
   -/
   let s := s.erase ``List.reduceReplicate
   let s ← addSimpMatchDiscrsOnly s
-  let s ← addMatchCond s
+  let s ← addPreMatchCondSimproc s
   return #[s]
 
 /-- Returns the simplification context used by `grind`. -/

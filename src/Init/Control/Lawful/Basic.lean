@@ -47,7 +47,7 @@ pure f <*> pure x = pure (f x)
 u <*> pure y = pure (· y) <*> u
 ```
 -/
-class LawfulApplicative (f : Type u → Type v) [Applicative f] extends LawfulFunctor f : Prop where
+class LawfulApplicative (f : Type u → Type v) [Applicative f] : Prop extends LawfulFunctor f where
   seqLeft_eq  (x : f α) (y : f β)     : x <* y = const β <$> x <*> y
   seqRight_eq (x : f α) (y : f β)     : x *> y = const α id <$> x <*> y
   pure_seq    (g : α → β) (x : f α)   : pure g <*> x = g <$> x
@@ -77,7 +77,7 @@ x >>= f >>= g = x >>= (fun x => f x >>= g)
 
 `LawfulMonad.mk'` is an alternative constructor containing useful defaults for many fields.
 -/
-class LawfulMonad (m : Type u → Type v) [Monad m] extends LawfulApplicative m : Prop where
+class LawfulMonad (m : Type u → Type v) [Monad m] : Prop extends LawfulApplicative m where
   bind_pure_comp (f : α → β) (x : m α) : x >>= (fun a => pure (f a)) = f <$> x
   bind_map       {α β : Type u} (f : m (α → β)) (x : m α) : f >>= (. <$> x) = f <*> x
   pure_bind      (x : α) (f : α → m β) : pure x >>= f = f x

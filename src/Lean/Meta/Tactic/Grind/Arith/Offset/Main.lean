@@ -233,6 +233,7 @@ def Cnstr.toExpr (c : Cnstr NodeId) : GoalM Expr := do
     return mkNatLE u (mkNatAdd v (Lean.toExpr c.k.toNat))
 
 def checkInvariants : GoalM Unit := do
+  unless (← isInconsistent) do
   let s ← get'
   for u in [:s.targets.size], es in s.targets.toArray do
     for (v, k) in es do
@@ -242,8 +243,7 @@ def checkInvariants : GoalM Unit := do
       trace[grind.debug.offset.proof] "{p} : {← inferType p}"
       check p
       unless (← withDefault <| isDefEq (← inferType p) (← Cnstr.toExpr c)) do
-        trace[grind.debug.offset.proof] "failed: {← inferType p} =?= {← Cnstr.toExpr c}"
-        unreachable!
+        throwError "`grind` internal error in the offset constraint module, constraint{indentExpr (← Cnstr.toExpr c)}\nis not definitionally equal to type of its proof{indentExpr (← inferType p)}"
 
 /--
 Adds an edge `u --(k) --> v` justified by the proof term `p`, and then
@@ -344,7 +344,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
         internalizeTerm e z k
 
 @[export lean_process_new_offset_eq]
-def processNewOffsetEqImpl (a b : Expr) : GoalM Unit := do
+def processNewEqImpl (a b : Expr) : GoalM Unit := do
   unless isSameExpr a b do
     trace[grind.offset.eq.to] "{a}, {b}"
     let u ← getNodeId a
@@ -354,7 +354,7 @@ def processNewOffsetEqImpl (a b : Expr) : GoalM Unit := do
     addEdge v u 0 <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_2) a b h
 
 @[export lean_process_new_offset_eq_lit]
-def processNewOffsetEqLitImpl (a b : Expr) : GoalM Unit := do
+def processNewEqLitImpl (a b : Expr) : GoalM Unit := do
   unless isSameExpr a b do
     trace[grind.offset.eq.to] "{a}, {b}"
     let some k := isNatNum? b | unreachable!

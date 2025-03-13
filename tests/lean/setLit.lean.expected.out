@@ -1,12 +1,14 @@
 setLit.lean:22:19-22:21: error: overloaded, errors 
   failed to synthesize
     EmptyCollection String
+  
   Additional diagnostic information may be available using the `set_option diagnostics true` command.
   
   fields missing: 'data'
 setLit.lean:24:31-24:38: error: overloaded, errors 
   failed to synthesize
     Singleton Nat String
+  
   Additional diagnostic information may be available using the `set_option diagnostics true` command.
   
   24:33 'val' is not a field of structure 'String'

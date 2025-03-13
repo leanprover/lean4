@@ -48,7 +48,9 @@ inductive IO.Error where
 
   | unexpectedEof
   | userError (msg : String)
-  deriving Inhabited
+
+instance : Inhabited IO.Error where
+  default := .userError "(`Inhabited.default` for `IO.Error`)"
 
 @[export lean_mk_io_user_error]
 def IO.userError (s : String) : IO.Error :=

@@ -57,6 +57,11 @@ def EIO.catchExceptions (act : EIO ε α) (h : ε → BaseIO α) : BaseIO α :=
   | EStateM.Result.ok a s     => EStateM.Result.ok a s
   | EStateM.Result.error ex s => h ex s
 
+def EIO.ofExcept (e : Except ε α) : EIO ε α :=
+  match e with
+  | Except.ok a    => pure a
+  | Except.error e => throw e
+
 open IO (Error) in
 abbrev IO : Type → Type := EIO Error
 
@@ -122,14 +127,24 @@ opaque bindTask (t : Task α) (f : α → BaseIO (Task β)) (prio := Task.Priori
     (sync := false) : BaseIO (Task β) :=
   f t.get
 
+/-- Like `BaseIO.mapTask, but ignores the result. -/
+def chainTask (t : Task α) (f : α → BaseIO Unit) (prio := Task.Priority.default)
+    (sync := false) : BaseIO Unit :=
+  discard <| BaseIO.mapTask f t prio sync
+
 def mapTasks (f : List α → BaseIO β) (tasks : List (Task α)) (prio := Task.Priority.default)
     (sync := false) : BaseIO (Task β) :=
   go tasks []
 where
   go
+    | [], as =>
+      if sync then
+        return .pure (← f as.reverse)
+      else
+        f as.reverse |>.asTask prio
+    | [t], as => BaseIO.mapTask (fun a => f (a :: as).reverse) t prio sync
     | t::ts, as =>
       BaseIO.bindTask t (fun a => go ts (a :: as)) prio sync
-    | [], as => f as.reverse |>.asTask prio
 
 end BaseIO
 
@@ -149,6 +164,11 @@ namespace EIO
     (prio := Task.Priority.default) (sync := false) : BaseIO (Task (Except ε β)) :=
   BaseIO.bindTask t (fun a => f a |>.catchExceptions fun e => return Task.pure <| Except.error e)
     prio sync
+
+/-- `EIO` specialization of `BaseIO.chainTask`. -/
+def chainTask (t : Task α) (f : α → EIO ε Unit) (prio := Task.Priority.default)
+    (sync := false) : EIO ε Unit :=
+  discard <| EIO.mapTask f t prio sync
 
 /-- `EIO` specialization of `BaseIO.mapTasks`. -/
 @[inline] def mapTasks (f : List α → EIO ε β) (tasks : List (Task α))
@@ -194,6 +214,11 @@ def sleep (ms : UInt32) : BaseIO Unit :=
 @[inline] def bindTask (t : Task α) (f : α → IO (Task (Except IO.Error β)))
     (prio := Task.Priority.default) (sync := false) : BaseIO (Task (Except IO.Error β)) :=
   EIO.bindTask t f prio sync
+
+/-- `IO` specialization of `EIO.chainTask`. -/
+def chainTask (t : Task α) (f : α → IO Unit) (prio := Task.Priority.default)
+    (sync := false) : IO Unit :=
+  EIO.chainTask t f prio sync
 
 /-- `IO` specialization of `EIO.mapTasks`. -/
 @[inline] def mapTasks (f : List α → IO β) (tasks : List (Task α)) (prio := Task.Priority.default)
@@ -263,11 +288,19 @@ equivalent.
 @[extern "lean_io_get_num_heartbeats"] opaque getNumHeartbeats : BaseIO Nat
 
 /--
+Sets the heartbeat counter of the current thread to the given amount. This can be used to avoid
+counting heartbeats of code whose execution time is non-deterministic.
+-/
+@[extern "lean_io_set_heartbeats"] opaque setNumHeartbeats (count : Nat) : BaseIO Unit
+
+/--
 Adjusts the heartbeat counter of the current thread by the given amount. This can be useful to give
 allocation-avoiding code additional "weight" and is also used to adjust the counter after resuming
 from a snapshot.
 -/
-@[extern "lean_io_add_heartbeats"] opaque addHeartbeats (count : UInt64) : BaseIO Unit
+def addHeartbeats (count : Nat) : BaseIO Unit := do
+  let n ← getNumHeartbeats
+  setNumHeartbeats (n + count)
 
 /--
 The mode of a file handle (i.e., a set of `open` flags and an `fdopen` mode).
@@ -625,7 +658,7 @@ def readBinFile (fname : FilePath) : IO ByteArray := do
     if size > 0 then
       handle.read mdata.byteSize.toUSize
     else
-      pure <| ByteArray.mkEmpty 0
+      pure <| ByteArray.emptyWithCapacity 0
   handle.readBinToEndInto buf
 
 def readFile (fname : FilePath) : IO String := do
@@ -881,6 +914,7 @@ tasks.
 -/
 structure CancelToken where
   private ref : IO.Ref Bool
+deriving Nonempty
 
 namespace CancelToken
 

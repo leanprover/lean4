@@ -48,7 +48,7 @@ cf. https://github.com/leanprover/lean4/issues/4157
   ⟨(scrambleHash hash).toUSize &&& (sz.toUSize - 1), by
     -- This proof is a good test for our USize API
     by_cases h' : sz < USize.size
-    · rw [USize.toNat_and, USize.toNat_sub_of_le, USize.toNat_ofNat_of_lt h']
+    · rw [USize.toNat_and, USize.toNat_sub_of_le, USize.toNat_ofNat_of_lt' h']
       · exact Nat.lt_of_le_of_lt Nat.and_le_right (Nat.sub_lt h (by simp))
       · simp [USize.le_iff_toNat_le, Nat.mod_eq_of_lt h', Nat.succ_le_of_lt h]
     · exact Nat.lt_of_lt_of_le (USize.toNat_lt_size _) (Nat.le_of_not_lt h')⟩

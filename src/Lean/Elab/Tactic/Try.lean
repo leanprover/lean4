@@ -40,18 +40,13 @@ private def isAccessible (fvarId : FVarId) : MetaM Bool := do
       | return false
     return localDecl'.fvarId == localDecl.fvarId
 
-/-- Returns `true` if all free variables occurring in `e` are accessible. -/
+/--
+Returns `true` if all free variables occurring in `e` are accessible. Over-approximation, since
+the free variable may be implicit.
+ -/
 private def isExprAccessible (e : Expr) : MetaM Bool := do
   let (_, s) ← e.collectFVars |>.run {}
   s.fvarIds.allM isAccessible
-
-/-- Creates a temporary local context where all names are exposed, and executes `k`-/
-private def withExposedNames (k : MetaM α) : MetaM α := do
-  withNewMCtxDepth do
-    -- Create a helper goal to apply
-    let mvarId := (← mkFreshExprMVar (mkConst ``True)).mvarId!
-    let mvarId ← mvarId.exposeNames
-    mvarId.withContext do k
 
 /-- Executes `tac` in the saved state. This function is used to validate a tactic before suggesting it. -/
 def checkTactic (savedState : SavedState) (tac : TSyntax `tactic) : TacticM Unit := do
@@ -598,22 +593,28 @@ private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=
 /-! Function induction generators -/
 
 open Try.Collector in
-private def mkFunIndStx (c : FunIndCandidate) (cont : TSyntax `tactic) : MetaM (TSyntax `tactic) := do
-  if (← c.majors.allM isAccessible) then
-    go
-  else withExposedNames do
-    `(tactic| (expose_names; $(← go):tactic))
-where
-  go : MetaM (TSyntax `tactic) := do
-    let mut terms := #[]
-    for major in c.majors do
-      let localDecl ← major.getDecl
-      terms := terms.push (← `($(mkIdent localDecl.userName):term))
-    let indFn ← toIdent c.funIndDeclName
-    `(tactic| induction $terms,* using $indFn <;> $cont)
+private def mkFunIndStx (uniques : NameSet) (expr : Expr) (cont : TSyntax `tactic) :
+    MetaM (TSyntax `tactic) := do
+  let fn := expr.getAppFn.constName!
+  if uniques.contains fn then
+      -- If it is unambigous, use `fun_induction foo` without arguments
+      `(tactic| fun_induction $(← toIdent fn):term <;> $cont)
+  else
+    let isAccessible ← isExprAccessible expr
+    withExposedNames do
+      let stx ← PrettyPrinter.delab expr
+      let tac₁ ← `(tactic| fun_induction $stx <;> $cont)
+      -- if expr has no inaccessible names, use as is
+      if isAccessible then
+        pure tac₁
+      else
+        -- if it has inaccessible names, still try without, in case they are all implicit
+        let tac₂ ← `(tactic| (expose_names; $tac₁))
+        mkFirstStx #[tac₁, tac₂]
 
 private def mkAllFunIndStx (info : Try.Info) (cont : TSyntax `tactic) : MetaM (TSyntax `tactic) := do
-  let tacs ← info.funIndCandidates.elems.mapM (mkFunIndStx · cont)
+  let uniques := info.funIndCandidates.uniques
+  let tacs ← info.funIndCandidates.calls.mapM (mkFunIndStx uniques · cont)
   mkFirstStx tacs
 
 /-! Main code -/

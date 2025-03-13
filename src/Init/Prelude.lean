@@ -561,16 +561,17 @@ theorem Or.neg_resolve_left  (h : Or (Not a) b) (ha : a) : b := h.elim (absurd h
 theorem Or.neg_resolve_right (h : Or a (Not b)) (nb : b) : a := h.elim id (absurd nb)
 
 /--
-`Bool` is the type of boolean values, `true` and `false`. Classically,
-this is equivalent to `Prop` (the type of propositions), but the distinction
-is important for programming, because values of type `Prop` are erased in the
-code generator, while `Bool` corresponds to the type called `bool` or `boolean`
-in most programming languages.
+The Boolean values, `true` and `false`.
+
+Logically speaking, this is equivalent to `Prop` (the type of propositions). The distinction is
+important for programming: both propositions and their proofs are erased in the code generator,
+while `Bool` corresponds to the Boolean type in most programming languages and carries precisely one
+bit of run-time information.
 -/
 inductive Bool : Type where
-  /-- The boolean value `false`, not to be confused with the proposition `False`. -/
+  /-- The Boolean value `false`, not to be confused with the proposition `False`. -/
   | false : Bool
-  /-- The boolean value `true`, not to be confused with the proposition `True`. -/
+  /-- The Boolean value `true`, not to be confused with the proposition `True`. -/
   | true : Bool
 
 export Bool (false true)
@@ -900,7 +901,12 @@ theorem of_decide_eq_self_eq_true [inst : DecidableEq α] (a : α) : Eq (decide 
   | isTrue  _  => rfl
   | isFalse h₁ => absurd rfl h₁
 
-/-- Decidable equality for Bool -/
+/--
+Decides whether two Booleans are equal.
+
+This function should normally be called via the `DecidableEq Bool` instance that it exists to
+support.
+-/
 @[inline] def Bool.decEq (a b : Bool) : Decidable (Eq a b) :=
    match a, b with
    | false, false => isTrue rfl
@@ -1002,21 +1008,49 @@ instance [dp : Decidable p] : Decidable (Not p) :=
 /-! # Boolean operators -/
 
 /--
-`cond b x y` is the same as `if b then x else y`, but optimized for a
-boolean condition. It can also be written as `bif b then x else y`.
-This is `@[macro_inline]` because `x` and `y` should not
-be eagerly evaluated (see `ite`).
+The conditional function.
+
+`cond c x y` is the same as `if c then x else y`, but optimized for a Boolean condition rather than
+a decidable proposition. It can also be written using the notation `bif c then x else y`.
+
+Just like `ite`, `cond` is declared `@[macro_inline]`, which causes applications of `cond` to be
+unfolded. As a result, `x` and `y` are not evaluated at runtime until one of them is selected, and
+only the selected branch is evaluated.
 -/
-@[macro_inline] def cond {α : Type u} (c : Bool) (x y : α) : α :=
+@[macro_inline] def cond {α : Sort u} (c : Bool) (x y : α) : α :=
   match c with
   | true  => x
   | false => y
 
+
 /--
-`or x y`, or `x || y`, is the boolean "or" operation (not to be confused
-with `Or : Prop → Prop → Prop`, which is the propositional connective).
-It is `@[macro_inline]` because it has C-like short-circuiting behavior:
-if `x` is true then `y` is not evaluated.
+The dependent conditional function, in which each branch is provided with a local assumption about
+the condition's value. This allows the value to be used in proofs as well as for control flow.
+
+`dcond c (fun h => x) (fun h => y)` is the same as `if h : c then x else y`, but optimized for a
+Boolean condition rather than a decidable proposition. Unlike the non-dependent version `cond`,
+there is no special notation for `dcond`.
+
+Just like `ite`, `dite`, and `cond`, `dcond` is declared `@[macro_inline]`, which causes
+applications of `dcond` to be unfolded. As a result, `x` and `y` are not evaluated at runtime until
+one of them is selected, and only the selected branch is evaluated. `dcond` is intended for
+metaprogramming use, rather than for use in verified programs, so behavioral lemmas are not
+provided.
+-/
+@[macro_inline]
+protected def Bool.dcond {α : Sort u} (c : Bool) (x : Eq c true → α) (y : Eq c false → α) : α :=
+  match c with
+  | true  => x rfl
+  | false => y rfl
+
+/--
+Boolean “or”, also known as disjunction. `or x y` can be written `x || y`.
+
+The corresponding propositional connective is `Or : Prop → Prop → Prop`, written with the `∨`
+operator.
+
+The Boolean `or` is a `@[macro_inline]` function in order to give it short-circuiting evaluation:
+if `x` is `true` then `y` is not evaluated at runtime.
 -/
 @[macro_inline] def Bool.or (x y : Bool) : Bool :=
   match x with
@@ -1024,10 +1058,13 @@ if `x` is true then `y` is not evaluated.
   | false => y
 
 /--
-`and x y`, or `x && y`, is the boolean "and" operation (not to be confused
-with `And : Prop → Prop → Prop`, which is the propositional connective).
-It is `@[macro_inline]` because it has C-like short-circuiting behavior:
-if `x` is false then `y` is not evaluated.
+Boolean “and”, also known as conjunction. `and x y` can be written `x && y`.
+
+The corresponding propositional connective is `And : Prop → Prop → Prop`, written with the `∧`
+operator.
+
+The Boolean `and` is a `@[macro_inline]` function in order to give it short-circuiting evaluation:
+if `x` is `false` then `y` is not evaluated at runtime.
 -/
 @[macro_inline] def Bool.and (x y : Bool) : Bool :=
   match x with
@@ -1035,8 +1072,10 @@ if `x` is false then `y` is not evaluated.
   | true  => y
 
 /--
-`not x`, or `!x`, is the boolean "not" operation (not to be confused
-with `Not : Prop → Prop`, which is the propositional connective).
+Boolean negation, also known as Boolean complement. `not x` can be written `!x`.
+
+This is a function that maps the value `true` to `false` and the value `false` to `true`. The
+propositional connective is `Not : Prop → Prop`.
 -/
 @[inline] def Bool.not : Bool → Bool
   | true  => false
@@ -2137,14 +2176,14 @@ instance : Inhabited UInt64 where
 /-- The size of type `USize`, that is, `2^System.Platform.numBits`. -/
 abbrev USize.size : Nat := (hPow 2 System.Platform.numBits)
 
-theorem usize_size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
+theorem USize.size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
   show Or (Eq (hPow 2 System.Platform.numBits) 4294967296) (Eq (hPow 2 System.Platform.numBits) 18446744073709551616) from
   match System.Platform.numBits, System.Platform.numBits_eq with
   | _, Or.inl rfl => Or.inl (of_decide_eq_true rfl)
   | _, Or.inr rfl => Or.inr (of_decide_eq_true rfl)
 
-theorem usize_size_pos : LT.lt 0 USize.size :=
-  match USize.size, usize_size_eq with
+theorem USize.size_pos : LT.lt 0 USize.size :=
+  match USize.size, USize.size_eq with
   | _, Or.inl rfl => of_decide_eq_true rfl
   | _, Or.inr rfl => of_decide_eq_true rfl
 
@@ -2194,7 +2233,7 @@ def USize.decEq (a b : USize) : Decidable (Eq a b) :=
 instance : DecidableEq USize := USize.decEq
 
 instance : Inhabited USize where
-  default := USize.ofNatLT 0 usize_size_pos
+  default := USize.ofNatLT 0 USize.size_pos
 
 /--
 A `Nat` denotes a valid unicode codepoint if it is less than `0x110000`, and
@@ -2210,12 +2249,13 @@ it is also not a "surrogate" character (the range `0xd800` to `0xdfff` inclusive
 abbrev UInt32.isValidChar (n : UInt32) : Prop :=
   n.toNat.isValidChar
 
-/-- The `Char` Type represents an unicode scalar value.
-    See http://www.unicode.org/glossary/#unicode_scalar_value). -/
+/--
+Characters are Unicode [scalar values](http://www.unicode.org/glossary/#unicode_scalar_value).
+-/
 structure Char where
-  /-- The underlying unicode scalar value as a `UInt32`. -/
+  /-- The underlying Unicode scalar value as a `UInt32`. -/
   val   : UInt32
-  /-- The value must be a legal codepoint. -/
+  /-- The value must be a legal scalar value. -/
   valid : val.isValidChar
 
 private theorem isValidChar_UInt32 {n : Nat} (h : n.isValidChar) : LT.lt n UInt32.size :=
@@ -2232,8 +2272,8 @@ def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char :=
   { val := ⟨BitVec.ofNatLT n (isValidChar_UInt32 h)⟩, valid := h }
 
 /--
-Convert a `Nat` into a `Char`. If the `Nat` does not encode a valid unicode scalar value,
-`'\0'` is returned instead.
+Converts a `Nat` into a `Char`. If the `Nat` does not encode a valid Unicode scalar value, `'\0'` is
+returned instead.
 -/
 @[noinline, match_pattern]
 def Char.ofNat (n : Nat) : Char :=
@@ -2612,11 +2652,14 @@ attribute [nospecialize] Inhabited
 `Array α` is the type of [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array)
 with elements from `α`. This type has special support in the runtime.
 
-An array has a size and a capacity; the size is `Array.size` but the capacity
-is not observable from Lean code. Arrays perform best when unshared; as long
+Arrays perform best when unshared; as long
 as they are used "linearly" all updates will be performed destructively on the
 array, so it has comparable performance to mutable arrays in imperative
 programming languages.
+
+An array has a size and a capacity; the size is `Array.size` but the capacity
+is not observable from Lean code. `Array.emptyWithCapacity n` creates an array which is equal to `#[]`,
+but internally allocates an array of capacity `n`.
 
 From the point of view of proofs `Array α` is just a wrapper around `List α`.
 -/
@@ -2649,13 +2692,22 @@ list.
 @[match_pattern]
 abbrev List.toArray (xs : List α) : Array α := .mk xs
 
-/-- Construct a new empty array with initial capacity `c`. -/
+/-- Construct a new empty array with initial capacity `c`.
+
+This will be deprecated in favor of `Array.emptyWithCapacity` in the future.
+-/
 @[extern "lean_mk_empty_array_with_capacity"]
 def Array.mkEmpty {α : Type u} (c : @& Nat) : Array α where
   toList := List.nil
 
+
+set_option linter.unusedVariables false in
+/-- Construct a new empty array with initial capacity `c`. -/
+def Array.emptyWithCapacity {α : Type u} (c : @& Nat) : Array α where
+  toList := List.nil
+
 /-- Construct a new empty array. -/
-def Array.empty {α : Type u} : Array α := mkEmpty 0
+def Array.empty {α : Type u} : Array α := emptyWithCapacity 0
 
 /-- Get the size of an array. This is a cached value, so it is O(1) to access. -/
 @[reducible, extern "lean_array_get_size"]
@@ -2663,24 +2715,30 @@ def Array.size {α : Type u} (a : @& Array α) : Nat :=
  a.toList.length
 
 /--
+Use the indexing notation `a[i]` instead.
+
 Access an element from an array without needing a runtime bounds checks,
 using a `Nat` index and a proof that it is in bounds.
 
 This function does not use `get_elem_tactic` to automatically find the proof that
 the index is in bounds. This is because the tactic itself needs to look up values in
-arrays. Use the indexing notation `a[i]` instead.
+arrays.
 -/
 @[extern "lean_array_fget"]
-def Array.get {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
+def Array.getInternal {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
   a.toList.get ⟨i, h⟩
 
 /-- Access an element from an array, or return `v₀` if the index is out of bounds. -/
 @[inline] abbrev Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
-  dite (LT.lt i a.size) (fun h => a.get i h) (fun _ => v₀)
+  dite (LT.lt i a.size) (fun h => a.getInternal i h) (fun _ => v₀)
 
-/-- Access an element from an array, or panic if the index is out of bounds. -/
+/--
+Use the indexing notation `a[i]!` instead.
+
+Access an element from an array, or panic if the index is out of bounds.
+-/
 @[extern "lean_array_get"]
-def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
+def Array.get!Internal {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
   Array.getD a i default
 
 /--
@@ -2693,39 +2751,39 @@ def Array.push {α : Type u} (a : Array α) (v : α) : Array α where
 
 /-- Create array `#[]` -/
 def Array.mkArray0 {α : Type u} : Array α :=
-  mkEmpty 0
+  emptyWithCapacity 0
 
 /-- Create array `#[a₁]` -/
 def Array.mkArray1 {α : Type u} (a₁ : α) : Array α :=
-  (mkEmpty 1).push a₁
+  (emptyWithCapacity 1).push a₁
 
 /-- Create array `#[a₁, a₂]` -/
 def Array.mkArray2 {α : Type u} (a₁ a₂ : α) : Array α :=
-  ((mkEmpty 2).push a₁).push a₂
+  ((emptyWithCapacity 2).push a₁).push a₂
 
 /-- Create array `#[a₁, a₂, a₃]` -/
 def Array.mkArray3 {α : Type u} (a₁ a₂ a₃ : α) : Array α :=
-  (((mkEmpty 3).push a₁).push a₂).push a₃
+  (((emptyWithCapacity 3).push a₁).push a₂).push a₃
 
 /-- Create array `#[a₁, a₂, a₃, a₄]` -/
 def Array.mkArray4 {α : Type u} (a₁ a₂ a₃ a₄ : α) : Array α :=
-  ((((mkEmpty 4).push a₁).push a₂).push a₃).push a₄
+  ((((emptyWithCapacity 4).push a₁).push a₂).push a₃).push a₄
 
 /-- Create array `#[a₁, a₂, a₃, a₄, a₅]` -/
 def Array.mkArray5 {α : Type u} (a₁ a₂ a₃ a₄ a₅ : α) : Array α :=
-  (((((mkEmpty 5).push a₁).push a₂).push a₃).push a₄).push a₅
+  (((((emptyWithCapacity 5).push a₁).push a₂).push a₃).push a₄).push a₅
 
 /-- Create array `#[a₁, a₂, a₃, a₄, a₅, a₆]` -/
 def Array.mkArray6 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ : α) : Array α :=
-  ((((((mkEmpty 6).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆
+  ((((((emptyWithCapacity 6).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆
 
 /-- Create array `#[a₁, a₂, a₃, a₄, a₅, a₆, a₇]` -/
 def Array.mkArray7 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ a₇ : α) : Array α :=
-  (((((((mkEmpty 7).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇
+  (((((((emptyWithCapacity 7).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇
 
 /-- Create array `#[a₁, a₂, a₃, a₄, a₅, a₆, a₇, a₈]` -/
 def Array.mkArray8 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈ : α) : Array α :=
-  ((((((((mkEmpty 8).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇).push a₈
+  ((((((((emptyWithCapacity 8).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇).push a₈
 
 /-- Slower `Array.append` used in quotations. -/
 protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : Array α :=
@@ -2734,7 +2792,7 @@ protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : 
       (fun hlt =>
         match i with
         | 0           => as
-        | Nat.succ i' => loop i' (hAdd j 1) (as.push (bs.get j hlt)))
+        | Nat.succ i' => loop i' (hAdd j 1) (as.push (bs.getInternal j hlt)))
       (fun _ => as)
   loop bs.size 0 as
 
@@ -2749,10 +2807,10 @@ def Array.extract (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : A
       (fun hlt =>
         match i with
         | 0           => bs
-        | Nat.succ i' => loop i' (hAdd j 1) (bs.push (as.get j hlt)))
+        | Nat.succ i' => loop i' (hAdd j 1) (bs.push (as.getInternal j hlt)))
       (fun _ => bs)
   let sz' := Nat.sub (min stop as.size) start
-  loop sz' start (mkEmpty sz')
+  loop sz' start (emptyWithCapacity sz')
 
 /-- The typeclass which supplies the `>>=` "bind" function. See `Monad`. -/
 class Bind (m : Type u → Type v) where
@@ -2846,7 +2904,7 @@ syntax over monad operations, and it depends on a `Monad` instance.
 See [the `do` notation](https://lean-lang.org/lean4/doc/do.html)
 chapter of the manual for details.
 -/
-class Monad (m : Type u → Type v) extends Applicative m, Bind m : Type (max (u+1) v) where
+class Monad (m : Type u → Type v) : Type (max (u+1) v) extends Applicative m, Bind m where
   map      f x := bind x (Function.comp pure f)
   seq      f x := bind f fun y => Functor.map y (x ())
   seqLeft  x y := bind x fun a => bind (y ()) (fun _ => pure a)
@@ -3952,7 +4010,7 @@ if it parsed something and `none` otherwise.
 def getOptional? (stx : Syntax) : Option Syntax :=
   match stx with
   | Syntax.node _ k args => match and (beq k nullKind) (beq args.size 1) with
-    | true  => some (args.get! 0)
+    | true  => some (args.get!Internal 0)
     | false => none
   | _                    => none
 
@@ -3989,7 +4047,7 @@ partial def getHeadInfo? : Syntax → Option SourceInfo
   | node SourceInfo.none _ args   =>
     let rec loop (i : Nat) : Option SourceInfo :=
       match decide (LT.lt i args.size) with
-      | true => match getHeadInfo? (args.get! i) with
+      | true => match getHeadInfo? (args.get!Internal i) with
          | some info => some info
          | none      => loop (hAdd i 1)
       | false => none
@@ -4030,7 +4088,7 @@ partial def getTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.
   | node _ _ args, _ =>
     let rec loop (i : Nat) : Option String.Pos :=
       match decide (LT.lt i args.size) with
-      | true => match getTailPos? (args.get! ((args.size.sub i).sub 1)) canonicalOnly with
+      | true => match getTailPos? (args.get!Internal ((args.size.sub i).sub 1)) canonicalOnly with
          | some info => some info
          | none      => loop (hAdd i 1)
       | false => none

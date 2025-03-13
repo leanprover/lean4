@@ -17,6 +17,11 @@ import Lean.Util.HasConstCache
 namespace Lean.Elab.WF
 open Meta
 
+register_builtin_option debug.definition.wf.replaceRecApps : Bool := {
+    defValue := false
+    descr    := "Type check every step of the well-founded definition translation"
+  }
+
 /-
 Creates a subgoal for a recursive call, as an unsolved `MVar`. The goal is cleaned up, and
 the current syntax reference is stored in the `MVar`’s type as a `RecApp` marker, for
@@ -32,11 +37,13 @@ private def mkDecreasingProof (decreasingProp : Expr) : TermElabM Expr := do
 
 private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F : Expr) (e : Expr) : TermElabM Expr := do
   trace[Elab.definition.wf] "replaceRecApps:{indentExpr e}"
-  trace[Elab.definition.wf] "{F} : {← inferType F}"
-  loop F e |>.run' {}
+  trace[Elab.definition.wf] "type of functorial {F} is{indentExpr (← inferType F)}"
+  let e ← loop F e |>.run' {}
+  return e
 where
   processRec (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     if e.getAppNumArgs < fixedPrefixSize + 1 then
+      trace[Elab.definition.wf] "replaceRecApp: eta-expanding{indentExpr e}"
       loop F (← etaExpand e)
     else
       let args := e.getAppArgs
@@ -55,6 +62,19 @@ where
     modifyGet (·.contains e)
 
   loop (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
+    let e' ← loopGo F e
+    if (debug.definition.wf.replaceRecApps.get (← getOptions)) then
+      withTransparency .all do withNewMCtxDepth do
+        unless (← isTypeCorrect e') do
+          throwError "Type error introduced when transforming{indentExpr e}\nto{indentExpr e'}"
+        let t1 ← inferType e
+        let t2 ← inferType e'
+        unless (← isDefEq t1 t2) do
+          let (t1, t2) ← addPPExplicitToExposeDiff t1 t2
+          throwError "Type not preserved transforming{indentExpr e}\nto{indentExpr e'}\nType was{indentExpr t1}\nand now is{indentExpr t2}"
+    return e'
+
+  loopGo (F : Expr) (e : Expr) : StateRefT (HasConstCache #[recFnName]) TermElabM Expr := do
     if !(← containsRecFn e) then
       return e
     match e with
@@ -83,7 +103,8 @@ where
               unless xs.size = numParams do
                 throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
               let FAlt := xs[numParams - 1]!
-              mkLambdaFVars xs (← loop FAlt altBody)
+              let altBody' ← loop FAlt altBody
+              mkLambdaFVars xs altBody'
           return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
         else
           processApp F e
@@ -183,34 +204,35 @@ def groupGoalsByFunction (argsPacker : ArgsPacker) (numFuncs : Nat) (goals : Arr
     r := r.modify funidx (·.push goal)
   return r
 
-def solveDecreasingGoals (argsPacker : ArgsPacker) (decrTactics : Array (Option DecreasingBy)) (value : Expr) : MetaM Expr := do
+def solveDecreasingGoals (funNames : Array Name) (argsPacker : ArgsPacker) (decrTactics : Array (Option DecreasingBy)) (value : Expr) : MetaM Expr := do
   let goals ← getMVarsNoDelayed value
   let goals ← assignSubsumed goals
   let goalss ← groupGoalsByFunction argsPacker decrTactics.size goals
-  for goals in goalss, decrTactic? in decrTactics do
+  for funName in funNames, goals in goalss, decrTactic? in decrTactics do
     Lean.Elab.Term.TermElabM.run' do
-    match decrTactic? with
-    | none => do
-      for goal in goals do
-        let type ← goal.getType
-        let some ref := getRecAppSyntax? (← goal.getType)
-          | throwError "MVar not annotated as a recursive call:{indentExpr type}"
-        withRef ref <| applyDefaultDecrTactic goal
-    | some decrTactic => withRef decrTactic.ref do
-      unless goals.isEmpty do -- unlikely to be empty
-        -- make info from `runTactic` available
-        goals.forM fun goal => pushInfoTree (.hole goal)
-        let remainingGoals ← Tactic.run goals[0]! do
-          Tactic.setGoals goals.toList
-          applyCleanWfTactic
-          Tactic.withTacticInfoContext decrTactic.ref do
-            Tactic.evalTactic decrTactic.tactic
-        unless remainingGoals.isEmpty do
-          Term.reportUnsolvedGoals remainingGoals
+    Term.withDeclName funName do
+      match decrTactic? with
+      | none => do
+        for goal in goals do
+          let type ← goal.getType
+          let some ref := getRecAppSyntax? (← goal.getType)
+            | throwError "MVar not annotated as a recursive call:{indentExpr type}"
+          withRef ref <| applyDefaultDecrTactic goal
+      | some decrTactic => withRef decrTactic.ref do
+        unless goals.isEmpty do -- unlikely to be empty
+          -- make info from `runTactic` available
+          goals.forM fun goal => pushInfoTree (.hole goal)
+          let remainingGoals ← Tactic.run goals[0]! do
+            Tactic.setGoals goals.toList
+            applyCleanWfTactic
+            Tactic.withTacticInfoContext decrTactic.ref do
+              Tactic.evalTactic decrTactic.tactic
+          unless remainingGoals.isEmpty do
+            Term.reportUnsolvedGoals remainingGoals
   instantiateMVars value
 
 def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsPacker)
-    (wfRel : Expr) (decrTactics : Array (Option DecreasingBy)) : TermElabM Expr := do
+    (wfRel : Expr) (funNames : Array Name) (decrTactics : Array (Option DecreasingBy)) : TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
   let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
     let x := x[0]!
@@ -233,7 +255,7 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsP
       let val := preDef.value.beta (prefixArgs.push x)
       let val ← processSumCasesOn x F val fun x F val => do
         processPSigmaCasesOn x F val (replaceRecApps preDef.declName prefixArgs.size)
-      let val ← solveDecreasingGoals argsPacker decrTactics val
+      let val ← solveDecreasingGoals funNames argsPacker decrTactics val
       mkLambdaFVars prefixArgs (mkApp wfFix (← mkLambdaFVars #[x, F] val))
 
 end Lean.Elab.WF

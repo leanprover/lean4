@@ -165,12 +165,13 @@ def mkHEqTrans (h₁ h₂ : Expr) : MetaM Expr := do
     | _, none => throwAppBuilderException ``HEq.trans ("heterogeneous equality proof expected" ++ hasTypeMsg h₂ hType₂)
 
 /-- Given `h : HEq a b` where `a` and `b` have the same type, returns a proof of `Eq a b`. -/
-def mkEqOfHEq (h : Expr) : MetaM Expr := do
+def mkEqOfHEq (h : Expr) (check := true) : MetaM Expr := do
   let hType ← infer h
   match hType.heq? with
   | some (α, a, β, b) =>
-    unless (← isDefEq α β) do
-      throwAppBuilderException ``eq_of_heq m!"heterogeneous equality types are not definitionally equal{indentExpr α}\nis not definitionally equal to{indentExpr β}"
+    if check then
+      unless (← isDefEq α β) do
+        throwAppBuilderException ``eq_of_heq m!"heterogeneous equality types are not definitionally equal{indentExpr α}\nis not definitionally equal to{indentExpr β}"
     let u ← getLevel α
     return mkApp4 (mkConst ``eq_of_heq [u]) α a b h
   | _ =>
@@ -570,6 +571,18 @@ def mkLetValCongr (b h : Expr) : MetaM Expr :=
 def mkLetBodyCongr (a h : Expr) : MetaM Expr :=
   mkAppM ``let_body_congr #[a, h]
 
+/-- Returns `@of_eq_false p h` -/
+def mkOfEqFalseCore (p : Expr) (h : Expr) : Expr :=
+  match_expr h with
+  | eq_false _ h => h
+  | _ => mkApp2 (mkConst ``of_eq_false) p h
+
+/-- Returns `of_eq_false h` -/
+def mkOfEqFalse (h : Expr) : MetaM Expr := do
+  match_expr h with
+  | eq_false _ h => return h
+  | _ => mkAppM ``of_eq_false #[h]
+
 /-- Returns `@of_eq_true p h` -/
 def mkOfEqTrueCore (p : Expr) (h : Expr) : Expr :=
   match_expr h with
@@ -599,7 +612,9 @@ def mkEqTrue (h : Expr) : MetaM Expr := do
   `h` must have type definitionally equal to `¬ p` in the current
   reducibility setting. -/
 def mkEqFalse (h : Expr) : MetaM Expr :=
-  mkAppM ``eq_false #[h]
+  match_expr h with
+  | of_eq_false _ h => return h
+  | _ => mkAppM ``eq_false #[h]
 
 /--
   Returns `eq_false' h`

@@ -170,9 +170,12 @@ abbrev Raw₀ (α : Type u) (β : α → Type v) :=
 namespace Raw₀
 
 /-- Internal implementation detail of the hash map -/
-@[inline] def empty (capacity := 8) : Raw₀ α β :=
+@[inline] def emptyWithCapacity (capacity := 8) : Raw₀ α β :=
   ⟨⟨0, mkArray (numBucketsForCapacity capacity).nextPowerOfTwo AssocList.nil⟩,
     by simpa using Nat.pos_of_isPowerOfTwo (Nat.isPowerOfTwo_nextPowerOfTwo _)⟩
+
+@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
+abbrev empty := @emptyWithCapacity
 
 -- Take `hash` as a function instead of `Hashable α` as per
 -- https://github.com/leanprover/lean4/issues/4191

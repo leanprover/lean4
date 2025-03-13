@@ -7,6 +7,14 @@ prelude
 import Init.Data.Nat.Gcd
 import Init.Data.Nat.Lemmas
 
+/-!
+# Lemmas about `Nat.lcm`
+
+## Future work:
+Most of the material about `Nat.gcd` from `Init.Data.Nat.Gcd` has analogues for `Nat.lcm`
+that should be added to this file.
+-/
+
 namespace Nat
 
 /-- The least common multiple of `m` and `n`, defined using `gcd`. -/

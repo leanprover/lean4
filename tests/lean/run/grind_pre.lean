@@ -1,5 +1,5 @@
 abbrev f (a : α) := a
-
+set_option grind.warning false
 set_option grind.debug true
 set_option grind.debug.proofs true
 
@@ -14,7 +14,7 @@ left_1 : p
 right_1 : q
 h_1 : b = false ∨ a = false
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] a = true
     [prop] b = true ∨ c = true
@@ -53,7 +53,7 @@ left_1 : p
 right_1 : q
 h_3 : b = false
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] a = true
     [prop] c = true
@@ -66,7 +66,7 @@ h_3 : b = false
   [eqc] Equivalence classes
     [eqc] {b, false}
     [eqc] {a, c, true}
-[grind] Counters
+[grind] Diagnostics
   [cases] Cases instances
     [cases] Or ↦ 3
 -/
@@ -79,32 +79,18 @@ end
 def g (i : Nat) (j : Nat) (_ : i > j := by omega) := i + j
 
 /--
-error: `grind` failed
-case grind
-i j : Nat
-h : j + 1 < i + 1
-h_2 : j + 1 ≤ i
-h_3 : ¬g (i + 1) j ⋯ = i + j + 1
-⊢ False
-[grind] Diagnostics
-  [facts] Asserted facts
-    [prop] j + 1 ≤ i
-    [prop] ¬g (i + 1) j ⋯ = i + j + 1
-  [eqc] True propositions
-    [prop] j + 1 ≤ i
-  [eqc] False propositions
-    [prop] g (i + 1) j ⋯ = i + j + 1
-  [offset] Assignment satisfying offset contraints
-    [assign] j := 0
-    [assign] i := 1
-    [assign] i + 1 := 2
-    [assign] 0 := 0
-    [assign] i + j + 1 := 1
-    [assign] i + j := 0
+info: [grind.offset.model] i := 1
+[grind.offset.model] j := 0
+[grind.offset.model] 「0」 := 0
+[grind.offset.model] 「i + j」 := 0
+[grind.offset.model] 「i + 1」 := 2
+[grind.offset.model] 「i + j + 1」 := 1
 -/
-#guard_msgs (error) in
+#guard_msgs (info) in
+set_option trace.grind.offset.model true in
 example (i j : Nat) (h : i + 1 > j + 1) : g (i+1) j = f ((fun x => x) i) + f j + 1 := by
-  grind
+  fail_if_success grind
+  sorry
 
 structure Point where
   x : Nat
@@ -126,7 +112,7 @@ x_eq : a₂ = b₂
 y_eq : a₃ = b₃
 tail_eq_1 : as = bs
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] a₁ = b₁
     [prop] a₂ = b₂
@@ -160,7 +146,7 @@ h₃ : p = r
 left : p
 right : r
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] HEq p a
     [prop] HEq q a
@@ -213,7 +199,7 @@ h : HEq f g
 h_1 : HEq a b
 h_2 : ¬f a = g b
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] HEq f g
     [prop] HEq a b

@@ -37,7 +37,6 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_IR_Checker_getDecl___closed__2;
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_maxCtorScalarsSize;
 lean_object* l_Lean_RBNode_insert___at_Lean_IR_mkIndexSet___spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_IR_getEnv___rarg(lean_object*);
 static lean_object* l_Lean_IR_Checker_checkType___closed__4;
 lean_object* lean_get_max_ctor_fields(lean_object*);
@@ -114,6 +113,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_Checker_withParams___boxed(lean_object*, lean
 static lean_object* l_Lean_IR_Checker_checkExpr___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkFullApp(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_maxCtorTag;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkArgs(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkVarType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);

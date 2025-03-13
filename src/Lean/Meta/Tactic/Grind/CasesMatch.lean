@@ -23,7 +23,7 @@ conditions corresponding to overlapping patterns.
 private def addMatchCondsToAlt (alt : Expr) : Expr := Id.run do
   let .forallE _ d b _ := alt
     | return alt
-  let d := if isMatchCondCandidate d then markAsMatchCond d else d
+  let d := if isMatchCondCandidate d then markAsPreMatchCond d else d
   return alt.updateForallE! d (addMatchCondsToAlt b)
 
 /--

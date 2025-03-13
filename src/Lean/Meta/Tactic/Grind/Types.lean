@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Tactics
 import Init.Data.Queue
+import Std.Data.TreeSet
 import Lean.Util.ShareCommon
 import Lean.HeadIndex
 import Lean.Meta.Basic
@@ -304,17 +305,22 @@ structure ENode where
   assigned during the internalization of offset terms.
   -/
   offset? : Option Expr := none
+  /--
+  The `cutsat?` field is used to propagate equalities from the `grind` congruence closure module
+  to the cutsat module. Its implementation is similar to the `offset?` field.
+  -/
+  cutsat? : Option Expr := none
+  -- Remark: we expect to have builtin support for offset constraints, cutsat, and comm ring.
+  -- If the number of satellite solvers increases, we may add support for an arbitrary solvers like done in Z3.
   deriving Inhabited, Repr
 
 def ENode.isCongrRoot (n : ENode) :=
   isSameExpr n.self n.congr
 
-/-- New equality to be processed. -/
-structure NewEq where
-  lhs   : Expr
-  rhs   : Expr
-  proof : Expr
-  isHEq : Bool
+/-- New equalities and facts to be processed. -/
+inductive NewFact where
+  | eq (lhs rhs proof : Expr) (isHEq : Bool)
+  | fact (prop proof : Expr) (generation : Nat)
 
 abbrev ENodeMap := PHashMap ENodeKey ENode
 
@@ -389,7 +395,7 @@ instance : BEq (CongrKey enodes) where
 abbrev CongrTable (enodes : ENodeMap) := PHashSet (CongrKey enodes)
 
 -- Remark: we cannot use pointer addresses here because we have to traverse the tree.
-abbrev ParentSet := RBTree Expr Expr.quickComp
+abbrev ParentSet := Std.TreeSet Expr Expr.quickComp
 abbrev ParentMap := PHashMap ENodeKey ParentSet
 
 /--
@@ -420,8 +426,8 @@ instance : BEq PreInstance where
 
 abbrev PreInstanceSet := PHashSet PreInstance
 
-/-- New fact to be processed. -/
-structure NewFact where
+/-- New raw fact to be preprocessed, and then asserted. -/
+structure NewRawFact where
   proof      : Expr
   prop       : Expr
   generation : Nat
@@ -503,14 +509,14 @@ structure Goal where
   it is its unique id.
   -/
   appMap       : PHashMap HeadIndex (List Expr) := {}
-  /-- Equations to be processed. -/
-  newEqs       : Array NewEq := #[]
+  /-- Equations and propositions to be processed. -/
+  newFacts       : Array NewFact := #[]
   /-- `inconsistent := true` if `ENode`s for `True` and `False` are in the same equivalence class. -/
   inconsistent : Bool := false
   /-- Next unique index for creating ENodes -/
   nextIdx      : Nat := 0
-  /-- new facts to be processed. -/
-  newFacts     : Std.Queue NewFact := ∅
+  /-- new facts to be preprocessed and then asserted. -/
+  newRawFacts  : Std.Queue NewRawFact := ∅
   /-- Asserted facts -/
   facts      : PArray Expr := {}
   /-- Cached extensionality theorems for types. -/
@@ -566,14 +572,19 @@ def markTheoremInstance (proof : Expr) (assignment : Array Expr) : GoalM Bool :=
   modify fun s => { s with ematch.preInstances := s.ematch.preInstances.insert k }
   return true
 
-/-- Adds a new fact `prop` with proof `proof` to the queue for processing. -/
-def addNewFact (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
-  modify fun s => { s with newFacts := s.newFacts.enqueue { proof, prop, generation } }
+/-- Adds a new fact `prop` with proof `proof` to the queue for preprocessing and the assertion. -/
+def addNewRawFact (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
+  if grind.debug.get (← getOptions) then
+    unless (← withReducible <| isDefEq (← inferType proof) prop) do
+      throwError "`grind` internal error, trying to assert{indentExpr prop}\n\
+        with proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\n\
+        which is not definitionally equal with `reducible` transparency setting}"
+  modify fun s => { s with newRawFacts := s.newRawFacts.enqueue { proof, prop, generation } }
 
 /-- Adds a new theorem instance produced using E-matching. -/
 def addTheoremInstance (thm : EMatchTheorem) (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
   saveEMatchTheorem thm
-  addNewFact proof prop generation
+  addNewRawFact proof prop generation
   modify fun s => { s with ematch.numInstances := s.ematch.numInstances + 1 }
 
 /-- Returns `true` if the maximum number of instances has been reached. -/
@@ -704,8 +715,16 @@ def Goal.getTarget? (goal : Goal) (e : Expr) : Option Expr := Id.run do
 If `isHEq` is `false`, it pushes `lhs = rhs` with `proof` to `newEqs`.
 Otherwise, it pushes `HEq lhs rhs`.
 -/
-def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit :=
-  modify fun s => { s with newEqs := s.newEqs.push { lhs, rhs, proof, isHEq } }
+def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
+  if grind.debug.get (← getOptions) then
+    unless proof == congrPlaceholderProof do
+      let expectedType ← if isHEq then mkHEq lhs rhs else mkEq lhs rhs
+      unless (← withReducible <| isDefEq (← inferType proof) expectedType) do
+        throwError "`grind` internal error, trying to assert equality{indentExpr expectedType}\n\
+            with proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\n\
+            which is not definitionally equal with `reducible` transparency setting}"
+      trace[grind.debug] "pushEqCore: {expectedType}"
+  modify fun s => { s with newFacts := s.newFacts.push <| .eq lhs rhs proof isHEq }
 
 /-- Return `true` if `a` and `b` have the same type. -/
 def hasSameType (a b : Expr) : MetaM Bool :=
@@ -740,6 +759,21 @@ def pushEqBoolTrue (a proof : Expr) : GoalM Unit := do
 /-- Pushes `a = Bool.false` with `proof` to `newEqs`. -/
 def pushEqBoolFalse (a proof : Expr) : GoalM Unit := do
   pushEq a (← getBoolFalseExpr) proof
+
+/--
+Push a new fact into the todo list. This function assumes the fact is in `grind` normal
+form. For facts that need to be preprocessed, use `addNewRawFact` instead.
+-/
+def pushNewFact (fact : Expr) (proof : Expr) (generation : Nat := 0) : GoalM Unit := do
+  modify fun s => { s with newFacts := s.newFacts.push <| .fact fact proof generation }
+
+/--
+Infer the type of the proof, and invokes `pushNewFact`. It assumes the type/proposition
+is in `grind` normal form. Only `shareCommon` is used.
+-/
+def pushNewProof (proof : Expr) (generation : Nat := 0) : GoalM Unit := do
+  let fact ← shareCommon (← inferType proof)
+  modify fun s => { s with newFacts := s.newFacts.push <| .fact fact proof generation }
 
 /--
 Records that `parent` is a parent of `child`. This function actually stores the
@@ -804,19 +838,19 @@ def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
   mkENodeCore e interpreted ctor generation
 
 /--
-Notify the offset constraint module that `a = b` where
+Notifies the offset constraint module that `a = b` where
 `a` and `b` are terms that have been internalized by this module.
 -/
 @[extern "lean_process_new_offset_eq"] -- forward definition
-opaque Arith.processNewOffsetEq (a b : Expr) : GoalM Unit
+opaque Arith.Offset.processNewEq (a b : Expr) : GoalM Unit
 
 /--
-Notify the offset constraint module that `a = k` where
+Notifies the offset constraint module that `a = k` where
 `a` is term that has been internalized by this module,
 and `k` is a numeral.
 -/
 @[extern "lean_process_new_offset_eq_lit"] -- forward definition
-opaque Arith.processNewOffsetEqLit (a k : Expr) : GoalM Unit
+opaque Arith.Offset.processNewEqLit (a k : Expr) : GoalM Unit
 
 /-- Returns `true` if `e` is a numeral and has type `Nat`. -/
 def isNatNum (e : Expr) : Bool := Id.run do
@@ -832,11 +866,106 @@ a new equality is propagated to the offset module.
 def markAsOffsetTerm (e : Expr) : GoalM Unit := do
   let root ← getRootENode e
   if let some e' := root.offset? then
-    Arith.processNewOffsetEq e e'
+    Arith.Offset.processNewEq e e'
   else if isNatNum root.self && !isSameExpr e root.self then
-    Arith.processNewOffsetEqLit e root.self
+    Arith.Offset.processNewEqLit e root.self
   else
     setENode root.self { root with offset? := some e }
+
+/--
+Notifies the cutsat module that `a = b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_cutsat_eq"] -- forward definition
+opaque Arith.Cutsat.processNewEq (a b : Expr) : GoalM Unit
+
+/--
+Notifies the cutsat module that `a = k` where
+`a` is term that has been internalized by this module, and `k` is a numeral.
+-/
+@[extern "lean_process_cutsat_eq_lit"] -- forward definition
+opaque Arith.Cutsat.processNewEqLit (a k : Expr) : GoalM Unit
+
+/--
+Notifies the cutsat module that `a ≠ b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_cutsat_diseq"] -- forward definition
+opaque Arith.Cutsat.processNewDiseq (a b : Expr) : GoalM Unit
+
+/-- Returns `true` if `e` is a nonegative numeral and has type `Int`. -/
+def isNonnegIntNum (e : Expr) : Bool := Id.run do
+  let_expr OfNat.ofNat _ _ inst := e | false
+  let_expr instOfNat _ := inst | false
+  true
+
+/-- Returns `true` if `e` is a numeral and has type `Int`. -/
+def isIntNum (e : Expr) : Bool :=
+  match_expr e with
+  | Neg.neg _ inst e => Id.run do
+    let_expr Int.instNegInt := inst | false
+    isNonnegIntNum e
+  | _ => isNonnegIntNum e
+
+/-- Returns `true` if `e` is a numeral supported by cutsat. -/
+def isNum (e : Expr) : Bool :=
+  isNatNum e || isIntNum e
+
+/--
+Returns `true` if type of `t` is definitionally equal to `α`
+-/
+def hasType (t α : Expr) : MetaM Bool :=
+  withDefault do isDefEq (← inferType t) α
+
+/--
+For each equality `b = c` in `parents`, executes `k b c` IF
+- `b = c` is equal to `False`, and
+-/
+@[inline] def forEachDiseq (parents : ParentSet) (k : (lhs : Expr) → (rhs : Expr) → GoalM Unit) : GoalM Unit := do
+  for parent in parents do
+    let_expr Eq _ b c := parent | continue
+    if (← isEqFalse parent) then
+      k b c
+
+/--
+Given `lhs` and `rhs` that are known to be disequal, checks whether
+`lhs` and `rhs` have cutsat terms `e₁` and `e₂` attached to them,
+and invokes process `Arith.Cutsat.processNewDiseq e₁ e₂`
+-/
+def propagateCutsatDiseq (lhs rhs : Expr) : GoalM Unit := do
+  let some lhs ← get? lhs | return ()
+  let some rhs ← get? rhs | return ()
+  -- Recall that core can take care of disequalities of the form `1≠2`.
+  unless isIntNum lhs && isIntNum rhs do
+    Arith.Cutsat.processNewDiseq lhs rhs
+where
+  get? (a : Expr) : GoalM (Option Expr) := do
+    let root ← getRootENode a
+    if isIntNum root.self then
+      return some root.self
+    return root.cutsat?
+
+/--
+Traverses disequalities in `parents`, and propagate the ones relevant to the
+cutsat module.
+-/
+def propagateCutsatDiseqs (parents : ParentSet) : GoalM Unit := do
+  forEachDiseq parents propagateCutsatDiseq
+
+/--
+Marks `e` as a term of interest to the cutsat module.
+If the root of `e`s equivalence class has already a term of interest,
+a new equality is propagated to the cutsat module.
+-/
+def markAsCutsatTerm (e : Expr) : GoalM Unit := do
+  let root ← getRootENode e
+  if let some e' := root.cutsat? then
+    Arith.Cutsat.processNewEq e e'
+  else if isIntNum root.self && !isSameExpr e root.self then
+    Arith.Cutsat.processNewEqLit e root.self
+  else
+    setENode root.self { root with cutsat? := some e }
+    propagateCutsatDiseqs (← getParents root.self)
 
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do
@@ -873,8 +1002,8 @@ opaque mkHEqProof (a b : Expr) : GoalM Expr
 opaque internalize (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit
 
 -- Forward definition
-@[extern "lean_grind_process_new_eqs"]
-opaque processNewEqs : GoalM Unit
+@[extern "lean_grind_process_new_facts"]
+opaque processNewFacts : GoalM Unit
 
 /--
 Returns a proof that `a = b` if they have the same type. Otherwise, returns a proof of `HEq a b`.
@@ -1044,7 +1173,7 @@ def isResolvedCaseSplit (e : Expr) : GoalM Bool :=
   return (← get).split.resolved.contains { expr := e }
 
 /--
-Mark `e` as a case-split that does not need to be performed anymore.
+Marks `e` as a case-split that does not need to be performed anymore.
 Remark: we currently use this feature to disable `match`-case-splits.
 Remark: we also use this feature to record the case-splits that have already been performed.
 -/

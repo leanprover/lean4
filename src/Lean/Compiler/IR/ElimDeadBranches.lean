@@ -143,6 +143,7 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (FunId ×
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
     toArrayFn := fun s => sortEntries s.toArray
     asyncMode := .sync  -- compilation is non-parallel anyway
+    replay? := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.1) (fun s ⟨e, n⟩ => s.insert e n)
   }
 
 def addFunctionSummary (env : Environment) (fid : FunId) (v : Value) : Environment :=

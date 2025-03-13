@@ -48,29 +48,27 @@ theorem attachWith_congr {o₁ o₂ : Option α} (w : o₁ = o₂) {P : α → P
   subst w
   simp
 
-theorem attach_map_coe (o : Option α) (f : α → β) :
+theorem attach_map_val (o : Option α) (f : α → β) :
     (o.attach.map fun (i : {i // i ∈ o}) => f i) = o.map f := by
   cases o <;> simp
 
-theorem attach_map_val (o : Option α) (f : α → β) :
-    (o.attach.map fun i => f i.val) = o.map f :=
-  attach_map_coe _ _
+@[deprecated attach_map_val (since := "2025-02-17")]
+abbrev attach_map_coe := @attach_map_val
 
 theorem attach_map_subtype_val (o : Option α) :
     o.attach.map Subtype.val = o :=
-  (attach_map_coe _ _).trans (congrFun Option.map_id _)
+  (attach_map_val _ _).trans (congrFun Option.map_id _)
 
-theorem attachWith_map_coe {p : α → Prop} (f : α → β) (o : Option α) (H : ∀ a ∈ o, p a) :
+theorem attachWith_map_val {p : α → Prop} (f : α → β) (o : Option α) (H : ∀ a ∈ o, p a) :
     ((o.attachWith p H).map fun (i : { i // p i}) => f i.val) = o.map f := by
   cases o <;> simp [H]
 
-theorem attachWith_map_val {p : α → Prop} (f : α → β) (o : Option α) (H : ∀ a ∈ o, p a) :
-    ((o.attachWith p H).map fun i => f i.val) = o.map f :=
-  attachWith_map_coe _ _ _
+@[deprecated attachWith_map_val (since := "2025-02-17")]
+abbrev attachWith_map_coe := @attachWith_map_val
 
 theorem attachWith_map_subtype_val {p : α → Prop} (o : Option α) (H : ∀ a ∈ o, p a) :
     (o.attachWith p H).map Subtype.val = o :=
-  (attachWith_map_coe _ _ _).trans (congrFun Option.map_id _)
+  (attachWith_map_val _ _ _).trans (congrFun Option.map_id _)
 
 theorem mem_attach : ∀ (o : Option α) (x : {x // x ∈ o}), x ∈ o.attach
   | none, ⟨x, h⟩ => by simp at h

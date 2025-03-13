@@ -221,7 +221,7 @@ Very effective for examples using the notation `a[i]`
 -/
 
 -- Standard library will be
-attribute [grind =] Array.size_set Array.get_set_eq Array.get_set_ne
+attribute [grind =] Array.size_set Array.getElem_set_self Array.getElem_set_ne
 
 example (as bs cs ds : Array α) (v₁ v₂ v₃ : α)
         (i₁ i₂ i₃ j : Nat)

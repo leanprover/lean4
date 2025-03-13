@@ -14,13 +14,16 @@ structure AuxLemmas where
   lemmas : PHashMap Expr (Name × List Name) := {}
   deriving Inhabited
 
-builtin_initialize auxLemmasExt : EnvExtension AuxLemmas ← registerEnvExtension (pure {})
+builtin_initialize auxLemmasExt : EnvExtension AuxLemmas ←
+  registerEnvExtension (pure {}) (asyncMode := .local)  -- a mere cache, keep local
 
 /--
   Helper method for creating auxiliary lemmas in the environment.
 
   It uses a cache that maps `type` to declaration name. The cache is not stored in `.olean` files.
-  It is useful to make sure the same auxiliary lemma is not created over and over again in the same file.
+  It is useful to make sure the same auxiliary lemma is not created over and over again in the same
+  environment branch. For expensive auxiliary lemmas that should be deduplicated even across
+  different environment branches, consider using `realizeConst` instead.
 
   This method is useful for tactics (e.g., `simp`) that may perform preprocessing steps to lemmas provided by
   users. For example, `simp` preprocessor may convert a lemma into multiple ones.
@@ -29,7 +32,7 @@ def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) : MetaM Na
   let env ← getEnv
   let s := auxLemmasExt.getState env
   let mkNewAuxLemma := do
-    let auxName := Name.mkNum (env.mainModule ++ `_auxLemma) s.idx
+    let auxName := Name.mkNum (env.asyncPrefix?.getD env.mainModule ++ `_auxLemma) s.idx
     addDecl <| Declaration.thmDecl {
       name := auxName
       levelParams, type, value

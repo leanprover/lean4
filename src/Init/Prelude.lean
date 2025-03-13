@@ -2407,21 +2407,24 @@ Examples:
   | none   => none
 
 /--
-`List α` is the type of ordered lists with elements of type `α`.
-It is implemented as a linked list.
+Linked lists: ordered lists, in which each element has a reference to the next element.
+
+Most operations on linked lists take time proportional to the length of the list, because each
+element must be traversed to find the next element.
 
 `List α` is isomorphic to `Array α`, but they are useful for different things:
-* `List α` is easier for reasoning, and
-  `Array α` is modeled as a wrapper around `List α`
-* `List α` works well as a persistent data structure, when many copies of the
-  tail are shared. When the value is not shared, `Array α` will have better
-  performance because it can do destructive updates.
+* `List α` is easier for reasoning, and `Array α` is modeled as a wrapper around `List α`.
+* `List α` works well as a persistent data structure, when many copies of the tail are shared. When
+  the value is not shared, `Array α` will have better performance because it can do destructive
+  updates.
 -/
 inductive List (α : Type u) where
-  /-- `[]` is the empty list. -/
+  /-- The empty list, usually written `[]`. -/
   | nil : List α
-  /-- If `a : α` and `l : List α`, then `cons a l`, or `a :: l`, is the
-  list whose first element is `a` and with `l` as the rest of the list. -/
+  /--
+  The list whose first element is `head`, where `tail` is the rest of the list.
+  Usually written `head :: tail`.
+  -/
   | cons (head : α) (tail : List α) : List α
 
 instance {α} : Inhabited (List α) where
@@ -2443,11 +2446,13 @@ protected def List.hasDecEq {α : Type u} [DecidableEq α] : (a b : List α) →
 instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := List.hasDecEq
 
 /--
-The length of a list: `[].length = 0` and `(a :: l).length = l.length + 1`.
+The length of a list.
 
-This function is overridden in the compiler to `lengthTR`, which uses constant
-stack space, while leaving this function to use the "naive" recursion which is
-easier for reasoning.
+This function is overridden in the compiler to `lengthTR`, which uses constant stack space.
+
+Examples:
+ * `([] : List String).length = 0`
+ * `["green", "brown"].length = 2`
 -/
 def List.length : List α → Nat
   | nil       => 0
@@ -2459,40 +2464,69 @@ def List.lengthTRAux : List α → Nat → Nat
   | cons _ as, n => lengthTRAux as (Nat.succ n)
 
 /--
-A tail-recursive version of `List.length`, used to implement `List.length`
-without running out of stack space.
+The length of a list.
+
+This is a tail-recursive version of `List.length`, used to implement `List.length` without running
+out of stack space.
+
+Examples:
+ * `([] : List String).lengthTR = 0`
+ * `["green", "brown"].lengthTR = 2`
 -/
 def List.lengthTR (as : List α) : Nat :=
   lengthTRAux as 0
 
 /--
-`as.get i` returns the `i`'th element of the list `as`.
-This version of the function uses `i : Fin as.length` to ensure that it will
-not index out of bounds.
+Returns the element at the provided index, counting from `0`.
+
+In other words, for `i : Fin as.length`, `as.get i` returns the `i`'th element of the list `as`.
+Because the index is a `Fin` bounded by the list's length, the index will never be out of bounds.
+
+Examples:
+ * `["spring", "summer", "fall", "winter"].get (2 : Fin 4) = "fall"`
+ * `["spring", "summer", "fall", "winter"].get (0 : Fin 4) = "spring"`
 -/
 def List.get {α : Type u} : (as : List α) → Fin as.length → α
   | cons a _,  ⟨0, _⟩ => a
   | cons _ as, ⟨Nat.succ i, h⟩ => get as ⟨i, Nat.le_of_succ_le_succ h⟩
 
 /--
-`l.set n a` sets the value of list `l` at (zero-based) index `n` to `a`:
-`[a, b, c, d].set 1 b' = [a, b', c, d]`
+Replaces the value at (zero-based) index `n` in `l` with `a`. If the index is out of bounds, then
+the list is returned unmodified.
+
+Examples:
+* `["water", "coffee", "soda", "juice"].set 1 "tea" = ["water", "tea", "soda", "juice"]`
+* `["water", "coffee", "soda", "juice"].set 4 "tea" = ["water", "coffee", "soda", "juice"]`
 -/
-def List.set : List α → Nat → α → List α
+def List.set : (l : List α) → (n : Nat) → (a : α) → List α
   | cons _ as, 0,          b => cons b as
   | cons a as, Nat.succ n, b => cons a (set as n b)
   | nil,       _,          _ => nil
 
 /--
-Folds a function over a list from the left:
-`foldl f z [a, b, c] = f (f (f z a) b) c`
+Folds a function over a list from the left, accumulating a value starting with `init`. The
+accumulated value is combined with the each element of the list in order, using `f`.
+
+Examples:
+ * `[a, b, c].foldl f z  = f (f (f z a) b) c`
+ * `[1, 2, 3].foldl (· ++ toString ·) "" = "123"`
+ * `[1, 2, 3].foldl (s!"({·} {·})") "" = "((( 1) 2) 3)"`
 -/
 @[specialize]
 def List.foldl {α : Type u} {β : Type v} (f : α → β → α) : (init : α) → List β → α
   | a, nil      => a
   | a, cons b l => foldl f (f a b) l
 
-/-- `l.concat a` appends `a` at the *end* of `l`, that is, `l ++ [a]`. -/
+/--
+Adds an element to the *end* of a list.
+
+The added element is the last element of the resulting list.
+
+Examples:
+ * `List.concat ["red", "yellow"] "green" = ["red", "yellow", "green"]`
+ * `List.concat [1, 2, 3] 4 = [1, 2, 3, 4]`
+ * `List.concat [] () = [()]`
+-/
 def List.concat {α : Type u} : List α → α → List α
   | nil,       b => cons b nil
   | cons a as, b => cons a (concat as b)
@@ -2718,10 +2752,14 @@ attribute [extern "lean_array_to_list"] Array.toList
 attribute [extern "lean_array_mk"] Array.mk
 
 /--
-Converts a `List α` into an `Array α`. (This is preferred over the synonym `Array.mk`.)
+Converts a `List α` into an `Array α`. `O(|xs|)`.
 
-At runtime, this constructor is implemented by `List.toArrayImpl` and is O(n) in the length of the
-list.
+At runtime, this operation is implemented by `List.toArrayImpl` and takes time linear in the length
+of the list. `List.toArray` should be used instead of `Array.mk`.
+
+Examples:
+ * `[1, 2, 3].toArray = #[1, 2, 3]`
+ * `["monday", "wednesday", friday"].toArray = #["monday", "wednesday", friday"].`
 -/
 @[match_pattern]
 abbrev List.toArray (xs : List α) : Array α := .mk xs

@@ -1032,16 +1032,35 @@ namespace Process
 /-- Returns the process ID of the calling process. -/
 @[extern "lean_io_process_get_pid"] opaque getPID : BaseIO UInt32
 
+/--
+Whether the standard input, output, and error handles of a child process should be attached to
+pipes, inherited from the parent, or null.
+
+If the stream is a pipe, then the parent process can use it to communicate with the child.
+-/
 inductive Stdio where
+  /-- The stream should be attached to a pipe. -/
   | piped
+  /-- The stream should be inherited from the parent process. -/
   | inherit
+  /-- The stream should be empty. -/
   | null
 
+/--
+The type of handles that can be used to communicate with a child process on its standard input,
+output, or error streams.
+
+For `IO.Process.Stdio.piped`, this type is `IO.FS.Handle`. Otherwise, it is `Unit`, because no
+communication is possible.
+-/
 def Stdio.toHandleType : Stdio → Type
   | Stdio.piped   => FS.Handle
   | Stdio.inherit => Unit
   | Stdio.null    => Unit
 
+/--
+Configuration for the standard input, output, and error handles of a child process.
+-/
 structure StdioConfig where
   /-- Configuration for the process' stdin handle. -/
   stdin := Stdio.inherit
@@ -1050,58 +1069,116 @@ structure StdioConfig where
   /-- Configuration for the process' stderr handle. -/
   stderr := Stdio.inherit
 
+/--
+Configuration for a child process to be spawned.
+
+Use `IO.Process.spawn` to start the child process. `IO.Process.output` and `IO.Process.run` can be
+used when the child process should be run to completion, with its output and/or error code captured.
+-/
 structure SpawnArgs extends StdioConfig where
   /-- Command name. -/
   cmd : String
-  /-- Arguments for the process -/
+  /-- Arguments for the command. -/
   args : Array String := #[]
-  /-- Working directory for the process. Inherit from current process if `none`. -/
+  /-- The child process's working directory. Inherited from the parent current process if `none`. -/
   cwd : Option FilePath := none
-  /-- Add or remove environment variables for the process. -/
+  /--
+  Add or remove environment variables for the child process.
+
+  The child process inherits the parent's environment, as modified by `env`. Keys in the array are
+  the names of environment variables. A `none`, causes the entry to be removed from the environment,
+  and `some` sets the variable to the new value, adding it if necessary. Variables are processed from left to right.
+  -/
   env : Array (String × Option String) := #[]
-  /-- Start process in new session and process group using `setsid`. Currently a no-op on non-POSIX platforms. -/
+  /--
+  Starts the child process in a new session and process group using `setsid`. Currently a no-op on
+  non-POSIX platforms.
+  -/
   setsid : Bool := false
 
+/--
+A child process that was spawned with configuration `cfg`.
+
+The configuration determines whether the child process's standard input, standard output, and
+standard error are `IO.FS.Handle`s or `Unit`.
+-/
 -- TODO(Sebastian): constructor must be private
 structure Child (cfg : StdioConfig) where
+  /--
+  The child process's standard input handle, if it was configured as `IO.Process.Stdio.piped`, or
+  `()` otherwise.
+  -/
   stdin  : cfg.stdin.toHandleType
+  /--
+  The child process's standard output handle, if it was configured as `IO.Process.Stdio.piped`, or
+  `()` otherwise.
+  -/
   stdout : cfg.stdout.toHandleType
+  /--
+  The child process's standard error handle, if it was configured as `IO.Process.Stdio.piped`, or
+  `()` otherwise.
+  -/
   stderr : cfg.stderr.toHandleType
 
+/--
+Starts a child process with the provided configuration. The child process is spawned using operating
+system primitives, and it can be written in any language.
+
+The child process runs in parallel with the parent.
+
+If the child process's standard input is a pipe, use `IO.Process.Child.takeStdin` to make it
+possible to close the child's standard input before the process terminates, which provides the child with an end-of-file marker.
+-/
 @[extern "lean_io_process_spawn"] opaque spawn (args : SpawnArgs) : IO (Child args.toStdioConfig)
 
 /--
-Block until the child process has exited and return its exit code.
+Blocks until the child process has exited and return its exit code.
 -/
 @[extern "lean_io_process_child_wait"] opaque Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
 
 /--
-Check whether the child has exited yet. If it hasn't return none, otherwise its exit code.
+Checks whether the child has exited. Returns `none` if the process has not exited, or its exit code
+if it has.
 -/
 @[extern "lean_io_process_child_try_wait"] opaque Child.tryWait {cfg : @& StdioConfig} : @& Child cfg →
     IO (Option UInt32)
 
-/-- Terminates the child process using the SIGTERM signal or a platform analogue.
-    If the process was started using `SpawnArgs.setsid`, terminates the entire process group instead. -/
+/--
+Terminates the child process using the `SIGTERM` signal or a platform analogue.
+
+If the process was started using `SpawnArgs.setsid`, terminates the entire process group instead.
+-/
 @[extern "lean_io_process_child_kill"] opaque Child.kill {cfg : @& StdioConfig} : @& Child cfg → IO Unit
 
 /--
-Extract the `stdin` field from a `Child` object, allowing them to be freed independently.
-This operation is necessary for closing the child process' stdin while still holding on to a process handle,
-e.g. for `Child.wait`. A file handle is closed when all references to it are dropped, which without this
-operation includes the `Child` object.
+Extracts the `stdin` field from a `Child` object, allowing the handle to be closed while maintaining
+a reference to the child process.
+
+File handles are closed when the last reference to them is dropped. Closing the child's standard
+input causes an end-of-file marker. Because the `Child` object has a reference to the standard
+input, this operation is necessary in order to close the stream while the process is running (e.g.
+to extract its exit code after calling `Child.wait`). Many processes do not terminate until their
+standard input is exhausted.
 -/
 @[extern "lean_io_process_child_take_stdin"] opaque Child.takeStdin {cfg : @& StdioConfig} : Child cfg →
     IO (cfg.stdin.toHandleType × Child { cfg with stdin := Stdio.null })
 
+/--
+The result of running a process to completion.
+-/
 structure Output where
+  /-- The process's exit code. -/
   exitCode : UInt32
+  /-- Everything that was written to the process's standard output. -/
   stdout   : String
+  /-- Everything that was written to the process's standard error. -/
   stderr   : String
 
 /--
-Run process to completion and capture output.
-The process does not inherit the standard input of the caller.
+Runs a process to completion and captures its output and exit code. The child process is run with a
+null standard input, and the current process blocks until it has run to completion.
+
+The specifications of standard input, output, and error handles in `args` are ignored.
 -/
 def output (args : SpawnArgs) : IO Output := do
   let child ← spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
@@ -1111,13 +1188,21 @@ def output (args : SpawnArgs) : IO Output := do
   let stdout ← IO.ofExcept stdout.get
   pure { exitCode := exitCode, stdout := stdout, stderr := stderr }
 
-/-- Run process to completion and return stdout on success. -/
+/--
+Runs a process to completion, blocking until it terminates. If the child process terminates
+successfully with exit code 0, its standard output is returned. An exception is thrown if it
+terminates with any other exit code.
+-/
 def run (args : SpawnArgs) : IO String := do
   let out ← output args
   if out.exitCode != 0 then
     throw <| IO.userError <| "process '" ++ args.cmd ++ "' exited with code " ++ toString out.exitCode
   pure out.stdout
 
+/--
+Terminates the current process with the provided exit code. `0` indicates success, all other values
+indicate failure.
+-/
 @[extern "lean_io_exit"] opaque exit : UInt8 → IO α
 
 end Process

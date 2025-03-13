@@ -22,10 +22,10 @@ lean_object* l_Lean_MapDeclarationExtension_insert___rarg(lean_object*, lean_obj
 static lean_object* l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__6___closed__4;
 static lean_object* l_Lean_Elab_PartialFixpoint_registerEqnsInfo___closed__2;
 lean_object* l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm_doRealize___spec__1___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialFixpoint_initFn____x40_Lean_Elab_PreDefinition_PartialFixpoint_Eqns___hyg_1609_(lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__4;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__6___closed__7;
 static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eqns_0__Lean_Elab_PartialFixpoint_rwFixEq___lambda__1___closed__4;
@@ -139,7 +139,7 @@ static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eqns_0__
 static lean_object* l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__6___closed__2;
 lean_object* l_Lean_Meta_realizeConst(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__8(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
+uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__3___closed__4;
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_PartialFixpoint_registerEqnsInfo___spec__2(size_t, size_t, lean_object*);
@@ -224,11 +224,11 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_PartialFixpoin
 static lean_object* l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__6___closed__9;
 lean_object* l_Lean_Elab_Eqns_mkEqns(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__3___closed__3;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 lean_object* l_panic___at_Lean_Meta_subst_substEq___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addDecl(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__1;
 static lean_object* l_Lean_Elab_PartialFixpoint_rwFixUnder___closed__19;
-lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(lean_object*, lean_object*, uint8_t);
 static lean_object* _init_l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__1() {
 _start:
 {
@@ -277,7 +277,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -2424,7 +2424,7 @@ x_58 = lean_ctor_get(x_7, 2);
 lean_inc(x_58);
 x_59 = l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__3___closed__3;
 x_60 = 0;
-x_61 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_58, x_59, x_60);
+x_61 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_58, x_59, x_60);
 x_62 = l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__3___closed__4;
 x_63 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_61, x_62);
 x_64 = lean_st_ref_get(x_8, x_9);
@@ -2579,7 +2579,7 @@ x_104 = lean_ctor_get(x_7, 2);
 lean_inc(x_104);
 x_105 = l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__3___closed__3;
 x_106 = 0;
-x_107 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_104, x_105, x_106);
+x_107 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_104, x_105, x_106);
 x_108 = l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__3___closed__4;
 x_109 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_107, x_108);
 x_110 = lean_st_ref_get(x_8, x_9);
@@ -2782,7 +2782,7 @@ x_176 = lean_ctor_get(x_7, 2);
 lean_inc(x_176);
 x_177 = l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__3___closed__3;
 x_178 = 0;
-x_179 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_176, x_177, x_178);
+x_179 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_176, x_177, x_178);
 x_180 = l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__3___closed__4;
 x_181 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_179, x_180);
 x_182 = lean_st_ref_get(x_8, x_9);
@@ -2945,7 +2945,7 @@ x_215 = lean_ctor_get(x_7, 2);
 lean_inc(x_215);
 x_216 = l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__3___closed__3;
 x_217 = 0;
-x_218 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_215, x_216, x_217);
+x_218 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_215, x_216, x_217);
 x_219 = l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__3___closed__4;
 x_220 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_218, x_219);
 x_221 = lean_st_ref_get(x_8, x_9);
@@ -4207,7 +4207,7 @@ x_12 = lean_ctor_get(x_6, 2);
 lean_inc(x_12);
 x_13 = l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___closed__1;
 x_14 = 0;
-x_15 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_12, x_13, x_14);
+x_15 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_12, x_13, x_14);
 x_16 = l_Lean_Elab_PartialFixpoint_mkUnfoldEq_doRealize___lambda__3___closed__4;
 x_17 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_15, x_16);
 x_18 = lean_st_ref_get(x_7, x_8);
@@ -4618,76 +4618,78 @@ x_9 = lean_st_ref_get(x_5, x_6);
 x_10 = !lean_is_exclusive(x_9);
 if (x_10 == 0)
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; uint8_t x_15; 
 x_11 = lean_ctor_get(x_9, 0);
 x_12 = lean_ctor_get(x_9, 1);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec(x_11);
+x_14 = 1;
 lean_inc(x_8);
 lean_inc(x_13);
-x_14 = l_Lean_Environment_contains(x_13, x_8);
-if (x_14 == 0)
+x_15 = l_Lean_Environment_contains(x_13, x_8, x_14);
+if (x_15 == 0)
 {
-lean_object* x_15; lean_object* x_16; 
+lean_object* x_16; lean_object* x_17; 
 lean_free_object(x_9);
 lean_dec(x_8);
-x_15 = lean_box(0);
-x_16 = l_Lean_Elab_PartialFixpoint_getUnfoldFor_x3f___lambda__1(x_13, x_1, x_15, x_2, x_3, x_4, x_5, x_12);
-return x_16;
+x_16 = lean_box(0);
+x_17 = l_Lean_Elab_PartialFixpoint_getUnfoldFor_x3f___lambda__1(x_13, x_1, x_16, x_2, x_3, x_4, x_5, x_12);
+return x_17;
 }
 else
 {
-lean_object* x_17; 
+lean_object* x_18; 
 lean_dec(x_13);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_17 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_17, 0, x_8);
-lean_ctor_set(x_9, 0, x_17);
+x_18 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_18, 0, x_8);
+lean_ctor_set(x_9, 0, x_18);
 return x_9;
 }
 }
 else
 {
-lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
-x_18 = lean_ctor_get(x_9, 0);
-x_19 = lean_ctor_get(x_9, 1);
+lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; uint8_t x_23; 
+x_19 = lean_ctor_get(x_9, 0);
+x_20 = lean_ctor_get(x_9, 1);
+lean_inc(x_20);
 lean_inc(x_19);
-lean_inc(x_18);
 lean_dec(x_9);
-x_20 = lean_ctor_get(x_18, 0);
-lean_inc(x_20);
-lean_dec(x_18);
+x_21 = lean_ctor_get(x_19, 0);
+lean_inc(x_21);
+lean_dec(x_19);
+x_22 = 1;
 lean_inc(x_8);
-lean_inc(x_20);
-x_21 = l_Lean_Environment_contains(x_20, x_8);
-if (x_21 == 0)
+lean_inc(x_21);
+x_23 = l_Lean_Environment_contains(x_21, x_8, x_22);
+if (x_23 == 0)
 {
-lean_object* x_22; lean_object* x_23; 
+lean_object* x_24; lean_object* x_25; 
 lean_dec(x_8);
-x_22 = lean_box(0);
-x_23 = l_Lean_Elab_PartialFixpoint_getUnfoldFor_x3f___lambda__1(x_20, x_1, x_22, x_2, x_3, x_4, x_5, x_19);
-return x_23;
+x_24 = lean_box(0);
+x_25 = l_Lean_Elab_PartialFixpoint_getUnfoldFor_x3f___lambda__1(x_21, x_1, x_24, x_2, x_3, x_4, x_5, x_20);
+return x_25;
 }
 else
 {
-lean_object* x_24; lean_object* x_25; 
-lean_dec(x_20);
+lean_object* x_26; lean_object* x_27; 
+lean_dec(x_21);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_24 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_24, 0, x_8);
-x_25 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_25, 0, x_24);
-lean_ctor_set(x_25, 1, x_19);
-return x_25;
+x_26 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_26, 0, x_8);
+x_27 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_27, 0, x_26);
+lean_ctor_set(x_27, 1, x_20);
+return x_27;
 }
 }
 }

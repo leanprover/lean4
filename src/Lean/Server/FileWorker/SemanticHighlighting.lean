@@ -159,12 +159,13 @@ structure SemanticTokensState where
 /-- Computes all semantic tokens for the document. -/
 def handleSemanticTokensFull (_ : SemanticTokensParams) (_ : SemanticTokensState)
     : RequestM (LspResponse SemanticTokens × SemanticTokensState) := do
+  let ctx ← read
   let doc ← readDoc
   -- Only grabs the finished prefix so that we do not need to wait for elaboration to complete
   -- for the full file before sending a response. This means that the response will be incomplete,
   -- which we mitigate by regularly sending `workspace/semanticTokens/refresh` requests in the
   -- `FileWorker` to tell the client to re-compute the semantic tokens.
-  let (snaps, _, isComplete) ← doc.cmdSnaps.getFinishedPrefix
+  let (snaps, _, isComplete) ← doc.cmdSnaps.getFinishedPrefixWithTimeout 3000 (cancelTk? := ctx.cancelTk.cancellationTask)
   let response ← computeSemanticTokens doc 0 none snaps
   return ({ response, isComplete }, ⟨⟩)
 

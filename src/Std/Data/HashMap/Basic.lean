@@ -62,12 +62,15 @@ structure HashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
 
 namespace HashMap
 
-@[inline, inherit_doc DHashMap.empty] def empty [BEq α] [Hashable α] (capacity := 8) :
+@[inline, inherit_doc DHashMap.empty] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) :
     HashMap α β :=
-  ⟨DHashMap.empty capacity⟩
+  ⟨DHashMap.emptyWithCapacity capacity⟩
+
+@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
+abbrev empty := @emptyWithCapacity
 
 instance [BEq α] [Hashable α] : EmptyCollection (HashMap α β) where
-  emptyCollection := empty
+  emptyCollection := emptyWithCapacity
 
 instance [BEq α] [Hashable α] : Inhabited (HashMap α β) where
   default := ∅
@@ -83,7 +86,7 @@ structure Equiv (m₁ m₂ : HashMap α β) where
     (b : β) : HashMap α β :=
   ⟨m.inner.insert a b⟩
 
-instance : Singleton (α × β) (HashMap α β) := ⟨fun ⟨a, b⟩ => HashMap.empty.insert a b⟩
+instance : Singleton (α × β) (HashMap α β) := ⟨fun ⟨a, b⟩ => (∅ : HashMap α β).insert a b⟩
 
 instance : Insert (α × β) (HashMap α β) := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
 

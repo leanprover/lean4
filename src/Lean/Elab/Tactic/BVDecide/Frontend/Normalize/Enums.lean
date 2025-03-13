@@ -78,16 +78,16 @@ def getEnumToBitVecFor (declName : Name) : MetaM Name := do
 /--
 Create a `cond` chain in `Sort u` of the form:
 ```
-bif input = 0#w then values[0] else bif input = 1#w then values[1] else ...
+bif input = discrs 0 then values[0] else bif input = discrs 1 then values 1 else ...
 ```
 -/
-private def mkCondChain (u : Level) (w : Nat) (input : Expr) (retType : Expr) (values : List Expr)
-    (acc : Expr) : MetaM Expr := do
+private def mkCondChain {w : Nat} (u : Level) (input : Expr) (retType : Expr)
+    (discrs : Nat → BitVec w) (values : List Expr) (acc : Expr) : MetaM Expr := do
   let instBEq ← synthInstance (mkApp (mkConst ``BEq [0]) (mkApp (mkConst ``BitVec) (toExpr w)))
-  return go u input retType instBEq values (BitVec.ofNat w 0) acc
+  return go u input retType instBEq discrs values 0 acc
 where
-  go {w : Nat} (u : Level) (input : Expr) (retType : Expr) (instBEq : Expr) (values : List Expr)
-    (counter : BitVec w) (acc : Expr) : Expr :=
+  go {w : Nat} (u : Level) (input : Expr) (retType : Expr) (instBEq : Expr)
+    (discrs : Nat → BitVec w) (values : List Expr) (counter : Nat) (acc : Expr) : Expr :=
   match values with
   | [] => acc
   | value :: values =>
@@ -97,9 +97,9 @@ where
         (toTypeExpr <| BitVec w)
         instBEq
         input
-        (toExpr counter)
+        (toExpr <| discrs counter)
     let acc := mkApp4 (mkConst ``cond [u]) retType eq value acc
-    go u input retType instBEq values (counter + 1) acc
+    go u input retType instBEq discrs values (counter + 1) acc
 
 /--
 Build `declName.recOn.{0} (motive := motive) value (f context[0]) (f context[1]) ...`
@@ -147,7 +147,7 @@ def getEqIffEnumToBitVecEqFor (declName : Name) : MetaM Name := do
     let inverseValue ←
       withLocalDeclD `x bvType fun x => do
         let ctors := ctors.map mkConst
-        let inv ← mkCondChain 1 bvSize x declType ctors ctors.head!
+        let inv ← mkCondChain 1 x declType (BitVec.ofNat bvSize) ctors ctors.head!
         mkLambdaFVars #[x] inv
 
     let value ←
@@ -225,24 +225,27 @@ Generate a theorem that translates `.match_x` applications on enum inductives to
 assuming that it is a supported kind of match, see `matchIsSupported` for the currently available
 variants.
 -/
-private def getMatchEqCondForAux (declName : Name) (kind : MatchKind) : MetaM Name := do
+private partial def getMatchEqCondForAux (declName : Name) (kind : MatchKind) : MetaM Name := do
   let matchEqCondName := .str declName matchEqCondSuffix
   realizeConst declName matchEqCondName do
     let decl ←
       match kind with
-      | .simpleEnum inductiveInfo => handleSimpleEnum declName matchEqCondName inductiveInfo
+      | .simpleEnum inductiveInfo ctors =>
+        handleSimpleEnum declName matchEqCondName inductiveInfo ctors
+      | .enumWithDefault inductiveInfo ctors =>
+        handleEnumWithDefault declName matchEqCondName inductiveInfo ctors
     addDecl decl
   return matchEqCondName
 where
-  handleSimpleEnum (declName : Name) (thmName : Name) (inductiveInfo : InductiveVal) :
-      MetaM Declaration := do
-    let uName ← mkFreshUserName `u
+  handleSimpleEnum (declName : Name) (thmName : Name) (inductiveInfo : InductiveVal)
+      (ctors : Array ConstructorVal) : MetaM Declaration := do
+    let uName := `u
     let u := .param uName
     let (type, value) ←
       withLocalDeclD `a (.sort u) fun a => do
       withLocalDeclD `x (mkConst inductiveInfo.name) fun x => do
         let hType ← mkArrow (mkConst ``Unit) a
-        let hBinders := inductiveInfo.ctors.foldl (init := #[]) (fun acc _ => acc.push (`h, hType))
+        let hBinders := ctors.foldl (init := #[]) (fun acc _ => acc.push (`h, hType))
         withLocalDeclsDND hBinders fun hs => do
           let args := #[mkLambda `x .default (mkConst inductiveInfo.name) a , x] ++ hs
           let lhs := mkAppN (mkConst declName [u]) args
@@ -250,13 +253,78 @@ where
           let domainSize := inductiveInfo.ctors.length
           let bvSize := getBitVecSize domainSize
           let appliedHs := hs.toList.map (mkApp · (mkConst ``Unit.unit))
-          let rhs ← mkCondChain u bvSize (mkApp enumToBitVec x) a appliedHs appliedHs[0]!
+          let getBitVec i := BitVec.ofNat bvSize ctors[i]!.cidx
+          let rhs ← mkCondChain u (mkApp enumToBitVec x) a getBitVec appliedHs appliedHs[0]!
           let type := mkApp3 (mkConst ``Eq [u]) a lhs rhs
-
           let motive ← mkLambdaFVars #[x] type
+          let sortedHs :=
+            hs
+             |>.mapIdx (fun i h => (ctors[i]!.cidx, h))
+             |>.qsort (·.1 < ·.1)
           let case h := do
-            return mkApp2 (mkConst ``Eq.refl [u]) a (mkApp h (mkConst ``Unit.unit))
-          let cases ← enumCases inductiveInfo.name motive x hs.toList case
+            return mkApp2 (mkConst ``Eq.refl [u]) a (mkApp h.2 (mkConst ``Unit.unit))
+          let cases ← enumCases inductiveInfo.name motive x sortedHs.toList case
+
+          let fvars := #[a, x] ++ hs
+          return (← mkForallFVars fvars type, ← mkLambdaFVars fvars cases)
+
+    return .thmDecl {
+      name := thmName
+      levelParams := [uName]
+      type := type
+      value := value
+    }
+
+  handleEnumWithDefault (declName : Name) (thmName : Name) (inductiveInfo : InductiveVal)
+      (ctors : Array ConstructorVal) : MetaM Declaration := do
+    let uName := `u
+    let u := .param uName
+    let (type, value) ←
+      withLocalDeclD `a (.sort u) fun a => do
+      withLocalDeclD `x (mkConst inductiveInfo.name) fun x => do
+        let hType ← mkArrow (mkConst ``Unit) a
+        let mut hBinders := ctors.foldl (init := #[]) (fun acc _ => acc.push (`h, hType))
+        hBinders := hBinders.push <| (`h, ← mkArrow (mkConst inductiveInfo.name) a)
+        withLocalDeclsDND hBinders fun hs => do
+          let args := #[mkLambda `x .default (mkConst inductiveInfo.name) a , x] ++ hs
+          let lhs := mkAppN (mkConst declName [u]) args
+          let enumToBitVec := mkConst (← getEnumToBitVecFor inductiveInfo.name)
+          let domainSize := inductiveInfo.ctors.length
+          let bvSize := getBitVecSize domainSize
+          let hdefault := hs.back!
+          let concrete := hs.take <| hs.size - 1
+          let appliedDefault := mkApp hdefault x
+          let appliedConcrete := concrete.toList.map (mkApp · (mkConst ``Unit.unit))
+          let getBitVec i := BitVec.ofNat bvSize ctors[i]!.cidx
+          let rhs ← mkCondChain u (mkApp enumToBitVec x) a getBitVec appliedConcrete appliedDefault
+          let type := mkApp3 (mkConst ``Eq [u]) a lhs rhs
+          let motive ← mkLambdaFVars #[x] type
+          let sortedConcreteHs :=
+            concrete
+             |>.mapIdx (fun i h => (ctors[i]!.cidx, h))
+             |>.qsort (·.1 < ·.1)
+             |>.toList
+
+          let rec intersperseDefault hs idx acc :=
+            if idx == inductiveInfo.numCtors then
+              acc.reverse
+            else
+              match hs with
+              | [] =>
+                let new := (idx, mkApp hdefault (mkConst (inductiveInfo.ctors[idx]!)))
+                intersperseDefault hs (idx + 1) (new :: acc)
+              | hs@((cidx, h) :: tail) =>
+                if cidx == idx then
+                  let new := (idx, mkApp h (mkConst ``Unit.unit))
+                  intersperseDefault tail (idx + 1) (new :: acc)
+                else
+                  let new := (idx, mkApp hdefault (mkConst (inductiveInfo.ctors[idx]!)))
+                  intersperseDefault hs (idx + 1) (new :: acc)
+
+          let caseProofs := intersperseDefault sortedConcreteHs 0 []
+          let case h := do
+            return mkApp2 (mkConst ``Eq.refl [u]) a h.2
+          let cases ← enumCases inductiveInfo.name motive x caseProofs case
 
           let fvars := #[a, x] ++ hs
           return (← mkForallFVars fvars type, ← mkLambdaFVars fvars cases)

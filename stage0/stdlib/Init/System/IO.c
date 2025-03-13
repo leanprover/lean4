@@ -44,7 +44,6 @@ static lean_object* l_IO_FS_instInhabitedStream___closed__4;
 static lean_object* l_IO_FS_instInhabitedStream___closed__2;
 LEAN_EXPORT lean_object* l_IO_FS_Handle_readBinToEnd(lean_object*, lean_object*);
 lean_object* lean_io_prim_handle_unlock(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_EIO_toIO(lean_object*, lean_object*);
 uint8_t lean_byte_array_fget(lean_object*, lean_object*);
 lean_object* lean_io_prim_handle_put_str(lean_object*, lean_object*, lean_object*);
@@ -100,6 +99,7 @@ LEAN_EXPORT lean_object* l_BaseIO_chainTask___rarg___boxed(lean_object*, lean_ob
 static lean_object* l___auto____x40_Init_System_IO___hyg_1836____closed__19;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_ofHandle___elambda__6(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_mkRef(lean_object*);
+lean_object* lean_mk_empty_byte_array(lean_object*);
 lean_object* lean_io_as_task(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_System_IO_0__IO_reprTaskState____x40_Init_System_IO___hyg_1365____closed__4;
 lean_object* l_String_quote(lean_object*);
@@ -500,7 +500,6 @@ static lean_object* l___private_Init_System_IO_0__IO_reprTaskState____x40_Init_S
 static lean_object* l_IO_Process_run___closed__2;
 LEAN_EXPORT lean_object* l_IO_FS_lines___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BaseIO_mapTasks_go___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_byte_array(lean_object*);
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__4;
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__24;
 LEAN_EXPORT lean_object* l_IO_getEnv___boxed(lean_object*, lean_object*);
@@ -742,6 +741,7 @@ static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21__
 static lean_object* l_termPrintln_x21_______closed__7;
 LEAN_EXPORT lean_object* l___private_Init_System_IO_0__IO_FS_beqFileType____x40_Init_System_IO___hyg_2924____boxed(lean_object*, lean_object*);
 static uint32_t l_IO_AccessRight_flags___closed__9;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_io_eprint(lean_object*, lean_object*);
 static lean_object* l___private_Init_System_IO_0__IO_reprTaskState____x40_Init_System_IO___hyg_1365____closed__8;
 LEAN_EXPORT lean_object* l_IO_Process_Stdio_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -3133,7 +3133,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

@@ -31,9 +31,9 @@ lean_object* l_Array_mapMUnsafe_map___at_Lean_LocalContext_getFVars___spec__1(si
 LEAN_EXPORT lean_object* l_Lean_Meta_transform_visit_visitLet___at_Lean_Meta_IndPredBelow_mkCtorType_checkCount___spec__7___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_IndPredBelow_mkCtorType_mkBelowBinder___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_IndPredBelow_mkCtorType_checkCount___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_IndPredBelow_mkBelowMatcher_newMotive___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_IndPredBelow_proveBrecOn_applyCtors___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_IndPredBelow_mkCtorType_mkMotiveBinder___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -644,6 +644,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_IndPredBelow_mkBrecOnDecl_mkIH(lean_object*
 lean_object* l_List_zipWith___at_List_zip___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateForallAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_IndPredBelow_proveBrecOn_applyCtors___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Meta_IndPredBelow_mkInductiveType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_withLocalDecls_loop___at_Lean_Meta_IndPredBelow_mkCtorType_addMotives___spec__3___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_IndPredBelow_mkContext_motiveType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -660,7 +661,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_IndPredBelow_mkCtorType_mkBelowBinder(lean_
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_IndPredBelow_mkCtorType_addMotives___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_IndPredBelow_mkCtorType_checkCount___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_IndPredBelow_mkBelowMatcher_transformFields_loop___closed__1;
-lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(lean_object*, lean_object*, uint8_t);
 static lean_object* _init_l_Lean_Meta_IndPredBelow_initFn____x40_Lean_Meta_IndPredBelow___hyg_6____closed__1() {
 _start:
 {
@@ -761,7 +761,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -1991,7 +1991,7 @@ x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
 lean_dec(x_18);
 x_21 = lean_array_get_size(x_19);
-x_22 = lean_mk_empty_array_with_capacity(x_21);
+x_22 = l_Array_emptyWithCapacity(lean_box(0), x_21);
 x_23 = lean_unsigned_to_nat(0u);
 x_24 = l_Array_mapFinIdxM_map___at_Lean_Meta_IndPredBelow_mkContext___spec__5(x_19, x_19, x_21, x_23, lean_box(0), x_22, x_2, x_3, x_4, x_5, x_20);
 lean_dec(x_19);
@@ -8092,7 +8092,7 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = lean_ctor_get(x_1, 3);
 lean_inc(x_10);
 x_11 = lean_array_get_size(x_10);
-x_12 = lean_mk_empty_array_with_capacity(x_11);
+x_12 = l_Array_emptyWithCapacity(lean_box(0), x_11);
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = l_Array_mapFinIdxM_map___at_Lean_Meta_IndPredBelow_mkCtorType_addHeaderVars___spec__1(x_1, x_10, x_10, x_11, x_13, lean_box(0), x_12, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_10);
@@ -8653,7 +8653,7 @@ x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
 lean_dec(x_11);
 x_13 = lean_array_get_size(x_7);
-x_14 = lean_mk_empty_array_with_capacity(x_13);
+x_14 = l_Array_emptyWithCapacity(lean_box(0), x_13);
 lean_inc(x_1);
 x_15 = l_Array_mapFinIdxM_map___at_Lean_Meta_IndPredBelow_mkBelowDecl___spec__1(x_1, x_7, x_7, x_13, x_9, lean_box(0), x_14, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_7);
@@ -11927,7 +11927,7 @@ x_20 = l_List_mapTR_loop___at_Lean_mkConstWithLevelParams___spec__1(x_18, x_19);
 x_21 = lean_ctor_get(x_1, 0);
 lean_inc(x_21);
 x_22 = lean_array_get_size(x_21);
-x_23 = lean_mk_empty_array_with_capacity(x_22);
+x_23 = l_Array_emptyWithCapacity(lean_box(0), x_22);
 x_24 = lean_unsigned_to_nat(0u);
 lean_inc(x_8);
 lean_inc(x_7);
@@ -13814,7 +13814,7 @@ lean_inc(x_3);
 x_19 = l_Array_toSubarray___rarg(x_3, x_15, x_18);
 x_20 = l_Array_ofSubarray___rarg(x_12);
 lean_dec(x_12);
-x_21 = lean_mk_empty_array_with_capacity(x_14);
+x_21 = l_Array_emptyWithCapacity(lean_box(0), x_14);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -18895,7 +18895,7 @@ x_35 = l_Array_zip___rarg(x_33, x_34);
 lean_dec(x_34);
 lean_dec(x_33);
 x_36 = lean_array_get_size(x_35);
-x_37 = lean_mk_empty_array_with_capacity(x_36);
+x_37 = l_Array_emptyWithCapacity(lean_box(0), x_36);
 x_38 = lean_unsigned_to_nat(0u);
 lean_inc(x_8);
 lean_inc(x_7);
@@ -19263,7 +19263,7 @@ x_113 = l_Array_zip___rarg(x_111, x_112);
 lean_dec(x_112);
 lean_dec(x_111);
 x_114 = lean_array_get_size(x_113);
-x_115 = lean_mk_empty_array_with_capacity(x_114);
+x_115 = l_Array_emptyWithCapacity(lean_box(0), x_114);
 x_116 = lean_unsigned_to_nat(0u);
 lean_inc(x_8);
 lean_inc(x_7);
@@ -21539,7 +21539,7 @@ x_71 = lean_ctor_get(x_12, 2);
 lean_inc(x_71);
 x_72 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_IndPredBelow_mkBelow___spec__1___closed__6;
 x_73 = 0;
-x_74 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_71, x_72, x_73);
+x_74 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_71, x_72, x_73);
 x_75 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_IndPredBelow_mkBelow___spec__1___closed__7;
 x_76 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_74, x_75);
 x_77 = lean_st_ref_get(x_13, x_70);

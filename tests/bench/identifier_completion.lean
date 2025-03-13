@@ -16,7 +16,7 @@ def buildSyntheticEnv : Lean.CoreM Unit := do
       isUnsafe := false
       all := [name]
     }
-    addDocString name "A synthetic doc-string"
+    addDocStringCore name "A synthetic doc-string"
 
 #eval buildSyntheticEnv
 

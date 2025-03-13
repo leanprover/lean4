@@ -68,7 +68,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_ComputedFields_overrideCasesOn___lambda__1(
 static lean_object* l_Lean_Elab_ComputedFields_getComputedFieldValue___lambda__1___closed__4;
 static lean_object* l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_5____closed__1;
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
-lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_ComputedFields_mkImplType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__6___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_Elab_ComputedFields_overrideConstructors___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4233,20 +4233,20 @@ x_8 = lean_st_ref_get(x_6, x_7);
 x_9 = !lean_is_exclusive(x_8);
 if (x_9 == 0)
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; 
 x_10 = lean_ctor_get(x_8, 0);
 x_11 = lean_ctor_get(x_8, 1);
 x_12 = lean_ctor_get(x_10, 0);
 lean_inc(x_12);
 lean_dec(x_10);
+x_13 = 0;
 lean_inc(x_1);
-x_13 = l_Lean_Environment_find_x3f(x_12, x_1);
-if (lean_obj_tag(x_13) == 0)
+x_14 = l_Lean_Environment_find_x3f(x_12, x_1, x_13);
+if (lean_obj_tag(x_14) == 0)
 {
-uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 lean_free_object(x_8);
-x_14 = 0;
-x_15 = l_Lean_MessageData_ofConstName(x_1, x_14);
+x_15 = l_Lean_MessageData_ofConstName(x_1, x_13);
 x_16 = l_Lean_getConstInfo___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__2___closed__2;
 x_17 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_17, 0, x_16);
@@ -4262,16 +4262,16 @@ else
 {
 lean_object* x_21; 
 lean_dec(x_1);
-x_21 = lean_ctor_get(x_13, 0);
+x_21 = lean_ctor_get(x_14, 0);
 lean_inc(x_21);
-lean_dec(x_13);
+lean_dec(x_14);
 lean_ctor_set(x_8, 0, x_21);
 return x_8;
 }
 }
 else
 {
-lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; lean_object* x_26; 
 x_22 = lean_ctor_get(x_8, 0);
 x_23 = lean_ctor_get(x_8, 1);
 lean_inc(x_23);
@@ -4280,13 +4280,13 @@ lean_dec(x_8);
 x_24 = lean_ctor_get(x_22, 0);
 lean_inc(x_24);
 lean_dec(x_22);
+x_25 = 0;
 lean_inc(x_1);
-x_25 = l_Lean_Environment_find_x3f(x_24, x_1);
-if (lean_obj_tag(x_25) == 0)
+x_26 = l_Lean_Environment_find_x3f(x_24, x_1, x_25);
+if (lean_obj_tag(x_26) == 0)
 {
-uint8_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
-x_26 = 0;
-x_27 = l_Lean_MessageData_ofConstName(x_1, x_26);
+lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
+x_27 = l_Lean_MessageData_ofConstName(x_1, x_25);
 x_28 = l_Lean_getConstInfo___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__2___closed__2;
 x_29 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_29, 0, x_28);
@@ -4302,9 +4302,9 @@ else
 {
 lean_object* x_33; lean_object* x_34; 
 lean_dec(x_1);
-x_33 = lean_ctor_get(x_25, 0);
+x_33 = lean_ctor_get(x_26, 0);
 lean_inc(x_33);
-lean_dec(x_25);
+lean_dec(x_26);
 x_34 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_34, 0, x_33);
 lean_ctor_set(x_34, 1, x_23);

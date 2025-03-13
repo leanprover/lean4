@@ -168,7 +168,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_instReprCoeFnInfo;
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_772_(lean_object*);
-lean_object* l_Lean_ScopedEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_ScopedEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l___private_Lean_Meta_CoeAttr_0__Lean_Meta_reprCoeFnType____x40_Lean_Meta_CoeAttr___hyg_19____closed__5;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_772____lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_registerCoercion___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1464,39 +1464,55 @@ x_5 = lean_st_ref_get(x_3, x_4);
 x_6 = !lean_is_exclusive(x_5);
 if (x_6 == 0)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_7 = lean_ctor_get(x_5, 0);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 lean_dec(x_7);
 x_9 = lean_box(0);
-x_10 = l_Lean_Meta_getCoeFnInfo_x3f___closed__1;
-x_11 = l_Lean_ScopedEnvExtension_getState___rarg(x_9, x_10, x_8);
-x_12 = l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(x_11, x_1);
+x_10 = l_Lean_Meta_coeExt;
+x_11 = lean_ctor_get(x_10, 1);
+lean_inc(x_11);
+x_12 = lean_ctor_get(x_11, 0);
+lean_inc(x_12);
 lean_dec(x_11);
-lean_ctor_set(x_5, 0, x_12);
+x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*3);
+lean_dec(x_12);
+x_14 = l_Lean_Meta_getCoeFnInfo_x3f___closed__1;
+x_15 = l_Lean_ScopedEnvExtension_getState___rarg(x_9, x_14, x_8, x_13);
+x_16 = l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(x_15, x_1);
+lean_dec(x_15);
+lean_ctor_set(x_5, 0, x_16);
 return x_5;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_13 = lean_ctor_get(x_5, 0);
-x_14 = lean_ctor_get(x_5, 1);
-lean_inc(x_14);
-lean_inc(x_13);
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
+x_17 = lean_ctor_get(x_5, 0);
+x_18 = lean_ctor_get(x_5, 1);
+lean_inc(x_18);
+lean_inc(x_17);
 lean_dec(x_5);
-x_15 = lean_ctor_get(x_13, 0);
-lean_inc(x_15);
-lean_dec(x_13);
-x_16 = lean_box(0);
-x_17 = l_Lean_Meta_getCoeFnInfo_x3f___closed__1;
-x_18 = l_Lean_ScopedEnvExtension_getState___rarg(x_16, x_17, x_15);
-x_19 = l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(x_18, x_1);
-lean_dec(x_18);
-x_20 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_20, 0, x_19);
-lean_ctor_set(x_20, 1, x_14);
-return x_20;
+x_19 = lean_ctor_get(x_17, 0);
+lean_inc(x_19);
+lean_dec(x_17);
+x_20 = lean_box(0);
+x_21 = l_Lean_Meta_coeExt;
+x_22 = lean_ctor_get(x_21, 1);
+lean_inc(x_22);
+x_23 = lean_ctor_get(x_22, 0);
+lean_inc(x_23);
+lean_dec(x_22);
+x_24 = lean_ctor_get_uint8(x_23, sizeof(void*)*3);
+lean_dec(x_23);
+x_25 = l_Lean_Meta_getCoeFnInfo_x3f___closed__1;
+x_26 = l_Lean_ScopedEnvExtension_getState___rarg(x_20, x_25, x_19, x_24);
+x_27 = l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(x_26, x_1);
+lean_dec(x_26);
+x_28 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_28, 0, x_27);
+lean_ctor_set(x_28, 1, x_18);
+return x_28;
 }
 }
 }

@@ -277,8 +277,11 @@ abbrev zipWithIndex_mk := @zipIdx_mk
 
 @[simp] theorem toArray_empty : (#v[] : Vector α 0).toArray = #[] := rfl
 
-@[simp] theorem toArray_mkEmpty (cap) :
-    (Vector.mkEmpty (α := α) cap).toArray = Array.mkEmpty cap := rfl
+@[simp] theorem toArray_emptyWithCapacity (cap) :
+    (Vector.emptyWithCapacity (α := α) cap).toArray = Array.emptyWithCapacity cap := rfl
+
+@[deprecated toArray_emptyWithCapacity (since := "2025-03-12")]
+abbrev toArray_mkEmpty := @toArray_emptyWithCapacity
 
 @[simp] theorem toArray_eraseIdx (xs : Vector α n) (i) (h) :
     (xs.eraseIdx i h).toArray = xs.toArray.eraseIdx i (by simp [h]) := rfl
@@ -509,8 +512,11 @@ theorem toList_append (xs : Vector α m) (ys : Vector α n) :
 
 theorem toList_empty : (#v[] : Vector α 0).toArray = #[] := by simp
 
-theorem toList_mkEmpty (cap) :
-    (Vector.mkEmpty (α := α) cap).toList = [] := rfl
+theorem toList_emptyWithCapacity (cap) :
+    (Vector.emptyWithCapacity (α := α) cap).toList = [] := rfl
+
+@[deprecated toList_emptyWithCapacity (since := "2025-03-12")]
+abbrev toList_mkEmpty := @toList_emptyWithCapacity
 
 theorem toList_eraseIdx (xs : Vector α n) (i) (h) :
     (xs.eraseIdx i h).toList = xs.toList.eraseIdx i := by simp
@@ -2189,6 +2195,16 @@ theorem extract_empty (start stop : Nat) :
   rcases xs with ⟨xs, rfl⟩
   simp
 
+@[simp]
+theorem foldlM_pure [Monad m] [LawfulMonad m] (f : β → α → β) (b) (xs : Vector α n) :
+    xs.foldlM (m := m) (pure <| f · ·) b = pure (xs.foldl f b) :=
+  Array.foldlM_pure _ _ _
+
+@[simp]
+theorem foldrM_pure [Monad m] [LawfulMonad m] (f : α → β → β) (b) (xs : Vector α n) :
+    xs.foldrM (m := m) (pure <| f · ·) b = pure (xs.foldr f b) :=
+  Array.foldrM_pure _ _ _
+
 theorem foldl_eq_foldlM (f : β → α → β) (b) (xs : Vector α n) :
     xs.foldl f b = xs.foldlM (m := Id) f b := by
   rcases xs with ⟨xs, rfl⟩
@@ -2828,7 +2844,7 @@ theorem swap_comm (xs : Vector α n) {i j : Nat} {hi hj} :
 
 /-! ### take -/
 
-@[simp] theorem getElem_take (xs : Vector α n) (j : Nat) (hi : i < min n j) :
+@[simp] theorem getElem_take (xs : Vector α n) (j : Nat) (hi : i < min j n) :
     (xs.take j)[i] = xs[i] := by
   cases xs
   simp

@@ -15,7 +15,9 @@ extern "C" {
 #endif
 LEAN_EXPORT uint8_t l_Int_decidableDvd(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_decidableDvd___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Lemmas_0__Int_emod_match__1_splitter___rarg___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Lemmas_0__Int_emod_match__1_splitter(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Lemmas_0__Int_fmod_match__1_splitter___rarg___closed__1;
 lean_object* lean_int_emod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Lemmas_0__Int_fmod_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Lemmas_0__Int_tdiv_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -26,10 +28,12 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Lemmas_0__Int_tdiv_mat
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Lemmas_0__Int_tdiv_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Lemmas_0__Int_fdiv_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Int_decidableDvd___closed__1;
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Lemmas_0__Int_fdiv_match__1_splitter___rarg___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Lemmas_0__Int_fdiv_match__1_splitter(lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Lemmas_0__Int_fdiv_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Lemmas_0__Int_tdiv_match__1_splitter___rarg___closed__1;
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
@@ -66,11 +70,20 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
+static lean_object* _init_l___private_Init_Data_Int_DivMod_Lemmas_0__Int_emod_match__1_splitter___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Lemmas_0__Int_emod_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; uint8_t x_6; 
-x_5 = l_Int_decidableDvd___closed__1;
+x_5 = l___private_Init_Data_Int_DivMod_Lemmas_0__Int_emod_match__1_splitter___rarg___closed__1;
 x_6 = lean_int_dec_lt(x_1, x_5);
 if (x_6 == 0)
 {
@@ -110,11 +123,20 @@ lean_dec(x_1);
 return x_5;
 }
 }
+static lean_object* _init_l___private_Init_Data_Int_DivMod_Lemmas_0__Int_tdiv_match__1_splitter___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Lemmas_0__Int_tdiv_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; uint8_t x_8; 
-x_7 = l_Int_decidableDvd___closed__1;
+x_7 = l___private_Init_Data_Int_DivMod_Lemmas_0__Int_tdiv_match__1_splitter___rarg___closed__1;
 x_8 = lean_int_dec_lt(x_1, x_7);
 if (x_8 == 0)
 {
@@ -192,11 +214,20 @@ lean_dec(x_1);
 return x_7;
 }
 }
+static lean_object* _init_l___private_Init_Data_Int_DivMod_Lemmas_0__Int_fdiv_match__1_splitter___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Lemmas_0__Int_fdiv_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; uint8_t x_10; 
-x_9 = l_Int_decidableDvd___closed__1;
+x_9 = l___private_Init_Data_Int_DivMod_Lemmas_0__Int_fdiv_match__1_splitter___rarg___closed__1;
 x_10 = lean_int_dec_lt(x_1, x_9);
 if (x_10 == 0)
 {
@@ -316,11 +347,20 @@ lean_dec(x_1);
 return x_9;
 }
 }
+static lean_object* _init_l___private_Init_Data_Int_DivMod_Lemmas_0__Int_fmod_match__1_splitter___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_DivMod_Lemmas_0__Int_fmod_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; uint8_t x_9; 
-x_8 = l_Int_decidableDvd___closed__1;
+x_8 = l___private_Init_Data_Int_DivMod_Lemmas_0__Int_fmod_match__1_splitter___rarg___closed__1;
 x_9 = lean_int_dec_lt(x_1, x_8);
 if (x_9 == 0)
 {
@@ -456,6 +496,14 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Int_decidableDvd___closed__1 = _init_l_Int_decidableDvd___closed__1();
 lean_mark_persistent(l_Int_decidableDvd___closed__1);
+l___private_Init_Data_Int_DivMod_Lemmas_0__Int_emod_match__1_splitter___rarg___closed__1 = _init_l___private_Init_Data_Int_DivMod_Lemmas_0__Int_emod_match__1_splitter___rarg___closed__1();
+lean_mark_persistent(l___private_Init_Data_Int_DivMod_Lemmas_0__Int_emod_match__1_splitter___rarg___closed__1);
+l___private_Init_Data_Int_DivMod_Lemmas_0__Int_tdiv_match__1_splitter___rarg___closed__1 = _init_l___private_Init_Data_Int_DivMod_Lemmas_0__Int_tdiv_match__1_splitter___rarg___closed__1();
+lean_mark_persistent(l___private_Init_Data_Int_DivMod_Lemmas_0__Int_tdiv_match__1_splitter___rarg___closed__1);
+l___private_Init_Data_Int_DivMod_Lemmas_0__Int_fdiv_match__1_splitter___rarg___closed__1 = _init_l___private_Init_Data_Int_DivMod_Lemmas_0__Int_fdiv_match__1_splitter___rarg___closed__1();
+lean_mark_persistent(l___private_Init_Data_Int_DivMod_Lemmas_0__Int_fdiv_match__1_splitter___rarg___closed__1);
+l___private_Init_Data_Int_DivMod_Lemmas_0__Int_fmod_match__1_splitter___rarg___closed__1 = _init_l___private_Init_Data_Int_DivMod_Lemmas_0__Int_fmod_match__1_splitter___rarg___closed__1();
+lean_mark_persistent(l___private_Init_Data_Int_DivMod_Lemmas_0__Int_fmod_match__1_splitter___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

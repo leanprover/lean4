@@ -17,6 +17,7 @@ lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_instInhabitedEqnInfo___closed__3;
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof___closed__2;
 lean_object* l_Lean_MapDeclarationExtension_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(lean_object*, lean_object*, uint8_t);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_go___lambda__1___closed__16;
@@ -181,6 +182,7 @@ static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_getUnfoldFor_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 lean_object* l_Lean_addDecl(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_go___closed__3;
 static lean_object* l_Lean_Elab_Structural_instInhabitedEqnInfo___closed__2;
@@ -188,7 +190,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Structural_mkEqns_doRealize(lean_object*, l
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_go___lambda__1___closed__13;
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_go___lambda__1___closed__7;
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_go___lambda__1___closed__17;
-lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(lean_object*, lean_object*, uint8_t);
 static lean_object* _init_l_Lean_Elab_Structural_instInhabitedEqnInfo___closed__1() {
 _start:
 {
@@ -237,7 +238,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -2623,7 +2624,7 @@ x_12 = lean_ctor_get(x_6, 2);
 lean_inc(x_12);
 x_13 = l_Lean_Elab_Structural_mkEqns_doRealize___closed__1;
 x_14 = 0;
-x_15 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_12, x_13, x_14);
+x_15 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_12, x_13, x_14);
 x_16 = l_Lean_Elab_Structural_mkEqns_doRealize___closed__2;
 x_17 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_15, x_16);
 x_18 = lean_st_ref_get(x_7, x_8);
@@ -3645,7 +3646,7 @@ x_13 = lean_ctor_get(x_4, 2);
 lean_inc(x_13);
 x_14 = l_Lean_Elab_Structural_mkEqns_doRealize___closed__1;
 x_15 = 0;
-x_16 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_13, x_14, x_15);
+x_16 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_13, x_14, x_15);
 x_17 = l_Lean_Elab_Structural_mkEqns_doRealize___closed__2;
 x_18 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_16, x_17);
 x_19 = lean_st_ref_get(x_5, x_6);

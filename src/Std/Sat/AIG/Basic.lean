@@ -293,7 +293,7 @@ Transform an `Entrypoint` into a graphviz string. Useful for debugging purposes.
 def toGraphviz {α : Type} [DecidableEq α] [ToString α] [Hashable α] (entry : Entrypoint α) :
     String :=
   let ⟨⟨decls, _, hinv⟩, ⟨idx, h⟩⟩ := entry
-  let (dag, s) := go "" decls hinv idx h |>.run .empty
+  let (dag, s) := go "" decls hinv idx h |>.run ∅
   let nodes := s.fold (fun x y ↦ x ++ toGraphvizString decls y) ""
   "Digraph AIG {" ++ nodes ++ dag ++ "}"
 where

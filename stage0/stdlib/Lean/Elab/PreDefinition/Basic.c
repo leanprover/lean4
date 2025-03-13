@@ -20,7 +20,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_levelMVarToParamT
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedPreDefinition;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_reportTheoremDiag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_setMVarUserNamesAt___spec__3___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Elab_CommandContextInfo_save___at_Lean_Elab_Term_withoutModifyingElabMetaStateWithInfo___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_generateEagerEqns(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_shareCommonPreDefs___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -32,6 +32,7 @@ LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_fixLevelParams___sp
 lean_object* l_Lean_Elab_sortDeclLevelParams(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_reportTheoremDiag___spec__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_checkCodomainsLevel___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Elab_Term_expandDeclId___spec__16(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_fixLevelParams___spec__3(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_sharecommon_quick(lean_object*);
 lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -371,6 +372,7 @@ static lean_object* l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_getLe
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_ensureNoRecFn___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_checkCodomainsLevel___spec__2___lambda__1___closed__11;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_fixLevelParams___spec__3___lambda__3___boxed(lean_object**);
 lean_object* l_Lean_addDecl(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -380,15 +382,13 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_fixLevelParams___
 LEAN_EXPORT lean_object* l_Lean_Elab_withEnableInfoTree___at_Lean_Elab_addAndCompilePartialRec___spec__3(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 double lean_float_sub(double, double);
 static lean_object* l_Lean_Elab_eraseRecAppSyntaxExpr___lambda__1___closed__1;
-lean_object* l_Lean_throwError___at_Lean_Elab_Term_expandDeclId___spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_shareCommonPreDefs___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(lean_object*, lean_object*, uint8_t);
 static lean_object* _init_l_Lean_Elab_instInhabitedPreDefinition___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -944,7 +944,7 @@ if (x_21 == 0)
 lean_object* x_22; lean_object* x_23; 
 lean_ctor_set_tag(x_20, 3);
 x_22 = l_Lean_MessageData_ofFormat(x_20);
-x_23 = l_Lean_throwError___at_Lean_Elab_Term_expandDeclId___spec__11(x_22, x_4, x_5, x_6, x_7, x_8, x_9, x_18);
+x_23 = l_Lean_throwError___at_Lean_Elab_Term_expandDeclId___spec__16(x_22, x_4, x_5, x_6, x_7, x_8, x_9, x_18);
 return x_23;
 }
 else
@@ -956,7 +956,7 @@ lean_dec(x_20);
 x_25 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_25, 0, x_24);
 x_26 = l_Lean_MessageData_ofFormat(x_25);
-x_27 = l_Lean_throwError___at_Lean_Elab_Term_expandDeclId___spec__11(x_26, x_4, x_5, x_6, x_7, x_8, x_9, x_18);
+x_27 = l_Lean_throwError___at_Lean_Elab_Term_expandDeclId___spec__16(x_26, x_4, x_5, x_6, x_7, x_8, x_9, x_18);
 return x_27;
 }
 }
@@ -1003,7 +1003,7 @@ if (lean_is_scalar(x_34)) {
 }
 lean_ctor_set(x_35, 0, x_33);
 x_36 = l_Lean_MessageData_ofFormat(x_35);
-x_37 = l_Lean_throwError___at_Lean_Elab_Term_expandDeclId___spec__11(x_36, x_4, x_5, x_6, x_7, x_8, x_9, x_30);
+x_37 = l_Lean_throwError___at_Lean_Elab_Term_expandDeclId___spec__16(x_36, x_4, x_5, x_6, x_7, x_8, x_9, x_30);
 return x_37;
 }
 else
@@ -11098,7 +11098,7 @@ x_21 = lean_ctor_get(x_10, 2);
 lean_inc(x_21);
 x_22 = l_Std_Range_forIn_x27_loop___at_Lean_Elab_checkCodomainsLevel___spec__2___lambda__2___closed__1;
 x_23 = 0;
-x_24 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_21, x_22, x_23);
+x_24 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_21, x_22, x_23);
 x_25 = l_Std_Range_forIn_x27_loop___at_Lean_Elab_checkCodomainsLevel___spec__2___lambda__2___closed__2;
 x_26 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_24, x_25);
 x_27 = lean_st_ref_get(x_11, x_20);

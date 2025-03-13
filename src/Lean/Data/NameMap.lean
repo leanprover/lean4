@@ -81,7 +81,7 @@ end NameSSet
 def NameHashSet := Std.HashSet Name
 
 namespace NameHashSet
-@[inline] def empty : NameHashSet := Std.HashSet.empty
+@[inline] def empty : NameHashSet := (∅ : Std.HashSet Name)
 instance : EmptyCollection NameHashSet := ⟨empty⟩
 instance : Inhabited NameHashSet := ⟨{}⟩
 def insert (s : NameHashSet) (n : Name) := Std.HashSet.insert s n

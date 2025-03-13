@@ -17,7 +17,6 @@ lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Package_fetchTargetJob(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_LeanLib_modulesFacetConfig___closed__2;
 lean_object* l_Lean_Json_compress(lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_LeanLib_recCollectLocalModules___lambda__2___closed__4;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_LeanLib_recBuildShared___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_LeanLib_sharedFacetConfig___closed__3;
@@ -236,6 +235,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanLib_modulesFacetCo
 LEAN_EXPORT lean_object* l_Lake_LeanLib_modulesFacetConfig___elambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanLib_recBuildLean___closed__1;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at_Lake_LeanLib_recBuildShared___spec__4(lean_object*, lean_object*, lean_object*);
@@ -5036,7 +5036,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

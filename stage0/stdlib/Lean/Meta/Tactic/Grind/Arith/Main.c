@@ -25,7 +25,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_isCnstr_x3f___boxed(lean
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_propagateLE___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 lean_object* l_Lean_Meta_Grind_Arith_Cutsat_hasAssignment(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_Arith_Cutsat_propagateIfIntLe(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_propagateLE___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_check___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Meta_Grind_Arith_propagateLE_declare__1____x40_Lean_Meta_Tactic_Grind_Arith_Main___hyg_468____closed__2;
@@ -44,6 +43,7 @@ static lean_object* l_Lean_Meta_Grind_Arith_check___closed__1;
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_check___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_assertFalse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_Arith_Cutsat_propagateIfSupportedLe(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_check___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static size_t l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Grind_Arith_Offset_isCnstr_x3f___spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Grind_Arith_Offset_isCnstr_x3f___spec__1___boxed(lean_object*, lean_object*);
@@ -477,7 +477,7 @@ _start:
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = 0;
-x_13 = l_Lean_Meta_Grind_Arith_Cutsat_propagateIfIntLe(x_1, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+x_13 = l_Lean_Meta_Grind_Arith_Cutsat_propagateIfSupportedLe(x_1, x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 return x_13;
 }
 }
@@ -545,7 +545,7 @@ x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec(x_22);
 x_25 = 0;
-x_26 = l_Lean_Meta_Grind_Arith_Cutsat_propagateIfIntLe(x_1, x_25, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_24);
+x_26 = l_Lean_Meta_Grind_Arith_Cutsat_propagateIfSupportedLe(x_1, x_25, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_24);
 return x_26;
 }
 else
@@ -591,7 +591,7 @@ x_33 = lean_ctor_get(x_32, 1);
 lean_inc(x_33);
 lean_dec(x_32);
 x_34 = 0;
-x_35 = l_Lean_Meta_Grind_Arith_Cutsat_propagateIfIntLe(x_1, x_34, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_33);
+x_35 = l_Lean_Meta_Grind_Arith_Cutsat_propagateIfSupportedLe(x_1, x_34, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_33);
 return x_35;
 }
 else
@@ -707,7 +707,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-x_14 = l_Lean_Meta_Grind_Arith_Cutsat_propagateIfIntLe(x_1, x_13, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+x_14 = l_Lean_Meta_Grind_Arith_Cutsat_propagateIfSupportedLe(x_1, x_13, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 

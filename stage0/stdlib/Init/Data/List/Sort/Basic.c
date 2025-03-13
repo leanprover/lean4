@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT uint8_t l_List_zipIdxLE___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_14____closed__48;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_14____closed__54;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_14____closed__8;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_14____closed__50;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_14____closed__4;
@@ -91,12 +90,13 @@ LEAN_EXPORT lean_object* l_List_mergeSort(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_14____closed__12;
 lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_818_;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_14____closed__53;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_14____closed__46;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_14____closed__38;
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_splitInTwo___rarg(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_14____closed__13;
-LEAN_EXPORT lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_826_;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_14____closed__28;
 static lean_object* _init_l___auto____x40_Init_Data_List_Sort_Basic___hyg_14____closed__1() {
 _start:
@@ -147,7 +147,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -997,7 +997,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Init_Data_List_Sort_Basic___hyg_826_() {
+static lean_object* _init_l___auto____x40_Init_Data_List_Sort_Basic___hyg_818_() {
 _start:
 {
 lean_object* x_1; 
@@ -1420,8 +1420,8 @@ l___auto____x40_Init_Data_List_Sort_Basic___hyg_14____closed__59 = _init_l___aut
 lean_mark_persistent(l___auto____x40_Init_Data_List_Sort_Basic___hyg_14____closed__59);
 l___auto____x40_Init_Data_List_Sort_Basic___hyg_14_ = _init_l___auto____x40_Init_Data_List_Sort_Basic___hyg_14_();
 lean_mark_persistent(l___auto____x40_Init_Data_List_Sort_Basic___hyg_14_);
-l___auto____x40_Init_Data_List_Sort_Basic___hyg_826_ = _init_l___auto____x40_Init_Data_List_Sort_Basic___hyg_826_();
-lean_mark_persistent(l___auto____x40_Init_Data_List_Sort_Basic___hyg_826_);
+l___auto____x40_Init_Data_List_Sort_Basic___hyg_818_ = _init_l___auto____x40_Init_Data_List_Sort_Basic___hyg_818_();
+lean_mark_persistent(l___auto____x40_Init_Data_List_Sort_Basic___hyg_818_);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

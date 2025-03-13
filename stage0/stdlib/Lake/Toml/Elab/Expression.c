@@ -18,7 +18,6 @@ LEAN_EXPORT lean_object* l_StateT_bind___at_Lake_Toml_elabToml___spec__3(lean_ob
 LEAN_EXPORT lean_object* l_Lean_logAt___at_Lake_Toml_elabToml___spec__1(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabToml___closed__8;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Toml_elabSubKeys___spec__3___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_Toml_elabToml___closed__9;
 LEAN_EXPORT lean_object* l_Lake_Toml_elabStdTable___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_alter___at_Lake_Toml_mkSimpleTable_insert___spec__1(lean_object*, lean_object*, lean_object*);
@@ -215,6 +214,7 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT lean_object* l_StateT_bind___at_Lake_Toml_elabToml___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_Toml_elabToml___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabToml___closed__2;
 LEAN_EXPORT lean_object* l_Lake_Toml_KeyTy_noConfusion___rarg___lambda__1___boxed(lean_object*);
@@ -463,7 +463,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

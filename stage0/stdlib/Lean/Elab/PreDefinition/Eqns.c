@@ -36,6 +36,7 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_P
 static lean_object* l_Lean_Elab_Eqns_initFn____x40_Lean_Elab_PreDefinition_Eqns___hyg_8005____closed__14;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_saveEqn_collectDeps___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Eqns_removeUnusedEqnHypotheses_go___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_MatcherInfo_getFirstAltPos(lean_object*);
@@ -647,6 +648,7 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_P
 LEAN_EXPORT lean_object* l_Lean_Elab_Eqns_mkEqns(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Eqns_simpEqnType___spec__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Eqns_tryURefl___closed__2;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Eqns_simpEqnType_collect___lambda__1___closed__2;
 static lean_object* l_Lean_Elab_Eqns_initFn____x40_Lean_Elab_PreDefinition_Eqns___hyg_8005____closed__18;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Eqns_removeUnusedEqnHypotheses_go___spec__23___at_Lean_Elab_Eqns_removeUnusedEqnHypotheses_go___spec__24___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -666,7 +668,6 @@ LEAN_EXPORT lean_object* l_Lean_mkFreshId___at_Lean_Elab_Eqns_removeUnusedEqnHyp
 lean_object* l_Lean_Meta_processPostponed(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_unfoldThmType___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(lean_object*, lean_object*, uint8_t);
 static lean_object* _init_l_Lean_Elab_Eqns_instInhabitedEqnInfoCore___closed__1() {
 _start:
 {
@@ -3645,7 +3646,7 @@ x_7 = lean_ctor_get(x_4, 2);
 lean_inc(x_7);
 x_8 = l_Lean_Elab_Eqns_tryURefl___closed__1;
 x_9 = 0;
-x_10 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_7, x_8, x_9);
+x_10 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_7, x_8, x_9);
 x_11 = l_Lean_Elab_Eqns_tryURefl___closed__2;
 x_12 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_10, x_11);
 x_13 = lean_st_ref_get(x_5, x_6);
@@ -29082,7 +29083,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -31808,7 +31809,7 @@ x_11 = lean_ctor_get(x_8, 2);
 lean_inc(x_11);
 x_12 = l_Lean_Elab_Eqns_mkEqns_doRealize___closed__1;
 x_13 = 0;
-x_14 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_11, x_12, x_13);
+x_14 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_11, x_12, x_13);
 x_15 = l_Lean_Elab_Eqns_tryURefl___closed__2;
 x_16 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_14, x_15);
 x_17 = lean_st_ref_get(x_9, x_10);
@@ -33186,7 +33187,7 @@ x_12 = lean_ctor_get(x_6, 2);
 lean_inc(x_12);
 x_13 = l_Lean_Elab_Eqns_mkEqns_doRealize___closed__1;
 x_14 = 0;
-x_15 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_12, x_13, x_14);
+x_15 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_12, x_13, x_14);
 x_16 = l_Lean_Elab_Eqns_tryURefl___closed__2;
 x_17 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_15, x_16);
 x_18 = lean_st_ref_get(x_7, x_11);
@@ -36038,7 +36039,7 @@ x_11 = lean_ctor_get(x_6, 2);
 lean_inc(x_11);
 x_12 = l_Lean_Elab_Eqns_mkEqns_doRealize___closed__1;
 x_13 = 0;
-x_14 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_11, x_12, x_13);
+x_14 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__3(x_11, x_12, x_13);
 x_15 = l_Lean_Elab_Eqns_tryURefl___closed__2;
 x_16 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_14, x_15);
 x_17 = lean_st_ref_get(x_7, x_8);

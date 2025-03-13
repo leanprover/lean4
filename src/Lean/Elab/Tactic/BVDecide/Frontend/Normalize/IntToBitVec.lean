@@ -122,7 +122,7 @@ where
               let argTypes := relevantTerms.map (fun _ => (`x, argType))
               let innerMotiveType ←
                 withLocalDeclsDND argTypes fun args => do
-                  let mut subst : Std.HashMap Expr Expr := Std.HashMap.empty (args.size + 1)
+                  let mut subst : Std.HashMap Expr Expr := Std.HashMap.emptyWithCapacity (args.size + 1)
                   subst := subst.insert (mkConst ``System.Platform.numBits) z
                   for term in relevantTerms, arg in args do
                     subst := subst.insert term arg

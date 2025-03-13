@@ -26,7 +26,7 @@ theorem ofNat_pow (a b : Nat) : ((a ^ b : Nat) : Int) = (a : Int) ^ b := by
   | succ b ih => rw [Nat.pow_succ, Int.ofNat_mul, ih]; rfl
 
 theorem pos_pow_of_pos (a : Int) (b : Nat) (h : 0 < a) : 0 < a ^ b := by
-  rw [Int.eq_natAbs_of_zero_le (Int.le_of_lt h), ← Int.ofNat_zero, ← Int.ofNat_pow, Int.ofNat_lt]
+  rw [Int.eq_natAbs_of_nonneg (Int.le_of_lt h), ← Int.ofNat_zero, ← Int.ofNat_pow, Int.ofNat_lt]
   exact Nat.pow_pos (Int.natAbs_pos.mpr (Int.ne_of_gt h))
 
 theorem ofNat_pos {a : Nat} : 0 < (a : Int) ↔ 0 < a := by
@@ -146,7 +146,7 @@ theorem add_le_iff_le_sub {a b c : Int} : a + b ≤ c ↔ a ≤ c - b := by
 theorem le_add_iff_sub_le {a b c : Int} : a ≤ b + c ↔ a - c ≤ b := by
   conv =>
     lhs
-    rw [← Int.neg_neg c, ← Int.sub_eq_add_neg, ← add_le_iff_le_sub]
+    rw [← Int.neg_neg c, Int.add_neg_eq_sub, ← add_le_iff_le_sub]
   rfl
 
 theorem add_le_zero_iff_le_neg {a b : Int} : a + b ≤ 0 ↔ a ≤ - b := by

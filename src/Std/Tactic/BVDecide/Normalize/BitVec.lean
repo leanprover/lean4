@@ -37,9 +37,8 @@ theorem BitVec.gt_ult (x y : BitVec w) : x > y ↔ (y.ult x = true) := by
 theorem BitVec.ge_ule (x y : BitVec w) : x ≥ y ↔ ((!x.ult y) = true) := by
   simp [BitVec.le_ult]
 
-@[bv_normalize]
-theorem BitVec.truncate_eq_zeroExtend (x : BitVec w) : x.truncate n = x.zeroExtend n := by
-  rfl
+attribute [bv_normalize] BitVec.zeroExtend_eq_setWidth
+attribute [bv_normalize] BitVec.truncate_eq_setWidth
 
 attribute [bv_normalize] BitVec.extractLsb
 attribute [bv_normalize] BitVec.msb_eq_getLsbD_last
@@ -151,8 +150,6 @@ section Constant
 
 attribute [bv_normalize] BitVec.add_zero
 attribute [bv_normalize] BitVec.zero_add
-attribute [bv_normalize] BitVec.setWidth_eq
-attribute [bv_normalize] BitVec.setWidth_zero
 attribute [bv_normalize] BitVec.getLsbD_zero
 attribute [bv_normalize] BitVec.getLsbD_zero_length
 attribute [bv_normalize] BitVec.getLsbD_concat_zero
@@ -241,10 +238,25 @@ theorem BitVec.not_neg'' (x : BitVec w) : ~~~(1#w + x) = ~~~x + -1#w := by
 theorem BitVec.add_same (a : BitVec w) : a + a = a * 2#w := by
   rw [BitVec.mul_two]
 
-theorem BitVec.add_const_left (a b c : BitVec w) : a + (b + c) = (a + b) + c := by ac_rfl
-theorem BitVec.add_const_right (a b c : BitVec w) : a + (b + c) = (a + c) + b := by ac_rfl
-theorem BitVec.add_const_left' (a b c : BitVec w) : (a + b) + c = (a + c) + b := by ac_rfl
-theorem BitVec.add_const_right' (a b c : BitVec w) : (a + b) + c = (b + c) + a := by ac_rfl
+@[bv_normalize]
+theorem BitVec.add_const_left :
+    BitVec.ofNat w a + (BitVec.ofNat w b + c) = (BitVec.ofNat w a + BitVec.ofNat w b) + c := by
+  ac_rfl
+
+@[bv_normalize]
+theorem BitVec.add_const_right :
+    BitVec.ofNat w a + (b + BitVec.ofNat w c) = (BitVec.ofNat w a + BitVec.ofNat w c) + b := by
+  ac_rfl
+
+@[bv_normalize]
+theorem BitVec.add_const_left' :
+    (BitVec.ofNat w a + b) + BitVec.ofNat w c = (BitVec.ofNat w a + BitVec.ofNat w c) + b := by
+  ac_rfl
+
+@[bv_normalize]
+theorem BitVec.add_const_right' {a : BitVec w} :
+    (a + BitVec.ofNat w b) + BitVec.ofNat w c = (BitVec.ofNat w b + BitVec.ofNat w c) + a := by
+  ac_rfl
 
 attribute [bv_normalize] BitVec.mul_zero
 attribute [bv_normalize] BitVec.zero_mul
@@ -347,6 +359,81 @@ attribute [bv_normalize] BitVec.extractLsb'_xor
 theorem BitVec.exctractLsb'_if {x y : BitVec w} (s l : Nat) :
     BitVec.extractLsb' s l (bif c then x else y) = bif c then (BitVec.extractLsb' s l x) else (BitVec.extractLsb' s l y) := by
   cases c <;> simp
+
+attribute [bv_normalize] BitVec.extractLsb'_eq_self
+
+-- Used in simproc because of - normalization
+theorem BitVec.ones_mul (a : BitVec w) : -1#w * a = -a := by
+  rw [_root_.BitVec.neg_mul]
+  simp
+
+-- Used in simproc because of - normalization
+theorem BitVec.mul_ones (a : BitVec w) : a * -1#w = -a := by
+  rw [_root_.BitVec.mul_neg]
+  simp
+
+-- All push a to the lhs as the rhs is guaranteed to be a constant so this form improves sharing.
+@[bv_normalize]
+theorem BitVec.add_const_beq_const {a : BitVec w} :
+    ((a + BitVec.ofNat w b) == BitVec.ofNat w c) = (a == BitVec.ofNat w c - BitVec.ofNat w b) := by
+  rw [Bool.eq_iff_iff]
+  simp [BitVec.eq_sub_iff_add_eq]
+
+@[bv_normalize]
+theorem BitVec.const_add_beq_const :
+    ((BitVec.ofNat w b + a) == BitVec.ofNat w c) = (a == BitVec.ofNat w c - BitVec.ofNat w b) := by
+  rw [Bool.eq_iff_iff, BitVec.add_comm _ a]
+  simp [BitVec.eq_sub_iff_add_eq]
+
+@[bv_normalize]
+theorem BitVec.const_beq_add_const_beq :
+    (BitVec.ofNat w c == (a + BitVec.ofNat w b)) = (a == BitVec.ofNat w c - BitVec.ofNat w b) := by
+  rw [Bool.eq_iff_iff, Bool.beq_comm]
+  simp [BitVec.eq_sub_iff_add_eq]
+
+@[bv_normalize]
+theorem BitVec.const_beq_const_add_beq :
+    (BitVec.ofNat w c == (BitVec.ofNat w b + a)) = (a == BitVec.ofNat w c - BitVec.ofNat w b) := by
+  rw [Bool.eq_iff_iff, BitVec.add_comm _ a, Bool.beq_comm]
+  simp [BitVec.eq_sub_iff_add_eq]
+
+@[bv_normalize]
+theorem BitVec.and_const_left :
+    BitVec.ofNat w a &&& (BitVec.ofNat w b &&& c) = (BitVec.ofNat w a &&& BitVec.ofNat w b) &&& c := by
+  ac_rfl
+
+@[bv_normalize]
+theorem BitVec.and_const_right :
+    BitVec.ofNat w a &&& (b &&& BitVec.ofNat w c) = (BitVec.ofNat w a &&& BitVec.ofNat w c) &&& b := by
+  ac_rfl
+
+@[bv_normalize]
+theorem BitVec.and_const_left' :
+    (BitVec.ofNat w a &&& b) &&& BitVec.ofNat w c = (BitVec.ofNat w a &&& BitVec.ofNat w c) &&& b := by
+  ac_rfl
+
+@[bv_normalize]
+theorem BitVec.and_const_right' {a : BitVec w} :
+    (a &&& BitVec.ofNat w b) &&& BitVec.ofNat w c = (BitVec.ofNat w b &&& BitVec.ofNat w c) &&& a := by
+  ac_rfl
+
+-- Explicit no_index so this theorem works in the presence of constant folding if w1/w2/w3 are fixed
+@[bv_normalize]
+theorem BitVec.append_const_left {c : BitVec w3} :
+    HAppend.hAppend (β := BitVec (no_index _)) (γ := BitVec (no_index _))
+      (BitVec.ofNat w1 a)
+      (HAppend.hAppend (γ := BitVec (no_index _)) (BitVec.ofNat w2 b) c)
+    = ((BitVec.ofNat w1 a ++ BitVec.ofNat w2 b) ++ c).cast (Nat.add_assoc ..) := by
+  rw [BitVec.append_assoc]
+  simp
+
+@[bv_normalize]
+theorem BitVec.append_const_right {a : BitVec w1} :
+    HAppend.hAppend (α := BitVec (no_index _)) (γ := BitVec (no_index _))
+      (HAppend.hAppend (γ := BitVec (no_index _)) a (BitVec.ofNat w2 b))
+      (BitVec.ofNat w3 c)
+    = (a ++ (BitVec.ofNat w2 b ++ BitVec.ofNat w3 c)).cast (Eq.symm <| Nat.add_assoc ..) := by
+  rw [BitVec.append_assoc]
 
 end Normalize
 end Std.Tactic.BVDecide

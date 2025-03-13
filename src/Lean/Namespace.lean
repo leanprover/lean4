@@ -20,7 +20,7 @@ builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSSet â†
       6.18% of the runtime is here. It was 9.31% before the `HashMap` optimization.
       -/
       let capacity := as.foldl (init := 0) fun r e => r + e.size
-      let map : Std.HashMap Name Unit := Std.HashMap.empty capacity
+      let map : Std.HashMap Name Unit := Std.HashMap.emptyWithCapacity capacity
       let map := mkStateFromImportedEntries (fun map name => map.insert name ()) map as
       SMap.fromHashMap map |>.switch
     addEntryFn      := fun s n => s.insert n

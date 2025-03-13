@@ -363,7 +363,7 @@ static uint64_t l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotoni
 static lean_object* l_Lean_Meta_Monotonicity_solveMonoStep___lambda__12___closed__8;
 static lean_object* l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_245____lambda__4___closed__3;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l_Lean_ScopedEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_ScopedEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Meta_Monotonicity_solveMonoStep___lambda__15___closed__3;
 static lean_object* l_Lean_Loop_forIn_loop___at_Lean_Meta_Monotonicity_headBetaUnderLambda___spec__1___closed__2;
 static lean_object* l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_162____spec__1___closed__1;
@@ -4083,7 +4083,7 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_Meta_Monotonicity_findMonoThms(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_7 = lean_st_ref_get(x_5, x_6);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
@@ -4093,11 +4093,19 @@ lean_dec(x_7);
 x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
 lean_dec(x_8);
-x_11 = l_panic___at_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_162____spec__13___closed__1;
-x_12 = l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_245____lambda__1___closed__1;
-x_13 = l_Lean_ScopedEnvExtension_getState___rarg(x_11, x_12, x_10);
-x_14 = l_Lean_Meta_DiscrTree_getMatch___rarg(x_13, x_1, x_2, x_3, x_4, x_5, x_9);
-return x_14;
+x_11 = l_Lean_Meta_Monotonicity_monotoneExt;
+x_12 = lean_ctor_get(x_11, 1);
+lean_inc(x_12);
+x_13 = lean_ctor_get(x_12, 0);
+lean_inc(x_13);
+lean_dec(x_12);
+x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*3);
+lean_dec(x_13);
+x_15 = l_panic___at_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_162____spec__13___closed__1;
+x_16 = l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_245____lambda__1___closed__1;
+x_17 = l_Lean_ScopedEnvExtension_getState___rarg(x_15, x_16, x_10, x_14);
+x_18 = l_Lean_Meta_DiscrTree_getMatch___rarg(x_17, x_1, x_2, x_3, x_4, x_5, x_9);
+return x_18;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_Tactic_Monotonicity_0__Lean_Meta_Monotonicity_defaultFailK___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {

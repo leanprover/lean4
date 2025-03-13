@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.SInt.Lemmas
-// Imports: Init.Data.SInt.Basic Init.Data.BitVec.Bitblast Init.Data.Int.LemmasAux Init.Data.UInt.Lemmas
+// Imports: Init.Data.SInt.Basic Init.Data.BitVec.Bitblast Init.Data.Int.LemmasAux Init.Data.UInt.Lemmas Init.System.Platform
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,7 +18,6 @@ static lean_object* l___aux__Init__Data__SInt__Lemmas______macroRules__commandDe
 static lean_object* l___aux__Init__Data__SInt__Lemmas______macroRules__commandDeclare__int__theorems______1___closed__118;
 static lean_object* l___aux__Init__Data__SInt__Lemmas______macroRules__commandDeclare__int__theorems______1___closed__105;
 static lean_object* l___aux__Init__Data__SInt__Lemmas______macroRules__commandDeclare__int__theorems______1___closed__48;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___aux__Init__Data__SInt__Lemmas______macroRules__commandDeclare__int__theorems______1___closed__110;
 static lean_object* l___aux__Init__Data__SInt__Lemmas______macroRules__commandDeclare__int__theorems______1___closed__103;
 static lean_object* l___aux__Init__Data__SInt__Lemmas______macroRules__commandDeclare__int__theorems______1___closed__126;
@@ -217,6 +216,7 @@ static lean_object* l___aux__Init__Data__SInt__Lemmas______macroRules__commandDe
 lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l___aux__Init__Data__SInt__Lemmas______macroRules__commandDeclare__int__theorems______1___closed__85;
 static lean_object* l___aux__Init__Data__SInt__Lemmas______macroRules__commandDeclare__int__theorems______1___closed__159;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l_commandDeclare__int__theorems_______closed__6;
 static lean_object* l___aux__Init__Data__SInt__Lemmas______macroRules__commandDeclare__int__theorems______1___closed__83;
 static lean_object* l___aux__Init__Data__SInt__Lemmas______macroRules__commandDeclare__int__theorems______1___closed__74;
@@ -491,7 +491,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -2741,6 +2741,7 @@ lean_object* initialize_Init_Data_SInt_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_Bitblast(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_System_Platform(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_SInt_Lemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -2756,6 +2757,9 @@ res = initialize_Init_Data_Int_LemmasAux(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_UInt_Lemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_System_Platform(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_commandDeclare__int__theorems_______closed__1 = _init_l_commandDeclare__int__theorems_______closed__1();

@@ -237,17 +237,18 @@ instance decidableLT [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List
 abbrev hasDecidableLt := @decidableLT
 
 /--
-Lexicographic ordering of lists with respect to an ordering on their elements.
+Non-strict ordering of lists with respect to a strict ordering of their elements.
 
-`as ≤ bs` if
+`as ≤ bs` if `¬ bs < as`.
+
+This relation can be treated as a lexicographic order if the underlying `LT α` instance is
+well-behaved. In particular, it should be irreflexive, asymmetric, and antisymmetric. These
+requirements are precisely formulated in `List.cons_le_cons_iff`. If these hold, then `as ≤ bs` if
+and only if:
  * `as` is empty, or
  * both `as` and `bs` are non-empty, and the head of `as` is less than the head of `bs`, or
  * both `as` and `bs` are non-empty, their heads are equal, and the tail of `as` is less than or
    equal to the tail of `bs`.
-
-This relation is only well-behaved if the underlying `LT α` instance is well-behaved: specifically,
-it should be irreflexive, asymmetric, and antisymmetric. These requirements are precisely formulated
-in `List.cons_le_cons_iff`.
 -/
 @[reducible] protected def le [LT α] (as bs : List α) : Prop := ¬ bs < as
 

@@ -4355,6 +4355,15 @@ theorem Sigma.snd_congr {x x' : (a : α) × β a} (h : x = x') :
     x.snd = cast (congrArg (β ·.fst) h.symm) x'.snd := by
   cases h; rfl
 
+theorem Option.pmap_eq_dmap {α β : Type _} {p : α → Prop} {x : Option α}
+    {f : (a : α) → p a → β} (h : ∀ a ∈ x, p a) :
+    x.pmap f h = Option.dmap x (fun a h' => f a (h a h')) := by
+  cases x <;> rfl
+
+theorem Option.dmap_eq_map {α β : Type _} {x : Option α} {f : α → β} :
+    Option.dmap x (fun a _ => f a) = x.map f := by
+  cases x <;> rfl
+
 theorem getEntry?_filterMap' [BEq α] [EquivBEq α]
     {f : ((a : α) × β a) → Option (((a : α) × γ a))}
     (hf : ∀ p, (f p).all (·.1 == p.1))
@@ -4775,26 +4784,23 @@ theorem getValue?_map {β : Type v} {γ : Type w} [BEq α] [EquivBEq α]
       (getValue? k l).pmap (fun v h => f (getKey k l h) v)
         (fun _ h => containsKey_eq_isSome_getValue?.trans (Option.isSome_of_mem h)) := by
   simp only [getValue?_eq_getEntry?, getEntry?_map hl, Option.map_map, Function.comp_def,
-    getKey, getKey?_eq_getEntry?, Option.get_map, Option.pmap_map]
-  ext a
-  simp only [Option.mem_def, Option.map_eq_some', Option.pmap_eq_some_iff, exists_and_left]
-  conv =>
-    enter [2, 1, x]
-    apply and_congr_right_eq (fun h => ?rw); case rw =>
-    simp only [Option.get_congr h, Option.get_some, eq_comm (a := a)]
-    simp only [exists_prop_of_true (containsKey_eq_isSome_getEntry?.trans (Option.isSome_of_mem h))]
+    getKey, getKey?_eq_getEntry?, Option.get_map, Option.pmap_eq_dmap, Option.dmap_map]
+  conv => enter [2, 2, a, h]; simp only [Option.get_congr h, Option.get_some]
+  simp only [Option.dmap_eq_map]
 
 theorem getValue!_map {β : Type v} {γ : Type w} [BEq α] [EquivBEq α] [Inhabited γ]
-    {f : (_ : α) → β → γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) {k : α} :
+    {f : (_ : α) → β → γ} {l : List ((_ : α) × β)} (hl : DistinctKeys l) {k : α} :
     getValue! k (l.map fun p => ⟨p.1, f p.1 p.2⟩) =
-      ((getKey? k l).bind (fun k' => (getValue? k l).map (fun v => f k' v))).get! := by
-  simp [getValue!_eq_getValue?, Option.getD, getValue?_map, distinct]
+      ((getValue? k l).pmap (fun v h => f (getKey k l h) v)
+        (fun _ h => containsKey_eq_isSome_getValue?.trans (Option.isSome_of_mem h))).get! := by
+  simp only [getValue!, getValue?_map hl]
 
 theorem getValueD_map {β : Type v} {γ : Type w} [BEq α] [EquivBEq α] {fallback : γ}
-    {f : (_ : α) → β → γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) {k : α} :
+    {f : (_ : α) → β → γ} {l : List ((_ : α) × β)} (hl : DistinctKeys l) {k : α} :
     getValueD k (l.map fun p => ⟨p.1, f p.1 p.2⟩) fallback =
-      ((getKey? k l).bind (fun k' => (getValue? k l).map (fun v => f k' v))).getD fallback := by
-  simp [getValueD_eq_getValue?, Option.getD, getValue?_map, distinct]
+      ((getValue? k l).pmap (fun v h => f (getKey k l h) v)
+        (fun _ h => containsKey_eq_isSome_getValue?.trans (Option.isSome_of_mem h))).getD fallback := by
+  simp only [getValueD, getValue?_map hl]
 
 theorem length_filterMap_eq_length_iff {β : Type v} {γ : Type w} [BEq α] [EquivBEq α]
     {f : (_ : α) → β → Option γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) :

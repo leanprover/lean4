@@ -77,6 +77,13 @@ the same as `o.elim b f` but `f` is passed the proof that `a ∈ o`. -/
   | none => b
   | some a => f a rfl
 
+/-- Partial filter. If `o : Option α`, `p : (a : α) → a ∈ x → Bool`, then `o.pfilter p` is
+the same as `o.filter p` but `p` is passed the proof that `a ∈ o`. -/
+@[inline] def pfilter (o : Option α) (p : (a : α) → a ∈ o → Bool) : Option α :=
+  match o with
+  | none => none
+  | some a => bif p a rfl then o else none
+
 /-- Map a monadic function which returns `Unit` over an `Option`. -/
 @[inline] protected def forM [Pure m] : Option α → (α → m PUnit) → m PUnit
   | none  , _ => pure ⟨⟩

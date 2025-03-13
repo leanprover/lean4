@@ -67,7 +67,7 @@ private def queryNames : Array Name :=
     ``foldlM_eq_foldlM_toListModel, ``foldl_eq_foldl,
     ``foldrM_eq_foldrM, ``foldr_eq_foldr,
     ``forM_eq_forM, ``forIn_eq_forIn_toListModel,
-    ``min?_eq_min?']
+    ``minKey?_eq_minKey?]
 
 private def modifyMap : Std.HashMap Name Name :=
   .ofList
@@ -96,7 +96,7 @@ private def congrNames : MacroM (Array (TSyntax `term)) := do
     ← `(getValue?_of_perm _), ← `(getValue_of_perm _), ← `(getValueCast_of_perm _),
     ← `(getValueCast!_of_perm _), ← `(getValueCastD_of_perm _), ← `(getValue!_of_perm _),
     ← `(getValueD_of_perm _), ← `(getKey?_of_perm _), ← `(getKey_of_perm _), ← `(getKeyD_of_perm _),
-    ← `(getKey!_of_perm _), ← `(min?_of_perm' _)]
+    ← `(getKey!_of_perm _), ← `(minKey?_of_perm' _)]
 
 /-- Internal implementation detail of the tree map -/
 scoped syntax "simp_to_model" (" [" (ident,*) "]")? ("using" term)? : tactic

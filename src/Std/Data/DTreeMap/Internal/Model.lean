@@ -265,14 +265,14 @@ def getKeyDₘ [Ord α] (k : α) (l : Impl α β) (fallback : α) : α :=
   getKey?ₘ l k |>.getD fallback
 
 /-- Internal implementation detail of the tree map -/
-def min?ₘ' [Ord α] (l : Impl α β) : Option ((a : α) × β a) :=
+def minEntry?ₘ' [Ord α] (l : Impl α β) : Option ((a : α) × β a) :=
   explore (fun (_ : α) => .lt) none (fun sofar step =>
     match step with
     | .lt ky _ y _ => some ⟨ky, y⟩
     | .eq _ _ r => r.head?.or sofar) l
 
 /-- Internal implementation detail of the tree map -/
-def min?ₘ [Ord α] (l : Impl α β) : Option ((a : α) × β a) :=
+def minEntry?ₘ [Ord α] (l : Impl α β) : Option ((a : α) × β a) :=
   applyPartition (fun (_ : α) => .lt) l fun _ _ _ r => r.head?
 
 /--
@@ -455,15 +455,18 @@ theorem getKeyD_eq_getKeyDₘ [Ord α] (k : α) (l : Impl α β)
     all_goals simp_all [Cell.getKey?, Cell.ofEq]
   · simp only [getKeyD, applyCell, Cell.getKey?_empty, Option.getD_none]
 
-theorem min?_eq_min?ₘ' [Ord α] {l : Impl α β} : l.min? = l.min?ₘ' := by
-  rw [min?ₘ']
-  induction l using min?.induct <;> simp_all [min?, explore]
+theorem minEntry?_eq_minEntry?ₘ' [Ord α] {l : Impl α β} : l.minEntry? = l.minEntry?ₘ' := by
+  rw [minEntry?ₘ']
+  induction l using minEntry?.induct <;> simp_all [minEntry?, explore]
 
-theorem min?ₘ'_eq_min?ₘ [Ord α] {l : Impl α β} : l.min?ₘ' = l.min?ₘ := by
-  rw [min?ₘ', explore_eq_applyPartition, min?ₘ] <;> simp
+theorem minEntry?ₘ'_eq_minEntry?ₘ [Ord α] {l : Impl α β} : l.minEntry?ₘ' = l.minEntry?ₘ := by
+  rw [minEntry?ₘ', explore_eq_applyPartition, minEntry?ₘ] <;> simp
 
-theorem min?_eq_min?ₘ [Ord α] {l : Impl α β} : l.min? = l.min?ₘ := by
-  rw [min?_eq_min?ₘ', min?ₘ'_eq_min?ₘ]
+theorem minEntry?_eq_minEntry?ₘ [Ord α] {l : Impl α β} : l.minEntry? = l.minEntry?ₘ := by
+  rw [minEntry?_eq_minEntry?ₘ', minEntry?ₘ'_eq_minEntry?ₘ]
+
+theorem minKey?_eq_minEntry?_map_fst [Ord α] {l : Impl α β} : l.minKey? = l.minEntry?.map Sigma.fst := by
+  induction l using minKey?.induct <;> simp only [minKey?, minEntry?] <;> trivial
 
 theorem balanceL_eq_balance {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceL k v l r hlb hrb hlr = balance k v l r hlb hrb (Or.inl hlr.erase) := by

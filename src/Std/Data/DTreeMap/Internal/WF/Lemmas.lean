@@ -1759,7 +1759,7 @@ theorem WF.map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} (h : t
   sameKeys_map.symm.wf h
 
 /-!
-### `min?`
+### `minEntry?`
 -/
 
 instance [Ord α] : IsStrictCut (compare : α → α → Ordering) (fun _ => .lt) where
@@ -1767,9 +1767,9 @@ instance [Ord α] : IsStrictCut (compare : α → α → Ordering) (fun _ => .lt
   gt := by simp
   eq := by simp
 
-theorem apply_min?ₘ [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
-    l.min?ₘ = List.min?' l.toListModel := by
-  rw [min?ₘ, applyPartition_eq_apply_toListModel' hlo]
+theorem minEntry?ₘ_eq_listMinEntry? [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
+    l.minEntry?ₘ = List.minEntry? l.toListModel := by
+  rw [minEntry?ₘ, applyPartition_eq_apply_toListModel' hlo]
   simp only [List.append_assoc, reduceCtorEq, imp_false, implies_true, forall_const]
   intro ll rr c h₁ h₂ h₃
   obtain rfl : ll = [] := List.eq_nil_iff_forall_not_mem.2 h₃
@@ -1778,10 +1778,14 @@ theorem apply_min?ₘ [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) 
     · simp
     · have := c.property _ h
       contradiction
-  rw [hc, List.nil_append, List.nil_append, min?'_eq_head? (by simpa [hc] using h₂)]
+  rw [hc, List.nil_append, List.nil_append, minEntry?_eq_head? (by simpa [hc] using h₂)]
 
-theorem min?_eq_min?' [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
-    l.min? = Std.Internal.List.min?' l.toListModel := by
-  rw [min?_eq_min?ₘ, apply_min?ₘ hlo]
+theorem minEntry?_eq_minEntry? [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
+    l.minEntry? = List.minEntry? l.toListModel := by
+  rw [minEntry?_eq_minEntry?ₘ, minEntry?ₘ_eq_listMinEntry? hlo]
+
+theorem minKey?_eq_minKey? [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
+    l.minKey? = List.minKey? l.toListModel := by
+  simp only [minKey?_eq_minEntry?_map_fst, minEntry?_eq_minEntry? hlo, List.minKey?]
 
 end Std.DTreeMap.Internal.Impl

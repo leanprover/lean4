@@ -199,37 +199,61 @@ def getKey! [Inhabited α] (t : Raw α β cmp) (a : α) : α :=
 def getKeyD (t : Raw α β cmp) (a : α) (fallback : α) : α :=
   letI : Ord α := ⟨cmp⟩; t.inner.getKeyD a fallback
 
-@[inline, inherit_doc DTreeMap.min?]
+@[inline, inherit_doc DTreeMap.minEntry?]
+def minEntry? (t : Raw α β cmp) : Option ((a : α) × β a) :=
+  letI : Ord α := ⟨cmp⟩; t.inner.minEntry?
+
+@[inline, inherit_doc minEntry?, deprecated minEntry? (since := "2025-03-13")]
 def min? (t : Raw α β cmp) : Option ((a : α) × β a) :=
-  letI : Ord α := ⟨cmp⟩; t.inner.min?
+  t.minEntry?
 
 /-!
-We do not provide `min` for the raw trees.
+We do not provide `minEntry` for the raw trees.
 -/
 
-@[inline, inherit_doc DTreeMap.min!]
+@[inline, inherit_doc DTreeMap.minEntry!]
+def minEntry! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.minEntry!
+
+@[inline, inherit_doc minEntry!, deprecated minEntry! (since := "2025-03-13")]
 def min! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; t.inner.min!
+  t.minEntry!
 
-@[inline, inherit_doc DTreeMap.minD]
+@[inline, inherit_doc DTreeMap.minEntryD]
+def minEntryD (t : Raw α β cmp) (fallback : (a : α) × β a) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.minEntryD fallback
+
+@[inline, inherit_doc minEntryD, deprecated minEntryD (since := "2025-03-13")]
 def minD (t : Raw α β cmp) (fallback : (a : α) × β a) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; t.inner.minD fallback
+  t.minEntryD fallback
 
-@[inline, inherit_doc DTreeMap.max?]
+@[inline, inherit_doc DTreeMap.maxEntry?]
+def maxEntry? (t : Raw α β cmp) : Option ((a : α) × β a) :=
+  letI : Ord α := ⟨cmp⟩; t.inner.maxEntry?
+
+@[inline, inherit_doc maxEntry?, deprecated maxEntry? (since := "2025-03-13")]
 def max? (t : Raw α β cmp) : Option ((a : α) × β a) :=
-  letI : Ord α := ⟨cmp⟩; t.inner.max?
+  t.maxEntry?
 
 /-!
-We do not provide `max` for the raw trees.
+We do not provide `maxEntry` for the raw trees.
 -/
 
-@[inline, inherit_doc DTreeMap.max!]
-def max! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; t.inner.max!
+@[inline, inherit_doc DTreeMap.maxEntry!]
+def maxEntry! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.maxEntry!
 
-@[inline, inherit_doc DTreeMap.maxD]
+@[inline, inherit_doc maxEntry!, deprecated maxEntry! (since := "2025-03-13")]
+def max! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) : (a : α) × β a :=
+  t.maxEntry!
+
+@[inline, inherit_doc DTreeMap.maxEntryD]
+def maxEntryD (t : Raw α β cmp) (fallback : (a : α) × β a) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.maxEntryD fallback
+
+@[inline, inherit_doc maxEntryD, deprecated maxEntryD (since := "2025-03-13")]
 def maxD (t : Raw α β cmp) (fallback : (a : α) × β a) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; t.inner.maxD fallback
+  t.maxEntryD fallback
 
 @[inline, inherit_doc DTreeMap.minKey?]
 def minKey? (t : Raw α β cmp) : Option α :=
@@ -437,33 +461,57 @@ def getD (t : Raw α β cmp) (a : α) (fallback : β) : β :=
 def findD (t : Raw α β cmp) (a : α) (fallback : β) : β :=
   getD t a fallback
 
-@[inline, inherit_doc DTreeMap.Const.min?]
+@[inline, inherit_doc DTreeMap.Const.minEntry?]
+def minEntry? (t : Raw α β cmp) : Option (α × β) :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.minEntry? t.inner
+
+@[inline, inherit_doc minEntry?, deprecated minEntry? (since := "2025-03-13")]
 def min? (t : Raw α β cmp) : Option (α × β) :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.min? t.inner
+  minEntry? t
 
 /-!
-We do not provide `min` for the raw trees.
+We do not provide `minEntry` for the raw trees.
 -/
 
-@[inline, inherit_doc DTreeMap.Const.min!]
+@[inline, inherit_doc DTreeMap.Const.minEntry!]
+def minEntry! [Inhabited (α × β)] (t : Raw α β cmp) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.minEntry! t.inner
+
+@[inline, inherit_doc minEntry!, deprecated minEntry! (since := "2025-03-13")]
 def min! [Inhabited (α × β)] (t : Raw α β cmp) : α × β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.min! t.inner
+  minEntry! t
 
-@[inline, inherit_doc DTreeMap.Const.minD]
+@[inline, inherit_doc DTreeMap.Const.minEntryD]
+def minEntryD (t : Raw α β cmp) (fallback : α × β) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.minEntryD t.inner fallback
+
+@[inline, inherit_doc minEntryD, deprecated minEntryD (since := "2025-03-13")]
 def minD (t : Raw α β cmp) (fallback : α × β) : α × β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.minD t.inner fallback
+  minEntryD t fallback
 
-@[inline, inherit_doc DTreeMap.Const.max?]
+@[inline, inherit_doc DTreeMap.Const.maxEntry?]
+def maxEntry? (t : Raw α β cmp) : Option (α × β) :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.maxEntry? t.inner
+
+@[inline, inherit_doc maxEntry?, deprecated maxEntry? (since := "2025-03-13")]
 def max? (t : Raw α β cmp) : Option (α × β) :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.max? t.inner
+  maxEntry? t
 
-@[inline, inherit_doc DTreeMap.Const.max!]
+@[inline, inherit_doc DTreeMap.Const.maxEntry!]
+def maxEntry! [Inhabited (α × β)] (t : Raw α β cmp) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.maxEntry! t.inner
+
+@[inline, inherit_doc maxEntry!, deprecated maxEntry! (since := "2025-03-13")]
 def max! [Inhabited (α × β)] (t : Raw α β cmp) : α × β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.max! t.inner
+  maxEntry! t
 
-@[inline, inherit_doc DTreeMap.Const.maxD]
+@[inline, inherit_doc DTreeMap.Const.maxEntryD]
+def maxEntryD (t : Raw α β cmp) (fallback : α × β) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.maxEntryD t.inner fallback
+
+@[inline, inherit_doc maxEntryD, deprecated maxEntryD (since := "2025-03-13")]
 def maxD (t : Raw α β cmp) (fallback : α × β) : α × β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.maxD t.inner fallback
+  maxEntryD t fallback
 
 @[inline, inherit_doc DTreeMap.Const.entryAtIdx?]
 def entryAtIdx? (t : Raw α β cmp) (n : Nat) : Option (α × β) :=

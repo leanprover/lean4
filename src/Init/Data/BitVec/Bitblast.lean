@@ -1338,4 +1338,59 @@ theorem eq_iff_eq_of_inv (f : α → BitVec w) (g : BitVec w → α) (h : ∀ x,
     have := congrArg g h'
     simpa [h] using this
 
+/- ### smod -/
+
+theorem getElem_smod {n d : BitVec w} (hi : i < w) :
+    (BitVec.smod n d)[i]
+      = (match n.msb, d.msb with
+    | false, false => n.umod d
+    | false, true =>
+      let u := n.umod (-d);
+      if u = 0#w then u else u + d
+    | true, false =>
+      let u := (-n).umod d;
+      if u = 0#w then u else d - u
+    | true, true => (-(-n).umod (-d)))[i] := by
+  rfl
+
+theorem getLsbD_smod {n d : BitVec w} :
+    (BitVec.smod n d).getLsbD i
+      = (match n.msb, d.msb with
+    | false, false => n.umod d
+    | false, true =>
+      let u := n.umod (-d);
+      if u = 0#w then u else u + d
+    | true, false =>
+      let u := (-n).umod d;
+      if u = 0#w then u else d - u
+    | true, true => (-(-n).umod (-d))).getLsbD i := by
+  rfl
+
+theorem getMsbD_smod {n d : BitVec w} :
+    (BitVec.smod n d).getMsbD i
+      = (match n.msb, d.msb with
+    | false, false => n.umod d
+    | false, true =>
+      let u := n.umod (-d);
+      if u = 0#w then u else u + d
+    | true, false =>
+      let u := (-n).umod d;
+      if u = 0#w then u else d - u
+    | true, true => (-(-n).umod (-d))).getMsbD i := by
+  rfl
+
+theorem msb_smod {n d : BitVec w} :
+    (BitVec.smod n d).msb
+      = (match n.msb, d.msb with
+    | false, false => n.umod d
+    | false, true =>
+      let u := n.umod (-d);
+      if u = 0#w then u else u + d
+    | true, false =>
+      let u := (-n).umod d;
+      if u = 0#w then u else d - u
+    | true, true => (-(-n).umod (-d))).msb
+    := by
+  rfl
+
 end BitVec

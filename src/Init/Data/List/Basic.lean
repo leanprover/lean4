@@ -172,18 +172,29 @@ theorem isEqv_cons₂ : isEqv (a::as) (b::bs) eqv = (eqv a b && isEqv as bs eqv)
 
 /--
 Lexicographic ordering for lists with respect to an ordering of elements.
+
+`as` is lexicographically smaller than `bs` if
+ * `as` is empty and `bs` is non-empty, or
+ * both `as` and `bs` are non-empty, and the head of `as` is less than the head of `bs` according to
+   `r`, or
+ * both `as` and `bs` are non-empty, their heads are equal, and the tail of `as` is less than the
+   tail of `bs`.
 -/
-inductive Lex (r : α → α → Prop) : List α → List α → Prop
-  /-- `[]` is the smallest element in the order. -/
+inductive Lex (r : α → α → Prop) : (as : List α) → (bs : List α) → Prop
+  /-- `[]` is the smallest element in the lexicographic order. -/
   | nil {a l} : Lex r [] (a :: l)
   /--
-  Two lists with the same head, but ordered tails, are ordered.
-  -/
-  | cons {a l₁ l₂} (h : Lex r l₁ l₂) : Lex r (a :: l₁) (a :: l₂)
-  /--
-  If the head of the first list is smaller than the head of the second, then they are ordered.
+  If the head of the first list is smaller than the head of the second, then the first list is
+  lexicographically smaller than the second list.
   -/
   | rel {a₁ l₁ a₂ l₂} (h : r a₁ a₂) : Lex r (a₁ :: l₁) (a₂ :: l₂)
+  /--
+  If two lists have the same head, then their tails determine their lexicographic order. If the tail
+  of the first list is lexicographically smaller than the tail of the second list, then the entire
+  first list is lexicographically smaller than the entire second list.
+  -/
+  | cons {a l₁ l₂} (h : Lex r l₁ l₂) : Lex r (a :: l₁) (a :: l₂)
+
 
 instance decidableLex [DecidableEq α] (r : α → α → Prop) [h : DecidableRel r] :
     (l₁ l₂ : List α) → Decidable (Lex r l₁ l₂)
@@ -233,6 +244,10 @@ Lexicographic ordering of lists with respect to an ordering on their elements.
  * both `as` and `bs` are non-empty, and the head of `as` is less than the head of `bs`, or
  * both `as` and `bs` are non-empty, their heads are equal, and the tail of `as` is less than or
    equal to the tail of `bs`.
+
+This relation is only well-behaved if the underlying `LT α` instance is well-behaved: specifically,
+it should be irreflexive, asymmetric, and antisymmetric. These requirements are precisely formulated
+in `List.cons_le_cons_iff`.
 -/
 @[reducible] protected def le [LT α] (as bs : List α) : Prop := ¬ bs < as
 
@@ -599,8 +614,8 @@ Examples:
   * `[] ++ [4, 5] = [4, 5]`.
   * `[1, 2, 3] ++ [] = [1, 2, 3]`.
 -/
--- Most of the tail-recursive implementations are in `Init.Data.List.Impl`, but `appendTR` must be
--- set up immediately, because otherwise `Append (List α)` instance below will not use it.
+-- The @[csimp] lemma for `appendTR` must be set up immediately, because otherwise `Append (List α)`
+-- instance below will not use it.
 def appendTR (as bs : List α) : List α :=
   reverseAux as.reverse bs
 
@@ -2206,7 +2221,8 @@ def intersperse (sep : α) : (l : List α) → List α
 
 set_option linter.listVariables false in
 /--
-Alternates the lists in `xs` with the separator `sep`.
+Alternates the lists in `xs` with the separator `sep`, appending them. The resulting list is
+flattened.
 
 `O(|xs|)`.
 

@@ -478,7 +478,7 @@ Returns the list of elements in `l` for which `p` returns `true`.
 Examples:
 * `[1, 2, 5, 2, 7, 7].filter (· > 2)  = [5, 7, 7]`
 * `[1, 2, 5, 2, 7, 7].filter (fun _ => false) = []`
-* `[1, 2, 5, 2, 7, 7].filter (fun _ => true) = * [1, 2, 5, 2, 7, 7]`
+* `[1, 2, 5, 2, 7, 7].filter (fun _ => true) = [1, 2, 5, 2, 7, 7]`
 -/
 def filter (p : α → Bool) : (l : List α) → List α
   | [] => []

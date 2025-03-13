@@ -97,7 +97,7 @@ ifeq "${CMAKE_SYSTEM_NAME}" "Windows"
 	cp ${LIB}/lean/libLean.a.export ${LIB}/temp/diff.a
 	sed -En 's/.*\s(\S*\.o\.export):.*/\1/p' ${LIB}/temp/libleanshared_1.map > ${LIB}/temp/diff.a.in
 # hacky file path normalization
-	sed -i 's!lean/../temp!lean!g' ${LIB}/temp/diff.a.in
+	sed -i 's!lean/../temp!temp!g' ${LIB}/temp/diff.a.in
 	cat ${LIB}/temp/diff.a.in
 # can't use bundled llvm-ar before LLVM 16, https://github.com/llvm/llvm-project/issues/55023
 	ar dP ${LIB}/temp/diff.a @${LIB}/temp/diff.a.in

@@ -457,7 +457,7 @@ where
     goal.withContext do
       let filter e :=
         if let .app (.const (.str _ s) []) _ := e then
-          s == enumToBitVecSuffix
+          s == enumToBitVecSuffix && !e.hasLooseBVars
         else
           false
 

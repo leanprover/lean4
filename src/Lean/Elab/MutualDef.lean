@@ -1115,8 +1115,7 @@ private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
           continue
         logGoalsAccomplished
       | _ => continue
-  let logGoalsAccomplishedTask ← BaseIO.mapTask (t := ← tree.waitAll) fun _ =>
-    logGoalsAccomplishedAct
+  let logGoalsAccomplishedTask ← BaseIO.mapTask (t := ← tree.waitAll) logGoalsAccomplishedAct
   Core.logSnapshotTask {
     stx? := none
     -- Use first line of the mutual block to avoid covering the progress of the whole mutual block

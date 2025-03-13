@@ -410,17 +410,17 @@ def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CoreM
   modify fun s => { s with snapshotTasks := s.snapshotTasks.push task }
 
 /-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
-def wrapAsync (act : Unit → CoreM α) (cancelTk? : Option IO.CancelToken) :
-    CoreM (EIO Exception α) := do
+def wrapAsync {α : Type} (act : α → CoreM β) (cancelTk? : Option IO.CancelToken) :
+    CoreM (α → EIO Exception β) := do
   let st ← get
   let ctx ← read
   let ctx := { ctx with cancelTk? }
   let heartbeats := (← IO.getNumHeartbeats) - ctx.initHeartbeats
-  return withCurrHeartbeats (do
+  return fun a => withCurrHeartbeats (do
       -- include heartbeats since start of elaboration in new thread as well such that forking off
       -- an action doesn't suddenly allow it to succeed from a lower heartbeat count
       IO.addHeartbeats heartbeats
-      act () : CoreM _)
+      act a : CoreM _)
     |>.run' ctx st
 
 /-- Option for capturing output to stderr during elaboration. -/
@@ -457,9 +457,9 @@ Wraps the given action for use in `BaseIO.asTask` etc., discarding its final sta
 token, if any, should be stored in a `SnapshotTask` for the server to trigger it when the result is
 no longer needed.
 -/
-def wrapAsyncAsSnapshot (act : Unit → CoreM Unit) (cancelTk? : Option IO.CancelToken)
-    (desc : String := by exact decl_name%.toString) : CoreM (BaseIO SnapshotTree) := do
-  let t ← wrapAsync (cancelTk? := cancelTk?) fun _ => do
+def wrapAsyncAsSnapshot {α : Type} (act : α → CoreM Unit) (cancelTk? : Option IO.CancelToken)
+    (desc : String := by exact decl_name%.toString) : CoreM (α → BaseIO SnapshotTree) := do
+  let f ← wrapAsync (cancelTk? := cancelTk?) fun a => do
     IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
       let tid ← IO.getTID
       -- reset trace/info state and message log so as not to report them twice
@@ -471,7 +471,7 @@ def wrapAsyncAsSnapshot (act : Unit → CoreM Unit) (cancelTk? : Option IO.Cance
       }
       try
         withTraceNode `Elab.async (fun _ => return desc) do
-          act ()
+          act a
       catch e =>
         unless e.isInterrupt do
           logError e.toMessageData
@@ -479,8 +479,8 @@ def wrapAsyncAsSnapshot (act : Unit → CoreM Unit) (cancelTk? : Option IO.Cance
         addTraceAsMessages
       get
   let ctx ← readThe Core.Context
-  return do
-    match (← t.toBaseIO) with
+  return fun a => do
+    match (← (f a).toBaseIO) with
     | .ok (output, st) => mkSnapshot output ctx st desc
     -- interrupt or abort exception as `try catch` above should have caught any others
     | .error _ => default
@@ -568,7 +568,7 @@ partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
       doCompile
     finally
       res.commitChecked (← getEnv)
-  let t ← BaseIO.mapTask (fun _ => checkAct) env.checked
+  let t ← BaseIO.mapTask checkAct env.checked
   let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
   Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
 where doCompile := do

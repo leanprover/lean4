@@ -795,6 +795,18 @@ instance inst_coind_CCPO : CCPO Prop where
     ⟨fun h y hcy hx => h hx y hcy, fun h hx y hcy => h y hcy hx ⟩
 end coinductive_predicates
 
+instance inst_coind_complete_lattice : complete_lattice Prop where
+  sup c := ∀ p, c p → p
+  sup_spec := by
+    intro x c
+    constructor
+    case mp =>
+      intro h y hy hx
+      exact h hx y hy
+    case mpr =>
+      intro h hx y hy
+      exact h y hy hx
+
 namespace Example
 
 def findF (P : Nat → Bool) (rec : Nat → Option Nat) (x : Nat) : Option Nat :=

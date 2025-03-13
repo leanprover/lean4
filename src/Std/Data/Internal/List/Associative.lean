@@ -4722,6 +4722,30 @@ theorem forall_mem_iff_forall_contains_getKey_getValue [BEq α] [EquivBEq α] {�
       ← getValue_of_mem hx distinct (h':=containsKey_of_mem hx)]
     apply h
 
+theorem getValue?_filterMap {β : Type v} {γ : Type w} [BEq α] [EquivBEq α]
+    {f : (_ : α) → β → Option γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) {k : α} :
+    getValue? k (l.filterMap fun p => (f p.1 p.2).map (fun x => (⟨p.1, x⟩ : (_ : α) × γ))) =
+      (getValue? k l).bind (fun v => (getKey? k l).bind (fun k' => f k' v)) := by
+  simp only [getValue?_eq_getEntry?, distinct, getEntry?_filterMap, Option.map_bind,
+    getKey?_eq_getEntry?, Option.bind_map]
+  cases getEntry? k l with
+  | none => simp
+  | some x =>
+    simp only [Option.some_bind, Function.comp_apply, Option.map_map]
+    cases f x.1 x.2 <;> simp
+
+theorem getValue!_filterMap {β : Type v} {γ : Type w} [BEq α] [EquivBEq α] [Inhabited γ]
+    {f : (_ : α) → β → Option γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) {k : α} :
+    getValue! k (l.filterMap fun p => (f p.1 p.2).map (fun x => (⟨p.1, x⟩ : (_ : α) × γ))) =
+      ((getValue? k l).bind (fun v => (getKey? k l).bind (fun k' => f k' v))).get! := by
+  simp [getValue!_eq_getValue?, Option.getD, getValue?_filterMap, distinct]
+
+theorem getValueD_filterMap {β : Type v} {γ : Type w} [BEq α] [EquivBEq α] {fallback : γ}
+    {f : (_ : α) → β → Option γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) {k : α} :
+    getValueD k (l.filterMap fun p => (f p.1 p.2).map (fun x => (⟨p.1, x⟩ : (_ : α) × γ))) fallback =
+      ((getValue? k l).bind (fun v => (getKey? k l).bind (fun k' => f k' v))).getD fallback := by
+  simp [getValueD_eq_getValue?, Option.getD, getValue?_filterMap, distinct]
+
 theorem length_filterMap_eq_length_iff {β : Type v} {γ : Type w} [BEq α] [EquivBEq α]
     {f : (_ : α) → β → Option γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) :
     (l.filterMap fun p => (f p.1 p.2).map (fun x => (⟨p.1, x⟩ : (_ : α) × γ))).length = l.length ↔
@@ -4740,7 +4764,7 @@ theorem length_filterMap_eq_length_iff {β : Type v} {γ : Type w} [BEq α] [Equ
     exact h
 
 theorem length_filter_eq_length_iff {β : Type v} [BEq α] [EquivBEq α]
-    {f : (_ : α) → β → Bool} {l : List ((_ : α) × β)} (distinct : DistinctKeys l):
+    {f : (_ : α) → β → Bool} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) :
     (l.filter fun p => (f p.1 p.2)).length = l.length ↔
       ∀ (a : α) (h : containsKey a l), (f (getKey a l h) (getValue a l h)) = true := by
   simp [← List.filterMap_eq_filter, Option.guard_eq_map, length_filterMap_eq_length_iff,

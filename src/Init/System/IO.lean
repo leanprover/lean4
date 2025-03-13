@@ -1412,7 +1412,10 @@ Sets the POSIX-style permissions for a file.
 def setAccessRights (filename : FilePath) (mode : FileRight) : IO Unit :=
   Prim.setAccessRights filename mode.flags
 
-/-- References -/
+/--
+Mutable reference cells that contain values of type `α`. These cells can read from and mutated in
+the `IO` monad.
+-/
 abbrev Ref (α : Type) := ST.Ref IO.RealWorld α
 
 instance : MonadLift (ST IO.RealWorld) BaseIO := ⟨id⟩

@@ -92,7 +92,7 @@ ifeq "${CMAKE_SYSTEM_NAME}" "Windows"
 # "half-way point" DLL to avoid symbol limit
 # include Lean.Meta.WHNF and leancpp except for `initialize.cpp`
 	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX} \
-	  ${LIB}/temp/Lean/Meta/WHNF.o.export -Wl,--start-group ${LIB}/lean/libLean.a.export -Wl,--whole-archive ${LIB}/temp/libleancpp_1.a -Wl,--no-whole-archive -Wl,--end-group -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared_1.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} -Wl,-Map=${LIB}/temp/libleanshared_1.map
+	  ${LIB}/temp/Lean/Meta/WHNF.*o.export -Wl,--start-group ${LIB}/lean/libLean.a.export -Wl,--whole-archive ${LIB}/temp/libleancpp_1.a -Wl,--no-whole-archive -Wl,--end-group -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared_1.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} -Wl,-Map=${LIB}/temp/libleanshared_1.map
 # now delete included symbols from libLean.a
 	cp ${LIB}/lean/libLean.a.export ${LIB}/temp/diff.a
 	sed -En 's/.*\s(\S*\.o\.export):.*/\1/p' ${LIB}/temp/libleanshared_1.map > ${LIB}/temp/diff.a.in

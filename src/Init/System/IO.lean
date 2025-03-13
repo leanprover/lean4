@@ -288,11 +288,19 @@ equivalent.
 @[extern "lean_io_get_num_heartbeats"] opaque getNumHeartbeats : BaseIO Nat
 
 /--
+Sets the heartbeat counter of the current thread to the given amount. This can be used to avoid
+counting heartbeats of code whose execution time is non-deterministic.
+-/
+@[extern "lean_io_set_heartbeats"] opaque setNumHeartbeats (count : Nat) : BaseIO Unit
+
+/--
 Adjusts the heartbeat counter of the current thread by the given amount. This can be useful to give
 allocation-avoiding code additional "weight" and is also used to adjust the counter after resuming
 from a snapshot.
 -/
-@[extern "lean_io_add_heartbeats"] opaque addHeartbeats (count : UInt64) : BaseIO Unit
+def addHeartbeats (count : Nat) : BaseIO Unit := do
+  let n ← getNumHeartbeats
+  setNumHeartbeats (n + count)
 
 /--
 The mode of a file handle (i.e., a set of `open` flags and an `fdopen` mode).

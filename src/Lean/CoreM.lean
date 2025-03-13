@@ -274,7 +274,7 @@ itself after calling `act` as well as by reuse-handling code such as the one sup
     (act : CoreM α) : CoreM (α × SavedState) := do
   if let some (val, state) := reusableResult? then
     set state.toState
-    IO.addHeartbeats state.passedHeartbeats.toUInt64
+    IO.addHeartbeats state.passedHeartbeats
     return (val, state)
 
   let startHeartbeats ← IO.getNumHeartbeats
@@ -419,7 +419,7 @@ def wrapAsync (act : Unit → CoreM α) (cancelTk? : Option IO.CancelToken) :
   return withCurrHeartbeats (do
       -- include heartbeats since start of elaboration in new thread as well such that forking off
       -- an action doesn't suddenly allow it to succeed from a lower heartbeat count
-      IO.addHeartbeats heartbeats.toUInt64
+      IO.addHeartbeats heartbeats
       act () : CoreM _)
     |>.run' ctx st
 

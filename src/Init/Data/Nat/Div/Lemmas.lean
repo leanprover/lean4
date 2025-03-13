@@ -161,22 +161,11 @@ theorem mod_add_mod_lt_of_add_mod_eq_sub_one (w : 0 < c) (h : (a + b) % c = c - 
   · assumption
   · omega
 
-/-- If `c` divides `a + b + 1`, then `(a + b) % c = c - 1`. -/
-theorem add_mod_eq_sub_one_of_dvd_add_add_one (h : c ∣ a + b + 1) : (a + b) % c = c - 1 := by
-  obtain ⟨k, h⟩ := h
-  have w : c * k ≠ 0 := by rintro h; omega
-  have w' : c ≠ 0 := by rintro rfl; omega
-  replace h : a + b = c * k - 1 := by omega
-  rw [h]
-  match k, w with
-  | k + 1, w =>
-    rw [Nat.mul_add_one, Nat.add_sub_assoc (by omega), mul_add_mod, mod_eq_of_lt (by omega)]
-
 theorem add_div_of_dvd_add_add_one (h : c ∣ a + b + 1) : (a + b) / c = a / c + b / c := by
   have w : c ≠ 0 := by rintro rfl; simp at h
   replace w : 0 < c := by omega
   rw [Nat.add_div w, if_neg, Nat.add_zero]
-  have := mod_add_mod_lt_of_add_mod_eq_sub_one w (add_mod_eq_sub_one_of_dvd_add_add_one h)
+  have := mod_add_mod_lt_of_add_mod_eq_sub_one w ((mod_eq_sub_iff Nat.zero_lt_one w).mpr h)
   omega
 
 end Nat

@@ -416,6 +416,16 @@ inductive FS.Mode where
   -/
   | append
 
+/--
+A reference to an opened file.
+
+File handles wrap the underlying operating system's file descriptors. There is no explicit operation
+to close a file: when the last reference to a file handle is dropped, the file is closed
+automatically.
+
+Handles have an associated read/write cursor that determines the where reads and writes occur in the
+file.
+-/
 opaque FS.Handle : Type := Unit
 
 /--
@@ -464,59 +474,85 @@ namespace FS
 
 namespace Handle
 
+/--
+Opens the file at `fn` with the given `mode`.
+
+An exception is thrown if the file cannot be opened.
+-/
 @[extern "lean_io_prim_handle_mk"] opaque mk (fn : @& FilePath) (mode : FS.Mode) : IO Handle
 
 /--
-Acquires an exclusive or shared lock on the handle.
-Will block to wait for the lock if necessary.
+Acquires an exclusive or shared lock on the handle. Blocks to wait for the lock if necessary.
 
-**NOTE:** Acquiring a exclusive lock while already possessing a shared lock
-will NOT reliably succeed (i.e., it works on Unix but not on Windows).
+Acquiring a exclusive lock while already possessing a shared lock will **not** reliably succeed: it
+works on Unix-like systems but not on Windows.
 -/
 @[extern "lean_io_prim_handle_lock"] opaque lock (h : @& Handle) (exclusive := true) : IO Unit
 /--
-Tries to acquire an exclusive or shared lock on the handle.
-Will NOT block for the lock, but instead return `false`.
+Tries to acquire an exclusive or shared lock on the handle and returns `true` if successful. Will
+not block if the lock cannot be acquired, but instead returns `false`.
 
-**NOTE:** Acquiring a exclusive lock while already possessing a shared lock
-will NOT reliably succeed (i.e., it works on Unix but not on Windows).
+Acquiring a exclusive lock while already possessing a shared lock will **not** reliably succeed: it
+works on Unix-like systems but not on Windows.
 -/
 @[extern "lean_io_prim_handle_try_lock"] opaque tryLock (h : @& Handle) (exclusive := true) : IO Bool
 /--
-Releases any previously acquired lock on the handle.
-Will succeed even if no lock has been acquired.
+Releases any previously-acquired lock on the handle. Succeeds even if no lock has been acquired.
 -/
 @[extern "lean_io_prim_handle_unlock"] opaque unlock (h : @& Handle) : IO Unit
 
-/-- Returns true if a handle refers to a Windows console or Unix terminal. -/
+/--
+Returns `true` if a handle refers to a Windows console or a Unix terminal.
+-/
 @[extern "lean_io_prim_handle_is_tty"] opaque isTty (h : @& Handle) : BaseIO Bool
 
+/--
+Flushes the output buffer associated with the handle, writing any unwritten data to the associated
+output device.
+-/
 @[extern "lean_io_prim_handle_flush"] opaque flush (h : @& Handle) : IO Unit
-/-- Rewinds the read/write cursor to the beginning of the handle. -/
+/--
+Rewinds the read/write cursor to the beginning of the handle's file.
+-/
 @[extern "lean_io_prim_handle_rewind"] opaque rewind (h : @& Handle) : IO Unit
 /--
-Truncates the handle to the read/write cursor.
+Truncates the handle to its read/write cursor.
 
-Does not automatically flush. Usually this is fine because the read/write
-cursor includes buffered writes. However, the combination of buffered writes,
-then `rewind`, then `truncate`, then close may lead to a file with content.
-If unsure, flush before truncating.
+This operation does not automatically flush output buffers, so the contents of the output device may
+not reflect the change immediately. This does not usually lead to problems because the read/write
+cursor includes buffered writes. However, buffered writes followed by `IO.FS.Handle.rewind`, then
+`IO.FS.Handle.truncate`, and then closing the file may lead to a non-empty file. If unsure, call
+`IO.FS.Handle.flush` before truncating.
 -/
 @[extern "lean_io_prim_handle_truncate"] opaque truncate (h : @& Handle) : IO Unit
 /--
-Read up to the given number of bytes from the handle.
-If the returned array is empty, an end-of-file marker has been reached.
-Note that EOF does not actually close a handle, so further reads may block and return more data.
+Reads up to the given number of bytes from the handle. If the returned array is empty, an
+end-of-file marker (EOF) has been reached.
+
+Encountering an EOF does not close a handle. Subsequent reads may block and return more data.
 -/
 @[extern "lean_io_prim_handle_read"] opaque read (h : @& Handle) (bytes : USize) : IO ByteArray
+/--
+Writes the provided bytes to the the handle.
+
+Writing to a handle is typically buffered, and may not immediately modify the file on disk. Use
+`IO.FS.Handle.flush` to write changes to buffers to the associated device.
+-/
 @[extern "lean_io_prim_handle_write"] opaque write (h : @& Handle) (buffer : @& ByteArray) : IO Unit
 
 /--
-Read text up to (including) the next line break from the handle.
-If the returned string is empty, an end-of-file marker has been reached.
-Note that EOF does not actually close a handle, so further reads may block and return more data.
+Reads UTF-8-encoded text up to and including the next line break from the handle. If the returned
+string is empty, an end-of-file marker (EOF) has been reached.
+
+Encountering an EOF does not close a handle. Subsequent reads may block and return more data.
 -/
 @[extern "lean_io_prim_handle_get_line"] opaque getLine (h : @& Handle) : IO String
+/--
+Writes the provided string to the file handle using the UTF-8 encoding.
+
+Writing to a handle is typically buffered, and may not immediately modify the file on disk. Use
+`IO.FS.Handle.flush` to write changes to buffers to the associated device.
+-/
 @[extern "lean_io_prim_handle_put_str"] opaque putStr (h : @& Handle) (s : @& String) : IO Unit
 
 end Handle
@@ -574,9 +610,19 @@ namespace FS
 def withFile (fn : FilePath) (mode : Mode) (f : Handle → IO α) : IO α :=
   Handle.mk fn mode >>= f
 
+/--
+Writes the contents of the string to the handle, followed by a newline. Uses UTF-8.
+-/
 def Handle.putStrLn (h : Handle) (s : String) : IO Unit :=
   h.putStr (s.push '\n')
 
+/--
+Reads the entire remaining contents of the file handle until an end-of-file marker (EOF) is
+encountered.
+
+The underlying file is not automatically closed upon encountering an EOF, and subsequent reads from
+the handle may block and/or return data.
+-/
 partial def Handle.readBinToEndInto (h : Handle) (buf : ByteArray) : IO ByteArray := do
   let rec loop (acc : ByteArray) : IO ByteArray := do
     let buf ← h.read 1024
@@ -586,9 +632,23 @@ partial def Handle.readBinToEndInto (h : Handle) (buf : ByteArray) : IO ByteArra
       loop (acc ++ buf)
   loop buf
 
+/--
+Reads the entire remaining contents of the file handle until an end-of-file marker (EOF) is
+encountered.
+
+The underlying file is not automatically closed upon encountering an EOF, and subsequent reads from
+the handle may block and/or return data.
+-/
 partial def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
   h.readBinToEndInto .empty
 
+/--
+Reads the entire remaining contents of the file handle as a UTF-8-encoded string. An exception is
+thrown if the contents are not valid UTF-8.
+
+The underlying file is not automatically closed, and subsequent reads from the handle may block
+and/or return data.
+-/
 def Handle.readToEnd (h : Handle) : IO String := do
   let data ← h.readBinToEnd
   match String.fromUTF8? data with

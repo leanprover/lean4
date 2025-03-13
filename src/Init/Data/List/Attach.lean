@@ -13,29 +13,44 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 
 namespace List
 
-/-- `O(n)`. Partial map. If `f : Π a, P a → β` is a partial function defined on
-  `a : α` satisfying `P`, then `pmap f l h` is essentially the same as `map f l`
-  but is defined only when all members of `l` satisfy `P`, using the proof
-  to apply `f`. -/
+/--
+Maps a partially defined function (defined on those terms of `α` that satisfy a predicate `P`) over
+a list `l : List α`, given a proof that every element of `l` in fact satisfies `P`.
+
+`O(|l|)`. `List.pmap`, named for “partial map,” is the equivalent of `List.map` for such partial
+functions.
+-/
 def pmap {P : α → Prop} (f : ∀ a, P a → β) : ∀ l : List α, (H : ∀ a ∈ l, P a) → List β
   | [], _ => []
   | a :: l, H => f a (forall_mem_cons.1 H).1 :: pmap f l (forall_mem_cons.1 H).2
 
 /--
-Unsafe implementation of `attachWith`, taking advantage of the fact that the representation of
+Unsafe implementation of `attachWith` that takes advantage of the fact that the representation of
 `List {x // P x}` is the same as the input `List α`.
-(Someday, the compiler might do this optimization automatically, but until then...)
 -/
 @[inline] private unsafe def attachWithImpl
     (l : List α) (P : α → Prop) (_ : ∀ x ∈ l, P x) : List {x // P x} := unsafeCast l
 
-/-- `O(1)`. "Attach" a proof `P x` that holds for all the elements of `l` to produce a new list
-  with the same elements but in the type `{x // P x}`. -/
+/--
+“Attaches” individual proofs to a list of values that satisfy a predicate `P`, returning a list of
+elements in the corresponding subtype `{ x // P x }`.
+
+`O(1)`.
+-/
 @[implemented_by attachWithImpl] def attachWith
     (l : List α) (P : α → Prop) (H : ∀ x ∈ l, P x) : List {x // P x} := pmap Subtype.mk l H
 
-/-- `O(1)`. "Attach" the proof that the elements of `l` are in `l` to produce a new list
-  with the same elements but in the type `{x // x ∈ l}`. -/
+/--
+"Attaches" the proof that the elements of `l` are in fact elements of `l`, producing a new list with
+the same elements but in the subtype `{ x // x ∈ l }`.
+
+`O(1)`.
+
+This function is primarily used to allow definitions by [well-founded
+recursion](lean-manual://section/well-founded-recursion) that use higher-order functions (such as
+`List.map`) to prove that an value taken from a list is smaller than the list. This allows the
+well-founded recursion mechanism to prove that the function terminates.
+-/
 @[inline] def attach (l : List α) : List {x // x ∈ l} := attachWith l _ fun _ => id
 
 /-- Implementation of `pmap` using the zero-copy version of `attach`. -/
@@ -650,11 +665,19 @@ Further, we provide simp lemmas that push `unattach` inwards.
 -/
 
 /--
-A synonym for `l.map (·.val)`. Mostly this should not be needed by users.
-It is introduced as an intermediate step by lemmas such as `map_subtype`,
-and is ideally subsequently simplified away by `unattach_attach`.
+Maps a list of terms in a subtype to the corresponding terms in the type by forgetting that they
+satisfy the predicate.
 
-If not, usually the right approach is `simp [List.unattach, -List.map_subtype]` to unfold.
+This is the inverse of `List.attachWith` and a synonym for `l.map (·.val)`.
+
+Mostly this should not be needed by users. It is introduced as an intermediate step by lemmas such
+as `map_subtype`, and is ideally subsequently simplified away by `unattach_attach`.
+
+This function is usually inserted automatically by Lean as an intermediate step while proving
+termination. It is rarely used explicitly in code. It is introduced as an intermediate step during
+the elaboration of definitions by [well-founded
+recursion](lean-manual://section/well-founded-recursion). If this function is encountered in a proof
+state, the right approach is usually the tactic `simp [List.unattach, -List.map_subtype]`.
 -/
 def unattach {α : Type _} {p : α → Prop} (l : List { x // p x }) : List α := l.map (·.val)
 

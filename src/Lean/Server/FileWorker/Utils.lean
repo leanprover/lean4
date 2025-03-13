@@ -28,11 +28,11 @@ private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :
     } <| .delayed <| headerSuccess.firstCmdSnap.task.asServerTask.bindCheap go
 where
   go cmdParsed :=
-    cmdParsed.finishedSnap.task.asServerTask.mapCheap fun finished =>
+    cmdParsed.resultSnap.task.asServerTask.mapCheap fun result =>
       .ok <| .cons {
         stx := cmdParsed.stx
         mpState := cmdParsed.parserState
-        cmdState := finished.cmdState
+        cmdState := result.cmdState
       } (match cmdParsed.nextCmdSnap? with
         | some next => .delayed <| next.task.asServerTask.bindCheap go
         | none => .nil)

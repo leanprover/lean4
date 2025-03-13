@@ -2697,12 +2697,20 @@ theorem foldr_hom (f : β₁ → β₂) (g₁ : α → β₁ → β₁) (g₂ : 
   induction l <;> simp [*, H]
 
 /--
-Prove a proposition about the result of `List.foldl`,
-by proving it for the initial data,
-and the implication that the operation applied to any element of the list preserves the property.
+A reasoning principle for proving propositions about the result of `List.foldl` by establishing an
+invariant that is true for the initial data and preserved by the operation being folded.
 
-The motive can take values in `Sort _`, so this may be used to construct data,
-as well as to prove propositions.
+Because the motive can return a type in any sort, this function may be used to construct data as
+well as to prove propositions.
+
+Example:
+```lean example
+example {xs : List Nat} : xs.foldl (· + ·) 1 > 0 := by
+  apply List.foldlRecOn
+  . show 0 < 1; trivial
+  . show ∀ (b : Nat), 0 < b → ∀ (a : Nat), a ∈ xs → 0 < b + a
+    intros; omega
+```
 -/
 def foldlRecOn {motive : β → Sort _} : ∀ (l : List α) (op : β → α → β) (b : β) (_ : motive b)
     (_ : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ l), motive (op b a)), motive (List.foldl op b l)
@@ -2723,12 +2731,20 @@ def foldlRecOn {motive : β → Sort _} : ∀ (l : List α) (op : β → α → 
   rfl
 
 /--
-Prove a proposition about the result of `List.foldr`,
-by proving it for the initial data,
-and the implication that the operation applied to any element of the list preserves the property.
+A reasoning principle for proving propositions about the result of `List.foldr` by establishing an
+invariant that is true for the initial data and preserved by the operation being folded.
 
-The motive can take values in `Sort _`, so this may be used to construct data,
-as well as to prove propositions.
+Because the motive can return a type in any sort, this function may be used to construct data as
+well as to prove propositions.
+
+Example:
+```lean example
+example {xs : List Nat} : xs.foldr (· + ·) 1 > 0 := by
+  apply List.foldrRecOn
+  . show 0 < 1; trivial
+  . show ∀ (b : Nat), 0 < b → ∀ (a : Nat), a ∈ xs → 0 < a + b
+    intros; omega
+```
 -/
 def foldrRecOn {motive : β → Sort _} : ∀ (l : List α) (op : α → β → β) (b : β) (_ : motive b)
     (_ : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ l), motive (op a b)), motive (List.foldr op b l)

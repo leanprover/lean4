@@ -1891,7 +1891,7 @@ def addAutoBoundImplicits' (xs : Array Expr) (type : Expr) (k : Array Expr → E
     forallBoundedTelescope (← mkForallFVars xs type) xs.size fun xs type => k xs type
 
 def mkAuxName (suffix : Name) : TermElabM Name := do
-  match (← read).declName? with
+  match (← read).declName? <|> (← getEnv).asyncPrefix? with
   | none          => Lean.mkAuxName (mkPrivateName (← getEnv) `aux) 1
   | some declName => Lean.mkAuxName (declName ++ suffix) 1
 

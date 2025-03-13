@@ -39,13 +39,10 @@ macro_rules
     (first
     | assumption | apply Ordered.distinctKeys
     | apply WF.ordered | apply WF.balanced | apply WF.empty
-    | apply WF.insert | apply WF.insert!
-    | apply WF.insertIfNew | apply WF.insertIfNew!
-    | apply WF.erase | apply WF.erase!
-    | apply WF.insertMany | apply WF.insertMany!
-    | apply WF.constInsertMany | apply WF.constInsertMany!
-    | apply WF.constInsertManyIfNewUnit | apply WF.constInsertManyIfNewUnit!
-    | apply WF.alter | apply WF.alter! | apply WF.constAlter | apply WF.constAlter!
+    | apply WF.insert | apply WF.insertIfNew
+    | apply WF.erase | apply WF.insertMany
+    | apply WF.constInsertMany | apply WF.constInsertManyIfNewUnit
+    | apply WF.alter | apply WF.constAlter
     | apply WF.modify | apply WF.constModify) <;> wf_trivial)
 
 /-- Internal implementation detail of the tree map -/
@@ -63,21 +60,13 @@ private def helperLemmaNames : Array Name :=
 private def modifyMap : Std.HashMap Name Name :=
   .ofList
     [⟨`insert, ``toListModel_insert⟩,
-     ⟨`insert!, ``toListModel_insert!⟩,
      ⟨`insertIfNew, ``toListModel_insertIfNew⟩,
-     ⟨`insertIfNew!, ``toListModel_insertIfNew!⟩,
      ⟨`erase, ``toListModel_erase⟩,
-     ⟨`erase!, ``toListModel_erase!⟩,
      (`insertMany, ``toListModel_insertMany_list),
-     (`insertMany!, ``toListModel_insertMany!_list),
      (`Const.insertMany, ``Const.toListModel_insertMany_list),
-     (`Const.insertMany!, ``Const.toListModel_insertMany!_list),
      (`Const.insertManyIfNewUnit, ``Const.toListModel_insertManyIfNewUnit_list),
-     (`Const.insertManyIfNewUnit!, ``Const.toListModel_insertManyIfNewUnit!_list),
      (`alter, ``toListModel_alter),
-     (`alter!, ``toListModel_alter!),
      (`Const.alter, ``Const.toListModel_alter),
-     (`Const.alter!, ``Const.toListModel_alter!),
      (`modify, ``toListModel_modify),
      (`Const.modify, ``Const.toListModel_modify)]
 

@@ -314,8 +314,6 @@ def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
 
     let oldExpr := mkApp2 P lhs rhs
     let expr := mkApp2 P lNew rNew
-    check oldExpr
-    check expr
     let proof ← proveEqualityByAC oldExpr expr
 
     return Simp.Step.continue <| some {

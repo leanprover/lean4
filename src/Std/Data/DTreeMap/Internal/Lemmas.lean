@@ -53,7 +53,7 @@ scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff]
 
 open Lean
 
-private theorem compare_ne_iff_beq_eq_false {a b : α} :
+theorem compare_ne_iff_beq_eq_false {a b : α} :
     compare a b ≠ Ordering.eq ↔ (a == b) = false := by
   simp only [ne_eq, compare_eq_iff_beq, Bool.not_eq_true]
 

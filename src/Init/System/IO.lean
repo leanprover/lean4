@@ -11,12 +11,22 @@ import Init.Data.Ord
 
 open System
 
-/-- Like <https://hackage.haskell.org/package/ghc-Prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld>.
-    Makes sure we never reorder `IO` operations.
+/--
+A representation of “the real world” that's used in `IO` monads to ensure that `IO` actions are not
+reordered.
+-/
+/- Like <https://hackage.haskell.org/package/ghc-Prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld>.
+   Makes sure we never reorder `IO` operations.
 
-    TODO: mark opaque -/
+   TODO: mark opaque -/
 def IO.RealWorld : Type := Unit
 
+/--
+A monad that can have side effects on the external world or throw exceptions of type `ε`.
+
+`BaseIO` is a version of this monad that cannot throw exceptions. `IO` sets the exception type to
+`IO.Error`.
+-/
 /- TODO(Leo): mark it as an opaque definition. Reason: prevent
    functions defined in other modules from accessing `IO.RealWorld`.
    We don't want action such as
@@ -53,24 +63,41 @@ def BaseIO.toEIO (act : BaseIO α) : EIO ε α :=
 
 instance : MonadLift BaseIO (EIO ε) := ⟨BaseIO.toEIO⟩
 
+/--
+Converts an `EIO ε` action that might throw an exception of type `ε` into an exception-free `BaseIO`
+action that returns an `Except` value.
+-/
 @[always_inline, inline]
 def EIO.toBaseIO (act : EIO ε α) : BaseIO (Except ε α) :=
   fun s => match act s with
   | EStateM.Result.ok a s     => EStateM.Result.ok (Except.ok a) s
   | EStateM.Result.error ex s => EStateM.Result.ok (Except.error ex) s
 
+/--
+Handles any exception that might be thrown by an `EIO ε` action, transforming it into an
+exception-free `BaseIO` action.
+-/
 @[always_inline, inline]
 def EIO.catchExceptions (act : EIO ε α) (h : ε → BaseIO α) : BaseIO α :=
   fun s => match act s with
   | EStateM.Result.ok a s     => EStateM.Result.ok a s
   | EStateM.Result.error ex s => h ex s
 
+/--
+Converts an `Except ε` action into an `EIO ε` action.
+
+If the `Except ε` action throws an exception, then the resulting `EIO ε` action throws the same
+exception. Otherwise, the value is returned.
+-/
 def EIO.ofExcept (e : Except ε α) : EIO ε α :=
   match e with
   | Except.ok a    => pure a
   | Except.error e => throw e
 
 open IO (Error) in
+/--
+A monad that supports arbitrary side effects and throwing exceptions of type `IO.Error`.
+-/
 abbrev IO : Type → Type := EIO Error
 
 /--
@@ -82,9 +109,17 @@ lifting](lean-manual://section/lifting-monads) rather than being called explicit
 @[inline] def BaseIO.toIO (act : BaseIO α) : IO α :=
   act
 
+/--
+Converts an `EIO ε` action into an `IO` action by translating any exceptions that it throws into
+`IO.Error`s using `f`.
+-/
 @[inline] def EIO.toIO (f : ε → IO.Error) (act : EIO ε α) : IO α :=
   act.adaptExcept f
 
+/--
+Converts an `EIO ε` action that might throw an exception of type `ε` into an exception-free `IO`
+action that returns an `Except` value.
+-/
 @[inline] def EIO.toIO' (act : EIO ε α) : IO (Except ε α) :=
   act.toBaseIO
 
@@ -98,24 +133,40 @@ Runs an `IO` action in some other `EIO` monad, using `f` to translate `IO` excep
    represents the "initial world". We don't want to cache this closed term. So, we disable
    the "extract closed terms" optimization. -/
 set_option compiler.extract_closed false in
+/--
+Executes arbitrary side effects in a pure context.
+-/
 @[inline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
   match fn.run () with
   | EStateM.Result.ok a _ => a
 
+/--
+Executes arbitrary side effects in a pure context, with exceptions indicated via `Except`.
+-/
 @[inline] unsafe def unsafeEIO (fn : EIO ε α) : Except ε α :=
   unsafeBaseIO fn.toBaseIO
 
-@[inline] unsafe def unsafeIO (fn : IO α) : Except IO.Error α :=
+@[inline, inherit_doc EIO] unsafe def unsafeIO (fn : IO α) : Except IO.Error α :=
   unsafeEIO fn
 
+
+/--
+Times the execution of an `IO` action.
+
+The provided message `msg` and the time take are printed to the current standard error as a side
+effect.
+-/
 @[extern "lean_io_timeit"] opaque timeit (msg : @& String) (fn : IO α) : IO α
+
 @[extern "lean_io_allocprof"] opaque allocprof (msg : @& String) (fn : IO α) : IO α
 
-/-- Programs can execute IO actions during initialization that occurs before
-   the `main` function is executed. The attribute `[init <action>]` specifies
-   which IO action is executed to set the value of an opaque constant.
+/--
+Returns `true` if and only if it is invoked during initialization.
 
-   The action `initializing` returns `true` iff it is invoked during initialization. -/
+Programs can execute `IO` actions during an initialization phase that occurs before the `main`
+function is executed. The attribute `@[init <action>]` specifies which IO action is executed to set
+the value of an opaque constant.
+-/
 @[extern "lean_io_initializing"] opaque IO.initializing : BaseIO Bool
 
 namespace BaseIO
@@ -249,12 +300,30 @@ may throw an exception of type `ε`, the result of the task is an `Except ε α`
   BaseIO.bindTask t (fun a => f a |>.catchExceptions fun e => return Task.pure <| Except.error e)
     prio sync
 
-/-- `EIO` specialization of `BaseIO.chainTask`. -/
+/--
+Creates a new task that waits for `t` to complete and then runs the `EIO ε` action `f` on its result.
+This new task has priority `prio`.
+
+This is a version of `EIO.mapTask` that ignores the result value.
+
+Running the resulting `EIO ε` action causes the task to be started eagerly. Unlike pure tasks
+created by `Task.spawn`, tasks created by this function will run even if the last reference to the
+task is dropped. The `act` should explicitly check for cancellation via `IO.checkCanceled` if it
+should be terminated or otherwise react to the last reference being dropped.
+-/
 def chainTask (t : Task α) (f : α → EIO ε Unit) (prio := Task.Priority.default)
     (sync := false) : EIO ε Unit :=
   discard <| EIO.mapTask f t prio sync
 
-/-- `EIO` specialization of `BaseIO.mapTasks`. -/
+/--
+Creates a new task that waits for all the tasks in the list `tasks` to complete, and then runs the
+`EIO ε` action `f` on their results. This new task has priority `prio`.
+
+Running the resulting `BaseIO` action causes the task to be started eagerly. Unlike pure tasks
+created by `Task.spawn`, tasks created by this function will run even if the last reference to the
+task is dropped. The `act` should explicitly check for cancellation via `IO.checkCanceled` if it
+should be terminated or otherwise react to the last reference being dropped.
+-/
 @[inline] def mapTasks (f : List α → EIO ε β) (tasks : List (Task α))
     (prio := Task.Priority.default) (sync := false) : BaseIO (Task (Except ε β)) :=
   BaseIO.mapTasks (fun as => f as |>.toBaseIO) tasks prio sync
@@ -463,61 +532,67 @@ def addHeartbeats (count : Nat) : BaseIO Unit := do
   setNumHeartbeats (n + count)
 
 /--
-The mode of a file handle (i.e., a set of `open` flags and an `fdopen` mode).
+Whether a file should be opened for reading, writing, creation and writing, or appending.
 
-All modes do not translate line endings (i.e., `O_BINARY` on Windows) and
-are not inherited across process creation (i.e., `O_NOINHERIT` on Windows,
+A the operating system level, this translates to the mode of a file handle (i.e., a set of `open`
+flags and an `fdopen` mode).
+
+None of the modes represented by this datatype translate line endings (i.e. `O_BINARY` on Windows).
+Furthermore, they are not inherited across process creation (i.e. `O_NOINHERIT` on Windows and
 `O_CLOEXEC` elsewhere).
 
-**References:**
+**Operating System Specifics:**
 * Windows:
   [`_open`](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/open-wopen?view=msvc-170),
   [`_fdopen`](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/fdopen-wfdopen?view=msvc-170)
-* Linux:
-  [`open`](https://linux.die.net/man/2/open),
-  [`fdopen`](https://linux.die.net/man/3/fdopen)
+* Linux: [`open`](https://linux.die.net/man/2/open), [`fdopen`](https://linux.die.net/man/3/fdopen)
 -/
 inductive FS.Mode where
   /--
-  File opened for reading.
-  On open, the stream is positioned at the beginning of the file.
-  Errors if the file does not exist.
+  The file should be opened for reading.
+
+  The read/write cursor is positioned at the beginning of the file. It is an error if the file does
+  not exist.
 
   * `open` flags: `O_RDONLY`
   * `fdopen` mode: `r`
   -/
   | read
   /--
-  File opened for writing.
-  On open, truncate an existing file to zero length or create a new file.
-  The stream is positioned at the beginning of the file.
+  The file should be opened for writing.
+
+  If the file already exists, it is truncated to zero length. Otherwise, a new file is created. The
+  read/write cursor is positioned at the beginning of the file.
 
   * `open` flags: `O_WRONLY | O_CREAT | O_TRUNC`
   * `fdopen` mode: `w`
   -/
   | write
   /--
-  New file opened for writing.
-  On open, create a new file with the stream positioned at the start.
-  Errors if the file already exists.
+  A new file should be created for writing.
+
+  It is an error if the file already exists. A new file is created, with the read/write cursor
+  positioned at the start.
 
   * `open` flags: `O_WRONLY | O_CREAT | O_TRUNC | O_EXCL`
   * `fdopen` mode: `w`
   -/
   | writeNew
   /--
-  File opened for reading and writing.
-  On open, the stream is positioned at the beginning of the file.
-  Errors if the file does not exist.
+  The file should be opened for both reading and writing.
+
+  It is an error if the file does not already exist. The read/write cursor is positioned at the
+  start of the file.
 
   * `open` flags: `O_RDWR`
   * `fdopen` mode: `r+`
   -/
   | readWrite
   /--
-  File opened for writing.
-  On open, create a new file if it does not exist.
-  The stream is positioned at the end of the file.
+  The file should be opened for writing.
+
+  If the file does not already exist, it is created. If the file already exists, it is opened, and
+  the read/write cursor is positioned at the end of the file.
 
   * `open` flags: `O_WRONLY | O_CREAT | O_APPEND`
   * `fdopen` mode: `a`

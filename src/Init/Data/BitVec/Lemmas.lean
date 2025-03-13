@@ -3366,6 +3366,12 @@ theorem allOnes_le_iff {x : BitVec w} : allOnes w ≤ x ↔ x = allOnes w := by
     exact Eq.symm (BitVec.le_antisymm h this)
   · simp_all
 
+@[simp]
+theorem lt_allOnes_iff {x : BitVec w} : x < allOnes w ↔ x ≠ allOnes w := by
+ have := not_congr (@allOnes_le_iff w x)
+ rw [BitVec.not_le] at this
+ exact this
+
 /-! ### udiv -/
 
 theorem udiv_def {x y : BitVec n} : x / y = BitVec.ofNat n (x.toNat / y.toNat) := by

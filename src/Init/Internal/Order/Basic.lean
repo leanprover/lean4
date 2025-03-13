@@ -420,8 +420,13 @@ theorem chain_apply [∀ x, PartialOrder (β x)] {c : (∀ x, β x) → Prop} (h
   next h => left; apply h x
   next h => right; apply h x
 
+
+
 def fun_csup [∀ x, CCPO (β x)] (c : (∀ x, β x) → Prop) (x : α) :=
   CCPO.csup (fun y => ∃ f, c f ∧ f x = y)
+
+def fun_sup [∀ x, complete_lattice (β x)] (c : (∀ x, β x) → Prop) (x : α) :=
+  complete_lattice.sup (fun y => ∃ f, c f ∧ f x = y)
 
 instance instCCPOPi [∀ x, CCPO (β x)] : CCPO (∀ x, β x) where
   csup := fun_csup
@@ -436,6 +441,23 @@ instance instCCPOPi [∀ x, CCPO (β x)] : CCPO (∀ x, β x) where
     next =>
       intro h x
       apply csup_le (chain_apply hc x)
+      intro y ⟨z, hz, hyz⟩
+      subst y
+      apply h z hz
+
+instance complete_latticei [∀ x, complete_lattice (β x)] : complete_lattice (∀ x, β x) where
+  sup := fun_sup
+  sup_spec := by
+    intro f c
+    constructor
+    case mp =>
+      intro hf g hg x
+      apply rel_trans _ (hf x)
+      apply le_sup
+      exact ⟨g, hg, rfl⟩
+    case mpr =>
+      intro h x
+      apply sup_le
       intro y ⟨z, hz, hyz⟩
       subst y
       apply h z hz
@@ -524,6 +546,9 @@ theorem PProd.monotone_snd [PartialOrder α] [PartialOrder β] [PartialOrder γ]
 def PProd.chain.fst [CCPO α] [CCPO β] (c : α ×' β → Prop) : α → Prop := fun a => ∃ b, c ⟨a, b⟩
 def PProd.chain.snd [CCPO α] [CCPO β] (c : α ×' β → Prop) : β → Prop := fun b => ∃ a, c ⟨a, b⟩
 
+def PProd.fst [complete_lattice α] [complete_lattice β] (c : α ×' β → Prop) : α → Prop := fun a => ∃ b, c ⟨a, b⟩
+def PProd.snd [complete_lattice α] [complete_lattice β] (c : α ×' β → Prop) : β → Prop := fun b => ∃ a, c ⟨a, b⟩
+
 theorem PProd.chain.chain_fst [CCPO α] [CCPO β] {c : α ×' β → Prop} (hchain : chain c) :
     chain (chain.fst c) := by
   intro a₁ a₂ ⟨b₁, h₁⟩ ⟨b₂, h₂⟩
@@ -537,6 +562,41 @@ theorem PProd.chain.chain_snd [CCPO α] [CCPO β] {c : α ×' β → Prop} (hcha
   cases hchain ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ h₁ h₂
   case inl h => left; exact h.2
   case inr h => right; exact h.2
+
+instance instcomplete_latticePProd [complete_lattice α] [complete_lattice β] : complete_lattice (α ×' β) where
+  sup c := ⟨complete_lattice.sup (PProd.fst c), complete_lattice.sup (PProd.snd c)⟩
+  sup_spec := by
+    intro ⟨a, b⟩ c
+    dsimp
+    constructor
+    case mp =>
+      intro ⟨h₁, h₂⟩ ⟨a', b'⟩ cab
+      constructor <;> dsimp at *
+      · apply rel_trans ?_ h₁
+        unfold PProd.fst at *
+        apply le_sup
+        apply Exists.intro b'
+        trivial
+      . apply rel_trans ?_ h₂
+        apply le_sup
+        unfold PProd.snd at *
+        apply Exists.intro a'
+        trivial
+    case mpr =>
+      intro h
+      constructor <;> dsimp
+      . apply sup_le
+        unfold PProd.fst
+        intro y' ex
+        apply Exists.elim ex
+        intro b' hc
+        apply (h ⟨y', b' ⟩ hc).1
+      . apply sup_le
+        unfold PProd.snd
+        intro b' ex
+        apply Exists.elim ex
+        intro y' hc
+        apply (h ⟨y', b' ⟩ hc).2
 
 instance instCCPOPProd [CCPO α] [CCPO β] : CCPO (α ×' β) where
   csup c := ⟨CCPO.csup (PProd.chain.fst c), CCPO.csup (PProd.chain.snd c)⟩

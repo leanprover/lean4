@@ -33,20 +33,18 @@ theorem lt_iff_add_one_le {a b : Int} : a < b ↔ a + 1 ≤ b := .rfl
 theorem le.intro_sub {a b : Int} (n : Nat) (h : b - a = n) : a ≤ b := by
   simp [le_def, h]; constructor
 
-attribute [local simp] Int.add_left_neg Int.add_right_neg Int.neg_add
-
 theorem le.intro {a b : Int} (n : Nat) (h : a + n = b) : a ≤ b :=
-  le.intro_sub n <| by rw [← h, Int.add_comm]; simp [Int.sub_eq_add_neg, Int.add_assoc]
+  le.intro_sub n <| by rw [← h, Int.add_comm]; simp [Int.sub_eq_add_neg, Int.add_assoc, Int.add_right_neg]
 
 theorem le.dest_sub {a b : Int} (h : a ≤ b) : ∃ n : Nat, b - a = n := nonneg_def.1 h
 
 theorem le.dest {a b : Int} (h : a ≤ b) : ∃ n : Nat, a + n = b :=
   let ⟨n, h₁⟩ := le.dest_sub h
-  ⟨n, by rw [← h₁, Int.add_comm]; simp [Int.sub_eq_add_neg, Int.add_assoc]⟩
+  ⟨n, by rw [← h₁, Int.add_comm]; simp [Int.sub_eq_add_neg, Int.add_assoc, Int.add_left_neg]⟩
 
 protected theorem le_total (a b : Int) : a ≤ b ∨ b ≤ a :=
   (nonneg_or_nonneg_neg (b - a)).imp_right fun H => by
-    rwa [show -(b - a) = a - b by simp [Int.add_comm, Int.sub_eq_add_neg]] at H
+    rwa [show -(b - a) = a - b by simp [Int.neg_add,Int.add_comm, Int.sub_eq_add_neg]] at H
 
 @[simp, norm_cast] theorem ofNat_le {m n : Nat} : (↑m : Int) ≤ ↑n ↔ m ≤ n :=
   ⟨fun h =>
@@ -198,7 +196,7 @@ theorem le_natAbs {a : Int} : a ≤ natAbs a :=
   | .inl h => by rw [eq_natAbs_of_nonneg h]; apply Int.le_refl
   | .inr h => Int.le_trans h (ofNat_zero_le _)
 
-theorem negSucc_lt_zero (n : Nat) : -[n+1] < 0 :=
+@[simp] theorem negSucc_lt_zero (n : Nat) : -[n+1] < 0 :=
   Int.not_le.1 fun h => let ⟨_, h⟩ := eq_ofNat_of_zero_le h; nomatch h
 
 theorem negSucc_le_zero (n : Nat) : -[n+1] ≤ 0 :=
@@ -253,6 +251,12 @@ protected theorem neg_le_neg {a b : Int} (h : a ≤ b) : -b ≤ -a := by
 @[simp] protected theorem neg_le_neg_iff {a b : Int} : -a ≤ -b ↔ b ≤ a :=
   ⟨fun h => by simpa using Int.neg_le_neg h, Int.neg_le_neg⟩
 
+@[simp] protected theorem neg_le_zero_iff {a : Int} : -a ≤ 0 ↔ 0 ≤ a := by
+  rw [← Int.neg_zero, Int.neg_le_neg_iff, Int.neg_zero]
+
+@[simp] protected theorem zero_le_neg_iff {a : Int} : 0 ≤ -a ↔ a ≤ 0 := by
+  rw [← Int.neg_zero, Int.neg_le_neg_iff, Int.neg_zero]
+
 protected theorem le_of_neg_le_neg {a b : Int} (h : -b ≤ -a) : a ≤ b :=
   suffices - -a ≤ - -b by simp [Int.neg_neg] at this; assumption
   Int.neg_le_neg h
@@ -269,6 +273,15 @@ protected theorem neg_lt_neg {a b : Int} (h : a < b) : -b < -a := by
   have : 0 < -a + b := Int.add_left_neg a ▸ Int.add_lt_add_left h (-a)
   have : 0 + -b < -a + b + -b := Int.add_lt_add_right this (-b)
   rwa [Int.add_neg_cancel_right, Int.zero_add] at this
+
+@[simp] protected theorem neg_lt_neg_iff {a b : Int} : -a < -b ↔ b < a :=
+  ⟨fun h => by simpa using Int.neg_lt_neg h, Int.neg_lt_neg⟩
+
+@[simp] protected theorem neg_lt_zero_iff {a : Int} : -a < 0 ↔ 0 < a := by
+  rw [← Int.neg_zero, Int.neg_lt_neg_iff, Int.neg_zero]
+
+@[simp] protected theorem zero_lt_neg_iff {a : Int} : 0 < -a ↔ a < 0 := by
+  rw [← Int.neg_zero, Int.neg_lt_neg_iff, Int.neg_zero]
 
 protected theorem neg_neg_of_pos {a : Int} (h : 0 < a) : -a < 0 := by
   have : -a < -0 := Int.neg_lt_neg h
@@ -568,8 +581,8 @@ theorem toNat_of_nonneg {a : Int} (h : 0 ≤ a) : (toNat a : Int) = a := by
 
 @[simp] theorem ofNat_toNat (a : Int) : (a.toNat : Int) = max a 0 := by
   match a with
-  | Int.ofNat n => simp
-  | Int.negSucc n => simp
+  | (n : Nat) => simp
+  | -(n + 1 : Nat) => norm_cast
 
 theorem self_le_toNat (a : Int) : a ≤ toNat a := by rw [toNat_eq_max]; apply Int.le_max_left
 
@@ -1123,8 +1136,8 @@ theorem neg_of_sign_eq_neg_one : ∀ {a : Int}, sign a = -1 → a < 0
 @[simp] theorem sign_pos_iff : 0 < sign x ↔ 0 < x := by
   match x with
   | 0
-  | .ofNat (_ + 1)
-  | .negSucc _ => simp
+  | .ofNat (_ + 1) => simp
+  | .negSucc x => simp
 
 @[simp] theorem sign_nonpos_iff : sign x ≤ 0 ↔ x ≤ 0 := by
   match x with
@@ -1136,7 +1149,7 @@ theorem neg_of_sign_eq_neg_one : ∀ {a : Int}, sign a = -1 → a < 0
   match x with
   | 0 => simp
   | .ofNat (_ + 1) => simpa using le.intro_sub _ rfl
-  | .negSucc _ => simpa using negSucc_lt_zero _
+  | .negSucc _ => simp
 
 @[simp] theorem mul_sign_self : ∀ i : Int, i * sign i = natAbs i
   | succ _ => Int.mul_one _

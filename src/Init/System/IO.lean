@@ -603,43 +603,62 @@ Writing to a handle is typically buffered, and may not immediately modify the fi
 end Handle
 
 /--
-Resolves a pathname to an absolute pathname with no '.', '..', or symbolic links.
+Resolves a path to an absolute path that contains no '.', '..', or symbolic links.
 
-This function coincides with the [POSIX `realpath` function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/realpath.html),
-see there for more information.
+This function coincides with the [POSIX `realpath`
+function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/realpath.html).
 -/
 @[extern "lean_io_realpath"] opaque realPath (fname : FilePath) : IO FilePath
+
+/--
+Removes (deletes) a file from the filesystem.
+
+To remove a directory, use `IO.FS.removeDir` or `IO.FS.removeDirAll` instead.
+-/
 @[extern "lean_io_remove_file"] opaque removeFile (fname : @& FilePath) : IO Unit
-/-- Remove given directory. Fails if not empty; see also `IO.FS.removeDirAll`. -/
+
+/--
+Removes (deletes) a directory.
+
+Removing a directory fails if the directory is not empty. Use `IO.FS.removeDirAll` to remove
+directories along with their contents.
+-/
 @[extern "lean_io_remove_dir"] opaque removeDir : @& FilePath → IO Unit
+/--
+Creates a directory at the specified path. The parent directory must already exist.
+
+Throws an exception if the directory cannot be created.
+-/
 @[extern "lean_io_create_dir"] opaque createDir : @& FilePath → IO Unit
 
 
 /--
 Moves a file or directory `old` to the new location `new`.
 
-This function coincides with the [POSIX `rename` function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/rename.html),
-see there for more information.
+This function coincides with the [POSIX `rename`
+function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/rename.html).
 -/
 @[extern "lean_io_rename"] opaque rename (old new : @& FilePath) : IO Unit
 
 /--
-Creates a temporary file in the most secure manner possible. There are no race conditions in the
-file’s creation. The file is readable and writable only by the creating user ID. Additionally
-on UNIX style platforms the file is executable by nobody. The function returns both a `Handle`
-to the already opened file as well as its `FilePath`.
+Creates a temporary file in the most secure manner possible, returning both a `Handle` to the
+already-opened file and its path.
 
-Note that it is the caller's job to remove the file after use.
+There are no race conditions in the file’s creation. The file is readable and writable only by the
+creating user ID. Additionally on UNIX style platforms the file is executable by nobody.
+
+It is the caller's job to remove the file after use. Use `withTempFile` to ensure that the temporary
+file is removed.
 -/
 @[extern "lean_io_create_tempfile"] opaque createTempFile : IO (Handle × FilePath)
 
 /--
-Creates a temporary directory in the most secure manner possible. There are no race conditions in the
-directory’s creation. The directory is readable and writable only by the creating user ID.
+Creates a temporary directory in the most secure manner possible, returning the new directory's
+path. There are no race conditions in the directory’s creation. The directory is readable and
+writable only by the creating user ID.
 
-Returns the new directory's path.
-
-It is the caller's job to remove the directory after use.
+It is the caller's job to remove the directory after use. Use `withTempDir` to ensure that the
+temporary directory is removed.
 -/
 @[extern "lean_io_create_tempdir"] opaque createTempDir : IO FilePath
 
@@ -651,6 +670,12 @@ end FS
 
 namespace FS
 
+/--
+Opens the file `fn` with the specified `mode` and passes the resulting file handle to `f`.
+
+The file handle is closed when the last reference to it is dropped. If references escape `f`, then
+the file remains open even after `IO.FS.withFile` has finished.
+-/
 @[inline]
 def withFile (fn : FilePath) (mode : Mode) (f : Handle → IO α) : IO α :=
   Handle.mk fn mode >>= f
@@ -700,6 +725,11 @@ def Handle.readToEnd (h : Handle) : IO String := do
   | some s => return s
   | none => throw <| .userError s!"Tried to read from handle containing non UTF-8 data."
 
+/--
+Returns the contents of a UTF-8-encoded text file as an array of lines.
+
+Newline markers are not included in the lines.
+-/
 partial def lines (fname : FilePath) : IO (Array String) := do
   let h ← Handle.mk fname Mode.read
   let rec read (lines : Array String) := do
@@ -714,10 +744,16 @@ partial def lines (fname : FilePath) : IO (Array String) := do
       pure <| lines.push line
   read #[]
 
+/--
+Write the provided bytes to a binary file at the specified path.
+-/
 def writeBinFile (fname : FilePath) (content : ByteArray) : IO Unit := do
   let h ← Handle.mk fname Mode.write
   h.write content
 
+/--
+Write contents of a string to a file at the specified path using UTF-8 encoding.
+-/
 def writeFile (fname : FilePath) (content : String) : IO Unit := do
   let h ← Handle.mk fname Mode.write
   h.putStr content
@@ -810,6 +846,9 @@ namespace IO
 
 namespace FS
 
+/--
+Reads the entire contents of the binary file at the given path as an array of bytes.
+-/
 def readBinFile (fname : FilePath) : IO ByteArray := do
   -- Requires metadata so defined after metadata
   let mdata ← fname.metadata
@@ -822,6 +861,12 @@ def readBinFile (fname : FilePath) : IO ByteArray := do
       pure <| ByteArray.emptyWithCapacity 0
   handle.readBinToEndInto buf
 
+/--
+Reads the entire contents of the UTF-8-encoded file at the given path as a `String`.
+
+An exception is thrown if the contents of the file are not valid UTF-8. This is in addition to
+exceptions that may always be thrown as a result of failing to read files.
+-/
 def readFile (fname : FilePath) : IO String := do
   let data ← readBinFile fname
   match String.fromUTF8? data with
@@ -887,7 +932,9 @@ def appDir : IO FilePath := do
 
 namespace FS
 
-/-- Create given path and all missing parents as directories. -/
+/--
+Creates a directory at the specified path, creating all missing parents as directories.
+-/
 partial def createDirAll (p : FilePath) : IO Unit := do
   if ← p.isDir then
     return ()
@@ -914,7 +961,13 @@ partial def removeDirAll (p : FilePath) : IO Unit := do
   removeDir p
 
 /--
-Like `createTempFile`, but also takes care of removing the file after usage.
+Creates a temporary file in the most secure manner possible and calls `f` with both a `Handle` to
+the already-opened file and its path. Afterwards, the temporary file is deleted.
+
+There are no race conditions in the file’s creation. The file is readable and writable only by the
+creating user ID. Additionally on UNIX style platforms the file is executable by nobody.
+
+Use `IO.FS.createTempFile` to avoid the automatic deletion of the temporary file.
 -/
 def withTempFile [Monad m] [MonadFinally m] [MonadLiftT IO m] (f : Handle → FilePath → m α) :
     m α := do
@@ -925,9 +978,13 @@ def withTempFile [Monad m] [MonadFinally m] [MonadLiftT IO m] (f : Handle → Fi
     removeFile path
 
 /--
-Like `createTempDir`, but also takes care of removing the directory after usage.
+Creates a temporary directory in the most secure manner possible, providing a its path to an `IO`
+action. Afterwards, all files in the temporary directory are recursively deleted, regardless of how
+or when they were created.
 
-All files in the directory are recursively deleted, regardless of how or when they were created.
+There are no race conditions in the directory’s creation. The directory is readable and writable
+only by the creating user ID. Use `IO.FS.createTempDir` to avoid the automatic deletion of the
+directory's contents.
 -/
 def withTempDir [Monad m] [MonadFinally m] [MonadLiftT IO m] (f : FilePath → m α) :
     m α := do

@@ -1993,6 +1993,9 @@ def hasUnsafe (env : Environment) (e : Expr) : Bool :=
 def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     (realize : Environment → Options → BaseIO (Environment × Dynamic)) :
     IO (Environment × Dynamic) := do
+  -- the following code is inherently non-deterministic in number of heartbeats, reset them at the
+  -- end
+  let heartbeats ← IO.getNumHeartbeats
   let mut env := env
   -- find `RealizationContext` for `forConst` in `realizedImportedConsts?` or `realizedLocalConsts`
   let ctx ← if env.base.const2ModIdx.contains forConst then
@@ -2042,7 +2045,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
       let replay := replayConsts.replayKernel (skipExisting := true) realizeEnv realizeEnv' exts consts
       prom.resolve (consts, replay, dyn)
       pure (consts, replay, dyn)
-    return ({ env with
+    let env := { env with
       asyncConsts := consts.foldl (init := env.asyncConsts) fun consts c =>
         if consts.find? c.constInfo.name |>.isSome then
           consts
@@ -2052,7 +2055,9 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
       allRealizations := env.allRealizations.map (sync := true) fun allRealizations =>
         consts.foldl (init := allRealizations) fun allRealizations c =>
           allRealizations.insert c.constInfo.name c
-    }, dyn)
+    }
+    IO.setNumHeartbeats heartbeats
+    return (env, dyn)
 
 end Environment
 

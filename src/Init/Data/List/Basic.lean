@@ -2265,7 +2265,7 @@ where
 /-! ### span -/
 
 /--
-Splits a list into the the longest initial segment for which `p` returns `true` paired with the
+Splits a list into the the longest initial segment for which `p` returns `true`, paired with the
 remainder of the list.
 
 `O(|l|)`.

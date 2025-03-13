@@ -14,8 +14,7 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 namespace List
 
 /--
-Maps a function from the elements of `α` that satisfy `P` to `β` over the list `l`, given a proof
-that every element of `l` in fact satisfies `P`.
+Maps a partially defined function (defined on terms of `α` satisfying a predicate `P`) over a list `l : List α`, given a proof that every element of `l` in fact satisfies `P`.
 
 `O(|l|)`. The function `f` is a partial function, defined only for those elements of `α` that
 satisfy `P`. `List.pmap`, named for “partial map,” is the equivalent of `List.map` for such partial

@@ -14,10 +14,10 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 namespace List
 
 /--
-Maps a partially defined function (defined on terms of `α` satisfying a predicate `P`) over a list `l : List α`, given a proof that every element of `l` in fact satisfies `P`.
+Maps a partially defined function (defined on those terms of `α` that satisfy a predicate `P`) over
+a list `l : List α`, given a proof that every element of `l` in fact satisfies `P`.
 
-`O(|l|)`. The function `f` is a partial function, defined only for those elements of `α` that
-satisfy `P`. `List.pmap`, named for “partial map,” is the equivalent of `List.map` for such partial
+`O(|l|)`. `List.pmap`, named for “partial map,” is the equivalent of `List.map` for such partial
 functions.
 -/
 def pmap {P : α → Prop} (f : ∀ a, P a → β) : ∀ l : List α, (H : ∀ a ∈ l, P a) → List β
@@ -47,7 +47,7 @@ the same elements but in the subtype `{ x // x ∈ l }`.
 `O(1)`.
 
 This function is primarily used to allow definitions by [well-founded
-recursion](lean-manual://section/well-founded-recursion) that use iteration operators (such as
+recursion](lean-manual://section/well-founded-recursion) that use higher-order functions (such as
 `List.map`) to prove that an value taken from a list is smaller than the list. This allows the
 well-founded recursion mechanism to prove that the function terminates.
 -/
@@ -665,8 +665,8 @@ Further, we provide simp lemmas that push `unattach` inwards.
 -/
 
 /--
-Removes the elements of a list from a subtype, returning a list with the same elements in which the
-fact that they satisfy `p` has been “forgotten.”
+Maps a list of terms in a subtype to the corresponding terms in the type by forgetting that they
+satisfy the predicate.
 
 This is the inverse of `List.attachWith` and a synonym for `l.map (·.val)`.
 

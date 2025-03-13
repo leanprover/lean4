@@ -22,7 +22,7 @@ theorem odd_iff {n : Nat} : Odd n ↔ n % 2 = 1 := by
 
 /--
 error: found a proof, but the corresponding tactic failed:
-  (expose_names; exact odd_iff.mpr h)
+  (expose_names; exact fun a => (fun {n} => odd_iff.mpr) a)
 
 It may be possible to correct this proof by adding type annotations, explicitly specifying implicit arguments, or eliminating unnecessary function abstractions.
 -/
@@ -121,10 +121,14 @@ example : E → E := by
   intro
   show_term assumption
 /--
-error: found a partial proof, but the corresponding tactic failed:
+info: found a partial proof, but the corresponding tactic failed:
   (expose_names; refine option2)
 
 It may be possible to correct this proof by adding type annotations, explicitly specifying implicit arguments, or eliminating unnecessary function abstractions.
+---
+error: unsolved goals
+a✝ : B
+⊢ B
 -/
 #guard_msgs in
 example : B → E := by
@@ -146,6 +150,7 @@ opaque Foo (a a' : A) : Prop
 
 noncomputable opaque a : A
 axiom eq (a' : A) : a = a'
+
 /--
 info: Try this: (expose_names; rw [eq a'])
 -- Foo a' a'
@@ -163,7 +168,7 @@ noncomputable opaque a₁ : A
 axiom eq_imp {a' : A} : a₁ = a'
 /--
 info: found an applicable rewrite lemma, but the corresponding tactic failed:
-  rw [eq_imp]
+  (expose_names; rw [eq_imp])
   -- Foo a' a'
 
 It may be possible to correct this proof by adding type annotations, explicitly specifying implicit arguments, or eliminating unnecessary function abstractions.

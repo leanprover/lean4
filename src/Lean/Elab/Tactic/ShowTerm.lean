@@ -17,7 +17,7 @@ open Lean Elab Term Tactic Meta.Tactic.TryThis Parser.Tactic
     let initialState ← saveState
     evalTactic t
     let e := (← instantiateMVars (mkMVar g)).headBeta
-    addExactSuggestion tk e (origSpan? := ← getRef) (checkState? := initialState)
+    addExactSuggestion tk e (origSpan? := ← getRef) (checkState? := initialState) (tacticErrorAsInfo := true)
   | _ => throwUnsupportedSyntax
 
 /-- Implementation of `show_term` term elaborator. -/

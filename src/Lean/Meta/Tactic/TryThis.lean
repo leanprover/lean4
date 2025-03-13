@@ -452,16 +452,15 @@ private def evalTacticWithState (initialState : Tactic.SavedState) (tac : TSynta
   finally
     currState.restore
 
--- TODO: find a less expensive way to determine if `expose_names` is needed
--- We can't (a) check the `Syntax` object for unprintable identifiers, since shadowed identifiers
--- delaborate printably with their shadowed names; nor can we (b) check `Expr`s prior to
--- delaboration for unprintable or shadowed names because they may be implicit and thus may not be
--- printed depending on the user's delaboration configuration.
 /--
 Returns a possibly modified version of `tac` and `msg` that succeeds in `initialState`, prepending
 `expose_names` if necessary. If `expectedType?` is non-`none`, the tactic is only considered to have
 "succeeded" if the resulting goal is equal (up to `Expr` equality modulo metavariable instantiation)
 to the provided type. Returns `none` if the tactic fails even with `expose_names`.
+
+Remark: We cannot determine if a tactic requires `expose_names` merely by inspecting its syntax
+(shadowed variables are delaborated without daggers) nor the underlying `Expr` used to produce it
+(some inaccessible names may be implicit arguments that do not appear in the delaborated syntax).
 -/
 private def mkValidatedTactic (tac : TSyntax `tactic) (msg : MessageData)
     (initialState : Tactic.SavedState) (expectedType? : Option Expr := none) :
@@ -660,9 +659,20 @@ def addHaveSuggestion (ref : Syntax) (h? : Option Name) (t? : Option Expr) (e : 
 open Lean.Parser.Tactic
 open Lean.Syntax
 
-/-- Add a suggestion for `rw [h₁, ← h₂] at loc`. -/
-def addRewriteSuggestion (ref : Syntax) (rules : List (Expr × Bool))
-  (type? : Option Expr := none) (loc? : Option Expr := none)
+/-- Add a suggestion for `rw [h₁, ← h₂] at loc`.
+
+Parameters:
+* `ref`: the span of the info diagnostic
+* `rules`: a list of arguments to `rw`, with the second component `true` if the rewrite is reversed
+* `type?`: the goal after the suggested rewrite, or `none` if the rewrite closes the goal
+* `loc?`: the hypothesis at which the rewrite is performed, or `none` if the goal is targeted
+* `origSpan?`: a syntax object whose span is the actual text to be replaced by `suggestion`.
+  If not provided it defaults to `ref`.
+* `checkState?`: if passed, the tactic state in which the generated tactic will be validated,
+  inserting `expose_names` if necessary
+-/
+def addRewriteSuggestion (ref : Syntax) (rules : List (Expr × Bool)) (type? : Option Expr)
+  (loc? : Option Expr := none)
   (origSpan? : Option Syntax := none) (checkState? : Option Tactic.SavedState := none) :
     TacticM Unit := do
   let mut (tac, tacMsg, extraMsg, extraStr) ← withExposedNames do
@@ -692,12 +702,13 @@ def addRewriteSuggestion (ref : Syntax) (rules : List (Expr × Bool))
       if let some type := type? then
         pure (← addMessageContext m!"\n-- {type}", s!"\n-- {← PrettyPrinter.ppExpr type}")
       else
-        pure (m!"", "")
+        pure (m!"\n-- no goals", "\n-- no goals")
     return (tac, tacMsg, extraMsg, extraStr)
 
   if let some checkState := checkState? then
     let some (tac', tacMsg') ← mkValidatedTactic tac tacMsg checkState type?
-      | logInfo <| mkFailedToMakeTacticMsg "an applicable rewrite lemma" (tacMsg ++ extraMsg)
+      | tacMsg := m!"(expose_names; {tacMsg})"
+        logInfo <| mkFailedToMakeTacticMsg "an applicable rewrite lemma" (tacMsg ++ extraMsg)
         return
     tac := tac'
     tacMsg := tacMsg'

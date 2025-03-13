@@ -326,13 +326,11 @@ In other words, the new element is inserted into the list `l` after the first `i
 This is a tail-recursive version of `List.insertIdx`, used at runtime.
 
 Examples:
- * `["tues", "thur", "sat"].insertIdx 1 "wed" = ["tues", "wed", "thur", "sat"]`
- * `["tues", "thur", "sat"].insertIdx 2 "wed" = ["tues", "thur", "wed", "sat"]`
- * `["tues", "thur", "sat"].insertIdx 3 "wed" = ["tues", "thur", "sat", "wed"]`
- * `["tues", "thur", "sat"].insertIdx 4 "wed" = ["tues", "thur", "sat"]`
-```
-insertIdx 2 1 [1, 2, 3, 4] = [1, 2, 1, 3, 4]
-```
+ * `["tues", "thur", "sat"].insertIdxTR 1 "wed" = ["tues", "wed", "thur", "sat"]`
+ * `["tues", "thur", "sat"].insertIdxTR 2 "wed" = ["tues", "thur", "wed", "sat"]`
+ * `["tues", "thur", "sat"].insertIdxTR 3 "wed" = ["tues", "thur", "sat", "wed"]`
+ * `["tues", "thur", "sat"].insertIdxTR 4 "wed" = ["tues", "thur", "sat"]`
+
 -/
 @[inline] def insertIdxTR (i : Nat) (a : α) (l : List α) : List α := go i l #[] where
   /-- Auxiliary for `insertIdxTR`: `insertIdxTR.go a n l acc = acc.toList ++ insertIdx n a l`. -/
@@ -457,10 +455,10 @@ list.
 `O(min |xs| |ys|)`. This is a tail-recursive version of `List.zipWith` that's used at runtime.
 
 Examples:
-* `[1, 2].zipWith (· + ·) [5, 6] = [6, 8]`
-* `[1, 2, 3].zipWith (· + ·) [5, 6, 10] = [6, 8, 13]`
-* `[].zipWith (· + ·) [5, 6] = []`
-* `[x₁, x₂, x₃].zipWith f [y₁, y₂, y₃, y₄] = [f x₁ y₁, f x₂ y₂, f x₃ y₃]`
+* `[1, 2].zipWithTR (· + ·) [5, 6] = [6, 8]`
+* `[1, 2, 3].zipWithTR (· + ·) [5, 6, 10] = [6, 8, 13]`
+* `[].zipWithTR (· + ·) [5, 6] = []`
+* `[x₁, x₂, x₃].zipWithTR f [y₁, y₂, y₃, y₄] = [f x₁ y₁, f x₂ y₂, f x₃ y₃]`
 -/
 @[inline] def zipWithTR (f : α → β → γ) (as : List α) (bs : List β) : List γ := go as bs #[] where
   /-- Auxiliary for `zipWith`: `zipWith.go f as bs acc = acc.toList ++ zipWith f as bs` -/
@@ -486,8 +484,8 @@ Pairs each element of a list with its index, optionally starting from an index o
 `O(|l|)`. This is a tail-recursive version of `List.zipIdx` that's used at runtime.
 
 Examples:
-* `[a, b, c].zipIdx = [(a, 0), (b, 1), (c, 2)]`
-* `[a, b, c].zipIdx 5 = [(a, 5), (b, 6), (c, 7)]`
+* `[a, b, c].zipIdxTR = [(a, 0), (b, 1), (c, 2)]`
+* `[a, b, c].zipIdxTR 5 = [(a, 5), (b, 6), (c, 7)]`
 -/
 def zipIdxTR (l : List α) (n : Nat := 0) : List (α × Nat) :=
   let as := l.toArray
@@ -536,10 +534,10 @@ Alternates the lists in `xs` with the separator `sep`.
 This is a tail-recursive version of `List.intercalate` used at runtime.
 
 Examples:
-* `List.intercalate sep [] = []`
-* `List.intercalate sep [a] = a`
-* `List.intercalate sep [a, b] = a ++ sep ++ b`
-* `List.intercalate sep [a, b, c] = a ++ sep ++ b ++ sep ++ c`
+* `List.intercalateTR sep [] = []`
+* `List.intercalateTR sep [a] = a`
+* `List.intercalateTR sep [a, b] = a ++ sep ++ b`
+* `List.intercalateTR sep [a, b, c] = a ++ sep ++ b ++ sep ++ c`
 -/
 def intercalateTR (sep : List α) : (xs : List (List α)) → List α
   | [] => []

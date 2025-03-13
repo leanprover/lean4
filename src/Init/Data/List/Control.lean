@@ -200,7 +200,6 @@ def filterMapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
       | some b => loop as (b::bs)
   loop as []
 
-
 /--
 Applies a monadic function that returns a list to each element of a list, from left to right, and
 concatenates the resulting lists.

@@ -312,8 +312,8 @@ def getLast : ∀ (as : List α), as ≠ [] → α
 /--
 Returns the last element in the list, or `none` if the list is empty.
 
-Alternatives include `getLastD`, which takes a fallback value for empty lists, and `getLast!`, which
-panics on empty lists.
+Alternatives include `List.getLastD`, which takes a fallback value for empty lists, and
+`List.getLast!`, which panics on empty lists.
 
 Examples:
  * `["circle", "rectangle"].getLast? = some "rectangle"`
@@ -331,8 +331,8 @@ def getLast? : List α → Option α
 /--
 Returns the last element in the list, or `fallback` if the list is empty.
 
-Alternatives include `getLast?`, which returns an `Option`, and `getLast!`, which panics on empty
-lists.
+Alternatives include `List.getLast?`, which returns an `Option`, and `List.getLast!`, which panics
+on empty lists.
 
 Examples:
  * `["circle", "rectangle"].getLastD "oval" = "rectangle"`
@@ -364,7 +364,8 @@ def head : (as : List α) → as ≠ [] → α
 /--
 Returns the first element in the list, if there is one. Returns `none` if the list is empty.
 
-Use `List.headD` to provide a fallback value for empty lists, or `head!` to panic on empty lists.
+Use `List.headD` to provide a fallback value for empty lists, or `List.head!` to panic on empty
+lists.
 
 Examples:
  * `([] : List Nat).head? = none`
@@ -382,7 +383,7 @@ def head? : List α → Option α
 /--
 Returns the first element in the list if there is one, or `fallback` if the list is empty.
 
-Use `head?` to return an `Option`, and `head!` to panic on empty lists.
+Use `List.head?` to return an `Option`, and `List.head!` to panic on empty lists.
 
 Examples:
  * `[].headD "empty" = "empty"`
@@ -576,6 +577,7 @@ linked list and reverses all the node pointers.
 
 Examples:
 * `[1, 2, 3, 4].reverse = [4, 3, 2, 1]`
+* `[].reverse = []`
 -/
 def reverse (as : List α) : List α :=
   reverseAux as []
@@ -739,9 +741,9 @@ set_option linter.missingDocs false in
 /--
 Creates a list that contains `n` copies of `a`.
 
-* `replicate 5 "five" = ["five", "five", "five", "five", "five"]`
-* `replicate 0 "zero" = []`
-* `replicate 2 ' ' = [' ', ' ']`
+* `List.replicate 5 "five" = ["five", "five", "five", "five", "five"]`
+* `List.replicate 0 "zero" = []`
+* `List.replicate 2 ' ' = [' ', ' ']`
 -/
 def replicate : (n : Nat) → (a : α) → List α
   | 0,   _ => []
@@ -810,9 +812,9 @@ Checks whether a list is empty.
 `O(1)`.
 
 Examples:
-* `isEmpty [] = true`
-* `isEmpty ["orange"] = false`
-* `isEmpty ["apple", "banana"] = false`
+* `[].isEmpty = true`
+* `["grape"].isEmpty = false`
+* `["apple", "banana"].isEmpty = false`
 -/
 def isEmpty : List α → Bool
   | []     => true
@@ -1057,10 +1059,10 @@ def dropWhile (p : α → Bool) : List α → List α
 
 /--
 Returns a pair of lists that together contain all the elements of `as`. The first list contains
-those elements for which `p` returns `true`, and the second contains those for which `p`
-returns `false`.
+those elements for which `p` returns `true`, and the second contains those for which `p` returns
+`false`.
 
-`O(|l|)`. `partition p as = (filter p as, filter (not ∘ p) as)`, but it is slightly
+`O(|l|)`. `as.partition p` is equivalent to `(as.filter p, as.filter (not ∘ p))`, but it is slightly
 more efficient since it only has to do one pass over the list.
 
 Examples:
@@ -1362,11 +1364,11 @@ variable (R : α → α → Prop)
 /--
 Each element of a list is related to all later elements of the list by `R`.
 
-`Pairwise R l` means that all the elements with earlier indexes are
-`R`-related to all the elements with later indexes.
+`Pairwise R l` means that all the elements of `l` with earlier indexes are `R`-related to all the
+elements with later indexes.
 
-For example if `R = (·≠·)` then it asserts `l` has no duplicates,
-and if `R = (·<·)` then it asserts that `l` is (strictly) sorted.
+For example, `Pairwise (· ≠ ·) l` asserts that `l` has no duplicates, and if `Pairwise (· < ·) l`
+asserts that `l` is (strictly) sorted.
 
 Examples:
  * `Pairwise (· < ·) [1, 2, 3] ↔ (1 < 2 ∧ 1 < 3) ∧ 2 < 3`
@@ -1495,7 +1497,8 @@ Examples:
     (a :: l).modifyHead f = f a :: l := by rw [modifyHead]
 
 /--
-Replaces the element at the given index, if it exists, with the result of applying `f` to it.
+Replaces the element at the given index, if it exists, with the result of applying `f` to it. If the
+index is invalid, the list is returned unmodified.
 
 Examples:
  * `[1, 2, 3].modify (· * 10) 0 = [10, 2, 3]`
@@ -1532,9 +1535,6 @@ Examples:
  * `["tues", "thur", "sat"].insertIdx 2 "wed" = ["tues", "thur", "wed", "sat"]`
  * `["tues", "thur", "sat"].insertIdx 3 "wed" = ["tues", "thur", "sat", "wed"]`
  * `["tues", "thur", "sat"].insertIdx 4 "wed" = ["tues", "thur", "sat"]`
-```
-insertIdx 2 1 [1, 2, 3, 4] = [1, 2, 1, 3, 4]
-```
 -/
 def insertIdx (i : Nat) (a : α) : (l : List α) → List α :=
   modifyTailIdx (cons a) i
@@ -1608,7 +1608,7 @@ such element is found.
 `O(|l|)`.
 
 Examples:
-* `[7, 6, 5, 8, 1, 2, 6].find? (· < 5)  = some 1`
+* `[7, 6, 5, 8, 1, 2, 6].find? (· < 5) = some 1`
 * `[7, 6, 5, 8, 1, 2, 6].find? (· < 1) = none`
 -/
 def find? (p : α → Bool) : List α → Option α
@@ -1794,8 +1794,8 @@ is equal to the specified key.
 `O(|l|)`.
 
 Examples:
-* `[(1, 2), (3, 4), (3, 5)].lookup 3 = some 4`
-* `[(1, 2), (3, 4), (3, 5)].lookup 2 = none`
+* `[(1, "one"), (3, "three"), (3, "other")].lookup 3 = some "three"`
+* `[(1, "one"), (3, "three"), (3, "other")].lookup 2 = none`
 -/
 def lookup [BEq α] : α → List (α × β) → Option β
   | _, []        => none
@@ -2074,7 +2074,7 @@ where
 Returns a list of the numbers with the given length `len`, starting at `start` and increasing by
 `step` at each element.
 
-In other words, `range' start len step` is `[start, start+step, ..., start+(len-1)*step]`.
+In other words, `List.range' start len step` is `[start, start+step, ..., start+(len-1)*step]`.
 
 Examples:
  * `List.range' 0 3 (step := 1) = [0, 1, 2]`
@@ -2203,10 +2203,10 @@ Alternates the elements of `l` with `sep`.
 lists.
 
 Examples:
-* `intersperse "then" [] = []`
-* `intersperse "then" ["walk"] = ["walk"]`
-* `intersperse "then" ["walk", "run"] = ["walk", "then", "run"]`
-* `intersperse "then" ["walk", "run", "rest"] = ["walk", "then", "run", "then", "rest"]`
+* `List.intersperse "then" [] = []`
+* `List.intersperse "then" ["walk"] = ["walk"]`
+* `List.intersperse "then" ["walk", "run"] = ["walk", "then", "run"]`
+* `List.intersperse "then" ["walk", "run", "rest"] = ["walk", "then", "run", "then", "rest"]`
 -/
 def intersperse (sep : α) : (l : List α) → List α
   | []    => []
@@ -2413,9 +2413,9 @@ Returns the list of elements in `l` for which `p` returns `true`.
 `O(|l|)`. This is a tail-recursive version of `List.filter`, used at runtime.
 
 Examples:
-* `[1, 2, 5, 2, 7, 7].filter (· > 2)  = [5, 7, 7]`
-* `[1, 2, 5, 2, 7, 7].filter (fun _ => false) = []`
-* `[1, 2, 5, 2, 7, 7].filter (fun _ => true) = * [1, 2, 5, 2, 7, 7]`
+* `[1, 2, 5, 2, 7, 7].filterTR (· > 2)  = [5, 7, 7]`
+* `[1, 2, 5, 2, 7, 7].filterTR (fun _ => false) = []`
+* `[1, 2, 5, 2, 7, 7].filterTR (fun _ => true) = * [1, 2, 5, 2, 7, 7]`
 -/
 @[inline] def filterTR (p : α → Bool) (as : List α) : List α :=
   loop as []
@@ -2445,9 +2445,9 @@ Creates a list that contains `n` copies of `a`.
 
 This is a tail-recursive version of `List.replicate`.
 
-* `replicate 5 "five" = ["five", "five", "five", "five", "five"]`
-* `replicate 0 "zero" = []`
-* `replicate 2 ' ' = [' ', ' ']`
+* `List.replicateTR 5 "five" = ["five", "five", "five", "five", "five"]`
+* `List.replicateTR 0 "zero" = []`
+* `List.replicateTR 2 ' ' = [' ', ' ']`
 -/
 def replicateTR {α : Type u} (n : Nat) (a : α) : List α :=
   let rec loop : Nat → List α → List α
@@ -2522,15 +2522,15 @@ def unzipTR (l : List (α × β)) : List α × List β :=
 Returns a list of the numbers with the given length `len`, starting at `start` and increasing by
 `step` at each element.
 
-In other words, `range' start len step` is `[start, start+step, ..., start+(len-1)*step]`.
+In other words, `List.range'TR start len step` is `[start, start+step, ..., start+(len-1)*step]`.
 
-This is a tail-recursive version of `range'`.
+This is a tail-recursive version of `List.range'`.
 
 Examples:
- * `List.range' 0 3 (step := 1) = [0, 1, 2]`
- * `List.range' 0 3 (step := 2) = [0, 2, 4]`
- * `List.range' 0 4 (step := 2) = [0, 2, 4, 6]`
- * `List.range' 3 4 (step := 2) = [3, 5, 7, 9]`
+ * `List.range'TR 0 3 (step := 1) = [0, 1, 2]`
+ * `List.range'TR 0 3 (step := 2) = [0, 2, 4]`
+ * `List.range'TR 0 4 (step := 2) = [0, 2, 4, 6]`
+ * `List.range'TR 3 4 (step := 2) = [3, 5, 7, 9]`
 -/
 @[inline] def range'TR (s n : Nat) (step : Nat := 1) : List Nat := go n (s + step * n) [] where
   /-- Auxiliary for `range'TR`: `range'TR.go n e = [e-n, ..., e-1] ++ acc`. -/
@@ -2580,10 +2580,10 @@ Alternates the elements of `l` with `sep`.
 This is a tail-recursive version of `List.intersperse`, used at runtime.
 
 Examples:
-* `intersperse "then" [] = []`
-* `intersperse "then" ["walk"] = ["walk"]`
-* `intersperse "then" ["walk", "run"] = ["walk", "then", "run"]`
-* `intersperse "then" ["walk", "run", "rest"] = ["walk", "then", "run", "then", "rest"]`
+* `List.intersperseTR "then" [] = []`
+* `List.intersperseTR "then" ["walk"] = ["walk"]`
+* `List.intersperseTR "then" ["walk", "run"] = ["walk", "then", "run"]`
+* `List.intersperseTR "then" ["walk", "run", "rest"] = ["walk", "then", "run", "then", "rest"]`
 -/
 def intersperseTR (sep : α) : (l : List α) → List α
   | [] => []

@@ -142,7 +142,7 @@ Safer alternatives include
 
 Examples:
  * `["apple", "banana", "grape"].tail! = ["banana", "grape"]`
- * `["apple"].tail! = []`
+ * `["banana", "grape"].tail! = ["grape"]`
 -/
 def tail! : List α → List α
   | []    => panic! "empty list"

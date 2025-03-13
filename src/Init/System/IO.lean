@@ -982,22 +982,52 @@ end Process
 /-- Returns the thread ID of the calling thread. -/
 @[extern "lean_io_get_tid"] opaque getTID : BaseIO UInt64
 
+/--
+POSIX-style file permissions.
+
+The `FileRight` structure describes these permissions for a file's owner, members of it's designated
+group, and all others.
+-/
 structure AccessRight where
   read : Bool := false
   write : Bool := false
   execution : Bool := false
 
+/--
+Converts individual POSIX-style file permissions to their conventional three-bit representation.
+
+This is the bitwise `or` of the following:
+ * If the file can be read, `0x4`, otherwise `0`.
+ * If the file can be written, `0x2`, otherwise `0`.
+ * If the file can be executed, `0x1`, otherwise `0`.
+
+Examples:
+ * `{read := true : AccessRight}.flags = 4`
+ * `{read := true, write := true : AccessRight}.flags = 6`
+ * `{read := true, execution := true : AccessRight}.flags = 5`
+-/
 def AccessRight.flags (acc : AccessRight) : UInt32 :=
   let r : UInt32 := if acc.read      then 0x4 else 0
   let w : UInt32 := if acc.write     then 0x2 else 0
   let x : UInt32 := if acc.execution then 0x1 else 0
   r.lor <| w.lor x
 
+/--
+POSIX-style file permissions that describe access rights for a file's owner, members of its
+assigned group, and all others.
+-/
 structure FileRight where
+  /-- The owner's permissions to access the file. -/
   user  : AccessRight := {}
+  /-- The assigned group's permissions to access the file. -/
   group : AccessRight := {}
+  /-- The permissions that all others have to access the file. -/
   other : AccessRight := {}
 
+/--
+Converts POSIX-style file permissions to their numeric representation, with three bits each for the
+owner's permissions, the group's permissions, and others' permissions.
+-/
 def FileRight.flags (acc : FileRight) : UInt32 :=
   let u : UInt32 := acc.user.flags.shiftLeft 6
   let g : UInt32 := acc.group.flags.shiftLeft 3
@@ -1006,6 +1036,9 @@ def FileRight.flags (acc : FileRight) : UInt32 :=
 
 @[extern "lean_chmod"] opaque Prim.setAccessRights (filename : @& FilePath) (mode : UInt32) : IO Unit
 
+/--
+Sets the POSIX-style access rights for a file.
+-/
 def setAccessRights (filename : FilePath) (mode : FileRight) : IO Unit :=
   Prim.setAccessRights filename mode.flags
 

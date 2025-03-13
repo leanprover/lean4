@@ -4725,7 +4725,7 @@ theorem forall_mem_iff_forall_contains_getKey_getValue [BEq α] [EquivBEq α] {�
 theorem getValue?_filterMap {β : Type v} {γ : Type w} [BEq α] [EquivBEq α]
     {f : (_ : α) → β → Option γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) {k : α} :
     getValue? k (l.filterMap fun p => (f p.1 p.2).map (fun x => (⟨p.1, x⟩ : (_ : α) × γ))) =
-      (getValue? k l).bind (fun v => (getKey? k l).bind (fun k' => f k' v)) := by
+      (getKey? k l).bind (fun k' => (getValue? k l).bind (fun v => f k' v)) := by
   simp only [getValue?_eq_getEntry?, distinct, getEntry?_filterMap, Option.map_bind,
     getKey?_eq_getEntry?, Option.bind_map]
   cases getEntry? k l with
@@ -4737,14 +4737,59 @@ theorem getValue?_filterMap {β : Type v} {γ : Type w} [BEq α] [EquivBEq α]
 theorem getValue!_filterMap {β : Type v} {γ : Type w} [BEq α] [EquivBEq α] [Inhabited γ]
     {f : (_ : α) → β → Option γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) {k : α} :
     getValue! k (l.filterMap fun p => (f p.1 p.2).map (fun x => (⟨p.1, x⟩ : (_ : α) × γ))) =
-      ((getValue? k l).bind (fun v => (getKey? k l).bind (fun k' => f k' v))).get! := by
+      ((getKey? k l).bind (fun k' => (getValue? k l).bind (fun v => f k' v))).get! := by
   simp [getValue!_eq_getValue?, Option.getD, getValue?_filterMap, distinct]
 
 theorem getValueD_filterMap {β : Type v} {γ : Type w} [BEq α] [EquivBEq α] {fallback : γ}
     {f : (_ : α) → β → Option γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) {k : α} :
     getValueD k (l.filterMap fun p => (f p.1 p.2).map (fun x => (⟨p.1, x⟩ : (_ : α) × γ))) fallback =
-      ((getValue? k l).bind (fun v => (getKey? k l).bind (fun k' => f k' v))).getD fallback := by
+      ((getKey? k l).bind (fun k' => (getValue? k l).bind (fun v => f k' v))).getD fallback := by
   simp [getValueD_eq_getValue?, Option.getD, getValue?_filterMap, distinct]
+
+theorem getValue?_filter {β : Type v} [BEq α] [EquivBEq α]
+    {f : (_ : α) → β → Bool} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) {k : α} :
+    getValue? k (l.filter fun p => (f p.1 p.2)) =
+      (getKey? k l).bind (fun k' => ((getValue? k l).filter (fun v => f k' v = true))) := by
+  simp only [getValue?_eq_getEntry?, distinct, getEntry?_filter, getKey?_eq_getEntry?,
+    Bool.decide_eq_true, Option.bind_map]
+  cases getEntry? k l with
+  | none => simp
+  | some x =>
+    simp [Option.map_some', Option.some_bind, Function.comp_apply, Option.filter]
+
+theorem getValue!_filter {β : Type v} [BEq α] [EquivBEq α] [Inhabited β]
+    {f : (_ : α) → β → Bool} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) {k : α} :
+    getValue? k (l.filter fun p => (f p.1 p.2)) =
+      (getKey? k l).bind (fun k' => ((getValue? k l).filter (fun v => f k' v = true))) := by
+  simp [getValue!_eq_getValue?, getValue?_filter, distinct]
+
+theorem getValueD_filter {β : Type v} [BEq α] [EquivBEq α] {fallback : β}
+    {f : (_ : α) → β → Bool} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) {k : α} :
+    getValueD k (l.filter fun p => (f p.1 p.2)) fallback =
+      ((getKey? k l).bind (fun k' => (getValue? k l).filter (fun v => f k' v))).getD fallback := by
+  simp [getValueD_eq_getValue?, Option.getD, getValue?_filter, distinct]
+
+theorem getValue?_map {β : Type v} {γ : Type w} [BEq α] [EquivBEq α]
+    {f : (_ : α) → β → γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) {k : α} :
+    getValue? k (l.map fun p => ⟨p.1, f p.1 p.2⟩) =
+      (getKey? k l).bind (fun k' => (getValue? k l).map (fun v => f k' v)) := by
+  simp only [getValue?_eq_getEntry?, distinct, getEntry?_map, Option.map_bind,
+    getKey?_eq_getEntry?, Option.bind_map]
+  cases getEntry? k l with
+  | none => simp
+  | some x =>simp
+
+theorem getValue!_map {β : Type v} {γ : Type w} [BEq α] [EquivBEq α] [Inhabited γ]
+    {f : (_ : α) → β → γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) {k : α} :
+    getValue! k (l.map fun p => ⟨p.1, f p.1 p.2⟩) =
+      ((getKey? k l).bind (fun k' => (getValue? k l).map (fun v => f k' v))).get! := by
+  simp [getValue!_eq_getValue?, Option.getD, getValue?_map, distinct]
+
+theorem getValueD_map {β : Type v} {γ : Type w} [BEq α] [EquivBEq α] {fallback : γ}
+    {f : (_ : α) → β → γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) {k : α} :
+    getValueD k (l.map fun p => ⟨p.1, f p.1 p.2⟩) fallback =
+      ((getKey? k l).bind (fun k' => (getValue? k l).map (fun v => f k' v))).getD fallback := by
+  simp [getValueD_eq_getValue?, Option.getD, getValue?_map, distinct]
 
 theorem length_filterMap_eq_length_iff {β : Type v} {γ : Type w} [BEq α] [EquivBEq α]
     {f : (_ : α) → β → Option γ} {l : List ((_ : α) × β)} (distinct : DistinctKeys l) :

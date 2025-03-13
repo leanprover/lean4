@@ -55,7 +55,7 @@ example : foo x = min 20 10 := by
   trace_state
   rw [foo]
 
-example  : foo x = max 5 10 := by
+example : foo x = max 5 10 := by
   simp only [seval]
   trace_state
   rw [foo]

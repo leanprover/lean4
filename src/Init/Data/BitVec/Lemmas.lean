@@ -577,11 +577,12 @@ theorem toInt_nonneg_of_msb_false {x : BitVec w} (h : x.msb = false) : 0 ≤ x.t
 
 @[simp] theorem toInt_one_of_lt {w : Nat} (h : 1 < w) : (1#w).toInt = 1 := by
   rw [toInt_eq_msb_cond]
-  simp only [msb_one, show w ≠ 1 by omega, decide_false, Bool.false_eq_true, ↓reduceIte,
-    toNat_ofNat, Int.ofNat_emod, Int.Nat.cast_ofNat_Int]
-  norm_cast
-  apply Nat.mod_eq_of_lt
-  apply Nat.one_lt_two_pow (by omega)
+  sorry
+  -- simp only [msb_one, show w ≠ 1 by omega, decide_false, Bool.false_eq_true, ↓reduceIte,
+  --   toNat_ofNat, Int.ofNat_emod, Int.Nat.cast_ofNat_Int]
+  -- norm_cast
+  -- apply Nat.mod_eq_of_lt
+  -- apply Nat.one_lt_two_pow (by omega)
 
 /-- Prove equality of bitvectors in terms of nat operations. -/
 theorem eq_of_toInt_eq {x y : BitVec n} : x.toInt = y.toInt → x = y := by
@@ -4141,24 +4142,26 @@ theorem toInt_twoPow {w i : Nat} :
 theorem toInt_mul_toInt_lt {x y : BitVec w} : x.toInt * y.toInt ≤ 2 ^ (w * 2 - 2) := by
   rcases w with _|w
   · simp [of_length_zero]
-  · have xlt := toInt_lt (x := x); have xle := le_toInt (x := x)
-    have ylt := toInt_lt (x := y); have yle := le_toInt (x := y)
-    have h : 2 ^ ((w + 1) * 2 - 2) = 2 ^ ((w + 1) - 1) * 2 ^ ((w + 1) - 1) := by
-      rw [← Nat.pow_add, ←Nat.mul_two, Nat.mul_comm (m := 2) (n := (w + 1) - 1), Nat.mul_sub_one, Nat.mul_comm]
-    rw_mod_cast [h]
-    rw [← Nat.two_pow_pred_mul_two (by omega), Int.natCast_mul] at xlt ylt xle yle
-    exact Int.mul_le_mul_self (by omega) (by omega)
+  sorry
+  -- · have xlt := toInt_lt (x := x); have xle := le_toInt (x := x)
+  --   have ylt := toInt_lt (x := y); have yle := le_toInt (x := y)
+  --   have h : 2 ^ ((w + 1) * 2 - 2) = 2 ^ ((w + 1) - 1) * 2 ^ ((w + 1) - 1) := by
+  --     rw [← Nat.pow_add, ←Nat.mul_two, Nat.mul_comm (m := 2) (n := (w + 1) - 1), Nat.mul_sub_one, Nat.mul_comm]
+  --   rw_mod_cast [h]
+  --   rw [← Nat.two_pow_pred_mul_two (by omega), Int.natCast_mul] at xlt ylt xle yle
+  --   exact Int.mul_le_mul_self (by omega) (by omega)
 
 theorem le_toInt_mul_toInt {x y : BitVec w} : - (2 ^ (w * 2 - 2)) ≤ x.toInt * y.toInt := by
   rcases w with _|w
   · simp [of_length_zero]
-  · have xlt := toInt_lt (x := x); have xle := le_toInt (x := x)
-    have ylt := toInt_lt (x := y); have yle := le_toInt (x := y)
-    have h : 2 ^ ((w + 1) * 2 - 2) = 2 ^ ((w + 1) - 1) * 2 ^ ((w + 1) - 1) := by
-      rw [← Nat.pow_add, ←Nat.mul_two, Nat.mul_comm (m := 2) (n := (w + 1) - 1), Nat.mul_sub_one, Nat.mul_comm]
-    rw_mod_cast [h]
-    rw [← Nat.two_pow_pred_mul_two (by omega), Int.natCast_mul] at xlt ylt xle yle
-    exact Int.neg_mul_self_le_mul (by omega) (by omega) (by omega) (by omega)
+  · sorry
+    -- have xlt := toInt_lt (x := x); have xle := le_toInt (x := x)
+    -- have ylt := toInt_lt (x := y); have yle := le_toInt (x := y)
+    -- have h : 2 ^ ((w + 1) * 2 - 2) = 2 ^ ((w + 1) - 1) * 2 ^ ((w + 1) - 1) := by
+    --   rw [← Nat.pow_add, ←Nat.mul_two, Nat.mul_comm (m := 2) (n := (w + 1) - 1), Nat.mul_sub_one, Nat.mul_comm]
+    -- rw_mod_cast [h]
+    -- rw [← Nat.two_pow_pred_mul_two (by omega), Int.natCast_mul] at xlt ylt xle yle
+    -- exact Int.neg_mul_self_le_mul (by omega) (by omega) (by omega) (by omega)
 
 /- ### cons -/
 

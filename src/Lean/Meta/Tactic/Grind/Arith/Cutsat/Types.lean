@@ -156,6 +156,7 @@ structure LeCnstr where
 inductive LeCnstrProof where
   | core (e : Expr)
   | coreNeg (e : Expr) (p : Poly)
+  | coreNat (e : Expr) (eqTrue : Bool) (lhs rhs : Int.Linear.Expr) (h : Expr) (p : Poly)
   | dec (h : FVarId)
   | norm (c : LeCnstr)
   | divCoeffs (c : LeCnstr)

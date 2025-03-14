@@ -280,12 +280,12 @@ end Const
 def min? [Ord α] : Impl α β → Option ((a : α) × β a)
   | .leaf => none
   | .inner _ k v .leaf _ => some ⟨k, v⟩
-  | .inner _ _ _ l _ => l.min?
+  | .inner _ _ _ l@(.inner ..) _ => l.min?
 
 /-- Implementation detail of the tree map -/
 def min [Ord α] : (t : Impl α β) → (h : t.isEmpty = false) → (a : α) × β a
   | .inner _ k v .leaf _, _ => ⟨k, v⟩
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _, h => l.min (by simp_all [isEmpty])
+  | .inner _ _ _ l@(.inner ..) _, h => l.min (by simp_all [isEmpty])
 
 /-- Implementation detail of the tree map -/
 def min! [Ord α] [Inhabited ((a : α) × β a)] : Impl α β → (a : α) × β a

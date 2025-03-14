@@ -6,6 +6,7 @@ Authors: Markus Himmel, Paul Reichert
 prelude
 import Std.Data.DTreeMap.Internal.WF.Defs
 import Std.Data.DTreeMap.Internal.Cell
+import Std.Data.Internal.Cut
 
 /-!
 # Model implementations of tree map functions
@@ -19,6 +20,7 @@ universe u v w
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w}
 
 namespace Std.DTreeMap.Internal
+open Std.Internal (IsStrictCut)
 
 namespace Impl
 
@@ -262,6 +264,17 @@ Internal implementation detail of the tree map
 def getKeyDₘ [Ord α] (k : α) (l : Impl α β) (fallback : α) : α :=
   getKey?ₘ l k |>.getD fallback
 
+/-- Internal implementation detail of the tree map -/
+def min?ₘ' [Ord α] (l : Impl α β) : Option ((a : α) × β a) :=
+  explore (fun (_ : α) => .lt) none (fun sofar step =>
+    match step with
+    | .lt ky _ y _ => some ⟨ky, y⟩
+    | .eq _ _ r => r.head?.or sofar) l
+
+/-- Internal implementation detail of the tree map -/
+def min?ₘ [Ord α] (l : Impl α β) : Option ((a : α) × β a) :=
+  applyPartition (fun (_ : α) => .lt) l fun _ _ _ r => r.head?
+
 /--
 Model implementation of the `insert` function.
 Internal implementation detail of the tree map
@@ -441,6 +454,16 @@ theorem getKeyD_eq_getKeyDₘ [Ord α] (k : α) (l : Impl α β)
     split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
     all_goals simp_all [Cell.getKey?, Cell.ofEq]
   · simp only [getKeyD, applyCell, Cell.getKey?_empty, Option.getD_none]
+
+theorem min?_eq_min?ₘ' [Ord α] {l : Impl α β} : l.min? = l.min?ₘ' := by
+  rw [min?ₘ']
+  induction l using min?.induct <;> simp_all [min?, explore]
+
+theorem min?ₘ'_eq_min?ₘ [Ord α] {l : Impl α β} : l.min?ₘ' = l.min?ₘ := by
+  rw [min?ₘ', explore_eq_applyPartition, min?ₘ] <;> simp
+
+theorem min?_eq_min?ₘ [Ord α] {l : Impl α β} : l.min? = l.min?ₘ := by
+  rw [min?_eq_min?ₘ', min?ₘ'_eq_min?ₘ]
 
 theorem balanceL_eq_balance {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceL k v l r hlb hrb hlr = balance k v l r hlb hrb (Or.inl hlr.erase) := by

@@ -53,7 +53,7 @@ scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff]
 open Lean
 
 private def helperLemmaNames : Array Name :=
-  #[``compare_eq_iff_beq, ``Bool.not_eq_true, `mem_iff_contains]
+  #[``compare_eq_iff_beq, ``Bool.not_eq_true, ``mem_iff_contains]
 
 private def queryNames : Array Name :=
   #[``isEmpty_eq_isEmpty, ``contains_eq_containsKey, ``size_eq_length,
@@ -66,7 +66,8 @@ private def queryNames : Array Name :=
     ``keys_eq_keys, ``toList_eq_toListModel, ``Const.toList_eq_toListModel_map,
     ``foldlM_eq_foldlM_toListModel, ``foldl_eq_foldl,
     ``foldrM_eq_foldrM, ``foldr_eq_foldr,
-    ``forM_eq_forM, ``forIn_eq_forIn_toListModel]
+    ``forM_eq_forM, ``forIn_eq_forIn_toListModel,
+    ``min?_eq_min?']
 
 private def modifyMap : Std.HashMap Name Name :=
   .ofList
@@ -95,7 +96,7 @@ private def congrNames : MacroM (Array (TSyntax `term)) := do
     ← `(getValue?_of_perm _), ← `(getValue_of_perm _), ← `(getValueCast_of_perm _),
     ← `(getValueCast!_of_perm _), ← `(getValueCastD_of_perm _), ← `(getValue!_of_perm _),
     ← `(getValueD_of_perm _), ← `(getKey?_of_perm _), ← `(getKey_of_perm _), ← `(getKeyD_of_perm _),
-    ← `(getKey!_of_perm _)]
+    ← `(getKey!_of_perm _), ← `(min?_of_perm' _)]
 
 /-- Internal implementation detail of the tree map -/
 scoped syntax "simp_to_model" (" [" (ident,*) "]")? ("using" term)? : tactic
@@ -4190,5 +4191,55 @@ theorem getKeyD_modify_self (h : t.WF) [Inhabited α] {k fallback : α} {f : β 
 end Const
 
 end Modify
+
+section Min
+
+theorem min?_empty :
+    (empty : Impl α β).min? = none := by
+  unfold min?; rfl
+
+-- theorem mem?_min_iff
+
+-- theorem min?_mem (using all)
+
+-- theorem ge_min?_of_mem
+
+-- theorem not_mem_of_lt_min? (using all)
+
+-- theorem le_min?_iff_eq_min?
+
+theorem min?_insert [TransOrd α] (h : t.WF) {k v} :
+    (t.insert k v h.balanced).impl.min? =
+      some (match t.min? with
+       | none => ⟨k, v⟩
+       | some e => if compare k e.1 |>.isLE then ⟨k, v⟩ else e) := by
+  simp_to_model [insert] using List.min?_insertKey
+
+-- theorem min?_insert_le_min?
+
+-- theorem min?_insert_le_self
+
+-- theorem min?_erase_of_not_compare_eq
+
+-- theorem min?_le_min?_erase
+
+-- theorem get?_min(?)_fst
+
+-- theorem getKey?_min(?)_fst
+
+-- theorem min?_eq_getKey_get (???)
+
+-- theorem min?_insertMany_list
+
+-- theorem min?_ofList (problem: List.min? uses LE, not Ord)
+
+-- theorem min?_toList
+
+-- theorem min?_modify (eq map)
+
+-- theorem min?_alter_of_not_compare_eq
+
+
+end Min
 
 end Std.DTreeMap.Internal.Impl

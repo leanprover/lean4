@@ -1758,4 +1758,30 @@ theorem size_map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} : (t
 theorem WF.map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} (h : t.WF) : (t.map f).WF :=
   sameKeys_map.symm.wf h
 
+/-!
+### `min?`
+-/
+
+instance [Ord α] : IsStrictCut (compare : α → α → Ordering) (fun _ => .lt) where
+  lt := by simp
+  gt := by simp
+  eq := by simp
+
+theorem apply_min?ₘ [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
+    l.min?ₘ = List.min?' l.toListModel := by
+  rw [min?ₘ, applyPartition_eq_apply_toListModel' hlo]
+  simp only [List.append_assoc, reduceCtorEq, imp_false, implies_true, forall_const]
+  intro ll rr c h₁ h₂ h₃
+  obtain rfl : ll = [] := List.eq_nil_iff_forall_not_mem.2 h₃
+  obtain hc : c.inner.toList = [] := by
+    cases h : c.inner
+    · simp
+    · have := c.property _ h
+      contradiction
+  rw [hc, List.nil_append, List.nil_append, min?'_eq_head? (by simpa [hc] using h₂)]
+
+theorem min?_eq_min?' [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
+    l.min? = Std.Internal.List.min?' l.toListModel := by
+  rw [min?_eq_min?ₘ, apply_min?ₘ hlo]
+
 end Std.DTreeMap.Internal.Impl

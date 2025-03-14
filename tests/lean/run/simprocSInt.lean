@@ -48,6 +48,8 @@ example : Int8.toInt (-8) + 8 = 0 := by simp +ground only
 #check_simp x = 2 - -3 ~> x = 5
 #check_simp x = 4 / -3 ~> x = -1
 #check_simp x = -5 % 3 ~> x = -2
+#check_simp x = min (-5)  (-10) ~> x = -10
+#check_simp x = max (-5)  (-10) ~> x = -5
 #check_simp True = ((3 : Int8) < -3) ~> False
 #check_simp True = ((3 : Int8) ≤ -2) ~> False
 #check_simp True = ((-3 : Int8) > 3) ~> False
@@ -129,6 +131,8 @@ example : Int32.toInt (-32) + 32 = 0 := by simp +ground only
 #check_simp x = 2 - -3 ~> x = 5
 #check_simp x = 4 / -3 ~> x = -1
 #check_simp x = -5 % 3 ~> x = -2
+#check_simp x = min (-5)  (-10) ~> x = -10
+#check_simp x = max (-5)  (-10) ~> x = -5
 #check_simp True = ((3 : Int32) < -3) ~> False
 #check_simp True = ((3 : Int32) ≤ -2) ~> False
 #check_simp True = ((-3 : Int32) > 3) ~> False
@@ -167,6 +171,8 @@ example : Int64.toInt (-64) + 64 = 0 := by simp +ground only
 #check_simp x = 2 - -3 ~> x = 5
 #check_simp x = 4 / -3 ~> x = -1
 #check_simp x = -5 % 3 ~> x = -2
+#check_simp x = min (-5)  (-10) ~> x = -10
+#check_simp x = max (-5)  (-10) ~> x = -5
 #check_simp True = ((3 : Int32) < -3) ~> False
 #check_simp True = ((3 : Int32) ≤ -2) ~> False
 #check_simp True = ((-3 : Int32) > 3) ~> False

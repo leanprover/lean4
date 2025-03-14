@@ -60,6 +60,8 @@ builtin_dsimproc [simp, seval] $(mkIdent `reduceMul):ident ((_ * _ : $typeName))
 builtin_dsimproc [simp, seval] $(mkIdent `reduceSub):ident ((_ - _ : $typeName)) := reduceBin ``HSub.hSub 6 (· - ·)
 builtin_dsimproc [simp, seval] $(mkIdent `reduceDiv):ident ((_ / _ : $typeName)) := reduceBin ``HDiv.hDiv 6 (· / ·)
 builtin_dsimproc [simp, seval] $(mkIdent `reduceMod):ident ((_ % _ : $typeName)) := reduceBin ``HMod.hMod 6 (· % ·)
+builtin_dsimproc [simp, seval] $(mkIdent `reduceMin):ident ((min _ _ : $typeName)) := reduceBin ``Min.min 4 (min · ·)
+builtin_dsimproc [simp, seval] $(mkIdent `reduceMax):ident ((max _ _ : $typeName)) := reduceBin ``Max.max 4 (max · ·)
 
 builtin_simproc [simp, seval] $(mkIdent `reduceLT):ident  (( _ : $typeName) < _)  := reduceBinPred ``LT.lt 4 (. < .)
 builtin_simproc [simp, seval] $(mkIdent `reduceLE):ident  (( _ : $typeName) ≤ _)  := reduceBinPred ``LE.le 4 (. ≤ .)

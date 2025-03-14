@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -152,30 +153,14 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
   | .coreNeg e p =>
     let h ← mkOfEqFalse (← mkEqFalseProof e)
     return mkApp5 (mkConst ``Int.Linear.le_neg) (← getContext) (← mkPolyDecl p) (← mkPolyDecl c'.p) reflBoolTrue h
-  | .coreNat e eqTrue lhs rhs h p =>
-    /-
-    Recall that
-    - `h` is a proof for `e = (lhs ≤ rhs)`
-    - We can use `norm_le` to build a proof for `(lhs ≤ rhs) = (p ≤ 0)`
-    - If `eqTrue` is true, we must construct a proof for `p ≤ 0`, otherwise a proof for `¬ p ≤ 0`
-    -/
-    -- h₁ : (lhs ≤ rhs) = (p ≤ 0)
-    let lhsExpr := toExpr lhs
-    let rhsExpr := toExpr rhs
-    let pExpr ← mkPolyDecl p
-    let h₁ := mkApp5 (mkConst ``Int.Linear.norm_le) (← getContext) lhsExpr rhsExpr pExpr reflBoolTrue
-    let lhs_le_rhs := mkIntLE (mkApp2 (mkConst ``Int.Linear.Expr.denote) (← getContext) lhsExpr) (mkApp2 (mkConst ``Int.Linear.Expr.denote) (← getContext) rhsExpr)
-    let p_le_zero := mkIntLE (mkApp2 (mkConst ``Int.Linear.Poly.denote') (← getContext) pExpr) (mkIntLit 0)
-    let prop := .sort levelZero
-    -- h₁ : e = (p ≤ 0)
-    let h₁ := mkApp6 (mkConst ``Eq.trans [levelOne]) prop e lhs_le_rhs p_le_zero h h₁
-    -- h₁ : (p ≤ 0) = e
-    let h₁ := mkApp4 (mkConst ``Eq.symm [levelOne]) prop e p_le_zero h₁
-    if eqTrue then
-      return mkOfEqTrueCore p_le_zero <| mkApp6 (mkConst ``Eq.trans [levelOne]) prop p_le_zero e (← getTrueExpr) h₁ (← mkEqTrueProof e)
-    else
-      let h := mkOfEqFalseCore p_le_zero <| mkApp6 (mkConst ``Eq.trans [levelOne]) prop p_le_zero e (← getFalseExpr) h₁ (← mkEqFalseProof e)
-      return mkApp5 (mkConst ``Int.Linear.le_neg) (← getContext) pExpr (← mkPolyDecl c'.p) reflBoolTrue h
+  | .coreNat e ctx lhs rhs lhs' rhs' =>
+    let ctx := Simp.Arith.Nat.toContextExpr ctx
+    let h := mkApp4 (mkConst ``Int.OfNat.of_nat_le) ctx (toExpr lhs) (toExpr rhs) (mkOfEqTrueCore e (← mkEqTrueProof e))
+    return mkApp6 (mkConst ``Int.Linear.le_norm_expr) (← getContext) (toExpr lhs') (toExpr rhs') (← mkPolyDecl c'.p) reflBoolTrue h
+  | .coreNatNeg e ctx lhs rhs lhs' rhs' =>
+    let ctx := Simp.Arith.Nat.toContextExpr ctx
+    let h := mkApp4 (mkConst ``Int.OfNat.of_not_nat_le) ctx (toExpr lhs) (toExpr rhs) (mkOfEqFalseCore e (← mkEqFalseProof e))
+    return mkApp6 (mkConst ``Int.Linear.not_le_norm_expr) (← getContext) (toExpr lhs') (toExpr rhs') (← mkPolyDecl c'.p) reflBoolTrue h
   | .dec h =>
     return mkFVar h
   | .norm c =>
@@ -376,7 +361,7 @@ partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do
 
 partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core .. | .coreNeg .. | .coreNat .. => return ()
+  | .core .. | .coreNeg .. | .coreNat .. | .coreNatNeg .. => return ()
   | .dec h => markAsFound h
   | .cooper c | .norm c | .divCoeffs c => c.collectDecVars
   | .dvdTight c₁ c₂ | .negDvdTight c₁ c₂

@@ -58,12 +58,12 @@ theorem Expr.dvd (ctx : Context) (lhs rhs : Expr)
     : (lhs.denote ctx ∣ rhs.denote ctx) = (lhs.denoteAsInt ctx ∣ rhs.denoteAsInt ctx) := by
   simp [denoteAsInt_eq, Int.ofNat_dvd]
 
-theorem of_nat_le_true (ctx : Context) (lhs rhs : Expr)
-    : (lhs.denote ctx ≤ rhs.denote ctx) = True → lhs.denoteAsInt ctx ≤ rhs.denoteAsInt ctx := by
+theorem of_nat_le (ctx : Context) (lhs rhs : Expr)
+    : lhs.denote ctx ≤ rhs.denote ctx → lhs.denoteAsInt ctx ≤ rhs.denoteAsInt ctx := by
   rw [Expr.le ctx lhs rhs]; simp
 
-theorem of_nat_le_false (ctx : Context) (lhs rhs : Expr)
-    : (lhs.denote ctx ≤ rhs.denote ctx) = False → ¬ lhs.denoteAsInt ctx ≤ rhs.denoteAsInt ctx := by
+theorem of_not_nat_le (ctx : Context) (lhs rhs : Expr)
+    : ¬ lhs.denote ctx ≤ rhs.denote ctx → ¬ lhs.denoteAsInt ctx ≤ rhs.denoteAsInt ctx := by
   rw [Expr.le ctx lhs rhs]; simp
 
 end Int.OfNat

@@ -148,17 +148,16 @@ def propagateIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   c.assert
 
 def propagateNatLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
-  let some (lhs, rhs, h) ← Int.OfNat.toIntLe? e | return ()
+  let some (lhs, rhs, ctx) ← Int.OfNat.toIntLe? e | return ()
   let gen ← getGeneration e
-  let lhs' ← toLinearExpr lhs gen
-  let rhs' ← toLinearExpr rhs gen
+  let lhs' ← toLinearExpr (lhs.denoteAsIntExpr ctx) gen
+  let rhs' ← toLinearExpr (rhs.denoteAsIntExpr ctx) gen
   let p := lhs'.sub rhs' |>.norm
-  trace[grind.debug.cutsat.nat] "{lhs} ≤ {rhs}"
   trace[grind.debug.cutsat.nat] "{← p.pp}"
   let c ← if eqTrue then
-    pure { p, h := .coreNat e true lhs' rhs' h p : LeCnstr }
+    pure { p, h := .coreNat e ctx lhs rhs lhs' rhs' : LeCnstr }
   else
-    pure { p := p.mul (-1) |>.addConst 1, h := .coreNat e false lhs' rhs' h p : LeCnstr }
+    pure { p := p.mul (-1) |>.addConst 1, h := .coreNatNeg e ctx lhs rhs lhs' rhs' : LeCnstr }
   trace[grind.cutsat.assert.le] "{← c.pp}"
   c.assert
 

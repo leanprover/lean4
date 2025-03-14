@@ -11,7 +11,7 @@ namespace Lake
 open Lean System
 
 /-- A Lean executable's declarative configuration. -/
-structure LeanExeConfig (name : Name) extends LeanConfig where
+configuration LeanExeConfig (name : Name) extends LeanConfig where
   /--
   The subdirectory of the package's source directory containing the executable's
   Lean source file. Defaults simply to said `srcDir`.

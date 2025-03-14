@@ -162,32 +162,77 @@ protected def StrPat.decodeToml (v : Value) (presets : NameMap StrPat := {}) : E
 
 instance : DecodeToml StrPat := ⟨(StrPat.decodeToml ·)⟩
 
+abbrev Toml.DecodeM := StateM (Array DecodeError)
+
+@[inline] def decodeFieldUsing
+  (decode : Toml.Value → Except (Array DecodeError) α) (setField : α → σ → σ)
+  (cfg : σ) (val : Toml.Value)
+: StateM (Array Toml.DecodeError) σ := do
+  match decode val with
+  | .ok a => return setField a cfg
+  | .error es => modify (· ++ es); return cfg
+
+@[inline] def decodeField
+  [DecodeToml α] (setField : α → σ → σ) (cfg : σ) (val : Toml.Value)
+: StateM (Array Toml.DecodeError) σ := decodeFieldUsing decodeToml setField cfg val
+
+structure TomlFieldInfo (σ : Type) where
+  decodeAndSet : σ → Toml.Value → Toml.DecodeM σ
+
+abbrev TomlFieldInfos (σ : Type) := NameMap (TomlFieldInfo σ)
+def TomlFieldInfos.empty : TomlFieldInfos σ := {}
+abbrev TomlFieldInfos.inner (self : TomlFieldInfos σ) : NameMap (TomlFieldInfo σ) :=
+  self
+
+def TomlFieldInfos.insert
+  (name : Name) [field : ConfigField σ name α]
+  (decode : Toml.Value → Except (Array DecodeError) α := by exact decodeToml)
+  (infos : TomlFieldInfos σ)
+: TomlFieldInfos σ :=
+  infos.inner.insert name ⟨decodeFieldUsing decode field.set⟩
+
+def Toml.Table.decodeConfig
+  [EmptyCollection α] (infos : NameMap (TomlFieldInfo α)) (t : Table)
+: Toml.DecodeM α :=
+  t.foldM (init := {}) fun cfg key val => do
+    if let some info := infos.find? key then
+      info.decodeAndSet cfg val
+    else
+      return cfg
+
+@[inline] def decodeTableValue
+  (decode : Toml.Table → Toml.DecodeM α) (v : Toml.Value)
+: Except (Array DecodeError) α := do ensureDecode <| decode (← v.decodeTable)
+
 /-! ## Configuration Decoders -/
 
-protected def WorkspaceConfig.decodeToml (t : Table) : Except (Array DecodeError) WorkspaceConfig := ensureDecode do
-  let packagesDir ← t.tryDecodeD `packagesDir defaultPackagesDir
-  return {packagesDir}
+def WorkspaceConfig.tomlInfos : TomlFieldInfos WorkspaceConfig :=
+  TomlFieldInfos.empty
+  |>.insert `packagesDir
 
-instance : DecodeToml WorkspaceConfig := ⟨fun v => do WorkspaceConfig.decodeToml (← v.decodeTable)⟩
+protected def WorkspaceConfig.decodeToml (t : Table) : Toml.DecodeM WorkspaceConfig := do
+  t.decodeConfig tomlInfos
 
-protected def LeanConfig.decodeToml (t : Table) : Except (Array DecodeError) LeanConfig := ensureDecode do
-  let buildType ← t.tryDecodeD `buildType .release
-  let backend ← t.tryDecodeD `backend .default
-  let platformIndependent ← t.tryDecode? `platformIndependent
-  let leanOptions ← optDecodeD #[] (t.find? `leanOptions) decodeLeanOptions
-  let moreServerOptions ← optDecodeD #[] (t.find? `moreServerOptions) decodeLeanOptions
-  let moreLeanArgs ← t.tryDecodeD `moreLeanArgs #[]
-  let weakLeanArgs ← t.tryDecodeD `weakLeanArgs #[]
-  let moreLeancArgs ← t.tryDecodeD `moreLeancArgs #[]
-  let weakLeancArgs ← t.tryDecodeD `weakLeancArgs #[]
-  let moreLinkArgs ← t.tryDecodeD `moreLinkArgs #[]
-  let weakLinkArgs ← t.tryDecodeD `weakLinkArgs #[]
-  return {
-    buildType, backend, platformIndependent, leanOptions, moreServerOptions,
-    moreLeanArgs, weakLeanArgs, moreLeancArgs, weakLeancArgs, moreLinkArgs, weakLinkArgs
-  }
+instance : DecodeToml WorkspaceConfig := ⟨decodeTableValue WorkspaceConfig.decodeToml⟩
 
-instance : DecodeToml LeanConfig := ⟨fun v => do LeanConfig.decodeToml (← v.decodeTable)⟩
+def LeanConfig.tomlInfos : TomlFieldInfos LeanConfig :=
+  TomlFieldInfos.empty
+  |>.insert `buildType
+  |>.insert `backend
+  |>.insert `platformIndependent (some <$> decodeToml ·)
+  |>.insert `leanOptions decodeLeanOptions
+  |>.insert `moreServerOptions decodeLeanOptions
+  |>.insert `moreLeanArgs
+  |>.insert `weakLeanArgs
+  |>.insert `moreLeancArgs
+  |>.insert `weakLeancArgs
+  |>.insert `moreLinkArgs
+  |>.insert `weakLinkArgs
+
+protected def LeanConfig.decodeToml (t : Table) : Toml.DecodeM LeanConfig :=
+  t.decodeConfig tomlInfos
+
+instance : DecodeToml LeanConfig := ⟨decodeTableValue LeanConfig.decodeToml⟩
 
 protected def PackageConfig.decodeToml (n : Name) (t : Table) : Except (Array DecodeError) (PackageConfig n) := ensureDecode do
   let precompileModules ← t.tryDecodeD `precompileModules false
@@ -217,8 +262,8 @@ protected def PackageConfig.decodeToml (n : Name) (t : Table) : Except (Array De
   let licenseFiles : Array FilePath ← t.tryDecodeD `licenseFiles #["LICENSE"]
   let readmeFile ← t.tryDecodeD `readmeFile "README.md"
   let reservoir ← t.tryDecodeD `reservoir true
-  let toLeanConfig ← tryDecode <| LeanConfig.decodeToml t
-  let toWorkspaceConfig ← tryDecode <| WorkspaceConfig.decodeToml t
+  let toLeanConfig ← LeanConfig.decodeToml t
+  let toWorkspaceConfig ← WorkspaceConfig.decodeToml t
   return {
     precompileModules, moreGlobalServerArgs
     srcDir, buildDir, leanLibDir, nativeLibDir, binDir, irDir
@@ -240,7 +285,7 @@ protected def LeanLibConfig.decodeToml
   let libName ← t.tryDecodeD `libName (n.toString (escape := false))
   let precompileModules ← t.tryDecodeD `precompileModules false
   let defaultFacets ← t.tryDecodeD `defaultFacets #[LeanLib.leanArtsFacet]
-  let toLeanConfig ← tryDecode <| LeanConfig.decodeToml t
+  let toLeanConfig ← LeanConfig.decodeToml t
   return {
     srcDir, roots, globs, libName,
     precompileModules, defaultFacets, toLeanConfig
@@ -255,7 +300,7 @@ protected def LeanExeConfig.decodeToml
   let root ← t.tryDecodeD `root n
   let exeName ← t.tryDecodeD `exeName (n.toStringWithSep "-" (escape := false))
   let supportInterpreter ← t.tryDecodeD `supportInterpreter false
-  let toLeanConfig ← tryDecode <| LeanConfig.decodeToml t
+  let toLeanConfig ← LeanConfig.decodeToml t
   return {srcDir, root, exeName, supportInterpreter, toLeanConfig}
 
 instance : DecodeToml (LeanExeConfig n) := ⟨fun v => do LeanExeConfig.decodeToml (← v.decodeTable)⟩
@@ -332,10 +377,7 @@ where
 
 /-! ## Root Loader -/
 
-/--
-Load a `Package` from a TOML Lake configuration file.
-The resulting package does not yet include any dependencies.
--/
+/-- Load a `Package` from a Lake configuration file written in TOML. -/
 def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
   let input ← IO.FS.readFile cfg.configFile
   let ictx := mkInputContext input cfg.relConfigFile.toString

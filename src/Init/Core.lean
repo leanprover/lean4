@@ -575,7 +575,12 @@ attribute [extern "lean_task_pure"] Task.pure
 attribute [extern "lean_task_get_own"] Task.get
 
 namespace Task
-/-- Task priority. Tasks with higher priority will always be scheduled before ones with lower priority. -/
+/--
+Task priority.
+
+Tasks with higher priority will always be scheduled before tasks with lower priority. Tasks with a
+priority greater than `Task.Priority.max` are scheduled on dedicated threads.
+-/
 abbrev Priority := Nat
 
 /-- The default priority for spawned tasks, also the lowest priority: `0`. -/
@@ -583,16 +588,18 @@ def Priority.default : Priority := 0
 /--
 The highest regular priority for spawned tasks: `8`.
 
-Spawning a task with a priority higher than `Task.Priority.max` is not an error but
-will spawn a dedicated worker for the task, see `Task.Priority.dedicated`.
-Regular priority tasks are placed in a thread pool and worked on according to the priority order.
+Spawning a task with a priority higher than `Task.Priority.max` is not an error but will spawn a
+dedicated worker for the task. This is indicated using `Task.Priority.dedicated`. Regular priority
+tasks are placed in a thread pool and worked on according to their priority order.
 -/
 -- see `LEAN_MAX_PRIO`
 def Priority.max : Priority := 8
 /--
+Indicates that a task should be scheduled on a dedicated thread.
+
 Any priority higher than `Task.Priority.max` will result in the task being scheduled
 immediately on a dedicated thread. This is particularly useful for long-running and/or
-I/O-bound tasks since Lean will by default allocate no more non-dedicated workers
+I/O-bound tasks since Lean will, by default, allocate no more non-dedicated workers
 than the number of cores to reduce context switches.
 -/
 def Priority.dedicated : Priority := 9

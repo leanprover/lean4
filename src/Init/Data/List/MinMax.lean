@@ -76,21 +76,29 @@ theorem le_min?_iff [Min α] [LE α]
       simp at eq
       simp [ih _ eq, le_min_iff, and_assoc]
 
--- This could be refactored by designing appropriate typeclasses to replace `le_refl`, `min_eq_or`,
--- and `le_min_iff`.
-theorem min?_eq_some_iff [Min α] [LE α] [anti : Std.Antisymm ((· : α) ≤ ·)]
+theorem min?_eq_some_iff [Min α] [LE α]
     (le_refl : ∀ a : α, a ≤ a)
     (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b)
-    (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c) {xs : List α} :
+    (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c) {xs : List α}
+    (anti : ∀ a b, a ∈ xs → b ∈ xs → a ≤ b → b ≤ a → a = b := by exact fun a b _ _ => Std.Antisymm.antisymm a b) :
     xs.min? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → a ≤ b := by
   refine ⟨fun h => ⟨min?_mem min_eq_or h, (le_min?_iff le_min_iff h).1 (le_refl _)⟩, ?_⟩
   intro ⟨h₁, h₂⟩
   cases xs with
   | nil => simp at h₁
   | cons x xs =>
-    exact congrArg some <| anti.1 _ _
+    exact congrArg some <| anti _ _ (min?_mem min_eq_or rfl) h₁
       ((le_min?_iff le_min_iff (xs := x::xs) rfl).1 (le_refl _) _ h₁)
       (h₂ _ (min?_mem min_eq_or (xs := x::xs) rfl))
+
+-- This could be refactored by designing appropriate typeclasses to replace `le_refl`, `min_eq_or`,
+-- and `le_min_iff`.
+theorem min?_eq_some_iff'paul [Min α] [LE α] [anti : Std.Antisymm ((· : α) ≤ ·)]
+    (le_refl : ∀ a : α, a ≤ a)
+    (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b)
+    (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c) {xs : List α} :
+    xs.min? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → a ≤ b := by
+  exact min?_eq_some_iff le_refl min_eq_or le_min_iff
 
 theorem min?_replicate [Min α] {n : Nat} {a : α} (w : min a a = a) :
     (replicate n a).min? = if n = 0 then none else some a := by

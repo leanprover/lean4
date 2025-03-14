@@ -4186,9 +4186,6 @@ theorem leSigmaOfOrd_total [Ord α] [OrientedOrd α] (a b : (a : α) × β a) :
 def minSigmaOfOrd [Ord α] : Min ((a : α) × β a) where
   min a b := if compare a.1 b.1 |>.isLE then a else b
 
-def min?'' [Ord α] (l : List ((a : α) × β a)) : Option ((a : α) × β a) :=
-  l.mergeSort.head?
-
 theorem distinctKeys_iff_pairwise [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} :
     DistinctKeys l ↔ List.Pairwise (fun a b => (a == b) = false) (keys l) :=
   ⟨DistinctKeys.distinct, DistinctKeys.mk⟩
@@ -4205,95 +4202,8 @@ theorem DistinctKeys.eq_of_mem_of_beq [BEq α] [EquivBEq α] {a b : (a : α) × 
     cases hmb
     · simp [BEq.symm_false <| hd.1 a.1 <| fst_mem_keys_of_mem ‹_›] at he
     · exact ih ‹_› hd.2
-
-def eq_of_sorted_of_distinctKeys [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l l' : List ((a : α) × β a)}
-    (hl : l.Pairwise LE.le) (hl' : l'.Pairwise LE.le) (hd : DistinctKeys l) (hp : List.Perm l l') :
-    l = l' := by
-  refine hp.eq_of_sorted ?_ hl hl'
-  intro a b ha hb hle hge
-  replace hb := hp.mem_iff.mpr hb
-  apply hd.eq_of_mem_of_beq ha hb
-  exact compare_eq_iff_beq.mp <| TransCmp.isLE_antisymm hle hge
-
-private theorem sorted_mergeSort' [Ord α] [TransOrd α] (l : List ((a : α) × β a)) :
-    l.mergeSort.Pairwise LE.le := by
-  suffices h : l.mergeSort.Pairwise fun a b => decide (a ≤ b) = true by simpa using h
-  apply l.sorted_mergeSort
-  · simpa using fun _ _ _ => TransCmp.isLE_trans
-  · simpa using leSigmaOfOrd_total
-
-theorem min?''_of_perm [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l l' : List ((a : α) × β a)}
-    (hd : DistinctKeys l) (hp : List.Perm l l') :
-    min?'' l = min?'' l' := by
-  simp only [min?'']
-  congr 1
-  apply eq_of_sorted_of_distinctKeys
-  · apply List.sorted_mergeSort'
-  · apply List.sorted_mergeSort'
-  · exact hd.perm <| l.mergeSort_perm _
-  · exact (l.mergeSort_perm _).trans <| hp.trans (l'.mergeSort_perm _).symm
-
-theorem sorted_replaceEntry_of_sorted [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    {k v} {l : List ((a : α) × β a)} (h : l.Pairwise LE.le) :
-    (replaceEntry k v l).Pairwise LE.le := by sorry
-
-theorem min?''_replaceEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (k : α) (v : β k)
-    (l : List ((a : α) × β a)) (hd : DistinctKeys l) :
-    min?'' (replaceEntry k v l) =
-      (min?'' l).map fun e => if e.1 == k then ⟨k, v⟩ else e := by
-  -- simp [min?''_of_perm hd (l.mergeSort_perm fun a b => decide (a ≤ b)).symm]
-  rw [min?''_of_perm hd.replaceEntry <| replaceEntry_of_perm hd
-    (l.mergeSort_perm fun a b => decide (a ≤ b)).symm]
-  simp only [min?'']
-  rw [List.mergeSort_of_sorted]
-  induction l.mergeSort with
-  | nil => simp
-  | cons e es ih =>
-    simp [replaceEntry, cond_eq_if, apply_ite List.head?, apply_ite some]
-  · simp only [decide_eq_true_eq]
-    apply sorted_replaceEntry_of_sorted
-    apply sorted_mergeSort'
-
-theorem le_of_sorted_cons [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (k e) (l : List ((a : α) × β a))
-    (h : (e :: l).Pairwise LE.le) (he : containsKey k (e :: l)) :
-    (compare e.1 k).isLE := by
-  simp [containsKey] at h he
-  cases he
-  · exact Ordering.isLE_of_eq_eq <| compare_eq_iff_beq.mpr ‹_›
-  · sorry --exact h.1 _ sorry
-
-theorem min?''_insertKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (k : α) (v : β k) (l : List ((a : α) × β a))
-    (hd : DistinctKeys l) :
-    min?'' (insertEntry k v l) =
-      some (match min?'' l with
-        | none => ⟨k, v⟩
-        | some w => if compare k w.fst |>.isLE then ⟨k, v⟩ else w) := by
-  simp [insertEntry, cond_eq_if]
-  split
-  · rename_i h
-    rw [min?''_of_perm hd.replaceEntry <| replaceEntry_of_perm hd (l.mergeSort_perm fun a b => decide (a ≤ b)).symm]
-    simp only [min?'']
-    rw [List.mergeSort_of_sorted]
-    replace h := containsKey_of_perm (List.mergeSort_perm l fun a b => decide (a ≤ b)).symm ▸ h
-    revert h
-    have := sorted_mergeSort' l
-    revert this
-    induction l.mergeSort with
-    | nil => simp
-    | cons e es ih =>
-      intro hs h
-      simp [replaceEntry, cond_eq_if, apply_ite List.head?, apply_ite some]
-      congr
-      rw [Bool.eq_iff_iff, ← compare_eq_iff_beq]
-      by_cases h : compare e.fst k = .eq
-      · simp_all [← compare_eq_iff_beq, OrientedCmp.eq_swap (a := k) (cmp := compare)]
-      · have := le_of_sorted_cons k e es hs ‹_›
-        simp only [false_iff, Bool.not_eq_true, Ordering.isLE_eq_false, OrientedCmp.gt_iff_lt, h]
-        cases h : compare e.fst k <;> simp_all
-    · simpa using sorted_replaceEntry_of_sorted <| sorted_mergeSort' _
-  · sorry
-
 /-- Like `List.min?`, but using an `Ord` typeclass instead of a `Min` typeclass. -/
+
 def minEntry? [Ord α] (xs : List ((a : α) × β a)) : Option ((a : α) × β a) :=
   xs.min?
 
@@ -4352,104 +4262,47 @@ theorem minEntry?_cons [Ord α] [TransOrd α] (e : (a : α) × β a) (l : List (
     minEntry? (e :: l) = some (match minEntry? l with
     | none => e
     | some w => min e w) := by
-  simp [minEntry?, List.min?]
-  induction l generalizing e
-  · simp
-  · next tail ih => cases tail <;> simp [ih, Associative.assoc]
+  simp only [minEntry?, List.min?_cons]
+  split <;> simp_all only [List.min?_eq_none_iff, List.min?_nil, Option.elim_none, Option.elim_some]
 
-theorem minEntry?_cons_or [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (e) (es : List ((a : α) × β a)) :
-    minEntry? (e :: es) = some e ∨
-      minEntry? (e :: es) = minEntry? es := by
-  simp only [minEntry?_cons, Option.some.injEq]
-  cases minEntry? es
-  · simp
-  · simpa using min_eq_or
-
-theorem minEntry?_eq_none [Ord α] (l : List ((a : α) × β a)) :
-    minEntry? l = none ↔ l = [] := by
-  cases l <;> simp [minEntry?, List.min?]
-
-theorem minEntry?_isSome_of_isEmpty_eq_false [Ord α] {l : List ((a : α) × β a)} (hl : l.isEmpty = false) :
+theorem isSome_minEntry?_of_isEmpty_eq_false [Ord α] {l : List ((a : α) × β a)} (hl : l.isEmpty = false) :
     (minEntry? l).isSome := by
   cases l
   · simp_all [minEntry?]
   · simp [minEntry?, List.min?]
 
-theorem minEntry?_isSome_of_mem [Ord α] {l : List ((a : α) × β a)} {e : (a : α) × β a} (he : e ∈ l) :
-    (minEntry? l).isSome := by
-  apply minEntry?_isSome_of_isEmpty_eq_false
-  match l with
-  | [] => contradiction
-  | x :: xs => simp
-
 theorem minEntry?_isSome_of_contains [Ord α] [BEq α] {l : List ((a : α) × β a)} {b : α}
     (hb : containsKey b l) :
     (minEntry? l).isSome := by
-  apply minEntry?_isSome_of_isEmpty_eq_false
+  apply isSome_minEntry?_of_isEmpty_eq_false
   match l with
   | [] => contradiction
   | x :: xs => simp
 
-theorem min?_fst [Ord α] (a b : (a : α) × β a) :
-    (min a b).fst = if compare a.fst b.fst |>.isLE then a.fst else b.fst := by
-  simp [min]
-  split <;> rfl
-
-theorem min_fst_le_left [BEq α] [Ord α] [TransOrd α] [LawfulBEqOrd α] (a b : (a : α) × β a) :
-    (compare (min a b).fst a.fst).isLE := by
-  simp only [min]
-  split <;> simp_all [OrientedCmp.gt_iff_lt]
-
-theorem min_fst_le_right [BEq α] [Ord α] [TransOrd α] [LawfulBEqOrd α] (a b : (a : α) × β a) :
-    (compare (min a b).fst b.fst).isLE := by
-  simp only [min]
-  split <;> simp_all [OrientedCmp.gt_iff_lt]
-
-theorem le_minEntry? [BEq α] [Ord α] [TransOrd α] [LawfulBEqOrd α] (l : List ((a : α) × β a)) (b : α) (hb : containsKey b l) :
-    (compare ((minEntry? l).get (minEntry?_isSome_of_contains hb)).fst b).isLE := by
-  induction l <;> try contradiction
-  next e es ih =>
-  simp only [minEntry?_cons, Option.get_some]
-  simp only [containsKey, Bool.or_eq_true] at hb
-  cases hb
-  · rw [← TransCmp.congr_right (cmp := compare) <| compare_eq_iff_beq.mpr ‹_›]
-    split <;> simp [min_fst_le_left]
-  · rw [Option.eq_some_of_isSome <| minEntry?_isSome_of_contains ‹_›]
-    exact TransCmp.isLE_trans (min_fst_le_right ..) (ih ‹_›)
-
-theorem minEntry?_lower_bound' [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (l : List ((a : α) × β a)) (he : l.isEmpty = false) :
-    ∀ b : α, containsKey b l → (compare ((minEntry? l).get (minEntry?_isSome_of_isEmpty_eq_false he)).fst b).isLE := by
-  cases l
-  · contradiction
-  · exact le_minEntry? _
-
-theorem mem_minEntry? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (l : List ((a : α) × β a)) (he : l.isEmpty = false) :
-    (minEntry? l).get (minEntry?_isSome_of_isEmpty_eq_false he) ∈ l := by
-  induction l
-  · simp at he
-  · next e es ih =>
-    cases minEntry?_cons_or e es
-    · simp_all
-    · cases es <;> simp_all [minEntry?_cons]
-
-theorem eq_minEntry?_iff'' [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (a : (a : α) × β a) {l : List ((a : α) × β a)} (he : l.isEmpty = false) (hd : DistinctKeys l) :
-    (minEntry? l).get (minEntry?_isSome_of_isEmpty_eq_false he) = a ↔ a ∈ l ∧ ∀ b : α, containsKey b l → (compare a.fst b).isLE := by
-  have hmm := mem_minEntry? _ he
-  have hml := minEntry?_lower_bound' _ he
-  apply Iff.intro
-  · exact (· ▸ ⟨hmm, hml⟩)
-  · intro ⟨ham, hal⟩
-    exact hd.eq_of_mem_of_beq hmm ham <| compare_eq_iff_beq.mp <|
-      TransCmp.isLE_antisymm (hml _ <| containsKey_of_mem ham) (hal _ <| containsKey_of_mem hmm)
+theorem le_min_iff [Ord α] [TransOrd α] {a b c : (a : α) × β a} :
+    a ≤ min b c ↔ a ≤ b ∧ a ≤ c := by
+  simp only [min_def]
+  split
+  · simp only [iff_self_and]
+    exact fun h => TransCmp.isLE_trans h ‹_›
+  · simp only [Bool.not_eq_true, Ordering.isLE_eq_false, OrientedCmp.gt_iff_lt, iff_and_self] at *
+    exact fun h => Ordering.isLE_of_eq_lt <| TransCmp.lt_of_isLE_of_lt h ‹_›
 
 theorem some_eq_minEntry?_iff'' [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (a : (a : α) × β a) {l : List ((a : α) × β a)} (hd : DistinctKeys l) :
     minEntry? l = some a ↔ a ∈ l ∧ ∀ b : α, containsKey b l → (compare a.fst b).isLE := by
-  cases he : l.isEmpty <;> (try simp_all; done)
-  have := minEntry?_isSome_of_isEmpty_eq_false he
-  rw [← eq_minEntry?_iff'' a he hd]
-  apply Iff.intro <;> intro h
-  · simp [h]
-  · simp [← h]
+  rw [minEntry?, List.min?_eq_some_iff _ _ _ _]
+  · simp only [and_congr_right_iff]
+    intro hm
+    sorry
+  · exact fun _ => TransCmp.isLE_rfl
+  · exact fun _ _ => min_eq_or
+  · exact fun a b c => le_min_iff
+  · sorry -- prove using DistinctKeys
+
+theorem minEntry?_get_mem [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] (l : List ((a : α) × β a)) (he : l.isEmpty = false) :
+    (minEntry? l).get (isSome_minEntry?_of_isEmpty_eq_false he) ∈ l := by
+  simp only [minEntry?]
+  apply List.min?_mem (fun _ _ => min_eq_or) (Option.some_get _).symm
 
 theorem minEntry?_of_perm' [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l l' : List ((a : α) × β a)}
     (hl : DistinctKeys l) (hp : l.Perm l') :
@@ -4601,32 +4454,14 @@ theorem minKey?_get_mem_keys [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {
     (minKey? l).get h ∈ keys l := by
   simp only [minKey?, Option.isSome_map', isSome_minEntry?_eq_not_isEmpty, Bool.not_eq_eq_eq_not] at h
   simp only [minKey?, Option.get_map]
-  exact fst_mem_keys_of_mem <| mem_minEntry? l h
+  exact fst_mem_keys_of_mem <| minEntry?_get_mem l h
 
 theorem containsKey_minKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l : List ((a : α) × β a)}
-    (hd : DistinctKeys l) :
-    minKey? l |>.all fun k => containsKey k l := by
-  cases h : minKey? l
-  · rfl
-  · rename_i k
-    simp
-    simp only [minKey?, Option.map_eq_some', some_eq_minEntry?_iff'' _ hd] at h
-    obtain ⟨e, ⟨hm, _⟩, rfl⟩ := h
-    exact containsKey_of_mem hm
-
-theorem containsKey_minKey?_get [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {h} :
-    containsKey ((minKey? l).get h) l := by
-  have := containsKey_minKey? hd
-  rwa [← Option.some_get (h := h), Option.all_some] at this
-
-def perm_minEntry?_get_cons [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    {l : List ((a : α) × β a)} (hd : DistinctKeys l) (he : l.isEmpty = false) :
-    ∃ l', List.Perm l <| (minEntry? l |>.get <| minEntry?_isSome_of_isEmpty_eq_false he) :: l' := by
-  have := minKey?_bind_getEntry? hd
-  simp only [← this, Option.get_bind]
-  apply perm_cons_getEntry
-  exact containsKey_minKey?_get hd
+    (hd : DistinctKeys l) {km} (hkm : minKey? l = some km) :
+    containsKey km l := by
+  simp only [minKey?, Option.map_eq_some', some_eq_minEntry?_iff'' _ hd] at hkm
+  obtain ⟨e, ⟨hm, _⟩, rfl⟩ := hkm
+  exact containsKey_of_mem hm
 
 theorem minKey?_eq_some_iff [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k}
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) :
@@ -4643,43 +4478,6 @@ theorem getKey?_eq_some_self_iff [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd �
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) :
     getKey? k l = some k ↔ k ∈ keys l := by
   simp [getKey?_eq_some_iff hd]
-
-theorem minKey?_eraseKey_of_isNe_compare [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k}
-    {l : List ((a : α) × β a)} (hd : DistinctKeys l)
-    (hc : minKey? l |>.all fun k' => compare k k' |>.isNe) :
-    minKey? (eraseKey k l) = minKey? l := by
-  cases h : minKey? l
-  · simp only [minKey?, Option.map_eq_none', minEntry?_eq_none_iff_isEmpty, List.isEmpty_iff] at h
-    simp [h, minKey?]
-  · rename_i km
-    have := minKey?_get_mem_keys (h := h ▸ Option.isSome_some)
-    simp only [h, Option.all_some] at hc
-    simp only [minKey?_eq_some_iff, getKey?_eq_some_self_iff, hd.eraseKey]
-    refine ⟨?_, ?_⟩
-    · simp [List.erase_eq_eraseP']
-      rw [List.mem_eraseP_of_neg]
-      · simpa only [h] using this
-      · simp [Ordering.isNe_iff_ne_eq, compare_eq_iff_beq] at hc
-        simpa only [Bool.not_eq_true] using BEq.symm_false hc
-    · intro k' hk'
-      simp only [minKey?_eq_some_iff hd] at h
-      apply h.2
-      exact containsKey_of_containsKey_eraseKey hd hk'
-
-theorem Option.bind_congr {α β} {o : Option α} {f g : α → Option β} :
-    (h : ∀ {a}, o = some a → f a = g a) → o.bind f = o.bind g := by
-  cases o <;> simp
-
-theorem minEntry?_eraseKey_of_isNe_compare [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k}
-    {l : List ((a : α) × β a)} (hd : DistinctKeys l)
-    (hc : minKey? l |>.all fun k' => compare k k' |>.isNe) :
-    minEntry? (eraseKey k l) = minEntry? l := by
-  simp only [← minKey?_bind_getEntry?, minKey?_eraseKey_of_isNe_compare, hd, hd.eraseKey, hc]
-  refine Option.bind_congr fun {k'} hk' => ?_
-  rw [getEntry?_eraseKey_of_false]
-  simp_all [Ordering.isNe_iff_ne_eq, compare_eq_iff_beq]
-
-section MinKey
 
 theorem minKey?_eq_none_iff_isEmpty [Ord α] {l : List ((a : α) × β a)} :
     minKey? l = none ↔ l.isEmpty := by
@@ -4699,18 +4497,48 @@ theorem isSome_minKey?_eq_not_isEmpty [Ord α] {l : List ((a : α) × β a)} :
 
 /--
 Restatement of `isSome_minKey?_eq_not_isEmpty` such that exactly matches the signature needed in
-the statement of `get_minKey?_insertEntry_le_get_minKey?`.
+the statement of `minKey?_insertEntry_le_minKey?`.
 -/
-theorem isSome_minKey?_iff_isEmpty_eq_false [Ord α] {l : List ((a : α) × β a)} :
-    (minKey? l).isSome ↔ l.isEmpty = false := by
+theorem isSome_minKey?_of_isEmpty_eq_false [Ord α] {l : List ((a : α) × β a)} :
+    l.isEmpty = false → (minKey? l).isSome := by
   simp [isSome_minKey?_eq_not_isEmpty]
+
+theorem minKey?_eraseKey_eq_iff_beq_minKey?_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {k} {l : List ((a : α) × β a)} (hd : DistinctKeys l) :
+    minKey? (eraseKey k l) = minKey? l ↔ ∀ {km}, minKey? l = some km → (k == km) = false := by
+  cases h : minKey? l
+  · simp_all [minKey?_eq_none_iff_isEmpty]
+  · simp only [minKey?_eq_some_iff, getKey?_eraseKey, containsKey_eraseKey, compare_eq_iff_beq,
+      hd, hd.eraseKey] at ⊢ h
+    simp_all
+
+theorem minKey?_eraseKey_eq_of_beq_minKey?_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k}
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l)
+    (hc : ∀ {km}, minKey? l = some km → (k == km) = false) :
+    minKey? (eraseKey k l) = minKey? l := by
+  rw [minKey?_eraseKey_eq_iff_beq_minKey?_eq_false hd |>.mpr]
+  revert hc
+  cases minKey? l <;> simp [Ordering.isNe_iff_ne_eq]
+
+theorem Option.bind_congr {α β} {o : Option α} {f g : α → Option β} :
+    (h : ∀ {a}, o = some a → f a = g a) → o.bind f = o.bind g := by
+  cases o <;> simp
+
+theorem minEntry?_eraseKey_of_isNe_compare [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k}
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l)
+    (hc : ∀ {km}, minKey? l = some km → (k == km) = false) :
+    minEntry? (eraseKey k l) = minEntry? l := by
+  simp only [← minKey?_bind_getEntry?, minKey?_eraseKey_eq_of_beq_minKey?_eq_false hd hc,
+    hd, hd.eraseKey]
+  refine Option.bind_congr fun {k'} hk' => ?_
+  rw [getEntry?_eraseKey_of_false]
+  simp_all [Ordering.isNe_iff_ne_eq, compare_eq_iff_beq]
+
+section MinKey
 
 theorem minKey?_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α} {v : β k}
     {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
-    minKey? (insertEntry k v l) =
-      some (match minKey? l with
-        | none => k
-        | some w => if compare k w |>.isLE then k else w) := by
+    minKey? (insertEntry k v l) = (minKey? l).elim k fun k' => if compare k k' |>.isLE then k else k' := by
   simp only [minKey?, minEntry?_insertEntry hl]
   cases minEntry? l <;> simp [apply_ite Sigma.fst]
 
@@ -4724,88 +4552,66 @@ theorem minKey?_of_perm [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l l' 
     minKey? l = minKey? l' := by
   simp only [minKey?, minEntry?_of_perm' hl hp]
 
-theorem get_minKey?_insertEntry_le_get_minKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α}
-    {v : β k} {l : List ((a : α) × β a)} (hl : DistinctKeys l) (he : l.isEmpty = false) :
-    compare (insertEntry k v l |> minKey? |>.get <| isSome_minKey?_insertEntry hl)
-      (minKey? l |>.get <| isSome_minKey?_iff_isEmpty_eq_false.mpr he)|>.isLE := by
-  simp only [minKey?_insertEntry hl, Option.get_some]
-  generalize isSome_minKey?_iff_isEmpty_eq_false.mpr he = aux; revert aux
-  cases minKey? l
-  · simp
-  · simp only [Option.isSome_some, Option.get_some, forall_const]
-    split
-    · assumption
-    · exact TransCmp.isLE_rfl
+theorem minKey?_insertEntry_le_minKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α}
+    {v : β k} {l : List ((a : α) × β a)} (hl : DistinctKeys l) {km kmi} (hkm : minKey? l = some km)
+    (hkmi : (insertEntry k v l |> minKey? |>.get <| isSome_minKey?_insertEntry hl) = kmi) :
+    compare kmi km |>.isLE := by
+  simp only [← hkmi, minKey?_insertEntry hl, hkm, Option.get_some, Option.elim_some]
+  split <;> simp [*]
 
-theorem get_minKey?_insertEntry_le_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α}
-    {v : β k} {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
-    compare (insertEntry k v l |> minKey? |>.get <| isSome_minKey?_insertEntry hl) k |>.isLE := by
-  simp only [minKey?_insertEntry hl, Option.get_some]
+theorem minKey?_insertEntry_le_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α}
+    {v : β k} {l : List ((a : α) × β a)} (hl : DistinctKeys l) {kmi}
+    (hkmi : (insertEntry k v l |> minKey? |>.get <| isSome_minKey?_insertEntry hl) = kmi) :
+    compare kmi k |>.isLE := by
+  simp only [← hkmi, minKey?_insertEntry hl, Option.get_some]
   cases minKey? l
   · simp
-  · dsimp only
-    split
-    · exact TransCmp.isLE_rfl
-    · simp_all [OrientedCmp.gt_iff_lt]
+  · dsimp only [Option.elim_some]
+    cases hcmp : compare k _ <;> simp_all [OrientedCmp.gt_iff_lt]
 
 theorem isSome_minKey?_of_containsKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k}
     {l : List ((a : α) × β a)} (hc : containsKey k l) :
     minKey? l |>.isSome := by
   simpa [minKey?] using isSome_minEntry?_of_containsKey hc
 
-theorem minKey?_get_le_of_containsKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k}
-    {l : List ((a : α) × β a)} (hd : DistinctKeys l) (hc : containsKey k l) :
-    compare (minKey? l |>.get <| isSome_minKey?_of_containsKey hc) k |>.isLE := by
-  have h := Option.eq_some_of_isSome (isSome_minKey?_of_containsKey hc)
-  exact minKey?_eq_some_iff hd |>.mp h |>.2 _ hc
+theorem minKey?_le_of_containsKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k km}
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) (hc : containsKey k l)
+    (hkm : (minKey? l |>.get <| isSome_minKey?_of_containsKey hc) = km) :
+    compare km k |>.isLE := by
+  simpa only [← hkm] using minKey?_eq_some_iff hd |>.mp (by simp) |>.2 _ hc
 
-theorem minKey?_le_of_containsKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k}
-    {l : List ((a : α) × β a)} (hd : DistinctKeys l) (hc : containsKey k l) :
-    minKey? l |>.all fun km => compare km k |>.isLE := by
-  have h := Option.eq_some_of_isSome (isSome_minKey?_of_containsKey hc)
-  rw [h, Option.all_some]
-  exact minKey?_get_le_of_containsKey hd hc
+theorem getKey?_minKey? [Ord α] [TransOrd α] [BEq α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {km} (hkm : minKey? l = some km) :
+    getKey? km l = some km := by
+  simp_all [minKey?_eq_some_iff hd]
 
 theorem minKey?_bind_getKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) :
     (minKey? l |>.bind fun k => getKey? k l) = minKey? l := by
   cases h : minKey? l
   · rfl
-  · simp only [minKey?_eq_some_iff hd] at h
-    simp_all only [Option.some_bind]
+  · simpa using getKey?_minKey? hd h
 
 theorem isSome_minKey?_of_isSome_minKey?_eraseKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k}
     {l : List ((a : α) × β a)} (hs : eraseKey k l |> minKey? |>.isSome) :
     minKey? l |>.isSome := by
   simp_all [isSome_minKey?_eq_not_isEmpty, isEmpty_eraseKey]
 
--- TODO: move to List.Lemmas or somewhere else?
-theorem elem_eq_true_of_mem' [BEq α] [ReflBEq α] {a : α} {as : List α} (h : a ∈ as) :
-    as.contains a = true := by
-  induction h with
-  | head _ => simp [← List.elem_eq_contains, List.elem]
-  | tail _ _ ih => simp [← List.elem_eq_contains, List.elem]; split; rfl; assumption
-
-theorem Option.all_eq {o : Option α} {p} :
-    o.all p = decide (∀ x, x ∈ o → p x) := by induction o <;> simp [*]
-
-theorem containsKey_minKey?_get_eraseKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k}
-    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {h} :
-    containsKey (eraseKey k l |> minKey? |>.get h) l := by
-  exact containsKey_of_containsKey_eraseKey hd <| containsKey_minKey?_get hd.eraseKey
-
 theorem containsKey_minKey?_eraseKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k}
-    {l : List ((a : α) × β a)} (hd : DistinctKeys l) :
-    eraseKey k l |> minKey? |>.all fun k => containsKey k l := by
-  simpa [Option.all_eq, Option.eq_some_iff_get_eq] using
-    fun _ => containsKey_minKey?_get_eraseKey hd
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {kme}
+    (hkme : (eraseKey k l |> minKey?) = some kme) :
+    containsKey kme l := by
+  apply containsKey_of_containsKey_eraseKey hd
+  apply containsKey_minKey? hd.eraseKey hkme
 
-theorem minKey?_le_minKey?_eraseKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k}
-    {l : List ((a : α) × β a)} (hd : DistinctKeys l) :
-    eraseKey k l |> minKey? |>.attach.all fun ⟨k, hk⟩ => compare (minKey? l |>.get <|
-            isSome_minKey?_of_isSome_minKey?_eraseKey <| hk ▸ Option.isSome_some) k |>.isLE := by
-  simpa [Option.all_eq, Option.eq_some_iff_get_eq] using
-    fun _ => minKey?_get_le_of_containsKey hd <| containsKey_minKey?_get_eraseKey hd
+theorem minKey?_le_minKey?_eraseKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k km kme}
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l)
+    (hkme : (eraseKey k l |> minKey?) = some kme)
+    (hkm : (minKey? l |>.get <|
+      isSome_minKey?_of_isSome_minKey?_eraseKey <| hkme ▸ Option.isSome_some) = km) :
+    compare km kme |>.isLE := by
+  apply minKey?_le_of_containsKey hd _ hkm
+  apply containsKey_minKey?_eraseKey hd hkme
 
 end MinKey
 

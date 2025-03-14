@@ -126,9 +126,8 @@ def registerGetEqnsFn (f : GetEqnsFn) : IO Unit := do
 
 /-- Returns `true` iff `declName` is a definition and its type is not a proposition. -/
 private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
-  if let some (.defnInfo info) := (← getEnv).find? declName then
-    if (← isProp info.type) then return false
-    return true
+  if let some { kind := .defn, sig, .. } := (← getEnv).findAsync? declName then
+    return !(← isProp sig.get.type)
   else
     return false
 

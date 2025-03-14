@@ -2582,7 +2582,7 @@ theorem signExtend_eq_append_of_le {w v : Nat} {x : BitVec w} (h : w ≤ v) :
     simp [getElem_cast, hx, getElem_append, getElem_signExtend]
 
 /--
-The 'master theorem' for extracting bits from `(xhi ++  xlo)`,
+The 'master theorem' for extracting bits from `(xhi ++ xlo)`,
 which performs a case analysis on the start index, length, and the lengths of `xlo, xhi`.
 · If the start index is entirely out of the `xlo` bitvector, then grab the bits from `xhi`.
 · If the start index is entirely contained in the `xlo` bitvector, then grab the bits from `xlo`.

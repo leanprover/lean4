@@ -16,7 +16,6 @@ import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateLeft
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateRight
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.SignExtend
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod

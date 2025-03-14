@@ -1098,7 +1098,8 @@ where
         reportDiag
         -- must introduce node to fill `infoHole` with multiple info trees
         let info := .ofCustomInfo { stx := header.value, value := .mk (α := AsyncBodyInfo) {} }
-        infoPromise.resolve <| .node info (← getInfoTrees)
+        let ctx ← CommandContextInfo.save
+        infoPromise.resolve <| .context (.commandCtx ctx) <| .node info (← getInfoTrees)
       async.commitConst (← getEnv)
       let cancelTk ← IO.CancelToken.new
       let checkAct ← wrapAsyncAsSnapshot (desc := s!"finishing proof of {declId.declName}")

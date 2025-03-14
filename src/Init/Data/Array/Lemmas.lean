@@ -3921,7 +3921,15 @@ theorem all_reverse {xs : Array α} : xs.reverse.all f 0 = xs.all f := by
 
 /-! ### toListRev -/
 
-/-- A more efficient version of `arr.toList.reverse`; for verification purposes we immediately simplify it. -/
+/--
+Converts an array to a list that contains the same elements in the opposite order.
+
+This is equivalent to, but more efficient than, `Array.toList ∘ List.reverse`.
+
+Examples:
+* `#[1, 2, 3].toListRev = [3, 2, 1]`
+* `#["blue", "yellow"].toListRev = ["yellow", "blue"]`
+-/
 @[inline] def toListRev (xs : Array α) : List α := xs.foldl (fun l t => t :: l) []
 
 @[simp] theorem toListRev_eq (xs : Array α) : xs.toListRev = xs.toList.reverse := by

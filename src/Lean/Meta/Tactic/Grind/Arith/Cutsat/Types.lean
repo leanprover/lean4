@@ -77,8 +77,13 @@ structure EqCnstr where
   h  : EqCnstrProof
 
 inductive EqCnstrProof where
-  | expr (h : Expr)
-  | core (p₁ p₂ : Poly) (h : Expr)
+  | /-- An equality `a = 0` coming from the core. -/
+    core0 (a : Expr) (zero : Expr)
+  | /--
+    An equality `a = b` coming from the core.
+    `p₁` and `p₂` are the polynomials corresponding to `a` and `b`.
+    -/
+    core (a b : Expr) (p₁ p₂ : Poly)
   | norm (c : EqCnstr)
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)

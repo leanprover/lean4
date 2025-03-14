@@ -62,9 +62,10 @@ mutual
 partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.cutsat.proof] "{← c'.pp}"
   match c'.h with
-  | .expr h =>
-    return h
-  | .core p₁ p₂ h =>
+  | .core0 a zero =>
+    mkEqProof a zero
+  | .core a b p₁ p₂ =>
+    let h ← mkEqProof a b
     return mkApp6 (mkConst ``Int.Linear.eq_of_core) (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c'.p) reflBoolTrue h
   | .norm c =>
     return mkApp5 (mkConst ``Int.Linear.eq_norm) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
@@ -324,8 +325,7 @@ private def collectExpr (e : Expr) : CollectDecVarsM Unit := do
 mutual
 partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .expr h => collectExpr h
-  | .core .. => return () -- Equalities coming from the core never contain cutsat decision variables
+  | .core0 .. | .core .. => return () -- Equalities coming from the core never contain cutsat decision variables
   | .norm c | .divCoeffs c => c.collectDecVars
   | .subst _ c₁ c₂ | .ofLeGe c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars
 

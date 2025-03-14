@@ -140,27 +140,27 @@ theorem bmod_bmod_of_dvd {a : Int} {n m : Nat} (hnm : n ∣ m) :
   obtain ⟨k, rfl⟩ := hnm
   simp [Int.mul_assoc]
 
-theorem bmod_eq_of_le_of_lt {x : Int} {y : Nat} (hge : -y ≤ x * 2) (hlt : x * 2 < y) :
-    x.bmod y = x := by
-  simp only [Int.bmod_def]
-  rcases x
-  · rw [Int.emod_eq_of_lt (by simp only [ofNat_eq_coe]; omega) (by omega)]; omega
-  · rw [Int.emod_eq_add_self_emod, Int.emod_eq_of_lt (by omega) (by omega)]; omega
+-- theorem bmod_eq_of_le_of_lt {x : Int} {y : Nat} (hge : -y ≤ x * 2) (hlt : x * 2 < y) :
+--     x.bmod y = x := by
+--   simp only [Int.bmod_def]
+--   rcases x
+--   · rw [Int.emod_eq_of_lt (by simp only [ofNat_eq_coe]; omega) (by omega)]; omega
+--   · rw [Int.emod_eq_add_self_emod, Int.emod_eq_of_lt (by omega) (by omega)]; omega
 
-theorem mul_le_mul_self {x y : Int} {s : Nat} (hx : x.natAbs ≤ s) (hy : y.natAbs ≤ s) :
-    x * y ≤ s * s := by
-  rcases s with _|s
-  · simp [show x = 0 by omega]
-  · have := Nat.mul_pos (n := (s + 1)) (m := (s + 1)) (by omega) (by omega)
-    by_cases hx : 0 < x <;> by_cases hy : 0 < y
-    · exact Int.mul_le_mul (by omega) (by omega) (by omega) (by omega)
-    · have : x * y ≤ 0 := Int.mul_nonpos_of_nonneg_of_nonpos (by omega) (by omega); omega
-    · have : x * y ≤ 0 := Int.mul_nonpos_of_nonpos_of_nonneg (by omega) (by omega); omega
-    · have : -x * -y ≤ (s + 1) * (s + 1) := Int.mul_le_mul (by omega) (by omega) (by omega) (by omega)
-      simp_all
+-- theorem mul_le_mul_self {x y : Int} {s : Nat} (hx : x.natAbs ≤ s) (hy : y.natAbs ≤ s) :
+--     x * y ≤ s * s := by
+--   rcases s with _|s
+--   · simp [show x = 0 by omega]
+--   · have := Nat.mul_pos (n := (s + 1)) (m := (s + 1)) (by omega) (by omega)
+--     by_cases hx : 0 < x <;> by_cases hy : 0 < y
+--     · exact Int.mul_le_mul (by omega) (by omega) (by omega) (by omega)
+--     · have : x * y ≤ 0 := Int.mul_nonpos_of_nonneg_of_nonpos (by omega) (by omega); omega
+--     · have : x * y ≤ 0 := Int.mul_nonpos_of_nonpos_of_nonneg (by omega) (by omega); omega
+--     · have : -x * -y ≤ (s + 1) * (s + 1) := Int.mul_le_mul (by omega) (by omega) (by omega) (by omega)
+--       simp_all
 
-theorem neg_mul_self_le_mul {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -s ≤ y) (uby : y < s) :
-      -(s * s) ≤ x * y := by sorry
+-- theorem neg_mul_self_le_mul {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -s ≤ y) (uby : y < s) :
+--       -(s * s) ≤ x * y := by sorry
   -- have := Nat.mul_pos (n := s) (m := s) (by omega) (by omega)
   -- by_cases 0 ≤ x <;> by_cases 0 ≤ y
   -- · have : 0 ≤ x * y := Int.mul_nonneg (by omega) (by omega); omega

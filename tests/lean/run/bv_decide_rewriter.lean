@@ -583,6 +583,9 @@ example {x : BitVec 8} :
     (~~~x.extractLsb' 3 5) ++ (~~~x.extractLsb' 1 2) = ~~~x.extractLsb' 1 7 := by
   bv_normalize
 
+-- BV_ULT_SPECIAL_CONST
+example {x : BitVec 8} : x < 255 ↔ x ≠ 255 := by bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

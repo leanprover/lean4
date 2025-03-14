@@ -330,6 +330,11 @@ theorem BitVec.max_ult' (a : BitVec w) : (BitVec.ult (-1#w) a) = false := by
   rw [BitVec.negOne_eq_allOnes, ← Bool.not_eq_true, ← @lt_ult]
   exact BitVec.not_allOnes_lt
 
+theorem BitVec.ult_max' (a : BitVec w) : (BitVec.ult a (-1#w)) = (!(a == -1#w)) := by
+  have := BitVec.lt_allOnes_iff (x := a)
+  rw [lt_ult, ← BitVec.negOne_eq_allOnes] at this
+  by_cases (a.ult (-1#w)) <;> simp_all
+
 attribute [bv_normalize] BitVec.replicate_zero_eq
 attribute [bv_normalize] BitVec.add_eq_xor
 attribute [bv_normalize] BitVec.mul_eq_and

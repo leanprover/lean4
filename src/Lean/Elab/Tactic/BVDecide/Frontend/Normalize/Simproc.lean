@@ -370,5 +370,13 @@ builtin_simproc [bv_normalize] bv_elim_setWidth (BitVec.setWidth _ _) := fun e =
         (← mkDecideProof (← mkLe oldWidthExpr newWidthExpr))
     return .visit { expr := expr, proof? := some proof }
 
+builtin_simproc [bv_normalize] bv_lt_allOnes_iff (BitVec.ult _ (BitVec.ofNat _ _)) := fun e => do
+  let_expr BitVec.ult wExpr lhsExpr rhsExpr := e | return .continue
+  let some ⟨w, rhs⟩ ← getBitVecValue? rhsExpr | return .continue
+  if rhs != -1#w then return .continue
+  let expr := mkApp (mkConst ``Bool.not) (← mkAppM ``BEq.beq #[lhsExpr, toExpr (-1#w)])
+  let proof := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.ult_max') wExpr lhsExpr
+  return .visit { expr := expr, proof? := some proof }
+
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

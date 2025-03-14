@@ -13,6 +13,7 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 structure ProofM.State where
   cache       : Std.HashMap UInt64 Expr := {}
   polyMap     : Std.HashMap Poly Expr := {}
+  natCtxMap   : Std.HashMap (Array Expr) Expr := {}
 
 /-- Auxiliary monad for constructing cutsat proofs. -/
 abbrev ProofM := ReaderT Expr (StateRefT ProofM.State GoalM)
@@ -39,24 +40,41 @@ def mkPolyDecl (p : Poly) : ProofM Expr := do
   }
   return x
 
+def mkNatCtxDecl (ctx : Array Expr) : ProofM Expr := do
+  if let some e := (← get).natCtxMap[ctx]? then
+    return e
+  let x := mkFVar (← mkFreshFVarId)
+  modify fun s => { s with
+    natCtxMap := s.natCtxMap.insert ctx x
+  }
+  return x
+
 private def mkDiseqProof (a b : Expr) : GoalM Expr := do
  let some h ← mkDiseqProof? a b
    | throwError "internal `grind` error, failed to build disequality proof for{indentExpr a}\nand{indentExpr b}"
   return h
+
+private def mkLetOfMap {_ : Hashable α} {_ : BEq α} (m : Std.HashMap α Expr) (e : Expr)
+    (varPrefix : Name) (varType : Expr) (toExpr : α → Expr) : GoalM Expr := do
+  if m.isEmpty then
+    return e
+  else
+    let as := m.toArray
+    let mut e := e.abstract <| as.map (·.2)
+    let mut i := as.size
+    for (p, _) in as.reverse do
+      e := mkLet (varPrefix.appendIndexAfter i) varType (toExpr p) e
+      i := i - 1
+    return e
 
 abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
   withLetDecl `ctx (mkApp (mkConst ``RArray) (mkConst ``Int)) (← toContextExpr) fun ctx => do
     go ctx |>.run' {}
 where
   go : ProofM Expr := do
-    let mut h ← x
-    let ps := (← get).polyMap.toArray
-    h := h.abstract <| ps.map (·.2)
-    let polyType := mkConst ``Int.Linear.Poly
-    let mut i := ps.size
-    for (p, _) in ps.reverse do
-      h := mkLet ((`p).appendIndexAfter i) polyType (toExpr p) h
-      i := i - 1
+    let h ← x
+    let h ← mkLetOfMap (← get).polyMap h `p (mkConst ``Int.Linear.Poly) toExpr
+    let h ← mkLetOfMap (← get).natCtxMap h `nctx (mkApp (mkConst ``Lean.RArray) (mkConst ``Nat)) Simp.Arith.Nat.toContextExpr
     let ctx ← read
     mkLetFVars #[ctx] h
 
@@ -154,11 +172,11 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
     let h ← mkOfEqFalse (← mkEqFalseProof e)
     return mkApp5 (mkConst ``Int.Linear.le_neg) (← getContext) (← mkPolyDecl p) (← mkPolyDecl c'.p) reflBoolTrue h
   | .coreNat e ctx lhs rhs lhs' rhs' =>
-    let ctx := Simp.Arith.Nat.toContextExpr ctx
+    let ctx ← mkNatCtxDecl ctx
     let h := mkApp4 (mkConst ``Int.OfNat.of_nat_le) ctx (toExpr lhs) (toExpr rhs) (mkOfEqTrueCore e (← mkEqTrueProof e))
     return mkApp6 (mkConst ``Int.Linear.le_norm_expr) (← getContext) (toExpr lhs') (toExpr rhs') (← mkPolyDecl c'.p) reflBoolTrue h
   | .coreNatNeg e ctx lhs rhs lhs' rhs' =>
-    let ctx := Simp.Arith.Nat.toContextExpr ctx
+    let ctx ← mkNatCtxDecl ctx
     let h := mkApp4 (mkConst ``Int.OfNat.of_not_nat_le) ctx (toExpr lhs) (toExpr rhs) (mkOfEqFalseCore e (← mkEqFalseProof e))
     return mkApp6 (mkConst ``Int.Linear.not_le_norm_expr) (← getContext) (toExpr lhs') (toExpr rhs') (← mkPolyDecl c'.p) reflBoolTrue h
   | .dec h =>

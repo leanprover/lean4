@@ -18,6 +18,9 @@ instance : DecidableEq (PosFin n) :=
 instance : CoeOut (PosFin n) Nat where
   coe p := p.val
 
+instance {n} : Hashable (PosFin n) where
+  hash p := Nat.toUInt64 p.val
+
 instance : ToString (PosFin n) where
   toString p := toString p.val
 

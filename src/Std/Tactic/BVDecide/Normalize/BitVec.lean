@@ -450,5 +450,37 @@ theorem BitVec.signExtend_elim' {v : Nat} {x : BitVec v} {w : Nat} (h : w ≤ v)
     BitVec.signExtend w x = BitVec.extractLsb' 0 w x := by
   rw [BitVec.signExtend_eq_setWidth_of_le _ h, BitVec.setWidth_eq_extractLsb' h]
 
+@[bv_normalize]
+theorem BitVec.add_neg_mul {x y : BitVec w} : ~~~(x + x * y) + 1#w = x * ~~~y := by
+  rw [← BitVec.neg_eq_not_add, BitVec.neg_add_mul_eq_mul_not]
+
+@[bv_normalize]
+theorem BitVec.add_neg_mul' {x y : BitVec w} : ~~~(x + y * x) + 1#w = x * ~~~y := by
+  rw [BitVec.mul_comm y x, BitVec.add_neg_mul]
+
+@[bv_normalize]
+theorem BitVec.add_neg_mul'' {x y : BitVec w} : ~~~(x * y + x) + 1#w = x * ~~~y := by
+  rw [BitVec.add_comm (x * y) x, BitVec.add_neg_mul]
+
+@[bv_normalize]
+theorem BitVec.add_neg_mul''' {x y : BitVec w} : ~~~(y * x + x) + 1#w = x * ~~~y := by
+  rw [BitVec.mul_comm y x, BitVec.add_neg_mul'']
+
+@[bv_normalize]
+theorem BitVec.add_neg_mul'''' {x y : BitVec w} : 1#w + ~~~(x + x * y) = x * ~~~y := by
+  rw [BitVec.add_comm 1#w, BitVec.add_neg_mul]
+
+@[bv_normalize]
+theorem BitVec.add_neg_mul''''' {x y : BitVec w} : 1#w + ~~~(x + y * x) = x * ~~~y := by
+  rw [BitVec.add_comm 1#w, BitVec.add_neg_mul']
+
+@[bv_normalize]
+theorem BitVec.add_neg_mul'''''' {x y : BitVec w} : 1#w + ~~~(x * y + x) = x * ~~~y := by
+  rw [BitVec.add_comm 1#w, BitVec.add_neg_mul'']
+
+@[bv_normalize]
+theorem BitVec.add_neg_mul''''''' {x y : BitVec w} : 1#w + ~~~(y * x + x) = x * ~~~y := by
+  rw [BitVec.add_comm 1#w, BitVec.add_neg_mul''']
+
 end Normalize
 end Std.Tactic.BVDecide

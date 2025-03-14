@@ -147,15 +147,18 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
 partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.cutsat.proof] "{← c'.pp}"
   match c'.h with
-  | .expr h =>
-    return h
+  | .core e =>
+    mkOfEqTrue (← mkEqTrueProof e)
+  | .coreNeg e p =>
+    let h ← mkOfEqFalse (← mkEqFalseProof e)
+    return mkApp5 (mkConst ``Int.Linear.le_neg) (← getContext) (← mkPolyDecl p) (← mkPolyDecl c'.p) reflBoolTrue h
+  | .dec h =>
+    return mkFVar h
   | .norm c =>
     return mkApp5 (mkConst ``Int.Linear.le_norm) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
   | .divCoeffs c =>
     let k := c.p.gcdCoeffs'
     return mkApp6 (mkConst ``Int.Linear.le_coeff) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) (toExpr (Int.ofNat k)) reflBoolTrue (← c.toExprProof)
-  | .notExpr p h =>
-    return mkApp5 (mkConst ``Int.Linear.le_neg) (← getContext) (← mkPolyDecl p) (← mkPolyDecl c'.p) reflBoolTrue h
   | .combine c₁ c₂ =>
     return mkApp7 (mkConst ``Int.Linear.le_combine)
       (← getContext) (← mkPolyDecl c₁.p) (← mkPolyDecl c₂.p) (← mkPolyDecl c'.p)
@@ -324,11 +327,6 @@ private def alreadyVisited (c : α) : CollectDecVarsM Bool := do
 private def markAsFound (fvarId : FVarId) : CollectDecVarsM Unit := do
   modify fun s => { s with found := s.found.insert fvarId }
 
-private def collectExpr (e : Expr) : CollectDecVarsM Unit := do
-  let .fvar fvarId := e | return ()
-  if (← read).contains fvarId then
-    markAsFound fvarId
-
 mutual
 partial def EqCnstr.collectDecVars (c' : EqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
@@ -354,8 +352,8 @@ partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do
 
 partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .expr h => collectExpr h
-  | .notExpr .. => return () -- This kind of proof is used for connecting with the `grind` core.
+  | .core .. | .coreNeg .. => return ()
+  | .dec h => markAsFound h
   | .cooper c | .norm c | .divCoeffs c => c.collectDecVars
   | .dvdTight c₁ c₂ | .negDvdTight c₁ c₂
   | .combine c₁ c₂ | .combineDivCoeffs c₁ c₂ _

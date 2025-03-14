@@ -154,8 +154,9 @@ structure LeCnstr where
   h  : LeCnstrProof
 
 inductive LeCnstrProof where
-  | expr (h : Expr)
-  | notExpr (p : Poly) (h : Expr)
+  | core (e : Expr)
+  | coreNeg (e : Expr) (p : Poly)
+  | dec (h : FVarId)
   | norm (c : LeCnstr)
   | divCoeffs (c : LeCnstr)
   | combine (c₁ c₂ : LeCnstr)
@@ -199,7 +200,7 @@ inductive UnsatProof where
 end
 
 instance : Inhabited LeCnstr where
-  default := { p := .num 0, h := .expr default }
+  default := { p := .num 0, h := .core default}
 
 instance : Inhabited DvdCnstr where
   default := { d := 0, p := .num 0, h := .core default }

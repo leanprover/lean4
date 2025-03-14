@@ -141,9 +141,9 @@ integer inequality, asserts it to the cutsat state.
 def propagateIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   let some p ← toPolyLe? e | return ()
   let c ← if eqTrue then
-    pure { p, h := .expr (← mkOfEqTrue (← mkEqTrueProof e)) : LeCnstr }
+    pure { p, h := .core e : LeCnstr }
   else
-    pure { p := p.mul (-1) |>.addConst 1, h := .notExpr p (← mkOfEqFalse (← mkEqFalseProof e)) : LeCnstr }
+    pure { p := p.mul (-1) |>.addConst 1, h := .coreNeg e p : LeCnstr }
   trace[grind.cutsat.assert.le] "{← c.pp}"
   c.assert
 

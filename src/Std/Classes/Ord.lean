@@ -141,7 +141,7 @@ abbrev TransOrd (α : Type u) [Ord α] := TransCmp (compare : α → α → Orde
 
 variable {α : Type u} {cmp : α → α → Ordering}
 
-theorem TransCmp.isLE_rfl [TransCmp cmp] (a : α) :
+theorem TransCmp.isLE_rfl [TransCmp cmp] {a : α} :
     (cmp a a).isLE := by
   simp [ReflCmp.compare_self (cmp := cmp)]
 

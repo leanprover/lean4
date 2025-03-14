@@ -91,12 +91,12 @@ private def modifyMap : Std.HashMap Name Name :=
      (`Const.modify, ``Const.toListModel_modify)]
 
 private def congrNames : MacroM (Array (TSyntax `term)) := do
-  return #[← `(_root_.List.Perm.isEmpty_eq), ← `(containsKey_of_perm),
-    ← `(_root_.List.Perm.length_eq), ← `(getValueCast?_of_perm _),
-    ← `(getValue?_of_perm _), ← `(getValue_of_perm _), ← `(getValueCast_of_perm _),
-    ← `(getValueCast!_of_perm _), ← `(getValueCastD_of_perm _), ← `(getValue!_of_perm _),
-    ← `(getValueD_of_perm _), ← `(getKey?_of_perm _), ← `(getKey_of_perm _), ← `(getKeyD_of_perm _),
-    ← `(getKey!_of_perm _), ← `(minKey?_of_perm' _)]
+  return #[← ``(_root_.List.Perm.isEmpty_eq), ← ``(containsKey_of_perm),
+    ← ``(_root_.List.Perm.length_eq), ← ``(getValueCast?_of_perm _),
+    ← ``(getValue?_of_perm _), ← ``(getValue_of_perm _), ← ``(getValueCast_of_perm _),
+    ← ``(getValueCast!_of_perm _), ← ``(getValueCastD_of_perm _), ← ``(getValue!_of_perm _),
+    ← ``(getValueD_of_perm _), ← ``(getKey?_of_perm _), ← ``(getKey_of_perm _),
+    ← ``(getKeyD_of_perm _), ← ``(getKey!_of_perm _), ← ``(minKey?_of_perm _)]
 
 /-- Internal implementation detail of the tree map -/
 scoped syntax "simp_to_model" (" [" (ident,*) "]")? ("using" term)? : tactic

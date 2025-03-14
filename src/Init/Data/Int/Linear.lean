@@ -1737,6 +1737,22 @@ theorem dvd_neg_le_tight (ctx : Context) (d : Int) (p₁ p₂ p₃ : Poly)
   intro h₁ h₂; rw [Int.add_comm] at h₁
   exact dvd_le_tight' hd h₂ h₁
 
+theorem le_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
+    : norm_eq_cert lhs rhs p → lhs.denote ctx ≤ rhs.denote ctx → p.denote' ctx ≤ 0 := by
+  intro h₁ h₂; rwa [norm_le ctx lhs rhs p h₁] at h₂
+
+def not_le_norm_expr_cert (lhs rhs : Expr) (p : Poly) : Bool :=
+  p == (((lhs.sub rhs).norm).mul (-1)).addConst 1
+
+theorem not_le_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
+    : not_le_norm_expr_cert lhs rhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → p.denote' ctx ≤ 0 := by
+  simp [not_le_norm_expr_cert]
+  intro; subst p; simp
+  intro h
+  replace h := Int.sub_nonpos_of_le h
+  rw [Int.add_comm, Int.add_sub_assoc] at h
+  rw [Int.neg_sub]; assumption
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

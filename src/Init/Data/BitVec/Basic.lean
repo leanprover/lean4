@@ -696,6 +696,20 @@ treating `x` and `y` as 2's complement signed bitvectors.
 def saddOverflow {w : Nat} (x y : BitVec w) : Bool :=
   (x.toInt + y.toInt ≥ 2 ^ (w - 1)) || (x.toInt + y.toInt < - 2 ^ (w - 1))
 
+/-- Overflow predicate for unsigned multiplication modulo 2^w.
+
+  SMT-Lib name: `bvumulo`.
+-/
+
+def umulOverflow {w : Nat} (x y : BitVec w) : Bool := x.toNat * y.toNat ≥ 2 ^ w
+
+/-- Overflow predicate for signed multiplication on w-bit 2's complement.
+
+  SMT-Lib name: `bvsmulo`.
+-/
+
+def smulOverflow {w : Nat} (x y : BitVec w) : Bool := (x.toInt * y.toInt ≥ 2 ^ (w - 1)) || (x.toInt * y.toInt < - 2 ^ (w - 1))
+
 /- ### reverse -/
 
 /-- Reverse the bits in a bitvector. -/

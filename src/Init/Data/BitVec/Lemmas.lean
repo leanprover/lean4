@@ -2630,16 +2630,16 @@ theorem extractLsb'_append_eq_ite {v w} {xhi : BitVec v} {xlo : BitVec w} {start
       show ¬start + i < w by omega, ↓reduceIte, 
       show start + i - w = start - w + i by omega]
 
-/-- Extracting bits `[start..start+len)` from `(xhi ++ xlo)`
-equals extracting the bits from `xlo` when `start + len` is within `xlo`.
+/-- Extracting bits `[start..start+len)` from `(xhi ++ xlo)` equals extracting
+the bits from `xlo` when `start + len` is within `xlo`.
 -/
 theorem extractLsb'_append_eq_of_lt {v w} {xhi : BitVec v} {xlo : BitVec w}
     {start len : Nat} (h : start + len < w) :
     extractLsb' start len (xhi ++ xlo) = extractLsb' start len xlo := by
   simp [extractLsb'_append_eq_ite, h]
   omega
-/-- Extracting bits `[start..start+len)` from `(xhi ++ xlo)`
-equals extracting the bits from `xhi` when `start` is outside `xlo`.
+/-- Extracting bits `[start..start+len)` from `(xhi ++ xlo)` equals extracting
+the bits from `xhi` when `start` is outside `xlo`.
 -/
 theorem extractLsb'_append_eq_of_le {v w} {xhi : BitVec v} {xlo : BitVec w}
     {start len : Nat} (h : w ≤ start) :

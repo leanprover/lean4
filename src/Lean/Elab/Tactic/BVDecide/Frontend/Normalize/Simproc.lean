@@ -329,20 +329,13 @@ builtin_simproc [bv_normalize] bv_elim_setWidth (BitVec.setWidth _ _) := fun e =
   let some oldWidth ← getNatValue? oldWidthExpr | return .continue
   let some newWidth ← getNatValue? newWidthExpr | return .continue
   if newWidth ≤ oldWidth then
-    let extract :=
+    let expr :=
       mkApp4
         (mkConst ``BitVec.extractLsb')
         oldWidthExpr
         (toExpr 0)
         newWidthExpr
         targetExpr
-    let expr :=
-      mkApp4
-        (mkConst ``BitVec.cast)
-        newWidthExpr
-        newWidthExpr
-        (← mkEqRefl newWidthExpr)
-        extract
     let proof :=
       mkApp4
         (mkConst ``BitVec.setWidth_eq_extractLsb')
@@ -364,6 +357,52 @@ builtin_simproc [bv_normalize] bv_elim_setWidth (BitVec.setWidth _ _) := fun e =
     let proof :=
       mkApp4
         (mkConst ``BitVec.setWidth_eq_append)
+        oldWidthExpr
+        targetExpr
+        newWidthExpr
+        (← mkDecideProof (← mkLe oldWidthExpr newWidthExpr))
+    return .visit { expr := expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_elim_signExtend (BitVec.signExtend _ _) := fun e => do
+  let_expr BitVec.signExtend oldWidthExpr newWidthExpr targetExpr := e | return .continue
+  let some oldWidth ← getNatValue? oldWidthExpr | return .continue
+  let some newWidth ← getNatValue? newWidthExpr | return .continue
+  if newWidth ≤ oldWidth then
+    let expr :=
+      mkApp4
+        (mkConst ``BitVec.extractLsb')
+        oldWidthExpr
+        (toExpr 0)
+        newWidthExpr
+        targetExpr
+    let proof :=
+      mkApp4
+        (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.signExtend_elim')
+        oldWidthExpr
+        targetExpr
+        newWidthExpr
+        (← mkDecideProof (← mkLe newWidthExpr oldWidthExpr))
+    return .visit { expr := expr, proof? := some proof }
+  else
+    let msb := mkApp2 (mkConst ``BitVec.msb) oldWidthExpr targetExpr
+    let lhs :=
+      mkApp4
+        (mkConst ``cond [1])
+        (mkApp (mkConst ``BitVec) (toExpr (newWidth - oldWidth)))
+        msb
+        (toExpr (-1#(newWidth - oldWidth)))
+        (toExpr (0#(newWidth - oldWidth)))
+    let concat ← mkAppM ``HAppend.hAppend #[lhs ,targetExpr]
+    let expr :=
+      mkApp4
+        (mkConst ``BitVec.cast)
+        newWidthExpr
+        newWidthExpr
+        (← mkEqRefl newWidthExpr)
+        concat
+    let proof :=
+      mkApp4
+        (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.signExtend_elim)
         oldWidthExpr
         targetExpr
         newWidthExpr

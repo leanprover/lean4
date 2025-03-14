@@ -2507,7 +2507,7 @@ theorem setWidth_eq_append {v : Nat} {x : BitVec v} {w : Nat} (h : v ≤ w) :
   · simp [hiv, getLsbD_ge x i (by omega)]
 
 theorem setWidth_eq_extractLsb' {v : Nat} {x : BitVec v} {w : Nat} (h : w ≤ v) :
-    x.setWidth w = (x.extractLsb' 0 w).cast (by omega) := by
+    x.setWidth w = x.extractLsb' 0 w := by
   rw [setWidth_eq_append_extractLsb']
   ext i hi
   simp only [getElem_cast, getElem_append]

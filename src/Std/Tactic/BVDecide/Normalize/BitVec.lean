@@ -440,5 +440,15 @@ theorem BitVec.append_const_right {a : BitVec w1} :
     = (a ++ (BitVec.ofNat w2 b ++ BitVec.ofNat w3 c)).cast (Eq.symm <| Nat.add_assoc ..) := by
   rw [BitVec.append_assoc]
 
+theorem BitVec.signExtend_elim {v : Nat} {x : BitVec v} {w : Nat} (h : v ≤ w) :
+    BitVec.signExtend w x = ((bif x.msb then -1#(w - v) else 0#(w - v)) ++ x).cast (by omega) := by
+  rw [BitVec.signExtend_eq_append_of_le]
+  simp [BitVec.negOne_eq_allOnes, cond_eq_if]
+  assumption
+
+theorem BitVec.signExtend_elim' {v : Nat} {x : BitVec v} {w : Nat} (h : w ≤ v) :
+    BitVec.signExtend w x = BitVec.extractLsb' 0 w x := by
+  rw [BitVec.signExtend_eq_setWidth_of_le _ h, BitVec.setWidth_eq_extractLsb' h]
+
 end Normalize
 end Std.Tactic.BVDecide

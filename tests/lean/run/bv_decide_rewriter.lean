@@ -586,6 +586,10 @@ example {x : BitVec 8} :
 -- BV_ULT_SPECIAL_CONST
 example {x : BitVec 8} : x < 255 ↔ x ≠ 255 := by bv_normalize
 
+-- BV_SIGN_EXTEND_ELIM
+example {x : BitVec 8} : x.signExtend 16 = (bif x.msb then 255#8 else 0#8) ++ x := by bv_normalize
+example {x : BitVec 8} : x.signExtend 4 = BitVec.extractLsb' 0 4 x := by bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

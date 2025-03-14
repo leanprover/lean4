@@ -2638,6 +2638,7 @@ theorem extractLsb'_append_eq_of_lt {v w} {xhi : BitVec v} {xlo : BitVec w}
     extractLsb' start len (xhi ++ xlo) = extractLsb' start len xlo := by
   simp [extractLsb'_append_eq_ite, h]
   omega
+
 /-- Extracting bits `[start..start+len)` from `(xhi ++ xlo)` equals extracting
 the bits from `xhi` when `start` is outside `xlo`.
 -/

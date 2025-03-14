@@ -2619,9 +2619,10 @@ theorem extractLsb'_append_eq_ite {v w} {xhi : BitVec v} {xlo : BitVec w} {start
       intros hcontra
       omega
     · -- start + len ≥ w
-      simp [hlen]
+      simp only [hlen, ↓reduceDIte]
       ext i hi
-      simp [getElem_append, getLsbD_append]
+      simp only [getElem_extractLsb', getLsbD_append, getElem_cast,
+        getElem_append, dite_eq_ite]
       by_cases hi₂ : start + i < w
       · simp [hi₂, show i < min len w by omega, show i < w - start by omega]
       · simp [hi₂, ↓reduceIte, show ¬i < w - start by omega,

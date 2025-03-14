@@ -111,20 +111,14 @@ State for the environment extension used to save the LCNF mono phase type for de
 that do not have code associated with them.
 Example: constructors, inductive types, foreign functions.
 -/
-structure MonoTypeExtState where
-  /-- The LCNF type for the `mono` phase. -/
-  mono : PHashMap Name Expr := {}
-  deriving Inhabited
-
-builtin_initialize monoTypeExt : EnvExtension MonoTypeExtState ←
-  registerEnvExtension (pure {}) (asyncMode := .sync)  -- compilation is non-parallel anyway
+builtin_initialize monoTypeExt : CacheExtension Name Expr ← CacheExtension.register
 
 def getOtherDeclMonoType (declName : Name) : CoreM Expr := do
-  match monoTypeExt.getState (← getEnv) |>.mono.find? declName with
+  match (← monoTypeExt.find? declName) with
   | some type => return type
   | none =>
     let type ← toMonoType (← getOtherDeclBaseType declName [])
-    modifyEnv fun env => monoTypeExt.modifyState env fun s => { s with mono := s.mono.insert declName type }
+    monoTypeExt.insert declName type
     return type
 
 end Lean.Compiler.LCNF

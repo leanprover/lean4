@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
@@ -260,14 +259,12 @@ def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
   trace[grind.debug.cutsat.diseq] "{a} ≠ {b}"
   let p₁ ← exprAsPoly a
-  let some h ← mkDiseqProof? a b
-    | throwError "internal `grind` error, failed to build disequality proof for{indentExpr a}\nand{indentExpr b}"
   let c ← if let some 0 ← getIntValue? b then
-    pure { p := p₁, h := .expr h : DiseqCnstr }
+    pure { p := p₁, h := .core0 a b : DiseqCnstr }
   else
     let p₂ ← exprAsPoly b
     let p := p₁.combine (p₂.mul (-1))
-    pure {p, h := .core p₁ p₂ h : DiseqCnstr }
+    pure {p, h := .core a b p₁ p₂ : DiseqCnstr }
   c.assert
 
 /-- Different kinds of terms internalized by this module. -/

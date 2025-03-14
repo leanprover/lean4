@@ -135,7 +135,7 @@ inductive CooperSplitProof where
     last (hs : Array (FVarId × UnsatProof)) (decVars : Array FVarId)
 
 inductive DvdCnstrProof where
-  | /-- Given `e` of the form `k ∣ p` s.t. `e = True` in the core. -/
+  | /-- Given `e` of the form `k ∣ p` s.t. `e = True` in the core.  -/
     core (e : Expr)
   | norm (c : DvdCnstr)
   | divCoeffs (c : DvdCnstr)
@@ -173,8 +173,13 @@ structure DiseqCnstr where
   h  : DiseqCnstrProof
 
 inductive DiseqCnstrProof where
-  | expr (h : Expr)
-  | core (p₁ p₂ : Poly) (h : Expr)
+  | /-- An disequality `a != 0` coming from the core. That is, `(a = 0) = False` in the core. -/
+    core0 (a : Expr) (zero : Expr)
+  | /--
+    An disequality `a ≠ b` coming from the core. That is, `(a = b) = False` in the core.
+    `p₁` and `p₂` are the polynomials corresponding to `a` and `b`.
+    -/
+    core (a b : Expr) (p₁ p₂ : Poly)
   | norm (c : DiseqCnstr)
   | divCoeffs (c : DiseqCnstr)
   | neg (c : DiseqCnstr)

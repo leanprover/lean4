@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 
 namespace Lean.Meta.Grind.Arith.Cutsat
@@ -36,6 +37,11 @@ def mkPolyDecl (p : Poly) : ProofM Expr := do
     polyMap := s.polyMap.insert p x
   }
   return x
+
+private def mkDiseqProof (a b : Expr) : GoalM Expr := do
+ let some h ← mkDiseqProof? a b
+   | throwError "internal `grind` error, failed to build disequality proof for{indentExpr a}\nand{indentExpr b}"
+  return h
 
 abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
   withLetDecl `ctx (mkApp (mkConst ``RArray) (mkConst ``Int)) (← toContextExpr) fun ctx => do
@@ -206,9 +212,10 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
 partial def DiseqCnstr.toExprProof (c' : DiseqCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.cutsat.proof] "{← c'.pp}"
   match c'.h with
-  | .expr h =>
-    return h
-  | .core p₁ p₂ h =>
+  | .core0 a zero =>
+    mkDiseqProof a zero
+  | .core a b p₁ p₂ =>
+    let h ← mkDiseqProof a b
     return mkApp6 (mkConst ``Int.Linear.diseq_of_core) (← getContext) (← mkPolyDecl p₁) (← mkPolyDecl p₂) (← mkPolyDecl c'.p) reflBoolTrue h
   | .norm c =>
     return mkApp5 (mkConst ``Int.Linear.diseq_norm) (← getContext) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
@@ -357,8 +364,7 @@ partial def LeCnstr.collectDecVars (c' : LeCnstr) : CollectDecVarsM Unit := do u
 
 partial def DiseqCnstr.collectDecVars (c' : DiseqCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .expr h => collectExpr h
-  | .core .. => return () -- Disequalities coming from the core never contain cutsat decision variables
+  | .core0 .. | .core .. => return () -- Disequalities coming from the core never contain cutsat decision variables
   | .norm c | .divCoeffs c | .neg c => c.collectDecVars
   | .subst _ c₁ c₂  => c₁.collectDecVars; c₂.collectDecVars
 

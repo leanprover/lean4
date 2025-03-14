@@ -218,7 +218,7 @@ instance : Elab.MonadInfoTree CoreM where
 @[inline] def modifyInstLevelValueCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
   modifyCache fun ⟨c₁, c₂⟩ => ⟨c₁, f c₂⟩
 
-def instantiateTypeLevelParams (c : ConstantInfo) (us : List Level) : CoreM Expr := do
+def instantiateTypeLevelParams (c : ConstantVal) (us : List Level) : CoreM Expr := do
   if let some (us', r) := (← get).cache.instLevelType.find? c.name then
     if us == us' then
       return r

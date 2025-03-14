@@ -371,6 +371,11 @@ def ofConstantInfo (c : ConstantInfo) : AsyncConstantInfo where
   sig := .pure c.toConstantVal
   constInfo := .pure c
 
+def isUnsafe (c : AsyncConstantInfo) : Bool :=
+  match c.kind with
+  | .thm => false
+  | _ => c.toConstantInfo.isUnsafe
+
 end AsyncConstantInfo
 
 /--
@@ -971,10 +976,13 @@ def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
 
 end Environment
 
+def ConstantVal.instantiateTypeLevelParams (c : ConstantVal) (ls : List Level) : Expr :=
+  c.type.instantiateLevelParams c.levelParams ls
+
 namespace ConstantInfo
 
 def instantiateTypeLevelParams (c : ConstantInfo) (ls : List Level) : Expr :=
-  c.type.instantiateLevelParams c.levelParams ls
+  c.toConstantVal.instantiateTypeLevelParams ls
 
 def instantiateValueLevelParams! (c : ConstantInfo) (ls : List Level) : Expr :=
   c.value!.instantiateLevelParams c.levelParams ls
@@ -1656,7 +1664,7 @@ where
     if h : i < pExtDescrs.size then
       let extDescr := pExtDescrs[i]
       -- `local` as `async` does not allow for `getState` but it's all safe here as there is only
-      -- one branch so far.
+      -- one environment branch at this point.
       let s := extDescr.toEnvExtension.getState (asyncMode := .local) env
       let prevSize := (← persistentEnvExtensionsRef.get).size
       let prevAttrSize ← getNumBuiltinAttributes
@@ -1959,7 +1967,7 @@ unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (typeName : 
 def hasUnsafe (env : Environment) (e : Expr) : Bool :=
   let c? := e.find? fun e => match e with
     | Expr.const c _ =>
-      match env.find? c with
+      match env.findAsync? c with
       | some cinfo => cinfo.isUnsafe
       | none       => false
     | _ => false;

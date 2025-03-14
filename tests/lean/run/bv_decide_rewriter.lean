@@ -590,6 +590,19 @@ example {x : BitVec 8} : x < 255 ↔ x ≠ 255 := by bv_normalize
 example {x : BitVec 8} : x.signExtend 16 = (bif x.msb then 255#8 else 0#8) ++ x := by bv_normalize
 example {x : BitVec 8} : x.signExtend 4 = BitVec.extractLsb' 0 4 x := by bv_normalize
 
+-- BV_ADD_NEG_MUL
+example {x y : BitVec 8} : -(x + x * y) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : -(x + y * x) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : -(x * y + x) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : -(y * x + x) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : 1#8 + ~~~(x + x * y) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : 1#8 + ~~~(x + y * x) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : 1#8 + ~~~(x * y + x) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : 1#8 + ~~~(y * x + x) = x * ~~~y := by bv_normalize
+example  : ∀ (s t : BitVec 32), (!!-(t + s * t) == ~~~s * t) = true := by
+  bv_normalize (config  := {acNf := true})
+
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

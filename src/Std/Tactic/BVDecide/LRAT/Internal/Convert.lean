@@ -57,7 +57,13 @@ def CNF.convertLRAT' (clauses : CNF (PosFin n)) : List (Option (DefaultClause n)
 
 theorem CNF.Clause.mem_lrat_of_mem (clause : CNF.Clause (PosFin n)) (h1 : l ∈ clause)
     (h2 : DefaultClause.ofArray clause.toArray = some lratClause) : l ∈ lratClause.clause := by
-  sorry
+  unfold DefaultClause.ofArray at h2
+  simp at h2
+  split at h2
+  · contradiction
+  · simp only [Option.some.injEq] at h2
+    rw [← h2]
+    apply DefaultClause.ofArray.folder_foldl_mem_of_mem <;> assumption
 
 theorem CNF.Clause.convertLRAT_sat_of_sat (clause : CNF.Clause (PosFin n))
     (h : Clause.convertLRAT' clause = some lratClause) :

@@ -78,7 +78,7 @@ def StrPat.matches (s : String) : (self : StrPat) → Bool
 --------------------------------------------------------------------------------
 
 /-- A `Package`'s declarative configuration. -/
-structure PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig where
+configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig where
   /--
   **This field is deprecated.**
 

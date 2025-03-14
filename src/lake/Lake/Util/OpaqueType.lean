@@ -19,7 +19,9 @@ open Lean Parser Command
 
 macro (name := declareOpaqueType)
 doc?:optional(docComment)  "declare_opaque_type " id:ident bs:binder* : command => do
-  let (bs, args) ← expandBinders bs
+  let bvs ← expandBinders bs
+  let (bs, args) := Array.unzip <| bvs.map fun view =>
+    (view.mkBinder, ⟨view.mkArgument.raw⟩)
   let nonemptyTypeId := id.getId.modifyBase (· ++ `nonemptyType)
   let nonemptyType := mkIdentFrom id nonemptyTypeId
   let nonemptyTypeApp := Syntax.mkApp nonemptyType args

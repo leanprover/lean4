@@ -141,17 +141,19 @@ theorem go_isPrefix_aig {aig : AIG β} :
 theorem go_denote_mem_prefix :
     ⟦
       (go aig expr atomHandler).val.aig,
-      ⟨start, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
+      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
       assign
     ⟧
       =
-    ⟦aig, ⟨start, hstart⟩, assign⟧ := by
-  apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
+    ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
+  apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply go_isPrefix_aig
 
 @[simp]
 theorem go_denote_entry (entry : Entrypoint β) {h} :
-    ⟦(go entry.aig expr atomHandler).val.aig, ⟨entry.ref.gate, h⟩, assign⟧ = ⟦entry, assign⟧ := by
+    ⟦(go entry.aig expr atomHandler).val.aig, ⟨entry.ref.gate, entry.ref.invert, h⟩, assign⟧
+      =
+    ⟦entry, assign⟧ := by
   apply denote.eq_of_isPrefix
   apply ofBoolExprCached.go_isPrefix_aig
 

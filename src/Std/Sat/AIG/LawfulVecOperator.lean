@@ -54,7 +54,7 @@ theorem le_size_of_le_aig_size (aig : AIG α) (input : β aig len) (h : x ≤ ai
 
 @[simp]
 theorem denote_input_entry (entry : Entrypoint α) {input : β entry.aig len} {h} :
-    ⟦(f entry.aig input).aig, ⟨entry.ref.gate, h⟩, assign ⟧
+    ⟦(f entry.aig input).aig, ⟨entry.ref.gate, entry.ref.invert, h⟩, assign ⟧
       =
     ⟦entry, assign⟧ :=  by
   apply denote.eq_of_isPrefix
@@ -68,10 +68,10 @@ theorem denote_cast_entry (entry : Entrypoint α) {input : β entry.aig len} {h}
   simp [Ref.cast]
 
 theorem denote_mem_prefix {aig : AIG α} {input : β aig len} (h) :
-    ⟦(f aig input).aig, ⟨start, by apply lt_size_of_lt_aig_size; omega⟩, assign⟧
+    ⟦(f aig input).aig, ⟨start, inv, by apply lt_size_of_lt_aig_size; omega⟩, assign⟧
       =
-    ⟦aig, ⟨start, h⟩, assign⟧ :=  by
-  rw [denote_input_entry ⟨aig, start, h⟩]
+    ⟦aig, ⟨start, inv, h⟩, assign⟧ :=  by
+  rw [denote_input_entry ⟨aig, start, inv, h⟩]
 
 @[simp]
 theorem denote_input_vec (s : RefVecEntry α len) {input : β s.aig len} {hcast} :

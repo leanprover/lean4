@@ -94,17 +94,17 @@ ifeq "${CMAKE_SYSTEM_NAME}" "Windows"
 	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX} \
 	  ${LIB}/temp/Lean/Meta/WHNF.*o.export -Wl,--start-group ${LIB}/lean/libLean.a.export -Wl,--whole-archive ${LIB}/temp/libleancpp_1.a -Wl,--no-whole-archive -Wl,--end-group -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared_1.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} -Wl,-Map=${LIB}/temp/libleanshared_1.map
 # now delete included symbols from libLean.a
-	cp ${LIB}/lean/libLean.a.export ${LIB}/temp/diff.a
+	cp ${LIB}/lean/libLean.a.export ${LIB}/lean/diff.a
 	sed -En 's/.*\s(\S*\.o\.export):.*/\1/p' ${LIB}/temp/libleanshared_1.map > ${LIB}/temp/diff.a.in
 # hacky file path normalization
 	sed -i 's!lean/../temp!temp!g' ${LIB}/temp/diff.a.in
-	cat ${LIB}/temp/diff.a.in
 # can't use bundled llvm-ar before LLVM 16, https://github.com/llvm/llvm-project/issues/55023
-	ar dP ${LIB}/temp/diff.a @${LIB}/temp/diff.a.in
-	"${CMAKE_AR}" tP ${LIB}/temp/diff.a
+	ar dP ${LIB}/lean/diff.a @${LIB}/temp/diff.a.in
+	"${CMAKE_AR}" tP ${LIB}/lean/diff.a
 # now include Lean and the diff library in `leanshared`
 	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o $@ \
-	  -Wl,--whole-archive ${LIB}/temp/diff.a ${LIB}/temp/libleanshell.a ${LIB}/temp/libleaninitialize.a -Wl,--no-whole-archive -lleanshared_1 -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
+	  -Wl,--whole-archive ${LIB}/lean/diff.a ${LIB}/temp/libleanshell.a ${LIB}/temp/libleaninitialize.a -Wl,--no-whole-archive -lleanshared_1 -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
+	rm ${LIB}/lean/diff.a
 else
 # create empty library on platforms without restrictive symbol limits; avoids costly indirections and troubles with cross-library exceptions
 	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX} ${LIB}/temp/empty.c ${LEANSHARED_1_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}

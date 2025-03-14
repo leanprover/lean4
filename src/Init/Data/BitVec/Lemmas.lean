@@ -3108,6 +3108,9 @@ theorem neg_eq_not_add (x : BitVec w) : -x = ~~~x + 1#w := by
   have hx : x.toNat < 2^w := x.isLt
   rw [Nat.sub_sub, Nat.add_comm 1 x.toNat, ← Nat.sub_sub, Nat.sub_add_cancel (by omega)]
 
+theorem not_eq_neg_add (x : BitVec w) : ~~~ x = -x - 1#w := by
+  rw [eq_sub_iff_add_eq, neg_eq_not_add, BitVec.add_comm]
+
 @[simp]
 theorem neg_neg {x : BitVec w} : - - x = x := by
   by_cases h : x = 0#w
@@ -3167,6 +3170,13 @@ theorem neg_add {x y : BitVec w} : - (x + y) = - x - y := by
 theorem add_neg_eq_sub {x y : BitVec w} : x + - y = (x - y) := by
   apply eq_of_toInt_eq
   simp [toInt_neg, Int.sub_eq_add_neg]
+
+theorem sub_neg {x y : BitVec w} : x - - y = x + y := by
+  apply eq_of_toInt_eq
+  simp [toInt_neg, Int.bmod_neg]
+
+theorem neg_sub {x y : BitVec w} : - (x - y) = - x + y := by
+ rw [sub_toAdd, neg_add, sub_neg]
 
 /- ### add/sub injectivity -/
 
@@ -3336,11 +3346,20 @@ protected theorem neg_mul_neg (x y : BitVec w) : -x * -y = x * y := by simp
 
 protected theorem neg_mul_comm (x y : BitVec w) : -x * y = x * -y := by simp
 
+theorem mul_sub {x y z : BitVec w} :
+    x * (y - z) = x * y - x * z := by
+  rw [← add_neg_eq_sub, mul_add, BitVec.mul_neg, add_neg_eq_sub]
+
 theorem neg_add_mul_eq_mul_not {x y : BitVec w} :
     - (x + x * y) = x * ~~~ y := by
   rw [neg_add, sub_toAdd, ← BitVec.mul_neg, neg_eq_not_add y, mul_add,
-    BitVec.mul_one, BitVec.add_comm, BitVec.add_assoc, BitVec.add_right_eq_self,
-    add_neg_eq_sub, BitVec.sub_self]
+    BitVec.mul_one, BitVec.add_comm, BitVec.add_assoc,
+    BitVec.add_right_eq_self, add_neg_eq_sub, BitVec.sub_self]
+
+theorem neg_mul_not_eq_add_mul {x y : BitVec w} :
+ - (x * ~~~ y) = x + x * y := by
+  rw [not_eq_neg_add, mul_sub, neg_sub, ← BitVec.mul_neg, neg_neg,
+    BitVec.mul_one, BitVec.add_comm]
 
 /-! ### le and lt -/
 

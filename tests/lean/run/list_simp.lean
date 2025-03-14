@@ -492,6 +492,15 @@ variable (l : List α) (k m : Nat) in
       x := x + k
     pure x) ~> m + k * l.length
 
+-- as above, but for an arbitrary monad
+variable (l : List α) (k m : Nat) {M} [Monad M] [LawfulMonad M] in
+#check_simp
+  (show M _ from do
+    let mut x := m
+    for _ in l do
+      x := x + k
+    pure x) ~> pure (m + k * l.length)
+
 /-! ### mapM -/
 
 /-! ### forM -/

@@ -174,7 +174,7 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
     if eqTrue then
       return mkOfEqTrueCore p_le_zero <| mkApp6 (mkConst ``Eq.trans [levelOne]) prop p_le_zero e (← getTrueExpr) h₁ (← mkEqTrueProof e)
     else
-      let h := mkOfEqFalseCore p_le_zero <| mkApp6 (mkConst ``Eq.trans [levelOne]) prop p_le_zero e (← getTrueExpr) h₁ (← mkEqFalseProof e)
+      let h := mkOfEqFalseCore p_le_zero <| mkApp6 (mkConst ``Eq.trans [levelOne]) prop p_le_zero e (← getFalseExpr) h₁ (← mkEqFalseProof e)
       return mkApp5 (mkConst ``Int.Linear.le_neg) (← getContext) pExpr (← mkPolyDecl c'.p) reflBoolTrue h
   | .dec h =>
     return mkFVar h

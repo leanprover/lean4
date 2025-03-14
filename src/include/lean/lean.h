@@ -2718,6 +2718,13 @@ static inline bool lean_io_result_is_ok(b_lean_obj_arg r) { return lean_ptr_tag(
 static inline bool lean_io_result_is_error(b_lean_obj_arg r) { return lean_ptr_tag(r) == 1; }
 static inline b_lean_obj_res lean_io_result_get_value(b_lean_obj_arg r) { assert(lean_io_result_is_ok(r)); return lean_ctor_get(r, 0); }
 static inline b_lean_obj_res lean_io_result_get_error(b_lean_obj_arg r) { assert(lean_io_result_is_error(r)); return lean_ctor_get(r, 0); }
+static inline lean_obj_res lean_io_result_take_value(lean_obj_arg r) {
+    assert(lean_io_result_is_ok(r));
+    lean_object* v = lean_ctor_get(r, 0);
+    lean_inc(v);
+    lean_dec(r);
+    return v;
+}
 LEAN_EXPORT void lean_io_result_show_error(b_lean_obj_arg r);
 LEAN_EXPORT void lean_io_mark_end_initialization(void);
 static inline lean_obj_res lean_io_result_mk_ok(lean_obj_arg a) {

@@ -23,6 +23,16 @@ using namespace std;
 
 event_loop_t global_ev;
 
+// Helpers
+
+void lean_promise_resolve_with_code(int status, obj_arg promise) {
+    obj_arg res = status == 0
+        ? mk_except_ok(lean_box(0))
+        : mk_except_err(lean_decode_uv_error(status, nullptr));
+
+    lean_promise_resolve(res, promise);
+}
+
 // Utility function for error checking. This function is only used inside the
 // initializition of the event loop.
 static void check_uv(int result, const char * msg) {

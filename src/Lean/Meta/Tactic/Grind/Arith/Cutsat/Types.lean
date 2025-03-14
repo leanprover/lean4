@@ -135,7 +135,8 @@ inductive CooperSplitProof where
     last (hs : Array (FVarId × UnsatProof)) (decVars : Array FVarId)
 
 inductive DvdCnstrProof where
-  | expr (h : Expr)
+  | /-- Given `e` of the form `k ∣ p` s.t. `e = True` in the core. -/
+    core (e : Expr)
   | norm (c : DvdCnstr)
   | divCoeffs (c : DvdCnstr)
   | solveCombine (c₁ c₂ : DvdCnstr)
@@ -196,7 +197,7 @@ instance : Inhabited LeCnstr where
   default := { p := .num 0, h := .expr default }
 
 instance : Inhabited DvdCnstr where
-  default := { d := 0, p := .num 0, h := .expr default }
+  default := { d := 0, p := .num 0, h := .core default }
 
 instance : Inhabited CooperSplitPred where
   default := { left := false, c₁ := default, c₂ := default, c₃? := none }

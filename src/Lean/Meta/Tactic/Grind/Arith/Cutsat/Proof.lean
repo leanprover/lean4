@@ -84,8 +84,8 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := caching c' do
 partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.cutsat.proof] "{← c'.pp}"
   match c'.h with
-  | .expr h =>
-    return h
+  | .core e =>
+    mkOfEqTrue (← mkEqTrueProof e)
   | .norm c =>
     return mkApp6 (mkConst ``Int.Linear.dvd_norm) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
   | .elim c =>
@@ -340,7 +340,7 @@ partial def CooperSplit.collectDecVars (s : CooperSplit) : CollectDecVarsM Unit 
 
 partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .expr h => collectExpr h
+  | .core _ => return ()
   | .cooper₁ c | .cooper₂ c
   | .norm c | .elim c | .divCoeffs c | .ofEq _ c => c.collectDecVars
   | .solveCombine c₁ c₂ | .solveElim c₁ c₂ | .subst _ c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars

@@ -3247,11 +3247,8 @@ protected theorem neg_mul_comm (x y : BitVec w) : -x * y = x * -y := by simp
 
 theorem neg_add_mul_eq_mul_not {x y : BitVec w} :
     - (x + x * y) = x * ~~~ y := by
-  rw [neg_add , sub_toAdd, ← BitVec.mul_neg
-    , neg_eq_not_add y , mul_add
-    , BitVec.mul_one , BitVec.add_comm, BitVec.add_assoc
-    , BitVec.add_right_eq_self
-    , add_neg_eq_sub, BitVec.sub_self]
+  rw [neg_add, sub_toAdd, ← BitVec.mul_neg, neg_eq_not_add y, mul_add, BitVec.mul_one,
+    BitVec.add_comm, BitVec.add_assoc, BitVec.add_right_eq_self, add_neg_eq_sub, BitVec.sub_self]
 
 /-! ### le and lt -/
 

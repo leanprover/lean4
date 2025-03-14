@@ -135,7 +135,8 @@ def check_cmake_version(repo_url, branch, version_major, version_minor, github_t
         f"set(LEAN_VERSION_MAJOR {version_major})",
         f"set(LEAN_VERSION_MINOR {version_minor})",
         f"set(LEAN_VERSION_PATCH 0)",
-        f"set(LEAN_VERSION_IS_RELEASE 1)"
+        f"set(LEAN_VERSION_IS_RELEASE 1)",
+        f"set(LEAN_MANUAL_ROOT \"https://lean-lang.org/doc/reference/{version_major}.{version_minor}.0/\")"
     ]
 
     for line in expected_lines:

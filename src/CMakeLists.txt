@@ -20,6 +20,7 @@ if (LEAN_SPECIAL_VERSION_DESC)
 elseif (NOT LEAN_VERSION_IS_RELEASE)
   string(APPEND LEAN_VERSION_STRING "-pre")
 endif()
+set(LEAN_MANUAL_ROOT "") # Set this to the correct location for releases and release candidates. Include the trailing slash.
 
 set(LEAN_PLATFORM_TARGET "" CACHE STRING "LLVM triple of the target platform")
 if (NOT LEAN_PLATFORM_TARGET)

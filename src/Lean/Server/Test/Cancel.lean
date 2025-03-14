@@ -73,7 +73,7 @@ elab "wait_for_unblock_async" : tactic => do
     if (← cancelTk.isSet) then
       IO.eprintln "cancelled!"
       log "cancelled (should never be visible)"
-  let t ← BaseIO.asTask act
+  let t ← BaseIO.asTask (act ())
   Core.logSnapshotTask { stx? := none, task := t, cancelTk? := cancelTk }
 
   log "blocked"
@@ -105,7 +105,7 @@ elab_rules : tactic
     log "cancelled (should never be visible)"
     prom.resolve ()
     Core.checkInterrupted
-  let t ← BaseIO.asTask act
+  let t ← BaseIO.asTask (act ())
   Core.logSnapshotTask { stx? := none, task := t, cancelTk? := cancelTk }
 
   dbg_trace "blocked!"

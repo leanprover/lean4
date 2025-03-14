@@ -20,10 +20,14 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 namespace List
 
 /--
-`O(min |l| |r|)`. Merge two lists using `le` as a switch.
+Merges two lists, using `le` to select the first element of the resulting list if both are
+non-empty.
 
-This version is not tail-recursive,
-but it is replaced at runtime by `mergeTR` using a `@[csimp]` lemma.
+If both input lists are sorted according to `le`, then the resulting list is also sorted according
+to `le`. `O(min |l| |r|)`.
+
+This implementation is not tail-recursive, but it is replaced at runtime by a proven-equivalent
+tail-recursive merge.
 -/
 def merge (xs ys : List α) (le : α → α → Bool := by exact fun a b => a ≤ b) : List α :=
   match xs, ys with
@@ -54,16 +58,16 @@ def MergeSort.Internal.splitInTwo (l : { l : List α // l.length = n }) :
 open MergeSort.Internal in
 set_option linter.unusedVariables false in
 /--
-Simplified implementation of stable merge sort.
+A stable merge sort.
 
-This function is designed for reasoning about the algorithm, and is not efficient.
-(It particular it uses the non tail-recursive `merge` function,
-and so can not be run on large lists, but also makes unnecessary traversals of lists.)
-It is replaced at runtime in the compiler by `mergeSortTR₂` using a `@[csimp]` lemma.
+This function is a simplified implementation that's designed to be easy to reason about, rather than
+for efficiency. In particular, it uses the non-tail-recursive `List.merge` function and traverses
+lists unnecessarily.
 
-Because we want the sort to be stable,
-it is essential that we split the list in two contiguous sublists.
+It is replaced at runtime by an efficient implementation that has been proven to be equivalent.
 -/
+-- Because we want the sort to be stable, it is essential that we split the list in two contiguous
+-- sublists.
 def mergeSort : ∀ (xs : List α) (le : α → α → Bool := by exact fun a b => a ≤ b), List α
   | [], _ => []
   | [a], _ => [a]

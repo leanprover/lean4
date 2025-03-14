@@ -17,10 +17,11 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 namespace List
 
 /--
-`ofFn f` with `f : fin n → α` returns the list whose ith element is `f i`
-```
-ofFn f = [f 0, f 1, ... , f (n - 1)]
-```
+Creates a list by applying `f` to each potential index in order, starting at `0`.
+
+Examples:
+ * `List.ofFn (n := 3) toString = ["0", "1", "2"]`
+ * `List.ofFn (fun i => #["red", "green", "blue"].get i.val i.isLt) = ["red", "green", "blue"]`
 -/
 def ofFn {n} (f : Fin n → α) : List α := Fin.foldr n (f · :: ·) []
 

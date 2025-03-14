@@ -8,35 +8,81 @@ prelude
 import Init.Data.String
 import Init.Data.Array.Basic
 
+/--
+The result of a comparison according to a total order.
+
+The relationship between the compared items may be:
+ * `Ordering.lt`: less than
+ * `Ordering.eq`: equal
+ * `Ordering.gt`: greater than
+-/
 inductive Ordering where
-  | lt | eq | gt
+  | /-- Less than. -/
+    lt
+  | /-- Equal. -/
+    eq
+  | /-- Greater than. -/
+    gt
 deriving Inhabited, DecidableEq
 
 namespace Ordering
 
-/-- Swaps less and greater ordering results -/
+/--
+Swaps less-than and greater-than ordering results.
+
+Examples:
+ * `Ordering.lt.swap = Ordering.gt`
+ * `Ordering.eq.swap = Ordering.eq`
+ * `Ordering.gt.swap = Ordering.lt`
+-/
 def swap : Ordering → Ordering
   | .lt => .gt
   | .eq => .eq
   | .gt => .lt
 
 /--
-If `o₁` and `o₂` are `Ordering`, then `o₁.then o₂` returns `o₁` unless it is `.eq`,
-in which case it returns `o₂`. Additionally, it has "short-circuiting" semantics similar to
-boolean `x && y`: if `o₁` is not `.eq` then the expression for `o₂` is not evaluated.
-This is a useful primitive for constructing lexicographic comparator functions:
-```
+If `a` and `b` are `Ordering`, then `a.then b` returns `a` unless it is `.eq`, in which case it
+returns `b`. Additionally, it has “short-circuiting” behavior similar to boolean `&&`: if `a` is not
+`.eq` then the expression for `b` is not evaluated.
+
+This is a useful primitive for constructing lexicographic comparator functions. The `deriving Ord`
+syntax on a structure uses the `Ord` instance to compare each field in order, combining the results
+equivalently to `Ordering.then`.
+
+Use `compareLex` to lexicographically combine two comparison functions.
+
+Examples:
+```lean example
 structure Person where
   name : String
   age : Nat
 
+-- Sort people first by name (in ascending order), and people with the same name by age (in
+-- descending order)
 instance : Ord Person where
   compare a b := (compare a.name b.name).then (compare b.age a.age)
 ```
-This example will sort people first by name (in ascending order) and will sort people with
-the same name by age (in descending order). (If all fields are sorted ascending and in the same
-order as they are listed in the structure, you can also use `deriving Ord` on the structure
-definition for the same effect.)
+
+```lean example
+#eval Ord.compare (⟨"Gert", 33⟩ : Person) ⟨"Dana", 50⟩
+```
+```output
+Ordering.gt
+```
+
+```lean example
+#eval Ord.compare (⟨"Gert", 33⟩ : Person) ⟨"Gert", 50⟩
+```
+```output
+Ordering.gt
+```
+
+```lean example
+#eval Ord.compare (⟨"Gert", 33⟩ : Person) ⟨"Gert", 20⟩
+```
+```output
+Ordering.lt
+```
 -/
 @[macro_inline] def «then» (a b : Ordering) : Ordering :=
   match a with
@@ -44,42 +90,42 @@ definition for the same effect.)
   | a => a
 
 /--
-Check whether the ordering is 'equal'.
+Checks whether the ordering is `eq`.
 -/
 def isEq : Ordering → Bool
   | eq => true
   | _ => false
 
 /--
-Check whether the ordering is 'not equal'.
+Checks whether the ordering is not `eq`.
 -/
 def isNe : Ordering → Bool
   | eq => false
   | _ => true
 
 /--
-Check whether the ordering is 'less than or equal to'.
+Checks whether the ordering is `lt` or `eq`.
 -/
 def isLE : Ordering → Bool
   | gt => false
   | _ => true
 
 /--
-Check whether the ordering is 'less than'.
+Checks whether the ordering is `lt`.
 -/
 def isLT : Ordering → Bool
   | lt => true
   | _ => false
 
 /--
-Check whether the ordering is 'greater than'.
+Checks whether the ordering is `gt`.
 -/
 def isGT : Ordering → Bool
   | gt => true
   | _ => false
 
 /--
-Check whether the ordering is 'greater than or equal'.
+Checks whether the ordering is `gt` or `eq`.
 -/
 def isGE : Ordering → Bool
   | lt => false
@@ -263,8 +309,12 @@ end Lemmas
 end Ordering
 
 /--
-Yields an `Ordering` s.t. `x < y` corresponds to `Ordering.lt` / `Ordering.gt` and
-`x = y` corresponds to `Ordering.eq`.
+Uses decidable less-than and equality relations to find an `Ordering`.
+
+In particular, if `x < y` then the result is `Ordering.lt`. If `x = y` then the result is
+`Ordering.eq`. Otherwise, it is `Ordering.gt`.
+
+`compareOfLessAndBEq` uses `BEq` instead of `DecidableEq`.
 -/
 @[inline] def compareOfLessAndEq {α} (x y : α) [LT α] [Decidable (x < y)] [DecidableEq α] : Ordering :=
   if x < y then Ordering.lt
@@ -272,8 +322,12 @@ Yields an `Ordering` s.t. `x < y` corresponds to `Ordering.lt` / `Ordering.gt` a
   else Ordering.gt
 
 /--
-Yields an `Ordering` s.t. `x < y` corresponds to `Ordering.lt` / `Ordering.gt` and
-`x == y` corresponds to `Ordering.eq`.
+Uses a decidable less-than relation and Boolean equality to find an `Ordering`.
+
+In particular, if `x < y` then the result is `Ordering.lt`. If `x == y` then the result is
+`Ordering.eq`. Otherwise, it is `Ordering.gt`.
+
+`compareOfLessAndEq` uses `DecidableEq` instead of `BEq`.
 -/
 @[inline] def compareOfLessAndBEq {α} (x y : α) [LT α] [Decidable (x < y)] [BEq α] : Ordering :=
   if x < y then .lt
@@ -281,9 +335,12 @@ Yields an `Ordering` s.t. `x < y` corresponds to `Ordering.lt` / `Ordering.gt` a
   else .gt
 
 /--
-Compare `a` and `b` lexicographically by `cmp₁` and `cmp₂`. `a` and `b` are
-first compared by `cmp₁`. If this returns 'equal', `a` and `b` are compared
+Compares `a` and `b` lexicographically by `cmp₁` and `cmp₂`.
+
+`a` and `b` are first compared by `cmp₁`. If this returns `Ordering.eq`, `a` and `b` are compared
 by `cmp₂` to break the tie.
+
+To lexicographically combine two `Ordering`s, use `Ordering.then`.
 -/
 @[inline] def compareLex (cmp₁ cmp₂ : α → β → Ordering) (a : α) (b : β) : Ordering :=
   (cmp₁ a b).then (cmp₂ a b)
@@ -306,7 +363,14 @@ export Ord (compare)
 
 set_option linter.unusedVariables false in  -- allow specifying `ord` explicitly
 /--
-Compare `x` and `y` by comparing `f x` and `f y`.
+Compares two values by comparing the results of applying a function.
+
+In particular, `x` is compared to `y` by comparing `f x` and `f y`.
+
+Examples:
+ * `compareOn (·.length) "apple" "banana" = .lt`
+ * `compareOn (· % 3) 5 6 = .gt`
+ * `compareOn (·.foldl max 0) [1, 2, 3] [3, 2, 1] = .eq`
 -/
 @[inline] def compareOn [ord : Ord β] (f : α → β) (x y : α) : Ordering :=
   compare (f x) (f y)
@@ -358,12 +422,20 @@ instance [Ord α] : Ord (Option α) where
 def lexOrd [Ord α] [Ord β] : Ord (α × β) where
   compare := compareLex (compareOn (·.1)) (compareOn (·.2))
 
+/--
+Constructs an `LT` instance from an `Ord` instance that asserts that the result of `compare` is
+`Ordering.lt`.
+-/
 def ltOfOrd [Ord α] : LT α where
   lt a b := compare a b = Ordering.lt
 
 instance [Ord α] : DecidableRel (@LT.lt α ltOfOrd) :=
   inferInstanceAs (DecidableRel (fun a b => compare a b = Ordering.lt))
 
+/--
+Constructs an `LT` instance from an `Ord` instance that asserts that the result of `compare`
+satisfies `Ordering.isLE`.
+-/
 def leOfOrd [Ord α] : LE α where
   le a b := (compare a b).isLE
 
@@ -373,56 +445,70 @@ instance [Ord α] : DecidableRel (@LE.le α leOfOrd) :=
 namespace Ord
 
 /--
-Derive a `BEq` instance from an `Ord` instance.
+Constructs a `BEq` instance from an `Ord` instance.
 -/
 protected def toBEq (ord : Ord α) : BEq α where
   beq x y := ord.compare x y == .eq
 
 /--
-Derive an `LT` instance from an `Ord` instance.
+Constructs an `LT` instance from an `Ord` instance.
 -/
-protected def toLT (_ : Ord α) : LT α :=
+protected def toLT (ord : Ord α) : LT α :=
   ltOfOrd
 
 instance [i : Ord α] : DecidableRel (@LT.lt _ (Ord.toLT i)) :=
   inferInstanceAs (DecidableRel (fun a b => compare a b = Ordering.lt))
 
 /--
-Derive an `LE` instance from an `Ord` instance.
+Constructs an `LE` instance from an `Ord` instance.
 -/
-protected def toLE (_ : Ord α) : LE α :=
+protected def toLE (ord : Ord α) : LE α :=
   leOfOrd
 
 instance [i : Ord α] : DecidableRel (@LE.le _ (Ord.toLE i)) :=
   inferInstanceAs (DecidableRel (fun a b => (compare a b).isLE))
 
 /--
-Invert the order of an `Ord` instance.
+Inverts the order of an `Ord` instance.
+
+The result is an `Ord α` instance that returns `Ordering.lt` when `ord` would return `Ordering.gt`
+and that returns `Ordering.gt` when `ord` would return `Ordering.lt`.
 -/
 protected def opposite (ord : Ord α) : Ord α where
   compare x y := ord.compare y x
 
 /--
-`ord.on f` compares `x` and `y` by comparing `f x` and `f y` according to `ord`.
+Constructs an `Ord` instance that compares values according to the results of `f`.
+
+In particular, `ord.on f` compares `x` and `y` by comparing `f x` and `f y` according to `ord`.
+
+The function `compareOn` can be used to perform this comparison without constructing an intermediate
+`Ord` instance.
 -/
 protected def on (_ : Ord β) (f : α → β) : Ord α where
   compare := compareOn f
 
 /--
-Derive the lexicographic order on products `α × β` from orders for `α` and `β`.
+Constructs the lexicographic order on products `α × β` from orders for `α` and `β`.
 -/
 protected def lex (_ : Ord α) (_ : Ord β) : Ord (α × β) :=
   lexOrd
 
 /--
-Create an order which compares elements first by `ord₁` and then, if this
-returns 'equal', by `ord₂`.
+Constructs an `Ord` instance from two existing instances by combining them lexicographically.
+
+The resulting instance compares elements first by `ord₁` and then, if this returns `Ordering.eq`, by
+`ord₂`.
+
+The function `compareLex` can be used to perform this comparison without constructing an
+intermediate `Ord` instance. `Ordering.then` can be used to lexicographically combine the results of
+comparisons.
 -/
 protected def lex' (ord₁ ord₂ : Ord α) : Ord α where
   compare := compareLex ord₁.compare ord₂.compare
 
 /--
-Creates an order which compares elements of an `Array` in lexicographic order.
+Constructs an order which compares elements of an `Array` in lexicographic order.
 -/
 protected def arrayOrd [a : Ord α] : Ord (Array α) where
   compare x y :=

@@ -167,6 +167,9 @@ def foldl {β : Type v} (f : β → Float → β) (init : β) (as : FloatArray) 
 
 end FloatArray
 
+/--
+Converts a list of floats into a `FloatArray`.
+-/
 def List.toFloatArray (ds : List Float) : FloatArray :=
   let rec loop
     | [],    r => r

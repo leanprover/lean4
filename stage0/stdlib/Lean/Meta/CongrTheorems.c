@@ -12176,13 +12176,11 @@ x_28 = l_Lean_executeReservedNameAction(x_21, x_6, x_7, x_24);
 if (lean_obj_tag(x_28) == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; 
-x_29 = lean_ctor_get(x_28, 0);
+x_29 = lean_ctor_get(x_28, 1);
 lean_inc(x_29);
-x_30 = lean_ctor_get(x_28, 1);
-lean_inc(x_30);
 lean_dec(x_28);
-x_31 = l_Lean_Meta_mkHCongrWithArityForConst_x3f___lambda__1(x_21, x_2, x_29, x_4, x_5, x_6, x_7, x_30);
-lean_dec(x_29);
+x_30 = lean_box(0);
+x_31 = l_Lean_Meta_mkHCongrWithArityForConst_x3f___lambda__1(x_21, x_2, x_30, x_4, x_5, x_6, x_7, x_29);
 if (lean_obj_tag(x_31) == 0)
 {
 uint8_t x_32; 
@@ -12674,13 +12672,11 @@ x_25 = l_Lean_executeReservedNameAction(x_18, x_5, x_6, x_21);
 if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; 
-x_26 = lean_ctor_get(x_25, 0);
+x_26 = lean_ctor_get(x_25, 1);
 lean_inc(x_26);
-x_27 = lean_ctor_get(x_25, 1);
-lean_inc(x_27);
 lean_dec(x_25);
-x_28 = l_Lean_Meta_mkCongrSimpForConst_x3f___lambda__1(x_18, x_2, x_26, x_3, x_4, x_5, x_6, x_27);
-lean_dec(x_26);
+x_27 = lean_box(0);
+x_28 = l_Lean_Meta_mkCongrSimpForConst_x3f___lambda__1(x_18, x_2, x_27, x_3, x_4, x_5, x_6, x_26);
 if (lean_obj_tag(x_28) == 0)
 {
 uint8_t x_29; 

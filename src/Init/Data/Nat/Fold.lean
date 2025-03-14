@@ -191,25 +191,43 @@ end Nat
 namespace Prod
 
 /--
-`(start, stop).foldI f a` evaluates `f` on all the numbers
+Combines an initial value with each natural number from in a range, in increasing order.
+
+In particular, `(start, stop).foldI f init` applies `f`on all the numbers
 from `start` (inclusive) to `stop` (exclusive) in increasing order:
-* `(5, 8).foldI f init = init |> f 5 |> f 6 |> f 7`
+
+Examples:
+* `(5, 8).foldI (fun j _ _ xs => xs.push j) #[] = (#[] |>.push 5 |>.push 6 |>.push 7)`
+* `(5, 8).foldI (fun j _ _ xs => xs.push j) #[] = #[5, 6, 7]`
+* `(5, 8).foldI (fun j _ _ xs => toString j :: xs) [] = ["7", "6", "5"]`
 -/
-@[inline] def foldI {α : Type u} (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → α → α) (a : α) : α :=
-  (i.2 - i.1).fold (fun j _ => f (i.1 + j) (by omega) (by omega)) a
+@[inline] def foldI {α : Type u} (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → α → α) (init : α) : α :=
+  (i.2 - i.1).fold (fun j _ => f (i.1 + j) (by omega) (by omega)) init
 
 /--
-`(start, stop).anyI f a` returns true if `f` is true for some natural number
-from `start` (inclusive) to `stop` (exclusive):
-* `(5, 8).anyI f = f 5 || f 6 || f 7`
+Checks whether a predicate holds for any natural number in a range.
+
+In particular, `(start, stop).allI f` returns true if `f` is true for any natural number from
+`start` (inclusive) to `stop` (exclusive).
+
+Examples:
+ * `(5, 8).anyI (fun j _ _ => j == 6) = (5 == 6) || (6 == 6) || (7 == 6)`
+ * `(5, 8).anyI (fun j _ _ => j % 2 = 0) = true`
+ * `(6, 6).anyI (fun j _ _ => j % 2 = 0) = false`
 -/
 @[inline] def anyI (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → Bool) : Bool :=
   (i.2 - i.1).any (fun j _ => f (i.1 + j) (by omega) (by omega))
 
 /--
-`(start, stop).allI f a` returns true if `f` is true for all natural numbers
-from `start` (inclusive) to `stop` (exclusive):
-* `(5, 8).anyI f = f 5 && f 6 && f 7`
+Checks whether a predicate holds for all natural numbers in a range.
+
+In particular, `(start, stop).allI f` returns true if `f` is true for all natural numbers from
+`start` (inclusive) to `stop` (exclusive).
+
+Examples:
+ * `(5, 8).allI (fun j _ _ => j < 10) = (5 < 10) && (6 < 10) && (7 < 10)`
+ * `(5, 8).allI (fun j _ _ => j % 2 = 0) = false`
+ * `(6, 7).allI (fun j _ _ => j % 2 = 0) = true`
 -/
 @[inline] def allI (i : Nat × Nat) (f : (j : Nat) → i.1 ≤ j → j < i.2 → Bool) : Bool :=
   (i.2 - i.1).all (fun j _ => f (i.1 + j) (by omega) (by omega))

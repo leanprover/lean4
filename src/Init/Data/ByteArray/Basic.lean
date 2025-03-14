@@ -337,6 +337,9 @@ def prevn : Iterator → Nat → Iterator
 end Iterator
 end ByteArray
 
+/--
+Converts a list of bytes into a `ByteArray`.
+-/
 def List.toByteArray (bs : List UInt8) : ByteArray :=
   let rec loop
     | [],    r => r

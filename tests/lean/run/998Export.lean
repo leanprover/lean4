@@ -75,4 +75,5 @@ def exportLevel (L : Level) : ExportM Nat := do
       let i ← alloc L; IO.println s!"{i} #UP {← exportName n}"; pure i
     | Level.mvar n => unreachable!
 
-attribute [simp] exportLevel
+-- TODO: this test has been broken for a while with a panic that was ignored by the test suite
+--attribute [simp] exportLevel

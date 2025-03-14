@@ -139,14 +139,25 @@ private def betaReduceLetRecApps (preDefs : Array PreDefinition) : MetaM (Array 
     else
       return preDef
 
-private def addAsAxioms (preDefs : Array PreDefinition) : TermElabM Unit := do
+private def addSorried (preDefs : Array PreDefinition) : TermElabM Unit := do
   for preDef in preDefs do
-    let decl := Declaration.axiomDecl {
-      name        := preDef.declName,
-      levelParams := preDef.levelParams,
-      type        := preDef.type,
-      isUnsafe    := preDef.modifiers.isUnsafe
-    }
+    let value ← mkSorry (synthetic := true) preDef.type
+    let decl := if preDef.kind.isTheorem then
+      Declaration.thmDecl {
+        name        := preDef.declName,
+        levelParams := preDef.levelParams,
+        type        := preDef.type,
+        value
+      }
+    else
+      Declaration.defnDecl {
+        name        := preDef.declName,
+        levelParams := preDef.levelParams,
+        type        := preDef.type,
+        hints       := .abbrev
+        safety      := .safe
+        value
+      }
     addDecl decl
     withSaveInfoContext do  -- save new env
       addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
@@ -306,9 +317,9 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
                   catch _ =>
                     -- Compilation failed try again just as axiom
                     s.restore
-                    addAsAxioms preDefs
+                    addSorried preDefs
               else if preDefs.all fun preDef => preDef.kind == DefKind.theorem then
-                addAsAxioms preDefs
+                addSorried preDefs
             catch _ => s.restore
 
 builtin_initialize

@@ -88,7 +88,7 @@ def throwIncorrectNumberOfLevels {α} (constName : Name) (us : List Level) : Met
   throwError "incorrect number of universe levels {mkConst constName us}"
 
 private def inferConstType (c : Name) (us : List Level) : MetaM Expr := do
-  let cinfo ← getConstInfo c
+  let cinfo ← getConstVal c
   if cinfo.levelParams.length == us.length then
     instantiateTypeLevelParams cinfo us
   else

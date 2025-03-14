@@ -692,7 +692,7 @@ partial def delabAppMatch : Delab := whenNotPPOption getPPExplicit <| whenPPOpti
       (do
         let params := (← getExpr).getAppArgs
         let matcherTy : SubExpr :=
-          { expr := ← instantiateForall (← instantiateTypeLevelParams (← getConstInfo c) us) params
+          { expr := ← instantiateForall (← instantiateTypeLevelParams (← getConstVal c) us) params
             pos := (← getPos).pushType }
         guard <| ← isDefEq matcherTy.expr (← inferType (← getExpr))
         return { info, matcherTy })

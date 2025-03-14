@@ -48,8 +48,6 @@ where
   go {w : Nat} : BVExpr w → Expr
   | .var idx => mkApp2 (mkConst ``BVExpr.var) (toExpr w) (toExpr idx)
   | .const val => mkApp2 (mkConst ``BVExpr.const) (toExpr w) (toExpr val)
-  | .signExtend (w := oldWidth) val inner =>
-    mkApp3 (mkConst ``BVExpr.signExtend) (toExpr oldWidth) (toExpr val) (go inner)
   | .bin lhs op rhs => mkApp4 (mkConst ``BVExpr.bin) (toExpr w) (go lhs) (toExpr op) (go rhs)
   | .un op operand => mkApp3 (mkConst ``BVExpr.un) (toExpr w) (toExpr op) (go operand)
   | .append (l := l) (r := r) lhs rhs =>

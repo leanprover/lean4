@@ -6355,7 +6355,7 @@ lean_dec(x_62);
 x_65 = lean_ctor_get(x_63, 6);
 lean_inc(x_65);
 lean_dec(x_63);
-x_66 = lean_ctor_get(x_65, 1);
+x_66 = lean_ctor_get(x_65, 2);
 lean_inc(x_66);
 lean_dec(x_65);
 x_67 = l_Lean_Linter_MissingDocs_checkDecl___lambda__1___closed__5;

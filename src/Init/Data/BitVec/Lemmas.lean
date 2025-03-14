@@ -2517,7 +2517,7 @@ theorem setWidth_eq_append {v : Nat} {x : BitVec v} {w : Nat} (h : v ≤ w) :
   · simp [hiv, getLsbD_ge x i (by omega)]
 
 theorem setWidth_eq_extractLsb' {v : Nat} {x : BitVec v} {w : Nat} (h : w ≤ v) :
-    x.setWidth w = (x.extractLsb' 0 w).cast (by omega) := by
+    x.setWidth w = x.extractLsb' 0 w := by
   rw [setWidth_eq_append_extractLsb']
   ext i hi
   simp only [getElem_cast, getElem_append]
@@ -3104,6 +3104,14 @@ theorem not_neg (x : BitVec w) : ~~~(-x) = x + -1#w := by
         show (_ - x.toNat) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)]]
       omega
 
+theorem neg_add {x y : BitVec w} : - (x + y) = - x - y := by
+  apply eq_of_toInt_eq
+  simp [toInt_neg, toInt_add, Int.neg_add, Int.add_neg_eq_sub]
+
+theorem add_neg_eq_sub {x y : BitVec w} : x + - y = (x - y) := by
+  apply eq_of_toInt_eq
+  simp [toInt_neg, Int.sub_eq_add_neg]
+
 /- ### add/sub injectivity -/
 
 @[simp]
@@ -3271,6 +3279,12 @@ theorem mul_eq_and {a b : BitVec 1} : a * b = a &&& b := by
 protected theorem neg_mul_neg (x y : BitVec w) : -x * -y = x * y := by simp
 
 protected theorem neg_mul_comm (x y : BitVec w) : -x * y = x * -y := by simp
+
+theorem neg_add_mul_eq_mul_not {x y : BitVec w} :
+    - (x + x * y) = x * ~~~ y := by
+  rw [neg_add, sub_toAdd, ← BitVec.mul_neg, neg_eq_not_add y, mul_add,
+    BitVec.mul_one, BitVec.add_comm, BitVec.add_assoc, BitVec.add_right_eq_self,
+    add_neg_eq_sub, BitVec.sub_self]
 
 /-! ### le and lt -/
 

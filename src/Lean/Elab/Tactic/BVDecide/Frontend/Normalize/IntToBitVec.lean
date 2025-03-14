@@ -79,7 +79,9 @@ where
       for hyp in ← getPropHyps do
         (← instantiateMVars (← hyp.getType)).forEachWhere
           (stopWhenVisited := true)
-          (fun e => e.isAppOfArity ``USize.toBitVec 1 || e.isAppOfArity ``ISize.toBitVec 1)
+          (fun e =>
+            (e.isAppOfArity ``USize.toBitVec 1 || e.isAppOfArity ``ISize.toBitVec 1) &&
+            !e.hasLooseBVars)
           fun e => do
             M.addSizeTerm e
             M.addSizeHyp hyp

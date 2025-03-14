@@ -2278,7 +2278,15 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
       -- heartbeat limits inside `realizeAndReport` should be measured from this point on
       initHeartbeats := (← IO.getNumHeartbeats)
     }
-    let (env, dyn) ← env.realizeConst forConst constName (realizeAndReport coreCtx)
+    let (env, exTask, dyn) ← env.realizeConst forConst constName (realizeAndReport coreCtx)
+    let exAct ← Core.wrapAsyncAsSnapshot (cancelTk? := none) fun
+      | none => return
+      | some ex => do
+        logError <| ex.toMessageData (← getOptions)
+    Core.logSnapshotTask {
+      stx? := none
+      task := (← BaseIO.mapTask (t := exTask) exAct)
+    }
     if let some res := dyn.get? RealizeConstantResult then
       let mut snap := res.snap
       -- localize diagnostics

@@ -80,7 +80,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     · next hsplit =>
       rw [ih]
     · apply Eq.symm
-      apply BitVec.getLsbD_ge
+      apply BitVec.getLsbD_of_ge
       omega
   | shiftLeft lhs rhs lih rih =>
     simp only [go, eval_shiftLeft]

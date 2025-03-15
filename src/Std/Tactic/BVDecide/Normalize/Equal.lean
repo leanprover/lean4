@@ -39,11 +39,11 @@ theorem BitVec.zero_beq_xor_iff (a b : BitVec w) : (0#w == a ^^^ b) = (a == b) :
 
 -- used in bv_and_eq_allOnes simproc
 theorem BitVec.and_eq_allOnes (a b : BitVec w) : (a &&& b == -1#w) = (a == -1#w && b == -1#w) := by
-  rw [Bool.eq_iff_iff, beq_iff_eq, BitVec.negOne_eq_allOnes]
+  rw [Bool.eq_iff_iff, beq_iff_eq, BitVec.neg_one_eq_allOnes]
   simp
 
 theorem BitVec.allOnes_eq_and (a b : BitVec w) : (-1#w == a &&& b) = (a == -1#w && b == -1#w) := by
-  rw [Bool.eq_iff_iff, beq_iff_eq, Eq.comm, BitVec.negOne_eq_allOnes]
+  rw [Bool.eq_iff_iff, beq_iff_eq, Eq.comm, BitVec.neg_one_eq_allOnes]
   simp
 
 @[bv_normalize]

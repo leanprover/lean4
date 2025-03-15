@@ -50,7 +50,7 @@ theorem denote_bitblast (aig : AIG BVBit) (pred : BVPred) (assign : BVExpr.Assig
         simp
   | getLsbD expr idx =>
     simp only [bitblast, denote_blastGetLsbD, BVExpr.denote_bitblast, dite_eq_ite,
-      Bool.if_false_right, eval_getLsbD, Bool.and_iff_right_iff_imp, decide_eq_true_eq]
+      Bool.if_false_right, eval_getLsbD, Bool.and_eq_right_iff_imp, decide_eq_true_eq]
     apply BitVec.lt_of_getLsbD
 
 end BVPred

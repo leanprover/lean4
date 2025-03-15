@@ -6,3 +6,4 @@ Authors: Paul Reichert
 prelude
 import Std.Data.TreeSet.Basic
 import Std.Data.TreeSet.AdditionalOperations
+import Std.Data.TreeSet.Lemmas

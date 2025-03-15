@@ -962,13 +962,11 @@ def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
   env.base.const2ModIdx[declName]?
 
 def isConstructor (env : Environment) (declName : Name) : Bool :=
-  match env.find? declName with
-  | some (.ctorInfo _) => true
-  | _                  => false
+  env.findAsync? declName |>.any (·.kind == .ctor)
 
 def isSafeDefinition (env : Environment) (declName : Name) : Bool :=
-  match env.find? declName with
-  | some (.defnInfo { safety := .safe, .. }) => true
+  match env.findAsync? declName with
+  | some { kind := .defn, constInfo, .. } => (constInfo.get matches .defnInfo { safety := .safe, .. })
   | _ => false
 
 def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
@@ -1485,13 +1483,14 @@ end SimplePersistentEnvExtension
     Declarations must only be tagged in the module where they were declared. -/
 def TagDeclarationExtension := SimplePersistentEnvExtension Name NameSet
 
-def mkTagDeclarationExtension (name : Name := by exact decl_name%) : IO TagDeclarationExtension :=
+def mkTagDeclarationExtension (name : Name := by exact decl_name%)
+  (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO TagDeclarationExtension :=
   registerSimplePersistentEnvExtension {
     name          := name,
     addImportedFn := fun _ => {},
     addEntryFn    := fun s n => s.insert n,
     toArrayFn     := fun es => es.toArray.qsort Name.quickLt
-    asyncMode     := .async
+    asyncMode
   }
 
 namespace TagDeclarationExtension
@@ -1508,7 +1507,10 @@ def tag (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : 
 def isTagged (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : Bool :=
   match env.getModuleIdxFor? declName with
   | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains declName Name.quickLt
-  | none        => (ext.findStateAsync env declName).contains declName
+  | none        => if ext.toEnvExtension.asyncMode matches .async then
+      (ext.findStateAsync env declName).contains declName
+    else
+      (ext.getState env).contains declName
 
 end TagDeclarationExtension
 
@@ -2106,9 +2108,9 @@ def mkDefinitionValInferrringUnsafe [Monad m] [MonadEnv m] (name : Name) (levelP
 
 def getMaxHeight (env : Environment) (e : Expr) : UInt32 :=
   e.foldConsts 0 fun constName max =>
-    match env.find? constName with
-    | ConstantInfo.defnInfo val =>
-      match val.hints with
+    match env.findAsync? constName with
+    | some { kind := .defn, constInfo := info, .. } =>
+      match info.get.hints with
       | ReducibilityHints.regular h => if h > max then h else max
       | _                           => max
     | _ => max

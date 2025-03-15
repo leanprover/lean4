@@ -29,9 +29,20 @@ ifeq "${STAGE}" "0"
   LEANMAKE_OPTS+=C_ONLY=1 C_OUT=${LEAN_SOURCE_DIR}/../stdlib/
 endif
 
+# These can be phony since the inner Makefile/Lake will have the correct dependencies and avoid rebuilds
 .PHONY: Init Std Lean leanshared Lake libLake_shared lake lean
 
-# These can be phony since the inner Makefile will have the correct dependencies and avoid rebuilds
+# As the build directory is part of the lakefile.toml, only use it for stage 1 for now
+ifeq "${USE_LAKE} ${STAGE}" "ON 1"
+
+# build in parallel
+Init:
+	${PREV_STAGE}/bin/lake build Init Std Lean Lake LakeMain
+
+Std Lean Lake: Init
+
+else
+
 Init:
 	@mkdir -p "${LIB}/lean/Lean" "${LIB}/lean/Lake" "${LIB}/lean/Std"
 # Use `+` to use the Make jobserver with `leanmake` for parallelized builds
@@ -45,19 +56,25 @@ Std: Init
 Lean: Std
 	+"${LEAN_BIN}/leanmake" lib lib.export PKG=Lean $(LEANMAKE_OPTS)
 
+Lake:
+# lake is in its own subdirectory, so must adjust relative paths...
+	+"${LEAN_BIN}/leanmake" -C lake lib lib.export ../${LIB}/temp/LakeMain.o.export  PKG=Lake $(LEANMAKE_OPTS) OUT="../${LIB}" LIB_OUT="../${LIB}/lean" TEMP_OUT="../${LIB}/temp" OLEAN_OUT="../${LIB}/lean" LEAN_OPTS+="--plugin=${PREV_STAGE}/${CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}" EXTRA_SRC_ROOTS=LakeMain.lean
+
+endif
+
 ${LIB}/temp/empty.c:
 	touch $@
 
 # the following targets are all invoked by separate `make` calls; see src/CMakeLists.txt
 
 # we specify the precise file names here to avoid rebuilds
-${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${LIB}/temp/libInit.a.export ${LIB}/temp/libStd.a.export ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LIB}/temp/empty.c
+${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${LIB}/lean/libInit.a.export ${LIB}/lean/libStd.a.export ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LIB}/temp/empty.c
 	@echo "[    ] Building $@"
 ifeq "${CMAKE_SYSTEM_NAME}" "Windows"
 # on Windows, must remove file before writing a new one (since the old one may be in use)
 	@rm -f $@
 	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o $@ \
-	  -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/temp/libInit.a.export ${CMAKE_BINARY_DIR}/lib/temp/libStd.a.export ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a -Wl,--no-whole-archive \
+	  -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libInit.a.export ${CMAKE_BINARY_DIR}/lib/lean/libStd.a.export ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a -Wl,--no-whole-archive \
 	  -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libInit_shared.dll.a ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
 else
 # create empty library on platforms without restrictive symbol limits; avoids costly indirections and troubles with cross-library exceptions
@@ -66,7 +83,7 @@ endif
 
 Init_shared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX}
 
-${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX} ${LIB}/temp/libLean.a.export ${LIB}/lean/libleancpp.a ${LIB}/temp/libleanshell.a ${LIB}/temp/libleaninitialize.a
+${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX} ${LIB}/lean/libLean.a.export ${LIB}/lean/libleancpp.a ${LIB}/temp/libleanshell.a ${LIB}/temp/libleaninitialize.a
 	@echo "[    ] Building $@"
 ifeq "${CMAKE_SYSTEM_NAME}" "Windows"
 # on Windows, must remove file before writing a new one (since the old one may be in use)
@@ -75,35 +92,32 @@ ifeq "${CMAKE_SYSTEM_NAME}" "Windows"
 # "half-way point" DLL to avoid symbol limit
 # include Lean.Meta.WHNF and leancpp except for `initialize.cpp`
 	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX} \
-	  ${LIB}/temp/Lean/Meta/WHNF.o.export -Wl,--start-group ${LIB}/temp/libLean.a.export -Wl,--whole-archive ${LIB}/temp/libleancpp_1.a -Wl,--no-whole-archive -Wl,--end-group -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared_1.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} -Wl,-Map=${LIB}/temp/libleanshared_1.map
+	  ${LIB}/temp/Lean/Meta/WHNF.*o.export -Wl,--start-group ${LIB}/lean/libLean.a.export -Wl,--whole-archive ${LIB}/temp/libleancpp_1.a -Wl,--no-whole-archive -Wl,--end-group -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared_1.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS} -Wl,-Map=${LIB}/temp/libleanshared_1.map
 # now delete included symbols from libLean.a
-	cp ${LIB}/temp/libLean.a.export ${LIB}/temp/diff.a
+	cp ${LIB}/lean/libLean.a.export ${LIB}/lean/diff.a
 	sed -En 's/.*\s(\S*\.o\.export):.*/\1/p' ${LIB}/temp/libleanshared_1.map > ${LIB}/temp/diff.a.in
 # can't use bundled llvm-ar before LLVM 16, https://github.com/llvm/llvm-project/issues/55023
-	ar dP ${LIB}/temp/diff.a @${LIB}/temp/diff.a.in
-	"${CMAKE_AR}" tP ${LIB}/temp/diff.a
+	ar dP ${LIB}/lean/diff.a @${LIB}/temp/diff.a.in
+	"${CMAKE_AR}" tP ${LIB}/lean/diff.a
 # now include Lean and the diff library in `leanshared`
 	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o $@ \
-	  -Wl,--whole-archive ${LIB}/temp/diff.a ${LIB}/temp/libleanshell.a ${LIB}/temp/libleaninitialize.a -Wl,--no-whole-archive -lleanshared_1 -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
+	  -Wl,--whole-archive ${LIB}/lean/diff.a ${LIB}/temp/libleanshell.a ${LIB}/temp/libleaninitialize.a -Wl,--no-whole-archive -lleanshared_1 -lInit_shared -Wl,--out-implib,${LIB}/lean/libleanshared.dll.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
+	rm ${LIB}/lean/diff.a
 else
 # create empty library on platforms without restrictive symbol limits; avoids costly indirections and troubles with cross-library exceptions
 	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX} ${LIB}/temp/empty.c ${LEANSHARED_1_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
 ifeq "${CMAKE_SYSTEM_NAME}" "Darwin"
 	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o $@ \
-	  ${LIB}/temp/Lean.o -Wl,-force_load,${LIB}/temp/libleanshell.a -lInit -lStd -lLean -lleancpp ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
+	  ${LIB}/temp/Lean.*o.export -Wl,-force_load,${LIB}/temp/libleanshell.a -lInit -lStd -lLean -lleancpp ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
 else
 	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o $@ \
-	  -Wl,--whole-archive ${LIB}/temp/Lean.o ${LIB}/temp/libleanshell.a -Wl,--no-whole-archive -Wl,--start-group -lInit -lStd -lLean -lleancpp -Wl,--end-group ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
+	  -Wl,--whole-archive ${LIB}/temp/Lean.*o.export ${LIB}/temp/libleanshell.a -Wl,--no-whole-archive -Wl,--start-group -lInit -lStd -lLean -lleancpp -Wl,--end-group ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS} ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
 endif
 endif
 
 leanshared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
 
-Lake:
-# lake is in its own subdirectory, so must adjust relative paths...
-	+"${LEAN_BIN}/leanmake" -C lake lib lib.export ../${LIB}/temp/LakeMain.o.export  PKG=Lake $(LEANMAKE_OPTS) OUT="../${LIB}" LIB_OUT="../${LIB}/lean" TEMP_OUT="../${LIB}/temp" OLEAN_OUT="../${LIB}/lean" LEAN_OPTS+="--plugin=${PREV_STAGE}/${CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}" EXTRA_SRC_ROOTS=LakeMain.lean
-
-${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX} ${LIB}/temp/libLean.a.export ${LIB}/temp/libLake.a.export
+${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX} ${LIB}/lean/libLean.a.export ${LIB}/lean/libLake.a.export
 	@echo "[    ] Building $@"
 # on Windows, must remove file before writing a new one (since the old one may be in use)
 	@rm -f ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}
@@ -112,7 +126,7 @@ ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}: 
 
 libLake_shared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}
 
-${CMAKE_BINARY_DIR}/bin/lake${CMAKE_EXECUTABLE_SUFFIX}: ${LIB}/temp/LakeMain.o.export ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}
+${CMAKE_BINARY_DIR}/bin/lake${CMAKE_EXECUTABLE_SUFFIX}: ${LIB}/temp/LakeMain.*o.export ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}
 	@echo "[    ] Building $@"
 # on Windows, must remove file before writing a new one (since the old one may be in use)
 	@rm -f $@

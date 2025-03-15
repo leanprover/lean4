@@ -24,14 +24,21 @@ leanLibDir = "lib/lean"
 # Destination for static libraries
 nativeLibDir = "lib/lean"
 
+moreLeanArgs = [${LEAN_EXTRA_OPTS_TOML}]
+moreLeancArgs = [${LEANC_OPTS_TOML}]
+moreLinkArgs = [${LINK_OPTS_TOML}]
+
 [[lean_lib]]
 name = "Init"
+defaultFacets = ["static", "static.export"]
 
 [[lean_lib]]
 name = "Std"
+defaultFacets = ["static", "static.export"]
 
 [[lean_lib]]
 name = "Lean"
+defaultFacets = ["static", "static.export"]
 globs = [
   # Library root
   "Lean",
@@ -45,3 +52,11 @@ globs = [
 name = "Lake"
 srcDir = "lake"
 moreLeanArgs = ["--plugin=${PREV_STAGE}/${CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}"]
+defaultFacets = ["static", "static.export"]
+globs = ["Lake", "Lake.CLI"]
+moreLeanArgs = ["--plugin=${LAKE_PREV_PLUGIN}"]
+
+[[lean_lib]]
+name = "LakeMain"
+srcDir = "lake"
+defaultFacets = ["static"]

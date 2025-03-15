@@ -56,7 +56,7 @@ private def mkIdx {sz : Nat} (hash : UInt64) (h : sz.isPowerOfTwo) : { u : USize
   data.val.foldlM (init := d) fun d b => b.foldlM f d
 
 @[inline] def foldBuckets {δ : Type w} (data : HashMapBucket α β) (d : δ) (f : δ → α → β → δ) : δ :=
-  Id.run $ foldBucketsM data d f
+  Id.run $ foldBucketsM data d (pure <| f · · ·)
 
 @[inline] def foldM {δ : Type w} {m : Type w → Type w} [Monad m] (f : δ → α → β → m δ) (d : δ) (h : HashMapImp α β) : m δ :=
   foldBucketsM h.buckets d f

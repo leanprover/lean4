@@ -467,7 +467,7 @@ example (f : Fin 3 → Nat) : List.ofFn f = [f 0, f 1, f 2] := rfl
 example (f : Fin 3 → Nat) : Fin.foldl 3 (fun acc i => f i :: acc) [] = [f 2, f 1, f 0] := rfl
 
 /-! ## Monadic operations -/
-attribute [local simp] Id.run in
+
 #check_simp
   (Id.run do
     let mut s := 0
@@ -475,7 +475,6 @@ attribute [local simp] Id.run in
       s := s + i
     pure s) ~> 10
 
-attribute [local simp] Id.run in
 #check_simp
   (Id.run do
     let mut s := 0
@@ -483,7 +482,6 @@ attribute [local simp] Id.run in
       s := s + i
     pure s) ~> 10
 
-attribute [local simp] Id.run in
 variable (l : List α) (k m : Nat) in
 #check_simp
   (Id.run do

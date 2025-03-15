@@ -936,12 +936,12 @@ def propagateCutsatDiseq (lhs rhs : Expr) : GoalM Unit := do
   let some lhs ← get? lhs | return ()
   let some rhs ← get? rhs | return ()
   -- Recall that core can take care of disequalities of the form `1≠2`.
-  unless isIntNum lhs && isIntNum rhs do
+  unless isNum lhs && isNum rhs do
     Arith.Cutsat.processNewDiseq lhs rhs
 where
   get? (a : Expr) : GoalM (Option Expr) := do
     let root ← getRootENode a
-    if isIntNum root.self then
+    if isNum root.self then
       return some root.self
     return root.cutsat?
 

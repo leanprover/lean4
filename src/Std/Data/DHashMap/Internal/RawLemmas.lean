@@ -2702,7 +2702,7 @@ theorem getKey!_modify_self (h : m.1.WF) [Inhabited α] {k : α} {f : β k → �
 theorem getKey_modify (h : m.1.WF) [Inhabited α] {k k' : α} {f : β k → β k}
     (hc : (m.modify k f).contains k') :
     (m.modify k f).getKey k' hc =
-      if heq : k == k' then
+      if k == k' then
         k
       else
         haveI h' : m.contains k' := by rwa [contains_modify _ h] at hc
@@ -2827,7 +2827,7 @@ theorem getKey!_modify_self (h : m.1.WF) [Inhabited α] {k : α} {f : β → β}
 theorem getKey_modify (h : m.1.WF) [Inhabited α] {k k' : α} {f : β → β}
     (hc : (Const.modify m k f).contains k') :
     (Const.modify m k f).getKey k' hc =
-      if heq : k == k' then
+      if k == k' then
         k
       else
         haveI h' : m.contains k' := by rwa [contains_modify _ h] at hc

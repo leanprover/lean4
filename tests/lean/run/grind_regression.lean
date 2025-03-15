@@ -97,6 +97,9 @@ example {x : Nat} (h₁ : x = y) (h₂ : x = y → 1 = 2) : 1 = 2 := by
 example (h : ∀ p : Prop, p → 1 = id 1) : 1 = id 1 := by
   grind only [id]
 
+example (h : ∀ p : Prop, p → (1 : Int) = id 1) : (1 : Int) = id 1 := by
+  grind only [id]
+
 example {p q r : Prop} (h₁ : p) (h₂ : p ↔ q) (h₃ : q → (p ↔ r)) : p ↔ r := by
   grind
 

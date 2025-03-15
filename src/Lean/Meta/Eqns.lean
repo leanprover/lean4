@@ -42,7 +42,8 @@ Environment extension for storing which declarations are recursive.
 This information is populated by the `PreDefinition` module, but the simplifier
 uses when unfolding declarations.
 -/
-builtin_initialize recExt : TagDeclarationExtension ← mkTagDeclarationExtension `recExt
+builtin_initialize recExt : TagDeclarationExtension ←
+  mkTagDeclarationExtension `recExt (asyncMode := .async)
 
 /--
 Marks the given declaration as recursive.
@@ -203,13 +204,14 @@ private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array N
 private def getEqnsFor?Core (declName : Name) : MetaM (Option (Array Name)) := withLCtx {} {} do
   if let some eqs := eqnsExt.getState (← getEnv) |>.map.find? declName then
     return some eqs
-  else if let some eqs ← alreadyGenerated? declName then
+  if !(← shouldGenerateEqnThms declName) then
+    return none
+  if let some eqs ← alreadyGenerated? declName then
     return some eqs
-  else if (← shouldGenerateEqnThms declName) then
-    for f in (← getEqnsFnsRef.get) do
-      if let some r ← f declName then
-        registerEqnThms declName r
-        return some r
+  for f in (← getEqnsFnsRef.get) do
+    if let some r ← f declName then
+      registerEqnThms declName r
+      return some r
   return none
 
 /--

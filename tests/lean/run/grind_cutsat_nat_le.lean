@@ -15,3 +15,9 @@ open Int.Linear Int.OfNat
 #print ex1
 #print ex2
 #print ex3
+
+example (a b c : Nat) : Int.ofNat (a + b) = 0 → a + b + b ≤ c → b ≤ c := by
+  grind
+
+example (a b c : Nat) : Int.ofNat (a + b) = 0 → a + b + b ≤ c → Int.ofNat b ≤ c := by
+  grind

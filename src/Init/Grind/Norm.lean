@@ -9,6 +9,7 @@ import Init.PropLemmas
 import Init.Classical
 import Init.ByCases
 import Init.Data.Int.Linear
+import Init.Data.Int.Pow
 
 namespace Lean.Grind
 /-!
@@ -124,6 +125,8 @@ init_grind_norm
   -- Int
   Int.lt_eq
   Int.emod_neg Int.ediv_zero Int.emod_zero
+  Int.natCast_add Int.natCast_mul Int.natCast_pow
+  Int.natCast_succ Int.natCast_zero
   -- GT GE
   ge_eq gt_eq
   -- Int op folding

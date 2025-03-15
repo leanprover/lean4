@@ -543,6 +543,16 @@ register_builtin_option compiler.enableNew : Bool := {
   descr    := "(compiler) enable the new code generator, this should have no significant effect on your code but it does help to test the new code generator; unset to only use the old code generator instead"
 }
 
+/--
+If `t` has not finished yet, waits for it under an `Elab.block` trace node. Returns `t`'s result.
+-/
+def traceBlock (tag : String) (t : Task α) : CoreM α := do
+  if (← IO.hasFinished t) then
+    return t.get
+  withTraceNode `Elab.block (tag := tag) (fun _ => pure tag) do
+    profileitM Exception "blocked" (← getOptions) do
+      IO.wait t
+
 -- Forward declaration
 @[extern "lean_lcnf_compile_decls"]
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
@@ -556,6 +566,7 @@ partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
   -- When inside `realizeConst`, do compilation synchronously so that `_cstage*` constants are found
   -- by the replay code
   if !Elab.async.get (← getOptions) || (← getEnv).isRealizing then
+    let _ ← traceBlock "compiler env" (← getEnv).checked
     doCompile
     return
   let env ← getEnv

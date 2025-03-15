@@ -175,7 +175,9 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
         else
           reuseBody := false
 
-      let mut (newHeader, newState) ← withRestoreOrSaveFull reusableResult? none do
+      let mut (newHeader, newState) ←
+        withTraceNode `Elab.definition.header (fun _ => pure declName) do
+        withRestoreOrSaveFull reusableResult? none do
         withReuseContext view.headerRef do
         applyAttributesAt declName view.modifiers.attrs .beforeElaboration
         withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
@@ -1246,6 +1248,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
 
 builtin_initialize
   registerTraceClass `Elab.definition.mkClosure
+  registerTraceClass `Elab.definition.header
 
 end Command
 end Lean.Elab

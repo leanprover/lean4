@@ -961,7 +961,7 @@ def markAsCutsatTerm (e : Expr) : GoalM Unit := do
   let root ← getRootENode e
   if let some e' := root.cutsat? then
     Arith.Cutsat.processNewEq e e'
-  else if isIntNum root.self && !isSameExpr e root.self then
+  else if isNum root.self && !isSameExpr e root.self then
     Arith.Cutsat.processNewEqLit e root.self
   else
     setENode root.self { root with cutsat? := some e }

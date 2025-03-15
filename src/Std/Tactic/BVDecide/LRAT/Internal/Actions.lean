@@ -36,18 +36,20 @@ def WellFormedAction [Clause α β] : Action β α → Prop
   | .addRat _ c p _ _ => Limplies α p c
   | _ => True
 
-def natLiteralToPosFinLiteral {n : Nat} (x : Literal Nat) (x_ne_zero : x.1 ≠ 0) : Option (Literal (PosFin n)) := do
-  if h : x.1 < n then
-    some (⟨x.1, ⟨Nat.zero_lt_of_ne_zero x_ne_zero, h⟩⟩, x.2)
+@[inline]
+def natLiteralToPosFinLiteral {n : Nat} (x : Literal Nat) : Option (Literal (PosFin n)) := do
+  if h : x.1 < n ∧ x.1 ≠ 0 then
+    some (⟨x.1, ⟨Nat.zero_lt_of_ne_zero h.right, h.left⟩⟩, x.2)
   else
     none
 
-def intToLiteralPure {n : Nat} (x : Int) (x_ne_zero : x ≠ 0) : Option (Literal (PosFin n)) := do
-  if h : x.natAbs < n then
-    if x > 0 then
-      some (⟨x.natAbs, ⟨by omega, h⟩⟩, true)
+@[inline]
+def intToLiteral {n : Nat} (x : Int) : Option (Literal (PosFin n)) := do
+  if h1 : x.natAbs < n ∧ x ≠ 0 then
+    if h2 : x > 0 then
+      some (⟨x.natAbs, ⟨by omega, h1.left⟩⟩, true)
     else
-      some (⟨x.natAbs, ⟨by omega, h⟩⟩, false)
+      some (⟨x.natAbs, ⟨by omega, h1.left⟩⟩, false)
   else
     none
 
@@ -64,31 +66,15 @@ are 0 or ≥ n.
 def intActionToDefaultClauseAction (n : Nat) : IntAction → Option (DefaultClauseAction n)
   | .addEmpty cId rupHints => some <| .addEmpty cId rupHints
   | .addRup cId c rupHints => do
-    let c : Array (Option (Literal (PosFin n))) :=
-      c.map (fun x => if h : x ≠ 0 then intToLiteralPure x h else none)
-    if c.contains none then
-      none
-    else
-      let c := c.filterMap id
-      match Clause.ofArray c with
-      | none => none
-      | some c => some <| .addRup cId c rupHints
+    let c ← c.mapM intToLiteral
+    let c ← Clause.ofArray c
+    return .addRup cId c rupHints
   | .addRat cId c pivot rupHints ratHints => do
-    if h : pivot.1 ≠ 0 then
-      let some pivot := natLiteralToPosFinLiteral pivot h
-        | none
-      let c : Array (Option (Literal (PosFin n))) :=
-        c.map (fun x => if h : x ≠ 0 then intToLiteralPure x h else none)
-      if c.contains none then
-        none
-      else
-        let c := c.filterMap id
-        match Clause.ofArray c with
-        | some c => some <| .addRat cId c pivot rupHints ratHints
-        | none => none
-    else
-      none
-  | .del ids => some <| .del ids
+    let pivot ← natLiteralToPosFinLiteral pivot
+    let c ← c.mapM intToLiteral
+    let c ← Clause.ofArray c
+    return .addRat cId c pivot rupHints ratHints
+  | .del ids => return .del ids
 
 
 end Internal

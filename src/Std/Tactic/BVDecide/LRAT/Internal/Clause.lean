@@ -112,6 +112,7 @@ theorem not_tautology (c : DefaultClause n) (l : Literal (PosFin n)) :
     apply Or.symm
     rwa [← hl] at h
 
+@[inline]
 def empty : DefaultClause n :=
   let clause := []
   have nodupkey := by
@@ -122,6 +123,7 @@ def empty : DefaultClause n :=
 
 theorem empty_eq : toList (empty : DefaultClause n) = [] := rfl
 
+@[inline]
 def unit (l : Literal (PosFin n)) : DefaultClause n :=
   let clause := [l]
   have nodupkey : ∀ (l : PosFin n), ¬(l, true) ∈ clause ∨ ¬(l, false) ∈ clause := by
@@ -138,6 +140,7 @@ def unit (l : Literal (PosFin n)) : DefaultClause n :=
 
 theorem unit_eq (l : Literal (PosFin n)) : toList (unit l) = [l] := rfl
 
+@[inline]
 def isUnit (c : DefaultClause n) : Option (Literal (PosFin n)) :=
   match c.clause with
   | [l] => some l
@@ -152,6 +155,7 @@ theorem isUnit_iff (c : DefaultClause n) (l : Literal (PosFin n)) :
     simp
     apply hne
 
+@[inline]
 def negate (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause.map Literal.negate
 
 theorem negate_eq (c : DefaultClause n) : negate c = (toList c).map Literal.negate := rfl
@@ -251,7 +255,7 @@ theorem ofArray.mem_of_mem_of_foldl_folder_eq_some
           intros
           cases pol <;> simp_all
 
-theorem ofArray.folder_foldl_mem_of_mem 
+theorem ofArray.folder_foldl_mem_of_mem
     (h : List.foldl DefaultClause.ofArray.folder acc ls = some map) :
     ∀ l ∈ ls, l ∈ map.toList := by
   intro l hl
@@ -284,6 +288,7 @@ theorem ofArray.folder_foldl_mem_of_mem
             rw [Std.HashMap.getElem?_eq_some_getElem! hbar]
     · exact ih h hl
 
+@[inline]
 def delete (c : DefaultClause n) (l : Literal (PosFin n)) : DefaultClause n :=
   let clause := c.clause.erase l
   let nodupkey : ∀ (l : PosFin n), ¬(l, true) ∈ clause ∨ ¬(l, false) ∈ clause := by
@@ -310,6 +315,7 @@ theorem delete_iff (c : DefaultClause n) (l l' : Literal (PosFin n)) :
   · simp only [hl, not_false_eq_true, true_and]
     exact List.mem_erase_of_ne hl
 
+@[inline]
 def contains (c : DefaultClause n) (l : Literal (PosFin n)) : Bool := c.clause.contains l
 
 theorem contains_iff :

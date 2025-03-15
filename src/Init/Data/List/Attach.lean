@@ -41,7 +41,7 @@ elements in the corresponding subtype `{ x // P x }`.
     (l : List α) (P : α → Prop) (H : ∀ x ∈ l, P x) : List {x // P x} := pmap Subtype.mk l H
 
 /--
-"Attaches" the proof that the elements of `l` are in fact elements of `l`, producing a new list with
+“Attaches” the proof that the elements of `l` are in fact elements of `l`, producing a new list with
 the same elements but in the subtype `{ x // x ∈ l }`.
 
 `O(1)`.

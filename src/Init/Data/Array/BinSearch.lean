@@ -29,6 +29,16 @@ namespace Array
     else found (some a)
 termination_by lo hi => hi.1 - lo.1
 
+/--
+Binary search for an element equivalent to `k` in the sorted array `as`. Returns the element from
+the array, if it is found, or `none` otherwise.
+
+The array `as` must be sorted according to the comparison operator `lt`, which should be a total
+order.
+
+The optional parameters `lo` and `hi` determine the region of the array indices to be searched. Both
+are inclusive, and default to searching the entire array.
+-/
 @[inline] def binSearch {α : Type} (as : Array α) (k : α) (lt : α → α → Bool) (lo := 0) (hi := as.size - 1) : Option α :=
   if h : lo < as.size then
     let hi := if hi < as.size then hi else as.size - 1
@@ -39,6 +49,16 @@ termination_by lo hi => hi.1 - lo.1
   else
     none
 
+/--
+Binary search for an element equivalent to `k` in the sorted array `as`. Returns `true` if the
+element is found, or `false` otherwise.
+
+The array `as` must be sorted according to the comparison operator `lt`, which should be a total
+order.
+
+The optional parameters `lo` and `hi` determine the region of the array indices to be searched. Both
+are inclusive, and default to searching the entire array.
+-/
 @[inline] def binSearchContains {α : Type} (as : Array α) (k : α) (lt : α → α → Bool) (lo := 0) (hi := as.size - 1) : Bool :=
   if h : lo < as.size then
     let hi := if hi < as.size then hi else as.size - 1
@@ -68,6 +88,16 @@ termination_by lo hi => hi.1 - lo.1
       as.modifyM mid <| fun v => merge v
 termination_by lo hi => hi.1 - lo.1
 
+/--
+Inserts an element `k` into a sorted array `as` such that the resulting array is sorted.
+
+The ordering predicate `lt` should be a total order on elements, and the array `as` should be sorted
+with respect to `lt`.
+
+If an element that `lt` equates to `k` is already present in `as`, then `merge` is applied to the
+existing element to determine the value of that position in the resulting array. If no element equal
+to `k` is present, then `add` is used to determine the value to be inserted.
+-/
 @[specialize] def binInsertM {α : Type u} {m : Type u → Type v} [Monad m]
     (lt : α → α → Bool)
     (merge : α → m α)
@@ -81,6 +111,21 @@ termination_by lo hi => hi.1 - lo.1
   else if !lt k as[as.size - 1] then as.modifyM (as.size - 1) <| merge
   else binInsertAux lt merge add as k ⟨0, by omega⟩ ⟨as.size - 1, by omega⟩ (by simp) (by simpa using h')
 
+/--
+Inserts an element into a sorted array such that the resulting array is sorted. If the element is
+already present in the array, it is not inserted.
+
+The ordering predicate `lt` should be a total order on elements, and the array `as` should be sorted
+with respect to `lt`.
+
+`Array.binInsertM` is a more general operator that provides greater control over the handling of
+duplicate elements in addition to running in a monad.
+
+Examples:
+* `#[0, 1, 3, 5].binInsert (· < ·) 2 = #[0, 1, 2, 3, 5]`
+* `#[0, 1, 3, 5].binInsert (· < ·) 1 = #[0, 1, 3, 5]`
+* `#[].binInsert (· < ·) 1 = #[1]`
+-/
 @[inline] def binInsert {α : Type u} (lt : α → α → Bool) (as : Array α) (k : α) : Array α :=
   Id.run <| binInsertM lt (fun _ => k) (fun _ => k) as k
 

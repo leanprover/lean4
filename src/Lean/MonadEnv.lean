@@ -99,8 +99,8 @@ def getConstVal [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Con
   | some val => pure val
   | none     => throwError "unknown constant '{mkConst constName}'"
 
-def getAsyncConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m AsyncConstantInfo := do
-  match (← getEnv).findAsync? constName with
+def getAsyncConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) (skipRealize := false) : m AsyncConstantInfo := do
+  match (← getEnv).findAsync? (skipRealize := skipRealize) constName with
   | some val => pure val
   | none     => throwError "unknown constant '{mkConst constName}'"
 

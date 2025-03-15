@@ -151,7 +151,8 @@ mutual
         return false
 
   partial def isRflTheorem (declName : Name) : CoreM Bool := do
-    let .thmInfo info ← getConstInfo declName | return false
+    let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false
+    let .thmInfo info ← traceBlock "isRflTheorem theorem body" constInfo | return false
     isRflProofCore info.type info.value
 end
 

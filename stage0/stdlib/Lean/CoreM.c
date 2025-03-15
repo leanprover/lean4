@@ -15,7 +15,6 @@ extern "C" {
 #endif
 static lean_object* l___auto____x40_Lean_CoreM___hyg_4205____closed__8;
 LEAN_EXPORT lean_object* l_Lean_Core_getMessageLog___boxed(lean_object*);
-lean_object* l_Lean_ConstantInfo_instantiateTypeLevelParams(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_CoreM___hyg_114____closed__3;
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadCoreM___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_CoreM___hyg_4205____closed__20;
@@ -56,6 +55,7 @@ static lean_object* l___auto____x40_Lean_CoreM___hyg_4205____closed__31;
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_compileDecls_doCompile___spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_elem___at_Lean_catchInternalIds___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_withRestoreOrSaveFull___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_ConstantVal_instantiateTypeLevelParams(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_compileDecls_doCompile___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ImportM_runCoreM___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Core_getAndEmptyMessageLog(lean_object*);
@@ -1130,7 +1130,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_CoreM___hyg_114____closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("perform elaboration using multiple threads where possible\n\nThis option defaults to `false` but (when not explicitly set) is overridden to `true` in the language server. Metaprogramming users driving elaboration directly via e.g. `Lean.Elab.Command.elabCommandTopLevel` can opt into asynchronous elaboration by setting this option but then are responsible for processing messages and other data not only in the resulting command state but also from async tasks in `Lean.Command.Context.snap\?` and `Lean.Command.State.snapshotTasks`.", 531, 531);
+x_1 = lean_mk_string_unchecked("perform elaboration using multiple threads where possible\n\nThis option defaults to `false` but (when not explicitly set) is overridden to `true` in the Lean language server and cmdline. Metaprogramming users driving elaboration directly via e.g. `Lean.Elab.Command.elabCommandTopLevel` can opt into asynchronous elaboration by setting this option but then are responsible for processing messages and other data not only in the resulting command state but also from async tasks in `Lean.Command.Context.snap\?` and `Lean.Command.State.snapshotTasks`.", 548, 548);
 return x_1;
 }
 }
@@ -4833,7 +4833,8 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 lean_inc(x_2);
-x_7 = l_Lean_ConstantInfo_instantiateTypeLevelParams(x_1, x_2);
+lean_inc(x_1);
+x_7 = l_Lean_ConstantVal_instantiateTypeLevelParams(x_1, x_2);
 x_8 = lean_st_ref_take(x_5, x_6);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
@@ -4857,7 +4858,9 @@ if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_17 = lean_ctor_get(x_10, 0);
-x_18 = l_Lean_ConstantInfo_name(x_1);
+x_18 = lean_ctor_get(x_1, 0);
+lean_inc(x_18);
+lean_dec(x_1);
 lean_inc(x_7);
 lean_ctor_set(x_8, 1, x_7);
 lean_ctor_set(x_8, 0, x_2);
@@ -4893,7 +4896,9 @@ x_26 = lean_ctor_get(x_10, 1);
 lean_inc(x_26);
 lean_inc(x_25);
 lean_dec(x_10);
-x_27 = l_Lean_ConstantInfo_name(x_1);
+x_27 = lean_ctor_get(x_1, 0);
+lean_inc(x_27);
+lean_dec(x_1);
 lean_inc(x_7);
 lean_ctor_set(x_8, 1, x_7);
 lean_ctor_set(x_8, 0, x_2);
@@ -4953,7 +4958,9 @@ if (lean_is_exclusive(x_10)) {
  lean_dec_ref(x_10);
  x_43 = lean_box(0);
 }
-x_44 = l_Lean_ConstantInfo_name(x_1);
+x_44 = lean_ctor_get(x_1, 0);
+lean_inc(x_44);
+lean_dec(x_1);
 lean_inc(x_7);
 lean_ctor_set(x_8, 1, x_7);
 lean_ctor_set(x_8, 0, x_2);
@@ -5041,7 +5048,9 @@ if (lean_is_exclusive(x_10)) {
  lean_dec_ref(x_10);
  x_63 = lean_box(0);
 }
-x_64 = l_Lean_ConstantInfo_name(x_1);
+x_64 = lean_ctor_get(x_1, 0);
+lean_inc(x_64);
+lean_dec(x_1);
 lean_inc(x_7);
 x_65 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_65, 0, x_2);
@@ -5106,7 +5115,8 @@ lean_dec(x_8);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 lean_dec(x_10);
-x_12 = l_Lean_ConstantInfo_name(x_1);
+x_12 = lean_ctor_get(x_1, 0);
+lean_inc(x_12);
 x_13 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Core_instantiateTypeLevelParams___spec__5(x_11, x_12);
 lean_dec(x_12);
 if (lean_obj_tag(x_13) == 0)
@@ -5142,6 +5152,7 @@ return x_21;
 else
 {
 lean_dec(x_2);
+lean_dec(x_1);
 lean_ctor_set(x_6, 0, x_18);
 return x_6;
 }
@@ -5161,7 +5172,8 @@ lean_dec(x_22);
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 lean_dec(x_24);
-x_26 = l_Lean_ConstantInfo_name(x_1);
+x_26 = lean_ctor_get(x_1, 0);
+lean_inc(x_26);
 x_27 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Core_instantiateTypeLevelParams___spec__5(x_25, x_26);
 lean_dec(x_26);
 if (lean_obj_tag(x_27) == 0)
@@ -5196,6 +5208,7 @@ else
 {
 lean_object* x_36; 
 lean_dec(x_2);
+lean_dec(x_1);
 x_36 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_36, 0, x_32);
 lean_ctor_set(x_36, 1, x_23);
@@ -5279,7 +5292,6 @@ x_7 = l_Lean_Core_instantiateTypeLevelParams___lambda__1(x_1, x_2, x_3, x_4, x_5
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_7;
 }
 }
@@ -5290,7 +5302,6 @@ lean_object* x_6;
 x_6 = l_Lean_Core_instantiateTypeLevelParams(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_6;
 }
 }

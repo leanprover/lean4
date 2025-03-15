@@ -593,7 +593,6 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at___private_Lean_Elab_Tactic_I
 LEAN_EXPORT lean_object* l_Array_filterMapM___at_Lean_Elab_Tactic_elabElimTargets___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_generalizeTargets___spec__4(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_elabFunTarget___spec__5___closed__5;
-lean_object* l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_elabFunTarget___spec__5___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalCasesCore___lambda__1___boxed(lean_object**);
 lean_object* l_Lean_Expr_eta(lean_object*);
@@ -855,6 +854,7 @@ lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_ElimApp_evalAlts_applyAltStx___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_shouldGeneralizeTarget___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_elabElimTargets___spec__5(lean_object*, size_t, size_t, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getFirstAltLhs___boxed(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_ElimApp_saveAltVarsInfo___spec__11(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4689,7 +4689,7 @@ x_42 = l_Lean_Elab_Tactic_ElimApp_setMotiveArg___closed__6;
 x_43 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
-x_44 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__4(x_43, x_4, x_5, x_6, x_7, x_35);
+x_44 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_43, x_4, x_5, x_6, x_7, x_35);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -29682,7 +29682,7 @@ x_16 = l_Lean_Elab_Tactic_ElimApp_setMotiveArg___closed__6;
 x_17 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
-x_18 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__4(x_17, x_4, x_5, x_6, x_7, x_8);
+x_18 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_17, x_4, x_5, x_6, x_7, x_8);
 x_19 = !lean_is_exclusive(x_18);
 if (x_19 == 0)
 {
@@ -29752,7 +29752,7 @@ x_20 = l_Lean_Elab_Tactic_ElimApp_setMotiveArg___closed__6;
 x_21 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
-x_22 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__4(x_21, x_8, x_9, x_10, x_11, x_12);
+x_22 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_21, x_8, x_9, x_10, x_11, x_12);
 x_23 = !lean_is_exclusive(x_22);
 if (x_23 == 0)
 {
@@ -29852,7 +29852,7 @@ x_19 = l_Lean_Elab_Tactic_ElimApp_setMotiveArg___closed__6;
 x_20 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__4(x_20, x_7, x_8, x_9, x_10, x_11);
+x_21 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_20, x_7, x_8, x_9, x_10, x_11);
 x_22 = !lean_is_exclusive(x_21);
 if (x_22 == 0)
 {

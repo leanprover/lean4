@@ -560,7 +560,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_DiseqCnstr_split___lambd
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Meta_Grind_Arith_Cutsat_DiseqCnstr_split___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBTree_toList___at_Lean_Meta_Grind_Arith_Cutsat_resolveConflict___spec__6(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
-lean_object* l_Lean_Expr_fvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_processVar___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 lean_object* l_Lean_instInhabitedPersistentArray(lean_object*);
@@ -781,7 +780,7 @@ x_75 = l_Int_Linear_Poly_addConst(x_72, x_74);
 lean_dec(x_74);
 x_76 = lean_int_mul(x_5, x_26);
 lean_dec(x_26);
-lean_ctor_set_tag(x_1, 9);
+lean_ctor_set_tag(x_1, 10);
 lean_ctor_set(x_1, 0, x_7);
 x_77 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_77, 0, x_76);
@@ -806,7 +805,7 @@ x_84 = l_Int_Linear_Poly_addConst(x_81, x_83);
 lean_dec(x_83);
 x_85 = lean_int_mul(x_10, x_26);
 lean_dec(x_26);
-lean_ctor_set_tag(x_1, 9);
+lean_ctor_set_tag(x_1, 10);
 lean_ctor_set(x_1, 0, x_7);
 x_86 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_86, 0, x_85);
@@ -966,7 +965,7 @@ x_119 = l_Int_Linear_Poly_addConst(x_116, x_118);
 lean_dec(x_118);
 x_120 = lean_int_mul(x_5, x_89);
 lean_dec(x_89);
-x_121 = lean_alloc_ctor(9, 1, 0);
+x_121 = lean_alloc_ctor(10, 1, 0);
 lean_ctor_set(x_121, 0, x_7);
 x_122 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_122, 0, x_120);
@@ -991,7 +990,7 @@ x_129 = l_Int_Linear_Poly_addConst(x_126, x_128);
 lean_dec(x_128);
 x_130 = lean_int_mul(x_10, x_89);
 lean_dec(x_89);
-x_131 = lean_alloc_ctor(9, 1, 0);
+x_131 = lean_alloc_ctor(10, 1, 0);
 lean_ctor_set(x_131, 0, x_7);
 x_132 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_132, 0, x_130);
@@ -1291,7 +1290,7 @@ lean_dec(x_9);
 lean_dec(x_5);
 lean_dec(x_1);
 x_27 = lean_nat_to_int(x_6);
-x_28 = lean_alloc_ctor(8, 1, 0);
+x_28 = lean_alloc_ctor(9, 1, 0);
 lean_ctor_set(x_28, 0, x_7);
 if (x_3 == 0)
 {
@@ -1705,7 +1704,7 @@ x_25 = l_Int_Linear_Poly_mul(x_20, x_24);
 x_26 = lean_unsigned_to_nat(100000000u);
 x_27 = l_Int_Linear_Poly_combine_x27(x_26, x_23, x_25);
 lean_inc(x_1);
-x_28 = lean_alloc_ctor(9, 1, 0);
+x_28 = lean_alloc_ctor(12, 1, 0);
 lean_ctor_set(x_28, 0, x_1);
 x_29 = l_Lean_Meta_Grind_Arith_Cutsat_CooperSplit_assert___closed__5;
 if (x_12 == 0)
@@ -6643,7 +6642,7 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean
 x_16 = lean_int_sub(x_1, x_2);
 x_17 = l_Int_Linear_Poly_addConst(x_3, x_16);
 lean_dec(x_16);
-x_18 = lean_alloc_ctor(11, 2, 0);
+x_18 = lean_alloc_ctor(14, 2, 0);
 lean_ctor_set(x_18, 0, x_4);
 lean_ctor_set(x_18, 1, x_5);
 x_19 = lean_alloc_ctor(0, 2, 0);
@@ -7202,7 +7201,7 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean
 x_16 = lean_int_sub(x_1, x_2);
 x_17 = l_Int_Linear_Poly_addConst(x_3, x_16);
 lean_dec(x_16);
-x_18 = lean_alloc_ctor(10, 2, 0);
+x_18 = lean_alloc_ctor(13, 2, 0);
 lean_ctor_set(x_18, 0, x_4);
 lean_ctor_set(x_18, 1, x_5);
 x_19 = lean_alloc_ctor(0, 2, 0);
@@ -18786,7 +18785,7 @@ x_19 = l_Int_gcd(x_15, x_18);
 lean_dec(x_18);
 lean_dec(x_15);
 x_20 = lean_nat_to_int(x_19);
-x_21 = lean_alloc_ctor(5, 1, 0);
+x_21 = lean_alloc_ctor(6, 1, 0);
 lean_ctor_set(x_21, 0, x_1);
 lean_ctor_set_tag(x_12, 0);
 lean_ctor_set(x_12, 2, x_21);
@@ -18809,7 +18808,7 @@ x_26 = l_Int_gcd(x_23, x_25);
 lean_dec(x_25);
 lean_dec(x_23);
 x_27 = lean_nat_to_int(x_26);
-x_28 = lean_alloc_ctor(5, 1, 0);
+x_28 = lean_alloc_ctor(6, 1, 0);
 lean_ctor_set(x_28, 0, x_1);
 x_29 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_29, 0, x_27);
@@ -19961,7 +19960,7 @@ if (x_53 == 0)
 lean_object* x_97; lean_object* x_98; 
 x_97 = lean_nat_to_int(x_51);
 x_98 = l_Int_Linear_Poly_div(x_97, x_31);
-lean_ctor_set_tag(x_16, 5);
+lean_ctor_set_tag(x_16, 8);
 lean_ctor_set(x_16, 2, x_97);
 lean_ctor_set(x_16, 1, x_2);
 lean_ctor_set(x_16, 0, x_1);
@@ -19975,7 +19974,7 @@ else
 lean_object* x_99; 
 lean_dec(x_51);
 lean_free_object(x_16);
-lean_ctor_set_tag(x_32, 4);
+lean_ctor_set_tag(x_32, 7);
 lean_ctor_set(x_32, 1, x_2);
 lean_ctor_set(x_32, 0, x_1);
 x_99 = lean_alloc_ctor(0, 2, 0);
@@ -20176,7 +20175,7 @@ if (x_119 == 0)
 lean_object* x_142; lean_object* x_143; lean_object* x_144; 
 x_142 = lean_nat_to_int(x_117);
 x_143 = l_Int_Linear_Poly_div(x_142, x_31);
-lean_ctor_set_tag(x_16, 5);
+lean_ctor_set_tag(x_16, 8);
 lean_ctor_set(x_16, 2, x_142);
 lean_ctor_set(x_16, 1, x_2);
 lean_ctor_set(x_16, 0, x_1);
@@ -20191,7 +20190,7 @@ else
 lean_object* x_145; lean_object* x_146; 
 lean_dec(x_117);
 lean_free_object(x_16);
-x_145 = lean_alloc_ctor(4, 2, 0);
+x_145 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_145, 0, x_1);
 lean_ctor_set(x_145, 1, x_2);
 x_146 = lean_alloc_ctor(0, 2, 0);
@@ -20367,7 +20366,7 @@ if (x_178 == 0)
 lean_object* x_201; lean_object* x_202; lean_object* x_203; lean_object* x_204; 
 x_201 = lean_nat_to_int(x_176);
 x_202 = l_Int_Linear_Poly_div(x_201, x_156);
-x_203 = lean_alloc_ctor(5, 3, 0);
+x_203 = lean_alloc_ctor(8, 3, 0);
 lean_ctor_set(x_203, 0, x_1);
 lean_ctor_set(x_203, 1, x_2);
 lean_ctor_set(x_203, 2, x_201);
@@ -20386,10 +20385,10 @@ else
 lean_object* x_205; lean_object* x_206; 
 lean_dec(x_176);
 if (lean_is_scalar(x_160)) {
- x_205 = lean_alloc_ctor(4, 2, 0);
+ x_205 = lean_alloc_ctor(7, 2, 0);
 } else {
  x_205 = x_160;
- lean_ctor_set_tag(x_205, 4);
+ lean_ctor_set_tag(x_205, 7);
 }
 lean_ctor_set(x_205, 0, x_1);
 lean_ctor_set(x_205, 1, x_2);
@@ -22561,22 +22560,21 @@ return x_7;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_DiseqCnstr_split___lambda__1(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
 _start:
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_14 = lean_ctor_get(x_1, 0);
 lean_inc(x_14);
 lean_dec(x_1);
 x_15 = l_Lean_Meta_Grind_Arith_Cutsat_DvdSolution_geAvoiding___closed__1;
 x_16 = l_Int_Linear_Poly_addConst(x_14, x_15);
-x_17 = l_Lean_Expr_fvar___override(x_2);
-x_18 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_18, 0, x_17);
+x_17 = lean_alloc_ctor(4, 1, 0);
+lean_ctor_set(x_17, 0, x_2);
+x_18 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_18, 0, x_16);
+lean_ctor_set(x_18, 1, x_17);
 x_19 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_19, 0, x_16);
-lean_ctor_set(x_19, 1, x_18);
-x_20 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_20, 0, x_19);
-lean_ctor_set(x_20, 1, x_13);
-return x_20;
+lean_ctor_set(x_19, 0, x_18);
+lean_ctor_set(x_19, 1, x_13);
+return x_19;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_DiseqCnstr_split___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15) {
@@ -29793,7 +29791,7 @@ x_22 = l_Lean_Meta_Grind_Arith_Cutsat_resolveCooperUnary___closed__1;
 x_23 = l_Int_Linear_Poly_mul(x_21, x_22);
 x_24 = l_Lean_Meta_Grind_Arith_Cutsat_DvdSolution_geAvoiding___closed__1;
 x_25 = l_Int_Linear_Poly_addConst(x_23, x_24);
-x_26 = lean_alloc_ctor(8, 4, 0);
+x_26 = lean_alloc_ctor(11, 4, 0);
 lean_ctor_set(x_26, 0, x_19);
 lean_ctor_set(x_26, 1, x_1);
 lean_ctor_set(x_26, 2, x_4);

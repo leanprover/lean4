@@ -15,6 +15,7 @@ extern "C" {
 #endif
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__6___lambda__1___closed__14;
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__6___lambda__1___closed__11;
+lean_object* l_Lean_getConstInfo___at_Lean_Elab_Deriving_mkContext___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoCtor___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_BEq_mkMatch(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_BEq_mkAuxFunction___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -125,7 +126,6 @@ static lean_object* l_Lean_Elab_Deriving_BEq_initFn____x40_Lean_Elab_Deriving_BE
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__6___lambda__1___closed__19;
-lean_object* l_Lean_getConstInfo___at_Lean_Elab_Term_mkConst___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__6___boxed(lean_object**);
 lean_object* l_Lean_addTrace___at_Lean_Elab_Term_traceAtCmdPos___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__6___lambda__1___closed__20;
@@ -1249,7 +1249,7 @@ _start:
 lean_object* x_9; 
 lean_inc(x_2);
 lean_inc(x_1);
-x_9 = l_Lean_getConstInfo___at_Lean_Elab_Term_mkConst___spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l_Lean_getConstInfo___at_Lean_Elab_Deriving_mkContext___spec__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; 

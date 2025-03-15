@@ -45,8 +45,6 @@ class Clause (α : outParam (Type u)) (β : Type v) where
   isUnit_iff : ∀ c : β, ∀ l : Literal α, isUnit c = some l ↔ toList c = [l]
   negate : β → CNF.Clause α
   negate_eq : ∀ c : β, negate c = (toList c).map Literal.negate
-  /-- Returns none if the result is a tautology. -/
-  insert : β → Literal α → Option β
   delete : β → Literal α → β
   delete_iff : ∀ c : β, ∀ l : Literal α, ∀ l' : Literal α,
     l' ∈ toList (delete c l) ↔ l' ≠ l ∧ l' ∈ toList c
@@ -157,53 +155,6 @@ theorem isUnit_iff (c : DefaultClause n) (l : Literal (PosFin n)) :
 def negate (c : DefaultClause n) : CNF.Clause (PosFin n) := c.clause.map Literal.negate
 
 theorem negate_eq (c : DefaultClause n) : negate c = (toList c).map Literal.negate := rfl
-
-/--
-Attempts to add the literal `(idx, b)` to clause `c`. Returns none if doing so would make `c` a
-tautology.
--/
-def insert (c : DefaultClause n) (l : Literal (PosFin n)) : Option (DefaultClause n) :=
-  if heq1 : c.clause.contains (l.1, !l.2) then
-    none -- Adding l would make c a tautology
-  else if heq2 : c.clause.contains l then
-    some c
-  else
-    let clause := l :: c.clause
-    have nodupkey : ∀ (l : PosFin n), ¬(l, true) ∈ clause ∨ ¬(l, false) ∈ clause := by
-      intro l'
-      simp only [List.contains, Bool.not_eq_true] at heq1
-      simp only [List.find?, List.mem_cons, not_or, clause]
-      by_cases l' = l.1
-      · next l'_eq_l =>
-        by_cases hl : l.2
-        · apply Or.inr
-          constructor
-          · intro heq
-            simp [← heq] at hl
-          · simpa [hl, ← l'_eq_l] using heq1
-        · simp only [Bool.not_eq_true] at hl
-          apply Or.inl
-          constructor
-          · intro heq
-            simp [← heq] at hl
-          · simpa [hl, ← l'_eq_l] using heq1
-      · next l'_ne_l =>
-        have := c.nodupkey l'
-        rcases c.nodupkey l' with h | h
-        · left
-          constructor
-          · intro heq
-            simp [← heq] at l'_ne_l
-          · simp [h]
-        · right
-          constructor
-          · intro heq
-            simp [← heq] at l'_ne_l
-          · simp [h]
-    have nodup : List.Nodup clause := by
-      simp only [List.elem_eq_mem, decide_eq_true_eq] at heq2
-      simp [c.nodup, heq2, clause]
-    some ⟨clause, nodupkey, nodup⟩
 
 def ofArray (ls : Array (Literal (PosFin n))) : Option (DefaultClause n) :=
   let mapOption := ls.foldl folder (some (HashMap.emptyWithCapacity ls.size))
@@ -433,7 +384,6 @@ instance : Clause (PosFin n) (DefaultClause n) where
   isUnit_iff := isUnit_iff
   negate := negate
   negate_eq := negate_eq
-  insert := insert
   delete := delete
   delete_iff := delete_iff
   contains := contains

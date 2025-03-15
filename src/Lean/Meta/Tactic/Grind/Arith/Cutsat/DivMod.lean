@@ -22,15 +22,15 @@ private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
 
 builtin_grind_propagator propagateDiv ↑HDiv.hDiv := fun e => do
   let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()
-  unless (← isInstHDivInt inst) do return ()
-  let some b ← getIntValue? b | return ()
-  -- Remark: we currently do not consider the case where `b` is in the equivalence class of a numeral.
-  expandDivMod a b
+  if (← isInstHDivInt inst) then
+    let some b ← getIntValue? b | return ()
+    -- Remark: we currently do not consider the case where `b` is in the equivalence class of a numeral.
+    expandDivMod a b
 
 builtin_grind_propagator propagateMod ↑HMod.hMod := fun e => do
   let_expr HMod.hMod _ _ _ inst a b ← e | return ()
-  unless (← isInstHModInt inst) do return ()
-  let some b ← getIntValue? b | return ()
-  expandDivMod a b
+  if (← isInstHModInt inst) then
+    let some b ← getIntValue? b | return ()
+    expandDivMod a b
 
 end Lean.Meta.Grind.Arith.Cutsat

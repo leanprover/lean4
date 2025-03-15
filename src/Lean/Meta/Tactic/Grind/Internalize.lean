@@ -247,6 +247,7 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
     else if e.isAppOfArity ``Grind.MatchCond 1 then
       internalizeMatchCond e generation
     else e.withApp fun f args => do
+      mkENode e generation
       checkAndAddSplitCandidate e
       pushCastHEqs e
       addMatchEqns f generation
@@ -270,7 +271,6 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
           let arg := args[i]
           internalize arg generation e
           registerParent e arg
-      mkENode e generation
       addCongrTable e
       updateAppMap e
       Arith.internalize e parent?

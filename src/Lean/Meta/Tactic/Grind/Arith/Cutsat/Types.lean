@@ -84,6 +84,7 @@ inductive EqCnstrProof where
     `p₁` and `p₂` are the polynomials corresponding to `a` and `b`.
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
+  | coreNat (a b : Expr) (ctx : Array Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
   | norm (c : EqCnstr)
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
@@ -184,6 +185,7 @@ inductive DiseqCnstrProof where
     `p₁` and `p₂` are the polynomials corresponding to `a` and `b`.
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
+  | coreNat (a b : Expr) (ctx : Array Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
   | norm (c : DiseqCnstr)
   | divCoeffs (c : DiseqCnstr)
   | neg (c : DiseqCnstr)
@@ -216,12 +218,25 @@ instance : Inhabited CooperSplit where
 
 abbrev VarSet := RBTree Var compare
 
+inductive ForeignType where
+  | nat
+  deriving BEq
+
 /-- State of the cutsat procedure. -/
 structure State where
   /-- Mapping from variables to their denotations. -/
   vars : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
   varMap  : PHashMap ENodeKey Var := {}
+  /--
+  Mapping from terms (e.g., `x + 2*y + 2`, `3*x`, `5`) to polynomials representing them.
+  These are terms used to propagate equalities between this module and the congruence closure module.
+  -/
+  terms : PHashMap ENodeKey Poly := {}
+  /--
+  Foreign terms (e.g., `Nat`). They are also marked using `markAsCutsatTerm`.
+  -/
+  foreignTerms : PHashMap ENodeKey ForeignType := {}
   /--
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/
@@ -250,11 +265,6 @@ structure State where
   Elimination stack. For every variable in `elimStack`. If `x` in `elimStack`, then `elimEqs[x]` is not `none`.
   -/
   elimStack : List Var := []
-  /--
-  Mapping from terms (e.g., `x + 2*y + 2`, `3*x`, `5`) to polynomials representing them.
-  These are terms used to propagate equalities between this module and the congruence closure module.
-  -/
-  terms : PHashMap ENodeKey Poly := {}
   /--
   Mapping from variable to occurrences. For example, an entry `x ↦ {y, z}` means that `x` may occur in `dvdCnstrs`, `lowers`, or `uppers` of
   variables `y` and `z`.

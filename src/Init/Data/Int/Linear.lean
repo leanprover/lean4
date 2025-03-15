@@ -1757,6 +1757,16 @@ theorem dvd_norm_expr (ctx : Context) (d : Int) (e : Expr) (p : Poly)
     : p == e.norm → d ∣ e.denote ctx → d ∣ p.denote' ctx := by
   simp; intro; subst p; simp
 
+theorem eq_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
+    : norm_eq_cert lhs rhs p → lhs.denote ctx = rhs.denote ctx → p.denote' ctx = 0 := by
+  intro h₁ h₂; rwa [norm_eq ctx lhs rhs p h₁] at h₂
+
+theorem not_eq_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
+    : norm_eq_cert lhs rhs p → ¬ lhs.denote ctx = rhs.denote ctx → ¬ p.denote' ctx = 0 := by
+  simp [norm_eq_cert]
+  intro; subst p; simp
+  intro; rwa [Int.sub_eq_zero]
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

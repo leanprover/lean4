@@ -21,3 +21,6 @@ example (a b c : Nat) : Int.ofNat (a + b) = 0 → a + b + b ≤ c → b ≤ c :=
 
 example (a b c : Nat) : Int.ofNat (a + b) = 0 → a + b + b ≤ c → Int.ofNat b ≤ c := by
   grind
+
+example (a b c : Nat) : a + b < c → c ≥ 0 := by
+  grind

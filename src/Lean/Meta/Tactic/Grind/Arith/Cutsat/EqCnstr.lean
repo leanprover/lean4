@@ -287,7 +287,14 @@ private def processNewIntDiseq (a b : Expr) : GoalM Unit := do
   c.assert
 
 private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
-  trace[grind.debug.cutsat.nat] "NIY new nat diseq {a}, {b}"
+  let (lhs, rhs, ctx) ← Int.OfNat.toIntEq a b
+  let gen ← getGeneration a
+  let lhs' ← toLinearExpr (lhs.denoteAsIntExpr ctx) gen
+  let rhs' ← toLinearExpr (rhs.denoteAsIntExpr ctx) gen
+  let p := lhs'.sub rhs' |>.norm
+  let c := { p, h := .coreNat a b ctx lhs rhs lhs' rhs' : DiseqCnstr }
+  trace[grind.cutsat.assert.eq] "{← c.pp}"
+  c.assert
 
 @[export lean_process_cutsat_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do

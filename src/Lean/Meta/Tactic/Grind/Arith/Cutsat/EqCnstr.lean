@@ -234,17 +234,24 @@ private def exprAsPoly (a : Expr) : GoalM Poly := do
   else
     throwError "internal `grind` error, expression is not relevant to cutsat{indentExpr a}"
 
-@[export lean_process_cutsat_eq]
-def processNewEqImpl (a b : Expr) : GoalM Unit := do
-  trace[grind.debug.cutsat.eq] "{a} = {b}"
+private def processNewIntEq (a b : Expr) : GoalM Unit := do
   let p₁ ← exprAsPoly a
   let p₂ ← exprAsPoly b
   let p := p₁.combine (p₂.mul (-1))
   { p, h := .core a b p₁ p₂ : EqCnstr }.assert
 
-@[export lean_process_cutsat_eq_lit]
-def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
-  trace[grind.debug.cutsat.eq] "{a} = {ke}"
+private def processNewNatEq (a b : Expr) : GoalM Unit := do
+  trace[grind.debug.cutsat.nat] "NIY new nat eq {a}, {b}"
+
+@[export lean_process_cutsat_eq]
+def processNewEqImpl (a b : Expr) : GoalM Unit := do
+  trace[grind.debug.cutsat.eq] "{a} = {b}"
+  match (← foreignTerm? a), (← foreignTerm? b) with
+  | none, none => processNewIntEq a b
+  | some .nat, some .nat => processNewNatEq a b
+  | _, _ => return ()
+
+private def processNewIntLitEq (a ke : Expr) : GoalM Unit := do
   let some k ← getIntValue? ke | return ()
   let p₁ ← exprAsPoly a
   let c ← if k == 0 then
@@ -255,9 +262,17 @@ def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
     pure { p, h := .core a ke p₁ p₂ : EqCnstr }
   c.assert
 
-@[export lean_process_cutsat_diseq]
-def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
-  trace[grind.debug.cutsat.diseq] "{a} ≠ {b}"
+private def processNewNatLitEq (a ke : Expr) : GoalM Unit := do
+  trace[grind.debug.cutsat.nat] "NIY new nat lit eq {a}, {ke}"
+
+@[export lean_process_cutsat_eq_lit]
+def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
+  trace[grind.debug.cutsat.eq] "{a} = {ke}"
+  match (← foreignTerm? a) with
+  | none => processNewIntLitEq a ke
+  | some .nat => processNewNatLitEq a ke
+
+private def processNewIntDiseq (a b : Expr) : GoalM Unit := do
   let p₁ ← exprAsPoly a
   let c ← if let some 0 ← getIntValue? b then
     pure { p := p₁, h := .core0 a b : DiseqCnstr }
@@ -266,6 +281,17 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
     let p := p₁.combine (p₂.mul (-1))
     pure {p, h := .core a b p₁ p₂ : DiseqCnstr }
   c.assert
+
+private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
+  trace[grind.debug.cutsat.nat] "NIY new nat diseq {a}, {b}"
+
+@[export lean_process_cutsat_diseq]
+def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
+  trace[grind.debug.cutsat.diseq] "{a} ≠ {b}"
+  match (← foreignTerm? a), (← foreignTerm? b) with
+  | none, none => processNewIntDiseq a b
+  | some .nat, some .nat => processNewNatDiseq a b
+  | _, _ => return ()
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
@@ -312,5 +338,8 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   trace[grind.debug.cutsat.internalize] "{e} : {type}"
   if type.isConstOf ``Int then
     internalizeInt e
+  else if type.isConstOf ``Nat then
+    markForeignTerm e .nat
+
 
 end Lean.Meta.Grind.Arith.Cutsat

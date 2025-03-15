@@ -241,7 +241,14 @@ private def processNewIntEq (a b : Expr) : GoalM Unit := do
   { p, h := .core a b p₁ p₂ : EqCnstr }.assert
 
 private def processNewNatEq (a b : Expr) : GoalM Unit := do
-  trace[grind.debug.cutsat.nat] "NIY new nat eq {a}, {b}"
+  let (lhs, rhs, ctx) ← Int.OfNat.toIntEq a b
+  let gen ← getGeneration a
+  let lhs' ← toLinearExpr (lhs.denoteAsIntExpr ctx) gen
+  let rhs' ← toLinearExpr (rhs.denoteAsIntExpr ctx) gen
+  let p := lhs'.sub rhs' |>.norm
+  let c := { p, h := .coreNat a b ctx lhs rhs lhs' rhs' : EqCnstr }
+  trace[grind.cutsat.assert.eq] "{← c.pp}"
+  c.assert
 
 @[export lean_process_cutsat_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
@@ -262,15 +269,12 @@ private def processNewIntLitEq (a ke : Expr) : GoalM Unit := do
     pure { p, h := .core a ke p₁ p₂ : EqCnstr }
   c.assert
 
-private def processNewNatLitEq (a ke : Expr) : GoalM Unit := do
-  trace[grind.debug.cutsat.nat] "NIY new nat lit eq {a}, {ke}"
-
 @[export lean_process_cutsat_eq_lit]
 def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
   trace[grind.debug.cutsat.eq] "{a} = {ke}"
   match (← foreignTerm? a) with
   | none => processNewIntLitEq a ke
-  | some .nat => processNewNatLitEq a ke
+  | some .nat => processNewNatEq a ke
 
 private def processNewIntDiseq (a b : Expr) : GoalM Unit := do
   let p₁ ← exprAsPoly a

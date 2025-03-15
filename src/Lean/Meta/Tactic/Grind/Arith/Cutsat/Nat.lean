@@ -94,4 +94,11 @@ def toIntDvd? (e : Lean.Expr) : GoalM (Option (Nat × Expr × Array Lean.Expr)) 
   let (b, s) ← toOfNatExpr b |>.run {}
   return some (d, b, s.ctx)
 
+def toIntEq (lhs rhs : Lean.Expr) : MetaM (Expr × Expr × Array Lean.Expr) := do
+  let ((lhs, rhs), s) ← conv lhs rhs |>.run {}
+  return (lhs, rhs, s.ctx)
+where
+  conv (lhs rhs : Lean.Expr) : M (Expr × Expr) :=
+    return (← toOfNatExpr lhs, ← toOfNatExpr rhs)
+
 end Int.OfNat

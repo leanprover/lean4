@@ -84,6 +84,7 @@ inductive EqCnstrProof where
     `p₁` and `p₂` are the polynomials corresponding to `a` and `b`.
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
+  | coreNat (a b : Expr) (ctx : Array Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
   | norm (c : EqCnstr)
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)

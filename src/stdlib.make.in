@@ -96,8 +96,6 @@ ifeq "${CMAKE_SYSTEM_NAME}" "Windows"
 # now delete included symbols from libLean.a
 	cp ${LIB}/lean/libLean.a.export ${LIB}/lean/diff.a
 	sed -En 's/.*\s(\S*\.o\.export):.*/\1/p' ${LIB}/temp/libleanshared_1.map > ${LIB}/temp/diff.a.in
-# hacky file path normalization
-	sed -i 's!lean/../temp!temp!g' ${LIB}/temp/diff.a.in
 # can't use bundled llvm-ar before LLVM 16, https://github.com/llvm/llvm-project/issues/55023
 	ar dP ${LIB}/lean/diff.a @${LIB}/temp/diff.a.in
 	"${CMAKE_AR}" tP ${LIB}/lean/diff.a

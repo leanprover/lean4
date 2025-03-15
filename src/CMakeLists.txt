@@ -468,7 +468,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC")
   string(APPEND LEANC_EXTRA_CC_FLAGS " -fPIC")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libLake_shared.dll.a -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/temp/libLake.a.export -Wl,--no-whole-archive")
+  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libLake_shared.dll.a -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")

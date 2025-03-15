@@ -95,7 +95,8 @@ def getRevAliases (env : Environment) (e : Name) : List Name :=
 namespace ResolveName
 
 private def containsDeclOrReserved (env : Environment) (declName : Name) : Bool :=
-  env.contains declName || isReservedName env declName
+  -- avoid blocking from `Environment.contains` if possible
+  env.containsOnBranch declName || isReservedName env declName || env.contains declName
 
 /-- Check whether `ns ++ id` is a valid namespace name and/or there are aliases names `ns ++ id`. -/
 private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name :=
@@ -530,12 +531,6 @@ def resolveLocalName [Monad m] [MonadResolveName m] [MonadEnv m] [MonadLCtx m] (
   -/
   let rec loop (n : Name) (projs : List String) (globalDeclFound : Bool) := do
     let givenNameView := { view with name := n }
-    let mut globalDeclFoundNext := globalDeclFound
-    unless globalDeclFound do
-      let r ← resolveGlobalName givenNameView.review
-      let r := r.filter fun (_, fieldList) => fieldList.isEmpty
-      unless r.isEmpty do
-        globalDeclFoundNext := true
     /-
     Note that we use `globalDeclFound` instead of `globalDeclFoundNext` in the following test.
     Reason: a local should shadow a global with the same name.
@@ -552,7 +547,14 @@ def resolveLocalName [Monad m] [MonadResolveName m] [MonadEnv m] [MonadLCtx m] (
     match findLocalDecl? givenNameView (skipAuxDecl := globalDeclFound && !projs.isEmpty) with
     | some decl => return some (decl.toExpr, projs)
     | none => match n with
-      | .str pre s => loop pre (s::projs) globalDeclFoundNext
+      | .str pre s =>
+        let mut globalDeclFoundNext := globalDeclFound
+        unless globalDeclFound do
+          let r ← resolveGlobalName givenNameView.review
+          let r := r.filter fun (_, fieldList) => fieldList.isEmpty
+          unless r.isEmpty do
+            globalDeclFoundNext := true
+        loop pre (s::projs) globalDeclFoundNext
       | _ => return none
   loop view.name [] (globalDeclFound := false)
 

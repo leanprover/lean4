@@ -4390,11 +4390,6 @@ theorem Option.map_subtype'' {α β : Type _} {o : Option α}
     Option.map f o.attach = Option.map g o := by
   rw [Option.map_subtype hf, Option.unattach_attach]
 
-#print Option.map_subtype
-
-example (x : Option Nat) : ((x.attach.map (fun ⟨a, _⟩ => a + 2)).attach.map (fun ⟨b, _⟩ => b + 3)).get! = 3 := by
-  simp only [Option.map_subtype'', Option.map_map, Function.comp_def, Nat.add_assoc, Nat.reduceAdd]
-
 theorem Option.pany_eq_any {α : Type _} {x : Option α} {p : α → Bool} :
     x.pany (fun a _ => p a) = x.any p := by
   cases x <;> rfl

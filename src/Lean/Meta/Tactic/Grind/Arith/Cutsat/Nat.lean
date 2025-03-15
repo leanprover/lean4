@@ -85,4 +85,13 @@ where
   conv (lhs rhs : Lean.Expr) : M (Expr × Expr) :=
     return (← toOfNatExpr lhs, ← toOfNatExpr rhs)
 
+def toIntDvd? (e : Lean.Expr) : GoalM (Option (Nat × Expr × Array Lean.Expr)) := do
+  let_expr Dvd.dvd _ inst a b := e | return none
+  unless (← isInstDvdNat inst) do return none
+  let some d ← getNatValue? a
+    | reportIssue! "non-linear divisibility constraint found{indentExpr e}"
+      return none
+  let (b, s) ← toOfNatExpr b |>.run {}
+  return some (d, b, s.ctx)
+
 end Int.OfNat

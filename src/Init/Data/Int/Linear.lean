@@ -1753,6 +1753,10 @@ theorem not_le_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
   rw [Int.add_comm, Int.add_sub_assoc] at h
   rw [Int.neg_sub]; assumption
 
+theorem dvd_norm_expr (ctx : Context) (d : Int) (e : Expr) (p : Poly)
+    : p == e.norm → d ∣ e.denote ctx → d ∣ p.denote' ctx := by
+  simp; intro; subst p; simp
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

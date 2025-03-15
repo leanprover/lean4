@@ -273,7 +273,7 @@ private inductive SupportedTermKind where
 
 private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
   match_expr e with
-  | HAdd.hAdd α _ _ _ _ => some (.add, α)
+  | HAdd.hAdd α _ _ _ _ _ => some (.add, α)
   | HMul.hMul α _ _ _ _ _ => some (.mul, α)
   | OfNat.ofNat α _ _ => some (.num, α)
   | Neg.neg α _ a =>
@@ -309,7 +309,7 @@ Internalizes an integer (and `Nat`) expression. Here are the different cases tha
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   let some (k, type) := getKindAndType? e | return ()
   if isForbiddenParent parent? k then return ()
-  trace[grind.debug.cutsat.internalize] "{e}"
+  trace[grind.debug.cutsat.internalize] "{e} : {type}"
   if type.isConstOf ``Int then
     internalizeInt e
 

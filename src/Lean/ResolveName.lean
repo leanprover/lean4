@@ -95,6 +95,7 @@ def getRevAliases (env : Environment) (e : Name) : List Name :=
 namespace ResolveName
 
 private def containsDeclOrReserved (env : Environment) (declName : Name) : Bool :=
+  -- avoid blocking from `Environment.contains` if possible
   env.containsOnBranch declName || isReservedName env declName || env.contains declName
 
 /-- Check whether `ns ++ id` is a valid namespace name and/or there are aliases names `ns ++ id`. -/

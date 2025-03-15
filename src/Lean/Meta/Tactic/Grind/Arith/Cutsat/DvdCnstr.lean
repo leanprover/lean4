@@ -95,7 +95,7 @@ builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
       return ()
   if (← isEqTrue e) then
     let p ← toPoly b
-    let c := { d, p, h := .expr (← mkOfEqTrue (← mkEqTrueProof e)) : DvdCnstr }
+    let c := { d, p, h := .core e : DvdCnstr }
     trace[grind.cutsat.assert.dvd] "{← c.pp}"
     c.assert
   else if (← isEqFalse e) then

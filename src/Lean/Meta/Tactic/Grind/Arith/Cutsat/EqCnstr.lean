@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
@@ -241,34 +240,31 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
   let p₁ ← exprAsPoly a
   let p₂ ← exprAsPoly b
   let p := p₁.combine (p₂.mul (-1))
-  { p, h := .core p₁ p₂ (← mkEqProof a b) : EqCnstr }.assert
+  { p, h := .core a b p₁ p₂ : EqCnstr }.assert
 
 @[export lean_process_cutsat_eq_lit]
 def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
   trace[grind.debug.cutsat.eq] "{a} = {ke}"
   let some k ← getIntValue? ke | return ()
   let p₁ ← exprAsPoly a
-  let h ← mkEqProof a ke
   let c ← if k == 0 then
-    pure { p := p₁, h := .expr h : EqCnstr }
+    pure { p := p₁, h := .core0 a ke : EqCnstr }
   else
     let p₂ ← exprAsPoly ke
     let p := p₁.combine (p₂.mul (-1))
-    pure { p, h := .core p₁ p₂ h : EqCnstr }
+    pure { p, h := .core a ke p₁ p₂ : EqCnstr }
   c.assert
 
 @[export lean_process_cutsat_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
   trace[grind.debug.cutsat.diseq] "{a} ≠ {b}"
   let p₁ ← exprAsPoly a
-  let some h ← mkDiseqProof? a b
-    | throwError "internal `grind` error, failed to build disequality proof for{indentExpr a}\nand{indentExpr b}"
   let c ← if let some 0 ← getIntValue? b then
-    pure { p := p₁, h := .expr h : DiseqCnstr }
+    pure { p := p₁, h := .core0 a b : DiseqCnstr }
   else
     let p₂ ← exprAsPoly b
     let p := p₁.combine (p₂.mul (-1))
-    pure {p, h := .core p₁ p₂ h : DiseqCnstr }
+    pure {p, h := .core a b p₁ p₂ : DiseqCnstr }
   c.assert
 
 /-- Different kinds of terms internalized by this module. -/

@@ -77,8 +77,13 @@ structure EqCnstr where
   h  : EqCnstrProof
 
 inductive EqCnstrProof where
-  | expr (h : Expr)
-  | core (p₁ p₂ : Poly) (h : Expr)
+  | /-- An equality `a = 0` coming from the core. -/
+    core0 (a : Expr) (zero : Expr)
+  | /--
+    An equality `a = b` coming from the core.
+    `p₁` and `p₂` are the polynomials corresponding to `a` and `b`.
+    -/
+    core (a b : Expr) (p₁ p₂ : Poly)
   | norm (c : EqCnstr)
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
@@ -130,7 +135,8 @@ inductive CooperSplitProof where
     last (hs : Array (FVarId × UnsatProof)) (decVars : Array FVarId)
 
 inductive DvdCnstrProof where
-  | expr (h : Expr)
+  | /-- Given `e` of the form `k ∣ p` s.t. `e = True` in the core.  -/
+    core (e : Expr)
   | norm (c : DvdCnstr)
   | divCoeffs (c : DvdCnstr)
   | solveCombine (c₁ c₂ : DvdCnstr)
@@ -148,8 +154,11 @@ structure LeCnstr where
   h  : LeCnstrProof
 
 inductive LeCnstrProof where
-  | expr (h : Expr)
-  | notExpr (p : Poly) (h : Expr)
+  | core (e : Expr)
+  | coreNeg (e : Expr) (p : Poly)
+  | coreNat (e : Expr) (ctx : Array Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
+  | coreNatNeg (e : Expr) (ctx : Array Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
+  | dec (h : FVarId)
   | norm (c : LeCnstr)
   | divCoeffs (c : LeCnstr)
   | combine (c₁ c₂ : LeCnstr)
@@ -167,8 +176,13 @@ structure DiseqCnstr where
   h  : DiseqCnstrProof
 
 inductive DiseqCnstrProof where
-  | expr (h : Expr)
-  | core (p₁ p₂ : Poly) (h : Expr)
+  | /-- An disequality `a != 0` coming from the core. That is, `(a = 0) = False` in the core. -/
+    core0 (a : Expr) (zero : Expr)
+  | /--
+    An disequality `a ≠ b` coming from the core. That is, `(a = b) = False` in the core.
+    `p₁` and `p₂` are the polynomials corresponding to `a` and `b`.
+    -/
+    core (a b : Expr) (p₁ p₂ : Poly)
   | norm (c : DiseqCnstr)
   | divCoeffs (c : DiseqCnstr)
   | neg (c : DiseqCnstr)
@@ -188,10 +202,10 @@ inductive UnsatProof where
 end
 
 instance : Inhabited LeCnstr where
-  default := { p := .num 0, h := .expr default }
+  default := { p := .num 0, h := .core default}
 
 instance : Inhabited DvdCnstr where
-  default := { d := 0, p := .num 0, h := .expr default }
+  default := { d := 0, p := .num 0, h := .core default }
 
 instance : Inhabited CooperSplitPred where
   default := { left := false, c₁ := default, c₂ := default, c₃? := none }

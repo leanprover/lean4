@@ -55,16 +55,16 @@ theorem Expr.le (ctx : Context) (lhs rhs : Expr)
     : (lhs.denote ctx ≤ rhs.denote ctx) = (lhs.denoteAsInt ctx ≤ rhs.denoteAsInt ctx) := by
   simp [denoteAsInt_eq, Int.ofNat_le]
 
-theorem Expr.dvd (ctx : Context) (lhs rhs : Expr)
-    : (lhs.denote ctx ∣ rhs.denote ctx) = (lhs.denoteAsInt ctx ∣ rhs.denoteAsInt ctx) := by
-  simp [denoteAsInt_eq, Int.ofNat_dvd]
-
-theorem of_nat_le (ctx : Context) (lhs rhs : Expr)
+theorem of_le (ctx : Context) (lhs rhs : Expr)
     : lhs.denote ctx ≤ rhs.denote ctx → lhs.denoteAsInt ctx ≤ rhs.denoteAsInt ctx := by
   rw [Expr.le ctx lhs rhs]; simp
 
-theorem of_not_nat_le (ctx : Context) (lhs rhs : Expr)
+theorem of_not_le (ctx : Context) (lhs rhs : Expr)
     : ¬ lhs.denote ctx ≤ rhs.denote ctx → ¬ lhs.denoteAsInt ctx ≤ rhs.denoteAsInt ctx := by
   rw [Expr.le ctx lhs rhs]; simp
+
+theorem of_dvd (ctx : Context) (d : Nat) (e : Expr)
+    : d ∣ e.denote ctx → Int.ofNat d ∣ e.denoteAsInt ctx := by
+  simp [Expr.denoteAsInt_eq, Int.ofNat_dvd]
 
 end Int.OfNat

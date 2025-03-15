@@ -9,6 +9,7 @@ import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -87,7 +88,7 @@ partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
     c.p.updateOccs
     modify' fun s => { s with dvds := s.dvds.set x (some c) }
 
-builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
+def propagateIntDvd (e : Expr) : GoalM Unit := do
   let_expr Dvd.dvd _ inst a b ← e | return ()
   unless (← isInstDvdInt inst) do return ()
   let some d ← getIntValue? a
@@ -103,6 +104,28 @@ builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
     TODO: we have `¬ a ∣ b`, we should assert
     `∃ x z, b = a*x + z ∧ 1 ≤ z < a`
     -/
-    return ()
+    throwError "NIY: ¬ {e}"
+
+def propagateNatDvd (e : Expr) : GoalM Unit := do
+  let some (d, b, ctx) ← Int.OfNat.toIntDvd? e | return ()
+  let gen ← getGeneration e
+  let b' ← toLinearExpr (b.denoteAsIntExpr ctx) gen
+  let p := b'.norm
+  if (← isEqTrue e) then
+    let c := { d, p, h := .coreNat e ctx d b b' : DvdCnstr }
+    c.assert
+  else
+    /-
+    TODO: we have `¬ a ∣ b`, we should assert
+    `∃ x z, b = a*x + z ∧ 1 ≤ z < a`
+    -/
+    throwError "NIY: ¬ {e}"
+
+builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
+  let_expr Dvd.dvd α _ _ _ ← e | return ()
+  if α.isConstOf ``Nat then
+    propagateNatDvd e
+  else
+    propagateIntDvd e
 
 end Lean.Meta.Grind.Arith.Cutsat

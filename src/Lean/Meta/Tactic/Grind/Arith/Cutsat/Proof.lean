@@ -128,6 +128,10 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := caching c' do
   match c'.h with
   | .core e =>
     mkOfEqTrue (← mkEqTrueProof e)
+  | .coreNat e ctx d b b' =>
+    let ctx ← mkNatCtxDecl ctx
+    let h := mkApp4 (mkConst ``Int.OfNat.of_dvd) ctx (toExpr d) (← mkNatExprDecl b) (mkOfEqTrueCore e (← mkEqTrueProof e))
+    return mkApp6 (mkConst ``Int.Linear.dvd_norm_expr) (← getContext) (toExpr (Int.ofNat d)) (← mkExprDecl b') (← mkPolyDecl c'.p) reflBoolTrue h
   | .norm c =>
     return mkApp6 (mkConst ``Int.Linear.dvd_norm) (← getContext) (toExpr c.d) (← mkPolyDecl c.p) (← mkPolyDecl c'.p) reflBoolTrue (← c.toExprProof)
   | .elim c =>
@@ -190,11 +194,11 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
     return mkApp5 (mkConst ``Int.Linear.le_neg) (← getContext) (← mkPolyDecl p) (← mkPolyDecl c'.p) reflBoolTrue h
   | .coreNat e ctx lhs rhs lhs' rhs' =>
     let ctx ← mkNatCtxDecl ctx
-    let h := mkApp4 (mkConst ``Int.OfNat.of_nat_le) ctx (← mkNatExprDecl lhs) (← mkNatExprDecl rhs) (mkOfEqTrueCore e (← mkEqTrueProof e))
+    let h := mkApp4 (mkConst ``Int.OfNat.of_le) ctx (← mkNatExprDecl lhs) (← mkNatExprDecl rhs) (mkOfEqTrueCore e (← mkEqTrueProof e))
     return mkApp6 (mkConst ``Int.Linear.le_norm_expr) (← getContext) (← mkExprDecl lhs') (← mkExprDecl rhs') (← mkPolyDecl c'.p) reflBoolTrue h
   | .coreNatNeg e ctx lhs rhs lhs' rhs' =>
     let ctx ← mkNatCtxDecl ctx
-    let h := mkApp4 (mkConst ``Int.OfNat.of_not_nat_le) ctx (← mkNatExprDecl lhs) (← mkNatExprDecl rhs) (mkOfEqFalseCore e (← mkEqFalseProof e))
+    let h := mkApp4 (mkConst ``Int.OfNat.of_not_le) ctx (← mkNatExprDecl lhs) (← mkNatExprDecl rhs) (mkOfEqFalseCore e (← mkEqFalseProof e))
     return mkApp6 (mkConst ``Int.Linear.not_le_norm_expr) (← getContext) (← mkExprDecl lhs') (← mkExprDecl rhs') (← mkPolyDecl c'.p) reflBoolTrue h
   | .dec h =>
     return mkFVar h
@@ -389,7 +393,7 @@ partial def CooperSplit.collectDecVars (s : CooperSplit) : CollectDecVarsM Unit 
 
 partial def DvdCnstr.collectDecVars (c' : DvdCnstr) : CollectDecVarsM Unit := do unless (← alreadyVisited c') do
   match c'.h with
-  | .core _ => return ()
+  | .core _ | .coreNat .. => return ()
   | .cooper₁ c | .cooper₂ c
   | .norm c | .elim c | .divCoeffs c | .ofEq _ c => c.collectDecVars
   | .solveCombine c₁ c₂ | .solveElim c₁ c₂ | .subst _ c₁ c₂ => c₁.collectDecVars; c₂.collectDecVars

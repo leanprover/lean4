@@ -17,6 +17,10 @@ def markForeignTerm (e : Expr) (t : ForeignType) : GoalM Unit := do
 def foreignTerm? (e : Expr) : GoalM (Option ForeignType) := do
   return (← get').foreignTerms.find? { expr := e }
 
+def foreignTermOrLit? (e : Expr) : GoalM (Option ForeignType) := do
+  if isNatNum e then return some .nat
+  foreignTerm? e
+
 private def assertNatCast (e : Expr) : GoalM Unit := do
   let_expr NatCast.natCast _ inst a := e | return ()
   let_expr instNatCastInt := inst | return ()

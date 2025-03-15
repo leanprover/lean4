@@ -299,7 +299,7 @@ private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
 @[export lean_process_cutsat_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
   trace[grind.debug.cutsat.diseq] "{a} ≠ {b}"
-  match (← foreignTerm? a), (← foreignTerm? b) with
+  match (← foreignTerm? a), (← foreignTermOrLit? b) with
   | none, none => processNewIntDiseq a b
   | some .nat, some .nat => processNewNatDiseq a b
   | _, _ => return ()

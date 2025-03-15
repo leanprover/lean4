@@ -874,7 +874,7 @@ theorem getValueCast?_replaceEntry [BEq α] [LawfulBEq α] {l : List ((a : α) �
   · next h =>
     rw [Option.dmap_congr (getEntry?_replaceEntry_of_true h.1 h.2), Option.dmap_some]
   · next h =>
-    simp only [Decidable.not_and_iff_or_not_not] at h
+    simp only [Decidable.not_and_iff_not_or_not] at h
     rcases h with h|h
     · rw [Option.dmap_congr
           (getEntry?_replaceEntry_of_containsKey_eq_false (Bool.eq_false_iff.2 h)),
@@ -889,7 +889,7 @@ theorem getKey?_replaceEntry [BEq α] [PartialEquivBEq α] {l : List ((a : α) �
   split
   · next h => simp [getEntry?_replaceEntry_of_true h.1 h.2]
   · next h =>
-    simp only [Decidable.not_and_iff_or_not_not] at h
+    simp only [Decidable.not_and_iff_not_or_not] at h
     rcases h with h|h
     · rw [getEntry?_replaceEntry_of_containsKey_eq_false (Bool.eq_false_iff.2 h), getKey?_eq_getEntry?]
     · rw [getEntry?_replaceEntry_of_false (Bool.eq_false_iff.2 h), getKey?_eq_getEntry?]

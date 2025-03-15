@@ -550,10 +550,13 @@ If not, usually the right approach is `simp [Array.unattach, -Array.map_subtype]
 -/
 def unattach {α : Type _} {p : α → Prop} (xs : Array { x // p x }) : Array α := xs.map (·.val)
 
-@[simp] theorem unattach_nil {p : α → Prop} : (#[] : Array { x // p x }).unattach = #[] := rfl
+@[simp] theorem unattach_empty {p : α → Prop} : (#[] : Array { x // p x }).unattach = #[] := rfl
 @[simp] theorem unattach_push {p : α → Prop} {a : { x // p x }} {xs : Array { x // p x }} :
     (xs.push a).unattach = xs.unattach.push a.1 := by
   simp only [unattach, Array.map_push]
+
+@[deprecated unattach_empty (since := "2025-03-15")]
+abbrev unattach_nil := @unattach_empty
 
 @[simp] theorem mem_unattach {p : α → Prop} {xs : Array { x // p x }} {a} :
     a ∈ xs.unattach ↔ ∃ h : p a, ⟨a, h⟩ ∈ xs := by

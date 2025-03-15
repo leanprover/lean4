@@ -97,16 +97,22 @@ theorem ne_none_iff_exists : o ≠ none ↔ ∃ x, some x = o := by cases o <;> 
 theorem ne_none_iff_exists' : o ≠ none ↔ ∃ x, o = some x :=
   ne_none_iff_exists.trans <| exists_congr fun _ => eq_comm
 
-theorem bex_ne_none {p : Option α → Prop} : (∃ x, ∃ (_ : x ≠ none), p x) ↔ ∃ x, p (some x) :=
+theorem exists_ne_none {p : Option α → Prop} : (∃ x, ∃ (_ : x ≠ none), p x) ↔ ∃ x, p (some x) :=
   ⟨fun ⟨x, hx, hp⟩ => ⟨x.get <| ne_none_iff_isSome.1 hx, by rwa [some_get]⟩,
     fun ⟨x, hx⟩ => ⟨some x, some_ne_none x, hx⟩⟩
 
-theorem ball_ne_none {p : Option α → Prop} : (∀ x (_ : x ≠ none), p x) ↔ ∀ x, p (some x) :=
+@[deprecated exists_ne_none (since := "2025-03-15")]
+abbrev bex_ne_none := @exists_ne_none
+
+theorem forall_ne_none {p : Option α → Prop} : (∀ x (_ : x ≠ none), p x) ↔ ∀ x, p (some x) :=
   ⟨fun h x => h (some x) (some_ne_none x),
     fun h x hx => by
       have := h <| x.get <| ne_none_iff_isSome.1 hx
       simp [some_get] at this ⊢
       exact this⟩
+
+@[deprecated forall_ne_none (since := "2025-03-15")]
+abbrev ball_ne_none := @forall_ne_none
 
 @[simp] theorem pure_def : pure = @some α := rfl
 
@@ -229,9 +235,12 @@ theorem map_inj_right {f : α → β} {o o' : Option α} (w : ∀ x y, f x = f y
 
 theorem filter_some : Option.filter p (some a) = if p a then some a else none := rfl
 
-theorem isSome_filter_of_isSome (p : α → Bool) (o : Option α) (h : (o.filter p).isSome) :
+theorem isSome_of_isSome_filter (p : α → Bool) (o : Option α) (h : (o.filter p).isSome) :
     o.isSome := by
   cases o <;> simp at h ⊢
+
+@[deprecated isSome_of_isSome_filter (since := "2025-03-15")]
+abbrev isSome_filter_of_isSome := @isSome_of_isSome_filter
 
 @[simp] theorem filter_eq_none {p : α → Bool} :
     o.filter p = none ↔ o = none ∨ ∀ a, a ∈ o → ¬ p a := by
@@ -295,8 +304,10 @@ theorem map_orElse {x y : Option α} : (x <|> y).map f = (x.map f <|> y.map f) :
 @[simp] theorem guard_eq_some [DecidablePred p] : guard p a = some b ↔ a = b ∧ p a :=
   if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
 
-@[simp] theorem guard_isSome [DecidablePred p] : (Option.guard p a).isSome ↔ p a :=
+@[simp] theorem isSome_guard [DecidablePred p] : (Option.guard p a).isSome ↔ p a :=
   if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
+
+@[deprecated isSome_guard (since := "2025-03-15")] abbrev guard_isSome := @isSome_guard
 
 @[simp] theorem guard_eq_none [DecidablePred p] : Option.guard p a = none ↔ ¬ p a :=
   if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
@@ -366,8 +377,11 @@ theorem choice_eq {α : Type _} [Subsingleton α] (a : α) : choice α = some a 
   rw [dif_pos (⟨a⟩ : Nonempty α)]
   simp; apply Subsingleton.elim
 
-theorem choice_isSome_iff_nonempty {α : Type _} : (choice α).isSome ↔ Nonempty α :=
+theorem isSome_choice_iff_nonempty {α : Type _} : (choice α).isSome ↔ Nonempty α :=
   ⟨fun h => ⟨(choice α).get h⟩, fun h => by simp only [choice, dif_pos h, isSome_some]⟩
+
+@[deprecated isSome_choice_iff_nonempty (since := "2023-03-15")]
+abbrev choice_isSome_iff_nonempty := @isSome_choice_iff_nonempty
 
 end choice
 
@@ -599,7 +613,7 @@ theorem pbind_eq_none_iff {o : Option α} {f : (a : α) → a ∈ o → Option �
     · rintro ⟨a, rfl, h⟩
       exact h
 
-theorem pbind_isSome {o : Option α} {f : (a : α) → a ∈ o → Option β} :
+theorem isSome_pbind {o : Option α} {f : (a : α) → a ∈ o → Option β} :
     (o.pbind f).isSome = ∃ a h, (f a h).isSome := by
   cases o with
   | none => simp
@@ -610,6 +624,8 @@ theorem pbind_isSome {o : Option α} {f : (a : α) → a ∈ o → Option β} :
       exact ⟨a, rfl, h⟩
     · rintro ⟨a, rfl, h⟩
       exact h
+
+@[deprecated isSome_pbind (since := "2025-03-15")] abbrev pbind_isSome := @isSome_pbind
 
 theorem pbind_eq_some_iff {o : Option α} {f : (a : α) → a ∈ o → Option β} {b : β} :
     o.pbind f = some b ↔ ∃ a h, f a h = some b := by
@@ -635,9 +651,11 @@ theorem pbind_eq_some_iff {o : Option α} {f : (a : α) → a ∈ o → Option �
     pmap f o h = none ↔ o = none := by
   cases o <;> simp
 
-@[simp] theorem pmap_isSome {p : α → Prop} {f : ∀ (a : α), p a → β} {o : Option α} {h} :
+@[simp] theorem isSome_pmap {p : α → Prop} {f : ∀ (a : α), p a → β} {o : Option α} {h} :
     (pmap f o h).isSome = o.isSome := by
   cases o <;> simp
+
+@[deprecated isSome_pmap (since := "2025-03-15")] abbrev pmap_isSome := @isSome_pmap
 
 @[simp] theorem pmap_eq_some_iff {p : α → Prop} {f : ∀ (a : α), p a → β} {o : Option α} {h} :
     pmap f o h = some b ↔ ∃ (a : α) (h : p a), o = some a ∧ b = f a h := by

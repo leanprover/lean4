@@ -36,11 +36,13 @@ instance (priority := 500) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α 
   simp [h]
   rfl
 
-@[wf_preprocess] theorem forIn_eq_forin' [d : Membership α ρ] [ForIn' m ρ α d] {β} [Monad m]
+@[wf_preprocess] theorem forIn_eq_forIn' [d : Membership α ρ] [ForIn' m ρ α d] {β} [Monad m]
     (x : ρ) (b : β) (f : (a : α) → β → m (ForInStep β)) :
     forIn x b f = forIn' x b (fun x h => binderNameHint x f <| binderNameHint h () <| f x) := by
-  simp [binderNameHint]
-  rfl -- very strange why `simp` did not close it
+  rfl
+
+@[deprecated forIn_eq_forIn' (since := "2025-03-15")]
+abbrev forIn_eq_forin' := @forIn_eq_forIn'
 
 /-- Extract the value from a `ForInStep`, ignoring whether it is `done` or `yield`. -/
 def ForInStep.value (x : ForInStep α) : α :=

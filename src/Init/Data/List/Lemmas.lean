@@ -717,11 +717,17 @@ theorem mem_or_eq_of_mem_set : ∀ {l : List α} {i : Nat} {a b : α}, a ∈ l.s
 
 /-! ### BEq -/
 
-@[simp] theorem beq_nil_iff [BEq α] {l : List α} : (l == []) = l.isEmpty := by
+@[simp] theorem beq_nil_eq [BEq α] {l : List α} : (l == []) = l.isEmpty := by
   cases l <;> rfl
 
-@[simp] theorem nil_beq_iff [BEq α] {l : List α} : ([] == l) = l.isEmpty := by
+@[simp] theorem nil_beq_eq [BEq α] {l : List α} : ([] == l) = l.isEmpty := by
   cases l <;> rfl
+
+@[deprecated beq_nil_eq (since := "2025-03-15")]
+abbrev beq_nil_iff := @beq_nil_eq
+
+@[deprecated nil_beq_eq (since := "2025-03-15")]
+abbrev nil_beq_iff := @nil_beq_eq
 
 @[simp] theorem cons_beq_cons [BEq α] {a b : α} {l₁ l₂ : List α} :
     (a :: l₁ == b :: l₂) = (a == b && l₁ == l₂) := rfl
@@ -738,8 +744,8 @@ theorem mem_or_eq_of_mem_set : ∀ {l : List α} {i : Nat} {a b : α}, a ∈ l.s
 theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l₁.length = l₂.length :=
   match l₁, l₂ with
   | [], [] => rfl
-  | [], _ :: _ => by simp [beq_nil_iff] at h
-  | _ :: _, [] => by simp [nil_beq_iff] at h
+  | [], _ :: _ => by simp at h
+  | _ :: _, [] => by simp at h
   | a :: l₁, b :: l₂ => by
     simp at h
     simpa [Nat.add_one_inj] using length_eq_of_beq h.2
@@ -1256,7 +1262,7 @@ theorem filter_eq_self {l} : filter p l = l ↔ ∀ a ∈ l, p a := by
     intro h; exact Nat.lt_irrefl _ (h ▸ length_filter_le p l)
 
 @[simp]
-theorem filter_length_eq_length {l} : (filter p l).length = l.length ↔ ∀ a ∈ l, p a := by
+theorem length_filter_eq_length_iff {l} : (filter p l).length = l.length ↔ ∀ a ∈ l, p a := by
   induction l with
   | nil => simp
   | cons a l ih =>
@@ -1265,6 +1271,9 @@ theorem filter_length_eq_length {l} : (filter p l).length = l.length ↔ ∀ a �
     · simp_all [Nat.add_one_inj] -- Why does the simproc not fire here?
     · have := Nat.ne_of_lt (Nat.lt_succ.mpr (length_filter_le p l))
       simp_all
+
+@[deprecated length_filter_eq_length_iff (since := "2025-03-15")]
+abbrev filter_length_eq_length := @length_filter_eq_length_iff
 
 @[simp] theorem mem_filter : x ∈ filter p as ↔ x ∈ as ∧ p x := by
   induction as with

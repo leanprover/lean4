@@ -1090,7 +1090,7 @@ where
     -- now start new thread for body elaboration, then nested thread for kernel checking
     let cancelTk ← IO.CancelToken.new
     let act ← wrapAsyncAsSnapshot (desc := s!"elaborating proof of {declId.declName}")
-        (cancelTk? := cancelTk) fun _ => do
+        (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
       setEnv async.asyncEnv
       try
         finishElab #[header]
@@ -1103,7 +1103,7 @@ where
       async.commitConst (← getEnv)
       let cancelTk ← IO.CancelToken.new
       let checkAct ← wrapAsyncAsSnapshot (desc := s!"finishing proof of {declId.declName}")
-          (cancelTk? := cancelTk) fun _ => do
+          (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
         processDeriving #[header]
         async.commitCheckEnv (← getEnv)
       let checkTask ← BaseIO.mapTask (t := (← getEnv).checked) checkAct

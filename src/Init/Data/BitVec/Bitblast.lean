@@ -134,14 +134,14 @@ private theorem testBit_limit {x i : Nat} (x_lt_succ : x < 2^(i+1)) :
     testBit x i = decide (x ≥ 2^i) := by
   cases xi : testBit x i with
   | true =>
-    simp [testBit_implies_ge xi]
+    simp [Nat.ge_two_pow_of_testBit xi]
   | false =>
     simp
     cases Nat.lt_or_ge x (2^i) with
     | inl x_lt =>
       exact x_lt
     | inr x_ge =>
-      have ⟨j, ⟨j_ge, jp⟩⟩  := ge_two_pow_implies_high_bit_true x_ge
+      have ⟨j, ⟨j_ge, jp⟩⟩  := exists_ge_and_testBit_of_ge_two_pow x_ge
       cases Nat.lt_or_eq_of_le j_ge with
       | inr x_eq =>
         simp [x_eq, jp] at xi
@@ -150,7 +150,7 @@ private theorem testBit_limit {x i : Nat} (x_lt_succ : x < 2^(i+1)) :
         apply Nat.lt_irrefl
         calc x < 2^(i+1) := x_lt_succ
              _ ≤ 2 ^ j := Nat.pow_le_pow_right Nat.zero_lt_two x_lt
-             _ ≤ x := testBit_implies_ge jp
+             _ ≤ x := ge_two_pow_of_testBit jp
 
 private theorem mod_two_pow_succ (x i : Nat) :
     x % 2^(i+1) = 2^i*(x.testBit i).toNat + x % (2 ^ i):= by
@@ -261,7 +261,7 @@ theorem getLsbD_add_add_bool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool
       Nat.add_left_comm (_%_) (_ * _) _,
       testBit_limit (mod_two_pow_add_mod_two_pow_add_bool_lt_two_pow_succ x y i c)
     ]
-  simp [testBit_to_div_mod, carry, Nat.add_assoc]
+  simp [testBit_eq_decide_div_mod_eq, carry, Nat.add_assoc]
 
 theorem getLsbD_add {i : Nat} (i_lt : i < w) (x y : BitVec w) :
     getLsbD (x + y) i =
@@ -374,11 +374,11 @@ theorem bit_not_add_self (x : BitVec w) :
   intro i; simp only [adcb, Fin.is_lt, getLsbD_eq_getElem, atLeastTwo_false_right, bne_false,
     ofNat_eq_ofNat, Fin.getElem_fin, Prod.mk.injEq, and_eq_false_imp]
   rw [iunfoldr_replace_snd (fun _ => ()) (((iunfoldr (fun i c => (c, !(x[i.val])))) ()).snd)]
-  <;> simp [bit_not_testBit, negOne_eq_allOnes, getElem_allOnes]
+  <;> simp [bit_not_testBit, neg_one_eq_allOnes, getElem_allOnes]
 
 theorem bit_not_eq_not (x : BitVec w) :
   ((iunfoldr (fun i c => (c, !(x[i])))) ()).snd = ~~~ x := by
-  simp [←allOnes_sub_eq_not, BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), ←negOne_eq_allOnes]
+  simp [←allOnes_sub_eq_not, BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), ←neg_one_eq_allOnes]
 
 theorem bit_neg_eq_neg (x : BitVec w) : -x = (adc (((iunfoldr (fun (i : Fin w) c => (c, !(x[i.val])))) ()).snd) (BitVec.ofNat w 1) false).snd:= by
   simp only [← add_eq_adc]
@@ -419,7 +419,7 @@ theorem getLsbD_neg {i : Nat} {x : BitVec w} :
       · rintro h j hj; exact And.right <| h j (by omega)
       · rintro h j hj; exact ⟨by omega, h j (by omega)⟩
   · have h_ge : w ≤ i := by omega
-    simp [getLsbD_ge _ _ h_ge, h_ge, hi]
+    simp [getLsbD_of_ge _ _ h_ge, h_ge, hi]
 
 theorem getElem_neg {i : Nat} {x : BitVec w} (h : i < w) :
     (-x)[i] = (x[i] ^^ decide (∃ j < i, x.getLsbD j = true)) := by

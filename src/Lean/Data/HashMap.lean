@@ -102,7 +102,7 @@ decreasing_by simp_wf; decreasing_trivial_pre_omega
 def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapImp α β :=
   let bucketsNew : HashMapBucket α β := ⟨
     mkArray (buckets.val.size * 2) AssocList.nil,
-    by simp; apply Nat.mul2_isPowerOfTwo_of_isPowerOfTwo buckets.property
+    by simp; apply Nat.isPowerOfTwo_mul_two_of_isPowerOfTwo buckets.property
   ⟩
   { size    := size,
     buckets := moveEntries 0 buckets.val bucketsNew }

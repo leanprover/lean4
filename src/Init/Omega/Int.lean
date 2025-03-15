@@ -211,7 +211,7 @@ theorem of_lex (w : Prod.Lex r s p q) : r p.fst q.fst ∨ p.fst = q.fst ∧ s p.
 theorem of_not_lex {α} {r : α → α → Prop} [DecidableEq α] {β} {s : β → β → Prop}
     {p q : α × β} (w : ¬ Prod.Lex r s p q) :
     ¬ r p.fst q.fst ∧ (p.fst ≠ q.fst ∨ ¬ s p.snd q.snd) := by
-  rw [Prod.lex_def, not_or, Decidable.not_and_iff_or_not_not] at w
+  rw [Prod.lex_def, not_or, Decidable.not_and_iff_not_or_not] at w
   exact w
 
 theorem fst_mk : (Prod.mk x y).fst = x := rfl

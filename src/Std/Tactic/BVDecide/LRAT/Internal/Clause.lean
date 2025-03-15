@@ -202,17 +202,12 @@ where
     | some map =>
       let (val?, map) := map.getThenInsertIfNew? l.1 l.2
       if let some val' := val? then
-        if l.2 != val' then none
-        else some map
-      else some map
-
-theorem aux [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] (m : Std.HashMap α β) :
-    m[k]? = some v → k ∈ m := by
-  intro h1
-  apply Classical.byContradiction
-  intro h2
-  have := Std.HashMap.getElem?_eq_none h2
-  simp [this] at h1
+        if l.2 != val' then
+          none
+        else
+          some map
+      else
+        some map
 
 @[simp]
 theorem ofArray.foldl_folder_none_eq_none : List.foldl ofArray.folder none ls = none := by
@@ -242,8 +237,10 @@ theorem ofArray.mem_of_mem_of_foldl_folder_eq_some
           · rw [Std.HashMap.mem_toList_iff_getElem?_eq_some, Std.HashMap.getElem?_insertIfNew]
             rename_i map _ _ _ _ _
             have : x.fst ∈ map := by
-              apply aux
-              assumption
+              apply Classical.byContradiction
+              intro h2
+              have := Std.HashMap.getElem?_eq_none h2
+              simp_all
             simp [this]
             rw [Std.HashMap.mem_toList_iff_getElem?_eq_some] at hl
             simp_all

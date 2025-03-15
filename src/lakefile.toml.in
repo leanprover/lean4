@@ -54,7 +54,6 @@ srcDir = "lake"
 moreLeanArgs = ["--plugin=${PREV_STAGE}/${CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}"]
 defaultFacets = ["static", "static.export"]
 globs = ["Lake", "Lake.CLI"]
-moreLeanArgs = ["--plugin=${LAKE_PREV_PLUGIN}"]
 
 [[lean_lib]]
 name = "LakeMain"

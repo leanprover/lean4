@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marcus Rossel, Kim Morrison
 -/
 import Lean.Elab.Term
-
+set_option grind.warning false
 /-!
 These tests are originally from the `lean-egg` repository at
 https://github.com/marcusrossel/lean-egg and were written by Marcus Rossel.

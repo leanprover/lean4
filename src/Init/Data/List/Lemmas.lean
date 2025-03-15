@@ -2492,9 +2492,6 @@ theorem mem_of_mem_getLast? {l : List α} {a : α} (h : a ∈ getLast? l) : a �
 
 @[deprecated reverse_eq_append_iff (since := "2024-09-05")] abbrev reverse_eq_append := @reverse_eq_append_iff
 
-theorem reverse_concat (l : List α) (a : α) : (l ++ [a]).reverse = a :: l.reverse := by
-  rw [reverse_append]; rfl
-
 theorem reverse_eq_concat {xs ys : List α} {a : α} :
     xs.reverse = ys ++ [a] ↔ xs = a :: ys.reverse := by
   rw [reverse_eq_iff, reverse_concat]
@@ -2522,7 +2519,6 @@ theorem flatMap_reverse {β} (l : List α) (f : α → List β) : (l.reverse.fla
   eq_replicate_iff.2
     ⟨by rw [length_reverse, length_replicate],
      fun _ h => eq_of_mem_replicate (mem_reverse.1 h)⟩
-
 
 /-! ### foldlM and foldrM -/
 

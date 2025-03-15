@@ -10,10 +10,15 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
+deriving instance Hashable for Int.Linear.Expr
+deriving instance Hashable for Int.OfNat.Expr
+
 structure ProofM.State where
   cache       : Std.HashMap UInt64 Expr := {}
   polyMap     : Std.HashMap Poly Expr := {}
   natCtxMap   : Std.HashMap (Array Expr) Expr := {}
+  exprMap     : Std.HashMap Int.Linear.Expr Expr := {}
+  natExprMap  : Std.HashMap Int.OfNat.Expr Expr := {}
 
 /-- Auxiliary monad for constructing cutsat proofs. -/
 abbrev ProofM := ReaderT Expr (StateRefT ProofM.State GoalM)
@@ -32,21 +37,31 @@ abbrev caching (c : α) (k : ProofM Expr) : ProofM Expr := do
     return h
 
 def mkPolyDecl (p : Poly) : ProofM Expr := do
-  if let some e := (← get).polyMap[p]? then
-    return e
+  if let some x := (← get).polyMap[p]? then
+    return x
   let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with
-    polyMap := s.polyMap.insert p x
-  }
+  modify fun s => { s with polyMap := s.polyMap.insert p x }
   return x
 
 def mkNatCtxDecl (ctx : Array Expr) : ProofM Expr := do
-  if let some e := (← get).natCtxMap[ctx]? then
-    return e
+  if let some x := (← get).natCtxMap[ctx]? then
+    return x
   let x := mkFVar (← mkFreshFVarId)
-  modify fun s => { s with
-    natCtxMap := s.natCtxMap.insert ctx x
-  }
+  modify fun s => { s with natCtxMap := s.natCtxMap.insert ctx x }
+  return x
+
+def mkExprDecl (e : Int.Linear.Expr) : ProofM Expr := do
+  if let some x := (← get).exprMap[e]? then
+    return x
+  let x := mkFVar (← mkFreshFVarId)
+  modify fun s => { s with exprMap := s.exprMap.insert e x }
+  return x
+
+def mkNatExprDecl (e : Int.OfNat.Expr) : ProofM Expr := do
+  if let some x := (← get).natExprMap[e]? then
+    return x
+  let x := mkFVar (← mkFreshFVarId)
+  modify fun s => { s with natExprMap := s.natExprMap.insert e x }
   return x
 
 private def mkDiseqProof (a b : Expr) : GoalM Expr := do
@@ -74,6 +89,8 @@ where
   go : ProofM Expr := do
     let h ← x
     let h ← mkLetOfMap (← get).polyMap h `p (mkConst ``Int.Linear.Poly) toExpr
+    let h ← mkLetOfMap (← get).exprMap h `e (mkConst ``Int.Linear.Expr) toExpr
+    let h ← mkLetOfMap (← get).natExprMap h `a (mkConst ``Int.OfNat.Expr) toExpr
     let h ← mkLetOfMap (← get).natCtxMap h `nctx (mkApp (mkConst ``Lean.RArray) (mkConst ``Nat)) Simp.Arith.Nat.toContextExpr
     let ctx ← read
     mkLetFVars #[ctx] h
@@ -173,12 +190,12 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := caching c' do
     return mkApp5 (mkConst ``Int.Linear.le_neg) (← getContext) (← mkPolyDecl p) (← mkPolyDecl c'.p) reflBoolTrue h
   | .coreNat e ctx lhs rhs lhs' rhs' =>
     let ctx ← mkNatCtxDecl ctx
-    let h := mkApp4 (mkConst ``Int.OfNat.of_nat_le) ctx (toExpr lhs) (toExpr rhs) (mkOfEqTrueCore e (← mkEqTrueProof e))
-    return mkApp6 (mkConst ``Int.Linear.le_norm_expr) (← getContext) (toExpr lhs') (toExpr rhs') (← mkPolyDecl c'.p) reflBoolTrue h
+    let h := mkApp4 (mkConst ``Int.OfNat.of_nat_le) ctx (← mkNatExprDecl lhs) (← mkNatExprDecl rhs) (mkOfEqTrueCore e (← mkEqTrueProof e))
+    return mkApp6 (mkConst ``Int.Linear.le_norm_expr) (← getContext) (← mkExprDecl lhs') (← mkExprDecl rhs') (← mkPolyDecl c'.p) reflBoolTrue h
   | .coreNatNeg e ctx lhs rhs lhs' rhs' =>
     let ctx ← mkNatCtxDecl ctx
-    let h := mkApp4 (mkConst ``Int.OfNat.of_not_nat_le) ctx (toExpr lhs) (toExpr rhs) (mkOfEqFalseCore e (← mkEqFalseProof e))
-    return mkApp6 (mkConst ``Int.Linear.not_le_norm_expr) (← getContext) (toExpr lhs') (toExpr rhs') (← mkPolyDecl c'.p) reflBoolTrue h
+    let h := mkApp4 (mkConst ``Int.OfNat.of_not_nat_le) ctx (← mkNatExprDecl lhs) (← mkNatExprDecl rhs) (mkOfEqFalseCore e (← mkEqFalseProof e))
+    return mkApp6 (mkConst ``Int.Linear.not_le_norm_expr) (← getContext) (← mkExprDecl lhs') (← mkExprDecl rhs') (← mkPolyDecl c'.p) reflBoolTrue h
   | .dec h =>
     return mkFVar h
   | .norm c =>

@@ -26,6 +26,7 @@ inductive Expr where
   | mul  (a b : Expr)
   | div  (a b : Expr)
   | mod  (a b : Expr)
+  deriving BEq
 
 def Expr.denote (ctx : Context) : Expr → Nat
   | .num k    => k

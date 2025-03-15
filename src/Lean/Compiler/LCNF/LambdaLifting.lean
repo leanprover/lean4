@@ -178,16 +178,8 @@ def eagerLambdaLifting : Pass where
   name       := `eagerLambdaLifting
   run        := fun decls => do
     decls.foldlM (init := #[]) fun decls decl => do
-      if (← Meta.isInstance decl.name) then
-        /-
-        Recall that we lambda lift local functions in instances to control code blowup, and make sure they are cheap to inline.
-        It is not worth to lift tiny ones. TODO: evaluate whether we should add a compiler option to control the min size.
-
-        Recall that when performing eager lambda lifting in instances, we progatate the `[inline]` annotations to the new auxiliary functions.
-
-        Note: we have tried `if decl.inlineable then return decls.push decl`, but it didn't help in our preliminary experiments.
-        -/
-        return decls ++ (← decl.lambdaLifting (liftInstParamOnly := false) (suffix := `_elam) (inheritInlineAttrs := true) (minSize := 3))
+      if decl.inlineAttr || (← Meta.isInstance decl.name) then
+        return decls.push decl
       else
         return decls ++ (← decl.lambdaLifting (liftInstParamOnly := true) (suffix := `_elam))
 

@@ -53,3 +53,5 @@ example (x : Nat) : x / 0 = 0 := by
 
 example (x : Nat) : x % 0 = x := by
   grind
+
+example (x : Nat) : x % 4 - x % 8 = 0 := by grind

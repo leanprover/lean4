@@ -34,7 +34,7 @@ def rewriteRulesPass : Pass where
       (config := {
         failIfUnchanged := false,
         zetaDelta := true,
-        implicitDefEqProofs := false,
+        implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
         maxSteps := cfg.maxSteps,
       })
       (simpTheorems := #[bvThms, sevalThms])

@@ -442,7 +442,7 @@ partial def enumsPass : Pass where
       let simpCtx ← Simp.mkContext
         (config := {
           failIfUnchanged := false,
-          implicitDefEqProofs := false,
+          implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
           maxSteps := cfg.maxSteps,
         })
         (simpTheorems := relevantLemmas)

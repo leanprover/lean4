@@ -345,7 +345,8 @@ private def internalizeInt (e : Expr) : GoalM Unit := do
   modify' fun s => { s with terms := s.terms.insert { expr := e } p }
 
 private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
-  if b == 0 then return ()
+  if b == 0 || b == 1 || b == -1 then
+    throwError "`grind` internal error, found non-normalized div/mod by {b}"
   if (← get').divMod.contains (a, b) then return ()
   modify' fun s => { s with divMod := s.divMod.insert (a, b) }
   let n : Int := 1 - b.natAbs

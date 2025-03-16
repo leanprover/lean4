@@ -114,7 +114,7 @@ jobs:
           echo "NPROC=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)" >> $GITHUB_ENV
       - name: Build
         run: |
-          mkdir build
+          [ -d build ] || mkdir build
           cd build
           # arguments passed to `cmake`
           # this also enables githash embedding into stage 1 library

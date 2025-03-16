@@ -14,3 +14,12 @@ example (a b c : Nat) : a + 2*b = 0 → b + c + b = 0 → a = c := by
 
 example (a : Nat) : a ≤ 2 → a ≠ 0 → a ≠ 1 → a ≠ 2 → False := by
   grind
+
+example (x y : Nat) : x / 2 + y = 3 → x = 5 → y = 1 := by
+  grind
+
+example (x y : Nat) : x % 2 + y = 3 → x = 5 → y = 2 := by
+  grind
+
+example (x y : Nat) : x = y / 2 → y % 2 = 0 → y = 2*x := by
+  grind

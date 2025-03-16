@@ -167,6 +167,14 @@ jobs:
                 "CTEST_OPTIONS": "-E 'foreign'"
               },
               {
+                "name": "Linux Lake",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
+                // just a secondary PR build job for now
+                "check-level": isPr ? 0 : 3,
+                "secondary": true,
+                "CMAKE_OPTIONS": "-DUSE_LAKE=ON"
+              },
+              {
                 "name": "Linux",
                 "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
                 "check-stage3": level >= 2,

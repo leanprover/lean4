@@ -96,7 +96,9 @@ jobs:
       - name: Cache
         uses: actions/cache@v4
         with:
-          path: .ccache
+          path: |
+            .ccache
+            ${{ matrix.name == 'Linux Lake' && 'build/stage1/lib' || '' }}
           key: ${{ matrix.name }}-build-v3-${{ github.event.pull_request.head.sha }}
           # fall back to (latest) previous cache
           restore-keys: |

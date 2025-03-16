@@ -678,6 +678,17 @@ theorem pmap_map (o : Option α) (f : α → β) {p : β → Prop} (g : ∀ b, p
        o.pelim g (fun a h => g' (f a (H a h))) := by
   cases o <;> simp
 
+/-! ### pfilter -/
+
+@[congr]
+theorem pfilter_congr {α : Type u} {o o' : Option α} (ho : o = o')
+    {f : (a : α) → a ∈ o → Bool} {g : (a : α) → a ∈ o' → Bool}
+    (hf : ∀ a ha, f a (ho.trans ha) = g a ha) :
+    o.pfilter f = o'.pfilter g := by
+  cases ho
+  congr; funext a ha
+  exact hf a ha
+
 /-! ### LT and LE -/
 
 @[simp] theorem not_lt_none [LT α] {a : Option α} : ¬ a < none := by cases a <;> simp [LT.lt, Option.lt]

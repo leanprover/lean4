@@ -3128,11 +3128,12 @@ theorem getD_filterMap [LawfulBEq α]
     (m.filterMap f).getD k fallback = ((m.get? k).bind (f k)).getD fallback := by
   simp_to_model [filterMap] using List.getValueCastD_filterMap
 
-theorem toList_filterMap [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β a → Option (γ a)} (h : m.1.WF) :
-    (m.filterMap f).1.toList = m.1.toList.filterMap (fun p => (f p.1 p.2).map (fun x => ⟨p.1, x⟩)) := by
-  simp_to_model [filterMap, toList]
-  sorry
+omit [BEq α] [Hashable α] in
+theorem toList_filterMap
+    {f : (a : α) → β a → Option (γ a)} :
+    (m.filterMap f).1.toList.Perm (m.1.toList.filterMap (fun p => (f p.1 p.2).map (fun x => ⟨p.1, x⟩))) := by
+  simp_to_model [filterMap, toList, Equiv]
+  rfl
 
 theorem contains_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
     {a a' : α} (h : m.1.WF) :
@@ -3144,8 +3145,7 @@ theorem getKey?_filterMap [LawfulBEq α]
     (m.filterMap f).getKey? k =
     (m.getKey? k).pfilter (fun x h' =>
       (f x (m.get x (contains_of_getKey?_eq_some m h h'))).isSome) := by
-  simp_to_model [filterMap]
-  sorry
+  simp_to_model [filterMap] using List.getKey?_filterMap
 
 end filterMap
 

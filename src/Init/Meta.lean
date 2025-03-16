@@ -987,7 +987,8 @@ def _root_.Substring.toName (s : Substring) : Name :=
         Name.mkStr n comp
 
 /--
-Converts a `String` to a hierarchical `Name` after splitting it at the dots.
+Converts a string to the Lean compiler's representation of names. The resulting name is
+hierarchical, and the string is split at the dots (`'.'`).
 
 `"a.b".toName` is the name `a.b`, not `«a.b»`. For the latter, use `Name.mkSimple`.
 -/

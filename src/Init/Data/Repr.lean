@@ -274,6 +274,14 @@ instance : Repr Char where
 protected def Char.repr (c : Char) : String :=
   c.quote
 
+/--
+Converts a string to its corresponding Lean string literal syntax. Double quotes are added to each
+end, and internal characters are escaped as needed.
+
+Examples:
+* `"abc".quote = "\"abc\""`
+* `"\"".quote = "\"\\\"\""`
+-/
 def String.quote (s : String) : String :=
   if s.isEmpty then "\"\""
   else s.foldl (fun s c => s ++ c.quoteCore) "\"" ++ "\""

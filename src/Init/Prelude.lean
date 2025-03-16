@@ -2532,10 +2532,12 @@ def List.concat {α : Type u} : List α → α → List α
   | cons a as, b => cons a (concat as b)
 
 /--
-`String` is the type of (UTF-8 encoded) strings.
+A string is a sequence of Unicode code points.
 
-The compiler overrides the data representation of this type to a byte sequence,
-and both `String.utf8ByteSize` and `String.length` are cached and O(1).
+At runtime, strings are represented by [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array)
+of bytes using the UTF-8 encoding. Both the size in bytes (`String.utf8ByteSize`) and in characters
+(`String.length`) are cached and take constant time. Many operations on strings perform in-place
+modifications when the reference to the string is unique.
 -/
 structure String where
   /-- Pack a `List Char` into a `String`. This function is overridden by the
@@ -2549,8 +2551,10 @@ attribute [extern "lean_string_mk"] String.mk
 attribute [extern "lean_string_data"] String.data
 
 /--
-Decides equality on `String`.
-This function is overridden with a native implementation.
+Decides whether two strings are equal. Normally used via the `DecidableEq String` instance and the
+`=` operator.
+
+At runtime, this function is overridden with an efficient native implementation.
 -/
 @[extern "lean_string_dec_eq"]
 def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
@@ -2561,14 +2565,14 @@ def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
 instance : DecidableEq String := String.decEq
 
 /--
-A byte position in a `String`. Internally, `String`s are UTF-8 encoded.
-Codepoint positions (counting the Unicode codepoints rather than bytes)
-are represented by plain `Nat`s instead.
-Indexing a `String` by a byte position is constant-time, while codepoint
-positions need to be translated internally to byte positions in linear-time.
+A byte position in a `String`, according to its UTF-8 encoding.
 
-A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.endPos` and `p`
-lies on a UTF8 byte boundary.
+Character positions (counting the Unicode code points rather than bytes) are represented by plain
+`Nat`s. Indexing a `String` by a `String.Pos` takes constant time, while character positions need to
+be translated internally to byte positions, which takes linear time.
+
+A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.endPos` and `p` lies on a UTF-8
+character boundary.
 -/
 structure String.Pos where
   /-- Get the underlying byte index of a `String.Pos` -/
@@ -2604,8 +2608,9 @@ instance : Inhabited Substring where
   | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
 
 /--
-The UTF-8 byte length of this string.
-This is overridden by the compiler to be cached and O(1).
+The number of bytes used by the string's UTF-8 encoding.
+
+At runtime, this function takes constant time because the byte length of strings is cached.
 -/
 @[extern "lean_string_utf8_byte_size"]
 def String.utf8ByteSize : (@& String) → Nat
@@ -2642,17 +2647,28 @@ instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
 instance : Min String.Pos := minOfLe
 instance : Max String.Pos := maxOfLe
 
-/-- A `String.Pos` pointing at the end of this string. -/
+/--
+A UTF-8 byte position that points at the end of a string, just after the last character.
+
+* `"abc".endPos = ⟨3⟩`
+* `"L∃∀N".endPos = ⟨8⟩`
+-/
 @[inline] def String.endPos (s : String) : String.Pos where
   byteIdx := utf8ByteSize s
 
-/-- Convert a `String` into a `Substring` denoting the entire string. -/
+/--
+Converts a `String` into a `Substring` that denotes the entire string.
+-/
 @[inline] def String.toSubstring (s : String) : Substring where
   str      := s
   startPos := {}
   stopPos  := s.endPos
 
-/-- `String.toSubstring` without `[inline]` annotation. -/
+/--
+Converts a `String` into a `Substring` that denotes the entire string.
+
+This is a version of `String.toSubstring` that doesn't have an `@[inline]` annotation.
+-/
 def String.toSubstring' (s : String) : Substring :=
   s.toSubstring
 
@@ -3692,7 +3708,9 @@ opaque mixHash (u₁ u₂ : UInt64) : UInt64
 instance [Hashable α] {p : α → Prop} : Hashable (Subtype p) where
   hash a := hash a.val
 
-/-- An opaque string hash function. -/
+/--
+Computes a hash for strings.
+-/
 @[extern "lean_string_hash"]
 protected opaque String.hash (s : @& String) : UInt64
 

@@ -114,14 +114,10 @@ init_grind_norm
   Bool.not_eq_true Bool.not_eq_false
   -- decide
   decide_eq_true_eq decide_not not_decide_eq_true
-  -- Nat LE
-  Nat.le_zero_eq
-  -- Nat/Int LT
-  Nat.lt_eq
-  -- Nat.succ
-  Nat.succ_eq_add_one
-  -- Nat op folding
+  -- Nat
+  Nat.le_zero_eq Nat.lt_eq Nat.succ_eq_add_one
   Nat.add_eq Nat.sub_eq Nat.mul_eq Nat.zero_eq Nat.le_eq
+  Nat.div_zero Nat.mod_zero
   -- Int
   Int.lt_eq
   Int.emod_neg Int.ediv_zero Int.emod_zero

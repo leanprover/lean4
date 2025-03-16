@@ -4195,7 +4195,7 @@ theorem udiv_twoPow_eq_of_lt {w : Nat} {x : BitVec w} {k : Nat} (hk : k < w) : x
 /-- shiftLeft commutes with negation. -/
 theorem shiftLeft_neg_eq_neg_shiftLeft {x : BitVec w} {y : Nat} :
     (-x) <<< y = - (x <<< y) := by
-  repeat rw [shiftLeft_eq_mul_twoPow, shiftLeft_eq_mul_twoPow, @BitVec.neg_mul]
+  rw [shiftLeft_eq_mul_twoPow, shiftLeft_eq_mul_twoPow, @BitVec.neg_mul]
 
 /- ### cons -/
 

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
@@ -306,11 +307,13 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
-  | add | mul | num | div | mod
+  | add | mul | num | div | mod | sub
+  deriving BEq
 
 private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
   match_expr e with
   | HAdd.hAdd α _ _ _ _ _ => some (.add, α)
+  | HSub.hSub α _ _ _ _ _ => some (.sub, α)
   | HMul.hMul α _ _ _ _ _ => some (.mul, α)
   | HDiv.hDiv α _ _ _ _ _ => some (.div, α)
   | HMod.hMod α _ _ _ _ _ => some (.mod, α)
@@ -321,9 +324,12 @@ private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
   | _ => none
 
 private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : Bool := Id.run do
-  if k matches .div | .mod then return false
   let some parent := parent? | return false
   let .const declName _ := parent.getAppFn | return false
+  -- TODO: document `NatCast.natCast` case.
+  -- Remark: we added it to prevent natCast_sub from being expanded twice.
+  if declName == ``NatCast.natCast then return true
+  if k matches .div | .mod | .sub then return false
   if declName == ``HAdd.hAdd || declName == ``LE.le || declName == ``Dvd.dvd then return true
   match k with
   | .add => return false
@@ -361,6 +367,20 @@ private def propagateMod (e : Expr) : GoalM Unit := do
     let some b ← getIntValue? b | return ()
     expandDivMod a b
 
+private def propagateNatSub (e : Expr) : GoalM Unit := do
+  let_expr HSub.hSub _ _ _ inst a b := e | return ()
+  unless (← isInstHSubNat inst) do return ()
+  markForeignTerm a .nat
+  markForeignTerm b .nat
+  -- TODO: cleanup
+  let aux := mkApp2 (mkConst ``Int.Linear.natCast_sub_def) a b
+  -- TODO: improve `preprocess` to make sure we don't need to unfold manually here
+  let aux ← unfoldReducible aux
+  -- Remark: we preprocess here because we want to propagate `natCast`.
+  -- We don't want to preprocess the whole thing.
+  let r ← preprocess aux
+  pushNewProof <| mkApp4 (mkConst ``Int.Linear.natCast_sub) a b r.expr (← r.getProof)
+
 /--
 Internalizes an integer (and `Nat`) expression. Here are the different cases that are handled.
 
@@ -381,6 +401,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     | _ => internalizeInt e
   else if type.isConstOf ``Nat then
     markForeignTerm e .nat
-
+    if k == .sub then
+      propagateNatSub e
 
 end Lean.Meta.Grind.Arith.Cutsat

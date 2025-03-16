@@ -3171,6 +3171,7 @@ theorem add_neg_eq_sub {x y : BitVec w} : x + - y = (x - y) := by
   apply eq_of_toInt_eq
   simp [toInt_neg, Int.sub_eq_add_neg]
 
+@[simp]
 theorem sub_neg {x y : BitVec w} : x - - y = x + y := by
   apply eq_of_toInt_eq
   simp [toInt_neg, Int.bmod_neg]

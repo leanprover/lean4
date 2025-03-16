@@ -23,3 +23,27 @@ example (x y : Nat) : x % 2 + y = 3 → x = 5 → y = 2 := by
 
 example (x y : Nat) : x = y / 2 → y % 2 = 0 → y = 2*x := by
   grind
+
+example (x : Nat) : x - 0 = x := by
+  grind
+
+example (x : Nat) : x - x = 0 := by
+  grind
+
+example (x y : Nat) : x ≤ y → x - y = 0 := by
+  grind
+
+example (x y z : Nat) : x ≤ y → x - z ≤ y - z := by
+  grind
+
+example (x y : Nat) : (x + y) - y = x := by
+  grind
+
+example (x y z : Nat) : (x + y) - (y + z) = x - z := by
+  grind
+
+example (x y : Nat) : x + y - x = y := by
+  grind
+
+example (x y : Nat) : (x - y) - y = x - 2*y := by
+  grind

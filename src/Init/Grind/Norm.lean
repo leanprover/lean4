@@ -123,10 +123,12 @@ init_grind_norm
   -- Nat
   Nat.le_zero_eq Nat.lt_eq Nat.succ_eq_add_one
   Nat.add_eq Nat.sub_eq Nat.mul_eq Nat.zero_eq Nat.le_eq
-  Nat.div_zero Nat.mod_zero
+  Nat.div_zero Nat.mod_zero Nat.div_one Nat.mod_one
   -- Int
   Int.lt_eq
-  Int.emod_neg Int.ediv_zero Int.emod_zero
+  Int.emod_neg Int.ediv_neg
+  Int.ediv_zero Int.emod_zero
+  Int.ediv_one Int.emod_one
   Int.natCast_add Int.natCast_mul Int.natCast_pow
   Int.natCast_succ Int.natCast_zero natCast_div natCast_mod
   -- GT GE

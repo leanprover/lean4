@@ -9,9 +9,9 @@ import Lean.Meta.Tactic.Simp.Arith.Int
 
 namespace Lean.Meta.Simp.Arith
 
-def parentIsTarget (parent? : Option Expr) : Bool :=
+def parentIsTarget (parent? : Option Expr) (isNatExpr : Bool) : Bool :=
   match parent? with
   | none => false
-  | some parent => isLinearTerm parent || isLinearCnstr parent || isDvdCnstr parent
+  | some parent => isLinearTerm parent isNatExpr || isLinearCnstr parent || isDvdCnstr parent
 
 end Lean.Meta.Simp.Arith

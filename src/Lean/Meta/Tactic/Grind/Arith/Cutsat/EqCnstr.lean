@@ -324,9 +324,12 @@ private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
   | _ => none
 
 private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : Bool := Id.run do
-  if k matches .div | .mod | .sub then return false
   let some parent := parent? | return false
   let .const declName _ := parent.getAppFn | return false
+  -- TODO: document `NatCast.natCast` case.
+  -- Remark: we added it to prevent natCast_sub from being expanded twice.
+  if declName == ``NatCast.natCast then return true
+  if k matches .div | .mod | .sub then return false
   if declName == ``HAdd.hAdd || declName == ``LE.le || declName == ``Dvd.dvd then return true
   match k with
   | .add => return false
@@ -369,13 +372,13 @@ private def propagateNatSub (e : Expr) : GoalM Unit := do
   unless (← isInstHSubNat inst) do return ()
   markForeignTerm a .nat
   markForeignTerm b .nat
+  -- TODO: cleanup
   let aux := mkApp2 (mkConst ``Int.Linear.natCast_sub_def) a b
   -- TODO: improve `preprocess` to make sure we don't need to unfold manually here
   let aux ← unfoldReducible aux
   -- Remark: we preprocess here because we want to propagate `natCast`.
   -- We don't want to preprocess the whole thing.
   let r ← preprocess aux
-  trace[Meta.debug] "r: {r.expr}"
   pushNewProof <| mkApp4 (mkConst ``Int.Linear.natCast_sub) a b r.expr (← r.getProof)
 
 /--

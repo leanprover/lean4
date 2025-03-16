@@ -247,7 +247,7 @@ private def processNewNatEq (a b : Expr) : GoalM Unit := do
   let rhs' ← toLinearExpr (rhs.denoteAsIntExpr ctx) gen
   let p := lhs'.sub rhs' |>.norm
   let c := { p, h := .coreNat a b ctx lhs rhs lhs' rhs' : EqCnstr }
-  trace[grind.cutsat.assert.eq] "{← c.pp}"
+  trace[grind.debug.cutsat.nat] "{← c.pp}"
   c.assert
 
 @[export lean_process_cutsat_eq]
@@ -293,7 +293,7 @@ private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
   let rhs' ← toLinearExpr (rhs.denoteAsIntExpr ctx) gen
   let p := lhs'.sub rhs' |>.norm
   let c := { p, h := .coreNat a b ctx lhs rhs lhs' rhs' : DiseqCnstr }
-  trace[grind.cutsat.assert.eq] "{← c.pp}"
+  trace[grind.debug.cutsat.nat] "{← c.pp}"
   c.assert
 
 @[export lean_process_cutsat_diseq]
@@ -306,12 +306,14 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
-  | add | mul | num
+  | add | mul | num | div | mod
 
 private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
   match_expr e with
   | HAdd.hAdd α _ _ _ _ _ => some (.add, α)
   | HMul.hMul α _ _ _ _ _ => some (.mul, α)
+  | HDiv.hDiv α _ _ _ _ _ => some (.div, α)
+  | HMod.hMod α _ _ _ _ _ => some (.mod, α)
   | OfNat.ofNat α _ _ => some (.num, α)
   | Neg.neg α _ a =>
     let_expr OfNat.ofNat _ _ _ := a | none
@@ -319,6 +321,7 @@ private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
   | _ => none
 
 private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : Bool := Id.run do
+  if k matches .div | .mod then return false
   let some parent := parent? | return false
   let .const declName _ := parent.getAppFn | return false
   if declName == ``HAdd.hAdd || declName == ``LE.le || declName == ``Dvd.dvd then return true
@@ -326,6 +329,7 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
   | .add => return false
   | .mul => return declName == ``HMul.hMul
   | .num => return declName == ``HMul.hMul || declName == ``Eq
+  | _ => unreachable!
 
 private def internalizeInt (e : Expr) : GoalM Unit := do
   if (← get').terms.contains { expr := e } then return ()
@@ -333,6 +337,29 @@ private def internalizeInt (e : Expr) : GoalM Unit := do
   markAsCutsatTerm e
   trace[grind.cutsat.internalize] "{aquote e}:= {← p.pp}"
   modify' fun s => { s with terms := s.terms.insert { expr := e } p }
+
+private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
+  if b == 0 then return ()
+  if (← get').divMod.contains (a, b) then return ()
+  modify' fun s => { s with divMod := s.divMod.insert (a, b) }
+  let n : Int := 1 - b.natAbs
+  let b := mkIntLit b
+  pushNewProof <| mkApp2 (mkConst ``Int.Linear.ediv_emod) a b
+  pushNewProof <| mkApp3 (mkConst ``Int.Linear.emod_nonneg) a b reflBoolTrue
+  pushNewProof <| mkApp4 (mkConst ``Int.Linear.emod_le) a b (toExpr n) reflBoolTrue
+
+private def propagateDiv (e : Expr) : GoalM Unit := do
+  let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()
+  if (← isInstHDivInt inst) then
+    let some b ← getIntValue? b | return ()
+    -- Remark: we currently do not consider the case where `b` is in the equivalence class of a numeral.
+    expandDivMod a b
+
+private def propagateMod (e : Expr) : GoalM Unit := do
+  let_expr HMod.hMod _ _ _ inst a b ← e | return ()
+  if (← isInstHModInt inst) then
+    let some b ← getIntValue? b | return ()
+    expandDivMod a b
 
 /--
 Internalizes an integer (and `Nat`) expression. Here are the different cases that are handled.
@@ -348,7 +375,10 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   if isForbiddenParent parent? k then return ()
   trace[grind.debug.cutsat.internalize] "{e} : {type}"
   if type.isConstOf ``Int then
-    internalizeInt e
+    match k with
+    | .div => propagateDiv e
+    | .mod => propagateMod e
+    | _ => internalizeInt e
   else if type.isConstOf ``Nat then
     markForeignTerm e .nat
 

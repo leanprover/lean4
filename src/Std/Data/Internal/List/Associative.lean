@@ -4634,6 +4634,20 @@ theorem getValueCast?_filterMap [BEq α] [LawfulBEq α]
   cases eq_of_beq (getEntry?_eq_some h)
   simp only [cast_eq, Option.dmap_id]
 
+theorem getValueCast!_filterMap [BEq α] [LawfulBEq α]
+    {f : (a : α) → β a → Option (γ a)}
+    {l : List ((a : α) × β a)} {k : α} [Inhabited (γ k)] (hl : DistinctKeys l) :
+    getValueCast! k (l.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩)) =
+      ((getValueCast? k l).bind (f k)).get! := by
+  simp [getValueCast!_eq_getValueCast?, getValueCast?_filterMap hl]
+
+theorem getValueCastD_filterMap [BEq α] [LawfulBEq α]
+    {f : (a : α) → β a → Option (γ a)}
+    {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) {fallback : γ k}:
+    getValueCastD k (l.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩)) fallback =
+      ((getValueCast? k l).bind (f k)).getD fallback := by
+  simp [getValueCastD_eq_getValueCast?, getValueCast?_filterMap hl]
+
 theorem getValueCast?_filter [BEq α] [LawfulBEq α]
     {f : (a : α) → β a → Bool}
     {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :

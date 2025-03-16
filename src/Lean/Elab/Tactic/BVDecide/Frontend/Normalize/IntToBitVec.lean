@@ -59,7 +59,12 @@ def intToBitVecPass : Pass where
     let intToBvThms ← intToBitVecExt.getTheorems
     let cfg ← PreProcessM.getConfig
     let simpCtx ← Simp.mkContext
-      (config := { failIfUnchanged := false, zetaDelta := true, maxSteps := cfg.maxSteps })
+      (config := {
+        failIfUnchanged := false,
+        zetaDelta := true,
+        implicitDefEqProofs := false,
+        maxSteps := cfg.maxSteps,
+      })
       (simpTheorems := #[intToBvThms])
       (congrTheorems := (← getSimpCongrTheorems))
 

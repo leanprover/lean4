@@ -440,7 +440,11 @@ partial def enumsPass : Pass where
         (simprocs, relevantLemmas) ← addStructureSimpLemmas simprocs relevantLemmas
 
       let simpCtx ← Simp.mkContext
-        (config := { failIfUnchanged := false, maxSteps := cfg.maxSteps })
+        (config := {
+          failIfUnchanged := false,
+          implicitDefEqProofs := false,
+          maxSteps := cfg.maxSteps,
+        })
         (simpTheorems := relevantLemmas)
         (congrTheorems := ← getSimpCongrTheorems)
 

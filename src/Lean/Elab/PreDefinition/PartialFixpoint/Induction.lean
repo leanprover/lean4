@@ -51,7 +51,7 @@ def CCPOProdProjs (n : Nat) (inst : Expr) : Array Expr := Id.run do
 
 
 /-- `maskArray mask xs` keeps those `x` where the corresponding entry in `mask` is `true` -/
--- Worth having in the standard libray?
+-- Worth having in the standard library?
 private def maskArray {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
   let mut ys := #[]
   for b in mask, x in xs do

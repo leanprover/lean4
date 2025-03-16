@@ -17,7 +17,7 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 # Test importing a nmissing module from outside the workspace
 ($LAKE build +Lib.U 2>&1 && exit 1 || true) | grep --color -F "U.lean:2:0: unknown module prefix 'Bogus'"
 $LAKE setup-file . Bogus # Lake ignores the file (the server will error)
-# Test importing onself
+# Test importing oneself
 ($LAKE build +Lib.S 2>&1 && exit 1 || true) | grep --color -F "S.lean: module imports itself"
 ($LAKE setup-file ./Lib/S.lean Lib.S 2>&1 && exit 1 || true) | grep --color -F "S.lean: module imports itself"
 # Test importing a missing module from within the workspace

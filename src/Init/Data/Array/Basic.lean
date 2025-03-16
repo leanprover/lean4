@@ -547,7 +547,7 @@ def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f 
   return none
 
 /--
-Note that the universe level is contrained to `Type` here,
+Note that the universe level is constrained to `Type` here,
 to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
 -/
 @[inline]

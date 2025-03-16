@@ -38,7 +38,7 @@ def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
 
 @[inline] def withoutModifyingEnv [Monad m] [MonadEnv m] [MonadFinally m] {α : Type} (x : m α) : m α := do
   -- Allow `x` to define new declarations even outside the asynchronous prefix (if any) as all
-  -- results will be discarded anway.
+  -- results will be discarded anyway.
   withEnv (← getEnv).unlockAsync x
 
 /-- Similar to `withoutModifyingEnv`, but also returns the updated environment -/

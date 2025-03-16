@@ -83,7 +83,7 @@ builtin_initialize
           addCasesAttr declName false attrKind
           if let some info ← isInductivePredicate? declName then
             -- If it is an inductive predicate,
-            -- we also add the contructors (intro rules) as E-matching rules
+            -- we also add the constructors (intro rules) as E-matching rules
             for ctor in info.ctors do
               addEMatchAttr ctor attrKind .default
         else

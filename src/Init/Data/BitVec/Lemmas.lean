@@ -1702,6 +1702,10 @@ theorem allOnes_shiftLeft_or_shiftLeft {x : BitVec w} {n : Nat} :
     BitVec.allOnes w <<< n ||| x <<< n = BitVec.allOnes w <<< n := by
   simp [← shiftLeft_or_distrib]
 
+@[simp] theorem setWidth_shiftLeft_of_le (hi : i ≤ v) (a : BitVec v) (b : Nat) :
+    (a <<< b).setWidth i = a.setWidth i <<< b :=
+  eq_of_getElem_eq (fun j hj => Bool.eq_iff_iff.2 (by simp; omega))
+
 /-! ### shiftLeft reductions from BitVec to Nat -/
 
 @[simp]
@@ -1852,6 +1856,15 @@ theorem msb_ushiftRight {x : BitVec w} {n : Nat} :
     simp
   case succ nn ih =>
     simp [BitVec.ushiftRight_eq, getMsbD_ushiftRight, BitVec.msb, ih, show nn + 1 > 0 by omega]
+
+@[simp] theorem setWidth_ushiftRight (hi : v ≤ i) (a : BitVec v) (b : Nat):
+    (a >>> b).setWidth i = a.setWidth i >>> b := by
+  refine eq_of_getElem_eq (fun j hj => ?_)
+  simp only [getElem_setWidth, getLsbD_ushiftRight, getElem_ushiftRight, getLsbD_setWidth,
+    Bool.iff_and_self, decide_eq_true_eq]
+  intro ha
+  have := lt_of_getLsbD ha
+  omega
 
 /-! ### ushiftRight reductions from BitVec to Nat -/
 
@@ -3362,6 +3375,9 @@ theorem neg_mul_not_eq_add_mul {x y : BitVec w} :
   rw [not_eq_neg_add, mul_sub, neg_sub, ← BitVec.mul_neg, neg_neg,
     BitVec.mul_one, BitVec.add_comm]
 
+theorem BitVec.neg_eq_neg_one_mul (b : BitVec w) : -b = -1#w * b :=
+  BitVec.eq_of_toInt_eq (by simp)
+
 /-! ### le and lt -/
 
 @[bitvec_to_nat] theorem le_def {x y : BitVec n} :
@@ -4331,6 +4347,15 @@ theorem replicate_succ' {x : BitVec w} :
     x.replicate (n + 1) =
     (replicate n x ++ x).cast (by rw [Nat.mul_succ]) := by
   simp [replicate_append_self]
+
+theorem BitVec.setWidth_add_eq_mod (x y : BitVec w) : BitVec.setWidth i (x + y) = (BitVec.setWidth i x + BitVec.setWidth i y) % (BitVec.twoPow i w) := by
+  apply BitVec.eq_of_toNat_eq
+  rw [toNat_setWidth]
+  simp only [toNat_setWidth, toNat_add, toNat_umod, Nat.add_mod_mod, Nat.mod_add_mod, toNat_twoPow]
+  by_cases h : i ≤ w
+  · rw [Nat.mod_eq_zero_of_dvd (Nat.pow_dvd_pow 2 h), Nat.mod_zero, Nat.mod_mod_of_dvd _ (Nat.pow_dvd_pow 2 h)]
+  · have hk : 2 ^ w < 2 ^ i := Nat.pow_lt_pow_of_lt (by decide) (Nat.lt_of_not_le h)
+    rw [Nat.mod_eq_of_lt hk, Nat.mod_mod_eq_mod_mod_of_dvd (Nat.pow_dvd_pow _ (Nat.le_of_not_le h))]
 
 /-! ### intMin -/
 

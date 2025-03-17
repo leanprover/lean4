@@ -249,19 +249,6 @@ theorem USize.sub_eq_add_neg (a b : USize) : a - b = a + (-b) := USize.toBitVec_
 @[simp] theorem USize.toFin_shiftLeft (a b : USize) (hb : b.toNat < System.Platform.numBits) : (a <<< b).toFin = a.toFin <<< b.toFin :=
   Fin.val_inj.1 (by simp [Nat.mod_eq_of_lt (a := b.toNat) (b := System.Platform.numBits) hb])
 
-@[simp] theorem BitVec.setWidth_shiftLeft_of_le (hi : i ≤ v) (a : BitVec v) (b : Nat) :
-    (a <<< b).setWidth i = a.setWidth i <<< b :=
-  eq_of_getElem_eq (fun j hj => Bool.eq_iff_iff.2 (by simp; omega))
-
-@[simp] theorem BitVec.setWidth_shiftRight (hi : v ≤ i) (a : BitVec v) (b : Nat):
-    (a >>> b).setWidth i = a.setWidth i >>> b := by
-  refine eq_of_getElem_eq (fun j hj => ?_)
-  simp only [getElem_setWidth, getLsbD_ushiftRight, getElem_ushiftRight, getLsbD_setWidth,
-    Bool.iff_and_self, decide_eq_true_eq]
-  intro ha
-  have := lt_of_getLsbD ha
-  omega
-
 
 theorem UInt8.shiftLeft_eq_shiftLeft_mod (a b : UInt8) : a <<< b = a <<< (b % 8) := UInt8.toBitVec_inj.1 (by simp)
 theorem UInt16.shiftLeft_eq_shiftLeft_mod (a b : UInt16) : a <<< b = a <<< (b % 16) := UInt16.toBitVec_inj.1 (by simp)
@@ -461,18 +448,6 @@ theorem USize.toUInt64_shiftLeft_of_lt (a b : USize) (hb : b.toNat < System.Plat
 There is no reasonable statement for`UInt16.toUInt8_shiftRight`; in fact for `a b : UInt16` the
 expression `(a >>> b).toUInt8` is not a function of `a.toUInt8` and `b.toUInt8`.
 -/
-
-theorem BitVec.neg_eq_neg_one_mul (b : BitVec w) : -b = -1#w * b :=
-  BitVec.eq_of_toInt_eq (by simp)
-
-theorem BitVec.setWidth_add_eq_mod (x y : BitVec w) : BitVec.setWidth i (x + y) = (BitVec.setWidth i x + BitVec.setWidth i y) % (BitVec.twoPow i w) := by
-  apply BitVec.eq_of_toNat_eq
-  rw [toNat_setWidth]
-  simp only [toNat_setWidth, toNat_add, toNat_umod, Nat.add_mod_mod, Nat.mod_add_mod, toNat_twoPow]
-  by_cases h : i ≤ w
-  · rw [Nat.mod_eq_zero_of_dvd (Nat.pow_dvd_pow 2 h), Nat.mod_zero, Nat.mod_mod_of_dvd _ (Nat.pow_dvd_pow 2 h)]
-  · have hk : 2 ^ w < 2 ^ i := Nat.pow_lt_pow_of_lt (by decide) (Nat.lt_of_not_le h)
-    rw [Nat.mod_eq_of_lt hk, Nat.mod_mod_eq_mod_mod_of_dvd (Nat.pow_dvd_pow _ (Nat.le_of_not_le h))]
 
 @[simp] theorem UInt16.toUInt8_neg (a : UInt16) : (-a).toUInt8 = -a.toUInt8 := UInt8.toBitVec_inj.1 (by simp)
 

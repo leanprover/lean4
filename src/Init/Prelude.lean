@@ -1903,20 +1903,25 @@ instance instSubNat : Sub Nat where
   sub := Nat.sub
 
 /--
-Gets the word size of the platform. That is, whether the platform is 64 or 32 bits.
+Gets the word size of the curent platform. The word size may be 64 or 32 bits.
 
-This function is opaque because we cannot guarantee at compile time that the target
-will have the same size as the host, and also because we would like to avoid
-typechecking being architecture-dependent. Nevertheless, Lean only works on
-64 and 32 bit systems so we can encode this as a fact available for proof purposes.
+This function is opaque because there is no guarantee at compile time that the target will have the
+same word size as the host. It also helps avoid having type checking be architecture-dependent.
+
+Lean only works on 64 and 32 bit systems. This fact is visible in the return type.
 -/
 @[extern "lean_system_platform_nbits"] opaque System.Platform.getNumBits : Unit → Subtype fun (n : Nat) => Or (Eq n 32) (Eq n 64) :=
   fun _ => ⟨64, Or.inr rfl⟩ -- inhabitant
 
-/-- Gets the word size of the platform. That is, whether the platform is 64 or 32 bits. -/
+/--
+The word size of the current platform, which may be 64 or 32 bits.
+-/
 def System.Platform.numBits : Nat :=
   (getNumBits ()).val
 
+/--
+The word size of the current platform may be 64 or 32 bits.
+-/
 theorem System.Platform.numBits_eq : Or (Eq numBits 32) (Eq numBits 64) :=
   (getNumBits ()).property
 

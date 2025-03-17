@@ -1437,9 +1437,6 @@ theorem UInt64.toUSize_div_of_toNat_lt (a b : UInt64) (ha : a.toNat < USize.size
     (a / b).toUSize = a.toUSize / b.toUSize :=
   USize.toNat.inj (by simpa using Nat.div_mod_eq_mod_div_mod ha hb)
 
-example {a b : UInt8} : (a.toUInt64 / b.toUInt64).toUInt8 = a / b := by
-  simp [← UInt8.toUInt64_div]
-
 @[simp] protected theorem UInt8.toFin_mod (a b : UInt8) : (a % b).toFin = a.toFin % b.toFin := rfl
 @[simp] protected theorem UInt16.toFin_mod (a b : UInt8) : (a % b).toFin = a.toFin % b.toFin := rfl
 @[simp] protected theorem UInt32.toFin_mod (a b : UInt32) : (a % b).toFin = a.toFin % b.toFin := rfl

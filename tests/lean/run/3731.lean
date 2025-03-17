@@ -24,7 +24,7 @@ inductive Decl where
 /--
 A cache that is valid with respect to some `Array Decl`.
 -/
-def Cache (_decls : Array Decl) := HashMap Decl Nat
+abbrev Cache (_decls : Array Decl) := Std.HashMap Decl Nat
 
 /--
 Lookup a `decl` in a `cache`.
@@ -33,7 +33,7 @@ If this returns `some i`, `Cache.find?_poperty` can be used to demonstrate: `dec
 -/
 @[irreducible]
 def Cache.find? (cache : Cache decls) (decl : Decl) : Option Nat :=
-  match cache.val.find? decl with
+  match cache[decl]? with
   | some hit =>
     if h1:hit < decls.size then
       if decls[hit]'h1 = decl then

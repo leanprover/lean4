@@ -67,7 +67,7 @@ inductive Value
   | lam  : Lambda → Value
   deriving Inhabited
 
-abbrev Context := Lean.HashMap String Value
+abbrev Context := Std.HashMap String Value
 
 inductive ErrorType
   | name | type | runTime
@@ -318,7 +318,7 @@ def State.step : State → State
 
   | expr (.lit l) c k => ret (.lit l) c k
   | expr (.list l) c k => ret (.list l) c k
-  | expr (.var n) c k => match c[n] with
+  | expr (.var n) c k => match c[n]? with
     | none   => error .name c $ notFound n
     | some v => ret v c k
   | expr (.lam l) c k => ret (.lam l) c k

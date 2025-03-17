@@ -342,13 +342,13 @@ theorem add_eq_or_of_and_eq_zero {w : Nat} (x y : BitVec w)
 theorem getLsbD_sub {i : Nat} {i_lt : i < w} {x y : BitVec w} :
     (x - y).getLsbD i
       = (x.getLsbD i ^^ ((~~~y + 1#w).getLsbD i ^^ carry i x (~~~y + 1#w) false)) := by
-  rw [sub_toAdd, BitVec.neg_eq_not_add, getLsbD_add]
+  rw [sub_eq_add_neg, BitVec.neg_eq_not_add, getLsbD_add]
   omega
 
 theorem getMsbD_sub {i : Nat} {i_lt : i < w} {x y : BitVec w} :
     (x - y).getMsbD i =
       (x.getMsbD i ^^ ((~~~y + 1).getMsbD i ^^ carry (w - 1 - i) x (~~~y + 1) false)) := by
-  rw [sub_toAdd, neg_eq_not_add, getMsbD_add]
+  rw [sub_eq_add_neg, neg_eq_not_add, getMsbD_add]
   · rfl
   · omega
 
@@ -359,7 +359,7 @@ theorem getElem_sub {i : Nat} {x y : BitVec w} (h : i < w) :
 theorem msb_sub {x y: BitVec w} :
     (x - y).msb
       = (x.msb ^^ ((~~~y + 1#w).msb ^^ carry (w - 1 - 0) x (~~~y + 1#w) false)) := by
-  simp [sub_toAdd, BitVec.neg_eq_not_add, msb_add]
+  simp [sub_eq_add_neg, BitVec.neg_eq_not_add, msb_add]
 
 /-! ### Negation -/
 
@@ -383,8 +383,8 @@ theorem bit_not_eq_not (x : BitVec w) :
 theorem bit_neg_eq_neg (x : BitVec w) : -x = (adc (((iunfoldr (fun (i : Fin w) c => (c, !(x[i.val])))) ()).snd) (BitVec.ofNat w 1) false).snd:= by
   simp only [← add_eq_adc]
   rw [iunfoldr_replace_snd ((fun _ => ())) (((iunfoldr (fun (i : Fin w) c => (c, !(x[i.val])))) ()).snd) _ rfl]
-  · rw [BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), sub_toAdd, BitVec.add_comm _ (-x)]
-    simp [← sub_toAdd, BitVec.sub_add_cancel]
+  · rw [BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), sub_eq_add_neg, BitVec.add_comm _ (-x)]
+    simp [← sub_eq_add_neg, BitVec.sub_add_cancel]
   · simp [bit_not_testBit x _]
 
 /--

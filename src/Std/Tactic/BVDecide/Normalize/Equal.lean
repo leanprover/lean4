@@ -106,7 +106,7 @@ theorem BitVec.self_eq_add_left (a b : BitVec w) : (a == b + a) = (b == 0#w) := 
 
 @[bv_normalize]
 theorem BitVec.eq_sub_iff_add_eq (a b c : BitVec w) : (a == c + (~~~b + 1#w)) = (a + b == c) := by
-  rw [Bool.eq_iff_iff, beq_iff_eq, beq_iff_eq, ← BitVec.neg_eq_not_add, ← @BitVec.sub_toAdd]
+  rw [Bool.eq_iff_iff, beq_iff_eq, beq_iff_eq, ← BitVec.neg_eq_not_add, ← BitVec.sub_eq_add_neg]
   exact _root_.BitVec.eq_sub_iff_add_eq
 
 @[bv_normalize]
@@ -116,7 +116,7 @@ theorem BitVec.eq_neg_add_iff_add_eq (a b c : BitVec w) : (a == (~~~b + 1#w) + c
 
 @[bv_normalize]
 theorem BitVec.sub_eq_iff_eq_add (a b c : BitVec w) : (a + (~~~b + 1#w) == c) = (a == c + b) := by
-  rw [Bool.eq_iff_iff, beq_iff_eq, beq_iff_eq, ← BitVec.neg_eq_not_add, ← @BitVec.sub_toAdd]
+  rw [Bool.eq_iff_iff, beq_iff_eq, beq_iff_eq, ← BitVec.neg_eq_not_add, ← BitVec.sub_eq_add_neg]
   exact _root_.BitVec.sub_eq_iff_eq_add
 
 @[bv_normalize]

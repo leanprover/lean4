@@ -206,14 +206,14 @@ theorem BitVec.not_add (a : BitVec w) : ~~~a + a = (-1#w) := by
 @[bv_normalize]
 theorem BitVec.add_neg (a : BitVec w) : a + (~~~a + 1#w) = 0#w := by
   rw [← BitVec.neg_eq_not_add]
-  rw [← BitVec.sub_toAdd]
+  rw [← BitVec.sub_eq_add_neg]
   rw [BitVec.sub_self]
 
 @[bv_normalize]
 theorem BitVec.neg_add (a : BitVec w) : (~~~a + 1#w) + a = 0#w := by
   rw [← BitVec.neg_eq_not_add]
   rw [BitVec.add_comm]
-  rw [← BitVec.sub_toAdd]
+  rw [← BitVec.sub_eq_add_neg]
   rw [BitVec.sub_self]
 
 @[bv_normalize]

@@ -1547,8 +1547,8 @@ theorem not_eq_comm {x y : BitVec w} : ~~~ x = y ↔ x = ~~~ y := by
     rw [h]
     simp
 
-theorem getMsb_not {x : BitVec w} :
-    (~~~x).getMsbD i = (decide (i < w) && !(x.getMsbD i)) := by simp
+set_option linter.missingDocs false in
+@[deprecated getMsbD_not (since := "2025-03-17")] abbrev getMsb_not := @getMsbD_not
 
 @[simp] theorem msb_not {x : BitVec w} : (~~~x).msb = (decide (0 < w) && !x.msb) := by
   simp [BitVec.msb]
@@ -3232,7 +3232,7 @@ theorem sub_neg {x y : BitVec w} : x - - y = x + y := by
   simp [toInt_neg, Int.bmod_neg]
 
 theorem neg_sub {x y : BitVec w} : - (x - y) = - x + y := by
- rw [sub_toAdd, neg_add, sub_neg]
+ rw [sub_eq_add_neg, neg_add, sub_neg]
 
 /- ### add/sub injectivity -/
 
@@ -3858,8 +3858,11 @@ theorem smod_zero {x : BitVec n} : x.smod 0#n = x := by
   rw [List.getElem?_eq_getElem (by omega)]
   simp
 
-@[simp] theorem getLsb_ofBoolListLE : (ofBoolListLE bs).getLsbD i = bs.getD i false := by
+@[simp] theorem getLsbD_ofBoolListLE : (ofBoolListLE bs).getLsbD i = bs.getD i false := by
   induction bs generalizing i <;> cases i <;> simp_all [ofBoolListLE]
+
+set_option linter.missingDocs false in
+@[deprecated getLsbD_ofBoolListLE (since := "2025-03-17")] abbrev getLsb_ofBoolListLE := @getLsbD_ofBoolListLE
 
 @[simp] theorem getMsbD_ofBoolListLE :
     (ofBoolListLE bs).getMsbD i = (decide (i < bs.length) && bs.getD (bs.length - 1 - i) false) := by
@@ -4234,7 +4237,7 @@ theorem getLsbD_twoPow (i j : Nat) : (twoPow w i).getLsbD j = ((i < w) && (i = j
 theorem msb_twoPow {i w: Nat} :
     (twoPow w i).msb = (decide (i < w) && decide (i = w - 1)) := by
   simp only [BitVec.msb, getMsbD_eq_getLsbD, Nat.sub_zero, getLsbD_twoPow,
-    Bool.and_iff_right_iff_imp, Bool.and_eq_true, decide_eq_true_eq, and_imp]
+    Bool.and_eq_right_iff_imp, Bool.and_eq_true, decide_eq_true_eq, and_imp]
   intros
   omega
 

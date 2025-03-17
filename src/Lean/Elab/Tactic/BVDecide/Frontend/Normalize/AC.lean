@@ -224,7 +224,9 @@ def CoefficientsMap.toExpr (coeff : CoefficientsMap) (op : Op) : VarStateM (Opti
   for (var, coeff) in coeffArr do
     let expr := (← get).varToExpr[var]!
     for _ in [0:coeff] do
-      acc := mkApp2 op.toExpr (acc.getD expr) expr
+      acc := match acc with
+      | none => expr
+      | some acc => some <| mkApp2 op.toExpr acc expr
   return acc
 
 open VarStateM Lean.Meta Lean.Elab Term

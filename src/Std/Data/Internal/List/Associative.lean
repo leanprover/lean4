@@ -4775,6 +4775,26 @@ theorem Const.containsKey_filterMap_iff {β : Type v} {γ : Type w}
     exists_getEntry?_eq_some_iff, getEntry_eq_getKey_getValue,
     Option.isSome_map']
 
+theorem Const.containsKey_filterMap_eq_false {β : Type v} {γ : Type w}
+    [BEq α] [EquivBEq α]
+    {f : α → β → Option γ}
+    {l : List ((_ : α) × β)} {k : α} (hl : DistinctKeys l) :
+    containsKey k (l.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩ : γ → (_ : α) × γ)) = false ↔
+      ∀ h : containsKey k l, (f (getKey k l h) (getValue k l h)) = none := by
+  constructor
+  · intro h
+    rw [Bool.eq_false_iff, Ne.eq_1, containsKey_filterMap_iff hl] at h
+    simp only [not_exists, Bool.not_eq_true, Option.not_isSome, Option.isNone_iff_eq_none] at h
+    exact h
+  · intro h
+    false_or_by_contra
+    rename_i h'
+    simp only [Bool.not_eq_false] at h'
+    rw [containsKey_filterMap_iff hl] at h'
+    rcases h' with ⟨p, h'⟩
+    specialize h p
+    simp [h] at h'
+
 theorem Const.containsKey_filter_iff {β : Type v} [BEq α] [EquivBEq α]
     {f : α → β → Bool}
     {l : List ((_ : α) × β)} {k : α} (hl : DistinctKeys l) :
@@ -4809,15 +4829,15 @@ theorem getKey?_filterMap [BEq α] [LawfulBEq α]
     have := getKey?_eq_some contains
     rw [getEntry?_eq_getValueCast?, Option.map_eq_some'] at h
     rcases h with ⟨v, hv, hx⟩
-    simp [← hx]
+    simp only [← hx, Option.some_bind, Function.comp_apply, Option.map_map, t]
     cases h' : f k v with
     | none =>
       simp [Option.pfilter_eq_none, this]
       exists k
       exists rfl
-      simp [getValueCast, hv, h']
+      simp only [getValueCast, hv, Option.get_some, h', t]
     | some y =>
-      simp
+      simp only [Option.map_some', Function.comp_apply, t]
       rw [Option.pfilter_eq_some]
       simp [getValueCast, hv, h']
       apply this

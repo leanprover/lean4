@@ -31,12 +31,12 @@ but is expected to have type
 #guard_msgs in
 example : foo (n+1) = foo n := rfl
 
+-- also for closed terms
 /--
-error: The rfl tactic failed. Possible reasons:
-- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
-- The arguments of the relation are not equal.
-Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or
-`exact HEq.rfl` etc.
+error: tactic 'rfl' failed, the left-hand side
+  foo 0
+is not definitionally equal to the right-hand side
+  0
 ⊢ foo 0 = 0
 -/
 #guard_msgs in
@@ -58,15 +58,29 @@ section Unsealed
 
 unseal foo
 
-/-
-After preventing the kernel from reducing `fix_eq`, this is no longer works
+-- unsealing works, but does not have the desired effect
 
-example : foo 0 = 0 := rfl
-example : foo 0 = 0 := by rfl
-
-example : foo (n+1) = foo n := rfl
-example : foo (n+1) = foo n := by rfl
+/--
+error: type mismatch
+  rfl
+has type
+  ?_ = ?_ : Prop
+but is expected to have type
+  foo 0 = 0 : Prop
 -/
+#guard_msgs in
+example : foo 0 = 0 := rfl
+
+/--
+error: type mismatch
+  rfl
+has type
+  ?_ = ?_ : Prop
+but is expected to have type
+  foo (n + 1) = foo n : Prop
+-/
+#guard_msgs in
+example : foo (n+1) = foo n := rfl
 
 end Unsealed
 
@@ -90,6 +104,7 @@ def bar : Nat → Nat
 termination_by n => n
 
 -- Once unsealed, the full internals are visible. This allows one to prove, for example
+-- an equality like the following
 
 /--
 error: type mismatch
@@ -102,7 +117,6 @@ but is expected to have type
 #guard_msgs in
 example : foo = bar := rfl
 
-
 unseal foo bar in
 example : foo = bar := rfl
 
@@ -113,8 +127,7 @@ example : foo = bar := rfl
   | n+1 => baz n
 termination_by n => n
 
--- Also no longer works with fix_eq not kernel-reducible
--- example : baz 0 = 0 := rfl
+example : baz 0 = 0 := rfl
 
 seal baz in
 /--
@@ -128,14 +141,14 @@ but is expected to have type
 #guard_msgs in
 example : baz 0 = 0 := rfl
 
--- example : baz 0 = 0 := rfl
+example : baz 0 = 0 := rfl
 
 @[reducible] def quux : Nat → Nat
   | 0 => 0
   | n+1 => quux n
 termination_by n => n
 
--- example : quux 0 = 0 := rfl
+example : quux 0 = 0 := rfl
 
 set_option allowUnsafeReducibility true in
 seal quux in
@@ -150,5 +163,4 @@ but is expected to have type
 #guard_msgs in
 example : quux 0 = 0 := rfl
 
--- Also no longer works with fix_eq not kernel-reducible
--- example : quux 0 = 0 := rfl
+example : quux 0 = 0 := rfl

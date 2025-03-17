@@ -351,9 +351,9 @@ private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
   modify' fun s => { s with divMod := s.divMod.insert (a, b) }
   let n : Int := 1 - b.natAbs
   let b := mkIntLit b
-  pushNewProof <| mkApp2 (mkConst ``Int.Linear.ediv_emod) a b
-  pushNewProof <| mkApp3 (mkConst ``Int.Linear.emod_nonneg) a b reflBoolTrue
-  pushNewProof <| mkApp4 (mkConst ``Int.Linear.emod_le) a b (toExpr n) reflBoolTrue
+  pushNewFact <| mkApp2 (mkConst ``Int.Linear.ediv_emod) a b
+  pushNewFact <| mkApp3 (mkConst ``Int.Linear.emod_nonneg) a b reflBoolTrue
+  pushNewFact <| mkApp4 (mkConst ``Int.Linear.emod_le) a b (toExpr n) reflBoolTrue
 
 private def propagateDiv (e : Expr) : GoalM Unit := do
   let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()
@@ -373,14 +373,7 @@ private def propagateNatSub (e : Expr) : GoalM Unit := do
   unless (← isInstHSubNat inst) do return ()
   markForeignTerm a .nat
   markForeignTerm b .nat
-  -- TODO: cleanup
-  let aux := mkApp2 (mkConst ``Int.Linear.natCast_sub_def) a b
-  -- TODO: improve `preprocess` to make sure we don't need to unfold manually here
-  let aux ← unfoldReducible aux
-  -- Remark: we preprocess here because we want to propagate `natCast`.
-  -- We don't want to preprocess the whole thing.
-  let r ← preprocess aux
-  pushNewProof <| mkApp4 (mkConst ``Int.Linear.natCast_sub) a b r.expr (← r.getProof)
+  pushNewFact <| mkApp2 (mkConst ``Int.Linear.natCast_sub) a b
 
 /--
 Internalizes an integer (and `Nat`) expression. Here are the different cases that are handled.

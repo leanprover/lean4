@@ -1658,12 +1658,13 @@ theorem emod_le (x y : Int) (n : Int) : emod_le_cert y n → x % y + n ≤ 0 := 
 theorem natCast_nonneg (x : Nat) : (-1:Int) * NatCast.natCast x ≤ 0 := by
   simp
 
-abbrev natCast_sub_def (x y : Nat) : Int :=
-  if (NatCast.natCast y : Int) + (-1)*NatCast.natCast x ≤ 0 then (NatCast.natCast x : Int) + -1*NatCast.natCast y else (0 : Int)
-
-theorem natCast_sub (x y : Nat) (z : Int)
-    : natCast_sub_def x y = z → (NatCast.natCast (x - y) : Int) = z := by
-  intro; subst z
+theorem natCast_sub (x y : Nat)
+    : (NatCast.natCast (x - y) : Int)
+      =
+      if (NatCast.natCast y : Int) + (-1)*NatCast.natCast x ≤ 0 then
+        (NatCast.natCast x : Int) + -1*NatCast.natCast y
+      else
+        (0 : Int) := by
   show (↑(x - y) : Int) = if (↑y : Int) + (-1)*↑x ≤ 0 then ↑x + (-1)*↑y else 0
   rw [Int.neg_mul, ← Int.sub_eq_add_neg, Int.one_mul]
   rw [Int.neg_mul, ← Int.sub_eq_add_neg, Int.one_mul]

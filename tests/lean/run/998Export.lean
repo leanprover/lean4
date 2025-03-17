@@ -1,6 +1,7 @@
 import Lean
 open Lean
 
+
 inductive Entry
 | name (n : Name)
 | level (n : Level)
@@ -9,17 +10,17 @@ inductive Entry
 deriving Inhabited
 
 structure Alloc (α) [BEq α] [Hashable α] where
-  map : HashMap α Nat
+  map : Std.HashMap α Nat
   next : Nat
 deriving Inhabited
 
 namespace Export
 
 structure State where
-  names : Alloc Name := ⟨HashMap.empty.insert Name.anonymous 0, 1⟩
-  levels : Alloc Level := ⟨HashMap.empty.insert levelZero 0, 1⟩
+  names : Alloc Name := ⟨(∅ : Std.HashMap Name Nat).insert Name.anonymous 0, 1⟩
+  levels : Alloc Level := ⟨(∅ : Std.HashMap Level Nat).insert levelZero 0, 1⟩
   exprs : Alloc Expr
-  defs : HashSet Name
+  defs : Std.HashSet Name
   stk : Array (Bool × Entry)
 deriving Inhabited
 

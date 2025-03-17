@@ -32,7 +32,7 @@ def blastExtract (aig : AIG α) (target : ExtractTarget aig newWidth) :
   let aig := res.aig
   let falseRef := res.ref
   let input := input.cast <| AIG.LawfulOperator.le_size (f := AIG.mkConstCached) ..
-  ⟨aig, go input start falseRef 0 (by omega) .empty⟩
+  ⟨aig, go input start falseRef 0 (by omega) (.emptyWithCapacity newWidth)⟩
 where
   go {aig : AIG α} {w : Nat} (input : AIG.RefVec aig w) (start : Nat) (falseRef : AIG.Ref aig)
       (curr : Nat) (hcurr : curr ≤ newWidth) (s : AIG.RefVec aig curr) :

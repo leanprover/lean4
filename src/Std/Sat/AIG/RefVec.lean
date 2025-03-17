@@ -21,6 +21,15 @@ def empty : RefVec aig 0 where
   hlen := by simp
   hrefs := by intros; contradiction
 
+def emptyWithCapacity (c : Nat) : RefVec aig 0 where
+  refs := Array.emptyWithCapacity c
+  hlen := by simp
+  hrefs := by intros; contradiction
+
+@[simp]
+theorem emptyWithCapacity_eq : emptyWithCapacity (aig := aig) c = empty := by
+  rfl
+
 @[inline]
 def cast' {aig1 aig2 : AIG α} (s : RefVec aig1 len)
     (h :

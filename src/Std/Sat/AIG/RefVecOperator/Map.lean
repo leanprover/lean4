@@ -52,7 +52,7 @@ attribute [instance] MapTarget.chainable
 
 @[specialize]
 def map (aig : AIG α) (target : MapTarget aig len) : RefVecEntry α len :=
-  go aig 0 (by omega) .empty target.vec target.func
+  go aig 0 (by omega) (.emptyWithCapacity len) target.vec target.func
 where
   @[specialize]
   go {len : Nat} (aig : AIG α) (idx : Nat) (hidx : idx ≤ len) (s : RefVec aig idx)

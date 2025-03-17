@@ -626,10 +626,10 @@ open Lean Elab Elab.Tactic PrettyPrinter Meta
 /-- Add a suggestion for `have h : t := e`. -/
 def addHaveSuggestion (ref : Syntax) (h? : Option Name) (t? : Option Expr) (e : Expr)
     (origSpan? : Option Syntax := none) (checkState? : Option Tactic.SavedState := none) : TacticM Unit := do
-  let estx ← delabToRefinableSyntax e
   let prop ← isProp (← inferType e)
   -- We construct the tactic and message data separately to facilitate hover info
   let mut (tac, msg) ← withExposedNames do
+    let estx ← delabToRefinableSyntax e
     let (tac, msg) ← if let some t := t? then
       let tstx ← delabToRefinableSyntax t
       if prop then

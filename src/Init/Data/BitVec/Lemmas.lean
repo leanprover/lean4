@@ -3113,10 +3113,13 @@ theorem ofInt_neg {w : Nat} {n : Int} : BitVec.ofInt w (-n) = -BitVec.ofInt w n 
     (-x).toFin = Fin.ofNat' (2^n) (2^n - x.toNat) :=
   rfl
 
-theorem sub_toAdd {n} (x y : BitVec n) : x - y = x + - y := by
+theorem sub_eq_add_neg {n} (x y : BitVec n) : x - y = x + - y := by
   apply eq_of_toNat_eq
   simp only [toNat_sub, toNat_add, toNat_neg, Nat.add_mod_mod]
   rw [Nat.add_comm]
+
+set_option linter.missingDocs false in
+@[deprecated sub_eq_add_neg (since := "2025-03-17")] abbrev sub_toAdd := @sub_eq_add_neg
 
 @[simp] theorem neg_zero (n:Nat) : -BitVec.ofNat n 0 = BitVec.ofNat n 0 := by apply eq_of_toNat_eq ; simp
 
@@ -3127,8 +3130,8 @@ theorem add_sub_cancel (x y : BitVec w) : x + y - y = x := by
       Nat.add_sub_cancel_left, Nat.add_mod_right, toNat_mod_cancel]
 
 theorem sub_add_cancel (x y : BitVec w) : x - y + y = x := by
-  rw [sub_toAdd, BitVec.add_assoc, BitVec.add_comm _ y,
-      ← BitVec.add_assoc, ← sub_toAdd, add_sub_cancel]
+  rw [sub_eq_add_neg, BitVec.add_assoc, BitVec.add_comm _ y,
+      ← BitVec.add_assoc, ← sub_eq_add_neg, add_sub_cancel]
 
 theorem eq_sub_iff_add_eq {x y z : BitVec w} : x = z - y ↔ x + y = z := by
   apply Iff.intro <;> intro h
@@ -3246,11 +3249,11 @@ protected theorem add_right_inj {x y : BitVec w} (z : BitVec w) : (z + x = z + y
 
 @[simp]
 protected theorem sub_left_inj {x y : BitVec w} (z : BitVec w) : (x - z = y - z) ↔ x = y := by
-  simp [sub_toAdd]
+  simp [sub_eq_add_neg]
 
 @[simp]
 protected theorem sub_right_inj {x y : BitVec w} (z : BitVec w) : (z - x = z - y) ↔ x = y := by
-  simp [sub_toAdd]
+  simp [sub_eq_add_neg]
 
 /-! ### add self -/
 
@@ -3405,7 +3408,7 @@ theorem mul_sub {x y z : BitVec w} :
 
 theorem neg_add_mul_eq_mul_not {x y : BitVec w} :
     - (x + x * y) = x * ~~~ y := by
-  rw [neg_add, sub_toAdd, ← BitVec.mul_neg, neg_eq_not_add y, mul_add,
+  rw [neg_add, sub_eq_add_neg, ← BitVec.mul_neg, neg_eq_not_add y, mul_add,
     BitVec.mul_one, BitVec.add_comm, BitVec.add_assoc,
     BitVec.add_right_eq_self, add_neg_eq_sub, BitVec.sub_self]
 

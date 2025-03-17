@@ -1072,6 +1072,15 @@ theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h 
   apply eq_of_toNat_eq
   simp [extractLsb']
 
+theorem getLsbD_eq_extractLsb' (x : BitVec w) (i : Nat) :
+    x.getLsbD i = (x.extractLsb' i 1 == 1#1) := by
+  rw [Bool.eq_iff_iff]
+  simp [BitVec.eq_of_getLsbD_eq_iff]
+
+theorem getElem_eq_extractLsb' (x : BitVec w) (i : Nat) (h : i < w) :
+    x[i] = (x.extractLsb' i 1 == 1#1) := by
+  rw [← getLsbD_eq_getElem, getLsbD_eq_extractLsb']
+
 /-! ### allOnes -/
 
 @[simp] theorem toNat_allOnes : (allOnes v).toNat = 2^v - 1 := by

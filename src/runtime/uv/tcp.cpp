@@ -462,18 +462,18 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getpeername(b_obj_arg socket) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    sockaddr addr_storage;
+    sockaddr_storage addr_storage;
     int addr_len = sizeof(addr_storage);
 
     event_loop_lock(&global_ev);
-    int result = uv_tcp_getpeername(tcp_socket->m_uv_tcp, &addr_storage, &addr_len);
+    int result = uv_tcp_getpeername(tcp_socket->m_uv_tcp, (struct sockaddr*)&addr_storage, &addr_len);
     event_loop_unlock(&global_ev);
 
     if (result < 0) {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
 
-    lean_object* lean_addr = lean_sockaddr_to_socketaddress(&addr_storage);
+    lean_object* lean_addr = lean_sockaddr_to_socketaddress((struct sockaddr*)&addr_storage);
 
     return lean_io_result_mk_ok(lean_addr);
 }
@@ -482,18 +482,18 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getpeername(b_obj_arg socket) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getsockname(b_obj_arg socket) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    struct sockaddr addr_storage;
+    struct sockaddr_storage addr_storage;
     int addr_len = sizeof(addr_storage);
 
     event_loop_lock(&global_ev);
-    int result = uv_tcp_getsockname(tcp_socket->m_uv_tcp, &addr_storage, &addr_len);
+    int result = uv_tcp_getsockname(tcp_socket->m_uv_tcp, (struct sockaddr*)&addr_storage, &addr_len);
     event_loop_unlock(&global_ev);
 
     if (result < 0) {
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
 
-    lean_object* lean_addr = lean_sockaddr_to_socketaddress(&addr_storage);
+    lean_object* lean_addr = lean_sockaddr_to_socketaddress((struct sockaddr*)&addr_storage);
     return lean_io_result_mk_ok(lean_addr);
 }
 

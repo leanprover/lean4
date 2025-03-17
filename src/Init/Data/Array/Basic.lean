@@ -551,7 +551,7 @@ Note that the universe level is contrained to `Type` here,
 to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
 -/
 @[inline]
-def findM? {α : Type} {m : Type → Type} [Monad m] (p : α → m Bool) (as : Array α) : m (Option α) := do
+def findM? {α : Type} [Monad m] (p : α → m Bool) (as : Array α) : m (Option α) := do
   for a in as do
     if (← p a) then
       return a

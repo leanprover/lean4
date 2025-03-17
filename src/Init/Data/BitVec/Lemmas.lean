@@ -4212,6 +4212,10 @@ theorem udiv_twoPow_eq_of_lt {w : Nat} {x : BitVec w} {k : Nat} (hk : k < w) : x
   have : 2^k < 2^w := Nat.pow_lt_pow_of_lt (by decide) hk
   simp [bitvec_to_nat, Nat.shiftRight_eq_div_pow, Nat.mod_eq_of_lt this]
 
+theorem shiftLeft_neg {x : BitVec w} {y : Nat} :
+    (-x) <<< y = - (x <<< y) := by
+  rw [shiftLeft_eq_mul_twoPow, shiftLeft_eq_mul_twoPow, BitVec.neg_mul]
+
 /- ### cons -/
 
 @[simp] theorem true_cons_zero : cons true 0#w = twoPow (w + 1) w := by

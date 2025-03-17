@@ -437,10 +437,6 @@ structure MessageLog where
 namespace MessageLog
 def empty : MessageLog := {}
 
-@[deprecated "renamed to `unreported`; direct access should in general be avoided in favor of \
-using `MessageLog.toList/toArray`" (since := "2024-05-22")]
-def msgs : MessageLog → PersistentArray Message := unreported
-
 def reportedPlusUnreported : MessageLog → PersistentArray Message
   | { reported := r, unreported := u, .. } => r ++ u
 

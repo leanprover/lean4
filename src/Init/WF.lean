@@ -168,8 +168,6 @@ theorem acc_transGen_iff : Acc (TransGen r) a ↔ Acc r a :=
 theorem WellFounded.transGen (h : WellFounded r) : WellFounded (TransGen r) :=
   ⟨fun a ↦ (h.apply a).transGen⟩
 
-@[deprecated Acc.transGen (since := "2024-07-16")] abbrev TC.accessible := @Acc.transGen
-@[deprecated WellFounded.transGen (since := "2024-07-16")] abbrev TC.wf := @WellFounded.transGen
 namespace Nat
 
 -- less-than is well-founded
@@ -197,13 +195,6 @@ def lt_wfRel : WellFoundedRelation Nat where
     (ind : ∀ n, (∀ m, m < n → motive m) → motive n) : motive n :=
   Nat.lt_wfRel.wf.fix ind n
 
-@[deprecated Nat.strongRecOn (since := "2024-08-27")]
-protected noncomputable def strongInductionOn
-    {motive : Nat → Sort u}
-    (n : Nat)
-    (ind : ∀ n, (∀ m, m < n → motive m) → motive n) : motive n :=
-  Nat.strongRecOn n ind
-
 @[elab_as_elim] protected noncomputable def caseStrongRecOn
     {motive : Nat → Sort u}
     (a : Nat)
@@ -213,14 +204,6 @@ protected noncomputable def strongInductionOn
     match n with
     | 0   => fun _  => zero
     | n+1 => fun h₁ => ind n (λ _ h₂ => h₁ _ (lt_succ_of_le h₂))
-
-@[deprecated Nat.caseStrongRecOn (since := "2024-08-27")]
-protected noncomputable def caseStrongInductionOn
-    {motive : Nat → Sort u}
-    (a : Nat)
-    (zero : motive 0)
-    (ind : ∀ n, (∀ m, m ≤ n → motive m) → motive (succ n)) : motive a :=
-  Nat.caseStrongRecOn a zero ind
 
 end Nat
 

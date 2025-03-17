@@ -344,12 +344,15 @@ def bvAcNfHypMeta (goal : MVarId) (fvarId : FVarId)
 
 def bvAcNormalizePass : Pass where
   name := `bv_ac_nf
-  run' goal := do
-    let hyps ← goal.withContext getPropHyps
+  run' goal := goal.withContext do
+    let hyps ← (← getPropHyps) |>.filterM fun hyp => do
+      return !(← PreProcessM.checkAcNf hyp)
     let mut newGoal := goal
     for hyp in hyps do
       if let .some nextGoal ← bvAcNfHypMeta newGoal hyp (← read).maxSteps then
         newGoal := nextGoal
+    newGoal.withContext do
+      (← getPropHyps).forM PreProcessM.acNfFinished
     return newGoal
 
 end Frontend.Normalize

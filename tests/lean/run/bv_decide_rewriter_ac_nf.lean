@@ -9,15 +9,12 @@ open Lean
 /-! First, test the normalization up-to associativity and commutativity in isolation -/
 namespace Unit
 
-open Lean Elab.Tactic in
-
-def bvAcNfTargetTactic : TacticM Unit := do
-  liftMetaTactic1 fun goal => BVDecide.Frontend.Normalize.bvAcNfTarget goal
-
+open Lean Elab Tactic in
 /-- A tactic version of the `bv_ac_nf` normalization pass for `bv_decide`,
 for testing purposes -/
 elab "bv_ac_nf" : tactic =>
-  withMainContext bvAcNfTargetTactic
+  withMainContext do
+    liftMetaTactic1 fun goal => BVDecide.Frontend.Normalize.bvAcNfTarget goal
 
 /- NOTE: the expression in this test is used as an example in the `bv_ac_nf` tactic
 documentation. Any changes to the behaviour of this test should be reflected in

@@ -1,4 +1,4 @@
-import Lean.Data.HashMap
+import Std.Data.HashMap
 open Lean
 
 /--

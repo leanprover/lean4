@@ -1,6 +1,6 @@
-import Lean.Data.HashMap
+import Std.Data.HashMap
 
-def test (m : Lean.HashMap Nat Nat) : IO (Nat × Nat) := do
+def test (m : Std.Data.HashMap Nat Nat) : IO (Nat × Nat) := do
   let start := 1
   let mut i := start
   let mut count := 0

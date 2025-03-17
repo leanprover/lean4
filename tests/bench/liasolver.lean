@@ -4,7 +4,6 @@ Linear Diophantine equation solver
 Author: Marc Huisinga
 -/
 
-import Lean.Data.HashMap
 
 open Lean
 

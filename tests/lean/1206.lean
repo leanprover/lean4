@@ -1,4 +1,4 @@
-import Lean.Data.HashSet
+import Std.Data.HashSet
 
 set_option linter.unusedVariables true
 

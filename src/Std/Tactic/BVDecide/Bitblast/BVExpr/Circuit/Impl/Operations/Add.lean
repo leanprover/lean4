@@ -166,7 +166,7 @@ def blastAdd (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry �
   let cin := res.ref
   let input := input.cast <| AIG.LawfulOperator.le_size (f := AIG.mkConstCached) ..
   let ⟨lhs, rhs⟩ := input
-  go aig lhs rhs 0 (by omega) cin .empty
+  go aig lhs rhs 0 (by omega) cin (.emptyWithCapacity w)
 where
   go (aig : AIG α) (lhs rhs : AIG.RefVec aig w) (curr : Nat) (hcurr : curr ≤ w) (cin : AIG.Ref aig)
       (s : AIG.RefVec aig curr) :

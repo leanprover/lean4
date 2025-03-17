@@ -81,7 +81,7 @@ attribute [instance] ZipTarget.chainable
 
 @[specialize]
 def zip (aig : AIG α) (target : ZipTarget aig len) : RefVecEntry α len :=
-  go aig 0 .empty (by omega) target.input.lhs target.input.rhs target.func
+  go aig 0 (.emptyWithCapacity len) (by omega) target.input.lhs target.input.rhs target.func
 where
   @[specialize]
   go (aig : AIG α) (idx : Nat) (s : RefVec aig idx) (hidx : idx ≤ len)

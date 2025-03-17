@@ -85,3 +85,6 @@ example (f : Int → Int) (_ : 2 ∣ f 0 + 3) (_ : 3 ∣ f 0 + f 1 - 4) (_ : f 0
 
 example (x : Int) (_ : 10 ∣ x) (_ : ¬ 5 ∣ x) : False := by
   grind
+
+example (x : Nat) (_ : 10 ∣ x) (_ : ¬ 5 ∣ x) : False := by
+  grind

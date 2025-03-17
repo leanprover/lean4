@@ -7,6 +7,7 @@ prelude
 import Init.Data.BitVec.Folds
 import Init.Data.Nat.Mod
 import Init.Data.Int.LemmasAux
+import Init.Data.BitVec.Lemmas
 
 /-!
 # Bitblasting of bitvectors
@@ -1296,7 +1297,44 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
     simp
     omega
 
-/- ### umod -/
+theorem umulOverflow_eq {w : Nat} (x y : BitVec w) :
+    umulOverflow x y =
+      (0 < w && BitVec.twoPow (w * 2) w ≤ x.zeroExtend (w * 2) * y.zeroExtend (w * 2)) := by
+  simp only [umulOverflow, toNat_twoPow, le_def, toNat_mul, toNat_setWidth, mod_mul_mod]
+  rcases w with _|w
+  · simp [of_length_zero, toInt_zero, mul_mod_mod]
+  · simp only [ge_iff_le, show 0 < w + 1 by omega, decide_true, mul_mod_mod, Bool.true_and,
+      decide_eq_decide]
+    rw [Nat.mod_eq_of_lt BitVec.toNat_mul_toNat_lt, Nat.mod_eq_of_lt]
+    have := Nat.pow_lt_pow_of_lt (a := 2) (n := w + 1) (m := (w + 1) * 2)
+    omega
+
+theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
+    smulOverflow x y =
+      ((w ≠ 0) &&
+      ((signExtend (w * 2) (intMax w)).slt (signExtend (w * 2) x * signExtend (w * 2) y) ||
+      (signExtend (w * 2) x * signExtend (w * 2) y).slt (signExtend (w * 2) (intMin w)))) := by
+  simp only [smulOverflow]
+  rcases w with _|w
+  · simp [of_length_zero, toInt_zero]
+  · have := Int.pow_lt_pow (a := 2) (b := (w + 1) * 2 - 2) (c := (w + 1) * 2 - 1) (by omega)
+    have := @BitVec.le_toInt_mul_toInt (w + 1) x y
+    have := @BitVec.toInt_mul_toInt_lt (w + 1) x y
+    simp only [Nat.add_one_sub_one, ge_iff_le, ne_eq, show ¬w + 1 = 0 by omega,
+    not_false_eq_true, decide_true, BitVec.slt, intMax, ofNat_eq_ofNat, toInt_mul, intMin,
+    Bool.true_and]
+    repeat rw [BitVec.toInt_signExtend_of_lt (by omega)]
+    simp only [show BitVec.twoPow (w + 1) w - 1#(w + 1) = BitVec.intMax (w + 1) by simp [intMax],
+      toInt_intMax, Nat.add_one_sub_one, toInt_twoPow, show ¬w + 1 ≤ w by omega, ↓reduceIte,
+      Nat.shiftLeft_eq, Nat.one_mul]
+    push_cast
+    rw [← Nat.two_pow_pred_add_two_pow_pred (by omega),
+      Int.bmod_eq_of_le_of_lt (by rw [← Nat.mul_two]; push_cast; omega)
+                              (by rw [← Nat.mul_two]; push_cast; omega)]
+    simp only [bool_to_prop]
+    omega
+
+/-! ### umod -/
 
 theorem getElem_umod {n d : BitVec w} (hi : i < w) :
     (n % d)[i]

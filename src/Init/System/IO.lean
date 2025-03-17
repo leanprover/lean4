@@ -605,23 +605,41 @@ end IO
 namespace System.FilePath
 open IO
 
+/--
+Returns the contents of the indicated directory. Throws an exception if the file does not exist or
+is not a directory.
+-/
 @[extern "lean_io_read_dir"]
 opaque readDir : @& FilePath → IO (Array IO.FS.DirEntry)
 
+/--
+Returns metadata for the indicated file. Throws an exception if the file does not exist or the
+metadata cannot be accessed.
+-/
 @[extern "lean_io_metadata"]
 opaque metadata : @& FilePath → IO IO.FS.Metadata
 
+/--
+Checks whether the indicated path can be read and is a directory.
+-/
 def isDir (p : FilePath) : BaseIO Bool := do
   match (← p.metadata.toBaseIO) with
   | Except.ok m => return m.type == IO.FS.FileType.dir
   | Except.error _ => return false
 
+/--
+Checks whether the indicated path points to a file that exists.
+-/
 def pathExists (p : FilePath) : BaseIO Bool :=
   return (← p.metadata.toBaseIO).toBool
 
 /--
-  Return all filesystem entries of a preorder traversal of all directories satisfying `enter`, starting at `p`.
-  Symbolic links are visited as well by default. -/
+Traverses a filesystem starting at the path `p` and exploring directories that satisfy `enter`,
+returning the paths visited.
+
+The traversal is a preorder traversal, in which parent directories occur prior to any of their
+children. Symbolic links are followed.
+-/
 partial def walkDir (p : FilePath) (enter : FilePath → IO Bool := fun _ => pure true) : IO (Array FilePath) :=
   Prod.snd <$> StateT.run (go p) #[]
 where

@@ -1790,6 +1790,12 @@ theorem not_eq_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
   intro; subst p; simp
   intro; rwa [Int.sub_eq_zero]
 
+theorem of_not_dvd (a b : Int) : a != 0 → ¬ (a ∣ b) → b % a > 0 := by
+  simp; intro h₁ h₂
+  replace h₂ := Int.emod_pos_of_not_dvd h₂
+  simp [h₁] at h₂
+  assumption
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

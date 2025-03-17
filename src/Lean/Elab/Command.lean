@@ -436,6 +436,9 @@ instance : MonadRecDepth CommandElabM where
   getRecDepth      := return (← read).currRecDepth
   getMaxRecDepth   := return (← get).maxRecDepth
 
+instance : MonadEval MacroM CommandElabM where
+  monadEval := liftMacroM
+
 builtin_initialize registerTraceClass `Elab.command
 
 open Language in

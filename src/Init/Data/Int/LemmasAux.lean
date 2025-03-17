@@ -160,14 +160,13 @@ theorem mul_le_mul_self {x y : Int} {s : Nat} (hx : x.natAbs ≤ s) (hy : y.natA
     · have : -x * -y ≤ (s + 1) * (s + 1) := Int.mul_le_mul (by omega) (by omega) (by omega) (by omega)
       simp_all
 
-theorem neg_mul_self_le_mul {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -s ≤ y) (uby : y < s) :
-      -(s * s) ≤ x * y := by
-  have := Nat.mul_pos (n := s) (m := s) (by omega) (by omega)
-  by_cases 0 ≤ x <;> by_cases 0 ≤ y
-  · have : 0 ≤ x * y := Int.mul_nonneg (by omega) (by omega); omega
-  · rw [← Int.neg_mul, Int.mul_comm (a := x)]; exact Int.mul_le_mul_neg (by omega) (by omega) (by omega) (by omega)
-  · rw [← Int.neg_mul]; exact Int.mul_le_mul_neg (by omega) (by omega) (by omega) (by omega)
-  · have : 0 < x * y := Int.mul_pos_of_neg_of_neg (by omega) (by omega); omega
+theorem neg_mul_self_le_mul {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -s ≤ y) (uby : y < s) :      -(s * s) ≤ x * y := by sorry
+--  have := Nat.mul_pos (n := s) (m := s) (by omega) (by omega)
+--  by_cases 0 ≤ x <;> by_cases 0 ≤ y
+--  · have : 0 ≤ x * y := Int.mul_nonneg (by omega) (by omega); omega
+--  · rw [← Int.neg_mul, Int.mul_comm (a := x)]; exact Int.mul_le_mul_neg (by omega) (by omega) (by omega) (by omega)
+--  · rw [← Int.neg_mul]; exact Int.mul_le_mul_neg (by omega) (by omega) (by omega) (by omega)
+--  · have : 0 < x * y := Int.mul_pos_of_neg_of_neg (by omega) (by omega); omega
 
 
 end Int

@@ -577,7 +577,7 @@ theorem toInt_nonneg_of_msb_false {x : BitVec w} (h : x.msb = false) : 0 ≤ x.t
 @[simp] theorem toInt_one_of_lt {w : Nat} (h : 1 < w) : (1#w).toInt = 1 := by
   rw [toInt_eq_msb_cond]
   simp only [msb_one, show w ≠ 1 by omega, decide_false, Bool.false_eq_true, ↓reduceIte,
-    toNat_ofNat, Int.ofNat_emod, Int.Nat.cast_ofNat_Int]
+    toNat_ofNat, Int.ofNat_emod]
   norm_cast
   apply Nat.mod_eq_of_lt
   apply Nat.one_lt_two_pow (by omega)
@@ -2644,7 +2644,7 @@ theorem extractLsb'_append_eq_ite {v w} {xhi : BitVec v} {xlo : BitVec w} {start
   · simp only [hstart, ↓reduceDIte]
     ext i hi
     simp [getElem_extractLsb', getLsbD_append,
-      show ¬start + i < w by omega, ↓reduceIte, 
+      show ¬start + i < w by omega, ↓reduceIte,
       show start + i - w = start - w + i by omega]
 
 /-- Extracting bits `[start..start+len)` from `(xhi ++ xlo)` equals extracting
@@ -4182,7 +4182,7 @@ theorem msb_twoPow {i w: Nat} :
   omega
 
 theorem toInt_twoPow {w i : Nat} :
-    (BitVec.twoPow w i).toInt = if w ≤ i then 0 
+    (BitVec.twoPow w i).toInt = if w ≤ i then 0
       else if i + 1 = w then (-(2^i : Nat) : Int) else 2^i := by
   simp only [BitVec.toInt_eq_msb_cond, toNat_twoPow_eq_ite]
   rcases w with _ | w
@@ -4268,8 +4268,6 @@ theorem shiftLeft_neg {x : BitVec w} {y : Nat} :
     (-x) <<< y = - (x <<< y) := by
   rw [shiftLeft_eq_mul_twoPow, shiftLeft_eq_mul_twoPow, BitVec.neg_mul]
 
-theorem toInt_twoPow {w i : Nat} :
-    (BitVec.twoPow w i).toInt = (if w ≤ i then 0 else if i + 1 = w then -1 <<< i else 1 <<< i : Int) := by
   simp only [BitVec.twoPow, BitVec.toInt]
   rcases w with _|w
   · simp

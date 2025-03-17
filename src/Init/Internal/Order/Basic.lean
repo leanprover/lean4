@@ -105,7 +105,6 @@ section complete_lattice
   sup : (α → Prop) → α
   sup_spec {c : α → Prop} : sup c ⊑ x ↔ (∀ y, c y → y ⊑ x)
 
-
 open PartialOrder complete_lattice
 
 variable {α  : Sort u} [complete_lattice α]
@@ -115,6 +114,31 @@ theorem sup_le {c : α → Prop} : (∀ y, c y → y ⊑ x) → sup c ⊑ x :=
 
 theorem le_sup {c : α → Prop} {y : α} (hy : c y) : y ⊑ sup c :=
   sup_spec.mp rel_refl y hy
+
+def inf : (α → Prop) → α := fun c : (α → Prop) => sup (fun x => ∀ y, c y → x ⊑ y)
+
+theorem inf_spec {c : α → Prop} : x ⊑ inf c ↔ (∀ y, c y → x ⊑ y) := by
+  constructor
+  case mp =>
+    unfold inf
+    intro h
+    intro y cy
+    suffices g : (sup fun x => ∀ (y : α), c y → x ⊑ y) ⊑ y from
+      by
+        apply rel_trans h g
+    apply sup_le
+    intro z
+    intro i
+    exact i y cy
+  case mpr =>
+    unfold inf
+    intro h
+    apply le_sup
+    apply h
+
+theorem le_inf {c : α → Prop} : (∀ y, c y → x ⊑ y) → x ⊑ inf c := inf_spec.mpr
+
+theorem inf_le  {c : α → Prop} {y : α} (hy : c y) : inf c ⊑ y :=  inf_spec.mp (rel_refl) y hy
 
 end complete_lattice
 
@@ -235,10 +259,14 @@ variable {α  : Sort u} [complete_lattice α]
 
 variable {c : α → Prop}
 
+def lfp (f : α → α) : α :=
+  inf (fun c => f c ⊑ c)
 
 def gfp (f : α → α) : α :=
     sup (fun c => c ⊑ f c)
 
+def gfp_monotone {f : α → α} {hm : monotone f} : α :=
+  gfp f
 
 theorem gfp_postfixed {f : α → α} {hm : monotone f} :
     (gfp f) ⊑ f (gfp f) := by
@@ -252,6 +280,22 @@ theorem gfp_postfixed {f : α → α} {hm : monotone f} :
     apply hm
     apply le_sup
     trivial
+
+theorem lfp_prefixed {f : α → α} {hm : monotone f} :
+  f (lfp f) ⊑ (lfp f) := by
+  apply le_inf
+  intro y hy
+  suffices h : f (lfp f) ⊑ f y from by
+    apply rel_trans h hy
+  apply hm
+  apply inf_le
+  trivial
+
+theorem lfp_postfixed {f : α → α} {hm : monotone f} : lfp f ⊑ f (lfp f) := by
+  apply inf_le
+  apply hm
+  apply lfp_prefixed
+  trivial
 
 theorem gfp_prefixed {f : α → α} {hm : monotone f} :
   f (gfp f) ⊑ (gfp f) := by
@@ -269,8 +313,19 @@ theorem gfp_fix {f : α → α} {hm : monotone f} :
   apply gfp_prefixed
   exact hm
 
+theorem lfp_fix {f : α → α} {hm : monotone f} :
+  lfp f = f (lfp f) := by
+  apply rel_antisymm
+  apply lfp_postfixed
+  trivial
+  apply lfp_prefixed
+  trivial
+
 theorem gfp_coinduction {f : α → α} :
   x ⊑ f x → x ⊑ gfp f := fun hx => le_sup hx
+
+theorem lfp_induction {f : α → α} :
+  f x ⊑ x → lfp f ⊑ x := fun hx => inf_le hx
 
 end lattice_fix
 
@@ -787,28 +842,32 @@ end mono_bind
 
 section coinductive_predicates
 instance inst_coind_po: PartialOrder Prop where
-  rel x y := y → x -- NB: Dual
+  rel x y := x → y
   rel_refl := fun x => x
-  rel_trans h₁ h₂ := fun x => h₁ (h₂ x)
-  rel_antisymm h₁ h₂ := propext ⟨h₂, h₁⟩
+  rel_trans h₁ h₂ := fun x => h₂ (h₁  x)
+  rel_antisymm h₁ h₂ := propext ⟨h₁, h₂⟩
 
-instance inst_coind_CCPO : CCPO Prop where
-  csup c := ∀ p, c p → p
-  csup_spec := fun _ =>
-    ⟨fun h y hcy hx => h hx y hcy, fun h hx y hcy => h y hcy hx ⟩
 end coinductive_predicates
 
 instance inst_coind_complete_lattice : complete_lattice Prop where
-  sup c := ∀ p, c p → p
+  sup c := ∃ p, c p ∧ p
   sup_spec := by
     intro x c
     constructor
     case mp =>
-      intro h y hy hx
-      exact h hx y hy
+      intro h y cy hy
+      apply h
+      apply Exists.intro y
+      trivial
     case mpr =>
-      intro h hx y hy
-      exact h y hy hx
+      intro h
+      simp
+      intro e
+      apply Exists.elim e
+      intro a
+      intro caa
+      have h' := h a caa.1 caa.2
+      trivial
 
 namespace Example
 

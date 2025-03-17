@@ -7,6 +7,7 @@ Without an induction principle this isn't so useful, though.
 
 open Lean.Order
 set_option trace.Elab.definition.partialFixpoint true
+-- set_option trace.Elab.definition.partialFixpoint.induction true
 instance : PartialOrder Prop where
   rel x y := y → x -- NB: Dual
   rel_refl := fun x => x

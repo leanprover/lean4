@@ -209,8 +209,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, b_obj_arg
         lean_dec(promise); // We are not going to return it.
         lean_dec(socket);
 
-        lean_dec(data);
-
         free(write_uv->data);
         free(write_uv);
 

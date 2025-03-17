@@ -120,3 +120,10 @@ example : ∀ (x y : Int),
     x ≥ 0 → y ≥ 0 →
     x + y ≤ 5 := by
   grind
+
+example  (x : Int) : x / 1 = x := by grind
+example (x : Int) : x % 1 = 0 := by grind
+example  (x : Nat) : x / 1 = x := by grind
+example (x : Nat) : x % 1 = 0 := by grind
+example  (x : Int) : x / -1 = -x := by grind
+example (x : Int) : x % -1 = 0 := by grind

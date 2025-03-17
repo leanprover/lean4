@@ -17,7 +17,8 @@ then at runtime you will get non-tail recursive versions of the following defini
 -/
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
-set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+-- TODO: restore after an update-stage0
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
 
@@ -300,20 +301,20 @@ Examples:
  * `[1, 2, 3].modifyTR (· * 10) 2 = [1, 2, 30]`
  * `[1, 2, 3].modifyTR (· * 10) 3 = [1, 2, 3]`
 -/
-def modifyTR (f : α → α) (n : Nat) (l : List α) : List α := go l n #[] where
-  /-- Auxiliary for `modifyTR`: `modifyTR.go f l n acc = acc.toList ++ modify f n l`. -/
+def modifyTR (l : List α) (i : Nat) (f : α → α) : List α := go l i #[] where
+  /-- Auxiliary for `modifyTR`: `modifyTR.go f l i acc = acc.toList ++ modify f i l`. -/
   go : List α → Nat → Array α → List α
   | [], _, acc => acc.toList
   | a :: l, 0, acc => acc.toListAppend (f a :: l)
-  | a :: l, n+1, acc => go l n (acc.push a)
+  | a :: l, i+1, acc => go l i (acc.push a)
 
-theorem modifyTR_go_eq : ∀ l i, modifyTR.go f l i acc = acc.toList ++ modify f i l
-  | [], n => by cases n <;> simp [modifyTR.go, modify]
+theorem modifyTR_go_eq : ∀ l i, modifyTR.go f l i acc = acc.toList ++ modify l i f
+  | [], i => by cases i <;> simp [modifyTR.go, modify]
   | a :: l, 0 => by simp [modifyTR.go, modify]
-  | a :: l, n+1 => by simp [modifyTR.go, modify, modifyTR_go_eq l]
+  | a :: l, i+1 => by simp [modifyTR.go, modify, modifyTR_go_eq l]
 
 @[csimp] theorem modify_eq_modifyTR : @modify = @modifyTR := by
-  funext α f n l; simp [modifyTR, modifyTR_go_eq]
+  funext α l i f; simp [modifyTR, modifyTR_go_eq]
 
 /-! ### insertIdx -/
 
@@ -332,19 +333,19 @@ Examples:
  * `["tues", "thur", "sat"].insertIdxTR 4 "wed" = ["tues", "thur", "sat"]`
 
 -/
-@[inline] def insertIdxTR (i : Nat) (a : α) (l : List α) : List α := go i l #[] where
+@[inline] def insertIdxTR (l : List α) (n : Nat) (a : α) : List α := go n l #[] where
   /-- Auxiliary for `insertIdxTR`: `insertIdxTR.go a n l acc = acc.toList ++ insertIdx n a l`. -/
   go : Nat → List α → Array α → List α
   | 0, l, acc => acc.toListAppend (a :: l)
   | _, [], acc => acc.toList
   | n+1, a :: l, acc => go n l (acc.push a)
 
-theorem insertIdxTR_go_eq : ∀ i l, insertIdxTR.go a i l acc = acc.toList ++ insertIdx i a l
+theorem insertIdxTR_go_eq : ∀ i l, insertIdxTR.go a i l acc = acc.toList ++ insertIdx l i a
   | 0, l | _+1, [] => by simp [insertIdxTR.go, insertIdx]
   | n+1, a :: l => by simp [insertIdxTR.go, insertIdx, insertIdxTR_go_eq n l]
 
 @[csimp] theorem insertIdx_eq_insertIdxTR : @insertIdx = @insertIdxTR := by
-  funext α f n l; simp [insertIdxTR, insertIdxTR_go_eq]
+  funext α l i a; simp [insertIdxTR, insertIdxTR_go_eq]
 
 /-! ### erase -/
 

@@ -47,3 +47,11 @@ example (x y : Nat) : x + y - x = y := by
 
 example (x y : Nat) : (x - y) - y = x - 2*y := by
   grind
+
+example (x : Nat) : x / 0 = 0 := by
+  grind
+
+example (x : Nat) : x % 0 = x := by
+  grind
+
+example (x : Nat) : x % 4 - x % 8 = 0 := by grind

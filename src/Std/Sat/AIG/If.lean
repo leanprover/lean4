@@ -116,7 +116,7 @@ structure IfInput (aig : AIG α) (w : Nat) where
 
 def ite (aig : AIG α) (input : IfInput aig w) : RefVecEntry α w :=
   let ⟨discr, lhs, rhs⟩ := input
-  go aig 0 (by omega) discr lhs rhs .empty
+  go aig 0 (by omega) discr lhs rhs (.emptyWithCapacity w)
 where
   go {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref aig)
       (lhs rhs : RefVec aig w) (s : RefVec aig curr) : RefVecEntry α w :=

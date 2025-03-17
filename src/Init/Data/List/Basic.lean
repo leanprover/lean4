@@ -1475,10 +1475,18 @@ Examples:
 ["circle", "square", "triangle"]
 ```
 -/
-@[simp] def modifyTailIdx (f : List α → List α) : (n : Nat) → (l : List α) → List α
+def modifyTailIdx (l : List α) (i : Nat) (f : List α → List α) : List α :=
+  go i l
+where
+  go : Nat → List α → List α
   | 0, l => f l
   | _+1, [] => []
-  | n+1, a :: l => a :: modifyTailIdx f n l
+  | i+1, a :: l => a :: go i l
+
+@[simp] theorem modifyTailIdx_zero {l : List α} : l.modifyTailIdx 0 f = f l := rfl
+@[simp] theorem modifyTailIdx_succ_nil {i : Nat} : ([] : List α).modifyTailIdx (i + 1) f = [] := rfl
+@[simp] theorem modifyTailIdx_succ_cons {i : Nat} {a : α} {l : List α} :
+    (a :: l).modifyTailIdx (i + 1) f = a :: l.modifyTailIdx i f := rfl
 
 /--
 Replace the head of the list with the result of applying `f` to it. Returns the empty list if the
@@ -1505,8 +1513,8 @@ Examples:
  * `[1, 2, 3].modify (· * 10) 2 = [1, 2, 30]`
  * `[1, 2, 3].modify (· * 10) 3 = [1, 2, 3]`
 -/
-def modify (f : α → α) : Nat → List α → List α :=
-  modifyTailIdx (modifyHead f)
+def modify (l : List α) (i : Nat) (f : α → α) : List α :=
+  l.modifyTailIdx i (modifyHead f)
 
 /-! ### insert -/
 
@@ -1536,8 +1544,8 @@ Examples:
  * `["tues", "thur", "sat"].insertIdx 3 "wed" = ["tues", "thur", "sat", "wed"]`
  * `["tues", "thur", "sat"].insertIdx 4 "wed" = ["tues", "thur", "sat"]`
 -/
-def insertIdx (i : Nat) (a : α) : (l : List α) → List α :=
-  modifyTailIdx (cons a) i
+def insertIdx (xs : List α) (i : Nat) (a : α) : List α :=
+  xs.modifyTailIdx i (cons a)
 
 /-! ### erase -/
 

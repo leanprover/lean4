@@ -69,7 +69,10 @@ def simpEq? (e : Expr) : MetaM (Option (Expr × Expr)) := do
           let h := mkApp5 (mkConst ``Int.Linear.eq_eq_false_of_divCoeff) (toContextExpr atoms) (toExpr a) (toExpr b) (toExpr (Int.ofNat k)) reflBoolTrue
           return some (r, ← mkExpectedTypeHint h (← mkEq e r))
 
-def simpLe? (e : Expr) : MetaM (Option (Expr × Expr)) := do
+
+def simpLe? (e : Expr) (checkIfModified : Bool) : MetaM (Option (Expr × Expr)) := do
+  -- If `e` is not already a `≤`, then we should not check whether it has changed.
+  let checkIfModified := e.isAppOf ``LE.le && checkIfModified
   let some (a, b, atoms) ← leCnstr? e | return none
   withAbstractAtoms atoms ``Int fun atoms => do
     let e := mkIntLE (← a.denoteExpr (atoms[·]!)) (← b.denoteExpr (atoms[·]!))
@@ -82,7 +85,7 @@ def simpLe? (e : Expr) : MetaM (Option (Expr × Expr)) := do
       let r := mkConst ``True
       let h := mkApp4 (mkConst ``Int.Linear.le_eq_true) (toContextExpr atoms) (toExpr a) (toExpr b) reflBoolTrue
       return some (r, ← mkExpectedTypeHint h (← mkEq e r))
-    else if p.toExpr == a && b == .num 0 then
+    else if checkIfModified && p.toExpr == a && b == .num 0 then
       return none
     else
       let k := p.gcdCoeffs'
@@ -106,25 +109,26 @@ def simpRel? (e : Expr) : MetaM (Option (Expr × Expr)) := do
     let mut thmName := Name.anonymous
     match_expr arg with
     | LE.le α _ lhs rhs =>
-      if α.isConstOf ``Int then
-        eNew?   := some (mkIntLE (mkIntAdd rhs (mkIntLit 1)) lhs)
-        thmName := ``Int.not_le_eq
+      let_expr Int ← α | pure ()
+      eNew?   := some (mkIntLE (mkIntAdd rhs (mkIntLit 1)) lhs)
+      thmName := ``Int.not_le_eq
     | GE.ge α _ lhs rhs =>
-      if α.isConstOf ``Int then
-        eNew?   := some (mkIntLE (mkIntAdd lhs (mkIntLit 1)) rhs)
-        thmName := ``Int.not_ge_eq
+      let_expr Int ← α | pure ()
+      eNew?   := some (mkIntLE (mkIntAdd lhs (mkIntLit 1)) rhs)
+      thmName := ``Int.not_ge_eq
     | LT.lt α _ lhs rhs =>
-      if α.isConstOf ``Int then
-        eNew?   := some (mkIntLE rhs lhs)
-        thmName := ``Int.not_lt_eq
+      let_expr Int ← α | pure ()
+      eNew?   := some (mkIntLE rhs lhs)
+      thmName := ``Int.not_lt_eq
     | GT.gt α _ lhs rhs =>
-      if α.isConstOf ``Int then
-        eNew?   := some (mkIntLE lhs rhs)
-        thmName := ``Int.not_gt_eq
+      let_expr Int ← α | pure ()
+      eNew?   := some (mkIntLE lhs rhs)
+      thmName := ``Int.not_gt_eq
     | _ => pure ()
     if let some eNew := eNew? then
       let h₁ := mkApp2 (mkConst thmName) (arg.getArg! 2) (arg.getArg! 3)
-      if let some (eNew', h₂) ← simpLe? eNew then
+      -- Already modified
+      if let some (eNew', h₂) ← simpLe? eNew (checkIfModified := false) then
         let h  := mkApp6 (mkConst ``Eq.trans [levelOne]) (mkSort levelZero) e eNew eNew' h₁ h₂
         return some (eNew', h)
       else
@@ -132,7 +136,7 @@ def simpRel? (e : Expr) : MetaM (Option (Expr × Expr)) := do
     else
       return none
   else
-    simpLe? e
+    simpLe? e (checkIfModified := true)
 
 def simpDvd? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   let some (d, e, atoms) ← dvdCnstr? e | return none

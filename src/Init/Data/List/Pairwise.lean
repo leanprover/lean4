@@ -137,8 +137,6 @@ theorem Pairwise.filterMap {S : β → β → Prop} (f : α → Option β)
     Pairwise S (filterMap f l) :=
   pairwise_filterMap.2 <| p.imp (H _ _)
 
-@[deprecated Pairwise.filterMap (since := "2024-07-29")] abbrev Pairwise.filter_map := @Pairwise.filterMap
-
 theorem pairwise_filter {p : α → Prop} [DecidablePred p] {l : List α} :
     Pairwise R (filter p l) ↔ Pairwise (fun x y => p x → p y → R x y) l := by
   rw [← filterMap_eq_filter, pairwise_filterMap]

@@ -79,6 +79,12 @@ instance [Repr α] : Repr (ULift.{v} α) where
 instance : Repr Unit where
   reprPrec _ _ := "()"
 
+/--
+Returns a representation of an optional value that should be able to be parsed as an equivalent
+optional value.
+
+This function is typically accessed through the `Repr (Option α)` instance.
+-/
 protected def Option.repr [Repr α] : Option α → Nat → Format
   | none,    _   => "none"
   | some a, prec => Repr.addAppParen ("some " ++ reprArg a) prec
@@ -162,7 +168,7 @@ private def reprArray : Array String := Id.run do
   List.range 128 |>.map (·.toUSize.repr) |> Array.mk
 
 private def reprFast (n : Nat) : String :=
-  if h : n < 128 then Nat.reprArray.get n h else
+  if h : n < 128 then Nat.reprArray.getInternal n h else
   if h : n < USize.size then (USize.ofNatLT n h).repr
   else (toDigits 10 n).asString
 
@@ -251,6 +257,14 @@ where
     let d1 := n % 16;
     hexDigitRepr d2 ++ hexDigitRepr d1
 
+/--
+Quotes the character to its representation as a character literal, surrounded by single quotes and
+escaped as necessary.
+
+Examples:
+ * `'L'.quote = "'L'"`
+ * `'"'.quote = "'\\\"'"`
+-/
 def Char.quote (c : Char) : String :=
   "'" ++ Char.quoteCore c ++ "'"
 

@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_getFnRoots___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_addNewRawFact(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Beta_0__Lean_Meta_Grind_isPropagateBetaTarget(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Beta_0__Lean_Meta_Grind_isPropagateBetaTarget_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -74,7 +75,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_propa
 static lean_object* l_Lean_Meta_Grind_getEqcLambdas___lambda__1___closed__4;
 lean_object* l_Lean_isTracingEnabledFor___at_Lean_Meta_Grind_updateLastTag___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_grind_mk_eq_proof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_addNewFact(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_propagateBetaEqs___spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_getFnRoots___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getEqcLambdas___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -764,7 +764,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Grind_getEqcLambdas___lambda__1___closed__1;
 x_2 = l_Lean_Meta_Grind_getEqcLambdas___lambda__1___closed__2;
-x_3 = lean_unsigned_to_nat(973u);
+x_3 = lean_unsigned_to_nat(1093u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Meta_Grind_getEqcLambdas___lambda__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -949,7 +949,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getEqcLambdas(lean_object* x_1, lean_
 _start:
 {
 uint8_t x_11; 
-x_11 = lean_ctor_get_uint8(x_1, sizeof(void*)*11 + 3);
+x_11 = lean_ctor_get_uint8(x_1, sizeof(void*)*12 + 3);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -1944,7 +1944,7 @@ _start:
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_14 = lean_unsigned_to_nat(1u);
 x_15 = lean_nat_add(x_1, x_14);
-x_16 = l_Lean_Meta_Grind_addNewFact(x_2, x_3, x_15, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
+x_16 = l_Lean_Meta_Grind_addNewRawFact(x_2, x_3, x_15, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_16) == 0)
 {
 uint8_t x_17; 
@@ -3330,7 +3330,7 @@ lean_dec(x_17);
 x_18 = lean_ctor_get(x_12, 0);
 lean_inc(x_18);
 lean_dec(x_12);
-x_19 = lean_ctor_get_uint8(x_18, sizeof(void*)*11 + 3);
+x_19 = lean_ctor_get_uint8(x_18, sizeof(void*)*12 + 3);
 lean_dec(x_18);
 x_20 = lean_box(x_19);
 lean_ctor_set(x_11, 0, x_20);
@@ -3345,7 +3345,7 @@ lean_dec(x_11);
 x_22 = lean_ctor_get(x_12, 0);
 lean_inc(x_22);
 lean_dec(x_12);
-x_23 = lean_ctor_get_uint8(x_22, sizeof(void*)*11 + 3);
+x_23 = lean_ctor_get_uint8(x_22, sizeof(void*)*12 + 3);
 lean_dec(x_22);
 x_24 = lean_box(x_23);
 x_25 = lean_alloc_ctor(0, 2, 0);
@@ -3574,7 +3574,7 @@ lean_object* x_31; uint8_t x_32;
 x_31 = lean_ctor_get(x_17, 0);
 lean_inc(x_31);
 lean_dec(x_17);
-x_32 = lean_ctor_get_uint8(x_31, sizeof(void*)*11 + 3);
+x_32 = lean_ctor_get_uint8(x_31, sizeof(void*)*12 + 3);
 if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 

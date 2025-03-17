@@ -364,17 +364,17 @@ structure References where
   the spans for `foo`, `bar`, and `baz`. Global definitions are always treated as used.
   (It would be nice to be able to detect unused global definitions but this requires more
   information than the linter framework can provide.) -/
-  constDecls : Std.HashSet String.Range := .empty
+  constDecls : Std.HashSet String.Range := ∅
   /-- The collection of all local declarations, organized by the span of the declaration.
   We collapse all declarations declared at the same position into a single record using
   `FVarDefinition.aliases`. -/
-  fvarDefs : Std.HashMap String.Range FVarDefinition := .empty
+  fvarDefs : Std.HashMap String.Range FVarDefinition := ∅
   /-- The set of `FVarId`s that are used directly. These may or may not be aliases. -/
-  fvarUses : Std.HashSet FVarId := .empty
+  fvarUses : Std.HashSet FVarId := ∅
   /-- A mapping from alias to original FVarId. We don't guarantee that the value is not itself
   an alias, but we use `followAliases` when adding new elements to try to avoid long chains. -/
   -- TODO: use a `UnionFind` data structure here
-  fvarAliases : Std.HashMap FVarId FVarId := .empty
+  fvarAliases : Std.HashMap FVarId FVarId := ∅
   /-- Collection of all `MetavarContext`s following the execution of a tactic. We trawl these
   if needed to find additional `fvarUses`. -/
   assignments : Array (PersistentHashMap MVarId Expr) := #[]
@@ -462,6 +462,12 @@ where
     else
       stx
 
+private def hasSorry (stx : Syntax) : Bool :=
+  stx.find? (fun
+    -- `@[unused_variables_ignore_fn]` can be used to extend this list
+    | `(sorry) | `(tactic| sorry) | `(tactic| admit) => true
+    | _ => false) |>.isSome
+
 /-- Reports unused variable warnings on each command. Use `linter.unusedVariables` to disable. -/
 def unusedVariables : Linter where
   run cmdStx := do
@@ -475,10 +481,12 @@ def unusedVariables : Linter where
     let some cmdStxRange := cmdStx.getRange?
       | return
 
-    let infoTrees := (← get).infoState.trees.toArray
-
-    if (← infoTrees.anyM (·.hasSorry)) then
+    -- We used to look for `sorry` on the `Expr` level, which is more robust, but just too expensive
+    -- on huge declarations (see e.g. `omega_stress` benchmark).
+    if hasSorry cmdStx then
       return
+
+    let infoTrees := (← get).infoState.trees.toArray
 
     -- Run the main collection pass, resulting in `s : References`.
     let (_, s) ← (collectReferences infoTrees cmdStxRange).run {}

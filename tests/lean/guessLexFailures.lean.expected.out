@@ -49,7 +49,7 @@ Please use `termination_by` to specify a decreasing measure.
 guessLexFailures.lean:37:0-43:31: error: Could not find a decreasing measure.
 The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-           n m x4
+           n m x3
 1) 39:6-27 = =  =
 2) 40:6-25 = <  _
 3) 41:6-25 < _  _

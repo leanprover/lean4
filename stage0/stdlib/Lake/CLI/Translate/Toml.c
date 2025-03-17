@@ -55,7 +55,6 @@ LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lake_LeanLibConfig_toToml___spec_
 LEAN_EXPORT lean_object* l_Lake_instSmartInsertBackend___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Toml_RBDict_empty___rarg(lean_object*);
 static lean_object* l_Lake_PackageConfig_toToml___closed__34;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lake_PackageConfig_toToml___closed__19;
 static lean_object* l_Lake_LeanLibConfig_toToml___closed__3;
 LEAN_EXPORT lean_object* l_Lake_Toml_leanOptionsEncoder___elambda__1___boxed(lean_object*);
@@ -176,6 +175,7 @@ static lean_object* l_Lake_PackageConfig_toToml___closed__14;
 static lean_object* l_Lake_LeanConfig_toToml___closed__7;
 static lean_object* l_Lake_PackageConfig_toToml_smartInsertVerTags___closed__5;
 lean_object* l_Lake_Toml_RBDict_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_encodeLeanOptions(lean_object*);
 static lean_object* l_Lake_LeanExeConfig_toToml___closed__5;
 static lean_object* l_Lake_PackageConfig_toToml___closed__32;

@@ -14,7 +14,7 @@ This file develops the type `Std.TreeMap` of tree maps.
 Lemmas about the operations on `Std.TreeMap` will be available in the
 module `Std.Data.TreeMap.Lemmas`.
 
-See the module `Std.Data.TreeMap.Raw` for a variant of this type which is safe to use in
+See the module `Std.Data.TreeMap.Raw.Basic` for a variant of this type which is safe to use in
 nested inductive types.
 -/
 
@@ -52,8 +52,8 @@ Internally, the tree maps are represented as size-bounded trees, a type of self-
 search tree with efficient order statistic lookups.
 
 These tree maps contain a bundled well-formedness invariant, which means that they cannot
-be used in nested inductive types. For these use cases, `Std.Data.TreeMap.Raw` and
-`Std.Data.TreeMap.Raw.WF` unbundle the invariant from the tree map. When in doubt, prefer
+be used in nested inductive types. For these use cases, `Std.TreeMap.Raw` and
+`Std.TreeMap.Raw.WF` unbundle the invariant from the tree map. When in doubt, prefer
 `TreeMap` over `TreeMap.Raw`.
 -/
 structure TreeMap (α : Type u) (β : Type v) (cmp : α → α → Ordering := by exact compare) where
@@ -86,7 +86,7 @@ instance : Insert (α × β) (TreeMap α β cmp) where
   insert e s := s.insert e.1 e.2
 
 instance : LawfulSingleton (α × β) (TreeMap α β cmp) where
-  insert_emptyc_eq _ := rfl
+  insert_empty_eq _ := rfl
 
 @[inline, inherit_doc DTreeMap.insertIfNew]
 def insertIfNew (t : TreeMap α β cmp) (a : α) (b : β) : TreeMap α β cmp :=
@@ -405,16 +405,16 @@ def fold (f : δ → (a : α) → β → δ) (init : δ) (t : TreeMap α β cmp)
   t.foldl f init
 
 @[inline, inherit_doc DTreeMap.foldrM]
-def foldrM (f : δ → (a : α) → β → m δ) (init : δ) (t : TreeMap α β cmp) : m δ :=
+def foldrM (f : (a : α) → β → δ → m δ) (init : δ) (t : TreeMap α β cmp) : m δ :=
   t.inner.foldrM f init
 
 @[inline, inherit_doc DTreeMap.foldr]
-def foldr (f : δ → (a : α) → β → δ) (init : δ) (t : TreeMap α β cmp) : δ :=
+def foldr (f : (a : α) → β → δ → δ) (init : δ) (t : TreeMap α β cmp) : δ :=
   t.inner.foldr f init
 
 @[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
 def revFold (f : δ → (a : α) → β → δ) (init : δ) (t : TreeMap α β cmp) : δ :=
-  foldr f init t
+  foldr (fun k v acc => f acc k v) init t
 
 @[inline, inherit_doc DTreeMap.partition]
 def partition (f : (a : α) → β → Bool) (t : TreeMap α β cmp) : TreeMap α β cmp × TreeMap α β cmp :=
@@ -489,6 +489,14 @@ def fromArray (a : Array (α × β)) (cmp : α → α → Ordering) : TreeMap α
 @[inline, inherit_doc DTreeMap.Const.unitOfArray]
 def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : TreeMap α Unit cmp :=
   ⟨DTreeMap.Const.unitOfArray a cmp⟩
+
+@[inline, inherit_doc DTreeMap.Const.modify]
+def modify (t : TreeMap α β cmp) (a : α) (f : β → β) : TreeMap α β cmp :=
+  ⟨DTreeMap.Const.modify t.inner a f⟩
+
+@[inline, inherit_doc DTreeMap.Const.alter]
+def alter (t : TreeMap α β cmp) (a : α) (f : Option β → Option β) : TreeMap α β cmp :=
+  ⟨DTreeMap.Const.alter t.inner a f⟩
 
 @[inline, inherit_doc DTreeMap.Const.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : TreeMap α β cmp) : TreeMap α β cmp :=

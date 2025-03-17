@@ -15,8 +15,8 @@ static std::map<std::string, second_duration> * g_cum_times;
 static mutex * g_cum_times_mutex;
 LEAN_THREAD_PTR(time_task, g_current_time_task);
 
-bool has_profiling_task() {
-    return g_current_time_task != nullptr;
+bool has_no_block_profiling_task() {
+    return g_current_time_task != nullptr && g_current_time_task->category() != "blocked";
 }
 void report_profiling_time(std::string const & category, second_duration time) {
     lock_guard<mutex> _(*g_cum_times_mutex);

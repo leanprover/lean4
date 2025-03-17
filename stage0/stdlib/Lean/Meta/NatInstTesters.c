@@ -44,6 +44,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_isInstOfNatNat___lambda__1___boxed(lean_obj
 static lean_object* l_Lean_Meta_isInstHDivNat___closed__2;
 static lean_object* l_Lean_Meta_isInstHPowNat___closed__2;
 static lean_object* l_Lean_Meta_isInstAddNat___closed__2;
+static lean_object* l_Lean_Meta_isInstDvdNat___closed__1;
 static lean_object* l_Lean_Meta_isInstDivNat___closed__3;
 static lean_object* l_Lean_Meta_isInstDivNat___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_isInstModNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -74,6 +75,8 @@ static lean_object* l_Lean_Meta_isInstHAddNat___closed__3;
 static lean_object* l_Lean_Meta_isInstModNat___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_isInstAddNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateMVarsIfMVarApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_isInstDvdNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_isInstDvdNat___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isInstLTNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_isInstHSubNat___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_isInstHSubNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -84,6 +87,7 @@ static lean_object* l_Lean_Meta_isInstSubNat___closed__1;
 static lean_object* l_Lean_Meta_isInstMulNat___closed__1;
 static lean_object* l_Lean_Meta_isInstPowNat___closed__2;
 static lean_object* l_Lean_Meta_isInstHAddNat___closed__1;
+static lean_object* l_Lean_Meta_isInstDvdNat___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_isInstAddNat___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isInstHModNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isInstMulNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2327,6 +2331,102 @@ lean_dec(x_2);
 return x_7;
 }
 }
+static lean_object* _init_l_Lean_Meta_isInstDvdNat___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("instDvd", 7, 7);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_isInstDvdNat___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Meta_isInstDivNat___closed__1;
+x_2 = l_Lean_Meta_isInstDvdNat___closed__1;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_isInstDvdNat(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; uint8_t x_8; 
+x_7 = l_Lean_Meta_instantiateMVarsIfMVarApp(x_1, x_2, x_3, x_4, x_5, x_6);
+x_8 = !lean_is_exclusive(x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+x_9 = lean_ctor_get(x_7, 0);
+x_10 = l_Lean_Expr_cleanupAnnotations(x_9);
+x_11 = l_Lean_Meta_isInstDvdNat___closed__2;
+x_12 = l_Lean_Expr_isConstOf(x_10, x_11);
+lean_dec(x_10);
+if (x_12 == 0)
+{
+uint8_t x_13; lean_object* x_14; 
+x_13 = 0;
+x_14 = lean_box(x_13);
+lean_ctor_set(x_7, 0, x_14);
+return x_7;
+}
+else
+{
+uint8_t x_15; lean_object* x_16; 
+x_15 = 1;
+x_16 = lean_box(x_15);
+lean_ctor_set(x_7, 0, x_16);
+return x_7;
+}
+}
+else
+{
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
+x_17 = lean_ctor_get(x_7, 0);
+x_18 = lean_ctor_get(x_7, 1);
+lean_inc(x_18);
+lean_inc(x_17);
+lean_dec(x_7);
+x_19 = l_Lean_Expr_cleanupAnnotations(x_17);
+x_20 = l_Lean_Meta_isInstDvdNat___closed__2;
+x_21 = l_Lean_Expr_isConstOf(x_19, x_20);
+lean_dec(x_19);
+if (x_21 == 0)
+{
+uint8_t x_22; lean_object* x_23; lean_object* x_24; 
+x_22 = 0;
+x_23 = lean_box(x_22);
+x_24 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_24, 0, x_23);
+lean_ctor_set(x_24, 1, x_18);
+return x_24;
+}
+else
+{
+uint8_t x_25; lean_object* x_26; lean_object* x_27; 
+x_25 = 1;
+x_26 = lean_box(x_25);
+x_27 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_27, 0, x_26);
+lean_ctor_set(x_27, 1, x_18);
+return x_27;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_isInstDvdNat___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_Meta_isInstDvdNat(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_7;
+}
+}
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_NatInstTesters(uint8_t builtin, lean_object* w) {
@@ -2420,6 +2520,10 @@ l_Lean_Meta_isInstLENat___closed__1 = _init_l_Lean_Meta_isInstLENat___closed__1(
 lean_mark_persistent(l_Lean_Meta_isInstLENat___closed__1);
 l_Lean_Meta_isInstLENat___closed__2 = _init_l_Lean_Meta_isInstLENat___closed__2();
 lean_mark_persistent(l_Lean_Meta_isInstLENat___closed__2);
+l_Lean_Meta_isInstDvdNat___closed__1 = _init_l_Lean_Meta_isInstDvdNat___closed__1();
+lean_mark_persistent(l_Lean_Meta_isInstDvdNat___closed__1);
+l_Lean_Meta_isInstDvdNat___closed__2 = _init_l_Lean_Meta_isInstDvdNat___closed__2();
+lean_mark_persistent(l_Lean_Meta_isInstDvdNat___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

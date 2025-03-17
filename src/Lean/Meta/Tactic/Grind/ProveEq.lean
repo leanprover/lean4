@@ -10,12 +10,12 @@ import Lean.Meta.Tactic.Grind.Simp
 namespace Lean.Meta.Grind
 
 /--
-Helper function for executing `x` with a fresh `newEqs` and without modifying
+Helper function for executing `x` with a fresh `newFacts` and without modifying
 the goal state.
  -/
 private def withoutModifyingState (x : GoalM α) : GoalM α := do
   let saved ← get
-  modify fun goal => { goal with newEqs := {} }
+  modify fun goal => { goal with newFacts := {} }
   try
     x
   finally
@@ -50,7 +50,7 @@ def proveEq? (lhs rhs : Expr) : GoalM (Option Expr) := do
   else withoutModifyingState do
     let lhs ← preprocessAndInternalize lhs
     let rhs ← preprocessAndInternalize rhs
-    processNewEqs
+    processNewFacts
     unless (← isEqv lhs.expr rhs.expr) do return none
     unless (← hasSameType lhs.expr rhs.expr) do return none
     let h ← mkEqProof lhs.expr rhs.expr
@@ -71,7 +71,7 @@ def proveHEq? (lhs rhs : Expr) : GoalM (Option Expr) := do
   else withoutModifyingState do
     let lhs ← preprocessAndInternalize lhs
     let rhs ← preprocessAndInternalize rhs
-    processNewEqs
+    processNewFacts
     unless (← isEqv lhs.expr rhs.expr) do return none
     let h ← mkHEqProof lhs.expr rhs.expr
     let h ← match lhs.proof?, rhs.proof? with

@@ -57,14 +57,20 @@ instance : LE UInt8        := ⟨UInt8.le⟩
 
 @[extern "lean_uint8_complement"]
 def UInt8.complement (a : UInt8) : UInt8 := ⟨~~~a.toBitVec⟩
+@[extern "lean_uint8_neg"]
+def UInt8.neg (a : UInt8) : UInt8 := ⟨-a.toBitVec⟩
 
 instance : Complement UInt8 := ⟨UInt8.complement⟩
+instance : Neg UInt8 := ⟨UInt8.neg⟩
 instance : AndOp UInt8     := ⟨UInt8.land⟩
 instance : OrOp UInt8      := ⟨UInt8.lor⟩
 instance : Xor UInt8       := ⟨UInt8.xor⟩
 instance : ShiftLeft UInt8  := ⟨UInt8.shiftLeft⟩
 instance : ShiftRight UInt8 := ⟨UInt8.shiftRight⟩
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_uint8"]
 def Bool.toUInt8 (b : Bool) : UInt8 := if b then 1 else 0
 
@@ -129,14 +135,20 @@ instance : LE UInt16        := ⟨UInt16.le⟩
 
 @[extern "lean_uint16_complement"]
 def UInt16.complement (a : UInt16) : UInt16 := ⟨~~~a.toBitVec⟩
+@[extern "lean_uint16_neg"]
+def UInt16.neg (a : UInt16) : UInt16 := ⟨-a.toBitVec⟩
 
 instance : Complement UInt16 := ⟨UInt16.complement⟩
+instance : Neg UInt16 := ⟨UInt16.neg⟩
 instance : AndOp UInt16     := ⟨UInt16.land⟩
 instance : OrOp UInt16      := ⟨UInt16.lor⟩
 instance : Xor UInt16       := ⟨UInt16.xor⟩
 instance : ShiftLeft UInt16  := ⟨UInt16.shiftLeft⟩
 instance : ShiftRight UInt16 := ⟨UInt16.shiftRight⟩
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_uint16"]
 def Bool.toUInt16 (b : Bool) : UInt16 := if b then 1 else 0
 
@@ -203,14 +215,20 @@ instance : LE UInt32        := ⟨UInt32.le⟩
 
 @[extern "lean_uint32_complement"]
 def UInt32.complement (a : UInt32) : UInt32 := ⟨~~~a.toBitVec⟩
+@[extern "lean_uint32_neg"]
+def UInt32.neg (a : UInt32) : UInt32 := ⟨-a.toBitVec⟩
 
 instance : Complement UInt32 := ⟨UInt32.complement⟩
+instance : Neg UInt32 := ⟨UInt32.neg⟩
 instance : AndOp UInt32     := ⟨UInt32.land⟩
 instance : OrOp UInt32      := ⟨UInt32.lor⟩
 instance : Xor UInt32       := ⟨UInt32.xor⟩
 instance : ShiftLeft UInt32  := ⟨UInt32.shiftLeft⟩
 instance : ShiftRight UInt32 := ⟨UInt32.shiftRight⟩
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_uint32"]
 def Bool.toUInt32 (b : Bool) : UInt32 := if b then 1 else 0
 
@@ -262,14 +280,20 @@ instance : LE UInt64        := ⟨UInt64.le⟩
 
 @[extern "lean_uint64_complement"]
 def UInt64.complement (a : UInt64) : UInt64 := ⟨~~~a.toBitVec⟩
+@[extern "lean_uint64_neg"]
+def UInt64.neg (a : UInt64) : UInt64 := ⟨-a.toBitVec⟩
 
 instance : Complement UInt64 := ⟨UInt64.complement⟩
+instance : Neg UInt64 := ⟨UInt64.neg⟩
 instance : AndOp UInt64     := ⟨UInt64.land⟩
 instance : OrOp UInt64      := ⟨UInt64.lor⟩
 instance : Xor UInt64       := ⟨UInt64.xor⟩
 instance : ShiftLeft UInt64  := ⟨UInt64.shiftLeft⟩
 instance : ShiftRight UInt64 := ⟨UInt64.shiftRight⟩
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_uint64"]
 def Bool.toUInt64 (b : Bool) : UInt64 := if b then 1 else 0
 
@@ -295,11 +319,16 @@ def USize.mk (bitVec : BitVec System.Platform.numBits) : USize :=
 def USize.ofNatCore (n : Nat) (h : n < USize.size) : USize :=
   USize.ofNatLT n h
 
-theorem usize_size_le : USize.size ≤ 18446744073709551616 := by
-  cases usize_size_eq <;> next h => rw [h]; decide
+@[simp] theorem USize.le_size : 2 ^ 32 ≤ USize.size := by cases USize.size_eq <;> simp_all
+@[simp] theorem USize.size_le : USize.size ≤ 2 ^ 64 := by cases USize.size_eq <;> simp_all
 
-theorem le_usize_size : 4294967296 ≤ USize.size := by
-  cases usize_size_eq <;> next h => rw [h]; decide
+@[deprecated USize.size_le (since := "2025-02-24")]
+theorem usize_size_le : USize.size ≤ 18446744073709551616 :=
+  USize.size_le
+
+@[deprecated USize.le_size (since := "2025-02-24")]
+theorem le_usize_size : 4294967296 ≤ USize.size :=
+  USize.le_size
 
 @[extern "lean_usize_mul"]
 def USize.mul (a b : USize) : USize := ⟨a.toBitVec * b.toBitVec⟩
@@ -326,7 +355,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_of_nat"]
 def USize.ofNat32 (n : @& Nat) (h : n < 4294967296) : USize :=
-  USize.ofNatLT n (Nat.lt_of_lt_of_le h le_usize_size)
+  USize.ofNatLT n (Nat.lt_of_lt_of_le h USize.le_size)
 @[extern "lean_uint8_to_usize"]
 def UInt8.toUSize (a : UInt8) : USize :=
   USize.ofNat32 a.toBitVec.toNat (Nat.lt_trans a.toBitVec.isLt (by decide))
@@ -351,7 +380,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_to_uint64"]
 def USize.toUInt64 (a : USize) : UInt64 :=
-  UInt64.ofNatLT a.toBitVec.toNat (Nat.lt_of_lt_of_le a.toBitVec.isLt usize_size_le)
+  UInt64.ofNatLT a.toBitVec.toNat (Nat.lt_of_lt_of_le a.toBitVec.isLt USize.size_le)
 
 instance : Mul USize       := ⟨USize.mul⟩
 instance : Mod USize       := ⟨USize.mod⟩
@@ -363,14 +392,20 @@ instance : Div USize       := ⟨USize.div⟩
 
 @[extern "lean_usize_complement"]
 def USize.complement (a : USize) : USize := ⟨~~~a.toBitVec⟩
+@[extern "lean_usize_neg"]
+def USize.neg (a : USize) : USize := ⟨-a.toBitVec⟩
 
 instance : Complement USize := ⟨USize.complement⟩
+instance : Neg USize := ⟨USize.neg⟩
 instance : AndOp USize      := ⟨USize.land⟩
 instance : OrOp USize       := ⟨USize.lor⟩
 instance : Xor USize        := ⟨USize.xor⟩
 instance : ShiftLeft USize  := ⟨USize.shiftLeft⟩
 instance : ShiftRight USize := ⟨USize.shiftRight⟩
 
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 @[extern "lean_bool_to_usize"]
 def Bool.toUSize (b : Bool) : USize := if b then 1 else 0
 

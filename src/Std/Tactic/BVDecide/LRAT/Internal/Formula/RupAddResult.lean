@@ -177,7 +177,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
         let mostRecentUnitIdx : Fin (insertUnit (units, assignments, foundContradiction) l).1.size :=
           ⟨units.size, units_size_lt_updatedUnits_size⟩
         have j_lt_updatedUnits_size : j.1 < (insertUnit (units, assignments, foundContradiction) l).1.size := by
-          simp [insertUnit, h5, ite_false, Array.size_push]
+          simp only [insertUnit, h5, Bool.false_eq_true, ↓reduceIte, Array.size_push]
           exact Nat.lt_trans j.2 (Nat.lt_succ_self units.size)
         match hb : b, hl : l.2 with
         | true, true =>
@@ -225,7 +225,7 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
                       exact k_ne_l rfl
         | false, true =>
           refine ⟨mostRecentUnitIdx, ⟨j.1, j_lt_updatedUnits_size⟩, i_gt_zero, ?_⟩
-          simp [insertUnit, h5, ite_false, Array.getElem_push_eq, ne_eq]
+          simp only [insertUnit, h5, Bool.false_eq_true, ↓reduceIte, mostRecentUnitIdx]
           constructor
           · simp +zetaDelta [i_eq_l, ← hl]
             rfl
@@ -259,7 +259,6 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
                     rcases Nat.lt_or_eq_of_le <| Nat.le_of_lt_succ k_property with k_lt_units_size | k_eq_units_size
                     · exact h k_lt_units_size
                     · simp only [← k_eq_units_size, not_true, mostRecentUnitIdx] at k_ne_l
-                      exact k_ne_l rfl
         | false, false =>
           exfalso
           have assignments_i_rw : assignments[i.1]! = assignments[i.1] := by
@@ -529,7 +528,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
     ⟨j1, j1_ge_idx, j2, j2_ge_idx, i_gt_zero, ih1, ih2, ih3, ih4, ih5⟩
   · apply Or.inl
     constructor
-    · simp only [clearUnit, Fin.getElem_fin, Array.get_eq_getElem]
+    · simp only [clearUnit, Array.getInternal_eq_getElem]
       specialize ih2 idx (Nat.le_refl idx.val)
       have i_in_bounds : i.1 < assignments.size := by
         rw [hsize]
@@ -544,7 +543,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
     · next idx_eq_j =>
       apply Or.inl
       constructor
-      · simp only [clearUnit, idx_eq_j, Array.get_eq_getElem, ih1]
+      · simp only [clearUnit, idx_eq_j, Array.getInternal_eq_getElem, ih1]
         rw [Array.getElem_modify_self, ih2, remove_add_cancel]
         exact ih3
       · intro k k_ge_idx_add_one
@@ -564,7 +563,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
       · constructor
         · exact ih1
         · constructor
-          · simp only [clearUnit, Array.get_eq_getElem]
+          · simp only [clearUnit, Array.getInternal_eq_getElem]
             specialize ih4 idx (Nat.le_refl idx.1) idx_ne_j
             rw [Array.getElem_modify_of_ne ih4]
             exact ih2
@@ -589,7 +588,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
         · simp only [Fin.getElem_fin]
           exact ih2
         · constructor
-          · simp only [clearUnit, idx_eq_j1, Array.get_eq_getElem, ih1]
+          · simp only [clearUnit, idx_eq_j1, Array.getInternal_eq_getElem, ih1]
             rw [Array.getElem_modify_self, ih3, ih4]
             decide
           · constructor
@@ -625,7 +624,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
           · simp only [Fin.getElem_fin]
             exact ih1
           · constructor
-            · simp only [clearUnit, idx_eq_j2, Array.get_eq_getElem, ih2]
+            · simp only [clearUnit, idx_eq_j2, Array.getInternal_eq_getElem, ih2]
               rw [Array.getElem_modify_self, ih3, ih4]
               decide
             · constructor
@@ -669,7 +668,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
               · simp only [Fin.getElem_fin]
                 exact ih2
               · constructor
-                · simp only [clearUnit, Array.get_eq_getElem]
+                · simp only [clearUnit, Array.getInternal_eq_getElem]
                   have idx_res_ne_i : units[idx.1].1.1 ≠ i.1 := by
                     intro h1
                     by_cases units[idx.1].2

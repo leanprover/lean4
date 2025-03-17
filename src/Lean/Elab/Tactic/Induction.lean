@@ -173,6 +173,10 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
           addNewArg arg
       loop
     | _ =>
+      let s ← get
+      let ctx ← read
+      unless s.targetPos = ctx.targets.size do
+        throwError "unexpected number of targets for '{elimInfo.elimExpr}'"
       pure ()
   let (_, s) ← (loop).run { elimInfo := elimInfo, targets := targets }
     |>.run { f := elimInfo.elimExpr, fType := elimInfo.elimType, motive := none }
@@ -303,7 +307,11 @@ where
             return ⟨old.stx, (← old.next[i]?)⟩
           new := prom
         }
-        finished.resolve { diagnostics := .empty, state? := (← saveState) }
+        finished.resolve {
+          diagnostics := .empty
+          state? := (← saveState)
+          moreSnaps := (← Core.getAndEmptySnapshotTasks)
+        }
         return
 
     goWithIncremental #[]

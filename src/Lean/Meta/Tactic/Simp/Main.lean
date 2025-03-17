@@ -228,6 +228,7 @@ inductive SimpLetCase where
   | dep -- `let x := v; b` is not equivalent to `(fun x => b) v`
   | nondepDepVar -- `let x := v; b` is equivalent to `(fun x => b) v`, but result type depends on `x`
   | nondep -- `let x := v; b` is equivalent to `(fun x => b) v`, and result type does not depend on `x`
+deriving Repr
 
 def getSimpLetCase (n : Name) (t : Expr) (b : Expr) : MetaM SimpLetCase := do
   withLocalDeclD n t fun x => do
@@ -387,7 +388,9 @@ def simpLet (e : Expr) : SimpM Result := do
   if (← getConfig).zeta then
     return { expr := b.instantiate1 v }
   else
-    match (← getSimpLetCase n t b) with
+    let simpLetCase ← getSimpLetCase n t b
+    trace[Debug.Meta.Tactic.simp] "getSimpLetCase is {repr simpLetCase}:{indentExpr e}"
+    match simpLetCase with
     | SimpLetCase.dep => return { expr := (← dsimp e) }
     | SimpLetCase.nondep =>
       let rv ← simp v
@@ -517,7 +520,7 @@ def processCongrHypothesis (h : Expr) (hType : Expr) : SimpM Bool := do
       return r.proof?.isSome || (xs.size > 0 && lhs != r.expr)
 
 /-- Try to rewrite `e` children using the given congruence theorem -/
-def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Result) := withNewMCtxDepth do
+def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Result) := withNewMCtxDepth do withParent e do
   recordCongrTheorem c.theoremName
   trace[Debug.Meta.Tactic.simp.congr] "{c.theoremName}, {e}"
   let thm ← mkConstWithFreshMVarLevels c.theoremName

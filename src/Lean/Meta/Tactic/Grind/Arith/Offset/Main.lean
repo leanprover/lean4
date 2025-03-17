@@ -344,7 +344,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
         internalizeTerm e z k
 
 @[export lean_process_new_offset_eq]
-def processNewOffsetEqImpl (a b : Expr) : GoalM Unit := do
+def processNewEqImpl (a b : Expr) : GoalM Unit := do
   unless isSameExpr a b do
     trace[grind.offset.eq.to] "{a}, {b}"
     let u ← getNodeId a
@@ -354,7 +354,7 @@ def processNewOffsetEqImpl (a b : Expr) : GoalM Unit := do
     addEdge v u 0 <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_2) a b h
 
 @[export lean_process_new_offset_eq_lit]
-def processNewOffsetEqLitImpl (a b : Expr) : GoalM Unit := do
+def processNewEqLitImpl (a b : Expr) : GoalM Unit := do
   unless isSameExpr a b do
     trace[grind.offset.eq.to] "{a}, {b}"
     let some k := isNatNum? b | unreachable!

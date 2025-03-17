@@ -913,9 +913,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_num_heartbeats(obj_arg /* w */) {
     return io_result_mk_ok(lean_uint64_to_nat(get_num_heartbeats()));
 }
 
-/* addHeartbeats (count : Int64) : BaseIO Unit */
-extern "C" LEAN_EXPORT obj_res lean_io_add_heartbeats(int64_t count, obj_arg /* w */) {
-    add_heartbeats(count);
+/* setHeartbeats (count : Nat) : BaseIO Unit */
+extern "C" LEAN_EXPORT obj_res lean_io_set_heartbeats(obj_arg count, obj_arg /* w */) {
+    set_heartbeats(lean_uint64_of_nat(count));
+    lean_dec(count);
     return io_result_mk_ok(box(0));
 }
 
@@ -1149,6 +1150,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
     } else {
         FILE* handle = fdopen(req.result, "r+");
         object_ref pair = mk_cnstr(0, io_wrap_handle(handle), mk_string(req.path));
+        uv_fs_req_cleanup(&req);
         return lean_io_result_mk_ok(pair.steal());
     }
 }
@@ -1191,7 +1193,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempdir(lean_object * /* w */) {
         // If mkdtemp throws an error we cannot rely on path to contain a proper file name.
         return io_result_mk_error(decode_uv_error(ret, nullptr));
     } else {
-        return lean_io_result_mk_ok(mk_string(req.path));
+        obj_res res = lean_io_result_mk_ok(mk_string(req.path));
+        uv_fs_req_cleanup(&req);
+        return res;
     }
 }
 

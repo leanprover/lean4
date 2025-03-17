@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
 prelude
-import Init.Data.Int.DivModLemmas
+import Init.Data.Int.DivMod.Lemmas
 import Init.Data.Int.Gcd
 
 /-!
@@ -99,7 +99,7 @@ def resolve_left' (a c d p x : Int) (h₁ : p ≤ a * x) : Nat := (add_of_le h�
 /-- `resolve_left` is nonnegative when `p ≤ a * x`. -/
 theorem le_zero_resolve_left (a c d p x : Int) (h₁ : p ≤ a * x) :
     0 ≤ resolve_left a c d p x := by
-  simpa [h₁] using Int.ofNat_nonneg _
+  simp [h₁]
 
 /-- `resolve_left` is bounded above by `lcm a (a * d / gcd (a * d) c)`. -/
 theorem resolve_left_lt_lcm (a c d p x : Int) (a_pos : 0 < a) (d_pos : 0 < d) (h₁ : p ≤ a * x) :
@@ -227,33 +227,4 @@ theorem cooper_resolution_dvd_right
     · exact Int.mul_neg _ _ ▸ Int.neg_le_of_neg_le lower
     · exact Int.mul_neg _ _ ▸ Int.neg_mul _ _ ▸ dvd
 
-/--
-Left Cooper resolution of an upper and lower bound.
--/
-theorem cooper_resolution_left
-    {a b p q : Int} (a_pos : 0 < a) (b_pos : 0 < b) :
-    (∃ x, p ≤ a * x ∧ b * x ≤ q) ↔
-    (∃ k : Int, 0 ≤ k ∧ k < a ∧ b * k + b * p ≤ a * q ∧ a ∣ k + p) := by
-  have h := cooper_resolution_dvd_left
-    a_pos b_pos Int.zero_lt_one (c := 1) (s := 0) (p := p) (q := q)
-  simp only [Int.mul_one, Int.one_mul, Int.mul_zero, Int.add_zero, gcd_one, Int.ofNat_one,
-    Int.ediv_one, lcm_self, Int.natAbs_of_nonneg (Int.le_of_lt a_pos), Int.one_dvd, and_true,
-    and_self] at h
-  exact h
-
-/--
-Right Cooper resolution of an upper and lower bound.
--/
-theorem cooper_resolution_right
-    {a b p q : Int} (a_pos : 0 < a) (b_pos : 0 < b) :
-    (∃ x, p ≤ a * x ∧ b * x ≤ q) ↔
-    (∃ k : Int, 0 ≤ k ∧ k < b ∧ a * k + b * p ≤ a * q ∧ b ∣ k - q) := by
-  have h := cooper_resolution_dvd_right
-    a_pos b_pos Int.zero_lt_one (c := 1) (s := 0) (p := p) (q := q)
-  have : ∀ k : Int, (b ∣ -k + q) ↔ (b ∣ k - q) := by
-    intro k
-    rw [← Int.dvd_neg, Int.neg_add, Int.neg_neg, Int.sub_eq_add_neg]
-  simp only [Int.mul_one, Int.one_mul, Int.mul_zero, Int.add_zero, gcd_one, Int.ofNat_one,
-    Int.ediv_one, lcm_self, Int.natAbs_of_nonneg (Int.le_of_lt b_pos), Int.one_dvd, and_true,
-    and_self, ← Int.neg_eq_neg_one_mul, this] at h
-  exact h
+end Int

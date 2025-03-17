@@ -109,7 +109,12 @@ open Nat Bool
 
 namespace Bool
 
-/-- At least two out of three booleans are true. -/
+/--
+At least two out of three Booleans are true.
+
+This function is typically used to model addition of binary numbers, to combine a carry bit with two
+addend bits.
+-/
 abbrev atLeastTwo (a b c : Bool) : Bool := a && b || a && c || b && c
 
 @[simp] theorem atLeastTwo_false_left  : atLeastTwo false b c = (b && c) := by simp [atLeastTwo]
@@ -478,6 +483,36 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
         case zero => exact hmsb
         case succ => exact getMsbD_x _ hi (by omega)
 
+/-- This is false if `v < w` and `b = intMin`. See also `signExtend_neg_of_ne_intMin`. -/
+@[simp] theorem signExtend_neg_of_le {v w : Nat} (h : w ≤ v) (b : BitVec v) :
+    (-b).signExtend w = -b.signExtend w := by
+  apply BitVec.eq_of_getElem_eq
+  intro i hi
+  simp only [getElem_signExtend, getElem_neg]
+  rw [dif_pos (by omega), dif_pos (by omega)]
+  simp only [getLsbD_signExtend, Bool.and_eq_true, decide_eq_true_eq, Bool.ite_eq_true_distrib,
+    Bool.bne_right_inj, decide_eq_decide]
+  exact ⟨fun ⟨j, hj₁, hj₂⟩ => ⟨j, ⟨hj₁, ⟨by omega, by rwa [if_pos (by omega)]⟩⟩⟩,
+    fun ⟨j, hj₁, hj₂, hj₃⟩ => ⟨j, hj₁, by rwa [if_pos (by omega)] at hj₃⟩⟩
+
+/-- This is false if `v < w` and `b = intMin`. See also `signExtend_neg_of_le`. -/
+@[simp] theorem signExtend_neg_of_ne_intMin {v w : Nat} (b : BitVec v) (hb : b ≠ intMin v) :
+    (-b).signExtend w = -b.signExtend w := by
+  refine (by omega : w ≤ v ∨ v < w).elim (fun h => signExtend_neg_of_le h b) (fun h => ?_)
+  apply BitVec.eq_of_toInt_eq
+  rw [toInt_signExtend_of_le (by omega), toInt_neg_of_ne_intMin hb, toInt_neg_of_ne_intMin,
+    toInt_signExtend_of_le (by omega)]
+  apply ne_of_apply_ne BitVec.toInt
+  rw [toInt_signExtend_of_le (by omega), toInt_intMin_of_pos (by omega)]
+  have := b.le_two_mul_toInt
+  have : -2 ^ w < -2 ^ v := by
+    apply Int.neg_lt_neg
+    norm_cast
+    rwa [Nat.pow_lt_pow_iff_right (by omega)]
+  have : 2 * b.toInt ≠ -2 ^ w := by omega
+  rw [(show w = w - 1 + 1 by omega), Int.pow_succ] at this
+  omega
+
 /-! ### abs -/
 
 theorem msb_abs {w : Nat} {x : BitVec w} :
@@ -543,6 +578,15 @@ theorem slt_eq_not_carry (x y : BitVec w) :
 
 theorem sle_eq_not_slt (x y : BitVec w) : x.sle y = !y.slt x := by
   simp only [BitVec.sle, BitVec.slt, ← decide_not, decide_eq_decide]; omega
+
+theorem zero_sle_eq_not_msb {w : Nat} {x : BitVec w} : BitVec.sle 0#w x = !x.msb := by
+  rw [sle_eq_not_slt, BitVec.slt_zero_eq_msb]
+
+theorem zero_sle_iff_msb_eq_false {w : Nat} {x : BitVec w} : BitVec.sle 0#w x ↔ x.msb = false := by
+  simp [zero_sle_eq_not_msb]
+
+theorem toNat_toInt_of_sle {w : Nat} (b : BitVec w) (hb : BitVec.sle 0#w b) : b.toInt.toNat = b.toNat :=
+  toNat_toInt_of_msb b (zero_sle_iff_msb_eq_false.1 hb)
 
 theorem sle_eq_carry (x y : BitVec w) :
     x.sle y = !((x.msb == y.msb).xor (carry w y (~~~x) true)) := by
@@ -907,7 +951,7 @@ The input to the shift subtractor is a legal input to `divrem`, and we also need
 input bit to perform shift subtraction on, and thus we need `0 < wn`.
 -/
 structure DivModState.Poised {w : Nat} (args : DivModArgs w) (qr : DivModState w)
-  extends DivModState.Lawful args qr : Type where
+  extends DivModState.Lawful args qr where
   /-- Only perform a round of shift-subtract if we have dividend bits. -/
   hwn_lt : 0 < qr.wn
 
@@ -1244,8 +1288,8 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
   simp only [saddOverflow]
   rcases w with _|w
   · revert x y; decide
-  · have := le_toInt (x := x); have := toInt_lt (x := x)
-    have := le_toInt (x := y); have := toInt_lt (x := y)
+  · have := le_two_mul_toInt (x := x); have := two_mul_toInt_lt (x := x)
+    have := le_two_mul_toInt (x := y); have := two_mul_toInt_lt (x := y)
     simp only [← decide_or, msb_eq_toInt, decide_beq_decide, toInt_add, ← decide_not, ← decide_and,
       decide_eq_decide]
     rw_mod_cast [Int.bmod_neg_iff (by omega) (by omega)]

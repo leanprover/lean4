@@ -6,12 +6,18 @@ Authors: François G. Dorais
 prelude
 import Init.Data.List.OfFn
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
 
-/-- `finRange n` lists all elements of `Fin n` in order -/
+/--
+Lists all elements of `Fin n` in order, starting at `0`.
+
+Examples:
+ * `List.finRange 0 = ([] : List (Fin 0))`
+ * `List.finRange 2 = ([0, 1] : List (Fin 2))`
+-/
 def finRange (n : Nat) : List (Fin n) := ofFn fun i => i
 
 @[simp] theorem length_finRange (n) : (List.finRange n).length = n := by

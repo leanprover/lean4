@@ -1,8 +1,7 @@
 {"textDocument": {"uri": "file:///completionOpenNamespaces.lean"},
  "position": {"line": 4, "character": 68}}
 {"items":
- [{"sortText": "0",
-   "label": "verySpecificDefinitionNameOfCompletionOpenNamespaces",
+ [{"label": "verySpecificDefinitionNameOfCompletionOpenNamespaces",
    "kind": 21,
    "data":
    {"params":
@@ -12,4 +11,4 @@
     {"const":
      {"declName": "A.B1.verySpecificDefinitionNameOfCompletionOpenNamespaces"}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}

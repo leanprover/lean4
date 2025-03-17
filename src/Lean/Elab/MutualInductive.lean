@@ -336,7 +336,7 @@ private def withInductiveLocalDecls (rs : Array PreElabHeaderResult) (x : Array 
     let rec loop (i : Nat) (indFVars : Array Expr) := do
       if h : i < namesAndTypes.size then
         let (declName, shortDeclName, type) := namesAndTypes[i]
-        Term.withAuxDecl shortDeclName type declName fun indFVar => loop (i+1) (indFVars.push indFVar)
+        withAuxDecl shortDeclName type declName fun indFVar => loop (i+1) (indFVars.push indFVar)
       else
         x params indFVars
     loop 0 #[]
@@ -910,6 +910,24 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
           let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe
           Term.ensureNoUnassignedMVars decl
           addDecl decl
+
+          -- For nested inductive types, the kernel adds a variable number of auxiliary recursors.
+          -- Let the elaborator know about them as well. (Other auxiliaries have already been
+          -- registered by `addDecl` via `Declaration.getNames`.)
+          -- NOTE: If we want to make inductive elaboration parallel, this should switch to using
+          -- reserved names.
+          for indType in indTypes do
+            let mut i := 1
+            while true do
+              let auxRecName := indType.name ++ `rec |>.appendIndexAfter i
+              let env ← getEnv
+              let some const := env.toKernelEnv.find? auxRecName | break
+              let res ← env.addConstAsync auxRecName .recursor
+              res.commitConst res.asyncEnv (info? := const)
+              res.commitCheckEnv res.asyncEnv
+              setEnv res.mainEnv
+              i := i + 1
+
           let replaceIndFVars (e : Expr) : MetaM Expr := do
             let indFVar2Const := mkIndFVar2Const views indFVars levelParams
             return (← instantiateMVars e).replace fun e' =>
@@ -931,6 +949,7 @@ private def mkInductiveDecl (vars : Array Expr) (elabs : Array InductiveElabStep
         for ctor in view.ctors do
           if (ctor.declId.getPos? (canonicalOnly := true)).isSome then
             Term.addTermInfo' ctor.declId (← mkConstWithLevelParams ctor.declName) (isBinder := true)
+            enableRealizationsForConst ctor.declName
     return res
 
 private def mkAuxConstructions (declNames : Array Name) : TermElabM Unit := do
@@ -960,6 +979,8 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
       IndPredBelow.mkBelow view0.declName
       for e in elabs do
         mkInjectiveTheorems e.view.declName
+    for e in elabs do
+      enableRealizationsForConst e.view.declName
     return res
 
 /-- Ensures that there are no conflicts among or between the type and constructor names defined in `elabs`. -/

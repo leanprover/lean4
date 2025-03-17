@@ -45,7 +45,7 @@ def tacticToDischarge (tacticCode : Syntax) : TacticM (IO.Ref Term.State × Simp
         /- We must only save messages and info tree changes. Recall that `simp` uses temporary metavariables (`withNewMCtxDepth`).
            So, we must not save references to them at `Term.State`.
         -/
-        withoutModifyingStateWithInfoAndMessages do
+        Term.withoutModifyingElabMetaStateWithInfo do
           Term.withSynthesize (postpone := .no) do
             Term.runTactic (report := false) mvar.mvarId! tacticCode .term
           let result ← instantiateMVars mvar
@@ -94,7 +94,7 @@ def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TacticM Meta.Simp.Co
 private def addDeclToUnfoldOrTheorem (config : Meta.ConfigWithKey) (thms : SimpTheorems) (id : Origin) (e : Expr) (post : Bool) (inv : Bool) (kind : SimpKind) : MetaM SimpTheorems := do
   if e.isConst then
     let declName := e.constName!
-    let info ← getConstInfo declName
+    let info ← getConstVal declName
     if (← isProp info.type) then
       thms.addConst declName (post := post) (inv := inv)
     else

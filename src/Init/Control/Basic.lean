@@ -51,14 +51,28 @@ def ForInStep.value (x : ForInStep α) : α :=
 @[simp] theorem ForInStep.value_done (b : β) : (ForInStep.done b).value = b := rfl
 @[simp] theorem ForInStep.value_yield (b : β) : (ForInStep.yield b).value = b := rfl
 
+/--
+Maps a function over a functor, with parameters swapped so that the function comes last.
+
+This function is `Functor.map` with the parameters reversed, typically used via the `<&>` operator.
+-/
 @[reducible]
 def Functor.mapRev {f : Type u → Type v} [Functor f] {α β : Type u} : f α → (α → β) → f β :=
   fun a f => f <$> a
 
+@[inherit_doc Functor.mapRev]
 infixr:100 " <&> " => Functor.mapRev
 
 recommended_spelling "mapRev" for "<&>" in [Functor.mapRev, «term_<&>_»]
 
+/--
+Discards the value in a functor, retaining the functor's structure.
+
+Discarding values is especially useful when using `Applicative` functors or `Monad`s to implement
+effects, and some operation should be carried out only for its effects. In `do`-notation, statements
+whose values are discarded must return `Unit`, and `discard` can be used to explicitly discard their
+values.
+-/
 @[always_inline, inline]
 def Functor.discard {f : Type u → Type v} {α : Type u} [Functor f] (x : f α) : f PUnit :=
   Functor.mapConst PUnit.unit x
@@ -78,7 +92,7 @@ Error recovery and state can interact subtly. For example, the implementation of
 -/
 -- NB: List instance is in mathlib. Once upstreamed, add
 -- * `List`, where `failure` is the empty list and `<|>` concatenates.
-class Alternative (f : Type u → Type v) extends Applicative f : Type (max (u+1) v) where
+class Alternative (f : Type u → Type v) : Type (max (u+1) v) extends Applicative f where
   /--
   Produces an empty collection or recoverable failure.  The `<|>` operator collects values or recovers
   from failures. See `Alternative` for more details.

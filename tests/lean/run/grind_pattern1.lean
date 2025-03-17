@@ -4,7 +4,7 @@ set_option trace.grind.ematch.pattern true
 info: [grind.ematch.pattern] Array.getElem_push_lt: [@getElem _ `[Nat] #4 _ _ (@Array.push _ #3 #2) #1 _]
 -/
 #guard_msgs in
-grind_pattern Array.getElem_push_lt => (a.push x)[i]
+grind_pattern Array.getElem_push_lt => (xs.push x)[i]
 
 
 /--
@@ -30,12 +30,12 @@ error: invalid pattern(s) for `Array.getElem_push_lt`
   [@Array.push #4 #3 #2]
 the following theorem parameters cannot be instantiated:
   i : Nat
-  h : i < a.size
+  h : i < xs.size
 ---
 info: [grind.ematch.pattern] Array.getElem_push_lt: [@Array.push #4 #3 #2]
 -/
 #guard_msgs in
-grind_pattern Array.getElem_push_lt => (a.push x)
+grind_pattern Array.getElem_push_lt => (xs.push x)
 
 class Foo (α : Type) (β : outParam Type) where
   a : Unit

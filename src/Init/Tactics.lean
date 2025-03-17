@@ -461,11 +461,14 @@ syntax config := atomic(" (" &"config") " := " withoutPosition(term) ")"
 /-- The `*` location refers to all hypotheses and the goal. -/
 syntax locationWildcard := " *"
 
+/-- The `⊢` location refers to the current goal. -/
+syntax locationType := patternIgnore(atomic("|" noWs "-") <|> "⊢")
+
 /--
-A hypothesis location specification consists of 1 or more hypothesis references
-and optionally `⊢` denoting the goal.
+A sequence of one or more locations at which a tactic should operate. These can include local
+hypotheses and `⊢`, which denotes the goal.
 -/
-syntax locationHyp := (ppSpace colGt term:max)+ patternIgnore(ppSpace (atomic("|" noWs "-") <|> "⊢"))?
+syntax locationHyp := (ppSpace colGt (term:max <|> locationType))+
 
 /--
 Location specifications are used by many tactics that can operate on either the
@@ -1347,7 +1350,7 @@ syntax (name := omega) "omega" optConfig : tactic
 Currently the preprocessor is implemented as `try simp only [bitvec_to_nat] at *`.
 `bitvec_to_nat` is a `@[simp]` attribute that you can (cautiously) add to more theorems.
 -/
-macro "bv_omega" : tactic => `(tactic| (try simp only [bitvec_to_nat] at *) <;> omega)
+macro "bv_omega" : tactic => `(tactic| (try simp -implicitDefEqProofs only [bitvec_to_nat] at *) <;> omega)
 
 /-- Implementation of `ac_nf` (the full `ac_nf` calls `trivial` afterwards). -/
 syntax (name := acNf0) "ac_nf0" (location)? : tactic

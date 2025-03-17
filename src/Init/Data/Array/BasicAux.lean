@@ -8,6 +8,9 @@ import Init.Data.Array.Basic
 import Init.Data.Nat.Linear
 import Init.NotationExtra
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 theorem Array.of_push_eq_push {as bs : Array α} (h : as.push a = bs.push b) : as = bs ∧ a = b := by
   simp only [push, mk.injEq] at h
   have ⟨h₁, h₂⟩ := List.of_concat_eq_concat h
@@ -35,6 +38,11 @@ private theorem List.of_toArrayAux_eq_toArrayAux {as bs : List α} {cs ds : Arra
 theorem List.toArray_eq_toArray_eq (as bs : List α) : (as.toArray = bs.toArray) = (as = bs) := by
   simp
 
+/--
+Applies the monadic action `f` to every element in the array, left-to-right, and returns the array
+of results. Furthermore, the resulting array's type guarantees that it contains the same number of
+elements as the input array.
+-/
 def Array.mapM' [Monad m] (f : α → m β) (as : Array α) : m { bs : Array β // bs.size = as.size } :=
   go 0 ⟨mkEmpty as.size, rfl⟩ (by simp)
 where
@@ -63,11 +71,19 @@ where
       return as
 
 /--
-Monomorphic `Array.mapM`. The internal implementation uses pointer equality, and does not allocate a new array
-if the result of each `f a` is a pointer equal value `a`.
+Applies a monadic function to each element of an array, returning the array of results. The function is
+monomorphic: it is required to return a value of the same type. The internal implementation uses
+pointer equality, and does not allocate a new array if the result of each function call is
+pointer-equal to its argument.
 -/
 @[implemented_by mapMonoMImp] def Array.mapMonoM [Monad m] (as : Array α) (f : α → m α) : m (Array α) :=
   as.mapM f
 
+/--
+Applies a function to each element of an array, returning the array of results. The function is
+monomorphic: it is required to return a value of the same type. The internal implementation uses
+pointer equality, and does not allocate a new array if the result of each function call is
+pointer-equal to its argument.
+-/
 @[inline] def Array.mapMono (as : Array α) (f : α → α) : Array α :=
   Id.run <| as.mapMonoM f

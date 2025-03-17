@@ -17,6 +17,21 @@ namespace Frontend.Normalize
 open Lean.Meta
 
 /--
+The various kinds of matches supported by the match to cond infrastructure.
+-/
+inductive MatchKind
+  /--
+  It is a full match statement on an enum inductive with one constructor handled per arm.
+  The ctors are listed in the order they occur in the match statement in `ctors`.
+  -/
+  | simpleEnum (info : InductiveVal) (ctors : Array ConstructorVal)
+  /--
+  It is a match statement on an enum inductive with a default arm, all explicitly handled ctors
+  are listed in `ctors` in the order they occur in the match statement.
+  -/
+  | enumWithDefault (info : InductiveVal) (ctors : Array ConstructorVal)
+
+/--
 Contains the result of the type analysis to be used in the structures and enums pass.
 -/
 structure TypeAnalysis where
@@ -28,6 +43,10 @@ structure TypeAnalysis where
   Inductives enums that are interesting for the enums pass.
   -/
   interestingEnums : Std.HashSet Name := {}
+  /--
+  `func.match_x` auxiliary declarations that we consider interesting.
+  -/
+  interestingMatchers : Std.HashMap Name MatchKind := {}
   /--
   Other types that we've seen that are not interesting, currently only used as a cache.
   -/
@@ -87,13 +106,17 @@ def markInterestingEnum (n : Name) : PreProcessM Unit := do
   modifyTypeAnalysis (fun s => { s with interestingEnums := s.interestingEnums.insert n })
 
 @[inline]
-def markUninterestingType (n : Name) : PreProcessM Unit := do
+def markInterestingMatcher (n : Name) (k : MatchKind) : PreProcessM Unit := do
+  modifyTypeAnalysis (fun s => { s with interestingMatchers := s.interestingMatchers.insert n k })
+
+@[inline]
+def markUninterestingConst (n : Name) : PreProcessM Unit := do
   modifyTypeAnalysis (fun s => { s with uninteresting := s.uninteresting.insert n })
 
 @[inline]
 def run (cfg : BVDecideConfig) (goal : MVarId) (x : PreProcessM α) : MetaM α := do
   let hyps ← goal.withContext do getPropHyps
-  ReaderT.run x cfg |>.run' { rewriteCache := Std.HashSet.empty hyps.size }
+  ReaderT.run x cfg |>.run' { rewriteCache := Std.HashSet.emptyWithCapacity hyps.size }
 
 end PreProcessM
 

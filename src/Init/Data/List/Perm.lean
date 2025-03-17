@@ -18,7 +18,8 @@ another.
 The notation `~` is used for permutation equivalence.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- TODO: restore after an update-stage0
 -- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 open Nat
@@ -46,6 +47,14 @@ instance : Trans (Perm (α := α)) (Perm (α := α)) (Perm (α := α)) where
   trans h₁ h₂ := Perm.trans h₁ h₂
 
 theorem perm_comm {l₁ l₂ : List α} : l₁ ~ l₂ ↔ l₂ ~ l₁ := ⟨Perm.symm, Perm.symm⟩
+
+protected theorem Perm.congr_left {l₁ l₂ : List α} (h : l₁ ~ l₂) (l₃ : List α) :
+    l₁ ~ l₃ ↔ l₂ ~ l₃ :=
+  ⟨h.symm.trans, h.trans⟩
+
+protected theorem Perm.congr_right {l₁ l₂ : List α} (h : l₁ ~ l₂) (l₃ : List α) :
+    l₃ ~ l₁ ↔ l₃ ~ l₂ :=
+  ⟨fun h' => h'.trans h, fun h' => h'.trans h.symm⟩
 
 theorem Perm.swap' (x y : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) : y :: x :: l₁ ~ x :: y :: l₂ :=
   (swap ..).trans <| p.cons _ |>.cons _
@@ -514,7 +523,7 @@ theorem Perm.eraseP (f : α → Bool) {l₁ l₂ : List α}
     exact fun h h₁ h₂ => h h₂ h₁
 
 theorem perm_insertIdx {α} (x : α) (l : List α) {i} (h : i ≤ l.length) :
-    insertIdx i x l ~ x :: l := by
+    l.insertIdx i x ~ x :: l := by
   induction l generalizing i with
   | nil =>
     cases i with

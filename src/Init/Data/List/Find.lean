@@ -15,8 +15,8 @@ Lemmas about `List.findSome?`, `List.find?`, `List.findIdx`, `List.findIdx?`, `L
 and `List.lookup`.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 
 namespace List
@@ -514,47 +514,6 @@ private theorem findIdx?_go_eq {p : α → Bool} {xs : List α} {i : Nat} :
     (x :: xs).findIdx? p = if p x then some 0 else (xs.findIdx? p).map fun i => i + 1 := by
   simp [findIdx?, findIdx?_go_eq]
 
-/-! ### findFinIdx? -/
-
-@[simp] theorem findFinIdx?_nil {p : α → Bool} : findFinIdx? p [] = none := rfl
-
-theorem findIdx?_go_eq_map_findFinIdx?_go_val {xs : List α} {p : α → Bool} {i : Nat} {h} :
-    List.findIdx?.go p xs i =
-      (List.findFinIdx?.go p l xs i h).map (·.val) := by
-  unfold findIdx?.go
-  unfold findFinIdx?.go
-  split
-  · simp_all
-  · simp only
-    split
-    · simp
-    · rw [findIdx?_go_eq_map_findFinIdx?_go_val]
-
-theorem findIdx?_eq_map_findFinIdx?_val {xs : List α} {p : α → Bool} :
-    xs.findIdx? p = (xs.findFinIdx? p).map (·.val) := by
-  simp [findIdx?, findFinIdx?]
-  rw [findIdx?_go_eq_map_findFinIdx?_go_val]
-
-@[simp] theorem findFinIdx?_cons {p : α → Bool} {x : α} {xs : List α} :
-    findFinIdx? p (x :: xs) = if p x then some 0 else (findFinIdx? p xs).map Fin.succ := by
-  rw [← Option.map_inj_right (f := Fin.val) (fun a b => Fin.eq_of_val_eq)]
-  rw [← findIdx?_eq_map_findFinIdx?_val]
-  rw [findIdx?_cons]
-  split
-  · simp
-  · rw [findIdx?_eq_map_findFinIdx?_val]
-    simp [Function.comp_def]
-
-@[simp] theorem findFinIdx?_subtype {p : α → Prop} {l : List { x // p x }}
-    {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
-    l.findFinIdx? f = (l.unattach.findFinIdx? g).map (fun i => i.cast (by simp)) := by
-  unfold unattach
-  induction l with
-  | nil => simp
-  | cons a l ih =>
-    simp [hf, findFinIdx?_cons]
-    split <;> simp [ih, Function.comp_def]
-
 /-! ### findIdx -/
 
 theorem findIdx_cons (p : α → Bool) (b : α) (l : List α) :
@@ -579,11 +538,6 @@ theorem findIdx_of_getElem?_eq_some {xs : List α} (w : xs[xs.findIdx p]? = some
 
 theorem findIdx_getElem {xs : List α} {w : xs.findIdx p < xs.length} :
     p xs[xs.findIdx p] :=
-  xs.findIdx_of_getElem?_eq_some (getElem?_eq_getElem w)
-
-@[deprecated findIdx_getElem (since := "2024-08-12")]
-theorem findIdx_get {xs : List α} {w : xs.findIdx p < xs.length} :
-    p (xs.get ⟨xs.findIdx p, w⟩) :=
   xs.findIdx_of_getElem?_eq_some (getElem?_eq_getElem w)
 
 theorem findIdx_lt_length_of_exists {xs : List α} (h : ∃ x ∈ xs, p x) :
@@ -976,6 +930,71 @@ theorem findIdx_eq_getD_findIdx? {xs : List α} {p : α → Bool} :
     simp [hf, findIdx?_cons]
     split <;> simp [ih, Function.comp_def]
 
+/-! ### findFinIdx? -/
+
+@[simp] theorem findFinIdx?_nil {p : α → Bool} : findFinIdx? p [] = none := rfl
+
+theorem findIdx?_go_eq_map_findFinIdx?_go_val {xs : List α} {p : α → Bool} {i : Nat} {h} :
+    List.findIdx?.go p xs i =
+      (List.findFinIdx?.go p l xs i h).map (·.val) := by
+  unfold findIdx?.go
+  unfold findFinIdx?.go
+  split
+  · simp_all
+  · simp only
+    split
+    · simp
+    · rw [findIdx?_go_eq_map_findFinIdx?_go_val]
+
+theorem findIdx?_eq_map_findFinIdx?_val {xs : List α} {p : α → Bool} :
+    xs.findIdx? p = (xs.findFinIdx? p).map (·.val) := by
+  simp [findIdx?, findFinIdx?]
+  rw [findIdx?_go_eq_map_findFinIdx?_go_val]
+
+theorem findFinIdx?_eq_pmap_findIdx? {xs : List α} {p : α → Bool} :
+    xs.findFinIdx? p =
+      (xs.findIdx? p).pmap
+        (fun i m => by simp [findIdx?_eq_some_iff_getElem] at m; exact ⟨i, m.choose⟩)
+        (fun i h => h) := by
+  simp [findIdx?_eq_map_findFinIdx?_val, Option.pmap_map]
+
+@[simp] theorem findFinIdx?_cons {p : α → Bool} {x : α} {xs : List α} :
+    findFinIdx? p (x :: xs) = if p x then some 0 else (findFinIdx? p xs).map Fin.succ := by
+  rw [← Option.map_inj_right (f := Fin.val) (fun a b => Fin.eq_of_val_eq)]
+  rw [← findIdx?_eq_map_findFinIdx?_val]
+  rw [findIdx?_cons]
+  split
+  · simp
+  · rw [findIdx?_eq_map_findFinIdx?_val]
+    simp [Function.comp_def]
+
+@[simp] theorem findFinIdx?_eq_none_iff {l : List α} {p : α → Bool} :
+    l.findFinIdx? p = none ↔ ∀ x ∈ l, ¬ p x := by
+  simp [findFinIdx?_eq_pmap_findIdx?]
+
+@[simp]
+theorem findFinIdx?_eq_some_iff {xs : List α} {p : α → Bool} {i : Fin xs.length} :
+    xs.findFinIdx? p = some i ↔
+      p xs[i] ∧ ∀ j (hji : j < i), ¬p (xs[j]'(Nat.lt_trans hji i.2)) := by
+  simp only [findFinIdx?_eq_pmap_findIdx?, Option.pmap_eq_some_iff, findIdx?_eq_some_iff_getElem,
+    Bool.not_eq_true, Option.mem_def, exists_and_left, and_exists_self, Fin.getElem_fin]
+  constructor
+  · rintro ⟨a, ⟨h, w₁, w₂⟩, rfl⟩
+    exact ⟨w₁, fun j hji => by simpa using w₂ j hji⟩
+  · rintro ⟨h, w⟩
+    exact ⟨i, ⟨i.2, h, fun j hji => w ⟨j, by omega⟩ hji⟩, rfl⟩
+
+@[simp] theorem findFinIdx?_subtype {p : α → Prop} {l : List { x // p x }}
+    {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    l.findFinIdx? f = (l.unattach.findFinIdx? g).map (fun i => i.cast (by simp)) := by
+  unfold unattach
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    simp [hf, findFinIdx?_cons]
+    split <;> simp [ih, Function.comp_def]
+
+
 /-! ### idxOf
 
 The verification API for `idxOf` is still incomplete.
@@ -1035,6 +1054,36 @@ theorem idxOf_lt_length [BEq α] [LawfulBEq α] {l : List α} (h : a ∈ l) : l.
 @[deprecated idxOf_lt_length (since := "2025-01-29")]
 abbrev indexOf_lt_length := @idxOf_lt_length
 
+/-! ### finIdxOf?
+
+The verification API for `finIdxOf?` is still incomplete.
+The lemmas below should be made consistent with those for `findFinIdx?` (and proved using them).
+-/
+
+theorem idxOf?_eq_map_finIdxOf?_val [BEq α] {xs : List α} {a : α} :
+    xs.idxOf? a = (xs.finIdxOf? a).map (·.val) := by
+  simp [idxOf?, finIdxOf?, findIdx?_eq_map_findFinIdx?_val]
+
+@[simp] theorem finIdxOf?_nil [BEq α] : ([] : List α).finIdxOf? a = none := rfl
+
+@[simp] theorem finIdxOf?_cons [BEq α] (a : α) (xs : List α) :
+    (a :: xs).finIdxOf? b =
+      if a == b then some ⟨0, by simp⟩ else (xs.finIdxOf? b).map (·.succ) := by
+  simp [finIdxOf?]
+
+@[simp] theorem finIdxOf?_eq_none_iff [BEq α] [LawfulBEq α] {l : List α} {a : α} :
+    l.finIdxOf? a = none ↔ a ∉ l := by
+  simp only [finIdxOf?, findFinIdx?_eq_none_iff, beq_iff_eq]
+  constructor
+  · intro w m
+    exact w a m rfl
+  · rintro h a m rfl
+    exact h m
+
+@[simp] theorem finIdxOf?_eq_some_iff [BEq α] [LawfulBEq α] {l : List α} {a : α} {i : Fin l.length} :
+    l.finIdxOf? a = some i ↔ l[i] = a ∧ ∀ j (_ : j < i), ¬l[j] = a := by
+  simp only [finIdxOf?, findFinIdx?_eq_some_iff, beq_iff_eq]
+
 /-! ### idxOf?
 
 The verification API for `idxOf?` is still incomplete.
@@ -1059,12 +1108,6 @@ theorem idxOf?_cons [BEq α] (a : α) (xs : List α) (b : α) :
 
 @[deprecated idxOf?_eq_none_iff (since := "2025-01-29")]
 abbrev indexOf?_eq_none_iff := @idxOf?_eq_none_iff
-
-/-! ### finIdxOf? -/
-
-theorem idxOf?_eq_map_finIdxOf?_val [BEq α] {xs : List α} {a : α} :
-    xs.idxOf? a = (xs.finIdxOf? a).map (·.val) := by
-  simp [idxOf?, finIdxOf?, findIdx?_eq_map_findFinIdx?_val]
 
 /-! ### lookup -/
 

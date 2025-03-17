@@ -9,6 +9,7 @@ import Lean.Meta.Tactic.Rewrite
 import Lean.Meta.Tactic.Split
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Eqns
+import Lean.Elab.PreDefinition.FixedParams
 import Lean.Meta.ArgsPacker.Basic
 import Init.Data.Array.Basic
 import Init.Internal.Order.Basic
@@ -20,12 +21,13 @@ open Eqns
 structure EqnInfo extends EqnInfoCore where
   declNames       : Array Name
   declNameNonRec  : Name
-  fixedPrefixSize : Nat
+  fixedParamPerms : FixedParamPerms
   deriving Inhabited
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
-def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat) : MetaM Unit := do
+def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name)
+    (fixedParamPerms : FixedParamPerms) : MetaM Unit := do
   preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   unless preDefs.all fun p => p.kind.isTheorem do
     unless (← preDefs.allM fun p => isProp p.type) do
@@ -33,7 +35,7 @@ def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fi
       modifyEnv fun env =>
         preDefs.foldl (init := env) fun env preDef =>
           eqnInfoExt.insert env preDef.declName { preDef with
-            declNames, declNameNonRec, fixedPrefixSize }
+            declNames, declNameNonRec, fixedParamPerms }
 
 private def deltaLHSUntilFix (declName declNameNonRec : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let target ← mvarId.getType'
@@ -66,9 +68,12 @@ private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   return mvarNew.mvarId!
 
 /-- Generate the "unfold" lemma for `declName`. -/
-def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := withLCtx {} {} do
-  withOptions (tactic.hygienic.set · false) do
-    let baseName := declName
+def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := do
+  let name := Name.str declName unfoldThmSuffix
+  realizeConst declName name (doRealize name)
+  return name
+where
+  doRealize name := withOptions (tactic.hygienic.set · false) do
     lambdaTelescope info.value fun xs body => do
       let us := info.levelParams.map mkLevelParam
       let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
@@ -90,12 +95,10 @@ def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := withLCtx {} {}
           throwError "failed to generate unfold theorem for '{declName}':\n{e.toMessageData}"
       let type ← mkForallFVars xs type
       let value ← mkLambdaFVars xs goal
-      let name := Name.str baseName unfoldThmSuffix
       addDecl <| Declaration.thmDecl {
         name, type, value
         levelParams := info.levelParams
       }
-      return name
 
 def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
   let name := Name.str declName unfoldThmSuffix

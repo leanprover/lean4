@@ -45,19 +45,26 @@ private def mkTheoremsWithBadKeySummary (thms : PArray SimpTheorem) : MetaM Diag
       pure ()
     return { data }
 
+def mkDiagMessages (diag : Simp.Diagnostics) : MetaM (Array MessageData) := do
+  let used ← mkSimpDiagSummary diag.usedThmCounter
+  let tried ← mkSimpDiagSummary diag.triedThmCounter diag.usedThmCounter
+  let congr ← mkDiagSummary `simp diag.congrThmCounter
+  let thmsWithBadKeys ← mkTheoremsWithBadKeySummary diag.thmsWithBadKeys
+  if used.isEmpty && tried.isEmpty && congr.isEmpty && thmsWithBadKeys.isEmpty then
+    return #[]
+  else
+    let m := #[]
+    let m := appendSection m `simp "used theorems" used
+    let m := appendSection m `simp "tried theorems" tried
+    let m := appendSection m `simp "tried congruence theorems" congr
+    let m := appendSection m `simp "theorems with bad keys" thmsWithBadKeys (resultSummary := false)
+    let m := m.push <| "use `set_option diagnostics.threshold <num>` to control threshold for reporting counters"
+    return m
+
 def reportDiag (diag : Simp.Diagnostics) : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
-    let used ← mkSimpDiagSummary diag.usedThmCounter
-    let tried ← mkSimpDiagSummary diag.triedThmCounter diag.usedThmCounter
-    let congr ← mkDiagSummary `simp diag.congrThmCounter
-    let thmsWithBadKeys ← mkTheoremsWithBadKeySummary diag.thmsWithBadKeys
-    unless used.isEmpty && tried.isEmpty && congr.isEmpty && thmsWithBadKeys.isEmpty do
-      let m := #[]
-      let m := appendSection m `simp "used theorems" used
-      let m := appendSection m `simp "tried theorems" tried
-      let m := appendSection m `simp "tried congruence theorems" congr
-      let m := appendSection m `simp "theorems with bad keys" thmsWithBadKeys (resultSummary := false)
-      let m := m.push <| "use `set_option diagnostics.threshold <num>` to control threshold for reporting counters"
+    let m ← mkDiagMessages diag
+    unless m.isEmpty do
       logInfo <| .trace { cls := `simp, collapsed := false } "Diagnostics" m
 
 end Lean.Meta.Simp

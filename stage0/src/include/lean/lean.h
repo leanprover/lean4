@@ -1699,6 +1699,7 @@ static inline uint8_t lean_uint8_xor(uint8_t a, uint8_t b) { return a ^ b; }
 static inline uint8_t lean_uint8_shift_left(uint8_t a, uint8_t b) { return a << (b % 8); }
 static inline uint8_t lean_uint8_shift_right(uint8_t a, uint8_t b) { return a >> (b % 8); }
 static inline uint8_t lean_uint8_complement(uint8_t a) { return ~a; }
+static inline uint8_t lean_uint8_neg(uint8_t a) { return -a; }
 static inline uint8_t lean_uint8_log2(uint8_t a) {
     uint8_t res = 0;
     while (a >= 2) {
@@ -1736,6 +1737,7 @@ static inline uint16_t lean_uint16_xor(uint16_t a, uint16_t b) { return a ^ b; }
 static inline uint16_t lean_uint16_shift_left(uint16_t a, uint16_t b) { return a << (b % 16); }
 static inline uint16_t lean_uint16_shift_right(uint16_t a, uint16_t b) { return a >> (b % 16); }
 static inline uint16_t lean_uint16_complement(uint16_t a) { return ~a; }
+static inline uint16_t lean_uint16_neg(uint16_t a) { return -a; }
 static inline uint16_t lean_uint16_log2(uint16_t a) {
     uint16_t res = 0;
     while (a >= 2) {
@@ -1772,6 +1774,7 @@ static inline uint32_t lean_uint32_xor(uint32_t a, uint32_t b) { return a ^ b; }
 static inline uint32_t lean_uint32_shift_left(uint32_t a, uint32_t b) { return a << (b % 32); }
 static inline uint32_t lean_uint32_shift_right(uint32_t a, uint32_t b) { return a >> (b % 32); }
 static inline uint32_t lean_uint32_complement(uint32_t a) { return ~a; }
+static inline uint32_t lean_uint32_neg(uint32_t a) { return -a; }
 static inline uint32_t lean_uint32_log2(uint32_t a) {
     uint32_t res = 0;
     while (a >= 2) {
@@ -1808,6 +1811,7 @@ static inline uint64_t lean_uint64_xor(uint64_t a, uint64_t b) { return a ^ b; }
 static inline uint64_t lean_uint64_shift_left(uint64_t a, uint64_t b) { return a << (b % 64); }
 static inline uint64_t lean_uint64_shift_right(uint64_t a, uint64_t b) { return a >> (b % 64); }
 static inline uint64_t lean_uint64_complement(uint64_t a) { return ~a; }
+static inline uint64_t lean_uint64_neg(uint64_t a) { return -a; }
 static inline uint64_t lean_uint64_log2(uint64_t a) {
     uint64_t res = 0;
     while (a >= 2) {
@@ -1845,6 +1849,7 @@ static inline size_t lean_usize_xor(size_t a, size_t b) { return a ^ b; }
 static inline size_t lean_usize_shift_left(size_t a, size_t b) { return a << (b %  (sizeof(size_t) * 8)); }
 static inline size_t lean_usize_shift_right(size_t a, size_t b) { return a >> (b % (sizeof(size_t) * 8)); }
 static inline size_t lean_usize_complement(size_t a) { return ~a; }
+static inline size_t lean_usize_neg(size_t a) { return -a; }
 static inline size_t lean_usize_log2(size_t a) {
     size_t res = 0;
     while (a >= 2) {
@@ -1990,6 +1995,14 @@ static inline uint8_t lean_int8_complement(uint8_t a) {
     return (uint8_t)(~arg);
 }
 
+static inline uint8_t lean_int8_abs(uint8_t a) {
+    int8_t arg = (int8_t)a;
+
+    // Recall that we are compiling with -fwrapv so this is guaranteed to
+    // map INT8_MIN to INT8_MIN
+    return (uint8_t)(arg < 0 ? -arg : arg);
+}
+
 static inline uint8_t lean_int8_dec_eq(uint8_t a1, uint8_t a2) {
     int8_t lhs = (int8_t)a1;
     int8_t rhs = (int8_t)a2;
@@ -2129,6 +2142,14 @@ static inline uint16_t lean_int16_complement(uint16_t a) {
     int16_t arg = (int16_t)a;
 
     return (uint16_t)(~arg);
+}
+
+static inline uint16_t lean_int16_abs(uint16_t a) {
+    int16_t arg = (int16_t)a;
+
+    // Recall that we are compiling with -fwrapv so this is guaranteed to
+    // map INT16_MIN to INT16_MIN
+    return (uint16_t)(arg < 0 ? -arg : arg);
 }
 
 static inline uint8_t lean_int16_dec_eq(uint16_t a1, uint16_t a2) {
@@ -2271,6 +2292,14 @@ static inline uint32_t lean_int32_complement(uint32_t a) {
     return (uint32_t)(~arg);
 }
 
+static inline uint32_t lean_int32_abs(uint32_t a) {
+    int32_t arg = (int32_t)a;
+
+    // Recall that we are compiling with -fwrapv so this is guaranteed to
+    // map INT32_MIN to INT32_MIN
+    return (uint32_t)(arg < 0 ? -arg : arg);
+}
+
 static inline uint8_t lean_int32_dec_eq(uint32_t a1, uint32_t a2) {
     int32_t lhs = (int32_t)a1;
     int32_t rhs = (int32_t)a2;
@@ -2409,6 +2438,14 @@ static inline uint64_t lean_int64_complement(uint64_t a) {
     int64_t arg = (int64_t)a;
 
     return (uint64_t)(~arg);
+}
+
+static inline uint64_t lean_int64_abs(uint64_t a) {
+    int64_t arg = (int64_t)a;
+
+    // Recall that we are compiling with -fwrapv so this is guaranteed to
+    // map INT64_MIN to INT64_MIN
+    return (uint64_t)(arg < 0 ? -arg : arg);
 }
 
 static inline uint8_t lean_int64_dec_eq(uint64_t a1, uint64_t a2) {
@@ -2551,6 +2588,14 @@ static inline size_t lean_isize_complement(size_t a) {
     ptrdiff_t arg = (ptrdiff_t)a;
 
     return (size_t)(~arg);
+}
+
+static inline size_t lean_isize_abs(size_t a) {
+    ptrdiff_t arg = (ptrdiff_t)a;
+
+    // Recall that we are compiling with -fwrapv so this is guaranteed to
+    // map ISIZE_MIN to ISIZE_MIN
+    return (size_t)(arg < 0 ? -arg : arg);
 }
 
 static inline uint8_t lean_isize_dec_eq(size_t a1, size_t a2) {
@@ -2983,6 +3028,10 @@ static inline uint8_t lean_internal_is_stage0(lean_obj_arg _unit) {
 
 static inline lean_obj_res lean_nat_pred(b_lean_obj_arg n) {
     return lean_nat_sub(n, lean_box(1));
+}
+
+static inline lean_obj_res lean_manual_get_root(lean_obj_arg _unit) {
+    return lean_mk_string(LEAN_MANUAL_ROOT);
 }
 
 #ifdef __cplusplus

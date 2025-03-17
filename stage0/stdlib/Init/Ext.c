@@ -16,7 +16,6 @@ extern "C" {
 static lean_object* l_Lean_Parser_Attr_extIff___closed__17;
 static lean_object* l_Lean_Parser_Attr_extIff___closed__8;
 static lean_object* l_Lean_Parser_Attr_extFlat___closed__3;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_ext___closed__5;
 static lean_object* l_Lean_Parser_Attr_ext___closed__11;
 static lean_object* l_Lean_Elab_Tactic_Ext___aux__Init__Ext______macroRules__Lean__Elab__Tactic__Ext__tacticExt1________1___closed__3;
@@ -133,6 +132,7 @@ static lean_object* l_Lean_Elab_Tactic_Ext_applyExtTheorem___closed__3;
 static lean_object* l_Lean_Parser_Attr_ext___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Parser_Attr_extIff;
 static lean_object* l_Lean_Parser_Attr_extIff___closed__13;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Attr_ext___closed__21;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_ext___closed__10;
@@ -1266,7 +1266,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

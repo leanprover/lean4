@@ -20,7 +20,6 @@ LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lambda__3(lean_object*,
 static lean_object* l_Std_Time_Database_TZdb_idFromPath___closed__2;
 lean_object* l_System_FilePath_join(lean_object*, lean_object*);
 lean_object* l_Std_Internal_Parsec_ByteArray_Parser_run___rarg(lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_io_getenv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_parseTZif(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_localRules(lean_object*, lean_object*);
@@ -55,6 +54,7 @@ static lean_object* l_Std_Time_Database_TZdb_default___closed__8;
 static lean_object* l_Std_Time_Database_TZdb_inst___lambda__3___closed__1;
 lean_object* l_Substring_takeWhileAux___at_Substring_trimLeft___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Database_TZdb_localRules___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Substring_takeRightWhileAux___at_Substring_trimRight___spec__1(lean_object*, lean_object*, lean_object*);

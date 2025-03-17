@@ -81,6 +81,7 @@ LEAN_EXPORT lean_object* l_Lean_Name_isImplementationDetail___boxed(lean_object*
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_eqStr___boxed(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
+static lean_object* l_Lean_Name_isInternalDetail___closed__8;
 uint64_t l_Lean_Name_hash___override(lean_object*);
 static lean_object* l_Lean_Name_getString_x21___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Name_getString_x21(lean_object*);
@@ -1117,6 +1118,14 @@ x_1 = lean_mk_string_unchecked("proof_", 6, 6);
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Name_isInternalDetail___closed__8() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("omega_", 6, 6);
+return x_1;
+}
+}
 LEAN_EXPORT uint8_t l_Lean_Name_isInternalDetail(lean_object* x_1) {
 _start:
 {
@@ -1170,35 +1179,23 @@ if (x_17 == 0)
 {
 lean_object* x_18; uint8_t x_19; 
 x_18 = l_Lean_Name_isInternalDetail___closed__7;
+lean_inc(x_4);
 x_19 = l_Lean_Name_isInternalDetail_matchPrefix(x_4, x_18);
 if (x_19 == 0)
 {
-uint8_t x_20; 
-x_20 = l_Lean_Name_isInternalOrNum(x_3);
-lean_dec(x_3);
-return x_20;
-}
-else
-{
-uint8_t x_21; 
-lean_dec(x_3);
-x_21 = 1;
-return x_21;
-}
-}
-else
+lean_object* x_20; uint8_t x_21; 
+x_20 = l_Lean_Name_isInternalDetail___closed__8;
+x_21 = l_Lean_Name_isInternalDetail_matchPrefix(x_4, x_20);
+if (x_21 == 0)
 {
 uint8_t x_22; 
-lean_dec(x_4);
+x_22 = l_Lean_Name_isInternalOrNum(x_3);
 lean_dec(x_3);
-x_22 = 1;
 return x_22;
-}
 }
 else
 {
 uint8_t x_23; 
-lean_dec(x_4);
 lean_dec(x_3);
 x_23 = 1;
 return x_23;
@@ -1213,12 +1210,39 @@ x_24 = 1;
 return x_24;
 }
 }
-default: 
+else
 {
 uint8_t x_25; 
-lean_dec(x_1);
+lean_dec(x_4);
+lean_dec(x_3);
 x_25 = 1;
 return x_25;
+}
+}
+else
+{
+uint8_t x_26; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_26 = 1;
+return x_26;
+}
+}
+else
+{
+uint8_t x_27; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_27 = 1;
+return x_27;
+}
+}
+default: 
+{
+uint8_t x_28; 
+lean_dec(x_1);
+x_28 = 1;
+return x_28;
 }
 }
 }
@@ -1545,6 +1569,8 @@ l_Lean_Name_isInternalDetail___closed__6 = _init_l_Lean_Name_isInternalDetail___
 lean_mark_persistent(l_Lean_Name_isInternalDetail___closed__6);
 l_Lean_Name_isInternalDetail___closed__7 = _init_l_Lean_Name_isInternalDetail___closed__7();
 lean_mark_persistent(l_Lean_Name_isInternalDetail___closed__7);
+l_Lean_Name_isInternalDetail___closed__8 = _init_l_Lean_Name_isInternalDetail___closed__8();
+lean_mark_persistent(l_Lean_Name_isInternalDetail___closed__8);
 l_Lean_Name_isImplementationDetail___closed__1 = _init_l_Lean_Name_isImplementationDetail___closed__1();
 lean_mark_persistent(l_Lean_Name_isImplementationDetail___closed__1);
 l_Lean_Name_isImplementationDetail___closed__2 = _init_l_Lean_Name_isImplementationDetail___closed__2();

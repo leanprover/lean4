@@ -16,8 +16,8 @@ These are in a separate file from most of the lemmas about `List.IsSuffix`
 as they required importing more lemmas about natural numbers, and use `omega`.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
 
@@ -156,7 +156,7 @@ theorem append_sublist_of_sublist_left {xs ys zs : List α} (h : zs <+ xs) :
     have hl' := h'.length_le
     simp only [length_append] at hl'
     have : ys.length = 0 := by omega
-    simp_all only [Nat.add_zero, length_eq_zero, true_and, append_nil]
+    simp_all only [Nat.add_zero, length_eq_zero_iff, true_and, append_nil]
     exact Sublist.eq_of_length_le h' hl
   · rintro ⟨rfl, rfl⟩
     simp
@@ -169,7 +169,7 @@ theorem append_sublist_of_sublist_right {xs ys zs : List α} (h : zs <+ ys) :
     have hl' := h'.length_le
     simp only [length_append] at hl'
     have : xs.length = 0 := by omega
-    simp_all only [Nat.zero_add, length_eq_zero, true_and, append_nil]
+    simp_all only [Nat.zero_add, length_eq_zero_iff, true_and, append_nil]
     exact Sublist.eq_of_length_le h' hl
   · rintro ⟨rfl, rfl⟩
     simp

@@ -241,6 +241,11 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | nCtx, ctx,       compose d₁ d₂            => return (← formatAux nCtx ctx d₁) ++ (← formatAux nCtx ctx d₂)
   | nCtx, ctx,       group d                  => Format.group <$> formatAux nCtx ctx d
   | nCtx, ctx,       trace data header children => do
+    let childFmts ← children.mapM (formatAux nCtx ctx)
+    if data.cls.isAnonymous then
+      -- Sequence of top-level traces collected by `addTraceAsMessages`, do not indent.
+      return .joinSep childFmts.toList "\n"
+
     let mut msg := f!"[{data.cls}]"
     if data.startTime != 0 then
       msg := f!"{msg} [{data.stopTime - data.startTime}]"
@@ -250,7 +255,6 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
       if maxNum > 0 && children.size > maxNum then
         children := children.take maxNum |>.push <|
           ofFormat f!"{children.size - maxNum} more entries... (increase `maxTraceChildren` to see more)"
-    let childFmts ← children.mapM (formatAux nCtx ctx)
     return .nest 2 (.joinSep (msg::childFmts.toList) "\n")
   | nCtx, ctx?,      ofLazy pp _             => do
     let dyn ← pp (ctx?.map (mkPPContext nCtx))
@@ -343,6 +347,12 @@ structure BaseMessage (α : Type u) where
   /-- If `true`, report range as given; see `msgToInteractiveDiagnostic`. -/
   keepFullRange : Bool := false
   severity      : MessageSeverity := .error
+  /--
+  If `true`, filter this message from non-language server output.
+  In the language server, silent messages are served as silent diagnostics.
+  See also `DiagnosticWith.isSilent?`.
+  -/
+  isSilent      : Bool := false
   caption       : String          := ""
   /-- The content of the message. -/
   data          : α
@@ -427,6 +437,8 @@ structure MessageLog where
 namespace MessageLog
 def empty : MessageLog := {}
 
+-- Despite having been deprecated, the archived `LeanInk` project (which CI still uses)
+-- relies on this name.
 @[deprecated "renamed to `unreported`; direct access should in general be avoided in favor of \
 using `MessageLog.toList/toArray`" (since := "2024-05-22")]
 def msgs : MessageLog → PersistentArray Message := unreported
@@ -489,6 +501,17 @@ def indentD (msg : MessageData) : MessageData :=
 
 def indentExpr (e : Expr) : MessageData :=
   indentD e
+
+/-- Atom quotes -/
+def aquote (msg : MessageData) : MessageData :=
+  "「" ++ msg ++ "」"
+
+/-- Quote `e` using `「` and `」` if `e` is not a free variable, constant, or literal. -/
+def quoteIfNotAtom (e : Expr) : MessageData :=
+  if e.isFVar || e.isConst || e.isLit then
+    e
+  else
+    aquote e
 
 class AddMessageContext (m : Type → Type) where
   /--
@@ -578,7 +601,7 @@ def toMessageData (e : Kernel.Exception) (opts : Options) : MessageData :=
   | letTypeMismatch  env lctx n _ _     => mkCtx env lctx opts m!"(kernel) let-declaration type mismatch '{n}'"
   | exprTypeMismatch env lctx e _       => mkCtx env lctx opts m!"(kernel) type mismatch at{indentExpr e}"
   | appTypeMismatch  env lctx e fnType argType =>
-    mkCtx env lctx opts m!"application type mismatch{indentExpr e}\nargument has type{indentExpr argType}\nbut function has type{indentExpr fnType}"
+    mkCtx env lctx opts m!"(kernel) application type mismatch{indentExpr e}\nargument has type{indentExpr argType}\nbut function has type{indentExpr fnType}"
   | invalidProj env lctx e              => mkCtx env lctx opts m!"(kernel) invalid projection{indentExpr e}"
   | thmTypeIsNotProp env constName type => mkCtx env {} opts m!"(kernel) type of theorem '{.ofConstName constName true}' is not a proposition{indentExpr type}"
   | other msg                           => m!"(kernel) {msg}"

@@ -1,3 +1,4 @@
+set_option grind.warning false
 example (a b : List Nat) : a = [] → b = [2] → a = b → False := by
   grind
 
@@ -116,7 +117,6 @@ end dite_propagator_test
 info: [grind.eqc] x = 2 * a
 [grind.eqc] y = x
 [grind.eqc] (y = 2 * a) = False
-[grind.eqc] (y = 2 * a) = True
 -/
 #guard_msgs (info) in
 set_option trace.grind.eqc true in
@@ -127,7 +127,6 @@ example (a : Nat) : let x := a + a; y = x → y = a + a := by
 info: [grind.eqc] x = 2 * a
 [grind.eqc] y = x
 [grind.eqc] (y = 2 * a) = False
-[grind.eqc] (y = 2 * a) = True
 -/
 #guard_msgs (info) in
 set_option trace.grind.eqc true in
@@ -245,7 +244,7 @@ p q : Prop
 h : p = q
 h_1 : p
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] p = q
     [prop] p
@@ -279,7 +278,7 @@ p q : Prop
 h : p = ¬q
 h_1 : p
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] p = ¬q
     [prop] p
@@ -350,7 +349,7 @@ b : Bool
 h : (if b = true then 10 else 20) = a
 h_1 : b = true
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] (if b = true then 10 else 20) = a
     [prop] b = true

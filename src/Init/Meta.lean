@@ -1207,9 +1207,19 @@ private partial def filterSepElemsMAux {m : Type → Type} [Monad m] (a : Array 
   else
     pure acc
 
+/--
+Filters an array of syntax, treating every other element as a separator rather than an element to
+test with the monadic predicate `p`. The resulting array contains the tested elements for which `p`
+returns `true`, separated by the corresponding separator elements.
+-/
 def filterSepElemsM {m : Type → Type} [Monad m] (a : Array Syntax) (p : Syntax → m Bool) : m (Array Syntax) :=
   filterSepElemsMAux a p 0 #[]
 
+/--
+Filters an array of syntax, treating every other element as a separator rather than an element to
+test with the predicate `p`. The resulting array contains the tested elements for which `p` returns
+`true`, separated by the corresponding separator elements.
+-/
 def filterSepElems (a : Array Syntax) (p : Syntax → Bool) : Array Syntax :=
   Id.run <| a.filterSepElemsM p
 

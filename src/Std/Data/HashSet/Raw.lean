@@ -62,14 +62,26 @@ Creates a new empty hash set. The optional parameter `capacity` can be supplied 
 so that it can hold the given number of elements without reallocating. It is also possible to use
 the empty collection notations `∅` and `{}` to create an empty hash set with the default capacity.
 -/
-@[inline] def empty (capacity := 8) : Raw α :=
-  ⟨HashMap.Raw.empty capacity⟩
+@[inline] def emptyWithCapacity (capacity := 8) : Raw α :=
+  ⟨HashMap.Raw.emptyWithCapacity capacity⟩
+
+@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
+abbrev empty := @emptyWithCapacity
 
 instance : EmptyCollection (Raw α) where
-  emptyCollection := empty
+  emptyCollection := emptyWithCapacity
 
 instance : Inhabited (Raw α) where
   default := ∅
+
+/--
+Two hash sets are equivalent in the sense of `Equiv` iff all their values are equal.
+-/
+structure Equiv (m₁ m₂ : Raw α) where
+  /-- Internal implementation detail of the hash map -/
+  inner : m₁.1.Equiv m₂.1
+
+@[inherit_doc] scoped infixl:50 " ~m " => Equiv
 
 /--
 Inserts the given element into the set. If the hash set already contains an element that is
@@ -82,7 +94,7 @@ differently: it will overwrite an existing mapping.
 @[inline] def insert [BEq α] [Hashable α] (m : Raw α) (a : α) : Raw α :=
   ⟨m.inner.insertIfNew a ()⟩
 
-instance [BEq α] [Hashable α] : Singleton α (Raw α) := ⟨fun a => Raw.empty.insert a⟩
+instance [BEq α] [Hashable α] : Singleton α (Raw α) := ⟨fun a => (∅ : Raw α).insert a⟩
 
 instance [BEq α] [Hashable α] : Insert α (Raw α) := ⟨fun a s => s.insert a⟩
 
@@ -173,14 +185,6 @@ in the collection will be present in the returned hash set.
 @[inline] def ofList [BEq α] [Hashable α] (l : List α) : Raw α :=
   ⟨HashMap.Raw.unitOfList l⟩
 
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
-
-/-- Removes all elements from the hash set for which the given function returns `false`. -/
-@[inline] def filter [BEq α] [Hashable α] (f : α → Bool) (m : Raw α) : Raw α :=
-  ⟨m.inner.filter fun a _ => f a⟩
-
 /--
 Monadically computes a value by folding the given function over the elements in the hash set in some
 order.
@@ -207,6 +211,14 @@ instance {m : Type v → Type v} : ForM m (Raw α) α where
 
 instance {m : Type v → Type v} : ForIn m (Raw α) α where
   forIn m init f := m.forIn f init
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
+/-- Removes all elements from the hash set for which the given function returns `false`. -/
+@[inline] def filter [BEq α] [Hashable α] (f : α → Bool) (m : Raw α) : Raw α :=
+  ⟨m.inner.filter fun a _ => f a⟩
 
 /-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
 @[inline] def all (m : Raw α) (p : α → Bool) : Bool := Id.run do
@@ -274,11 +286,15 @@ structure WF [BEq α] [Hashable α] (m : Raw α) : Prop where
   /-- Internal implementation detail of the hash set -/
   out : m.inner.WF
 
-theorem WF.empty [BEq α] [Hashable α] {c} : (empty c : Raw α).WF :=
-  ⟨HashMap.Raw.WF.empty⟩
+theorem WF.emptyWithCapacity [BEq α] [Hashable α] {c} : (emptyWithCapacity c : Raw α).WF :=
+  ⟨HashMap.Raw.WF.emptyWithCapacity⟩
 
-theorem WF.emptyc [BEq α] [Hashable α] : (∅ : Raw α).WF :=
-  ⟨HashMap.Raw.WF.empty⟩
+theorem WF.empty [BEq α] [Hashable α] : (∅ : Raw α).WF :=
+  WF.emptyWithCapacity
+
+set_option linter.missingDocs false in
+@[deprecated WF.empty (since := "2025-03-12")]
+abbrev WF.emptyc := @WF.empty
 
 theorem WF.insert [BEq α] [Hashable α] {m : Raw α} {a : α} (h : m.WF) : (m.insert a).WF :=
   ⟨HashMap.Raw.WF.insertIfNew h.out⟩

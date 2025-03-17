@@ -26,7 +26,6 @@ static lean_object* l_Lake_DSL_depSpec___closed__2;
 static lean_object* l_Lake_DSL_expandDepSpec___lambda__1___closed__26;
 lean_object* l_Lean_Macro_throwErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_fromGit___closed__19;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DSL_fromClause;
 static lean_object* l_Lake_DSL_depSpec___closed__9;
 static lean_object* l_Lake_DSL_requireDecl___closed__6;
@@ -205,10 +204,10 @@ static lean_object* l_Lake_DSL_fromGit___closed__15;
 static lean_object* l_Lake_DSL_expandDepSpec___lambda__1___closed__5;
 static lean_object* l_Lake_DSL_expandDepSpec___lambda__1___closed__64;
 static lean_object* l_Lake_DSL_expandDepSpec___lambda__5___closed__5;
+LEAN_EXPORT lean_object* l_Lake_DSL_expandRequireDecl(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_withClause___closed__2;
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_fromGit___closed__9;
-LEAN_EXPORT lean_object* l_Lake_DSL___aux__Lake__DSL__Require______macroRules__Lake__DSL__requireDecl__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_expandDepSpec___lambda__1___closed__21;
 static lean_object* l_Lake_DSL_fromGit___closed__13;
 static lean_object* l_Lake_DSL_expandDepSpec___lambda__1___closed__74;
@@ -279,6 +278,7 @@ static lean_object* l_Lake_DSL_depSpec___closed__3;
 static lean_object* l_Lake_DSL_expandDepSpec___lambda__1___closed__7;
 static lean_object* l_Lake_DSL_expandDepSpec___lambda__3___closed__1;
 static lean_object* l_Lake_DSL_expandDepSpec___lambda__1___closed__45;
+static lean_object* l_Lake_DSL_expandRequireDecl___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DSL_expandDepSpec___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_expandDepSpec___lambda__5___closed__7;
@@ -307,6 +307,7 @@ static lean_object* l_Lake_DSL_requireDecl___closed__3;
 static lean_object* l_Lake_DSL_depName___closed__10;
 static lean_object* l_Lake_DSL_expandDepSpec___lambda__1___closed__39;
 static lean_object* l_Lake_DSL_verSpec___closed__5;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_fromSource___closed__4;
 static lean_object* l_Lake_DSL_fromClause___closed__2;
 LEAN_EXPORT lean_object* l_Lake_DSL_instCoeRequireDeclCommand___boxed(lean_object*);
@@ -1773,7 +1774,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -4759,7 +4760,15 @@ x_1 = l_Lake_DSL_requireDecl___closed__11;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_DSL___aux__Lake__DSL__Require______macroRules__Lake__DSL__requireDecl__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+static lean_object* _init_l_Lake_DSL_expandRequireDecl___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("ill-formed require declaration", 30, 30);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_DSL_expandRequireDecl(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -4769,12 +4778,9 @@ x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
+x_6 = l_Lake_DSL_expandRequireDecl___closed__1;
+x_7 = l_Lean_Macro_throwErrorAt___rarg(x_1, x_6, x_2, x_3);
 lean_dec(x_1);
-x_6 = lean_box(1);
-x_7 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_7, 0, x_6);
-lean_ctor_set(x_7, 1, x_3);
 return x_7;
 }
 else
@@ -5669,6 +5675,8 @@ l_Lake_DSL_requireDecl___closed__11 = _init_l_Lake_DSL_requireDecl___closed__11(
 lean_mark_persistent(l_Lake_DSL_requireDecl___closed__11);
 l_Lake_DSL_requireDecl = _init_l_Lake_DSL_requireDecl();
 lean_mark_persistent(l_Lake_DSL_requireDecl);
+l_Lake_DSL_expandRequireDecl___closed__1 = _init_l_Lake_DSL_expandRequireDecl___closed__1();
+lean_mark_persistent(l_Lake_DSL_expandRequireDecl___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

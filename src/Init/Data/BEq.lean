@@ -25,7 +25,7 @@ class ReflBEq (α) [BEq α] : Prop where
   refl : (a : α) == a
 
 /-- `EquivBEq` says that the `BEq` implementation is an equivalence relation. -/
-class EquivBEq (α) [BEq α] extends PartialEquivBEq α, ReflBEq α : Prop
+class EquivBEq (α) [BEq α] : Prop extends PartialEquivBEq α, ReflBEq α
 
 @[simp]
 theorem BEq.refl [BEq α] [ReflBEq α] {a : α} : a == a :=
@@ -48,6 +48,14 @@ theorem BEq.symm_false [BEq α] [PartialEquivBEq α] {a b : α} : (a == b) = fal
 
 theorem BEq.trans [BEq α] [PartialEquivBEq α] {a b c : α} : a == b → b == c → a == c :=
   PartialEquivBEq.trans
+
+theorem BEq.congr_left [BEq α] [PartialEquivBEq α] {a b c : α} (h : a == b) :
+    (a == c) = (b == c) :=
+  Bool.eq_iff_iff.mpr ⟨BEq.trans (BEq.symm h), BEq.trans h⟩
+
+theorem BEq.congr_right [BEq α] [PartialEquivBEq α] {a b c : α} (h : b == c) :
+    (a == b) = (a == c) :=
+  Bool.eq_iff_iff.mpr ⟨fun h' => BEq.trans h' h, fun h' => BEq.trans h' (BEq.symm h)⟩
 
 theorem BEq.neq_of_neq_of_beq [BEq α] [PartialEquivBEq α] {a b c : α} :
     (a == b) = false → b == c → (a == c) = false :=

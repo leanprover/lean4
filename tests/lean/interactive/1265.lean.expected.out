@@ -1,26 +1,7 @@
 {"textDocument": {"uri": "file:///1265.lean"},
  "position": {"line": 0, "character": 51}}
 {"items":
- [{"sortText": "0",
-   "label": "expandInterpolatedStr",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 0, "character": 51}},
-    "id": {"const": {"declName": "Lean.TSyntax.expandInterpolatedStr"}},
-    "cPos": 1}},
-  {"sortText": "1",
-   "label": "getChar",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 0, "character": 51}},
-    "id": {"const": {"declName": "Lean.TSyntax.getChar"}},
-    "cPos": 1}},
-  {"sortText": "2",
-   "label": "getDocString",
+ [{"label": "getDocString",
    "kind": 3,
    "data":
    {"params":
@@ -28,8 +9,15 @@
      "position": {"line": 0, "character": 51}},
     "id": {"const": {"declName": "Lean.TSyntax.getDocString"}},
     "cPos": 1}},
-  {"sortText": "3",
-   "label": "getHygieneInfo",
+  {"label": "expandInterpolatedStr",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 0, "character": 51}},
+    "id": {"const": {"declName": "Lean.TSyntax.expandInterpolatedStr"}},
+    "cPos": 1}},
+  {"label": "getHygieneInfo",
    "kind": 3,
    "data":
    {"params":
@@ -37,44 +25,7 @@
      "position": {"line": 0, "character": 51}},
     "id": {"const": {"declName": "Lean.TSyntax.getHygieneInfo"}},
     "cPos": 1}},
-  {"sortText": "4",
-   "label": "getId",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 0, "character": 51}},
-    "id": {"const": {"declName": "Lean.TSyntax.getId"}},
-    "cPos": 1}},
-  {"sortText": "5",
-   "label": "getName",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 0, "character": 51}},
-    "id": {"const": {"declName": "Lean.TSyntax.getName"}},
-    "cPos": 1}},
-  {"sortText": "6",
-   "label": "getNat",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 0, "character": 51}},
-    "id": {"const": {"declName": "Lean.TSyntax.getNat"}},
-    "cPos": 1}},
-  {"sortText": "7",
-   "label": "getScientific",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 0, "character": 51}},
-    "id": {"const": {"declName": "Lean.TSyntax.getScientific"}},
-    "cPos": 1}},
-  {"sortText": "8",
-   "label": "getString",
+  {"label": "getString",
    "kind": 3,
    "data":
    {"params":
@@ -82,39 +33,59 @@
      "position": {"line": 0, "character": 51}},
     "id": {"const": {"declName": "Lean.TSyntax.getString"}},
     "cPos": 1}},
-  {"sortText": "9",
-   "label": "raw",
+  {"label": "getName",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 0, "character": 51}},
+    "id": {"const": {"declName": "Lean.TSyntax.getName"}},
+    "cPos": 1}},
+  {"label": "getChar",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 0, "character": 51}},
+    "id": {"const": {"declName": "Lean.TSyntax.getChar"}},
+    "cPos": 1}},
+  {"label": "getNat",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 0, "character": 51}},
+    "id": {"const": {"declName": "Lean.TSyntax.getNat"}},
+    "cPos": 1}},
+  {"label": "getScientific",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 0, "character": 51}},
+    "id": {"const": {"declName": "Lean.TSyntax.getScientific"}},
+    "cPos": 1}},
+  {"label": "raw",
    "kind": 5,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///1265.lean"},
      "position": {"line": 0, "character": 51}},
     "id": {"const": {"declName": "Lean.TSyntax.raw"}},
+    "cPos": 1}},
+  {"label": "getId",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 0, "character": 51}},
+    "id": {"const": {"declName": "Lean.TSyntax.getId"}},
     "cPos": 1}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///1265.lean"},
  "position": {"line": 2, "character": 53}}
 {"items":
- [{"sortText": "0",
-   "label": "expandInterpolatedStr",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 2, "character": 53}},
-    "id": {"const": {"declName": "Lean.TSyntax.expandInterpolatedStr"}},
-    "cPos": 1}},
-  {"sortText": "1",
-   "label": "getChar",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 2, "character": 53}},
-    "id": {"const": {"declName": "Lean.TSyntax.getChar"}},
-    "cPos": 1}},
-  {"sortText": "2",
-   "label": "getDocString",
+ [{"label": "getDocString",
    "kind": 3,
    "data":
    {"params":
@@ -122,8 +93,15 @@
      "position": {"line": 2, "character": 53}},
     "id": {"const": {"declName": "Lean.TSyntax.getDocString"}},
     "cPos": 1}},
-  {"sortText": "3",
-   "label": "getHygieneInfo",
+  {"label": "expandInterpolatedStr",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 2, "character": 53}},
+    "id": {"const": {"declName": "Lean.TSyntax.expandInterpolatedStr"}},
+    "cPos": 1}},
+  {"label": "getHygieneInfo",
    "kind": 3,
    "data":
    {"params":
@@ -131,44 +109,7 @@
      "position": {"line": 2, "character": 53}},
     "id": {"const": {"declName": "Lean.TSyntax.getHygieneInfo"}},
     "cPos": 1}},
-  {"sortText": "4",
-   "label": "getId",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 2, "character": 53}},
-    "id": {"const": {"declName": "Lean.TSyntax.getId"}},
-    "cPos": 1}},
-  {"sortText": "5",
-   "label": "getName",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 2, "character": 53}},
-    "id": {"const": {"declName": "Lean.TSyntax.getName"}},
-    "cPos": 1}},
-  {"sortText": "6",
-   "label": "getNat",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 2, "character": 53}},
-    "id": {"const": {"declName": "Lean.TSyntax.getNat"}},
-    "cPos": 1}},
-  {"sortText": "7",
-   "label": "getScientific",
-   "kind": 3,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///1265.lean"},
-     "position": {"line": 2, "character": 53}},
-    "id": {"const": {"declName": "Lean.TSyntax.getScientific"}},
-    "cPos": 1}},
-  {"sortText": "8",
-   "label": "getString",
+  {"label": "getString",
    "kind": 3,
    "data":
    {"params":
@@ -176,13 +117,52 @@
      "position": {"line": 2, "character": 53}},
     "id": {"const": {"declName": "Lean.TSyntax.getString"}},
     "cPos": 1}},
-  {"sortText": "9",
-   "label": "raw",
+  {"label": "getName",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 2, "character": 53}},
+    "id": {"const": {"declName": "Lean.TSyntax.getName"}},
+    "cPos": 1}},
+  {"label": "getChar",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 2, "character": 53}},
+    "id": {"const": {"declName": "Lean.TSyntax.getChar"}},
+    "cPos": 1}},
+  {"label": "getNat",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 2, "character": 53}},
+    "id": {"const": {"declName": "Lean.TSyntax.getNat"}},
+    "cPos": 1}},
+  {"label": "getScientific",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 2, "character": 53}},
+    "id": {"const": {"declName": "Lean.TSyntax.getScientific"}},
+    "cPos": 1}},
+  {"label": "raw",
    "kind": 5,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///1265.lean"},
      "position": {"line": 2, "character": 53}},
     "id": {"const": {"declName": "Lean.TSyntax.raw"}},
+    "cPos": 1}},
+  {"label": "getId",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 2, "character": 53}},
+    "id": {"const": {"declName": "Lean.TSyntax.getId"}},
     "cPos": 1}}],
- "isIncomplete": true}
+ "isIncomplete": false}

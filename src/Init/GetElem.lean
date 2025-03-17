@@ -313,26 +313,28 @@ end List
 namespace Array
 
 instance : GetElem (Array α) Nat α fun xs i => i < xs.size where
-  getElem xs i h := xs.get i h
+  getElem xs i h := xs.getInternal i h
 
 -- We provide a `GetElem?` instance, rather than using the low priority instance,
--- so that we use the `@[extern]` definition of `get!`.
+-- so that we use the `@[extern]` definition of `get!Internal`.
 instance : GetElem? (Array α) Nat α fun xs i => i < xs.size where
   getElem? xs i := decidableGetElem? xs i
-  getElem! xs i := xs.get! i
+  getElem! xs i := xs.get!Internal i
 
 instance : LawfulGetElem (Array α) Nat α fun xs i => i < xs.size where
   getElem?_def xs i h := by
     simp only [getElem?, decidableGetElem?]
     split <;> rfl
   getElem!_def xs i := by
-    simp only [getElem!, getElem?, decidableGetElem?, get!, getD, getElem]
+    simp only [getElem!, getElem?, decidableGetElem?, get!Internal, getD, getElem]
     split <;> rfl
 
-@[simp] theorem get_eq_getElem (a : Array α) (i : Nat) (h) : a.get i h = a[i] := rfl
+@[simp] theorem getInternal_eq_getElem (a : Array α) (i : Nat) (h) :
+    a.getInternal i h = a[i] := rfl
 
-@[simp] theorem get!_eq_getElem! [Inhabited α] (a : Array α) (i : Nat) : a.get! i = a[i]! := by
-  simp only [get!, getD, get_eq_getElem, getElem!_def]
+@[simp] theorem get!Internal_eq_getElem! [Inhabited α] (a : Array α) (i : Nat) :
+    a.get!Internal i = a[i]! := by
+  simp only [get!Internal, getD, getInternal_eq_getElem, getElem!_def]
   split <;> simp_all [getElem?_pos, getElem?_neg]
 
 end Array

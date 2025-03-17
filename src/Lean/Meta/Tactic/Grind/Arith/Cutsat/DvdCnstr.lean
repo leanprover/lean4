@@ -100,11 +100,7 @@ def propagateIntDvd (e : Expr) : GoalM Unit := do
     trace[grind.cutsat.assert.dvd] "{← c.pp}"
     c.assert
   else if (← isEqFalse e) then
-    /-
-    TODO: we have `¬ a ∣ b`, we should assert
-    `∃ x z, b = a*x + z ∧ 1 ≤ z < a`
-    -/
-    throwError "NIY: ¬ {e}"
+    pushNewFact <| mkApp4 (mkConst ``Int.Linear.of_not_dvd) a b reflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
 
 def propagateNatDvd (e : Expr) : GoalM Unit := do
   let some (d, b, ctx) ← Int.OfNat.toIntDvd? e | return ()

@@ -4791,11 +4791,19 @@ theorem getKey?_filterMap [BEq α] [LawfulBEq α]
       (getKey? k l).pfilter (fun x h =>
       (f x (getValueCast x l (containsKey_of_getKey?_eq_some (Option.mem_iff.mp h)))).isSome) := by
   apply Eq.symm
-  simp [getKey?_eq_getEntry?, getEntry?_filterMap hl]
+  let t := ((getKey? k l).pfilter fun x h =>
+    (f x (getValueCast x l (containsKey_of_getKey?_eq_some (Option.mem_iff.mp h)))).isSome)
+  have ht: t = ((getKey? k l).pfilter fun x h =>
+    (f x (getValueCast x l (containsKey_of_getKey?_eq_some (Option.mem_iff.mp h)))).isSome) := by
+    simp [t]
+  rw [← ht]
+  simp only [getKey?_eq_getEntry?, getEntry?_filterMap hl, Option.map_bind]
   cases h : getEntry? k l with
   | none =>
+    rw [ht]
     simp [Option.pfilter_eq_none, h, getKey?_eq_getEntry?]
   | some x =>
+    rw [ht]
     have contains : containsKey k l = true := by
       simp [containsKey_eq_isSome_getEntry?, h]
     have := getKey?_eq_some contains
@@ -5102,12 +5110,18 @@ theorem getKey?_filterMap [BEq α] [EquivBEq α] {β : Type v} {γ : Type w}
       (getKey? k l).pfilter (fun x h =>
       (f x (getValue x l (containsKey_of_getKey?_eq_some (Option.mem_iff.mp h)))).isSome) := by
   apply Eq.symm
-  simp [getKey?_eq_getEntry?, getEntry?_filterMap hl]
+  let t:= (getKey? k l).pfilter (fun x h =>
+      (f x (getValue x l (containsKey_of_getKey?_eq_some (Option.mem_iff.mp h)))).isSome)
+  have ht: t = (getKey? k l).pfilter (fun x h =>
+      (f x (getValue x l (containsKey_of_getKey?_eq_some (Option.mem_iff.mp h)))).isSome) := by
+    simp [t]
+  rw [← ht]
+  simp only [getKey?_eq_getEntry?, getEntry?_filterMap hl, Option.map_bind]
   cases h : getEntry? k l with
   | none =>
-    simp [Option.pfilter_eq_none, getKey?_eq_getEntry?,h]
+    simp [ht, Option.pfilter_eq_none, getKey?_eq_getEntry?,h]
   | some x =>
-    simp only [Option.some_bind, Function.comp_apply, Option.map_map]
+    simp only [ht, Option.some_bind, Function.comp_apply, Option.map_map]
     have : getKey? k l = x.1 := by
       simp [getKey?_eq_getEntry?, h]
     have k_beq_x : k == x.1 := by

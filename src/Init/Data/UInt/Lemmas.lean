@@ -1411,41 +1411,6 @@ theorem USize.toUInt64_ofNatTruncate_of_le {n : Nat} (hn : USize.size ≤ n) :
 theorem UInt16.eq_uInt8ToUIn16_of_lt (a : UInt16) (ha : a < 256) : ∃ (a' : UInt8), a = a'.toUInt16 :=
   ⟨a.toUInt8, UInt16.toNat.inj (by simpa using (Nat.mod_eq_of_lt ha).symm)⟩
 
-theorem Nat.div_lt_of_lt {a b c : Nat} (ha : a < c) : a / b < c := by
-  obtain (rfl|hb) := Nat.eq_zero_or_pos b
-  · simp
-    omega
-  · rw [Nat.div_lt_iff_lt_mul hb, ← Nat.mul_one a]
-    apply Nat.mul_lt_mul_of_lt_of_le ha (by omega) (by omega)
-
-theorem Nat.div_mod_eq_div {a b c : Nat} (ha : a < c) : (a / b) % c = a / b :=
-  Nat.mod_eq_of_lt (Nat.div_lt_of_lt ha)
-
-theorem Nat.div_mod_eq_mod_div_mod {a b c : Nat} (ha : a < c) (hb : b < c) :
-    (a / b) % c = a % c / (b % c) := by
-  rw [Nat.mod_eq_of_lt (Nat.div_lt_of_lt ha), Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb]
-
-theorem Nat.mod_mod_eq_mod_of_lt_right {a b c : Nat} (ha : a < c) : (a % b) % c = a % b :=
-  Nat.mod_eq_of_lt (Nat.lt_of_le_of_lt (Nat.mod_le _ _) ha)
-
-theorem Nat.mod_mod_eq_mod_mod_mod {a b c : Nat} (ha : a < c) (hb : b < c) :
-    (a % b) % c = (a % c) % (b % c) := by
-  rw [Nat.mod_mod_eq_mod_of_lt_right ha, Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb]
-
-theorem Nat.mod_mod_eq_mod_mod_of_dvd {a b c : Nat} (h : b ∣ c) : a % b % c = a % c % b := by
-  refine Or.elim (Nat.eq_zero_or_pos b) (by rintro rfl; simp) (fun hb => ?_)
-  refine Or.elim (Nat.eq_zero_or_pos c) (by rintro rfl; simp) (fun hc => ?_)
-  rw [Nat.mod_mod_of_dvd _ h, Nat.mod_eq_of_lt (Nat.lt_of_lt_of_le (Nat.mod_lt a hb) (Nat.le_of_dvd hc h))]
-
-theorem Nat.mod_mod_of_dvd' {a b c : Nat} (h : b ∣ c) : a % b % c = a % b := by
-  rw [Nat.mod_mod_eq_mod_mod_of_dvd h, Nat.mod_mod_of_dvd _ h]
-
-theorem Nat.mod_mod_eq_mod_mod_mod' {a b c : Nat} (hb : b ∣ c) :
-    (a % b) % c = (a % c) % (b % c) := by
-  refine (Decidable.em (b = c)).elim (by rintro rfl; simp) (fun hb' => ?_)
-  refine Or.elim (Nat.eq_zero_or_pos c) (by rintro rfl; simp) (fun hc => ?_)
-  have : b < c := Nat.lt_of_le_of_ne (Nat.le_of_dvd hc hb) hb'
-  rw [Nat.mod_mod_of_dvd' hb, Nat.mod_eq_of_lt this, Nat.mod_mod_of_dvd _ hb]
 
 theorem UInt16.toUInt8_div (a b : UInt16) (ha : a < 256) (hb : b < 256) : (a / b).toUInt8 = a.toUInt8 / b.toUInt8 :=
   UInt8.toNat.inj (by simpa using Nat.div_mod_eq_mod_div_mod ha hb)
@@ -1604,31 +1569,6 @@ theorem UInt64.toUSize_mod_of_dvd_usizeSize (a b : UInt64) (hb : b.toNat ∣ USi
 @[simp] protected theorem UInt32.toFin_mul (a b : UInt32) : (a * b).toFin = a.toFin * b.toFin := rfl
 @[simp] protected theorem UInt64.toFin_mul (a b : UInt64) : (a * b).toFin = a.toFin * b.toFin := rfl
 @[simp] protected theorem USize.toFin_mul (a b : USize) : (a * b).toFin = a.toFin * b.toFin := rfl
-
-theorem Nat.mod_eq_mod_iff {a b c : Nat} : a % c = b % c ↔ ∃ k, a + k * c = b ∨ b + k * c = a := by
-  rw [Nat.mod_eq_iff]
-  refine ⟨?_, ?_⟩
-  · rintro (⟨rfl, hab⟩|⟨h₁, ⟨l, rfl⟩⟩)
-    · exact ⟨0, Or.inl (by simpa using hab)⟩
-    · by_cases hbcl : b / c ≤ l
-      · refine ⟨l - b / c, Or.inr ?_⟩
-        rw (occs := .pos [1]) [← Nat.div_add_mod b c]
-        rw [Nat.add_comm, ← Nat.add_assoc, Nat.add_right_cancel_iff, Nat.mul_comm, ← Nat.mul_add,
-          Nat.sub_add_cancel hbcl]
-      · refine ⟨b / c - l, Or.inl ?_⟩
-        rw [Nat.add_comm, ← Nat.add_assoc, Nat.mul_comm, ← Nat.mul_add, Nat.sub_add_cancel (Nat.le_of_not_le hbcl),
-          Nat.div_add_mod]
-  · rintro ⟨l, (rfl|rfl)⟩
-    · refine (Nat.eq_zero_or_pos c).elim (by rintro rfl; simp) (fun hc => Or.inr ?_)
-      exact ⟨Nat.mod_lt _ hc, ⟨a / c, by simp [Nat.div_add_mod]⟩⟩
-    · refine (Nat.eq_zero_or_pos c).elim (by rintro rfl; simp) (fun hc => Or.inr ?_)
-      refine ⟨Nat.mod_lt _ hc, ⟨l + b / c, ?_⟩⟩
-      simp only [Nat.mul_add, Nat.add_assoc, div_add_mod]
-      rw [Nat.add_comm, Nat.mul_comm]
-
-@[simp]
-theorem Nat.mul_mod_mod (m n l : Nat) : (m * (n % l)) % l = (m * n) % l := by
-  rw [mul_mod, mod_mod, ← mul_mod]
 
 @[simp] theorem UInt16.toUInt8_mul (a b : UInt16) : (a * b).toUInt8 = a.toUInt8 * b.toUInt8 := UInt8.toNat.inj (by simp)
 @[simp] theorem UInt32.toUInt8_mul (a b : UInt32) : (a * b).toUInt8 = a.toUInt8 * b.toUInt8 := UInt8.toNat.inj (by simp)

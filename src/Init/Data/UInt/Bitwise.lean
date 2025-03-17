@@ -85,9 +85,6 @@ theorem UInt32.sub_eq_add_neg (a b : UInt32) : a - b = a + (-b) := UInt32.toBitV
 theorem UInt64.sub_eq_add_neg (a b : UInt64) : a - b = a + (-b) := UInt64.toBitVec_inj.1 (BitVec.sub_toAdd _ _)
 theorem USize.sub_eq_add_neg (a b : USize) : a - b = a + (-b) := USize.toBitVec_inj.1 (BitVec.sub_toAdd _ _)
 
-@[simp] theorem BitVec.setWidth_neg_of_le (h : w ≤ v) (b : BitVec v) : BitVec.setWidth w (-b) = -BitVec.setWidth w b := by
-  simp [← BitVec.signExtend_eq_setWidth_of_le _ h, BitVec.signExtend_neg_of_le h]
-
 @[simp] theorem UInt8.toFin_and (a b : UInt8) : (a &&& b).toFin = a.toFin &&& b.toFin := Fin.val_inj.1 (by simp)
 @[simp] theorem UInt16.toFin_and (a b : UInt16) : (a &&& b).toFin = a.toFin &&& b.toFin := Fin.val_inj.1 (by simp)
 @[simp] theorem UInt32.toFin_and (a b : UInt32) : (a &&& b).toFin = a.toFin &&& b.toFin := Fin.val_inj.1 (by simp)
@@ -202,20 +199,6 @@ theorem USize.sub_eq_add_neg (a b : USize) : a - b = a + (-b) := USize.toBitVec_
   rw [← toFin_toBitVec, UInt64.toBitVec_not, BitVec.toFin_not, toFin_toBitVec]
 @[simp] theorem USize.toFin_not (a : USize) : (~~~a).toFin = a.toFin.rev := by
   rw [← toFin_toBitVec, USize.toBitVec_not, BitVec.toFin_not, toFin_toBitVec]
-
-@[simp] theorem System.Platform.eight_le_numBits : 8 ≤ System.Platform.numBits := by
-  cases System.Platform.numBits_eq <;> simp_all
-@[simp] theorem System.Platform.sixteen_le_numBits : 16 ≤ System.Platform.numBits := by
-  cases System.Platform.numBits_eq <;> simp_all
-
-@[simp] theorem System.Platform.eight_dvd_numBits : 8 ∣ System.Platform.numBits := by
-  cases System.Platform.numBits_eq <;> simp_all
-@[simp] theorem System.Platform.sixteen_dvd_numBits : 16 ∣ System.Platform.numBits := by
-  cases System.Platform.numBits_eq <;> simp_all
-@[simp] theorem System.Platform.dvd_numBits : 32 ∣ System.Platform.numBits := by
-  cases System.Platform.numBits_eq <;> simp_all
-@[simp] theorem System.Platform.numBits_dvd : System.Platform.numBits ∣ 64 := by
-  cases System.Platform.numBits_eq <;> simp_all
 
 @[simp] theorem UInt16.toUInt8_not (a : UInt16) : (~~~a).toUInt8 = ~~~a.toUInt8 := UInt8.toBitVec_inj.1 (by simp)
 @[simp] theorem UInt32.toUInt8_not (a : UInt32) : (~~~a).toUInt8 = ~~~a.toUInt8 := UInt8.toBitVec_inj.1 (by simp)

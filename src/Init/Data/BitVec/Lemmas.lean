@@ -2627,7 +2627,7 @@ theorem extractLsb'_append_eq_ite {v w} {xhi : BitVec v} {xlo : BitVec w} {start
   · simp only [hstart, ↓reduceDIte]
     ext i hi
     simp [getElem_extractLsb', getLsbD_append,
-      show ¬start + i < w by omega, ↓reduceIte, 
+      show ¬start + i < w by omega, ↓reduceIte,
       show start + i - w = start - w + i by omega]
 
 /-- Extracting bits `[start..start+len)` from `(xhi ++ xlo)` equals extracting

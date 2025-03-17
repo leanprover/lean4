@@ -233,9 +233,7 @@ def CoefficientsMap.toExpr (coeff : CoefficientsMap) (op : Op) : VarStateM (Opti
   for (var, coeff) in coeffArr do
     let expr := (← get).varToExpr[var]!
     for _ in [0:coeff] do
-      acc := match acc with
-        | none => expr
-        | some acc => some <| mkApp2 op.toExpr acc expr
+      acc := mkApp2 op.toExpr (acc.getD expr) expr
   return acc
 
 open VarStateM Lean.Meta Lean.Elab Term
@@ -296,7 +294,7 @@ def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
 
   trace[Meta.AC] "Canonicalizing with respect to operation: '{op}' K"
 
-  VarStateM.run' (s:= { op }) do
+  VarStateM.run' (s := { op }) do
     let lCoeff ← computeCoefficients op lhs
     let rCoeff ← computeCoefficients op rhs
 
@@ -316,10 +314,7 @@ def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
     let expr := mkApp2 P lNew rNew
     let proof ← proveEqualityByAC oldExpr expr
 
-    return Simp.Step.continue <| some {
-      expr := expr
-      proof? := some proof
-    }
+    return .continue <| some { expr := expr, proof? := some proof }
 
 def bvAcNfpost : Simp.Simproc := fun e => do
   match_expr e with

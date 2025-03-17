@@ -215,6 +215,7 @@ static lean_object* l_Std_DHashMap_Internal_AssocList_forInStep_go___at_Lean_Ela
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleSimpleEnum___spec__5___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleEnumWithDefault___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 lean_object* l_Lean_Meta_synthInstance(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_withLocalDecls_loop___at___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleSimpleEnum___spec__9___rarg___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass_postprocess___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -447,6 +448,7 @@ lean_object* l_Lean_MessageData_ofName(lean_object*);
 static lean_object* l_Std_DHashMap_Internal_AssocList_forInStep_go___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass___elambda__1___spec__1___closed__3;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumToBitVecCtor___lambda__2___closed__3;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleSimpleEnum___spec__5(size_t, size_t, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l_Array_qsort_sort___at___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleSimpleEnum___spec__3___closed__1;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums___hyg_3101____lambda__1___closed__4;
 lean_object* l_Lean_addDecl(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4596,7 +4598,7 @@ x_52 = lean_ctor_get(x_50, 1);
 lean_inc(x_52);
 lean_dec(x_50);
 x_53 = lean_array_get_size(x_11);
-x_54 = lean_mk_empty_array_with_capacity(x_53);
+x_54 = l_Array_emptyWithCapacity(lean_box(0), x_53);
 x_55 = l_Array_mapFinIdxM_map___at___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleSimpleEnum___spec__2(x_10, x_11, x_11, x_53, x_31, lean_box(0), x_54);
 lean_dec(x_10);
 x_56 = lean_array_get_size(x_55);
@@ -5832,7 +5834,7 @@ x_57 = lean_ctor_get(x_55, 1);
 lean_inc(x_57);
 lean_dec(x_55);
 x_58 = lean_array_get_size(x_39);
-x_59 = lean_mk_empty_array_with_capacity(x_58);
+x_59 = l_Array_emptyWithCapacity(lean_box(0), x_58);
 x_60 = l_Array_mapFinIdxM_map___at___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleEnumWithDefault___spec__2(x_10, x_39, x_39, x_58, x_31, lean_box(0), x_59);
 lean_dec(x_39);
 lean_dec(x_10);
@@ -11463,34 +11465,56 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_5 = lean_ctor_get(x_3, 1);
 x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumToBitVecSuffix;
 x_7 = lean_string_dec_eq(x_5, x_6);
-return x_7;
-}
-else
+if (x_7 == 0)
 {
 uint8_t x_8; 
 x_8 = 0;
 return x_8;
 }
-}
 else
 {
 uint8_t x_9; 
-x_9 = 0;
-return x_9;
-}
-}
-else
+x_9 = l_Lean_Expr_hasLooseBVars(x_1);
+if (x_9 == 0)
 {
 uint8_t x_10; 
-x_10 = 0;
+x_10 = 1;
 return x_10;
-}
 }
 else
 {
 uint8_t x_11; 
 x_11 = 0;
 return x_11;
+}
+}
+}
+else
+{
+uint8_t x_12; 
+x_12 = 0;
+return x_12;
+}
+}
+else
+{
+uint8_t x_13; 
+x_13 = 0;
+return x_13;
+}
+}
+else
+{
+uint8_t x_14; 
+x_14 = 0;
+return x_14;
+}
+}
+else
+{
+uint8_t x_15; 
+x_15 = 0;
+return x_15;
 }
 }
 }

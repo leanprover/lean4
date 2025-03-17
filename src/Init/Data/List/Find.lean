@@ -540,11 +540,6 @@ theorem findIdx_getElem {xs : List α} {w : xs.findIdx p < xs.length} :
     p xs[xs.findIdx p] :=
   xs.findIdx_of_getElem?_eq_some (getElem?_eq_getElem w)
 
-@[deprecated findIdx_getElem (since := "2024-08-12")]
-theorem findIdx_get {xs : List α} {w : xs.findIdx p < xs.length} :
-    p (xs.get ⟨xs.findIdx p, w⟩) :=
-  xs.findIdx_of_getElem?_eq_some (getElem?_eq_getElem w)
-
 theorem findIdx_lt_length_of_exists {xs : List α} (h : ∃ x ∈ xs, p x) :
     xs.findIdx p < xs.length := by
   induction xs with

@@ -1010,6 +1010,23 @@ theorem getKey?_erase!_self [TransOrd α] (h : t.WF) {k : α} :
     (t.erase! k).getKey? k = none := by
   simp_to_model [erase!] using List.getKey?_eraseKey_self
 
+theorem compare_getKey?_self [TransOrd α] (h : t.WF) {k : α} :
+    (t.getKey? k).all (compare · k = .eq) := by
+  simp only [compare_eq_iff_beq, Bool.decide_eq_true]
+  simp_to_model using List.getKey?_beq
+
+theorem getKey?_congr [TransOrd α] (h : t.WF) {k k' : α} (h' : compare k k' = .eq) :
+    t.getKey? k = t.getKey? k' := by
+  simp_to_model using List.getKey?_congr <| compare_eq_iff_beq.mp h'
+
+theorem getKey?_eq_some_of_contains [TransOrd α] [LawfulEqOrd α] (h : t.WF)
+    {k : α} : (h' : t.contains k) → t.getKey? k = some k := by
+  simp_to_model using List.getKey?_eq_some
+
+theorem getKey?_eq_some [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α}
+    (h' : k ∈ t) : t.getKey? k = some k :=
+  getKey?_eq_some_of_contains h h'
+
 theorem getKey_insert [TransOrd α] (h : t.WF) {k a : α} {v : β k} {h₁} :
     (t.insert k v h.balanced).impl.getKey a h₁ =
       if h₂ : compare k a = .eq then
@@ -1047,6 +1064,18 @@ theorem getKey_erase! [TransOrd α] (h : t.WF) {k a : α} {h'} :
 theorem getKey?_eq_some_getKey [TransOrd α] (h : t.WF) {a : α} {h'} :
     t.getKey? a = some (t.getKey a h') := by
   simp_to_model using List.getKey?_eq_some_getKey
+
+theorem compare_getKey_self [TransOrd α] (h : t.WF) {k : α} (h' : k ∈ t) :
+    compare (t.getKey k h') k = .eq := by
+  simp_to_model using List.getKey_beq
+
+theorem getKey_congr [TransOrd α] (h : t.WF) {k₁ k₂ : α} (h' : compare k₁ k₂ = .eq)
+    (h₁ : k₁ ∈ t) : t.getKey k₁ h₁ = t.getKey k₂ ((mem_congr h h').mp h₁) := by
+  simp_to_model using List.getKey_congr <| compare_eq_iff_beq.mp h'
+
+theorem getKey_eq [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} :
+    (h' : k ∈ t) → t.getKey k h' = k := by
+  simp_to_model using List.getKey_eq
 
 theorem getKey!_empty {a : α} [Inhabited α] :
     (empty : Impl α β).getKey! a = default := by
@@ -1113,6 +1142,18 @@ theorem getKey!_eq_get!_getKey? [TransOrd α] [Inhabited α] (h : t.WF) {a : α}
 theorem getKey_eq_getKey! [TransOrd α] [Inhabited α] (h : t.WF) {a : α} {h} :
     t.getKey a h = t.getKey! a := by
   simp_to_model using List.getKey_eq_getKey!
+
+theorem getKey!_congr [TransOrd α] [Inhabited α] (h : t.WF) {k k' : α} :
+    (h' : compare k k' = .eq) → t.getKey! k = t.getKey! k' := by
+  simp_to_model using List.getKey!_congr
+
+theorem getKey!_eq_of_contains [TransOrd α] [LawfulEqOrd α] [Inhabited α]
+    (h : t.WF) {k : α} : (h' : t.contains k) → t.getKey! k = k := by
+  simp_to_model using List.getKey!_eq_of_containsKey
+
+theorem getKey!_eq_of_mem [TransOrd α] [LawfulEqOrd α] [Inhabited α]
+    (h : t.WF) {k : α} : (h' : k ∈ t) → t.getKey! k = k := by
+  simpa [mem_iff_contains] using getKey!_eq_of_contains h
 
 theorem getKeyD_empty {a : α} {fallback : α} :
     (empty : Impl α β).getKeyD a fallback = fallback := by
@@ -1189,7 +1230,19 @@ theorem getKey!_eq_getKeyD_default [TransOrd α] [Inhabited α] (h : t.WF)
     t.getKey! a = t.getKeyD a default := by
   simp_to_model using List.getKey!_eq_getKeyD_default
 
-/-- This is a restatement of `contains_of_contains_insertIfNew` that is written to exactly match the
+theorem getKeyD_congr [TransOrd α] (h : t.WF) {k k' fallback : α} :
+    (h' : compare k k' = .eq) → t.getKeyD k fallback = t.getKeyD k' fallback := by
+  simp_to_model using List.getKeyD_congr
+
+theorem getKeyD_eq_of_contains [TransOrd α] [LawfulEqOrd α] (h : t.WF)
+    {k fallback : α} : (h' : t.contains k) → t.getKeyD k fallback = k := by
+  simp_to_model using List.getKeyD_eq_of_containsKey
+
+theorem getKeyD_eq_of_mem [TransOrd α] [LawfulEqOrd α] (h : t.WF)
+    {k fallback : α} (h' : k ∈ t) : t.getKeyD k fallback = k :=
+  getKeyD_eq_of_contains h h'
+
+/-- This is a restatement of `mem_of_mem_insertIfNew` that is written to exactly match the
 proof obligation in the statement of `get_insertIfNew`. -/
 theorem mem_of_mem_insertIfNew' [TransOrd α] (h : t.WF) {k a : α}
     {v : β k} :
@@ -1197,7 +1250,7 @@ theorem mem_of_mem_insertIfNew' [TransOrd α] (h : t.WF) {k a : α}
       ¬ (compare k a = .eq ∧ ¬ k ∈ t) → a ∈ t := by
   simp_to_model [insertIfNew] using List.containsKey_of_containsKey_insertEntryIfNew'
 
-/-- This is a restatement of `contains_of_contains_insertIfNew!` that is written to exactly match the
+/-- This is a restatement of `mem_of_mem_insertIfNew!` that is written to exactly match the
 proof obligation in the statement of `get_insertIfNew!`. -/
 theorem mem_of_mem_insertIfNew!' [TransOrd α] (h : t.WF) {k a : α}
     {v : β k} :

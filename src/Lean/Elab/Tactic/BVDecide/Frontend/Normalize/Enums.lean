@@ -440,7 +440,11 @@ partial def enumsPass : Pass where
         (simprocs, relevantLemmas) ← addStructureSimpLemmas simprocs relevantLemmas
 
       let simpCtx ← Simp.mkContext
-        (config := { failIfUnchanged := false, maxSteps := cfg.maxSteps })
+        (config := {
+          failIfUnchanged := false,
+          implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
+          maxSteps := cfg.maxSteps,
+        })
         (simpTheorems := relevantLemmas)
         (congrTheorems := ← getSimpCongrTheorems)
 
@@ -457,7 +461,7 @@ where
     goal.withContext do
       let filter e :=
         if let .app (.const (.str _ s) []) _ := e then
-          s == enumToBitVecSuffix
+          s == enumToBitVecSuffix && !e.hasLooseBVars
         else
           false
 

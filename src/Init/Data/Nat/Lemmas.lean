@@ -20,9 +20,6 @@ and later these lemmas should be organised into other files more systematically.
 
 namespace Nat
 
-@[deprecated and_forall_add_one (since := "2024-07-30")] abbrev and_forall_succ := @and_forall_add_one
-@[deprecated or_exists_add_one (since := "2024-07-30")] abbrev or_exists_succ := @or_exists_add_one
-
 @[simp] theorem exists_ne_zero {P : Nat → Prop} : (∃ n, ¬ n = 0 ∧ P n) ↔ ∃ n, P (n + 1) :=
   ⟨fun ⟨n, h, w⟩ => by cases n with | zero => simp at h | succ n => exact ⟨n, w⟩,
     fun ⟨n, w⟩ => ⟨n + 1, by simp, w⟩⟩
@@ -933,6 +930,25 @@ theorem mod_eq_iff {a b c : Nat} :
      rintro (⟨rfl, rfl⟩ | ⟨w, h, rfl⟩)
      · simp_all
      · rw [mul_add_mod, mod_eq_of_lt w]⟩
+
+theorem mod_eq_sub_iff {a b c : Nat} (h₁ : 0 < c) (h : c ≤ b) : a % b = b - c ↔ b ∣ a + c := by
+  rw [Nat.mod_eq_iff]
+  refine ⟨?_, ?_⟩
+  · rintro (⟨rfl, rfl⟩|⟨hlt, ⟨k, hk⟩⟩)
+    · simp; omega
+    · refine ⟨k + 1, ?_⟩
+      rw [← Nat.add_sub_assoc h] at hk
+      rw [Nat.mul_succ, eq_comm]
+      apply Nat.eq_add_of_sub_eq (by omega) hk.symm
+  · rintro ⟨k, hk⟩
+    obtain (rfl|hb) := Nat.eq_zero_or_pos b
+    · obtain rfl : c = 0 := by omega
+      refine Or.inl ⟨rfl, by simpa using hk⟩
+    · have : k ≠ 0 := by rintro rfl; omega
+      refine Or.inr ⟨by omega, ⟨k - 1, ?_⟩⟩
+      rw [← Nat.add_sub_assoc h, eq_comm]
+      apply Nat.sub_eq_of_eq_add
+      rw [mul_sub_one, Nat.sub_add_cancel (Nat.le_mul_of_pos_right _ (by omega)), hk]
 
 theorem succ_mod_succ_eq_zero_iff {a b : Nat} :
     (a + 1) % (b + 1) = 0 ↔ a % (b + 1) = b := by

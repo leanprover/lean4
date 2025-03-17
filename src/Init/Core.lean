@@ -52,8 +52,6 @@ attribute [simp] namedPattern
 /--
 `Empty.elim : Empty → C` says that a value of any type can be constructed from
 `Empty`. This can be thought of as a compiler-checked assertion that a code path is unreachable.
-
-This is a non-dependent variant of `Empty.rec`.
 -/
 @[macro_inline] def Empty.elim {C : Sort u} : Empty → C := Empty.rec
 
@@ -63,8 +61,6 @@ instance : DecidableEq Empty := fun a => a.elim
 /--
 `PEmpty.elim : Empty → C` says that a value of any type can be constructed from
 `PEmpty`. This can be thought of as a compiler-checked assertion that a code path is unreachable.
-
-This is a non-dependent variant of `PEmpty.rec`.
 -/
 @[macro_inline] def PEmpty.elim {C : Sort _} : PEmpty → C := fun a => nomatch a
 
@@ -138,46 +134,50 @@ recommended_spelling "iff" for "↔" in [Iff, «term_↔_»]
 recommended_spelling "iff" for "<->" in [Iff, «term_<->_»]
 
 /--
-`Sum α β`, or `α ⊕ β`, is the disjoint union of types `α` and `β`.
-An element of `α ⊕ β` is either of the form `.inl a` where `a : α`,
-or `.inr b` where `b : β`.
+The disjoint union of types `α` and `β`, ordinarily written `α ⊕ β`.
+
+An element of `α ⊕ β` is either an `a : α` wrapped in `Sum.inl` or a `b : β` wrapped in `Sum.inr`.
+`α ⊕ β` is not equivalent to the set-theoretic union of `α` and `β` because its values include an
+indication of which of the two types was chosen. The union of a singleton set with itself contains
+one element, while `Unit ⊕ Unit` contains distinct values `inl ()` and `inr ()`.
 -/
 inductive Sum (α : Type u) (β : Type v) where
-  /-- Left injection into the sum type `α ⊕ β`. If `a : α` then `.inl a : α ⊕ β`. -/
+  /-- Left injection into the sum type `α ⊕ β`. -/
   | inl (val : α) : Sum α β
-  /-- Right injection into the sum type `α ⊕ β`. If `b : β` then `.inr b : α ⊕ β`. -/
+  /-- Right injection into the sum type `α ⊕ β`. -/
   | inr (val : β) : Sum α β
 
 @[inherit_doc] infixr:30 " ⊕ " => Sum
 
 /--
-`PSum α β`, or `α ⊕' β`, is the disjoint union of types `α` and `β`.
-It differs from `α ⊕ β` in that it allows `α` and `β` to have arbitrary sorts
-`Sort u` and `Sort v`, instead of restricting to `Type u` and `Type v`. This means
-that it can be used in situations where one side is a proposition, like `True ⊕' Nat`.
+The disjoint union of arbitrary sorts `α` `β`, or `α ⊕' β`.
 
-The reason this is not the default is that this type lives in the universe `Sort (max 1 u v)`,
-which can cause problems for universe level unification,
-because the equation `max 1 u v = ?u + 1` has no solution in level arithmetic.
-`PSum` is usually only used in automation that constructs sums of arbitrary types.
+It differs from `α ⊕ β` in that it allows `α` and `β` to have arbitrary sorts `Sort u` and `Sort v`,
+instead of restricting them to `Type u` and `Type v`. This means that it can be used in situations
+where one side is a proposition, like `True ⊕' Nat`. However, the resulting universe level
+constraints are often more difficult to solve than those that result from `Sum`.
 -/
 inductive PSum (α : Sort u) (β : Sort v) where
-  /-- Left injection into the sum type `α ⊕' β`. If `a : α` then `.inl a : α ⊕' β`. -/
+  /-- Left injection into the sum type `α ⊕' β`.-/
   | inl (val : α) : PSum α β
-  /-- Right injection into the sum type `α ⊕' β`. If `b : β` then `.inr b : α ⊕' β`. -/
+  /-- Right injection into the sum type `α ⊕' β`. -/
   | inr (val : β) : PSum α β
 
 @[inherit_doc] infixr:30 " ⊕' " => PSum
 
 /--
-`PSum α β` is inhabited if `α` is inhabited.
-This is not an instance to avoid non-canonical instances.
+If the left type in a sum is inhabited then the sum is inhabited.
+
+This is not an instance to avoid non-canonical instances when both the left and right types are
+inhabited.
 -/
-@[reducible] def  PSum.inhabitedLeft {α β} [Inhabited α] : Inhabited (PSum α β) := ⟨PSum.inl default⟩
+@[reducible] def PSum.inhabitedLeft {α β} [Inhabited α] : Inhabited (PSum α β) := ⟨PSum.inl default⟩
 
 /--
-`PSum α β` is inhabited if `β` is inhabited.
-This is not an instance to avoid non-canonical instances.
+If the right type in a sum is inhabited then the sum is inhabited.
+
+This is not an instance to avoid non-canonical instances when both the left and right types are
+inhabited.
 -/
 @[reducible] def PSum.inhabitedRight {α β} [Inhabited β] : Inhabited (PSum α β) := ⟨PSum.inr default⟩
 
@@ -188,47 +188,58 @@ instance PSum.nonemptyRight [h : Nonempty β] : Nonempty (PSum α β) :=
   Nonempty.elim h (fun b => ⟨PSum.inr b⟩)
 
 /--
-`Sigma β`, also denoted `Σ a : α, β a` or `(a : α) × β a`, is the type of dependent pairs
-whose first component is `a : α` and whose second component is `b : β a`
-(so the type of the second component can depend on the value of the first component).
-It is sometimes known as the dependent sum type, since it is the type level version
-of an indexed summation.
+Dependent pairs, in which the second element's type depends on the value of the first element. The
+type `Sigma β` is typically written `Σ a : α, β a` or `(a : α) × β a`.
+
+Although its values are pairs, `Sigma` is sometimes known as the *dependent sum type*, since it is
+the type level version of an indexed summation.
 -/
 @[pp_using_anonymous_constructor]
 structure Sigma {α : Type u} (β : α → Type v) where
-  /-- Constructor for a dependent pair. If `a : α` and `b : β a` then `⟨a, b⟩ : Sigma β`.
-  (This will usually require a type ascription to determine `β`
-  since it is not determined from `a` and `b` alone.) -/
+  /--
+  Constructs a dependent pair.
+
+  Using this constructor in a context in which the type is not known usually requires a type
+  ascription to determine `β`. This is because the desired relationship between the two values can't
+  generally be determined automatically.
+  -/
   mk ::
-  /-- The first component of a dependent pair. If `p : @Sigma α β` then `p.1 : α`. -/
+  /--
+  The first component of a dependent pair.
+  -/
   fst : α
-  /-- The second component of a dependent pair. If `p : Sigma β` then `p.2 : β p.1`. -/
+  /--
+  The second component of a dependent pair. Its type depends on the first component.
+  -/
   snd : β fst
 
 attribute [unbox] Sigma
 
 /--
-`PSigma β`, also denoted `Σ' a : α, β a` or `(a : α) ×' β a`, is the type of dependent pairs
-whose first component is `a : α` and whose second component is `b : β a`
-(so the type of the second component can depend on the value of the first component).
-It differs from `Σ a : α, β a` in that it allows `α` and `β` to have arbitrary sorts
-`Sort u` and `Sort v`, instead of restricting to `Type u` and `Type v`. This means
-that it can be used in situations where one side is a proposition, like `(p : Nat) ×' p = p`.
+Fully universe-polymorphic dependent pairs, in which the second element's type depends on the value
+of the first element and both types are allowed to be propositions. The type `PSigma β` is typically
+written `Σ' a : α, β a` or `(a : α) ×' β a`.
 
-The reason this is not the default is that this type lives in the universe `Sort (max 1 u v)`,
-which can cause problems for universe level unification,
-because the equation `max 1 u v = ?u + 1` has no solution in level arithmetic.
-`PSigma` is usually only used in automation that constructs pairs of arbitrary types.
+In practice, this generality leads to universe level constraints that are difficult to solve, so
+`PSigma` is rarely used in manually-written code. It is usually only used in automation that
+constructs pairs of arbitrary types.
+
+To pair a value with a proof that a predicate holds for it, use `Subtype`. To demonstrate that a
+value exists that satisfies a predicate, use `Exists`. A dependent pair with a proposition as its
+first component is not typically useful due to proof irrelevance: there's no point in depending on a
+specific proof because all proofs are equal anyway.
 -/
 @[pp_using_anonymous_constructor]
 structure PSigma {α : Sort u} (β : α → Sort v) where
-  /-- Constructor for a dependent pair. If `a : α` and `b : β a` then `⟨a, b⟩ : PSigma β`.
-  (This will usually require a type ascription to determine `β`
-  since it is not determined from `a` and `b` alone.) -/
+  /-- Constructs a fully universe-polymorphic dependent pair. -/
   mk ::
-  /-- The first component of a dependent pair. If `p : @PSigma α β` then `p.1 : α`. -/
+  /--
+  The first component of a dependent pair.
+  -/
   fst : α
-  /-- The second component of a dependent pair. If `p : PSigma β` then `p.2 : β p.1`. -/
+  /--
+  The second component of a dependent pair. Its type depends on the first component.
+  -/
   snd : β fst
 
 /--
@@ -687,9 +698,11 @@ Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead
 recommended_spelling "bne" for "!=" in [bne, «term_!=_»]
 
 /--
-`LawfulBEq α` is a typeclass which asserts that the `BEq α` implementation
-(which supplies the `a == b` notation) coincides with logical equality `a = b`.
-In other words, `a == b` implies `a = b`, and `a == a` is true.
+A Boolean equality test coincides with propositional equality.
+
+In other words:
+ * `a == b` implies `a = b`.
+ * `a == a` is true.
 -/
 class LawfulBEq (α : Type u) [BEq α] : Prop where
   /-- If `a == b` evaluates to `true`, then `a` and `b` are equal in the logic. -/
@@ -946,9 +959,10 @@ namespace Decidable
 variable {p q : Prop}
 
 /--
-Synonym for `dite` (dependent if-then-else). We can construct an element `q`
-(of any sort, not just a proposition) by cases on whether `p` is true or false,
-provided `p` is decidable.
+Construct a `q` if some proposition `p` is decidable, and both the truth and falsity of `p` are
+sufficient to construct a `q`.
+
+This is a synonym for `dite`, the dependent if-then-else operator.
 -/
 @[macro_inline] def byCases {q : Sort u} [dec : Decidable p] (h1 : p → q) (h2 : ¬p → q) : q :=
   match dec with
@@ -1081,22 +1095,28 @@ theorem nonempty_of_exists {α : Sort u} {p : α → Prop} : Exists (fun x => p 
 /-! # Subsingleton -/
 
 /--
-A "subsingleton" is a type with at most one element.
-In other words, it is either empty, or has a unique element.
-All propositions are subsingletons because of proof irrelevance, but some other types
-are subsingletons as well and they inherit many of the same properties as propositions.
-`Subsingleton α` is a typeclass, so it is usually used as an implicit argument and
-inferred by typeclass inference.
+A _subsingleton_ is a type with at most one element. It is either empty or has a unique element.
+
+All propositions are subsingletons because of proof irrelevance: false propositions are empty, and
+all proofs of a true proposition are equal to one another. Some non-propositional types are also
+subsingletons.
 -/
 class Subsingleton (α : Sort u) : Prop where
-  /-- Construct a proof that `α` is a subsingleton by showing that any two elements are equal. -/
+  /-- Prove that `α` is a subsingleton by showing that any two elements are equal. -/
   intro ::
   /-- Any two elements of a subsingleton are equal. -/
   allEq : (a b : α) → a = b
 
+/--
+If a type is a subsingleton, then all of its elements are equal.
+-/
 protected theorem Subsingleton.elim {α : Sort u} [h : Subsingleton α] : (a b : α) → a = b :=
   h.allEq
 
+/--
+If two types are equal and one of them is a subsingleton, then all of their elements are
+[heterogeneously equal](lean-manual://section/HEq).
+-/
 protected theorem Subsingleton.helim {α β : Sort u} [h₁ : Subsingleton α] (h₂ : α = β) (a : α) (b : β) : HEq a b := by
   subst h₂
   apply heq_of_eq
@@ -1134,22 +1154,21 @@ theorem recSubsingleton
   | isFalse h => h₄ h
 
 /--
-An equivalence relation `~ : α → α → Prop` is a relation that is:
+An equivalence relation `r : α → α → Prop` is a relation that is
 
-* reflexive: `x ~ x`
-* symmetric: `x ~ y` implies `y ~ x`
-* transitive: `x ~ y` and `y ~ z` implies `x ~ z`
+* reflexive: `r x x`,
+* symmetric: `r x y` implies `r y x`, and
+* transitive: `r x y` and `r y z` implies `r x z`.
 
-Equality is an equivalence relation, and equivalence relations share many of
-the properties of equality. In particular, `Quot α r` is most well behaved
-when `r` is an equivalence relation, and in this case we use `Quotient` instead.
+Equality is an equivalence relation, and equivalence relations share many of the properties of
+equality.
 -/
 structure Equivalence {α : Sort u} (r : α → α → Prop) : Prop where
-  /-- An equivalence relation is reflexive: `x ~ x` -/
+  /-- An equivalence relation is reflexive: `r x x` -/
   refl  : ∀ x, r x x
-  /-- An equivalence relation is symmetric: `x ~ y` implies `y ~ x` -/
+  /-- An equivalence relation is symmetric: `r x y` implies `r y x` -/
   symm  : ∀ {x y}, r x y → r y x
-  /-- An equivalence relation is transitive: `x ~ y` and `y ~ z` implies `x ~ z` -/
+  /-- An equivalence relation is transitive: `r x y` and `r y z` implies `r x z` -/
   trans : ∀ {x y z}, r x y → r y z → r x z
 
 /-- The empty relation is the relation on `α` which is always `False`. -/
@@ -1181,9 +1200,6 @@ inductive Relation.TransGen {α : Sort u} (r : α → α → Prop) : α → α �
   /-- If `TransGen r a b` and `r b c`, then `TransGen r a c`.
   This is the inductive case of the transitive closure. -/
   | tail {a b c} : TransGen r a b → r b c → TransGen r a c
-
-/-- Deprecated synonym for `Relation.TransGen`. -/
-@[deprecated Relation.TransGen (since := "2024-07-16")] abbrev TC := @Relation.TransGen
 
 /-- The transitive closure is transitive. -/
 theorem Relation.TransGen.trans {α : Sort u} {r : α → α → Prop} {a b c} :
@@ -1221,12 +1237,12 @@ end Subtype
 section
 variable {α : Type u} {β : Type v}
 
-/-- This is not an instance to avoid non-canonical instances. -/
-@[reducible] def Sum.inhabitedLeft [Inhabited α] : Inhabited (Sum α β) where
+@[reducible, inherit_doc PSum.inhabitedLeft]
+def Sum.inhabitedLeft [Inhabited α] : Inhabited (Sum α β) where
   default := Sum.inl default
 
-/-- This is not an instance to avoid non-canonical instances. -/
-@[reducible] def Sum.inhabitedRight [Inhabited β] : Inhabited (Sum α β) where
+@[reducible, inherit_doc PSum.inhabitedRight]
+def Sum.inhabitedRight [Inhabited β] : Inhabited (Sum α β) where
   default := Sum.inr default
 
 instance Sum.nonemptyLeft [h : Nonempty α] : Nonempty (Sum α β) :=
@@ -1286,7 +1302,12 @@ instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
 instance [BEq α] [BEq β] : BEq (α × β) where
   beq := fun (a₁, b₁) (a₂, b₂) => a₁ == a₂ && b₁ == b₂
 
-/-- Lexicographical order for products -/
+/--
+Lexicographical order for products.
+
+Two pairs are lexicographically ordered if their first elements are ordered or if their first
+elements are equal and their second elements are ordered.
+-/
 def Prod.lexLt [LT α] [LT β] (s : α × β) (t : α × β) : Prop :=
   s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)
 
@@ -1302,8 +1323,11 @@ theorem Prod.lexLt_def [LT α] [LT β] (s t : α × β) : (Prod.lexLt s t) = (s.
 theorem Prod.eta (p : α × β) : (p.1, p.2) = p := rfl
 
 /--
-`Prod.map f g : α₁ × β₁ → α₂ × β₂` maps across a pair
-by applying `f` to the first component and `g` to the second.
+Transforms a pair by applying functions to both elements.
+
+Examples:
+ * `(1, 2).map (· + 1) (· * 3) = (2, 6)`
+ * `(1, 2).map toString (· * 3) = ("1", 6)`
 -/
 def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ : Type v₂}
     (f : α₁ → α₂) (g : β₁ → β₂) : α₁ × β₁ → α₂ × β₂
@@ -1318,10 +1342,6 @@ def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ 
 
 theorem Exists.of_psigma_prop {α : Sort u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
   | ⟨x, hx⟩ => ⟨x, hx⟩
-
-@[deprecated Exists.of_psigma_prop (since := "2024-07-27")]
-theorem ex_of_PSigma {α : Type u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x) :=
-  Exists.of_psigma_prop
 
 protected theorem PSigma.eta {α : Sort u} {β : α → Sort v} {a₁ a₂ : α} {b₁ : β a₁} {b₂ : β a₂}
     (h₁ : a₁ = a₂) (h₂ : Eq.ndrec b₁ h₁ = b₂) : PSigma.mk a₁ b₁ = PSigma.mk a₂ b₂ := by
@@ -1350,7 +1370,8 @@ instance : DecidableEq PUnit :=
 
 /--
 A setoid is a type with a distinguished equivalence relation, denoted `≈`.
-This is mainly used as input to the `Quotient` type constructor.
+
+The `Quotient` type constructor requires a `Setoid` instance.
 -/
 class Setoid (α : Sort u) where
   /-- `x ≈ y` is the distinguished equivalence relation of a setoid. -/
@@ -1365,12 +1386,15 @@ namespace Setoid
 
 variable {α : Sort u} [Setoid α]
 
+/-- A setoid's equivalence relation is reflexive. -/
 theorem refl (a : α) : a ≈ a :=
   iseqv.refl a
 
+/-- A setoid's equivalence relation is symmetric. -/
 theorem symm {a b : α} (hab : a ≈ b) : b ≈ a :=
   iseqv.symm hab
 
+/-- A setoid's equivalence relation is transitive. -/
 theorem trans {a b c : α} (hab : a ≈ b) (hbc : b ≈ c) : a ≈ c :=
   iseqv.trans hab hbc
 
@@ -1587,34 +1611,21 @@ theorem imp_iff_not (hb : ¬b) : a → b ↔ ¬a := imp_congr_right fun _ => iff
 
 namespace Quot
 /--
-The **quotient axiom**, or at least the nontrivial part of the quotient
-axiomatization. Quotient types are introduced by the `init_quot` command
-in `Init.Prelude` which introduces the axioms:
+The **quotient axiom**, which asserts the equality of elements related by the quotient's relation.
 
-```
-opaque Quot {α : Sort u} (r : α → α → Prop) : Sort u
+The relation `r` does not need to be an equivalence relation to use this axiom. When `r` is not an
+equivalence relation, the quotient is with respect to the equivalence relation generated by `r`.
 
-opaque Quot.mk {α : Sort u} (r : α → α → Prop) (a : α) : Quot r
+`Quot.sound` is part of the built-in primitive quotient type:
+ * `Quot` is the built-in quotient type.
+ * `Quot.mk` places elements of the underlying type `α` into the quotient.
+ * `Quot.lift` allows the definition of functions from the quotient to some other type.
+ * `Quot.ind` is used to write proofs about quotients by assuming that all elements are constructed
+   with `Quot.mk`; it is analogous to the [recursor](lean-manual://section/recursors) for a
+   structure.
 
-opaque Quot.lift {α : Sort u} {r : α → α → Prop} {β : Sort v} (f : α → β) :
-  (∀ a b : α, r a b → f a = f b) → Quot r → β
-
-opaque Quot.ind {α : Sort u} {r : α → α → Prop} {β : Quot r → Prop} :
-  (∀ a : α, β (Quot.mk r a)) → ∀ q : Quot r, β q
-```
-All of these axioms are true if we assume `Quot α r = α` and `Quot.mk` and
-`Quot.lift` are identity functions, so they do not add much. However this axiom
-cannot be explained in that way (it is false for that interpretation), so the
-real power of quotient types come from this axiom.
-
-It says that the quotient by `r` maps elements which are related by `r` to equal
-values in the quotient. Together with `Quot.lift` which says that functions
-which respect `r` can be lifted to functions on the quotient, we can deduce that
-`Quot α r` exactly consists of the equivalence classes with respect to `r`.
-
-It is important to note that `r` need not be an equivalence relation in this axiom.
-When `r` is not an equivalence relation, we are actually taking a quotient with
-respect to the equivalence relation generated by `r`.
+[Quotient types](lean-manual://section/quotients) are described in more detail in the Lean Language
+Reference.
 -/
 axiom sound : ∀ {α : Sort u} {r : α → α → Prop} {a b : α}, r a b → Quot.mk r a = Quot.mk r b
 
@@ -1632,8 +1643,17 @@ protected theorem indBeta {α : Sort u} {r : α → α → Prop} {motive : Quot 
   rfl
 
 /--
-`Quot.liftOn q f h` is the same as `Quot.lift f h q`. It just reorders
-the argument `q : Quot r` to be first.
+Lifts a function from an underlying type to a function on a quotient, requiring that it respects the
+quotient's relation.
+
+Given a relation `r : α → α → Prop` and a quotient's value `q : Quot r`, applying a `f : α → β`
+requires a proof `c` that `f` respects `r`. In this case, `Quot.liftOn q f h : β` evaluates
+to the result of applying `f` to the underlying value in `α` from `q`.
+
+`Quot.liftOn` is a version of the built-in primitive `Quot.lift` with its parameters re-ordered.
+
+[Quotient types](lean-manual://section/quotients) are described in more detail in the Lean Language
+Reference.
 -/
 protected abbrev liftOn {α : Sort u} {β : Sort v} {r : α → α → Prop}
   (q : Quot r) (f : α → β) (c : (a b : α) → r a b → f a = f b) : β :=
@@ -1674,12 +1694,19 @@ protected theorem liftIndepPr1
  exact rfl
 
 /--
-Dependent recursion principle for `Quot`. This constructor can be tricky to use,
-so you should consider the simpler versions if they apply:
-* `Quot.lift`, for nondependent functions
-* `Quot.ind`, for theorems / proofs of propositions about quotients
-* `Quot.recOnSubsingleton`, when the target type is a `Subsingleton`
-* `Quot.hrecOn`, which uses `HEq (f a) (f b)` instead of a `sound p ▸ f a = f b` assummption
+A dependent recursion principle for `Quot`. It is analogous to the
+[recursor](lean-manual://section/recursors) for a structure, and can be used when the resulting type
+is not necessarily a proposition.
+
+While it is very general, this recursor can be tricky to use. The following simpler alternatives may
+be easier to use:
+ * `Quot.lift` is useful for defining non-dependent functions.
+ * `Quot.ind` is useful for proving theorems about quotients.
+ * `Quot.recOnSubsingleton` can be used whenever the target type is a `Subsingleton`.
+ * `Quot.hrecOn` uses [heterogeneous equality](lean-manual://section/HEq) instead of rewriting with
+   `Quot.sound`.
+
+`Quot.recOn` is a version of this recursor that takes the quotient parameter first.
 -/
 @[elab_as_elim] protected abbrev rec
     (f : (a : α) → motive (Quot.mk r a))
@@ -1687,7 +1714,22 @@ so you should consider the simpler versions if they apply:
     (q : Quot r) : motive q :=
   Eq.ndrecOn (Quot.liftIndepPr1 f h q) ((lift (Quot.indep f) (Quot.indepCoherent f h) q).2)
 
-@[inherit_doc Quot.rec, elab_as_elim] protected abbrev recOn
+/--
+A dependent recursion principle for `Quot` that takes the quotient first. It is analogous to the
+[recursor](lean-manual://section/recursors) for a structure, and can be used when the resulting type
+is not necessarily a proposition.
+
+While it is very general, this recursor can be tricky to use. The following simpler alternatives may
+be easier to use:
+ * `Quot.lift` is useful for defining non-dependent functions.
+ * `Quot.ind` is useful for proving theorems about quotients.
+ * `Quot.recOnSubsingleton` can be used whenever the target type is a `Subsingleton`.
+ * `Quot.hrecOn` uses [heterogeneous equality](lean-manual://section/HEq) instead of rewriting with
+   `Quot.sound`.
+
+`Quot.rec` is a version of this recursor that takes the quotient parameter last.
+-/
+@[elab_as_elim] protected abbrev recOn
     (q : Quot r)
     (f : (a : α) → motive (Quot.mk r a))
     (h : (a b : α) → (p : r a b) → Eq.ndrec (f a) (sound p) = f b)
@@ -1695,8 +1737,13 @@ so you should consider the simpler versions if they apply:
  q.rec f h
 
 /--
-Dependent induction principle for a quotient, when the target type is a `Subsingleton`.
-In this case the quotient's side condition is trivial so any function can be lifted.
+An alternative induction principle for quotients that can be used when the target type is a
+subsingleton, in which all elements are equal.
+
+In these cases, the proof that the function respects the quotient's relation is trivial, so any
+function can be lifted.
+
+`Quot.rec` does not assume that the type is a subsingleton.
 -/
 @[elab_as_elim] protected abbrev recOnSubsingleton
     [h : (a : α) → Subsingleton (motive (Quot.mk r a))]
@@ -1708,9 +1755,11 @@ In this case the quotient's side condition is trivial so any function can be lif
   apply Subsingleton.elim
 
 /--
-Heterogeneous dependent recursion principle for a quotient.
-This may be easier to work with since it uses `HEq` instead of
-an `Eq.ndrec` in the hypothesis.
+A dependent recursion principle for `Quot` that uses [heterogeneous
+equality](lean-manual://section/HEq), analogous to a [recursor](lean-manual://section/recursors) for
+a structure.
+
+`Quot.recOn` is a version of this recursor that uses `Eq` instead of `HEq`.
 -/
 protected abbrev hrecOn
     (q : Quot r)
@@ -1726,48 +1775,101 @@ end Quot
 
 set_option linter.unusedVariables.funArgs false in
 /--
-`Quotient α s` is the same as `Quot α r`, but it is specialized to a setoid `s`
-(that is, an equivalence relation) instead of an arbitrary relation.
-Prefer `Quotient` over `Quot` if your relation is actually an equivalence relation.
+Quotient types coarsen the propositional equality for a type so that terms related by some
+equivalence relation are considered equal. The equivalence relation is given by an instance of
+`Setoid`.
+
+Set-theoretically, `Quotient s` can seen as the set of equivalence classes of `α` modulo the
+`Setoid` instance's relation `s.r`. Functions from `Quotient s` must prove that they respect `s.r`:
+to define a function `f : Quotient s → β`, it is necessary to provide `f' : α → β` and prove that
+for all `x : α` and `y : α`, `s.r x y → f' x = f' y`. `Quotient.lift` implements this operation.
+
+The key quotient operators are:
+ * `Quotient.mk` places elements of the underlying type `α` into the quotient.
+ * `Quotient.lift` allows the definition of functions from the quotient to some other type.
+ * `Quotient.sound` asserts the equality of elements related by `r`
+ * `Quotient.ind` is used to write proofs about quotients by assuming that all elements are
+   constructed with `Quotient.mk`.
+
+`Quotient` is built on top of the primitive quotient type `Quot`, which does not require a proof
+that the relation is an equivalence relation. `Quotient` should be used instead of `Quot` for
+relations that actually are equivalence relations.
 -/
 def Quotient {α : Sort u} (s : Setoid α) :=
   @Quot α Setoid.r
 
 namespace Quotient
 
-/-- The canonical quotient map into a `Quotient`. -/
+/--
+Places an element of a type into the quotient that equates terms according to an equivalence
+relation.
+
+The setoid instance is provided explicitly. `Quotient.mk'` uses instance synthesis instead.
+
+Given `v : α`, `Quotient.mk s v : Quotient s` is like `v`, except all observations of `v`'s value
+must respect `s.r`. `Quotient.lift` allows values in a quotient to be mapped to other types, so long
+as the mapping respects `s.r`.
+-/
 @[inline]
 protected def mk {α : Sort u} (s : Setoid α) (a : α) : Quotient s :=
   Quot.mk Setoid.r a
 
 /--
-The canonical quotient map into a `Quotient`.
-(This synthesizes the setoid by typeclass inference.)
+Places an element of a type into the quotient that equates terms according to an equivalence
+relation.
+
+The equivalence relation is found by synthesizing a `Setoid` instance. `Quotient.mk` instead expects
+the instance to be provided explicitly.
+
+Given `v : α`, `Quotient.mk' v : Quotient s` is like `v`, except all observations of `v`'s value
+must respect `s.r`. `Quotient.lift` allows values in a quotient to be mapped to other types, so long
+as the mapping respects `s.r`.
+
 -/
 protected def mk' {α : Sort u} [s : Setoid α] (a : α) : Quotient s :=
   Quotient.mk s a
 
 /--
-The analogue of `Quot.sound`: If `a` and `b` are related by the equivalence relation,
-then they have equal equivalence classes.
+The **quotient axiom**, which asserts the equality of elements related in the setoid.
+
+Because `Quotient` is built on a lower-level type `Quot`, `Quotient.sound` is implemented as a
+theorem. It is derived from `Quot.sound`, the soundness axiom for the lower-level quotient type
+`Quot`.
 -/
 theorem sound {α : Sort u} {s : Setoid α} {a b : α} : a ≈ b → Quotient.mk s a = Quotient.mk s b :=
   Quot.sound
 
 /--
-The analogue of `Quot.lift`: if `f : α → β` respects the equivalence relation `≈`,
-then it lifts to a function on `Quotient s` such that `lift f h (mk a) = f a`.
+Lifts a function from an underlying type to a function on a quotient, requiring that it respects the
+quotient's equivalence relation.
+
+Given `s : Setoid α` and a quotient `Quotient s`, applying a function `f : α → β` requires a proof
+`h` that `f` respects the equivalence relation `s.r`. In this case, the function
+`Quotient.lift f h : Quotient s → β` computes the same values as `f`.
+
+`Quotient.liftOn` is a version of this operation that takes the quotient value as its first explicit
+parameter.
 -/
 protected abbrev lift {α : Sort u} {β : Sort v} {s : Setoid α} (f : α → β) : ((a b : α) → a ≈ b → f a = f b) → Quotient s → β :=
   Quot.lift f
 
-/-- The analogue of `Quot.ind`: every element of `Quotient s` is of the form `Quotient.mk s a`. -/
+/--
+A reasoning principle for quotients that allows proofs about quotients to assume that all values are
+constructed with `Quotient.mk`.
+-/
 protected theorem ind {α : Sort u} {s : Setoid α} {motive : Quotient s → Prop} : ((a : α) → motive (Quotient.mk s a)) → (q : Quotient s) → motive q :=
   Quot.ind
 
 /--
-The analogue of `Quot.liftOn`: if `f : α → β` respects the equivalence relation `≈`,
-then it lifts to a function on `Quotient s` such that `liftOn (mk a) f h = f a`.
+Lifts a function from an underlying type to a function on a quotient, requiring that it respects the
+quotient's equivalence relation.
+
+Given `s : Setoid α` and a quotient value `q : Quotient s`, applying a function `f : α → β` requires
+a proof `c` that `f` respects the equivalence relation `s.r`. In this case, the term
+`Quotient.liftOn q f h : β` reduces to the result of applying `f` to the underlying `α` value.
+
+`Quotient.lift` is a version of this operation that takes the quotient value last, rather than
+first.
 -/
 protected abbrev liftOn {α : Sort u} {β : Sort v} {s : Setoid α} (q : Quotient s) (f : α → β) (c : (a b : α) → a ≈ b → f a = f b) : β :=
   Quot.liftOn q f c
@@ -1788,7 +1890,21 @@ variable {α : Sort u}
 variable {s : Setoid α}
 variable {motive : Quotient s → Sort v}
 
-/-- The analogue of `Quot.rec` for `Quotient`. See `Quot.rec`. -/
+/--
+A dependent recursion principle for `Quotient`. It is analogous to the
+[recursor](lean-manual://section/recursors) for a structure, and can be used when the resulting type
+is not necessarily a proposition.
+
+While it is very general, this recursor can be tricky to use. The following simpler alternatives may
+be easier to use:
+
+ * `Quotient.lift` is useful for defining non-dependent functions.
+ * `Quotient.ind` is useful for proving theorems about quotients.
+ * `Quotient.recOnSubsingleton` can be used whenever the target type is a `Subsingleton`.
+ * `Quotient.hrecOn` uses heterogeneous equality instead of rewriting with `Quotient.sound`.
+
+`Quotient.recOn` is a version of this recursor that takes the quotient parameter first.
+-/
 @[inline, elab_as_elim]
 protected def rec
     (f : (a : α) → motive (Quotient.mk s a))
@@ -1797,7 +1913,21 @@ protected def rec
     : motive q :=
   Quot.rec f h q
 
-/-- The analogue of `Quot.recOn` for `Quotient`. See `Quot.recOn`. -/
+/--
+A dependent recursion principle for `Quotient`. It is analogous to the
+[recursor](lean-manual://section/recursors) for a structure, and can be used when the resulting type
+is not necessarily a proposition.
+
+While it is very general, this recursor can be tricky to use. The following simpler alternatives may
+be easier to use:
+
+ * `Quotient.lift` is useful for defining non-dependent functions.
+ * `Quotient.ind` is useful for proving theorems about quotients.
+ * `Quotient.recOnSubsingleton` can be used whenever the target type is a `Subsingleton`.
+ * `Quotient.hrecOn` uses heterogeneous equality instead of rewriting with `Quotient.sound`.
+
+`Quotient.rec` is a version of this recursor that takes the quotient parameter last.
+-/
 @[elab_as_elim]
 protected abbrev recOn
     (q : Quotient s)
@@ -1806,7 +1936,15 @@ protected abbrev recOn
     : motive q :=
   Quot.recOn q f h
 
-/-- The analogue of `Quot.recOnSubsingleton` for `Quotient`. See `Quot.recOnSubsingleton`. -/
+/--
+An alternative recursion or induction principle for quotients that can be used when the target type
+is a subsingleton, in which all elements are equal.
+
+In these cases, the proof that the function respects the quotient's equivalence relation is trivial,
+so any function can be lifted.
+
+`Quotient.rec` does not assume that the target type is a subsingleton.
+-/
 @[elab_as_elim]
 protected abbrev recOnSubsingleton
     [h : (a : α) → Subsingleton (motive (Quotient.mk s a))]
@@ -1815,7 +1953,13 @@ protected abbrev recOnSubsingleton
     : motive q :=
   Quot.recOnSubsingleton (h := h) q f
 
-/-- The analogue of `Quot.hrecOn` for `Quotient`. See `Quot.hrecOn`. -/
+/--
+A dependent recursion principle for `Quotient` that uses [heterogeneous
+equality](lean-manual://section/HEq), analogous to a [recursor](lean-manual://section/recursors) for
+a structure.
+
+`Quotient.recOn` is a version of this recursor that uses `Eq` instead of `HEq`.
+-/
 @[elab_as_elim]
 protected abbrev hrecOn
     (q : Quotient s)
@@ -1830,7 +1974,13 @@ universe uA uB uC
 variable {α : Sort uA} {β : Sort uB} {φ : Sort uC}
 variable {s₁ : Setoid α} {s₂ : Setoid β}
 
-/-- Lift a binary function to a quotient on both arguments. -/
+/--
+Lifts a binary function from the underlying types to a binary function on quotients. The function
+must respect both quotients' equivalence relations.
+
+`Quotient.lift` is a version of this operation for unary functions. `Quotient.liftOn₂` is a version
+that take the quotient parameters first.
+-/
 protected abbrev lift₂
     (f : α → β → φ)
     (c : (a₁ : α) → (b₁ : β) → (a₂ : α) → (b₂ : β) → a₁ ≈ a₂ → b₁ ≈ b₂ → f a₁ b₁ = f a₂ b₂)
@@ -1841,7 +1991,13 @@ protected abbrev lift₂
   induction q₂ using Quotient.ind
   apply c; assumption; apply Setoid.refl
 
-/-- Lift a binary function to a quotient on both arguments. -/
+/--
+Lifts a binary function from the underlying types to a binary function on quotients. The function
+must respect both quotients' equivalence relations.
+
+`Quotient.liftOn` is a version of this operation for unary functions. `Quotient.lift₂` is a version
+that take the quotient parameters last.
+-/
 protected abbrev liftOn₂
     (q₁ : Quotient s₁)
     (q₂ : Quotient s₂)
@@ -1906,6 +2062,9 @@ private theorem rel.refl {s : Setoid α} (q : Quotient s) : rel q q :=
 private theorem rel_of_eq {s : Setoid α} {q₁ q₂ : Quotient s} : q₁ = q₂ → rel q₁ q₂ :=
   fun h => Eq.ndrecOn h (rel.refl q₁)
 
+/--
+If two values are equal in a quotient, then they are related by its equivalence relation.
+-/
 theorem exact {s : Setoid α} {a b : α} : Quotient.mk s a = Quotient.mk s b → a ≈ b :=
   fun h => rel_of_eq h
 
@@ -1916,7 +2075,13 @@ universe uA uB uC
 variable {α : Sort uA} {β : Sort uB}
 variable {s₁ : Setoid α} {s₂ : Setoid β}
 
-/-- Lift a binary function to a quotient on both arguments. -/
+/--
+An alternative induction or recursion operator for defining binary operations on quotients that can
+be used when the target type is a subsingleton.
+
+In these cases, the proof that the function respects the quotient's equivalence relation is trivial,
+so any function can be lifted.
+-/
 @[elab_as_elim]
 protected abbrev recOnSubsingleton₂
     {motive : Quotient s₁ → Quotient s₂ → Sort uC}
@@ -1976,28 +2141,39 @@ instance Pi.instSubsingleton {α : Sort u} {β : α → Sort v} [∀ a, Subsingl
 /-! # Squash -/
 
 /--
-`Squash α` is the quotient of `α` by the always true relation.
-It is empty if `α` is empty, otherwise it is a singleton.
-(Thus it is unconditionally a `Subsingleton`.)
-It is the "universal `Subsingleton`" mapped from `α`.
+The quotient of `α` by the universal relation. The elements of `Squash α` are those of `α`, but all
+of them are equal and cannot be distinguished.
 
-It is similar to `Nonempty α`, which has the same properties, but unlike
-`Nonempty` this is a `Type u`, that is, it is "data", and the compiler
-represents an element of `Squash α` the same as `α` itself
-(as compared to `Nonempty α`, whose elements are represented by a dummy value).
+`Squash α` is a `Subsingleton`: it is empty if `α` is empty, otherwise it has just one element. It
+is the “universal `Subsingleton`” mapped from `α`.
 
-`Squash.lift` will extract a value in any subsingleton `β` from a function on `α`,
-while `Nonempty.rec` can only do the same when `β` is a proposition.
+`Nonempty α` also has these properties. It is a proposition, which means that its elements (i.e.
+proofs) are erased from compiled code and represented by a dummy value. `Squash α` is a `Type u`,
+and its representation in compiled code is identical to that of `α`.
+
+Consequently, `Squash.lift` may extract an `α` value into any subsingleton type `β`, while
+`Nonempty.rec` can only do the same when `β` is a proposition.
 -/
 def Squash (α : Sort u) := Quot (fun (_ _ : α) => True)
 
-/-- The canonical quotient map into `Squash α`. -/
+/--
+Places a value into its squash type, in which it cannot be distinguished from any other.
+-/
 def Squash.mk {α : Sort u} (x : α) : Squash α := Quot.mk _ x
 
+/--
+A reasoning principle that allows proofs about squashed types to assume that all values are
+constructed with `Squash.mk`.
+-/
 theorem Squash.ind {α : Sort u} {motive : Squash α → Prop} (h : ∀ (a : α), motive (Squash.mk a)) : ∀ (q : Squash α), motive q :=
   Quot.ind h
 
-/-- If `β` is a subsingleton, then a function `α → β` lifts to `Squash α → β`. -/
+/--
+Extracts a squashed value into any subsingleton type.
+
+If `β` is a subsingleton, a function `α → β` cannot distinguish between elements of `α` and thus
+automatically respects the universal relation that `Squash` quotients with.
+-/
 @[inline] def Squash.lift {α β} [Subsingleton β] (s : Squash α) (f : α → β) : β :=
   Quot.lift f (fun _ _ _ => Subsingleton.elim _ _) s
 

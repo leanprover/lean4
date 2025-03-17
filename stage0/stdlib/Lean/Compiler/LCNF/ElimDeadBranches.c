@@ -496,6 +496,7 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Compiler_LCNF_Un
 static lean_object* l_Prod_repr___at_Lean_Compiler_LCNF_UnreachableBranches_elimDead___spec__5___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_resetVarAssignment___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_repr___at___private_Lean_Compiler_LCNF_ElimDeadBranches_0__Lean_Compiler_LCNF_UnreachableBranches_reprValue____x40_Lean_Compiler_LCNF_ElimDeadBranches___hyg_44____spec__4___closed__7;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_UnreachableBranches_Value_truncate_go___spec__3(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_Compiler_LCNF_UnreachableBranches_Value_merge___spec__2(lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonad___rarg(lean_object*);
@@ -4019,7 +4020,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -18789,7 +18790,7 @@ x_34 = lean_st_ref_set(x_5, x_27, x_28);
 x_35 = lean_ctor_get(x_34, 1);
 lean_inc(x_35);
 lean_dec(x_34);
-x_36 = lean_mk_empty_array_with_capacity(x_10);
+x_36 = l_Array_emptyWithCapacity(lean_box(0), x_10);
 x_37 = l_Array_mapFinIdxM_map___at_Lean_Compiler_LCNF_Decl_elimDeadBranches___spec__3(x_1, x_25, x_1, x_10, x_13, lean_box(0), x_36, x_2, x_3, x_4, x_5, x_35);
 lean_dec(x_25);
 lean_dec(x_1);
@@ -18829,7 +18830,7 @@ x_48 = lean_st_ref_set(x_5, x_47, x_28);
 x_49 = lean_ctor_get(x_48, 1);
 lean_inc(x_49);
 lean_dec(x_48);
-x_50 = lean_mk_empty_array_with_capacity(x_10);
+x_50 = l_Array_emptyWithCapacity(lean_box(0), x_10);
 x_51 = l_Array_mapFinIdxM_map___at_Lean_Compiler_LCNF_Decl_elimDeadBranches___spec__3(x_1, x_25, x_1, x_10, x_13, lean_box(0), x_50, x_2, x_3, x_4, x_5, x_49);
 lean_dec(x_25);
 lean_dec(x_1);

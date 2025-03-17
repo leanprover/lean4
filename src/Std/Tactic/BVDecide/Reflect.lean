@@ -59,10 +59,6 @@ theorem add_congr (w : Nat) (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2
     lhs' + rhs' = lhs + rhs := by
   simp[*]
 
-theorem signExtend_congr (n : Nat) (w : Nat) (x x' : BitVec w) (h1 : x = x') :
-    BitVec.signExtend n x' = BitVec.signExtend n x := by
-  simp[*]
-
 theorem append_congr (lw rw : Nat) (lhs lhs' : BitVec lw) (rhs rhs' : BitVec rw) (h1 : lhs' = lhs)
     (h2 : rhs' = rhs) :
     lhs' ++ rhs' = lhs ++ rhs := by

@@ -19,8 +19,11 @@ namespace List
 /-! ## Operations using indexes -/
 
 /--
-Given a list `as = [a₀, a₁, ...]` and a function `f : (i : Nat) → α → (h : i < as.length) → β`, returns the list
-`[f 0 a₀ ⋯, f 1 a₁ ⋯, ...]`.
+Applies a function to each element of the list along with the index at which that element is found,
+returning the list of results. In addition to the index, the function is also provided with a proof
+that the index is valid.
+
+`List.mapIdx` is a variant that does not provide the function with evidence that the index is valid.
 -/
 @[inline] def mapFinIdx (as : List α) (f : (i : Nat) → α → (h : i < as.length) → β) : List β :=
   go as #[] (by simp)
@@ -33,8 +36,11 @@ where
     go as (acc.push (f acc.size a (by simp at h; omega))) (by simp at h ⊢; omega)
 
 /--
-Given a function `f : Nat → α → β` and `as : List α`, `as = [a₀, a₁, ...]`, returns the list
-`[f 0 a₀, f 1 a₁, ...]`.
+Applies a function to each element of the list along with the index at which that element is found,
+returning the list of results.
+
+`List.mapFinIdx` is a variant that additionally provides the function with a proof that the index
+is valid.
 -/
 @[inline] def mapIdx (f : Nat → α → β) (as : List α) : List β := go as #[] where
   /-- Auxiliary for `mapIdx`:
@@ -44,8 +50,12 @@ Given a function `f : Nat → α → β` and `as : List α`, `as = [a₀, a₁, 
   | a :: as, acc => go as (acc.push (f acc.size a))
 
 /--
-Given a list `as = [a₀, a₁, ...]` and a monadic function `f : (i : Nat) → α → (h : i < as.length) → m β`,
-returns the list `[f 0 a₀ ⋯, f 1 a₁ ⋯, ...]`.
+Applies a monadic function to each element of the list along with the index at which that element is
+found, returning the list of results. In addition to the index, the function is also provided with a
+proof that the index is valid.
+
+`List.mapIdxM` is a variant that does not provide the function with evidence that the index is
+valid.
 -/
 @[inline] def mapFinIdxM [Monad m] (as : List α) (f : (i : Nat) → α → (h : i < as.length) → m β) : m (List β) :=
   go as #[] (by simp)
@@ -58,8 +68,11 @@ where
     go as (acc.push (← f acc.size a (by simp at h; omega))) (by simp at h ⊢; omega)
 
 /--
-Given a monadic function `f : Nat → α → m β` and `as : List α`, `as = [a₀, a₁, ...]`,
-returns the list `[f 0 a₀, f 1 a₁, ...]`.
+Applies a monadic function to each element of the list along with the index at which that element is
+found, returning the list of results.
+
+`List.mapFinIdxM` is a variant that additionally provides the function with a proof that the index
+is valid.
 -/
 @[inline] def mapIdxM [Monad m] (f : Nat → α → m β) (as : List α) : m (List β) := go as #[] where
   /-- Auxiliary for `mapIdxM`:

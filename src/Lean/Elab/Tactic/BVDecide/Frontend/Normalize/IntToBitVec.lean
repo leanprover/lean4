@@ -59,7 +59,12 @@ def intToBitVecPass : Pass where
     let intToBvThms ← intToBitVecExt.getTheorems
     let cfg ← PreProcessM.getConfig
     let simpCtx ← Simp.mkContext
-      (config := { failIfUnchanged := false, zetaDelta := true, maxSteps := cfg.maxSteps })
+      (config := {
+        failIfUnchanged := false,
+        zetaDelta := true,
+        implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
+        maxSteps := cfg.maxSteps,
+      })
       (simpTheorems := #[intToBvThms])
       (congrTheorems := (← getSimpCongrTheorems))
 
@@ -79,7 +84,9 @@ where
       for hyp in ← getPropHyps do
         (← instantiateMVars (← hyp.getType)).forEachWhere
           (stopWhenVisited := true)
-          (fun e => e.isAppOfArity ``USize.toBitVec 1 || e.isAppOfArity ``ISize.toBitVec 1)
+          (fun e =>
+            (e.isAppOfArity ``USize.toBitVec 1 || e.isAppOfArity ``ISize.toBitVec 1) &&
+            !e.hasLooseBVars)
           fun e => do
             M.addSizeTerm e
             M.addSizeHyp hyp

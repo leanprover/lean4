@@ -343,7 +343,7 @@ We use an environment extension to cache resolution orders.
 These are not expensive to compute, but worth caching, and we save olean storage space.
 -/
 builtin_initialize structureResolutionExt : EnvExtension StructureResolutionState ←
-  registerEnvExtension (pure {})
+  registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache
 
 /-- Gets the resolution order if it has already been cached. -/
 private def getStructureResolutionOrder? (env : Environment) (structName : Name) : Option (Array Name) :=

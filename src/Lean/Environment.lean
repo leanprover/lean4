@@ -261,27 +261,6 @@ inductive Exception where
   | interrupted
 deriving Nonempty
 
-/-- Basic `Exception` formatting without `MessageData` dependency. -/
-private def Exception.toRawString : Kernel.Exception → String
-  | unknownConstant _ constName       => s!"(kernel) unknown constant '{constName}'"
-  | alreadyDeclared _ constName       => s!"(kernel) constant has already been declared '{constName}'"
-  | declTypeMismatch _ _ _ => s!"(kernel) declaration type mismatch"
-  | declHasMVars _ constName _        => s!"(kernel) declaration has metavariables '{constName}'"
-  | declHasFVars _ constName _        => s!"(kernel) declaration has free variables '{constName}'"
-  | funExpected _ _ e                 => s!"(kernel) function expected: {e}"
-  | typeExpected _ _ e                => s!"(kernel) type expected: {e}"
-  | letTypeMismatch  _ _ n _ _        => s!"(kernel) let-declaration type mismatch '{n}'"
-  | exprTypeMismatch _ _ e _          => s!"(kernel) type mismatch at {e}"
-  | appTypeMismatch  _ _ e fnType argType =>
-    s!"application type mismatch: {e}\nargument has type {argType}\nbut function has type {fnType}"
-  | invalidProj _ _ e                 => s!"(kernel) invalid projection {e}"
-  | thmTypeIsNotProp _ constName type => s!"(kernel) type of theorem '{constName}' is not a proposition: {type}"
-  | other msg                         => s!"(kernel) {msg}"
-  | deterministicTimeout              => "(kernel) deterministic timeout"
-  | excessiveMemory                   => "(kernel) excessive memory consumption detected"
-  | deepRecursion                     => "(kernel) deep recursion detected"
-  | interrupted                       => "(kernel) interrupted"
-
 namespace Environment
 
 @[export lean_environment_find]
@@ -391,6 +370,11 @@ def ofConstantInfo (c : ConstantInfo) : AsyncConstantInfo where
   sig := .pure c.toConstantVal
   constInfo := .pure c
 
+def isUnsafe (c : AsyncConstantInfo) : Bool :=
+  match c.kind with
+  | .thm => false
+  | _ => c.toConstantInfo.isUnsafe
+
 end AsyncConstantInfo
 
 /--
@@ -488,7 +472,7 @@ private structure RealizationContext where
   changes onto a derived kernel environment, and auxiliary data (always `SnapshotTree` in builtin
   uses, but untyped to avoid cyclic module references).
   -/
-  constsRef : IO.Ref (NameMap (Task (List AsyncConst × (Kernel.Environment → Kernel.Environment) × Dynamic)))
+  constsRef : IO.Ref (NameMap (Task (List AsyncConst × (Kernel.Environment → Except Kernel.Exception Kernel.Environment) × Dynamic)))
 
 /--
 Elaboration-specific extension of `Kernel.Environment` that adds tracking of asynchronously
@@ -977,13 +961,11 @@ def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
   env.base.const2ModIdx[declName]?
 
 def isConstructor (env : Environment) (declName : Name) : Bool :=
-  match env.find? declName with
-  | some (.ctorInfo _) => true
-  | _                  => false
+  env.findAsync? declName |>.any (·.kind == .ctor)
 
 def isSafeDefinition (env : Environment) (declName : Name) : Bool :=
-  match env.find? declName with
-  | some (.defnInfo { safety := .safe, .. }) => true
+  match env.findAsync? declName with
+  | some { kind := .defn, constInfo, .. } => (constInfo.get matches .defnInfo { safety := .safe, .. })
   | _ => false
 
 def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
@@ -991,10 +973,13 @@ def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
 
 end Environment
 
+def ConstantVal.instantiateTypeLevelParams (c : ConstantVal) (ls : List Level) : Expr :=
+  c.type.instantiateLevelParams c.levelParams ls
+
 namespace ConstantInfo
 
 def instantiateTypeLevelParams (c : ConstantInfo) (ls : List Level) : Expr :=
-  c.type.instantiateLevelParams c.levelParams ls
+  c.toConstantVal.instantiateTypeLevelParams ls
 
 def instantiateValueLevelParams! (c : ConstantInfo) (ls : List Level) : Expr :=
   c.value!.instantiateLevelParams c.levelParams ls
@@ -1497,13 +1482,14 @@ end SimplePersistentEnvExtension
     Declarations must only be tagged in the module where they were declared. -/
 def TagDeclarationExtension := SimplePersistentEnvExtension Name NameSet
 
-def mkTagDeclarationExtension (name : Name := by exact decl_name%) : IO TagDeclarationExtension :=
+def mkTagDeclarationExtension (name : Name := by exact decl_name%)
+  (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO TagDeclarationExtension :=
   registerSimplePersistentEnvExtension {
     name          := name,
     addImportedFn := fun _ => {},
     addEntryFn    := fun s n => s.insert n,
     toArrayFn     := fun es => es.toArray.qsort Name.quickLt
-    asyncMode     := .async
+    asyncMode
   }
 
 namespace TagDeclarationExtension
@@ -1520,7 +1506,10 @@ def tag (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : 
 def isTagged (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : Bool :=
   match env.getModuleIdxFor? declName with
   | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains declName Name.quickLt
-  | none        => (ext.findStateAsync env declName).contains declName
+  | none        => if ext.toEnvExtension.asyncMode matches .async then
+      (ext.findStateAsync env declName).contains declName
+    else
+      (ext.getState env).contains declName
 
 end TagDeclarationExtension
 
@@ -1676,7 +1665,7 @@ where
     if h : i < pExtDescrs.size then
       let extDescr := pExtDescrs[i]
       -- `local` as `async` does not allow for `getState` but it's all safe here as there is only
-      -- one branch so far.
+      -- one environment branch at this point.
       let s := extDescr.toEnvExtension.getState (asyncMode := .local) env
       let prevSize := (← persistentEnvExtensionsRef.get).size
       let prevAttrSize ← getNumBuiltinAttributes
@@ -1915,7 +1904,7 @@ but not `oldEnv` and the environment extension state for extensions defining `re
 `skipExisting` is true, constants that are already in `dest` are not added. If `newEnv` and `dest`
 are not derived from `oldEnv`, the result is undefined.
 -/
-def replayConsts (oldEnv newEnv : Environment) (dest : Environment) (skipExisting := false) :
+def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExisting := false) :
     BaseIO Environment := do
   let numNewConsts := newEnv.asyncConsts.size - oldEnv.asyncConsts.size
   let consts := newEnv.asyncConsts.revList.take numNewConsts |>.reverse
@@ -1926,11 +1915,11 @@ def replayConsts (oldEnv newEnv : Environment) (dest : Environment) (skipExistin
         consts
       else
         consts.add c
-    checked := dest.checked.map (replayKernel exts consts)
+    checked := dest.checked.map fun kenv => replayKernel exts consts kenv |>.toOption.getD kenv
   }
 where
   replayKernel (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)
-      (kenv : Kernel.Environment) : Kernel.Environment := Id.run do
+      (kenv : Kernel.Environment) : Except Kernel.Exception Kernel.Environment := do
     let mut kenv := kenv
     for c in consts do
       if skipExisting && (kenv.find? c.constInfo.name).isSome then
@@ -1946,16 +1935,13 @@ where
       -- for panics
       let _ : Inhabited Kernel.Environment := ⟨kenv⟩
       let decl ← match info with
-        | .thmInfo thm   => .thmDecl thm
-        | .defnInfo defn => .defnDecl defn
+        | .thmInfo thm   => pure <| .thmDecl thm
+        | .defnInfo defn => pure <| .defnDecl defn
         | _              =>
           return panic! s!"{c.constInfo.name} must be definition/theorem"
       -- realized kernel additions cannot be interrupted - which would be bad anyway as they can be
       -- reused between snapshots
-      match kenv.addDeclCore 0 decl none with
-      | .ok kenv' => kenv := kenv'
-      | .error e =>
-        return panic! s!"failed to add {c.constInfo.name} to environment\n{e.toRawString}"
+      kenv ← ofExcept <| kenv.addDeclCore 0 decl none
     for ext in exts do
       if let some replay := ext.replay? then
         kenv := { kenv with
@@ -1982,7 +1968,7 @@ unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (typeName : 
 def hasUnsafe (env : Environment) (e : Expr) : Bool :=
   let c? := e.find? fun e => match e with
     | Expr.const c _ =>
-      match env.find? c with
+      match env.findAsync? c with
       | some cinfo => cinfo.isUnsafe
       | none       => false
     | _ => false;
@@ -1991,7 +1977,10 @@ def hasUnsafe (env : Environment) (e : Expr) : Bool :=
 /-- Plumbing function for `Lean.Meta.realizeConst`; see documentation there. -/
 def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     (realize : Environment → Options → BaseIO (Environment × Dynamic)) :
-    IO (Environment × Dynamic) := do
+    IO (Environment × Task (Option Kernel.Exception) × Dynamic) := do
+  -- the following code is inherently non-deterministic in number of heartbeats, reset them at the
+  -- end
+  let heartbeats ← IO.getNumHeartbeats
   let mut env := env
   -- find `RealizationContext` for `forConst` in `realizedImportedConsts?` or `realizedLocalConsts`
   let ctx ← if env.base.const2ModIdx.contains forConst then
@@ -2041,17 +2030,25 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
       let replay := replayConsts.replayKernel (skipExisting := true) realizeEnv realizeEnv' exts consts
       prom.resolve (consts, replay, dyn)
       pure (consts, replay, dyn)
-    return ({ env with
+    let exPromise ← IO.Promise.new
+    let env := { env with
       asyncConsts := consts.foldl (init := env.asyncConsts) fun consts c =>
         if consts.find? c.constInfo.name |>.isSome then
           consts
         else
           consts.add c
-      checked := env.checked.map replay
+      checked := (← BaseIO.mapTask (t := env.checked) fun kenv => do
+        match replay kenv with
+        | .ok kenv => return kenv
+        | .error e =>
+          exPromise.resolve e
+          return kenv)
       allRealizations := env.allRealizations.map (sync := true) fun allRealizations =>
         consts.foldl (init := allRealizations) fun allRealizations c =>
           allRealizations.insert c.constInfo.name c
-    }, dyn)
+    }
+    IO.setNumHeartbeats heartbeats
+    return (env, exPromise.result?, dyn)
 
 end Environment
 
@@ -2110,9 +2107,9 @@ def mkDefinitionValInferrringUnsafe [Monad m] [MonadEnv m] (name : Name) (levelP
 
 def getMaxHeight (env : Environment) (e : Expr) : UInt32 :=
   e.foldConsts 0 fun constName max =>
-    match env.find? constName with
-    | ConstantInfo.defnInfo val =>
-      match val.hints with
+    match env.findAsync? constName with
+    | some { kind := .defn, constInfo := info, .. } =>
+      match info.get.hints with
       | ReducibilityHints.regular h => if h > max then h else max
       | _                           => max
     | _ => max

@@ -402,9 +402,9 @@ def Int32.neg (i : Int32) : Int32 := ⟨⟨-i.toBitVec⟩⟩
 
 instance : ToString Int32 where
   toString i := toString i.toInt
-instance : Repr Int16 where
+instance : Repr Int32 where
   reprPrec i prec := reprPrec i.toInt prec
-instance : ReprAtom Int16 := ⟨⟩
+instance : ReprAtom Int32 := ⟨⟩
 
 instance : Hashable Int32 where
   hash i := i.toUInt32.toUInt64

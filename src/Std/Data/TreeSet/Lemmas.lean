@@ -211,6 +211,22 @@ theorem get?_erase_self [TransCmp cmp] {k : α} :
     (t.erase k).get? k = none :=
   TreeMap.getKey?_erase_self
 
+theorem get?_beq [TransCmp cmp] {k : α} :
+    (t.get? k).all (cmp · k = .eq) :=
+  DTreeMap.compare_getKey?_self
+
+theorem get?_congr [TransCmp cmp] {k k' : α} (h' : cmp k k' = .eq) :
+    t.get? k = t.get? k' :=
+  DTreeMap.getKey?_congr h'
+
+theorem get?_eq_some_of_contains [TransCmp cmp] [LawfulEqCmp cmp] {k : α} (h' : t.contains k) :
+    t.get? k = some k :=
+  DTreeMap.getKey?_eq_some_of_contains h'
+
+theorem get?_eq_some [TransCmp cmp] [LawfulEqCmp cmp] {k : α} (h' : k ∈ t) :
+    t.get? k = some k :=
+  DTreeMap.getKey?_eq_some_of_contains h'
+
 theorem get_insert [TransCmp cmp] {k a : α} {h₁} :
     (t.insert k).get a h₁ =
       if h₂ : cmp k a = .eq ∧ ¬ k ∈ t then k
@@ -225,6 +241,19 @@ theorem get_erase [TransCmp cmp] {k a : α} {h'} :
 theorem get?_eq_some_get [TransCmp cmp] {a : α} {h'} :
     t.get? a = some (t.get a h') :=
   TreeMap.getKey?_eq_some_getKey
+
+theorem get_beq [TransCmp cmp] {k : α} (h' : k ∈ t) :
+    cmp (t.get k h') k = .eq :=
+  DTreeMap.compare_getKey_self h'
+
+theorem get_congr [TransCmp cmp] {k₁ k₂ : α} (h' : cmp k₁ k₂ = .eq)
+    (h₁ : k₁ ∈ t) : t.get k₁ h₁ = t.get k₂ ((mem_congr h').mp h₁) :=
+  DTreeMap.getKey_congr h' h₁
+
+@[simp]
+theorem get_eq [TransCmp cmp] [LawfulEqCmp cmp] {k : α} (h' : k ∈ t) :
+    t.get k h' = k :=
+  DTreeMap.getKey_eq h'
 
 @[simp]
 theorem get!_emptyc {a : α} [Inhabited α] :
@@ -271,6 +300,19 @@ theorem get!_eq_get!_get? [TransCmp cmp] [Inhabited α] {a : α} :
 theorem get_eq_get! [TransCmp cmp] [Inhabited α] {a : α} {h} :
     t.get a h = t.get! a :=
   TreeMap.getKey_eq_getKey!
+
+theorem get!_congr [TransCmp cmp] [Inhabited α] {k k' : α} (h' : cmp k k' = .eq) :
+    t.get! k = t.get! k' :=
+  DTreeMap.getKey!_congr h'
+
+theorem get!_eq_of_contains [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] {k : α}
+    (h' : t.contains k) :
+    t.get! k = k :=
+  DTreeMap.getKey!_eq_of_contains h'
+
+theorem get!_eq_of_mem [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] {k : α} (h' : k ∈ t) :
+    t.get! k = k :=
+  DTreeMap.getKey!_eq_of_mem h'
 
 @[simp]
 theorem getD_emptyc {a : α} {fallback : α} :
@@ -323,6 +365,18 @@ theorem get_eq_getD [TransCmp cmp] {a fallback : α} {h} :
 theorem get!_eq_getD_default [TransCmp cmp] [Inhabited α] {a : α} :
     t.get! a = t.getD a default :=
   TreeMap.getKey!_eq_getKeyD_default
+
+theorem getD_congr [TransCmp cmp] {k k' fallback : α} (h' : cmp k k' = .eq) :
+    t.getD k fallback = t.getD k' fallback :=
+  DTreeMap.getKeyD_congr h'
+
+theorem getD_eq_of_contains [TransCmp cmp] [LawfulEqCmp cmp] {k fallback : α} (h' : t.contains k) :
+    t.getD k fallback = k :=
+  DTreeMap.getKeyD_eq_of_contains h'
+
+theorem getD_eq_of_mem [TransCmp cmp] [LawfulEqCmp cmp] {k fallback : α} (h' : k ∈ t) :
+    t.getD k fallback = k :=
+  DTreeMap.getKeyD_eq_of_contains h'
 
 @[simp]
 theorem containsThenInsert_fst [TransCmp cmp] {k : α} :

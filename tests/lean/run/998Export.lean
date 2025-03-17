@@ -52,7 +52,7 @@ def alloc {α} [BEq α] [Hashable α] [OfState α] (a : α) : ExportM Nat := do
   pure n
 
 def exportName (n : Name) : ExportM Nat := do
-  match (← get).names.map.find? n with
+  match (← get).names.map[n]? with
   | some i => pure i
   | none => match n with
     | .anonymous => pure 0
@@ -62,7 +62,7 @@ def exportName (n : Name) : ExportM Nat := do
 attribute [simp] exportName
 
 def exportLevel (L : Level) : ExportM Nat := do
-  match (← get).levels.map.find? L with
+  match (← get).levels.map[L]? with
   | some i => pure i
   | none => match L with
     | Level.zero => pure 0
@@ -74,7 +74,7 @@ def exportLevel (L : Level) : ExportM Nat := do
       let i ← alloc L; IO.println s!"{i} #UIM {← exportLevel l₁} {← exportLevel l₂}"; pure i
     | Level.param n =>
       let i ← alloc L; IO.println s!"{i} #UP {← exportName n}"; pure i
-    | Level.mvar n => unreachable!
+    | Level.mvar _ => unreachable!
 
 -- TODO: this test has been broken for a while with a panic that was ignored by the test suite
 --attribute [simp] exportLevel

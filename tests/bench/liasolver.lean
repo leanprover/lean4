@@ -90,10 +90,10 @@ def gcd (coeffs : HashMap Nat Int) : Nat :=
   let coeffsContent := coeffs.toArray
   match coeffsContent with
   | #[]           => panic! "Cannot calculate GCD of empty list of coefficients"
-  | #[(i, x)]     => x
+  | #[(_, x)]     => x
   | coeffsContent =>
     coeffsContent[0]!.2.gcd coeffsContent[1]!.2
-      |> coeffs.fold fun acc k v => acc.gcd v
+      |> coeffs.fold fun acc _ v => acc.gcd v
 
 namespace Equation
 
@@ -172,7 +172,7 @@ namespace Equation
       match r? with
       | none =>
         r? := some (i, coeff)
-      | some (i', coeff') =>
+      | some (_, coeff') =>
         if coeff.natAbs < coeff'.natAbs then
           r? := some (i, coeff)
     return r?
@@ -207,11 +207,11 @@ def eliminateSingleton (p : Problem) (singletonEq : Equation) (varIdx : Nat) : P
 
 partial def eliminateSingletons (p : Problem) : Problem := Id.run <| do
   let mut r? : Option (Equation × Nat) := none
-  for (id, eq) in p.equations do
+  for (_, eq) in p.equations do
     match eq.findSingleton? with
     | none =>
       continue
-    | some (varIdx, coeff) =>
+    | some (varIdx, _) =>
       r? := some (eq, varIdx)
   match r? with
   | none =>
@@ -279,7 +279,7 @@ partial def readSolution? (p : Problem) : Option Solution := Id.run <| do
   return Solution.sat <| assignment.map (·.get!)
 where
   readSolution (varIdx : Nat) (assignment : Array (Option Int)) : Array (Option Int) := Id.run <| do
-    match p.solvedEquations.find? varIdx with
+    match p.solvedEquations[varIdx]? with
     | none =>
       return assignment.set! varIdx (some 0)
     | some eq =>

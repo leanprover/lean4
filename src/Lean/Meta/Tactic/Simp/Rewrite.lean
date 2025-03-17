@@ -110,8 +110,8 @@ where
       return false
 
 private def useImplicitDefEqProof (thm : SimpTheorem) : SimpM Bool := do
-  if thm.rfl then
-    return (← getConfig).implicitDefEqProofs
+  if (← getConfig).implicitDefEqProofs then
+    return thm.rfl
   else
     return false
 
@@ -352,7 +352,7 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
 def simpMatchCore (matcherName : Name) (e : Expr) : SimpM Step := do
   for matchEq in (← Match.getEquationsFor matcherName).eqnNames do
     -- Try lemma
-    match (← withReducible <| Simp.tryTheorem? e { origin := .decl matchEq, proof := mkConst matchEq, rfl := (← isRflTheorem matchEq) }) with
+    match (← withReducible <| Simp.tryTheorem? e { origin := .decl matchEq, proof := mkConst matchEq, rflTask := (← isRflTheorem matchEq) }) with
     | none   => pure ()
     | some r => return .visit r
   return .continue
@@ -433,7 +433,7 @@ def sevalGround : Simproc := fun e => do
     -- `declName` has equation theorems associated with it.
     for eqn in eqns do
       -- TODO: cache SimpTheorem to avoid calls to `isRflTheorem`
-      if let some result ← Simp.tryTheorem? e { origin := .decl eqn, proof := mkConst eqn, rfl := (← isRflTheorem eqn) } then
+      if let some result ← Simp.tryTheorem? e { origin := .decl eqn, proof := mkConst eqn, rflTask := (← isRflTheorem eqn) } then
         trace[Meta.Tactic.simp.ground] "unfolded, {e} => {result.expr}"
         return .visit result
     return .continue

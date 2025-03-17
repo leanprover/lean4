@@ -62,3 +62,9 @@ example (x : Int) (h : x = 7) : x.natAbs = 7 := by
 
 example (x y : Int) (_ : (x - y).natAbs < 3) (_ : x < 5) (_ : y > 15) : False := by
   grind
+
+example (z : Int) : z.toNat = 0 ↔ z ≤ 0 := by
+  grind
+
+example (a b : Int) : (a - b).toNat = 0 ↔ a ≤ b := by
+  grind

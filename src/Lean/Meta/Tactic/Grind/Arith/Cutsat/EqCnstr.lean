@@ -307,7 +307,7 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
-  | add | mul | num | div | mod | sub
+  | add | mul | num | div | mod | sub | natAbs | toNat
   deriving BEq
 
 private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
@@ -321,6 +321,8 @@ private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
   | Neg.neg α _ a =>
     let_expr OfNat.ofNat _ _ _ := a | none
     some (.num, α)
+  | Int.natAbs _ => some (.natAbs, Nat.mkType)
+  | Int.toNat _ => some (.toNat, Nat.mkType)
   | _ => none
 
 private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : Bool := Id.run do
@@ -329,7 +331,7 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
   -- TODO: document `NatCast.natCast` case.
   -- Remark: we added it to prevent natCast_sub from being expanded twice.
   if declName == ``NatCast.natCast then return true
-  if k matches .div | .mod | .sub then return false
+  if k matches .div | .mod | .sub | .natAbs | .toNat then return false
   if declName == ``HAdd.hAdd || declName == ``LE.le || declName == ``Dvd.dvd then return true
   match k with
   | .add => return false
@@ -375,6 +377,14 @@ private def propagateNatSub (e : Expr) : GoalM Unit := do
   markForeignTerm b .nat
   pushNewFact <| mkApp2 (mkConst ``Int.Linear.natCast_sub) a b
 
+private def propagateNatAbs (e : Expr) : GoalM Unit := do
+  let_expr Int.natAbs a := e | return ()
+  pushNewFact <| mkApp (mkConst ``Lean.Omega.Int.ofNat_natAbs) a
+
+private def propagateToNat (e : Expr) : GoalM Unit := do
+  let_expr Int.toNat a := e | return ()
+  pushNewFact <| mkApp (mkConst ``Int.OfNat.ofNat_toNat) a
+
 /--
 Internalizes an integer (and `Nat`) expression. Here are the different cases that are handled.
 
@@ -395,7 +405,10 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     | _ => internalizeInt e
   else if type.isConstOf ``Nat then
     markForeignTerm e .nat
-    if k == .sub then
-      propagateNatSub e
+    match k with
+    | .sub => propagateNatSub e
+    | .natAbs => propagateNatAbs e
+    | .toNat => propagateToNat e
+    | _ => pure ()
 
 end Lean.Meta.Grind.Arith.Cutsat

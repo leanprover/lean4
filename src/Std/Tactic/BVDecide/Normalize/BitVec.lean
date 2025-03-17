@@ -283,6 +283,11 @@ theorem BitVec.shiftLeft_zero' (n : BitVec w) : n <<< 0#w' = n := by
   simp only [(· <<< ·)]
   simp
 
+@[bv_normalize]
+theorem BitVec.shiftLeft_neg {x : BitVec w₁} {y : BitVec w₂} :
+    (~~~x + 1#w₁) <<< y = ~~~(x <<< y) + 1 := by
+  simp [← BitVec.neg_eq_not_add, _root_.BitVec.shiftLeft_neg]
+
 attribute [bv_normalize] BitVec.zero_sshiftRight
 attribute [bv_normalize] BitVec.sshiftRight_zero
 

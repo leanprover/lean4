@@ -616,6 +616,12 @@ example {x y : BitVec 8} : 1#8 + ~~~(x * ~~~y) = x + (x * y) := by bv_normalize
 example {x y : BitVec 8} : 1#8 + ~~~(~~~y * x) = x + (y * x) := by bv_normalize
 example {x y : BitVec 8} : -(x * ~~~y) = x + (x * y) := by bv_normalize
 
+-- NORM_BV_SHL_NEG
+example {x y : BitVec 8} : (~~~x + 1) <<< y = ~~~(x <<< y) + 1 := by bv_normalize
+example {x y : BitVec 8} : (1 + ~~~x) <<< y = ~~~(x <<< y) + 1 := by bv_normalize
+example {x y : BitVec 8} : (-x) <<< y = -(x <<< y) := by bv_normalize
+
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

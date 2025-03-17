@@ -468,7 +468,8 @@ If not, usually the right approach is `simp [Vector.unattach, -Vector.map_subtyp
 -/
 def unattach {α : Type _} {p : α → Prop} (xs : Vector { x // p x } n) : Vector α n := xs.map (·.val)
 
-@[simp] theorem unattach_nil {p : α → Prop} : (#v[] : Vector { x // p x } 0).unattach = #v[] := rfl
+@[simp] theorem unattach_nil {p : α → Prop} : (#v[] : Vector { x // p x } 0).unattach = #v[] := by simp
+
 @[simp] theorem unattach_push {p : α → Prop} {a : { x // p x }} {xs : Vector { x // p x } n} :
     (xs.push a).unattach = xs.unattach.push a.1 := by
   simp only [unattach, Vector.map_push]

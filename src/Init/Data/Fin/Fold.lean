@@ -141,7 +141,7 @@ theorem foldrM_loop [Monad m] [LawfulMonad m] (f : Fin (n+1) → α → m α) (x
   | zero =>
     rw [foldrM_loop_zero, foldrM_loop_succ, pure_bind]
     conv => rhs; rw [←bind_pure (f 0 x)]
-    congr; funext
+    congr; funext; simp only [foldrM.loop]
   | succ i ih =>
     rw [foldrM_loop_succ, foldrM_loop_succ, bind_assoc]
     congr; funext; exact ih ..

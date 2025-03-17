@@ -1407,7 +1407,7 @@ theorem map_id' (xs : Vector α n) : map (fun (a : α) => a) xs = xs := map_id x
 theorem map_id'' {f : α → α} (h : ∀ x, f x = x) (xs : Vector α n) : map f xs = xs := by
   simp [show f = id from funext h]
 
-theorem map_singleton (f : α → β) (a : α) : map f #v[a] = #v[f a] := rfl
+theorem map_singleton (f : α → β) (a : α) : map f #v[a] = #v[f a] := by simp
 
 -- We use a lower priority here as there are more specific lemmas in downstream libraries
 -- which should be able to fire first.

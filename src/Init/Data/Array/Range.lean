@@ -39,7 +39,8 @@ theorem range'_ne_empty_iff (s : Nat) {n step : Nat} : range' s n step ≠ #[] �
 @[simp] theorem range'_zero : range' s 0 step = #[] := by
   simp
 
-@[simp] theorem range'_one {s step : Nat} : range' s 1 step = #[s] := rfl
+@[simp] theorem range'_one {s step : Nat} : range' s 1 step = #[s] := by
+  simp [range', ofFn, ofFn.go]
 
 @[simp] theorem range'_inj : range' s n = range' s' n' ↔ n = n' ∧ (n = 0 ∨ s = s') := by
   rw [← toList_inj]
@@ -77,7 +78,7 @@ theorem range'_append (s m n step : Nat) :
     range' s m ++ range' (s + m) n = range' s (m + n) := by simpa using range'_append s m n 1
 
 theorem range'_concat (s n : Nat) : range' s (n + 1) step = range' s n step ++ #[s + step * n] := by
-  exact (range'_append s n 1 step).symm
+  simpa using (range'_append s n 1 step).symm
 
 theorem range'_1_concat (s n : Nat) : range' s (n + 1) = range' s n ++ #[s + n] := by
   simp [range'_concat]

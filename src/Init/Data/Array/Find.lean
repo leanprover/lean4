@@ -408,7 +408,7 @@ theorem false_of_mem_extract_findIdx {xs : Array α} {p : α → Bool} (h : x �
 
 /-! ### findIdx? -/
 
-@[simp] theorem findIdx?_empty : (#[] : Array α).findIdx? p = none := rfl
+@[simp] theorem findIdx?_empty : (#[] : Array α).findIdx? p = none := by simp
 
 @[simp]
 theorem findIdx?_eq_none_iff {xs : Array α} {p : α → Bool} :
@@ -526,7 +526,7 @@ theorem findIdx?_eq_some_le_of_findIdx?_eq_some {xs : Array α} {p q : α → Bo
 
 /-! ### findFinIdx? -/
 
-@[simp] theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p #[] = none := rfl
+@[simp] theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p #[] = none := by simp
 
 -- We can't mark this as a `@[congr]` lemma since the head of the RHS is not `findFinIdx?`.
 theorem findFinIdx?_congr {p : α → Bool} {xs ys : Array α} (w : xs = ys) :
@@ -595,7 +595,7 @@ The verification API for `idxOf?` is still incomplete.
 The lemmas below should be made consistent with those for `findIdx?` (and proved using them).
 -/
 
-@[simp] theorem idxOf?_empty [BEq α] : (#[] : Array α).idxOf? a = none := rfl
+@[simp] theorem idxOf?_empty [BEq α] : (#[] : Array α).idxOf? a = none := by simp
 
 @[simp] theorem idxOf?_eq_none_iff [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     xs.idxOf? a = none ↔ a ∉ xs := by
@@ -612,7 +612,7 @@ theorem idxOf?_eq_map_finIdxOf?_val [BEq α] {xs : Array α} {a : α} :
     xs.idxOf? a = (xs.finIdxOf? a).map (·.val) := by
   simp [idxOf?, finIdxOf?, findIdx?_eq_map_findFinIdx?_val]
 
-@[simp] theorem finIdxOf?_empty [BEq α] : (#[] : Array α).finIdxOf? a = none := rfl
+@[simp] theorem finIdxOf?_empty [BEq α] : (#[] : Array α).finIdxOf? a = none := by simp
 
 @[simp] theorem finIdxOf?_eq_none_iff [BEq α] [LawfulBEq α] {xs : Array α} {a : α} :
     xs.finIdxOf? a = none ↔ a ∉ xs := by

@@ -1451,25 +1451,25 @@ using `f` if the index is larger than the length of the List.
 
 Examples:
 ```lean example
-["circle", "square", "triangle"].modifyTailIdx List.reverse 1
+["circle", "square", "triangle"].modifyTailIdx 1 List.reverse
 ```
 ```output
 ["circle", "triangle", "square"]
 ```
 ```lean example
-["circle", "square", "triangle"].modifyTailIdx (fun xs => xs ++ xs) 1
+["circle", "square", "triangle"].modifyTailIdx 1 (fun xs => xs ++ xs)
 ```
 ```output
 ["circle", "square", "triangle", "square", "triangle"]
 ```
 ```lean example
-["circle", "square", "triangle"].modifyTailIdx (fun xs => xs ++ xs) 2
+["circle", "square", "triangle"].modifyTailIdx 2 (fun xs => xs ++ xs)
 ```
 ```output
 ["circle", "square", "triangle", "triangle"]
 ```
 ```lean example
-["circle", "square", "triangle"].modifyTailIdx (fun xs => xs ++ xs) 5
+["circle", "square", "triangle"].modifyTailIdx 5 (fun xs => xs ++ xs)
 ```
 ```output
 ["circle", "square", "triangle"]
@@ -1509,9 +1509,9 @@ Replaces the element at the given index, if it exists, with the result of applyi
 index is invalid, the list is returned unmodified.
 
 Examples:
- * `[1, 2, 3].modify (· * 10) 0 = [10, 2, 3]`
- * `[1, 2, 3].modify (· * 10) 2 = [1, 2, 30]`
- * `[1, 2, 3].modify (· * 10) 3 = [1, 2, 3]`
+ * `[1, 2, 3].modify 0 (· * 10) = [10, 2, 3]`
+ * `[1, 2, 3].modify 2 (· * 10) = [1, 2, 30]`
+ * `[1, 2, 3].modify 3 (· * 10) = [1, 2, 3]`
 -/
 def modify (l : List α) (i : Nat) (f : α → α) : List α :=
   l.modifyTailIdx i (modifyHead f)

@@ -68,35 +68,56 @@ instance : DecidableEq Empty := fun a => a.elim
 instance : DecidableEq PEmpty := fun a => a.elim
 
 /--
-  Thunks are "lazy" values that are evaluated when first accessed using `Thunk.get/map/bind`.
-  The value is then stored and not recomputed for all further accesses. -/
--- NOTE: the runtime has special support for the `Thunk` type to implement this behavior
+Delays evaluation. The delayed code is evaluated at most once.
+
+A thunk is code that constructs a value when it is requested via `Thunk.get`, `Thunk.map`, or
+`Thunk.bind`. The resulting value is cached, so the code is executed at most once. This is also
+known as lazy or call-by-need evaluation.
+
+The Lean runtime has special support for the `Thunk` type in order to implement the caching
+behavior.
+-/
 structure Thunk (α : Type u) : Type u where
-  /-- Constructs a new thunk from a function `Unit → α`
-  that will be called when the thunk is forced. -/
+  /--
+  Constructs a new thunk from a function `Unit → α` that will be called when the thunk is first
+  forced.
+
+  The result is cached. It is re-used when the thunk is forced again.
+  -/
   mk ::
   /-- Extract the getter function out of a thunk. Use `Thunk.get` instead. -/
   private fn : Unit → α
 
 attribute [extern "lean_mk_thunk"] Thunk.mk
 
-/-- Store a value in a thunk. Note that the value has already been computed, so there is no laziness. -/
+/--
+Stores an already-computed value in a thunk.
+
+Because the value has already been computed, there is no laziness.
+-/
 @[extern "lean_thunk_pure"] protected def Thunk.pure (a : α) : Thunk α :=
   ⟨fun _ => a⟩
 
 /--
-Forces a thunk to extract the value. This will cache the result,
-so a second call to the same function will return the value in O(1)
-instead of calling the stored getter function.
+Gets the thunk's value. If the value is cached, it is returned in constant time; if not, it is
+computed.
+
+Computed values are cached, so the value is not recomputed.
 -/
 -- NOTE: we use `Thunk.get` instead of `Thunk.fn` as the accessor primitive as the latter has an additional `Unit` argument
 @[extern "lean_thunk_get_own"] protected def Thunk.get (x : @& Thunk α) : α :=
   x.fn ()
 
-/-- Map a function over a thunk. -/
+/--
+Constructs a new thunk that forces `x` and then applies `x` to the result. Upon forcing, the result
+of `f` is cached and the reference to the thunk `x` is dropped.
+-/
 @[inline] protected def Thunk.map (f : α → β) (x : Thunk α) : Thunk β :=
   ⟨fun _ => f x.get⟩
-/-- Constructs a thunk that applies `f` to the result of `x` when forced. -/
+
+/--
+Constructs a new thunk that applies `f` to the result of `x` when forced.
+-/
 @[inline] protected def Thunk.bind (x : Thunk α) (f : α → Thunk β) : Thunk β :=
   ⟨fun _ => (f x.get).get⟩
 

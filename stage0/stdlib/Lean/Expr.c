@@ -34538,7 +34538,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l___private_Lean_Expr_0__Lean_intDivFn___closed__4;
 x_2 = l_Lean_Int_mkType;
-x_3 = l_Lean_Int_mkInstHDiv;
+x_3 = l_Lean_Int_mkInstHMul;
 x_4 = l_Lean_mkApp4(x_1, x_2, x_2, x_2, x_3);
 return x_4;
 }
@@ -34593,7 +34593,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l___private_Lean_Expr_0__Lean_intModFn___closed__4;
 x_2 = l_Lean_Int_mkType;
-x_3 = l_Lean_Int_mkInstHMod;
+x_3 = l_Lean_Int_mkInstHMul;
 x_4 = l_Lean_mkApp4(x_1, x_2, x_2, x_2, x_3);
 return x_4;
 }

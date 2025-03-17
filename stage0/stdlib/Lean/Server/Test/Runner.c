@@ -178,6 +178,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_fromJ
 static lean_object* l_Lean_Server_Test_Runner_instFromJsonGetWidgetsResponse___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_readResponseAs___at_Lean_Server_Test_Runner_main___spec__4(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Test_Runner_main___closed__19;
+lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_3138____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getStr_x3f(lean_object*);
 static lean_object* l_Lean_Server_Test_Runner_main___closed__6;
 lean_object* lean_io_process_child_wait(lean_object*, lean_object*, lean_object*);
@@ -297,7 +298,6 @@ lean_object* l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_toJsonDidCloseTextDo
 static lean_object* l_Option_repr___at___private_Lean_Server_Test_Runner_0__Lean_Server_Test_Runner_Client_reprHyp____x40_Lean_Server_Test_Runner___hyg_417____spec__5___closed__8;
 lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_fromJsonDiagnosticWith____x40_Lean_Data_Lsp_Diagnostics___hyg_1802____spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_Server_Test_Runner_main___spec__32___lambda__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Window_0__fromJsonShowMessageParams____x40_Lean_Data_Lsp_Window___hyg_139____spec__2(lean_object*, lean_object*);
 lean_object* l_String_posOfAux(lean_object*, uint32_t, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at_Lean_Server_Test_Runner_main___spec__32___lambda__5___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Server_Test_Runner_0__Lean_Server_Test_Runner_Client_fromJsonInteractiveGoal____x40_Lean_Server_Test_Runner___hyg_557____spec__1(lean_object*, lean_object*);
@@ -841,7 +841,7 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = l___private_Lean_Server_Test_Runner_0__Lean_Server_Test_Runner_Client_fromJsonSubexprInfo____x40_Lean_Server_Test_Runner___hyg_29____closed__1;
 lean_inc(x_1);
-x_3 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Window_0__fromJsonShowMessageParams____x40_Lean_Data_Lsp_Window___hyg_139____spec__2(x_1, x_2);
+x_3 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_3138____spec__1(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 

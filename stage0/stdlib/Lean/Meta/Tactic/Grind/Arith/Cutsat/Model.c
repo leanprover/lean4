@@ -872,7 +872,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_12 = lean_ctor_get(x_9, 0);
-x_13 = lean_ctor_get(x_7, 11);
+x_13 = lean_ctor_get(x_7, 10);
 lean_inc(x_13);
 lean_dec(x_7);
 x_14 = lean_ctor_get(x_13, 2);
@@ -904,7 +904,7 @@ lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22;
 x_19 = lean_ctor_get(x_9, 0);
 lean_inc(x_19);
 lean_dec(x_9);
-x_20 = lean_ctor_get(x_7, 11);
+x_20 = lean_ctor_get(x_7, 10);
 lean_inc(x_20);
 lean_dec(x_7);
 x_21 = lean_ctor_get(x_20, 2);

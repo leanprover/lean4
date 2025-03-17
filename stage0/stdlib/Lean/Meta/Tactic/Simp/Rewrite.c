@@ -20968,8 +20968,6 @@ else
 lean_object* x_19; lean_object* x_20; 
 lean_dec(x_8);
 x_19 = lean_array_uget(x_5, x_7);
-lean_inc(x_15);
-lean_inc(x_14);
 lean_inc(x_19);
 x_20 = l_Lean_Meta_isRflTheorem(x_19, x_14, x_15, x_16);
 if (lean_obj_tag(x_20) == 0)
@@ -24263,8 +24261,6 @@ else
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_29; 
 lean_dec(x_8);
 x_19 = lean_array_uget(x_5, x_7);
-lean_inc(x_15);
-lean_inc(x_14);
 lean_inc(x_19);
 x_29 = l_Lean_Meta_isRflTheorem(x_19, x_14, x_15, x_16);
 if (lean_obj_tag(x_29) == 0)

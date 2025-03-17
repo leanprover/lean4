@@ -189,12 +189,21 @@ macro_rules
 
 namespace Iterator
 
-/-- Advance the given iterator until the predicate returns true or the end of the string is reached. -/
+/--
+Moves the iterator forward until the Boolean predicate `p` returns `true` for the iterator's current
+character or until the end of the string is reached. Does nothing if the current character already
+satisfies `p`.
+-/
 @[specialize] def find (it : Iterator) (p : Char → Bool) : Iterator :=
   if it.atEnd then it
   else if p it.curr then it
   else find it.next p
 
+/--
+Iterates over a string, updating a state at each character using the provided function `f`, until
+`f` returns `none`. Begins with the state `init`. Returns the state and character for which `f`
+returns `none`.
+-/
 @[specialize] def foldUntil (it : Iterator) (init : α) (f : α → Char → Option α) : α × Iterator :=
   if it.atEnd then
     (init, it)

@@ -685,40 +685,47 @@ where go (acc : String) (s : String) : List String → String
   | a :: as => go (acc ++ s ++ a) s as
   | []      => acc
 
-/-- Iterator over the characters (`Char`) of a `String`.
+/--
+An iterator over the characters (Unicode code points) in a `String`. Typically created by
+`String.iter`.
 
-Typically created by `s.iter`, where `s` is a `String`.
+String iterators pair a string with a valid byte index. This allows efficient character-by-character
+processing of strings while avoiding the need to manually ensure that byte indices are used with the
+correct strings.
 
 An iterator is *valid* if the position `i` is *valid* for the string `s`, meaning `0 ≤ i ≤ s.endPos`
 and `i` lies on a UTF8 byte boundary. If `i = s.endPos`, the iterator is at the end of the string.
 
-Most operations on iterators return arbitrary values if the iterator is not valid. The functions in
-the `String.Iterator` API should rule out the creation of invalid iterators, with two exceptions:
-
+Most operations on iterators return unspecified values if the iterator is not valid. The functions
+in the `String.Iterator` API rule out the creation of invalid iterators, with two exceptions:
 - `Iterator.next iter` is invalid if `iter` is already at the end of the string (`iter.atEnd` is
   `true`), and
 - `Iterator.forward iter n`/`Iterator.nextn iter n` is invalid if `n` is strictly greater than the
   number of remaining characters.
 -/
 structure Iterator where
-  /-- The string the iterator is for. -/
+  /-- The string being iterated over. -/
   s : String
-  /-- The current position.
+  /-- The current UTF-8 byte position in the string `s`.
 
-  This position is not necessarily valid for the string, for instance if one keeps calling
-  `Iterator.next` when `Iterator.atEnd` is true. If the position is not valid, then the
-  current character is `(default : Char)`, similar to `String.get` on an invalid position. -/
+  This position is not guaranteed to be valid for the string. If the position is not valid, then the
+  current character is `(default : Char)`, similar to `String.get` on an invalid position.
+  -/
   i : Pos
   deriving DecidableEq, Inhabited
 
-/-- Creates an iterator at the beginning of a string. -/
+/-- Creates an iterator at the beginning of the string. -/
 @[inline] def mkIterator (s : String) : Iterator :=
   ⟨s, 0⟩
 
 @[inherit_doc mkIterator]
 abbrev iter := mkIterator
 
-/-- The size of a string iterator is the number of bytes remaining. -/
+/--
+The size of a string iterator is the number of bytes remaining.
+
+Recursive functions that iterate towards the end of a string will typically decrease this measure.
+-/
 instance : SizeOf String.Iterator where
   sizeOf i := i.1.utf8ByteSize - i.2.byteIdx
 
@@ -729,84 +736,121 @@ namespace Iterator
 @[inline, inherit_doc Iterator.s]
 def toString := Iterator.s
 
-/-- Number of bytes remaining in the iterator. -/
+/--
+The number of UTF-8 bytes remaining in the iterator.
+-/
 @[inline] def remainingBytes : Iterator → Nat
   | ⟨s, i⟩ => s.endPos.byteIdx - i.byteIdx
 
 @[inline, inherit_doc Iterator.i]
 def pos := Iterator.i
 
-/-- The character at the current position.
+/--
+Gets the character at the iterator's current position.
 
-On an invalid position, returns `(default : Char)`. -/
+A run-time bounds check is performed. Use `String.Iterator.curr'` to avoid redundant bounds checks.
+
+If the position is invalid, returns `(default : Char)`.
+-/
 @[inline] def curr : Iterator → Char
   | ⟨s, i⟩ => get s i
 
-/-- Moves the iterator's position forward by one character, unconditionally.
+/--
+Moves the iterator's position forward by one character, unconditionally.
 
-It is only valid to call this function if the iterator is not at the end of the string, *i.e.*
-`Iterator.atEnd` is `false`; otherwise, the resulting iterator will be invalid. -/
+It is only valid to call this function if the iterator is not at the end of the string (i.e.
+if `Iterator.atEnd` is `false`); otherwise, the resulting iterator will be invalid.
+-/
 @[inline] def next : Iterator → Iterator
   | ⟨s, i⟩ => ⟨s, s.next i⟩
 
-/-- Decreases the iterator's position.
+/--
+Moves the iterator's position backward by one character, unconditionally.
 
-If the position is zero, this function is the identity. -/
+The position is not changed if the iterator is at the beginning of the string.
+-/
 @[inline] def prev : Iterator → Iterator
   | ⟨s, i⟩ => ⟨s, s.prev i⟩
 
-/-- True if the iterator is past the string's last character. -/
+/--
+Checks whether the iterator is past its string's last character.
+-/
 @[inline] def atEnd : Iterator → Bool
   | ⟨s, i⟩ => i.byteIdx ≥ s.endPos.byteIdx
 
-/-- True if the iterator is not past the string's last character. -/
+/--
+Checks whether the iterator is at or before the string's last character.
+-/
 @[inline] def hasNext : Iterator → Bool
   | ⟨s, i⟩ => i.byteIdx < s.endPos.byteIdx
 
-/-- True if the position is not zero. -/
+/--
+Checks whether the iterator is after the beginning of the string.
+-/
 @[inline] def hasPrev : Iterator → Bool
   | ⟨_, i⟩ => i.byteIdx > 0
 
+/--
+Gets the character at the iterator's current position.
+
+The proof of `it.hasNext` ensures that there is, in fact, a character at the current position. This
+function is faster that `String.Iterator.curr` due to avoiding a run-time bounds check.
+-/
 @[inline] def curr' (it : Iterator) (h : it.hasNext) : Char :=
   match it with
   | ⟨s, i⟩ => get' s i (by simpa only [hasNext, endPos, decide_eq_true_eq, String.atEnd, ge_iff_le, Nat.not_le] using h)
 
+/--
+Moves the iterator's position forward by one character, unconditionally.
+
+The proof of `it.hasNext` ensures that there is, in fact, a position that's one character forwards.
+This function is faster that `String.Iterator.next` due to avoiding a run-time bounds check.
+-/
 @[inline] def next' (it : Iterator) (h : it.hasNext) : Iterator :=
   match it with
   | ⟨s, i⟩ => ⟨s, s.next' i (by simpa only [hasNext, endPos, decide_eq_true_eq, String.atEnd, ge_iff_le, Nat.not_le] using h)⟩
 
-/-- Replaces the current character in the string.
+/--
+Replaces the current character in the string.
 
-Does nothing if the iterator is at the end of the string. If the iterator contains the only
-reference to its string, this function will mutate the string in-place instead of allocating a new
-one. -/
+Does nothing if the iterator is at the end of the string. If both the replacement character and the
+replaced character are 7-bit ASCII characters and the string is not shared, then it is updated
+in-place and not copied.
+-/
 @[inline] def setCurr : Iterator → Char → Iterator
   | ⟨s, i⟩, c => ⟨s.set i c, i⟩
 
-/-- Moves the iterator's position to the end of the string.
-
-Note that `i.toEnd.atEnd` is always `true`. -/
+/--
+Moves the iterator's position to the end of the string, just past the last character.
+-/
 @[inline] def toEnd : Iterator → Iterator
   | ⟨s, _⟩ => ⟨s, s.endPos⟩
 
-/-- Extracts the substring between the positions of two iterators.
+/--
+Extracts the substring between the positions of two iterators. The first iterator's position is the
+start of the substring, and the second iterator's position is the end.
 
 Returns the empty string if the iterators are for different strings, or if the position of the first
-iterator is past the position of the second iterator. -/
+iterator is past the position of the second iterator.
+-/
 @[inline] def extract : Iterator → Iterator → String
   | ⟨s₁, b⟩, ⟨s₂, e⟩ =>
     if s₁ ≠ s₂ || b > e then ""
     else s₁.extract b e
 
-/-- Moves the iterator's position several characters forward.
+/--
+Moves the iterator's position forward by the specified number of characters.
 
-The resulting iterator is only valid if the number of characters to skip is less than or equal to
-the number of characters left in the iterator. -/
+The resulting iterator is only valid if the number of characters to skip is less than or equal
+to the number of characters left in the iterator.
+-/
 def forward : Iterator → Nat → Iterator
   | it, 0   => it
   | it, n+1 => forward it.next n
 
-/-- The remaining characters in an iterator, as a string. -/
+/--
+The remaining characters in an iterator, as a string.
+-/
 @[inline] def remainingToString : Iterator → String
   | ⟨s, i⟩ => s.extract i s.endPos
 
@@ -815,9 +859,10 @@ def nextn : Iterator → Nat → Iterator
   | it, 0   => it
   | it, i+1 => nextn it.next i
 
-/-- Moves the iterator's position several characters back.
-
-If asked to go back more characters than available, stops at the beginning of the string. -/
+/--
+Moves the iterator's position back by the specified number of characters, stopping at the beginning
+of the string.
+-/
 def prevn : Iterator → Nat → Iterator
   | it, 0   => it
   | it, i+1 => prevn it.prev i

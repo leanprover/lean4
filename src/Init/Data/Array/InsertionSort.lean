@@ -9,6 +9,12 @@ import Init.Data.Array.Basic
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
+/--
+Sorts an array using insertion sort.
+
+The optional parameter `lt` specifies an ordering predicate. It defaults to `LT.lt`, which must be
+decidable to be used for sorting.
+-/
 @[inline] def Array.insertionSort (xs : Array α) (lt : α → α → Bool := by exact (· < ·)) : Array α :=
   traverse xs 0 xs.size
 where

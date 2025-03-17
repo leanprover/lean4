@@ -3847,39 +3847,53 @@ def maxRecDepthErrorMessage : String :=
 
 /-! # Syntax -/
 
-/-- Source information of tokens. -/
+/--
+Source information that relates syntax to the context that it came from.
+
+The primary purpose of `SourceInfo` is to relate the output of the parser and the macro expander to
+the original source file. When produced by the parser, `Syntax.node` does not carry source info; the
+parser associates it only with atoms and identifiers. If a `Syntax.node` is introduced by a
+quotation, then it has synthetic source info that both associates it with an original reference
+position and indicates that the original atoms in it may not originate from the Lean file under
+elaboration.
+
+Source info is also used to relate Lean's output to the internal data that it represents; this is
+the basis for many interactive features. When used this way, it can occur on `Syntax.node` as well.
+-/
 inductive SourceInfo where
   /--
-  Token from original input with whitespace and position information.
-  `leading` will be inferred after parsing by `Syntax.updateLeading`. During parsing,
-  it is not at all clear what the preceding token was, especially with backtracking.
+  A token produced by the parser from original input that includes both leading and trailing
+  whitespace as well as position information.
+
+  The `leading` whitespace is inferred after parsing by `Syntax.updateLeading`. This is because the
+  “preceding token” is not well-defined during parsing, especially in the presence of backtracking.
   -/
   | original (leading : Substring) (pos : String.Pos) (trailing : Substring) (endPos : String.Pos)
   /--
-  Synthesized syntax (e.g. from a quotation) annotated with a span from the original source.
-  In the delaborator, we "misuse" this constructor to store synthetic positions identifying
-  subterms.
+  Synthetic syntax is syntax that was produced by a metaprogram or by Lean itself (e.g. by a
+  quotation). Synthetic syntax is annotated with a source span from the original syntax, which
+  relates it to the source file.
 
-  The `canonical` flag on synthetic syntax is enabled for syntax that is not literally part
-  of the original input syntax but should be treated "as if" the user really wrote it
-  for the purpose of hovers and error messages. This is usually used on identifiers,
-  to connect the binding site to the user's original syntax even if the name of the identifier
-  changes during expansion, as well as on tokens where we will attach targeted messages.
+  The delaborator uses this constructor to store an encoded indicator of which core language
+  expression gave rise to the syntax.
 
-  The syntax `token%$stx` in a syntax quotation will annotate the token `token` with the span
-  from `stx` and also mark it as canonical.
+  The `canonical` flag on synthetic syntax is enabled for syntax that is not literally part of the
+  original input syntax but should be treated “as if” the user really wrote it for the purpose of
+  hovers and error messages. This is usually used on identifiers in order to connect the binding
+  site to the user's original syntax even if the name of the identifier changes during expansion, as
+  well as on tokens that should receive targeted messages.
 
-  As a rough guide, a macro expansion should only use a given piece of input syntax in
-  a single canonical token, although this is sometimes violated when the same identifier
-  is used to declare two binders, as in the macro expansion for dependent if:
+  Generally speaking, a macro expansion should only use a given piece of input syntax in a single
+  canonical token. An exception to this rule is when the same identifier is used to declare two
+  binders, as in the macro expansion for dependent if:
   ```
   `(if $h : $cond then $t else $e) ~>
   `(dite $cond (fun $h => $t) (fun $h => $t))
   ```
-  In these cases if the user hovers over `h` they will see information about both binding sites.
+  In these cases, if the user hovers over `h` they will see information about both binding sites.
   -/
   | synthetic (pos : String.Pos) (endPos : String.Pos) (canonical := false)
-  /-- Synthesized token without position information. -/
+  /-- A synthesized token without position information. -/
   | protected none
 
 instance : Inhabited SourceInfo := ⟨SourceInfo.none⟩
@@ -3931,20 +3945,23 @@ def getTrailingTailPos? (info : SourceInfo) (canonicalOnly := false) : Option St
 end SourceInfo
 
 /--
-A `SyntaxNodeKind` classifies `Syntax.node` values. It is an abbreviation for
-`Name`, and you can use name literals to construct `SyntaxNodeKind`s, but
-they need not refer to declarations in the environment. Conventionally, a
-`SyntaxNodeKind` will correspond to the `Parser` or `ParserDesc` declaration
-that parses it.
+Specifies the interpretation of a `Syntax.node` value. An abbreviation for `Name`.
+
+Node kinds may be any name, and do not need to refer to declarations in the environment.
+Conventionally, however, a node's kind corresponds to the `Parser` or `ParserDesc` declaration that
+produces it. There are also a number of built-in node kinds that are used by the parsing
+infrastructure, such as `nullKind` and `choiceKind`; these do not correspond to parser declarations.
 -/
 abbrev SyntaxNodeKind := Name
 
 /-! # Syntax AST -/
 
 /--
-Binding information resolved and stored at compile time of a syntax quotation.
-Note: We do not statically know whether a syntax expects a namespace or term name,
-so a `Syntax.ident` may contain both preresolution kinds.
+A possible binding of an identifier in the context in which it was quoted.
+
+Identifiers in quotations may refer to either global declarations or to namespaces that are in scope
+at the site of the quotation. These are saved in the `Syntax.ident` constructor and are part of the
+implementation of hygienic macros.
 -/
 inductive Syntax.Preresolved where
   /-- A potential namespace reference -/
@@ -3953,41 +3970,57 @@ inductive Syntax.Preresolved where
   | decl (n : Name) (fields : List String)
 
 /--
-Syntax objects used by the parser, macro expander, delaborator, etc.
+Lean syntax trees.
+
+Syntax trees are used pervasively throughout Lean: they are produced by the parser, transformed by
+the macro expander, and elaborated. They are also produced by the delaborator and presented to
+users.
 -/
 inductive Syntax where
-  /-- A `missing` syntax corresponds to a portion of the syntax tree that is
-  missing because of a parse error. The indexing operator on Syntax also
-  returns `missing` for indexing out of bounds. -/
+  /--
+  A portion of the syntax tree that is missing because of a parse error.
+
+  The indexing operator on `Syntax` also returns `Syntax.missing` when the index is out of bounds.
+  -/
   | missing : Syntax
-  /-- Node in the syntax tree.
+  /--
+  A node in the syntax tree that may have further syntax as child nodes. The node's `kind`
+  determines its interpretation.
 
-  The `info` field is used by the delaborator to store the position of the
-  subexpression corresponding to this node.
-  The parser sets the `info` field to `none`, with position retrieval continuing recursively.
-  Nodes created by quotations use the result from `SourceInfo.fromRef` so that they are marked
-  as synthetic even when the leading/trailing token is not.
-  The delaborator uses the `info` field to store the position of the subexpression
-  corresponding to this node.
-
-  (Remark: the `node` constructor did not have an `info` field in previous
-  versions. This caused a bug in the interactive widgets, where the popup for
-  `a + b` was the same as for `a`. The delaborator used to associate
-  subexpressions with pretty-printed syntax by setting the (string) position
-  of the first atom/identifier to the (expression) position of the
-  subexpression. For example, both `a` and `a + b` have the same first
-  identifier, and so their infos got mixed up.) -/
+  For nodes produced by the parser, the `info` field is typically `Lean.SourceInfo.none`, and source
+  information is stored in the corresponding fields of identifiers and atoms. This field is used in
+  two ways:
+   1. The delaborator uses it to associate nodes with metadata that are used to implement
+      interactive features.
+   2. Nodes created by quotations use the field to mark the syntax as synthetic (storing the result
+      of `Lean.SourceInfo.fromRef`) even when its leading or trailing tokens are not.
+  -/
+  -- Remark: the `node` constructor did not have an `info` field in previous versions. This caused a
+  -- bug in the interactive widgets, where the popup for `a + b` was the same as for `a`. The
+  -- delaborator used to associate subexpressions with pretty-printed syntax by setting the (string)
+  -- position of the first atom/identifier to the (expression) position of the subexpression. For
+  -- example, both `a` and `a + b` have the same first identifier, and so their infos got mixed up.
   | node   (info : SourceInfo) (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
-  /-- An `atom` corresponds to a keyword or piece of literal unquoted syntax.
-  These correspond to quoted strings inside `syntax` declarations.
-  For example, in `(x + y)`, `"("`, `"+"` and `")"` are `atom`
-  and `x` and `y` are `ident`. -/
+  /--
+  A non-identifier atomic component of syntax.
+
+  All of the following are atoms:
+   * keywords, such as `def`, `fun`, and `inductive`
+   * literals, such as numeric or string literals
+   * punctuation and delimiters, such as `(`, `)`, and `=>`.
+
+  Identifiers are represented by the `Lean.Syntax.ident` constructor. Atoms also correspond to
+  quoted strings inside `syntax` declarations.
+  -/
   | atom   (info : SourceInfo) (val : String) : Syntax
-  /-- An `ident` corresponds to an identifier as parsed by the `ident` or
-  `rawIdent` parsers.
+  /--
+  An identifier.
+
+  In addition to source information, identifiers have the following fields:
   * `rawVal` is the literal substring from the input file
-  * `val` is the parsed identifier (with hygiene)
-  * `preresolved` is the list of possible declarations this could refer to
+  * `val` is the parsed Lean name, potentially including macro scopes.
+  * `preresolved` is the list of possible declarations this could refer to, populated by
+    [quotations](lean-manual://section/quasiquotation).
   -/
   | ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List Syntax.Preresolved) : Syntax
 
@@ -4023,15 +4056,19 @@ def Syntax.node7 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ a�
 def Syntax.node8 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈ : Syntax) : Syntax :=
   Syntax.node info kind (Array.mkArray8 a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈)
 
-/-- `SyntaxNodeKinds` is a set of `SyntaxNodeKind` (implemented as a list). -/
+/--
+`SyntaxNodeKinds` is a set of `SyntaxNodeKind`, implemented as a list.
+
+Singleton `SyntaxNodeKinds` are extremely common. They are written as name literals, rather than as
+lists; list syntax is required only for empty or non-singleton sets of kinds.
+-/
 def SyntaxNodeKinds := List SyntaxNodeKind
 
 /--
-A `Syntax` value of one of the given syntax kinds.
-Note that while syntax quotations produce/expect `TSyntax` values of the correct kinds,
-this is not otherwise enforced and can easily be circumvented by direct use of the constructor.
-The namespace `TSyntax.Compat` can be opened to expose a general coercion from `Syntax` to any
-`TSyntax ks` for porting older code.
+Typed syntax, which tracks the potential kinds of the `Syntax` it contains.
+
+While syntax quotations produce or expect `TSyntax` values of the correct kinds, this is not
+otherwise enforced; it can easily be circumvented by direct use of the constructor.
 -/
 structure TSyntax (ks : SyntaxNodeKinds) where
   /-- The underlying `Syntax` value. -/
@@ -4046,63 +4083,72 @@ instance : Inhabited (TSyntax ks) where
 /-! # Builtin kinds -/
 
 /--
-The `choice` kind is used when a piece of syntax has multiple parses, and the
-determination of which to use is deferred until typing information is available.
+The `` `choice `` kind is used to represent ambiguous parse results.
+
+The parser prioritizes longer matches over shorter ones, but there is not always a unique longest
+match. All the parse results are saved, and the determination of which to use is deferred
+until typing information is available.
 -/
 abbrev choiceKind : SyntaxNodeKind := `choice
 
-/-- The null kind is used for raw list parsers like `many`. -/
+/--
+`` `null `` is the “fallback” kind, used when no other kind applies. Null nodes result from
+repetition operators, and empty null nodes represent the failure of an optional parse.
+
+The null kind is used for raw list parsers like `many`.
+-/
 abbrev nullKind : SyntaxNodeKind := `null
 
 /--
-The `group` kind is by the `group` parser, to avoid confusing with the null
-kind when used inside `optional`.
+The `` `group `` kind is used for nodes that result from `Lean.Parser.group`. This avoids confusion
+with the null kind when used inside `optional`.
 -/
 abbrev groupKind : SyntaxNodeKind := `group
 
 /--
-`ident` is not actually used as a node kind, but it is returned by
-`getKind` in the `ident` case so that things that handle different node
-kinds can also handle `ident`.
+The pseudo-kind assigned to identifiers: `` `ident ``.
+
+The name `` `ident `` is not actually used as a kind for `Syntax.node` values. It is used by
+convention as the kind of `Syntax.ident` values.
 -/
 abbrev identKind : SyntaxNodeKind := `ident
 
-/-- `str` is the node kind of string literals like `"foo"`. -/
+/-- `` `str `` is the node kind of string literals like `"foo"`. -/
 abbrev strLitKind : SyntaxNodeKind := `str
 
-/-- `char` is the node kind of character literals like `'A'`. -/
+/-- `` `char `` is the node kind of character literals like `'A'`. -/
 abbrev charLitKind : SyntaxNodeKind := `char
 
-/-- `num` is the node kind of number literals like `42`. -/
+/-- `` `num `` is the node kind of number literals like `42`. -/
 abbrev numLitKind : SyntaxNodeKind := `num
 
-/-- `scientific` is the node kind of floating point literals like `1.23e-3`. -/
+/-- `` `scientific `` is the node kind of floating point literals like `1.23e-3`. -/
 abbrev scientificLitKind : SyntaxNodeKind := `scientific
 
-/-- `name` is the node kind of name literals like `` `foo ``. -/
+/-- `` `name `` is the node kind of name literals like `` `foo ``. -/
 abbrev nameLitKind : SyntaxNodeKind := `name
 
-/-- `fieldIdx` is the node kind of projection indices like the `2` in `x.2`. -/
+/-- `` `fieldIdx ` is the node kind of projection indices like the `2` in `x.2`. -/
 abbrev fieldIdxKind : SyntaxNodeKind := `fieldIdx
 
 /--
-`hygieneInfo` is the node kind of the `hygieneInfo` parser, which is an
-"invisible token" which captures the hygiene information at the current point
-without parsing anything.
+`` `hygieneInfo `` is the node kind of the `Lean.Parser.hygieneInfo` parser, which produces an
+“invisible token” that captures the hygiene information at the current point without parsing
+anything.
 
-They can be used to generate identifiers (with `Lean.HygieneInfo.mkIdent`)
-as if they were introduced by the calling context, not the called macro.
+They can be used to generate identifiers (with `Lean.HygieneInfo.mkIdent`) as if they were
+introduced in a macro's input, rather than by its implementation.
 -/
 abbrev hygieneInfoKind : SyntaxNodeKind := `hygieneInfo
 
 /--
-`interpolatedStrLitKind` is the node kind of interpolated string literal
+`` `interpolatedStrLitKind `` is the node kind of interpolated string literal
 fragments like `"value = {` and `}"` in `s!"value = {x}"`.
 -/
 abbrev interpolatedStrLitKind : SyntaxNodeKind := `interpolatedStrLitKind
 /--
-`interpolatedStrKind` is the node kind of an interpolated string literal
-like `"value = {x}"` in `s!"value = {x}"`.
+`` `interpolatedStrKind `` is the node kind of an interpolated string literal like `"value = {x}"`
+in `s!"value = {x}"`.
 -/
 abbrev interpolatedStrKind : SyntaxNodeKind := `interpolatedStrKind
 
@@ -4118,8 +4164,10 @@ abbrev interpolatedStrKind : SyntaxNodeKind := `interpolatedStrKind
 namespace Syntax
 
 /--
-Gets the kind of a `Syntax` node. For non-`node` syntax, we use "pseudo kinds":
-`identKind` for `ident`, `missing` for `missing`, and the atom's string literal
+Gets the kind of a `Syntax.node` value, or the pseudo-kind of any other `Syntax` value.
+
+“Pseudo-kinds” are kinds that are assigned by convention to non-`Syntax.node` values:
+`identKind` for `Syntax.ident`, `` `missing `` for `Syntax.missing`, and the atom's string literal
 for atoms.
 -/
 def getKind (stx : Syntax) : SyntaxNodeKind :=
@@ -4133,15 +4181,22 @@ def getKind (stx : Syntax) : SyntaxNodeKind :=
   | Syntax.ident ..    => identKind
 
 /--
-Changes the kind at the root of a `Syntax` node to `k`.
-Does nothing for non-`node` nodes.
+Changes the kind at the root of a `Syntax.node` to `k`.
+
+Returns all other `Syntax` values unchanged.
 -/
 def setKind (stx : Syntax) (k : SyntaxNodeKind) : Syntax :=
   match stx with
   | Syntax.node info _ args => Syntax.node info k args
   | _                       => stx
 
-/-- Is this a syntax with node kind `k`? -/
+/--
+Checks whether syntax has the given kind or pseudo-kind.
+
+“Pseudo-kinds” are kinds that are assigned by convention to non-`Syntax.node` values:
+`identKind` for `Syntax.ident`, `` `missing `` for `Syntax.missing`, and the atom's string literal
+for atoms.
+-/
 def isOfKind (stx : Syntax) (k : SyntaxNodeKind) : Bool :=
   beq stx.getKind k
 
@@ -4259,15 +4314,27 @@ partial def getTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.
   | _, _ => none
 
 /--
-An array of syntax elements interspersed with separators. Can be coerced
-to/from `Array Syntax` to automatically remove/insert the separators.
+An array of syntax elements interspersed with the given separators.
+
+Separator arrays result from repetition operators such as `,*`.
+[Coercions](lean-manual://section/coercions) to and from `Array Syntax` insert or remove separators
+as required.
+
+The typed equivalent is `Lean.Syntax.TSepArray`.
 -/
 structure SepArray (sep : String) where
   /-- The array of elements and separators, ordered like
   `#[el1, sep1, el2, sep2, el3]`. -/
   elemsAndSeps : Array Syntax
 
-/-- A typed version of `SepArray`. -/
+/--
+An array of syntax elements that alternate with the given separator. Each syntax element has a kind
+drawn from `ks`.
+
+Separator arrays result from repetition operators such as `,*`.
+[Coercions](lean-manual://section/coercions) to and from `Array (TSyntax ks)` insert or remove
+separators as required. The untyped equivalent is `Lean.Syntax.SepArray`.
+-/
 structure TSepArray (ks : SyntaxNodeKinds) (sep : String) where
   /-- The array of elements and separators, ordered like
   `#[el1, sep1, el2, sep2, el3]`. -/
@@ -4275,7 +4342,9 @@ structure TSepArray (ks : SyntaxNodeKinds) (sep : String) where
 
 end Syntax
 
-/-- An array of syntaxes of kind `ks`. -/
+/--
+An array of syntaxes of kind `ks`.
+-/
 abbrev TSyntaxArray (ks : SyntaxNodeKinds) := Array (TSyntax ks)
 
 /-- Implementation of `TSyntaxArray.raw`. -/

@@ -37,13 +37,13 @@ opaque new : IO Socket
 Connects a TCP socket to the specified address.
 -/
 @[extern "lean_uv_tcp_connect"]
-opaque connect (socket : @& Socket) (addr : SocketAddress) : IO (IO.Promise (Except IO.Error Unit))
+opaque connect (socket : @& Socket) (addr : @& SocketAddress) : IO (IO.Promise (Except IO.Error Unit))
 
 /--
 Sends data through a TCP socket.
 -/
 @[extern "lean_uv_tcp_send"]
-opaque send (socket : @& Socket) (data : ByteArray) : IO (IO.Promise (Except IO.Error Unit))
+opaque send (socket : @& Socket) (data : @& ByteArray) : IO (IO.Promise (Except IO.Error Unit))
 
 /--
 Receives data from a TCP socket with a maximum size of size bytes. The promise resolves when data is
@@ -58,7 +58,7 @@ opaque recv? (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Er
 Binds a TCP socket to a specific address.
 -/
 @[extern "lean_uv_tcp_bind"]
-opaque bind (socket : @& Socket) (addr : SocketAddress) : IO Unit
+opaque bind (socket : @& Socket) (addr : @& SocketAddress) : IO Unit
 
 /--
 Starts listening for incoming connections on a TCP socket.

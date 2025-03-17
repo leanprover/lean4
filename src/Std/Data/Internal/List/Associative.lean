@@ -4283,7 +4283,7 @@ theorem minEntry?_of_perm [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l l
   case nil => simp_all only [List.nil_perm]
   case cons e es =>
     ext
-    simp [minEntry?_eq_some_iff _ hl, hp.mem_iff, containsKey_of_perm hp]
+    simp only [Option.mem_def, minEntry?_eq_some_iff _ hl, hp.mem_iff, containsKey_of_perm hp]
     exact minEntry?_eq_some_iff _ (hl.perm hp.symm) |>.symm
 
 theorem minKey?_of_perm [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l l' : List ((a : α) × β a)}
@@ -4330,7 +4330,7 @@ theorem min_apply [Ord α] {e₁ e₂ : (a : α) × β a} {f : (a : α) × β a 
 theorem minEntry?_map [Ord α] (l : List ((a : α) × β a)) (f : (a : α) × β a → (a : α) × β a)
     (hf : ∀ e₁ e₂, compare e₁.1 e₂.1 = compare (f e₁).1 (f e₂).1) :
     minEntry? (l.map f) = (minEntry? l).map f := by
-  simp [minEntry?, List.min?]
+  simp only [minEntry?, List.min?]
   cases l <;> try rfl
   rename_i e es
   simp only [List.map_cons, Option.map_some', Option.some.injEq]
@@ -4346,18 +4346,18 @@ theorem replaceEntry_eq_map [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k
   induction l with
   | nil => rfl
   | cons e es ih =>
-    simp [replaceEntry, cond_eq_if]
+    simp only [replaceEntry, cond_eq_if, List.map_cons]
     split
     · rename_i heq
-      simp
+      simp only [List.cons.injEq, true_and]
       replace hl : containsKey k es = false := containsKey_congr heq ▸ hl.containsKey_eq_false
       clear ih
       induction es with
       | nil => rfl
       | cons e' es ih =>
-        simp
+        simp only [List.map_cons, List.cons.injEq]
         rw [containsKey_cons] at hl
-        simp at hl
+        simp only [Bool.or_eq_false_iff] at hl
         simpa [hl.1] using ih hl.2
     · simp [ih hl.tail]
 

@@ -438,6 +438,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr
 
     let (val, state) ← withRestoreOrSaveFull reusableResult? header.tacSnap? do
       withReuseContext header.value do
+      withTraceNode `Elab.definition.value (fun _ => pure header.declName) do
       withDeclName header.declName <| withLevelNames header.levelNames do
       let valStx ← liftMacroM <| declValToTerm header.value
       (if header.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc #[header] else fun x => x #[]) fun vars => do
@@ -1249,6 +1250,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
 builtin_initialize
   registerTraceClass `Elab.definition.mkClosure
   registerTraceClass `Elab.definition.header
+  registerTraceClass `Elab.definition.value
 
 end Command
 end Lean.Elab

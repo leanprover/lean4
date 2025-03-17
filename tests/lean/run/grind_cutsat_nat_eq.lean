@@ -54,4 +54,11 @@ example (x : Nat) : x / 0 = 0 := by
 example (x : Nat) : x % 0 = x := by
   grind
 
-example (x : Nat) : x % 4 - x % 8 = 0 := by grind
+example (x : Nat) : x % 4 - x % 8 = 0 := by
+  grind
+
+example (x : Int) (h : x = 7) : x.natAbs = 7 := by
+  grind
+
+example (x y : Int) (_ : (x - y).natAbs < 3) (_ : x < 5) (_ : y > 15) : False := by
+  grind

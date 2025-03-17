@@ -279,7 +279,8 @@ def RewriteResult.addSuggestion (ref : Syntax) (r : RewriteResult)
     (checkState? : Option Tactic.SavedState := .none) : TacticM Unit := do
   withMCtx r.mctx do
     Tactic.TryThis.addRewriteSuggestion ref [(r.expr, r.symm)]
-      (type? := r.newGoal) (origSpan? := ← getRef) (checkState? := checkState?.getD (← saveState))
+      (type? := r.newGoal.toLOption) (origSpan? := ← getRef)
+      (checkState? := checkState?.getD (← saveState))
 
 structure RewriteResultConfig where
   stopAtRfl : Bool

@@ -664,14 +664,16 @@ open Lean.Syntax
 Parameters:
 * `ref`: the span of the info diagnostic
 * `rules`: a list of arguments to `rw`, with the second component `true` if the rewrite is reversed
-* `type?`: the goal after the suggested rewrite, or `none` if the rewrite closes the goal
+* `type?`: the goal after the suggested rewrite, `.none` if the rewrite closes the goal, or `.undef`
+  if the resulting goal is unknown
 * `loc?`: the hypothesis at which the rewrite is performed, or `none` if the goal is targeted
 * `origSpan?`: a syntax object whose span is the actual text to be replaced by `suggestion`.
   If not provided it defaults to `ref`.
 * `checkState?`: if passed, the tactic state in which the generated tactic will be validated,
   inserting `expose_names` if necessary
 -/
-def addRewriteSuggestion (ref : Syntax) (rules : List (Expr × Bool)) (type? : Option Expr)
+def addRewriteSuggestion (ref : Syntax) (rules : List (Expr × Bool))
+  (type? : LOption Expr := .undef)
   (loc? : Option Expr := none)
   (origSpan? : Option Syntax := none) (checkState? : Option Tactic.SavedState := none) :
     TacticM Unit := do
@@ -699,13 +701,17 @@ def addRewriteSuggestion (ref : Syntax) (rules : List (Expr × Bool)) (type? : O
         m!"rw {rulesMsg}"
 
     let (extraMsg, extraStr) ←
-      if let some type := type? then
+      match type? with
+      | .some type =>
         pure (← addMessageContext m!"\n-- {type}", s!"\n-- {← PrettyPrinter.ppExpr type}")
-      else
-        pure (m!"\n-- no goals", "\n-- no goals")
+      | .none => pure (m!"\n-- no goals", "\n-- no goals")
+      | .undef => pure (m!"", "")
     return (tac, tacMsg, extraMsg, extraStr)
 
   if let some checkState := checkState? then
+    let type? := match type? with
+      | .some type => some type
+      | _ => none
     let some (tac', tacMsg') ← mkValidatedTactic tac tacMsg checkState type?
       | tacMsg := m!"(expose_names; {tacMsg})"
         logInfo <| mkFailedToMakeTacticMsg "an applicable rewrite lemma" (tacMsg ++ extraMsg)

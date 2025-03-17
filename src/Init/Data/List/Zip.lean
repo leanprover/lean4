@@ -135,8 +135,6 @@ theorem take_zipWith : (zipWith f l l').take i = zipWith f (l.take i) (l'.take i
       · simp
       · simp [hl]
 
-@[deprecated take_zipWith (since := "2024-07-26")] abbrev zipWith_distrib_take := @take_zipWith
-
 theorem drop_zipWith : (zipWith f l l').drop i = zipWith f (l.drop i) (l'.drop i) := by
   induction l generalizing l' i with
   | nil => simp
@@ -147,13 +145,9 @@ theorem drop_zipWith : (zipWith f l l').drop i = zipWith f (l.drop i) (l'.drop i
         · simp
         · simp [hl]
 
-@[deprecated drop_zipWith (since := "2024-07-26")] abbrev zipWith_distrib_drop := @drop_zipWith
-
 @[simp]
 theorem tail_zipWith : (zipWith f l l').tail = zipWith f l.tail l'.tail := by
   rw [← drop_one]; simp [drop_zipWith]
-
-@[deprecated tail_zipWith (since := "2024-07-28")] abbrev zipWith_distrib_tail := @tail_zipWith
 
 theorem zipWith_append (f : α → β → γ) (l₁ l₁' : List α) (l₂ l₂' : List β)
     (h : l₁.length = l₂.length) :
@@ -295,8 +289,6 @@ theorem of_mem_zip {a b} : ∀ {l₁ : List α} {l₂ : List β}, (a, b) ∈ zip
     · have := of_mem_zip h
       exact ⟨Mem.tail _ this.1, Mem.tail _ this.2⟩
 
-@[deprecated of_mem_zip (since := "2024-07-28")] abbrev mem_zip := @of_mem_zip
-
 theorem map_fst_zip :
     ∀ (l₁ : List α) (l₂ : List β), l₁.length ≤ l₂.length → map Prod.fst (zip l₁ l₂) = l₁
   | [], _, _ => rfl
@@ -419,9 +411,6 @@ theorem map_zipWithAll {δ : Type _} (f : α → β) (g : Option γ → Option �
 
 @[simp] theorem unzip_snd : (unzip l).snd = l.map Prod.snd := by
   induction l <;> simp_all
-
-@[deprecated unzip_fst (since := "2024-07-28")] abbrev unzip_left := @unzip_fst
-@[deprecated unzip_snd (since := "2024-07-28")] abbrev unzip_right := @unzip_snd
 
 theorem unzip_eq_map : ∀ l : List (α × β), unzip l = (l.map Prod.fst, l.map Prod.snd)
   | [] => rfl

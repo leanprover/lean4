@@ -36,8 +36,6 @@ end Expr
 
 abbrev VarIndex := Nat
 
-
-
 /-- Bitvector operations that we perform AC canonicalization on. -/
 inductive Op
   | mul (w : Expr)
@@ -46,7 +44,6 @@ deriving BEq, Repr
 namespace Op
 
 /-- Given an expression of an (unapplied) operation, return the decoded `Op`.
-
 Return `none` if the expression is not a recognized operation. -/
 def ofExpr? (e : Expr) : Option Op :=
   match_expr e with
@@ -255,13 +252,6 @@ For example, `x₁ * (y₁ * z) == x₂ * (y₂ * z)` is normalized to
 `z * (x₁ * y₁) == z * (x₂ * y₂)`, pulling the shared variable `z` to the front on
 both sides.
 
-Note that if both lhs and rhs are applications of a *different* operation, we
-canonicalize according to the *left* operation, meaning we treat the entire rhs
-as an atom. This is still useful, as it will pull out an occurence of the rhs
-in the lhs (if present) to the front (such an occurence would be the common
-expression). For example `x + y + ((x * y) + x) = x * y` will be canonicalized
-to `(x * y) + ... = x * y`.
-
 See `Op.fromExpr?` to see which operations are recognized.
 Other operations are ignored, even if they are associative and commutative.
 -/
@@ -278,14 +268,14 @@ def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
 
   -- Ignore cases where LHS and RHS ops are different.
   if op != op' then
-    trace[Meta.Tactic.bv] "Operations mismatch:\
+    trace[Meta.Tactic.bv] "Operations mismatch:
       the left-hand-side has operation {op}
         {indentExpr lhs}
       but the right-hand-side has operation {op'}
         {indentExpr rhs}"
     return .continue
 
-  trace[Meta.Tactic.bv] "Canonicalizing with respect to operation: '{op}' K"
+  trace[Meta.Tactic.bv] "Canonicalizing with respect to operation: '{op}'."
 
   VarStateM.run' (s := { op }) do
     let lCoeff ← computeCoefficients op lhs

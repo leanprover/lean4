@@ -277,96 +277,96 @@ variable {β : Type v}
 end Const
 
 /-- Implementation detail of the tree map -/
-def min? [Ord α] : Impl α β → Option ((a : α) × β a)
+def minEntry? [Ord α] : Impl α β → Option ((a : α) × β a)
   | .leaf => none
   | .inner _ k v .leaf _ => some ⟨k, v⟩
-  | .inner _ _ _ l _ => l.min?
+  | .inner _ _ _ l@(.inner ..) _ => l.minEntry?
 
 /-- Implementation detail of the tree map -/
-def min [Ord α] : (t : Impl α β) → (h : t.isEmpty = false) → (a : α) × β a
+def minEntry [Ord α] : (t : Impl α β) → (h : t.isEmpty = false) → (a : α) × β a
   | .inner _ k v .leaf _, _ => ⟨k, v⟩
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _, h => l.min (by simp_all [isEmpty])
+  | .inner _ _ _ l@(.inner ..) _, h => l.minEntry (by simp_all [isEmpty])
 
 /-- Implementation detail of the tree map -/
-def min! [Ord α] [Inhabited ((a : α) × β a)] : Impl α β → (a : α) × β a
+def minEntry! [Ord α] [Inhabited ((a : α) × β a)] : Impl α β → (a : α) × β a
   | .leaf => panic! "Map is empty"
   | .inner _ k v .leaf _ => ⟨k, v⟩
-  | .inner _ _ _ l _ => l.min!
+  | .inner _ _ _ l@(.inner ..) _ => l.minEntry!
 
 /-- Implementation detail of the tree map -/
-def minD [Ord α] : Impl α β → (a : α) × β a → (a : α) × β a
+def minEntryD [Ord α] : Impl α β → (a : α) × β a → (a : α) × β a
   | .leaf, fallback => fallback
   | .inner _ k v .leaf _, _ => ⟨k, v⟩
-  | .inner _ _ _ l _, fallback => l.minD fallback
+  | .inner _ _ _ l@(.inner ..) _, fallback => l.minEntryD fallback
 
 /-- Implementation detail of the tree map -/
-def max? [Ord α] : Impl α β → Option ((a : α) × β a)
+def maxEntry? [Ord α] : Impl α β → Option ((a : α) × β a)
   | .leaf => none
   | .inner _ k v _ .leaf => some ⟨k, v⟩
-  | .inner _ _ _ _ r => r.max?
+  | .inner _ _ _ _ r@(.inner ..) => r.maxEntry?
 
 /-- Implementation detail of the tree map -/
-def max [Ord α] : (t : Impl α β) → (h : t.isEmpty = false) → (a : α) × β a
+def maxEntry [Ord α] : (t : Impl α β) → (h : t.isEmpty = false) → (a : α) × β a
   | .inner _ k v .leaf _, _ => ⟨k, v⟩
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _, h => l.max (by simp_all [isEmpty])
+  | .inner _ _ _ l@(.inner ..) _, h => l.maxEntry (by simp_all [isEmpty])
 
 /-- Implementation detail of the tree map -/
-def max! [Ord α] [Inhabited ((a : α) × β a)] : Impl α β → (a : α) × β a
+def maxEntry! [Ord α] [Inhabited ((a : α) × β a)] : Impl α β → (a : α) × β a
   | .leaf => panic! "Map is empty"
   | .inner _ k v _ .leaf => ⟨k, v⟩
-  | .inner _ _ _ _ r => r.max!
+  | .inner _ _ _ _ r@(.inner ..) => r.maxEntry!
 
 /-- Implementation detail of the tree map -/
-def maxD [Ord α] : Impl α β → (a : α) × β a → (a : α) × β a
+def maxEntryD [Ord α] : Impl α β → (a : α) × β a → (a : α) × β a
   | .leaf, fallback => fallback
   | .inner _ k v _ .leaf, _ => ⟨k, v⟩
-  | .inner _ _ _ _ r, fallback => r.maxD fallback
+  | .inner _ _ _ _ r@(.inner ..), fallback => r.maxEntryD fallback
 
 /-- Implementation detail of the tree map -/
 def minKey? [Ord α] : Impl α β → Option α
   | .leaf => none
   | .inner _ k _ .leaf _ => some k
-  | .inner _ _ _ l _ => l.minKey?
+  | .inner _ _ _ l@(inner ..) _ => l.minKey?
 
 /-- Implementation detail of the tree map -/
 def minKey [Ord α] : (t : Impl α β) → (h : t.isEmpty = false) → α
   | .inner _ k _ .leaf _, _ => k
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _, h => l.minKey (by simp_all [isEmpty])
+  | .inner _ _ _ l@(.inner ..) _, h => l.minKey (by simp_all [isEmpty])
 
 /-- The smallest key of `t`. Returns the given fallback value if the map is empty. -/
 def minKey! [Ord α] [Inhabited α] : Impl α β → α
   | .leaf => panic! "Map is empty"
   | .inner _ k _ .leaf _ => k
-  | .inner _ _ _ l _ => l.minKey!
+  | .inner _ _ _ l@(.inner ..) _ => l.minKey!
 
 /-- Implementation detail of the tree map -/
 def minKeyD [Ord α] : Impl α β → α → α
   | .leaf, fallback => fallback
   | .inner _ k _ .leaf _, _ => k
-  | .inner _ _ _ l _, fallback => l.minKeyD fallback
+  | .inner _ _ _ l@(.inner ..) _, fallback => l.minKeyD fallback
 
 /-- Implementation detail of the tree map -/
 def maxKey? [Ord α] : Impl α β → Option α
   | .leaf => none
   | .inner _ k _ _ .leaf => some k
-  | .inner _ _ _ _ r => r.maxKey?
+  | .inner _ _ _ _ r@(.inner ..) => r.maxKey?
 
 /-- Implementation detail of the tree map -/
 def maxKey [Ord α] : (t : Impl α β) → (h : t.isEmpty = false) → α
   | .inner _ k _ .leaf _, _ => k
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _, h => l.maxKey (by simp_all [isEmpty])
+  | .inner _ _ _ l@(.inner ..) _, h => l.maxKey (by simp_all [isEmpty])
 
 /-- Implementation detail of the tree map -/
 def maxKey! [Ord α] [Inhabited α] : Impl α β → α
   | .leaf => panic! "Map is empty"
   | .inner _ k _ _ .leaf => k
-  | .inner _ _ _ _ r => r.maxKey!
+  | .inner _ _ _ _ r@(.inner ..) => r.maxKey!
 
 /-- Implementation detail of the tree map -/
 def maxKeyD [Ord α] : Impl α β → α → α
   | .leaf, fallback => fallback
   | .inner _ k _ _ .leaf, _ => k
-  | .inner _ _ _ _ r, fallback => r.maxKeyD fallback
+  | .inner _ _ _ _ r@(.inner ..), fallback => r.maxKeyD fallback
 
 attribute [Std.Internal.tree_tac] Nat.compare_eq_gt Nat.compare_eq_lt Nat.compare_eq_eq
 
@@ -726,50 +726,50 @@ namespace Const
 variable {β : Type v}
 
 /-- Implementation detail of the tree map -/
-def min? [Ord α] : Impl α β → Option (α × β)
+def minEntry? [Ord α] : Impl α β → Option (α × β)
   | .leaf => none
   | .inner _ k v .leaf _ => some ⟨k, v⟩
-  | .inner _ _ _ l _ => min? l
+  | .inner _ _ _ l@(.inner ..) _ => minEntry? l
 
 /-- Implementation detail of the tree map -/
-def min [Ord α] : (t : Impl α β) → (h : t.isEmpty = false) → α × β
+def minEntry [Ord α] : (t : Impl α β) → (h : t.isEmpty = false) → α × β
   | .inner _ k v .leaf _, _ => ⟨k, v⟩
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _, h => min l (by simp_all [isEmpty])
+  | .inner _ _ _ l@(.inner ..) _, h => minEntry l (by simp_all [isEmpty])
 
 /-- Implementation detail of the tree map -/
-def min! [Ord α] [Inhabited (α × β)] : Impl α β → α × β
+def minEntry! [Ord α] [Inhabited (α × β)] : Impl α β → α × β
   | .leaf => panic! "Map is empty"
   | .inner _ k v .leaf _ => ⟨k, v⟩
-  | .inner _ _ _ l _ => min! l
+  | .inner _ _ _ l@(.inner ..) _ => minEntry! l
 
 /-- Implementation detail of the tree map -/
-def minD [Ord α] : Impl α β → α × β → α × β
+def minEntryD [Ord α] : Impl α β → α × β → α × β
   | .leaf, fallback => fallback
   | .inner _ k v .leaf _, _ => ⟨k, v⟩
-  | .inner _ _ _ l _, fallback => minD l fallback
+  | .inner _ _ _ l@(.inner ..) _, fallback => minEntryD l fallback
 
 /-- Implementation detail of the tree map -/
-def max? [Ord α] : Impl α β → Option (α × β)
+def maxEntry? [Ord α] : Impl α β → Option (α × β)
   | .leaf => none
   | .inner _ k v _ .leaf => some ⟨k, v⟩
-  | .inner _ _ _ _ r => max? r
+  | .inner _ _ _ _ r@(.inner ..) => maxEntry? r
 
 /-- Implementation detail of the tree map -/
-def max [Ord α] : (t : Impl α β) → (h : t.isEmpty = false) → α × β
+def maxEntry [Ord α] : (t : Impl α β) → (h : t.isEmpty = false) → α × β
   | .inner _ k v .leaf _, _ => ⟨k, v⟩
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _, h => max l (by simp_all [isEmpty])
+  | .inner _ _ _ l@(.inner ..) _, h => maxEntry l (by simp_all [isEmpty])
 
 /-- Implementation detail of the tree map -/
-def max! [Ord α] [Inhabited (α × β)] : Impl α β → α × β
+def maxEntry! [Ord α] [Inhabited (α × β)] : Impl α β → α × β
   | .leaf => panic! "Map is empty"
   | .inner _ k v _ .leaf => ⟨k, v⟩
-  | .inner _ _ _ _ r => max! r
+  | .inner _ _ _ _ r@(.inner ..) => maxEntry! r
 
 /-- Implementation detail of the tree map -/
-def maxD [Ord α] : Impl α β → α × β → α × β
+def maxEntryD [Ord α] : Impl α β → α × β → α × β
   | .leaf, fallback => fallback
   | .inner _ k v _ .leaf, _ => ⟨k, v⟩
-  | .inner _ _ _ _ r, fallback => maxD r fallback
+  | .inner _ _ _ _ r@(.inner ..), fallback => maxEntryD r fallback
 
 /-- Implementation detail of the tree map -/
 @[inline]

@@ -141,6 +141,10 @@ abbrev TransOrd (α : Type u) [Ord α] := TransCmp (compare : α → α → Orde
 
 variable {α : Type u} {cmp : α → α → Ordering}
 
+theorem TransCmp.isLE_rfl [TransCmp cmp] {a : α} :
+    (cmp a a).isLE := by
+  simp [ReflCmp.compare_self (cmp := cmp)]
+
 theorem TransCmp.isGE_trans [TransCmp cmp] {a b c : α} (h₁ : (cmp a b).isGE) (h₂ : (cmp b c).isGE) :
     (cmp a c).isGE := by
   rw [OrientedCmp.isGE_iff_isLE] at *

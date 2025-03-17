@@ -673,8 +673,7 @@ Parameters:
   inserting `expose_names` if necessary
 -/
 def addRewriteSuggestion (ref : Syntax) (rules : List (Expr × Bool))
-  (type? : LOption Expr := .undef)
-  (loc? : Option Expr := none)
+  (type? : LOption Expr := .undef) (loc? : Option Expr := none)
   (origSpan? : Option Syntax := none) (checkState? : Option Tactic.SavedState := none) :
     TacticM Unit := do
   let mut (tac, tacMsg, extraMsg, extraStr) ← withExposedNames do

@@ -24,11 +24,11 @@ The resulting package does not yet include any dependencies.
 def loadLeanConfig (cfg : LoadConfig)
 : LogIO (Package × Environment) := do
   let configEnv ← importConfigFile cfg
-  let pkgConfig ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv cfg.leanOpts
+  let {name, config} ← IO.ofExcept <| PackageDecl.loadFromEnv configEnv cfg.leanOpts
   let pkg : Package := {
+    name, config
     dir := cfg.pkgDir
     relDir := cfg.relPkgDir
-    config := pkgConfig
     relConfigFile := cfg.relConfigFile
     scope := cfg.scope
     remoteUrl := cfg.remoteUrl

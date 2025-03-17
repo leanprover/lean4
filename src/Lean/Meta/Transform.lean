@@ -73,10 +73,6 @@ end Core
 
 namespace Meta
 
-local instance {m} [MonadLiftT MetaM m] : STWorld IO.RealWorld m := ⟨⟩
-local instance {m} [MonadLiftT MetaM m] : MonadLiftT (ST IO.RealWorld) m where
-  monadLift x := liftMetaM (liftM x)
-
 /--
 Similar to `Meta.transform`, but allows the use of a pre-existing cache.
 
@@ -94,6 +90,8 @@ partial def transformWithCache {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT
     (usedLetOnly := false)
     (skipConstInApp := false)
     : m (Expr × Std.HashMap ExprStructEq Expr) :=
+  let _ : STWorld IO.RealWorld m := ⟨⟩
+  let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := MetaM) (liftM (m := ST IO.RealWorld) x) }
   let rec visit (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
     checkCache { val := e : ExprStructEq } fun _ => Meta.withIncRecDepth do
       let rec visitPost (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do

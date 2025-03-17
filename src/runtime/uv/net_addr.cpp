@@ -29,6 +29,8 @@ void lean_ipv6_addr_to_in6_addr(b_obj_arg ipv6_addr, in6_addr* out) {
 }
 
 void lean_socket_address_to_sockaddr_storage(b_obj_arg ip_addr, sockaddr_storage* out) {
+    memset(out, 0, sizeof(*out));
+
     lean_object* socket_addr_obj = lean_ctor_get(ip_addr, 0);
     lean_object* ip_addr_obj = lean_ctor_get(socket_addr_obj, 0);
     uint16_t port_obj = lean_ctor_get_uint16(socket_addr_obj, sizeof(void*)*1);
@@ -37,11 +39,17 @@ void lean_socket_address_to_sockaddr_storage(b_obj_arg ip_addr, sockaddr_storage
         sockaddr_in* cast = (sockaddr_in*)out;
         lean_ipv4_addr_to_in_addr(ip_addr_obj, &cast->sin_addr);
         cast->sin_family = AF_INET;
+#ifdef SIN6_LEN
+        cast->sin_len = sizeof(*cast);
+#endif
         cast->sin_port = htons(port_obj);
     } else {
         sockaddr_in6* cast = (sockaddr_in6*)out;
         lean_ipv6_addr_to_in6_addr(ip_addr_obj, (in6_addr*)&cast->sin6_addr);
         cast->sin6_family = AF_INET6;
+#ifdef SIN6_LEN
+        cast->sin6_len = sizeof(*cast);
+#endif
         cast->sin6_port = htons(port_obj);
     }
 }

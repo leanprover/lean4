@@ -10,22 +10,24 @@ open Lean
 namespace Unit
 
 open Lean Elab.Tactic in
+
+def bvAcNfTargetTactic : TacticM Unit := do
+  liftMetaTactic1 fun goal => BVDecide.Frontend.Normalize.bvAcNfTarget goal
+
 /-- A tactic version of the `bv_ac_nf` normalization pass for `bv_decide`,
 for testing purposes -/
 elab "bv_ac_nf" : tactic =>
-  withMainContext BVDecide.Frontend.Normalize.bvAcNfTargetTactic
-
+  withMainContext bvAcNfTargetTactic
 
 /- NOTE: the expression in this test is used as an example in the `bv_ac_nf` tactic
 documentation. Any changes to the behaviour of this test should be reflected in
 that docstring also. -/
 /-- warning: declaration uses 'sorry' -/
 #guard_msgs in
-theorem mul_mul_beq_mul_mul (x₁ x₂ y₁ y₂ z : BitVec 4) (h₁ : x₁ = x₂) (h₂ : y₁ = y₂) :
+theorem mul_mul_beq_mul_mul (x₁ x₂ y₁ y₂ z : BitVec 4) :
     (x₁ * (y₁ * z)) == (x₂ * (y₂ * z)) := by
   bv_ac_nf
   guard_target =ₛ (z * (x₁ * y₁) == z * (x₂ * y₂)) = true
-  rw [h₁, h₂]
   sorry
 
 /-- warning: declaration uses 'sorry' -/
@@ -77,7 +79,7 @@ theorem add_mul_mixed (x y z : BitVec 64) :
 
 /-! ### Scaling Test -/
 
-/-- `repeat_add $n with $t` expands to `$t + $t + ... + $t`, with `n` repetitions
+/-- `repeat_mul $n with $t` expands to `$t + $t + ... + $t`, with `n` repetitions
 of `t` -/
 local macro "repeat_mul" n:num "with" x:term  : term =>
   let rec go : Nat → MacroM Term

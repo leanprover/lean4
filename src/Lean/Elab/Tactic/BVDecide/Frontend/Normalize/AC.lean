@@ -129,7 +129,7 @@ is a neutral element (see `isNeutral`).
 
 Modifies the monadic state to add a new mapping, if needed. -/
 def VarStateM.exprToVar (e : Expr) : VarStateM VarIndex := do
-  match ← getIndex e with
+  match (← get).exprToVarIndex[e]? with
   | some idx => return idx
   | none =>
     modifyGet fun s =>
@@ -138,10 +138,6 @@ def VarStateM.exprToVar (e : Expr) : VarStateM VarIndex := do
         exprToVarIndex := s.exprToVarIndex.insert e nextIndex
         varToExpr := s.varToExpr.push e
       })
-where
-  /-- Lookup the index of expression `e` in the monadic state. -/
-  getIndex (e : Expr) : VarStateM (Option VarIndex) := do
-    return (← get).exprToVarIndex[e]?
 
 /-- Return the expression that is represented by a specific variable index. -/
 def VarStateM.varToExpr (idx : VarIndex) : VarStateM Expr := do
@@ -165,11 +161,6 @@ c => 1
 
 Any compound expression which is not an application of the given `op` will be
 abstracted away and treated as a variable (see `VarStateM.exprToVar`).
-
-Note that the output is guaranteed to map at least one variable to a non-zero
-coefficient, *unless* the input expression only contains applications of neutral
-elements (e.g., `0 + (0 + 0)`), in which case the returned coefficients map will
-be empty.
 -/
 def VarStateM.computeCoefficients (op : Op) (e : Expr) : VarStateM CoefficientsMap :=
   go {} e
@@ -184,7 +175,7 @@ where
           let coeff ← go coeff y
           return coeff
         else
-          trace[Meta.AC] "Found binary operation '{op'} {x} {y}', expected '{op}'.\
+          trace[Meta.Tactic.bv] "Found binary operation '{op'} {x} {y}', expected '{op}'.\
             Treating as atom."
           incrVar coeff e
     | e => incrVar coeff e
@@ -273,26 +264,26 @@ See `Op.fromExpr?` to see which operations are recognized.
 Other operations are ignored, even if they are associative and commutative.
 -/
 def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
-  withTraceNode (collapsed := false) `Meta.AC (fun _ => pure m!"canonicalizeWithSharing") <| do
-  trace[Meta.AC] "Canonicalizing: {indentExpr <| mkApp2 P lhs rhs}"
+  withTraceNode (collapsed := false) `Meta.Tactic.bv (fun _ => pure m!"canonicalizeWithSharing") <| do
+  trace[Meta.Tactic.bv] "Canonicalizing: {indentExpr <| mkApp2 P lhs rhs}"
 
   let some op := Op.ofApp2? lhs |
-    trace[Meta.AC] "Failed to recognize operation: {indentExpr lhs}"
+    trace[Meta.Tactic.bv] "Failed to recognize operation: {indentExpr lhs}"
     return .continue
   let some op' := Op.ofApp2? rhs |
-    trace[Meta.AC] "Failed to recognize operation: {indentExpr rhs}"
+    trace[Meta.Tactic.bv] "Failed to recognize operation: {indentExpr rhs}"
     return .continue
 
   -- Ignore cases where LHS and RHS ops are different.
   if op != op' then
-    trace[Meta.AC] "Operations mismatch:\
+    trace[Meta.Tactic.bv] "Operations mismatch:\
       the left-hand-side has operation {op}
         {indentExpr lhs}
       but the right-hand-side has operation {op'}
         {indentExpr rhs}"
     return .continue
 
-  trace[Meta.AC] "Canonicalizing with respect to operation: '{op}' K"
+  trace[Meta.Tactic.bv] "Canonicalizing with respect to operation: '{op}' K"
 
   VarStateM.run' (s := { op }) do
     let lCoeff ← computeCoefficients op lhs
@@ -319,13 +310,13 @@ def canonicalizeWithSharing (P : Expr) (lhs rhs : Expr) : SimpM Simp.Step := do
 def bvAcNfpost : Simp.Simproc := fun e => do
   match_expr e with
   | BEq.beq ty inst lhs rhs =>
-      trace[Meta.AC] "bv_ac_nf {checkEmoji} found `BEq.beq`."
+      trace[Meta.Tactic.bv] "bv_ac_nf {checkEmoji} found `BEq.beq`."
       let uLvl ← getDecLevel ty
       let P := mkApp2 (.const ``BEq.beq [uLvl]) ty inst
       let out ← canonicalizeWithSharing P lhs rhs
       return out
   | Eq ty lhs rhs =>
-      trace[Meta.AC] "bv_ac_nf {checkEmoji} found `Eq`."
+      trace[Meta.Tactic.bv] "bv_ac_nf {checkEmoji} found `Eq`."
       let uLvl ← getLevel ty
       let P := mkApp (.const ``Eq [uLvl]) ty
       let out ← canonicalizeWithSharing P lhs rhs
@@ -358,36 +349,6 @@ def bvAcNfHypMeta (goal : MVarId) (fvarId : FVarId)
     let tgt ← instantiateMVars (← fvarId.getType)
     let (res, _) ← Simp.main tgt simpCtx (methods := { post := bvAcNfpost })
     return (← applySimpResultToLocalDecl goal fvarId res false).map (·.snd)
-
-/--
-Normalize the tactic target up to associativity and commutativity of bitvector
-multiplication, in a way that exposes common terms among both sides of an equality.
-
-This is similar to the `ac_nf` tactic, except that it is specialized to bitvector
-multiplication, and it differs in how the canonical form of the left-hand-side of
-an equality can depend on the right-hand-side, in particular, to expose shared terms.
-
-For example, `x₁ * (y₁ * z) = x₂ * (y₂ * z)` is normalized to
-`z * (x₁ * y₁) = z * (x₂ * y₂)`, pulling the shared variable `z` to the front on
-both sides.
--/
-def bvAcNfTargetTactic : TacticM Unit := do
-  liftMetaTactic1 fun goal => bvAcNfTarget goal
-
-/--
-Normalize an hypothesis up to associativity and commutativity of bitvector
-multiplication, in a way that exposes common terms among both sides of an equality.
-
-This is similar to the `ac_nf` tactic, except that it is specialized to bitvector
-multiplication, and it differs in how the canonical form of the left-hand-side of
-an equality can depend on the right-hand-side, in particular, to expose shared terms.
-
-For example, `x₁ * (y₁ * z) = x₂ * (y₂ * z)` is normalized to
-`z * (x₁ * y₁) = z * (x₂ * y₂)`, pulling the shared variable `z` to the front on
-both sides.
--/
-def bvAcNfHypTactic (fvarId : FVarId) : TacticM Unit :=
-  liftMetaTactic1 fun goal => bvAcNfHypMeta goal fvarId
 
 def bvAcNormalizePass : Pass where
   name := `bv_ac_nf

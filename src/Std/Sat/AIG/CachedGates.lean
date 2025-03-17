@@ -49,23 +49,15 @@ Create an xor gate in the input AIG. This uses the builtin cache to enable autom
 sharing.
 -/
 def mkXorCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
-  -- x xor y = (invert (invert (x && y))) && (invert ((invert x) && (invert y)))
-  let res := aig.mkGateCached <| input.invert false false
+  -- x xor y = (invert (x && y)) && (invert ((invert x) && (invert y)))
+  let res := aig.mkGateCached input
   let aig := res.aig
   let aux1Ref := res.ref
-  let rinput :=
-    (input.invert true true).cast
-      (by
-        intros
-        apply LawfulOperator.le_size_of_le_aig_size (f := mkGateCached)
-        omega)
-  let res := aig.mkGateCached rinput
+  let input := input.cast <| by apply LawfulOperator.le_size (f := mkGateCached)
+  let res := aig.mkGateCached (input.invert true true)
   let aig := res.aig
   let aux2Ref := res.ref
-  let aux1Ref := aux1Ref.cast <| by
-    simp +zetaDelta only
-    apply LawfulOperator.le_size_of_le_aig_size (f := mkGateCached)
-    omega
+  let aux1Ref := aux1Ref.cast <| by apply LawfulOperator.le_size (f := mkGateCached)
   aig.mkGateCached ⟨aux1Ref.not, aux2Ref.not⟩
 
 /--
@@ -77,19 +69,11 @@ def mkBEqCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   let res := aig.mkGateCached <| input.invert false true
   let aig := res.aig
   let aux1Ref := res.ref
-  let rinput :=
-    (input.invert true false).cast
-      (by
-        intros
-        apply LawfulOperator.le_size_of_le_aig_size (f := mkGateCached)
-        omega)
-  let res := aig.mkGateCached rinput
+  let input := input.cast <| by apply LawfulOperator.le_size (f := mkGateCached)
+  let res := aig.mkGateCached (input.invert true false)
   let aig := res.aig
   let aux2Ref := res.ref
-  let aux1Ref := aux1Ref.cast <| by
-    simp +zetaDelta only
-    apply LawfulOperator.le_size_of_le_aig_size (f := mkGateCached)
-    omega
+  let aux1Ref := aux1Ref.cast <| by apply LawfulOperator.le_size (f := mkGateCached)
   aig.mkGateCached ⟨aux1Ref.not, aux2Ref.not⟩
 
 /--

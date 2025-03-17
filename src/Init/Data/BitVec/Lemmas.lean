@@ -4168,7 +4168,7 @@ theorem toInt_twoPow {w i : Nat} :
     (BitVec.twoPow w i).toInt = if w ≤ i then 0 
       else if i + 1 = w then (-(2^i : Nat) : Int) else 2^i := by
   simp only [BitVec.toInt_eq_msb_cond, toNat_twoPow_eq_ite]
-  rcases w with _|w
+  rcases w with _ | w
   · simp
   · by_cases h : i = w
     · simp [h, show ¬ (w + 1 ≤ w) by omega]

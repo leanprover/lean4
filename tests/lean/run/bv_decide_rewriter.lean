@@ -602,6 +602,12 @@ example {x y : BitVec 8} : 1#8 + ~~~(y * x + x) = x * ~~~y := by bv_normalize
 example  : ∀ (s t : BitVec 32), (!!-(t + s * t) == ~~~s * t) = true := by
   bv_normalize (config  := {acNf := true})
 
+-- BV_EXTRACT_CONCAT
+example {x y : BitVec 8} : BitVec.extractLsb' 0 4 (x ++ y) = BitVec.extractLsb' 0 4 y := by
+  bv_normalize
+
+example {x y : BitVec 8} : BitVec.extractLsb' 8 4 (x ++ y) = BitVec.extractLsb' 0 4 x := by
+  bv_normalize
 
 section
 

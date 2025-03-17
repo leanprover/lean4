@@ -417,5 +417,45 @@ builtin_simproc [bv_normalize] bv_lt_allOnes_iff (BitVec.ult _ (BitVec.ofNat _ _
   let proof := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.ult_max') wExpr lhsExpr
   return .visit { expr := expr, proof? := some proof }
 
+builtin_simproc [bv_normalize] bv_extract_concat
+    (BitVec.extractLsb' _ _
+      (HAppend.hAppend (γ := BitVec (no_index _)) (_ : BitVec _) (_ : BitVec _))) := fun e => do
+  let_expr BitVec.extractLsb' _ startExpr lenExpr targetExpr := e | return .continue
+  let_expr HAppend.hAppend lhsTypeExpr rhsTypeExpr _ _ lhsExpr rhsExpr := targetExpr | return .continue
+  let_expr BitVec lhsWidthExpr := lhsTypeExpr | return .continue
+  let_expr BitVec rhsWidthExpr := rhsTypeExpr | return .continue
+  let some start ← getNatValue? startExpr | return .continue
+  let some len ← getNatValue? lenExpr | return .continue
+  let some rhsWidth ← getNatValue? rhsWidthExpr | return .continue
+  if start + len < rhsWidth then
+    let expr := mkApp4 (mkConst ``BitVec.extractLsb') rhsWidthExpr startExpr lenExpr rhsExpr
+    let proof :=
+      mkApp7
+        (mkConst ``BitVec.extractLsb'_append_eq_of_lt)
+        lhsWidthExpr
+        rhsWidthExpr
+        lhsExpr
+        rhsExpr
+        startExpr
+        lenExpr
+        (← mkDecideProof (← mkLt (toExpr (start + len)) rhsWidthExpr))
+    return .visit { expr := expr, proof? := some proof }
+  else if rhsWidth ≤ start then
+    let expr := mkApp4 (mkConst ``BitVec.extractLsb') lhsWidthExpr (toExpr (start - rhsWidth)) lenExpr lhsExpr
+    let proof :=
+      mkApp7
+        (mkConst ``BitVec.extractLsb'_append_eq_of_le)
+        lhsWidthExpr
+        rhsWidthExpr
+        lhsExpr
+        rhsExpr
+        startExpr
+        lenExpr
+        (← mkDecideProof (← mkLe rhsWidthExpr startExpr))
+    return .visit { expr := expr, proof? := some proof }
+  else
+    -- extract is not limited to side
+    return .continue
+
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

@@ -373,14 +373,7 @@ private def propagateNatSub (e : Expr) : GoalM Unit := do
   unless (← isInstHSubNat inst) do return ()
   markForeignTerm a .nat
   markForeignTerm b .nat
-  -- TODO: cleanup
-  let aux := mkApp2 (mkConst ``Int.Linear.natCast_sub_def) a b
-  -- TODO: improve `preprocess` to make sure we don't need to unfold manually here
-  let aux ← unfoldReducible aux
-  -- Remark: we preprocess here because we want to propagate `natCast`.
-  -- We don't want to preprocess the whole thing.
-  let r ← preprocess aux
-  pushNewFact <| mkApp4 (mkConst ``Int.Linear.natCast_sub) a b r.expr (← r.getProof)
+  pushNewFact <| mkApp2 (mkConst ``Int.Linear.natCast_sub) a b
 
 /--
 Internalizes an integer (and `Nat`) expression. Here are the different cases that are handled.

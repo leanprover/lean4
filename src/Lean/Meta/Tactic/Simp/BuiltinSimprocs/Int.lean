@@ -49,17 +49,13 @@ If they do, they must disable the following `simprocs`.
 -/
 
 builtin_dsimproc [simp, seval] reduceNeg ((- _ : Int)) := fun e => do
-  unless e.isAppOfArity ``Neg.neg 3 do return .continue
-  let arg := e.appArg!
+  let_expr Neg.neg _ _ arg ← e | return .continue
   if arg.isAppOfArity ``OfNat.ofNat 3 then
     -- We return .done to ensure `Neg.neg` is not unfolded even when `ground := true`.
     return .done e
   else
     let some v ← fromExpr? arg | return .continue
-    if v < 0 then
-      return .done <| toExpr (- v)
-    else
-      return .done <| toExpr v
+    return .done <| toExpr (- v)
 
 /-- Return `.done` for positive Int values. We don't want to unfold in the symbolic evaluator. -/
 builtin_dsimproc [seval] isPosValue ((OfNat.ofNat _ : Int)) := fun e => do
@@ -71,8 +67,8 @@ builtin_dsimproc [simp, seval] reduceMul ((_ * _ : Int)) := reduceBin ``HMul.hMu
 builtin_dsimproc [simp, seval] reduceSub ((_ - _ : Int)) := reduceBin ``HSub.hSub 6 (· - ·)
 builtin_dsimproc [simp, seval] reduceDiv ((_ / _ : Int)) := reduceBin ``HDiv.hDiv 6 (· / ·)
 builtin_dsimproc [simp, seval] reduceMod ((_ % _ : Int)) := reduceBin ``HMod.hMod 6 (· % ·)
-builtin_dsimproc [simp, seval] reduceTDiv (div  _ _) := reduceBin ``Int.div 2 Int.div
-builtin_dsimproc [simp, seval] reduceTMod (mod  _ _) := reduceBin ``Int.mod 2 Int.mod
+builtin_dsimproc [simp, seval] reduceTDiv (tdiv  _ _) := reduceBin ``Int.tdiv 2 Int.tdiv
+builtin_dsimproc [simp, seval] reduceTMod (tmod  _ _) := reduceBin ``Int.tmod 2 Int.tmod
 builtin_dsimproc [simp, seval] reduceFDiv (fdiv _ _) := reduceBin ``Int.fdiv 2 Int.fdiv
 builtin_dsimproc [simp, seval] reduceFMod (fmod _ _) := reduceBin ``Int.fmod 2 Int.fmod
 builtin_dsimproc [simp, seval] reduceBdiv (bdiv _ _) := reduceBinIntNatOp ``bdiv bdiv
@@ -110,6 +106,22 @@ builtin_dsimproc [simp, seval] reduceNegSucc (Int.negSucc _) := fun e => do
 builtin_dsimproc [simp, seval] reduceOfNat (Int.ofNat _) := fun e => do
   let_expr Int.ofNat a ← e | return .continue
   let some a ← getNatValue? a | return .continue
+  return .done <| toExpr (Int.ofNat a)
+
+builtin_simproc [simp, seval] reduceDvd ((_ : Int) ∣ _) := fun e => do
+  let_expr Dvd.dvd _ i a b ← e | return .continue
+  unless ← matchesInstance i (mkConst ``instDvd) do return .continue
+  let some va ← fromExpr? a | return .continue
+  let some vb ← fromExpr? b | return .continue
+  if vb % va == 0 then
+    return .done { expr := mkConst ``True, proof? := mkApp3 (mkConst ``Int.dvd_eq_true_of_mod_eq_zero) a b reflBoolTrue}
+  else
+    return .done { expr := mkConst ``False, proof? := mkApp3 (mkConst ``Int.dvd_eq_false_of_mod_ne_zero) a b reflBoolTrue}
+
+builtin_dsimproc [simp, seval] reduceNatCast ((NatCast.natCast _ : Int))  := fun e => do
+  let_expr NatCast.natCast _ inst a ← e | return .continue
+  let some a ← getNatValue? a | return .continue
+  let_expr instNatCastInt ← inst | return .continue
   return .done <| toExpr (Int.ofNat a)
 
 end Int

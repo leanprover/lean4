@@ -84,6 +84,7 @@ structure State where
   ngen           : NameGenerator := {}
   infoState      : InfoState := {}
   traceState     : TraceState := {}
+  snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
   deriving Nonempty
 
 structure Context where
@@ -94,13 +95,12 @@ structure Context where
   macroStack     : MacroStack := []
   currMacroScope : MacroScope := firstFrontendMacroScope
   ref            : Syntax := Syntax.missing
-  tacticCache?   : Option (IO.Ref Tactic.Cache)
   /--
   Snapshot for incremental reuse and reporting of command elaboration. Currently only used for
   (mutual) defs and contained tactics, in which case the `DynamicSnapshot` is a
   `HeadersParsedSnapshot`.
 
-  Definitely resolved in `Language.Lean.process.doElab`.
+  Definitely resolved in `Lean.Elab.Command.elabCommandTopLevel`.
 
   Invariant: if the bundle's `old?` is set, the context and state at the beginning of current and
   old elaboration are identical.
@@ -114,8 +114,7 @@ structure Context where
   -/
   suppressElabErrors : Bool := false
 
-abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
-abbrev CommandElabM := CommandElabCoreM Exception
+abbrev CommandElabM := ReaderT Context $ StateRefT State $ EIO Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
 structure Linter where
   run : Syntax → CommandElabM Unit
@@ -198,36 +197,6 @@ instance : AddErrorMessageContext CommandElabM where
     let msg ← addMacroStack msg ctx.macroStack
     return (ref, msg)
 
-def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
-  let pos := ref.getPos?.getD ctx.cmdPos
-  let endPos := ref.getTailPos?.getD pos
-  mkMessageCore ctx.fileName ctx.fileMap msgData severity pos endPos
-
-private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog := Id.run do
-  if traceState.traces.isEmpty then return log
-  let mut traces : Std.HashMap (String.Pos × String.Pos) (Array MessageData) := ∅
-  for traceElem in traceState.traces do
-    let ref := replaceRef traceElem.ref ctx.ref
-    let pos := ref.getPos?.getD 0
-    let endPos := ref.getTailPos?.getD pos
-    traces := traces.insert (pos, endPos) <| traces.getD (pos, endPos) #[] |>.push traceElem.msg
-  let mut log := log
-  let traces' := traces.toArray.qsort fun ((a, _), _) ((b, _), _) => a < b
-  for ((pos, endPos), traceMsg) in traces' do
-    let data := .tagged `_traceMsg <| .joinSep traceMsg.toList "\n"
-    log := log.add <| mkMessageCore ctx.fileName ctx.fileMap data .information pos endPos
-  return log
-
-private def addTraceAsMessages : CommandElabM Unit := do
-  let ctx ← read
-  -- do not add trace messages if `trace.profiler.output` is set as it would be redundant and
-  -- pretty printing the trace messages is expensive
-  if trace.profiler.output.get? (← getOptions) |>.isNone then
-    modify fun s => { s with
-      messages          := addTraceAsMessagesCore ctx s.messages s.traceState
-      traceState.traces := {}
-    }
-
 private def runCore (x : CoreM α) : CommandElabM α := do
   let s ← get
   let ctx ← read
@@ -253,24 +222,25 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     nextMacroScope := s.nextMacroScope
     infoState.enabled := s.infoState.enabled
     traceState := s.traceState
+    snapshotTasks := s.snapshotTasks
   }
   let (ea, coreS) ← liftM x
   modify fun s => { s with
-    env               := coreS.env
-    nextMacroScope    := coreS.nextMacroScope
-    ngen              := coreS.ngen
-    infoState.trees   := s.infoState.trees.append coreS.infoState.trees
-    traceState.traces := coreS.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }
-    messages          := s.messages ++ coreS.messages
+    env                      := coreS.env
+    nextMacroScope           := coreS.nextMacroScope
+    ngen                     := coreS.ngen
+    infoState.trees          := s.infoState.trees.append coreS.infoState.trees
+    -- we assume substitution of `assingment` has already happened, but for lazy assignments we only
+    -- do it at the very end
+    infoState.lazyAssignment := coreS.infoState.lazyAssignment
+    traceState.traces        := coreS.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }
+    snapshotTasks            := coreS.snapshotTasks
+    messages                 := s.messages ++ coreS.messages
   }
   return ea
 
 def liftCoreM (x : CoreM α) : CommandElabM α := do
   MonadExcept.ofExcept (← runCore (observing x))
-
-private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : Message :=
-  let ref := getBetterRef ref ctx.macroStack
-  mkMessageAux ctx ref (toString err) MessageSeverity.error
 
 @[inline] def liftIO {α} (x : IO α) : CommandElabM α := do
   let ctx ← read
@@ -294,9 +264,8 @@ instance : MonadLog CommandElabM where
   logMessage msg := do
     if (← read).suppressElabErrors then
       -- discard elaboration errors on parse error
-      -- NOTE: unlike `CoreM`'s `logMessage`, we do not currently have any command-level errors that
-      -- we want to allowlist
-      return
+      unless msg.data.hasTag (· matches `trace) do
+        return
     let currNamespace ← getCurrNamespace
     let openDecls ← getOpenDecls
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := currNamespace, openDecls := openDecls } msg.data }
@@ -308,7 +277,7 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
       let linters ← lintersRef.get
       unless linters.isEmpty do
         for linter in linters do
-          withTraceNode `Elab.lint (fun _ => return m!"running linter: {linter.name}")
+          withTraceNode `Elab.lint (fun _ => return m!"running linter: {.ofConstName linter.name}")
               (tag := linter.name.toString) do
             let savedState ← get
             try
@@ -316,11 +285,94 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
             catch ex =>
               match ex with
               | Exception.error ref msg =>
-                logException (.error ref m!"linter {linter.name} failed: {msg}")
+                logException (.error ref m!"linter {.ofConstName linter.name} failed: {msg}")
               | Exception.internal _ _ =>
                 logException ex
             finally
-              modify fun s => { savedState with messages := s.messages }
+              -- TODO: it would be good to preserve even more state (#4363) but preserving info
+              -- trees currently breaks from linters adding context-less info nodes
+              modify fun s => { savedState with messages := s.messages, traceState := s.traceState }
+
+/--
+Catches and logs exceptions occurring in `x`. Unlike `try catch` in `CommandElabM`, this function
+catches interrupt exceptions as well and thus is intended for use at the top level of elaboration.
+Interrupt and abort exceptions are caught but not logged.
+-/
+@[inline] def withLoggingExceptions (x : CommandElabM Unit) : CommandElabM Unit := fun ctx ref =>
+  EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
+
+@[inherit_doc Core.wrapAsync]
+def wrapAsync {α β : Type} (act : α → CommandElabM β) (cancelTk? : Option IO.CancelToken) :
+    CommandElabM (α → EIO Exception β) := do
+  let ctx ← read
+  let ctx := { ctx with cancelTk? }
+  let st ← get
+  return (act · |>.run ctx |>.run' st)
+
+open Language in
+@[inherit_doc Core.wrapAsyncAsSnapshot]
+-- `CoreM` and `CommandElabM` are too different to meaningfully share this code
+def wrapAsyncAsSnapshot {α : Type} (act : α → CommandElabM Unit) (cancelTk? : Option IO.CancelToken)
+    (desc : String := by exact decl_name%.toString) :
+    CommandElabM (α → BaseIO SnapshotTree) := do
+  let f ← wrapAsync (cancelTk? := cancelTk?) fun a => do
+    IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get (← getOptions)) do
+      let tid ← IO.getTID
+      -- reset trace state and message log so as not to report them twice
+      modify fun st => { st with
+        messages := st.messages.markAllReported
+        traceState := { tid }
+        snapshotTasks := #[]
+      }
+      try
+        withTraceNode `Elab.async (fun _ => return desc) do
+          act a
+      catch e =>
+        logError e.toMessageData
+      finally
+        addTraceAsMessages
+      get
+  let ctx ← read
+  return fun a => do
+    match (← (f a).toBaseIO) with
+    | .ok (output, st) =>
+      let mut msgs := st.messages
+      if !output.isEmpty then
+        msgs := msgs.add {
+          fileName := ctx.fileName
+          severity := MessageSeverity.information
+          pos      := ctx.fileMap.toPosition <| ctx.ref.getPos?.getD 0
+          data     := output
+        }
+      return .mk {
+        desc
+        diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog msgs)
+        traces := st.traceState
+      } st.snapshotTasks
+    -- interrupt or abort exception as `try catch` above should have caught any others
+    | .error _ => default
+
+@[inherit_doc Core.logSnapshotTask]
+def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CommandElabM Unit :=
+  modify fun s => { s with snapshotTasks := s.snapshotTasks.push task }
+
+open Language in
+def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
+  if !Elab.async.get (← getOptions) then
+    withoutModifyingEnv do
+      runLinters stx
+    return
+
+  -- We only start one task for all linters for now as most linters are fast and we simply want
+  -- to unblock elaboration of the next command
+  let cancelTk ← IO.CancelToken.new
+  let lintAct ← wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun infoSt => do
+    modifyInfoState fun _ => infoSt
+    runLinters stx
+
+  -- linters should have access to the complete info tree
+  let task ← BaseIO.mapTask (t := (← getInfoState).substituteLazy) lintAct
+  logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
 
 protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
 protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
@@ -415,7 +467,12 @@ open Language in
 instance : ToSnapshotTree MacroExpandedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot, s.next.map (·.map (sync := true) toSnapshotTree)⟩
 
-partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
+partial def elabCommand (stx : Syntax) : CommandElabM Unit :=
+  try
+    go
+  finally
+    addTraceAsMessages
+where go := do
   withLogging <| withRef stx <| withIncRecDepth <| withFreshMacroScope do
     match stx with
     | Syntax.node _ k args =>
@@ -448,40 +505,44 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
                   -- check absence of traces; see Note [Incremental Macros]
                   guard <| !oldSnap.hasTraces && !hasTraces
                   return oldSnap
+                if snap.old?.isSome && oldSnap?.isNone then
+                  snap.old?.forM (·.val.cancelRec)
                 let oldCmds? := oldSnap?.map fun old =>
                   if old.newStx.isOfKind nullKind then old.newStx.getArgs else #[old.newStx]
-                Language.withAlwaysResolvedPromises cmds.size fun cmdPromises => do
-                  snap.new.resolve <| .ofTyped {
-                    diagnostics := .empty
-                    macroDecl := decl
-                    newStx := stxNew
-                    newNextMacroScope := nextMacroScope
-                    hasTraces
-                    next := cmdPromises.zipWith cmds fun cmdPromise cmd =>
-                      { range? := cmd.getRange?, task := cmdPromise.result }
-                    : MacroExpandedSnapshot
-                  }
-                  -- After the first command whose syntax tree changed, we must disable
-                  -- incremental reuse
-                  let mut reusedCmds := true
-                  let opts ← getOptions
-                  -- For each command, associate it with new promise and old snapshot, if any, and
-                  -- elaborate recursively
-                  for cmd in cmds, cmdPromise in cmdPromises, i in [0:cmds.size] do
-                    let oldCmd? := oldCmds?.bind (·[i]?)
-                    withReader ({ · with snap? := some {
-                      new := cmdPromise
-                      old? := do
-                        guard reusedCmds
-                        let old ← oldSnap?
-                        return { stx := (← oldCmd?), val := (← old.next[i]?) }
-                    } }) do
-                      elabCommand cmd
-                      -- Resolve promise for commands not supporting incrementality; waiting for
-                      -- `withAlwaysResolvedPromises` to do this could block reporting by later
-                      -- commands
-                      cmdPromise.resolve default
-                    reusedCmds := reusedCmds && oldCmd?.any (·.eqWithInfoAndTraceReuse opts cmd)
+                let cmdPromises ← cmds.mapM fun _ => IO.Promise.new
+                snap.new.resolve <| .ofTyped {
+                  diagnostics := .empty
+                  macroDecl := decl
+                  newStx := stxNew
+                  newNextMacroScope := nextMacroScope
+                  hasTraces
+                  next := Array.zipWith (fun cmdPromise cmd =>
+                    { stx? := some cmd, task := cmdPromise.resultD default }) cmdPromises cmds
+                  : MacroExpandedSnapshot
+                }
+                -- After the first command whose syntax tree changed, we must disable
+                -- incremental reuse
+                let mut reusedCmds := true
+                let opts ← getOptions
+                -- For each command, associate it with new promise and old snapshot, if any, and
+                -- elaborate recursively
+                for cmd in cmds, cmdPromise in cmdPromises, i in [0:cmds.size] do
+                  let oldCmd? := oldCmds?.bind (·[i]?)
+                  withReader ({ · with snap? := some {
+                    new := cmdPromise
+                    old? := do
+                      guard reusedCmds
+                      let old ← oldSnap?
+                      return { stx := (← oldCmd?), val := (← old.next[i]?) }
+                  } }) do
+                    if oldSnap?.isSome && (← read).snap?.isNone then
+                      oldSnap?.bind (·.next[i]?) |>.forM (·.cancelRec)
+                    elabCommand cmd
+                    -- Resolve promise for commands not supporting incrementality; waiting for
+                    -- `withAlwaysResolvedPromises` to do this could block reporting by later
+                    -- commands
+                    cmdPromise.resolve default
+                  reusedCmds := reusedCmds && oldCmd?.any (·.eqWithInfoAndTraceReuse opts cmd)
               else
                 elabCommand stxNew
         | _ =>
@@ -520,25 +581,23 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
     -- recovery more coarse. In particular, If `c` in `set_option ... in $c` fails, the remaining
     -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
     elabCommand stx
-    withLogging do
-      runLinters stx
+    -- Run the linters, unless `#guard_msgs` is present, which is special and runs `elabCommandTopLevel` itself,
+    -- so it is a "super-top-level" command. This is the only command that does this, so we just special case it here
+    -- rather than engineer a general solution.
+    unless (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome do
+      withLogging do
+        runLintersAsync stx
   finally
-    -- note the order: first process current messages & info trees, then add back old messages & trees,
-    -- then convert new traces to messages
-    let mut msgs := (← get).messages
-    for tree in (← getInfoTrees) do
-      trace[Elab.info] (← tree.format)
+    -- Make sure `snap?` is definitely resolved; we do not use it for reporting as `#guard_msgs` may
+    -- be the caller of this function and add new messages and info trees
     if let some snap := (← read).snap? then
-      -- We can assume that the root command snapshot is not involved in parallelism yet, so this
-      -- should be true iff the command supports incrementality
-      if (← IO.hasFinished snap.new.result) then
-        trace[Elab.snapshotTree]
-          (←Language.ToSnapshotTree.toSnapshotTree snap.new.result.get |>.format)
+      snap.new.resolve default
+
+    let msgs := (← get).messages
     modify fun st => { st with
       messages := initMsgs ++ msgs
       infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }
     }
-    addTraceAsMessages
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
 def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab := fun stx => do
@@ -551,7 +610,11 @@ private def getVarDecls (s : State) : Array Syntax :=
 instance {α} : Inhabited (CommandElabM α) where
   default := throw default
 
-private def mkMetaContext : Meta.Context := {
+/--
+The environment linter framework needs to be able to run linters with the same context
+as `liftTermElabM`, so we expose that context as a public function here.
+-/
+def mkMetaContext : Meta.Context := {
   config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true }
 }
 
@@ -568,13 +631,12 @@ def getBracketedBinderIds : Syntax → CommandElabM (Array Name)
 private def mkTermContext (ctx : Context) (s : State) : CommandElabM Term.Context := do
   let scope      := s.scopes.head!
   let mut sectionVars := {}
-  for id in (← scope.varDecls.concatMapM getBracketedBinderIds), uid in scope.varUIds do
+  for id in (← scope.varDecls.flatMapM getBracketedBinderIds), uid in scope.varUIds do
     sectionVars := sectionVars.insert id uid
   return {
     macroStack             := ctx.macroStack
     sectionVars            := sectionVars
-    isNoncomputableSection := scope.isNoncomputable
-    tacticCache?           := ctx.tacticCache? }
+    isNoncomputableSection := scope.isNoncomputable }
 
 /--
 Lift the `TermElabM` monadic action `x` into a `CommandElabM` monadic action.
@@ -615,6 +677,9 @@ def liftTermElabM (x : TermElabM α) : CommandElabM α := do
   let x : CoreM _ := x.run mkMetaContext {}
   let ((ea, _), _) ← runCore x
   MonadExcept.ofExcept ea
+
+instance : MonadEval TermElabM CommandElabM where
+  monadEval := liftTermElabM
 
 /--
 Execute the monadic action `elabFn xs` as a `CommandElabM` monadic action, where `xs` are free variables
@@ -657,14 +722,6 @@ def runTermElabM (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
           Term.addAutoBoundImplicits' xs someType fun xs _ =>
             Term.withoutAutoBoundImplicit <| elabFn xs
 
-/--
-Catches and logs exceptions occurring in `x`. Unlike `try catch` in `CommandElabM`, this function
-catches interrupt exceptions as well and thus is intended for use at the top level of elaboration.
-Interrupt and abort exceptions are caught but not logged.
--/
-@[inline] def withLoggingExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit := fun ctx ref =>
-  EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
-
 private def liftAttrM {α} (x : AttrM α) : CommandElabM α := do
   liftCoreM x
 
@@ -704,48 +761,68 @@ def addUnivLevel (idStx : Syntax) : CommandElabM Unit := withRef idStx do
   else
     modifyScope fun scope => { scope with levelNames := id :: scope.levelNames }
 
-def expandDeclId (declId : Syntax) (modifiers : Modifiers) : CommandElabM ExpandDeclIdResult := do
-  let currNamespace ← getCurrNamespace
-  let currLevelNames ← getLevelNames
-  let r ← Elab.expandDeclId currNamespace currLevelNames declId modifiers
-  for id in (← (← getScope).varDecls.concatMapM getBracketedBinderIds) do
-    if id == r.shortName then
-      throwError "invalid declaration name '{r.shortName}', there is a section variable with the same name"
-  return r
-
 end Elab.Command
 
 open Elab Command MonadRecDepth
 
+private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) : CoreM α := do
+  let s : Core.State ← get
+  let ctx : Core.Context ← read
+  let (a, commandState) ←
+    cmd.run {
+      fileName := ctx.fileName
+      fileMap := ctx.fileMap
+      currRecDepth := ctx.currRecDepth
+      currMacroScope := ctx.currMacroScope
+      ref := ctx.ref
+      snap? := none
+      cancelTk? := ctx.cancelTk?
+      suppressElabErrors := ctx.suppressElabErrors
+    } |>.run {
+      env := s.env
+      nextMacroScope := s.nextMacroScope
+      maxRecDepth := ctx.maxRecDepth
+      ngen := s.ngen
+      scopes := [{ header := "", opts := ctx.options }]
+      infoState.enabled := s.infoState.enabled
+    }
+  modify fun coreState => { coreState with
+    env := commandState.env
+    nextMacroScope := commandState.nextMacroScope
+    ngen := commandState.ngen
+    traceState.traces := coreState.traceState.traces ++ commandState.traceState.traces
+  }
+  if throwOnError then
+    if let some err := commandState.messages.toArray.find? (·.severity matches .error) then
+      throwError err.data
+  modify fun coreState => { coreState with
+    infoState.trees := coreState.infoState.trees.append commandState.infoState.trees
+    messages := coreState.messages ++ commandState.messages
+  }
+  return a
+
 /--
-Lifts an action in `CommandElabM` into `CoreM`, updating the traces and the environment.
+Lifts an action in `CommandElabM` into `CoreM`, updating the environment,
+messages, info trees, traces, the name generator, and macro scopes.
+The action is run in a context with an empty message log, empty trace state, and empty info trees.
+
+If `throwOnError` is true, then if the command produces an error message, it is converted into an exception.
+In this case, info trees and messages are not carried over.
 
 Commands that modify the processing of subsequent commands,
 such as `open` and `namespace` commands,
 only have an effect for the remainder of the `CommandElabM` computation passed here,
 and do not affect subsequent commands.
+
+*Warning:* when using this from `MetaM` monads, the caches are *not* reset.
+If the command defines new instances for example, you should use `Lean.Meta.resetSynthInstanceCache`
+to reset the instance cache.
+While the `modifyEnv` function for `MetaM` clears its caches entirely,
+`liftCommandElabM` has no way to reset these caches.
 -/
-def liftCommandElabM (cmd : CommandElabM α) : CoreM α := do
-  let (a, commandState) ←
-    cmd.run {
-      fileName := ← getFileName
-      fileMap := ← getFileMap
-      ref := ← getRef
-      tacticCache? := none
-      snap? := none
-      cancelTk? := (← read).cancelTk?
-    } |>.run {
-      env := ← getEnv
-      maxRecDepth := ← getMaxRecDepth
-      scopes := [{ header := "", opts := ← getOptions }]
-    }
-  modify fun coreState => { coreState with
-    traceState.traces := coreState.traceState.traces ++ commandState.traceState.traces
-    env := commandState.env
-  }
-  if let some err := commandState.messages.toArray.find? (·.severity matches .error) then
-    throwError err.data
-  pure a
+def liftCommandElabM (cmd : CommandElabM α) (throwOnError : Bool := true) : CoreM α := do
+  -- `observing` ensures that if `cmd` throws an exception we still thread state back to `CoreM`.
+  MonadExcept.ofExcept (← liftCommandElabMCore (observing cmd) throwOnError)
 
 /--
 Given a command elaborator `cmd`, returns a new command elaborator that

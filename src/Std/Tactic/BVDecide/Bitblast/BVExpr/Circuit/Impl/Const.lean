@@ -27,7 +27,7 @@ where
   go (aig : AIG α) (val : BitVec w) (curr : Nat) (s : AIG.RefVec aig curr) (hcurr : curr ≤ w) :
       AIG.RefVecEntry α w :=
     if hcurr : curr < w then
-      let res := aig.mkConstCached (val.getLsb curr)
+      let res := aig.mkConstCached (val.getLsbD curr)
       let aig := res.aig
       let bitRef := res.ref
       let s := s.cast <| AIG.LawfulOperator.le_size (f := AIG.mkConstCached) ..

@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Util.Cycle
 import Lake.Util.Store
 import Lake.Util.EquipT
@@ -36,18 +37,22 @@ fetch functions, but not all fetch functions need build something.
 abbrev DFetchFn (α : Type u) (β : α → Type v) (m : Type v → Type w) :=
   (a : α) → m (β a)
 
+/-- A `DFetchFn` that is not dependently typed. -/
+abbrev FetchFn (α : Type u) (β : Type v) (m : Type v → Type w) :=
+  α → m β
+
 /-!
 In order to nest builds / fetches within one another,
 we equip the monad `m` with a fetch function of its own.
 -/
 
 /-- A transformer that equips a monad with a `DFetchFn`. -/
-abbrev DFetchT (α : Type u) (β : α → Type v) (m : Type v → Type w) :=
+abbrev DFetchFnT (α : Type u) (β : α → Type v) (m : Type v → Type w) :=
   EquipT (DFetchFn α β m) m
 
-/-- A `DFetchT` that is not dependently typed. -/
-abbrev FetchT (α : Type u) (β : Type v) (m : Type v → Type w) :=
-  DFetchT α (fun _ => β) m
+/-- A `DFetchFnT` that is not dependently typed. -/
+abbrev FetchFnT (α : Type u) (β : Type v) (m : Type v → Type w) :=
+  DFetchFnT α (fun _ => β) m
 
 /-!
 We can then use the such a monad as the basis for a fetch function itself.
@@ -59,11 +64,11 @@ fetch values. It is thus usually implemented recursively via some variation
 of the `recFetch` function below, hence the "rec" in both names.
 -/
 abbrev DRecFetchFn (α : Type u) (β : α → Type v) (m : Type v → Type w) :=
-  DFetchFn α β (DFetchT α β m)
+  DFetchFn α β (DFetchFnT α β m)
 
 /-- A `DRecFetchFn` that is not dependently typed. -/
 abbrev RecFetchFn (α : Type u) (β : Type v) (m : Type v → Type w) :=
-  α → FetchT α β m β
+  α → FetchFnT α β m β
 
 /-- A `DFetchFn` that provides its base `DRecFetchFn` with itself. -/
 @[specialize] partial def recFetch

@@ -107,7 +107,7 @@ end
 -- NB: A.rec is configured as elab_as_elim,
 -- but in `using` it should not matter
 
--- For comparision, a copy without that attribute
+-- For comparison, a copy without that attribute
 noncomputable def A_rec := @A.rec
 
 set_option linter.unusedVariables false

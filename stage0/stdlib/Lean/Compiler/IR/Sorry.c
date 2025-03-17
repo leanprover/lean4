@@ -27,7 +27,6 @@ static lean_object* l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__2;
 LEAN_EXPORT lean_object* l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__1;
 lean_object* l_Lean_IR_FnBody_body(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_IR_Sorry_State_modified___default;
 lean_object* l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Sorry_visitExpr(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -51,26 +50,9 @@ static lean_object* l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__3;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_Sorry_State_localSorryMap___default;
 LEAN_EXPORT lean_object* l_Lean_IR_Sorry_collect(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_Sorry_collect___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-static lean_object* _init_l_Lean_IR_Sorry_State_localSorryMap___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_IR_Sorry_State_modified___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__1() {
 _start:
 {
@@ -2062,9 +2044,6 @@ _G_initialized = true;
 res = initialize_Lean_Compiler_IR_CompilerM(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_IR_Sorry_State_localSorryMap___default = _init_l_Lean_IR_Sorry_State_localSorryMap___default();
-lean_mark_persistent(l_Lean_IR_Sorry_State_localSorryMap___default);
-l_Lean_IR_Sorry_State_modified___default = _init_l_Lean_IR_Sorry_State_modified___default();
 l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__1 = _init_l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__1();
 lean_mark_persistent(l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__1);
 l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__2 = _init_l_Lean_IR_Sorry_visitExpr_getSorryDepFor_x3f___closed__2();

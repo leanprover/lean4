@@ -41,15 +41,15 @@ match x with
 
 #eval f6 (5, 20)
 
-def Vector (α : Type) (n : Nat) := { a : Array α // a.size = n }
+def Vector' (α : Type) (n : Nat) := { a : Array α // a.size = n }
 
-def mkVec {α : Type} (n : Nat) (a : α) : Vector α n :=
+def mkVec {α : Type} (n : Nat) (a : α) : Vector' α n :=
 ⟨mkArray n a, Array.size_mkArray ..⟩
 
 structure S :=
 (n : Nat)
-(y : Vector Nat n)
-(z : Vector Nat n)
+(y : Vector' Nat n)
+(z : Vector' Nat n)
 (h : y = z)
 (m : { v : Nat // v = y.val.size })
 

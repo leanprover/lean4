@@ -60,7 +60,7 @@ where
     if let some snap := (← readThe Term.Context).tacSnap? then
       if let some old := snap.old? then
         let oldParsed := old.val.get
-        oldInner? := oldParsed.data.inner? |>.map (⟨oldParsed.data.stx, ·⟩)
+        oldInner? := oldParsed.inner? |>.map (⟨oldParsed.stx, ·⟩)
     -- compare `stx[0]` for `finished`/`next` reuse, focus on remainder of script
     Term.withNarrowedTacticReuse (stx := stx) (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) fun stxs => do
       let some snap := (← readThe Term.Context).tacSnap?
@@ -70,56 +70,47 @@ where
       if let some old := snap.old? then
         -- `tac` must be unchanged given the narrow above; let's reuse `finished`'s state!
         let oldParsed := old.val.get
-        if let some state := oldParsed.data.finished.get.state? then
+        if let some state := oldParsed.finished.get.state? then
           reusableResult? := some ((), state)
           -- only allow `next` reuse in this case
-          oldNext? := oldParsed.data.next.get? 0 |>.map (⟨old.stx, ·⟩)
+          oldNext? := oldParsed.next[0]?.map (⟨old.stx, ·⟩)
 
-      -- For `tac`'s snapshot task range, disregard synthetic info as otherwise
-      -- `SnapshotTree.findInfoTreeAtPos` might choose the wrong snapshot: for example, when
-      -- hovering over a `show` tactic, we should choose the info tree in `finished` over that in
-      -- `inner`, which points to execution of the synthesized `refine` step and does not contain
-      -- the full info. In most other places, siblings in the snapshot tree have disjoint ranges and
-      -- so this issue does not occur.
-      let mut range? := tac.getRange? (canonicalOnly := true)
-      -- Include trailing whitespace in the range so that `goalsAs?` does not have to wait for more
-      -- snapshots than necessary.
-      if let some range := range? then
-        range? := some { range with stop := ⟨range.stop.byteIdx + tac.getTrailingSize⟩ }
-      withAlwaysResolvedPromise fun next => do
-        withAlwaysResolvedPromise fun finished => do
-          withAlwaysResolvedPromise fun inner => do
-            snap.new.resolve <| .mk {
-              diagnostics := .empty
-              stx := tac
-              inner? := some { range?, task := inner.result }
-              finished := { range?, task := finished.result }
-              next := #[{ range? := stxs.getRange?, task := next.result }]
-            }
-            -- Run `tac` in a fresh info tree state and store resulting state in snapshot for
-            -- incremental reporting, then add back saved trees. Here we rely on `evalTactic`
-            -- producing at most one info tree as otherwise `getInfoTreeWithContext?` would panic.
-            let trees ← getResetInfoTrees
-            try
-              let (_, state) ← withRestoreOrSaveFull reusableResult?
-                  -- set up nested reuse; `evalTactic` will check for `isIncrementalElab`
-                  (tacSnap? := some { old? := oldInner?, new := inner }) do
-                Term.withReuseContext tac do
-                  evalTactic tac
-              finished.resolve {
-                diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog
-                  (← Core.getAndEmptyMessageLog))
-                infoTree? := (← Term.getInfoTreeWithContext?)
-                state? := state
-              }
-            finally
-              modifyInfoState fun s => { s with trees := trees ++ s.trees }
+      let next ← IO.Promise.new
+      let finished ← IO.Promise.new
+      let inner ← IO.Promise.new
+      snap.new.resolve {
+        desc := tac.getKind.toString
+        diagnostics := .empty
+        stx := tac
+        inner? := some { stx? := tac, task := inner.resultD default }
+        finished := { stx? := tac, task := finished.resultD default }
+        next := #[{ stx? := stxs, task := next.resultD default }]
+      }
+      -- Run `tac` in a fresh info tree state and store resulting state in snapshot for
+      -- incremental reporting, then add back saved trees. Here we rely on `evalTactic`
+      -- producing at most one info tree as otherwise `getInfoTreeWithContext?` would panic.
+      let trees ← getResetInfoTrees
+      try
+        let (_, state) ← withRestoreOrSaveFull reusableResult?
+            -- set up nested reuse; `evalTactic` will check for `isIncrementalElab`
+            (tacSnap? := some { old? := oldInner?, new := inner }) do
+          Term.withReuseContext tac do
+            evalTactic tac
+        finished.resolve {
+          diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog
+            (← Core.getAndEmptyMessageLog))
+          infoTree? := (← Term.getInfoTreeWithContext?)
+          state? := state
+          moreSnaps := (← Core.getAndEmptySnapshotTasks)
+        }
+      finally
+        modifyInfoState fun s => { s with trees := trees ++ s.trees }
 
-        withTheReader Term.Context ({ · with tacSnap? := some {
-          new := next
-          old? := oldNext?
-        } }) do
-          goOdd stxs
+      withTheReader Term.Context ({ · with tacSnap? := some {
+        new := next
+        old? := oldNext?
+      } }) do
+        goOdd stxs
   -- `stx[0]` is the next separator, if any
   goOdd stx := do
     if stx.getNumArgs == 0 then
@@ -133,70 +124,6 @@ where
 
 @[builtin_tactic paren, builtin_incremental] def evalParen : Tactic :=
   Term.withNarrowedArgTacticReuse 1 evalTactic
-
-def isCheckpointableTactic (arg : Syntax) : TacticM Bool := do
-  -- TODO: make it parametric
-  let kind := arg.getKind
-  return kind == ``Lean.Parser.Tactic.save
-
-/--
-Takes a `sepByIndent tactic "; "`, and inserts `checkpoint` blocks for `save` tactics.
-
-Input:
-```
-  a
-  b
-  save
-  c
-  d
-  save
-  e
-```
-
-Output:
-```
-  checkpoint
-    a
-    b
-    save
-  checkpoint
-    c
-    d
-    save
-  e
-```
--/
--- Note that we need to preserve the separators to show the right goals after semicolons.
-def addCheckpoints (stx : Syntax) : TacticM Syntax := do
-  if !(← stx.getSepArgs.anyM isCheckpointableTactic) then return stx
-  -- do not checkpoint checkpointable tactic by itself to prevent infinite recursion
-  -- TODO: rethink approach if we add non-trivial checkpointable tactics
-  if stx.getNumArgs <= 2 then return stx
-  let mut currentCheckpointBlock := #[]
-  let mut output := #[]
-  -- `+ 1` to account for optional trailing separator
-  for i in [:(stx.getArgs.size + 1) / 2] do
-    let tac := stx[2*i]
-    let sep? := stx.getArgs[2*i+1]?
-    if (← isCheckpointableTactic tac) then
-      let checkpoint : Syntax :=
-        mkNode ``checkpoint #[
-          mkAtomFrom tac "checkpoint",
-          mkNode ``tacticSeq #[
-            mkNode ``tacticSeq1Indented #[
-              -- HACK: null node is not a valid tactic, but prevents infinite loop
-              mkNullNode (currentCheckpointBlock.push (mkNullNode #[tac]))
-            ]
-          ]
-        ]
-      currentCheckpointBlock := #[]
-      output := output.push checkpoint
-      if let some sep := sep? then output := output.push sep
-    else
-      currentCheckpointBlock := currentCheckpointBlock.push tac
-      if let some sep := sep? then currentCheckpointBlock := currentCheckpointBlock.push sep
-  output := output ++ currentCheckpointBlock
-  return stx.setArgs output
 
 @[builtin_tactic tacticSeq1Indented, builtin_incremental]
 def evalTacticSeq1Indented : Tactic :=
@@ -262,18 +189,26 @@ private def getOptRotation (stx : Syntax) : Nat :=
 @[builtin_tactic Parser.Tactic.allGoals] def evalAllGoals : Tactic := fun stx => do
   let mvarIds ← getGoals
   let mut mvarIdsNew := #[]
+  let mut abort := false
+  let mut mctxSaved ← getMCtx
   for mvarId in mvarIds do
     unless (← mvarId.isAssigned) do
       setGoals [mvarId]
-      try
-        evalTactic stx[1]
-        mvarIdsNew := mvarIdsNew ++ (← getUnsolvedGoals)
-      catch ex =>
-        if (← read).recover then
-          logException ex
-          mvarIdsNew := mvarIdsNew.push mvarId
-        else
-          throw ex
+      abort ← Tactic.tryCatch
+        (do
+          evalTactic stx[1]
+          pure abort)
+        (fun ex => do
+          if (← read).recover then
+            logException ex
+            pure true
+          else
+            throw ex)
+      mvarIdsNew := mvarIdsNew ++ (← getUnsolvedGoals)
+  if abort then
+    setMCtx mctxSaved
+    mvarIds.forM fun mvarId => unless (← mvarId.isAssigned) do admitGoal mvarId
+    throwAbortTactic
   setGoals mvarIdsNew.toList
 
 @[builtin_tactic Parser.Tactic.anyGoals] def evalAnyGoals : Tactic := fun stx => do
@@ -299,7 +234,7 @@ def evalTacticSeq : Tactic :=
 
 partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   if h : i < tactics.size then
-    let tactic := tactics.get ⟨i, h⟩
+    let tactic := tactics[i]
     catchInternalId unsupportedSyntaxExceptionId
       (evalTactic tactic)
       (fun _ => evalChoiceAux tactics (i+1))
@@ -312,7 +247,7 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
 @[builtin_tactic skip] def evalSkip : Tactic := fun _ => pure ()
 
 @[builtin_tactic unknown] def evalUnknown : Tactic := fun stx => do
-  addCompletionInfo <| CompletionInfo.tactic stx (← getGoals)
+  addCompletionInfo <| CompletionInfo.tactic stx
 
 @[builtin_tactic failIfSuccess] def evalFailIfSuccess : Tactic := fun stx =>
   Term.withoutErrToSorry <| withoutRecover do
@@ -353,9 +288,9 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   | `(tactic| intro $h:term $hs:term*) => evalTactic (← `(tactic| intro $h:term; intro $hs:term*))
   | _ => throwUnsupportedSyntax
 where
-  introStep (ref : Option Syntax) (n : Name) (typeStx? : Option Syntax := none) : TacticM Unit := do
+  introStep (ref? : Option Syntax) (n : Name) (typeStx? : Option Syntax := none) : TacticM Unit := do
     let fvarId ← liftMetaTacticAux fun mvarId => do
-      let (fvarId, mvarId) ← mvarId.intro n
+      let (fvarId, mvarId) ← withRef? ref? <| mvarId.intro n
       pure (fvarId, [mvarId])
     if let some typeStx := typeStx? then
       withMainContext do
@@ -365,9 +300,9 @@ where
         unless (← isDefEqGuarded type fvarType) do
           throwError "type mismatch at `intro {fvar}`{← mkHasTypeButIsExpectedMsg fvarType type}"
         liftMetaTactic fun mvarId => return [← mvarId.replaceLocalDeclDefEq fvarId type]
-    if let some stx := ref then
+    if let some ref := ref? then
       withMainContext do
-        Term.addLocalVarInfo stx (mkFVar fvarId)
+        Term.addLocalVarInfo ref (mkFVar fvarId)
 
 @[builtin_tactic Lean.Parser.Tactic.introMatch] def evalIntroMatch : Tactic := fun stx => do
   let matchAlts := stx[1]
@@ -458,10 +393,12 @@ def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIdent) : Ta
       match lctx.getAt? j with
       | none => pure ()
       | some localDecl =>
+        if localDecl.isImplementationDetail then
+          continue
         let inaccessible := !(extractMacroScopes localDecl.userName |>.equalScope callerScopes)
         let shadowed := found.contains localDecl.userName
         if inaccessible || shadowed then
-          if let `(binderIdent| $h:ident) := hs.back then
+          if let `(binderIdent| $h:ident) := hs.back! then
             let newName := h.getId
             lctx := lctx.setUserName localDecl.fvarId newName
             info := info.push (localDecl.fvarId, h)
@@ -517,7 +454,7 @@ where
 
 @[builtin_tactic «case», builtin_incremental]
 def evalCase : Tactic
-  | stx@`(tactic| case $[$tag $hs*]|* =>%$arr $tac:tacticSeq1Indented) =>
+  | stx@`(tactic| case%$caseTk $[$tag $hs*]|* =>%$arr $tac:tacticSeq1Indented) =>
     -- disable incrementality if body is run multiple times
     Term.withoutTacticIncrementality (tag.size > 1) do
       for tag in tag, hs in hs do
@@ -525,20 +462,20 @@ def evalCase : Tactic
         let g ← renameInaccessibles g hs
         setGoals [g]
         g.setTag Name.anonymous
-        withCaseRef arr tac <| closeUsingOrAdmit <| withTacticInfoContext stx <|
+        withCaseRef arr tac <| closeUsingOrAdmit <| withTacticInfoContext (mkNullNode #[caseTk, arr]) <|
           Term.withNarrowedArgTacticReuse (argIdx := 3) (evalTactic ·) stx
         setGoals gs
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic «case'»] def evalCase' : Tactic
-  | `(tactic| case' $[$tag $hs*]|* =>%$arr $tac:tacticSeq) => do
+  | `(tactic| case'%$caseTk $[$tag $hs*]|* =>%$arr $tac:tacticSeq) => do
     let mut acc := #[]
     for tag in tag, hs in hs do
       let (g, gs) ← getCaseGoals tag
       let g ← renameInaccessibles g hs
       let mvarTag ← g.getTag
       setGoals [g]
-      withCaseRef arr tac (evalTactic tac)
+      withCaseRef arr tac <| withTacticInfoContext (mkNullNode #[caseTk, arr]) <| evalTactic tac
       let gs' ← getUnsolvedGoals
       if let [g'] := gs' then
         g'.setTag mvarTag

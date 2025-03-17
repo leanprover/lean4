@@ -14,11 +14,9 @@
 extern "C" {
 #endif
 static lean_object* l_Lean_Meta_removeUnused___closed__1;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CollectFVars_State_addDependencies_getNext_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_removeUnused___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -40,11 +38,13 @@ lean_object* l_Lean_LocalInstances_erase(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalDecl_collectFVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_CollectFVars_main(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CollectFVars_State_addDependencies___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLocalInstances(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CollectFVars_State_addDependencies_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_local_ctx_erase(lean_object*, lean_object*);
 size_t lean_usize_sub(size_t, size_t);
+lean_object* lean_array_mk(lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_removeUnused(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
@@ -475,7 +475,7 @@ lean_dec(x_18);
 x_19 = lean_ctor_get(x_9, 0);
 lean_inc(x_19);
 lean_dec(x_9);
-x_20 = lean_ctor_get(x_3, 1);
+x_20 = lean_ctor_get(x_3, 2);
 lean_inc(x_20);
 x_21 = lean_local_ctx_find(x_20, x_19);
 if (lean_obj_tag(x_21) == 0)
@@ -510,7 +510,7 @@ lean_dec(x_8);
 x_28 = lean_ctor_get(x_9, 0);
 lean_inc(x_28);
 lean_dec(x_9);
-x_29 = lean_ctor_get(x_3, 1);
+x_29 = lean_ctor_get(x_3, 2);
 lean_inc(x_29);
 x_30 = lean_local_ctx_find(x_29, x_28);
 if (lean_obj_tag(x_30) == 0)
@@ -1210,8 +1210,8 @@ static lean_object* _init_l_Lean_Meta_removeUnused___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }
@@ -1226,7 +1226,7 @@ if (x_42 == 0)
 lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; uint8_t x_51; 
 x_43 = lean_ctor_get(x_41, 0);
 x_44 = lean_ctor_get(x_41, 1);
-x_45 = lean_ctor_get(x_3, 1);
+x_45 = lean_ctor_get(x_3, 2);
 lean_inc(x_45);
 x_46 = l_Lean_Meta_removeUnused___closed__1;
 lean_ctor_set(x_41, 1, x_2);
@@ -1302,7 +1302,7 @@ x_62 = lean_ctor_get(x_41, 1);
 lean_inc(x_62);
 lean_inc(x_61);
 lean_dec(x_41);
-x_63 = lean_ctor_get(x_3, 1);
+x_63 = lean_ctor_get(x_3, 2);
 lean_inc(x_63);
 x_64 = l_Lean_Meta_removeUnused___closed__1;
 x_65 = lean_alloc_ctor(0, 2, 0);

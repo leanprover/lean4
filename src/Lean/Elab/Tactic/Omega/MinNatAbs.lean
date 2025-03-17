@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Init.BinderPredicates
@@ -29,12 +29,14 @@ The minimum non-zero entry in a list of natural numbers, or zero if all entries 
 We completely characterize the function via
 `nonzeroMinimum_eq_zero_iff` and `nonzeroMinimum_eq_nonzero_iff` below.
 -/
-def nonzeroMinimum (xs : List Nat) : Nat := xs.filter (· ≠ 0) |>.minimum? |>.getD 0
+def nonzeroMinimum (xs : List Nat) : Nat := xs.filter (· ≠ 0) |>.min? |>.getD 0
 
 -- A specialization of `minimum?_eq_some_iff` to Nat.
-theorem minimum?_eq_some_iff' {xs : List Nat} :
-    xs.minimum? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) :=
-  minimum?_eq_some_iff
+-- This is a duplicate `min?_eq_some_iff'` proved in `Init.Data.List.Nat.Basic`,
+-- and could be deduplicated but the import hierarchy is awkward.
+theorem min?_eq_some_iff'' {xs : List Nat} :
+    xs.min? = some a ↔ (a ∈ xs ∧ ∀ b ∈ xs, a ≤ b) :=
+  min?_eq_some_iff
     (le_refl := Nat.le_refl)
     (min_eq_or := fun _ _ => Nat.min_def .. ▸ by split <;> simp)
     (le_min_iff := fun _ _ _ => Nat.le_min)
@@ -42,27 +44,27 @@ theorem minimum?_eq_some_iff' {xs : List Nat} :
 open Classical in
 @[simp] theorem nonzeroMinimum_eq_zero_iff {xs : List Nat} :
     xs.nonzeroMinimum = 0 ↔ ∀ x ∈ xs, x = 0 := by
-  simp [nonzeroMinimum, Option.getD_eq_iff, minimum?_eq_none_iff, minimum?_eq_some_iff',
-    filter_eq_nil, mem_filter]
+  simp [nonzeroMinimum, Option.getD_eq_iff, min?_eq_none_iff, min?_eq_some_iff'',
+    filter_eq_nil_iff, mem_filter]
 
 theorem nonzeroMinimum_mem {xs : List Nat} (w : xs.nonzeroMinimum ≠ 0) :
     xs.nonzeroMinimum ∈ xs := by
   dsimp [nonzeroMinimum] at *
-  generalize h : (xs.filter (· ≠ 0) |>.minimum?) = m at *
+  generalize h : (xs.filter (· ≠ 0) |>.min?) = m at *
   match m, w with
-  | some (m+1), _ => simp_all [minimum?_eq_some_iff', mem_filter]
+  | some (m+1), _ => simp_all [min?_eq_some_iff'', mem_filter]
 
 theorem nonzeroMinimum_pos {xs : List Nat} (m : a ∈ xs) (h : a ≠ 0) : 0 < xs.nonzeroMinimum :=
   Nat.pos_iff_ne_zero.mpr fun w => h (nonzeroMinimum_eq_zero_iff.mp w _ m)
 
 theorem nonzeroMinimum_le {xs : List Nat} (m : a ∈ xs) (h : a ≠ 0) : xs.nonzeroMinimum ≤ a := by
-  have : (xs.filter (· ≠ 0) |>.minimum?) = some xs.nonzeroMinimum := by
+  have : (xs.filter (· ≠ 0) |>.min?) = some xs.nonzeroMinimum := by
     have w := nonzeroMinimum_pos m h
     dsimp [nonzeroMinimum] at *
-    generalize h : (xs.filter (· ≠ 0) |>.minimum?) = m? at *
+    generalize h : (xs.filter (· ≠ 0) |>.min?) = m? at *
     match m?, w with
     | some m?, _ => rfl
-  rw [minimum?_eq_some_iff'] at this
+  rw [min?_eq_some_iff''] at this
   apply this.2
   simp [List.mem_filter]
   exact ⟨m, h⟩
@@ -142,4 +144,4 @@ theorem minNatAbs_eq_nonzero_iff (xs : List Int) (w : z ≠ 0) :
 @[simp] theorem minNatAbs_nil : ([] : List Int).minNatAbs = 0 := rfl
 
 /-- The maximum absolute value in a list of integers. -/
-def maxNatAbs (xs : List Int) : Nat := xs.map Int.natAbs |>.maximum? |>.getD 0
+def maxNatAbs (xs : List Int) : Nat := xs.map Int.natAbs |>.max? |>.getD 0

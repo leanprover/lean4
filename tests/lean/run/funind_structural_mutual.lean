@@ -25,14 +25,14 @@ end
 info: Tree.size.induct.{u_1} {α : Type u_1} (motive_1 : Tree α → Prop) (motive_2 : List (Tree α) → Prop)
   (case1 :
     ∀ (a : α) (tsf : Bool → List (Tree α)), motive_2 (tsf true) → motive_2 (tsf false) → motive_1 (Tree.node a tsf))
-  (case2 : motive_2 []) (case3 : ∀ (t : Tree α) (ts : List (Tree α)), motive_1 t → motive_2 ts → motive_2 (t :: ts)) :
-  ∀ (a : Tree α), motive_1 a
+  (case2 : motive_2 []) (case3 : ∀ (t : Tree α) (ts : List (Tree α)), motive_1 t → motive_2 ts → motive_2 (t :: ts))
+  (a✝ : Tree α) : motive_1 a✝
 -/
 #guard_msgs in
 #check Tree.size.induct
 
 
--- Recursion over nested inductive, functions in the “wrong” order (auxillary first)
+-- Recursion over nested inductive, functions in the “wrong” order (auxiliary first)
 
 mutual
 def Tree.size_aux' : List (Tree α) → Nat

@@ -6,7 +6,9 @@ Authors: Henrik Böving
 prelude
 import Std.Tactic.BVDecide.LRAT.Actions
 import Std.Tactic.BVDecide.LRAT.Checker
+import Std.Tactic.BVDecide.LRAT.Parser
 
 /-!
-This directory contains the implementation of the LRAT certificate checking algorithm.
+This directory contains the implementation of the LRAT certificate checking algorithm as well as
+parsers for the binary and the non-binary LRAT format.
 -/

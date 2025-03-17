@@ -121,3 +121,6 @@
 [{"range":
   {"start": {"line": 53, "character": 9}, "end": {"line": 53, "character": 10}},
   "kind": 1}]
+{"textDocument": {"uri": "file:///highlight.lean"},
+ "position": {"line": 62, "character": 2}}
+[]

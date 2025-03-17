@@ -11,18 +11,12 @@ import Lean.Elab.DeclUtil
 namespace Lean.Elab
 
 inductive DefKind where
-  | def | theorem | example | opaque | abbrev
+  | def | instance | theorem | example | opaque | abbrev
   deriving Inhabited, BEq
 
 def DefKind.isTheorem : DefKind → Bool
   | .theorem => true
   | _        => false
-
-def DefKind.isDefOrAbbrevOrOpaque : DefKind → Bool
-  | .def    => true
-  | .opaque => true
-  | .abbrev => true
-  | _       => false
 
 def DefKind.isExample : DefKind → Bool
   | .example => true
@@ -55,9 +49,11 @@ structure BodyProcessedSnapshot extends Language.Snapshot where
   state : Term.SavedState
   /-- Elaboration result. -/
   value : Expr
+  /-- Untyped snapshots from `logSnapshotTask`, saved at this level for cancellation. -/
+  moreSnaps : Array (SnapshotTask SnapshotTree)
 deriving Nonempty
 instance : Language.ToSnapshotTree BodyProcessedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
+  toSnapshotTree s := ⟨s.toSnapshot, s.moreSnaps⟩
 
 /-- Snapshot after elaboration of a definition header. -/
 structure HeaderProcessedSnapshot extends Language.Snapshot where
@@ -73,13 +69,15 @@ structure HeaderProcessedSnapshot extends Language.Snapshot where
   bodyStx : Syntax
   /-- Result of body elaboration. -/
   bodySnap : SnapshotTask (Option BodyProcessedSnapshot)
+  /-- Untyped snapshots from `logSnapshotTask`, saved at this level for cancellation. -/
+  moreSnaps : Array (SnapshotTask SnapshotTree)
 deriving Nonempty
 instance : Language.ToSnapshotTree HeaderProcessedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot,
     (match s.tacSnap? with
       | some tac => #[tac.map (sync := true) toSnapshotTree]
       | none     => #[]) ++
-    #[s.bodySnap.map (sync := true) toSnapshotTree]⟩
+    #[s.bodySnap.map (sync := true) toSnapshotTree] ++ s.moreSnaps⟩
 
 /-- State before elaboration of a mutual definition. -/
 structure DefParsed where
@@ -169,9 +167,9 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
     | none        =>
       let id ← mkInstanceName binders.getArgs type
       trace[Elab.instance.mkInstanceName] "generated {(← getCurrNamespace) ++ id}"
-      pure <| mkNode ``Parser.Command.declId #[mkIdentFrom stx id, mkNullNode]
+      pure <| mkNode ``Parser.Command.declId #[mkIdentFrom stx[1] id (canonical := true), mkNullNode]
   return {
-    ref := stx, headerRef := mkNullNode stx.getArgs[:5], kind := DefKind.def, modifiers := modifiers,
+    ref := stx, headerRef := mkNullNode stx.getArgs[:5], kind := DefKind.instance, modifiers := modifiers,
     declId := declId, binders := binders, type? := type, value := stx[5]
   }
 
@@ -191,7 +189,7 @@ def mkDefViewOfOpaque (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefV
 def mkDefViewOfExample (modifiers : Modifiers) (stx : Syntax) : DefView :=
   -- leading_parser "example " >> declSig >> declVal
   let (binders, type) := expandOptDeclSig stx[1]
-  let id              := mkIdentFrom stx `_example
+  let id              := mkIdentFrom stx[0] `_example (canonical := true)
   let declId          := mkNode ``Parser.Command.declId #[id, mkNullNode]
   { ref := stx, headerRef := mkNullNode stx.getArgs[:2], kind := DefKind.example, modifiers := modifiers,
     declId := declId, binders := binders, type? := type, value := stx[2] }

@@ -9,7 +9,7 @@ instance : GetElem Lean.Syntax Nat Lean.Syntax where
   getElem' xs i := xs.getArg i
 
 instance : GetElem (Array α) Nat α where
-  getElem' xs i := xs.get ⟨i, sorry⟩
+  getElem' xs i := xs.get i sorry
 
 open Lean
 

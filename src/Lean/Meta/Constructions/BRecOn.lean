@@ -17,8 +17,8 @@ open Meta
 private def etaPProd (xs : Array Expr) (e : Expr) : MetaM Expr := do
   if xs.isEmpty then return e
   let r := mkAppN e xs
-  let r₁ ← mkLambdaFVars xs (← mkPProdFst r)
-  let r₂ ← mkLambdaFVars xs (← mkPProdSnd r)
+  let r₁ ← mkLambdaFVars xs (← mkPProdFstM r)
+  let r₂ ← mkLambdaFVars xs (← mkPProdSndM r)
   mkPProdMk r₁ r₂
 
 /--
@@ -139,7 +139,7 @@ private def mkBelowFromRec (recName : Name) (ibelow reflexive : Bool) (nParams :
     val := mkAppN val indices
     val := mkApp val major
 
-    -- All paramaters of `.rec` besides the `minors` become parameters of `.below`
+    -- All parameters of `.rec` besides the `minors` become parameters of `.below`
     let below_params := params ++ motives ++ indices ++ #[major]
     let type ← mkForallFVars below_params (.sort rlvl)
     val ← mkLambdaFVars below_params val
@@ -195,14 +195,14 @@ private def buildBRecOnMinorPremise (rlvl : Level) (motives : Array Expr)
     let rec go (prods : Array Expr) : List Expr → MetaM Expr
       | [] => minor_type.withApp fun minor_type_fn minor_type_args => do
           let b ← PProdN.mk rlvl prods
-          let .some ⟨idx, _⟩ := motives.indexOf? minor_type_fn
+          let .some idx := motives.idxOf? minor_type_fn
             | throwError m!"Did not find {minor_type} in {motives}"
           mkPProdMk (mkAppN fs[idx]! (minor_type_args.push b)) b
       | arg::args => do
         let argType ← inferType arg
         forallTelescope argType fun arg_args arg_type => do
           arg_type.withApp fun arg_type_fn arg_type_args => do
-            if let .some idx := motives.indexOf? arg_type_fn then
+            if let .some idx := motives.idxOf? arg_type_fn then
               let name ← arg.fvarId!.getUserName
               let type' ← mkForallFVars arg_args
                 (← mkPProd arg_type (mkAppN belows[idx]! arg_type_args) )
@@ -264,7 +264,7 @@ private def mkBRecOnFromRec (recName : Name) (ind reflexive : Bool) (nParams : N
     let indices : Array Expr := refArgs[nParams + recVal.numMotives + recVal.numMinors:refArgs.size - 1]
     let major   : Expr       := refArgs[refArgs.size - 1]!
 
-    let some idx := motives.indexOf? refBody.getAppFn
+    let some idx := motives.idxOf? refBody.getAppFn
       | throwError "result type of {refType} is not one of {motives}"
 
     -- universe parameter of the type fomer.
@@ -293,8 +293,8 @@ private def mkBRecOnFromRec (recName : Name) (ind reflexive : Bool) (nParams : N
         if let some n := all[i]? then
           if ind then mkIBelowName n else mkBelowName n
         else
-          if ind then .str all[0]! s!"ibelow_{i-all.size+1}"
-                 else .str all[0]! s!"below_{i-all.size+1}"
+          if ind then .str all[0]! s!"ibelow_{i-all.size + 1}"
+                 else .str all[0]! s!"below_{i-all.size + 1}"
       mkAppN (.const belowName blvls) (params ++ motives)
 
     -- create types of functionals (one for each motive)
@@ -328,9 +328,9 @@ private def mkBRecOnFromRec (recName : Name) (ind reflexive : Bool) (nParams : N
       val := mkAppN val indices
       val := mkApp val major
       -- project out first component
-      val ← mkPProdFst val
+      val ← mkPProdFstM val
 
-      -- All paramaters of `.rec` besides the `minors` become parameters of `.bRecOn`, and the `fs`
+      -- All parameters of `.rec` besides the `minors` become parameters of `.bRecOn`, and the `fs`
       let below_params := params ++ motives ++ indices ++ #[major] ++ fs
       let type ← mkForallFVars below_params (mkAppN motives[idx]! (indices ++ #[major]))
       val ← mkLambdaFVars below_params val

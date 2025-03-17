@@ -5,6 +5,7 @@ Authors: Johannes Hölzl
 -/
 prelude
 import Init.Ext
+import Init.Core
 
 namespace Subtype
 

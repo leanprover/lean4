@@ -20,12 +20,6 @@ def usingIO {α} (x : IO α) : IO α := x
   child.stdout.readToEnd
 
 #eval usingIO do
-  let child ← spawn { cmd := "true", stdin := Stdio.piped };
-  discard $ child.wait;
-  child.stdin.putStrLn "ha!";
-  child.stdin.flush <|> IO.println "flush of broken pipe failed"
-
-#eval usingIO do
   -- produce enough output to fill both pipes on all platforms
   let out ← output { cmd := "sh", args := #["-c", "printf '%100000s' >& 2; printf '%100001s'"] };
   IO.println out.stdout.length;

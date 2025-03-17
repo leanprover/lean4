@@ -78,10 +78,7 @@ builtin_initialize moduleRegistry : ModuleRegistry ←
     toArrayFn     := fun es => es.toArray
   }
 
-/--
-Registers `[builtin_widget_module]` and `[widget_module]` and binds the latter's implementation
-(used for creating the obsolete `[widget]` alias below).
- -/
+/-- Registers a widget module. Its type must implement `Lean.Widget.ToModule`. -/
 builtin_initialize widgetModuleAttrImpl : AttributeImpl ←
   let mkAttr (builtin : Bool) (name : Name) := do
     let impl := {
@@ -99,7 +96,7 @@ builtin_initialize widgetModuleAttrImpl : AttributeImpl ←
           if let some _ := (← builtinModulesRef.get).find? mod.javascriptHash then
             logWarning m!"A builtin widget module with the same hash(JS source code) was already registered."
         if let some (n, _) := moduleRegistry.getState env |>.find? mod.javascriptHash then
-          logWarning m!"A widget module with the same hash(JS source code) was already registered at {Expr.const n []}."
+          logWarning m!"A widget module with the same hash(JS source code) was already registered at {.ofConstName n true}."
         let env ← getEnv
         if builtin then
           let h := mkConst decl
@@ -109,6 +106,9 @@ builtin_initialize widgetModuleAttrImpl : AttributeImpl ←
     }
     registerBuiltinAttribute impl
     return impl
+  /- We declare the `[builtin_widget_module]` and `[widget_module]` attributes
+  and bind the latter's implementation
+  (used for creating the obsolete `[widget]` alias below). -/
   let _ ← mkAttr true `builtin_widget_module
   mkAttr false `widget_module
 
@@ -357,15 +357,6 @@ structure UserWidgetDefinition where
 instance : ToModule UserWidgetDefinition where
   toModule uwd := { uwd with }
 
-@[deprecated (since := "2023-12-21")] private def widgetAttrImpl : AttributeImpl where
-  name := `widget
-  descr := "The `@[widget]` attribute has been deprecated, use `@[widget_module]` instead."
-  applicationTime := AttributeApplicationTime.afterCompilation
-  add := widgetModuleAttrImpl.add
-
-set_option linter.deprecated false in
-builtin_initialize registerBuiltinAttribute widgetAttrImpl
-
 private unsafe def evalUserWidgetDefinitionUnsafe [Monad m] [MonadEnv m] [MonadOptions m] [MonadError m]
     (id : Name) : m UserWidgetDefinition := do
   ofExcept <| (← getEnv).evalConstCheck UserWidgetDefinition (← getOptions) ``UserWidgetDefinition id
@@ -373,13 +364,6 @@ private unsafe def evalUserWidgetDefinitionUnsafe [Monad m] [MonadEnv m] [MonadO
 @[implemented_by evalUserWidgetDefinitionUnsafe]
 opaque evalUserWidgetDefinition [Monad m] [MonadEnv m] [MonadOptions m] [MonadError m]
     (id : Name) : m UserWidgetDefinition
-
-/-- Save a user-widget instance to the infotree.
-    The given `widgetId` should be the declaration name of the widget definition. -/
-@[deprecated savePanelWidgetInfo (since := "2023-12-21")] def saveWidgetInfo (widgetId : Name) (props : Json)
-    (stx : Syntax) : CoreM Unit := do
-  let uwd ← evalUserWidgetDefinition widgetId
-  savePanelWidgetInfo (ToModule.toModule uwd).javascriptHash (pure props) stx
 
 /-! ## Retrieving panel widget instances -/
 
@@ -413,10 +397,10 @@ structure GetWidgetsResponse where
 
 open Lean Server RequestM in
 /-- Get the panel widgets present around a particular position. -/
-def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResponse)) := do
+def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask GetWidgetsResponse) := do
   let doc ← readDoc
   let filemap := doc.meta.text
-  mapTask (findInfoTreeAtPos doc <| filemap.lspPosToUtf8Pos pos) fun
+  mapTaskCostly (findInfoTreeAtPos doc (filemap.lspPosToUtf8Pos pos) (includeStop := true)) fun
     | some infoTree@(.context (.commandCtx cc) _) =>
       ContextInfo.runMetaM { cc with } {} do
       let env ← getEnv
@@ -446,7 +430,5 @@ def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResp
 
 builtin_initialize
   Server.registerBuiltinRpcProcedure ``getWidgets _ _ getWidgets
-
-attribute [deprecated Module (since := "2023-12-21")] UserWidgetDefinition
 
 end Lean.Widget

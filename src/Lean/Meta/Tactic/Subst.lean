@@ -80,9 +80,9 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
                   pure mvarId
                 let (newFVars, mvarId) ← mvarId.introNP (vars.size - 2)
                 trace[Meta.Tactic.subst] "after intro rest {vars.size - 2} {MessageData.ofGoal mvarId}"
-                let fvarSubst ← newFVars.size.foldM (init := fvarSubst) fun i (fvarSubst : FVarSubst) =>
+                let fvarSubst ← newFVars.size.foldM (init := fvarSubst) fun i _ (fvarSubst : FVarSubst) =>
                     let var     := vars[i+2]!
-                    let newFVar := newFVars[i]!
+                    let newFVar := newFVars[i]
                     pure $ fvarSubst.insert var (mkFVar newFVar)
                 let fvarSubst := fvarSubst.insert aFVarIdOriginal (if clearH then b else mkFVar aFVarId)
                 let fvarSubst := fvarSubst.insert hFVarIdOriginal (mkFVar hFVarId)
@@ -140,7 +140,7 @@ def heqToEq (mvarId : MVarId) (fvarId : FVarId) (tryToClear : Bool := true) : Me
 
 /--
 Given `x`, try to find an equation of the form `heq : x = rhs` or `heq : lhs = x`,
-and runs `substCore` on it. Throws an expection if no such equation is found.
+and runs `substCore` on it. Throws an exception if no such equation is found.
 -/
 partial def substVar (mvarId : MVarId) (x : FVarId) : MetaM MVarId :=
   mvarId.withContext do

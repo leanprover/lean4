@@ -19,7 +19,7 @@ set_option autoLift false
 
 set_option pp.mvars false in
 /--
-warning: type mismatch
+info: type mismatch
   f
 has type
   IO Nat : Type
@@ -27,7 +27,7 @@ but is expected to have type
   M ?_ : Type
 ---
 info: id do
-  let a ← sorryAx (M Nat) true
+  let a ← sorry
   g a : M Unit
 -/
 #guard_msgs in

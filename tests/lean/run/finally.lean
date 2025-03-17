@@ -23,7 +23,8 @@ match r with
 
 /--
 info: finisher executed
-Except.ok 100
+---
+info: Except.ok 100
 -/
 #guard_msgs in
 #eval (tst1.run).run' 0
@@ -39,7 +40,8 @@ tryCatchThe IO.Error
 
 /--
 info: finisher executed
-Except.ok 100
+---
+info: Except.ok 100
 -/
 #guard_msgs in
 #eval (tst2.run).run' 0
@@ -58,7 +60,8 @@ tryCatchThe IO.Error
 /--
 info: inner finisher executed
 outer finisher executed
-Except.ok 101
+---
+info: Except.ok 101
 -/
 #guard_msgs in
 #eval (tst3.run).run' 0
@@ -80,7 +83,8 @@ pure (a + s)
 /--
 info: inner finisher executed
 outer finisher executed
-Except.ok 143
+---
+info: Except.ok 143
 -/
 #guard_msgs in
 #eval (tst4.run).run' 0
@@ -98,7 +102,8 @@ pure a
 
 /--
 info: finalizer received: (some 42)
-Except.ok 42
+---
+info: Except.ok 42
 -/
 #guard_msgs in
 #eval (tst5.run).run' 0

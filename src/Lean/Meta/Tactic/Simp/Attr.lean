@@ -24,12 +24,15 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
         Attribute.add declName simprocAttrName stx attrKind
       else
         let go : MetaM Unit := do
-          let info ← getConstInfo declName
+          let info ← getAsyncConstInfo declName
           let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
-          let prio ← getAttrParamOptPrio stx[2]
-          if (← isProp info.type) then
-            addSimpTheorem ext declName post (inv := false) attrKind prio
-          else if info.hasValue then
+          let inv := !stx[2].isNone
+          let prio ← getAttrParamOptPrio stx[3]
+          if (← isProp info.sig.get.type) then
+            addSimpTheorem ext declName post (inv := inv) attrKind prio
+          else if info.kind matches .defn then
+            if inv then
+              throwError "invalid '←' modifier, '{declName}' is a declaration name to be unfolded"
             if (← SimpTheorems.ignoreEquations declName) then
               ext.add (SimpEntry.toUnfold declName) attrKind
             else if let some eqns ← getEqnsFor? declName then
@@ -70,7 +73,10 @@ def getSimpTheorems : CoreM SimpTheorems :=
 def getSEvalTheorems : CoreM SimpTheorems :=
   sevalSimpExtension.getTheorems
 
-def Simp.Context.mkDefault : MetaM Context :=
-  return { config := {}, simpTheorems := #[(← Meta.getSimpTheorems)], congrTheorems := (← Meta.getSimpCongrTheorems) }
+def Simp.Context.mkDefault : MetaM Context := do
+  mkContext
+    (config := {})
+    (simpTheorems := #[(← Meta.getSimpTheorems)])
+    (congrTheorems := (← Meta.getSimpCongrTheorems))
 
 end Lean.Meta

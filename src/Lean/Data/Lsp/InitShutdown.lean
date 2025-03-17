@@ -36,7 +36,7 @@ instance : FromJson Trace := ⟨fun j =>
   | Except.ok "off"      => return Trace.off
   | Except.ok "messages" => return Trace.messages
   | Except.ok "verbose"  => return Trace.verbose
-  | _               => throw "uknown trace"⟩
+  | _               => throw "unknown trace"⟩
 
 instance Trace.hasToJson : ToJson Trace :=
 ⟨fun

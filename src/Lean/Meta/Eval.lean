@@ -6,6 +6,7 @@ Authors: Sebastian Ullrich, Leonardo de Moura
 prelude
 import Lean.AddDecl
 import Lean.Meta.Check
+import Lean.Util.CollectLevelParams
 
 namespace Lean.Meta
 
@@ -13,17 +14,23 @@ unsafe def evalExprCore (α) (value : Expr) (checkType : Expr → MetaM Unit) (s
   withoutModifyingEnv do
     let name ← mkFreshUserName `_tmp
     let value ← instantiateMVars value
+    let us := collectLevelParams {} value |>.params
     if value.hasMVar then
       throwError "failed to evaluate expression, it contains metavariables{indentExpr value}"
     let type ← inferType value
     checkType type
     let decl := Declaration.defnDecl {
-       name, levelParams := [], type
+       name, levelParams := us.toList, type
        value, hints := ReducibilityHints.opaque,
        safety
     }
-    addAndCompile decl
-    evalConst α name
+    -- compilation will invariably wait on `checked`
+    let _ ← traceBlock "compiler env" (← getEnv).checked
+    -- now that we've already waited, async would just introduce (minor) overhead and trigger
+    -- `Task.get` blocking debug code
+    withOptions (Elab.async.set · false) do
+      addAndCompile decl
+      evalConst α name
 
 unsafe def evalExpr' (α) (typeName : Name) (value : Expr) (safety := DefinitionSafety.safe) : MetaM α :=
   evalExprCore (safety := safety) α value fun type => do

@@ -4,6 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.AddDecl
+import Lean.ReservedNameAction
+import Lean.ResolveName
 import Lean.Meta.AppBuilder
 import Lean.Class
 
@@ -32,7 +35,7 @@ inductive CongrArgKind where
   For congr-simp theorems only.  Indicates a decidable instance argument.
   The lemma contains two arguments [a_i : Decidable ...] [b_i : Decidable ...] -/
   | subsingletonInst
-  deriving Inhabited, Repr
+  deriving Inhabited, Repr, BEq
 
 structure CongrTheorem where
   type     : Expr
@@ -77,7 +80,7 @@ partial def mkHCongrWithArity (f : Expr) (numArgs : Nat) : MetaM CongrTheorem :=
 where
   withNewEqs {α} (xs ys : Array Expr) (k : Array Expr → Array CongrArgKind → MetaM α) : MetaM α :=
     let rec loop (i : Nat) (eqs : Array Expr) (kinds : Array CongrArgKind) := do
-      if  i < xs.size then
+      if i < xs.size then
         let x := xs[i]!
         let y := ys[i]!
         let xType := (← inferType x).cleanupAnnotations
@@ -122,8 +125,8 @@ def mkHCongr (f : Expr) : MetaM CongrTheorem := do
 private def fixKindsForDependencies (info : FunInfo) (kinds : Array CongrArgKind) : Array CongrArgKind := Id.run do
   let mut kinds := kinds
   for i in [:info.paramInfo.size] do
-    for j in [i+1:info.paramInfo.size] do
-      if info.paramInfo[j]!.backDeps.contains i then
+    for hj : j in [i+1:info.paramInfo.size] do
+      if info.paramInfo[j].backDeps.contains i then
         if kinds[j]! matches CongrArgKind.eq || kinds[j]! matches CongrArgKind.fixed then
           -- We must fix `i` because there is a `j` that depends on `i` and `j` is not cast-fixed.
           kinds := kinds.set! i CongrArgKind.fixed
@@ -185,11 +188,11 @@ private def getClassSubobjectMask? (f : Expr) : MetaM (Option (Array Bool)) := d
   forallTelescopeReducing val.type (cleanupAnnotations := true) fun xs _ => do
     let env ← getEnv
     let mut mask := #[]
-    for i in [:xs.size] do
+    for h : i in [:xs.size] do
       if i < val.numParams then
         mask := mask.push false
       else
-        let localDecl ← xs[i]!.fvarId!.getDecl
+        let localDecl ← xs[i].fvarId!.getDecl
         mask := mask.push (isSubobjectField? env val.induct localDecl.userName).isSome
     return some mask
 
@@ -211,14 +214,14 @@ def getCongrSimpKinds (f : Expr) (info : FunInfo) : MetaM (Array CongrArgKind) :
   -/
   let mut result := #[]
   let mask? ← getClassSubobjectMask? f
-  for i in [:info.paramInfo.size] do
+  for h : i in [:info.paramInfo.size] do
     if info.resultDeps.contains i then
       result := result.push .fixed
-    else if info.paramInfo[i]!.isProp then
+    else if info.paramInfo[i].isProp then
       result := result.push .cast
-    else if info.paramInfo[i]!.isInstImplicit then
+    else if info.paramInfo[i].isInstImplicit then
       if let some mask := mask? then
-        if h : i < mask.size then
+        if h2 : i < mask.size then
           if mask[i] then
             -- Parameter is a subobect field of a class constructor. See comment above.
             result := result.push .eq
@@ -229,6 +232,29 @@ def getCongrSimpKinds (f : Expr) (info : FunInfo) : MetaM (Array CongrArgKind) :
         result := result.push .fixed
     else
       result := result.push .eq
+  return fixKindsForDependencies info result
+
+/--
+Variant of `getCongrSimpKinds` for rewriting just argument 0.
+If it is possible to rewrite, the 0th `CongrArgKind` is `CongrArgKind.eq`,
+and otherwise it is `CongrArgKind.fixed`. This is used for the `arg` conv tactic.
+-/
+def getCongrSimpKindsForArgZero (info : FunInfo) : MetaM (Array CongrArgKind) := do
+  let mut result := #[]
+  for h : i in [:info.paramInfo.size] do
+    if info.resultDeps.contains i then
+      result := result.push .fixed
+    else if i == 0 then
+      result := result.push .eq
+    else if info.paramInfo[i].isProp then
+      result := result.push .cast
+    else if info.paramInfo[i].isInstImplicit then
+      if shouldUseSubsingletonInst info result i then
+        result := result.push .subsingletonInst
+      else
+        result := result.push .fixed
+    else
+      result := result.push .fixed
   return fixKindsForDependencies info result
 
 /--
@@ -319,7 +345,7 @@ where
 /--
 Create a congruence theorem for `f`. The theorem is used in the simplifier.
 
-If `subsingletonInstImplicitRhs = true`, the the `rhs` corresponding to `[Decidable p]` parameters
+If `subsingletonInstImplicitRhs = true`, the `rhs` corresponding to `[Decidable p]` parameters
 is marked as instance implicit. It forces the simplifier to compute the new instance when applying
 the congruence theorem.
 For the `congr` tactic we set it to `false`.
@@ -328,5 +354,90 @@ def mkCongrSimp? (f : Expr) (subsingletonInstImplicitRhs : Bool := true) : MetaM
   let f := (← instantiateMVars f).cleanupAnnotations
   let info ← getFunInfo f
   mkCongrSimpCore? f info (← getCongrSimpKinds f info) (subsingletonInstImplicitRhs := subsingletonInstImplicitRhs)
+
+def hcongrThmSuffixBase := "hcongr"
+def hcongrThmSuffixBasePrefix := hcongrThmSuffixBase ++ "_"
+
+/-- Returns `true` if `s` is of the form `hcongr_<idx>` -/
+def isHCongrReservedNameSuffix (s : String) : Bool :=
+  hcongrThmSuffixBasePrefix.isPrefixOf s && (s.drop 7).isNat
+
+def congrSimpSuffix := "congr_simp"
+
+builtin_initialize congrKindsExt : MapDeclarationExtension (Array CongrArgKind) ← mkMapDeclarationExtension
+
+builtin_initialize registerReservedNamePredicate fun env n =>
+  match n with
+  | .str p s => (isHCongrReservedNameSuffix s || s == congrSimpSuffix) && env.isSafeDefinition p
+  | _ => false
+
+builtin_initialize
+  registerReservedNameAction fun name => do
+    let .str p s := name | return false
+    unless (← getEnv).isSafeDefinition p do return false
+    if isHCongrReservedNameSuffix s then
+      let numArgs := (s.drop 7).toNat!
+      try MetaM.run' do
+        let info ← getConstInfo p
+        let f := mkConst p (info.levelParams.map mkLevelParam)
+        let congrThm ← mkHCongrWithArity f numArgs
+        addDecl <| Declaration.thmDecl {
+           name, type := congrThm.type, value := congrThm.proof
+           levelParams := info.levelParams
+        }
+        modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
+        return true
+      catch _ => return false
+    else if s == congrSimpSuffix then
+      try MetaM.run' do
+        let cinfo ← getConstInfo p
+        let f := mkConst p (cinfo.levelParams.map mkLevelParam)
+        let info ← getFunInfo f
+        let some congrThm ← mkCongrSimpCore? f info (← getCongrSimpKinds f info)
+          | return false
+        addDecl <| Declaration.thmDecl {
+           name, type := congrThm.type, value := congrThm.proof
+           levelParams := cinfo.levelParams
+        }
+        modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
+        return true
+      catch _ => return false
+    else
+      return false
+
+/--
+Similar to `mkHCongrWithArity`, but uses reserved names to ensure we don't keep creating the
+same congruence theorem over and over again.
+-/
+def mkHCongrWithArityForConst? (declName : Name) (levels : List Level) (numArgs : Nat) : MetaM (Option CongrTheorem) := do
+  try
+    let suffix := hcongrThmSuffixBasePrefix ++ toString numArgs
+    let thmName := Name.str declName suffix
+    unless (← getEnv).contains thmName do
+      let _ ← executeReservedNameAction thmName
+    let proof := mkConst thmName levels
+    let type ← inferType proof
+    let some argKinds := congrKindsExt.find? (← getEnv) thmName
+      | unreachable!
+    return some { proof, type, argKinds }
+  catch _ =>
+    return none
+
+/--
+Similar to `mkCongrSimp?`, but uses reserved names to ensure we don't keep creating the
+same congruence theorem over and over again.
+-/
+def mkCongrSimpForConst? (declName : Name) (levels : List Level) : MetaM (Option CongrTheorem) := do
+  try
+    let thmName := Name.str declName congrSimpSuffix
+    unless (← getEnv).contains thmName do
+      let _ ← executeReservedNameAction thmName
+    let proof := mkConst thmName levels
+    let type ← inferType proof
+    let some argKinds := congrKindsExt.find? (← getEnv) thmName
+      | unreachable!
+    return some { proof, type, argKinds }
+  catch _ =>
+    return none
 
 end Lean.Meta

@@ -3,6 +3,8 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
+import Init.Data.Float
 import Lake.Toml.Data.Dict
 import Lake.Toml.Data.DateTime
 
@@ -107,7 +109,9 @@ def ppTable (t : Table) : String :=
   let (ts, fs) := t.items.foldl (init := ("", "")) fun (ts, fs) (k,v) =>
     match v with
     | .array _ vs =>
-      if vs.all (· matches .table ..) then
+      if vs.isEmpty then
+        (ts.append s!"{ppKey k} = []\n", fs)
+      else if vs.all (· matches .table ..) then
         let fs := vs.foldl (init := fs) fun s v =>
           match v with
           | .table _ t =>

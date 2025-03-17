@@ -549,7 +549,7 @@ static expr * g_lean_reduce_bool = nullptr;
 static expr * g_lean_reduce_nat  = nullptr;
 
 namespace ir {
-object * run_boxed(environment const & env, options const & opts, name const & fn, unsigned n, object **args);
+object * run_boxed_kernel(environment const & env, options const & opts, name const & fn, unsigned n, object **args);
 }
 
 expr mk_bool_true();
@@ -560,7 +560,7 @@ optional<expr> reduce_native(environment const & env, expr const & e) {
     expr const & arg = app_arg(e);
     if (!is_constant(arg)) return none_expr();
     if (app_fn(e) == *g_lean_reduce_bool) {
-        object * r = ir::run_boxed(env, options(), const_name(arg), 0, nullptr);
+        object * r = ir::run_boxed_kernel(env, options(), const_name(arg), 0, nullptr);
         if (!lean_is_scalar(r)) {
             lean_dec_ref(r);
             throw kernel_exception(env, "type checker failure, unexpected result value for 'Lean.reduceBool'");
@@ -568,7 +568,7 @@ optional<expr> reduce_native(environment const & env, expr const & e) {
         return lean_unbox(r) == 0 ? some_expr(mk_bool_false()) : some_expr(mk_bool_true());
     }
     if (app_fn(e) == *g_lean_reduce_nat) {
-        object * r = ir::run_boxed(env, options(), const_name(arg), 0, nullptr);
+        object * r = ir::run_boxed_kernel(env, options(), const_name(arg), 0, nullptr);
         if (lean_is_scalar(r) || lean_is_mpz(r)) {
             return some_expr(mk_lit(literal(nat(r))));
         } else {
@@ -618,7 +618,6 @@ template<typename F> optional<expr> type_checker::reduce_bin_nat_pred(F const & 
 }
 
 optional<expr> type_checker::reduce_nat(expr const & e) {
-    if (has_fvar(e)) return none_expr();
     unsigned nargs = get_app_num_args(e);
     if (nargs == 1) {
         expr const & f = app_fn(e);
@@ -981,6 +980,7 @@ lbool type_checker::is_def_eq_offset(expr const & t, expr const & s) {
     return l_undef;
 }
 
+/** \remark t_n, s_n are updated. */
 lbool type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
     while (true) {
         lbool r = is_def_eq_offset(t_n, s_n);
@@ -1072,7 +1072,8 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
 
     // Very basic support for proofs by reflection. If `t` has no free variables and `s` is `Bool.true`,
     // we fully reduce `t` and check whether result is `s`.
-    // TODO: add metadata to control whether this optimization is used or not.
+    // This code path is taken in particular when using the `decide` tactic, which produces
+    // proof terms of the form `Eq.refl true : decide p = true`.
     if (!has_fvar(t) && is_constant(s, *g_bool_true)) {
         if (is_constant(whnf(t), *g_bool_true)) {
             return true;
@@ -1097,6 +1098,7 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     r = is_def_eq_proof_irrel(t_n, s_n);
     if (r != l_undef) return r == l_true;
 
+    /* NB: `lazy_delta_reduction` updates `t_n` and `s_n` even when returning `l_undef`. */
     r = lazy_delta_reduction(t_n, s_n);
     if (r != l_undef) return r == l_true;
 
@@ -1188,18 +1190,6 @@ type_checker::type_checker(type_checker && src):
 type_checker::~type_checker() {
     if (m_st_owner)
         delete m_st;
-}
-
-extern "C" LEAN_EXPORT lean_object * lean_kernel_is_def_eq(lean_object * env, lean_object * lctx, lean_object * a, lean_object * b) {
-    return catch_kernel_exceptions<object*>([&]() {
-        return lean_box(type_checker(environment(env), local_ctx(lctx)).is_def_eq(expr(a), expr(b)));
-    });
-}
-
-extern "C" LEAN_EXPORT lean_object * lean_kernel_whnf(lean_object * env, lean_object * lctx, lean_object * a) {
-    return catch_kernel_exceptions<object*>([&]() {
-        return type_checker(environment(env), local_ctx(lctx)).whnf(expr(a)).steal();
-    });
 }
 
 inline static expr * new_persistent_expr_const(name const & n) {

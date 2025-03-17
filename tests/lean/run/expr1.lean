@@ -74,7 +74,6 @@ do let f   := mkConst `f [];
    unless (!t2.hasLooseBVar 1) do throw $ IO.userError "failed-6";
    pure ()
 
-/-- info: -/
 #guard_msgs in
 #eval tst4
 

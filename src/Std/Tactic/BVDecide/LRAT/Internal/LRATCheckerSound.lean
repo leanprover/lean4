@@ -33,7 +33,7 @@ theorem addEmptyCaseSound [DecidableEq α] [Clause α β] [Entails α σ] [Formu
     rw [Formula.insert_iff]
     exact Or.inl rfl
   specialize pf empty empty_in_f'
-  simp only [(· ⊨ ·), Clause.eval, List.any_eq_true, decide_eq_true_eq, Prod.exists, Bool.exists_bool,
+  simp [(· ⊨ ·), Clause.eval, List.any_eq_true, decide_eq_true_eq, Prod.exists, Bool.exists_bool,
     empty_eq, List.any_nil] at pf
 
 theorem addRupCaseSound [DecidableEq α] [Clause α β] [Entails α σ] [Formula α β σ] (f : σ)
@@ -104,7 +104,7 @@ theorem lratCheckerSound [DecidableEq α] [Clause α β] [Entails α σ] [Formul
     lratChecker f prf = success → Unsatisfiable α f := by
   induction prf generalizing f
   · unfold lratChecker
-    simp only [false_implies]
+    simp [false_implies]
   · next action restPrf ih =>
     simp only [List.find?, List.mem_cons, forall_eq_or_imp] at prfWellFormed
     rcases prfWellFormed with ⟨actionWellFormed, restPrfWellFormed⟩
@@ -112,11 +112,10 @@ theorem lratCheckerSound [DecidableEq α] [Clause α β] [Entails α σ] [Formul
     split
     · intro h
       exfalso
-      simp only at h
+      simp at h
     · next id rupHints restPrf' _ =>
-      simp only [ite_eq_left_iff, Bool.not_eq_true]
+      simp [ite_eq_left_iff, Bool.not_eq_true]
       intro rupAddSuccess
-      rw [← Bool.not_eq_true, imp_false, Classical.not_not] at rupAddSuccess
       exact addEmptyCaseSound f f_readyForRupAdd rupHints rupAddSuccess
     · next id c rupHints restPrf' hprf =>
       split
@@ -128,7 +127,7 @@ theorem lratCheckerSound [DecidableEq α] [Clause α β] [Entails α σ] [Formul
         rw [← hprf.2] at f'_success
         rw [hCheckSuccess] at heq
         exact addRupCaseSound f f_readyForRupAdd f_readyForRatAdd c f' rupHints heq restPrf restPrfWellFormed ih f'_success
-      · simp only [false_implies]
+      · simp [false_implies]
     · next id c pivot rupHints ratHints restPrf' hprf =>
       split
       next f' checkSuccess heq =>
@@ -141,7 +140,7 @@ theorem lratCheckerSound [DecidableEq α] [Clause α β] [Entails α σ] [Formul
         simp only [WellFormedAction, hprf.1] at actionWellFormed
         exact addRatCaseSound f f_readyForRupAdd f_readyForRatAdd c pivot f' rupHints ratHints actionWellFormed heq restPrf
           restPrfWellFormed ih f'_success
-      · simp only [false_implies]
+      · simp [false_implies]
     · next ids restPrf' hprf =>
       intro h
       simp only [List.cons.injEq] at hprf

@@ -29,8 +29,8 @@ def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Term :
     let mut fields ← `(Format.nil)
     if xs.size != numParams + fieldNames.size then
       throwError "'deriving Repr' failed, unexpected number of fields in structure"
-    for i in [:fieldNames.size] do
-      let fieldName := fieldNames[i]!
+    for h : i in [:fieldNames.size] do
+      let fieldName := fieldNames[i]
       let fieldNameLit := Syntax.mkStrLit (toString fieldName)
       let x := xs[numParams + i]!
       if i != 0 then
@@ -59,15 +59,17 @@ where
         let mut ctorArgs := #[]
         let mut rhs : Term := Syntax.mkStrLit (toString ctorInfo.name)
         rhs ← `(Format.text $rhs)
-        -- add `_` for inductive parameters, they are inaccessible
-        for _ in [:indVal.numParams] do
-          ctorArgs := ctorArgs.push (← `(_))
-        for i in [:ctorInfo.numFields] do
-          let x := xs[indVal.numParams + i]!
-          let a := mkIdent (← mkFreshUserName `a)
-          ctorArgs := ctorArgs.push a
-          let localDecl ← x.fvarId!.getDecl
-          if localDecl.binderInfo.isExplicit then
+        for h : i in [:xs.size] do
+          -- Note: some inductive parameters are explicit if they were promoted from indices,
+          -- so we process all constructor arguments in the same loop.
+          let x := xs[i]
+          let a ← mkIdent <$> if i < indVal.numParams then pure header.argNames[i]! else mkFreshUserName `a
+          if i < indVal.numParams then
+            -- add `_` for inductive parameters, they are inaccessible
+            ctorArgs := ctorArgs.push (← `(_))
+          else
+            ctorArgs := ctorArgs.push a
+          if (← x.fvarId!.getBinderInfo).isExplicit then
             if (← inferType x).isAppOf indVal.name then
               rhs ← `($rhs ++ Format.line ++ $(mkIdent auxFunName):ident $a:ident max_prec)
             else if (← isType x <||> isProof x) then

@@ -9,7 +9,8 @@ import Lean.PrettyPrinter.Parenthesizer
 import Lean.PrettyPrinter.Formatter
 import Lean.Parser.Module
 import Lean.ParserCompiler
-
+import Lean.Util.NumObjs
+import Lean.Util.ShareCommon
 namespace Lean
 
 def PPContext.runCoreM {α : Type} (ppCtx : PPContext) (x : CoreM α) : IO α :=
@@ -36,8 +37,21 @@ def ppUsing (e : Expr) (delab : Expr → MetaM Term) : MetaM Format := do
   Meta.withLCtx lctx #[] do
     ppTerm (← delab e)
 
+register_builtin_option pp.exprSizes : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) prefix each embedded expression with its sizes in the format \
+    (size disregarding sharing/size with sharing/size with max sharing)"
+}
+
+private def maybePrependExprSizes (e : Expr) (f : Format) : MetaM Format := do
+  if pp.exprSizes.get (← getOptions) then
+    return f!"[size {e.sizeWithoutSharing}/{← e.numObjs}/{← (ShareCommon.shareCommon' e).numObjs}] {f}"
+  else
+    return f
+
 def ppExpr (e : Expr) : MetaM Format := do
-  ppUsing e delab
+  ppUsing e delab >>= maybePrependExprSizes e
 
 /-- Return a `fmt` representing pretty-printed `e` together with a map from tags in `fmt`
 to `Elab.Info` nodes produced by the delaborator at various subexpressions of `e`. -/
@@ -46,8 +60,19 @@ def ppExprWithInfos (e : Expr) (optsPerPos : Delaborator.OptionsPerPos := {}) (d
   let lctx := (← getLCtx).sanitizeNames.run' { options := (← getOptions) }
   Meta.withLCtx lctx #[] do
     let (stx, infos) ← delabCore e optsPerPos delab
-    let fmt ← ppTerm stx
+    let fmt ← ppTerm stx >>= maybePrependExprSizes e
     return ⟨fmt, infos⟩
+
+open Delaborator in
+def ppConstNameWithInfos (constName : Name) : MetaM FormatWithInfos := do
+  if let some info := (← getEnv).find? constName then
+    let delab := withOptionAtCurrPos `pp.tagAppFns true <| delabConst
+    PrettyPrinter.ppExprWithInfos (delab := delab) (.const constName <| info.levelParams.map mkLevelParam)
+  else
+    -- Still, let's sanitize the name.
+    let stx := mkIdent constName
+    let stx := (sanitizeSyntax stx).run' { options := (← getOptions) }
+    formatCategory `term stx
 
 @[export lean_pp_expr]
 def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=
@@ -66,9 +91,12 @@ open Delaborator in
 /-- Pretty-prints a declaration `c` as `c.{<levels>} <params> : <type>`. -/
 def ppSignature (c : Name) : MetaM FormatWithInfos := do
   let decl ← getConstInfo c
-  let e := .const c (decl.levelParams.map mkLevelParam)
-  let (stx, infos) ← delabCore e (delab := delabConstWithSignature)
-  return ⟨← ppTerm ⟨stx⟩, infos⟩  -- HACK: not a term
+  let e := Expr.const c (decl.levelParams.map mkLevelParam)
+  if pp.raw.get (← getOptions) then
+    return s!"{e} : {decl.type}"
+  else
+    let (stx, infos) ← delabCore e (delab := delabConstWithSignature)
+    return ⟨← ppTerm ⟨stx⟩, infos⟩  -- HACK: not a term
 
 private partial def noContext : MessageData → MessageData
   | MessageData.withContext _   msg => noContext msg
@@ -89,9 +117,10 @@ private def withoutContext {m} [MonadExcept Exception m] (x : m α) : m α :=
 
 builtin_initialize
   ppFnsRef.set {
-    ppExprWithInfos := fun ctx e => ctx.runMetaM <| withoutContext <| ppExprWithInfos e,
-    ppTerm := fun ctx stx => ctx.runCoreM <| withoutContext <| ppTerm stx,
-    ppLevel := fun ctx l => return l.format (mvars := getPPMVars ctx.opts),
+    ppExprWithInfos := fun ctx e => ctx.runMetaM <| withoutContext <| ppExprWithInfos e
+    ppConstNameWithInfos := fun ctx n => ctx.runMetaM <| withoutContext <| ppConstNameWithInfos n
+    ppTerm := fun ctx stx => ctx.runCoreM <| withoutContext <| ppTerm stx
+    ppLevel := fun ctx l => return l.format (mvars := getPPMVarsLevels ctx.opts)
     ppGoal := fun ctx mvarId => ctx.runMetaM <| withoutContext <| Meta.ppGoal mvarId
   }
 
@@ -113,8 +142,10 @@ open Lean PrettyPrinter Delaborator
 Turns a `MetaM FormatWithInfos` into a `MessageData.lazy` which will run the monadic value.
 -/
 def ofFormatWithInfosM (fmt : MetaM FormatWithInfos) : MessageData :=
-  .lazy fun ctx => ctx.runMetaM <|
-    .ofFormatWithInfos <$> fmt
+  .lazy fun ctx => do
+    match (← ctx.runMetaM fmt |>.toBaseIO) with
+    | .ok fmt => return .ofFormatWithInfos fmt
+    | .error ex => return m!"[Error pretty printing: {ex}]"
 
 /--
 Turns a `MetaM MessageData` into a `MessageData.lazy` which will run the monadic value.
@@ -123,7 +154,11 @@ comprise the expressions that are included in the message data.
 -/
 def ofLazyM (f : MetaM MessageData) (es : Array Expr := #[]) : MessageData :=
   .lazy
-    (f := fun ppctxt => ppctxt.runMetaM f)
+    (f := fun ppctxt => do
+      match (← ppctxt.runMetaM f |>.toBaseIO) with
+      | .ok fmt => return fmt
+      | .error ex => return m!"[Error pretty printing: {ex}]"
+      )
     (hasSyntheticSorry := fun mvarctxt => es.any (fun a =>
         instantiateMVarsCore mvarctxt a |>.1.hasSyntheticSorry
     ))
@@ -139,24 +174,16 @@ def ofConst (e : Expr) : MessageData :=
     let delab : Delab := withOptionAtCurrPos `pp.tagAppFns true delabConst
     .ofFormatWithInfosM (PrettyPrinter.ppExprWithInfos (delab := delab) e)
   else
+    have : Inhabited MessageData :=
+      ⟨m!"[Error pretty printing: expression not a constant]{Format.line}{e}"⟩
     panic! "not a constant"
-
-/--
-Pretty print a constant given its name, similar to `Lean.MessageData.ofConst`.
-Uses the constant's universe level parameters when pretty printing.
-If there is no such constant in the environment, the name is simply formatted.
--/
-def ofConstName (constName : Name) : MessageData :=
-  .ofFormatWithInfosM do
-    if let some info := (← getEnv).find? constName then
-      let delab : Delab := withOptionAtCurrPos `pp.tagAppFns true delabConst
-      PrettyPrinter.ppExprWithInfos (delab := delab) (.const constName <| info.levelParams.map mkLevelParam)
-    else
-      return format constName
 
 /-- Generates `MessageData` for a declaration `c` as `c.{<levels>} <params> : <type>`, with terminfo. -/
 def signature (c : Name) : MessageData :=
-  .ofFormatWithInfosM (PrettyPrinter.ppSignature c)
+  .lazy fun ctx => do
+    match (← ctx.runMetaM (PrettyPrinter.ppSignature c) |>.toBaseIO) with
+    | .ok fmt => return .ofFormatWithInfos fmt
+    | .error ex => return m!"[Error pretty printing signature: {ex}]{Format.line}{c}"
 
 end MessageData
 

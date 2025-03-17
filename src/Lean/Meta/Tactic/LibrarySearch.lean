@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2021-2023 Gabriel Ebner and Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Gabriel Ebner, Joe Hendrix, Scott Morrison
+Authors: Gabriel Ebner, Joe Hendrix, Kim Morrison
 -/
 prelude
 import Init.Data.Nat.MinMax
@@ -58,7 +58,7 @@ inductive DeclMod
   | /-- the original declaration -/ none
   | /-- the forward direction of an `iff` -/ mp
   | /-- the backward direction of an `iff` -/ mpr
-deriving DecidableEq, Inhabited, Ord
+deriving DecidableEq, Inhabited, Ord, Hashable
 
 /--
 LibrarySearch has an extension mechanism for replacing the function used
@@ -102,7 +102,7 @@ def droppedKeys : List (List LazyDiscrTree.Key) := [[.star], [.const `Eq 3, .sta
 /--
 The maximum number of constants an individual task may perform.
 
-The value was picked because it roughly correponded to 50ms of work on the
+The value was picked because it roughly corresponded to 50ms of work on the
 machine this was developed on.  Smaller numbers did not seem to improve
 performance when importing Std and larger numbers (<10k) seemed to degrade
 initialization performance.
@@ -143,7 +143,7 @@ def interleaveWith {α β γ} (f : α → γ) (x : Array α) (g : β → γ) (y 
   let mut res := Array.mkEmpty (x.size + y.size)
   let n := min x.size y.size
   for h : i in [0:n] do
-    have p : i < min x.size y.size := h.2
+    have p : i < min x.size y.size := h.2.1
     have q : i < x.size := Nat.le_trans p (Nat.min_le_left ..)
     have r : i < y.size := Nat.le_trans p (Nat.min_le_right ..)
     res := res.push (f x[i])

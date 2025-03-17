@@ -5,7 +5,7 @@ def Vec (α : Type _) (n : Nat) : Type _
 abbrev TypeVec : Nat → Type _
   := Vec (Type _)
 
-/-- A dependent vector is a heterogenous list of statically known size -/
+/-- A dependent vector is a heterogeneous list of statically known size -/
 def DVec {n : Nat} (αs : TypeVec n) : Type _
   := (i : Fin n) → (αs i)
 
@@ -38,6 +38,17 @@ example (v : Vec Nat 1) : Nat :=
 
 #check @Vec.hd
 
--- works
+-- Does not work: Aliases find that `v` could be the `TypeVec` argument since `TypeVec` is an abbrev for `Vec`.
+/--
+error: application type mismatch
+  @DVec.hd ?_ v
+argument
+  v
+has type
+  Vec Nat 1 : Type
+but is expected to have type
+  TypeVec (?_ + 1) : Type (_ + 1)
+-/
+#guard_msgs in set_option pp.mvars false in
 example (v : Vec Nat 1) : Nat :=
   v.hd

@@ -11,15 +11,15 @@ import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Not
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftLeft
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ShiftRight
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Add
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.ZeroExtend
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Append
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Replicate
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Extract
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateLeft
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateRight
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.SignExtend
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Mul
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Udiv
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
+import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Expr
 
 /-!
 This module contains the verification of the `BitVec` expressions (`BVExpr`) bitblaster from
@@ -58,70 +58,29 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦(go aig expr).val.aig, (go aig expr).val.vec.get idx hidx, assign.toAIGAssignment⟧
           =
-        (expr.eval assign).getLsb idx := by
+        (expr.eval assign).getLsbD idx := by
   intro idx hidx
   induction expr generalizing aig idx with
   | const =>
     simp [go, denote_blastConst]
   | var =>
     simp [go, hidx, denote_blastVar]
-  | zeroExtend v inner ih =>
-    simp only [go, denote_blastZeroExtend, ih, dite_eq_ite, Bool.if_false_right,
-      eval_zeroExtend, BitVec.getLsb_zeroExtend, hidx, decide_True, Bool.true_and,
-      Bool.and_iff_right_iff_imp, decide_eq_true_eq]
-    apply BitVec.lt_of_getLsb
   | append lhs rhs lih rih =>
     rename_i lw rw
     simp only [go, denote_blastAppend, RefVec.get_cast, Ref.cast_eq, eval_append,
-      BitVec.getLsb_append]
+      BitVec.getLsbD_append]
     split
-    · next hsplit =>
-      simp only [hsplit, decide_True, cond_true]
-      rw [rih]
-    · next hsplit =>
-      simp only [hsplit, decide_False, cond_false]
-      rw [go_denote_mem_prefix, lih]
-  | replicate n expr ih => simp [go, ih, hidx]
-  | signExtend v inner ih =>
-    rename_i originalWidth
-    generalize hgo : (go aig (signExtend v inner)).val = res
-    unfold go at hgo
-    dsimp only at hgo
-    have : 0 ≤ originalWidth := by omega
-    cases Nat.eq_or_lt_of_le this with
-    | inl heq =>
-      rw [blastSignExtend_empty_eq_zeroExtend] at hgo
-      · rw [← hgo]
-        simp only [eval_signExtend]
-        rw [BitVec.signExtend_eq_not_zeroExtend_not_of_msb_false]
-        · simp only [denote_blastZeroExtend, ih, dite_eq_ite, Bool.if_false_right,
-            BitVec.getLsb_zeroExtend, hidx, decide_True, Bool.true_and, Bool.and_iff_right_iff_imp,
-            decide_eq_true_eq]
-          apply BitVec.lt_of_getLsb
-        · subst heq
-          rw [BitVec.msb_zero_length]
-      · simp [heq]
-    | inr hlt =>
-      rw [← hgo]
-      rw [denote_blastSignExtend]
-      simp only [eval_signExtend]
-      rw [BitVec.getLsb_signExtend]
-      · simp only [hidx, decide_True, Bool.true_and]
-        split
-        · rw [ih]
-        · rw [BitVec.msb_eq_getLsb_last]
-          rw [ih]
-      · dsimp only; omega
-  | extract hi lo inner ih =>
+    · next hsplit => rw [rih]
+    · next hsplit => rw [go_denote_mem_prefix, lih]
+  | replicate n expr ih => simp [go, ih, hidx, ← BitVec.getLsbD_eq_getElem]
+  | @extract w start len inner ih =>
     simp only [go, denote_blastExtract, Bool.if_false_right, eval_extract,
-      BitVec.getLsb_extract]
-    have : idx ≤ hi - lo := by omega
-    simp only [this, decide_True, Bool.true_and]
+      BitVec.getLsbD_extractLsb', hidx, decide_true, Bool.true_and]
     split
     · next hsplit =>
       rw [ih]
     · apply Eq.symm
-      apply BitVec.getLsb_ge
+      apply BitVec.getLsbD_ge
       omega
   | shiftLeft lhs rhs lih rih =>
     simp only [go, eval_shiftLeft]
@@ -147,25 +106,37 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       · simp [Ref.hgate]
     · intros
       rw [← rih]
+  | arithShiftRight lhs rhs lih rih =>
+    simp only [go, eval_arithShiftRight]
+    apply denote_blastArithShiftRight
+    · intros
+      dsimp only
+      rw [go_denote_mem_prefix]
+      rw [← lih (aig := aig)]
+      · simp
+      · assumption
+      · simp [Ref.hgate]
+    · intros
+      rw [← rih]
   | bin lhs op rhs lih rih =>
     cases op with
     | and =>
       simp only [go, RefVec.denote_zip, denote_mkAndCached, rih, eval_bin, BVBinOp.eval_and,
-        BitVec.getLsb_and]
+        BitVec.getLsbD_and]
       simp only [go_val_eq_bitblast, RefVec.get_cast]
       rw [AIG.LawfulVecOperator.denote_input_vec (f := bitblast)]
       rw [← go_val_eq_bitblast]
       rw [lih]
     | or =>
       simp only [go, RefVec.denote_zip, denote_mkOrCached, rih, eval_bin, BVBinOp.eval_or,
-        BitVec.getLsb_or]
+        BitVec.getLsbD_or]
       simp only [go_val_eq_bitblast, RefVec.get_cast]
       rw [AIG.LawfulVecOperator.denote_input_vec (f := bitblast)]
       rw [← go_val_eq_bitblast]
       rw [lih]
     | xor =>
       simp only [go, RefVec.denote_zip, denote_mkXorCached, rih, eval_bin, BVBinOp.eval_xor,
-        BitVec.getLsb_xor]
+        BitVec.getLsbD_xor]
       simp only [go_val_eq_bitblast, RefVec.get_cast]
       rw [AIG.LawfulVecOperator.denote_input_vec (f := bitblast)]
       rw [← go_val_eq_bitblast]
@@ -194,23 +165,39 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
         · simp [Ref.hgate]
       · intros
         rw [← rih]
+    | udiv =>
+      simp only [go, eval_bin, BVBinOp.eval_udiv]
+      apply denote_blastUdiv
+      · intros
+        dsimp only
+        rw [go_denote_mem_prefix]
+        rw [← lih (aig := aig)]
+        · simp
+        · assumption
+        · simp [Ref.hgate]
+      · intros
+        rw [← rih]
+    | umod =>
+      simp only [go, eval_bin, BVBinOp.eval_umod]
+      apply denote_blastUmod
+      · intros
+        dsimp only
+        rw [go_denote_mem_prefix]
+        rw [← lih (aig := aig)]
+        · simp
+        · assumption
+        · simp [Ref.hgate]
+      · intros
+        rw [← rih]
   | un op expr ih =>
     cases op with
     | not => simp [go, ih, hidx]
-    | shiftLeftConst => simp [go, ih, hidx]
-    | shiftRightConst =>
-      simp only [go, denote_blastShiftRightConst, ih, dite_eq_ite, Bool.if_false_right, eval_un,
-        BVUnOp.eval_shiftRightConst, BitVec.getLsb_ushiftRight, Bool.and_iff_right_iff_imp,
-        decide_eq_true_eq]
-      intro h
-      apply BitVec.lt_of_getLsb
-      assumption
-    | rotateLeft => simp [go, ih, hidx]
-    | rotateRight => simp [go, ih, hidx]
+    | rotateLeft => simp [go, ih, hidx, ← BitVec.getLsbD_eq_getElem]
+    | rotateRight => simp [go, ih, hidx, ← BitVec.getLsbD_eq_getElem]
     | arithShiftRightConst n =>
       rename_i w
       have : ¬(w ≤ idx) := by omega
-      simp [go, ih, this, BitVec.getLsb_sshiftRight, BitVec.msb_eq_getLsb_last ]
+      simp [go, ih, this, BitVec.getLsbD_sshiftRight, BitVec.msb_eq_getLsbD_last ]
 
 end bitblast
 
@@ -219,7 +206,7 @@ theorem denote_bitblast (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦(bitblast aig expr).aig, (bitblast aig expr).vec.get idx hidx, assign.toAIGAssignment⟧
           =
-        (expr.eval assign).getLsb idx
+        (expr.eval assign).getLsbD idx
     := by
   intros
   rw [← bitblast.go_val_eq_bitblast]

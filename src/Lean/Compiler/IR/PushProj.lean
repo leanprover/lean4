@@ -13,14 +13,14 @@ namespace Lean.IR
 partial def pushProjs (bs : Array FnBody) (alts : Array Alt) (altsF : Array IndexSet) (ctx : Array FnBody) (ctxF : IndexSet) : Array FnBody × Array Alt :=
   if bs.isEmpty then (ctx.reverse, alts)
   else
-    let b    := bs.back
+    let b    := bs.back!
     let bs   := bs.pop
     let done (_ : Unit) := (bs.push b ++ ctx.reverse, alts)
     let skip (_ : Unit) := pushProjs bs alts altsF (ctx.push b) (b.collectFreeIndices ctxF)
     let push (x : VarId) :=
         if !ctxF.contains x.idx then
           let alts := alts.mapIdx fun i alt => alt.modifyBody fun b' =>
-             if (altsF.get! i).contains x.idx then b.setBody b'
+             if altsF[i]!.contains x.idx then b.setBody b'
              else b'
           let altsF  := altsF.map fun s => if s.contains x.idx then b.collectFreeIndices s else s
           pushProjs bs alts altsF ctx ctxF

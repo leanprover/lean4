@@ -3,6 +3,7 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Load.Lean
 import Lake.Load.Toml
 
@@ -15,6 +16,7 @@ from Lake configuration file (either Lean or TOML).
 open Lean
 
 namespace Lake
+open System (FilePath)
 
 /--
 Return whether a configuration file with the given name
@@ -29,6 +31,25 @@ def configFileExists (cfgFile : FilePath) : BaseIO Bool :=
     leanFile.pathExists <||> tomlFile.pathExists
 
 /--
+Returns the absolute path of the configuration file (if it exists).
+Otherwise, returns an empty string.
+-/
+def realConfigFile (cfgFile : FilePath) : BaseIO FilePath := do
+  if cfgFile.extension.isSome then
+    realPath cfgFile
+  else
+    let realLeanFile ← realPath (cfgFile.addExtension "lean")
+    if realLeanFile.toString.isEmpty then
+      realPath (cfgFile.addExtension "toml")
+    else
+      return realLeanFile
+where
+  @[inline] realPath file := do
+    match (← (IO.FS.realPath file).toBaseIO) with
+    | .ok path => return if (← path.pathExists) then path else ""
+    | _ => return ""
+
+/--
 Loads a Lake package configuration (either Lean or TOML).
 The resulting package does not yet include any dependencies.
 -/
@@ -40,7 +61,7 @@ def loadPackageCore
       error s!"{name}: configuration file not found: {cfg.configFile}"
     match ext with
     | "lean" => (·.map id some) <$> loadLeanConfig cfg
-    | "toml" => ((·,none)) <$> loadTomlConfig cfg.pkgDir cfg.relPkgDir cfg.relConfigFile
+    | "toml" => ((·,none)) <$> loadTomlConfig cfg
     | _ => error s!"{name}: configuration has unsupported file extension: {cfg.configFile}"
   else
     let relLeanFile := cfg.relConfigFile.addExtension "lean"
@@ -55,7 +76,7 @@ def loadPackageCore
       (·.map id some) <$> loadLeanConfig {cfg with relConfigFile := relLeanFile}
     else
       if tomlExists then
-        ((·,none)) <$> loadTomlConfig cfg.pkgDir cfg.relPkgDir relTomlFile
+        ((·,none)) <$> loadTomlConfig {cfg with relConfigFile := relTomlFile}
       else
         error s!"{name}: no configuration file with a supported extension:\n{leanFile}\n{tomlFile}"
 

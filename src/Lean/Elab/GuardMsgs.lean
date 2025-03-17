@@ -26,7 +26,7 @@ namespace Lean.Elab.Tactic.GuardMsgs
 
 /-- Gives a string representation of a message without source position information.
 Ensures the message ends with a '\n'. -/
-private def messageToStringWithoutPos (msg : Message) : IO String := do
+private def messageToStringWithoutPos (msg : Message) : BaseIO String := do
   let mut str ← msg.data.toString
   unless msg.caption == "" do
     str := msg.caption ++ ":\n" ++ str
@@ -140,11 +140,20 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
         |>.trim |> removeTrailingWhitespaceMarker
     let (whitespace, ordering, specFn) ← parseGuardMsgsSpec spec?
     let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
-    elabCommandTopLevel cmd
-    let msgs := (← get).messages
+    -- do not forward snapshot as we don't want messages assigned to it to leak outside
+    withReader ({ · with snap? := none }) do
+      -- The `#guard_msgs` command is special-cased in `elabCommandTopLevel` to ensure linters only run once.
+      elabCommandTopLevel cmd
+    -- collect sync and async messages
+    let msgs := (← get).messages ++
+      (← get).snapshotTasks.foldl (· ++ ·.get.getAll.foldl (· ++ ·.diagnostics.msgLog) {}) {}
+    -- clear async messages as we don't want them to leak outside
+    modify ({ · with snapshotTasks := #[] })
     let mut toCheck : MessageLog := .empty
     let mut toPassthrough : MessageLog := .empty
     for msg in msgs.toList do
+      if msg.isSilent then
+        continue
       match specFn msg with
       | .check       => toCheck := toCheck.add msg
       | .drop        => pure ()
@@ -163,7 +172,7 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
           let diff := Diff.diff (expected.split (· == '\n')).toArray (res.split (· == '\n')).toArray
           Diff.linesToString diff
         else res
-      logErrorAt tk m!"❌ Docstring on `#guard_msgs` does not match generated message:\n\n{feedback}"
+      logErrorAt tk m!"❌️ Docstring on `#guard_msgs` does not match generated message:\n\n{feedback}"
       pushInfoLeaf (.ofCustomInfo { stx := ← getRef, value := Dynamic.mk (GuardMsgFailure.mk res) })
   | _ => throwUnsupportedSyntax
 

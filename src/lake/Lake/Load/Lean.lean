@@ -3,6 +3,7 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Load.Lean.Elab
 import Lake.Load.Lean.Eval
 
@@ -29,6 +30,7 @@ def loadLeanConfig (cfg : LoadConfig)
     relDir := cfg.relPkgDir
     config := pkgConfig
     relConfigFile := cfg.relConfigFile
-    remoteUrl? := cfg.remoteUrl?
+    scope := cfg.scope
+    remoteUrl := cfg.remoteUrl
   }
   return (← pkg.loadFromEnv configEnv cfg.leanOpts, configEnv)

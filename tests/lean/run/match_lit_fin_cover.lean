@@ -1,5 +1,5 @@
 /-
-Test for match-expression when we conver all possible
+Test for match-expression when we cover all possible
 values of a `Fin` or `BitVec` type.
 -/
 

@@ -43,15 +43,6 @@ def expandRHS? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let (true, rhs') := expand false rhs | return none
   return some (← mvarId.replaceTargetDefEq (← mkEq lhs rhs'))
 
-def funext? (mvarId : MVarId) : MetaM (Option MVarId) := do
-  let target ← mvarId.getType'
-  let some (_, _, rhs) := target.eq? | return none
-  unless rhs.isLambda do return none
-  commitWhenSome? do
-    let [mvarId] ← mvarId.apply (← mkConstWithFreshMVarLevels ``funext) | return none
-    let (_, mvarId) ← mvarId.intro1
-    return some mvarId
-
 def simpMatch? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let mvarId' ← Split.simpMatchTarget mvarId
   if mvarId != mvarId' then return some mvarId' else return none
@@ -60,7 +51,8 @@ def simpIf? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let mvarId' ← simpIfTarget mvarId (useDecide := true)
   if mvarId != mvarId' then return some mvarId' else return none
 
-private def findMatchToSplit? (env : Environment) (e : Expr) (declNames : Array Name) (exceptionSet : ExprSet) : Option Expr :=
+private def findMatchToSplit? (deepRecursiveSplit : Bool) (env : Environment) (e : Expr)
+    (declNames : Array Name) (exceptionSet : ExprSet) : Option Expr :=
   e.findExt? fun e => Id.run do
     if e.hasLooseBVars || exceptionSet.contains e then
       return Expr.FindStep.visit
@@ -78,9 +70,11 @@ private def findMatchToSplit? (env : Environment) (e : Expr) (declNames : Array 
       -- For non-recursive functions (`declNames` empty), we split here
       if declNames.isEmpty then
           return Expr.FindStep.found
-      -- For recursive functions we only split when at least one alternatives contains a `declNames`
+      -- For recursive functions, the “new” behavior is to likewise split
+      if deepRecursiveSplit then
+          return Expr.FindStep.found
+      -- Else, the “old” behavior is split only when at least one alternative contains a `declNames`
       -- application with loose bound variables.
-      -- (We plan to disable this by default and treat recursive and non-recursie functions the same)
       for i in [info.getFirstAltPos : info.getFirstAltPos + info.numAlts] do
         let alt := args[i]!
         if Option.isSome <| alt.find? fun e => declNames.any e.isAppOf && e.hasLooseBVars then
@@ -97,7 +91,8 @@ private def findMatchToSplit? (env : Environment) (e : Expr) (declNames : Array 
 partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) : MetaM (Option (List MVarId)) := commitWhenSome? do
   let target ← mvarId.getType'
   let rec go (badCases : ExprSet) : MetaM (Option (List MVarId)) := do
-    if let some e := findMatchToSplit? (← getEnv) target declNames badCases then
+    if let some e := findMatchToSplit? (backward.eqns.deepRecursiveSplit.get (← getOptions)) (← getEnv)
+                                       target declNames badCases then
       try
         Meta.Split.splitMatch mvarId e
       catch _ =>
@@ -106,9 +101,6 @@ partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) : MetaM (Opti
       trace[Meta.Tactic.split] "did not find term to split\n{MessageData.ofGoal mvarId}"
       return none
   go {}
-
-structure Context where
-  declNames : Array Name
 
 private def lhsDependsOn (type : Expr) (fvarId : FVarId) : MetaM Bool :=
   forallTelescope type fun _ type => do
@@ -134,7 +126,7 @@ def simpEqnType (eqnType : Expr) : MetaM Expr := do
     for y in ys.reverse do
       trace[Elab.definition] ">> simpEqnType: {← inferType y}, {type}"
       if proofVars.contains y.fvarId! then
-        let some (_, Expr.fvar fvarId, rhs) ← matchEq? (← inferType y) | throwError "unexpected hypothesis in altenative{indentExpr eqnType}"
+        let some (_, Expr.fvar fvarId, rhs) ← matchEq? (← inferType y) | throwError "unexpected hypothesis in alternative{indentExpr eqnType}"
         eliminated := eliminated.insert fvarId
         type := type.replaceFVarId fvarId rhs
       else if eliminated.contains y.fvarId! then
@@ -234,19 +226,14 @@ private def shouldUseSimpMatch (e : Expr) : MetaM Bool := do
   return (← (find e).run) matches .error _
 
 partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do
-  let (_, eqnTypes) ← go mvarId |>.run { declNames } |>.run #[]
+  let (_, eqnTypes) ← go mvarId |>.run #[]
   return eqnTypes
 where
-  go (mvarId : MVarId) : ReaderT Context (StateRefT (Array Expr) MetaM) Unit := do
+  go (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := do
     trace[Elab.definition.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
 
     if let some mvarId ← expandRHS? mvarId then
       return (← go mvarId)
-
-    --  The following `funext?` was producing an overapplied `lhs`. Possible refinement: only do it
-    --  if we want to apply `splitMatch` on the body of the lambda
-    /- if let some mvarId ← funext? mvarId then
-        return (← go mvarId) -/
 
     if (← shouldUseSimpMatch (← mvarId.getType')) then
       if let some mvarId ← simpMatch? mvarId then
@@ -322,6 +309,127 @@ def tryContradiction (mvarId : MVarId) : MetaM Bool := do
   mvarId.contradictionCore { genDiseq := true }
 
 /--
+Returns the type of the unfold theorem, as the starting point for calculating the equational
+types.
+-/
+private def unfoldThmType (declName : Name) : MetaM Expr := do
+  if let some unfoldThm ← getUnfoldEqnFor? declName (nonRec := false) then
+    let info ← getConstInfo unfoldThm
+    pure info.type
+  else
+    let info ← getConstInfoDefn declName
+    let us := info.levelParams.map mkLevelParam
+    lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
+      let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
+      mkForallFVars xs type
+
+private def unfoldLHS (declName : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+  if let some unfoldThm ← getUnfoldEqnFor? declName (nonRec := false) then
+    -- Recursive definition: Use unfolding lemma
+    let mut mvarId := mvarId
+    let target ← mvarId.getType'
+    let some (_, lhs, rhs) := target.eq? | throwError "unfoldLHS: Unexpected target {target}"
+    unless lhs.isAppOf declName do throwError "unfoldLHS: Unexpected LHS {lhs}"
+    let h := mkAppN (.const unfoldThm lhs.getAppFn.constLevels!) lhs.getAppArgs
+    let some (_, _, lhsNew) := (← inferType h).eq? | unreachable!
+    let targetNew ← mkEq lhsNew rhs
+    let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew
+    mvarId.assign (← mkEqTrans h mvarNew)
+    return mvarNew.mvarId!
+  else
+    -- Else use delta reduction
+    deltaLHS mvarId
+
+private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) : MetaM Expr := do
+  trace[Elab.definition.eqns] "proving: {type}"
+  withNewMCtxDepth do
+    let main ← mkFreshExprSyntheticOpaqueMVar type
+    let (_, mvarId) ← main.mvarId!.intros
+
+    -- Try rfl before deltaLHS to avoid `id` checkpoints in the proof, which would make
+    -- the lemma ineligible for dsimp
+    -- For well-founded recursion this is disabled: The equation may hold
+    -- definitionally as written, but not embedded in larger proofs
+    if tryRefl then
+      if (← withAtLeastTransparency .all (tryURefl mvarId)) then
+        return ← instantiateMVars main
+
+    go (← unfoldLHS declName mvarId)
+    instantiateMVars main
+  where
+  /--
+  The core loop of proving an equation. Assumes that the function call on the left-hand side has
+  already been unfolded, using whatever method applies to the current function definition strategy.
+
+  Currently used for non-recursive functions and partial fixpoints; maybe later well-founded
+  recursion and structural recursion can and should use this too.
+  -/
+  go (mvarId : MVarId) : MetaM Unit := do
+    trace[Elab.definition.eqns] "step\n{MessageData.ofGoal mvarId}"
+    if ← withAtLeastTransparency .all (tryURefl mvarId) then
+      return ()
+    else if (← tryContradiction mvarId) then
+      return ()
+    else if let some mvarId ← simpMatch? mvarId then
+      go mvarId
+    else if let some mvarId ← simpIf? mvarId then
+      go mvarId
+    else if let some mvarId ← whnfReducibleLHS? mvarId then
+      go mvarId
+    else
+      let ctx ← Simp.mkContext (config := { dsimp := false })
+      match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
+      | TacticResultCNM.closed => return ()
+      | TacticResultCNM.modified mvarId => go mvarId
+      | TacticResultCNM.noChange =>
+        if let some mvarIds ← casesOnStuckLHS? mvarId then
+          mvarIds.forM go
+        else if let some mvarIds ← splitTarget? mvarId then
+          mvarIds.forM go
+        else
+          throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+
+
+/--
+Generate equations for `declName`.
+
+This unfolds the function application on the LHS (using an unfold theorem, if present, or else by
+delta-reduction), calculates the types for the equational theorems using `mkEqnTypes`, and then
+proves them using `mkEqnProof`.
+
+This is currently used for non-recursive functions, well-founded recursion and partial_fixpoint,
+but not for structural recursion.
+-/
+def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (Array Name) := do
+  let info ← getConstInfoDefn declName
+  let us := info.levelParams.map mkLevelParam
+  withOptions (tactic.hygienic.set · false) do
+  let target ← unfoldThmType declName
+  let eqnTypes ← withNewMCtxDepth <|
+    forallTelescope (cleanupAnnotations := true) target fun xs target => do
+      let goal ← mkFreshExprSyntheticOpaqueMVar target
+      withReducible do
+        mkEqnTypes declNames goal.mvarId!
+  let mut thmNames := #[]
+  for h : i in [: eqnTypes.size] do
+    let type := eqnTypes[i]
+    trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
+    let name := (Name.str declName eqnThmSuffixBase).appendIndexAfter (i+1)
+    thmNames := thmNames.push name
+    -- determinism: `type` should be independent of the environment changes since `baseName` was
+    -- added
+    realizeConst declName name (doRealize name info type)
+  return thmNames
+where
+  doRealize name info type := withOptions (tactic.hygienic.set · false) do
+    let value ← mkEqnProof declName type tryRefl
+    let (type, value) ← removeUnusedEqnHypotheses type value
+    addDecl <| Declaration.thmDecl {
+      name, type, value
+      levelParams := info.levelParams
+    }
+
+/--
   Auxiliary method for `mkUnfoldEq`. The structure is based on `mkEqnTypes`.
   `mvarId` is the goal to be proved. It is a goal of the form
   ```
@@ -347,9 +455,6 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
   let rec go (mvarId : MVarId) : MetaM Unit := do
     if (← tryEqns mvarId) then
       return ()
-    -- Remark: we removed funext? from `mkEqnTypes`
-    -- else if let some mvarId ← funext? mvarId then
-    --  go mvarId
 
     if (← shouldUseSimpMatch (← mvarId.getType')) then
       if let some mvarId ← simpMatch? mvarId then
@@ -365,9 +470,12 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
   go mvarId
 
 /-- Generate the "unfold" lemma for `declName`. -/
-def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {} {} do
-  withOptions (tactic.hygienic.set · false) do
-    let baseName := declName
+def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := do
+  let name := Name.str declName unfoldThmSuffix
+  realizeConst declName name (doRealize name)
+  return name
+where
+  doRealize name := withOptions (tactic.hygienic.set · false) do
     lambdaTelescope info.value fun xs body => do
       let us := info.levelParams.map mkLevelParam
       let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
@@ -375,12 +483,10 @@ def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {
       mkUnfoldProof declName goal.mvarId!
       let type ← mkForallFVars xs type
       let value ← mkLambdaFVars xs (← instantiateMVars goal)
-      let name := Name.str baseName unfoldThmSuffix
       addDecl <| Declaration.thmDecl {
         name, type, value
         levelParams := info.levelParams
       }
-      return name
 
 def getUnfoldFor? (declName : Name) (getInfo? : Unit → Option EqnInfoCore) : MetaM (Option Name) := do
   if let some info := getInfo? () then

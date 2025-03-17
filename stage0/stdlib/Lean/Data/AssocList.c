@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.AssocList
-// Imports: Init.Control.Id Init.Data.List.Basic
+// Imports: Init.Control.Id Init.Data.List.Impl
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -42,11 +42,13 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_insert(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_mapVal___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_AssocList_any___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_AssocList_insertNew___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_AssocList_insertNew(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_instForInProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_AssocList_toList___spec__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_toAssocList_x27___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_AssocList_toList___spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_AssocList_insert___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_AssocList_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_toList___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_contains___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_toAssocList_x27___rarg___boxed(lean_object*);
@@ -94,7 +96,7 @@ x_3 = lean_box(0);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_AssocList_insert___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_AssocList_insertNew___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -105,11 +107,11 @@ lean_ctor_set(x_4, 2, x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_AssocList_insert(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_AssocList_insertNew(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_AssocList_insert___rarg), 3, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_AssocList_insertNew___rarg), 3, 0);
 return x_3;
 }
 }
@@ -765,6 +767,40 @@ x_3 = lean_alloc_closure((void*)(l_Lean_AssocList_replace___rarg), 4, 0);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_AssocList_insert___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; 
+lean_inc(x_2);
+lean_inc(x_3);
+lean_inc(x_1);
+x_5 = l_Lean_AssocList_contains___rarg(x_1, x_3, x_2);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+lean_dec(x_1);
+x_6 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_6, 0, x_3);
+lean_ctor_set(x_6, 1, x_4);
+lean_ctor_set(x_6, 2, x_2);
+return x_6;
+}
+else
+{
+lean_object* x_7; 
+x_7 = l_Lean_AssocList_replace___rarg(x_1, x_3, x_4, x_2);
+return x_7;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_AssocList_insert(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lean_AssocList_insert___rarg), 4, 0);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_AssocList_erase___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1127,7 +1163,7 @@ return x_2;
 }
 }
 lean_object* initialize_Init_Control_Id(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Impl(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_AssocList(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1136,7 +1172,7 @@ _G_initialized = true;
 res = initialize_Init_Control_Id(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_List_Basic(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Impl(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -41,7 +41,11 @@ for every element of `α`.
 protected def default.sizeOf (α : Sort u) : α → Nat
   | _ => 0
 
-instance (priority := low) (α : Sort u) : SizeOf α where
+/--
+Every type `α` has a low priority default `SizeOf` instance that just returns `0`
+for every element of `α`.
+-/
+instance (priority := low) instSizeOfDefault (α : Sort u) : SizeOf α where
   sizeOf := default.sizeOf α
 
 @[simp] theorem sizeOf_default (n : α) : sizeOf n = 0 := rfl
@@ -67,6 +71,7 @@ deriving instance SizeOf for PLift
 deriving instance SizeOf for ULift
 deriving instance SizeOf for Decidable
 deriving instance SizeOf for Fin
+deriving instance SizeOf for BitVec
 deriving instance SizeOf for UInt8
 deriving instance SizeOf for UInt16
 deriving instance SizeOf for UInt32

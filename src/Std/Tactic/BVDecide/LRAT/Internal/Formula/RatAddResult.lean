@@ -42,7 +42,7 @@ theorem insertRatUnits_postcondition {n : Nat} (f : DefaultFormula n)
     apply Or.inl
     simp only [Fin.getElem_fin, ne_eq, true_and, Bool.not_eq_true, exists_and_right]
     intro j
-    simp only [hf.1, Array.size_toArray, List.length_nil] at j
+    simp only [hf.1, List.size_toArray, List.length_nil] at j
     exact Fin.elim0 j
   exact insertUnitInvariant_insertUnit_fold f.assignments hf.2 f.ratUnits f.assignments hsize false units h0
 
@@ -65,10 +65,10 @@ theorem nodup_insertRatUnits {n : Nat} (f : DefaultFormula n)
     · next i_eq_k =>
       have j_ne_k : j ≠ k := by rw [← i_eq_k]; exact i_ne_j.symm
       specialize h4 j j_ne_k
-      simp (config := { decide := true }) only [hj] at h4
+      simp +decide only [hj] at h4
     · next i_ne_k =>
       specialize h4 i i_ne_k
-      simp (config := { decide := true }) only [hi] at h4
+      simp +decide only [hi] at h4
   · by_cases bi
     · next bi_eq_true =>
       by_cases i = k1
@@ -80,7 +80,7 @@ theorem nodup_insertRatUnits {n : Nat} (f : DefaultFormula n)
           simp at h2
         · next j_ne_k2 =>
           specialize h5 j j_ne_k1 j_ne_k2
-          simp (config := { decide := true }) only [hj] at h5
+          simp +decide only [hj] at h5
       · next i_ne_k1 =>
         by_cases i = k2
         · next i_eq_k2 =>
@@ -100,7 +100,7 @@ theorem nodup_insertRatUnits {n : Nat} (f : DefaultFormula n)
           simp at h1
         · next j_ne_k1 =>
           specialize h5 j j_ne_k1 j_ne_k2
-          simp (config := { decide := true }) only [hj] at h5
+          simp +decide only [hj] at h5
       · next i_ne_k2 =>
         by_cases i = k1
         · next i_eq_k1 =>
@@ -108,7 +108,7 @@ theorem nodup_insertRatUnits {n : Nat} (f : DefaultFormula n)
           simp at h1
         · next i_ne_k1 =>
           specialize h5 i i_ne_k1 i_ne_k2
-          simp (config := { decide := true }) only [hi] at h5
+          simp +decide only [hi] at h5
 
 theorem clear_insertRat_base_case {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ f.assignments.size = n) (units : CNF.Clause (PosFin n)) :
@@ -224,7 +224,7 @@ theorem ratAdd_result {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) (p 
             have insertRupUnits_rw : (insertRupUnits f (negate c)).1 =
               ⟨(insertRupUnits f (negate c)).1.clauses, (insertRupUnits f (negate c)).1.rupUnits,
                (insertRupUnits f (negate c)).1.ratUnits, (insertRupUnits f (negate c)).1.assignments⟩ := rfl
-            simp only [performRatCheck_fold_formula_eq performRupCheck_res h_performRupCheck_res (Literal.negate p) ratHints,
+            simp +zetaDelta only [performRatCheck_fold_formula_eq performRupCheck_res h_performRupCheck_res (Literal.negate p) ratHints,
               clauses_performRupCheck, rupUnits_performRupCheck, ratUnits_performRupCheck,
               restoreAssignments_performRupCheck fc fc_assignments_size, ← insertRupUnits_rw,
               clear_insertRup f f_readyForRatAdd.2 (negate c), fc, performRupCheck_res]

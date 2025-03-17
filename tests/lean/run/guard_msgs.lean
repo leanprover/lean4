@@ -8,7 +8,7 @@ example : α := x
 /--
 error: unknown identifier 'x'
 ---
-error: ❌ Docstring on `#guard_msgs` does not match generated message:
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
 error: unknown identifier 'x'
 -/
@@ -51,6 +51,7 @@ error: failed to synthesize
 numerals are polymorphic in Lean, but the numeral `22` cannot be used in a context where the expected type is
   α
 due to the absence of the instance above
+
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs(error) in
@@ -62,7 +63,7 @@ example : α := 22
 info: foo ⏎
 bar
 ---
-error: ❌ Docstring on `#guard_msgs` does not match generated message:
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
 info: foo ⏎
 bar
@@ -83,7 +84,7 @@ run_meta Lean.logInfo "foo \nbar"
 info: foo ⏎⏎
 bar
 ---
-error: ❌ Docstring on `#guard_msgs` does not match generated message:
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
 info: foo ⏎⏎
 bar
@@ -141,11 +142,13 @@ info: A
 run_meta do Lean.logInfo "B"; Lean.logInfo "A"
 
 /-!
-Linter suppression
+Linter suppression. `#guard_msgs` is special-cased by the command elaborator so that linters aren't
+run on `#guard_msgs` itself, just on its command.
 -/
 
 set_option linter.unusedVariables true
 
+#guard_msgs in
 /--
 warning: unused variable `n`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
@@ -153,6 +156,7 @@ note: this linter can be disabled with `set_option linter.unusedVariables false`
 #guard_msgs in
 example (n : Nat) : True := trivial
 
+#guard_msgs in
 /--
 warning: unused variable `n`
 note: this linter can be disabled with `set_option linter.unusedVariables false`
@@ -170,7 +174,7 @@ info: ABCDEFG
 HIJKLMNOP
 QRSTUVWXYZ
 ---
-error: ❌ Docstring on `#guard_msgs` does not match generated message:
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
 -
 + info: ABCDEFG
@@ -187,7 +191,7 @@ info: ABCDEFG
 HIJKLMNOP
 QRSTUVWXYZ
 ---
-error: ❌ Docstring on `#guard_msgs` does not match generated message:
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
   info: ABCDEFG
 + HIJKLMNOP
@@ -237,7 +241,7 @@ info: Tree.branch
     4
     (Tree.branch (Tree.branch (Tree.leaf 0) 1 (Tree.leaf 0)) 2 (Tree.branch (Tree.leaf 0) 1 (Tree.leaf 0))))
 ---
-error: ❌ Docstring on `#guard_msgs` does not match generated message:
+error: ❌️ Docstring on `#guard_msgs` does not match generated message:
 
   info: Tree.branch
     (Tree.branch

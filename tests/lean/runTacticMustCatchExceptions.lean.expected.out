@@ -1,45 +1,39 @@
-runTacticMustCatchExceptions.lean:2:25-2:28: error: The rfl tactic failed. Possible reasons:
-- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
-- The arguments of the relation are not equal.
-Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or
-`exact HEq.rfl` etc.
+runTacticMustCatchExceptions.lean:2:25-2:28: error: tactic 'rfl' failed, the left-hand side
+  1
+is not definitionally equal to the right-hand side
+  a + b
 a b : Nat
 ⊢ 1 ≤ a + b
-runTacticMustCatchExceptions.lean:3:25-3:28: error: The rfl tactic failed. Possible reasons:
-- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
-- The arguments of the relation are not equal.
-Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or
-`exact HEq.rfl` etc.
+runTacticMustCatchExceptions.lean:3:25-3:28: error: tactic 'rfl' failed, the left-hand side
+  a + b
+is not definitionally equal to the right-hand side
+  b
 a b : Nat
 this : 1 ≤ a + b
 ⊢ a + b ≤ b
-runTacticMustCatchExceptions.lean:4:25-4:28: error: The rfl tactic failed. Possible reasons:
-- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
-- The arguments of the relation are not equal.
-Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or
-`exact HEq.rfl` etc.
+runTacticMustCatchExceptions.lean:4:25-4:28: error: tactic 'rfl' failed, the left-hand side
+  b
+is not definitionally equal to the right-hand side
+  2
 a b : Nat
 this✝ : 1 ≤ a + b
 this : a + b ≤ b
 ⊢ b ≤ 2
-runTacticMustCatchExceptions.lean:9:18-9:21: error: The rfl tactic failed. Possible reasons:
-- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
-- The arguments of the relation are not equal.
-Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or
-`exact HEq.rfl` etc.
+runTacticMustCatchExceptions.lean:9:18-9:21: error: tactic 'rfl' failed, the left-hand side
+  1
+is not definitionally equal to the right-hand side
+  a + b
 a b : Nat
 ⊢ 1 ≤ a + b
-runTacticMustCatchExceptions.lean:10:14-10:17: error: The rfl tactic failed. Possible reasons:
-- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
-- The arguments of the relation are not equal.
-Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or
-`exact HEq.rfl` etc.
+runTacticMustCatchExceptions.lean:10:14-10:17: error: tactic 'rfl' failed, the left-hand side
+  a + b
+is not definitionally equal to the right-hand side
+  b
 a b : Nat
 ⊢ a + b ≤ b
-runTacticMustCatchExceptions.lean:11:14-11:17: error: The rfl tactic failed. Possible reasons:
-- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
-- The arguments of the relation are not equal.
-Try using the reflexivity lemma for your relation explicitly, e.g. `exact Eq.refl _` or
-`exact HEq.rfl` etc.
+runTacticMustCatchExceptions.lean:11:14-11:17: error: tactic 'rfl' failed, the left-hand side
+  b
+is not definitionally equal to the right-hand side
+  2
 a b : Nat
 ⊢ b ≤ 2

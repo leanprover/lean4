@@ -29,7 +29,7 @@ def getRecAppSyntax? (e : Expr) : Option Syntax :=
   | _                => none
 
 /--
-Checks if the `MData` is for a recursive applciation.
+Checks if the `MData` is for a recursive application.
 -/
 def MData.isRecApp (d : MData) : Bool :=
   d.contains recAppKey

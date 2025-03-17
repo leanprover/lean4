@@ -1,3 +1,5 @@
+set_option pp.mvars false
+
 def Additive (α : Type) := α
 
 instance [OfNat α 1] : OfNat (Additive α) (nat_lit 0) := ⟨(1 : α)⟩

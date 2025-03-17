@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.InferType
+import Lean.Meta.Sorry
 
 /-!
 This is not the Kernel type checker, but an auxiliary method for checking
@@ -16,16 +17,8 @@ namespace Lean.Meta
 private def ensureType (e : Expr) : MetaM Unit := do
   discard <| getLevel e
 
-def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
-  let lctx ← getLCtx
-  match lctx.find? fvarId with
-  | some (LocalDecl.ldecl _ _ _ t v _ _) => do
-    let vType ← inferType v
-    throwError "invalid let declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
-  | _ => unreachable!
-
 private def checkConstant (constName : Name) (us : List Level) : MetaM Unit := do
-  let cinfo ← getConstInfo constName
+  let cinfo ← getConstVal constName
   unless us.length == cinfo.levelParams.length do
     throwIncorrectNumberOfLevels constName us
 
@@ -37,8 +30,9 @@ private def getFunctionDomain (f : Expr) : MetaM (Expr × BinderInfo) := do
   | _                    => throwFunctionExpected f
 
 /--
-Given two expressions `a` and `b`, this method tries to annotate terms with `pp.explicit := true` to
-expose "implicit" differences. For example, suppose `a` and `b` are of the form
+Given two expressions `a` and `b`, this method tries to annotate terms with `pp.explicit := true`
+and other `pp` options to expose "implicit" differences.
+For example, suppose `a` and `b` are of the form
 ```lean
 @HashMap Nat Nat eqInst hasInst1
 @HashMap Nat Nat eqInst hasInst2
@@ -67,50 +61,122 @@ has type
 but is expected to have type
   @HashMap Nat Nat eqInst hasInst2
 ```
-Remark: this method implements a simple heuristic, we should extend it as we find other counterintuitive
+
+Remark: this method implements simple heuristics; we should extend it as we find other counterintuitive
 error messages.
 -/
 partial def addPPExplicitToExposeDiff (a b : Expr) : MetaM (Expr × Expr) := do
   if (← getOptions).getBool `pp.all false || (← getOptions).getBool `pp.explicit false then
     return (a, b)
   else
-    visit (← instantiateMVars a) (← instantiateMVars b)
+    -- We want to be able to assign metavariables to work out what why `isDefEq` failed,
+    -- but we don't want these assignments to leak out of the function.
+    -- Note: we shouldn't instantiate mvars in `visit` to prevent leakage.
+    withoutModifyingState do
+      visit (← instantiateMVars a) (← instantiateMVars b)
 where
   visit (a b : Expr) : MetaM (Expr × Expr) := do
     try
-      if !a.isApp || !b.isApp then
-        return (a, b)
-      else if a.getAppNumArgs != b.getAppNumArgs then
-        return (a, b)
-      else if not (← isDefEq a.getAppFn b.getAppFn) then
-        return (a, b)
-      else
-        let fType ← inferType a.getAppFn
-        forallBoundedTelescope fType a.getAppNumArgs fun xs _ => do
+      match a, b with
+      | .mdata _ a', _ =>
+        let (a', b) ← visit a' b
+        return (a.updateMData! a', b)
+      | _, .mdata _ b' =>
+        let (a, b') ← visit a b'
+        return (a, b.updateMData! b')
+      | .app .., .app .. =>
+        if a.getAppNumArgs != b.getAppNumArgs then
+          return (a, b)
+        else if a.getAppFn'.isMVar || b.getAppFn'.isMVar then
+          -- This is a failed higher-order unification. Do not proceed to `isDefEq`.
+          return (a, b)
+        else if !(← isDefEq a.getAppFn b.getAppFn) then
+          let (fa, fb) ← visit a.getAppFn b.getAppFn
+          return (mkAppN fa a.getAppArgs, mkAppN fb b.getAppArgs)
+        else
+          -- The function might be "overapplied", so we can't use `forallBoundedTelescope`.
+          -- That is to say, the arity might depend on the values of the arguments.
+          -- We look for the first explicit argument that is different.
+          -- Otherwise we look for the first implicit argument.
+          -- We try `isDefEq` on all arguments to get discretionary mvar assigments.
           let mut as := a.getAppArgs
           let mut bs := b.getAppArgs
-          if let some (as', bs') ← hasExplicitDiff? xs as bs then
-            return (mkAppN a.getAppFn as', mkAppN b.getAppFn bs')
+          let mut aFnType ← inferType a.getAppFn
+          let mut bFnType ← inferType b.getAppFn
+          let mut firstExplicitDiff? := none
+          let mut firstImplicitDiff? := none
+          for i in [0:as.size] do
+            unless aFnType.isForall do aFnType ← withTransparency .all <| whnf aFnType
+            unless bFnType.isForall do bFnType ← withTransparency .all <| whnf bFnType
+            -- These pattern matches are expected to succeed:
+            let .forallE _ _ abody abi := aFnType | return (a, b)
+            let .forallE _ _ bbody bbi := bFnType | return (a, b)
+            aFnType := abody.instantiate1 as[i]!
+            bFnType := bbody.instantiate1 bs[i]!
+            unless (← isDefEq as[i]! bs[i]!) do
+              if abi.isExplicit && bbi.isExplicit then
+                firstExplicitDiff? := firstExplicitDiff? <|> some i
+              else
+                firstImplicitDiff? := firstImplicitDiff? <|> some i
+          -- Some special cases
+          let fn? : Option Name :=
+            match a.getAppFn, b.getAppFn with
+            | .const ca .., .const cb .. => if ca == cb then ca else none
+            | _, _ => none
+          if fn? == ``OfNat.ofNat && as.size ≥ 3 && firstImplicitDiff? == some 0 then
+            -- Even if there is an explicit diff, it is better to see that the type is different.
+            return (a.setPPNumericTypes true, b.setPPNumericTypes true)
+          if fn? == ``sorryAx then
+            -- If these are `sorry`s with differing source positions, make sure the delaborator shows the positions.
+            if let some { module? := moda? } := isLabeledSorry? a then
+              if let some { module? := modb? } := isLabeledSorry? b then
+                if moda? != modb? then
+                  return (a.setOption `pp.sorrySource true, b.setOption `pp.sorrySource true)
+          -- General case
+          if let some i := firstExplicitDiff? <|> firstImplicitDiff? then
+            let (ai, bi) ← visit as[i]! bs[i]!
+            as := as.set! i ai
+            bs := bs.set! i bi
+          let a := mkAppN a.getAppFn as
+          let b := mkAppN b.getAppFn bs
+          if firstExplicitDiff?.isSome then
+            return (a, b)
           else
-            for i in [:as.size] do
-              unless (← isDefEq as[i]! bs[i]!) do
-                let (ai, bi) ← visit as[i]! bs[i]!
-                as := as.set! i ai
-                bs := bs.set! i bi
-            let a := mkAppN a.getAppFn as
-            let b := mkAppN b.getAppFn bs
-            return (a.setAppPPExplicit, b.setAppPPExplicit)
+            return (a.setPPExplicit true, b.setPPExplicit true)
+      | .forallE na ta ba bia, .forallE nb tb bb bib =>
+        if !(← isDefEq ta tb) then
+          let (ta, tb) ← visit ta tb
+          let a := Expr.forallE na ta ba bia
+          let b := Expr.forallE nb tb bb bib
+          return (a.setPPPiBinderTypes true, b.setPPPiBinderTypes true)
+        else
+          -- Then bodies must not be defeq.
+          withLocalDeclD na ta fun arg => do
+            let (ba', bb') ← visit (ba.instantiate1 arg) (bb.instantiate1 arg)
+            return (Expr.forallE na ta (ba'.abstract #[arg]) bia, Expr.forallE nb tb (bb'.abstract #[arg]) bib)
+      | .lam na ta ba bia, .lam nb tb bb bib =>
+        if !(← isDefEq ta tb) then
+          let (ta, tb) ← visit ta tb
+          let a := Expr.lam na ta ba bia
+          let b := Expr.lam nb tb bb bib
+          return (a.setPPFunBinderTypes true, b.setPPFunBinderTypes true)
+        else
+          -- Then bodies must not be defeq.
+          withLocalDeclD na ta fun arg => do
+            let (ba', bb') ← visit (ba.instantiate1 arg) (bb.instantiate1 arg)
+            return (Expr.lam na ta (ba'.abstract #[arg]) bia, Expr.lam nb tb (bb'.abstract #[arg]) bib)
+      | _, _ => return (a, b)
     catch _ =>
       return (a, b)
 
-  hasExplicitDiff? (xs as bs : Array Expr) : MetaM (Option (Array Expr × Array Expr)) := do
-    for i in [:xs.size] do
-      let localDecl ← xs[i]!.fvarId!.getDecl
-      if localDecl.binderInfo.isExplicit then
-         unless (← isDefEq as[i]! bs[i]!) do
-           let (ai, bi) ← visit as[i]! bs[i]!
-           return some (as.set! i ai, bs.set! i bi)
-    return none
+def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
+  let lctx ← getLCtx
+  match lctx.find? fvarId with
+  | some (LocalDecl.ldecl _ _ _ t v _ _) => do
+    let vType ← inferType v
+    let (vType, t) ← addPPExplicitToExposeDiff vType t
+    throwError "invalid let declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
+  | _ => unreachable!
 
 /--
   Return error message "has type{givenType}\nbut is expected to have type{expectedType}"
@@ -144,6 +210,12 @@ def checkApp (f a : Expr) : MetaM Unit := do
       throwAppTypeMismatch f a
   | _ => throwFunctionExpected (mkApp f a)
 
+def checkProj (structName : Name) (idx : Nat) (e : Expr) : MetaM Unit := do
+  let structType ← whnf (← inferType e)
+  let projType ← inferType (mkProj structName idx e)
+  if (← isProp structType) && !(← isProp projType) then
+    throwError "invalid projection{indentExpr (mkProj structName idx e)}\nfrom type{indentExpr structType}"
+
 private partial def checkAux (e : Expr) : MetaM Unit := do
   check e |>.run
 where
@@ -156,7 +228,7 @@ where
       | .const c lvls    => checkConstant c lvls
       | .app f a         => check f; check a; checkApp f a
       | .mdata _ e       => check e
-      | .proj _ _ e      => check e
+      | .proj s i e      => check e; checkProj s i e
       | _                => return ()
 
   checkLambdaLet (e : Expr) : MonadCacheT ExprStructEq Unit MetaM Unit :=

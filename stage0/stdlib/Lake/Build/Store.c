@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Store
-// Imports: Init Lake.Build.Data Lake.Util.StoreInsts
+// Imports: Lake.Build.Data Lake.Build.Job.Basic Lake.Util.StoreInsts
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildStore_collectPackageFacetArray(lean_object*);
 static lean_object* l_Lake_BuildStore_collectSharedExternLibs___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lake_BuildStore_collectSharedExternLibs___rarg(lean_object*, lean_object*);
@@ -42,6 +41,7 @@ LEAN_EXPORT lean_object* l_Lake_BuildStore_collectModuleFacetMap___rarg(lean_obj
 LEAN_EXPORT lean_object* l_Lake_BuildStore_collectModuleFacetArray(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildStore_collectSharedExternLibs(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildStore_collectModuleFacetMap___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildStore_collectModuleFacetArray___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildStore_collectTargetFacetArray___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at_Lake_BuildStore_collectModuleFacetArray___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -134,8 +134,8 @@ static lean_object* _init_l_Lake_BuildStore_collectModuleFacetArray___rarg___clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }
@@ -556,18 +556,18 @@ x_2 = lean_alloc_closure((void*)(l_Lake_BuildStore_collectSharedExternLibs___rar
 return x_2;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Build_Data(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Build_Job_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_StoreInsts(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Build_Store(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Data(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Build_Data(builtin, lean_io_mk_world());
+res = initialize_Lake_Build_Job_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Util_StoreInsts(builtin, lean_io_mk_world());

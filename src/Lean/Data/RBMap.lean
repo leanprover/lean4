@@ -298,8 +298,13 @@ instance : ForIn m (RBMap α β cmp) (α × β) where
   | ⟨leaf, _⟩ => true
   | _         => false
 
+/-- Returns a `List` of the key/value pairs in order. -/
 @[specialize] def toList : RBMap α β cmp → List (α × β)
   | ⟨t, _⟩ => t.revFold (fun ps k v => (k, v)::ps) []
+
+/-- Returns an `Array` of the key/value pairs in order. -/
+@[specialize] def toArray : RBMap α β cmp → Array (α × β)
+  | ⟨t, _⟩ => t.fold (fun ps k v => ps.push (k, v)) #[]
 
 /-- Returns the kv pair `(a,b)` such that `a ≤ k` for all keys in the RBMap. -/
 @[inline] protected def min : RBMap α β cmp → Option (α × β)
@@ -398,6 +403,24 @@ def intersectBy {γ : Type v₁} {δ : Type v₂} (mergeFn : α → β → γ �
       match t₂.find? a with
       | some b₂ => acc.insert a <| mergeFn a b₁ b₂
       | none => acc
+
+/--
+`filter f m` returns the `RBMap` consisting of all
+"`key`/`val`"-pairs in `m` where `f key val` returns `true`.
+-/
+def filter (f : α → β → Bool) (m : RBMap α β cmp) : RBMap α β cmp :=
+  m.fold (fun r k v => if f k v then r.insert k v else r) {}
+
+/--
+`filterMap f m` filters an `RBMap` and simultaneously modifies the filtered values.
+
+It takes a function `f : α → β → Option γ` and applies `f k v` to the value with key `k`.
+The resulting entries with non-`none` value are collected to form the output `RBMap`.
+-/
+def filterMap (f : α → β → Option γ) (m : RBMap α β cmp) : RBMap α γ cmp :=
+  m.fold (fun r k v => match f k v with
+    | none => r
+    | some b => r.insert k b) {}
 
 end RBMap
 

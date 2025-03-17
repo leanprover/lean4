@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+prelude
 import Std.Sat.AIG.Basic
 import Std.Sat.AIG.Lemmas
 
@@ -21,7 +22,7 @@ variable {α : Type} [Hashable α] [DecidableEq α]
 
 /--
 A version of `AIG.mkAtom` that uses the subterm cache in `AIG`. This version is meant for
-programmming, for proving purposes use `AIG.mkAtom` and equality theorems to this one.
+programming, for proving purposes use `AIG.mkAtom` and equality theorems to this one.
 -/
 def mkAtomCached (aig : AIG α) (n : α) : Entrypoint α :=
   let ⟨decls, cache, inv⟩ := aig
@@ -35,7 +36,7 @@ def mkAtomCached (aig : AIG α) (n : α) : Entrypoint α :=
     let decls := decls.push decl
     have inv := by
       intro i lhs rhs linv rinv h1 h2
-      simp only [Array.get_push] at h2
+      simp only [Array.getElem_push] at h2
       split at h2
       · apply inv <;> assumption
       · contradiction
@@ -43,7 +44,7 @@ def mkAtomCached (aig : AIG α) (n : α) : Entrypoint α :=
 
 /--
 A version of `AIG.mkConst` that uses the subterm cache in `AIG`. This version is meant for
-programmming, for proving purposes use `AIG.mkGate` and equality theorems to this one.
+programming, for proving purposes use `AIG.mkGate` and equality theorems to this one.
 -/
 def mkConstCached (aig : AIG α) (val : Bool) : Entrypoint α :=
   let ⟨decls, cache, inv⟩ := aig
@@ -57,7 +58,7 @@ def mkConstCached (aig : AIG α) (val : Bool) : Entrypoint α :=
     let decls := decls.push decl
     have inv := by
       intro i lhs rhs linv rinv h1 h2
-      simp only [Array.get_push] at h2
+      simp only [Array.getElem_push] at h2
       split at h2
       · apply inv <;> assumption
       · contradiction
@@ -65,7 +66,7 @@ def mkConstCached (aig : AIG α) (val : Bool) : Entrypoint α :=
 
 /--
 A version of `AIG.mkGate` that uses the subterm cache in `AIG`. This version is meant for
-programmming, for proving purposes use `AIG.mkGate` and equality theorems to this one.
+programming, for proving purposes use `AIG.mkGate` and equality theorems to this one.
 
 Beyond caching this function also implements a subset of the optimizations presented in:
 -/
@@ -120,7 +121,7 @@ where
           have inv := by
             intro i lhs rhs linv rinv h1 h2
             simp only [decls] at *
-            simp only [Array.get_push] at h2
+            simp only [Array.getElem_push] at h2
             split at h2
             · apply inv <;> assumption
             · injections; omega

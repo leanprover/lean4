@@ -123,6 +123,15 @@ unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
   } `Lean.PrettyPrinter.Delaborator.delabAttribute
 @[builtin_init mkDelabAttribute] opaque delabAttribute : KeyedDeclsAttribute Delab
 
+/--
+`@[app_delab c]` registers a delaborator for applications with head constant `c`.
+Such delaborators also apply to the constant `c` itself (known as a "nullary application").
+
+This attribute should be applied to definitions of type `Lean.PrettyPrinter.Delaborator.Delab`.
+
+When defining delaborators for constant applications, one should prefer this attribute over `@[delab app.c]`,
+as `@[app_delab c]` first performs name resolution on `c` in the current scope.
+-/
 macro "app_delab" id:ident : attr => do
   match ← Macro.resolveGlobalName id.getId with
   | [] => Macro.throwErrorAt id s!"unknown declaration '{id.getId}'"
@@ -211,6 +220,16 @@ where
     stx := stx
   }
 
+def addDelabTermInfo (pos : Pos) (stx : Syntax) (e : Expr) (isBinder : Bool := false)
+    (location? : Option DeclarationLocation := none) (docString? : Option String := none) (explicit : Bool := true) : DelabM Unit := do
+  let info := Info.ofDelabTermInfo {
+    toTermInfo := ← addTermInfo.mkTermInfo stx e (isBinder := isBinder)
+    location?  := location?
+    docString? := docString?
+    explicit   := explicit
+  }
+  modify fun s => { s with infos := s.infos.insert pos info }
+
 /--
 Annotates the term with the current expression position and registers `TermInfo`
 to associate the term to the current expression.
@@ -221,21 +240,51 @@ def annotateTermInfo (stx : Term) : Delab := do
   pure stx
 
 /--
-Modifies the delaborator so that it annotates the resulting term with the current expression
-position and registers `TermInfo` to associate the term to the current expression.
+Annotates the term with the current expression position and registers `TermInfo`
+to associate the term to the current expression, unless the syntax has a synthetic position
+and associated `Info` already.
+-/
+def annotateTermInfoUnlessAnnotated (stx : Term) : Delab := do
+  if let some (.synthetic ⟨pos⟩ ⟨pos'⟩) := stx.raw.getInfo? then
+    if pos == pos' && (← get).infos.contains pos then
+      return stx
+  annotateTermInfo stx
+
+/--
+Modifies the delaborator so that it annotates the resulting term using `annotateTermInfo`.
 -/
 def withAnnotateTermInfo (d : Delab) : Delab := do
   let stx ← d
   annotateTermInfo stx
 
-def getUnusedName (suggestion : Name) (body : Expr) : DelabM Name := do
-  -- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
-  let suggestion := if suggestion.isAnonymous then `a else suggestion
-  -- We use this small hack to convert identifiers created using `mkAuxFunDiscr` to simple names
-  let suggestion := suggestion.eraseMacroScopes
+/--
+Modifies the delaborator so that it ensures resulting term is annotated using `annotateTermInfoUnlessAnnotated`.
+-/
+def withAnnotateTermInfoUnlessAnnotated (d : Delab) : Delab := do
+  let stx ← d
+  annotateTermInfoUnlessAnnotated stx
+
+/--
+Gets an name based on `suggestion` that is unused in the local context.
+Erases macro scopes.
+If `pp.safeShadowing` is true, then the name is allowed to shadow a name in the local context
+if the name does not appear in `body`.
+
+If `preserveName` is false, then returns the name, possibly with fresh macro scopes added.
+If `suggestion` has macro scopes then the result does as well.
+-/
+def getUnusedName (suggestion : Name) (body : Expr) (preserveName : Bool := false) : DelabM Name := do
+  let (hasScopes, suggestion) :=
+    if suggestion.isAnonymous then
+      -- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
+      (true, `a)
+    else
+      (suggestion.hasMacroScopes, suggestion.eraseMacroScopes)
   let lctx ← getLCtx
-  if !lctx.usesUserName suggestion then
+  if !lctx.usesUserName suggestion || (preserveName && !hasScopes) then
     return suggestion
+  else if preserveName then
+    withFreshMacroScope <| MonadQuotation.addMacroScope suggestion
   else if (← getPPOption getPPSafeShadowing) && !bodyUsesSuggestion lctx suggestion then
     return suggestion
   else
@@ -262,9 +311,12 @@ def mkAnnotatedIdent (n : Name) (e : Expr) : DelabM Ident := do
 Enters the body of the current expression, which must be a lambda or forall.
 The binding variable is passed to `d` as `Syntax`, and it is an identifier that has been annotated with the fvar expression
 for the variable.
+
+If `preserveName` is `false` (the default), gives the binder an unused name.
+Otherwise, it tries to preserve the textual form of the name, preserving whether it is hygienic.
 -/
-def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) : DelabM α := do
-  let n ← getUnusedName (← getExpr).bindingName! (← getExpr).bindingBody!
+def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) (preserveName := false) : DelabM α := do
+  let n ← getUnusedName (← getExpr).bindingName! (← getExpr).bindingBody! (preserveName := preserveName)
   withBindingBody' n (mkAnnotatedIdent n) (d ·)
 
 inductive OmissionReason
@@ -278,13 +330,7 @@ def OmissionReason.toString : OmissionReason → String
   | maxSteps => "Term omitted due to reaching the maximum number of steps allowed for pretty printing this expression (see option `pp.maxSteps`)."
 
 def addOmissionInfo (pos : Pos) (stx : Syntax) (e : Expr) (reason : OmissionReason) : DelabM Unit := do
-  let info := Info.ofOmissionInfo <| ← mkOmissionInfo stx e
-  modify fun s => { s with infos := s.infos.insert pos info }
-where
-  mkOmissionInfo stx e := return {
-    toTermInfo := ← addTermInfo.mkTermInfo stx e (isBinder := false)
-    reason := reason.toString
-  }
+  addDelabTermInfo pos stx e (docString? := reason.toString) (explicit := false)
 
 /--
 Runs the delaborator `act` with increased depth.
@@ -365,7 +411,7 @@ def omission (reason : OmissionReason) : Delab := do
 partial def delabFor : Name → Delab
   | Name.anonymous => failure
   | k              =>
-    (do annotateTermInfo (← (delabAttribute.getValues (← getEnv) k).firstM id))
+    (do annotateTermInfoUnlessAnnotated (← (delabAttribute.getValues (← getEnv) k).firstM id))
     -- have `app.Option.some` fall back to `app` etc.
     <|> if k.isAtomic then failure else delabFor k.getRoot
 
@@ -417,7 +463,7 @@ open SubExpr (Pos PosMap)
 open Delaborator (OptionsPerPos topDownAnalyze DelabM)
 
 def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab : DelabM α) :
-  MetaM (α × PosMap Elab.Info) := do
+    MetaM (α × PosMap Elab.Info) := do
   /- Using `erasePatternAnnotations` here is a bit hackish, but we do it
      `Expr.mdata` affects the delaborator. TODO: should we fix that? -/
   let e ← Meta.erasePatternRefAnnotations e
@@ -437,7 +483,8 @@ def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab : DelabM �
         topDownAnalyze e
       else pure optionsPerPos
     let (stx, {infos := infos, ..}) ← catchInternalId Delaborator.delabFailureId
-        (delab
+        -- Clear the ref to ensure that quotations in delaborators start with blank source info.
+        (MonadRef.withRef .missing delab
           { optionsPerPos := optionsPerPos
             currNamespace := (← getCurrNamespace)
             openDecls := (← getOpenDecls)

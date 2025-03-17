@@ -24,7 +24,7 @@ def elabAuxDef : CommandElab
     let id := `_aux ++ (← getMainModule) ++ `_ ++ id
     let id := String.intercalate "_" <| id.components.map (·.toString (escape := false))
     let ns ← getCurrNamespace
-    -- make sure we only add a single component so that scoped workes
+    -- make sure we only add a single component so that scoped works
     let id ← mkAuxName (ns.mkStr id) 1
     let id := id.replacePrefix ns Name.anonymous -- TODO: replace with def _root_.id
     elabCommand <|

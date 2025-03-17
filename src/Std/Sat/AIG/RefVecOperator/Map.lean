@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+prelude
 import Std.Sat.AIG.RefVec
 import Std.Sat.AIG.LawfulVecOperator
 
@@ -24,7 +25,6 @@ class LawfulMapOperator (α : Type) [Hashable α] [DecidableEq α]
 
 namespace LawfulMapOperator
 
-@[simp]
 theorem denote_prefix_cast_ref {aig : AIG α} {input1 input2 : Ref aig}
     {f : (aig : AIG α) → Ref aig → Entrypoint α} [LawfulOperator α Ref f] [LawfulMapOperator α f]
     {h} :
@@ -187,6 +187,7 @@ theorem go_denote_mem_prefix {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len)
   · intros
     apply go_le_size
 
+attribute [local simp] LawfulMapOperator.denote_prefix_cast_ref in
 theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec aig curr)
     (input : RefVec aig len) (f : (aig : AIG α) → Ref aig → Entrypoint α)
     [LawfulOperator α Ref f] [LawfulMapOperator α f] :

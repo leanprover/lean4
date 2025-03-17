@@ -61,21 +61,41 @@ set so that it can hold the given number of elements without reallocating. It is
 use the empty collection notations `∅` and `{}` to create an empty hash set with the default
 capacity.
 -/
-@[inline] def empty [BEq α] [Hashable α] (capacity := 8) : HashSet α :=
-  ⟨HashMap.empty capacity⟩
+@[inline] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) : HashSet α :=
+  ⟨HashMap.emptyWithCapacity capacity⟩
+
+@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
+abbrev empty := @emptyWithCapacity
 
 instance [BEq α] [Hashable α] : EmptyCollection (HashSet α) where
-  emptyCollection := empty
+  emptyCollection := emptyWithCapacity
 
 instance [BEq α] [Hashable α] : Inhabited (HashSet α) where
   default := ∅
 
 /--
+Two hash sets are equivalent in the sense of `Equiv` iff all their values are equal.
+-/
+structure Equiv (m₁ m₂ : HashSet α) where
+  /-- Internal implementation detail of the hash map -/
+  inner : m₁.1.Equiv m₂.1
+
+@[inherit_doc] scoped infixl:50 " ~m " => Equiv
+
+/--
 Inserts the given element into the set. If the hash set already contains an element that is
 equal (with regard to `==`) to the given element, then the hash set is returned unchanged.
+
+Note: this non-replacement behavior is true for `HashSet` and `HashSet.Raw`.
+The `insert` function on `HashMap`, `DHashMap`, `HashMap.Raw` and `DHashMap.Raw` behaves
+differently: it will overwrite an existing mapping.
 -/
 @[inline] def insert (m : HashSet α) (a : α) : HashSet α :=
   ⟨m.inner.insertIfNew a ()⟩
+
+instance : Singleton α (HashSet α) := ⟨fun a => (∅ : HashSet α).insert a⟩
+
+instance : Insert α (HashSet α) := ⟨fun a s => s.insert a⟩
 
 /--
 Checks whether an element is present in a set and inserts the element if it was not found.
@@ -99,7 +119,7 @@ Observe that this is different behavior than for lists: for lists, `∈` uses `=
   m.inner.contains a
 
 instance [BEq α] [Hashable α] : Membership α (HashSet α) where
-  mem a m := a ∈ m.inner
+  mem m a := a ∈ m.inner
 
 instance [BEq α] [Hashable α] {m : HashSet α} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs (Decidable (a ∈ m.inner))
@@ -113,6 +133,34 @@ instance [BEq α] [Hashable α] {m : HashSet α} {a : α} : Decidable (a ∈ m) 
   m.inner.size
 
 /--
+Checks if given key is contained and returns the key if it is, otherwise `none`.
+The result in the `some` case is guaranteed to be pointer equal to the key in the set.
+-/
+@[inline] def get? (m : HashSet α) (a : α) : Option α :=
+  m.inner.getKey? a
+
+/--
+Retrieves the key from the set that matches `a`. Ensures that such a key exists by requiring a proof
+of `a ∈ m`. The result is guaranteed to be pointer equal to the key in the set.
+-/
+@[inline] def get [BEq α] [Hashable α] (m : HashSet α) (a : α) (h : a ∈ m) : α :=
+  m.inner.getKey a h
+
+/--
+Checks if given key is contained and returns the key if it is, otherwise `fallback`.
+If they key is contained the result is guaranteed to be pointer equal to the key in the set.
+-/
+@[inline] def getD [BEq α] [Hashable α] (m : HashSet α) (a : α) (fallback : α) : α :=
+  m.inner.getKeyD a fallback
+
+/--
+Checks if given key is contained and returns the key if it is, otherwise panics.
+If no panic occurs the result is guaranteed to be pointer equal to the key in the set.
+-/
+@[inline] def get! [BEq α] [Hashable α] [Inhabited α] (m : HashSet α) (a : α) : α :=
+  m.inner.getKey! a
+
+/--
 Returns `true` if the hash set contains no elements.
 
 Note that if your `BEq` instance is not reflexive or your `Hashable` instance is not
@@ -122,13 +170,17 @@ for all `a`.
 @[inline] def isEmpty (m : HashSet α) : Bool :=
   m.inner.isEmpty
 
-section Unverified
+/-- Transforms the hash set into a list of elements in some order. -/
+@[inline] def toList (m : HashSet α) : List α :=
+  m.inner.keys
 
-/-! We currently do not provide lemmas for the functions below. -/
-
-/-- Removes all elements from the hash set for which the given function returns `false`. -/
-@[inline] def filter (f : α → Bool) (m : HashSet α) : HashSet α :=
-  ⟨m.inner.filter fun a _ => f a⟩
+/--
+Creates a hash set from a list of elements. Note that unlike repeatedly calling `insert`, if the
+collection contains multiple elements that are equal (with regard to `==`), then the last element
+in the collection will be present in the returned hash set.
+-/
+@[inline] def ofList [BEq α] [Hashable α] (l : List α) : HashSet α :=
+  ⟨HashMap.unitOfList l⟩
 
 /--
 Monadically computes a value by folding the given function over the elements in the hash set in some
@@ -159,34 +211,61 @@ instance [BEq α] [Hashable α] {m : Type v → Type v} : ForM m (HashSet α) α
 instance [BEq α] [Hashable α] {m : Type v → Type v} : ForIn m (HashSet α) α where
   forIn m init f := m.forIn f init
 
-/-- Transforms the hash set into a list of elements in some order. -/
-@[inline] def toList (m : HashSet α) : List α :=
-  m.inner.keys
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
+/-- Removes all elements from the hash set for which the given function returns `false`. -/
+@[inline] def filter (f : α → Bool) (m : HashSet α) : HashSet α :=
+  ⟨m.inner.filter fun a _ => f a⟩
+
+/-- Partition a hashset into two hashsets based on a predicate. -/
+@[inline] def partition (f : α → Bool) (m : HashSet α) : HashSet α × HashSet α :=
+  let ⟨l, r⟩ := m.inner.partition fun a _ => f a
+  ⟨⟨l⟩, ⟨r⟩⟩
+
+/-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
+@[inline] def all (m : HashSet α) (p : α → Bool) : Bool := Id.run do
+  for a in m do
+    if ¬ p a then return false
+  return true
+
+/-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
+@[inline] def any (m : HashSet α) (p : α → Bool) : Bool := Id.run do
+  for a in m do
+    if p a then return true
+  return false
+
 
 /-- Transforms the hash set into an array of elements in some order. -/
 @[inline] def toArray (m : HashSet α) : Array α :=
   m.inner.keysArray
 
 /--
-Inserts multiple elements into the hash set. Note that unlike repeatedly calling `insert`, if the
-collection contains multiple elements that are equal (with regard to `==`), then the last element
-in the collection will be present in the returned hash set.
+Inserts multiple mappings into the hash set by iterating over the given collection and calling
+`insert`. If the same key appears multiple times, the first occurrence takes precedence.
+
+Note: this precedence behavior is true for `HashSet` and `HashSet.Raw`. The `insertMany` function on
+`HashMap`, `DHashMap`, `HashMap.Raw` and `DHashMap.Raw` behaves differently: it will prefer the last
+appearance.
 -/
 @[inline] def insertMany {ρ : Type v} [ForIn Id ρ α] (m : HashSet α) (l : ρ) :
     HashSet α :=
-  ⟨m.inner.insertManyUnit l⟩
+  ⟨m.inner.insertManyIfNewUnit l⟩
 
 /--
-Creates a hash set from a list of elements. Note that unlike repeatedly calling `insert`, if the
+Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the
 collection contains multiple elements that are equal (with regard to `==`), then the last element
 in the collection will be present in the returned hash set.
 -/
-@[inline] def ofList [BEq α] [Hashable α] (l : List α) : HashSet α :=
-  ⟨HashMap.unitOfList l⟩
+@[inline] def ofArray [BEq α] [Hashable α] (l : Array α) : HashSet α :=
+  ⟨HashMap.unitOfArray l⟩
 
-/-- Computes the union of the given hash sets. -/
+/-- Computes the union of the given hash sets, by traversing `m₂` and inserting its elements into `m₁`. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashSet α) : HashSet α :=
   m₂.fold (init := m₁) fun acc x => acc.insert x
+
+instance [BEq α] [Hashable α] : Union (HashSet α) := ⟨union⟩
 
 /--
 Returns the number of buckets in the internal representation of the hash set. This function may

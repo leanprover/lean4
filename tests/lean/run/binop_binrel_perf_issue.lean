@@ -14,7 +14,7 @@ def setOf {α : Type u} (p : α → Prop) : Set α := p
 
 namespace Set
 
-protected def Mem (a : α) (s : Set α) : Prop := s a
+protected def Mem (s : Set α) (a : α) : Prop := s a
 
 instance : Membership α (Set α) := ⟨Set.Mem⟩
 
@@ -25,12 +25,6 @@ end Mathlib.Init.Set
 section Mathlib.Init.ZeroOne
 
 set_option autoImplicit true
-
-class Zero.{u} (α : Type u) where
-  zero : α
-
-instance (priority := 300) Zero.toOfNat0 {α} [Zero α] : OfNat α (nat_lit 0) where
-  ofNat := ‹Zero α›.1
 
 class One (α : Type u) where
   one : α
@@ -155,7 +149,7 @@ variable {A : Type _} {B : Type _} [i : SetLike A B]
 instance : CoeTC A (Set B) where coe := SetLike.coe
 
 instance (priority := 100) instMembership : Membership B A :=
-  ⟨fun x p => x ∈ (p : Set B)⟩
+  ⟨fun p x => x ∈ (p : Set B)⟩
 
 instance (priority := 100) : CoeSort A (Type _) :=
   ⟨fun p => { x : B // x ∈ p }⟩
@@ -485,13 +479,13 @@ variable [AddZeroClass A] {t : Set A}
 
 structure Submonoid (M : Type _) [MulOneClass M] extends Subsemigroup M where
 
-class SubmonoidClass (S : Type _) (M : Type _) [MulOneClass M] [SetLike S M] extends
-  MulMemClass S M : Prop
+class SubmonoidClass (S : Type _) (M : Type _) [MulOneClass M] [SetLike S M] : Prop extends
+  MulMemClass S M
 
 structure AddSubmonoid (M : Type _) [AddZeroClass M] extends AddSubsemigroup M where
 
-class AddSubmonoidClass (S : Type _) (M : Type _) [AddZeroClass M] [SetLike S M] extends
-  AddMemClass S M : Prop
+class AddSubmonoidClass (S : Type _) (M : Type _) [AddZeroClass M] [SetLike S M] : Prop extends
+  AddMemClass S M
 
 namespace AddSubmonoid
 
@@ -747,6 +741,8 @@ namespace QuotientAddGroup
 
 variable [AddGroup α] (s : AddSubgroup α)
 
+instance : VAdd s.op α := Submonoid.vadd s.op.toAddSubmonoid
+
 def leftRel : Setoid α :=
   VAdd.orbitRel s.op α
 
@@ -810,8 +806,8 @@ universe u v
 
 variable {R : Type u} {M : Type v}
 
-structure Submodule (R : Type u) (M : Type v) [Mul R] [AddCommMonoid M] [SMul R M] extends
-  AddSubmonoid M : Type v
+structure Submodule (R : Type u) (M : Type v) [Mul R] [AddCommMonoid M] [SMul R M] : Type v
+  extends AddSubmonoid M
 
 instance setLike [Mul R] [AddCommMonoid M] [SMul R M] : SetLike (Submodule R M) M where
   coe s := s.carrier

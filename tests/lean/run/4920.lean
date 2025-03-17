@@ -15,16 +15,16 @@ has type
 but is expected to have type
   A : outParam (Type _)
 ---
-error: type mismatch
-  h✝
-has type
+error: type mismatch, term
+  ih
+after simplification has type
   i < as.length : Prop
 but is expected to have type
   ?_ : Type _
 ---
 error: failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
-  - Use `a[i]!` notation instead, runtime check is perfomed, and 'Panic' error message is produced if index is not valid
+  - Use `a[i]!` notation instead, runtime check is performed, and 'Panic' error message is produced if index is not valid
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid
 A : Type _
@@ -34,7 +34,7 @@ xm : List (Vect m A)
 h0 : xm.length = as.length
 ih : i < (List.zipWith cons as xm).length
 jh : j < m
-⊢ ?_ (sorryAx (i < as.length → ?_) true ⋯) j
+⊢ ?_ sorry j
 -/
 #guard_msgs in
 theorem Vect.aux

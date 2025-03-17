@@ -68,7 +68,7 @@ namespace InitParamMap
 def initBorrow (ps : Array Param) : Array Param :=
   ps.map fun p => { p with borrow := p.ty.isObj }
 
-/-- We do perform borrow inference for constants marked as `export`.
+/-- We do not perform borrow inference for constants marked as `export`.
    Reason: we current write wrappers in C++ for using exported functions.
    These wrappers use smart pointers such as `object_ref`.
    When writing a new wrapper we need to know whether an argument is a borrow
@@ -205,8 +205,8 @@ def getParamInfo (k : ParamMap.Key) : M (Array Param) := do
 
 /-- For each ps[i], if ps[i] is owned, then mark xs[i] as owned. -/
 def ownArgsUsingParams (xs : Array Arg) (ps : Array Param) : M Unit :=
-  xs.size.forM fun i => do
-    let x := xs[i]!
+  xs.size.forM fun i _ => do
+    let x := xs[i]
     let p := ps[i]!
     unless p.borrow do ownArg x
 
@@ -216,8 +216,8 @@ def ownArgsUsingParams (xs : Array Arg) (ps : Array Param) : M Unit :=
    we would have to insert a `dec xs[i]` after `f xs` and consequently
    "break" the tail call. -/
 def ownParamsUsingArgs (xs : Array Arg) (ps : Array Param) : M Unit :=
-  xs.size.forM fun i => do
-    let x := xs[i]!
+  xs.size.forM fun i _ => do
+    let x := xs[i]
     let p := ps[i]!
     match x with
     | Arg.var x => if (← isOwned x) then ownVar p.x

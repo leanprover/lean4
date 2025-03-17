@@ -24,7 +24,7 @@ structure ArgsPacker where
   /--
   Variable names to use when unpacking a packed argument.
 
-  Crucialy, the size of this arry also indicates the number of functions to pack, and
+  Crucially, the size of this array also indicates the number of functions to pack, and
   the length of each array the arity.
   -/
   varNamess : Array (Array Name)

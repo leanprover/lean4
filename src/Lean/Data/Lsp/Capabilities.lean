@@ -30,6 +30,7 @@ structure CompletionClientCapabilities where
 structure TextDocumentClientCapabilities where
   completion? : Option CompletionClientCapabilities := none
   codeAction? : Option CodeActionClientCapabilities := none
+  inlayHint?  : Option InlayHintClientCapabilities  := none
   deriving ToJson, FromJson
 
 structure ShowDocumentClientCapabilities where
@@ -54,15 +55,32 @@ structure WorkspaceEditClientCapabilities where
   deriving ToJson, FromJson
 
 structure WorkspaceClientCapabilities where
-  applyEdit: Bool
+  applyEdit? : Option Bool := none
   workspaceEdit? : Option WorkspaceEditClientCapabilities := none
+  deriving ToJson, FromJson
+
+structure LeanClientCapabilities where
+  /--
+  Whether the client supports `DiagnosticWith.isSilent = true`.
+  If `none` or `false`, silent diagnostics will not be served to the client.
+  -/
+  silentDiagnosticSupport? : Option Bool := none
   deriving ToJson, FromJson
 
 structure ClientCapabilities where
   textDocument? : Option TextDocumentClientCapabilities := none
   window?       : Option WindowClientCapabilities       := none
   workspace?    : Option WorkspaceClientCapabilities    := none
+  /-- Capabilties for Lean language server extensions. -/
+  lean?         : Option LeanClientCapabilities         := none
   deriving ToJson, FromJson
+
+def ClientCapabilities.silentDiagnosticSupport (c : ClientCapabilities) : Bool := Id.run do
+  let some lean := c.lean?
+    | return false
+  let some silentDiagnosticSupport := lean.silentDiagnosticSupport?
+    | return false
+  return silentDiagnosticSupport
 
 -- TODO largely unimplemented
 structure ServerCapabilities where
@@ -81,6 +99,7 @@ structure ServerCapabilities where
   foldingRangeProvider      : Bool                           := false
   semanticTokensProvider?   : Option SemanticTokensOptions   := none
   codeActionProvider?       : Option CodeActionOptions       := none
+  inlayHintProvider?        : Option InlayHintOptions        := none
   deriving ToJson, FromJson
 
 end Lsp

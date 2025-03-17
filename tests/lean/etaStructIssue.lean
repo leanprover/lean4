@@ -1,4 +1,4 @@
-inductive E where
+inductive E : Type where
   | mk : E → E
 
 inductive F : E → Prop

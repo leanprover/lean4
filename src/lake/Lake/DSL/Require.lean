@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lean.Parser.Command
 import Lake.Config.Dependency
 import Lake.DSL.Extensions
@@ -139,9 +140,14 @@ The `with` clause specifies a `NameMap String` of Lake options
 used to configure the dependency. This is equivalent to passing `-K`
 options to the dependency on the command line.
 -/
-scoped macro (name := requireDecl)
-doc?:(docComment)? kw:"require " spec:depSpec : command => withRef kw do
-  expandDepSpec spec doc?
+scoped syntax (name := requireDecl)
+(docComment)? "require " depSpec : command
+
+@[macro requireDecl]
+def expandRequireDecl : Macro := fun stx => do
+  let `(requireDecl|$(doc?)? require%$kw $spec) := stx
+    | Macro.throwErrorAt stx "ill-formed require declaration"
+  withRef kw do expandDepSpec spec doc?
 
 @[inherit_doc requireDecl] abbrev RequireDecl := TSyntax ``requireDecl
 

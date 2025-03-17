@@ -63,7 +63,7 @@ def mkSimpCongrTheorem (declName : Name) (prio : Nat) : MetaM SimpCongrTheorem :
       for lhsArg in lhsArgs do
         for mvarId in (lhsArg.collectMVars {}).result do
           foundMVars := foundMVars.insert mvarId
-      let mut i := 0
+      let mut i : Nat := 0
       let mut hypothesesPos := #[]
       for x in xs, bi in bis do
         if bi.isExplicit && !foundMVars.contains x.mvarId! then
@@ -71,7 +71,7 @@ def mkSimpCongrTheorem (declName : Name) (prio : Nat) : MetaM SimpCongrTheorem :
             match xType.eqOrIff? with
             | none => pure none -- skip
             | some (xLhs, xRhs) =>
-              let mut j := 0
+              let mut j : Nat := 0
               for y in ys do
                 let yType ← inferType y
                 unless onlyMVarsAt yType foundMVars do

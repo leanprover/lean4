@@ -96,9 +96,9 @@ where
     unless (← visited i) do
       modify fun (k, visited) => (k, visited.set! i true)
       let pi := ps[i]!
-      for j in [:ps.size] do
+      for h : j in [:ps.size] do
         unless (← visited j) do
-          let pj := ps[j]!
+          let pj := ps[j]
           if pj.used.contains pi.decl.fvarId then
             visit j
       modify fun (k, visited) => (pi.attach k, visited)
@@ -172,8 +172,8 @@ open PullFunDecls
 Pull local function declarations and join points in the given declaration.
 -/
 def Decl.pullFunDecls (decl : Decl) : CompilerM Decl := do
-  let (value, ps) ← pull decl.value |>.run []
-  let value := attach ps.toArray value
+  let (value, ps) ← decl.value.mapCodeM pull |>.run []
+  let value := value.mapCode (attach ps.toArray)
   return { decl with value }
 
 def pullFunDecls : Pass :=

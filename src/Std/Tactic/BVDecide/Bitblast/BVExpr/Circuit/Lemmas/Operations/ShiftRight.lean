@@ -248,7 +248,7 @@ theorem denote_blastArithShiftRightConst (aig : AIG α) (target : ShiftTarget ai
           assign
         ⟧
           =
-        if hidx:(target.distance + idx) < w then
+        if hidx : (target.distance + idx) < w then
           ⟦aig, target.vec.get (target.distance + idx) (by omega), assign⟧
         else
           ⟦aig, target.vec.get (w - 1) (by omega), assign⟧
@@ -262,8 +262,8 @@ namespace blastShiftRight
 
 theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : BitVec w)
     (rhs : BitVec target.n) (assign : α → Bool)
-    (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, target.lhs.get idx hidx, assign⟧ = lhs.getLsb idx)
-    (hright : ∀ (idx : Nat) (hidx : idx < target.n), ⟦aig, target.rhs.get idx hidx, assign⟧ = rhs.getLsb idx) :
+    (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, target.lhs.get idx hidx, assign⟧ = lhs.getLsbD idx)
+    (hright : ∀ (idx : Nat) (hidx : idx < target.n), ⟦aig, target.rhs.get idx hidx, assign⟧ = rhs.getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦
           (twoPowShift aig target).aig,
@@ -271,7 +271,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
           assign
         ⟧
           =
-        (lhs >>> (rhs &&& BitVec.twoPow target.n target.pow)).getLsb idx := by
+        (lhs >>> (rhs &&& BitVec.twoPow target.n target.pow)).getLsbD idx := by
   intro idx hidx
   generalize hg : twoPowShift aig target = res
   rcases target with ⟨n, lvec, rvec, pow⟩
@@ -293,9 +293,9 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       split
       · rw [hleft]
         simp [hmod]
-      · simp only [BitVec.ushiftRight_eq', BitVec.toNat_twoPow, BitVec.getLsb_ushiftRight,
+      · simp only [BitVec.ushiftRight_eq', BitVec.toNat_twoPow, BitVec.getLsbD_ushiftRight,
         Bool.false_eq]
-        apply BitVec.getLsb_ge
+        apply BitVec.getLsbD_ge
         omega
     · next hif1 =>
       simp only [Bool.not_eq_true] at hif1
@@ -308,8 +308,8 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftRightConst)]
       rw [hleft]
       simp
-  · have : rhs.getLsb pow = false := by
-      apply BitVec.getLsb_ge
+  · have : rhs.getLsbD pow = false := by
+      apply BitVec.getLsbD_ge
       dsimp only
       omega
     simp only [this, Bool.false_eq_true, ↓reduceIte]
@@ -320,23 +320,24 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
 theorem go_denote_eq (aig : AIG α) (distance : AIG.RefVec aig n) (curr : Nat)
       (hcurr : curr ≤ n - 1) (acc : AIG.RefVec aig w)
     (lhs : BitVec w) (rhs : BitVec n) (assign : α → Bool)
-    (hacc : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.ushiftRightRec lhs rhs curr).getLsb idx)
-    (hright : ∀ (idx : Nat) (hidx : idx < n), ⟦aig, distance.get idx hidx, assign⟧ = rhs.getLsb idx) :
+    (hacc : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.ushiftRightRec lhs rhs curr).getLsbD idx)
+    (hright : ∀ (idx : Nat) (hidx : idx < n), ⟦aig, distance.get idx hidx, assign⟧ = rhs.getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦
-          (go aig distance curr hcurr acc).aig,
-          (go aig distance curr hcurr acc).vec.get idx hidx,
+          (go aig distance curr acc).aig,
+          (go aig distance curr acc).vec.get idx hidx,
           assign
         ⟧
           =
-        (BitVec.ushiftRightRec lhs rhs (n - 1)).getLsb idx := by
+        (BitVec.ushiftRightRec lhs rhs (n - 1)).getLsbD idx := by
   intro idx hidx
-  generalize hgo : go aig distance curr hcurr acc = res
+  generalize hgo : go aig distance curr acc = res
   unfold go at hgo
   dsimp only at hgo
   split at hgo
   · rw [← hgo]
     rw [go_denote_eq]
+    · omega
     · intro idx hidx
       simp only [BitVec.ushiftRightRec_succ]
       rw [twoPowShift_eq (lhs := BitVec.ushiftRightRec lhs rhs curr)]
@@ -355,8 +356,8 @@ end blastShiftRight
 
 theorem denote_blastShiftRight (aig : AIG α) (target : ArbitraryShiftTarget aig w0)
     (lhs : BitVec w0) (rhs : BitVec target.n) (assign : α → Bool)
-    (hleft : ∀ (idx : Nat) (hidx : idx < w0), ⟦aig, target.target.get idx hidx, assign⟧ = lhs.getLsb idx)
-    (hright : ∀ (idx : Nat) (hidx : idx < target.n), ⟦aig, target.distance.get idx hidx, assign⟧ = rhs.getLsb idx) :
+    (hleft : ∀ (idx : Nat) (hidx : idx < w0), ⟦aig, target.target.get idx hidx, assign⟧ = lhs.getLsbD idx)
+    (hright : ∀ (idx : Nat) (hidx : idx < target.n), ⟦aig, target.distance.get idx hidx, assign⟧ = rhs.getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < w0),
         ⟦
           (blastShiftRight aig target).aig,
@@ -364,7 +365,7 @@ theorem denote_blastShiftRight (aig : AIG α) (target : ArbitraryShiftTarget aig
           assign
         ⟧
           =
-        (lhs >>> rhs).getLsb idx := by
+        (lhs >>> rhs).getLsbD idx := by
   intro idx hidx
   rw [BitVec.shiftRight_eq_ushiftRightRec]
   generalize hres : blastShiftRight aig target = res
@@ -379,6 +380,7 @@ theorem denote_blastShiftRight (aig : AIG α) (target : ArbitraryShiftTarget aig
     simp [hleft, BitVec.and_twoPow]
   · rw [← hres]
     rw [blastShiftRight.go_denote_eq]
+    · omega
     · intro idx hidx
       simp only [BitVec.ushiftRightRec_zero]
       rw [blastShiftRight.twoPowShift_eq]
@@ -386,6 +388,139 @@ theorem denote_blastShiftRight (aig : AIG α) (target : ArbitraryShiftTarget aig
       · simp [hright]
     · intros
       rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastShiftRight.twoPowShift)]
+      · simp [hright]
+      · simp [Ref.hgate]
+
+namespace blastArithShiftRight
+
+theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : BitVec w)
+    (rhs : BitVec target.n) (assign : α → Bool)
+    (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, target.lhs.get idx hidx, assign⟧ = lhs.getLsbD idx)
+    (hright : ∀ (idx : Nat) (hidx : idx < target.n), ⟦aig, target.rhs.get idx hidx, assign⟧ = rhs.getLsbD idx) :
+    ∀ (idx : Nat) (hidx : idx < w),
+        ⟦
+          (twoPowShift aig target).aig,
+          (twoPowShift aig target).vec.get idx hidx,
+          assign
+        ⟧
+          =
+        (BitVec.sshiftRight' lhs (rhs &&& BitVec.twoPow target.n target.pow)).getLsbD idx := by
+  intro idx hidx
+  generalize hg : twoPowShift aig target = res
+  rcases target with ⟨n, lvec, rvec, pow⟩
+  simp only [BitVec.and_twoPow]
+  unfold twoPowShift at hg
+  dsimp only at hg
+  split at hg
+  · split
+    · next hif1 =>
+      rw [← hg]
+      simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
+        denote_blastArithShiftRightConst]
+      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastArithShiftRightConst)]
+      rw [hright]
+      simp only [hif1, ↓reduceIte]
+      have hmod : 2 ^ pow % 2 ^ n = 2 ^ pow := by
+        apply Nat.mod_eq_of_lt
+        apply Nat.pow_lt_pow_of_lt <;> omega
+      split
+      · next hlt =>
+        rw [hleft]
+        simp [hmod, BitVec.getElem_sshiftRight, hlt, hidx]
+      · next hlt =>
+        rw [hleft]
+        simp [BitVec.getElem_sshiftRight, hmod, hlt, hidx, BitVec.msb_eq_getLsbD_last]
+    · next hif1 =>
+      simp only [Bool.not_eq_true] at hif1
+      rw [← hg]
+      simp only [RefVec.denote_ite, RefVec.get_cast, Ref.cast_eq,
+        denote_blastArithShiftRightConst]
+      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastArithShiftRightConst)]
+      rw [hright]
+      simp only [hif1, Bool.false_eq_true, ↓reduceIte]
+      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastArithShiftRightConst)]
+      rw [hleft]
+      simp
+  · have : rhs.getLsbD pow = false := by
+      apply BitVec.getLsbD_ge
+      dsimp only
+      omega
+    simp only [this, Bool.false_eq_true, ↓reduceIte]
+    rw [← hg]
+    rw [hleft]
+    simp
+
+theorem go_denote_eq (aig : AIG α) (distance : AIG.RefVec aig n) (curr : Nat)
+      (hcurr : curr ≤ n - 1) (acc : AIG.RefVec aig w)
+    (lhs : BitVec w) (rhs : BitVec n) (assign : α → Bool)
+    (hacc : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, acc.get idx hidx, assign⟧ = (BitVec.sshiftRightRec lhs rhs curr).getLsbD idx)
+    (hright : ∀ (idx : Nat) (hidx : idx < n), ⟦aig, distance.get idx hidx, assign⟧ = rhs.getLsbD idx) :
+    ∀ (idx : Nat) (hidx : idx < w),
+        ⟦
+          (go aig distance curr acc).aig,
+          (go aig distance curr acc).vec.get idx hidx,
+          assign
+        ⟧
+          =
+        (BitVec.sshiftRightRec lhs rhs (n - 1)).getLsbD idx := by
+  intro idx hidx
+  generalize hgo : go aig distance curr acc = res
+  unfold go at hgo
+  dsimp only at hgo
+  split at hgo
+  · rw [← hgo]
+    rw [go_denote_eq]
+    · omega
+    · intro idx hidx
+      simp only [BitVec.sshiftRightRec_succ_eq]
+      rw [twoPowShift_eq (lhs := BitVec.sshiftRightRec lhs rhs curr)]
+      · simp [hacc]
+      · simp [hright]
+    · intro idx hidx
+      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := twoPowShift)]
+      · simp [hright]
+      · simp [Ref.hgate]
+  · have : curr = n - 1 := by omega
+    rw [← hgo]
+    simp [hacc, this]
+termination_by n - 1 - curr
+
+end blastArithShiftRight
+
+theorem denote_blastArithShiftRight (aig : AIG α) (target : ArbitraryShiftTarget aig w0)
+    (lhs : BitVec w0) (rhs : BitVec target.n) (assign : α → Bool)
+    (hleft : ∀ (idx : Nat) (hidx : idx < w0), ⟦aig, target.target.get idx hidx, assign⟧ = lhs.getLsbD idx)
+    (hright : ∀ (idx : Nat) (hidx : idx < target.n), ⟦aig, target.distance.get idx hidx, assign⟧ = rhs.getLsbD idx) :
+    ∀ (idx : Nat) (hidx : idx < w0),
+        ⟦
+          (blastArithShiftRight aig target).aig,
+          (blastArithShiftRight aig target).vec.get idx hidx,
+          assign
+        ⟧
+          =
+        (BitVec.sshiftRight' lhs rhs).getLsbD idx := by
+  intro idx hidx
+  rw [BitVec.sshiftRight_eq_sshiftRightRec]
+  generalize hres : blastArithShiftRight aig target = res
+  rcases target with ⟨n, target, distance⟩
+  unfold blastArithShiftRight at hres
+  dsimp only at hres
+  split at hres
+  · next hzero =>
+    dsimp only
+    subst hzero
+    rw [← hres]
+    simp [hleft, BitVec.and_twoPow]
+  · rw [← hres]
+    rw [blastArithShiftRight.go_denote_eq]
+    · omega
+    · intro idx hidx
+      simp only [BitVec.sshiftRightRec_zero_eq]
+      rw [blastArithShiftRight.twoPowShift_eq]
+      · simp [hleft]
+      · simp [hright]
+    · intros
+      rw [AIG.LawfulVecOperator.denote_mem_prefix (f := blastArithShiftRight.twoPowShift)]
       · simp [hright]
       · simp [Ref.hgate]
 

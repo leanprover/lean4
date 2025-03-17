@@ -8,10 +8,8 @@ import Init.Data.Nat.Linear
 
 namespace Nat
 
-protected theorem two_pow_pos (w : Nat) : 0 < 2^w := Nat.pos_pow_of_pos _ (by decide)
-
 theorem nextPowerOfTwo_dec {n power : Nat} (h₁ : power > 0) (h₂ : power < n) : n - power * 2 < n - power := by
-  have : power * 2 = power + power := by simp_arith
+  have : power * 2 = power + power := by simp +arith
   rw [this, Nat.sub_add_eq]
   exact Nat.sub_lt (Nat.zero_lt_sub_of_lt h₂) h₁
 
@@ -38,7 +36,7 @@ theorem mul2_isPowerOfTwo_of_isPowerOfTwo (h : isPowerOfTwo n) : isPowerOfTwo (n
 theorem pos_of_isPowerOfTwo (h : isPowerOfTwo n) : n > 0 := by
   have ⟨k, h⟩ := h
   rw [h]
-  apply Nat.pos_pow_of_pos
+  apply Nat.pow_pos
   decide
 
 theorem isPowerOfTwo_nextPowerOfTwo (n : Nat) : n.nextPowerOfTwo.isPowerOfTwo := by

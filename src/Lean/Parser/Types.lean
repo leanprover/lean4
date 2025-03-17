@@ -7,6 +7,7 @@ prelude
 import Lean.Data.Trie
 import Lean.Syntax
 import Lean.Message
+import Lean.DocString.Extension
 
 namespace Lean.Parser
 
@@ -170,13 +171,13 @@ def pop (stack : SyntaxStack) : SyntaxStack :=
 
 def back (stack : SyntaxStack) : Syntax :=
   if stack.size > 0 then
-    stack.raw.back
+    stack.raw.back!
   else
     panic! "SyntaxStack.back: element is inaccessible"
 
 def get! (stack : SyntaxStack) (i : Nat) : Syntax :=
   if i < stack.size then
-    stack.raw.get! (stack.drop + i)
+    stack.raw[stack.drop + i]!
   else
     panic! "SyntaxStack.get!: element is inaccessible"
 
@@ -428,7 +429,7 @@ def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.r
     panic! s!"withCacheFn: unexpected stack growth {s.stxStack.raw}"
   { s with cache.parserCache := s.cache.parserCache.insert key ⟨s.stxStack.back, s.lhsPrec, s.pos, s.errorMsg⟩ }
 
-@[inherit_doc withCacheFn]
+@[inherit_doc withCacheFn, builtin_doc]
 def withCache (parserName : Name) : Parser → Parser := withFn (withCacheFn parserName)
 
 def ParserFn.run (p : ParserFn) (ictx : InputContext) (pmctx : ParserModuleContext) (tokens : TokenTable) (s : ParserState) : ParserState :=

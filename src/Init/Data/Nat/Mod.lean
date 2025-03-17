@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Init.Omega
@@ -15,7 +15,7 @@ in particular
 and its corollary
 `Nat.mod_pow_succ : x % b ^ (k + 1) = x % b ^ k + b ^ k * ((x / b ^ k) % b)`.
 
-It contains the necesssary preliminary results relating order and `*` and `/`,
+It contains the necessary preliminary results relating order and `*` and `/`,
 which should probably be moved to their own file.
 -/
 
@@ -57,11 +57,11 @@ theorem mod_mul_right_div_self (m n k : Nat) : m % (n * k) / n = m / n % k := by
 theorem mod_mul_left_div_self (m n k : Nat) : m % (k * n) / n = m / n % k := by
   rw [Nat.mul_comm k n, mod_mul_right_div_self]
 
-@[simp 1100]
+@[simp]
 theorem mod_mul_right_mod (a b c : Nat) : a % (b * c) % b = a % b :=
   Nat.mod_mod_of_dvd a (Nat.dvd_mul_right b c)
 
-@[simp 1100]
+@[simp]
 theorem mod_mul_left_mod (a b c : Nat) : a % (b * c) % c = a % c :=
   Nat.mod_mod_of_dvd a (Nat.mul_comm _ _ ▸ Nat.dvd_mul_left c b)
 
@@ -72,5 +72,11 @@ theorem mod_mul {a b x : Nat} : x % (a * b) = x % a + a * (x / a % b) := by
 theorem mod_pow_succ {x b k : Nat} :
     x % b ^ (k + 1) = x % b ^ k + b ^ k * ((x / b ^ k) % b) := by
   rw [Nat.pow_succ, Nat.mod_mul]
+
+@[simp] theorem two_pow_mod_two_eq_zero {n : Nat} : 2 ^ n % 2 = 0 ↔ 0 < n := by
+  cases n <;> simp [Nat.pow_succ]
+
+@[simp] theorem two_pow_mod_two_eq_one {n : Nat} : 2 ^ n % 2 = 1 ↔ n = 0 := by
+  cases n <;> simp [Nat.pow_succ]
 
 end Nat

@@ -4,4 +4,4 @@
 (some Lean.Data.HashMap)
 none
 none
-moduleOf.lean:16:0-16:9: error: unknown constant 'foo'
+moduleOf.lean:16:0-16:5: error: unknown constant 'foo'

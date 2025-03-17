@@ -1,1 +1,0 @@
-* #4963 [LibUV](https://libuv.org/) is now required to build Lean. This change only affects developers who compile Lean themselves instead of obtaining toolchains via `elan`. We have updated the official build instructions with information on how to obtain LibUV on our supported platforms.

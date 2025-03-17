@@ -16,10 +16,13 @@ These are in a separate file from most of the lemmas about `List.IsSuffix`
 as they required importing more lemmas about natural numbers, and use `omega`.
 -/
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
-theorem IsSuffix.getElem {x y : List α} (h : x <:+ y) {n} (hn : n < x.length) :
-    x[n] = y[y.length - x.length + n]'(by have := h.length_le; omega) := by
+theorem IsSuffix.getElem {xs ys : List α} (h : xs <:+ ys) {i} (hn : i < xs.length) :
+    xs[i] = ys[ys.length - xs.length + i]'(by have := h.length_le; omega) := by
   rw [getElem_eq_getElem_reverse, h.reverse.getElem, getElem_reverse]
   congr
   have := h.length_le
@@ -92,11 +95,11 @@ theorem suffix_iff_eq_append : l₁ <:+ l₂ ↔ take (length l₂ - length l₁
   ⟨by rintro ⟨r, rfl⟩; simp only [length_append, Nat.add_sub_cancel_right, take_left], fun e =>
     ⟨_, e⟩⟩
 
-theorem prefix_take_iff {x y : List α} {n : Nat} : x <+: y.take n ↔ x <+: y ∧ x.length ≤ n := by
+theorem prefix_take_iff {xs ys : List α} {i : Nat} : xs <+: ys.take i ↔ xs <+: ys ∧ xs.length ≤ i := by
   constructor
   · intro h
     constructor
-    · exact List.IsPrefix.trans h <| List.take_prefix n y
+    · exact List.IsPrefix.trans h <| List.take_prefix i ys
     · replace h := h.length_le
       rw [length_take, Nat.le_min] at h
       exact h.left
@@ -110,23 +113,23 @@ theorem suffix_iff_eq_drop : l₁ <:+ l₂ ↔ l₁ = drop (length l₂ - length
   ⟨fun h => append_cancel_left <| (suffix_iff_eq_append.1 h).trans (take_append_drop _ _).symm,
     fun e => e.symm ▸ drop_suffix _ _⟩
 
-theorem prefix_take_le_iff {L : List α} (hm : m < L.length) :
-    L.take m <+: L.take n ↔ m ≤ n := by
+theorem prefix_take_le_iff {xs : List α} (hm : i < xs.length) :
+    xs.take i <+: xs.take j ↔ i ≤ j := by
   simp only [prefix_iff_eq_take, length_take]
-  induction m generalizing L n with
+  induction i generalizing xs j with
   | zero => simp [Nat.min_eq_left, eq_self_iff_true, Nat.zero_le, take]
-  | succ m IH =>
-    cases L with
+  | succ i IH =>
+    cases xs with
     | nil => simp_all
-    | cons l ls =>
-      cases n with
+    | cons x xs =>
+      cases j with
       | zero =>
         simp
-      | succ n =>
+      | succ j =>
         simp only [length_cons, Nat.succ_eq_add_one, Nat.add_lt_add_iff_right] at hm
-        simp [← @IH n ls hm, Nat.min_eq_left, Nat.le_of_lt hm]
+        simp [← @IH j xs hm, Nat.min_eq_left, Nat.le_of_lt hm]
 
-@[simp] theorem append_left_sublist_self (xs ys : List α) : xs ++ ys <+ ys ↔ xs = [] := by
+@[simp] theorem append_left_sublist_self {xs : List α} (ys : List α) : xs ++ ys <+ ys ↔ xs = [] := by
   constructor
   · intro h
     replace h := h.length_le
@@ -135,7 +138,7 @@ theorem prefix_take_le_iff {L : List α} (hm : m < L.length) :
     simp_all
   · rintro rfl
     simp
-@[simp] theorem append_right_sublist_self (xs ys : List α) : xs ++ ys <+ xs ↔ ys = [] := by
+@[simp] theorem append_right_sublist_self (xs : List α) {ys : List α} : xs ++ ys <+ xs ↔ ys = [] := by
   constructor
   · intro h
     replace h := h.length_le
@@ -145,7 +148,7 @@ theorem prefix_take_le_iff {L : List α} (hm : m < L.length) :
   · rintro rfl
     simp
 
-theorem append_sublist_of_sublist_left (xs ys zs : List α) (h : zs <+ xs) :
+theorem append_sublist_of_sublist_left {xs ys zs : List α} (h : zs <+ xs) :
     xs ++ ys <+ zs ↔ ys = [] ∧ xs = zs := by
   constructor
   · intro h'
@@ -153,12 +156,12 @@ theorem append_sublist_of_sublist_left (xs ys zs : List α) (h : zs <+ xs) :
     have hl' := h'.length_le
     simp only [length_append] at hl'
     have : ys.length = 0 := by omega
-    simp_all only [Nat.add_zero, length_eq_zero, true_and, append_nil]
+    simp_all only [Nat.add_zero, length_eq_zero_iff, true_and, append_nil]
     exact Sublist.eq_of_length_le h' hl
   · rintro ⟨rfl, rfl⟩
     simp
 
-theorem append_sublist_of_sublist_right (xs ys zs : List α) (h : zs <+ ys) :
+theorem append_sublist_of_sublist_right {xs ys zs : List α} (h : zs <+ ys) :
     xs ++ ys <+ zs ↔ xs = [] ∧ ys = zs := by
   constructor
   · intro h'
@@ -166,7 +169,7 @@ theorem append_sublist_of_sublist_right (xs ys zs : List α) (h : zs <+ ys) :
     have hl' := h'.length_le
     simp only [length_append] at hl'
     have : xs.length = 0 := by omega
-    simp_all only [Nat.zero_add, length_eq_zero, true_and, append_nil]
+    simp_all only [Nat.zero_add, length_eq_zero_iff, true_and, append_nil]
     exact Sublist.eq_of_length_le h' hl
   · rintro ⟨rfl, rfl⟩
     simp

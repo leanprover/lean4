@@ -24,6 +24,14 @@ def String.Range.contains (r : String.Range) (pos : String.Pos) (includeStop := 
 def String.Range.includes (super sub : String.Range) : Bool :=
   super.start <= sub.start && super.stop >= sub.stop
 
+def String.Range.overlaps (first second : String.Range)
+    (includeFirstStop := false) (includeSecondStop := false) : Bool :=
+  (if includeFirstStop then second.start <= first.stop else second.start < first.stop) &&
+    (if includeSecondStop then first.start <= second.stop else first.start < second.stop)
+
+def String.Range.bsize (r : String.Range) : Nat :=
+  r.stop.byteIdx - r.start.byteIdx
+
 namespace Lean
 
 def SourceInfo.updateTrailing (trailing : Substring) : SourceInfo → SourceInfo
@@ -32,6 +40,19 @@ def SourceInfo.updateTrailing (trailing : Substring) : SourceInfo → SourceInfo
 
 def SourceInfo.getRange? (canonicalOnly := false) (info : SourceInfo) : Option String.Range :=
   return ⟨(← info.getPos? canonicalOnly), (← info.getTailPos? canonicalOnly)⟩
+
+def SourceInfo.getRangeWithTrailing? (canonicalOnly := false) (info : SourceInfo) : Option String.Range :=
+  return ⟨← info.getPos? canonicalOnly, ← info.getTrailingTailPos? canonicalOnly⟩
+
+/--
+Converts an `original` or `synthetic (canonical := true)` `SourceInfo` to a
+`synthetic (canonical := false)` `SourceInfo`.
+This is sometimes useful when `SourceInfo` is being moved around between `Syntax`es.
+-/
+def SourceInfo.nonCanonicalSynthetic : SourceInfo → SourceInfo
+  | SourceInfo.original _ pos _ endPos => SourceInfo.synthetic pos endPos false
+  | SourceInfo.synthetic pos endPos _  => SourceInfo.synthetic pos endPos false
+  | SourceInfo.none                    => SourceInfo.none
 
 deriving instance BEq for SourceInfo
 
@@ -69,7 +90,7 @@ namespace SyntaxNode
   withArgs n fun args => args.size
 
 @[inline] def getArg (n : SyntaxNode) (i : Nat) : Syntax :=
-  withArgs n fun args => args.get! i
+  withArgs n fun args => args[i]!
 
 @[inline] def getArgs (n : SyntaxNode) : Array Syntax :=
   withArgs n fun args => args
@@ -248,11 +269,11 @@ partial def updateTrailing (trailing : Substring) : Syntax → Syntax
   | Syntax.atom info val               => Syntax.atom (info.updateTrailing trailing) val
   | Syntax.ident info rawVal val pre   => Syntax.ident (info.updateTrailing trailing) rawVal val pre
   | n@(Syntax.node info k args)        =>
-    if args.size == 0 then n
+    if h : args.size = 0 then n
     else
      let i    := args.size - 1
-     let last := updateTrailing trailing args[i]!
-     let args := args.set! i last;
+     let last := updateTrailing trailing args[i]
+     let args := args.set i last;
      Syntax.node info k args
   | s => s
 
@@ -370,6 +391,9 @@ def getRange? (stx : Syntax) (canonicalOnly := false) : Option String.Range :=
   | some start, some stop => some { start, stop }
   | _,          _         => none
 
+def getRangeWithTrailing? (stx : Syntax) (canonicalOnly := false) : Option String.Range :=
+  return ⟨← stx.getPos? canonicalOnly, ← stx.getTrailingTailPos? canonicalOnly⟩
+
 /-- Returns a synthetic Syntax which has the specified `String.Range`. -/
 def ofRange (range : String.Range) (canonical := true) : Lean.Syntax :=
   .atom (.synthetic range.start range.stop canonical) ""
@@ -402,7 +426,7 @@ def down (t : Traverser) (idx : Nat) : Traverser :=
 /-- Advance to the parent of the current node, if any. -/
 def up (t : Traverser) : Traverser :=
   if t.parents.size > 0 then
-    let cur := if t.idxs.back < t.parents.back.getNumArgs then t.parents.back.setArg t.idxs.back t.cur else t.parents.back
+    let cur := if t.idxs.back! < t.parents.back!.getNumArgs then t.parents.back!.setArg t.idxs.back! t.cur else t.parents.back!
     { cur := cur, parents := t.parents.pop, idxs := t.idxs.pop }
   else
     t
@@ -410,14 +434,14 @@ def up (t : Traverser) : Traverser :=
 /-- Advance to the left sibling of the current node, if any. -/
 def left (t : Traverser) : Traverser :=
   if t.parents.size > 0 then
-    t.up.down (t.idxs.back - 1)
+    t.up.down (t.idxs.back! - 1)
   else
     t
 
 /-- Advance to the right sibling of the current node, if any. -/
 def right (t : Traverser) : Traverser :=
   if t.parents.size > 0 then
-    t.up.down (t.idxs.back + 1)
+    t.up.down (t.idxs.back! + 1)
   else
     t
 

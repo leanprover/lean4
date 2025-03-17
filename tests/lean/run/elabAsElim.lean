@@ -34,10 +34,10 @@ def f3' (x : Nat) : (Nat → Nat) → Nat → Nat :=
   x.casesOn
 
 def f4 (xs : List Nat) : xs ≠ [] → xs.length > 0 :=
-  xs.casesOn (by intros; contradiction) (by intros; simp_arith)
+  xs.casesOn (by intros; contradiction) (by intros; simp +arith)
 
 def f5 (xs : List Nat) (h : xs ≠ []) : xs.length > 0 :=
-  xs.casesOn (by intros; contradiction) (by intros; simp_arith) h
+  xs.casesOn (by intros; contradiction) (by intros; simp +arith) h
 
 def f6 (x : Nat) :=
   2 * x.casesOn 0 id
@@ -50,7 +50,7 @@ def f7 (xs : Vec α n) : Nat :=
   xs.casesOn (a := 10) 0
 
 def f8 (xs : List Nat) : xs ≠ [] → xs.length > 0 :=
-  @List.casesOn _ (fun xs => xs ≠ [] → xs.length > 0) xs (by dsimp; intros; contradiction) (by dsimp; intros; simp_arith)
+  @List.casesOn _ (fun xs => xs ≠ [] → xs.length > 0) xs (by dsimp; intros; contradiction) (by dsimp; intros; simp +arith)
 
 def f5' (xs : List Nat) (h : xs ≠ []) : xs.length > 0 :=
   xs.casesOn (fun h => absurd rfl h) (fun _ _ _ => Nat.zero_lt_succ ..) h
@@ -153,7 +153,7 @@ def isEmptyElim [IsEmpty α] {p : α → Sort _} (a : α) : p a :=
 
 def Set (α : Type u) := α → Prop
 def Set.univ {α : Type _} : Set α := fun _ => True
-instance : Membership α (Set α) := ⟨fun x s => s x⟩
+instance : Membership α (Set α) := ⟨fun s x => s x⟩
 def Set.pi {α : ι → Type _} (s : Set ι) (t : (i : ι) → Set (α i)) : Set ((i : ι) → α i) := fun f => ∀ i ∈ s, f i ∈ t i
 
 example {α : Type u} [IsEmpty α] {β : α → Type v} (x : (a : α) → β a) (s : (i : α) → Set (β i)) :
@@ -186,3 +186,22 @@ example (h : False) : Nat := False.rec (fun _ => Nat) h
 example (h : False) : Nat := False.rec _ h
 example (h : False) : Nat := h.rec
 example (h : False) : Nat := h.rec _
+
+/-!
+Check that the overapplied arguments given to the eliminator are not permuted.
+In this example, `h0` and `h1` used to be reversed, leading to a kernel typechecking error.
+-/
+example (n : Nat) (h0 : n ≠ 0) (h1 : n ≠ 1) : n - 2 ≠ n - 1 :=
+  Nat.recOn n (by simp) (by rintro (_ | _) <;> simp) h0 h1
+
+/-!
+Check that eliminators need at least one discriminant
+-/
+
+/--
+error: unexpected eliminator resulting type
+  p
+-/
+#guard_msgs in
+@[elab_as_elim]
+theorem mySillyEliminator {p : Prop} (h : p) : p := h

@@ -1,1 +1,1 @@
-run_meta1.lean:1:0-1:19: error: to use this command, include `import Lean.Elab.Command`
+run_meta1.lean:1:0-1:19: error: to use this command, include `import Lean.Meta.Basic`

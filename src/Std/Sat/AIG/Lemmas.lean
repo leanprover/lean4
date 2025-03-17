@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+prelude
 import Std.Sat.AIG.Basic
 import Std.Sat.AIG.LawfulOperator
 
@@ -69,7 +70,7 @@ theorem denote_projected_entry' {entry : Entrypoint α} :
 -/
 theorem mkGate_le_size (aig : AIG α) (input : GateInput aig) :
     aig.decls.size ≤ (aig.mkGate input).aig.decls.size := by
-  simp_arith [mkGate]
+  simp +arith [mkGate]
 
 /--
 The AIG produced by `AIG.mkGate` agrees with the input AIG on all indices that are valid for both.
@@ -77,7 +78,7 @@ The AIG produced by `AIG.mkGate` agrees with the input AIG on all indices that a
 theorem mkGate_decl_eq idx (aig : AIG α) (input : GateInput aig) {h : idx < aig.decls.size} :
     have := mkGate_le_size aig input
     (aig.mkGate input).aig.decls[idx]'(by omega) = aig.decls[idx] := by
-  simp only [mkGate, Array.get_push]
+  simp only [mkGate, Array.getElem_push]
   split
   · rfl
   · contradiction
@@ -92,23 +93,19 @@ instance : LawfulOperator α GateInput mkGate where
 theorem denote_mkGate {aig : AIG α} {input : GateInput aig} :
     ⟦aig.mkGate input, assign⟧
       =
-    (
-      (xor ⟦aig, input.lhs.ref, assign⟧ input.lhs.inv)
-        &&
-      (xor ⟦aig, input.rhs.ref, assign⟧ input.rhs.inv)
-    ) := by
+    ((⟦aig, input.lhs.ref, assign⟧ ^^ input.lhs.inv) && (⟦aig, input.rhs.ref, assign⟧ ^^ input.rhs.inv)) := by
   conv =>
     lhs
     unfold denote denote.go
   split
   · next heq =>
-    rw [mkGate, Array.get_push_eq] at heq
+    rw [mkGate, Array.getElem_push_eq] at heq
     contradiction
   · next heq =>
-    rw [mkGate, Array.get_push_eq] at heq
+    rw [mkGate, Array.getElem_push_eq] at heq
     contradiction
   · next heq =>
-    rw [mkGate, Array.get_push_eq] at heq
+    rw [mkGate, Array.getElem_push_eq] at heq
     injection heq with heq1 heq2 heq3 heq4
     dsimp only
     congr 2
@@ -128,14 +125,14 @@ theorem denote_mkGate {aig : AIG α} {input : GateInput aig} :
 -/
 theorem mkAtom_le_size (aig : AIG α) (var : α) :
     aig.decls.size ≤ (aig.mkAtom var).aig.decls.size := by
-  simp_arith [mkAtom]
+  simp +arith [mkAtom]
 
 /--
 The AIG produced by `AIG.mkAtom` agrees with the input AIG on all indices that are valid for both.
 -/
 theorem mkAtom_decl_eq (aig : AIG α) (var : α) (idx : Nat) {h : idx < aig.decls.size} {hbound} :
     (aig.mkAtom var).aig.decls[idx]'hbound = aig.decls[idx] := by
-  simp only [mkAtom, Array.get_push]
+  simp only [mkAtom, Array.getElem_push]
   split
   · rfl
   · contradiction
@@ -152,14 +149,14 @@ theorem denote_mkAtom {aig : AIG α} :
   unfold denote denote.go
   split
   · next heq =>
-    rw [mkAtom, Array.get_push_eq] at heq
+    rw [mkAtom, Array.getElem_push_eq] at heq
     contradiction
   · next heq =>
-    rw [mkAtom, Array.get_push_eq] at heq
+    rw [mkAtom, Array.getElem_push_eq] at heq
     injection heq with heq
     rw [heq]
   · next heq =>
-    rw [mkAtom, Array.get_push_eq] at heq
+    rw [mkAtom, Array.getElem_push_eq] at heq
     contradiction
 
 /--
@@ -167,7 +164,7 @@ theorem denote_mkAtom {aig : AIG α} :
 -/
 theorem mkConst_le_size (aig : AIG α) (val : Bool) :
     aig.decls.size ≤ (aig.mkConst val).aig.decls.size := by
-  simp_arith [mkConst]
+  simp +arith [mkConst]
 
 /--
 The AIG produced by `AIG.mkConst` agrees with the input AIG on all indices that are valid for both.
@@ -175,7 +172,7 @@ The AIG produced by `AIG.mkConst` agrees with the input AIG on all indices that 
 theorem mkConst_decl_eq (aig : AIG α) (val : Bool) (idx : Nat) {h : idx < aig.decls.size} :
     have := mkConst_le_size aig val
     (aig.mkConst val).aig.decls[idx]'(by omega) = aig.decls[idx] := by
-  simp only [mkConst, Array.get_push]
+  simp only [mkConst, Array.getElem_push]
   split
   · rfl
   · contradiction
@@ -191,14 +188,14 @@ theorem denote_mkConst {aig : AIG α} : ⟦(aig.mkConst val), assign⟧ = val :=
   unfold denote denote.go
   split
   · next heq =>
-    rw [mkConst, Array.get_push_eq] at heq
+    rw [mkConst, Array.getElem_push_eq] at heq
     injection heq with heq
     rw [heq]
   · next heq =>
-    rw [mkConst, Array.get_push_eq] at heq
+    rw [mkConst, Array.getElem_push_eq] at heq
     contradiction
   · next heq =>
-    rw [mkConst, Array.get_push_eq] at heq
+    rw [mkConst, Array.getElem_push_eq] at heq
     contradiction
 
 /--
@@ -224,9 +221,9 @@ theorem denote_idx_gate {aig : AIG α} {hstart} (h : aig.decls[start] = .gate lh
     ⟦aig, ⟨start, hstart⟩, assign⟧
       =
     (
-      (xor ⟦aig, ⟨lhs, by have := aig.invariant hstart h; omega⟩, assign⟧ linv)
+      (⟦aig, ⟨lhs, by have := aig.invariant hstart h; omega⟩, assign⟧ ^^ linv)
         &&
-      (xor ⟦aig, ⟨rhs, by have := aig.invariant hstart h; omega⟩, assign⟧ rinv)
+      (⟦aig, ⟨rhs, by have := aig.invariant hstart h; omega⟩, assign⟧ ^^ rinv)
     ) := by
   unfold denote
   conv =>
@@ -277,12 +274,23 @@ theorem denote_congr (assign1 assign2 : α → Bool) (aig : AIG α) (idx : Nat)
     simp only [denote_idx_atom heq]
     apply h
     rw [mem_def, ← heq, Array.mem_def]
-    apply Array.getElem_mem_data
+    apply Array.getElem_mem_toList
   · intro lhs rhs linv rinv heq
     simp only [denote_idx_gate heq]
     have := aig.invariant hidx heq
     rw [denote_congr assign1 assign2 aig lhs (by omega) h]
     rw [denote_congr assign1 assign2 aig rhs (by omega) h]
+
+theorem of_isConstant {aig : AIG α} {assign : α → Bool} {ref : Ref aig} {b : Bool} :
+    aig.isConstant ref b → ⟦aig, ref, assign⟧ = b := by
+  rcases ref with ⟨gate, hgate⟩
+  intro h
+  unfold isConstant at h
+  dsimp only at h
+  split at h
+  · rw [denote_idx_const]
+    simp_all
+  · contradiction
 
 end AIG
 

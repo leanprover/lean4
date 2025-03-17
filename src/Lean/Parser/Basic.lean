@@ -145,7 +145,7 @@ def errorAtSavedPosFn (msg : String) (delta : Bool) : ParserFn := fun c s =>
 /-- Generate an error at the position saved with the `withPosition` combinator.
    If `delta == true`, then it reports at saved position+1.
    This useful to make sure a parser consumed at least one character.  -/
-def errorAtSavedPos (msg : String) (delta : Bool) : Parser := {
+@[builtin_doc] def errorAtSavedPos (msg : String) (delta : Bool) : Parser := {
   fn := errorAtSavedPosFn msg delta
 }
 
@@ -271,7 +271,7 @@ def orelseFn (p q : ParserFn) : ParserFn :=
   NOTE: In order for the pretty printer to retrace an `orelse`, `p` must be a call to `node` or some other parser
   producing a single node kind. Nested `orelse` calls are flattened for this, i.e. `(node k1 p1 <|> node k2 p2) <|> ...`
   is fine as well. -/
-def orelse (p q : Parser) : Parser where
+@[builtin_doc] def orelse (p q : Parser) : Parser where
   info := orelseInfo p.info q.info
   fn   := orelseFn p.fn q.fn
 
@@ -295,7 +295,7 @@ This is important for the `p <|> q` combinator, because it is not backtracking, 
 `p` fails after consuming some tokens. To get backtracking behavior, use `atomic(p) <|> q` instead.
 
 This parser has the same arity as `p` - it produces the same result as `p`. -/
-def atomic : Parser → Parser := withFn atomicFn
+@[builtin_doc] def atomic : Parser → Parser := withFn atomicFn
 
 /-- Information about the state of the parse prior to the failing parser's execution -/
 structure RecoveryContext where
@@ -335,7 +335,7 @@ state immediately after the failure.
 
 The interactions between <|> and `recover'` are subtle, especially for syntactic
 categories that admit user extension. Consider avoiding it in these cases. -/
-def recover' (parser : Parser) (handler : RecoveryContext → Parser) : Parser where
+@[builtin_doc] def recover' (parser : Parser) (handler : RecoveryContext → Parser) : Parser where
   info := parser.info
   fn := recoverFn parser.fn fun s => handler s |>.fn
 
@@ -347,7 +347,7 @@ If `handler` fails itself, then no recovery is performed.
 
 The interactions between <|> and `recover` are subtle, especially for syntactic
 categories that admit user extension. Consider avoiding it in these cases. -/
-def recover (parser handler : Parser) : Parser := recover' parser fun _ => handler
+@[builtin_doc] def recover (parser handler : Parser) : Parser := recover' parser fun _ => handler
 
 def optionalFn (p : ParserFn) : ParserFn := fun c s =>
   let iniSz  := s.stackSize
@@ -378,7 +378,7 @@ position to the original state on success. So for example `lookahead("=>")` will
 next token is `"=>"`, without actually consuming this token.
 
 This parser has arity 0 - it does not capture anything. -/
-def lookahead : Parser → Parser := withFn lookaheadFn
+@[builtin_doc] def lookahead : Parser → Parser := withFn lookaheadFn
 
 def notFollowedByFn (p : ParserFn) (msg : String) : ParserFn := fun c s =>
   let iniSz  := s.stackSize
@@ -394,7 +394,7 @@ def notFollowedByFn (p : ParserFn) (msg : String) : ParserFn := fun c s =>
 if `p` succeeds then it fails with the message `"unexpected foo"`.
 
 This parser has arity 0 - it does not capture anything. -/
-def notFollowedBy (p : Parser) (msg : String) : Parser where
+@[builtin_doc] def notFollowedBy (p : Parser) (msg : String) : Parser where
   fn := notFollowedByFn p.fn msg
 
 partial def manyAux (p : ParserFn) : ParserFn := fun c s => Id.run do
@@ -804,18 +804,45 @@ where
       else
         normalState num c s
 
-def decimalNumberFn (startPos : String.Pos) (c : ParserContext) : ParserState → ParserState := fun s =>
-  let s     := takeWhileFn (fun c => c.isDigit) c s
+/--
+Parses a sequence of the form `many (many '_' >> many1 digit)`, but if `needDigit` is true the parsed result must be nonempty.
+
+Note: this does not report that it is expecting `_` if we reach EOI or an unexpected character.
+Rationale: this error happens if there is already a `_`, and while sequences of `_` are allowed, it's a bit perverse to suggest extending the sequence.
+-/
+partial def takeDigitsFn (isDigit : Char → Bool) (expecting : String) (needDigit : Bool) : ParserFn := fun c s =>
   let input := c.input
   let i     := s.pos
-  let curr  := input.get i
-  if curr == '.' || curr == 'e' || curr == 'E' then
+  if h : input.atEnd i then
+    if needDigit then
+      s.mkEOIError [expecting]
+    else
+      s
+  else
+    let curr := input.get' i h
+    if curr == '_' then takeDigitsFn isDigit expecting true c (s.next' c.input i h)
+    else if isDigit curr then takeDigitsFn isDigit expecting false c (s.next' c.input i h)
+    else if needDigit then s.mkUnexpectedError "unexpected character" (expected := [expecting])
+    else s
+
+def decimalNumberFn (startPos : String.Pos) (c : ParserContext) : ParserState → ParserState := fun s =>
+  let s     := takeDigitsFn (fun c => c.isDigit) "decimal number" false c s
+  let input := c.input
+  let i     := s.pos
+  if h : input.atEnd i then
+    mkNodeToken numLitKind startPos c s
+  else
+    let curr := input.get' i h
+    if curr == '.' || curr == 'e' || curr == 'E' then
+      parseScientific s
+    else
+      mkNodeToken numLitKind startPos c s
+where
+  parseScientific s :=
     let s := parseOptDot s
     let s := parseOptExp s
     mkNodeToken scientificLitKind startPos c s
-  else
-    mkNodeToken numLitKind startPos c s
-where
+
   parseOptDot s :=
     let input := c.input
     let i     := s.pos
@@ -824,7 +851,7 @@ where
       let i    := input.next i
       let curr := input.get i
       if curr.isDigit then
-        takeWhileFn (fun c => c.isDigit) c (s.setPos i)
+        takeDigitsFn (fun c => c.isDigit) "decimal number" false c (s.setPos i)
       else
         s.setPos i
     else
@@ -839,22 +866,22 @@ where
       let i    := if input.get i == '-' || input.get i == '+' then input.next i else i
       let curr := input.get i
       if curr.isDigit then
-        takeWhileFn (fun c => c.isDigit) c (s.setPos i)
+        takeDigitsFn (fun c => c.isDigit) "decimal number" false c (s.setPos i)
       else
         s.mkUnexpectedError "missing exponent digits in scientific literal"
     else
       s
 
 def binNumberFn (startPos : String.Pos) : ParserFn := fun c s =>
-  let s := takeWhile1Fn (fun c => c == '0' || c == '1') "binary number" c s
+  let s := takeDigitsFn (fun c => c == '0' || c == '1') "binary number" true c s
   mkNodeToken numLitKind startPos c s
 
 def octalNumberFn (startPos : String.Pos) : ParserFn := fun c s =>
-  let s := takeWhile1Fn (fun c => '0' ≤ c && c ≤ '7') "octal number" c s
+  let s := takeDigitsFn (fun c => '0' ≤ c && c ≤ '7') "octal number" true c s
   mkNodeToken numLitKind startPos c s
 
 def hexNumberFn (startPos : String.Pos) : ParserFn := fun c s =>
-  let s := takeWhile1Fn (fun c => ('0' ≤ c && c ≤ '9') || ('a' ≤ c && c ≤ 'f') || ('A' ≤ c && c ≤ 'F')) "hexadecimal number" c s
+  let s := takeDigitsFn (fun c => ('0' ≤ c && c ≤ '9') || ('a' ≤ c && c ≤ 'f') || ('A' ≤ c && c ≤ 'F')) "hexadecimal number" true c s
   mkNodeToken numLitKind startPos c s
 
 def numberFnAux : ParserFn := fun c s =>
@@ -1143,7 +1170,7 @@ def checkWsBeforeFn (errorMsg : String) : ParserFn := fun _ s =>
 For example, the parser `"foo" ws "+"` parses `foo +` or `foo/- -/+` but not `foo+`.
 
 This parser has arity 0 - it does not capture anything. -/
-def checkWsBefore (errorMsg : String := "space before") : Parser where
+@[builtin_doc] def checkWsBefore (errorMsg : String := "space before") : Parser where
   info := epsilonInfo
   fn   := checkWsBeforeFn errorMsg
 
@@ -1160,7 +1187,7 @@ def checkLinebreakBeforeFn (errorMsg : String) : ParserFn := fun _ s =>
 (The line break may be inside a comment.)
 
 This parser has arity 0 - it does not capture anything. -/
-def checkLinebreakBefore (errorMsg : String := "line break") : Parser where
+@[builtin_doc] def checkLinebreakBefore (errorMsg : String := "line break") : Parser where
   info := epsilonInfo
   fn   := checkLinebreakBeforeFn errorMsg
 
@@ -1180,7 +1207,7 @@ This is almost the same as `"foo+"`, but using this parser will make `foo+` a to
 problems for the use of `"foo"` and `"+"` as separate tokens in other parsers.
 
 This parser has arity 0 - it does not capture anything. -/
-def checkNoWsBefore (errorMsg : String := "no space before") : Parser := {
+@[builtin_doc] def checkNoWsBefore (errorMsg : String := "no space before") : Parser := {
   info := epsilonInfo
   fn   := checkNoWsBeforeFn errorMsg
 }
@@ -1430,7 +1457,7 @@ position (see `withPosition`). This can be used to do whitespace sensitive synta
 a `by` block or `do` block, where all the lines have to line up.
 
 This parser has arity 0 - it does not capture anything. -/
-def checkColEq (errorMsg : String := "checkColEq") : Parser where
+@[builtin_doc] def checkColEq (errorMsg : String := "checkColEq") : Parser where
   fn := checkColEqFn errorMsg
 
 def checkColGeFn (errorMsg : String) : ParserFn := fun c s =>
@@ -1449,7 +1476,7 @@ certain indentation scope. For example it is used in the lean grammar for `else 
 that the `else` is not less indented than the `if` it matches with.
 
 This parser has arity 0 - it does not capture anything. -/
-def checkColGe (errorMsg : String := "checkColGe") : Parser where
+@[builtin_doc] def checkColGe (errorMsg : String := "checkColGe") : Parser where
   fn := checkColGeFn errorMsg
 
 def checkColGtFn (errorMsg : String) : ParserFn := fun c s =>
@@ -1473,7 +1500,7 @@ Here, the `revert` tactic is followed by a list of `colGt ident`, because otherw
 interpret `exact` as an identifier and try to revert a variable named `exact`.
 
 This parser has arity 0 - it does not capture anything. -/
-def checkColGt (errorMsg : String := "checkColGt") : Parser where
+@[builtin_doc] def checkColGt (errorMsg : String := "checkColGt") : Parser where
   fn := checkColGtFn errorMsg
 
 def checkLineEqFn (errorMsg : String) : ParserFn := fun c s =>
@@ -1491,7 +1518,7 @@ different lines. For example, `else if` is parsed using `lineEq` to ensure that 
 are on the same line.
 
 This parser has arity 0 - it does not capture anything. -/
-def checkLineEq (errorMsg : String := "checkLineEq") : Parser where
+@[builtin_doc] def checkLineEq (errorMsg : String := "checkLineEq") : Parser where
   fn := checkLineEqFn errorMsg
 
 /-- `withPosition(p)` runs `p` while setting the "saved position" to the current position.
@@ -1507,7 +1534,7 @@ The saved position is only available in the read-only state, which is why this i
 after the `withPosition(..)` block the saved position will be restored to its original value.
 
 This parser has the same arity as `p` - it just forwards the results of `p`. -/
-def withPosition : Parser → Parser := withFn fun f c s =>
+@[builtin_doc] def withPosition : Parser → Parser := withFn fun f c s =>
     adaptCacheableContextFn ({ · with savedPos? := s.pos }) f c s
 
 def withPositionAfterLinebreak : Parser → Parser := withFn fun f c s =>
@@ -1519,7 +1546,7 @@ parsers like `colGt` will have no effect. This is usually used by bracketing con
 `(...)` so that the user can locally override whitespace sensitivity.
 
 This parser has the same arity as `p` - it just forwards the results of `p`. -/
-def withoutPosition (p : Parser) : Parser :=
+@[builtin_doc] def withoutPosition (p : Parser) : Parser :=
   adaptCacheableContext ({ · with savedPos? := none }) p
 
 /-- `withForbidden tk p` runs `p` with `tk` as a "forbidden token". This means that if the token
@@ -1529,7 +1556,7 @@ stop there, making `tk` effectively a lowest-precedence operator. This is used f
 would be treated as an application.
 
 This parser has the same arity as `p` - it just forwards the results of `p`. -/
-def withForbidden (tk : Token) (p : Parser) : Parser :=
+@[builtin_doc] def withForbidden (tk : Token) (p : Parser) : Parser :=
   adaptCacheableContext ({ · with forbiddenTk? := tk }) p
 
 /-- `withoutForbidden(p)` runs `p` disabling the "forbidden token" (see `withForbidden`), if any.
@@ -1537,7 +1564,7 @@ This is usually used by bracketing constructs like `(...)` because there is no p
 inside these nested constructs.
 
 This parser has the same arity as `p` - it just forwards the results of `p`. -/
-def withoutForbidden (p : Parser) : Parser :=
+@[builtin_doc] def withoutForbidden (p : Parser) : Parser :=
   adaptCacheableContext ({ · with forbiddenTk? := none }) p
 
 def eoiFn : ParserFn := fun c s =>
@@ -1556,8 +1583,8 @@ namespace TokenMap
 
 def insert (map : TokenMap α) (k : Name) (v : α) : TokenMap α :=
   match map.find? k with
-  | none    => .insert map k [v]
-  | some vs => .insert map k (v::vs)
+  | none    => RBMap.insert map k [v]
+  | some vs => RBMap.insert map k (v::vs)
 
 instance : Inhabited (TokenMap α) where
   default := RBMap.empty
@@ -1678,7 +1705,8 @@ builtin_initialize categoryParserFnRef : IO.Ref CategoryParserFn ← IO.mkRef fu
 builtin_initialize categoryParserFnExtension : EnvExtension CategoryParserFn ← registerEnvExtension $ categoryParserFnRef.get
 
 def categoryParserFn (catName : Name) : ParserFn := fun ctx s =>
-  categoryParserFnExtension.getState ctx.env catName ctx s
+  let fn := categoryParserFnExtension.getState ctx.env
+  fn catName ctx s
 
 def categoryParser (catName : Name) (prec : Nat) : Parser where
   fn := adaptCacheableContextFn ({ · with prec }) (withCacheFn catName (categoryParserFn catName))
@@ -1692,7 +1720,7 @@ def termParser (prec : Nat := 0) : Parser :=
 -- ==================
 
 /-- Fail if previous token is immediately followed by ':'. -/
-def checkNoImmediateColon : Parser := {
+@[builtin_doc] def checkNoImmediateColon : Parser := {
   fn := fun c s =>
     let prev := s.stxStack.back
     if checkTailNoWs prev then
@@ -1756,7 +1784,7 @@ def unicodeSymbol (sym asciiSym : String) : Parser :=
   Define parser for `$e` (if `anonymous == true`) and `$e:name`.
   `kind` is embedded in the antiquotation's kind, and checked at syntax `match` unless `isPseudoKind` is true.
   Antiquotations can be escaped as in `$$e`, which produces the syntax tree for `$e`. -/
-def mkAntiquot (name : String) (kind : SyntaxNodeKind) (anonymous := true) (isPseudoKind := false) : Parser :=
+@[builtin_doc] def mkAntiquot (name : String) (kind : SyntaxNodeKind) (anonymous := true) (isPseudoKind := false) : Parser :=
   let kind := kind ++ (if isPseudoKind then `pseudo else .anonymous) ++ `antiquot
   let nameP := node `antiquotName <| checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbol ":" >> nonReservedSymbol name
   -- if parsing the kind fails and `anonymous` is true, check that we're not ignoring a different
@@ -1781,7 +1809,7 @@ def withAntiquotFn (antiquotP p : ParserFn) (isCatAntiquot := false) : ParserFn 
     p c s
 
 /-- Optimized version of `mkAntiquot ... <|> p`. -/
-def withAntiquot (antiquotP p : Parser) : Parser := {
+@[builtin_doc] def withAntiquot (antiquotP p : Parser) : Parser := {
   fn := withAntiquotFn antiquotP.fn p.fn
   info := orelseInfo antiquotP.info p.info
 }
@@ -1791,7 +1819,7 @@ def withoutInfo (p : Parser) : Parser := {
 }
 
 /-- Parse `$[p]suffix`, e.g. `$[p],*`. -/
-def mkAntiquotSplice (kind : SyntaxNodeKind) (p suffix : Parser) : Parser :=
+@[builtin_doc] def mkAntiquotSplice (kind : SyntaxNodeKind) (p suffix : Parser) : Parser :=
   let kind := kind ++ `antiquot_scope
   leadingNode kind maxPrec <| atomic <|
     setExpected [] "$" >>
@@ -1808,7 +1836,7 @@ private def withAntiquotSuffixSpliceFn (kind : SyntaxNodeKind) (suffix : ParserF
   s.mkNode (kind ++ `antiquot_suffix_splice) (s.stxStack.size - 2)
 
 /-- Parse `suffix` after an antiquotation, e.g. `$x,*`, and put both into a new node. -/
-def withAntiquotSuffixSplice (kind : SyntaxNodeKind) (p suffix : Parser) : Parser where
+@[builtin_doc] def withAntiquotSuffixSplice (kind : SyntaxNodeKind) (p suffix : Parser) : Parser where
   info := andthenInfo p.info suffix.info
   fn c s :=
     let s := p.fn c s

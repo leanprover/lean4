@@ -87,7 +87,7 @@ theorem go_denote_eq (aig : AIG α) (c : BitVec w) (assign : α → Bool)
           assign
         ⟧
           =
-        c.getLsb idx := by
+        c.getLsbD idx := by
   intro idx hidx1 hidx2
   generalize hgo : go aig c curr s hcurr = res
   unfold go at hgo
@@ -117,7 +117,7 @@ theorem denote_blastConst (aig : AIG α) (c : BitVec w) (assign : α → Bool) :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦(blastConst aig c).aig, (blastConst aig c).vec.get idx hidx, assign⟧
           =
-        c.getLsb idx := by
+        c.getLsbD idx := by
   intros
   apply blastConst.go_denote_eq
   omega

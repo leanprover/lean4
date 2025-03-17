@@ -3,11 +3,14 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Build.Run
 import Lake.Build.Targets
 import Lake.CLI.Build
 
 namespace Lake
+open Lean (Name)
+open System (FilePath)
 
 def env (cmd : String) (args : Array String := #[]) : LakeT IO UInt32 := do
   IO.Process.spawn {cmd, args, env := ← getAugmentedEnv} >>= (·.wait)
@@ -78,7 +81,7 @@ def Package.lint (pkg : Package) (args : List String := []) (buildConfig : Build
   let cfgArgs := pkg.lintDriverArgs
   let (pkg, driver) ← pkg.resolveDriver "lint" pkg.lintDriver
   if let some script := pkg.scripts.find? driver.toName then
-    script.run (cfgArgs.data ++ args)
+    script.run (cfgArgs.toList ++ args)
   else if let some exe := pkg.findLeanExe? driver.toName  then
     let exeFile ← runBuild exe.fetch buildConfig
     env exeFile.toString (cfgArgs ++ args.toArray)

@@ -87,12 +87,6 @@ end Mathlib.Data.Quot
 
 section Mathlib.Init.ZeroOne
 
-class Zero.{u} (α : Type u) where
-  zero : α
-
-instance Zero.toOfNat0 {α} [Zero α] : OfNat α (nat_lit 0) where
-  ofNat := ‹Zero α›.1
-
 class One (α : Type u) where
   one : α
 
@@ -612,8 +606,8 @@ end Mathlib.Algebra.Quotient
 
 section Mathlib.Algebra.Module.Submodule.Basic
 
-structure Submodule (R : Type u) (M : Type v) [Semiring R] [AddCommMonoid M] [Module R M] extends
-  AddSubmonoid M : Type v
+structure Submodule (R : Type u) (M : Type v) [Semiring R] [AddCommMonoid M] [Module R M] : Type v
+  extends AddSubmonoid M
 
 def Submodule.toAddSubgroup [Ring R] [AddCommGroup M] {module_M : Module R M} (p : Submodule R M) : AddSubgroup M :=
   { p.toAddSubmonoid with }

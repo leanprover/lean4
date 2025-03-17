@@ -4,14 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 -/
 prelude
-import Init.Data.Nat.Div
+import Init.Data.Nat.Div.Basic
 import Init.Meta
 
 namespace Nat
 
-protected theorem dvd_refl (a : Nat) : a ∣ a := ⟨1, by simp⟩
+@[simp] protected theorem dvd_refl (a : Nat) : a ∣ a := ⟨1, by simp⟩
 
-protected theorem dvd_zero (a : Nat) : a ∣ 0 := ⟨0, by simp⟩
+@[simp] protected theorem dvd_zero (a : Nat) : a ∣ 0 := ⟨0, by simp⟩
 
 protected theorem dvd_mul_left (a b : Nat) : a ∣ b * a := ⟨b, Nat.mul_comm b a⟩
 protected theorem dvd_mul_right (a b : Nat) : a ∣ a * b := ⟨b, rfl⟩
@@ -39,9 +39,9 @@ protected theorem dvd_add_iff_right {k m n : Nat} (h : k ∣ m) : k ∣ n ↔ k 
 protected theorem dvd_add_iff_left {k m n : Nat} (h : k ∣ n) : k ∣ m ↔ k ∣ m + n := by
   rw [Nat.add_comm]; exact Nat.dvd_add_iff_right h
 
-theorem dvd_mod_iff {k m n : Nat} (h: k ∣ n) : k ∣ m % n ↔ k ∣ m :=
-  have := Nat.dvd_add_iff_left <| Nat.dvd_trans h <| Nat.dvd_mul_right n (m / n)
-  by rwa [mod_add_div] at this
+theorem dvd_mod_iff {k m n : Nat} (h: k ∣ n) : k ∣ m % n ↔ k ∣ m := by
+  have := Nat.dvd_add_iff_left (m := m % n) <| Nat.dvd_trans h <| Nat.dvd_mul_right n (m / n)
+  rwa [mod_add_div] at this
 
 theorem le_of_dvd {m n : Nat} (h : 0 < n) : m ∣ n → m ≤ n
   | ⟨k, e⟩ => by
@@ -74,11 +74,11 @@ theorem dvd_of_mod_eq_zero {m n : Nat} (H : n % m = 0) : m ∣ n := by
   have := (mod_add_div n m).symm
   rwa [H, Nat.zero_add] at this
 
-theorem dvd_iff_mod_eq_zero (m n : Nat) : m ∣ n ↔ n % m = 0 :=
+theorem dvd_iff_mod_eq_zero {m n : Nat} : m ∣ n ↔ n % m = 0 :=
   ⟨mod_eq_zero_of_dvd, dvd_of_mod_eq_zero⟩
 
-instance decidable_dvd : @DecidableRel Nat (·∣·) :=
-  fun _ _ => decidable_of_decidable_of_iff (dvd_iff_mod_eq_zero _ _).symm
+instance decidable_dvd : @DecidableRel Nat Nat (·∣·) :=
+  fun _ _ => decidable_of_decidable_of_iff dvd_iff_mod_eq_zero.symm
 
 theorem emod_pos_of_not_dvd {a b : Nat} (h : ¬ a ∣ b) : 0 < b % a := by
   rw [dvd_iff_mod_eq_zero] at h
@@ -92,7 +92,7 @@ protected theorem div_mul_cancel {n m : Nat} (H : n ∣ m) : m / n * n = m := by
   rw [Nat.mul_comm, Nat.mul_div_cancel' H]
 
 @[simp] theorem mod_mod_of_dvd (a : Nat) (h : c ∣ b) : a % b % c = a % c := by
-  rw (config := {occs := .pos [2]}) [← mod_add_div a b]
+  rw (occs := [2]) [← mod_add_div a b]
   have ⟨x, h⟩ := h
   subst h
   rw [Nat.mul_assoc, add_mul_mod_self_left]
@@ -128,5 +128,14 @@ protected theorem mul_div_assoc (m : Nat) (H : k ∣ n) : m * n / k = m * (n / k
   | .inr hpos =>
     have h1 : m * n / k = m * (n / k * k) / k := by rw [Nat.div_mul_cancel H]
     rw [h1, ← Nat.mul_assoc, Nat.mul_div_cancel _ hpos]
+
+/-! Helper theorems for `dvd` simproc -/
+
+protected theorem dvd_eq_true_of_mod_eq_zero {m n : Nat} (h : n % m == 0) : (m ∣ n) = True := by
+  simp [Nat.dvd_of_mod_eq_zero, eq_of_beq h]
+
+protected theorem dvd_eq_false_of_mod_ne_zero {m n : Nat} (h : n % m != 0) : (m ∣ n) = False := by
+  simp [eq_of_beq] at h
+  simp [dvd_iff_mod_eq_zero, h]
 
 end Nat

@@ -32,6 +32,9 @@ inductive ReduceMode where
   | reduceSimpleOnly
   | none
 
+private def config : ConfigWithKey :=
+  { transparency := .reducible, iota := false, proj := .no : Config }.toConfigWithKey
+
 mutual
 
 /--
@@ -61,8 +64,8 @@ where
       -- Drawback: cost.
       return e
     else match mode with
-      | .reduce => DiscrTree.reduce e {}
-      | .reduceSimpleOnly => DiscrTree.reduce e { iota := false, proj := .no }
+      | .reduce => DiscrTree.reduce e
+      | .reduceSimpleOnly => withConfigWithKey config <| DiscrTree.reduce e
       | .none => return e
 
   lt (a b : Expr) : MetaM Bool := do
@@ -155,8 +158,8 @@ where
           if !infos[i]!.isInstImplicit then
             if !(← lt args[i]! b) then
               return false
-        for i in [infos.size:args.size] do
-          if !(← lt args[i]! b) then
+        for h : i in [infos.size:args.size] do
+          if !(← lt args[i] b) then
             return false
         return true
     | .lam _ d e ..     => lt d b <&&> lt e b

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Data
-// Imports: Init Lake.Build.Key Lake.Util.Family
+// Imports: Lake.Build.Key Lake.Util.Family
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,7 +19,6 @@ LEAN_EXPORT lean_object* l_Lake___aux__Lake__Build__Data______macroRules__Lake__
 static lean_object* l_Lake___aux__Lake__Build__Data______macroRules__Lake__libraryDataDecl__1___closed__15;
 static lean_object* l_Lake_packageDataDecl___closed__25;
 static lean_object* l_Lake_libraryDataDecl___closed__8;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake___aux__Lake__Build__Data______macroRules__Lake__libraryDataDecl__1___closed__8;
 static lean_object* l_Lake___aux__Lake__Build__Data______macroRules__Lake__packageDataDecl__1___closed__11;
 static lean_object* l_Lake_packageDataDecl___closed__11;
@@ -147,6 +146,7 @@ static lean_object* l_Lake_libraryDataDecl___closed__6;
 LEAN_EXPORT lean_object* l_Lake___aux__Lake__Build__Data______macroRules__Lake__libraryDataDecl__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake___aux__Lake__Build__Data______macroRules__Lake__packageDataDecl__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_packageDataDecl___closed__8;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 lean_object* l_Lake_Name_quoteFrom(lean_object*, lean_object*);
 static lean_object* l_Lake_libraryDataDecl___closed__5;
 LEAN_EXPORT lean_object* l_Lake___aux__Lake__Build__Data______macroRules__Lake__targetDataDecl__1(lean_object*, lean_object*, lean_object*);
@@ -509,7 +509,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -2103,7 +2103,6 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Build_Key(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Family(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -2111,9 +2110,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Build_Data(uint8_t builtin, lean_object
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Build_Key(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

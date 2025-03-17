@@ -27,6 +27,10 @@ Author: Jared Roesch
 #include <limits.h> // NOLINT
 #endif
 
+#ifdef __linux
+#include <sys/syscall.h>
+#endif
+
 #include "runtime/object.h"
 #include "runtime/io.h"
 #include "runtime/array_ref.h"
@@ -78,6 +82,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_set_current_dir(b_obj_arg path, o
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
     return lean_io_result_mk_ok(box_uint32(GetCurrentProcessId()));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
+    return lean_io_result_mk_ok(box_uint64(GetCurrentThreadId()));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
@@ -185,7 +193,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     // This needs some thought, on Windows we must pass a command string
     // which is a valid command, that is a fully assembled command to be executed.
     //
-    // We must escape the arguments to preseving spacing and other characters,
+    // We must escape the arguments to preserving spacing and other characters,
     // we might need to revisit escaping here.
     for (auto arg : args) {
         command += " \"";
@@ -314,6 +322,20 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_set_current_dir(b_obj_arg path, o
 extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
     return lean_io_result_mk_ok(box_uint32(getpid()));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
+    uint64_t tid;
+#ifdef __APPLE__
+    lean_always_assert(pthread_threadid_np(NULL, &tid) == 0);
+#elif defined(LEAN_EMSCRIPTEN)
+    tid = 0;
+#else
+    // since Linux 2.4.11, our glibc 2.27 requires at least 3.2
+    // glibc 2.30 would provide a wrapper
+    tid = (pid_t)syscall(SYS_gettid);
+#endif
+    return lean_io_result_mk_ok(box_uint64(tid));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {

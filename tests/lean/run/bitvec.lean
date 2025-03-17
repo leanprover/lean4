@@ -75,17 +75,17 @@ open BitVec
 
 -- get/extract
 
-#guard !getMsb 0b0101#4 0
-#guard getMsb 0b0101#4 1
-#guard !getMsb 0b0101#4 2
-#guard getMsb 0b0101#4 3
-#guard !getMsb 0b1111#4 4
+#guard !getMsbD 0b0101#4 0
+#guard getMsbD 0b0101#4 1
+#guard !getMsbD 0b0101#4 2
+#guard getMsbD 0b0101#4 3
+#guard !getMsbD 0b1111#4 4
 
-#guard getLsb 0b0101#4 0
-#guard !getLsb 0b0101#4 1
-#guard getLsb 0b0101#4 2
-#guard !getLsb 0b0101#4 3
-#guard !getLsb 0b1111#4 4
+#guard getLsbD 0b0101#4 0
+#guard !getLsbD 0b0101#4 1
+#guard getLsbD 0b0101#4 2
+#guard !getLsbD 0b0101#4 3
+#guard !getLsbD 0b1111#4 4
 
 #guard extractLsb 3 0 0x1234#16 = 4
 #guard extractLsb 7 4 0x1234#16 = 3
@@ -114,3 +114,10 @@ def testMatch8 (i : BitVec 32) :=
 
 example (n w : Nat) (p : n < 2^w) : { toFin := { val := n, isLt := p } : BitVec w} = .ofNat w n := by
   simp only [ofFin_eq_ofNat]
+
+-- Decidable quantifiers
+
+example : ∀ v : BitVec 2, (v[1] && v[0]) = (v[0] && v[1]) := by decide
+
+ -- `bv_decide` doesn't yet do existentials:
+example : ∃ x y : BitVec 5, x ^^^ y = allOnes 5 := by decide

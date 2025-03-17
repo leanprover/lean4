@@ -1,5 +1,3 @@
-
-eval_except.lean:4:0-4:57: error: this is my error
-
-eval_except.lean:5:0-5:80: error: no such file or directory (error code: 31)
+eval_except.lean:4:0-4:5: error: this is my error
+eval_except.lean:5:0-5:5: error: no such file or directory (error code: 31)
   file: file.ext

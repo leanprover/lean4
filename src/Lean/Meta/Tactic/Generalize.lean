@@ -93,7 +93,7 @@ root `*` are considered. Matching is executed using the definitionally equality 
 The `generalize` tactic employs `kabstract` and defaults to standard reducibility.
 Hence, the `isDefEq` operations invoked by `kabstract` can become highly resource-intensive
 and potentially trigger "max recursion depth reached" errors, as observed in issue #3524.
-This issue was isolated by @**Scott Morrison** with the following example:
+This issue was isolated by @**Kim Morrison** with the following example:
 ```
 example (a : Nat) : ((2 ^ 7) + a) - 2 ^ 7 = 0 := by
   generalize 0 - 0 = x

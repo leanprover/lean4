@@ -6,6 +6,7 @@ Authors: Henrik Böving
 prelude
 import Init.Data.Hashable
 import Init.Data.BitVec
+import Init.Data.RArray
 import Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
 
 /-!
@@ -22,13 +23,13 @@ The variable definition used by the bitblaster.
 -/
 structure BVBit where
   /--
-  The width of the BitVec variable.
-  -/
-  {w : Nat}
-  /--
   A numeric identifier for the BitVec variable.
   -/
   var : Nat
+  /--
+  The width of the BitVec variable.
+  -/
+  {w : Nat}
   /--
   The bit that we take out of the BitVec variable by getLsb.
   -/
@@ -65,6 +66,14 @@ inductive BVBinOp where
   Multiplication.
   -/
   | mul
+  /--
+  Unsigned division.
+  -/
+  | udiv
+  /--
+  Unsigned modulo.
+  -/
+  | umod
 
 namespace BVBinOp
 
@@ -74,6 +83,8 @@ def toString : BVBinOp → String
   | xor => "^"
   | add => "+"
   | mul => "*"
+  | udiv => "/ᵤ"
+  | umod => "%ᵤ"
 
 instance : ToString BVBinOp := ⟨toString⟩
 
@@ -86,12 +97,16 @@ def eval : BVBinOp → (BitVec w → BitVec w → BitVec w)
   | xor => (· ^^^ ·)
   | add => (· + ·)
   | mul => (· * ·)
+  | udiv => (· / ·)
+  | umod => (· % · )
 
 @[simp] theorem eval_and : eval .and = ((· &&& ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_or : eval .or = ((· ||| ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_xor : eval .xor = ((· ^^^ ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_add : eval .add = ((· + ·) : BitVec w → BitVec w → BitVec w) := by rfl
 @[simp] theorem eval_mul : eval .mul = ((· * ·) : BitVec w → BitVec w → BitVec w) := by rfl
+@[simp] theorem eval_udiv : eval .udiv = ((· / ·) : BitVec w → BitVec w → BitVec w) := by rfl
+@[simp] theorem eval_umod : eval .umod = ((· % ·) : BitVec w → BitVec w → BitVec w) := by rfl
 
 end BVBinOp
 
@@ -103,22 +118,6 @@ inductive BVUnOp where
   Bitwise not.
   -/
   | not
-  /--
-  Shifting left by a constant value.
-
-  This operation has a dedicated constant representation as shiftLeft can take `Nat` as a shift amount.
-  We can obviously not bitblast a `Nat` but still want to support the case where the user shifts by a
-  constant `Nat` value.
-  -/
-  | shiftLeftConst (n : Nat)
-  /--
-  Shifting right by a constant value.
-
-  This operation has a dedicated constant representation as shiftRight can take `Nat` as a shift amount.
-  We can obviously not bitblast a `Nat` but still want to support the case where the user shifts by a
-  constant `Nat` value.
-  -/
-  | shiftRightConst (n : Nat)
   /--
   Rotating left by a constant value.
   -/
@@ -140,10 +139,8 @@ namespace BVUnOp
 
 def toString : BVUnOp → String
   | not => "~"
-  | shiftLeftConst n => s!"<< {n}"
-  | shiftRightConst n => s!">> {n}"
-  | rotateLeft n => s! "rotL {n}"
-  | rotateRight n => s! "rotR {n}"
+  | rotateLeft n => s!"rotL {n}"
+  | rotateRight n => s!"rotR {n}"
   | arithShiftRightConst n => s!">>a {n}"
 
 instance : ToString BVUnOp := ⟨toString⟩
@@ -153,21 +150,11 @@ The semantics for `BVUnOp`.
 -/
 def eval : BVUnOp → (BitVec w → BitVec w)
   | not => (~~~ ·)
-  | shiftLeftConst n => (· <<< n)
-  | shiftRightConst n => (· >>> n)
   | rotateLeft n => (BitVec.rotateLeft · n)
   | rotateRight n => (BitVec.rotateRight · n)
   | arithShiftRightConst n => (BitVec.sshiftRight · n)
 
 @[simp] theorem eval_not : eval .not = ((~~~ ·) : BitVec w → BitVec w) := by rfl
-
-@[simp]
-theorem eval_shiftLeftConst : eval (shiftLeftConst n) = ((· <<< n) : BitVec w → BitVec w) := by
-  rfl
-
-@[simp]
-theorem eval_shiftRightConst : eval (shiftRightConst n) = ((· >>> n) : BitVec w → BitVec w) := by
-  rfl
 
 @[simp]
 theorem eval_rotateLeft : eval (rotateLeft n) = ((BitVec.rotateLeft · n) : BitVec w → BitVec w) := by
@@ -196,13 +183,9 @@ inductive BVExpr : Nat → Type where
   -/
   | const (val : BitVec w) : BVExpr w
   /--
-  zero extend a `BitVec` by some constant amount.
-  -/
-  | zeroExtend (v : Nat) (expr : BVExpr w) : BVExpr v
-  /--
   Extract a slice from a `BitVec`.
   -/
-  | extract (hi lo : Nat) (expr : BVExpr w) : BVExpr (hi - lo + 1)
+  | extract (start len : Nat) (expr : BVExpr w) : BVExpr len
   /--
   A binary operation on two `BVExpr`.
   -/
@@ -220,10 +203,6 @@ inductive BVExpr : Nat → Type where
   -/
   | replicate (n : Nat) (expr : BVExpr w) : BVExpr (w * n)
   /--
-  sign extend a `BitVec` by some constant amount.
-  -/
-  | signExtend (v : Nat) (expr : BVExpr w) : BVExpr v
-  /--
   shift left by another BitVec expression. For constant shifts there exists a `BVUnop`.
   -/
   | shiftLeft (lhs : BVExpr m) (rhs : BVExpr n) : BVExpr m
@@ -231,21 +210,24 @@ inductive BVExpr : Nat → Type where
   shift right by another BitVec expression. For constant shifts there exists a `BVUnop`.
   -/
   | shiftRight (lhs : BVExpr m) (rhs : BVExpr n) : BVExpr m
+  /--
+  shift right arithmetically by another BitVec expression. For constant shifts there exists a `BVUnop`.
+  -/
+  | arithShiftRight (lhs : BVExpr m) (rhs : BVExpr n) : BVExpr m
 
 namespace BVExpr
 
 def toString : BVExpr w → String
   | .var idx => s!"var{idx}"
   | .const val => ToString.toString val
-  | .zeroExtend v expr => s!"(zext {v} {expr.toString})"
-  | .extract hi lo expr => s!"{expr.toString}[{hi}:{lo}]"
+  | .extract start len expr => s!"{expr.toString}[{start}, {len}]"
   | .bin lhs op rhs => s!"({lhs.toString} {op.toString} {rhs.toString})"
   | .un op operand => s!"({op.toString} {toString operand})"
   | .append lhs rhs => s!"({toString lhs} ++ {toString rhs})"
   | .replicate n expr => s!"(replicate {n} {toString expr})"
-  | .signExtend v expr => s!"(sext {v} {expr.toString})"
   | .shiftLeft lhs rhs => s!"({lhs.toString} << {rhs.toString})"
   | .shiftRight lhs rhs => s!"({lhs.toString} >> {rhs.toString})"
+  | .arithShiftRight lhs rhs => s!"({lhs.toString} >>a {rhs.toString})"
 
 
 instance : ToString (BVExpr w) := ⟨toString⟩
@@ -260,45 +242,52 @@ structure PackedBitVec where
 /--
 The notion of variable assignments for `BVExpr`.
 -/
-abbrev Assignment := List PackedBitVec
+abbrev Assignment := Lean.RArray PackedBitVec
 
 /--
 Get the value of a `BVExpr.var` from an `Assignment`.
 -/
-def Assignment.getD (assign : Assignment) (idx : Nat) : PackedBitVec :=
-  List.getD assign idx ⟨BitVec.zero 0⟩
+def Assignment.get (assign : Assignment) (idx : Nat) : PackedBitVec :=
+  Lean.RArray.get assign idx
 
 /--
 The semantics for `BVExpr`.
 -/
 def eval (assign : Assignment) : BVExpr w → BitVec w
   | .var idx =>
-    let ⟨bv⟩ := assign.getD idx
-    bv.truncate w
+    let packedBv := assign.get idx
+    /-
+    This formulation improves performance, as in a well formed expression the condition always holds
+    so there is no need for the more involved `BitVec.truncate` logic.
+    -/
+    if h : packedBv.w = w then
+      h ▸ packedBv.bv
+    else
+      packedBv.bv.truncate w
   | .const val => val
-  | .zeroExtend v expr => BitVec.zeroExtend v (eval assign expr)
-  | .extract hi lo expr => BitVec.extractLsb hi lo (eval assign expr)
+  | .extract start len expr => BitVec.extractLsb' start len (eval assign expr)
   | .bin lhs op rhs => op.eval (eval assign lhs) (eval assign rhs)
   | .un op operand => op.eval (eval assign operand)
   | .append lhs rhs => (eval assign lhs) ++ (eval assign rhs)
   | .replicate n expr => BitVec.replicate n (eval assign expr)
-  | .signExtend v expr => BitVec.signExtend v (eval assign expr)
   | .shiftLeft lhs rhs => (eval assign lhs) <<< (eval assign rhs)
   | .shiftRight lhs rhs => (eval assign lhs) >>> (eval assign rhs)
+  | .arithShiftRight lhs rhs => BitVec.sshiftRight' (eval assign lhs) (eval assign rhs)
 
 @[simp]
-theorem eval_var : eval assign ((.var idx) : BVExpr w) = (assign.getD idx).bv.truncate _ := by
-  rfl
+theorem eval_var : eval assign ((.var idx) : BVExpr w) = (assign.get idx).bv.truncate w := by
+  rw [eval]
+  split
+  · next h =>
+    subst h
+    simp
+  · rfl
 
 @[simp]
 theorem eval_const : eval assign (.const val) = val := by rfl
 
 @[simp]
-theorem eval_zeroExtend : eval assign (.zeroExtend v expr) = BitVec.zeroExtend v (eval assign expr) := by
-  rfl
-
-@[simp]
-theorem eval_extract : eval assign (.extract hi lo expr) = BitVec.extractLsb hi lo (eval assign expr) := by
+theorem eval_extract : eval assign (.extract start len expr) = BitVec.extractLsb' start len (eval assign expr) := by
   rfl
 
 @[simp]
@@ -318,15 +307,16 @@ theorem eval_replicate : eval assign (.replicate n expr) = BitVec.replicate n (e
   rfl
 
 @[simp]
-theorem eval_signExtend : eval assign (.signExtend v expr) = BitVec.signExtend v (eval assign expr) := by
-  rfl
-
-@[simp]
 theorem eval_shiftLeft : eval assign (.shiftLeft lhs rhs) = (eval assign lhs) <<< (eval assign rhs) := by
   rfl
 
 @[simp]
 theorem eval_shiftRight : eval assign (.shiftRight lhs rhs) = (eval assign lhs) >>> (eval assign rhs) := by
+  rfl
+
+@[simp]
+theorem eval_arithShiftRight :
+    eval assign (.arithShiftRight lhs rhs) = BitVec.sshiftRight' (eval assign lhs) (eval assign rhs) := by
   rfl
 
 end BVExpr
@@ -375,7 +365,7 @@ inductive BVPred where
   /--
   Getting a constant LSB from a `BitVec`.
   -/
-  | getLsb (expr : BVExpr w) (idx : Nat)
+  | getLsbD (expr : BVExpr w) (idx : Nat)
 
 namespace BVPred
 
@@ -389,7 +379,7 @@ structure ExprPair where
 
 def toString : BVPred → String
   | bin lhs op rhs => s!"({lhs.toString} {op.toString} {rhs.toString})"
-  | getLsb expr idx => s!"{expr.toString}[{idx}]"
+  | getLsbD expr idx => s!"{expr.toString}[{idx}]"
 
 instance : ToString BVPred := ⟨toString⟩
 
@@ -398,14 +388,14 @@ The semantics for `BVPred`.
 -/
 def eval (assign : BVExpr.Assignment) : BVPred → Bool
   | bin lhs op rhs => op.eval (lhs.eval assign) (rhs.eval assign)
-  | getLsb expr idx => (expr.eval assign).getLsb idx
+  | getLsbD expr idx => (expr.eval assign).getLsbD idx
 
 @[simp]
 theorem eval_bin : eval assign (.bin lhs op rhs) = op.eval (lhs.eval assign) (rhs.eval assign) := by
   rfl
 
 @[simp]
-theorem eval_getLsb : eval assign (.getLsb expr idx) = (expr.eval assign).getLsb idx := by
+theorem eval_getLsbD : eval assign (.getLsbD expr idx) = (expr.eval assign).getLsbD idx := by
   rfl
 
 end BVPred
@@ -427,6 +417,8 @@ def eval (assign : BVExpr.Assignment) (expr : BVLogicalExpr) : Bool :=
 @[simp] theorem eval_const : eval assign (.const b) = b := rfl
 @[simp] theorem eval_not : eval assign (.not x) = !eval assign x := rfl
 @[simp] theorem eval_gate : eval assign (.gate g x y) = g.eval (eval assign x) (eval assign y) := rfl
+@[simp] theorem eval_ite :
+  eval assign (.ite d l r) = bif (eval assign d) then (eval assign l) else (eval assign r) := rfl
 
 def Sat (x : BVLogicalExpr) (assign : BVExpr.Assignment) : Prop := eval assign x = true
 

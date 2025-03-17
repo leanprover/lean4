@@ -1,6 +1,3 @@
-class Zero (A : Type u) where zero : A
-instance {A} [Zero A] : OfNat A (nat_lit 0) := ⟨Zero.zero⟩
-
 class AddGroup (A : Type u) extends Zero A where
   gsmul : Int → A → A
   gsmul_zero' : ∀ a, gsmul 0 a = 0

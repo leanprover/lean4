@@ -31,12 +31,11 @@ def getDeclNamesForCodeGen : Declaration → List Name
   | Declaration.axiomDecl { name := n, .. }  => [n] -- axiom may be tagged with `@[extern ...]`
   | _                                        => []
 
-def checkIsDefinition (env : Environment) (n : Name) : Except String Unit :=
-match env.find? n with
-  | (some (ConstantInfo.defnInfo _))   => Except.ok ()
-  | (some (ConstantInfo.opaqueInfo _)) => Except.ok ()
-  | none => Except.error s!"unknow declaration '{n}'"
-  | _    => Except.error s!"declaration is not a definition '{n}'"
+def checkIsDefinition (env : Environment) (n : Name) : Except String Unit := do
+  let some info := env.findAsync? n
+    | throw s!"unknown declaration '{n}'"
+  unless info.kind matches .defn | .opaque do
+    throw s!"declaration is not a definition '{n}'"
 
 /--
   We generate auxiliary unsafe definitions for regular recursive definitions.
@@ -53,18 +52,3 @@ def isUnsafeRecName? : Name → Option Name
   | _ => none
 
 end Compiler
-
-namespace Environment
-
-/--
-Compile the given block of mutual declarations.
-Assumes the declarations have already been added to the environment using `addDecl`.
--/
-@[extern "lean_compile_decls"]
-opaque compileDecls (env : Environment) (opt : @& Options) (decls : @& List Name) : Except KernelException Environment
-
-/-- Compile the given declaration, it assumes the declaration has already been added to the environment using `addDecl`. -/
-def compileDecl (env : Environment) (opt : @& Options) (decl : @& Declaration) : Except KernelException Environment :=
-  compileDecls env opt (Compiler.getDeclNamesForCodeGen decl)
-
-end Environment

@@ -10,9 +10,8 @@ Authors: Sebastian Ullrich
 
 prelude
 import Init.System.Promise
-import Lean.Message
 import Lean.Parser.Types
-import Lean.Elab.InfoTree
+import Lean.Util.Trace
 
 set_option linter.missingDocs true
 
@@ -56,11 +55,23 @@ structure Snapshot where
   /-- General elaboration metadata produced by this step. -/
   infoTree? : Option Elab.InfoTree := none
   /--
+  Trace data produced by this step. Currently used only by `trace.profiler.output`, otherwise we
+  depend on the elaborator adding traces to `diagnostics` eventually.
+  -/
+  traces : TraceState := {}
+  /--
   Whether it should be indicated to the user that a fatal error (which should be part of
   `diagnostics`) occurred that prevents processing of the remainder of the file.
   -/
   isFatal := false
 deriving Inhabited
+
+/--
+Yields the default reporting range of a `Syntax`, which is just the `canonicalOnly` range
+of the syntax.
+-/
+def SnapshotTask.defaultReportingRange? (stx? : Option Syntax) : Option String.Range :=
+  stx?.bind (·.getRange? (canonicalOnly := true))
 
 /-- A task producing some snapshot type (usually a subclass of `Snapshot`). -/
 -- Longer-term TODO: Give the server more control over the priority of tasks, depending on e.g. the
@@ -68,52 +79,57 @@ deriving Inhabited
 -- also need more dependency information for this in order to avoid priority inversion.
 structure SnapshotTask (α : Type) where
   /--
+  `Syntax` processed by this `SnapshotTask`.
+  The `Syntax` is used by the language server to determine whether to force this `SnapshotTask`
+  when a request is made.
+  -/
+  stx? : Option Syntax
+  /--
   Range that is marked as being processed by the server while the task is running. If `none`,
   the range of the outer task if some or else the entire file is reported.
   -/
-  range? : Option String.Range
+  reportingRange? : Option String.Range := SnapshotTask.defaultReportingRange? stx?
+  /--
+  Cancellation token that can be set by the server to cancel the task when it detects the results
+  are not needed anymore.
+  -/
+  cancelTk? : Option IO.CancelToken := none
   /-- Underlying task producing the snapshot. -/
   task : Task α
 deriving Nonempty, Inhabited
 
-/-- Creates a snapshot task from a reporting range and a `BaseIO` action. -/
-def SnapshotTask.ofIO (range? : Option String.Range) (act : BaseIO α) : BaseIO (SnapshotTask α) := do
+/-- Creates a snapshot task from the syntax processed by the task and a `BaseIO` action. -/
+def SnapshotTask.ofIO (stx? : Option Syntax)
+    (reportingRange? : Option String.Range := defaultReportingRange? stx?) (act : BaseIO α) :
+    BaseIO (SnapshotTask α) := do
   return {
-    range?
+    stx?
+    reportingRange?
     task := (← BaseIO.asTask act)
   }
 
 /-- Creates a finished snapshot task. -/
-def SnapshotTask.pure (a : α) : SnapshotTask α where
+def SnapshotTask.finished (stx? : Option Syntax) (a : α) : SnapshotTask α where
+  stx?
   -- irrelevant when already finished
-  range? := none
+  reportingRange? := none
   task := .pure a
 
-/--
-  Explicitly cancels a tasks. Like with basic `Tasks`s, cancellation happens implicitly when the
-  last reference to the task is dropped *if* it is not an I/O task. -/
-def SnapshotTask.cancel (t : SnapshotTask α) : BaseIO Unit :=
-  IO.cancel t.task
-
-/-- Transforms a task's output without changing the reporting range. -/
-def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (range? : Option String.Range := t.range?)
-    (sync := false) : SnapshotTask β :=
-  { range?, task := t.task.map (sync := sync) f }
+/-- Transforms a task's output without changing the processed syntax. -/
+def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (stx? : Option Syntax := t.stx?)
+    (reportingRange? : Option String.Range := t.reportingRange?) (sync := false) : SnapshotTask β :=
+  { stx?, cancelTk? := t.cancelTk?, reportingRange?, task := t.task.map (sync := sync) f }
 
 /--
-  Chains two snapshot tasks. The range is taken from the first task if not specified; the range of
-  the second task is discarded. -/
-def SnapshotTask.bind (t : SnapshotTask α) (act : α → SnapshotTask β)
-    (range? : Option String.Range := t.range?) (sync := false) : SnapshotTask β :=
-  { range?, task := t.task.bind (sync := sync) (act · |>.task) }
-
-/--
-  Chains two snapshot tasks. The range is taken from the first task if not specified; the range of
-  the second task is discarded. -/
+  Chains two snapshot tasks. The processed syntax and the reporting range are taken from the first
+  task if not specified; the processed syntax and the reporting range of the second task are
+  discarded. The cancellation tokens of both tasks are discarded. They are replaced with the given
+  token if any. -/
 def SnapshotTask.bindIO (t : SnapshotTask α) (act : α → BaseIO (SnapshotTask β))
-    (range? : Option String.Range := t.range?) (sync := false) : BaseIO (SnapshotTask β) :=
+    (stx? : Option Syntax := t.stx?) (reportingRange? : Option String.Range := t.reportingRange?)
+    (cancelTk? : Option IO.CancelToken) (sync := false) : BaseIO (SnapshotTask β) := do
   return {
-    range?
+    stx?, reportingRange?, cancelTk?
     task := (← BaseIO.bindTask (sync := sync) t.task fun a => (·.task) <$> (act a))
   }
 
@@ -159,66 +175,16 @@ structure SnapshotBundle (α : Type) where
   new  : IO.Promise α
 
 /--
-Runs `act` with a newly created promise and finally resolves it to `default` if not done by `act`.
-
-Always resolving promises involved in the snapshot tree is important to avoid deadlocking the
-language server.
--/
-def withAlwaysResolvedPromise [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
-    (act : IO.Promise α → m β) : m β := do
-  let p ← IO.Promise.new
-  try
-    act p
-  finally
-    p.resolve default
-
-/--
-Runs `act` with `count` newly created promises and finally resolves them to `default` if not done by
-`act`.
-
-Always resolving promises involved in the snapshot tree is important to avoid deadlocking the
-language server.
--/
-def withAlwaysResolvedPromises [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
-    (count : Nat) (act : Array (IO.Promise α) → m Unit) : m Unit := do
-  let ps ← List.iota count |>.toArray.mapM fun _ => IO.Promise.new
-  try
-    act ps
-  finally
-    for p in ps do
-      p.resolve default
-
-/--
   Tree of snapshots where each snapshot comes with an array of asynchronous further subtrees. Used
   for asynchronously collecting information about the entirety of snapshots in the language server.
   The involved tasks may form a DAG on the `Task` dependency level but this is not captured by this
   data structure. -/
-inductive SnapshotTree where
-  /-- Creates a snapshot tree node. -/
-  | mk (element : Snapshot) (children : Array (SnapshotTask SnapshotTree))
-deriving Inhabited
-
-/-- The immediately available element of the snapshot tree node. -/
-abbrev SnapshotTree.element : SnapshotTree → Snapshot
-  | mk s _ => s
-/-- The asynchronously available children of the snapshot tree node. -/
-abbrev SnapshotTree.children : SnapshotTree → Array (SnapshotTask SnapshotTree)
-  | mk _ children => children
-
-/-- Produces debug tree format of given snapshot tree, synchronously waiting on all children. -/
-partial def SnapshotTree.format [Monad m] [MonadFileMap m] [MonadLiftT IO m] :
-    SnapshotTree → m Format :=
-  go none
-where go range? s := do
-  let file ← getFileMap
-  let mut desc := f!"• {s.element.desc}"
-  if let some range := range? then
-    desc := desc ++ f!"{file.toPosition range.start}-{file.toPosition range.stop} "
-  desc := desc ++ .prefixJoin "\n• " (← s.element.diagnostics.msgLog.toList.mapM (·.toString))
-  if let some t := s.element.infoTree? then
-    desc := desc ++ f!"\n{← t.format}"
-  desc := desc ++ .prefixJoin "\n" (← s.children.toList.mapM fun c => go c.range? c.get)
-  return .nestD desc
+structure SnapshotTree where
+  /-- The immediately available element of the snapshot tree node. -/
+  element : Snapshot
+  /-- The asynchronously available children of the snapshot tree node. -/
+  children : Array (SnapshotTask SnapshotTree)
+deriving Inhabited, TypeName
 
 /--
   Helper class for projecting a heterogeneous hierarchy of snapshot classes to a homogeneous
@@ -228,10 +194,21 @@ class ToSnapshotTree (α : Type) where
   toSnapshotTree : α → SnapshotTree
 export ToSnapshotTree (toSnapshotTree)
 
+instance : ToSnapshotTree SnapshotTree where
+  toSnapshotTree s := s
+
 instance [ToSnapshotTree α] : ToSnapshotTree (Option α) where
   toSnapshotTree
     | some a => toSnapshotTree a
     | none   => default
+
+/--
+Recursively triggers all `SnapshotTask.cancelTk?` in the reachable tree, asynchronously.
+-/
+partial def SnapshotTask.cancelRec [ToSnapshotTree α] (t : SnapshotTask α) : BaseIO Unit := do
+  if let some cancelTk := t.cancelTk? then
+    cancelTk.set
+  BaseIO.chainTask (sync := true) t.task fun snap => toSnapshotTree snap |>.children.forM cancelRec
 
 /-- Snapshot type without child nodes. -/
 structure SnapshotLeaf extends Snapshot
@@ -244,11 +221,16 @@ instance : ToSnapshotTree SnapshotLeaf where
 structure DynamicSnapshot where
   /-- Concrete snapshot value as `Dynamic`. -/
   val  : Dynamic
-  /-- Snapshot tree retrieved from `val` before erasure. -/
-  tree : SnapshotTree
+  /--
+  Snapshot tree retrieved from `val` before erasure. We do thunk even the first level as accessing
+  it too early can create some unnecessary tasks from `toSnapshotTree` that are otherwise avoided by
+  `(sync := true)` when accessing only after elaboration has finished. Early access can even lead to
+  deadlocks when later forcing these unnecessary tasks on a starved thread pool.
+  -/
+  tree : Thunk SnapshotTree
 
 instance : ToSnapshotTree DynamicSnapshot where
-  toSnapshotTree s := s.tree
+  toSnapshotTree s := s.tree.get
 
 /-- Creates a `DynamicSnapshot` from a typed snapshot value. -/
 def DynamicSnapshot.ofTyped [TypeName α] [ToSnapshotTree α] (val : α) : DynamicSnapshot where
@@ -274,30 +256,68 @@ instance : Inhabited DynamicSnapshot where
     children.forM (·.get.forM f)
 
 /--
+  Runs a tree of snapshots to conclusion,
+  folding the function `f` over each snapshot in tree preorder. -/
+@[specialize] partial def SnapshotTree.foldM [Monad m] (s : SnapshotTree)
+    (f : α → Snapshot → m α) (init : α) : m α := do
+  match s with
+  | mk element children =>
+    let a ← f init element
+    children.foldlM (fun a snap => snap.get.foldM f a) a
+
+/--
   Option for printing end position of each message in addition to start position. Used for testing
   message ranges in the test suite. -/
 register_builtin_option printMessageEndPos : Bool := {
   defValue := false, descr := "print end position of each message in addition to start position"
 }
 
-/-- Reports messages on stdout. If `json` is true, prints messages as JSON (one per line). -/
-def reportMessages (msgLog : MessageLog) (opts : Options) (json := false) : IO Unit := do
-  if json then
-    msgLog.forM (·.toJson <&> (·.compress) >>= IO.println)
-  else
-    msgLog.forM (·.toString (includeEndPos := printMessageEndPos.get opts) >>= IO.print)
+/--
+Reports messages on stdout and returns whether an error was reported.
+If `json` is true, prints messages as JSON (one per line).
+If a message's kind is in `severityOverrides`, it will be reported with
+the specified severity.
+-/
+def reportMessages (msgLog : MessageLog) (opts : Options)
+    (json := false) (severityOverrides : NameMap MessageSeverity := {}) : IO Bool := do
+  let includeEndPos := printMessageEndPos.get opts
+  msgLog.unreported.foldlM (init := false) fun hasErrors msg => do
+    let msg : Message :=
+      if let some severity := severityOverrides.find? msg.kind then
+        {msg with severity}
+      else
+        msg
+    unless msg.isSilent do
+      if json then
+        let j ← msg.toJson
+        IO.println j.compress
+      else
+        let s ← msg.toString includeEndPos
+        IO.print s
+    return hasErrors || msg.severity matches .error
 
 /--
   Runs a tree of snapshots to conclusion and incrementally report messages on stdout. Messages are
-  reported in tree preorder.
+  reported in tree preorder. Returns whether any errors were reported.
   This function is used by the cmdline driver; see `Lean.Server.FileWorker.reportSnapshots` for how
   the language server reports snapshots asynchronously.  -/
-def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options) (json := false) : IO Unit := do
-  s.forM (reportMessages ·.diagnostics.msgLog opts json)
+def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options)
+    (json := false) (severityOverrides : NameMap MessageSeverity := {}) : IO Bool := do
+  s.foldM (init := false) fun e snap => do
+    let e' ← reportMessages snap.diagnostics.msgLog opts json severityOverrides
+    return strictOr e e'
 
 /-- Waits on and returns all snapshots in the tree. -/
 def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
-  s.forM (m := StateM _) (fun s => modify (·.push s)) |>.run #[] |>.2
+  Id.run <| s.foldM (·.push ·) #[]
+
+/-- Returns a task that waits on all snapshots in the tree. -/
+def SnapshotTree.waitAll : SnapshotTree → BaseIO (Task Unit)
+  | mk _ children => go children.toList
+where
+  go : List (SnapshotTask SnapshotTree) → BaseIO (Task Unit)
+    | [] => return .pure ()
+    | t::ts => BaseIO.bindTask t.task fun _ => go ts
 
 /-- Context of an input processing invocation. -/
 structure ProcessingContext extends Parser.InputContext

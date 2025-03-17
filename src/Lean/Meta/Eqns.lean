@@ -12,9 +12,18 @@ import Lean.Meta.Match.MatcherInfo
 
 namespace Lean.Meta
 
-register_builtin_option eqns.nonrecursive : Bool := {
+register_builtin_option backward.eqns.nonrecursive : Bool := {
     defValue := true
     descr    := "Create fine-grained equational lemmas even for non-recursive definitions."
+  }
+
+register_builtin_option backward.eqns.deepRecursiveSplit : Bool := {
+    defValue := true
+    descr    := "Create equational lemmas for recursive functions like for non-recursive \
+                functions. If disabled, match statements in recursive function definitions \
+                that do not contain recursive calls do not cause further splits in the \
+                equational lemmas. This was the behavior before Lean 4.12, and the purpose of \
+                this option is to help migrating old code."
   }
 
 
@@ -23,17 +32,18 @@ These options affect the generation of equational theorems in a significant way.
 value at definition time, not realization time, should matter.
 
 This is implemented by
- * eagerly realizing the equations when they are set to a non-default vaule
+ * eagerly realizing the equations when they are set to a non-default value
  * when realizing them lazily, reset the options to their default
 -/
-def eqnAffectingOptions : Array (Lean.Option Bool) := #[eqns.nonrecursive]
+def eqnAffectingOptions : Array (Lean.Option Bool) := #[backward.eqns.nonrecursive, backward.eqns.deepRecursiveSplit]
 
 /--
 Environment extension for storing which declarations are recursive.
 This information is populated by the `PreDefinition` module, but the simplifier
 uses when unfolding declarations.
 -/
-builtin_initialize recExt : TagDeclarationExtension ← mkTagDeclarationExtension `recExt
+builtin_initialize recExt : TagDeclarationExtension ←
+  mkTagDeclarationExtension `recExt (asyncMode := .async)
 
 /--
 Marks the given declaration as recursive.
@@ -57,31 +67,27 @@ def isEqnReservedNameSuffix (s : String) : Bool :=
   eqnThmSuffixBasePrefix.isPrefixOf s && (s.drop 3).isNat
 
 def unfoldThmSuffix := "eq_def"
-
-/-- Returns `true` if `s == "eq_def"` -/
-def isUnfoldReservedNameSuffix (s : String) : Bool :=
-  s == unfoldThmSuffix
+def eqUnfoldThmSuffix := "eq_unfold"
 
 /--
 Throw an error if names for equation theorems for `declName` are not available.
 -/
 def ensureEqnReservedNamesAvailable (declName : Name) : CoreM Unit := do
+  ensureReservedNameAvailable declName eqUnfoldThmSuffix
   ensureReservedNameAvailable declName unfoldThmSuffix
   ensureReservedNameAvailable declName eqn1ThmSuffix
   -- TODO: `declName` may need to reserve multiple `eq_<idx>` names, but we check only the first one.
   -- Possible improvement: try to efficiently compute the number of equation theorems at declaration time, and check all of them.
 
 /--
-Ensures that `f.eq_def` and `f.eq_<idx>` are reserved names if `f` is a safe definition.
+Ensures that `f.eq_def`, `f.unfold` and `f.eq_<idx>` are reserved names if `f` is a safe definition.
 -/
 builtin_initialize registerReservedNamePredicate fun env n =>
   match n with
   | .str p s =>
-    (isEqnReservedNameSuffix s || isUnfoldReservedNameSuffix s)
+    (isEqnReservedNameSuffix s || s == unfoldThmSuffix || s == eqUnfoldThmSuffix)
     && env.isSafeDefinition p
-    -- Remark: `f.match_<idx>.eq_<idx>` are private definitions and are not treated as reserved names
-    -- Reason: `f.match_<idx>.splitter is generated at the same time, and can eliminate into type.
-    -- Thus, it cannot be defined in different modules since it is not a theorem, and is used to generate code.
+    -- Remark: `f.match_<idx>.eq_<idx>` are handled separately in `Lean.Meta.Match.MatchEqs`.
     && !isMatcherCore env p
   | _ => false
 
@@ -121,9 +127,8 @@ def registerGetEqnsFn (f : GetEqnsFn) : IO Unit := do
 
 /-- Returns `true` iff `declName` is a definition and its type is not a proposition. -/
 private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
-  if let some (.defnInfo info) := (← getEnv).find? declName then
-    if (← isProp info.type) then return false
-    return true
+  if let some { kind := .defn, sig, .. } := (← getEnv).findAsync? declName then
+    return !(← isProp sig.get.type)
   else
     return false
 
@@ -134,31 +139,39 @@ structure EqnsExtState where
 
 /- We generate the equations on demand. -/
 builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
-  registerEnvExtension (pure {})
+  registerEnvExtension (pure {}) (asyncMode := .local)
 
 /--
 Simple equation theorem for nonrecursive definitions.
 -/
 private def mkSimpleEqThm (declName : Name) (suffix := Name.mkSimple unfoldThmSuffix) : MetaM (Option Name) := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
-    lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
-      let lhs := mkAppN (mkConst info.name <| info.levelParams.map mkLevelParam) xs
-      let type  ← mkForallFVars xs (← mkEq lhs body)
-      let value ← mkLambdaFVars xs (← mkEqRefl lhs)
-      let name := declName ++ suffix
-      addDecl <| Declaration.thmDecl {
-        name, type, value
-        levelParams := info.levelParams
-      }
-      return some name
+    let name := declName ++ suffix
+    realizeConst declName name (doRealize name info)
+    return some name
   else
     return none
+where doRealize name info := do
+  lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
+    let lhs := mkAppN (mkConst info.name <| info.levelParams.map mkLevelParam) xs
+    let type  ← mkForallFVars xs (← mkEq lhs body)
+    let value ← mkLambdaFVars xs (← mkEqRefl lhs)
+    addDecl <| Declaration.thmDecl {
+      name, type, value
+      levelParams := info.levelParams
+    }
 
 /--
 Returns `some declName` if `thmName` is an equational theorem for `declName`.
 -/
 def isEqnThm? (thmName : Name) : CoreM (Option Name) := do
   return eqnsExt.getState (← getEnv) |>.mapInv.find? thmName
+
+/--
+Returns `true` if `thmName` is an equational theorem.
+-/
+def isEqnThm (thmName : Name) : CoreM Bool := do
+  return eqnsExt.getState (← getEnv) |>.mapInv.contains thmName
 
 /--
 Stores in the `eqnsExt` environment extension that `eqThms` are the equational theorems for `declName`
@@ -191,13 +204,14 @@ private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array N
 private def getEqnsFor?Core (declName : Name) : MetaM (Option (Array Name)) := withLCtx {} {} do
   if let some eqs := eqnsExt.getState (← getEnv) |>.map.find? declName then
     return some eqs
-  else if let some eqs ← alreadyGenerated? declName then
+  if !(← shouldGenerateEqnThms declName) then
+    return none
+  if let some eqs ← alreadyGenerated? declName then
     return some eqs
-  else if (← shouldGenerateEqnThms declName) then
-    for f in (← getEqnsFnsRef.get) do
-      if let some r ← f declName then
-        registerEqnThms declName r
-        return some r
+  for f in (← getEqnsFnsRef.get) do
+    if let some r ← f declName then
+      registerEqnThms declName r
+      return some r
   return none
 
 /--
@@ -252,7 +266,7 @@ def registerGetUnfoldEqnFn (f : GetUnfoldEqnFn) : IO Unit := do
   getUnfoldEqnFnsRef.modify (f :: ·)
 
 /--
-Returns an "unfold" theorem for the given declaration.
+Returns an "unfold" theorem (`f.eq_def`) for the given declaration.
 By default, we do not create unfold theorems for nonrecursive definitions.
 You can use `nonRec := true` to override this behavior.
 -/
@@ -274,10 +288,10 @@ def getUnfoldEqnFor? (declName : Name) (nonRec := false) : MetaM (Option Name) :
 builtin_initialize
   registerReservedNameAction fun name => do
     let .str p s := name | return false
-    unless (← getEnv).isSafeDefinition p do return false
+    unless (← getEnv).isSafeDefinition p && !isMatcherCore (← getEnv) p do return false
     if isEqnReservedNameSuffix s then
       return (← MetaM.run' <| getEqnsFor? p).isSome
-    if isUnfoldReservedNameSuffix s then
+    if s == unfoldThmSuffix then
       return (← MetaM.run' <| getUnfoldEqnFor? p (nonRec := true)).isSome
     return false
 

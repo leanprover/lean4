@@ -30,7 +30,7 @@ private def mkUserNameFor (e : Expr) : TermElabM Name := do
 
 
 /--
-   Remark: if the discriminat is `Systax.missing`, we abort the elaboration of the `match`-expression.
+   Remark: if the discriminant is `Syntax.missing`, we abort the elaboration of the `match`-expression.
    This can happen due to error recovery. Example
    ```
    example : (p ∨ p) → p := fun h => match
@@ -56,6 +56,11 @@ private def elabAtomicDiscr (discr : Syntax) : TermElabM Expr := do
   let term := discr[1]
   elabTerm term none
 
+/-- Creates syntax for a fresh `h : `-notation annotation for a discriminant, copying source
+    information from an existing annotation `stx`. -/
+private def mkFreshDiscrIdentFrom (stx : Syntax) : CoreM Ident :=
+  return mkIdentFrom stx (← mkFreshUserName `h)
+
 structure Discr where
   expr : Expr
   /-- `some h` if discriminant is annotated with the `h : ` notation. -/
@@ -78,11 +83,11 @@ private partial def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptM
     -- motive := leading_parser atomic ("(" >> nonReservedSymbol "motive" >> " := ") >> termParser >> ")"
     let matchTypeStx := matchOptMotive[0][3]
     let matchType ← elabType matchTypeStx
-    let (discrs, isDep) ← elabDiscrsWitMatchType matchType
+    let (discrs, isDep) ← elabDiscrsWithMatchType matchType
     return { discrs := discrs, matchType := matchType, isDep := isDep, alts := matchAltViews }
 where
   /-- Easy case: elaborate discriminant when the match-type has been explicitly provided by the user.  -/
-  elabDiscrsWitMatchType (matchType : Expr) : TermElabM (Array Discr × Bool) := do
+  elabDiscrsWithMatchType (matchType : Expr) : TermElabM (Array Discr × Bool) := do
     let mut discrs := #[]
     let mut i := 0
     let mut matchType := matchType
@@ -105,14 +110,23 @@ where
   markIsDep (r : ElabMatchTypeAndDiscrsResult) :=
     { r with isDep := true }
 
+  expandDiscrIdent : Syntax → MetaM Syntax
+    | stx@`(_) => mkFreshDiscrIdentFrom stx
+    | stx => return stx
+
   /-- Elaborate discriminants inferring the match-type -/
   elabDiscrs (i : Nat) (discrs : Array Discr) : TermElabM ElabMatchTypeAndDiscrsResult := do
     if h : i < discrStxs.size then
-      let discrStx := discrStxs.get ⟨i, h⟩
+      let discrStx := discrStxs[i]
       let discr     ← elabAtomicDiscr discrStx
       let discr     ← instantiateMVars discr
       let userName ← mkUserNameFor discr
-      let h? := if discrStx[0].isNone then none else some discrStx[0][0]
+      let h? ←
+        if discrStx[0].isNone then
+          pure none
+        else
+          let h ← expandDiscrIdent discrStx[0][0]
+          pure (some h)
       let discrs := discrs.push { expr := discr, h? }
       let mut result ← elabDiscrs (i + 1) discrs
       let matchTypeBody ← kabstract result.matchType discr
@@ -176,9 +190,8 @@ structure PatternVarDecl where
 private partial def withPatternVars {α} (pVars : Array PatternVar) (k : Array PatternVarDecl → TermElabM α) : TermElabM α :=
   let rec loop (i : Nat) (decls : Array PatternVarDecl) (userNames : Array Name) := do
     if h : i < pVars.size then
-      let var := pVars.get ⟨i, h⟩
       let type ← mkFreshTypeMVar
-      withLocalDecl var.getId BinderInfo.default type fun x =>
+      withLocalDecl pVars[i].getId BinderInfo.default type fun x =>
         loop (i+1) (decls.push { fvarId := x.fvarId! }) (userNames.push Name.anonymous)
     else
       k decls
@@ -283,8 +296,8 @@ where
         let dArg := dArgs[i]!
         unless (← isDefEq tArg dArg) do
           return i :: (← goType tArg dArg)
-      for i in [info.numParams : tArgs.size] do
-        let tArg := tArgs[i]!
+      for h : i in [info.numParams : tArgs.size] do
+        let tArg := tArgs[i]
         let dArg := dArgs[i]!
         unless (← isDefEq tArg dArg) do
           return i :: (← goIndex tArg dArg)
@@ -330,8 +343,8 @@ private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : Excep
   withReader (fun ctx => { ctx with implicitLambda := false }) do
     let mut patterns  := #[]
     let mut matchType := matchType
-    for idx in [:patternStxs.size] do
-      let patternStx := patternStxs[idx]!
+    for h : idx in [:patternStxs.size] do
+      let patternStx := patternStxs[idx]
       matchType ← whnf matchType
       match matchType with
       | Expr.forallE _ d b _ =>
@@ -643,9 +656,9 @@ where
     | .proj _ _ b       => return p.updateProj! (← go b)
     | .mdata k b        =>
       if inaccessible? p |>.isSome then
-        return mkMData k (← withReader (fun _ => false) (go b))
+        return mkMData k (← withReader (fun _ => true) (go b))
       else if let some (stx, p) := patternWithRef? p then
-        Elab.withInfoContext' (go p) fun p => do
+        Elab.withInfoContext' (go p) (mkInfoOnError := mkPartialTermInfo .anonymous stx) fun p => do
           /- If `p` is a free variable and we are not inside of an "inaccessible" pattern, this `p` is a binder. -/
           mkTermInfo Name.anonymous stx p (isBinder := p.isFVar && !(← read))
       else
@@ -760,7 +773,7 @@ where
     | [] => k eqs
     | p::ps =>
       if h : i < discrs.size then
-        let discr := discrs.get ⟨i, h⟩
+        let discr := discrs[i]
         if let some h := discr.h? then
           withLocalDeclD h.getId (← mkEqHEq discr.expr (← p.toExpr)) fun eq => do
             addTermInfo' h eq (isBinder := true)
@@ -795,7 +808,7 @@ private def elabMatchAltView (discrs : Array Discr) (alt : MatchAltView) (matchT
               let rhs ← elabTermEnsuringType alt.rhs matchType'
               -- We use all approximations to ensure the auxiliary type is defeq to the original one.
               unless (← fullApproxDefEq <| isDefEq matchType' matchType) do
-                throwError "type mistmatch, alternative {← mkHasTypeButIsExpectedMsg matchType' matchType}"
+                throwError "type mismatch, alternative {← mkHasTypeButIsExpectedMsg matchType' matchType}"
               let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr ++ eqs
               let rhs ← if xs.isEmpty then pure <| mkSimpleThunk rhs else mkLambdaFVars xs rhs
               trace[Elab.match] "rhs: {rhs}"
@@ -917,7 +930,7 @@ where
         | none => return { expr := i : Discr }
         | some h =>
           -- If the discriminant that introduced this index is annotated with `h : discr`, then we should annotate the new discriminant too.
-          let h := mkIdentFrom h (← mkFreshUserName `h)
+          let h ← mkFreshDiscrIdentFrom h
           return { expr := i, h? := h : Discr }
       let discrs    := indDiscrs ++ discrs
       let indexFVarIds := indices.filterMap fun | .fvar fvarId .. => some fvarId | _  => none
@@ -957,7 +970,7 @@ where
     let mut s : CollectFVars.State := {}
     for discr in discrs do
       s := collectFVars s (← instantiateMVars (← inferType discr))
-    let (indicesFVar, indicesNonFVar) := indices.split Expr.isFVar
+    let (indicesFVar, indicesNonFVar) := indices.partition Expr.isFVar
     let indicesFVar := indicesFVar.map Expr.fvarId!
     let mut toAdd := #[]
     for fvarId in s.fvarSet.toList do
@@ -1195,7 +1208,7 @@ Remark the `optIdent` must be `none` at `matchDiscr`. They are expanded by `expa
 -/
 private def elabMatchCore (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   let expectedType   ← waitExpectedTypeAndDiscrs stx expectedType?
-  let discrStxs      := (getDiscrs stx).map fun d => d
+  let discrStxs      := getDiscrs stx
   let gen?           := getMatchGeneralizing? stx
   let altViews       := getMatchAlts stx
   let matchOptMotive := getMatchOptMotive stx

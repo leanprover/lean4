@@ -52,5 +52,5 @@ example : SemiHilbert (Trait.R ℝ) ℝ := by infer_instance
 -- set_option pp.explicit true in
 -- set_option trace.Meta.synthInstance true in
 
--- This should not timeout but failt in finite number of steps like in Lean 3
+-- This should not timeout but fail in finite number of steps like in Lean 3
 example : IsLin  (λ (x : ℝ) => sum λ i : Fin n => norm x) := by infer_instance

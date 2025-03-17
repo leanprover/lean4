@@ -5,7 +5,8 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Control.Id
-import Init.Data.List.Basic
+import Init.Data.List.Impl
+
 universe u v w w'
 namespace Lean
 
@@ -23,7 +24,7 @@ abbrev empty : AssocList α β :=
 
 instance : EmptyCollection (AssocList α β) := ⟨empty⟩
 
-abbrev insert (m : AssocList α β) (k : α) (v : β) : AssocList α β :=
+abbrev insertNew (m : AssocList α β) (k : α) (v : β) : AssocList α β :=
   m.cons k v
 
 def isEmpty : AssocList α β → Bool
@@ -75,6 +76,12 @@ def replace [BEq α] (a : α) (b : β) : AssocList α β → AssocList α β
   | cons k v es => match k == a with
     | true  => cons a b es
     | false => cons k v (replace a b es)
+
+def insert [BEq α] (m : AssocList α β) (k : α) (v : β) : AssocList α β :=
+  if m.contains k then
+    m.replace k v
+  else
+    m.insertNew k v
 
 def erase [BEq α] (a : α) : AssocList α β → AssocList α β
   | nil         => nil

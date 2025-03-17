@@ -76,7 +76,7 @@ partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :
         let c := s.getUtf8Byte i h
         if c == c'
         then node1 v c' (loop (i + 1) t')
-        else 
+        else
           let t := insertEmpty (i + 1)
           node v (.mk #[c, c']) #[t, t']
       else
@@ -119,7 +119,7 @@ partial def find? (t : Trie α) (s : String) : Option α :=
         let c := s.getUtf8Byte i h
         match cs.findIdx? (· == c) with
         | none   => none
-        | some idx => loop (i + 1) (ts.get! idx)
+        | some idx => loop (i + 1) ts[idx]!
       else
         val
   loop 0 t
@@ -155,7 +155,7 @@ partial def findPrefix (t : Trie α) (pre : String) : Array α := go t 0
         | node _val cs ts =>
           match cs.findIdx? (· == c) with
           | none   => .empty
-          | some idx => go (ts.get! idx) (i + 1)
+          | some idx => go ts[idx]! (i + 1)
       else
         t.values
 
@@ -180,7 +180,7 @@ partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : Option α 
         let c := s.getUtf8Byte i h
         match cs.findIdx? (· == c) with
         | none => res
-        | some idx => loop (ts.get! idx) (i + 1) res
+        | some idx => loop ts[idx]! (i + 1) res
       else
         res
   loop t i.byteIdx none
@@ -190,7 +190,7 @@ private partial def toStringAux {α : Type} : Trie α → List Format
   | node1 _ c t =>
     [ format (repr c), Format.group $ Format.nest 4 $ flip Format.joinSep Format.line $ toStringAux t ]
   | node _ cs ts =>
-    List.join $ List.zipWith (fun c t =>
+    List.flatten $ List.zipWith (fun c t =>
       [ format (repr c), (Format.group $ Format.nest 4 $ flip Format.joinSep Format.line $ toStringAux t) ]
     ) cs.toList ts.toList
 

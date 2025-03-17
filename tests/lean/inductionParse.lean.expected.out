@@ -1,0 +1,2 @@
+inductionParse.lean:4:14-4:18: error: alternative 'zero' has not been provided
+inductionParse.lean:4:14-4:18: error: alternative 'succ' has not been provided

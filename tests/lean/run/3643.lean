@@ -1,7 +1,7 @@
 
 import Lean
 /-!
-# Make sure 'ext' attribute works in conjuction with local/scoped
+# Make sure 'ext' attribute works in conjunction with local/scoped
 -/
 
 section Ex0

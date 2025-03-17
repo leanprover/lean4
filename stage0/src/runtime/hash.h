@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "runtime/debug.h"
-#include "runtime/int64.h"
+#include "runtime/int.h"
 
 namespace lean {
 

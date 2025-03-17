@@ -14,7 +14,8 @@ pure s
 /--
 info: hello
 true
-10
+---
+info: 10
 -/
 #guard_msgs in
 #eval (f "hello").run' 10 true
@@ -26,7 +27,8 @@ withReader (fun s => s ++ " world") a
 /--
 info: hello world
 false
-10
+---
+info: 10
 -/
 #guard_msgs in
 #eval (g "hello").run' 10 true

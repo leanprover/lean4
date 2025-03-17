@@ -1,4 +1,4 @@
-inductive Term
+inductive Term : Type
 | id2: Term -> Term -> Term
 
 inductive Brx: Term -> Prop

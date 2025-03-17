@@ -11,13 +11,13 @@ def foo : Bool → Nat → Nat
   | _, n+1 => foo .false n
 termination_by _ n => n
 
-/-- info: foo.eq_1 : ∀ (x : Bool), foo x 0 = 0 -/
+/-- info: foo.eq_1 (x✝ : Bool) : foo x✝ 0 = 0 -/
 #guard_msgs in
 #check foo.eq_1
 /-- info: foo.eq_2 (n : Nat) : foo true n.succ = foo true n -/
 #guard_msgs in
 #check foo.eq_2
-/-- info: foo.eq_3 : ∀ (x : Bool) (n : Nat), (x = true → False) → foo x n.succ = foo false n -/
+/-- info: foo.eq_3 (x✝ : Bool) (n : Nat) (x_3 : x✝ = true → False) : foo x✝ n.succ = foo false n -/
 #guard_msgs in
 #check foo.eq_3
 

@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2023 Scott Morrison. All rights reserved.
+Copyright (c) 2023 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Lean.CoreM
@@ -15,7 +15,7 @@ import Lean.Util.FoldConsts
 sending each declaration to the kernel for checking.
 
 `replay` does not send constructors or recursors in `constantMap` to the kernel,
-but rather checks that they are identical to constructors or recursors generated in the enviroment
+but rather checks that they are identical to constructors or recursors generated in the environment
 after replaying any inductive definitions occurring in `constantMap`.
 
 `replay` can be used either as:
@@ -49,15 +49,13 @@ def isTodo (name : Name) : M Bool := do
   else
     return false
 
-/-- Use the current `Environment` to throw a `KernelException`. -/
-def throwKernelException (ex : KernelException) : M Unit := do
-    let ctx := { fileName := "", options := ({} : KVMap), fileMap := default }
-    let state := { env := (← get).env }
-    Prod.fst <$> (Lean.Core.CoreM.toIO · ctx state) do Lean.throwKernelException ex
+/-- Use the current `Environment` to throw a `Kernel.Exception`. -/
+def throwKernelException (ex : Kernel.Exception) : M Unit := do
+  throw <| .userError <| (← ex.toMessageData {} |>.toString)
 
-/-- Add a declaration, possibly throwing a `KernelException`. -/
+/-- Add a declaration, possibly throwing a `Kernel.Exception`. -/
 def addDecl (d : Declaration) : M Unit := do
-  match (← get).env.addDecl {} d with
+  match (← get).env.addDeclCore 0 d (cancelTk? := none) with
   | .ok env => modify fun s => { s with env := env }
   | .error ex => throwKernelException ex
 
@@ -129,7 +127,7 @@ when we replayed the inductives.
 -/
 def checkPostponedConstructors : M Unit := do
   for ctor in (← get).postponedConstructors do
-    match (← get).env.constants.find? ctor, (← read).newConstants[ctor]? with
+    match (← get).env.find? ctor, (← read).newConstants[ctor]? with
     | some (.ctorInfo info), some (.ctorInfo info') =>
       if ! (info == info') then throw <| IO.userError s!"Invalid constructor {ctor}"
     | _, _ => throw <| IO.userError s!"No such constructor {ctor}"
@@ -140,7 +138,7 @@ when we replayed the inductives.
 -/
 def checkPostponedRecursors : M Unit := do
   for ctor in (← get).postponedRecursors do
-    match (← get).env.constants.find? ctor, (← read).newConstants[ctor]? with
+    match (← get).env.find? ctor, (← read).newConstants[ctor]? with
     | some (.recInfo info), some (.recInfo info') =>
       if ! (info == info') then throw <| IO.userError s!"Invalid recursor {ctor}"
     | _, _ => throw <| IO.userError s!"No such recursor {ctor}"

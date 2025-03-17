@@ -80,7 +80,8 @@ return sum
 info: 1
 2
 3
-6
+---
+info: 6
 -/
 #guard_msgs in
 #eval f4 #[1, 2, 3]
@@ -97,7 +98,8 @@ info: 2
 3
 4
 5
-14
+---
+info: 14
 -/
 #guard_msgs in
 #eval f5 #[1, 2, 3, 4, 5, 6]

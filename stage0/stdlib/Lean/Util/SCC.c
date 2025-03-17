@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.SCC
-// Imports: Init.Data.List.Control Lean.Data.HashMap Std.Data.HashMap.Basic
+// Imports: Lean.Data.HashMap Std.Data.HashMap.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,6 +23,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf___at
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack(lean_object*);
 LEAN_EXPORT lean_object* l_List_forM___at_Lean_SCC_scc___spec__1(lean_object*);
+static lean_object* l_Lean_SCC_scc___rarg___closed__3;
 LEAN_EXPORT lean_object* l_List_forM___at___private_Lean_Util_SCC_0__Lean_SCC_sccAux___spec__1(lean_object*);
 lean_object* l_Nat_nextPowerOfTwo_go(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -31,151 +32,44 @@ size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf___at___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___rarg___lambda__1(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_SCC_Data_index_x3f___default;
-LEAN_EXPORT lean_object* l_Lean_SCC_State_stack___default(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___rarg___lambda__1(lean_object*, lean_object*);
-static lean_object* l_Lean_SCC_State_data___default___closed__1;
 uint8_t l_Std_DHashMap_Internal_AssocList_contains___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_replace___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf___at___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_push(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC_add___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_SCC_State_data___default___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf(lean_object*);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___rarg___closed__1;
-static lean_object* l_Lean_SCC_State_data___default___closed__2;
 LEAN_EXPORT uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at___private_Lean_Util_SCC_0__Lean_SCC_sccAux___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forM___at_Lean_SCC_scc___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_SCC_State_data___default(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___rarg___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf___at___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
-static lean_object* l_Lean_SCC_State_data___default___closed__3;
 lean_object* lean_nat_mul(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_SCC_State_sccs___default(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux(lean_object*);
+static lean_object* l_Lean_SCC_scc___rarg___closed__1;
 lean_object* l_List_reverse___rarg(lean_object*);
 size_t lean_usize_sub(size_t, size_t);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___rarg(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
+static lean_object* l_Lean_SCC_scc___rarg___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at___private_Lean_Util_SCC_0__Lean_SCC_sccAux___spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forM___at___private_Lean_Util_SCC_0__Lean_SCC_sccAux___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_SCC_State_nextIndex___default;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC_add(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_SCC_Data_onStack___default;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_SCC_Data_lowlink_x3f___default;
 LEAN_EXPORT lean_object* l_Lean_SCC_scc___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
-static lean_object* _init_l_Lean_SCC_Data_index_x3f___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_SCC_Data_lowlink_x3f___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static uint8_t _init_l_Lean_SCC_Data_onStack___default() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_SCC_State_stack___default(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_box(0);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_SCC_State_nextIndex___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(0u);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_SCC_State_data___default___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(10u);
-x_2 = lean_unsigned_to_nat(1u);
-x_3 = l_Nat_nextPowerOfTwo_go(x_1, x_2, lean_box(0));
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_SCC_State_data___default___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_SCC_State_data___default___closed__1;
-x_3 = lean_mk_array(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_SCC_State_data___default___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_SCC_State_data___default___closed__2;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_SCC_State_data___default(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_SCC_State_data___default___closed__3;
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_SCC_State_data___default___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_SCC_State_data___default(x_1, x_2, x_3);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_SCC_State_sccs___default(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_box(0);
-return x_2;
-}
-}
 static lean_object* _init_l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___rarg___closed__1() {
 _start:
 {
@@ -2792,13 +2686,45 @@ x_2 = lean_alloc_closure((void*)(l_List_forM___at_Lean_SCC_scc___spec__1___rarg)
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_SCC_scc___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(10u);
+x_2 = lean_unsigned_to_nat(1u);
+x_3 = l_Nat_nextPowerOfTwo_go(x_1, x_2, lean_box(0));
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_SCC_scc___rarg___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_SCC_scc___rarg___closed__1;
+x_3 = lean_mk_array(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_SCC_scc___rarg___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l_Lean_SCC_scc___rarg___closed__2;
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_SCC_scc___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_5 = lean_box(0);
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = l_Lean_SCC_State_data___default___closed__3;
+x_7 = l_Lean_SCC_scc___rarg___closed__3;
 x_8 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_8, 0, x_5);
 lean_ctor_set(x_8, 1, x_6);
@@ -2823,7 +2749,6 @@ x_2 = lean_alloc_closure((void*)(l_Lean_SCC_scc___rarg), 4, 0);
 return x_2;
 }
 }
-lean_object* initialize_Init_Data_List_Control(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_HashMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_HashMap_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -2831,32 +2756,22 @@ LEAN_EXPORT lean_object* initialize_Lean_Util_SCC(uint8_t builtin, lean_object* 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_List_Control(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_HashMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_HashMap_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_SCC_Data_index_x3f___default = _init_l_Lean_SCC_Data_index_x3f___default();
-lean_mark_persistent(l_Lean_SCC_Data_index_x3f___default);
-l_Lean_SCC_Data_lowlink_x3f___default = _init_l_Lean_SCC_Data_lowlink_x3f___default();
-lean_mark_persistent(l_Lean_SCC_Data_lowlink_x3f___default);
-l_Lean_SCC_Data_onStack___default = _init_l_Lean_SCC_Data_onStack___default();
-l_Lean_SCC_State_nextIndex___default = _init_l_Lean_SCC_State_nextIndex___default();
-lean_mark_persistent(l_Lean_SCC_State_nextIndex___default);
-l_Lean_SCC_State_data___default___closed__1 = _init_l_Lean_SCC_State_data___default___closed__1();
-lean_mark_persistent(l_Lean_SCC_State_data___default___closed__1);
-l_Lean_SCC_State_data___default___closed__2 = _init_l_Lean_SCC_State_data___default___closed__2();
-lean_mark_persistent(l_Lean_SCC_State_data___default___closed__2);
-l_Lean_SCC_State_data___default___closed__3 = _init_l_Lean_SCC_State_data___default___closed__3();
-lean_mark_persistent(l_Lean_SCC_State_data___default___closed__3);
 l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___rarg___closed__1 = _init_l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___rarg___closed__1();
 lean_mark_persistent(l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___rarg___closed__1);
 l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___rarg___closed__1 = _init_l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___rarg___closed__1();
 lean_mark_persistent(l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___rarg___closed__1);
+l_Lean_SCC_scc___rarg___closed__1 = _init_l_Lean_SCC_scc___rarg___closed__1();
+lean_mark_persistent(l_Lean_SCC_scc___rarg___closed__1);
+l_Lean_SCC_scc___rarg___closed__2 = _init_l_Lean_SCC_scc___rarg___closed__2();
+lean_mark_persistent(l_Lean_SCC_scc___rarg___closed__2);
+l_Lean_SCC_scc___rarg___closed__3 = _init_l_Lean_SCC_scc___rarg___closed__3();
+lean_mark_persistent(l_Lean_SCC_scc___rarg___closed__3);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

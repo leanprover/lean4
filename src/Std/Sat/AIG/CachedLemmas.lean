@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+prelude
 import Std.Sat.AIG.Cached
 
 /-!
@@ -59,7 +60,7 @@ theorem mkAtomCached_decl_eq (aig : AIG α) (var : α) (idx : Nat) {h : idx < ai
     simp [this]
   | none =>
     have := mkAtomCached_miss_aig aig hcache
-    simp only [this, Array.get_push]
+    simp only [this, Array.getElem_push]
     split
     · rfl
     · contradiction
@@ -72,7 +73,7 @@ theorem mkAtomCached_le_size (aig : AIG α) (var : α) :
   dsimp only [mkAtomCached]
   split
   · simp
-  · simp_arith
+  · simp +arith
 
 instance : LawfulOperator α (fun _ => α) mkAtomCached where
   le_size := mkAtomCached_le_size
@@ -133,7 +134,7 @@ theorem mkConstCached_decl_eq (aig : AIG α) (val : Bool) (idx : Nat) {h : idx <
     simp [this]
   | none =>
     have := mkConstCached_miss_aig aig hcache
-    simp only [this, Array.get_push]
+    simp only [this, Array.getElem_push]
     split
     · rfl
     · contradiction
@@ -146,7 +147,7 @@ theorem mkConstCached_le_size (aig : AIG α) (val : Bool) :
   dsimp only [mkConstCached]
   split
   · simp
-  · simp_arith
+  · simp +arith
 
 instance : LawfulOperator α (fun _ => Bool) mkConstCached where
   le_size := mkConstCached_le_size
@@ -188,18 +189,10 @@ theorem mkGateCached.go_le_size (aig : AIG α) (input : GateInput aig) :
   dsimp only [go]
   split
   · simp
-  · split
-    · simp_arith [mkConstCached_le_size]
-    · simp_arith [mkConstCached_le_size]
-    · simp_arith [mkConstCached_le_size]
-    · simp_arith [mkConstCached_le_size]
-    · simp_arith
-    · simp_arith
-    · simp_arith
-    · simp_arith
-    · split
-      · simp_arith
-      · split <;> simp_arith [mkConstCached_le_size]
+  · split <;> try simp +arith [mkConstCached_le_size]
+    split
+    · simp +arith
+    · split <;> simp +arith [mkConstCached_le_size]
 
 /--
 `AIG.mkGateCached` never shrinks the underlying AIG.
@@ -256,7 +249,7 @@ theorem mkGateCached.go_decl_eq (aig : AIG α) (input : GateInput aig) :
           · rw [← hres]
             dsimp only
             intro idx h1 h2
-            rw [Array.get_push]
+            rw [Array.getElem_push]
             simp [h2]
 
 /--

@@ -70,11 +70,11 @@ macro_rules
 /--
 Rewrites with the given rules, normalizing casts prior to each step.
 -/
-syntax "rw_mod_cast" (config)? rwRuleSeq (location)? : tactic
+syntax "rw_mod_cast" optConfig rwRuleSeq (location)? : tactic
 macro_rules
-  | `(tactic| rw_mod_cast $[$config]? [$rules,*] $[$loc]?) => do
+  | `(tactic| rw_mod_cast $cfg:optConfig [$rules,*] $[$loc]?) => do
     let tacs ← rules.getElems.mapM fun rule =>
-      `(tactic| (norm_cast at *; rw $[$config]? [$rule] $[$loc]?))
+      `(tactic| (norm_cast at *; rw $cfg [$rule] $[$loc]?))
     `(tactic| ($[$tacs]*))
 
 /--

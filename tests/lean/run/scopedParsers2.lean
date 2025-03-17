@@ -16,15 +16,15 @@ namespace Foo
 
 def f x y := x + y + 1
 
-scoped infix:70 "^^" => f
+scoped infix:70 "~~" => f
 
-#check 1 ^^ 2
+#check 1 ~~ 2
 
-theorem ex1 : x ^^ y = f x y := rfl
+theorem ex1 : x ~~ y = f x y := rfl
 
 end Foo
 
-#check 1 ^^ 2 -- works because we have an `open Foo` above
+#check 1 ~~ 2 -- works because we have an `open Foo` above
 
-theorem ex2 : x ^^ y = f x y := rfl
-theorem ex3 : x ^^ y = Foo.f x y := rfl
+theorem ex2 : x ~~ y = f x y := rfl
+theorem ex3 : x ~~ y = Foo.f x y := rfl

@@ -27,7 +27,7 @@ builtin_dsimproc [simp, seval] reduceGetElem? (@GetElem?.getElem? (Array _) Nat 
 
 /-- Simplification procedure for `#[...][n]!` for `n` a `Nat` literal. -/
 builtin_dsimproc [simp, seval] reduceGetElem! (@GetElem?.getElem! (Array _) Nat _ _ _ _ _ _) := fun e => do
-  let_expr GetElem?.getElem! _ _ α _ _ I xs n ← e | return .continue
+  let_expr GetElem?.getElem! _ _ α _ _ _ xs n ← e | return .continue
   let some n ← Nat.fromExpr? n | return .continue
   let some xs ← getArrayLit? xs | return .continue
   let r ← if h : n < xs.size then pure xs[n] else mkDefault α

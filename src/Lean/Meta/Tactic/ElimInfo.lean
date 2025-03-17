@@ -60,16 +60,16 @@ def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : Me
         throwError "unexpected number of arguments at motive type{indentExpr motiveType}"
       unless motiveResultType.isSort do
         throwError "motive result type must be a sort{indentExpr motiveType}"
-    let some motivePos ← pure (xs.indexOf? motive) |
+    let some motivePos ← pure (xs.idxOf? motive) |
       throwError "unexpected eliminator type{indentExpr elimType}"
     let targetsPos ← targets.mapM fun target => do
-      match xs.indexOf? target with
+      match xs.idxOf? target with
       | none => throwError "unexpected eliminator type{indentExpr elimType}"
-      | some targetPos => pure targetPos.val
+      | some targetPos => pure targetPos
     let mut altsInfo := #[]
     let env ← getEnv
-    for i in [:xs.size] do
-      let x := xs[i]!
+    for h : i in [:xs.size] do
+      let x := xs[i]
       if x != motive && !targets.contains x then
         let xDecl ← x.fvarId!.getDecl
         if xDecl.binderInfo.isExplicit then
@@ -120,6 +120,8 @@ where
       else
         collect (b.instantiate1 (← mkFreshExprMVar d)) (argIdx+1) targetIdx implicits targets'
     | _ =>
+      unless targetIdx = targets.size do
+        throwError "extra targets for '{elimInfo.elimExpr}'"
       return (implicits, targets')
 
 structure CustomEliminator where
@@ -148,13 +150,13 @@ def mkCustomEliminator (elimName : Name) (induction : Bool) : MetaM CustomElimin
   let info ← getConstInfo elimName
   forallTelescopeReducing info.type fun xs _ => do
     let mut typeNames := #[]
-    for i in [:elimInfo.targetsPos.size] do
-      let targetPos := elimInfo.targetsPos[i]!
+    for hi : i in [:elimInfo.targetsPos.size] do
+      let targetPos := elimInfo.targetsPos[i]
       let x := xs[targetPos]!
       /- Return true if there is another target that depends on `x`. -/
       let isImplicitTarget : MetaM Bool := do
-        for j in [i+1:elimInfo.targetsPos.size] do
-          let y := xs[elimInfo.targetsPos[j]!]!
+        for hj : j in [i+1:elimInfo.targetsPos.size] do
+          let y := xs[elimInfo.targetsPos[j]]!
           let yType ← inferType y
           if (← dependsOn yType x.fvarId!) then
             return true

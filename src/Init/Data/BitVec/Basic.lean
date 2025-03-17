@@ -1,19 +1,20 @@
 /-
 Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Joe Hendrix, Wojciech Nawrocki, Leonardo de Moura, Mario Carneiro, Alex Keizer, Harun Khan, Abdalrhman M Mohamed
+Authors: Joe Hendrix, Wojciech Nawrocki, Leonardo de Moura, Mario Carneiro, Alex Keizer, Harun Khan, Abdalrhman M Mohamed, Siddharth Bhat
 -/
 prelude
 import Init.Data.Fin.Basic
 import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Nat.Power2
 import Init.Data.Int.Bitwise
+import Init.Data.BitVec.BasicAux
 
 /-!
-We define bitvectors. We choose the `Fin` representation over others for its relative efficiency
-(Lean has special support for `Nat`), alignment with `UIntXY` types which are also represented
-with `Fin`, and the fact that bitwise operations on `Fin` are already defined. Some other possible
-representations are `List Bool`, `{ l : List Bool // l.length = w }`, `Fin w → Bool`.
+We define the basic algebraic structure of bitvectors. We choose the `Fin` representation over
+others for its relative efficiency (Lean has special support for `Nat`),  and the fact that bitwise
+operations on `Fin` are already defined. Some other possible representations are `List Bool`,
+`{ l : List Bool // l.length = w }`, `Fin w → Bool`.
 
 We define many of the bitvector operations from the
 [`QF_BV` logic](https://smtlib.cs.uiowa.edu/logics-all.shtml#QF_BV).
@@ -22,66 +23,19 @@ of SMT-LIBv2.
 
 set_option linter.missingDocs true
 
-/--
-A bitvector of the specified width.
-
-This is represented as the underlying `Nat` number in both the runtime
-and the kernel, inheriting all the special support for `Nat`.
--/
-structure BitVec (w : Nat) where
-  /-- Construct a `BitVec w` from a number less than `2^w`.
-  O(1), because we use `Fin` as the internal representation of a bitvector. -/
-  ofFin ::
-  /-- Interpret a bitvector as a number less than `2^w`.
-  O(1), because we use `Fin` as the internal representation of a bitvector. -/
-  toFin : Fin (2^w)
-
-/--
-Bitvectors have decidable equality. This should be used via the instance `DecidableEq (BitVec n)`.
--/
--- We manually derive the `DecidableEq` instances for `BitVec` because
--- we want to have builtin support for bit-vector literals, and we
--- need a name for this function to implement `canUnfoldAtMatcher` at `WHNF.lean`.
-def BitVec.decEq (x y : BitVec n) : Decidable (x = y) :=
-  match x, y with
-  | ⟨n⟩, ⟨m⟩ =>
-    if h : n = m then
-      isTrue (h ▸ rfl)
-    else
-      isFalse (fun h' => BitVec.noConfusion h' (fun h' => absurd h' h))
-
-instance : DecidableEq (BitVec n) := BitVec.decEq
-
 namespace BitVec
+
+@[inline, deprecated BitVec.ofNatLT (since := "2025-02-13"), inherit_doc BitVec.ofNatLT]
+protected def ofNatLt {n : Nat} (i : Nat) (p : i < 2 ^ n) : BitVec n :=
+  BitVec.ofNatLT i p
 
 section Nat
 
-/-- The `BitVec` with value `i`, given a proof that `i < 2^n`. -/
-@[match_pattern]
-protected def ofNatLt {n : Nat} (i : Nat) (p : i < 2^n) : BitVec n where
-  toFin := ⟨i, p⟩
-
-/-- The `BitVec` with value `i mod 2^n`. -/
-@[match_pattern]
-protected def ofNat (n : Nat) (i : Nat) : BitVec n where
-  toFin := Fin.ofNat' i (Nat.two_pow_pos n)
-
-instance instOfNat : OfNat (BitVec n) i where ofNat := .ofNat n i
 instance natCastInst : NatCast (BitVec w) := ⟨BitVec.ofNat w⟩
-
-/-- Given a bitvector `x`, return the underlying `Nat`. This is O(1) because `BitVec` is a
-(zero-cost) wrapper around a `Nat`. -/
-protected def toNat (x : BitVec n) : Nat := x.toFin.val
-
-/-- Return the bound in terms of toNat. -/
-theorem isLt (x : BitVec w) : x.toNat < 2^w := x.toFin.isLt
-
-@[deprecated isLt (since := "2024-03-12")]
-theorem toNat_lt (x : BitVec n) : x.toNat < 2^n := x.isLt
 
 /-- Theorem for normalizing the bit vector literal representation. -/
 -- TODO: This needs more usage data to assess which direction the simp should go.
-@[simp, bv_toNat] theorem ofNat_eq_ofNat : @OfNat.ofNat (BitVec n) i _ = .ofNat n i := rfl
+@[simp, bitvec_to_nat] theorem ofNat_eq_ofNat : @OfNat.ofNat (BitVec n) i _ = .ofNat n i := rfl
 
 -- Note. Mathlib would like this to go the other direction.
 @[simp] theorem natCast_eq_ofNat (w x : Nat) : @Nat.cast (BitVec w) _ x = .ofNat w x := rfl
@@ -105,27 +59,79 @@ end subsingleton
 section zero_allOnes
 
 /-- Return a bitvector `0` of size `n`. This is the bitvector with all zero bits. -/
-protected def zero (n : Nat) : BitVec n := .ofNatLt 0 (Nat.two_pow_pos n)
+protected def zero (n : Nat) : BitVec n := .ofNatLT 0 (Nat.two_pow_pos n)
 instance : Inhabited (BitVec n) where default := .zero n
 
 /-- Bit vector of size `n` where all bits are `1`s -/
 def allOnes (n : Nat) : BitVec n :=
-  .ofNatLt (2^n - 1) (Nat.le_of_eq (Nat.sub_add_cancel (Nat.two_pow_pos n)))
+  .ofNatLT (2^n - 1) (Nat.le_of_eq (Nat.sub_add_cancel (Nat.two_pow_pos n)))
 
 end zero_allOnes
 
 section getXsb
 
+/--
+Return the `i`-th least significant bit.
+
+This will be renamed `getLsb` after the existing deprecated alias is removed.
+-/
+@[inline] def getLsb' (x : BitVec w) (i : Fin w) : Bool := x.toNat.testBit i
+
+/-- Return the `i`-th least significant bit or `none` if `i ≥ w`. -/
+@[inline] def getLsb? (x : BitVec w) (i : Nat) : Option Bool :=
+  if h : i < w then some (getLsb' x ⟨i, h⟩) else none
+
+/--
+Return the `i`-th most significant bit.
+
+This will be renamed `getMsb` after the existing deprecated alias is removed.
+-/
+@[inline] def getMsb' (x : BitVec w) (i : Fin w) : Bool := x.getLsb' ⟨w-1-i, by omega⟩
+
+/-- Return the `i`-th most significant bit or `none` if `i ≥ w`. -/
+@[inline] def getMsb? (x : BitVec w) (i : Nat) : Option Bool :=
+  if h : i < w then some (getMsb' x ⟨i, h⟩) else none
+
 /-- Return the `i`-th least significant bit or `false` if `i ≥ w`. -/
-@[inline] def getLsb (x : BitVec w) (i : Nat) : Bool := x.toNat.testBit i
+@[inline] def getLsbD (x : BitVec w) (i : Nat) : Bool :=
+  x.toNat.testBit i
+
+@[deprecated getLsbD (since := "2024-08-29"), inherit_doc getLsbD]
+def getLsb (x : BitVec w) (i : Nat) : Bool := x.getLsbD i
 
 /-- Return the `i`-th most significant bit or `false` if `i ≥ w`. -/
-@[inline] def getMsb (x : BitVec w) (i : Nat) : Bool := i < w && getLsb x (w-1-i)
+@[inline] def getMsbD (x : BitVec w) (i : Nat) : Bool :=
+  i < w && x.getLsbD (w-1-i)
+
+@[deprecated getMsbD (since := "2024-08-29"), inherit_doc getMsbD]
+def getMsb (x : BitVec w) (i : Nat) : Bool := x.getMsbD i
 
 /-- Return most-significant bit in bitvector. -/
-@[inline] protected def msb (x : BitVec n) : Bool := getMsb x 0
+@[inline] protected def msb (x : BitVec n) : Bool := getMsbD x 0
 
 end getXsb
+
+section getElem
+
+instance : GetElem (BitVec w) Nat Bool fun _ i => i < w where
+  getElem xs i h := xs.getLsb' ⟨i, h⟩
+
+/-- We prefer `x[i]` as the simp normal form for `getLsb'` -/
+@[simp] theorem getLsb'_eq_getElem (x : BitVec w) (i : Fin w) :
+    x.getLsb' i = x[i] := rfl
+
+/-- We prefer `x[i]?` as the simp normal form for `getLsb?` -/
+@[simp] theorem getLsb?_eq_getElem? (x : BitVec w) (i : Nat) :
+    x.getLsb? i = x[i]? := rfl
+
+theorem getElem_eq_testBit_toNat (x : BitVec w) (i : Nat) (h : i < w) :
+  x[i] = x.toNat.testBit i := rfl
+
+@[simp]
+theorem getLsbD_eq_getElem {x : BitVec w} {i : Nat} (h : i < w) :
+    x.getLsbD i = x[i] := rfl
+
+end getElem
 
 section Int
 
@@ -137,7 +143,7 @@ protected def toInt (x : BitVec n) : Int :=
     (x.toNat : Int) - (2^n : Nat)
 
 /-- The `BitVec` with value `(2^n + (i mod 2^n)) mod 2^n`.  -/
-protected def ofInt (n : Nat) (i : Int) : BitVec n := .ofNatLt (i % (Int.ofNat (2^n))).toNat (by
+protected def ofInt (n : Nat) (i : Int) : BitVec n := .ofNatLT (i % (Int.ofNat (2^n))).toNat (by
   apply (Int.toNat_lt _).mpr
   · apply Int.emod_lt_of_pos
     exact Int.ofNat_pos.mpr (Nat.two_pow_pos _)
@@ -156,17 +162,22 @@ section Syntax
 syntax:max num noWs "#" noWs term:max : term
 macro_rules | `($i:num#$n) => `(BitVec.ofNat $n $i)
 
+/-- not `ofNat_zero` -/
+recommended_spelling "zero" for "0#n" in [BitVec.ofNat, «term__#__»]
+/-- not `ofNat_one` -/
+recommended_spelling "one" for "1#n" in [BitVec.ofNat, «term__#__»]
+
 /-- Unexpander for bit vector literals. -/
 @[app_unexpander BitVec.ofNat] def unexpandBitVecOfNat : Lean.PrettyPrinter.Unexpander
   | `($(_) $n $i:num) => `($i:num#$n)
   | _ => throw ()
 
-/-- Notation for bit vector literals without truncation. `i#'lt` is a shorthand for `BitVec.ofNatLt i lt`. -/
+/-- Notation for bit vector literals without truncation. `i#'lt` is a shorthand for `BitVec.ofNatLT i lt`. -/
 scoped syntax:max term:max noWs "#'" noWs term:max : term
-macro_rules | `($i#'$p) => `(BitVec.ofNatLt $i $p)
+macro_rules | `($i#'$p) => `(BitVec.ofNatLT $i $p)
 
 /-- Unexpander for bit vector literals without truncation. -/
-@[app_unexpander BitVec.ofNatLt] def unexpandBitVecOfNatLt : Lean.PrettyPrinter.Unexpander
+@[app_unexpander BitVec.ofNatLT] def unexpandBitVecOfNatLt : Lean.PrettyPrinter.Unexpander
   | `($(_) $i $p) => `($i#'$p)
   | _ => throw ()
 
@@ -188,22 +199,6 @@ end repr_toString
 section arithmetic
 
 /--
-Addition for bit vectors. This can be interpreted as either signed or unsigned addition
-modulo `2^n`.
-
-SMT-Lib name: `bvadd`.
--/
-protected def add (x y : BitVec n) : BitVec n := .ofNat n (x.toNat + y.toNat)
-instance : Add (BitVec n) := ⟨BitVec.add⟩
-
-/--
-Subtraction for bit vectors. This can be interpreted as either signed or unsigned subtraction
-modulo `2^n`.
--/
-protected def sub (x y : BitVec n) : BitVec n := .ofNat n ((2^n - y.toNat) + x.toNat)
-instance : Sub (BitVec n) := ⟨BitVec.sub⟩
-
-/--
 Negation for bit vectors. This can be interpreted as either signed or unsigned negation
 modulo `2^n`.
 
@@ -218,8 +213,8 @@ Return the absolute value of a signed bitvector.
 protected def abs (x : BitVec n) : BitVec n := if x.msb then .neg x else x
 
 /--
-Multiplication for bit vectors. This can be interpreted as either signed or unsigned negation
-modulo `2^n`.
+Multiplication for bit vectors. This can be interpreted as either signed or unsigned
+multiplication modulo `2^n`.
 
 SMT-Lib name: `bvmul`.
 -/
@@ -336,20 +331,12 @@ SMT-Lib name: `bvult`.
 -/
 protected def ult (x y : BitVec n) : Bool := x.toNat < y.toNat
 
-instance : LT (BitVec n) where lt := (·.toNat < ·.toNat)
-instance (x y : BitVec n) : Decidable (x < y) :=
-  inferInstanceAs (Decidable (x.toNat < y.toNat))
-
 /--
 Unsigned less-than-or-equal-to for bit vectors.
 
 SMT-Lib name: `bvule`.
 -/
 protected def ule (x y : BitVec n) : Bool := x.toNat ≤ y.toNat
-
-instance : LE (BitVec n) where le := (·.toNat ≤ ·.toNat)
-instance (x y : BitVec n) : Decidable (x ≤ y) :=
-  inferInstanceAs (Decidable (x.toNat ≤ y.toNat))
 
 /--
 Signed less-than for bit vectors.
@@ -374,17 +361,17 @@ end relations
 section cast
 
 /-- `cast eq x` embeds `x` into an equal `BitVec` type. -/
-@[inline] def cast (eq : n = m) (x : BitVec n) : BitVec m := .ofNatLt x.toNat (eq ▸ x.isLt)
+@[inline] protected def cast (eq : n = m) (x : BitVec n) : BitVec m := .ofNatLT x.toNat (eq ▸ x.isLt)
 
 @[simp] theorem cast_ofNat {n m : Nat} (h : n = m) (x : Nat) :
-    cast h (BitVec.ofNat n x) = BitVec.ofNat m x := by
+    (BitVec.ofNat n x).cast h = BitVec.ofNat m x := by
   subst h; rfl
 
 @[simp] theorem cast_cast {n m k : Nat} (h₁ : n = m) (h₂ : m = k) (x : BitVec n) :
-    cast h₂ (cast h₁ x) = cast (h₁ ▸ h₂) x :=
+    (x.cast h₁).cast h₂ = x.cast (h₁ ▸ h₂) :=
   rfl
 
-@[simp] theorem cast_eq {n : Nat} (h : n = n) (x : BitVec n) : cast h x = x := rfl
+@[simp] theorem cast_eq {n : Nat} (h : n = n) (x : BitVec n) : x.cast h = x := rfl
 
 /--
 Extraction of bits `start` to `start + len - 1` from a bit vector of size `n` to yield a
@@ -402,12 +389,15 @@ SMT-Lib name: `extract`.
 def extractLsb (hi lo : Nat) (x : BitVec n) : BitVec (hi - lo + 1) := extractLsb' lo _ x
 
 /--
-A version of `zeroExtend` that requires a proof, but is a noop.
+A version of `setWidth` that requires a proof the new width is at least as large,
+and is a computational noop.
 -/
-def zeroExtend' {n w : Nat} (le : n ≤ w) (x : BitVec n) : BitVec w :=
+def setWidth' {n w : Nat} (le : n ≤ w) (x : BitVec n) : BitVec w :=
   x.toNat#'(by
     apply Nat.lt_of_lt_of_le x.isLt
-    exact Nat.pow_le_pow_of_le_right (by trivial) le)
+    exact Nat.pow_le_pow_right (by trivial) le)
+
+@[deprecated setWidth' (since := "2024-09-18"), inherit_doc setWidth'] abbrev zeroExtend' := @setWidth'
 
 /--
 `shiftLeftZeroExtend x n` returns `zeroExtend (w+n) x <<< n` without
@@ -421,22 +411,35 @@ def shiftLeftZeroExtend (msbs : BitVec w) (m : Nat) : BitVec (w + m) :=
   (msbs.toNat <<< m)#'(shiftLeftLt msbs.isLt m)
 
 /--
-Zero extend vector `x` of length `w` by adding zeros in the high bits until it has length `v`.
-If `v < w` then it truncates the high bits instead.
+Transform `x` of length `w` into a bitvector of length `v`, by either:
+- zero extending, that is, adding zeros in the high bits until it has length `v`, if `v > w`, or
+- truncating the high bits, if `v < w`.
 
 SMT-Lib name: `zero_extend`.
 -/
-def zeroExtend (v : Nat) (x : BitVec w) : BitVec v :=
+def setWidth (v : Nat) (x : BitVec w) : BitVec v :=
   if h : w ≤ v then
-    zeroExtend' h x
+    setWidth' h x
   else
     .ofNat v x.toNat
 
 /--
-Truncate the high bits of bitvector `x` of length `w`, resulting in a vector of length `v`.
-If `v > w` then it zero-extends the vector instead.
+Transform `x` of length `w` into a bitvector of length `v`, by either:
+- zero extending, that is, adding zeros in the high bits until it has length `v`, if `v > w`, or
+- truncating the high bits, if `v < w`.
+
+SMT-Lib name: `zero_extend`.
 -/
-abbrev truncate := @zeroExtend
+abbrev zeroExtend := @setWidth
+
+/--
+Transform `x` of length `w` into a bitvector of length `v`, by either:
+- zero extending, that is, adding zeros in the high bits until it has length `v`, if `v > w`, or
+- truncating the high bits, if `v < w`.
+
+SMT-Lib name: `zero_extend`.
+-/
+abbrev truncate := @setWidth
 
 /--
 Sign extend a vector of length `w`, extending with `i` additional copies of the most significant
@@ -587,7 +590,7 @@ input is on the left, so `0xAB#8 ++ 0xCD#8 = 0xABCD#16`.
 SMT-Lib name: `concat`.
 -/
 def append (msbs : BitVec n) (lsbs : BitVec m) : BitVec (n+m) :=
-  shiftLeftZeroExtend msbs m ||| zeroExtend' (Nat.le_add_left m n) lsbs
+  shiftLeftZeroExtend msbs m ||| setWidth' (Nat.le_add_left m n) lsbs
 
 instance : HAppend (BitVec w) (BitVec v) (BitVec (w + v)) := ⟨.append⟩
 
@@ -609,6 +612,13 @@ result of appending a single bit to the front in the naive implementation).
 /-- Append a single bit to the end of a bitvector, using big endian order (see `append`).
     That is, the new bit is the least significant bit. -/
 def concat {n} (msbs : BitVec n) (lsb : Bool) : BitVec (n+1) := msbs ++ (ofBool lsb)
+
+/--
+`x.shiftConcat b` shifts all bits of `x` to the left by `1` and sets the least significant bit to `b`.
+It is a non-dependent version of `concat` that does not change the total bitwidth.
+-/
+def shiftConcat (x : BitVec n) (b : Bool) : BitVec n :=
+  (x.concat b).truncate n
 
 /-- Prepend a single bit to the front of a bitvector, using big endian order (see `append`).
     That is, the new bit is the most significant bit. -/
@@ -632,6 +642,16 @@ def twoPow (w : Nat) (i : Nat) : BitVec w := 1#w <<< i
 
 end bitwise
 
+/-- Compute a hash of a bitvector, combining 64-bit words using `mixHash`. -/
+def hash (bv : BitVec n) : UInt64 :=
+  if n ≤ 64 then
+    bv.toFin.val.toUInt64
+  else
+    mixHash (bv.toFin.val.toUInt64) (hash ((bv >>> 64).setWidth (n - 64)))
+
+instance : Hashable (BitVec n) where
+  hash := hash
+
 section normalization_eqs
 /-! We add simp-lemmas that rewrite bitvector operations into the equivalent notation -/
 @[simp] theorem append_eq (x : BitVec w) (y : BitVec v)   : BitVec.append x y = x ++ y        := rfl
@@ -645,6 +665,8 @@ section normalization_eqs
 @[simp] theorem add_eq (x y : BitVec w)                   : BitVec.add x y = x + y            := rfl
 @[simp] theorem sub_eq (x y : BitVec w)                   : BitVec.sub x y = x - y            := rfl
 @[simp] theorem mul_eq (x y : BitVec w)                   : BitVec.mul x y = x * y            := rfl
+@[simp] theorem udiv_eq (x y : BitVec w)                  : BitVec.udiv x y = x / y           := rfl
+@[simp] theorem umod_eq (x y : BitVec w)                  : BitVec.umod x y = x % y           := rfl
 @[simp] theorem zero_eq                                   : BitVec.zero n = 0#n               := rfl
 end normalization_eqs
 
@@ -657,5 +679,28 @@ def ofBoolListBE : (bs : List Bool) → BitVec bs.length
 def ofBoolListLE : (bs : List Bool) → BitVec bs.length
 | [] => 0#0
 | b :: bs => concat (ofBoolListLE bs) b
+
+/-! ## Overflow -/
+
+/-- `uaddOverflow x y` returns `true` if addition of `x` and `y` results in *unsigned* overflow.
+
+  SMT-Lib name: `bvuaddo`.
+-/
+def uaddOverflow {w : Nat} (x y : BitVec w) : Bool := x.toNat + y.toNat ≥ 2 ^ w
+
+/-- `saddOverflow x y` returns `true` if addition of `x` and `y` results in *signed* overflow,
+treating `x` and `y` as 2's complement signed bitvectors.
+
+  SMT-Lib name: `bvsaddo`.
+-/
+def saddOverflow {w : Nat} (x y : BitVec w) : Bool :=
+  (x.toInt + y.toInt ≥ 2 ^ (w - 1)) || (x.toInt + y.toInt < - 2 ^ (w - 1))
+
+/- ### reverse -/
+
+/-- Reverse the bits in a bitvector. -/
+def reverse : {w : Nat} → BitVec w → BitVec w
+  | 0, x => x
+  | w + 1, x => concat (reverse (x.truncate w)) (x.msb)
 
 end BitVec

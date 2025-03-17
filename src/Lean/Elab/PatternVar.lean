@@ -135,7 +135,7 @@ private def isNextArgAccessible (ctx : Context) : Bool :=
   | none =>
     if h : i < ctx.paramDecls.size then
       -- For `[match_pattern]` applications, only explicit parameters are accessible.
-      let d := ctx.paramDecls.get ⟨i, h⟩
+      let d := ctx.paramDecls[i]
       d.2.isExplicit
     else
       false
@@ -156,9 +156,11 @@ private def processVar (idStx : Syntax) : M Syntax := do
   modify fun s => { s with vars := s.vars.push idStx, found := s.found.insert id }
   return idStx
 
-private def samePatternsVariables (startingAt : Nat) (s₁ s₂ : State) : Bool :=
-  if h : s₁.vars.size = s₂.vars.size then
-    Array.isEqvAux s₁.vars s₂.vars h (.==.) startingAt
+private def samePatternsVariables (startingAt : Nat) (s₁ s₂ : State) : Bool := Id.run do
+  if h₁ : s₁.vars.size = s₂.vars.size then
+    for h₂ : i in [startingAt:s₁.vars.size] do
+      if s₁.vars[i] != s₂.vars[i]'(by obtain ⟨_, y⟩ := h₂; simp_all +zetaDelta) then return false
+    true
   else
     false
 
@@ -263,7 +265,7 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
       | `(Parser.Term.structInstField| $lval:structInstLVal := $val) => do
         let newVal ← collect val
         `(Parser.Term.structInstField| $lval:structInstLVal := $newVal)
-      | _ => throwInvalidPattern  -- `structInstFieldAbbrev` should be expanded at this point
+      | _ => throwInvalidPattern  -- `structInstField` should be expanded at this point
     `({ $[$srcs?,* with]? $fields,* $[..%$ell?]? $[: $ty?]? })
   | _ => throwInvalidPattern
 
@@ -330,9 +332,9 @@ where
     else
       let accessible := isNextArgAccessible ctx
       let (d, ctx)   := getNextParam ctx
-      match ctx.namedArgs.findIdx? fun namedArg => namedArg.name == d.1 with
+      match ctx.namedArgs.findFinIdx? fun namedArg => namedArg.name == d.1 with
       | some idx =>
-        let arg := ctx.namedArgs[idx]!
+        let arg := ctx.namedArgs[idx]
         let ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx }
         let ctx ← pushNewArg accessible ctx arg.val
         processCtorAppContext ctx

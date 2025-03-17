@@ -50,7 +50,7 @@ def markJP (j : JoinPointId) : M Unit :=
 def getDecl (c : Name) : M Decl := do
   let ctx ← read
   match findEnvDecl' ctx.env c ctx.decls with
-  | none   => throw s!"unknown declaration '{c}'"
+  | none   => throw s!"depends on declaration '{c}', which has no executable code; consider marking definition as 'noncomputable'"
   | some d => pure d
 
 def checkVar (x : VarId) : M Unit := do
@@ -135,8 +135,8 @@ def checkExpr (ty : IRType) : Expr → M Unit
     match xType with
     | IRType.object       => checkObjType ty
     | IRType.tobject      => checkObjType ty
-    | IRType.struct _ tys => if h : i < tys.size then checkEqTypes (tys.get ⟨i,h⟩) ty else throw "invalid proj index"
-    | IRType.union _ tys  => if h : i < tys.size then checkEqTypes (tys.get ⟨i,h⟩) ty else throw "invalid proj index"
+    | IRType.struct _ tys => if h : i < tys.size then checkEqTypes (tys[i]) ty else throw "invalid proj index"
+    | IRType.union _ tys  => if h : i < tys.size then checkEqTypes (tys[i]) ty else throw "invalid proj index"
     | _                   => throw s!"unexpected IR type '{xType}'"
   | Expr.uproj _ x          => checkObjVar x *> checkType ty (fun t => t == IRType.usize)
   | Expr.sproj _ _ x        => checkObjVar x *> checkScalarType ty
@@ -182,7 +182,7 @@ end Checker
 def checkDecl (decls : Array Decl) (decl : Decl) : CompilerM Unit := do
   let env ← getEnv
   match (Checker.checkDecl decl { env := env, decls := decls }).run' {} with
-  | .error msg => throw s!"compiler IR check failed at '{decl.name}', error: {msg}"
+  | .error msg => throw s!"failed to compile definition, compiler IR check failed at '{decl.name}'. Error: {msg}"
   | _ => pure ()
 
 def checkDecls (decls : Array Decl) : CompilerM Unit :=

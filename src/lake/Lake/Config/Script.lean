@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Util.Exit
 import Lake.Config.Context
 
@@ -23,7 +24,7 @@ abbrev ScriptFn := (args : List String) → ScriptM ExitCode
 
 /--
 A package `Script` is a `ScriptFn` definition that is
-indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
+indexed by a `String` key and can be run by `lake run <key> [-- <args>]`.
 -/
 structure Script where
   /-- The full name of the `Script` (e.g., `pkg/script`). -/

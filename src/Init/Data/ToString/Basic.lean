@@ -4,14 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import Init.Data.String.Basic
-import Init.Data.UInt.Basic
-import Init.Data.Nat.Div
 import Init.Data.Repr
-import Init.Data.Int.Basic
-import Init.Data.Format.Basic
-import Init.Control.Id
-import Init.Control.Option
+import Init.Data.Option.Basic
+
 open Sum Subtype Nat
 
 open Std
@@ -45,6 +40,20 @@ instance {p : Prop} : ToString (Decidable p) := ⟨fun h =>
   | Decidable.isTrue _  => "true"
   | Decidable.isFalse _ => "false"⟩
 
+/--
+Converts a list into a string, using `ToString.toString` to convert its elements.
+
+The resulting string resembles list literal syntax, with the elements separated by `", "` and
+enclosed in square brackets.
+
+The resulting string may not be valid Lean syntax, because there's no such expectation for
+`ToString` instances.
+
+Examples:
+* `[1, 2, 3].toString = "[1, 2, 3]"`
+* `["cat", "dog"].toString = "[cat, dog]"`
+* `["cat", "dog", ""].toString = "[cat, dog, ]"`
+-/
 protected def List.toString [ToString α] : List α → String
   | [] => "[]"
   | [x] => "[" ++ toString x ++ "]"

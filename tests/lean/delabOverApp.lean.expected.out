@@ -3,4 +3,4 @@ f +' g : Nat → Nat
 f * g : Nat → Nat
 (f * g) 1 : Nat
 mul f g : Nat → Nat
-mul f g 1 : Nat
+mul f g (@OfNat.ofNat Nat 1 (instOfNatNat 1)) : Nat

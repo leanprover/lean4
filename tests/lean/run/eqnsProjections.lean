@@ -1,5 +1,5 @@
 /-!
-This test should catch intentional or accidential changes to how projections are rewritten by
+This test should catch intentional or accidental changes to how projections are rewritten by
 various tactics
 -/
 

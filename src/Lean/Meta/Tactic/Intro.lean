@@ -17,7 +17,7 @@ namespace Lean.Meta
     match i, type with
     | 0, type =>
       let type := type.instantiateRevRange j fvars.size fvars
-      withReader (fun ctx => { ctx with lctx := lctx }) do
+      withLCtx' lctx do
         withNewLocalInstances fvars j do
           let tag     ← mvarId.getTag
           let type := type.headBeta
@@ -57,7 +57,7 @@ namespace Lean.Meta
         loop i lctx fvars j s body
       else
         let type := type.instantiateRevRange j fvars.size fvars
-        withReader (fun ctx => { ctx with lctx := lctx }) do
+        withLCtx' lctx do
           withNewLocalInstances fvars j do
             /- We used to use just `whnf`, but it produces counterintuitive behavior if
               - `type` is a metavariable `?m` such that `?m := let x := v; b`, or
@@ -140,7 +140,7 @@ abbrev _root_.Lean.MVarId.introNP (mvarId : MVarId) (n : Nat) : MetaM (Array FVa
   introNCore mvarId n [] (useNamesForExplicitOnly := false) (preserveBinderNames := true)
 
 /--
-Introduce one binder using `name` as the the new hypothesis name.
+Introduce one binder using `name` as the new hypothesis name.
 -/
 def _root_.Lean.MVarId.intro (mvarId : MVarId) (name : Name) : MetaM (FVarId × MVarId) := do
   let (fvarIds, mvarId) ← mvarId.introN 1 [name]
@@ -164,7 +164,11 @@ does not start with a forall, lambda or let. -/
 abbrev _root_.Lean.MVarId.intro1P (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
   intro1Core mvarId true
 
-private partial def getIntrosSize : Expr → Nat
+/--
+Calculate the number of new hypotheses that would be created by `intros`,
+i.e. the number of binders which can be introduced without unfolding definitions.
+-/
+partial def getIntrosSize : Expr → Nat
   | .forallE _ _ b _ => getIntrosSize b + 1
   | .letE _ _ _ b _  => getIntrosSize b + 1
   | .mdata _ b       => getIntrosSize b

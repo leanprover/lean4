@@ -49,12 +49,12 @@ private def resolveNameUsingNamespacesCore (nss : List Name) (idStx : Syntax) : 
       exs := exs.push ex
   if exs.size == nss.length then
     withRef idStx do
-      if exs.size == 1 then
-        throw exs[0]!
+      if h : exs.size = 1 then
+        throw exs[0]
       else
         throwErrorWithNestedErrors "failed to open" exs
-  if result.size == 1 then
-    return result[0]!
+  if h : result.size = 1 then
+    return result[0]
   else
     withRef idStx do throwError "ambiguous identifier '{idStx.getId}', possible interpretations: {result.map mkConst}"
 

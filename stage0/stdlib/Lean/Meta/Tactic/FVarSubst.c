@@ -44,7 +44,6 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_insert___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_AssocList_mapVal___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_AssocList_any___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_map___default;
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_get___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_apply___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_domain(lean_object*);
@@ -58,14 +57,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_FVarSubst_erase(lean_object*, lean_object*)
 LEAN_EXPORT uint8_t l_Lean_Meta_FVarSubst_contains(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_FVarSubst_any(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Meta_FVarSubst_domain___spec__1(lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Meta_FVarSubst_map___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Meta_instInhabitedFVarSubst() {
 _start:
 {
@@ -721,8 +712,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Util_ReplaceExpr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Meta_FVarSubst_map___default = _init_l_Lean_Meta_FVarSubst_map___default();
-lean_mark_persistent(l_Lean_Meta_FVarSubst_map___default);
 l_Lean_Meta_instInhabitedFVarSubst = _init_l_Lean_Meta_instInhabitedFVarSubst();
 lean_mark_persistent(l_Lean_Meta_instInhabitedFVarSubst);
 l_Lean_Meta_FVarSubst_empty = _init_l_Lean_Meta_FVarSubst_empty();

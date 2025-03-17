@@ -1,60 +1,60 @@
 {"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 5, "character": 12}}
 {"items":
- [{"sortText": "0",
-   "label": "LongNamespaceExample",
+ [{"label": "LongNamespaceExample",
    "kind": 9,
    "detail": "namespace",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///compNamespace.lean"},
-     "position": {"line": 5, "character": 12}}}}],
- "isIncomplete": true}
+     "position": {"line": 5, "character": 12}},
+    "cPos": 0}}],
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 9, "character": 12}}
 {"items":
- [{"sortText": "0",
-   "label": "LongNamespaceExample",
+ [{"label": "LongNamespaceExample",
    "kind": 9,
    "detail": "namespace",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///compNamespace.lean"},
-     "position": {"line": 9, "character": 12}}}}],
- "isIncomplete": true}
+     "position": {"line": 9, "character": 12}},
+    "cPos": 0}}],
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 13, "character": 11}}
 {"items":
- [{"sortText": "0",
-   "label": "LongNamespaceExample",
+ [{"label": "LongNamespaceExample",
    "kind": 9,
    "detail": "namespace",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///compNamespace.lean"},
-     "position": {"line": 13, "character": 11}}}}],
- "isIncomplete": true}
+     "position": {"line": 13, "character": 11}},
+    "cPos": 0}}],
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 16, "character": 16}}
 {"items":
- [{"sortText": "0",
-   "label": "Foo.LongNamespaceExample",
+ [{"label": "Foo.LongNamespaceExample",
    "kind": 9,
    "detail": "namespace",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///compNamespace.lean"},
-     "position": {"line": 16, "character": 16}}}}],
- "isIncomplete": true}
+     "position": {"line": 16, "character": 16}},
+    "cPos": 0}}],
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 20, "character": 12}}
 {"items":
- [{"sortText": "0",
-   "label": "LongNamespaceExample",
+ [{"label": "LongNamespaceExample",
    "kind": 9,
    "detail": "namespace",
    "data":
    {"params":
     {"textDocument": {"uri": "file:///compNamespace.lean"},
-     "position": {"line": 20, "character": 12}}}}],
- "isIncomplete": true}
+     "position": {"line": 20, "character": 12}},
+    "cPos": 0}}],
+ "isIncomplete": false}

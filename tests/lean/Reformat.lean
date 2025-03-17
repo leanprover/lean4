@@ -19,7 +19,7 @@ let stx' ← Lean.Parser.testParseModule env args.head! (toString f)
 if stx' != stx then
   let stx := stx.raw.getArg 1
   let stx' := stx'.raw.getArg 1
-  stx.getArgs.size.forM fun i => do
+  stx.getArgs.size.forM fun i _ => do
     if stx.getArg i != stx'.getArg i then
       throw $ IO.userError s!"reparsing failed:\n{stx.getArg i}\n{stx'.getArg i}"
 

@@ -14,7 +14,8 @@ def y := x
 
 /--
 info: >> (1, 2) == (1, 2)
-true
+---
+info: true
 -/
 #guard_msgs in
 #eval withPtrEq x (mk 1) (fun _ => dbgTrace (">> " ++ toString x ++ " == " ++ toString y) $ fun _ => x == y) TrustMe -- should print message

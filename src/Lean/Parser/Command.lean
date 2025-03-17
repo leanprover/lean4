@@ -78,7 +78,7 @@ All modifiers are optional, and have to come in the listed order.
 `nestedDeclModifiers` is the same as `declModifiers`, but attributes are printed
 on the same line as the declaration. It is used for declarations nested inside other syntax,
 such as inductive constructors, structure projections, and `let rec` / `where` definitions. -/
-def declModifiers (inline : Bool) := leading_parser
+@[builtin_doc] def declModifiers (inline : Bool) := leading_parser
   optional docComment >>
   optional (Term.«attributes» >> if inline then skip else ppDedent ppLine) >>
   optional visibility >>
@@ -86,13 +86,16 @@ def declModifiers (inline : Bool) := leading_parser
   optional «unsafe» >>
   optional («partial» <|> «nonrec»)
 /-- `declId` matches `foo` or `foo.{u,v}`: an identifier possibly followed by a list of universe names -/
-def declId           := leading_parser
+-- @[builtin_doc] -- FIXME: suppress the hover
+def declId := leading_parser
   ident >> optional (".{" >> sepBy1 (recover ident (skipUntil (fun c => c.isWhitespace || c ∈ [',', '}']))) ", " >> "}")
 /-- `declSig` matches the signature of a declaration with required type: a list of binders and then `: type` -/
-def declSig          := leading_parser
+-- @[builtin_doc] -- FIXME: suppress the hover
+def declSig := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.typeSpec
 /-- `optDeclSig` matches the signature of a declaration with optional type: a list of binders and then possibly `: type` -/
-def optDeclSig       := leading_parser
+-- @[builtin_doc] -- FIXME: suppress the hover
+def optDeclSig := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.optType
 /-- Right-hand side of a `:=` in a declaration, a term. -/
 def declBody : Parser :=
@@ -131,21 +134,19 @@ def declValSimple    := leading_parser
   " :=" >> ppHardLineUnlessUngrouped >> declBody >> Termination.suffix >> optional Term.whereDecls
 def declValEqns      := leading_parser
   Term.matchAltsWhereDecls
-def whereStructField := leading_parser
-  Term.letDecl
 def whereStructInst  := leading_parser
-  ppIndent ppSpace >> "where" >> sepByIndent (ppGroup whereStructField) "; " (allowTrailingSep := true) >>
+  ppIndent ppSpace >> "where" >> Term.structInstFields (sepByIndent Term.structInstField "; " (allowTrailingSep := true)) >>
   optional Term.whereDecls
 /-- `declVal` matches the right-hand side of a declaration, one of:
 * `:= expr` (a "simple declaration")
 * a sequence of `| pat => expr` (a declaration by equations), shorthand for a `match`
 * `where` and then a sequence of `field := value` initializers, shorthand for a structure constructor
 -/
-def declVal          :=
+@[builtin_doc] def declVal :=
   -- Remark: we should not use `Term.whereDecls` at `declVal`
   -- because `Term.whereDecls` is defined using `Term.letRecDecl` which may contain attributes.
   -- Issue #753 shows an example that fails to be parsed when we used `Term.whereDecls`.
-  withAntiquot (mkAntiquot "declVal" `Lean.Parser.Command.declVal (isPseudoKind := true)) <|
+  withAntiquot (mkAntiquot "declVal" decl_name% (isPseudoKind := true)) <|
     declValSimple <|> declValEqns <|> whereStructInst
 def «abbrev»         := leading_parser
   "abbrev " >> declId >> ppIndent optDeclSig >> declVal
@@ -170,7 +171,7 @@ def «example»        := leading_parser
 def ctor             := leading_parser
   atomic (optional docComment >> "\n| ") >>
   ppGroup (declModifiers true >> rawIdent >> optDeclSig)
-def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> ppIndent Term.structInst))) ", "
+def derivingClasses  := sepBy1 ident ", "
 def optDeriving      := leading_parser
   optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def computedField    := leading_parser
@@ -193,9 +194,10 @@ inductive List (α : Type u) where
 ```
 A list of elements of type `α` is either the empty list, `nil`,
 or an element `head : α` followed by a list `tail : List α`.
-For more information about [inductive types](https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html).
+See [Inductive types](https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html)
+for more information.
 -/
-def «inductive»      := leading_parser
+@[builtin_doc] def «inductive» := leading_parser
   "inductive " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >>
   many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving
 def classInductive   := leading_parser
@@ -224,13 +226,16 @@ def structureTk          := leading_parser
   "structure "
 def classTk              := leading_parser
   "class "
+def structParent        := leading_parser
+  optional (atomic (ident >> " : ")) >> termParser
 def «extends»            := leading_parser
-  " extends " >> sepBy1 termParser ", "
+  -- The optType is to catch code that uses the old order for optType and extends.
+  " extends " >> sepBy1 structParent ", " >> Term.optType
 def «structure»          := leading_parser
     (structureTk <|> classTk) >>
     -- Note: no error recovery here due to clashing with the `class abbrev` syntax
     declId >>
-    ppIndent (many (ppSpace >> Term.bracketedBinder) >> optional «extends» >> Term.optType) >>
+    ppIndent (many (ppSpace >> Term.bracketedBinder) >> Term.optType >> optional «extends») >>
     optional ((symbol " := " <|> " where ") >> optional structCtor >> structFields) >>
     optDeriving
 @[builtin_command_parser] def declaration := leading_parser
@@ -281,7 +286,7 @@ When a definition mentions a variable, Lean will add it as an argument of the de
 useful in particular when writing many definitions that have parameters in common (see below for an
 example).
 
-Variable declarations have the same flexibility as regular function paramaters. In particular they
+Variable declarations have the same flexibility as regular function parameters. In particular they
 can be [explicit, implicit][binder docs], or [instance implicit][tpil classes] (in which case they
 can be anonymous). This can be changed, for instance one can turn explicit variable `x` into an
 implicit one with `variable {x}`. Note that currently, you should avoid changing how variables are
@@ -458,9 +463,33 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
   "#check " >> termParser
 @[builtin_command_parser] def check_failure  := leading_parser
   "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check
-@[builtin_command_parser] def eval           := leading_parser
+/--
+`#eval e` evaluates the expression `e` by compiling and evaluating it.
+
+* The command attempts to use `ToExpr`, `Repr`, or `ToString` instances to print the result.
+* If `e` is a monadic value of type `m ty`, then the command tries to adapt the monad `m`
+  to one of the monads that `#eval` supports, which include `IO`, `CoreM`, `MetaM`, `TermElabM`, and `CommandElabM`.
+  Users can define `MonadEval` instances to extend the list of supported monads.
+
+The `#eval` command gracefully degrades in capability depending on what is imported.
+Importing the `Lean.Elab.Command` module provides full capabilities.
+
+Due to unsoundness, `#eval` refuses to evaluate expressions that depend on `sorry`, even indirectly,
+since the presence of `sorry` can lead to runtime instability and crashes.
+This check can be overridden with the `#eval! e` command.
+
+Options:
+* If `eval.pp` is true (default: true) then tries to use `ToExpr` instances to make use of the
+  usual pretty printer. Otherwise, only tries using `Repr` and `ToString` instances.
+* If `eval.type` is true (default: false) then pretty prints the type of the evaluated value.
+* If `eval.derive.repr` is true (default: true) then attempts to auto-derive a `Repr` instance
+  when there is no other way to print the result.
+
+See also: `#reduce e` for evaluation by term reduction.
+-/
+@[builtin_command_parser, builtin_doc] def eval := leading_parser
   "#eval " >> termParser
-@[builtin_command_parser] def evalBang       := leading_parser
+@[builtin_command_parser, inherit_doc eval] def evalBang := leading_parser
   "#eval! " >> termParser
 @[builtin_command_parser] def synth          := leading_parser
   "#synth " >> termParser
@@ -477,6 +506,16 @@ Displays all available tactic tags, with documentation.
 -/
 @[builtin_command_parser] def printTacTags   := leading_parser
   "#print " >> nonReservedSymbol "tactic " >> nonReservedSymbol "tags"
+/--
+`#where` gives a description of the state of the current scope scope.
+This includes the current namespace, `open` namespaces, `universe` and `variable` commands,
+and options set with `set_option`.
+-/
+@[builtin_command_parser] def «where»        := leading_parser
+  "#where"
+/-- Shows the current Lean version. Prints `Lean.versionString`. -/
+@[builtin_command_parser] def version        := leading_parser
+  "#version"
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit
@@ -544,7 +583,7 @@ def openSimple       := leading_parser
 def openScoped       := leading_parser
   " scoped" >> many1 (ppSpace >> checkColGt >> ident)
 /-- `openDecl` is the body of an `open` declaration (see `open`) -/
-def openDecl         :=
+@[builtin_doc] def openDecl :=
   withAntiquot (mkAntiquot "openDecl" `Lean.Parser.Command.openDecl (isPseudoKind := true)) <|
     openHiding <|> openRenaming <|> openOnly <|> openSimple <|> openScoped
 /-- Makes names from other namespaces visible without writing the namespace prefix.
@@ -700,7 +739,7 @@ Documentation can only be added to declarations in the same module.
   docComment >> "add_decl_doc " >> ident
 
 /--
-Register a tactic tag, saving its user-facing name and docstring.
+Registers a tactic tag, saving its user-facing name and docstring.
 
 Tactic tags can be used by documentation generation tools to classify related tactics.
 -/
@@ -709,7 +748,7 @@ Tactic tags can be used by documentation generation tools to classify related ta
   "register_tactic_tag " >> ident >> strLit
 
 /--
-Add more documentation as an extension of the documentation for a given tactic.
+Adds more documentation as an extension of the documentation for a given tactic.
 
 The extended documentation is placed in the command's docstring. It is shown as part of a bulleted
 list, so it should be brief.
@@ -718,6 +757,47 @@ list, so it should be brief.
   optional (docComment >> ppLine) >>
   "tactic_extension " >> ident
 
+/--
+Documents a recommended spelling for a notation in identifiers.
+
+Theorems should generally be systematically named after their statement, rather than creatively.
+Non-identifier notations should be referred to consistently by their recommended spelling.
+
+```
+/-- some additional info -/
+recommended_spelling "and" for "∧" in [And, «term_∧_»]
+```
+
+will do the following:
+* Adds the sentence "The recommended spelling of `∧` in identifiers is `and` (some additional info)."
+  to the end of the docstring for `And` and for `∧`. If the additional info is more than a single
+  line, it will be placed below the sentence instead of in parentheses.
+* Registers this information in an environment extension, so that it will later be possible to
+  generate a table with all recommended spellings.
+
+You can add attach the recommended spelling to as many declarations as you want. It is recommended
+to attach the recommended spelling to all relevant parsers as well as the declaration the parsers
+refer to (if such a declaration exists). Note that the `inherit_doc` attribute does *not* copy
+recommended spellings, so even though the parser for `∧` uses `@[inherit_doc And]`, we have to
+attach the recommended spelling to both `And` and `«term_∧_»`.
+
+The `syntax`, `macro`, `elab` and `notation` commands accept a `(name := parserName)` option to
+assign a name to the created parser so that you do not have to guess the automatically generated
+name. The `synax`, `macro` and `elab` commands can be hovered to see the name of the parser.
+
+For complex notations which enclose identifiers, the convention is to use example identifiers rather
+than other placeholders. This is an example following the convention:
+```
+recommended_spelling "singleton" for "[a]" in [List.cons, «term[_]»]
+```
+Using `[·]` or `[⋯]` or `[…]` instead of `[a]` would be against the convention. When attaching a
+recommended spelling to a notation whose docstring already has an example, try to reuse the
+identifier names chosen in the docstring for consistency.
+-/
+@[builtin_command_parser] def «recommended_spelling» := leading_parser
+  optional (docComment >> ppLine) >>
+  "recommended_spelling " >> strLit >> " for " >> strLit >> " in " >>
+    "[" >> sepBy1 ident ", " >> "]"
 
 /--
   This is an auxiliary command for generation constructor injectivity theorems for
@@ -728,9 +808,10 @@ list, so it should be brief.
 
 /--
 `include eeny meeny` instructs Lean to include the section `variable`s `eeny` and `meeny` in all
-declarations in the remainder of the current section, differing from the default behavior of
-conditionally including variables based on use in the declaration header. `include` is usually
-followed by the `in` combinator to limit the inclusion to the subsequent declaration.
+theorems in the remainder of the current section, differing from the default behavior of
+conditionally including variables based on use in the theorem header. Other commands are
+not affected. `include` is usually followed by `in theorem ...` to limit the inclusion
+to the subsequent declaration.
 -/
 @[builtin_command_parser] def «include» := leading_parser "include " >> many1 ident
 

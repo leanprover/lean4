@@ -3,6 +3,9 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
+import Init.Data.ToString.Basic
+
 namespace Lake
 
 /-- Lake configuration language identifier. -/
@@ -10,7 +13,10 @@ inductive ConfigLang
 | lean | toml
 deriving Repr, DecidableEq
 
-instance : Inhabited ConfigLang := ⟨.lean⟩
+/-- Lake's default configuration language. -/
+abbrev ConfigLang.default : ConfigLang := .toml
+
+instance : Inhabited ConfigLang := ⟨.default⟩
 
 def ConfigLang.ofString? : String → Option ConfigLang
 | "lean" => some .lean

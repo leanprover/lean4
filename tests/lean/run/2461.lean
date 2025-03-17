@@ -1,8 +1,5 @@
 section algebra_hierarchy_classes_to_comm_ring
 
-class Zero (α : Type) where
-  zero : α
-
 class One (α : Type) where
   one : α
 

@@ -17,7 +17,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalRepeat1_x27__1___closed_
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_evalRepeat_x27___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalRepeat1_x27_declRange__1___closed__5;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_observing_x3f___at_Lean_Elab_Tactic_evalRepeat_x27___spec__5___closed__1;
 static lean_object* l_Lean_Elab_Tactic_evalRepeat_x27___closed__5;
 static lean_object* l_Lean_Meta_repeat_x27Core___at_Lean_Elab_Tactic_evalRepeat_x27___spec__3___closed__2;
@@ -55,7 +54,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalRepeat_x27_declRange__1_
 static lean_object* l_Lean_Elab_Tactic_evalRepeat1_x27___closed__1;
 lean_object* l_List_foldl___at_Lean_Meta_repeat_x27Core_go___spec__1(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalRepeat1_x27_declRange__1___closed__6;
-lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalRepeat_x27___spec__1___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_observing_x3f___at_Lean_Elab_Tactic_evalRepeat_x27___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -89,6 +88,7 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalRepeat1_x27_declRan
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalRepeat_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_foldl___at_Array_appendList___spec__1___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalRepeat_x27___closed__4;
+lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalRepeat_x27___spec__1___rarg(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalRepeat_x27__1___closed__5;
 size_t lean_usize_add(size_t, size_t);
@@ -1132,8 +1132,8 @@ static lean_object* _init_l_Lean_Meta_repeat_x27Core___at_Lean_Elab_Tactic_evalR
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_1 = lean_box(0);
+x_2 = lean_array_mk(x_1);
 return x_2;
 }
 }
@@ -1142,7 +1142,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_repeat_x27Core___at_Lean_Elab_Tactic_evalRepeat_x27___spec__3___closed__1;
-x_2 = lean_array_to_list(lean_box(0), x_1);
+x_2 = lean_array_to_list(x_1);
 return x_2;
 }
 }
@@ -1239,7 +1239,7 @@ if (x_31 == 0)
 {
 lean_object* x_32; lean_object* x_33; 
 x_32 = lean_ctor_get(x_30, 0);
-x_33 = lean_array_to_list(lean_box(0), x_32);
+x_33 = lean_array_to_list(x_32);
 lean_ctor_set(x_18, 1, x_33);
 lean_ctor_set(x_30, 0, x_18);
 return x_30;
@@ -1252,7 +1252,7 @@ x_35 = lean_ctor_get(x_30, 1);
 lean_inc(x_35);
 lean_inc(x_34);
 lean_dec(x_30);
-x_36 = lean_array_to_list(lean_box(0), x_34);
+x_36 = lean_array_to_list(x_34);
 lean_ctor_set(x_18, 1, x_36);
 x_37 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_37, 0, x_18);
@@ -1347,7 +1347,7 @@ if (lean_is_exclusive(x_51)) {
  lean_dec_ref(x_51);
  x_54 = lean_box(0);
 }
-x_55 = lean_array_to_list(lean_box(0), x_52);
+x_55 = lean_array_to_list(x_52);
 x_56 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_56, 0, x_39);
 lean_ctor_set(x_56, 1, x_55);
@@ -1470,7 +1470,7 @@ if (lean_is_exclusive(x_75)) {
  lean_dec_ref(x_75);
  x_78 = lean_box(0);
 }
-x_79 = lean_array_to_list(lean_box(0), x_76);
+x_79 = lean_array_to_list(x_76);
 if (lean_is_scalar(x_62)) {
  x_80 = lean_alloc_ctor(0, 2, 0);
 } else {

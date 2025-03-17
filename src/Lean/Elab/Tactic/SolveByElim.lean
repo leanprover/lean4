@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2021 Scott Morrison. All rights reserved.
+Copyright (c) 2021 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison, David Renshaw
+Authors: Kim Morrison, David Renshaw
 -/
 prelude
 import Lean.Meta.Tactic.SolveByElim
@@ -68,7 +68,7 @@ def processSyntax (cfg : SolveByElimConfig := {}) (only star : Bool) (add remove
 @[builtin_tactic Lean.Parser.Tactic.applyAssumption]
 def evalApplyAssumption : Tactic := fun stx =>
   match stx with
-  | `(tactic| apply_assumption $[$cfg]? $[only%$o]? $[$t:args]? $[$use:using_]?) => do
+  | `(tactic| apply_assumption $cfg:optConfig $[only%$o]? $[$t:args]? $[$use:using_]?) => do
     let (star, add, remove) := parseArgs t
     let use := parseUsing use
     let cfg ← elabConfig (mkOptionalNode cfg)
@@ -86,7 +86,7 @@ See `Lean.MVarId.applyRules` for a `MetaM` level analogue of this tactic.
 @[builtin_tactic Lean.Parser.Tactic.applyRules]
 def evalApplyRules : Tactic := fun stx =>
   match stx with
-  | `(tactic| apply_rules $[$cfg]? $[only%$o]? $[$t:args]? $[$use:using_]?) => do
+  | `(tactic| apply_rules $cfg:optConfig $[only%$o]? $[$t:args]? $[$use:using_]?) => do
     let (star, add, remove) := parseArgs t
     let use := parseUsing use
     let cfg ← elabApplyRulesConfig (mkOptionalNode cfg)
@@ -95,16 +95,15 @@ def evalApplyRules : Tactic := fun stx =>
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.solveByElim]
-def evalSolveByElim : Tactic := fun stx =>
-  match stx with
-  | `(tactic| solve_by_elim $[*%$s]? $[$cfg]? $[only%$o]? $[$t:args]? $[$use:using_]?) => do
+def evalSolveByElim : Tactic
+  | `(tactic| solve_by_elim $[*%$s]? $cfg:optConfig $[only%$o]? $[$t:args]? $[$use:using_]?) => do
     let (star, add, remove) := parseArgs t
     let use := parseUsing use
     let goals ← if s.isSome then
       getGoals
     else
       pure [← getMainGoal]
-    let cfg ← elabConfig (mkOptionalNode cfg)
+    let cfg ← elabConfig cfg
     let [] ← processSyntax cfg o.isSome star add remove use goals |
       throwError "solve_by_elim unexpectedly returned subgoals"
     pure ()

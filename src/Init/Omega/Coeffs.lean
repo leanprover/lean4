@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Init.Omega.IntList
@@ -67,9 +67,7 @@ abbrev leading (xs : Coeffs) : Int := IntList.leading xs
 abbrev map (f : Int → Int) (xs : Coeffs) : Coeffs := List.map f xs
 /-- Shim for `.enum.find?`. -/
 abbrev findIdx? (f : Int → Bool) (xs : Coeffs) : Option Nat :=
-  -- List.findIdx? f xs
-  -- We could avoid `Batteries.Data.List.Basic` by using the less efficient:
-  xs.enum.find? (f ·.2) |>.map (·.1)
+  List.findIdx? f xs
 /-- Shim for `IntList.bmod`. -/
 abbrev bmod (x : Coeffs) (m : Nat) : Coeffs := IntList.bmod x m
 /-- Shim for `IntList.bmod_dot_sub_dot_bmod`. -/

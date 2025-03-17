@@ -4,6 +4,5 @@ if x > 10 then
   return
 throw $ IO.userError "x ≤ 10"
 
-/-- info: -/
 #guard_msgs in
 #eval f 11

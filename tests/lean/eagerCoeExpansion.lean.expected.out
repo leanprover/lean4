@@ -4,9 +4,18 @@ def r : Nat → Prop :=
 fun a => if (a == 0) = true then (a != 1) = true else (a != 2) = true
 def r : Nat → Prop :=
 fun (a : Nat) =>
-  @ite.{1} Prop (@Eq.{1} Bool (@BEq.beq.{0} Nat instBEqNat a (@OfNat.ofNat.{0} Nat 0 (instOfNatNat 0))) Bool.true)
-    (instDecidableEqBool (@BEq.beq.{0} Nat instBEqNat a (@OfNat.ofNat.{0} Nat 0 (instOfNatNat 0))) Bool.true)
-    (@Eq.{1} Bool (@bne.{0} Nat instBEqNat a (@OfNat.ofNat.{0} Nat 1 (instOfNatNat 1))) Bool.true)
-    (@Eq.{1} Bool (@bne.{0} Nat instBEqNat a (@OfNat.ofNat.{0} Nat 2 (instOfNatNat 2))) Bool.true)
+  @ite.{1} Prop
+    (@Eq.{1} Bool
+      (@BEq.beq.{0} Nat (@instBEqOfDecidableEq.{0} Nat instDecidableEqNat) a (@OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)))
+      Bool.true)
+    (instDecidableEqBool
+      (@BEq.beq.{0} Nat (@instBEqOfDecidableEq.{0} Nat instDecidableEqNat) a (@OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)))
+      Bool.true)
+    (@Eq.{1} Bool
+      (@bne.{0} Nat (@instBEqOfDecidableEq.{0} Nat instDecidableEqNat) a (@OfNat.ofNat.{0} Nat 1 (instOfNatNat 1)))
+      Bool.true)
+    (@Eq.{1} Bool
+      (@bne.{0} Nat (@instBEqOfDecidableEq.{0} Nat instDecidableEqNat) a (@OfNat.ofNat.{0} Nat 2 (instOfNatNat 2)))
+      Bool.true)
 def s : Option Nat :=
-HOrElse.hOrElse (myFun.f 3) fun x => myFun.f 4
+myFun.f 3 <|> myFun.f 4

@@ -22,9 +22,9 @@ $LAKE -f exe.lean lint -- hello | grep --color "hello"
 $LAKE -f exe.toml lint -- hello | grep --color "hello"
 
 # Library test driver
-rm -f .lake/build/lib/Test.olean
+rm -f .lake/build/lib/lean/Test.olean
 $LAKE -f lib.lean test | grep --color -F "Built Test"
-rm -f .lake/build/lib/Test.olean
+rm -f .lake/build/lib/lean/Test.olean
 $LAKE -f lib.toml test | grep --color -F "Built Test"
 ($LAKE -f lib.lean test -- hello 2>&1 && exit 1 || true) | grep --color "arguments cannot be passed"
 ($LAKE -f lib.toml test -- hello 2>&1 && exit 1 || true) | grep --color "arguments cannot be passed"
@@ -84,3 +84,9 @@ $LAKE -f none.lean check-test && exit 1 || true
 $LAKE -f none.toml check-test && exit 1 || true
 $LAKE -f none.lean check-lint && exit 1 || true
 $LAKE -f none.toml check-lint && exit 1 || true
+
+# Build checker
+$LAKE -f build.lean check-build
+$LAKE -f build.toml check-build
+$LAKE -f none.lean check-build && exit 1 || true
+$LAKE -f none.toml check-build && exit 1 || true

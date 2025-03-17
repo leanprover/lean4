@@ -6,12 +6,15 @@ Authors: Leonardo de Moura
 prelude
 import Init.Meta
 import Init.Data.Float
+import Init.Data.Float32
 import Init.Data.Nat.Log2
 
 /-- For decimal and scientific numbers (e.g., `1.23`, `3.12e10`).
    Examples:
-   - `OfScientific.ofScientific 123 true 2`    represents `1.23`
-   - `OfScientific.ofScientific 121 false 100` represents `121e100`
+   - `1.23` is syntax for `OfScientific.ofScientific (nat_lit 123) true (nat_lit 2)`
+   - `121e100` is syntax for `OfScientific.ofScientific (nat_lit 121) false (nat_lit 100)`
+
+   Note the use of `nat_lit`; there is no wrapping `OfNat.ofNat` in the resulting term.
 -/
 class OfScientific (α : Type u) where
   ofScientific (mantissa : Nat) (exponentSign : Bool) (decimalExponent : Nat) : α
@@ -54,3 +57,34 @@ instance : OfNat Float n   := ⟨Float.ofNat n⟩
 
 abbrev Nat.toFloat (n : Nat) : Float :=
   Float.ofNat n
+
+/-- Computes `m * 2^e`. -/
+def Float32.ofBinaryScientific (m : Nat) (e : Int) : Float32 :=
+  let s := m.log2 - 63
+  let m := (m >>> s).toUInt64
+  let e := e + s
+  m.toFloat32.scaleB e
+
+protected opaque Float32.ofScientific (m : Nat) (s : Bool) (e : Nat) : Float32 :=
+  if s then
+    let s := 64 - m.log2 -- ensure we have 64 bits of mantissa left after division
+    let m := (m <<< (3 * e + s)) / 5^e
+    Float32.ofBinaryScientific m (-4 * e - s)
+  else
+    Float32.ofBinaryScientific (m * 5^e) e
+
+instance : OfScientific Float32 where
+  ofScientific := Float32.ofScientific
+
+@[export lean_float32_of_nat]
+def Float32.ofNat (n : Nat) : Float32 :=
+  OfScientific.ofScientific n false 0
+
+def Float32.ofInt : Int → Float32
+  | Int.ofNat n => Float32.ofNat n
+  | Int.negSucc n => Float32.neg (Float32.ofNat (Nat.succ n))
+
+instance : OfNat Float32 n   := ⟨Float32.ofNat n⟩
+
+abbrev Nat.toFloat32 (n : Nat) : Float32 :=
+  Float32.ofNat n

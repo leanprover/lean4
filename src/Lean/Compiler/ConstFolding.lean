@@ -133,8 +133,8 @@ def foldNatBinBoolPred (fn : Nat → Nat → Bool) (a₁ a₂ : Expr) : Option E
     return mkConst ``Bool.false
 
 def foldNatBeq := fun _ : Bool => foldNatBinBoolPred (fun a b => a == b)
-def foldNatBle := fun _ : Bool => foldNatBinBoolPred (fun a b => a < b)
-def foldNatBlt := fun _ : Bool => foldNatBinBoolPred (fun a b => a ≤ b)
+def foldNatBlt := fun _ : Bool => foldNatBinBoolPred (fun a b => a < b)
+def foldNatBle := fun _ : Bool => foldNatBinBoolPred (fun a b => a ≤ b)
 
 def natFoldFns : List (Name × BinFoldFn) :=
   [(``Nat.add, foldNatAdd),

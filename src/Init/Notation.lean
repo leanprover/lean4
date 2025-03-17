@@ -48,6 +48,10 @@ def tactic : Category := {}
 For example, `let x ← e` is a `doElem`, and a `do` block consists of a list of `doElem`s. -/
 def doElem : Category := {}
 
+/-- `structInstFieldDecl` is the syntax category for value declarations for fields in structure instance notation.
+For example, the `:= 1` and `| 0 => 0 | n + 1 => n` in `{ x := 1, f | 0 => 0 | n + 1 => n }` are in the `structInstFieldDecl` class. -/
+def structInstFieldDecl : Category := {}
+
 /-- `level` is a builtin syntax category for universe levels.
 This is the `u` in `Sort u`: it can contain `max` and `imax`, addition with
 constants, and variables. -/
@@ -71,9 +75,9 @@ def prio : Category := {}
 
 /-- `prec` is a builtin syntax category for precedences. A precedence is a value
 that expresses how tightly a piece of syntax binds: for example `1 + 2 * 3` is
-parsed as `1 + (2 * 3)` because `*` has a higher pr0ecedence than `+`.
+parsed as `1 + (2 * 3)` because `*` has a higher precedence than `+`.
 Higher numbers denote higher precedence.
-In addition to literals like `37`, there are some special named priorities:
+In addition to literals like `37`, there are some special named precedence levels:
 * `arg` for the precedence of function arguments
 * `max` for the highest precedence used in term parsers (not actually the maximum possible value)
 * `lead` for the precedence of terms not supposed to be used as arguments
@@ -269,6 +273,10 @@ syntax (name := rawNatLit) "nat_lit " num : term
 @[inherit_doc] infixr:35 " × "  => Prod
 @[inherit_doc] infixr:35 " ×' " => PProd
 
+recommended_spelling "comp" for "∘" in [Function.comp, «term_∘_»]
+recommended_spelling "Prod" for "×" in [Prod, «term_×_»]
+recommended_spelling "PProd" for "×'" in [PProd, «term_×'_»]
+
 @[inherit_doc] infix:50  " ∣ " => Dvd.dvd
 @[inherit_doc] infixl:55 " ||| " => HOr.hOr
 @[inherit_doc] infixl:58 " ^^^ " => HXor.hXor
@@ -302,6 +310,24 @@ macro_rules | `($x ^ $y)   => `(rightact% HPow.hPow $x $y)
 macro_rules | `($x ++ $y)  => `(binop% HAppend.hAppend $x $y)
 macro_rules | `(- $x)      => `(unop% Neg.neg $x)
 
+recommended_spelling "or" for "|||" in [HOr.hOr, «term_|||_»]
+recommended_spelling "xor" for "^^^" in [HXor.hXor, «term_^^^_»]
+recommended_spelling "and" for "&&&" in [HAnd.hAnd, «term_&&&_»]
+recommended_spelling "add" for "+" in [HAdd.hAdd, «term_+_»]
+/-- when used as a binary operator -/
+recommended_spelling "sub" for "-" in [HSub.hSub, «term_-_»]
+recommended_spelling "mul" for "*" in [HMul.hMul, «term_*_»]
+recommended_spelling "div" for "/" in [HDiv.hDiv, «term_/_»]
+recommended_spelling "mod" for "%" in [HMod.hMod, «term_%_»]
+recommended_spelling "pow" for "^" in [HPow.hPow, «term_^_»]
+recommended_spelling "append" for "++" in [HAppend.hAppend, «term_++_»]
+/-- when used as a unary operator -/
+recommended_spelling "neg" for "-" in [Neg.neg, «term-_»]
+recommended_spelling "dvd" for "∣" in [Dvd.dvd, «term_∣_»]
+recommended_spelling "shiftLeft" for "<<<" in [HShiftLeft.hShiftLeft, «term_<<<_»]
+recommended_spelling "shiftRight" for ">>>" in [HShiftRight.hShiftRight, «term_>>>_»]
+recommended_spelling "not" for "~~~" in [Complement.complement, «term~~~_»]
+
 -- declare ASCII alternatives first so that the latter Unicode unexpander wins
 @[inherit_doc] infix:50 " <= " => LE.le
 @[inherit_doc] infix:50 " ≤ "  => LE.le
@@ -326,31 +352,69 @@ macro_rules | `($x ≥ $y)  => `(binrel% GE.ge $x $y)
 macro_rules | `($x = $y)  => `(binrel% Eq $x $y)
 macro_rules | `($x == $y) => `(binrel_no_prop% BEq.beq $x $y)
 
+recommended_spelling "le" for "≤" in [LE.le, «term_≤_»]
+/-- prefer `≤` over `<=` -/
+recommended_spelling "le" for "<=" in [LE.le, «term_<=_»]
+recommended_spelling "lt" for "<" in [LT.lt, «term_<_»]
+recommended_spelling "gt" for ">" in [GT.gt, «term_>_»]
+recommended_spelling "ge" for "≥" in [GE.ge, «term_≥_»]
+/-- prefer `≥` over `>=` -/
+recommended_spelling "ge" for ">=" in [GE.ge, «term_>=_»]
+recommended_spelling "eq" for "=" in [Eq, «term_=_»]
+recommended_spelling "beq" for "==" in [BEq.beq, «term_==_»]
+
 @[inherit_doc] infixr:35 " /\\ " => And
 @[inherit_doc] infixr:35 " ∧ "   => And
 @[inherit_doc] infixr:30 " \\/ " => Or
 @[inherit_doc] infixr:30 " ∨  "  => Or
 @[inherit_doc] notation:max "¬" p:40 => Not p
 
+recommended_spelling "and" for "∧" in [And, «term_∧_»]
+/-- prefer `∧` over `/\` -/
+recommended_spelling "and" for "/\\" in [And, «term_/\_»]
+recommended_spelling "or" for "∨" in [Or, «term_∨_»]
+/-- prefer `∨` over `\/` -/
+recommended_spelling "or" for "\\/" in [Or, «term_\/_»]
+recommended_spelling "not" for "¬" in [Not, «term¬_»]
+
 @[inherit_doc] infixl:35 " && " => and
 @[inherit_doc] infixl:30 " || " => or
 @[inherit_doc] notation:max "!" b:40 => not b
 
-@[inherit_doc] infix:50 " ∈ " => Membership.mem
+recommended_spelling "and" for "&&" in [and, «term_&&_»]
+recommended_spelling "or" for "||" in [and, «term_||_»]
+recommended_spelling "not" for "!" in [not, «term!_»]
+
+@[inherit_doc] notation:50 a:50 " ∈ " b:50 => Membership.mem b a
 /-- `a ∉ b` is negated elementhood. It is notation for `¬ (a ∈ b)`. -/
 notation:50 a:50 " ∉ " b:50 => ¬ (a ∈ b)
 
+recommended_spelling "mem" for "∈" in [Membership.mem, «term_∈_»]
+recommended_spelling "not_mem" for "∉" in [«term_∉_»]
+
 @[inherit_doc] infixr:67 " :: " => List.cons
-@[inherit_doc HOrElse.hOrElse] syntax:20 term:21 " <|> " term:20 : term
-@[inherit_doc HAndThen.hAndThen] syntax:60 term:61 " >> " term:60 : term
-@[inherit_doc] infixl:55  " >>= " => Bind.bind
-@[inherit_doc] notation:60 a:60 " <*> " b:61 => Seq.seq a fun _ : Unit => b
-@[inherit_doc] notation:60 a:60 " <* " b:61 => SeqLeft.seqLeft a fun _ : Unit => b
-@[inherit_doc] notation:60 a:60 " *> " b:61 => SeqRight.seqRight a fun _ : Unit => b
 @[inherit_doc] infixr:100 " <$> " => Functor.map
+@[inherit_doc] infixl:55  " >>= " => Bind.bind
+@[inherit_doc HOrElse.hOrElse]   syntax:20 term:21 " <|> " term:20 : term
+@[inherit_doc HAndThen.hAndThen] syntax:60 term:61 " >> " term:60 : term
+@[inherit_doc Seq.seq]           syntax:60 term:60 " <*> " term:61 : term
+@[inherit_doc SeqLeft.seqLeft]   syntax:60 term:60 " <* " term:61 : term
+@[inherit_doc SeqRight.seqRight] syntax:60 term:60 " *> " term:61 : term
 
 macro_rules | `($x <|> $y) => `(binop_lazy% HOrElse.hOrElse $x $y)
 macro_rules | `($x >> $y)  => `(binop_lazy% HAndThen.hAndThen $x $y)
+macro_rules | `($x <*> $y) => `(Seq.seq $x fun _ : Unit => $y)
+macro_rules | `($x <* $y)  => `(SeqLeft.seqLeft $x fun _ : Unit => $y)
+macro_rules | `($x *> $y)  => `(SeqRight.seqRight $x fun _ : Unit => $y)
+
+recommended_spelling "cons" for "::" in [List.cons, «term_::_»]
+recommended_spelling "map" for "<$>" in [Functor.map, «term_<$>_»]
+recommended_spelling "bind" for ">>=" in [Bind.bind, «term_>>=_»]
+recommended_spelling "orElse" for "<|>" in [HOrElse.hOrElse, «term_<|>_»]
+recommended_spelling "andThen" for ">>" in [HAndThen.hAndThen, «term_>>_»]
+recommended_spelling "seq" for "<*>" in [Seq.seq, «term_<*>_»]
+recommended_spelling "seqLeft" for "<*" in [SeqLeft.seqLeft, «term_<*_»]
+recommended_spelling "seqRight" for "*>" in [SeqRight.seqRight, «term_*>_»]
 
 namespace Lean
 
@@ -456,6 +520,8 @@ macro_rules
   | `({ $x : $type // $p }) => ``(Subtype (fun ($x:ident : $type) => $p))
   | `({ $x // $p })         => ``(Subtype (fun ($x:ident : _) => $p))
 
+recommended_spelling "subtype" for "{ x // p x }" in [Subtype, «term{_:_//_}»]
+
 /--
 `without_expected_type t` instructs Lean to elaborate `t` without an expected type.
 Recall that terms such as `match ... with ...` and `⟨...⟩` will postpone elaboration until
@@ -535,24 +601,21 @@ syntax (name := includeStr) "include_str " term : term
 
 /--
 The `run_cmd doSeq` command executes code in `CommandElabM Unit`.
-This is almost the same as `#eval show CommandElabM Unit from do doSeq`,
-except that it doesn't print an empty diagnostic.
+This is the same as `#eval show CommandElabM Unit from discard do doSeq`.
 -/
 syntax (name := runCmd) "run_cmd " doSeq : command
 
 /--
 The `run_elab doSeq` command executes code in `TermElabM Unit`.
-This is almost the same as `#eval show TermElabM Unit from do doSeq`,
-except that it doesn't print an empty diagnostic.
+This is the same as `#eval show TermElabM Unit from discard do doSeq`.
 -/
 syntax (name := runElab) "run_elab " doSeq : command
 
 /--
 The `run_meta doSeq` command executes code in `MetaM Unit`.
-This is almost the same as `#eval show MetaM Unit from do doSeq`,
-except that it doesn't print an empty diagnostic.
+This is the same as `#eval show MetaM Unit from do discard doSeq`.
 
-(This is effectively a synonym for `run_elab`.)
+(This is effectively a synonym for `run_elab` since `MetaM` lifts to `TermElabM`.)
 -/
 syntax (name := runMeta) "run_meta " doSeq : command
 
@@ -675,9 +738,31 @@ Message ordering:
 
 For example, `#guard_msgs (error, drop all) in cmd` means to check warnings and drop
 everything else.
+
+The command elaborator has special support for `#guard_msgs` for linting.
+The `#guard_msgs` itself wants to capture linter warnings,
+so it elaborates the command it is attached to as if it were a top-level command.
+However, the command elaborator runs linters for *all* top-level commands,
+which would include `#guard_msgs` itself, and would cause duplicate and/or uncaptured linter warnings.
+The top-level command elaborator only runs the linters if `#guard_msgs` is not present.
 -/
 syntax (name := guardMsgsCmd)
   (docComment)? "#guard_msgs" (ppSpace guardMsgsSpec)? " in" ppLine command : command
+
+/--
+Format and print the info trees for a given command.
+This is mostly useful for debugging info trees.
+-/
+syntax (name := infoTreesCmd)
+  "#info_trees" " in" ppLine command : command
+
+/--
+Specify a premise selection engine.
+Note that Lean does not ship a default premise selection engine,
+so this is only useful in conjunction with a downstream package which provides one.
+-/
+syntax (name := setPremiseSelectorCmd)
+  "set_premise_selector" term : command
 
 namespace Parser
 

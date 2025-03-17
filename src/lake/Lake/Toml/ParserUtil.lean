@@ -3,6 +3,7 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lean.Parser
 import Lean.PrettyPrinter.Formatter
 
@@ -161,7 +162,7 @@ open Formatter Syntax.MonadTraverser in
   let .atom info val := stx
     | trace[PrettyPrinter.format.backtrack] "unexpected syntax '{format stx}', expected atom"
       throwBacktrack
-  withMaybeTag (getSyntaxExprPos? stx) (pushToken info val)
+  withMaybeTag (getSyntaxExprPos? stx) (pushToken info val false)
   goLeft
 
 @[combinator_parenthesizer atom]

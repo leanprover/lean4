@@ -1,0 +1,32 @@
+{"version": 1,
+ "uri": "file:///2058.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 12, "character": 10},
+    "end": {"line": 12, "character": 15}},
+   "message":
+   "failed to infer universe levels in 'let' declaration type\n  PUnit.{_}",
+   "fullRange":
+   {"start": {"line": 12, "character": 10},
+    "end": {"line": 12, "character": 15}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 21, "character": 26},
+    "end": {"line": 21, "character": 31}},
+   "message": "failed to infer universe levels in binder type\n  PUnit.{_}",
+   "fullRange":
+   {"start": {"line": 21, "character": 26},
+    "end": {"line": 21, "character": 31}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 29, "character": 0},
+    "end": {"line": 29, "character": 39}},
+   "message":
+   "declaration '_example' contains universe level metavariables at the expression\n  Function.const ({α : Sort _} → α → α) 2 @id.{_}\nin the declaration body\n  Function.const ({α : Sort _} → α → α) 2 @id.{_}",
+   "fullRange":
+   {"start": {"line": 29, "character": 0},
+    "end": {"line": 29, "character": 39}}}]}

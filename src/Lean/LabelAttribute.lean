@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2023 Scott Morrison. All rights reserved.
+Copyright (c) 2023 Kim Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Scott Morrison
+Authors: Kim Morrison
 -/
 prelude
 import Lean.ScopedEnvExtension
@@ -52,8 +52,8 @@ registerBuiltinAttribute {
   name  := attrName
   descr := attrDescr
   applicationTime := AttributeApplicationTime.afterCompilation
-  add   := fun declName _ _ =>
-    ext.add declName
+  add   := fun declName _ kind =>
+    ext.add declName kind
   erase := fun declName => do
     let s := ext.getState (← getEnv)
     modifyEnv fun env => ext.modifyState env fun _ => s.erase declName
@@ -74,7 +74,7 @@ def registerLabelAttr (attrName : Name) (attrDescr : String)
 
 /--
 Initialize a new "label" attribute.
-Declarations tagged with the attribute can be retrieved using `Std.Tactic.LabelAttr.labelled`.
+Declarations tagged with the attribute can be retrieved using `Lean.labelled`.
 -/
 macro (name := _root_.Lean.Parser.Command.registerLabelAttr)
   doc:(docComment)? "register_label_attr " id:ident : command => do

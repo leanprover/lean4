@@ -7,11 +7,11 @@ prelude
 import Lean.Util.RecDepth
 import Lean.Util.Trace
 import Lean.Log
-import Lean.Eval
 import Lean.ResolveName
 import Lean.Elab.InfoTree.Types
 import Lean.MonadEnv
 import Lean.Elab.Exception
+import Lean.Language.Basic
 
 namespace Lean
 register_builtin_option diagnostics : Bool := {
@@ -31,16 +31,37 @@ register_builtin_option maxHeartbeats : Nat := {
   descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
 }
 
+register_builtin_option Elab.async : Bool := {
+  defValue := false
+  descr := "perform elaboration using multiple threads where possible\
+    \n\
+    \nThis option defaults to `false` but (when not explicitly set) is overridden to `true` in \
+      the Lean language server and cmdline. \
+      Metaprogramming users driving elaboration directly via e.g. \
+      `Lean.Elab.Command.elabCommandTopLevel` can opt into asynchronous elaboration by setting \
+      this option but then are responsible for processing messages and other data not only in the \
+      resulting command state but also from async tasks in `Lean.Command.Context.snap?` and \
+      `Lean.Command.State.snapshotTasks`."
+}
+
+/-- Performance option used by cmdline driver. -/
+register_builtin_option internal.cmdlineSnapshots : Bool := {
+  defValue := false
+  descr    := "reduce information stored in snapshots to the minimum necessary \
+    for the cmdline driver: diagnostics per command and final full snapshot"
+}
+
 /--
 If the `diagnostics` option is not already set, gives a message explaining this option.
-Begins with a `\n`, so an error message can look like `m!"some error occurred{useDiagnosticMsg}"`.
+Begins with a `\n\n`, so an error message can look like `m!"some error occurred{useDiagnosticMsg}"`.
+The double newline gives better visual separation from the main error message
 -/
 def useDiagnosticMsg : MessageData :=
   MessageData.lazy fun ctx =>
     if diagnostics.get ctx.opts then
       pure ""
     else
-      pure s!"\nAdditional diagnostic information may be available using the `set_option {diagnostics.name} true` command."
+      pure s!"\n\nAdditional diagnostic information may be available using the `set_option {diagnostics.name} true` command."
 
 namespace Core
 
@@ -73,6 +94,13 @@ structure State where
   messages        : MessageLog     := {}
   /-- Info tree. We have the info tree here because we want to update it while adding attributes. -/
   infoState       : Elab.InfoState := {}
+  /--
+  Snapshot trees of asynchronous subtasks. As these are untyped and reported only at the end of the
+  command's main elaboration thread, they are only useful for basic message log reporting; for
+  incremental reporting and reuse within a long-running elaboration thread, types rooted in
+  `CommandParsedSnapshot` need to be adjusted.
+  -/
+  snapshotTasks : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
   deriving Nonempty
 
 /-- Context for the CoreM monad. -/
@@ -173,7 +201,7 @@ protected def withFreshMacroScope (x : CoreM α) : CoreM α := do
 
 instance : MonadQuotation CoreM where
   getCurrMacroScope   := return (← read).currMacroScope
-  getMainModule       := return (← get).env.mainModule
+  getMainModule       := return (← getEnv).mainModule
   withFreshMacroScope := Core.withFreshMacroScope
 
 instance : Elab.MonadInfoTree CoreM where
@@ -181,7 +209,8 @@ instance : Elab.MonadInfoTree CoreM where
   modifyInfoState f := modify fun s => { s with infoState := f s.infoState }
 
 @[inline] def modifyCache (f : Cache → Cache) : CoreM Unit :=
-  modify fun ⟨env, next, ngen, trace, cache, messages, infoState⟩ => ⟨env, next, ngen, trace, f cache, messages, infoState⟩
+  modify fun ⟨env, next, ngen, trace, cache, messages, infoState, snaps⟩ =>
+   ⟨env, next, ngen, trace, f cache, messages, infoState, snaps⟩
 
 @[inline] def modifyInstLevelTypeCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
   modifyCache fun ⟨c₁, c₂⟩ => ⟨f c₁, c₂⟩
@@ -189,7 +218,7 @@ instance : Elab.MonadInfoTree CoreM where
 @[inline] def modifyInstLevelValueCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
   modifyCache fun ⟨c₁, c₂⟩ => ⟨c₁, f c₂⟩
 
-def instantiateTypeLevelParams (c : ConstantInfo) (us : List Level) : CoreM Expr := do
+def instantiateTypeLevelParams (c : ConstantVal) (us : List Level) : CoreM Expr := do
   if let some (us', r) := (← get).cache.instLevelType.find? c.name then
     if us == us' then
       return r
@@ -245,7 +274,7 @@ itself after calling `act` as well as by reuse-handling code such as the one sup
     (act : CoreM α) : CoreM (α × SavedState) := do
   if let some (val, state) := reusableResult? then
     set state.toState
-    IO.addHeartbeats state.passedHeartbeats.toUInt64
+    IO.addHeartbeats state.passedHeartbeats
     return (val, state)
 
   let startHeartbeats ← IO.getNumHeartbeats
@@ -277,17 +306,9 @@ def mkFreshUserName (n : Name) : CoreM Name :=
   | Except.error (Exception.internal id _) => throw <| IO.userError <| "internal exception #" ++ toString id.idx
   | Except.ok a                            => return a
 
-instance [MetaEval α] : MetaEval (CoreM α) where
-  eval env opts x _ := do
-    let x : CoreM α := do try x finally printTraces
-    let (a, s) ← (withConsistentCtx x).toIO { fileName := "<CoreM>", fileMap := default, options := opts } { env := env }
-    MetaEval.eval s.env opts a (hideUnit := true)
-
 -- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`
 protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
   controlAt CoreM fun runInBase => withIncRecDepth (runInBase x)
-
-builtin_initialize interruptExceptionId : InternalExceptionId ← registerInternalExceptionId `interrupt
 
 /--
 Throws an internal interrupt exception if cancellation has been requested. The exception is not
@@ -298,7 +319,7 @@ the exception has been thrown.
 @[inline] def checkInterrupted : CoreM Unit := do
   if let some tk := (← read).cancelTk? then
     if (← tk.isSet) then
-      throw <| .internal interruptExceptionId
+      throwInterruptException
 
 register_builtin_option debug.moduleNameAtTimeout : Bool := {
   defValue := true
@@ -309,7 +330,7 @@ register_builtin_option debug.moduleNameAtTimeout : Bool := {
 def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : CoreM Unit := do
   let includeModuleName := debug.moduleNameAtTimeout.get (← getOptions)
   let atModuleName := if includeModuleName then s!" at `{moduleName}`" else ""
-  throw <| Exception.error (← getRef) m!"\
+  throw <| Exception.error (← getRef) <| .tagged `runtime.maxHeartbeats m!"\
     (deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\n\
     Use `set_option {optionName} <num>` to set the limit.\
     {useDiagnosticMsg}"
@@ -349,9 +370,17 @@ Returns the current log and then resets its messages while adjusting `MessageLog
 for incremental reporting during elaboration of a single command.
 -/
 def getAndEmptyMessageLog : CoreM MessageLog :=
-  modifyGet fun s => (s.messages, { s with
-    messages.unreported := {}
-    messages.hadErrors  := s.messages.hasErrors })
+  modifyGet fun s => (s.messages, { s with messages := s.messages.markAllReported })
+
+/--
+Returns the current set of tasks added by `logSnapshotTask` and then resets it. When
+saving/restoring state of an action that may have logged such tasks during incremental reuse, this
+function must be used to store them in the corresponding snapshot tree; otherwise, they will leak
+outside and may be cancelled by a later step, potentially leading to inconsistent state being
+reused.
+-/
+def getAndEmptySnapshotTasks : CoreM (Array (Language.SnapshotTask Language.SnapshotTree)) :=
+  modifyGet fun s => (s.snapshotTasks, { s with snapshotTasks := #[] })
 
 instance : MonadLog CoreM where
   getRef      := getRef
@@ -362,12 +391,99 @@ instance : MonadLog CoreM where
     if (← read).suppressElabErrors then
       -- discard elaboration errors, except for a few important and unlikely misleading ones, on
       -- parse error
-      unless msg.data.hasTag (· matches `Elab.synthPlaceholder | `Tactic.unsolvedGoals) do
+      unless msg.data.hasTag (· matches `Elab.synthPlaceholder | `Tactic.unsolvedGoals | `trace) do
         return
 
     let ctx ← read
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls } msg.data };
     modify fun s => { s with messages := s.messages.add msg }
+
+/--
+Includes a given task (such as from `wrapAsyncAsSnapshot`) in the overall snapshot tree for this
+command's elaboration, making its result available to reporting and the language server. The
+reporter will not know about this snapshot tree node until the main elaboration thread for this
+command has finished so this function is not useful for incremental reporting within a longer
+elaboration thread but only for tasks that outlive it such as background kernel checking or proof
+elaboration.
+-/
+def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CoreM Unit :=
+  modify fun s => { s with snapshotTasks := s.snapshotTasks.push task }
+
+/-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
+def wrapAsync {α : Type} (act : α → CoreM β) (cancelTk? : Option IO.CancelToken) :
+    CoreM (α → EIO Exception β) := do
+  let st ← get
+  let ctx ← read
+  let ctx := { ctx with cancelTk? }
+  let heartbeats := (← IO.getNumHeartbeats) - ctx.initHeartbeats
+  return fun a => withCurrHeartbeats (do
+      -- include heartbeats since start of elaboration in new thread as well such that forking off
+      -- an action doesn't suddenly allow it to succeed from a lower heartbeat count
+      IO.addHeartbeats heartbeats
+      act a : CoreM _)
+    |>.run' ctx st
+
+/-- Option for capturing output to stderr during elaboration. -/
+register_builtin_option stderrAsMessages : Bool := {
+  defValue := true
+  group    := "server"
+  descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
+}
+
+/--
+Creates snapshot reporting given `withIsolatedStreams` output and diagnostics and traces from the
+given state.
+-/
+def mkSnapshot (output : String) (ctx : Context) (st : State)
+    (desc : String := by exact decl_name%.toString) : BaseIO Language.SnapshotTree := do
+  let mut msgs := st.messages
+  if !output.isEmpty then
+    msgs := msgs.add {
+      fileName := ctx.fileName
+      severity := MessageSeverity.information
+      pos      := ctx.fileMap.toPosition <| ctx.ref.getPos?.getD 0
+      data     := output
+    }
+  return .mk {
+    desc
+    diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog msgs)
+    traces := st.traceState
+  } st.snapshotTasks
+
+open Language in
+/--
+Wraps the given action for use in `BaseIO.asTask` etc., discarding its final state except for
+`logSnapshotTask` tasks, which are reported as part of the returned tree. The given cancellation
+token, if any, should be stored in a `SnapshotTask` for the server to trigger it when the result is
+no longer needed.
+-/
+def wrapAsyncAsSnapshot {α : Type} (act : α → CoreM Unit) (cancelTk? : Option IO.CancelToken)
+    (desc : String := by exact decl_name%.toString) : CoreM (α → BaseIO SnapshotTree) := do
+  let f ← wrapAsync (cancelTk? := cancelTk?) fun a => do
+    IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
+      let tid ← IO.getTID
+      -- reset trace/info state and message log so as not to report them twice
+      modify fun st => { st with
+        messages := st.messages.markAllReported
+        traceState := { tid }
+        snapshotTasks := #[]
+        infoState := {}
+      }
+      try
+        withTraceNode `Elab.async (fun _ => return desc) do
+          act a
+      catch e =>
+        unless e.isInterrupt do
+          logError e.toMessageData
+      finally
+        addTraceAsMessages
+      get
+  let ctx ← readThe Core.Context
+  return fun a => do
+    match (← (f a).toBaseIO) with
+    | .ok (output, st) => mkSnapshot output ctx st desc
+    -- interrupt or abort exception as `try catch` above should have caught any others
+    | .error _ => default
 
 end Core
 
@@ -395,10 +511,7 @@ export Core (CoreM mkFreshUserName checkSystem withCurrHeartbeats)
   This function is a bit hackish. The heartbeat exception should probably be an internal exception.
   We used a similar hack at `Exception.isMaxRecDepth` -/
 def Exception.isMaxHeartbeat (ex : Exception) : Bool :=
-  match ex with
-  | Exception.error _ (MessageData.ofFormatWithInfos ⟨Std.Format.text msg, _⟩) =>
-    "(deterministic) timeout".isPrefixOf msg
-  | _ => false
+  ex matches Exception.error _ (.tagged `runtime.maxHeartbeats _)
 
 /-- Creates the expression `d → b` -/
 def mkArrow (d b : Expr) : CoreM Expr :=
@@ -430,35 +543,69 @@ register_builtin_option compiler.enableNew : Bool := {
   descr    := "(compiler) enable the new code generator, this should have no significant effect on your code but it does help to test the new code generator; unset to only use the old code generator instead"
 }
 
+/--
+If `t` has not finished yet, waits for it under an `Elab.block` trace node. Returns `t`'s result.
+-/
+def traceBlock (tag : String) (t : Task α) : CoreM α := do
+  if (← IO.hasFinished t) then
+    return t.get
+  withTraceNode `Elab.block (tag := tag) (fun _ => pure tag) do
+    profileitM Exception "blocked" (← getOptions) do
+      IO.wait t
+
 -- Forward declaration
 @[extern "lean_lcnf_compile_decls"]
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
-def compileDecl (decl : Declaration) : CoreM Unit := do
-  let opts ← getOptions
-  let decls := Compiler.getDeclNamesForCodeGen decl
-  if compiler.enableNew.get opts then
-    compileDeclsNew decls
-  let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
-    return (← getEnv).compileDecl opts decl
-  match res with
-  | Except.ok env => setEnv env
-  | Except.error (KernelException.other msg) =>
-    checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
-    throwError msg
-  | Except.error ex =>
-    throwKernelException ex
+@[extern "lean_compile_decls"]
+opaque compileDeclsOld (env : Environment) (opt : @& Options) (decls : @& List Name) : Except Kernel.Exception Environment
 
-def compileDecls (decls : List Name) : CoreM Unit := do
+-- `ref?` is used for error reporting if available
+partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
+    (logErrors := true) : CoreM Unit := do
+  -- When inside `realizeConst`, do compilation synchronously so that `_cstage*` constants are found
+  -- by the replay code
+  if !Elab.async.get (← getOptions) || (← getEnv).isRealizing then
+    let _ ← traceBlock "compiler env" (← getEnv).checked
+    doCompile
+    return
+  let env ← getEnv
+  let res ← env.promiseChecked
+  setEnv res.mainEnv
+  let cancelTk ← IO.CancelToken.new
+  let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
+    setEnv res.asyncEnv
+    try
+      doCompile
+    finally
+      res.commitChecked (← getEnv)
+  let t ← BaseIO.mapTask checkAct env.checked
+  let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
+  Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
+where doCompile := do
+  -- don't compile if kernel errored; should be converted into a task dependency when compilation
+  -- is made async as well
+  if !decls.all (← getEnv).constants.contains then
+    return
   let opts ← getOptions
   if compiler.enableNew.get opts then
     compileDeclsNew decls
-  match (← getEnv).compileDecls opts decls with
+
+  let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
+    return compileDeclsOld (← getEnv) opts decls
+  match res with
   | Except.ok env   => setEnv env
-  | Except.error (KernelException.other msg) =>
-    throwError msg
+  | Except.error (.other msg) =>
+    if logErrors then
+      if let some decl := ref? then
+        checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
+      throwError msg
   | Except.error ex =>
-    throwKernelException ex
+    if logErrors then
+      throwKernelException ex
+
+def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
+  compileDecls (Compiler.getDeclNamesForCodeGen decl) decl logErrors
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts
@@ -475,11 +622,6 @@ def ImportM.runCoreM (x : CoreM α) : ImportM α := do
 /-- Return `true` if the exception was generated by one of our resource limits. -/
 def Exception.isRuntime (ex : Exception) : Bool :=
   ex.isMaxHeartbeat || ex.isMaxRecDepth
-
-/-- Returns `true` if the exception is an interrupt generated by `checkInterrupted`. -/
-def Exception.isInterrupt : Exception → Bool
-  | Exception.internal id _ => id == Core.interruptExceptionId
-  | _ => false
 
 /--
 Custom `try-catch` for all monads based on `CoreM`. We usually don't want to catch "runtime
@@ -532,14 +674,23 @@ instance : MonadRuntimeException CoreM where
 
 /--
 Returns `true` if the given message kind has not been reported in the message log,
-and then mark it as reported. Otherwise, returns `false`.
-We use this API to ensure we don't report the same kind of warning multiple times.
+and then mark it as logged. Otherwise, returns `false`.
+We use this API to ensure we don't log the same kind of warning multiple times.
 -/
-def reportMessageKind (kind : Name) : CoreM Bool := do
-  if (← get).messages.reportedKinds.contains kind then
+def logMessageKind (kind : Name) : CoreM Bool := do
+  if (← get).messages.loggedKinds.contains kind then
     return false
   else
-    modify fun s => { s with messages.reportedKinds := s.messages.reportedKinds.insert kind }
+    modify fun s => { s with messages.loggedKinds := s.messages.loggedKinds.insert kind }
     return true
+
+@[inherit_doc Environment.enableRealizationsForConst]
+def enableRealizationsForConst (n : Name) : CoreM Unit := do
+  let env ← (← getEnv).enableRealizationsForConst (← getOptions) n
+  setEnv env
+
+builtin_initialize
+  registerTraceClass `Elab.async
+  registerTraceClass `Elab.block
 
 end Lean

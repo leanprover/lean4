@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl__1___closed__6;
+lean_object* l_Lean_addBuiltinDocString(lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl__1___closed__4;
 extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl__1___closed__3;
@@ -46,11 +47,13 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tacti
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl_declRange__1___closed__2;
 lean_object* l_Lean_MVarId_applyRfl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_Rfl_evalApplyRfl___spec__1___rarg___closed__2;
+static lean_object* l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl_docString__1___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl_declRange__1___closed__1;
 lean_object* l_Lean_Elab_Tactic_liftMetaFinishingTactic(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Rfl_evalApplyRfl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
+LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl_docString__1(lean_object*);
 static lean_object* _init_l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_Rfl_evalApplyRfl___spec__1___rarg___closed__1() {
 _start:
 {
@@ -262,6 +265,24 @@ x_6 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_5, x_1);
 return x_6;
 }
 }
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl_docString__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("This tactic applies to a goal whose target has the form `x ~ x`, where `~` is a reflexive\nrelation, that is, a relation which has a reflexive lemma tagged with the attribute [refl].\n", 182, 182);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl__1___closed__4;
+x_3 = l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl_docString__1___closed__1;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl_declRange__1___closed__1() {
 _start:
 {
@@ -408,6 +429,11 @@ lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl__1___close
 l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl__1___closed__6 = _init_l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl__1___closed__6();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl__1___closed__6);
 if (builtin) {res = l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl_docString__1___closed__1 = _init_l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl_docString__1___closed__1();
+lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl_docString__1___closed__1);
+if (builtin) {res = l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl_docString__1(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl_declRange__1___closed__1 = _init_l___regBuiltin_Lean_Elab_Tactic_Rfl_evalApplyRfl_declRange__1___closed__1();

@@ -1,4 +1,4 @@
-/-- Index syntax categoy -/
+/-- Index syntax category -/
 declare_syntax_cat index
 
                                --v textDocument/hover

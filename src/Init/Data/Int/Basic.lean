@@ -7,8 +7,8 @@ The integers, with addition, multiplication, and subtraction.
 -/
 prelude
 import Init.Data.Cast
-import Init.Data.Nat.Div
-import Init.Data.List.Basic
+import Init.Data.Nat.Div.Basic
+
 set_option linter.missingDocs true -- keep it documented
 open Nat
 
@@ -17,10 +17,12 @@ open Nat
 This file defines the `Int` type as well as
 
 * coercions, conversions, and compatibility with numeric literals,
-* basic arithmetic operations add/sub/mul/div/mod/pow,
+* basic arithmetic operations add/sub/mul/pow,
 * a few `Nat`-related operations such as `negOfNat` and `subNatNat`,
 * relations `<`/`≤`/`≥`/`>`, the `NonNeg` property and `min`/`max`,
 * decidability of equality, relations and `NonNeg`.
+
+Division and modulus operations are defined in `Init.Data.Int.DivMod.Basic`.
 -/
 
 /--
@@ -291,12 +293,15 @@ def toNat : Int → Nat
   | negSucc _ => 0
 
 /--
-* If `n : Nat`, then `int.toNat' n = some n`
-* If `n : Int` is negative, then `int.toNat' n = none`.
+* If `n : Nat`, then `Int.toNat? n = some n`
+* If `n : Int` is negative, then `Int.toNat? n = none`.
 -/
-def toNat' : Int → Option Nat
+def toNat? : Int → Option Nat
   | (n : Nat) => some n
   | -[_+1] => none
+
+@[deprecated toNat? (since := "2025-03-11"), inherit_doc toNat?]
+abbrev toNat' := toNat?
 
 /-! ## divisibility -/
 

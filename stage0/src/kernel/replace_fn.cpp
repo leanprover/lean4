@@ -30,7 +30,7 @@ class replace_rec_fn {
 
     expr apply(expr const & e, unsigned offset) {
         bool shared = false;
-        if (m_use_cache && is_shared(e)) {
+        if (m_use_cache && !is_likely_unshared(e)) {
             auto it = m_cache.find(mk_pair(e.raw(), offset));
             if (it != m_cache.end())
                 return it->second;

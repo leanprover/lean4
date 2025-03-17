@@ -252,6 +252,13 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
       let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) #[]
       r.qsort (fun a b => Name.quickLt a.1 b.1)
     statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
+    -- We assume (and check below) that, if used asynchronously, enum attributes are set only in the
+    -- same context in which the tagged declaration was created
+    asyncMode       := .async
+    replay?         := some fun _ newState consts st => consts.foldl (init := st) fun st c =>
+      match newState.find? c with
+      | some v => st.insert c v
+      | _      => st
   }
   let attrs := attrDescrs.map fun (name, descr, val) => {
     ref             := ref
@@ -279,15 +286,16 @@ def getValue [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl
     match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
     | some (_, val) => some val
     | none          => none
-  | none        => (attr.ext.getState env).find? decl
+  | none        => (attr.ext.findStateAsync env decl).find? decl
 
-def setValue (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val : α) : Except String Environment :=
+def setValue (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val : α) : Except String Environment := do
   if (env.getModuleIdxFor? decl).isSome then
-    Except.error ("invalid '" ++ toString attrs.ext.name ++ "'.setValue, declaration is in an imported module")
-  else if ((attrs.ext.getState env).find? decl).isSome then
-    Except.error ("invalid '" ++ toString attrs.ext.name ++ "'.setValue, attribute has already been set")
-  else
-    Except.ok (attrs.ext.addEntry env (decl, val))
+    throw s!"invalid '{attrs.ext.name}'.setValue, declaration is in an imported module"
+  if !env.asyncMayContain decl then
+    throw s!"invalid '{attrs.ext.name}'.setValue, declaration is not from this async context"
+  if ((attrs.ext.findStateAsync env decl).find? decl).isSome then
+    throw s!"invalid '{attrs.ext.name}'.setValue, attribute has already been set"
+  return attrs.ext.addEntry env (decl, val)
 
 end EnumAttributes
 
@@ -305,15 +313,16 @@ def registerAttributeImplBuilder (builderId : Name) (builder : AttributeImplBuil
   if table.contains builderId then throw (IO.userError ("attribute implementation builder '" ++ toString builderId ++ "' has already been declared"))
   attributeImplBuilderTableRef.modify fun table => table.insert builderId builder
 
-def mkAttributeImplOfBuilder (builderId ref : Name) (args : List DataValue) : IO AttributeImpl := do
-  let table ← attributeImplBuilderTableRef.get
-  match table[builderId]? with
-  | none         => throw (IO.userError ("unknown attribute implementation builder '" ++ toString builderId ++ "'"))
-  | some builder => IO.ofExcept <| builder ref args
+structure AttributeExtensionOLeanEntry where
+  builderId : Name
+  ref : Name
+  args : List DataValue
 
-inductive AttributeExtensionOLeanEntry where
-  | decl (declName : Name) -- `declName` has type `AttributeImpl`
-  | builder (builderId ref : Name) (args : List DataValue)
+def mkAttributeImplOfEntry (e : AttributeExtensionOLeanEntry) : IO AttributeImpl := do
+  let table ← attributeImplBuilderTableRef.get
+  match table[e.builderId]? with
+  | none         => throw (IO.userError ("unknown attribute implementation builder '" ++ toString e.builderId ++ "'"))
+  | some builder => IO.ofExcept <| builder e.ref e.args
 
 structure AttributeExtensionState where
   newEntries : List AttributeExtensionOLeanEntry := []
@@ -337,19 +346,13 @@ unsafe def mkAttributeImplOfConstantUnsafe (env : Environment) (opts : Options) 
 @[implemented_by mkAttributeImplOfConstantUnsafe]
 opaque mkAttributeImplOfConstant (env : Environment) (opts : Options) (declName : Name) : Except String AttributeImpl
 
-def mkAttributeImplOfEntry (env : Environment) (opts : Options) (e : AttributeExtensionOLeanEntry) : IO AttributeImpl :=
-  match e with
-  | .decl declName              => IO.ofExcept <| mkAttributeImplOfConstant env opts declName
-  | .builder builderId ref args => mkAttributeImplOfBuilder builderId ref args
-
 private def AttributeExtension.addImported (es : Array (Array AttributeExtensionOLeanEntry)) : ImportM AttributeExtensionState := do
-  let ctx ← read
   let map ← attributeMapRef.get
   let map ← es.foldlM
     (fun map entries =>
       entries.foldlM
         (fun (map : Std.HashMap Name AttributeImpl) entry => do
-          let attrImpl ← mkAttributeImplOfEntry ctx.env ctx.opts entry
+          let attrImpl ← mkAttributeImplOfEntry entry
           return map.insert attrImpl.name attrImpl)
         map)
     map
@@ -400,19 +403,13 @@ def getAttributeImpl (env : Environment) (attrName : Name) : Except String Attri
   | some attr => pure attr
   | none      => throw ("unknown attribute '" ++ toString attrName ++ "'")
 
-def registerAttributeOfDecl (env : Environment) (opts : Options) (attrDeclName : Name) : Except String Environment := do
-  let attrImpl ← mkAttributeImplOfConstant env opts attrDeclName
-  if isAttribute env attrImpl.name then
-    throw ("invalid builtin attribute declaration, '" ++ toString attrImpl.name ++ "' has already been used")
-  else
-    return attributeExtension.addEntry env (.decl attrDeclName, attrImpl)
-
 def registerAttributeOfBuilder (env : Environment) (builderId ref : Name) (args : List DataValue) : IO Environment := do
-  let attrImpl ← mkAttributeImplOfBuilder builderId ref args
+  let entry := {builderId, ref, args}
+  let attrImpl ← mkAttributeImplOfEntry entry
   if isAttribute env attrImpl.name then
     throw (IO.userError ("invalid builtin attribute declaration, '" ++ toString attrImpl.name ++ "' has already been used"))
   else
-    return attributeExtension.addEntry env (.builder builderId ref args, attrImpl)
+    return attributeExtension.addEntry env (entry, attrImpl)
 
 def Attribute.add (declName : Name) (attrName : Name) (stx : Syntax) (kind := AttributeKind.global) : AttrM Unit := do
   let attr ← ofExcept <| getAttributeImpl (← getEnv) attrName

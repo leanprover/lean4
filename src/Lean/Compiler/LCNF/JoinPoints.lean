@@ -39,12 +39,12 @@ structure FindState where
   /--
   All current join point candidates accessible by their `FVarId`.
   -/
-  candidates : Std.HashMap FVarId CandidateInfo := .empty
+  candidates : Std.HashMap FVarId CandidateInfo := ∅
   /--
   The `FVarId`s of all `fun` declarations that were declared within the
   current `fun`.
   -/
-  scope : Std.HashSet FVarId := .empty
+  scope : Std.HashSet FVarId := ∅
 
 abbrev ReplaceCtx := Std.HashMap FVarId Name
 
@@ -88,7 +88,7 @@ private partial def removeCandidatesInLetValue (e : LetValue) : FindM Unit := do
 Add a new join point candidate to the state.
 -/
 private def addCandidate (fvarId : FVarId) (arity : Nat) : FindM Unit := do
-  let cinfo := { arity, associated := .empty }
+  let cinfo := { arity, associated := ∅ }
   modifyCandidates (fun cs => cs.insert fvarId cinfo )
 
 /--
@@ -133,7 +133,7 @@ this. This is because otherwise the calls to `myjp` in `f` and `g` would
 produce out of scope join point jumps.
 -/
 partial def find (decl : Decl) : CompilerM FindState := do
-  let (_, candidates) ← go decl.value |>.run none |>.run {} |>.run' {}
+  let (_, candidates) ← decl.value.forCodeM go |>.run none |>.run {} |>.run' {}
   return candidates
 where
   go : Code → FindM Unit
@@ -177,8 +177,8 @@ and all calls to them with `jmp`s.
 -/
 partial def replace (decl : Decl) (state : FindState) : CompilerM Decl := do
   let mapper := fun acc cname _ => do return acc.insert cname (← mkFreshJpName)
-  let replaceCtx : ReplaceCtx ← state.candidates.foldM (init := .empty) mapper
-  let newValue ← go decl.value |>.run replaceCtx
+  let replaceCtx : ReplaceCtx ← state.candidates.foldM (init := ∅) mapper
+  let newValue ← decl.value.mapCodeM go |>.run replaceCtx
   return { decl with value := newValue }
 where
   go (code : Code) : ReplaceM Code := do
@@ -242,7 +242,7 @@ structure ExtendState where
   /--
   A map from join point `FVarId`s to a respective map from free variables
   to `Param`s. The free variables in this map are the once that the context
-  of said join point will be extended by by passing in the respective parameter.
+  of said join point will be extended by passing in the respective parameter.
   -/
   fvarMap : Std.HashMap FVarId (Std.HashMap FVarId Param) := {}
 
@@ -389,7 +389,7 @@ position within the code so we can pull them out as far as possible, hopefully
 enabling new inlining possibilities in the next simplifier run.
 -/
 partial def extend (decl : Decl) : CompilerM Decl := do
-  let newValue ← go decl.value |>.run {} |>.run' {} |>.run' {}
+  let newValue ← decl.value.mapCodeM go |>.run {} |>.run' {} |>.run' {}
   let decl := { decl with value := newValue }
   decl.pullFunDecls
 where
@@ -510,8 +510,8 @@ After we have performed all of these optimizations we can take away the
 code that has as little arguments as possible in the join points.
 -/
 partial def reduce (decl : Decl) : CompilerM Decl := do
-  let (_, analysis) ← goAnalyze decl.value |>.run {} |>.run {} |>.run' {}
-  let newValue ← goReduce decl.value |>.run analysis
+  let (_, analysis) ← decl.value.forCodeM goAnalyze |>.run {} |>.run {} |>.run' {}
+  let newValue ← decl.value.mapCodeM goReduce |>.run analysis
   return { decl with value := newValue }
 where
   goAnalyzeFunDecl (fn : FunDecl) : ReduceAnalysisM Unit := do

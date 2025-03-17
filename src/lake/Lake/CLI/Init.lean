@@ -3,8 +3,10 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+prelude
 import Lake.Util.Git
 import Lake.Util.Sugar
+import Lake.Util.Version
 import Lake.Config.Lang
 import Lake.Config.Package
 import Lake.Config.Workspace
@@ -13,24 +15,24 @@ import Lake.Build.Actions
 
 namespace Lake
 open Git System
+open Lean (Name)
 
 /-- The default module of an executable in `std` package. -/
 def defaultExeRoot : Name := `Main
-
-/-- `elan` toolchain file name -/
-def toolchainFileName : FilePath := "lean-toolchain"
 
 def gitignoreContents :=
 s!"/{defaultLakeDir}
 "
 
 def basicFileContents :=
-  s!"def hello := \"world\""
+s!"def hello := \"world\"
+"
 
 def libRootFileContents (libName : String) (libRoot : Name) :=
 s!"-- This module serves as the root of the `{libName}` library.
 -- Import modules here that should be built as part of the library.
-import {libRoot}.Basic"
+import {libRoot}.Basic
+"
 
 def mainFileName : FilePath :=
   s!"{defaultExeRoot}.lean"
@@ -52,7 +54,7 @@ s!"import Lake
 open Lake DSL
 
 package {repr pkgName} where
-  -- add package configuration options here
+  version := v!\"0.1.0\"
 
 lean_lib {libRoot} where
   -- add library configuration options here
@@ -64,6 +66,7 @@ lean_exe {repr exeName} where
 
 def stdTomlConfigFileContents (pkgName libRoot exeName : String) :=
 s!"name = {repr pkgName}
+version = \"0.1.0\"
 defaultTargets = [{repr exeName}]
 
 [[lean_lib]]
@@ -79,7 +82,7 @@ s!"import Lake
 open Lake DSL
 
 package {repr pkgName} where
-  -- add package configuration options here
+  version := v!\"0.1.0\"
 
 @[default_target]
 lean_exe {repr exeName} where
@@ -88,6 +91,7 @@ lean_exe {repr exeName} where
 
 def exeTomlConfigFileContents (pkgName exeName : String) :=
 s!"name = {repr pkgName}
+version = \"0.1.0\"
 defaultTargets = [{repr exeName}]
 
 [[lean_exe]]
@@ -100,7 +104,7 @@ s!"import Lake
 open Lake DSL
 
 package {repr pkgName} where
-  -- add package configuration options here
+  version := v!\"0.1.0\"
 
 @[default_target]
 lean_lib {libRoot} where
@@ -109,6 +113,7 @@ lean_lib {libRoot} where
 
 def libTomlConfigFileContents (pkgName libRoot : String) :=
 s!"name = {repr pkgName}
+version = \"0.1.0\"
 defaultTargets = [{repr libRoot}]
 
 [[lean_lib]]
@@ -120,11 +125,12 @@ s!"import Lake
 open Lake DSL
 
 package {repr pkgName} where
-  -- Settings applied to both builds and interactive editing
+  version := v!\"0.1.0\"
+  keywords := #[\"math\"]
   leanOptions := #[
-    ⟨`pp.unicode.fun, true⟩ -- pretty-prints `fun a ↦ b`
+    ⟨`pp.unicode.fun, true⟩, -- pretty-prints `fun a ↦ b`
+    ⟨`autoImplicit, false⟩
   ]
-  -- add any additional package configuration options here
 
 require \"leanprover-community\" / \"mathlib\"
 
@@ -135,10 +141,13 @@ lean_lib {libRoot} where
 
 def mathTomlConfigFileContents (pkgName libRoot : String) :=
 s!"name = {repr pkgName}
+version = \"0.1.0\"
+keywords = [\"math\"]
 defaultTargets = [{repr libRoot}]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+autoImplicit = false
 
 [[require]]
 name = \"mathlib\"
@@ -270,8 +279,8 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
     IO.FS.writeFile readmeFile (readmeFileContents <| dotlessName name)
 
   -- initialize a `.git` repository if none already
-  unless (← FilePath.isDir <| dir / ".git") do
-    let repo := GitRepo.mk dir
+  let repo := GitRepo.mk dir
+  unless (← repo.insideWorkTree) do
     try
       repo.quietInit
       unless upstreamBranch = "master" do

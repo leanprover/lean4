@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lean.Elab.Frontend
 import Lake.DSL.Extensions
 import Lake.DSL.Attributes
@@ -68,6 +69,8 @@ def elabConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
 
   -- Log messages
   for msg in s.commandState.messages.toList do
+    if msg.isSilent then
+      continue
     match msg.severity with
     | MessageSeverity.information => logInfo (← msg.toString)
     | MessageSeverity.warning     => logWarning (← msg.toString)
@@ -80,10 +83,10 @@ def elabConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
     return s.commandState.env
 
 /--
-`Lean.Environment.add` is now private, but exported as `lean_environment_add`.
-We call it here via `@[extern]` with a mock implementation.
+`Lean.Kernel.Environment.add` is now private, this is an exported helper wrapping it for
+`Lean.Environment`.
 -/
-@[extern "lean_environment_add"]
+@[extern "lake_environment_add"]
 private opaque addToEnv (env : Environment) (_ : ConstantInfo) : Environment
 
 /--
@@ -146,7 +149,7 @@ where
     |>.insert ``packageFacetAttr
     |>.insert ``libraryFacetAttr
     -- Docstring Extension (e.g., for scripts)
-    |>.insert `Lean.docStringExt
+    |>.insert ``docStringExt
     -- IR Extension (for constant evaluation)
     |>.insert ``IR.declMapExt
 

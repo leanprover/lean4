@@ -1,4 +1,4 @@
-/-
+        /-
 Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Harun Khan, Abdalrhman M Mohamed, Joe Hendrix, Siddharth Bhat
@@ -1756,5 +1756,18 @@ theorem extractLsb'_mul {w len} {x y : BitVec w} (hlen : len ≤ w) :
 theorem append_add_append_eq_append {v w : Nat} {x : BitVec v} {y : BitVec w} :
     (x ++ 0#w) + (0#v ++ y) = x ++ y := by
   rw [add_eq_or_of_and_eq_zero] <;> ext i <;> simp
+
+/-- Heuristically, `y <<< x` is much larger than `x`,
+and hence low bits of `y <<< x`. Thus, `x + (y <<< x) = x ||| (y <<< x).` -/
+theorem add_shifLeft_eq_or_shiftLeft {x y : BitVec w} :
+    x + (y <<< x) =  x ||| (y <<< x) := by
+  rw [add_eq_or_of_and_eq_zero]
+  ext i hi
+  simp only [shiftLeft_eq', getElem_and, getElem_shiftLeft, getElem_zero, and_eq_false_imp,
+    not_eq_eq_eq_not, Bool.not_true, decide_eq_false_iff_not, Nat.not_lt]
+  intros hxi hxval
+  have : 2^i ≤ x.toNat := two_pow_le_toNat_of_getElem_eq_true hi hxi
+  have : i < 2^i := by exact Nat.lt_two_pow_self
+  omega
 
 end BitVec

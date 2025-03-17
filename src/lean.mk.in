@@ -55,7 +55,7 @@ objs: $(OBJS) $(ALL_NAT_OBJS)
 bin: $(BIN_OUT)/$(BIN_NAME)
 
 lib: $(LIB_OUT)/$(STATIC_LIB_NAME)
-lib.export: $(TEMP_OUT)/$(STATIC_LIB_NAME).export
+lib.export: $(LIB_OUT)/$(STATIC_LIB_NAME).export
 
 depends: $(DEPS)
 
@@ -126,7 +126,7 @@ $(TEMP_OUT)/%.o: $(TEMP_OUT)/%.o.export
 	ln -f $< $@
 endif
 
-$(BIN_OUT)/$(BIN_NAME): $(TEMP_OUT)/$(STATIC_LIB_NAME).export | $(BIN_OUT)
+$(BIN_OUT)/$(BIN_NAME): $(LIB_OUT)/$(STATIC_LIB_NAME).export | $(BIN_OUT)
 ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Linking $@"
 endif
@@ -140,7 +140,7 @@ $(LIB_OUT)/$(STATIC_LIB_NAME): $(NAT_OBJS) | $(LIB_OUT)
 	$(file >$@.in) $(foreach O,$^,$(file >>$@.in,"$O"))
 	@$(LEAN_AR) rcs $@ @$@.in
 	@rm -f $@.in
-$(TEMP_OUT)/$(STATIC_LIB_NAME).export: $(addsuffix .export,$(NAT_OBJS)) | $(LIB_OUT)
+$(LIB_OUT)/$(STATIC_LIB_NAME).export: $(addsuffix .export,$(NAT_OBJS)) | $(LIB_OUT)
 	@rm -f $@
 	$(file >$@.in) $(foreach O,$^,$(file >>$@.in,"$O"))
 	# "T"hin archive seems necessary to preserve paths so that we can distinguish
@@ -153,7 +153,7 @@ $(LIB_OUT)/$(STATIC_LIB_NAME): $(NAT_OBJS) | $(LIB_OUT)
 	@rm -f $@
 # no response file support on macOS, but also no need for them
 	@$(LEAN_AR) rcs $@ $^
-$(TEMP_OUT)/$(STATIC_LIB_NAME).export: $(LIB_OUT)/$(STATIC_LIB_NAME)
+$(LIB_OUT)/$(STATIC_LIB_NAME).export: $(LIB_OUT)/$(STATIC_LIB_NAME)
 	ln -f $< $@
 endif
 

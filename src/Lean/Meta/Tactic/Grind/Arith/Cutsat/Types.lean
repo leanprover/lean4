@@ -77,8 +77,14 @@ structure EqCnstr where
   h  : EqCnstrProof
 
 inductive EqCnstrProof where
-  | expr (h : Expr)
-  | core (p₁ p₂ : Poly) (h : Expr)
+  | /-- An equality `a = 0` coming from the core. -/
+    core0 (a : Expr) (zero : Expr)
+  | /--
+    An equality `a = b` coming from the core.
+    `p₁` and `p₂` are the polynomials corresponding to `a` and `b`.
+    -/
+    core (a b : Expr) (p₁ p₂ : Poly)
+  | coreNat (a b : Expr) (ctx : Array Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
   | norm (c : EqCnstr)
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
@@ -130,7 +136,9 @@ inductive CooperSplitProof where
     last (hs : Array (FVarId × UnsatProof)) (decVars : Array FVarId)
 
 inductive DvdCnstrProof where
-  | expr (h : Expr)
+  | /-- Given `e` of the form `k ∣ p` s.t. `e = True` in the core.  -/
+    core (e : Expr)
+  | coreNat (e : Expr) (ctx : Array Expr) (d : Nat) (b : Int.OfNat.Expr) (b' : Int.Linear.Expr)
   | norm (c : DvdCnstr)
   | divCoeffs (c : DvdCnstr)
   | solveCombine (c₁ c₂ : DvdCnstr)
@@ -148,8 +156,11 @@ structure LeCnstr where
   h  : LeCnstrProof
 
 inductive LeCnstrProof where
-  | expr (h : Expr)
-  | notExpr (p : Poly) (h : Expr)
+  | core (e : Expr)
+  | coreNeg (e : Expr) (p : Poly)
+  | coreNat (e : Expr) (ctx : Array Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
+  | coreNatNeg (e : Expr) (ctx : Array Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
+  | dec (h : FVarId)
   | norm (c : LeCnstr)
   | divCoeffs (c : LeCnstr)
   | combine (c₁ c₂ : LeCnstr)
@@ -167,8 +178,14 @@ structure DiseqCnstr where
   h  : DiseqCnstrProof
 
 inductive DiseqCnstrProof where
-  | expr (h : Expr)
-  | core (p₁ p₂ : Poly) (h : Expr)
+  | /-- An disequality `a != 0` coming from the core. That is, `(a = 0) = False` in the core. -/
+    core0 (a : Expr) (zero : Expr)
+  | /--
+    An disequality `a ≠ b` coming from the core. That is, `(a = b) = False` in the core.
+    `p₁` and `p₂` are the polynomials corresponding to `a` and `b`.
+    -/
+    core (a b : Expr) (p₁ p₂ : Poly)
+  | coreNat (a b : Expr) (ctx : Array Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
   | norm (c : DiseqCnstr)
   | divCoeffs (c : DiseqCnstr)
   | neg (c : DiseqCnstr)
@@ -188,10 +205,10 @@ inductive UnsatProof where
 end
 
 instance : Inhabited LeCnstr where
-  default := { p := .num 0, h := .expr default }
+  default := { p := .num 0, h := .core default}
 
 instance : Inhabited DvdCnstr where
-  default := { d := 0, p := .num 0, h := .expr default }
+  default := { d := 0, p := .num 0, h := .core default }
 
 instance : Inhabited CooperSplitPred where
   default := { left := false, c₁ := default, c₂ := default, c₃? := none }
@@ -201,12 +218,25 @@ instance : Inhabited CooperSplit where
 
 abbrev VarSet := RBTree Var compare
 
+inductive ForeignType where
+  | nat
+  deriving BEq
+
 /-- State of the cutsat procedure. -/
 structure State where
   /-- Mapping from variables to their denotations. -/
   vars : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
   varMap  : PHashMap ENodeKey Var := {}
+  /--
+  Mapping from terms (e.g., `x + 2*y + 2`, `3*x`, `5`) to polynomials representing them.
+  These are terms used to propagate equalities between this module and the congruence closure module.
+  -/
+  terms : PHashMap ENodeKey Poly := {}
+  /--
+  Foreign terms (e.g., `Nat`). They are also marked using `markAsCutsatTerm`.
+  -/
+  foreignTerms : PHashMap ENodeKey ForeignType := {}
   /--
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/
@@ -235,11 +265,6 @@ structure State where
   Elimination stack. For every variable in `elimStack`. If `x` in `elimStack`, then `elimEqs[x]` is not `none`.
   -/
   elimStack : List Var := []
-  /--
-  Mapping from terms (e.g., `x + 2*y + 2`, `3*x`, `5`) to polynomials representing them.
-  These are terms used to propagate equalities between this module and the congruence closure module.
-  -/
-  terms : PHashMap ENodeKey Poly := {}
   /--
   Mapping from variable to occurrences. For example, an entry `x ↦ {y, z}` means that `x` may occur in `dvdCnstrs`, `lowers`, or `uppers` of
   variables `y` and `z`.

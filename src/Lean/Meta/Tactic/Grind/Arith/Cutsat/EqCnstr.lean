@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Meta.Tactic.Grind.Diseq
+import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
@@ -235,65 +235,155 @@ private def exprAsPoly (a : Expr) : GoalM Poly := do
   else
     throwError "internal `grind` error, expression is not relevant to cutsat{indentExpr a}"
 
-@[export lean_process_cutsat_eq]
-def processNewEqImpl (a b : Expr) : GoalM Unit := do
-  trace[grind.debug.cutsat.eq] "{a} = {b}"
+private def processNewIntEq (a b : Expr) : GoalM Unit := do
   let p₁ ← exprAsPoly a
   let p₂ ← exprAsPoly b
   let p := p₁.combine (p₂.mul (-1))
-  { p, h := .core p₁ p₂ (← mkEqProof a b) : EqCnstr }.assert
+  { p, h := .core a b p₁ p₂ : EqCnstr }.assert
+
+private def processNewNatEq (a b : Expr) : GoalM Unit := do
+  let (lhs, rhs, ctx) ← Int.OfNat.toIntEq a b
+  let gen ← getGeneration a
+  let lhs' ← toLinearExpr (lhs.denoteAsIntExpr ctx) gen
+  let rhs' ← toLinearExpr (rhs.denoteAsIntExpr ctx) gen
+  let p := lhs'.sub rhs' |>.norm
+  let c := { p, h := .coreNat a b ctx lhs rhs lhs' rhs' : EqCnstr }
+  trace[grind.debug.cutsat.nat] "{← c.pp}"
+  c.assert
+
+@[export lean_process_cutsat_eq]
+def processNewEqImpl (a b : Expr) : GoalM Unit := do
+  trace[grind.debug.cutsat.eq] "{a} = {b}"
+  match (← foreignTerm? a), (← foreignTerm? b) with
+  | none, none => processNewIntEq a b
+  | some .nat, some .nat => processNewNatEq a b
+  | _, _ => return ()
+
+private def processNewIntLitEq (a ke : Expr) : GoalM Unit := do
+  let some k ← getIntValue? ke | return ()
+  let p₁ ← exprAsPoly a
+  let c ← if k == 0 then
+    pure { p := p₁, h := .core0 a ke : EqCnstr }
+  else
+    let p₂ ← exprAsPoly ke
+    let p := p₁.combine (p₂.mul (-1))
+    pure { p, h := .core a ke p₁ p₂ : EqCnstr }
+  c.assert
 
 @[export lean_process_cutsat_eq_lit]
 def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
   trace[grind.debug.cutsat.eq] "{a} = {ke}"
-  let some k ← getIntValue? ke | return ()
+  match (← foreignTerm? a) with
+  | none => processNewIntLitEq a ke
+  | some .nat => processNewNatEq a ke
+
+private def processNewIntDiseq (a b : Expr) : GoalM Unit := do
   let p₁ ← exprAsPoly a
-  let h ← mkEqProof a ke
-  let c ← if k == 0 then
-    pure { p := p₁, h := .expr h : EqCnstr }
+  let c ← if let some 0 ← getIntValue? b then
+    pure { p := p₁, h := .core0 a b : DiseqCnstr }
   else
-    let p₂ ← exprAsPoly ke
+    let p₂ ← exprAsPoly b
     let p := p₁.combine (p₂.mul (-1))
-    pure { p, h := .core p₁ p₂ h : EqCnstr }
+    pure {p, h := .core a b p₁ p₂ : DiseqCnstr }
+  c.assert
+
+private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
+  let (lhs, rhs, ctx) ← Int.OfNat.toIntEq a b
+  let gen ← getGeneration a
+  let lhs' ← toLinearExpr (lhs.denoteAsIntExpr ctx) gen
+  let rhs' ← toLinearExpr (rhs.denoteAsIntExpr ctx) gen
+  let p := lhs'.sub rhs' |>.norm
+  let c := { p, h := .coreNat a b ctx lhs rhs lhs' rhs' : DiseqCnstr }
+  trace[grind.debug.cutsat.nat] "{← c.pp}"
   c.assert
 
 @[export lean_process_cutsat_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
   trace[grind.debug.cutsat.diseq] "{a} ≠ {b}"
-  let p₁ ← exprAsPoly a
-  let some h ← mkDiseqProof? a b
-    | throwError "internal `grind` error, failed to build disequality proof for{indentExpr a}\nand{indentExpr b}"
-  let c ← if let some 0 ← getIntValue? b then
-    pure { p := p₁, h := .expr h : DiseqCnstr }
-  else
-    let p₂ ← exprAsPoly b
-    let p := p₁.combine (p₂.mul (-1))
-    pure {p, h := .core p₁ p₂ h : DiseqCnstr }
-  c.assert
+  match (← foreignTerm? a), (← foreignTermOrLit? b) with
+  | none, none => processNewIntDiseq a b
+  | some .nat, some .nat => processNewNatDiseq a b
+  | _, _ => return ()
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
-  | add | mul | num
+  | add | mul | num | div | mod | sub
+  deriving BEq
+
+private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
+  match_expr e with
+  | HAdd.hAdd α _ _ _ _ _ => some (.add, α)
+  | HSub.hSub α _ _ _ _ _ => some (.sub, α)
+  | HMul.hMul α _ _ _ _ _ => some (.mul, α)
+  | HDiv.hDiv α _ _ _ _ _ => some (.div, α)
+  | HMod.hMod α _ _ _ _ _ => some (.mod, α)
+  | OfNat.ofNat α _ _ => some (.num, α)
+  | Neg.neg α _ a =>
+    let_expr OfNat.ofNat _ _ _ := a | none
+    some (.num, α)
+  | _ => none
 
 private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : Bool := Id.run do
   let some parent := parent? | return false
   let .const declName _ := parent.getAppFn | return false
+  -- TODO: document `NatCast.natCast` case.
+  -- Remark: we added it to prevent natCast_sub from being expanded twice.
+  if declName == ``NatCast.natCast then return true
+  if k matches .div | .mod | .sub then return false
   if declName == ``HAdd.hAdd || declName == ``LE.le || declName == ``Dvd.dvd then return true
   match k with
   | .add => return false
   | .mul => return declName == ``HMul.hMul
   | .num => return declName == ``HMul.hMul || declName == ``Eq
+  | _ => unreachable!
 
-private def internalizeCore (e : Expr) (parent? : Option Expr) (k : SupportedTermKind) : GoalM Unit := do
+private def internalizeInt (e : Expr) : GoalM Unit := do
   if (← get').terms.contains { expr := e } then return ()
-  if isForbiddenParent parent? k then return ()
   let p ← toPoly e
   markAsCutsatTerm e
   trace[grind.cutsat.internalize] "{aquote e}:= {← p.pp}"
   modify' fun s => { s with terms := s.terms.insert { expr := e } p }
 
+private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
+  if b == 0 || b == 1 || b == -1 then
+    throwError "`grind` internal error, found non-normalized div/mod by {b}"
+  if (← get').divMod.contains (a, b) then return ()
+  modify' fun s => { s with divMod := s.divMod.insert (a, b) }
+  let n : Int := 1 - b.natAbs
+  let b := mkIntLit b
+  pushNewProof <| mkApp2 (mkConst ``Int.Linear.ediv_emod) a b
+  pushNewProof <| mkApp3 (mkConst ``Int.Linear.emod_nonneg) a b reflBoolTrue
+  pushNewProof <| mkApp4 (mkConst ``Int.Linear.emod_le) a b (toExpr n) reflBoolTrue
+
+private def propagateDiv (e : Expr) : GoalM Unit := do
+  let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()
+  if (← isInstHDivInt inst) then
+    let some b ← getIntValue? b | return ()
+    -- Remark: we currently do not consider the case where `b` is in the equivalence class of a numeral.
+    expandDivMod a b
+
+private def propagateMod (e : Expr) : GoalM Unit := do
+  let_expr HMod.hMod _ _ _ inst a b ← e | return ()
+  if (← isInstHModInt inst) then
+    let some b ← getIntValue? b | return ()
+    expandDivMod a b
+
+private def propagateNatSub (e : Expr) : GoalM Unit := do
+  let_expr HSub.hSub _ _ _ inst a b := e | return ()
+  unless (← isInstHSubNat inst) do return ()
+  markForeignTerm a .nat
+  markForeignTerm b .nat
+  -- TODO: cleanup
+  let aux := mkApp2 (mkConst ``Int.Linear.natCast_sub_def) a b
+  -- TODO: improve `preprocess` to make sure we don't need to unfold manually here
+  let aux ← unfoldReducible aux
+  -- Remark: we preprocess here because we want to propagate `natCast`.
+  -- We don't want to preprocess the whole thing.
+  let r ← preprocess aux
+  pushNewProof <| mkApp4 (mkConst ``Int.Linear.natCast_sub) a b r.expr (← r.getProof)
+
 /--
-Internalizes an integer expression. Here are the different cases that are handled.
+Internalizes an integer (and `Nat`) expression. Here are the different cases that are handled.
 
 - `a + b` when `parent?` is not `+`, `≤`, or `∣`
 - `k * a` when `k` is a numeral and `parent?` is not `+`, `*`, `≤`, `∣`
@@ -302,14 +392,17 @@ Internalizes an integer expression. Here are the different cases that are handle
   back to the congruence closure module. Example: we have `f 5`, `f x`, `x - y = 3`, `y = 2`.
 -/
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
-  let k ← if (← isAdd e) then
-    pure .add
-  else if (← isMul e) then
-    pure .mul
-  else if (← getIntValue? e).isSome then
-    pure .num
-  else
-    return ()
-  internalizeCore e parent? k
+  let some (k, type) := getKindAndType? e | return ()
+  if isForbiddenParent parent? k then return ()
+  trace[grind.debug.cutsat.internalize] "{e} : {type}"
+  if type.isConstOf ``Int then
+    match k with
+    | .div => propagateDiv e
+    | .mod => propagateMod e
+    | _ => internalizeInt e
+  else if type.isConstOf ``Nat then
+    markForeignTerm e .nat
+    if k == .sub then
+      propagateNatSub e
 
 end Lean.Meta.Grind.Arith.Cutsat

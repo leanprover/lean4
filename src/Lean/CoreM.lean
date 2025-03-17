@@ -36,7 +36,7 @@ register_builtin_option Elab.async : Bool := {
   descr := "perform elaboration using multiple threads where possible\
     \n\
     \nThis option defaults to `false` but (when not explicitly set) is overridden to `true` in \
-      the language server. \
+      the Lean language server and cmdline. \
       Metaprogramming users driving elaboration directly via e.g. \
       `Lean.Elab.Command.elabCommandTopLevel` can opt into asynchronous elaboration by setting \
       this option but then are responsible for processing messages and other data not only in the \
@@ -218,7 +218,7 @@ instance : Elab.MonadInfoTree CoreM where
 @[inline] def modifyInstLevelValueCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
   modifyCache fun ⟨c₁, c₂⟩ => ⟨c₁, f c₂⟩
 
-def instantiateTypeLevelParams (c : ConstantInfo) (us : List Level) : CoreM Expr := do
+def instantiateTypeLevelParams (c : ConstantVal) (us : List Level) : CoreM Expr := do
   if let some (us', r) := (← get).cache.instLevelType.find? c.name then
     if us == us' then
       return r
@@ -543,6 +543,16 @@ register_builtin_option compiler.enableNew : Bool := {
   descr    := "(compiler) enable the new code generator, this should have no significant effect on your code but it does help to test the new code generator; unset to only use the old code generator instead"
 }
 
+/--
+If `t` has not finished yet, waits for it under an `Elab.block` trace node. Returns `t`'s result.
+-/
+def traceBlock (tag : String) (t : Task α) : CoreM α := do
+  if (← IO.hasFinished t) then
+    return t.get
+  withTraceNode `Elab.block (tag := tag) (fun _ => pure tag) do
+    profileitM Exception "blocked" (← getOptions) do
+      IO.wait t
+
 -- Forward declaration
 @[extern "lean_lcnf_compile_decls"]
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
@@ -556,6 +566,7 @@ partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
   -- When inside `realizeConst`, do compilation synchronously so that `_cstage*` constants are found
   -- by the replay code
   if !Elab.async.get (← getOptions) || (← getEnv).isRealizing then
+    let _ ← traceBlock "compiler env" (← getEnv).checked
     doCompile
     return
   let env ← getEnv

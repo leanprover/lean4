@@ -30,8 +30,6 @@ example (a b : Bool) : ((a = true) ↔ (b = true)) ↔ (a == b) := by bv_normali
 example {x : BitVec 16} : 0#16 + x = x := by bv_normalize
 example {x : BitVec 16} : x + 0#16 = x := by bv_normalize
 example {x : BitVec 16} : x.setWidth 16 = x := by bv_normalize
-example {x : BitVec 0} : x.getLsbD i = false := by bv_normalize
-example {x : BitVec 16} {b : Bool} : (x.concat b).getLsbD 0 = b := by bv_normalize
 example {x : BitVec 16} : 1 * x = x := by bv_normalize
 example {x : BitVec 16} : x * 1 = x := by bv_normalize
 example {x : BitVec 16} : ~~~(~~~x) = x := by bv_normalize
@@ -582,6 +580,45 @@ example {x : BitVec 8} : x.extractLsb' 3 5 ++ x.extractLsb' 1 2 = x.extractLsb' 
 example {x : BitVec 8} :
     (~~~x.extractLsb' 3 5) ++ (~~~x.extractLsb' 1 2) = ~~~x.extractLsb' 1 7 := by
   bv_normalize
+
+-- BV_ULT_SPECIAL_CONST
+example {x : BitVec 8} : x < 255 ↔ x ≠ 255 := by bv_normalize
+
+-- BV_SIGN_EXTEND_ELIM
+example {x : BitVec 8} : x.signExtend 16 = (bif x.msb then 255#8 else 0#8) ++ x := by bv_normalize
+example {x : BitVec 8} : x.signExtend 4 = BitVec.extractLsb' 0 4 x := by bv_normalize
+
+-- BV_ADD_NEG_MUL
+example {x y : BitVec 8} : -(x + x * y) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : -(x + y * x) = ~~~y * x := by bv_normalize
+example {x y : BitVec 8} : -(x * y + x) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : -(y * x + x) = ~~~y * x := by bv_normalize
+example {x y : BitVec 8} : 1#8 + ~~~(x + x * y) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : 1#8 + ~~~(x + y * x) = ~~~y * x := by bv_normalize
+example {x y : BitVec 8} : 1#8 + ~~~(x * y + x) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : 1#8 + ~~~(y * x + x) = ~~~y * x := by bv_normalize
+example  : ∀ (s t : BitVec 32), (!!-(t + s * t) == ~~~s * t) = true := by
+  bv_normalize (config  := {acNf := true})
+
+-- BV_EXTRACT_CONCAT
+example {x y : BitVec 8} : BitVec.extractLsb' 0 4 (x ++ y) = BitVec.extractLsb' 0 4 y := by
+  bv_normalize
+
+example {x y : BitVec 8} : BitVec.extractLsb' 8 4 (x ++ y) = BitVec.extractLsb' 0 4 x := by
+  bv_normalize
+
+-- NORM_BV_ADD_MUL
+example {x y : BitVec 8} : ~~~(x * ~~~y) + 1#8 = x + (x * y) := by bv_normalize
+example {x y : BitVec 8} : ~~~(~~~y * x) + 1#8 = x + (y * x) := by bv_normalize
+example {x y : BitVec 8} : 1#8 + ~~~(x * ~~~y) = x + (x * y) := by bv_normalize
+example {x y : BitVec 8} : 1#8 + ~~~(~~~y * x) = x + (y * x) := by bv_normalize
+example {x y : BitVec 8} : -(x * ~~~y) = x + (x * y) := by bv_normalize
+
+-- NORM_BV_SHL_NEG
+example {x y : BitVec 8} : (~~~x + 1) <<< y = ~~~(x <<< y) + 1 := by bv_normalize
+example {x y : BitVec 8} : (1 + ~~~x) <<< y = ~~~(x <<< y) + 1 := by bv_normalize
+example {x y : BitVec 8} : (-x) <<< y = -(x <<< y) := by bv_normalize
+
 
 section
 

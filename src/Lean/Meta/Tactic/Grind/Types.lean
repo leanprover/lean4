@@ -936,12 +936,12 @@ def propagateCutsatDiseq (lhs rhs : Expr) : GoalM Unit := do
   let some lhs ← get? lhs | return ()
   let some rhs ← get? rhs | return ()
   -- Recall that core can take care of disequalities of the form `1≠2`.
-  unless isIntNum lhs && isIntNum rhs do
+  unless isNum lhs && isNum rhs do
     Arith.Cutsat.processNewDiseq lhs rhs
 where
   get? (a : Expr) : GoalM (Option Expr) := do
     let root ← getRootENode a
-    if isIntNum root.self then
+    if isNum root.self then
       return some root.self
     return root.cutsat?
 
@@ -961,7 +961,7 @@ def markAsCutsatTerm (e : Expr) : GoalM Unit := do
   let root ← getRootENode e
   if let some e' := root.cutsat? then
     Arith.Cutsat.processNewEq e e'
-  else if isIntNum root.self && !isSameExpr e root.self then
+  else if isNum root.self && !isSameExpr e root.self then
     Arith.Cutsat.processNewEqLit e root.self
   else
     setENode root.self { root with cutsat? := some e }

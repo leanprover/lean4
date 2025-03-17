@@ -1658,6 +1658,28 @@ theorem emod_le (x y : Int) (n : Int) : emod_le_cert y n → x % y + n ≤ 0 := 
 theorem natCast_nonneg (x : Nat) : (-1:Int) * NatCast.natCast x ≤ 0 := by
   simp
 
+abbrev natCast_sub_def (x y : Nat) : Int :=
+  if (NatCast.natCast y : Int) + (-1)*NatCast.natCast x ≤ 0 then (NatCast.natCast x : Int) + -1*NatCast.natCast y else (0 : Int)
+
+theorem natCast_sub (x y : Nat) (z : Int)
+    : natCast_sub_def x y = z → (NatCast.natCast (x - y) : Int) = z := by
+  intro; subst z
+  show (↑(x - y) : Int) = if (↑y : Int) + (-1)*↑x ≤ 0 then ↑x + (-1)*↑y else 0
+  rw [Int.neg_mul, ← Int.sub_eq_add_neg, Int.one_mul]
+  rw [Int.neg_mul, ← Int.sub_eq_add_neg, Int.one_mul]
+  split
+  next h =>
+    replace h := Int.le_of_sub_nonpos h
+    rw [Int.ofNat_le] at h
+    rw [Int.ofNat_sub h]
+  next h =>
+    have : ¬ (↑y : Int) ≤ ↑x := by
+      intro h
+      replace h := Int.sub_nonpos_of_le h
+      contradiction
+    rw [Int.ofNat_le] at this
+    rw [Lean.Omega.Int.ofNat_sub_eq_zero this]
+
 private theorem dvd_le_tight' {d p b₁ b₂ : Int} (hd : d > 0) (h₁ : d ∣ p + b₁) (h₂ : p + b₂ ≤ 0)
     : p + (b₁ - d*((b₁-b₂) / d)) ≤ 0 := by
   have ⟨k, h⟩ := h₁
@@ -1736,6 +1758,36 @@ theorem dvd_neg_le_tight (ctx : Context) (d : Int) (p₁ p₂ p₃ : Poly)
   generalize -p₁.getConst = b₁
   intro h₁ h₂; rw [Int.add_comm] at h₁
   exact dvd_le_tight' hd h₂ h₁
+
+theorem le_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
+    : norm_eq_cert lhs rhs p → lhs.denote ctx ≤ rhs.denote ctx → p.denote' ctx ≤ 0 := by
+  intro h₁ h₂; rwa [norm_le ctx lhs rhs p h₁] at h₂
+
+def not_le_norm_expr_cert (lhs rhs : Expr) (p : Poly) : Bool :=
+  p == (((lhs.sub rhs).norm).mul (-1)).addConst 1
+
+theorem not_le_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
+    : not_le_norm_expr_cert lhs rhs p → ¬ lhs.denote ctx ≤ rhs.denote ctx → p.denote' ctx ≤ 0 := by
+  simp [not_le_norm_expr_cert]
+  intro; subst p; simp
+  intro h
+  replace h := Int.sub_nonpos_of_le h
+  rw [Int.add_comm, Int.add_sub_assoc] at h
+  rw [Int.neg_sub]; assumption
+
+theorem dvd_norm_expr (ctx : Context) (d : Int) (e : Expr) (p : Poly)
+    : p == e.norm → d ∣ e.denote ctx → d ∣ p.denote' ctx := by
+  simp; intro; subst p; simp
+
+theorem eq_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
+    : norm_eq_cert lhs rhs p → lhs.denote ctx = rhs.denote ctx → p.denote' ctx = 0 := by
+  intro h₁ h₂; rwa [norm_eq ctx lhs rhs p h₁] at h₂
+
+theorem not_eq_norm_expr (ctx : Context) (lhs rhs : Expr) (p : Poly)
+    : norm_eq_cert lhs rhs p → ¬ lhs.denote ctx = rhs.denote ctx → ¬ p.denote' ctx = 0 := by
+  simp [norm_eq_cert]
+  intro; subst p; simp
+  intro; rwa [Int.sub_eq_zero]
 
 end Int.Linear
 

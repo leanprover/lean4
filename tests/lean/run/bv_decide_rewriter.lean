@@ -592,13 +592,13 @@ example {x : BitVec 8} : x.signExtend 4 = BitVec.extractLsb' 0 4 x := by bv_norm
 
 -- BV_ADD_NEG_MUL
 example {x y : BitVec 8} : -(x + x * y) = x * ~~~y := by bv_normalize
-example {x y : BitVec 8} : -(x + y * x) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : -(x + y * x) = ~~~y * x := by bv_normalize
 example {x y : BitVec 8} : -(x * y + x) = x * ~~~y := by bv_normalize
-example {x y : BitVec 8} : -(y * x + x) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : -(y * x + x) = ~~~y * x := by bv_normalize
 example {x y : BitVec 8} : 1#8 + ~~~(x + x * y) = x * ~~~y := by bv_normalize
-example {x y : BitVec 8} : 1#8 + ~~~(x + y * x) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : 1#8 + ~~~(x + y * x) = ~~~y * x := by bv_normalize
 example {x y : BitVec 8} : 1#8 + ~~~(x * y + x) = x * ~~~y := by bv_normalize
-example {x y : BitVec 8} : 1#8 + ~~~(y * x + x) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : 1#8 + ~~~(y * x + x) = ~~~y * x := by bv_normalize
 example  : ∀ (s t : BitVec 32), (!!-(t + s * t) == ~~~s * t) = true := by
   bv_normalize (config  := {acNf := true})
 
@@ -611,9 +611,9 @@ example {x y : BitVec 8} : BitVec.extractLsb' 8 4 (x ++ y) = BitVec.extractLsb' 
 
 -- NORM_BV_ADD_MUL
 example {x y : BitVec 8} : ~~~(x * ~~~y) + 1#8 = x + (x * y) := by bv_normalize
-example {x y : BitVec 8} : ~~~(~~~y * x) + 1#8 = x + (x * y) := by bv_normalize
+example {x y : BitVec 8} : ~~~(~~~y * x) + 1#8 = x + (y * x) := by bv_normalize
 example {x y : BitVec 8} : 1#8 + ~~~(x * ~~~y) = x + (x * y) := by bv_normalize
-example {x y : BitVec 8} : 1#8 + ~~~(~~~y * x) = x + (x * y) := by bv_normalize
+example {x y : BitVec 8} : 1#8 + ~~~(~~~y * x) = x + (y * x) := by bv_normalize
 example {x y : BitVec 8} : -(x * ~~~y) = x + (x * y) := by bv_normalize
 
 section

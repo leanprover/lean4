@@ -143,6 +143,7 @@ theorem BitVec.getElem_eq_getLsbD (a : BitVec w) (i : Nat) (h : i < w) :
 
 -- The side condition about being in bounds gets resolved if i and w are constant.
 attribute [bv_normalize] BitVec.getMsbD_eq_getLsbD
+attribute [bv_normalize] BitVec.getLsbD_eq_extractLsb'
 
 end Reduce
 
@@ -150,9 +151,6 @@ section Constant
 
 attribute [bv_normalize] BitVec.add_zero
 attribute [bv_normalize] BitVec.zero_add
-attribute [bv_normalize] BitVec.getLsbD_zero
-attribute [bv_normalize] BitVec.getLsbD_zero_length
-attribute [bv_normalize] BitVec.getLsbD_concat_zero
 attribute [bv_normalize] BitVec.mul_one
 attribute [bv_normalize] BitVec.one_mul
 attribute [bv_normalize] BitVec.not_not

@@ -3358,7 +3358,7 @@ theorem neg_add_mul_eq_mul_not {x y : BitVec w} :
     BitVec.add_right_eq_self, add_neg_eq_sub, BitVec.sub_self]
 
 theorem neg_mul_not_eq_add_mul {x y : BitVec w} :
- - (x * ~~~ y) = x + x * y := by
+    - (x * ~~~ y) = x + x * y := by
   rw [not_eq_neg_add, mul_sub, neg_sub, ← BitVec.mul_neg, neg_neg,
     BitVec.mul_one, BitVec.add_comm]
 

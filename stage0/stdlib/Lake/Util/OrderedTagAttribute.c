@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_OrderedTagAttribute_getAllEntries___spec__1(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58____closed__2;
 static lean_object* l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58____closed__26;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_instInhabitedOrderedTagAttribute___closed__4;
 static lean_object* l_Lake_instInhabitedOrderedTagAttribute___closed__1;
 static lean_object* l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58____closed__27;
@@ -153,6 +152,7 @@ static lean_object* l_Lake_registerOrderedTagAttribute___closed__3;
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lake_registerOrderedTagAttribute___lambda__6___closed__1;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedOrderedTagAttribute___lambda__3(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedOrderedTagAttribute;
 static lean_object* l_Lake_instInhabitedOrderedTagAttribute___closed__13;
@@ -533,7 +533,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

@@ -30,7 +30,6 @@ lean_object* l_Lean_mkNatLit(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_Elab_Tactic_Omega_Problem_fourierMotzkinData___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_List_foldl___at_Lean_Elab_Tactic_Omega_Problem_insertConstraint___spec__1(uint64_t, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_Justification_combineProof___closed__1;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Omega_IntList_combo(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Elab_Tactic_Omega_Problem_insertConstraint___spec__5___at_Lean_Elab_Tactic_Omega_Problem_insertConstraint___spec__6(lean_object*, lean_object*);
@@ -270,6 +269,7 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_Elab_Tactic_Omega_Probl
 static lean_object* l___auto____x40_Lean_Elab_Tactic_Omega_Core___hyg_1681____closed__16;
 static lean_object* l_Lean_Elab_Tactic_Omega_Justification_bmodProof___closed__22;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Fact_combo(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Problem_replayEliminations(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Problem_solveEquality(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedExpr;
@@ -504,7 +504,6 @@ static lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Lean_Ela
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_instToExprLinearCombo___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Elab_Tactic_Omega_Problem_instToStringFourierMotzkinData___spec__2(lean_object*, lean_object*);
-lean_object* l_List_toString___at_Lean_MetavarContext_MkBinding_instToStringException___spec__2(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_Justification_comboProof___closed__1;
 lean_object* l_List_minNatAbs(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -515,6 +514,7 @@ uint8_t l_Lean_Omega_Constraint_isImpossible(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_Justification_tidyProof___closed__3;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_instToExprLinearCombo___lambda__1___closed__16;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_Justification_bmodProof___closed__26;
 static lean_object* l_Lean_Elab_Tactic_Omega_Justification_toString___closed__12;
 static lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Tactic_Omega_Problem_replayEliminations___spec__2___closed__2;
@@ -5744,7 +5744,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -13989,7 +13989,7 @@ x_12 = lean_string_append(x_11, x_10);
 lean_dec(x_10);
 x_13 = l___private_Lean_Elab_Tactic_Omega_Core_0__Lean_Elab_Tactic_Omega_Justification_bullet___closed__1;
 x_14 = lean_string_append(x_12, x_13);
-x_15 = l_List_toString___at_Lean_MetavarContext_MkBinding_instToStringException___spec__2(x_4);
+x_15 = l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__1(x_4);
 lean_dec(x_4);
 x_16 = l_Lean_Elab_Tactic_Omega_Problem_instToStringFourierMotzkinData___closed__2;
 x_17 = lean_string_append(x_16, x_15);
@@ -13997,7 +13997,7 @@ lean_dec(x_15);
 x_18 = lean_string_append(x_17, x_13);
 x_19 = lean_string_append(x_14, x_18);
 lean_dec(x_18);
-x_20 = l_List_toString___at_Lean_MetavarContext_MkBinding_instToStringException___spec__2(x_6);
+x_20 = l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__1(x_6);
 lean_dec(x_6);
 x_21 = l_Lean_Elab_Tactic_Omega_Problem_instToStringFourierMotzkinData___closed__3;
 x_22 = lean_string_append(x_21, x_20);
@@ -14005,7 +14005,7 @@ lean_dec(x_20);
 x_23 = lean_string_append(x_22, x_13);
 x_24 = lean_string_append(x_19, x_23);
 lean_dec(x_23);
-x_25 = l_List_toString___at_Lean_MetavarContext_MkBinding_instToStringException___spec__2(x_8);
+x_25 = l_List_toString___at_Lean_rewriteManualLinksCore_rw___spec__1(x_8);
 lean_dec(x_8);
 x_26 = l_Lean_Elab_Tactic_Omega_Problem_instToStringFourierMotzkinData___closed__4;
 x_27 = lean_string_append(x_26, x_25);

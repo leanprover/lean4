@@ -268,6 +268,7 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_ppExprLegacy___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_ppCommand___closed__1;
 static lean_object* l_Lean_PrettyPrinter_ppCommand___closed__2;
 static lean_object* l_Lean_PrettyPrinter_ppExpr___closed__1;
@@ -360,7 +361,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -529,10 +530,11 @@ uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = 1;
 x_2 = l_Lean_PPContext_runCoreM___rarg___closed__15;
 x_3 = l_Lean_PPContext_runCoreM___rarg___closed__12;
-x_4 = lean_alloc_ctor(0, 2, 1);
+x_4 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_4, 0, x_2);
-lean_ctor_set(x_4, 1, x_3);
-lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+lean_ctor_set_uint8(x_4, sizeof(void*)*3, x_1);
 return x_4;
 }
 }
@@ -3039,10 +3041,11 @@ uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = 1;
 x_2 = l_Lean_PPContext_runCoreM___rarg___closed__15;
 x_3 = l_Lean_PPContext_runCoreM___rarg___closed__12;
-x_4 = lean_alloc_ctor(0, 2, 1);
+x_4 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_4, 0, x_2);
-lean_ctor_set(x_4, 1, x_3);
-lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+lean_ctor_set_uint8(x_4, sizeof(void*)*3, x_1);
 return x_4;
 }
 }

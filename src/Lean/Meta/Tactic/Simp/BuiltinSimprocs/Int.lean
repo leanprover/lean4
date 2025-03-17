@@ -118,4 +118,10 @@ builtin_simproc [simp, seval] reduceDvd ((_ : Int) ∣ _) := fun e => do
   else
     return .done { expr := mkConst ``False, proof? := mkApp3 (mkConst ``Int.dvd_eq_false_of_mod_ne_zero) a b reflBoolTrue}
 
+builtin_dsimproc [simp, seval] reduceNatCast ((NatCast.natCast _ : Int))  := fun e => do
+  let_expr NatCast.natCast _ inst a ← e | return .continue
+  let some a ← getNatValue? a | return .continue
+  let_expr instNatCastInt ← inst | return .continue
+  return .done <| toExpr (Int.ofNat a)
+
 end Int

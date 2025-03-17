@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__11;
 static lean_object* l_Lean_Elab_instInhabitedInfo___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedElabInfo;
@@ -55,6 +54,7 @@ static size_t l_Lean_Elab_instInhabitedTermInfo___closed__5;
 static lean_object* l_Lean_Elab_instInhabitedTacticInfo___closed__2;
 static lean_object* l_Lean_Elab_instInhabitedMacroExpansionInfo___closed__1;
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__1;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Elab_instInhabitedElabInfo___closed__1() {
 _start:
 {
@@ -98,7 +98,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -370,10 +370,11 @@ uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = 0;
 x_2 = l_Lean_Elab_instInhabitedTermInfo___closed__2;
 x_3 = l_Lean_Elab_instInhabitedTermInfo___closed__6;
-x_4 = lean_alloc_ctor(0, 2, 1);
+x_4 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_4, 0, x_2);
-lean_ctor_set(x_4, 1, x_3);
-lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+lean_ctor_set_uint8(x_4, sizeof(void*)*3, x_1);
 return x_4;
 }
 }

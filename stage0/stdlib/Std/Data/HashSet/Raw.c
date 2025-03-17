@@ -90,7 +90,9 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_Raw_foldM___
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_instInsertOfBEqOfHashable___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_Internal_numBuckets(lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashSet_Raw_emptyWithCapacity___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_instForIn(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashSet_Raw_emptyWithCapacity(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Std_HashSet_Raw_instRepr___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_Raw_forM___spec__2___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_toList(lean_object*);
@@ -220,6 +222,7 @@ static lean_object* l_Std_HashSet_Raw_all___rarg___closed__1;
 LEAN_EXPORT uint8_t l_Std_HashSet_Raw_any___rarg___lambda__1(lean_object*);
 static lean_object* l_Std_HashSet_Raw___aux__Std__Data__HashSet__Raw______macroRules__Std__HashSet__Raw__term___x7em____1___closed__13;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Std_HashSet_Raw_instForM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashSet_Raw_emptyWithCapacity___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_empty(lean_object*);
 static lean_object* l_Std_HashSet_Raw___aux__Std__Data__HashSet__Raw______unexpand__Std__HashSet__Raw__Equiv__1___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Std_HashSet_Raw_filter___spec__1___at_Std_HashSet_Raw_filter___spec__2___rarg(lean_object*, size_t, size_t, lean_object*);
@@ -313,6 +316,44 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_Raw_toArray_
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_Raw_union___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_Raw_filter___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Std_HashSet_Raw_instForM___spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_HashSet_Raw_emptyWithCapacity___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_2 = lean_unsigned_to_nat(4u);
+x_3 = lean_nat_mul(x_1, x_2);
+x_4 = lean_unsigned_to_nat(3u);
+x_5 = lean_nat_div(x_3, x_4);
+lean_dec(x_3);
+x_6 = lean_unsigned_to_nat(1u);
+x_7 = l_Nat_nextPowerOfTwo_go(x_5, x_6, lean_box(0));
+lean_dec(x_5);
+x_8 = lean_box(0);
+x_9 = lean_mk_array(x_7, x_8);
+x_10 = lean_unsigned_to_nat(0u);
+x_11 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_11, 0, x_10);
+lean_ctor_set(x_11, 1, x_9);
+return x_11;
+}
+}
+LEAN_EXPORT lean_object* l_Std_HashSet_Raw_emptyWithCapacity(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Std_HashSet_Raw_emptyWithCapacity___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_HashSet_Raw_emptyWithCapacity___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_HashSet_Raw_emptyWithCapacity___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Std_HashSet_Raw_empty___rarg(lean_object* x_1) {
 _start:
 {

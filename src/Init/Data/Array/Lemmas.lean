@@ -57,7 +57,10 @@ theorem toArray_eq : List.toArray as = xs ↔ as = xs.toList := by
 
 theorem size_empty : (#[] : Array α).size = 0 := rfl
 
-@[simp] theorem mkEmpty_eq (α n) : @mkEmpty α n = #[] := rfl
+@[simp] theorem emptyWithCapacity_eq (α n) : @emptyWithCapacity α n = #[] := rfl
+
+@[deprecated emptyWithCapacity_eq (since := "2025-03-12")]
+theorem mkEmpty_eq (α n) : @mkEmpty α n = #[] := rfl
 
 /-! ### size -/
 
@@ -2655,7 +2658,7 @@ theorem extract_loop_eq_aux (xs ys : Array α) (size start : Nat) :
 
 theorem extract_loop_eq (xs ys : Array α) (size start : Nat) (h : start + size ≤ xs.size) :
   extract.loop xs size start ys = ys ++ xs.extract start (start + size) := by
-  simp only [extract, Nat.sub_eq, mkEmpty_eq]
+  simp only [extract, Nat.sub_eq, emptyWithCapacity_eq]
   rw [extract_loop_eq_aux, Nat.min_eq_left h, Nat.add_sub_cancel_left]
 
 theorem size_extract_loop (xs ys : Array α) (size start : Nat) :
@@ -2672,7 +2675,7 @@ theorem size_extract_loop (xs ys : Array α) (size start : Nat) :
 
 @[simp] theorem size_extract (xs : Array α) (start stop : Nat) :
     (xs.extract start stop).size = min stop xs.size - start := by
-  simp only [extract, Nat.sub_eq, mkEmpty_eq]
+  simp only [extract, Nat.sub_eq, emptyWithCapacity_eq]
   rw [size_extract_loop, size_empty, Nat.zero_add, Nat.sub_min_sub_right, Nat.min_assoc,
     Nat.min_self]
 
@@ -2775,12 +2778,12 @@ abbrev extract_all := @extract_size
 
 theorem extract_empty_of_stop_le_start (xs : Array α) {start stop : Nat} (h : stop ≤ start) :
     xs.extract start stop = #[] := by
-  simp only [extract, Nat.sub_eq, mkEmpty_eq]
+  simp only [extract, Nat.sub_eq, emptyWithCapacity_eq]
   rw [←Nat.sub_min_sub_right, Nat.sub_eq_zero_of_le h, Nat.zero_min, extract_loop_zero]
 
 theorem extract_empty_of_size_le_start (xs : Array α) {start stop : Nat} (h : xs.size ≤ start) :
     xs.extract start stop = #[] := by
-  simp only [extract, Nat.sub_eq, mkEmpty_eq]
+  simp only [extract, Nat.sub_eq, emptyWithCapacity_eq]
   rw [←Nat.sub_min_sub_right, Nat.sub_eq_zero_of_le h, Nat.min_zero, extract_loop_zero]
 
 @[simp] theorem extract_empty (start stop : Nat) : (#[] : Array α).extract start stop = #[] :=
@@ -3522,7 +3525,7 @@ theorem getElem_modify {xs : Array α} {j i} (h : i < (xs.modify j f).size) :
   · rw [if_neg (mt (by rintro rfl; exact h) (by simp_all))]
 
 @[simp] theorem toList_modify (xs : Array α) (f : α → α) :
-    (xs.modify i f).toList = xs.toList.modify f i := by
+    (xs.modify i f).toList = xs.toList.modify i f := by
   apply List.ext_getElem
   · simp
   · simp [getElem_modify, List.getElem_modify]
@@ -4220,7 +4223,7 @@ theorem uset_toArray (l : List α) (i : USize) (a : α) (h : i.toNat < l.toArray
     l.toArray.uset i a h = (l.set i.toNat a).toArray := by simp
 
 @[simp] theorem modify_toArray (f : α → α) (l : List α) :
-    l.toArray.modify i f = (l.modify f i).toArray := by
+    l.toArray.modify i f = (l.modify i f).toArray := by
   apply ext'
   simp
 

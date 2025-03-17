@@ -25,7 +25,6 @@ lean_object* l_Lean_Meta_mkAppOptM(lean_object*, lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_replaceRecApps___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint___spec__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint___spec__17___lambda__1___closed__15;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_replaceRecApps___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_mkMonoPProd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -225,7 +224,6 @@ lean_object* l_instMonadControlTOfPure___rarg(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_PartialFixpoint_registerEqnsInfo___spec__2(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Elab_partialFixpoint___lambda__1___closed__2;
 static lean_object* l_Lean_Elab_partialFixpoint___closed__4;
-lean_object* l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_hasRecAppSyntax___boxed(lean_object*);
 static lean_object* l_Lean_Elab_mkMonoPProd___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_withEnv___at___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unReplaceRecApps___spec__3(lean_object*);
@@ -328,6 +326,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_initFn____x40_Lean_Elab_PreDefinition_PartialFixpoint_Main___hyg_2959____closed__15;
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint___spec__4___lambda__3___closed__8;
+lean_object* l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Monotonicity_solveMono(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint___spec__4___lambda__2___closed__9;
@@ -361,6 +360,7 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateForallAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint___spec__17___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint___spec__11___boxed(lean_object**);
 static lean_object* l_Lean_Elab_partialFixpoint___closed__5;
 lean_object* l_ReaderT_instMonad___rarg(lean_object*);
@@ -417,7 +417,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -1261,7 +1261,7 @@ return x_52;
 block_42:
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_14 = lean_mk_empty_array_with_capacity(x_1);
+x_14 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 x_15 = lean_unsigned_to_nat(0u);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -1483,7 +1483,7 @@ x_15 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Main_0__Lean_Elab_unR
 x_16 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
-x_17 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__4(x_16, x_6, x_7, x_8, x_9, x_10);
+x_17 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__6(x_16, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -7180,7 +7180,7 @@ _start:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 x_22 = lean_array_get_size(x_1);
-x_23 = lean_mk_empty_array_with_capacity(x_22);
+x_23 = l_Array_emptyWithCapacity(lean_box(0), x_22);
 x_24 = lean_unsigned_to_nat(0u);
 lean_inc(x_20);
 lean_inc(x_19);
@@ -7985,7 +7985,7 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; 
-x_16 = lean_mk_empty_array_with_capacity(x_9);
+x_16 = l_Array_emptyWithCapacity(lean_box(0), x_9);
 lean_inc(x_7);
 lean_inc(x_5);
 lean_inc(x_4);

@@ -11,13 +11,11 @@ import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Not
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftLeft
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ShiftRight
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Add
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.ZeroExtend
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Append
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Replicate
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Extract
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateLeft
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.RotateRight
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.SignExtend
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Mul
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Udiv
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Umod
@@ -45,22 +43,6 @@ where
     | .const val =>
       let res := bitblast.blastConst aig val
       ⟨res, AIG.LawfulVecOperator.le_size (f := bitblast.blastConst) ..⟩
-    | .zeroExtend (w := w) v inner =>
-      let ⟨⟨aig, evec⟩, haig⟩ := go aig inner
-      let res := bitblast.blastZeroExtend aig ⟨w, evec⟩
-      have := by
-        apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastZeroExtend)
-        dsimp only at haig
-        assumption
-      ⟨res, this⟩
-    | .signExtend (w := w) v inner =>
-      let ⟨⟨aig, evec⟩, haig⟩ := go aig inner
-      let res := bitblast.blastSignExtend aig ⟨w, evec⟩
-      have := by
-        apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastSignExtend)
-        dsimp only at haig
-        assumption
-      ⟨res, this⟩
     | .bin lhs op rhs =>
       let ⟨⟨aig, lhs⟩, hlaig⟩ := go aig lhs
       let ⟨⟨aig, rhs⟩, hraig⟩ := go aig rhs
@@ -127,20 +109,6 @@ where
             dsimp only at heaig
             omega
           ⟨res, this⟩
-      | .shiftLeftConst distance =>
-        let res := bitblast.blastShiftLeftConst eaig ⟨evec, distance⟩
-        have := by
-          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastShiftLeftConst)
-          dsimp only at heaig
-          assumption
-        ⟨res, this⟩
-      | .shiftRightConst distance =>
-        let res := bitblast.blastShiftRightConst eaig ⟨evec, distance⟩
-        have := by
-          apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastShiftRightConst)
-          dsimp only at heaig
-          assumption
-        ⟨res, this⟩
       | .rotateLeft distance =>
         let res := bitblast.blastRotateLeft eaig ⟨evec, distance⟩
         have := by
@@ -251,25 +219,13 @@ theorem bitblast.go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) :
         apply Nat.le_trans <;> assumption
   | un op expr ih =>
     match op with
-    | .not | .shiftLeftConst .. | .shiftRightConst .. | .rotateLeft .. | .rotateRight ..
+    | .not | .rotateLeft .. | .rotateRight ..
     | .arithShiftRightConst .. =>
       dsimp only [go]
       rw [AIG.LawfulVecOperator.decl_eq]
       rw [ih]
       have := (go aig expr).property
       omega
-  | zeroExtend w inner ih =>
-    dsimp only [go]
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastZeroExtend)]
-    rw [ih]
-    have := (go aig inner).property
-    omega
-  | signExtend w inner ih =>
-    dsimp only [go]
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastSignExtend)]
-    rw [ih]
-    have := (go aig inner).property
-    omega
   | append lhs rhs lih rih =>
     dsimp only [go]
     have := (bitblast.go aig lhs).property

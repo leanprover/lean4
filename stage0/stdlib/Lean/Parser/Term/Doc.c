@@ -17,7 +17,6 @@ lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_Doc_getRecommendedSpellingsForName___closed__1;
 LEAN_EXPORT uint8_t l_String_anyAux___at_Lean_Parser_Term_Doc_getRecommendedSpellingString_indentLine___spec__1(lean_object*, lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Array_push___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at_Lean_Parser_Term_Doc_getRecommendedSpellingsForName___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet___spec__1(lean_object*, lean_object*);
@@ -129,6 +128,7 @@ static lean_object* l_Lean_Parser_Term_Doc_initFn____x40_Lean_Parser_Term_Doc___
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_Parser_Term_Doc_initFn____x40_Lean_Parser_Term_Doc___hyg_34____spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_qsort_sort___at_Lean_Parser_Term_Doc_initFn____x40_Lean_Parser_Term_Doc___hyg_34____spec__4___lambda__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet___closed__7;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_Doc_initFn____x40_Lean_Parser_Term_Doc___hyg_34____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Parser_Term_Doc_initFn____x40_Lean_Parser_Term_Doc___hyg_34____spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -635,7 +635,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

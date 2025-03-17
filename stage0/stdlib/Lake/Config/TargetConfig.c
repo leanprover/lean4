@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lake_mkTargetJobConfig___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_unsafeMk___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Package_findTargetConfig_x3f___spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedNameOfTargetConfig(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instCoeNameTargetConfig___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_unsafeGet___boxed(lean_object*, lean_object*);
@@ -54,6 +53,7 @@ uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueTargetConfig_instInhabitedNameOfTargetConfig___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedTargetConfig___lambda__1___closed__2;
 static lean_object* l_Lake_instInhabitedTargetConfig___lambda__1___closed__1;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_OpaqueTargetConfig_instCoeNameTargetConfig___closed__1;
 static lean_object* _init_l_Lake_instInhabitedTargetConfig___lambda__1___closed__1() {
@@ -61,7 +61,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

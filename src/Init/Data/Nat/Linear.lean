@@ -32,7 +32,7 @@ inductive Expr where
   | add  (a b : Expr)
   | mulL (k : Nat) (a : Expr)
   | mulR (a : Expr) (k : Nat)
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 def Expr.denote (ctx : Context) : Expr → Nat
   | .add a b  => Nat.add (denote ctx a) (denote ctx b)

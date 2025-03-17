@@ -22,7 +22,6 @@ lean_object* l_EIO_toBaseIO___rarg(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Server_ServerTask___hyg_732____closed__34;
 static lean_object* l___auto____x40_Lean_Server_ServerTask___hyg_732____closed__9;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_cancel___rarg___boxed(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_IO_mapTaskCheap(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Server_ServerTask___hyg_732____closed__19;
 static lean_object* l___auto____x40_Lean_Server_ServerTask___hyg_732____closed__29;
@@ -136,6 +135,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedServerTask___rarg(lean_objec
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_EIO_bindTaskCostly___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Server_ServerTask___hyg_732____closed__6;
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_BaseIO_mapTaskCheap(lean_object*, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_cancel(lean_object*);
 LEAN_EXPORT lean_object* l_Task_asServerTask___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_ServerTask_hasFinished___rarg___boxed(lean_object*, lean_object*);
@@ -1556,7 +1556,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

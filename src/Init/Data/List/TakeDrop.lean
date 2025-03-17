@@ -57,9 +57,6 @@ theorem take_of_length_le {l : List α} (h : l.length ≤ i) : take i l = l := b
 theorem lt_length_of_take_ne_self {l : List α} {i} (h : l.take i ≠ l) : i < l.length :=
   gt_of_not_le (mt take_of_length_le h)
 
-@[deprecated drop_of_length_le (since := "2024-07-07")] abbrev drop_length_le := @drop_of_length_le
-@[deprecated take_of_length_le (since := "2024-07-07")] abbrev take_length_le := @take_of_length_le
-
 @[simp] theorem drop_length (l : List α) : drop l.length l = [] := drop_of_length_le (Nat.le_refl _)
 
 @[simp] theorem take_length (l : List α) : take l.length l = l := take_of_length_le (Nat.le_refl _)
@@ -206,13 +203,6 @@ theorem take_succ_eq_append_getElem {i} {l : List α} (h : i < l.length) : l.tak
   | x :: xs =>
     simpa using take_append_getLast (x :: xs) (by simp)
 
-@[deprecated take_succ_cons (since := "2024-07-25")]
-theorem take_cons_succ : (a::as).take (i+1) = a :: as.take i := rfl
-
-@[deprecated take_of_length_le (since := "2024-07-25")]
-theorem take_all_of_le {l : List α} {i} (h : length l ≤ i) : take i l = l :=
-  take_of_length_le h
-
 theorem drop_left : ∀ l₁ l₂ : List α, drop (length l₁) (l₁ ++ l₂) = l₂
   | [], _ => rfl
   | _ :: l₁, l₂ => drop_left l₁ l₂
@@ -237,16 +227,6 @@ theorem take_succ {l : List α} {i : Nat} : l.take (i + 1) = l.take i ++ l[i]?.t
     cases i
     · simp only [take, Option.toList, getElem?_cons_zero, nil_append]
     · simp only [take, hl, getElem?_cons_succ, cons_append]
-
-@[deprecated "Deprecated without replacement." (since := "2024-07-25")]
-theorem drop_sizeOf_le [SizeOf α] (l : List α) (i : Nat) : sizeOf (l.drop i) ≤ sizeOf l := by
-  induction l generalizing i with
-  | nil => rw [drop_nil]; apply Nat.le_refl
-  | cons _ _ lih =>
-    induction i with
-    | zero => apply Nat.le_refl
-    | succ n =>
-      exact Trans.trans (lih _) (Nat.le_add_left _ _)
 
 theorem dropLast_eq_take (l : List α) : l.dropLast = l.take (l.length - 1) := by
   cases l with

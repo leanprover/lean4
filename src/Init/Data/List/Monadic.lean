@@ -31,10 +31,13 @@ attribute [simp] mapA forA filterAuxM firstM anyM allM findM? findSomeM?
 
 /-! ### mapM -/
 
-/-- Alternate (non-tail-recursive) form of mapM for proofs.
+/--
+Applies the monadic action `f` on every element in the list, left-to-right, and returns the list of
+results.
 
-Note that we can not have this as the main definition and replace it using a `@[csimp]` lemma,
-because they are only equal when `m` is a `LawfulMonad`.
+This is a non-tail-recursive variant of `List.mapM` that's easier to reason about. It cannot be used
+as the main definition and replaced by the tail-recursive version because they can only be proved
+equal when `m` is a `LawfulMonad`.
 -/
 def mapM' [Monad m] (f : α → m β) : List α → m (List β)
   | [] => pure []
@@ -327,7 +330,7 @@ theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
   simp only [forIn'_eq_foldlM]
   induction l.attach generalizing init <;> simp_all
 
-theorem forIn'_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
+@[simp] theorem forIn'_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
     (l : List α) (f : (a : α) → a ∈ l → β → β) (init : β) :
     forIn' l init (fun a m b => pure (.yield (f a m b))) =
       pure (f := m) (l.attach.foldl (fun b ⟨a, h⟩ => f a h b) init) := by
@@ -380,7 +383,7 @@ theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
   simp only [forIn_eq_foldlM]
   induction l generalizing init <;> simp_all
 
-theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
+@[simp] theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
     (l : List α) (f : α → β → β) (init : β) :
     forIn l init (fun a b => pure (.yield (f a b))) =
       pure (f := m) (l.foldl (fun b a => f a b) init) := by

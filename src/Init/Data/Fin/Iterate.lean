@@ -10,10 +10,18 @@ import Init.Data.Fin.Basic
 namespace Fin
 
 /--
-`hIterateFrom f i bnd a` applies `f` over indices `[i:n]` to compute `P n`
-from `P i`.
+Applies an index-dependent function `f` to all of the values in `[i:n]`, starting at `i` with an
+initial accumulator `a`.
 
-See `hIterate` below for more details.
+Concretely, `Fin.hIterateFrom P f i a` is equal to
+```lean
+  a |> f i |> f (i + 1) |> ... |> f (n - 1)
+```
+
+Theorems about `Fin.hIterateFrom` can be proven using the general theorem `Fin.hIterateFrom_elim` or
+other more specialized theorems.
+
+`Fin.hIterate` is a variant that always starts at `0`.
 -/
 def hIterateFrom (P : Nat → Sort _) {n} (f : ∀(i : Fin n), P i.val → P (i.val+1))
       (i : Nat) (ubnd : i ≤ n) (a : P i) : P n :=
@@ -26,20 +34,18 @@ def hIterateFrom (P : Nat → Sort _) {n} (f : ∀(i : Fin n), P i.val → P (i.
   decreasing_by decreasing_trivial_pre_omega
 
 /--
-`hIterate` is a heterogeneous iterative operation that applies a
-index-dependent function `f` to a value `init : P start` a total of
-`stop - start` times to produce a value of type `P stop`.
+Applies an index-dependent function to all the values less than the given bound `n`, starting at
+`0` with an accumulator.
 
-Concretely, `hIterate start stop f init` is equal to
+Concretely, `Fin.hIterate P init f` is equal to
 ```lean
-  init |> f start _ |> f (start+1) _ ... |> f (end-1) _
+  init |> f 0 |> f 1 |> ... |> f (n-1)
 ```
 
-Because it is heterogeneous and must return a value of type `P stop`,
-`hIterate` requires proof that `start ≤ stop`.
+Theorems about `Fin.hIterate` can be proven using the general theorem `Fin.hIterate_elim` or other more
+specialized theorems.
 
-One can prove properties of `hIterate` using the general theorem
-`hIterate_elim` or other more specialized theorems.
+`Fin.hIterateFrom` is a variant that takes a custom starting value instead of `0`.
  -/
 def hIterate (P : Nat → Sort _) {n : Nat} (init : P 0) (f : ∀(i : Fin n), P i.val → P (i.val+1)) :
     P n :=

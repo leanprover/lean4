@@ -20,14 +20,6 @@ def _root_.Lean.MVarId.ensureNoMVar (mvarId : MVarId) : MetaM Unit := do
   if type.hasExprMVar then
     throwTacticEx `grind mvarId "goal contains metavariables"
 
-/--
-Throws an exception if target is not a proposition.
--/
-def _root_.Lean.MVarId.ensureProp (mvarId : MVarId) : MetaM Unit := do
-  let type ← mvarId.getType
-  unless (← isProp type) do
-    throwTacticEx `grind mvarId "goal is not a proposition"
-
 def _root_.Lean.MVarId.transformTarget (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := mvarId.withContext do
   mvarId.checkNotAssigned `grind
   let tag ← mvarId.getTag

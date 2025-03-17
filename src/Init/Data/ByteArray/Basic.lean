@@ -18,10 +18,13 @@ attribute [extern "lean_byte_array_data"] ByteArray.data
 
 namespace ByteArray
 @[extern "lean_mk_empty_byte_array"]
-def mkEmpty (c : @& Nat) : ByteArray :=
+def emptyWithCapacity (c : @& Nat) : ByteArray :=
   { data := #[] }
 
-def empty : ByteArray := mkEmpty 0
+@[deprecated emptyWithCapacity (since := "2025-03-12")]
+abbrev mkEmpty := emptyWithCapacity
+
+def empty : ByteArray := emptyWithCapacity 0
 
 instance : Inhabited ByteArray where
   default := empty
@@ -334,6 +337,9 @@ def prevn : Iterator → Nat → Iterator
 end Iterator
 end ByteArray
 
+/--
+Converts a list of bytes into a `ByteArray`.
+-/
 def List.toByteArray (bs : List UInt8) : ByteArray :=
   let rec loop
     | [],    r => r

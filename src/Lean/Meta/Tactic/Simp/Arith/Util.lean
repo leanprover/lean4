@@ -34,14 +34,16 @@ def withAbstractAtoms (atoms : Array Expr) (type : Name) (k : Array Expr → Met
   go 0 #[] #[] #[]
 
 /-- Quick filter for linear terms. -/
-def isLinearTerm (e : Expr) : Bool :=
+def isLinearTerm (e : Expr) (isNatExpr : Bool) : Bool :=
   let f := e.getAppFn
   if !f.isConst then
     false
   else
     let n := f.constName!
-    n == ``HAdd.hAdd || n == ``HMul.hMul || n == ``HSub.hSub || n == ``Neg.neg || n == ``Nat.succ
-    || n == ``Add.add || n == ``Mul.mul || n == ``Sub.sub
+    n == ``HAdd.hAdd || n == ``HMul.hMul || n == ``Neg.neg || n == ``Nat.succ
+    || n == ``Add.add || n == ``Mul.mul
+    -- Recall that `Nat.sub` is truncated
+    || (!isNatExpr && (n == ``HSub.hSub || n == ``Sub.sub))
 
 /-- Quick filter for linear constraints. -/
 partial def isLinearCnstr (e : Expr) : Bool :=

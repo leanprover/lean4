@@ -119,15 +119,20 @@ def insertUnit : Array (Literal (PosFin n)) × Array Assignment × Bool →
     Literal (PosFin n) → Array (Literal (PosFin n)) × Array Assignment × Bool :=
   fun (units, assignments, foundContradiction) (l, b) =>
     let curAssignment := assignments[l.1]!
-    if hasAssignment b curAssignment then (units, assignments, foundContradiction)
-    else (units.push (l, b), assignments.modify l (addAssignment b), foundContradiction || curAssignment != unassigned)
+    if hasAssignment b curAssignment then
+      (units, assignments, foundContradiction)
+    else
+      let units := units.push (l, b)
+      let assignments := assignments.modify l (addAssignment b)
+      let foundContradiction := foundContradiction || curAssignment != unassigned
+      (units, assignments, foundContradiction)
 
 /--
 Returns an updated formula f and a bool which indicates whether a contradiction was found in the
 process of updating f.
 -/
-def insertRupUnits {n : Nat} (f : DefaultFormula n) (ls : CNF.Clause (PosFin n))
-    : DefaultFormula n × Bool :=
+def insertRupUnits {n : Nat} (f : DefaultFormula n) (ls : CNF.Clause (PosFin n)) :
+    DefaultFormula n × Bool :=
   let ⟨clauses, rupUnits, ratUnits, assignments⟩ := f
   let (rupUnits, assignments, foundContradiction) := ls.foldl insertUnit (rupUnits, assignments, false)
   (⟨clauses, rupUnits, ratUnits, assignments⟩, foundContradiction)
@@ -147,11 +152,13 @@ def clearUnit : Array Assignment → Literal (PosFin n) → Array Assignment
 def clearRupUnits {n : Nat} (f : DefaultFormula n) : DefaultFormula n :=
   let ⟨clauses, rupUnits, ratUnits, assignments⟩ := f
   let assignments := rupUnits.foldl clearUnit assignments
+  -- TODO: in principle we could cache the memory of rupUnits here if we had Array.clear
   ⟨clauses, #[], ratUnits, assignments⟩
 
 def clearRatUnits {n : Nat} (f : DefaultFormula n) : DefaultFormula n :=
   let ⟨clauses, rupUnits, ratUnits, assignments⟩ := f
   let assignments := ratUnits.foldl clearUnit assignments
+  -- TODO: in principle we could cache the memory of ratUnits here if we had Array.clear
   ⟨clauses, rupUnits, #[], assignments⟩
 
 /--

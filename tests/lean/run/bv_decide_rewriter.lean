@@ -30,8 +30,6 @@ example (a b : Bool) : ((a = true) ↔ (b = true)) ↔ (a == b) := by bv_normali
 example {x : BitVec 16} : 0#16 + x = x := by bv_normalize
 example {x : BitVec 16} : x + 0#16 = x := by bv_normalize
 example {x : BitVec 16} : x.setWidth 16 = x := by bv_normalize
-example : (0#w).setWidth 32 = 0#32 := by bv_normalize
-example : (0#w).getLsbD i = false := by bv_normalize
 example {x : BitVec 0} : x.getLsbD i = false := by bv_normalize
 example {x : BitVec 16} {b : Bool} : (x.concat b).getLsbD 0 = b := by bv_normalize
 example {x : BitVec 16} : 1 * x = x := by bv_normalize
@@ -291,16 +289,16 @@ example (a : BitVec 16) : a + a = a <<< 1 := by
   bv_normalize
 
 -- NOT_EQUAL_BV1_BOOL
-example : ∀ (a : Bool), (!(a == true)) = (a == false) := by
+example : ∀ (a : Bool), (!(a == true)) = (!a) := by
   bv_normalize
 
-example : ∀ (a : Bool), (!(a == false)) = (a == true) := by
+example : ∀ (a : Bool), (!(a == false)) = a := by
   bv_normalize
 
-example : ∀ (a : Bool), (!(true == a)) = (a == false) := by
+example : ∀ (a : Bool), (!(true == a)) = !a := by
   bv_normalize
 
-example : ∀ (a : Bool), (!(false == a)) = (a == true) := by
+example : ∀ (a : Bool), (!(false == a)) = a := by
   bv_normalize
 
 example : ∀ (a : BitVec 1), (!(a == 1#1)) = (a == 0#1) := by
@@ -548,6 +546,62 @@ example {a : BitVec 8} : a * -1 = -a := by bv_normalize
 example {a : BitVec 8} : -1 * a = -a := by bv_normalize
 example {a : BitVec 8} : -1 * a + a = 0 := by bv_normalize
 example {a : BitVec 8} : a + -1 * a = 0 := by bv_normalize
+
+-- SHR_CONST
+example {a : BitVec 8} : a >>> 1 = 0#1 ++ BitVec.extractLsb' 1 7 a := by bv_normalize
+example {a : BitVec 8} : a >>> 3 = 0#3 ++ BitVec.extractLsb' 3 5 a := by bv_normalize
+example {a : BitVec 8} : a >>> 8 = 0 := by bv_normalize
+example {a : BitVec 8} : a >>> 12 = 0 := by bv_normalize
+
+-- SHL_CONST
+example {a : BitVec 8} : a <<< 1 = BitVec.extractLsb' 0 7 a ++ 0#1 := by bv_normalize
+example {a : BitVec 8} : a <<< 3 = BitVec.extractLsb' 0 5 a ++ 0#3 := by bv_normalize
+example {a : BitVec 8} : a <<< 8 = 0 := by bv_normalize
+example {a : BitVec 8} : a <<< 12 = 0 := by bv_normalize
+
+-- EQUAL_CONST_BV_ADD
+example {a : BitVec 8} (h : a + 5 = 7) : a = 2 := by bv_normalize
+example {a : BitVec 8} (h : 5 + a = 7) : a = 2 := by bv_normalize
+example {a : BitVec 8} (h : 7 = a + 5) : a = 2 := by bv_normalize
+example {a : BitVec 8} (h : 7 = 5 + a) : a = 2 := by bv_normalize
+
+-- BV_AND_CONST
+example {x : BitVec 8} : (10 &&& x) &&& 2 = 2 &&& x := by bv_normalize
+example {x : BitVec 8} : (x &&& 10) &&& 2 = 2 &&& x := by bv_normalize
+example {x : BitVec 8} : 2 &&& (x &&& 10) = 2 &&& x := by bv_normalize
+example {x : BitVec 8} : 2 &&& (10 &&& x) = 2 &&& x := by bv_normalize
+
+-- BV_CONCAT_CONST
+example {x : BitVec 8} : 8#4 ++ (4#4 ++ x) = 132#8 ++ x := by bv_normalize
+example {x : BitVec 8} : (x ++ 4#4) ++ 8#4 = x ++ 72#8 := by bv_normalize
+
+-- BV_CONCAT_EXTRACT
+example {x : BitVec 8} : x.extractLsb' 3 5 ++ x.extractLsb' 1 2 = x.extractLsb' 1 7 := by
+  bv_normalize
+
+example {x : BitVec 8} :
+    (~~~x.extractLsb' 3 5) ++ (~~~x.extractLsb' 1 2) = ~~~x.extractLsb' 1 7 := by
+  bv_normalize
+
+-- BV_ULT_SPECIAL_CONST
+example {x : BitVec 8} : x < 255 ↔ x ≠ 255 := by bv_normalize
+
+-- BV_SIGN_EXTEND_ELIM
+example {x : BitVec 8} : x.signExtend 16 = (bif x.msb then 255#8 else 0#8) ++ x := by bv_normalize
+example {x : BitVec 8} : x.signExtend 4 = BitVec.extractLsb' 0 4 x := by bv_normalize
+
+-- BV_ADD_NEG_MUL
+example {x y : BitVec 8} : -(x + x * y) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : -(x + y * x) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : -(x * y + x) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : -(y * x + x) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : 1#8 + ~~~(x + x * y) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : 1#8 + ~~~(x + y * x) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : 1#8 + ~~~(x * y + x) = x * ~~~y := by bv_normalize
+example {x y : BitVec 8} : 1#8 + ~~~(y * x + x) = x * ~~~y := by bv_normalize
+example  : ∀ (s t : BitVec 32), (!!-(t + s * t) == ~~~s * t) = true := by
+  bv_normalize (config  := {acNf := true})
+
 
 section
 

@@ -119,22 +119,6 @@ inductive BVUnOp where
   -/
   | not
   /--
-  Shifting left by a constant value.
-
-  This operation has a dedicated constant representation as shiftLeft can take `Nat` as a shift amount.
-  We can obviously not bitblast a `Nat` but still want to support the case where the user shifts by a
-  constant `Nat` value.
-  -/
-  | shiftLeftConst (n : Nat)
-  /--
-  Shifting right by a constant value.
-
-  This operation has a dedicated constant representation as shiftRight can take `Nat` as a shift amount.
-  We can obviously not bitblast a `Nat` but still want to support the case where the user shifts by a
-  constant `Nat` value.
-  -/
-  | shiftRightConst (n : Nat)
-  /--
   Rotating left by a constant value.
   -/
   | rotateLeft (n : Nat)
@@ -155,8 +139,6 @@ namespace BVUnOp
 
 def toString : BVUnOp → String
   | not => "~"
-  | shiftLeftConst n => s!"<< {n}"
-  | shiftRightConst n => s!">> {n}"
   | rotateLeft n => s!"rotL {n}"
   | rotateRight n => s!"rotR {n}"
   | arithShiftRightConst n => s!">>a {n}"
@@ -168,21 +150,11 @@ The semantics for `BVUnOp`.
 -/
 def eval : BVUnOp → (BitVec w → BitVec w)
   | not => (~~~ ·)
-  | shiftLeftConst n => (· <<< n)
-  | shiftRightConst n => (· >>> n)
   | rotateLeft n => (BitVec.rotateLeft · n)
   | rotateRight n => (BitVec.rotateRight · n)
   | arithShiftRightConst n => (BitVec.sshiftRight · n)
 
 @[simp] theorem eval_not : eval .not = ((~~~ ·) : BitVec w → BitVec w) := by rfl
-
-@[simp]
-theorem eval_shiftLeftConst : eval (shiftLeftConst n) = ((· <<< n) : BitVec w → BitVec w) := by
-  rfl
-
-@[simp]
-theorem eval_shiftRightConst : eval (shiftRightConst n) = ((· >>> n) : BitVec w → BitVec w) := by
-  rfl
 
 @[simp]
 theorem eval_rotateLeft : eval (rotateLeft n) = ((BitVec.rotateLeft · n) : BitVec w → BitVec w) := by
@@ -211,10 +183,6 @@ inductive BVExpr : Nat → Type where
   -/
   | const (val : BitVec w) : BVExpr w
   /--
-  zero extend a `BitVec` by some constant amount.
-  -/
-  | zeroExtend (v : Nat) (expr : BVExpr w) : BVExpr v
-  /--
   Extract a slice from a `BitVec`.
   -/
   | extract (start len : Nat) (expr : BVExpr w) : BVExpr len
@@ -235,10 +203,6 @@ inductive BVExpr : Nat → Type where
   -/
   | replicate (n : Nat) (expr : BVExpr w) : BVExpr (w * n)
   /--
-  sign extend a `BitVec` by some constant amount.
-  -/
-  | signExtend (v : Nat) (expr : BVExpr w) : BVExpr v
-  /--
   shift left by another BitVec expression. For constant shifts there exists a `BVUnop`.
   -/
   | shiftLeft (lhs : BVExpr m) (rhs : BVExpr n) : BVExpr m
@@ -256,13 +220,11 @@ namespace BVExpr
 def toString : BVExpr w → String
   | .var idx => s!"var{idx}"
   | .const val => ToString.toString val
-  | .zeroExtend v expr => s!"(zext {v} {expr.toString})"
   | .extract start len expr => s!"{expr.toString}[{start}, {len}]"
   | .bin lhs op rhs => s!"({lhs.toString} {op.toString} {rhs.toString})"
   | .un op operand => s!"({op.toString} {toString operand})"
   | .append lhs rhs => s!"({toString lhs} ++ {toString rhs})"
   | .replicate n expr => s!"(replicate {n} {toString expr})"
-  | .signExtend v expr => s!"(sext {v} {expr.toString})"
   | .shiftLeft lhs rhs => s!"({lhs.toString} << {rhs.toString})"
   | .shiftRight lhs rhs => s!"({lhs.toString} >> {rhs.toString})"
   | .arithShiftRight lhs rhs => s!"({lhs.toString} >>a {rhs.toString})"
@@ -303,13 +265,11 @@ def eval (assign : Assignment) : BVExpr w → BitVec w
     else
       packedBv.bv.truncate w
   | .const val => val
-  | .zeroExtend v expr => BitVec.zeroExtend v (eval assign expr)
   | .extract start len expr => BitVec.extractLsb' start len (eval assign expr)
   | .bin lhs op rhs => op.eval (eval assign lhs) (eval assign rhs)
   | .un op operand => op.eval (eval assign operand)
   | .append lhs rhs => (eval assign lhs) ++ (eval assign rhs)
   | .replicate n expr => BitVec.replicate n (eval assign expr)
-  | .signExtend v expr => BitVec.signExtend v (eval assign expr)
   | .shiftLeft lhs rhs => (eval assign lhs) <<< (eval assign rhs)
   | .shiftRight lhs rhs => (eval assign lhs) >>> (eval assign rhs)
   | .arithShiftRight lhs rhs => BitVec.sshiftRight' (eval assign lhs) (eval assign rhs)
@@ -325,10 +285,6 @@ theorem eval_var : eval assign ((.var idx) : BVExpr w) = (assign.get idx).bv.tru
 
 @[simp]
 theorem eval_const : eval assign (.const val) = val := by rfl
-
-@[simp]
-theorem eval_zeroExtend : eval assign (.zeroExtend v expr) = BitVec.zeroExtend v (eval assign expr) := by
-  rfl
 
 @[simp]
 theorem eval_extract : eval assign (.extract start len expr) = BitVec.extractLsb' start len (eval assign expr) := by
@@ -348,10 +304,6 @@ theorem eval_append : eval assign (.append lhs rhs) = (lhs.eval assign) ++ (rhs.
 
 @[simp]
 theorem eval_replicate : eval assign (.replicate n expr) = BitVec.replicate n (expr.eval assign) := by
-  rfl
-
-@[simp]
-theorem eval_signExtend : eval assign (.signExtend v expr) = BitVec.signExtend v (eval assign expr) := by
   rfl
 
 @[simp]

@@ -20,9 +20,10 @@ inductive Location where
 /-
 Recall that
 ```
-syntax locationWildcard := "*"
-syntax locationHyp      := (colGt term:max)+ ("⊢" <|> "|-")?
-syntax location         := withPosition("at " locationWildcard <|> locationHyp)
+syntax locationWildcard := " *"
+syntax locationType     := patternIgnore(atomic("|" noWs "-") <|> "⊢")
+syntax locationHyp      := (ppSpace colGt (term:max <|> locationType))+
+syntax location         := withPosition(ppGroup(" at" (locationWildcard <|> locationHyp)))
 ```
 -/
 def expandLocation (stx : Syntax) : Location :=
@@ -30,14 +31,10 @@ def expandLocation (stx : Syntax) : Location :=
   if arg.getKind == ``Parser.Tactic.locationWildcard then
     Location.wildcard
   else
-    -- Temporary workaround to accommodate stage0 update
-    if arg[1] matches .missing then
-      let locationHyps := arg[0].getArgs
-      let hypotheses := locationHyps.filter (·.getKind != ``Parser.Tactic.locationType)
-      let numTurnstiles := locationHyps.size - hypotheses.size
-      Location.targets hypotheses (numTurnstiles > 0)
-    else
-      Location.targets arg[0].getArgs (!arg[1].isNone)
+    let locationHyps := arg[0].getArgs
+    let hypotheses := locationHyps.filter (·.getKind != ``Parser.Tactic.locationType)
+    let numTurnstiles := locationHyps.size - hypotheses.size
+    Location.targets hypotheses (numTurnstiles > 0)
 
 def expandOptLocation (stx : Syntax) : Location :=
   if stx.isNone then

@@ -99,7 +99,7 @@ instance : Insert α (TreeSet α cmp) where
   insert e s := s.insert e
 
 instance : LawfulSingleton α (TreeSet α cmp) where
-  insert_emptyc_eq _ := rfl
+  insert_empty_eq _ := rfl
 
 /--
 Checks whether an element is present in a set and inserts the element if it was not found.

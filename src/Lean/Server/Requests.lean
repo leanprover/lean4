@@ -304,10 +304,9 @@ def findCmdDataAtPos
   findCmdParsedSnap doc hoverPos |>.bindCheap fun
     | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos doc.meta.text hoverPos includeStop |>.bindCheap fun
       | some infoTree => .pure <| some (cmdParsed.stx, infoTree)
-      | none          => cmdParsed.finishedSnap.task.asServerTask.mapCheap fun s =>
-        -- the parser returns exactly one command per snapshot, and the elaborator creates exactly one node per command
-        assert! s.cmdState.infoState.trees.size == 1
-        some (cmdParsed.stx, s.cmdState.infoState.trees[0]!)
+      | none          => cmdParsed.infoTreeSnap.task.asServerTask.mapCheap fun s =>
+        assert! s.infoTree?.isSome
+        some (cmdParsed.stx, s.infoTree?.get!)
     | none => .pure none
 
 open Language in

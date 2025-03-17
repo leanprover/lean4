@@ -37,6 +37,6 @@ theorem xor_val (a b : Fin n) : (a ^^^ b).val = (a.val ^^^ b.val) % n := rfl
 @[simp] theorem shiftLeft_val (a b : Fin n) : (a <<< b).val = (a.val <<< b.val) % n := rfl
 
 @[simp] theorem shiftRight_val (a b : Fin n) : (a >>> b).val = a.val >>> b.val :=
-  Nat.mod_eq_of_lt (Nat.lt_of_le_of_lt Nat.shiftRight_le a.isLt)
+  Nat.mod_eq_of_lt (Nat.lt_of_le_of_lt (Nat.shiftRight_le _ _) a.isLt)
 
 end Fin

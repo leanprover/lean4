@@ -755,9 +755,6 @@ theorem shiftRight_or_distrib {a b : Nat} : (a ||| b) >>> i = a >>> i ||| b >>> 
 theorem shiftRight_xor_distrib {a b : Nat} : (a ^^^ b) >>> i = a >>> i ^^^ b >>> i :=
   shiftRight_bitwise_distrib
 
-theorem shiftRight_le {a b : Nat} : a >>> b ≤ a :=
-  shiftRight_eq_div_pow _ _ ▸ div_le_self _ _
-
 /-! ### le -/
 
 theorem le_of_testBit {n m : Nat} (h : ∀ i, n.testBit i = true → m.testBit i = true) : n ≤ m := by

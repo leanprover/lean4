@@ -1586,10 +1586,7 @@ theorem Nat.mod_eq_mod_iff {a b c : Nat} : a % c = b % c ↔ ∃ k, a + k * c = 
 
 @[simp]
 theorem Nat.mul_mod_mod (m n l : Nat) : (m * (n % l)) % l = (m * n) % l := by
-  conv => rhs; rw [← Nat.div_add_mod n l]
-  rw [Nat.mod_eq_mod_iff]
-  refine ⟨m * (n / l), Or.inl ?_⟩
-  rw [Nat.mul_assoc, ← Nat.mul_add, Nat.add_comm, Nat.mul_comm (n / l) l]
+  rw [mul_mod, mod_mod, ← mul_mod]
 
 @[simp] theorem UInt16.toUInt8_mul (a b : UInt16) : (a * b).toUInt8 = a.toUInt8 * b.toUInt8 := UInt8.toNat.inj (by simp)
 @[simp] theorem UInt32.toUInt8_mul (a b : UInt32) : (a * b).toUInt8 = a.toUInt8 * b.toUInt8 := UInt8.toNat.inj (by simp)

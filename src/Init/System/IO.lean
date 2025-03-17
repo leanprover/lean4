@@ -134,14 +134,34 @@ Runs an `IO` action in some other `EIO` monad, using `f` to translate `IO` excep
    the "extract closed terms" optimization. -/
 set_option compiler.extract_closed false in
 /--
-Executes arbitrary side effects in a pure context.
+Executes arbitrary side effects in a pure context. This a **dangerous** operation that can easily
+undermine important assumptions about the meaning of Lean programs, and it should only be used with
+great care and a thorough understanding of compiler internals, and even then only to implement
+observationally pure operations.
+
+This function is not a good way to convert a `BaseIO α` into an `α`. Instead, use
+[`do`-notation](lean-manual://section/do-notation).
+
+Because the resulting value is treated as a side-effect-free term, the compiler may re-order,
+duplicate, or delete calls to this function. The side effect may even be hoisted into a constant,
+causing the side effect to occur at initialization time, even if it would otherwise never be called.
 -/
 @[inline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
   match fn.run () with
   | EStateM.Result.ok a _ => a
 
 /--
-Executes arbitrary side effects in a pure context, with exceptions indicated via `Except`.
+Executes arbitrary side effects in a pure context, with exceptions indicated via `Except`. This a
+**dangerous** operation that can easily undermine important assumptions about the meaning of Lean
+programs, and it should only be used with great care and a thorough understanding of compiler
+internals, and even then only to implement observationally pure operations.
+
+This function is not a good way to convert an `EIO α` or `IO α` into an `α`. Instead, use
+[`do`-notation](lean-manual://section/do-notation).
+
+Because the resulting value is treated as a side-effect-free term, the compiler may re-order,
+duplicate, or delete calls to this function. The side effect may even be hoisted into a constant,
+causing the side effect to occur at initialization time, even if it would otherwise never be called.
 -/
 @[inline] unsafe def unsafeEIO (fn : EIO ε α) : Except ε α :=
   unsafeBaseIO fn.toBaseIO

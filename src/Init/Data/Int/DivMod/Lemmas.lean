@@ -122,14 +122,12 @@ protected theorem mul_dvd_mul_iff_right {a b c : Int} (h : a ≠ 0) : (b * a) �
   | ofNat _ => show ofNat _ = _ by simp
   | -[_+1] => show -ofNat _ = _ by simp
 
-unseal Nat.div in
 @[simp] protected theorem tdiv_zero : ∀ a : Int, tdiv a 0 = 0
   | ofNat _ => show ofNat _ = _ by simp
   | -[_+1] => rfl
 
 @[simp] theorem zero_fdiv (b : Int) : fdiv 0 b = 0 := by cases b <;> rfl
 
-unseal Nat.div in
 @[simp] protected theorem fdiv_zero : ∀ a : Int, fdiv a 0 = 0
   | 0      => rfl
   | succ _ => rfl
@@ -1013,7 +1011,6 @@ protected theorem ediv_le_ediv {a b c : Int} (H : 0 < c) (H' : a ≤ b) : a / c 
 
 -- `tdiv` analogues of `ediv` lemmas from `Bootstrap.lean`
 
-unseal Nat.div in
 @[simp] protected theorem tdiv_neg : ∀ a b : Int, a.tdiv (-b) = -(a.tdiv b)
   | ofNat m, 0 => show ofNat (m / 0) = -↑(m / 0) by rw [Nat.div_zero]; rfl
   | ofNat _, -[_+1] | -[_+1], succ _ => (Int.neg_neg _).symm
@@ -1112,7 +1109,6 @@ protected theorem eq_tdiv_of_mul_eq_left {a b c : Int}
 @[simp] protected theorem tdiv_self {a : Int} (H : a ≠ 0) : a.tdiv a = 1 := by
   have := Int.mul_tdiv_cancel 1 H; rwa [Int.one_mul] at this
 
-unseal Nat.div in
 @[simp] protected theorem neg_tdiv : ∀ a b : Int, (-a).tdiv b = -(a.tdiv b)
   | 0, n => by simp [Int.neg_zero]
   | succ _, (n:Nat) | -[_+1], 0 | -[_+1], -[_+1] => rfl
@@ -1645,7 +1641,6 @@ theorem fdiv_nonneg_of_nonpos_of_nonpos {a b : Int} (Ha : a ≤ 0) (Hb : b ≤ 0
     · have : 0 < a / b := ediv_pos_of_neg_of_neg (by omega) (by omega)
       split <;> omega
 
-unseal Nat.div in
 theorem fdiv_nonpos_of_nonneg_of_nonpos : ∀ {a b : Int}, 0 ≤ a → b ≤ 0 → a.fdiv b ≤ 0
   | 0, 0, _, _ | 0, -[_+1], _, _ | succ _, 0, _, _ | succ _, -[_+1], _, _ => ⟨_⟩
 

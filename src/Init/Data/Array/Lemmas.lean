@@ -3525,7 +3525,7 @@ theorem getElem_modify {xs : Array α} {j i} (h : i < (xs.modify j f).size) :
   · rw [if_neg (mt (by rintro rfl; exact h) (by simp_all))]
 
 @[simp] theorem toList_modify (xs : Array α) (f : α → α) :
-    (xs.modify i f).toList = xs.toList.modify f i := by
+    (xs.modify i f).toList = xs.toList.modify i f := by
   apply List.ext_getElem
   · simp
   · simp [getElem_modify, List.getElem_modify]
@@ -3921,7 +3921,15 @@ theorem all_reverse {xs : Array α} : xs.reverse.all f 0 = xs.all f := by
 
 /-! ### toListRev -/
 
-/-- A more efficient version of `arr.toList.reverse`; for verification purposes we immediately simplify it. -/
+/--
+Converts an array to a list that contains the same elements in the opposite order.
+
+This is equivalent to, but more efficient than, `Array.toList ∘ List.reverse`.
+
+Examples:
+* `#[1, 2, 3].toListRev = [3, 2, 1]`
+* `#["blue", "yellow"].toListRev = ["yellow", "blue"]`
+-/
 @[inline] def toListRev (xs : Array α) : List α := xs.foldl (fun l t => t :: l) []
 
 @[simp] theorem toListRev_eq (xs : Array α) : xs.toListRev = xs.toList.reverse := by
@@ -4223,7 +4231,7 @@ theorem uset_toArray (l : List α) (i : USize) (a : α) (h : i.toNat < l.toArray
     l.toArray.uset i a h = (l.set i.toNat a).toArray := by simp
 
 @[simp] theorem modify_toArray (f : α → α) (l : List α) :
-    l.toArray.modify i f = (l.modify f i).toArray := by
+    l.toArray.modify i f = (l.modify i f).toArray := by
   apply ext'
   simp
 

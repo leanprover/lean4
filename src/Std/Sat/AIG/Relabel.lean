@@ -98,9 +98,9 @@ theorem relabel_gate {aig : AIG α} {r : α → β} {hidx : idx < (relabel r aig
 @[simp]
 theorem denote_relabel (aig : AIG α) (r : α → β) (start : Nat) {hidx}
     (assign : β → Bool) :
-    ⟦aig.relabel r, ⟨start, hidx⟩, assign⟧
+    ⟦aig.relabel r, ⟨start, invert, hidx⟩, assign⟧
       =
-    ⟦aig, ⟨start, by rw [← relabel_size_eq_size (r := r)]; omega⟩, (assign ∘ r)⟧ := by
+    ⟦aig, ⟨start, invert, by rw [← relabel_size_eq_size (r := r)]; omega⟩, (assign ∘ r)⟧ := by
   apply denote_idx_trichotomy
   · intro b heq1
     have heq2 := relabel_const heq1
@@ -121,14 +121,14 @@ theorem denote_relabel (aig : AIG α) (r : α → β) (start : Nat) {hidx}
     rw [denote_relabel aig r rhs assign]
 
 theorem unsat_relabel {aig : AIG α} (r : α → β) {hidx} :
-    aig.UnsatAt idx hidx → (aig.relabel r).UnsatAt idx (by simp [hidx]) := by
+    aig.UnsatAt idx invert hidx → (aig.relabel r).UnsatAt idx invert (by simp [hidx]) := by
   intro h assign
   specialize h (assign ∘ r)
   simp [h]
 
 theorem relabel_unsat_iff [Nonempty α] {aig : AIG α} {r : α → β} {hidx1} {hidx2}
     (hinj : ∀ x y, x ∈ aig → y ∈ aig → r x = r y → x = y) :
-    (aig.relabel r).UnsatAt idx hidx1 ↔ aig.UnsatAt idx hidx2 := by
+    (aig.relabel r).UnsatAt idx invert hidx1 ↔ aig.UnsatAt idx invert hidx2 := by
   constructor
   · intro h assign
     let g : β → α := fun b =>

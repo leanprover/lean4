@@ -122,17 +122,15 @@ protected theorem mul_dvd_mul_iff_right {a b c : Int} (h : a ≠ 0) : (b * a) �
   | ofNat _ => show ofNat _ = _ by simp
   | -[_+1] => show -ofNat _ = _ by simp
 
-unseal Nat.div in
 @[simp] protected theorem tdiv_zero : ∀ a : Int, tdiv a 0 = 0
   | ofNat _ => show ofNat _ = _ by simp
-  | -[_+1] => rfl
+  | -[_+1] => by simp [tdiv]
 
 @[simp] theorem zero_fdiv (b : Int) : fdiv 0 b = 0 := by cases b <;> rfl
 
-unseal Nat.div in
 @[simp] protected theorem fdiv_zero : ∀ a : Int, fdiv a 0 = 0
   | 0      => rfl
-  | succ _ => rfl
+  | succ _ => by simp [fdiv]
   | -[_+1] => rfl
 
 /-! ### preliminaries for div equivalences -/
@@ -1017,11 +1015,11 @@ theorem mul_le_mul_neg {a b c d : Int}
 
 -- `tdiv` analogues of `ediv` lemmas from `Bootstrap.lean`
 
-unseal Nat.div in
 @[simp] protected theorem tdiv_neg : ∀ a b : Int, a.tdiv (-b) = -(a.tdiv b)
   | ofNat m, 0 => show ofNat (m / 0) = -↑(m / 0) by rw [Nat.div_zero]; rfl
   | ofNat _, -[_+1] | -[_+1], succ _ => (Int.neg_neg _).symm
-  | ofNat _, succ _ | -[_+1], 0 | -[_+1], -[_+1] => rfl
+  | ofNat _, succ _ | -[_+1], 0 => by simp [Int.tdiv, Int.neg_zero, ← Int.negSucc_eq]
+  | -[_+1], -[_+1] => by simp only [tdiv, neg_negSucc]
 
 /-!
 There are no lemmas
@@ -1116,10 +1114,11 @@ protected theorem eq_tdiv_of_mul_eq_left {a b c : Int}
 @[simp] protected theorem tdiv_self {a : Int} (H : a ≠ 0) : a.tdiv a = 1 := by
   have := Int.mul_tdiv_cancel 1 H; rwa [Int.one_mul] at this
 
-unseal Nat.div in
 @[simp] protected theorem neg_tdiv : ∀ a b : Int, (-a).tdiv b = -(a.tdiv b)
   | 0, n => by simp [Int.neg_zero]
-  | succ _, (n:Nat) | -[_+1], 0 | -[_+1], -[_+1] => rfl
+  | succ _, (n:Nat) => by simp [tdiv, ← Int.negSucc_eq]
+  | -[_+1], 0 | -[_+1], -[_+1] => by
+    simp only [tdiv, neg_negSucc, ← Int.natCast_succ, Int.neg_neg]
   | succ _, -[_+1] | -[_+1], succ _ => (Int.neg_neg _).symm
 
 protected theorem neg_tdiv_neg (a b : Int) : (-a).tdiv (-b) = a.tdiv b := by
@@ -1649,9 +1648,9 @@ theorem fdiv_nonneg_of_nonpos_of_nonpos {a b : Int} (Ha : a ≤ 0) (Hb : b ≤ 0
     · have : 0 < a / b := ediv_pos_of_neg_of_neg (by omega) (by omega)
       split <;> omega
 
-unseal Nat.div in
 theorem fdiv_nonpos_of_nonneg_of_nonpos : ∀ {a b : Int}, 0 ≤ a → b ≤ 0 → a.fdiv b ≤ 0
-  | 0, 0, _, _ | 0, -[_+1], _, _ | succ _, 0, _, _ | succ _, -[_+1], _, _ => ⟨_⟩
+  | 0, 0, _, _ | 0, -[_+1], _, _ | succ _, 0, _, _ | succ _, -[_+1], _, _ => by
+    simp [fdiv, negSucc_le_zero]
 
 @[deprecated fdiv_nonpos_of_nonneg_of_nonpos (since := "2025-03-04")]
 abbrev fdiv_nonpos := @fdiv_nonpos_of_nonneg_of_nonpos

@@ -270,13 +270,6 @@ def ofListWith (l : List (α × β)) (f : β → β → β) : HashMap α β :=
         | none   => m.insert p.fst p.snd
         | some v => m.insert p.fst $ f v p.snd)
 
-attribute [deprecated Std.HashMap (since := "2024-08-08")] HashMap
-attribute [deprecated Std.HashMap.Raw (since := "2024-08-08")] HashMapImp
-attribute [deprecated Std.HashMap.Raw.empty (since := "2024-08-08")] mkHashMapImp
-attribute [deprecated Std.HashMap.empty (since := "2024-08-08")] mkHashMap
-attribute [deprecated Std.HashMap.empty (since := "2024-08-08")] HashMap.empty
-attribute [deprecated Std.HashMap.ofList (since := "2024-08-08")] HashMap.ofList
-
 attribute [deprecated Std.HashMap.insert (since := "2024-08-08")] HashMap.insert
 attribute [deprecated Std.HashMap.containsThenInsert (since := "2024-08-08")] HashMap.insert'
 attribute [deprecated Std.HashMap.insertIfNew (since := "2024-08-08")] HashMap.insertIfNew

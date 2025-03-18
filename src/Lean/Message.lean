@@ -437,6 +437,8 @@ structure MessageLog where
 namespace MessageLog
 def empty : MessageLog := {}
 
+-- Despite having been deprecated, the archived `LeanInk` project (which CI still uses)
+-- relies on this name.
 @[deprecated "renamed to `unreported`; direct access should in general be avoided in favor of \
 using `MessageLog.toList/toArray`" (since := "2024-05-22")]
 def msgs : MessageLog → PersistentArray Message := unreported

@@ -8,50 +8,140 @@ prelude
 import Init.Data.ToString.Basic
 
 /--
-Imitate the structure of IOErrorType in Haskell:
-https://hackage.haskell.org/package/base-4.12.0.0/docs/System-IO-Error.html#t:IOErrorType
+Exceptions that may be thrown in the `IO` monad.
+
+Many of the constructors of `IO.Error` correspond to POSIX error numbers. In these cases, the
+documentation string lists POSIX standard error macros that correspond to the error. This list is
+not necessarily exhaustive, and these constructor includes a field for the underlying error number.
 -/
+-- Imitates the structure of IOErrorType in Haskell:
+-- https://hackage.haskell.org/package/base-4.12.0.0/docs/System-IO-Error.html#t:IOErrorType
 inductive IO.Error where
-  | alreadyExists (filename : Option String) (osCode : UInt32) (details : String) -- EEXIST, EINPROGRESS, EISCONN
-  | otherError (osCode : UInt32) (details : String)    -- EFAULT, default
+  /--
+  The operation failed because a file already exists.
+
+  This corresponds to POSIX errors `EEXIST`, `EINPROGRESS`, and `EISCONN`.
+  -/
+  | alreadyExists (filename : Option String) (osCode : UInt32) (details : String)
+  /--
+  Some error not covered by the other constructors of `IO.Error` occurred.
+
+  This also includes POSIX error `EFAULT`.
+  -/
+  | otherError (osCode : UInt32) (details : String)
+  /--
+  A necessary resource was busy.
+
+  This corresponds to POSIX errors `EADDRINUSE`, `EBUSY`, `EDEADLK`, and `ETXTBSY`.
+  -/
   | resourceBusy (osCode : UInt32) (details : String)
-      -- EADDRINUSE, EBUSY, EDEADLK, ETXTBSY
+  /--
+  A necessary resource is no longer available.
+
+  This corresponds to POSIX errors `ECONNRESET`, `EIDRM`, `ENETDOWN`, `ENETRESET`, `ENOLINK`, and
+  `EPIPE`.
+  -/
   | resourceVanished (osCode : UInt32) (details : String)
-      -- ECONNRESET, EIDRM, ENETDOWN, ENETRESET,
-      -- ENOLINK, EPIPE
+  /--
+  An operation was not supported.
+
+  This corresponds to POSIX errors `EADDRNOTAVAIL`, `EAFNOSUPPORT`, `ENODEV`, `ENOPROTOOPT`
+  `ENOSYS`, `EOPNOTSUPP`, `ERANGE`, `ESPIPE`, and `EXDEV`.
+  -/
   | unsupportedOperation (osCode : UInt32) (details : String)
-      -- EADDRNOTAVAIL, EAFNOSUPPORT, ENODEV, ENOPROTOOPT
-      -- ENOSYS, EOPNOTSUPP, ERANGE, ESPIPE, EXDEV
-  | hardwareFault (osCode : UInt32) (details : String)          -- EIO
-  | unsatisfiedConstraints (osCode : UInt32) (details : String) -- ENOTEMPTY
-  | illegalOperation (osCode : UInt32) (details : String)       -- ENOTTY
+  /--
+  The operation failed due to a hardware problem, such as an I/O error.
+
+  This corresponds to the POSIX error `EIO`.
+  -/
+  | hardwareFault (osCode : UInt32) (details : String)
+  /--
+  A constraint required by an operation was not satisfied (e.g. a directory was not empty).
+
+  This corresponds to the POSIX error `ENOTEMPTY`.
+  -/
+  | unsatisfiedConstraints (osCode : UInt32) (details : String)
+  /--
+  An inappropriate I/O control operation was attempted.
+
+  This corresponds to the POSIX error `ENOTTY`.
+  -/
+  | illegalOperation (osCode : UInt32) (details : String)
+  /--
+  A protocol error occurred.
+
+  This corresponds to the POSIX errors `EPROTO`, `EPROTONOSUPPORT`, and `EPROTOTYPE`.
+  -/
   | protocolError (osCode : UInt32) (details : String)
-      -- EPROTO, EPROTONOSUPPORT, EPROTOTYPE
+  /--
+  An operation timed out.
+
+  This corresponds to the POSIX errors `ETIME`, and `ETIMEDOUT`.
+  -/
   | timeExpired (osCode : UInt32) (details : String)
-      -- ETIME, ETIMEDOUT
+  /--
+  The operation was interrupted.
 
-  | interrupted (filename : String) (osCode : UInt32) (details : String)       -- EINTR
-  | noFileOrDirectory (filename : String) (osCode : UInt32) (details : String) -- ENOENT
+  This corresponds to the POSIX error `EINTR`.
+  -/
+  | interrupted (filename : String) (osCode : UInt32) (details : String)
+  /--
+  No such file or directory.
+
+  This corresponds to the POSIX error `ENOENT`.
+  -/
+  | noFileOrDirectory (filename : String) (osCode : UInt32) (details : String)
+  /--
+  An argument to an I/O operation was invalid.
+
+  This corresponds to the POSIX errors `ELOOP`, `ENAMETOOLONG`, `EDESTADDRREQ`, `EILSEQ`, `EINVAL`, `EDOM`, `EBADF`
+  `ENOEXEC`, `ENOSTR`, `ENOTCONN`, and `ENOTSOCK`.
+  -/
   | invalidArgument (filename : Option String) (osCode : UInt32) (details : String)
-      -- ELOOP, ENAMETOOLONG, EDESTADDRREQ, EILSEQ, EINVAL, EDOM, EBADF
-      -- ENOEXEC, ENOSTR, ENOTCONN, ENOTSOCK
-  | permissionDenied (filename : Option String) (osCode : UInt32) (details : String)
-      -- EACCES, EROFS, ECONNABORTED, EFBIG, EPERM
-  | resourceExhausted (filename : Option String) (osCode : UInt32) (details : String)
-      -- EMFILE, ENFILE, ENOSPC, E2BIG, EAGAIN, EMLINK:
-      -- EMSGSIZE, ENOBUFS, ENOLCK, ENOMEM, ENOSR:
-  | inappropriateType (filename : Option String) (osCode : UInt32) (details : String)
-      -- EISDIR, EBADMSG, ENOTDIR:
-  | noSuchThing (filename : Option String) (osCode : UInt32) (details : String)
-      -- ENXIO, EHOSTUNREACH, ENETUNREACH, ECHILD, ECONNREFUSED,
-      -- ENODATA, ENOMSG, ESRCH
 
+  /--
+  An operation failed due to insufficient permissions.
+
+  This corresponds to the POSIX errors `EACCES`, `EROFS`, `ECONNABORTED`, `EFBIG`, and `EPERM`.
+  -/
+  | permissionDenied (filename : Option String) (osCode : UInt32) (details : String)
+
+  /--
+  A resource was exhausted.
+
+  This corresponds to the POSIX errors  `EMFILE`, `ENFILE`, `ENOSPC`, `E2BIG`, `EAGAIN`, `EMLINK`,
+  `EMSGSIZE`, `ENOBUFS`, `ENOLCK`, `ENOMEM`, and `ENOSR`.
+  -/
+  | resourceExhausted (filename : Option String) (osCode : UInt32) (details : String)
+
+  /--
+  An argument was the wrong type (e.g. a directory when a file was required).
+
+  This corresponds to the POSIX errors `EISDIR`, `EBADMSG`, and `ENOTDIR`.
+  -/
+  | inappropriateType (filename : Option String) (osCode : UInt32) (details : String)
+
+  /--
+  A required resource does not exist.
+
+  This corresponds to the POSIX errors `ENXIO`, `EHOSTUNREACH`, `ENETUNREACH`, `ECHILD`,
+  `ECONNREFUSED`, `ENODATA`, `ENOMSG`, and `ESRCH`.
+  -/
+  | noSuchThing (filename : Option String) (osCode : UInt32) (details : String)
+
+  /-- An unexpected end-of-file marker was encountered. -/
   | unexpectedEof
+  /-- Some other error occurred. -/
   | userError (msg : String)
 
 instance : Inhabited IO.Error where
   default := .userError "(`Inhabited.default` for `IO.Error`)"
 
+/--
+Constructs an `IO.Error` from a string.
+
+`IO.Error` is the type of exceptions thrown by the `IO` monad.
+-/
 @[export lean_mk_io_user_error]
 def IO.userError (s : String) : IO.Error :=
   IO.Error.userError s
@@ -166,6 +256,13 @@ def otherErrorToString (gist : String) (code : UInt32) : Option String → Strin
   | some details => downCaseFirst gist ++ " (error code: " ++ toString code ++ ", " ++ downCaseFirst details ++ ")"
   | none => downCaseFirst gist ++ " (error code: " ++ toString code ++ ")"
 
+/--
+Converts an `IO.Error` to a descriptive string.
+
+`IO.Error.userError` is converted to its embedded message. The other constructors are converted in a
+way that preserves structured information, such as error codes and filenames, that can help
+diagnose the issue.
+-/
 @[export lean_io_error_to_string]
 def toString : IO.Error → String
   | unexpectedEof                            => "end of file"

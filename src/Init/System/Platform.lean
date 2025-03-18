@@ -34,5 +34,19 @@ theorem le_numBits : 32 ≤ numBits := by
 theorem numBits_le : numBits ≤ 64 := by
   cases numBits_eq <;> next h => simp [h]
 
+@[simp] theorem eight_le_numBits : 8 ≤ System.Platform.numBits := by
+  cases System.Platform.numBits_eq <;> simp_all
+@[simp] theorem sixteen_le_numBits : 16 ≤ System.Platform.numBits := by
+  cases System.Platform.numBits_eq <;> simp_all
+
+@[simp] theorem eight_dvd_numBits : 8 ∣ System.Platform.numBits :=
+  numBits_eq.elim (fun h => ⟨4, h ▸ rfl⟩) (fun h => ⟨8, h ▸ rfl⟩)
+@[simp] theorem System.Platform.sixteen_dvd_numBits : 16 ∣ System.Platform.numBits :=
+  numBits_eq.elim (fun h => ⟨2, h ▸ rfl⟩) (fun h => ⟨4, h ▸ rfl⟩)
+@[simp] theorem System.Platform.dvd_numBits : 32 ∣ System.Platform.numBits :=
+  numBits_eq.elim (fun h => ⟨1, by simp [h]⟩) (fun h => ⟨2, h ▸ rfl⟩)
+@[simp] theorem System.Platform.numBits_dvd : System.Platform.numBits ∣ 64 :=
+  numBits_eq.elim (fun h => ⟨2, h ▸ rfl⟩) (fun h => ⟨1, by simp [h]⟩)
+
 end Platform
 end System

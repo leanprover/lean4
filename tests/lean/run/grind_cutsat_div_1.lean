@@ -82,3 +82,9 @@ set_option trace.grind.cutsat.conflict true in
 example (f : Int → Int) (_ : 2 ∣ f 0 + 3) (_ : 3 ∣ f 0 + f 1 - 4) (_ : f 0 ≥ 11): False := by
   fail_if_success grind
   sorry
+
+example (x : Int) (_ : 10 ∣ x) (_ : ¬ 5 ∣ x) : False := by
+  grind
+
+example (x : Nat) (_ : 10 ∣ x) (_ : ¬ 5 ∣ x) : False := by
+  grind

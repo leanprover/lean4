@@ -20,9 +20,6 @@ and later these lemmas should be organised into other files more systematically.
 
 namespace Nat
 
-@[deprecated and_forall_add_one (since := "2024-07-30")] abbrev and_forall_succ := @and_forall_add_one
-@[deprecated or_exists_add_one (since := "2024-07-30")] abbrev or_exists_succ := @or_exists_add_one
-
 @[simp] theorem exists_ne_zero {P : Nat → Prop} : (∃ n, ¬ n = 0 ∧ P n) ↔ ∃ n, P (n + 1) :=
   ⟨fun ⟨n, h, w⟩ => by cases n with | zero => simp at h | succ n => exact ⟨n, w⟩,
     fun ⟨n, w⟩ => ⟨n + 1, by simp, w⟩⟩
@@ -583,8 +580,14 @@ theorem mul_mod_mod (a b c : Nat) : (a * (b % c)) % c = a * b % c := by
   have := (add_mul_mod_self_left (m % n + k) n (m / n)).symm
   rwa [Nat.add_right_comm, mod_add_div] at this
 
+@[simp] theorem mul_mod_mod (m n l : Nat) : (m * (n % l)) % l = (m * n) % l := by
+  rw [mul_mod, mod_mod, ← mul_mod]
+
 @[simp] theorem add_mod_mod (m n k : Nat) : (m + n % k) % k = (m + n) % k := by
   rw [Nat.add_comm, mod_add_mod, Nat.add_comm]
+
+@[simp] theorem mod_mul_mod (m n l : Nat) : ((m % l) * n) % l = (m * n) % l := by
+  rw [Nat.mul_comm, mul_mod_mod, Nat.mul_comm]
 
 theorem add_mod (a b n : Nat) : (a + b) % n = ((a % n) + (b % n)) % n := by
   rw [add_mod_mod, mod_add_mod]
@@ -597,9 +600,6 @@ theorem add_mod (a b n : Nat) : (a + b) % n = ((a % n) + (b % n)) % n := by
     cases k with
     | zero => simp_all
     | succ k => omega
-
-@[simp] theorem mod_mul_mod {a b c : Nat} : (a % c * b) % c = a * b % c := by
-  rw [mul_mod, mod_mod, ← mul_mod]
 
 theorem mod_eq_sub (x w : Nat) : x % w = x - w * (x / w) := by
   conv => rhs; congr; rw [← mod_add_div x w]

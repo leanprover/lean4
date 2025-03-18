@@ -259,7 +259,7 @@ instance decidableLE [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List
   inferInstanceAs (Decidable (Not _))
 
 /--
-Compare lists lexicographically with respect to a comparison on their elements.
+Compares lists lexicographically with respect to a comparison on their elements.
 
 The lexicographic order with respect to `lt` is:
 * `[].lex (b :: bs)` is `true`
@@ -493,7 +493,7 @@ Returns the list of elements in `l` for which `p` returns `true`.
 `O(|l|)`.
 
 Examples:
-* `[1, 2, 5, 2, 7, 7].filter (· > 2)  = [5, 7, 7]`
+* `[1, 2, 5, 2, 7, 7].filter (· > 2) = [5, 7, 7]`
 * `[1, 2, 5, 2, 7, 7].filter (fun _ => false) = []`
 * `[1, 2, 5, 2, 7, 7].filter (fun _ => true) = [1, 2, 5, 2, 7, 7]`
 -/
@@ -766,10 +766,10 @@ Pads `l : List α` on the left with repeated occurrences of `a : α` until it is
 already has at least `n` elements, it is returned unmodified.
 
 Examples:
- * `[1, 2, 3].leftPad 5 0 = [0, 0, 1, 2, 3]`
- * `["red", "green", "blue"].leftPad 4 "blank" = ["blank", "red", "green", "blue"]`
- * `["red", "green", "blue"].leftPad 3 "blank" = ["red", "green", "blue"]`
- * `["red", "green", "blue"].leftPad 1 "blank" = ["red", "green", "blue"]`
+ * `[1, 2, 3].leftpad 5 0 = [0, 0, 1, 2, 3]`
+ * `["red", "green", "blue"].leftpad 4 "blank" = ["blank", "red", "green", "blue"]`
+ * `["red", "green", "blue"].leftpad 3 "blank" = ["red", "green", "blue"]`
+ * `["red", "green", "blue"].leftpad 1 "blank" = ["red", "green", "blue"]`
 -/
 def leftpad (n : Nat) (a : α) (l : List α) : List α := replicate (n - length l) a ++ l
 
@@ -779,10 +779,10 @@ Pads `l : List α` on the right with repeated occurrences of `a : α` until it i
 `l` already has at least `n` elements, it is returned unmodified.
 
 Examples:
- * `[1, 2, 3].rightPad 5 0 = [1, 2, 3, 0, 0]`
- * `["red", "green", "blue"].rightPad 4 "blank" = ["red", "green", "blue", "blank"]`
- * `["red", "green", "blue"].rightPad 3 "blank" = ["red", "green", "blue"]`
- * `["red", "green", "blue"].rightPad 1 "blank" = ["red", "green", "blue"]`
+ * `[1, 2, 3].rightpad 5 0 = [1, 2, 3, 0, 0]`
+ * `["red", "green", "blue"].rightpad 4 "blank" = ["red", "green", "blue", "blank"]`
+ * `["red", "green", "blue"].rightpad 3 "blank" = ["red", "green", "blue"]`
+ * `["red", "green", "blue"].rightpad 1 "blank" = ["red", "green", "blue"]`
 -/
 def rightpad (n : Nat) (a : α) (l : List α) : List α := l ++ replicate (n - length l) a
 
@@ -1451,34 +1451,42 @@ using `f` if the index is larger than the length of the List.
 
 Examples:
 ```lean example
-["circle", "square", "triangle"].modifyTailIdx List.reverse 1
+["circle", "square", "triangle"].modifyTailIdx 1 List.reverse
 ```
 ```output
 ["circle", "triangle", "square"]
 ```
 ```lean example
-["circle", "square", "triangle"].modifyTailIdx (fun xs => xs ++ xs) 1
+["circle", "square", "triangle"].modifyTailIdx 1 (fun xs => xs ++ xs)
 ```
 ```output
 ["circle", "square", "triangle", "square", "triangle"]
 ```
 ```lean example
-["circle", "square", "triangle"].modifyTailIdx (fun xs => xs ++ xs) 2
+["circle", "square", "triangle"].modifyTailIdx 2 (fun xs => xs ++ xs)
 ```
 ```output
 ["circle", "square", "triangle", "triangle"]
 ```
 ```lean example
-["circle", "square", "triangle"].modifyTailIdx (fun xs => xs ++ xs) 5
+["circle", "square", "triangle"].modifyTailIdx 5 (fun xs => xs ++ xs)
 ```
 ```output
 ["circle", "square", "triangle"]
 ```
 -/
-@[simp] def modifyTailIdx (f : List α → List α) : (n : Nat) → (l : List α) → List α
+def modifyTailIdx (l : List α) (i : Nat) (f : List α → List α) : List α :=
+  go i l
+where
+  go : Nat → List α → List α
   | 0, l => f l
   | _+1, [] => []
-  | n+1, a :: l => a :: modifyTailIdx f n l
+  | i+1, a :: l => a :: go i l
+
+@[simp] theorem modifyTailIdx_zero {l : List α} : l.modifyTailIdx 0 f = f l := rfl
+@[simp] theorem modifyTailIdx_succ_nil {i : Nat} : ([] : List α).modifyTailIdx (i + 1) f = [] := rfl
+@[simp] theorem modifyTailIdx_succ_cons {i : Nat} {a : α} {l : List α} :
+    (a :: l).modifyTailIdx (i + 1) f = a :: l.modifyTailIdx i f := rfl
 
 /--
 Replace the head of the list with the result of applying `f` to it. Returns the empty list if the
@@ -1501,12 +1509,12 @@ Replaces the element at the given index, if it exists, with the result of applyi
 index is invalid, the list is returned unmodified.
 
 Examples:
- * `[1, 2, 3].modify (· * 10) 0 = [10, 2, 3]`
- * `[1, 2, 3].modify (· * 10) 2 = [1, 2, 30]`
- * `[1, 2, 3].modify (· * 10) 3 = [1, 2, 3]`
+ * `[1, 2, 3].modify 0 (· * 10) = [10, 2, 3]`
+ * `[1, 2, 3].modify 2 (· * 10) = [1, 2, 30]`
+ * `[1, 2, 3].modify 3 (· * 10) = [1, 2, 3]`
 -/
-def modify (f : α → α) : Nat → List α → List α :=
-  modifyTailIdx (modifyHead f)
+def modify (l : List α) (i : Nat) (f : α → α) : List α :=
+  l.modifyTailIdx i (modifyHead f)
 
 /-! ### insert -/
 
@@ -1536,8 +1544,8 @@ Examples:
  * `["tues", "thur", "sat"].insertIdx 3 "wed" = ["tues", "thur", "sat", "wed"]`
  * `["tues", "thur", "sat"].insertIdx 4 "wed" = ["tues", "thur", "sat"]`
 -/
-def insertIdx (i : Nat) (a : α) : (l : List α) → List α :=
-  modifyTailIdx (cons a) i
+def insertIdx (xs : List α) (i : Nat) (a : α) : List α :=
+  xs.modifyTailIdx i (cons a)
 
 /-! ### erase -/
 
@@ -1694,7 +1702,6 @@ Examples:
 * `[7, 6, 5, 8, 1, 2, 6].findIdx (· < 5) = some 4`
 * `[7, 6, 5, 8, 1, 2, 6].findIdx (· < 1) = none`
 -/
-
 def findIdx? (p : α → Bool) (l : List α) : Option Nat :=
   go l 0
 where
@@ -1858,7 +1865,7 @@ def isPerm [BEq α] : List α → List α → Bool
 /-! ### any -/
 
 /--
-Returns true if `p` returns `true` for any element of `l`.
+Returns `true` if `p` returns `true` for any element of `l`.
 
 `O(|l|)`. Short-circuits upon encountering the first `true`.
 
@@ -1878,7 +1885,7 @@ def any : (l : List α) → (p : α → Bool) → Bool
 /-! ### all -/
 
 /--
-Returns true if `p` returns `true` for every element of `l`.
+Returns `true` if `p` returns `true` for every element of `l`.
 
 `O(|l|)`. Short-circuits upon encountering the first `false`.
 
@@ -1958,7 +1965,7 @@ Examples:
 
 /--
 Combines two lists into a list of pairs in which the first and second components are the
-corresponding elements of each list. The resulting list is the length of the shorter of the inputs
+corresponding elements of each list. The resulting list is the length of the shorter of the input
 lists.
 
 `O(min |xs| |ys|)`.

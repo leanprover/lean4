@@ -815,14 +815,6 @@ theorem getElem_length_sub_one_eq_getLast (l : List α) (h : l.length - 1 < l.le
     l[l.length - 1] = getLast l (by cases l; simp at h; simp) := by
   rw [← getLast_eq_getElem]
 
-@[deprecated getLast_eq_getElem (since := "2024-07-15")]
-theorem getLast_eq_get (l : List α) (h : l ≠ []) :
-    getLast l h = l.get ⟨l.length - 1, by
-      match l with
-      | [] => contradiction
-      | a :: l => exact Nat.le_refl _⟩ := by
-  simp [getLast_eq_getElem]
-
 theorem getLast_cons {a : α} {l : List α} : ∀ (h : l ≠ nil),
     getLast (a :: l) (cons_ne_nil a l) = getLast l h := by
   induction l <;> intros; {contradiction}; rfl
@@ -947,8 +939,11 @@ theorem head_eq_iff_head?_eq_some {xs : List α} (h) : xs.head h = a ↔ xs.head
 theorem head?_eq_some_iff {xs : List α} {a : α} : xs.head? = some a ↔ ∃ ys, xs = a :: ys := by
   cases xs <;> simp_all
 
-@[simp] theorem head?_isSome : l.head?.isSome ↔ l ≠ [] := by
+@[simp] theorem isSome_head? : l.head?.isSome ↔ l ≠ [] := by
   cases l <;> simp
+
+@[deprecated isSome_head? (since := "2025-03-18")]
+abbrev head?_isSome := @isSome_head?
 
 @[simp] theorem head_mem : ∀ {l : List α} (h : l ≠ []), head l h ∈ l
   | [], h => absurd rfl h
@@ -1097,8 +1092,6 @@ theorem mem_map_of_mem (f : α → β) (h : a ∈ l) : f a ∈ map f l := mem_ma
 theorem forall_mem_map {f : α → β} {l : List α} {P : β → Prop} :
     (∀ (i) (_ : i ∈ l.map f), P i) ↔ ∀ (j) (_ : j ∈ l), P (f j) := by
   simp
-
-@[deprecated forall_mem_map (since := "2024-07-25")] abbrev forall_mem_map_iff := @forall_mem_map
 
 @[simp] theorem map_eq_nil_iff {f : α → β} {l : List α} : map f l = [] ↔ l = [] := by
   constructor <;> exact fun _ => match l with | [] => rfl
@@ -1256,7 +1249,7 @@ theorem filter_eq_self {l} : filter p l = l ↔ ∀ a ∈ l, p a := by
     intro h; exact Nat.lt_irrefl _ (h ▸ length_filter_le p l)
 
 @[simp]
-theorem filter_length_eq_length {l} : (filter p l).length = l.length ↔ ∀ a ∈ l, p a := by
+theorem length_filter_eq_length_iff {l} : (filter p l).length = l.length ↔ ∀ a ∈ l, p a := by
   induction l with
   | nil => simp
   | cons a l ih =>
@@ -1265,6 +1258,9 @@ theorem filter_length_eq_length {l} : (filter p l).length = l.length ↔ ∀ a �
     · simp_all [Nat.add_one_inj] -- Why does the simproc not fire here?
     · have := Nat.ne_of_lt (Nat.lt_succ.mpr (length_filter_le p l))
       simp_all
+
+@[deprecated length_filter_eq_length_iff (since := "2024-09-05")]
+abbrev filter_length_eq_length := @length_filter_eq_length_iff
 
 @[simp] theorem mem_filter : x ∈ filter p as ↔ x ∈ as ∧ p x := by
   induction as with
@@ -1282,8 +1278,6 @@ theorem filter_length_eq_length {l} : (filter p l).length = l.length ↔ ∀ a �
 theorem forall_mem_filter {l : List α} {p : α → Bool} {P : α → Prop} :
     (∀ (i) (_ : i ∈ l.filter p), P i) ↔ ∀ (j) (_ : j ∈ l), p j → P j := by
   simp
-
-@[deprecated forall_mem_filter (since := "2024-07-25")] abbrev forall_mem_filter_iff := @forall_mem_filter
 
 @[simp] theorem filter_filter (q) : ∀ l, filter p (filter q l) = filter (fun a => p a && q a) l
   | [] => rfl
@@ -1456,8 +1450,6 @@ theorem forall_mem_filterMap {f : α → Option β} {l : List α} {P : β → Pr
   apply forall_congr'
   intro a
   rw [forall_comm]
-
-@[deprecated forall_mem_filterMap (since := "2024-07-25")] abbrev forall_mem_filterMap_iff := @forall_mem_filterMap
 
 @[simp] theorem filterMap_append {α β : Type _} (l l' : List α) (f : α → Option β) :
     filterMap f (l ++ l') = filterMap f l ++ filterMap f l' := by
@@ -1659,28 +1651,17 @@ theorem getLast_concat {a : α} : ∀ (l : List α), getLast (l ++ [a]) (by simp
 @[simp] theorem nil_eq_append_iff : [] = a ++ b ↔ a = [] ∧ b = [] := by
   rw [eq_comm, append_eq_nil_iff]
 
-@[deprecated nil_eq_append_iff (since := "2024-07-24")] abbrev nil_eq_append := @nil_eq_append_iff
-
 theorem append_ne_nil_of_left_ne_nil {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by simp_all
 theorem append_ne_nil_of_right_ne_nil (s : List α) : t ≠ [] → s ++ t ≠ [] := by simp_all
-
-@[deprecated append_ne_nil_of_left_ne_nil (since := "2024-07-24")]
-theorem append_ne_nil_of_ne_nil_left {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by simp_all
-@[deprecated append_ne_nil_of_right_ne_nil (since := "2024-07-24")]
-theorem append_ne_nil_of_ne_nil_right (s : List α) : t ≠ [] → s ++ t ≠ [] := by simp_all
 
 theorem append_eq_cons_iff :
     as ++ bs = x :: c ↔ (as = [] ∧ bs = x :: c) ∨ (∃ as', as = x :: as' ∧ c = as' ++ bs) := by
   cases as with simp | cons a as => ?_
   exact ⟨fun h => ⟨as, by simp [h]⟩, fun ⟨as', ⟨aeq, aseq⟩, h⟩ => ⟨aeq, by rw [aseq, h]⟩⟩
 
-@[deprecated append_eq_cons_iff (since := "2024-07-24")] abbrev append_eq_cons := @append_eq_cons_iff
-
 theorem cons_eq_append_iff :
     x :: cs = as ++ bs ↔ (as = [] ∧ bs = x :: cs) ∨ (∃ as', as = x :: as' ∧ cs = as' ++ bs) := by
   rw [eq_comm, append_eq_cons_iff]
-
-@[deprecated cons_eq_append_iff (since := "2024-07-24")] abbrev cons_eq_append := @cons_eq_append_iff
 
 theorem append_eq_singleton_iff :
     a ++ b = [x] ↔ (a = [] ∧ b = [x]) ∨ (a = [x] ∧ b = []) := by
@@ -1695,9 +1676,6 @@ theorem append_eq_append_iff {ws xs ys zs : List α} :
   induction ws generalizing ys with
   | nil => simp_all
   | cons a as ih => cases ys <;> simp [eq_comm, and_assoc, ih, and_or_left]
-
-@[deprecated append_inj (since := "2024-07-24")] abbrev append_inj_of_length_left := @append_inj
-@[deprecated append_inj' (since := "2024-07-24")] abbrev append_inj_of_length_right := @append_inj'
 
 @[simp] theorem head_append_of_ne_nil {l : List α} {w₁} (w₂) :
     head (l ++ l') w₁ = head l w₂ := by
@@ -1745,8 +1723,6 @@ theorem tail_append {l l' : List α} : (l ++ l').tail = if l.isEmpty then l'.tai
 @[simp] theorem tail_append_of_ne_nil {xs ys : List α} (h : xs ≠ []) :
     (xs ++ ys).tail = xs.tail ++ ys := by
   simp_all [tail_append]
-
-@[deprecated tail_append_of_ne_nil (since := "2024-07-24")] abbrev tail_append_left := @tail_append_of_ne_nil
 
 theorem set_append {s t : List α} :
     (s ++ t).set i x = if i < s.length then s.set i x ++ t else s ++ t.set (i - s.length) x := by
@@ -2096,8 +2072,6 @@ theorem head?_flatMap {l : List α} {f : α → List β} :
 @[simp] theorem flatMap_append (xs ys : List α) (f : α → List β) :
     (xs ++ ys).flatMap f = xs.flatMap f ++ ys.flatMap f := by
   induction xs; {rfl}; simp_all [flatMap_cons, append_assoc]
-
-@[deprecated flatMap_append (since := "2024-07-24")] abbrev append_bind := @flatMap_append
 
 theorem flatMap_assoc {α β} (l : List α) (f : α → List β) (g : β → List γ) :
     (l.flatMap f).flatMap g = l.flatMap fun x => (f x).flatMap g := by
@@ -2575,8 +2549,6 @@ theorem foldr_eq_foldrM (f : α → β → β) (b) (l : List α) :
     l.foldr cons l' = l ++ l' := by
   induction l <;> simp [*]
 
-@[deprecated foldr_cons_eq_append (since := "2024-08-22")] abbrev foldr_self_append := @foldr_cons_eq_append
-
 @[simp] theorem foldl_flip_cons_eq_append (l : List α) (f : α → β) (l' : List β) :
     l.foldl (fun xs y => f y :: xs) l' = (l.map f).reverse ++ l' := by
   induction l generalizing l' <;> simp [*]
@@ -2841,7 +2813,7 @@ theorem getLast?_eq_some_iff {xs : List α} {a : α} : xs.getLast? = some a ↔ 
   exact ⟨fun ⟨ys, h⟩ => ⟨ys.reverse, by simpa using h⟩, fun ⟨ys, h⟩ => ⟨ys.reverse, by simpa using h⟩⟩
 
 @[simp] theorem getLast?_isSome : l.getLast?.isSome ↔ l ≠ [] := by
-  rw [getLast?_eq_head?_reverse, head?_isSome]
+  rw [getLast?_eq_head?_reverse, isSome_head?]
   simp
 
 theorem mem_of_getLast? {xs : List α} {a : α} (h : xs.getLast? = some a) : a ∈ xs := by
@@ -3536,14 +3508,6 @@ theorem mem_iff_get? {a} {l : List α} : a ∈ l ↔ ∃ n, l.get? n = some a :=
   simp [getElem?_eq_some_iff, Fin.exists_iff, mem_iff_get]
 
 /-! ### Deprecations -/
-
-@[deprecated "Deprecated without replacement." (since := "2024-07-09")]
-theorem get_cons_cons_one : (a₁ :: a₂ :: as).get (1 : Fin (as.length + 2)) = a₂ := rfl
-
-@[deprecated filter_flatten (since := "2024-08-26")]
-theorem join_map_filter (p : α → Bool) (l : List (List α)) :
-    (l.map (filter p)).flatten = (l.flatten).filter p := by
-  rw [filter_flatten]
 
 @[deprecated getElem_eq_getElem?_get (since := "2024-09-04")] abbrev getElem_eq_getElem? :=
   @getElem_eq_getElem?_get

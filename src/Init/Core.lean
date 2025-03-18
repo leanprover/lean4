@@ -575,7 +575,12 @@ attribute [extern "lean_task_pure"] Task.pure
 attribute [extern "lean_task_get_own"] Task.get
 
 namespace Task
-/-- Task priority. Tasks with higher priority will always be scheduled before ones with lower priority. -/
+/--
+Task priority.
+
+Tasks with higher priority will always be scheduled before tasks with lower priority. Tasks with a
+priority greater than `Task.Priority.max` are scheduled on dedicated threads.
+-/
 abbrev Priority := Nat
 
 /-- The default priority for spawned tasks, also the lowest priority: `0`. -/
@@ -583,16 +588,18 @@ def Priority.default : Priority := 0
 /--
 The highest regular priority for spawned tasks: `8`.
 
-Spawning a task with a priority higher than `Task.Priority.max` is not an error but
-will spawn a dedicated worker for the task, see `Task.Priority.dedicated`.
-Regular priority tasks are placed in a thread pool and worked on according to the priority order.
+Spawning a task with a priority higher than `Task.Priority.max` is not an error but will spawn a
+dedicated worker for the task. This is indicated using `Task.Priority.dedicated`. Regular priority
+tasks are placed in a thread pool and worked on according to their priority order.
 -/
 -- see `LEAN_MAX_PRIO`
 def Priority.max : Priority := 8
 /--
+Indicates that a task should be scheduled on a dedicated thread.
+
 Any priority higher than `Task.Priority.max` will result in the task being scheduled
 immediately on a dedicated thread. This is particularly useful for long-running and/or
-I/O-bound tasks since Lean will by default allocate no more non-dedicated workers
+I/O-bound tasks since Lean will, by default, allocate no more non-dedicated workers
 than the number of cores to reduce context switches.
 -/
 def Priority.dedicated : Priority := 9
@@ -1201,9 +1208,6 @@ inductive Relation.TransGen {α : Sort u} (r : α → α → Prop) : α → α �
   This is the inductive case of the transitive closure. -/
   | tail {a b c} : TransGen r a b → r b c → TransGen r a c
 
-/-- Deprecated synonym for `Relation.TransGen`. -/
-@[deprecated Relation.TransGen (since := "2024-07-16")] abbrev TC := @Relation.TransGen
-
 /-- The transitive closure is transitive. -/
 theorem Relation.TransGen.trans {α : Sort u} {r : α → α → Prop} {a b c} :
     TransGen r a b → TransGen r b c → TransGen r a c := by
@@ -1345,10 +1349,6 @@ def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ 
 
 theorem Exists.of_psigma_prop {α : Sort u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
   | ⟨x, hx⟩ => ⟨x, hx⟩
-
-@[deprecated Exists.of_psigma_prop (since := "2024-07-27")]
-theorem ex_of_PSigma {α : Type u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x) :=
-  Exists.of_psigma_prop
 
 protected theorem PSigma.eta {α : Sort u} {β : α → Sort v} {a₁ a₂ : α} {b₁ : β a₁} {b₂ : β a₂}
     (h₁ : a₁ = a₂) (h₂ : Eq.ndrec b₁ h₁ = b₂) : PSigma.mk a₁ b₁ = PSigma.mk a₂ b₂ := by

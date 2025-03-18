@@ -581,8 +581,6 @@ theorem reverse_zipWith (h : l.length = l'.length) :
       have : tl.reverse.length = tl'.reverse.length := by simp [h]
       simp [hl h, zipWith_append _ _ _ _ _ this]
 
-@[deprecated reverse_zipWith (since := "2024-07-28")] abbrev zipWith_distrib_reverse := @reverse_zipWith
-
 @[simp] theorem zipWith_replicate {a : α} {b : β} {m n : Nat} :
     zipWith f (replicate m a) (replicate n b) = replicate (min m n) (f a b) := by
   rw [zipWith_eq_zipWith_take_min]

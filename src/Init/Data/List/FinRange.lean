@@ -15,8 +15,8 @@ namespace List
 Lists all elements of `Fin n` in order, starting at `0`.
 
 Examples:
- * `List.finRange 0 = ([] : List Fin 0)`
- * `List.finRange 2 = ([0, 1] : List Fin 2)`
+ * `List.finRange 0 = ([] : List (Fin 0))`
+ * `List.finRange 2 = ([0, 1] : List (Fin 2))`
 -/
 def finRange (n : Nat) : List (Fin n) := ofFn fun i => i
 

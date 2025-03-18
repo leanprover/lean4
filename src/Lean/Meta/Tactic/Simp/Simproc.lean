@@ -172,15 +172,13 @@ def addSEvalprocBuiltinAttr (declName : Name) (post : Bool) (proc : Sum Simproc 
 
 def Simprocs.add (s : Simprocs) (declName : Name) (post : Bool) : CoreM Simprocs := do
   let proc ←
-    try
+    -- check builtins first to avoid a potentially expensive negative environment lookup
+    if (← isBuiltinSimproc declName) then
+      let some proc := (← builtinSimprocDeclsRef.get).procs[declName]?
+        | throwError "invalid [simproc] attribute, '{declName}' is not a simproc"
+      pure proc
+    else
       getSimprocFromDecl declName
-    catch e =>
-      if (← isBuiltinSimproc declName) then
-        let some proc := (← builtinSimprocDeclsRef.get).procs[declName]?
-          | throwError "invalid [simproc] attribute, '{declName}' is not a simproc"
-        pure proc
-      else
-        throw e
   let some keys ← getSimprocDeclKeys? declName |
     throwError "invalid [simproc] attribute, '{declName}' is not a simproc"
   return s.addCore keys declName post proc

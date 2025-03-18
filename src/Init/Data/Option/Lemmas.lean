@@ -229,9 +229,12 @@ theorem map_inj_right {f : α → β} {o o' : Option α} (w : ∀ x y, f x = f y
 
 theorem filter_some : Option.filter p (some a) = if p a then some a else none := rfl
 
-theorem isSome_filter_of_isSome (p : α → Bool) (o : Option α) (h : (o.filter p).isSome) :
+theorem isSome_of_isSome_filter (p : α → Bool) (o : Option α) (h : (o.filter p).isSome) :
     o.isSome := by
   cases o <;> simp at h ⊢
+
+@[deprecated isSome_of_isSome_filter (since := "2025-03-18")]
+abbrev isSome_filter_of_isSome := @isSome_of_isSome_filter
 
 @[simp] theorem filter_eq_none {p : α → Bool} :
     o.filter p = none ↔ o = none ∨ ∀ a, a ∈ o → ¬ p a := by
@@ -295,8 +298,11 @@ theorem map_orElse {x y : Option α} : (x <|> y).map f = (x.map f <|> y.map f) :
 @[simp] theorem guard_eq_some [DecidablePred p] : guard p a = some b ↔ a = b ∧ p a :=
   if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
 
-@[simp] theorem guard_isSome [DecidablePred p] : (Option.guard p a).isSome ↔ p a :=
+@[simp] theorem isSome_guard [DecidablePred p] : (Option.guard p a).isSome ↔ p a :=
   if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
+
+@[deprecated isSome_guard (since := "2025-03-18")]
+abbrev guard_isSome := @isSome_guard
 
 @[simp] theorem guard_eq_none [DecidablePred p] : Option.guard p a = none ↔ ¬ p a :=
   if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
@@ -366,8 +372,11 @@ theorem choice_eq {α : Type _} [Subsingleton α] (a : α) : choice α = some a 
   rw [dif_pos (⟨a⟩ : Nonempty α)]
   simp; apply Subsingleton.elim
 
-theorem choice_isSome_iff_nonempty {α : Type _} : (choice α).isSome ↔ Nonempty α :=
+theorem isSome_choice_iff_nonempty {α : Type _} : (choice α).isSome ↔ Nonempty α :=
   ⟨fun h => ⟨(choice α).get h⟩, fun h => by simp only [choice, dif_pos h, isSome_some]⟩
+
+@[deprecated isSome_choice_iff_nonempty (since := "2025-03-18")]
+abbrev choice_isSome_iff_nonempty := @isSome_choice_iff_nonempty
 
 end choice
 

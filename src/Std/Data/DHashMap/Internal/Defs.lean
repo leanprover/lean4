@@ -142,9 +142,9 @@ and clean.
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v w
+universe u u' v v' w
 
-variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w} [Monad m]
+variable {α : Type u} {α' : Type u'} {β : α → Type v} {β' : α' → Type v'} {δ : Type w} {m : Type w → Type w} [Monad m]
 
 namespace Std
 
@@ -404,6 +404,14 @@ where
 @[inline] def map {γ : α → Type w} (f : (a : α) → β a → γ a) (m : Raw₀ α β) : Raw₀ α γ :=
   let ⟨⟨size, buckets⟩, hb⟩ := m
   let newBuckets := buckets.map (AssocList.map f)
+  ⟨⟨size, newBuckets⟩, by simpa [newBuckets] using hb⟩
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def mapKeyValueInPlace
+    (f : (a : α) → β a → ((a' : α') × β' a'))
+    (m : Raw₀ α β) : Raw₀ α' β' :=
+  let ⟨⟨size, buckets⟩, hb⟩ := m
+  let newBuckets := buckets.map (AssocList.mapKeyValue f)
   ⟨⟨size, newBuckets⟩, by simpa [newBuckets] using hb⟩
 
 /-- Internal implementation detail of the hash map -/

@@ -619,18 +619,25 @@ example {x y : BitVec 8} : (~~~x + 1) <<< y = ~~~(x <<< y) + 1 := by bv_normaliz
 example {x y : BitVec 8} : (1 + ~~~x) <<< y = ~~~(x <<< y) + 1 := by bv_normalize
 example {x y : BitVec 8} : (-x) <<< y = -(x <<< y) := by bv_normalize
 
+example {x : BitVec 16} : (x = BitVec.allOnes 16) → (BitVec.uaddOverflow x x) := by bv_decide
 
 section
 
+namespace NormalizeMul
+/- Test examples of the multiplication normalizer -/
+
+/-- This example does not yet work,
+  since we do not have the full Bitwuzla algorithm. -/
+example {x y z : BitVec 64} : ~~~(x &&& (y * z)) = (~~~x ||| ~~~(z * y)) := by
+  sorry
 example (x y : BitVec 256) : x * y = y * x := by
   bv_decide (config := { acNf := true })
-
-example {x y z : BitVec 64} : ~~~(x &&& (y * z)) = (~~~x ||| ~~~(z * y)) := by
+example (x y : BitVec 256) : x * y * z = z * y * x := by
+  bv_decide (config := { acNf := true })
+example (x y : BitVec 256) : x * y * z = z * y * x := by
   bv_decide (config := { acNf := true })
 
-example {x : BitVec 16} : (x = BitVec.allOnes 16) → (BitVec.uaddOverflow x x) := by bv_decide
-
-end
+end NormalizeMul
 
 def foo (x : Bool) : Prop := x = true
 

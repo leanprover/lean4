@@ -3384,6 +3384,9 @@ theorem neg_mul_not_eq_add_mul {x y : BitVec w} :
   rw [not_eq_neg_add, mul_sub, neg_sub, ← BitVec.mul_neg, neg_neg,
     BitVec.mul_one, BitVec.add_comm]
 
+theorem neg_eq_neg_one_mul (b : BitVec w) : -b = -1#w * b :=
+  BitVec.eq_of_toInt_eq (by simp)
+
 /-! ### le and lt -/
 
 @[bitvec_to_nat] theorem le_def {x y : BitVec n} :

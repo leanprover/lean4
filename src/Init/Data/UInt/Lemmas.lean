@@ -6,8 +6,11 @@ Authors: Leonardo de Moura, François G. Dorais, Mario Carneiro, Mac Malone, Mar
 prelude
 import Init.Data.UInt.Basic
 import Init.Data.Fin.Lemmas
+import Init.Data.Fin.Bitwise
 import Init.Data.BitVec.Lemmas
 import Init.Data.BitVec.Bitblast
+import Init.Data.Nat.Div.Lemmas
+import Init.System.Platform
 
 open Lean in
 set_option hygiene false in
@@ -220,6 +223,13 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   @[deprecated ofBitVec_ofNat (since := "2025-02-12")]
   theorem mk_ofNat (n : Nat) : ofBitVec (BitVec.ofNat _ n) = OfNat.ofNat n := rfl
 
+  @[simp, int_toBitVec] protected theorem toBitVec_add {a b : $typeName} : (a + b).toBitVec = a.toBitVec + b.toBitVec := rfl
+  @[simp, int_toBitVec] protected theorem toBitVec_sub {a b : $typeName} : (a - b).toBitVec = a.toBitVec - b.toBitVec := rfl
+  @[simp, int_toBitVec] protected theorem toBitVec_mul {a b : $typeName} : (a * b).toBitVec = a.toBitVec * b.toBitVec := rfl
+  @[simp, int_toBitVec] protected theorem toBitVec_div {a b : $typeName} : (a / b).toBitVec = a.toBitVec / b.toBitVec := rfl
+  @[simp, int_toBitVec] protected theorem toBitVec_mod {a b : $typeName} : (a % b).toBitVec = a.toBitVec % b.toBitVec := rfl
+  @[simp, int_toBitVec] protected theorem toBitVec_neg {a : $typeName} : (-a).toBitVec = -a.toBitVec := rfl
+
   )
   if let some nbits := bits.raw.isNatLit? then
     if nbits > 8 then
@@ -265,21 +275,72 @@ declare_uint_theorems USize System.Platform.numBits
 theorem USize.toNat_ofNat_of_lt_32 {n : Nat} (h : n < 4294967296) : toNat (ofNat n) = n :=
   toNat_ofNat_of_lt (Nat.lt_of_lt_of_le h USize.le_size)
 
-theorem UInt32.toNat_lt_of_lt {n : UInt32} {m : Nat} (h : m < size) : n < ofNat m → n.toNat < m := by
-  rw [lt_def, BitVec.lt_def, toNat_toBitVec, toNat_toBitVec, toNat_ofNat_of_lt' h]
-  exact id
+theorem UInt8.lt_ofNat_iff {n : UInt8} {m : Nat} (h : m < size) : n < ofNat m ↔ n.toNat < m := by
+  rw [lt_iff_toNat_lt, toNat_ofNat_of_lt' h]
+theorem UInt8.ofNat_lt_iff {n : UInt8} {m : Nat} (h : m < size) : ofNat m < n ↔ m < n.toNat := by
+  rw [lt_iff_toNat_lt, toNat_ofNat_of_lt' h]
+theorem UInt8.le_ofNat_iff {n : UInt8} {m : Nat} (h : m < size) : n ≤ ofNat m ↔ n.toNat ≤ m := by
+  rw [le_iff_toNat_le, toNat_ofNat_of_lt' h]
+theorem UInt8.ofNat_le_iff {n : UInt8} {m : Nat} (h : m < size) : ofNat m ≤ n ↔ m ≤ n.toNat := by
+  rw [le_iff_toNat_le, toNat_ofNat_of_lt' h]
 
-theorem UInt32.lt_toNat_of_lt {n : UInt32} {m : Nat} (h : m < size) : ofNat m < n → m < n.toNat := by
-  rw [lt_def, BitVec.lt_def, toNat_toBitVec, toNat_toBitVec, toNat_ofNat_of_lt' h]
-  exact id
+theorem UInt16.lt_ofNat_iff {n : UInt16} {m : Nat} (h : m < size) : n < ofNat m ↔ n.toNat < m := by
+  rw [lt_iff_toNat_lt, toNat_ofNat_of_lt' h]
+theorem UInt16.ofNat_lt_iff {n : UInt16} {m : Nat} (h : m < size) : ofNat m < n ↔ m < n.toNat := by
+  rw [lt_iff_toNat_lt, toNat_ofNat_of_lt' h]
+theorem UInt16.le_ofNat_iff {n : UInt16} {m : Nat} (h : m < size) : n ≤ ofNat m ↔ n.toNat ≤ m := by
+  rw [le_iff_toNat_le, toNat_ofNat_of_lt' h]
+theorem UInt16.ofNat_le_iff {n : UInt16} {m : Nat} (h : m < size) : ofNat m ≤ n ↔ m ≤ n.toNat := by
+  rw [le_iff_toNat_le, toNat_ofNat_of_lt' h]
 
-theorem UInt32.toNat_le_of_le {n : UInt32} {m : Nat} (h : m < size) : n ≤ ofNat m → n.toNat ≤ m := by
-  rw [le_def, BitVec.le_def, toNat_toBitVec, toNat_toBitVec, toNat_ofNat_of_lt' h]
-  exact id
+theorem UInt32.lt_ofNat_iff {n : UInt32} {m : Nat} (h : m < size) : n < ofNat m ↔ n.toNat < m := by
+  rw [lt_iff_toNat_lt, toNat_ofNat_of_lt' h]
+theorem UInt32.ofNat_lt_iff {n : UInt32} {m : Nat} (h : m < size) : ofNat m < n ↔ m < n.toNat := by
+  rw [lt_iff_toNat_lt, toNat_ofNat_of_lt' h]
+theorem UInt32.le_ofNat_iff {n : UInt32} {m : Nat} (h : m < size) : n ≤ ofNat m ↔ n.toNat ≤ m := by
+  rw [le_iff_toNat_le, toNat_ofNat_of_lt' h]
+theorem UInt32.ofNat_le_iff {n : UInt32} {m : Nat} (h : m < size) : ofNat m ≤ n ↔ m ≤ n.toNat := by
+  rw [le_iff_toNat_le, toNat_ofNat_of_lt' h]
 
-theorem UInt32.le_toNat_of_le {n : UInt32} {m : Nat} (h : m < size) : ofNat m ≤ n → m ≤ n.toNat := by
-  rw [le_def, BitVec.le_def, toNat_toBitVec, toNat_toBitVec, toNat_ofNat_of_lt' h]
-  exact id
+@[deprecated UInt32.lt_ofNat_iff (since := "2025-03-18")]
+theorem UInt32.toNat_lt_of_lt {n : UInt32} {m : Nat} (h : m < size) : n < ofNat m → n.toNat < m :=
+  (UInt32.lt_ofNat_iff h).1
+
+@[deprecated UInt32.ofNat_lt_iff (since := "2025-03-18")]
+theorem UInt32.lt_toNat_of_lt {n : UInt32} {m : Nat} (h : m < size) : ofNat m < n → m < n.toNat :=
+  (UInt32.ofNat_lt_iff h).1
+
+@[deprecated UInt32.le_ofNat_iff (since := "2025-03-18")]
+theorem UInt32.toNat_le_of_le {n : UInt32} {m : Nat} (h : m < size) : n ≤ ofNat m → n.toNat ≤ m :=
+  (UInt32.le_ofNat_iff h).1
+
+@[deprecated UInt32.ofNat_le_iff (since := "2025-03-18")]
+theorem UInt32.le_toNat_of_le {n : UInt32} {m : Nat} (h : m < size) : ofNat m ≤ n → m ≤ n.toNat :=
+  (UInt32.ofNat_le_iff h).1
+
+theorem UInt64.lt_ofNat_iff {n : UInt64} {m : Nat} (h : m < size) : n < ofNat m ↔ n.toNat < m := by
+  rw [lt_iff_toNat_lt, toNat_ofNat_of_lt' h]
+theorem UInt64.ofNat_lt_iff {n : UInt64} {m : Nat} (h : m < size) : ofNat m < n ↔ m < n.toNat := by
+  rw [lt_iff_toNat_lt, toNat_ofNat_of_lt' h]
+theorem UInt64.le_ofNat_iff {n : UInt64} {m : Nat} (h : m < size) : n ≤ ofNat m ↔ n.toNat ≤ m := by
+  rw [le_iff_toNat_le, toNat_ofNat_of_lt' h]
+theorem UInt64.ofNat_le_iff {n : UInt64} {m : Nat} (h : m < size) : ofNat m ≤ n ↔ m ≤ n.toNat := by
+  rw [le_iff_toNat_le, toNat_ofNat_of_lt' h]
+
+theorem USize.lt_ofNat_iff {n : USize} {m : Nat} (h : m < size) : n < ofNat m ↔ n.toNat < m := by
+  rw [lt_iff_toNat_lt, toNat_ofNat_of_lt' h]
+theorem USize.ofNat_lt_iff {n : USize} {m : Nat} (h : m < size) : ofNat m < n ↔ m < n.toNat := by
+  rw [lt_iff_toNat_lt, toNat_ofNat_of_lt' h]
+theorem USize.le_ofNat_iff {n : USize} {m : Nat} (h : m < size) : n ≤ ofNat m ↔ n.toNat ≤ m := by
+  rw [le_iff_toNat_le, toNat_ofNat_of_lt' h]
+theorem USize.ofNat_le_iff {n : USize} {m : Nat} (h : m < size) : ofNat m ≤ n ↔ m ≤ n.toNat := by
+  rw [le_iff_toNat_le, toNat_ofNat_of_lt' h]
+
+theorem UInt8.mod_eq_of_lt {a b : UInt8} (h : a < b) : a % b = a := UInt8.toNat_inj.1 (Nat.mod_eq_of_lt h)
+theorem UInt16.mod_eq_of_lt {a b : UInt16} (h : a < b) : a % b = a := UInt16.toNat_inj.1 (Nat.mod_eq_of_lt h)
+theorem UInt32.mod_eq_of_lt {a b : UInt32} (h : a < b) : a % b = a := UInt32.toNat_inj.1 (Nat.mod_eq_of_lt h)
+theorem UInt64.mod_eq_of_lt {a b : UInt64} (h : a < b) : a % b = a := UInt64.toNat_inj.1 (Nat.mod_eq_of_lt h)
+theorem USize.mod_eq_of_lt {a b : USize} (h : a < b) : a % b = a := USize.toNat_inj.1 (Nat.mod_eq_of_lt h)
 
 @[simp] theorem UInt8.toNat_lt (n : UInt8) : n.toNat < 2 ^ 8 := n.toFin.isLt
 @[simp] theorem UInt16.toNat_lt (n : UInt16) : n.toNat < 2 ^ 16 := n.toFin.isLt
@@ -800,12 +861,19 @@ theorem USize.ofNatTruncate_eq_ofNat (n : Nat) (hn : n < USize.size) :
 @[simp] theorem USize.toUSize_toUInt64 (n : USize) : n.toUInt64.toUSize = n :=
   USize.toNat.inj (by simp)
 
+@[simp] theorem USize.toUSize_toUInt32 (n : USize) : n.toUInt32.toUSize = n % 4294967296 := by
+  apply USize.toNat.inj
+  simp only [UInt32.toNat_toUSize, toNat_toUInt32, Nat.reducePow, USize.toNat_mod]
+  cases USize.size_eq
+  · next h => rw [Nat.mod_eq_of_lt (h ▸ n.toNat_lt_size), USize.toNat_ofNat,
+      ← USize.size_eq_two_pow, h, Nat.mod_self, Nat.mod_zero]
+  · next h => rw [USize.toNat_ofNat_of_lt]; simp_all
+
 -- Note: we are currently missing the following four results for which there does not seem to
 -- be a good candidate for the RHS:
 -- @[simp] theorem UInt64.toUInt64_toUSize (n : UInt64) : n.toUSize.toUInt64 = ? :=
 -- @[simp] theorem UInt64.toUSize_toUInt32 (n : UInt64) : n.toUInt32.toUSize = ? :=
 -- @[simp] theorem USize.toUInt64_toUInt32 (n : USize) : n.toUInt32.toUInt64 = ? :=
--- @[simp] theorem USize.toUSize_toUInt32 (n : USize) : n.toInt32.toUSize = ? :=
 
 @[simp] theorem UInt8.toNat_ofFin (x : Fin UInt8.size) : (UInt8.ofFin x).toNat = x.val := rfl
 @[simp] theorem UInt16.toNat_ofFin (x : Fin UInt16.size) : (UInt16.ofFin x).toNat = x.val := rfl
@@ -1344,3 +1412,531 @@ theorem USize.toUInt64_ofNatTruncate_of_le {n : Nat} (hn : USize.size ≤ n) :
   BitVec.eq_of_toNat_eq (by simp)
 @[simp] theorem BitVec.ofNat_uSizeToNat (n : USize) : BitVec.ofNat System.Platform.numBits n.toNat = n.toBitVec :=
   BitVec.eq_of_toNat_eq (by simp)
+
+@[simp] protected theorem UInt8.toFin_div (a b : UInt8) : (a / b).toFin = a.toFin / b.toFin := rfl
+@[simp] protected theorem UInt16.toFin_div (a b : UInt16) : (a / b).toFin = a.toFin / b.toFin := rfl
+@[simp] protected theorem UInt32.toFin_div (a b : UInt32) : (a / b).toFin = a.toFin / b.toFin := rfl
+@[simp] protected theorem UInt64.toFin_div (a b : UInt64) : (a / b).toFin = a.toFin / b.toFin := rfl
+@[simp] protected theorem USize.toFin_div (a b : USize) : (a / b).toFin = a.toFin / b.toFin := rfl
+
+@[simp] theorem UInt8.toUInt16_div (a b : UInt8) : (a / b).toUInt16 = a.toUInt16 / b.toUInt16 := rfl
+@[simp] theorem UInt8.toUInt32_div (a b : UInt8) : (a / b).toUInt32 = a.toUInt32 / b.toUInt32 := rfl
+@[simp] theorem UInt8.toUInt64_div (a b : UInt8) : (a / b).toUInt64 = a.toUInt64 / b.toUInt64 := rfl
+@[simp] theorem UInt8.toUSize_div (a b : UInt8) : (a / b).toUSize = a.toUSize / b.toUSize := rfl
+
+@[simp] theorem UInt16.toUInt32_div (a b : UInt16) : (a / b).toUInt32 = a.toUInt32 / b.toUInt32 := rfl
+@[simp] theorem UInt16.toUInt64_div (a b : UInt16) : (a / b).toUInt64 = a.toUInt64 / b.toUInt64 := rfl
+@[simp] theorem UInt16.toUSize_div (a b : UInt16) : (a / b).toUSize = a.toUSize / b.toUSize := rfl
+
+@[simp] theorem UInt32.toUInt64_div (a b : UInt32) : (a / b).toUInt64 = a.toUInt64 / b.toUInt64 := rfl
+@[simp] theorem UInt32.toUSize_div (a b : UInt32) : (a / b).toUSize = a.toUSize / b.toUSize := rfl
+
+@[simp] theorem USize.toUInt64_div (a b : USize) : (a / b).toUInt64 = a.toUInt64 / b.toUInt64 := rfl
+
+theorem UInt16.toUInt8_div (a b : UInt16) (ha : a < 256) (hb : b < 256) : (a / b).toUInt8 = a.toUInt8 / b.toUInt8 :=
+  UInt8.toNat.inj (by simpa using Nat.div_mod_eq_mod_div_mod ha hb)
+
+theorem UInt32.toUInt8_div (a b : UInt32) (ha : a < 256) (hb : b < 256) : (a / b).toUInt8 = a.toUInt8 / b.toUInt8 :=
+  UInt8.toNat.inj (by simpa using Nat.div_mod_eq_mod_div_mod ha hb)
+theorem UInt32.toUInt16_div (a b : UInt32) (ha : a < 65536) (hb : b < 65536) : (a / b).toUInt16 = a.toUInt16 / b.toUInt16 :=
+  UInt16.toNat.inj (by simpa using Nat.div_mod_eq_mod_div_mod ha hb)
+
+theorem USize.toUInt8_div (a b : USize) (ha : a < 256) (hb : b < 256) : (a / b).toUInt8 = a.toUInt8 / b.toUInt8 :=
+  UInt8.toNat.inj (by simpa [Nat.mod_eq_of_lt UInt8.size_lt_usizeSize] using Nat.div_mod_eq_mod_div_mod ha hb)
+theorem USize.toUInt16_div (a b : USize) (ha : a < 65536) (hb : b < 65536) : (a / b).toUInt16 = a.toUInt16 / b.toUInt16 :=
+  UInt16.toNat.inj (by simpa [Nat.mod_eq_of_lt UInt16.size_lt_usizeSize] using Nat.div_mod_eq_mod_div_mod ha hb)
+
+theorem UInt64.toUInt8_div (a b : UInt64) (ha : a < 256) (hb : b < 256) : (a / b).toUInt8 = a.toUInt8 / b.toUInt8 :=
+  UInt8.toNat.inj (by simpa using Nat.div_mod_eq_mod_div_mod ha hb)
+theorem UInt64.toUInt16_div (a b : UInt64) (ha : a < 65536) (hb : b < 65536) : (a / b).toUInt16 = a.toUInt16 / b.toUInt16 :=
+  UInt16.toNat.inj (by simpa using Nat.div_mod_eq_mod_div_mod ha hb)
+theorem UInt64.toUInt32_div (a b : UInt64) (ha : a < 4294967296) (hb : b < 4294967296) : (a / b).toUInt32 = a.toUInt32 / b.toUInt32 :=
+  UInt32.toNat.inj (by simpa using Nat.div_mod_eq_mod_div_mod ha hb)
+theorem UInt64.toUSize_div (a b : UInt64) (ha : a < 4294967296) (hb : b < 4294967296) : (a / b).toUSize = a.toUSize / b.toUSize :=
+  USize.toNat.inj (Nat.div_mod_eq_mod_div_mod (Nat.lt_of_lt_of_le ha UInt32.size_le_usizeSize) (Nat.lt_of_lt_of_le hb UInt32.size_le_usizeSize))
+theorem UInt64.toUSize_div_of_toNat_lt (a b : UInt64) (ha : a.toNat < USize.size) (hb : b.toNat < USize.size) :
+    (a / b).toUSize = a.toUSize / b.toUSize :=
+  USize.toNat.inj (by simpa using Nat.div_mod_eq_mod_div_mod ha hb)
+
+@[simp] protected theorem UInt8.toFin_mod (a b : UInt8) : (a % b).toFin = a.toFin % b.toFin := rfl
+@[simp] protected theorem UInt16.toFin_mod (a b : UInt8) : (a % b).toFin = a.toFin % b.toFin := rfl
+@[simp] protected theorem UInt32.toFin_mod (a b : UInt32) : (a % b).toFin = a.toFin % b.toFin := rfl
+@[simp] protected theorem UInt64.toFin_mod (a b : UInt64) : (a % b).toFin = a.toFin % b.toFin := rfl
+@[simp] protected theorem USize.toFin_mod (a b : USize) : (a % b).toFin = a.toFin % b.toFin := rfl
+
+@[simp] theorem UInt8.toUInt16_mod (a b : UInt8) : (a % b).toUInt16 = a.toUInt16 % b.toUInt16 := rfl
+@[simp] theorem UInt8.toUInt32_mod (a b : UInt8) : (a % b).toUInt32 = a.toUInt32 % b.toUInt32 := rfl
+@[simp] theorem UInt8.toUInt64_mod (a b : UInt8) : (a % b).toUInt64 = a.toUInt64 % b.toUInt64 := rfl
+@[simp] theorem UInt8.toUSize_mod (a b : UInt8) : (a % b).toUSize = a.toUSize % b.toUSize := rfl
+
+@[simp] theorem UInt16.toUInt32_mod (a b : UInt16) : (a % b).toUInt32 = a.toUInt32 % b.toUInt32 := rfl
+@[simp] theorem UInt16.toUInt64_mod (a b : UInt16) : (a % b).toUInt64 = a.toUInt64 % b.toUInt64 := rfl
+@[simp] theorem UInt16.toUSize_mod (a b : UInt16) : (a % b).toUSize = a.toUSize % b.toUSize := rfl
+
+@[simp] theorem UInt32.toUInt64_mod (a b : UInt32) : (a % b).toUInt64 = a.toUInt64 % b.toUInt64 := rfl
+@[simp] theorem UInt32.toUSize_mod (a b : UInt32) : (a % b).toUSize = a.toUSize % b.toUSize := rfl
+
+@[simp] theorem USize.toUInt64_mod (a b : USize) : (a % b).toUInt64 = a.toUInt64 % b.toUInt64 := rfl
+
+theorem UInt16.toUInt8_mod (a b : UInt16) (ha : a < 256) (hb : b < 256) : (a % b).toUInt8 = a.toUInt8 % b.toUInt8 :=
+  UInt8.toNat.inj (by simpa using Nat.mod_mod_eq_mod_mod_mod ha hb)
+theorem UInt16.toUInt8_mod_of_dvd (a b : UInt16) (hb : b.toNat ∣ 256) : (a % b).toUInt8 = a.toUInt8 % b.toUInt8 :=
+  UInt8.toNat.inj (by simpa using Nat.mod_mod_eq_mod_mod_mod_of_dvd hb)
+
+theorem UInt32.toUInt8_mod (a b : UInt32) (ha : a < 256) (hb : b < 256) : (a % b).toUInt8 = a.toUInt8 % b.toUInt8 :=
+  UInt8.toNat.inj (by simpa using Nat.mod_mod_eq_mod_mod_mod ha hb)
+theorem UInt32.toUInt16_mod (a b : UInt32) (ha : a < 65536) (hb : b < 65536) : (a % b).toUInt16 = a.toUInt16 % b.toUInt16 :=
+  UInt16.toNat.inj (by simpa using Nat.mod_mod_eq_mod_mod_mod ha hb)
+theorem UInt32.toUInt8_mod_of_dvd (a b : UInt32) (hb : b.toNat ∣ 256) : (a % b).toUInt8 = a.toUInt8 % b.toUInt8 :=
+  UInt8.toNat.inj (by simpa using Nat.mod_mod_eq_mod_mod_mod_of_dvd hb)
+theorem UInt32.toUInt16_mod_of_dvd (a b : UInt32) (hb : b.toNat ∣ 65536) : (a % b).toUInt16 = a.toUInt16 % b.toUInt16 :=
+  UInt16.toNat.inj (by simpa using Nat.mod_mod_eq_mod_mod_mod_of_dvd hb)
+
+theorem USize.toUInt8_mod (a b : USize) (ha : a < 256) (hb : b < 256) : (a % b).toUInt8 = a.toUInt8 % b.toUInt8 :=
+  UInt8.toNat.inj (by simpa [Nat.mod_eq_of_lt UInt8.size_lt_usizeSize] using Nat.mod_mod_eq_mod_mod_mod ha hb)
+theorem USize.toUInt16_mod (a b : USize) (ha : a < 65536) (hb : b < 65536) : (a % b).toUInt16 = a.toUInt16 % b.toUInt16 :=
+  UInt16.toNat.inj (by simpa [Nat.mod_eq_of_lt UInt16.size_lt_usizeSize] using Nat.mod_mod_eq_mod_mod_mod ha hb)
+theorem USize.toUInt32_mod (a b : USize) (ha : a < 4294967296) (hb : b < 4294967296) : (a % b).toUInt32 = a.toUInt32 % b.toUInt32 := by
+  apply UInt32.toNat.inj
+  simp only [toNat_toUInt32, USize.toNat_mod, Nat.reducePow, UInt32.toNat_mod]
+  have := Nat.mod_mod_eq_mod_mod_mod ha hb
+  obtain (h|h) := USize.size_eq
+  · have ha' := h ▸ a.toNat_lt_size
+    have hb' := h ▸ b.toNat_lt_size
+    rw [Nat.mod_eq_of_lt ha', Nat.mod_eq_of_lt hb', Nat.mod_eq_of_lt]
+    exact Nat.lt_of_le_of_lt (Nat.mod_le _ _) ha'
+  · simp_all
+theorem USize.toUInt8_mod_of_dvd (a b : USize) (hb : b.toNat ∣ 256) : (a % b).toUInt8 = a.toUInt8 % b.toUInt8 :=
+  UInt8.toNat.inj (by simpa [Nat.mod_eq_of_lt UInt8.size_lt_usizeSize] using Nat.mod_mod_eq_mod_mod_mod_of_dvd hb)
+theorem USize.toUInt16_mod_of_dvd (a b : USize) (hb : b.toNat ∣ 65536) : (a % b).toUInt16 = a.toUInt16 % b.toUInt16 :=
+  UInt16.toNat.inj (by simpa [Nat.mod_eq_of_lt UInt16.size_lt_usizeSize] using Nat.mod_mod_eq_mod_mod_mod_of_dvd hb)
+theorem USize.toUInt32_mod_of_dvd (a b : USize) (hb : b.toNat ∣ 4294967296) : (a % b).toUInt32 = a.toUInt32 % b.toUInt32 := by
+  apply UInt32.toNat.inj
+  simp only [toNat_toUInt32, USize.toNat_mod, Nat.reducePow, UInt32.toNat_mod]
+  have := Nat.mod_mod_eq_mod_mod_mod_of_dvd (a := a.toNat) hb
+  obtain (h|h) := USize.size_eq
+  · have ha' := h ▸ a.toNat_lt_size
+    have hb' := h ▸ b.toNat_lt_size
+    rw [Nat.mod_eq_of_lt ha', Nat.mod_eq_of_lt hb', Nat.mod_eq_of_lt]
+    exact Nat.lt_of_le_of_lt (Nat.mod_le _ _) ha'
+  · simp_all
+
+theorem UInt64.toUInt8_mod (a b : UInt64) (ha : a < 256) (hb : b < 256) : (a % b).toUInt8 = a.toUInt8 % b.toUInt8 :=
+  UInt8.toNat.inj (by simpa using Nat.mod_mod_eq_mod_mod_mod ha hb)
+theorem UInt64.toUInt16_mod (a b : UInt64) (ha : a < 65536) (hb : b < 65536) : (a % b).toUInt16 = a.toUInt16 % b.toUInt16 :=
+  UInt16.toNat.inj (by simpa using Nat.mod_mod_eq_mod_mod_mod ha hb)
+theorem UInt64.toUInt32_mod (a b : UInt64) (ha : a < 4294967296) (hb : b < 4294967296) : (a % b).toUInt32 = a.toUInt32 % b.toUInt32 :=
+  UInt32.toNat.inj (by simpa using Nat.mod_mod_eq_mod_mod_mod ha hb)
+theorem UInt64.toUSize_mod (a b : UInt64) (ha : a < 4294967296) (hb : b < 4294967296) : (a % b).toUSize = a.toUSize % b.toUSize :=
+  USize.toNat.inj (Nat.mod_mod_eq_mod_mod_mod (Nat.lt_of_lt_of_le ha UInt32.size_le_usizeSize) (Nat.lt_of_lt_of_le hb UInt32.size_le_usizeSize))
+theorem UInt64.toUSize_mod_of_toNat_lt (a b : UInt64) (ha : a.toNat < USize.size) (hb : b.toNat < USize.size) : (a % b).toUSize = a.toUSize % b.toUSize :=
+  USize.toNat.inj (by simpa using Nat.mod_mod_eq_mod_mod_mod ha hb)
+theorem UInt64.toUInt8_mod_of_dvd (a b : UInt64) (hb : b.toNat ∣ 256) : (a % b).toUInt8 = a.toUInt8 % b.toUInt8 :=
+  UInt8.toNat.inj (by simpa using Nat.mod_mod_eq_mod_mod_mod_of_dvd hb)
+theorem UInt64.toUInt16_mod_of_dvd (a b : UInt64)(hb : b.toNat ∣ 65536) : (a % b).toUInt16 = a.toUInt16 % b.toUInt16 :=
+  UInt16.toNat.inj (by simpa using Nat.mod_mod_eq_mod_mod_mod_of_dvd hb)
+theorem UInt64.toUInt32_mod_of_dvd (a b : UInt64) (hb : b.toNat ∣ 4294967296) : (a % b).toUInt32 = a.toUInt32 % b.toUInt32 :=
+  UInt32.toNat.inj (by simpa using Nat.mod_mod_eq_mod_mod_mod_of_dvd hb)
+theorem UInt64.toUSize_mod_of_dvd (a b : UInt64) (hb : b.toNat ∣ 4294967296) : (a % b).toUSize = a.toUSize % b.toUSize :=
+  USize.toNat.inj (Nat.mod_mod_eq_mod_mod_mod_of_dvd (Nat.dvd_trans hb UInt32.size_dvd_usizeSize))
+theorem UInt64.toUSize_mod_of_dvd_usizeSize (a b : UInt64) (hb : b.toNat ∣ USize.size) : (a % b).toUSize = a.toUSize % b.toUSize :=
+  USize.toNat.inj (by simpa using Nat.mod_mod_eq_mod_mod_mod_of_dvd hb)
+
+@[simp] protected theorem UInt8.toFin_add (a b : UInt8) : (a + b).toFin = a.toFin + b.toFin := rfl
+@[simp] protected theorem UInt16.toFin_add (a b : UInt16) : (a + b).toFin = a.toFin + b.toFin := rfl
+@[simp] protected theorem UInt32.toFin_add (a b : UInt32) : (a + b).toFin = a.toFin + b.toFin := rfl
+@[simp] protected theorem UInt64.toFin_add (a b : UInt64) : (a + b).toFin = a.toFin + b.toFin := rfl
+@[simp] protected theorem USize.toFin_add (a b : USize) : (a + b).toFin = a.toFin + b.toFin := rfl
+
+@[simp] theorem UInt16.toUInt8_add (a b : UInt16) : (a + b).toUInt8 = a.toUInt8 + b.toUInt8 := UInt8.toNat.inj (by simp)
+@[simp] theorem UInt32.toUInt8_add (a b : UInt32) : (a + b).toUInt8 = a.toUInt8 + b.toUInt8 := UInt8.toNat.inj (by simp)
+@[simp] theorem UInt64.toUInt8_add (a b : UInt64) : (a + b).toUInt8 = a.toUInt8 + b.toUInt8 := UInt8.toNat.inj (by simp)
+@[simp] theorem USize.toUInt8_add (a b : USize) : (a + b).toUInt8 = a.toUInt8 + b.toUInt8 := UInt8.toNat.inj (by simp)
+
+@[simp] theorem UInt32.toUInt16_add (a b : UInt32) : (a + b).toUInt16 = a.toUInt16 + b.toUInt16 := UInt16.toNat.inj (by simp)
+@[simp] theorem UInt64.toUInt16_add (a b : UInt64) : (a + b).toUInt16 = a.toUInt16 + b.toUInt16 := UInt16.toNat.inj (by simp)
+@[simp] theorem USize.toUInt16_add (a b : USize) : (a + b).toUInt16 = a.toUInt16 + b.toUInt16 := UInt16.toNat.inj (by simp)
+
+@[simp] theorem UInt64.toUInt32_add (a b : UInt64) : (a + b).toUInt32 = a.toUInt32 + b.toUInt32 := UInt32.toNat.inj (by simp)
+@[simp] theorem USize.toUInt32_add (a b : USize) : (a + b).toUInt32 = a.toUInt32 + b.toUInt32 := UInt32.toNat.inj (by simp)
+
+@[simp] theorem UInt64.toUSize_add (a b : UInt64) : (a + b).toUSize = a.toUSize + b.toUSize := USize.toNat.inj (by simp)
+
+@[simp] theorem UInt8.toUInt16_add (a b : UInt8) : (a + b).toUInt16 = (a.toUInt16 + b.toUInt16) % 256 := UInt16.toNat.inj (by simp)
+@[simp] theorem UInt8.toUInt32_add (a b : UInt8) : (a + b).toUInt32 = (a.toUInt32 + b.toUInt32) % 256 := UInt32.toNat.inj (by simp)
+@[simp] theorem UInt8.toUInt64_add (a b : UInt8) : (a + b).toUInt64 = (a.toUInt64 + b.toUInt64) % 256 := UInt64.toNat.inj (by simp)
+@[simp] theorem UInt8.toUSize_add (a b : UInt8) : (a + b).toUSize = (a.toUSize + b.toUSize) % 256 := USize.toNat.inj (by simp)
+
+@[simp] theorem UInt16.toUInt32_add (a b : UInt16) : (a + b).toUInt32 = (a.toUInt32 + b.toUInt32) % 65536 := UInt32.toNat.inj (by simp)
+@[simp] theorem UInt16.toUInt64_add (a b : UInt16) : (a + b).toUInt64 = (a.toUInt64 + b.toUInt64) % 65536 := UInt64.toNat.inj (by simp)
+@[simp] theorem UInt16.toUSize_add (a b : UInt16) : (a + b).toUSize = (a.toUSize + b.toUSize) % 65536 := USize.toNat.inj (by simp)
+
+@[simp] theorem UInt32.toUInt64_add (a b : UInt32) : (a + b).toUInt64 = (a.toUInt64 + b.toUInt64) % 4294967296 := UInt64.toNat.inj (by simp)
+/-- Note that on 32-bit machines we are doing a modulo by zero. -/
+@[simp] theorem UInt32.toUSize_add (a b : UInt32) : (a + b).toUSize = (a.toUSize + b.toUSize) % 4294967296 :=
+  USize.toNat.inj (by cases System.Platform.numBits_eq <;> simp_all [USize.toNat_ofNat])
+
+@[simp] protected theorem UInt8.toFin_sub (a b : UInt8) : (a - b).toFin = a.toFin - b.toFin := rfl
+@[simp] protected theorem UInt16.toFin_sub (a b : UInt16) : (a - b).toFin = a.toFin - b.toFin := rfl
+@[simp] protected theorem UInt32.toFin_sub (a b : UInt32) : (a - b).toFin = a.toFin - b.toFin := rfl
+@[simp] protected theorem UInt64.toFin_sub (a b : UInt64) : (a - b).toFin = a.toFin - b.toFin := rfl
+@[simp] protected theorem USize.toFin_sub (a b : USize) : (a - b).toFin = a.toFin - b.toFin := rfl
+
+@[simp] protected theorem UInt8.toFin_mul (a b : UInt8) : (a * b).toFin = a.toFin * b.toFin := rfl
+@[simp] protected theorem UInt16.toFin_mul (a b : UInt16) : (a * b).toFin = a.toFin * b.toFin := rfl
+@[simp] protected theorem UInt32.toFin_mul (a b : UInt32) : (a * b).toFin = a.toFin * b.toFin := rfl
+@[simp] protected theorem UInt64.toFin_mul (a b : UInt64) : (a * b).toFin = a.toFin * b.toFin := rfl
+@[simp] protected theorem USize.toFin_mul (a b : USize) : (a * b).toFin = a.toFin * b.toFin := rfl
+
+@[simp] theorem UInt16.toUInt8_mul (a b : UInt16) : (a * b).toUInt8 = a.toUInt8 * b.toUInt8 := UInt8.toNat.inj (by simp)
+@[simp] theorem UInt32.toUInt8_mul (a b : UInt32) : (a * b).toUInt8 = a.toUInt8 * b.toUInt8 := UInt8.toNat.inj (by simp)
+@[simp] theorem UInt64.toUInt8_mul (a b : UInt64) : (a * b).toUInt8 = a.toUInt8 * b.toUInt8 := UInt8.toNat.inj (by simp)
+@[simp] theorem USize.toUInt8_mul (a b : USize) : (a * b).toUInt8 = a.toUInt8 * b.toUInt8 := UInt8.toNat.inj (by simp)
+
+@[simp] theorem UInt32.toUInt16_mul (a b : UInt32) : (a * b).toUInt16 = a.toUInt16 * b.toUInt16 := UInt16.toNat.inj (by simp)
+@[simp] theorem UInt64.toUInt16_mul (a b : UInt64) : (a * b).toUInt16 = a.toUInt16 * b.toUInt16 := UInt16.toNat.inj (by simp)
+@[simp] theorem USize.toUInt16_mul (a b : USize) : (a * b).toUInt16 = a.toUInt16 * b.toUInt16 := UInt16.toNat.inj (by simp)
+
+@[simp] theorem UInt64.toUInt32_mul (a b : UInt64) : (a * b).toUInt32 = a.toUInt32 * b.toUInt32 := UInt32.toNat.inj (by simp)
+@[simp] theorem USize.toUInt32_mul (a b : USize) : (a * b).toUInt32 = a.toUInt32 * b.toUInt32 := UInt32.toNat.inj (by simp)
+
+@[simp] theorem UInt64.toUSize_mul (a b : UInt64) : (a * b).toUSize = a.toUSize * b.toUSize := USize.toNat.inj (by simp)
+
+@[simp] theorem UInt8.toUInt16_mul (a b : UInt8) : (a * b).toUInt16 = (a.toUInt16 * b.toUInt16) % 256 := UInt16.toNat.inj (by simp)
+@[simp] theorem UInt8.toUInt32_mul (a b : UInt8) : (a * b).toUInt32 = (a.toUInt32 * b.toUInt32) % 256 := UInt32.toNat.inj (by simp)
+@[simp] theorem UInt8.toUInt64_mul (a b : UInt8) : (a * b).toUInt64 = (a.toUInt64 * b.toUInt64) % 256 := UInt64.toNat.inj (by simp)
+@[simp] theorem UInt8.toUSize_mul (a b : UInt8) : (a * b).toUSize = (a.toUSize * b.toUSize) % 256 := USize.toNat.inj (by simp)
+
+@[simp] theorem UInt16.toUInt32_mul (a b : UInt16) : (a * b).toUInt32 = (a.toUInt32 * b.toUInt32) % 65536 := UInt32.toNat.inj (by simp)
+@[simp] theorem UInt16.toUInt64_mul (a b : UInt16) : (a * b).toUInt64 = (a.toUInt64 * b.toUInt64) % 65536 := UInt64.toNat.inj (by simp)
+@[simp] theorem UInt16.toUSize_mul (a b : UInt16) : (a * b).toUSize = (a.toUSize * b.toUSize) % 65536 := USize.toNat.inj (by simp)
+
+@[simp] theorem UInt32.toUInt64_mul (a b : UInt32) : (a * b).toUInt64 = (a.toUInt64 * b.toUInt64) % 4294967296 := UInt64.toNat.inj (by simp)
+/-- Note that on 32-bit machines we are doing a modulo by zero. -/
+@[simp] theorem UInt32.toUSize_mul (a b : UInt32) : (a * b).toUSize = (a.toUSize * b.toUSize) % 4294967296 :=
+  USize.toNat.inj (by cases System.Platform.numBits_eq <;> simp_all [USize.toNat_ofNat])
+
+theorem UInt16.toUInt8_eq (a b : UInt16) : a.toUInt8 = b.toUInt8 ↔ a % 256 = b % 256 := by
+  simp [← UInt8.toNat_inj, ← UInt16.toNat_inj]
+theorem UInt32.toUInt8_eq (a b : UInt32) : a.toUInt8 = b.toUInt8 ↔ a % 256 = b % 256 := by
+  simp [← UInt8.toNat_inj, ← UInt32.toNat_inj]
+theorem UInt64.toUInt8_eq (a b : UInt64) : a.toUInt8 = b.toUInt8 ↔ a % 256 = b % 256 := by
+  simp [← UInt8.toNat_inj, ← UInt64.toNat_inj]
+theorem USize.toUInt8_eq (a b : USize) : a.toUInt8 = b.toUInt8 ↔ a % 256 = b % 256 := by
+  simp [← UInt8.toNat_inj, ← USize.toNat_inj]
+
+theorem UInt32.toUInt16_eq (a b : UInt32) : a.toUInt16 = b.toUInt16 ↔ a % 65536 = b % 65536 := by
+  simp [← UInt16.toNat_inj, ← UInt32.toNat_inj]
+theorem UInt64.toUInt16_eq (a b : UInt64) : a.toUInt16 = b.toUInt16 ↔ a % 65536 = b % 65536 := by
+  simp [← UInt16.toNat_inj, ← UInt64.toNat_inj]
+theorem USize.toUInt16_eq (a b : USize) : a.toUInt16 = b.toUInt16 ↔ a % 65536 = b % 65536 := by
+  simp [← UInt16.toNat_inj, ← USize.toNat_inj]
+
+theorem UInt64.toUInt32_eq (a b : UInt64) : a.toUInt32 = b.toUInt32 ↔ a % 4294967296 = b % 4294967296 := by
+  simp [← UInt32.toNat_inj, ← UInt64.toNat_inj]
+theorem USize.toUInt32_eq (a b : USize) : a.toUInt32 = b.toUInt32 ↔ a % 4294967296 = b % 4294967296 := by
+  simp [← UInt32.toNat_inj, ← USize.toNat_inj, USize.toNat_ofNat]
+  have := Nat.mod_eq_of_lt a.toNat_lt_two_pow_numBits
+  have := Nat.mod_eq_of_lt b.toNat_lt_two_pow_numBits
+  cases System.Platform.numBits_eq <;> simp_all
+
+theorem UInt8.toUInt16_eq_mod_256_iff (a : UInt8) (b : UInt16) : a.toUInt16 = b % 256 ↔ a = b.toUInt8 := by
+  simp [← UInt8.toNat_inj, ← UInt16.toNat_inj]
+theorem UInt8.toUInt32_eq_mod_256_iff (a : UInt8) (b : UInt32) : a.toUInt32 = b % 256 ↔ a = b.toUInt8 := by
+  simp [← UInt8.toNat_inj, ← UInt32.toNat_inj]
+theorem UInt8.toUInt64_eq_mod_256_iff (a : UInt8) (b : UInt64) : a.toUInt64 = b % 256 ↔ a = b.toUInt8 := by
+  simp [← UInt8.toNat_inj, ← UInt64.toNat_inj]
+theorem UInt8.toUSize_eq_mod_256_iff (a : UInt8) (b : USize) : a.toUSize = b % 256 ↔ a = b.toUInt8 := by
+  simp [← UInt8.toNat_inj, ← USize.toNat_inj]
+
+theorem UInt16.toUInt32_eq_mod_65536_iff (a : UInt16) (b : UInt32) : a.toUInt32 = b % 65536 ↔ a = b.toUInt16 := by
+  simp [← UInt16.toNat_inj, ← UInt32.toNat_inj]
+theorem UInt16.toUInt64_eq_mod_65536_iff (a : UInt16) (b : UInt64) : a.toUInt64 = b % 65536 ↔ a = b.toUInt16 := by
+  simp [← UInt16.toNat_inj, ← UInt64.toNat_inj]
+theorem UInt16.toUSize_eq_mod_65536_iff (a : UInt16) (b : USize) : a.toUSize = b % 65536 ↔ a = b.toUInt16 := by
+  simp [← UInt16.toNat_inj, ← USize.toNat_inj]
+
+theorem UInt32.toUInt64_eq_mod_4294967296_iff (a : UInt32) (b : UInt64) : a.toUInt64 = b % 4294967296 ↔ a = b.toUInt32 := by
+  simp [← UInt32.toNat_inj, ← UInt64.toNat_inj]
+theorem UInt32.toUSize_eq_mod_4294967296_iff (a : UInt32) (b : USize) : a.toUSize = b % 4294967296 ↔ a = b.toUInt32 := by
+  simp [← UInt32.toNat_inj, ← USize.toNat_inj, USize.toNat_ofNat]
+  have := Nat.mod_eq_of_lt b.toNat_lt_two_pow_numBits
+  cases System.Platform.numBits_eq <;> simp_all
+
+theorem USize.toUInt64_eq_mod_usizeSize_iff (a : USize) (b : UInt64) : a.toUInt64 = b % UInt64.ofNat USize.size ↔ a = b.toUSize := by
+  simp [← USize.toNat_inj, ← UInt64.toNat_inj, USize.size_eq_two_pow]
+  cases System.Platform.numBits_eq <;> simp_all
+
+theorem UInt8.toUInt16_inj {a b : UInt8} : a.toUInt16 = b.toUInt16 ↔ a = b :=
+  ⟨fun h => by rw [← toUInt8_toUInt16 a, h, toUInt8_toUInt16], by rintro rfl; rfl⟩
+theorem UInt8.toUInt32_inj {a b : UInt8} : a.toUInt32 = b.toUInt32 ↔ a = b :=
+  ⟨fun h => by rw [← toUInt8_toUInt32 a, h, toUInt8_toUInt32], by rintro rfl; rfl⟩
+theorem UInt8.toUInt64_inj {a b : UInt8} : a.toUInt64 = b.toUInt64 ↔ a = b :=
+  ⟨fun h => by rw [← toUInt8_toUInt64 a, h, toUInt8_toUInt64], by rintro rfl; rfl⟩
+theorem UInt8.toUSize_inj {a b : UInt8} : a.toUSize = b.toUSize ↔ a = b :=
+  ⟨fun h => by rw [← toUInt8_toUSize a, h, toUInt8_toUSize], by rintro rfl; rfl⟩
+
+theorem UInt16.toUInt32_inj {a b : UInt16} : a.toUInt32 = b.toUInt32 ↔ a = b :=
+  ⟨fun h => by rw [← toUInt16_toUInt32 a, h, toUInt16_toUInt32], by rintro rfl; rfl⟩
+theorem UInt16.toUInt64_inj {a b : UInt16} : a.toUInt64 = b.toUInt64 ↔ a = b :=
+  ⟨fun h => by rw [← toUInt16_toUInt64 a, h, toUInt16_toUInt64], by rintro rfl; rfl⟩
+theorem UInt16.toUSize_inj {a b : UInt16} : a.toUSize = b.toUSize ↔ a = b :=
+  ⟨fun h => by rw [← toUInt16_toUSize a, h, toUInt16_toUSize], by rintro rfl; rfl⟩
+
+theorem UInt32.toUInt64_inj {a b : UInt32} : a.toUInt64 = b.toUInt64 ↔ a = b :=
+  ⟨fun h => by rw [← toUInt32_toUInt64 a, h, toUInt32_toUInt64], by rintro rfl; rfl⟩
+theorem UInt32.toUSize_inj {a b : UInt32} : a.toUSize = b.toUSize ↔ a = b :=
+  ⟨fun h => by rw [← toUInt32_toUSize a, h, toUInt32_toUSize], by rintro rfl; rfl⟩
+
+theorem USize.toUInt64_inj {a b : USize} : a.toUInt64 = b.toUInt64 ↔ a = b :=
+  ⟨fun h => by rw [← toUSize_toUInt64 a, h, toUSize_toUInt64], by rintro rfl; rfl⟩
+
+@[simp] theorem UInt8.toUInt16_lt {a b : UInt8} : a.toUInt16 < b.toUInt16 ↔ a < b := by
+  simp [lt_iff_toNat_lt, UInt16.lt_iff_toNat_lt]
+@[simp] theorem UInt8.toUInt32_lt {a b : UInt8} : a.toUInt32 < b.toUInt32 ↔ a < b := by
+  simp [lt_iff_toNat_lt, UInt32.lt_iff_toNat_lt]
+@[simp] theorem UInt8.toUInt64_lt {a b : UInt8} : a.toUInt64 < b.toUInt64 ↔ a < b := by
+  simp [lt_iff_toNat_lt, UInt64.lt_iff_toNat_lt]
+@[simp] theorem UInt8.toUSize_lt {a b : UInt8} : a.toUSize < b.toUSize ↔ a < b := by
+  simp [lt_iff_toNat_lt, USize.lt_iff_toNat_lt]
+
+@[simp] theorem UInt16.toUInt32_lt {a b : UInt16} : a.toUInt32 < b.toUInt32 ↔ a < b := by
+  simp [lt_iff_toNat_lt, UInt32.lt_iff_toNat_lt]
+@[simp] theorem UInt16.toUInt64_lt {a b : UInt16} : a.toUInt64 < b.toUInt64 ↔ a < b := by
+  simp [lt_iff_toNat_lt, UInt64.lt_iff_toNat_lt]
+@[simp] theorem UInt16.toUSize_lt {a b : UInt16} : a.toUSize < b.toUSize ↔ a < b := by
+  simp [lt_iff_toNat_lt, USize.lt_iff_toNat_lt]
+
+@[simp] theorem UInt32.toUInt64_lt {a b : UInt32} : a.toUInt64 < b.toUInt64 ↔ a < b := by
+  simp [lt_iff_toNat_lt, UInt64.lt_iff_toNat_lt]
+@[simp] theorem UInt32.toUSize_lt {a b : UInt32} : a.toUSize < b.toUSize ↔ a < b := by
+  simp [lt_iff_toNat_lt, USize.lt_iff_toNat_lt]
+
+@[simp] theorem USize.toUInt64_lt {a b : USize} : a.toUInt64 < b.toUInt64 ↔ a < b := by
+  simp [lt_iff_toNat_lt, UInt64.lt_iff_toNat_lt]
+
+@[simp] theorem UInt16.toUInt8_lt {a b : UInt16} : a.toUInt8 < b.toUInt8 ↔ a % 256 < b % 256 := by
+  simp [lt_iff_toNat_lt, UInt8.lt_iff_toNat_lt]
+@[simp] theorem UInt32.toUInt8_lt {a b : UInt32} : a.toUInt8 < b.toUInt8 ↔ a % 256 < b % 256 := by
+  simp [lt_iff_toNat_lt, UInt8.lt_iff_toNat_lt]
+@[simp] theorem UInt64.toUInt8_lt {a b : UInt64} : a.toUInt8 < b.toUInt8 ↔ a % 256 < b % 256 := by
+  simp [lt_iff_toNat_lt, UInt8.lt_iff_toNat_lt]
+@[simp] theorem USize.toUInt8_lt {a b : USize} : a.toUInt8 < b.toUInt8 ↔ a % 256 < b % 256 := by
+  simp [lt_iff_toNat_lt, UInt8.lt_iff_toNat_lt]
+
+@[simp] theorem UInt32.toUInt16_lt {a b : UInt32} : a.toUInt16 < b.toUInt16 ↔ a % 65536 < b % 65536 := by
+  simp [lt_iff_toNat_lt, UInt16.lt_iff_toNat_lt]
+@[simp] theorem UInt64.toUInt16_lt {a b : UInt64} : a.toUInt16 < b.toUInt16 ↔ a % 65536 < b % 65536 := by
+  simp [lt_iff_toNat_lt, UInt16.lt_iff_toNat_lt]
+@[simp] theorem USize.toUInt16_lt {a b : USize} : a.toUInt16 < b.toUInt16 ↔ a % 65536 < b % 65536 := by
+  simp [lt_iff_toNat_lt, UInt16.lt_iff_toNat_lt]
+
+@[simp] theorem UInt64.toUInt32_lt {a b : UInt64} : a.toUInt32 < b.toUInt32 ↔ a % 4294967296 < b % 4294967296 := by
+  simp [lt_iff_toNat_lt, UInt32.lt_iff_toNat_lt]
+@[simp] theorem USize.toUInt32_lt {a b : USize} : a.toUInt32 < b.toUInt32 ↔ a % 4294967296 < b % 4294967296 := by
+  rw [← UInt32.toUSize_lt, toUSize_toUInt32]
+  simp [lt_iff_toNat_lt, UInt32.lt_iff_toNat_lt]
+
+@[simp] theorem UInt64.toUSize_lt {a b : UInt64} : a.toUSize < b.toUSize ↔ a % UInt64.ofNat USize.size < b % UInt64.ofNat USize.size := by
+  simp only [USize.lt_iff_toNat_lt, toNat_toUSize, lt_iff_toNat_lt, UInt64.toNat_mod, toNat_ofNat', Nat.reducePow]
+  cases System.Platform.numBits_eq <;> simp_all [USize.size]
+
+@[simp] theorem UInt8.toUInt16_le {a b : UInt8} : a.toUInt16 ≤ b.toUInt16 ↔ a ≤ b := by
+  simp [le_iff_toNat_le, UInt16.le_iff_toNat_le]
+@[simp] theorem UInt8.toUInt32_le {a b : UInt8} : a.toUInt32 ≤ b.toUInt32 ↔ a ≤ b := by
+  simp [le_iff_toNat_le, UInt32.le_iff_toNat_le]
+@[simp] theorem UInt8.toUInt64_le {a b : UInt8} : a.toUInt64 ≤ b.toUInt64 ↔ a ≤ b := by
+  simp [le_iff_toNat_le, UInt64.le_iff_toNat_le]
+@[simp] theorem UInt8.toUSize_le {a b : UInt8} : a.toUSize ≤ b.toUSize ↔ a ≤ b := by
+  simp [le_iff_toNat_le, USize.le_iff_toNat_le]
+
+@[simp] theorem UInt16.toUInt32_le {a b : UInt16} : a.toUInt32 ≤ b.toUInt32 ↔ a ≤ b := by
+  simp [le_iff_toNat_le, UInt32.le_iff_toNat_le]
+@[simp] theorem UInt16.toUInt64_le {a b : UInt16} : a.toUInt64 ≤ b.toUInt64 ↔ a ≤ b := by
+  simp [le_iff_toNat_le, UInt64.le_iff_toNat_le]
+@[simp] theorem UInt16.toUSize_le {a b : UInt16} : a.toUSize ≤ b.toUSize ↔ a ≤ b := by
+  simp [le_iff_toNat_le, USize.le_iff_toNat_le]
+
+@[simp] theorem UInt32.toUInt64_le {a b : UInt32} : a.toUInt64 ≤ b.toUInt64 ↔ a ≤ b := by
+  simp [le_iff_toNat_le, UInt64.le_iff_toNat_le]
+@[simp] theorem UInt32.toUSize_le {a b : UInt32} : a.toUSize ≤ b.toUSize ↔ a ≤ b := by
+  simp [le_iff_toNat_le, USize.le_iff_toNat_le]
+
+@[simp] theorem USize.toUInt64_le {a b : USize} : a.toUInt64 ≤ b.toUInt64 ↔ a ≤ b := by
+  simp [le_iff_toNat_le, UInt64.le_iff_toNat_le]
+
+@[simp] theorem UInt16.toUInt8_le {a b : UInt16} : a.toUInt8 ≤ b.toUInt8 ↔ a % 256 ≤ b % 256 := by
+  simp [le_iff_toNat_le, UInt8.le_iff_toNat_le]
+@[simp] theorem UInt32.toUInt8_le {a b : UInt32} : a.toUInt8 ≤ b.toUInt8 ↔ a % 256 ≤ b % 256 := by
+  simp [le_iff_toNat_le, UInt8.le_iff_toNat_le]
+@[simp] theorem UInt64.toUInt8_le {a b : UInt64} : a.toUInt8 ≤ b.toUInt8 ↔ a % 256 ≤ b % 256 := by
+  simp [le_iff_toNat_le, UInt8.le_iff_toNat_le]
+@[simp] theorem USize.toUInt8_le {a b : USize} : a.toUInt8 ≤ b.toUInt8 ↔ a % 256 ≤ b % 256 := by
+  simp [le_iff_toNat_le, UInt8.le_iff_toNat_le]
+
+@[simp] theorem UInt32.toUInt16_le {a b : UInt32} : a.toUInt16 ≤ b.toUInt16 ↔ a % 65536 ≤ b % 65536 := by
+  simp [le_iff_toNat_le, UInt16.le_iff_toNat_le]
+@[simp] theorem UInt64.toUInt16_le {a b : UInt64} : a.toUInt16 ≤ b.toUInt16 ↔ a % 65536 ≤ b % 65536 := by
+  simp [le_iff_toNat_le, UInt16.le_iff_toNat_le]
+@[simp] theorem USize.toUInt16_le {a b : USize} : a.toUInt16 ≤ b.toUInt16 ↔ a % 65536 ≤ b % 65536 := by
+  simp [le_iff_toNat_le, UInt16.le_iff_toNat_le]
+
+@[simp] theorem UInt64.toUInt32_le {a b : UInt64} : a.toUInt32 ≤ b.toUInt32 ↔ a % 4294967296 ≤ b % 4294967296 := by
+  simp [le_iff_toNat_le, UInt32.le_iff_toNat_le]
+@[simp] theorem USize.toUInt32_le {a b : USize} : a.toUInt32 ≤ b.toUInt32 ↔ a % 4294967296 ≤ b % 4294967296 := by
+  rw [← UInt32.toUSize_le, toUSize_toUInt32]
+  simp [le_iff_toNat_le, UInt32.le_iff_toNat_le]
+
+@[simp] theorem UInt64.toUSize_le {a b : UInt64} : a.toUSize ≤ b.toUSize ↔ a % UInt64.ofNat USize.size ≤ b % UInt64.ofNat USize.size := by
+  simp only [USize.le_iff_toNat_le, toNat_toUSize, le_iff_toNat_le, UInt64.toNat_mod, UInt64.reduceToNat]
+  cases System.Platform.numBits_eq <;> simp_all [USize.size]
+
+@[simp] theorem UInt16.toUInt8_neg (a : UInt16) : (-a).toUInt8 = -a.toUInt8 := UInt8.toBitVec_inj.1 (by simp)
+
+@[simp] theorem UInt32.toUInt8_neg (a : UInt32) : (-a).toUInt8 = -a.toUInt8 := UInt8.toBitVec_inj.1 (by simp)
+@[simp] theorem UInt32.toUInt16_neg (a : UInt32) : (-a).toUInt16 = -a.toUInt16 := UInt16.toBitVec_inj.1 (by simp)
+
+@[simp] theorem UInt64.toUInt8_neg (a : UInt64) : (-a).toUInt8 = -a.toUInt8 := UInt8.toBitVec_inj.1 (by simp)
+@[simp] theorem UInt64.toUInt16_neg (a : UInt64) : (-a).toUInt16 = -a.toUInt16 := UInt16.toBitVec_inj.1 (by simp)
+@[simp] theorem UInt64.toUInt32_neg (a : UInt64) : (-a).toUInt32 = -a.toUInt32 := UInt32.toBitVec_inj.1 (by simp)
+@[simp] theorem UInt64.toUSize_neg (a : UInt64) : (-a).toUSize = -a.toUSize := USize.toBitVec_inj.1 (by simp)
+
+@[simp] theorem USize.toUInt8_neg (a : USize) : (-a).toUInt8 = -a.toUInt8 := UInt8.toBitVec_inj.1 (by simp)
+@[simp] theorem USize.toUInt16_neg (a : USize) : (-a).toUInt16 = -a.toUInt16 := UInt16.toBitVec_inj.1 (by simp)
+@[simp] theorem USize.toUInt32_neg (a : USize) : (-a).toUInt32 = -a.toUInt32 := UInt32.toBitVec_inj.1 (by simp)
+
+@[simp] theorem UInt8.toUInt16_neg (a : UInt8) : (-a).toUInt16 = -a.toUInt16 % 256 := by
+  simp [UInt8.toUInt16_eq_mod_256_iff]
+@[simp] theorem UInt8.toUInt32_neg (a : UInt8) : (-a).toUInt32 = -a.toUInt32 % 256 := by
+  simp [UInt8.toUInt32_eq_mod_256_iff]
+@[simp] theorem UInt8.toUInt64_neg (a : UInt8) : (-a).toUInt64 = -a.toUInt64 % 256 := by
+  simp [UInt8.toUInt64_eq_mod_256_iff]
+@[simp] theorem UInt8.toUSize_neg (a : UInt8) : (-a).toUSize = -a.toUSize % 256 := by
+  simp [UInt8.toUSize_eq_mod_256_iff]
+
+@[simp] theorem UInt16.toUInt32_neg (a : UInt16) : (-a).toUInt32 = -a.toUInt32 % 65536 := by
+  simp [UInt16.toUInt32_eq_mod_65536_iff]
+@[simp] theorem UInt16.toUInt64_neg (a : UInt16) : (-a).toUInt64 = -a.toUInt64 % 65536 := by
+  simp [UInt16.toUInt64_eq_mod_65536_iff]
+@[simp] theorem UInt16.toUSize_neg (a : UInt16) : (-a).toUSize = -a.toUSize % 65536 := by
+  simp [UInt16.toUSize_eq_mod_65536_iff]
+
+@[simp] theorem UInt32.toUInt64_neg (a : UInt32) : (-a).toUInt64 = -a.toUInt64 % 4294967296 := by
+  simp [UInt32.toUInt64_eq_mod_4294967296_iff]
+@[simp] theorem UInt32.toUSize_neg (a : UInt32) : (-a).toUSize = -a.toUSize % 4294967296 := by
+  simp [UInt32.toUSize_eq_mod_4294967296_iff]
+
+@[simp] theorem USize.toUInt64_neg (a : USize) : (-a).toUInt64 = -a.toUInt64 % UInt64.ofNat USize.size := by
+  simp [USize.toUInt64_eq_mod_usizeSize_iff]
+
+@[simp] theorem UInt8.toNat_neg (a : UInt8) : (-a).toNat = (UInt8.size - a.toNat) % UInt8.size := rfl
+@[simp] theorem UInt16.toNat_neg (a : UInt16) : (-a).toNat = (UInt16.size - a.toNat) % UInt16.size := rfl
+@[simp] theorem UInt32.toNat_neg (a : UInt32) : (-a).toNat = (UInt32.size - a.toNat) % UInt32.size := rfl
+@[simp] theorem UInt64.toNat_neg (a : UInt64) : (-a).toNat = (UInt64.size - a.toNat) % UInt64.size := rfl
+@[simp] theorem USize.toNat_neg (a : USize) : (-a).toNat = (USize.size - a.toNat) % USize.size := rfl
+
+theorem UInt8.sub_eq_add_neg (a b : UInt8) : a - b = a + (-b) := UInt8.toBitVec_inj.1 (BitVec.sub_toAdd _ _)
+theorem UInt16.sub_eq_add_neg (a b : UInt16) : a - b = a + (-b) := UInt16.toBitVec_inj.1 (BitVec.sub_toAdd _ _)
+theorem UInt32.sub_eq_add_neg (a b : UInt32) : a - b = a + (-b) := UInt32.toBitVec_inj.1 (BitVec.sub_toAdd _ _)
+theorem UInt64.sub_eq_add_neg (a b : UInt64) : a - b = a + (-b) := UInt64.toBitVec_inj.1 (BitVec.sub_toAdd _ _)
+theorem USize.sub_eq_add_neg (a b : USize) : a - b = a + (-b) := USize.toBitVec_inj.1 (BitVec.sub_toAdd _ _)
+
+theorem UInt8.neg_one_eq : (-1 : UInt8) = 255 := rfl
+theorem UInt16.neg_one_eq : (-1 : UInt16) = 65535 := rfl
+theorem UInt32.neg_one_eq : (-1 : UInt32) = 4294967295 := rfl
+theorem UInt64.neg_one_eq : (-1 : UInt64) = 18446744073709551615 := rfl
+theorem USize.neg_one_eq : (-1 : USize) = USize.ofNatLT (USize.size - 1) (Nat.sub_one_lt (Nat.pos_iff_ne_zero.1 size_pos)) :=
+  USize.toNat.inj (by simp)
+
+theorem UInt8.toBitVec_zero : toBitVec 0 = 0#8 := rfl
+theorem UInt16.toBitVec_zero : toBitVec 0 = 0#16 := rfl
+theorem UInt32.toBitVec_zero : toBitVec 0 = 0#32 := rfl
+theorem UInt64.toBitVec_zero : toBitVec 0 = 0#64 := rfl
+theorem USize.toBitVec_zero : toBitVec 0 = 0#System.Platform.numBits := rfl
+
+theorem UInt8.toBitVec_one : toBitVec 1 = 1#8 := rfl
+theorem UInt16.toBitVec_one : toBitVec 1 = 1#16 := rfl
+theorem UInt32.toBitVec_one : toBitVec 1 = 1#32 := rfl
+theorem UInt64.toBitVec_one : toBitVec 1 = 1#64 := rfl
+theorem USize.toBitVec_one : toBitVec 1 = 1#System.Platform.numBits := rfl
+
+theorem UInt8.neg_eq_neg_one_mul (a : UInt8) : -a = -1 * a := by
+  apply UInt8.toBitVec_inj.1
+  rw [UInt8.toBitVec_neg, UInt8.toBitVec_mul, UInt8.toBitVec_neg, UInt8.toBitVec_one, BitVec.neg_eq_neg_one_mul]
+theorem UInt16.neg_eq_neg_one_mul (a : UInt16) : -a = -1 * a := by
+  apply UInt16.toBitVec_inj.1
+  rw [UInt16.toBitVec_neg, UInt16.toBitVec_mul, UInt16.toBitVec_neg, UInt16.toBitVec_one, BitVec.neg_eq_neg_one_mul]
+theorem UInt32.neg_eq_neg_one_mul (a : UInt32) : -a = -1 * a := by
+  apply UInt32.toBitVec_inj.1
+  rw [UInt32.toBitVec_neg, UInt32.toBitVec_mul, UInt32.toBitVec_neg, UInt32.toBitVec_one, BitVec.neg_eq_neg_one_mul]
+theorem UInt64.neg_eq_neg_one_mul (a : UInt64) : -a = -1 * a := by
+  apply UInt64.toBitVec_inj.1
+  rw [UInt64.toBitVec_neg, UInt64.toBitVec_mul, UInt64.toBitVec_neg, UInt64.toBitVec_one, BitVec.neg_eq_neg_one_mul]
+theorem USize.neg_eq_neg_one_mul (a : USize) : -a = -1 * a := by
+  apply USize.toBitVec_inj.1
+  rw [USize.toBitVec_neg, USize.toBitVec_mul, USize.toBitVec_neg, USize.toBitVec_one, BitVec.neg_eq_neg_one_mul]
+
+theorem UInt8.sub_eq_add_mul (a b : UInt8) : a - b = a + 255 * b := by
+  rw [sub_eq_add_neg, neg_eq_neg_one_mul, neg_one_eq]
+theorem UInt16.sub_eq_add_mul (a b : UInt16) : a - b = a + 65535 * b := by
+  rw [sub_eq_add_neg, neg_eq_neg_one_mul, neg_one_eq]
+theorem UInt32.sub_eq_add_mul (a b : UInt32) : a - b = a + 4294967295 * b := by
+  rw [sub_eq_add_neg, neg_eq_neg_one_mul, neg_one_eq]
+theorem UInt64.sub_eq_add_mul (a b : UInt64) : a - b = a + 18446744073709551615 * b := by
+  rw [sub_eq_add_neg, neg_eq_neg_one_mul, neg_one_eq]
+theorem USize.sub_eq_add_mul (a b : USize) : a - b = a + USize.ofNatLT (USize.size - 1) (Nat.sub_one_lt (Nat.pos_iff_ne_zero.1 size_pos)) * b := by
+  rw [sub_eq_add_neg, neg_eq_neg_one_mul, neg_one_eq]
+
+@[simp] theorem UInt8.ofNat_usizeSize_sub_one : UInt8.ofNat (USize.size - 1) = 255 := UInt8.toNat.inj (by simp)
+@[simp] theorem UInt16.ofNat_usizeSize_sub_one : UInt16.ofNat (USize.size - 1) = 65535 := UInt16.toNat.inj (by simp)
+@[simp] theorem UInt32.ofNat_usizeSize_sub_one : UInt32.ofNat (USize.size - 1) = 4294967295 := UInt32.toNat.inj (by simp)
+@[simp] theorem USize.ofNat_uInt64Size_sub_one : USize.ofNat (UInt64.size - 1) = USize.ofNatLT (USize.size - 1) (Nat.sub_one_lt (Nat.pos_iff_ne_zero.1 size_pos)) :=
+  USize.toNat.inj (by simp [USize.toNat_ofNat])
+
+@[simp] theorem UInt16.toUInt8_sub (a b : UInt16) : (a - b).toUInt8 = a.toUInt8 - b.toUInt8 := by
+  simp [sub_eq_add_neg, UInt8.sub_eq_add_neg]
+
+@[simp] theorem UInt32.toUInt8_sub (a b : UInt32) : (a - b).toUInt8 = a.toUInt8 - b.toUInt8 := by
+  simp [sub_eq_add_neg, UInt8.sub_eq_add_neg]
+@[simp] theorem UInt32.toUInt16_sub (a b : UInt32) : (a - b).toUInt16 = a.toUInt16 - b.toUInt16 := by
+  simp [sub_eq_add_neg, UInt16.sub_eq_add_neg]
+
+@[simp] theorem UInt64.toUInt8_sub (a b : UInt64) : (a - b).toUInt8 = a.toUInt8 - b.toUInt8 := by
+  simp [sub_eq_add_neg, UInt8.sub_eq_add_neg]
+@[simp] theorem UInt64.toUInt16_sub (a b : UInt64) : (a - b).toUInt16 = a.toUInt16 - b.toUInt16 := by
+  simp [sub_eq_add_neg, UInt16.sub_eq_add_neg]
+@[simp] theorem UInt64.toUInt32_sub (a b : UInt64) : (a - b).toUInt32 = a.toUInt32 - b.toUInt32 := by
+  simp [sub_eq_add_neg, UInt32.sub_eq_add_neg]
+@[simp] theorem UInt64.toUSize_sub (a b : UInt64) : (a - b).toUSize = a.toUSize - b.toUSize := by
+  simp [sub_eq_add_neg, USize.sub_eq_add_neg]
+
+@[simp] theorem USize.toUInt8_sub (a b : USize) : (a - b).toUInt8 = a.toUInt8 - b.toUInt8 := by
+  simp [sub_eq_add_neg, UInt8.sub_eq_add_neg]
+@[simp] theorem USize.toUInt16_sub (a b : USize) : (a - b).toUInt16 = a.toUInt16 - b.toUInt16 := by
+  simp [sub_eq_add_neg, UInt16.sub_eq_add_neg]
+@[simp] theorem USize.toUInt32_sub (a b : USize) : (a - b).toUInt32 = a.toUInt32 - b.toUInt32 := by
+  simp [sub_eq_add_neg, UInt32.sub_eq_add_neg]
+
+@[simp] theorem UInt8.toUInt16_sub (a b : UInt8) : (a - b).toUInt16 = (a.toUInt16 - b.toUInt16) % 256 := by
+  simp [UInt8.toUInt16_eq_mod_256_iff]
+@[simp] theorem UInt8.toUInt32_sub (a b : UInt8) : (a - b).toUInt32 = (a.toUInt32 - b.toUInt32) % 256 := by
+  simp [UInt8.toUInt32_eq_mod_256_iff]
+@[simp] theorem UInt8.toUInt64_sub (a b : UInt8) : (a - b).toUInt64 = (a.toUInt64 - b.toUInt64) % 256 := by
+  simp [UInt8.toUInt64_eq_mod_256_iff]
+@[simp] theorem UInt8.toUSize_sub (a b : UInt8) : (a - b).toUSize = (a.toUSize - b.toUSize) % 256 := by
+  simp [UInt8.toUSize_eq_mod_256_iff]
+
+@[simp] theorem UInt16.toUInt32_sub (a b : UInt16) : (a - b).toUInt32 = (a.toUInt32 - b.toUInt32) % 65536 := by
+  simp [UInt16.toUInt32_eq_mod_65536_iff]
+@[simp] theorem UInt16.toUInt64_sub (a b : UInt16) : (a - b).toUInt64 = (a.toUInt64 - b.toUInt64) % 65536 := by
+  simp [UInt16.toUInt64_eq_mod_65536_iff]
+@[simp] theorem UInt16.toUSize_sub (a b : UInt16) : (a - b).toUSize = (a.toUSize - b.toUSize) % 65536 := by
+  simp [UInt16.toUSize_eq_mod_65536_iff]
+
+@[simp] theorem UInt32.toUInt64_sub (a b : UInt32) : (a - b).toUInt64 = (a.toUInt64 - b.toUInt64) % 4294967296 := by
+  simp [UInt32.toUInt64_eq_mod_4294967296_iff]
+@[simp] theorem UInt32.toUSize_sub (a b : UInt32) : (a - b).toUSize = (a.toUSize - b.toUSize) % 4294967296 := by
+  simp [UInt32.toUSize_eq_mod_4294967296_iff]
+
+@[simp] theorem USize.toUInt64_sub (a b : USize) : (a - b).toUInt64 = (a.toUInt64 - b.toUInt64) % UInt64.ofNat USize.size := by
+  simp [USize.toUInt64_eq_mod_usizeSize_iff]

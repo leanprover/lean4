@@ -13,14 +13,30 @@ universe u
 namespace Nat
 
 /--
-`Nat.fold` evaluates `f` on the numbers up to `n` exclusive, in increasing order:
-* `Nat.fold f 3 init = init |> f 0 |> f 1 |> f 2`
+Applies a function to all the numbers less than some bound, in increasing order, computing a value
+from a starting value.
+
+Examples:
+* `Nat.fold 3 f init = (init |> f 0 (by simp) |> f 1 (by simp) |> f 2 (by simp))`
+* `Nat.fold 4 (fun i _ xs => xs.push i) #[] = #[0, 1, 2, 3]`
+* `Nat.fold 0 (fun i _ xs => xs.push i) #[] = #[]`
 -/
 @[specialize] def fold {α : Type u} : (n : Nat) → (f : (i : Nat) → i < n → α → α) → (init : α) → α
   | 0,      f, a => a
   | succ n, f, a => f n (by omega) (fold n (fun i h => f i (by omega)) a)
 
-/-- Tail-recursive version of `Nat.fold`. -/
+
+/--
+Applies a function to all the numbers less than some bound, in increasing order, computing a value
+from a starting value.
+
+This is a tail-recursive version of `Nat.fold` that's used at runtime.
+
+Examples:
+* `Nat.foldTR 3 f init = (init |> f 0 (by simp) |> f 1 (by simp) |> f 2 (by simp))`
+* `Nat.foldTR 4 (fun i _ xs => xs.push i) #[] = #[0, 1, 2, 3]`
+* `Nat.foldTR 0 (fun i _ xs => xs.push i) #[] = #[]`
+-/
 @[inline] def foldTR {α : Type u} (n : Nat) (f : (i : Nat) → i < n → α → α) (init : α) : α :=
   let rec @[specialize] loop : ∀ j, j ≤ n → α → α
     | 0,      h, a => a
@@ -28,31 +44,72 @@ namespace Nat
   loop n (by omega) init
 
 /--
-`Nat.foldRev` evaluates `f` on the numbers up to `n` exclusive, in decreasing order:
-* `Nat.foldRev f 3 init = f 0 <| f 1 <| f 2 <| init`
+Applies a function to all the numbers less than some bound, in decreasing order, computing a value
+from a starting value.
+
+Examples:
+* `Nat.foldRev 3 f init = (f 0 (by simp) <| f 1 (by simp) <| f 2 (by simp) init)`
+* `Nat.foldRev 4 (fun i _ xs => xs.push i) #[] = #[3, 2, 1, 0]`
+* `Nat.foldRev 0 (fun i _ xs => xs.push i) #[] = #[]`
 -/
 @[specialize] def foldRev {α : Type u} : (n : Nat) → (f : (i : Nat) → i < n → α → α) → (init : α) → α
   | 0,      f, a => a
   | succ n, f, a => foldRev n (fun i h => f i (by omega)) (f n (by omega) a)
 
-/-- `any f n = true` iff there is `i in [0, n-1]` s.t. `f i = true` -/
+/--
+Checks whether there is some number less that the given bound for which `f` returns `true`.
+
+Examples:
+ * `Nat.any 4 (fun i _ => i < 5) = true`
+ * `Nat.any 7 (fun i _ => i < 5) = true`
+ * `Nat.any 7 (fun i _ => i % 2 = 0) = true`
+ * `Nat.any 1 (fun i _ => i % 2 = 1) = false`
+-/
 @[specialize] def any : (n : Nat) → (f : (i : Nat) → i < n → Bool) → Bool
   | 0,      f => false
   | succ n, f => any n (fun i h => f i (by omega)) || f n (by omega)
 
-/-- Tail-recursive version of `Nat.any`. -/
+/--
+Checks whether there is some number less that the given bound for which `f` returns `true`.
+
+This is a tail-recursive equivalent of `Nat.any` that's used at runtime.
+
+Examples:
+ * `Nat.anyTR 4 (fun i _ => i < 5) = true`
+ * `Nat.anyTR 7 (fun i _ => i < 5) = true`
+ * `Nat.anyTR 7 (fun i _ => i % 2 = 0) = true`
+ * `Nat.anyTR 1 (fun i _ => i % 2 = 1) = false`
+-/
 @[inline] def anyTR (n : Nat) (f : (i : Nat) → i < n → Bool) : Bool :=
   let rec @[specialize] loop : (i : Nat) → i ≤ n → Bool
     | 0,      h => false
     | succ m, h => f (n - succ m) (by omega) || loop m (by omega)
   loop n (by omega)
 
-/-- `all f n = true` iff every `i in [0, n-1]` satisfies `f i = true` -/
+/--
+Checks whether `f` returns `true` for every number strictly less than a bound.
+
+Examples:
+ * `Nat.all 4 (fun i _ => i < 5) = true`
+ * `Nat.all 7 (fun i _ => i < 5) = false`
+ * `Nat.all 7 (fun i _ => i % 2 = 0) = false`
+ * `Nat.all 1 (fun i _ => i % 2 = 0) = true`
+-/
 @[specialize] def all : (n : Nat) → (f : (i : Nat) → i < n → Bool) → Bool
   | 0,      f => true
   | succ n, f => all n (fun i h => f i (by omega)) && f n (by omega)
 
-/-- Tail-recursive version of `Nat.all`. -/
+/--
+Checks whether `f` returns `true` for every number strictly less than a bound.
+
+This is a tail-recursive equivalent of `Nat.all` that's used at runtime.
+
+Examples:
+ * `Nat.allTR 4 (fun i _ => i < 5) = true`
+ * `Nat.allTR 7 (fun i _ => i < 5) = false`
+ * `Nat.allTR 7 (fun i _ => i % 2 = 0) = false`
+ * `Nat.allTR 1 (fun i _ => i % 2 = 0) = true`
+-/
 @[inline] def allTR (n : Nat) (f : (i : Nat) → i < n → Bool) : Bool :=
   let rec @[specialize] loop : (i : Nat) → i ≤ n   → Bool
     | 0,      h => true

@@ -20,6 +20,19 @@ instance : Dvd Nat where
 theorem div_rec_lemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=
   fun ⟨ypos, ylex⟩ => sub_lt (Nat.lt_of_lt_of_le ypos ylex) ypos
 
+/--
+Division of natural numbers, discarding the remainder. Division by `0` returns `0`. Usually accessed
+via the `/` operator.
+
+This function is overridden at runtime with an efficient implementation. This definition is
+the logical model.
+
+Examples:
+ * `21 / 3 = 7`
+ * `21 / 5 = 4`
+ * `0 / 22 = 0`
+ * `5 / 0 = 0`
+-/
 @[extern "lean_nat_div"]
 protected def div (x y : @& Nat) : Nat :=
   if 0 < y ∧ y ≤ x then
@@ -35,6 +48,10 @@ theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 e
   rw [Nat.div]
   rfl
 
+/--
+An induction principle customized for reasoning about the recursion pattern of natural number
+division by iterated subtraction.
+-/
 def div.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
       (x y : Nat)
@@ -72,6 +89,17 @@ theorem div_lt_self {n k : Nat} (hLtN : 0 < n) (hLtK : 1 < k) : n / k < n := by
     have := Nat.add_le_of_le_sub hKN this
     exact Nat.lt_of_lt_of_le (Nat.add_lt_add_left hLtK _) this
 
+/--
+The modulo operator, which computes the remainder when dividing one natural number by another.
+Usually accessed via the `%` operator. When the divisor is `0`, the result is the dividend rather
+than an error.
+
+This is the core implementation of `Nat.mod`. It does not reduce definitionally, which is desired in
+some cases. `Nat.mod` handles those cases specially and then calls `Nat.modCore`.
+
+This function is overridden at runtime with an efficient implementation. This definition is the
+logical model.
+-/
 @[extern "lean_nat_mod"]
 protected def modCore (x y : @& Nat) : Nat :=
   if 0 < y ∧ y ≤ x then
@@ -80,6 +108,24 @@ protected def modCore (x y : @& Nat) : Nat :=
     x
 decreasing_by apply div_rec_lemma; assumption
 
+/--
+The modulo operator, which computes the remainder when dividing one natural number by another.
+Usually accessed via the `%` operator. When the divisor is `0`, the result is the dividend rather
+than an error.
+
+`Nat.mod` is a wrapper around `Nat.modCore` that allows certain cases to reduce definitionally, even
+though `Nat.modCore` is defined using [well-founded
+recursion](lean-manual://section/well-founded-recursion) and thus does not.
+
+This function is overridden at runtime with an efficient implementation. This definition is the
+logical model.
+
+Examples:
+ * `7 % 2 = 1`
+ * `9 % 3 = 0`
+ * `5 % 7 = 5`
+ * `5 % 0 = 5`
+-/
 @[extern "lean_nat_mod"]
 protected def mod : @& Nat → @& Nat → Nat
   /-
@@ -114,6 +160,9 @@ protected theorem modCore_eq_mod (n m : Nat) : Nat.modCore n m = n % m := by
 theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by
   rw [←Nat.modCore_eq_mod, ←Nat.modCore_eq_mod, Nat.modCore]
 
+/--
+An induction principle customized for reasoning about the recursion pattern of `Nat.mod`.
+-/
 def mod.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
       (x y  : Nat)

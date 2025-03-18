@@ -365,12 +365,18 @@ def collectRecCalls (unaryPreDef : PreDefinition) (fixedParamPerms : FixedParamP
 
 /-- Is the expression a `<`-like comparison of `Nat` expressions -/
 def isNatCmp (e : Expr) : MetaM (Option (Expr × Expr)) := withReducible do
-  match_expr e with
-  | LT.lt α _ e₁ e₂ => if ←isDefEq α (mkConst ``Nat) then return (some (e₁, e₂)) else return none
-  | LE.le α _ e₁ e₂ => if ←isDefEq α (mkConst ``Nat) then return some (e₁, e₂) else return none
-  | GT.gt α _ e₁ e₂ => if ←isDefEq α (mkConst ``Nat) then return some (e₂, e₁) else return none
-  | GE.ge α _ e₁ e₂ => if ←isDefEq α (mkConst ``Nat) then return some (e₂, e₁) else return none
-  | _ => return none
+  let (α, e₁, e₂) ←
+    match_expr e with
+    | LT.lt α _ e₁ e₂ => pure (α, e₁, e₂)
+    | LE.le α _ e₁ e₂ => pure (α, e₁, e₂)
+    | GT.gt α _ e₁ e₂ => pure (α, e₂, e₁)
+    | GE.ge α _ e₁ e₂ => pure (α, e₂, e₁)
+    | _ => return none
+
+  if ←isDefEq α (mkConst ``Nat) then
+    return some (e₁, e₂)
+  else
+    return none
 
 def complexMeasures (preDefs : Array PreDefinition) (fixedParamPerms : FixedParamPerms)
     (userVarNamess : Array (Array Name)) (recCalls : Array RecCallWithContext) :

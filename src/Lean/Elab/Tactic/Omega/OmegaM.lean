@@ -73,7 +73,7 @@ abbrev OmegaM := StateRefT Cache OmegaM'
 
 /-- Run a computation in the `OmegaM` monad, starting with no recorded atoms. -/
 def OmegaM.run (m : OmegaM α) (cfg : OmegaConfig) : MetaM α :=
-  m.run' Std.HashMap.empty |>.run' {} { cfg } |>.run'
+  m.run' (∅ : Std.HashMap ..) |>.run' {} { cfg } |>.run'
 
 /-- Retrieve the user-specified configuration options. -/
 def cfg : OmegaM OmegaConfig := do pure (← read).cfg
@@ -168,7 +168,7 @@ def analyzeAtom (e : Expr) : OmegaM (Std.HashSet Expr) := do
   match e.getAppFnArgs with
   | (``Nat.cast, #[.const ``Int [], _, e']) =>
     -- Casts of natural numbers are non-negative.
-    let mut r := Std.HashSet.empty.insert (Expr.app (.const ``Int.ofNat_nonneg []) e')
+    let mut r := (∅ : Std.HashSet Expr).insert (Expr.app (.const ``Int.ofNat_nonneg []) e')
     match (← cfg).splitNatSub, e'.getAppFnArgs with
       | true, (``HSub.hSub, #[_, _, _, _, a, b]) =>
         -- `((a - b : Nat) : Int)` gives a dichotomy
@@ -190,7 +190,7 @@ def analyzeAtom (e : Expr) : OmegaM (Std.HashSet Expr) := do
       let ne_zero := mkApp3 (.const ``Ne [1]) (.const ``Int []) k (toExpr (0 : Int))
       let pos := mkApp4 (.const ``LT.lt [0]) (.const ``Int []) (.const ``Int.instLTInt [])
         (toExpr (0 : Int)) k
-      pure <| Std.HashSet.empty.insert
+      pure <| (∅ : Std.HashSet Expr).insert
         (mkApp3 (.const ``Int.mul_ediv_self_le []) x k (← mkDecideProof ne_zero)) |>.insert
           (mkApp3 (.const ``Int.lt_mul_ediv_self_add []) x k (← mkDecideProof pos))
   | (``HMod.hMod, #[_, _, _, _, x, k]) =>
@@ -202,7 +202,7 @@ def analyzeAtom (e : Expr) : OmegaM (Std.HashSet Expr) := do
         let b_pos := mkApp4 (.const ``LT.lt [0]) (.const ``Int []) (.const ``Int.instLTInt [])
           (toExpr (0 : Int)) b
         let pow_pos := mkApp3 (.const ``Lean.Omega.Int.pos_pow_of_pos []) b exp (← mkDecideProof b_pos)
-        pure <| Std.HashSet.empty.insert
+        pure <| (∅ : Std.HashSet Expr).insert
           (mkApp3 (.const ``Int.emod_nonneg []) x k
               (mkApp3 (.const ``Int.ne_of_gt []) k (toExpr (0 : Int)) pow_pos)) |>.insert
             (mkApp3 (.const ``Int.emod_lt_of_pos []) x k pow_pos)
@@ -216,7 +216,7 @@ def analyzeAtom (e : Expr) : OmegaM (Std.HashSet Expr) := do
             (toExpr (0 : Nat)) b
           let pow_pos := mkApp3 (.const ``Nat.pos_pow_of_pos []) b exp (← mkDecideProof b_pos)
           let cast_pos := mkApp2 (.const ``Int.ofNat_pos_of_pos []) k' pow_pos
-          pure <| Std.HashSet.empty.insert
+          pure <| (∅ : Std.HashSet Expr).insert
             (mkApp3 (.const ``Int.emod_nonneg []) x k
                 (mkApp3 (.const ``Int.ne_of_gt []) k (toExpr (0 : Int)) cast_pos)) |>.insert
               (mkApp3 (.const ``Int.emod_lt_of_pos []) x k cast_pos)
@@ -224,18 +224,18 @@ def analyzeAtom (e : Expr) : OmegaM (Std.HashSet Expr) := do
         | (``Nat.cast, #[.const ``Int [], _, x']) =>
           -- Since we push coercions inside `%`, we need to record here that
           -- `(x : Int) % (y : Int)` is non-negative.
-          pure <| Std.HashSet.empty.insert (mkApp2 (.const ``Int.emod_ofNat_nonneg []) x' k)
+          pure <| (∅ : Std.HashSet Expr).insert (mkApp2 (.const ``Int.emod_ofNat_nonneg []) x' k)
         | _ => pure ∅
     | _ => pure ∅
   | (``Min.min, #[_, _, x, y]) =>
-    pure <| Std.HashSet.empty.insert (mkApp2 (.const ``Int.min_le_left []) x y) |>.insert
+    pure <| (∅ : Std.HashSet Expr).insert (mkApp2 (.const ``Int.min_le_left []) x y) |>.insert
       (mkApp2 (.const ``Int.min_le_right []) x y)
   | (``Max.max, #[_, _, x, y]) =>
-    pure <| Std.HashSet.empty.insert (mkApp2 (.const ``Int.le_max_left []) x y) |>.insert
+    pure <| (∅ : Std.HashSet Expr).insert (mkApp2 (.const ``Int.le_max_left []) x y) |>.insert
       (mkApp2 (.const ``Int.le_max_right []) x y)
   | (``ite, #[α, i, dec, t, e]) =>
       if α == (.const ``Int []) then
-        pure <| Std.HashSet.empty.insert <| mkApp5 (.const ``ite_disjunction [0]) α i dec t e
+        pure <| (∅ : Std.HashSet Expr).insert <| mkApp5 (.const ``ite_disjunction [0]) α i dec t e
       else
         pure {}
   | _ => pure ∅

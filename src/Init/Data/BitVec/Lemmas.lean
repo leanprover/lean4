@@ -658,7 +658,7 @@ theorem two_mul_toInt_lt {w : Nat} {x : BitVec w} : 2 * x.toInt < 2 ^ w := by
   rcases w with _|w'
   · omega
   · rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.two_mul, Nat.add_sub_cancel]
-    simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
+    simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.cast_ofNat_Int]
     norm_cast; omega
 
 theorem two_mul_toInt_le {w : Nat} {x : BitVec w} : 2 * x.toInt ≤ 2 ^ w - 1 :=
@@ -684,7 +684,7 @@ theorem le_two_mul_toInt {w : Nat} {x : BitVec w} : -2 ^ w ≤ 2 * x.toInt := by
   rcases w with _|w'
   · omega
   · rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.two_mul, Nat.add_sub_cancel]
-    simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
+    simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.cast_ofNat_Int]
     norm_cast; omega
 
 
@@ -2488,6 +2488,42 @@ theorem msb_shiftLeft {x : BitVec w} {n : Nat} :
     (x <<< n).msb = x.getMsbD n := by
   simp [BitVec.msb]
 
+/--
+A `(x : BitVec v)` set to width `w` equals `(v - w)` zeros,
+followed by the low `(min v w) bits of `x`
+-/
+theorem setWidth_eq_append_extractLsb' {v : Nat} {x : BitVec v} {w : Nat} :
+    x.setWidth w = ((0#(w - v)) ++ x.extractLsb' 0 (min v w)).cast (by omega) := by
+  ext i hi
+  simp only [getElem_cast, getElem_append]
+  by_cases hiv : i < v
+  · simp [hi]
+    omega
+  · simp [getLsbD_ge x i (by omega)]
+
+/--
+A `(x : BitVec v)` set to a width `w ≥ v` equals `(w - v)` zeros, followed by `x`.
+-/
+theorem setWidth_eq_append {v : Nat} {x : BitVec v} {w : Nat} (h : v ≤ w) :
+    x.setWidth w = ((0#(w - v)) ++ x).cast (by omega) := by
+  rw [setWidth_eq_append_extractLsb']
+  ext i hi
+  simp only [getElem_cast, getElem_append]
+  by_cases hiv : i < v
+  · simp [hiv]
+    omega
+  · simp [hiv, getLsbD_ge x i (by omega)]
+
+theorem setWidth_eq_extractLsb' {v : Nat} {x : BitVec v} {w : Nat} (h : w ≤ v) :
+    x.setWidth w = (x.extractLsb' 0 w).cast (by omega) := by
+  rw [setWidth_eq_append_extractLsb']
+  ext i hi
+  simp only [getElem_cast, getElem_append]
+  by_cases hiv : i < v
+  · simp [hi]
+    omega
+  · simp [getLsbD_ge x i (by omega)]
+
 theorem ushiftRight_eq_extractLsb'_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
     x >>> n = ((0#n) ++ (x.extractLsb' n (w - n))).cast (by omega) := by
   ext i hi
@@ -2504,6 +2540,29 @@ theorem shiftLeft_eq_concat_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
   by_cases hi' : i < n
   · simp [hi']
   · simp [hi', show i - n < w by omega]
+
+/-- Combine adjacent `extractLsb'` operations into a single `extractLsb'`. -/
+theorem extractLsb'_append_extractLsb'_eq_extractLsb' {x : BitVec w} (h : start₂ = start₁ + len₁) :
+    ((x.extractLsb' start₂ len₂) ++ (x.extractLsb' start₁ len₁)) =
+    (x.extractLsb' start₁ (len₁ + len₂)).cast (by omega) := by
+  ext i h
+  simp only [getElem_append, getElem_extractLsb', dite_eq_ite, getElem_cast, ite_eq_left_iff,
+    Nat.not_lt]
+  intros hi
+  congr 1
+  omega
+
+/-- Combine adjacent `~~~ (extractLsb _)'` operations into a single `~~~ (extractLsb _)'`. -/
+theorem not_extractLsb'_append_not_extractLsb'_eq_not_extractLsb' {x : BitVec w} (h : start₂ = start₁ + len₁) :
+    (~~~ (x.extractLsb' start₂ len₂) ++ ~~~ (x.extractLsb' start₁ len₁)) =
+    (~~~ x.extractLsb' start₁ (len₁ + len₂)).cast (by omega) := by
+  ext i h
+  simp only [getElem_cast, getElem_not, getElem_extractLsb', getElem_append]
+  by_cases hi : i < len₁
+  · simp [hi]
+  · simp only [hi, ↓reduceDIte, Bool.not_eq_eq_eq_not, Bool.not_not]
+    congr 1
+    omega
 
 /-! ### rev -/
 

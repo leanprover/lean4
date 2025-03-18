@@ -536,12 +536,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int3
 // =======================================
 // TCP Socket Operations
 
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket, obj_arg /* w */) {
-    lean_always_assert(
-        false && ("Please build a version of Lean4 with libuv to invoke this.")
-    );
-}
-
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new(obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
@@ -554,13 +548,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
     );
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, b_obj_arg data, obj_arg /* w */) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg data, obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, obj_arg /* w */) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t buffer_size, obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );
@@ -584,6 +578,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket, obj_arg
     );
 }
 
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket, obj_arg /* w */) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+
+
 // =======================================
 // TCP Socket Utility Functions
 
@@ -605,10 +606,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_nodelay(b_obj_arg socket, obj_ar
     );
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int8_t enable, uint32_t delay, obj_arg /* w */) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int32_t enable, uint32_t delay, obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );
 }
+
 #endif
 }

@@ -1265,16 +1265,22 @@ theorem ne_of_lt {i₁ i₂ : Pos} (h : i₁ < i₂) : i₁ ≠ i₂ := mt ext_i
 
 theorem ne_of_gt {i₁ i₂ : Pos} (h : i₁ < i₂) : i₂ ≠ i₁ := (ne_of_lt h).symm
 
-@[simp] theorem addString_byteIdx (p : Pos) (s : String) :
+@[simp] theorem byteIdx_addString (p : Pos) (s : String) :
     (p + s).byteIdx = p.byteIdx + s.utf8ByteSize := rfl
+
+@[deprecated byteIdx_addString (since := "2025-03-18")]
+abbrev addString_byteIdx := @byteIdx_addString
 
 theorem addString_eq (p : Pos) (s : String) : p + s = ⟨p.byteIdx + s.utf8ByteSize⟩ := rfl
 
-theorem zero_addString_byteIdx (s : String) : ((0 : Pos) + s).byteIdx = s.utf8ByteSize := by
-  simp only [addString_byteIdx, byteIdx_zero, Nat.zero_add]
+theorem byteIdx_zero_addString (s : String) : ((0 : Pos) + s).byteIdx = s.utf8ByteSize := by
+  simp only [byteIdx_addString, byteIdx_zero, Nat.zero_add]
+
+@[deprecated byteIdx_zero_addString (since := "2025-03-18")]
+abbrev zero_addString_byteIdx := @byteIdx_zero_addString
 
 theorem zero_addString_eq (s : String) : (0 : Pos) + s = ⟨s.utf8ByteSize⟩ := by
-  rw [← zero_addString_byteIdx]
+  rw [← byteIdx_zero_addString]
 
 theorem le_iff {i₁ i₂ : Pos} : i₁ ≤ i₂ ↔ i₁.byteIdx ≤ i₂.byteIdx := .rfl
 

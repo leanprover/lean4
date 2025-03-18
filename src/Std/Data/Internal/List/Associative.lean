@@ -4173,8 +4173,8 @@ theorem min_def [Ord α] {p q : (a : α) × β a} :
     min p q = if compare p.1 q.1 |>.isLE then p else q :=
   rfl
 
-private local instance [Ord α] [TransOrd α] : Std.Associative (min :
-    (a : α) × β a → (a : α) × β a → (a : α) × β a) where
+private local instance [Ord α] [TransOrd α] : Std.Associative
+    (min : (a : α) × β a → (a : α) × β a → (a : α) × β a) where
   assoc a b c := by
     simp only [min_def]
     split <;> split <;> (try split) <;> try rfl

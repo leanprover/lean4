@@ -1807,7 +1807,7 @@ instance [Ord α] : IsStrictCut (compare : α → α → Ordering) (fun _ => .lt
   gt := by simp
   eq := by simp
 
-theorem minEntry?ₘ_eq_listMinEntry? [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
+theorem minEntry?ₘ_eq_minEntry? [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
     l.minEntry?ₘ = List.minEntry? l.toListModel := by
   rw [minEntry?ₘ, applyPartition_eq_apply_toListModel' hlo]
   simp only [List.append_assoc, reduceCtorEq, imp_false, implies_true, forall_const]
@@ -1822,7 +1822,7 @@ theorem minEntry?ₘ_eq_listMinEntry? [Ord α] [TransOrd α] {l : Impl α β} (h
 
 theorem minEntry?_eq_minEntry? [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
     l.minEntry? = List.minEntry? l.toListModel := by
-  rw [minEntry?_eq_minEntry?ₘ, minEntry?ₘ_eq_listMinEntry? hlo]
+  rw [minEntry?_eq_minEntry?ₘ, minEntry?ₘ_eq_minEntry? hlo]
 
 theorem minKey?_eq_minKey? [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
     l.minKey? = List.minKey? l.toListModel := by

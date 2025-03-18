@@ -145,6 +145,11 @@ theorem TransCmp.isLE_rfl [TransCmp cmp] {a : α} :
     (cmp a a).isLE := by
   simp [ReflCmp.compare_self (cmp := cmp)]
 
+@[simp]
+theorem TransOrd.isLE_rfl [Ord α] [TransOrd α] {a : α} :
+    (compare a a).isLE :=
+  TransCmp.isLE_rfl
+
 theorem TransCmp.isGE_trans [TransCmp cmp] {a b c : α} (h₁ : (cmp a b).isGE) (h₂ : (cmp b c).isGE) :
     (cmp a c).isGE := by
   rw [OrientedCmp.isGE_iff_isLE] at *

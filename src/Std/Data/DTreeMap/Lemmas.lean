@@ -2897,6 +2897,7 @@ theorem minKey?_insertIfNew_le_self [TransCmp cmp] {k v kmi} :
     cmp kmi k |>.isLE :=
   Impl.minKey?_insertIfNew_le_self t.wf
 
+@[simp]
 theorem minKey?_modify [TransCmp cmp] [LawfulEqCmp cmp] {k f} :
     (t.modify k f).minKey? = t.minKey? :=
   Impl.minKey?_modify t.wf
@@ -2913,6 +2914,11 @@ variable {β : Type v} {t : DTreeMap α β cmp}
 theorem minKey?_modify [TransCmp cmp] {k f} :
     (Const.modify t k f).minKey? = t.minKey?.map fun km => if cmp km k = .eq then k else km :=
   Impl.Const.minKey?_modify t.wf
+
+@[simp]
+theorem minKey?_modify_of_lawfulEqCmp [TransCmp cmp] [LawfulEqCmp cmp] {k f} :
+    (Const.modify t k f).minKey? = t.minKey? :=
+  Impl.Const.minKey?_modify_of_lawfulEqOrd t.wf
 
 theorem isSome_minKey?_modify [TransCmp cmp] {k f} :
     (Const.modify t k f).minKey?.isSome = !t.isEmpty :=

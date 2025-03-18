@@ -4712,6 +4712,15 @@ theorem minKey?_modifyKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k f
       have := TransCmp.lt_of_isLE_of_lt hkm hcmp
       simp [this] at h
 
+theorem minKey?_modifyKey_of_lawfulEqOrd [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    [LawfulEqOrd α] {k f} {l : List ((_ : α) × β)} (hd : DistinctKeys l) :
+    minKey? (modifyKey k f l) = minKey? l := by
+  simp only [minKey?_modifyKey hd]
+  cases minKey? l
+  · rfl
+  · simp only [beq_iff_eq, Option.map_some', Option.some.injEq, ite_eq_right_iff]
+    exact Eq.symm
+
 theorem isSome_minKey?_modifyKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k f}
     {l : List ((_ : α) × β)} :
     (modifyKey k f l |> minKey?).isSome = !l.isEmpty := by

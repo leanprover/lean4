@@ -1865,6 +1865,11 @@ theorem minKey?_modify [TransCmp cmp] {k f} :
     (t.modify k f).minKey? = t.minKey?.map fun km => if cmp km k = .eq then k else km :=
   DTreeMap.Const.minKey?_modify
 
+@[simp]
+theorem minKey?_modify_of_lawfulEqCmp [TransCmp cmp] [LawfulEqCmp cmp] {k f} :
+    (t.modify k f).minKey? = t.minKey? :=
+  DTreeMap.Const.minKey?_modify_of_lawfulEqCmp
+
 theorem isSome_minKey?_modify [TransCmp cmp] {k f} :
     (t.modify k f).minKey?.isSome = !t.isEmpty :=
   DTreeMap.Const.isSome_minKey?_modify

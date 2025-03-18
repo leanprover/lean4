@@ -26,7 +26,7 @@ def mkInstHMul (w : Expr) : Expr :=
 
 end BitVec
 
-/-- Construct a literal of type `BitVec w`, with value `n` -/
+/-- Construct a literal of type `BitVec w`, with value `n`. -/
 def mkBitVecLit (w : Expr) (n : Nat) : Expr :=
   mkApp2 (mkConst ``BitVec.ofNat []) w (mkNatLit n)
 

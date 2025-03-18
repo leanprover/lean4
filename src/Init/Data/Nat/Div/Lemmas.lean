@@ -168,4 +168,40 @@ theorem add_div_of_dvd_add_add_one (h : c ∣ a + b + 1) : (a + b) / c = a / c +
   have := mod_add_mod_lt_of_add_mod_eq_sub_one w ((mod_eq_sub_iff Nat.zero_lt_one w).mpr h)
   omega
 
+theorem div_lt_of_lt {a b c : Nat} (ha : a < c) : a / b < c := by
+  obtain (rfl|hb) := Nat.eq_zero_or_pos b
+  · simp
+    omega
+  · rw [Nat.div_lt_iff_lt_mul hb, ← Nat.mul_one a]
+    apply Nat.mul_lt_mul_of_lt_of_le ha (by omega) (by omega)
+
+theorem div_mod_eq_div {a b c : Nat} (ha : a < c) : (a / b) % c = a / b :=
+  Nat.mod_eq_of_lt (Nat.div_lt_of_lt ha)
+
+theorem div_mod_eq_mod_div_mod {a b c : Nat} (ha : a < c) (hb : b < c) :
+    (a / b) % c = a % c / (b % c) := by
+  rw [Nat.mod_eq_of_lt (Nat.div_lt_of_lt ha), Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb]
+
+theorem mod_mod_eq_mod_of_lt_right {a b c : Nat} (ha : a < c) : (a % b) % c = a % b :=
+  Nat.mod_eq_of_lt (Nat.lt_of_le_of_lt (Nat.mod_le _ _) ha)
+
+theorem mod_mod_eq_mod_mod_mod {a b c : Nat} (ha : a < c) (hb : b < c) :
+    (a % b) % c = (a % c) % (b % c) := by
+  rw [Nat.mod_mod_eq_mod_of_lt_right ha, Nat.mod_eq_of_lt ha, Nat.mod_eq_of_lt hb]
+
+theorem mod_mod_eq_mod_mod_of_dvd {a b c : Nat} (h : b ∣ c) : a % b % c = a % c % b := by
+  refine Or.elim (Nat.eq_zero_or_pos b) (by rintro rfl; simp) (fun hb => ?_)
+  refine Or.elim (Nat.eq_zero_or_pos c) (by rintro rfl; simp) (fun hc => ?_)
+  rw [Nat.mod_mod_of_dvd _ h, Nat.mod_eq_of_lt (Nat.lt_of_lt_of_le (Nat.mod_lt a hb) (Nat.le_of_dvd hc h))]
+
+theorem mod_mod_of_dvd' {a b c : Nat} (h : b ∣ c) : a % b % c = a % b := by
+  rw [Nat.mod_mod_eq_mod_mod_of_dvd h, Nat.mod_mod_of_dvd _ h]
+
+theorem mod_mod_eq_mod_mod_mod_of_dvd {a b c : Nat} (hb : b ∣ c) :
+    (a % b) % c = (a % c) % (b % c) := by
+  refine (Decidable.em (b = c)).elim (by rintro rfl; simp) (fun hb' => ?_)
+  refine Or.elim (Nat.eq_zero_or_pos c) (by rintro rfl; simp) (fun hc => ?_)
+  have : b < c := Nat.lt_of_le_of_ne (Nat.le_of_dvd hc hb) hb'
+  rw [Nat.mod_mod_of_dvd' hb, Nat.mod_eq_of_lt this, Nat.mod_mod_of_dvd _ hb]
+
 end Nat

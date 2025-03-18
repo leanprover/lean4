@@ -107,6 +107,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_gcd(lean
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_x27_go_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Expr_denote_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_isUnsatDiseq_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_Linear_natCast__sub__def(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Int_Linear_emod__le__cert(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_isUnsatDiseq_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_gcd___boxed(lean_object*, lean_object*);
@@ -5670,6 +5671,39 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Int_Linear_natCast__sub__def(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_3 = lean_nat_to_int(x_2);
+x_4 = lean_nat_to_int(x_1);
+x_5 = l_Int_Linear_norm__eq__var__cert___closed__1;
+x_6 = lean_int_mul(x_5, x_4);
+x_7 = lean_int_add(x_3, x_6);
+lean_dec(x_6);
+x_8 = l_Int_Linear_instInhabitedExpr___closed__1;
+x_9 = lean_int_dec_le(x_7, x_8);
+lean_dec(x_7);
+if (x_9 == 0)
+{
+lean_object* x_10; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_10 = l_Int_Linear_instInhabitedExpr___closed__1;
+return x_10;
+}
+else
+{
+lean_object* x_11; lean_object* x_12; 
+x_11 = lean_int_mul(x_5, x_3);
+lean_dec(x_3);
+x_12 = lean_int_add(x_4, x_11);
+lean_dec(x_11);
+lean_dec(x_4);
+return x_12;
+}
 }
 }
 LEAN_EXPORT uint8_t l_Int_Linear_dvd__le__tight__cert(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

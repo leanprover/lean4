@@ -15,7 +15,6 @@ extern "C" {
 #endif
 static lean_object* l_Lake_Hash_instMixTrace___closed__1;
 LEAN_EXPORT lean_object* l_Lake_MTime_instOrd;
-LEAN_EXPORT lean_object* l_Lake_BuildTrace_writeToFile___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_computeHash___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Hash_instToString;
 LEAN_EXPORT lean_object* l_Lake_BuildTrace_checkAgainstHash(lean_object*);
@@ -24,7 +23,6 @@ static lean_object* l___private_Lake_Build_Trace_0__Lake_reprHash____x40_Lake_Bu
 static lean_object* l___private_Lake_Build_Trace_0__Lake_reprHash____x40_Lake_Build_Trace___hyg_614____closed__1;
 LEAN_EXPORT lean_object* l_Lake_instComputeHashArrayOfMonad___rarg(lean_object*, lean_object*);
 uint8_t l_String_anyAux___at_String_isNat___spec__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_BuildTrace_checkAgainstFile___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Hash_instToJson;
 LEAN_EXPORT lean_object* l_Lake_computeListTrace___at_Lake_instComputeTraceListOfMonad___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instComputeHashFilePathIO;
@@ -81,7 +79,6 @@ LEAN_EXPORT lean_object* l_Lake_instComputeTraceArrayOfMonad___rarg(lean_object*
 static lean_object* l_Lake_instReprBuildTrace___closed__1;
 LEAN_EXPORT lean_object* l_Lake_inhabitedOfNilTrace___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instComputeTraceHashOfComputeHash___rarg___boxed(lean_object*);
-lean_object* l_Lake_createParentDirs(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Build_Trace_0__Lake_reprHash____x40_Lake_Build_Trace___hyg_614____closed__5;
 static lean_object* l___private_Lake_Build_Trace_0__Lake_reprHash____x40_Lake_Build_Trace___hyg_614____closed__10;
 static lean_object* l_Lake_MTime_instOfNat___closed__2;
@@ -98,7 +95,6 @@ LEAN_EXPORT lean_object* l_Lake_computeArrayTrace___at_Lake_instComputeTraceArra
 LEAN_EXPORT lean_object* l_Lake_BuildTrace_checkAgainstTime___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Trace_0__Lake_reprBuildTrace____x40_Lake_Build_Trace___hyg_1322____boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_BuildTrace_instCoeHash___closed__1;
-LEAN_EXPORT lean_object* l_Lake_BuildTrace_writeToFile(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Hash_ofString_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildTrace_instComputeTraceIOOfComputeHashOfMonadLiftTOfGetMTime(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instComputeTraceIOMTimeOfGetMTime___rarg___boxed(lean_object*);
@@ -137,7 +133,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_computeArrayHash___
 uint8_t l_Ord_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Build_Trace_0__Lake_reprHash____x40_Lake_Build_Trace___hyg_614____closed__12;
 LEAN_EXPORT lean_object* l_Lake_computeArrayHash(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_BuildTrace_checkAgainstFile___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildTrace_instMixTrace;
 lean_object* l_Lean_bignumFromJson_x3f(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Trace_0__Lake_reprBuildTrace____x40_Lake_Build_Trace___hyg_1322_(lean_object*, lean_object*);
@@ -220,7 +215,6 @@ LEAN_EXPORT lean_object* l_Lake_MTime_instLE;
 LEAN_EXPORT lean_object* l_Lake_MTime_checkUpToDate(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildTrace_instCoeHash;
 static lean_object* l___private_Lake_Build_Trace_0__Lake_reprBuildTrace____x40_Lake_Build_Trace___hyg_1322____closed__2;
-lean_object* l_IO_FS_writeFile(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_computeBinFileHash(lean_object*, lean_object*);
 static lean_object* l_Lake_BuildTrace_instCoeMTime___closed__1;
 static lean_object* l___private_Lake_Build_Trace_0__Lake_reprBuildTrace____x40_Lake_Build_Trace___hyg_1322____closed__1;
@@ -231,7 +225,6 @@ static lean_object* l_Lake_BuildTrace_instMixTrace___closed__1;
 lean_object* l_System_FilePath_pathExists___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_mixTraceArray___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_BuildTrace_checkAgainstFile(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Trace_0__Lake_decEqHash____x40_Lake_Build_Trace___hyg_524____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instDecidableEqHash___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_BuildTrace_nil___closed__1;
@@ -3305,116 +3298,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lake_BuildTrace_checkAgainstTime___rarg), 4, 0);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_BuildTrace_checkAgainstFile___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; lean_object* x_8; 
-x_7 = l_Lake_Hash_load_x3f(x_4, x_6);
-x_8 = lean_ctor_get(x_7, 0);
-lean_inc(x_8);
-if (lean_obj_tag(x_8) == 0)
-{
-lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec(x_1);
-x_9 = lean_ctor_get(x_7, 1);
-lean_inc(x_9);
-lean_dec(x_7);
-x_10 = lean_ctor_get(x_5, 1);
-lean_inc(x_10);
-lean_dec(x_5);
-x_11 = l_Lake_MTime_checkUpToDate___rarg(x_2, x_3, x_10, x_9);
-return x_11;
-}
-else
-{
-lean_object* x_12; lean_object* x_13; uint64_t x_14; lean_object* x_15; 
-lean_dec(x_2);
-x_12 = lean_ctor_get(x_7, 1);
-lean_inc(x_12);
-lean_dec(x_7);
-x_13 = lean_ctor_get(x_8, 0);
-lean_inc(x_13);
-lean_dec(x_8);
-x_14 = lean_unbox_uint64(x_13);
-lean_dec(x_13);
-x_15 = l_Lake_BuildTrace_checkAgainstHash___rarg(x_1, x_3, x_14, x_5, x_12);
-return x_15;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lake_BuildTrace_checkAgainstFile(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lake_BuildTrace_checkAgainstFile___rarg___boxed), 6, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_BuildTrace_checkAgainstFile___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l_Lake_BuildTrace_checkAgainstFile___rarg(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_4);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Lake_BuildTrace_writeToFile(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lake_createParentDirs(x_1, x_3);
-if (lean_obj_tag(x_4) == 0)
-{
-lean_object* x_5; lean_object* x_6; uint64_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_5 = lean_ctor_get(x_4, 1);
-lean_inc(x_5);
-lean_dec(x_4);
-x_6 = lean_ctor_get(x_2, 0);
-lean_inc(x_6);
-lean_dec(x_2);
-x_7 = lean_unbox_uint64(x_6);
-lean_dec(x_6);
-x_8 = lean_uint64_to_nat(x_7);
-x_9 = l___private_Init_Data_Repr_0__Nat_reprFast(x_8);
-x_10 = l_IO_FS_writeFile(x_1, x_9, x_5);
-lean_dec(x_9);
-return x_10;
-}
-else
-{
-uint8_t x_11; 
-lean_dec(x_2);
-x_11 = !lean_is_exclusive(x_4);
-if (x_11 == 0)
-{
-return x_4;
-}
-else
-{
-lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_12 = lean_ctor_get(x_4, 0);
-x_13 = lean_ctor_get(x_4, 1);
-lean_inc(x_13);
-lean_inc(x_12);
-lean_dec(x_4);
-x_14 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_14, 0, x_12);
-lean_ctor_set(x_14, 1, x_13);
-return x_14;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lake_BuildTrace_writeToFile___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lake_BuildTrace_writeToFile(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
 }
 }
 lean_object* initialize_Lake_Util_IO(uint8_t builtin, lean_object*);

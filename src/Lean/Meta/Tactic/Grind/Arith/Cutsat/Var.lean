@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.IntInstTesters
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
-import Lean.Meta.Tactic.Grind.Canon
+import Lean.Meta.Tactic.Grind.Simp
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -24,7 +24,7 @@ def foreignTermOrLit? (e : Expr) : GoalM (Option ForeignType) := do
 private def assertNatCast (e : Expr) : GoalM Unit := do
   let_expr NatCast.natCast _ inst a := e | return ()
   let_expr instNatCastInt := inst | return ()
-  pushNewProof <| mkApp (mkConst ``Int.Linear.natCast_nonneg) a
+  pushNewFact <| mkApp (mkConst ``Int.Linear.natCast_nonneg) a
   markForeignTerm a .nat
 
 private def assertHelpers (e : Expr) : GoalM Unit := do

@@ -15,12 +15,22 @@ is part of the public, user-facing standard library.
 -/
 
 /--
-Given an array `a`, runs `f xᵢ xⱼ` for all `i < j`, removes those entries for which `f` returns
-`false` (and will subsequently skip pairs if one element is removed), and returns the array of
-remaining elements.
+Compares each element of an array with all later elements using `f`. For each comparison, `f`
+determines whether to keep both of its arguments. If `f` returns `false` for an argument, that
+argument is removed from the array and does not participate in subsequent comparisons. Those
+elements that were not discarded are returned.
 
-This can be used to remove elements from an array where a “better” element, in some partial
-order, exists in the array.
+This can be used to remove elements from an array where a “better” element, in some partial order,
+exists in the array.
+
+Example:
+```lean example
+#eval #["a", "r", "red", "x", "r"].filterPairsM fun x y =>
+  pure (!(x.isPrefixOf y), true)
+```
+```output
+#["a", "red", "x", "r"]
+```
 -/
 def filterPairsM {m} [Monad m] {α} (a : Array α) (f : α → α → m (Bool × Bool)) :
     m (Array α) := do

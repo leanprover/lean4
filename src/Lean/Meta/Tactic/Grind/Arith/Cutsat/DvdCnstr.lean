@@ -100,11 +100,7 @@ def propagateIntDvd (e : Expr) : GoalM Unit := do
     trace[grind.cutsat.assert.dvd] "{← c.pp}"
     c.assert
   else if (← isEqFalse e) then
-    /-
-    TODO: we have `¬ a ∣ b`, we should assert
-    `∃ x z, b = a*x + z ∧ 1 ≤ z < a`
-    -/
-    throwError "NIY: ¬ {e}"
+    pushNewFact <| mkApp4 (mkConst ``Int.Linear.of_not_dvd) a b reflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
 
 def propagateNatDvd (e : Expr) : GoalM Unit := do
   let some (d, b, ctx) ← Int.OfNat.toIntDvd? e | return ()
@@ -115,11 +111,8 @@ def propagateNatDvd (e : Expr) : GoalM Unit := do
     let c := { d, p, h := .coreNat e ctx d b b' : DvdCnstr }
     c.assert
   else
-    /-
-    TODO: we have `¬ a ∣ b`, we should assert
-    `∃ x z, b = a*x + z ∧ 1 ≤ z < a`
-    -/
-    throwError "NIY: ¬ {e}"
+    let_expr Dvd.dvd _ _ a b ← e | return ()
+    pushNewFact <| mkApp3 (mkConst ``Nat.emod_pos_of_not_dvd) a b (mkOfEqFalseCore e (← mkEqFalseProof e))
 
 builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
   let_expr Dvd.dvd α _ _ _ ← e | return ()

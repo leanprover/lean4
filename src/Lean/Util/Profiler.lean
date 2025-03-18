@@ -170,7 +170,8 @@ def categories : Array Category := #[
   { name := `Elab.async, color := "gray" },
   { name := `Elab.block, color := "brown" },
   { name := `Elab, color := "red" },
-  { name := `Meta, color := "yellow" }
+  { name := `Meta, color := "yellow" },
+  { name := `Kernel, color := "green" }
 ]
 
 /-- Returns first `startTime` in the trace tree, if any. -/

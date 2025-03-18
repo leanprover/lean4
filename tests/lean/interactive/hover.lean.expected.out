@@ -639,7 +639,7 @@
   "end": {"line": 297, "character": 29}},
  "contents":
  {"value":
-  "```lean\nList.zip.{u, v} {α : Type u} {β : Type v} : List α → List β → List (α × β)\n```\n***\nCombines two lists into a list of pairs in which the first and second components are the\ncorresponding elements of each list. The resulting list is the length of the shorter of the inputs\nlists.\n\n`O(min |xs| |ys|)`.\n\nExamples:\n* `[\"Mon\", \"Tue\", \"Wed\"].zip [1, 2, 3] = [(\"Mon\", 1), (\"Tue\", 2), (\"Wed\", 3)]`\n* `[\"Mon\", \"Tue\", \"Wed\"].zip [1, 2] = [(\"Mon\", 1), (\"Tue\", 2)]`\n* `[x₁, x₂, x₃].zip [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`\n\n***\n*import Init.Data.List.Basic*",
+  "```lean\nList.zip.{u, v} {α : Type u} {β : Type v} : List α → List β → List (α × β)\n```\n***\nCombines two lists into a list of pairs in which the first and second components are the\ncorresponding elements of each list. The resulting list is the length of the shorter of the input\nlists.\n\n`O(min |xs| |ys|)`.\n\nExamples:\n* `[\"Mon\", \"Tue\", \"Wed\"].zip [1, 2, 3] = [(\"Mon\", 1), (\"Tue\", 2), (\"Wed\", 3)]`\n* `[\"Mon\", \"Tue\", \"Wed\"].zip [1, 2] = [(\"Mon\", 1), (\"Tue\", 2)]`\n* `[x₁, x₂, x₃].zip [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`\n\n***\n*import Init.Data.List.Basic*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 297, "character": 19}}
@@ -648,5 +648,5 @@
   "end": {"line": 297, "character": 22}},
  "contents":
  {"value":
-  "```lean\nList.zip.{u, v} {α : Type u} {β : Type v} : List α → List β → List (α × β)\n```\n***\nCombines two lists into a list of pairs in which the first and second components are the\ncorresponding elements of each list. The resulting list is the length of the shorter of the inputs\nlists.\n\n`O(min |xs| |ys|)`.\n\nExamples:\n* `[\"Mon\", \"Tue\", \"Wed\"].zip [1, 2, 3] = [(\"Mon\", 1), (\"Tue\", 2), (\"Wed\", 3)]`\n* `[\"Mon\", \"Tue\", \"Wed\"].zip [1, 2] = [(\"Mon\", 1), (\"Tue\", 2)]`\n* `[x₁, x₂, x₃].zip [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`\n\n***\n*import Init.Data.List.Basic*",
+  "```lean\nList.zip.{u, v} {α : Type u} {β : Type v} : List α → List β → List (α × β)\n```\n***\nCombines two lists into a list of pairs in which the first and second components are the\ncorresponding elements of each list. The resulting list is the length of the shorter of the input\nlists.\n\n`O(min |xs| |ys|)`.\n\nExamples:\n* `[\"Mon\", \"Tue\", \"Wed\"].zip [1, 2, 3] = [(\"Mon\", 1), (\"Tue\", 2), (\"Wed\", 3)]`\n* `[\"Mon\", \"Tue\", \"Wed\"].zip [1, 2] = [(\"Mon\", 1), (\"Tue\", 2)]`\n* `[x₁, x₂, x₃].zip [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`\n\n***\n*import Init.Data.List.Basic*",
   "kind": "markdown"}}

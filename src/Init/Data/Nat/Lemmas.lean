@@ -131,9 +131,6 @@ protected theorem eq_zero_of_add_eq_zero_right (h : n + m = 0) : n = 0 :=
 @[simp] protected theorem self_eq_add_right {a b : Nat} : a = a + b ↔ b = 0 := by omega
 @[simp] protected theorem self_eq_add_left  {a b : Nat} : a = b + a ↔ b = 0 := by omega
 
-@[simp] protected theorem add_le_add_iff_left {n : Nat} : n + m ≤ n + k ↔ m ≤ k :=
-  ⟨Nat.le_of_add_le_add_left, fun h => Nat.add_le_add_left h _⟩
-
 protected theorem lt_of_add_lt_add_right : ∀ {n : Nat}, k + n < m + n → k < m
   | 0, h => h
   | _+1, h => Nat.lt_of_add_lt_add_right (Nat.lt_of_succ_lt_succ h)
@@ -290,10 +287,6 @@ theorem succ_min_succ (x y) : min (succ x) (succ y) = succ (min x y) := by
 @[simp] protected theorem min_self (a : Nat) : min a a = a := Nat.min_eq_left (Nat.le_refl _)
 instance : Std.IdempotentOp (α := Nat) min := ⟨Nat.min_self⟩
 
-@[simp] protected theorem zero_min (a) : min 0 a = 0 := Nat.min_eq_left (Nat.zero_le _)
-
-@[simp] protected theorem min_zero (a) : min a 0 = 0 := Nat.min_eq_right (Nat.zero_le _)
-
 @[simp] protected theorem min_assoc : ∀ (a b c : Nat), min (min a b) c = min a (min b c)
   | 0, _, _ => by rw [Nat.zero_min, Nat.zero_min, Nat.zero_min]
   | _, 0, _ => by rw [Nat.zero_min, Nat.min_zero, Nat.zero_min]
@@ -307,16 +300,16 @@ instance : Std.Associative (α := Nat) min := ⟨Nat.min_assoc⟩
 @[simp] protected theorem min_self_assoc' {m n : Nat} : min n (min m n) = min n m := by
   rw [Nat.min_comm m n, ← Nat.min_assoc, Nat.min_self]
 
-@[simp] theorem min_add_left {a b : Nat} : min a (b + a) = a := by
+@[simp] theorem min_add_left_self {a b : Nat} : min a (b + a) = a := by
   rw [Nat.min_def]
   simp
-@[simp] theorem min_add_right {a b : Nat} : min a (a + b) = a := by
+@[simp] theorem min_add_right_self {a b : Nat} : min a (a + b) = a := by
   rw [Nat.min_def]
   simp
-@[simp] theorem add_left_min {a b : Nat} : min (b + a) a = a := by
-  rw [Nat.min_comm, min_add_left]
-@[simp] theorem add_right_min {a b : Nat} : min (a + b) a = a := by
-  rw [Nat.min_comm, min_add_right]
+@[simp] theorem add_left_min_self {a b : Nat} : min (b + a) a = a := by
+  rw [Nat.min_comm, min_add_left_self]
+@[simp] theorem add_right_min_self {a b : Nat} : min (a + b) a = a := by
+  rw [Nat.min_comm, min_add_right_self]
 
 protected theorem sub_sub_eq_min : ∀ (a b : Nat), a - (a - b) = min a b
   | 0, _ => by rw [Nat.zero_sub, Nat.zero_min]
@@ -333,55 +326,35 @@ protected theorem sub_eq_sub_min (n m : Nat) : n - m = n - min n m := by
 @[simp] protected theorem sub_add_min_cancel (n m : Nat) : n - m + min n m = n := by
   rw [Nat.sub_eq_sub_min, Nat.sub_add_cancel (Nat.min_le_left ..)]
 
-protected theorem max_eq_right {a b : Nat} (h : a ≤ b) : max a b = b := if_pos h
-
-protected theorem max_eq_left {a b : Nat} (h : b ≤ a) : max a b = a := by
-  rw [Nat.max_comm]; exact Nat.max_eq_right h
-
 protected theorem succ_max_succ (x y) : max (succ x) (succ y) = succ (max x y) := by
   cases Nat.le_total x y with
   | inl h => rw [Nat.max_eq_right h, Nat.max_eq_right (Nat.succ_le_succ h)]
   | inr h => rw [Nat.max_eq_left h, Nat.max_eq_left (Nat.succ_le_succ h)]
 
-protected theorem max_le_of_le_of_le {a b c : Nat} : a ≤ c → b ≤ c → max a b ≤ c := by
-  intros; cases Nat.le_total a b with
-  | inl h => rw [Nat.max_eq_right h]; assumption
-  | inr h => rw [Nat.max_eq_left h]; assumption
-
-protected theorem max_le {a b c : Nat} : max a b ≤ c ↔ a ≤ c ∧ b ≤ c :=
-  ⟨fun h => ⟨Nat.le_trans (Nat.le_max_left ..) h, Nat.le_trans (Nat.le_max_right ..) h⟩,
-   fun ⟨h₁, h₂⟩ => Nat.max_le_of_le_of_le h₁ h₂⟩
-
-protected theorem max_lt {a b c : Nat} : max a b < c ↔ a < c ∧ b < c := by
-  rw [← Nat.succ_le, ← Nat.succ_max_succ a b]; exact Nat.max_le
-
 @[simp] protected theorem max_self (a : Nat) : max a a = a := Nat.max_eq_right (Nat.le_refl _)
 instance : Std.IdempotentOp (α := Nat) max := ⟨Nat.max_self⟩
 
-@[simp] protected theorem zero_max (a) : max 0 a = a := Nat.max_eq_right (Nat.zero_le _)
-
-@[simp] protected theorem max_zero (a) : max a 0 = a := Nat.max_eq_left (Nat.zero_le _)
 instance : Std.LawfulIdentity (α := Nat) max 0 where
   left_id := Nat.zero_max
   right_id := Nat.max_zero
 
-protected theorem max_assoc : ∀ (a b c : Nat), max (max a b) c = max a (max b c)
+@[simp] protected theorem max_assoc : ∀ (a b c : Nat), max (max a b) c = max a (max b c)
   | 0, _, _ => by rw [Nat.zero_max, Nat.zero_max]
   | _, 0, _ => by rw [Nat.zero_max, Nat.max_zero]
   | _, _, 0 => by rw [Nat.max_zero, Nat.max_zero]
   | _+1, _+1, _+1 => by simp only [Nat.succ_max_succ]; exact congrArg succ <| Nat.max_assoc ..
 instance : Std.Associative (α := Nat) max := ⟨Nat.max_assoc⟩
 
-@[simp] theorem max_add_left {a b : Nat} : max a (b + a) = b + a := by
+@[simp] theorem max_add_left_self {a b : Nat} : max a (b + a) = b + a := by
   rw [Nat.max_def]
   simp
-@[simp] theorem max_add_right {a b : Nat} : max a (a + b) = a + b := by
+@[simp] theorem max_add_right_self {a b : Nat} : max a (a + b) = a + b := by
   rw [Nat.max_def]
   simp
-@[simp] theorem add_left_max {a b : Nat} : max (b + a) a = b + a := by
-  rw [Nat.max_comm, max_add_left]
-@[simp] theorem add_right_max {a b : Nat} : max (a + b) a = a + b := by
-  rw [Nat.max_comm, max_add_right]
+@[simp] theorem add_left_max_self {a b : Nat} : max (b + a) a = b + a := by
+  rw [Nat.max_comm, max_add_left_self]
+@[simp] theorem add_right_max_self {a b : Nat} : max (a + b) a = a + b := by
+  rw [Nat.max_comm, max_add_right_self]
 
 protected theorem sub_add_eq_max (a b : Nat) : a - b + b = max a b := by
   match Nat.le_total a b with
@@ -423,22 +396,6 @@ protected theorem min_max_distrib_right (a b c : Nat) :
   repeat rw [Nat.min_comm _ c]
   exact Nat.min_max_distrib_left ..
 
-protected theorem add_max_add_right : ∀ (a b c : Nat), max (a + c) (b + c) = max a b + c
-  | _, _, 0 => rfl
-  | _, _, _+1 => Eq.trans (Nat.succ_max_succ ..) <| congrArg _ (Nat.add_max_add_right ..)
-
-protected theorem add_min_add_right : ∀ (a b c : Nat), min (a + c) (b + c) = min a b + c
-  | _, _, 0 => rfl
-  | _, _, _+1 => Eq.trans (Nat.succ_min_succ ..) <| congrArg _ (Nat.add_min_add_right ..)
-
-protected theorem add_max_add_left (a b c : Nat) : max (a + b) (a + c) = a + max b c := by
-  repeat rw [Nat.add_comm a]
-  exact Nat.add_max_add_right ..
-
-protected theorem add_min_add_left (a b c : Nat) : min (a + b) (a + c) = a + min b c := by
-  repeat rw [Nat.add_comm a]
-  exact Nat.add_min_add_right ..
-
 protected theorem pred_min_pred : ∀ (x y), min (pred x) (pred y) = pred (min x y)
   | 0, _ => by simp only [Nat.pred_zero, Nat.zero_min]
   | _, 0 => by simp only [Nat.pred_zero, Nat.min_zero]
@@ -462,58 +419,6 @@ protected theorem sub_min_sub_left (a b c : Nat) : min (a - b) (a - c) = a - max
 
 protected theorem sub_max_sub_left (a b c : Nat) : max (a - b) (a - c) = a - min b c := by
   omega
-
-protected theorem mul_max_mul_right (a b c : Nat) : max (a * c) (b * c) = max a b * c := by
-  induction a generalizing b with
-  | zero => simp
-  | succ i ind =>
-    cases b <;> simp [succ_eq_add_one, Nat.succ_mul, Nat.add_max_add_right, ind]
-
-protected theorem mul_min_mul_right (a b c : Nat) : min (a * c) (b * c) = min a b * c := by
-  induction a generalizing b with
-  | zero => simp
-  | succ i ind =>
-    cases b <;> simp [succ_eq_add_one, Nat.succ_mul, Nat.add_min_add_right, ind]
-
-protected theorem mul_max_mul_left (a b c : Nat) : max (a * b) (a * c) = a * max b c := by
-  repeat rw [Nat.mul_comm a]
-  exact Nat.mul_max_mul_right ..
-
-protected theorem mul_min_mul_left (a b c : Nat) : min (a * b) (a * c) = a * min b c := by
-  repeat rw [Nat.mul_comm a]
-  exact Nat.mul_min_mul_right ..
-
--- protected theorem sub_min_sub_left (a b c : Nat) : min (a - b) (a - c) = a - max b c := by
---   induction b, c using Nat.recDiagAux with
---   | zero_left => rw [Nat.sub_zero, Nat.zero_max]; exact Nat.min_eq_right (Nat.sub_le ..)
---   | zero_right => rw [Nat.sub_zero, Nat.max_zero]; exact Nat.min_eq_left (Nat.sub_le ..)
---   | succ_succ _ _ ih => simp only [Nat.sub_succ, Nat.succ_max_succ, Nat.pred_min_pred, ih]
-
--- protected theorem sub_max_sub_left (a b c : Nat) : max (a - b) (a - c) = a - min b c := by
---   induction b, c using Nat.recDiagAux with
---   | zero_left => rw [Nat.sub_zero, Nat.zero_min]; exact Nat.max_eq_left (Nat.sub_le ..)
---   | zero_right => rw [Nat.sub_zero, Nat.min_zero]; exact Nat.max_eq_right (Nat.sub_le ..)
---   | succ_succ _ _ ih => simp only [Nat.sub_succ, Nat.succ_min_succ, Nat.pred_max_pred, ih]
-
--- protected theorem mul_max_mul_right (a b c : Nat) : max (a * c) (b * c) = max a b * c := by
---   induction a, b using Nat.recDiagAux with
---   | zero_left => simp only [Nat.zero_mul, Nat.zero_max]
---   | zero_right => simp only [Nat.zero_mul, Nat.max_zero]
---   | succ_succ _ _ ih => simp only [Nat.succ_mul, Nat.add_max_add_right, ih]
-
--- protected theorem mul_min_mul_right (a b c : Nat) : min (a * c) (b * c) = min a b * c := by
---   induction a, b using Nat.recDiagAux with
---   | zero_left => simp only [Nat.zero_mul, Nat.zero_min]
---   | zero_right => simp only [Nat.zero_mul, Nat.min_zero]
---   | succ_succ _ _ ih => simp only [Nat.succ_mul, Nat.add_min_add_right, ih]
-
--- protected theorem mul_max_mul_left (a b c : Nat) : max (a * b) (a * c) = a * max b c := by
---   repeat rw [Nat.mul_comm a]
---   exact Nat.mul_max_mul_right ..
-
--- protected theorem mul_min_mul_left (a b c : Nat) : min (a * b) (a * c) = a * min b c := by
---   repeat rw [Nat.mul_comm a]
---   exact Nat.mul_min_mul_right ..
 
 /-! ### mul -/
 

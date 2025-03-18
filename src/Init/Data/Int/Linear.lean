@@ -320,7 +320,6 @@ theorem Poly.denote_div_eq_of_divAll (ctx : Context) (p : Poly) (k : Int) : p.di
     replace h₁ := div_mul_cancel_of_mod_zero h₁
     have ih := ih h₂
     simp [ih]
-    apply congrArg (denote ctx p + ·)
     rw [Int.mul_right_comm, h₁]
 
 attribute [local simp] Poly.divCoeffs Poly.getConst
@@ -420,7 +419,7 @@ theorem norm_eq_var_const (ctx : Context) (lhs rhs : Expr) (x : Var) (k : Int) (
   simp [norm_eq_var_const_cert] at h
   replace h := congrArg (Poly.denote ctx) h
   simp at h
-  rw [←Int.sub_eq_zero, h, Int.add_comm, ← Int.sub_eq_add_neg, Int.sub_eq_zero]
+  rw [←Int.sub_eq_zero, h, Int.add_comm, Int.add_neg_eq_sub, Int.sub_eq_zero]
 
 private theorem mul_eq_zero_iff (a k : Int) (h₁ : k > 0) : k * a = 0 ↔ a = 0 := by
   conv => lhs; rw [← Int.mul_zero k]
@@ -802,7 +801,7 @@ theorem dvd_solve_elim (ctx : Context) (d₁ : Int) (p₁ : Poly) (d₂ : Int) (
   intro _ hd _; subst x₁ p; simp
   intro h₁ h₂
   rw [Int.add_comm] at h₁ h₂
-  rw [← Int.sub_eq_add_neg]
+  rw [Int.add_neg_eq_sub]
   exact dvd_solve_elim' hd h₁ h₂
 
 theorem dvd_norm (ctx : Context) (d : Int) (p₁ p₂ : Poly) : p₁.norm == p₂ → d ∣ p₁.denote' ctx → d ∣ p₂.denote' ctx := by
@@ -1032,7 +1031,7 @@ theorem eq_of_core (ctx : Context) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
     : eq_of_core_cert p₁ p₂ p₃ → p₁.denote' ctx = p₂.denote' ctx → p₃.denote' ctx = 0 := by
   simp [eq_of_core_cert]
   intro; subst p₃; simp
-  intro h; rw [h, ←Int.sub_eq_add_neg, Int.sub_self]
+  intro h; rw [h, Int.add_neg_eq_sub, Int.sub_self]
 
 def Poly.isUnsatDiseq (p : Poly) : Bool :=
   match p with
@@ -1072,7 +1071,7 @@ theorem diseq_of_core (ctx : Context) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
   simp [eq_of_core_cert]
   intro; subst p₃; simp
   intro h; rw [← Int.sub_eq_zero] at h
-  rw [←Int.sub_eq_add_neg]; assumption
+  rw [Int.add_neg_eq_sub]; assumption
 
 def eq_of_le_ge_cert (p₁ p₂ : Poly) : Bool :=
   p₂ == p₁.mul (-1)
@@ -1624,7 +1623,7 @@ theorem cooper_unsat (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (α β : 
 theorem ediv_emod (x y : Int) : -1 * x + y * (x / y) + x % y = 0 := by
   rw [Int.add_assoc, Int.ediv_add_emod x y, Int.add_comm]
   simp
-  rw [← Int.sub_eq_add_neg, Int.sub_self]
+  rw [Int.add_neg_eq_sub, Int.sub_self]
 
 theorem emod_nonneg (x y : Int) : y != 0 → -1 * (x % y) ≤ 0 := by
   simp; intro h
@@ -1675,7 +1674,7 @@ private theorem dvd_le_tight' {d p b₁ b₂ : Int} (hd : d > 0) (h₁ : d ∣ p
     rw [h₁] at h₂; assumption
   have : d*k ≤ b₁ - b₂ := by
     rw [Int.sub_eq_add_neg, Int.add_assoc, Lean.Omega.Int.add_le_zero_iff_le_neg,
-        Int.neg_add, Int.neg_neg, ← Int.sub_eq_add_neg] at h₂
+        Int.neg_add, Int.neg_neg, Int.add_neg_eq_sub] at h₂
     assumption
   replace this : k ≤ (b₁ - b₂)/d := by
     rw [Int.mul_comm] at this; exact Int.le_ediv_of_mul_le hd this

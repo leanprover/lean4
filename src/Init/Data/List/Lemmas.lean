@@ -2813,7 +2813,7 @@ theorem getLast?_eq_some_iff {xs : List α} {a : α} : xs.getLast? = some a ↔ 
   exact ⟨fun ⟨ys, h⟩ => ⟨ys.reverse, by simpa using h⟩, fun ⟨ys, h⟩ => ⟨ys.reverse, by simpa using h⟩⟩
 
 @[simp] theorem getLast?_isSome : l.getLast?.isSome ↔ l ≠ [] := by
-  rw [getLast?_eq_head?_reverse, head?_isSome]
+  rw [getLast?_eq_head?_reverse, isSome_head?]
   simp
 
 theorem mem_of_getLast? {xs : List α} {a : α} (h : xs.getLast? = some a) : a ∈ xs := by

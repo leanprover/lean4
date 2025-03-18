@@ -175,7 +175,7 @@ theorem or_iff_not_imp_right : a ∨ b ↔ (¬b → a) := Decidable.or_iff_not_i
 
 theorem not_imp_iff_and_not : ¬(a → b) ↔ a ∧ ¬b := Decidable.not_imp_iff_and_not
 
-theorem not_and_iff_not_or_not : ¬(a ∧ b) ↔ ¬a ∨ ¬b := Decidable.not_and_iff_or_not_not
+theorem not_and_iff_not_or_not : ¬(a ∧ b) ↔ ¬a ∨ ¬b := Decidable.not_and_iff_not_or_not
 
 @[deprecated not_and_iff_not_or_not (since := "2025-03-18")]
 abbrev not_and_iff_or_not_not := @not_and_iff_not_or_not

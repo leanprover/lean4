@@ -675,7 +675,7 @@ theorem min?_eq_some_iff [TransCmp cmp] {km} :
     t.min? = some km ↔ t.get? km = some km ∧ ∀ k ∈ t, (cmp km k).isLE :=
   TreeMap.minKey?_eq_some_iff
 
-theorem min?_eq_some_iff_of_lawfulEqOrd [TransCmp cmp] [LawfulEqCmp cmp] {km} :
+theorem min?_eq_some_iff_of_lawfulEqCmp [TransCmp cmp] [LawfulEqCmp cmp] {km} :
     t.min? = some km ↔ km ∈ t ∧ ∀ k ∈ t, (cmp km k).isLE :=
   TreeMap.minKey?_eq_some_iff_of_lawfulEqOrd
 

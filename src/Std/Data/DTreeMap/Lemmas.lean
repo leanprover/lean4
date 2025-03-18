@@ -2783,7 +2783,7 @@ theorem minKey?_eq_some_iff [TransCmp cmp] {km} :
     t.minKey? = some km ↔ t.getKey? km = some km ∧ ∀ k ∈ t, (cmp km k).isLE :=
   Impl.minKey?_eq_some_iff t.wf
 
-theorem minKey?_eq_some_iff_of_lawfulEqOrd [TransCmp cmp] [LawfulEqCmp cmp] {km} :
+theorem minKey?_eq_some_iff_of_lawfulEqCmp [TransCmp cmp] [LawfulEqCmp cmp] {km} :
     t.minKey? = some km ↔ km ∈ t ∧ ∀ k ∈ t, (cmp km k).isLE :=
   Impl.minKey?_eq_some_iff_of_lawfulEqOrd t.wf
 

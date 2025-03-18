@@ -673,7 +673,7 @@ theorem min?_eq_some_iff [TransCmp cmp] (h : t.WF) {km} :
     t.min? = some km ↔ t.get? km = some km ∧ ∀ k ∈ t, (cmp km k).isLE :=
   DTreeMap.Raw.minKey?_eq_some_iff h
 
-theorem min?_eq_some_iff_of_lawfulEqOrd [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {km} :
+theorem min?_eq_some_iff_of_lawfulEqCmp [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {km} :
     t.min? = some km ↔ km ∈ t ∧ ∀ k ∈ t, (cmp km k).isLE :=
   DTreeMap.Raw.minKey?_eq_some_iff_of_lawfulEqOrd h
 

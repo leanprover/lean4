@@ -6,8 +6,10 @@ example : True := by
   have : 1 = 1 := by simp?
   trivial
 
+axiom test_sorry {α : Sort _} : α
+
 example : False := by
   let a := 1
   let b := 1
-  have : a = 1 → False := sorry
+  have : a = 1 → False := test_sorry
   simp (disch := simp [b]) [this, a]

@@ -645,7 +645,7 @@ def readBinFile (fname : FilePath) : IO ByteArray := do
     if size > 0 then
       handle.read mdata.byteSize.toUSize
     else
-      pure <| ByteArray.mkEmpty 0
+      pure <| ByteArray.emptyWithCapacity 0
   handle.readBinToEndInto buf
 
 def readFile (fname : FilePath) : IO String := do

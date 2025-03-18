@@ -83,6 +83,7 @@ LEAN_EXPORT lean_object* l_Int_Linear_Poly_casesOnNum(lean_object*, lean_object*
 LEAN_EXPORT uint8_t l_Int_Linear_cooper__dvd__right__split__dvd2__cert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_Poly_isUnsatEq___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_instInhabitedExpr;
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_x27_match__1_splitter___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Int_Linear_Expr_denote(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_Poly_mul_x27(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Int_Linear_Poly_divCoeffs(lean_object*, lean_object*);
@@ -108,6 +109,7 @@ LEAN_EXPORT uint8_t l_Int_Linear_emod__le__cert(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_isUnsatDiseq_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_gcd___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_Poly_mul(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_x27_go_match__1_splitter___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Int_Linear_Poly_isValidLe___boxed(lean_object*);
 static lean_object* l_Int_Linear_instBEqPoly___closed__1;
 LEAN_EXPORT lean_object* l_Int_Linear_instBEqPoly;
@@ -813,6 +815,15 @@ lean_dec(x_1);
 return x_3;
 }
 }
+static lean_object* _init_l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_x27_go_match__1_splitter___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(1u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_x27_go_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
@@ -851,7 +862,7 @@ lean_inc(x_11);
 x_12 = lean_ctor_get(x_1, 2);
 lean_inc(x_12);
 lean_dec(x_1);
-x_13 = l_Int_Linear_Poly_denote_x27_go___closed__1;
+x_13 = l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_x27_go_match__1_splitter___rarg___closed__1;
 x_14 = lean_int_dec_eq(x_10, x_13);
 if (x_14 == 0)
 {
@@ -925,6 +936,15 @@ x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Int_Linear_0__Int_Linear_
 return x_2;
 }
 }
+static lean_object* _init_l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_x27_match__1_splitter___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(1u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_x27_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -950,7 +970,7 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_1, 2);
 lean_inc(x_9);
 lean_dec(x_1);
-x_10 = l_Int_Linear_Poly_denote_x27_go___closed__1;
+x_10 = l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_x27_match__1_splitter___rarg___closed__1;
 x_11 = lean_int_dec_eq(x_7, x_10);
 if (x_11 == 0)
 {
@@ -5847,6 +5867,10 @@ l_Int_Linear_instBEqPoly = _init_l_Int_Linear_instBEqPoly();
 lean_mark_persistent(l_Int_Linear_instBEqPoly);
 l_Int_Linear_Poly_denote_x27_go___closed__1 = _init_l_Int_Linear_Poly_denote_x27_go___closed__1();
 lean_mark_persistent(l_Int_Linear_Poly_denote_x27_go___closed__1);
+l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_x27_go_match__1_splitter___rarg___closed__1 = _init_l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_x27_go_match__1_splitter___rarg___closed__1();
+lean_mark_persistent(l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_x27_go_match__1_splitter___rarg___closed__1);
+l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_x27_match__1_splitter___rarg___closed__1 = _init_l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_x27_match__1_splitter___rarg___closed__1();
+lean_mark_persistent(l___private_Init_Data_Int_Linear_0__Int_Linear_Poly_denote_x27_match__1_splitter___rarg___closed__1);
 l_Int_Linear_Expr_toPoly_x27___closed__1 = _init_l_Int_Linear_Expr_toPoly_x27___closed__1();
 lean_mark_persistent(l_Int_Linear_Expr_toPoly_x27___closed__1);
 l_Int_Linear_norm__eq__var__cert___closed__1 = _init_l_Int_Linear_norm__eq__var__cert___closed__1();

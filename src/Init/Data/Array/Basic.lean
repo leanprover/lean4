@@ -252,7 +252,7 @@ instance [BEq α] : BEq (Array α) :=
 ```
 ofFn f = #[f 0, f 1, ... , f(n - 1)]
 ``` -/
-def ofFn {n} (f : Fin n → α) : Array α := go 0 (mkEmpty n) where
+def ofFn {n} (f : Fin n → α) : Array α := go 0 (emptyWithCapacity n) where
   /-- Auxiliary for `ofFn`. `ofFn.go f i acc = acc ++ #[f i, ..., f(n - 1)]` -/
   @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
   go (i : Nat) (acc : Array α) : Array α :=
@@ -503,7 +503,7 @@ def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α �
       else
         pure bs
   decreasing_by simp_wf; decreasing_trivial_pre_omega
-  map 0 (mkEmpty as.size)
+  map 0 (emptyWithCapacity as.size)
 
 @[deprecated mapM (since := "2024-11-11")] abbrev sequenceMap := @mapM
 
@@ -520,7 +520,7 @@ def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
         apply Nat.le_add_right
       have : i + (j + 1) = as.size := by rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
       map i (j+1) this (bs.push (← f j as[j] j_lt))
-  map as.size 0 rfl (mkEmpty as.size)
+  map as.size 0 rfl (emptyWithCapacity as.size)
 
 @[inline]
 def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : Nat → α → m β) (as : Array α) : m (Array β) :=

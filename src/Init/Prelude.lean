@@ -2658,7 +2658,7 @@ array, so it has comparable performance to mutable arrays in imperative
 programming languages.
 
 An array has a size and a capacity; the size is `Array.size` but the capacity
-is not observable from Lean code. `Array.mkEmpty n` creates an array which is equal to `#[]`,
+is not observable from Lean code. `Array.emptyWithCapacity n` creates an array which is equal to `#[]`,
 but internally allocates an array of capacity `n`.
 
 From the point of view of proofs `Array α` is just a wrapper around `List α`.
@@ -2692,13 +2692,22 @@ list.
 @[match_pattern]
 abbrev List.toArray (xs : List α) : Array α := .mk xs
 
-/-- Construct a new empty array with initial capacity `c`. -/
+/-- Construct a new empty array with initial capacity `c`.
+
+This will be deprecated in favor of `Array.emptyWithCapacity` in the future.
+-/
 @[extern "lean_mk_empty_array_with_capacity"]
 def Array.mkEmpty {α : Type u} (c : @& Nat) : Array α where
   toList := List.nil
 
+
+set_option linter.unusedVariables false in
+/-- Construct a new empty array with initial capacity `c`. -/
+def Array.emptyWithCapacity {α : Type u} (c : @& Nat) : Array α where
+  toList := List.nil
+
 /-- Construct a new empty array. -/
-def Array.empty {α : Type u} : Array α := mkEmpty 0
+def Array.empty {α : Type u} : Array α := emptyWithCapacity 0
 
 /-- Get the size of an array. This is a cached value, so it is O(1) to access. -/
 @[reducible, extern "lean_array_get_size"]
@@ -2742,39 +2751,39 @@ def Array.push {α : Type u} (a : Array α) (v : α) : Array α where
 
 /-- Create array `#[]` -/
 def Array.mkArray0 {α : Type u} : Array α :=
-  mkEmpty 0
+  emptyWithCapacity 0
 
 /-- Create array `#[a₁]` -/
 def Array.mkArray1 {α : Type u} (a₁ : α) : Array α :=
-  (mkEmpty 1).push a₁
+  (emptyWithCapacity 1).push a₁
 
 /-- Create array `#[a₁, a₂]` -/
 def Array.mkArray2 {α : Type u} (a₁ a₂ : α) : Array α :=
-  ((mkEmpty 2).push a₁).push a₂
+  ((emptyWithCapacity 2).push a₁).push a₂
 
 /-- Create array `#[a₁, a₂, a₃]` -/
 def Array.mkArray3 {α : Type u} (a₁ a₂ a₃ : α) : Array α :=
-  (((mkEmpty 3).push a₁).push a₂).push a₃
+  (((emptyWithCapacity 3).push a₁).push a₂).push a₃
 
 /-- Create array `#[a₁, a₂, a₃, a₄]` -/
 def Array.mkArray4 {α : Type u} (a₁ a₂ a₃ a₄ : α) : Array α :=
-  ((((mkEmpty 4).push a₁).push a₂).push a₃).push a₄
+  ((((emptyWithCapacity 4).push a₁).push a₂).push a₃).push a₄
 
 /-- Create array `#[a₁, a₂, a₃, a₄, a₅]` -/
 def Array.mkArray5 {α : Type u} (a₁ a₂ a₃ a₄ a₅ : α) : Array α :=
-  (((((mkEmpty 5).push a₁).push a₂).push a₃).push a₄).push a₅
+  (((((emptyWithCapacity 5).push a₁).push a₂).push a₃).push a₄).push a₅
 
 /-- Create array `#[a₁, a₂, a₃, a₄, a₅, a₆]` -/
 def Array.mkArray6 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ : α) : Array α :=
-  ((((((mkEmpty 6).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆
+  ((((((emptyWithCapacity 6).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆
 
 /-- Create array `#[a₁, a₂, a₃, a₄, a₅, a₆, a₇]` -/
 def Array.mkArray7 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ a₇ : α) : Array α :=
-  (((((((mkEmpty 7).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇
+  (((((((emptyWithCapacity 7).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇
 
 /-- Create array `#[a₁, a₂, a₃, a₄, a₅, a₆, a₇, a₈]` -/
 def Array.mkArray8 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈ : α) : Array α :=
-  ((((((((mkEmpty 8).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇).push a₈
+  ((((((((emptyWithCapacity 8).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇).push a₈
 
 /-- Slower `Array.append` used in quotations. -/
 protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : Array α :=
@@ -2801,7 +2810,7 @@ def Array.extract (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : A
         | Nat.succ i' => loop i' (hAdd j 1) (bs.push (as.getInternal j hlt)))
       (fun _ => bs)
   let sz' := Nat.sub (min stop as.size) start
-  loop sz' start (mkEmpty sz')
+  loop sz' start (emptyWithCapacity sz')
 
 /-- The typeclass which supplies the `>>=` "bind" function. See `Monad`. -/
 class Bind (m : Type u → Type v) where

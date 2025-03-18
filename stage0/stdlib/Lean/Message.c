@@ -12790,7 +12790,7 @@ static lean_object* _init_l_Lean_Kernel_Exception_toMessageData___closed__28() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("application type mismatch", 25, 25);
+x_1 = lean_mk_string_unchecked("(kernel) application type mismatch", 34, 34);
 return x_1;
 }
 }

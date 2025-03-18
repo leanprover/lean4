@@ -1956,7 +1956,7 @@ static lean_object* _init_l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DH
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Raw.WF.empty₀", 15, 13);
+x_1 = lean_mk_string_unchecked("Raw.WF.emptyWithCapacity₀", 27, 25);
 return x_1;
 }
 }
@@ -1973,7 +1973,7 @@ static lean_object* _init_l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DH
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("empty₀", 8, 6);
+x_1 = lean_mk_string_unchecked("emptyWithCapacity₀", 20, 18);
 return x_1;
 }
 }

@@ -86,6 +86,7 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Std_DHashMap_ofList___spec__
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Std_DHashMap_Const_forInUncurried___spec__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_repr___at_Std_DHashMap_instRepr___spec__3___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Std_DHashMap_getKey_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_emptyWithCapacity___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_DHashMap_instForMSigma___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_DHashMap_keysArray___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Raw_Internal_numBuckets___rarg(lean_object*);
@@ -226,6 +227,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_alter___rarg(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_List_repr___at_Std_DHashMap_instRepr___spec__7___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldrM___at_Std_DHashMap_instRepr___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_repr___at_Std_DHashMap_instRepr___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_emptyWithCapacity___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_fold___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Std_DHashMap_Const_ofList___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_forM(lean_object*, lean_object*, lean_object*);
@@ -421,6 +423,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Std_DHash
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_DHashMap_partition___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_DHashMap_valuesArray___spec__2(lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_emptyWithCapacity(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
 static size_t l_Std_DHashMap_instSingletonSigma___rarg___closed__2;
@@ -433,6 +436,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Const_toList___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Const_get_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_alter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_DHashMap_keysArray___spec__2___rarg(lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_emptyWithCapacity___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_getKey_x3f___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_repr___at_Std_DHashMap_instRepr___spec__2___rarg___closed__7;
@@ -507,6 +511,54 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_erase___rarg(lean_object*, lean_object*,
 static lean_object* l_Std_DHashMap_term___x7em_____closed__7;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_DHashMap_forM___spec__2___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Const_toList(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DHashMap_emptyWithCapacity___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_2 = lean_unsigned_to_nat(4u);
+x_3 = lean_nat_mul(x_1, x_2);
+x_4 = lean_unsigned_to_nat(3u);
+x_5 = lean_nat_div(x_3, x_4);
+lean_dec(x_3);
+x_6 = lean_unsigned_to_nat(1u);
+x_7 = l_Nat_nextPowerOfTwo_go(x_5, x_6, lean_box(0));
+lean_dec(x_5);
+x_8 = lean_box(0);
+x_9 = lean_mk_array(x_7, x_8);
+x_10 = lean_unsigned_to_nat(0u);
+x_11 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_11, 0, x_10);
+lean_ctor_set(x_11, 1, x_9);
+return x_11;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_emptyWithCapacity(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = lean_alloc_closure((void*)(l_Std_DHashMap_emptyWithCapacity___rarg___boxed), 1, 0);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_emptyWithCapacity___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Std_DHashMap_emptyWithCapacity___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DHashMap_emptyWithCapacity___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_DHashMap_emptyWithCapacity(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Std_DHashMap_empty___rarg(lean_object* x_1) {
 _start:
 {

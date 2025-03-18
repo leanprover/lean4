@@ -68,17 +68,17 @@ private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) 
   logInfo m
 
 /--
-Computes the origin of a field. Returns its projection function at the origin.
+Computes the origin of a field. Returns its `StructureFieldInfo` at the origin.
 Multiple parents could be the origin of a field, but we say the first parent that provides it is the one that determines the origin.
 -/
-private partial def getFieldOrigin (structName field : Name) : MetaM Name := do
+private partial def getFieldOrigin (structName field : Name) : MetaM StructureFieldInfo := do
   let env ← getEnv
   for parent in getStructureParentInfo env structName do
     if (findField? env parent.structName field).isSome then
       return ← getFieldOrigin parent.structName field
   let some fi := getFieldInfo? env structName field
     | throwError "no such field {field} in {structName}"
-  return fi.projFn
+  return fi
 
 open Meta in
 private def printStructure (id : Name) (levelParams : List Name) (numParams : Nat) (type : Expr)
@@ -110,10 +110,16 @@ private def printStructure (id : Name) (levelParams : List Name) (numParams : Na
         m := m ++ Format.line ++ "fields:"
         for field in fields do
           let some source := findField? env id field | panic! "missing structure field info"
-          let proj ← getFieldOrigin source field
+          let fi ← getFieldOrigin source field
+          let proj := fi.projFn
           let modifier := if isPrivateName proj then "private " else ""
           let ftype ← inferType (← mkProjection self field)
-          m := m ++ indentD (m!"{modifier}{.ofConstName proj (fullNames := true)} : {ftype}")
+          let value :=
+            if fi.autoParam?.isSome then
+              m!" := by ⋯"
+            else
+              m!""
+          m := m ++ indentD (m!"{modifier}{.ofConstName proj (fullNames := true)} : {ftype}{value}")
       -- Constructor
       let cinfo := getStructureCtor (← getEnv) id
       let ctorModifier := if isPrivateName cinfo.name then "private " else ""

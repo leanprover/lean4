@@ -3269,6 +3269,187 @@ end Const
 
 end filterMap
 
+section filter
+
+theorem isEmpty_filter_iff [LawfulBEq α]
+    {f : (a : α) → β a→ Bool} (h : m.1.WF) :
+    (m.filter f).1.isEmpty = true ↔
+      ∀ (k : α) (h : m.contains k = true), f k (m.get k h) = false := by
+  simp_to_model [filter] using List.isEmpty_filter_eq_true
+
+theorem isEmpty_filter_eq_false_iff [LawfulBEq α]
+    {f : (a : α) → β a→ Bool} (h : m.1.WF) :
+    (m.filter f).1.isEmpty = false ↔
+      ∃ (k : α) (h : m.contains k = true), f k (m.get k h) = true := by
+  simp_to_model [filter] using List.isEmpty_filter_eq_false
+
+theorem contains_filter [LawfulBEq α]
+    {f : (a : α) → β a→ Bool} {k : α} (h : m.1.WF) :
+    (m.filter f).contains k = (m.get? k).any (f k ·) := by
+  simp_to_model [filter] using List.containsKey_filter
+
+theorem contains_of_contains_filter [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β a→ Bool} {k : α} (h : m.1.WF) :
+    (m.filter f).contains k = true → m.contains k = true := by
+  simp_to_model [filter] using containsKey_of_containsKey_filter
+
+theorem size_filter_le_size [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β a→ Bool} (h : m.1.WF) :
+    (m.filter f).1.size ≤ m.1.size := by
+  simp_to_model [filter] using List.length_filter_le
+
+theorem size_filter_eq_size_iff [LawfulBEq α]
+    {f : (a : α) → β a→ Bool} (h : m.1.WF) :
+    (m.filter f).1.size = m.1.size ↔ ∀ (a : α) (h : m.contains a), (f a (m.get a h)) = true := by
+  simp_to_model [filter] using List.length_filter_eq_length_iff
+
+theorem get?_filter [LawfulBEq α]
+    {f : (a : α) → β a→ Bool} {k : α} (h : m.1.WF) :
+    (m.filter f).get? k = (m.get? k).filter (f k) := by
+  simp_to_model [filter] using List.getValueCast?_filter
+
+theorem get_filter [LawfulBEq α]
+    {f : (a : α) → β a→ Bool} {k : α} (h : m.1.WF) {h'} :
+    (m.filter f).get k h' =
+      m.get k (contains_of_contains_filter m h h') := by
+  simp_to_model [filter] using List.getValueCast_filter
+
+theorem get!_filter [LawfulBEq α]
+    {f : (a : α) → β a→ Bool} {k : α} [Inhabited (β k)] (h : m.1.WF) :
+    (m.filter f).get! k = ((m.get? k).filter (f k)).get! := by
+  simp_to_model [filter] using List.getValueCast!_filter
+
+theorem getD_filter [LawfulBEq α]
+    {f : (a : α) → β a→ Bool} {k : α} {fallback : β k} (h : m.1.WF) :
+    (m.filter f).getD k fallback = ((m.get? k).filter (f k)).getD fallback := by
+  simp_to_model [filter] using List.getValueCastD_filter
+
+omit [BEq α] [Hashable α] in
+theorem toList_filter
+    {f : (a : α) → β a→ Bool} :
+    (m.filter f).1.toList.Perm
+      (m.1.toList.filter (fun p => (f p.1 p.2))) := by
+  simp_to_model [filter, toList, Equiv] using List.Perm.rfl
+
+theorem getKey?_filter [LawfulBEq α]
+    {f : (a : α) → β a→ Bool} {k : α} (h : m.1.WF) :
+    (m.filter f).getKey? k =
+    (m.getKey? k).pfilter (fun x h' =>
+      f x (m.get x (contains_of_getKey?_eq_some m h h'))) := by
+  simp_to_model [filter] using List.getKey?_filter
+
+theorem getKey_filter [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β a→ Bool} {k : α} (h : m.1.WF) {h'}:
+    (m.filter f).getKey k h' = m.getKey k (contains_of_contains_filter m h h') := by
+  simp_to_model [filter] using List.getKey_filter
+
+theorem getKey!_filter [LawfulBEq α] [Inhabited α]
+    {f : (a : α) → β a→ Bool} {k : α} (h : m.1.WF) :
+    (m.filter f).getKey! k =
+    ((m.getKey? k).pfilter (fun x h' =>
+      f x (m.get x (contains_of_getKey?_eq_some m h h')))).get! := by
+  simp_to_model [filter] using List.getKey!_filter
+
+theorem getKeyD_filter [LawfulBEq α]
+    {f : (a : α) → β a→ Bool} {k fallback : α} (h : m.1.WF) :
+    (m.filter f).getKeyD k fallback =
+    ((m.getKey? k).pfilter (fun x h' =>
+      f x (m.get x (contains_of_getKey?_eq_some m h h')))).getD fallback := by
+  simp_to_model [filter] using List.getKeyD_filter
+
+namespace Const
+
+variable {β : Type v} {γ : Type w} (m : Raw₀ α (fun _ => β))
+
+theorem isEmpty_filter_iff [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β → Bool} (h : m.1.WF) :
+    (m.filter f).1.isEmpty = true ↔
+      ∀ (k : α) (h : m.contains k = true), f (m.getKey k h) (Const.get m k h) = false := by
+  simp_to_model [filter] using List.Const.isEmpty_filter_eq_true
+
+theorem isEmpty_filter_eq_false_iff [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β → Bool} (h : m.1.WF) :
+    (m.filter f).1.isEmpty = false ↔
+      ∃ (k : α) (h : m.contains k = true), (f (m.getKey k h) (Const.get m k h)) = true := by
+  simp_to_model [filter] using List.Const.isEmpty_filter_eq_false
+
+theorem contains_filter_iff [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β → Bool} {k : α} (h : m.1.WF) :
+    (m.filter f).contains k = true ↔ ∃ (h' : m.contains k = true),
+      (f (m.getKey k h') (Const.get m k h')) := by
+  simp_to_model [filter] using List.Const.containsKey_filter_iff
+
+theorem contains_filter_eq_false_iff [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β → Bool} {k : α} (h : m.1.WF) :
+    (m.filter f).contains k = false ↔ ∀ (h' : m.contains k = true),
+      (f (m.getKey k h') (Const.get m k h')) = false := by
+  simp_to_model [filter] using List.Const.containsKey_filter_eq_false_iff
+
+theorem size_filter_eq_size_iff [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β → Bool} (h : m.1.WF) :
+    (m.filter f).1.size = m.1.size ↔ ∀ (a : α) (h : m.contains a),
+      f (m.getKey a h) (Const.get m a h) := by
+  simp_to_model [filter] using List.Const.length_filter_eq_length_iff
+
+theorem get?_filter [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β → Bool} {k : α} (h : m.1.WF) :
+    Const.get? (m.filter f) k = (m.getKey? k).bind (fun x => (Const.get? m k).filter (f x)) := by
+  simp_to_model [filter] using List.Const.getValue?_filter
+
+theorem get_filter [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β → Bool} {k : α} (h : m.1.WF) {h'} :
+    Const.get (m.filter f) k h' = Const.get m k (contains_of_contains_filter m h h') := by
+  simp_to_model [filter] using List.getValue_filter
+
+theorem get!_filter [EquivBEq α] [LawfulHashable α] [Inhabited β]
+    {f : (a : α) → β → Bool} {k : α} (h : m.1.WF) :
+    Const.get! (m.filter f) k =
+      ((m.getKey? k).bind (fun x => (Const.get? m k).filter (f x))).get! := by
+  simp_to_model [filter] using List.Const.getValue!_filter
+
+theorem getD_filter [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β → Bool} {k : α} {fallback : β} (h : m.1.WF) :
+    Const.getD (m.filter f) k fallback =
+      ((m.getKey? k).bind (fun x => (Const.get? m k).filter (f x))).getD fallback := by
+  simp_to_model [filter] using List.Const.getValueD_filter
+
+--theorem toList_filter [EquivBEq α] [LawfulHashable α]
+--    {f : (a : α) → β → Bool} (h : m.1.WF) :
+--    (Raw.Const.toList (m.filter f).1).Perm
+--      ((Raw.Const.toList m.1).filter (fun p => (f p.1 p.2).map (fun x => ⟨p.1, x⟩))) := by
+--  simp_to_model [filter, Const.toList, Equiv]
+--  sorry
+
+theorem getKey?_filter [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β → Bool} {k : α} (h : m.1.WF) :
+    (m.filter f).getKey? k =
+    (m.getKey? k).pfilter (fun x h' =>
+      (f x (Const.get m x (contains_of_getKey?_eq_some m h h')))) := by
+  simp_to_model [filter] using List.Const.getKey?_filter
+
+theorem getKey_filter [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β → Bool} {k : α} (h : m.1.WF) {h'}:
+    (m.filter f).getKey k h' = m.getKey k (contains_of_contains_filter m h h') := by
+  simp_to_model [filter] using List.getKey_filter
+
+theorem getKey!_filter [EquivBEq α] [LawfulHashable α] [Inhabited α]
+    {f : (a : α) → β → Bool} {k : α} (h : m.1.WF) :
+    (m.filter f).getKey! k =
+    ((m.getKey? k).pfilter (fun x h' =>
+      (f x (Const.get m x (contains_of_getKey?_eq_some m h h'))))).get! := by
+  simp_to_model [filter] using List.Const.getKey!_filter
+
+theorem getKeyD_filter [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β → Bool} {k fallback : α} (h : m.1.WF) :
+    (m.filter f).getKeyD k fallback =
+    ((m.getKey? k).pfilter (fun x h' =>
+      (f x (Const.get m x (contains_of_getKey?_eq_some m h h'))))).getD fallback := by
+  simp_to_model [filter] using List.Const.getKeyD_filter
+
+end Const
+
+end filter
+
 end Raw₀
 
 end Std.DHashMap.Internal

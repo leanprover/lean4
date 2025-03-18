@@ -90,7 +90,8 @@ where
     let pipeline ← passPipeline
     let some g' ← Pass.fixpointPipeline pipeline g | return none
     /-
-    Run short circuiting once post fixpoint, as it potentially increases size of terms.
+    Run short circuiting once post fixpoint, as it increases the size of terms with
+    the aim of exposing potential short-circuit reasoning to the solver.
     -/
     shortCircuitPass |>.run g'
 

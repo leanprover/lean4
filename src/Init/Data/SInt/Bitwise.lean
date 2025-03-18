@@ -63,6 +63,12 @@ theorem Bool.toBitVec_toISize {b : Bool} :
 @[simp] theorem UInt64.toInt64_add (a b : UInt64) : (a + b).toInt64 = a.toInt64 + b.toInt64 := rfl
 @[simp] theorem USize.toISize_add (a b : USize) : (a + b).toISize = a.toISize + b.toISize := rfl
 
+@[simp] theorem UInt8.toInt8_neg (a : UInt8) : (-a).toInt8 = -a.toInt8 := rfl
+@[simp] theorem UInt16.toInt16_neg (a : UInt16) : (-a).toInt16 = -a.toInt16 := rfl
+@[simp] theorem UInt32.toInt32_neg (a : UInt32) : (-a).toInt32 = -a.toInt32 := rfl
+@[simp] theorem UInt64.toInt64_neg (a : UInt64) : (-a).toInt64 = -a.toInt64 := rfl
+@[simp] theorem USize.toISize_neg (a : USize) : (-a).toISize = -a.toISize := rfl
+
 @[simp] theorem UInt8.toInt8_sub (a b : UInt8) : (a - b).toInt8 = a.toInt8 - b.toInt8 := rfl
 @[simp] theorem UInt16.toInt16_sub (a b : UInt16) : (a - b).toInt16 = a.toInt16 - b.toInt16 := rfl
 @[simp] theorem UInt32.toInt32_sub (a b : UInt32) : (a - b).toInt32 = a.toInt32 - b.toInt32 := rfl
@@ -74,7 +80,6 @@ theorem Bool.toBitVec_toISize {b : Bool} :
 @[simp] theorem UInt32.toInt32_mul (a b : UInt32) : (a * b).toInt32 = a.toInt32 * b.toInt32 := rfl
 @[simp] theorem UInt64.toInt64_mul (a b : UInt64) : (a * b).toInt64 = a.toInt64 * b.toInt64 := rfl
 @[simp] theorem USize.toISize_mul (a b : USize) : (a * b).toISize = a.toISize * b.toISize := rfl
-
 
 @[simp] theorem UInt8.toInt8_and (a b : UInt8) : (a &&& b).toInt8 = a.toInt8 &&& b.toInt8 := rfl
 @[simp] theorem UInt16.toInt16_and (a b : UInt16) : (a &&& b).toInt16 = a.toInt16 &&& b.toInt16 := rfl

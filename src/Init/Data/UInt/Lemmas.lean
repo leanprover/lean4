@@ -294,6 +294,22 @@ theorem UInt32.le_ofNat_iff {n : UInt32} {m : Nat} (h : m < size) : n ≤ ofNat 
 theorem UInt32.ofNat_le_iff {n : UInt32} {m : Nat} (h : m < size) : ofNat m ≤ n ↔ m ≤ n.toNat := by
   rw [le_iff_toNat_le, toNat_ofNat_of_lt' h]
 
+@[deprecated UInt32.lt_ofNat_iff (since := "2025-03-18")]
+theorem UInt32.toNat_lt_of_lt {n : UInt32} {m : Nat} (h : m < size) : n < ofNat m → n.toNat < m :=
+  (UInt32.lt_ofNat_iff h).1
+
+@[deprecated UInt32.ofNat_lt_iff (since := "2025-03-18")]
+theorem UInt32.lt_toNat_of_lt {n : UInt32} {m : Nat} (h : m < size) : ofNat m < n → m < n.toNat :=
+  (UInt32.ofNat_lt_iff h).1
+
+@[deprecated UInt32.le_ofNat_iff (since := "2025-03-18")]
+theorem UInt32.toNat_le_of_le {n : UInt32} {m : Nat} (h : m < size) : n ≤ ofNat m → n.toNat ≤ m :=
+  (UInt32.le_ofNat_iff h).1
+
+@[deprecated UInt32.ofNat_le_iff (since := "2025-03-18")]
+theorem UInt32.le_toNat_of_le {n : UInt32} {m : Nat} (h : m < size) : ofNat m ≤ n → m ≤ n.toNat :=
+  (UInt32.ofNat_le_iff h).1
+
 theorem UInt64.lt_ofNat_iff {n : UInt64} {m : Nat} (h : m < size) : n < ofNat m ↔ n.toNat < m := by
   rw [lt_iff_toNat_lt, toNat_ofNat_of_lt' h]
 theorem UInt64.ofNat_lt_iff {n : UInt64} {m : Nat} (h : m < size) : ofNat m < n ↔ m < n.toNat := by

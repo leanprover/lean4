@@ -348,11 +348,6 @@ theorem USize.shiftRight_eq_shiftRight_mod (a b : USize) : a >>> b = a >>> (b % 
   · cases System.Platform.numBits_eq <;> simp_all
   · cases System.Platform.numBits_eq <;> simp_all [Nat.mod_lt]
 
-@[simp] theorem UInt8.toUInt16_lt {a b : UInt8} : a.toUInt16 < b.toUInt16 ↔ a < b := Iff.rfl
-@[simp] theorem UInt8.toUInt32_lt {a b : UInt8} : a.toUInt32 < b.toUInt32 ↔ a < b := Iff.rfl
-@[simp] theorem UInt8.toUInt64_lt {a b : UInt8} : a.toUInt64 < b.toUInt64 ↔ a < b := Iff.rfl
-@[simp] theorem UInt8.toUSize_lt {a b : UInt8} : a.toUSize < b.toUSize ↔ a < b := Iff.rfl
-
 theorem UInt8.toUInt16_shiftLeft_of_lt (a b : UInt8) (hb : b < 8) : (a <<< b).toUInt16 = (a.toUInt16 <<< b.toUInt16) % 256 := by
   rwa [UInt8.toUInt16_eq_mod_256_iff, UInt16.toUInt8_shiftLeft, toUInt8_toUInt16, toUInt8_toUInt16]
 theorem UInt8.toUInt32_shiftLeft_of_lt (a b : UInt8) (hb : b < 8) : (a <<< b).toUInt32 = (a.toUInt32 <<< b.toUInt32) % 256 := by

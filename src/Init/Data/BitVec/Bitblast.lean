@@ -1299,7 +1299,6 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
     simp
     omega
 
-
 theorem negOverflow_eq {w : Nat} (x : BitVec w) :
     (negOverflow x) = ((0 < w) && (x = intMin w)) := by
   simp only [negOverflow]

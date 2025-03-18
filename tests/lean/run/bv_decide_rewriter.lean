@@ -621,6 +621,8 @@ example {x y : BitVec 8} : (-x) <<< y = -(x <<< y) := by bv_normalize
 
 example {x : BitVec 16} : (x = BitVec.allOnes 16) → (BitVec.uaddOverflow x x) := by bv_decide
 
+example {x : BitVec 64} : (x = BitVec.intMin 64) → (BitVec.negOverflow x) := by bv_decide
+
 section
 
 namespace NormalizeMul

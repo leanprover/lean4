@@ -113,7 +113,7 @@ theorem mul_mul_eq_mul_mul (x₁ x₂ y₁ y₂ z : BitVec 4) (h₁ : x₁ = x�
     x₁ * (y₁ * z) = x₂ * (y₂ * z) := by
   bv_normalize
   rename_i tgt
-  guard_hyp tgt :ₛ (!z * (x₁ * y₁) == z * (x₂ * y₂)) = true
+  guard_hyp tgt :ₛ (!!(!x₁ * y₁ == x₂ * y₂ && !z * (x₁ * y₁) == z * (x₂ * y₂))) = true
   sorry
 
 /-- warning: declaration uses 'sorry' -/
@@ -122,7 +122,7 @@ theorem mul_eq_mul_eq_right (x y z : BitVec 64) (h : x = y) :
     x * z = y * z := by
   bv_normalize
   rename_i tgt
-  guard_hyp tgt :ₛ (!z * x == z * y) = true
+  guard_hyp tgt :ₛ (!!(!x == y && !z * x == z * y)) = true
   sorry
 
 theorem add_mul_mixed (x y z : BitVec 64) :

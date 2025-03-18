@@ -18,7 +18,7 @@ namespace UDP
 open Std.Net
 
 /--
-A high-level wrapper around a UDP socket.
+Represents a UDP socket.
 -/
 structure Socket where
   private ofNative ::

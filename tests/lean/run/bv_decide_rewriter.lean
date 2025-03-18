@@ -633,6 +633,18 @@ example {x y : BitVec 8} : (-x) <<< y = -(x <<< y) := by bv_normalize
 
 example {x : BitVec 16} : (x = BitVec.allOnes 16) → (BitVec.uaddOverflow x x) := by bv_decide
 
+example {x : BitVec 16} : (x = BitVec.allOnes 16) → (BitVec.uaddOverflow x x) := by bv_decide
+
+example {x : BitVec 16} : (x = BitVec.allOnes 16) → (BitVec.umulOverflow x x) := by bv_decide
+
+example {x : BitVec 8} : (x = -32#8) → (BitVec.smulOverflow x x) := by bv_decide
+
+example {x : BitVec 8} : (x = 0#8) → (¬ BitVec.smulOverflow x x) := by bv_decide
+
+example {x : BitVec 8} : (x ≥ -2#8) → (¬ BitVec.smulOverflow x x) := by bv_decide
+
+example {x : BitVec 8} : (x < 12#8) → (¬ BitVec.smulOverflow x x) := by bv_decide
+
 section
 
 namespace NormalizeMul
@@ -651,17 +663,7 @@ example (x y : BitVec 256) : x * y * z = z * y * x := by
 
 end NormalizeMul
 
-example {x : BitVec 16} : (x = BitVec.allOnes 16) → (BitVec.uaddOverflow x x) := by bv_decide
 
-example {x : BitVec 16} : (x = BitVec.allOnes 16) → (BitVec.umulOverflow x x) := by bv_decide
-
-example {x : BitVec 8} : (x = -32#8) → (BitVec.smulOverflow x x) := by bv_decide
-
-example {x : BitVec 8} : (x = 0#8) → (¬ BitVec.smulOverflow x x) := by bv_decide
-
-example {x : BitVec 8} : (x ≥ -2#8) → (¬ BitVec.smulOverflow x x) := by bv_decide
-
-example {x : BitVec 8} : (x < 12#8) → (¬ BitVec.smulOverflow x x) := by bv_decide
 
 end
 

@@ -34,7 +34,7 @@ partial def expandCoe (e : Expr) : MetaM Expr :=
 
 register_builtin_option autoLift : Bool := {
   defValue := true
-  descr    := "insert monadic lifts (i.e., `liftM` and coercions) when needed"
+  descr    := "Insert monadic lifts (i.e., `liftM` and coercions) when needed."
 }
 
 /-- Coerces `expr` to `expectedType` using `CoeT`. -/

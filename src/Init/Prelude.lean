@@ -3109,31 +3109,46 @@ instance [Monad m] : [Nonempty α] → Nonempty (m α)
   | ⟨x⟩ => ⟨pure x⟩
 
 /--
-A function for lifting a computation from an inner `Monad` to an outer `Monad`.
-Like Haskell's [`MonadTrans`], but `n` does not have to be a monad transformer.
-Alternatively, an implementation of [`MonadLayer`] without `layerInvmap` (so far).
+Computations in the monad `m` can be run in the monad `n`. These translations are inserted
+automatically by the compiler.
 
-  [`MonadTrans`]: https://hackage.haskell.org/package/transformers-0.5.5.0/docs/Control-Monad-Trans-Class.html
-  [`MonadLayer`]: https://hackage.haskell.org/package/layers-0.1/docs/Control-Monad-Layer.html#t:MonadLayer
+Usually, `n` consists of some number of monad transformers applied to `m`, but this is not
+mandatory.
+
+New instances should use this class, `MonadLift`. Clients that require one monad to be liftable into
+another should instead request `MonadLiftT`, which is the reflexive, transitive closure of
+`MonadLift`.
 -/
+-- Like Haskell's [`MonadTrans`], but `n` does not have to be a monad transformer.
+-- Alternatively, an implementation of [`MonadLayer`] without `layerInvmap` (so far).
+
+--   [`MonadTrans`]: https://hackage.haskell.org/package/transformers-0.5.5.0/docs/Control-Monad-Trans-Class.html
+--   [`MonadLayer`]: https://hackage.haskell.org/package/layers-0.1/docs/Control-Monad-Layer.html#t:MonadLayer
 class MonadLift (m : semiOutParam (Type u → Type v)) (n : Type u → Type w) where
-  /-- Lifts a value from monad `m` into monad `n`. -/
+  /-- Translates an action from monad `m` into monad `n`. -/
   monadLift : {α : Type u} → m α → n α
 
 /--
-The reflexive-transitive closure of `MonadLift`. `monadLift` is used to
-transitively lift monadic computations such as `StateT.get` or `StateT.put s`.
-Corresponds to Haskell's [`MonadLift`].
+Computations in the monad `m` can be run in the monad `n`. These translations are inserted
+automatically by the compiler.
 
-  [`MonadLift`]: https://hackage.haskell.org/package/layers-0.1/docs/Control-Monad-Layer.html#t:MonadLift
+Usually, `n` consists of some number of monad transformers applied to `m`, but this is not
+mandatory.
+
+This is the  the reflexive, transitive closure of `MonadLift`. Clients that require one monad to be
+liftable into another should request an instance of `MonadLiftT`. New instances should instead be
+defined for `MonadLift` itself.
 -/
+-- Corresponds to Haskell's [`MonadLift`].
+--
+--   [`MonadLift`]: https://hackage.haskell.org/package/layers-0.1/docs/Control-Monad-Layer.html#t:MonadLift
 class MonadLiftT (m : Type u → Type v) (n : Type u → Type w) where
-  /-- Lifts a value from monad `m` into monad `n`. -/
+  /-- Translates an action from monad `m` into monad `n`. -/
   monadLift : {α : Type u} → m α → n α
 
 export MonadLiftT (monadLift)
 
-/-- Lifts a value from monad `m` into monad `n`. -/
+@[inherit_doc monadLift]
 abbrev liftM := @monadLift
 
 @[always_inline]
@@ -3170,23 +3185,36 @@ instance (m) : MonadEvalT m m where
   monadEval x := x
 
 /--
-A functor in the category of monads. Can be used to lift monad-transforming functions.
-Based on [`MFunctor`] from the `pipes` Haskell package, but not restricted to
-monad transformers. Alternatively, an implementation of [`MonadTransFunctor`].
+A way to interpret a fully-polymorphic function in `m` into `n`. Such a function can be thought of
+as one that may change the effects in `m`, but can't do so based on specific values that are
+provided.
 
-  [`MFunctor`]: https://hackage.haskell.org/package/pipes-2.4.0/docs/Control-MFunctor.html
-  [`MonadTransFunctor`]: http://duairc.netsoc.ie/layers-docs/Control-Monad-Layer.html#t:MonadTransFunctor
+Clients of `MonadFunctor` should typically use `MonadFunctorT`, which is the reflexive, transitive
+closure of `MonadFunctor`. New instances should be defined for `MonadFunctor.`
 -/
+-- Based on [`MFunctor`] from the `pipes` Haskell package, but not restricted to
+-- monad transformers. Alternatively, an implementation of [`MonadTransFunctor`].
+--   [`MFunctor`]: https://hackage.haskell.org/package/pipes-2.4.0/docs/Control-MFunctor.html
+--   [`MonadTransFunctor`]: http://duairc.netsoc.ie/layers-docs/Control-Monad-Layer.html#t:MonadTransFunctor
 class MonadFunctor (m : semiOutParam (Type u → Type v)) (n : Type u → Type w) where
-  /-- Lifts a monad morphism `f : {β : Type u} → m β → m β` to
-  `monadMap f : {α : Type u} → n α → n α`. -/
+  /--
+  Lifts a fully-polymorphic transformation of `m` into `n`.
+  -/
   monadMap {α : Type u} : ({β : Type u} → m β → m β) → n α → n α
 
-/-- The reflexive-transitive closure of `MonadFunctor`.
-`monadMap` is used to transitively lift `Monad` morphisms. -/
+/--
+A way to interpret a fully-polymorphic function in `m` into `n`. Such a function can be thought of
+as one that may change the effects in `m`, but can't do so based on specific values that are
+provided.
+
+This is the reflexive, transitive closure of `MonadFunctor`. It automatically chains together
+`MonadFunctor` instances as needed. Clients of `MonadFunctor` should typically use `MonadFunctorT`,
+but new instances should be defined for `MonadFunctor`.
+-/
 class MonadFunctorT (m : Type u → Type v) (n : Type u → Type w) where
-  /-- Lifts a monad morphism `f : {β : Type u} → m β → m β` to
-  `monadMap f : {α : Type u} → n α → n α`. -/
+  /--
+  Lifts a fully-polymorphic transformation of `m` into `n`.
+  -/
   monadMap {α : Type u} : ({β : Type u} → m β → m β) → n α → n α
 
 export MonadFunctorT (monadMap)

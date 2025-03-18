@@ -373,7 +373,7 @@ def isNatCmp (e : Expr) : MetaM (Option (Expr × Expr)) := withReducible do
     | GE.ge α _ e₁ e₂ => pure (α, e₂, e₁)
     | _ => return none
 
-  if ←isDefEq α (mkConst ``Nat) then
+  if (←isDefEq α (mkConst ``Nat)) then
     return some (e₁, e₂)
   else
     return none

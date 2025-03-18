@@ -75,4 +75,13 @@ theorem of_not_eq (ctx : Context) (lhs rhs : Expr)
     : ¬ lhs.denote ctx = rhs.denote ctx → ¬ lhs.denoteAsInt ctx = rhs.denoteAsInt ctx := by
   rw [Expr.eq ctx lhs rhs]; simp
 
+theorem ofNat_toNat (a : Int) : (NatCast.natCast a.toNat : Int) = if a ≤ 0 then 0 else a := by
+  split
+  next h =>
+    rw [Int.toNat_of_nonpos h]; rfl
+  next h =>
+    simp at h
+    have := Int.toNat_of_nonneg (Int.le_of_lt h)
+    assumption
+
 end Int.OfNat

@@ -12,6 +12,11 @@ namespace Lean.Meta
 
 unsafe def evalExprCore (α) (value : Expr) (checkType : Expr → MetaM Unit) (safety := DefinitionSafety.safe) : MetaM α :=
   withoutModifyingEnv do
+    -- Avoid waiting for all prior compilation if only imported constants are referenced. This is a
+    -- very common case for tactic configurations (`Lean.Elab.Tactic.Config`).
+    if value.getUsedConstants.all (← getEnv).base.constants.contains then
+      modifyEnv fun env => env.importEnv?.getD env
+
     let name ← mkFreshUserName `_tmp
     let value ← instantiateMVars value
     let us := collectLevelParams {} value |>.params

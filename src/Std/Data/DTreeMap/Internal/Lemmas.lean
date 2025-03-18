@@ -4227,13 +4227,13 @@ theorem minKey?_eq_none_iff [TransOrd α] (h : t.WF) :
     t.minKey? = none ↔ t.isEmpty := by
   simp_to_model using List.minKey?_eq_none_iff_isEmpty
 
-theorem minKey?_eq_some_iff [TransOrd α] (h : t.WF) {km} :
+theorem minKey?_eq_some_iff_getKey?_eq_self_and_forall [TransOrd α] (h : t.WF) {km} :
     t.minKey? = some km ↔ t.getKey? km = some km ∧ ∀ k ∈ t, (compare km k).isLE := by
-  simp_to_model using List.minKey?_eq_some_iff
+  simp_to_model using List.minKey?_eq_some_iff_getKey?_eq_self_and_forall
 
-theorem minKey?_eq_some_iff_of_lawfulEqOrd [TransOrd α] [LawfulEqOrd α] (h : t.WF) {km} :
+theorem minKey?_eq_some_iff_mem_and_forall [TransOrd α] [LawfulEqOrd α] (h : t.WF) {km} :
     t.minKey? = some km ↔ km ∈ t ∧ ∀ k ∈ t, (compare km k).isLE := by
-  simp_to_model using List.minKey?_eq_some_iff_of_lawfulEqOrd
+  simp_to_model using List.minKey?_eq_some_iff_mem_and_forall
 
 theorem isNone_minKey?_eq_isEmpty [TransOrd α] (h : t.WF) :
     t.minKey?.isNone = t.isEmpty := by

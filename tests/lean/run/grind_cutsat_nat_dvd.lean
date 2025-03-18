@@ -27,3 +27,6 @@ example (x y : Nat) :
     → x - y ≤ 2 → x ≥ 6
     → False := by
   grind
+
+example (i : Nat) : i < 330 → 7 ∣ (660 + i) * (1319 - i) → 1319 - i < 1979 := by
+  grind

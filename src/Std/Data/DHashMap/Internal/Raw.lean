@@ -16,9 +16,9 @@ File contents: relating operations on `Raw` to operations on `Raw₀`
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v w
+universe u u' v v' w
 
-variable {α : Type u} {β : α → Type v} {γ : Type w} {δ : α → Type w}
+variable {α : Type u} {α' : Type u'} {β : α → Type v} {β' : α' → Type v'}  {γ : Type w} {δ : α → Type w}
 
 namespace Std.DHashMap.Internal
 
@@ -114,6 +114,10 @@ theorem filterMap_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF)
 theorem map_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {f : (a : α) → β a → δ a} :
     m.map f = Raw₀.map f ⟨m, h.size_buckets_pos⟩ := by
   simp [Raw.map, h.size_buckets_pos]
+
+theorem mapKeyValueInPlace_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF)  {f : (a : α) → β a → ((a' : α') × β' a')} :
+    m.mapKeyValueInPlace f = Raw₀.mapKeyValueInPlace f ⟨m, h.size_buckets_pos⟩ := by
+  simp [Raw.mapKeyValueInPlace, h.size_buckets_pos]
 
 theorem filter_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {f : (a : α) → β a → Bool} :
     m.filter f = Raw₀.filter f ⟨m, h.size_buckets_pos⟩ := by

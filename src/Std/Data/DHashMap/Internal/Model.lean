@@ -23,9 +23,9 @@ about the basic building blocks.
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v w
+universe u u' v v' w
 
-variable {α : Type u} {β : α → Type v} {γ : Type w} {δ : α → Type w}
+variable {α : Type u} {α' : Type u'} {β : α → Type v} {β' : α' → Type v'} {γ : Type w} {δ : α → Type w} {m : Type w → Type w}
 
 open List (Perm perm_append_comm_assoc)
 
@@ -381,6 +381,10 @@ def mapₘ (m : Raw₀ α β) (f : (a : α) → β a → δ a) : Raw₀ α δ :=
   ⟨⟨m.1.size, updateAllBuckets m.1.buckets (AssocList.map f)⟩, by simpa using m.2⟩
 
 /-- Internal implementation detail of the hash map -/
+def mapKeyValueInPlaceₘ (m : Raw₀ α β) (f : (a : α) → β a → ((a' : α') × β' a')) : Raw₀ α' β' :=
+  ⟨⟨m.1.size, m.1.buckets.map (AssocList.mapKeyValue f)⟩, by simpa using m.2⟩
+
+/-- Internal implementation detail of the hash map -/
 def filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) : Raw₀ α β :=
   ⟨withComputedSize (updateAllBuckets m.1.buckets fun l => l.filter f), by simpa using m.2⟩
 
@@ -591,6 +595,9 @@ theorem filterMap_eq_filterMapₘ (m : Raw₀ α β) (f : (a : α) → β a → 
 
 theorem map_eq_mapₘ (m : Raw₀ α β) (f : (a : α) → β a → δ a) :
     m.map f = m.mapₘ f := rfl
+
+theorem mapKeyValueInPlace_eq_mapKeyValueInPlaceₘ (m : Raw₀ α β) (f : (a : α) → β a → ((a' : α') × β' a')) :
+    m.mapKeyValueInPlace f = m.mapKeyValueInPlaceₘ f := rfl
 
 theorem filter_eq_filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) :
     m.filter f = m.filterₘ f := rfl

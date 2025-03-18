@@ -25,9 +25,9 @@ Lemmas about the operations on `Std.Data.DHashMap.Raw` are available in the modu
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v w
+universe u u' v v' w
 
-variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w} [Monad m]
+variable {α : Type u} {α' : Type u'} {β : α → Type v} {β' : α' → Type v'} {δ : Type w} {m : Type w → Type w} [Monad m]
 
 namespace Std
 
@@ -449,6 +449,13 @@ only those mappings where the function returns `some` value.
 @[inline] def map {γ : α → Type w} (f : (a : α) → β a → γ a) (m : Raw α β) : Raw α γ :=
   if h : 0 < m.buckets.size then
     Raw₀.map f ⟨m, h⟩
+  else ∅ -- will never happen for well-formed inputs
+
+@[inline] def mapKeyValueInPlace
+    (f : (a : α) → β a → ((a' : α') × β' a'))
+    (m : Raw α β) : Raw α' β' :=
+  if h : 0 < m.buckets.size then
+    Raw₀.mapKeyValueInPlace f ⟨m, h⟩
   else ∅ -- will never happen for well-formed inputs
 
 /-- Removes all mappings of the hash map for which the given function returns `false`. -/

@@ -1009,6 +1009,13 @@ def macroArg       := termParser maxPrec
 def macroDollarArg := leading_parser "$" >> termParser 10
 def macroLastArg   := macroDollarArg <|> macroArg
 
+
+/--
+A state monad that uses an actual mutable reference cell (i.e. an `ST.Ref`).
+
+This is syntax, rather than a function, to make it easier to use. Its elaborator synthesizes an
+appropriate parameter for the underlying monad's `ST` effects, then passes it to `StateRefT'`.
+-/
 -- Macro for avoiding exponentially big terms when using `STWorld`
 @[builtin_term_parser] def stateRefT := leading_parser
   "StateRefT " >> macroArg >> ppSpace >> macroLastArg

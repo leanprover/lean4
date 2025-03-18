@@ -80,3 +80,9 @@ example (x y z : Int) :
     -5 ≤  3*x - 11*y +  2*z →  3*x - 11*y +  2*z ≤ -1 →
     10 ≤  8*x +  9*y -  4*z →  8*x +  9*y -  4*z ≤ 12 → False := by
   grind
+
+example (x y : Int) (h : x < y) (z : { z : Int // y ≤ z ∧ z ≤ x }) : False := by
+  grind
+
+example (x y : Int) (h : x < y) (z : { z : Int // y ≤ z ∧ z ≤ x }) : Nat := by
+  grind

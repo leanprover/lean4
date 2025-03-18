@@ -370,7 +370,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket, obj_arg /* w */) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    // Locking early prevents potential paralellism issues setting m_promise_accept.
+    // Locking early prevents potential parallelism issues setting m_promise_accept.
     event_loop_lock(&global_ev);
 
     if (tcp_socket->m_promise_accept != nullptr) {
@@ -411,7 +411,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket, obj_arg
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket, obj_arg /* w */) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    // Locking early prevents potential paralellism issues setting the m_promise_shutdown.
+    // Locking early prevents potential parallelism issues setting the m_promise_shutdown.
     event_loop_lock(&global_ev);
 
     if (tcp_socket->m_promise_shutdown != nullptr) {

@@ -1201,9 +1201,6 @@ inductive Relation.TransGen {α : Sort u} (r : α → α → Prop) : α → α �
   This is the inductive case of the transitive closure. -/
   | tail {a b c} : TransGen r a b → r b c → TransGen r a c
 
-/-- Deprecated synonym for `Relation.TransGen`. -/
-@[deprecated Relation.TransGen (since := "2024-07-16")] abbrev TC := @Relation.TransGen
-
 /-- The transitive closure is transitive. -/
 theorem Relation.TransGen.trans {α : Sort u} {r : α → α → Prop} {a b c} :
     TransGen r a b → TransGen r b c → TransGen r a c := by
@@ -1345,10 +1342,6 @@ def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ 
 
 theorem Exists.of_psigma_prop {α : Sort u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
   | ⟨x, hx⟩ => ⟨x, hx⟩
-
-@[deprecated Exists.of_psigma_prop (since := "2024-07-27")]
-theorem ex_of_PSigma {α : Type u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x) :=
-  Exists.of_psigma_prop
 
 protected theorem PSigma.eta {α : Sort u} {β : α → Sort v} {a₁ a₂ : α} {b₁ : β a₁} {b₂ : β a₂}
     (h₁ : a₁ = a₂) (h₂ : Eq.ndrec b₁ h₁ = b₂) : PSigma.mk a₁ b₁ = PSigma.mk a₂ b₂ := by

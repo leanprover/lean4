@@ -42,7 +42,8 @@ Environment extension for storing which declarations are recursive.
 This information is populated by the `PreDefinition` module, but the simplifier
 uses when unfolding declarations.
 -/
-builtin_initialize recExt : TagDeclarationExtension ← mkTagDeclarationExtension `recExt
+builtin_initialize recExt : TagDeclarationExtension ←
+  mkTagDeclarationExtension `recExt (asyncMode := .async)
 
 /--
 Marks the given declaration as recursive.
@@ -86,9 +87,7 @@ builtin_initialize registerReservedNamePredicate fun env n =>
   | .str p s =>
     (isEqnReservedNameSuffix s || s == unfoldThmSuffix || s == eqUnfoldThmSuffix)
     && env.isSafeDefinition p
-    -- Remark: `f.match_<idx>.eq_<idx>` are private definitions and are not treated as reserved names
-    -- Reason: `f.match_<idx>.splitter is generated at the same time, and can eliminate into type.
-    -- Thus, it cannot be defined in different modules since it is not a theorem, and is used to generate code.
+    -- Remark: `f.match_<idx>.eq_<idx>` are handled separately in `Lean.Meta.Match.MatchEqs`.
     && !isMatcherCore env p
   | _ => false
 
@@ -128,9 +127,8 @@ def registerGetEqnsFn (f : GetEqnsFn) : IO Unit := do
 
 /-- Returns `true` iff `declName` is a definition and its type is not a proposition. -/
 private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
-  if let some (.defnInfo info) := (← getEnv).find? declName then
-    if (← isProp info.type) then return false
-    return true
+  if let some { kind := .defn, sig, .. } := (← getEnv).findAsync? declName then
+    return !(← isProp sig.get.type)
   else
     return false
 
@@ -206,13 +204,14 @@ private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array N
 private def getEqnsFor?Core (declName : Name) : MetaM (Option (Array Name)) := withLCtx {} {} do
   if let some eqs := eqnsExt.getState (← getEnv) |>.map.find? declName then
     return some eqs
-  else if let some eqs ← alreadyGenerated? declName then
+  if !(← shouldGenerateEqnThms declName) then
+    return none
+  if let some eqs ← alreadyGenerated? declName then
     return some eqs
-  else if (← shouldGenerateEqnThms declName) then
-    for f in (← getEqnsFnsRef.get) do
-      if let some r ← f declName then
-        registerEqnThms declName r
-        return some r
+  for f in (← getEqnsFnsRef.get) do
+    if let some r ← f declName then
+      registerEqnThms declName r
+      return some r
   return none
 
 /--
@@ -289,7 +288,7 @@ def getUnfoldEqnFor? (declName : Name) (nonRec := false) : MetaM (Option Name) :
 builtin_initialize
   registerReservedNameAction fun name => do
     let .str p s := name | return false
-    unless (← getEnv).isSafeDefinition p do return false
+    unless (← getEnv).isSafeDefinition p && !isMatcherCore (← getEnv) p do return false
     if isEqnReservedNameSuffix s then
       return (← MetaM.run' <| getEqnsFor? p).isSome
     if s == unfoldThmSuffix then

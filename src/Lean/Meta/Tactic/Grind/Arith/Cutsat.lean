@@ -16,7 +16,6 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.EqCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.SearchM
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.DivMod
 
 namespace Lean
 
@@ -64,5 +63,6 @@ builtin_initialize registerTraceClass `grind.debug.cutsat.subst
 builtin_initialize registerTraceClass `grind.debug.cutsat.getBestLower
 builtin_initialize registerTraceClass `grind.debug.cutsat.nat
 builtin_initialize registerTraceClass `grind.debug.cutsat.proof
+builtin_initialize registerTraceClass `grind.debug.cutsat.internalize
 
 end Lean

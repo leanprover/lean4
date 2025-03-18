@@ -111,10 +111,10 @@ builtin_simproc [bv_normalize] bv_udiv_of_two_pow (((_ : BitVec _) / (BitVec.ofN
   }
 
 builtin_simproc [bv_normalize] bv_equal_const_not (~~~(_ : BitVec _) == (BitVec.ofNat _ _)) := fun e => do
-  let_expr BEq.beq α inst outerLhs rhs := e | return .continue
+  let_expr BEq.beq _ _ outerLhs rhs := e | return .continue
   let some ⟨w, rhsVal⟩ ← getBitVecValue? rhs | return .continue
   let_expr Complement.complement _ _ lhs := outerLhs | return .continue
-  let expr := mkApp4 (mkConst ``BEq.beq [0]) α inst lhs (toExpr (~~~rhsVal))
+  let expr ← mkAppM ``BEq.beq #[lhs, toExpr (~~~rhsVal)]
   let proof :=
     mkApp3 (mkConst ``Std.Tactic.BVDecide.Frontend.Normalize.BitVec.not_eq_comm)
       (toExpr w)
@@ -123,10 +123,10 @@ builtin_simproc [bv_normalize] bv_equal_const_not (~~~(_ : BitVec _) == (BitVec.
   return .visit { expr := expr, proof? := some proof }
 
 builtin_simproc [bv_normalize] bv_equal_const_not' ((BitVec.ofNat _ _) == ~~~(_ : BitVec _)) := fun e => do
-  let_expr BEq.beq α inst lhs outerRhs := e | return .continue
+  let_expr BEq.beq _ _ lhs outerRhs := e | return .continue
   let some ⟨w, lhsVal⟩ ← getBitVecValue? lhs | return .continue
   let_expr Complement.complement _ _ rhs := outerRhs | return .continue
-  let expr := mkApp4 (mkConst ``BEq.beq [0]) α inst rhs (toExpr (~~~lhsVal))
+  let expr ← mkAppM ``BEq.beq #[rhs, toExpr (~~~lhsVal)]
   let proof :=
     mkApp3 (mkConst ``Std.Tactic.BVDecide.Frontend.Normalize.BitVec.not_eq_comm')
       (toExpr w)
@@ -135,12 +135,12 @@ builtin_simproc [bv_normalize] bv_equal_const_not' ((BitVec.ofNat _ _) == ~~~(_ 
   return .visit { expr := expr, proof? := some proof }
 
 builtin_simproc [bv_normalize] bv_and_eq_allOnes ((_ : BitVec _) &&& (_ : BitVec _) == (BitVec.ofNat _ _)) := fun e => do
-  let_expr BEq.beq α instBEq outerLhs rhs := e | return .continue
+  let_expr BEq.beq _ _ outerLhs rhs := e | return .continue
   let some ⟨w, rhsVal⟩ ← getBitVecValue? rhs | return .continue
   if -1#w != rhsVal then return .continue
   let_expr HAnd.hAnd _ _ _ _ llhs lrhs := outerLhs | return .continue
-  let newLhs := mkApp4 (mkConst ``BEq.beq [0]) α instBEq llhs rhs
-  let newRhs := mkApp4 (mkConst ``BEq.beq [0]) α instBEq lrhs rhs
+  let newLhs ← mkAppM ``BEq.beq #[llhs, rhs]
+  let newRhs ← mkAppM ``BEq.beq #[lrhs, rhs]
   let expr := mkApp2 (mkConst ``Bool.and) newLhs newRhs
   let proof :=
     mkApp3 (mkConst ``Std.Tactic.BVDecide.Frontend.Normalize.BitVec.and_eq_allOnes)
@@ -150,12 +150,12 @@ builtin_simproc [bv_normalize] bv_and_eq_allOnes ((_ : BitVec _) &&& (_ : BitVec
   return .visit { expr := expr, proof? := some proof }
 
 builtin_simproc [bv_normalize] bv_allOnes_eq_and ((BitVec.ofNat _ _) == (_ : BitVec _) &&& (_ : BitVec _)) := fun e => do
-  let_expr BEq.beq α instBEq lhs outerRhs := e | return .continue
+  let_expr BEq.beq _ _ lhs outerRhs := e | return .continue
   let some ⟨w, lhsVal⟩ ← getBitVecValue? lhs | return .continue
   if -1#w != lhsVal then return .continue
   let_expr HAnd.hAnd _ _ _ _ rlhs rrhs := outerRhs | return .continue
-  let newLhs := mkApp4 (mkConst ``BEq.beq [0]) α instBEq rlhs lhs
-  let newRhs := mkApp4 (mkConst ``BEq.beq [0]) α instBEq rrhs lhs
+  let newLhs ← mkAppM ``BEq.beq #[rlhs, lhs]
+  let newRhs ← mkAppM ``BEq.beq #[rrhs, lhs]
   let expr := mkApp2 (mkConst ``Bool.and) newLhs newRhs
   let proof :=
     mkApp3 (mkConst ``Std.Tactic.BVDecide.Frontend.Normalize.BitVec.allOnes_eq_and)
@@ -329,20 +329,13 @@ builtin_simproc [bv_normalize] bv_elim_setWidth (BitVec.setWidth _ _) := fun e =
   let some oldWidth ← getNatValue? oldWidthExpr | return .continue
   let some newWidth ← getNatValue? newWidthExpr | return .continue
   if newWidth ≤ oldWidth then
-    let extract :=
+    let expr :=
       mkApp4
         (mkConst ``BitVec.extractLsb')
         oldWidthExpr
         (toExpr 0)
         newWidthExpr
         targetExpr
-    let expr :=
-      mkApp4
-        (mkConst ``BitVec.cast)
-        newWidthExpr
-        newWidthExpr
-        (← mkEqRefl newWidthExpr)
-        extract
     let proof :=
       mkApp4
         (mkConst ``BitVec.setWidth_eq_extractLsb')
@@ -369,6 +362,100 @@ builtin_simproc [bv_normalize] bv_elim_setWidth (BitVec.setWidth _ _) := fun e =
         newWidthExpr
         (← mkDecideProof (← mkLe oldWidthExpr newWidthExpr))
     return .visit { expr := expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_elim_signExtend (BitVec.signExtend _ _) := fun e => do
+  let_expr BitVec.signExtend oldWidthExpr newWidthExpr targetExpr := e | return .continue
+  let some oldWidth ← getNatValue? oldWidthExpr | return .continue
+  let some newWidth ← getNatValue? newWidthExpr | return .continue
+  if newWidth ≤ oldWidth then
+    let expr :=
+      mkApp4
+        (mkConst ``BitVec.extractLsb')
+        oldWidthExpr
+        (toExpr 0)
+        newWidthExpr
+        targetExpr
+    let proof :=
+      mkApp4
+        (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.signExtend_elim')
+        oldWidthExpr
+        targetExpr
+        newWidthExpr
+        (← mkDecideProof (← mkLe newWidthExpr oldWidthExpr))
+    return .visit { expr := expr, proof? := some proof }
+  else
+    let msb := mkApp2 (mkConst ``BitVec.msb) oldWidthExpr targetExpr
+    let lhs :=
+      mkApp4
+        (mkConst ``cond [1])
+        (mkApp (mkConst ``BitVec) (toExpr (newWidth - oldWidth)))
+        msb
+        (toExpr (-1#(newWidth - oldWidth)))
+        (toExpr (0#(newWidth - oldWidth)))
+    let concat ← mkAppM ``HAppend.hAppend #[lhs ,targetExpr]
+    let expr :=
+      mkApp4
+        (mkConst ``BitVec.cast)
+        newWidthExpr
+        newWidthExpr
+        (← mkEqRefl newWidthExpr)
+        concat
+    let proof :=
+      mkApp4
+        (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.signExtend_elim)
+        oldWidthExpr
+        targetExpr
+        newWidthExpr
+        (← mkDecideProof (← mkLe oldWidthExpr newWidthExpr))
+    return .visit { expr := expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_lt_allOnes_iff (BitVec.ult _ (BitVec.ofNat _ _)) := fun e => do
+  let_expr BitVec.ult wExpr lhsExpr rhsExpr := e | return .continue
+  let some ⟨w, rhs⟩ ← getBitVecValue? rhsExpr | return .continue
+  if rhs != -1#w then return .continue
+  let expr := mkApp (mkConst ``Bool.not) (← mkAppM ``BEq.beq #[lhsExpr, toExpr (-1#w)])
+  let proof := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.ult_max') wExpr lhsExpr
+  return .visit { expr := expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_extract_concat
+    (BitVec.extractLsb' _ _
+      (HAppend.hAppend (γ := BitVec (no_index _)) (_ : BitVec _) (_ : BitVec _))) := fun e => do
+  let_expr BitVec.extractLsb' _ startExpr lenExpr targetExpr := e | return .continue
+  let_expr HAppend.hAppend lhsTypeExpr rhsTypeExpr _ _ lhsExpr rhsExpr := targetExpr | return .continue
+  let_expr BitVec lhsWidthExpr := lhsTypeExpr | return .continue
+  let_expr BitVec rhsWidthExpr := rhsTypeExpr | return .continue
+  let some start ← getNatValue? startExpr | return .continue
+  let some len ← getNatValue? lenExpr | return .continue
+  let some rhsWidth ← getNatValue? rhsWidthExpr | return .continue
+  if start + len < rhsWidth then
+    let expr := mkApp4 (mkConst ``BitVec.extractLsb') rhsWidthExpr startExpr lenExpr rhsExpr
+    let proof :=
+      mkApp7
+        (mkConst ``BitVec.extractLsb'_append_eq_of_lt)
+        lhsWidthExpr
+        rhsWidthExpr
+        lhsExpr
+        rhsExpr
+        startExpr
+        lenExpr
+        (← mkDecideProof (← mkLt (toExpr (start + len)) rhsWidthExpr))
+    return .visit { expr := expr, proof? := some proof }
+  else if rhsWidth ≤ start then
+    let expr := mkApp4 (mkConst ``BitVec.extractLsb') lhsWidthExpr (toExpr (start - rhsWidth)) lenExpr lhsExpr
+    let proof :=
+      mkApp7
+        (mkConst ``BitVec.extractLsb'_append_eq_of_le)
+        lhsWidthExpr
+        rhsWidthExpr
+        lhsExpr
+        rhsExpr
+        startExpr
+        lenExpr
+        (← mkDecideProof (← mkLe rhsWidthExpr startExpr))
+    return .visit { expr := expr, proof? := some proof }
+  else
+    -- extract is not limited to side
+    return .continue
 
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

@@ -43,8 +43,7 @@ private def baseNames : Array Name :=
     ``getKey?_eq, ``getKey_eq, ``getKey!_eq, ``getKeyD_eq,
     ``insertMany_eq, ``Const.insertMany_eq, ``Const.insertManyIfNewUnit_eq,
     ``ofList_eq, ``Const.ofList_eq, ``Const.unitOfList_eq,
-    ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq,
-    ``Subtype.eta]
+    ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq]
 
 /-- Internal implementation detail of the hash map -/
 scoped syntax "simp_to_raw" ("using" term)? : tactic
@@ -55,7 +54,7 @@ macro_rules
 | `(tactic| simp_to_raw $[using $using?]?) => do
   `(tactic|
     (try simp (discharger := with_reducible wf_trivial) only [$[$(Array.map Lean.mkIdent baseNames):term],*]
-     $[apply $(using?.toArray):term];*)
+     $[with_reducible apply $(using?.toArray):term];*)
      <;> with_reducible try wf_trivial)
 
 end Internal.Raw
@@ -2857,15 +2856,14 @@ theorem getKey!_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k →
   simp_to_raw using Raw₀.getKey!_modify_self
 
 theorem getKey_modify [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k}
-    (h : m.WF) {hc : k' ∈ m.modify k f} :
+    (h : m.WF) : {hc : k' ∈ m.modify k f} →
     (m.modify k f).getKey k' hc =
       if k == k' then
         k
       else
         haveI h' : k' ∈ m := mem_modify h |>.mp hc
         m.getKey k' h' := by
-  simp only [mem_iff_contains] at hc
-  revert hc
+  simp only [mem_iff_contains]
   simp_to_raw using Raw₀.getKey_modify
 
 @[simp]
@@ -3003,15 +3001,14 @@ theorem getKey!_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k 
   simp_to_raw using Raw₀.Const.getKey!_modify_self
 
 theorem getKey_modify [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α} {f : β → β}
-    (h : m.WF) {hc : k' ∈ Const.modify m k f} :
+    (h : m.WF) : {hc : k' ∈ Const.modify m k f} →
     (Const.modify m k f).getKey k' hc =
       if k == k' then
         k
       else
         haveI h' : k' ∈ m := mem_modify h |>.mp hc
         m.getKey k' h' := by
-  simp only [mem_iff_contains] at hc
-  revert hc
+  simp only [mem_iff_contains]
   simp_to_raw using Raw₀.Const.getKey_modify
 
 @[simp]

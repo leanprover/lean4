@@ -96,15 +96,9 @@ This will be renamed `getMsb` after the existing deprecated alias is removed.
 @[inline] def getLsbD (x : BitVec w) (i : Nat) : Bool :=
   x.toNat.testBit i
 
-@[deprecated getLsbD (since := "2024-08-29"), inherit_doc getLsbD]
-def getLsb (x : BitVec w) (i : Nat) : Bool := x.getLsbD i
-
 /-- Return the `i`-th most significant bit or `false` if `i ≥ w`. -/
 @[inline] def getMsbD (x : BitVec w) (i : Nat) : Bool :=
   i < w && x.getLsbD (w-1-i)
-
-@[deprecated getMsbD (since := "2024-08-29"), inherit_doc getMsbD]
-def getMsb (x : BitVec w) (i : Nat) : Bool := x.getMsbD i
 
 /-- Return most-significant bit in bitvector. -/
 @[inline] protected def msb (x : BitVec n) : Bool := getMsbD x 0

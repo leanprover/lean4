@@ -57,8 +57,11 @@ instance : LE UInt8        := ⟨UInt8.le⟩
 
 @[extern "lean_uint8_complement"]
 def UInt8.complement (a : UInt8) : UInt8 := ⟨~~~a.toBitVec⟩
+@[extern "lean_uint8_neg"]
+def UInt8.neg (a : UInt8) : UInt8 := ⟨-a.toBitVec⟩
 
 instance : Complement UInt8 := ⟨UInt8.complement⟩
+instance : Neg UInt8 := ⟨UInt8.neg⟩
 instance : AndOp UInt8     := ⟨UInt8.land⟩
 instance : OrOp UInt8      := ⟨UInt8.lor⟩
 instance : Xor UInt8       := ⟨UInt8.xor⟩
@@ -132,8 +135,11 @@ instance : LE UInt16        := ⟨UInt16.le⟩
 
 @[extern "lean_uint16_complement"]
 def UInt16.complement (a : UInt16) : UInt16 := ⟨~~~a.toBitVec⟩
+@[extern "lean_uint16_neg"]
+def UInt16.neg (a : UInt16) : UInt16 := ⟨-a.toBitVec⟩
 
 instance : Complement UInt16 := ⟨UInt16.complement⟩
+instance : Neg UInt16 := ⟨UInt16.neg⟩
 instance : AndOp UInt16     := ⟨UInt16.land⟩
 instance : OrOp UInt16      := ⟨UInt16.lor⟩
 instance : Xor UInt16       := ⟨UInt16.xor⟩
@@ -209,8 +215,11 @@ instance : LE UInt32        := ⟨UInt32.le⟩
 
 @[extern "lean_uint32_complement"]
 def UInt32.complement (a : UInt32) : UInt32 := ⟨~~~a.toBitVec⟩
+@[extern "lean_uint32_neg"]
+def UInt32.neg (a : UInt32) : UInt32 := ⟨-a.toBitVec⟩
 
 instance : Complement UInt32 := ⟨UInt32.complement⟩
+instance : Neg UInt32 := ⟨UInt32.neg⟩
 instance : AndOp UInt32     := ⟨UInt32.land⟩
 instance : OrOp UInt32      := ⟨UInt32.lor⟩
 instance : Xor UInt32       := ⟨UInt32.xor⟩
@@ -271,8 +280,11 @@ instance : LE UInt64        := ⟨UInt64.le⟩
 
 @[extern "lean_uint64_complement"]
 def UInt64.complement (a : UInt64) : UInt64 := ⟨~~~a.toBitVec⟩
+@[extern "lean_uint64_neg"]
+def UInt64.neg (a : UInt64) : UInt64 := ⟨-a.toBitVec⟩
 
 instance : Complement UInt64 := ⟨UInt64.complement⟩
+instance : Neg UInt64 := ⟨UInt64.neg⟩
 instance : AndOp UInt64     := ⟨UInt64.land⟩
 instance : OrOp UInt64      := ⟨UInt64.lor⟩
 instance : Xor UInt64       := ⟨UInt64.xor⟩
@@ -380,8 +392,11 @@ instance : Div USize       := ⟨USize.div⟩
 
 @[extern "lean_usize_complement"]
 def USize.complement (a : USize) : USize := ⟨~~~a.toBitVec⟩
+@[extern "lean_usize_neg"]
+def USize.neg (a : USize) : USize := ⟨-a.toBitVec⟩
 
 instance : Complement USize := ⟨USize.complement⟩
+instance : Neg USize := ⟨USize.neg⟩
 instance : AndOp USize      := ⟨USize.land⟩
 instance : OrOp USize       := ⟨USize.lor⟩
 instance : Xor USize        := ⟨USize.xor⟩

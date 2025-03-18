@@ -355,7 +355,7 @@ def DiseqCnstr.split (c : DiseqCnstr) : SearchM LeCnstr := do
     modify' fun s => { s with diseqSplits := s.diseqSplits.insert c.p fvarId }
     pure fvarId
   let p₂ := c.p.addConst 1
-  return { p := p₂, h := .expr (mkFVar fvarId) }
+  return { p := p₂, h := .dec fvarId }
 
 /--
 Given `c₁` of the form `a₁*x + p₁ ≠ 0`, and `c₂` of the form `b*x + p ≤ 0`

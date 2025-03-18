@@ -20,9 +20,6 @@ and later these lemmas should be organised into other files more systematically.
 
 namespace Nat
 
-@[deprecated and_forall_add_one (since := "2024-07-30")] abbrev and_forall_succ := @and_forall_add_one
-@[deprecated or_exists_add_one (since := "2024-07-30")] abbrev or_exists_succ := @or_exists_add_one
-
 @[simp] theorem exists_ne_zero {P : Nat → Prop} : (∃ n, ¬ n = 0 ∧ P n) ↔ ∃ n, P (n + 1) :=
   ⟨fun ⟨n, h, w⟩ => by cases n with | zero => simp at h | succ n => exact ⟨n, w⟩,
     fun ⟨n, w⟩ => ⟨n + 1, by simp, w⟩⟩

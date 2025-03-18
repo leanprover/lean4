@@ -2143,7 +2143,7 @@ return x_14;
 else
 {
 uint8_t x_21; 
-x_21 = lean_ctor_get_uint8(x_18, sizeof(void*)*2);
+x_21 = lean_ctor_get_uint8(x_18, sizeof(void*)*3);
 lean_dec(x_18);
 if (x_21 == 0)
 {
@@ -2241,7 +2241,7 @@ return x_39;
 else
 {
 uint8_t x_40; 
-x_40 = lean_ctor_get_uint8(x_36, sizeof(void*)*2);
+x_40 = lean_ctor_get_uint8(x_36, sizeof(void*)*3);
 lean_dec(x_36);
 if (x_40 == 0)
 {

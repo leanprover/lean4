@@ -564,7 +564,7 @@ def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat
   (← whnf (← inferType x)).withApp fun f _ =>
   match f.constName?, xs.idxOf? x with
   | some name, some idx => do
-    if (← isInductivePredicate name) then
+    if (← getEnv).contains (name ++ `below) && (← isInductivePredicate name) then
       let (_, belowTy) ← belowType motive xs idx
       let below ← mkFreshExprSyntheticOpaqueMVar belowTy
       try

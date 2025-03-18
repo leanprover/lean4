@@ -82,7 +82,11 @@ where
       (simprocs, relevantLemmas) ← addStructureSimpLemmas simprocs relevantLemmas
       let cfg ← PreProcessM.getConfig
       let simpCtx ← Simp.mkContext
-        (config := { failIfUnchanged := false, maxSteps := cfg.maxSteps })
+        (config := {
+          failIfUnchanged := false,
+          implicitDefEqProofs := false, -- leanprover/lean4/pull/7509
+          maxSteps := cfg.maxSteps,
+        })
         (simpTheorems := relevantLemmas)
         (congrTheorems := ← getSimpCongrTheorems)
       let ⟨result?, _⟩ ←

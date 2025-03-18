@@ -2245,10 +2245,10 @@ private def intMulFn : Expr :=
   mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHMul
 
 private def intDivFn : Expr :=
-  mkApp4 (mkConst ``HDiv.hDiv [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHMul
+  mkApp4 (mkConst ``HDiv.hDiv [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHDiv
 
 private def intModFn : Expr :=
-  mkApp4 (mkConst ``HMod.hMod [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHMul
+  mkApp4 (mkConst ``HMod.hMod [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHMod
 
 private def intNatCastFn : Expr :=
   mkApp2 (mkConst ``NatCast.natCast [0]) Int.mkType Int.mkInstNatCast

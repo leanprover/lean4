@@ -66,9 +66,6 @@ abbrev SpawnM := FetchT <| ReaderT BuildTrace <| BaseIO
 
 instance : MonadLift SpawnM JobM := ⟨JobM.runSpawnM⟩
 
-/-- The monad used to spawn asynchronous Lake build jobs. **Replaced by `SpawnM`.** -/
-@[deprecated SpawnM (since := "2024-05-21")] abbrev SchedulerM := SpawnM
-
 /--
 Run a `JobM` action in `FetchM`.
 

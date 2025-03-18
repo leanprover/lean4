@@ -1918,7 +1918,7 @@ private def checkDeprecatedCore (constName : Name) : TermElabM Unit := do
 -/
 def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM Expr := do
   checkDeprecatedCore constName
-  let cinfo ← getConstInfo constName
+  let cinfo ← getConstVal constName
   if explicitLevels.length > cinfo.levelParams.length then
     throwError "too many explicit universe levels for '{constName}'"
   else

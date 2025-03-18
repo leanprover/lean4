@@ -151,7 +151,8 @@ mutual
         return false
 
   partial def isRflTheorem (declName : Name) : CoreM Bool := do
-    let .thmInfo info ← getConstInfo declName | return false
+    let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false
+    let .thmInfo info ← traceBlock "isRflTheorem theorem body" constInfo | return false
     isRflProofCore info.type info.value
 end
 
@@ -400,7 +401,7 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
     return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := (← isRflProof proof) }
 
 private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool) (prio : Nat) : MetaM (Array SimpTheorem) := do
-  let cinfo ← getConstInfo declName
+  let cinfo ← getConstVal declName
   let us := cinfo.levelParams.map mkLevelParam
   let origin := .decl declName post inv
   let val := mkConst declName us
@@ -458,7 +459,7 @@ def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post := true) (i
 
 def SimpTheorem.getValue (simpThm : SimpTheorem) : MetaM Expr := do
   if simpThm.proof.isConst && simpThm.levelParams.isEmpty then
-    let info ← getConstInfo simpThm.proof.constName!
+    let info ← getConstVal simpThm.proof.constName!
     if info.levelParams.isEmpty then
       return simpThm.proof
     else

@@ -224,20 +224,35 @@ instance : Membership α (AIG α) where
   mem := Mem
 
 /--
-A reference to a node within an AIG. This is the `AIG` analog of `Bool`.
+A reference to a node within an AIG.
 -/
 structure Ref (aig : AIG α) where
   gate : Nat
+  invert : Bool
   hgate : gate < aig.decls.size
 
 /--
 A `Ref` into `aig1` is also valid for `aig2` if `aig1` is smaller than `aig2`.
 -/
 @[inline]
-def Ref.cast {aig1 aig2 : AIG α} (ref : Ref aig1)
-    (h : aig1.decls.size ≤ aig2.decls.size) :
+def Ref.cast {aig1 aig2 : AIG α} (ref : Ref aig1) (h : aig1.decls.size ≤ aig2.decls.size) :
     Ref aig2 :=
   { ref with hgate := by have := ref.hgate; omega }
+
+
+/--
+Flip the polarity of `Ref` if `inv` is set.
+-/
+@[inline]
+def Ref.flip {aig : AIG α} (ref : Ref aig) (inv : Bool) : Ref aig :=
+  { ref with invert := inv ^^ ref.invert }
+
+/--
+Flip the polarity of `Ref`.
+-/
+@[inline]
+def Ref.not {aig : AIG α} (ref : Ref aig) : Ref aig :=
+  ref.flip true
 
 /--
 A pair of `Ref`s, useful for `LawfulOperator`s that act on two `Ref`s at a time.
@@ -254,6 +269,14 @@ def BinaryInput.cast {aig1 aig2 : AIG α} (input : BinaryInput aig1)
     (h : aig1.decls.size ≤ aig2.decls.size) :
     BinaryInput aig2 :=
   { input with lhs := input.lhs.cast h, rhs := input.rhs.cast h }
+
+/--
+Flip the current inverter settings of the `BinaryInput` if `linv` or `rinv` is set respectively.
+-/
+@[inline]
+def BinaryInput.invert {aig : AIG α} (input : BinaryInput aig) (linv rinv : Bool) :
+    BinaryInput aig :=
+  { input with lhs := input.lhs.flip linv, rhs := input.rhs.flip rinv }
 
 /--
 A collection of 3 of `Ref`s, useful for `LawfulOperator`s that act on three `Ref`s at a time,
@@ -292,14 +315,14 @@ Transform an `Entrypoint` into a graphviz string. Useful for debugging purposes.
 -/
 def toGraphviz {α : Type} [DecidableEq α] [ToString α] [Hashable α] (entry : Entrypoint α) :
     String :=
-  let ⟨⟨decls, _, hinv⟩, ⟨idx, h⟩⟩ := entry
+  let ⟨⟨decls, _, hinv⟩, ⟨idx, invert, h⟩⟩ := entry
   let (dag, s) := go "" decls hinv idx h |>.run ∅
   let nodes := s.fold (fun x y ↦ x ++ toGraphvizString decls y) ""
   "Digraph AIG {" ++ nodes ++ dag ++ "}"
 where
   go {α : Type} [DecidableEq α] [ToString α] [Hashable α] (acc : String) (decls : Array (Decl α))
-      (hinv : IsDAG α decls) (idx : Nat) (hidx : idx < decls.size)
-        : StateM (HashSet (Fin decls.size)) String := do
+      (hinv : IsDAG α decls) (idx : Nat) (hidx : idx < decls.size) :
+      StateM (HashSet (Fin decls.size)) String := do
     let fidx : Fin decls.size := Fin.mk idx hidx
     if (← get).contains fidx then
       return acc
@@ -325,9 +348,9 @@ where
 A vector of references into `aig`. This is the `AIG` analog of `BitVec`.
 -/
 structure RefVec (aig : AIG α) (w : Nat) where
-  refs : Array Nat
+  refs : Array (Nat × Bool)
   hlen : refs.size = w
-  hrefs : ∀ (h : i < w), refs[i] < aig.decls.size
+  hrefs : ∀ (h : i < w), refs[i].1 < aig.decls.size
 
 /--
 A sequence of references bundled with their AIG.
@@ -362,7 +385,7 @@ structure ExtendTarget (aig : AIG α) (newWidth : Nat) where
 Evaluate an `AIG.Entrypoint` using some assignment for atoms.
 -/
 def denote (assign : α → Bool) (entry : Entrypoint α) : Bool :=
-  go entry.ref.gate entry.aig.decls assign entry.ref.hgate entry.aig.invariant
+  go entry.ref.gate entry.aig.decls assign entry.ref.hgate entry.aig.invariant ^^ entry.ref.invert
 where
   go (x : Nat) (decls : Array (Decl α)) (assign : α → Bool) (h1 : x < decls.size)
       (h2 : IsDAG α decls) :
@@ -400,61 +423,23 @@ def unexpandDenote : Lean.PrettyPrinter.Unexpander
 /--
 The denotation of the sub-DAG in the `aig` at node `start` is false for all assignments.
 -/
-def UnsatAt (aig : AIG α) (start : Nat) (h : start < aig.decls.size) : Prop :=
-  ∀ assign, ⟦aig, ⟨start, h⟩, assign⟧ = false
+def UnsatAt (aig : AIG α) (start : Nat) (invert : Bool) (h : start < aig.decls.size) : Prop :=
+  ∀ assign, ⟦aig, ⟨start, invert, h⟩, assign⟧ = false
 
 /--
 The denotation of the `Entrypoint` is false for all assignments.
 -/
 def Entrypoint.Unsat (entry : Entrypoint α) : Prop :=
-  entry.aig.UnsatAt entry.ref.gate entry.ref.hgate
-
-/--
-An input to an AIG gate.
--/
-structure Fanin (aig : AIG α) where
-  /--
-  The node we are referring to.
-  -/
-  ref : Ref aig
-  /--
-  Whether the node is inverted
-  -/
-  inv : Bool
-
-/--
-The `Ref.cast` equivalent for `Fanin`.
--/
-@[inline]
-def Fanin.cast {aig1 aig2 : AIG α} (fanin : Fanin aig1)
-    (h : aig1.decls.size ≤ aig2.decls.size) :
-    Fanin aig2 :=
-  { fanin with ref := fanin.ref.cast h }
-
-/--
-The input type for creating AIG and gates.
--/
-structure GateInput (aig : AIG α) where
-  lhs : Fanin aig
-  rhs : Fanin aig
-
-/--
-The `Ref.cast` equivalent for `GateInput`.
--/
-@[inline]
-def GateInput.cast {aig1 aig2 : AIG α} (input : GateInput aig1)
-    (h : aig1.decls.size ≤ aig2.decls.size) :
-    GateInput aig2 :=
-  { input with lhs := input.lhs.cast h, rhs := input.rhs.cast h }
+  entry.aig.UnsatAt entry.ref.gate entry.ref.invert entry.ref.hgate
 
 /--
 Add a new and inverter gate to the AIG in `aig`. Note that this version is only meant for proving,
 for production purposes use `AIG.mkGateCached` and equality theorems to this one.
 -/
-def mkGate (aig : AIG α) (input : GateInput aig) : Entrypoint α :=
+def mkGate (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   let g := aig.decls.size
   let decls :=
-    aig.decls.push <| .gate input.lhs.ref.gate input.rhs.ref.gate input.lhs.inv input.rhs.inv
+    aig.decls.push <| .gate input.lhs.gate input.rhs.gate input.lhs.invert input.rhs.invert
   let cache := aig.cache.noUpdate
   have invariant := by
     intro i lhs' rhs' linv' rinv' h1 h2
@@ -462,10 +447,10 @@ def mkGate (aig : AIG α) (input : GateInput aig) : Entrypoint α :=
     split at h2
     · apply aig.invariant <;> assumption
     · injections
-      have := input.lhs.ref.hgate
-      have := input.rhs.ref.hgate
+      have := input.lhs.hgate
+      have := input.rhs.hgate
       omega
-  ⟨{ aig with decls, invariant, cache }, ⟨g, by simp [g, decls]⟩⟩
+  ⟨{ aig with decls, invariant, cache }, ⟨g, false, by simp [g, decls]⟩⟩
 
 /--
 Add a new input node to the AIG in `aig`. Note that this version is only meant for proving,
@@ -481,7 +466,7 @@ def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
     split at h2
     · apply aig.invariant <;> assumption
     · contradiction
-  ⟨{ decls, invariant, cache }, ⟨g, by simp [g, decls]⟩⟩
+  ⟨{ decls, invariant, cache }, ⟨g, false, by simp [g, decls]⟩⟩
 
 /--
 Add a new constant node to `aig`. Note that this version is only meant for proving,
@@ -497,17 +482,17 @@ def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
     split at h2
     · apply aig.invariant <;> assumption
     · contradiction
-  ⟨{ decls, invariant, cache }, ⟨g, by simp [g, decls]⟩⟩
+  ⟨{ decls, invariant, cache }, ⟨g, false, by simp [g, decls]⟩⟩
 
 
 /--
 Determine whether `ref` is a `Decl.const` with value `b`.
 -/
 def isConstant (aig : AIG α) (ref : Ref aig) (b : Bool) : Bool :=
-  let ⟨gate, hgate⟩ := ref
+  let ⟨gate, invert, hgate⟩ := ref
   let decl := aig.decls[gate]'hgate
   match decl with
-  | .const val => b = val
+  | .const val => (invert ^^ b) = val
   | _ => false
 
 end AIG

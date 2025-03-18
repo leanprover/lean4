@@ -143,6 +143,7 @@ theorem BitVec.getElem_eq_getLsbD (a : BitVec w) (i : Nat) (h : i < w) :
 
 -- The side condition about being in bounds gets resolved if i and w are constant.
 attribute [bv_normalize] BitVec.getMsbD_eq_getLsbD
+attribute [bv_normalize] BitVec.getLsbD_eq_extractLsb'
 
 end Reduce
 
@@ -150,9 +151,6 @@ section Constant
 
 attribute [bv_normalize] BitVec.add_zero
 attribute [bv_normalize] BitVec.zero_add
-attribute [bv_normalize] BitVec.getLsbD_zero
-attribute [bv_normalize] BitVec.getLsbD_zero_length
-attribute [bv_normalize] BitVec.getLsbD_concat_zero
 attribute [bv_normalize] BitVec.mul_one
 attribute [bv_normalize] BitVec.one_mul
 attribute [bv_normalize] BitVec.not_not
@@ -283,6 +281,11 @@ theorem BitVec.shiftLeft_zero' (n : BitVec w) : n <<< 0#w' = n := by
   simp only [(· <<< ·)]
   simp
 
+@[bv_normalize]
+theorem BitVec.shiftLeft_neg {x : BitVec w₁} {y : BitVec w₂} :
+    (~~~x + 1#w₁) <<< y = ~~~(x <<< y) + 1 := by
+  simp [← BitVec.neg_eq_not_add, _root_.BitVec.shiftLeft_neg]
+
 attribute [bv_normalize] BitVec.zero_sshiftRight
 attribute [bv_normalize] BitVec.sshiftRight_zero
 
@@ -329,6 +332,11 @@ theorem BitVec.lt_one_iff (a : BitVec n) (h : 0 < n) : (BitVec.ult a 1#n) = (a =
 theorem BitVec.max_ult' (a : BitVec w) : (BitVec.ult (-1#w) a) = false := by
   rw [BitVec.negOne_eq_allOnes, ← Bool.not_eq_true, ← @lt_ult]
   exact BitVec.not_allOnes_lt
+
+theorem BitVec.ult_max' (a : BitVec w) : (BitVec.ult a (-1#w)) = (!(a == -1#w)) := by
+  have := BitVec.lt_allOnes_iff (x := a)
+  rw [lt_ult, ← BitVec.negOne_eq_allOnes] at this
+  by_cases (a.ult (-1#w)) <;> simp_all
 
 attribute [bv_normalize] BitVec.replicate_zero_eq
 attribute [bv_normalize] BitVec.add_eq_xor
@@ -434,6 +442,40 @@ theorem BitVec.append_const_right {a : BitVec w1} :
       (BitVec.ofNat w3 c)
     = (a ++ (BitVec.ofNat w2 b ++ BitVec.ofNat w3 c)).cast (Eq.symm <| Nat.add_assoc ..) := by
   rw [BitVec.append_assoc]
+
+theorem BitVec.signExtend_elim {v : Nat} {x : BitVec v} {w : Nat} (h : v ≤ w) :
+    BitVec.signExtend w x = ((bif x.msb then -1#(w - v) else 0#(w - v)) ++ x).cast (by omega) := by
+  rw [BitVec.signExtend_eq_append_of_le]
+  simp [BitVec.negOne_eq_allOnes, cond_eq_if]
+  assumption
+
+theorem BitVec.signExtend_elim' {v : Nat} {x : BitVec v} {w : Nat} (h : w ≤ v) :
+    BitVec.signExtend w x = BitVec.extractLsb' 0 w x := by
+  rw [BitVec.signExtend_eq_setWidth_of_le _ h, BitVec.setWidth_eq_extractLsb' h]
+
+@[bv_normalize]
+theorem BitVec.add_neg_mul {x y : BitVec w} : ~~~(x + x * y) + 1#w = x * ~~~y := by
+  rw [← BitVec.neg_eq_not_add, BitVec.neg_add_mul_eq_mul_not]
+
+@[bv_normalize]
+theorem BitVec.add_neg_mul' {x y : BitVec w} : ~~~(x + y * x) + 1#w = ~~~y * x := by
+  rw [BitVec.mul_comm y x, BitVec.mul_comm (~~~y) x, BitVec.add_neg_mul]
+
+@[bv_normalize]
+theorem BitVec.add_neg_mul'' {x y : BitVec w} : ~~~(x * y + x) + 1#w = x * ~~~y := by
+  rw [BitVec.add_comm (x * y) x, BitVec.add_neg_mul]
+
+@[bv_normalize]
+theorem BitVec.add_neg_mul''' {x y : BitVec w} : ~~~(y * x + x) + 1#w = ~~~y * x := by
+  rw [BitVec.mul_comm y x, BitVec.mul_comm (~~~y) x,BitVec.add_neg_mul'']
+
+@[bv_normalize]
+theorem BitVec.norm_bv_add_mul {x y : BitVec w} : ~~~(x * ~~~y) + 1#w = x + (x * y) := by
+  rw [← BitVec.neg_eq_not_add, BitVec.neg_mul_not_eq_add_mul]
+
+@[bv_normalize]
+theorem BitVec.norm_bv_add_mul' {x y : BitVec w} : ~~~(~~~y * x) + 1#w = x + (y * x) := by
+  rw [BitVec.mul_comm (~~~y) x, BitVec.mul_comm y x, BitVec.norm_bv_add_mul]
 
 end Normalize
 end Std.Tactic.BVDecide

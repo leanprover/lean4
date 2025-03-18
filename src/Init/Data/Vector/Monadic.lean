@@ -159,7 +159,7 @@ theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
   rcases xs with ⟨xs, rfl⟩
   simp
 
-theorem forIn'_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
+@[simp] theorem forIn'_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
     (xs : Vector α n) (f : (a : α) → a ∈ xs → β → β) (init : β) :
     forIn' xs init (fun a m b => pure (.yield (f a m b))) =
       pure (f := m) (xs.attach.foldl (fun b ⟨a, h⟩ => f a h b) init) := by
@@ -201,7 +201,7 @@ theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
   rcases xs with ⟨xs, rfl⟩
   simp
 
-theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
+@[simp] theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
     (xs : Vector α n) (f : α → β → β) (init : β) :
     forIn xs init (fun a b => pure (.yield (f a b))) =
       pure (f := m) (xs.foldl (fun b a => f a b) init) := by

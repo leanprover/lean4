@@ -20,7 +20,6 @@ static lean_object* l___private_Lean_Meta_CoeAttr_0__Lean_Meta_reprCoeFnInfo____
 static lean_object* l___private_Lean_Meta_CoeAttr_0__Lean_Meta_reprCoeFnType____x40_Lean_Meta_CoeAttr___hyg_19____closed__10;
 lean_object* l_Lean_mkNatLit(lean_object*);
 static lean_object* l_Lean_Meta_instToExprCoeFnType___lambda__1___closed__10;
-lean_object* l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Meta_registerCoercion___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_CoeFnType_noConfusion___rarg___lambda__1(lean_object*);
@@ -33,7 +32,6 @@ static lean_object* l_Lean_Meta_instToExprCoeFnInfo___lambda__1___closed__2;
 static lean_object* l_Lean_Meta_instToExprCoeFnType___lambda__1___closed__5;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_772____closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_CoeFnType_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
-lean_object* l_Lean_ConstantInfo_levelParams(lean_object*);
 static lean_object* l_Lean_Meta_instToExprCoeFnType___lambda__1___closed__9;
 uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_166_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_instToExprCoeFnType___closed__1;
@@ -202,6 +200,7 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_772____lam
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_772____closed__14;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_CoeAttr_0__Lean_Meta_reprCoeFnInfo____x40_Lean_Meta_CoeAttr___hyg_314____closed__12;
+lean_object* l_Lean_getConstVal___at___private_Lean_Meta_InferType_0__Lean_Meta_inferConstType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_772____closed__19;
@@ -1532,7 +1531,7 @@ _start:
 {
 lean_object* x_7; 
 lean_inc(x_1);
-x_7 = l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l_Lean_getConstVal___at___private_Lean_Meta_InferType_0__Lean_Meta_inferConstType___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 uint8_t x_8; 
@@ -1541,7 +1540,8 @@ if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_9 = lean_ctor_get(x_7, 0);
-x_10 = l_Lean_ConstantInfo_levelParams(x_9);
+x_10 = lean_ctor_get(x_9, 1);
+lean_inc(x_10);
 lean_dec(x_9);
 x_11 = lean_box(0);
 x_12 = l_List_mapTR_loop___at_Lean_mkConstWithLevelParams___spec__1(x_10, x_11);
@@ -1557,7 +1557,8 @@ x_15 = lean_ctor_get(x_7, 1);
 lean_inc(x_15);
 lean_inc(x_14);
 lean_dec(x_7);
-x_16 = l_Lean_ConstantInfo_levelParams(x_14);
+x_16 = lean_ctor_get(x_14, 1);
+lean_inc(x_16);
 lean_dec(x_14);
 x_17 = lean_box(0);
 x_18 = l_List_mapTR_loop___at_Lean_mkConstWithLevelParams___spec__1(x_16, x_17);

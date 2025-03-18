@@ -157,6 +157,7 @@ lean_object* l_Lean_Expr_appFnCleanup(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPass_detectSize___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_MessageData_hasTag(lean_object*, lean_object*);
+uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPass___elambda__1___closed__6;
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPass_replaceSize___spec__28(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDeclsDND___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPass_replaceSize___spec__18___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -9690,13 +9691,46 @@ if (x_4 == 0)
 lean_object* x_5; uint8_t x_6; 
 x_5 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_intToBitVecPass_detectSize___spec__6___lambda__1___closed__5;
 x_6 = l_Lean_Expr_isAppOfArity(x_1, x_5, x_3);
-return x_6;
+if (x_6 == 0)
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
 }
 else
 {
-uint8_t x_7; 
-x_7 = 1;
-return x_7;
+uint8_t x_8; 
+x_8 = l_Lean_Expr_hasLooseBVars(x_1);
+if (x_8 == 0)
+{
+uint8_t x_9; 
+x_9 = 1;
+return x_9;
+}
+else
+{
+uint8_t x_10; 
+x_10 = 0;
+return x_10;
+}
+}
+}
+else
+{
+uint8_t x_11; 
+x_11 = l_Lean_Expr_hasLooseBVars(x_1);
+if (x_11 == 0)
+{
+uint8_t x_12; 
+x_12 = 1;
+return x_12;
+}
+else
+{
+uint8_t x_13; 
+x_13 = 0;
+return x_13;
+}
 }
 }
 }

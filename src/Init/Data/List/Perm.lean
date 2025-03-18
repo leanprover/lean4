@@ -19,7 +19,8 @@ The notation `~` is used for permutation equivalence.
 -/
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
-set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+-- TODO: restore after an update-stage0
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 open Nat
 
@@ -522,7 +523,7 @@ theorem Perm.eraseP (f : α → Bool) {l₁ l₂ : List α}
     exact fun h h₁ h₂ => h h₂ h₁
 
 theorem perm_insertIdx {α} (x : α) (l : List α) {i} (h : i ≤ l.length) :
-    insertIdx i x l ~ x :: l := by
+    l.insertIdx i x ~ x :: l := by
   induction l generalizing i with
   | nil =>
     cases i with

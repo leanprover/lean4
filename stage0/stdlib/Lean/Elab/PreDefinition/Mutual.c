@@ -586,7 +586,7 @@ lean_dec(x_10);
 x_13 = lean_ctor_get(x_11, 6);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*2);
+x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*3);
 lean_dec(x_13);
 x_15 = l_Lean_Elab_enableInfoTree___at_Lean_Elab_addAndCompilePartialRec___spec__4(x_1, x_3, x_4, x_5, x_6, x_7, x_8, x_12);
 x_16 = lean_ctor_get(x_15, 1);

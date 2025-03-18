@@ -174,16 +174,6 @@ export MonadLog (logEntry)
     message := mkErrorStringWithPos msg.fileName msg.pos str none
   }
 
-@[deprecated "No deprecation message available." (since := "2024-05-18")]
-def logToIO (e : LogEntry) (minLv : LogLevel)  : BaseIO PUnit := do
-  match e.level with
-  | .trace => if minLv ≥ .trace then
-    IO.println e.message.trim |>.catchExceptions fun _ => pure ()
-  | .info => if minLv ≥ .info then
-    IO.println e.message.trim |>.catchExceptions fun _ => pure ()
-  | .warning => IO.eprintln e.toString |>.catchExceptions fun _ => pure ()
-  | .error => IO.eprintln e.toString |>.catchExceptions fun _ => pure ()
-
 def logToStream
   (e : LogEntry) (out : IO.FS.Stream) (minLv : LogLevel) (useAnsi : Bool)
 : BaseIO PUnit := do
@@ -201,11 +191,6 @@ abbrev lift [MonadLiftT m n] (self : MonadLog m) : MonadLog n where
   logEntry e := liftM <| self.logEntry e
 
 instance [MonadLift m n] [methods : MonadLog m] : MonadLog n := methods.lift
-
-set_option linter.deprecated false in
-@[deprecated "Deprecated without replacement." (since := "2024-05-18")]
-abbrev io [MonadLiftT BaseIO m] (minLv := LogLevel.info) : MonadLog m where
-  logEntry e := logToIO e minLv
 
 abbrev stream [MonadLiftT BaseIO m]
   (out : IO.FS.Stream) (minLv := LogLevel.info) (useAnsi := false)
@@ -527,8 +512,6 @@ abbrev run?' [Functor m] (self : ELogT m α) (log : Log := {}) : m (Option α) :
 
 @[inline] def catchLog [Monad m] (f : Log → LogT m α) (self : ELogT m α) : LogT m α := do
   self.catchExceptions fun errPos => do f (← takeLogFrom errPos)
-
-@[deprecated run? (since := "2024-05-18")] abbrev captureLog := @run?
 
 /--
 Run `self` with the log taken from the state of the monad `n`,

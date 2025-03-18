@@ -185,11 +185,6 @@ theorem if_true_right [h : Decidable p] :
 @[simp] theorem ite_else_not_self {p : Prop} [Decidable p] {q : Prop} : (if p then q else ¬p) ↔ p → q := by
   split <;> simp_all
 
-@[deprecated ite_then_self (since := "2024-08-28")]
-theorem ite_true_same {p q : Prop} [Decidable p] : (if p then p else q) ↔ (¬p → q) := ite_then_self
-@[deprecated ite_else_self (since := "2024-08-28")]
-theorem ite_false_same {p q : Prop} [Decidable p] : (if p then q else p) ↔ (p ∧ q) := ite_else_self
-
 /-- If two if-then-else statements only differ by the `Decidable` instances, they are equal. -/
 -- This is useful for ensuring confluence, but rarely otherwise.
 @[simp] theorem ite_eq_ite (p : Prop) {h h' : Decidable p} (x y : α) :
@@ -655,14 +650,6 @@ theorem decide_ite (u : Prop) [du : Decidable u] (p q : Prop)
 @[simp] theorem ite_else_decide_self (p : Prop) [h : Decidable p] {w : Decidable p} (q : Bool) :
     (@ite _ p h q (decide p)) = (decide p && q) := by
   split <;> simp_all
-
-@[deprecated ite_then_decide_self (since := "2024-08-29")]
-theorem ite_true_decide_same (p : Prop) [Decidable p] (b : Bool) :
-  (if p then decide p else b) = (decide p || b) := ite_then_decide_self p b
-
-@[deprecated ite_false_decide_same (since := "2024-08-29")]
-theorem ite_false_decide_same (p : Prop) [Decidable p] (b : Bool) :
-  (if p then b else decide p) = (decide p && b) := ite_else_decide_self p b
 
 @[simp] theorem ite_then_decide_not_self (p : Prop) [h : Decidable p] {w : Decidable p} (q : Bool) :
     (@ite _ p h (!decide p) q) = (!decide p && q) := by

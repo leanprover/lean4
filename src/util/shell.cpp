@@ -439,12 +439,12 @@ extern void (*g_lean_report_task_get_blocked_time)(std::chrono::nanoseconds);
 }
 static bool trace_task_get_blocked = getenv("LEAN_TRACE_TASK_GET_BLOCKED") != nullptr;
 static void report_task_get_blocked_time(std::chrono::nanoseconds d) {
-    if (has_profiling_task()) {
-        report_profiling_time("blocked", d);
+    if (has_no_block_profiling_task()) {
+        report_profiling_time("blocked (unaccounted)", d);
         exclude_profiling_time_from_current_task(d);
         if (trace_task_get_blocked) {
             sstream ss;
-            ss << "Task.get blocked for " << std::chrono::duration_cast<std::chrono::seconds>(d).count() << "s";
+            ss << "Task.get blocked for " << std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(d).count() << "ms";
             // using a panic for reporting is a bit of a hack, but good enough for this
             // `lean`-specific use case
             lean_panic(ss.str().c_str(), /* force stderr */ true);

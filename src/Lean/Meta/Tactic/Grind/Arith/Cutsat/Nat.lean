@@ -74,17 +74,29 @@ partial def toOfNatExpr (e : Lean.Expr) : M Expr := do
 
 /--
 Given `e` of the form `lhs ≤ rhs` where `lhs` and `rhs` have type `Nat`,
-returns `(lhs', rhs', h)` where `lhs'` and `rhs'` are integer expressions and `h` is a proof
-that `(lhs ≤ rhs) = (lhs', rhs')`
+returns `(lhs, rhs, ctx)` where `lhs` and `rhs` are `Int.OfNat.Expr` and `ctx` is the context.
 -/
-def toIntLe? (e : Lean.Expr) : MetaM (Option (Lean.Expr × Lean.Expr × Lean.Expr)) := do
+def toIntLe? (e : Lean.Expr) : MetaM (Option (Expr × Expr × Array Lean.Expr)) := do
   let_expr LE.le _ inst lhs rhs := e | return none
   unless (← isInstLENat inst) do return none
   let ((lhs, rhs), s) ← conv lhs rhs |>.run {}
-  let lhs' := lhs.denoteAsIntExpr s.ctx
-  let rhs' := rhs.denoteAsIntExpr s.ctx
-  let h := mkApp3 (mkConst ``Int.OfNat.Expr.le) (Simp.Arith.Nat.toContextExpr s.ctx) (toExpr lhs) (toExpr rhs)
-  return some (lhs', rhs', h)
+  return some (lhs, rhs, s.ctx)
+where
+  conv (lhs rhs : Lean.Expr) : M (Expr × Expr) :=
+    return (← toOfNatExpr lhs, ← toOfNatExpr rhs)
+
+def toIntDvd? (e : Lean.Expr) : GoalM (Option (Nat × Expr × Array Lean.Expr)) := do
+  let_expr Dvd.dvd _ inst a b := e | return none
+  unless (← isInstDvdNat inst) do return none
+  let some d ← getNatValue? a
+    | reportIssue! "non-linear divisibility constraint found{indentExpr e}"
+      return none
+  let (b, s) ← toOfNatExpr b |>.run {}
+  return some (d, b, s.ctx)
+
+def toIntEq (lhs rhs : Lean.Expr) : MetaM (Expr × Expr × Array Lean.Expr) := do
+  let ((lhs, rhs), s) ← conv lhs rhs |>.run {}
+  return (lhs, rhs, s.ctx)
 where
   conv (lhs rhs : Lean.Expr) : M (Expr × Expr) :=
     return (← toOfNatExpr lhs, ← toOfNatExpr rhs)

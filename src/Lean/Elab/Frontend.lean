@@ -147,6 +147,8 @@ def runFrontend
   let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
   let opts := Lean.internal.cmdlineSnapshots.setIfNotSet opts true
+  -- default to async elaboration; see also `Elab.async` docs
+  let opts := Elab.async.setIfNotSet opts true
   let ctx := { inputCtx with }
   let processor := Language.Lean.process
   let snap ← processor (fun _ => pure <| .ok { mainModuleName, opts, trustLevel, plugins }) none ctx

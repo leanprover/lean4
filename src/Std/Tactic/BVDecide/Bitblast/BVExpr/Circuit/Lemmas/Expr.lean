@@ -16,7 +16,6 @@ import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Replicate
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Extract
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateLeft
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.RotateRight
-import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.SignExtend
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Mul
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Udiv
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Lemmas.Operations.Umod
@@ -43,12 +42,12 @@ theorem go_denote_mem_prefix (aig : AIG BVBit) (expr : BVExpr w) (assign : Assig
     (hstart) :
     ⟦
       (go aig expr).val.aig,
-      ⟨start, by apply Nat.lt_of_lt_of_le; exact hstart; apply (go aig expr).property⟩,
+      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply (go aig expr).property⟩,
       assign.toAIGAssignment
     ⟧
       =
-    ⟦aig, ⟨start, hstart⟩, assign.toAIGAssignment⟧ := by
-  apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
+    ⟦aig, ⟨start, inv, hstart⟩, assign.toAIGAssignment⟧ := by
+  apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
     apply go_decl_eq
@@ -74,36 +73,6 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     · next hsplit => rw [rih]
     · next hsplit => rw [go_denote_mem_prefix, lih]
   | replicate n expr ih => simp [go, ih, hidx, ← BitVec.getLsbD_eq_getElem]
-  | signExtend v inner ih =>
-    rename_i originalWidth
-    generalize hgo : (go aig (signExtend v inner)).val = res
-    unfold go at hgo
-    dsimp only at hgo
-    have : 0 ≤ originalWidth := by omega
-    cases Nat.eq_or_lt_of_le this with
-    | inl heq =>
-      rw [blastSignExtend_empty_eq_zeroExtend] at hgo
-      · rw [← hgo]
-        simp only [eval_signExtend]
-        rw [BitVec.signExtend_eq_setWidth_of_msb_false]
-        · simp only [denote_blastZeroExtend, ih, dite_eq_ite, Bool.if_false_right,
-            BitVec.getLsbD_setWidth, hidx, decide_true, Bool.true_and, Bool.and_iff_right_iff_imp,
-            decide_eq_true_eq]
-          apply BitVec.lt_of_getLsbD
-        · subst heq
-          rw [BitVec.msb_zero_length]
-      · simp [heq]
-    | inr hlt =>
-      rw [← hgo]
-      rw [denote_blastSignExtend]
-      simp only [eval_signExtend]
-      rw [BitVec.getLsbD_signExtend]
-      · simp only [hidx, decide_true, Bool.true_and]
-        split
-        · rw [ih]
-        · rw [BitVec.msb_eq_getLsbD_last]
-          rw [ih]
-      · dsimp only; omega
   | @extract w start len inner ih =>
     simp only [go, denote_blastExtract, Bool.if_false_right, eval_extract,
       BitVec.getLsbD_extractLsb', hidx, decide_true, Bool.true_and]

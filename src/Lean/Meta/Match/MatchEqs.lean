@@ -769,4 +769,19 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
 
 builtin_initialize registerTraceClass `Meta.Match.matchEqs
 
+private def isMatchEqName? (env : Environment) (n : Name) : Option Name := do
+  let .str p s := n | failure
+  guard <| isEqnReservedNameSuffix s || s == "splitter"
+  let p ← privateToUserName? p
+  guard <| isMatcherCore env p
+  return p
+
+builtin_initialize registerReservedNamePredicate (isMatchEqName? · · |>.isSome)
+
+builtin_initialize registerReservedNameAction fun name => do
+  let some p := isMatchEqName? (← getEnv) name |
+    return false
+  let _ ← MetaM.run' <| getEquationsFor p
+  return true
+
 end Lean.Meta.Match

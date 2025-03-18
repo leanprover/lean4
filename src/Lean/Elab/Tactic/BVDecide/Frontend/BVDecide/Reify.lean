@@ -82,27 +82,6 @@ where
         .arithShiftRight
         ``BVExpr.arithShiftRight
         ``Std.Tactic.BVDecide.Reflect.BitVec.arithShiftRight_congr
-    | BitVec.signExtend _ newWidthExpr innerExpr =>
-      let some newWidth ← getNatValue? newWidthExpr | return none
-      let some inner ← goOrAtom innerExpr | return none
-      let bvExpr := .signExtend newWidth inner.bvExpr
-      let expr :=
-        mkApp3
-          (mkConst ``BVExpr.signExtend)
-          (toExpr inner.width)
-          newWidthExpr
-          inner.expr
-      let proof := do
-        let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
-        -- This is safe as `signExtend_congr` holds definitionally if the arguments are defeq.
-        let some innerProof ← inner.evalsAtAtoms | return none
-        return mkApp5 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.signExtend_congr)
-          newWidthExpr
-          (toExpr inner.width)
-          innerExpr
-          innerEval
-          innerProof
-      return some ⟨newWidth, bvExpr, proof, expr⟩
     | HAppend.hAppend _ _ _ _ lhsExpr rhsExpr =>
       let some lhs ← goOrAtom lhsExpr | return none
       let some rhs ← goOrAtom rhsExpr | return none

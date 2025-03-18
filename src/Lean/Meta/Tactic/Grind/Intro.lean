@@ -119,7 +119,8 @@ private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := d
           let h ← mkLambdaFVars #[mkFVar fvarId] mvarNew
           match r.proof? with
           | some he =>
-            let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq) #[p, r.expr, q, he, h]
+            let u ← getLevel q
+            let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq [u]) #[p, r.expr, q, he, h]
             mvarId.assign hNew
             return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
           | none =>
@@ -170,6 +171,12 @@ private def applyInjection? (goal : Goal) (fvarId : FVarId) : MetaM (Option Goal
   else
     return none
 
+private def exfalsoIfNotProp (goal : Goal) : MetaM Goal := goal.mvarId.withContext do
+  if (← isProp (← goal.mvarId.getType)) then
+    return goal
+  else
+    return { goal with mvarId := (← goal.mvarId.exfalso) }
+
 /-- Introduce new hypotheses (and apply `by_contra`) until goal is of the form `... ⊢ False` -/
 partial def intros  (generation : Nat) : GrindTactic' := fun goal => do
   let rec go (goal : Goal) : StateRefT (Array Goal) GrindM Unit := do
@@ -177,6 +184,7 @@ partial def intros  (generation : Nat) : GrindTactic' := fun goal => do
       return ()
     match (← introNext goal generation) with
     | .done =>
+      let goal ← exfalsoIfNotProp goal
       if let some mvarId ← goal.mvarId.byContra? then
         go { goal with mvarId }
       else

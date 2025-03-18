@@ -215,6 +215,7 @@ static lean_object* l_Std_DHashMap_Internal_AssocList_forInStep_go___at_Lean_Ela
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleSimpleEnum___spec__5___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleEnumWithDefault___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 lean_object* l_Lean_Meta_synthInstance(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_withLocalDecls_loop___at___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleSimpleEnum___spec__9___rarg___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass_postprocess___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11464,34 +11465,56 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_5 = lean_ctor_get(x_3, 1);
 x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumToBitVecSuffix;
 x_7 = lean_string_dec_eq(x_5, x_6);
-return x_7;
-}
-else
+if (x_7 == 0)
 {
 uint8_t x_8; 
 x_8 = 0;
 return x_8;
 }
-}
 else
 {
 uint8_t x_9; 
-x_9 = 0;
-return x_9;
-}
-}
-else
+x_9 = l_Lean_Expr_hasLooseBVars(x_1);
+if (x_9 == 0)
 {
 uint8_t x_10; 
-x_10 = 0;
+x_10 = 1;
 return x_10;
-}
 }
 else
 {
 uint8_t x_11; 
 x_11 = 0;
 return x_11;
+}
+}
+}
+else
+{
+uint8_t x_12; 
+x_12 = 0;
+return x_12;
+}
+}
+else
+{
+uint8_t x_13; 
+x_13 = 0;
+return x_13;
+}
+}
+else
+{
+uint8_t x_14; 
+x_14 = 0;
+return x_14;
+}
+}
+else
+{
+uint8_t x_15; 
+x_15 = 0;
+return x_15;
 }
 }
 }

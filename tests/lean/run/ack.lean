@@ -6,6 +6,15 @@ termination_by a b => (a, b)
 
 /--
 info: [diag] Diagnostics
+  [kernel] unfolded declarations (max: 1193, num: 5):
+    [kernel] Nat.casesOn ↦ 1193
+    [kernel] Nat.rec ↦ 1065
+    [kernel] Eq.ndrec ↦ 973
+    [kernel] Eq.rec ↦ 973
+    [kernel] Acc.rec ↦ 754
+  use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+---
+info: [diag] Diagnostics
   [reduction] unfolded declarations (max: 2567, num: 5):
     [reduction] Nat.rec ↦ 2567
     [reduction] Eq.rec ↦ 1517

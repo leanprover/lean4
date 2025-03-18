@@ -23,3 +23,6 @@ set_option trace.grind.cutsat.model true in
 example (x y : Int) : x % 2 + y = 3 → x ≤ 5 → x > 4 → y = 1 := by
   fail_if_success grind
   sorry
+
+example (x y : Int) : x = y / 2 → y % 2 = 0 → y - 2*x = 0 := by
+  grind

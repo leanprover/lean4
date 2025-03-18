@@ -520,7 +520,7 @@ def processCongrHypothesis (h : Expr) (hType : Expr) : SimpM Bool := do
       return r.proof?.isSome || (xs.size > 0 && lhs != r.expr)
 
 /-- Try to rewrite `e` children using the given congruence theorem -/
-def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Result) := withNewMCtxDepth do
+def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Result) := withNewMCtxDepth do withParent e do
   recordCongrTheorem c.theoremName
   trace[Debug.Meta.Tactic.simp.congr] "{c.theoremName}, {e}"
   let thm ← mkConstWithFreshMVarLevels c.theoremName

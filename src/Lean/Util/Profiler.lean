@@ -67,7 +67,7 @@ structure SamplesTable where
   time : Array Milliseconds
   weight : Array Milliseconds
   weightType : String := "tracing-ms"
-  threadCPUDelta : Array Float
+  threadCPUDelta : Array Microseconds
   length : Nat
 deriving FromJson, ToJson
 
@@ -344,7 +344,7 @@ where
               stack := stack.push stackIdx
               time := time.push time.size.toFloat
               weight := weight.push add.samples.weight[oldSampleIdx]!
-              threadCPUDelta := threadCPUDelta.push 1
+              threadCPUDelta := threadCPUDelta.push 1.0
               length := length + 1
             }
           let sampleMap := sampleMap.insert stackIdx sampleMap.size

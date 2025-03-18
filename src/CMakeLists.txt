@@ -455,20 +455,20 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC -ftls-model=initial-exec")
   string(APPEND LEANC_EXTRA_CC_FLAGS " -fPIC")
   string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,-rpath=\\$$ORIGIN/..:\\$$ORIGIN")
-  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/temp/libLake.a.export -Wl,--no-whole-archive")
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=\\\$ORIGIN/../lib:\\\$ORIGIN/../lib/lean")
+  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=$ORIGIN/../lib:$ORIGIN/../lib/lean")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(APPEND CMAKE_CXX_FLAGS " -ftls-model=initial-exec")
   string(APPEND INIT_SHARED_LINKER_FLAGS " -install_name @rpath/libInit_shared.dylib")
   string(APPEND LEANSHARED_1_LINKER_FLAGS " -install_name @rpath/libleanshared_1.dylib")
   string(APPEND LEANSHARED_LINKER_FLAGS " -install_name @rpath/libleanshared.dylib")
-  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/temp/libLake.a.export -install_name @rpath/libLake_shared.dylib")
+  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -install_name @rpath/libLake_shared.dylib")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC")
   string(APPEND LEANC_EXTRA_CC_FLAGS " -fPIC")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libLake_shared.dll.a -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/temp/libLake.a.export -Wl,--no-whole-archive")
+  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libLake_shared.dll.a -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -541,6 +541,9 @@ install(DIRECTORY ${LEAN_BINARY_DIR}/share/ DESTINATION share)
 include_directories(${LEAN_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})  # version.h etc., "private" headers
 include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" headers
+
+# Lean code only needs this one include
+string(APPEND LEANC_OPTS " -I${CMAKE_BINARY_DIR}/include")
 
 # Use CMake profile C++ flags for building Lean libraries, but do not embed in `leanc`
 string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
@@ -754,7 +757,11 @@ add_custom_target(clean-olean
   DEPENDS clean-stdlib)
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/" DESTINATION lib
-  PATTERN temp EXCLUDE)
+  PATTERN temp
+  PATTERN "*.export"
+  PATTERN "*.hash"
+  PATTERN "*.trace"
+  EXCLUDE)
 
 # symlink source into expected installation location for go-to-definition, if file system allows it
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
@@ -785,9 +792,27 @@ if(LEAN_INSTALL_PREFIX)
 endif()
 
 # Escape for `make`. Yes, twice.
-string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
+string(REPLACE "$" "\\\$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
 string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE "${CMAKE_EXE_LINKER_FLAGS_MAKE}")
 configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
+
+# hacky
+function(toml_escape IN OUTVAR)
+  if(IN)
+    string(STRIP "${IN}" OUT)
+    string(REPLACE " " "\", \"" OUT "${OUT}")
+    set(${OUTVAR} "\"${OUT}\"" PARENT_SCOPE)
+  endif()
+endfunction()
+string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_CC "${LEANC_CC}")
+string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_FLAGS "${LEANC_INTERNAL_FLAGS}")
+string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_LINKER_FLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
+set(LEANC_OPTS_TOML "${LEANC_OPTS} ${LEANC_EXTRA_CC_FLAGS} ${LEANC_INTERNAL_FLAGS}")
+set(LINK_OPTS_TOML "${LEANC_INTERNAL_LINKER_FLAGS} -L${CMAKE_BINARY_DIR}/lib/lean ${LEAN_EXTRA_LINKER_FLAGS}")
+
+toml_escape("${LEAN_EXTRA_MAKE_OPTS}" LEAN_EXTRA_OPTS_TOML)
+toml_escape("${LEANC_OPTS_TOML}" LEANC_OPTS_TOML)
+toml_escape("${LINK_OPTS_TOML}" LINK_OPTS_TOML)
 
 if(USE_LAKE AND STAGE EQUAL 1)
   configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${LEAN_SOURCE_DIR}/lakefile.toml)

@@ -467,7 +467,12 @@ open Language in
 instance : ToSnapshotTree MacroExpandedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot, s.next.map (·.map (sync := true) toSnapshotTree)⟩
 
-partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
+partial def elabCommand (stx : Syntax) : CommandElabM Unit :=
+  try
+    go
+  finally
+    addTraceAsMessages
+where go := do
   withLogging <| withRef stx <| withIncRecDepth <| withFreshMacroScope do
     match stx with
     | Syntax.node _ k args =>
@@ -593,7 +598,6 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
       messages := initMsgs ++ msgs
       infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }
     }
-    addTraceAsMessages
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
 def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab := fun stx => do

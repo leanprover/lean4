@@ -39,6 +39,10 @@ instance {α : Type u} [ToFormat α] : ToFormat (Option α) :=
 instance {α : Type u} {β : Type v} [ToFormat α] [ToFormat β] : ToFormat (Prod α β) where
   format := fun (a, b) => Format.paren <| format a ++ "," ++ Format.line ++ format b
 
+/--
+Converts a string to a pretty-printer document, replacing newlines in the string with
+`Std.Format.line`.
+-/
 def String.toFormat (s : String) : Std.Format :=
   Std.Format.joinSep (s.splitOn "\n") Std.Format.line
 

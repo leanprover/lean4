@@ -217,13 +217,21 @@ namespace Raw₀
 /-! # Raw₀.empty -/
 
 @[simp]
-theorem toListModel_buckets_empty {c} : toListModel (empty c : Raw₀ α β).1.buckets = [] :=
+theorem toListModel_buckets_emptyWithCapacity {c} : toListModel (emptyWithCapacity c : Raw₀ α β).1.buckets = [] :=
   toListModel_mkArray_nil
 
-theorem wfImp_empty [BEq α] [Hashable α] {c} : Raw.WFImp (empty c : Raw₀ α β).1 where
-  buckets_hash_self := by simp [Raw.empty, Raw₀.empty]
-  size_eq := by simp [Raw.empty, Raw₀.empty]
+set_option linter.missingDocs false in
+@[deprecated toListModel_buckets_emptyWithCapacity (since := "2025-03-12")]
+abbrev toListModel_buckets_empty := @toListModel_buckets_emptyWithCapacity
+
+theorem wfImp_emptyWithCapacity [BEq α] [Hashable α] {c} : Raw.WFImp (emptyWithCapacity c : Raw₀ α β).1 where
+  buckets_hash_self := by simp [Raw.emptyWithCapacity, Raw₀.emptyWithCapacity]
+  size_eq := by simp [Raw.emptyWithCapacity, Raw₀.emptyWithCapacity]
   distinct := by simp
+
+set_option linter.missingDocs false in
+@[deprecated wfImp_emptyWithCapacity (since := "2025-03-12")]
+abbrev wfImp_empty := @wfImp_emptyWithCapacity
 
 theorem isHashSelf_reinsertAux [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
     (data : {d : Array (AssocList α β) // 0 < d.size}) (a : α) (b : β a) (h : IsHashSelf data.1) :
@@ -1064,7 +1072,7 @@ theorem WF.out [BEq α] [Hashable α] [i₁ : EquivBEq α] [i₂ : LawfulHashabl
     (h : m.WF) : Raw.WFImp m := by
   induction h generalizing i₁ i₂
   · next h => apply h
-  · exact Raw₀.wfImp_empty
+  · exact Raw₀.wfImp_emptyWithCapacity
   · next h => exact Raw₀.wfImp_insert (by apply h)
   · next h => exact Raw₀.wfImp_containsThenInsert (by apply h)
   · next h => exact Raw₀.wfImp_containsThenInsertIfNew (by apply h)

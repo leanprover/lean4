@@ -33,12 +33,16 @@ private theorem ext {m m' : HashMap α β} : m.inner = m'.inner → m = m' := by
   cases m; cases m'; rintro rfl; rfl
 
 @[simp]
-theorem isEmpty_empty {c} : (empty c : HashMap α β).isEmpty :=
-  DHashMap.isEmpty_empty
+theorem isEmpty_emptyWithCapacity {c} : (emptyWithCapacity c : HashMap α β).isEmpty :=
+  DHashMap.isEmpty_emptyWithCapacity
 
 @[simp]
-theorem isEmpty_emptyc : (∅ : HashMap α β).isEmpty :=
-  DHashMap.isEmpty_emptyc
+theorem isEmpty_empty : (∅ : HashMap α β).isEmpty :=
+  DHashMap.isEmpty_empty
+
+set_option linter.missingDocs false in
+@[deprecated isEmpty_empty (since := "2025-03-12")]
+abbrev isEmpty_emptyc := @isEmpty_empty
 
 @[simp]
 theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
@@ -56,17 +60,26 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) :
     a ∈ m ↔ b ∈ m :=
   DHashMap.mem_congr hab
 
-@[simp] theorem contains_empty {a : α} {c} : (empty c : HashMap α β).contains a = false :=
+@[simp]
+theorem contains_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : HashMap α β).contains a = false :=
+  DHashMap.contains_emptyWithCapacity
+
+@[simp] theorem not_mem_emptyWithCapacity {a : α} {c} : ¬a ∈ (emptyWithCapacity c : HashMap α β) :=
+  DHashMap.not_mem_emptyWithCapacity
+
+@[simp] theorem contains_empty {a : α} : (∅ : HashMap α β).contains a = false :=
   DHashMap.contains_empty
 
-@[simp] theorem not_mem_empty {a : α} {c} : ¬a ∈ (empty c : HashMap α β) :=
+set_option linter.missingDocs false in
+@[deprecated contains_empty (since := "2025-03-12")]
+abbrev contains_emptyc := @contains_empty
+
+@[simp] theorem not_mem_empty {a : α} : ¬a ∈ (∅ : HashMap α β) :=
   DHashMap.not_mem_empty
 
-@[simp] theorem contains_emptyc {a : α} : (∅ : HashMap α β).contains a = false :=
-  DHashMap.contains_emptyc
-
-@[simp] theorem not_mem_emptyc {a : α} : ¬a ∈ (∅ : HashMap α β) :=
-  DHashMap.not_mem_emptyc
+set_option linter.missingDocs false in
+@[deprecated not_mem_empty (since := "2025-03-12")]
+abbrev not_mem_emptyc := @not_mem_empty
 
 theorem contains_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
     m.isEmpty → m.contains a = false :=
@@ -123,12 +136,16 @@ theorem mem_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} : k 
   simp
 
 @[simp]
-theorem size_empty {c} : (empty c : HashMap α β).size = 0 :=
-  DHashMap.size_empty
+theorem size_emptyWithCapacity {c} : (emptyWithCapacity c : HashMap α β).size = 0 :=
+  DHashMap.size_emptyWithCapacity
 
 @[simp]
-theorem size_emptyc : (∅ : HashMap α β).size = 0 :=
-  DHashMap.size_emptyc
+theorem size_empty : (∅ : HashMap α β).size = 0 :=
+  DHashMap.size_empty
+
+set_option linter.missingDocs false in
+@[deprecated size_empty (since := "2025-03-12")]
+abbrev size_emptyc := @size_empty
 
 theorem isEmpty_eq_size_eq_zero : m.isEmpty = (m.size == 0) :=
   DHashMap.isEmpty_eq_size_eq_zero
@@ -146,12 +163,16 @@ theorem size_insert_le [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
   DHashMap.size_insert_le
 
 @[simp]
-theorem erase_empty {a : α} {c : Nat} : (empty c : HashMap α β).erase a = empty c :=
-  ext DHashMap.erase_empty
+theorem erase_emptyWithCapacity {a : α} {c : Nat} : (emptyWithCapacity c : HashMap α β).erase a = emptyWithCapacity c :=
+  ext DHashMap.erase_emptyWithCapacity
 
 @[simp]
-theorem erase_emptyc {a : α} : (∅ : HashMap α β).erase a = ∅ :=
-  ext DHashMap.erase_emptyc
+theorem erase_empty {a : α} : (∅ : HashMap α β).erase a = ∅ :=
+  ext DHashMap.erase_empty
+
+set_option linter.missingDocs false in
+@[deprecated erase_empty (since := "2025-03-12")]
+abbrev erase_emptyc := @erase_empty
 
 @[simp]
 theorem isEmpty_erase [EquivBEq α] [LawfulHashable α] {k : α} :
@@ -209,12 +230,16 @@ theorem containsThenInsertIfNew_snd {k : α} {v : β} :
 @[simp] theorem get!_eq_getElem! [Inhabited β] {a : α} : get! m a = m[a]! := rfl
 
 @[simp]
-theorem getElem?_empty {a : α} {c} : (empty c : HashMap α β)[a]? = none :=
-  DHashMap.Const.get?_empty
+theorem getElem?_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : HashMap α β)[a]? = none :=
+  DHashMap.Const.get?_emptyWithCapacity
 
 @[simp]
-theorem getElem?_emptyc {a : α} : (∅ : HashMap α β)[a]? = none :=
-  DHashMap.Const.get?_emptyc
+theorem getElem?_empty {a : α} : (∅ : HashMap α β)[a]? = none :=
+  DHashMap.Const.get?_empty
+
+set_option linter.missingDocs false in
+@[deprecated getElem?_empty (since := "2025-03-12")]
+abbrev getElem?_emptyc := @getElem?_empty
 
 theorem getElem?_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
     m.isEmpty = true → m[a]? = none :=
@@ -275,12 +300,16 @@ theorem getElem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b
   DHashMap.Const.get_congr hab (h' := h')
 
 @[simp]
-theorem getElem!_empty [Inhabited β] {a : α} {c} : (empty c : HashMap α β)[a]! = default :=
-  DHashMap.Const.get!_empty
+theorem getElem!_emptyWithCapacity [Inhabited β] {a : α} {c} : (emptyWithCapacity c : HashMap α β)[a]! = default :=
+  DHashMap.Const.get!_emptyWithCapacity
 
 @[simp]
-theorem getElem!_emptyc [Inhabited β] {a : α} : (∅ : HashMap α β)[a]! = default :=
-  DHashMap.Const.get!_emptyc
+theorem getElem!_empty [Inhabited β] {a : α} : (∅ : HashMap α β)[a]! = default :=
+  DHashMap.Const.get!_empty
+
+set_option linter.missingDocs false in
+@[deprecated getElem!_empty (since := "2025-03-12")]
+abbrev getElem!_emptyc := @getElem!_empty
 
 theorem getElem!_of_isEmpty [EquivBEq α] [LawfulHashable α] [Inhabited β] {a : α} :
     m.isEmpty = true → m[a]! = default :=
@@ -333,13 +362,17 @@ theorem getElem!_congr [EquivBEq α] [LawfulHashable α] [Inhabited β] {a b : �
   DHashMap.Const.get!_congr hab
 
 @[simp]
-theorem getD_empty {a : α} {fallback : β} {c} :
-    (empty c : HashMap α β).getD a fallback = fallback :=
-  DHashMap.Const.getD_empty
+theorem getD_emptyWithCapacity {a : α} {fallback : β} {c} :
+    (emptyWithCapacity c : HashMap α β).getD a fallback = fallback :=
+  DHashMap.Const.getD_emptyWithCapacity
 
 @[simp]
-theorem getD_emptyc {a : α} {fallback : β} : (∅ : HashMap α β).getD a fallback = fallback :=
+theorem getD_empty {a : α} {fallback : β} : (∅ : HashMap α β).getD a fallback = fallback :=
   DHashMap.Const.getD_empty
+
+set_option linter.missingDocs false in
+@[deprecated getD_empty (since := "2025-03-12")]
+abbrev getD_emptyc := @getD_empty
 
 theorem getD_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} {fallback : β} :
     m.isEmpty = true → m.getD a fallback = fallback :=
@@ -396,12 +429,16 @@ theorem getD_congr [EquivBEq α] [LawfulHashable α] {a b : α} {fallback : β} 
   DHashMap.Const.getD_congr hab
 
 @[simp]
-theorem getKey?_empty {a : α} {c} : (empty c : HashMap α β).getKey? a = none :=
-  DHashMap.getKey?_empty
+theorem getKey?_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : HashMap α β).getKey? a = none :=
+  DHashMap.getKey?_emptyWithCapacity
 
 @[simp]
-theorem getKey?_emptyc {a : α} : (∅ : HashMap α β).getKey? a = none :=
-  DHashMap.getKey?_emptyc
+theorem getKey?_empty {a : α} : (∅ : HashMap α β).getKey? a = none :=
+  DHashMap.getKey?_empty
+
+set_option linter.missingDocs false in
+@[deprecated getKey?_empty (since := "2025-03-12")]
+abbrev getKey?_emptyc := @getKey?_empty
 
 theorem getKey?_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
     m.isEmpty = true → m.getKey? a = none :=
@@ -479,12 +516,16 @@ theorem getKey_eq [LawfulBEq α] {k : α} (h : k ∈ m) : m.getKey k h = k :=
   DHashMap.getKey_eq h
 
 @[simp]
-theorem getKey!_empty [Inhabited α] {a : α} {c} : (empty c : HashMap α β).getKey! a = default :=
-  DHashMap.getKey!_empty
+theorem getKey!_emptyWithCapacity [Inhabited α] {a : α} {c} : (emptyWithCapacity c : HashMap α β).getKey! a = default :=
+  DHashMap.getKey!_emptyWithCapacity
 
 @[simp]
-theorem getKey!_emptyc [Inhabited α] {a : α} : (∅ : HashMap α β).getKey! a = default :=
-  DHashMap.getKey!_emptyc
+theorem getKey!_empty [Inhabited α] {a : α} : (∅ : HashMap α β).getKey! a = default :=
+  DHashMap.getKey!_empty
+
+set_option linter.missingDocs false in
+@[deprecated getKey!_empty (since := "2025-03-12")]
+abbrev getKey!_emptyc := @getKey!_empty
 
 theorem getKey!_of_isEmpty [EquivBEq α] [LawfulHashable α] [Inhabited α] {a : α} :
     m.isEmpty = true → m.getKey! a = default :=
@@ -544,13 +585,17 @@ theorem getKey!_eq_of_mem [LawfulBEq α] [Inhabited α] {k : α} (h : k ∈ m) :
   DHashMap.getKey!_eq_of_mem h
 
 @[simp]
-theorem getKeyD_empty {a : α} {fallback : α} {c} :
-    (empty c : HashMap α β).getKeyD a fallback = fallback :=
-  DHashMap.getKeyD_empty
+theorem getKeyD_emptyWithCapacity {a : α} {fallback : α} {c} :
+    (emptyWithCapacity c : HashMap α β).getKeyD a fallback = fallback :=
+  DHashMap.getKeyD_emptyWithCapacity
 
 @[simp]
-theorem getKeyD_emptyc {a : α} {fallback : α} : (∅ : HashMap α β).getKeyD a fallback = fallback :=
+theorem getKeyD_empty {a : α} {fallback : α} : (∅ : HashMap α β).getKeyD a fallback = fallback :=
   DHashMap.getKeyD_empty
+
+set_option linter.missingDocs false in
+@[deprecated getKeyD_empty (since := "2025-03-12")]
+abbrev getKeyD_emptyc := @getKeyD_empty
 
 theorem getKeyD_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} {fallback : α} :
     m.isEmpty = true → m.getKeyD a fallback = fallback :=
@@ -1992,23 +2037,31 @@ section Equiv
 variable {m m₁ m₂ : HashMap α β}
 
 @[simp]
-theorem equiv_empty_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :
-    m ~m empty c ↔ m.isEmpty :=
-  ⟨fun ⟨h⟩ => DHashMap.equiv_empty_iff_isEmpty.mp h,
-    fun h => ⟨DHashMap.equiv_empty_iff_isEmpty.mpr h⟩⟩
+theorem equiv_emptyWithCapacity_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :
+    m ~m emptyWithCapacity c ↔ m.isEmpty :=
+  ⟨fun ⟨h⟩ => DHashMap.equiv_emptyWithCapacity_iff_isEmpty.mp h,
+    fun h => ⟨DHashMap.equiv_emptyWithCapacity_iff_isEmpty.mpr h⟩⟩
 
 @[simp]
-theorem equiv_emptyc_iff_isEmpty [EquivBEq α] [LawfulHashable α] : m ~m ∅ ↔ m.isEmpty :=
-  equiv_empty_iff_isEmpty
+theorem equiv_empty_iff_isEmpty [EquivBEq α] [LawfulHashable α] : m ~m ∅ ↔ m.isEmpty :=
+  equiv_emptyWithCapacity_iff_isEmpty
+
+set_option linter.missingDocs false in
+@[deprecated equiv_empty_iff_isEmpty (since := "2025-03-12")]
+abbrev equiv_emptyc_iff_isEmpty := @equiv_empty_iff_isEmpty
 
 @[simp]
-theorem empty_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :
-    empty c ~m m ↔ m.isEmpty :=
-  Equiv.comm.trans equiv_empty_iff_isEmpty
+theorem emptyWithCapacity_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :
+    emptyWithCapacity c ~m m ↔ m.isEmpty :=
+  Equiv.comm.trans equiv_emptyWithCapacity_iff_isEmpty
 
 @[simp]
-theorem emptyc_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] : ∅ ~m m ↔ m.isEmpty :=
-  empty_equiv_iff_isEmpty
+theorem empty_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] : ∅ ~m m ↔ m.isEmpty :=
+  emptyWithCapacity_equiv_iff_isEmpty
+
+set_option linter.missingDocs false in
+@[deprecated empty_equiv_iff_isEmpty (since := "2025-03-12")]
+abbrev emptyc_equiv_iff_isEmpty := @empty_equiv_iff_isEmpty
 
 theorem equiv_iff_toList_perm [EquivBEq α] [LawfulHashable α] :
     m₁ ~m m₂ ↔ m₁.toList.Perm m₂.toList :=

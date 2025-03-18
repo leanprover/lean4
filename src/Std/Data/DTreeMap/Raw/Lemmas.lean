@@ -2784,6 +2784,14 @@ theorem minKey?_eq_none_iff [TransCmp cmp] (h : t.WF) :
     t.minKey? = none ↔ t.isEmpty :=
   Impl.minKey?_eq_none_iff h
 
+theorem minKey?_eq_some_iff [TransCmp cmp] (h : t.WF) {km} :
+    t.minKey? = some km ↔ t.getKey? km = some km ∧ ∀ k ∈ t, (cmp km k).isLE :=
+  Impl.minKey?_eq_some_iff h
+
+theorem minKey?_eq_some_iff_of_lawfulEqOrd [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {km} :
+    t.minKey? = some km ↔ km ∈ t ∧ ∀ k ∈ t, (cmp km k).isLE :=
+  Impl.minKey?_eq_some_iff_of_lawfulEqOrd h
+
 @[simp]
 theorem isNone_minKey?_eq_isEmpty [TransCmp cmp] (h : t.WF) :
     t.minKey?.isNone = t.isEmpty :=

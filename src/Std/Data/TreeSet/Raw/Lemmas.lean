@@ -669,6 +669,14 @@ theorem min?_eq_none_iff [TransCmp cmp] (h : t.WF) :
     t.min? = none ↔ t.isEmpty :=
   TreeMap.Raw.minKey?_eq_none_iff h
 
+theorem min?_eq_some_iff [TransCmp cmp] (h : t.WF) {km} :
+    t.min? = some km ↔ t.get? km = some km ∧ ∀ k ∈ t, (cmp km k).isLE :=
+  DTreeMap.Raw.minKey?_eq_some_iff h
+
+theorem min?_eq_some_iff_of_lawfulEqOrd [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {km} :
+    t.min? = some km ↔ km ∈ t ∧ ∀ k ∈ t, (cmp km k).isLE :=
+  DTreeMap.Raw.minKey?_eq_some_iff_of_lawfulEqOrd h
+
 @[simp]
 theorem isNone_min?_eq_isEmpty [TransCmp cmp] (h : t.WF) :
     t.min?.isNone = t.isEmpty :=

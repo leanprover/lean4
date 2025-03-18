@@ -1810,6 +1810,11 @@ theorem minKey?_le_of_mem [TransCmp cmp] (h : t.WF) {k km} :
     cmp km k |>.isLE :=
   DTreeMap.Raw.minKey?_le_of_mem h
 
+theorem le_minKey? [TransCmp cmp] {k} (h : t.WF) :
+    (∀ k', t.minKey? = some k' → (cmp k k').isLE) ↔
+      (∀ k', k' ∈ t → (cmp k k').isLE) :=
+  DTreeMap.Raw.le_minKey? h
+
 @[simp]
 theorem minKey?_bind_getKey? [TransCmp cmp] (h : t.WF) :
     t.minKey?.bind t.getKey? = t.minKey? :=
@@ -1836,6 +1841,50 @@ theorem minKey?_le_minKey?_erase [TransCmp cmp] (h : t.WF) {k km kme} :
       isSome_minKey?_of_isSome_minKey?_erase h <| hkme ▸ Option.isSome_some) = km) →
     cmp km kme |>.isLE :=
   DTreeMap.Raw.minKey?_le_minKey?_erase h
+
+theorem minKey?_insertIfNew [TransCmp cmp] (h : t.WF) {k v} :
+    (t.insertIfNew k v).minKey? =
+      t.minKey?.elim k fun k' => if cmp k k' = .lt then k else k' :=
+  DTreeMap.Raw.minKey?_insertIfNew h
+
+theorem isSome_minKey?_insertIfNew [TransCmp cmp] (h : t.WF) {k v} :
+    (t.insertIfNew k v).minKey?.isSome :=
+  DTreeMap.Raw.isSome_minKey?_insertIfNew h
+
+theorem minKey?_insertIfNew_le_minKey? [TransCmp cmp] (h : t.WF) {k v km kmi} :
+    (hkm : t.minKey? = some km) →
+    (hkmi : (t.insertIfNew k v |>.minKey? |>.get <| isSome_minKey?_insertIfNew h) = kmi) →
+    cmp kmi km |>.isLE :=
+  DTreeMap.Raw.minKey?_insertIfNew_le_minKey? h
+
+theorem minKey?_insertIfNew_le_self [TransCmp cmp] (h : t.WF) {k v kmi} :
+    (hkmi : (t.insertIfNew k v |>.minKey?.get <| isSome_minKey?_insertIfNew h) = kmi) →
+    cmp kmi k |>.isLE :=
+  DTreeMap.Raw.minKey?_insertIfNew_le_self h
+
+theorem minKey?_modify [TransCmp cmp] (h : t.WF) {k f} :
+    (t.modify k f).minKey? = t.minKey?.map fun km => if cmp km k = .eq then k else km :=
+  DTreeMap.Raw.Const.minKey?_modify h
+
+theorem isSome_minKey?_modify [TransCmp cmp] {k f} (h : t.WF) :
+    (t.modify k f).minKey?.isSome = !t.isEmpty :=
+  DTreeMap.Raw.Const.isSome_minKey?_modify h
+
+theorem isSome_minKey?_modify_eq_isSome [TransCmp cmp] (h : t.WF) {k f} :
+    (t.modify k f).minKey?.isSome = t.minKey?.isSome :=
+  DTreeMap.Raw.Const.isSome_minKey?_modify_eq_isSome h
+
+theorem compare_minKey?_modify_eq [TransCmp cmp] (h : t.WF) {k f km kmm} :
+    (hkm : t.minKey? = some km) →
+    (hkmm : (t.modify k f |>.minKey? |>.get <|
+        (isSome_minKey?_modify_eq_isSome h).trans <| hkm ▸ Option.isSome_some) = kmm) →
+    cmp kmm km = .eq :=
+  DTreeMap.Raw.Const.compare_minKey?_modify_eq h
+
+theorem minKey?_alter_eq_self [TransCmp cmp] (h : t.WF) {k f} :
+    (t.alter k f).minKey? = some k ↔
+      (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (cmp k k').isLE :=
+  DTreeMap.Raw.Const.minKey?_alter_eq_self h
 
 end Min
 

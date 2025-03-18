@@ -4259,7 +4259,7 @@ theorem minEntry?_eq_some_iff [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] 
       exact TransCmp.isLE_trans (h _ hel) <| Ordering.isLE_of_eq_eq <| compare_eq_iff_beq.mpr hek
     · intro h e he
       exact h _ <| containsKey_of_mem he
-  · exact fun _ => TransCmp.isLE_rfl
+  · exact fun _ => ReflCmp.isLE_rfl
   · exact fun _ _ => min_eq_or
   · exact fun a b c => le_min_iff
   · intro e e' he he' hee' he'e
@@ -4381,8 +4381,8 @@ theorem isSome_minEntry?_of_contains [Ord α] [BEq α] {l : List ((a : α) × β
   | [] => contradiction
   | x :: xs => simp
 
-theorem minEntry?_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α} {v : β k} {l : List ((a : α) × β a)}
-    (hl : DistinctKeys l) :
+theorem minEntry?_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α} {v : β k}
+    {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
     minEntry? (insertEntry k v l) =
       some (match minEntry? l with
         | none => ⟨k, v⟩
@@ -4405,7 +4405,8 @@ theorem minEntry?_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] 
 
 theorem minKey?_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α} {v : β k}
     {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
-    minKey? (insertEntry k v l) = (minKey? l).elim k fun k' => if compare k k' |>.isLE then k else k' := by
+    minKey? (insertEntry k v l) =
+      some ((minKey? l).elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simp only [minKey?, minEntry?_insertEntry hl]
   cases minEntry? l <;> simp [apply_ite Sigma.fst]
 

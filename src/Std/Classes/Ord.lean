@@ -35,6 +35,15 @@ abbrev ReflOrd (α : Type u) [Ord α] := ReflCmp (compare : α → α → Orderi
 theorem ReflOrd.compare_self {α : Type u} [Ord α] [ReflOrd α] {a : α} : compare a a = .eq :=
     ReflCmp.compare_self
 
+theorem ReflCmp.isLE_rfl {α} {cmp : α → α → Ordering} [ReflCmp cmp] {a : α} :
+    (cmp a a).isLE := by
+  simp [ReflCmp.compare_self (cmp := cmp)]
+
+@[simp]
+theorem ReflOrd.isLE_rfl {α} [Ord α] [ReflOrd α] {a : α} :
+    (compare a a).isLE :=
+  ReflCmp.isLE_rfl
+
 export ReflOrd (compare_self)
 
 end Refl
@@ -140,15 +149,6 @@ class TransCmp {α : Type u} (cmp : α → α → Ordering) : Prop extends Orien
 abbrev TransOrd (α : Type u) [Ord α] := TransCmp (compare : α → α → Ordering)
 
 variable {α : Type u} {cmp : α → α → Ordering}
-
-theorem TransCmp.isLE_rfl [TransCmp cmp] {a : α} :
-    (cmp a a).isLE := by
-  simp [ReflCmp.compare_self (cmp := cmp)]
-
-@[simp]
-theorem TransOrd.isLE_rfl [Ord α] [TransOrd α] {a : α} :
-    (compare a a).isLE :=
-  TransCmp.isLE_rfl
 
 theorem TransCmp.isGE_trans [TransCmp cmp] {a b c : α} (h₁ : (cmp a b).isGE) (h₂ : (cmp b c).isGE) :
     (cmp a c).isGE := by

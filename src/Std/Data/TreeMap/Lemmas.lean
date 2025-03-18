@@ -1760,7 +1760,7 @@ theorem isSome_minKey?_eq_not_isEmpty [TransCmp cmp] :
 
 theorem minKey?_insert [TransCmp cmp] {k v} :
     (t.insert k v).minKey? =
-      t.minKey?.elim k fun k' => if cmp k k'|>.isLE then k else k' :=
+      some (t.minKey?.elim k fun k' => if cmp k k'|>.isLE then k else k') :=
   DTreeMap.minKey?_insert
 
 theorem isSome_minKey?_insert [TransCmp cmp] {k v} :

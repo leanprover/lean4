@@ -1004,10 +1004,13 @@ theorem mem_or_eq_of_mem_setIfInBounds
   simpa using List.mem_or_eq_of_mem_set (by simpa using h)
 
 /-- Simplifies a normal form from `get!` -/
-@[simp] theorem getD_get?_setIfInBounds (xs : Array α) (i : Nat) (v d : α) :
+@[simp] theorem getD_getElem?_setIfInBounds (xs : Array α) (i : Nat) (v d : α) :
     (xs.setIfInBounds i v)[i]?.getD d = if i < xs.size then v else d := by
   by_cases h : i < xs.size <;>
     simp [setIfInBounds, Nat.not_lt_of_le, h,  getD_getElem?]
+
+@[deprecated getD_getElem?_setIfInBounds (since := "2025-03-18")]
+abbrev getD_get?_setIfInBounds := @getD_getElem?_setIfInBounds
 
 @[simp] theorem toList_setIfInBounds (xs : Array α) (i x) :
     (xs.setIfInBounds i x).toList = xs.toList.set i x := by
@@ -1018,13 +1021,19 @@ theorem mem_or_eq_of_mem_setIfInBounds
 
 /-! ### BEq -/
 
-@[simp] theorem beq_empty_iff [BEq α] {xs : Array α} : (xs == #[]) = xs.isEmpty := by
+@[simp] theorem beq_empty_eq [BEq α] {xs : Array α} : (xs == #[]) = xs.isEmpty := by
   cases xs
   simp
 
-@[simp] theorem empty_beq_iff [BEq α] {xs : Array α} : (#[] == xs) = xs.isEmpty := by
+@[deprecated beq_empty_eq (since := "2025-03-18")]
+abbrev beq_empty_iff := @beq_empty_eq
+
+@[simp] theorem empty_beq_eq [BEq α] {xs : Array α} : (#[] == xs) = xs.isEmpty := by
   cases xs
   simp
+
+@[deprecated empty_beq_eq (since := "2025-03-18")]
+abbrev empty_beq_iff := @empty_beq_eq
 
 @[simp] theorem push_beq_push [BEq α] {a b : α} {xs ys : Array α} :
     (xs.push a == ys.push b) = (xs == ys && a == b) := by
@@ -1636,9 +1645,12 @@ theorem forall_none_of_filterMap_eq_empty (h : filterMap f xs = #[]) : ∀ x ∈
   cases xs
   simpa using h
 
-@[simp] theorem filterMap_eq_nil_iff {xs : Array α} : filterMap f xs = #[] ↔ ∀ a, a ∈ xs → f a = none := by
+@[simp] theorem filterMap_eq_empty_iff {xs : Array α} : filterMap f xs = #[] ↔ ∀ a, a ∈ xs → f a = none := by
   cases xs
   simp
+
+@[deprecated filterMap_eq_empty_iff (since := "2025-03-18")]
+abbrev filterMap_eq_nil_iff := @filterMap_eq_empty_iff
 
 theorem filterMap_eq_push_iff {f : α → Option β} {xs : Array α} {ys : Array β} {b : β} :
     filterMap f xs = ys.push b ↔ ∃ as a bs,
@@ -3487,7 +3499,10 @@ theorem size_rightpad (n : Nat) (a : α) (xs : Array α) :
 
 /-! ### contains -/
 
-theorem elem_cons_self [BEq α] [LawfulBEq α] {xs : Array α} {a : α} : (xs.push a).elem a = true := by simp
+theorem elem_push_self [BEq α] [LawfulBEq α] {xs : Array α} {a : α} : (xs.push a).elem a = true := by simp
+
+@[deprecated elem_push_self (since := "2025-03-18")]
+abbrev elem_cons_push := @elem_push_self
 
 theorem contains_eq_any_beq [BEq α] (xs : Array α) (a : α) : xs.contains a = xs.any (a == ·) := by
   rcases xs with ⟨xs⟩
@@ -4062,7 +4077,8 @@ theorem getElem!_eq_getD [Inhabited α] (xs : Array α) : xs[i]! = xs.getD i def
 
 @[simp] theorem mem_toList {a : α} {xs : Array α} : a ∈ xs.toList ↔ a ∈ xs := mem_def.symm
 
-theorem not_mem_nil (a : α) : ¬ a ∈ #[] := nofun
+@[deprecated not_mem_empty (since := "2025-03-18")]
+abbrev not_mem_nil := @not_mem_empty
 
 /-! # get lemmas -/
 
@@ -4440,7 +4456,7 @@ abbrev eq_push_pop_back_of_size_ne_zero := @eq_push_pop_back!_of_size_ne_zero
 @[deprecated size_setIfInBounds (since := "2024-11-24")] abbrev size_setD := @size_setIfInBounds
 @[deprecated getElem_setIfInBounds_eq (since := "2024-11-24")] abbrev getElem_setD_eq := @getElem_setIfInBounds_self
 @[deprecated getElem?_setIfInBounds_eq (since := "2024-11-24")] abbrev get?_setD_eq := @getElem?_setIfInBounds_self
-@[deprecated getD_get?_setIfInBounds (since := "2024-11-24")] abbrev getD_setD := @getD_get?_setIfInBounds
+@[deprecated getD_getElem?_setIfInBounds (since := "2024-11-24")] abbrev getD_setD := @getD_getElem?_setIfInBounds
 @[deprecated getElem_setIfInBounds (since := "2024-11-24")] abbrev getElem_setD := @getElem_setIfInBounds
 
 @[deprecated List.getElem_toArray (since := "2024-11-29")]

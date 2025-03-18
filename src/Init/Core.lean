@@ -1598,9 +1598,13 @@ theorem true_imp_iff {α : Prop} : (True → α) ↔ α := imp_iff_right True.in
 
 @[simp] theorem imp_false : (a → False) ↔ ¬a := Iff.rfl
 
-theorem imp.swap : (a → b → c) ↔ (b → a → c) := Iff.intro flip flip
+theorem imp_swap : (a → b → c) ↔ (b → a → c) := Iff.intro flip flip
 
-theorem imp_not_comm : (a → ¬b) ↔ (b → ¬a) := imp.swap
+set_option linter.missingDocs false in
+@[deprecated imp_swap (since := "2025-03-18")]
+abbrev imp.swap := @imp_swap
+
+theorem imp_not_comm : (a → ¬b) ↔ (b → ¬a) := imp_swap
 
 theorem imp_congr_left (h : a ↔ b) : (a → c) ↔ (b → c) := Iff.intro (· ∘ h.mpr) (· ∘ h.mp)
 

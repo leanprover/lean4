@@ -594,15 +594,55 @@ _start:
 {
 if (x_1 == 0)
 {
-uint8_t x_3; 
-x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_addNegAssignment(x_2);
-return x_3;
+lean_object* x_3; 
+x_3 = lean_box(x_2);
+switch (lean_obj_tag(x_3)) {
+case 1:
+{
+uint8_t x_4; 
+x_4 = 1;
+return x_4;
+}
+case 3:
+{
+uint8_t x_5; 
+x_5 = 1;
+return x_5;
+}
+default: 
+{
+uint8_t x_6; 
+lean_dec(x_3);
+x_6 = 2;
+return x_6;
+}
+}
 }
 else
 {
-uint8_t x_4; 
-x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_addPosAssignment(x_2);
-return x_4;
+lean_object* x_7; 
+x_7 = lean_box(x_2);
+switch (lean_obj_tag(x_7)) {
+case 1:
+{
+uint8_t x_8; 
+x_8 = 2;
+return x_8;
+}
+case 2:
+{
+uint8_t x_9; 
+x_9 = 2;
+return x_9;
+}
+default: 
+{
+uint8_t x_10; 
+lean_dec(x_7);
+x_10 = 0;
+return x_10;
+}
+}
 }
 }
 }
@@ -624,15 +664,55 @@ _start:
 {
 if (x_1 == 0)
 {
-uint8_t x_3; 
-x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_removeNegAssignment(x_2);
-return x_3;
+lean_object* x_3; 
+x_3 = lean_box(x_2);
+switch (lean_obj_tag(x_3)) {
+case 1:
+{
+uint8_t x_4; 
+x_4 = 3;
+return x_4;
+}
+case 3:
+{
+uint8_t x_5; 
+x_5 = 3;
+return x_5;
+}
+default: 
+{
+uint8_t x_6; 
+lean_dec(x_3);
+x_6 = 0;
+return x_6;
+}
+}
 }
 else
 {
-uint8_t x_4; 
-x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_removePosAssignment(x_2);
-return x_4;
+lean_object* x_7; 
+x_7 = lean_box(x_2);
+switch (lean_obj_tag(x_7)) {
+case 1:
+{
+uint8_t x_8; 
+x_8 = 1;
+return x_8;
+}
+case 2:
+{
+uint8_t x_9; 
+x_9 = 1;
+return x_9;
+}
+default: 
+{
+uint8_t x_10; 
+lean_dec(x_7);
+x_10 = 3;
+return x_10;
+}
+}
 }
 }
 }
@@ -654,15 +734,55 @@ _start:
 {
 if (x_1 == 0)
 {
-uint8_t x_3; 
-x_3 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_hasNegAssignment(x_2);
-return x_3;
+lean_object* x_3; 
+x_3 = lean_box(x_2);
+switch (lean_obj_tag(x_3)) {
+case 1:
+{
+uint8_t x_4; 
+x_4 = 1;
+return x_4;
+}
+case 2:
+{
+uint8_t x_5; 
+x_5 = 1;
+return x_5;
+}
+default: 
+{
+uint8_t x_6; 
+lean_dec(x_3);
+x_6 = 0;
+return x_6;
+}
+}
 }
 else
 {
-uint8_t x_4; 
-x_4 = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_hasPosAssignment(x_2);
-return x_4;
+lean_object* x_7; 
+x_7 = lean_box(x_2);
+switch (lean_obj_tag(x_7)) {
+case 1:
+{
+uint8_t x_8; 
+x_8 = 0;
+return x_8;
+}
+case 3:
+{
+uint8_t x_9; 
+x_9 = 0;
+return x_9;
+}
+default: 
+{
+uint8_t x_10; 
+lean_dec(x_7);
+x_10 = 1;
+return x_10;
+}
+}
 }
 }
 }

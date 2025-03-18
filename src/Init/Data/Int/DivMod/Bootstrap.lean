@@ -71,7 +71,7 @@ theorem ofNat_dvd_left {n : Nat} {z : Int} : (↑n : Int) ∣ z ↔ n ∣ z.natA
 
 @[simp] theorem zero_ediv : ∀ b : Int, 0 / b = 0
   | ofNat _ => show ofNat _ = _ by simp
-  | -[_+1] => show -ofNat _ = _ by simp
+  | -[_+1] => rfl
 
 @[simp] protected theorem ediv_zero : ∀ a : Int, a / 0 = 0
   | ofNat _ => show ofNat _ = _ by simp

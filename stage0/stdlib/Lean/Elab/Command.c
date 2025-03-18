@@ -651,7 +651,7 @@ static lean_object* l_Lean_addTraceAsMessages___at_Lean_Elab_Command_wrapAsyncAs
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 static lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Command___hyg_5337____closed__1;
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
-uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
+uint8_t l_Lean_Environment_contains(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_addTraceAsMessages___at_Lean_Elab_Command_wrapAsyncAsSnapshot___spec__3___closed__2;
 static lean_object* l___auto____x40_Lean_Elab_Command___hyg_2319____closed__2;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_liftTermElabM___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -26284,13 +26284,14 @@ return x_41;
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_elabCommand___spec__2___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-uint8_t x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = l_Lean_Environment_contains(x_1, x_2);
-x_6 = lean_box(x_5);
-x_7 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_7, 0, x_6);
-lean_ctor_set(x_7, 1, x_4);
-return x_7;
+uint8_t x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
+x_5 = 1;
+x_6 = l_Lean_Environment_contains(x_1, x_2, x_5);
+x_7 = lean_box(x_6);
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_7);
+lean_ctor_set(x_8, 1, x_4);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_elabCommand___spec__2___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {

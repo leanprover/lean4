@@ -41,7 +41,7 @@ static lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addGlobalInstan
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_3____closed__5;
 lean_object* l_Lean_PersistentHashMap_instInhabited(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_id___rarg___boxed(lean_object*);
-lean_object* l_Lean_ScopedEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_ScopedEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_ScopedEnvExtension_addCore___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
@@ -432,13 +432,21 @@ return x_3;
 LEAN_EXPORT uint8_t lean_is_instance(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_3 = l_Lean_Meta_isGlobalInstance___closed__1;
-x_4 = l_Lean_Meta_addGlobalInstance___closed__1;
-x_5 = l_Lean_ScopedEnvExtension_getState___rarg(x_3, x_4, x_1);
-x_6 = l_Lean_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__2(x_5, x_2);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_3 = l_Lean_Meta_globalInstanceExtension;
+x_4 = lean_ctor_get(x_3, 1);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_4, 0);
+lean_inc(x_5);
+lean_dec(x_4);
+x_6 = lean_ctor_get_uint8(x_5, sizeof(void*)*3);
+lean_dec(x_5);
+x_7 = l_Lean_Meta_isGlobalInstance___closed__1;
+x_8 = l_Lean_Meta_addGlobalInstance___closed__1;
+x_9 = l_Lean_ScopedEnvExtension_getState___rarg(x_7, x_8, x_1, x_6);
+x_10 = l_Lean_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__2(x_9, x_2);
 lean_dec(x_2);
-return x_6;
+return x_10;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_isGlobalInstance___boxed(lean_object* x_1, lean_object* x_2) {

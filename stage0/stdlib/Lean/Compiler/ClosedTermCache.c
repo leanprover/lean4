@@ -22,7 +22,7 @@ LEAN_EXPORT lean_object* l_Lean_instInhabitedClosedTermCache;
 size_t lean_usize_mul(size_t, size_t);
 static size_t l_Lean_PersistentHashMap_findAux___at_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_63____spec__2___closed__2;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_EnvExtension_modifyState___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_EnvExtension_modifyState___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isClosedTermName(lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedClosedTermCache___closed__2;
@@ -1172,13 +1172,15 @@ return x_1;
 LEAN_EXPORT lean_object* lean_cache_closed_term_name(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_alloc_closure((void*)(l_Lean_cacheClosedTermName___lambda__1), 3, 2);
 lean_closure_set(x_4, 0, x_2);
 lean_closure_set(x_4, 1, x_3);
-x_5 = l_Lean_cacheClosedTermName___closed__1;
-x_6 = l_Lean_EnvExtension_modifyState___rarg(x_5, x_1, x_4);
-return x_6;
+x_5 = l_Lean_closedTermCacheExt;
+x_6 = lean_ctor_get_uint8(x_5, sizeof(void*)*3);
+x_7 = l_Lean_cacheClosedTermName___closed__1;
+x_8 = l_Lean_EnvExtension_modifyState___rarg(x_7, x_1, x_4, x_6);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* lean_get_closed_term_name(lean_object* x_1, lean_object* x_2) {

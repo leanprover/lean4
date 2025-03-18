@@ -1055,6 +1055,11 @@ theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h 
   apply eq_of_toNat_eq
   simp [extractLsb, show len - 1 + 1 = len by omega]
 
+/-- Extracting all the bits of a bitvector is an identity operation. -/
+@[simp] theorem extractLsb'_eq_self {x : BitVec w} : x.extractLsb' 0 w = x := by
+  apply eq_of_toNat_eq
+  simp [extractLsb']
+
 /-! ### allOnes -/
 
 @[simp] theorem toNat_allOnes : (allOnes v).toNat = 2^v - 1 := by

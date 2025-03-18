@@ -23,7 +23,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at_Lean_Compiler_LCNF
 lean_object* lean_array_push(lean_object*, lean_object*);
 size_t lean_usize_mul(size_t, size_t);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_EnvExtension_modifyState___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_EnvExtension_modifyState___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_AuxDeclCache___hyg_9____closed__3;
 lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -940,7 +940,7 @@ lean_dec(x_29);
 x_30 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_cacheAuxDecl___lambda__1), 3, 2);
 lean_closure_set(x_30, 0, x_11);
 lean_closure_set(x_30, 1, x_8);
-x_31 = l_Lean_EnvExtension_modifyState___rarg(x_21, x_28, x_30);
+x_31 = l_Lean_EnvExtension_modifyState___rarg(x_21, x_28, x_30, x_19);
 x_32 = l_Lean_Compiler_LCNF_cacheAuxDecl___closed__3;
 lean_ctor_set(x_25, 4, x_32);
 lean_ctor_set(x_25, 0, x_31);
@@ -990,7 +990,7 @@ lean_dec(x_25);
 x_47 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_cacheAuxDecl___lambda__1), 3, 2);
 lean_closure_set(x_47, 0, x_11);
 lean_closure_set(x_47, 1, x_8);
-x_48 = l_Lean_EnvExtension_modifyState___rarg(x_21, x_40, x_47);
+x_48 = l_Lean_EnvExtension_modifyState___rarg(x_21, x_40, x_47, x_19);
 x_49 = l_Lean_Compiler_LCNF_cacheAuxDecl___closed__3;
 x_50 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_50, 0, x_48);
@@ -1107,7 +1107,7 @@ if (lean_is_exclusive(x_69)) {
 x_79 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_cacheAuxDecl___lambda__1), 3, 2);
 lean_closure_set(x_79, 0, x_11);
 lean_closure_set(x_79, 1, x_8);
-x_80 = l_Lean_EnvExtension_modifyState___rarg(x_65, x_71, x_79);
+x_80 = l_Lean_EnvExtension_modifyState___rarg(x_65, x_71, x_79, x_63);
 x_81 = l_Lean_Compiler_LCNF_cacheAuxDecl___closed__3;
 if (lean_is_scalar(x_78)) {
  x_82 = lean_alloc_ctor(0, 8, 0);
@@ -1299,7 +1299,7 @@ if (lean_is_exclusive(x_121)) {
 x_131 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_cacheAuxDecl___lambda__1), 3, 2);
 lean_closure_set(x_131, 0, x_107);
 lean_closure_set(x_131, 1, x_96);
-x_132 = l_Lean_EnvExtension_modifyState___rarg(x_117, x_123, x_131);
+x_132 = l_Lean_EnvExtension_modifyState___rarg(x_117, x_123, x_131, x_115);
 x_133 = l_Lean_Compiler_LCNF_cacheAuxDecl___closed__3;
 if (lean_is_scalar(x_130)) {
  x_134 = lean_alloc_ctor(0, 8, 0);

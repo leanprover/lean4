@@ -141,22 +141,25 @@ integer inequality, asserts it to the cutsat state.
 def propagateIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   let some p ← toPolyLe? e | return ()
   let c ← if eqTrue then
-    pure { p, h := .expr (← mkOfEqTrue (← mkEqTrueProof e)) : LeCnstr }
+    pure { p, h := .core e : LeCnstr }
   else
-    pure { p := p.mul (-1) |>.addConst 1, h := .notExpr p (← mkOfEqFalse (← mkEqFalseProof e)) : LeCnstr }
+    pure { p := p.mul (-1) |>.addConst 1, h := .coreNeg e p : LeCnstr }
   trace[grind.cutsat.assert.le] "{← c.pp}"
   c.assert
 
-def propagateNatLe (e : Expr) (_eqTrue : Bool) : GoalM Unit := do
-  let some (lhs, rhs, _h) ← Int.OfNat.toIntLe? e | return ()
+def propagateNatLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
+  let some (lhs, rhs, ctx) ← Int.OfNat.toIntLe? e | return ()
   let gen ← getGeneration e
-  let lhs' ← toLinearExpr lhs gen
-  let rhs' ← toLinearExpr rhs gen
+  let lhs' ← toLinearExpr (lhs.denoteAsIntExpr ctx) gen
+  let rhs' ← toLinearExpr (rhs.denoteAsIntExpr ctx) gen
   let p := lhs'.sub rhs' |>.norm
-  trace[grind.debug.cutsat.nat] "{lhs} ≤ {rhs}"
   trace[grind.debug.cutsat.nat] "{← p.pp}"
-  -- TODO: WIP
-  return ()
+  let c ← if eqTrue then
+    pure { p, h := .coreNat e ctx lhs rhs lhs' rhs' : LeCnstr }
+  else
+    pure { p := p.mul (-1) |>.addConst 1, h := .coreNatNeg e ctx lhs rhs lhs' rhs' : LeCnstr }
+  trace[grind.cutsat.assert.le] "{← c.pp}"
+  c.assert
 
 def propagateIfSupportedLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   let_expr LE.le α _ _ _ := e | return ()

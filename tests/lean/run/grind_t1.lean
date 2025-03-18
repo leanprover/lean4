@@ -117,7 +117,6 @@ end dite_propagator_test
 info: [grind.eqc] x = 2 * a
 [grind.eqc] y = x
 [grind.eqc] (y = 2 * a) = False
-[grind.eqc] (y = 2 * a) = True
 -/
 #guard_msgs (info) in
 set_option trace.grind.eqc true in
@@ -128,7 +127,6 @@ example (a : Nat) : let x := a + a; y = x → y = a + a := by
 info: [grind.eqc] x = 2 * a
 [grind.eqc] y = x
 [grind.eqc] (y = 2 * a) = False
-[grind.eqc] (y = 2 * a) = True
 -/
 #guard_msgs (info) in
 set_option trace.grind.eqc true in

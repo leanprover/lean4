@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Meta.Tactic.Grind.Diseq
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
@@ -235,45 +234,89 @@ private def exprAsPoly (a : Expr) : GoalM Poly := do
   else
     throwError "internal `grind` error, expression is not relevant to cutsat{indentExpr a}"
 
-@[export lean_process_cutsat_eq]
-def processNewEqImpl (a b : Expr) : GoalM Unit := do
-  trace[grind.debug.cutsat.eq] "{a} = {b}"
+private def processNewIntEq (a b : Expr) : GoalM Unit := do
   let p₁ ← exprAsPoly a
   let p₂ ← exprAsPoly b
   let p := p₁.combine (p₂.mul (-1))
-  { p, h := .core p₁ p₂ (← mkEqProof a b) : EqCnstr }.assert
+  { p, h := .core a b p₁ p₂ : EqCnstr }.assert
+
+private def processNewNatEq (a b : Expr) : GoalM Unit := do
+  let (lhs, rhs, ctx) ← Int.OfNat.toIntEq a b
+  let gen ← getGeneration a
+  let lhs' ← toLinearExpr (lhs.denoteAsIntExpr ctx) gen
+  let rhs' ← toLinearExpr (rhs.denoteAsIntExpr ctx) gen
+  let p := lhs'.sub rhs' |>.norm
+  let c := { p, h := .coreNat a b ctx lhs rhs lhs' rhs' : EqCnstr }
+  trace[grind.cutsat.assert.eq] "{← c.pp}"
+  c.assert
+
+@[export lean_process_cutsat_eq]
+def processNewEqImpl (a b : Expr) : GoalM Unit := do
+  trace[grind.debug.cutsat.eq] "{a} = {b}"
+  match (← foreignTerm? a), (← foreignTerm? b) with
+  | none, none => processNewIntEq a b
+  | some .nat, some .nat => processNewNatEq a b
+  | _, _ => return ()
+
+private def processNewIntLitEq (a ke : Expr) : GoalM Unit := do
+  let some k ← getIntValue? ke | return ()
+  let p₁ ← exprAsPoly a
+  let c ← if k == 0 then
+    pure { p := p₁, h := .core0 a ke : EqCnstr }
+  else
+    let p₂ ← exprAsPoly ke
+    let p := p₁.combine (p₂.mul (-1))
+    pure { p, h := .core a ke p₁ p₂ : EqCnstr }
+  c.assert
 
 @[export lean_process_cutsat_eq_lit]
 def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
   trace[grind.debug.cutsat.eq] "{a} = {ke}"
-  let some k ← getIntValue? ke | return ()
+  match (← foreignTerm? a) with
+  | none => processNewIntLitEq a ke
+  | some .nat => processNewNatEq a ke
+
+private def processNewIntDiseq (a b : Expr) : GoalM Unit := do
   let p₁ ← exprAsPoly a
-  let h ← mkEqProof a ke
-  let c ← if k == 0 then
-    pure { p := p₁, h := .expr h : EqCnstr }
+  let c ← if let some 0 ← getIntValue? b then
+    pure { p := p₁, h := .core0 a b : DiseqCnstr }
   else
-    let p₂ ← exprAsPoly ke
+    let p₂ ← exprAsPoly b
     let p := p₁.combine (p₂.mul (-1))
-    pure { p, h := .core p₁ p₂ h : EqCnstr }
+    pure {p, h := .core a b p₁ p₂ : DiseqCnstr }
+  c.assert
+
+private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
+  let (lhs, rhs, ctx) ← Int.OfNat.toIntEq a b
+  let gen ← getGeneration a
+  let lhs' ← toLinearExpr (lhs.denoteAsIntExpr ctx) gen
+  let rhs' ← toLinearExpr (rhs.denoteAsIntExpr ctx) gen
+  let p := lhs'.sub rhs' |>.norm
+  let c := { p, h := .coreNat a b ctx lhs rhs lhs' rhs' : DiseqCnstr }
+  trace[grind.cutsat.assert.eq] "{← c.pp}"
   c.assert
 
 @[export lean_process_cutsat_diseq]
 def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
   trace[grind.debug.cutsat.diseq] "{a} ≠ {b}"
-  let p₁ ← exprAsPoly a
-  let some h ← mkDiseqProof? a b
-    | throwError "internal `grind` error, failed to build disequality proof for{indentExpr a}\nand{indentExpr b}"
-  let c ← if let some 0 ← getIntValue? b then
-    pure { p := p₁, h := .expr h : DiseqCnstr }
-  else
-    let p₂ ← exprAsPoly b
-    let p := p₁.combine (p₂.mul (-1))
-    pure {p, h := .core p₁ p₂ h : DiseqCnstr }
-  c.assert
+  match (← foreignTerm? a), (← foreignTermOrLit? b) with
+  | none, none => processNewIntDiseq a b
+  | some .nat, some .nat => processNewNatDiseq a b
+  | _, _ => return ()
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
   | add | mul | num
+
+private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
+  match_expr e with
+  | HAdd.hAdd α _ _ _ _ _ => some (.add, α)
+  | HMul.hMul α _ _ _ _ _ => some (.mul, α)
+  | OfNat.ofNat α _ _ => some (.num, α)
+  | Neg.neg α _ a =>
+    let_expr OfNat.ofNat _ _ _ := a | none
+    some (.num, α)
+  | _ => none
 
 private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : Bool := Id.run do
   let some parent := parent? | return false
@@ -284,16 +327,15 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
   | .mul => return declName == ``HMul.hMul
   | .num => return declName == ``HMul.hMul || declName == ``Eq
 
-private def internalizeCore (e : Expr) (parent? : Option Expr) (k : SupportedTermKind) : GoalM Unit := do
+private def internalizeInt (e : Expr) : GoalM Unit := do
   if (← get').terms.contains { expr := e } then return ()
-  if isForbiddenParent parent? k then return ()
   let p ← toPoly e
   markAsCutsatTerm e
   trace[grind.cutsat.internalize] "{aquote e}:= {← p.pp}"
   modify' fun s => { s with terms := s.terms.insert { expr := e } p }
 
 /--
-Internalizes an integer expression. Here are the different cases that are handled.
+Internalizes an integer (and `Nat`) expression. Here are the different cases that are handled.
 
 - `a + b` when `parent?` is not `+`, `≤`, or `∣`
 - `k * a` when `k` is a numeral and `parent?` is not `+`, `*`, `≤`, `∣`
@@ -302,14 +344,13 @@ Internalizes an integer expression. Here are the different cases that are handle
   back to the congruence closure module. Example: we have `f 5`, `f x`, `x - y = 3`, `y = 2`.
 -/
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
-  let k ← if (← isAdd e) then
-    pure .add
-  else if (← isMul e) then
-    pure .mul
-  else if (← getIntValue? e).isSome then
-    pure .num
-  else
-    return ()
-  internalizeCore e parent? k
+  let some (k, type) := getKindAndType? e | return ()
+  if isForbiddenParent parent? k then return ()
+  trace[grind.debug.cutsat.internalize] "{e} : {type}"
+  if type.isConstOf ``Int then
+    internalizeInt e
+  else if type.isConstOf ``Nat then
+    markForeignTerm e .nat
+
 
 end Lean.Meta.Grind.Arith.Cutsat

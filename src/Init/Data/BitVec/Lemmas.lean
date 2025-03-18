@@ -2515,7 +2515,7 @@ theorem setWidth_eq_append {v : Nat} {x : BitVec v} {w : Nat} (h : v ≤ w) :
   · simp [hiv, getLsbD_ge x i (by omega)]
 
 theorem setWidth_eq_extractLsb' {v : Nat} {x : BitVec v} {w : Nat} (h : w ≤ v) :
-    x.setWidth w = (x.extractLsb' 0 w).cast (by omega) := by
+    x.setWidth w = x.extractLsb' 0 w := by
   rw [setWidth_eq_append_extractLsb']
   ext i hi
   simp only [getElem_cast, getElem_append]
@@ -2588,6 +2588,72 @@ theorem signExtend_eq_append_of_le {w v : Nat} {x : BitVec w} (h : w ≤ v) :
   ext i hi
   cases hx : x.msb <;>
     simp [getElem_cast, hx, getElem_append, getElem_signExtend]
+
+/--
+The 'master theorem' for extracting bits from `(xhi ++ xlo)`,
+which performs a case analysis on the start index, length, and the lengths of `xlo, xhi`.
+· If the start index is entirely out of the `xlo` bitvector, then grab the bits from `xhi`.
+· If the start index is entirely contained in the `xlo` bitvector, then grab the bits from `xlo`.
+· If the start index is split between the two bitvectors,
+  then append `(w - start)` bits from `xlo` with `(len - (w - start))` bits from xhi.
+  Diagramatically:
+  ```
+                 xhi                      xlo
+          (<---------------------](<-------w--------]
+  start+len..start:  (<-----len---*------]
+  w - start:                      *------*
+  len - (w -start):  *------------*
+  ```
+-/
+theorem extractLsb'_append_eq_ite {v w} {xhi : BitVec v} {xlo : BitVec w} {start len : Nat} :
+    extractLsb' start len (xhi ++ xlo) =
+    if hstart : start < w
+    then
+      if hlen : start + len < w
+      then extractLsb' start len xlo
+      else
+        (((extractLsb' (start - w) (len - (w - start)) xhi) ++
+            extractLsb' start (w - start) xlo)).cast (by omega)
+    else
+      extractLsb' (start - w) len xhi := by
+  by_cases hstart : start < w
+  · simp only [hstart, ↓reduceDIte]
+    by_cases hlen : start + len < w
+    · simp only [hlen, ↓reduceDIte]
+      ext i hi
+      simp only [getElem_extractLsb', getLsbD_append, ite_eq_left_iff, Nat.not_lt]
+      intros hcontra
+      omega
+    · simp only [hlen, ↓reduceDIte]
+      ext i hi
+      simp only [getElem_extractLsb', getLsbD_append, getElem_cast,
+        getElem_append, dite_eq_ite]
+      by_cases hi₂ : start + i < w
+      · simp [hi₂, show i < min len w by omega, show i < w - start by omega]
+      · simp [hi₂, ↓reduceIte, show ¬i < w - start by omega,
+          show start + i - w = start - w + (i - (w - start)) by omega]
+  · simp only [hstart, ↓reduceDIte]
+    ext i hi
+    simp [getElem_extractLsb', getLsbD_append,
+      show ¬start + i < w by omega, ↓reduceIte, 
+      show start + i - w = start - w + i by omega]
+
+/-- Extracting bits `[start..start+len)` from `(xhi ++ xlo)` equals extracting
+the bits from `xlo` when `start + len` is within `xlo`.
+-/
+theorem extractLsb'_append_eq_of_lt {v w} {xhi : BitVec v} {xlo : BitVec w}
+    {start len : Nat} (h : start + len < w) :
+    extractLsb' start len (xhi ++ xlo) = extractLsb' start len xlo := by
+  simp [extractLsb'_append_eq_ite, h]
+  omega
+
+/-- Extracting bits `[start..start+len)` from `(xhi ++ xlo)` equals extracting
+the bits from `xhi` when `start` is outside `xlo`.
+-/
+theorem extractLsb'_append_eq_of_le {v w} {xhi : BitVec v} {xlo : BitVec w}
+    {start len : Nat} (h : w ≤ start) :
+    extractLsb' start len (xhi ++ xlo) = extractLsb' (start - w) len xhi := by
+  simp [extractLsb'_append_eq_ite, h, show ¬ start < w by omega]
 
 /-! ### rev -/
 
@@ -3102,6 +3168,14 @@ theorem not_neg (x : BitVec w) : ~~~(-x) = x + -1#w := by
         show (_ - x.toNat) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)]]
       omega
 
+theorem neg_add {x y : BitVec w} : - (x + y) = - x - y := by
+  apply eq_of_toInt_eq
+  simp [toInt_neg, toInt_add, Int.neg_add, Int.add_neg_eq_sub]
+
+theorem add_neg_eq_sub {x y : BitVec w} : x + - y = (x - y) := by
+  apply eq_of_toInt_eq
+  simp [toInt_neg, Int.sub_eq_add_neg]
+
 /- ### add/sub injectivity -/
 
 @[simp]
@@ -3269,6 +3343,12 @@ theorem mul_eq_and {a b : BitVec 1} : a * b = a &&& b := by
 protected theorem neg_mul_neg (x y : BitVec w) : -x * -y = x * y := by simp
 
 protected theorem neg_mul_comm (x y : BitVec w) : -x * y = x * -y := by simp
+
+theorem neg_add_mul_eq_mul_not {x y : BitVec w} :
+    - (x + x * y) = x * ~~~ y := by
+  rw [neg_add, sub_toAdd, ← BitVec.mul_neg, neg_eq_not_add y, mul_add,
+    BitVec.mul_one, BitVec.add_comm, BitVec.add_assoc, BitVec.add_right_eq_self,
+    add_neg_eq_sub, BitVec.sub_self]
 
 /-! ### le and lt -/
 

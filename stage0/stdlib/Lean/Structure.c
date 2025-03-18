@@ -4860,7 +4860,7 @@ _start:
 lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_2 = lean_box(0);
 x_3 = l_Lean_initFn____x40_Lean_Structure___hyg_1846____closed__1;
-x_4 = 2;
+x_4 = 1;
 x_5 = l_Lean_registerEnvExtension___rarg(x_3, x_2, x_4, x_1);
 return x_5;
 }

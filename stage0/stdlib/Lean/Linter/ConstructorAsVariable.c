@@ -3725,7 +3725,7 @@ lean_dec(x_10);
 x_13 = lean_ctor_get(x_11, 6);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = lean_ctor_get(x_13, 1);
+x_14 = lean_ctor_get(x_13, 2);
 lean_inc(x_14);
 lean_dec(x_13);
 x_15 = l_Lean_PersistentArray_toArray___rarg(x_14);

@@ -1263,15 +1263,6 @@ private def setSourceInstImplicit (type : Expr) : Expr :=
       type.updateForall! .instImplicit d b
   | _ => unreachable!
 
-private def setAllImplicitButSource (type : Expr) : Expr :=
-  match type with
-  | .forallE _ d b _ =>
-    if b.isForall then
-      type.updateForall! .implicit d (setAllImplicitButSource b)
-    else
-      type
-  | _ => type
-
 /--
 Creates a projection function to a non-subobject parent.
 -/
@@ -1280,10 +1271,9 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
   let env ← getEnv
   let binfo := if view.isClass && isClass env parent.structName then BinderInfo.instImplicit else BinderInfo.default
   let mut declType ← instantiateMVars (← mkForallFVars params (← mkForallFVars #[source] parentType))
-  declType := setAllImplicitButSource declType
   if view.isClass && isClass env parent.structName then
     declType := setSourceInstImplicit declType
---  declType := declType.inferImplicit params.size true
+  declType := declType.inferImplicit params.size true
   let declVal ← instantiateMVars (← mkLambdaFVars params (← mkLambdaFVars #[source] parentVal))
   let declName := parent.declName
   -- Logic from `mk_projections`: prop-valued projections are theorems (or at least opaque)

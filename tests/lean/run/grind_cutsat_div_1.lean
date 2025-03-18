@@ -32,7 +32,9 @@ example (a b : Int) (_ : 2 ∣ a + 3) (_ : 3 ∣ a + b - 4) : False := by
   sorry
 
 /--
-info: [grind.cutsat.dvd.update] 2 ∣ a + 3
+info: [grind.cutsat.dvd] 2 ∣ a + 3
+[grind.cutsat.dvd.update] 2 ∣ a + 3
+[grind.cutsat.dvd] 3 ∣ a + 3*b + -4
 [grind.cutsat.dvd.update] 3 ∣ 3*b + a + -4
 [grind.cutsat.assign] a := 1
 [grind.cutsat.assign] b := 0

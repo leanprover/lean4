@@ -65,6 +65,18 @@ theorem bmod_eq_self_of_le {n : Int} {m : Nat} (hn' : -(m / 2) ≤ n) (hn : n < 
   apply eq_zero_of_dvd_of_natAbs_lt_natAbs Int.dvd_bmod_sub_self
   omega
 
+theorem sub_eq_iff_eq_add {b a c : Int} : a - b = c ↔ a = c + b := by omega
+theorem sub_eq_iff_eq_add' {b a c : Int} : a - b = c ↔ a = b + c := by omega
+
+theorem bmod_bmod_of_dvd {a : Int} {n m : Nat} (hnm : n ∣ m) :
+    (a.bmod m).bmod n = a.bmod n := by
+  rw [← sub_eq_iff_eq_add.2 (bmod_add_bdiv a m).symm]
+  obtain ⟨k, rfl⟩ := hnm
+  simp [Int.mul_assoc]
+
+@[simp] theorem toNat_le {m : Int} {n : Nat} : m.toNat ≤ n ↔ m ≤ n := by omega
+@[simp] theorem toNat_lt' {m : Int} {n : Nat} (hn : 0 < n) : m.toNat < n ↔ m < n := by omega
+
 theorem bmod_eq_of_le_of_lt {x : Int} {y : Nat} (hge : -y ≤ x * 2) (hlt : x * 2 < y) :
     x.bmod y = x := by
   simp only [Int.bmod_def]

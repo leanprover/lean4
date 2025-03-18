@@ -1213,7 +1213,7 @@ def cooper_dvd_left_split_ineq_cert (p₁ p₂ : Poly) (k : Int) (b : Int) (p' :
   p₂.leadCoeff == b && p' == p₁.addConst (b*k)
 
 theorem cooper_dvd_left_split_ineq (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (k : Nat) (b : Int) (p' : Poly)
-    : cooper_dvd_left_split ctx p₁ p₂ p₃ d k → cooper_dvd_left_split_ineq_cert p₁ p₂ k b p' → p'.denote ctx ≤ 0 := by
+    : cooper_dvd_left_split ctx p₁ p₂ p₃ d k → cooper_dvd_left_split_ineq_cert p₁ p₂ k b p' → p'.denote' ctx ≤ 0 := by
   simp [cooper_dvd_left_split_ineq_cert, cooper_dvd_left_split]
   intros; subst p' b; simp [denote'_mul_combine_mul_addConst_eq]; assumption
 
@@ -1221,7 +1221,7 @@ def cooper_dvd_left_split_dvd1_cert (p₁ p' : Poly) (a : Int) (k : Int) : Bool 
   a == p₁.leadCoeff && p' == p₁.tail.addConst k
 
 theorem cooper_dvd_left_split_dvd1 (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (k : Nat) (a : Int) (p' : Poly)
-    : cooper_dvd_left_split ctx p₁ p₂ p₃ d k → cooper_dvd_left_split_dvd1_cert p₁ p' a k → a ∣ p'.denote ctx := by
+    : cooper_dvd_left_split ctx p₁ p₂ p₃ d k → cooper_dvd_left_split_dvd1_cert p₁ p' a k → a ∣ p'.denote' ctx := by
   simp [cooper_dvd_left_split_dvd1_cert, cooper_dvd_left_split]
   intros; subst a p'; simp; assumption
 
@@ -1234,7 +1234,7 @@ def cooper_dvd_left_split_dvd2_cert (p₁ p₃ : Poly) (d : Int) (k : Nat) (d' :
   d' == a*d && p' == p₂.addConst (c*k)
 
 theorem cooper_dvd_left_split_dvd2 (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (k : Nat) (d' : Int) (p' : Poly)
-    : cooper_dvd_left_split ctx p₁ p₂ p₃ d k → cooper_dvd_left_split_dvd2_cert p₁ p₃ d k d' p' → d' ∣ p'.denote ctx := by
+    : cooper_dvd_left_split ctx p₁ p₂ p₃ d k → cooper_dvd_left_split_dvd2_cert p₁ p₃ d k d' p' → d' ∣ p'.denote' ctx := by
   simp [cooper_dvd_left_split_dvd2_cert, cooper_dvd_left_split]
   intros; subst d' p'; simp; assumption
 
@@ -1295,7 +1295,7 @@ def cooper_left_split_ineq_cert (p₁ p₂ : Poly) (k : Int) (b : Int) (p' : Pol
   p₂.leadCoeff == b && p' == p₁.addConst (b*k)
 
 theorem cooper_left_split_ineq (ctx : Context) (p₁ p₂ : Poly) (k : Nat) (b : Int) (p' : Poly)
-    : cooper_left_split ctx p₁ p₂ k → cooper_left_split_ineq_cert p₁ p₂ k b p' → p'.denote ctx ≤ 0 := by
+    : cooper_left_split ctx p₁ p₂ k → cooper_left_split_ineq_cert p₁ p₂ k b p' → p'.denote' ctx ≤ 0 := by
   simp [cooper_left_split_ineq_cert, cooper_left_split]
   intros; subst p' b; simp [denote'_mul_combine_mul_addConst_eq]; assumption
 
@@ -1303,7 +1303,7 @@ def cooper_left_split_dvd_cert (p₁ p' : Poly) (a : Int) (k : Int) : Bool :=
   a == p₁.leadCoeff && p' == p₁.tail.addConst k
 
 theorem cooper_left_split_dvd (ctx : Context) (p₁ p₂ : Poly) (k : Nat) (a : Int) (p' : Poly)
-    : cooper_left_split ctx p₁ p₂ k → cooper_left_split_dvd_cert p₁ p' a k → a ∣ p'.denote ctx := by
+    : cooper_left_split ctx p₁ p₂ k → cooper_left_split_dvd_cert p₁ p' a k → a ∣ p'.denote' ctx := by
   simp [cooper_left_split_dvd_cert, cooper_left_split]
   intros; subst a p'; simp; assumption
 
@@ -1380,7 +1380,7 @@ def cooper_dvd_right_split_ineq_cert (p₁ p₂ : Poly) (k : Int) (a : Int) (p' 
   p₁.leadCoeff == a && p' == p₂.addConst ((-a)*k)
 
 theorem cooper_dvd_right_split_ineq (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (k : Nat) (a : Int) (p' : Poly)
-    : cooper_dvd_right_split ctx p₁ p₂ p₃ d k → cooper_dvd_right_split_ineq_cert p₁ p₂ k a p' → p'.denote ctx ≤ 0 := by
+    : cooper_dvd_right_split ctx p₁ p₂ p₃ d k → cooper_dvd_right_split_ineq_cert p₁ p₂ k a p' → p'.denote' ctx ≤ 0 := by
   simp [cooper_dvd_right_split_ineq_cert, cooper_dvd_right_split]
   intros; subst a p'; simp [denote'_mul_combine_mul_addConst_eq]; assumption
 
@@ -1388,7 +1388,7 @@ def cooper_dvd_right_split_dvd1_cert (p₂ p' : Poly) (b : Int) (k : Int) : Bool
   b == p₂.leadCoeff && p' == p₂.tail.addConst k
 
 theorem cooper_dvd_right_split_dvd1 (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (k : Nat) (b : Int) (p' : Poly)
-    : cooper_dvd_right_split ctx p₁ p₂ p₃ d k → cooper_dvd_right_split_dvd1_cert p₂ p' b k → b ∣ p'.denote ctx := by
+    : cooper_dvd_right_split ctx p₁ p₂ p₃ d k → cooper_dvd_right_split_dvd1_cert p₂ p' b k → b ∣ p'.denote' ctx := by
   simp [cooper_dvd_right_split_dvd1_cert, cooper_dvd_right_split]
   intros; subst b p'; simp; assumption
 
@@ -1401,7 +1401,7 @@ def cooper_dvd_right_split_dvd2_cert (p₂ p₃ : Poly) (d : Int) (k : Nat) (d' 
   d' == b*d && p' == p₂.addConst ((-c)*k)
 
 theorem cooper_dvd_right_split_dvd2 (ctx : Context) (p₁ p₂ p₃ : Poly) (d : Int) (k : Nat) (d' : Int) (p' : Poly)
-    : cooper_dvd_right_split ctx p₁ p₂ p₃ d k → cooper_dvd_right_split_dvd2_cert p₂ p₃ d k d' p' → d' ∣ p'.denote ctx := by
+    : cooper_dvd_right_split ctx p₁ p₂ p₃ d k → cooper_dvd_right_split_dvd2_cert p₂ p₃ d k d' p' → d' ∣ p'.denote' ctx := by
   simp [cooper_dvd_right_split_dvd2_cert, cooper_dvd_right_split]
   intros; subst d' p'; simp; assumption
 
@@ -1461,7 +1461,7 @@ def cooper_right_split_ineq_cert (p₁ p₂ : Poly) (k : Int) (a : Int) (p' : Po
   p₁.leadCoeff == a && p' == p₂.addConst ((-a)*k)
 
 theorem cooper_right_split_ineq (ctx : Context) (p₁ p₂ : Poly) (k : Nat) (a : Int) (p' : Poly)
-    : cooper_right_split ctx p₁ p₂ k → cooper_right_split_ineq_cert p₁ p₂ k a p' → p'.denote ctx ≤ 0 := by
+    : cooper_right_split ctx p₁ p₂ k → cooper_right_split_ineq_cert p₁ p₂ k a p' → p'.denote' ctx ≤ 0 := by
   simp [cooper_right_split_ineq_cert, cooper_right_split]
   intros; subst a p'; simp [denote'_mul_combine_mul_addConst_eq]; assumption
 
@@ -1469,7 +1469,7 @@ def cooper_right_split_dvd_cert (p₂ p' : Poly) (b : Int) (k : Int) : Bool :=
   b == p₂.leadCoeff && p' == p₂.tail.addConst k
 
 theorem cooper_right_split_dvd (ctx : Context) (p₁ p₂ : Poly) (k : Nat) (b : Int) (p' : Poly)
-    : cooper_right_split ctx p₁ p₂ k → cooper_right_split_dvd_cert p₂ p' b k → b ∣ p'.denote ctx := by
+    : cooper_right_split ctx p₁ p₂ k → cooper_right_split_dvd_cert p₂ p' b k → b ∣ p'.denote' ctx := by
   simp [cooper_right_split_dvd_cert, cooper_right_split]
   intros; subst b p'; simp; assumption
 

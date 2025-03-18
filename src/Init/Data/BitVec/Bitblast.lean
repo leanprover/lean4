@@ -545,6 +545,15 @@ theorem slt_eq_not_carry (x y : BitVec w) :
 theorem sle_eq_not_slt (x y : BitVec w) : x.sle y = !y.slt x := by
   simp only [BitVec.sle, BitVec.slt, ← decide_not, decide_eq_decide]; omega
 
+theorem zero_sle_eq_not_msb {w : Nat} {x : BitVec w} : BitVec.sle 0#w x = !x.msb := by
+  rw [sle_eq_not_slt, BitVec.slt_zero_eq_msb]
+
+theorem zero_sle_iff_msb_eq_false {w : Nat} {x : BitVec w} : BitVec.sle 0#w x ↔ x.msb = false := by
+  simp [zero_sle_eq_not_msb]
+
+theorem toNat_toInt_of_sle {w : Nat} (b : BitVec w) (hb : BitVec.sle 0#w b) : b.toInt.toNat = b.toNat :=
+  toNat_toInt_of_msb b (zero_sle_iff_msb_eq_false.1 hb)
+
 theorem sle_eq_carry (x y : BitVec w) :
     x.sle y = !((x.msb == y.msb).xor (carry w y (~~~x) true)) := by
   rw [sle_eq_not_slt, slt_eq_not_carry, beq_comm]
@@ -1279,7 +1288,7 @@ theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
     simp only [Nat.add_one_sub_one, ge_iff_le, ne_eq, show ¬w + 1 = 0 by omega,
     not_false_eq_true, decide_true, BitVec.slt, intMax, ofNat_eq_ofNat, toInt_mul, intMin,
     Bool.true_and]
-    repeat rw [BitVec.toInt_signExtend_of_lt (by omega)]
+    repeat rw [BitVec.toInt_signExtend_of_le (by omega)]
     simp only [show BitVec.twoPow (w + 1) w - 1#(w + 1) = BitVec.intMax (w + 1) by simp [intMax],
       toInt_intMax, Nat.add_one_sub_one, toInt_twoPow, show ¬w + 1 ≤ w by omega, ↓reduceIte,
       Nat.shiftLeft_eq, Nat.one_mul]

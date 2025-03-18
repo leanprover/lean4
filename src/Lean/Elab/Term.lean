@@ -1820,42 +1820,24 @@ def addAutoBoundImplicitsInlayHint (autos : Array Expr) (inlayHintPos : String.P
     return
   let autoNames ← autos.mapM (·.fvarId!.getUserName)
   let formattedHint := s!" \{{" ".intercalate <| Array.toList <| autoNames.map toString}}"
-  let autoLabelParts : List (InlayHintLabelPart × Option Expr) := Array.toList <| ← autos.mapM fun auto => do
-    let name := toString <| ← auto.fvarId!.getUserName
-    return ({ value := name }, some auto)
-  let p value : InlayHintLabelPart × Option Expr := ({ value }, none)
-  let labelParts := [p " ", p "{"] ++ [p " "].intercalate (autoLabelParts.map ([·])) ++ [p "}"]
-  let labelParts := labelParts.toArray
   let deferredResolution ih := do
-    let .parts ps := ih.label
-      | return ih
-    let mut ps' := #[]
-    for h : i in [:ps.size] do
-      let p := ps[i]
-      let some (part, some auto) := labelParts[i]?
-        | ps' := ps'.push p
-          continue
+    let description := "Automatically-inserted implicit parameters:"
+    let codeBlockStart := "```lean"
+    let typeInfos ← autos.mapM fun auto => do
+      let name := toString <| ← auto.fvarId!.getUserName
       let type := toString <| ← Meta.ppExpr <| ← instantiateMVars (← inferType auto)
-      let tooltip := s!"{part.value} : {type}"
-      ps' := ps'.push { p with tooltip? := tooltip }
-      let some separatorPart := ps'[ps'.size - 2]?
-        | continue
-      -- We assign the leading `{` and the separation spaces the same tooltip as the auto-implicit
-      -- following it. The reason for this is that VS Code does not display a text cursor
-      -- on auto-implicits, but a regular cursor, and hitting single character auto-implicits
-      -- with that cursor can be a bit tricky. Adding the leading space or the opening `{` to the
-      -- tooltip area makes this much easier.
-      ps' := ps'.set! (ps'.size - 2) { separatorPart with tooltip? := tooltip }
-    return { ih with label := .parts ps' }
+      return s!"{name} : {type}"
+    let codeBlockEnd := "```"
+    let tooltip := "\n".intercalate <| description :: codeBlockStart :: typeInfos.toList ++ [codeBlockEnd]
+    return { ih with tooltip? := tooltip }
   pushInfoLeaf <| .ofCustomInfo {
       position := inlayHintPos
-      label := .parts <| labelParts.map (·.1)
+      label := .name formattedHint
       textEdits := #[{
         range := ⟨inlayHintPos, inlayHintPos⟩,
         newText := formattedHint
       }]
       kind? := some .parameter
-      tooltip? := "Automatically-inserted implicit parameters"
       lctx := ← getLCtx
       deferredResolution
       : InlayHint

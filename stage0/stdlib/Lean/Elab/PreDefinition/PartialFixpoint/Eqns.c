@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.PartialFixpoint.Eqns
-// Imports: Lean.Elab.Tactic.Conv Lean.Meta.Tactic.Rewrite Lean.Meta.Tactic.Split Lean.Elab.PreDefinition.Basic Lean.Elab.PreDefinition.Eqns Lean.Meta.ArgsPacker.Basic Init.Data.Array.Basic Init.Internal.Order.Basic
+// Imports: Lean.Elab.Tactic.Conv Lean.Meta.Tactic.Rewrite Lean.Meta.Tactic.Split Lean.Elab.PreDefinition.Basic Lean.Elab.PreDefinition.Eqns Lean.Elab.PreDefinition.FixedParams Lean.Meta.ArgsPacker.Basic Init.Data.Array.Basic Init.Internal.Order.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -131,6 +131,7 @@ static lean_object* l_Lean_Elab_PartialFixpoint_mkUnfoldEq___lambda__6___closed_
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_PartialFixpoint_mkUnfoldEq___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__7;
 extern lean_object* l_Lean_diagnostics;
 static lean_object* l_Lean_Elab_PartialFixpoint_mkUnfoldEq___lambda__6___closed__5;
 static lean_object* l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__5;
@@ -287,11 +288,24 @@ return x_2;
 static lean_object* _init_l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__6() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__5;
+x_3 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+lean_ctor_set(x_3, 2, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__7() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__4;
 x_2 = l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__5;
 x_3 = lean_box(0);
-x_4 = lean_unsigned_to_nat(0u);
+x_4 = l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__6;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -304,7 +318,7 @@ static lean_object* _init_l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__6;
+x_1 = l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__7;
 return x_1;
 }
 }
@@ -1910,7 +1924,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eqns_0__Lean_Elab_PartialFixpoint_rwFixEq___lambda__1___closed__1;
 x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eqns_0__Lean_Elab_PartialFixpoint_rwFixEq___lambda__1___closed__2;
-x_3 = lean_unsigned_to_nat(60u);
+x_3 = lean_unsigned_to_nat(62u);
 x_4 = lean_unsigned_to_nat(41u);
 x_5 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eqns_0__Lean_Elab_PartialFixpoint_rwFixEq___lambda__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1923,7 +1937,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eqns_0__Lean_Elab_PartialFixpoint_rwFixEq___lambda__1___closed__1;
 x_2 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eqns_0__Lean_Elab_PartialFixpoint_rwFixEq___lambda__1___closed__2;
-x_3 = lean_unsigned_to_nat(62u);
+x_3 = lean_unsigned_to_nat(64u);
 x_4 = lean_unsigned_to_nat(51u);
 x_5 = l___private_Lean_Elab_PreDefinition_PartialFixpoint_Eqns_0__Lean_Elab_PartialFixpoint_rwFixEq___lambda__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -5318,6 +5332,7 @@ lean_object* initialize_Lean_Meta_Tactic_Rewrite(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Split(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_Eqns(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_PreDefinition_FixedParams(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_ArgsPacker_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Internal_Order_Basic(uint8_t builtin, lean_object*);
@@ -5341,6 +5356,9 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_PreDefinition_Eqns(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Lean_Elab_PreDefinition_FixedParams(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Meta_ArgsPacker_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -5362,6 +5380,8 @@ l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__5 = _init_l_Lean_Elab
 lean_mark_persistent(l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__5);
 l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__6 = _init_l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__6();
 lean_mark_persistent(l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__6);
+l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__7 = _init_l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__7();
+lean_mark_persistent(l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo___closed__7);
 l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo = _init_l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo();
 lean_mark_persistent(l_Lean_Elab_PartialFixpoint_instInhabitedEqnInfo);
 l_Lean_Elab_PartialFixpoint_initFn____x40_Lean_Elab_PreDefinition_PartialFixpoint_Eqns___hyg_55____closed__1 = _init_l_Lean_Elab_PartialFixpoint_initFn____x40_Lean_Elab_PreDefinition_PartialFixpoint_Eqns___hyg_55____closed__1();

@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "runtime/debug.h"
 #include "runtime/sstream.h"
-#include "runtime/load_dynlib.h"
 #include "runtime/array_ref.h"
 #include "runtime/object_ref.h"
 #include "runtime/utf8.h"
@@ -31,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/elab_environment.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/trace.h"
+#include "library/dynlib.h"
 #include "library/formatter.h"
 #include "library/module.h"
 #include "library/time_task.h"
@@ -474,6 +474,9 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 #elif defined(LEAN_WINDOWS)
     // "best practice" according to https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-seterrormode
     SetErrorMode(SEM_FAILCRITICALERRORS);
+    // properly formats Unicode characters on the Windows console
+    // see https://github.com/leanprover/lean4/issues/4291
+    SetConsoleOutputCP(CP_UTF8);
 #endif
     auto init_start = std::chrono::steady_clock::now();
     lean::initializer init;

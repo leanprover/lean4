@@ -35,7 +35,12 @@ def preprocess (e : Expr) : GoalM Simp.Result := do
   let e' ← eraseIrrelevantMData e'
   let e' ← foldProjs e'
   let e' ← normalizeLevels e'
-  let e' ← eraseSimpMatchDiscrsOnly e'
+  let r' ← eraseSimpMatchDiscrsOnly e'
+  let r ← r.mkEqTrans r'
+  let e' := r'.expr
+  let r' ← replacePreMatchCond e'
+  let r ← r.mkEqTrans r'
+  let e' := r'.expr
   let e' ← canon e'
   let e' ← shareCommon e'
   trace_goal[grind.simp] "{e}\n===>\n{e'}"

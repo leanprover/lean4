@@ -405,3 +405,9 @@
   run_config:
     <<: *time
     cmd: lean big_omega.lean -Dinternal.cmdlineSnapshots=false
+- attributes:
+    description: omega_stress.lean async
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean omega_stress.lean -DElab.async=true

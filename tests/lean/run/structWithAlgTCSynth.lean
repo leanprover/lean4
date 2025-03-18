@@ -606,8 +606,8 @@ end Mathlib.Algebra.Quotient
 
 section Mathlib.Algebra.Module.Submodule.Basic
 
-structure Submodule (R : Type u) (M : Type v) [Semiring R] [AddCommMonoid M] [Module R M] extends
-  AddSubmonoid M : Type v
+structure Submodule (R : Type u) (M : Type v) [Semiring R] [AddCommMonoid M] [Module R M] : Type v
+  extends AddSubmonoid M
 
 def Submodule.toAddSubgroup [Ring R] [AddCommGroup M] {module_M : Module R M} (p : Submodule R M) : AddSubgroup M :=
   { p.toAddSubmonoid with }

@@ -8,12 +8,6 @@ import Lean.CoreM
 
 namespace Lean
 
-register_builtin_option debug.skipKernelTC : Bool := {
-  defValue := false
-  group    := "debug"
-  descr    := "skip kernel type checker. WARNING: setting this option to true may compromise soundness because your proofs will not be checked by the Lean kernel"
-}
-
 /-- Adds given declaration to the environment, respecting `debug.skipKernelTC`. -/
 def Kernel.Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) : Except Exception Environment :=
@@ -50,15 +44,13 @@ where go env
   | _        => env
 
 def addDecl (decl : Declaration) : CoreM Unit := do
-  let mut env ← getEnv
   -- register namespaces for newly added constants; this used to be done by the kernel itself
   -- but that is incompatible with moving it to a separate task
-  env := decl.getNames.foldl registerNamePrefixes env
+  modifyEnv (decl.getNames.foldl registerNamePrefixes)
   if let .inductDecl _ _ types _ := decl then
-    env := types.foldl (registerNamePrefixes · <| ·.name ++ `rec) env
+    modifyEnv (types.foldl (registerNamePrefixes · <| ·.name ++ `rec))
 
   if !Elab.async.get (← getOptions) then
-    setEnv env
     return (← doAdd)
 
   -- convert `Declaration` to `ConstantInfo` to use as a preliminary value in the environment until
@@ -70,19 +62,21 @@ def addDecl (decl : Declaration) : CoreM Unit := do
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
     | _ => return (← doAdd)
 
+  let env ← getEnv
   -- no environment extension changes to report after kernel checking; ensures we do not
   -- accidentally wait for this snapshot when querying extension states
   let async ← env.addConstAsync (reportExts := false) name kind
   -- report preliminary constant info immediately
   async.commitConst async.asyncEnv (some info)
   setEnv async.mainEnv
-  let checkAct ← Core.wrapAsyncAsSnapshot fun _ => do
+  let cancelTk ← IO.CancelToken.new
+  let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
     setEnv async.asyncEnv
     doAdd
     async.commitCheckEnv (← getEnv)
   let t ← BaseIO.mapTask (fun _ => checkAct) env.checked
   let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
-  Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t }
+  Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
 where doAdd := do
   profileitM Exception "type checking" (← getOptions) do
     withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getNames}") do

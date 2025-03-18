@@ -663,13 +663,15 @@ where
    else
      k altsNew
 
-/--
-  Create conditional equations and splitter for the given match auxiliary declaration. -/
-private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := withLCtx {} {} do
-  withTraceNode `Meta.Match.matchEqs (fun _ => return m!"mkEquationsFor '{matchDeclName}'") do
-  withConfig (fun c => { c with etaStruct := .none }) do
+/-
+Creates conditional equations and splitter for the given match auxiliary declaration.
+
+See also `getEquationsFor`.
+-/
+@[export lean_get_match_equations_for]
+def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
   /-
-  Remark: user have requested the `split` tactic to be available for writing code.
+  Remark: users have requested the `split` tactic to be available for writing code.
   Thus, the `splitter` declaration must be a definition instead of a theorem.
   Moreover, the `splitter` is generated on demand, and we currently
   can't import the same definition from different modules. Thus, we must
@@ -677,6 +679,12 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
   -/
   let baseName := mkPrivateName (← getEnv) matchDeclName
   let splitterName := baseName ++ `splitter
+  -- NOTE: `go` will generate both splitter and equations but we use the splitter as the "key" for
+  -- `realizeConst` as well as for looking up the resultant environment extension sate via
+  -- `findStateAsync`.
+  realizeConst matchDeclName splitterName (go baseName splitterName)
+  return matchEqnsExt.findStateAsync (← getEnv) splitterName |>.map.find! matchDeclName
+where go baseName splitterName := withConfig (fun c => { c with etaStruct := .none }) do
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
   let some matchInfo ← getMatcherInfo? matchDeclName | throwError "'{matchDeclName}' is not a matcher function"
@@ -758,14 +766,6 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
       setInlineAttribute splitterName
       let result := { eqnNames, splitterName, splitterAltNumParams }
       registerMatchEqns matchDeclName result
-      return result
-
-/- See header at `MatchEqsExt.lean` -/
-@[export lean_get_match_equations_for]
-def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
-  match matchEqnsExt.getState (← getEnv) |>.map.find? matchDeclName with
-  | some matchEqns => return matchEqns
-  | none => mkEquationsFor matchDeclName
 
 builtin_initialize registerTraceClass `Meta.Match.matchEqs
 

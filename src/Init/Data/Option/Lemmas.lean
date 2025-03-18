@@ -654,6 +654,11 @@ theorem map_pmap {p : α → Prop} (g : β → γ) (f : ∀ a, p a → β) (o H)
     Option.map g (pmap f o H) = pmap (fun a h => g (f a h)) o H := by
   cases o <;> simp
 
+theorem pmap_map (o : Option α) (f : α → β) {p : β → Prop} (g : ∀ b, p b → γ) (H) :
+    pmap g (o.map f) H =
+      pmap (fun a h => g (f a) h) o (fun a m => H (f a) (mem_map_of_mem f m)) := by
+  cases o <;> simp
+
 /-! ### pelim -/
 
 @[simp] theorem pelim_none : pelim none b f = b := rfl
@@ -667,5 +672,81 @@ theorem map_pmap {p : α → Prop} (g : β → γ) (f : ∀ a, p a → β) (o H)
     (o.pmap f H).elim g g' =
        o.pelim g (fun a h => g' (f a (H a h))) := by
   cases o <;> simp
+
+/-! ### LT and LE -/
+
+@[simp] theorem not_lt_none [LT α] {a : Option α} : ¬ a < none := by cases a <;> simp [LT.lt, Option.lt]
+@[simp] theorem none_lt_some [LT α] {a : α} : none < some a := by simp [LT.lt, Option.lt]
+@[simp] theorem some_lt_some [LT α] {a b : α} : some a < some b ↔ a < b := by simp [LT.lt, Option.lt]
+
+@[simp] theorem none_le [LE α] {a : Option α} : none ≤ a := by cases a <;> simp [LE.le, Option.le]
+@[simp] theorem not_some_le_none [LE α] {a : α} : ¬ some a ≤ none := by simp [LE.le, Option.le]
+@[simp] theorem some_le_some [LE α] {a b : α} : some a ≤ some b ↔ a ≤ b := by simp [LE.le, Option.le]
+
+/-! ### min and max -/
+
+theorem min_eq_left [LE α] [Min α] (min_eq_left : ∀ x y : α, x ≤ y → min x y = x)
+    {a b : Option α} (h : a ≤ b) : min a b = a := by
+  cases a <;> cases b <;> simp_all
+
+theorem min_eq_right [LE α] [Min α] (min_eq_right : ∀ x y : α, y ≤ x → min x y = y)
+    {a b : Option α} (h : b ≤ a) : min a b = b := by
+  cases a <;> cases b <;> simp_all
+
+theorem min_eq_left_of_lt [LT α] [Min α] (min_eq_left : ∀ x y : α, x < y → min x y = x)
+    {a b : Option α} (h : a < b) : min a b = a := by
+  cases a <;> cases b <;> simp_all
+
+theorem min_eq_right_of_lt [LT α] [Min α] (min_eq_right : ∀ x y : α, y < x → min x y = y)
+    {a b : Option α} (h : b < a) : min a b = b := by
+  cases a <;> cases b <;> simp_all
+
+theorem min_eq_or [LE α] [Min α] (min_eq_or : ∀ x y : α, min x y = x ∨ min x y = y)
+    {a b : Option α} : min a b = a ∨ min a b = b := by
+  cases a <;> cases b <;> simp_all
+
+theorem min_le_left [LE α] [Min α] (min_le_left : ∀ x y : α, min x y ≤ x)
+    {a b : Option α} : min a b ≤ a := by
+  cases a <;> cases b <;> simp_all
+
+theorem min_le_right [LE α] [Min α] (min_le_right : ∀ x y : α, min x y ≤ y)
+    {a b : Option α} : min a b ≤ b := by
+  cases a <;> cases b <;> simp_all
+
+theorem le_min [LE α] [Min α] (le_min : ∀ x y z : α, x ≤ min y z ↔ x ≤ y ∧ x ≤ z)
+    {a b c : Option α} : a ≤ min b c ↔ a ≤ b ∧ a ≤ c := by
+  cases a <;> cases b <;> cases c <;> simp_all
+
+theorem max_eq_left [LE α] [Max α] (max_eq_left : ∀ x y : α, x ≤ y → max x y = y)
+    {a b : Option α} (h : a ≤ b) : max a b = b := by
+  cases a <;> cases b <;> simp_all
+
+theorem max_eq_right [LE α] [Max α] (max_eq_right : ∀ x y : α, y ≤ x → max x y = x)
+    {a b : Option α} (h : b ≤ a) : max a b = a := by
+  cases a <;> cases b <;> simp_all
+
+theorem max_eq_left_of_lt [LT α] [Max α] (max_eq_left : ∀ x y : α, x < y → max x y = y)
+    {a b : Option α} (h : a < b) : max a b = b := by
+  cases a <;> cases b <;> simp_all
+
+theorem max_eq_right_of_lt [LT α] [Max α] (max_eq_right : ∀ x y : α, y < x → max x y = x)
+    {a b : Option α} (h : b < a) : max a b = a := by
+  cases a <;> cases b <;> simp_all
+
+theorem max_eq_or [LE α] [Max α] (max_eq_or : ∀ x y : α, max x y = x ∨ max x y = y)
+    {a b : Option α} : max a b = a ∨ max a b = b := by
+  cases a <;> cases b <;> simp_all
+
+theorem left_le_max [LE α] [Max α] (le_refl : ∀ x : α, x ≤ x) (left_le_max : ∀ x y : α, x ≤ max x y)
+    {a b : Option α} : a ≤ max a b := by
+  cases a <;> cases b <;> simp_all
+
+theorem right_le_max [LE α] [Max α] (le_refl : ∀ x : α, x ≤ x) (right_le_max : ∀ x y : α, y ≤ max x y)
+    {a b : Option α} : b ≤ max a b := by
+  cases a <;> cases b <;> simp_all
+
+theorem max_le [LE α] [Max α] (max_le : ∀ x y z : α, max x y ≤ z ↔ x ≤ z ∧ y ≤ z)
+    {a b c : Option α} : max a b ≤ c ↔ a ≤ c ∧ b ≤ c := by
+  cases a <;> cases b <;> cases c <;> simp_all
 
 end Option

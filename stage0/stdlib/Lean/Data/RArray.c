@@ -18,7 +18,7 @@ static lean_object* l_Lean_instToExprRArray___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_RArray_toExpr___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_ofFn_go(lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_RArray_toExpr___rarg___closed__7;
@@ -30,14 +30,15 @@ LEAN_EXPORT lean_object* l_Lean_RArray_ofArray___rarg(lean_object*, lean_object*
 static lean_object* l_Lean_RArray_toExpr___rarg___closed__5;
 static lean_object* l_Lean_RArray_toExpr___rarg___closed__3;
 static lean_object* l_Lean_RArray_toExpr___rarg___closed__4;
+LEAN_EXPORT lean_object* l___private_Lean_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToExprRArray___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_ofArray(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_ofFn(lean_object*);
 static lean_object* l_Lean_instToExprRArray___rarg___closed__1;
-LEAN_EXPORT lean_object* l___private_Lean_Data_RArray_0____private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_RArray_toExpr___rarg___closed__6;
 LEAN_EXPORT lean_object* l_Lean_RArray_ofFn_go___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToExprRArray___rarg(lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_RArray_toExpr___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_RArray_ofArray___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
@@ -45,13 +46,49 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_mkRawNatLit(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_ofFn___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Data_RArray_0____private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToExprRArray(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_ofArray___rarg___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_ofFn___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_ofFn_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+lean_dec(x_3);
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_apply_1(x_2, x_4);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_dec(x_2);
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_1, 1);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_1, 2);
+lean_inc(x_8);
+lean_dec(x_1);
+x_9 = lean_apply_3(x_3, x_6, x_7, x_8);
+return x_9;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l___private_Lean_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter___rarg), 3, 0);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_RArray_ofFn_go___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -167,43 +204,6 @@ lean_object* x_3;
 x_3 = l_Lean_RArray_ofArray___rarg___lambda__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Data_RArray_0____private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_2);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 1);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_1, 2);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_apply_3(x_3, x_6, x_7, x_8);
-return x_9;
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Data_RArray_0____private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Lean_Data_RArray_0____private_Init_Data_RArray_0__Lean_RArray_get__eq__def_match__1_splitter___rarg), 3, 0);
 return x_3;
 }
 }

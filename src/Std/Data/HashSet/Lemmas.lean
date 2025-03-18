@@ -225,6 +225,19 @@ theorem get?_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
 theorem get?_erase_self [EquivBEq α] [LawfulHashable α] {k : α} : (m.erase k).get? k = none :=
   HashMap.getKey?_erase_self
 
+theorem get?_beq [EquivBEq α] [LawfulHashable α] {k : α} : (m.get? k).all (· == k) :=
+  HashMap.getKey?_beq
+
+theorem get?_congr [EquivBEq α] [LawfulHashable α] {k k' : α} (h : k == k') :
+    m.get? k = m.get? k' :=
+  HashMap.getKey?_congr h
+
+theorem get?_eq_some_of_contains [LawfulBEq α] {k : α} (h : m.contains k) : m.get? k = some k :=
+  HashMap.getKey?_eq_some_of_contains h
+
+theorem get?_eq_some_of_mem [LawfulBEq α] {k : α} (h : k ∈ m) : m.get? k = some k :=
+  HashMap.getKey?_eq_some_of_contains h
+
 theorem get_insert [EquivBEq α] [LawfulHashable α] {k a : α} {h₁} :
     (m.insert k).get a h₁ =
       if h₂ : k == a ∧ ¬k ∈ m then k else m.get a (mem_of_mem_insert' h₁ h₂) :=
@@ -238,6 +251,16 @@ theorem get_erase [EquivBEq α] [LawfulHashable α] {k a : α} {h'} :
 theorem get?_eq_some_get [EquivBEq α] [LawfulHashable α] {a : α} {h' : a ∈ m} :
     m.get? a = some (m.get a h') :=
   @HashMap.getKey?_eq_some_getKey _ _ _ _ _ _ _ _ h'
+
+theorem get_beq [EquivBEq α] [LawfulHashable α] {k : α} (h : k ∈ m) : m.get k h == k :=
+  HashMap.getKey_beq h
+
+theorem get_congr [EquivBEq α] [LawfulHashable α] {k₁ k₂ : α} (h : k₁ == k₂)
+    (h₁ : k₁ ∈ m) : m.get k₁ h₁ = m.get k₂ ((mem_congr h).mp h₁) :=
+  HashMap.getKey_congr h h₁
+
+theorem get_eq [LawfulBEq α] {k : α} (h : k ∈ m) : m.get k h = k :=
+  HashMap.getKey_eq h
 
 @[simp]
 theorem get!_empty [Inhabited α] {a : α} {c} : (empty c : HashSet α).get! a = default :=
@@ -287,6 +310,16 @@ theorem get!_eq_get!_get? [EquivBEq α] [LawfulHashable α] [Inhabited α] {a : 
 theorem get_eq_get! [EquivBEq α] [LawfulHashable α] [Inhabited α] {a : α} {h'} :
     m.get a h' = m.get! a :=
   HashMap.getKey_eq_getKey!
+
+theorem get!_congr [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α} (h : k == k') :
+    m.get! k = m.get! k' :=
+  HashMap.getKey!_congr h
+
+theorem get!_eq_of_contains [LawfulBEq α] [Inhabited α] {k : α} (h : m.contains k) : m.get! k = k :=
+  HashMap.getKey!_eq_of_contains h
+
+theorem get!_eq_of_mem [LawfulBEq α] [Inhabited α] {k : α} (h : k ∈ m) : m.get! k = k :=
+  HashMap.getKey!_eq_of_mem h
 
 @[simp]
 theorem getD_empty {a fallback : α} {c} : (empty c : HashSet α).getD a fallback = fallback :=
@@ -342,6 +375,17 @@ theorem get!_eq_getD_default [EquivBEq α] [LawfulHashable α] [Inhabited α] {a
     m.get! a = m.getD a default :=
   HashMap.getKey!_eq_getKeyD_default
 
+theorem getD_congr [EquivBEq α] [LawfulHashable α] {k k' fallback : α}
+    (h : k == k') : m.getD k fallback = m.getD k' fallback :=
+  HashMap.getKeyD_congr h
+
+theorem getD_eq_of_contains [LawfulBEq α] {k fallback : α} (h : m.contains k) :
+    m.getD k fallback = k :=
+  HashMap.getKeyD_eq_of_contains h
+
+theorem getD_eq_of_mem [LawfulBEq α] {k fallback : α} (h : k ∈ m) : m.getD k fallback = k :=
+  HashMap.getKeyD_eq_of_mem h
+
 @[simp]
 theorem containsThenInsert_fst {k : α} : (m.containsThenInsert k).1 = m.contains k :=
   HashMap.containsThenInsertIfNew_fst
@@ -373,6 +417,39 @@ theorem mem_toList [LawfulBEq α] [LawfulHashable α] {k : α} :
 theorem distinct_toList [EquivBEq α] [LawfulHashable α]:
     m.toList.Pairwise (fun a b => (a == b) = false) :=
   HashMap.distinct_keys
+
+section monadic
+
+variable {δ : Type v} {m' : Type v → Type v}
+
+theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m']
+    {f : δ → α → m' δ} {init : δ} :
+    m.foldM f init = m.toList.foldlM f init :=
+  HashMap.foldM_eq_foldlM_keys
+
+theorem fold_eq_foldl_toList {f : δ → α → δ} {init : δ} :
+    m.fold f init = m.toList.foldl f init :=
+  HashMap.fold_eq_foldl_keys
+
+@[simp]
+theorem forM_eq_forM [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
+    m.forM f = ForM.forM m f := rfl
+
+theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
+    ForM.forM m f = ForM.forM m.toList f :=
+  HashMap.forM_eq_forM_keys
+
+@[simp]
+theorem forIn_eq_forIn [Monad m'] [LawfulMonad m']
+    {f : α → δ → m' (ForInStep δ)} {init : δ} :
+    ForIn.forIn m init f = ForIn.forIn m init f := rfl
+
+theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
+    {f : α → δ → m' (ForInStep δ)} {init : δ} :
+    ForIn.forIn m init f = ForIn.forIn m.toList init f :=
+  HashMap.forIn_eq_forIn_keys
+
+end monadic
 
 @[simp]
 theorem insertMany_nil :

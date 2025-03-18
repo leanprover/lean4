@@ -829,6 +829,14 @@ then a list of alternatives.
 syntax inductionAlts := " with" (ppSpace colGt tactic)? withPosition((colGe inductionAlt)*)
 
 /--
+A target for the `induction` or `cases` tactic, of the form `e` or `h : e`.
+
+The `h : e` syntax introduces a hypotheses of the form `h : e = _` in each goal,
+with `_` replaced by the corresponding value of the target.
+It is useful when `e` is not a free variable.
+-/
+syntax elimTarget := atomic(binderIdent " : ")? term
+/--
 Assuming `x` is a variable in the local context with an inductive type,
 `induction x` applies induction on `x` to the main goal,
 producing one goal for each constructor of the inductive type,
@@ -854,7 +862,7 @@ You can use `with` to provide the variables names for each constructor.
 - Given `x : Nat`, `induction x with | zero => tac₁ | succ x' ih => tac₂`
   uses tactic `tac₁` for the `zero` case, and `tac₂` for the `succ` case.
 -/
-syntax (name := induction) "induction " term,+ (" using " term)?
+syntax (name := induction) "induction " elimTarget,+ (" using " term)?
   (" generalizing" (ppSpace colGt term:max)+)? (inductionAlts)? : tactic
 
 /-- A `generalize` argument, of the form `term = x` or `h : term = x`. -/
@@ -869,11 +877,6 @@ syntax generalizeArg := atomic(ident " : ")? term:51 " = " ident
 -/
 syntax (name := generalize) "generalize " generalizeArg,+ (location)? : tactic
 
-/--
-A `cases` argument, of the form `e` or `h : e` (where `h` asserts that
-`e = cᵢ a b` for each constructor `cᵢ` of the inductive).
--/
-syntax casesTarget := atomic(ident " : ")? term
 /--
 Assuming `x` is a variable in the local context with an inductive type,
 `cases x` splits the main goal, producing one goal for each constructor of the
@@ -897,7 +900,63 @@ You can use `with` to provide the variables names for each constructor.
   performs cases on `e` as above, but also adds a hypothesis `h : e = ...` to each hypothesis,
   where `...` is the constructor instance for that particular case.
 -/
-syntax (name := cases) "cases " casesTarget,+ (" using " term)? (inductionAlts)? : tactic
+syntax (name := cases) "cases " elimTarget,+ (" using " term)? (inductionAlts)? : tactic
+
+/--
+The `fun_induction` tactic is a convenience wrapper of the `induction` tactic when using a functional
+induction principle.
+
+The tactic invocation
+```
+fun_induction f x₁ ... xₙ y₁ ... yₘ
+```
+where `f` is a function defined by non-mutual structural or well-founded recursion, is equivalent to
+```
+induction y₁, ... yₘ using f.induct x₁ ... xₙ
+```
+where the arguments of `f` are used as arguments to `f.induct` or targets of the induction, as
+appropriate.
+
+The form
+```
+fun_induction f
+```
+(with no arguments to `f`) searches the goal for an unique eligible application of `f`, and uses
+these arguments. An application of `f` is eligible if it is saturated and the arguments that will
+become targets are free variables.
+
+The forms `fun_induction f x y generalizing z₁ ... zₙ` and
+`fun_induction f x y with | case1 => tac₁ | case2 x' ih => tac₂` work like with `induction.`
+-/
+syntax (name := funInduction) "fun_induction " term
+  (" generalizing" (ppSpace colGt term:max)+)? (inductionAlts)? : tactic
+
+/--
+The `fun_cass` tactic is a convenience wrapper of the `cases` tactic when using a functional
+cases principle.
+
+The tactic invocation
+```
+fun_cases f x ... y ...`
+```
+is equivalent to
+```
+cases y, ... using f.fun_cases x ...
+```
+where the arguments of `f` are used as arguments to `f.fun_cases` or targets of the case analysis, as
+appropriate.
+
+The form
+```
+fun_cases f
+```
+(with no arguments to `f`) searches the goal for an unique eligible application of `f`, and uses
+these arguments. An application of `f` is eligible if it is saturated and the arguments that will
+become targets are free variables.
+
+The form `fun_cases f x y with | case1 => tac₁ | case2 x' ih => tac₂` works like with `cases`.
+-/
+syntax (name := funCases) "fun_cases " term (inductionAlts)? : tactic
 
 /-- `rename_i x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
 syntax (name := renameI) "rename_i" (ppSpace colGt binderIdent)+ : tactic

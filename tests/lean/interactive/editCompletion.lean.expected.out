@@ -1,8 +1,7 @@
 {"textDocument": {"uri": "file:///editCompletion.lean"},
  "position": {"line": 3, "character": 22}}
 {"items":
- [{"sortText": "0",
-   "label": "foo",
+ [{"label": "foo",
    "kind": 5,
    "data":
    {"params":
@@ -10,4 +9,4 @@
      "position": {"line": 3, "character": 22}},
     "id": {"const": {"declName": "Foo.foo"}},
     "cPos": 1}}],
- "isIncomplete": true}
+ "isIncomplete": false}

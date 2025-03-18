@@ -328,6 +328,8 @@ if they are all the same.
 
 -/
 def uncurryType (types : Array Expr) : MetaM Expr := do
+  if types.size = 1 then
+    return types[0]!
   let types ← types.mapM whnfForall
   types.forM fun type => do
     unless type.isForall do
@@ -560,7 +562,7 @@ where
   go : List Expr → Array Expr → MetaM α
   | [], acc => k acc
   | t::ts, acc => do
-    let name := if argsPacker.numFuncs = 1 then name else .mkSimple s!"{name}{acc.size+1}"
+    let name := if argsPacker.numFuncs = 1 then name else .mkSimple s!"{name}{acc.size + 1}"
     withLocalDeclD name t fun x => do
       go ts (acc.push x)
 

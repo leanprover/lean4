@@ -31,7 +31,7 @@ We added this feature because it may be coming from external sources
 -/
 private def preprocessHypothesis (e : Expr) : GoalM Simp.Result := do
   if isMatchCondCandidate e then
-    preprocess (markAsMatchCond e)
+    preprocess (markAsPreMatchCond e)
   else
     preprocess e
 
@@ -141,7 +141,11 @@ private def isEagerCasesCandidate (goal : Goal) (type : Expr) : Bool := Id.run d
   return goal.split.casesTypes.isEagerSplit declName
 
 private def applyCases? (goal : Goal) (fvarId : FVarId) : GrindM (Option (List Goal)) := goal.mvarId.withContext do
-  let type ← whnfD (← fvarId.getType)
+  /-
+  Remark: we used to use `whnfD`. This was a mistake, we don't want to unfold user-defined abstractions.
+  Example: `a ∣ b` is defined as `∃ x, b = a * x`
+  -/
+  let type ← whnf (← fvarId.getType)
   if isEagerCasesCandidate goal type then
     if let .const declName _ := type.getAppFn then
       saveCases declName true

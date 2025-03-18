@@ -45,7 +45,6 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t l_Lean_Option_get___at_Lean_Compiler_LCNF_toConfigOptions___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PP_ppExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PP_ppParam___closed__1;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Compiler_LCNF_PrettyPrinter_0__Lean_Compiler_LCNF_PP_prefixJoin___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_runCompilerWithoutModifyingState___rarg___closed__3;
 extern lean_object* l_Lean_pp_explicit;
@@ -58,7 +57,6 @@ static lean_object* l_Lean_Compiler_LCNF_PP_ppCode___closed__14;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PrettyPrinter_0__Lean_Compiler_LCNF_indentD(lean_object*);
 lean_object* l_Nat_nextPowerOfTwo_go(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_maxRecDepth;
-lean_object* l_Lean_KVMap_insertCore(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PP_ppParams___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PP_ppCode___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppParams___closed__1;
@@ -133,6 +131,7 @@ static lean_object* l_Lean_Compiler_LCNF_PP_ppCode___closed__9;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppLetValue___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PP_ppParams(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PP_ppExpr___closed__11;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ppCode_x27(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_CompilerM_run___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at___private_Lean_Compiler_LCNF_PrettyPrinter_0__Lean_Compiler_LCNF_PP_join___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -159,7 +158,6 @@ LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Compiler_LCNF_ppDecl___spec__1
 uint8_t l_Lean_Expr_isProp(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PP_ppArg___closed__11;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppCode___closed__18;
-LEAN_EXPORT lean_object* l_Lean_Option_set___at_Lean_Compiler_LCNF_PP_run___spec__1(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PP_ppArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PP_ppLetDecl___closed__1;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
@@ -199,10 +197,10 @@ static lean_object* l_Lean_Compiler_LCNF_PP_ppCode___closed__16;
 uint64_t l___private_Lean_Meta_Basic_0__Lean_Meta_Config_toKey(lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 lean_object* l_Std_Format_indentD(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Option_set___at_Lean_Compiler_LCNF_PP_run___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PP_ppArg___closed__10;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppArg___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppLetDecl___closed__2;
+lean_object* l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PrettyPrinter_0__Lean_Compiler_LCNF_indentD(lean_object* x_1) {
 _start:
 {
@@ -4847,19 +4845,6 @@ return x_11;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Option_set___at_Lean_Compiler_LCNF_PP_run___spec__1(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_ctor_get(x_2, 0);
-lean_inc(x_4);
-lean_dec(x_2);
-x_5 = lean_alloc_ctor(1, 0, 1);
-lean_ctor_set_uint8(x_5, 0, x_3);
-x_6 = l_Lean_KVMap_insertCore(x_1, x_4, x_5);
-return x_6;
-}
-}
 static lean_object* _init_l_Lean_Compiler_LCNF_PP_run___rarg___lambda__1___closed__1() {
 _start:
 {
@@ -4992,7 +4977,7 @@ x_7 = lean_ctor_get(x_4, 2);
 lean_inc(x_7);
 x_8 = l_Lean_Compiler_LCNF_PP_run___rarg___closed__1;
 x_9 = 0;
-x_10 = l_Lean_Option_set___at_Lean_Compiler_LCNF_PP_run___spec__1(x_7, x_8, x_9);
+x_10 = l_Lean_Option_set___at_Lean_Environment_realizeConst___spec__2(x_7, x_8, x_9);
 x_11 = l_Lean_Compiler_LCNF_PP_run___rarg___closed__2;
 x_12 = l_Lean_Option_get___at_Lean_Compiler_LCNF_toConfigOptions___spec__2(x_10, x_11);
 x_13 = lean_st_ref_get(x_5, x_6);
@@ -5120,16 +5105,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_PP_run___rarg), 6, 0);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Option_set___at_Lean_Compiler_LCNF_PP_run___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = lean_unbox(x_3);
-lean_dec(x_3);
-x_5 = l_Lean_Option_set___at_Lean_Compiler_LCNF_PP_run___spec__1(x_1, x_2, x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PP_run___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {

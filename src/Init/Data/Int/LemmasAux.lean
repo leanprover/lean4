@@ -5,6 +5,7 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Data.Int.Order
+import Init.Data.Int.DivMod.Lemmas
 import Init.Omega
 
 
@@ -44,6 +45,25 @@ theorem bmod_neg_iff {m : Nat} {x : Int} (h2 : -m ≤ x) (h1 : x < m) :
   by_cases xpos : 0 ≤ x
   · rw [Int.emod_eq_of_lt xpos (by omega)]; omega
   · rw [Int.add_emod_self.symm, Int.emod_eq_of_lt (by omega) (by omega)]; omega
+
+@[simp] theorem natCast_le_zero : {n : Nat} → (n : Int) ≤ 0 ↔ n = 0 := by omega
+
+@[simp] theorem toNat_eq_zero : ∀ {n : Int}, n.toNat = 0 ↔ n ≤ 0 := by omega
+
+theorem eq_zero_of_dvd_of_natAbs_lt_natAbs {d n : Int} (h : d ∣ n) (h₁ : n.natAbs < d.natAbs) :
+    n = 0 := by
+  obtain ⟨a, rfl⟩ := h
+  rw [natAbs_mul] at h₁
+  suffices ¬ 0 < a.natAbs by simp [Int.natAbs_eq_zero.1 (Nat.eq_zero_of_not_pos this)]
+  exact fun h => Nat.lt_irrefl _ (Nat.lt_of_le_of_lt (Nat.le_mul_of_pos_right d.natAbs h) h₁)
+
+theorem bmod_eq_self_of_le {n : Int} {m : Nat} (hn' : -(m / 2) ≤ n) (hn : n < (m + 1) / 2) :
+    n.bmod m = n := by
+  rw [← Int.sub_eq_zero]
+  have := le_bmod (x := n) (m := m) (by omega)
+  have := bmod_lt (x := n) (m := m) (by omega)
+  apply eq_zero_of_dvd_of_natAbs_lt_natAbs Int.dvd_bmod_sub_self
+  omega
 
 theorem bmod_eq_of_le_of_lt {x : Int} {y : Nat} (hge : -y ≤ x * 2) (hlt : x * 2 < y) :
     x.bmod y = x := by

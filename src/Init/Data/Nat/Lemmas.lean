@@ -753,9 +753,6 @@ protected theorem mul_pow (a b n : Nat) : (a * b) ^ n = a ^ n * b ^ n := by
   | zero => rw [Nat.pow_zero, Nat.pow_zero, Nat.pow_zero, Nat.mul_one]
   | succ _ ih => rw [Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.mul_mul_mul_comm, ih]
 
-protected abbrev pow_le_pow_left := @pow_le_pow_of_le_left
-protected abbrev pow_le_pow_right := @pow_le_pow_of_le_right
-
 protected theorem one_lt_two_pow (h : n ≠ 0) : 1 < 2 ^ n :=
   match n, h with
   | n+1, _ => by
@@ -780,11 +777,6 @@ protected theorem one_le_two_pow : 1 ≤ 2 ^ n :=
 
 @[simp] theorem one_mod_two_pow (h : 0 < n) : 1 % 2 ^ n = 1 :=
   one_mod_two_pow_eq_one.mpr h
-
-protected theorem pow_pos (h : 0 < a) : 0 < a^n :=
-  match n with
-  | 0 => Nat.zero_lt_one
-  | _ + 1 => Nat.mul_pos (Nat.pow_pos h) h
 
 protected theorem pow_lt_pow_succ (h : 1 < a) : a ^ n < a ^ (n + 1) := by
   rw [← Nat.mul_one (a^n), Nat.pow_succ]
@@ -901,7 +893,7 @@ theorem le_log2 (h : n ≠ 0) : k ≤ n.log2 ↔ 2 ^ k ≤ n := by
       exact Nat.le_div_iff_mul_le (by decide)
     · simp only [le_zero_eq, succ_ne_zero, false_iff]
       refine mt (Nat.le_trans ?_) ‹_›
-      exact Nat.pow_le_pow_of_le_right Nat.zero_lt_two (Nat.le_add_left 1 k)
+      exact Nat.pow_le_pow_right Nat.zero_lt_two (Nat.le_add_left 1 k)
 
 theorem log2_lt (h : n ≠ 0) : n.log2 < k ↔ n < 2 ^ k := by
   rw [← Nat.not_le, ← Nat.not_le, le_log2 h]
@@ -1026,6 +1018,39 @@ theorem mul_add_mod (m x y : Nat) : (m * x + y) % m = y % m := by
   cases n
   · exact (m % 0).div_zero
   · case succ n => exact Nat.div_eq_of_lt (m.mod_lt n.succ_pos)
+
+theorem mod_eq_iff {a b c : Nat} :
+    a % b = c ↔ (b = 0 ∧ a = c) ∨ (c < b ∧ Exists fun k => a = b * k + c) :=
+  ⟨fun h =>
+    if w : b = 0 then
+      .inl ⟨w, by simpa [w] using h⟩
+    else
+      .inr ⟨by subst h; exact Nat.mod_lt a (zero_lt_of_ne_zero w),
+        a / b, by subst h; exact (div_add_mod a b).symm⟩,
+   by
+     rintro (⟨rfl, rfl⟩ | ⟨w, h, rfl⟩)
+     · simp_all
+     · rw [mul_add_mod, mod_eq_of_lt w]⟩
+
+theorem succ_mod_succ_eq_zero_iff {a b : Nat} :
+    (a + 1) % (b + 1) = 0 ↔ a % (b + 1) = b := by
+  symm
+  rw [mod_eq_iff, mod_eq_iff]
+  simp only [add_one_ne_zero, false_and, Nat.lt_add_one, true_and, false_or, and_self, zero_lt_succ,
+    Nat.add_zero]
+  constructor
+  · rintro ⟨k, rfl⟩
+    refine ⟨k + 1, ?_⟩
+    simp [Nat.add_mul, Nat.mul_add, Nat.add_assoc]
+  · rintro ⟨k, h⟩
+    cases k with
+    | zero => simp at h
+    | succ k =>
+      refine ⟨k, ?_⟩
+      simp only [Nat.mul_add, Nat.add_mul, Nat.one_mul, Nat.mul_one, ← Nat.add_assoc,
+        Nat.add_right_cancel_iff] at h
+      subst h
+      simp [Nat.add_mul]
 
 /-! ### Decidability of predicates -/
 

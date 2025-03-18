@@ -11,10 +11,17 @@ namespace Lean
 structure ClosedTermCache where
   map        : PHashMap Expr Name := {}
   constNames : NameSet := {}
+  -- used for `replay?` only
+  revExprs   : List Expr := []
   deriving Inhabited
 
 builtin_initialize closedTermCacheExt : EnvExtension ClosedTermCache ←
   registerEnvExtension (pure {}) (asyncMode := .sync)  -- compilation is non-parallel anyway
+    (replay? := some fun oldState newState _ s =>
+      let newExprs := newState.revExprs.take (newState.revExprs.length - oldState.revExprs.length)
+      newExprs.foldl (init := s) fun s e =>
+        let c := newState.map.find! e
+        { s with map := s.map.insert e c, constNames := s.constNames.insert c, revExprs := e :: s.revExprs })
 
 @[export lean_cache_closed_term_name]
 def cacheClosedTermName (env : Environment) (e : Expr) (n : Name) : Environment :=

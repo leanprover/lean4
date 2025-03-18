@@ -227,9 +227,11 @@ structure SavedState where
 structure TacticFinishedSnapshot extends Language.Snapshot where
   /-- State saved for reuse, if no fatal exception occurred. -/
   state? : Option SavedState
+  /-- Untyped snapshots from `logSnapshotTask`, saved at this level for cancellation. -/
+  moreSnaps : Array (SnapshotTask SnapshotTree)
 deriving Inhabited
 instance : ToSnapshotTree TacticFinishedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
+  toSnapshotTree s := ⟨s.toSnapshot, s.moreSnaps⟩
 
 /-- Snapshot just before execution of a tactic. -/
 structure TacticParsedSnapshot extends Language.Snapshot where
@@ -256,10 +258,6 @@ namespace Term
 
 structure Context where
   declName? : Option Name := none
-  /--
-    Map `.auxDecl` local declarations used to encode recursive declarations to their full-names.
-  -/
-  auxDeclToFullName : FVarIdMap Name  := {}
   macroStack        : MacroStack      := []
   /--
      When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
@@ -421,13 +419,17 @@ part. `act` is then run on the inner part but with reuse information adjusted as
   context.
 
 For any tactic that participates in reuse, `withNarrowedTacticReuse` should be applied to the
-tactic's syntax and `act` should be used to do recursive tactic evaluation of nested parts.
+tactic's syntax and `act` should be used to do recursive tactic evaluation of nested parts. Also,
+after this function, `getAndEmptySnapshotTasks` should be called and the result stored in a snapshot
+so that the tasks don't end up in a snapshot further up and are cancelled together with it; see
+note [Incremental Cancellation].
 -/
-def withNarrowedTacticReuse [Monad m] [MonadWithReaderOf Core.Context m]
-    [MonadWithReaderOf Context m] [MonadOptions m] (split : Syntax → Syntax × Syntax)
-    (act : Syntax → m α) (stx : Syntax) : m α := do
+def withNarrowedTacticReuse [Monad m] [MonadReaderOf Context m] [MonadLiftT BaseIO m]
+    [MonadWithReaderOf Core.Context m] [MonadWithReaderOf Context m] [MonadOptions m]
+    (split : Syntax → Syntax × Syntax) (act : Syntax → m α) (stx : Syntax) : m α := do
   let (outer, inner) := split stx
   let opts ← getOptions
+  let ctx ← readThe Term.Context
   withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
     { tacSnap with old? := tacSnap.old?.bind fun old => do
       let (oldOuter, oldInner) := split old.stx
@@ -435,6 +437,9 @@ def withNarrowedTacticReuse [Monad m] [MonadWithReaderOf Core.Context m]
       return { old with stx := oldInner }
     }
   }) do
+    if let some oldOuter := ctx.tacSnap?.bind (·.old?) then
+      if (← read).tacSnap?.bind (·.old?) |>.isNone then
+        oldOuter.val.cancelRec
     withReuseContext inner (act inner)
 
 /--
@@ -446,8 +451,9 @@ NOTE: child nodes after `argIdx` are not tested (which would almost always disab
 necessarily shifted by changes at `argIdx`) so it must be ensured that the result of `arg` does not
 depend on them (i.e. they should not be inspected beforehand).
 -/
-def withNarrowedArgTacticReuse [Monad m] [MonadWithReaderOf Core.Context m] [MonadWithReaderOf Context m]
-    [MonadOptions m] (argIdx : Nat) (act : Syntax → m α) (stx : Syntax) : m α :=
+def withNarrowedArgTacticReuse [Monad m] [MonadReaderOf Context m] [MonadLiftT BaseIO m]
+    [MonadWithReaderOf Core.Context m] [MonadWithReaderOf Context m] [MonadOptions m]
+    (argIdx : Nat) (act : Syntax → m α) (stx : Syntax) : m α :=
   withNarrowedTacticReuse (fun stx => (mkNullNode stx.getArgs[:argIdx], stx[argIdx])) act stx
 
 /--
@@ -477,24 +483,15 @@ def withoutTacticReuse [Monad m] [MonadWithReaderOf Context m] [MonadOptions m]
       return !cond }
   }) act
 
-@[inherit_doc Core.wrapAsync]
-def wrapAsync (act : Unit → TermElabM α) : TermElabM (EIO Exception α) := do
-  let ctx ← read
-  let st ← get
-  let metaCtx ← readThe Meta.Context
-  let metaSt ← getThe Meta.State
-  Core.wrapAsync fun _ =>
-    act () |>.run ctx |>.run' st |>.run' metaCtx metaSt
-
 @[inherit_doc Core.wrapAsyncAsSnapshot]
-def wrapAsyncAsSnapshot (act : Unit → TermElabM Unit)
+def wrapAsyncAsSnapshot (act : Unit → TermElabM Unit) (cancelTk? : Option IO.CancelToken)
     (desc : String := by exact decl_name%.toString) :
     TermElabM (BaseIO Language.SnapshotTree) := do
   let ctx ← read
   let st ← get
   let metaCtx ← readThe Meta.Context
   let metaSt ← getThe Meta.State
-  Core.wrapAsyncAsSnapshot (desc := desc) fun _ =>
+  Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk?) (desc := desc) fun _ =>
     act () |>.run ctx |>.run' st |>.run' metaCtx metaSt
 
 abbrev TermElabResult (α : Type) := EStateM.Result Exception SavedState α
@@ -625,15 +622,6 @@ def withLevelNames (levelNames : List Name) (x : TermElabM α) : TermElabM α :=
   let levelNamesSaved ← getLevelNames
   setLevelNames levelNames
   try x finally setLevelNames levelNamesSaved
-
-/--
-  Declare an auxiliary local declaration `shortDeclName : type` for elaborating recursive declaration `declName`,
-  update the mapping `auxDeclToFullName`, and then execute `k`.
--/
-def withAuxDecl (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → TermElabM α) : TermElabM α :=
-  withLocalDecl shortDeclName .default (kind := .auxDecl) type fun x =>
-    withReader (fun ctx => { ctx with auxDeclToFullName := ctx.auxDeclToFullName.insert x.fvarId! declName }) do
-      k x
 
 def withoutErrToSorryImp (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with errToSorry := false }) x
@@ -1521,169 +1509,6 @@ def blockImplicitLambda (stx : Syntax) : Bool :=
   isExplicit stx || isExplicitApp stx || isLambdaWithImplicit stx || isHole stx || isTacticBlock stx ||
   isNoImplicitLambda stx || isTypeAscription stx
 
-def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
-  let lctx ← getLCtx
-  let auxDeclToFullName := (← read).auxDeclToFullName
-  let currNamespace ← getCurrNamespace
-  let view := extractMacroScopes n
-  /- Simple case. "Match" function for regular local declarations. -/
-  let matchLocalDecl? (localDecl : LocalDecl) (givenName : Name) : Option LocalDecl := do
-    guard (localDecl.userName == givenName)
-    return localDecl
-  /-
-  "Match" function for auxiliary declarations that correspond to recursive definitions being defined.
-  This function is used in the first-pass.
-  Note that we do not check for `localDecl.userName == givenName` in this pass as we do for regular local declarations.
-  Reason: consider the following example
-  ```
-    mutual
-      inductive Foo
-      | somefoo : Foo | bar : Bar → Foo → Foo
-      inductive Bar
-      | somebar : Bar| foobar : Foo → Bar → Bar
-    end
-
-    mutual
-      private def Foo.toString : Foo → String
-        | Foo.somefoo => go 2 ++ toString.go 2 ++ Foo.toString.go 2
-        | Foo.bar b f => toString f ++ Bar.toString b
-      where
-        go (x : Nat) := s!"foo {x}"
-
-      private def _root_.Ex2.Bar.toString : Bar → String
-        | Bar.somebar => "bar"
-        | Bar.foobar f b => Foo.toString f ++ Bar.toString b
-    end
-  ```
-  In the example above, we have two local declarations named `toString` in the local context, and
-  we want the `toString f` to be resolved to `Foo.toString f`.
-  -/
-  let matchAuxRecDecl? (localDecl : LocalDecl) (fullDeclName : Name) (givenNameView : MacroScopesView) : Option LocalDecl := do
-    let fullDeclView := extractMacroScopes fullDeclName
-    /- First cleanup private name annotations -/
-    let fullDeclView := { fullDeclView with name := (privateToUserName? fullDeclView.name).getD fullDeclView.name }
-    let fullDeclName := fullDeclView.review
-    let localDeclNameView := extractMacroScopes localDecl.userName
-    /- If the current namespace is a prefix of the full declaration name,
-       we use a relaxed matching test where we must satisfy the following conditions
-       - The local declaration is a suffix of the given name.
-       - The given name is a suffix of the full declaration.
-
-       Recall the `let rec`/`where` declaration naming convention. For example, suppose we have
-       ```
-       def Foo.Bla.f ... :=
-         ... go ...
-       where
-          go ... := ...
-       ```
-       The current namespace is `Foo.Bla`, and the full name for `go` is `Foo.Bla.f.g`, but we want to
-       refer to it using just `go`. It is also accepted to refer to it using `f.go`, `Bla.f.go`, etc.
-
-    -/
-    if currNamespace.isPrefixOf fullDeclName then
-      /- Relaxed mode that allows us to access `let rec` declarations using shorter names -/
-      guard (localDeclNameView.isSuffixOf givenNameView)
-      guard (givenNameView.isSuffixOf fullDeclView)
-      return localDecl
-    else
-      /-
-         It is the standard algorithm we are using at `resolveGlobalName` for processing namespaces.
-
-         The current solution also has a limitation when using `def _root_` in a mutual block.
-         The non `def _root_` declarations may update the namespace. See the following example:
-         ```
-         mutual
-           def Foo.f ... := ...
-           def _root_.g ... := ...
-             let rec h := ...
-             ...
-         end
-         ```
-         `def Foo.f` updates the namespace. Then, even when processing `def _root_.g ...`
-         the condition `currNamespace.isPrefixOf fullDeclName` does not hold.
-         This is not a big problem because we are planning to modify how we handle the mutual block in the future.
-
-         Note that we don't check for `localDecl.userName == givenName` here.
-      -/
-      let rec go (ns : Name) : Option LocalDecl := do
-        if { givenNameView with name := ns ++ givenNameView.name }.review == fullDeclName then
-          return localDecl
-        match ns with
-        | .str pre .. => go pre
-        | _ => failure
-      return (← go currNamespace)
-  /- Traverse the local context backwards looking for match `givenNameView`.
-     If `skipAuxDecl` we ignore `auxDecl` local declarations. -/
-  let findLocalDecl? (givenNameView : MacroScopesView) (skipAuxDecl : Bool) : Option LocalDecl :=
-    let givenName := givenNameView.review
-    let localDecl? := lctx.decls.findSomeRev? fun localDecl? => do
-      let localDecl ← localDecl?
-      if localDecl.isAuxDecl then
-        guard (!skipAuxDecl)
-        if let some fullDeclName := auxDeclToFullName.find? localDecl.fvarId then
-          matchAuxRecDecl? localDecl fullDeclName givenNameView
-        else
-          matchLocalDecl? localDecl givenName
-      else
-        matchLocalDecl? localDecl givenName
-    if localDecl?.isSome || skipAuxDecl then
-      localDecl?
-    else
-      -- Search auxDecls again trying an exact match of the given name
-      lctx.decls.findSomeRev? fun localDecl? => do
-        let localDecl ← localDecl?
-        guard localDecl.isAuxDecl
-        matchLocalDecl? localDecl givenName
-  /-
-  We use the parameter `globalDeclFound` to decide whether we should skip auxiliary declarations or not.
-  We set it to true if we found a global declaration `n` as we iterate over the `loop`.
-  Without this workaround, we would not be able to elaborate an example such as
-  ```
-  def foo.aux := 1
-  def foo : Nat → Nat
-    | n => foo.aux -- should not be interpreted as `(foo).aux`
-  ```
-  See test `aStructPerfIssue.lean` for another example.
-  We skip auxiliary declarations when `projs` is not empty and `globalDeclFound` is true.
-  Remark: we did not use to have the `globalDeclFound` parameter. Without this extra check we failed
-  to elaborate
-  ```
-  example : Nat :=
-    let n := 0
-    n.succ + (m |>.succ) + m.succ
-  where
-    m := 1
-  ```
-  See issue #1850.
-  -/
-  let rec loop (n : Name) (projs : List String) (globalDeclFound : Bool) := do
-    let givenNameView := { view with name := n }
-    let mut globalDeclFoundNext := globalDeclFound
-    unless globalDeclFound do
-      let r ← resolveGlobalName givenNameView.review
-      let r := r.filter fun (_, fieldList) => fieldList.isEmpty
-      unless r.isEmpty do
-        globalDeclFoundNext := true
-    /-
-    Note that we use `globalDeclFound` instead of `globalDeclFoundNext` in the following test.
-    Reason: a local should shadow a global with the same name.
-    Consider the following example. See issue #3079
-    ```
-    def foo : Nat := 1
-
-    def bar : Nat :=
-      foo.add 1 -- should be 11
-    where
-      foo := 10
-    ```
-    -/
-    match findLocalDecl? givenNameView (skipAuxDecl := globalDeclFound && !projs.isEmpty) with
-    | some decl => return some (decl.toExpr, projs)
-    | none => match n with
-      | .str pre s => loop pre (s::projs) globalDeclFoundNext
-      | _ => return none
-  loop view.name [] (globalDeclFound := false)
-
 /-- Return true iff `stx` is a `Syntax.ident`, and it is a local variable. -/
 def isLocalIdent? (stx : Syntax) : TermElabM (Option Expr) :=
   match stx with
@@ -2030,6 +1855,7 @@ def addAutoBoundImplicitsInlayHint (autos : Array Expr) (inlayHintPos : String.P
         newText := formattedHint
       }]
       kind? := some .parameter
+      tooltip? := "Automatically-inserted implicit parameters"
       lctx := ← getLCtx
       deferredResolution
       : InlayHint

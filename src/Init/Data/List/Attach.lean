@@ -8,6 +8,9 @@ import Init.Data.List.Count
 import Init.Data.Subtype
 import Init.BinderNameHint
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 /-- `O(n)`. Partial map. If `f : Π a, P a → β` is a partial function defined on
@@ -40,12 +43,12 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
     List β := (l.attachWith _ H).map fun ⟨x, h'⟩ => f x h'
 
 @[csimp] private theorem pmap_eq_pmapImpl : @pmap = @pmapImpl := by
-  funext α β p f L h'
-  let rec go : ∀ L' (hL' : ∀ ⦃x⦄, x ∈ L' → p x),
-      pmap f L' hL' = map (fun ⟨x, hx⟩ => f x hx) (pmap Subtype.mk L' hL')
+  funext α β p f l h'
+  let rec go : ∀ l' (hL' : ∀ ⦃x⦄, x ∈ l' → p x),
+      pmap f l' hL' = map (fun ⟨x, hx⟩ => f x hx) (pmap Subtype.mk l' hL')
   | nil, hL' => rfl
-  | cons _ L', hL' => congrArg _ <| go L' fun _ hx => hL' (.tail _ hx)
-  exact go L h'
+  | cons _ l', hL' => congrArg _ <| go l' fun _ hx => hL' (.tail _ hx)
+  exact go l h'
 
 @[simp] theorem pmap_nil {P : α → Prop} (f : ∀ a, P a → β) : pmap f [] (by simp) = [] := rfl
 
@@ -120,27 +123,26 @@ theorem pmap_eq_attachWith {p q : α → Prop} (f : ∀ a, p a → q a) (l H) :
   | cons a l ih =>
     simp [pmap, attachWith, ih]
 
-theorem attach_map_coe (l : List α) (f : α → β) :
+theorem attach_map_val (l : List α) (f : α → β) :
     (l.attach.map fun (i : {i // i ∈ l}) => f i) = l.map f := by
   rw [attach, attachWith, map_pmap]; exact pmap_eq_map _ _ _ _
 
-theorem attach_map_val (l : List α) (f : α → β) : (l.attach.map fun i => f i.val) = l.map f :=
-  attach_map_coe _ _
+@[deprecated attach_map_val (since := "2025-02-17")]
+abbrev attach_map_coe := @attach_map_val
 
 theorem attach_map_subtype_val (l : List α) : l.attach.map Subtype.val = l :=
-  (attach_map_coe _ _).trans (List.map_id _)
+  (attach_map_val _ _).trans (List.map_id _)
 
-theorem attachWith_map_coe {p : α → Prop} (f : α → β) (l : List α) (H : ∀ a ∈ l, p a) :
+theorem attachWith_map_val {p : α → Prop} (f : α → β) (l : List α) (H : ∀ a ∈ l, p a) :
     ((l.attachWith p H).map fun (i : { i // p i}) => f i) = l.map f := by
   rw [attachWith, map_pmap]; exact pmap_eq_map _ _ _ _
 
-theorem attachWith_map_val {p : α → Prop} (f : α → β) (l : List α) (H : ∀ a ∈ l, p a) :
-    ((l.attachWith p H).map fun i => f i.val) = l.map f :=
-  attachWith_map_coe _ _ _
+@[deprecated attachWith_map_val (since := "2025-02-17")]
+abbrev attachWith_map_coe := @attachWith_map_val
 
 theorem attachWith_map_subtype_val {p : α → Prop} (l : List α) (H : ∀ a ∈ l, p a) :
     (l.attachWith p H).map Subtype.val = l :=
-  (attachWith_map_coe _ _ _).trans (List.map_id _)
+  (attachWith_map_val _ _ _).trans (List.map_id _)
 
 @[simp]
 theorem mem_attach (l : List α) : ∀ x, x ∈ l.attach
@@ -179,7 +181,7 @@ theorem length_pmap {p : α → Prop} {f : ∀ a, p a → β} {l H} : (pmap f l 
   · simp only [*, pmap, length]
 
 @[simp]
-theorem length_attach {L : List α} : L.attach.length = L.length :=
+theorem length_attach {l : List α} : l.attach.length = l.length :=
   length_pmap
 
 @[simp]
@@ -188,7 +190,7 @@ theorem length_attachWith {p : α → Prop} {l H} : length (l.attachWith p H) = 
 
 @[simp]
 theorem pmap_eq_nil_iff {p : α → Prop} {f : ∀ a, p a → β} {l H} : pmap f l H = [] ↔ l = [] := by
-  rw [← length_eq_zero, length_pmap, length_eq_zero]
+  rw [← length_eq_zero_iff, length_pmap, length_eq_zero_iff]
 
 theorem pmap_ne_nil_iff {P : α → Prop} (f : (a : α) → P a → β) {xs : List α}
     (H : ∀ (a : α), a ∈ xs → P a) : xs.pmap f H ≠ [] ↔ xs ≠ [] := by
@@ -223,42 +225,39 @@ theorem attachWith_ne_nil_iff {l : List α} {P : α → Prop} {H : ∀ a ∈ l, 
 @[deprecated attach_ne_nil_iff (since := "2024-09-06")] abbrev attach_ne_nil := @attach_ne_nil_iff
 
 @[simp]
-theorem getElem?_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : ∀ a ∈ l, p a) (n : Nat) :
-    (pmap f l h)[n]? = Option.pmap f l[n]? fun x H => h x (mem_of_getElem? H) := by
-  induction l generalizing n with
+theorem getElem?_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : ∀ a ∈ l, p a) (i : Nat) :
+    (pmap f l h)[i]? = Option.pmap f l[i]? fun x H => h x (mem_of_getElem? H) := by
+  induction l generalizing i with
   | nil => simp
   | cons hd tl hl =>
-    rcases n with ⟨n⟩
+    rcases i with ⟨i⟩
     · simp only [Option.pmap]
       split <;> simp_all
-    · simp only [hl, pmap, Option.pmap, getElem?_cons_succ]
-      split <;> rename_i h₁ _ <;> split <;> rename_i h₂ _
-      · simp_all
-      · simp at h₂
-        simp_all
-      · simp_all
-      · simp_all
+    · simp only [pmap, getElem?_cons_succ, hl, Option.pmap]
 
+set_option linter.deprecated false in
+@[deprecated List.getElem?_pmap (since := "2025-02-12")]
 theorem get?_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : ∀ a ∈ l, p a) (n : Nat) :
     get? (pmap f l h) n = Option.pmap f (get? l n) fun x H => h x (mem_of_get? H) := by
   simp only [get?_eq_getElem?]
   simp [getElem?_pmap, h]
 
 @[simp]
-theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : ∀ a ∈ l, p a) {n : Nat}
-    (hn : n < (pmap f l h).length) :
-    (pmap f l h)[n] =
-      f (l[n]'(@length_pmap _ _ p f l h ▸ hn))
+theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : ∀ a ∈ l, p a) {i : Nat}
+    (hn : i < (pmap f l h).length) :
+    (pmap f l h)[i] =
+      f (l[i]'(@length_pmap _ _ p f l h ▸ hn))
         (h _ (getElem_mem (@length_pmap _ _ p f l h ▸ hn))) := by
-  induction l generalizing n with
+  induction l generalizing i with
   | nil =>
     simp only [length, pmap] at hn
-    exact absurd hn (Nat.not_lt_of_le n.zero_le)
+    exact absurd hn (Nat.not_lt_of_le i.zero_le)
   | cons hd tl hl =>
-    cases n
+    cases i
     · simp
     · simp [hl]
 
+@[deprecated getElem_pmap (since := "2025-02-13")]
 theorem get_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : ∀ a ∈ l, p a) {n : Nat}
     (hn : n < (pmap f l h).length) :
     get (pmap f l h) ⟨n, hn⟩ =
@@ -663,6 +662,10 @@ def unattach {α : Type _} {p : α → Prop} (l : List { x // p x }) : List α :
 @[simp] theorem unattach_cons {p : α → Prop} {a : { x // p x }} {l : List { x // p x }} :
   (a :: l).unattach = a.val :: l.unattach := rfl
 
+@[simp] theorem mem_unattach {p : α → Prop} {l : List { x // p x }} {a} :
+    a ∈ l.unattach ↔ ∃ h : p a, ⟨a, h⟩ ∈ l := by
+  simp only [unattach, mem_map, Subtype.exists, exists_and_right, exists_eq_right]
+
 @[simp] theorem length_unattach {p : α → Prop} {l : List { x // p x }} :
     l.unattach.length = l.length := by
   unfold unattach
@@ -766,6 +769,16 @@ and simplifies these to the function directly taking the value.
   | cons a l ih =>
     simp [hf, find?_cons]
     split <;> simp [ih]
+
+@[simp] theorem all_subtype {p : α → Prop} {l : List { x // p x }} {f : { x // p x } → Bool} {g : α → Bool}
+    (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    l.all f = l.unattach.all g := by
+  simp [all_eq, hf]
+
+@[simp] theorem any_subtype {p : α → Prop} {l : List { x // p x }} {f : { x // p x } → Bool} {g : α → Bool}
+    (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    l.any f = l.unattach.any g := by
+  simp [any_eq, hf]
 
 /-! ### Simp lemmas pushing `unattach` inwards. -/
 

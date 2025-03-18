@@ -1007,10 +1007,23 @@ boolean condition. It can also be written as `bif b then x else y`.
 This is `@[macro_inline]` because `x` and `y` should not
 be eagerly evaluated (see `ite`).
 -/
-@[macro_inline] def cond {α : Type u} (c : Bool) (x y : α) : α :=
+@[macro_inline] def cond {α : Sort u} (c : Bool) (x y : α) : α :=
   match c with
   | true  => x
   | false => y
+
+
+/--
+`Bool.dcond b (fun h => x) (fun h => y)` is the same as `if h _ : b then x else y`,
+but optimized for a boolean condition. It can also be written as `bif b then x else y`.
+This is `@[macro_inline]` because `x` and `y` should not be eagerly evaluated (see `dite`).
+This definition intendend for metaprogramming use, and does not come with a suitable API.
+-/
+@[macro_inline]
+protected def Bool.dcond {α : Sort u} (c : Bool) (x : Eq c true → α) (y : Eq c false → α) : α :=
+  match c with
+  | true  => x rfl
+  | false => y rfl
 
 /--
 `or x y`, or `x || y`, is the boolean "or" operation (not to be confused
@@ -2137,14 +2150,14 @@ instance : Inhabited UInt64 where
 /-- The size of type `USize`, that is, `2^System.Platform.numBits`. -/
 abbrev USize.size : Nat := (hPow 2 System.Platform.numBits)
 
-theorem usize_size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
+theorem USize.size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
   show Or (Eq (hPow 2 System.Platform.numBits) 4294967296) (Eq (hPow 2 System.Platform.numBits) 18446744073709551616) from
   match System.Platform.numBits, System.Platform.numBits_eq with
   | _, Or.inl rfl => Or.inl (of_decide_eq_true rfl)
   | _, Or.inr rfl => Or.inr (of_decide_eq_true rfl)
 
-theorem usize_size_pos : LT.lt 0 USize.size :=
-  match USize.size, usize_size_eq with
+theorem USize.size_pos : LT.lt 0 USize.size :=
+  match USize.size, USize.size_eq with
   | _, Or.inl rfl => of_decide_eq_true rfl
   | _, Or.inr rfl => of_decide_eq_true rfl
 
@@ -2194,7 +2207,7 @@ def USize.decEq (a b : USize) : Decidable (Eq a b) :=
 instance : DecidableEq USize := USize.decEq
 
 instance : Inhabited USize where
-  default := USize.ofNatLT 0 usize_size_pos
+  default := USize.ofNatLT 0 USize.size_pos
 
 /--
 A `Nat` denotes a valid unicode codepoint if it is less than `0x110000`, and
@@ -2663,24 +2676,30 @@ def Array.size {α : Type u} (a : @& Array α) : Nat :=
  a.toList.length
 
 /--
+Use the indexing notation `a[i]` instead.
+
 Access an element from an array without needing a runtime bounds checks,
 using a `Nat` index and a proof that it is in bounds.
 
 This function does not use `get_elem_tactic` to automatically find the proof that
 the index is in bounds. This is because the tactic itself needs to look up values in
-arrays. Use the indexing notation `a[i]` instead.
+arrays.
 -/
 @[extern "lean_array_fget"]
-def Array.get {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
+def Array.getInternal {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
   a.toList.get ⟨i, h⟩
 
 /-- Access an element from an array, or return `v₀` if the index is out of bounds. -/
 @[inline] abbrev Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
-  dite (LT.lt i a.size) (fun h => a.get i h) (fun _ => v₀)
+  dite (LT.lt i a.size) (fun h => a.getInternal i h) (fun _ => v₀)
 
-/-- Access an element from an array, or panic if the index is out of bounds. -/
+/--
+Use the indexing notation `a[i]!` instead.
+
+Access an element from an array, or panic if the index is out of bounds.
+-/
 @[extern "lean_array_get"]
-def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
+def Array.get!Internal {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
   Array.getD a i default
 
 /--
@@ -2734,7 +2753,7 @@ protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : 
       (fun hlt =>
         match i with
         | 0           => as
-        | Nat.succ i' => loop i' (hAdd j 1) (as.push (bs.get j hlt)))
+        | Nat.succ i' => loop i' (hAdd j 1) (as.push (bs.getInternal j hlt)))
       (fun _ => as)
   loop bs.size 0 as
 
@@ -2749,7 +2768,7 @@ def Array.extract (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : A
       (fun hlt =>
         match i with
         | 0           => bs
-        | Nat.succ i' => loop i' (hAdd j 1) (bs.push (as.get j hlt)))
+        | Nat.succ i' => loop i' (hAdd j 1) (bs.push (as.getInternal j hlt)))
       (fun _ => bs)
   let sz' := Nat.sub (min stop as.size) start
   loop sz' start (mkEmpty sz')
@@ -2846,7 +2865,7 @@ syntax over monad operations, and it depends on a `Monad` instance.
 See [the `do` notation](https://lean-lang.org/lean4/doc/do.html)
 chapter of the manual for details.
 -/
-class Monad (m : Type u → Type v) extends Applicative m, Bind m : Type (max (u+1) v) where
+class Monad (m : Type u → Type v) : Type (max (u+1) v) extends Applicative m, Bind m where
   map      f x := bind x (Function.comp pure f)
   seq      f x := bind f fun y => Functor.map y (x ())
   seqLeft  x y := bind x fun a => bind (y ()) (fun _ => pure a)
@@ -3952,7 +3971,7 @@ if it parsed something and `none` otherwise.
 def getOptional? (stx : Syntax) : Option Syntax :=
   match stx with
   | Syntax.node _ k args => match and (beq k nullKind) (beq args.size 1) with
-    | true  => some (args.get! 0)
+    | true  => some (args.get!Internal 0)
     | false => none
   | _                    => none
 
@@ -3989,7 +4008,7 @@ partial def getHeadInfo? : Syntax → Option SourceInfo
   | node SourceInfo.none _ args   =>
     let rec loop (i : Nat) : Option SourceInfo :=
       match decide (LT.lt i args.size) with
-      | true => match getHeadInfo? (args.get! i) with
+      | true => match getHeadInfo? (args.get!Internal i) with
          | some info => some info
          | none      => loop (hAdd i 1)
       | false => none
@@ -4030,7 +4049,7 @@ partial def getTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.
   | node _ _ args, _ =>
     let rec loop (i : Nat) : Option String.Pos :=
       match decide (LT.lt i args.size) with
-      | true => match getTailPos? (args.get! ((args.size.sub i).sub 1)) canonicalOnly with
+      | true => match getTailPos? (args.get!Internal ((args.size.sub i).sub 1)) canonicalOnly with
          | some info => some info
          | none      => loop (hAdd i 1)
       | false => none

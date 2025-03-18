@@ -82,10 +82,10 @@ attribute [local grind] State.update State.find? State.get State.erase
   grind
 
 @[simp] theorem State.find?_update_self (σ : State) (x : Var) (v : Val) : (σ.update x v).find? x = some v := by
-  induction σ, x, v using State.update.induct <;> grind
+  induction σ using State.update.induct x <;> grind
 
 @[simp] theorem State.find?_update (σ : State) (v : Val) (h : x ≠ z) : (σ.update x v).find? z = σ.find? z := by
-  induction σ, x, v using State.update.induct <;> grind
+  induction σ using State.update.induct x <;> grind
 
 @[grind =] theorem State.find?_update_eq (σ : State) (v : Val)
     : (σ.update x v).find? z = if x = z then some v else σ.find? z := by
@@ -95,17 +95,17 @@ attribute [local grind] State.update State.find? State.get State.erase
   grind
 
 @[simp] theorem State.find?_erase_self (σ : State) (x : Var) : (σ.erase x).find? x = none := by
-  induction σ, x using State.erase.induct <;> grind
+  induction σ using State.erase.induct x <;> grind
 
 @[simp] theorem State.find?_erase (σ : State) (h : x ≠ z) : (σ.erase x).find? z = σ.find? z := by
-  induction σ, x using State.erase.induct <;> grind
+  induction σ using State.erase.induct x <;> grind
 
 @[simp, grind =] theorem State.find?_erase_eq (σ : State)
     : (σ.erase x).find? z = if x = z then none else σ.find? z := by
   grind only [= find?_erase_self, = find?_erase, cases Or]
 
 @[grind] theorem State.length_erase_le (σ : State) (x : Var) : (σ.erase x).length ≤ σ.length := by
-  induction σ, x using erase.induct <;> grind
+  induction σ using erase.induct x <;> grind
 
 def State.length_erase_lt (σ : State) (x : Var) : (σ.erase x).length < σ.length.succ := by
   grind
@@ -205,13 +205,13 @@ def evalExpr (e : Expr) : EvalM Val := do
 @[grind] theorem UnaryOp.simplify_eval (op : UnaryOp) : (op.simplify a).eval σ = (Expr.una op a).eval σ := by
   grind [UnaryOp.simplify.eq_def]
 
-/-- info: Try this: (induction e using Expr.simplify.induct) <;> grind -/
+/-- info: Try this: (fun_induction Expr.simplify) <;> grind -/
 #guard_msgs (info) in
 example (e : Expr) : e.simplify.eval σ = e.eval σ := by
   try? (max := 1)
 
 @[simp, grind =] theorem Expr.eval_simplify (e : Expr) : e.simplify.eval σ = e.eval σ := by
-  induction e, σ using Expr.simplify.induct <;> grind
+  induction e using Expr.simplify.induct <;> grind
 
 @[simp, grind =] def Stmt.simplify : Stmt → Stmt
   | skip => skip
@@ -299,18 +299,19 @@ theorem State.cons_le_of_eq (h₁ : σ' ≼ σ) (h₂ : σ.find? x = some v) : (
   grind
 
 @[grind] theorem State.join_le_left (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₁ := by
-  induction σ₁, σ₂ using State.join.induct <;> grind
+  induction σ₁ using State.join.induct σ₂ <;> grind
 
 @[grind] theorem State.join_le_left_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₁.join σ₃ ≼ σ₂ := by
   grind
 
-/-- info: Try this: (induction σ₁, σ₂ using State.join.induct) <;> grind -/
+/-- info: Try this: (fun_induction join) <;> grind -/
 #guard_msgs (info) in
+open State in
 example (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₂ := by
   try? (max := 1)
 
 @[grind] theorem State.join_le_right (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₂ := by
-  induction σ₁, σ₂ using State.join.induct <;> grind
+  fun_induction join <;> grind
 
 @[grind] theorem State.join_le_right_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₃.join σ₁ ≼ σ₂ := by
   grind

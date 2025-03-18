@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
 prelude
-import Std.Data.DTreeMap.Internal.WF.Def
+import Std.Data.DTreeMap.Internal.WF.Defs
 import Std.Data.DTreeMap.Internal.Cell
 
 /-!
@@ -202,15 +202,65 @@ def updateCell [Ord α] (k : α) (f : Cell α β (compare k) → Cell α β (com
 Model implementation of the `contains` function.
 Internal implementation detail of the tree map
 -/
-def containsₘ [Ord α] (k : α) (l : Impl α β) : Bool :=
+def containsₘ [Ord α] (l : Impl α β) (k : α) : Bool :=
   applyCell k l fun c _ => c.contains
 
 /--
 Model implementation of the `get?` function.
 Internal implementation detail of the tree map
 -/
-def get?ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) : Option (β k) :=
+def get?ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (l : Impl α β) (k : α) : Option (β k) :=
   applyCell k l fun c _ => c.get?
+
+/--
+Model implementation of the `get` function.
+Internal implementation detail of the tree map
+-/
+def getₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (l : Impl α β) (k : α) (h : (get?ₘ l k).isSome) :
+    β k :=
+  get?ₘ l k |>.get h
+
+/--
+Model implementation of the `get!` function.
+Internal implementation detail of the tree map
+-/
+def get!ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (l : Impl α β) (k : α) [Inhabited (β k)] : β k :=
+  get?ₘ l k |>.get!
+
+/--
+Model implementation of the `getD` function.
+Internal implementation detail of the tree map
+-/
+def getDₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) (fallback : β k) : β k :=
+  get?ₘ l k |>.getD fallback
+
+/--
+Model implementation of the `getKey?` function.
+Internal implementation detail of the tree map
+-/
+def getKey?ₘ [Ord α] (l : Impl α β) (k : α) : Option α :=
+  applyCell k l fun c _ => c.getKey?
+
+/--
+Model implementation of the `getKey` function.
+Internal implementation detail of the tree map
+-/
+def getKeyₘ [Ord α] (l : Impl α β) (k : α) (h : (getKey?ₘ l k).isSome) : α :=
+  getKey?ₘ l k |>.get h
+
+/--
+Model implementation of the `getKey!` function.
+Internal implementation detail of the tree map
+-/
+def getKey!ₘ [Ord α] (l : Impl α β) (k : α) [Inhabited α] : α :=
+  getKey?ₘ l k |>.get!
+
+/--
+Model implementation of the `getKeyD` function.
+Internal implementation detail of the tree map
+-/
+def getKeyDₘ [Ord α] (k : α) (l : Impl α β) (fallback : α) : α :=
+  getKey?ₘ l k |>.getD fallback
 
 /--
 Model implementation of the `insert` function.
@@ -251,8 +301,30 @@ variable {β : Type v}
 Model implementation of the `get?` function.
 Internal implementation detail of the tree map
 -/
-def get?ₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) : Option β :=
+def get?ₘ [Ord α] (l : Impl α (fun _ => β)) (k : α) : Option β :=
   applyCell k l fun c _ => Cell.Const.get? c
+
+/--
+Model implementation of the `get` function.
+Internal implementation detail of the tree map
+-/
+def getₘ [Ord α] (l : Impl α (fun _ => β)) (k : α) (h : (get?ₘ l k).isSome) :
+    β :=
+  get?ₘ l k |>.get h
+
+/--
+Model implementation of the `get!` function.
+Internal implementation detail of the tree map
+-/
+def get!ₘ [Ord α] (l : Impl α (fun _ => β)) (k : α) [Inhabited β] : β :=
+  get?ₘ l k |>.get!
+
+/--
+Model implementation of the `getD` function.
+Internal implementation detail of the tree map
+-/
+def getDₘ [Ord α] (l : Impl α (fun _ => β)) (k : α) (fallback : β) : β :=
+  get?ₘ l k |>.getD fallback
 
 /--
 Model implementation of the `alter` function.
@@ -300,6 +372,75 @@ theorem get?_eq_get?ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l :
     split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
     all_goals simp_all [Cell.get?, Cell.ofEq]
   · simp [get?, applyCell]
+
+theorem get_eq_get? [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) {h} :
+    l.get k h = l.get? k := by
+  induction l
+  · simp only [applyCell, get, get?]
+    split <;> rename_i ihl ihr hcmp <;> simp_all
+  · contradiction
+
+theorem get_eq_getₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) {h} (h') :
+    l.get k h = l.getₘ k h' := by
+  apply Option.some.inj
+  simp [get_eq_get?, get?_eq_get?ₘ, getₘ]
+
+theorem get!_eq_get!ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) [Inhabited (β k)] (l : Impl α β) :
+    l.get! k = l.get!ₘ k := by
+  simp only [get!ₘ, get?ₘ]
+  induction l
+  · simp only [applyCell, get!]
+    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
+    all_goals simp_all [Cell.get?, Cell.ofEq]
+  · simp only [get!, applyCell, Cell.get?_empty, Option.get!_none]; rfl
+
+theorem getD_eq_getDₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β)
+    (fallback : β k) : l.getD k fallback = l.getDₘ k fallback := by
+  simp only [getDₘ, get?ₘ]
+  induction l
+  · simp only [applyCell, getD]
+    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
+    all_goals simp_all [Cell.get?, Cell.ofEq]
+  · simp only [getD, applyCell, Cell.get?_empty, Option.getD_none]
+
+theorem getKey?_eq_getKey?ₘ [Ord α] (k : α) (l : Impl α β) :
+    l.getKey? k = l.getKey?ₘ k := by
+  simp only [getKey?ₘ]
+  induction l
+  · simp only [applyCell, getKey?]
+    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
+    all_goals simp_all [Cell.getKey?, Cell.ofEq]
+  · simp [getKey?, applyCell]
+
+theorem getKey_eq_getKey? [Ord α] (k : α) (l : Impl α β) {h} :
+    l.getKey k h = l.getKey? k := by
+  induction l
+  · simp only [applyCell, getKey, getKey?]
+    split <;> rename_i ihl ihr hcmp <;> simp_all
+  · contradiction
+
+theorem getKey_eq_getKeyₘ [Ord α] (k : α) (l : Impl α β) {h} (h') :
+    l.getKey k h = l.getKeyₘ k h' := by
+  apply Option.some.inj
+  simp [getKey_eq_getKey?, getKey?_eq_getKey?ₘ, getKeyₘ]
+
+theorem getKey!_eq_getKey!ₘ [Ord α] (k : α) [Inhabited α] (l : Impl α β) :
+    l.getKey! k = l.getKey!ₘ k := by
+  simp only [getKey!ₘ, getKey?ₘ]
+  induction l
+  · simp only [applyCell, getKey!]
+    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
+    all_goals simp_all [Cell.getKey?, Cell.ofEq]
+  · simp only [getKey!, applyCell, Cell.getKey?_empty, Option.get!_none]; rfl
+
+theorem getKeyD_eq_getKeyDₘ [Ord α] (k : α) (l : Impl α β)
+    (fallback : α) : l.getKeyD k fallback = l.getKeyDₘ k fallback := by
+  simp only [getKeyDₘ, getKey?ₘ]
+  induction l
+  · simp only [applyCell, getKeyD]
+    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
+    all_goals simp_all [Cell.getKey?, Cell.ofEq]
+  · simp only [getKeyD, applyCell, Cell.getKey?_empty, Option.getD_none]
 
 theorem balanceL_eq_balance {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceL k v l r hlb hrb hlr = balance k v l r hlb hrb (Or.inl hlr.erase) := by
@@ -407,23 +548,23 @@ theorem erase!_eq_eraseₘ [Ord α] {k : α} {t : Impl α β} (h : t.Balanced) :
     erase! k t = eraseₘ k t h := by
   rw [← erase_eq_erase! (h := h), erase_eq_eraseₘ]
 
-theorem fst_containsThenInsert!_eq_containsThenInsert [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+theorem containsThenInsert!_fst_eq_containsThenInsert_fst [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
     (t.containsThenInsert! a b).1 = (t.containsThenInsert a b htb).1 := by
   cases t <;> simp [containsThenInsert, containsThenInsert.size,
     containsThenInsert!, containsThenInsert!.size, insert!_eq_insertₘ, insert_eq_insertₘ, htb]
 
-theorem snd_containsThenInsert!_eq_containsThenInsert [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+theorem containsThenInsert!_snd_eq_containsThenInsert_snd [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
     (t.containsThenInsert! a b).2 = (t.containsThenInsert a b htb).2.impl := by
   cases t <;> simp [containsThenInsert, containsThenInsert!, insert!_eq_insertₘ htb,
     insert_eq_insertₘ]
 
-theorem containsThenInsert_eq_insertₘ [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+theorem containsThenInsert_snd_eq_insertₘ [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
     (t.containsThenInsert a b htb).2.impl = t.insertₘ a b htb := by
   rw [containsThenInsert, insert_eq_insertₘ]
 
-theorem containsThenInsert!_eq_insertₘ [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+theorem containsThenInsert!_snd_eq_insertₘ [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
     (t.containsThenInsert! a b).2 = t.insertₘ a b htb := by
-  rw [snd_containsThenInsert!_eq_containsThenInsert, containsThenInsert_eq_insertₘ]
+  rw [containsThenInsert!_snd_eq_containsThenInsert_snd, containsThenInsert_snd_eq_insertₘ]
 
 theorem insertIfNew_eq_insertIfNew! [Ord α] {k : α} {v : β k} {l : Impl α β} {h} :
     (insertIfNew k v l h).impl = insertIfNew! k v l := by
@@ -432,50 +573,116 @@ theorem insertIfNew_eq_insertIfNew! [Ord α] {k : α} {v : β k} {l : Impl α β
   · rfl
   · simp [insert_eq_insert!]
 
-theorem fst_containsThenInsertIfNew!_eq_containsThenInsertIfNew [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+theorem containsThenInsertIfNew!_fst_eq_containsThenInsertIfNew_fst [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
     (t.containsThenInsertIfNew! a b).1 = (t.containsThenInsertIfNew a b htb).1 := by
   simp only [containsThenInsertIfNew!, containsThenInsertIfNew]
   split <;> rfl
 
-theorem snd_containsThenInsertIfNew!_eq_containsThenInsertIfNew [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+theorem containsThenInsertIfNew!_snd_eq_containsThenInsertIfNew_snd [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
     (t.containsThenInsertIfNew! a b).2 = (t.containsThenInsertIfNew a b htb).2.impl := by
   simp only [containsThenInsertIfNew!, containsThenInsertIfNew]
   split
   · rfl
   · simp [insert!_eq_insertₘ, insert_eq_insertₘ, htb]
 
-theorem fst_containsThenInsertIfNew_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β) (htb : t.Balanced)
+theorem containsThenInsertIfNew_fst_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β) (htb : t.Balanced)
     (a : α) (b : β a) : (t.containsThenInsertIfNew a b htb).1 = t.containsₘ a := by
   simp only [containsThenInsertIfNew, contains_eq_containsₘ]
   split <;> next h => simp only [h]
 
-theorem snd_containsThenInsertIfNew_eq_insertIfNew [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+theorem containsThenInsertIfNew_snd_eq_insertIfNew [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
     (t.containsThenInsertIfNew a b htb).2 = (t.insertIfNew a b htb) := by
   rw [containsThenInsertIfNew, insertIfNew]
   split <;> rfl
 
-theorem fst_containsThenInsertIfNew!_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β)
+theorem containsThenInsertIfNew!_fst_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β)
     (a : α) (b : β a) : (t.containsThenInsertIfNew! a b).1 = t.containsₘ a := by
   simp only [containsThenInsertIfNew!, contains_eq_containsₘ]
   split <;> next h => simp only [h]
 
-theorem snd_containsThenInsertIfNew!_eq_insertIfNew! [Ord α] (t : Impl α β) (a : α) (b : β a) :
+theorem containsThenInsertIfNew!_snd_eq_insertIfNew! [Ord α] (t : Impl α β) (a : α) (b : β a) :
     (t.containsThenInsertIfNew! a b).2 = t.insertIfNew! a b:= by
   rw [containsThenInsertIfNew!, insertIfNew!]
   split <;> rfl
+
+theorem insertMin_eq_insertMin! [Ord α] {a b} {t : Impl α β} (htb) :
+    (t.insertMin a b htb).impl = t.insertMin! a b := by
+  cases a, b, t using insertMin!.fun_cases
+  · rfl
+  · simp only [insertMin!, insertMin, balanceL_eq_balanceL!, insertMin_eq_insertMin! htb.left]
+
+theorem insertMax_eq_insertMax! [Ord α] {a b} {t : Impl α β} (htb) :
+    (t.insertMax a b htb).impl = t.insertMax! a b := by
+  cases a, b, t using insertMax!.fun_cases
+  · rfl
+  · simp only [insertMax!, insertMax, balanceR_eq_balanceR!, insertMax_eq_insertMax! htb.right]
+
+theorem link_eq_link! [Ord α] {k v} {l r : Impl α β} (hlb hrb) :
+    (link k v l r hlb hrb).impl = link! k v l r := by
+  cases k, v, l, r using link!.fun_cases <;> rw [link, link!]
+  · rw [insertMin_eq_insertMin!]
+  · rw [insertMax_eq_insertMax!]
+  · split <;> simp only [balanceLErase_eq_balanceL!, link_eq_link! hlb hrb.left]
+  · split <;> simp only [balanceRErase_eq_balanceR!, balanceLErase_eq_balanceL!,
+      link_eq_link! hlb hrb.left, link_eq_link! hlb.right hrb]
+  · split
+    · simp only [balanceLErase_eq_balanceL!, link_eq_link! hlb hrb.left]
+    · simp only [Std.Internal.tree_tac]
+termination_by sizeOf l + sizeOf r
+
+theorem link2_eq_link2! [Ord α] {l r : Impl α β} (hlb hrb) :
+    (link2 l r hlb hrb).impl = link2! l r := by
+  cases l, r using link2!.fun_cases <;> rw [link2!, link2]
+  · split <;> simp only [balanceLErase_eq_balanceL!, link2_eq_link2! hlb hrb.left]
+  · split <;> simp only [balanceRErase_eq_balanceR!, balanceLErase_eq_balanceL!,
+      link2_eq_link2! hlb.right hrb, link2_eq_link2! hlb hrb.left]
+  · split
+    · simp only [balanceLErase_eq_balanceL!, link2_eq_link2! hlb hrb.left]
+    · simp only [Std.Internal.tree_tac, glue_eq_glue!]
+termination_by sizeOf l + sizeOf r
 
 namespace Const
 
 variable {β : Type v}
 
 theorem get?_eq_get?ₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) :
-    Const.get? k l = Const.get?ₘ k l := by
+    Const.get? l k = Const.get?ₘ l k := by
   simp only [Const.get?ₘ]
   induction l
   · simp only [applyCell, Const.get?]
     split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
     all_goals simp_all [Cell.Const.get?, Cell.ofEq]
   · simp [Const.get?, applyCell]
+
+theorem get_eq_get? [Ord α] (k : α) (l : Impl α (fun _ => β)) {h} :
+    get l k h = get? l k := by
+  induction l
+  · simp only [applyCell, get, get?]
+    split <;> rename_i ihl ihr hcmp <;> simp_all
+  · contradiction
+
+theorem get_eq_getₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) {h} (h') :
+    get l k h = getₘ l k h' := by
+  apply Option.some.inj
+  simp [get_eq_get?, get?_eq_get?ₘ, getₘ]
+
+theorem get!_eq_get!ₘ [Ord α] (k : α) [Inhabited β] (l : Impl α (fun _ => β)) :
+    get! l k = get!ₘ l k := by
+  simp only [get!ₘ, get?ₘ]
+  induction l
+  · simp only [applyCell, get!]
+    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
+    all_goals simp_all [Cell.Const.get?, Cell.ofEq]
+  · simp only [get!, applyCell, Option.get!_none]; rfl
+
+theorem getD_eq_getDₘ [Ord α] (k : α) (l : Impl α (fun _ => β))
+    (fallback : β) : getD l k fallback = getDₘ l k fallback := by
+  simp only [getDₘ, get?ₘ]
+  induction l
+  · simp only [applyCell, getD]
+    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
+    all_goals simp_all [Cell.Const.get?, Cell.ofEq]
+  · simp only [getD, applyCell, Cell.Const.get?_empty, Option.getD_none]
 
 end Const
 

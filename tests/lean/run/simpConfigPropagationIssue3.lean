@@ -12,7 +12,7 @@ theorem cmp_eq_gt [OrientedCmp cmp] : cmp x y = .gt ↔ cmp y x = .lt := by
 end OrientedCmp
 
 /-- `TransCmp cmp` asserts that `cmp` induces a transitive relation. -/
-class TransCmp (cmp : α → α → Ordering) extends OrientedCmp cmp : Prop where
+class TransCmp (cmp : α → α → Ordering) : Prop extends OrientedCmp cmp where
   /-- The comparator operation is transitive. -/
   le_trans : cmp x y ≠ .gt → cmp y z ≠ .gt → cmp x z ≠ .gt
 

@@ -26,24 +26,6 @@ where
       withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>
         go (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
 
-def getFixedPrefix (preDefs : Array PreDefinition) : MetaM Nat :=
-  withCommonTelescope preDefs fun xs vals => do
-    let resultRef ← IO.mkRef xs.size
-    for val in vals do
-      if (← resultRef.get) == 0 then return 0
-      forEachExpr' val fun e => do
-        if preDefs.any fun preDef => e.isAppOf preDef.declName then
-          let args := e.getAppArgs
-          resultRef.modify (min args.size ·)
-          for arg in args, x in xs do
-            if !(← withoutProofIrrelevance <| withReducible <| isDefEq arg x) then
-              -- We continue searching if e's arguments are not a prefix of `xs`
-              return true
-          return false
-        else
-          return true
-    resultRef.get
-
 def addPreDefsFromUnary (preDefs : Array PreDefinition) (preDefsNonrec : Array PreDefinition)
     (unaryPreDefNonRec : PreDefinition) : TermElabM Unit := do
   /-
@@ -82,6 +64,7 @@ Assign final attributes to the definitions. Assumes the EqnInfos to be already p
 def addPreDefAttributes (preDefs : Array PreDefinition) : TermElabM Unit := do
   for preDef in preDefs do
     markAsRecursive preDef.declName
+    enableRealizationsForConst preDef.declName
     generateEagerEqns preDef.declName
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
     -- Unless the user asks for something else, mark the definition as irreducible

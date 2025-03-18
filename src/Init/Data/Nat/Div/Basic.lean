@@ -20,20 +20,44 @@ instance : Dvd Nat where
 theorem div_rec_lemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=
   fun ⟨ypos, ylex⟩ => sub_lt (Nat.lt_of_lt_of_le ypos ylex) ypos
 
-@[extern "lean_nat_div"]
-protected def div (x y : @& Nat) : Nat :=
+protected def divCore (x y : Nat) : Nat :=
   if 0 < y ∧ y ≤ x then
-    Nat.div (x - y) y + 1
+    Nat.divCore (x - y) y + 1
   else
     0
 decreasing_by apply div_rec_lemma; assumption
 
+@[extern "lean_nat_div"]
+protected def div : @& Nat → @& Nat → Nat
+  /-
+  Nat.divCore is defined by well-founded recursion and thus irreducible. Nevertheless it is
+  desirable if trivial `Nat.div` calculations, namely
+  * `Nat.div 0 m` for all `m`
+  * `Nat.div n (m+n)` for concrete literals `n`
+  reduce definitionally.
+  -/
+  | 0, _ => 0
+  | n@(_ + 1), m =>
+    if m ≤ n -- NB: if n < m does not reduce as well as `m ≤ n`!
+    then Nat.divCore n m
+    else 0
+
 instance instDiv : Div Nat := ⟨Nat.div⟩
 
+protected theorem divCore_eq_div (n m : Nat) : Nat.divCore n m = n / m := by
+  show Nat.divCore n m = Nat.div n m
+  match n, m with
+  | 0, _ =>
+    rw [Nat.divCore]
+    exact if_neg fun ⟨hlt, hle⟩ => Nat.lt_irrefl _ (Nat.lt_of_lt_of_le hlt hle)
+  | (_ + 1), _ =>
+    rw [Nat.div]; dsimp
+    refine iteInduction (fun _ => rfl) (fun h => ?false) -- cannot use `split` this early yet
+    rw [Nat.divCore]
+    exact if_neg fun ⟨_hlt, hle⟩ => h hle
+
 theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 := by
-  show Nat.div x y = _
-  rw [Nat.div]
-  rfl
+  rw [← Nat.divCore_eq_div, ← Nat.divCore_eq_div, Nat.divCore]
 
 def div.inductionOn.{u}
       {motive : Nat → Nat → Sort u}

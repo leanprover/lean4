@@ -11,7 +11,7 @@ universe u v
 
 namespace EStateM
 
-variable {ε σ α : Type u}
+variable {ε : Type uε} {σ : Type uσ} {α : Type uα}
 
 instance [ToString ε] [ToString α] : ToString (Result ε σ α) where
   toString
@@ -27,7 +27,7 @@ end EStateM
 
 namespace EStateM
 
-variable {ε σ α β : Type u}
+variable {ε : Type uε} {σ : Type uσ} {α : Type uα} {β : Type uβ}
 
 /-- Alternative orElse operator that allows to select which exception should be used.
     The default is to use the first exception since the standard `orElse` uses the second. -/
@@ -54,7 +54,7 @@ instance : MonadFinally (EStateM ε σ) := {
       | Result.error e₂ s => Result.error e₂ s
 }
 
-@[always_inline, inline] def fromStateM {ε σ α : Type} (x : StateM σ α) : EStateM ε σ α := fun s =>
+@[always_inline, inline] def fromStateM {ε σ α : Type _} (x : StateM σ α) : EStateM ε σ α := fun s =>
   match x.run s with
   | (a, s') => EStateM.Result.ok a s'
 

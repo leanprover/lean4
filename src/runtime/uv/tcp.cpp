@@ -15,7 +15,6 @@ namespace lean {
 typedef struct {
     lean_object* promise;
     lean_object* socket;
-    sockaddr_storage addr;
 } tcp_connect_data;
 
 // Stores all the things needed to send data to a TCP socket.
@@ -120,12 +119,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
     lean_object* promise = lean_promise_new();
     mark_mt(promise);
 
+    sockaddr_storage addr_struct;
+    lean_socket_address_to_sockaddr_storage(addr, &addr_struct);
+
     uv_connect_t* uv_connect = (uv_connect_t*)malloc(sizeof(uv_connect_t));
     tcp_connect_data* connect_data = (tcp_connect_data*)malloc(sizeof(tcp_connect_data));
 
     connect_data->promise = promise;
     connect_data->socket = socket;
-    lean_socket_address_to_sockaddr_storage(addr, &connect_data->addr);
 
     uv_connect->data = connect_data;
 
@@ -135,7 +136,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
 
     event_loop_lock(&global_ev);
 
-    int result = uv_tcp_connect(uv_connect, tcp_socket->m_uv_tcp, (sockaddr*)&connect_data->addr, [](uv_connect_t* req, int status) {
+    int result = uv_tcp_connect(uv_connect, tcp_socket->m_uv_tcp, (sockaddr*)&addr_struct, [](uv_connect_t* req, int status) {
         tcp_connect_data* tup = (tcp_connect_data*) req->data;
         lean_promise_resolve_with_code(status, tup->promise);
 

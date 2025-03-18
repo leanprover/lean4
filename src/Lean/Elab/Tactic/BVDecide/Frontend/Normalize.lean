@@ -88,8 +88,11 @@ where
 
     trace[Meta.Tactic.bv] m!"Running fixpoint pipeline on:\n{g}"
     let pipeline ← passPipeline
-    let some g' ← Pass.fixpointPipeline (pipeline) g | return none
-    (shortCircuitPass cfg.maxSteps).run g'
+    let some g' ← Pass.fixpointPipeline pipeline g | return none
+    /-
+    Run short circuiting once post fixpoint, as it potentially increases size of terms.
+    -/
+    shortCircuitPass |>.run g'
 
 @[builtin_tactic Lean.Parser.Tactic.bvNormalize]
 def evalBVNormalize : Tactic := fun

@@ -2120,16 +2120,13 @@ instance Quotient.decidableEq {α : Sort u} {s : Setoid α} [d : ∀ (a b : α),
 /-! # Function extensionality -/
 
 /--
-**Function extensionality** is the statement that if two functions take equal values
-every point, then the functions themselves are equal: `(∀ x, f x = g x) → f = g`.
-It is called "extensionality" because it talks about how to prove two objects are equal
-based on the properties of the object (compare with set extensionality,
-which is `(∀ x, x ∈ s ↔ x ∈ t) → s = t`).
+**Function extensionality.** If two functions return equal results for all possible arguments, then
+they are equal.
 
-This is often an axiom in dependent type theory systems, because it cannot be proved
-from the core logic alone. However in lean's type theory this follows from the existence
-of quotient types (note the `Quot.sound` in the proof, as well as the `show` line
-which makes use of the definitional equality `Quot.lift f h (Quot.mk x) = f x`).
+It is called “extensionality” because it provides a way to prove two objects equal based on the
+properties of the underlying mathematical functions, rather than based on the syntax used to denote
+them. Function extensionality is a theorem that can be [proved using quotient
+types](lean-manual://section/quotient-funext).
 -/
 theorem funext {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x}
     (h : ∀ x, f x = g x) : f = g := by

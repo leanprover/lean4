@@ -5334,6 +5334,16 @@ theorem isEmpty_filter_eq_false_unit [BEq α] [EquivBEq α]
   rw [Bool.eq_false_iff, Ne.eq_1, isEmpty_filter_eq_true_unit distinct]
   simp [Option.ne_none_iff_isSome]
 
+theorem toList_map' {β : Type v} {γ : Type w} {f : (_ : α) → β → γ} {l : List ((_ : α) × β)} :
+    l.map (fun p => (p.1, f p.1 p.2)) =
+      (l.map fun p => (⟨p.1, f p.1 p.2⟩ : (_ : α) × γ)).map (fun p => (p.1, p.2)) := by
+  simp
+
+theorem toList_map {β : Type v} {γ : Type w} {f : (_ : α) → β → γ} {l : List ((_ : α) × β)} :
+    (l.map (fun p => (p.1, f p.1 p.2))).Perm
+      ((l.map fun p => (⟨p.1, f p.1 p.2⟩ : (_ : α) × γ)).map (fun p => (p.1, p.2))) := by
+    simp [toList_map']
+
 end Const
 
 end FilterMap

@@ -3450,6 +3450,118 @@ end Const
 
 end filter
 
+section map
+
+variable {γ : α →  Type w}
+
+theorem isEmpty_map_iff [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β a → γ a} (h : m.1.WF) :
+    (m.map f).1.isEmpty = m.1.isEmpty := by
+  simp_to_model [map] using List.isEmpty_map
+
+theorem contains_map [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β a → γ a} {k : α} (h : m.1.WF) :
+    (m.map f).contains k = m.contains k := by
+  simp_to_model [map] using List.containsKey_map
+
+theorem contains_of_contains_map [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β a → γ a} {k : α} (h : m.1.WF) :
+    (m.map f).contains k = true → m.contains k = true := by
+  simp [contains_map m h]
+
+theorem size_map_eq_size [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β a → γ a} (h : m.1.WF) :
+    (m.map f).1.size = m.1.size := by
+  simp_to_model [map] using List.length_map
+
+theorem get?_map [LawfulBEq α]
+    {f : (a : α) → β a → γ a} {k : α} (h : m.1.WF) :
+    (m.map f).get? k = (m.get? k).map (f k) := by
+  simp_to_model [map] using List.getValueCast?_map
+
+theorem get_map [LawfulBEq α]
+    {f : (a : α) → β a → γ a} {k : α} (h : m.1.WF) {h'} :
+    (m.map f).get k h' =
+      f k (m.get k (contains_of_contains_map m h h')) := by
+  simp_to_model [map] using List.getValueCast_map
+
+theorem get!_map [LawfulBEq α]
+    {f : (a : α) → β a → γ a} {k : α} [Inhabited (γ k)] (h : m.1.WF) :
+    (m.map f).get! k = ((m.get? k).map (f k)).get! := by
+  simp_to_model [map] using List.getValueCast!_map
+
+theorem getD_map [LawfulBEq α]
+    {f : (a : α) → β a → γ a} {k : α} {fallback : γ k} (h : m.1.WF) :
+    (m.map f).getD k fallback = ((m.get? k).map (f k)).getD fallback := by
+  simp_to_model [map] using List.getValueCastD_map
+
+omit [BEq α] [Hashable α] in
+theorem toList_map
+    {f : (a : α) → β a → γ a} :
+    (m.map f).1.toList.Perm
+      (m.1.toList.map (fun p => ⟨p.1,f p.1 p.2⟩)) := by
+  simp_to_model [map, toList, Equiv] using List.Perm.rfl
+
+theorem getKey?_map [LawfulBEq α]
+    {f : (a : α) → β a → γ a} {k : α} (h : m.1.WF) :
+    (m.map f).getKey? k = m.getKey? k := by
+  simp_to_model [map] using List.getKey?_map
+
+theorem getKey_map [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β a → γ a} {k : α} (h : m.1.WF) {h'}:
+    (m.map f).getKey k h' = m.getKey k (contains_of_contains_map m h h') := by
+  simp_to_model [map] using List.getKey_map
+
+theorem getKey!_map [LawfulBEq α] [Inhabited α]
+    {f : (a : α) → β a → γ a} {k : α} (h : m.1.WF) :
+    (m.map f).getKey! k = m.getKey! k := by
+  simp_to_model [map] using List.getKey!_map
+
+theorem getKeyD_map [LawfulBEq α]
+    {f : (a : α) → β a → γ a} {k fallback : α} (h : m.1.WF) :
+    (m.map f).getKeyD k fallback = m.getKeyD k fallback := by
+  simp_to_model [map] using List.getKeyD_map
+
+namespace Const
+
+variable {β : Type v} {γ : Type w} (m : Raw₀ α (fun _ => β))
+
+--theorem get?_map [EquivBEq α] [LawfulHashable α]
+--    {f : (a : α) → β → γ} {k : α} (h : m.1.WF) :
+--    Const.get? (m.map f) k = (Const.get? m k).pmap (fun v h' => f (m.getKey k h') v)
+--      (fun _ h' => (contains_eq_isSome_get? m h).trans (Option.isSome_of_mem h')) := by
+--  simp_to_model [map]
+--  rw [← List.Const.getValue?_map (by wf_trivial)]
+
+theorem get_map [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β → γ} {k : α} (h : m.1.WF) {h'} :
+    Const.get (m.map f) k h' =
+      (f (m.getKey k (contains_of_contains_map m h h'))
+        (Const.get m k (contains_of_contains_map m h h'))) := by
+  simp_to_model [map] using List.getValue_map
+
+--theorem get!_map [EquivBEq α] [LawfulHashable α] [Inhabited γ]
+--    {f : (a : α) → β → γ} {k : α} (h : m.1.WF) :
+--    Const.get! (m.map f) k =
+--      ((m.getKey? k).bind (fun x => (Const.get? m k).map (f x))).get! := by
+--  simp_to_model [map] using List.Const.getValue!_map
+
+--theorem getD_map [EquivBEq α] [LawfulHashable α]
+--    {f : (a : α) → β → γ} {k : α} {fallback : γ} (h : m.1.WF) :
+--    Const.getD (m.map f) k fallback =
+--      ((m.getKey? k).bind (fun x => (Const.get? m k).map (f x))).getD fallback := by
+--  simp_to_model [map] using List.Const.getValueD_map
+
+--theorem toList_map [EquivBEq α] [LawfulHashable α]
+--    {f : (a : α) → β → γ} (h : m.1.WF) :
+--    (Raw.Const.toList (m.map f).1).Perm
+--      ((Raw.Const.toList m.1).map (fun p => ⟨p.1, f p.1 p.2⟩)) := by
+--  simp_to_model [map, Const.toList, Equiv] using List.Const.toList_map
+
+end Const
+
+end map
+
 end Raw₀
 
 end Std.DHashMap.Internal

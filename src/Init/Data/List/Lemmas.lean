@@ -1046,6 +1046,10 @@ theorem getLast?_tail (l : List α) : (tail l).getLast? = if l.length = 1 then n
   | nil => simp [List.map]
   | cons _ as ih => simp [List.map, ih]
 
+
+theorem isEmpty_map {l : List α} {f: α → β} : (l.map f).isEmpty = l.isEmpty := by
+  cases l <;> simp
+
 @[simp] theorem getElem?_map (f : α → β) : ∀ (l : List α) (i : Nat), (map f l)[i]? = Option.map f l[i]?
   | [], _ => rfl
   | _ :: _, 0 => by simp

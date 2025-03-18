@@ -1,4 +1,4 @@
--- NB: well-founded recursion, so irreducible
+@[semireducible]
 def sorted_from_var [x: LE α] [DecidableRel x.le] (a: Array α) (i: Nat): Bool :=
   if h: i + 1 < a.size then
     have : i < a.size := Nat.lt_of_succ_lt h
@@ -6,6 +6,8 @@ def sorted_from_var [x: LE α] [DecidableRel x.le] (a: Array α) (i: Nat): Bool 
   else
     true
 termination_by a.size - i
+
+attribute [irreducible] sorted_from_var
 
 def check_sorted [x: LE α] [DecidableRel x.le] (a: Array α): Bool :=
   sorted_from_var a 0
@@ -39,13 +41,10 @@ After unfolding the instances 'instDecidableEqBool' and 'Bool.decEq', reduction 
 example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] := by
   decide -- fails because `decide` uses `.default` transparency, and `sorted_from_var` is marked as irreducible
 
-/-
-No longer works
-
+#guard_msgs in
 unseal sorted_from_var in
 example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] := by
   decide -- works
 
 example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] := by
   with_unfolding_all decide -- should work
--/

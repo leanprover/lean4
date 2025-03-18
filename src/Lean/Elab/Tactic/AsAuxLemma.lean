@@ -20,7 +20,9 @@ def elabAsAuxLemma : Lean.Elab.Tactic.Tactic
     unless mvars.isEmpty do
       throwError "Cannot abstract term into auxiliary lemma because there are open goals."
     let e ← instantiateMVars (mkMVar mvarId)
-    let e ← mkAuxTheorem (`Lean.Elab.Tactic.AsAuxLemma ++ (← mkFreshUserName `auxLemma)) (← mvarId.getType) e
+    let env ← getEnv
+    -- TODO: this likely should share name creation code with `mkAuxLemma`
+    let e ← mkAuxTheorem (← mkFreshUserName <| env.asyncPrefix?.getD env.mainModule ++ `_auxLemma) (← mvarId.getType) e
     mvarId.assign e
     return []
 | _ => throwError "Invalid as_aux_lemma syntax"

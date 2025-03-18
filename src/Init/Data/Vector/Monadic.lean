@@ -29,6 +29,12 @@ open Nat
 
 /-! ### mapM -/
 
+@[simp]
+theorem mapM_pure [Monad m] [LawfulMonad m] {xs : Vector α n} (f : α → β) :
+    xs.mapM (m := m) (pure <| f ·) = pure (xs.map f) := by
+  apply map_toArray_inj.mp
+  simp
+
 @[congr] theorem mapM_congr [Monad m] {xs ys : Vector α n} (w : xs = ys)
     {f : α → m β} :
     xs.mapM f = ys.mapM f := by
@@ -213,6 +219,32 @@ theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
     (xs : Vector α n) (g : α → β) (f : β → γ → m (ForInStep γ)) :
     forIn (xs.map g) init f = forIn xs init fun a y => f (g a) y := by
   rcases xs with ⟨xs, rfl⟩
+  simp
+
+
+/-! ### allM and anyM -/
+
+@[simp] theorem anyM_pure [Monad m] [LawfulMonad m] (p : α → Bool) (xs : Vector α n) :
+    xs.anyM (m := m) (pure <| p ·) = pure (xs.any p) := by
+  cases xs
+  simp
+
+@[simp] theorem allM_pure [Monad m] [LawfulMonad m] (p : α → Bool) (xs : Vector α n) :
+    xs.allM (m := m) (pure <| p ·) = pure (xs.all p) := by
+  cases xs
+  simp
+
+/-! ### findM? and findSomeM? -/
+
+theorem findM?_pure {m} [Monad m] [LawfulMonad m] (p : α → Bool) (xs : Vector α n) :
+    findM? (m := m) (pure <| p ·) xs = pure (xs.find? p) := by
+  cases xs
+  simp
+
+@[simp]
+theorem findSomeM?_pure [Monad m] [LawfulMonad m] (f : α → Option β) (xs : Vector α n) :
+    findSomeM? (m := m) (pure <| f ·) xs = pure (xs.findSome? f) := by
+  cases xs
   simp
 
 end Vector

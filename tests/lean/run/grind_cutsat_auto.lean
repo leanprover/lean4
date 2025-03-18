@@ -75,8 +75,6 @@ example (x y : Int) :
     8*x - 5*y ≥ -3 → False := by
  grind
 
--- TODO: improve kernel reduction and remove `skipKernelTC`
-set_option debug.skipKernelTC true in
 example (x y z : Int) :
     2 ≤ 12*x +  5*y +  7*z → 12*x +  5*y +  7*z ≤  5 →
     -5 ≤  3*x - 11*y +  2*z →  3*x - 11*y +  2*z ≤ -1 →

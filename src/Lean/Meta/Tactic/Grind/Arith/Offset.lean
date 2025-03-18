@@ -19,6 +19,7 @@ builtin_initialize registerTraceClass `grind.offset.propagate
 builtin_initialize registerTraceClass `grind.offset.eq
 builtin_initialize registerTraceClass `grind.offset.eq.to (inherited := true)
 builtin_initialize registerTraceClass `grind.offset.eq.from (inherited := true)
+builtin_initialize registerTraceClass `grind.offset.model
 
 builtin_initialize registerTraceClass `grind.debug.offset
 builtin_initialize registerTraceClass `grind.debug.offset.proof

@@ -23,8 +23,12 @@ open Nat
 
 /-! ### mapM -/
 
-@[simp] theorem mapM_id {xs : Array α} {f : α → Id β} : xs.mapM f = xs.map f := by
+@[simp] theorem mapM_pure [Monad m] [LawfulMonad m] (xs : Array α) (f : α → β) :
+    xs.mapM (m := m) (pure <| f ·) = pure (xs.map f) := by
   induction xs; simp_all
+
+@[simp] theorem mapM_id {xs : Array α} {f : α → Id β} : xs.mapM f = xs.map f :=
+  mapM_pure _ _
 
 @[simp] theorem mapM_append [Monad m] [LawfulMonad m] (f : α → m β) {xs ys : Array α} :
     (xs ++ ys).mapM f = (return (← xs.mapM f) ++ (← ys.mapM f)) := by
@@ -227,6 +231,32 @@ theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
   rcases xs with ⟨xs⟩
   simp
 
+/-! ### allM and anyM -/
+
+@[simp] theorem anyM_pure [Monad m] [LawfulMonad m] (p : α → Bool) (xs : Array α) :
+    xs.anyM (m := m) (pure <| p ·) = pure (xs.any p) := by
+  cases xs
+  simp
+
+@[simp] theorem allM_pure [Monad m] [LawfulMonad m] (p : α → Bool) (xs : Array α) :
+    xs.allM (m := m) (pure <| p ·) = pure (xs.all p) := by
+  cases xs
+  simp
+
+/-! ### findM? and findSomeM? -/
+
+@[simp]
+theorem findM?_pure {m} [Monad m] [LawfulMonad m] (p : α → Bool) (xs : Array α) :
+    findM? (m := m) (pure <| p ·) xs = pure (xs.find? p) := by
+  cases xs
+  simp
+
+@[simp]
+theorem findSomeM?_pure [Monad m] [LawfulMonad m] (f : α → Option β) (xs : Array α) :
+    findSomeM? (m := m) (pure <| f ·) xs = pure (xs.findSome? f) := by
+  cases xs
+  simp
+
 end Array
 
 namespace List
@@ -357,12 +387,12 @@ and simplifies these to the function directly taking the value.
   simp
   rw [List.foldlM_subtype hf]
 
-@[wf_preprocess] theorem foldlM_wfParam [Monad m] (xs : Array α) (f : β → α → m β) :
-    (wfParam xs).foldlM f = xs.attach.unattach.foldlM f := by
+@[wf_preprocess] theorem foldlM_wfParam [Monad m] (xs : Array α) (f : β → α → m β) (init : β) :
+    (wfParam xs).foldlM f init = xs.attach.unattach.foldlM f init := by
   simp [wfParam]
 
-@[wf_preprocess] theorem foldlM_unattach [Monad m] (P : α → Prop) (xs : Array (Subtype P)) (f : β → α → m β) :
-    xs.unattach.foldlM f = xs.foldlM fun b ⟨x, h⟩ =>
+@[wf_preprocess] theorem foldlM_unattach [Monad m] (P : α → Prop) (xs : Array (Subtype P)) (f : β → α → m β) (init : β) :
+    xs.unattach.foldlM f init = xs.foldlM (init := init) fun b ⟨x, h⟩ =>
       binderNameHint b f <| binderNameHint x (f b) <| binderNameHint h () <|
       f b (wfParam x) := by
   simp [wfParam]
@@ -381,12 +411,12 @@ and simplifies these to the function directly taking the value.
   rw [List.foldrM_subtype hf]
 
 
-@[wf_preprocess] theorem foldrM_wfParam [Monad m] [LawfulMonad m] (xs : Array α) (f : α → β → m β) :
-    (wfParam xs).foldrM f = xs.attach.unattach.foldrM f := by
+@[wf_preprocess] theorem foldrM_wfParam [Monad m] [LawfulMonad m] (xs : Array α) (f : α → β → m β) (init : β) :
+    (wfParam xs).foldrM f init = xs.attach.unattach.foldrM f init := by
   simp [wfParam]
 
-@[wf_preprocess] theorem foldrM_unattach [Monad m] [LawfulMonad m] (P : α → Prop) (xs : Array (Subtype P)) (f : α → β → m β) :
-    xs.unattach.foldrM f = xs.foldrM fun ⟨x, h⟩ b =>
+@[wf_preprocess] theorem foldrM_unattach [Monad m] [LawfulMonad m] (P : α → Prop) (xs : Array (Subtype P)) (f : α → β → m β) (init : β):
+    xs.unattach.foldrM f init = xs.foldrM (init := init) fun ⟨x, h⟩ b =>
       binderNameHint x f <| binderNameHint h () <| binderNameHint b (f x) <|
       f (wfParam x) b := by
   simp [wfParam]

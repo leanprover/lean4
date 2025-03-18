@@ -1399,6 +1399,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Tactic_FunInd_build
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___spec__21___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_buildInductionBody___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_isFunInductName___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_deriveUnaryInduction_doRealize___lambda__7___closed__3;
 lean_object* l_Lean_Meta_isProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_buildInductionBody___lambda__4___boxed(lean_object**);
@@ -57683,7 +57684,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -71358,7 +71359,7 @@ LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_deriveInductionStructural_doRealiz
 _start:
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_21 = lean_mk_empty_array_with_capacity(x_1);
+x_21 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 x_22 = lean_unsigned_to_nat(0u);
 lean_inc(x_19);
 lean_inc(x_18);

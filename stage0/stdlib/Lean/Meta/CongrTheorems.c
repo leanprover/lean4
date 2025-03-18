@@ -410,6 +410,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_mkHCongrWithArity_withNewEqs_loop(lean_obje
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkCongrSimpForConst_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_shouldUseSubsingletonInst___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit___at___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3___closed__2;
@@ -11836,7 +11837,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

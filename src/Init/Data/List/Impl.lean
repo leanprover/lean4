@@ -49,7 +49,16 @@ The following operations are given `@[csimp]` replacements below:
 
 /-! ### set -/
 
-/-- Tail recursive version of `List.set`. -/
+/--
+Replaces the value at (zero-based) index `n` in `l` with `a`. If the index is out of bounds, then
+the list is returned unmodified.
+
+This is a tail-recursive version of `List.set` that's used at runtime.
+
+Examples:
+* `["water", "coffee", "soda", "juice"].set 1 "tea" = ["water", "tea", "soda", "juice"]`
+* `["water", "coffee", "soda", "juice"].set 4 "tea" = ["water", "coffee", "soda", "juice"]`
+-/
 @[inline] def setTR (l : List α) (n : Nat) (a : α) : List α := go l n #[] where
   /-- Auxiliary for `setTR`: `setTR.go l a xs n acc = acc.toList ++ set xs a`,
   unless `n ≥ l.length` in which case it returns `l` -/
@@ -69,7 +78,22 @@ The following operations are given `@[csimp]` replacements below:
 
 /-! ### filterMap -/
 
-/-- Tail recursive version of `filterMap`. -/
+
+/--
+Applies a function that returns an `Option` to each element of a list, collecting the non-`none`
+values.
+
+`O(|l|)`. This is a tail-recursive version of `List.filterMap`, used at runtime.
+
+Example:
+```lean example
+#eval [1, 2, 5, 2, 7, 7].filterMapTR fun x =>
+  if x > 2 then some (2 * x) else none
+```
+```output
+[10, 14, 14]
+```
+-/
 @[inline] def filterMapTR (f : α → Option β) (l : List α) : List β := go l #[] where
   /-- Auxiliary for `filterMap`: `filterMap.go f l = acc.toList ++ filterMap f l` -/
   @[specialize] go : List α → Array β → List β
@@ -90,7 +114,17 @@ The following operations are given `@[csimp]` replacements below:
 
 /-! ### foldr -/
 
-/-- Tail recursive version of `List.foldr`. -/
+/--
+Folds a function over a list from the right, accumulating a value starting with `init`. The
+accumulated value is combined with the each element of the list in reverse order, using `f`.
+
+`O(|l|)`. This is the tail-recursive replacement for `List.foldr` in runtime code.
+
+Examples:
+ * `[a, b, c].foldrTR f init  = f a (f b (f c init))`
+ * `[1, 2, 3].foldrTR (toString · ++ ·) "" = "123"`
+ * `[1, 2, 3].foldrTR (s!"({·} {·})") "!" = "(1 (2 (3 !)))"`
+-/
 @[specialize] def foldrTR (f : α → β → β) (init : β) (l : List α) : β := l.toArray.foldr f init
 
 @[csimp] theorem foldr_eq_foldrTR : @foldr = @foldrTR := by
@@ -98,7 +132,16 @@ The following operations are given `@[csimp]` replacements below:
 
 /-! ### flatMap  -/
 
-/-- Tail recursive version of `List.flatMap`. -/
+/--
+Applies a function that returns a list to each element of a list, and concatenates the resulting
+lists.
+
+This is the tail-recursive version of `List.flatMap` that's used at runtime.
+
+Examples:
+* `[2, 3, 2].flatMapTR List.range = [0, 1, 0, 1, 2, 0, 1]`
+* `["red", "blue"].flatMapTR String.toList = ['r', 'e', 'd', 'b', 'l', 'u', 'e']`
+-/
 @[inline] def flatMapTR (f : α → List β) (as : List α) : List β := go as #[] where
   /-- Auxiliary for `flatMap`: `flatMap.go f as = acc.toList ++ bind f as` -/
   @[specialize] go : List α → Array β → List β
@@ -114,7 +157,15 @@ The following operations are given `@[csimp]` replacements below:
 
 /-! ### flatten -/
 
-/-- Tail recursive version of `List.flatten`. -/
+/--
+Concatenates a list of lists into a single list, preserving the order of the elements.
+
+`O(|flatten L|)`. This is a tail-recursive version of `List.flatten`, used in runtime code.
+
+Examples:
+* `[["a"], ["b", "c"]].flattenTR = ["a", "b", "c"]`
+* `[["a"], [], ["b", "c"], ["d", "e", "f"]].flattenTR = ["a", "b", "c", "d", "e", "f"]`
+-/
 @[inline] def flattenTR (l : List (List α)) : List α := l.flatMapTR id
 
 @[csimp] theorem flatten_eq_flattenTR : @flatten = @flattenTR := by
@@ -124,7 +175,16 @@ The following operations are given `@[csimp]` replacements below:
 
 /-! ### take -/
 
-/-- Tail recursive version of `List.take`. -/
+/--
+Extracts the first `n` elements of `xs`, or the whole list if `n` is greater than `xs.length`.
+
+`O(min n |xs|)`. This is a tail-recursive version of `List.take`, used at runtime.
+
+Examples:
+* `[a, b, c, d, e].takeTR 0 = []`
+* `[a, b, c, d, e].takeTR 3 = [a, b, c]`
+* `[a, b, c, d, e].takeTR 6 = [a, b, c, d, e]`
+-/
 @[inline] def takeTR (n : Nat) (l : List α) : List α := go l n #[] where
   /-- Auxiliary for `take`: `take.go l xs n acc = acc.toList ++ take n xs`,
   unless `n ≥ xs.length` in which case it returns `l`. -/
@@ -146,7 +206,17 @@ The following operations are given `@[csimp]` replacements below:
 
 /-! ### takeWhile -/
 
-/-- Tail recursive version of `List.takeWhile`. -/
+
+/--
+ Returns the longest initial segment of `xs` for which `p` returns true.
+
+`O(|xs|)`. This is a tail-recursive version of `List.take`, used at runtime.
+
+Examples:
+* `[7, 6, 4, 8].takeWhileTR (· > 5) = [7, 6]`
+* `[7, 6, 6, 5].takeWhileTR (· > 5) = [7, 6, 6]`
+* `[7, 6, 6, 8].takeWhileTR (· > 5) = [7, 6, 6, 8]`
+-/
 @[inline] def takeWhileTR (p : α → Bool) (l : List α) : List α := go l #[] where
   /-- Auxiliary for `takeWhile`: `takeWhile.go p l xs acc = acc.toList ++ takeWhile p xs`,
   unless no element satisfying `p` is found in `xs` in which case it returns `l`. -/
@@ -169,7 +239,16 @@ The following operations are given `@[csimp]` replacements below:
 
 /-! ### dropLast -/
 
-/-- Tail recursive version of `dropLast`. -/
+/--
+Removes the last element of the list, if one exists.
+
+This is a tail-recursive version of `List.dropLast`, used at runtime.
+
+Examples:
+* `[].dropLastTR = []`
+* `["tea"].dropLastTR = []`
+* `["tea", "coffee", "juice"].dropLastTR = ["tea", "coffee"]`
+-/
 @[inline] def dropLastTR (l : List α) : List α := l.toArray.pop.toList
 
 @[csimp] theorem dropLast_eq_dropLastTR : @dropLast = @dropLastTR := by
@@ -179,7 +258,16 @@ The following operations are given `@[csimp]` replacements below:
 
 /-! ### replace -/
 
-/-- Tail recursive version of `List.replace`. -/
+/--
+Replaces the first element of the list `l` that is equal to `a` with `b`. If no element is equal to
+`a`, then the list is returned unchanged.
+
+`O(|l|)`. This is a tail-recursive version of `List.replace` that's used in runtime code.
+
+Examples:
+* `[1, 4, 2, 3, 3, 7].replaceTR 3 6 = [1, 4, 2, 6, 3, 7]`
+* `[1, 4, 2, 3, 3, 7].replaceTR 5 6 = [1, 4, 2, 3, 3, 7]`
+-/
 @[inline] def replaceTR [BEq α] (l : List α) (b c : α) : List α := go l #[] where
   /-- Auxiliary for `replace`: `replace.go l b c xs acc = acc.toList ++ replace xs b c`,
   unless `b` is not found in `xs` in which case it returns `l`. -/
@@ -202,7 +290,16 @@ The following operations are given `@[csimp]` replacements below:
 
 /-! ### modify -/
 
-/-- Tail-recursive version of `modify`. -/
+/--
+Replaces the element at the given index, if it exists, with the result of applying `f` to it.
+
+This is a tail-recursive version of `List.modify`.
+
+Examples:
+ * `[1, 2, 3].modifyTR (· * 10) 0 = [10, 2, 3]`
+ * `[1, 2, 3].modifyTR (· * 10) 2 = [1, 2, 30]`
+ * `[1, 2, 3].modifyTR (· * 10) 3 = [1, 2, 3]`
+-/
 def modifyTR (f : α → α) (n : Nat) (l : List α) : List α := go l n #[] where
   /-- Auxiliary for `modifyTR`: `modifyTR.go f l n acc = acc.toList ++ modify f n l`. -/
   go : List α → Nat → Array α → List α
@@ -220,8 +317,22 @@ theorem modifyTR_go_eq : ∀ l i, modifyTR.go f l i acc = acc.toList ++ modify f
 
 /-! ### insertIdx -/
 
-/-- Tail-recursive version of `insertIdx`. -/
-@[inline] def insertIdxTR (n : Nat) (a : α) (l : List α) : List α := go n l #[] where
+/--
+Inserts an element into a list at the specified index. If the index is greater than the length of
+the list, then the list is returned unmodified.
+
+In other words, the new element is inserted into the list `l` after the first `i` elements of `l`.
+
+This is a tail-recursive version of `List.insertIdx`, used at runtime.
+
+Examples:
+ * `["tues", "thur", "sat"].insertIdxTR 1 "wed" = ["tues", "wed", "thur", "sat"]`
+ * `["tues", "thur", "sat"].insertIdxTR 2 "wed" = ["tues", "thur", "wed", "sat"]`
+ * `["tues", "thur", "sat"].insertIdxTR 3 "wed" = ["tues", "thur", "sat", "wed"]`
+ * `["tues", "thur", "sat"].insertIdxTR 4 "wed" = ["tues", "thur", "sat"]`
+
+-/
+@[inline] def insertIdxTR (i : Nat) (a : α) (l : List α) : List α := go i l #[] where
   /-- Auxiliary for `insertIdxTR`: `insertIdxTR.go a n l acc = acc.toList ++ insertIdx n a l`. -/
   go : Nat → List α → Array α → List α
   | 0, l, acc => acc.toListAppend (a :: l)
@@ -237,7 +348,18 @@ theorem insertIdxTR_go_eq : ∀ i l, insertIdxTR.go a i l acc = acc.toList ++ in
 
 /-! ### erase -/
 
-/-- Tail recursive version of `List.erase`. -/
+/--
+Removes the first occurrence of `a` from `l`. If `a` does not occur in `l`, the list is returned
+unmodified.
+
+`O(|l|)`.
+
+This is a tail-recursive version of `List.erase`, used in runtime code.
+
+Examples:
+* `[1, 5, 3, 2, 5].eraseTR 5 = [1, 3, 2, 5]`
+* `[1, 5, 3, 2, 5].eraseTR 6 = [1, 5, 3, 2, 5]`
+-/
 @[inline] def eraseTR [BEq α] (l : List α) (a : α) : List α := go l #[] where
   /-- Auxiliary for `eraseTR`: `eraseTR.go l a xs acc = acc.toList ++ erase xs a`,
   unless `a` is not present in which case it returns `l` -/
@@ -257,7 +379,17 @@ theorem insertIdxTR_go_eq : ∀ i l, insertIdxTR.go a i l acc = acc.toList ++ in
     · rw [IH] <;> simp_all
     · simp
 
-/-- Tail-recursive version of `eraseP`. -/
+/--
+Removes the first element of a list for which `p` returns `true`. If no element satisfies `p`, then
+the list is returned unchanged.
+
+This is a tail-recursive version of `eraseP`, used at runtime.
+
+Examples:
+  * `[2, 1, 2, 1, 3, 4].erasePTR (· < 2) = [2, 2, 1, 3, 4]`
+  * `[2, 1, 2, 1, 3, 4].erasePTR (· > 2) = [2, 1, 2, 1, 4]`
+  * `[2, 1, 2, 1, 3, 4].erasePTR (· > 8) = [2, 1, 2, 1, 3, 4]`
+-/
 @[inline] def erasePTR (p : α → Bool) (l : List α) : List α := go l #[] where
   /-- Auxiliary for `erasePTR`: `erasePTR.go p l xs acc = acc.toList ++ eraseP p xs`,
   unless `xs` does not contain any elements satisfying `p`, where it returns `l`. -/
@@ -277,7 +409,20 @@ theorem insertIdxTR_go_eq : ∀ i l, insertIdxTR.go a i l acc = acc.toList ++ in
 
 /-! ### eraseIdx -/
 
-/-- Tail recursive version of `List.eraseIdx`. -/
+
+/--
+Removes the element at the specified index. If the index is out of bounds, the list is returned
+unmodified.
+
+`O(i)`.
+
+This is a tail-recursive version of `List.eraseIdx`, used at runtime.
+
+Examples:
+* `[0, 1, 2, 3, 4].eraseIdxTR 0 = [1, 2, 3, 4]`
+* `[0, 1, 2, 3, 4].eraseIdxTR 1 = [0, 2, 3, 4]`
+* `[0, 1, 2, 3, 4].eraseIdxTR 5 = [0, 1, 2, 3, 4]`
+-/
 @[inline] def eraseIdxTR (l : List α) (n : Nat) : List α := go l n #[] where
   /-- Auxiliary for `eraseIdxTR`: `eraseIdxTR.go l n xs acc = acc.toList ++ eraseIdx xs a`,
   unless `a` is not present in which case it returns `l` -/
@@ -303,7 +448,18 @@ theorem insertIdxTR_go_eq : ∀ i l, insertIdxTR.go a i l acc = acc.toList ++ in
 
 /-! ### zipWith -/
 
-/-- Tail recursive version of `List.zipWith`. -/
+/--
+Applies a function to the corresponding elements of two lists, stopping at the end of the shorter
+list.
+
+`O(min |xs| |ys|)`. This is a tail-recursive version of `List.zipWith` that's used at runtime.
+
+Examples:
+* `[1, 2].zipWithTR (· + ·) [5, 6] = [6, 8]`
+* `[1, 2, 3].zipWithTR (· + ·) [5, 6, 10] = [6, 8, 13]`
+* `[].zipWithTR (· + ·) [5, 6] = []`
+* `[x₁, x₂, x₃].zipWithTR f [y₁, y₂, y₃, y₄] = [f x₁ y₁, f x₂ y₂, f x₃ y₃]`
+-/
 @[inline] def zipWithTR (f : α → β → γ) (as : List α) (bs : List β) : List γ := go as bs #[] where
   /-- Auxiliary for `zipWith`: `zipWith.go f as bs acc = acc.toList ++ zipWith f as bs` -/
   go : List α → List β → Array γ → List γ
@@ -321,7 +477,16 @@ theorem insertIdxTR_go_eq : ∀ i l, insertIdxTR.go a i l acc = acc.toList ++ in
 
 /-! ### zipIdx -/
 
-/-- Tail recursive version of `List.zipIdx`. -/
+
+/--
+Pairs each element of a list with its index, optionally starting from an index other than `0`.
+
+`O(|l|)`. This is a tail-recursive version of `List.zipIdx` that's used at runtime.
+
+Examples:
+* `[a, b, c].zipIdxTR = [(a, 0), (b, 1), (c, 2)]`
+* `[a, b, c].zipIdxTR 5 = [(a, 5), (b, 6), (c, 7)]`
+-/
 def zipIdxTR (l : List α) (n : Nat := 0) : List (α × Nat) :=
   let as := l.toArray
   (as.foldr (fun a (n, acc) => (n-1, (a, n-1) :: acc)) (n + as.size, [])).2
@@ -363,8 +528,18 @@ theorem enumFrom_eq_enumFromTR : @enumFrom = @enumFromTR := by
 /-! ### intercalate -/
 
 set_option linter.listVariables false in
-/-- Tail recursive version of `List.intercalate`. -/
-def intercalateTR (sep : List α) : List (List α) → List α
+/--
+Alternates the lists in `xs` with the separator `sep`.
+
+This is a tail-recursive version of `List.intercalate` used at runtime.
+
+Examples:
+* `List.intercalateTR sep [] = []`
+* `List.intercalateTR sep [a] = a`
+* `List.intercalateTR sep [a, b] = a ++ sep ++ b`
+* `List.intercalateTR sep [a, b, c] = a ++ sep ++ b ++ sep ++ c`
+-/
+def intercalateTR (sep : List α) : (xs : List (List α)) → List α
   | [] => []
   | [x] => x
   | x::xs => go sep.toArray x xs #[]

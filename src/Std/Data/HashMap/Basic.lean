@@ -312,8 +312,16 @@ def Array.groupByKey [BEq α] [Hashable α] (key : β → α) (xs : Array β)
   return groups
 
 /--
-Groups all elements `x`, `y` in `xs` with `key x == key y` into the same list
-`(xs.groupByKey key).find! (key x)`. Groups preserve the relative order of elements in `xs`.
+Groups the elements of a list `xs` according to the function `key`, returning a hash map in which
+each group is associated with its key. Groups preserve the relative order of elements in `xs`.
+
+Example:
+```lean example
+#eval [0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2)
+```
+```output
+Std.HashMap.ofList [(0, [0, 2, 4, 6]), (1, [1, 3, 5])]
+```
 -/
 def List.groupByKey [BEq α] [Hashable α] (key : β → α) (xs : List β) :
     Std.HashMap α (List β) :=

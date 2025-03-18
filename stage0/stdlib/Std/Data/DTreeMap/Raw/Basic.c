@@ -52,7 +52,6 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_modify___rarg(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at_Std_DTreeMap_Raw_contains___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_entryAtIdxD___at_Std_DTreeMap_Raw_entryAtIdxD___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_Const_ofArray___rarg(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_fromList___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_get_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Std_DTreeMap_Raw_Const_ofList___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1052,6 +1051,7 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_any(lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_min_x21___at_Std_DTreeMap_Raw_min_x21___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_minKeyD___at_Std_DTreeMap_Raw_minKeyD___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_entryAtIdx_x21___at_Std_DTreeMap_Raw_entryAtIdx_x21___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert___at_Std_DTreeMap_Raw_Const_ofList___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_DTreeMap_Raw_containsThenInsert___spec__2___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Raw_filter___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -1141,7 +1141,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

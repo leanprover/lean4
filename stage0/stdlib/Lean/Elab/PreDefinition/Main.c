@@ -572,6 +572,7 @@ uint8_t l_Lean_Elab_Modifiers_isPartial(lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_checkTerminationByHints___spec__3___lambda__7___closed__7;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_getMVarsAtPreDef___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwReservedNameNotAvailable___at_Lean_Elab_ensureFunIndReservedNamesAvailable___spec__2___closed__2;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_checkTerminationByHints___spec__3___lambda__7___closed__3;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__4(lean_object*, lean_object*, size_t, size_t);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_checkTerminationByHints___spec__3___lambda__7___closed__4;
@@ -11215,7 +11216,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

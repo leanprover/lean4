@@ -671,6 +671,7 @@ static lean_object* l___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_
 static lean_object* l_Lean_MessageData_paren___closed__2;
 static lean_object* l_Lean_Kernel_Exception_toMessageData___closed__9;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_MessageLog_errorsToWarnings___spec__4___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MessageData_format(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_MessageData_orList___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Message_kind___boxed(lean_object*);
@@ -9642,7 +9643,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

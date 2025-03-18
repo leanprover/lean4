@@ -31,10 +31,13 @@ attribute [simp] mapA forA filterAuxM firstM anyM allM findM? findSomeM?
 
 /-! ### mapM -/
 
-/-- Alternate (non-tail-recursive) form of mapM for proofs.
+/--
+Applies the monadic action `f` on every element in the list, left-to-right, and returns the list of
+results.
 
-Note that we can not have this as the main definition and replace it using a `@[csimp]` lemma,
-because they are only equal when `m` is a `LawfulMonad`.
+This is a non-tail-recursive variant of `List.mapM` that's easier to reason about. It cannot be used
+as the main definition and replaced by the tail-recursive version because they can only be proved
+equal when `m` is a `LawfulMonad`.
 -/
 def mapM' [Monad m] (f : α → m β) : List α → m (List β)
   | [] => pure []

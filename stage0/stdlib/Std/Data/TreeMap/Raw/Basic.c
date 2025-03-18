@@ -50,7 +50,6 @@ LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_containsThenInsertIfNew___
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_instSingletonProd(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_getKeyGTD___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at_Std_TreeMap_Raw_insertIfNew___spec__2(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at_Std_TreeMap_Raw_insert___spec__1___rarg___closed__8;
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at_Std_TreeMap_Raw_containsThenInsertIfNew___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_foldM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -831,6 +830,7 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at_Std_TreeMap
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_contains___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_getKeyLT_x3f_go___at_Std_TreeMap_Raw_getKeyLTD___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x21___at_Std_TreeMap_Raw_instGetElem_x3fMem___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_alter___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at_Std_TreeMap_Raw_containsThenInsertIfNew___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get___at_Std_TreeMap_Raw_get___spec__1(lean_object*, lean_object*);
@@ -893,7 +893,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

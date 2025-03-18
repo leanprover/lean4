@@ -29,7 +29,6 @@ lean_object* l_Lean_Json_compress(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_leanArtsFacetConfig___elambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_cFacetConfig___elambda__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Module_leanArtsFacetConfig___closed__3;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_oleanFacetConfig;
 LEAN_EXPORT lean_object* l_Lake_Module_recBuildDeps___lambda__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_recBuildDynlib___lambda__1(lean_object*);
@@ -520,6 +519,7 @@ LEAN_EXPORT lean_object* l_Lake_Module_recBuildDynlib___lambda__4___boxed(lean_o
 static lean_object* l_Lake_initModuleFacetConfigs___closed__15;
 static lean_object* l_Lake_Module_leanArtsFacetConfig___closed__2;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Module_recParseImports___spec__8(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 lean_object* l_Lake_clearFileHash(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_importsFacetConfig___elambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_stdFormat___at_Lake_Module_oleanFacetConfig___elambda__1___spec__1(uint8_t, lean_object*);
@@ -6311,7 +6311,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

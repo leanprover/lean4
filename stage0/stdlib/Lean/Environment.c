@@ -63,7 +63,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getSt
 LEAN_EXPORT lean_object* l___private_Lean_Environment_0__Lean_Environment_findAsyncCore_x3f___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Environment_addConstAsync(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*);
 lean_object* l_Lean_Name_quickLt___boxed(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Environment_header___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Environment_evalConst___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_shift_right(size_t, size_t);
@@ -1242,6 +1241,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_findS
 static lean_object* l_Lean_instInhabitedPersistentEnvExtension___closed__4;
 LEAN_EXPORT lean_object* l_Lean_PersistentEnvExtension_findStateAsync___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_TagDeclarationExtension_tag___closed__7;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___lambda__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SimplePersistentEnvExtension_findStateAsync___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Environment___hyg_8213____closed__11;
@@ -2048,7 +2048,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

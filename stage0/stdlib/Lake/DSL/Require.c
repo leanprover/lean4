@@ -26,7 +26,6 @@ static lean_object* l_Lake_DSL_depSpec___closed__2;
 static lean_object* l_Lake_DSL_expandDepSpec___lambda__1___closed__26;
 lean_object* l_Lean_Macro_throwErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_fromGit___closed__19;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_DSL_fromClause;
 static lean_object* l_Lake_DSL_depSpec___closed__9;
 static lean_object* l_Lake_DSL_requireDecl___closed__6;
@@ -308,6 +307,7 @@ static lean_object* l_Lake_DSL_requireDecl___closed__3;
 static lean_object* l_Lake_DSL_depName___closed__10;
 static lean_object* l_Lake_DSL_expandDepSpec___lambda__1___closed__39;
 static lean_object* l_Lake_DSL_verSpec___closed__5;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_fromSource___closed__4;
 static lean_object* l_Lake_DSL_fromClause___closed__2;
 LEAN_EXPORT lean_object* l_Lake_DSL_instCoeRequireDeclCommand___boxed(lean_object*);
@@ -1774,7 +1774,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

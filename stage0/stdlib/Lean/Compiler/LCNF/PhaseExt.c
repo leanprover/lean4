@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_LCNF_PhaseExt_0__Lean_Compiler_LCNF_declLt(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 size_t lean_usize_shift_right(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_forEachDecl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PhaseExt___hyg_70____closed__27;
@@ -228,6 +227,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_forEachModuleDecl(lean_object*, le
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PhaseExt___hyg_70____closed__23;
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_Compiler_LCNF_forEachDecl___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_PhaseExt___hyg_185_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_mkDeclExt___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getMonoDecl_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -485,7 +485,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

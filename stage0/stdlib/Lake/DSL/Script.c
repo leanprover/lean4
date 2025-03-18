@@ -17,7 +17,6 @@ static lean_object* l_Lake_DSL_expandScriptDecl___lambda__1___closed__42;
 static lean_object* l_Lake_DSL_expandScriptDecl___lambda__1___closed__15;
 lean_object* l_Lean_Macro_throwErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_expandScriptDecl___lambda__1___closed__21;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lake_DSL_expandScriptDecl___lambda__1___closed__23;
 static lean_object* l_Lake_DSL_scriptDeclSpec___closed__13;
 static lean_object* l_Lake_DSL_expandScriptDecl___lambda__2___closed__1;
@@ -154,6 +153,7 @@ static lean_object* l_Lake_DSL_scriptDeclSpec___closed__22;
 static lean_object* l_Lake_DSL_scriptDecl___closed__17;
 static lean_object* l_Lake_DSL_expandScriptDecl___lambda__1___closed__36;
 static lean_object* l_Lake_DSL_scriptDeclSpec___closed__17;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_scriptDecl___closed__16;
 static lean_object* _init_l_Lake_DSL_scriptDeclSpec___closed__1() {
 _start:
@@ -670,7 +670,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

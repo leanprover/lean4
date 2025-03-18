@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_WF_registerEqnsInfo___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* l_Lean_MapDeclarationExtension_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_instInhabitedEqnInfo;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_getEqnsFor_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_WF_registerEqnsInfo___spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -73,6 +72,7 @@ static lean_object* l_Lean_Elab_WF_instInhabitedEqnInfo___closed__2;
 static lean_object* l_Lean_Elab_WF_instInhabitedEqnInfo___closed__4;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Elab_Eqns_mkEqns(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Elab_WF_instInhabitedEqnInfo___closed__1() {
 _start:
 {
@@ -121,7 +121,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

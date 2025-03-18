@@ -913,9 +913,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_num_heartbeats(obj_arg /* w */) {
     return io_result_mk_ok(lean_uint64_to_nat(get_num_heartbeats()));
 }
 
-/* addHeartbeats (count : Int64) : BaseIO Unit */
-extern "C" LEAN_EXPORT obj_res lean_io_add_heartbeats(int64_t count, obj_arg /* w */) {
-    add_heartbeats(count);
+/* setHeartbeats (count : Nat) : BaseIO Unit */
+extern "C" LEAN_EXPORT obj_res lean_io_set_heartbeats(obj_arg count, obj_arg /* w */) {
+    set_heartbeats(lean_uint64_of_nat(count));
+    lean_dec(count);
     return io_result_mk_ok(box(0));
 }
 

@@ -33,7 +33,6 @@ static lean_object* l___private_Lean_Server_References_0__Lean_Server_fromJsonIl
 LEAN_EXPORT lean_object* l_Lean_isRec___at_Lean_Server_RefInfo_toLspRefInfo___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_combineIdents_buildIdMap___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_throwServerError___rarg(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_References_findAt(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at_Lean_Server_References_definitionsMatching___spec__1(lean_object*);
 static lean_object* l_Lean_Server_dedupReferences___closed__2;
@@ -438,6 +437,7 @@ static lean_object* l_Lean_findDeclarationRangesCore_x3f___at_Lean_Server_RefInf
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___at_Lean_Server_RefInfo_toLspRefInfo___spec__3___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Server_combineIdents_useConstRepresentatives___spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Server_combineIdents___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at_Lean_Server_References_definitionsMatching___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at_Lean_Server_References_allRefsFor___spec__1(lean_object*, lean_object*);
@@ -41890,7 +41890,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

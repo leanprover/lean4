@@ -437,6 +437,7 @@ extern lean_object* l_Lake_defaultLeanLibDir;
 static lean_object* l_Lake_Glob_decodeToml___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_StrPat_decodeToml___spec__2(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lake_LeanConfig_decodeToml___closed__12;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 extern lean_object* l_Lake_defaultManifestFile;
 static lean_object* l_Lake_LeanExeConfig_decodeToml___closed__3;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_decodeLeanOptions___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2332,7 +2333,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

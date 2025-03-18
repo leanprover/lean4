@@ -935,6 +935,7 @@ static lean_object* l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_Tactic_I
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_elabElimTargets___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_Term_withoutTacticIncrementality___at_Lean_Elab_Tactic_ElimApp_evalAlts_applyPreTac___spec__1___lambda__1(uint8_t, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_ElimApp_evalAlts_goWithInfo___closed__9;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_elabFunTarget___spec__3(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_withAltsOfOptInductionAlts___rarg___closed__1;
 lean_object* l_Lean_Meta_getFunIndInfo_x3f(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -16849,7 +16850,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -17472,7 +17473,7 @@ x_51 = lean_ctor_get(x_50, 1);
 lean_inc(x_51);
 lean_dec(x_50);
 x_52 = lean_array_get_size(x_32);
-x_53 = lean_mk_empty_array_with_capacity(x_52);
+x_53 = l_Array_emptyWithCapacity(lean_box(0), x_52);
 x_54 = l_Array_mapFinIdxM_map___at_Lean_Elab_Tactic_ElimApp_evalAlts_goWithInfo___spec__3(x_25, x_32, x_32, x_52, x_44, lean_box(0), x_53);
 lean_dec(x_32);
 lean_inc(x_16);
@@ -17730,7 +17731,7 @@ x_122 = lean_ctor_get(x_121, 1);
 lean_inc(x_122);
 lean_dec(x_121);
 x_123 = lean_array_get_size(x_102);
-x_124 = lean_mk_empty_array_with_capacity(x_123);
+x_124 = l_Array_emptyWithCapacity(lean_box(0), x_123);
 x_125 = l_Array_mapFinIdxM_map___at_Lean_Elab_Tactic_ElimApp_evalAlts_goWithInfo___spec__3(x_95, x_102, x_102, x_123, x_115, lean_box(0), x_124);
 lean_dec(x_102);
 lean_inc(x_16);

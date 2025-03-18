@@ -31,7 +31,6 @@ LEAN_EXPORT lean_object* l_Array_binSearchAux___at_Lean_getStructureInfo_x3f___s
 static lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_421____spec__8___closed__1;
 LEAN_EXPORT lean_object* l_Option_repr___at___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_64____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_eraseReps___at_Lean_computeStructureResolutionOrder___spec__8(lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_computeStructureResolutionOrder___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_shift_right(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_computeStructureResolutionOrder_selectParent(lean_object*);
@@ -394,6 +393,7 @@ LEAN_EXPORT lean_object* l_Lean_getAllParentStructures___rarg___lambda__1(lean_o
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_computeStructureResolutionOrder___spec__13(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getStructureFieldsFlattened___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isStructureLike(lean_object*, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 lean_object* l_Array_insertIdx_loop___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_64____closed__19;
 LEAN_EXPORT lean_object* l_Lean_computeStructureResolutionOrder___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
@@ -944,7 +944,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

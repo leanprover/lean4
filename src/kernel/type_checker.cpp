@@ -986,10 +986,15 @@ lbool type_checker::lazy_delta_reduction(expr & t_n, expr & s_n) {
         lbool r = is_def_eq_offset(t_n, s_n);
         if (r != l_undef) return r;
 
-        if (auto t_v = reduce_nat(t_n)) {
-            return to_lbool(is_def_eq_core(*t_v, s_n));
-        } else if (auto s_v = reduce_nat(s_n)) {
-            return to_lbool(is_def_eq_core(t_n, *s_v));
+        if (!has_fvar(t_n)) {
+            if (auto t_v = reduce_nat(t_n)) {
+                return to_lbool(is_def_eq_core(*t_v, s_n));
+            }
+        }
+        if (!has_fvar(s_n)) {
+            if (auto s_v = reduce_nat(s_n)) {
+                return to_lbool(is_def_eq_core(t_n, *s_v));
+            }
         }
 
         if (auto t_v = reduce_native(env(), t_n)) {

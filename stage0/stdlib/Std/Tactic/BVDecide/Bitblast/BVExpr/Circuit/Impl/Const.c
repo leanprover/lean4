@@ -17,7 +17,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst(lean_object*);
-lean_object* l_Std_Sat_AIG_RefVec_empty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Nat_testBit(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst_go___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -25,6 +24,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Std_Sat_AIG_mkConstCached___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst_go(lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst_go___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -43,7 +43,7 @@ return x_10;
 }
 else
 {
-uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_11 = l_Nat_testBit(x_5, x_6);
 lean_inc(x_2);
 lean_inc(x_1);
@@ -56,10 +56,18 @@ lean_dec(x_12);
 x_15 = lean_unsigned_to_nat(1u);
 x_16 = lean_nat_add(x_6, x_15);
 lean_dec(x_6);
-x_17 = lean_array_push(x_7, x_14);
+x_17 = lean_ctor_get(x_14, 0);
+lean_inc(x_17);
+x_18 = lean_ctor_get_uint8(x_14, sizeof(void*)*1);
+lean_dec(x_14);
+x_19 = lean_box(x_18);
+x_20 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_20, 0, x_17);
+lean_ctor_set(x_20, 1, x_19);
+x_21 = lean_array_push(x_7, x_20);
 x_4 = x_13;
 x_6 = x_16;
-x_7 = x_17;
+x_7 = x_21;
 x_8 = lean_box(0);
 goto _start;
 }
@@ -87,7 +95,7 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst___rarg
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_6 = l_Std_Sat_AIG_RefVec_empty(lean_box(0), x_1, x_2, x_4);
+x_6 = l_Array_emptyWithCapacity(lean_box(0), x_3);
 x_7 = lean_unsigned_to_nat(0u);
 x_8 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastConst_go___rarg(x_1, x_2, x_3, x_4, x_5, x_7, x_6, lean_box(0));
 return x_8;

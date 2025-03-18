@@ -42,12 +42,12 @@ theorem go_denote_mem_prefix (aig : AIG BVBit) (expr : BVExpr w) (assign : Assig
     (hstart) :
     ⟦
       (go aig expr).val.aig,
-      ⟨start, by apply Nat.lt_of_lt_of_le; exact hstart; apply (go aig expr).property⟩,
+      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply (go aig expr).property⟩,
       assign.toAIGAssignment
     ⟧
       =
-    ⟦aig, ⟨start, hstart⟩, assign.toAIGAssignment⟧ := by
-  apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
+    ⟦aig, ⟨start, inv, hstart⟩, assign.toAIGAssignment⟧ := by
+  apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
     apply go_decl_eq

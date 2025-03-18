@@ -8215,7 +8215,7 @@ static lean_object* _init_l_IO_appDir___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("System.IO.appDir: unexpected filename '", 39, 39);
+x_1 = lean_mk_string_unchecked("IO.appDir: unexpected filename '", 32, 32);
 return x_1;
 }
 }

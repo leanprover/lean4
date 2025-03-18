@@ -29,7 +29,9 @@ deriving Repr, DecidableEq
 
 attribute [simp] Vector.size_toArray
 
-/-- Convert `xs : Array α` to `Vector α xs.size`. -/
+/--
+Converts an array to a vector. The resulting vector's size is the array's size.
+-/
 abbrev Array.toVector (xs : Array α) : Vector α xs.size := .mk xs rfl
 
 namespace Vector

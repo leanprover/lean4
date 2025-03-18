@@ -761,21 +761,6 @@ def pushEqBoolFalse (a proof : Expr) : GoalM Unit := do
   pushEq a (← getBoolFalseExpr) proof
 
 /--
-Push a new fact into the todo list. This function assumes the fact is in `grind` normal
-form. For facts that need to be preprocessed, use `addNewRawFact` instead.
--/
-def pushNewFact (fact : Expr) (proof : Expr) (generation : Nat := 0) : GoalM Unit := do
-  modify fun s => { s with newFacts := s.newFacts.push <| .fact fact proof generation }
-
-/--
-Infer the type of the proof, and invokes `pushNewFact`. It assumes the type/proposition
-is in `grind` normal form. Only `shareCommon` is used.
--/
-def pushNewProof (proof : Expr) (generation : Nat := 0) : GoalM Unit := do
-  let fact ← shareCommon (← inferType proof)
-  modify fun s => { s with newFacts := s.newFacts.push <| .fact fact proof generation }
-
-/--
 Records that `parent` is a parent of `child`. This function actually stores the
 information in the root (aka canonical representative) of `child`.
 -/

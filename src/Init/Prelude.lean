@@ -2532,10 +2532,12 @@ def List.concat {α : Type u} : List α → α → List α
   | cons a as, b => cons a (concat as b)
 
 /--
-`String` is the type of (UTF-8 encoded) strings.
+A string is a sequence of Unicode code points.
 
-The compiler overrides the data representation of this type to a byte sequence,
-and both `String.utf8ByteSize` and `String.length` are cached and O(1).
+At runtime, strings are represented by [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array)
+of bytes using the UTF-8 encoding. Both the size in bytes (`String.utf8ByteSize`) and in characters
+(`String.length`) are cached and take constant time. Many operations on strings perform in-place
+modifications when the reference to the string is unique.
 -/
 structure String where
   /-- Pack a `List Char` into a `String`. This function is overridden by the
@@ -2549,8 +2551,10 @@ attribute [extern "lean_string_mk"] String.mk
 attribute [extern "lean_string_data"] String.data
 
 /--
-Decides equality on `String`.
-This function is overridden with a native implementation.
+Decides whether two strings are equal. Normally used via the `DecidableEq String` instance and the
+`=` operator.
+
+At runtime, this function is overridden with an efficient native implementation.
 -/
 @[extern "lean_string_dec_eq"]
 def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
@@ -2561,14 +2565,14 @@ def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
 instance : DecidableEq String := String.decEq
 
 /--
-A byte position in a `String`. Internally, `String`s are UTF-8 encoded.
-Codepoint positions (counting the Unicode codepoints rather than bytes)
-are represented by plain `Nat`s instead.
-Indexing a `String` by a byte position is constant-time, while codepoint
-positions need to be translated internally to byte positions in linear-time.
+A byte position in a `String`, according to its UTF-8 encoding.
 
-A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.endPos` and `p`
-lies on a UTF8 byte boundary.
+Character positions (counting the Unicode code points rather than bytes) are represented by plain
+`Nat`s. Indexing a `String` by a `String.Pos` takes constant time, while character positions need to
+be translated internally to byte positions, which takes linear time.
+
+A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.endPos` and `p` lies on a UTF-8
+character boundary.
 -/
 structure String.Pos where
   /-- Get the underlying byte index of a `String.Pos` -/
@@ -2604,8 +2608,9 @@ instance : Inhabited Substring where
   | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
 
 /--
-The UTF-8 byte length of this string.
-This is overridden by the compiler to be cached and O(1).
+The number of bytes used by the string's UTF-8 encoding.
+
+At runtime, this function takes constant time because the byte length of strings is cached.
 -/
 @[extern "lean_string_utf8_byte_size"]
 def String.utf8ByteSize : (@& String) → Nat
@@ -2642,17 +2647,28 @@ instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
 instance : Min String.Pos := minOfLe
 instance : Max String.Pos := maxOfLe
 
-/-- A `String.Pos` pointing at the end of this string. -/
+/--
+A UTF-8 byte position that points at the end of a string, just after the last character.
+
+* `"abc".endPos = ⟨3⟩`
+* `"L∃∀N".endPos = ⟨8⟩`
+-/
 @[inline] def String.endPos (s : String) : String.Pos where
   byteIdx := utf8ByteSize s
 
-/-- Convert a `String` into a `Substring` denoting the entire string. -/
+/--
+Converts a `String` into a `Substring` that denotes the entire string.
+-/
 @[inline] def String.toSubstring (s : String) : Substring where
   str      := s
   startPos := {}
   stopPos  := s.endPos
 
-/-- `String.toSubstring` without `[inline]` annotation. -/
+/--
+Converts a `String` into a `Substring` that denotes the entire string.
+
+This is a version of `String.toSubstring` that doesn't have an `@[inline]` annotation.
+-/
 def String.toSubstring' (s : String) : Substring :=
   s.toSubstring
 
@@ -2717,45 +2733,47 @@ def panic {α : Sort u} [Inhabited α] (msg : String) : α :=
 attribute [nospecialize] Inhabited
 
 /--
-`Array α` is the type of [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array)
-with elements from `α`. This type has special support in the runtime.
+`Array α` is the type of [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array) with elements
+from `α`. This type has special support in the runtime.
 
-Arrays perform best when unshared; as long
-as they are used "linearly" all updates will be performed destructively on the
-array, so it has comparable performance to mutable arrays in imperative
-programming languages.
+Arrays perform best when unshared. As long as there is never more than one reference to an array,
+all updates will be performed _destructively_. This results in performance comparable to mutable
+arrays in imperative programming languages.
 
-An array has a size and a capacity; the size is `Array.size` but the capacity
-is not observable from Lean code. `Array.emptyWithCapacity n` creates an array which is equal to `#[]`,
-but internally allocates an array of capacity `n`.
+An array has a size and a capacity. The size is the number of elements present in the array, while
+the capacity is the amount of memory currently allocated for elements. The size is accessible via
+`Array.size`, but the capacity is not observable from Lean code. `Array.emptyWithCapacity n` creates
+an array which is equal to `#[]`, but internally allocates an array of capacity `n`. When the size
+exceeds the capacity, allocation is required to grow the array.
 
-From the point of view of proofs `Array α` is just a wrapper around `List α`.
+From the point of view of proofs, `Array α` is just a wrapper around `List α`.
 -/
 structure Array (α : Type u) where
   /--
   Converts a `List α` into an `Array α`.
 
-  You can also use the synonym `List.toArray` when dot notation is convenient.
+  The function `List.toArray` is preferred.
 
-  At runtime, this constructor is implemented by `List.toArrayImpl` and is O(n) in the length of the
-  list.
+  At runtime, this constructor is overridden by `List.toArrayImpl` and is `O(n)` in the length of
+  the list.
   -/
   mk ::
   /--
-  Converts a `Array α` into an `List α`.
+  Converts an `Array α` into a `List α` that contains the same elements in the same order.
 
-  At runtime, this projection is implemented by `Array.toListImpl` and is O(n) in the length of the
-  array. -/
+  At runtime, this is implemented by `Array.toListImpl` and is `O(n)` in the length of the
+  array.
+  -/
   toList : List α
 
 attribute [extern "lean_array_to_list"] Array.toList
 attribute [extern "lean_array_mk"] Array.mk
 
 /--
-Converts a `List α` into an `Array α`. `O(|xs|)`.
+Converts a `List α` into an `Array α`.
 
-At runtime, this operation is implemented by `List.toArrayImpl` and takes time linear in the length
-of the list. `List.toArray` should be used instead of `Array.mk`.
+ `O(|xs|)`. At runtime, this operation is implemented by `List.toArrayImpl` and takes time linear in
+the length of the list. `List.toArray` should be used instead of `Array.mk`.
 
 Examples:
  * `[1, 2, 3].toArray = #[1, 2, 3]`
@@ -2764,7 +2782,8 @@ Examples:
 @[match_pattern]
 abbrev List.toArray (xs : List α) : Array α := .mk xs
 
-/-- Construct a new empty array with initial capacity `c`.
+/--
+Constructs a new empty array with initial capacity `c`.
 
 This will be deprecated in favor of `Array.emptyWithCapacity` in the future.
 -/
@@ -2774,14 +2793,26 @@ def Array.mkEmpty {α : Type u} (c : @& Nat) : Array α where
 
 
 set_option linter.unusedVariables false in
-/-- Construct a new empty array with initial capacity `c`. -/
+/--
+Constructs a new empty array with initial capacity `c`.
+-/
 def Array.emptyWithCapacity {α : Type u} (c : @& Nat) : Array α where
   toList := List.nil
 
-/-- Construct a new empty array. -/
+/--
+Constructs a new empty array with initial capacity `0`.
+
+Use `Array.emptyWithCapacity` to create an array with a greater initial capacity.
+-/
 def Array.empty {α : Type u} : Array α := emptyWithCapacity 0
 
-/-- Get the size of an array. This is a cached value, so it is O(1) to access. -/
+/--
+Gets the number of elements stored in an array.
+
+This is a cached value, so it is `O(1)` to access. The space allocated for an array, referred to as
+its _capacity_, is at least as large as its size, but may be larger. The capacity of an array is an
+internal detail that's not observable by Lean code.
+-/
 @[reducible, extern "lean_array_get_size"]
 def Array.size {α : Type u} (a : @& Array α) : Nat :=
  a.toList.length
@@ -2800,7 +2831,18 @@ arrays.
 def Array.getInternal {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
   a.toList.get ⟨i, h⟩
 
-/-- Access an element from an array, or return `v₀` if the index is out of bounds. -/
+/--
+Returns the element at the provided index, counting from `0`. Returns the fallback value `v₀` if the
+index is out of bounds.
+
+To return an `Option` depending on whether the index is in bounds, use `a[i]?`. To panic if the
+index is out of bounds, use `a[i]!`.
+
+Examples:
+ * `#["spring", "summer", "fall", "winter"].getD 2 "never" = "fall"`
+ * `#["spring", "summer", "fall", "winter"].getD 0 "never" = "spring"`
+ * `#["spring", "summer", "fall", "winter"].getD 4 "never" = "never"`
+-/
 @[inline] abbrev Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
   dite (LT.lt i a.size) (fun h => a.getInternal i h) (fun _ => v₀)
 
@@ -2814,8 +2856,14 @@ def Array.get!Internal {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Na
   Array.getD a i default
 
 /--
-Push an element onto the end of an array. This is amortized O(1) because
-`Array α` is internally a dynamic array.
+Adds an element to the end of an array. The resulting array's size is one greater than the input
+array. If there are no other references to the array, then it is modified in-place.
+
+This takes amortized `O(1)` time because `Array α` is represented by a dynamic array.
+
+Examples:
+* `#[].push "apple" = #["apple"]`
+* `#["apple"].push "orange" = #["apple", "orange"]`
 -/
 @[extern "lean_array_push"]
 def Array.push {α : Type u} (a : Array α) (v : α) : Array α where
@@ -2869,9 +2917,21 @@ protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : 
   loop bs.size 0 as
 
 /--
-  Returns the slice of `as` from indices `start` to `stop` (exclusive).
-  If `start` is greater or equal to `stop`, the result is empty.
-  If `stop` is greater than the length of `as`, the length is used instead. -/
+Returns the slice of `as` from indices `start` to `stop` (exclusive). The resulting array has size
+`(min stop as.size) - start`.
+
+If `start` is greater or equal to `stop`, the result is empty. If `stop` is greater than the size of
+`as`, the size is used instead.
+
+Examples:
+ * `#[0, 1, 2, 3, 4].extract 1 3 = #[1, 2]`
+ * `#[0, 1, 2, 3, 4].extract 1 30 = #[1, 2, 3, 4]`
+ * `#[0, 1, 2, 3, 4].extract 0 0 = #[]`
+ * `#[0, 1, 2, 3, 4].extract 2 1 = #[]`
+ * `#[0, 1, 2, 3, 4].extract 2 2 = #[]`
+ * `#[0, 1, 2, 3, 4].extract 2 3 = #[2]`
+ * `#[0, 1, 2, 3, 4].extract 2 4 = #[2, 3]`
+-/
 -- NOTE: used in the quotation elaborator output
 def Array.extract (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : Array α :=
   let rec loop (i : Nat) (j : Nat) (bs : Array α) : Array α :=
@@ -3692,7 +3752,9 @@ opaque mixHash (u₁ u₂ : UInt64) : UInt64
 instance [Hashable α] {p : α → Prop} : Hashable (Subtype p) where
   hash a := hash a.val
 
-/-- An opaque string hash function. -/
+/--
+Computes a hash for strings.
+-/
 @[extern "lean_string_hash"]
 protected opaque String.hash (s : @& String) : UInt64
 

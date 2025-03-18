@@ -53,17 +53,18 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_Decl_constToCNF___rarg(lean_object*, uint
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_Cache_addConst___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_inj(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_cnfSatAssignment___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_Cache_addAtom___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_mixAssigns___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Decl_gateToCNF___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_Cache_init(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_cnfSatAssignment___lambda__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_Sat_AIG_toCNF_cnfSatAssignment___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_Cache_addAtom___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_Sat_CNF_eval___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Decl_constToCNF(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_State_eval(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_denote___at_Std_Sat_AIG_toCNF_cnfSatAssignment___spec__1(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_Sat_AIG_denote___at_Std_Sat_AIG_toCNF_cnfSatAssignment___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_State_addAtom___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Decl_constToCNF___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_Cache_addGate___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -441,26 +442,43 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_denote___at_Std_Sat_AIG_toCNF_cnfSatAssignment___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Std_Sat_AIG_denote___at_Std_Sat_AIG_toCNF_cnfSatAssignment___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_3 = lean_ctor_get(x_2, 1);
-x_4 = lean_ctor_get(x_2, 0);
-x_5 = lean_ctor_get(x_4, 0);
-x_6 = l_Std_Sat_AIG_denote_go___rarg(x_3, x_5, x_1, lean_box(0), lean_box(0));
-return x_6;
+x_4 = lean_ctor_get(x_3, 0);
+x_5 = lean_ctor_get(x_2, 0);
+x_6 = lean_ctor_get(x_5, 0);
+x_7 = l_Std_Sat_AIG_denote_go___rarg(x_4, x_6, x_1, lean_box(0), lean_box(0));
+x_8 = lean_unbox(x_7);
+lean_dec(x_7);
+if (x_8 == 0)
+{
+uint8_t x_9; 
+x_9 = lean_ctor_get_uint8(x_3, sizeof(void*)*1);
+return x_9;
+}
+else
+{
+uint8_t x_10; 
+x_10 = lean_ctor_get_uint8(x_3, sizeof(void*)*1);
+if (x_10 == 0)
+{
+uint8_t x_11; 
+x_11 = 1;
+return x_11;
+}
+else
+{
+uint8_t x_12; 
+x_12 = 0;
+return x_12;
+}
+}
 }
 }
 static lean_object* _init_l_Std_Sat_AIG_toCNF_cnfSatAssignment___lambda__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instDecidableEqNat___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Sat_AIG_toCNF_cnfSatAssignment___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -468,16 +486,28 @@ x_1 = lean_alloc_closure((void*)(l_instHashableNat___boxed), 1, 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_cnfSatAssignment___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+static lean_object* _init_l_Std_Sat_AIG_toCNF_cnfSatAssignment___lambda__1___closed__2() {
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_3);
-x_5 = l_Std_Sat_AIG_denote___at_Std_Sat_AIG_toCNF_cnfSatAssignment___spec__1(x_2, x_4);
-lean_dec(x_4);
-return x_5;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instDecidableEqNat___boxed), 2, 0);
+return x_1;
+}
+}
+LEAN_EXPORT uint8_t l_Std_Sat_AIG_toCNF_cnfSatAssignment___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_4 = 0;
+x_5 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_5, 0, x_3);
+lean_ctor_set_uint8(x_5, sizeof(void*)*1, x_4);
+x_6 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_5);
+x_7 = l_Std_Sat_AIG_denote___at_Std_Sat_AIG_toCNF_cnfSatAssignment___spec__1(x_2, x_6);
+lean_dec(x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_cnfSatAssignment(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -485,7 +515,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; 
 lean_inc(x_2);
-x_4 = lean_alloc_closure((void*)(l_Std_Sat_AIG_toCNF_cnfSatAssignment___lambda__1), 3, 2);
+x_4 = lean_alloc_closure((void*)(l_Std_Sat_AIG_toCNF_cnfSatAssignment___lambda__1___boxed), 3, 2);
 lean_closure_set(x_4, 0, x_1);
 lean_closure_set(x_4, 1, x_2);
 x_5 = l_Std_Sat_AIG_toCNF_mixAssigns___rarg(x_2, x_4, x_3);
@@ -495,10 +525,20 @@ return x_5;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_denote___at_Std_Sat_AIG_toCNF_cnfSatAssignment___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
+uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Sat_AIG_denote___at_Std_Sat_AIG_toCNF_cnfSatAssignment___spec__1(x_1, x_2);
 lean_dec(x_2);
-return x_3;
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF_cnfSatAssignment___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Std_Sat_AIG_toCNF_cnfSatAssignment___lambda__1(x_1, x_2, x_3);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_toCNF_mixAssigns_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1031,36 +1071,61 @@ return x_5;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toCNF(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_2 = lean_ctor_get(x_1, 0);
+lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_2 = lean_ctor_get(x_1, 1);
 lean_inc(x_2);
-x_3 = lean_ctor_get(x_1, 1);
+x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 lean_dec(x_1);
-x_4 = l_Std_Sat_AIG_toCNF_State_empty(x_2);
-lean_inc(x_3);
-x_5 = l_Std_Sat_AIG_toCNF_go(x_2, x_3, lean_box(0), x_4);
-x_6 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_6, 0, x_3);
-x_7 = 1;
-x_8 = lean_box(x_7);
-x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_6);
-lean_ctor_set(x_9, 1, x_8);
-x_10 = lean_box(0);
-x_11 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_11, 0, x_9);
-lean_ctor_set(x_11, 1, x_10);
-x_12 = lean_ctor_get(x_5, 0);
-lean_inc(x_12);
-lean_dec(x_5);
-x_13 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_13, 0, x_11);
-lean_ctor_set(x_13, 1, x_12);
-x_14 = lean_alloc_closure((void*)(l_Std_Sat_AIG_toCNF_inj___boxed), 2, 1);
-lean_closure_set(x_14, 0, x_2);
-x_15 = l_Std_Sat_CNF_relabel___rarg(x_14, x_13);
-return x_15;
+x_4 = lean_ctor_get(x_2, 0);
+lean_inc(x_4);
+x_5 = lean_ctor_get_uint8(x_2, sizeof(void*)*1);
+lean_dec(x_2);
+x_6 = l_Std_Sat_AIG_toCNF_State_empty(x_3);
+lean_inc(x_4);
+x_7 = l_Std_Sat_AIG_toCNF_go(x_3, x_4, lean_box(0), x_6);
+x_8 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_8, 0, x_4);
+x_9 = lean_box(0);
+x_10 = lean_ctor_get(x_7, 0);
+lean_inc(x_10);
+lean_dec(x_7);
+x_11 = lean_alloc_closure((void*)(l_Std_Sat_AIG_toCNF_inj___boxed), 2, 1);
+lean_closure_set(x_11, 0, x_3);
+if (x_5 == 0)
+{
+uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+x_12 = 1;
+x_13 = lean_box(x_12);
+x_14 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_14, 0, x_8);
+lean_ctor_set(x_14, 1, x_13);
+x_15 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_9);
+x_16 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_16, 0, x_15);
+lean_ctor_set(x_16, 1, x_10);
+x_17 = l_Std_Sat_CNF_relabel___rarg(x_11, x_16);
+return x_17;
+}
+else
+{
+uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
+x_18 = 0;
+x_19 = lean_box(x_18);
+x_20 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_20, 0, x_8);
+lean_ctor_set(x_20, 1, x_19);
+x_21 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_21, 0, x_20);
+lean_ctor_set(x_21, 1, x_9);
+x_22 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_22, 0, x_21);
+lean_ctor_set(x_22, 1, x_10);
+x_23 = l_Std_Sat_CNF_relabel___rarg(x_11, x_22);
+return x_23;
+}
 }
 }
 lean_object* initialize_Std_Sat_CNF(uint8_t builtin, lean_object*);

@@ -11532,7 +11532,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEqIffEnumToBitVecEqFor___lambda__8___closed__1;
 x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass_postprocess___spec__7___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass_postprocess___spec__8___lambda__2___closed__1;
-x_3 = lean_unsigned_to_nat(472u);
+x_3 = lean_unsigned_to_nat(476u);
 x_4 = lean_unsigned_to_nat(58u);
 x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEqIffEnumToBitVecEqFor___lambda__8___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -13791,7 +13791,7 @@ lean_ctor_set_uint8(x_23, sizeof(void*)*2 + 14, x_20);
 lean_ctor_set_uint8(x_23, sizeof(void*)*2 + 15, x_20);
 lean_ctor_set_uint8(x_23, sizeof(void*)*2 + 16, x_20);
 lean_ctor_set_uint8(x_23, sizeof(void*)*2 + 17, x_21);
-lean_ctor_set_uint8(x_23, sizeof(void*)*2 + 18, x_21);
+lean_ctor_set_uint8(x_23, sizeof(void*)*2 + 18, x_20);
 lean_ctor_set_uint8(x_23, sizeof(void*)*2 + 19, x_21);
 x_24 = l_Lean_Meta_Simp_mkContext(x_23, x_5, x_16, x_10, x_11, x_12, x_13, x_17);
 x_25 = !lean_is_exclusive(x_24);

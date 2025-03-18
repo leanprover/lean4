@@ -297,9 +297,9 @@ Replaces the element at the given index, if it exists, with the result of applyi
 This is a tail-recursive version of `List.modify`.
 
 Examples:
- * `[1, 2, 3].modifyTR (· * 10) 0 = [10, 2, 3]`
- * `[1, 2, 3].modifyTR (· * 10) 2 = [1, 2, 30]`
- * `[1, 2, 3].modifyTR (· * 10) 3 = [1, 2, 3]`
+ * `[1, 2, 3].modifyTR 0 (· * 10) = [10, 2, 3]`
+ * `[1, 2, 3].modifyTR 2 (· * 10) = [1, 2, 30]`
+ * `[1, 2, 3].modifyTR 3 (· * 10) = [1, 2, 3]`
 -/
 def modifyTR (l : List α) (i : Nat) (f : α → α) : List α := go l i #[] where
   /-- Auxiliary for `modifyTR`: `modifyTR.go f l i acc = acc.toList ++ modify f i l`. -/

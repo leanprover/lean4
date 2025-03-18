@@ -2699,7 +2699,7 @@ lean_ctor_set_uint8(x_32, sizeof(void*)*2 + 14, x_15);
 lean_ctor_set_uint8(x_32, sizeof(void*)*2 + 15, x_15);
 lean_ctor_set_uint8(x_32, sizeof(void*)*2 + 16, x_15);
 lean_ctor_set_uint8(x_32, sizeof(void*)*2 + 17, x_14);
-lean_ctor_set_uint8(x_32, sizeof(void*)*2 + 18, x_14);
+lean_ctor_set_uint8(x_32, sizeof(void*)*2 + 18, x_15);
 lean_ctor_set_uint8(x_32, sizeof(void*)*2 + 19, x_14);
 x_33 = l_Lean_Meta_Simp_mkContext(x_32, x_25, x_27, x_9, x_10, x_11, x_12, x_28);
 x_34 = !lean_is_exclusive(x_33);

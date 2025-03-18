@@ -224,7 +224,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t buffer_size, obj_arg /* w */) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    // Locking early prevents potential paralellism issues setting the byte_array.
+    // Locking early prevents potential parallelism issues setting the byte_array.
     event_loop_lock(&global_ev);
 
     if (tcp_socket->m_byte_array != nullptr) {

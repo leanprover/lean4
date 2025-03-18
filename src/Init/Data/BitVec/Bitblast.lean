@@ -516,6 +516,7 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
 
 @[simp] theorem BitVec.setWidth_neg_of_le {x : BitVec v} (h : w ≤ v) : BitVec.setWidth w (-x) = -BitVec.setWidth w x := by
   simp [← BitVec.signExtend_eq_setWidth_of_le _ h, BitVec.signExtend_neg_of_le h]
+
 /-! ### abs -/
 
 theorem msb_abs {w : Nat} {x : BitVec w} :

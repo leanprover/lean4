@@ -1553,6 +1553,22 @@ theorem not_self_ne {a : BitVec w} (h : 0 < w) : ~~~a ≠ a := by
   rw [ne_comm]
   simp [h]
 
+theorem not_and {x y : BitVec w} : ~~~ (x &&& y) = ~~~ x ||| ~~~ y := by
+  ext i
+  simp
+
+theorem not_or {x y : BitVec w} : ~~~ (x ||| y) = ~~~ x &&& ~~~ y := by
+  ext i
+  simp
+
+theorem not_xor_left {x y : BitVec w} : ~~~ (x ^^^ y) = ~~~ x ^^^ y := by
+  ext i
+  simp
+
+theorem not_xor_right {x y : BitVec w} : ~~~ (x ^^^ y) = x ^^^ ~~~ y := by
+  ext i
+  simp
+
 /-! ### cast -/
 
 @[simp] theorem not_cast {x : BitVec w} (h : w = w') : ~~~(x.cast h) = (~~~x).cast h := by

@@ -663,10 +663,6 @@ example (x y : BitVec 256) : x * y * z = z * y * x := by
 
 end NormalizeMul
 
-
-
-end
-
 def foo (x : Bool) : Prop := x = true
 
 example (x : Bool) (h1 h2 : x = true) : foo x := by

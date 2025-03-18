@@ -1758,10 +1758,10 @@ where
 
 /-! ### removeAll -/
 
-/-- `O(|xs|)`. Computes the "set difference" of lists,
+/-- `O(|xs| * |ys|)`. Computes the "set difference" of lists,
 by filtering out all elements of `xs` which are also in `ys`.
 * `removeAll [1, 1, 5, 1, 2, 4, 5] [1, 2, 2] = [5, 4, 5]`
- -/
+-/
 def removeAll [BEq α] (xs ys : List α) : List α :=
   xs.filter (fun x => !ys.elem x)
 

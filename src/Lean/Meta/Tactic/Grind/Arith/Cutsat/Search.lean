@@ -86,6 +86,7 @@ where
       modify' fun s => { s with assignment := s.assignment.set x 0 }
       let some v ← c.p.eval? | c.throwUnexpected
       let v := (-v) / a
+      trace[grind.debug.cutsat.assign] "{← getVar x}, {← c.pp}, {v}"
       traceAssignment x v
       modify' fun s => { s with assignment := s.assignment.set x v }
       go xs
@@ -142,7 +143,7 @@ def getDiseqValues (x : Var) : SearchM (Array (Rat × DiseqCnstr)) := do
       -- if `k` does not divide `v`, we can just ignore the disequality.
       let v := v.num
       if v % k == 0 then
-        r := r.push (v / k, c)
+        r := r.push ((-v)/k, c)
   return r
 
 /--
@@ -274,13 +275,31 @@ def resolveRealLowerUpperConflict (c₁ c₂ : LeCnstr) : GoalM Bool := do
     trace[grind.cutsat.conflict] "not resolved"
     return false
   else
-    let c := { p, h := .combine c₁ c₂ : LeCnstr }
+    let k := p.gcdCoeffs'
+    let c := if k == 1 then
+      { p, h := .combine c₁ c₂ : LeCnstr }
+    else
+      { p := p.div k, h := .combineDivCoeffs c₁ c₂ k : LeCnstr }
     trace[grind.cutsat.conflict] "resolved: {← c.pp}"
     c.assert
     return true
 
+def resolveCooperUnary (pred : CooperSplitPred) : SearchM Bool := do
+  let some c₃ := pred.c₃? | return false
+  let .add (-1) _ (.num a) := pred.c₁.p | return false
+  let .add 1 _ (.num b) := pred.c₂.p | return false
+  let .add c _ (.num e) := c₃.p | return false
+  let d := c₃.d
+  let (1, α, _) := gcdExt c d | return false
+  unless -b < Int.Linear.cdiv (a - -α * e % d) d * d + -α * e % d do
+    return false
+  setInconsistent (.cooper pred.c₁ pred.c₂ c₃)
+  return true
+
 def resolveCooperPred (pred : CooperSplitPred) : SearchM Unit := do
   trace[grind.cutsat.conflict] "[{pred.numCases}]: {← pred.pp}"
+  if (← resolveCooperUnary pred) then
+    return
   let n := pred.numCases
   let fvarId ← mkCase (.cooper pred #[] {})
   { pred, k := n - 1, h := .dec fvarId : CooperSplit }.assert
@@ -293,19 +312,7 @@ def resolveCooperDvd (c₁ c₂ : LeCnstr) (c₃ : DvdCnstr) : SearchM Unit := d
   let left : Bool := c₁.p.leadCoeff.natAbs < c₂.p.leadCoeff.natAbs
   resolveCooperPred { c₁, c₂, left, c₃? := some c₃ }
 
-def resolveCooperDiseq (c₁ : DiseqCnstr) (c₂ : LeCnstr) (_c? : Option DvdCnstr) : GoalM Unit := do
-  throwError "Cooper-diseq NIY {← c₁.pp}, {← c₂.pp}"
-
-/--
-Given `c₁` of the form `-a₁*x + p₁ ≤ 0`, and `c` of the form `b*x + p ≠ 0`,
-splits `c` and resolve with `c₁`.
-Recall that a disequality
--/
-def resolveRatDiseq (c₁ : LeCnstr) (c : DiseqCnstr) : SearchM Unit := do
-  let c := if c.p.leadCoeff < 0 then
-    { p := c.p.mul (-1), h := .neg c : DiseqCnstr }
-  else
-    c
+def DiseqCnstr.split (c : DiseqCnstr) : SearchM LeCnstr := do
   let fvarId ← if let some fvarId := (← get').diseqSplits.find? c.p then
     trace[grind.debug.cutsat.diseq.split] "{← c.pp}, reusing {fvarId.name}"
     pure fvarId
@@ -315,7 +322,34 @@ def resolveRatDiseq (c₁ : LeCnstr) (c : DiseqCnstr) : SearchM Unit := do
     modify' fun s => { s with diseqSplits := s.diseqSplits.insert c.p fvarId }
     pure fvarId
   let p₂ := c.p.addConst 1
-  let c₂ := { p := p₂, h := .expr (mkFVar fvarId) : LeCnstr }
+  return { p := p₂, h := .expr (mkFVar fvarId) }
+
+/--
+Given `c₁` of the form `a₁*x + p₁ ≠ 0`, and `c₂` of the form `b*x + p ≤ 0`
+splits `c₁` and resolve with `c₂`.
+-/
+def resolveCooperDiseq (c₁ : DiseqCnstr) (c₂ : LeCnstr) (c₃? : Option DvdCnstr) : SearchM Unit := do
+  -- Ensure the coefficient is positive
+  let c₁ := if c₁.p.leadCoeff > 0 then
+    { p := c₁.p.mul (-1), h := .neg c₁ : DiseqCnstr }
+  else
+    c₁
+  let c₁ ← c₁.split
+  if let some c₃ := c₃? then
+    resolveCooperDvd c₁ c₂ c₃
+  else
+    resolveCooper c₁ c₂
+
+/--
+Given `c₁` of the form `-a₁*x + p₁ ≤ 0`, and `c` of the form `b*x + p ≠ 0`,
+splits `c` and resolve with `c₁`.
+-/
+def resolveRatDiseq (c₁ : LeCnstr) (c : DiseqCnstr) : SearchM Unit := do
+  let c := if c.p.leadCoeff < 0 then
+    { p := c.p.mul (-1), h := .neg c : DiseqCnstr }
+  else
+    c
+  let c₂ ← c.split
   let b ← resolveRealLowerUpperConflict c₁ c₂
   assert! b
 
@@ -441,6 +475,7 @@ def resolveConflict (h : UnsatProof) : SearchM Unit := do
 def searchAssigmentMain : SearchM Unit := do
   repeat
     trace[grind.debug.cutsat.search] "main loop"
+    checkSystem "cutsat"
     if (← hasAssignment) then
       return ()
     if (← isInconsistent) then

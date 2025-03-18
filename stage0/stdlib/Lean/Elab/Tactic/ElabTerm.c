@@ -14343,7 +14343,6 @@ x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = l_Lean_Meta_getMatcherInfo_x3f___at_Lean_Meta_reduceMatcher_x3f___spec__1(x_9, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_9);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 if (lean_obj_tag(x_11) == 0)

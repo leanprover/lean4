@@ -194,8 +194,22 @@ def Declaration.definitionVal! : Declaration → DefinitionVal
   | _ => panic! "Expected a `Declaration.defnDecl`."
 
 /--
-Returns all top-level names to be defined by adding this declaration to the environment. This does
-not include auxiliary definitions such as projections.
+Returns all top-level names to be defined by adding this declaration to the environment, i.e.
+excluding nested helper declarations generated automatically.
+-/
+def Declaration.getTopLevelNames : Declaration → List Name
+  | .axiomDecl val          => [val.name]
+  | .defnDecl val           => [val.name]
+  | .thmDecl val            => [val.name]
+  | .opaqueDecl val         => [val.name]
+  | .quotDecl               => [``Quot]
+  | .mutualDefnDecl defns   => defns.map (·.name)
+  | .inductDecl _ _ types _ => types.map (·.name)
+
+/--
+Returns all names to be defined by adding this declaration to the environment. This does not include
+auxiliary definitions such as projections added by the elaborator, nor auxiliary recursors computed
+by the kernel for nested inductive types.
 -/
 def Declaration.getNames : Declaration → List Name
   | .axiomDecl val          => [val.name]
@@ -204,7 +218,7 @@ def Declaration.getNames : Declaration → List Name
   | .opaqueDecl val         => [val.name]
   | .quotDecl               => [``Quot, ``Quot.mk, ``Quot.lift, ``Quot.ind]
   | .mutualDefnDecl defns   => defns.map (·.name)
-  | .inductDecl _ _ types _ => types.map (·.name)
+  | .inductDecl _ _ types _ => types.flatMap fun t => t.name :: (t.name.appendCore `rec) :: t.ctors.map (·.name)
 
 @[specialize] def Declaration.foldExprM {α} {m : Type → Type} [Monad m] (d : Declaration) (f : α → Expr → m α) (a : α) : m α :=
   match d with

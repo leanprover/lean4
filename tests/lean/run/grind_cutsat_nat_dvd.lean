@@ -20,3 +20,10 @@ theorem ex₅ (x y : Nat) : 1 ≤ x + y → 100 ∣ x + y → 100 ≤ x + y := b
 #print ex₃
 #print ex₄
 #print ex₅
+
+example (x y : Nat) :
+    5 ∣ x → ¬ 10 ∣ x
+    → y = 7
+    → x - y ≤ 2 → x ≥ 6
+    → False := by
+  grind

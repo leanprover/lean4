@@ -1416,4 +1416,63 @@ theorem neg_sdiv_neg {x y : BitVec w} (h : x ≠ intMin w) (h' : y ≠ intMin w)
          msb_neg_of_ne_intMin_of_ne_zero h' (by simp [hy0])]
       cases x.msb <;> cases y.msb <;> simp
 
+theorem Int.neg_lt_self_iff {n : Int} : -n < n ↔ 0 < n := by
+  omega
+
+theorem Int.pow_pos {n : Int} {m : Nat} : 0 < n → 0 < n ^ m := by
+  induction m with
+  | zero => simp
+  | succ m ih => exact fun h => Int.mul_pos (ih h) h
+
+theorem Int.pow_nonneg {n : Int} {m : Nat} : 0 ≤ n → 0 ≤ n ^ m := by
+  induction m with
+  | zero => simp
+  | succ m ih => exact fun h => Int.mul_nonneg (ih h) h
+
+theorem Int.neg_ite {n m : Int} {P : Prop} [Decidable P] : (-if P then n else m) = (if P then -n else -m) := by
+  split <;> simp
+
+theorem Int.tdiv_cases (n m : Int) : n.tdiv m =
+    if 0 ≤ n then
+      if 0 ≤ m then n / m else -(n / (-m))
+    else
+      if 0 ≤ m then -((-n) / m) else (-n) / (-m) := by
+  split <;> rename_i hn
+  · split <;> rename_i hm
+    · rw [Int.tdiv_eq_ediv_of_nonneg hn]
+    · rw [Int.tdiv_eq_ediv_of_nonneg hn]
+      simp
+  · split <;> rename_i hm
+    · rw [Int.tdiv_eq_ediv, Int.neg_ediv]
+      simp [hn, Int.neg_sub, Int.add_comm]
+    · rw [Int.tdiv_eq_ediv, Int.neg_ediv, Int.ediv_neg]
+      simp [hn, Int.sub_eq_add_neg, Int.neg_ite]
+
+theorem BitVec.intMin_eq_neg_two_pow : intMin w = BitVec.ofInt w (-2 ^ (w - 1)) := by
+  apply BitVec.eq_of_toInt_eq
+  refine (Nat.eq_zero_or_pos w).elim (by rintro rfl; simp [BitVec.toInt_zero_length]) (fun hw => ?_)
+  rw [BitVec.toInt_intMin_of_pos hw, BitVec.toInt_ofInt_eq_self hw (Int.le_refl _)]
+  simp [Int.neg_lt_self_iff]
+  apply Int.pow_pos
+  omega
+
+theorem BitVec.toInt_intMin_eq_bmod : (intMin w).toInt = (-2 ^ (w - 1)).bmod (2 ^ w) := by
+  rw [intMin_eq_neg_two_pow, toInt_ofInt]
+
+theorem BitVec.toInt_eq_toInt_bmod (b : BitVec w) : b.toInt = b.toInt.bmod (2 ^ w) := by
+  rw [toInt_eq_toNat_bmod, Int.bmod_bmod]
+
+theorem BitVec.toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1#w) :
+    (a.sdiv b).toInt = a.toInt.tdiv b.toInt := by
+  by_cases hw : w = 0
+  · subst hw
+    simp [BitVec.eq_nil a, BitVec.eq_nil b]
+  · by_cases ha : a.msb <;> by_cases hb : b.msb
+    <;> simp only [not_eq_true] at ha hb
+    · sorry
+    · sorry
+    · sorry
+    · rw [sdiv, Int.tdiv_cases, udiv_eq, neg_eq, if_pos (toInt_nonneg_of_msb_false ha),
+        if_pos (toInt_nonneg_of_msb_false hb), ha, hb, toInt_udiv_of_msb ha,
+        toInt_eq_toNat_of_msb ha, toInt_eq_toNat_of_msb hb]
 end BitVec

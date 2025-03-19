@@ -1903,20 +1903,25 @@ instance instSubNat : Sub Nat where
   sub := Nat.sub
 
 /--
-Gets the word size of the platform. That is, whether the platform is 64 or 32 bits.
+Gets the word size of the curent platform. The word size may be 64 or 32 bits.
 
-This function is opaque because we cannot guarantee at compile time that the target
-will have the same size as the host, and also because we would like to avoid
-typechecking being architecture-dependent. Nevertheless, Lean only works on
-64 and 32 bit systems so we can encode this as a fact available for proof purposes.
+This function is opaque because there is no guarantee at compile time that the target will have the
+same word size as the host. It also helps avoid having type checking be architecture-dependent.
+
+Lean only works on 64 and 32 bit systems. This fact is visible in the return type.
 -/
 @[extern "lean_system_platform_nbits"] opaque System.Platform.getNumBits : Unit → Subtype fun (n : Nat) => Or (Eq n 32) (Eq n 64) :=
   fun _ => ⟨64, Or.inr rfl⟩ -- inhabitant
 
-/-- Gets the word size of the platform. That is, whether the platform is 64 or 32 bits. -/
+/--
+The word size of the current platform, which may be 64 or 32 bits.
+-/
 def System.Platform.numBits : Nat :=
   (getNumBits ()).val
 
+/--
+The word size of the current platform may be 64 or 32 bits.
+-/
 theorem System.Platform.numBits_eq : Or (Eq numBits 32) (Eq numBits 64) :=
   (getNumBits ()).property
 
@@ -2532,10 +2537,12 @@ def List.concat {α : Type u} : List α → α → List α
   | cons a as, b => cons a (concat as b)
 
 /--
-`String` is the type of (UTF-8 encoded) strings.
+A string is a sequence of Unicode code points.
 
-The compiler overrides the data representation of this type to a byte sequence,
-and both `String.utf8ByteSize` and `String.length` are cached and O(1).
+At runtime, strings are represented by [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array)
+of bytes using the UTF-8 encoding. Both the size in bytes (`String.utf8ByteSize`) and in characters
+(`String.length`) are cached and take constant time. Many operations on strings perform in-place
+modifications when the reference to the string is unique.
 -/
 structure String where
   /-- Pack a `List Char` into a `String`. This function is overridden by the
@@ -2549,8 +2556,10 @@ attribute [extern "lean_string_mk"] String.mk
 attribute [extern "lean_string_data"] String.data
 
 /--
-Decides equality on `String`.
-This function is overridden with a native implementation.
+Decides whether two strings are equal. Normally used via the `DecidableEq String` instance and the
+`=` operator.
+
+At runtime, this function is overridden with an efficient native implementation.
 -/
 @[extern "lean_string_dec_eq"]
 def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
@@ -2561,14 +2570,14 @@ def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
 instance : DecidableEq String := String.decEq
 
 /--
-A byte position in a `String`. Internally, `String`s are UTF-8 encoded.
-Codepoint positions (counting the Unicode codepoints rather than bytes)
-are represented by plain `Nat`s instead.
-Indexing a `String` by a byte position is constant-time, while codepoint
-positions need to be translated internally to byte positions in linear-time.
+A byte position in a `String`, according to its UTF-8 encoding.
 
-A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.endPos` and `p`
-lies on a UTF8 byte boundary.
+Character positions (counting the Unicode code points rather than bytes) are represented by plain
+`Nat`s. Indexing a `String` by a `String.Pos` takes constant time, while character positions need to
+be translated internally to byte positions, which takes linear time.
+
+A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.endPos` and `p` lies on a UTF-8
+character boundary.
 -/
 structure String.Pos where
   /-- Get the underlying byte index of a `String.Pos` -/
@@ -2604,8 +2613,9 @@ instance : Inhabited Substring where
   | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
 
 /--
-The UTF-8 byte length of this string.
-This is overridden by the compiler to be cached and O(1).
+The number of bytes used by the string's UTF-8 encoding.
+
+At runtime, this function takes constant time because the byte length of strings is cached.
 -/
 @[extern "lean_string_utf8_byte_size"]
 def String.utf8ByteSize : (@& String) → Nat
@@ -2642,17 +2652,28 @@ instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
 instance : Min String.Pos := minOfLe
 instance : Max String.Pos := maxOfLe
 
-/-- A `String.Pos` pointing at the end of this string. -/
+/--
+A UTF-8 byte position that points at the end of a string, just after the last character.
+
+* `"abc".endPos = ⟨3⟩`
+* `"L∃∀N".endPos = ⟨8⟩`
+-/
 @[inline] def String.endPos (s : String) : String.Pos where
   byteIdx := utf8ByteSize s
 
-/-- Convert a `String` into a `Substring` denoting the entire string. -/
+/--
+Converts a `String` into a `Substring` that denotes the entire string.
+-/
 @[inline] def String.toSubstring (s : String) : Substring where
   str      := s
   startPos := {}
   stopPos  := s.endPos
 
-/-- `String.toSubstring` without `[inline]` annotation. -/
+/--
+Converts a `String` into a `Substring` that denotes the entire string.
+
+This is a version of `String.toSubstring` that doesn't have an `@[inline]` annotation.
+-/
 def String.toSubstring' (s : String) : Substring :=
   s.toSubstring
 
@@ -2717,45 +2738,47 @@ def panic {α : Sort u} [Inhabited α] (msg : String) : α :=
 attribute [nospecialize] Inhabited
 
 /--
-`Array α` is the type of [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array)
-with elements from `α`. This type has special support in the runtime.
+`Array α` is the type of [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array) with elements
+from `α`. This type has special support in the runtime.
 
-Arrays perform best when unshared; as long
-as they are used "linearly" all updates will be performed destructively on the
-array, so it has comparable performance to mutable arrays in imperative
-programming languages.
+Arrays perform best when unshared. As long as there is never more than one reference to an array,
+all updates will be performed _destructively_. This results in performance comparable to mutable
+arrays in imperative programming languages.
 
-An array has a size and a capacity; the size is `Array.size` but the capacity
-is not observable from Lean code. `Array.emptyWithCapacity n` creates an array which is equal to `#[]`,
-but internally allocates an array of capacity `n`.
+An array has a size and a capacity. The size is the number of elements present in the array, while
+the capacity is the amount of memory currently allocated for elements. The size is accessible via
+`Array.size`, but the capacity is not observable from Lean code. `Array.emptyWithCapacity n` creates
+an array which is equal to `#[]`, but internally allocates an array of capacity `n`. When the size
+exceeds the capacity, allocation is required to grow the array.
 
-From the point of view of proofs `Array α` is just a wrapper around `List α`.
+From the point of view of proofs, `Array α` is just a wrapper around `List α`.
 -/
 structure Array (α : Type u) where
   /--
   Converts a `List α` into an `Array α`.
 
-  You can also use the synonym `List.toArray` when dot notation is convenient.
+  The function `List.toArray` is preferred.
 
-  At runtime, this constructor is implemented by `List.toArrayImpl` and is O(n) in the length of the
-  list.
+  At runtime, this constructor is overridden by `List.toArrayImpl` and is `O(n)` in the length of
+  the list.
   -/
   mk ::
   /--
-  Converts a `Array α` into an `List α`.
+  Converts an `Array α` into a `List α` that contains the same elements in the same order.
 
-  At runtime, this projection is implemented by `Array.toListImpl` and is O(n) in the length of the
-  array. -/
+  At runtime, this is implemented by `Array.toListImpl` and is `O(n)` in the length of the
+  array.
+  -/
   toList : List α
 
 attribute [extern "lean_array_to_list"] Array.toList
 attribute [extern "lean_array_mk"] Array.mk
 
 /--
-Converts a `List α` into an `Array α`. `O(|xs|)`.
+Converts a `List α` into an `Array α`.
 
-At runtime, this operation is implemented by `List.toArrayImpl` and takes time linear in the length
-of the list. `List.toArray` should be used instead of `Array.mk`.
+ `O(|xs|)`. At runtime, this operation is implemented by `List.toArrayImpl` and takes time linear in
+the length of the list. `List.toArray` should be used instead of `Array.mk`.
 
 Examples:
  * `[1, 2, 3].toArray = #[1, 2, 3]`
@@ -2764,7 +2787,8 @@ Examples:
 @[match_pattern]
 abbrev List.toArray (xs : List α) : Array α := .mk xs
 
-/-- Construct a new empty array with initial capacity `c`.
+/--
+Constructs a new empty array with initial capacity `c`.
 
 This will be deprecated in favor of `Array.emptyWithCapacity` in the future.
 -/
@@ -2774,14 +2798,26 @@ def Array.mkEmpty {α : Type u} (c : @& Nat) : Array α where
 
 
 set_option linter.unusedVariables false in
-/-- Construct a new empty array with initial capacity `c`. -/
+/--
+Constructs a new empty array with initial capacity `c`.
+-/
 def Array.emptyWithCapacity {α : Type u} (c : @& Nat) : Array α where
   toList := List.nil
 
-/-- Construct a new empty array. -/
+/--
+Constructs a new empty array with initial capacity `0`.
+
+Use `Array.emptyWithCapacity` to create an array with a greater initial capacity.
+-/
 def Array.empty {α : Type u} : Array α := emptyWithCapacity 0
 
-/-- Get the size of an array. This is a cached value, so it is O(1) to access. -/
+/--
+Gets the number of elements stored in an array.
+
+This is a cached value, so it is `O(1)` to access. The space allocated for an array, referred to as
+its _capacity_, is at least as large as its size, but may be larger. The capacity of an array is an
+internal detail that's not observable by Lean code.
+-/
 @[reducible, extern "lean_array_get_size"]
 def Array.size {α : Type u} (a : @& Array α) : Nat :=
  a.toList.length
@@ -2800,7 +2836,18 @@ arrays.
 def Array.getInternal {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
   a.toList.get ⟨i, h⟩
 
-/-- Access an element from an array, or return `v₀` if the index is out of bounds. -/
+/--
+Returns the element at the provided index, counting from `0`. Returns the fallback value `v₀` if the
+index is out of bounds.
+
+To return an `Option` depending on whether the index is in bounds, use `a[i]?`. To panic if the
+index is out of bounds, use `a[i]!`.
+
+Examples:
+ * `#["spring", "summer", "fall", "winter"].getD 2 "never" = "fall"`
+ * `#["spring", "summer", "fall", "winter"].getD 0 "never" = "spring"`
+ * `#["spring", "summer", "fall", "winter"].getD 4 "never" = "never"`
+-/
 @[inline] abbrev Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
   dite (LT.lt i a.size) (fun h => a.getInternal i h) (fun _ => v₀)
 
@@ -2814,8 +2861,14 @@ def Array.get!Internal {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Na
   Array.getD a i default
 
 /--
-Push an element onto the end of an array. This is amortized O(1) because
-`Array α` is internally a dynamic array.
+Adds an element to the end of an array. The resulting array's size is one greater than the input
+array. If there are no other references to the array, then it is modified in-place.
+
+This takes amortized `O(1)` time because `Array α` is represented by a dynamic array.
+
+Examples:
+* `#[].push "apple" = #["apple"]`
+* `#["apple"].push "orange" = #["apple", "orange"]`
 -/
 @[extern "lean_array_push"]
 def Array.push {α : Type u} (a : Array α) (v : α) : Array α where
@@ -2869,9 +2922,21 @@ protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : 
   loop bs.size 0 as
 
 /--
-  Returns the slice of `as` from indices `start` to `stop` (exclusive).
-  If `start` is greater or equal to `stop`, the result is empty.
-  If `stop` is greater than the length of `as`, the length is used instead. -/
+Returns the slice of `as` from indices `start` to `stop` (exclusive). The resulting array has size
+`(min stop as.size) - start`.
+
+If `start` is greater or equal to `stop`, the result is empty. If `stop` is greater than the size of
+`as`, the size is used instead.
+
+Examples:
+ * `#[0, 1, 2, 3, 4].extract 1 3 = #[1, 2]`
+ * `#[0, 1, 2, 3, 4].extract 1 30 = #[1, 2, 3, 4]`
+ * `#[0, 1, 2, 3, 4].extract 0 0 = #[]`
+ * `#[0, 1, 2, 3, 4].extract 2 1 = #[]`
+ * `#[0, 1, 2, 3, 4].extract 2 2 = #[]`
+ * `#[0, 1, 2, 3, 4].extract 2 3 = #[2]`
+ * `#[0, 1, 2, 3, 4].extract 2 4 = #[2, 3]`
+-/
 -- NOTE: used in the quotation elaborator output
 def Array.extract (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : Array α :=
   let rec loop (i : Nat) (j : Nat) (bs : Array α) : Array α :=
@@ -3692,7 +3757,9 @@ opaque mixHash (u₁ u₂ : UInt64) : UInt64
 instance [Hashable α] {p : α → Prop} : Hashable (Subtype p) where
   hash a := hash a.val
 
-/-- An opaque string hash function. -/
+/--
+Computes a hash for strings.
+-/
 @[extern "lean_string_hash"]
 protected opaque String.hash (s : @& String) : UInt64
 
@@ -3847,39 +3914,53 @@ def maxRecDepthErrorMessage : String :=
 
 /-! # Syntax -/
 
-/-- Source information of tokens. -/
+/--
+Source information that relates syntax to the context that it came from.
+
+The primary purpose of `SourceInfo` is to relate the output of the parser and the macro expander to
+the original source file. When produced by the parser, `Syntax.node` does not carry source info; the
+parser associates it only with atoms and identifiers. If a `Syntax.node` is introduced by a
+quotation, then it has synthetic source info that both associates it with an original reference
+position and indicates that the original atoms in it may not originate from the Lean file under
+elaboration.
+
+Source info is also used to relate Lean's output to the internal data that it represents; this is
+the basis for many interactive features. When used this way, it can occur on `Syntax.node` as well.
+-/
 inductive SourceInfo where
   /--
-  Token from original input with whitespace and position information.
-  `leading` will be inferred after parsing by `Syntax.updateLeading`. During parsing,
-  it is not at all clear what the preceding token was, especially with backtracking.
+  A token produced by the parser from original input that includes both leading and trailing
+  whitespace as well as position information.
+
+  The `leading` whitespace is inferred after parsing by `Syntax.updateLeading`. This is because the
+  “preceding token” is not well-defined during parsing, especially in the presence of backtracking.
   -/
   | original (leading : Substring) (pos : String.Pos) (trailing : Substring) (endPos : String.Pos)
   /--
-  Synthesized syntax (e.g. from a quotation) annotated with a span from the original source.
-  In the delaborator, we "misuse" this constructor to store synthetic positions identifying
-  subterms.
+  Synthetic syntax is syntax that was produced by a metaprogram or by Lean itself (e.g. by a
+  quotation). Synthetic syntax is annotated with a source span from the original syntax, which
+  relates it to the source file.
 
-  The `canonical` flag on synthetic syntax is enabled for syntax that is not literally part
-  of the original input syntax but should be treated "as if" the user really wrote it
-  for the purpose of hovers and error messages. This is usually used on identifiers,
-  to connect the binding site to the user's original syntax even if the name of the identifier
-  changes during expansion, as well as on tokens where we will attach targeted messages.
+  The delaborator uses this constructor to store an encoded indicator of which core language
+  expression gave rise to the syntax.
 
-  The syntax `token%$stx` in a syntax quotation will annotate the token `token` with the span
-  from `stx` and also mark it as canonical.
+  The `canonical` flag on synthetic syntax is enabled for syntax that is not literally part of the
+  original input syntax but should be treated “as if” the user really wrote it for the purpose of
+  hovers and error messages. This is usually used on identifiers in order to connect the binding
+  site to the user's original syntax even if the name of the identifier changes during expansion, as
+  well as on tokens that should receive targeted messages.
 
-  As a rough guide, a macro expansion should only use a given piece of input syntax in
-  a single canonical token, although this is sometimes violated when the same identifier
-  is used to declare two binders, as in the macro expansion for dependent if:
+  Generally speaking, a macro expansion should only use a given piece of input syntax in a single
+  canonical token. An exception to this rule is when the same identifier is used to declare two
+  binders, as in the macro expansion for dependent if:
   ```
   `(if $h : $cond then $t else $e) ~>
   `(dite $cond (fun $h => $t) (fun $h => $t))
   ```
-  In these cases if the user hovers over `h` they will see information about both binding sites.
+  In these cases, if the user hovers over `h` they will see information about both binding sites.
   -/
   | synthetic (pos : String.Pos) (endPos : String.Pos) (canonical := false)
-  /-- Synthesized token without position information. -/
+  /-- A synthesized token without position information. -/
   | protected none
 
 instance : Inhabited SourceInfo := ⟨SourceInfo.none⟩
@@ -3931,20 +4012,23 @@ def getTrailingTailPos? (info : SourceInfo) (canonicalOnly := false) : Option St
 end SourceInfo
 
 /--
-A `SyntaxNodeKind` classifies `Syntax.node` values. It is an abbreviation for
-`Name`, and you can use name literals to construct `SyntaxNodeKind`s, but
-they need not refer to declarations in the environment. Conventionally, a
-`SyntaxNodeKind` will correspond to the `Parser` or `ParserDesc` declaration
-that parses it.
+Specifies the interpretation of a `Syntax.node` value. An abbreviation for `Name`.
+
+Node kinds may be any name, and do not need to refer to declarations in the environment.
+Conventionally, however, a node's kind corresponds to the `Parser` or `ParserDesc` declaration that
+produces it. There are also a number of built-in node kinds that are used by the parsing
+infrastructure, such as `nullKind` and `choiceKind`; these do not correspond to parser declarations.
 -/
 abbrev SyntaxNodeKind := Name
 
 /-! # Syntax AST -/
 
 /--
-Binding information resolved and stored at compile time of a syntax quotation.
-Note: We do not statically know whether a syntax expects a namespace or term name,
-so a `Syntax.ident` may contain both preresolution kinds.
+A possible binding of an identifier in the context in which it was quoted.
+
+Identifiers in quotations may refer to either global declarations or to namespaces that are in scope
+at the site of the quotation. These are saved in the `Syntax.ident` constructor and are part of the
+implementation of hygienic macros.
 -/
 inductive Syntax.Preresolved where
   /-- A potential namespace reference -/
@@ -3953,41 +4037,57 @@ inductive Syntax.Preresolved where
   | decl (n : Name) (fields : List String)
 
 /--
-Syntax objects used by the parser, macro expander, delaborator, etc.
+Lean syntax trees.
+
+Syntax trees are used pervasively throughout Lean: they are produced by the parser, transformed by
+the macro expander, and elaborated. They are also produced by the delaborator and presented to
+users.
 -/
 inductive Syntax where
-  /-- A `missing` syntax corresponds to a portion of the syntax tree that is
-  missing because of a parse error. The indexing operator on Syntax also
-  returns `missing` for indexing out of bounds. -/
+  /--
+  A portion of the syntax tree that is missing because of a parse error.
+
+  The indexing operator on `Syntax` also returns `Syntax.missing` when the index is out of bounds.
+  -/
   | missing : Syntax
-  /-- Node in the syntax tree.
+  /--
+  A node in the syntax tree that may have further syntax as child nodes. The node's `kind`
+  determines its interpretation.
 
-  The `info` field is used by the delaborator to store the position of the
-  subexpression corresponding to this node.
-  The parser sets the `info` field to `none`, with position retrieval continuing recursively.
-  Nodes created by quotations use the result from `SourceInfo.fromRef` so that they are marked
-  as synthetic even when the leading/trailing token is not.
-  The delaborator uses the `info` field to store the position of the subexpression
-  corresponding to this node.
-
-  (Remark: the `node` constructor did not have an `info` field in previous
-  versions. This caused a bug in the interactive widgets, where the popup for
-  `a + b` was the same as for `a`. The delaborator used to associate
-  subexpressions with pretty-printed syntax by setting the (string) position
-  of the first atom/identifier to the (expression) position of the
-  subexpression. For example, both `a` and `a + b` have the same first
-  identifier, and so their infos got mixed up.) -/
+  For nodes produced by the parser, the `info` field is typically `Lean.SourceInfo.none`, and source
+  information is stored in the corresponding fields of identifiers and atoms. This field is used in
+  two ways:
+   1. The delaborator uses it to associate nodes with metadata that are used to implement
+      interactive features.
+   2. Nodes created by quotations use the field to mark the syntax as synthetic (storing the result
+      of `Lean.SourceInfo.fromRef`) even when its leading or trailing tokens are not.
+  -/
+  -- Remark: the `node` constructor did not have an `info` field in previous versions. This caused a
+  -- bug in the interactive widgets, where the popup for `a + b` was the same as for `a`. The
+  -- delaborator used to associate subexpressions with pretty-printed syntax by setting the (string)
+  -- position of the first atom/identifier to the (expression) position of the subexpression. For
+  -- example, both `a` and `a + b` have the same first identifier, and so their infos got mixed up.
   | node   (info : SourceInfo) (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
-  /-- An `atom` corresponds to a keyword or piece of literal unquoted syntax.
-  These correspond to quoted strings inside `syntax` declarations.
-  For example, in `(x + y)`, `"("`, `"+"` and `")"` are `atom`
-  and `x` and `y` are `ident`. -/
+  /--
+  A non-identifier atomic component of syntax.
+
+  All of the following are atoms:
+   * keywords, such as `def`, `fun`, and `inductive`
+   * literals, such as numeric or string literals
+   * punctuation and delimiters, such as `(`, `)`, and `=>`.
+
+  Identifiers are represented by the `Lean.Syntax.ident` constructor. Atoms also correspond to
+  quoted strings inside `syntax` declarations.
+  -/
   | atom   (info : SourceInfo) (val : String) : Syntax
-  /-- An `ident` corresponds to an identifier as parsed by the `ident` or
-  `rawIdent` parsers.
+  /--
+  An identifier.
+
+  In addition to source information, identifiers have the following fields:
   * `rawVal` is the literal substring from the input file
-  * `val` is the parsed identifier (with hygiene)
-  * `preresolved` is the list of possible declarations this could refer to
+  * `val` is the parsed Lean name, potentially including macro scopes.
+  * `preresolved` is the list of possible declarations this could refer to, populated by
+    [quotations](lean-manual://section/quasiquotation).
   -/
   | ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List Syntax.Preresolved) : Syntax
 
@@ -4023,15 +4123,19 @@ def Syntax.node7 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ a�
 def Syntax.node8 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈ : Syntax) : Syntax :=
   Syntax.node info kind (Array.mkArray8 a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈)
 
-/-- `SyntaxNodeKinds` is a set of `SyntaxNodeKind` (implemented as a list). -/
+/--
+`SyntaxNodeKinds` is a set of `SyntaxNodeKind`, implemented as a list.
+
+Singleton `SyntaxNodeKinds` are extremely common. They are written as name literals, rather than as
+lists; list syntax is required only for empty or non-singleton sets of kinds.
+-/
 def SyntaxNodeKinds := List SyntaxNodeKind
 
 /--
-A `Syntax` value of one of the given syntax kinds.
-Note that while syntax quotations produce/expect `TSyntax` values of the correct kinds,
-this is not otherwise enforced and can easily be circumvented by direct use of the constructor.
-The namespace `TSyntax.Compat` can be opened to expose a general coercion from `Syntax` to any
-`TSyntax ks` for porting older code.
+Typed syntax, which tracks the potential kinds of the `Syntax` it contains.
+
+While syntax quotations produce or expect `TSyntax` values of the correct kinds, this is not
+otherwise enforced; it can easily be circumvented by direct use of the constructor.
 -/
 structure TSyntax (ks : SyntaxNodeKinds) where
   /-- The underlying `Syntax` value. -/
@@ -4046,63 +4150,72 @@ instance : Inhabited (TSyntax ks) where
 /-! # Builtin kinds -/
 
 /--
-The `choice` kind is used when a piece of syntax has multiple parses, and the
-determination of which to use is deferred until typing information is available.
+The `` `choice `` kind is used to represent ambiguous parse results.
+
+The parser prioritizes longer matches over shorter ones, but there is not always a unique longest
+match. All the parse results are saved, and the determination of which to use is deferred
+until typing information is available.
 -/
 abbrev choiceKind : SyntaxNodeKind := `choice
 
-/-- The null kind is used for raw list parsers like `many`. -/
+/--
+`` `null `` is the “fallback” kind, used when no other kind applies. Null nodes result from
+repetition operators, and empty null nodes represent the failure of an optional parse.
+
+The null kind is used for raw list parsers like `many`.
+-/
 abbrev nullKind : SyntaxNodeKind := `null
 
 /--
-The `group` kind is by the `group` parser, to avoid confusing with the null
-kind when used inside `optional`.
+The `` `group `` kind is used for nodes that result from `Lean.Parser.group`. This avoids confusion
+with the null kind when used inside `optional`.
 -/
 abbrev groupKind : SyntaxNodeKind := `group
 
 /--
-`ident` is not actually used as a node kind, but it is returned by
-`getKind` in the `ident` case so that things that handle different node
-kinds can also handle `ident`.
+The pseudo-kind assigned to identifiers: `` `ident ``.
+
+The name `` `ident `` is not actually used as a kind for `Syntax.node` values. It is used by
+convention as the kind of `Syntax.ident` values.
 -/
 abbrev identKind : SyntaxNodeKind := `ident
 
-/-- `str` is the node kind of string literals like `"foo"`. -/
+/-- `` `str `` is the node kind of string literals like `"foo"`. -/
 abbrev strLitKind : SyntaxNodeKind := `str
 
-/-- `char` is the node kind of character literals like `'A'`. -/
+/-- `` `char `` is the node kind of character literals like `'A'`. -/
 abbrev charLitKind : SyntaxNodeKind := `char
 
-/-- `num` is the node kind of number literals like `42`. -/
+/-- `` `num `` is the node kind of number literals like `42`. -/
 abbrev numLitKind : SyntaxNodeKind := `num
 
-/-- `scientific` is the node kind of floating point literals like `1.23e-3`. -/
+/-- `` `scientific `` is the node kind of floating point literals like `1.23e-3`. -/
 abbrev scientificLitKind : SyntaxNodeKind := `scientific
 
-/-- `name` is the node kind of name literals like `` `foo ``. -/
+/-- `` `name `` is the node kind of name literals like `` `foo ``. -/
 abbrev nameLitKind : SyntaxNodeKind := `name
 
-/-- `fieldIdx` is the node kind of projection indices like the `2` in `x.2`. -/
+/-- `` `fieldIdx ` is the node kind of projection indices like the `2` in `x.2`. -/
 abbrev fieldIdxKind : SyntaxNodeKind := `fieldIdx
 
 /--
-`hygieneInfo` is the node kind of the `hygieneInfo` parser, which is an
-"invisible token" which captures the hygiene information at the current point
-without parsing anything.
+`` `hygieneInfo `` is the node kind of the `Lean.Parser.hygieneInfo` parser, which produces an
+“invisible token” that captures the hygiene information at the current point without parsing
+anything.
 
-They can be used to generate identifiers (with `Lean.HygieneInfo.mkIdent`)
-as if they were introduced by the calling context, not the called macro.
+They can be used to generate identifiers (with `Lean.HygieneInfo.mkIdent`) as if they were
+introduced in a macro's input, rather than by its implementation.
 -/
 abbrev hygieneInfoKind : SyntaxNodeKind := `hygieneInfo
 
 /--
-`interpolatedStrLitKind` is the node kind of interpolated string literal
+`` `interpolatedStrLitKind `` is the node kind of interpolated string literal
 fragments like `"value = {` and `}"` in `s!"value = {x}"`.
 -/
 abbrev interpolatedStrLitKind : SyntaxNodeKind := `interpolatedStrLitKind
 /--
-`interpolatedStrKind` is the node kind of an interpolated string literal
-like `"value = {x}"` in `s!"value = {x}"`.
+`` `interpolatedStrKind `` is the node kind of an interpolated string literal like `"value = {x}"`
+in `s!"value = {x}"`.
 -/
 abbrev interpolatedStrKind : SyntaxNodeKind := `interpolatedStrKind
 
@@ -4118,8 +4231,10 @@ abbrev interpolatedStrKind : SyntaxNodeKind := `interpolatedStrKind
 namespace Syntax
 
 /--
-Gets the kind of a `Syntax` node. For non-`node` syntax, we use "pseudo kinds":
-`identKind` for `ident`, `missing` for `missing`, and the atom's string literal
+Gets the kind of a `Syntax.node` value, or the pseudo-kind of any other `Syntax` value.
+
+“Pseudo-kinds” are kinds that are assigned by convention to non-`Syntax.node` values:
+`identKind` for `Syntax.ident`, `` `missing `` for `Syntax.missing`, and the atom's string literal
 for atoms.
 -/
 def getKind (stx : Syntax) : SyntaxNodeKind :=
@@ -4133,15 +4248,22 @@ def getKind (stx : Syntax) : SyntaxNodeKind :=
   | Syntax.ident ..    => identKind
 
 /--
-Changes the kind at the root of a `Syntax` node to `k`.
-Does nothing for non-`node` nodes.
+Changes the kind at the root of a `Syntax.node` to `k`.
+
+Returns all other `Syntax` values unchanged.
 -/
 def setKind (stx : Syntax) (k : SyntaxNodeKind) : Syntax :=
   match stx with
   | Syntax.node info _ args => Syntax.node info k args
   | _                       => stx
 
-/-- Is this a syntax with node kind `k`? -/
+/--
+Checks whether syntax has the given kind or pseudo-kind.
+
+“Pseudo-kinds” are kinds that are assigned by convention to non-`Syntax.node` values:
+`identKind` for `Syntax.ident`, `` `missing `` for `Syntax.missing`, and the atom's string literal
+for atoms.
+-/
 def isOfKind (stx : Syntax) (k : SyntaxNodeKind) : Bool :=
   beq stx.getKind k
 
@@ -4259,15 +4381,27 @@ partial def getTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.
   | _, _ => none
 
 /--
-An array of syntax elements interspersed with separators. Can be coerced
-to/from `Array Syntax` to automatically remove/insert the separators.
+An array of syntax elements interspersed with the given separators.
+
+Separator arrays result from repetition operators such as `,*`.
+[Coercions](lean-manual://section/coercions) to and from `Array Syntax` insert or remove separators
+as required.
+
+The typed equivalent is `Lean.Syntax.TSepArray`.
 -/
 structure SepArray (sep : String) where
   /-- The array of elements and separators, ordered like
   `#[el1, sep1, el2, sep2, el3]`. -/
   elemsAndSeps : Array Syntax
 
-/-- A typed version of `SepArray`. -/
+/--
+An array of syntax elements that alternate with the given separator. Each syntax element has a kind
+drawn from `ks`.
+
+Separator arrays result from repetition operators such as `,*`.
+[Coercions](lean-manual://section/coercions) to and from `Array (TSyntax ks)` insert or remove
+separators as required. The untyped equivalent is `Lean.Syntax.SepArray`.
+-/
 structure TSepArray (ks : SyntaxNodeKinds) (sep : String) where
   /-- The array of elements and separators, ordered like
   `#[el1, sep1, el2, sep2, el3]`. -/
@@ -4275,7 +4409,9 @@ structure TSepArray (ks : SyntaxNodeKinds) (sep : String) where
 
 end Syntax
 
-/-- An array of syntaxes of kind `ks`. -/
+/--
+An array of syntaxes of kind `ks`.
+-/
 abbrev TSyntaxArray (ks : SyntaxNodeKinds) := Array (TSyntax ks)
 
 /-- Implementation of `TSyntaxArray.raw`. -/

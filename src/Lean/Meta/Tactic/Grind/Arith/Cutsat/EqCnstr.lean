@@ -307,7 +307,7 @@ def processNewDiseqImpl (a b : Expr) : GoalM Unit := do
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where
-  | add | mul | num | div | mod | sub
+  | add | mul | num | div | mod | sub | natAbs | toNat
   deriving BEq
 
 private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
@@ -321,6 +321,8 @@ private def getKindAndType? (e : Expr) : Option (SupportedTermKind × Expr) :=
   | Neg.neg α _ a =>
     let_expr OfNat.ofNat _ _ _ := a | none
     some (.num, α)
+  | Int.natAbs _ => some (.natAbs, Nat.mkType)
+  | Int.toNat _ => some (.toNat, Nat.mkType)
   | _ => none
 
 private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : Bool := Id.run do
@@ -329,7 +331,7 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
   -- TODO: document `NatCast.natCast` case.
   -- Remark: we added it to prevent natCast_sub from being expanded twice.
   if declName == ``NatCast.natCast then return true
-  if k matches .div | .mod | .sub then return false
+  if k matches .div | .mod | .sub | .natAbs | .toNat then return false
   if declName == ``HAdd.hAdd || declName == ``LE.le || declName == ``Dvd.dvd then return true
   match k with
   | .add => return false
@@ -351,9 +353,9 @@ private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
   modify' fun s => { s with divMod := s.divMod.insert (a, b) }
   let n : Int := 1 - b.natAbs
   let b := mkIntLit b
-  pushNewProof <| mkApp2 (mkConst ``Int.Linear.ediv_emod) a b
-  pushNewProof <| mkApp3 (mkConst ``Int.Linear.emod_nonneg) a b reflBoolTrue
-  pushNewProof <| mkApp4 (mkConst ``Int.Linear.emod_le) a b (toExpr n) reflBoolTrue
+  pushNewFact <| mkApp2 (mkConst ``Int.Linear.ediv_emod) a b
+  pushNewFact <| mkApp3 (mkConst ``Int.Linear.emod_nonneg) a b reflBoolTrue
+  pushNewFact <| mkApp4 (mkConst ``Int.Linear.emod_le) a b (toExpr n) reflBoolTrue
 
 private def propagateDiv (e : Expr) : GoalM Unit := do
   let_expr HDiv.hDiv _ _ _ inst a b ← e | return ()
@@ -373,14 +375,15 @@ private def propagateNatSub (e : Expr) : GoalM Unit := do
   unless (← isInstHSubNat inst) do return ()
   markForeignTerm a .nat
   markForeignTerm b .nat
-  -- TODO: cleanup
-  let aux := mkApp2 (mkConst ``Int.Linear.natCast_sub_def) a b
-  -- TODO: improve `preprocess` to make sure we don't need to unfold manually here
-  let aux ← unfoldReducible aux
-  -- Remark: we preprocess here because we want to propagate `natCast`.
-  -- We don't want to preprocess the whole thing.
-  let r ← preprocess aux
-  pushNewProof <| mkApp4 (mkConst ``Int.Linear.natCast_sub) a b r.expr (← r.getProof)
+  pushNewFact <| mkApp2 (mkConst ``Int.Linear.natCast_sub) a b
+
+private def propagateNatAbs (e : Expr) : GoalM Unit := do
+  let_expr Int.natAbs a := e | return ()
+  pushNewFact <| mkApp (mkConst ``Lean.Omega.Int.ofNat_natAbs) a
+
+private def propagateToNat (e : Expr) : GoalM Unit := do
+  let_expr Int.toNat a := e | return ()
+  pushNewFact <| mkApp (mkConst ``Int.OfNat.ofNat_toNat) a
 
 /--
 Internalizes an integer (and `Nat`) expression. Here are the different cases that are handled.
@@ -402,7 +405,10 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     | _ => internalizeInt e
   else if type.isConstOf ``Nat then
     markForeignTerm e .nat
-    if k == .sub then
-      propagateNatSub e
+    match k with
+    | .sub => propagateNatSub e
+    | .natAbs => propagateNatAbs e
+    | .toNat => propagateToNat e
+    | _ => pure ()
 
 end Lean.Meta.Grind.Arith.Cutsat

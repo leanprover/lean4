@@ -172,27 +172,24 @@ theorem explore_eq_applyPartition [Ord α] {k : α → Ordering} (init : δ) (l 
 General "update the mapping for a given key" function.
 Internal implementation detail of the tree map
 -/
-def updateCell [Ord α] (k : α) (f : Cell α β (compare k) → Cell α β (compare k))
+noncomputable def updateCell [Ord α] (k : α) (f : Cell α β (compare k) → Cell α β (compare k))
     (l : Impl α β) (hl : Balanced l) : SizedBalancedTree α β (l.size - 1) (l.size + 1) :=
   match l with
   | leaf => match (f .empty).inner with
-    | none => ⟨.leaf, by tree_tac, by tree_tac, by tree_tac⟩
-    | some ⟨k', v'⟩ => ⟨.inner 1 k' v' .leaf .leaf, by tree_tac, by tree_tac, by tree_tac⟩
+    | none => ⟨.leaf, ✓, ✓, ✓⟩
+    | some ⟨k', v'⟩ => ⟨.inner 1 k' v' .leaf .leaf, ✓, ✓, ✓⟩
   | inner sz ky y l r =>
     match h : compare k ky with
     | .lt =>
-      let ⟨newL, h₁, h₂, h₃⟩ := updateCell k f l (by tree_tac)
-      ⟨balance ky y newL r (by tree_tac) (by tree_tac) (by tree_tac), by tree_tac, by tree_tac,
-        by tree_tac⟩
+      let ⟨newL, h₁, h₂, h₃⟩ := updateCell k f l ✓
+      ⟨balance ky y newL r ✓ ✓ ✓, ✓, ✓, ✓⟩
     | .eq => match (f (.ofEq ky y h)).inner with
       | none =>
-        ⟨glue l r (by tree_tac) (by tree_tac) (by tree_tac), by tree_tac, by tree_tac,
-           by tree_tac⟩
-      | some ⟨ky', y'⟩ => ⟨.inner sz ky' y' l r, by tree_tac, by tree_tac, by tree_tac⟩
+        ⟨glue l r ✓ ✓ ✓, ✓, ✓, ✓⟩
+      | some ⟨ky', y'⟩ => ⟨.inner sz ky' y' l r, ✓, ✓, ✓⟩
     | .gt =>
-      let ⟨newR, h₁, h₂, h₃⟩ := updateCell k f r (by tree_tac)
-      ⟨balance ky y l newR (by tree_tac) (by tree_tac) (by tree_tac), by tree_tac, by tree_tac,
-        by tree_tac⟩
+      let ⟨newR, h₁, h₂, h₃⟩ := updateCell k f r ✓
+      ⟨balance ky y l newR ✓ ✓ ✓, ✓, ✓, ✓⟩
 
 /-!
 ## Model functions
@@ -266,21 +263,21 @@ def getKeyDₘ [Ord α] (k : α) (l : Impl α β) (fallback : α) : α :=
 Model implementation of the `insert` function.
 Internal implementation detail of the tree map
 -/
-def insertₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced) : Impl α β :=
+noncomputable def insertₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced) : Impl α β :=
   updateCell k (fun _ => .of k v) l h |>.impl
 
 /--
 Model implementation of the `erase` function.
 Internal implementation detail of the tree map
 -/
-def eraseₘ [Ord α] (k : α) (t : Impl α β) (h : t.Balanced) : Impl α β :=
+noncomputable def eraseₘ [Ord α] (k : α) (t : Impl α β) (h : t.Balanced) : Impl α β :=
   updateCell k (fun _ => .empty) t h |>.impl
 
 /--
 Model implementation of the `insertIfNew` function.
 Internal implementation detail of the tree map
 -/
-def insertIfNewₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced) : Impl α β :=
+noncomputable def insertIfNewₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced) : Impl α β :=
   updateCell k (fun
     | ⟨.none, _⟩ => .of k v
     | c => c) l h |>.impl
@@ -289,7 +286,7 @@ def insertIfNewₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced
 Model implementation of the `alter` function.
 Internal implementation detail of the tree map
 -/
-def alterₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (f : Option (β k) → Option (β k))
+noncomputable def alterₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (f : Option (β k) → Option (β k))
     (t : Impl α β) (h : t.Balanced) : Impl α β :=
   updateCell k (·.alter f) t h |>.impl
 
@@ -330,7 +327,7 @@ def getDₘ [Ord α] (l : Impl α (fun _ => β)) (k : α) (fallback : β) : β :
 Model implementation of the `alter` function.
 Internal implementation detail of the tree map
 -/
-def alterₘ [Ord α] [OrientedOrd α] (k : α) (f : Option β → Option β)
+noncomputable def alterₘ [Ord α] [OrientedOrd α] (k : α) (f : Option β → Option β)
     (t : Impl α (fun _ => β)) (h : t.Balanced) : Impl α (fun _ => β) :=
   updateCell k (Cell.Const.alter f) t h |>.impl
 

@@ -14,10 +14,7 @@ namespace Lake
 open Lean System
 
 /-- A Lean library's declarative configuration. -/
-structure LeanLibConfig extends LeanConfig where
-  /-- The name of the target. -/
-  name : Name
-
+structure LeanLibConfig (name : Name) extends LeanConfig where
   /--
   The subdirectory of the package's source directory containing the library's
   Lean source files. Defaults simply to said `srcDir`.
@@ -86,12 +83,15 @@ deriving Inhabited
 
 namespace LeanLibConfig
 
+/-- The library's name. -/
+abbrev name (_ : LeanLibConfig n) := n
+
 /-- Whether the given module is considered local to the library. -/
-def isLocalModule (mod : Name) (self : LeanLibConfig) : Bool :=
+def isLocalModule (mod : Name) (self : LeanLibConfig n) : Bool :=
   self.roots.any (fun root => root.isPrefixOf mod) ||
   self.globs.any (fun glob => glob.matches mod)
 
 /-- Whether the given module is a buildable part of the library. -/
-def isBuildableModule (mod : Name) (self : LeanLibConfig) : Bool :=
+def isBuildableModule (mod : Name) (self : LeanLibConfig n) : Bool :=
   self.globs.any (fun glob => glob.matches mod) ||
   self.roots.any (fun root => root.isPrefixOf mod && self.globs.any (·.matches root))

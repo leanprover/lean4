@@ -554,6 +554,14 @@ def asyncPrefix? (env : Environment) : Option Name :=
 def isRealizing (env : Environment) : Bool :=
   env.asyncCtx?.any (·.realizing)
 
+/--
+Returns the environment just after importing. `none` if `finalizeImport` has never been called on
+it.
+-/
+def importEnv? (env : Environment) : Option Environment :=
+  -- safety: `RealizationContext` is private
+  unsafe env.realizedImportedConsts?.map (unsafeCast (β := Environment) ·.env)
+
 /-- Forgets about the asynchronous context restrictions. Used only for `withoutModifyingEnv`. -/
 def unlockAsync (env : Environment) : Environment :=
   { env with asyncCtx? := none }

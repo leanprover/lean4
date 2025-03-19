@@ -24,7 +24,7 @@ variable [Hashable α] [DecidableEq α]
 def blastZeroExtend (aig : AIG α) (target : AIG.ExtendTarget aig newWidth) :
     AIG.RefVecEntry α newWidth :=
   let ⟨width, input⟩ := target
-  go aig width input newWidth 0 (by omega) .empty
+  go aig width input newWidth 0 (by omega) (.emptyWithCapacity newWidth)
 where
   go (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWidth : Nat) (curr : Nat)
       (hcurr : curr ≤ newWidth) (s : AIG.RefVec aig curr) :

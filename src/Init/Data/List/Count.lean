@@ -90,7 +90,7 @@ theorem countP_le_length : countP p l ≤ l.length := by
   simp only [countP_eq_length_filter, length_eq_zero_iff, filter_eq_nil_iff]
 
 @[simp] theorem countP_eq_length {p} : countP p l = l.length ↔ ∀ a ∈ l, p a := by
-  rw [countP_eq_length_filter, filter_length_eq_length]
+  rw [countP_eq_length_filter, length_filter_eq_length_iff]
 
 theorem countP_replicate (p : α → Bool) (a : α) (n : Nat) :
     countP p (replicate n a) = if p a then n else 0 := by

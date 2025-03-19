@@ -33,9 +33,9 @@ structure ShiftConcatInput (aig : AIG α) (len : Nat) where
 
 def blastShiftConcat (aig : AIG α) (input : ShiftConcatInput aig w) : AIG.RefVecEntry α w :=
   let ⟨lhs, bit⟩ := input
-  let bit := AIG.RefVec.empty.push bit
+  let bit := AIG.RefVec.emptyWithCapacity (w + 1) |>.push bit
   let new := bit.append lhs
-  blastZeroExtend aig ⟨_, new⟩
+  blastZeroExtend aig ⟨1 + w, new⟩
 
 instance : AIG.LawfulVecOperator α ShiftConcatInput blastShiftConcat where
   le_size := by

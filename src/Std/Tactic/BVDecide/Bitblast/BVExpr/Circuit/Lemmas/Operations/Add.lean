@@ -63,11 +63,11 @@ theorem mkFullAdder_denote_mem_prefix (aig : AIG α) (input : FullAdderInput aig
     (hstart) :
     ⟦
       (mkFullAdder aig input).aig,
-      ⟨start, Nat.lt_of_lt_of_le hstart (FullAdderOutput.hle _)⟩,
+      ⟨start, inv, Nat.lt_of_lt_of_le hstart (FullAdderOutput.hle _)⟩,
       assign
     ⟧
       =
-    ⟦aig, ⟨start, hstart⟩, assign⟧ := by
+    ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
   unfold mkFullAdder
   dsimp only
   rw [AIG.LawfulOperator.denote_mem_prefix (f := mkFullAdderCarry)]
@@ -77,12 +77,12 @@ theorem go_denote_mem_prefix (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (c
     (s : AIG.RefVec aig curr) (lhs rhs : AIG.RefVec aig w) (start : Nat) (hstart) :
     ⟦
       (go aig lhs rhs curr hcurr cin s).aig,
-      ⟨start, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
+      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
       assign
     ⟧
       =
-    ⟦aig, ⟨start, hstart⟩, assign⟧ := by
-  apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
+    ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
+  apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
     apply go_decl_eq

@@ -513,7 +513,7 @@ def resolveConflict (h : UnsatProof) : SearchM Unit := do
     s.assert
 
 /-- Search for an assignment/model for the linear constraints. -/
-def searchAssigmentMain : SearchM Unit := do
+private def searchAssigmentMain : SearchM Unit := do
   repeat
     trace[grind.debug.cutsat.search] "main loop"
     checkSystem "cutsat"
@@ -529,21 +529,44 @@ def searchAssigmentMain : SearchM Unit := do
       trace[grind.debug.cutsat.search] "next var: {← getVar x}, {x}, {(← get').assignment.toList}"
       processVar x
 
-def traceModel : GoalM Unit := do
+private def traceModel : GoalM Unit := do
   if (← isTracingEnabledFor `grind.cutsat.model) then
     for (x, v) in (← mkModel (← get)) do
       trace[grind.cutsat.model] "{quoteIfNotAtom x} := {v}"
 
+private def resetDecisionStack : SearchM Unit := do
+  if (← get).cases.isEmpty then
+    -- Nothing to reset
+    return ()
+  -- Backtrack changes but keep the assignment
+  let first := (← get).cases[0]!
+  modify' fun s => { first.saved with assignment := s.assignment }
+
+private def searchQLiaAssignment : GoalM Bool := do
+  let go : SearchM Bool := do
+    searchAssigmentMain
+    let precise := (← get).precise
+    resetDecisionStack
+    return precise
+  go .rat |>.run' {}
+
+private def searchLiaAssignment : GoalM Unit := do
+  let go : SearchM Unit := do
+    searchAssigmentMain
+    resetDecisionStack
+  go .int |>.run' {}
+
 def searchAssigment : GoalM Unit := do
-  let (_, s) ← searchAssigmentMain .rat |>.run {}
+  let precise ← searchQLiaAssignment
   if (← isInconsistent) then return ()
-  if !(← getConfig).qlia && !s.precise then
+  if !(← getConfig).qlia && !precise then
     -- Search for a new model using `.int` mode.
     trace[grind.debug.cutsat.search] "restart using Cooper resolution"
     modify' fun s => { s with assignment := {} }
-    searchAssigmentMain .int |>.run' {}
+    searchLiaAssignment
     trace[grind.debug.cutsat.search] "after search int model, inconsistent: {← isInconsistent}"
     if (← isInconsistent) then return ()
+  -- TODO: constructing a model is only worth if `grind` will **not** continue searching.
   assignElimVars
   traceModel
 

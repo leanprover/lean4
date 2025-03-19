@@ -493,19 +493,25 @@ theorem and_lt_two_pow (x : Nat) {y n : Nat} (right : y < 2^n) : (x &&& y) < 2^n
           exact pow_le_pow_right Nat.zero_lt_two i_ge_n
   simp [testBit_and, yf]
 
-@[simp] theorem and_pow_two_sub_one_eq_mod (x n : Nat) : x &&& 2^n - 1 = x % 2^n := by
+@[simp] theorem and_two_pow_sub_one_eq_mod (x n : Nat) : x &&& 2^n - 1 = x % 2^n := by
   apply eq_of_testBit_eq
   intro i
   simp only [testBit_and, testBit_mod_two_pow]
   cases testBit x i <;> simp
 
-@[deprecated and_pow_two_sub_one_eq_mod (since := "2024-09-11")] abbrev and_pow_two_is_mod := @and_pow_two_sub_one_eq_mod
+@[deprecated and_two_pow_sub_one_eq_mod (since := "2025-03-18")]
+abbrev and_pow_two_sub_one_eq_mod := @and_two_pow_sub_one_eq_mod
+@[deprecated and_two_pow_sub_one_eq_mod (since := "2024-09-11")]
+abbrev and_pow_two_is_mod := @and_two_pow_sub_one_eq_mod
 
-theorem and_pow_two_sub_one_of_lt_two_pow {x : Nat} (lt : x < 2^n) : x &&& 2^n - 1 = x := by
-  rw [and_pow_two_sub_one_eq_mod]
+theorem and_two_pow_sub_one_of_lt_two_pow {x : Nat} (lt : x < 2^n) : x &&& 2^n - 1 = x := by
+  rw [and_two_pow_sub_one_eq_mod]
   apply Nat.mod_eq_of_lt lt
 
-@[deprecated and_pow_two_sub_one_of_lt_two_pow (since := "2024-09-11")] abbrev and_two_pow_identity := @and_pow_two_sub_one_of_lt_two_pow
+@[deprecated and_two_pow_sub_one_of_lt_two_pow (since := "2025-03-18")]
+abbrev and_pow_two_sub_one_of_lt_two_pow := @and_two_pow_sub_one_of_lt_two_pow
+@[deprecated and_two_pow_sub_one_of_lt_two_pow (since := "2024-09-11")]
+abbrev and_two_pow_identity := @and_two_pow_sub_one_of_lt_two_pow
 
 @[simp] theorem and_mod_two_eq_one : (a &&& b) % 2 = 1 ↔ a % 2 = 1 ∧ b % 2 = 1 := by
   simp only [mod_two_eq_one_iff_testBit_zero]
@@ -648,7 +654,7 @@ theorem xor_div_two : (a ^^^ b) / 2 = a / 2 ^^^ b / 2 :=
 
 /-! ### Arithmetic -/
 
-theorem testBit_mul_pow_two_add (a : Nat) {b i : Nat} (b_lt : b < 2^i) (j : Nat) :
+theorem testBit_two_pow_mul_add (a : Nat) {b i : Nat} (b_lt : b < 2^i) (j : Nat) :
     testBit (2 ^ i * a + b) j =
       if j < i then
         testBit b j
@@ -676,19 +682,25 @@ theorem testBit_mul_pow_two_add (a : Nat) {b i : Nat} (b_lt : b < 2^i) (j : Nat)
           Nat.div_eq_of_lt b_lt,
           Nat.two_pow_pos i]
 
-theorem testBit_mul_pow_two :
+@[deprecated testBit_two_pow_mul_add (since := "2025-03-18")]
+abbrev testBit_mul_pow_two_add := @testBit_two_pow_mul_add
+
+theorem testBit_two_pow_mul :
     testBit (2 ^ i * a) j = (decide (j ≥ i) && testBit a (j-i)) := by
-  have gen := testBit_mul_pow_two_add a (Nat.two_pow_pos i) j
+  have gen := testBit_two_pow_mul_add a (Nat.two_pow_pos i) j
   simp at gen
   rw [gen]
   cases Nat.lt_or_ge j i with
   | _ p => simp [p, Nat.not_le_of_lt, Nat.not_lt_of_le]
 
+@[deprecated testBit_two_pow_mul (since := "2025-03-18")]
+abbrev testBit_mul_pow_two := @testBit_two_pow_mul
+
 theorem mul_add_lt_is_or {b : Nat} (b_lt : b < 2^i) (a : Nat) : 2^i * a + b = 2^i * a ||| b := by
   apply eq_of_testBit_eq
   intro j
-  simp only [testBit_mul_pow_two_add _ b_lt,
-        testBit_or, testBit_mul_pow_two]
+  simp only [testBit_two_pow_mul_add _ b_lt,
+        testBit_or, testBit_two_pow_mul]
   if j_lt : j < i then
     simp [Nat.not_le_of_lt, j_lt]
   else
@@ -702,7 +714,7 @@ theorem mul_add_lt_is_or {b : Nat} (b_lt : b < 2^i) (a : Nat) : 2^i * a + b = 2^
 
 @[simp] theorem testBit_shiftLeft (x : Nat) : testBit (x <<< i) j =
     (decide (j ≥ i) && testBit x (j-i)) := by
-  simp [shiftLeft_eq, Nat.mul_comm _ (2^_), testBit_mul_pow_two]
+  simp [shiftLeft_eq, Nat.mul_comm _ (2^_), testBit_two_pow_mul]
 
 @[simp] theorem testBit_shiftRight (x : Nat) : testBit (x >>> i) j = testBit x (i+j) := by
   simp [testBit, ←shiftRight_add]

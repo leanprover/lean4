@@ -130,7 +130,7 @@ init_grind_norm
   Int.ediv_zero Int.emod_zero
   Int.ediv_one Int.emod_one
   Int.natCast_add Int.natCast_mul Int.natCast_pow
-  Int.natCast_succ Int.natCast_zero natCast_div natCast_mod
+  Int.natCast_zero natCast_div natCast_mod
   -- GT GE
   ge_eq gt_eq
   -- Int op folding

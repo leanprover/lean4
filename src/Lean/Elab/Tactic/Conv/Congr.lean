@@ -288,14 +288,15 @@ private def extCore (mvarId : MVarId) (userName? : Option Name) : MetaM MVarId :
       let u ← getLevel d
       let p : Expr := .lam n d b bi
       let userName ← if let some userName := userName? then pure userName else mkFreshBinderNameForTactic n
-      let (q, h, mvarNew) ← withLocalDecl userName bi d fun a => do
+      let (q, h, v, mvarNew) ← withLocalDecl userName bi d fun a => do
         let pa := b.instantiate1 a
         let (qa, mvarNew) ← mkConvGoalFor pa
+        let v ← getLevel pa
         let q ← mkLambdaFVars #[a] qa
         let h ← mkLambdaFVars #[a] mvarNew
         resolveRhs "ext" rhs (← mkForallFVars #[a] qa)
-        return (q, h, mvarNew)
-      let proof := mkApp4 (mkConst ``forall_congr [u]) d p q h
+        return (q, h, v, mvarNew)
+      let proof := mkApp4 (mkConst ``pi_congr [u, v]) d p q h
       mvarId.assign proof
       return mvarNew.mvarId!
     else if let some mvarId ← extLetBodyCongr? mvarId lhs rhs then

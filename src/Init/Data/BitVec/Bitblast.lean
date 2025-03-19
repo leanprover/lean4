@@ -1514,28 +1514,6 @@ theorem neg_ne_zero (a : BitVec w) : (-a != 0#w) = (a != 0#w) := by
   simp only [neg_bne'']
   simp
 
-theorem neg_eq_iff {x y : BitVec w} : -x = y ↔ x = -y := by
-  rw [← BitVec.neg_neg (x := y)]
-  constructor
-  · intro h
-    rw [neg_eq_zero_iff]
-
-  · intro h
-    r
-    rw [toNat_eq]
-    rw [toNat_eq] at h
-    r
-
-
-    simp [bv_toNat]
-
-    rw [←h]
-  · intro h
-
-    simp
-  simp [bv_toNat]
-  sorry
-
 theorem toInt_one (h : 1 < w) : (1#w : BitVec w).toInt = 1 := by
   simp [BitVec.toInt, show 0 < 2^w by exact Nat.two_pow_pos w]
   have := @Nat.lt_two_pow_self w

@@ -12,6 +12,7 @@ import Init.Data.List.Find
 import Init.Data.List.MinMax
 import Init.Data.List.Monadic
 import Std.Data.Internal.List.Defs
+import Std.Classes.Ord
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -329,9 +330,6 @@ theorem containsKey_eq_contains_map_fst [BEq α] [PartialEquivBEq α] {l : List 
 @[simp] theorem keys_nil : keys ([] : List ((a : α) × β a)) = [] := rfl
 @[simp] theorem keys_cons {l : List ((a : α) × β a)} {k : α} {v : β k} :
     keys (⟨k, v⟩ :: l) = k :: keys l := rfl
-
-theorem keys_eq_map (l : List ((a : α) × β a)) : keys l = l.map (·.1) := by
-  induction l using assoc_induction <;> simp_all
 
 theorem length_keys_eq_length (l : List ((a : α) × β a)) : (keys l).length = l.length := by
   induction l using assoc_induction <;> simp_all
@@ -1304,25 +1302,6 @@ theorem isEmpty_eraseKey [BEq α] {l : List ((a : α) × β a)} {k : α} :
   simp only [Bool.or_eq_true, Bool.and_eq_true, beq_iff_eq]
   rw [List.isEmpty_iff_length_eq_zero, length_eraseKey, List.isEmpty_iff_length_eq_zero]
   cases containsKey k l <;> cases l <;> simp
-
-theorem mem_iff_getEntry?_eq_some [BEq α] [EquivBEq α] {l : List ((a : α) × β a)}
-    {p : (a : α) × β a} (h : DistinctKeys l) : p ∈ l ↔ getEntry? p.1 l = some p := by
-  induction l using assoc_induction
-  · simp_all
-  · next k v t ih =>
-    simp only [List.mem_cons, getEntry?_cons, ih h.tail]
-    refine ⟨?_, ?_⟩
-    · rintro (rfl|hk)
-      · simp
-      · suffices (k == p.fst) = false by simp_all
-        refine Bool.eq_false_iff.2 fun hcon => Bool.false_ne_true ?_
-        rw [← h.containsKey_eq_false, containsKey_congr hcon,
-          containsKey_eq_isSome_getEntry?, hk, Option.isSome_some]
-    · cases k == p.fst
-      · rw [cond_false]
-        exact Or.inr
-      · rw [cond_true, Option.some.injEq]
-        exact Or.inl ∘ Eq.symm
 
 theorem DistinctKeys.replaceEntry [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {k : α}
     {v : β k} (h : DistinctKeys l) : DistinctKeys (replaceEntry k v l) := by
@@ -4584,7 +4563,7 @@ theorem snd_eq_getValueCast_of_getEntry?_eq_some [BEq α] [LawfulBEq α]
     {l : List ((a : α) × β a)} {k : α}
     {y : (a : α) × β a} (h : getEntry? k l = some y) :
     y.snd = cast
-      (congrArg β (eq_of_beq (getEntry?_eq_some h)).symm)
+      (congrArg β (eq_of_beq (beq_of_getEntry?_eq_some h)).symm)
       (getValueCast k l (containsKey_eq_isSome_getEntry?.trans (Option.isSome_of_eq_some h))) := by
   simp only [getValueCast, getValueCast?_eq_getEntry?, Option.get_dmap]
   simp only [Sigma.snd_congr (Option.get_congr h), cast_cast]
@@ -4606,7 +4585,7 @@ theorem isSome_apply_of_containsKey_filterMap [BEq α] [LawfulBEq α]
   simp only [containsKey_eq_isSome_getEntry?, getEntry?_filterMap hl] at h
   simp only [Option.isSome_bind, Option.isSome_map', Option.any_eq_true] at h
   obtain ⟨y, (hy : _ = _), hy'⟩ := h
-  cases eq_of_beq (getEntry?_eq_some hy)
+  cases eq_of_beq (beq_of_getEntry?_eq_some hy)
   simpa only [snd_eq_getValueCast_of_getEntry?_eq_some hy] using hy'
 
 theorem Const.isSome_apply_of_containsKey_filterMap [BEq α] [EquivBEq α] {β : Type v} {γ : Type w}
@@ -4685,7 +4664,7 @@ theorem apply_eq_true_of_containsKey_filter [BEq α] [LawfulBEq α]
   simp only [containsKey_eq_isSome_getEntry?, getEntry?_filter hl] at h
   simp only [Option.isSome_filter, Option.isSome_map', Option.any_eq_true] at h
   obtain ⟨y, (hy : _ = _), hy'⟩ := h
-  cases eq_of_beq (getEntry?_eq_some hy)
+  cases eq_of_beq (beq_of_getEntry?_eq_some hy)
   simp only [snd_eq_getValueCast_of_getEntry?_eq_some hy] at hy'
   exact hy'
 
@@ -4697,7 +4676,7 @@ theorem getValueCast?_filterMap [BEq α] [LawfulBEq α]
   simp only [getValueCast?_eq_getEntry?, Option.dmap_congr (getEntry?_filterMap hl)]
   simp only [Option.dmap_bind, Option.bind_dmap_left, Option.dmap_map]
   congr; funext a h
-  cases eq_of_beq (getEntry?_eq_some h)
+  cases eq_of_beq (beq_of_getEntry?_eq_some h)
   simp only [cast_eq, Option.dmap_id]
 
 theorem getValueCast!_filterMap [BEq α] [LawfulBEq α]
@@ -4723,7 +4702,7 @@ theorem getValueCast?_filter [BEq α] [LawfulBEq α]
   simp only [Option.filter_eq_bind, Option.dmap_congr (Option.filter_eq_bind _ _)]
   simp only [Option.dmap_bind, Option.bind_dmap_left]
   congr; funext a h
-  cases eq_of_beq (getEntry?_eq_some h)
+  cases eq_of_beq (beq_of_getEntry?_eq_some h)
   simp only [cast_eq, Option.guard, Option.dmap_ite,
     Option.dmap_some, Option.dmap_none, dite_eq_ite]
 
@@ -4749,7 +4728,7 @@ theorem getValueCast?_map [BEq α] [LawfulBEq α]
   simp only [getValueCast?_eq_getEntry?, Option.dmap_congr (getEntry?_map hl)]
   simp only [Option.dmap_map, Option.map_dmap]
   congr; funext a h
-  cases eq_of_beq (getEntry?_eq_some h)
+  cases eq_of_beq (beq_of_getEntry?_eq_some h)
   rfl
 
 theorem getValueCast!_map [BEq α] [LawfulBEq α]

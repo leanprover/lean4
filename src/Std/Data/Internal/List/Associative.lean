@@ -697,7 +697,7 @@ theorem getKey_congr [BEq α] [EquivBEq α] {l : List ((a : α) × β a)}
   simpa only [getKey?_eq_some_getKey, h', h'', Option.some.injEq] using getKey?_congr (l := l) h
 
 theorem getKey_eq_getEntry_fst [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {a : α}
-    {h :containsKey a l} : getKey a l h = (getEntry a l h).fst := by
+    {h : containsKey a l} : getKey a l h = (getEntry a l h).fst := by
   simp [getKey, getKey?_eq_getEntry?, Option.get_map, getEntry]
 
 /-- Internal implementation detail of the hash map -/

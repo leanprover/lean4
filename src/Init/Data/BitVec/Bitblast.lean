@@ -1300,27 +1300,13 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
     omega
 
 theorem negOverflow_eq {w : Nat} (x : BitVec w) :
-    (negOverflow x) = ((0 < w) && (x = intMin w)) := by
+    (negOverflow x) = (decide (0 < w) && (x == intMin w)) := by
   simp only [negOverflow]
   rcases w with _|w
   · simp [toInt_of_zero_length, Int.min_eq_right]
-  · by_cases hx : x = intMin (w + 1)
-    · simp only [hx, Nat.add_one_sub_one, zero_lt_succ, decide_true, Bool.and_self, beq_iff_eq]
-      have := toInt_intMin (w := (w + 1))
-      push_cast at this
-      rw [Int.emod_eq_of_lt (by omega) (by omega)] at this
-      simp [← this]
-    · simp only [Nat.add_one_sub_one, zero_lt_succ, decide_true, hx, decide_false, Bool.and_false,
-      beq_eq_false_iff_ne, ne_eq]
-      have := toInt_twoPow (w := (w + 1)) (i := w)
-      simp only [show ¬w + 1 ≤ w by omega, ↓reduceIte] at this
-      push_cast at this
-      rw [← this]
-      apply Classical.byContradiction
-      intros h
-      rw [toInt_inj] at h
-      contradiction
-
+  · suffices - 2 ^ w = (intMin (w + 1)).toInt by simp [beq_eq_decide_eq, ← toInt_inj, this]
+    simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod, Int.neg_inj]
+    rw_mod_cast [Nat.mod_eq_of_lt (by simp [Nat.pow_lt_pow_succ])]
 
 /- ### umod -/
 

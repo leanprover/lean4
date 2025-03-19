@@ -1896,7 +1896,7 @@ theorem msb_ushiftRight {x : BitVec w} {n : Nat} :
     (x >>> y).setWidth i = x.setWidth i >>> y := by
   refine eq_of_getElem_eq (fun j hj => ?_)
   simp only [getElem_setWidth, getLsbD_ushiftRight, getElem_ushiftRight, getLsbD_setWidth,
-    Bool.iff_and_self, decide_eq_true_eq]
+    Bool.eq_and_self, decide_eq_true_eq]
   intro ha
   have := lt_of_getLsbD ha
   omega

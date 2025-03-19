@@ -221,7 +221,7 @@ partial def hasIdent (id : Name) : Syntax → Bool
   | stx => fn stx
 
 @[inline] def rewriteBottomUp (fn : Syntax → Syntax) (stx : Syntax) : Syntax :=
-  Id.run <| stx.rewriteBottomUpM fn
+  Id.run <| stx.rewriteBottomUpM (pure <| fn ·)
 
 private def updateInfo : SourceInfo → String.Pos → String.Pos → SourceInfo
   | SourceInfo.original lead pos trail endPos, leadStart, trailStop =>

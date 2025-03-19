@@ -62,7 +62,7 @@ def findSomeRevM? [Monad m] (as : Array α) (f : α → m (Option β)) : m (Opti
   pure none
 
 def findSomeRev? (as : Array α) (f : α → Option β) : Option β :=
-  Id.run <| findSomeRevM? as f
+  Id.run <| findSomeRevM? as (pure <| f ·)
 
 end Ex1
 

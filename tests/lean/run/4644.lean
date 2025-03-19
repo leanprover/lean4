@@ -41,7 +41,6 @@ After unfolding the instances 'instDecidableEqBool' and 'Bool.decEq', reduction 
 example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] := by
   decide -- fails because `decide` uses `.default` transparency, and `sorted_from_var` is marked as irreducible
 
-#guard_msgs in
 unseal sorted_from_var in
 example: check_sorted #[0, 3, 3, 5, 8, 10, 10, 10] := by
   decide -- works

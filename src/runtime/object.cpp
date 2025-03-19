@@ -926,6 +926,12 @@ public:
     }
 
     void deactivate_task(lean_task_object * t) {
+        if (object * v = t->m_value) {
+            lean_assert(t->m_imp == nullptr);
+            lean_dec(v);
+            free_task(t);
+            return;
+        }
         unique_lock<mutex> lock(m_mutex);
         if (object * v = t->m_value) {
             lean_assert(t->m_imp == nullptr);

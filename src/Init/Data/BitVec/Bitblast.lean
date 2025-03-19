@@ -1498,11 +1498,47 @@ theorem BitVec.toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b
   by_cases hw : w = 0
   · subst hw
     simp [BitVec.eq_nil a, BitVec.eq_nil b]
-  · by_cases ha : a.msb <;> by_cases hb : b.msb
+  ·
+    by_cases ha : a.msb <;> by_cases hb : b.msb
     <;> simp only [not_eq_true] at ha hb
     · sorry
-    · sorry
-    · by_cases hbb : b = intMin w
+    ·
+      by_cases ha0 : a = 0#w
+      · subst ha0
+        simp
+      ·
+        by_cases h : a = intMin w
+        · subst h
+          rw [sdiv_eq]
+          simp [hb, ha]
+          sorry
+        ·
+          rw [← @neg_neg w a]
+          rw [neg_sdiv (by rw [neg_ne_intMin_inj]; simp [h])]
+          have hneganonneg : (-a).msb = false := by
+            simp [msb_neg]
+            simp_all
+          rw [toInt_eq_neg_toNat_neg_of_msb_true]
+          have : (-(-a).sdiv b).msb = true := by
+             simp [msb_neg]
+             have haa : -a ≠ intMin w := by
+               rw [neg_ne_intMin_inj]
+               simp [h]
+             have := @sdiv_ne_intMin_of_ne_intMin w (-a) b haa
+             simp [this]
+             have art : (-a).sdiv b != intMin w := sorry
+             simp [art]
+
+          simp only [neg_neg]
+          simp only [sdiv_eq, hneganonneg, hb, udiv_eq, toNat_udiv]
+          rw [toInt_eq_neg_toNat_neg_of_msb_true ha]
+          rw [Int.neg_tdiv]
+          simp only [Int.neg_inj]
+          rw [BitVec.toInt_eq_toNat_of_msb hb]
+          rw [Int.tdiv_eq_ediv_of_nonneg]
+          rfl
+          omega
+    · by_cases hbb : b = intMin w -- try to use tdiv_eq_ediv_of_nonneg
       · subst hbb
         simp [msb_intMin] at hb
         simp only [sdiv_intMin, ne_intMin_of_lt_of_msb_false hb ha, ↓reduceIte, toInt_zero,

@@ -801,13 +801,13 @@ class task_manager {
     void resolve_core(unique_lock<mutex> & lock, lean_task_object * t, object * v) {
         mark_mt(v);
         t->m_value = v;
+        m_task_finished_cv.notify_all();
         lean_task_imp * imp = t->m_imp;
         t->m_imp   = nullptr;
         handle_finished(lock, t, imp);
         /* After the task has been finished and we propagated
            dependencies, we can release `imp` and keep just the value */
         free_task_imp(imp);
-        m_task_finished_cv.notify_all();
     }
 
     void handle_finished(unique_lock<mutex> & lock, lean_task_object * t, lean_task_imp * imp) {

@@ -1528,18 +1528,20 @@ theorem BitVec.toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b
           rw [Int.tdiv_eq_ediv_of_nonneg]
           rfl
           omega
-          have : (-(-a).sdiv b).msb = true := by
-            stop
+          have sdivmsb : (-(-a).sdiv b).msb = true := by
             simp [msb_neg]
             have haa : -a ≠ intMin w := by
               rw [neg_ne_intMin_inj]
               simp [h]
             have := @sdiv_ne_intMin_of_ne_intMin w (-a) b haa
             simp [this]
-            have art : (-a).sdiv b != intMin w := sorry
+            have art : (-a).sdiv b != intMin w := by
+              rw [bne_iff_ne]
+              simp[this]
             simp [art]
+
             sorry
-          simp [this]
+          simp [sdivmsb]
 
     · by_cases hbb : b = intMin w -- try to use tdiv_eq_ediv_of_nonneg
       · subst hbb

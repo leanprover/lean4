@@ -2060,20 +2060,22 @@ instance : LE (BitVec n) where le := (LE.le ·.toNat ·.toNat)
 instance (x y : BitVec n) : Decidable (LE.le x y) :=
   inferInstanceAs (Decidable (LE.le x.toNat y.toNat))
 
-/-- The size of type `UInt8`, that is, `2^8 = 256`. -/
+/-- The number of distinct values representable by `UInt8`, that is, `2^8 = 256`. -/
 abbrev UInt8.size : Nat := 256
 
 /--
-The type of unsigned 8-bit integers. This type has special support in the
-compiler to make it actually 8 bits rather than wrapping a `Nat`.
+Unsigned 8-bit integers.
+
+This type has special support in the compiler so it can be represented by an unboxed 8-bit value
+rather than wrapping a `BitVec 8`.
 -/
 structure UInt8 where
   /--
-  Create a `UInt8` from a `BitVec 8`. This function is overridden with a native implementation.
+  Creates a `UInt8` from a `BitVec 8`. This function is overridden with a native implementation.
   -/
   ofBitVec ::
   /--
-  Unpack a `UInt8` as a `BitVec 8`. This function is overridden with a native implementation.
+  Unpacks a `UInt8` into a `BitVec 8`. This function is overridden with a native implementation.
   -/
   toBitVec : BitVec 8
 
@@ -2081,8 +2083,10 @@ attribute [extern "lean_uint8_of_nat_mk"] UInt8.ofBitVec
 attribute [extern "lean_uint8_to_nat"] UInt8.toBitVec
 
 /--
-Pack a `Nat` less than `2^8` into a `UInt8`.
-This function is overridden with a native implementation.
+Converts a natural number to an 8-bit unsigned integer. Requires a proof that the number is small
+enough to be representable without overflow; it must be smaller than `2^8`.
+
+This function is overridden at runtime with an efficient implementation.
 -/
 @[extern "lean_uint8_of_nat"]
 def UInt8.ofNatLT (n : @& Nat) (h : LT.lt n UInt8.size) : UInt8 where
@@ -2106,20 +2110,22 @@ instance : DecidableEq UInt8 := UInt8.decEq
 instance : Inhabited UInt8 where
   default := UInt8.ofNatLT 0 (of_decide_eq_true rfl)
 
-/-- The size of type `UInt16`, that is, `2^16 = 65536`. -/
+/-- The number of distinct values representable by `UInt16`, that is, `2^16 = 65536`. -/
 abbrev UInt16.size : Nat := 65536
 
 /--
-The type of unsigned 16-bit integers. This type has special support in the
-compiler to make it actually 16 bits rather than wrapping a `Nat`.
+Unsigned 16-bit integers.
+
+This type has special support in the compiler so it can be represented by an unboxed 16-bit value
+rather than wrapping a `BitVec 16`.
 -/
 structure UInt16 where
   /--
-  Create a `UInt16` from a `BitVec 16`. This function is overridden with a native implementation.
+  Creates a `UInt16` from a `BitVec 16`. This function is overridden with a native implementation.
   -/
   ofBitVec ::
   /--
-  Unpack a `UInt16` as a `BitVec 16`. This function is overridden with a native implementation.
+  Unpacks a `UInt16` into a `BitVec 16`. This function is overridden with a native implementation.
   -/
   toBitVec : BitVec 16
 
@@ -2127,8 +2133,10 @@ attribute [extern "lean_uint16_of_nat_mk"] UInt16.ofBitVec
 attribute [extern "lean_uint16_to_nat"] UInt16.toBitVec
 
 /--
-Pack a `Nat` less than `2^16` into a `UInt16`.
-This function is overridden with a native implementation.
+Converts a natural number to a 16-bit unsigned integer. Requires a proof that the number is small
+enough to be representable without overflow; it must be smaller than `2^16`.
+
+This function is overridden at runtime with an efficient implementation.
 -/
 @[extern "lean_uint16_of_nat"]
 def UInt16.ofNatLT (n : @& Nat) (h : LT.lt n UInt16.size) : UInt16 where
@@ -2152,20 +2160,22 @@ instance : DecidableEq UInt16 := UInt16.decEq
 instance : Inhabited UInt16 where
   default := UInt16.ofNatLT 0 (of_decide_eq_true rfl)
 
-/-- The size of type `UInt32`, that is, `2^32 = 4294967296`. -/
+/-- The number of distinct values representable by `UInt32`, that is, `2^32 = 4294967296`. -/
 abbrev UInt32.size : Nat := 4294967296
 
 /--
-The type of unsigned 32-bit integers. This type has special support in the
-compiler to make it actually 32 bits rather than wrapping a `Nat`.
+Unsigned 32-bit integers.
+
+This type has special support in the compiler so it can be represented by an unboxed 32-bit value
+rather than wrapping a `BitVec 32`.
 -/
 structure UInt32 where
   /--
-  Create a `UInt32` from a `BitVec 32`. This function is overridden with a native implementation.
+  Creates a `UInt32` from a `BitVec 32`. This function is overridden with a native implementation.
   -/
   ofBitVec ::
   /--
-  Unpack a `UInt32` as a `BitVec 32`. This function is overridden with a native implementation.
+  Unpacks a `UInt32` into a `BitVec 32`. This function is overridden with a native implementation.
   -/
   toBitVec : BitVec 32
 
@@ -2173,16 +2183,19 @@ attribute [extern "lean_uint32_of_nat_mk"] UInt32.ofBitVec
 attribute [extern "lean_uint32_to_nat"] UInt32.toBitVec
 
 /--
-Pack a `Nat` less than `2^32` into a `UInt32`.
-This function is overridden with a native implementation.
+Converts a natural number to a 32-bit unsigned integer. Requires a proof that the number is small
+enough to be representable without overflow; it must be smaller than `2^32`.
+
+This function is overridden at runtime with an efficient implementation.
 -/
 @[extern "lean_uint32_of_nat"]
 def UInt32.ofNatLT (n : @& Nat) (h : LT.lt n UInt32.size) : UInt32 where
   toBitVec := BitVec.ofNatLT n h
 
 /--
-Unpack a `UInt32` as a `Nat`.
-This function is overridden with a native implementation.
+Converts a 32-bit unsigned integer to an arbitrary-precision natural number.
+
+This function is overridden at runtime with an efficient implementation.
 -/
 @[extern "lean_uint32_to_nat"]
 def UInt32.toNat (n : UInt32) : Nat := n.toBitVec.toNat
@@ -2210,16 +2223,31 @@ instance : LE UInt32 where
   le a b := LE.le a.toBitVec b.toBitVec
 
 /--
-Decides less-equal on `UInt32`.
-This function is overridden with a native implementation.
+Decides whether one 8-bit unsigned integer is strictly less than another. Usually accessed via the
+`DecidableLT UInt32` instance.
+
+This function is overridden at runtime with an efficient implementation.
+
+Examples:
+ * `(if (6 : UInt32) < 7 then "yes" else "no") = "yes"`
+ * `(if (5 : UInt32) < 5 then "yes" else "no") = "no"`
+ * `show ¬((7 : UInt32) < 7) by decide`
 -/
 @[extern "lean_uint32_dec_lt"]
 def UInt32.decLt (a b : UInt32) : Decidable (LT.lt a b) :=
   inferInstanceAs (Decidable (LT.lt a.toBitVec b.toBitVec))
 
 /--
-Decides less-than on `UInt32`.
-This function is overridden with a native implementation.
+Decides whether one 32-bit signed integer is less than or equal to another. Usually accessed via the
+`DecidableLE UInt32` instance.
+
+This function is overridden at runtime with an efficient implementation.
+
+Examples:
+ * `(if (15 : UInt32) ≤ 15 then "yes" else "no") = "yes"`
+ * `(if (15 : UInt32) ≤ 5 then "yes" else "no") = "no"`
+ * `(if (5 : UInt32) ≤ 15 then "yes" else "no") = "yes"`
+ * `show (7 : UInt32) ≤ 7 by decide`
 -/
 @[extern "lean_uint32_dec_le"]
 def UInt32.decLe (a b : UInt32) : Decidable (LE.le a b) :=
@@ -2230,28 +2258,33 @@ instance (a b : UInt32) : Decidable (LE.le a b) := UInt32.decLe a b
 instance : Max UInt32 := maxOfLe
 instance : Min UInt32 := minOfLe
 
-/-- The size of type `UInt64`, that is, `2^64 = 18446744073709551616`. -/
+/-- The number of distinct values representable by `UInt64`, that is, `2^64 = 18446744073709551616`. -/
 abbrev UInt64.size : Nat := 18446744073709551616
+
 /--
-The type of unsigned 64-bit integers. This type has special support in the
-compiler to make it actually 64 bits rather than wrapping a `Nat`.
+Unsigned 64-bit integers.
+
+This type has special support in the compiler so it can be represented by an unboxed 64-bit value
+rather than wrapping a `BitVec 64`.
 -/
 structure UInt64 where
   /--
-  Create a `UInt64` from a `BitVec 64`. This function is overridden with a native implementation.
+  Creates a `UInt64` from a `BitVec 64`. This function is overridden with a native implementation.
   -/
   ofBitVec ::
   /--
-  Unpack a `UInt64` as a `BitVec 64`. This function is overridden with a native implementation.
+  Unpacks a `UInt64` into a `BitVec 64`. This function is overridden with a native implementation.
   -/
-  toBitVec: BitVec 64
+  toBitVec : BitVec 64
 
 attribute [extern "lean_uint64_of_nat_mk"] UInt64.ofBitVec
 attribute [extern "lean_uint64_to_nat"] UInt64.toBitVec
 
 /--
-Pack a `Nat` less than `2^64` into a `UInt64`.
-This function is overridden with a native implementation.
+Converts a natural number to a 64-bit unsigned integer. Requires a proof that the number is small
+enough to be representable without overflow; it must be smaller than `2^64`.
+
+This function is overridden at runtime with an efficient implementation.
 -/
 @[extern "lean_uint64_of_nat"]
 def UInt64.ofNatLT (n : @& Nat) (h : LT.lt n UInt64.size) : UInt64 where
@@ -2275,7 +2308,7 @@ instance : DecidableEq UInt64 := UInt64.decEq
 instance : Inhabited UInt64 where
   default := UInt64.ofNatLT 0 (of_decide_eq_true rfl)
 
-/-- The size of type `USize`, that is, `2^System.Platform.numBits`. -/
+/-- The number of distinct values representable by `USize`, that is, `2^System.Platform.numBits`. -/
 abbrev USize.size : Nat := (hPow 2 System.Platform.numBits)
 
 theorem USize.size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
@@ -2290,20 +2323,19 @@ theorem USize.size_pos : LT.lt 0 USize.size :=
   | _, Or.inr rfl => of_decide_eq_true rfl
 
 /--
-A `USize` is an unsigned integer with the size of a word
-for the platform's architecture.
+Unsigned integers that are the size of a word on the platform's architecture.
 
-For example, if running on a 32-bit machine, USize is equivalent to UInt32.
-Or on a 64-bit machine, UInt64.
+On a 32-bit architecture, `USize` is equivalent to `UInt32`. On a 64-bit machine, it is equivalent
+to `UInt64`.
 -/
 structure USize where
   /--
-  Create a `USize` from a `BitVec System.Platform.numBits`. This function is overridden with a
+  Creates a `USize` from a `BitVec System.Platform.numBits`. This function is overridden with a
   native implementation.
   -/
   ofBitVec ::
   /--
-  Unpack a `USize` as a `BitVec System.Platform.numBits`. This function is overridden with a native
+  Unpacks a `USize` into a `BitVec System.Platform.numBits`. This function is overridden with a native
   implementation.
   -/
   toBitVec : BitVec System.Platform.numBits
@@ -2312,8 +2344,10 @@ attribute [extern "lean_usize_of_nat_mk"] USize.ofBitVec
 attribute [extern "lean_usize_to_nat"] USize.toBitVec
 
 /--
-Pack a `Nat` less than `USize.size` into a `USize`.
-This function is overridden with a native implementation.
+Converts a natural number to a `USize`. Requires a proof that the number is small enough to be
+representable without overflow.
+
+This function is overridden at runtime with an efficient implementation.
 -/
 @[extern "lean_usize_of_nat"]
 def USize.ofNatLT (n : @& Nat) (h : LT.lt n USize.size) : USize where

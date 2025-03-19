@@ -1385,9 +1385,78 @@ theorem msb_neg_of_ne_intMin_of_ne_zero {x : BitVec w} (h : x ≠ intMin w) (h' 
     simp [h]
   ]
 
+theorem intMin_sdiv_intMin {w : Nat} :
+    (intMin w).sdiv (intMin w) = 1#w := by
+  by_cases hw : w = 0
+  · subst hw
+    decide +revert
+  · have : 0 < w := by omega
+    simp [sdiv_eq, this]
+    intro h
+    simp [toNat_eq] at h
+    norm_cast at h
+    rw [Nat.two_pow_pred_mod_two_pow (by omega)] at h
+    have := Nat.two_pow_pos (w-1)
+    omega
+
+
+
+
+
+
 theorem sdiv_intMin {x : BitVec w} :
     x.sdiv (intMin w) = if x = intMin w then 1#w else 0#w := by
-  sorry
+  by_cases hw : w = 0
+  · subst hw
+    decide +revert
+  by_cases h : x = intMin w
+  ·
+    simp [intMin_sdiv_intMin, h]
+    intros h'
+    rw [h'] at h
+    simp at *
+    simp [toNat_eq] at h'
+    norm_cast at h'
+    rw [Nat.two_pow_pred_mod_two_pow (by omega)] at h'
+    have := Nat.two_pow_pos (w-1)
+    omega
+  ·
+    simp [sdiv_eq]
+    simp [msb_intMin, show 0 < w by omega, h]
+    by_cases hx : x.msb
+    ·
+      simp [hx]
+      simp [toNat_eq] at *
+      rw [Nat.two_pow_pred_mod_two_pow (by omega)] at h
+      rw [Nat.two_pow_pred_mod_two_pow (by omega)]
+      rw [Nat.mod_eq_of_lt]
+      norm_cast at *
+      rw [Nat.div_eq_zero_iff_lt]
+      have := @toNat_ge_of_msb_true w x hx
+      rw [← Nat.two_pow_pred_add_two_pow_pred]
+      have := Nat.two_pow_pos (w-1)
+      omega
+      omega
+      have := Nat.two_pow_pos (w-1)
+      omega
+      have := Nat.two_pow_pos (w-1)
+      rw [←Nat.two_pow_pred_add_two_pow_pred]
+      have := @toNat_ge_of_msb_true w x hx
+      omega
+      omega
+    ·
+      simp [hx]
+      simp [toNat_eq] at *
+      rw [Nat.two_pow_pred_mod_two_pow (by omega)] at h
+      rw [Nat.two_pow_pred_mod_two_pow (by omega)]
+      norm_cast at *
+      rw [Nat.div_eq_zero_iff_lt]
+      have := (@msb_eq_false_iff_two_mul_lt w x).mp hx
+      rw [← Nat.two_pow_pred_add_two_pow_pred] at this
+      omega
+      omega
+      have := Nat.two_pow_pos (w-1)
+      omega
 
 theorem sdiv_neg {x y : BitVec w} (h : y ≠ intMin w) :
     x.sdiv (-y) = -(x.sdiv y) := by

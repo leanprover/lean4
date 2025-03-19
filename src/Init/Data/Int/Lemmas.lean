@@ -490,9 +490,11 @@ protected theorem neg_mul_eq_neg_mul (a b : Int) : -(a * b) = -a * b :=
 protected theorem neg_mul_eq_mul_neg (a b : Int) : -(a * b) = a * -b :=
   Int.neg_eq_of_add_eq_zero <| by rw [← Int.mul_add, Int.add_right_neg, Int.mul_zero]
 
+-- Note, this is not a `@[simp]` lemma because it interferes with normalization in `simp +arith`.
 protected theorem neg_mul (a b : Int) : -a * b = -(a * b) :=
   (Int.neg_mul_eq_neg_mul a b).symm
 
+-- Note, this is not a `@[simp]` lemma because it interferes with normalization in `simp +arith`.
 protected theorem mul_neg (a b : Int) : a * -b = -(a * b) :=
   (Int.neg_mul_eq_mul_neg a b).symm
 

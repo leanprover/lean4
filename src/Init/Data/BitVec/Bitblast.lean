@@ -1379,8 +1379,11 @@ theorem msb_neg_of_ne_intMin_of_ne_zero {x : BitVec w} (h : x ≠ intMin w) (h' 
   -/
 
   -- How do I translate from `¬x = 0#w` to `x != 0#w` and which of the two is canonical?
-  simp [show x != 0#w by sorry]
-  simp [show x != intMin w by sorry]
+  simp [show x != 0#w by
+    simp [h']]
+  simp [show x != intMin w by
+    simp [h]
+  ]
 
 theorem sdiv_intMin {x : BitVec w} :
     x.sdiv (intMin w) = if x = intMin w then 1#w else 0#w := by

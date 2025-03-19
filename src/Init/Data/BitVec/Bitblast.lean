@@ -1509,24 +1509,81 @@ theorem neg_ne_zero (a : BitVec w) : (-a != 0#w) = (a != 0#w) := by
   simp only [neg_bne'']
   simp
 
-
-
+theorem toInt_one (h : 1 < w) : (1#w : BitVec w).toInt = 1 := by
+  simp [BitVec.toInt, show 0 < 2^w by exact Nat.two_pow_pos w]
+  have := @Nat.lt_two_pow_self w
+  have clean : (1 % 2 ^ w) = 1 := by
+    rw [Nat.mod_eq_of_lt]
+    omega
+  norm_cast
+  rw [clean]
+  simp
+  omega
 
 theorem BitVec.toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1#w) :
     (a.sdiv b).toInt = a.toInt.tdiv b.toInt := by
   by_cases hw : w = 0
   · subst hw
     simp [BitVec.eq_nil a, BitVec.eq_nil b]
+  by_cases ha0 : a = 0#w
+  · subst ha0
+    simp [zero_sdiv]
+  by_cases hb0 : b = 0#w
+  · subst hb0
+    simp
   · by_cases hb : b = 1#w
     · subst hb
       simp
-      rw [BitVec.toInt_ofNat]
-      simp
-      sorry
+      by_cases hw1 : w = 1
+      · subst hw1
+        decide +revert
+      · have klr := @toInt_one w (by omega)
+        simp [klr]
     ·
       by_cases ha : a.msb <;> by_cases hb : b.msb
       <;> simp only [not_eq_true] at ha hb
-      · sorry
+      ·
+        by_cases hab : a ≠ intMin w ∧ b ≠ intMin w
+        ·
+          rw [← neg_sdiv_neg hab.left hab.right]
+          rw [sdiv_eq, msb_neg, msb_neg, ha, hb]
+          simp
+          have ha0' : a != 0#w := by
+            simp [ha0]
+          have hb0' : b != 0#w := by
+            simp [hb0]
+          simp [ha0', hb0']
+          simp at *
+          have hamin : a != intMin w := by
+            simp [hab.left]
+          have hbmin : b != intMin w := by
+            simp [hab.right]
+          simp [hamin, hbmin]
+          rw [toInt_eq_neg_toNat_neg_of_nonneg (x := a) (by simp [ha])]
+          rw [Int.neg_tdiv]
+          rw [toInt_eq_neg_toNat_neg_of_nonneg (x := b) (by simp [hb])]
+          rw [Int.tdiv_neg]
+          simp only [Int.neg_neg]
+          rw [Int.tdiv_eq_ediv_of_nonneg (by omega)]
+          norm_cast
+          rw [toInt_eq_toNat_of_msb]
+          simp
+          simp [msb_udiv]
+          simp [msb_neg]
+          simp [hamin]
+          simp [ha]
+          have : ¬ a = 0#w := by
+            simp [ha0']
+          simp [this]
+        ·
+          simp at hab
+          by_cases hamin : a = intMin w
+          ·
+            simp [hamin]
+          ·
+            simp [hamin] at hab
+            simp [hab]
+
       · by_cases ha0 : a = 0#w
         · subst ha0
           simp

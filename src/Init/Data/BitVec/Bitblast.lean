@@ -1482,6 +1482,17 @@ theorem sdiv_ne_intMin_of_ne_intMin {x y : BitVec w} (h : x ≠ intMin w) :
   · simp [msb_neg_of_ne_intMin_of_ne_zero h (ne_zero_of_msb_true hx), hx]
   · simp [msb_neg_of_ne_intMin_of_ne_zero h (ne_zero_of_msb_true hx), hx]
 
+theorem toInt_eq_neg_toNat_neg_of_msb_true {x : BitVec w} (h : x.msb = true) :
+    x.toInt = -((-x).toNat) := by
+  simp only [toInt_eq_msb_cond, h, ↓reduceIte, toNat_neg, Int.ofNat_emod]
+  norm_cast
+  rw [Nat.mod_eq_of_lt]
+  · omega
+  · have := @BitVec.isLt w x
+    have ne_zero := ne_zero_of_msb_true h
+    simp only [ne_eq, toNat_eq, toNat_ofNat, zero_mod] at ne_zero
+    omega
+
 theorem BitVec.toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1#w) :
     (a.sdiv b).toInt = a.toInt.tdiv b.toInt := by
   by_cases hw : w = 0
@@ -1504,7 +1515,11 @@ theorem BitVec.toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b
         simp_all
         rw [toInt_udiv_of_msb ha]
         rw [toInt_eq_toNat_of_msb ha]
-        · sorry
+        · rw [toInt_eq_neg_toNat_neg_of_msb_true hb]
+          generalize (-b).toNat = aa
+          rw [Int.tdiv_neg]
+          rw [Int.tdiv_eq_ediv_of_nonneg]
+          omega
         · simp [hbb]
         · apply ne_zero_of_msb_true hb
         · apply sdiv_ne_intMin_of_ne_intMin

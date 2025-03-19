@@ -1501,8 +1501,13 @@ theorem toInt_eq_neg_toNat_neg_of_nonneg {x : BitVec w} (h : x = 0#w ∨ x.msb =
   case inr h' =>
     simp [toInt_eq_neg_toNat_neg_of_msb_true h']
 
+theorem neg_beq {x y : BitVec w} : (-x == -y) = (x == y) := by
+  simp only [BEq.beq]
+  simp
+
 theorem neg_bne'' {x y : BitVec w} : (-x != -y) = (x != y) := by
-  sorry
+  simp only [bne, beq]
+  rw [neg_beq]
 
 theorem neg_ne_zero (a : BitVec w) : (-a != 0#w) = (a != 0#w) := by
   rw [← BitVec.neg_neg (x := 0#w)]

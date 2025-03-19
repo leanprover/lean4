@@ -619,6 +619,21 @@ This is the same as `#eval show MetaM Unit from do discard doSeq`.
 -/
 syntax (name := runMeta) "run_meta " doSeq : command
 
+/--
+The `run_macro doSeq` command executes code in `MacroM Unit`.
+This is the same as `#eval show MacroM Unit from do discard doSeq`.
+-/
+syntax (name := runMacro) "run_macro " doSeq : command
+
+/--
+The `run_cmd_macro doSeq` command executes code in `MacroM Command`.
+The produced command is then immediately elaborated.
+
+This effectively the same as `run_cmd elabCommand (← do doSeq)`,
+but this works without any imports.
+-/
+syntax (name := runCmdMacro) "run_cmd_macro " doSeq : command
+
 set_option linter.missingDocs false in
 syntax guardMsgsFilterSeverity := &"info" <|> &"warning" <|> &"error" <|> &"all"
 

@@ -1341,4 +1341,79 @@ theorem eq_iff_eq_of_inv (f : α → BitVec w) (g : BitVec w → α) (h : ∀ x,
     have := congrArg g h'
     simpa [h] using this
 
+theorem ne_intMin_of_lt_of_msb_false{x : BitVec w} (hw : 0 < w) (hx : x.msb = false) :
+    x ≠ intMin w := by
+  simp [BitVec.msb, BitVec.intMin, BitVec.toInt, BitVec.toNat, BitVec.ofNat, BitVec.toNat_ofNat]
+  have := BitVec.isLt x
+  intros arr
+  rw [toNat_eq] at arr
+  simp at arr
+  rw [Nat.two_pow_pred_mod_two_pow hw] at arr
+  have rt := @msb_eq_toNat w x
+  rw [hx] at rt
+  simp at rt
+  omega
+
+theorem ne_zero_msb_true {x : BitVec w} (hx : x.msb = true) :
+    x ≠ 0#w := by
+  intros h
+  rw [toNat_eq] at h
+  have sr := @msb_eq_toNat w x
+  rw [hx] at sr
+  simp at sr h
+  have := Nat.two_pow_pos (w-1)
+  omega
+
+theorem msb_neg_of_ne_intMin_of_ne_zero {x : BitVec w} (h : x ≠ intMin w) (h' : x ≠ 0#w) :
+    (-x).msb = !x.msb := by
+  rw [ne_eq] at h
+  rw [ne_eq] at h'
+  -- This is currently in `BitBlast.lean` as `msb_neg` is in `BitBlast.lean`.
+  simp [msb_neg, h, h']
+  /-
+  w : Nat
+  x : BitVec w
+  h : ¬x = intMin w
+  h' : ¬x = 0#w
+  ⊢ (x != 0#w && x != intMin w ^^ x.msb) = !x.msb
+  -/
+
+  -- How do I translate from `¬x = 0#w` to `x != 0#w` and which of the two is canonical?
+  simp [show x != 0#w by sorry]
+  simp [show x != intMin w by sorry]
+
+theorem sdiv_intMin {x : BitVec w} :
+    x.sdiv (intMin w) = if x = intMin w then 1#w else 0#w := by
+  sorry
+
+theorem sdiv_neg {x y : BitVec w} (h : y ≠ intMin w) :
+    x.sdiv (-y) = -(x.sdiv y) := by
+  by_cases h' : y = 0#w
+  · subst h'
+    simp
+  · simp only [BitVec.sdiv, msb_neg_of_ne_intMin_of_ne_zero h (by simp [h'])]
+    cases x.msb <;> cases y.msb <;> simp
+
+theorem neg_sdiv {x y : BitVec w} (h : x ≠ intMin w) :
+    (-x).sdiv y = -(x.sdiv y) := by
+  by_cases hx0 : x = 0#w
+  · subst hx0
+    simp
+  · simp only [BitVec.sdiv, msb_neg_of_ne_intMin_of_ne_zero h (by simp [hx0])]
+    cases x.msb <;> cases y.msb <;> simp
+
+-- h' is likely not necessary
+theorem neg_sdiv_neg {x y : BitVec w} (h : x ≠ intMin w) (h' : y ≠ intMin w) :
+    (-x).sdiv (-y) = x.sdiv y := by
+  by_cases hy0 : y = 0#w
+  · subst hy0
+    simp
+  · by_cases hx0 : x = 0#w
+    · subst hx0
+      simp
+    · simp only [BitVec.sdiv,
+         msb_neg_of_ne_intMin_of_ne_zero h  (by simp [hx0]),
+         msb_neg_of_ne_intMin_of_ne_zero h' (by simp [hy0])]
+      cases x.msb <;> cases y.msb <;> simp
+
 end BitVec

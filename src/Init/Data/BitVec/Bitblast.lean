@@ -1519,16 +1519,6 @@ theorem BitVec.toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b
             simp [msb_neg]
             simp_all
           rw [toInt_eq_neg_toNat_neg_of_msb_true]
-          have : (-(-a).sdiv b).msb = true := by
-             simp [msb_neg]
-             have haa : -a ≠ intMin w := by
-               rw [neg_ne_intMin_inj]
-               simp [h]
-             have := @sdiv_ne_intMin_of_ne_intMin w (-a) b haa
-             simp [this]
-             have art : (-a).sdiv b != intMin w := sorry
-             simp [art]
-
           simp only [neg_neg]
           simp only [sdiv_eq, hneganonneg, hb, udiv_eq, toNat_udiv]
           rw [toInt_eq_neg_toNat_neg_of_msb_true ha]
@@ -1538,6 +1528,19 @@ theorem BitVec.toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b
           rw [Int.tdiv_eq_ediv_of_nonneg]
           rfl
           omega
+          have : (-(-a).sdiv b).msb = true := by
+            stop
+            simp [msb_neg]
+            have haa : -a ≠ intMin w := by
+              rw [neg_ne_intMin_inj]
+              simp [h]
+            have := @sdiv_ne_intMin_of_ne_intMin w (-a) b haa
+            simp [this]
+            have art : (-a).sdiv b != intMin w := sorry
+            simp [art]
+            sorry
+          simp [this]
+
     · by_cases hbb : b = intMin w -- try to use tdiv_eq_ediv_of_nonneg
       · subst hbb
         simp [msb_intMin] at hb

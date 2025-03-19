@@ -80,6 +80,23 @@ def compileO
     args := #["-c", "-o", oFile.toString, srcFile.toString] ++ moreArgs
   }
 
+def mkArgs (basePath : FilePath) (args : Array String) : LogIO (Array String) := do
+  if Platform.isWindows then
+    -- Use response file to avoid potentially exceeding CLI length limits.
+    let rspFile := basePath.addExtension "rsp"
+    let h ← IO.FS.Handle.mk rspFile .write
+    args.forM fun arg =>
+      -- Escape special characters
+      let arg := arg.foldl (init := "") fun s c =>
+        if c == '\\' || c == '"' then
+          s.push '\\' |>.push c
+        else
+          s.push c
+      h.putStr s!"\"{arg}\"\n"
+    return #[s!"@{rspFile}"]
+  else
+    return args
+
 def compileStaticLib
   (libFile : FilePath) (oFiles : Array FilePath)
   (ar : FilePath := "ar")
@@ -87,7 +104,7 @@ def compileStaticLib
   createParentDirs libFile
   proc {
     cmd := ar.toString
-    args := #["rcs", libFile.toString] ++ oFiles.map toString
+    args := #["rcs", libFile.toString] ++ (← mkArgs libFile <| oFiles.map toString)
   }
 
 private def getMacOSXDeploymentEnv : BaseIO (Array (String × Option String)) := do
@@ -102,24 +119,22 @@ private def getMacOSXDeploymentEnv : BaseIO (Array (String × Option String)) :=
     return #[]
 
 def compileSharedLib
-  (libFile : FilePath) (linkArgs : Array String)
-  (linker : FilePath := "cc")
+  (libFile : FilePath) (linkArgs : Array String) (linker : FilePath := "cc")
 : LogIO Unit := do
   createParentDirs libFile
   proc {
     cmd := linker.toString
-    args := #["-shared", "-o", libFile.toString] ++ linkArgs
+    args := #["-shared", "-o", libFile.toString] ++ (← mkArgs libFile linkArgs)
     env := ← getMacOSXDeploymentEnv
   }
 
 def compileExe
-  (binFile : FilePath) (linkFiles : Array FilePath)
-  (linkArgs : Array String := #[]) (linker : FilePath := "cc")
+  (binFile : FilePath) (linkArgs : Array String) (linker : FilePath := "cc")
 : LogIO Unit := do
   createParentDirs binFile
   proc {
     cmd := linker.toString
-    args := #["-o", binFile.toString] ++ linkFiles.map toString ++ linkArgs
+    args := #["-o", binFile.toString] ++ (← mkArgs binFile linkArgs)
     env := ← getMacOSXDeploymentEnv
   }
 

@@ -3150,6 +3150,14 @@ theorem neg_ne_iff_ne_neg {x y : BitVec w} : -x ≠ y ↔ x ≠ -y := by
     subst h'
     simp at h
 
+theorem neg_eq_iff_eq_neg {x y : BitVec w} : -x = y ↔ x = -y := by
+  constructor
+  all_goals
+    intro h
+    symm at h
+    subst h
+    simp
+
 @[simp]
 theorem neg_eq_zero_iff {x : BitVec w} : -x = 0#w ↔ x = 0#w := by
   constructor

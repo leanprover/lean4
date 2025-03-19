@@ -1354,7 +1354,7 @@ theorem ne_intMin_of_lt_of_msb_false {x : BitVec w} (hw : 0 < w) (hx : x.msb = f
   simp at rt
   omega
 
-theorem ne_zero_msb_true {x : BitVec w} (hx : x.msb = true) :
+theorem ne_zero_of_msb_true {x : BitVec w} (hx : x.msb = true) :
     x ≠ 0#w := by
   intros h
   rw [toNat_eq] at h
@@ -1462,6 +1462,26 @@ theorem BitVec.toInt_intMin_eq_bmod : (intMin w).toInt = (-2 ^ (w - 1)).bmod (2 
 theorem BitVec.toInt_eq_toInt_bmod (b : BitVec w) : b.toInt = b.toInt.bmod (2 ^ w) := by
   rw [toInt_eq_toNat_bmod, Int.bmod_bmod]
 
+theorem neg_ne_intMin_inj {x : BitVec w} :
+    -x ≠ intMin w ↔ x ≠ intMin w := by
+  rw [←neg_intMin, neg_ne_iff_ne_neg, neg_neg, neg_intMin]
+
+theorem sdiv_ne_intMin_of_ne_intMin {x y : BitVec w} (h : x ≠ intMin w) :
+    x.sdiv y ≠ intMin w := by
+  by_cases hw : w = 0
+  · subst hw
+    simp [BitVec.eq_nil x] at h
+    contradiction
+  simp only [sdiv, udiv_eq, neg_eq]
+  by_cases hx : x.msb <;> by_cases hy : y.msb
+  <;> simp only [hx, hy, neg_ne_intMin_inj]
+  <;> simp only [Bool.not_eq_true] at hx hy
+  <;> apply ne_intMin_of_lt_of_msb_false (by omega)
+  <;> rw [msb_udiv]
+  <;> try simp only [hx, Bool.false_and]
+  · simp [msb_neg_of_ne_intMin_of_ne_zero h (ne_zero_of_msb_true hx), hx]
+  · simp [msb_neg_of_ne_intMin_of_ne_zero h (ne_zero_of_msb_true hx), hx]
+
 theorem BitVec.toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1#w) :
     (a.sdiv b).toInt = a.toInt.tdiv b.toInt := by
   by_cases hw : w = 0
@@ -1485,9 +1505,10 @@ theorem BitVec.toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b
         rw [toInt_udiv_of_msb ha]
         rw [toInt_eq_toNat_of_msb ha]
         · sorry
-        · sorry
-        · sorry
-        · sorry
+        · simp [hbb]
+        · apply ne_zero_of_msb_true hb
+        · apply sdiv_ne_intMin_of_ne_intMin
+          apply ne_intMin_of_lt_of_msb_false (by omega) ha
         · simp [hbb]
     · rw [sdiv, Int.tdiv_cases, udiv_eq, neg_eq, if_pos (toInt_nonneg_of_msb_false ha),
         if_pos (toInt_nonneg_of_msb_false hb), ha, hb, toInt_udiv_of_msb ha,

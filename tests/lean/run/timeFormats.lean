@@ -801,7 +801,7 @@ Truncation Test
 
 /--
 info: ("19343232432-01-04T01:04:03.000000000",
- Except.ok (datetime("19343232432-01-04T01:04:03.000000000")),
+ Except.error "offset 4: expected: -",
  datetime("1932-01-02T05:04:03.000000000"))
 -/
 #guard_msgs in

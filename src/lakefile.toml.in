@@ -7,7 +7,7 @@
 
 name = "lean4"
 
-defaultTargets = ["Init", "Lean", "Lake"]
+defaultTargets = ["Init", "Std", "Lean", "Lake", "LakeMain"]
 
 # The root of all the compiler output directories
 buildDir = "${CMAKE_BINARY_DIR}"

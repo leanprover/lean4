@@ -254,7 +254,7 @@ theorem find?_eq_some_iff_getElem {xs : Vector α n} {p : α → Bool} {b : α} 
 
 /-! ### findFinIdx? -/
 
-@[simp] theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p (#v[] : Vector α 0) = none := rfl
+@[simp] theorem findFinIdx?_empty {p : α → Bool} : findFinIdx? p (#v[] : Vector α 0) = none := by simp
 
 @[congr] theorem findFinIdx?_congr {p : α → Bool} {xs : Vector α n} {ys : Vector α n} (w : xs = ys) :
     findFinIdx? p xs = findFinIdx? p ys := by

@@ -211,7 +211,7 @@ def toLinearExpr (e : Expr) : MetaM (Int.Linear.Expr × Array Expr) := do
   if atoms.size == 1 then
     return (e, atoms)
   else
-    let (atoms, perm) := sortExprs atoms
+    let (atoms, perm) := sortExprs atoms (lt := false)
     let e := e.applyPerm perm
     return (e, atoms)
 

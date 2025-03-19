@@ -53,3 +53,6 @@ abbrev LibraryFacetConfig := FacetConfig LibraryData LeanLib
 
 /-- A library facet declaration from a configuration file. -/
 abbrev LibraryFacetDecl := NamedConfigDecl LibraryFacetConfig
+
+deriving instance TypeName for
+  ModuleFacetDecl, PackageFacetDecl, LibraryFacetDecl

@@ -655,4 +655,82 @@ theorem isEmpty_ofList [TransCmp cmp] {l : List α} :
     (ofList l cmp).isEmpty = l.isEmpty :=
   TreeMap.isEmpty_unitOfList
 
+section Min
+
+@[simp]
+theorem min?_emptyc :
+    (∅ : TreeSet α cmp).min? = none :=
+  DTreeMap.minKey?_emptyc
+
+theorem min?_of_isEmpty [TransCmp cmp] :
+    (he : t.isEmpty) → t.min? = none :=
+  DTreeMap.minKey?_of_isEmpty
+
+@[simp]
+theorem min?_eq_none_iff [TransCmp cmp] :
+    t.min? = none ↔ t.isEmpty :=
+  DTreeMap.minKey?_eq_none_iff
+
+@[simp]
+theorem isNone_min?_eq_isEmpty [TransCmp cmp] :
+    t.min?.isNone = t.isEmpty :=
+  DTreeMap.isNone_minKey?_eq_isEmpty
+
+@[simp]
+theorem isSome_min?_eq_not_isEmpty [TransCmp cmp] :
+    t.min?.isSome = !t.isEmpty :=
+  DTreeMap.isSome_minKey?_eq_not_isEmpty
+
+theorem contains_min? [TransCmp cmp] {km} :
+    (hkm : t.min? = some km) →
+    t.contains km :=
+  DTreeMap.contains_minKey?
+
+theorem isSome_min?_of_contains [TransCmp cmp] {k} :
+    (hc : t.contains k) → t.min?.isSome :=
+  DTreeMap.isSome_minKey?_of_contains
+
+theorem isSome_min?_of_mem [TransCmp cmp] {k} :
+    k ∈ t → t.min?.isSome :=
+  DTreeMap.isSome_minKey?_of_mem
+
+theorem min?_le_of_contains [TransCmp cmp] {k km} :
+    (hc : t.contains k) → (hkm : (t.min?.get <| isSome_min?_of_contains hc) = km) →
+    cmp km k |>.isLE :=
+  DTreeMap.minKey?_le_of_contains
+
+theorem min?_le_of_mem [TransCmp cmp] {k km} :
+    (hc : k ∈ t) → (hkm : (t.min?.get <| isSome_min?_of_mem hc) = km) →
+    cmp km k |>.isLE :=
+  DTreeMap.minKey?_le_of_mem
+
+@[simp]
+theorem min?_bind_get? [TransCmp cmp] :
+    t.min?.bind t.get? = t.min? :=
+  DTreeMap.minKey?_bind_getKey?
+
+theorem min?_erase_eq_iff_not_compare_eq_min? [TransCmp cmp] {k} :
+    (t.erase k |>.min?) = t.min? ↔
+      ∀ {km}, t.min? = some km → ¬ cmp k km = .eq :=
+  DTreeMap.minKey?_erase_eq_iff_not_compare_eq_minKey?
+
+theorem min?_erase_eq_of_not_compare_eq_min? [TransCmp cmp] {k} :
+    (hc : ∀ {km}, t.min? = some km → ¬ cmp k km = .eq) →
+    (t.erase k |>.min?) = t.min? :=
+  DTreeMap.minKey?_erase_eq_of_not_compare_eq_minKey?
+
+theorem isSome_min?_of_isSome_min?_erase [TransCmp cmp] {k} :
+    (hs : t.erase k |>.min?.isSome) →
+    t.min?.isSome :=
+  DTreeMap.isSome_minKey?_of_isSome_minKey?_erase
+
+theorem min?_le_min?_erase [TransCmp cmp] {k km kme} :
+    (hkme : (t.erase k |>.min?) = some kme) →
+    (hkm : (t.min?.get <|
+      isSome_min?_of_isSome_min?_erase <| hkme ▸ Option.isSome_some) = km) →
+    cmp km kme |>.isLE :=
+  DTreeMap.minKey?_le_minKey?_erase
+
+end Min
+
 end Std.TreeSet

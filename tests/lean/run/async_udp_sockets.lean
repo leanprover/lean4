@@ -27,28 +27,28 @@ instance : MonadLift IO Async where
   monadLift io := Async.mk (io >>= (pure ∘ AsyncTask.pure))
 
 /-- Joe is another client. -/
-def runJoe (addr : UInt16 → SocketAddress) : Async Unit := do
+def runJoe (addr : UInt16 → SocketAddress) (first second : UInt16) : Async Unit := do
   let client ← UDP.Socket.mk
 
-  client.bind (addr 8081)
-  client.connect (addr 8080)
+  client.bind (addr second)
+  client.connect (addr first)
 
   await (client.send (String.toUTF8 "hello robert!"))
 
 
-def acceptClose (addr : UInt16 → SocketAddress) : IO Unit := do
+def acceptClose (addr : UInt16 → SocketAddress) (first second : UInt16) : IO Unit := do
 
   let server ← UDP.Socket.mk
-  server.bind (addr 8080)
+  server.bind (addr first)
 
-  let res ← (runJoe addr).run
+  let res ← (runJoe addr first second).run
   res.block
 
   let res ← server.recv 1024
   let (msg, addr) ← res.block
 
   assert! ("hello robert!" == String.fromUTF8! msg)
-  assert! addr.port == 8081
+  assert! addr.port == second
 
-#eval acceptClose (SocketAddress.v4 ∘ SocketAddressV4.mk (.ofParts 0 0 0 0))
-#eval acceptClose (SocketAddress.v6 ∘ SocketAddressV6.mk (.ofParts 0 0 0 0 0 0 0 1))
+#eval acceptClose (SocketAddress.v4 ∘ SocketAddressV4.mk (.ofParts 0 0 0 0))  9001 9002
+#eval acceptClose (SocketAddress.v6 ∘ SocketAddressV6.mk (.ofParts 0 0 0 0 0 0 0 1))  9003 9004

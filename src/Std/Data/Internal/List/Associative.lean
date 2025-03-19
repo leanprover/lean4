@@ -4741,6 +4741,36 @@ theorem minKey?_alterKey_eq_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd �
 
 end Const
 
+/-- Given a proof that the list is nonempty, returns the smallest key in an associative list. -/
+def minKey [Ord α] (xs : List ((a : α) × β a)) (h : xs.isEmpty = false) : α :=
+  minKey? xs |>.get (by simp [isSome_minKey?_eq_not_isEmpty, h])
+
+theorem minKey_eq_get_minKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} {he} :
+    minKey l he = (minKey? l |>.get (by simp [isSome_minKey?_eq_not_isEmpty, he])) :=
+  rfl
+
+private theorem Option.get_eq_iff_eq_some {o : Option α} {h k} :
+    o.get h = k ↔ o = some k := by
+  simp [Option.eq_some_iff_get_eq, exists_prop_of_true h]
+
+theorem minKey_eq_iff_getKey?_eq_self_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {he km} :
+    minKey l he = km ↔ getKey? km l = some km ∧ ∀ k, containsKey k l → (compare km k).isLE := by
+  simp [minKey_eq_get_minKey?, Option.get_eq_iff_eq_some,
+    minKey?_eq_some_iff_getKey?_eq_self_and_forall hd]
+
+theorem minKey_eq_some_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    [LawfulEqOrd α] {l : List ((a : α) × β a)} (hd : DistinctKeys l) {he km} :
+    minKey l he = km ↔ containsKey km l ∧ ∀ k, containsKey k l → (compare km k).isLE := by
+  simp [minKey_eq_get_minKey?, Option.get_eq_iff_eq_some, minKey?_eq_some_iff_mem_and_forall hd]
+
+theorem minKey_insert [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l : List ((a : α) × β a)}
+    (hd : DistinctKeys l) {k v} :
+    (insertEntry k v l |> minKey <| isEmpty_insertEntry) =
+      ((t.minKey?).elim k fun k' => if compare k k'|>.isLE then k else k') := by
+  sorry
+
 end Min
 
 end Std.Internal.List

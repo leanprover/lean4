@@ -1509,6 +1509,9 @@ theorem neg_ne_zero (a : BitVec w) : (-a != 0#w) = (a != 0#w) := by
   simp only [neg_bne'']
   simp
 
+
+
+
 theorem BitVec.toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1#w) :
     (a.sdiv b).toInt = a.toInt.tdiv b.toInt := by
   by_cases hw : w = 0
@@ -1516,6 +1519,8 @@ theorem BitVec.toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b
     simp [BitVec.eq_nil a, BitVec.eq_nil b]
   · by_cases hb : b = 1#w
     · subst hb
+      simp
+      rw [BitVec.toInt_ofNat]
       simp
       sorry
     ·
@@ -1525,41 +1530,25 @@ theorem BitVec.toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b
       · by_cases ha0 : a = 0#w
         · subst ha0
           simp
-        · rw [toInt_eq_toNat_of_msb hb]
-          rw [sdiv_eq]
-          simp [ha, hb]
-          rw [toInt_eq_neg_toNat_neg_of_msb_true (x := a) ha]
-          rw [Int.neg_tdiv]
-          rw [Int.tdiv_eq_ediv_of_nonneg (by omega)]
-          rw [toInt_eq_neg_toNat_neg_of_nonneg]
+        · simp only [sdiv_eq, ha, hb, udiv_eq, toInt_eq_toNat_of_msb]
+          rw [toInt_eq_neg_toNat_neg_of_msb_true (x := a) ha, Int.neg_tdiv,
+            Int.tdiv_eq_ediv_of_nonneg (by omega), toInt_eq_neg_toNat_neg_of_nonneg]
           · simp
             norm_cast
-          · rw [BitVec.neg_eq_zero_iff]
-            rw [BitVec.msb_neg]
-            simp
+          · simp only [BitVec.neg_eq_zero_iff, BitVec.msb_neg, bne_iff_ne, ne_eq]
             by_cases hh9 : -a / b = 0#w
             · rw [hh9]
               simp
-            ·
-              simp [hh9]
+            · simp only [hh9, _root_.false_or]
               have k5 : -a / b != 0#w := by
                 simp [hh9]
-              simp [k5]
+              simp only [k5, Bool.true_and, ne_eq]
               by_cases k6 : (-a / b = intMin w)
-              ·
-                rw [k6]
-                simp
-                rw [msb_intMin]
-                simp
+              · simp [k6, msb_intMin]
                 omega
               · have l9 : (-a / b != intMin w) := by
                   simp [k6]
-                simp [l9]
-                rw [msb_udiv]
-                rw [msb_neg]
-                simp
-                simp [ha, ha0]
-                intros hh
+                simp [l9, msb_udiv]
                 simp_all
       · by_cases hbb : b = intMin w -- try to use tdiv_eq_ediv_of_nonneg
         · subst hbb

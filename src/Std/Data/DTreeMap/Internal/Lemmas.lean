@@ -55,7 +55,7 @@ theorem compare_ne_iff_beq_eq_false {a b : α} :
   simp only [ne_eq, compare_eq_iff_beq, Bool.not_eq_true]
 
 private def helperLemmaNames : Array Name :=
-  #[``compare_eq_iff_beq, ``compare_ne_iff_beq_eq_false, ``Bool.not_eq_true, `mem_iff_contains]
+  #[``compare_eq_iff_beq, ``compare_ne_iff_beq_eq_false, ``Bool.not_eq_true, ``mem_iff_contains]
 
 private def modifyMap : Std.HashMap Name Name :=
   .ofList
@@ -72,21 +72,21 @@ private def modifyMap : Std.HashMap Name Name :=
 
 private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSyntax `term))) :=
   .ofList
-    [⟨`isEmpty, (``isEmpty_eq_isEmpty, #[`(_root_.List.Perm.isEmpty_eq)])⟩,
-     ⟨`contains, (``contains_eq_containsKey, #[`(containsKey_of_perm)])⟩,
-     ⟨`size, (``size_eq_length, #[`(_root_.List.Perm.length_eq)])⟩,
-     ⟨`get?, (``get?_eq_getValueCast?, #[`(getValueCast?_of_perm _)])⟩,
-     ⟨`Const.get?, (``Const.get?_eq_getValue?, #[`(getValue?_of_perm _)])⟩,
-     ⟨`Const.get, (``Const.get_eq_getValue, #[`(getValue_of_perm _)])⟩,
-     ⟨`get, (``get_eq_getValueCast, #[`(getValueCast_of_perm _)])⟩,
-     ⟨`get!, (``get!_eq_getValueCast!, #[`(getValueCast!_of_perm _)])⟩,
-     ⟨`getD, (``getD_eq_getValueCastD, #[`(getValueCastD_of_perm _)])⟩,
-     ⟨`Const.get!, (``Const.get!_eq_getValue!, #[`(getValue!_of_perm _)])⟩,
-     ⟨`Const.getD, (``Const.getD_eq_getValueD, #[`(getValueD_of_perm _)])⟩,
-     ⟨`getKey?, (``getKey?_eq_getKey?, #[`(getKey?_of_perm _)])⟩,
-     ⟨`getKey, (``getKey_eq_getKey, #[`(getKey_of_perm _)])⟩,
-     ⟨`getKeyD, (``getKeyD_eq_getKeyD, #[`(getKeyD_of_perm _)])⟩,
-     ⟨`getKey!, (``getKey!_eq_getKey!, #[`(getKey!_of_perm _)])⟩,
+    [⟨`isEmpty, (``isEmpty_eq_isEmpty, #[``(_root_.List.Perm.isEmpty_eq)])⟩,
+     ⟨`contains, (``contains_eq_containsKey, #[``(containsKey_of_perm)])⟩,
+     ⟨`size, (``size_eq_length, #[``(_root_.List.Perm.length_eq)])⟩,
+     ⟨`get?, (``get?_eq_getValueCast?, #[``(getValueCast?_of_perm _)])⟩,
+     ⟨`Const.get?, (``Const.get?_eq_getValue?, #[``(getValue?_of_perm _)])⟩,
+     ⟨`Const.get, (``Const.get_eq_getValue, #[``(getValue_of_perm _)])⟩,
+     ⟨`get, (``get_eq_getValueCast, #[``(getValueCast_of_perm _)])⟩,
+     ⟨`get!, (``get!_eq_getValueCast!, #[``(getValueCast!_of_perm _)])⟩,
+     ⟨`getD, (``getD_eq_getValueCastD, #[``(getValueCastD_of_perm _)])⟩,
+     ⟨`Const.get!, (``Const.get!_eq_getValue!, #[``(getValue!_of_perm _)])⟩,
+     ⟨`Const.getD, (``Const.getD_eq_getValueD, #[``(getValueD_of_perm _)])⟩,
+     ⟨`getKey?, (``getKey?_eq_getKey?, #[``(getKey?_of_perm _)])⟩,
+     ⟨`getKey, (``getKey_eq_getKey, #[``(getKey_of_perm _)])⟩,
+     ⟨`getKeyD, (``getKeyD_eq_getKeyD, #[``(getKeyD_of_perm _)])⟩,
+     ⟨`getKey!, (``getKey!_eq_getKey!, #[``(getKey!_of_perm _)])⟩,
      ⟨`toList, (``toList_eq_toListModel, #[])⟩,
      ⟨`keys, (``keys_eq_keys, #[])⟩,
      ⟨`Const.toList, (``Const.toList_eq_toListModel_map, #[])⟩,
@@ -95,7 +95,8 @@ private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSynta
      ⟨`foldrM, (``foldrM_eq_foldrM, #[])⟩,
      ⟨`foldr, (``foldr_eq_foldr, #[])⟩,
      ⟨`forIn, (``forIn_eq_forIn_toListModel, #[])⟩,
-     ⟨`forM, (``forM_eq_forM, #[])⟩]
+     ⟨`forM, (``forM_eq_forM, #[])⟩,
+     ⟨`minKey?, (``minKey?_eq_minKey?, #[``(minKey?_of_perm _)])⟩]
 
 /-- Internal implementation detail of the tree map -/
 scoped syntax "simp_to_model" (" [" (ident,*) "]")? ("using" term)? : tactic
@@ -4211,5 +4212,147 @@ theorem getKeyD_modify_self (h : t.WF) [Inhabited α] {k fallback : α} {f : β 
 end Const
 
 end Modify
+
+section Min
+
+theorem minKey?_empty :
+    (empty : Impl α β).minKey? = none := by
+  unfold minKey?; rfl
+
+theorem minKey?_of_isEmpty [TransOrd α] (h : t.WF) :
+    (he : t.isEmpty) → t.minKey? = none := by
+  simp_to_model using List.minKey?_of_isEmpty
+
+theorem minKey?_eq_none_iff [TransOrd α] (h : t.WF) :
+    t.minKey? = none ↔ t.isEmpty := by
+  simp_to_model using List.minKey?_eq_none_iff_isEmpty
+
+theorem isNone_minKey?_eq_isEmpty [TransOrd α] (h : t.WF) :
+    t.minKey?.isNone = t.isEmpty := by
+  simp_to_model using List.isNone_minKey?_eq_isEmpty
+
+theorem isSome_minKey?_eq_not_isEmpty [TransOrd α] (h : t.WF) :
+    t.minKey?.isSome = !t.isEmpty := by
+  simp_to_model using List.isSome_minKey?_eq_not_isEmpty
+
+theorem minKey?_insert [TransOrd α] (h : t.WF) {k v} :
+    (t.insert k v h.balanced).impl.minKey? =
+      t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k' := by
+  simp_to_model [insert] using List.minKey?_insertEntry
+
+theorem minKey?_insert! [TransOrd α] (h : t.WF) {k v} :
+    (t.insert! k v).minKey? =
+      t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k' := by
+  simpa only [insert_eq_insert!] using minKey?_insert h
+
+theorem isSome_minKey?_insert [TransOrd α] (h : t.WF) {k v} :
+    (t.insert k v h.balanced).impl.minKey?.isSome := by
+  simp_to_model [insert] using List.isSome_minKey?_insertEntry
+
+theorem isSome_minKey?_insert! [TransOrd α] (h : t.WF) {k v} :
+    (t.insert! k v).minKey?.isSome := by
+  simpa only [insert_eq_insert!] using isSome_minKey?_insert h
+
+theorem minKey?_insert_le_minKey? [TransOrd α] (h : t.WF) {k v km kmi} :
+    (hkm : t.minKey? = some km) →
+    (hkmi : (t.insert k v h.balanced |>.impl.minKey? |>.get <| isSome_minKey?_insert h) = kmi) →
+    compare kmi km |>.isLE := by
+  simp_to_model [insert] using List.minKey?_insertEntry_le_minKey?
+
+theorem minKey?_insert!_le_minKey? [TransOrd α] (h : t.WF) {k v km kmi} :
+    (hkm : t.minKey? = some km) →
+    (hkmi : (t.insert! k v |>.minKey? |>.get <| isSome_minKey?_insert! h) = kmi) →
+    compare kmi km |>.isLE := by
+  simpa only [insert_eq_insert!] using minKey?_insert_le_minKey? h
+
+theorem minKey?_insert_le_self [TransOrd α] (h : t.WF) {k v kmi} :
+    (hkmi : (t.insert k v h.balanced |>.impl.minKey?.get <| isSome_minKey?_insert h) = kmi) →
+    compare kmi k |>.isLE := by
+  simp_to_model [insert] using List.minKey?_insertEntry_le_self
+
+theorem minKey?_insert!_le_self [TransOrd α] (h : t.WF) {k v kmi} :
+    (hkmi : (t.insert! k v |>.minKey?.get <| isSome_minKey?_insert! h) = kmi) →
+    compare kmi k |>.isLE := by
+  simpa only [insert_eq_insert!] using minKey?_insert_le_self h
+
+theorem contains_minKey? [TransOrd α] (h : t.WF) {km} :
+    (hkm : t.minKey? = some km) →
+    t.contains km := by
+  simp_to_model using List.containsKey_minKey?
+
+theorem minKey?_mem [TransOrd α] (h : t.WF) {km} :
+    (hkm : t.minKey? = some km) →
+    km ∈ t := by
+  simp_to_model using List.containsKey_minKey?
+
+theorem isSome_minKey?_of_contains [TransOrd α] (h : t.WF) {k} :
+    (hc : t.contains k) → t.minKey?.isSome := by
+  simp_to_model using List.isSome_minKey?_of_containsKey
+
+theorem isSome_minKey?_of_mem [TransOrd α] (h : t.WF) {k} :
+    k ∈ t → t.minKey?.isSome :=
+  isSome_minKey?_of_contains h
+
+theorem minKey?_le_of_contains [TransOrd α] (h : t.WF) {k km} :
+    (hc : t.contains k) → (hkm : (t.minKey?.get <| isSome_minKey?_of_contains h hc) = km) →
+    compare km k |>.isLE := by
+  simp_to_model using minKey?_le_of_containsKey
+
+theorem minKey?_le_of_mem [TransOrd α] (h : t.WF) {k km} :
+    (hc : k ∈ t) → (hkm : (t.minKey?.get <| isSome_minKey?_of_mem h hc) = km) →
+    compare km k |>.isLE :=
+  minKey?_le_of_contains h
+
+@[simp]
+theorem minKey?_bind_getKey? [TransOrd α] (h : t.WF) :
+    t.minKey?.bind t.getKey? = t.minKey? := by
+  change (t.minKey?.bind fun k => t.getKey? k) = t.minKey?
+  simp_to_model using List.minKey?_bind_getKey?
+
+theorem minKey?_erase_eq_iff_not_compare_eq_minKey? [TransOrd α] (h : t.WF) {k} :
+    (t.erase k h.balanced |>.impl.minKey?) = t.minKey? ↔
+      ∀ {km}, t.minKey? = some km → ¬ compare k km = .eq := by
+  simp_to_model [erase] using minKey?_eraseKey_eq_iff_beq_minKey?_eq_false
+
+theorem minKey?_erase!_eq_iff_not_compare_eq_minKey? [TransOrd α] (h : t.WF) {k} :
+    (t.erase! k |>.minKey?) = t.minKey? ↔
+      ∀ {km}, t.minKey? = some km → ¬ compare k km = .eq := by
+  simpa only [erase_eq_erase!] using minKey?_erase_eq_iff_not_compare_eq_minKey? h
+
+theorem minKey?_erase_eq_of_not_compare_eq_minKey? [TransOrd α] (h : t.WF) {k} :
+    (hc : ∀ {km}, t.minKey? = some km → ¬ compare k km = .eq) →
+    (t.erase k h.balanced |>.impl.minKey?) = t.minKey? := by
+  simp_to_model [erase] using minKey?_eraseKey_eq_of_beq_minKey?_eq_false
+
+theorem minKey?_erase!_eq_of_not_compare_eq_minKey? [TransOrd α] (h : t.WF) {k} :
+    (hc : ∀ {km}, t.minKey? = some km → ¬ compare k km = .eq) →
+    (t.erase! k |>.minKey?) = t.minKey? := by
+  simpa only [erase_eq_erase!] using minKey?_erase_eq_of_not_compare_eq_minKey? h
+
+theorem isSome_minKey?_of_isSome_minKey?_erase [TransOrd α] (h : t.WF) {k} :
+    (hs : t.erase k h.balanced |>.impl.minKey?.isSome) →
+    t.minKey?.isSome := by
+  simp_to_model [erase] using isSome_minKey?_of_isSome_minKey?_eraseKey
+
+theorem isSome_minKey?_of_isSome_minKey?_erase! [TransOrd α] (h : t.WF) {k} :
+    (hs : t.erase! k |>.minKey?.isSome) →
+    t.minKey?.isSome := by
+  simpa only [erase_eq_erase!] using isSome_minKey?_of_isSome_minKey?_erase h
+
+theorem minKey?_le_minKey?_erase [TransOrd α] (h : t.WF) {k km kme} :
+    (hkme : (t.erase k h.balanced |>.impl.minKey?) = some kme) →
+    (hkm : (t.minKey?.get <|
+      isSome_minKey?_of_isSome_minKey?_erase h <| hkme ▸ Option.isSome_some) = km) →
+    compare km kme |>.isLE := by
+  simp_to_model [erase] using minKey?_le_minKey?_eraseKey
+
+theorem minKey?_le_minKey?_erase! [TransOrd α] (h : t.WF) {k km kme} :
+    (hkme : (t.erase! k |>.minKey?) = some kme) →
+    (hkm : (t.minKey?.get <|
+      isSome_minKey?_of_isSome_minKey?_erase! h <| hkme ▸ Option.isSome_some) = km) →
+    compare km kme |>.isLE := by
+  simpa only [erase_eq_erase!] using minKey?_le_minKey?_erase h
+
+end Min
 
 end Std.DTreeMap.Internal.Impl

@@ -1471,7 +1471,24 @@ theorem BitVec.toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b
     <;> simp only [not_eq_true] at ha hb
     · sorry
     · sorry
-    · sorry
+    · by_cases hbb : b = intMin w
+      · subst hbb
+        simp [msb_intMin] at hb
+        simp only [sdiv_intMin, ne_intMin_of_lt_of_msb_false hb ha, ↓reduceIte, toInt_zero,
+          toInt_intMin_of_pos (v := w) (by omega), Int.tdiv_neg]
+        have := @toInt_lt w a; have := toInt_nonneg_of_msb_false ha
+        rw [Int.tdiv_eq_zero_of_lt]
+        <;> omega
+      · rw [← @BitVec.neg_neg w (a.sdiv b), ← sdiv_neg, toInt_neg_of_ne_intMin, sdiv]
+        rw [msb_neg_of_ne_intMin_of_ne_zero]
+        simp_all
+        rw [toInt_udiv_of_msb ha]
+        rw [toInt_eq_toNat_of_msb ha]
+        · sorry
+        · sorry
+        · sorry
+        · sorry
+        · simp [hbb]
     · rw [sdiv, Int.tdiv_cases, udiv_eq, neg_eq, if_pos (toInt_nonneg_of_msb_false ha),
         if_pos (toInt_nonneg_of_msb_false hb), ha, hb, toInt_udiv_of_msb ha,
         toInt_eq_toNat_of_msb ha, toInt_eq_toNat_of_msb hb]

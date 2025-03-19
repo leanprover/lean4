@@ -31,14 +31,17 @@ moreLinkArgs = [${LINK_OPTS_TOML}]
 
 [[lean_lib]]
 name = "Init"
+libName = "${LAKE_LIB_PREFIX}Init"
 defaultFacets = ["static", "static.export"]
 
 [[lean_lib]]
 name = "Std"
+libName = "${LAKE_LIB_PREFIX}Std"
 defaultFacets = ["static", "static.export"]
 
 [[lean_lib]]
 name = "Lean"
+libName = "${LAKE_LIB_PREFIX}Lean"
 defaultFacets = ["static", "static.export"]
 globs = [
   # Library root
@@ -58,10 +61,12 @@ globs = [
   # API only imported by `LakeMain` and the `lake` CLI
   "Lake.CLI",
 ]
+libName = "${LAKE_LIB_PREFIX}Lake"
 defaultFacets = ["static", "static.export"]
 moreLeanArgs = ["--plugin=${PREV_STAGE}/${CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}"]
 
 [[lean_lib]]
 name = "LakeMain"
 srcDir = "lake"
+libName = "${LAKE_LIB_PREFIX}LakeMain"
 defaultFacets = ["static"]

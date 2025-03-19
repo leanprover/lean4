@@ -2280,6 +2280,12 @@ So, you are mainly losing the capability of type checking your development using
 -/
 axiom ofReduceNat (a b : Nat) (h : reduceNat a = b) : a = b
 
+
+/--
+The term `opaqueId x` will not be reduced by the kernel.
+-/
+opaque opaqueId {α : Sort u} (x : α) : α := x
+
 end Lean
 
 @[simp] theorem ge_iff_le [LE α] {x y : α} : x ≥ y ↔ y ≤ x := Iff.rfl

@@ -86,9 +86,6 @@ theorem fixFEq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p : 
 
 end
 
--- TODO: Move somewhere
-opaque opaqueProof {P : Prop} (h : P) : P := h
-
 variable {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
 
 -- Well-founded fixpoint

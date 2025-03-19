@@ -15,9 +15,3 @@ structure ExternLibConfig (pkgName name : Name) where
   /-- The library's build data. -/
   getPath : Job (CustomData (pkgName, .str name "static")) → Job FilePath
   deriving Inhabited
-
-/-- A dependently typed configuration based on its registered package and name. -/
-structure ExternLibDecl where
-  pkg : Name
-  name : Name
-  config : ExternLibConfig pkg name

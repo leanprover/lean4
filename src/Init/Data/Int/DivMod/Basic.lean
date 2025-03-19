@@ -22,7 +22,7 @@ In early versions of Lean, the typeclasses provided by `/` and `%`
 were defined in terms of `tdiv` and `tmod`, and these were named simply as `div` and `mod`.
 
 However we decided it was better to use `ediv` and `emod` for the default typeclass instances,
-as they are consistent with the conventions used in SMTLib, and Mathlib,
+as they are consistent with the conventions used in SMT-LIB, and Mathlib,
 and often mathematical reasoning is easier with these conventions.
 At that time, we did not rename `div` and `mod` to `tdiv` and `tmod` (along with all their lemma).
 
@@ -98,13 +98,13 @@ def emod : (@& Int) → (@& Int) → Int
   | -[m+1],  n => subNatNat (natAbs n) (succ (m % natAbs n))
 
 /--
-The `Div Int` and `Mod Int` instances use `Int.ediv` and `Int.emod` for compatibility with SMTLIb and
+The `Div Int` and `Mod Int` instances use `Int.ediv` and `Int.emod` for compatibility with SMT-LIB and
 because mathematical reasoning tends to be easier.
 -/
 instance : Div Int where
   div := Int.ediv
 /--
-The `Div Int` and `Mod Int` instances use `Int.ediv` and `Int.emod` for compatibility with SMTLIb and
+The `Div Int` and `Mod Int` instances use `Int.ediv` and `Int.emod` for compatibility with SMT-LIB and
 because mathematical reasoning tends to be easier.
 -/
 instance : Mod Int where

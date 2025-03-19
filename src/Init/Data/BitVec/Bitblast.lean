@@ -91,7 +91,7 @@ First, we prove bitvector lemmas to unfold a high-level operation (such as multi
 into already bitblastable operations (such as addition and left shift).
 We then use these lemmas to prove the correctness of the circuit that `bv_decide` builds.
 
-We use this workflow to implement bitblasting for all SMT-LIB2 operations.
+We use this workflow to implement bitblasting for all SMT-LIB v2 operations.
 
 ## Main results
 * `x + y : BitVec w` is `(adc x y false).2`.

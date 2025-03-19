@@ -1299,6 +1299,26 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
     simp
     omega
 
+theorem usubOverflow_eq {w : Nat} (x y : BitVec w) :
+    usubOverflow x y = decide (x < y) := rfl
+
+theorem ssubOverflow_eq {w : Nat} (x y : BitVec w) :
+    ssubOverflow x y = (x.msb && !y.msb && !(x - y).msb) || (!x.msb && y.msb && (x - y).msb) := by
+  simp only [ssubOverflow]
+  rcases w with _|w
+  · revert x y; decide
+  · simp only [bool_to_prop]
+    have := le_two_mul_toInt (x := x); have := two_mul_toInt_lt (x := x)
+    have := le_two_mul_toInt (x := y); have := two_mul_toInt_lt (x := y)
+    simp
+    have := msb_eq_false_iff_two_mul_lt (w := w + 1) (x := y)
+    have hsublt : x.toInt - y.toInt < 2 ^ (w + 1) := by omega
+    have hsubge : x.toInt - y.toInt ≥ - 2 ^ (w + 1) := by omega
+
+    sorry
+
+
+
 /- ### umod -/
 
 theorem getElem_umod {n d : BitVec w} (hi : i < w) :

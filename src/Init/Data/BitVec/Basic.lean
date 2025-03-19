@@ -690,6 +690,21 @@ treating `x` and `y` as 2's complement signed bitvectors.
 def saddOverflow {w : Nat} (x y : BitVec w) : Bool :=
   (x.toInt + y.toInt ≥ 2 ^ (w - 1)) || (x.toInt + y.toInt < - 2 ^ (w - 1))
 
+/-- `usubOverflow x y` returns `true` if the subtraction of `x` and `y` results in *unsigned* overflow,
+treating `x` and `y` as 2's complement signed bitvectors.
+
+  SMT-Lib name: `bvusubo`.
+-/
+def usubOverflow {w : Nat} (x y : BitVec w) : Bool := x.toNat < y.toNat
+
+/-- `ssubOverflow x y` returns `true` if the subtraction of `x` and `y` results in *signed* overflow,
+treating `x` and `y` as 2's complement signed bitvectors.
+
+  SMT-Lib name: `bvssubo`.
+-/
+def ssubOverflow {w : Nat} (x y : BitVec w) : Bool :=
+  (x.toInt - y.toInt ≥ 2 ^ (w - 1)) || (x.toInt - y.toInt < - 2 ^ (w - 1))
+
 /- ### reverse -/
 
 /-- Reverse the bits in a bitvector. -/

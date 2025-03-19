@@ -275,7 +275,7 @@ def smtSDiv (x y : BitVec n) : BitVec n :=
 /--
 Remainder for signed division rounding to zero.
 
-SMT_Lib name: `bvsrem`.
+SMT-LIB name: `bvsrem`.
 -/
 def srem (x y : BitVec n) : BitVec n :=
   match x.msb, y.msb with
@@ -287,7 +287,7 @@ def srem (x y : BitVec n) : BitVec n :=
 /--
 Remainder for signed division rounded to negative infinity.
 
-SMT_Lib name: `bvsmod`.
+SMT-LIB name: `bvsmod`.
 -/
 def smod (x y : BitVec m) : BitVec m :=
   match x.msb, y.msb with

@@ -233,6 +233,9 @@ end Nat
 instance : Repr Nat where
   reprPrec n _ := Nat.repr n
 
+/--
+Returns the decimal string representation of an integer.
+-/
 protected def Int.repr : Int → String
     | ofNat m   => Nat.repr m
     | negSucc m => "-" ++ Nat.repr (succ m)

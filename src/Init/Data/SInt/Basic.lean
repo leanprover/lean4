@@ -84,10 +84,28 @@ theorem Int8.toBitVec.inj : {x y : Int8} → x.toBitVec = y.toBitVec → x = y
 @[inline] def UInt8.toInt8 (i : UInt8) : Int8 := Int8.ofUInt8 i
 @[inline, deprecated UInt8.toInt8 (since := "2025-02-13"), inherit_doc UInt8.toInt8]
 def Int8.mk (i : UInt8) : Int8 := UInt8.toInt8 i
+/--
+Converts an arbitrary-precision integer to an 8-bit integer, wrapping on overflow or underflow.
+
+Examples:
+ * `Int8.ofInt 48 = 48`
+ * `Int8.ofInt (-115) = -115`
+ * `Int8.ofInt (-129) = 127`
+ * `Int8.ofInt (128) = -128`
+-/
 @[extern "lean_int8_of_int"]
 def Int8.ofInt (i : @& Int) : Int8 := ⟨⟨BitVec.ofInt 8 i⟩⟩
 @[extern "lean_int8_of_nat"]
 def Int8.ofNat (n : @& Nat) : Int8 := ⟨⟨BitVec.ofNat 8 n⟩⟩
+/--
+Converts an arbitrary-precision integer to an 8-bit integer, wrapping on overflow or underflow.
+
+Examples:
+ * `Int.toInt8 48 = 48`
+ * `Int.toInt8 (-115) = -115`
+ * `Int.toInt8 (-129) = 127`
+ * `Int.toInt8 (128) = -128`
+-/
 abbrev Int.toInt8 := Int8.ofInt
 abbrev Nat.toInt8 := Int8.ofNat
 @[extern "lean_int8_to_int"]
@@ -226,10 +244,30 @@ theorem Int16.toBitVec.inj : {x y : Int16} → x.toBitVec = y.toBitVec → x = y
 @[inline] def UInt16.toInt16 (i : UInt16) : Int16 := Int16.ofUInt16 i
 @[inline, deprecated UInt16.toInt16 (since := "2025-02-13"), inherit_doc UInt16.toInt16]
 def Int16.mk (i : UInt16) : Int16 := UInt16.toInt16 i
+/--
+Converts an arbitrary-precision integer to a 16-bit integer, wrapping on overflow or underflow.
+
+Examples:
+ * `Int16.ofInt 48 = 48`
+ * `Int16.ofInt (-129) = -129`
+ * `Int16.ofInt (128) = 128`
+ * `Int16.ofInt 70000 = 4464`
+ * `Int16.ofInt (-40000) = 25536`
+-/
 @[extern "lean_int16_of_int"]
 def Int16.ofInt (i : @& Int) : Int16 := ⟨⟨BitVec.ofInt 16 i⟩⟩
 @[extern "lean_int16_of_nat"]
 def Int16.ofNat (n : @& Nat) : Int16 := ⟨⟨BitVec.ofNat 16 n⟩⟩
+/--
+Converts an arbitrary-precision integer to a 16-bit integer, wrapping on overflow or underflow.
+
+Examples:
+ * `Int.toInt16 48 = 48`
+ * `Int.toInt16 (-129) = -129`
+ * `Int.toInt16 (128) = 128`
+ * `Int.toInt16 70000 = 4464`
+ * `Int.toInt16 (-40000) = 25536`
+-/
 abbrev Int.toInt16 := Int16.ofInt
 abbrev Nat.toInt16 := Int16.ofNat
 @[extern "lean_int16_to_int"]
@@ -372,10 +410,32 @@ theorem Int32.toBitVec.inj : {x y : Int32} → x.toBitVec = y.toBitVec → x = y
 @[inline] def UInt32.toInt32 (i : UInt32) : Int32 := Int32.ofUInt32 i
 @[inline, deprecated UInt32.toInt32 (since := "2025-02-13"), inherit_doc UInt32.toInt32]
 def Int32.mk (i : UInt32) : Int32 := UInt32.toInt32 i
+/--
+Converts an arbitrary-precision integer to a 32-bit integer, wrapping on overflow or underflow.
+
+Examples:
+ * `Int32.ofInt 48 = 48`
+ * `Int32.ofInt (-129) = -129`
+ * `Int32.ofInt 70000 = 70000`
+ * `Int32.ofInt (-40000) = -40000`
+ * `Int32.ofInt 2147483648 = -2147483648`
+ * `Int32.ofInt (-2147483649) = 2147483647`
+-/
 @[extern "lean_int32_of_int"]
 def Int32.ofInt (i : @& Int) : Int32 := ⟨⟨BitVec.ofInt 32 i⟩⟩
 @[extern "lean_int32_of_nat"]
 def Int32.ofNat (n : @& Nat) : Int32 := ⟨⟨BitVec.ofNat 32 n⟩⟩
+/--
+Converts an arbitrary-precision integer to a 32-bit integer, wrapping on overflow or underflow.
+
+Examples:
+ * `Int.toInt32 48 = 48`
+ * `Int.toInt32 (-129) = -129`
+ * `Int.toInt32 70000 = 70000`
+ * `Int.toInt32 (-40000) = -40000`
+ * `Int.toInt32 2147483648 = -2147483648`
+ * `Int.toInt32 (-2147483649) = 2147483647`
+-/
 abbrev Int.toInt32 := Int32.ofInt
 abbrev Nat.toInt32 := Int32.ofNat
 @[extern "lean_int32_to_int"]
@@ -522,10 +582,32 @@ theorem Int64.toBitVec.inj : {x y : Int64} → x.toBitVec = y.toBitVec → x = y
 @[inline] def UInt64.toInt64 (i : UInt64) : Int64 := Int64.ofUInt64 i
 @[inline, deprecated UInt64.toInt64 (since := "2025-02-13"), inherit_doc UInt64.toInt64]
 def Int64.mk (i : UInt64) : Int64 := UInt64.toInt64 i
+/--
+Converts an arbitrary-precision integer to a 64-bit integer, wrapping on overflow or underflow.
+
+Examples:
+ * `Int64.ofInt 48 = 48`
+ * `Int64.ofInt (-40_000) = -40_000`
+ * `Int64.ofInt 2_147_483_648 = 2_147_483_648`
+ * `Int64.ofInt (-2_147_483_649) = -2_147_483_649`
+ * `Int64.ofInt 9_223_372_036_854_775_808 = -9_223_372_036_854_775_808`
+ * `Int64.ofInt (-9_223_372_036_854_775_809) = 9_223_372_036_854_775_807`
+-/
 @[extern "lean_int64_of_int"]
 def Int64.ofInt (i : @& Int) : Int64 := ⟨⟨BitVec.ofInt 64 i⟩⟩
 @[extern "lean_int64_of_nat"]
 def Int64.ofNat (n : @& Nat) : Int64 := ⟨⟨BitVec.ofNat 64 n⟩⟩
+/--
+Converts an arbitrary-precision integer to a 64-bit integer, wrapping on overflow or underflow.
+
+Examples:
+ * `Int.toInt64 48 = 48`
+ * `Int.toInt64 (-40_000) = -40_000`
+ * `Int.toInt64 2_147_483_648 = 2_147_483_648`
+ * `Int.toInt64 (-2_147_483_649) = -2_147_483_649`
+ * `Int.toInt64 9_223_372_036_854_775_808 = -9_223_372_036_854_775_808`
+ * `Int.toInt64 (-9_223_372_036_854_775_809) = 9_223_372_036_854_775_807`
+-/
 abbrev Int.toInt64 := Int64.ofInt
 abbrev Nat.toInt64 := Int64.ofNat
 @[extern "lean_int64_to_int_sint"]
@@ -676,11 +758,14 @@ theorem ISize.toBitVec.inj : {x y : ISize} → x.toBitVec = y.toBitVec → x = y
 @[inline] def USize.toISize (i : USize) : ISize := ISize.ofUSize i
 @[inline, deprecated USize.toISize (since := "2025-02-13"), inherit_doc USize.toISize]
 def ISize.mk (i : USize) : ISize := USize.toISize i
+/--
+Converts an arbitrary-precision integer to an `ISize`, wrapping on overflow or underflow.
+-/
 @[extern "lean_isize_of_int"]
 def ISize.ofInt (i : @& Int) : ISize := ⟨⟨BitVec.ofInt System.Platform.numBits i⟩⟩
 @[extern "lean_isize_of_nat"]
 def ISize.ofNat (n : @& Nat) : ISize := ⟨⟨BitVec.ofNat System.Platform.numBits n⟩⟩
-abbrev Int.toISize := ISize.ofInt
+@[inherit_doc ISize.ofInt] abbrev Int.toISize := ISize.ofInt
 abbrev Nat.toISize := ISize.ofNat
 @[extern "lean_isize_to_int"]
 def ISize.toInt (i : ISize) : Int := i.toBitVec.toInt

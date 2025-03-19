@@ -311,6 +311,11 @@ theorem getElem?_eq_some_getElem! [TransCmp cmp] [Inhabited β] (h : t.WF) {a : 
     a ∈ t → t[a]? = some t[a]! :=
   DTreeMap.Raw.Const.get?_eq_some_get! h
 
+theorem getElem!_eq_get!_getElem? [TransCmp cmp] [Inhabited β] (h : t.WF) {a : α} :
+    t[a]! = t[a]?.get! :=
+  DTreeMap.Raw.Const.get!_eq_get!_get? h
+
+@[deprecated getElem!_eq_get!_getElem? (since := "2025-03-19")]
 theorem getElem!_eq_getElem!_getElem? [TransCmp cmp] [Inhabited β] (h : t.WF) {a : α} :
     t[a]! = t[a]?.get! :=
   DTreeMap.Raw.Const.get!_eq_get!_get? h

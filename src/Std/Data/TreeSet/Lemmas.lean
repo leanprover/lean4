@@ -736,6 +736,10 @@ theorem le_min? [TransCmp cmp] {k} :
     (∀ k', t.min? = some k' → (cmp k k').isLE) ↔ (∀ k', k' ∈ t → (cmp k k').isLE) :=
   TreeMap.le_minKey?
 
+theorem get?_min? [TransCmp cmp] {km} :
+    (hkm : t.min? = some km) → t.get? km = some km :=
+  DTreeMap.getKey?_minKey?
+
 @[simp]
 theorem min?_bind_get? [TransCmp cmp] :
     t.min?.bind t.get? = t.min? :=

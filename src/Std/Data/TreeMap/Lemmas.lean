@@ -1814,6 +1814,10 @@ theorem le_minKey? [TransCmp cmp] {k} :
       (∀ k', k' ∈ t → (cmp k k').isLE) :=
   DTreeMap.le_minKey?
 
+theorem getKey?_minKey? [TransCmp cmp] {km} :
+    (hkm : t.minKey? = some km) → t.getKey? km = some km :=
+  DTreeMap.getKey?_minKey?
+
 @[simp]
 theorem minKey?_bind_getKey? [TransCmp cmp] :
     t.minKey?.bind t.getKey? = t.minKey? :=
@@ -1866,9 +1870,9 @@ theorem minKey?_modify [TransCmp cmp] {k f} :
   DTreeMap.Const.minKey?_modify
 
 @[simp]
-theorem minKey?_modify_of_lawfulEqCmp [TransCmp cmp] [LawfulEqCmp cmp] {k f} :
+theorem minKey?_modify_eq_minKey? [TransCmp cmp] [LawfulEqCmp cmp] {k f} :
     (t.modify k f).minKey? = t.minKey? :=
-  DTreeMap.Const.minKey?_modify_of_lawfulEqCmp
+  DTreeMap.Const.minKey?_modify_eq_minKey?
 
 theorem isSome_minKey?_modify [TransCmp cmp] {k f} :
     (t.modify k f).minKey?.isSome = !t.isEmpty :=

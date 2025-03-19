@@ -2855,6 +2855,10 @@ theorem le_minKey? [TransCmp cmp] {k} (h : t.WF) :
       (∀ k', k' ∈ t → (cmp k k').isLE) :=
   Impl.le_minKey? h
 
+theorem getKey?_minKey? [TransCmp cmp] (h : t.WF) {km} :
+    (hkm : t.minKey? = some km) → t.getKey? km = some km :=
+  Impl.getKey?_minKey? h
+
 @[simp]
 theorem minKey?_bind_getKey? [TransCmp cmp] (h : t.WF) :
     t.minKey?.bind t.getKey? = t.minKey? :=
@@ -2921,9 +2925,9 @@ theorem minKey?_modify [TransCmp cmp] (h : t.WF) {k f} :
   Impl.Const.minKey?_modify h
 
 @[simp]
-theorem minKey?_modify_of_lawfulEqCmp [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k f} :
+theorem minKey?_modify_eq_minKey? [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k f} :
     (Const.modify t k f).minKey? = t.minKey? :=
-  Impl.Const.minKey?_modify_of_lawfulEqOrd h
+  Impl.Const.minKey?_modify_eq_minKey? h
 
 theorem isSome_minKey?_modify [TransCmp cmp] {k f}  (h : t.WF) :
     (Const.modify t k f).minKey?.isSome = !t.isEmpty :=

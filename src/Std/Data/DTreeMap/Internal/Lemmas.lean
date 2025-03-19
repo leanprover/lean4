@@ -4316,6 +4316,10 @@ theorem le_minKey? [TransOrd α] {k} (h : t.WF) :
       (∀ k', k' ∈ t → (compare k k').isLE) := by
   simp_to_model using List.le_minKey?
 
+theorem getKey?_minKey? [TransOrd α] (h : t.WF) {km} :
+    (hkm : t.minKey? = some km) → t.getKey? km = some km := by
+  simp_to_model using List.getKey?_minKey?
+
 @[simp]
 theorem minKey?_bind_getKey? [TransOrd α] (h : t.WF) :
     t.minKey?.bind t.getKey? = t.minKey? := by
@@ -4428,7 +4432,7 @@ theorem minKey?_modify [TransOrd α] (h : t.WF) {k f} :
     (Const.modify k f t).minKey? = t.minKey?.map fun km => if compare km k = .eq then k else km := by
   simp_to_model [Const.modify] using List.Const.minKey?_modifyKey
 
-theorem minKey?_modify_of_lawfulEqOrd [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f} :
+theorem minKey?_modify_eq_minKey? [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f} :
     (Const.modify k f t).minKey? = t.minKey? := by
   simp_to_model [Const.modify] using List.Const.minKey?_modifyKey_of_lawfulEqOrd
 

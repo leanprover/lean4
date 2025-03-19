@@ -94,11 +94,26 @@ jobs:
           sudo apt-get install -y gcc-multilib g++-multilib ccache libuv1-dev:i386 pkgconf:i386
         if: matrix.cmultilib
       - name: Cache
+        if: matrix.name != 'Linux Lake'
         uses: actions/cache@v4
         with:
           path: |
             .ccache
-            ${{ matrix.name == 'Linux Lake' && '/**/*.olean\nbuild/stage1/**/*.ilean\nbuild/stage1/**/*.c\nbuild/stage1/**/*.c.o*' || '' }}
+          key: ${{ matrix.name }}-build-v3-${{ github.event.pull_request.head.sha }}
+          # fall back to (latest) previous cache
+          restore-keys: |
+            ${{ matrix.name }}-build-v3
+          save-always: true
+      - name: Cache
+        if: matrix.name == 'Linux Lake'
+        uses: actions/cache@v4
+        with:
+          path: |
+            .ccache
+            build/stage1/**/*.olean
+            build/stage1/**/*.ilean
+            build/stage1/**/*.c
+            build/stage1/**/*.c.o*
           key: ${{ matrix.name }}-build-v3-${{ github.event.pull_request.head.sha }}
           # fall back to (latest) previous cache
           restore-keys: |

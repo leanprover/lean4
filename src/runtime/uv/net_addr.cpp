@@ -159,6 +159,48 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_ntop_v6(b_obj_arg ipv6_addr) {
     return lean_mk_string(dst);
 }
 
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_interface_addresses(obj_arg /* w */) {
+    uv_interface_address_t* info;
+    int count;
+
+    if (uv_interface_addresses(&info, &count) != 0) {
+        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get interface addresses")));
+    }
+
+    lean_object *arr = lean_alloc_array(0, count);
+
+    for (int i = 0; i < count; i++) {
+        uv_interface_address_t interface = info[i];
+
+        int sin_family = interface.address.address4.sin_family;
+        lean_obj_res socket_address;
+        lean_obj_res netmask_address;
+
+        if (sin_family == AF_INET) {
+            socket_address = lean_sockaddr_to_socketaddress((const struct sockaddr*)&interface.address.address4);
+            netmask_address = lean_sockaddr_to_socketaddress((const struct sockaddr*)&interface.netmask.netmask4);
+        } else if (sin_family == AF_INET6) {
+            socket_address = lean_sockaddr_to_socketaddress((const struct sockaddr*)&interface.address.address6);
+            netmask_address = lean_sockaddr_to_socketaddress((const struct sockaddr*)&interface.netmask.netmask6);
+        } else {
+            continue;
+        }
+
+        lean_object *iface = lean_alloc_ctor(0, 3, 1);
+        lean_ctor_set(iface, 0, lean_mk_string(interface.name));
+        lean_ctor_set_uint8(iface, sizeof(void*)*3, interface.is_internal);
+
+        lean_ctor_set(iface, 1, socket_address);
+        lean_ctor_set(iface, 2, netmask_address);
+
+        arr = lean_array_push(arr, iface);
+    }
+
+    uv_free_interface_addresses(info, count);
+
+    return lean_io_result_mk_ok(arr);
+}
+
 #else
 
 /* Std.Net.IPV4Addr.ofString (s : @&String) : Option IPV4Addr */
@@ -184,6 +226,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_pton_v6(b_obj_arg str_obj) {
 
 /* Std.Net.IPV6Addr.toString (addr : @&IPV6Addr) : String */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_ntop_v6(b_obj_arg ipv6_addr) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+
+/* Std.Net.IPV6Addr.networkInterface (addr : @&IPV6Addr) : IO (Array InterfaceAddress) */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_interface_addresses(obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
+import Init.System.IO
 import Init.Data.Vector.Basic
 
 /-!
@@ -27,7 +28,7 @@ structure IPv4Addr where
   This structure represents the address: `octets[0].octets[1].octets[2].octets[3]`.
   -/
   octets : Vector UInt8 4
-  deriving Inhabited, DecidableEq
+  deriving Inhabited, DecidableEq, Repr
 
 /--
 A pair of an `IPv4Addr` and a port.
@@ -35,7 +36,7 @@ A pair of an `IPv4Addr` and a port.
 structure SocketAddressV4 where
   addr : IPv4Addr
   port : UInt16
-  deriving Inhabited, DecidableEq
+  deriving Inhabited, DecidableEq, Repr
 
 /--
 Representation of an IPv6 address.
@@ -45,7 +46,7 @@ structure IPv6Addr where
   This structure represents the address: `segments[0]:segments[1]:...`.
   -/
   segments : Vector UInt16 8
-  deriving Inhabited, DecidableEq
+  deriving Inhabited, DecidableEq, Repr
 
 /--
 A pair of an `IPv6Addr` and a port.
@@ -53,7 +54,7 @@ A pair of an `IPv6Addr` and a port.
 structure SocketAddressV6 where
   addr : IPv6Addr
   port : UInt16
-  deriving Inhabited, DecidableEq
+  deriving Inhabited, DecidableEq, Repr
 
 /--
 An IP address, either IPv4 or IPv6.
@@ -61,7 +62,7 @@ An IP address, either IPv4 or IPv6.
 inductive IPAddr where
   | v4 (addr : IPv4Addr)
   | v6 (addr : IPv6Addr)
-  deriving Inhabited, DecidableEq
+  deriving Inhabited, DecidableEq, Repr
 
 /--
 Either a `SocketAddressV4` or `SocketAddressV6`.
@@ -69,7 +70,7 @@ Either a `SocketAddressV4` or `SocketAddressV6`.
 inductive SocketAddress where
   | v4 (addr : SocketAddressV4)
   | v6 (addr : SocketAddressV6)
-  deriving Inhabited, DecidableEq
+  deriving Inhabited, DecidableEq, Repr
 
 /--
 The kinds of address families supported by Lean, currently only IP variants.
@@ -77,7 +78,7 @@ The kinds of address families supported by Lean, currently only IP variants.
 inductive AddressFamily where
   | ipv4
   | ipv6
-  deriving Inhabited, DecidableEq
+  deriving Inhabited, DecidableEq, Repr
 
 namespace IPv4Addr
 
@@ -192,6 +193,23 @@ def port : SocketAddress → UInt16
   | .v4 sa | .v6 sa => sa.port
 
 end SocketAddress
+
+/--
+Represents an interface address, including details such as the interface name,
+whether it is internal, the associated address, and the network mask.
+-/
+structure InterfaceAddress where
+  name : String
+  isInternal : Bool
+  address : SocketAddress
+  netMask : SocketAddress
+  deriving Inhabited, DecidableEq, Repr
+
+/--
+Retrieves a list of interface addresses.
+-/
+@[extern "lean_uv_interface_addresses"]
+opaque interfaceAddresses : IO (Array InterfaceAddress)
 
 end Net
 end Std

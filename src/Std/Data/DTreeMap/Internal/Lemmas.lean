@@ -4499,12 +4499,12 @@ theorem minKey_eq_some_iff_mem_and_forall [TransOrd α] [LawfulEqOrd α] (h : t.
 
 theorem minKey_insert [TransOrd α] (h : t.WF) {k v} :
     (t.insert k v h.balanced).impl.minKey (isEmpty_insert h) =
-      some ((t.minKey?).elim k fun k' => if compare k k'|>.isLE then k else k') := by
+      (t.minKey?).elim k fun k' => if compare k k'|>.isLE then k else k' := by
   sorry
 
 theorem minKey_insert! [TransOrd α] (h : t.WF) {k v} :
     (t.insert! k v).minKey (isEmpty_insert! h) =
-      some (t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k') := by
+      t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k' := by
   simpa only [insert_eq_insert!] using minKey_insert h
 
 theorem minKey_insert_le_minKey [TransOrd α] (h : t.WF) {k v he} :

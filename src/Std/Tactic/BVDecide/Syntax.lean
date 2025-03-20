@@ -60,6 +60,11 @@ structure BVDecideConfig where
   The maximum number of subexpressions to visit when performing simplification.
   -/
   maxSteps : Nat := Lean.Meta.Simp.defaultMaxSteps
+  /--
+  Short-circuit multiplication as a abstraction-style optimization that triggers
+  if matching multiplications are not needed to proof a goal.
+  -/
+  shortCircuit : Bool := false
 
 end Lean.Elab.Tactic.BVDecide.Frontend
 

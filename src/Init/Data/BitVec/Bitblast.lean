@@ -1315,6 +1315,7 @@ theorem ssubOverflow_eq {w : Nat} (x y : BitVec w) :
               (by push_cast; omega) (by push_cast; omega) (by push_cast; omega) (by push_cast; omega)
     have h₂ := Int.twoPow_le_toInt_sub_toInt_iff (x := x.toInt) (y:= y.toInt) (k := 2 ^ w)
               (by push_cast; omega) (by push_cast; omega) (by push_cast; omega) (by push_cast; omega)
+    push_cast at h₁ h₂
     simp only [h₁, decide_and, h₂, ← decide_not, Int.not_lt, Nat.pow_succ, Nat.mul_comm]
     simp only [bool_to_prop]
     omega

@@ -101,3 +101,15 @@ example (x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 : Nat)
     : x1 - x2 - x3 - x4 - x5 - x6 - x7 - x8 - x9 - x10 = 0 →
       x1 ≤ x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9 + x10 := by
   grind
+
+example (x y : Int) : x ^ 1 - y = 0 → y = x := by
+  grind
+
+example (x y : Nat) : x ^ 1 - y = 0 → y ≤ x → y = x := by
+  grind
+
+example (x y : Int) : x ^ 0 - y = 0 → y = 1 := by
+  grind
+
+example (x y : Nat) : x ^ 0 + y = 0 → False := by
+  grind

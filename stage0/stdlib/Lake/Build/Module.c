@@ -26379,7 +26379,6 @@ x_28 = l_Array_append___rarg(x_27, x_6);
 x_29 = l_Array_append___rarg(x_28, x_22);
 lean_dec(x_22);
 x_30 = l_Lake_compileSharedLib(x_7, x_29, x_23, x_25, x_16);
-lean_dec(x_29);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; 
@@ -26558,7 +26557,6 @@ x_66 = l_Array_append___rarg(x_65, x_6);
 x_67 = l_Array_append___rarg(x_66, x_22);
 lean_dec(x_22);
 x_68 = l_Lake_compileSharedLib(x_7, x_67, x_23, x_62, x_16);
-lean_dec(x_67);
 if (lean_obj_tag(x_68) == 0)
 {
 lean_object* x_69; 
@@ -26707,7 +26705,6 @@ x_100 = l_Array_append___rarg(x_99, x_6);
 x_101 = l_Array_append___rarg(x_100, x_90);
 lean_dec(x_90);
 x_102 = l_Lake_compileSharedLib(x_7, x_101, x_91, x_93, x_16);
-lean_dec(x_101);
 if (lean_obj_tag(x_102) == 0)
 {
 lean_object* x_103; 
@@ -26891,7 +26888,6 @@ x_142 = l_Array_append___rarg(x_141, x_6);
 x_143 = l_Array_append___rarg(x_142, x_90);
 lean_dec(x_90);
 x_144 = l_Lake_compileSharedLib(x_7, x_143, x_91, x_134, x_16);
-lean_dec(x_143);
 if (lean_obj_tag(x_144) == 0)
 {
 lean_object* x_145; 

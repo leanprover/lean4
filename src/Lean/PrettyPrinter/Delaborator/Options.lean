@@ -144,6 +144,11 @@ register_builtin_option pp.structureInstances.flatten : Bool := {
   group    := "pp"
   descr    := "(pretty printer) flatten nested structure instances for parent projections"
 }
+register_builtin_option pp.structureInstances.defaults : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) if false, omit structure instance fields that equal their default values"
+}
 register_builtin_option pp.fieldNotation : Bool := {
   defValue := true
   group    := "pp"
@@ -272,6 +277,7 @@ def getPPFieldNotation (o : Options) : Bool := o.get pp.fieldNotation.name (!get
 def getPPFieldNotationGeneralized (o : Options) : Bool := o.get pp.fieldNotation.generalized.name pp.fieldNotation.generalized.defValue
 def getPPStructureInstances (o : Options) : Bool := o.get pp.structureInstances.name (!getPPAll o)
 def getPPStructureInstancesFlatten (o : Options) : Bool := o.get pp.structureInstances.flatten.name pp.structureInstances.flatten.defValue
+def getPPStructureInstancesDefaults (o : Options) : Bool := o.get pp.structureInstances.defaults.name pp.structureInstances.defaults.defValue
 def getPPStructureInstanceType (o : Options) : Bool := o.get pp.structureInstanceTypes.name (getPPAll o)
 def getPPTagAppFns (o : Options) : Bool := o.get pp.tagAppFns.name (getPPAll o)
 def getPPUniverses (o : Options) : Bool := o.get pp.universes.name (getPPAll o)

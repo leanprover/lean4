@@ -80,7 +80,7 @@ def run (proof : Array IntAction) (x : M α) : Except String α := do
     | .del .. => acc
   let proof := proof.foldl (init := {}) folder
   let used := Nat.fold proof.size (init := ByteArray.emptyWithCapacity proof.size) (fun _ _ acc => acc.push 0)
-  let mapped := Array.mkArray proof.size 0
+  let mapped := Array.replicate proof.size 0
   return ReaderT.run x { proof, initialId, addEmptyId } |>.run' { used, mapped }
 
 @[inline]

@@ -40,7 +40,7 @@ def propagateCtor (a b : Expr) : GoalM Unit := do
     unless (← getEnv).contains injDeclName do return ()
     let info ← getConstInfo injDeclName
     let n := info.type.getForallArity
-    let mask : Array (Option Expr) := mkArray n none
+    let mask : Array (Option Expr) := .replicate n none
     let mask := mask.set! (n-1) (some (← mkEqProof a b))
     let injLemma ← mkAppOptM injDeclName mask
     propagateInjEqs (← inferType injLemma) injLemma

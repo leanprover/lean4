@@ -100,21 +100,33 @@ theorem getElem_zero_flatten {xss : Vector (Vector α m) n} (h : 0 < n * m) :
   simp [getElem?_eq_getElem, h] at t
   simp [← t]
 
-theorem findSome?_mkVector : findSome? f (mkVector n a) = if n = 0 then none else f a := by
-  rw [mkVector_eq_mk_mkArray, findSome?_mk, Array.findSome?_mkArray]
+theorem findSome?_replicate : findSome? f (replicate n a) = if n = 0 then none else f a := by
+  rw [replicate_eq_mk_replicate, findSome?_mk, Array.findSome?_replicate]
 
-@[simp] theorem findSome?_mkVector_of_pos (h : 0 < n) : findSome? f (mkVector n a) = f a := by
-  simp [findSome?_mkVector, Nat.ne_of_gt h]
+@[deprecated findSome?_replicate (since := "2025-03-18")]
+abbrev findSome?_mkVector := @findSome?_replicate
+
+@[simp] theorem findSome?_replicate_of_pos (h : 0 < n) : findSome? f (replicate n a) = f a := by
+  simp [findSome?_replicate, Nat.ne_of_gt h]
+
+@[deprecated findSome?_replicate_of_pos (since := "2025-03-18")]
+abbrev findSome?_mkVector_of_pos := @findSome?_replicate_of_pos
 
 -- Argument is unused, but used to decide whether `simp` should unfold.
-@[simp] theorem findSome?_mkVector_of_isSome (_ : (f a).isSome) :
-   findSome? f (mkVector n a) = if n = 0 then none else f a := by
-  simp [findSome?_mkVector]
+@[simp] theorem findSome?_replicate_of_isSome (_ : (f a).isSome) :
+   findSome? f (replicate n a) = if n = 0 then none else f a := by
+  simp [findSome?_replicate]
 
-@[simp] theorem findSome?_mkVector_of_isNone (h : (f a).isNone) :
-    findSome? f (mkVector n a) = none := by
+@[deprecated findSome?_replicate_of_isSome (since := "2025-03-18")]
+abbrev findSome?_mkVector_of_isSome := @findSome?_replicate_of_isSome
+
+@[simp] theorem findSome?_replicate_of_isNone (h : (f a).isNone) :
+    findSome? f (replicate n a) = none := by
   rw [Option.isNone_iff_eq_none] at h
-  simp [findSome?_mkVector, h]
+  simp [findSome?_replicate, h]
+
+@[deprecated findSome?_replicate_of_isNone (since := "2025-03-18")]
+abbrev findSome?_mkVector_of_isNone := @findSome?_replicate_of_isNone
 
 /-! ### find? -/
 
@@ -211,35 +223,56 @@ theorem find?_flatMap_eq_none_iff {xs : Vector α n} {f : α → Vector β m} {p
     (xs.flatMap f).find? p = none ↔ ∀ x ∈ xs, ∀ y ∈ f x, !p y := by
   simp
 
-theorem find?_mkVector :
-    find? p (mkVector n a) = if n = 0 then none else if p a then some a else none := by
-  rw [mkVector_eq_mk_mkArray, find?_mk, Array.find?_mkArray]
+theorem find?_replicate :
+    find? p (replicate n a) = if n = 0 then none else if p a then some a else none := by
+  rw [replicate_eq_mk_replicate, find?_mk, Array.find?_replicate]
 
-@[simp] theorem find?_mkVector_of_length_pos (h : 0 < n) :
-    find? p (mkVector n a) = if p a then some a else none := by
-  simp [find?_mkVector, Nat.ne_of_gt h]
+@[deprecated find?_replicate (since := "2025-03-18")]
+abbrev find?_mkVector := @find?_replicate
 
-@[simp] theorem find?_mkVector_of_pos (h : p a) :
-    find? p (mkVector n a) = if n = 0 then none else some a := by
-  simp [find?_mkVector, h]
+@[simp] theorem find?_replicate_of_size_pos (h : 0 < n) :
+    find? p (replicate n a) = if p a then some a else none := by
+  simp [find?_replicate, Nat.ne_of_gt h]
 
-@[simp] theorem find?_mkVector_of_neg (h : ¬ p a) : find? p (mkVector n a) = none := by
-  simp [find?_mkVector, h]
+@[deprecated find?_replicate_of_size_pos (since := "2025-03-18")]
+abbrev find?_mkVector_of_length_pos := @find?_replicate_of_size_pos
+
+@[simp] theorem find?_replicate_of_pos (h : p a) :
+    find? p (replicate n a) = if n = 0 then none else some a := by
+  simp [find?_replicate, h]
+
+@[deprecated find?_replicate_of_pos (since := "2025-03-18")]
+abbrev find?_mkVector_of_pos := @find?_replicate_of_pos
+
+@[simp] theorem find?_replicate_of_neg (h : ¬ p a) : find? p (replicate n a) = none := by
+  simp [find?_replicate, h]
+
+@[deprecated find?_replicate_of_neg (since := "2025-03-18")]
+abbrev find?_mkVector_of_neg := @find?_replicate_of_neg
 
 -- This isn't a `@[simp]` lemma since there is already a lemma for `l.find? p = none` for any `l`.
-theorem find?_mkVector_eq_none_iff {n : Nat} {a : α} {p : α → Bool} :
-    (mkVector n a).find? p = none ↔ n = 0 ∨ !p a := by
+theorem find?_replicate_eq_none_iff {n : Nat} {a : α} {p : α → Bool} :
+    (replicate n a).find? p = none ↔ n = 0 ∨ !p a := by
   simp [Classical.or_iff_not_imp_left]
 
-@[simp] theorem find?_mkVector_eq_some_iff {n : Nat} {a b : α} {p : α → Bool} :
-    (mkVector n a).find? p = some b ↔ n ≠ 0 ∧ p a ∧ a = b := by
-  rw [mkVector_eq_mk_mkArray, find?_mk]
+@[deprecated find?_replicate_eq_none_iff (since := "2025-03-18")]
+abbrev find?_mkVector_eq_none_iff := @find?_replicate_eq_none_iff
+
+@[simp] theorem find?_replicate_eq_some_iff {n : Nat} {a b : α} {p : α → Bool} :
+    (replicate n a).find? p = some b ↔ n ≠ 0 ∧ p a ∧ a = b := by
+  rw [replicate_eq_mk_replicate, find?_mk]
   simp
 
-@[simp] theorem get_find?_mkVector (n : Nat) (a : α) (p : α → Bool) (h) :
-    ((mkVector n a).find? p).get h = a := by
-  simp only [mkVector_eq_mk_mkArray, find?_mk]
+@[deprecated find?_replicate_eq_some_iff (since := "2025-03-18")]
+abbrev find?_mkVector_eq_some_iff := @find?_replicate_eq_some_iff
+
+@[simp] theorem get_find?_replicate (n : Nat) (a : α) (p : α → Bool) (h) :
+    ((replicate n a).find? p).get h = a := by
+  simp only [replicate_eq_mk_replicate, find?_mk]
   simp
+
+@[deprecated get_find?_replicate (since := "2025-03-18")]
+abbrev get_find?_mkVector := @get_find?_replicate
 
 theorem find?_pmap {P : α → Prop} (f : (a : α) → P a → β) (xs : Vector α n)
     (H : ∀ (a : α), a ∈ xs → P a) (p : β → Bool) :

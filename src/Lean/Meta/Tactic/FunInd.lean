@@ -1137,7 +1137,7 @@ where doRealize inductName := do
       funIndName := inductName
       levelMask := usMask
       params := paramMask.map (cond · .param .dropped) ++
-        mkArray motiveArities[0]! .target
+        .replicate motiveArities[0]! .target
     }
 
 
@@ -1206,7 +1206,7 @@ def deriveCases (name : Name) : MetaM Unit := do
     setFunIndInfo {
       funIndName := casesName
       levelMask := usMask
-      params := mkArray motiveArity .target
+      params := .replicate motiveArity .target
     }
 
 

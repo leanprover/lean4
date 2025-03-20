@@ -292,11 +292,14 @@ theorem mapFinIdx_eq_mapFinIdx_iff {xs : Array α} {f g : (i : Nat) → α → (
     (xs.mapFinIdx f).mapFinIdx g = xs.mapFinIdx (fun i a h => g i (f i a h) (by simpa using h)) := by
   simp [mapFinIdx_eq_iff]
 
-theorem mapFinIdx_eq_mkArray_iff {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} {b : β} :
-    xs.mapFinIdx f = mkArray xs.size b ↔ ∀ (i : Nat) (h : i < xs.size), f i xs[i] h = b := by
+theorem mapFinIdx_eq_replicate_iff {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} {b : β} :
+    xs.mapFinIdx f = replicate xs.size b ↔ ∀ (i : Nat) (h : i < xs.size), f i xs[i] h = b := by
   rcases xs with ⟨l⟩
   rw [← toList_inj]
   simp [List.mapFinIdx_eq_replicate_iff]
+
+@[deprecated mapFinIdx_eq_replicate_iff (since := "2025-03-18")]
+abbrev mapFinIdx_eq_mkArray_iff := @mapFinIdx_eq_replicate_iff
 
 @[simp] theorem mapFinIdx_reverse {xs : Array α} {f : (i : Nat) → α → (h : i < xs.reverse.size) → β} :
     xs.reverse.mapFinIdx f = (xs.mapFinIdx (fun i a h => f (xs.size - 1 - i) a (by simp; omega))).reverse := by
@@ -431,11 +434,14 @@ theorem mapIdx_eq_mapIdx_iff {xs : Array α} :
     (xs.mapIdx f).mapIdx g = xs.mapIdx (fun i => g i ∘ f i) := by
   simp [mapIdx_eq_iff]
 
-theorem mapIdx_eq_mkArray_iff {xs : Array α} {f : Nat → α → β} {b : β} :
-    mapIdx f xs = mkArray xs.size b ↔ ∀ (i : Nat) (h : i < xs.size), f i xs[i] = b := by
+theorem mapIdx_eq_replicate_iff {xs : Array α} {f : Nat → α → β} {b : β} :
+    mapIdx f xs = replicate xs.size b ↔ ∀ (i : Nat) (h : i < xs.size), f i xs[i] = b := by
   rcases xs with ⟨xs⟩
   rw [← toList_inj]
   simp [List.mapIdx_eq_replicate_iff]
+
+@[deprecated mapIdx_eq_replicate_iff (since := "2025-03-18")]
+abbrev mapIdx_eq_mkArray_iff := @mapIdx_eq_replicate_iff
 
 @[simp] theorem mapIdx_reverse {xs : Array α} {f : Nat → α → β} :
     xs.reverse.mapIdx f = (mapIdx (fun i => f (xs.size - 1 - i)) xs).reverse := by

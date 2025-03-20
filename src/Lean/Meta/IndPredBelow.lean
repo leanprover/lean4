@@ -441,7 +441,7 @@ partial def mkBelowMatcher
   withExistingLocalDecls (lhss.foldl (init := []) fun s v => s ++ v.fvarDecls) do
     for lhs in lhss do
       trace[Meta.IndPredBelow.match] "{lhs.patterns.map (·.toMessageData)}"
-  let res ← Match.mkMatcher (exceptionIfContainsSorry := true) { matcherName, matchType, discrInfos := mkArray (mkMatcherInput.numDiscrs + 1) {}, lhss }
+  let res ← Match.mkMatcher (exceptionIfContainsSorry := true) { matcherName, matchType, discrInfos := .replicate (mkMatcherInput.numDiscrs + 1) {}, lhss }
   res.addMatcher
   -- if a wrong index is picked, the resulting matcher can be type-incorrect.
   -- we check here, so that errors can propagate higher up the call stack.
@@ -491,7 +491,7 @@ where
       -- `belowCtor` carries a `below`, a non-`below` and a `motive` version of each
       -- field that occurs in a recursive application of the inductive predicate.
       -- `belowIndices` is a mapping from non-`below` to the `below` version of each field.
-      let mut belowFieldOpts := mkArray belowCtor.numFields none
+      let mut belowFieldOpts := .replicate belowCtor.numFields none
       let fields := fields.toArray
       for fieldIdx in [:fields.size] do
         belowFieldOpts := belowFieldOpts.set! belowIndices[fieldIdx]! (some fields[fieldIdx]!)

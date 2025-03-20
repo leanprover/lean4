@@ -39,7 +39,7 @@ abbrev maxDepth      : USize  := 7
 abbrev maxCollisions : Nat    := 4
 
 def mkEmptyEntriesArray {α β} : Array (Entry α β (Node α β)) :=
-  (Array.mkArray PersistentHashMap.branching.toNat PersistentHashMap.Entry.null)
+  (Array.replicate PersistentHashMap.branching.toNat PersistentHashMap.Entry.null)
 
 end PersistentHashMap
 

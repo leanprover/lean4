@@ -217,10 +217,13 @@ theorem mapFinIdx_eq_mapFinIdx_iff {xs : Vector α n} {f g : (i : Nat) → α �
     (xs.mapFinIdx f).mapFinIdx g = xs.mapFinIdx (fun i a h => g i (f i a h) h) := by
   simp [mapFinIdx_eq_iff]
 
-theorem mapFinIdx_eq_mkVector_iff {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} {b : β} :
-    xs.mapFinIdx f = mkVector n b ↔ ∀ (i : Nat) (h : i < n), f i xs[i] h = b := by
+theorem mapFinIdx_eq_replicate_iff {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} {b : β} :
+    xs.mapFinIdx f = replicate n b ↔ ∀ (i : Nat) (h : i < n), f i xs[i] h = b := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.mapFinIdx_eq_mkArray_iff]
+  simp [Array.mapFinIdx_eq_replicate_iff]
+
+@[deprecated mapFinIdx_eq_replicate_iff (since := "2025-03-18")]
+abbrev mapFinIdx_eq_mkVector_iff := @mapFinIdx_eq_replicate_iff
 
 @[simp] theorem mapFinIdx_reverse {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} :
     xs.reverse.mapFinIdx f = (xs.mapFinIdx (fun i a h => f (n - 1 - i) a (by omega))).reverse := by
@@ -350,10 +353,13 @@ theorem mapIdx_eq_mapIdx_iff {xs : Vector α n} :
     (xs.mapIdx f).mapIdx g = xs.mapIdx (fun i => g i ∘ f i) := by
   simp [mapIdx_eq_iff]
 
-theorem mapIdx_eq_mkVector_iff {xs : Vector α n} {f : Nat → α → β} {b : β} :
-    mapIdx f xs = mkVector n b ↔ ∀ (i : Nat) (h : i < n), f i xs[i] = b := by
+theorem mapIdx_eq_replicate_iff {xs : Vector α n} {f : Nat → α → β} {b : β} :
+    mapIdx f xs = replicate n b ↔ ∀ (i : Nat) (h : i < n), f i xs[i] = b := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.mapIdx_eq_mkArray_iff]
+  simp [Array.mapIdx_eq_replicate_iff]
+
+@[deprecated mapIdx_eq_replicate_iff (since := "2025-03-18")]
+abbrev mapIdx_eq_mkVector_iff := @mapIdx_eq_replicate_iff
 
 @[simp] theorem mapIdx_reverse {xs : Vector α n} {f : Nat → α → β} :
     xs.reverse.mapIdx f = (mapIdx (fun i => f (xs.size - 1 - i)) xs).reverse := by

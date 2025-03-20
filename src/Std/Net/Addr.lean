@@ -21,6 +21,16 @@ namespace Std
 namespace Net
 
 /--
+Representation of a MAC address.
+-/
+structure MACAddr where
+  /--
+  This structure represents the address: `octets[0]:octets[1]:octets[2]:octets[3]:octets[4]:octets[5]`.
+  -/
+  octets : Vector UInt8 6
+  deriving Inhabited, DecidableEq
+
+/--
 Representation of an IPv4 address.
 -/
 structure IPv4Addr where
@@ -199,14 +209,35 @@ Represents an interface address, including details such as the interface name,
 whether it is internal, the associated address, and the network mask.
 -/
 structure InterfaceAddress where
+  /--
+  The name of the network interface.
+  -/
   name : String
-  isInternal : Bool
-  address : SocketAddress
-  netMask : SocketAddress
+
+  /-
+  The physical (MAC) address of the interface.
+  -/
+  physicalAddress : MACAddr
+
+  /--
+  Indicates whether the interface is a loopback interface.
+  -/
+  isLoopback : Bool
+
+  /--
+  The IP address assigned to the interface.
+  -/
+  address : IPAddr
+
+  /--
+  The subnet mask associated with the interface.
+  -/
+  netMask : IPAddr
   deriving Inhabited, DecidableEq
 
 /--
-Retrieves a list of interface addresses.
+Gets address information about the network interfaces on the system, including disabled ones and
+multiple addresses for each interface.
 -/
 @[extern "lean_uv_interface_addresses"]
 opaque interfaceAddresses : IO (Array InterfaceAddress)

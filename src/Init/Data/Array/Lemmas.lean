@@ -321,26 +321,44 @@ theorem eq_push_of_size_ne_zero {xs : Array α} (h : xs.size ≠ 0) :
 theorem singleton_inj : #[a] = #[b] ↔ a = b := by
   simp
 
-/-! ### mkArray -/
+/-! ### replicate -/
 
-@[simp] theorem size_mkArray (n : Nat) (v : α) : (mkArray n v).size = n :=
+@[simp] theorem size_replicate (n : Nat) (v : α) : (replicate n v).size = n :=
   List.length_replicate ..
 
-@[simp] theorem toList_mkArray : (mkArray n a).toList = List.replicate n a := by
-  simp only [mkArray]
+@[deprecated size_replicate (since := "2025-03-18")]
+abbrev size_mkArray := @size_replicate
 
-@[simp] theorem mkArray_zero : mkArray 0 a = #[] := rfl
+@[simp] theorem toList_replicate : (replicate n a).toList = List.replicate n a := by
+  simp only [replicate]
 
-theorem mkArray_succ : mkArray (n + 1) a = (mkArray n a).push a := by
+@[deprecated toList_replicate (since := "2025-03-18")]
+abbrev toList_mkArray := @toList_replicate
+
+@[simp] theorem replicate_zero : replicate 0 a = #[] := rfl
+
+@[deprecated replicate_zero (since := "2025-03-18")]
+abbrev mkArray_zero := @replicate_zero
+
+theorem replicate_succ : replicate (n + 1) a = (replicate n a).push a := by
   apply toList_inj.1
   simp [List.replicate_succ']
 
-@[simp] theorem getElem_mkArray (n : Nat) (v : α) (h : i < (mkArray n v).size) :
-    (mkArray n v)[i] = v := by simp [← getElem_toList]
+@[deprecated replicate_succ (since := "2025-03-18")]
+abbrev mkArray_succ := @replicate_succ
 
-theorem getElem?_mkArray (n : Nat) (v : α) (i : Nat) :
-    (mkArray n v)[i]? = if i < n then some v else none := by
+@[simp] theorem getElem_replicate (n : Nat) (v : α) (h : i < (replicate n v).size) :
+    (replicate n v)[i] = v := by simp [← getElem_toList]
+
+@[deprecated getElem_replicate (since := "2025-03-18")]
+abbrev getElem_mkArray := @getElem_replicate
+
+@[simp] theorem getElem?_replicate (n : Nat) (v : α) (i : Nat) :
+    (replicate n v)[i]? = if i < n then some v else none := by
   simp [getElem?_def]
+
+@[deprecated getElem?_replicate (since := "2025-03-18")]
+abbrev getElem?_mkArray := @getElem?_replicate
 
 /-! ### mem -/
 
@@ -1037,14 +1055,17 @@ theorem size_eq_of_beq [BEq α] {xs ys : Array α} (h : xs == ys) : xs.size = ys
   cases ys
   simp [List.length_eq_of_beq (by simpa using h)]
 
-@[simp] theorem mkArray_beq_mkArray [BEq α] {a b : α} {n : Nat} :
-    (mkArray n a == mkArray n b) = (n == 0 || a == b) := by
+@[simp] theorem replicate_beq_replicate [BEq α] {a b : α} {n : Nat} :
+    (replicate n a == replicate n b) = (n == 0 || a == b) := by
   cases n with
   | zero => simp
   | succ n =>
-    rw [mkArray_succ, mkArray_succ, push_beq_push, mkArray_beq_mkArray]
+    rw [replicate_succ, replicate_succ, push_beq_push, replicate_beq_replicate]
     rw [Bool.eq_iff_iff]
     simp +contextual
+
+@[deprecated replicate_beq_replicate (since := "2025-03-18")]
+abbrev mkArray_beq_mkArray := @replicate_beq_replicate
 
 private theorem beq_of_beq_singleton [BEq α] {a b : α} : #[a] == #[b] → a == b := by
   intro h
@@ -2306,146 +2327,233 @@ theorem flatMap_eq_foldl (f : α → Array β) (xs : Array α) :
     rw [List.foldl_cons, ih]
     simp [toArray_append]
 
-/-! ### mkArray -/
+/-! ### replicate -/
 
-@[simp] theorem mkArray_one : mkArray 1 a = #[a] := rfl
+@[simp] theorem replicate_one : replicate 1 a = #[a] := rfl
 
-/-- Variant of `mkArray_succ` that prepends `a` at the beginning of the array. -/
-theorem mkArray_succ' : mkArray (n + 1) a = #[a] ++ mkArray n a := by
+@[deprecated replicate_one (since := "2025-03-18")]
+abbrev mkArray_one := @replicate_one
+
+/-- Variant of `replicate_succ` that prepends `a` at the beginning of the array. -/
+theorem replicate_succ' : replicate (n + 1) a = #[a] ++ replicate n a := by
   apply Array.ext'
   simp [List.replicate_succ]
 
-@[simp] theorem mem_mkArray {a b : α} {n} : b ∈ mkArray n a ↔ n ≠ 0 ∧ b = a := by
-  unfold mkArray
+@[deprecated replicate_succ' (since := "2025-03-18")]
+abbrev mkArray_succ' := @replicate_succ'
+
+@[simp] theorem mem_replicate {a b : α} {n} : b ∈ replicate n a ↔ n ≠ 0 ∧ b = a := by
+  unfold replicate
   simp only [mem_toArray, List.mem_replicate]
 
-theorem eq_of_mem_mkArray {a b : α} {n} (h : b ∈ mkArray n a) : b = a := (mem_mkArray.1 h).2
+@[deprecated mem_replicate (since := "2025-03-18")]
+abbrev mem_mkArray := @mem_replicate
 
-theorem forall_mem_mkArray {p : α → Prop} {a : α} {n} :
-    (∀ b, b ∈ mkArray n a → p b) ↔ n = 0 ∨ p a := by
-  cases n <;> simp [mem_mkArray]
+theorem eq_of_mem_replicate {a b : α} {n} (h : b ∈ replicate n a) : b = a := (mem_replicate.1 h).2
 
-@[simp] theorem mkArray_succ_ne_empty (n : Nat) (a : α) : mkArray (n+1) a ≠ #[] := by
-  simp [mkArray_succ]
+@[deprecated eq_of_mem_mkArray (since := "2025-03-18")]
+abbrev eq_of_mem_mkArray := @eq_of_mem_replicate
 
-@[simp] theorem mkArray_eq_empty_iff {n : Nat} (a : α) : mkArray n a = #[] ↔ n = 0 := by
+theorem forall_mem_replicate {p : α → Prop} {a : α} {n} :
+    (∀ b, b ∈ replicate n a → p b) ↔ n = 0 ∨ p a := by
+  cases n <;> simp [mem_replicate]
+
+@[deprecated forall_mem_replicate (since := "2025-03-18")]
+abbrev forall_mem_mkArray := @forall_mem_replicate
+
+@[simp] theorem replicate_succ_ne_empty (n : Nat) (a : α) : replicate (n+1) a ≠ #[] := by
+  simp [replicate_succ]
+
+@[deprecated replicate_succ_ne_empty (since := "2025-03-18")]
+abbrev mkArray_succ_ne_empty := @replicate_succ_ne_empty
+
+@[simp] theorem replicate_eq_empty_iff {n : Nat} (a : α) : replicate n a = #[] ↔ n = 0 := by
   cases n <;> simp
 
-@[simp] theorem getElem?_mkArray_of_lt {n : Nat} {i : Nat} (h : i < n) : (mkArray n a)[i]? = some a := by
-  simp [getElem?_mkArray, h]
+@[deprecated replicate_eq_empty_iff (since := "2025-03-18")]
+abbrev mkArray_eq_empty_iff := @replicate_eq_empty_iff
 
-@[simp] theorem mkArray_inj : mkArray n a = mkArray m b ↔ n = m ∧ (n = 0 ∨ a = b) := by
+@[simp] theorem replicate_inj : replicate n a = replicate m b ↔ n = m ∧ (n = 0 ∨ a = b) := by
   rw [← toList_inj]
   simp
 
-theorem eq_mkArray_of_mem {a : α} {xs : Array α} (h : ∀ (b) (_ : b ∈ xs), b = a) : xs = mkArray xs.size a := by
+@[deprecated replicate_inj (since := "2025-03-18")]
+abbrev mkArray_inj := @replicate_inj
+
+theorem eq_replicate_of_mem {a : α} {xs : Array α} (h : ∀ (b) (_ : b ∈ xs), b = a) : xs = replicate xs.size a := by
   rw [← toList_inj]
   simpa using List.eq_replicate_of_mem (by simpa using h)
 
-theorem eq_mkArray_iff {a : α} {n} {xs : Array α} :
-    xs = mkArray n a ↔ xs.size = n ∧ ∀ (b) (_ : b ∈ xs), b = a := by
+@[deprecated eq_replicate_of_mem (since := "2025-03-18")]
+abbrev eq_mkArray_of_mem := @eq_replicate_of_mem
+
+theorem eq_replicate_iff {a : α} {n} {xs : Array α} :
+    xs = replicate n a ↔ xs.size = n ∧ ∀ (b) (_ : b ∈ xs), b = a := by
   rw [← toList_inj]
   simpa using List.eq_replicate_iff (l := xs.toList)
 
-theorem map_eq_mkArray_iff {xs : Array α} {f : α → β} {b : β} :
-    xs.map f = mkArray xs.size b ↔ ∀ x ∈ xs, f x = b := by
-  simp [eq_mkArray_iff]
+@[deprecated eq_replicate_iff (since := "2025-03-18")]
+abbrev eq_mkArray_iff := @eq_replicate_iff
 
-@[simp] theorem map_const (xs : Array α) (b : β) : map (Function.const α b) xs = mkArray xs.size b :=
-  map_eq_mkArray_iff.mpr fun _ _ => rfl
+theorem map_eq_replicate_iff {xs : Array α} {f : α → β} {b : β} :
+    xs.map f = replicate xs.size b ↔ ∀ x ∈ xs, f x = b := by
+  simp [eq_replicate_iff]
 
-@[simp] theorem map_const_fun (x : β) : map (Function.const α x) = (mkArray ·.size x) := by
+@[deprecated map_eq_replicate_iff (since := "2025-03-18")]
+abbrev map_eq_mkArray_iff := @map_eq_replicate_iff
+
+@[simp] theorem map_const (xs : Array α) (b : β) : map (Function.const α b) xs = replicate xs.size b :=
+  map_eq_replicate_iff.mpr fun _ _ => rfl
+
+@[simp] theorem map_const_fun (x : β) : map (Function.const α x) = (replicate ·.size x) := by
   funext xs
   simp
 
 /-- Variant of `map_const` using a lambda rather than `Function.const`. -/
 -- This can not be a `@[simp]` lemma because it would fire on every `List.map`.
-theorem map_const' (xs : Array α) (b : β) : map (fun _ => b) xs = mkArray xs.size b :=
+theorem map_const' (xs : Array α) (b : β) : map (fun _ => b) xs = replicate xs.size b :=
   map_const xs b
 
-@[simp] theorem set_mkArray_self : (mkArray n a).set i a h = mkArray n a := by
+@[simp] theorem set_replicate_self : (replicate n a).set i a h = replicate n a := by
   apply Array.ext'
   simp
 
-@[simp] theorem setIfInBounds_mkArray_self : (mkArray n a).setIfInBounds i a = mkArray n a := by
+@[deprecated set_replicate_self (since := "2025-03-18")]
+abbrev set_mkArray_self := @set_replicate_self
+
+@[simp] theorem setIfInBounds_replicate_self : (replicate n a).setIfInBounds i a = replicate n a := by
   apply Array.ext'
   simp
 
-@[simp] theorem mkArray_append_mkArray : mkArray n a ++ mkArray m a = mkArray (n + m) a := by
+@[deprecated setIfInBounds_replicate_self (since := "2025-03-18")]
+abbrev setIfInBounds_mkArray_self := @setIfInBounds_replicate_self
+
+@[simp] theorem replicate_append_replicate : replicate n a ++ replicate m a = replicate (n + m) a := by
   apply Array.ext'
   simp
 
-theorem append_eq_mkArray_iff {xs ys : Array α} {a : α} :
-    xs ++ ys = mkArray n a ↔
-      xs.size + ys.size = n ∧ xs = mkArray xs.size a ∧ ys = mkArray ys.size a := by
+@[deprecated replicate_append_replicate (since := "2025-03-18")]
+abbrev mkArray_append_mkArray := @replicate_append_replicate
+
+theorem append_eq_replicate_iff {xs ys : Array α} {a : α} :
+    xs ++ ys = replicate n a ↔
+      xs.size + ys.size = n ∧ xs = replicate xs.size a ∧ ys = replicate ys.size a := by
   simp [← toList_inj, List.append_eq_replicate_iff]
 
-theorem mkArray_eq_append_iff {xs ys : Array α} {a : α} :
-    mkArray n a = xs ++ ys ↔
-      xs.size + ys.size = n ∧ xs = mkArray xs.size a ∧ ys = mkArray ys.size a := by
-  rw [eq_comm, append_eq_mkArray_iff]
+@[deprecated append_eq_replicate_iff (since := "2025-03-18")]
+abbrev append_eq_mkArray_iff := @append_eq_replicate_iff
 
-@[simp] theorem map_mkArray : (mkArray n a).map f = mkArray n (f a) := by
+theorem replicate_eq_append_iff {xs ys : Array α} {a : α} :
+    replicate n a = xs ++ ys ↔
+      xs.size + ys.size = n ∧ xs = replicate xs.size a ∧ ys = replicate ys.size a := by
+  rw [eq_comm, append_eq_replicate_iff]
+
+@[deprecated replicate_eq_append_iff (since := "2025-03-18")]
+abbrev replicate_eq_mkArray_iff := @replicate_eq_append_iff
+
+@[simp] theorem map_replicate : (replicate n a).map f = replicate n (f a) := by
   apply Array.ext'
   simp
 
-theorem filter_mkArray (w : stop = n) :
-    (mkArray n a).filter p 0 stop = if p a then mkArray n a else #[] := by
+@[deprecated map_replicate (since := "2025-03-18")]
+abbrev map_mkArray := @map_replicate
+
+theorem filter_replicate (w : stop = n) :
+    (replicate n a).filter p 0 stop = if p a then replicate n a else #[] := by
   apply Array.ext'
-  simp only [w, toList_filter', toList_mkArray, List.filter_replicate]
+  simp only [w, toList_filter', toList_replicate, List.filter_replicate]
   split <;> simp_all
 
-@[simp] theorem filter_mkArray_of_pos (w : stop = n) (h : p a) :
-    (mkArray n a).filter p 0 stop = mkArray n a := by
-  simp [filter_mkArray, h, w]
+@[deprecated filter_replicate (since := "2025-03-18")]
+abbrev filter_mkArray := @filter_replicate
 
-@[simp] theorem filter_mkArray_of_neg (w : stop = n) (h : ¬ p a) :
-    (mkArray n a).filter p 0 stop = #[] := by
-  simp [filter_mkArray, h, w]
+@[simp] theorem filter_replicate_of_pos (w : stop = n) (h : p a) :
+    (replicate n a).filter p 0 stop = replicate n a := by
+  simp [filter_replicate, h, w]
 
-theorem filterMap_mkArray {f : α → Option β} (w : stop = n := by simp) :
-    (mkArray n a).filterMap f 0 stop = match f a with | none => #[] | .some b => mkArray n b := by
+@[deprecated filter_replicate_of_pos (since := "2025-03-18")]
+abbrev filter_mkArray_of_pos := @filter_replicate_of_pos
+
+@[simp] theorem filter_replicate_of_neg (w : stop = n) (h : ¬ p a) :
+    (replicate n a).filter p 0 stop = #[] := by
+  simp [filter_replicate, h, w]
+
+@[deprecated filter_replicate_of_neg (since := "2025-03-18")]
+abbrev filter_mkArray_of_neg := @filter_replicate_of_neg
+
+theorem filterMap_replicate {f : α → Option β} (w : stop = n := by simp) :
+    (replicate n a).filterMap f 0 stop = match f a with | none => #[] | .some b => replicate n b := by
   apply Array.ext'
-  simp only [w, size_mkArray, toList_filterMap', toList_mkArray, List.filterMap_replicate]
+  simp only [w, size_replicate, toList_filterMap', toList_replicate, List.filterMap_replicate]
   split <;> simp_all
+
+@[deprecated filterMap_replicate (since := "2025-03-18")]
+abbrev filterMap_mkArray := @filterMap_replicate
 
 -- This is not a useful `simp` lemma because `b` is unknown.
-theorem filterMap_mkArray_of_some {f : α → Option β} (h : f a = some b) :
-    (mkArray n a).filterMap f = mkArray n b := by
-  simp [filterMap_mkArray, h]
+theorem filterMap_replicate_of_some {f : α → Option β} (h : f a = some b) :
+    (replicate n a).filterMap f = replicate n b := by
+  simp [filterMap_replicate, h]
 
-@[simp] theorem filterMap_mkArray_of_isSome {f : α → Option β} (h : (f a).isSome) :
-    (mkArray n a).filterMap f = mkArray n (Option.get _ h) := by
+@[deprecated filterMap_replicate_of_some (since := "2025-03-18")]
+abbrev filterMap_mkArray_of_some := @filterMap_replicate_of_some
+
+@[simp] theorem filterMap_replicate_of_isSome {f : α → Option β} (h : (f a).isSome) :
+    (replicate n a).filterMap f = replicate n (Option.get _ h) := by
   match w : f a, h with
-  | some b, _ => simp [filterMap_mkArray, h, w]
+  | some b, _ => simp [filterMap_replicate, h, w]
 
-@[simp] theorem filterMap_mkArray_of_none {f : α → Option β} (h : f a = none) :
-    (mkArray n a).filterMap f = #[] := by
-  simp [filterMap_mkArray, h]
+@[deprecated filterMap_replicate_of_isSome (since := "2025-03-18")]
+abbrev filterMap_mkArray_of_isSome := @filterMap_replicate_of_isSome
 
-@[simp] theorem flatten_mkArray_empty : (mkArray n (#[] : Array α)).flatten = #[] := by
+@[simp] theorem filterMap_replicate_of_none {f : α → Option β} (h : f a = none) :
+    (replicate n a).filterMap f = #[] := by
+  simp [filterMap_replicate, h]
+
+@[deprecated filterMap_replicate_of_none (since := "2025-03-18")]
+abbrev filterMap_mkArray_of_none := @filterMap_replicate_of_none
+
+@[simp] theorem flatten_replicate_empty : (replicate n (#[] : Array α)).flatten = #[] := by
   rw [← toList_inj]
   simp
 
-@[simp] theorem flatten_mkArray_singleton : (mkArray n #[a]).flatten = mkArray n a := by
+@[deprecated flatten_replicate_empty (since := "2025-03-18")]
+abbrev flatten_mkArray_empty := @flatten_replicate_empty
+
+@[simp] theorem flatten_replicate_singleton : (replicate n #[a]).flatten = replicate n a := by
   rw [← toList_inj]
   simp
 
-@[simp] theorem flatten_mkArray_mkArray : (mkArray n (mkArray m a)).flatten = mkArray (n * m) a := by
+@[deprecated flatten_replicate_singleton (since := "2025-03-18")]
+abbrev flatten_mkArray_singleton := @flatten_replicate_singleton
+
+@[simp] theorem flatten_replicate_replicate : (replicate n (replicate m a)).flatten = replicate (n * m) a := by
   rw [← toList_inj]
   simp
 
-theorem flatMap_mkArray {β} (f : α → Array β) : (mkArray n a).flatMap f = (mkArray n (f a)).flatten := by
+@[deprecated flatten_replicate_replicate (since := "2025-03-18")]
+abbrev flatten_mkArray_replicate := @flatten_replicate_replicate
+
+theorem flatMap_replicate {β} (f : α → Array β) : (replicate n a).flatMap f = (replicate n (f a)).flatten := by
   rw [← toList_inj]
   simp [flatMap_toList, List.flatMap_replicate]
 
-@[simp] theorem isEmpty_mkArray : (mkArray n a).isEmpty = decide (n = 0) := by
+@[deprecated flatMap_replicate (since := "2025-03-18")]
+abbrev flatMap_mkArray := @flatMap_replicate
+
+@[simp] theorem isEmpty_replicate : (replicate n a).isEmpty = decide (n = 0) := by
   rw [← List.toArray_replicate, List.isEmpty_toArray]
   simp
 
-@[simp] theorem sum_mkArray_nat (n : Nat) (a : Nat) : (mkArray n a).sum = n * a := by
+@[deprecated isEmpty_replicate (since := "2025-03-18")]
+abbrev isEmpty_mkArray := @isEmpty_replicate
+
+@[simp] theorem sum_replicate_nat (n : Nat) (a : Nat) : (replicate n a).sum = n * a := by
   rw [← List.toArray_replicate, List.sum_toArray]
   simp
+
+@[deprecated sum_replicate_nat (since := "2025-03-18")]
+abbrev sum_mkArray_nat := @sum_replicate_nat
 
 /-! ### Preliminaries about `swap` needed for `reverse`. -/
 
@@ -2625,9 +2733,12 @@ theorem flatMap_reverse {β} (xs : Array α) (f : α → Array β) :
   cases xs
   simp [List.flatMap_reverse, Function.comp_def]
 
-@[simp] theorem reverse_mkArray (n) (a : α) : reverse (mkArray n a) = mkArray n a := by
+@[simp] theorem reverse_replicate (n) (a : α) : reverse (replicate n a) = replicate n a := by
   rw [← toList_inj]
   simp
+
+@[deprecated reverse_replicate (since := "2025-03-18")]
+abbrev reverse_mkArray := @reverse_replicate
 
 /-! ### extract -/
 
@@ -3464,13 +3575,19 @@ theorem back?_flatten {xss : Array (Array α)} :
     (flatten xss).back? = xss.reverse.findSome? fun xs => xs.back? := by
   simp [← flatMap_id, back?_flatMap]
 
-theorem back?_mkArray (a : α) (n : Nat) :
-    (mkArray n a).back? = if n = 0 then none else some a := by
-  rw [mkArray_eq_toArray_replicate]
+theorem back?_replicate (a : α) (n : Nat) :
+    (replicate n a).back? = if n = 0 then none else some a := by
+  rw [replicate_eq_toArray_replicate]
   simp only [List.back?_toArray, List.getLast?_replicate]
 
-@[simp] theorem back_mkArray (w : 0 < n) : (mkArray n a).back (by simpa using w) = a := by
+@[deprecated back?_replicate (since := "2025-03-18")]
+abbrev back?_mkArray := @back?_replicate
+
+@[simp] theorem back_replicate (w : 0 < n) : (replicate n a).back (by simpa using w) = a := by
   simp [back_eq_getElem]
+
+@[deprecated back_replicate (since := "2025-03-18")]
+abbrev back_mkArray := @back_replicate
 
 /-! ## Additional operations -/
 
@@ -3508,8 +3625,11 @@ theorem pop_append {xs ys : Array α} :
     (xs ++ ys).pop = if ys.isEmpty then xs.pop else xs ++ ys.pop := by
   split <;> simp_all
 
-@[simp] theorem pop_mkArray (n) (a : α) : (mkArray n a).pop = mkArray (n - 1) a := by
+@[simp] theorem pop_replicate (n) (a : α) : (replicate n a).pop = replicate (n - 1) a := by
   ext <;> simp
+
+@[deprecated pop_replicate (since := "2025-03-18")]
+abbrev pop_mkArray := @pop_replicate
 
 /-! ### modify -/
 
@@ -3675,14 +3795,20 @@ theorem replace_extract {xs : Array α} {i : Nat} :
   rcases xs with ⟨xs⟩
   simp [List.replace_take]
 
-@[simp] theorem replace_mkArray_self {a : α} (h : 0 < n) :
-    (mkArray n a).replace a b = #[b] ++ mkArray (n - 1) a := by
-  cases n <;> simp_all [mkArray_succ', replace_append]
+@[simp] theorem replace_replicate_self {a : α} (h : 0 < n) :
+    (replicate n a).replace a b = #[b] ++ replicate (n - 1) a := by
+  cases n <;> simp_all [replicate_succ', replace_append]
 
-@[simp] theorem replace_mkArray_ne {a b c : α} (h : !b == a) :
-    (mkArray n a).replace b c = mkArray n a := by
+@[deprecated replace_replicate_self (since := "2025-03-18")]
+abbrev replace_mkArray_self := @replace_replicate_self
+
+@[simp] theorem replace_replicate_ne {a b c : α} (h : !b == a) :
+    (replicate n a).replace b c = replicate n a := by
   rw [replace_of_not_mem]
   simp_all
+
+@[deprecated replace_replicate_ne (since := "2025-03-18")]
+abbrev replace_mkArray_ne := @replace_replicate_ne
 
 end replace
 
@@ -3911,13 +4037,19 @@ theorem any_reverse {xs : Array α} : xs.reverse.any f 0 = xs.any f := by
 theorem all_reverse {xs : Array α} : xs.reverse.all f 0 = xs.all f := by
   simp
 
-@[simp] theorem any_mkArray {n : Nat} {a : α} :
-    (mkArray n a).any f = if n = 0 then false else f a := by
-  induction n <;> simp_all [mkArray_succ']
+@[simp] theorem any_replicate {n : Nat} {a : α} :
+    (replicate n a).any f = if n = 0 then false else f a := by
+  induction n <;> simp_all [replicate_succ']
 
-@[simp] theorem all_mkArray {n : Nat} {a : α} :
-    (mkArray n a).all f = if n = 0 then true else f a := by
-  induction n <;> simp_all +contextual [mkArray_succ']
+@[deprecated any_replicate (since := "2025-03-18")]
+abbrev any_mkArray := @any_replicate
+
+@[simp] theorem all_replicate {n : Nat} {a : α} :
+    (replicate n a).all f = if n = 0 then true else f a := by
+  induction n <;> simp_all +contextual [replicate_succ']
+
+@[deprecated all_replicate (since := "2025-03-18")]
+abbrev all_mkArray := @all_replicate
 
 /-! ### toListRev -/
 

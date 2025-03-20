@@ -56,8 +56,8 @@ unsafe def replaceUnsafeM (f? : Level → Option Level) (size : USize) (e : Expr
   visit e
 
 unsafe def initCache : State :=
-  { keys    := mkArray cacheSize.toNat (cast lcProof ()), -- `()` is not a valid `Expr`
-    results := mkArray cacheSize.toNat default }
+  { keys    := .replicate cacheSize.toNat (cast lcProof ()), -- `()` is not a valid `Expr`
+    results := .replicate cacheSize.toNat default }
 
 unsafe def replaceUnsafe (f? : Level → Option Level) (e : Expr) : Expr :=
   (replaceUnsafeM f? cacheSize e).run' initCache

@@ -28,7 +28,7 @@ structure HashSetImp (α : Type u) where
 def mkHashSetImp {α : Type u} (capacity := 8) : HashSetImp α :=
   { size       := 0
     buckets    :=
-    ⟨mkArray ((capacity * 4) / 3).nextPowerOfTwo [],
+    ⟨Array.replicate ((capacity * 4) / 3).nextPowerOfTwo [],
      by simp; apply Nat.isPowerOfTwo_nextPowerOfTwo⟩ }
 
 namespace HashSetImp
@@ -92,7 +92,7 @@ decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def expand [Hashable α] (size : Nat) (buckets : HashSetBucket α) : HashSetImp α :=
   let bucketsNew : HashSetBucket α := ⟨
-    mkArray (buckets.val.size * 2) [],
+    Array.replicate (buckets.val.size * 2) [],
     by simp; apply Nat.mul2_isPowerOfTwo_of_isPowerOfTwo buckets.property
   ⟩
   { size    := size,

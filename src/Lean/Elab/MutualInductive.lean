@@ -389,9 +389,9 @@ For `i ∈ [numParams, arity)`, we have that `result[i]` if this index of the in
 private def computeFixedIndexBitMask (numParams : Nat) (indType : InductiveType) (indFVars : Array Expr) : MetaM (Array Bool) := do
   let arity ← getArity indType
   if arity ≤ numParams then
-    return mkArray arity false
+    return .replicate arity false
   else
-    let maskRef ← IO.mkRef (mkArray numParams false ++ mkArray (arity - numParams) true)
+    let maskRef ← IO.mkRef (.replicate numParams false ++ .replicate (arity - numParams) true)
     let rec go (ctors : List Constructor) : MetaM (Array Bool) := do
       match ctors with
       | [] => maskRef.get

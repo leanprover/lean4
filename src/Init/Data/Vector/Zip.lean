@@ -144,10 +144,13 @@ theorem zipWith_eq_append_iff {f : α → β → γ} {as : Vector α (n + m)} {b
     simp only at w₁ w₂
     exact ⟨as₁, as₂, bs₁, bs₂, by simpa [hw, hy] using ⟨w₁, w₂⟩⟩
 
-@[simp] theorem zipWith_mkVector {a : α} {b : β} {n : Nat} :
-    zipWith f (mkVector n a) (mkVector n b) = mkVector n (f a b) := by
+@[simp] theorem zipWith_replicate {a : α} {b : β} {n : Nat} :
+    zipWith f (replicate n a) (replicate n b) = replicate n (f a b) := by
   ext
   simp
+
+@[deprecated zipWith_replicate (since := "2025-03-18")]
+abbrev zipWith_mkVector := @zipWith_replicate
 
 theorem map_uncurry_zip_eq_zipWith (f : α → β → γ) (as : Vector α n) (bs : Vector β n) :
     map (Function.uncurry f) (as.zip bs) = zipWith f as bs := by
@@ -240,10 +243,12 @@ theorem zip_eq_append_iff {as : Vector α (n + m)} {bs : Vector β (n + m)} {xs 
       ∃ as₁ as₂ bs₁ bs₂, as₁.size = bs₁.size ∧ as = as₁ ++ as₂ ∧ bs = bs₁ ++ bs₂ ∧ xs = zip as₁ bs₁ ∧ ys = zip as₂ bs₂ := by
   simp [zip_eq_zipWith, zipWith_eq_append_iff]
 
-@[simp] theorem zip_mkVector {a : α} {b : β} {n : Nat} :
-    zip (mkVector n a) (mkVector n b) = mkVector n (a, b) := by
+@[simp] theorem zip_replicate {a : α} {b : β} {n : Nat} :
+    zip (replicate n a) (replicate n b) = replicate n (a, b) := by
   ext <;> simp
 
+@[deprecated zip_replicate (since := "2025-03-18")]
+abbrev zip_mkVector := @zip_replicate
 
 /-! ### unzip -/
 
@@ -285,8 +290,11 @@ theorem zip_of_prod {as : Vector α n} {bs : Vector β n} {xs : Vector (α × β
     (hr : xs.map Prod.snd = bs) : xs = as.zip bs := by
   rw [← hl, ← hr, ← zip_unzip xs, ← unzip_fst, ← unzip_snd, zip_unzip, zip_unzip]
 
-@[simp] theorem unzip_mkVector {n : Nat} {a : α} {b : β} :
-    unzip (mkVector n (a, b)) = (mkVector n a, mkVector n b) := by
+@[simp] theorem unzip_replicate {a : α} {b : β} {n : Nat} :
+    unzip (replicate n (a, b)) = (replicate n a, replicate n b) := by
   ext1 <;> simp
+
+@[deprecated unzip_replicate (since := "2025-03-18")]
+abbrev unzip_mkVector := @unzip_replicate
 
 end Vector

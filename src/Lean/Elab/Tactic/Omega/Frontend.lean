@@ -595,7 +595,7 @@ where
       |> String.join
 
   mentioned (atoms : Array Expr) (constraints : Std.HashMap Coeffs Fact) : MetaM (Array Bool) := do
-    let initMask := Array.mkArray atoms.size false
+    let initMask := .replicate atoms.size false
     return constraints.fold (init := initMask) fun mask coeffs _ =>
       coeffs.zipIdx.foldl (init := mask) fun mask (c, i) =>
         if c = 0 then mask else mask.set! i true

@@ -34,7 +34,7 @@ Example:
 -/
 def filterPairsM {m} [Monad m] {α} (a : Array α) (f : α → α → m (Bool × Bool)) :
     m (Array α) := do
-  let mut removed := Array.mkArray a.size false
+  let mut removed := Array.replicate a.size false
   let mut numRemoved := 0
   for h1 : i in [:a.size] do for h2 : j in [i+1:a.size] do
     unless removed[i]! || removed[j]! do

@@ -32,7 +32,7 @@ private def numBucketsForCapacity (capacity : Nat) : Nat :=
 def mkHashMapImp {α : Type u} {β : Type v} (capacity := 8) : HashMapImp α β :=
   { size       := 0
     buckets    :=
-    ⟨mkArray (numBucketsForCapacity capacity).nextPowerOfTwo AssocList.nil,
+    ⟨Array.replicate (numBucketsForCapacity capacity).nextPowerOfTwo AssocList.nil,
      by simp; apply Nat.isPowerOfTwo_nextPowerOfTwo⟩ }
 
 namespace HashMapImp
@@ -101,7 +101,7 @@ decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapImp α β :=
   let bucketsNew : HashMapBucket α β := ⟨
-    mkArray (buckets.val.size * 2) AssocList.nil,
+    Array.replicate (buckets.val.size * 2) AssocList.nil,
     by simp; apply Nat.mul2_isPowerOfTwo_of_isPowerOfTwo buckets.property
   ⟩
   { size    := size,

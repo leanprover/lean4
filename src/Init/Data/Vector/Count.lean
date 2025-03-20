@@ -72,10 +72,13 @@ theorem countP_le_size {xs : Vector α n} : countP p xs ≤ n := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
-theorem countP_mkVector (p : α → Bool) (a : α) (n : Nat) :
-    countP p (mkVector n a) = if p a then n else 0 := by
-  simp only [mkVector_eq_mk_mkArray, countP_cast, countP_mk]
-  simp [Array.countP_mkArray]
+theorem countP_replicate (p : α → Bool) (a : α) (n : Nat) :
+    countP p (replicate n a) = if p a then n else 0 := by
+  simp only [replicate_eq_mk_replicate, countP_cast, countP_mk]
+  simp [Array.countP_replicate]
+
+@[deprecated countP_replicate (since := "2025-03-18")]
+abbrev countP_mkVector := @countP_replicate
 
 theorem boole_getElem_le_countP (p : α → Bool) (xs : Vector α n) (i : Nat) (h : i < n) :
     (if p xs[i] then 1 else 0) ≤ xs.countP p := by
@@ -217,13 +220,19 @@ theorem count_eq_size {xs : Vector α n} : count a xs = xs.size ↔ ∀ b ∈ xs
   rcases xs with ⟨xs, rfl⟩
   simp [Array.count_eq_size]
 
-@[simp] theorem count_mkVector_self (a : α) (n : Nat) : count a (mkVector n a) = n := by
-  simp only [mkVector_eq_mk_mkArray, count_cast, count_mk]
+@[simp] theorem count_replicate_self (a : α) (n : Nat) : count a (replicate n a) = n := by
+  simp only [replicate_eq_mk_replicate, count_cast, count_mk]
   simp
 
-theorem count_mkVector (a b : α) (n : Nat) : count a (mkVector n b) = if b == a then n else 0 := by
-  simp only [mkVector_eq_mk_mkArray, count_cast, count_mk]
-  simp [Array.count_mkArray]
+@[deprecated count_replicate_self (since := "2025-03-18")]
+abbrev count_mkVector_self := @count_replicate_self
+
+theorem count_replicate (a b : α) (n : Nat) : count a (replicate n b) = if b == a then n else 0 := by
+  simp only [replicate_eq_mk_replicate, count_cast, count_mk]
+  simp [Array.count_replicate]
+
+@[deprecated count_replicate (since := "2025-03-18")]
+abbrev count_mkVector := @count_replicate
 
 theorem count_le_count_map [DecidableEq β] (xs : Vector α n) (f : α → β) (x : α) :
     count x xs ≤ count (f x) (map f xs) := by

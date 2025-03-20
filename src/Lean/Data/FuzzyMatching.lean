@@ -99,11 +99,11 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
   between the substrings pattern[:i+1] and word[:j+1] assuming that pattern[i] misses at word[j] (k = 0, i.e.
   it was matched earlier), or matches at word[j] (k = 1). A value of `none` corresponds to a score of -∞, and is used
   where no such match/miss is possible or for unneeded parts of the table. -/
-  let mut result : Array (Option Int) := Array.mkArray (pattern.length * word.length * 2) none
-  let mut runLengths : Array Int := Array.mkArray (pattern.length * word.length) 0
+  let mut result : Array (Option Int) := Array.replicate (pattern.length * word.length * 2) none
+  let mut runLengths : Array Int := Array.replicate (pattern.length * word.length) 0
 
   -- penalty for starting a consecutive run at each index
-  let mut startPenalties : Array Int := Array.mkArray word.length 0
+  let mut startPenalties : Array Int := Array.replicate word.length 0
 
   let mut lastSepIdx := 0
   let mut penaltyNs : Int := 0

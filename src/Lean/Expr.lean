@@ -1136,7 +1136,7 @@ private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
 @[inline] def getAppArgs (e : Expr) : Array Expr :=
   let dummy := mkSort levelZero
   let nargs := e.getAppNumArgs
-  getAppArgsAux e (mkArray nargs dummy) (nargs-1)
+  getAppArgsAux e (.replicate nargs dummy) (nargs-1)
 
 private def getBoundedAppArgsAux : Expr → Array Expr → Nat → Array Expr
   | app f a, as, i + 1 => getBoundedAppArgsAux f (as.set! i a) i
@@ -1151,7 +1151,7 @@ where `k` is minimal such that the size of this array is at most `maxArgs`.
 @[inline] def getBoundedAppArgs (maxArgs : Nat) (e : Expr) : Array Expr :=
   let dummy := mkSort levelZero
   let nargs := min maxArgs e.getAppNumArgs
-  getBoundedAppArgsAux e (mkArray nargs dummy) nargs
+  getBoundedAppArgsAux e (.replicate nargs dummy) nargs
 
 private def getAppRevArgsAux : Expr → Array Expr → Array Expr
   | app f a, as => getAppRevArgsAux f (as.push a)
@@ -1169,7 +1169,7 @@ private def getAppRevArgsAux : Expr → Array Expr → Array Expr
 @[inline] def withApp (e : Expr) (k : Expr → Array Expr → α) : α :=
   let dummy := mkSort levelZero
   let nargs := e.getAppNumArgs
-  withAppAux k e (mkArray nargs dummy) (nargs-1)
+  withAppAux k e (.replicate nargs dummy) (nargs-1)
 
 /-- Return the function (name) and arguments of an application. -/
 def getAppFnArgs (e : Expr) : Name × Array Expr :=
@@ -1182,7 +1182,7 @@ The resulting array has size `n` even if `f.getAppNumArgs < n`.
 -/
 @[inline] def getAppArgsN (e : Expr) (n : Nat) : Array Expr :=
   let dummy := mkSort levelZero
-  loop n e (mkArray n dummy)
+  loop n e (.replicate n dummy)
 where
   loop : Nat → Expr → Array Expr → Array Expr
     | 0,   _,        as => as

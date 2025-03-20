@@ -411,7 +411,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
         let no ← no
         match k with
         | `optional =>
-          let nones := mkArray ids.size (← `(none))
+          let nones := .replicate ids.size (← `(none))
           `(let_delayed yes _ $ids* := $yes;
             if __discr.isNone then yes () $[ $nones]*
             else match __discr with

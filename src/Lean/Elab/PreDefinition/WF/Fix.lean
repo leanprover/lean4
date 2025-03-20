@@ -194,7 +194,7 @@ The close coupling with how arguments are packed and termination goals look like
 but it works for now.
 -/
 def groupGoalsByFunction (argsPacker : ArgsPacker) (numFuncs : Nat) (goals : Array MVarId) : MetaM (Array (Array MVarId)) := do
-  let mut r := mkArray numFuncs #[]
+  let mut r := .replicate numFuncs #[]
   for goal in goals do
     let type ← goal.getType
     let (.mdata _ (.app _ param)) := type

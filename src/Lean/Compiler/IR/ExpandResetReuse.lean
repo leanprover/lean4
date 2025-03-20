@@ -85,7 +85,7 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (mask : Mask) (ke
 /-- Try to erase `inc` instructions on projections of `y` occurring in the tail of `bs`.
    Return the updated `bs` and a bit mask specifying which `inc`s have been removed. -/
 def eraseProjIncFor (n : Nat) (y : VarId) (bs : Array FnBody) : Array FnBody × Mask :=
-  eraseProjIncForAux y bs (mkArray n none) #[]
+  eraseProjIncForAux y bs (.replicate n none) #[]
 
 /-- Replace `reuse x ctor ...` with `ctor ...`, and remove `dec x` -/
 partial def reuseToCtor (x : VarId) : FnBody → FnBody

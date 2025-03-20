@@ -1586,18 +1586,6 @@ theorem neg_ne_zero (a : BitVec w) : (-a != 0#w) = (a != 0#w) := by
   simp only [neg_bne'']
   simp
 
-@[simp]
-theorem toNat_one (h : 0 < w) : (1#w : BitVec w).toNat = 1 := by
-  simp
-  omega
-
-@[simp]
-theorem toInt_one (h : 1 < w) : (1#w : BitVec w).toInt = 1 := by
-  rw [toInt_eq_toNat_of_msb, toNat_one (by omega)]
-  · simp
-  · simp
-    omega
-
 theorem toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1#w) :
     (a.sdiv b).toInt = a.toInt.tdiv b.toInt := by
   by_cases hw : w = 0

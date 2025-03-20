@@ -148,6 +148,10 @@ theorem isEmpty_erase [TransCmp cmp] {k : α} :
     (t.erase k).isEmpty = (t.isEmpty || (t.size == 1 && t.contains k)) :=
   TreeMap.isEmpty_erase
 
+theorem isEmpty_eq_isEmpty_erase_and_not_containsKey [TransCmp cmp] (k : α) :
+    t.isEmpty = ((t.erase k).isEmpty && !(t.contains k)) :=
+  DTreeMap.isEmpty_eq_isEmpty_erase_and_not_containsKey k
+
 theorem isEmpty_eq_false_of_isEmpty_erase_eq_false [TransCmp cmp] {k : α}
     (he : (t.erase k).isEmpty = false) :
     t.isEmpty = false :=

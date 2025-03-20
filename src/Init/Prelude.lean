@@ -3175,31 +3175,46 @@ instance [Monad m] : [Nonempty α] → Nonempty (m α)
   | ⟨x⟩ => ⟨pure x⟩
 
 /--
-A function for lifting a computation from an inner `Monad` to an outer `Monad`.
-Like Haskell's [`MonadTrans`], but `n` does not have to be a monad transformer.
-Alternatively, an implementation of [`MonadLayer`] without `layerInvmap` (so far).
+Computations in the monad `m` can be run in the monad `n`. These translations are inserted
+automatically by the compiler.
 
-  [`MonadTrans`]: https://hackage.haskell.org/package/transformers-0.5.5.0/docs/Control-Monad-Trans-Class.html
-  [`MonadLayer`]: https://hackage.haskell.org/package/layers-0.1/docs/Control-Monad-Layer.html#t:MonadLayer
+Usually, `n` consists of some number of monad transformers applied to `m`, but this is not
+mandatory.
+
+New instances should use this class, `MonadLift`. Clients that require one monad to be liftable into
+another should instead request `MonadLiftT`, which is the reflexive, transitive closure of
+`MonadLift`.
 -/
+-- Like Haskell's [`MonadTrans`], but `n` does not have to be a monad transformer.
+-- Alternatively, an implementation of [`MonadLayer`] without `layerInvmap` (so far).
+
+--   [`MonadTrans`]: https://hackage.haskell.org/package/transformers-0.5.5.0/docs/Control-Monad-Trans-Class.html
+--   [`MonadLayer`]: https://hackage.haskell.org/package/layers-0.1/docs/Control-Monad-Layer.html#t:MonadLayer
 class MonadLift (m : semiOutParam (Type u → Type v)) (n : Type u → Type w) where
-  /-- Lifts a value from monad `m` into monad `n`. -/
+  /-- Translates an action from monad `m` into monad `n`. -/
   monadLift : {α : Type u} → m α → n α
 
 /--
-The reflexive-transitive closure of `MonadLift`. `monadLift` is used to
-transitively lift monadic computations such as `StateT.get` or `StateT.put s`.
-Corresponds to Haskell's [`MonadLift`].
+Computations in the monad `m` can be run in the monad `n`. These translations are inserted
+automatically by the compiler.
 
-  [`MonadLift`]: https://hackage.haskell.org/package/layers-0.1/docs/Control-Monad-Layer.html#t:MonadLift
+Usually, `n` consists of some number of monad transformers applied to `m`, but this is not
+mandatory.
+
+This is the reflexive, transitive closure of `MonadLift`. Clients that require one monad to be
+liftable into another should request an instance of `MonadLiftT`. New instances should instead be
+defined for `MonadLift` itself.
 -/
+-- Corresponds to Haskell's [`MonadLift`].
+--
+--   [`MonadLift`]: https://hackage.haskell.org/package/layers-0.1/docs/Control-Monad-Layer.html#t:MonadLift
 class MonadLiftT (m : Type u → Type v) (n : Type u → Type w) where
-  /-- Lifts a value from monad `m` into monad `n`. -/
+  /-- Translates an action from monad `m` into monad `n`. -/
   monadLift : {α : Type u} → m α → n α
 
 export MonadLiftT (monadLift)
 
-/-- Lifts a value from monad `m` into monad `n`. -/
+@[inherit_doc monadLift]
 abbrev liftM := @monadLift
 
 @[always_inline]
@@ -3236,23 +3251,36 @@ instance (m) : MonadEvalT m m where
   monadEval x := x
 
 /--
-A functor in the category of monads. Can be used to lift monad-transforming functions.
-Based on [`MFunctor`] from the `pipes` Haskell package, but not restricted to
-monad transformers. Alternatively, an implementation of [`MonadTransFunctor`].
+A way to interpret a fully-polymorphic function in `m` into `n`. Such a function can be thought of
+as one that may change the effects in `m`, but can't do so based on specific values that are
+provided.
 
-  [`MFunctor`]: https://hackage.haskell.org/package/pipes-2.4.0/docs/Control-MFunctor.html
-  [`MonadTransFunctor`]: http://duairc.netsoc.ie/layers-docs/Control-Monad-Layer.html#t:MonadTransFunctor
+Clients of `MonadFunctor` should typically use `MonadFunctorT`, which is the reflexive, transitive
+closure of `MonadFunctor`. New instances should be defined for `MonadFunctor.`
 -/
+-- Based on [`MFunctor`] from the `pipes` Haskell package, but not restricted to
+-- monad transformers. Alternatively, an implementation of [`MonadTransFunctor`].
+--   [`MFunctor`]: https://hackage.haskell.org/package/pipes-2.4.0/docs/Control-MFunctor.html
+--   [`MonadTransFunctor`]: http://duairc.netsoc.ie/layers-docs/Control-Monad-Layer.html#t:MonadTransFunctor
 class MonadFunctor (m : semiOutParam (Type u → Type v)) (n : Type u → Type w) where
-  /-- Lifts a monad morphism `f : {β : Type u} → m β → m β` to
-  `monadMap f : {α : Type u} → n α → n α`. -/
+  /--
+  Lifts a fully-polymorphic transformation of `m` into `n`.
+  -/
   monadMap {α : Type u} : ({β : Type u} → m β → m β) → n α → n α
 
-/-- The reflexive-transitive closure of `MonadFunctor`.
-`monadMap` is used to transitively lift `Monad` morphisms. -/
+/--
+A way to interpret a fully-polymorphic function in `m` into `n`. Such a function can be thought of
+as one that may change the effects in `m`, but can't do so based on specific values that are
+provided.
+
+This is the reflexive, transitive closure of `MonadFunctor`. It automatically chains together
+`MonadFunctor` instances as needed. Clients of `MonadFunctor` should typically use `MonadFunctorT`,
+but new instances should be defined for `MonadFunctor`.
+-/
 class MonadFunctorT (m : Type u → Type v) (n : Type u → Type w) where
-  /-- Lifts a monad morphism `f : {β : Type u} → m β → m β` to
-  `monadMap f : {α : Type u} → n α → n α`. -/
+  /--
+  Lifts a fully-polymorphic transformation of `m` into `n`.
+  -/
   monadMap {α : Type u} : ({β : Type u} → m β → m β) → n α → n α
 
 export MonadFunctorT (monadMap)
@@ -3331,7 +3359,7 @@ handlers do not have exception type annotations.
 -/
 class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) where
   /--
-  Throws an exception of type `ε` to the nearest enclosing `catch`.
+  Throws an exception of type `ε` to the nearest enclosing handler.
   -/
   throw {α : Type v} : ε → m α
   /--
@@ -3371,10 +3399,11 @@ instance [MonadExcept ε m] {α : Type v} : OrElse (m α) where
 end MonadExcept
 
 /--
-An implementation of Haskell's [`ReaderT`]. This is a monad transformer which
-equips a monad with additional read-only state, of type `ρ`.
+Adds the ability to access a read-only value of type `ρ` to a monad. The value can be locally
+overridden by `withReader`, but it cannot be mutated.
 
-  [`ReaderT`]: https://hackage.haskell.org/package/transformers-0.5.5.0/docs/Control-Monad-Trans-Reader.html#t:ReaderT
+Actions in the resulting monad are functions that take the local value as a parameter, returning
+ordinary actions in `m`.
 -/
 def ReaderT (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
   ρ → m α
@@ -3383,8 +3412,7 @@ instance (ρ : Type u) (m : Type u → Type v) (α : Type u) [Inhabited (m α)] 
   default := fun _ => default
 
 /--
-If `x : ReaderT ρ m α` and `r : ρ`, then `x.run r : ρ` runs the monad with the
-given reader state.
+Executes an action from a monad with a read-only value in the underlying monad `m`.
 -/
 @[always_inline, inline]
 def ReaderT.run {ρ : Type u} {m : Type u → Type v} {α : Type u} (x : ReaderT ρ m α) (r : ρ) : m α :=
@@ -3408,17 +3436,26 @@ end
 section
 variable {ρ : Type u} {m : Type u → Type v}
 
-/-- `(← read) : ρ` gets the read-only state of a `ReaderT ρ`. -/
+/--
+Retrieves the reader monad's local value. Typically accessed via `read`, or via `readThe` when more
+than one local value is available.
+-/
 @[always_inline, inline]
 protected def read [Monad m] : ReaderT ρ m ρ :=
   pure
 
-/-- The `pure` operation of the `ReaderT` monad. -/
+/--
+Returns the provided value `a`, ignoring the reader monad's local value. Typically used via
+`Pure.pure`.
+-/
 @[always_inline, inline]
 protected def pure [Monad m] {α} (a : α) : ReaderT ρ m α :=
   fun _ => pure a
 
-/-- The `bind` operation of the `ReaderT` monad. -/
+/--
+Sequences two reader monad computations. Both are provided with the local value, and the second is
+passed the value of the first. Typically used via the `>>=` operator.
+-/
 @[always_inline, inline]
 protected def bind [Monad m] {α β} (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) : ReaderT ρ m β :=
   fun r => bind (x r) fun a => f a r
@@ -3442,8 +3479,8 @@ instance (ρ m) : MonadFunctor m (ReaderT ρ m) where
   monadMap f x := fun ctx => f (x ctx)
 
 /--
-`adapt (f : ρ' → ρ)` precomposes function `f` on the reader state of a
-`ReaderT ρ`, yielding a `ReaderT ρ'`.
+Modifies a reader monad's local value with `f`. The resulting computation applies `f` to the
+incoming local value and passes the result to the inner computation.
 -/
 @[always_inline, inline]
 protected def adapt {ρ' α : Type u} (f : ρ' → ρ) : ReaderT ρ m α → ReaderT ρ' m α :=
@@ -3453,37 +3490,49 @@ end
 end ReaderT
 
 /--
-An implementation of Haskell's [`MonadReader`] (sans functional dependency; see also `MonadReader`
-in this module). It does not contain `local` because this
-function cannot be lifted using `monadLift`. `local` is instead provided by
-the `MonadWithReader` class as `withReader`.
+Reader monads provide the ability to implicitly thread a value through a computation. The value can
+be read, but not written. A `MonadWithReader ρ` instance additionally allows the value to be locally
+overridden for a sub-computation.
 
-Note: This class can be seen as a simplification of the more "principled" definition
-```
-class MonadReaderOf (ρ : Type u) (n : Type u → Type u) where
-  lift {α : Type u} : ({m : Type u → Type u} → [Monad m] → ReaderT ρ m α) → n α
-```
-
-  [`MonadReader`]: https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-Reader-Class.html#t:MonadReader
+In this class, `ρ` is a `semiOutParam`, which means that it can influence the choice of instance.
+`MonadReader ρ` provides the same operations, but requires that `ρ` be inferrable from `m`.
 -/
+-- Note: This class can be seen as a simplification of the more "principled" definition
+-- ```
+-- class MonadReaderOf (ρ : Type u) (n : Type u → Type u) where
+--   lift {α : Type u} : ({m : Type u → Type u} → [Monad m] → ReaderT ρ m α) → n α
+-- ```
 class MonadReaderOf (ρ : semiOutParam (Type u)) (m : Type u → Type v) where
-  /-- `(← read) : ρ` reads the state out of monad `m`. -/
+  /-- Retrieves the local value. -/
   read : m ρ
 
 /--
-Like `read`, but with `ρ` explicit. This is useful if a monad supports
-`MonadReaderOf` for multiple different types `ρ`.
+Reader monads provide the ability to implicitly thread a value through a computation. The value can
+be read, but not written. A `MonadWithReader ρ` instance additionally allows the value to be locally
+overridden for a sub-computation.
+
+In this class, `ρ` is an `outParam`, which means that it is inferred from `m`. `MonadReaderOf ρ`
+provides the same operations, but allows `ρ` to influence instance synthesis.
+-/
+class MonadReader (ρ : outParam (Type u)) (m : Type u → Type v) where
+  /--
+  Retrieves the local value.
+
+  Use `readThe` to explicitly specify a type when more than one value is available.
+  -/
+  read : m ρ
+
+export MonadReader (read)
+
+/--
+Retrieves the local value whose type is `ρ`.  This is useful when a monad supports reading more that
+one type of value.
+
+Use `read` for a version that expects the type `ρ` to be inferred from `m`.
 -/
 @[always_inline, inline]
 def readThe (ρ : Type u) {m : Type u → Type v} [MonadReaderOf ρ m] : m ρ :=
   MonadReaderOf.read
-
-/-- Similar to `MonadReaderOf`, but `ρ` is an `outParam` for convenience. -/
-class MonadReader (ρ : outParam (Type u)) (m : Type u → Type v) where
-  /-- `(← read) : ρ` reads the state out of monad `m`. -/
-  read : m ρ
-
-export MonadReader (read)
 
 instance (ρ : Type u) (m : Type u → Type v) [MonadReaderOf ρ m] : MonadReader ρ m where
   read := readThe ρ
@@ -3495,29 +3544,47 @@ instance {ρ : Type u} {m : Type u → Type v} [Monad m] : MonadReaderOf ρ (Rea
   read := ReaderT.read
 
 /--
-`MonadWithReaderOf ρ` adds the operation `withReader : (ρ → ρ) → m α → m α`.
-This runs the inner `x : m α` inside a modified context after applying the
-function `f : ρ → ρ`. In addition to `ReaderT` itself, this operation lifts
-over most monad transformers, so it allows us to apply `withReader` to monads
-deeper in the stack.
+A reader monad that additionally allows the value to be locally overridden.
+
+In this class, `ρ` is a `semiOutParam`, which means that it can influence the choice of instance.
+`MonadWithReader ρ` provides the same operations, but requires that `ρ` be inferrable from `m`.
 -/
 class MonadWithReaderOf (ρ : semiOutParam (Type u)) (m : Type u → Type v) where
-  /-- `withReader (f : ρ → ρ) (x : m α) : m α`  runs the inner `x : m α` inside
-  a modified context after applying the function `f : ρ → ρ`.-/
-  withReader {α : Type u} : (ρ → ρ) → m α → m α
+  /--
+  Locally modifies the reader monad's value while running an action.
+
+  During the inner action `x`, reading the value returns `f` applied to the original value. After
+  control returns from `x`, the reader monad's value is restored.
+  -/
+  withReader {α : Type u} (f : ρ → ρ) (x : m α) : m α
 
 /--
-Like `withReader`, but with `ρ` explicit. This is useful if a monad supports
-`MonadWithReaderOf` for multiple different types `ρ`.
+Locally modifies the reader monad's value while running an action, with the reader monad's local
+value type specified explicitly. This is useful when a monad supports reading more than one type of
+value.
+
+During the inner action `x`, reading the value returns `f` applied to the original value. After
+control returns from `x`, the reader monad's value is restored.
+
+Use `withReader` for a version that expects the local value's type to be inferred from `m`.
 -/
 @[always_inline, inline]
 def withTheReader (ρ : Type u) {m : Type u → Type v} [MonadWithReaderOf ρ m] {α : Type u} (f : ρ → ρ) (x : m α) : m α :=
   MonadWithReaderOf.withReader f x
 
-/-- Similar to `MonadWithReaderOf`, but `ρ` is an `outParam` for convenience. -/
+/--
+A reader monad that additionally allows the value to be locally overridden.
+
+In this class, `ρ` is an `outParam`, which means that it is inferred from `m`. `MonadWithReaderOf ρ`
+provides the same operations, but allows `ρ` to influence instance synthesis.
+-/
 class MonadWithReader (ρ : outParam (Type u)) (m : Type u → Type v) where
-  /-- `withReader (f : ρ → ρ) (x : m α) : m α`  runs the inner `x : m α` inside
-  a modified context after applying the function `f : ρ → ρ`.-/
+  /--
+  Locally modifies the reader monad's value while running an action.
+
+  During the inner action `x`, reading the value returns `f` applied to the original value. After
+  control returns from `x`, the reader monad's value is restored.
+  -/
   withReader {α : Type u} : (ρ → ρ) → m α → m α
 
 export MonadWithReader (withReader)
@@ -3532,61 +3599,98 @@ instance {ρ : Type u} {m : Type u → Type v} : MonadWithReaderOf ρ (ReaderT �
   withReader f x := fun ctx => x (f ctx)
 
 /--
-An implementation of [`MonadState`]. In contrast to the Haskell implementation,
-we use overlapping instances to derive instances automatically from `monadLift`.
+State monads provide a value of a given type (the _state_) that can be retrieved or replaced.
+Instances may implement these operations by passing state values around, by using a mutable
+reference cell (e.g. `ST.Ref σ`), or in other ways.
 
-  [`MonadState`]: https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-State-Class.html
+In this class, `σ` is a `semiOutParam`, which means that it can influence the choice of instance.
+`MonadState σ` provides the same operations, but requires that `σ` be inferrable from `m`.
+
+The mutable state of a state monad is visible between multiple `do`-blocks or functions, unlike
+[local mutable state](lean-manual://section/do-notation-let-mut) in `do`-notation.
 -/
 class MonadStateOf (σ : semiOutParam (Type u)) (m : Type u → Type v) where
-  /-- `(← get) : σ` gets the state out of a monad `m`. -/
+  /--
+  Retrieves the current value of the monad's mutable state.
+  -/
   get : m σ
-  /-- `set (s : σ)` replaces the state with value `s`. -/
+  /--
+  Replaces the current value of the mutable state with a new one.
+  -/
   set : σ → m PUnit
-  /-- `modifyGet (f : σ → α × σ)` applies `f` to the current state, replaces
-  the state with the return value, and returns a computed value.
+  /--
+  Applies a function to the current state that both computes a new state and a value. The new state
+  replaces the current state, and the value is returned.
 
-  It is equivalent to `do let (a, s) := f (← get); put s; pure a`, but
-  `modifyGet f` may be preferable because the former does not use the state
-  linearly (without sufficient inlining). -/
+  It is equivalent to `do let (a, s) := f (← get); set s; pure a`. However, using `modifyGet` may
+  lead to higher performance because it doesn't add a new reference to the state value. Additional
+  references can inhibit in-place updates of data.
+  -/
   modifyGet {α : Type u} : (σ → Prod α σ) → m α
 
 export MonadStateOf (set)
 
 /--
-Like `get`, but with `σ` explicit. This is useful if a monad supports
-`MonadStateOf` for multiple different types `σ`.
+Gets the current state that has the explicitly-provided type `σ`. When the current monad has
+multiple state types available, this function selects one of them.
 -/
 abbrev getThe (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] : m σ :=
   MonadStateOf.get
 
 /--
-Like `modify`, but with `σ` explicit. This is useful if a monad supports
-`MonadStateOf` for multiple different types `σ`.
+Mutates the current state that has the explicitly-provided type `σ`, replacing its value with the
+result of applying `f` to it. When the current monad has multiple state types available, this
+function selects one of them.
+
+It is equivalent to `do set (f (← get))`. However, using `modify` may lead to higher performance
+because it doesn't add a new reference to the state value. Additional references can inhibit
+in-place updates of data.
 -/
 @[always_inline, inline]
 abbrev modifyThe (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] (f : σ → σ) : m PUnit :=
   MonadStateOf.modifyGet fun s => (PUnit.unit, f s)
 
 /--
-Like `modifyGet`, but with `σ` explicit. This is useful if a monad supports
-`MonadStateOf` for multiple different types `σ`.
+Applies a function to the current state that has the explicitly-provided type `σ`. The function both
+computes a new state and a value. The new state replaces the current state, and the value is
+returned.
+
+It is equivalent to `do let (a, s) := f (← getThe σ); set s; pure a`. However, using `modifyGetThe`
+may lead to higher performance because it doesn't add a new reference to the state value. Additional
+references can inhibit in-place updates of data.
 -/
 @[always_inline, inline]
 abbrev modifyGetThe {α : Type u} (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] (f : σ → Prod α σ) : m α :=
   MonadStateOf.modifyGet f
 
-/-- Similar to `MonadStateOf`, but `σ` is an `outParam` for convenience. -/
-class MonadState (σ : outParam (Type u)) (m : Type u → Type v) where
-  /-- `(← get) : σ` gets the state out of a monad `m`. -/
-  get : m σ
-  /-- `set (s : σ)` replaces the state with value `s`. -/
-  set : σ → m PUnit
-  /-- `modifyGet (f : σ → α × σ)` applies `f` to the current state, replaces
-  the state with the return value, and returns a computed value.
+/--
+State monads provide a value of a given type (the _state_) that can be retrieved or replaced.
+Instances may implement these operations by passing state values around, by using a mutable
+reference cell (e.g. `ST.Ref σ`), or in other ways.
 
-  It is equivalent to `do let (a, s) := f (← get); put s; pure a`, but
-  `modifyGet f` may be preferable because the former does not use the state
-  linearly (without sufficient inlining). -/
+In this class, `σ` is an `outParam`, which means that it is inferred from `m`. `MonadStateOf σ`
+provides the same operations, but allows `σ` to influence instance synthesis.
+
+The mutable state of a state monad is visible between multiple `do`-blocks or functions, unlike
+[local mutable state](lean-manual://section/do-notation-let-mut) in `do`-notation.
+-/
+class MonadState (σ : outParam (Type u)) (m : Type u → Type v) where
+  /--
+  Retrieves the current value of the monad's mutable state.
+  -/
+  get : m σ
+  /--
+  Replaces the current value of the mutable state with a new one.
+  -/
+  set : σ → m PUnit
+  /--
+  Applies a function to the current state that both computes a new state and a value. The new state
+  replaces the current state, and the value is returned.
+
+  It is equivalent to `do let (a, s) := f (← get); set s; pure a`. However, using `modifyGet` may
+  lead to higher performance because it doesn't add a new reference to the state value. Additional
+  references can inhibit in-place updates of data.
+  -/
   modifyGet {α : Type u} : (σ → Prod α σ) → m α
 
 export MonadState (get modifyGet)
@@ -3597,18 +3701,22 @@ instance (σ : Type u) (m : Type u → Type v) [MonadStateOf σ m] : MonadState 
   modifyGet f := MonadStateOf.modifyGet f
 
 /--
-`modify (f : σ → σ)` applies the function `f` to the state.
+Mutates the current state, replacing its value with the result of applying `f` to it.
 
-It is equivalent to `do set (f (← get))`, but `modify f` may be preferable
-because the former does not use the state linearly (without sufficient inlining).
+Use `modifyThe` to explicitly select a state type to modify.
+
+It is equivalent to `do set (f (← get))`. However, using `modify` may lead to higher performance
+because it doesn't add a new reference to the state value. Additional references can inhibit
+in-place updates of data.
 -/
 @[always_inline, inline]
 def modify {σ : Type u} {m : Type u → Type v} [MonadState σ m] (f : σ → σ) : m PUnit :=
   modifyGet fun s => (PUnit.unit, f s)
 
 /--
-`getModify f` gets the state, applies function `f`, and returns the old value
-of the state. It is equivalent to `get <* modify f` but may be more efficient.
+Replaces the state with the result of applying `f` to it. Returns the old value of the state.
+
+It is equivalent to `get <* modify f` but may be more efficient.
 -/
 @[always_inline, inline]
 def getModify {σ : Type u} {m : Type u → Type v} [MonadState σ m] (f : σ → σ) : m σ :=
@@ -3625,13 +3733,16 @@ instance {σ : Type u} {m : Type u → Type v} {n : Type u → Type w} [MonadLif
 namespace EStateM
 
 /--
-`Result ε σ α` is equivalent to `Except ε α × σ`, but using a single
-combined inductive yields a more efficient data representation.
+The value returned from a combined state and exception monad in which exceptions do not
+automatically roll back the state.
+
+`Result ε σ α` is equivalent to `Except ε α × σ`, but using a single combined inductive type yields
+a more efficient data representation.
 -/
 inductive Result (ε σ α : Type u) where
-  /-- A success value of type `α`, and a new state `σ`. -/
+  /-- A success value of type `α` and a new state `σ`. -/
   | ok    : α → σ → Result ε σ α
-  /-- A failure value of type `ε`, and a new state `σ`. -/
+  /-- An exception of type `ε` and a new state `σ`. -/
   | error : ε → σ → Result ε σ α
 
 variable {ε σ α : Type u}
@@ -3643,8 +3754,11 @@ end EStateM
 
 open EStateM (Result) in
 /--
-`EStateM ε σ` is a combined error and state monad, equivalent to
-`ExceptT ε (StateM σ)` but more efficient.
+A combined state and exception monad in which exceptions do not automatically roll back the state.
+
+Instances of `EStateM.Backtrackable` provide a way to roll back some part of the state if needed.
+
+`EStateM ε σ` is equivalent to `ExceptT ε (StateM σ)`, but it is more efficient.
 -/
 def EStateM (ε σ α : Type u) := σ → Result ε σ α
 
@@ -3655,45 +3769,53 @@ variable {ε σ α β : Type u}
 instance [Inhabited ε] : Inhabited (EStateM ε σ α) where
   default := fun s => Result.error default s
 
-/-- The `pure` operation of the `EStateM` monad. -/
+/--
+Returns a value without modifying the state or throwing an exception.
+-/
 @[always_inline, inline]
 protected def pure (a : α) : EStateM ε σ α := fun s =>
   Result.ok a s
 
-/-- The `set` operation of the `EStateM` monad. -/
-@[always_inline, inline]
+@[always_inline, inline, inherit_doc MonadState.set]
 protected def set (s : σ) : EStateM ε σ PUnit := fun _ =>
   Result.ok ⟨⟩ s
 
-/-- The `get` operation of the `EStateM` monad. -/
-@[always_inline, inline]
+@[always_inline, inline, inherit_doc MonadState.get]
 protected def get : EStateM ε σ σ := fun s =>
   Result.ok s s
 
-/-- The `modifyGet` operation of the `EStateM` monad. -/
-@[always_inline, inline]
+@[always_inline, inline, inherit_doc MonadState.modifyGet]
 protected def modifyGet (f : σ → Prod α σ) : EStateM ε σ α := fun s =>
   match f s with
   | (a, s) => Result.ok a s
 
-/-- The `throw` operation of the `EStateM` monad. -/
-@[always_inline, inline]
+@[always_inline, inline, inherit_doc MonadExcept.throw]
 protected def throw (e : ε) : EStateM ε σ α := fun s =>
   Result.error e s
 
 /--
-Auxiliary instance for saving/restoring the "backtrackable" part of the state.
-Here `σ` is the state, and `δ` is some subpart of it, and we have a
-getter and setter for it (a "lens" in the Haskell terminology).
+Exception handlers in `EStateM` save some part of the state, determined by `δ`, and restore it if an
+exception is caught. By default, `δ` is `Unit`, and no information is saved.
 -/
 class Backtrackable (δ : outParam (Type u)) (σ : Type u) where
-  /-- `save s : δ` retrieves a copy of the backtracking state out of the state. -/
+  /--
+  Extracts the information in the state that should be rolled back if an exception is handled.
+  -/
   save    : σ → δ
-  /-- `restore (s : σ) (x : δ) : σ` applies the old backtracking state `x` to
-  the state `s` to get a backtracked state `s'`. -/
+  /--
+  Updates the current state with the saved information that should be rolled back. This updated
+  state becomes the current state when an exception is handled.
+  -/
   restore : σ → δ → σ
 
-/-- Implementation of `tryCatch` for `EStateM` where the state is `Backtrackable`. -/
+/--
+Handles exceptions thrown in the combined error and state monad.
+
+The `Backtrackable δ σ` instance is used to save a snapshot of part of the state prior to running
+`x`. If an exception is caught, the state is updated with the saved snapshot, rolling back part of
+the state. If no instance of `Backtrackable` is provided, a fallback instance in which `δ` is `Unit`
+is used, and no information is rolled back.
+-/
 @[always_inline, inline]
 protected def tryCatch {δ} [Backtrackable δ σ] {α} (x : EStateM ε σ α) (handle : ε → EStateM ε σ α) : EStateM ε σ α := fun s =>
   let d := Backtrackable.save s
@@ -3701,7 +3823,14 @@ protected def tryCatch {δ} [Backtrackable δ σ] {α} (x : EStateM ε σ α) (h
   | Result.error e s => handle e (Backtrackable.restore s d)
   | ok               => ok
 
-/-- Implementation of `orElse` for `EStateM` where the state is `Backtrackable`. -/
+/--
+Failure handling that does not depend on specific exception values.
+
+The `Backtrackable δ σ` instance is used to save a snapshot of part of the state prior to running
+`x₁`. If an exception is caught, the state is updated with the saved snapshot, rolling back part of
+the state. If no instance of `Backtrackable` is provided, a fallback instance in which `δ` is `Unit`
+is used, and no information is rolled back.
+-/
 @[always_inline, inline]
 protected def orElse {δ} [Backtrackable δ σ] (x₁ : EStateM ε σ α) (x₂ : Unit → EStateM ε σ α) : EStateM ε σ α := fun s =>
   let d := Backtrackable.save s;
@@ -3709,28 +3838,37 @@ protected def orElse {δ} [Backtrackable δ σ] (x₁ : EStateM ε σ α) (x₂ 
   | Result.error _ s => x₂ () (Backtrackable.restore s d)
   | ok               => ok
 
-/-- Map the exception type of a `EStateM ε σ α` by a function `f : ε → ε'`. -/
+/--
+Transforms exceptions with a function, doing nothing on successful results.
+-/
 @[always_inline, inline]
 def adaptExcept {ε' : Type u} (f : ε → ε') (x : EStateM ε σ α) : EStateM ε' σ α := fun s =>
   match x s with
   | Result.error e s => Result.error (f e) s
   | Result.ok a s    => Result.ok a s
 
-/-- The `bind` operation of the `EStateM` monad. -/
+/--
+Sequences two `EStateM ε σ` actions, passing the returned value from the first into the second.
+-/
 @[always_inline, inline]
 protected def bind (x : EStateM ε σ α) (f : α → EStateM ε σ β) : EStateM ε σ β := fun s =>
   match x s with
   | Result.ok a s    => f a s
   | Result.error e s => Result.error e s
 
-/-- The `map` operation of the `EStateM` monad. -/
+/--
+Transforms the value returned from an `EStateM ε σ` action using a function.
+-/
 @[always_inline, inline]
 protected def map (f : α → β) (x : EStateM ε σ α) : EStateM ε σ β := fun s =>
   match x s with
   | Result.ok a s    => Result.ok (f a) s
   | Result.error e s => Result.error e s
 
-/-- The `seqRight` operation of the `EStateM` monad. -/
+/--
+Sequences two `EStateM ε σ` actions, running `x` before `y`. The first action's return value is
+ignored.
+-/
 @[always_inline, inline]
 protected def seqRight (x : EStateM ε σ α) (y : Unit → EStateM ε σ β) : EStateM ε σ β := fun s =>
   match x s with
@@ -3756,13 +3894,16 @@ instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) where
   throw    := EStateM.throw
   tryCatch := EStateM.tryCatch
 
-/-- Execute an `EStateM` on initial state `s` to get a `Result`. -/
+/--
+Executes an `EStateM` action with the initial state `s`. The returned value includes the final state
+and indicates whether an exception was thrown or a value was returned.
+-/
 @[always_inline, inline]
 def run (x : EStateM ε σ α) (s : σ) : Result ε σ α := x s
 
 /--
-Execute an `EStateM` on initial state `s` for the returned value `α`.
-If the monadic action throws an exception, returns `none` instead.
+Executes an `EStateM` with the initial state `s` for the returned value `α`, discarding the final
+state. Returns `none` if an unhandled exception was thrown.
 -/
 @[always_inline, inline]
 def run' (x : EStateM ε σ α) (s : σ) : Option α :=
@@ -3777,10 +3918,11 @@ def run' (x : EStateM ε σ α) (s : σ) : Option α :=
 @[inline] def dummyRestore : σ → PUnit → σ := fun s _ => s
 
 /--
-Dummy default instance. This makes every `σ` trivially "backtrackable"
-by doing nothing on backtrack. Because this is the first declared instance
-of `Backtrackable _ σ`, it will be picked only if there are no other
-`Backtrackable _ σ` instances registered.
+A fallback `Backtrackable` instance that saves no information from a state. This allows every type
+to be used as a state in `EStateM`, with no rollback.
+
+Because this is the first declared instance of `Backtrackable _ σ`, it will be picked only if there
+are no other `Backtrackable _ σ` instances registered.
 -/
 instance nonBacktrackable : Backtrackable PUnit σ where
   save    := dummySave

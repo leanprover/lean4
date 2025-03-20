@@ -1715,7 +1715,7 @@ def Nat.ble : @& Nat → @& Nat → Bool
   | succ n, succ m => ble n m
 
 /--
-Non-strict inequality of natural numbers, usually accessed via the `≤` operator.
+Non-strict, or weak, inequality of natural numbers, usually accessed via the `≤` operator.
 -/
 protected inductive Nat.le (n : Nat) : Nat → Prop
   /-- Non-strict inequality is reflexive: `n ≤ n` -/

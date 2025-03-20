@@ -28,6 +28,8 @@ theorem div_rec_fuel_lemma {x y fuel : Nat} (hy : 0 < y) (hle : y ≤ x) (hfuel 
 Division of natural numbers, discarding the remainder. Division by `0` returns `0`. Usually accessed
 via the `/` operator.
 
+This operation is sometimes called “floor division.”
+
 This function is overridden at runtime with an efficient implementation. This definition is
 the logical model.
 

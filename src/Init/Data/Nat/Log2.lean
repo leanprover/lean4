@@ -20,6 +20,9 @@ theorem log2_terminates : ∀ n, n ≥ 2 → n / 2 < n
 /--
 Base-two logarithm of natural numbers. Returns `⌊max 0 (log₂ n)⌋`.
 
+This function is overridden at runtime with an efficient implementation. This definition is
+the logical model.
+
 Examples:
  * `Nat.log2 0 = 0`
  * `Nat.log2 1 = 0`

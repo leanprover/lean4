@@ -1302,7 +1302,6 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
 theorem usubOverflow_eq {w : Nat} (x y : BitVec w) :
     usubOverflow x y = decide (x < y) := rfl
 
-
 theorem ssubOverflow_eq {w : Nat} (x y : BitVec w) :
     ssubOverflow x y = ((!x.msb && y.msb && (x - y).msb) || (x.msb && !y.msb && !(x - y).msb)) := by
   simp only [ssubOverflow]

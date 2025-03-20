@@ -19,9 +19,9 @@ open Std.DHashMap.Internal
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v w
+universe u u' v v' w
 
-variable {α : Type u} {β : α → Type v} {γ : Type w} {δ : α → Type w}
+variable {α : Type u} {α' : Type u'} {β : α → Type v} {β' : α' → Type v'} {δ : α → Type w}
 
 namespace Std.DHashMap
 
@@ -37,6 +37,16 @@ theorem WF.filterMap [BEq α] [Hashable α] {m : Raw α β} (h : m.WF)
 theorem WF.map [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {f : (a : α) → β a → δ a} :
     (m.map f).WF := by
   simpa only [map_eq h] using .wf (Raw₀.map f ⟨m, h.size_buckets_pos⟩).2 (Raw₀.wfImp_map (WF.out h))
+
+-- NOTE: we need the Lawful/EquivBEq instances on `α` because the `.wf` only gives us that it holds
+-- for `α'`
+theorem WF.mapKeyValueInPlace [BEq α] [EquivBEq α] [LawfulBEq α] [BEq α'] [Hashable α] [Hashable α'] {m : Raw α β}
+    (f : (a : α) → β a → ((a' : α') × β' a'))
+    (h₁: ∀ a b, hash (f a b).1 = hash a)
+    (h₂: ∀ a b a' b', (f a b).1 == (f a' b').1 → a == a')
+    (h : m.WF) : (m.mapKeyValueInPlace f).WF := by
+  simpa only [mapKeyValueInPlace_eq h] using
+    .wf (Raw₀.mapKeyValueInPlace f ⟨m, h.size_buckets_pos⟩).2 (Raw₀.wfImp_mapKeyValueInPlace h₁ h₂ (WF.out h))
 
 end Raw
 

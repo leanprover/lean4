@@ -80,9 +80,9 @@ theorem mul_mul_eq_mul_mul (x₁ x₂ y₁ y₂ z : BitVec 4) (h₁ : x₁ = x�
 -- This theorem is short-circuited and scales to standard bitwidths.
 theorem mul_eq_mul_eq_right (x y z : BitVec 64) (h : x = y) :
     x * z = y * z := by
-  bv_decide
+  bv_decide +shortCircuit
 
 -- This theorem is short-circuited and scales to standard bitwidths.
 theorem mul_eq_mul_eq_left (x y z : BitVec 64) (h : x = y) :
     z * x = z * y := by
-  bv_decide
+  bv_decide +shortCircuit

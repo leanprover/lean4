@@ -93,7 +93,10 @@ where
     Run short circuiting once post fixpoint, as it increases the size of terms with
     the aim of exposing potential short-circuit reasoning to the solver.
     -/
-    shortCircuitPass |>.run g'
+    if cfg.shortCircuit then
+      shortCircuitPass |>.run g'
+    else
+      pure g'
 
 @[builtin_tactic Lean.Parser.Tactic.bvNormalize]
 def evalBVNormalize : Tactic := fun

@@ -47,8 +47,10 @@ def acceptClose (addr : UInt16 → SocketAddress) (first second : UInt16) : IO U
   let res ← server.recv 1024
   let (msg, addr) ← res.block
 
+  if let some addr := addr then
+    assert! addr.port == second
+
   assert! ("hello robert!" == String.fromUTF8! msg)
-  assert! addr.port == second
 
 #eval acceptClose (SocketAddress.v4 ∘ SocketAddressV4.mk (.ofParts 127 0 0 1))  9001 9002
 #eval acceptClose (SocketAddress.v6 ∘ SocketAddressV6.mk (.ofParts 0 0 0 0 0 0 0 1))  9003 9004

@@ -72,7 +72,7 @@ has not been previously bound with `bind`, it is automatically bound to `0.0.0.0
 (all interfaces) with a random port.
 -/
 @[inline]
-def recv (s : Socket) (size : UInt64) : IO (AsyncTask (ByteArray × SocketAddress)) :=
+def recv (s : Socket) (size : UInt64) : IO (AsyncTask (ByteArray × Option SocketAddress)) :=
   AsyncTask.ofPromise <$> s.native.recv size
 
 /--

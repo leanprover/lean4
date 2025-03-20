@@ -3155,13 +3155,6 @@ theorem neg_neg {x : BitVec w} : - - x = x := by
 protected theorem neg_inj {x y : BitVec w} : -x = -y ↔ x = y :=
   ⟨fun h => by rw [← @neg_neg w x, ← @neg_neg w y, h], congrArg _⟩
 
-theorem neg_ne_iff_ne_neg {x y : BitVec w} : -x ≠ y ↔ x ≠ -y := by
-  constructor
-  all_goals
-    intro h h'
-    subst h'
-    simp at h
-
 theorem neg_eq_iff_eq_neg {x y : BitVec w} : -x = y ↔ x = -y := by
   constructor
   all_goals
@@ -3169,6 +3162,13 @@ theorem neg_eq_iff_eq_neg {x y : BitVec w} : -x = y ↔ x = -y := by
     symm at h
     subst h
     simp
+
+theorem neg_ne_iff_ne_neg {x y : BitVec w} : -x ≠ y ↔ x ≠ -y := by
+  constructor
+  all_goals
+    intro h h'
+    subst h'
+    simp at h
 
 @[simp]
 theorem neg_eq_zero_iff {x : BitVec w} : -x = 0#w ↔ x = 0#w := by

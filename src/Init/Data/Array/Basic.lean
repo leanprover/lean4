@@ -203,6 +203,20 @@ Creates an array that contains `n` repetitions of `v`.
 The corresponding `List` function is `List.replicate`.
 
 Examples:
+ * `Array.replicate 2 true = #[true, true]`
+ * `Array.replicate 3 () = #[(), (), ()]`
+ * `Array.replicate 0 "anything" = #[]`
+-/
+@[extern "lean_mk_array"]
+def replicate {α : Type u} (n : Nat) (v : α) : Array α where
+  toList := List.replicate n v
+
+/--
+Creates an array that contains `n` repetitions of `v`.
+
+The corresponding `List` function is `List.replicate`.
+
+Examples:
  * `Array.mkArray 2 true = #[true, true]`
  * `Array.mkArray 3 () = #[(), (), ()]`
  * `Array.mkArray 0 "anything" = #[]`

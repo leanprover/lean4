@@ -99,13 +99,13 @@ def mkArgs (basePath : FilePath) (args : Array String) : LogIO (Array String) :=
 
 def compileStaticLib
   (libFile : FilePath) (oFiles : Array FilePath)
-  (ar : FilePath := "ar")
+  (ar : FilePath := "ar") (thin := false)
 : LogIO Unit := do
   createParentDirs libFile
-  proc {
-    cmd := ar.toString
-    args := #["rcs", libFile.toString] ++ (← mkArgs libFile <| oFiles.map toString)
-  }
+  let args := #["rcs"]
+  let args := if thin then args.push "--thin" else args
+  let args := args.push libFile.toString ++ (← mkArgs libFile <| oFiles.map toString)
+  proc {cmd := ar.toString, args}
 
 private def getMacOSXDeploymentEnv : BaseIO (Array (String × Option String)) := do
   -- It is difficult to identify the correct minor version here, leading to linking warnings like:

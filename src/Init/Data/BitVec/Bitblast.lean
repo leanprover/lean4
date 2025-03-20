@@ -1344,7 +1344,7 @@ theorem eq_iff_eq_of_inv (f : α → BitVec w) (g : BitVec w → α) (h : ∀ x,
 /-! ### Lemmas that use Bitblasting Infrastructure -/
 
 /-- The value of `(carry i x y false)` can be computed by truncating `x` and `y`
-to `len` bits where `len ≥ i` -/
+to `len` bits where `len ≥ i`. -/
 theorem carry_extractLsb'_eq_carry {w i len : Nat} (hi : i < len)
     {x y : BitVec w} {b : Bool}: 
     (carry i (extractLsb' 0 len x) (extractLsb' 0 len y) b)

@@ -515,7 +515,16 @@ if(USE_GITHASH)
     message(STATUS "git commit sha1: ${GIT_SHA1}")
   endif()
 else()
-  set(GIT_SHA1 "")
+  if(USE_LAKE AND ${STAGE} EQUAL 0)
+    # we need to embed *some* hash for Lake to invalidate stage 1 on stage 0 changes
+    execute_process(
+        COMMAND git ls-tree HEAD "${CMAKE_CURRENT_SOURCE_DIR}/../../stage0" --object-only
+        OUTPUT_VARIABLE GIT_SHA1
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+    message(STATUS "stage0 sha1: ${GIT_SHA1}")
+  else()
+    set(GIT_SHA1 "")
+  endif()
 endif()
 configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
 

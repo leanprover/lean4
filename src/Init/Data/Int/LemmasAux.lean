@@ -140,4 +140,34 @@ theorem bmod_bmod_of_dvd {a : Int} {n m : Nat} (hnm : n ∣ m) :
   obtain ⟨k, rfl⟩ := hnm
   simp [Int.mul_assoc]
 
+theorem toInt_sub_toInt_lt_twoPow_iff {x y : Int} {k : Nat}
+    (ylt : 2 * y < 2 * k)
+    (xlt : 2 * x < 2 * k)
+    (yge : - 2 * k ≤ 2 * y)
+    (xge : - 2 * k ≤ 2 * x) :
+    (x - y < - k) ↔ (x < 0 ∧ 0 ≤ y ∧ 0 ≤ (x - y).bmod (2 * k)) := by
+  constructor
+  · intros h
+    simp only [show x < 0 by omega, show 0 ≤ y by omega, _root_.true_and]
+    rw_mod_cast [← Int.bmod_add_cancel, Int.bmod_eq_self_of_le (by omega) (by omega)]
+    omega
+  · have := Int.bmod_neg_iff (x := x - y) (m := 2 * k)
+    push_cast at this
+    omega
+
+theorem twoPow_le_toInt_sub_toInt_iff {x y : Int} {k : Nat}
+    (ylt : 2 * y < 2 * k)
+    (xlt : 2 * x < 2 * k)
+    (yge : - 2 * k ≤ 2 * y)
+    (xge : - 2 * k ≤ 2 * x) :
+    (k ≤ x - y) ↔ (0 ≤ x ∧ y < 0 ∧ (x - y).bmod (2 * k) < 0) := by
+  constructor
+  · intros h
+    simp only [show 0 ≤ x by omega, show y < 0 by omega, _root_.true_and]
+    rw_mod_cast [← Int.bmod_sub_cancel, Int.bmod_eq_self_of_le (by omega) (by omega)]
+    omega
+  · have := Int.bmod_neg_iff (x := x - y) (m := 2 * k)
+    push_cast at this
+    omega
+
 end Int

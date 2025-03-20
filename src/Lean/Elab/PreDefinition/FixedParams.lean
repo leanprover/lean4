@@ -81,7 +81,7 @@ structure Info where
 
 def Info.init (revDeps : Array (Array (Array Nat))) : Info where
   graph := revDeps.map fun deps =>
-    mkArray deps.size (some (mkArray revDeps.size none))
+    .replicate deps.size (some (.replicate revDeps.size none))
   revDeps
 
 def Info.addSelfCalls (info : Info) : Info :=
@@ -309,7 +309,7 @@ scope.
 -/
 private partial def FixedParamPerm.forallTelescopeImpl (perm : FixedParamPerm)
     (type : Expr) (k : Array Expr → MetaM α) : MetaM α := do
-  go 0 type (mkArray perm.numFixed (mkSort 0))
+  go 0 type (.replicate perm.numFixed (mkSort 0))
 where
   go i type xs := do
     match perm[i]? with
@@ -382,7 +382,7 @@ def FixedParamPerm.pickFixed (perm : FixedParamPerm) (xs : Array α) : Array α 
     pure #[]
   else
     let dummy := xs[0]
-    let ys := mkArray perm.numFixed dummy
+    let ys := .replicate perm.numFixed dummy
     go (perm.zip xs).toList ys
 where
   go | [], ys => return ys
@@ -437,7 +437,7 @@ def FixedParamPerms.fixedArePrefix (fixedParamPerms : FixedParamPerms) : Bool :=
   fixedParamPerms.perms.all fun paramInfos =>
     paramInfos ==
       (Array.range fixedParamPerms.numFixed).map Option.some ++
-      mkArray (paramInfos.size - fixedParamPerms.numFixed) .none
+      .replicate (paramInfos.size - fixedParamPerms.numFixed) .none
 
 /--
 If `xs` are the fixed parameters that are in scope, and `toErase` are, for each function, the
@@ -453,7 +453,7 @@ def FixedParamPerms.erase  (fixedParamPerms : FixedParamPerms) (xs : Array Expr)
   assert! fixedParamPerms.numFixed  = xs.size
   assert! toErase.size = fixedParamPerms.perms.size
   -- Calculate a mask on the fixed parameters of variables to erase
-  let mut mask := mkArray fixedParamPerms.numFixed false
+  let mut mask := Array.replicate fixedParamPerms.numFixed false
   for funIdx in [:toErase.size], paramIdxs in toErase, mapping in fixedParamPerms.perms do
     for paramIdx in paramIdxs do
       assert! paramIdx < mapping.size

@@ -1586,16 +1586,17 @@ theorem neg_ne_zero (a : BitVec w) : (-a != 0#w) = (a != 0#w) := by
   simp only [neg_bne'']
   simp
 
-theorem toInt_one (h : 1 < w) : (1#w : BitVec w).toInt = 1 := by
-  simp [BitVec.toInt, show 0 < 2^w by exact Nat.two_pow_pos w]
-  have := @Nat.lt_two_pow_self w
-  have clean : (1 % 2 ^ w) = 1 := by
-    rw [Nat.mod_eq_of_lt]
-    omega
-  norm_cast
-  rw [clean]
+@[simp]
+theorem toNat_one (h : 0 < w) : (1#w : BitVec w).toNat = 1 := by
   simp
   omega
+
+@[simp]
+theorem toInt_one (h : 1 < w) : (1#w : BitVec w).toInt = 1 := by
+  rw [toInt_eq_toNat_of_msb, toNat_one (by omega)]
+  · simp
+  · simp
+    omega
 
 theorem toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1#w) :
     (a.sdiv b).toInt = a.toInt.tdiv b.toInt := by
@@ -1610,12 +1611,8 @@ theorem toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1
     simp
   · by_cases hb : b = 1#w
     · subst hb
-      simp
-      by_cases hw1 : w = 1
-      · subst hw1
-        decide +revert
-      · have klr := @toInt_one w (by omega)
-        simp [klr]
+      by_cases hw1 : w = 1; subst hw1; decide +revert
+      simp [show 1 < w by omega]
     ·
       by_cases ha : a.msb <;> by_cases hb : b.msb
       <;> simp only [not_eq_true] at ha hb

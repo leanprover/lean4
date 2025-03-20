@@ -641,6 +641,18 @@ theorem eq_zero_or_eq_one (a : BitVec 1) : a = 0#1 ∨ a = 1#1 := by
 theorem toInt_zero {w : Nat} : (0#w).toInt = 0 := by
   simp [BitVec.toInt, show 0 < 2^w by exact Nat.two_pow_pos w]
 
+@[simp]
+theorem toNat_one (h : 0 < w) : (1#w : BitVec w).toNat = 1 := by
+  simp
+  omega
+
+@[simp]
+theorem toInt_one (h : 1 < w) : (1#w : BitVec w).toInt = 1 := by
+  rw [toInt_eq_toNat_of_msb, toNat_one (by omega)]
+  · simp
+  · simp
+    omega
+
 /--
 `x.toInt` is less than `2^(w-1)`.
 We phrase the fact in terms of `2^w` to prevent a case split on `w=0` when the lemma is used.

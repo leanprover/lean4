@@ -68,7 +68,7 @@ public:
     */
     friend options join(options const & opts1, options const & opts2);
 
-    object * to_obj_arg() const { return m_value.to_obj_arg(); }
+    //object * to_obj_arg() const { return m_value.to_obj_arg(); }
 };
 
 LEAN_EXPORT bool get_verbose(options const & opts);

@@ -476,6 +476,10 @@ theorem minEntry_eq_get_minEntry? [Ord α] {l : Impl α β} {he} :
 theorem minKey_eq_minEntry_fst [Ord α] {l : Impl α β} {he} : l.minKey he = (l.minEntry he).fst := by
   induction l, he using minKey.induct <;> simp only [minKey, minEntry] <;> trivial
 
+theorem minKey!_eq_get!_minKey? [Ord α] [Inhabited α] {l : Impl α β} :
+    l.minKey! = l.minKey?.get! := by
+  induction l using minKey!.induct <;> simp_all only [minKey!, minKey?] <;> rfl
+
 theorem balanceL_eq_balance {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceL k v l r hlb hrb hlr = balance k v l r hlb hrb (Or.inl hlr.erase) := by
   rw [balanceL_eq_balanceLErase, balanceLErase_eq_balanceL!,

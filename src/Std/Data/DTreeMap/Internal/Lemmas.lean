@@ -96,7 +96,8 @@ private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSynta
      ⟨`foldr, (``foldr_eq_foldr, #[])⟩,
      ⟨`forIn, (``forIn_eq_forIn_toListModel, #[])⟩,
      ⟨`forM, (``forM_eq_forM, #[])⟩,
-     ⟨`minKey?, (``minKey?_eq_minKey?, #[``(minKey?_of_perm _)])⟩]
+     ⟨`minKey?, (``minKey?_eq_minKey?, #[``(minKey?_of_perm _)])⟩,
+     ⟨`minKey, (``minKey_eq_minKey, #[``(minKey_of_perm _)])⟩]
 
 /-- Internal implementation detail of the tree map -/
 scoped syntax "simp_to_model" (" [" (ident,*) "]")? ("using" term)? : tactic
@@ -271,27 +272,28 @@ theorem isEmpty_erase [TransOrd α] (h : t.WF) {k : α} :
     (t.erase k h.balanced).impl.isEmpty = (t.isEmpty || (t.size = 1 && t.contains k)) := by
   simp_to_model [erase, isEmpty, size, contains] using List.isEmpty_eraseKey
 
+theorem isEmpty_erase! [TransOrd α] (h : t.WF) {k : α} :
+    (t.erase! k).isEmpty = (t.isEmpty || (t.size = 1 && t.contains k)) := by
+  simpa only [erase_eq_erase!] using isEmpty_erase h
+
 theorem isEmpty_eq_isEmpty_erase_and_not_containsKey [TransOrd α] (h : t.WF) (k : α) :
     t.isEmpty = ((t.erase k h.balanced).impl.isEmpty && !(t.contains k)) := by
-  sorry
+  simp_to_model [erase, isEmpty, contains] using
+    List.isEmpty_eq_isEmpty_eraseKey_and_not_containsKey
 
 theorem isEmpty_eq_isEmpty_erase!_and_not_containsKey [TransOrd α] (h : t.WF) (k : α) :
     t.isEmpty = ((t.erase! k).isEmpty && !(t.contains k)) := by
   simpa [erase_eq_erase!] using isEmpty_eq_isEmpty_erase_and_not_containsKey h k
 
-theorem isEmpty_eq_false_of_isEmpty_erase_eq_false [TransOrd α] (h : t.WF) {k : α}
-    (he : (t.erase k h.balanced).impl.isEmpty = false) :
+theorem isEmpty_eq_false_of_isEmpty_erase_eq_false [TransOrd α] (h : t.WF) {k : α} :
+    (he : (t.erase k h.balanced).impl.isEmpty = false) →
     t.isEmpty = false := by
-  simp_all [isEmpty_eq_isEmpty_erase_and_not_containsKey h k]
+  simp_to_model [erase, isEmpty, contains] using List.isEmpty_eq_false_of_isEmpty_eraseKey_eq_false
 
 theorem isEmpty_eq_false_of_isEmpty_erase!_eq_false [TransOrd α] (h : t.WF) {k : α} :
     (he : (t.erase! k).isEmpty = false) →
     t.isEmpty = false := by
   simpa [erase_eq_erase!] using isEmpty_eq_false_of_isEmpty_erase_eq_false h
-
-theorem isEmpty_erase! [TransOrd α] (h : t.WF) {k : α} :
-    (t.erase! k).isEmpty = (t.isEmpty || (t.size = 1 && t.contains k)) := by
-  simpa only [erase_eq_erase!] using isEmpty_erase h
 
 theorem contains_erase [TransOrd α] (h : t.WF) {k a : α} :
     (t.erase k h.balanced).impl.contains a = (!(compare k a == .eq) && t.contains a) := by
@@ -4452,7 +4454,7 @@ theorem minKey?_modify [TransOrd α] (h : t.WF) {k f} :
 
 theorem minKey?_modify_eq_minKey? [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f} :
     (Const.modify k f t).minKey? = t.minKey? := by
-  simp_to_model [Const.modify] using List.Const.minKey?_modifyKey_of_lawfulEqOrd
+  simp_to_model [Const.modify] using List.Const.minKey?_modifyKey_eq_minKey?
 
 theorem isSome_minKey?_modify [TransOrd α] {k f}  (h : t.WF) :
     (Const.modify k f t).minKey?.isSome = !t.isEmpty := by
@@ -4483,24 +4485,24 @@ end Const
 
 theorem minKey_eq_get_minKey? [TransOrd α] (h : t.WF) {he} :
     t.minKey he = t.minKey?.get (isSome_minKey?_eq_not_isEmpty h ▸ Bool.not_eq_true' _ ▸ he) := by
-  sorry
+  simp_to_model [minKey, minKey?] using List.minKey_eq_get_minKey?
 
 theorem minKey?_eq_some_minKey [TransOrd α] (h : t.WF) {he} :
     t.minKey? = some (t.minKey he) := by
-  simp [minKey_eq_get_minKey? h]
+  simp_to_model [minKey, minKey?] using List.minKey?_eq_some_minKey
 
 theorem minKey_eq_iff_getKey?_eq_self_and_forall [TransOrd α] (h : t.WF) {he km} :
     t.minKey he = km ↔ t.getKey? km = some km ∧ ∀ k ∈ t, (compare km k).isLE := by
-  sorry
+  simp_to_model [minKey, getKey?, contains] using List.minKey_eq_iff_getKey?_eq_self_and_forall
 
 theorem minKey_eq_some_iff_mem_and_forall [TransOrd α] [LawfulEqOrd α] (h : t.WF) {he km} :
     t.minKey he = km ↔ km ∈ t ∧ ∀ k ∈ t, (compare km k).isLE := by
-  sorry
+  simp_to_model [minKey, contains] using List.minKey_eq_some_iff_mem_and_forall
 
 theorem minKey_insert [TransOrd α] (h : t.WF) {k v} :
     (t.insert k v h.balanced).impl.minKey (isEmpty_insert h) =
       (t.minKey?).elim k fun k' => if compare k k'|>.isLE then k else k' := by
-  sorry
+  simp_to_model [insert, minKey, minKey?] using List.minKey_insertEntry
 
 theorem minKey_insert! [TransOrd α] (h : t.WF) {k v} :
     (t.insert! k v).minKey (isEmpty_insert! h) =
@@ -4509,8 +4511,7 @@ theorem minKey_insert! [TransOrd α] (h : t.WF) {k v} :
 
 theorem minKey_insert_le_minKey [TransOrd α] (h : t.WF) {k v he} :
     compare (t.insert k v h.balanced |>.impl.minKey <| isEmpty_insert h) (t.minKey he) |>.isLE := by
-  apply minKey?_insert_le_minKey? h (minKey?_eq_some_minKey h)
-  exact minKey_eq_get_minKey? h.insert |>.symm
+  simp_to_model [minKey, insert] using List.minKey_insertEntry_le_minKey
 
 theorem minKey_insert!_le_minKey [TransOrd α] (h : t.WF) {k v he} :
     compare (t.insert! k v |>.minKey <| isEmpty_insert! h) (t.minKey he) |>.isLE := by
@@ -4518,24 +4519,24 @@ theorem minKey_insert!_le_minKey [TransOrd α] (h : t.WF) {k v he} :
 
 theorem minKey_insert_le_self [TransOrd α] (h : t.WF) {k v} :
     compare (t.insert k v h.balanced |>.impl.minKey <| isEmpty_insert h) k |>.isLE := by
-  apply minKey?_insert_le_self h
-  simp only [minKey_eq_get_minKey? h.insert]; rfl
+  simp_to_model [minKey, insert] using List.minKey_insertEntry_le_self
 
 theorem minKey_insert!_le_self [TransOrd α] (h : t.WF) {k v} :
     compare (t.insert! k v |>.minKey <| isEmpty_insert! h) k |>.isLE := by
   simpa only [insert_eq_insert!] using minKey_insert_le_self h
 
 theorem contains_minKey [TransOrd α] (h : t.WF) {he} :
-    t.contains (t.minKey he) :=
-  contains_minKey? h (minKey?_eq_some_minKey h)
+    t.contains (t.minKey he) := by
+  simp_to_model [minKey, contains] using List.containsKey_minKey
 
 theorem minKey_mem [TransOrd α] (h : t.WF) {he} :
     t.minKey he ∈ t :=
-  minKey?_mem h (minKey?_eq_some_minKey h)
+  contains_minKey h
 
-theorem minKey_le_of_contains [TransOrd α] (h : t.WF) {k} (hc : t.contains k) :
-    compare (t.minKey <| (isEmpty_eq_false_iff_exists_contains_eq_true h).mpr ⟨k, hc⟩) k |>.isLE :=
-   minKey?_le_of_contains h hc (by simp [minKey_eq_get_minKey? h])
+theorem minKey_le_of_contains [TransOrd α] (h : t.WF) {k} :
+    (hc : t.contains k) →
+    compare (t.minKey <| (isEmpty_eq_false_iff_exists_contains_eq_true h).mpr ⟨k, hc⟩) k |>.isLE := by
+   simp_to_model [minKey, contains] using minKey_le_of_containsKey
 
 theorem minKey_le_of_mem [TransOrd α] (h : t.WF) {k} (hc : k ∈ t) :
     compare (t.minKey <| (isEmpty_eq_false_iff_exists_contains_eq_true h).mpr ⟨k, hc⟩) k |>.isLE :=
@@ -4543,69 +4544,61 @@ theorem minKey_le_of_mem [TransOrd α] (h : t.WF) {k} (hc : k ∈ t) :
 
 theorem le_minKey [TransOrd α] (h : t.WF) {k he} :
     (compare k (t.minKey he)).isLE ↔ (∀ k', k' ∈ t → (compare k k').isLE) := by
-  simp only [← le_minKey? h, Option.eq_some_iff_get_eq, minKey_eq_get_minKey? h]
-  constructor
-  · rintro hcmp _ ⟨_, rfl⟩
-    exact hcmp
-  · rintro hcmp
-    exact hcmp _ ⟨_, rfl⟩
+  simp_to_model [minKey, contains] using List.le_minKey
 
 theorem getKey?_minKey [TransOrd α] (h : t.WF) {he} :
-    t.getKey? (t.minKey he) = some (t.minKey he) :=
-  getKey?_minKey? h (minKey?_eq_some_minKey h)
+    t.getKey? (t.minKey he) = some (t.minKey he) := by
+  simp_to_model [getKey?, minKey] using List.getKey?_minKey
 
 theorem getKey_minKey [TransOrd α] (h : t.WF) {he hc} :
     t.getKey (t.minKey he) hc = t.minKey he := by
-  simpa [← getKey_eq_getKey? _ t (h := hc)] using getKey?_minKey h
+  simp_to_model [getKey, minKey] using List.getKey_minKey
 
 theorem getKey!_minKey [TransOrd α] {_ : Inhabited α} (h : t.WF) {he} :
     t.getKey! (t.minKey he) = t.minKey he := by
-  sorry
+  simp_to_model [getKey!, minKey] using List.getKey!_minKey
 
 theorem getKeyD_minKey [TransOrd α] (h : t.WF) {he fallback} :
     t.getKeyD (t.minKey he) fallback = t.minKey he := by
-  sorry
+  simp_to_model [getKeyD, minKey] using List.getKeyD_minKey
 
 theorem minKey_erase_eq_iff_not_compare_eq_minKey [TransOrd α] (h : t.WF) {k he} :
     (t.erase k h.balanced |>.impl.minKey he) =
         t.minKey (isEmpty_eq_false_of_isEmpty_erase_eq_false h he) ↔
       ¬ compare k (t.minKey <| isEmpty_eq_false_of_isEmpty_erase_eq_false h he) = .eq := by
-  sorry
+  simp_to_model [minKey, erase] using List.minKey_eraseKey_eq_iff_beq_minKey_eq_false
 
-theorem minKey_erase!_eq_iff_not_compare_eq_minKey [TransOrd α] (h : t.WF) {k he}:
+theorem minKey_erase!_eq_iff_not_compare_eq_minKey [TransOrd α] : ∀ (h : t.WF) {k he},
     (t.erase! k |>.minKey he) =
         t.minKey (isEmpty_eq_false_of_isEmpty_erase!_eq_false h he) ↔
       ¬ compare k (t.minKey <| isEmpty_eq_false_of_isEmpty_erase!_eq_false h he) = .eq := by
-  sorry
+  simpa [erase_eq_erase!] using minKey_erase_eq_iff_not_compare_eq_minKey
 
 theorem minKey_erase_eq_of_not_compare_eq_minKey [TransOrd α] (h : t.WF) {k he} :
     (hc : ¬ compare k (t.minKey (isEmpty_eq_false_of_isEmpty_erase_eq_false h he)) = .eq) →
     (t.erase k h.balanced |>.impl.minKey he) =
       t.minKey (isEmpty_eq_false_of_isEmpty_erase_eq_false h he) := by
-  sorry
+  simp_to_model [minKey, erase] using List.minKey_eraseKey_eq_of_beq_minKey_eq_false
 
-theorem minKey_erase!_eq_of_not_compare_eq_minKey [TransOrd α] (h : t.WF) {k he} :
+theorem minKey_erase!_eq_of_not_compare_eq_minKey [TransOrd α] : ∀ (h : t.WF) {k he},
     (hc : ¬ compare k (t.minKey (isEmpty_eq_false_of_isEmpty_erase!_eq_false h he)) = .eq) →
     (t.erase! k |>.minKey he) = t.minKey (isEmpty_eq_false_of_isEmpty_erase!_eq_false h he):= by
-  sorry
+  simpa [erase_eq_erase!] using minKey_erase_eq_of_not_compare_eq_minKey
 
 theorem minKey_le_minKey_erase [TransOrd α] (h : t.WF) {k he} :
     compare (t.minKey <| isEmpty_eq_false_of_isEmpty_erase_eq_false h he)
       (t.erase k h.balanced |>.impl.minKey he) |>.isLE := by
-  apply minKey?_le_minKey?_erase h
-  · simp only [minKey_eq_get_minKey? h]
-  · simp only [minKey_eq_get_minKey? h.erase, Option.some_get]
-    rfl
+  simp_to_model [minKey, erase] using List.minKey_le_minKey_erase
 
-theorem minKey_le_minKey_erase! [TransOrd α] (h : t.WF) {k he} :
+theorem minKey_le_minKey_erase! [TransOrd α] : ∀ (h : t.WF) {k he},
     compare (t.minKey <| isEmpty_eq_false_of_isEmpty_erase!_eq_false h he)
       (t.erase! k |>.minKey he) |>.isLE := by
-  sorry
+  simpa [erase_eq_erase!] using minKey_le_minKey_erase
 
 theorem minKey_insertIfNew [TransOrd α] (h : t.WF) {k v} :
     (t.insertIfNew k v h.balanced).impl.minKey (isEmpty_insertIfNew h) =
       t.minKey?.elim k fun k' => if compare k k' = .lt then k else k' := by
-  sorry
+  simp_to_model [minKey, minKey?, insertIfNew] using List.minKey_insertEntryIfNew
 
 theorem minKey_insertIfNew! [TransOrd α] (h : t.WF) {k v} :
     (t.insertIfNew! k v).minKey (isEmpty_insertIfNew! h) =
@@ -4615,7 +4608,7 @@ theorem minKey_insertIfNew! [TransOrd α] (h : t.WF) {k v} :
 theorem minKey_insertIfNew_le_minKey [TransOrd α] (h : t.WF) {k v he} :
     compare (t.insertIfNew k v h.balanced |>.impl.minKey <| isEmpty_insertIfNew h)
       (t.minKey he) |>.isLE := by
-  sorry
+  simp_to_model [minKey, insertIfNew] using List.minKey_insertEntryIfNew_le_minKey
 
 theorem minKey_insertIfNew!_le_minKey [TransOrd α] (h : t.WF) {k v he} :
     compare (t.insertIfNew! k v |>.minKey <| isEmpty_insertIfNew! h) (t.minKey he) |>.isLE := by
@@ -4623,7 +4616,7 @@ theorem minKey_insertIfNew!_le_minKey [TransOrd α] (h : t.WF) {k v he} :
 
 theorem minKey_insertIfNew_le_self [TransOrd α] (h : t.WF) {k v} :
     compare (t.insertIfNew k v h.balanced |>.impl.minKey <| isEmpty_insertIfNew h) k |>.isLE := by
-  sorry
+  simp_to_model [minKey, insertIfNew] using List.minKey_insertEntryIfNew_le_self
 
 theorem minKey_insertIfNew!_le_self [TransOrd α] (h : t.WF) {k v} :
     compare (t.insertIfNew! k v |>.minKey <| isEmpty_insertIfNew! h) k |>.isLE := by
@@ -4631,47 +4624,47 @@ theorem minKey_insertIfNew!_le_self [TransOrd α] (h : t.WF) {k v} :
 
 theorem minKey_modify [TransOrd α] [LawfulEqOrd α] {k f} (h : t.WF) {he} :
     (t.modify k f).minKey he = t.minKey (isEmpty_modify h ▸ he):= by
-  sorry
+  simp_to_model [minKey, modify] using List.minKey_modifyKey
 
 theorem minKey_alter_eq_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f he} :
     (t.alter k f h.balanced).impl.minKey he = k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
-  sorry
+  simp_to_model [minKey, alter, get?, contains] using List.minKey_alterKey_eq_self
 
-theorem minKey_alter!_eq_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f he} :
+theorem minKey_alter!_eq_self [TransOrd α] [LawfulEqOrd α] : (h : t.WF) → ∀ {k f he},
     (t.alter! k f).minKey he = k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
-  sorry
+  simpa only [alter_eq_alter!] using minKey_alter_eq_self (α := α)
 
 namespace Const
 
 variable {β : Type v} {t : Impl α β}
 
 theorem minKey_modify [TransOrd α] (h : t.WF) {k f he} :
-    (Const.modify k f t).minKey he =
-      if compare (t.minKey <| Const.isEmpty_modify h ▸ he) k = .eq then
+    (modify k f t).minKey he =
+      if compare (t.minKey <| isEmpty_modify h ▸ he) k = .eq then
         k
       else
         (t.minKey <| Const.isEmpty_modify h ▸ he) := by
-  sorry
+  simp_to_model [minKey, Const.modify] using List.Const.minKey_modifyKey
 
 theorem minKey_modify_eq_minKey [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f he} :
-    (Const.modify k f t).minKey he = t.minKey (isEmpty_modify h ▸ he) := by
-  sorry
+    (modify k f t).minKey he = t.minKey (isEmpty_modify h ▸ he) := by
+  simp_to_model [minKey, Const.modify] using List.Const.minKey_modifyKey_eq_minKey
 
 theorem compare_minKey_modify_eq [TransOrd α] (h : t.WF) {k f he} :
-    compare (Const.modify k f t |>.minKey he) (t.minKey <| isEmpty_modify h ▸ he) = .eq := by
-  sorry
+    compare (modify k f t |>.minKey he) (t.minKey <| isEmpty_modify h ▸ he) = .eq := by
+  simp_to_model [minKey, Const.modify] using List.Const.minKey_modifyKey_beq
 
 theorem minKey_alter_eq_self [TransOrd α] (h : t.WF) {k f he} :
-    (Const.alter k f t h.balanced).impl.minKey he = k ↔
-      (f (Const.get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
-  sorry
+    (alter k f t h.balanced).impl.minKey he = k ↔
+      (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
+  simp_to_model [minKey, Const.alter, contains, Const.get?] using List.Const.minKey_alterKey_eq_self
 
-theorem minKey_alter!_eq_self [TransOrd α] (h : t.WF) {k f he} :
-    (Const.alter! k f t).minKey he = k ↔
-      (f (Const.get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
-  sorry
+theorem minKey_alter!_eq_self [TransOrd α] : (h : t.WF) → ∀ {k f he},
+    (alter! k f t).minKey he = k ↔
+      (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
+  simpa only [alter_eq_alter!] using minKey_alter_eq_self
 
 end Const
 

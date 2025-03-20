@@ -572,12 +572,28 @@ private def getD (x : Awareness) (default : TimeZone) : TimeZone :=
 end Awareness
 
 /--
+Configuration options for formatting and parsing date/time strings.
+-/
+structure FormatConfig where
+  /--
+  Whether to allow leap seconds, such as `2016-12-31T23:59:60Z`.
+  Default is `false`.
+  -/
+  allowLeapSeconds : Bool := false
+
+  deriving Inhabited, Repr
+
+/--
 A specification on how to format a data or parse some string.
 -/
 structure GenericFormat (awareness : Awareness) where
+  /--
+  Configuration options for formatting behavior.
+  -/
+  config : FormatConfig
 
   /--
-  The format that is not aware of the timezone.
+  The format string used for parsing and formatting.
   -/
   string : FormatString
   deriving Inhabited, Repr
@@ -1107,6 +1123,9 @@ private def parseOffset (withMinutes : Reason) (withSeconds : Reason) (withColon
   let sign ← (pchar '+' *> pure 1) <|> (pchar '-' *> pure (-1))
   let hours : Hour.Offset ← UnitVal.ofInt <$> parseNum 2
 
+  if hours.val < 0 ∨ hours.val > 23 then
+    fail s!"invalid hour offset: {hours.val}. Must be between 0 and 23."
+
   let colon := if withColon then pchar ':' else pure ':'
 
   let parseUnit {n} (reason : Reason) : Parser (Option (UnitVal n)) :=
@@ -1116,13 +1135,22 @@ private def parseOffset (withMinutes : Reason) (withSeconds : Reason) (withColon
     | .optional => optional (colon *> UnitVal.ofInt <$> parseNum 2)
 
   let minutes : Option Minute.Offset ← parseUnit withMinutes
+
+  if let some m := minutes then
+    if m.val > 59 then
+      fail s!"invalid minute offset: {m.val}. Must be between 0 and 59."
+
   let seconds : Option Second.Offset ← parseUnit withSeconds
+
+  if let some s := seconds then
+    if s.val > 59 then
+      fail s!"invalid second offset: {s.val}. Must be between 0 and 59."
 
   let hours := hours.toSeconds + (minutes.getD 0).toSeconds + (seconds.getD 0)
 
   return Offset.ofSeconds ⟨hours.val * sign⟩
 
-private def parseWith : (mod : Modifier) → Parser (TypeFormat mod)
+private def parseWith (config : FormatConfig) : (mod : Modifier) → Parser (TypeFormat mod)
   | .G format =>
     match format with
     | .short => parseEraShort
@@ -1178,7 +1206,12 @@ private def parseWith : (mod : Modifier) → Parser (TypeFormat mod)
   | .k format => parseNatToBounded (parseFlexibleNum format.padding)
   | .H format => parseNatToBounded (parseFlexibleNum format.padding)
   | .m format => parseNatToBounded (parseFlexibleNum format.padding)
-  | .s format => parseNatToBounded (parseFlexibleNum format.padding)
+  | .s format =>
+    if config.allowLeapSeconds then
+      parseNatToBounded (parseFlexibleNum format.padding)
+    else do
+      let res : Bounded.LE 0 59 ← parseNatToBounded (parseFlexibleNum format.padding)
+      return res.expandTop (by decide)
   | .S format =>
     match format with
     | .nano => parseNatToBounded (parseFlexibleNum 9)
@@ -1367,10 +1400,10 @@ private def build (builder : DateBuilder) (aw : Awareness) : Option aw.type :=
 
 end DateBuilder
 
-private def parseWithDate (date : DateBuilder) (mod : FormatPart) : Parser DateBuilder := do
+private def parseWithDate (date : DateBuilder) (config : FormatConfig) (mod : FormatPart) : Parser DateBuilder := do
   match mod with
   | .modifier s => do
-    let res ← parseWith s
+    let res ← parseWith config s
     return date.insert s res
   | .string s => pstring s *> pure date
 
@@ -1378,16 +1411,16 @@ private def parseWithDate (date : DateBuilder) (mod : FormatPart) : Parser DateB
 Constructs a new `GenericFormat` specification for a date-time string. Modifiers can be combined to create
 custom formats, such as "YYYY, MMMM, D".
 -/
-def spec (input : String) : Except String (GenericFormat tz) := do
+def spec (input : String) (config : FormatConfig := {}) : Except String (GenericFormat tz) := do
   let string ← specParser.run input
-  return ⟨string⟩
+  return ⟨config, string⟩
 
 /--
 Builds a `GenericFormat` from the input string. If parsing fails, it will panic
 -/
-def spec! (input : String) : GenericFormat tz :=
+def spec! (input : String) (config : FormatConfig := {}) : GenericFormat tz :=
   match specParser.run input with
-  | .ok res => ⟨res⟩
+  | .ok res => ⟨config, res⟩
   | .error res => panic! res
 
 /--
@@ -1402,10 +1435,10 @@ def format (format : GenericFormat aw) (date : DateTime tz) : String :=
   format.string.map mapper
   |> String.join
 
-private def parser (format : FormatString) (aw : Awareness) : Parser (aw.type) :=
+private def parser (format : FormatString) (config : FormatConfig) (aw : Awareness) : Parser (aw.type) :=
   let rec go (builder : DateBuilder) (x : FormatString) : Parser aw.type :=
     match x with
-    | x :: xs => parseWithDate builder x >>= (go · xs)
+    | x :: xs => parseWithDate builder config x >>= (go · xs)
     | [] =>
       match builder.build aw with
       | some res => pure res
@@ -1415,11 +1448,11 @@ private def parser (format : FormatString) (aw : Awareness) : Parser (aw.type) :
 /--
 Parser for a format with a builder.
 -/
-def builderParser (format: FormatString) (func: FormatType (Option α) format) : Parser α :=
+def builderParser (format: FormatString) (config : FormatConfig) (func: FormatType (Option α) format) : Parser α :=
   let rec go (format : FormatString) (func: FormatType (Option α) format) : Parser α :=
     match format with
     | .modifier x :: xs => do
-      let res ← parseWith x
+      let res ← parseWith config x
       go xs (func res)
     | .string s :: xs => skipString s *> (go xs func)
     | [] =>
@@ -1432,7 +1465,7 @@ def builderParser (format: FormatString) (func: FormatType (Option α) format) :
 Parses the input string into a `ZoneDateTime`.
 -/
 def parse (format : GenericFormat aw) (input : String) : Except String aw.type :=
-  (parser format.string aw <* eof).run input
+  (parser format.string format.config aw <* eof).run input
 
 /--
 Parses the input string into a `ZoneDateTime` and panics if its wrong.
@@ -1446,7 +1479,7 @@ def parse! (format : GenericFormat aw) (input : String) : aw.type :=
 Parses an input string using a builder function to produce a value.
 -/
 def parseBuilder (format : GenericFormat aw)  (builder : FormatType (Option α) format.string) (input : String) : Except String α :=
-  (builderParser format.string builder).run input
+  (builderParser format.string format.config builder).run input
 
 /--
 Parses an input string using a builder function, panicking on errors.

@@ -90,7 +90,7 @@ Numbers are checked in increasing order until `p` returns false, after which no 
 
 /--
 Checks whether there is some number less that the given bound for which the monadic predicate `p`
-returns `true`. Numbers are checked in increasing order until one of them satisfies `p`, after which
+returns `true`. Numbers are checked in increasing order until `p` returns true, after which
 no further are checked.
 -/
 @[inline] def anyM {m} [Monad m] (n : Nat) (p : (i : Nat) → i < n → m Bool) : m Bool :=

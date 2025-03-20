@@ -51,6 +51,7 @@ Each bit of the resulting value is set if the corresponding bit is set in at lea
 -/
 @[extern "lean_nat_lor"]
 def lor  : @& Nat → @& Nat → Nat := bitwise or
+
 /--
 Bitwise exclusive or. Usually accessed via the `^^^` operator.
 

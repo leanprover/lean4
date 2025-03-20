@@ -1729,7 +1729,7 @@ instance instLENat : LE Nat where
 /--
 Strict inequality of natural numbers, usually accessed via the `<` operator.
 
-By definition, `n < m = n + 1 ≤ m`.
+It is defined as `n < m = n + 1 ≤ m`.
 -/
 protected def Nat.lt (n m : Nat) : Prop :=
   Nat.le (succ n) m

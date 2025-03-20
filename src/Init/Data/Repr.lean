@@ -183,6 +183,8 @@ def toDigits (base : Nat) (n : Nat) : List Char :=
 /--
 Converts a word-sized unsigned integer into a decimal string.
 
+This function is overridden at runtime with an efficient implementation.
+
 Examples:
  * `USize.repr 0 = "0"`
  * `USize.repr 28 = "28"`

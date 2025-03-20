@@ -2094,8 +2094,15 @@ def UInt8.ofNatLT (n : @& Nat) (h : LT.lt n UInt8.size) : UInt8 where
 
 set_option bootstrap.genMatcherCode false in
 /--
-Decides equality on `UInt8`.
-This function is overridden with a native implementation.
+Decides whether two 8-bit unsigned integers are equal. Usually accessed via the `DecidableEq UInt8`
+instance.
+
+This function is overridden at runtime with an efficient implementation.
+
+Examples:
+ * `UInt8.decEq 123 123 = .isTrue rfl`
+ * `(if (6 : UInt8) = 7 then "yes" else "no") = "no"`
+ * `show (7 : UInt8) = 7 by decide`
 -/
 @[extern "lean_uint8_dec_eq"]
 def UInt8.decEq (a b : UInt8) : Decidable (Eq a b) :=
@@ -2143,9 +2150,17 @@ def UInt16.ofNatLT (n : @& Nat) (h : LT.lt n UInt16.size) : UInt16 where
   toBitVec := BitVec.ofNatLT n h
 
 set_option bootstrap.genMatcherCode false in
+
 /--
-Decides equality on `UInt16`.
-This function is overridden with a native implementation.
+Decides whether two 16-bit unsigned integers are equal. Usually accessed via the
+`DecidableEq UInt16` instance.
+
+This function is overridden at runtime with an efficient implementation.
+
+Examples:
+ * `UInt16.decEq 123 123 = .isTrue rfl`
+ * `(if (6 : UInt16) = 7 then "yes" else "no") = "no"`
+ * `show (7 : UInt16) = 7 by decide`
 -/
 @[extern "lean_uint16_dec_eq"]
 def UInt16.decEq (a b : UInt16) : Decidable (Eq a b) :=
@@ -2202,8 +2217,15 @@ def UInt32.toNat (n : UInt32) : Nat := n.toBitVec.toNat
 
 set_option bootstrap.genMatcherCode false in
 /--
-Decides equality on `UInt32`.
-This function is overridden with a native implementation.
+Decides whether two 32-bit unsigned integers are equal. Usually accessed via the
+`DecidableEq UInt32` instance.
+
+This function is overridden at runtime with an efficient implementation.
+
+Examples:
+ * `UInt32.decEq 123 123 = .isTrue rfl`
+ * `(if (6 : UInt32) = 7 then "yes" else "no") = "no"`
+ * `show (7 : UInt32) = 7 by decide`
 -/
 @[extern "lean_uint32_dec_eq"]
 def UInt32.decEq (a b : UInt32) : Decidable (Eq a b) :=
@@ -2291,9 +2313,17 @@ def UInt64.ofNatLT (n : @& Nat) (h : LT.lt n UInt64.size) : UInt64 where
   toBitVec := BitVec.ofNatLT n h
 
 set_option bootstrap.genMatcherCode false in
+
 /--
-Decides equality on `UInt64`.
-This function is overridden with a native implementation.
+Decides whether two 64-bit unsigned integers are equal. Usually accessed via the
+`DecidableEq UInt64` instance.
+
+This function is overridden at runtime with an efficient implementation.
+
+Examples:
+ * `UInt64.decEq 123 123 = .isTrue rfl`
+ * `(if (6 : UInt64) = 7 then "yes" else "no") = "no"`
+ * `show (7 : UInt64) = 7 by decide`
 -/
 @[extern "lean_uint64_dec_eq"]
 def UInt64.decEq (a b : UInt64) : Decidable (Eq a b) :=
@@ -2355,8 +2385,15 @@ def USize.ofNatLT (n : @& Nat) (h : LT.lt n USize.size) : USize where
 
 set_option bootstrap.genMatcherCode false in
 /--
-Decides equality on `USize`.
-This function is overridden with a native implementation.
+Decides whether two word-sized unsigned integers are equal. Usually accessed via the
+`DecidableEq USize` instance.
+
+This function is overridden at runtime with an efficient implementation.
+
+Examples:
+ * `USize.decEq 123 123 = .isTrue rfl`
+ * `(if (6 : USize) = 7 then "yes" else "no") = "no"`
+ * `show (7 : USize) = 7 by decide`
 -/
 @[extern "lean_usize_dec_eq"]
 def USize.decEq (a b : USize) : Decidable (Eq a b) :=

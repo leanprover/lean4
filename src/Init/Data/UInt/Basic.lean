@@ -348,7 +348,7 @@ def UInt16.complement (a : UInt16) : UInt16 := ⟨~~~a.toBitVec⟩
 /--
 Negation of 16-bit unsigned integers, computed modulo `UInt16.size`.
 
-`UInt16.neg a` is equivalent to `65535 - a + 1`.
+`UInt16.neg a` is equivalent to `65_535 - a + 1`.
 
 This function is overridden at runtime with an efficient implementation.
 -/

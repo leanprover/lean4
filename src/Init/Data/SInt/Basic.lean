@@ -68,8 +68,8 @@ structure Int64 where
 /--
 Signed integers that are the size of a word on the platform's architecture.
 
-On a 32-bit architecture, `ISize` is equivalent to `Int32`. On a 64-bit machine, it is equivalent
-to `Int64`.
+On a 32-bit architecture, `ISize` is equivalent to `Int32`. On a 64-bit machine, it is equivalent to
+`Int64`. This type has special support in the compiler so it can be represented by an unboxed value.
 -/
 structure ISize where
   private ofUSize ::
@@ -234,7 +234,7 @@ Examples:
 * `Int8.div 10 (-3) = (-3)`
 * `Int8.div (-10) (-3) = 3`
 * `Int8.div (-10) 3 = (-3)`
-* `Int8.div 10 0 = 8`
+* `Int8.div 10 0 = 0`
 -/
 @[extern "lean_int8_div"]
 def Int8.div (a b : Int8) : Int8 := ⟨⟨BitVec.sdiv a.toBitVec b.toBitVec⟩⟩
@@ -593,7 +593,7 @@ Examples:
 * `Int16.div 10 (-3) = (-3)`
 * `Int16.div (-10) (-3) = 3`
 * `Int16.div (-10) 3 = (-3)`
-* `Int16.div 10 0 = 8`
+* `Int16.div 10 0 = 0`
 -/
 @[extern "lean_int16_div"]
 def Int16.div (a b : Int16) : Int16 := ⟨⟨BitVec.sdiv a.toBitVec b.toBitVec⟩⟩
@@ -968,7 +968,7 @@ Examples:
 * `Int32.div 10 (-3) = (-3)`
 * `Int32.div (-10) (-3) = 3`
 * `Int32.div (-10) 3 = (-3)`
-* `Int32.div 10 0 = 8`
+* `Int32.div 10 0 = 0`
 -/
 @[extern "lean_int32_div"]
 def Int32.div (a b : Int32) : Int32 := ⟨⟨BitVec.sdiv a.toBitVec b.toBitVec⟩⟩
@@ -1363,7 +1363,7 @@ Examples:
 * `Int64.div 10 (-3) = (-3)`
 * `Int64.div (-10) (-3) = 3`
 * `Int64.div (-10) 3 = (-3)`
-* `Int64.div 10 0 = 8`
+* `Int64.div 10 0 = 0`
 -/
 @[extern "lean_int64_div"]
 def Int64.div (a b : Int64) : Int64 := ⟨⟨BitVec.sdiv a.toBitVec b.toBitVec⟩⟩

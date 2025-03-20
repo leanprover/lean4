@@ -761,6 +761,7 @@ install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/" DESTINATION lib
   PATTERN "*.export"
   PATTERN "*.hash"
   PATTERN "*.trace"
+  PATTERN "*.rsp"
   EXCLUDE)
 
 # symlink source into expected installation location for go-to-definition, if file system allows it

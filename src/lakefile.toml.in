@@ -69,4 +69,4 @@ moreLeanArgs = ["--plugin=${PREV_STAGE}/${CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTOR
 name = "LakeMain"
 srcDir = "lake"
 libName = "${LAKE_LIB_PREFIX}LakeMain"
-defaultFacets = ["static"]
+defaultFacets = ["static.export"]

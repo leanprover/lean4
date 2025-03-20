@@ -392,8 +392,8 @@ def buildLeanExe
     addPlatformTrace -- executables are platform-dependent artifacts
     buildFileUnlessUpToDate' exeFile do
       let lean ← getLeanInstall
-      let args := weakArgs ++ traceArgs ++ lean.ccLinkFlags sharedLean
-      compileExe exeFile links args lean.cc
+      let args := links.map toString ++ weakArgs ++ traceArgs ++ lean.ccLinkFlags sharedLean
+      compileExe exeFile args lean.cc
     return exeFile
 
 /--

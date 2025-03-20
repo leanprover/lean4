@@ -716,6 +716,9 @@ theorem slt_zero_eq_msb {w : Nat} {x : BitVec  w} : x.slt 0#w = x.msb := by
 theorem sle_iff_toInt_le {w : Nat} {b b' : BitVec w} : b.sle b' ↔ b.toInt ≤ b'.toInt :=
   decide_eq_true_iff
 
+theorem slt_iff_toInt_lt {w : Nat} {b b' : BitVec w} : b.slt b' ↔ b.toInt < b'.toInt :=
+  decide_eq_true_iff
+
 /-! ### setWidth, zeroExtend and truncate -/
 
 @[simp]
@@ -3386,6 +3389,11 @@ theorem neg_mul_not_eq_add_mul {x y : BitVec w} :
 
 theorem neg_eq_neg_one_mul (b : BitVec w) : -b = -1#w * b :=
   BitVec.eq_of_toInt_eq (by simp)
+
+theorem setWidth_mul (x y : BitVec w) (h : i ≤ w) :
+    (x * y).setWidth i = x.setWidth i * y.setWidth i := by
+  have dvd : 2^i ∣ 2^w := Nat.pow_dvd_pow _ h
+  simp [bitvec_to_nat, h, Nat.mod_mod_of_dvd _ dvd]
 
 /-! ### le and lt -/
 

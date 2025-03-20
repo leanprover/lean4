@@ -229,7 +229,6 @@ theorem Bool.toBitVec_toUSize {b : Bool} :
 @[simp] theorem USize.toFin_shiftLeft (a b : USize) (hb : b.toNat < System.Platform.numBits) : (a <<< b).toFin = a.toFin <<< b.toFin :=
   Fin.val_inj.1 (by simp [Nat.mod_eq_of_lt (a := b.toNat) (b := System.Platform.numBits) hb])
 
-
 theorem UInt8.shiftLeft_eq_shiftLeft_mod (a b : UInt8) : a <<< b = a <<< (b % 8) := UInt8.toBitVec_inj.1 (by simp)
 theorem UInt16.shiftLeft_eq_shiftLeft_mod (a b : UInt16) : a <<< b = a <<< (b % 16) := UInt16.toBitVec_inj.1 (by simp)
 theorem UInt32.shiftLeft_eq_shiftLeft_mod (a b : UInt32) : a <<< b = a <<< (b % 32) := UInt32.toBitVec_inj.1 (by simp)

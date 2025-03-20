@@ -72,19 +72,27 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   theorem toNat_ofNat_of_lt {n : Nat} (h : n < size) : toNat (OfNat.ofNat n) = n :=
     toNat_ofNat_of_lt' h
 
-  @[int_toBitVec] theorem le_def {a b : $typeName} : a ≤ b ↔ a.toBitVec ≤ b.toBitVec := .rfl
+  @[int_toBitVec] theorem le_iff_toBitVec_le {a b : $typeName} : a ≤ b ↔ a.toBitVec ≤ b.toBitVec := .rfl
 
-  @[int_toBitVec] theorem lt_def {a b : $typeName} : a < b ↔ a.toBitVec < b.toBitVec := .rfl
+  @[deprecated le_iff_toBitVec_le (since := "2025-03-20")]
+  theorem le_def {a b : $typeName} : a ≤ b ↔ a.toBitVec ≤ b.toBitVec := .rfl
+
+  @[int_toBitVec] theorem lt_iff_toBitVec_lt {a b : $typeName} : a < b ↔ a.toBitVec < b.toBitVec := .rfl
+
+  @[deprecated lt_iff_toBitVec_lt (since := "2025-03-20")]
+  theorem lt_def {a b : $typeName} : a < b ↔ a.toBitVec < b.toBitVec := .rfl
 
   theorem le_iff_toNat_le {a b : $typeName} : a ≤ b ↔ a.toNat ≤ b.toNat := .rfl
 
   theorem lt_iff_toNat_lt {a b : $typeName} : a < b ↔ a.toNat < b.toNat := .rfl
 
-  @[simp] protected theorem not_le {a b : $typeName} : ¬ a ≤ b ↔ b < a := by simp [le_def, lt_def]
+  @[simp] protected theorem not_le {a b : $typeName} : ¬ a ≤ b ↔ b < a := by
+    simp [le_iff_toBitVec_le, lt_iff_toBitVec_lt]
 
-  @[simp] protected theorem not_lt {a b : $typeName} : ¬ a < b ↔ b ≤ a := by simp [le_def, lt_def]
+  @[simp] protected theorem not_lt {a b : $typeName} : ¬ a < b ↔ b ≤ a := by
+    simp [le_iff_toBitVec_le, lt_iff_toBitVec_lt]
 
-  @[simp] protected theorem le_refl (a : $typeName) : a ≤ a := by simp [le_def]
+  @[simp] protected theorem le_refl (a : $typeName) : a ≤ a := by simp [le_iff_toBitVec_le]
 
   @[simp] protected theorem lt_irrefl (a : $typeName) : ¬ a < a := by simp
 
@@ -143,7 +151,7 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   protected theorem ne_of_lt {a b : $typeName} (h : a < b) : a ≠ b := by
     apply ne_of_toBitVec_ne
     apply BitVec.ne_of_lt
-    simpa [lt_def] using h
+    simpa [lt_iff_toBitVec_lt] using h
 
   @[simp] protected theorem toNat_zero : (0 : $typeName).toNat = 0 := Nat.zero_mod _
 
@@ -186,7 +194,7 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
       · apply Fin.is_lt
 
   protected theorem mod_lt (a : $typeName) {b : $typeName} : 0 < b → a % b < b := by
-    simp only [lt_def, mod_def]
+    simp only [lt_iff_toBitVec_lt, mod_def]
     apply BitVec.umod_lt
 
   protected theorem toNat.inj : ∀ {a b : $typeName}, a.toNat = b.toNat → a = b

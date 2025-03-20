@@ -97,7 +97,7 @@ theorem ne_none_iff_exists : o ≠ none ↔ ∃ x, some x = o := by cases o <;> 
 theorem ne_none_iff_exists' : o ≠ none ↔ ∃ x, o = some x :=
   ne_none_iff_exists.trans <| exists_congr fun _ => eq_comm
 
-theorem exists_ne_none {p : Option α → Prop} : (∃ x ≠ none, p x) ↔ ∃ x, p (some x) :=
+theorem exists_ne_none {p : Option α → Prop} : (∃ x, x ≠ none ∧ p x) ↔ ∃ x, p (some x) :=
   ⟨fun ⟨x, hx, hp⟩ => ⟨x.get <| ne_none_iff_isSome.1 hx, by rwa [some_get]⟩,
     fun ⟨x, hx⟩ => ⟨some x, some_ne_none x, hx⟩⟩
 

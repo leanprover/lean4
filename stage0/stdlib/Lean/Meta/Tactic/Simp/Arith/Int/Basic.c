@@ -9455,7 +9455,7 @@ if (x_16 == 0)
 {
 uint8_t x_17; lean_object* x_18; uint8_t x_19; 
 lean_free_object(x_10);
-x_17 = 1;
+x_17 = 0;
 x_18 = l_Lean_sortExprs(x_13, x_17);
 lean_dec(x_13);
 x_19 = !lean_is_exclusive(x_18);
@@ -9508,7 +9508,7 @@ lean_dec(x_29);
 if (x_31 == 0)
 {
 uint8_t x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
-x_32 = 1;
+x_32 = 0;
 x_33 = l_Lean_sortExprs(x_28, x_32);
 lean_dec(x_28);
 x_34 = lean_ctor_get(x_33, 0);
@@ -9574,7 +9574,7 @@ if (x_47 == 0)
 {
 uint8_t x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; 
 lean_dec(x_44);
-x_48 = 1;
+x_48 = 0;
 x_49 = l_Lean_sortExprs(x_43, x_48);
 lean_dec(x_43);
 x_50 = lean_ctor_get(x_49, 0);

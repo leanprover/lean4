@@ -439,6 +439,10 @@ partial def enumsPass : Pass where
       if cfg.structures then
         (simprocs, relevantLemmas) ← addStructureSimpLemmas simprocs relevantLemmas
 
+      -- same for fixed integers
+      if cfg.fixedInt then
+        relevantLemmas := relevantLemmas.push (← intToBitVecExt.getTheorems)
+
       let simpCtx ← Simp.mkContext
         (config := {
           failIfUnchanged := false,

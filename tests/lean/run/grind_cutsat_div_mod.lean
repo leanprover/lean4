@@ -15,8 +15,6 @@ example (x y : Int) : x % 2 + y = 3 → x = 5 → y = 2 := by
 /--
 info: [grind.cutsat.model] x := 5
 [grind.cutsat.model] y := 2
-[grind.cutsat.model] 「x / 2」 := 2
-[grind.cutsat.model] 「x % 2」 := 1
 -/
 #guard_msgs (info) in
 set_option trace.grind.cutsat.model true in

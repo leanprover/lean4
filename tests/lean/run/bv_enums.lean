@@ -229,9 +229,9 @@ inductive Direction where
   | goingUp
 
 structure State where
-  val : BitVec 16
-  low : BitVec 16
-  high : BitVec 16
+  val : UInt16
+  low : UInt16
+  high : UInt16
   direction : Direction
 
 def State.step (s : State) : State :=

@@ -270,21 +270,61 @@ Using `control` means that `runInBase` can be used multiple times.
 -/
 
 
-/-- MonadControl is a way of stating that the monad `m` can be 'run inside' the monad `n`.
+/--
+A way to lift a computation from one monad to another while providing the lifted computation with a
+means of interpreting computations from the outer monad. This provides a means of lifting
+higher-order operations automatically.
 
-This is the same as [`MonadBaseControl`](https://hackage.haskell.org/package/monad-control-1.0.3.1/docs/Control-Monad-Trans-Control.html#t:MonadBaseControl) in Haskell.
-To learn about `MonadControl`, see the comment above this docstring.
-
+Clients should typically use `control` or `controlAt`, which request an instance of `MonadControlT`:
+the reflexive, transitive closure of `MonadControl`. New instances should be defined for
+`MonadControl` itself.
 -/
+-- This is the same as
+-- [`MonadBaseControl`](https://hackage.haskell.org/package/monad-control-1.0.3.1/docs/Control-Monad-Trans-Control.html#t:MonadBaseControl)
+-- in Haskell.
 class MonadControl (m : semiOutParam (Type u → Type v)) (n : Type u → Type w) where
+  /--
+  A type that can be used to reconstruct both a returned value and any state used by the outer
+  monad.
+  -/
   stM      : Type u → Type u
+  /--
+  Lifts an action from the inner monad `m` to the outer monad `n`. The inner monad has access to a
+  reverse lifting operator that can run an `n` action, returning a value and state together.
+  -/
   liftWith : {α : Type u} → (({β : Type u} → n β → m (stM β)) → m α) → n α
+  /--
+  Lifts a monadic action that returns a state and a value in the inner monad to an action in the
+  outer monad. The extra state information is used to restore the results of effects from the
+  reverse lift passed to `liftWith`'s parameter.
+  -/
   restoreM : {α : Type u} → m (stM α) → n α
 
-/-- Transitive closure of MonadControl. -/
+/--
+A way to lift a computation from one monad to another while providing the lifted computation with a
+means of interpreting computations from the outer monad. This provides a means of lifting
+higher-order operations automatically.
+
+Clients should typically use `control` or `controlAt`, which request an instance of `MonadControlT`:
+the reflexive, transitive closure of `MonadControl`. New instances should be defined for
+`MonadControl` itself.
+-/
 class MonadControlT (m : Type u → Type v) (n : Type u → Type w) where
+  /--
+  A type that can be used to reconstruct both a returned value and any state used by the outer
+  monad.
+  -/
   stM      : Type u → Type u
+  /--
+  Lifts an action from the inner monad `m` to the outer monad `n`. The inner monad has access to a
+  reverse lifting operator that can run an `n` action, returning a value and state together.
+  -/
   liftWith : {α : Type u} → (({β : Type u} → n β → m (stM β)) → m α) → n α
+  /--
+  Lifts a monadic action that returns a state and a value in the inner monad to an action in the
+  outer monad. The extra state information is used to restore the results of effects from the
+  reverse lift passed to `liftWith`'s parameter.
+  -/
   restoreM {α : Type u} : stM α → n α
 
 export MonadControlT (stM liftWith restoreM)
@@ -300,11 +340,28 @@ instance (m : Type u → Type v) [Pure m] : MonadControlT m m where
   liftWith f := f fun x => x
   restoreM x := pure x
 
+/--
+Lifts an operation from an inner monad to an outer monad, providing it with a reverse lifting
+operator that allows outer monad computations to be run in the inner monad. The lifted operation is
+required to return extra information that is required in order to reconstruct the reverse lift's
+effects in the outer monad; this extra information is determined by `stM`.
+
+This function takes the inner monad as an explicit parameter. Use `control` to infer the monad.
+-/
 @[always_inline, inline]
 def controlAt (m : Type u → Type v) {n : Type u → Type w} [MonadControlT m n] [Bind n] {α : Type u}
     (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
   liftWith f >>= restoreM
 
+/--
+Lifts an operation from an inner monad to an outer monad, providing it with a reverse lifting
+operator that allows outer monad computations to be run in the inner monad. The lifted operation is
+required to return extra information that is required in order to reconstruct the reverse lift's
+effects in the outer monad; this extra information is determined by `stM`.
+
+This function takes the inner monad as an implicit parameter. Use `controlAt` to specify it
+explicitly.
+-/
 @[always_inline, inline]
 def control {m : Type u → Type v} {n : Type u → Type w} [MonadControlT m n] [Bind n] {α : Type u}
     (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=

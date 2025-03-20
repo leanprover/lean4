@@ -5,6 +5,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 -/
 prelude
 import Init.Data.List.Lemmas
+import Init.Data.List.Pairwise
 
 /-!
 # Lemmas about `List.min?` and `List.max?.
@@ -37,6 +38,18 @@ theorem min?_cons' [Min α] {xs : List α} : (x :: xs).min? = foldl min x xs := 
 theorem isSome_min?_of_mem {l : List α} [Min α] {a : α} (h : a ∈ l) :
     l.min?.isSome := by
   cases l <;> simp_all [List.min?_cons']
+
+theorem min?_eq_head? {α : Type u} [Min α] {l : List α}
+    (h : l.Pairwise (fun a b => min a b = a)) : l.min? = l.head? := by
+  cases l with
+  | nil => rfl
+  | cons x l =>
+    rw [List.head?_cons, List.min?_cons', Option.some.injEq]
+    induction l generalizing x with
+    | nil => simp
+    | cons y l ih =>
+      have hx : min x y = x := List.rel_of_pairwise_cons h (List.mem_cons_self _ _)
+      rw [List.foldl_cons, ih _ (hx.symm ▸ h.sublist (by simp)), hx]
 
 theorem min?_mem [Min α] (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b) :
     {xs : List α} → xs.min? = some a → a ∈ xs := by
@@ -78,17 +91,19 @@ theorem le_min?_iff [Min α] [LE α]
 
 -- This could be refactored by designing appropriate typeclasses to replace `le_refl`, `min_eq_or`,
 -- and `le_min_iff`.
-theorem min?_eq_some_iff [Min α] [LE α] [anti : Std.Antisymm ((· : α) ≤ ·)]
+theorem min?_eq_some_iff [Min α] [LE α]
     (le_refl : ∀ a : α, a ≤ a)
     (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b)
-    (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c) {xs : List α} :
+    (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c) {xs : List α}
+    (anti : ∀ a b, a ∈ xs → b ∈ xs → a ≤ b → b ≤ a → a = b := by
+      exact fun a b _ _ => Std.Antisymm.antisymm a b) :
     xs.min? = some a ↔ a ∈ xs ∧ ∀ b, b ∈ xs → a ≤ b := by
   refine ⟨fun h => ⟨min?_mem min_eq_or h, (le_min?_iff le_min_iff h).1 (le_refl _)⟩, ?_⟩
   intro ⟨h₁, h₂⟩
   cases xs with
   | nil => simp at h₁
   | cons x xs =>
-    exact congrArg some <| anti.1 _ _
+    exact congrArg some <| anti _ _ (min?_mem min_eq_or rfl) h₁
       ((le_min?_iff le_min_iff (xs := x::xs) rfl).1 (le_refl _) _ h₁)
       (h₂ _ (min?_mem min_eq_or (xs := x::xs) rfl))
 

@@ -149,9 +149,11 @@ abbrev mkTargetDecl
   (α) (pkgName target : Name)
   [FormatQuery α] [FamilyDef CustomData (pkgName, target) α]
   (f : NPackage pkgName → FetchM (Job α))
-: TargetDecl := .mk pkgName target <| mkTargetJobConfig fun pkg => do
-  withRegisterJob (pkg.target target |>.key.toSimpleString)
-    (f pkg)
+: TargetDecl :=
+  let cfg := mkTargetJobConfig fun pkg => do
+    withRegisterJob (pkg.target target |>.key.toSimpleString)
+      (f pkg)
+  .mk (.mk pkgName target .anonymous (.mk cfg)) rfl
 
 /--
 Define a new custom target for the package. Has one form:
@@ -165,12 +167,12 @@ The `pkg` parameter (and its type specifier) is optional.
 It is of type `NPackage _package.name` to provably demonstrate the package
 provided is the package in which the target is defined.
 -/
-scoped syntax (name := targetDecl)
+scoped syntax (name := targetCommand)
 (docComment)? (Term.attributes)? "target " buildDeclSig : command
 
-@[macro targetDecl]
-def expandTargetDecl : Macro := fun stx => do
-  let `(targetDecl|$(doc?)? $(attrs?)? target%$kw $sig) := stx
+@[macro targetCommand]
+def expandTargetCommand : Macro := fun stx => do
+  let `(targetCommand|$(doc?)? $(attrs?)? target%$kw $sig) := stx
     | Macro.throwErrorAt stx "ill-formed target declaration"
   let `(buildDeclSig|$id:ident $[$pkg?]? : $ty := $defn $[$wds?:whereDecls]?) := sig
     | Macro.throwErrorAt sig "ill-formed target signature"
@@ -181,13 +183,40 @@ def expandTargetDecl : Macro := fun stx => do
   let pkgName := mkIdentFrom id `_package.name
   let pkg ← expandOptSimpleBinder pkg?
   `(family_def $id : CustomData ($pkgName, $name) := $ty
-    $[$doc?]? @[$attrs,*] abbrev $id :=
+    $[$doc?]? abbrev $id :=
       Lake.DSL.mkTargetDecl $ty $pkgName $name (fun $pkg => $defn)
-    $[$wds?:whereDecls]?)
+    $[$wds?:whereDecls]?
+    @[$attrs,*] def configDecl : ConfigDecl := $(id).toConfigDecl)
 
 --------------------------------------------------------------------------------
 /-! ## Lean Library & Executable Target Declarations -/
 --------------------------------------------------------------------------------
+
+def mkConfigDecl
+  (tyName kind : Name)
+  [delTyName : TypeName (KConfigDecl kind)]
+  (doc? : Option DocComment) (attrs? : Option Attributes)
+  (nameStx? : Option IdentOrStr) (cfg : OptConfig)
+: CommandElabM Command := do
+  let configId : Ident ← `(config)
+  let id ← mkConfigDeclIdent nameStx?
+  let name := Name.quoteFrom id id.getId
+  let ty := Syntax.mkCApp tyName #[name]
+  elabConfig tyName configId ty cfg
+  let kindId ← mkIdentFromRef kind
+  let targetAttr ← `(Term.attrInstance| «target»)
+  let kindAttr ← `(Term.attrInstance| $kindId:ident)
+  let attrs := #[targetAttr, kindAttr] ++ expandAttrs attrs?
+  let pkg ← mkIdentFromRef (packageDeclName.str "name")
+  let declTy ← mkIdentFromRef delTyName.typeName
+  let kind := Name.quoteFrom (← getRef) kind
+  `(
+    $[$doc?]? abbrev $id : $declTy := {
+        pkg := $pkg, name := $name, config := $configId
+        kind := $kind, kind_eq := rfl
+    }
+    @[$attrs,*] def configDecl : ConfigDecl := $(id).toConfigDecl
+  )
 
 /--
 Define a new Lean library target for the package.
@@ -200,21 +229,20 @@ lean_lib «target-name» { /- config opts -/ }
 lean_lib «target-name» where /- config opts -/
 ```
 -/
-scoped syntax (name := leanLibDecl)
-(docComment)? (Term.attributes)? "lean_lib " structDeclSig : command
+scoped syntax (name := leanLibCommand)
+(docComment)? (Term.attributes)? "lean_lib " (identOrStr)? optConfig : command
 
-@[command_elab leanLibDecl]
-def elabLeanLibDecl : CommandElab := fun stx => do
-  let `(leanLibDecl|$(doc?)? $(attrs?)? lean_lib%$kw $sig) := stx
+@[command_elab leanLibCommand]
+def elabLeanLibCommand : CommandElab := fun stx => do
+  let `(leanLibCommand|$(doc?)? $(attrs?)? lean_lib%$kw $(nameStx?)? $cfg) := stx
     | throwErrorAt stx "ill-formed lean_lib declaration"
   withRef kw do
-  let attr ← `(Term.attrInstance| «lean_lib»)
-  let attrs := #[attr] ++ expandAttrs attrs?
-  elabConfigDecl ``LeanLibConfig sig doc? attrs
+  let cmd ← mkConfigDecl ``LeanLibConfig `lean_lib doc? attrs? nameStx? cfg
+  withMacroExpansion stx cmd <| elabCommand cmd
 
-@[inherit_doc leanLibDecl] abbrev LeanLibDecl := TSyntax ``leanLibDecl
+@[inherit_doc leanLibCommand] abbrev LeanLibCommand := TSyntax ``leanLibCommand
 
-instance : Coe LeanLibDecl Command where
+instance : Coe LeanLibCommand Command where
   coe x := ⟨x.raw⟩
 
 /--
@@ -228,21 +256,20 @@ lean_exe «target-name» { /- config opts -/ }
 lean_exe «target-name» where /- config opts -/
 ```
 -/
-scoped syntax (name := leanExeDecl)
-(docComment)? (Term.attributes)? "lean_exe " structDeclSig : command
+scoped syntax (name := leanExeCommand)
+(docComment)? (Term.attributes)? "lean_exe " (identOrStr)? optConfig : command
 
-@[command_elab leanExeDecl]
-def elabLeanExeDecl : CommandElab := fun stx => do
-  let `(leanExeDecl|$(doc?)? $(attrs?)? lean_exe%$kw $sig) := stx
+@[command_elab leanExeCommand]
+def elabLeanExeCommand : CommandElab := fun stx => do
+  let `(leanExeCommand|$(doc?)? $(attrs?)? lean_exe%$kw $(nameStx?)? $cfg) := stx
     | throwErrorAt stx "ill-formed lean_exe declaration"
   withRef kw do
-  let attr ← `(Term.attrInstance| «lean_exe»)
-  let attrs := #[attr] ++ expandAttrs attrs?
-  elabConfigDecl ``LeanExeConfig sig doc? attrs
+  let cmd ← mkConfigDecl ``LeanExeConfig `lean_exe doc? attrs? nameStx? cfg
+  withMacroExpansion stx cmd <| elabCommand cmd
 
-@[inherit_doc leanExeDecl] abbrev LeanExeDecl := TSyntax ``leanExeDecl
+@[inherit_doc leanExeCommand] abbrev LeanExeCommand := TSyntax ``leanExeCommand
 
-instance : Coe LeanExeDecl Command where
+instance : Coe LeanExeCommand Command where
   coe x := ⟨x.raw⟩
 
 --------------------------------------------------------------------------------
@@ -252,7 +279,8 @@ instance : Coe LeanExeDecl Command where
 abbrev mkExternLibDecl
   (pkgName name : Name)
   [FamilyDef CustomData (pkgName, .str name "static")  FilePath]
-: ExternLibDecl := .mk pkgName name {getPath := cast (by simp)}
+: ExternLibDecl :=
+  .mk (.mk pkgName name `extern_lib {getPath := cast (by simp)}) rfl
 
 syntax externLibDeclSpec :=
   identOrStr (ppSpace simpleBinder)? declValSimple
@@ -271,22 +299,24 @@ provided is the package in which the target is defined.
 
 The term should build the external library's **static** library.
 -/
-scoped syntax (name := externLibDecl)
+scoped syntax (name := externLibCommand)
 (docComment)? (Term.attributes)? "extern_lib " externLibDeclSpec : command
 
-@[macro externLibDecl]
-def expandExternLibDecl : Macro := fun stx => do
-  let `(externLibDecl|$(doc?)? $(attrs?)? extern_lib%$kw $spec) := stx
+@[macro externLibCommand]
+def expandExternLibCommand : Macro := fun stx => do
+  let `(externLibCommand|$(doc?)? $(attrs?)? extern_lib%$kw $spec) := stx
     | Macro.throwErrorAt stx "ill-formed external library declaration"
   let `(externLibDeclSpec| $nameStx $[$pkg?]? := $defn $[$wds?:whereDecls]?) := spec
     | Macro.throwErrorAt spec "ill-formed external library signature"
   withRef kw do
-  let attr ← `(Term.attrInstance| «extern_lib»)
-  let attrs := #[attr] ++ expandAttrs attrs?
+  let attr1 ← `(Term.attrInstance| «target»)
+  let attr2 ← `(Term.attrInstance| «extern_lib»)
+  let attrs := #[attr1, attr2] ++ expandAttrs attrs?
   let id := expandIdentOrStrAsIdent nameStx
-  let pkgName := mkIdentFrom id `_package.name
+  let pkgName := mkIdentFrom kw (packageDeclName.str "name")
   let targetId := mkIdentFrom id <| id.getId.modifyBase (· ++ `static)
   let name := Name.quoteFrom id id.getId
   `(target $targetId:ident $[$pkg?]? : FilePath := $defn $[$wds?:whereDecls]?
-    $[$doc?:docComment]? @[$attrs,*] def $id : ExternLibDecl :=
-      Lake.DSL.mkExternLibDecl $pkgName $name)
+    $[$doc?:docComment]? def $id : ExternLibDecl :=
+      Lake.DSL.mkExternLibDecl $pkgName $name
+    @[$attrs,*] def configDecl : ConfigDecl := $(id).toConfigDecl)

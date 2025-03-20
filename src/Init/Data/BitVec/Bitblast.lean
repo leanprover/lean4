@@ -91,7 +91,7 @@ First, we prove bitvector lemmas to unfold a high-level operation (such as multi
 into already bitblastable operations (such as addition and left shift).
 We then use these lemmas to prove the correctness of the circuit that `bv_decide` builds.
 
-We use this workflow to implement bitblasting for all SMT-LIB2 operations.
+We use this workflow to implement bitblasting for all SMT-LIB v2 operations.
 
 ## Main results
 * `x + y : BitVec w` is `(adc x y false).2`.
@@ -1342,6 +1342,15 @@ theorem ssubOverflow_eq {w : Nat} (x y : BitVec w) :
     simp only [h₁, decide_and, h₂, ← decide_not, Int.not_lt]
     simp only [bool_to_prop]
     omega
+
+theorem negOverflow_eq {w : Nat} (x : BitVec w) :
+    (negOverflow x) = (decide (0 < w) && (x == intMin w)) := by
+  simp only [negOverflow]
+  rcases w with _|w
+  · simp [toInt_of_zero_length, Int.min_eq_right]
+  · suffices - 2 ^ w = (intMin (w + 1)).toInt by simp [beq_eq_decide_eq, ← toInt_inj, this]
+    simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod, Int.neg_inj]
+    rw_mod_cast [Nat.mod_eq_of_lt (by simp [Nat.pow_lt_pow_succ])]
 
 /- ### umod -/
 

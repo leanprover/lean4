@@ -81,6 +81,7 @@ static lean_object* l_Lake_Toml_Table_decode_x3f___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Toml_decodeArray___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_instDecodeTomlFloat;
 lean_object* l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_tryDecode_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_tryDecodeD___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_tryDecode(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Value_decodeFloat(lean_object*);
@@ -138,6 +139,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_Table_decodeNameMap___rarg___closed__1;
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_decodeValue(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_tryDecode_x3f___rarg(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_Toml_instDecodeTomlValue;
@@ -304,6 +306,59 @@ lean_object* x_4;
 x_4 = l_Lake_tryDecodeD___rarg(x_1, x_2, x_3);
 lean_dec(x_2);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_tryDecode_x3f___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec(x_1);
+x_4 = l_Array_append___rarg(x_2, x_3);
+lean_dec(x_3);
+x_5 = lean_box(0);
+x_6 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_6, 0, x_5);
+lean_ctor_set(x_6, 1, x_4);
+return x_6;
+}
+else
+{
+uint8_t x_7; 
+x_7 = !lean_is_exclusive(x_1);
+if (x_7 == 0)
+{
+lean_object* x_8; 
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_1);
+lean_ctor_set(x_8, 1, x_2);
+return x_8;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_9 = lean_ctor_get(x_1, 0);
+lean_inc(x_9);
+lean_dec(x_1);
+x_10 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+x_11 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_11, 0, x_10);
+lean_ctor_set(x_11, 1, x_2);
+return x_11;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lake_tryDecode_x3f(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lake_tryDecode_x3f___rarg), 2, 0);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_tryDecode___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

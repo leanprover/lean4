@@ -35,6 +35,15 @@ abbrev ReflOrd (α : Type u) [Ord α] := ReflCmp (compare : α → α → Orderi
 theorem ReflOrd.compare_self {α : Type u} [Ord α] [ReflOrd α] {a : α} : compare a a = .eq :=
     ReflCmp.compare_self
 
+theorem ReflCmp.isLE_rfl {α} {cmp : α → α → Ordering} [ReflCmp cmp] {a : α} :
+    (cmp a a).isLE := by
+  simp [ReflCmp.compare_self (cmp := cmp)]
+
+@[simp]
+theorem ReflOrd.isLE_rfl {α} [Ord α] [ReflOrd α] {a : α} :
+    (compare a a).isLE :=
+  ReflCmp.isLE_rfl
+
 export ReflOrd (compare_self)
 
 end Refl

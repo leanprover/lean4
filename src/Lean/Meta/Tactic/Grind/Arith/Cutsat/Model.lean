@@ -8,10 +8,15 @@ import Lean.Meta.Tactic.Grind.Types
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
-private def isIntENode (n : ENode) : MetaM Bool :=
-  withDefault do isDefEq (← inferType n.self) Int.mkType
+private def isIntNatENode (n : ENode) : MetaM Bool :=
+  withDefault do
+    let type ← inferType n.self
+    isDefEq type Int.mkType
+    <||>
+    isDefEq type Nat.mkType
 
 private def getCutsatAssignment? (goal : Goal) (node : ENode) : Option Rat := Id.run do
+  assert! isSameExpr node.self node.root
   let some e := node.cutsat? | return none
   let some x := goal.arith.cutsat.varMap.find? { expr := e } | return none
   if h : x < goal.arith.cutsat.assignment.size then
@@ -48,15 +53,32 @@ where
     else
       go (next + 1)
 
+private def isInterpretedTerm (e : Expr) : Bool :=
+  isNatNum e || isIntNum e || e.isAppOf ``HAdd.hAdd || e.isAppOf ``HMul.hMul || e.isAppOf ``HSub.hSub
+  || e.isAppOf ``Neg.neg || e.isAppOf ``HDiv.hDiv || e.isAppOf ``HMod.hMod
+  || e.isAppOf ``NatCast.natCast || e.isIte || e.isDIte
+
+private def natCast? (e : Expr) : Option Expr :=
+  let_expr NatCast.natCast _ inst a := e | none
+  let_expr instNatCastInt := inst | none
+  some a
+
 private def assignEqc (goal : Goal) (e : Expr) (v : Rat) (a : Std.HashMap Expr Rat) : Std.HashMap Expr Rat := Id.run do
   let mut a := a
   for e in goal.getEqc e do
     a := a.insert e v
   return a
 
-private def isInterpretedTerm (e : Expr) : Bool :=
-  isIntNum e || e.isAppOf ``HAdd.hAdd || e.isAppOf ``HMul.hMul || e.isAppOf ``HSub.hSub
-  || e.isAppOf ``Neg.neg -- TODO add missing ones
+private def getAssignment? (goal : Goal) (node : ENode) : MetaM (Option Rat) := do
+  assert! isSameExpr node.self node.root
+  if let some v := getCutsatAssignment? goal node then
+    return some v
+  else if let some v ← getIntValue? node.self then
+    return some v
+  else if let some v ← getNatValue? node.self then
+    return some (Int.ofNat v)
+  else
+    return none
 
 /--
 Construct a model that statisfies all constraints in the cutsat model.
@@ -74,19 +96,22 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Rat)) := do
   -- Assign on expressions associated with cutsat terms or interpreted terms
   for node in nodes do
     if isSameExpr node.root node.self then
-    if (← isIntENode node) then
-      if let some v := getCutsatAssignment? goal node then
-        model := assignEqc goal node.self v model
+    if (← isIntNatENode node) then
+      if let some v ← getAssignment? goal node then
         if v.den == 1 then used := used.insert v.num
-      else if let some v ← getIntValue? node.self then
         model := assignEqc goal node.self v model
-        used := used.insert v
+  -- Assign cast terms
+  for node in nodes do
+    let i := node.self
+    let some n := natCast? i | pure ()
+    if model[n]?.isNone then
+      let some v := model[i]? | pure ()
+      model := assignEqc goal n v model
   -- Assign the remaining ones with values not used by cutsat
   for node in nodes do
     if isSameExpr node.root node.self then
-    if (← isIntENode node) then
-    if (← getIntValue? node.self).isNone &&
-       (getCutsatAssignment? goal node).isNone then
+    if (← isIntNatENode node) then
+    if model[node.self]?.isNone then
       let v := pickUnusedValue goal model node.self nextVal used
       model := assignEqc goal node.self v model
       used := used.insert v
@@ -94,6 +119,10 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Rat)) := do
   for (e, v) in model do
     unless isInterpretedTerm e do
       r := r.push (e, v)
-  return r.qsort fun (e₁, _) (e₂, _) => e₁.lt e₂
+  r := r.qsort fun (e₁, _) (e₂, _) => e₁.lt e₂
+  if (← isTracingEnabledFor `grind.cutsat.model) then
+    for (x, v) in r do
+      trace[grind.cutsat.model] "{quoteIfNotAtom x} := {v}"
+  return r
 
 end Lean.Meta.Grind.Arith.Cutsat

@@ -5,8 +5,9 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.IntInstTesters
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -29,6 +30,7 @@ private def assertNatCast (e : Expr) : GoalM Unit := do
 
 private def assertHelpers (e : Expr) : GoalM Unit := do
   assertNatCast e
+  assertDenoteAsIntNonneg e
 
 /-- Creates a new variable in the cutsat module. -/
 def mkVar (expr : Expr) : GoalM Var := do

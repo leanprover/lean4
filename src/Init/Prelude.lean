@@ -807,10 +807,26 @@ instance Pi.instInhabited {α : Sort u} {β : α → Sort v} [(a : α) → Inhab
 
 deriving instance Inhabited for Bool
 
-/-- Universe lifting operation from `Sort u` to `Type u`. -/
+/--
+Lifts a proposition or type to a higher universe level.
+
+`PLift α` wraps a proof or value of type `α`. The resulting type is in the next largest universe
+after that of `α`. In particular, propositions become data.
+
+The related type `ULift` can be used to lift a non-proposition type by any number of levels.
+
+Examples:
+ * `(False : Prop)`
+ * `(PLift False : Type)`
+ * `([.up (by trivial), .up (by simp), .up (by decide)] : List (PLift True))`
+ * `(Nat : Type 0)`
+ * `(PLift Nat : Type 1)`
+-/
 structure PLift (α : Sort u) : Type u where
-  /-- Lift a value into `PLift α` -/    up ::
-  /-- Extract a value from `PLift α` -/ down : α
+  /-- Wraps a proof or value to increase its type's universe level by 1. -/
+  up ::
+  /-- Extracts a wrapped proof or value from a universe-lifted proposition or type. -/
+  down : α
 
 /-- Bijection between `α` and `PLift α` -/
 theorem PLift.up_down {α : Sort u} (b : PLift α) : Eq (up (down b)) b := rfl
@@ -835,16 +851,31 @@ instance : Inhabited NonemptyType.{u} where
   default := ⟨PUnit, ⟨⟨⟩⟩⟩
 
 /--
-Universe lifting operation from a lower `Type` universe to a higher one.
-To express this using level variables, the input is `Type s` and the output is
-`Type (max s r)`, so if `s ≤ r` then the latter is (definitionally) `Type r`.
+Lifts a type to a higher universe level.
 
-The universe variable `r` is written first so that `ULift.{r} α` can be used
-when `s` can be inferred from the type of `α`.
+`ULift α` wraps a value of type `α`. Instead of occupying the same universe as `α`, which would be
+the minimal level, it takes a further level parameter and occupies their minimum. The resulting type
+may occupy any universe that's at least as large as that of `α`.
+
+The resulting universe of the lifting operator is the first parameter, and may be written explicitly
+while allowing `α`'s level to be inferred.
+
+The related type `PLift` can be used to lift a proposition or type by one level.
+
+Examples:
+ * `(Nat : Type 0)`
+ * `(ULift Nat : Type 0)`
+ * `(ULift Nat : Type 1)`
+ * `(ULift Nat : Type 5)`
+ * `(ULift.{7} (PUnit : Type 3) : Type 7)`
 -/
+-- The universe variable `r` is written first so that `ULift.{r} α` can be used
+-- when `s` can be inferred from the type of `α`.
 structure ULift.{r, s} (α : Type s) : Type (max s r) where
-  /-- Lift a value into `ULift α` -/    up ::
-  /-- Extract a value from `ULift α` -/ down : α
+  /-- Wraps a value to increase its type's universe level. -/
+  up ::
+  /-- Extracts a wrapped value from a universe-lifted type. -/
+  down : α
 
 /-- Bijection between `α` and `ULift.{v} α` -/
 theorem ULift.up_down {α : Type u} (b : ULift.{v} α) : Eq (up (down b)) b := rfl

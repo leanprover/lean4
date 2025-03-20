@@ -3135,7 +3135,7 @@ automatically by the compiler.
 Usually, `n` consists of some number of monad transformers applied to `m`, but this is not
 mandatory.
 
-This is the  the reflexive, transitive closure of `MonadLift`. Clients that require one monad to be
+This is the reflexive, transitive closure of `MonadLift`. Clients that require one monad to be
 liftable into another should request an instance of `MonadLiftT`. New instances should instead be
 defined for `MonadLift` itself.
 -/

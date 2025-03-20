@@ -84,7 +84,7 @@ theorem getElem?_zip_eq_some {l₁ : List α} {l₂ : List β} {z : α × β} {i
 theorem head?_zipWith {f : α → β → γ} :
     (List.zipWith f as bs).head? = match as.head?, bs.head? with
       | some a, some b => some (f a b) | _, _ => none := by
-  simp [head?_eq_getElem?, getElem?_zipWith]
+  simp [head?_eq_getElem?, getElem?_zipWith]; try rfl
 
 theorem head_zipWith {f : α → β → γ} (h):
     (List.zipWith f as bs).head h = f (as.head (by rintro rfl; simp_all)) (bs.head (by rintro rfl; simp_all)) := by
@@ -367,7 +367,7 @@ theorem getElem?_zipWithAll {f : Option α → Option β → γ} {i : Nat} :
 theorem head?_zipWithAll {f : Option α → Option β → γ} :
     (zipWithAll f as bs).head? = match as.head?, bs.head? with
       | none, none => .none | a?, b? => some (f a? b?) := by
-  simp [head?_eq_getElem?, getElem?_zipWithAll]
+  simp [head?_eq_getElem?, getElem?_zipWithAll]; try rfl
 
 @[simp] theorem head_zipWithAll {f : Option α → Option β → γ} (h) :
     (zipWithAll f as bs).head h = f as.head? bs.head? := by

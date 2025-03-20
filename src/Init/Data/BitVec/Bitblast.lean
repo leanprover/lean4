@@ -1318,7 +1318,7 @@ theorem ssubOverflow_eq {w : Nat} (x y : BitVec w) :
   · have := le_two_mul_toInt (x := x); have := two_mul_toInt_lt (x := x)
     have := le_two_mul_toInt (x := y); have := two_mul_toInt_lt (x := y)
     have : - 2 ^ (w + 1) ≤ x.toInt - y.toInt := by omega 
-    have : (2 ^ (w + 1) + 1) / 2 = 2 ^ w := by omega 
+    have hw : (2 ^ (w + 1) + 1) / 2 = 2 ^ w := by omega 
     have := Int.emod_lt (a := x.toInt - y.toInt) (b := 2 ^ (w + 1))
     simp only [bool_to_prop]
     simp 
@@ -1337,50 +1337,28 @@ theorem ssubOverflow_eq {w : Nat} (x y : BitVec w) :
         apply Classical.byContradiction
         intros hcontra 
         simp at hcontra
-        have := Int.bmod_neg_iff (x := x.toInt - y.toInt) (m := 2 ^ (w + 1)) (by omega) 
-        have : (x.toInt - y.toInt).bmod (2^(w + 1)) < 0 := by 
-          apply Int.bmod_neg_iff  (x := x.toInt - y.toInt) (m := 2 ^ (w + 1))
-          omega 
+        have := Int.bmod_neg_iff (x := x.toInt - y.toInt) (m := 2 ^ (w + 1))
+        push_cast at this
         omega
-        -- have := Int.bmod_pos (x := x.toInt - y.toInt) (m := (2 ^ (w + 1)))
-
-
-        -- have := Int.bmod_pos (x := x.toInt - y.toInt) (m := 2 ^ (w + 1))
-        -- push_cast
-        -- have := Int.bmod_le (x := x.toInt - y.toInt) (m := 2 ^ (w + 1))
-        -- simp [Int.bmod_def, show x.toInt < 0 by omega, show 0 ≤ y.toInt by omega]
-        -- push_cast
-        -- by_cases htmp : 0 ≤ x.toInt - y.toInt
-        -- · rw [Int.emod_eq_of_lt (by omega) (by omega)]
-        --   omega
-        -- · simp_all 
-        --   by_cases htmp' : (x.toInt - y.toInt) % 2 ^ (w + 1) < (2 ^ (w + 1) + 1) / 2 
-        --   · simp [htmp']
-        --     intro hb
-        --     
-
-        --     
-
-        --     sorry 
-        --   · simp [htmp']
-
-        --     sorry 
     have h2 : (2 ^ w ≤ x.toInt - y.toInt) ↔ (!x.msb && y.msb && (x - y).msb) := by 
       constructor 
       · simp [msb_eq_toInt]
         intros h 
-
         simp [show 0 ≤ x.toInt by omega, show y.toInt < 0 by omega]
         rw [Int.bmod_eq_bmod_sub]
         push_cast 
-        rw [Int.bmod_def] 
-
-
-
-
-        sorry 
+        rw_mod_cast [Int.bmod_eq_self_of_le (by omega) (by omega)] 
+        omega 
       · simp [msb_eq_toInt]
-        sorry
+        intros hx hy 
+        push_cast
+        intro h 
+        apply Classical.byContradiction 
+        intros hcontra 
+        simp at hcontra 
+        have := Int.bmod_neg_iff (x := x.toInt - y.toInt) (m := 2 ^ (w + 1))
+        push_cast at this 
+        omega
     simp [h1, h2]
     by_cases hx : x.msb <;> by_cases hy : y.msb 
     <;> simp [hx, hy]

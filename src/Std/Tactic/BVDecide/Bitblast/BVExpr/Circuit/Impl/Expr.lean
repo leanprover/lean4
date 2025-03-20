@@ -31,32 +31,44 @@ open Std.Sat
 
 namespace BVExpr
 
-instance : BEq (Σ w, BVExpr w) := sorry
-instance : LawfulBEq (Σ w, BVExpr w) := sorry
-instance : Hashable (Σ w, BVExpr w) := sorry
+structure Cache.Key where
+  w : Nat
+  expr : BVExpr w
+  deriving BEq, Hashable
+
+instance : LawfulBEq Cache.Key := sorry
 
 structure Cache (aig : AIG BVBit) where
-  map : Std.DHashMap (Σ w, BVExpr w) (fun k => AIG.RefVec aig k.1) := {}
+  map : Std.DHashMap Cache.Key (fun k => Vector (Nat × Bool) k.1)
+  hbound : ∀ k (h1 : k ∈ map), ∀ (h2 : i < k.1), (map.get k h1)[i].1 < aig.decls.size
+  -- TODO: Needs a hvalid invariant
+
+@[inline]
+def Cache.empty : Cache aig :=
+  ⟨{}, by simp⟩
 
 @[inline]
 def Cache.insert (cache : Cache aig) (expr : BVExpr w) (refs : AIG.RefVec aig w) :
     Cache aig :=
-  let ⟨map⟩ := cache
-  ⟨map.insert ⟨w, expr⟩ refs⟩
+  let ⟨map, hbound⟩ := cache
+  ⟨map.insert ⟨w, expr⟩ refs.refs, sorry⟩
 
 @[inline]
 def Cache.get? (cache : Cache aig) (expr : BVExpr w) : Option (AIG.RefVec aig w) :=
-  cache.map.get? ⟨w, expr⟩
+  cache.map.get? ⟨w, expr⟩ |>.map (fun v => ⟨v, sorry⟩)
 
+-- TODO: This cast is technically unsound and needs a hypothesis
 @[inline]
-def Cache.cast (cache : Cache aig1) : Cache aig2 := sorry
+def Cache.cast (cache : Cache aig1) : Cache aig2 :=
+  let ⟨map, hbound⟩ := cache
+  ⟨map, sorry⟩
 
 structure Return (aig : AIG BVBit) (w : Nat) where
   result : AIG.ExtendingRefVecEntry aig w
   cache : Cache result.val.aig
 
 def bitblast (aig : AIG BVBit) (expr : BVExpr w) : AIG.RefVecEntry BVBit w :=
-  goCache aig expr {} |>.result.val
+  goCache aig expr .empty |>.result.val
 where
   goCache {w : Nat} (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) : Return aig w :=
     match cache.get? expr with

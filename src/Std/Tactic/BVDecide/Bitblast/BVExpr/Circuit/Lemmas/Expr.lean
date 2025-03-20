@@ -34,6 +34,7 @@ open Std.Sat.AIG
 namespace BVExpr
 namespace bitblast
 
+/-
 theorem go_val_eq_bitblast (aig : AIG BVBit) (expr : BVExpr w) :
     (go aig expr).val = bitblast aig expr := by
   rfl
@@ -201,7 +202,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       rename_i w
       have : ¬(w ≤ idx) := by omega
       simp [go, ih, this, BitVec.getLsbD_sshiftRight, BitVec.msb_eq_getLsbD_last ]
-
+-/
 end bitblast
 
 @[simp]
@@ -210,10 +211,10 @@ theorem denote_bitblast (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment
         ⟦(bitblast aig expr).aig, (bitblast aig expr).vec.get idx hidx, assign.toAIGAssignment⟧
           =
         (expr.eval assign).getLsbD idx
-    := by
-  intros
-  rw [← bitblast.go_val_eq_bitblast]
-  rw [bitblast.go_denote_eq]
+    := by sorry
+  --intros
+  --rw [← bitblast.go_val_eq_bitblast]
+  --rw [bitblast.go_denote_eq]
 
 end BVExpr
 

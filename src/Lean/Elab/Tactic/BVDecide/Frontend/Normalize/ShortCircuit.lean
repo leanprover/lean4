@@ -46,7 +46,7 @@ def shortCircuitPass : Pass where
       (simpTheorems := theorems)
       (congrTheorems := (← getSimpCongrTheorems))
 
-    let hyps ← goal.getNondepPropHyps
+    let hyps ← getPropHyps
     let ⟨result?, _⟩ ← simpGoal goal
       (ctx := simpCtx)
       (simprocs := #[])

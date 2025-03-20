@@ -554,7 +554,7 @@ theorem anyM_loop_cons [Monad m] (p : α → m Bool) (a : α) (as : List α) (st
 @[simp] theorem anyM_toList [Monad m] (p : α → m Bool) (as : Array α) :
     as.toList.anyM p = as.anyM p :=
   match as with
-  | ⟨[]⟩  => rfl
+  | ⟨[]⟩  => by simp [anyM, anyM.loop]
   | ⟨a :: as⟩ => by
     simp only [List.anyM, anyM, List.size_toArray, List.length_cons, Nat.le_refl, ↓reduceDIte]
     rw [anyM.loop, dif_pos (by omega)]
@@ -1178,7 +1178,7 @@ theorem map_id' (xs : Array α) : map (fun (a : α) => a) xs = xs := map_id xs
 theorem map_id'' {f : α → α} (h : ∀ x, f x = x) (xs : Array α) : map f xs = xs := by
   simp [show f = id from funext h]
 
-theorem map_singleton (f : α → β) (a : α) : map f #[a] = #[f a] := rfl
+theorem map_singleton (f : α → β) (a : α) : map f #[a] = #[f a] := by simp
 
 -- We use a lower priority here as there are more specific lemmas in downstream libraries
 -- which should be able to fire first.

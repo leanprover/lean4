@@ -21,7 +21,7 @@ open Nat
 
 /-! ### eraseP -/
 
-@[simp] theorem eraseP_empty : #[].eraseP p = #[] := rfl
+@[simp] theorem eraseP_empty : #[].eraseP p = #[] := by simp
 
 theorem eraseP_of_forall_mem_not {xs : Array α} (h : ∀ a, a ∈ xs → ¬p a) : xs.eraseP p = xs := by
   rcases xs with ⟨xs⟩

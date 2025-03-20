@@ -4545,7 +4545,7 @@ theorem getKey_minKey [TransOrd α] (h : t.WF) {he hc} :
     t.getKey (t.minKey he) hc = t.minKey he := by
   simp_to_model [getKey, minKey] using List.getKey_minKey
 
-theorem getKey!_minKey [TransOrd α] {_ : Inhabited α} (h : t.WF) {he} :
+theorem getKey!_minKey [TransOrd α] [Inhabited α] (h : t.WF) {he} :
     t.getKey! (t.minKey he) = t.minKey he := by
   simp_to_model [getKey!, minKey] using List.getKey!_minKey
 

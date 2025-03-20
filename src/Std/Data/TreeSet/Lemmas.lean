@@ -838,7 +838,7 @@ theorem get_min [TransCmp cmp] {he hc} :
     t.get (t.min he) hc = t.min he :=
   DTreeMap.getKey_minKey
 
-theorem get!_min [TransCmp cmp] {_ : Inhabited α} {he} :
+theorem get!_min [TransCmp cmp] [Inhabited α] {he} :
     t.get! (t.min he) = t.min he :=
   DTreeMap.getKey!_minKey
 

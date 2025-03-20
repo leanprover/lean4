@@ -4849,7 +4849,7 @@ theorem getKey_minKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     getKey (minKey l he) l (containsKey_minKey hd) = minKey l he := by
   simpa [getKey?_eq_some_getKey (containsKey_minKey hd)] using getKey?_minKey hd (he := he)
 
-theorem getKey!_minKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {_ : Inhabited α}
+theorem getKey!_minKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {he} :
     getKey! (minKey l he) l = minKey l he := by
   simpa [getKey_eq_getKey!] using getKey_minKey hd

@@ -110,6 +110,7 @@ jobs:
         with:
           path: |
             .ccache
+            build/stage1/**/*.trace
             build/stage1/**/*.olean
             build/stage1/**/*.ilean
             build/stage1/**/*.c

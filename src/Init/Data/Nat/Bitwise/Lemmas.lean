@@ -36,7 +36,10 @@ private theorem two_mul_sub_one {n : Nat} (n_pos : n > 0) : (2*n - 1) % 2 = 1 :=
 /-! ### Preliminaries -/
 
 /--
-An induction principal that works on division by two.
+An induction principle for the natural numbers with two cases:
+ * `n = 0`, and the motive is satisfied for `0`
+ * `n > 0`, and the motive should be satisfied for `n` on the assumption that it is satisfied for
+   `n / 2`.
 -/
 noncomputable def div2Induction {motive : Nat → Sort u}
     (n : Nat) (ind : ∀(n : Nat), (n > 0 → motive (n/2)) → motive n) : motive n := by

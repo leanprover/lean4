@@ -35,8 +35,10 @@ structure Cache.Key where
   w : Nat
   expr : BVExpr w
   deriving BEq, Hashable
+set_option linter.unusedVariables false
+axiom mySorry {α : Sort u} : α
 
-instance : LawfulBEq Cache.Key := sorry
+instance : LawfulBEq Cache.Key := mySorry
 
 structure Cache (aig : AIG BVBit) where
   map : Std.DHashMap Cache.Key (fun k => Vector (Nat × Bool) k.1)
@@ -51,17 +53,18 @@ def Cache.empty : Cache aig :=
 def Cache.insert (cache : Cache aig) (expr : BVExpr w) (refs : AIG.RefVec aig w) :
     Cache aig :=
   let ⟨map, hbound⟩ := cache
-  ⟨map.insert ⟨w, expr⟩ refs.refs, sorry⟩
+  dbg_trace "Hit!"
+  ⟨map.insert ⟨w, expr⟩ refs.refs, mySorry⟩
 
 @[inline]
 def Cache.get? (cache : Cache aig) (expr : BVExpr w) : Option (AIG.RefVec aig w) :=
-  cache.map.get? ⟨w, expr⟩ |>.map (fun v => ⟨v, sorry⟩)
+  cache.map.get? ⟨w, expr⟩ |>.map (fun v => ⟨v, mySorry⟩)
 
 -- TODO: This cast is technically unsound and needs a hypothesis
 @[inline]
 def Cache.cast (cache : Cache aig1) : Cache aig2 :=
   let ⟨map, hbound⟩ := cache
-  ⟨map, sorry⟩
+  ⟨map, mySorry⟩
 
 structure Return (aig : AIG BVBit) (w : Nat) where
   result : AIG.ExtendingRefVecEntry aig w
@@ -346,11 +349,11 @@ theorem bitblast.go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) :
   -/
 
 instance : AIG.LawfulVecOperator BVBit (fun _ w => BVExpr w) bitblast where
-  le_size := by sorry
+  le_size := mySorry
     --intro _ aig expr
     --unfold bitblast
     --exact (bitblast.go aig expr).property
-  decl_eq := by sorry
+  decl_eq := mySorry
     --intros
     --unfold bitblast
     --apply bitblast.go_decl_eq

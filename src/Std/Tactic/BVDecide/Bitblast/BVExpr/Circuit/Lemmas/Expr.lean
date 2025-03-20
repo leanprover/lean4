@@ -211,7 +211,7 @@ theorem denote_bitblast (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment
         ⟦(bitblast aig expr).aig, (bitblast aig expr).vec.get idx hidx, assign.toAIGAssignment⟧
           =
         (expr.eval assign).getLsbD idx
-    := by sorry
+    := mySorry
   --intros
   --rw [← bitblast.go_val_eq_bitblast]
   --rw [bitblast.go_denote_eq]

@@ -148,26 +148,6 @@ theorem Bool.toBitVec_toISize {b : Bool} :
 @[simp] theorem Int64.toUInt64_not (a : Int64) : (~~~a).toUInt64 = ~~~a.toUInt64 := rfl
 @[simp] theorem ISize.toUSize_not (a : ISize) : (~~~a).toUSize = ~~~a.toUSize := rfl
 
-@[simp] theorem BitVec.signExtend_and {x y : BitVec w} : (x &&& y).signExtend v = (x.signExtend v) &&& (y.signExtend v) := by
-  refine eq_of_getElem_eq (fun i hi => ?_)
-  simp only [getElem_signExtend, getElem_and, msb_and]
-  split <;> simp
-
-@[simp] theorem BitVec.signExtend_or {x y : BitVec w} : (x ||| y).signExtend v = (x.signExtend v) ||| (y.signExtend v) := by
-  refine eq_of_getElem_eq (fun i hi => ?_)
-  simp only [getElem_signExtend, getElem_or, msb_or]
-  split <;> simp
-
-@[simp] theorem BitVec.signExtend_xor {x y : BitVec w} : (x ^^^ y).signExtend v = (x.signExtend v) ^^^ (y.signExtend v) := by
-  refine eq_of_getElem_eq (fun i hi => ?_)
-  simp only [getElem_signExtend, getElem_xor, msb_xor]
-  split <;> simp
-
-@[simp] theorem BitVec.signExtend_not {x : BitVec w} (h : 0 < w) : (~~~x).signExtend v = ~~~(x.signExtend v) := by
-  refine eq_of_getElem_eq (fun i hi => ?_)
-  simp [getElem_signExtend]
-  split <;> simp_all
-
 @[simp] theorem Int8.toInt16_and (a b : Int8) : (a &&& b).toInt16 = a.toInt16 &&& b.toInt16 := Int16.toBitVec_inj.1 (by simp)
 @[simp] theorem Int8.toInt32_and (a b : Int8) : (a &&& b).toInt32 = a.toInt32 &&& b.toInt32 := Int32.toBitVec_inj.1 (by simp)
 @[simp] theorem Int8.toInt64_and (a b : Int8) : (a &&& b).toInt64 = a.toInt64 &&& b.toInt64 := Int64.toBitVec_inj.1 (by simp)

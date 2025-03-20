@@ -2056,16 +2056,6 @@ theorem USize.ofNat_eq_iff_mod_eq_toNat (a : Nat) (b : USize) : USize.ofNat a = 
     USize.ofNat (a % b) = USize.ofNat a % USize.ofNat b := by
   simp [USize.ofNat_eq_iff_mod_eq_toNat, Nat.mod_mod_eq_mod_mod_mod ha hb]
 
--- TODO
-theorem Nat.mod_lt_of_lt {a b c : Nat} (h : a < c) : a % b < c :=
-  Nat.lt_of_le_of_lt (Nat.mod_le _ _) h
-
-theorem Nat.sub_lt_of_lt {a b c : Nat} (h : a < c) : a - b < c :=
-  Nat.lt_of_le_of_lt (Nat.sub_le _ _) h
-
-theorem Nat.lt_of_add_left_lt {n m k : Nat} (h : k + n < m) : n < m :=
-  Nat.lt_of_add_right_lt (Nat.add_comm _ _ ▸ h)
-
 @[simp] theorem UInt8.ofNatLT_mod {a b : Nat} (ha : a < 2 ^ 8) (hb : b < 2 ^ 8) :
     UInt8.ofNatLT (a % b) (Nat.mod_lt_of_lt ha) = UInt8.ofNatLT a ha % UInt8.ofNatLT b hb := by
   simp [UInt8.ofNatLT_eq_ofNat, UInt8.ofNat_mod ha hb]

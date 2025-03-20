@@ -435,9 +435,6 @@ expression `(a >>> b).toUInt8` is not a function of `a.toUInt8` and `b.toUInt8`.
 @[simp] theorem UInt64.ofBitVec_and (a b : BitVec 64) : UInt64.ofBitVec (a &&& b) = UInt64.ofBitVec a &&& UInt64.ofBitVec b := rfl
 @[simp] theorem USize.ofBitVec_and (a b : BitVec System.Platform.numBits) : USize.ofBitVec (a &&& b) = USize.ofBitVec a &&& USize.ofBitVec b := rfl
 
-@[simp] theorem BitVec.ofNat_and {a b : Nat} : BitVec.ofNat w (a &&& b) = BitVec.ofNat w a &&& BitVec.ofNat w b :=
-  eq_of_toNat_eq (by simp [Nat.and_mod_two_pow])
-
 @[simp] theorem UInt8.ofNat_and (a b : Nat) : UInt8.ofNat (a &&& b) = UInt8.ofNat a &&& UInt8.ofNat b :=
   UInt8.toBitVec_inj.1 (by simp [UInt8.toBitVec_ofNat'])
 @[simp] theorem UInt16.ofNat_and (a b : Nat) : UInt16.ofNat (a &&& b) = UInt16.ofNat a &&& UInt16.ofNat b :=
@@ -473,9 +470,6 @@ expression `(a >>> b).toUInt8` is not a function of `a.toUInt8` and `b.toUInt8`.
 @[simp] theorem UInt32.ofBitVec_or (a b : BitVec 32) : UInt32.ofBitVec (a ||| b) = UInt32.ofBitVec a ||| UInt32.ofBitVec b := rfl
 @[simp] theorem UInt64.ofBitVec_or (a b : BitVec 64) : UInt64.ofBitVec (a ||| b) = UInt64.ofBitVec a ||| UInt64.ofBitVec b := rfl
 @[simp] theorem USize.ofBitVec_or (a b : BitVec System.Platform.numBits) : USize.ofBitVec (a ||| b) = USize.ofBitVec a ||| USize.ofBitVec b := rfl
-
-@[simp] theorem BitVec.ofNat_or {a b : Nat} : BitVec.ofNat w (a ||| b) = BitVec.ofNat w a ||| BitVec.ofNat w b :=
-  eq_of_toNat_eq (by simp [Nat.or_mod_two_pow])
 
 @[simp] theorem UInt8.ofNat_or (a b : Nat) : UInt8.ofNat (a ||| b) = UInt8.ofNat a ||| UInt8.ofNat b :=
   UInt8.toBitVec_inj.1 (by simp [UInt8.toBitVec_ofNat'])
@@ -513,9 +507,6 @@ expression `(a >>> b).toUInt8` is not a function of `a.toUInt8` and `b.toUInt8`.
 @[simp] theorem UInt64.ofBitVec_xor (a b : BitVec 64) : UInt64.ofBitVec (a ^^^ b) = UInt64.ofBitVec a ^^^ UInt64.ofBitVec b := rfl
 @[simp] theorem USize.ofBitVec_xor (a b : BitVec System.Platform.numBits) : USize.ofBitVec (a ^^^ b) = USize.ofBitVec a ^^^ USize.ofBitVec b := rfl
 
-@[simp] theorem BitVec.ofNat_xor {a b : Nat} : BitVec.ofNat w (a ^^^ b) = BitVec.ofNat w a ^^^ BitVec.ofNat w b :=
-  eq_of_toNat_eq (by simp [Nat.xor_mod_two_pow])
-
 @[simp] theorem UInt8.ofNat_xor (a b : Nat) : UInt8.ofNat (a ^^^ b) = UInt8.ofNat a ^^^ UInt8.ofNat b :=
   UInt8.toBitVec_inj.1 (by simp [UInt8.toBitVec_ofNat'])
 @[simp] theorem UInt16.ofNat_xor (a b : Nat) : UInt16.ofNat (a ^^^ b) = UInt16.ofNat a ^^^ UInt16.ofNat b :=
@@ -551,15 +542,6 @@ expression `(a >>> b).toUInt8` is not a function of `a.toUInt8` and `b.toUInt8`.
 @[simp] theorem UInt32.ofFin_rev (a : Fin UInt32.size) : UInt32.ofFin a.rev = ~~~UInt32.ofFin a := UInt32.toFin_inj.1 (by simp)
 @[simp] theorem UInt64.ofFin_rev (a : Fin UInt64.size) : UInt64.ofFin a.rev = ~~~UInt64.ofFin a := UInt64.toFin_inj.1 (by simp)
 @[simp] theorem USize.ofFin_rev (a : Fin USize.size) : USize.ofFin a.rev = ~~~USize.ofFin a := USize.toFin_inj.1 (by simp)
-
-instance : NeZero System.Platform.numBits where
-  out := Nat.ne_zero_of_lt System.Platform.numBits_pos
-
-theorem Nat.le_shiftLeft {a b : Nat} : a ≤ a <<< b :=
-  Nat.shiftLeft_eq _ _ ▸ Nat.le_mul_of_pos_right _ (Nat.two_pow_pos _)
-
-theorem Nat.lt_of_shiftLeft_lt {a b c : Nat} (h : a <<< b < c) : a < c :=
-  Nat.lt_of_le_of_lt Nat.le_shiftLeft h
 
 @[simp] theorem UInt8.ofBitVec_shiftLeft (a : BitVec 8) (b : Nat) (hb : b < 8) : UInt8.ofBitVec (a <<< b) = UInt8.ofBitVec a <<< UInt8.ofNat b :=
   UInt8.toBitVec_inj.1 (by simp [Nat.mod_eq_of_lt hb])
@@ -712,4 +694,3 @@ theorem Nat.lt_of_shiftLeft_lt {a b c : Nat} (h : a <<< b < c) : a < c :=
     toFin_ofFin, toFin_ofNat', ← Fin.ofNat'_val_eq_self ⟨System.Platform.numBits, _⟩]
   rw [USize.toNat_mod, toNat_ofNat']
   cases System.Platform.numBits_eq <;> simpa [*] using Nat.mod_lt _ (by decide)
-

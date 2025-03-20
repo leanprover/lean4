@@ -1692,7 +1692,6 @@ theorem BitVec.toNat_smod_ofNat_self (b : BitVec w) : (b.smod (BitVec.ofNat w w)
 @[simp] theorem Int64.not_le (n m : Int64) : ¬n ≤ m ↔ m < n := by simp [le_iff_toInt_le, lt_iff_toInt_lt]
 @[simp] theorem ISize.not_le (n m : ISize) : ¬n ≤ m ↔ m < n := by simp [le_iff_toInt_le, lt_iff_toInt_lt]
 
-
 @[simp] theorem Int8.neg_nonpos_iff (n : Int8) : -n ≤ 0 ↔ n = minValue ∨ 0 ≤ n := by
   rw [le_iff_toBitVec_sle, toBitVec_zero, toBitVec_neg, BitVec.neg_sle_zero (by decide)]
   simp [← toBitVec_inj, le_iff_toBitVec_sle, BitVec.intMin_eq_neg_two_pow]

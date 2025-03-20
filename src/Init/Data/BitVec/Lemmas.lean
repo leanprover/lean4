@@ -2371,6 +2371,30 @@ theorem toInt_signExtend_eq_toInt_bmod_of_le (x : BitVec w) (h : v ≤ w) :
     (x.signExtend v).toInt = x.toInt.bmod (2 ^ v) := by
   rw [BitVec.toInt_signExtend, Nat.min_eq_left h]
 
+@[simp] theorem BitVec.signExtend_and {x y : BitVec w} :
+    (x &&& y).signExtend v = (x.signExtend v) &&& (y.signExtend v) := by
+  refine eq_of_getElem_eq (fun i hi => ?_)
+  simp only [getElem_signExtend, getElem_and, msb_and]
+  split <;> simp
+
+@[simp] theorem BitVec.signExtend_or {x y : BitVec w} :
+    (x ||| y).signExtend v = (x.signExtend v) ||| (y.signExtend v) := by
+  refine eq_of_getElem_eq (fun i hi => ?_)
+  simp only [getElem_signExtend, getElem_or, msb_or]
+  split <;> simp
+
+@[simp] theorem BitVec.signExtend_xor {x y : BitVec w} :
+    (x ^^^ y).signExtend v = (x.signExtend v) ^^^ (y.signExtend v) := by
+  refine eq_of_getElem_eq (fun i hi => ?_)
+  simp only [getElem_signExtend, getElem_xor, msb_xor]
+  split <;> simp
+
+@[simp] theorem BitVec.signExtend_not {x : BitVec w} (h : 0 < w) :
+    (~~~x).signExtend v = ~~~(x.signExtend v) := by
+  refine eq_of_getElem_eq (fun i hi => ?_)
+  simp [getElem_signExtend]
+  split <;> simp_all
+
 /-! ### append -/
 
 theorem append_def (x : BitVec v) (y : BitVec w) :

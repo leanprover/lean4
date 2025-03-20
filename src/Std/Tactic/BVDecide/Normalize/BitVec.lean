@@ -8,6 +8,7 @@ import Init.Data.BitVec.Bitblast
 import Init.Data.AC
 import Std.Tactic.BVDecide.Normalize.Bool
 import Std.Tactic.BVDecide.Normalize.Canonicalize
+import Init.Data.SInt.Basic
 
 /-!
 This module contains the `BitVec` simplifying part of the `bv_normalize` simp set.
@@ -476,6 +477,106 @@ theorem BitVec.norm_bv_add_mul {x y : BitVec w} : ~~~(x * ~~~y) + 1#w = x + (x *
 @[bv_normalize]
 theorem BitVec.norm_bv_add_mul' {x y : BitVec w} : ~~~(~~~y * x) + 1#w = x + (y * x) := by
   rw [BitVec.mul_comm (~~~y) x, BitVec.mul_comm y x, BitVec.norm_bv_add_mul]
+
+@[int_toBitVec]
+theorem UInt8.toBitVec_cond :
+    UInt8.toBitVec (bif c then t else e) = bif c then t.toBitVec else e.toBitVec := by
+  rw [Bool.apply_cond UInt8.toBitVec]
+
+@[int_toBitVec]
+theorem UInt16.toBitVec_cond :
+    UInt16.toBitVec (bif c then t else e) = bif c then t.toBitVec else e.toBitVec := by
+  rw [Bool.apply_cond UInt16.toBitVec]
+
+@[int_toBitVec]
+theorem UInt32.toBitVec_cond :
+    UInt32.toBitVec (bif c then t else e) = bif c then t.toBitVec else e.toBitVec := by
+  rw [Bool.apply_cond UInt32.toBitVec]
+
+@[int_toBitVec]
+theorem UInt64.toBitVec_cond :
+    UInt64.toBitVec (bif c then t else e) = bif c then t.toBitVec else e.toBitVec := by
+  rw [Bool.apply_cond UInt64.toBitVec]
+
+@[int_toBitVec]
+theorem USize.toBitVec_cond :
+    USize.toBitVec (bif c then t else e) = bif c then t.toBitVec else e.toBitVec := by
+  rw [Bool.apply_cond USize.toBitVec]
+
+@[int_toBitVec]
+theorem Int8.toBitVec_cond :
+    Int8.toBitVec (bif c then t else e) = bif c then t.toBitVec else e.toBitVec := by
+  rw [Bool.apply_cond Int8.toBitVec]
+
+@[int_toBitVec]
+theorem Int16.toBitVec_cond :
+    Int16.toBitVec (bif c then t else e) = bif c then t.toBitVec else e.toBitVec := by
+  rw [Bool.apply_cond Int16.toBitVec]
+
+@[int_toBitVec]
+theorem Int32.toBitVec_cond :
+    Int32.toBitVec (bif c then t else e) = bif c then t.toBitVec else e.toBitVec := by
+  rw [Bool.apply_cond Int32.toBitVec]
+
+@[int_toBitVec]
+theorem Int64.toBitVec_cond :
+    Int64.toBitVec (bif c then t else e) = bif c then t.toBitVec else e.toBitVec := by
+  rw [Bool.apply_cond Int64.toBitVec]
+
+@[int_toBitVec]
+theorem ISize.toBitVec_cond :
+    ISize.toBitVec (bif c then t else e) = bif c then t.toBitVec else e.toBitVec := by
+  rw [Bool.apply_cond ISize.toBitVec]
+
+@[int_toBitVec]
+theorem UInt8.toBitVec_ite [Decidable c] :
+    UInt8.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+  rw [apply_ite UInt8.toBitVec]
+
+@[int_toBitVec]
+theorem UInt16.toBitVec_ite [Decidable c] :
+    UInt16.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+  rw [apply_ite UInt16.toBitVec]
+
+@[int_toBitVec]
+theorem UInt32.toBitVec_ite [Decidable c] :
+    UInt32.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+  rw [apply_ite UInt32.toBitVec]
+
+@[int_toBitVec]
+theorem UInt64.toBitVec_ite [Decidable c] :
+    UInt64.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+  rw [apply_ite UInt64.toBitVec]
+
+@[int_toBitVec]
+theorem USize.toBitVec_ite [Decidable c] :
+    USize.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+  rw [apply_ite USize.toBitVec]
+
+@[int_toBitVec]
+theorem Int8.toBitVec_ite [Decidable c] :
+    Int8.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+  rw [apply_ite Int8.toBitVec]
+
+@[int_toBitVec]
+theorem Int16.toBitVec_ite [Decidable c] :
+    Int16.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+  rw [apply_ite Int16.toBitVec]
+
+@[int_toBitVec]
+theorem Int32.toBitVec_ite [Decidable c] :
+    Int32.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+  rw [apply_ite Int32.toBitVec]
+
+@[int_toBitVec]
+theorem Int64.toBitVec_ite [Decidable c] :
+    Int64.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+  rw [apply_ite Int64.toBitVec]
+
+@[int_toBitVec]
+theorem ISize.toBitVec_ite [Decidable c] :
+    ISize.toBitVec (if c then t else e) = if c then t.toBitVec else e.toBitVec := by
+  rw [apply_ite ISize.toBitVec]
 
 end Normalize
 end Std.Tactic.BVDecide

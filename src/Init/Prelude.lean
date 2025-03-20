@@ -3370,13 +3370,17 @@ end
 section
 variable {ρ : Type u} {m : Type u → Type v}
 
-/-- Retrieves the reader monad's local value. -/
+/--
+Retrieves the reader monad's local value. Typically accessed via `read`, or via `readThe` when more
+than one local value is available.
+-/
 @[always_inline, inline]
 protected def read [Monad m] : ReaderT ρ m ρ :=
   pure
 
 /--
-Returns the provided value, ignoring the reader monad's local value.
+Returns the provided value `a`, ignoring the reader monad's local value. Typically used via
+`Pure.pure`.
 -/
 @[always_inline, inline]
 protected def pure [Monad m] {α} (a : α) : ReaderT ρ m α :=
@@ -3384,7 +3388,7 @@ protected def pure [Monad m] {α} (a : α) : ReaderT ρ m α :=
 
 /--
 Sequences two reader monad computations. Both are provided with the local value, and the second is
-passed the value of the first.
+passed the value of the first. Typically used via the `>>=` operator.
 -/
 @[always_inline, inline]
 protected def bind [Monad m] {α β} (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) : ReaderT ρ m β :=
@@ -3529,7 +3533,9 @@ instance {ρ : Type u} {m : Type u → Type v} : MonadWithReaderOf ρ (ReaderT �
   withReader f x := fun ctx => x (f ctx)
 
 /--
-State monads provide one mutable value of a given type.
+State monads provide a value of a given type (the _state_) that can be retrieved or replaced.
+Instances may implement these operations by passing state values around, by using a mutable
+reference cell (e.g. `ST.Ref σ`), or in other ways.
 
 In this class, `σ` is a `semiOutParam`, which means that it can influence the choice of instance.
 `MonadState σ` provides the same operations, but requires that `σ` be inferrable from `m`.
@@ -3592,7 +3598,9 @@ abbrev modifyGetThe {α : Type u} (σ : Type u) {m : Type u → Type v} [MonadSt
   MonadStateOf.modifyGet f
 
 /--
-State monads provide one mutable value of a given type.
+State monads provide a value of a given type (the _state_) that can be retrieved or replaced.
+Instances may implement these operations by passing state values around, by using a mutable
+reference cell (e.g. `ST.Ref σ`), or in other ways.
 
 In this class, `σ` is an `outParam`, which means that it is inferred from `m`. `MonadStateOf σ`
 provides the same operations, but allows `σ` to influence instance synthesis.

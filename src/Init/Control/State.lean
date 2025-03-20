@@ -17,8 +17,8 @@ universe u v w
 /--
 Adds a mutable state of type `σ` to a monad.
 
-Actions in the resulting monad are functions that take an initial state and return a tuple of a
-value and a state in `m`.
+Actions in the resulting monad are functions that take an initial state and return, in `m`, a tuple
+of a value and a state.
 -/
 def StateT (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
   σ → m (α × σ)
@@ -62,21 +62,21 @@ variable {σ : Type u} {m : Type u → Type v}
 variable [Monad m] {α β : Type u}
 
 /--
-Returns the given value in a transformed state monad without modifying the state.
+Returns the given value without modifying the state. Typically used via `Pure.pure`.
 -/
 @[always_inline, inline]
 protected def pure (a : α) : StateT σ m α :=
   fun s => pure (a, s)
 
 /--
-Sequences two actions in a transformed state monad.
+Sequences two actions. Typically used via the `>>=` operator.
 -/
 @[always_inline, inline]
 protected def bind (x : StateT σ m α) (f : α → StateT σ m β) : StateT σ m β :=
   fun s => do let (a, s) ← x s; f a s
 
 /--
-Modifies the value returned by a transformed state monad computation.
+Modifies the value returned by a computation. Typically used via the `<$>` operator.
 -/
 @[always_inline, inline]
 protected def map (f : α → β) (x : StateT σ m α) : StateT σ m β :=

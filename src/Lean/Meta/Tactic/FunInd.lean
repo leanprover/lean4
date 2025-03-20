@@ -1213,7 +1213,7 @@ def deriveCases (name : Name) : MetaM Unit := do
     setFunIndInfo {
       funIndName := casesName
       levelMask := usMask
-      params := mkArray motiveArity .target
+      params := .replicate motiveArity .target
     }
 
 

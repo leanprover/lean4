@@ -653,6 +653,20 @@ theorem toInt_one (h : 1 < w) : (1#w : BitVec w).toInt = 1 := by
   · simp
     omega
 
+theorem msb_eq_toNat {x : BitVec w}:
+    x.msb = decide (x.toNat ≥ 2 ^ (w - 1)) := by
+  simp only [msb_eq_decide, ge_iff_le]
+
+theorem toNat_lt_of_msb_false {w : Nat} {x : BitVec w} (h : x.msb = false) : x.toNat < 2 ^ (w - 1) := by
+  have rt := @msb_eq_toNat w x
+  simp only [ge_iff_le, false_eq_decide_iff, Nat.not_le, h] at rt
+  omega
+
+theorem le_toNat_of_msb_true {w : Nat} {x : BitVec w} (h : x.msb = true) : 2 ^ (w - 1) ≤ x.toNat := by
+  have rt := @msb_eq_toNat w x
+  simp only [h, ge_iff_le, true_eq_decide_iff] at rt
+  omega
+
 /--
 `x.toInt` is less than `2^(w-1)`.
 We phrase the fact in terms of `2^w` to prevent a case split on `w=0` when the lemma is used.
@@ -4621,10 +4635,6 @@ theorem sub_le_sub_iff_le {x y z : BitVec w} (hxz : z ≤ x) (hyz : z ≤ y) :
 theorem msb_eq_toInt {x : BitVec w}:
     x.msb = decide (x.toInt < 0) := by
   by_cases h : x.msb <;> simp [h, toInt_eq_msb_cond] <;> omega
-
-theorem msb_eq_toNat {x : BitVec w}:
-    x.msb = decide (x.toNat ≥ 2 ^ (w - 1)) := by
-  simp only [msb_eq_decide, ge_iff_le]
 
 /-! ### abs -/
 

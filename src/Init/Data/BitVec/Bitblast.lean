@@ -1343,19 +1343,15 @@ theorem eq_iff_eq_of_inv (f : α → BitVec w) (g : BitVec w → α) (h : ∀ x,
 
 theorem ne_intMin_of_lt_of_msb_false {x : BitVec w} (hw : 0 < w) (hx : x.msb = false) :
     x ≠ intMin w := by
-  have rt := @msb_eq_toNat w x
-  simp only [ge_iff_le, false_eq_decide_iff, Nat.not_le, hx] at rt
+  have := toNat_lt_of_msb_false hx
   simp [toNat_eq, Nat.two_pow_pred_mod_two_pow hw]
   omega
 
 theorem ne_zero_of_msb_true {x : BitVec w} (hx : x.msb = true) :
     x ≠ 0#w := by
   have := Nat.two_pow_pos (w-1)
-  intros h
-  rw [toNat_eq] at h
-  have sr := @msb_eq_toNat w x
-  rw [hx] at sr
-  simp at sr h
+  have := le_toNat_of_msb_true hx
+  simp [toNat_eq]
   omega
 
 theorem msb_neg_of_ne_intMin_of_ne_zero {x : BitVec w} (h : x ≠ intMin w) (h' : x ≠ 0#w) :

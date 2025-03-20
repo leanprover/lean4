@@ -146,7 +146,7 @@ none
 
 /-- Partial filter. If `o : Option α`, `p : (a : α) → a ∈ x → Bool`, then `o.pfilter p` is
 the same as `o.filter p` but `p` is passed the proof that `a ∈ o`. -/
-@[inline] def pfilter (o : Option α) (p : (a : α) → a ∈ o → Bool) : Option α :=
+@[inline] def pfilter (o : Option α) (p : (a : α) → o = some a → Bool) : Option α :=
   match o with
   | none => none
   | some a => bif p a rfl then o else none

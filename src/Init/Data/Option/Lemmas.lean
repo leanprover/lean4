@@ -769,22 +769,22 @@ theorem pmap_map (o : Option α) (f : α → β) {p : β → Prop} (g : ∀ b, p
 
 @[congr]
 theorem pfilter_congr {α : Type u} {o o' : Option α} (ho : o = o')
-    {f : (a : α) → a ∈ o → Bool} {g : (a : α) → a ∈ o' → Bool}
+    {f : (a : α) → o = some a → Bool} {g : (a : α) → o' = some a → Bool}
     (hf : ∀ a ha, f a (ho.trans ha) = g a ha) :
     o.pfilter f = o'.pfilter g := by
   cases ho
   congr; funext a ha
   exact hf a ha
 
-theorem pfilter_none {α : Type _} {p : (a : α) → a ∈ none → Bool} :
+theorem pfilter_none {α : Type _} {p : (a : α) → none = some a → Bool} :
     none.pfilter p = none := by
   simp [pfilter]
 
-theorem pfilter_some {α : Type _} {x : α} {p : (a : α) → a ∈ some x → Bool} :
+theorem pfilter_some {α : Type _} {x : α} {p : (a : α) → some x = some a → Bool} :
     (some x).pfilter p = if p x rfl then some x else none := by
   simp [pfilter]
 
-theorem pfilter_eq_none {α : Type _} {o : Option α} {p : (a : α) → a ∈ o → Bool} :
+theorem pfilter_eq_none {α : Type _} {o : Option α} {p : (a : α) → o = some a → Bool} :
     o.pfilter p = none ↔ o = none ∨ ∃ (a : α) (ha : a ∈ o), p a ha = false := by
   simp [Option.pfilter]
   cases o with
@@ -800,7 +800,7 @@ theorem pfilter_eq_none {α : Type _} {o : Option α} {p : (a : α) → a ∈ o 
       rcases h with ⟨a, ha, h⟩
       simp [ha, h]
 
-theorem pfilter_eq_some {α : Type _} {o : Option α} {p : (a : α) → a ∈ o → Bool}
+theorem pfilter_eq_some {α : Type _} {o : Option α} {p : (a : α) → o = some a → Bool}
     {a : α} (ha : a ∈ o) :
     o.pfilter p = some a ↔ p a ha = true := by
   simp only [Option.pfilter]
@@ -818,7 +818,7 @@ theorem pfilter_eq_filter {α : Type _} {o : Option α} {p : α → Bool} :
     simp [Option.pfilter, Option.filter]
 
 theorem pfilter_eq_pbind_ite {α : Type _} {o : Option α}
-    {p : (a : α) → a ∈ o → Bool} :
+    {p : (a : α) → o = some a → Bool} :
     o.pfilter p = o.pbind (fun a h => if p a h then some a else none) := by
   cases o
   · rfl

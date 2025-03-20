@@ -124,6 +124,7 @@ init_grind_norm
   Nat.le_zero_eq Nat.lt_eq Nat.succ_eq_add_one
   Nat.add_eq Nat.sub_eq Nat.mul_eq Nat.zero_eq Nat.le_eq
   Nat.div_zero Nat.mod_zero Nat.div_one Nat.mod_one
+  Nat.sub_sub
   -- Int
   Int.lt_eq
   Int.emod_neg Int.ediv_neg

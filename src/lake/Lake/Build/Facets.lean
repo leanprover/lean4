@@ -176,7 +176,14 @@ library_data leanArts : Unit
 abbrev LeanLib.staticFacet := `static
 library_data static : FilePath
 
-/-- A Lean library's static artifact (with exported symbols). -/
+/--
+A Lean library's static artifact (with exported symbols).
+
+Static libraries with explicit exports are built as thin libraries.
+Such libraries are usually used as part of the local build process of some
+shared artifact and not publicly distributed. Standard static libraries are
+much better for distribution.
+-/
 abbrev LeanLib.staticExportFacet := `static.export
 library_data static.export : FilePath
 

@@ -83,6 +83,7 @@ ExternalProject_add(stage1
   BUILD_ALWAYS ON
   INSTALL_COMMAND ""
   DEPENDS stage0
+  STEP_TARGETS configure
 )
 ExternalProject_add(stage2
   SOURCE_DIR "${LEAN_SOURCE_DIR}"

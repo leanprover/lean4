@@ -129,6 +129,17 @@ We have pure functions for calculating the decimal representation of a `Nat` (`t
 a fast variant that handles small numbers (`USize`) via C code (`lean_string_of_usize`).
 -/
 
+/--
+Returns a single digit representation of `n`, which is assumed to be in a base less than or equal to
+`16`. Returns `'*'` if `n > 15`.
+
+Examples:
+ * `Nat.digitChar 5 = '5'`
+ * `Nat.digitChar 12 = 'c'`
+ * `Nat.digitChar 15 = 'f'`
+ * `Nat.digitChar 16 = '*'`
+ * `Nat.digitChar 85 = '*'`
+-/
 def digitChar (n : Nat) : Char :=
   if n = 0 then '0' else
   if n = 1 then '1' else
@@ -156,6 +167,16 @@ def toDigitsCore (base : Nat) : Nat → Nat → List Char → List Char
     if n' = 0 then d::ds
     else toDigitsCore base fuel n' (d::ds)
 
+/--
+Returns the decimal representation of a natural number as a list of digit characters in the given
+base. If the base is greater than `16` then `'*'` is returned for digits greater than `0xf`.
+
+Examples:
+* `Nat.toDigits 10 0xff = ['2', '5', '5']`
+* `Nat.toDigits 8 0xc = ['1', '4']`
+* `Nat.toDigits 16 0xcafe = ['c', 'a', 'f', 'e']`
+* `Nat.toDigits 80 200 = ['2', '*']`
+-/
 def toDigits (base : Nat) (n : Nat) : List Char :=
   toDigitsCore base (n+1) n []
 
@@ -172,10 +193,22 @@ private def reprFast (n : Nat) : String :=
   if h : n < USize.size then (USize.ofNatLT n h).repr
   else (toDigits 10 n).asString
 
+/--
+Converts a natural number to its decimal string representation.
+-/
 @[implemented_by reprFast]
 protected def repr (n : Nat) : String :=
   (toDigits 10 n).asString
 
+/--
+Converts a natural number less than `10` to the corresponding Unicode superscript digit character.
+Returns `'*'` for other numbers.
+
+Examples:
+* `Nat.superDigitChar 3 = '³'`
+* `Nat.superDigitChar 7 = '⁷'`
+* `Nat.superDigitChar 10 = '*'`
+-/
 def superDigitChar (n : Nat) : Char :=
   if n = 0 then '⁰' else
   if n = 1 then '¹' else
@@ -196,12 +229,37 @@ partial def toSuperDigitsAux : Nat → List Char → List Char
     if n' = 0 then d::ds
     else toSuperDigitsAux n' (d::ds)
 
+/--
+Converts a natural number to the list of Unicode superscript digit characters that corresponds to
+its decimal representation.
+
+Examples:
+ * `Nat.toSuperDigits 0 = ['⁰']`
+ * `Nat.toSuperDigits 35 = ['³', '⁵']`
+-/
 def toSuperDigits (n : Nat) : List Char :=
   toSuperDigitsAux n []
 
+/--
+Converts a natural number to a string that contains the its decimal representation as Unicode
+superscript digit characters.
+
+Examples:
+ * `Nat.toSuperscriptString 0 = "⁰"`
+ * `Nat.toSuperscriptString 35 = "³⁵"`
+-/
 def toSuperscriptString (n : Nat) : String :=
   (toSuperDigits n).asString
 
+/--
+Converts a natural number less than `10` to the corresponding Unicode subscript digit character.
+Returns `'*'` for other numbers.
+
+Examples:
+* `Nat.subDigitChar 3 = '₃'`
+* `Nat.subDigitChar 7 = '₇'`
+* `Nat.subDigitChar 10 = '*'`
+-/
 def subDigitChar (n : Nat) : Char :=
   if n = 0 then '₀' else
   if n = 1 then '₁' else
@@ -222,9 +280,25 @@ partial def toSubDigitsAux : Nat → List Char → List Char
     if n' = 0 then d::ds
     else toSubDigitsAux n' (d::ds)
 
+/--
+Converts a natural number to the list of Unicode subscript digit characters that corresponds to
+its decimal representation.
+
+Examples:
+ * `Nat.toSubDigits 0 = ['₀']`
+ * `Nat.toSubDigits 35 = ['₃', '₅']`
+-/
 def toSubDigits (n : Nat) : List Char :=
   toSubDigitsAux n []
 
+/--
+Converts a natural number to a string that contains the its decimal representation as Unicode
+subscript digit characters.
+
+Examples:
+ * `Nat.toSubscriptString 0 = "₀"`
+ * `Nat.toSubscriptString 35 = "₃₅"`
+-/
 def toSubscriptString (n : Nat) : String :=
   (toSubDigits n).asString
 

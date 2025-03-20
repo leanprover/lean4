@@ -2768,4 +2768,107 @@ end Const
 
 end Modify
 
+section Min
+
+@[simp]
+theorem minKey?_emptyc :
+    (∅ : Raw α β cmp).minKey? = none :=
+  Impl.minKey?_empty
+
+theorem minKey?_of_isEmpty [TransCmp cmp] (h : t.WF) :
+    (he : t.isEmpty) → t.minKey? = none :=
+  Impl.minKey?_of_isEmpty h
+
+@[simp]
+theorem minKey?_eq_none_iff [TransCmp cmp] (h : t.WF) :
+    t.minKey? = none ↔ t.isEmpty :=
+  Impl.minKey?_eq_none_iff h
+
+@[simp]
+theorem isNone_minKey?_eq_isEmpty [TransCmp cmp] (h : t.WF) :
+    t.minKey?.isNone = t.isEmpty :=
+  Impl.isNone_minKey?_eq_isEmpty h
+
+@[simp]
+theorem isSome_minKey?_eq_not_isEmpty [TransCmp cmp] (h : t.WF) :
+    t.minKey?.isSome = !t.isEmpty :=
+  Impl.isSome_minKey?_eq_not_isEmpty h
+
+theorem minKey?_insert [TransCmp cmp] (h : t.WF) {k v} :
+    (t.insert k v).minKey? =
+      some (t.minKey?.elim k fun k' => if cmp k k'|>.isLE then k else k') :=
+  Impl.minKey?_insert! h
+
+theorem isSome_minKey?_insert [TransCmp cmp] (h : t.WF) {k v} :
+    (t.insert k v).minKey?.isSome :=
+  Impl.isSome_minKey?_insert! h
+
+theorem minKey?_insert_le_minKey? [TransCmp cmp] (h : t.WF) {k v km kmi} :
+    (hkm : t.minKey? = some km) →
+    (hkmi : (t.insert k v |>.minKey? |>.get <| isSome_minKey?_insert h) = kmi) →
+    cmp kmi km |>.isLE :=
+  Impl.minKey?_insert!_le_minKey? h
+
+theorem minKey?_insert_le_self [TransCmp cmp] (h : t.WF) {k v kmi} :
+    (hkmi : (t.insert k v |>.minKey?.get <| isSome_minKey?_insert h) = kmi) →
+    cmp kmi k |>.isLE :=
+  Impl.minKey?_insert!_le_self h
+
+theorem contains_minKey? [TransCmp cmp] (h : t.WF) {km} :
+    (hkm : t.minKey? = some km) →
+    t.contains km :=
+  Impl.contains_minKey? h
+
+theorem minKey?_mem [TransCmp cmp] (h : t.WF) {km} :
+    (hkm : t.minKey? = some km) →
+    km ∈ t:=
+  Impl.minKey?_mem h
+
+theorem isSome_minKey?_of_contains [TransCmp cmp] (h : t.WF) {k} :
+    (hc : t.contains k) → t.minKey?.isSome :=
+  Impl.isSome_minKey?_of_contains h
+
+theorem isSome_minKey?_of_mem [TransCmp cmp] (h : t.WF) {k} :
+    k ∈ t → t.minKey?.isSome :=
+  Impl.isSome_minKey?_of_mem h
+
+theorem minKey?_le_of_contains [TransCmp cmp] (h : t.WF) {k km} :
+    (hc : t.contains k) → (hkm : (t.minKey?.get <| isSome_minKey?_of_contains h hc) = km) →
+    cmp km k |>.isLE :=
+  Impl.minKey?_le_of_contains h
+
+theorem minKey?_le_of_mem [TransCmp cmp] (h : t.WF) {k km} :
+    (hc : k ∈ t) → (hkm : (t.minKey?.get <| isSome_minKey?_of_mem h hc) = km) →
+    cmp km k |>.isLE :=
+  Impl.minKey?_le_of_mem h
+
+@[simp]
+theorem minKey?_bind_getKey? [TransCmp cmp] (h : t.WF) :
+    t.minKey?.bind t.getKey? = t.minKey? :=
+  Impl.minKey?_bind_getKey? h
+
+theorem minKey?_erase_eq_iff_not_compare_eq_minKey? [TransCmp cmp] (h : t.WF) {k} :
+    (t.erase k |>.minKey?) = t.minKey? ↔
+      ∀ {km}, t.minKey? = some km → ¬ cmp k km = .eq :=
+  Impl.minKey?_erase!_eq_iff_not_compare_eq_minKey? h
+
+theorem minKey?_erase_eq_of_not_compare_eq_minKey? [TransCmp cmp] (h : t.WF) {k} :
+    (hc : ∀ {km}, t.minKey? = some km → ¬ cmp k km = .eq) →
+    (t.erase k |>.minKey?) = t.minKey? :=
+  Impl.minKey?_erase!_eq_of_not_compare_eq_minKey? h
+
+theorem isSome_minKey?_of_isSome_minKey?_erase [TransCmp cmp] (h : t.WF) {k} :
+    (hs : t.erase k |>.minKey?.isSome) →
+    t.minKey?.isSome :=
+  Impl.isSome_minKey?_of_isSome_minKey?_erase! h
+
+theorem minKey?_le_minKey?_erase [TransCmp cmp] (h : t.WF) {k km kme} :
+    (hkme : (t.erase k |>.minKey?) = some kme) →
+    (hkm : (t.minKey?.get <|
+      isSome_minKey?_of_isSome_minKey?_erase h <| hkme ▸ Option.isSome_some) = km) →
+    cmp km kme |>.isLE :=
+  Impl.minKey?_le_minKey?_erase! h
+
+end Min
+
 end Std.DTreeMap.Raw

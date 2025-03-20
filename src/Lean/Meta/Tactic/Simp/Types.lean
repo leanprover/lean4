@@ -515,21 +515,6 @@ def Result.getProof (r : Result) : MetaM Expr := do
   | some p => return p
   | none   => mkEqRefl r.expr
 
-/--
-  Similar to `Result.getProof`, but adds a `mkExpectedTypeHint` if `proof?` is `none`
-  (i.e., result is definitionally equal to input), but we cannot establish that
-  `source` and `r.expr` are definitionally when using `TransparencyMode.reducible`. -/
-def Result.getProof' (source : Expr) (r : Result) : MetaM Expr := do
-  match r.proof? with
-  | some p => return p
-  | none   =>
-    if (← isDefEq source r.expr) then
-      mkEqRefl r.expr
-    else
-      /- `source` and `r.expr` must be definitionally equal, but
-         are not definitionally equal at `TransparencyMode.reducible` -/
-      mkExpectedTypeHint (← mkEqRefl r.expr) (← mkEq source r.expr)
-
 /-- Construct the `Expr` `cast h e`, from a `Simp.Result` with proof `h`. -/
 def Result.mkCast (r : Simp.Result) (e : Expr) : MetaM Expr := do
   mkAppM ``cast #[← r.getProof, e]
@@ -735,7 +720,7 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
     | CongrArgKind.eq =>
       subst := subst.push arg
       let argResult := argResults[j]!
-      let argProof ← argResult.getProof' arg
+      let argProof ← argResult.getProof
       j := j + 1
       proof := mkApp2 proof argResult.expr argProof
       subst := subst.push argResult.expr |>.push argProof

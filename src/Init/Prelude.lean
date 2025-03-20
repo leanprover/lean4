@@ -3441,16 +3441,6 @@ class MonadReaderOf (ρ : semiOutParam (Type u)) (m : Type u → Type v) where
   read : m ρ
 
 /--
-Retrieves the local value whose type is `ρ`.  This is useful when a monad supports reading more that
-one type of value.
-
-Use `read` for a version that expects the type `ρ` to be inferred from `m`.
--/
-@[always_inline, inline]
-def readThe (ρ : Type u) {m : Type u → Type v} [MonadReaderOf ρ m] : m ρ :=
-  MonadReaderOf.read
-
-/--
 Reader monads provide the ability to implicitly thread a value through a computation. The value can
 be read, but not written. A `MonadWithReader ρ` instance additionally allows the value to be locally
 overridden for a sub-computation.
@@ -3467,6 +3457,16 @@ class MonadReader (ρ : outParam (Type u)) (m : Type u → Type v) where
   read : m ρ
 
 export MonadReader (read)
+
+/--
+Retrieves the local value whose type is `ρ`.  This is useful when a monad supports reading more that
+one type of value.
+
+Use `read` for a version that expects the type `ρ` to be inferred from `m`.
+-/
+@[always_inline, inline]
+def readThe (ρ : Type u) {m : Type u → Type v} [MonadReaderOf ρ m] : m ρ :=
+  MonadReaderOf.read
 
 instance (ρ : Type u) (m : Type u → Type v) [MonadReaderOf ρ m] : MonadReader ρ m where
   read := readThe ρ

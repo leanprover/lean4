@@ -1621,7 +1621,8 @@ syntax (name := rewrites?) "rw?" (ppSpace location)? (rewrites_forbidden)? : tac
 
 /--
 `show_term tac` runs `tac`, then prints the generated term in the form
-"exact X Y Z" or "refine X ?_ Z" if there are remaining subgoals.
+"exact X Y Z" or "refine X ?_ Z" (prefixed by `expose_names` if necessary)
+if there are remaining subgoals.
 
 (For some tactics, the printed term will not be human readable.)
 -/

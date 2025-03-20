@@ -1534,10 +1534,6 @@ theorem BitVec.toInt_intMin_eq_bmod : (intMin w).toInt = (-2 ^ (w - 1)).bmod (2 
 theorem BitVec.toInt_eq_toInt_bmod (b : BitVec w) : b.toInt = b.toInt.bmod (2 ^ w) := by
   rw [toInt_eq_toNat_bmod, Int.bmod_bmod]
 
-theorem neg_ne_intMin_inj {x : BitVec w} :
-    -x ≠ intMin w ↔ x ≠ intMin w := by
-  rw [←neg_intMin, neg_ne_iff_ne_neg, neg_neg, neg_intMin]
-
 theorem sdiv_ne_intMin_of_ne_intMin {x y : BitVec w} (h : x ≠ intMin w) :
     x.sdiv y ≠ intMin w := by
   by_cases hw : w = 0

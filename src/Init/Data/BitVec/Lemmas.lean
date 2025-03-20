@@ -4491,6 +4491,10 @@ theorem neg_intMin {w : Nat} : -intMin w = intMin w := by
   · simp only [Nat.not_lt, Nat.le_zero_eq] at h
     simp [bitvec_to_nat, h]
 
+theorem neg_ne_intMin_inj {x : BitVec w} :
+    -x ≠ intMin w ↔ x ≠ intMin w := by
+  rw [←neg_intMin, neg_ne_iff_ne_neg, neg_neg, neg_intMin]
+
 @[simp]
 theorem abs_intMin {w : Nat} : (intMin w).abs = intMin w := by
   simp [BitVec.abs, bitvec_to_nat]

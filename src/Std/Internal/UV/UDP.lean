@@ -40,13 +40,15 @@ same address.
 opaque bind (socket : @& Socket) (addr : @& SocketAddress) : IO Unit
 
 /--
-Connects an UDP socket to the specified address.
+Associates the UDP socket with the given address and port, so every message sent by this socket is
+automatically sent to that destination.
 -/
 @[extern "lean_uv_udp_connect"]
 opaque connect (socket : @& Socket) (addr : @& SocketAddress) : IO Unit
 
 /--
-Sends data through an UDP socket.
+Sends data through an UDP socket. The `addr` parameter specifies the destination address. If `addr`
+is `none`, the data is sent to the default peer address set by `connect`.
 -/
 @[extern "lean_uv_udp_send"]
 opaque send (socket : @& Socket) (data : ByteArray) (addr : @& Option SocketAddress) : IO (IO.Promise (Except IO.Error Unit))
@@ -59,7 +61,9 @@ resolves when some data is available or an error occurs.
 opaque recv (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error (ByteArray × SocketAddress)))
 
 /--
-Gets the remote address of a connected UDP socket.
+Receives data from an UDP socket. `size` is for the maximum bytes to receive. The promise resolves
+when some data is available or an error occurs. If the socket has not been previously bound with `bind`,
+it is automatically bound to `0.0.0.0` (all interfaces) with a random port.
 -/
 @[extern "lean_uv_udp_getpeername"]
 opaque getPeerName (socket : @& Socket) : IO SocketAddress
@@ -92,13 +96,13 @@ opaque setMulticastTTL (socket : @& Socket) (ttl : UInt32) : IO Unit
 Sets the membership for joining or leaving a multicast group.
 -/
 @[extern "lean_uv_udp_set_membership"]
-opaque setMembership (socket : @& Socket) (multicast_addr interface_addr : @& String) (membership : UInt8) : IO Unit
+opaque setMembership (socket : @& Socket) (multicastAddr interfaceAddr : @& String) (membership : UInt8) : IO Unit
 
 /--
 Sets the multicast interface for sending packets.
 -/
 @[extern "lean_uv_udp_set_multicast_interface"]
-opaque setMulticastInterface (socket : @& Socket) (interface_addr : @& String) : IO Unit
+opaque setMulticastInterface (socket : @& Socket) (interfaceAddr : @& String) : IO Unit
 
 /--
 Sets the TTL value for outgoing packets.

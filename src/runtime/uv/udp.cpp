@@ -95,7 +95,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_bind(b_obj_arg socket, b_obj_arg
     lean_socket_address_to_sockaddr_storage(addr, &addr_ptr);
 
     event_loop_lock(&global_ev);
-    int result = uv_udp_bind(udp_socket->m_uv_udp, (sockaddr*)&addr_ptr, 0);
+    int result = uv_udp_bind(udp_socket->m_uv_udp, (sockaddr*)&addr_ptr, UV_UDP_REUSEADDR);
     event_loop_unlock(&global_ev);
 
     if (result < 0) {
@@ -220,8 +220,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
         buf->len = lean_sarray_capacity(udp_socket->m_byte_array);
     }, [](uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags) {
         uv_udp_recv_stop(handle);
+        lean_object* addr_obj;
 
-        lean_object* addr_obj = lean_sockaddr_to_socketaddress(addr);
+        if (addr != NULL) {
+            addr_obj = lean::mk_option_some(lean_sockaddr_to_socketaddress(addr));
+        } else {
+            addr_obj = lean::mk_option_none();
+        }
 
         lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket((lean_object*)handle->data);
         lean_object* promise = udp_socket->m_promise_read;
@@ -312,7 +317,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_getsockname(b_obj_arg socket) {
 }
 
 /* Std.Internal.UV.UDP.Socket.setBroadcast (socket : @& Socket) (on : Bool) : IO Unit */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_broadcast(b_obj_arg socket, int32_t enable, obj_arg /* w */) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_broadcast(b_obj_arg socket, bool enable, obj_arg /* w */) {
     lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
 
     event_loop_lock(&global_ev);
@@ -327,7 +332,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_broadcast(b_obj_arg socket, 
 }
 
 /* Std.Internal.UV.UDP.Socket.setMulticastLoop (socket : @& Socket) (on : Bool) : IO Unit */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_loop(b_obj_arg socket, int32_t enable, obj_arg /* w */) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_loop(b_obj_arg socket, bool enable, obj_arg /* w */) {
     lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
 
     event_loop_lock(&global_ev);
@@ -357,7 +362,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_ttl(b_obj_arg sock
 }
 
 /* Std.Internal.UV.UDP.Socket.setMembership (socket : @& Socket) (multicast_addr interface_addr : @& String) (membership : UInt8) : IO Unit */
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_membership(b_obj_arg socket, b_obj_arg multicast_addr, b_obj_arg interface_addr, int8_t membership, obj_arg /* w */) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_membership(b_obj_arg socket, b_obj_arg multicast_addr, b_obj_arg interface_addr, uint8_t membership, obj_arg /* w */) {
     lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
 
     const char *multicast_addr_str = lean_string_cstr(multicast_addr);
@@ -453,13 +458,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_getsockname(b_obj_arg socket) {
     );
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_broadcast(b_obj_arg socket, int32_t enable, obj_arg /* w */) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_broadcast(b_obj_arg socket, bool enable, obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_loop(b_obj_arg socket, int32_t enable, obj_arg /* w */) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_loop(b_obj_arg socket, bool enable, obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );
@@ -471,7 +476,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_ttl(b_obj_arg sock
     );
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_membership(b_obj_arg socket, b_obj_arg multicast_addr, b_obj_arg interface_addr, int32_t membership, obj_arg /* w */) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_membership(b_obj_arg socket, b_obj_arg multicast_addr, b_obj_arg interface_addr, uint8_t membership, obj_arg /* w */) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );

@@ -42,28 +42,34 @@ def mk : IO Socket := do
   return Socket.ofNative native
 
 /--
-Binds the UDP socket to the given address.
+Binds the UDP socket to the given address. Address reuse is enabled to allow rebinding the
+same address.
 -/
 @[inline]
 def bind (s : Socket) (addr : SocketAddress) : IO Unit :=
   s.native.bind addr
 
 /--
-Connects the UDP socket to the given address.
+Associates the UDP socket with the given address and port, so every message sent by this socket is
+automatically sent to that destination.
 -/
 @[inline]
 def connect (s : Socket) (addr : SocketAddress) : IO Unit :=
   s.native.connect addr
 
 /--
-Sends data through the UDP socket.
+Sends data through an UDP socket. The `addr` parameter specifies the destination address. If `addr`
+is `none`, the data is sent to the default peer address set by `connect`.
 -/
 @[inline]
 def send (s : Socket) (data : ByteArray) (addr : Option SocketAddress := none) : IO (AsyncTask Unit) :=
   AsyncTask.ofPromise <$> s.native.send data addr
 
 /--
-Receives data from the UDP socket.
+Receives data from an UDP socket. `size` is for the maximum bytes to receive.
+The promise resolves when some data is available or an error occurs. If the socket
+has not been previously bound with `bind`, it is automatically bound to `0.0.0.0`
+(all interfaces) with a random port.
 -/
 @[inline]
 def recv (s : Socket) (size : UInt64) : IO (AsyncTask (ByteArray × SocketAddress)) :=
@@ -77,7 +83,8 @@ def getSockName (s : Socket) : IO SocketAddress :=
   s.native.getSockName
 
 /--
-Gets the remote address of the UDP socket.
+Gets the remote address of the UDP socket. On unconnected handles, it throws the `.invalidArgument`.
+error.
 -/
 @[inline]
 def getPeerName (s : Socket) : IO SocketAddress :=

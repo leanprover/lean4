@@ -280,32 +280,32 @@ theorem BitVec.smod_natCast_self (b : BitVec w) : (b.smod (Nat.cast w)).toNat = 
 
 @[simp] theorem Int8.toInt_shiftLeft (a b : Int8) : (a <<< b).toInt = (a.toInt * (2 ^ (b.toInt % 8).toNat)).bmod (2 ^ 8) := by
   rw [← toInt_toBitVec, Int8.toBitVec_shiftLeft, BitVec.shiftLeft_eq', BitVec.toInt_shiftLeft_eq_toInt,
-    toInt_toBitVec, BitVec.smod_ofNat_self, toInt_toBitVec]; simp
+    toInt_toBitVec, BitVec.smod_ofNat_self', toInt_toBitVec]; simp
 @[simp] theorem Int16.toInt_shiftLeft (a b : Int16) : (a <<< b).toInt = (a.toInt * (2 ^ (b.toInt % 16).toNat)).bmod (2 ^ 16) := by
   rw [← toInt_toBitVec, Int16.toBitVec_shiftLeft, BitVec.shiftLeft_eq', BitVec.toInt_shiftLeft_eq_toInt,
-    toInt_toBitVec, BitVec.smod_ofNat_self, toInt_toBitVec]; simp
+    toInt_toBitVec, BitVec.smod_ofNat_self', toInt_toBitVec]; simp
 @[simp] theorem Int32.toInt_shiftLeft (a b : Int32) : (a <<< b).toInt = (a.toInt * (2 ^ (b.toInt % 32).toNat)).bmod (2 ^ 32) := by
   rw [← toInt_toBitVec, Int32.toBitVec_shiftLeft, BitVec.shiftLeft_eq', BitVec.toInt_shiftLeft_eq_toInt,
-    toInt_toBitVec, BitVec.smod_ofNat_self, toInt_toBitVec]; simp
+    toInt_toBitVec, BitVec.smod_ofNat_self', toInt_toBitVec]; simp
 @[simp] theorem Int64.toInt_shiftLeft (a b : Int64) : (a <<< b).toInt = (a.toInt * (2 ^ (b.toInt % 64).toNat)).bmod (2 ^ 64) := by
   rw [← toInt_toBitVec, Int64.toBitVec_shiftLeft, BitVec.shiftLeft_eq', BitVec.toInt_shiftLeft_eq_toInt,
-    toInt_toBitVec, BitVec.smod_ofNat_self, toInt_toBitVec]; simp
+    toInt_toBitVec, BitVec.smod_ofNat_self', toInt_toBitVec]; simp
 @[simp] theorem ISize.toInt_shiftLeft (a b : ISize) : (a <<< b).toInt = (a.toInt * (2 ^ (b.toInt % System.Platform.numBits).toNat)).bmod (2 ^ System.Platform.numBits) := by
   rw [← toInt_toBitVec, ISize.toBitVec_shiftLeft, BitVec.shiftLeft_eq', BitVec.toInt_shiftLeft_eq_toInt,
     toInt_toBitVec, BitVec.smod_natCast_self, toInt_toBitVec]
 
 @[simp] theorem Int8.toInt_shiftRight (a b : Int8) : (a >>> b).toInt = a.toInt >>> (b.toInt % 8).toNat := by
   rw [← toInt_toBitVec, Int8.toBitVec_shiftRight, BitVec.sshiftRight_eq',
-    BitVec.toInt_sshiftRight, BitVec.smod_ofNat_self]; simp
+    BitVec.toInt_sshiftRight, BitVec.smod_ofNat_self']; simp
 @[simp] theorem Int16.toInt_shiftRight (a b : Int16) : (a >>> b).toInt = a.toInt >>> (b.toInt % 16).toNat := by
   rw [← toInt_toBitVec, Int16.toBitVec_shiftRight, BitVec.sshiftRight_eq',
-    BitVec.toInt_sshiftRight, BitVec.smod_ofNat_self]; simp
+    BitVec.toInt_sshiftRight, BitVec.smod_ofNat_self']; simp
 @[simp] theorem Int32.toInt_shiftRight (a b : Int32) : (a >>> b).toInt = a.toInt >>> (b.toInt % 32).toNat := by
   rw [← toInt_toBitVec, Int32.toBitVec_shiftRight, BitVec.sshiftRight_eq',
-    BitVec.toInt_sshiftRight, BitVec.smod_ofNat_self]; simp
+    BitVec.toInt_sshiftRight, BitVec.smod_ofNat_self']; simp
 @[simp] theorem Int64.toInt_shiftRight (a b : Int64) : (a >>> b).toInt = a.toInt >>> (b.toInt % 64).toNat := by
   rw [← toInt_toBitVec, Int64.toBitVec_shiftRight, BitVec.sshiftRight_eq',
-    BitVec.toInt_sshiftRight, BitVec.smod_ofNat_self]; simp
+    BitVec.toInt_sshiftRight, BitVec.smod_ofNat_self']; simp
 @[simp] theorem ISize.toInt_shiftRight (a b : ISize) : (a >>> b).toInt = a.toInt >>> (b.toInt % System.Platform.numBits).toNat := by
   rw [← toInt_toBitVec, ISize.toBitVec_shiftRight, BitVec.sshiftRight_eq',
     BitVec.toInt_sshiftRight, BitVec.smod_natCast_self, toInt_toBitVec, toInt_toBitVec]

@@ -457,6 +457,14 @@ theorem bitwise_div_two_pow (of_false_false : f false false = false := by rfl) :
   apply Nat.eq_of_testBit_eq
   simp [testBit_bitwise of_false_false, testBit_div_two_pow]
 
+theorem bitwise_mod_two_pow (of_false_false : f false false = false := by rfl) :
+  (bitwise f x y) % 2 ^ n = bitwise f (x % 2 ^ n) (y % 2 ^ n) := by
+  apply Nat.eq_of_testBit_eq
+  simp only [testBit_mod_two_pow, testBit_bitwise of_false_false]
+  intro i
+  by_cases h : i < n <;> simp only [h, decide_true, decide_false, Bool.true_and, Bool.false_and,
+    of_false_false]
+
 /-! ### and -/
 
 @[simp] theorem testBit_and (x y i : Nat) : (x &&& y).testBit i = (x.testBit i && y.testBit i) := by
@@ -523,6 +531,9 @@ theorem and_div_two_pow : (a &&& b) / 2 ^ n = a / 2 ^ n &&& b / 2 ^ n :=
 
 theorem and_div_two : (a &&& b) / 2 = a / 2 &&& b / 2 :=
   and_div_two_pow (n := 1)
+
+theorem and_mod_two_pow : (a &&& b) % 2 ^ n = (a % 2 ^ n) &&& (b % 2 ^ n) :=
+  bitwise_mod_two_pow
 
 /-! ### lor -/
 
@@ -594,6 +605,9 @@ theorem or_div_two_pow : (a ||| b) / 2 ^ n = a / 2 ^ n ||| b / 2 ^ n :=
 theorem or_div_two : (a ||| b) / 2 = a / 2 ||| b / 2 :=
   or_div_two_pow (n := 1)
 
+theorem or_mod_two_pow : (a ||| b) % 2 ^ n = a % 2 ^ n ||| b % 2 ^ n :=
+  bitwise_mod_two_pow
+
 /-! ### xor -/
 
 @[simp] theorem testBit_xor (x y i : Nat) :
@@ -651,6 +665,9 @@ theorem xor_div_two_pow : (a ^^^ b) / 2 ^ n = a / 2 ^ n ^^^ b / 2 ^ n :=
 
 theorem xor_div_two : (a ^^^ b) / 2 = a / 2 ^^^ b / 2 :=
   xor_div_two_pow (n := 1)
+
+theorem xor_mod_two_pow : (a ^^^ b) % 2 ^ n = a % 2 ^ n ^^^ b % 2 ^ n :=
+  bitwise_mod_two_pow
 
 /-! ### Arithmetic -/
 
@@ -766,6 +783,14 @@ theorem shiftRight_or_distrib {a b : Nat} : (a ||| b) >>> i = a >>> i ||| b >>> 
 
 theorem shiftRight_xor_distrib {a b : Nat} : (a ^^^ b) >>> i = a >>> i ^^^ b >>> i :=
   shiftRight_bitwise_distrib
+
+theorem mod_two_pow_shiftLeft_mod_two_pow {a b c : Nat} : ((a % 2 ^ c) <<< b) % 2 ^ c = (a <<< b) % 2 ^ c := by
+  apply Nat.eq_of_testBit_eq
+  simp only [testBit_mod_two_pow, testBit_shiftLeft, ge_iff_le]
+  intro i
+  by_cases hic : i < c
+  · simp [(by omega : i - b < c)]
+  · simp [*]
 
 /-! ### le -/
 

@@ -1835,11 +1835,11 @@ theorem USize.toUInt64_inj {a b : USize} : a.toUInt64 = b.toUInt64 ↔ a = b :=
 @[simp] theorem UInt64.toNat_neg (a : UInt64) : (-a).toNat = (UInt64.size - a.toNat) % UInt64.size := rfl
 @[simp] theorem USize.toNat_neg (a : USize) : (-a).toNat = (USize.size - a.toNat) % USize.size := rfl
 
-theorem UInt8.sub_eq_add_neg (a b : UInt8) : a - b = a + (-b) := UInt8.toBitVec_inj.1 (BitVec.sub_toAdd _ _)
-theorem UInt16.sub_eq_add_neg (a b : UInt16) : a - b = a + (-b) := UInt16.toBitVec_inj.1 (BitVec.sub_toAdd _ _)
-theorem UInt32.sub_eq_add_neg (a b : UInt32) : a - b = a + (-b) := UInt32.toBitVec_inj.1 (BitVec.sub_toAdd _ _)
-theorem UInt64.sub_eq_add_neg (a b : UInt64) : a - b = a + (-b) := UInt64.toBitVec_inj.1 (BitVec.sub_toAdd _ _)
-theorem USize.sub_eq_add_neg (a b : USize) : a - b = a + (-b) := USize.toBitVec_inj.1 (BitVec.sub_toAdd _ _)
+theorem UInt8.sub_eq_add_neg (a b : UInt8) : a - b = a + (-b) := UInt8.toBitVec_inj.1 (BitVec.sub_eq_add_neg _ _)
+theorem UInt16.sub_eq_add_neg (a b : UInt16) : a - b = a + (-b) := UInt16.toBitVec_inj.1 (BitVec.sub_eq_add_neg _ _)
+theorem UInt32.sub_eq_add_neg (a b : UInt32) : a - b = a + (-b) := UInt32.toBitVec_inj.1 (BitVec.sub_eq_add_neg _ _)
+theorem UInt64.sub_eq_add_neg (a b : UInt64) : a - b = a + (-b) := UInt64.toBitVec_inj.1 (BitVec.sub_eq_add_neg _ _)
+theorem USize.sub_eq_add_neg (a b : USize) : a - b = a + (-b) := USize.toBitVec_inj.1 (BitVec.sub_eq_add_neg _ _)
 
 theorem UInt8.neg_one_eq : (-1 : UInt8) = 255 := rfl
 theorem UInt16.neg_one_eq : (-1 : UInt16) = 65535 := rfl

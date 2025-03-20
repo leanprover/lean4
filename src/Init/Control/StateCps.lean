@@ -30,7 +30,6 @@ an initial state and a continuation.
 def runK (x : StateCpsT σ m α) (s : σ) (k : α → σ → m β) : m β :=
   x _ s k
 
-
 /--
 Executes an action from a monad with added state in the underlying monad `m`. Given an initial
 state, it returns a value paired with the final state.

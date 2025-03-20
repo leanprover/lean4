@@ -128,8 +128,8 @@ Applies a function to the current state that both computes a new state and a val
 replaces the current state, and the value is returned.
 
 It is equivalent to `do let (a, s) := f (← StateT.get); StateT.set s; pure a`. However, using
-`StateT.modifyGet` may lead to higher performance because it doesn't add a new reference to the
-state value. Additional references can inhibit in-place updates of data.
+`StateT.modifyGet` may lead to better performance because it doesn't add a new reference to the
+state value, and additional references can inhibit in-place updates of data.
 -/
 @[always_inline, inline]
 protected def modifyGet (f : σ → α × σ) : StateT σ m α :=

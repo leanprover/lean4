@@ -1009,7 +1009,6 @@ def macroArg       := termParser maxPrec
 def macroDollarArg := leading_parser "$" >> termParser 10
 def macroLastArg   := macroDollarArg <|> macroArg
 
-
 /--
 A state monad that uses an actual mutable reference cell (i.e. an `ST.Ref`).
 

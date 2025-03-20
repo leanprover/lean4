@@ -146,7 +146,7 @@ theorem isEmpty_erase [TransCmp cmp] (h : t.WF) {k : α} :
     (t.erase k).isEmpty = (t.isEmpty || (t.size == 1 && t.contains k)) :=
   Impl.isEmpty_erase! h
 
-theorem isEmpty_eq_isEmpty_erase_and_not_containsKey [TransCmp cmp] (h : t.WF) (k : α) :
+theorem isEmpty_eq_isEmpty_erase_and_not_contains [TransCmp cmp] (h : t.WF) (k : α) :
     t.isEmpty = ((t.erase k).isEmpty && !(t.contains k)) :=
   Impl.isEmpty_eq_isEmpty_erase!_and_not_containsKey h k
 

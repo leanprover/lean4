@@ -142,9 +142,9 @@ theorem isEmpty_erase [TransCmp cmp] {k : α} :
     (t.erase k).isEmpty = (t.isEmpty || (t.size == 1 && t.contains k)) :=
   DTreeMap.isEmpty_erase
 
-theorem isEmpty_eq_isEmpty_erase_and_not_containsKey [TransCmp cmp] (k : α) :
+theorem isEmpty_eq_isEmpty_erase_and_not_contains [TransCmp cmp] (k : α) :
     t.isEmpty = ((t.erase k).isEmpty && !(t.contains k)) :=
-  DTreeMap.isEmpty_eq_isEmpty_erase_and_not_containsKey k
+  DTreeMap.isEmpty_eq_isEmpty_erase_and_not_contains k
 
 theorem isEmpty_eq_false_of_isEmpty_erase_eq_false [TransCmp cmp] {k : α}
     (he : (t.erase k).isEmpty = false) :
@@ -1930,7 +1930,7 @@ theorem minKey_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] {he k
 
 theorem minKey_insert [TransCmp cmp] {k v} :
     (t.insert k v).minKey isEmpty_insert =
-      (t.minKey?).elim k fun k' => if cmp k k'|>.isLE then k else k' :=
+      t.minKey?.elim k fun k' => if cmp k k'|>.isLE then k else k' :=
   DTreeMap.minKey_insert
 
 theorem minKey_insert_le_minKey [TransCmp cmp] {k v he} :

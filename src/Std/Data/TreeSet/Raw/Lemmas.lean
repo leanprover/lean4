@@ -149,9 +149,9 @@ theorem isEmpty_erase [TransCmp cmp] (h : t.WF) {k : α} :
     (t.erase k).isEmpty = (t.isEmpty || (t.size == 1 && t.contains k)) :=
   TreeMap.Raw.isEmpty_erase h
 
-theorem isEmpty_eq_isEmpty_erase_and_not_containsKey [TransCmp cmp] (h : t.WF) (k : α) :
+theorem isEmpty_eq_isEmpty_erase_and_not_contains [TransCmp cmp] (h : t.WF) (k : α) :
     t.isEmpty = ((t.erase k).isEmpty && !(t.contains k)) :=
-  TreeMap.Raw.isEmpty_eq_isEmpty_erase_and_not_containsKey h k
+  TreeMap.Raw.isEmpty_eq_isEmpty_erase_and_not_contains h k
 
 theorem isEmpty_eq_false_of_isEmpty_erase_eq_false [TransCmp cmp] (h : t.WF) {k : α}
     (he : (t.erase k).isEmpty = false) :

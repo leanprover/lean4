@@ -623,6 +623,10 @@ example {x : BitVec 16} : (x = BitVec.allOnes 16) → (BitVec.uaddOverflow x x) 
 
 example {x : BitVec 64} : (x = BitVec.intMin 64) ↔ (BitVec.negOverflow x) := by bv_decide
 
+example {x y : BitVec 64} : ((x = 0#64) ∧ (y = BitVec.allOnes 64)) → (BitVec.usubOverflow x y) := by bv_decide
+
+example {x y : BitVec 64} : ((x = BitVec.twoPow 64 62) ∧ (y = BitVec.twoPow 64 63)) → (BitVec.ssubOverflow x y) := by bv_decide
+
 section
 
 namespace NormalizeMul

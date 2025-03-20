@@ -1299,6 +1299,15 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
     simp
     omega
 
+theorem negOverflow_eq {w : Nat} (x : BitVec w) :
+    (negOverflow x) = (decide (0 < w) && (x == intMin w)) := by
+  simp only [negOverflow]
+  rcases w with _|w
+  · simp [toInt_of_zero_length, Int.min_eq_right]
+  · suffices - 2 ^ w = (intMin (w + 1)).toInt by simp [beq_eq_decide_eq, ← toInt_inj, this]
+    simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod, Int.neg_inj]
+    rw_mod_cast [Nat.mod_eq_of_lt (by simp [Nat.pow_lt_pow_succ])]
+
 /- ### umod -/
 
 theorem getElem_umod {n d : BitVec w} (hi : i < w) :

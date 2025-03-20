@@ -179,7 +179,6 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
         withTraceNode `Elab.definition.header (fun _ => pure declName) do
         withRestoreOrSaveFull reusableResult? none do
         withReuseContext view.headerRef do
-        applyAttributesAt declName view.modifiers.attrs .beforeElaboration
         withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
           elabBindersEx view.binders.getArgs fun xs => do
             let refForElabFunType := view.value
@@ -1033,55 +1032,30 @@ def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefVie
     go
 where
   go := do
-    let bodyPromises ← views.mapM fun _ => IO.Promise.new
-    let tacPromises ← views.mapM fun _ => IO.Promise.new
     let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
       Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
-    let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
-    let headers ← levelMVarToParamHeaders views headers
+
+    for view in views, declId in expandedDeclIds do
+      applyAttributesAt declId.declName view.modifiers.attrs .beforeElaboration
+
     -- elaborate body in parallel when all stars align
     if let (#[view], #[declId]) := (views, expandedDeclIds) then
-      if Elab.async.get (← getOptions) && view.kind.isTheorem &&
-          !deprecated.oldSectionVars.get (← getOptions) &&
-          -- holes in theorem types is not a fatal error, but it does make parallelism impossible
-          !headers[0]!.type.hasMVar then
-        elabAsync headers[0]! view declId
-      else elabSync headers
-    else elabSync headers
+      if Elab.async.get (← getOptions) && view.kind.isTheorem then
+        elabAsync view declId
+      else elabSync views expandedDeclIds
+    else elabSync views expandedDeclIds
     for view in views, declId in expandedDeclIds do
       -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
       -- that depends only on a part of the ref
       addDeclarationRangesForBuiltin declId.declName view.modifiers.stx view.ref
-  elabSync headers := do
+  elabSync views expandedDeclIds := do
+    let bodyPromises ← views.mapM fun _ => IO.Promise.new
+    let tacPromises ← views.mapM fun _ => IO.Promise.new
+    let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
+    let headers ← levelMVarToParamHeaders views headers
     finishElab headers
     processDeriving headers
-  elabAsync header view declId := do
-    let env ← getEnv
-    let async ← env.addConstAsync declId.declName .thm
-    setEnv async.mainEnv
-
-    -- TODO: parallelize header elaboration as well? Would have to refactor auto implicits catch,
-    -- makes `@[simp]` etc harder?
-
-    -- commit signature; take level params from type only
-    withHeaderSecVars vars sc #[header] fun vars => do
-      let type ← mkForallFVars vars header.type
-      let allUserLevelNames := getAllUserLevelNames #[header]
-      let type ← withLevelNames allUserLevelNames <| levelMVarToParam type
-      -- NOTE: instantiation must happen after `levelMVarToParam`, otherwise there can be
-      -- normalization differences to the corresponding code in `finishElab`
-      let type ← instantiateMVars type
-
-      -- in the case of theorems, the decl level params are those of the header
-      let mut s : CollectLevelParams.State := {}
-      s := collectLevelParams s type
-      let scopeLevelNames ← getLevelNames
-      let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
-      async.commitSignature { name := header.declName, levelParams, type }
-
-    -- attributes should be applied on the main thread; see below
-    let header := { header with modifiers.attrs := #[] }
-
+  elabAsync view declId := do
     -- insert a hole for the proof info trees in the main info tree
     let infoHole ← mkFreshMVarId
     let infoPromise ← IO.Promise.new
@@ -1090,30 +1064,63 @@ where
       lazyAssignment := s.lazyAssignment.insert infoHole <| infoPromise.resultD default
     }
 
-    -- now start new thread for body elaboration, then nested thread for kernel checking
+    let env ← getEnv
+    let async ← env.addConstAsync declId.declName .thm
+    setEnv async.mainEnv
+
     let cancelTk ← IO.CancelToken.new
-    let act ← wrapAsyncAsSnapshot (desc := s!"elaborating proof of {declId.declName}")
+    let act ← wrapAsyncAsSnapshot (desc := s!"elaborating {declId.declName}")
         (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
       setEnv async.asyncEnv
       try
-        finishElab #[header]
+        elabAsyncBodyAsync declId async
       finally
         reportDiag
         -- must introduce node to fill `infoHole` with multiple info trees
-        let info := .ofCustomInfo { stx := header.value, value := .mk (α := AsyncBodyInfo) {} }
+        let info := .ofCustomInfo { stx := view.value, value := .mk (α := AsyncBodyInfo) {} }
         let ctx ← CommandContextInfo.save
         infoPromise.resolve <| .context (.commandCtx ctx) <| .node info (← getInfoTrees)
-      async.commitConst (← getEnv)
-      let cancelTk ← IO.CancelToken.new
-      let checkAct ← wrapAsyncAsSnapshot (desc := s!"finishing proof of {declId.declName}")
-          (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
-        processDeriving #[header]
-        async.commitCheckEnv (← getEnv)
-      let checkTask ← BaseIO.mapTask (t := (← getEnv).checked) checkAct
-      Core.logSnapshotTask { stx? := none, task := checkTask, cancelTk? := cancelTk }
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
+  elabAsyncBodyAsync declId async := do
+    let bodyPromises ← views.mapM fun _ => IO.Promise.new
+    let tacPromises ← views.mapM fun _ => IO.Promise.new
+    let headers ←
+      elabHeaders views #[declId] bodyPromises tacPromises
+    let #[header] ← levelMVarToParamHeaders views headers | unreachable!
+
+    if !deprecated.oldSectionVars.get (← getOptions) &&
+        -- holes in theorem types is not a fatal error, but it does make parallelism impossible
+        !header.type.hasMVar then
+      -- commit signature; take level params from type only
+      withHeaderSecVars vars sc #[header] fun vars => do
+        let type ← mkForallFVars vars header.type
+        let allUserLevelNames := getAllUserLevelNames #[header]
+        let type ← withLevelNames allUserLevelNames <| levelMVarToParam type
+        -- NOTE: instantiation must happen after `levelMVarToParam`, otherwise there can be
+        -- normalization differences to the corresponding code in `finishElab`
+        let type ← instantiateMVars type
+
+        -- in the case of theorems, the decl level params are those of the header
+        let mut s : CollectLevelParams.State := {}
+        s := collectLevelParams s type
+        let scopeLevelNames ← getLevelNames
+        let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
+        async.commitSignature { name := header.declName, levelParams, type }
+
+    -- attributes should be applied on the main thread; see below
+    let header := { header with modifiers.attrs := #[] }
+    finishElab #[header]
+
+    async.commitConst (← getEnv)
+    let cancelTk ← IO.CancelToken.new
+    let checkAct ← wrapAsyncAsSnapshot (desc := s!"finishing proof of {header.declName}")
+        (cancelTk? := cancelTk) fun _ => do profileitM Exception "elaboration" (← getOptions) do
+      processDeriving #[header]
+      async.commitCheckEnv (← getEnv)
+    let checkTask ← BaseIO.mapTask (t := (← getEnv).checked) checkAct
+    Core.logSnapshotTask { stx? := none, task := checkTask, cancelTk? := cancelTk }
   finishElab headers := withFunLocalDecls headers fun funFVars => do
     for view in views, funFVar in funFVars do
       addLocalVarInfo view.declId funFVar

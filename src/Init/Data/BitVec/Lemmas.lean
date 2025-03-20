@@ -574,6 +574,14 @@ theorem toInt_nonneg_of_msb_false {x : BitVec w} (h : x.msb = false) : 0 ≤ x.t
   have : 2 * x.toNat < 2 ^ w := msb_eq_false_iff_two_mul_lt.mp h
   omega
 
+@[simp] theorem toInt_one_of_lt {w : Nat} (h : 1 < w) : (1#w).toInt = 1 := by
+  rw [toInt_eq_msb_cond]
+  simp only [msb_one, show w ≠ 1 by omega, decide_false, Bool.false_eq_true, ↓reduceIte,
+    toNat_ofNat, Int.ofNat_emod]
+  norm_cast
+  apply Nat.mod_eq_of_lt
+  apply Nat.one_lt_two_pow (by omega)
+
 /-- Prove equality of bitvectors in terms of nat operations. -/
 theorem eq_of_toInt_eq {x y : BitVec n} : x.toInt = y.toInt → x = y := by
   intro eq
@@ -4272,6 +4280,28 @@ theorem udiv_twoPow_eq_of_lt {w : Nat} {x : BitVec w} {k : Nat} (hk : k < w) : x
   have : 2^k < 2^w := Nat.pow_lt_pow_of_lt (by decide) hk
   simp [bitvec_to_nat, Nat.shiftRight_eq_div_pow, Nat.mod_eq_of_lt this]
 
+theorem toInt_mul_toInt_lt {x y : BitVec w} : x.toInt * y.toInt ≤ 2 ^ (w * 2 - 2) := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · have xlt := two_mul_toInt_lt (x := x); have xle := le_two_mul_toInt (x := x)
+    have ylt := two_mul_toInt_lt (x := y); have yle := le_two_mul_toInt (x := y)
+    have h : 2 ^ ((w + 1) * 2 - 2) = 2 ^ ((w + 1) - 1) * 2 ^ ((w + 1) - 1) := by
+      rw [← Nat.pow_add, ←Nat.mul_two, Nat.mul_comm (m := 2) (n := (w + 1) - 1), Nat.mul_sub_one, Nat.mul_comm]
+    rw_mod_cast [h]
+    rw [← Nat.two_pow_pred_mul_two (by omega), Int.natCast_mul] at xlt ylt xle yle
+    exact Int.mul_le_mul_self (by omega) (by omega)
+
+theorem le_toInt_mul_toInt {x y : BitVec w} : - (2 ^ (w * 2 - 2)) ≤ x.toInt * y.toInt := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · have xlt := two_mul_toInt_lt (x := x); have xle := le_two_mul_toInt (x := x)
+    have ylt := two_mul_toInt_lt (x := y); have yle := le_two_mul_toInt (x := y)
+    have h : 2 ^ ((w + 1) * 2 - 2) = 2 ^ ((w + 1) - 1) * 2 ^ ((w + 1) - 1) := by
+      rw [← Nat.pow_add, ←Nat.mul_two, Nat.mul_comm (m := 2) (n := (w + 1) - 1), Nat.mul_sub_one, Nat.mul_comm]
+    rw_mod_cast [h]
+    rw [← Nat.two_pow_pred_mul_two (by omega), Int.natCast_mul] at xlt ylt xle yle
+    exact Int.neg_mul_self_le_mul (by omega) (by omega) (by omega) (by omega)
+
 theorem shiftLeft_neg {x : BitVec w} {y : Nat} :
     (-x) <<< y = - (x <<< y) := by
   rw [shiftLeft_eq_mul_twoPow, shiftLeft_eq_mul_twoPow, BitVec.neg_mul]
@@ -4530,6 +4560,18 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
   · simp [h]
   · rw [Nat.sub_add_cancel (Nat.two_pow_pos (w - 1)), Nat.two_pow_pred_mod_two_pow (by omega)]
 
+@[simp]
+theorem toInt_intMax : (BitVec.intMax w).toInt = 2 ^ (w - 1) - 1 := by
+  have : intMax w = BitVec.twoPow w (w - 1) - 1#w := by simp [intMax]
+  rw [this]
+  rcases w with _|_|w
+  · decide
+  · decide
+  · have : 1 < 2 ^ (w + 1 + 1) := Nat.one_lt_two_pow (by omega)
+    rw_mod_cast [BitVec.twoPow, BitVec.toInt_sub, BitVec.toInt_shiftLeft, BitVec.toNat_ofNat,
+      Int.bmod_sub_bmod_congr, toInt_one_of_lt (by omega), Nat.shiftLeft_eq,
+      Nat.mod_eq_of_lt (by omega), Int.bmod_eq_of_le_of_lt (by omega) (by rw [← Nat.two_pow_pred_add_two_pow_pred (w := w + 1 + 1) (by omega)]; omega)]
+    simp [Nat.add_one_sub_one, Nat.one_mul]
 
 /-! ### Non-overflow theorems -/
 
@@ -4568,6 +4610,10 @@ theorem toNat_mul_of_lt {w} {x y : BitVec w} (h : x.toNat * y.toNat < 2^w) :
     (x * y).toNat = x.toNat * y.toNat := by
   rw [BitVec.toNat_mul, Nat.mod_eq_of_lt h]
 
+theorem toNat_mul_toNat_lt {x y : BitVec w} : x.toNat * y.toNat < 2 ^ (w * 2) := by
+  have := BitVec.isLt x; have := BitVec.isLt y
+  simp only [Nat.mul_two, Nat.pow_add]
+  exact Nat.mul_lt_mul_of_le_of_lt (by omega) (by omega) (by omega)
 
 /--
 `x ≤ y + z` if and only if `x - z ≤ y`

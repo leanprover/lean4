@@ -1302,14 +1302,6 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
 theorem usubOverflow_eq {w : Nat} (x y : BitVec w) :
     usubOverflow x y = decide (x < y) := rfl
 
-theorem Int.bmod_eq_bmod_add {k : Nat} {x : Int} : 
-    x.bmod k = (x + k).bmod k := by 
-  simp [Int.bmod_def] 
-
-theorem Int.bmod_eq_bmod_sub {k : Nat} {x : Int} : 
-    x.bmod k = (x - k).bmod k := by
-  simp [Int.bmod_def]
-
 theorem ssubOverflow_eq {w : Nat} (x y : BitVec w) :
     ssubOverflow x y = ((!x.msb && y.msb && (x - y).msb) || (x.msb && !y.msb && !(x - y).msb)) := by
   simp only [ssubOverflow]
@@ -1322,7 +1314,7 @@ theorem ssubOverflow_eq {w : Nat} (x y : BitVec w) :
       constructor 
       · intros h
         simp only [show x.toInt < 0 by omega, show 0 ≤ y.toInt by omega, _root_.true_and]
-        rw [Int.bmod_eq_bmod_add]
+        rw [← Int.bmod_add_cancel]
         rw_mod_cast [Int.bmod_eq_self_of_le (by omega) (by omega)]
         omega 
       · have := Int.bmod_neg_iff (x := x.toInt - y.toInt) (m := 2 ^ (w + 1))
@@ -1332,7 +1324,7 @@ theorem ssubOverflow_eq {w : Nat} (x y : BitVec w) :
       constructor 
       · intros h 
         simp only [show 0 ≤ x.toInt by omega, show y.toInt < 0 by omega, _root_.true_and]
-        rw [Int.bmod_eq_bmod_sub]
+        rw [← Int.bmod_sub_cancel]
         push_cast 
         rw_mod_cast [Int.bmod_eq_self_of_le (by omega) (by omega)] 
         omega 

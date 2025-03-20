@@ -61,7 +61,7 @@ lean_object* l_Lake_ensureJob___rarg(lean_object*, lean_object*, lean_object*, l
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lake_LeanLib_recBuildLean___spec__1___closed__2;
 extern lean_object* l_Lake_OrdHashSet_empty___at_Lake_OrdPackageSet_empty___spec__1;
 static lean_object* l_Lake_LeanLib_staticExportFacetConfig___closed__3;
-lean_object* l_Lake_buildStaticLib(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lake_buildStaticLib(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lake_LeanLib_recBuildShared___spec__8___closed__1;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l_Lake_stdFormat___at_Lake_LeanLib_modulesFacetConfig___elambda__1___spec__1___closed__4;
@@ -5746,7 +5746,7 @@ lean_dec(x_25);
 x_27 = l_System_FilePath_join(x_23, x_26);
 lean_dec(x_26);
 x_28 = l_Lake_BuildTrace_nil;
-x_29 = l_Lake_buildStaticLib(x_27, x_15, x_6, x_7, x_8, x_9, x_28, x_13);
+x_29 = l_Lake_buildStaticLib(x_27, x_15, x_1, x_6, x_7, x_8, x_9, x_28, x_13);
 lean_dec(x_15);
 if (lean_obj_tag(x_29) == 0)
 {
@@ -5835,7 +5835,7 @@ lean_dec(x_49);
 x_51 = l_System_FilePath_join(x_47, x_50);
 lean_dec(x_50);
 x_52 = l_Lake_BuildTrace_nil;
-x_53 = l_Lake_buildStaticLib(x_51, x_39, x_6, x_7, x_8, x_9, x_52, x_13);
+x_53 = l_Lake_buildStaticLib(x_51, x_39, x_1, x_6, x_7, x_8, x_9, x_52, x_13);
 lean_dec(x_39);
 if (lean_obj_tag(x_53) == 0)
 {
@@ -5929,7 +5929,7 @@ x_77 = l_System_FilePath_addExtension(x_75, x_76);
 x_78 = l_System_FilePath_join(x_72, x_77);
 lean_dec(x_77);
 x_79 = l_Lake_BuildTrace_nil;
-x_80 = l_Lake_buildStaticLib(x_78, x_64, x_6, x_7, x_8, x_9, x_79, x_13);
+x_80 = l_Lake_buildStaticLib(x_78, x_64, x_1, x_6, x_7, x_8, x_9, x_79, x_13);
 lean_dec(x_64);
 if (lean_obj_tag(x_80) == 0)
 {
@@ -6020,7 +6020,7 @@ x_103 = l_System_FilePath_addExtension(x_101, x_102);
 x_104 = l_System_FilePath_join(x_98, x_103);
 lean_dec(x_103);
 x_105 = l_Lake_BuildTrace_nil;
-x_106 = l_Lake_buildStaticLib(x_104, x_90, x_6, x_7, x_8, x_9, x_105, x_13);
+x_106 = l_Lake_buildStaticLib(x_104, x_90, x_1, x_6, x_7, x_8, x_9, x_105, x_13);
 lean_dec(x_90);
 if (lean_obj_tag(x_106) == 0)
 {

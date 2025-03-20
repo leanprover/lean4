@@ -73,19 +73,55 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   let cancelTk ← IO.CancelToken.new
   let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
     setEnv async.asyncEnv
-    doAdd
-    async.commitCheckEnv (← getEnv)
+    try
+      doAdd
+    finally
+      async.commitCheckEnv (← getEnv)
   let t ← BaseIO.mapTask checkAct env.checked
   let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
   Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
-where doAdd := do
-  profileitM Exception "type checking" (← getOptions) do
-    withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
-      if !(← MonadLog.hasErrors) && decl.hasSorry then
-        logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
-      let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
-        |> ofExceptKernelException
-      setEnv env
+where
+  doAdd := do
+    profileitM Exception "type checking" (← getOptions) do
+      withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
+        if !(← MonadLog.hasErrors) && decl.hasSorry then
+          logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
+        try
+          let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
+            |> ofExceptKernelException
+          setEnv env
+        catch ex =>
+          -- avoid follow-up errors by (trying to) add broken decl as axiom
+          addAsAxiom
+          throw ex
+  addAsAxiom := do
+    -- try to add as axiom with given type for def/theorem
+    match decl with
+    | .defnDecl d | .thmDecl d =>
+      let fallbackDecl := .axiomDecl {
+        name := d.name, levelParams := d.levelParams, type := d.type, isUnsafe := false
+      }
+      try
+        let env ← (← getEnv).addDeclAux (← getOptions) fallbackDecl (← read).cancelTk?
+          |> ofExceptKernelException
+        setEnv env
+        return
+      catch _ => pure ()
+    | _ => pure ()
+
+    -- otherwise, add as axiom with type `sorry`
+    for n in decl.getNames do
+      let fallbackDecl := .axiomDecl {
+        name := n, levelParams := []
+        type := mkApp2 (mkConst ``sorryAx [1]) (mkSort 0) (mkConst ``true), isUnsafe := false
+      }
+      try
+        let env ← (← getEnv).addDeclAux (← getOptions) fallbackDecl (← read).cancelTk?
+          |> ofExceptKernelException
+        setEnv env
+        return
+      catch _ => pure ()
+
 
 def addAndCompile (decl : Declaration) : CoreM Unit := do
   addDecl decl

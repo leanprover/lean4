@@ -105,7 +105,7 @@ namespace Normalize
 
 /-- Locally override `bv_normalize` with a config that enables the acNf pass -/
 local macro "bv_normalize" : tactic =>
-  `(tactic| bv_normalize (config := {acNf := true}))
+  `(tactic| bv_normalize (config := {acNf := true, shortCircuit := true}))
 
 /-- warning: declaration uses 'sorry' -/
 #guard_msgs in

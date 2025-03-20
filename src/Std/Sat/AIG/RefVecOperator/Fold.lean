@@ -186,7 +186,6 @@ theorem denote_fold_and {aig : AIG α} (s : RefVec aig len) :
       rw [AIG.LawfulOperator.denote_mem_prefix (f := mkConstCached)]
       · simp only [← h]
       · apply RefVec.hrefs
-        simp [FoldTarget.mkAnd, hidx]
   · omega
 
 end RefVec

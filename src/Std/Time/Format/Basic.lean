@@ -1077,7 +1077,7 @@ private def parseAtLeastNum (size : Nat) : Parser Nat :=
     pure (start ++ end_)
 
 private def parseFlexibleNum (size : Nat) : Parser Nat :=
-  if size == 1 then parseAtLeastNum 1 else parseNum size
+  if size = 1 then parseAtLeastNum 1 else parseNum size
 
 private def parseFractionNum (size : Nat) (pad : Nat) : Parser Nat :=
   String.toNat! <$> rightPad pad '0' <$> exactlyChars (satisfy Char.isDigit) size

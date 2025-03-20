@@ -59,6 +59,15 @@ theorem get!_eq_getD [Inhabited α] (o : Option α) : o.get! = o.getD default :=
 
 @[deprecated get!_eq_getD (since := "2024-11-18")] abbrev get!_eq_getD_default := @get!_eq_getD
 
+theorem get_congr {o o' : Option α} {ho : o.isSome} (h : o = o') :
+    o.get ho = o'.get (h ▸ ho) := by
+  cases h; rfl
+
+theorem get_inj {o1 o2 : Option α} {h1} {h2} :
+    o1.get h1 = o2.get h2 ↔ o1 = o2 := by
+  match o1, o2, h1, h2 with
+  | some a, some b, _, _ => simp only [Option.get_some, Option.some.injEq]
+
 theorem mem_unique {o : Option α} {a b : α} (ha : a ∈ o) (hb : b ∈ o) : a = b :=
   some.inj <| ha ▸ hb
 
@@ -74,6 +83,12 @@ theorem isSome_iff_exists : isSome x ↔ ∃ a, x = some a := by cases x <;> sim
 
 theorem isSome_eq_isSome : (isSome x = isSome y) ↔ (x = none ↔ y = none) := by
   cases x <;> cases y <;> simp
+
+theorem isSome_of_mem {x : Option α} {y : α} (h : y ∈ x) : x.isSome := by
+  cases x <;> trivial
+
+theorem isSome_of_eq_some {x : Option α} {y : α} (h : x = some y) : x.isSome := by
+  cases x <;> trivial
 
 @[simp] theorem not_isSome : isSome a = false ↔ a.isNone = true := by
   cases a <;> simp
@@ -141,6 +156,23 @@ theorem bind_assoc (x : Option α) (f : α → Option β) (g : β → Option γ)
 theorem bind_congr {α β} {o : Option α} {f g : α → Option β} :
     (h : ∀ a, o = some a → f a = g a) → o.bind f = o.bind g := by
   cases o <;> simp
+
+theorem isSome_bind {α β : Type _} (x : Option α) (f : α → Option β) :
+    (x.bind f).isSome = x.any (fun x => (f x).isSome) := by
+  cases x <;> rfl
+
+theorem isSome_of_isSome_bind {α β : Type _} {x : Option α} {f : α → Option β}
+    (h : (x.bind f).isSome) : x.isSome := by
+  cases x <;> trivial
+
+theorem isSome_apply_of_isSome_bind {α β : Type _} {x : Option α} {f : α → Option β}
+    (h : (x.bind f).isSome) : (f (x.get (isSome_of_isSome_bind h))).isSome := by
+  cases x <;> trivial
+
+theorem get_bind {α β : Type _} {x : Option α} {f : α → Option β} (h : (x.bind f).isSome) :
+    (x.bind f).get h = (f (x.get (isSome_of_isSome_bind h))).get
+      (isSome_apply_of_isSome_bind h) := by
+  cases x <;> trivial
 
 theorem join_eq_some : x.join = some a ↔ x = some (some a) := by
   simp [bind_eq_some]
@@ -262,6 +294,10 @@ theorem mem_filter_iff {p : α → Bool} {a : α} {o : Option α} :
     a ∈ o.filter p ↔ a ∈ o ∧ p a := by
   simp
 
+theorem filter_eq_bind (x : Option α) (p : α → Bool) :
+    x.filter p = x.bind (Option.guard (fun a => p a)) := by
+  cases x <;> rfl
+
 @[simp] theorem all_guard (p : α → Prop) [DecidablePred p] (a : α) :
     Option.all q (guard p a) = (!p a || q a) := by
   simp only [guard]
@@ -271,6 +307,21 @@ theorem mem_filter_iff {p : α → Bool} {a : α} {o : Option α} :
     Option.any q (guard p a) = (p a && q a) := by
   simp only [guard]
   split <;> simp_all
+
+theorem all_eq_true (p : α → Bool) (x : Option α) :
+    x.all p = true ↔ ∀ y, x = some y → p y := by
+  cases x <;> simp
+
+theorem any_eq_true (p : α → Bool) (x : Option α) :
+    x.any p = true ↔ ∃ y, x = some y ∧  p y := by
+  cases x <;> simp
+
+theorem isSome_of_any {x : Option α} {p : α → Bool} (h : x.any p) : x.isSome := by
+  cases x <;> trivial
+
+theorem any_map {α β : Type _} {x : Option α} {f : α → β} {p : β → Bool} :
+    (x.map f).any p = x.any (fun a => p (f a)) := by
+  cases x <;> rfl
 
 theorem bind_map_comm {α β} {x : Option (Option α)} {f : α → β} :
     x.bind (Option.map f) = (x.map (Option.map f)).bind id := by cases x <;> simp
@@ -334,6 +385,15 @@ theorem guard_comp {p : α → Prop} [DecidablePred p] {f : β → α} :
     guard p ∘ f = Option.map f ∘ guard (p ∘ f) := by
   ext1 b
   simp [guard]
+
+theorem bind_guard (x : Option α) (p : α → Prop) [DecidablePred p] :
+    x.bind (Option.guard p) = x.filter p := by
+  simp only [Option.filter_eq_bind, decide_eq_true_eq]
+
+theorem guard_eq_map (p : α  → Prop) [DecidablePred p] :
+    Option.guard p = fun x => Option.map (fun _ => x) (if p x then some x else none) := by
+  funext x
+  simp [Option.guard]
 
 theorem liftOrGet_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f a b = b) :
     ∀ o₁ o₂, liftOrGet f o₁ o₂ = o₁ ∨ liftOrGet f o₁ o₂ = o₂
@@ -585,6 +645,20 @@ theorem mem_ite_none_right {x : α} [Decidable p] {l : Option α} :
 
 end ite
 
+theorem isSome_filter {α : Type _} {x : Option α} {f : α → Bool} :
+    (x.filter f).isSome = x.any f := by
+  cases x
+  · rfl
+  · rw [Bool.eq_iff_iff]
+    simp only [Option.any_some, Option.filter, Option.isSome_ite]
+
+theorem get_filter {α : Type _} {x : Option α} {f : α → Bool} (h : (x.filter f).isSome) :
+    (x.filter f).get h = x.get (isSome_of_isSome_filter f x h) := by
+  cases x
+  · contradiction
+  · unfold Option.filter
+    simp only [Option.get_ite, Option.get_some]
+
 /-! ### pbind -/
 
 @[simp] theorem pbind_none : pbind none f = none := rfl
@@ -701,6 +775,54 @@ theorem pfilter_congr {α : Type u} {o o' : Option α} (ho : o = o')
   cases ho
   congr; funext a ha
   exact hf a ha
+
+theorem pfilter_none {α : Type _} {p : (a : α) → a ∈ none → Bool} :
+    none.pfilter p = none := by
+  simp [pfilter]
+
+theorem pfilter_some {α : Type _} {x : α} {p : (a : α) → a ∈ some x → Bool} :
+    (some x).pfilter p = if p x rfl then some x else none := by
+  simp [pfilter]
+
+theorem pfilter_eq_none {α : Type _} {o : Option α} {p : (a : α) → a ∈ o → Bool} :
+    o.pfilter p = none ↔ o = none ∨ ∃ (a : α) (ha : a ∈ o), p a ha = false := by
+  simp [Option.pfilter]
+  cases o with
+  | none => simp
+  | some a' =>
+    simp only [cond_eq_if, ite_eq_right_iff, reduceCtorEq, imp_false, Bool.not_eq_true,
+      Option.some.injEq, false_or]
+    constructor
+    · intro h
+      exists a'
+      exists rfl
+    · intro h
+      rcases h with ⟨a, ha, h⟩
+      simp [ha, h]
+
+theorem pfilter_eq_some {α : Type _} {o : Option α} {p : (a : α) → a ∈ o → Bool}
+    {a : α} (ha : a ∈ o) :
+    o.pfilter p = some a ↔ p a ha = true := by
+  simp only [Option.pfilter]
+  cases o with
+  | none => simp at ha
+  | some a' =>
+    simp only [Option.mem_def, Option.some.injEq] at ha
+    simp [cond_eq_if, ha]
+
+theorem pfilter_eq_filter {α : Type _} {o : Option α} {p : α → Bool} :
+    o.pfilter (fun a _ => p a) = o.filter p := by
+  cases o with
+  | none => simp [Option.pfilter]
+  | some a =>
+    simp [Option.pfilter, Option.filter]
+
+theorem pfilter_eq_pbind_ite {α : Type _} {o : Option α}
+    {p : (a : α) → a ∈ o → Bool} :
+    o.pfilter p = o.pbind (fun a h => if p a h then some a else none) := by
+  cases o
+  · rfl
+  · simp only [Option.pfilter, Bool.cond_eq_ite, Option.pbind_some]
 
 /-! ### LT and LE -/
 

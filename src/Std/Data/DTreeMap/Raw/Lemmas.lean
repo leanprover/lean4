@@ -146,6 +146,11 @@ theorem isEmpty_erase [TransCmp cmp] (h : t.WF) {k : α} :
     (t.erase k).isEmpty = (t.isEmpty || (t.size == 1 && t.contains k)) :=
   Impl.isEmpty_erase! h
 
+theorem isEmpty_eq_false_of_isEmpty_erase_eq_false [TransCmp cmp] (h : t.WF) {k : α}
+    (he : (t.erase k).isEmpty = false) :
+    t.isEmpty = false :=
+  Impl.isEmpty_eq_false_of_isEmpty_erase!_eq_false h he
+
 @[simp]
 theorem contains_erase [TransCmp cmp] (h : t.WF) {k a : α} :
     (t.erase k).contains a = (cmp k a != .eq && t.contains a) :=
@@ -2801,6 +2806,10 @@ theorem isNone_minKey?_eq_isEmpty [TransCmp cmp] (h : t.WF) :
 theorem isSome_minKey?_eq_not_isEmpty [TransCmp cmp] (h : t.WF) :
     t.minKey?.isSome = !t.isEmpty :=
   Impl.isSome_minKey?_eq_not_isEmpty h
+
+theorem isSome_minKey?_iff_isEmpty_eq_false [TransCmp cmp] (h : t.WF) :
+    t.minKey?.isSome ↔ t.isEmpty = false :=
+  Impl.isSome_minKey?_iff_isEmpty_eq_false h
 
 theorem minKey?_insert [TransCmp cmp] (h : t.WF) {k v} :
     (t.insert k v).minKey? =

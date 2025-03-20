@@ -184,6 +184,9 @@ theorem mod_le (x y : Nat) : x % y ≤ x := by
     | Or.inl h₂ => rw [h₂, Nat.mod_zero x]; apply Nat.le_refl
     | Or.inr h₂ => exact Nat.le_trans (Nat.le_of_lt (mod_lt _ h₂)) h₁
 
+theorem mod_lt_of_lt {a b c : Nat} (h : a < c) : a % b < c :=
+  Nat.lt_of_le_of_lt (Nat.mod_le _ _) h
+
 @[simp] theorem zero_mod (b : Nat) : 0 % b = 0 := by
   rw [mod_eq]
   have : ¬ (0 < b ∧ b = 0) := by

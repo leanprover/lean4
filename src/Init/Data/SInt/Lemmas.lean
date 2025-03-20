@@ -2088,3 +2088,143 @@ theorem ISize.sub_eq_add_neg (a b : ISize) : a - b = a + -b := ISize.toBitVec.in
 
 @[simp] theorem ISize.toInt64_le {a b : ISize} : a.toInt64 ≤ b.toInt64 ↔ a ≤ b := by
   simp [le_iff_toInt_le, Int64.le_iff_toInt_le]
+
+@[simp] theorem Int8.ofBitVec_neg (a : BitVec 8) : Int8.ofBitVec (-a) = -Int8.ofBitVec a := rfl
+@[simp] theorem Int16.ofBitVec_neg (a : BitVec 16) : Int16.ofBitVec (-a) = -Int16.ofBitVec a := rfl
+@[simp] theorem Int32.ofBitVec_neg (a : BitVec 32) : Int32.ofBitVec (-a) = -Int32.ofBitVec a := rfl
+@[simp] theorem Int64.ofBitVec_neg (a : BitVec 64) : Int64.ofBitVec (-a) = -Int64.ofBitVec a := rfl
+@[simp] theorem ISize.ofBitVec_neg (a : BitVec System.Platform.numBits) : ISize.ofBitVec (-a) = -ISize.ofBitVec a := rfl
+
+@[simp] theorem Int8.ofInt_neg (a : Int) : Int8.ofInt (-a) = -Int8.ofInt a := Int8.toInt_inj.1 (by simp)
+@[simp] theorem Int16.ofInt_neg (a : Int) : Int16.ofInt (-a) = -Int16.ofInt a := Int16.toInt_inj.1 (by simp)
+@[simp] theorem Int32.ofInt_neg (a : Int) : Int32.ofInt (-a) = -Int32.ofInt a := Int32.toInt_inj.1 (by simp)
+@[simp] theorem Int64.ofInt_neg (a : Int) : Int64.ofInt (-a) = -Int64.ofInt a := Int64.toInt_inj.1 (by simp)
+@[simp] theorem ISize.ofInt_neg (a : Int) : ISize.ofInt (-a) = -ISize.ofInt a := ISize.toInt_inj.1 (by simp [ISize.toInt_ofInt])
+
+theorem Int8.ofInt_eq_iff_bmod_eq_toInt (a : Int) (b : Int8) : Int8.ofInt a = b ↔ a.bmod (2 ^ 8) = b.toInt := by
+  simp [← Int8.toInt_inj]
+theorem Int16.ofInt_eq_iff_bmod_eq_toInt (a : Int) (b : Int16) : Int16.ofInt a = b ↔ a.bmod (2 ^ 16) = b.toInt := by
+  simp [← Int16.toInt_inj]
+theorem Int32.ofInt_eq_iff_bmod_eq_toInt (a : Int) (b : Int32) : Int32.ofInt a = b ↔ a.bmod (2 ^ 32) = b.toInt := by
+  simp [← Int32.toInt_inj]
+theorem Int64.ofInt_eq_iff_bmod_eq_toInt (a : Int) (b : Int64) : Int64.ofInt a = b ↔ a.bmod (2 ^ 64) = b.toInt := by
+  simp [← Int64.toInt_inj]
+theorem ISize.ofInt_eq_iff_bmod_eq_toInt (a : Int) (b : ISize) : ISize.ofInt a = b ↔ a.bmod (2 ^ System.Platform.numBits) = b.toInt := by
+  simp [← ISize.toInt_inj, ISize.toInt_ofInt]
+
+@[simp] theorem Int8.ofBitVec_add (a b : BitVec 8) : Int8.ofBitVec (a + b) = Int8.ofBitVec a + Int8.ofBitVec b := rfl
+@[simp] theorem Int16.ofBitVec_add (a b : BitVec 16) : Int16.ofBitVec (a + b) = Int16.ofBitVec a + Int16.ofBitVec b := rfl
+@[simp] theorem Int32.ofBitVec_add (a b : BitVec 32) : Int32.ofBitVec (a + b) = Int32.ofBitVec a + Int32.ofBitVec b := rfl
+@[simp] theorem Int64.ofBitVec_add (a b : BitVec 64) : Int64.ofBitVec (a + b) = Int64.ofBitVec a + Int64.ofBitVec b := rfl
+@[simp] theorem ISize.ofBitVec_add (a b : BitVec System.Platform.numBits) : ISize.ofBitVec (a + b) = ISize.ofBitVec a + ISize.ofBitVec b := rfl
+
+@[simp] theorem Int8.ofInt_add (a b : Int) : Int8.ofInt (a + b) = Int8.ofInt a + Int8.ofInt b := by
+  simp [Int8.ofInt_eq_iff_bmod_eq_toInt]
+@[simp] theorem Int16.ofInt_add (a b : Int) : Int16.ofInt (a + b) = Int16.ofInt a + Int16.ofInt b := by
+  simp [Int16.ofInt_eq_iff_bmod_eq_toInt]
+@[simp] theorem Int32.ofInt_add (a b : Int) : Int32.ofInt (a + b) = Int32.ofInt a + Int32.ofInt b := by
+  simp [Int32.ofInt_eq_iff_bmod_eq_toInt]
+@[simp] theorem Int64.ofInt_add (a b : Int) : Int64.ofInt (a + b) = Int64.ofInt a + Int64.ofInt b := by
+  simp [Int64.ofInt_eq_iff_bmod_eq_toInt]
+@[simp] theorem ISize.ofInt_add (a b : Int) : ISize.ofInt (a + b) = ISize.ofInt a + ISize.ofInt b := by
+  simp [ISize.ofInt_eq_iff_bmod_eq_toInt, ISize.toInt_ofInt]
+
+@[simp] theorem Int8.ofNat_add (a b : Nat) : Int8.ofNat (a + b) = Int8.ofNat a + Int8.ofNat b := by
+  simp [← Int8.ofInt_eq_ofNat]
+@[simp] theorem Int16.ofNat_add (a b : Nat) : Int16.ofNat (a + b) = Int16.ofNat a + Int16.ofNat b := by
+  simp [← Int16.ofInt_eq_ofNat]
+@[simp] theorem Int32.ofNat_add (a b : Nat) : Int32.ofNat (a + b) = Int32.ofNat a + Int32.ofNat b := by
+  simp [← Int32.ofInt_eq_ofNat]
+@[simp] theorem Int64.ofNat_add (a b : Nat) : Int64.ofNat (a + b) = Int64.ofNat a + Int64.ofNat b := by
+  simp [← Int64.ofInt_eq_ofNat]
+@[simp] theorem ISize.ofNat_add (a b : Nat) : ISize.ofNat (a + b) = ISize.ofNat a + ISize.ofNat b := by
+  simp [← ISize.ofInt_eq_ofNat]
+
+theorem Int8.ofIntLE_add {a b : Int} {hab₁ hab₂} : Int8.ofIntLE (a + b) hab₁ hab₂ = Int8.ofInt a + Int8.ofInt b := by
+  simp [Int8.ofIntLE_eq_ofInt]
+theorem Int16.ofIntLE_add {a b : Int} {hab₁ hab₂} : Int16.ofIntLE (a + b) hab₁ hab₂ = Int16.ofInt a + Int16.ofInt b := by
+  simp [Int16.ofIntLE_eq_ofInt]
+theorem Int32.ofIntLE_add {a b : Int} {hab₁ hab₂} : Int32.ofIntLE (a + b) hab₁ hab₂ = Int32.ofInt a + Int32.ofInt b := by
+  simp [Int32.ofIntLE_eq_ofInt]
+theorem Int64.ofIntLE_add {a b : Int} {hab₁ hab₂} : Int64.ofIntLE (a + b) hab₁ hab₂ = Int64.ofInt a + Int64.ofInt b := by
+  simp [Int64.ofIntLE_eq_ofInt]
+theorem ISize.ofIntLE_add {a b : Int} {hab₁ hab₂} : ISize.ofIntLE (a + b) hab₁ hab₂ = ISize.ofInt a + ISize.ofInt b := by
+  simp [ISize.ofIntLE_eq_ofInt]
+
+@[simp] theorem Int8.ofBitVec_sub (a b : BitVec 8) : Int8.ofBitVec (a - b) = Int8.ofBitVec a - Int8.ofBitVec b := rfl
+@[simp] theorem Int16.ofBitVec_sub (a b : BitVec 16) : Int16.ofBitVec (a - b) = Int16.ofBitVec a - Int16.ofBitVec b := rfl
+@[simp] theorem Int32.ofBitVec_sub (a b : BitVec 32) : Int32.ofBitVec (a - b) = Int32.ofBitVec a - Int32.ofBitVec b := rfl
+@[simp] theorem Int64.ofBitVec_sub (a b : BitVec 64) : Int64.ofBitVec (a - b) = Int64.ofBitVec a - Int64.ofBitVec b := rfl
+@[simp] theorem ISize.ofBitVec_sub (a b : BitVec System.Platform.numBits) : ISize.ofBitVec (a - b) = ISize.ofBitVec a - ISize.ofBitVec b := rfl
+
+@[simp] theorem Int8.ofInt_sub (a b : Int) : Int8.ofInt (a - b) = Int8.ofInt a - Int8.ofInt b := by
+  simp [Int8.ofInt_eq_iff_bmod_eq_toInt]
+@[simp] theorem Int16.ofInt_sub (a b : Int) : Int16.ofInt (a - b) = Int16.ofInt a - Int16.ofInt b := by
+  simp [Int16.ofInt_eq_iff_bmod_eq_toInt]
+@[simp] theorem Int32.ofInt_sub (a b : Int) : Int32.ofInt (a - b) = Int32.ofInt a - Int32.ofInt b := by
+  simp [Int32.ofInt_eq_iff_bmod_eq_toInt]
+@[simp] theorem Int64.ofInt_sub (a b : Int) : Int64.ofInt (a - b) = Int64.ofInt a - Int64.ofInt b := by
+  simp [Int64.ofInt_eq_iff_bmod_eq_toInt]
+@[simp] theorem ISize.ofInt_sub (a b : Int) : ISize.ofInt (a - b) = ISize.ofInt a - ISize.ofInt b := by
+  simp [ISize.ofInt_eq_iff_bmod_eq_toInt, ISize.toInt_ofInt]
+
+@[simp] theorem Int8.ofNat_sub (a b : Nat) (hab : b ≤ a) : Int8.ofNat (a - b) = Int8.ofNat a - Int8.ofNat b := by
+  simp [← Int8.ofInt_eq_ofNat, Int.ofNat_sub hab]
+@[simp] theorem Int16.ofNat_sub (a b : Nat) (hab : b ≤ a) : Int16.ofNat (a - b) = Int16.ofNat a - Int16.ofNat b := by
+  simp [← Int16.ofInt_eq_ofNat, Int.ofNat_sub hab]
+@[simp] theorem Int32.ofNat_sub (a b : Nat) (hab : b ≤ a) : Int32.ofNat (a - b) = Int32.ofNat a - Int32.ofNat b := by
+  simp [← Int32.ofInt_eq_ofNat, Int.ofNat_sub hab]
+@[simp] theorem Int64.ofNat_sub (a b : Nat) (hab : b ≤ a) : Int64.ofNat (a - b) = Int64.ofNat a - Int64.ofNat b := by
+  simp [← Int64.ofInt_eq_ofNat, Int.ofNat_sub hab]
+@[simp] theorem ISize.ofNat_sub (a b : Nat) (hab : b ≤ a) : ISize.ofNat (a - b) = ISize.ofNat a - ISize.ofNat b := by
+  simp [← ISize.ofInt_eq_ofNat, Int.ofNat_sub hab]
+
+theorem Int8.ofIntLE_sub {a b : Int} {hab₁ hab₂} : Int8.ofIntLE (a - b) hab₁ hab₂ = Int8.ofInt a - Int8.ofInt b := by
+  simp [Int8.ofIntLE_eq_ofInt]
+theorem Int16.ofIntLE_sub {a b : Int} {hab₁ hab₂} : Int16.ofIntLE (a - b) hab₁ hab₂ = Int16.ofInt a - Int16.ofInt b := by
+  simp [Int16.ofIntLE_eq_ofInt]
+theorem Int32.ofIntLE_sub {a b : Int} {hab₁ hab₂} : Int32.ofIntLE (a - b) hab₁ hab₂ = Int32.ofInt a - Int32.ofInt b := by
+  simp [Int32.ofIntLE_eq_ofInt]
+theorem Int64.ofIntLE_sub {a b : Int} {hab₁ hab₂} : Int64.ofIntLE (a - b) hab₁ hab₂ = Int64.ofInt a - Int64.ofInt b := by
+  simp [Int64.ofIntLE_eq_ofInt]
+theorem ISize.ofIntLE_sub {a b : Int} {hab₁ hab₂} : ISize.ofIntLE (a - b) hab₁ hab₂ = ISize.ofInt a - ISize.ofInt b := by
+  simp [ISize.ofIntLE_eq_ofInt]
+
+@[simp] theorem Int8.ofBitVec_mul (a b : BitVec 8) : Int8.ofBitVec (a * b) = Int8.ofBitVec a * Int8.ofBitVec b := rfl
+@[simp] theorem Int16.ofBitVec_mul (a b : BitVec 16) : Int16.ofBitVec (a * b) = Int16.ofBitVec a * Int16.ofBitVec b := rfl
+@[simp] theorem Int32.ofBitVec_mul (a b : BitVec 32) : Int32.ofBitVec (a * b) = Int32.ofBitVec a * Int32.ofBitVec b := rfl
+@[simp] theorem Int64.ofBitVec_mul (a b : BitVec 64) : Int64.ofBitVec (a * b) = Int64.ofBitVec a * Int64.ofBitVec b := rfl
+@[simp] theorem ISize.ofBitVec_mul (a b : BitVec System.Platform.numBits) : ISize.ofBitVec (a * b) = ISize.ofBitVec a * ISize.ofBitVec b := rfl
+
+@[simp] theorem Int8.ofInt_mul (a b : Int) : Int8.ofInt (a * b) = Int8.ofInt a * Int8.ofInt b := by
+  simp [Int8.ofInt_eq_iff_bmod_eq_toInt]
+@[simp] theorem Int16.ofInt_mul (a b : Int) : Int16.ofInt (a * b) = Int16.ofInt a * Int16.ofInt b := by
+  simp [Int16.ofInt_eq_iff_bmod_eq_toInt]
+@[simp] theorem Int32.ofInt_mul (a b : Int) : Int32.ofInt (a * b) = Int32.ofInt a * Int32.ofInt b := by
+  simp [Int32.ofInt_eq_iff_bmod_eq_toInt]
+@[simp] theorem Int64.ofInt_mul (a b : Int) : Int64.ofInt (a * b) = Int64.ofInt a * Int64.ofInt b := by
+  simp [Int64.ofInt_eq_iff_bmod_eq_toInt]
+@[simp] theorem ISize.ofInt_mul (a b : Int) : ISize.ofInt (a * b) = ISize.ofInt a * ISize.ofInt b := by
+  simp [ISize.ofInt_eq_iff_bmod_eq_toInt, ISize.toInt_ofInt]
+
+@[simp] theorem Int8.ofNat_mul (a b : Nat) : Int8.ofNat (a * b) = Int8.ofNat a * Int8.ofNat b := by
+  simp [← Int8.ofInt_eq_ofNat]
+@[simp] theorem Int16.ofNat_mul (a b : Nat) : Int16.ofNat (a * b) = Int16.ofNat a * Int16.ofNat b := by
+  simp [← Int16.ofInt_eq_ofNat]
+@[simp] theorem Int32.ofNat_mul (a b : Nat) : Int32.ofNat (a * b) = Int32.ofNat a * Int32.ofNat b := by
+  simp [← Int32.ofInt_eq_ofNat]
+@[simp] theorem Int64.ofNat_mul (a b : Nat) : Int64.ofNat (a * b) = Int64.ofNat a * Int64.ofNat b := by
+  simp [← Int64.ofInt_eq_ofNat]
+@[simp] theorem ISize.ofNat_mul (a b : Nat) : ISize.ofNat (a * b) = ISize.ofNat a * ISize.ofNat b := by
+  simp [← ISize.ofInt_eq_ofNat]
+
+theorem Int8.ofIntLE_mul {a b : Int} {hab₁ hab₂} : Int8.ofIntLE (a * b) hab₁ hab₂ = Int8.ofInt a * Int8.ofInt b := by
+  simp [Int8.ofIntLE_eq_ofInt]
+theorem Int16.ofIntLE_mul {a b : Int} {hab₁ hab₂} : Int16.ofIntLE (a * b) hab₁ hab₂ = Int16.ofInt a * Int16.ofInt b := by
+  simp [Int16.ofIntLE_eq_ofInt]
+theorem Int32.ofIntLE_mul {a b : Int} {hab₁ hab₂} : Int32.ofIntLE (a * b) hab₁ hab₂ = Int32.ofInt a * Int32.ofInt b := by
+  simp [Int32.ofIntLE_eq_ofInt]
+theorem Int64.ofIntLE_mul {a b : Int} {hab₁ hab₂} : Int64.ofIntLE (a * b) hab₁ hab₂ = Int64.ofInt a * Int64.ofInt b := by
+  simp [Int64.ofIntLE_eq_ofInt]
+theorem ISize.ofIntLE_mul {a b : Int} {hab₁ hab₂} : ISize.ofIntLE (a * b) hab₁ hab₂ = ISize.ofInt a * ISize.ofInt b := by
+  simp [ISize.ofIntLE_eq_ofInt]

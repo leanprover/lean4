@@ -792,6 +792,12 @@ theorem mod_two_pow_shiftLeft_mod_two_pow {a b c : Nat} : ((a % 2 ^ c) <<< b) % 
   · simp [(by omega : i - b < c)]
   · simp [*]
 
+theorem le_shiftLeft {a b : Nat} : a ≤ a <<< b :=
+  shiftLeft_eq _ _ ▸ Nat.le_mul_of_pos_right _ (Nat.two_pow_pos _)
+
+theorem lt_of_shiftLeft_lt {a b c : Nat} (h : a <<< b < c) : a < c :=
+  Nat.lt_of_le_of_lt le_shiftLeft h
+
 /-! ### le -/
 
 theorem le_of_testBit {n m : Nat} (h : ∀ i, n.testBit i = true → m.testBit i = true) : n ≤ m := by

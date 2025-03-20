@@ -13,8 +13,8 @@ universe u
 namespace Nat
 
 /--
-Applies a function to all the numbers less than some bound, in increasing order, computing a value
-from a starting value.
+Iterates the application of a function `f` to a starting value `init`, `n` times. At each step, `f`
+is applied to the current value and to the next natural number less than `n`, in increasing order.
 
 Examples:
 * `Nat.fold 3 f init = (init |> f 0 (by simp) |> f 1 (by simp) |> f 2 (by simp))`
@@ -27,8 +27,8 @@ Examples:
 
 
 /--
-Applies a function to all the numbers less than some bound, in increasing order, computing a value
-from a starting value.
+Iterates the application of a function `f` to a starting value `init`, `n` times. At each step, `f`
+is applied to the current value and to the next natural number less than `n`, in increasing order.
 
 This is a tail-recursive version of `Nat.fold` that's used at runtime.
 
@@ -44,8 +44,8 @@ Examples:
   loop n (by omega) init
 
 /--
-Applies a function to all the numbers less than some bound, in decreasing order, computing a value
-from a starting value.
+Iterates the application of a function `f` to a starting value `init`, `n` times. At each step, `f`
+is applied to the current value and to the next natural number less than `n`, in decreasing order.
 
 Examples:
 * `Nat.foldRev 3 f init = (f 0 (by simp) <| f 1 (by simp) <| f 2 (by simp) init)`

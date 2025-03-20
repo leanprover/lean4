@@ -56,8 +56,9 @@ Example:
   loop n (by simp)
 
 /--
-Applies a monadic function to all the numbers less than some bound, in increasing order, computing a
-value from a starting value.
+Iterates the application of a monadic function `f` to a starting value `init`, `n` times. At each
+step, `f` is applied to the current value and to the next natural number less than `n`, in
+increasing order.
 -/
 @[inline] def foldM {α : Type u} {m : Type u → Type v} [Monad m] (n : Nat) (f : (i : Nat) → i < n → α → m α) (init : α) : m α :=
   let rec @[specialize] loop : ∀ i, i ≤ n → α → m α
@@ -66,8 +67,9 @@ value from a starting value.
   loop n (by omega) init
 
 /--
-Applies a monadic function to all the numbers less than some bound, in decreasing order, computing a
-value from a starting value.
+Iterates the application of a monadic function `f` to a starting value `init`, `n` times. At each
+step, `f` is applied to the current value and to the next natural number less than `n`, in
+decreasing order.
 -/
 @[inline] def foldRevM {α : Type u} {m : Type u → Type v} [Monad m] (n : Nat) (f : (i : Nat) → i < n → α → m α) (init : α) : m α :=
   let rec @[specialize] loop : ∀ i, i ≤ n → α → m α

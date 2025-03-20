@@ -12,7 +12,13 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 
 namespace Array
 
-/-- `finRange n` is the array of all elements of `Fin n` in order. -/
+/--
+Returns an array of all elements of `Fin n` in order, starting at `0`.
+
+Examples:
+ * `Array.finRange 0 = (#[] : Array (Fin 0))`
+ * `Array.finRange 2 = (#[0, 1] : Array (Fin 2))`
+-/
 protected def finRange (n : Nat) : Array (Fin n) := ofFn fun i => i
 
 @[simp] theorem size_finRange (n) : (Array.finRange n).size = n := by

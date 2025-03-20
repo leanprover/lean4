@@ -13,22 +13,22 @@ open Lean System
 structure LeanLib where
   /-- The package the library belongs to. -/
   pkg : Package
+  /-- The library's name. -/
+  name : Name
    /-- The library's user-defined configuration. -/
-  config : LeanLibConfig
+  config : LeanLibConfig name
 
 /-- The Lean libraries of the package (as an Array). -/
 @[inline] def Package.leanLibs (self : Package) : Array LeanLib :=
-  self.leanLibConfigs.foldl (fun a v => a.push ⟨self, v⟩) #[]
+  self.targetDecls.foldl (init := #[]) fun a t =>
+    if let some cfg := t.leanLibConfig? then a.push ⟨self, t.name, cfg⟩ else a
 
 /-- Try to find a Lean library in the package with the given name. -/
 @[inline] def Package.findLeanLib? (name : Name) (self : Package) : Option LeanLib :=
-  self.leanLibConfigs.find? name |>.map (⟨self, ·⟩)
+  self.targetDeclMap.find? name |>.bind fun t => t.leanLibConfig?.map fun cfg =>
+    ⟨self, name, cfg⟩
 
 namespace LeanLib
-
-/-- The library's well-formed name. -/
-@[inline] def name (self : LeanLib) : Name :=
-  self.config.name
 
 /-- The package's `srcDir` joined with the library's `srcDir`. -/
 @[inline] def srcDir (self : LeanLib) : FilePath :=

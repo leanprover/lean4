@@ -490,21 +490,23 @@ protected theorem neg_mul_eq_neg_mul (a b : Int) : -(a * b) = -a * b :=
 protected theorem neg_mul_eq_mul_neg (a b : Int) : -(a * b) = a * -b :=
   Int.neg_eq_of_add_eq_zero <| by rw [← Int.mul_add, Int.add_right_neg, Int.mul_zero]
 
-@[simp] protected theorem neg_mul (a b : Int) : -a * b = -(a * b) :=
+-- Note, this is not a `@[simp]` lemma because it interferes with normalization in `simp +arith`.
+protected theorem neg_mul (a b : Int) : -a * b = -(a * b) :=
   (Int.neg_mul_eq_neg_mul a b).symm
 
-@[simp] protected theorem mul_neg (a b : Int) : a * -b = -(a * b) :=
+-- Note, this is not a `@[simp]` lemma because it interferes with normalization in `simp +arith`.
+protected theorem mul_neg (a b : Int) : a * -b = -(a * b) :=
   (Int.neg_mul_eq_mul_neg a b).symm
 
-protected theorem neg_mul_neg (a b : Int) : -a * -b = a * b := by simp
+protected theorem neg_mul_neg (a b : Int) : -a * -b = a * b := by simp [Int.neg_mul, Int.mul_neg]
 
-protected theorem neg_mul_comm (a b : Int) : -a * b = a * -b := by simp
+protected theorem neg_mul_comm (a b : Int) : -a * b = a * -b := by simp [Int.neg_mul, Int.mul_neg]
 
 protected theorem mul_sub (a b c : Int) : a * (b - c) = a * b - a * c := by
-  simp [Int.sub_eq_add_neg, Int.mul_add]
+  simp [Int.sub_eq_add_neg, Int.mul_add, Int.mul_neg]
 
 protected theorem sub_mul (a b c : Int) : (a - b) * c = a * c - b * c := by
-  simp [Int.sub_eq_add_neg, Int.add_mul]
+  simp [Int.sub_eq_add_neg, Int.add_mul, Int.neg_mul]
 
 @[simp] protected theorem one_mul : ∀ a : Int, 1 * a = a
   | ofNat n => show ofNat (1 * n) = ofNat n by rw [Nat.one_mul]

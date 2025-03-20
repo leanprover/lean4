@@ -46,7 +46,7 @@ Users that want to use `mapM` with `Applicative` should use `mapA` instead.
 -/
 
 /--
-Applies the monadic action `f` on every element in the list, left-to-right, and returns the list of
+Applies the monadic action `f` to every element in the list, left-to-right, and returns the list of
 results.
 
 This implementation is tail recursive. `List.mapM'` is a a non-tail-recursive variant that may be
@@ -243,7 +243,7 @@ def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s
 
 /--
 Folds a monadic function over a list from the right, accumulating a value starting with `init`. The
-accumulated value is combined with the each element of the list in order, using `f`.
+accumulated value is combined with the each element of the list in reverse order, using `f`.
 
 Example:
 ```lean example

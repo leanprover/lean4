@@ -43,10 +43,10 @@ def TargetDecl.fetchJob (self : TargetDecl) : FetchM OpaqueJob :=  do
 : FetchM (Job α) := fetch <| pkg.facet self.name
 
 /-- Fetch the build job of a package facet. -/
+@[deprecated "Deprecated without replacement." (since := "2025-03-17")]
 def PackageFacetConfig.fetchJob
   (pkg : Package) (self : PackageFacetConfig name)
-: FetchM OpaqueJob := do
-  return  (← fetch <| pkg.facet self.name).toOpaque
+: FetchM OpaqueJob := return (← fetch <| pkg.facet self.name).toOpaque
 
 /-- Fetch the build job of a library facet. -/
 def Package.fetchFacetJob
@@ -62,22 +62,21 @@ def Package.fetchFacetJob
 : FetchM (Job α) := fetch <| mod.facet self.name
 
 /-- Fetch the build job of a module facet. -/
+@[deprecated "Deprecated without replacement." (since := "2025-03-17")]
 def ModuleFacetConfig.fetchJob
   (mod : Module) (self : ModuleFacetConfig name)
-: FetchM OpaqueJob := do
-  return (← fetch <| mod.facet self.name).toOpaque
+: FetchM OpaqueJob := return (← fetch <| mod.facet self.name).toOpaque
 
 /-- Fetch the build job of a module facet. -/
-def Module.fetchFacetJob
-  (name : Name) (self : Module)
-: FetchM OpaqueJob := do
+def Module.fetchFacetJob (name : Name) (self : Module) : FetchM OpaqueJob :=
   return (← fetch <| self.facet name).toOpaque
 
 /-! ## Lean Library Facets -/
 
 /-- Get the Lean library in the workspace with the configuration's name. -/
-@[inline] def LeanLibConfig.get
-(self : LeanLibConfig) [Monad m] [MonadError m] [MonadLake m] : m LeanLib := do
+@[inline] def LeanLibDecl.get
+  (self : LeanLibDecl) [Monad m] [MonadError m] [MonadLake m] : m LeanLib
+:= do
   let some lib ← findLeanLib? self.name
     | error s!"Lean library '{self.name}' does not exist in the workspace"
   return lib
@@ -88,29 +87,28 @@ def Module.fetchFacetJob
 : FetchM (Job α) := fetch <| lib.facet self.name
 
 /-- Fetch the build job of a library facet. -/
+@[deprecated "Deprecated without replacement," (since := "2025-03-17")]
 def LibraryFacetConfig.fetchJob
   (lib : LeanLib) (self : LibraryFacetConfig name)
-: FetchM OpaqueJob := do
-  return (← fetch <| lib.facet self.name).toOpaque
+: FetchM OpaqueJob := return (← fetch <| lib.facet self.name).toOpaque
 
 /-- Fetch the build job of a library facet. -/
 def LeanLib.fetchFacetJob
   (name : Name) (self : LeanLib)
-: FetchM OpaqueJob := do
-  return (← fetch <| self.facet name).toOpaque
+: FetchM OpaqueJob := return (← fetch <| self.facet name).toOpaque
 
 /-! ## Lean Executable Target -/
 
 /-- Get the Lean executable in the workspace with the configuration's name. -/
-@[inline] def LeanExeConfig.get
-  (self : LeanExeConfig) [Monad m] [MonadError m] [MonadLake m]
+@[inline] def LeanExeDecl.get
+  (self : LeanExeDecl) [Monad m] [MonadError m] [MonadLake m]
 : m LeanExe := do
   let some exe ← findLeanExe? self.name
     | error s!"Lean executable '{self.name}' does not exist in the workspace"
   return exe
 
 /-- Fetch the build of the Lean executable. -/
-@[inline] def LeanExeConfig.fetch (self : LeanExeConfig) : FetchM (Job FilePath) := do
+@[inline] def LeanExeDecl.fetch (self : LeanExeDecl) : FetchM (Job FilePath) := do
   (← self.get).exe.fetch
 
 /-- Fetch the build of the Lean executable. -/

@@ -2318,9 +2318,9 @@ else
 {
 lean_object* x_133; 
 lean_dec(x_49);
-lean_dec(x_23);
+lean_dec(x_27);
 lean_dec(x_19);
-x_133 = lean_apply_1(x_14, x_27);
+x_133 = lean_apply_1(x_14, x_23);
 x_7 = x_133;
 goto block_12;
 }

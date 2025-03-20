@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Int.OfNat
+import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Simp.Arith.Nat.Basic
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 
@@ -101,4 +102,50 @@ where
   conv (lhs rhs : Lean.Expr) : M (Expr × Expr) :=
     return (← toOfNatExpr lhs, ← toOfNatExpr rhs)
 
+/--
+Given `e` of type `Int`, tries to compute `a : Int.OfNat.Expr` s.t.
+`a.denoteAsInt ctx` is `e`
+-/
+partial def ofDenoteAsIntExpr? (e : Lean.Expr) : OptionT M Expr := do
+  match_expr e with
+  | OfNat.ofNat _ _ _ =>
+    let some n ← getIntValue? e | failure
+    guard (n ≥ 0)
+    return .num n.toNat
+  | HAdd.hAdd _ _ _ i a b =>
+    guard (← isInstHAddInt i)
+    return .add (← ofDenoteAsIntExpr? a) (← ofDenoteAsIntExpr? b)
+  | HMul.hMul _ _ _ i a b =>
+    guard (← isInstHMulInt i)
+    return .mul (← ofDenoteAsIntExpr? a) (← ofDenoteAsIntExpr? b)
+  | HDiv.hDiv _ _ _ i a b =>
+    guard (← isInstHDivInt i)
+    return .div (← ofDenoteAsIntExpr? a) (← ofDenoteAsIntExpr? b)
+  | HMod.hMod _ _ _ i a b =>
+    guard (← isInstHModInt i)
+    return .mod (← ofDenoteAsIntExpr? a) (← ofDenoteAsIntExpr? b)
+  | _ =>
+    let_expr NatCast.natCast _ inst a ← e | failure
+    let_expr instNatCastInt := inst | failure
+    if let some x := (← get).map.get? { expr := a } then
+      return .var x
+    else
+      let x := (← get).ctx.size
+      modify fun s => { s with ctx := s.ctx.push a, map := s.map.insert { expr := a } x }
+      return .var x
+
 end Int.OfNat
+
+namespace Lean.Meta.Grind.Arith.Cutsat
+/--
+If `e` is of the form `a.denoteAsInt ctx` for some `a` and `ctx`,
+assert that `e` is nonnegative.
+-/
+def assertDenoteAsIntNonneg (e : Expr) : GoalM Unit := do
+  if e.isAppOf ``NatCast.natCast then return ()
+  let (some a, s) ← Int.OfNat.ofDenoteAsIntExpr? e |>.run |>.run {} | return ()
+  let ctx := Simp.Arith.Nat.toContextExpr s.ctx
+  let h := mkApp2 (mkConst ``Int.OfNat.Expr.denoteAsInt_nonneg) ctx (toExpr a)
+  pushNewFact' (mkIntLE (mkIntLit 0) e) h (← getGeneration e)
+
+end Lean.Meta.Grind.Arith.Cutsat

@@ -26,8 +26,11 @@ where
 
 def isPowerOfTwo (n : Nat) := ∃ k, n = 2 ^ k
 
-theorem one_isPowerOfTwo : isPowerOfTwo 1 :=
+theorem isPowerOfTwo_one : isPowerOfTwo 1 :=
   ⟨0, by decide⟩
+
+@[deprecated isPowerOfTwo_one (since := "2025-03-18")]
+abbrev one_isPowerOfTwo := @isPowerOfTwo_one
 
 theorem mul2_isPowerOfTwo_of_isPowerOfTwo (h : isPowerOfTwo n) : isPowerOfTwo (n * 2) :=
   have ⟨k, h⟩ := h
@@ -41,7 +44,7 @@ theorem pos_of_isPowerOfTwo (h : isPowerOfTwo n) : n > 0 := by
 
 theorem isPowerOfTwo_nextPowerOfTwo (n : Nat) : n.nextPowerOfTwo.isPowerOfTwo := by
   apply isPowerOfTwo_go
-  apply one_isPowerOfTwo
+  apply isPowerOfTwo_one
 where
   isPowerOfTwo_go (power : Nat) (h₁ : power > 0) (h₂ : power.isPowerOfTwo) : (nextPowerOfTwo.go n power h₁).isPowerOfTwo := by
     unfold nextPowerOfTwo.go

@@ -122,17 +122,15 @@ protected theorem mul_dvd_mul_iff_right {a b c : Int} (h : a ≠ 0) : (b * a) �
   | ofNat _ => show ofNat _ = _ by simp
   | -[_+1] => show -ofNat _ = _ by simp
 
-unseal Nat.div in
 @[simp] protected theorem tdiv_zero : ∀ a : Int, tdiv a 0 = 0
   | ofNat _ => show ofNat _ = _ by simp
-  | -[_+1] => rfl
+  | -[_+1] => by simp [tdiv]
 
 @[simp] theorem zero_fdiv (b : Int) : fdiv 0 b = 0 := by cases b <;> rfl
 
-unseal Nat.div in
 @[simp] protected theorem fdiv_zero : ∀ a : Int, fdiv a 0 = 0
   | 0      => rfl
-  | succ _ => rfl
+  | succ _ => by simp [fdiv]
   | -[_+1] => rfl
 
 /-! ### preliminaries for div equivalences -/
@@ -558,7 +556,7 @@ protected theorem eq_ediv_of_mul_eq_left {a b c : Int}
 
 theorem sign_ediv (a b : Int) : sign (a / b) = if 0 ≤ a ∧ a < b.natAbs then 0 else sign a * sign b := by
   induction b using wlog_sign
-  case inv => simp; split <;> simp
+  case inv => simp; split <;> simp [Int.mul_neg]
   case w b =>
     match b with
     | 0 => simp
@@ -699,7 +697,7 @@ protected theorem ediv_emod_unique {a b r q : Int} (h : 0 < b) :
 protected theorem ediv_emod_unique' {a b r q : Int} (h : b < 0) :
     a / b = q ∧ a % b = r ↔ r + b * q = a ∧ 0 ≤ r ∧ r < -b := by
   have := Int.ediv_emod_unique (a := a) (b := -b) (r := r) (q := -q) (by omega)
-  simpa [Int.neg_inj]
+  simpa [Int.neg_inj, Int.neg_mul, Int.mul_neg]
 
 @[simp] theorem mul_emod_mul_of_pos
     {a : Int} (b c : Int) (H : 0 < a) : (a * b) % (a * c) = a * (b % c) := by
@@ -1013,11 +1011,11 @@ protected theorem ediv_le_ediv {a b c : Int} (H : 0 < c) (H' : a ≤ b) : a / c 
 
 -- `tdiv` analogues of `ediv` lemmas from `Bootstrap.lean`
 
-unseal Nat.div in
 @[simp] protected theorem tdiv_neg : ∀ a b : Int, a.tdiv (-b) = -(a.tdiv b)
   | ofNat m, 0 => show ofNat (m / 0) = -↑(m / 0) by rw [Nat.div_zero]; rfl
   | ofNat _, -[_+1] | -[_+1], succ _ => (Int.neg_neg _).symm
-  | ofNat _, succ _ | -[_+1], 0 | -[_+1], -[_+1] => rfl
+  | ofNat _, succ _ | -[_+1], 0 => by simp [Int.tdiv, Int.neg_zero, ← Int.negSucc_eq]
+  | -[_+1], -[_+1] => by simp only [tdiv, neg_negSucc]
 
 /-!
 There are no lemmas
@@ -1112,10 +1110,11 @@ protected theorem eq_tdiv_of_mul_eq_left {a b c : Int}
 @[simp] protected theorem tdiv_self {a : Int} (H : a ≠ 0) : a.tdiv a = 1 := by
   have := Int.mul_tdiv_cancel 1 H; rwa [Int.one_mul] at this
 
-unseal Nat.div in
 @[simp] protected theorem neg_tdiv : ∀ a b : Int, (-a).tdiv b = -(a.tdiv b)
   | 0, n => by simp [Int.neg_zero]
-  | succ _, (n:Nat) | -[_+1], 0 | -[_+1], -[_+1] => rfl
+  | succ _, (n:Nat) => by simp [tdiv, ← Int.negSucc_eq]
+  | -[_+1], 0 | -[_+1], -[_+1] => by
+    simp only [tdiv, neg_negSucc, ← Int.natCast_succ, Int.neg_neg]
   | succ _, -[_+1] | -[_+1], succ _ => (Int.neg_neg _).symm
 
 protected theorem neg_tdiv_neg (a b : Int) : (-a).tdiv (-b) = a.tdiv b := by
@@ -1123,10 +1122,10 @@ protected theorem neg_tdiv_neg (a b : Int) : (-a).tdiv (-b) = a.tdiv b := by
 
 theorem sign_tdiv (a b : Int) : sign (a.tdiv b) = if natAbs a < natAbs b then 0 else sign a * sign b := by
   induction b using wlog_sign
-  case inv => simp; split <;> simp
+  case inv => simp; split <;> simp [Int.mul_neg]
   case w b =>
     induction a using wlog_sign
-    case inv => simp; split <;> simp
+    case inv => simp; split <;> simp [Int.neg_mul]
     case w a =>
       rw [tdiv_eq_ediv_of_nonneg (by simp), sign_ediv]
       simp
@@ -1187,9 +1186,9 @@ theorem lt_tmod_of_pos (a : Int) {b : Int} (H : 0 < b) : -b < tmod a b :=
 
 theorem mul_tmod (a b n : Int) : (a * b).tmod n = (a.tmod n * b.tmod n).tmod n := by
   induction a using wlog_sign
-  case inv => simp
+  case inv => simp [Int.neg_mul]
   induction b using wlog_sign
-  case inv => simp
+  case inv => simp [Int.mul_neg]
   induction n using wlog_sign
   case inv => simp
   simp only [← Int.natCast_mul, ← ofNat_tmod]
@@ -1332,14 +1331,14 @@ protected theorem tdiv_tmod_unique {a b r q : Int} (ha : 0 ≤ a) (hb : b ≠ 0)
   · replace hb' : 0 < -b := by omega
     have := Int.ediv_emod_unique (a := a) (q := -q) (r := r) hb'
     simp at this
-    simp [this]
+    simp [this, Int.neg_mul, Int.mul_neg]
     omega
 
 protected theorem tdiv_tmod_unique' {a b r q : Int} (ha : a ≤ 0) (hb : b ≠ 0) :
     a.tdiv b = q ∧ a.tmod b = r ↔ r + b * q = a ∧ -natAbs b < r ∧ r ≤ 0 := by
   have := Int.tdiv_tmod_unique (a := -a) (q := -q) (r := -r) (by omega) hb
   simp at this
-  simp [this]
+  simp [this, Int.mul_neg]
   omega
 
 @[simp] theorem mul_tmod_mul_of_pos
@@ -1645,9 +1644,9 @@ theorem fdiv_nonneg_of_nonpos_of_nonpos {a b : Int} (Ha : a ≤ 0) (Hb : b ≤ 0
     · have : 0 < a / b := ediv_pos_of_neg_of_neg (by omega) (by omega)
       split <;> omega
 
-unseal Nat.div in
 theorem fdiv_nonpos_of_nonneg_of_nonpos : ∀ {a b : Int}, 0 ≤ a → b ≤ 0 → a.fdiv b ≤ 0
-  | 0, 0, _, _ | 0, -[_+1], _, _ | succ _, 0, _, _ | succ _, -[_+1], _, _ => ⟨_⟩
+  | 0, 0, _, _ | 0, -[_+1], _, _ | succ _, 0, _, _ | succ _, -[_+1], _, _ => by
+    simp [fdiv, negSucc_le_zero]
 
 @[deprecated fdiv_nonpos_of_nonneg_of_nonpos (since := "2025-03-04")]
 abbrev fdiv_nonpos := @fdiv_nonpos_of_nonneg_of_nonpos
@@ -1972,7 +1971,7 @@ protected theorem fdiv_fmod_unique' {a b r q : Int} (h : b < 0) :
     a.fdiv b = q ∧ a.fmod b = r ↔ r + b * q = a ∧ b < r ∧ r ≤ 0 := by
   have := Int.fdiv_fmod_unique (a := -a) (b := -b) (r := -r) (q := q) (by omega)
   simp at this
-  simp [this]
+  simp [this, Int.neg_mul]
   omega
 
 @[simp] theorem mul_fmod_mul_of_pos

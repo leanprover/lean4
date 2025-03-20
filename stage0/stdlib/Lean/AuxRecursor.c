@@ -74,7 +74,7 @@ static lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_211____closed__2
 LEAN_EXPORT uint8_t l_Lean_isAuxRecursorWithSuffix(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isAuxRecursor___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
+lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isCasesOnRecursor(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_casesOnSuffix___closed__1() {
 _start:
@@ -255,10 +255,11 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_69_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_69____closed__3;
-x_3 = l_Lean_mkTagDeclarationExtension(x_2, x_1);
-return x_3;
+x_3 = 2;
+x_4 = l_Lean_mkTagDeclarationExtension(x_2, x_3, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_markAuxRecursor___closed__1() {
@@ -540,10 +541,11 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_211_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_211____closed__2;
-x_3 = l_Lean_mkTagDeclarationExtension(x_2, x_1);
-return x_3;
+x_3 = 2;
+x_4 = l_Lean_mkTagDeclarationExtension(x_2, x_3, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_markNoConfusion___closed__1() {

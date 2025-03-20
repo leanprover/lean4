@@ -59,7 +59,14 @@ def fallback : Fallback := do
 set_option trace.Meta.debug true
 
 /--
-info: [Meta.debug] [-1 * NatCast.natCast (a * (b * c)), -1 * NatCast.natCast (d * (b * c)), a * (b * c), b * c, d * (b * c)]
+info: [Meta.debug] [NatCast.natCast a * (NatCast.natCast b * NatCast.natCast c),
+     NatCast.natCast b * NatCast.natCast c,
+     NatCast.natCast d * (NatCast.natCast b * NatCast.natCast c),
+     -1 * (NatCast.natCast a * (NatCast.natCast b * NatCast.natCast c)),
+     -1 * (NatCast.natCast d * (NatCast.natCast b * NatCast.natCast c)),
+     a * (b * c),
+     b * c,
+     d * (b * c)]
 -/
 #guard_msgs (info) in
 example (a b c d : Nat) : b * (a * c) = d * (b * c) → False := by
@@ -74,6 +81,14 @@ info: [Meta.debug] [@HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast
        (@NatCast.natCast Int instNatCastInt a),
      @HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
        (@NatCast.natCast Int instNatCastInt d),
+     @HMul.hMul Int Int Int (@instHMul Int Int.instMul)
+       (@Neg.neg Int Int.instNegInt (@OfNat.ofNat Int 1 (@instOfNat 1)))
+       (@HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
+         (@NatCast.natCast Int instNatCastInt a)),
+     @HMul.hMul Int Int Int (@instHMul Int Int.instMul)
+       (@Neg.neg Int Int.instNegInt (@OfNat.ofNat Int 1 (@instOfNat 1)))
+       (@HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
+         (@NatCast.natCast Int instNatCastInt d)),
      @HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b a,
      @HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b d]
 -/

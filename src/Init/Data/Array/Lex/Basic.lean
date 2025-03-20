@@ -14,11 +14,12 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 namespace Array
 
 /--
-Lexicographic comparator for arrays.
+Compares arrays lexicographically with respect to a comparison `lt` on their elements.
 
-`lex as bs lt` is true if
-- `bs` is larger than `as` and `as` is pairwise equivalent via `==` to the initial segment of `bs`, or
-- there is an index `i` such that `lt as[i] bs[i]`, and for all `j < i`, `as[j] == bs[j]`.
+Specifically, `Array.lex as bs lt` is true if
+* `bs` is larger than `as` and `as` is pairwise equivalent via `==` to the initial segment of `bs`,
+  or
+* there is an index `i` such that `lt as[i] bs[i]`, and for all `j < i`, `as[j] == bs[j]`.
 -/
 def lex [BEq α] (as bs : Array α) (lt : α → α → Bool := by exact (· < ·)) : Bool := Id.run do
   for h : i in [0 : min as.size bs.size] do

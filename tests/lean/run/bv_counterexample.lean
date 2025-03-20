@@ -12,7 +12,7 @@ example (x : BitVec 64) : x < x + 1 := by
 
 /--
 error: The prover found a counterexample, consider the following assignment:
-x = 511#64
+x = 0#64
 -/
 #guard_msgs in
 example (x : BitVec 64) (h : x < 512) : x ^^^ x ≠ 0 := by

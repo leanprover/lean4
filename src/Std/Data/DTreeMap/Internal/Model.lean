@@ -6,6 +6,7 @@ Authors: Markus Himmel, Paul Reichert
 prelude
 import Std.Data.DTreeMap.Internal.WF.Defs
 import Std.Data.DTreeMap.Internal.Cell
+import Std.Data.Internal.Cut
 
 /-!
 # Model implementations of tree map functions
@@ -19,6 +20,7 @@ universe u v w
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w}
 
 namespace Std.DTreeMap.Internal
+open Std.Internal (IsStrictCut)
 
 namespace Impl
 
@@ -172,27 +174,24 @@ theorem explore_eq_applyPartition [Ord α] {k : α → Ordering} (init : δ) (l 
 General "update the mapping for a given key" function.
 Internal implementation detail of the tree map
 -/
-def updateCell [Ord α] (k : α) (f : Cell α β (compare k) → Cell α β (compare k))
+noncomputable def updateCell [Ord α] (k : α) (f : Cell α β (compare k) → Cell α β (compare k))
     (l : Impl α β) (hl : Balanced l) : SizedBalancedTree α β (l.size - 1) (l.size + 1) :=
   match l with
   | leaf => match (f .empty).inner with
-    | none => ⟨.leaf, by tree_tac, by tree_tac, by tree_tac⟩
-    | some ⟨k', v'⟩ => ⟨.inner 1 k' v' .leaf .leaf, by tree_tac, by tree_tac, by tree_tac⟩
+    | none => ⟨.leaf, ✓, ✓, ✓⟩
+    | some ⟨k', v'⟩ => ⟨.inner 1 k' v' .leaf .leaf, ✓, ✓, ✓⟩
   | inner sz ky y l r =>
     match h : compare k ky with
     | .lt =>
-      let ⟨newL, h₁, h₂, h₃⟩ := updateCell k f l (by tree_tac)
-      ⟨balance ky y newL r (by tree_tac) (by tree_tac) (by tree_tac), by tree_tac, by tree_tac,
-        by tree_tac⟩
+      let ⟨newL, h₁, h₂, h₃⟩ := updateCell k f l ✓
+      ⟨balance ky y newL r ✓ ✓ ✓, ✓, ✓, ✓⟩
     | .eq => match (f (.ofEq ky y h)).inner with
       | none =>
-        ⟨glue l r (by tree_tac) (by tree_tac) (by tree_tac), by tree_tac, by tree_tac,
-           by tree_tac⟩
-      | some ⟨ky', y'⟩ => ⟨.inner sz ky' y' l r, by tree_tac, by tree_tac, by tree_tac⟩
+        ⟨glue l r ✓ ✓ ✓, ✓, ✓, ✓⟩
+      | some ⟨ky', y'⟩ => ⟨.inner sz ky' y' l r, ✓, ✓, ✓⟩
     | .gt =>
-      let ⟨newR, h₁, h₂, h₃⟩ := updateCell k f r (by tree_tac)
-      ⟨balance ky y l newR (by tree_tac) (by tree_tac) (by tree_tac), by tree_tac, by tree_tac,
-        by tree_tac⟩
+      let ⟨newR, h₁, h₂, h₃⟩ := updateCell k f r ✓
+      ⟨balance ky y l newR ✓ ✓ ✓, ✓, ✓, ✓⟩
 
 /-!
 ## Model functions
@@ -262,25 +261,36 @@ Internal implementation detail of the tree map
 def getKeyDₘ [Ord α] (k : α) (l : Impl α β) (fallback : α) : α :=
   getKey?ₘ l k |>.getD fallback
 
+/-- Internal implementation detail of the tree map -/
+def minEntry?ₘ' [Ord α] (l : Impl α β) : Option ((a : α) × β a) :=
+  explore (fun (_ : α) => .lt) none (fun sofar step =>
+    match step with
+    | .lt ky _ y _ => some ⟨ky, y⟩
+    | .eq _ _ r => r.head?.or sofar) l
+
+/-- Internal implementation detail of the tree map -/
+def minEntry?ₘ [Ord α] (l : Impl α β) : Option ((a : α) × β a) :=
+  applyPartition (fun (_ : α) => .lt) l fun _ _ _ r => r.head?
+
 /--
 Model implementation of the `insert` function.
 Internal implementation detail of the tree map
 -/
-def insertₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced) : Impl α β :=
+noncomputable def insertₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced) : Impl α β :=
   updateCell k (fun _ => .of k v) l h |>.impl
 
 /--
 Model implementation of the `erase` function.
 Internal implementation detail of the tree map
 -/
-def eraseₘ [Ord α] (k : α) (t : Impl α β) (h : t.Balanced) : Impl α β :=
+noncomputable def eraseₘ [Ord α] (k : α) (t : Impl α β) (h : t.Balanced) : Impl α β :=
   updateCell k (fun _ => .empty) t h |>.impl
 
 /--
 Model implementation of the `insertIfNew` function.
 Internal implementation detail of the tree map
 -/
-def insertIfNewₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced) : Impl α β :=
+noncomputable def insertIfNewₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced) : Impl α β :=
   updateCell k (fun
     | ⟨.none, _⟩ => .of k v
     | c => c) l h |>.impl
@@ -289,7 +299,7 @@ def insertIfNewₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced
 Model implementation of the `alter` function.
 Internal implementation detail of the tree map
 -/
-def alterₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (f : Option (β k) → Option (β k))
+noncomputable def alterₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (f : Option (β k) → Option (β k))
     (t : Impl α β) (h : t.Balanced) : Impl α β :=
   updateCell k (·.alter f) t h |>.impl
 
@@ -330,7 +340,7 @@ def getDₘ [Ord α] (l : Impl α (fun _ => β)) (k : α) (fallback : β) : β :
 Model implementation of the `alter` function.
 Internal implementation detail of the tree map
 -/
-def alterₘ [Ord α] [OrientedOrd α] (k : α) (f : Option β → Option β)
+noncomputable def alterₘ [Ord α] [OrientedOrd α] (k : α) (f : Option β → Option β)
     (t : Impl α (fun _ => β)) (h : t.Balanced) : Impl α (fun _ => β) :=
   updateCell k (Cell.Const.alter f) t h |>.impl
 
@@ -441,6 +451,19 @@ theorem getKeyD_eq_getKeyDₘ [Ord α] (k : α) (l : Impl α β)
     split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
     all_goals simp_all [Cell.getKey?, Cell.ofEq]
   · simp only [getKeyD, applyCell, Cell.getKey?_empty, Option.getD_none]
+
+theorem minEntry?_eq_minEntry?ₘ' [Ord α] {l : Impl α β} : l.minEntry? = l.minEntry?ₘ' := by
+  rw [minEntry?ₘ']
+  induction l using minEntry?.induct <;> simp_all [minEntry?, explore]
+
+theorem minEntry?ₘ'_eq_minEntry?ₘ [Ord α] {l : Impl α β} : l.minEntry?ₘ' = l.minEntry?ₘ := by
+  rw [minEntry?ₘ', explore_eq_applyPartition, minEntry?ₘ] <;> simp
+
+theorem minEntry?_eq_minEntry?ₘ [Ord α] {l : Impl α β} : l.minEntry? = l.minEntry?ₘ := by
+  rw [minEntry?_eq_minEntry?ₘ', minEntry?ₘ'_eq_minEntry?ₘ]
+
+theorem minKey?_eq_minEntry?_map_fst [Ord α] {l : Impl α β} : l.minKey? = l.minEntry?.map Sigma.fst := by
+  induction l using minKey?.induct <;> simp only [minKey?, minEntry?] <;> trivial
 
 theorem balanceL_eq_balance {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceL k v l r hlb hrb hlr = balance k v l r hlb hrb (Or.inl hlr.erase) := by

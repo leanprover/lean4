@@ -73,5 +73,7 @@ configuration LeanExeConfig (name : Name) extends LeanConfig where
 
 deriving Inhabited
 
+instance : EmptyCollection (LeanExeConfig n) := ⟨{}⟩
+
 /-- The executable's name. -/
 abbrev LeanExeConfig.name (_ : LeanExeConfig n) := n

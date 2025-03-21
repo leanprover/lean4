@@ -17,10 +17,12 @@ structure ConfigProj (σ : Type u) (α : Type v) where
   modify (f : α → α) (cfg : σ) : σ
 
 class ConfigField (σ : Type u) (name : Name) (α : outParam $ Type v) extends ConfigProj σ α where
-  --status : DeprecationStatus := .none
   mkDefault? : σ → Option α := fun _ => none
 
 class ConfigParent (σ : Type u) (ρ : semiOutParam $ Type v) extends ConfigProj σ ρ
+
+class ConfigFields (σ : Type u) where
+  fields : Array Name
 
 instance [parent : ConfigParent σ ρ] [field : ConfigField ρ name α] : ConfigField σ name α where
   mkDefault? s := field.mkDefault? (parent.get s)
@@ -62,16 +64,9 @@ private structure FieldView where
   decl? : Option (TSyntax ``structSimpleBinder) := none
   parent  : Bool := false
 
-private def mkFieldType (id : Ident) (views : Array FieldView) : MacroM Command := do
-  let typeAlts ← views.mapM fun {idLit, type, ..} =>
-    `(Term.matchAltExpr| | $idLit => $type)
-  let catchAlt ← `(Term.matchAltExpr| | _ => PEmpty)
-  let alts := typeAlts.push catchAlt
-  `(abbrev $id (name : Name) := match name with $[$alts:matchAlt]*)
-
 private structure FieldMetadata where
-  insts : Array Command := #[]
-  map : Term := Unhygienic.run `(DNameMap.empty)
+  cmds : Array Command := #[]
+  fields : Term := Unhygienic.run `(Array.empty)
 
 private def mkConfigAuxDecls
   (structId : Ident) (structTy : Term) (views : Array FieldView)
@@ -80,35 +75,32 @@ private def mkConfigAuxDecls
   -- `..` is used to avoid missing pattern error from an incomplete match.
   -- Such errors are too verbose, so we prefer errors on use of the missing field.
   let structPat ← `({$[$(views.map (·.id)):ident],* ..})
-  let data ← views.foldlM (init := data) fun data view => do
+  let data ← views.foldlM (init := data) fun {cmds, fields} view => do
     let {id, idLit, type, defVal?, parent, ..} := view
     let instId := mkIdentFrom id <| id.getId.modifyBase (structId.getId ++ ·.str "instConfigField")
     let defVal := Unhygienic.run do if let some val := defVal? then `(some $val) else `(none)
-    let inst ← `(
+    let cmds ← cmds.push <$> `(
       instance $instId:ident : ConfigField $structTy $idLit $type where
         mkDefault? := fun $structPat => $defVal
         get cfg := cfg.$id
         set val cfg := {cfg with $id := val}
         modify f cfg := {cfg with $id := f cfg.$id}
     )
-    let data := {data with insts := data.insts.push inst}
-    let data ←
-      if parent then
-        let instId' := mkIdentFrom id <| id.getId.modifyBase (structId.getId ++ ·.str "instConfigParent")
-        let inst ← `(
-          instance $instId':ident : ConfigParent $structTy $type := ⟨$(instId).toConfigProj⟩
-        )
-        pure {data with insts := data.insts.push inst}
-      else
-        pure data
-    let map ← withRef data.map `($(data.map) |>.insert $idLit $instId)
-    let data := {data with map := map}
-    return data
-  let typeId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "FieldType")
-  let fieldType ← mkFieldType typeId views
-  let mapId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "fieldMap")
-  let map ← `(def $mapId : FieldMap $structTy $typeId := $(data.map))
-  return data.insts |>.push fieldType |>.push map
+    if parent then
+      let instId' := mkIdentFrom id <| id.getId.modifyBase (structId.getId ++ ·.str "instConfigParent")
+      let cmds ← cmds.push <$> `(
+        instance $instId':ident : ConfigParent $structTy $type := ⟨$(instId).toConfigProj⟩
+      )
+      let fields ← withRef fields `($(fields) |>.append (ConfigFields.fields $type))
+      return {cmds, fields}
+    else
+      let fields ← withRef fields `($(fields) |>.push $idLit)
+      return {cmds, fields}
+  let instId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "instConfigFields")
+  let fieldsId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "_fields")
+  let fieldsDef ← `(def $fieldsId:ident := $(data.fields))
+  let fieldsInst ← `(instance $instId:ident : ConfigFields $structTy := ⟨$fieldsId⟩)
+  return data.cmds.push fieldsDef |>.push fieldsInst
 
 private def mkFieldView (stx : TSyntax ``configField) : MacroM FieldView := withRef stx do
   let `(configField|$mods:declModifiers $id $bs* : $rty $[:= $val?]?) := stx
@@ -150,8 +142,10 @@ def expandConfigDecl : Macro := fun stx => do
   let ps := ps?.getD <| TSepArray.mk #[]
   let views ← ps.getElems.foldlM (init := views) (·.push <$> mkParentFieldView ·)
   let fields := views.filterMap (·.decl?)
-  let struct ← `($mods:declModifiers structure $declId $bs* $[$ty?]?
-    extends $ps,* $(xty?.join)? where $(ctor?.join)? $fields* $drv:optDeriving)
+  let struct ← `(
+    $mods:declModifiers structure $declId $bs* $[$ty?]?
+    extends $ps,* $(xty?.join)? where $(ctor?.join)? $fields* $drv:optDeriving
+  )
   let auxDecls ← mkConfigAuxDecls structId structTy views
   let cmds := #[struct] ++ auxDecls
   return mkNullNode cmds

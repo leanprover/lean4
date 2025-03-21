@@ -354,6 +354,8 @@ configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig wh
 
 deriving Inhabited
 
+instance : EmptyCollection (PackageConfig n) := ⟨{}⟩
+
 /-- The package's name. -/
 abbrev PackageConfig.name (_ : PackageConfig n) := n
 

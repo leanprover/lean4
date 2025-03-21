@@ -782,18 +782,18 @@ theorem min?_le_min?_erase [TransCmp cmp] (h : t.WF) {k km kme} :
     cmp km kme |>.isLE :=
   TreeMap.Raw.minKey?_le_minKey?_erase h
 
-theorem min?_eq_some_min! [TransCmp cmp] [Inhabited α] (h : t.WF) :
-    (he : t.isEmpty = false) → t.min? = some t.min! :=
-  DTreeMap.Raw.minKey?_eq_some_minKey! h
+theorem min?_eq_some_min! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
+    t.min? = some t.min! :=
+  DTreeMap.Raw.minKey?_eq_some_minKey! h he
 
-theorem min!_eq_default [TransCmp cmp] [Inhabited α] (h : t.WF) :
-    (he : t.isEmpty) → t.min! = default :=
-  DTreeMap.Raw.minKey!_eq_default h
+theorem min!_eq_default [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty) :
+    t.min! = default :=
+  DTreeMap.Raw.minKey!_eq_default h he
 
-theorem min!_eq_iff_get?_eq_self_and_forall [TransCmp cmp] [Inhabited α] (h : t.WF) :
-    (he : t.isEmpty = false) → ∀ {km},
+theorem min!_eq_iff_get?_eq_self_and_forall [TransCmp cmp] [Inhabited α] (h : t.WF)
+    (he : t.isEmpty = false) {km} :
     t.min! = km ↔ t.get? km = some km ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
-  DTreeMap.Raw.minKey!_eq_iff_getKey?_eq_self_and_forall h
+  DTreeMap.Raw.minKey!_eq_iff_getKey?_eq_self_and_forall h he
 
 theorem min!_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF)
     (he : t.isEmpty = false) {km} :

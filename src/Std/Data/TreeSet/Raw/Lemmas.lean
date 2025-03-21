@@ -928,8 +928,8 @@ theorem get!_minD [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = fal
     t.get! (t.minD fallback) = t.minD fallback :=
   DTreeMap.Raw.getKey!_minKeyD h he
 
-theorem getD_minD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
-    t.getD (t.minD fallback) fallback = t.minD fallback :=
+theorem getD_minD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback fallback'} :
+    t.getD (t.minD fallback) fallback' = t.minD fallback :=
   DTreeMap.Raw.getKeyD_minKeyD h he
 
 theorem minD_erase_eq_of_not_compare_minD_eq [TransCmp cmp] (h : t.WF) {k fallback}

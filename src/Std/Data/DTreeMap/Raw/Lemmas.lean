@@ -3165,8 +3165,8 @@ theorem getKey!_minKeyD [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty
     t.getKey! (t.minKeyD fallback) = t.minKeyD fallback :=
   Impl.getKey!_minKeyD h he
 
-theorem getKeyD_minKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
-    t.getKeyD (t.minKeyD fallback) fallback = t.minKeyD fallback :=
+theorem getKeyD_minKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback fallback'} :
+    t.getKeyD (t.minKeyD fallback) fallback' = t.minKeyD fallback :=
   Impl.getKeyD_minKeyD h he
 
 theorem minKeyD_erase_eq_of_not_compare_minKeyD_eq [TransCmp cmp] (h : t.WF) {k fallback}
@@ -3209,7 +3209,8 @@ variable {β : Type v} {t : Raw α β cmp}
 
 theorem minKeyD_modify [TransCmp cmp] (h : t.WF) {k f}
     (he : (modify t k f).isEmpty = false) {fallback} :
-    (modify t k f |>.minKeyD fallback) = if cmp (t.minKeyD fallback) k = .eq then k else (t.minKeyD fallback) :=
+    (modify t k f |>.minKeyD fallback) =
+      if cmp (t.minKeyD fallback) k = .eq then k else (t.minKeyD fallback) :=
   Impl.Const.minKeyD_modify h he
 
 @[simp]

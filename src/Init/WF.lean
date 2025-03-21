@@ -52,10 +52,22 @@ a well founded relation, then the function terminates.
 Well-founded relations are sometimes called _Artinian_ or said to satisfy the “descending chain condition”.
 -/
 inductive WellFounded {α : Sort u} (r : α → α → Prop) : Prop where
+  /--
+  If all elements are accessible via `r`, then `r` is well-founded.
+  -/
   | intro (h : ∀ a, Acc r a) : WellFounded r
 
+/--
+A type that has a standard well-founded relation.
+
+Instances are used to prove that functions terminate using well-founded recursion by showing that
+recursive calls reduce some measure according to a well-founded relation. This relation can combine
+well-founded relations on the recursive function's parameters.
+-/
 class WellFoundedRelation (α : Sort u) where
+  /-- A well-founded relation on `α`. -/
   rel : α → α → Prop
+  /-- A proof that `rel` is, in fact, well-founded. -/
   wf  : WellFounded rel
 
 namespace WellFounded
@@ -88,6 +100,13 @@ end
 
 variable {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
 
+/--
+A well-founded fixpoint. If satisfying the motive `C` for all values that are smaller according to a
+well-founded relation allows it to be satisfied for the current value, then it is satisfied for all
+values.
+
+This function is used as part of the elaboration of well-founded recursion.
+-/
 -- Well-founded fixpoint
 noncomputable def fix (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) : C x :=
   fixF F x (apply hwf x)
@@ -145,6 +164,9 @@ theorem wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
   ⟨fun a => accessible f (apply h (f a))⟩
 end InvImage
 
+/--
+The inverse image of a well-founded relation is well-founded.
+-/
 @[reducible] def invImage (f : α → β) (h : WellFoundedRelation β) : WellFoundedRelation α where
   rel := InvImage h.rel f
   wf  := InvImage.wf f h.wf

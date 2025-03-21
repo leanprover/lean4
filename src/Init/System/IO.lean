@@ -1573,6 +1573,10 @@ end CancelToken
 namespace FS
 namespace Stream
 
+/--
+Creates a Lean stream from a file handle. Each stream operation is implemented by the corresponding
+file handle operation.
+-/
 @[export lean_stream_of_handle]
 def ofHandle (h : Handle) : Stream where
   flush   := Handle.flush h

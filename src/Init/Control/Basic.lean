@@ -135,6 +135,13 @@ instance : ToBool Bool where
   | true  => t
   | false => f
 
+/--
+Converts the result of the monadic action `x` to a `Bool`. If it is `true`, returns it and ignores
+`y`; otherwise, runs `y` and returns its result.
+
+This a monadic counterpart to the short-circuiting `||` operator, usually accessed via the `<||>`
+operator.
+-/
 @[macro_inline] def orM {m : Type u → Type v} {β : Type u} [Monad m] [ToBool β] (x y : m β) : m β := do
   let b ← x
   match toBool b with
@@ -145,6 +152,13 @@ infixr:30 " <||> " => orM
 
 recommended_spelling "orM" for "<||>" in [orM, «term_<||>_»]
 
+/--
+Converts the result of the monadic action `x` to a `Bool`. If it is `true`, returns `y`; otherwise,
+returns the original result of `x`.
+
+This a monadic counterpart to the short-circuiting `&&` operator, usually accessed via the `<&&>`
+operator.
+-/
 @[macro_inline] def andM {m : Type u → Type v} {β : Type u} [Monad m] [ToBool β] (x y : m β) : m β := do
   let b ← x
   match toBool b with
@@ -155,6 +169,9 @@ infixr:35 " <&&> " => andM
 
 recommended_spelling "andM" for "<&&>" in [andM, «term_<&&>_»]
 
+/--
+Runs a monadic action and returns the negation of its result.
+-/
 @[macro_inline] def notM {m : Type → Type v} [Applicative m] (x : m Bool) : m Bool :=
   not <$> x
 

@@ -3067,14 +3067,13 @@ theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
     ↔ (x.toInt < 0 ∧ 0 ≤ y.toInt ∧ 0 ≤ (x.toInt - y.toInt).bmod (2 ^ w)) := by
   rcases w with _|w
   · simp [of_length_zero]
-  · have := le_two_mul_toInt (x := x); have := two_mul_toInt_lt (x := x)
-    have := le_two_mul_toInt (x := y); have := two_mul_toInt_lt (x := y)
+  · have := le_two_mul_toInt (x := x)
+    have := two_mul_toInt_lt (x := y)
     simp only [Nat.add_one_sub_one]
     constructor
     · intros h
-      simp only [show x.toInt < 0 by omega, show 0 ≤ y.toInt by omega, _root_.true_and]
-      rw_mod_cast [← Int.bmod_add_cancel, Int.bmod_eq_self_of_le (by omega) (by omega)]
-      omega
+      rw_mod_cast [← Int.bmod_add_cancel, Int.bmod_eq_self_of_le]
+      <;> omega
     · have := Int.bmod_neg_iff (x := x.toInt - y.toInt) (m := 2 ^ (w + 1))
       push_cast at this
       omega

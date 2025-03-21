@@ -1837,4 +1837,9 @@ theorem minKey!_eq_minKey! [Ord α] [TransOrd α] [Inhabited α] {l : Impl α β
     l.minKey! = List.minKey! l.toListModel := by
   simp [Impl.minKey!_eq_get!_minKey?, List.minKey!_eq_get!_minKey?, minKey?_eq_minKey? hlo]
 
+theorem minKeyD_eq_minKeyD [Ord α] [TransOrd α] [Inhabited α] {l : Impl α β} (hlo : l.Ordered)
+    {fallback} :
+    l.minKeyD fallback = List.minKeyD l.toListModel fallback := by
+  simp [Impl.minKeyD_eq_getD_minKey?, List.minKeyD_eq_getD_minKey?, minKey?_eq_minKey? hlo]
+
 end Std.DTreeMap.Internal.Impl

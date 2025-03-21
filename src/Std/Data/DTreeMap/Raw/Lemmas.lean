@@ -3036,11 +3036,6 @@ theorem getKeyD_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty
     t.getKeyD t.minKey! fallback = t.minKey! :=
   Impl.getKeyD_minKey! h he
 
-theorem minKey!_erase_eq_iff_not_compare_minKey_eq [TransCmp cmp] [Inhabited α] (h : t.WF) {k}
-    (he : (t.erase k).isEmpty = false) :
-    (t.erase k |>.minKey!) = t.minKey! ↔ ¬ cmp k t.minKey! = .eq :=
-  Impl.minKey!_erase!_eq_iff_not_compare_minKey!_eq h he
-
 theorem minKey!_erase_eq_of_not_compare_minKey!_eq [TransCmp cmp] [Inhabited α] (h : t.WF) {k}
     (he : (t.erase k).isEmpty = false) (heq : ¬ cmp k t.minKey! = .eq) :
     (t.erase k |>.minKey!) = t.minKey! :=

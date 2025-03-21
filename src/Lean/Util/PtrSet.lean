@@ -5,8 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Hashable
-import Lean.Data.HashSet
-import Lean.Data.HashMap
 import Std.Data.HashSet.Basic
 import Std.Data.HashMap.Basic
 

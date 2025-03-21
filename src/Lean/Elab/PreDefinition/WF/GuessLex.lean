@@ -364,13 +364,19 @@ def collectRecCalls (unaryPreDef : PreDefinition) (fixedParamPerms : FixedParamP
       RecCallWithContext.create (← getRef) caller callerParams callee calleeArgs
 
 /-- Is the expression a `<`-like comparison of `Nat` expressions -/
-def isNatCmp (e : Expr) : Option (Expr × Expr) :=
-  match_expr e with
-  | LT.lt α _ e₁ e₂ => if α.isConstOf ``Nat then some (e₁, e₂) else none
-  | LE.le α _ e₁ e₂ => if α.isConstOf ``Nat then some (e₁, e₂) else none
-  | GT.gt α _ e₁ e₂ => if α.isConstOf ``Nat then some (e₂, e₁) else none
-  | GE.ge α _ e₁ e₂ => if α.isConstOf ``Nat then some (e₂, e₁) else none
-  | _ => none
+def isNatCmp (e : Expr) : MetaM (Option (Expr × Expr)) := withReducible do
+  let (α, e₁, e₂) ←
+    match_expr e with
+    | LT.lt α _ e₁ e₂ => pure (α, e₁, e₂)
+    | LE.le α _ e₁ e₂ => pure (α, e₁, e₂)
+    | GT.gt α _ e₁ e₂ => pure (α, e₂, e₁)
+    | GE.ge α _ e₁ e₂ => pure (α, e₂, e₁)
+    | _ => return none
+
+  if (←isDefEq α (mkConst ``Nat)) then
+    return some (e₁, e₂)
+  else
+    return none
 
 def complexMeasures (preDefs : Array PreDefinition) (fixedParamPerms : FixedParamPerms)
     (userVarNamess : Array (Array Name)) (recCalls : Array RecCallWithContext) :
@@ -390,7 +396,7 @@ def complexMeasures (preDefs : Array PreDefinition) (fixedParamPerms : FixedPara
         trace[Elab.definition.wf] "rc: {rc.caller} ({rc.params}) → {rc.callee} ({rc.args})"
         let mut measures := measures
         for ldecl in ← getLCtx do
-          if let some (e₁, e₂) := isNatCmp ldecl.type then
+          if let some (e₁, e₂) ← isNatCmp ldecl.type then
             -- We only want to consider these expressions if they depend only on the function's
             -- immediate arguments, so check that
             if e₁.hasAnyFVar (! params.contains ·) then continue

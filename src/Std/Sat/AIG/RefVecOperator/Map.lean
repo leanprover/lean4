@@ -36,7 +36,7 @@ theorem denote_prefix_cast_ref {aig : AIG α} {input1 input2 : Ref aig}
 instance : LawfulMapOperator α mkNotCached where
   chainable := by
     intros
-    simp only [Ref.gate_cast, denote_mkNotCached]
+    simp only [Ref.cast_eq, denote_mkNotCached, Bool.not_eq_eq_eq_not, Bool.not_not]
     rw [LawfulOperator.denote_mem_prefix (f := mkNotCached)]
 
 end LawfulMapOperator
@@ -156,7 +156,7 @@ theorem go_get_aux {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVe
     simp only [Nat.le_refl, get, Ref.cast_eq, Ref.mk.injEq, true_implies]
     have : curr = len := by omega
     subst this
-    rfl
+    simp
 termination_by len - curr
 
 theorem go_get {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec aig curr)
@@ -175,12 +175,12 @@ theorem go_denote_mem_prefix {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len)
     (start : Nat) (hstart) :
     ⟦
       (go aig curr hcurr s input f).aig,
-      ⟨start, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
+      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply go_le_size⟩,
       assign
     ⟧
       =
-    ⟦aig, ⟨start, hstart⟩, assign⟧ := by
-  apply denote.eq_of_isPrefix (entry := ⟨aig, start,hstart⟩)
+    ⟦aig, ⟨start, inv, hstart⟩, assign⟧ := by
+  apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
     apply go_decl_eq

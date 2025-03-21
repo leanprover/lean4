@@ -939,8 +939,11 @@ theorem head_eq_iff_head?_eq_some {xs : List α} (h) : xs.head h = a ↔ xs.head
 theorem head?_eq_some_iff {xs : List α} {a : α} : xs.head? = some a ↔ ∃ ys, xs = a :: ys := by
   cases xs <;> simp_all
 
-@[simp] theorem head?_isSome : l.head?.isSome ↔ l ≠ [] := by
+@[simp] theorem isSome_head? : l.head?.isSome ↔ l ≠ [] := by
   cases l <;> simp
+
+@[deprecated isSome_head? (since := "2025-03-18")]
+abbrev head?_isSome := @isSome_head?
 
 @[simp] theorem head_mem : ∀ {l : List α} (h : l ≠ []), head l h ∈ l
   | [], h => absurd rfl h
@@ -1246,7 +1249,7 @@ theorem filter_eq_self {l} : filter p l = l ↔ ∀ a ∈ l, p a := by
     intro h; exact Nat.lt_irrefl _ (h ▸ length_filter_le p l)
 
 @[simp]
-theorem filter_length_eq_length {l} : (filter p l).length = l.length ↔ ∀ a ∈ l, p a := by
+theorem length_filter_eq_length_iff {l} : (filter p l).length = l.length ↔ ∀ a ∈ l, p a := by
   induction l with
   | nil => simp
   | cons a l ih =>
@@ -1255,6 +1258,9 @@ theorem filter_length_eq_length {l} : (filter p l).length = l.length ↔ ∀ a �
     · simp_all [Nat.add_one_inj] -- Why does the simproc not fire here?
     · have := Nat.ne_of_lt (Nat.lt_succ.mpr (length_filter_le p l))
       simp_all
+
+@[deprecated length_filter_eq_length_iff (since := "2024-09-05")]
+abbrev filter_length_eq_length := @length_filter_eq_length_iff
 
 @[simp] theorem mem_filter : x ∈ filter p as ↔ x ∈ as ∧ p x := by
   induction as with
@@ -2807,7 +2813,7 @@ theorem getLast?_eq_some_iff {xs : List α} {a : α} : xs.getLast? = some a ↔ 
   exact ⟨fun ⟨ys, h⟩ => ⟨ys.reverse, by simpa using h⟩, fun ⟨ys, h⟩ => ⟨ys.reverse, by simpa using h⟩⟩
 
 @[simp] theorem getLast?_isSome : l.getLast?.isSome ↔ l ≠ [] := by
-  rw [getLast?_eq_head?_reverse, head?_isSome]
+  rw [getLast?_eq_head?_reverse, isSome_head?]
   simp
 
 theorem mem_of_getLast? {xs : List α} {a : α} (h : xs.getLast? = some a) : a ∈ xs := by

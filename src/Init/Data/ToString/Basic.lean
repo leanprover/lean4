@@ -128,6 +128,27 @@ instance {α : Type u} {β : α → Type v} [ToString α] [∀ x, ToString (β x
 instance {α : Type u} {p : α → Prop} [ToString α] : ToString (Subtype p) := ⟨fun s =>
   toString (val s)⟩
 
+/--
+Interprets a string as the decimal representation of an integer, returning it. Returns `none` if the
+string does not contain a decimal integer.
+
+A string can be interpreted as a decimal integer if it is not empty, its first character is either
+`'-'` or a digit, and all remaining characters are digits.
+
+Use `String.isInt` to check whether `String.toInt?` would return `some`. `String.toInt!` is an
+alternative that panics instead of returning `none` when the string is not an integer.
+
+Examples:
+ * `"".toInt? = none`
+ * `"0".toInt? = some 0`
+ * `"5".toInt? = some 5`
+ * `"-5".toInt? = some (-5)`
+ * `"587".toInt? = some 587`
+ * `"-587".toInt? = some (-587)`
+ * `" 5".toInt? = none`
+ * `"2-3".toInt? = none`
+ * `"0xff".toInt? = none`
+-/
 def String.toInt? (s : String) : Option Int := do
   if s.get 0 = '-' then do
     let v ← (s.toSubstring.drop 1).toNat?;
@@ -135,12 +156,48 @@ def String.toInt? (s : String) : Option Int := do
   else
    Int.ofNat <$> s.toNat?
 
+/--
+Checks whether the string can be interpreted as the decimal representation of an integer.
+
+A string can be interpreted as a decimal integer if it is not empty, its first character is
+`'-'` or a digit, and all subsequent characters are digits. Leading `+` characters are not allowed.
+
+Use `String.toInt?` or `String.toInt!` to convert such a string to an integer.
+
+Examples:
+ * `"".isInt = false`
+ * `"0".isInt = true`
+ * `"-0".isInt = true`
+ * `"5".isInt = true`
+ * `"587".isInt = true`
+ * `"-587".isInt = true`
+ * `"+587".isInt = false`
+ * `" 5".isInt = false`
+ * `"2-3".isInt = false`
+ * `"0xff".isInt = false`
+-/
 def String.isInt (s : String) : Bool :=
   if s.get 0 = '-' then
     (s.toSubstring.drop 1).isNat
   else
     s.isNat
 
+/--
+Interprets a string as the decimal representation of an integer, returning it. Panics if the string
+does not contain a decimal integer.
+
+A string can be interpreted as a decimal integer if it is not empty, its first character is `'-'` or
+a digit, and all remaining characters are digits.
+
+Use `String.isInt` to check whether `String.toInt!` would return a value. `String.toInt?` is a safer
+alternative that returns `none` instead of panicking when the string is not an integer.
+
+Examples:
+ * `"0".toInt! = 0`
+ * `"5".toInt! = 5`
+ * `"587".toInt! = 587`
+ * `"-587".toInt! = -587`
+-/
 def String.toInt! (s : String) : Int :=
   match s.toInt? with
   | some v => v

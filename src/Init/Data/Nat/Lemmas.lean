@@ -577,8 +577,14 @@ theorem mul_mod (a b n : Nat) : a * b % n = (a % n) * (b % n) % n := by
   have := (add_mul_mod_self_left (m % n + k) n (m / n)).symm
   rwa [Nat.add_right_comm, mod_add_div] at this
 
+@[simp] theorem mul_mod_mod (m n l : Nat) : (m * (n % l)) % l = (m * n) % l := by
+  rw [mul_mod, mod_mod, ← mul_mod]
+
 @[simp] theorem add_mod_mod (m n k : Nat) : (m + n % k) % k = (m + n) % k := by
   rw [Nat.add_comm, mod_add_mod, Nat.add_comm]
+
+@[simp] theorem mod_mul_mod (m n l : Nat) : ((m % l) * n) % l = (m * n) % l := by
+  rw [Nat.mul_comm, mul_mod_mod, Nat.mul_comm]
 
 theorem add_mod (a b n : Nat) : (a + b) % n = ((a % n) + (b % n)) % n := by
   rw [add_mod_mod, mod_add_mod]
@@ -591,9 +597,6 @@ theorem add_mod (a b n : Nat) : (a + b) % n = ((a % n) + (b % n)) % n := by
     cases k with
     | zero => simp_all
     | succ k => omega
-
-@[simp] theorem mod_mul_mod {a b c : Nat} : (a % c * b) % c = a * b % c := by
-  rw [mul_mod, mod_mod, ← mul_mod]
 
 theorem mod_eq_sub (x w : Nat) : x % w = x - w * (x / w) := by
   conv => rhs; congr; rw [← mod_add_div x w]

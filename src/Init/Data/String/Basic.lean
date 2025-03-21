@@ -34,6 +34,11 @@ instance decidableLT (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
 
 @[deprecated decidableLT (since := "2024-12-13")] abbrev decLt := @decidableLT
 
+/--
+Non-strict inequality on strings, typically used via the `≤` operator.
+
+`a ≤ b` is defined to mean `¬ b < a`.
+-/
 @[reducible] protected def le (a b : String) : Prop := ¬ b < a
 
 instance : LE String :=
@@ -55,24 +60,28 @@ def length : (@& String) → Nat
   | ⟨s⟩ => s.length
 
 /--
-Pushes a character onto the end of a string.
+Adds a character to the end of a string.
 
 The internal implementation uses dynamic arrays and will perform destructive updates
 if the string is not shared.
 
-Example: `"abc".push 'd' = "abcd"`
+Examples:
+* `"abc".push 'd' = "abcd"`
+* `"".push 'a' = "a"`
 -/
 @[extern "lean_string_push"]
 def push : String → Char → String
   | ⟨s⟩, c => ⟨s ++ [c]⟩
 
 /--
-Appends two strings.
+Appends two strings. Usually accessed via the `++` operator.
 
-The internal implementation uses dynamic arrays and will perform destructive updates
-if the string is not shared.
+The internal implementation will perform destructive updates if the string is not shared.
 
-Example: `"abc".append "def" = "abcdef"`
+Examples:
+ * `"abc".append "def" = "abcdef"`
+ * `"abc" ++ "def" = "abcdef"`
+ * `"" ++ "" = ""`
 -/
 @[extern "lean_string_append"]
 def append : String → (@& String) → String
@@ -81,17 +90,35 @@ def append : String → (@& String) → String
 /--
 Converts a string to a list of characters.
 
-Even though the logical model of strings is as a structure that wraps a list of characters,
-this operation takes time and space linear in the length of the string, because the compiler
-uses an optimized representation as dynamic arrays.
+Even though the logical model of strings is as a structure that wraps a list of characters, this
+operation takes time and space linear in the length of the string. At runtime, strings are
+represented as dynamic arrays of bytes.
 
-Example: `"abc".toList = ['a', 'b', 'c']`
+Examples:
+ * `"abc".toList = ['a', 'b', 'c']`
+ * `"".toList = []`
+ * `"\n".toList = ['\n']`
 -/
 def toList (s : String) : List Char :=
   s.data
 
-/-- Returns true if `p` is a valid UTF-8 position in the string `s`, meaning that `p ≤ s.endPos`
-and `p` lies on a UTF-8 character boundary. This has an O(1) implementation in the runtime. -/
+/--
+Returns `true` if `p` is a valid UTF-8 position in the string `s`.
+
+This means that `p ≤ s.endPos` and `p` lies on a UTF-8 character boundary. At runtime, this
+operation takes constant time.
+
+Examples:
+ * `String.Pos.isValid "abc" ⟨0⟩ = true`
+ * `String.Pos.isValid "abc" ⟨1⟩ = true`
+ * `String.Pos.isValid "abc" ⟨3⟩ = true`
+ * `String.Pos.isValid "abc" ⟨4⟩ = false`
+ * `String.Pos.isValid "𝒫(A)" ⟨0⟩ = true`
+ * `String.Pos.isValid "𝒫(A)" ⟨1⟩ = false`
+ * `String.Pos.isValid "𝒫(A)" ⟨2⟩ = false`
+ * `String.Pos.isValid "𝒫(A)" ⟨3⟩ = false`
+ * `String.Pos.isValid "𝒫(A)" ⟨4⟩ = true`
+-/
 @[extern "lean_string_is_valid_pos"]
 def Pos.isValid (s : @&String) (p : @& Pos) : Bool :=
   go s.data 0
@@ -105,17 +132,16 @@ def utf8GetAux : List Char → Pos → Pos → Char
   | c::cs, i, p => if i = p then c else utf8GetAux cs (i + c) p
 
 /--
-Returns the character at position `p` of a string. If `p` is not a valid position,
-returns `(default : Char)`.
+Returns the character at position `p` of a string. If `p` is not a valid position, returns the
+fallback value `(default : Char)`, which is `'A'`, but does not panic.
 
-See `utf8GetAux` for the reference implementation.
+This function is overridden with an efficient implementation in runtime code. See
+`String.utf8GetAux` for the reference implementation.
 
 Examples:
 * `"abc".get ⟨1⟩ = 'b'`
-* `"abc".get ⟨3⟩ = (default : Char) = 'A'`
-
-Positions can also be invalid if a byte index points into the middle of a multi-byte UTF-8
-character. For example,`"L∃∀N".get ⟨2⟩ = (default : Char) = 'A'`.
+* `"abc".get ⟨3⟩ = (default : Char)` because byte `3` is at the end of the string.
+* `"L∃∀N".get ⟨2⟩ = (default : Char)` because byte `2` is in the middle of `'∃'`.
 -/
 @[extern "lean_string_utf8_get"]
 def get (s : @& String) (p : @& Pos) : Char :=
@@ -126,30 +152,33 @@ def utf8GetAux? : List Char → Pos → Pos → Option Char
   | [],    _, _ => none
   | c::cs, i, p => if i = p then c else utf8GetAux? cs (i + c) p
 
+
 /--
-Returns the character at position `p`. If `p` is not a valid position, returns `none`.
+Returns the character at position `p` of a string. If `p` is not a valid position, returns `none`.
+
+This function is overridden with an efficient implementation in runtime code. See
+`String.utf8GetAux?` for the reference implementation.
 
 Examples:
 * `"abc".get? ⟨1⟩ = some 'b'`
 * `"abc".get? ⟨3⟩ = none`
-
-Positions can also be invalid if a byte index points into the middle of a multi-byte UTF-8
-character. For example, `"L∃∀N".get? ⟨2⟩ = none`
+* `"L∃∀N".get? ⟨1⟩ = some '∃'`
+* `"L∃∀N".get? ⟨2⟩ = none`
 -/
 @[extern "lean_string_utf8_get_opt"]
 def get? : (@& String) → (@& Pos) → Option Char
   | ⟨s⟩, p => utf8GetAux? s 0 p
 
 /--
-Returns the character at position `p` of a string. If `p` is not a valid position,
-returns `(default : Char)` and produces a panic error message.
+Returns the character at position `p` of a string. Panics if `p` is not a valid position.
 
-Examples:
+See `String.get?` for a safer alternative.
+
+This function is overridden with an efficient implementation in runtime code. See
+`String.utf8GetAux` for the reference implementation.
+
+Examples
 * `"abc".get! ⟨1⟩ = 'b'`
-* `"abc".get! ⟨3⟩` panics
-
-Positions can also be invalid if a byte index points into the middle of a multi-byte UTF-8 character. For example,
-`"L∃∀N".get! ⟨2⟩` panics.
 -/
 @[extern "lean_string_utf8_get_bang"]
 def get! (s : @& String) (p : @& Pos) : Char :=
@@ -162,27 +191,29 @@ def utf8SetAux (c' : Char) : List Char → Pos → Pos → List Char
     if i = p then (c'::cs) else c::(utf8SetAux c' cs (i + c) p)
 
 /--
-Replaces the character at a specified position in a string with a new character. If the position
-is invalid, the string is returned unchanged.
+Replaces the character at a specified position in a string with a new character. If the position is
+invalid, the string is returned unchanged.
 
-If both the replacement character and the replaced character are ASCII characters and the string
-is not shared, destructive updates are used.
+If both the replacement character and the replaced character are 7-bit ASCII characters and the
+string is not shared, then it is updated in-place and not copied.
 
 Examples:
 * `"abc".set ⟨1⟩ 'B' = "aBc"`
 * `"abc".set ⟨3⟩ 'D' = "abc"`
 * `"L∃∀N".set ⟨4⟩ 'X' = "L∃XN"`
-
-Because `'∃'` is a multi-byte character, the byte index `2` in `L∃∀N` is an invalid position,
-so `"L∃∀N".set ⟨2⟩ 'X' = "L∃∀N"`.
+* `"L∃∀N".set ⟨2⟩ 'X' = "L∃∀N"` because `'∃'` is a multi-byte character, so the byte index `2` is an
+  invalid position.
 -/
 @[extern "lean_string_utf8_set"]
 def set : String → (@& Pos) → Char → String
   | ⟨s⟩, i, c => ⟨utf8SetAux c s 0 i⟩
 
 /--
-Replaces the character at position `p` in the string `s` with the result of applying `f` to that character.
-If `p` is an invalid position, the string is returned unchanged.
+Replaces the character at position `p` in the string `s` with the result of applying `f` to that
+character. If `p` is an invalid position, the string is returned unchanged.
+
+If both the replacement character and the replaced character are 7-bit ASCII characters and the
+string is not shared, then it is updated in-place and not copied.
 
 Examples:
 * `abc.modify ⟨1⟩ Char.toUpper = "aBc"`
@@ -192,17 +223,19 @@ def modify (s : String) (i : Pos) (f : Char → Char) : String :=
   s.set i <| f <| s.get i
 
 /--
-Returns the next position in a string after position `p`. If `p` is not a valid position or `p = s.endPos`,
-the result is unspecified.
+Returns the next position in a string after position `p`. The result is unspecified if `p` is not a
+valid position or if `p = s.endPos`.
+
+A run-time bounds check is performed to determine whether `p` is at the end of the string. If a
+bounds check has already been performed, use `String.next'` to avoid a repeated check.
+
+Some examples where the result is unspecified:
+* `"abc".next ⟨3⟩`, since `3 = "abc".endPos`
+* `"L∃∀N".next ⟨2⟩`, since `2` points into the middle of a multi-byte UTF-8 character
 
 Examples:
-Given `def abc := "abc"` and `def lean := "L∃∀N"`,
-* `abc.get (0 |> abc.next) = 'b'`
-* `lean.get (0 |> lean.next |> lean.next) = '∀'`
-
-Cases where the result is unspecified:
-* `"abc".next ⟨3⟩`, since `3 = s.endPos`
-* `"L∃∀N".next ⟨2⟩`, since `2` points into the middle of a multi-byte UTF-8 character
+* `"abc".get ("abc".next 0) = 'b'`
+* `"L∃∀N".get (0 |> "L∃∀N".next |> "L∃∀N".next) = '∀'`
 -/
 @[extern "lean_string_utf8_next"]
 def next (s : @& String) (p : @& Pos) : Pos :=
@@ -216,14 +249,15 @@ def utf8PrevAux : List Char → Pos → Pos → Pos
     if i' = p then i else utf8PrevAux cs i' p
 
 /--
-Returns the position in a string before a specified position, `p`. If `p = ⟨0⟩`, returns `0`.
-If `p` is not a valid position, the result is unspecified.
+Returns the position in a string before a specified position, `p`. If `p = ⟨0⟩`, returns `0`. If `p`
+is not a valid position, the result is unspecified.
+
+For example, `"L∃∀N".prev ⟨3⟩` is unspecified, since byte 3 occurs in the middle of the multi-byte
+character `'∃'`.
 
 Examples:
-Given `def abc := "abc"` and `def lean := "L∃∀N"`,
-* `abc.get (abc.endPos |> abc.prev) = 'c'`
-* `lean.get (lean.endPos |> lean.prev |> lean.prev |> lean.prev) = '∃'`
-* `"L∃∀N".prev ⟨3⟩` is unspecified, since byte 3 occurs in the middle of the multi-byte character `'∃'`.
+* `"abc".get ("abc".endPos |> "abc".prev) = 'c'`
+* `"L∃∀N".get ("L∃∀N".endPos |> "L∃∀N".prev |> "L∃∀N".prev |> "L∃∀N".prev) = '∃'`
 -/
 @[extern "lean_string_utf8_prev"]
 def prev : (@& String) → (@& Pos) → Pos
@@ -250,42 +284,41 @@ Examples:
   get s (prev s s.endPos)
 
 /--
-Returns `true` if a specified position is greater than or equal to the position which
-points to the end of a string. Otherwise, returns `false`.
+Returns `true` if a specified byte position is greater than or equal to the position which points to
+the end of a string. Otherwise, returns `false`.
 
 Examples:
-Given `def abc := "abc"` and `def lean := "L∃∀N"`,
-* `(0 |> abc.next |> abc.next |> abc.atEnd) = false`
-* `(0 |> abc.next |> abc.next |> abc.next |> abc.next |> abc.atEnd) = true`
-* `(0 |> lean.next |> lean.next |> lean.next |> lean.next |> lean.atEnd) = true`
-
-Because `"L∃∀N"` contains multi-byte characters, `lean.next (lean.next 0)` is not equal to `abc.next (abc.next 0)`.
+* `(0 |> "abc".next |> "abc".next |> "abc".atEnd) = false`
+* `(0 |> "abc".next |> "abc".next |> "abc".next |> "abc".next |> "abc".atEnd) = true`
+* `(0 |> "L∃∀N".next |> "L∃∀N".next |> "L∃∀N".next |> "L∃∀N".atEnd) = false`
+* `(0 |> "L∃∀N".next |> "L∃∀N".next |> "L∃∀N".next |> "L∃∀N".next |> "L∃∀N".atEnd) = true`
+* `"abc".atEnd ⟨4⟩ = true`
+* `"L∃∀N".atEnd ⟨7⟩ = false`
+* `"L∃∀N".atEnd ⟨8⟩ = true`
 -/
 @[extern "lean_string_utf8_at_end"]
 def atEnd : (@& String) → (@& Pos) → Bool
   | s, p => p.byteIdx ≥ utf8ByteSize s
 
 /--
-Returns the character at position `p` of a string.
-If `p` is not a valid position, returns `(default : Char)`.
+Returns the character at position `p` of a string. Returns `(default : Char)`, which is `'A'`, if
+`p` is not a valid position.
 
-Requires evidence, `h`, that `p` is within bounds
-instead of performing a runtime bounds check as in `get`.
+Requires evidence, `h`, that `p` is within bounds instead of performing a run-time bounds check as
+in `String.get`.
 
-Examples:
-* `"abc".get' 0 (by decide) = 'a'`
-* `let lean := "L∃∀N"; lean.get' (0 |> lean.next |> lean.next) (by decide) = '∀'`
-
-A typical pattern combines `get'` with a dependent if-else expression
-to avoid the overhead of an additional bounds check. For example:
+A typical pattern combines `get'` with a dependent `if`-expression to avoid the overhead of an
+additional bounds check. For example:
 ```
 def getInBounds? (s : String) (p : String.Pos) : Option Char :=
   if h : s.atEnd p then none else some (s.get' p h)
 ```
+Even with evidence of `¬ s.atEnd p`, `p` may be invalid if a byte index points into the middle of a
+multi-byte UTF-8 character. For example, `"L∃∀N".get' ⟨2⟩ (by decide) = (default : Char)`.
 
-Even with evidence of `¬ s.atEnd p`,
-`p` may be invalid if a byte index points into the middle of a multi-byte UTF-8 character.
-For example, `"L∃∀N".get' ⟨2⟩ (by decide) = (default : Char)`.
+Examples:
+* `"abc".get' 0 (by decide) = 'a'`
+* `let lean := "L∃∀N"; lean.get' (0 |> lean.next |> lean.next) (by decide) = '∀'`
 -/
 @[extern "lean_string_utf8_get_fast"]
 def get' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Char :=
@@ -293,21 +326,21 @@ def get' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Char :=
   | ⟨s⟩ => utf8GetAux s 0 p
 
 /--
-Returns the next position in a string after position `p`.
-If `p` is not a valid position, the result is unspecified.
+Returns the next position in a string after position `p`. The result is unspecified if `p` is not a
+valid position.
 
-Requires evidence, `h`, that `p` is within bounds
-instead of performing a runtime bounds check as in `next`.
+Requires evidence, `h`, that `p` is within bounds. No run-time bounds check is performed, as in
+`String.next`.
 
-Examples:
-* `let abc := "abc"; abc.get (abc.next' 0 (by decide)) = 'b'`
-
-A typical pattern combines `next'` with a dependent if-else expression
-to avoid the overhead of an additional bounds check. For example:
+A typical pattern combines `String.next'` with a dependent `if`-expression to avoid the overhead of
+an additional bounds check. For example:
 ```
 def next? (s: String) (p : String.Pos) : Option Char :=
   if h : s.atEnd p then none else s.get (s.next' p h)
 ```
+
+Example:
+* `let abc := "abc"; abc.get (abc.next' 0 (by decide)) = 'b'`
 -/
 @[extern "lean_string_utf8_next_fast"]
 def next' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Pos :=
@@ -357,12 +390,12 @@ def posOfAux (s : String) (c : Char) (stopPos : Pos) (pos : Pos) : Pos :=
 termination_by stopPos.1 - pos.1
 
 /--
-Returns the position of the first occurrence of a character, `c`, in `s`.
-If `s` does not contain `c`, returns `s.endPos`.
+Returns the position of the first occurrence of a character, `c`, in a string `s`. If `s` does not
+contain `c`, returns `s.endPos`.
 
 Examples:
-* `"abba".posOf 'a' = ⟨0⟩`
-* `"abba".posOf 'z' = ⟨4⟩`
+* `"abcba".posOf 'a' = ⟨0⟩`
+* `"abcba".posOf 'z' = ⟨5⟩`
 * `"L∃∀N".posOf '∀' = ⟨4⟩`
 -/
 @[inline] def posOf (s : String) (c : Char) : Pos :=
@@ -378,13 +411,13 @@ def revPosOfAux (s : String) (c : Char) (pos : Pos) : Option Pos :=
 termination_by pos.1
 
 /--
-Returns the position of the last occurrence of a character, `c`, in `s`.
-If `s` does not contain `c`, returns `none`.
+Returns the position of the last occurrence of a character, `c`, in a string `s`. If `s` does not
+contain `c`, returns `none`.
 
 Examples:
-* `"abba".posOf 'a' = some ⟨3⟩`
-* `"abba".posOf 'z' = none`
-* `"L∃∀N".posOf '∀' = some ⟨4⟩`
+* `"abcabc".refPosOf 'a' = some ⟨3⟩`
+* `"abcabc".revPosOf 'z' = none`
+* `"L∃∀N".revPosOf '∀' = some ⟨4⟩`
 -/
 @[inline] def revPosOf (s : String) (c : Char) : Option Pos :=
   revPosOfAux s c s.endPos
@@ -398,6 +431,16 @@ def findAux (s : String) (p : Char → Bool) (stopPos : Pos) (pos : Pos) : Pos :
   else pos
 termination_by stopPos.1 - pos.1
 
+/--
+Finds the position of the first character in a string for which the Boolean predicate `p` returns
+`true`. If there is no such character in the string, then the end position of the string is
+returned.
+
+Examples:
+ * `"coffee tea water".find (·.isWhitespace) = ⟨6⟩`
+ * `"tea".find (· == 'X') = ⟨3⟩`
+ * `"".find (· == 'X') = ⟨0⟩`
+-/
 @[inline] def find (s : String) (p : Char → Bool) : Pos :=
   findAux s p s.endPos 0
 
@@ -410,13 +453,36 @@ def revFindAux (s : String) (p : Char → Bool) (pos : Pos) : Option Pos :=
     else revFindAux s p pos
 termination_by pos.1
 
+/--
+Finds the position of the last character in a string for which the Boolean predicate `p` returns
+`true`. If there is no such character in the string, then `none` is returned.
+
+Examples:
+ * `"coffee tea water".revFind (·.isWhitespace) = some ⟨10⟩`
+ * `"tea".revFind (· == 'X') = none`
+ * `"".revFind (· == 'X') = none`
+-/
 @[inline] def revFind (s : String) (p : Char → Bool) : Option Pos :=
   revFindAux s p s.endPos
 
+/--
+Returns either `p₁` or `p₂`, whichever has the least byte index.
+-/
 abbrev Pos.min (p₁ p₂ : Pos) : Pos :=
   { byteIdx := p₁.byteIdx.min p₂.byteIdx }
 
-/-- Returns the first position where the two strings differ. -/
+/--
+Returns the first position where the two strings differ.
+
+If one string is a prefix of the other, then the returned position is the end position of the
+shorter string. If the strings are identical, then their end position is returned.
+
+Examples:
+* `"tea".firstDiffPos "ten" = ⟨2⟩`
+* `"tea".firstDiffPos "tea" = ⟨3⟩`
+* `"tea".firstDiffPos "teas" = ⟨3⟩`
+* `"teas".firstDiffPos "tea" = ⟨3⟩`
+-/
 def firstDiffPos (a b : String) : Pos :=
   let stopPos := a.endPos.min b.endPos
   let rec loop (i : Pos) : Pos :=
@@ -429,6 +495,20 @@ def firstDiffPos (a b : String) : Pos :=
     termination_by stopPos.1 - i.1
   loop 0
 
+/--
+Creates a new string that consists of the region of the input string delimited by the two positions.
+
+The result is `""` if the start position is greater than or equal to the end position or if the
+start position is at the end of the string. If either position is invalid (that is, if either points
+at the middle of a multi-byte UTF-8 character) then the result is unspecified.
+
+Examples:
+* `"red green blue".extract ⟨0⟩ ⟨3⟩ = "red"`
+* `"red green blue".extract ⟨3⟩ ⟨0⟩ = ""`
+* `"red green blue".extract ⟨0⟩ ⟨100⟩ = "red green blue"`
+* `"red green blue".extract ⟨4⟩ ⟨100⟩ = "green blue"`
+* `"L∃∀N".extract ⟨2⟩ ⟨100⟩ = "green blue"`
+-/
 @[extern "lean_string_utf8_extract"]
 def extract : (@& String) → (@& Pos) → (@& Pos) → String
   | ⟨s⟩, b, e => if b.byteIdx ≥ e.byteIdx then "" else ⟨go₁ s 0 b e⟩
@@ -455,6 +535,17 @@ where
       splitAux s p b (s.next i) r
 termination_by s.endPos.1 - i.1
 
+/--
+Splits a string at each character for which `p` returns `true`.
+
+The characters that satisfy `p` are not included in any of the resulting strings. If multiple
+characters in a row satisfy `p`, then the resulting list will contain empty strings.
+
+Examples:
+* `"coffee tea water".split (·.isWhitespace) = ["coffee", "tea", "water"]`
+* `"coffee  tea  water".split (·.isWhitespace) = ["coffee", "", "tea", "", "water"]`
+* `"fun x =>\n  x + 1\n".split (· == '\n') = ["fun x =>", "  x + 1", ""]`
+-/
 @[specialize] def split (s : String) (p : Char → Bool) : List String :=
   splitAux s p 0 0 []
 
@@ -505,17 +596,18 @@ decreasing_by
       (lt_next s _)
 
 /--
-Splits a string `s` on occurrences of the separator `sep`. When `sep` is empty, it returns `[s]`;
-when `sep` occurs in overlapping patterns, the first match is taken. There will always be exactly
-`n+1` elements in the returned list if there were `n` nonoverlapping matches of `sep` in the string.
-The default separator is `" "`. The separators are not included in the returned substrings.
+Splits a string `s` on occurrences of the separator string `sep`. The default separator is `" "`.
 
-```
-"here is some text ".splitOn = ["here", "is", "some", "text", ""]
-"here is some text ".splitOn "some" = ["here is ", " text "]
-"here is some text ".splitOn "" = ["here is some text "]
-"ababacabac".splitOn "aba" = ["", "bac", "c"]
-```
+When `sep` is empty, the result is `[s]`. When `sep` occurs in overlapping patterns, the first match
+is taken. There will always be exactly `n+1` elements in the returned list if there were `n`
+non-overlapping matches of `sep` in the string. The separators are not included in the returned
+substrings.
+
+Examples:
+* `"here is some text ".splitOn = ["here", "is", "some", "text", ""]`
+* `"here is some text ".splitOn "some" = ["here is ", " text "]`
+* `"here is some text ".splitOn "" = ["here is some text "]`
+* `"ababacabac".splitOn "aba" = ["", "bac", "c"]`
 -/
 @[inline] def splitOn (s : String) (sep : String := " ") : List String :=
   if sep == "" then [s] else splitOnAux s sep 0 0 0 []
@@ -524,18 +616,68 @@ instance : Inhabited String := ⟨""⟩
 
 instance : Append String := ⟨String.append⟩
 
+/--
+Adds multiple repetitions of a character to the end of a string.
+
+Returns `s`, with `n` repetitions of `c` at the end. Internally, the implementation repeatedly calls
+`String.push`, so the string is modified in-place if there is a unique reference to it.
+
+Examples:
+ * `"indeed".pushn '!' 2 = "indeed!!"`
+ * `"indeed".pushn '!' 0 = "indeed"`
+ * `"".pushn ' ' 4 = "    "`
+-/
 @[inline] def pushn (s : String) (c : Char) (n : Nat) : String :=
   n.repeat (fun s => s.push c) s
 
+/--
+Checks whether a string is empty.
+
+Empty strings are equal to `""` and have length and end position `0`.
+
+Examples:
+ * `"".isEmpty = true`
+ * `"empty".isEmpty = false`
+ * `" ".isEmpty = false`
+-/
 @[inline] def isEmpty (s : String) : Bool :=
   s.endPos == 0
 
+/--
+Appends all the strings in a list of strings, in order.
+
+Use `String.intercalate` to place a separator string between the strings in a list.
+
+Examples:
+ * `String.join ["gr", "ee", "n"] = "green"`
+ * `String.join ["b", "", "l", "", "ue"] = "red"`
+ * `String.join [] = ""`
+-/
 @[inline] def join (l : List String) : String :=
   l.foldl (fun r s => r ++ s) ""
 
+/--
+Returns a new string that contains only the character `c`.
+
+Because strings are encoded in UTF-8, the resulting string may take multiple bytes.
+
+Examples:
+ * `String.singleton 'L' = "L"`
+ * `String.singleton ' ' = " "`
+ * `String.singleton '"' = "\""`
+ * `String.singleton '𝒫' = "𝒫"`
+-/
 @[inline] def singleton (c : Char) : String :=
   "".push c
 
+/--
+Appends the strings in a list of strings, placing the separator `s` between each pair.
+
+Examples:
+ * `", ".intercalate ["red", "green", "blue"] = "red, green, blue"`
+ * `" and ".intercalate ["tea", "coffee"] = "tea and coffee"`
+ * `" | ".intercalate ["M", "", "N"] = "M |  | N"`
+-/
 def intercalate (s : String) : List String → String
   | []      => ""
   | a :: as => go a s as
@@ -543,40 +685,47 @@ where go (acc : String) (s : String) : List String → String
   | a :: as => go (acc ++ s ++ a) s as
   | []      => acc
 
-/-- Iterator over the characters (`Char`) of a `String`.
+/--
+An iterator over the characters (Unicode code points) in a `String`. Typically created by
+`String.iter`.
 
-Typically created by `s.iter`, where `s` is a `String`.
+String iterators pair a string with a valid byte index. This allows efficient character-by-character
+processing of strings while avoiding the need to manually ensure that byte indices are used with the
+correct strings.
 
 An iterator is *valid* if the position `i` is *valid* for the string `s`, meaning `0 ≤ i ≤ s.endPos`
 and `i` lies on a UTF8 byte boundary. If `i = s.endPos`, the iterator is at the end of the string.
 
-Most operations on iterators return arbitrary values if the iterator is not valid. The functions in
-the `String.Iterator` API should rule out the creation of invalid iterators, with two exceptions:
-
+Most operations on iterators return unspecified values if the iterator is not valid. The functions
+in the `String.Iterator` API rule out the creation of invalid iterators, with two exceptions:
 - `Iterator.next iter` is invalid if `iter` is already at the end of the string (`iter.atEnd` is
   `true`), and
 - `Iterator.forward iter n`/`Iterator.nextn iter n` is invalid if `n` is strictly greater than the
   number of remaining characters.
 -/
 structure Iterator where
-  /-- The string the iterator is for. -/
+  /-- The string being iterated over. -/
   s : String
-  /-- The current position.
+  /-- The current UTF-8 byte position in the string `s`.
 
-  This position is not necessarily valid for the string, for instance if one keeps calling
-  `Iterator.next` when `Iterator.atEnd` is true. If the position is not valid, then the
-  current character is `(default : Char)`, similar to `String.get` on an invalid position. -/
+  This position is not guaranteed to be valid for the string. If the position is not valid, then the
+  current character is `(default : Char)`, similar to `String.get` on an invalid position.
+  -/
   i : Pos
   deriving DecidableEq, Inhabited
 
-/-- Creates an iterator at the beginning of a string. -/
+/-- Creates an iterator at the beginning of the string. -/
 @[inline] def mkIterator (s : String) : Iterator :=
   ⟨s, 0⟩
 
 @[inherit_doc mkIterator]
 abbrev iter := mkIterator
 
-/-- The size of a string iterator is the number of bytes remaining. -/
+/--
+The size of a string iterator is the number of bytes remaining.
+
+Recursive functions that iterate towards the end of a string will typically decrease this measure.
+-/
 instance : SizeOf String.Iterator where
   sizeOf i := i.1.utf8ByteSize - i.2.byteIdx
 
@@ -587,84 +736,121 @@ namespace Iterator
 @[inline, inherit_doc Iterator.s]
 def toString := Iterator.s
 
-/-- Number of bytes remaining in the iterator. -/
+/--
+The number of UTF-8 bytes remaining in the iterator.
+-/
 @[inline] def remainingBytes : Iterator → Nat
   | ⟨s, i⟩ => s.endPos.byteIdx - i.byteIdx
 
 @[inline, inherit_doc Iterator.i]
 def pos := Iterator.i
 
-/-- The character at the current position.
+/--
+Gets the character at the iterator's current position.
 
-On an invalid position, returns `(default : Char)`. -/
+A run-time bounds check is performed. Use `String.Iterator.curr'` to avoid redundant bounds checks.
+
+If the position is invalid, returns `(default : Char)`.
+-/
 @[inline] def curr : Iterator → Char
   | ⟨s, i⟩ => get s i
 
-/-- Moves the iterator's position forward by one character, unconditionally.
+/--
+Moves the iterator's position forward by one character, unconditionally.
 
-It is only valid to call this function if the iterator is not at the end of the string, *i.e.*
-`Iterator.atEnd` is `false`; otherwise, the resulting iterator will be invalid. -/
+It is only valid to call this function if the iterator is not at the end of the string (i.e.
+if `Iterator.atEnd` is `false`); otherwise, the resulting iterator will be invalid.
+-/
 @[inline] def next : Iterator → Iterator
   | ⟨s, i⟩ => ⟨s, s.next i⟩
 
-/-- Decreases the iterator's position.
+/--
+Moves the iterator's position backward by one character, unconditionally.
 
-If the position is zero, this function is the identity. -/
+The position is not changed if the iterator is at the beginning of the string.
+-/
 @[inline] def prev : Iterator → Iterator
   | ⟨s, i⟩ => ⟨s, s.prev i⟩
 
-/-- True if the iterator is past the string's last character. -/
+/--
+Checks whether the iterator is past its string's last character.
+-/
 @[inline] def atEnd : Iterator → Bool
   | ⟨s, i⟩ => i.byteIdx ≥ s.endPos.byteIdx
 
-/-- True if the iterator is not past the string's last character. -/
+/--
+Checks whether the iterator is at or before the string's last character.
+-/
 @[inline] def hasNext : Iterator → Bool
   | ⟨s, i⟩ => i.byteIdx < s.endPos.byteIdx
 
-/-- True if the position is not zero. -/
+/--
+Checks whether the iterator is after the beginning of the string.
+-/
 @[inline] def hasPrev : Iterator → Bool
   | ⟨_, i⟩ => i.byteIdx > 0
 
+/--
+Gets the character at the iterator's current position.
+
+The proof of `it.hasNext` ensures that there is, in fact, a character at the current position. This
+function is faster that `String.Iterator.curr` due to avoiding a run-time bounds check.
+-/
 @[inline] def curr' (it : Iterator) (h : it.hasNext) : Char :=
   match it with
   | ⟨s, i⟩ => get' s i (by simpa only [hasNext, endPos, decide_eq_true_eq, String.atEnd, ge_iff_le, Nat.not_le] using h)
 
+/--
+Moves the iterator's position forward by one character, unconditionally.
+
+The proof of `it.hasNext` ensures that there is, in fact, a position that's one character forwards.
+This function is faster that `String.Iterator.next` due to avoiding a run-time bounds check.
+-/
 @[inline] def next' (it : Iterator) (h : it.hasNext) : Iterator :=
   match it with
   | ⟨s, i⟩ => ⟨s, s.next' i (by simpa only [hasNext, endPos, decide_eq_true_eq, String.atEnd, ge_iff_le, Nat.not_le] using h)⟩
 
-/-- Replaces the current character in the string.
+/--
+Replaces the current character in the string.
 
-Does nothing if the iterator is at the end of the string. If the iterator contains the only
-reference to its string, this function will mutate the string in-place instead of allocating a new
-one. -/
+Does nothing if the iterator is at the end of the string. If both the replacement character and the
+replaced character are 7-bit ASCII characters and the string is not shared, then it is updated
+in-place and not copied.
+-/
 @[inline] def setCurr : Iterator → Char → Iterator
   | ⟨s, i⟩, c => ⟨s.set i c, i⟩
 
-/-- Moves the iterator's position to the end of the string.
-
-Note that `i.toEnd.atEnd` is always `true`. -/
+/--
+Moves the iterator's position to the end of the string, just past the last character.
+-/
 @[inline] def toEnd : Iterator → Iterator
   | ⟨s, _⟩ => ⟨s, s.endPos⟩
 
-/-- Extracts the substring between the positions of two iterators.
+/--
+Extracts the substring between the positions of two iterators. The first iterator's position is the
+start of the substring, and the second iterator's position is the end.
 
 Returns the empty string if the iterators are for different strings, or if the position of the first
-iterator is past the position of the second iterator. -/
+iterator is past the position of the second iterator.
+-/
 @[inline] def extract : Iterator → Iterator → String
   | ⟨s₁, b⟩, ⟨s₂, e⟩ =>
     if s₁ ≠ s₂ || b > e then ""
     else s₁.extract b e
 
-/-- Moves the iterator's position several characters forward.
+/--
+Moves the iterator's position forward by the specified number of characters.
 
-The resulting iterator is only valid if the number of characters to skip is less than or equal to
-the number of characters left in the iterator. -/
+The resulting iterator is only valid if the number of characters to skip is less than or equal
+to the number of characters left in the iterator.
+-/
 def forward : Iterator → Nat → Iterator
   | it, 0   => it
   | it, n+1 => forward it.next n
 
-/-- The remaining characters in an iterator, as a string. -/
+/--
+The remaining characters in an iterator, as a string.
+-/
 @[inline] def remainingToString : Iterator → String
   | ⟨s, i⟩ => s.extract i s.endPos
 
@@ -673,9 +859,10 @@ def nextn : Iterator → Nat → Iterator
   | it, 0   => it
   | it, i+1 => nextn it.next i
 
-/-- Moves the iterator's position several characters back.
-
-If asked to go back more characters than available, stops at the beginning of the string. -/
+/--
+Moves the iterator's position back by the specified number of characters, stopping at the beginning
+of the string.
+-/
 def prevn : Iterator → Nat → Iterator
   | it, 0   => it
   | it, i+1 => prevn it.prev i
@@ -690,6 +877,22 @@ def offsetOfPosAux (s : String) (pos : Pos) (i : Pos) (offset : Nat) : Nat :=
     offsetOfPosAux s pos (s.next i) (offset+1)
 termination_by s.endPos.1 - i.1
 
+/--
+Returns the character index that corresponds to the provided position (i.e. UTF-8 byte index) in a
+string.
+
+If the position is at the end of the string, then the string's length in characters is returned. If
+the position is invalid due to pointing at the middle of a UTF-8 byte sequence, then the character
+index of the next character after the position is returned.
+
+Examples:
+* `"L∃∀N".offsetOfPos ⟨0⟩ = 0`
+* `"L∃∀N".offsetOfPos ⟨1⟩ = 1`
+* `"L∃∀N".offsetOfPos ⟨2⟩ = 2`
+* `"L∃∀N".offsetOfPos ⟨4⟩ = 2`
+* `"L∃∀N".offsetOfPos ⟨5⟩ = 3`
+* `"L∃∀N".offsetOfPos ⟨50⟩ = 4`
+-/
 @[inline] def offsetOfPos (s : String) (pos : Pos) : Nat :=
   offsetOfPosAux s pos 0 0
 
@@ -700,6 +903,15 @@ termination_by s.endPos.1 - i.1
   else a
 termination_by stopPos.1 - i.1
 
+/--
+Folds a function over a string from the left, accumulating a value starting with `init`. The
+accumulated value is combined with character in order, using `f`.
+
+Examples:
+ * `"coffee tea water".foldl (fun n c => if c.isWhitespace then n + 1 else n) 0 = 2`
+ * `"coffee tea and water".foldl (fun n c => if c.isWhitespace then n + 1 else n) 0 = 3`
+ * `"coffee tea water".foldl (·.push ·) "" = "coffee tea water"`
+-/
 @[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : String) : α :=
   foldlAux f s s.endPos 0 init
 
@@ -713,6 +925,15 @@ termination_by stopPos.1 - i.1
   else a
 termination_by i.1
 
+/--
+Folds a function over a string from the right, accumulating a value starting with `init`. The
+accumulated value is combined with the each character in reverse order, using `f`.
+
+Examples:
+ * `"coffee tea water".foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 2`
+ * `"coffee tea and water".foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 3`
+ * `"coffee tea water".foldr (fun c s => c.push s) "" = "retaw dna aet eeffoc"`
+-/
 @[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : String) : α :=
   foldrAux f init s s.endPos 0
 
@@ -725,12 +946,41 @@ termination_by i.1
   else false
 termination_by stopPos.1 - i.1
 
+/--
+Checks whether there is a character in a string for which the Boolean predicate `p` returns `true`.
+
+Short-circuits at the first character for which `p` returns `true`.
+
+Examples:
+ * `"brown".any (·.isLetter) = true`
+ * `"brown".any (·.isWhitespace) = false`
+ * `"brown and orange".any (·.isLetter) = true`
+ * `"".any (fun _ => false) = false`
+-/
 @[inline] def any (s : String) (p : Char → Bool) : Bool :=
   anyAux s s.endPos p 0
 
+/--
+Checks whether the Boolean predicate `p` returns `true` for every character in a string.
+
+Short-circuits at the first character for which `p` returns `false`.
+
+Examples:
+ * `"brown".all (·.isLetter) = true`
+ * `"brown and orange".all (·.isLetter) = false`
+ * `"".all (fun _ => false) = true`
+-/
 @[inline] def all (s : String) (p : Char → Bool) : Bool :=
   !s.any (fun c => !p c)
 
+/--
+Checks whether a string contains the specified character.
+
+Examples:
+* `"green".contains 'e' = true`
+* `"green".contains 'x' = false`
+* `"".contains 'x' = false`
+-/
 @[inline] def contains (s : String) (c : Char) : Bool :=
 s.any (fun a => a == c)
 
@@ -784,12 +1034,59 @@ theorem mapAux_lemma (s : String) (i : Pos) (c : Char) (h : ¬s.atEnd i) :
     mapAux f (s.next i) s
 termination_by s.endPos.1 - i.1
 
+/--
+Applies the function `f` to every character in a string, returning a string that contains the
+resulting characters.
+
+Examples:
+ * `"abc123".map Char.toUpper = "ABC123"`
+ * `"".map Char.toUpper = ""`
+-/
 @[inline] def map (f : Char → Char) (s : String) : String :=
   mapAux f 0 s
 
+/--
+Checks whether the string can be interpreted as the decimal representation of a natural number.
+
+A string can be interpreted as a decimal natural number if it is not empty and all the characters in
+it are digits.
+
+Use `String.toNat?` or `String.toNat!` to convert such a string to a natural number.
+
+Examples:
+ * `"".isNat = false`
+ * `"0".isNat = true`
+ * `"5".isNat = true`
+ * `"05".isNat = true`
+ * `"587".isNat = true`
+ * `"-587".isNat = false`
+ * `" 5".isNat = false`
+ * `"2+3".isNat = false`
+ * `"0xff".isNat = false`
+-/
 @[inline] def isNat (s : String) : Bool :=
   !s.isEmpty && s.all (·.isDigit)
 
+/--
+Interprets a string as the decimal representation of a natural number, returning it. Returns `none`
+if the string does not contain a decimal natural number.
+
+A string can be interpreted as a decimal natural number if it is not empty and all the characters in
+it are digits.
+
+Use `String.isNat` to check whether `String.toNat?` would return `some`. `String.toNat!` is an
+alternative that panics instead of returning `none` when the string is not a natural number.
+
+Examples:
+ * `"".toNat? = none`
+ * `"0".toNat? = some 0`
+ * `"5".toNat? = some 5`
+ * `"587".toNat? = some 587`
+ * `"-587".toNat? = none`
+ * `" 5".toNat? = none`
+ * `"2+3".toNat? = none`
+ * `"0xff".toNat? = none`
+-/
 def toNat? (s : String) : Option Nat :=
   if s.isNat then
     some <| s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
@@ -797,10 +1094,12 @@ def toNat? (s : String) : Option Nat :=
     none
 
 /--
-Return `true` iff the substring of byte size `sz` starting at position `off1` in `s1` is equal to that starting at `off2` in `s2.`.
-False if either substring of that byte size does not exist. -/
-def substrEq (s1 : String) (off1 : String.Pos) (s2 : String) (off2 : String.Pos) (sz : Nat) : Bool :=
-  off1.byteIdx + sz ≤ s1.endPos.byteIdx && off2.byteIdx + sz ≤ s2.endPos.byteIdx && loop off1 off2 { byteIdx := off1.byteIdx + sz }
+Checks whether substrings of two strings are equal. Substrings are indicated by their starting
+positions and a size in _UTF-8 bytes_. Returns `false` if the indicated substring does not exist in
+either string.
+-/
+def substrEq (s1 : String) (pos1 : String.Pos) (s2 : String) (pos2 : String.Pos) (sz : Nat) : Bool :=
+  pos1.byteIdx + sz ≤ s1.endPos.byteIdx && pos2.byteIdx + sz ≤ s2.endPos.byteIdx && loop pos1 pos2 { byteIdx := pos1.byteIdx + sz }
 where
   loop (off1 off2 stop1 : Pos) :=
     if _h : off1.byteIdx < stop1.byteIdx then
@@ -813,11 +1112,27 @@ where
     have := Nat.sub_lt_sub_left _h (Nat.add_lt_add_left c₁.utf8Size_pos off1.1)
     decreasing_tactic
 
-/-- Return true iff `p` is a prefix of `s` -/
+/--
+Checks whether the first string (`p`) is a prefix of the second (`s`).
+
+`String.startsWith` is a version that takes the potential prefix after the string.
+
+Examples:
+ * `"red".isPrefixOf "red green blue" = true`
+ * `"green".isPrefixOf "red green blue" = false`
+ * `"".isPrefixOf "red green blue" = true`
+-/
 def isPrefixOf (p : String) (s : String) : Bool :=
   substrEq p 0 s 0 p.endPos.byteIdx
 
-/-- Replace all occurrences of `pattern` in `s` with `replacement`. -/
+/--
+In the string `s`, replaces all occurrences of `pattern` with `replacement`.
+
+Examples:
+* `"red green blue".replace "e" "" = "rd grn blu"`
+* `"red green blue".replace "ee" "E" = "red grEn blue"`
+* `"red green blue".replace "e" "E" = "rEd grEEn bluE"`
+-/
 def replace (s pattern replacement : String) : String :=
   if h : pattern.endPos.1 = 0 then s
   else
@@ -836,7 +1151,12 @@ def replace (s pattern replacement : String) : String :=
       termination_by s.endPos.1 - pos.1
     loop "" 0 0
 
-/-- Return the beginning of the line that contains character `pos`. -/
+/--
+Returns the position of the beginning of the line that contains the position `pos`.
+
+Lines are ended by `'\n'`, and the returned position is either `0 : String.Pos` or immediately after
+a `'\n'` character.
+-/
 def findLineStart (s : String) (pos : String.Pos) : String.Pos :=
   match s.revFindAux (· = '\n') pos with
   | none => 0
@@ -1100,76 +1420,297 @@ namespace String
 @[inline] def dropRight (s : String) (n : Nat) : String :=
   (s.toSubstring.dropRight n).toString
 
+/--
+Creates a new string that contains the first `n` characters (Unicode code points) of `s`.
+
+If `n` is greater than `s.length`, returns `s`.
+
+Examples:
+* `"red green blue".take 3 = "red"`
+* `"red green blue".take 1 = "r"`
+* `"red green blue".take 0 = ""`
+* `"red green blue".take 100 = "red green blue"`
+-/
 @[inline] def take (s : String) (n : Nat) : String :=
   (s.toSubstring.take n).toString
 
+/--
+Creates a new string that contains the last `n` characters (Unicode code points) of `s`.
+
+If `n` is greater than `s.length`, returns `s`.
+
+Examples:
+* `"red green blue".takeRight 4 = "blue"`
+* `"red green blue".takeRight 1 = "e"`
+* `"red green blue".takeRight 0 = ""`
+* `"red green blue".takeRight 100 = "red green blue"`
+-/
 @[inline] def takeRight (s : String) (n : Nat) : String :=
   (s.toSubstring.takeRight n).toString
 
+/--
+Creates a new string that contains the longest prefix of `s` in which `p` returns `true` for all
+characters.
+
+Examples:
+* `"red green blue".takeWhile (·.isLetter) = "red"`
+* `"red green blue".takeWhile (· == 'r') = "r"`
+* `"red green blue".takeWhile (· != 'n') = "red gree"`
+* `"red green blue".takeWhile (fun _ => true) = "red green blue"`
+-/
 @[inline] def takeWhile (s : String) (p : Char → Bool) : String :=
   (s.toSubstring.takeWhile p).toString
 
+/--
+Creates a new string by removing the longest prefix from `s` in which `p` returns `true` for all
+characters.
+
+Examples:
+* `"red green blue".dropWhile (·.isLetter) = " green blue"`
+* `"red green blue".dropWhile (· == 'r') = "ed green blue"`
+* `"red green blue".dropWhile (· != 'n') = "n blue"`
+* `"red green blue".dropWhile (fun _ => true) = ""`
+-/
 @[inline] def dropWhile (s : String) (p : Char → Bool) : String :=
   (s.toSubstring.dropWhile p).toString
 
+/--
+Creates a new string that contains the longest suffix of `s` in which `p` returns `true` for all
+characters.
+
+Examples:
+* `"red green blue".takeRightWhile (·.isLetter) = "blue"`
+* `"red green blue".takeRightWhile (· == 'e') = "e"`
+* `"red green blue".takeRightWhile (· != 'n') = " blue"`
+* `"red green blue".takeRightWhile (fun _ => true) = "red green blue"`
+-/
 @[inline] def takeRightWhile (s : String) (p : Char → Bool) : String :=
   (s.toSubstring.takeRightWhile p).toString
 
+/--
+Creates a new string by removing the longest suffix from `s` in which `p` returns `true` for all
+characters.
+
+Examples:
+* `"red green blue".dropRightWhile (·.isLetter) = "red green "`
+* `"red green blue".dropRightWhile (· == 'e') = "red green blu"`
+* `"red green blue".dropRightWhile (· != 'n') = "red green"`
+* `"red green blue".dropRightWhile (fun _ => true) = ""`
+-/
 @[inline] def dropRightWhile (s : String) (p : Char → Bool) : String :=
   (s.toSubstring.dropRightWhile p).toString
 
+/--
+Checks whether the first string (`s`) begins with the second (`pre`).
+
+`String.isPrefix` is a version that takes the potential prefix before the string.
+
+Examples:
+ * `"red green blue".startsWith "red" = true`
+ * `"red green blue".startsWith "green" = false`
+ * `"red green blue".startsWith "" = true`
+ * `"red".startsWith "red" = true`
+-/
 @[inline] def startsWith (s pre : String) : Bool :=
   s.toSubstring.take pre.length == pre.toSubstring
 
+/--
+Checks whether the first string (`s`) ends with the second (`post`).
+
+Examples:
+ * `"red green blue".endsWith "blue" = true`
+ * `"red green blue".endsWith "green" = false`
+ * `"red green blue".endsWith "" = true`
+ * `"red".endsWith "red" = true`
+-/
 @[inline] def endsWith (s post : String) : Bool :=
   s.toSubstring.takeRight post.length == post.toSubstring
 
+/--
+Removes trailing whitespace from a string.
+
+“Whitespace” is defined as characters for which `Char.isWhitespace` returns `true`.
+
+Examples:
+* `"abc".trimRight = "abc"`
+* `"   abc".trimRight = "   abc"`
+* `"abc \t  ".trimRight = "abc"`
+* `"  abc   ".trimRight = "  abc"`
+* `"abc\ndef\n".trimRight = "abc\ndef"`
+-/
 @[inline] def trimRight (s : String) : String :=
   s.toSubstring.trimRight.toString
 
+/--
+Removes leading whitespace from a string.
+
+“Whitespace” is defined as characters for which `Char.isWhitespace` returns `true`.
+
+Examples:
+* `"abc".trimLeft = "abc"`
+* `"   abc".trimLeft = "   abc"`
+* `"abc \t  ".trimLeft = "abc \t  "`
+* `"  abc   ".trimLeft = "abc   "`
+* `"abc\ndef\n".trimLeft = "abc\ndef\n"`
+-/
 @[inline] def trimLeft (s : String) : String :=
   s.toSubstring.trimLeft.toString
 
+/--
+Removes leading and trailing whitespace from a string.
+
+“Whitespace” is defined as characters for which `Char.isWhitespace` returns `true`.
+
+Examples:
+* `"abc".trim = "abc"`
+* `"   abc".trim = "abc"`
+* `"abc \t  ".trim = "abc"`
+* `"  abc   ".trim = "abc"`
+* `"abc\ndef\n".trim = "abc\ndef"`
+-/
 @[inline] def trim (s : String) : String :=
   s.toSubstring.trim.toString
 
+/--
+Repeatedly increments a position in a string, as if by `String.next`, while the predicate `p`
+returns `true` for the character at the position. Stops incrementing at the end of the string or
+when `p` returns `false` for the current character.
+
+Examples:
+* `let s := "   a  "; s.get (s.nextWhile Char.isWhitespace 0) = 'a'`
+* `let s := "a  "; s.get (s.nextWhile Char.isWhitespace 0) = 'a'`
+* `let s := "ba  "; s.get (s.nextWhile Char.isWhitespace 0) = 'b'`
+-/
 @[inline] def nextWhile (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos :=
   Substring.takeWhileAux s s.endPos p i
 
+/--
+Repeatedly increments a position in a string, as if by `String.next`, while the predicate `p`
+returns `false` for the character at the position. Stops incrementing at the end of the string or
+when `p` returns `true` for the current character.
+
+Examples:
+* `let s := "   a  "; s.get (s.nextUntil Char.isWhitespace 0) = ' '`
+* `let s := "   a  "; s.get (s.nextUntil Char.isLetter 0) = 'a'`
+* `let s := "a  "; s.get (s.nextUntil Char.isWhitespace 0) = ' '`
+-/
 @[inline] def nextUntil (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos :=
   nextWhile s (fun c => !p c) i
 
+/--
+Replaces each character in `s` with the result of applying `Char.toUpper` to it.
+
+`Char.toUpper` has no effect on characters outside of the range `'a'`–`'z'`.
+
+Examples:
+* `"orange".toUpper = "ORANGE"`
+* `"abc123".toUpper = "ABC123"`
+-/
 @[inline] def toUpper (s : String) : String :=
   s.map Char.toUpper
 
+/--
+Replaces each character in `s` with the result of applying `Char.toLower` to it.
+
+`Char.toLower` has no effect on characters outside of the range `'A'`–`'Z'`.
+
+Examples:
+* `"ORANGE".toLower = "orange"`
+* `"Orange".toLower = "orange"`
+* `"ABc123".toLower = "abc123"`
+-/
 @[inline] def toLower (s : String) : String :=
   s.map Char.toLower
 
+/--
+Replaces the first character in `s` with the result of applying `Char.toUpper` to it. Returns the
+empty string if the string is empty.
+
+`Char.toUpper` has no effect on characters outside of the range `'a'`–`'z'`.
+
+Examples:
+* `"orange".capitalize = "Orange"`
+* `"ORANGE".capitalize = "ORANGE"`
+* `"".capitalize = ""`
+-/
 @[inline] def capitalize (s : String) :=
   s.set 0 <| s.get 0 |>.toUpper
 
+/--
+Replaces the first character in `s` with the result of applying `Char.toLower` to it. Returns the
+empty string if the string is empty.
+
+`Char.toLower` has no effect on characters outside of the range `'A'`–`'Z'`.
+
+Examples:
+* `"Orange".decapitalize = "orange"`
+* `"ORANGE".decapitalize = "oRANGE"`
+* `"".decapitalize = ""`
+-/
 @[inline] def decapitalize (s : String) :=
   s.set 0 <| s.get 0 |>.toLower
 
 /--
-If `pre` is a prefix of `s`, i.e. `s = pre ++ t`, returns the remainder `t`.
+If `pre` is a prefix of `s`, returns the remainder. Returns `none` otherwise.
+
+The string `pre` is a prefix of `s` if there exists a `t : String` such that `s = pre ++ t`. If so,
+the result is `some t`.
+
+Use `String.stripPrefix` to return the string unchanged when `pre` is not a prefix.
+
+Examples:
+ * `"red green blue".dropPrefix? "red " = some "green blue"`
+ * `"red green blue".dropPrefix? "reed " = none`
+ * `"red green blue".dropPrefix? "" = some "red green blue"`
 -/
 def dropPrefix? (s : String) (pre : String) : Option Substring :=
   s.toSubstring.dropPrefix? pre.toSubstring
 
 /--
-If `suff` is a suffix of `s`, i.e. `s = t ++ suff`, returns the remainder `t`.
+If `suff` is a suffix of `s`, returns the remainder. Returns `none` otherwise.
+
+The string `suff` is a suffix of `s` if there exists a `t : String` such that `s = t ++ suff`. If so,
+the result is `some t`.
+
+Use `String.stripSuffix` to return the string unchanged when `suff` is not a suffix.
+
+Examples:
+ * `"red green blue".dropSuffix? " blue" = some "red green"`
+ * `"red green blue".dropSuffix? " blu " = none`
+ * `"red green blue".dropSuffix? "" = some "red green blue"`
 -/
 def dropSuffix? (s : String) (suff : String) : Option Substring :=
   s.toSubstring.dropSuffix? suff.toSubstring
 
-/-- `s.stripPrefix pre` will remove `pre` from the beginning of `s` if it occurs there,
-or otherwise return `s`. -/
+/--
+If `pre` is a prefix of `s`, returns the remainder. Returns `s` unmodified otherwise.
+
+The string `pre` is a prefix of `s` if there exists a `t : String` such that `s = pre ++ t`. If so,
+the result is `t`. Otherwise, it is `s`.
+
+Use `String.dropPrefix?` to return `none` when `pre` is not a prefix.
+
+Examples:
+ * `"red green blue".stripPrefix "red " = "green blue"`
+ * `"red green blue".stripPrefix "reed " = "red green blue"`
+ * `"red green blue".stripPrefix "" = "red green blue"`
+-/
 def stripPrefix (s : String) (pre : String) : String :=
   s.dropPrefix? pre |>.map Substring.toString |>.getD s
 
-/-- `s.stripSuffix suff` will remove `suff` from the end of `s` if it occurs there,
-or otherwise return `s`. -/
+/--
+If `suff` is a suffix of `s`, returns the remainder. Returns `s` unmodified otherwise.
+
+The string `suff` is a suffix of `s` if there exists a `t : String` such that `s = t ++ suff`. If so,
+the result is `t`. Otherwise, it is `s`.
+
+Use `String.dropSuffix?` to return `none` when `suff` is not a suffix.
+
+Examples:
+ * `"red green blue".stripSuffix " blue" = "red green"`
+ * `"red green blue".stripSuffix " blu " = "red green blue"`
+ * `"red green blue".stripSuffix "" = "red green blue"`
+-/
 def stripSuffix (s : String) (suff : String) : String :=
   s.dropSuffix? suff |>.map Substring.toString |>.getD s
 
@@ -1265,16 +1806,22 @@ theorem ne_of_lt {i₁ i₂ : Pos} (h : i₁ < i₂) : i₁ ≠ i₂ := mt ext_i
 
 theorem ne_of_gt {i₁ i₂ : Pos} (h : i₁ < i₂) : i₂ ≠ i₁ := (ne_of_lt h).symm
 
-@[simp] theorem addString_byteIdx (p : Pos) (s : String) :
+@[simp] theorem byteIdx_addString (p : Pos) (s : String) :
     (p + s).byteIdx = p.byteIdx + s.utf8ByteSize := rfl
+
+@[deprecated byteIdx_addString (since := "2025-03-18")]
+abbrev addString_byteIdx := @byteIdx_addString
 
 theorem addString_eq (p : Pos) (s : String) : p + s = ⟨p.byteIdx + s.utf8ByteSize⟩ := rfl
 
-theorem zero_addString_byteIdx (s : String) : ((0 : Pos) + s).byteIdx = s.utf8ByteSize := by
-  simp only [addString_byteIdx, byteIdx_zero, Nat.zero_add]
+theorem byteIdx_zero_addString (s : String) : ((0 : Pos) + s).byteIdx = s.utf8ByteSize := by
+  simp only [byteIdx_addString, byteIdx_zero, Nat.zero_add]
+
+@[deprecated byteIdx_zero_addString (since := "2025-03-18")]
+abbrev zero_addString_byteIdx := @byteIdx_zero_addString
 
 theorem zero_addString_eq (s : String) : (0 : Pos) + s = ⟨s.utf8ByteSize⟩ := by
-  rw [← zero_addString_byteIdx]
+  rw [← byteIdx_zero_addString]
 
 theorem le_iff {i₁ i₂ : Pos} : i₁ ≤ i₂ ↔ i₁.byteIdx ≤ i₂.byteIdx := .rfl
 

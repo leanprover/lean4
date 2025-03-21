@@ -5155,7 +5155,12 @@ theorem minKey?_eq_some_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α
     minKey? l = some (minKeyD l fallback) := by
   simp [← minKey_eq_minKeyD (he := he), minKey_eq_get_minKey?]
 
-theorem minKeyD_eq_default [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem minKey!_eq_minKeyD_default [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited α]
+    {l : List ((a : α) × β a)} :
+    minKey! l = minKeyD l default := by
+  simp [minKey!_eq_get!_minKey?, minKeyD_eq_getD_minKey?, Option.get!_eq_getD]
+
+theorem minKeyD_eq_fallback [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} {fallback} (h : l.isEmpty) :
     minKeyD l fallback = fallback := by
   simp [minKeyD, minKey?_eq_none_iff_isEmpty.mpr h]

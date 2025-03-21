@@ -238,7 +238,7 @@ jobs:
       - name: CCache stats
         run: ccache -s
       - name: Show stacktrace for coredumps
-        if: failure() && runner.os == 'Linux'
+        if: always() && runner.os == 'Linux'
         run: |
           for c in $(find . -name core); do
             progbin="$(file $c | sed "s/.*execfn: '\([^']*\)'.*/\1/")"

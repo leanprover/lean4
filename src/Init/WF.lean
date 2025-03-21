@@ -189,12 +189,21 @@ def lt_wfRel : WellFoundedRelation Nat where
       | Or.inl e => subst e; assumption
       | Or.inr e => exact Acc.inv ih e
 
+/--
+Strong induction on the natural numbers.
+
+The induction hypothesis is that all numbers less than a given number satisfy the motive, which
+should be demonstrated for the given number.
+-/
 @[elab_as_elim] protected noncomputable def strongRecOn
     {motive : Nat → Sort u}
     (n : Nat)
     (ind : ∀ n, (∀ m, m < n → motive m) → motive n) : motive n :=
   Nat.lt_wfRel.wf.fix ind n
 
+/--
+Case analysis based on strong induction for the natural numbers.
+-/
 @[elab_as_elim] protected noncomputable def caseStrongRecOn
     {motive : Nat → Sort u}
     (a : Nat)

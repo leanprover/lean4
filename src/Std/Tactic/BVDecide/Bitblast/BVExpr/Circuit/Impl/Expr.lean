@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
-import Init.Data.AC
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Var
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Const
 import Std.Tactic.BVDecide.Bitblast.BVExpr.Circuit.Impl.Operations.Not
@@ -130,21 +129,21 @@ where
           dsimp only at heaig
           assumption
         ⟨res, this⟩
-    | .append lhs rhs =>
+    | .append lhs rhs _ =>
       let ⟨⟨aig, lhs⟩, hlaig⟩ := go aig lhs
       let ⟨⟨aig, rhs⟩, hraig⟩ := go aig rhs
       let lhs := lhs.cast <| by
         dsimp only at hlaig hraig
         omega
-      let res := bitblast.blastAppend aig ⟨lhs, rhs, by ac_rfl⟩
+      let res := bitblast.blastAppend aig ⟨lhs, rhs, by omega⟩
       have := by
         apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastAppend)
         dsimp only at hlaig hraig
         omega
       ⟨res, this⟩
-    | .replicate n expr =>
+    | .replicate n expr _ =>
       let ⟨⟨aig, expr⟩, haig⟩ := go aig expr
-      let res := bitblast.blastReplicate aig ⟨n, expr, rfl⟩
+      let res := bitblast.blastReplicate aig ⟨n, expr, by omega⟩
       have := by
         apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := bitblast.blastReplicate)
         dsimp only at haig
@@ -226,7 +225,7 @@ theorem bitblast.go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) :
       rw [ih]
       have := (go aig expr).property
       omega
-  | append lhs rhs lih rih =>
+  | append lhs rhs _ lih rih =>
     dsimp only [go]
     have := (bitblast.go aig lhs).property
     have := (bitblast.go aig lhs).property
@@ -236,7 +235,7 @@ theorem bitblast.go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) :
     · omega
     · apply Nat.lt_of_lt_of_le h1
       apply Nat.le_trans <;> assumption
-  | replicate n inner ih =>
+  | replicate n inner _ ih =>
     dsimp only [go]
     rw [AIG.LawfulVecOperator.decl_eq (f := blastReplicate)]
     rw [ih]

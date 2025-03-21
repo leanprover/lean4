@@ -5,6 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Std.Data.HashSet
+import Init.Data.Vector.Basic
 
 namespace Std
 namespace Sat
@@ -348,8 +349,7 @@ where
 A vector of references into `aig`. This is the `AIG` analog of `BitVec`.
 -/
 structure RefVec (aig : AIG α) (w : Nat) where
-  refs : Array (Nat × Bool)
-  hlen : refs.size = w
+  refs : Vector (Nat × Bool) w
   hrefs : ∀ (h : i < w), refs[i].1 < aig.decls.size
 
 /--

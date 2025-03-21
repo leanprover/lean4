@@ -944,7 +944,7 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
   simp [extractLsb', toInt_ofNat]
 
 @[simp] theorem toInt_extractLsb {hi lo : Nat} {x : BitVec n} :
-  (extractLsb hi lo x).toInt = ((x.toNat >>> lo) : Int).bmod (2 ^ (hi - lo + 1)) := by
+    (extractLsb hi lo x).toInt = ((x.toNat >>> lo) : Int).bmod (2 ^ (hi - lo + 1)) := by
   simp [extractLsb, toInt_ofNat]
 
 @[simp] theorem toFin_extractLsb' {s m : Nat} {x : BitVec n} :

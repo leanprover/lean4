@@ -480,7 +480,7 @@ theorem minKey!_eq_get!_minKey? [Ord α] [Inhabited α] {l : Impl α β} :
     l.minKey! = l.minKey?.get! := by
   induction l using minKey!.induct <;> simp_all only [minKey!, minKey?] <;> rfl
 
-theorem minKeyD_eq_getD_minKey? [Ord α] [Inhabited α] {l : Impl α β} {fallback} :
+theorem minKeyD_eq_getD_minKey? [Ord α] {l : Impl α β} {fallback} :
     l.minKeyD fallback = l.minKey?.getD fallback := by
   induction l, fallback using minKeyD.induct <;> simp_all only [minKeyD, minKey?] <;> rfl
 

@@ -1414,9 +1414,29 @@ end Substring
 
 namespace String
 
+/--
+Removes the specified number of characters (Unicode code points) from the start of the string.
+
+If `n` is greater than `s.length`, returns `""`.
+
+Examples:
+ * `"red green blue".drop 4 = "green blue"`
+ * `"red green blue".drop 10 = "blue"`
+ * `"red green blue".drop 50 = ""`
+-/
 @[inline] def drop (s : String) (n : Nat) : String :=
   (s.toSubstring.drop n).toString
 
+/--
+Removes the specified number of characters (Unicode code points) from the end of the string.
+
+If `n` is greater than `s.length`, returns `""`.
+
+Examples:
+ * `"red green blue".dropRight 5 = "red green"`
+ * `"red green blue".dropRight 11 = "red"`
+ * `"red green blue".dropRight 50 = ""`
+-/
 @[inline] def dropRight (s : String) (n : Nat) : String :=
   (s.toSubstring.dropRight n).toString
 

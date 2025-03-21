@@ -1306,7 +1306,7 @@ theorem ssubOverflow_eq {w : Nat} (x y : BitVec w) :
     ssubOverflow x y = ((!x.msb && y.msb && (x - y).msb) || (x.msb && !y.msb && !(x - y).msb)) := by
   simp only [ssubOverflow]
   rcases w with _|w
-  · revert x y; decide
+  · simp [BitVec.of_length_zero]
   · have h₁ := BitVec.toInt_sub_toInt_lt_twoPow_iff (x := x) (y := y)
     have h₂ := BitVec.twoPow_le_toInt_sub_toInt_iff (x := x) (y := y)
     simp only [Nat.add_one_sub_one] at h₁ h₂

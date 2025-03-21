@@ -37,7 +37,7 @@ structure Cache.Key where
   deriving DecidableEq, Hashable
 
 structure Cache (aig : AIG BVBit) where
-  map : Std.DHashMap Cache.Key (fun k => Vector (Nat × Bool) k.1)
+  map : Std.DHashMap Cache.Key (fun k => Vector (Nat × Bool) k.w)
   hbound : ∀ k (h1 : k ∈ map), ∀ (h2 : i < k.1), (map.get k h1)[i].1 < aig.decls.size
 
 @[inline]

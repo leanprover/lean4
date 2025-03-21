@@ -24,7 +24,7 @@ theorem div_rec_fuel_lemma {x y fuel : Nat} (hy : 0 < y) (hle : y ≤ x) (hfuel 
     x - y < fuel :=
   Nat.lt_of_lt_of_le (div_rec_lemma ⟨hy, hle⟩) (Nat.le_of_lt_succ hfuel)
 
-@[extern "lean_nat_div"]
+@[extern "lean_nat_div", irreducible]
 protected def div (x y : @& Nat) : Nat :=
   if hy : 0 < y then
     let rec
@@ -108,6 +108,7 @@ theorem div_lt_self {n k : Nat} (hLtN : 0 < n) (hLtK : 1 < k) : n / k < n := by
     have := Nat.add_le_of_le_sub hKN this
     exact Nat.lt_of_lt_of_le (Nat.add_lt_add_left hLtK _) this
 
+@[irreducible]
 protected noncomputable def modCore (x y : Nat) : Nat :=
   if hy : 0 < y then
     let rec

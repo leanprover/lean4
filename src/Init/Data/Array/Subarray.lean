@@ -25,7 +25,18 @@ structure Subarray (α : Type u) where
   start : Nat
   /-- The ending index of the region of interest (exclusive). -/
   stop : Nat
+  /--
+  The starting index is no later than the ending index.
+
+  The ending index is exclusive. If the starting and ending indices are equal, then the subarray is
+  empty.
+  -/
   start_le_stop : start ≤ stop
+  /-- The stopping index is no later than the end of the array.
+
+  The ending index is exclusive. If it is equal to the size of the array, then the last element of
+  the array is in the subarray.
+  -/
   stop_le_array_size : stop ≤ array.size
 
 namespace Subarray
@@ -122,6 +133,10 @@ instance : Inhabited (Subarray α) :=
       pure b
   loop (USize.ofNat s.start) b
 
+/--
+The implementation of `ForIn.forIn` for `Subarray`, which allows it to be used with `for` loops in
+`do`-notation.
+-/
 -- TODO: provide reference implementation
 @[implemented_by Subarray.forInUnsafe]
 protected opaque forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=

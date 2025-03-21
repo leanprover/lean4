@@ -130,6 +130,8 @@ structure Context where
   errors; see also `logMessage` below.
   -/
   suppressElabErrors : Bool := false
+  /-- Cache of `Lean.inheritedTraceOptions`. -/
+  inheritedTraceOptions : Std.HashSet Name := {}
   deriving Nonempty
 
 /-- CoreM is a monad for manipulating the Lean environment.
@@ -175,9 +177,11 @@ instance : MonadWithOptions CoreM where
           maxRecDepth := maxRecDepth.get options })
       x
 
--- Helper function for ensuring fields that depend on `options` have the correct value.
+-- Helper function for ensuring fields derived from e.g. options have the correct value.
 @[inline] private def withConsistentCtx (x : CoreM α) : CoreM α := do
-  withOptions id x
+  let inheritedTraceOptions ← inheritedTraceOptions.get
+  withReader (fun ctx => { ctx with inheritedTraceOptions }) do
+    withOptions id x
 
 instance : AddMessageContext CoreM where
   addMessageContext := addMessageContextPartial
@@ -246,6 +250,7 @@ instance : MonadLift IO CoreM where
 instance : MonadTrace CoreM where
   getTraceState := return (← get).traceState
   modifyTraceState f := modify fun s => { s with traceState := f s.traceState }
+  getInheritedTraceOptions := return (← read).inheritedTraceOptions
 
 structure SavedState extends State where
   /-- Number of heartbeats passed inside `withRestoreOrSaveFull`, not used otherwise. -/

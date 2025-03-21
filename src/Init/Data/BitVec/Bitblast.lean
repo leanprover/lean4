@@ -1307,16 +1307,13 @@ theorem ssubOverflow_eq {w : Nat} (x y : BitVec w) :
   simp only [ssubOverflow]
   rcases w with _|w
   · revert x y; decide
-  · have : 2 * 2 ^ w = 2 ^ (w + 1) := by rw [Nat.pow_add, Nat.pow_one, Nat.mul_comm]
-    have := le_two_mul_toInt (x := x); have := two_mul_toInt_lt (x := x)
+  · have := le_two_mul_toInt (x := x); have := two_mul_toInt_lt (x := x)
     have := le_two_mul_toInt (x := y); have := two_mul_toInt_lt (x := y)
     simp only [msb_eq_toInt, toInt_sub, Nat.add_one_sub_one, ge_iff_le]
-    have h₁ := Int.toInt_sub_toInt_lt_twoPow_iff (x := x.toInt) (y:= y.toInt) (k := 2 ^ w)
-              (by push_cast; omega) (by push_cast; omega) (by push_cast; omega) (by push_cast; omega)
-    have h₂ := Int.twoPow_le_toInt_sub_toInt_iff (x := x.toInt) (y:= y.toInt) (k := 2 ^ w)
-              (by push_cast; omega) (by push_cast; omega) (by push_cast; omega) (by push_cast; omega)
-    push_cast at h₁ h₂
-    simp only [h₁, decide_and, h₂, ← decide_not, Int.not_lt, Nat.pow_succ, Nat.mul_comm]
+    have h₁ := BitVec.toInt_sub_toInt_lt_twoPow_iff (x := x) (y := y)
+    have h₂ := BitVec.twoPow_le_toInt_sub_toInt_iff (x := x) (y := y)
+    simp only [Nat.add_one_sub_one] at h₁ h₂
+    simp only [decide_and, ← decide_not, Int.not_lt]
     simp only [bool_to_prop]
     omega
 
@@ -1400,7 +1397,7 @@ theorem not_sub_eq_not_add {x y : BitVec w} : ~~~ (x - y) = ~~~ x + y := by
 /-- The value of `(carry i x y false)` can be computed by truncating `x` and `y`
 to `len` bits where `len ≥ i`. -/
 theorem carry_extractLsb'_eq_carry {w i len : Nat} (hi : i < len)
-    {x y : BitVec w} {b : Bool}: 
+    {x y : BitVec w} {b : Bool}:
     (carry i (extractLsb' 0 len x) (extractLsb' 0 len y) b)
     = (carry i x y b) := by
   simp only [carry, extractLsb'_toNat, shiftRight_zero, toNat_false, Nat.add_zero, ge_iff_le,
@@ -1414,7 +1411,7 @@ theorem carry_extractLsb'_eq_carry {w i len : Nat} (hi : i < len)
 The `[0..len)` low bits of `x + y` can be computed by truncating `x` and `y`
 to `len` bits and then adding.
 -/
-theorem extractLsb'_add {w len : Nat} {x y : BitVec w} (hlen : len ≤ w) : 
+theorem extractLsb'_add {w len : Nat} {x y : BitVec w} (hlen : len ≤ w) :
     (x + y).extractLsb' 0 len = x.extractLsb' 0 len + y.extractLsb' 0 len := by
   ext i hi
   rw [getElem_extractLsb', Nat.zero_add, getLsbD_add (by omega)]

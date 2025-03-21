@@ -3072,8 +3072,7 @@ theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
     constructor
     · intros h
       simp only [show x.toInt < 0 by omega, show 0 ≤ y.toInt by omega, _root_.true_and]
-      rw [← Int.bmod_add_cancel]
-      rw_mod_cast [Int.bmod_eq_self_of_le (by omega) (by omega)]
+      rw_mod_cast [← Int.bmod_add_cancel, Int.bmod_eq_self_of_le (by omega) (by omega)]
       omega
     · have := Int.bmod_neg_iff (x := x.toInt - y.toInt) (m := 2 ^ (w + 1))
       push_cast at this

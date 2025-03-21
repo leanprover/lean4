@@ -74,11 +74,6 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Open Nix shell once
         run: true
-      - name: Set up core dumps
-        run: |
-          mkdir -p $PWD/coredumps
-          # store in current directory, for easy uploading together with binary
-          echo $PWD/coredumps/%e.%p.%t | sudo tee /proc/sys/kernel/core_pattern
         if: runner.os == 'Linux'
       # Do check out some CI-relevant files from virtual merge commit to accommodate CI changes on
       # master (as the workflow files themselves are always taken from the merge)
@@ -245,7 +240,7 @@ jobs:
       - name: Show stacktrace for coredumps
         if: failure() && runner.os == 'Linux'
         run: |
-          for c in coredumps/*; do
+          for c in $(find . -name core); do
             progbin="$(file $c | sed "s/.*execfn: '\([^']*\)'.*/\1/")"
             echo bt | $GDB/bin/gdb -q $progbin $c || true
           done

@@ -161,13 +161,20 @@ def mkFullAdder (aig : AIG α) (input : FullAdderInput aig) : FullAdderOutput ai
   ⟨aig, outRef, carryRef, hle⟩
 
 def blastAdd (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry α w :=
-  let res := aig.mkConstCached false
-  let aig := res.aig
-  let cin := res.ref
-  let input := input.cast <| AIG.LawfulOperator.le_size (f := AIG.mkConstCached) ..
-  let ⟨lhs, rhs⟩ := input
-  go aig lhs rhs 0 (by omega) cin (.emptyWithCapacity w)
+  if input.lhs.countKnown < input.rhs.countKnown then
+    blast aig input
+  else
+    let ⟨lhs, rhs⟩ := input
+    blast aig ⟨rhs, lhs⟩
 where
+  blast (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry α w :=
+    let res := aig.mkConstCached false
+    let aig := res.aig
+    let cin := res.ref
+    let input := input.cast <| AIG.LawfulOperator.le_size (f := AIG.mkConstCached) ..
+    let ⟨lhs, rhs⟩ := input
+    go aig lhs rhs 0 (by omega) cin (.emptyWithCapacity w)
+
   go (aig : AIG α) (lhs rhs : AIG.RefVec aig w) (curr : Nat) (hcurr : curr ≤ w) (cin : AIG.Ref aig)
       (s : AIG.RefVec aig curr) :
       AIG.RefVecEntry α w :=
@@ -226,16 +233,16 @@ theorem go_decl_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : AIG.R
   · simp [← hgo]
 termination_by w - curr
 
-instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastAdd where
+instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blast where
   le_size := by
     intros
-    unfold blastAdd
+    unfold blast
     dsimp only
     refine Nat.le_trans ?_ (by apply go_le_size)
     apply AIG.LawfulOperator.le_size (f := AIG.mkConstCached)
   decl_eq := by
     intros
-    unfold blastAdd
+    unfold blast
     dsimp only
     rw [go_decl_eq]
     rw [AIG.LawfulOperator.decl_eq (f := AIG.mkConstCached)]
@@ -243,6 +250,18 @@ instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastAdd where
     assumption
 
 end blastAdd
+
+instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastAdd where
+  le_size := by
+    intros
+    unfold blastAdd
+    split <;> apply AIG.LawfulVecOperator.le_size (f := blastAdd.blast)
+  decl_eq := by
+    intros
+    unfold blastAdd
+    split <;> rw [AIG.LawfulVecOperator.decl_eq (f := blastAdd.blast)]
+
+
 end bitblast
 end BVExpr
 

@@ -761,15 +761,15 @@ theorem get?_min? [TransCmp cmp] (h : t.WF) {km} :
 
 theorem get_min? [TransCmp cmp] (h : t.WF) {km hc} :
     (hkm : t.min?.get (isSome_min?_of_contains h hc) = km) → t.get km hc = km :=
-  TreeMap.getKey_minKey? h
+  TreeMap.Raw.getKey_minKey? h
 
 theorem get!_min? [TransCmp cmp] [Inhabited α] (h : t.WF) {km} :
     (hkm : t.min? = some km) → t.get! km = km :=
-  TreeMap.getKey!_minKey? h
+  TreeMap.Raw.getKey!_minKey? h
 
 theorem getD_min? [TransCmp cmp] (h : t.WF) {km fallback} :
     (hkm : t.min? = some km) → t.getD km fallback = km :=
-  TreeMap.getKeyD_minKey? h
+  TreeMap.Raw.getKeyD_minKey? h
 
 @[simp]
 theorem min?_bind_get? [TransCmp cmp] (h : t.WF) :

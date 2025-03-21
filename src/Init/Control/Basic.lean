@@ -155,7 +155,7 @@ infixr:35 " <&&> " => andM
 
 recommended_spelling "andM" for "<&&>" in [andM, «term_<&&>_»]
 
-@[macro_inline] def notM {m : Type → Type v} [Applicative m] (x : m Bool) : m Bool :=
+@[macro_inline] def notM {m : Type → Type v} [Functor m] (x : m Bool) : m Bool :=
   not <$> x
 
 /-!

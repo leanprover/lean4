@@ -73,7 +73,7 @@ jobs:
           # the default is to use a virtual merge commit between the PR and master: just use the PR
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Open Nix shell once
-        run: ""
+        run: true
       - name: Set up core dumps
         run: |
           mkdir -p $PWD/coredumps
@@ -243,7 +243,7 @@ jobs:
       - name: CCache stats
         run: ccache -s
       - name: Show stacktrace for coredumps
-        if: ${{ failure() }} && runner.os == 'Linux'
+        if: failure() && runner.os == 'Linux'
         run: |
           for c in coredumps/*; do
             progbin="$(file $c | sed "s/.*execfn: '\([^']*\)'.*/\1/")"

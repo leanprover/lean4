@@ -2241,3 +2241,35 @@ theorem UInt64.ofNatLT_le_iff_le {a b : Nat} (ha : a < UInt64.size) (hb : b < UI
     UInt64.ofNatLT a ha ≤ UInt64.ofNatLT b hb ↔ a ≤ b := Iff.rfl
 theorem USize.ofNatLT_le_iff_le {a b : Nat} (ha : a < USize.size) (hb : b < USize.size) :
     USize.ofNatLT a ha ≤ USize.ofNatLT b hb ↔ a ≤ b := Iff.rfl
+
+theorem UInt8.ofNat_lt_iff_lt {a b : Nat} (ha : a < UInt8.size) (hb : b < UInt8.size) :
+    UInt8.ofNat a < UInt8.ofNat b ↔ a < b := by
+  rw [← ofNatLT_eq_ofNat (h := ha), ← ofNatLT_eq_ofNat (h := hb), ofNatLT_lt_iff_lt]
+theorem UInt16.ofNat_lt_iff_lt {a b : Nat} (ha : a < UInt16.size) (hb : b < UInt16.size) :
+    UInt16.ofNat a < UInt16.ofNat b ↔ a < b := by
+  rw [← ofNatLT_eq_ofNat (h := ha), ← ofNatLT_eq_ofNat (h := hb), ofNatLT_lt_iff_lt]
+theorem UInt32.ofNat_lt_iff_lt {a b : Nat} (ha : a < UInt32.size) (hb : b < UInt32.size) :
+    UInt32.ofNat a < UInt32.ofNat b ↔ a < b := by
+  rw [← ofNatLT_eq_ofNat (h := ha), ← ofNatLT_eq_ofNat (h := hb), ofNatLT_lt_iff_lt]
+theorem UInt64.ofNat_lt_iff_lt {a b : Nat} (ha : a < UInt64.size) (hb : b < UInt64.size) :
+    UInt64.ofNat a < UInt64.ofNat b ↔ a < b := by
+  rw [← ofNatLT_eq_ofNat (h := ha), ← ofNatLT_eq_ofNat (h := hb), ofNatLT_lt_iff_lt]
+theorem USize.ofNat_lt_iff_lt {a b : Nat} (ha : a < USize.size) (hb : b < USize.size) :
+    USize.ofNat a < USize.ofNat b ↔ a < b := by
+  rw [← ofNatLT_eq_ofNat (h := ha), ← ofNatLT_eq_ofNat (h := hb), ofNatLT_lt_iff_lt]
+
+theorem UInt8.ofNat_le_iff_le {a b : Nat} (ha : a < UInt8.size) (hb : b < UInt8.size) :
+    UInt8.ofNat a ≤ UInt8.ofNat b ↔ a ≤ b := by
+  rw [← ofNatLT_eq_ofNat (h := ha), ← ofNatLT_eq_ofNat (h := hb), ofNatLT_le_iff_le]
+theorem UInt16.ofNat_le_iff_le {a b : Nat} (ha : a < UInt16.size) (hb : b < UInt16.size) :
+    UInt16.ofNat a ≤ UInt16.ofNat b ↔ a ≤ b := by
+  rw [← ofNatLT_eq_ofNat (h := ha), ← ofNatLT_eq_ofNat (h := hb), ofNatLT_le_iff_le]
+theorem UInt32.ofNat_le_iff_le {a b : Nat} (ha : a < UInt32.size) (hb : b < UInt32.size) :
+    UInt32.ofNat a ≤ UInt32.ofNat b ↔ a ≤ b := by
+  rw [← ofNatLT_eq_ofNat (h := ha), ← ofNatLT_eq_ofNat (h := hb), ofNatLT_le_iff_le]
+theorem UInt64.ofNat_le_iff_le {a b : Nat} (ha : a < UInt64.size) (hb : b < UInt64.size) :
+    UInt64.ofNat a ≤ UInt64.ofNat b ↔ a ≤ b := by
+  rw [← ofNatLT_eq_ofNat (h := ha), ← ofNatLT_eq_ofNat (h := hb), ofNatLT_le_iff_le]
+theorem USize.ofNat_le_iff_le {a b : Nat} (ha : a < USize.size) (hb : b < USize.size) :
+    USize.ofNat a ≤ USize.ofNat b ↔ a ≤ b := by
+  rw [← ofNatLT_eq_ofNat (h := ha), ← ofNatLT_eq_ofNat (h := hb), ofNatLT_le_iff_le]

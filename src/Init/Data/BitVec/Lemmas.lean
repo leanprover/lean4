@@ -2382,25 +2382,25 @@ theorem toInt_signExtend_eq_toInt_bmod_of_le (x : BitVec w) (h : v ≤ w) :
     (x.signExtend v).toInt = x.toInt.bmod (2 ^ v) := by
   rw [BitVec.toInt_signExtend, Nat.min_eq_left h]
 
-@[simp] theorem BitVec.signExtend_and {x y : BitVec w} :
+@[simp] theorem signExtend_and {x y : BitVec w} :
     (x &&& y).signExtend v = (x.signExtend v) &&& (y.signExtend v) := by
   refine eq_of_getElem_eq (fun i hi => ?_)
   simp only [getElem_signExtend, getElem_and, msb_and]
   split <;> simp
 
-@[simp] theorem BitVec.signExtend_or {x y : BitVec w} :
+@[simp] theorem signExtend_or {x y : BitVec w} :
     (x ||| y).signExtend v = (x.signExtend v) ||| (y.signExtend v) := by
   refine eq_of_getElem_eq (fun i hi => ?_)
   simp only [getElem_signExtend, getElem_or, msb_or]
   split <;> simp
 
-@[simp] theorem BitVec.signExtend_xor {x y : BitVec w} :
+@[simp] theorem signExtend_xor {x y : BitVec w} :
     (x ^^^ y).signExtend v = (x.signExtend v) ^^^ (y.signExtend v) := by
   refine eq_of_getElem_eq (fun i hi => ?_)
   simp only [getElem_signExtend, getElem_xor, msb_xor]
   split <;> simp
 
-@[simp] theorem BitVec.signExtend_not {x : BitVec w} (h : 0 < w) :
+@[simp] theorem signExtend_not {x : BitVec w} (h : 0 < w) :
     (~~~x).signExtend v = ~~~(x.signExtend v) := by
   refine eq_of_getElem_eq (fun i hi => ?_)
   simp [getElem_signExtend]
@@ -4582,7 +4582,7 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
   · simp [h]
   · rw [Nat.sub_add_cancel (Nat.two_pow_pos (w - 1)), Nat.two_pow_pred_mod_two_pow (by omega)]
 
-@[simp] theorem BitVec.toInt_intMax : (BitVec.intMax w).toInt = 2 ^ (w - 1) - 1 := by
+@[simp] theorem toInt_intMax : (BitVec.intMax w).toInt = 2 ^ (w - 1) - 1 := by
   refine (Nat.eq_zero_or_pos w).elim (by rintro rfl; simp [BitVec.toInt_of_zero_length]) (fun hw => ?_)
   rw [BitVec.toInt, toNat_intMax, if_pos]
   · rw [Int.ofNat_sub Nat.one_le_two_pow, Int.natCast_pow, Int.cast_ofNat_Int, Int.cast_ofNat_Int]

@@ -234,7 +234,7 @@ theorem Int8.toInt_maxValue : Int8.maxValue.toInt = 2 ^ 7 - 1 := rfl
 theorem Int16.toInt_maxValue : Int16.maxValue.toInt = 2 ^ 15 - 1 := rfl
 theorem Int32.toInt_maxValue : Int32.maxValue.toInt = 2 ^ 31 - 1 := rfl
 theorem Int64.toInt_maxValue : Int64.maxValue.toInt = 2 ^ 63 - 1 := rfl
-@[simp] theorem ISize.toInt_maxValue : ISize.maxValue.toInt = 2 ^ (System.Platform.numBits - 1) - 1:= by
+theorem ISize.toInt_maxValue : ISize.maxValue.toInt = 2 ^ (System.Platform.numBits - 1) - 1:= by
   rw [maxValue, toInt_ofInt_of_two_pow_numBits_le] <;> cases System.Platform.numBits_eq
     <;> simp_all
 
@@ -559,15 +559,15 @@ theorem ISize.toFin_toBitVec (x : ISize) : x.toBitVec.toFin = x.toUSize.toFin :=
 @[simp] theorem Int8.toInt_bmod_two_pow_numBits (x : Int8) : x.toInt.bmod (2 ^ System.Platform.numBits) = x.toInt := by
   refine Int.bmod_eq_self_of_le (Int.le_trans ?_ x.iSizeMinValue_le_toInt)
     (Int.lt_of_le_sub_one (Int.le_trans x.toInt_le_iSizeMaxValue ?_))
-  all_goals cases System.Platform.numBits_eq <;> simp_all [ISize.toInt_minValue]
+  all_goals cases System.Platform.numBits_eq <;> simp_all [ISize.toInt_minValue, ISize.toInt_maxValue]
 @[simp] theorem Int16.toInt_bmod_two_pow_numBits (x : Int16) : x.toInt.bmod (2 ^ System.Platform.numBits) = x.toInt := by
   refine Int.bmod_eq_self_of_le (Int.le_trans ?_ x.iSizeMinValue_le_toInt)
     (Int.lt_of_le_sub_one (Int.le_trans x.toInt_le_iSizeMaxValue ?_))
-  all_goals cases System.Platform.numBits_eq <;> simp_all [ISize.toInt_minValue]
+  all_goals cases System.Platform.numBits_eq <;> simp_all [ISize.toInt_minValue, ISize.toInt_maxValue]
 @[simp] theorem Int32.toInt_bmod_two_pow_numBits (x : Int32) : x.toInt.bmod (2 ^ System.Platform.numBits) = x.toInt := by
   refine Int.bmod_eq_self_of_le (Int.le_trans ?_ x.iSizeMinValue_le_toInt)
     (Int.lt_of_le_sub_one (Int.le_trans x.toInt_le_iSizeMaxValue ?_))
-  all_goals cases System.Platform.numBits_eq <;> simp_all [ISize.toInt_minValue]
+  all_goals cases System.Platform.numBits_eq <;> simp_all [ISize.toInt_minValue, ISize.toInt_maxValue]
 
 @[simp] theorem BitVec.ofInt_int8ToInt (x : Int8) : BitVec.ofInt 8 x.toInt = x.toBitVec := BitVec.eq_of_toInt_eq (by simp)
 @[simp] theorem BitVec.ofInt_int16ToInt (x : Int16) : BitVec.ofInt 16 x.toInt = x.toBitVec := BitVec.eq_of_toInt_eq (by simp)
@@ -660,7 +660,7 @@ theorem ISize.ofIntLE_int64ToInt (x : Int64) {h₁ h₂} : ISize.ofIntLE x.toInt
   rw [ofIntLE, toInt_ofInt_of_two_pow_numBits_le]
   · simpa [ISize.toInt_minValue] using h₁
   · apply Int.lt_of_le_sub_one
-    simpa using h₂
+    simpa [ISize.toInt_maxValue] using h₂
 
 theorem Int8.ofIntLE_eq_ofIntTruncate {x : Int} {h₁ h₂} : (ofIntLE x h₁ h₂) = ofIntTruncate x := by
   rw [ofIntTruncate, dif_pos h₁, dif_pos h₂]
@@ -1904,15 +1904,15 @@ def allInt16 : List Int16 := List.range UInt16.size |>.map Int16.ofNat
 #eval counterexamples (fun x y => (x / y).toInt16) (fun x y => (x.toInt16 / y.toInt16) % 256) allInt8 allInt8
 -- #eval counterexamples (fun x y => (x / y).toInt8) (fun x y => (x.toInt8 / y.toInt8)) allInt16 allInt16
 
-@[simp] theorem Int8.toInt_srem (a b : Int8) : (a % b).toInt = a.toInt.tmod b.toInt := by
+@[simp] theorem Int8.toInt_mod (a b : Int8) : (a % b).toInt = a.toInt.tmod b.toInt := by
   rw [← toInt_toBitVec, Int8.toBitVec_mod, BitVec.toInt_srem, toInt_toBitVec, toInt_toBitVec]
-@[simp] theorem Int16.toInt_srem (a b : Int16) : (a % b).toInt = a.toInt.tmod b.toInt := by
+@[simp] theorem Int16.toInt_mod (a b : Int16) : (a % b).toInt = a.toInt.tmod b.toInt := by
   rw [← toInt_toBitVec, Int16.toBitVec_mod, BitVec.toInt_srem, toInt_toBitVec, toInt_toBitVec]
-@[simp] theorem Int32.toInt_srem (a b : Int32) : (a % b).toInt = a.toInt.tmod b.toInt := by
+@[simp] theorem Int32.toInt_mod (a b : Int32) : (a % b).toInt = a.toInt.tmod b.toInt := by
   rw [← toInt_toBitVec, Int32.toBitVec_mod, BitVec.toInt_srem, toInt_toBitVec, toInt_toBitVec]
-@[simp] theorem Int64.toInt_srem (a b : Int64) : (a % b).toInt = a.toInt.tmod b.toInt := by
+@[simp] theorem Int64.toInt_mod (a b : Int64) : (a % b).toInt = a.toInt.tmod b.toInt := by
   rw [← toInt_toBitVec, Int64.toBitVec_mod, BitVec.toInt_srem, toInt_toBitVec, toInt_toBitVec]
-@[simp] theorem ISize.toInt_srem (a b : ISize) : (a % b).toInt = a.toInt.tmod b.toInt := by
+@[simp] theorem ISize.toInt_mod (a b : ISize) : (a % b).toInt = a.toInt.tmod b.toInt := by
   rw [← toInt_toBitVec, ISize.toBitVec_mod, BitVec.toInt_srem, toInt_toBitVec, toInt_toBitVec]
 
 @[simp] theorem Int8.toInt16_mod (a b : Int8) : (a % b).toInt16 = a.toInt16 % b.toInt16 := Int16.toInt.inj (by simp)
@@ -2227,3 +2227,351 @@ theorem Int64.ofIntLE_mul {a b : Int} {hab₁ hab₂} : Int64.ofIntLE (a * b) ha
   simp [Int64.ofIntLE_eq_ofInt]
 theorem ISize.ofIntLE_mul {a b : Int} {hab₁ hab₂} : ISize.ofIntLE (a * b) hab₁ hab₂ = ISize.ofInt a * ISize.ofInt b := by
   simp [ISize.ofIntLE_eq_ofInt]
+
+theorem Int.two_pow_pos (n : Nat) : 0 < (2 : Int) ^ n := by
+  simpa [-Int.ofNat_lt, -ofNat_pos, Int.natCast_pow] using Int.ofNat_lt.2 (Nat.two_pow_pos n)
+
+theorem Int8.toInt_minValue_lt_zero : minValue.toInt < 0 := by decide
+theorem Int16.toInt_minValue_lt_zero : minValue.toInt < 0 := by decide
+theorem Int32.toInt_minValue_lt_zero : minValue.toInt < 0 := by decide
+theorem Int64.toInt_minValue_lt_zero : minValue.toInt < 0 := by decide
+theorem ISize.toInt_minValue_lt_zero : minValue.toInt < 0 := by
+  rw [toInt_minValue, Int.neg_lt_zero_iff]
+  exact Int.two_pow_pos _
+
+theorem Int8.toInt_maxValue_add_one : maxValue.toInt + 1 = 2 ^ 7 := rfl
+theorem Int16.toInt_maxValue_add_one : maxValue.toInt + 1 = 2 ^ 15 := rfl
+theorem Int32.toInt_maxValue_add_one : maxValue.toInt + 1 = 2 ^ 31 := rfl
+theorem Int64.toInt_maxValue_add_one : maxValue.toInt + 1 = 2 ^ 63 := rfl
+theorem ISize.toInt_maxValue_add_one : maxValue.toInt + 1 = 2 ^ (System.Platform.numBits - 1) := by
+  rw [toInt_maxValue, Int.sub_add_cancel]
+
+@[simp] theorem Int8.ofBitVec_sdiv (a b : BitVec 8) : Int8.ofBitVec (a.sdiv b) = Int8.ofBitVec a / Int8.ofBitVec b := rfl
+@[simp] theorem Int16.ofBitVec_sdiv (a b : BitVec 16) : Int16.ofBitVec (a.sdiv b) = Int16.ofBitVec a / Int16.ofBitVec b := rfl
+@[simp] theorem Int32.ofBitVec_sdiv (a b : BitVec 32) : Int32.ofBitVec (a.sdiv b) = Int32.ofBitVec a / Int32.ofBitVec b := rfl
+@[simp] theorem Int64.ofBitVec_sdiv (a b : BitVec 64) : Int64.ofBitVec (a.sdiv b) = Int64.ofBitVec a / Int64.ofBitVec b := rfl
+@[simp] theorem ISize.ofBitVec_sdiv (a b : BitVec System.Platform.numBits) : ISize.ofBitVec (a.sdiv b) = ISize.ofBitVec a / ISize.ofBitVec b := rfl
+
+theorem Int8.ofInt_tdiv {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int8.ofInt (a.tdiv b) = Int8.ofInt a / Int8.ofInt b := by
+  rw [Int8.ofInt_eq_iff_bmod_eq_toInt, toInt_div, toInt_ofInt, toInt_ofInt,
+    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+  · exact hb₁
+  · exact Int.lt_of_le_sub_one hb₂
+  · exact ha₁
+  · exact Int.lt_of_le_sub_one ha₂
+theorem Int16.ofInt_tdiv {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int16.ofInt (a.tdiv b) = Int16.ofInt a / Int16.ofInt b := by
+  rw [Int16.ofInt_eq_iff_bmod_eq_toInt, toInt_div, toInt_ofInt, toInt_ofInt,
+    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+  · exact hb₁
+  · exact Int.lt_of_le_sub_one hb₂
+  · exact ha₁
+  · exact Int.lt_of_le_sub_one ha₂
+theorem Int32.ofInt_tdiv {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int32.ofInt (a.tdiv b) = Int32.ofInt a / Int32.ofInt b := by
+  rw [Int32.ofInt_eq_iff_bmod_eq_toInt, toInt_div, toInt_ofInt, toInt_ofInt,
+    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+  · exact hb₁
+  · exact Int.lt_of_le_sub_one hb₂
+  · exact ha₁
+  · exact Int.lt_of_le_sub_one ha₂
+theorem Int64.ofInt_tdiv {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int64.ofInt (a.tdiv b) = Int64.ofInt a / Int64.ofInt b := by
+  rw [Int64.ofInt_eq_iff_bmod_eq_toInt, toInt_div, toInt_ofInt, toInt_ofInt,
+    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+  · exact hb₁
+  · exact Int.lt_of_le_sub_one hb₂
+  · exact ha₁
+  · exact Int.lt_of_le_sub_one ha₂
+theorem ISize.ofInt_tdiv {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : ISize.ofInt (a.tdiv b) = ISize.ofInt a / ISize.ofInt b := by
+  rw [ISize.ofInt_eq_iff_bmod_eq_toInt, toInt_div, toInt_ofInt, toInt_ofInt,
+    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+  · exact le_of_eq_of_le (by cases System.Platform.numBits_eq <;> simp_all [size, toInt_ofInt]) hb₁
+  · refine Int.lt_of_le_sub_one (le_of_le_of_eq hb₂ ?_)
+    cases System.Platform.numBits_eq <;> simp_all [size, toInt_ofInt]
+  · exact le_of_eq_of_le (by cases System.Platform.numBits_eq <;> simp_all [size, toInt_ofInt]) ha₁
+  · refine Int.lt_of_le_sub_one (le_of_le_of_eq ha₂ ?_)
+    cases System.Platform.numBits_eq <;> simp_all [size, toInt_ofInt]
+
+theorem Int8.ofInt_eq_ofIntLE_div {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    Int8.ofInt (a.tdiv b) = Int8.ofIntLE a ha₁ ha₂ / Int8.ofIntLE b hb₁ hb₂ := by
+  rw [ofIntLE_eq_ofInt, ofIntLE_eq_ofInt, ofInt_tdiv ha₁ ha₂ hb₁ hb₂]
+theorem Int16.ofInt_eq_ofIntLE_div {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    Int16.ofInt (a.tdiv b) = Int16.ofIntLE a ha₁ ha₂ / Int16.ofIntLE b hb₁ hb₂ := by
+  rw [ofIntLE_eq_ofInt, ofIntLE_eq_ofInt, ofInt_tdiv ha₁ ha₂ hb₁ hb₂]
+theorem Int32.ofInt_eq_ofIntLE_div {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    Int32.ofInt (a.tdiv b) = Int32.ofIntLE a ha₁ ha₂ / Int32.ofIntLE b hb₁ hb₂ := by
+  rw [ofIntLE_eq_ofInt, ofIntLE_eq_ofInt, ofInt_tdiv ha₁ ha₂ hb₁ hb₂]
+theorem Int64.ofInt_eq_ofIntLE_div {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    Int64.ofInt (a.tdiv b) = Int64.ofIntLE a ha₁ ha₂ / Int64.ofIntLE b hb₁ hb₂ := by
+  rw [ofIntLE_eq_ofInt, ofIntLE_eq_ofInt, ofInt_tdiv ha₁ ha₂ hb₁ hb₂]
+theorem ISize.ofInt_eq_ofIntLE_div {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    ISize.ofInt (a.tdiv b) = ISize.ofIntLE a ha₁ ha₂ / ISize.ofIntLE b hb₁ hb₂ := by
+  rw [ofIntLE_eq_ofInt, ofIntLE_eq_ofInt, ofInt_tdiv ha₁ ha₂ hb₁ hb₂]
+
+theorem Int8.ofNat_div {a b : Nat} (ha : a < 2 ^ 7) (hb : b < 2 ^ 7) :
+    Int8.ofNat (a / b) = Int8.ofNat a / Int8.ofNat b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ← ofInt_eq_ofNat, Int.ofNat_tdiv,
+    ofInt_tdiv (by simp) _ (by simp)]
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 hb)
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 ha)
+theorem Int16.ofNat_div {a b : Nat} (ha : a < 2 ^ 15) (hb : b < 2 ^ 15) :
+    Int16.ofNat (a / b) = Int16.ofNat a / Int16.ofNat b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ← ofInt_eq_ofNat, Int.ofNat_tdiv,
+    ofInt_tdiv (by simp) _ (by simp)]
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 hb)
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 ha)
+theorem Int32.ofNat_div {a b : Nat} (ha : a < 2 ^ 31) (hb : b < 2 ^ 31) :
+    Int32.ofNat (a / b) = Int32.ofNat a / Int32.ofNat b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ← ofInt_eq_ofNat, Int.ofNat_tdiv,
+    ofInt_tdiv (by simp) _ (by simp)]
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 hb)
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 ha)
+theorem Int64.ofNat_div {a b : Nat} (ha : a < 2 ^ 63) (hb : b < 2 ^ 63) :
+    Int64.ofNat (a / b) = Int64.ofNat a / Int64.ofNat b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ← ofInt_eq_ofNat, Int.ofNat_tdiv,
+    ofInt_tdiv (by simp) _ (by simp)]
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 hb)
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 ha)
+theorem ISize.ofNat_div {a b : Nat} (ha : a < 2 ^ (System.Platform.numBits - 1)) (hb : b < 2 ^ (System.Platform.numBits - 1)) :
+    ISize.ofNat (a / b) = ISize.ofNat a / ISize.ofNat b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ← ofInt_eq_ofNat, Int.ofNat_tdiv, ofInt_tdiv]
+  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.ofNat_zero_le _))
+  · apply Int.le_of_lt_add_one
+    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using ha
+  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.ofNat_zero_le _))
+  · apply Int.le_of_lt_add_one
+    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using hb
+
+@[simp] theorem Int8.ofBitVec_srem (a b : BitVec 8) : Int8.ofBitVec (a.srem b) = Int8.ofBitVec a % Int8.ofBitVec b := rfl
+@[simp] theorem Int16.ofBitVec_srem (a b : BitVec 16) : Int16.ofBitVec (a.srem b) = Int16.ofBitVec a % Int16.ofBitVec b := rfl
+@[simp] theorem Int32.ofBitVec_srem (a b : BitVec 32) : Int32.ofBitVec (a.srem b) = Int32.ofBitVec a % Int32.ofBitVec b := rfl
+@[simp] theorem Int64.ofBitVec_srem (a b : BitVec 64) : Int64.ofBitVec (a.srem b) = Int64.ofBitVec a % Int64.ofBitVec b := rfl
+@[simp] theorem ISize.ofBitVec_srem (a b : BitVec System.Platform.numBits) : ISize.ofBitVec (a.srem b) = ISize.ofBitVec a % ISize.ofBitVec b := rfl
+
+theorem Int8.toInt_eq_toInt_bmod (a : Int8) : a.toInt = a.toInt.bmod size := BitVec.toInt_eq_toInt_bmod _
+theorem Int16.toInt_eq_toInt_bmod (a : Int16) : a.toInt = a.toInt.bmod size := BitVec.toInt_eq_toInt_bmod _
+theorem Int32.toInt_eq_toInt_bmod (a : Int32) : a.toInt = a.toInt.bmod size := BitVec.toInt_eq_toInt_bmod _
+theorem Int64.toInt_eq_toInt_bmod (a : Int64) : a.toInt = a.toInt.bmod size := BitVec.toInt_eq_toInt_bmod _
+theorem ISize.toInt_eq_toInt_bmod (a : ISize) : a.toInt = a.toInt.bmod size := BitVec.toInt_eq_toInt_bmod _
+
+theorem Int8.ofInt_tmod {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int8.ofInt (a.tmod b) = Int8.ofInt a % Int8.ofInt b := by
+  rw [Int8.ofInt_eq_iff_bmod_eq_toInt, toInt_eq_toInt_bmod, toInt_mod, toInt_ofInt, toInt_ofInt,
+    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+  · exact hb₁
+  · exact Int.lt_of_le_sub_one hb₂
+  · exact ha₁
+  · exact Int.lt_of_le_sub_one ha₂
+theorem Int16.ofInt_tmod {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int16.ofInt (a.tmod b) = Int16.ofInt a % Int16.ofInt b := by
+  rw [Int16.ofInt_eq_iff_bmod_eq_toInt, toInt_eq_toInt_bmod, toInt_mod, toInt_ofInt, toInt_ofInt,
+    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+  · exact hb₁
+  · exact Int.lt_of_le_sub_one hb₂
+  · exact ha₁
+  · exact Int.lt_of_le_sub_one ha₂
+theorem Int32.ofInt_tmod {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int32.ofInt (a.tmod b) = Int32.ofInt a % Int32.ofInt b := by
+  rw [Int32.ofInt_eq_iff_bmod_eq_toInt, toInt_eq_toInt_bmod, toInt_mod, toInt_ofInt, toInt_ofInt,
+    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+  · exact hb₁
+  · exact Int.lt_of_le_sub_one hb₂
+  · exact ha₁
+  · exact Int.lt_of_le_sub_one ha₂
+theorem Int64.ofInt_tmod {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int64.ofInt (a.tmod b) = Int64.ofInt a % Int64.ofInt b := by
+  rw [Int64.ofInt_eq_iff_bmod_eq_toInt, toInt_eq_toInt_bmod, toInt_mod, toInt_ofInt, toInt_ofInt,
+    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+  · exact hb₁
+  · exact Int.lt_of_le_sub_one hb₂
+  · exact ha₁
+  · exact Int.lt_of_le_sub_one ha₂
+theorem ISize.ofInt_tmod {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : ISize.ofInt (a.tmod b) = ISize.ofInt a % ISize.ofInt b := by
+  rw [ISize.ofInt_eq_iff_bmod_eq_toInt, toInt_eq_toInt_bmod, toInt_mod, toInt_ofInt, toInt_ofInt,
+    Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
+  · exact le_of_eq_of_le (by cases System.Platform.numBits_eq <;> simp_all [size, toInt_ofInt]) hb₁
+  · refine Int.lt_of_le_sub_one (le_of_le_of_eq hb₂ ?_)
+    cases System.Platform.numBits_eq <;> simp_all [size, toInt_ofInt]
+  · exact le_of_eq_of_le (by cases System.Platform.numBits_eq <;> simp_all [size, toInt_ofInt]) ha₁
+  · refine Int.lt_of_le_sub_one (le_of_le_of_eq ha₂ ?_)
+    cases System.Platform.numBits_eq <;> simp_all [size, toInt_ofInt]
+
+theorem Int8.ofInt_eq_ofIntLE_mod {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    Int8.ofInt (a.tmod b) = Int8.ofIntLE a ha₁ ha₂ % Int8.ofIntLE b hb₁ hb₂ := by
+  rw [ofIntLE_eq_ofInt, ofIntLE_eq_ofInt, ofInt_tmod ha₁ ha₂ hb₁ hb₂]
+theorem Int16.ofInt_eq_ofIntLE_mod {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    Int16.ofInt (a.tmod b) = Int16.ofIntLE a ha₁ ha₂ % Int16.ofIntLE b hb₁ hb₂ := by
+  rw [ofIntLE_eq_ofInt, ofIntLE_eq_ofInt, ofInt_tmod ha₁ ha₂ hb₁ hb₂]
+theorem Int32.ofInt_eq_ofIntLE_mod {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    Int32.ofInt (a.tmod b) = Int32.ofIntLE a ha₁ ha₂ % Int32.ofIntLE b hb₁ hb₂ := by
+  rw [ofIntLE_eq_ofInt, ofIntLE_eq_ofInt, ofInt_tmod ha₁ ha₂ hb₁ hb₂]
+theorem Int64.ofInt_eq_ofIntLE_mod {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    Int64.ofInt (a.tmod b) = Int64.ofIntLE a ha₁ ha₂ % Int64.ofIntLE b hb₁ hb₂ := by
+  rw [ofIntLE_eq_ofInt, ofIntLE_eq_ofInt, ofInt_tmod ha₁ ha₂ hb₁ hb₂]
+theorem ISize.ofInt_eq_ofIntLE_mod {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    ISize.ofInt (a.tmod b) = ISize.ofIntLE a ha₁ ha₂ % ISize.ofIntLE b hb₁ hb₂ := by
+  rw [ofIntLE_eq_ofInt, ofIntLE_eq_ofInt, ofInt_tmod ha₁ ha₂ hb₁ hb₂]
+
+theorem Int8.ofNat_mod {a b : Nat} (ha : a < 2 ^ 7) (hb : b < 2 ^ 7) :
+    Int8.ofNat (a % b) = Int8.ofNat a % Int8.ofNat b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ← ofInt_eq_ofNat, Int.ofNat_tmod,
+    ofInt_tmod (by simp) _ (by simp)]
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 hb)
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 ha)
+theorem Int16.ofNat_mod {a b : Nat} (ha : a < 2 ^ 15) (hb : b < 2 ^ 15) :
+    Int16.ofNat (a % b) = Int16.ofNat a % Int16.ofNat b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ← ofInt_eq_ofNat, Int.ofNat_tmod,
+    ofInt_tmod (by simp) _ (by simp)]
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 hb)
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 ha)
+theorem Int32.ofNat_mod {a b : Nat} (ha : a < 2 ^ 31) (hb : b < 2 ^ 31) :
+    Int32.ofNat (a % b) = Int32.ofNat a % Int32.ofNat b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ← ofInt_eq_ofNat, Int.ofNat_tmod,
+    ofInt_tmod (by simp) _ (by simp)]
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 hb)
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 ha)
+theorem Int64.ofNat_mod {a b : Nat} (ha : a < 2 ^ 63) (hb : b < 2 ^ 63) :
+    Int64.ofNat (a % b) = Int64.ofNat a % Int64.ofNat b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ← ofInt_eq_ofNat, Int.ofNat_tmod,
+    ofInt_tmod (by simp) _ (by simp)]
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 hb)
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 ha)
+theorem ISize.ofNat_mod {a b : Nat} (ha : a < 2 ^ (System.Platform.numBits - 1)) (hb : b < 2 ^ (System.Platform.numBits - 1)) :
+    ISize.ofNat (a % b) = ISize.ofNat a % ISize.ofNat b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ← ofInt_eq_ofNat, Int.ofNat_tmod, ofInt_tmod]
+  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.ofNat_zero_le _))
+  · apply Int.le_of_lt_add_one
+    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using ha
+  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.ofNat_zero_le _))
+  · apply Int.le_of_lt_add_one
+    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using hb
+
+theorem Int8.ofIntLE_le_iff_le {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    Int8.ofIntLE a ha₁ ha₂ ≤ Int8.ofIntLE b hb₁ hb₂ ↔ a ≤ b := by simp [le_iff_toInt_le]
+theorem Int16.ofIntLE_le_iff_le {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    Int16.ofIntLE a ha₁ ha₂ ≤ Int16.ofIntLE b hb₁ hb₂ ↔ a ≤ b := by simp [le_iff_toInt_le]
+theorem Int32.ofIntLE_le_iff_le {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    Int32.ofIntLE a ha₁ ha₂ ≤ Int32.ofIntLE b hb₁ hb₂ ↔ a ≤ b := by simp [le_iff_toInt_le]
+theorem Int64.ofIntLE_le_iff_le {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    Int64.ofIntLE a ha₁ ha₂ ≤ Int64.ofIntLE b hb₁ hb₂ ↔ a ≤ b := by simp [le_iff_toInt_le]
+theorem ISize.ofIntLE_le_iff_le {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    ISize.ofIntLE a ha₁ ha₂ ≤ ISize.ofIntLE b hb₁ hb₂ ↔ a ≤ b := by simp [le_iff_toInt_le]
+
+theorem Int8.ofInt_le_iff_le {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int8.ofInt a ≤ Int8.ofInt b ↔ a ≤ b := by
+  rw [← ofIntLE_eq_ofInt ha₁ ha₂, ← ofIntLE_eq_ofInt hb₁ hb₂, ofIntLE_le_iff_le]
+theorem Int16.ofInt_le_iff_le {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int16.ofInt a ≤ Int16.ofInt b ↔ a ≤ b := by
+  rw [← ofIntLE_eq_ofInt ha₁ ha₂, ← ofIntLE_eq_ofInt hb₁ hb₂, ofIntLE_le_iff_le]
+theorem Int32.ofInt_le_iff_le {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int32.ofInt a ≤ Int32.ofInt b ↔ a ≤ b := by
+  rw [← ofIntLE_eq_ofInt ha₁ ha₂, ← ofIntLE_eq_ofInt hb₁ hb₂, ofIntLE_le_iff_le]
+theorem Int64.ofInt_le_iff_le {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int64.ofInt a ≤ Int64.ofInt b ↔ a ≤ b := by
+  rw [← ofIntLE_eq_ofInt ha₁ ha₂, ← ofIntLE_eq_ofInt hb₁ hb₂, ofIntLE_le_iff_le]
+theorem ISize.ofInt_le_iff_le {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : ISize.ofInt a ≤ ISize.ofInt b ↔ a ≤ b := by
+  rw [← ofIntLE_eq_ofInt ha₁ ha₂, ← ofIntLE_eq_ofInt hb₁ hb₂, ofIntLE_le_iff_le]
+
+theorem Int8.ofNat_le_iff_le {a b : Nat} (ha : a < 2 ^ 7) (hb : b < 2 ^ 7) :
+    Int8.ofNat a ≤ Int8.ofNat b ↔ a ≤ b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ofInt_le_iff_le (by simp) _ (by simp), Int.ofNat_le]
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 hb)
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 ha)
+theorem Int16.ofNat_le_iff_le {a b : Nat} (ha : a < 2 ^ 15) (hb : b < 2 ^ 15) :
+    Int16.ofNat a ≤ Int16.ofNat b ↔ a ≤ b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ofInt_le_iff_le (by simp) _ (by simp), Int.ofNat_le]
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 hb)
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 ha)
+theorem Int32.ofNat_le_iff_le {a b : Nat} (ha : a < 2 ^ 31) (hb : b < 2 ^ 31) :
+    Int32.ofNat a ≤ Int32.ofNat b ↔ a ≤ b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ofInt_le_iff_le (by simp) _ (by simp), Int.ofNat_le]
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 hb)
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 ha)
+theorem Int64.ofNat_le_iff_le {a b : Nat} (ha : a < 2 ^ 63) (hb : b < 2 ^ 63) :
+    Int64.ofNat a ≤ Int64.ofNat b ↔ a ≤ b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ofInt_le_iff_le (by simp) _ (by simp), Int.ofNat_le]
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 hb)
+  · exact Int.le_of_lt_add_one (Int.ofNat_le.2 ha)
+theorem ISize.ofNat_le_iff_le {a b : Nat} (ha : a < 2 ^ (System.Platform.numBits - 1)) (hb : b < 2 ^ (System.Platform.numBits - 1)) :
+    ISize.ofNat a ≤ ISize.ofNat b ↔ a ≤ b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ofInt_le_iff_le, Int.ofNat_le]
+  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.ofNat_zero_le _))
+  · apply Int.le_of_lt_add_one
+    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using ha
+  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.ofNat_zero_le _))
+  · apply Int.le_of_lt_add_one
+    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using hb
+
+theorem Int8.ofBitVec_le_iff_sle (a b : BitVec 8) : Int8.ofBitVec a ≤ Int8.ofBitVec b ↔ a.sle b := Iff.rfl
+theorem Int16.ofBitVec_le_iff_sle (a b : BitVec 16) : Int16.ofBitVec a ≤ Int16.ofBitVec b ↔ a.sle b := Iff.rfl
+theorem Int32.ofBitVec_le_iff_sle (a b : BitVec 32) : Int32.ofBitVec a ≤ Int32.ofBitVec b ↔ a.sle b := Iff.rfl
+theorem Int64.ofBitVec_le_iff_sle (a b : BitVec 64) : Int64.ofBitVec a ≤ Int64.ofBitVec b ↔ a.sle b := Iff.rfl
+theorem ISize.ofBitVec_le_iff_sle (a b : BitVec System.Platform.numBits) : ISize.ofBitVec a ≤ ISize.ofBitVec b ↔ a.sle b := Iff.rfl
+
+theorem Int8.ofIntLE_lt_iff_lt {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    Int8.ofIntLE a ha₁ ha₂ < Int8.ofIntLE b hb₁ hb₂ ↔ a < b := by simp [lt_iff_toInt_lt]
+theorem Int16.ofIntLE_lt_iff_lt {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    Int16.ofIntLE a ha₁ ha₂ < Int16.ofIntLE b hb₁ hb₂ ↔ a < b := by simp [lt_iff_toInt_lt]
+theorem Int32.ofIntLE_lt_iff_lt {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    Int32.ofIntLE a ha₁ ha₂ < Int32.ofIntLE b hb₁ hb₂ ↔ a < b := by simp [lt_iff_toInt_lt]
+theorem Int64.ofIntLE_lt_iff_lt {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    Int64.ofIntLE a ha₁ ha₂ < Int64.ofIntLE b hb₁ hb₂ ↔ a < b := by simp [lt_iff_toInt_lt]
+theorem ISize.ofIntLE_lt_iff_lt {a b : Int} (ha₁ ha₂ hb₁ hb₂) :
+    ISize.ofIntLE a ha₁ ha₂ < ISize.ofIntLE b hb₁ hb₂ ↔ a < b := by simp [lt_iff_toInt_lt]
+
+theorem Int8.ofInt_lt_iff_lt {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int8.ofInt a < Int8.ofInt b ↔ a < b := by
+  rw [← ofIntLE_eq_ofInt ha₁ ha₂, ← ofIntLE_eq_ofInt hb₁ hb₂, ofIntLE_lt_iff_lt]
+theorem Int16.ofInt_lt_iff_lt {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int16.ofInt a < Int16.ofInt b ↔ a < b := by
+  rw [← ofIntLE_eq_ofInt ha₁ ha₂, ← ofIntLE_eq_ofInt hb₁ hb₂, ofIntLE_lt_iff_lt]
+theorem Int32.ofInt_lt_iff_lt {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int32.ofInt a < Int32.ofInt b ↔ a < b := by
+  rw [← ofIntLE_eq_ofInt ha₁ ha₂, ← ofIntLE_eq_ofInt hb₁ hb₂, ofIntLE_lt_iff_lt]
+theorem Int64.ofInt_lt_iff_lt {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : Int64.ofInt a < Int64.ofInt b ↔ a < b := by
+  rw [← ofIntLE_eq_ofInt ha₁ ha₂, ← ofIntLE_eq_ofInt hb₁ hb₂, ofIntLE_lt_iff_lt]
+theorem ISize.ofInt_lt_iff_lt {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a ≤ maxValue.toInt)
+    (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : ISize.ofInt a < ISize.ofInt b ↔ a < b := by
+  rw [← ofIntLE_eq_ofInt ha₁ ha₂, ← ofIntLE_eq_ofInt hb₁ hb₂, ofIntLE_lt_iff_lt]
+
+theorem Int8.ofNat_lt_iff_lt {a b : Nat} (ha : a < 2 ^ 7) (hb : b < 2 ^ 7) :
+    Int8.ofNat a < Int8.ofNat b ↔ a < b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ofInt_lt_iff_lt (by simp) _ (by simp), Int.ofNat_lt]
+  · exact Int.le_of_lt_add_one (Int.ofNat_lt.2 hb)
+  · exact Int.le_of_lt_add_one (Int.ofNat_lt.2 ha)
+theorem Int16.ofNat_lt_iff_lt {a b : Nat} (ha : a < 2 ^ 15) (hb : b < 2 ^ 15) :
+    Int16.ofNat a < Int16.ofNat b ↔ a < b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ofInt_lt_iff_lt (by simp) _ (by simp), Int.ofNat_lt]
+  · exact Int.le_of_lt_add_one (Int.ofNat_lt.2 hb)
+  · exact Int.le_of_lt_add_one (Int.ofNat_lt.2 ha)
+theorem Int32.ofNat_lt_iff_lt {a b : Nat} (ha : a < 2 ^ 31) (hb : b < 2 ^ 31) :
+    Int32.ofNat a < Int32.ofNat b ↔ a < b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ofInt_lt_iff_lt (by simp) _ (by simp), Int.ofNat_lt]
+  · exact Int.le_of_lt_add_one (Int.ofNat_lt.2 hb)
+  · exact Int.le_of_lt_add_one (Int.ofNat_lt.2 ha)
+theorem Int64.ofNat_lt_iff_lt {a b : Nat} (ha : a < 2 ^ 63) (hb : b < 2 ^ 63) :
+    Int64.ofNat a < Int64.ofNat b ↔ a < b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ofInt_lt_iff_lt (by simp) _ (by simp), Int.ofNat_lt]
+  · exact Int.le_of_lt_add_one (Int.ofNat_lt.2 hb)
+  · exact Int.le_of_lt_add_one (Int.ofNat_lt.2 ha)
+theorem ISize.ofNat_lt_iff_lt {a b : Nat} (ha : a < 2 ^ (System.Platform.numBits - 1)) (hb : b < 2 ^ (System.Platform.numBits - 1)) :
+    ISize.ofNat a < ISize.ofNat b ↔ a < b := by
+  rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ofInt_lt_iff_lt, Int.ofNat_lt]
+  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.ofNat_zero_le _))
+  · apply Int.le_of_lt_add_one
+    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using ha
+  · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.ofNat_zero_le _))
+  · apply Int.le_of_lt_add_one
+    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using hb
+
+theorem Int8.ofBitVec_lt_iff_slt (a b : BitVec 8) : Int8.ofBitVec a < Int8.ofBitVec b ↔ a.slt b := Iff.rfl
+theorem Int16.ofBitVec_lt_iff_slt (a b : BitVec 16) : Int16.ofBitVec a < Int16.ofBitVec b ↔ a.slt b := Iff.rfl
+theorem Int32.ofBitVec_lt_iff_slt (a b : BitVec 32) : Int32.ofBitVec a < Int32.ofBitVec b ↔ a.slt b := Iff.rfl
+theorem Int64.ofBitVec_lt_iff_slt (a b : BitVec 64) : Int64.ofBitVec a < Int64.ofBitVec b ↔ a.slt b := Iff.rfl
+theorem ISize.ofBitVec_lt_iff_slt (a b : BitVec System.Platform.numBits) : ISize.ofBitVec a < ISize.ofBitVec b ↔ a.slt b := Iff.rfl

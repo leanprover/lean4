@@ -311,6 +311,12 @@ theorem ISize.not_eq_neg_add (a : ISize) : ~~~a = -a - 1 := ISize.toBitVec_inj.1
 @[simp] theorem Int64.ofBitVec_xor (a b : BitVec 64) : Int64.ofBitVec (a ^^^ b) = Int64.ofBitVec a ^^^ Int64.ofBitVec b := rfl
 @[simp] theorem ISize.ofBitVec_xor (a b : BitVec System.Platform.numBits) : ISize.ofBitVec (a ^^^ b) = ISize.ofBitVec a ^^^ ISize.ofBitVec b := rfl
 
+@[simp] theorem Int8.ofBitVec_not (a : BitVec 8) : Int8.ofBitVec (~~~a) = ~~~Int8.ofBitVec a := rfl
+@[simp] theorem Int16.ofBitVec_not (a : BitVec 16) : Int16.ofBitVec (~~~a) = ~~~Int16.ofBitVec a := rfl
+@[simp] theorem Int32.ofBitVec_not (a : BitVec 32) : Int32.ofBitVec (~~~a) = ~~~Int32.ofBitVec a := rfl
+@[simp] theorem Int64.ofBitVec_not (a : BitVec 64) : Int64.ofBitVec (~~~a) = ~~~Int64.ofBitVec a := rfl
+@[simp] theorem ISize.ofBitVec_not (a : BitVec System.Platform.numBits) : ISize.ofBitVec (~~~a) = ~~~ISize.ofBitVec a := rfl
+
 @[simp] theorem Int8.ofBitVec_intMin : Int8.ofBitVec (BitVec.intMin 8) = Int8.minValue := rfl
 @[simp] theorem Int16.ofBitVec_intMin : Int16.ofBitVec (BitVec.intMin 16) = Int16.minValue := rfl
 @[simp] theorem Int32.ofBitVec_intMin : Int32.ofBitVec (BitVec.intMin 32) = Int32.minValue := rfl
@@ -323,4 +329,4 @@ theorem ISize.not_eq_neg_add (a : ISize) : ~~~a = -a - 1 := ISize.toBitVec_inj.1
 @[simp] theorem Int32.ofBitVec_intMax : Int32.ofBitVec (BitVec.intMax 32) = Int32.maxValue := rfl
 @[simp] theorem Int64.ofBitVec_intMax : Int64.ofBitVec (BitVec.intMax 64) = Int64.maxValue := rfl
 @[simp] theorem ISize.ofBitVec_intMax : ISize.ofBitVec (BitVec.intMax System.Platform.numBits) = ISize.maxValue :=
-  ISize.toInt_inj.1 (by simp)
+  ISize.toInt_inj.1 (by rw [toInt_ofBitVec, BitVec.toInt_intMax, toInt_maxValue])

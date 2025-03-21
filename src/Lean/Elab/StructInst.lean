@@ -120,7 +120,7 @@ Expands fields.
   let fields? ← fields.mapM expandStructInstField
   if fields?.all (·.isNone) then
     Macro.throwUnsupported
-  let fields := fields?.zipWith fields Option.getD
+  let fields := Array.zipWith Option.getD fields? fields
   let structInstFields := structInstFields.setArg 0 <| Syntax.mkSep fields (mkAtomFrom stx ", ")
   return stx.setArg 2 structInstFields
 
@@ -776,7 +776,7 @@ private def propagateExpectedType (type : Expr) (numFields : Nat) (expectedType?
 private def mkCtorHeader (ctorVal : ConstructorVal) (expectedType? : Option Expr) : TermElabM CtorHeaderResult := do
   let us ← mkFreshLevelMVars ctorVal.levelParams.length
   let val  := Lean.mkConst ctorVal.name us
-  let type ← instantiateTypeLevelParams (ConstantInfo.ctorInfo ctorVal) us
+  let type ← instantiateTypeLevelParams ctorVal.toConstantVal us
   let r ← mkCtorHeaderAux ctorVal.numParams type val #[] #[]
   propagateExpectedType r.ctorFnType ctorVal.numFields expectedType?
   synthesizeAppInstMVars r.instMVars r.ctorFn

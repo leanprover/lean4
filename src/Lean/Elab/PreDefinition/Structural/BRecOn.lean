@@ -155,7 +155,8 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
               try toBelow below recArgInfo.indGroupInst.params.size positions fnIdx recArg
               catch _ => throwError "failed to eliminate recursive application{indentExpr e}"
             -- We don't pass the fixed parameters, the indices and the major arg to `f`, only the rest
-            let (_, fArgs) := recArgInfo.pickIndicesMajor args[recArgInfo.numFixed:]
+            let ys := recArgInfo.fixedParamPerm.pickVarying args
+            let (_, fArgs) := recArgInfo.pickIndicesMajor ys
             let fArgs ← fArgs.mapM (replaceRecApps recArgInfos positions below ·)
             return mkAppN f fArgs
           else
@@ -292,7 +293,7 @@ def mkBrecOnApp (positions : Positions) (fnIdx : Nat) (brecOnConst : Nat → Exp
     let packedFTypes ← inferArgumentTypesN positions.size brecOn
     let packedFArgs ← positions.mapMwith PProdN.mkLambdas packedFTypes FArgs
     let brecOn := mkAppN brecOn packedFArgs
-    let some (size, idx) := positions.findSome? fun pos => (pos.size, ·) <$> pos.indexOf? fnIdx
+    let some (size, idx) := positions.findSome? fun pos => (pos.size, ·) <$> pos.finIdxOf? fnIdx
       | throwError "mkBrecOnApp: Could not find {fnIdx} in {positions}"
     let brecOn ← PProdN.projM size idx brecOn
     mkLambdaFVars ys (mkAppN brecOn otherArgs)

@@ -20,7 +20,7 @@ private partial def propagateInjEqs (eqs : Expr) (proof : Expr) : GoalM Unit := 
   | HEq _ lhs _ rhs =>
     pushHEq (← shareCommon lhs) (← shareCommon rhs) proof
   | _ =>
-   reportIssue m!"unexpected injectivity theorem result type{indentExpr eqs}"
+   reportIssue! "unexpected injectivity theorem result type{indentExpr eqs}"
    return ()
 
 /--

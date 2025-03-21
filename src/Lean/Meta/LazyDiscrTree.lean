@@ -486,7 +486,7 @@ private partial def evalLazyEntries
 
 private def evalNode (c : TrieIndex) :
     MatchM α (Array α × TrieIndex × Std.HashMap Key TrieIndex) := do
-  let .node vs star cs pending := (←get).get! c
+  let .node vs star cs pending := (←get)[c]!
   if pending.size = 0 then
     return (vs, star, cs)
   else
@@ -980,8 +980,8 @@ def findImportMatches
   let ngen ← getNGen
   let (cNGen, ngen) := ngen.mkChild
   setNGen ngen
-  let dummy : IO.Ref (Option (LazyDiscrTree α)) ← IO.mkRef none
-  let ref := @EnvExtension.getState _ ⟨dummy⟩ ext (←getEnv)
+  let _ : Inhabited (IO.Ref (Option (LazyDiscrTree α))) := ⟨← IO.mkRef none⟩
+  let ref := ext.getState (←getEnv)
   let importTree ← (←ref.get).getDM $ do
     profileitM Exception  "lazy discriminator import initialization" (←getOptions) $ do
       let t ← createImportedDiscrTree (createTreeCtx cctx) cNGen (←getEnv) addEntry

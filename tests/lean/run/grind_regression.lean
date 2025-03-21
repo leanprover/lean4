@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marcus Rossel, Kim Morrison
 -/
 import Lean.Elab.Term
-
+set_option grind.warning false
 /-!
 These tests are originally from the `lean-egg` repository at
 https://github.com/marcusrossel/lean-egg and were written by Marcus Rossel.
@@ -95,6 +95,9 @@ example {x : Nat} (h₁ : x = y) (h₂ : x = y → 1 = 2) : 1 = 2 := by
   grind
 
 example (h : ∀ p : Prop, p → 1 = id 1) : 1 = id 1 := by
+  grind only [id]
+
+example (h : ∀ p : Prop, p → (1 : Int) = id 1) : (1 : Int) = id 1 := by
   grind only [id]
 
 example {p q r : Prop} (h₁ : p) (h₂ : p ↔ q) (h₃ : q → (p ↔ r)) : p ↔ r := by
@@ -321,13 +324,6 @@ end
 
 section
 
-example {a : Int} : ((a * b) - (2 * c)) * d - (a * b) = (d - 1) * (a * b) - (2 * c * d) := by
-  grind only [Int.sub_mul, Int.sub_sub, Int.add_comm, Int.mul_comm, Int.one_mul]
-
-end
-
-section
-
 example : Nat → (x : Nat) → x = x := by
   intro x
   grind
@@ -547,9 +543,6 @@ example (as bs : List α) : reverse (as ++ bs) = (reverse bs) ++ (reverse as) :=
   | cons => grind only [append_assoc, reverse_cons, List.cons_append]
 
 variable (a b c d : Int)
-
-example : ((a * b) - (2 * c)) * d - (a * b) = (d - 1) * (a * b) - (2 * c * d) := by
-  grind only [Int.sub_mul, Int.sub_sub, Int.add_comm, Int.mul_comm, Int.one_mul]
 
 example {p q r : Prop} (h₁ : p) (h₂ : p ↔ q) (h₃ : q → (p ↔ r)) : p ↔ r := by
   grind

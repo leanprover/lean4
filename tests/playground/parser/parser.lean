@@ -64,7 +64,7 @@ d.errorMsg != none
 d.stxStack.size
 
 def ParserData.restore (d : ParserData) (iniStackSz : Nat) (iniPos : Nat) : ParserData :=
-{ stxStack := d.stxStack.take iniStackSz, errorMsg := none, pos := iniPos, .. d}
+{ stxStack := d.stxStack.shrink iniStackSz, errorMsg := none, pos := iniPos, .. d}
 
 def ParserData.setPos (d : ParserData) (pos : Nat) : ParserData :=
 { pos := pos, .. d }
@@ -75,8 +75,8 @@ def ParserData.setCache (d : ParserData) (cache : ParserCache) : ParserData :=
 def ParserData.pushSyntax (d : ParserData) (n : Syntax) : ParserData :=
 { stxStack := d.stxStack.push n, .. d }
 
-def ParserData.takeStack (d : ParserData) (iniStackSz : Nat) : ParserData :=
-{ stxStack := d.stxStack.take iniStackSz, .. d }
+def ParserData.shrinkStack (d : ParserData) (iniStackSz : Nat) : ParserData :=
+{ stxStack := d.stxStack.shrink iniStackSz, .. d }
 
 def ParserData.next (d : ParserData) (s : String) (pos : Nat) : ParserData :=
 { pos := s.next pos, .. d }
@@ -114,7 +114,7 @@ match d with
     d
   else
     let newNode := Syntax.node k (stack.extract iniStackSz stack.size) [] in
-    let stack   := stack.take iniStackSz in
+    let stack   := stack.shrink iniStackSz in
     let stack   := stack.push newNode in
     ⟨stack, pos, cache, err⟩
 
@@ -144,7 +144,7 @@ match d with
   let iniSz  := d.stackSize in
   let iniPos := d.pos in
   match p s d with
-  | ⟨stack, _, cache, some msg⟩ := ⟨stack.take iniSz, iniPos, cache, some msg⟩
+  | ⟨stack, _, cache, some msg⟩ := ⟨stack.shrink iniSz, iniPos, cache, some msg⟩
   | other                       := other
 
 @[noinline] def noFirstTokenInfo (info : ParserInfo) : ParserInfo :=
@@ -516,15 +516,15 @@ partial def identFnAux (startPos : Nat) (tk : Option TokenConfig) : Name → Par
 
 def ParserData.keepNewError (d : ParserData) (oldStackSize : Nat) : ParserData :=
 match d with
-| ⟨stack, pos, cache, err⟩ := ⟨stack.take oldStackSize, pos, cache, err⟩
+| ⟨stack, pos, cache, err⟩ := ⟨stack.shrink oldStackSize, pos, cache, err⟩
 
 def ParserData.keepPrevError (d : ParserData) (oldStackSize : Nat) (oldStopPos : String.Pos) (oldError : Option String) : ParserData :=
 match d with
-| ⟨stack, _, cache, _⟩ := ⟨stack.take oldStackSize, oldStopPos, cache, oldError⟩
+| ⟨stack, _, cache, _⟩ := ⟨stack.shrink oldStackSize, oldStopPos, cache, oldError⟩
 
 def ParserData.mergeErrors (d : ParserData) (oldStackSize : Nat) (oldError : String) : ParserData :=
 match d with
-| ⟨stack, pos, cache, some err⟩ := ⟨stack.take oldStackSize, pos, cache, some (err ++ "; " ++ oldError)⟩
+| ⟨stack, pos, cache, some err⟩ := ⟨stack.shrink oldStackSize, pos, cache, some (err ++ "; " ++ oldError)⟩
 | other                         := other
 
 def ParserData.mkLongestNodeAlt (d : ParserData) (startSize : Nat) : ParserData :=
@@ -535,14 +535,14 @@ match d with
   else
     -- parser created more than one node, combine them into a single node
     let node := Syntax.node nullKind (stack.extract startSize stack.size) [] in
-    let stack := stack.take startSize in
+    let stack := stack.shrink startSize in
     ⟨stack.push node, pos, cache, none⟩
 
 def ParserData.keepLatest (d : ParserData) (startStackSize : Nat) : ParserData :=
 match d with
 | ⟨stack, pos, cache, _⟩ :=
   let node  := stack.back in
-  let stack := stack.take startStackSize in
+  let stack := stack.shrink startStackSize in
   let stack := stack.push node in
   ⟨stack, pos, cache, none⟩
 
@@ -591,7 +591,7 @@ def longestMatchFn₂ (p q : ParserFn) : ParserFn :=
 let startSize := d.stackSize in
 let startPos  := d.pos in
 let d         := p s d in
-let d         := if d.hasError then d.takeStack startSize else d.mkLongestNodeAlt startSize in
+let d         := if d.hasError then d.shrinkStack startSize else d.mkLongestNodeAlt startSize in
 let d         := longestMatchStep startSize startPos q s d in
 longestMatchMkResult startSize d
 
@@ -603,7 +603,7 @@ def longestMatchFn : List ParserFn → ParserFn
   let startPos  := d.pos in
   let d         := p s d in
   if d.hasError then
-    let d := d.takeStack startSize in
+    let d := d.shrinkStack startSize in
     longestMatchFnAux startSize startPos ps s d
   else
     let d := d.mkLongestNodeAlt startSize in

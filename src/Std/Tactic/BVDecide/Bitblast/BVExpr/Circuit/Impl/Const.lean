@@ -22,7 +22,7 @@ namespace bitblast
 variable [Hashable α] [DecidableEq α]
 
 def blastConst (aig : AIG α) (val : BitVec w) : AIG.RefVecEntry α w :=
-  go aig val 0 .empty (by omega)
+  go aig val 0 (.emptyWithCapacity w) (by omega)
 where
   go (aig : AIG α) (val : BitVec w) (curr : Nat) (s : AIG.RefVec aig curr) (hcurr : curr ≤ w) :
       AIG.RefVecEntry α w :=

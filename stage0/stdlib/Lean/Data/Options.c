@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Lean_Syntax_mkNameLit(lean_object*, lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__29;
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__10;
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getBoolOption___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Data_Options___hyg_77____closed__16;
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__14;
@@ -238,6 +237,7 @@ static lean_object* l_Lean_getOptionDecl___closed__2;
 static lean_object* l_Lean_Option_registerOption___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Options_empty;
 static lean_object* l_Lean_Option_registerOption___closed__6;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__2;
 static lean_object* l_Lean_instToStringOptions___closed__1;
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__13;
@@ -348,7 +348,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }

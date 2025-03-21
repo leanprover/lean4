@@ -324,6 +324,8 @@ public:
     expr visit_lambda(expr e) {
         lean_assert(is_lambda(e));
         flet<local_ctx> save_lctx(m_lctx, m_lctx);
+        flet<expr_map<bool>> save_cce_candidates(m_cce_candidates, m_cce_candidates);
+        flet<buffer<expr>> save_cce_targets(m_cce_targets, m_cce_targets);
         unsigned fvars_sz1 = m_fvars.size();
         while (is_lambda(e)) {
             /* Types are ignored in compilation steps. So, we do not invoke visit for d. */

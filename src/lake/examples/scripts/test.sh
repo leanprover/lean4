@@ -2,7 +2,7 @@
 set -exo pipefail
 
 # make prefix `/` behave on MSYS2
-[ "$OSTYPE" == "msys" ] && export MSYS2_ARG_CONV_EXCL=*
+[ "$OSTYPE" == "cygwin" -o "$OSTYPE" == "msys" ] && export MSYS2_ARG_CONV_EXCL=*
 
 ./clean.sh
 LAKE=${LAKE:-../../.lake/build/bin/lake}

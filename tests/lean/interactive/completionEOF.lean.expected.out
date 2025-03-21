@@ -1,8 +1,7 @@
 {"textDocument": {"uri": "file:///completionEOF.lean"},
  "position": {"line": 8, "character": 9}}
 {"items":
- [{"sortText": "0",
-   "label": "And",
+ [{"label": "And",
    "kind": 21,
    "data":
    {"params":
@@ -10,4 +9,4 @@
      "position": {"line": 8, "character": 9}},
     "id": {"const": {"declName": "And"}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}

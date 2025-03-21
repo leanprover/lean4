@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 prelude
 import Lean.Structure
 import Lean.Elab.Attributes
+import Lean.DocString.Add
 
 namespace Lean.Elab
 
@@ -59,7 +60,7 @@ inductive RecKind where
 structure Modifiers where
   /-- Input syntax, used for adjusting declaration range (unless missing) -/
   stx             : TSyntax ``Parser.Command.declModifiers := ⟨.missing⟩
-  docString?      : Option String := none
+  docString?      : Option (TSyntax ``Parser.Command.docComment) := none
   visibility      : Visibility := Visibility.regular
   isNoncomputable : Bool := false
   recKind         : RecKind := RecKind.default
@@ -136,9 +137,7 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
       RecKind.partial
     else
       RecKind.nonrec
-  let docString? ← match docCommentStx.getOptional? with
-    | none   => pure none
-    | some s => pure (some (← getDocStringText ⟨s⟩))
+  let docString? := docCommentStx.getOptional?.map TSyntax.mk
   let visibility ← match visibilityStx.getOptional? with
     | none   => pure Visibility.regular
     | some v =>

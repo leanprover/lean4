@@ -1,8 +1,15 @@
 {"textDocument": {"uri": "file:///keywordCompletion.lean"},
  "position": {"line": 4, "character": 10}}
 {"items":
- [{"sortText": "0",
-   "label": "bin",
+ [{"label": "binop_lazy%",
+   "kind": 14,
+   "detail": "keyword",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
+     "position": {"line": 4, "character": 10}},
+    "cPos": 0}},
+  {"label": "bin",
    "kind": 21,
    "data":
    {"params":
@@ -10,8 +17,7 @@
      "position": {"line": 4, "character": 10}},
     "id": {"const": {"declName": "bin"}},
     "cPos": 0}},
-  {"sortText": "1",
-   "label": "binder_predicate",
+  {"label": "binrel_no_prop%",
    "kind": 14,
    "detail": "keyword",
    "data":
@@ -19,8 +25,7 @@
     {"textDocument": {"uri": "file:///keywordCompletion.lean"},
      "position": {"line": 4, "character": 10}},
     "cPos": 0}},
-  {"sortText": "2",
-   "label": "binop%",
+  {"label": "binrel%",
    "kind": 14,
    "detail": "keyword",
    "data":
@@ -28,8 +33,7 @@
     {"textDocument": {"uri": "file:///keywordCompletion.lean"},
      "position": {"line": 4, "character": 10}},
     "cPos": 0}},
-  {"sortText": "3",
-   "label": "binop_lazy%",
+  {"label": "binder_predicate",
    "kind": 14,
    "detail": "keyword",
    "data":
@@ -37,17 +41,7 @@
     {"textDocument": {"uri": "file:///keywordCompletion.lean"},
      "position": {"line": 4, "character": 10}},
     "cPos": 0}},
-  {"sortText": "4",
-   "label": "binrel%",
-   "kind": 14,
-   "detail": "keyword",
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
-     "position": {"line": 4, "character": 10}},
-    "cPos": 0}},
-  {"sortText": "5",
-   "label": "binrel_no_prop%",
+  {"label": "binop%",
    "kind": 14,
    "detail": "keyword",
    "data":
@@ -55,12 +49,11 @@
     {"textDocument": {"uri": "file:///keywordCompletion.lean"},
      "position": {"line": 4, "character": 10}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///keywordCompletion.lean"},
  "position": {"line": 4, "character": 13}}
 {"items":
- [{"sortText": "0",
-   "label": "binop_lazy%",
+ [{"label": "binop_lazy%",
    "kind": 14,
    "detail": "keyword",
    "data":
@@ -68,4 +61,4 @@
     {"textDocument": {"uri": "file:///keywordCompletion.lean"},
      "position": {"line": 4, "character": 13}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}

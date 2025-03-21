@@ -1,9 +1,9 @@
-renameI.lean:1:0-1:7: warning: declaration uses 'sorry'
 x y : Nat
 ⊢ x = y
-renameI.lean:7:0-7:7: warning: declaration uses 'sorry'
+renameI.lean:1:0-1:7: warning: declaration uses 'sorry'
 x a.b : Nat
 ⊢ x = a.b
-renameI.lean:13:0-13:7: warning: declaration uses 'sorry'
+renameI.lean:7:0-7:7: warning: declaration uses 'sorry'
 x o✝ y a.b : Nat
 ⊢ x + y = a.b + o✝
+renameI.lean:13:0-13:7: warning: declaration uses 'sorry'

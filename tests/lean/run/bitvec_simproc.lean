@@ -47,6 +47,10 @@ example (h : x = false) : x = (4#3).getLsbD 0:= by
   simp; guard_target =ₛ x = false; assumption
 example (h : x = true) : x = (4#3).getLsbD 2:= by
   simp; guard_target =ₛ x = true; assumption
+example (h : x = false) : x = (4#3)[0] := by
+  simp; guard_target =ₛ x = false; assumption
+example (h : x = true) : x = (4#3)[2] := by
+  simp; guard_target =ₛ x = true; assumption
 example (h : x = true) : x = (4#3).getMsbD 0:= by
   simp; guard_target =ₛ x = true; assumption
 example (h : x = false) : x = (4#3).getMsbD 2:= by

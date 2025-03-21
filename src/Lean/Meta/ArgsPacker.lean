@@ -328,6 +328,8 @@ if they are all the same.
 
 -/
 def uncurryType (types : Array Expr) : MetaM Expr := do
+  if types.size = 1 then
+    return types[0]!
   let types ← types.mapM whnfForall
   types.forM fun type => do
     unless type.isForall do
@@ -471,7 +473,7 @@ Given types `(x : A) → (y : B[x]) → R₁[x,y]` and `(z : C) → R₂[z]`, re
 ```
 -/
 def uncurryType (argsPacker : ArgsPacker) (types : Array Expr) : MetaM Expr := do
-  let unary ← (Array.zipWith argsPacker.varNamess types Unary.uncurryType).mapM id
+  let unary ← (Array.zipWith Unary.uncurryType argsPacker.varNamess types).mapM id
   Mutual.uncurryType unary
 
 /--
@@ -482,11 +484,11 @@ and `(z : C) → R₂[z]`, returns an expression of type
 ```
 -/
 def uncurry (argsPacker : ArgsPacker) (es : Array Expr) : MetaM Expr := do
-  let unary ← (Array.zipWith argsPacker.varNamess es Unary.uncurry).mapM id
+  let unary ← (Array.zipWith Unary.uncurry argsPacker.varNamess es).mapM id
   Mutual.uncurry unary
 
 def uncurryWithType (argsPacker : ArgsPacker) (resultType : Expr) (es : Array Expr) : MetaM Expr := do
-  let unary ← (Array.zipWith argsPacker.varNamess es Unary.uncurry).mapM id
+  let unary ← (Array.zipWith Unary.uncurry argsPacker.varNamess es).mapM id
   Mutual.uncurryWithType resultType unary
 
 /--
@@ -497,7 +499,7 @@ and `(z : C) → R`, returns an expression of type
 ```
 -/
 def uncurryND (argsPacker : ArgsPacker) (es : Array Expr) : MetaM Expr := do
-  let unary ← (Array.zipWith argsPacker.varNamess es Unary.uncurry).mapM id
+  let unary ← (Array.zipWith Unary.uncurry argsPacker.varNamess es).mapM id
   Mutual.uncurryND unary
 
 /--
@@ -533,7 +535,7 @@ Given type `(x : a ⊗' b ⊕' c ⊗' d) → R` (non-dependent), return types
 -/
 def curryType (argsPacker : ArgsPacker) (t : Expr) : MetaM (Array Expr) := do
   let unary ← Mutual.curryType argsPacker.numFuncs t
-  (Array.zipWith argsPacker.varNamess unary Unary.curryType).mapM id
+  (Array.zipWith Unary.curryType argsPacker.varNamess unary).mapM id
 
 /--
 Given expression `e` of type `(x : a ⊗' b ⊕' c ⊗' d) → e[x]`, wraps that expression
@@ -560,7 +562,7 @@ where
   go : List Expr → Array Expr → MetaM α
   | [], acc => k acc
   | t::ts, acc => do
-    let name := if argsPacker.numFuncs = 1 then name else .mkSimple s!"{name}{acc.size+1}"
+    let name := if argsPacker.numFuncs = 1 then name else .mkSimple s!"{name}{acc.size + 1}"
     withLocalDeclD name t fun x => do
       go ts (acc.push x)
 

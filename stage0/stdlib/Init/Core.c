@@ -225,6 +225,7 @@ LEAN_EXPORT lean_object* l_inline(lean_object*);
 static lean_object* l_term___u2194_____closed__5;
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__Ne__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__Inter__inter__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_opaqueId___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_decidable__of__decidable__of__eq(lean_object*, lean_object*);
 static lean_object* l_term___x5c_____closed__4;
 LEAN_EXPORT lean_object* l_Quotient_mk_x27___rarg___boxed(lean_object*);
@@ -287,6 +288,7 @@ static lean_object* l___aux__Init__Core______macroRules__term___u222a____1___clo
 static lean_object* l_term___u2295_x27_____closed__4;
 LEAN_EXPORT lean_object* l_Quot_indep(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_iteInduction___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_opaqueId(lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2229____1___closed__6;
 static lean_object* l___aux__Init__Core______macroRules__term___u2260____1___closed__1;
 lean_object* lean_task_get_own(lean_object*);
@@ -335,6 +337,7 @@ static lean_object* l___aux__Init__Core______macroRules__term___u2229____1___clo
 static lean_object* l___aux__Init__Core______macroRules__Lean__Parser__Tactic__tacticRfl__1___closed__1;
 static lean_object* l_term___u2282_____closed__6;
 LEAN_EXPORT lean_object* l_Thunk_bind___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_opaqueId___rarg(lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term_x7b_x7d__1___closed__4;
 LEAN_EXPORT lean_object* l_decidable__of__decidable__of__iff(lean_object*, lean_object*);
 static lean_object* l_term___u2295_____closed__5;
@@ -7136,6 +7139,30 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_reduceNat(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_opaqueId___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_opaqueId(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_opaqueId___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_opaqueId___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_opaqueId___rarg(x_1);
 lean_dec(x_1);
 return x_2;
 }

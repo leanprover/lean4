@@ -18,6 +18,7 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceTextDocumentIdentifier(lean_ob
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceDidCloseTextDocumentParams(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourcePlainTermGoalParams(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceDidCloseTextDocumentParams___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceInlayHintParams___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceDocumentHighlightParams(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceRpcReleaseParams(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceSemanticTokensRangeParams___boxed(lean_object*);
@@ -64,6 +65,7 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceRpcCallParams___boxed(lean_obj
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceLocation(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceSemanticTokensRangeParams(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceCodeActionParams___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceInlayHintParams(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceTextDocumentItem(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceTextDocumentPositionParams___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceDidChangeTextDocumentParams___boxed(lean_object*);
@@ -581,6 +583,24 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Lsp_instFileSourceCodeActionParams(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceInlayHintParams(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_ctor_get(x_1, 1);
+lean_inc(x_2);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceInlayHintParams___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Lsp_instFileSourceInlayHintParams(x_1);
 lean_dec(x_1);
 return x_2;
 }

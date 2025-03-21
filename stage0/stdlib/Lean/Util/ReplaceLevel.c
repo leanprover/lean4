@@ -24,7 +24,6 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_cache___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_bvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafe(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___spec__1(lean_object*, lean_object*, lean_object*);
 size_t lean_ptr_addr(lean_object*);
@@ -34,15 +33,18 @@ lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_obj
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2;
 LEAN_EXPORT size_t l_Lean_Expr_ReplaceLevelImpl_cacheSize;
 lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3;
 size_t lean_usize_mod(size_t, size_t);
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4;
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_cache(size_t, lean_object*, lean_object*, lean_object*);
 uint8_t l_ptrEqList___rarg(lean_object*, lean_object*);
+static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__5;
 lean_object* l_Lean_mkLevelIMax_x27(lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
+static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1;
@@ -731,19 +733,18 @@ return x_3;
 static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_Expr_bvar___override(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("_inhabitedExprDummy", 19, 19);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(8191u);
+x_1 = lean_box(0);
 x_2 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2;
-x_3 = lean_mk_array(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -751,8 +752,28 @@ static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1;
+x_1 = lean_box(0);
 x_2 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3;
+x_3 = l_Lean_Expr_const___override(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(8191u);
+x_2 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4;
+x_3 = lean_mk_array(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1;
+x_2 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__5;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -763,7 +784,7 @@ static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4;
+x_1 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__6;
 return x_1;
 }
 }
@@ -798,6 +819,10 @@ l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3 = _init_l_Lean_Expr_ReplaceLe
 lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3);
 l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4 = _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4();
 lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4);
+l_Lean_Expr_ReplaceLevelImpl_initCache___closed__5 = _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__5();
+lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_initCache___closed__5);
+l_Lean_Expr_ReplaceLevelImpl_initCache___closed__6 = _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__6();
+lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_initCache___closed__6);
 l_Lean_Expr_ReplaceLevelImpl_initCache = _init_l_Lean_Expr_ReplaceLevelImpl_initCache();
 lean_mark_persistent(l_Lean_Expr_ReplaceLevelImpl_initCache);
 return lean_io_result_mk_ok(lean_box(0));

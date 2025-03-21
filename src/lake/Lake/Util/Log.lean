@@ -137,22 +137,34 @@ protected def LogEntry.toString (self : LogEntry) (useAnsi := false) : String :=
 
 instance : ToString LogEntry := ⟨LogEntry.toString⟩
 
+@[inline] def LogEntry.trace (message : String) : LogEntry :=
+  {level := .trace, message}
+
+@[inline] def LogEntry.info (message : String) : LogEntry :=
+  {level := .info, message}
+
+@[inline] def LogEntry.warning (message : String) : LogEntry :=
+  {level := .warning, message}
+
+@[inline] def LogEntry.error (message : String) : LogEntry :=
+  {level := .error, message}
+
 class MonadLog (m : Type u → Type v) where
   logEntry (e : LogEntry) : m PUnit
 
 export MonadLog (logEntry)
 
 @[inline] def logVerbose [Monad m] [MonadLog m] (message : String) : m PUnit := do
-  logEntry {level := .trace, message}
+  logEntry (.trace message)
 
 @[inline] def logInfo [Monad m] [MonadLog m] (message : String) : m PUnit := do
-  logEntry {level := .info, message}
+  logEntry (.info message)
 
 @[inline] def logWarning [MonadLog m] (message : String) : m PUnit :=
-  logEntry {level := .warning, message}
+  logEntry (.warning message)
 
-@[inline] def logError  [MonadLog m] (message : String) : m PUnit :=
-  logEntry {level := .error, message}
+@[inline] def logError [MonadLog m] (message : String) : m PUnit :=
+  logEntry (.error message)
 
 @[specialize] def logSerialMessage (msg : SerialMessage) [MonadLog m] : m PUnit :=
   let str := if msg.caption.trim.isEmpty then
@@ -161,16 +173,6 @@ export MonadLog (logEntry)
     level := .ofMessageSeverity msg.severity
     message := mkErrorStringWithPos msg.fileName msg.pos str none
   }
-
-@[deprecated "No deprecation message available." (since := "2024-05-18")]
-def logToIO (e : LogEntry) (minLv : LogLevel)  : BaseIO PUnit := do
-  match e.level with
-  | .trace => if minLv ≥ .trace then
-    IO.println e.message.trim |>.catchExceptions fun _ => pure ()
-  | .info => if minLv ≥ .info then
-    IO.println e.message.trim |>.catchExceptions fun _ => pure ()
-  | .warning => IO.eprintln e.toString |>.catchExceptions fun _ => pure ()
-  | .error => IO.eprintln e.toString |>.catchExceptions fun _ => pure ()
 
 def logToStream
   (e : LogEntry) (out : IO.FS.Stream) (minLv : LogLevel) (useAnsi : Bool)
@@ -189,11 +191,6 @@ abbrev lift [MonadLiftT m n] (self : MonadLog m) : MonadLog n where
   logEntry e := liftM <| self.logEntry e
 
 instance [MonadLift m n] [methods : MonadLog m] : MonadLog n := methods.lift
-
-set_option linter.deprecated false in
-@[deprecated "Deprecated without replacement." (since := "2024-05-18")]
-abbrev io [MonadLiftT BaseIO m] (minLv := LogLevel.info) : MonadLog m where
-  logEntry e := logToIO e minLv
 
 abbrev stream [MonadLiftT BaseIO m]
   (out : IO.FS.Stream) (minLv := LogLevel.info) (useAnsi := false)
@@ -255,6 +252,7 @@ end MonadLogT
 /- A Lake log. An `Array` of log entries. -/
 structure Log where
   entries : Array LogEntry
+  deriving Inhabited
 
 instance : ToJson Log := ⟨(toJson ·.entries)⟩
 instance : FromJson Log := ⟨(Log.mk <$> fromJson? ·)⟩
@@ -308,7 +306,7 @@ instance : Append Log := ⟨Log.append⟩
 
 /-- Removes log entries after `pos` (inclusive). -/
 @[inline] def dropFrom (log : Log) (pos : Log.Pos) : Log :=
-  .mk <| log.entries.take pos.val
+  .mk <| log.entries.shrink pos.val
 
 /-- Takes log entries before `pos` (exclusive). -/
 @[inline] def takeFrom (log : Log) (pos : Log.Pos) : Log :=
@@ -514,8 +512,6 @@ abbrev run?' [Functor m] (self : ELogT m α) (log : Log := {}) : m (Option α) :
 
 @[inline] def catchLog [Monad m] (f : Log → LogT m α) (self : ELogT m α) : LogT m α := do
   self.catchExceptions fun errPos => do f (← takeLogFrom errPos)
-
-@[deprecated run? (since := "2024-05-18")] abbrev captureLog := @run?
 
 /--
 Run `self` with the log taken from the state of the monad `n`,

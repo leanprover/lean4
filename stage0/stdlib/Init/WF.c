@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.WF
-// Imports: Init.SizeOf Init.Data.Nat.Basic
+// Imports: Init.SizeOf Init.BinderNameHint Init.Data.Nat.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Prod_rprod___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_wfParam___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_PSigma_skipLeft___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_instWellFoundedRelation___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_invImage(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -25,7 +26,9 @@ LEAN_EXPORT lean_object* l_measure(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_sizeOfWFRel(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_rprod(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_Lex_instDecidableRelOfDecidableEq___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_wfParam___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_PSigma_lex(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_wfParam(lean_object*);
 LEAN_EXPORT lean_object* l_Prod_lex___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_measure___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instWellFoundedRelationOfSizeOf(lean_object*, lean_object*);
@@ -294,7 +297,32 @@ lean_dec(x_3);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_wfParam___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_wfParam(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_wfParam___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_wfParam___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_wfParam___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 lean_object* initialize_Init_SizeOf(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_BinderNameHint(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_WF(uint8_t builtin, lean_object* w) {
@@ -302,6 +330,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_SizeOf(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_BinderNameHint(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Basic(builtin, lean_io_mk_world());

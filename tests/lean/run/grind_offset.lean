@@ -9,9 +9,7 @@ set_option trace.grind.ematch.pattern true
 set_option trace.grind.ematch.instance true
 set_option trace.grind.assert true
 
-/--
-info: [grind.ematch.pattern] f.eq_2: [f (Lean.Grind.offset #0 (1))]
--/
+/-- info: [grind.ematch.pattern] f.eq_2: [f (#0 + 1)] -/
 #guard_msgs in
 grind_pattern f.eq_2 => f (x + 1)
 
@@ -53,6 +51,7 @@ info: [grind.assert] f (c + 2) = a
 [grind.assert] ¬a = g (g (f c))
 [grind.ematch.instance] f.eq_2: f (c + 1).succ = g (f (c + 1))
 [grind.assert] f (c + 2) = g (f (c + 1))
+[grind.assert] -1 * NatCast.natCast c ≤ 0
 [grind.ematch.instance] f.eq_2: f c.succ = g (f c)
 [grind.assert] f (c + 1) = g (f c)
 -/
@@ -66,9 +65,7 @@ example : f (c + 2) = a → a = g (g (f c)) := by
   | 1 => 10
   | a+2 => g (foo a)
 
-/--
-info: [grind.ematch.pattern] foo.eq_3: [foo (Lean.Grind.offset #0 (2))]
--/
+/-- info: [grind.ematch.pattern] foo.eq_3: [foo (#0 + 2)] -/
 #guard_msgs in
 grind_pattern foo.eq_3 => foo (a_2 + 2)
 
@@ -80,6 +77,8 @@ info: [grind.assert] foo (c + 1) = a
 [grind.assert] ¬a = g (foo b)
 [grind.ematch.instance] foo.eq_3: foo b.succ.succ = g (foo b)
 [grind.assert] foo (b + 2) = g (foo b)
+[grind.assert] -1 * NatCast.natCast b ≤ 0
+[grind.assert] -1 * NatCast.natCast c ≤ 0
 -/
 #guard_msgs (info) in
 example : foo (c + 1) = a → c = b + 1 → a = g (foo b) := by

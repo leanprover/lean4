@@ -6,6 +6,7 @@
    "range":
    {"start": {"line": 4, "character": 17}, "end": {"line": 5, "character": 0}},
    "message": "unsolved goals\n⊢ True",
+   "leanTags": [1],
    "fullRange":
    {"start": {"line": 4, "character": 17}, "end": {"line": 7, "character": 8}}},
   {"source": "Lean 4",
@@ -14,6 +15,7 @@
    {"start": {"line": 11, "character": 17},
     "end": {"line": 12, "character": 0}},
    "message": "unsolved goals\n⊢ True",
+   "leanTags": [1],
    "fullRange":
    {"start": {"line": 11, "character": 17},
     "end": {"line": 14, "character": 8}}},
@@ -23,6 +25,7 @@
    {"start": {"line": 18, "character": 17},
     "end": {"line": 19, "character": 0}},
    "message": "unsolved goals\n⊢ True",
+   "leanTags": [1],
    "fullRange":
    {"start": {"line": 18, "character": 17},
     "end": {"line": 21, "character": 8}}},
@@ -32,6 +35,7 @@
    {"start": {"line": 25, "character": 17},
     "end": {"line": 26, "character": 0}},
    "message": "unsolved goals\n⊢ True",
+   "leanTags": [1],
    "fullRange":
    {"start": {"line": 25, "character": 17},
     "end": {"line": 28, "character": 8}}}]}

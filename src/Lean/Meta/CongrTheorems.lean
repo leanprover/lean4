@@ -414,10 +414,10 @@ def mkHCongrWithArityForConst? (declName : Name) (levels : List Level) (numArgs 
     let suffix := hcongrThmSuffixBasePrefix ++ toString numArgs
     let thmName := Name.str declName suffix
     unless (← getEnv).contains thmName do
-      executeReservedNameAction thmName
+      let _ ← executeReservedNameAction thmName
     let proof := mkConst thmName levels
     let type ← inferType proof
-    let some argKinds := congrKindsExt.getState (← getEnv) |>.find? thmName
+    let some argKinds := congrKindsExt.find? (← getEnv) thmName
       | unreachable!
     return some { proof, type, argKinds }
   catch _ =>
@@ -431,10 +431,10 @@ def mkCongrSimpForConst? (declName : Name) (levels : List Level) : MetaM (Option
   try
     let thmName := Name.str declName congrSimpSuffix
     unless (← getEnv).contains thmName do
-      executeReservedNameAction thmName
+      let _ ← executeReservedNameAction thmName
     let proof := mkConst thmName levels
     let type ← inferType proof
-    let some argKinds := congrKindsExt.getState (← getEnv) |>.find? thmName
+    let some argKinds := congrKindsExt.find? (← getEnv) thmName
       | unreachable!
     return some { proof, type, argKinds }
   catch _ =>

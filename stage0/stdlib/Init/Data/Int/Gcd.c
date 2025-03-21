@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.Gcd
-// Imports: Init.Data.Int.Basic Init.Data.Nat.Gcd Init.Data.Nat.Lcm Init.Data.Int.DivModLemmas
+// Imports: Init.Data.Int.Basic Init.Data.Nat.Gcd Init.Data.Nat.Lcm Init.Data.Int.DivMod.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -67,7 +67,7 @@ return x_3;
 lean_object* initialize_Init_Data_Int_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Gcd(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Lcm(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_DivModLemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_DivMod_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_Gcd(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -82,7 +82,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Lcm(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_DivModLemmas(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Int_DivMod_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

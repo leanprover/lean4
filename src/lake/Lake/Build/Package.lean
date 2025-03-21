@@ -8,6 +8,7 @@ import Lake.Util.Git
 import Lake.Util.Sugar
 import Lake.Build.Common
 import Lake.Build.Targets
+import Lake.Build.Topological
 import Lake.Reservoir
 
 /-! # Package Facet Builds
@@ -18,17 +19,30 @@ open System
 namespace Lake
 open Lean (Name)
 
-/-- Compute a topological ordering of the package's transitive dependencies. -/
-def Package.recComputeDeps (self : Package) : FetchM (Array Package) := do
-  (·.toArray) <$> self.depConfigs.foldlM (init := OrdPackageSet.empty) fun deps cfg => do
+/-- Fetch the package's direct dependencies. -/
+def Package.recFetchDeps (self : Package) : FetchM (Job (Array Package)) := ensureJob do
+  (pure ·) <$> self.depConfigs.mapM fun cfg => do
     let some dep ← findPackage? cfg.name
       | error s!"{self.name}: package not found for dependency '{cfg.name}' \
         (this is likely a bug in Lake)"
-    return (← fetch <| dep.facet `deps).foldl (·.insert ·) deps |>.insert dep
+    return dep
 
 /-- The `PackageFacetConfig` for the builtin `depsFacet`. -/
 def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
-  mkFacetConfig Package.recComputeDeps
+  mkFacetJobConfig recFetchDeps (buildable := false)
+
+/-- Compute a topological ordering of the package's transitive dependencies. -/
+def Package.recComputeTransDeps (self : Package) : FetchM (Job (Array Package)) := ensureJob do
+  (pure ·.toArray) <$> self.depConfigs.foldlM (init := OrdPackageSet.empty) fun deps cfg => do
+    let some dep ← findPackage? cfg.name
+      | error s!"{self.name}: package not found for dependency '{cfg.name}' \
+        (this is likely a bug in Lake)"
+    let depDeps ← (← fetch <| dep.facet `transDeps).await
+    return depDeps.foldl (·.insert ·) deps |>.insert dep
+
+/-- The `PackageFacetConfig` for the builtin `transDepsFacet`. -/
+def Package.transDepsFacetConfig : PackageFacetConfig transDepsFacet :=
+  mkFacetJobConfig recComputeTransDeps (buildable := false)
 
 /--
 Tries to download and unpack the package's cached build archive
@@ -145,7 +159,7 @@ def Package.fetchBuildArchive
 private def Package.mkOptBuildArchiveFacetConfig
   {facet : Name} (archiveFile : Package → FilePath)
   (getUrl : Package → JobM String) (headers : Array String := #[])
-  [FamilyDef PackageData facet (Job Bool)]
+  [FamilyDef PackageData facet Bool]
 : PackageFacetConfig facet := mkFacetJobConfig fun pkg =>
   withRegisterJob s!"{pkg.name}:{facet}" (optional := true) <| Job.async do
   try
@@ -159,8 +173,8 @@ private def Package.mkOptBuildArchiveFacetConfig
 @[inline]
 private def Package.mkBuildArchiveFacetConfig
   {facet : Name} (optFacet : Name) (what : String)
-  [FamilyDef PackageData facet (Job Unit)]
-  [FamilyDef PackageData optFacet (Job Bool)]
+  [FamilyDef PackageData facet Unit]
+  [FamilyDef PackageData optFacet Bool]
 : PackageFacetConfig facet :=
   mkFacetJobConfig fun pkg =>
     withRegisterJob s!"{pkg.name}:{facet}" do
@@ -232,6 +246,7 @@ the initial set of Lake package facets (e.g., `extraDep`).
 def initPackageFacetConfigs : DNameMap PackageFacetConfig :=
   DNameMap.empty
   |>.insert depsFacet depsFacetConfig
+  |>.insert transDepsFacet transDepsFacetConfig
   |>.insert extraDepFacet extraDepFacetConfig
   |>.insert optBuildCacheFacet optBuildCacheFacetConfig
   |>.insert buildCacheFacet buildCacheFacetConfig

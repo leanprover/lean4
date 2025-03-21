@@ -52,4 +52,3 @@ Lean.Elab.Term.elabTerm : Syntax →
           lcErased → Context → lcErased → Core.Context → lcErased → PUnit → EStateM.Result Exception PUnit Expr
 Nat.add : Nat → Nat → Nat
 Fin.add : Nat → Nat → Nat → Nat
-Lean.HashSetBucket.update : lcErased → Array (List lcAny) → USize → List lcAny → lcErased → Array (List lcAny)

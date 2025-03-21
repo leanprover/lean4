@@ -1,3 +1,5 @@
+prelude
+
 def gfxabc (x : Nat) := x
 def gfxacc (x : Nat) := x
 def gfxadc (x : Nat) := x

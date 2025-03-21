@@ -1,6 +1,6 @@
+x : Nat
+⊢ Nat
 1681.lean:1:0-1:7: warning: declaration uses 'sorry'
 x : Nat
 ⊢ Nat
 1681.lean:6:0-6:7: warning: declaration uses 'sorry'
-x : Nat
-⊢ Nat

@@ -11,22 +11,19 @@ import Init.RCases
 namespace Nat
 
 /--
-Computes the greatest common divisor of two natural numbers.
+Computes the greatest common divisor of two natural numbers. The GCD of two natural numbers is the
+largest natural number that evenly divides both.
 
-This reference implementation via the Euclidean algorithm
-is overridden in both the kernel and the compiler to efficiently
-evaluate using the "bignum" representation (see `Nat`).
-The definition provided here is the logical model
-(and it is soundness-critical that they coincide).
+In particular, the GCD of a number and `0` is the number itself.
 
-The GCD of two natural numbers is the largest natural number
-that divides both arguments.
-In particular, the GCD of a number and `0` is the number itself:
-```
-example : Nat.gcd 10 15 = 5 := rfl
-example : Nat.gcd 0 5 = 5 := rfl
-example : Nat.gcd 7 0 = 7 := rfl
-```
+This reference implementation via the Euclidean algorithm is overridden in both the kernel and the
+compiler to efficiently evaluate using arbitrary-precision arithmetic. The definition provided here
+is the logical model.
+
+Examples:
+* `Nat.gcd 10 15 = 5`
+* `Nat.gcd 0 5 = 5`
+* `Nat.gcd 7 0 = 7`
 -/
 @[extern "lean_nat_gcd"]
 def gcd (m n : @& Nat) : Nat :=

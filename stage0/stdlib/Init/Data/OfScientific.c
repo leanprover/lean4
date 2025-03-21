@@ -16,6 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Float32_ofBinaryScientific___boxed(lean_object*, lean_object*);
 LEAN_EXPORT float l_Nat_toFloat32(lean_object*);
 double lean_float_scaleb(double, lean_object*);
+float lean_float32_negate(float);
 uint64_t lean_uint64_of_nat(lean_object*);
 LEAN_EXPORT float l_Float32_ofBinaryScientific(lean_object*, lean_object*);
 LEAN_EXPORT float l_instOfNatFloat32(lean_object*);
@@ -61,7 +62,7 @@ lean_object* lean_int_add(lean_object*, lean_object*);
 LEAN_EXPORT double l_Float_ofInt(lean_object*);
 lean_object* lean_int_neg(lean_object*);
 LEAN_EXPORT lean_object* l_instOfNatFloat___boxed(lean_object*);
-LEAN_EXPORT double l_Float32_ofInt(lean_object*);
+LEAN_EXPORT float l_Float32_ofInt(lean_object*);
 LEAN_EXPORT lean_object* l_Float_ofInt___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_toFloat___boxed(lean_object*);
@@ -432,7 +433,7 @@ x_3 = lean_box_float32(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT double l_Float32_ofInt(lean_object* x_1) {
+LEAN_EXPORT float l_Float32_ofInt(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
@@ -440,17 +441,17 @@ x_2 = l_Float_ofInt___closed__1;
 x_3 = lean_int_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
-lean_object* x_4; uint8_t x_5; lean_object* x_6; double x_7; 
+lean_object* x_4; uint8_t x_5; lean_object* x_6; float x_7; 
 x_4 = lean_nat_abs(x_1);
 x_5 = 0;
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = l_Float_ofScientific(x_4, x_5, x_6);
+x_7 = l_Float32_ofScientific(x_4, x_5, x_6);
 lean_dec(x_4);
 return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; double x_14; double x_15; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; float x_14; float x_15; 
 x_8 = lean_nat_abs(x_1);
 x_9 = lean_unsigned_to_nat(1u);
 x_10 = lean_nat_sub(x_8, x_9);
@@ -459,9 +460,9 @@ x_11 = lean_nat_add(x_10, x_9);
 lean_dec(x_10);
 x_12 = 0;
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = l_Float_ofScientific(x_11, x_12, x_13);
+x_14 = l_Float32_ofScientific(x_11, x_12, x_13);
 lean_dec(x_11);
-x_15 = lean_float_negate(x_14);
+x_15 = lean_float32_negate(x_14);
 return x_15;
 }
 }
@@ -469,10 +470,10 @@ return x_15;
 LEAN_EXPORT lean_object* l_Float32_ofInt___boxed(lean_object* x_1) {
 _start:
 {
-double x_2; lean_object* x_3; 
+float x_2; lean_object* x_3; 
 x_2 = l_Float32_ofInt(x_1);
 lean_dec(x_1);
-x_3 = lean_box_float(x_2);
+x_3 = lean_box_float32(x_2);
 return x_3;
 }
 }

@@ -175,7 +175,10 @@ theorem or_iff_not_imp_right : a ∨ b ↔ (¬b → a) := Decidable.or_iff_not_i
 
 theorem not_imp_iff_and_not : ¬(a → b) ↔ a ∧ ¬b := Decidable.not_imp_iff_and_not
 
-theorem not_and_iff_or_not_not : ¬(a ∧ b) ↔ ¬a ∨ ¬b := Decidable.not_and_iff_or_not_not
+theorem not_and_iff_not_or_not : ¬(a ∧ b) ↔ ¬a ∨ ¬b := Decidable.not_and_iff_not_or_not
+
+@[deprecated not_and_iff_not_or_not (since := "2025-03-18")]
+abbrev not_and_iff_or_not_not := @not_and_iff_not_or_not
 
 theorem not_iff : ¬(a ↔ b) ↔ (¬a ↔ b) := Decidable.not_iff
 
@@ -195,7 +198,7 @@ end Classical
 /- Export for Mathlib compat. -/
 export Classical (imp_iff_right_iff imp_and_neg_imp_iff and_or_imp not_imp)
 
-/-- Extract an element from a existential statement, using `Classical.choose`. -/
+/-- Extract an element from an existential statement, using `Classical.choose`. -/
 -- This enables projection notation.
 @[reducible] noncomputable def Exists.choose {p : α → Prop} (P : ∃ a, p a) : α := Classical.choose P
 

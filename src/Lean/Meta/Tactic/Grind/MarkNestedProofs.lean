@@ -8,6 +8,7 @@ import Init.Grind.Util
 import Lean.Util.PtrSet
 import Lean.Meta.Basic
 import Lean.Meta.InferType
+import Lean.Meta.Tactic.Grind.Util
 
 namespace Lean.Meta.Grind
 
@@ -21,6 +22,13 @@ where
       if let some r := (← get).find? e then
         return r
       let prop ← inferType e
+      /-
+      We must unfold reducible constants occurring in `prop` because the congruence closure
+      module in `grind` assumes they have been expanded.
+      See `grind_mark_nested_proofs_bug.lean` for an example.
+      TODO: We may have to normalize `prop` too.
+      -/
+      let prop ← unfoldReducible prop
       let e' := mkApp2 (mkConst ``Lean.Grind.nestedProof) prop e
       modify fun s => s.insert e e'
       return e'

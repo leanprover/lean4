@@ -41,6 +41,7 @@ class LEAN_EXPORT object_compactor {
     void insert_string(object * o);
     bool insert_thunk(object * o);
     bool insert_task(object * o);
+    bool insert_promise(object * o);
     bool insert_ref(object * o);
     void insert_mpz(object * o);
 public:
@@ -71,6 +72,7 @@ class LEAN_EXPORT compacted_region {
     void fix_thunk(object * o);
     void fix_ref(object * o);
     void fix_task(object * o);
+    void fix_promise(object * o);
     void fix_mpz(object * o);
 public:
     /* Creates a compacted object region using the given region in memory.

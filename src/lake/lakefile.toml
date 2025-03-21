@@ -1,8 +1,9 @@
 name = "lake"
-defaultTargets = ["lake"]
+defaultTargets = ["Lake", "lake"]
 
 [[lean_lib]]
 name = "Lake"
+defaultFacets = ["shared"]
 
 [[lean_exe]]
 name = "lake"

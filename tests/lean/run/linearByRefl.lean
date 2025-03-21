@@ -42,13 +42,6 @@ example (x₁ x₂ x₃ : Nat) : ((x₁ + x₂) + (x₂ + x₃) < x₃ + x₂) =
     (Expr.num 0)
     rfl
 
-example (x₁ x₂ : Nat) : x₁ + 2 ≤ 3*x₂ → 4*x₂ ≤ 3 + x₁ → 3 ≤ 2*x₂ → False :=
-  Certificate.of_combine_isUnsat #R[x₁, x₂]
-    [ (1, { eq := false, lhs := Expr.add (Expr.var 0) (Expr.num 2), rhs := Expr.mulL 3 (Expr.var 1) }),
-      (1, { eq := false, lhs := Expr.mulL 4 (Expr.var 1), rhs := Expr.add (Expr.num 3) (Expr.var 0) }),
-      (0, { eq := false, lhs := Expr.num 3, rhs := Expr.mulL 2 (Expr.var 1) }) ]
-    rfl
-
 example (x : Nat) (xs : List Nat) : (sizeOf x < 1 + (1 + sizeOf x + sizeOf xs)) = True :=
   ExprCnstr.eq_true_of_isValid #R[sizeOf x, sizeOf xs]
     { eq := false, lhs := Expr.inc (Expr.var 0), rhs := Expr.add (Expr.num 1) (Expr.add (Expr.add (Expr.num 1) (Expr.var 0)) (Expr.var 1)) }

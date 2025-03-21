@@ -5,12 +5,35 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.AppBuilder
+import Lean.Meta.MatchUtil
 
 namespace Lean.Meta.Grind
 /-! A basic "equality resolution" procedure. -/
 
-private def eqResCore (prop proof : Expr) : MetaM (Option (Expr × Expr)) := withNewMCtxDepth do
+/--
+Similar to `forallMetaTelescopeReducing`, but if `prop` resulting type is of the form `¬ p`, it will "convert" it so `p → False`, and
+will return a hypothesis for it and return `False` as the resulting type.
+-/
+private def forallMetaTelescopeReducingAndUnfoldingNot (prop : Expr) : MetaM (Array Expr × Expr) := do
   let (ms, _, type) ← forallMetaTelescopeReducing prop
+  if let some p ← matchNot? type then
+    let m ← mkFreshExprMVar p
+    return (ms.push m, mkConst ``False)
+  return (ms, type)
+
+private def eqResCore (prop proof : Expr) : MetaM (Option (Expr × Expr)) := withNewMCtxDepth do
+  /-
+  We use `forallMetaTelescopeReducingAndUnfoldingNot` because we want to treat
+  ```
+  ∀ x, ¬ f x = f a
+  ```
+  as
+  ```
+  ∀ x, f x = f a → False
+  ```
+  recall that `¬` is not reducible.
+  -/
+  let (ms, type) ← forallMetaTelescopeReducingAndUnfoldingNot prop
   if ms.isEmpty then return none
   let mut progress := false
   for m in ms do

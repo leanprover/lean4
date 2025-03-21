@@ -7,9 +7,26 @@ prelude
 import Init.Data.Nat.Gcd
 import Init.Data.Nat.Lemmas
 
+/-!
+# Lemmas about `Nat.lcm`
+
+## Future work:
+Most of the material about `Nat.gcd` from `Init.Data.Nat.Gcd` has analogues for `Nat.lcm`
+that should be added to this file.
+-/
+
 namespace Nat
 
-/-- The least common multiple of `m` and `n`, defined using `gcd`. -/
+/--
+The least common multiple of `m` and `n` is the smallest natural number that's evenly divisible by
+both `m` and `n`. Returns `0` if either `m` or `n` is `0`.
+
+Examples:
+ * `Nat.lcm 9 6 = 18`
+ * `Nat.lcm 9 3 = 9`
+ * `Nat.lcm 0 3 = 0`
+ * `Nat.lcm 3 0 = 0`
+-/
 def lcm (m n : Nat) : Nat := m * n / gcd m n
 
 theorem lcm_comm (m n : Nat) : lcm m n = lcm n m := by

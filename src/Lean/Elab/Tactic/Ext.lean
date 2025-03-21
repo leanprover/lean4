@@ -162,7 +162,7 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
         -- Only declarations in a namespace can be protected:
         unless extIffName.isAtomic do
           modifyEnv fun env => addProtected env extIffName
-        addDeclarationRangesFromSyntax extName (← getRef)
+        addDeclarationRangesFromSyntax extIffName (← getRef)
     catch e =>
       throwError m!"\
         Failed to generate an 'ext_iff' theorem from '{.ofConstName extName}': {e.toMessageData}\n\

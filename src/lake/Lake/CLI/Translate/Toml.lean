@@ -64,8 +64,8 @@ def LeanConfig.toToml (cfg : LeanConfig) (t : Table := {}) : Table :=
 instance : ToToml LeanConfig := ⟨(toToml ·.toToml)⟩
 instance : ToToml LeanVer := ⟨(toToml <| toString ·)⟩
 
-protected def PackageConfig.toToml (cfg : PackageConfig) (t : Table := {}) : Table :=
-  t.insert `name cfg.name
+protected def PackageConfig.toToml (cfg : PackageConfig n) (t : Table := {}) : Table :=
+  t.insert `name n
   |>.insertD `precompileModules cfg.precompileModules false
   |>.smartInsert `moreGlobalServerArgs cfg.moreGlobalServerArgs
   |>.insertD `srcDir cfg.srcDir "."
@@ -75,7 +75,7 @@ protected def PackageConfig.toToml (cfg : PackageConfig) (t : Table := {}) : Tab
   |>.insertD `binDir cfg.binDir defaultBinDir
   |>.insertD `irDir cfg.irDir defaultIrDir
   |>.smartInsert `releaseRepo (cfg.releaseRepo <|> cfg.releaseRepo?)
-  |>.insertD `buildArchive (cfg.buildArchive?.getD cfg.buildArchive) (defaultBuildArchive cfg.name)
+  |>.insertD `buildArchive (cfg.buildArchive?.getD cfg.buildArchive) (defaultBuildArchive n)
   |>.insertD `preferReleaseBuild cfg.preferReleaseBuild false
   |>.insertD `version cfg.version {}
   |> smartInsertVerTags cfg.versionTags
@@ -97,31 +97,31 @@ where
       if n.isAnonymous || n == `default then t else
       t.insert `versionTags.preset (toToml n)
 
-instance : ToToml PackageConfig := ⟨(toToml ·.toToml)⟩
+instance : ToToml (PackageConfig n) := ⟨(toToml ·.toToml)⟩
 
 instance : ToToml Glob := ⟨(toToml ·.toString)⟩
 
-protected def LeanLibConfig.toToml (cfg : LeanLibConfig) (t : Table := {}) : Table :=
-  t.insert `name cfg.name
+protected def LeanLibConfig.toToml (cfg : LeanLibConfig n) (t : Table := {}) : Table :=
+  t.insert `name n
   |>.insertD `srcDir cfg.srcDir "."
-  |>.insertD `roots cfg.roots #[cfg.name]
+  |>.insertD `roots cfg.roots #[n]
   |>.insertD `globs cfg.globs (cfg.roots.map .one)
-  |>.insertD `libName cfg.libName (cfg.name.toString (escape := false))
+  |>.insertD `libName cfg.libName (n.toString (escape := false))
   |>.insertD `precompileModules cfg.precompileModules false
   |>.insertD `defaultFacets cfg.defaultFacets #[LeanLib.leanArtsFacet]
   |> cfg.toLeanConfig.toToml
 
-instance : ToToml LeanLibConfig := ⟨(toToml ·.toToml)⟩
+instance : ToToml (LeanLibConfig n) := ⟨(toToml ·.toToml)⟩
 
-protected def LeanExeConfig.toToml (cfg : LeanExeConfig) (t : Table  := {}) : Table :=
-  t.insert `name cfg.name
+protected def LeanExeConfig.toToml (cfg : LeanExeConfig n) (t : Table  := {}) : Table :=
+  t.insert `name n
   |>.insertD `srcDir cfg.srcDir "."
-  |>.insertD `root cfg.root cfg.name
-  |>.insertD `exeName cfg.exeName (cfg.name.toStringWithSep "-" (escape := false))
+  |>.insertD `root cfg.root n
+  |>.insertD `exeName cfg.exeName (n.toStringWithSep "-" (escape := false))
   |>.insertD `supportInterpreter cfg.supportInterpreter false
   |> cfg.toLeanConfig.toToml
 
-instance : ToToml LeanExeConfig := ⟨(toToml ·.toToml)⟩
+instance : ToToml (LeanExeConfig n) := ⟨(toToml ·.toToml)⟩
 
 protected def Dependency.toToml (dep : Dependency) (t : Table  := {}) : Table :=
   let t := t
@@ -153,5 +153,5 @@ def Package.mkTomlConfig (pkg : Package) (t : Table := {}) : Table :=
   |>.smartInsert `lintDriverArgs pkg.lintDriverArgs
   |>.smartInsert `defaultTargets pkg.defaultTargets
   |>.smartInsert `require pkg.depConfigs
-  |>.smartInsert `lean_lib pkg.leanLibConfigs.toArray
-  |>.smartInsert `lean_exe pkg.leanExeConfigs.toArray
+  |>.smartInsert `lean_lib (pkg.targetDecls.filterMap (·.leanLibConfig?.map toToml))
+  |>.smartInsert `lean_exe (pkg.targetDecls.filterMap (·.leanExeConfig?.map toToml))

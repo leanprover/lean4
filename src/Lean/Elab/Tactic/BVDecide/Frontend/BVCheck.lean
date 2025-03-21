@@ -42,7 +42,7 @@ def lratChecker (ctx : TacticContext) (bvExpr : BVLogicalExpr) : MetaM Expr := d
 @[inherit_doc Lean.Parser.Tactic.bvCheck]
 def bvCheck (g : MVarId) (ctx : TacticContext) : MetaM Unit := do
   let unsatProver : UnsatProver := fun _ reflectionResult _ => do
-    withTraceNode `sat (fun _ => return "Preparing LRAT reflection term") do
+    withTraceNode `Meta.Tactic.sat (fun _ => return "Preparing LRAT reflection term") do
       let proof ← lratChecker ctx reflectionResult.bvExpr
       return .ok ⟨proof, ""⟩
   let _ ← closeWithBVReflection g unsatProver

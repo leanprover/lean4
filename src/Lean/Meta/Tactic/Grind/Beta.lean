@@ -44,8 +44,8 @@ def propagateBetaEqs (lams : Array Expr) (f : Expr) (args : Array Expr) : GoalM 
           gen := Nat.max gen (← getGeneration arg)
           h ← mkCongrFun h arg
         let eq ← mkEq lhs rhs
-        trace[grind.beta] "{eq}, using {lam}"
-        addNewFact h eq (gen+1)
+        trace_goal[grind.beta] "{eq}, using {lam}"
+        addNewRawFact h eq (gen+1)
 
 private def isPropagateBetaTarget (e : Expr) : GoalM Bool := do
   let .app f _ := e | return false

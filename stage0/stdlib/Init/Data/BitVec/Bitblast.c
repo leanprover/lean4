@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.BitVec.Bitblast
-// Imports: Init.Data.BitVec.Folds Init.Data.Nat.Mod
+// Imports: Init.Data.BitVec.Folds Init.Data.Nat.Mod Init.Data.Int.LemmasAux
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -745,6 +745,7 @@ return x_6;
 }
 lean_object* initialize_Init_Data_BitVec_Folds(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Mod(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_LemmasAux(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_BitVec_Bitblast(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -754,6 +755,9 @@ res = initialize_Init_Data_BitVec_Folds(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Mod(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_LemmasAux(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

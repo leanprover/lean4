@@ -18,7 +18,7 @@ private def ensureType (e : Expr) : MetaM Unit := do
   discard <| getLevel e
 
 private def checkConstant (constName : Name) (us : List Level) : MetaM Unit := do
-  let cinfo ← getConstInfo constName
+  let cinfo ← getConstVal constName
   unless us.length == cinfo.levelParams.length do
     throwIncorrectNumberOfLevels constName us
 

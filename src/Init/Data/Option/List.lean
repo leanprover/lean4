@@ -59,4 +59,12 @@ namespace Option
     o.toList.foldr f a = o.elim a (fun b => f b a) := by
   cases o <;> simp
 
+@[simp]
+theorem pairwise_toList {P : α → α → Prop} {o : Option α} : o.toList.Pairwise P := by
+  cases o <;> simp
+
+@[simp]
+theorem head?_toList {o : Option α} : o.toList.head? = o := by
+  cases o <;> simp
+
 end Option

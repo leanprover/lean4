@@ -1,3 +1,4 @@
+@[semireducible]
 def fib (n : Nat) :=
   match n with
   | 0 | 1 => 1

@@ -398,7 +398,7 @@ mutual
       let fType ← replaceLPsWithVars (← inferType f)
       let (mvars, bInfos, resultType) ← forallMetaBoundedTelescope fType args.size
       let rest := args.extract mvars.size args.size
-      let args := args.take mvars.size
+      let args := args.shrink mvars.size
 
       -- Unify with the expected type
       if (← read).knowsType then tryUnify (← inferType (mkAppN f args)) resultType

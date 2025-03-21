@@ -58,7 +58,7 @@ inductive DeclMod
   | /-- the original declaration -/ none
   | /-- the forward direction of an `iff` -/ mp
   | /-- the backward direction of an `iff` -/ mpr
-deriving DecidableEq, Inhabited, Ord
+deriving DecidableEq, Inhabited, Ord, Hashable
 
 /--
 LibrarySearch has an extension mechanism for replacing the function used

@@ -85,6 +85,7 @@ builtin_initialize specExtension : SimplePersistentEnvExtension SpecEntry SpecSt
     addEntryFn    := SpecState.addEntry
     addImportedFn := fun _ => {}
     toArrayFn     := fun s => sortEntries s.toArray
+    asyncMode     := .sync
   }
 
 /--
@@ -186,7 +187,7 @@ def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
       let mut paramsInfo := declsInfo[i]!
       let some mask := m.find? decl.name | unreachable!
       trace[Compiler.specialize.info] "{decl.name} {mask}"
-      paramsInfo := paramsInfo.zipWith mask fun info fixed => if fixed || info matches .user then info else .other
+      paramsInfo := Array.zipWith (fun info fixed => if fixed || info matches .user then info else .other) paramsInfo mask
       for j in [:paramsInfo.size] do
         let mut info := paramsInfo[j]!
         if info matches .fixedNeutral && !hasFwdDeps decl paramsInfo j then

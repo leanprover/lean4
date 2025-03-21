@@ -26,6 +26,9 @@ attribute [grind ←=] inv_eq
 example {a b : α} (w : mul a b = one) : inv a = b := by
   grind
 
+example {a b : α} (w : mul a b = one) : inv a = b := by
+  grind only [<-= inv_eq]
+
 structure S where
   f : Bool → α
   h : mul (f true) (f false) = one
@@ -35,6 +38,9 @@ attribute [grind =] S.h S.h'
 
 example (s : S) : inv (s.f true) = s.f false := by
   grind
+
+example (s : S) : inv (s.f true) = s.f false := by
+  grind only [<-= inv_eq, = S.h]
 
 example (s : S) : s.f false = inv (s.f true) := by
   grind

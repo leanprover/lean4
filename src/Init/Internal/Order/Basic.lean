@@ -59,7 +59,7 @@ end PartialOrder
 section CCPO
 
 /--
-A chain-complete partial order (CCPO) is a partial order where every chain a least upper bound.
+A chain-complete partial order (CCPO) is a partial order where every chain has a least upper bound.
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
@@ -104,7 +104,7 @@ variable {α : Sort u} [PartialOrder α]
 variable {β : Sort v} [PartialOrder β]
 
 /--
-A function is monotone if it maps related elements to releated elements.
+A function is monotone if it maps related elements to related elements.
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/

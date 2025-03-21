@@ -21,7 +21,7 @@ def compileLeanModule
   (leanFile : FilePath)
   (oleanFile? ileanFile? cFile? bcFile?: Option FilePath)
   (leanPath : SearchPath := []) (rootDir : FilePath := ".")
-  (dynlibs : Array FilePath := #[]) (dynlibPath : SearchPath := {})
+  (dynlibs : Array FilePath := #[]) (plugins : Array FilePath := #[])
   (leanArgs : Array String := #[]) (lean : FilePath := "lean")
 : LogIO Unit := do
   let mut args := leanArgs ++
@@ -39,15 +39,16 @@ def compileLeanModule
     createParentDirs bcFile
     args := args ++ #["-b", bcFile.toString]
   for dynlib in dynlibs do
-    args := args.push s!"--load-dynlib={dynlib}"
+    args := args ++ #["--load-dynlib", dynlib.toString]
+  for plugin in plugins do
+    args := args ++ #["--plugin", plugin.toString]
   args := args.push "--json"
   withLogErrorPos do
   let out ← rawProc {
     args
     cmd := lean.toString
     env := #[
-      ("LEAN_PATH", leanPath.toString),
-      (sharedLibPathEnvVar, (← getSearchPath sharedLibPathEnvVar) ++ dynlibPath |>.toString)
+      ("LEAN_PATH", leanPath.toString)
     ]
   }
   unless out.stdout.isEmpty do
@@ -55,7 +56,8 @@ def compileLeanModule
       if let .ok (msg : SerialMessage) := Json.parse ln >>= fromJson? then
         unless txt.isEmpty do
           logInfo s!"stdout:\n{txt}"
-        logSerialMessage msg
+        unless msg.isSilent do
+          logSerialMessage msg
         return txt
       else if txt.isEmpty && ln.isEmpty then
         return txt
@@ -78,15 +80,32 @@ def compileO
     args := #["-c", "-o", oFile.toString, srcFile.toString] ++ moreArgs
   }
 
+def mkArgs (basePath : FilePath) (args : Array String) : LogIO (Array String) := do
+  if Platform.isWindows then
+    -- Use response file to avoid potentially exceeding CLI length limits.
+    let rspFile := basePath.addExtension "rsp"
+    let h ← IO.FS.Handle.mk rspFile .write
+    args.forM fun arg =>
+      -- Escape special characters
+      let arg := arg.foldl (init := "") fun s c =>
+        if c == '\\' || c == '"' then
+          s.push '\\' |>.push c
+        else
+          s.push c
+      h.putStr s!"\"{arg}\"\n"
+    return #[s!"@{rspFile}"]
+  else
+    return args
+
 def compileStaticLib
   (libFile : FilePath) (oFiles : Array FilePath)
-  (ar : FilePath := "ar")
+  (ar : FilePath := "ar") (thin := false)
 : LogIO Unit := do
   createParentDirs libFile
-  proc {
-    cmd := ar.toString
-    args := #["rcs", libFile.toString] ++ oFiles.map toString
-  }
+  let args := #["rcs"]
+  let args := if thin then args.push "--thin" else args
+  let args := args.push libFile.toString ++ (← mkArgs libFile <| oFiles.map toString)
+  proc {cmd := ar.toString, args}
 
 private def getMacOSXDeploymentEnv : BaseIO (Array (String × Option String)) := do
   -- It is difficult to identify the correct minor version here, leading to linking warnings like:
@@ -100,24 +119,22 @@ private def getMacOSXDeploymentEnv : BaseIO (Array (String × Option String)) :=
     return #[]
 
 def compileSharedLib
-  (libFile : FilePath) (linkArgs : Array String)
-  (linker : FilePath := "cc")
+  (libFile : FilePath) (linkArgs : Array String) (linker : FilePath := "cc")
 : LogIO Unit := do
   createParentDirs libFile
   proc {
     cmd := linker.toString
-    args := #["-shared", "-o", libFile.toString] ++ linkArgs
+    args := #["-shared", "-o", libFile.toString] ++ (← mkArgs libFile linkArgs)
     env := ← getMacOSXDeploymentEnv
   }
 
 def compileExe
-  (binFile : FilePath) (linkFiles : Array FilePath)
-  (linkArgs : Array String := #[]) (linker : FilePath := "cc")
+  (binFile : FilePath) (linkArgs : Array String) (linker : FilePath := "cc")
 : LogIO Unit := do
   createParentDirs binFile
   proc {
     cmd := linker.toString
-    args := #["-o", binFile.toString] ++ linkFiles.map toString ++ linkArgs
+    args := #["-o", binFile.toString] ++ (← mkArgs binFile linkArgs)
     env := ← getMacOSXDeploymentEnv
   }
 

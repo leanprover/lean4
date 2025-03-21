@@ -24,11 +24,10 @@ info: [grind.assert] (match as, bs with
 [grind.assert] a₁ :: f 0 = as
 [grind.assert] f 0 = a₂ :: f 1
 [grind.assert] ¬d = []
-[grind.assert] Lean.Grind.EqMatch
-      (match a₁ :: a₂ :: f 1, [] with
+[grind.assert] (match a₁ :: a₂ :: f 1, [] with
       | [], x => bs
       | head :: head_1 :: tail, [] => []
-      | x :: xs, ys => x :: g xs ys)
+      | x :: xs, ys => x :: g xs ys) =
       []
 [grind.split.resolved] match as, bs with
     | [], x => bs

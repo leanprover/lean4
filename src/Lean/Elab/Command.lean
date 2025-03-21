@@ -95,7 +95,6 @@ structure Context where
   macroStack     : MacroStack := []
   currMacroScope : MacroScope := firstFrontendMacroScope
   ref            : Syntax := Syntax.missing
-  tacticCache?   : Option (IO.Ref Tactic.Cache)
   /--
   Snapshot for incremental reuse and reporting of command elaboration. Currently only used for
   (mutual) defs and contained tactics, in which case the `DynamicSnapshot` is a
@@ -227,13 +226,16 @@ private def runCore (x : CoreM α) : CommandElabM α := do
   }
   let (ea, coreS) ← liftM x
   modify fun s => { s with
-    env               := coreS.env
-    nextMacroScope    := coreS.nextMacroScope
-    ngen              := coreS.ngen
-    infoState.trees   := s.infoState.trees.append coreS.infoState.trees
-    traceState.traces := coreS.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }
-    snapshotTasks     := coreS.snapshotTasks
-    messages          := s.messages ++ coreS.messages
+    env                      := coreS.env
+    nextMacroScope           := coreS.nextMacroScope
+    ngen                     := coreS.ngen
+    infoState.trees          := s.infoState.trees.append coreS.infoState.trees
+    -- we assume substitution of `assingment` has already happened, but for lazy assignments we only
+    -- do it at the very end
+    infoState.lazyAssignment := coreS.infoState.lazyAssignment
+    traceState.traces        := coreS.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }
+    snapshotTasks            := coreS.snapshotTasks
+    messages                 := s.messages ++ coreS.messages
   }
   return ea
 
@@ -275,7 +277,7 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
       let linters ← lintersRef.get
       unless linters.isEmpty do
         for linter in linters do
-          withTraceNode `Elab.lint (fun _ => return m!"running linter: {linter.name}")
+          withTraceNode `Elab.lint (fun _ => return m!"running linter: {.ofConstName linter.name}")
               (tag := linter.name.toString) do
             let savedState ← get
             try
@@ -283,7 +285,7 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
             catch ex =>
               match ex with
               | Exception.error ref msg =>
-                logException (.error ref m!"linter {linter.name} failed: {msg}")
+                logException (.error ref m!"linter {.ofConstName linter.name} failed: {msg}")
               | Exception.internal _ _ =>
                 logException ex
             finally
@@ -300,31 +302,39 @@ Interrupt and abort exceptions are caught but not logged.
   EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
 
 @[inherit_doc Core.wrapAsync]
-def wrapAsync (act : Unit → CommandElabM α) : CommandElabM (EIO Exception α) := do
-  return act () |>.run (← read) |>.run' (← get)
+def wrapAsync {α β : Type} (act : α → CommandElabM β) (cancelTk? : Option IO.CancelToken) :
+    CommandElabM (α → EIO Exception β) := do
+  let ctx ← read
+  let ctx := { ctx with cancelTk? }
+  let st ← get
+  return (act · |>.run ctx |>.run' st)
 
 open Language in
 @[inherit_doc Core.wrapAsyncAsSnapshot]
 -- `CoreM` and `CommandElabM` are too different to meaningfully share this code
-def wrapAsyncAsSnapshot (act : Unit → CommandElabM Unit)
+def wrapAsyncAsSnapshot {α : Type} (act : α → CommandElabM Unit) (cancelTk? : Option IO.CancelToken)
     (desc : String := by exact decl_name%.toString) :
-    CommandElabM (BaseIO SnapshotTree) := do
-  let t ← wrapAsync fun _ => do
+    CommandElabM (α → BaseIO SnapshotTree) := do
+  let f ← wrapAsync (cancelTk? := cancelTk?) fun a => do
     IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get (← getOptions)) do
       let tid ← IO.getTID
       -- reset trace state and message log so as not to report them twice
-      modify fun st => { st with messages := st.messages.markAllReported, traceState := { tid } }
+      modify fun st => { st with
+        messages := st.messages.markAllReported
+        traceState := { tid }
+        snapshotTasks := #[]
+      }
       try
         withTraceNode `Elab.async (fun _ => return desc) do
-          act ()
+          act a
       catch e =>
         logError e.toMessageData
       finally
         addTraceAsMessages
       get
   let ctx ← read
-  return do
-    match (← t.toBaseIO) with
+  return fun a => do
+    match (← (f a).toBaseIO) with
     | .ok (output, st) =>
       let mut msgs := st.messages
       if !output.isEmpty then
@@ -346,6 +356,7 @@ def wrapAsyncAsSnapshot (act : Unit → CommandElabM Unit)
 def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CommandElabM Unit :=
   modify fun s => { s with snapshotTasks := s.snapshotTasks.push task }
 
+open Language in
 def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
   if !Elab.async.get (← getOptions) then
     withoutModifyingEnv do
@@ -354,8 +365,14 @@ def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
 
   -- We only start one task for all linters for now as most linters are fast and we simply want
   -- to unblock elaboration of the next command
-  let lintAct ← wrapAsyncAsSnapshot fun _ => runLinters stx
-  logSnapshotTask { range? := none, task := (← BaseIO.asTask lintAct) }
+  let cancelTk ← IO.CancelToken.new
+  let lintAct ← wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun infoSt => do
+    modifyInfoState fun _ => infoSt
+    runLinters stx
+
+  -- linters should have access to the complete info tree
+  let task ← BaseIO.mapTask (t := (← getInfoState).substituteLazy) lintAct
+  logSnapshotTask { stx? := none, task, cancelTk? := cancelTk }
 
 protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
 protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
@@ -450,7 +467,12 @@ open Language in
 instance : ToSnapshotTree MacroExpandedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot, s.next.map (·.map (sync := true) toSnapshotTree)⟩
 
-partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
+partial def elabCommand (stx : Syntax) : CommandElabM Unit :=
+  try
+    go
+  finally
+    addTraceAsMessages
+where go := do
   withLogging <| withRef stx <| withIncRecDepth <| withFreshMacroScope do
     match stx with
     | Syntax.node _ k args =>
@@ -483,40 +505,44 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
                   -- check absence of traces; see Note [Incremental Macros]
                   guard <| !oldSnap.hasTraces && !hasTraces
                   return oldSnap
+                if snap.old?.isSome && oldSnap?.isNone then
+                  snap.old?.forM (·.val.cancelRec)
                 let oldCmds? := oldSnap?.map fun old =>
                   if old.newStx.isOfKind nullKind then old.newStx.getArgs else #[old.newStx]
-                Language.withAlwaysResolvedPromises cmds.size fun cmdPromises => do
-                  snap.new.resolve <| .ofTyped {
-                    diagnostics := .empty
-                    macroDecl := decl
-                    newStx := stxNew
-                    newNextMacroScope := nextMacroScope
-                    hasTraces
-                    next := cmdPromises.zipWith cmds fun cmdPromise cmd =>
-                      { range? := cmd.getRange?, task := cmdPromise.result }
-                    : MacroExpandedSnapshot
-                  }
-                  -- After the first command whose syntax tree changed, we must disable
-                  -- incremental reuse
-                  let mut reusedCmds := true
-                  let opts ← getOptions
-                  -- For each command, associate it with new promise and old snapshot, if any, and
-                  -- elaborate recursively
-                  for cmd in cmds, cmdPromise in cmdPromises, i in [0:cmds.size] do
-                    let oldCmd? := oldCmds?.bind (·[i]?)
-                    withReader ({ · with snap? := some {
-                      new := cmdPromise
-                      old? := do
-                        guard reusedCmds
-                        let old ← oldSnap?
-                        return { stx := (← oldCmd?), val := (← old.next[i]?) }
-                    } }) do
-                      elabCommand cmd
-                      -- Resolve promise for commands not supporting incrementality; waiting for
-                      -- `withAlwaysResolvedPromises` to do this could block reporting by later
-                      -- commands
-                      cmdPromise.resolve default
-                    reusedCmds := reusedCmds && oldCmd?.any (·.eqWithInfoAndTraceReuse opts cmd)
+                let cmdPromises ← cmds.mapM fun _ => IO.Promise.new
+                snap.new.resolve <| .ofTyped {
+                  diagnostics := .empty
+                  macroDecl := decl
+                  newStx := stxNew
+                  newNextMacroScope := nextMacroScope
+                  hasTraces
+                  next := Array.zipWith (fun cmdPromise cmd =>
+                    { stx? := some cmd, task := cmdPromise.resultD default }) cmdPromises cmds
+                  : MacroExpandedSnapshot
+                }
+                -- After the first command whose syntax tree changed, we must disable
+                -- incremental reuse
+                let mut reusedCmds := true
+                let opts ← getOptions
+                -- For each command, associate it with new promise and old snapshot, if any, and
+                -- elaborate recursively
+                for cmd in cmds, cmdPromise in cmdPromises, i in [0:cmds.size] do
+                  let oldCmd? := oldCmds?.bind (·[i]?)
+                  withReader ({ · with snap? := some {
+                    new := cmdPromise
+                    old? := do
+                      guard reusedCmds
+                      let old ← oldSnap?
+                      return { stx := (← oldCmd?), val := (← old.next[i]?) }
+                  } }) do
+                    if oldSnap?.isSome && (← read).snap?.isNone then
+                      oldSnap?.bind (·.next[i]?) |>.forM (·.cancelRec)
+                    elabCommand cmd
+                    -- Resolve promise for commands not supporting incrementality; waiting for
+                    -- `withAlwaysResolvedPromises` to do this could block reporting by later
+                    -- commands
+                    cmdPromise.resolve default
+                  reusedCmds := reusedCmds && oldCmd?.any (·.eqWithInfoAndTraceReuse opts cmd)
               else
                 elabCommand stxNew
         | _ =>
@@ -567,16 +593,11 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
     if let some snap := (← read).snap? then
       snap.new.resolve default
 
-    -- note the order: first process current messages & info trees, then add back old messages & trees,
-    -- then convert new traces to messages
-    let mut msgs := (← get).messages
-    for tree in (← getInfoTrees) do
-      trace[Elab.info] (← tree.format)
+    let msgs := (← get).messages
     modify fun st => { st with
       messages := initMsgs ++ msgs
       infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }
     }
-    addTraceAsMessages
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
 def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab := fun stx => do
@@ -615,8 +636,7 @@ private def mkTermContext (ctx : Context) (s : State) : CommandElabM Term.Contex
   return {
     macroStack             := ctx.macroStack
     sectionVars            := sectionVars
-    isNoncomputableSection := scope.isNoncomputable
-    tacticCache?           := ctx.tacticCache? }
+    isNoncomputableSection := scope.isNoncomputable }
 
 /--
 Lift the `TermElabM` monadic action `x` into a `CommandElabM` monadic action.
@@ -755,7 +775,6 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
       currRecDepth := ctx.currRecDepth
       currMacroScope := ctx.currMacroScope
       ref := ctx.ref
-      tacticCache? := none
       snap? := none
       cancelTk? := ctx.cancelTk?
       suppressElabErrors := ctx.suppressElabErrors

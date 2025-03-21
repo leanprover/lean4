@@ -1,6 +1,6 @@
 consumePPHint.lean:4:8-4:14: warning: declaration uses 'sorry'
-consumePPHint.lean:6:8-6:15: warning: declaration uses 'sorry'
 case a
 ⊢ q
     (let_fun x := 0;
     x + 1)
+consumePPHint.lean:6:8-6:15: warning: declaration uses 'sorry'

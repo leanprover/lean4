@@ -34,6 +34,12 @@ instance : MonadLift (Except ε) (Except (Array ε)) where
   | .ok a => pure a
   | .error es => modify (· ++ es) *> pure default
 
+/-- Run the decode action. If it fails, add the errors to the state and return `none`. -/
+@[inline] def tryDecode? (x : Except (Array ε) α) : StateM (Array ε) (Option α) :=
+  match x with
+  | .ok a => pure a
+  | .error es => modify (· ++ es) *> pure none
+
 /-- Run the decode action. If it fails, add the errors to the state and return `Inhabited.default`. -/
 @[inline] def tryDecode [Inhabited α] (x : Except (Array ε) α) : StateM (Array ε) α :=
   tryDecodeD default x
@@ -53,7 +59,6 @@ If it fails, add the errors to the state and return `Inhabited.default`.
 -/
 @[inline] def optDecode [Inhabited β] (a? : Option α) (f : α → Except (Array ε) β) : StateM (Array ε) β :=
   optDecodeD default a? f
-
 
 /--
 If the value is not `none`, run the decode action.

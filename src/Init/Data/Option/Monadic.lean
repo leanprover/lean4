@@ -46,7 +46,7 @@ theorem forIn'_eq_pelim [Monad m] [LawfulMonad m]
       o.pelim (pure b) (fun a h => g a h b <$> f a h b) := by
   cases o <;> simp
 
-theorem forIn'_pure_yield_eq_pelim [Monad m] [LawfulMonad m]
+@[simp] theorem forIn'_pure_yield_eq_pelim [Monad m] [LawfulMonad m]
     (o : Option α) (f : (a : α) → a ∈ o → β → β) (b : β) :
     forIn' o b (fun a m b => pure (.yield (f a m b))) =
       pure (f := m) (o.pelim b (fun a h => f a h b)) := by
@@ -75,7 +75,7 @@ theorem forIn_eq_elim [Monad m] [LawfulMonad m]
       o.elim (pure b) (fun a => g a b <$> f a b) := by
   cases o <;> simp
 
-theorem forIn_pure_yield_eq_elim [Monad m] [LawfulMonad m]
+@[simp] theorem forIn_pure_yield_eq_elim [Monad m] [LawfulMonad m]
     (o : Option α) (f : (a : α) → β → β) (b : β) :
     forIn o b (fun a b => pure (.yield (f a b))) =
       pure (f := m) (o.elim b (fun a => f a b)) := by

@@ -35,6 +35,7 @@ open Lean Elab Command in
 elab "wrap" num c:command : command => do
   elabCommand c
 
+   --v sync
    --v change: "1" "2"
 wrap 1 def wrapped := by
   dbg_trace "w"

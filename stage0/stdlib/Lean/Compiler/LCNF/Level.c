@@ -32,7 +32,6 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_NormLevelParam_normExpr___spec__1___closed__1;
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitArgs___boxed(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_NormLevelParam_normLevel___spec__7___closed__1;
@@ -85,6 +84,7 @@ lean_object* l_List_foldl___at_Lean_CollectLevelParams_visitLevels___spec__1(lea
 lean_object* lean_name_append_index_after(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Compiler_LCNF_NormLevelParam_normLevel___spec__2(lean_object*, lean_object*);
 lean_object* l_StateT_instMonad___rarg(lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitParams(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);

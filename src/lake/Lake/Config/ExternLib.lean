@@ -20,11 +20,13 @@ structure ExternLib where
 
 /-- The external libraries of the package (as an Array). -/
 @[inline] def Package.externLibs (self : Package) : Array ExternLib :=
-  self.externLibConfigs.fold (fun a _ v => a.push ⟨self, _, v⟩) #[]
+  self.targetDecls.foldl (init := #[]) fun a t =>
+    if let some cfg := t.externLibConfig? then a.push ⟨self, t.name, cfg⟩ else a
 
 /-- Try to find a external library in the package with the given name. -/
 @[inline] def Package.findExternLib? (name : Name) (self : Package) : Option ExternLib :=
-  self.externLibConfigs.find? name |>.map (⟨self, name, ·⟩)
+  self.targetDeclMap.find? name |>.bind fun t => t.externLibConfig?.map fun cfg =>
+    ⟨self, name, cfg⟩
 
 namespace ExternLib
 

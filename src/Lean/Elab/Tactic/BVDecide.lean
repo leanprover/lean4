@@ -41,7 +41,7 @@ There are also some options to influence the behavior of `bv_decide` and friends
        for simplification of the expressions.
     2. It turns all hypotheses that might be of interest for the remainder of the tactic into the form
        `x = true` where `x` is a mixture of `Bool` and fixed width `BitVec` expressions.
-3. Use proof by reflection to reduce the proof to showing that an SMTLIB-syntax-like value that
+3. Use proof by reflection to reduce the proof to showing that an SMT-LIB-syntax-like value that
    represents the conjunction of all relevant assumptions is UNSAT.
 4. Use a verified bitblasting algorithm to turn that expression into an AIG.
    The bitblasting algorithms are collected from various other bitblasters, including Bitwuzla and

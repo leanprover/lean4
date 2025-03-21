@@ -22,32 +22,36 @@ Returns the "const unfold" theorem (`f.eq_unfold`) for the given declaration.
 This is not extensible, and always builds on the unfold theorem (`f.eq_def`).
 -/
 def getConstUnfoldEqnFor? (declName : Name) : MetaM (Option Name) := do
-  let some unfoldEqnName ← getUnfoldEqnFor? (nonRec := true) declName | return none
-  let info ← getConstInfo unfoldEqnName
-  let type ← forallTelescope info.type fun xs eq => do
-    let some (_, lhs, rhs) := eq.eq? | throwError "Unexpected unfold theorem type {info.type}"
-    unless lhs.getAppFn.isConstOf declName do
-     throwError "Unexpected unfold theorem type {info.type}"
-    unless lhs.getAppArgs == xs do
-     throwError "Unexpected unfold theorem type {info.type}"
-    let type ← mkEq lhs.getAppFn (← mkLambdaFVars xs rhs)
-    return type
-  let value ← withNewMCtxDepth do
-    let main ← mkFreshExprSyntheticOpaqueMVar type
-    if (← tryURefl main.mvarId!) then -- try to make a rfl lemma if possible
-      instantiateMVars main
-    else forallTelescope info.type fun xs _eq => do
-      let mut proof ← mkConstWithLevelParams unfoldEqnName
-      proof := mkAppN proof xs
-      for x in xs.reverse do
-        proof ← mkLambdaFVars #[x] proof
-        proof ← mkAppM ``funext #[proof]
-      return proof
+  if (← getUnfoldEqnFor? (nonRec := true) declName).isNone then
+    return none
   let name := .str declName eqUnfoldThmSuffix
-  addDecl <| Declaration.thmDecl {
-    name, type, value
-    levelParams := info.levelParams
-  }
+  realizeConst declName name do
+    -- we have to call `getUnfoldEqnFor?` again to make `unfoldEqnName` available in this context
+    let some unfoldEqnName ← getUnfoldEqnFor? (nonRec := true) declName | unreachable!
+    let info ← getConstInfo unfoldEqnName
+    let type ← forallTelescope info.type fun xs eq => do
+      let some (_, lhs, rhs) := eq.eq? | throwError "Unexpected unfold theorem type {info.type}"
+      unless lhs.getAppFn.isConstOf declName do
+        throwError "Unexpected unfold theorem type {info.type}"
+      unless lhs.getAppArgs == xs do
+        throwError "Unexpected unfold theorem type {info.type}"
+      let type ← mkEq lhs.getAppFn (← mkLambdaFVars xs rhs)
+      return type
+    let value ← withNewMCtxDepth do
+      let main ← mkFreshExprSyntheticOpaqueMVar type
+      if (← tryURefl main.mvarId!) then -- try to make a rfl lemma if possible
+        instantiateMVars main
+      else forallTelescope info.type fun xs _eq => do
+        let mut proof ← mkConstWithLevelParams unfoldEqnName
+        proof := mkAppN proof xs
+        for x in xs.reverse do
+          proof ← mkLambdaFVars #[x] proof
+          proof ← mkAppM ``funext #[proof]
+        return proof
+    addDecl <| Declaration.thmDecl {
+      name, type, value
+      levelParams := info.levelParams
+    }
   return some name
 
 

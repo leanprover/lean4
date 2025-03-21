@@ -302,34 +302,4 @@ That is, check if the info is newer than this input trace's modification time.
 : BaseIO Bool := do
   self.mtime.checkUpToDate info
 
-/--
-Check if the info is up-to-date using a trace file.
-If the file exists, match its hash to this trace's hash.
-If not, check if the info is newer than this trace's modification time.
-
-**Deprecated:** Should not be done manually,
-but as part of `buildUnlessUpToDate`.
--/
-@[deprecated "Should not be done manually, but as part of `buildUnlessUpToDate`."
-  (since := "2024-06-14"), specialize]
-def checkAgainstFile
-  [CheckExists i] [GetMTime i]
-  (info : i) (traceFile : FilePath) (self : BuildTrace)
-: BaseIO Bool := do
-  if let some hash ← Hash.load? traceFile then
-    self.checkAgainstHash info hash
-  else
-    self.checkAgainstTime info
-
-/--
-Write trace to a file.
-
-**Deprecated:** Should not be done manually,
-but as part of `buildUnlessUpToDate`.
--/
-@[deprecated "Should not be done manually, but as part of `buildUnlessUpToDate`." (since := "2024-06-14")]
-def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit := do
-  createParentDirs traceFile
-  IO.FS.writeFile traceFile self.hash.toString
-
 end BuildTrace

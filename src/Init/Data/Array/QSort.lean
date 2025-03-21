@@ -7,6 +7,9 @@ prelude
 import Init.Data.Vector.Basic
 import Init.Data.Ord
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- We do not enable `linter.indexVariables` because it is helpful to name index variables `lo`, `mid`, `hi`, etc.
+
 namespace Array
 
 private def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi : Nat)
@@ -27,6 +30,16 @@ private def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi :
       (⟨i, ilo⟩, as.swap i hi)
   loop as lo lo
 
+/--
+Sorts an array using the Quicksort algorithm.
+
+The optional parameter `lt` specifies an ordering predicate. It defaults to `LT.lt`, which must be
+decidable to be used for sorting. Use `Array.qsortOrd` to sort the array according to the `Ord α`
+instance.
+
+The optional parameters `low` and `high` delimit the region of the array that is sorted. Both are
+inclusive, and default to sorting the entire array.
+-/
 @[inline] def qsort (as : Array α) (lt : α → α → Bool := by exact (· < ·))
     (low := 0) (high := as.size - 1) : Array α :=
   let rec @[specialize] sort {n} (as : Vector α n) (lo hi : Nat)
@@ -47,7 +60,7 @@ private def qpartition {n} (as : Vector α n) (lt : α → α → Bool) (lo hi :
 
 set_option linter.unusedVariables.funArgs false in
 /--
-Sort an array using `compare` to compare elements.
+Sorts an array using the Quicksort algorithm, using `Ord.compare` to compare elements.
 -/
 def qsortOrd [ord : Ord α] (xs : Array α) : Array α :=
   xs.qsort fun x y => compare x y |>.isLT

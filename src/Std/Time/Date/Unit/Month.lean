@@ -242,8 +242,8 @@ def days (leap : Bool) (month : Ordinal) : Day.Ordinal :=
   else
     let ⟨months, p⟩ := monthSizesNonLeap
     let index : Fin 12 := (month.sub 1).toFin (by decide)
-    let idx := (index.cast (by rw [p]))
-    months.get idx.val idx.isLt
+    let idx : Fin months.size := index.cast (by rw [p])
+    months[idx]
 
 theorem days_gt_27 (leap : Bool) (i : Month.Ordinal) : days leap i > 27 := by
   match i with
@@ -262,7 +262,7 @@ def cumulativeDays (leap : Bool) (month : Ordinal) : Day.Offset := by
   let ⟨months, p⟩ := cumulativeSizes
   let index : Fin 12 := (month.sub 1).toFin (by decide)
   rw [← p] at index
-  let res := months.get index.val index.isLt
+  let res := months[index]
   exact res + (if leap ∧ month.val > 2 then 1 else 0)
 
 theorem cumulativeDays_le (leap : Bool) (month : Month.Ordinal) : cumulativeDays leap month ≥ 0 ∧ cumulativeDays leap month ≤ 334 + (if leap then 1 else 0) := by

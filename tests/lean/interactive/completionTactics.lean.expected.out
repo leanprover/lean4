@@ -4,49 +4,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 23, "character": 21}}
 {"items":
- [{"sortText": "0",
-   "label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 23, "character": 21}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "Lean.Parser.Tactic.introMatch",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 23, "character": 21}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "Lean.Parser.Tactic.match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 23, "character": 21}},
-    "cPos": 0}},
-  {"sortText": "3",
-   "label": "Lean.Parser.Tactic.nestedTactic",
-   "kind": 14,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 23, "character": 21}},
-    "cPos": 0}},
-  {"sortText": "4",
-   "label": "Lean.Parser.Tactic.open",
+ [{"label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
    {"value":
@@ -57,8 +15,34 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "Lean.Parser.Tactic.set_option",
+  {"label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 23, "character": 21}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 23, "character": 21}},
+    "cPos": 0}},
+  {"label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 23, "character": 21}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
    {"value":
@@ -69,18 +53,26 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}},
     "cPos": 0}},
-  {"sortText": "6",
-   "label": "Lean.Parser.Tactic.unknown",
+  {"label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 23, "character": 21}},
     "cPos": 0}},
-  {"sortText": "7",
-   "label": "skip",
+  {"label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 23, "character": 21}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
@@ -90,49 +82,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 26, "character": 24}}
 {"items":
- [{"sortText": "0",
-   "label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 26, "character": 24}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "Lean.Parser.Tactic.introMatch",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 26, "character": 24}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "Lean.Parser.Tactic.match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 26, "character": 24}},
-    "cPos": 0}},
-  {"sortText": "3",
-   "label": "Lean.Parser.Tactic.nestedTactic",
-   "kind": 14,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 26, "character": 24}},
-    "cPos": 0}},
-  {"sortText": "4",
-   "label": "Lean.Parser.Tactic.open",
+ [{"label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
    {"value":
@@ -143,8 +93,34 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "Lean.Parser.Tactic.set_option",
+  {"label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 26, "character": 24}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 26, "character": 24}},
+    "cPos": 0}},
+  {"label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 26, "character": 24}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
    {"value":
@@ -155,73 +131,39 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}},
     "cPos": 0}},
-  {"sortText": "6",
-   "label": "Lean.Parser.Tactic.unknown",
+  {"label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}},
     "cPos": 0}},
-  {"sortText": "7",
-   "label": "skip",
+  {"label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 26, "character": 24}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 26, "character": 24}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 29, "character": 25}}
 {"items": [], "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 32, "character": 26}}
 {"items":
- [{"sortText": "0",
-   "label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 32, "character": 26}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "Lean.Parser.Tactic.introMatch",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 32, "character": 26}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "Lean.Parser.Tactic.match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 32, "character": 26}},
-    "cPos": 0}},
-  {"sortText": "3",
-   "label": "Lean.Parser.Tactic.nestedTactic",
-   "kind": 14,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 32, "character": 26}},
-    "cPos": 0}},
-  {"sortText": "4",
-   "label": "Lean.Parser.Tactic.open",
+ [{"label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
    {"value":
@@ -232,8 +174,34 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "Lean.Parser.Tactic.set_option",
+  {"label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 32, "character": 26}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 32, "character": 26}},
+    "cPos": 0}},
+  {"label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 32, "character": 26}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
    {"value":
@@ -244,18 +212,26 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}},
     "cPos": 0}},
-  {"sortText": "6",
-   "label": "Lean.Parser.Tactic.unknown",
+  {"label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 32, "character": 26}},
     "cPos": 0}},
-  {"sortText": "7",
-   "label": "skip",
+  {"label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 32, "character": 26}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
@@ -265,49 +241,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 35, "character": 27}}
 {"items":
- [{"sortText": "0",
-   "label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 35, "character": 27}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "Lean.Parser.Tactic.introMatch",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 35, "character": 27}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "Lean.Parser.Tactic.match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 35, "character": 27}},
-    "cPos": 0}},
-  {"sortText": "3",
-   "label": "Lean.Parser.Tactic.nestedTactic",
-   "kind": 14,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 35, "character": 27}},
-    "cPos": 0}},
-  {"sortText": "4",
-   "label": "Lean.Parser.Tactic.open",
+ [{"label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
    {"value":
@@ -318,8 +252,34 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "Lean.Parser.Tactic.set_option",
+  {"label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 35, "character": 27}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 35, "character": 27}},
+    "cPos": 0}},
+  {"label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 35, "character": 27}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
    {"value":
@@ -330,18 +290,26 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}},
     "cPos": 0}},
-  {"sortText": "6",
-   "label": "Lean.Parser.Tactic.unknown",
+  {"label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 35, "character": 27}},
     "cPos": 0}},
-  {"sortText": "7",
-   "label": "skip",
+  {"label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 35, "character": 27}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
@@ -351,49 +319,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 40, "character": 7}}
 {"items":
- [{"sortText": "0",
-   "label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 40, "character": 7}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "Lean.Parser.Tactic.introMatch",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 40, "character": 7}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "Lean.Parser.Tactic.match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 40, "character": 7}},
-    "cPos": 0}},
-  {"sortText": "3",
-   "label": "Lean.Parser.Tactic.nestedTactic",
-   "kind": 14,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 40, "character": 7}},
-    "cPos": 0}},
-  {"sortText": "4",
-   "label": "Lean.Parser.Tactic.open",
+ [{"label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
    {"value":
@@ -404,8 +330,34 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "Lean.Parser.Tactic.set_option",
+  {"label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 40, "character": 7}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 40, "character": 7}},
+    "cPos": 0}},
+  {"label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 40, "character": 7}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
    {"value":
@@ -416,18 +368,26 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}},
     "cPos": 0}},
-  {"sortText": "6",
-   "label": "Lean.Parser.Tactic.unknown",
+  {"label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 40, "character": 7}},
     "cPos": 0}},
-  {"sortText": "7",
-   "label": "skip",
+  {"label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 40, "character": 7}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
@@ -437,49 +397,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 44, "character": 2}}
 {"items":
- [{"sortText": "0",
-   "label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 44, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "Lean.Parser.Tactic.introMatch",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 44, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "Lean.Parser.Tactic.match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 44, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "3",
-   "label": "Lean.Parser.Tactic.nestedTactic",
-   "kind": 14,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 44, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "4",
-   "label": "Lean.Parser.Tactic.open",
+ [{"label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
    {"value":
@@ -490,8 +408,34 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "Lean.Parser.Tactic.set_option",
+  {"label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 44, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 44, "character": 2}},
+    "cPos": 0}},
+  {"label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 44, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
    {"value":
@@ -502,18 +446,26 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}},
     "cPos": 0}},
-  {"sortText": "6",
-   "label": "Lean.Parser.Tactic.unknown",
+  {"label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 44, "character": 2}},
     "cPos": 0}},
-  {"sortText": "7",
-   "label": "skip",
+  {"label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 44, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
@@ -523,49 +475,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 49, "character": 2}}
 {"items":
- [{"sortText": "0",
-   "label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 49, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "Lean.Parser.Tactic.introMatch",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 49, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "Lean.Parser.Tactic.match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 49, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "3",
-   "label": "Lean.Parser.Tactic.nestedTactic",
-   "kind": 14,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 49, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "4",
-   "label": "Lean.Parser.Tactic.open",
+ [{"label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
    {"value":
@@ -576,8 +486,34 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "Lean.Parser.Tactic.set_option",
+  {"label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 49, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 49, "character": 2}},
+    "cPos": 0}},
+  {"label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 49, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
    {"value":
@@ -588,18 +524,26 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}},
     "cPos": 0}},
-  {"sortText": "6",
-   "label": "Lean.Parser.Tactic.unknown",
+  {"label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 49, "character": 2}},
     "cPos": 0}},
-  {"sortText": "7",
-   "label": "skip",
+  {"label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 49, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
@@ -609,49 +553,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 53, "character": 2}}
 {"items":
- [{"sortText": "0",
-   "label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 53, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "Lean.Parser.Tactic.introMatch",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 53, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "Lean.Parser.Tactic.match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 53, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "3",
-   "label": "Lean.Parser.Tactic.nestedTactic",
-   "kind": 14,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 53, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "4",
-   "label": "Lean.Parser.Tactic.open",
+ [{"label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
    {"value":
@@ -662,8 +564,34 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "Lean.Parser.Tactic.set_option",
+  {"label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 53, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 53, "character": 2}},
+    "cPos": 0}},
+  {"label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 53, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
    {"value":
@@ -674,18 +602,26 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}},
     "cPos": 0}},
-  {"sortText": "6",
-   "label": "Lean.Parser.Tactic.unknown",
+  {"label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 53, "character": 2}},
     "cPos": 0}},
-  {"sortText": "7",
-   "label": "skip",
+  {"label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 53, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
@@ -695,49 +631,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 59, "character": 4}}
 {"items":
- [{"sortText": "0",
-   "label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 59, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "Lean.Parser.Tactic.introMatch",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 59, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "Lean.Parser.Tactic.match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 59, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "3",
-   "label": "Lean.Parser.Tactic.nestedTactic",
-   "kind": 14,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 59, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "4",
-   "label": "Lean.Parser.Tactic.open",
+ [{"label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
    {"value":
@@ -748,8 +642,34 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "Lean.Parser.Tactic.set_option",
+  {"label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 59, "character": 4}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 59, "character": 4}},
+    "cPos": 0}},
+  {"label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 59, "character": 4}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
    {"value":
@@ -760,18 +680,26 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}},
     "cPos": 0}},
-  {"sortText": "6",
-   "label": "Lean.Parser.Tactic.unknown",
+  {"label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 59, "character": 4}},
     "cPos": 0}},
-  {"sortText": "7",
-   "label": "skip",
+  {"label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 59, "character": 4}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
@@ -781,49 +709,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 64, "character": 2}}
 {"items":
- [{"sortText": "0",
-   "label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 64, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "Lean.Parser.Tactic.introMatch",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 64, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "Lean.Parser.Tactic.match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 64, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "3",
-   "label": "Lean.Parser.Tactic.nestedTactic",
-   "kind": 14,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 64, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "4",
-   "label": "Lean.Parser.Tactic.open",
+ [{"label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
    {"value":
@@ -834,8 +720,34 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "Lean.Parser.Tactic.set_option",
+  {"label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 64, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 64, "character": 2}},
+    "cPos": 0}},
+  {"label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 64, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
    {"value":
@@ -846,18 +758,26 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}},
     "cPos": 0}},
-  {"sortText": "6",
-   "label": "Lean.Parser.Tactic.unknown",
+  {"label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 64, "character": 2}},
     "cPos": 0}},
-  {"sortText": "7",
-   "label": "skip",
+  {"label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 64, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
@@ -867,49 +787,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 70, "character": 4}}
 {"items":
- [{"sortText": "0",
-   "label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 70, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "Lean.Parser.Tactic.introMatch",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 70, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "Lean.Parser.Tactic.match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 70, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "3",
-   "label": "Lean.Parser.Tactic.nestedTactic",
-   "kind": 14,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 70, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "4",
-   "label": "Lean.Parser.Tactic.open",
+ [{"label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
    {"value":
@@ -920,8 +798,34 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "Lean.Parser.Tactic.set_option",
+  {"label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 70, "character": 4}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 70, "character": 4}},
+    "cPos": 0}},
+  {"label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 70, "character": 4}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
    {"value":
@@ -932,18 +836,26 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}},
     "cPos": 0}},
-  {"sortText": "6",
-   "label": "Lean.Parser.Tactic.unknown",
+  {"label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 70, "character": 4}},
     "cPos": 0}},
-  {"sortText": "7",
-   "label": "skip",
+  {"label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 70, "character": 4}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
@@ -953,49 +865,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 76, "character": 2}}
 {"items":
- [{"sortText": "0",
-   "label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 76, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "Lean.Parser.Tactic.introMatch",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 76, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "Lean.Parser.Tactic.match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 76, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "3",
-   "label": "Lean.Parser.Tactic.nestedTactic",
-   "kind": 14,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 76, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "4",
-   "label": "Lean.Parser.Tactic.open",
+ [{"label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
    {"value":
@@ -1006,8 +876,34 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "Lean.Parser.Tactic.set_option",
+  {"label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 76, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 76, "character": 2}},
+    "cPos": 0}},
+  {"label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 76, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
    {"value":
@@ -1018,18 +914,26 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}},
     "cPos": 0}},
-  {"sortText": "6",
-   "label": "Lean.Parser.Tactic.unknown",
+  {"label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 76, "character": 2}},
     "cPos": 0}},
-  {"sortText": "7",
-   "label": "skip",
+  {"label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 76, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
@@ -1042,49 +946,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 86, "character": 2}}
 {"items":
- [{"sortText": "0",
-   "label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 86, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "Lean.Parser.Tactic.introMatch",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 86, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "Lean.Parser.Tactic.match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 86, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "3",
-   "label": "Lean.Parser.Tactic.nestedTactic",
-   "kind": 14,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 86, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "4",
-   "label": "Lean.Parser.Tactic.open",
+ [{"label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
    {"value":
@@ -1095,8 +957,34 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "Lean.Parser.Tactic.set_option",
+  {"label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 86, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 86, "character": 2}},
+    "cPos": 0}},
+  {"label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 86, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
    {"value":
@@ -1107,18 +995,26 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}},
     "cPos": 0}},
-  {"sortText": "6",
-   "label": "Lean.Parser.Tactic.unknown",
+  {"label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 86, "character": 2}},
     "cPos": 0}},
-  {"sortText": "7",
-   "label": "skip",
+  {"label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 86, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
@@ -1128,49 +1024,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 91, "character": 4}}
 {"items":
- [{"sortText": "0",
-   "label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 91, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "Lean.Parser.Tactic.introMatch",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 91, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "Lean.Parser.Tactic.match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 91, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "3",
-   "label": "Lean.Parser.Tactic.nestedTactic",
-   "kind": 14,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 91, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "4",
-   "label": "Lean.Parser.Tactic.open",
+ [{"label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
    {"value":
@@ -1181,8 +1035,34 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "Lean.Parser.Tactic.set_option",
+  {"label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 91, "character": 4}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 91, "character": 4}},
+    "cPos": 0}},
+  {"label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 91, "character": 4}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
    {"value":
@@ -1193,18 +1073,26 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}},
     "cPos": 0}},
-  {"sortText": "6",
-   "label": "Lean.Parser.Tactic.unknown",
+  {"label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 91, "character": 4}},
     "cPos": 0}},
-  {"sortText": "7",
-   "label": "skip",
+  {"label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 91, "character": 4}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
@@ -1214,49 +1102,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 96, "character": 2}}
 {"items":
- [{"sortText": "0",
-   "label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 96, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "Lean.Parser.Tactic.introMatch",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 96, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "Lean.Parser.Tactic.match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 96, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "3",
-   "label": "Lean.Parser.Tactic.nestedTactic",
-   "kind": 14,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 96, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "4",
-   "label": "Lean.Parser.Tactic.open",
+ [{"label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
    {"value":
@@ -1267,8 +1113,34 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "Lean.Parser.Tactic.set_option",
+  {"label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 96, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 96, "character": 2}},
+    "cPos": 0}},
+  {"label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 96, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
    {"value":
@@ -1279,18 +1151,26 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}},
     "cPos": 0}},
-  {"sortText": "6",
-   "label": "Lean.Parser.Tactic.unknown",
+  {"label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 96, "character": 2}},
     "cPos": 0}},
-  {"sortText": "7",
-   "label": "skip",
+  {"label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 96, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
@@ -1300,49 +1180,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 102, "character": 4}}
 {"items":
- [{"sortText": "0",
-   "label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 102, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "Lean.Parser.Tactic.introMatch",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 102, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "Lean.Parser.Tactic.match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 102, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "3",
-   "label": "Lean.Parser.Tactic.nestedTactic",
-   "kind": 14,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 102, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "4",
-   "label": "Lean.Parser.Tactic.open",
+ [{"label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
    {"value":
@@ -1353,8 +1191,34 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "Lean.Parser.Tactic.set_option",
+  {"label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 102, "character": 4}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 102, "character": 4}},
+    "cPos": 0}},
+  {"label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 102, "character": 4}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
    {"value":
@@ -1365,18 +1229,26 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}},
     "cPos": 0}},
-  {"sortText": "6",
-   "label": "Lean.Parser.Tactic.unknown",
+  {"label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 102, "character": 4}},
     "cPos": 0}},
-  {"sortText": "7",
-   "label": "skip",
+  {"label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 102, "character": 4}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
@@ -1389,49 +1261,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 112, "character": 2}}
 {"items":
- [{"sortText": "0",
-   "label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 112, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "Lean.Parser.Tactic.introMatch",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 112, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "Lean.Parser.Tactic.match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 112, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "3",
-   "label": "Lean.Parser.Tactic.nestedTactic",
-   "kind": 14,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 112, "character": 2}},
-    "cPos": 0}},
-  {"sortText": "4",
-   "label": "Lean.Parser.Tactic.open",
+ [{"label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
    {"value":
@@ -1442,8 +1272,34 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "Lean.Parser.Tactic.set_option",
+  {"label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 112, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 112, "character": 2}},
+    "cPos": 0}},
+  {"label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 112, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
    {"value":
@@ -1454,18 +1310,26 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}},
     "cPos": 0}},
-  {"sortText": "6",
-   "label": "Lean.Parser.Tactic.unknown",
+  {"label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 112, "character": 2}},
     "cPos": 0}},
-  {"sortText": "7",
-   "label": "skip",
+  {"label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 112, "character": 2}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
@@ -1475,49 +1339,7 @@
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 118, "character": 4}}
 {"items":
- [{"sortText": "0",
-   "label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 118, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "Lean.Parser.Tactic.introMatch",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 118, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "2",
-   "label": "Lean.Parser.Tactic.match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 118, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "3",
-   "label": "Lean.Parser.Tactic.nestedTactic",
-   "kind": 14,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionTactics.lean"},
-     "position": {"line": 118, "character": 4}},
-    "cPos": 0}},
-  {"sortText": "4",
-   "label": "Lean.Parser.Tactic.open",
+ [{"label": "Lean.Parser.Tactic.open",
    "kind": 14,
    "documentation":
    {"value":
@@ -1528,8 +1350,34 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 118, "character": 4}},
     "cPos": 0}},
-  {"sortText": "5",
-   "label": "Lean.Parser.Tactic.set_option",
+  {"label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 118, "character": 4}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 118, "character": 4}},
+    "cPos": 0}},
+  {"label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 118, "character": 4}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.set_option",
    "kind": 14,
    "documentation":
    {"value":
@@ -1540,18 +1388,26 @@
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 118, "character": 4}},
     "cPos": 0}},
-  {"sortText": "6",
-   "label": "Lean.Parser.Tactic.unknown",
+  {"label": "Lean.Parser.Tactic.nestedTactic",
    "kind": 14,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},
      "position": {"line": 118, "character": 4}},
     "cPos": 0}},
-  {"sortText": "7",
-   "label": "skip",
+  {"label": "Lean.Parser.Tactic.unknown",
    "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 118, "character": 4}},
+    "cPos": 0}},
+  {"label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionTactics.lean"},

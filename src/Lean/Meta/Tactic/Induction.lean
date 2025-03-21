@@ -131,23 +131,25 @@ Remark: `mvarId` and `tacticName` are used to generate error messages.
 def getMajorTypeIndices (mvarId : MVarId) (tacticName : Name) (recursorInfo : RecursorInfo) (majorType : Expr) : MetaM (Array Expr) := do
   let majorTypeArgs := majorType.getAppArgs
   recursorInfo.indicesPos.toArray.mapM fun idxPos => do
-    if idxPos ≥ majorTypeArgs.size then throwTacticEx tacticName mvarId m!"major premise type is ill-formed{indentExpr majorType}"
-    let idx := majorTypeArgs.get! idxPos
-    unless idx.isFVar do throwTacticEx tacticName mvarId m!"major premise type index {idx} is not a variable{indentExpr majorType}"
-    majorTypeArgs.size.forM fun i _ => do
-      let arg := majorTypeArgs[i]
-      if i != idxPos && arg == idx then
-        throwTacticEx tacticName mvarId m!"'{idx}' is an index in major premise, but it occurs more than once{indentExpr majorType}"
-      if i < idxPos then
-        if (← exprDependsOn arg idx.fvarId!) then
-          throwTacticEx tacticName mvarId m!"'{idx}' is an index in major premise, but it occurs in previous arguments{indentExpr majorType}"
-      -- If arg is also and index and a variable occurring after `idx`, we need to make sure it doesn't depend on `idx`.
-      -- Note that if `arg` is not a variable, we will fail anyway when we visit it.
-      if i > idxPos && recursorInfo.indicesPos.contains i && arg.isFVar then
-        let idxDecl ← idx.fvarId!.getDecl
-        if (← localDeclDependsOn idxDecl arg.fvarId!) then
-          throwTacticEx tacticName mvarId m!"'{idx}' is an index in major premise, but it depends on index occurring at position #{i+1}"
-    return idx
+    if h : idxPos ≥ majorTypeArgs.size then
+      throwTacticEx tacticName mvarId m!"major premise type is ill-formed{indentExpr majorType}"
+    else
+      let idx := majorTypeArgs[idxPos]
+      unless idx.isFVar do throwTacticEx tacticName mvarId m!"major premise type index {idx} is not a variable{indentExpr majorType}"
+      majorTypeArgs.size.forM fun i _ => do
+        let arg := majorTypeArgs[i]
+        if i != idxPos && arg == idx then
+          throwTacticEx tacticName mvarId m!"'{idx}' is an index in major premise, but it occurs more than once{indentExpr majorType}"
+        if i < idxPos then
+          if (← exprDependsOn arg idx.fvarId!) then
+            throwTacticEx tacticName mvarId m!"'{idx}' is an index in major premise, but it occurs in previous arguments{indentExpr majorType}"
+        -- If arg is also and index and a variable occurring after `idx`, we need to make sure it doesn't depend on `idx`.
+        -- Note that if `arg` is not a variable, we will fail anyway when we visit it.
+        if i > idxPos && recursorInfo.indicesPos.contains i && arg.isFVar then
+          let idxDecl ← idx.fvarId!.getDecl
+          if (← localDeclDependsOn idxDecl arg.fvarId!) then
+            throwTacticEx tacticName mvarId m!"'{idx}' is an index in major premise, but it depends on index occurring at position #{i+1}"
+      return idx
 
 /--
 Auxiliary method for implementing `induction`-like tactics.
@@ -173,8 +175,10 @@ def mkRecursorAppPrefix (mvarId : MVarId) (tacticName : Name) (majorFVarId : FVa
             match univPos with
             | RecursorUnivLevelPos.motive => pure (recursorLevels.push targetLevel, true)
             | RecursorUnivLevelPos.majorType idx =>
-              if idx ≥ majorTypeFnLevels.size then throwTacticEx tacticName mvarId "ill-formed recursor"
-              pure (recursorLevels.push (majorTypeFnLevels.get! idx), foundTargetLevel)
+              if h : idx ≥ majorTypeFnLevels.size then
+                throwTacticEx tacticName mvarId "ill-formed recursor"
+              else
+                pure (recursorLevels.push majorTypeFnLevels[idx], foundTargetLevel)
       if !foundTargetLevel && !targetLevel.isZero then
         throwTacticEx tacticName mvarId m!"recursor '{recursorInfo.recursorName}' can only eliminate into Prop"
       let recursor := mkConst recursorInfo.recursorName recursorLevels.toList

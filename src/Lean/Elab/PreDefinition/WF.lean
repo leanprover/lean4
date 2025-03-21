@@ -5,3 +5,4 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Elab.PreDefinition.WF.Main
+import Lean.Elab.PreDefinition.WF.Eqns

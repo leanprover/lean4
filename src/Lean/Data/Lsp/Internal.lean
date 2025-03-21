@@ -7,6 +7,7 @@ Authors: Joscha Mennicken
 prelude
 import Lean.Expr
 import Lean.Data.Lsp.Basic
+import Std.Data.TreeMap
 
 set_option linter.missingDocs true -- keep it documented
 
@@ -29,7 +30,7 @@ inductive RefIdent where
   | const (moduleName : String) (identName : String) : RefIdent
   /-- Unnamed identifier. These are used for all local references. -/
   | fvar (moduleName : String) (id : String) : RefIdent
-  deriving BEq, Hashable, Inhabited
+  deriving BEq, Hashable, Inhabited, Ord
 
 namespace RefIdent
 
@@ -154,7 +155,13 @@ instance : FromJson RefInfo where
     pure { definition?, usages }
 
 /-- References from a single module/file -/
-def ModuleRefs := Std.HashMap RefIdent RefInfo
+def ModuleRefs := Std.TreeMap RefIdent RefInfo
+  deriving EmptyCollection
+
+instance : ForIn m ModuleRefs (RefIdent × RefInfo) where
+  forIn map init f :=
+    let map : Std.TreeMap RefIdent RefInfo := map
+    forIn map init f
 
 instance : ToJson ModuleRefs where
   toJson m := Json.mkObj <| m.toList.map fun (ident, info) => (ident.toJson.compress, toJson info)
@@ -162,7 +169,7 @@ instance : ToJson ModuleRefs where
 instance : FromJson ModuleRefs where
   fromJson? j := do
     let node ← j.getObj?
-    node.foldM (init := Std.HashMap.empty) fun m k v =>
+    node.foldM (init := ∅) fun m k v =>
       return m.insert (← RefIdent.fromJson? (← Json.parse k)) (← fromJson? v)
 
 /--

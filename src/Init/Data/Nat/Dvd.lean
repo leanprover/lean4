@@ -9,9 +9,9 @@ import Init.Meta
 
 namespace Nat
 
-protected theorem dvd_refl (a : Nat) : a ∣ a := ⟨1, by simp⟩
+@[simp] protected theorem dvd_refl (a : Nat) : a ∣ a := ⟨1, by simp⟩
 
-protected theorem dvd_zero (a : Nat) : a ∣ 0 := ⟨0, by simp⟩
+@[simp] protected theorem dvd_zero (a : Nat) : a ∣ 0 := ⟨0, by simp⟩
 
 protected theorem dvd_mul_left (a b : Nat) : a ∣ b * a := ⟨b, Nat.mul_comm b a⟩
 protected theorem dvd_mul_right (a b : Nat) : a ∣ a * b := ⟨b, rfl⟩
@@ -128,5 +128,14 @@ protected theorem mul_div_assoc (m : Nat) (H : k ∣ n) : m * n / k = m * (n / k
   | .inr hpos =>
     have h1 : m * n / k = m * (n / k * k) / k := by rw [Nat.div_mul_cancel H]
     rw [h1, ← Nat.mul_assoc, Nat.mul_div_cancel _ hpos]
+
+/-! Helper theorems for `dvd` simproc -/
+
+protected theorem dvd_eq_true_of_mod_eq_zero {m n : Nat} (h : n % m == 0) : (m ∣ n) = True := by
+  simp [Nat.dvd_of_mod_eq_zero, eq_of_beq h]
+
+protected theorem dvd_eq_false_of_mod_ne_zero {m n : Nat} (h : n % m != 0) : (m ∣ n) = False := by
+  simp [eq_of_beq] at h
+  simp [dvd_iff_mod_eq_zero, h]
 
 end Nat

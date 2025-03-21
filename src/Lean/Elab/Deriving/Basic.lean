@@ -87,13 +87,14 @@ def defaultHandler (className : Name) (typeNames : Array Name) : CommandElabM Un
   throwError "default handlers have not been implemented yet, class: '{className}' types: {typeNames}"
 
 def applyDerivingHandlers (className : Name) (typeNames : Array Name) : CommandElabM Unit := do
-  match (← derivingHandlersRef.get).find? className with
-  | some handlers =>
-    for handler in handlers do
-      if (← handler typeNames) then
-        return ()
-    defaultHandler className typeNames
-  | none => defaultHandler className typeNames
+  withTraceNode `Elab.Deriving (fun _ => return m!"running deriving handlers for '{className}'") do
+    match (← derivingHandlersRef.get).find? className with
+    | some handlers =>
+      for handler in handlers do
+        if (← handler typeNames) then
+          return ()
+      defaultHandler className typeNames
+    | none => defaultHandler className typeNames
 
 private def tryApplyDefHandler (className : Name) (declName : Name) : CommandElabM Bool :=
   liftTermElabM do

@@ -1,76 +1,80 @@
-[Elab.info] • command @ ⟨3, 0⟩-⟨3, 31⟩ @ Lean.Elab.Command.elabSetOption
-      • [.] (Command.set_option "set_option" `trace.Elab.info []) @ ⟨3, 0⟩-⟨3, 26⟩
-      • option trace.Elab.info @ ⟨3, 11⟩-⟨3, 26⟩
+[Elab.info] 
+  • command @ ⟨3, 0⟩-⟨3, 31⟩ @ Lean.Elab.Command.elabSetOption
+    • [.] (Command.set_option "set_option" `trace.Elab.info []) @ ⟨3, 0⟩-⟨3, 26⟩
+    • option trace.Elab.info @ ⟨3, 11⟩-⟨3, 26⟩
 1 + 2 + 3 : Nat
-[Elab.info] • command @ ⟨5, 0⟩-⟨5, 16⟩ @ Lean.Elab.Command.elabCheck
-      • 1 + 2 + 3 : Nat @ ⟨5, 7⟩-⟨5, 16⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
-        • Macro expansion
-          1 + 2 +
-            3
-              -- should propagate through multiple macro expansions
-          ===>
-          binop% HAdd.hAdd✝ (1 + 2)
-            3
-              -- should propagate through multiple macro expansions
-          • 1 + 2 + 3 : Nat @ ⟨5, 7⟩†-⟨5, 16⟩† @ Lean.Elab.Term.Op.elabBinOp
-            • 1 + 2 + 3 : Nat @ ⟨5, 7⟩†-⟨5, 16⟩†
-              • 1 + 2 : Nat @ ⟨5, 7⟩-⟨5, 12⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
-                • Macro expansion
-                  1 + 2
-                  ===>
-                  binop% HAdd.hAdd✝ 1 2
-                  • 1 + 2 : Nat @ ⟨5, 7⟩†-⟨5, 12⟩†
-                    • [.] HAdd.hAdd✝ : none @ ⟨5, 7⟩†-⟨5, 16⟩†
-                    • [.] HAdd.hAdd✝ : none @ ⟨5, 7⟩†-⟨5, 12⟩†
-                    • 1 : Nat @ ⟨5, 7⟩-⟨5, 8⟩ @ Lean.Elab.Term.elabNumLit
-                    • 2 : Nat @ ⟨5, 11⟩-⟨5, 12⟩ @ Lean.Elab.Term.elabNumLit
-              • 3 : Nat @ ⟨5, 15⟩-⟨5, 16⟩ @ Lean.Elab.Term.elabNumLit
+[Elab.info] 
+  • command @ ⟨5, 0⟩-⟨5, 16⟩ @ Lean.Elab.Command.elabCheck
+    • 1 + 2 + 3 : Nat @ ⟨5, 7⟩-⟨5, 16⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
+      • Macro expansion
+        1 + 2 +
+          3
+            -- should propagate through multiple macro expansions
+        ===>
+        binop% HAdd.hAdd✝ (1 + 2)
+          3
+            -- should propagate through multiple macro expansions
+        • 1 + 2 + 3 : Nat @ ⟨5, 7⟩†-⟨5, 16⟩† @ Lean.Elab.Term.Op.elabBinOp
+          • 1 + 2 + 3 : Nat @ ⟨5, 7⟩†-⟨5, 16⟩†
+            • 1 + 2 : Nat @ ⟨5, 7⟩-⟨5, 12⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
+              • Macro expansion
+                1 + 2
+                ===>
+                binop% HAdd.hAdd✝ 1 2
+                • 1 + 2 : Nat @ ⟨5, 7⟩†-⟨5, 12⟩†
+                  • [.] HAdd.hAdd✝ : none @ ⟨5, 7⟩†-⟨5, 16⟩†
+                  • [.] HAdd.hAdd✝ : none @ ⟨5, 7⟩†-⟨5, 12⟩†
+                  • 1 : Nat @ ⟨5, 7⟩-⟨5, 8⟩ @ Lean.Elab.Term.elabNumLit
+                  • 2 : Nat @ ⟨5, 11⟩-⟨5, 12⟩ @ Lean.Elab.Term.elabNumLit
+            • 3 : Nat @ ⟨5, 15⟩-⟨5, 16⟩ @ Lean.Elab.Term.elabNumLit
 fun n m l => ↑n + (↑m + ↑l) : Nat → Nat → Nat → Int
-[Elab.info] • command @ ⟨7, 0⟩-⟨7, 48⟩ @ Lean.Elab.Command.elabCheck
-      • fun n m l => ↑n + (↑m + ↑l) : Nat → Nat → Nat → Int @ ⟨7, 7⟩-⟨7, 48⟩ @ Lean.Elab.Term.elabFun
-        • Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩ @ Lean.Elab.Term.elabIdent
-          • [.] Nat : some Sort.{?_uniq} @ ⟨7, 20⟩-⟨7, 23⟩
-          • Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩
-        • n (isBinder := true) : Nat @ ⟨7, 12⟩-⟨7, 13⟩
-        • Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩ @ Lean.Elab.Term.elabIdent
-          • [.] Nat : some Sort.{?_uniq} @ ⟨7, 20⟩-⟨7, 23⟩
-          • Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩
-        • m (isBinder := true) : Nat @ ⟨7, 14⟩-⟨7, 15⟩
-        • Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩ @ Lean.Elab.Term.elabIdent
-          • [.] Nat : some Sort.{?_uniq} @ ⟨7, 20⟩-⟨7, 23⟩
-          • Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩
-        • l (isBinder := true) : Nat @ ⟨7, 16⟩-⟨7, 17⟩
-        • ↑n + (↑m + ↑l) : Int @ ⟨7, 28⟩-⟨7, 48⟩ @ Lean.Elab.Term.elabTypeAscription
-          • Int : Type @ ⟨7, 44⟩-⟨7, 47⟩ @ Lean.Elab.Term.elabIdent
-            • [.] Int : some Sort.{?_uniq} @ ⟨7, 44⟩-⟨7, 47⟩
-            • Int : Type @ ⟨7, 44⟩-⟨7, 47⟩
-          • ↑n + (↑m + ↑l) : Int @ ⟨7, 29⟩-⟨7, 41⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
-            • Macro expansion
-              n + (m +' l)
-              ===>
-              binop% HAdd.hAdd✝ n (m +' l)
-              • ↑n + (↑m + ↑l) : Int @ ⟨7, 29⟩†-⟨7, 41⟩† @ Lean.Elab.Term.Op.elabBinOp
-                • ↑n + (↑m + ↑l) : Int @ ⟨7, 29⟩†-⟨7, 41⟩†
-                  • [.] HAdd.hAdd✝ : none @ ⟨7, 29⟩†-⟨7, 41⟩†
-                  • n : Nat @ ⟨7, 29⟩-⟨7, 30⟩ @ Lean.Elab.Term.elabIdent
-                    • [.] n : none @ ⟨7, 29⟩-⟨7, 30⟩
-                    • n : Nat @ ⟨7, 29⟩-⟨7, 30⟩
-                  • ↑m + ↑l : Int @ ⟨7, 34⟩-⟨7, 40⟩ @ «_aux_binopInfoTree___macroRules_term_+'__1»
-                    • Macro expansion
-                      m +' l
-                      ===>
-                      m + l
-                      • ↑m + ↑l : Int @ ⟨7, 34⟩†-⟨7, 40⟩† @ «_aux_Init_Notation___macroRules_term_+__2»
-                        • Macro expansion
-                          m + l
-                          ===>
-                          binop% HAdd.hAdd✝ m l
-                          • ↑m + ↑l : Int @ ⟨7, 34⟩†-⟨7, 40⟩†
-                            • [.] HAdd.hAdd✝ : none @ ⟨7, 34⟩†-⟨7, 40⟩†
-                            • m : Nat @ ⟨7, 34⟩-⟨7, 35⟩ @ Lean.Elab.Term.elabIdent
-                              • [.] m : none @ ⟨7, 34⟩-⟨7, 35⟩
-                              • m : Nat @ ⟨7, 34⟩-⟨7, 35⟩
-                            • l : Nat @ ⟨7, 39⟩-⟨7, 40⟩ @ Lean.Elab.Term.elabIdent
-                              • [.] l : none @ ⟨7, 39⟩-⟨7, 40⟩
-                              • l : Nat @ ⟨7, 39⟩-⟨7, 40⟩
-[Elab.info] • command @ ⟨8, 0⟩-⟨8, 0⟩ @ Lean.Elab.Command.elabEoi
+[Elab.info] 
+  • command @ ⟨7, 0⟩-⟨7, 48⟩ @ Lean.Elab.Command.elabCheck
+    • fun n m l => ↑n + (↑m + ↑l) : Nat → Nat → Nat → Int @ ⟨7, 7⟩-⟨7, 48⟩ @ Lean.Elab.Term.elabFun
+      • Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩ @ Lean.Elab.Term.elabIdent
+        • [.] Nat : some Sort.{?_uniq} @ ⟨7, 20⟩-⟨7, 23⟩
+        • Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩
+      • n (isBinder := true) : Nat @ ⟨7, 12⟩-⟨7, 13⟩
+      • Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩ @ Lean.Elab.Term.elabIdent
+        • [.] Nat : some Sort.{?_uniq} @ ⟨7, 20⟩-⟨7, 23⟩
+        • Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩
+      • m (isBinder := true) : Nat @ ⟨7, 14⟩-⟨7, 15⟩
+      • Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩ @ Lean.Elab.Term.elabIdent
+        • [.] Nat : some Sort.{?_uniq} @ ⟨7, 20⟩-⟨7, 23⟩
+        • Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩
+      • l (isBinder := true) : Nat @ ⟨7, 16⟩-⟨7, 17⟩
+      • ↑n + (↑m + ↑l) : Int @ ⟨7, 28⟩-⟨7, 48⟩ @ Lean.Elab.Term.elabTypeAscription
+        • Int : Type @ ⟨7, 44⟩-⟨7, 47⟩ @ Lean.Elab.Term.elabIdent
+          • [.] Int : some Sort.{?_uniq} @ ⟨7, 44⟩-⟨7, 47⟩
+          • Int : Type @ ⟨7, 44⟩-⟨7, 47⟩
+        • ↑n + (↑m + ↑l) : Int @ ⟨7, 29⟩-⟨7, 41⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
+          • Macro expansion
+            n + (m +' l)
+            ===>
+            binop% HAdd.hAdd✝ n (m +' l)
+            • ↑n + (↑m + ↑l) : Int @ ⟨7, 29⟩†-⟨7, 41⟩† @ Lean.Elab.Term.Op.elabBinOp
+              • ↑n + (↑m + ↑l) : Int @ ⟨7, 29⟩†-⟨7, 41⟩†
+                • [.] HAdd.hAdd✝ : none @ ⟨7, 29⟩†-⟨7, 41⟩†
+                • n : Nat @ ⟨7, 29⟩-⟨7, 30⟩ @ Lean.Elab.Term.elabIdent
+                  • [.] n : none @ ⟨7, 29⟩-⟨7, 30⟩
+                  • n : Nat @ ⟨7, 29⟩-⟨7, 30⟩
+                • ↑m + ↑l : Int @ ⟨7, 34⟩-⟨7, 40⟩ @ «_aux_binopInfoTree___macroRules_term_+'__1»
+                  • Macro expansion
+                    m +' l
+                    ===>
+                    m + l
+                    • ↑m + ↑l : Int @ ⟨7, 34⟩†-⟨7, 40⟩† @ «_aux_Init_Notation___macroRules_term_+__2»
+                      • Macro expansion
+                        m + l
+                        ===>
+                        binop% HAdd.hAdd✝ m l
+                        • ↑m + ↑l : Int @ ⟨7, 34⟩†-⟨7, 40⟩†
+                          • [.] HAdd.hAdd✝ : none @ ⟨7, 34⟩†-⟨7, 40⟩†
+                          • m : Nat @ ⟨7, 34⟩-⟨7, 35⟩ @ Lean.Elab.Term.elabIdent
+                            • [.] m : none @ ⟨7, 34⟩-⟨7, 35⟩
+                            • m : Nat @ ⟨7, 34⟩-⟨7, 35⟩
+                          • l : Nat @ ⟨7, 39⟩-⟨7, 40⟩ @ Lean.Elab.Term.elabIdent
+                            • [.] l : none @ ⟨7, 39⟩-⟨7, 40⟩
+                            • l : Nat @ ⟨7, 39⟩-⟨7, 40⟩
+[Elab.info] 
+  • command @ ⟨8, 0⟩-⟨8, 0⟩ @ Lean.Elab.Command.elabEoi

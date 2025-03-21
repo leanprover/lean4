@@ -59,5 +59,8 @@ def isInstLTNat (e : Expr) : MetaM Bool := do
 def isInstLENat (e : Expr) : MetaM Bool := do
   let_expr instLENat ← e | return false
   return true
+def isInstDvdNat (e : Expr) : MetaM Bool := do
+  let_expr Nat.instDvd ← e | return false
+  return true
 
 end Lean.Meta

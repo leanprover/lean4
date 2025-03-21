@@ -6,8 +6,6 @@ Authors: Sebastian Ullrich
 prelude
 import Lean.Data.AssocList
 import Lean.Data.Format
-import Lean.Data.HashMap
-import Lean.Data.HashSet
 import Lean.Data.Json
 import Lean.Data.JsonRpc
 import Lean.Data.KVMap

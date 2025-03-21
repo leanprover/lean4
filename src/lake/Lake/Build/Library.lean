@@ -20,19 +20,19 @@ open System (FilePath)
 Collect the local modules of a library.
 That is, the modules from `getModuleArray` plus their local transitive imports.
 -/
-partial def LeanLib.recCollectLocalModules (self : LeanLib) : FetchM (Array Module) := do
+partial def LeanLib.recCollectLocalModules (self : LeanLib) : FetchM (Job (Array Module)) := ensureJob do
   let mut mods := #[]
   let mut modSet := ModuleSet.empty
   for mod in (← self.getModuleArray) do
     (mods, modSet) ← go mod mods modSet
-  return mods
+  return Job.pure mods
 where
   go root mods modSet := do
     let mut mods := mods
     let mut modSet := modSet
     unless modSet.contains root do
       modSet := modSet.insert root
-      let imps ← root.imports.fetch
+      let imps ← (← root.imports.fetch).await
       for mod in imps do
         if self.isLocalModule mod.name then
           (mods, modSet) ← go mod mods modSet
@@ -41,11 +41,11 @@ where
 
 /-- The `LibraryFacetConfig` for the builtin `modulesFacet`. -/
 def LeanLib.modulesFacetConfig : LibraryFacetConfig modulesFacet :=
-  mkFacetConfig LeanLib.recCollectLocalModules
+  mkFacetJobConfig LeanLib.recCollectLocalModules (buildable := false)
 
 protected def LeanLib.recBuildLean
 (self : LeanLib) : FetchM (Job Unit) := do
-  let mods ← self.modules.fetch
+  let mods ← (← self.modules.fetch).await
   mods.foldlM (init := Job.nil) fun job mod => do
     return job.mix <| ← mod.leanArts.fetch
 
@@ -61,11 +61,16 @@ def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
     else
       ""
   withRegisterJob s!"{self.name}:static{suffix}" do
-  let mods ← self.modules.fetch
+  let mods ← (← self.modules.fetch).await
   let oJobs ← mods.flatMapM fun mod =>
     mod.nativeFacets shouldExport |>.mapM fun facet => fetch <| mod.facet facet.name
   let libFile := if shouldExport then self.staticExportLibFile else self.staticLibFile
-  buildStaticLib libFile oJobs
+  /-
+  Static libraries with explicit exports are built as thin libraries.
+  The Lean build itself requires a thin static library with exported symbols
+  as part of its build process on Windows. It does not distribute this library.
+  -/
+  buildStaticLib libFile oJobs (thin := shouldExport)
 
 /-- The `LibraryFacetConfig` for the builtin `staticFacet`. -/
 def LeanLib.staticFacetConfig : LibraryFacetConfig staticFacet :=
@@ -81,7 +86,7 @@ def LeanLib.staticExportFacetConfig : LibraryFacetConfig staticExportFacet :=
 protected def LeanLib.recBuildShared
 (self : LeanLib) : FetchM (Job FilePath) := do
   withRegisterJob s!"{self.name}:shared" do
-  let mods ← self.modules.fetch
+  let mods ← (← self.modules.fetch).await
   let oJobs ← mods.flatMapM fun mod =>
     mod.nativeFacets true |>.mapM fun facet => fetch <| mod.facet facet.name
   let pkgs := mods.foldl (·.insert ·.pkg) OrdPackageSet.empty |>.toArray

@@ -28,7 +28,7 @@ builtin_initialize
     `Lean.Widget.InteractiveDiagnostics.msgToInteractive
     MsgToInteractive
     (TaggedText MsgEmbed)
-    fun ⟨⟨m⟩, i⟩ => RequestM.asTask do msgToInteractive m i (hasWidgets := true)
+    fun ⟨⟨m⟩, i⟩ => RequestM.pureTask do msgToInteractive m i (hasWidgets := true)
 
 /-- The information that the infoview uses to render a popup
 for when the user hovers over an expression.
@@ -47,7 +47,7 @@ The intended usage of this is for the infoview to pass the `InfoWithCtx` which
 was stored for a particular `SubexprInfo` tag in a `TaggedText` generated with `ppExprTagged`.
  -/
 def makePopup : WithRpcRef InfoWithCtx → RequestM (RequestTask InfoPopup)
-  | ⟨i⟩ => RequestM.asTask do
+  | ⟨i⟩ => RequestM.pureTask do
     i.ctx.runMetaM i.info.lctx do
       let type? ← match (← i.info.type?) with
         | some type => some <$> ppExprTagged type
@@ -110,7 +110,7 @@ builtin_initialize
     `Lean.Widget.getGoToLocation
     GetGoToLocationParams
     (Array Lsp.LocationLink)
-    fun ⟨kind, ⟨i⟩⟩ => RequestM.asTask do
+    fun ⟨kind, ⟨i⟩⟩ => RequestM.pureTask do
       let rc ← read
       let ls ← FileWorker.locationLinksOfInfo kind i
       if !ls.isEmpty then return ls
@@ -123,7 +123,7 @@ builtin_initialize
 
 def lazyTraceChildrenToInteractive (children : WithRpcRef LazyTraceChildren) :
     RequestM (RequestTask (Array (TaggedText MsgEmbed))) :=
-  RequestM.asTask do
+  RequestM.pureTask do
     let ⟨indent, children⟩ := children
     children.mapM fun ⟨child⟩ =>
       msgToInteractive child (hasWidgets := true) (indent := indent)

@@ -1,0 +1,6 @@
+{"textDocument": {"uri": "file:///structNameParentProj.lean"},
+ "position": {"line": 6, "character": 23}}
+{"range":
+ {"start": {"line": 6, "character": 21}, "end": {"line": 6, "character": 29}},
+ "contents":
+ {"value": "```lean\nS'.toParent (self : S') : S\n```", "kind": "markdown"}}

@@ -182,14 +182,14 @@ section Mathlib.CategoryTheory.Category.Basic
 
 namespace CategoryTheory
 
-class CategoryStruct (obj : Type u₁) extends Quiver.{v₁ + 1} obj : Type max u₁ (v₁ + 1) where
+class CategoryStruct (obj : Type u₁) : Type max u₁ (v₁ + 1) extends Quiver.{v₁ + 1} obj where
   id : ∀ X : obj, Hom X X
   comp : ∀ {X Y Z : obj}, (X ⟶ Y) → (Y ⟶ Z) → (X ⟶ Z)
 
 scoped notation "𝟙" => CategoryStruct.id  -- type as \b1
 scoped infixr:80 " ≫ " => CategoryStruct.comp -- type as \gg
 
-class Category (obj : Type u₁) extends CategoryStruct.{v₁} obj : Type max u₁ (v₁ + 1) where
+class Category (obj : Type u₁) : Type max u₁ (v₁ + 1) extends CategoryStruct.{v₁} obj where
   id_comp : ∀ {X Y : obj} (f : X ⟶ Y), 𝟙 X ≫ f = f
   comp_id : ∀ {X Y : obj} (f : X ⟶ Y), f ≫ 𝟙 Y = f
   assoc : ∀ {W X Y Z : obj} (f : W ⟶ X) (g : X ⟶ Y) (h : Y ⟶ Z), (f ≫ g) ≫ h = f ≫ g ≫ h
@@ -202,8 +202,8 @@ section Mathlib.CategoryTheory.Functor.Basic
 
 namespace CategoryTheory
 
-structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.{v₂} D]
-    extends Prefunctor C D : Type max v₁ v₂ u₁ u₂ where
+structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.{v₂} D] : Type max v₁ v₂ u₁ u₂
+    extends Prefunctor C D where
 
 infixr:26 " ⥤ " => Functor -- type as \func
 

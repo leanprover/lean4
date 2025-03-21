@@ -6,7 +6,7 @@ Authors: Markus Himmel
 prelude
 import Init.Data.Array.TakeDrop
 import Std.Data.DHashMap.Basic
-import Std.Data.DHashMap.Internal.List.HashesTo
+import Std.Data.DHashMap.Internal.HashesTo
 import Std.Data.DHashMap.Internal.AssocList.Lemmas
 
 /-!
@@ -31,7 +31,9 @@ open List (Perm perm_append_comm_assoc)
 
 namespace Std.DHashMap.Internal
 
-open Internal.List
+open Std.DHashMap.Internal.List
+open Std.Internal.List
+open Std.Internal
 
 /-! # Setting up the infrastructure -/
 
@@ -195,7 +197,7 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
     (hg : ∀ {l l'}, Perm (g (l ++ l')) (g l ++ g l')) :
     Perm (toListModel (updateAllBuckets m.1.buckets f)) (g (toListModel m.1.2)) := by
   have hg₀ : g [] = [] := by
-    rw [← List.length_eq_zero]
+    rw [← List.length_eq_zero_iff]
     have := (hg (l := []) (l' := [])).length_eq
     rw [List.length_append, List.append_nil] at this
     omega

@@ -117,7 +117,7 @@ structure MonoTypeExtState where
   deriving Inhabited
 
 builtin_initialize monoTypeExt : EnvExtension MonoTypeExtState ←
-  registerEnvExtension (pure {})
+  registerEnvExtension (pure {}) (asyncMode := .sync)  -- compilation is non-parallel anyway
 
 def getOtherDeclMonoType (declName : Name) : CoreM Expr := do
   match monoTypeExt.getState (← getEnv) |>.mono.find? declName with

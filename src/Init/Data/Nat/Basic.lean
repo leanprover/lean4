@@ -23,35 +23,69 @@ private theorem rec_eq_recCompiled : @Nat.rec = @Nat.recCompiled :=
   funext fun _ => funext fun _ => funext fun succ => funext fun t =>
     Nat.recOn t rfl (fun n ih => congrArg (succ n) ih)
 
-/-- Recursor identical to `Nat.rec` but uses notations `0` for `Nat.zero` and `· + 1` for `Nat.succ`.
-Used as the default `Nat` eliminator by the `induction` tactic. -/
+/--
+A recursor for `Nat` that uses the notations `0` for `Nat.zero` and `n + 1` for `Nat.succ`.
+
+It is otherwise identical to the default recursor `Nat.rec`. It is used by the `induction` tactic
+by default for `Nat`.
+-/
 @[elab_as_elim, induction_eliminator]
 protected abbrev recAux {motive : Nat → Sort u} (zero : motive 0) (succ : (n : Nat) → motive n → motive (n + 1)) (t : Nat) : motive t :=
   Nat.rec zero succ t
 
-/-- Recursor identical to `Nat.casesOn` but uses notations `0` for `Nat.zero` and `· + 1` for `Nat.succ`.
-Used as the default `Nat` eliminator by the `cases` tactic. -/
+/--
+A case analysis principle for `Nat` that uses the notations `0` for `Nat.zero` and `n + 1` for
+`Nat.succ`.
+
+It is otherwise identical to the default recursor `Nat.casesOn`. It is used as the default `Nat`
+case analysis principle for `Nat` by the `cases` tactic.
+-/
 @[elab_as_elim, cases_eliminator]
 protected abbrev casesAuxOn {motive : Nat → Sort u} (t : Nat) (zero : motive 0) (succ : (n : Nat) → motive (n + 1)) : motive t :=
   Nat.casesOn t zero succ
 
 
 /--
-`Nat.repeat f n a` is `f^(n) a`; that is, it iterates `f` `n` times on `a`.
+Applies a function to a starting value the specified number of times.
+
+In other words, `f` is iterated `n` times on `a`.
+
+Examples:
 * `Nat.repeat f 3 a = f <| f <| f <| a`
+* `Nat.repeat (· ++ "!") 4 "Hello" = "Hello!!!!"`
 -/
 @[specialize] def repeat {α : Type u} (f : α → α) : (n : Nat) → (a : α) → α
   | 0,      a => a
   | succ n, a => f (repeat f n a)
 
-/-- Tail-recursive version of `Nat.repeat`. -/
+/--
+Applies a function to a starting value the specified number of times.
+
+In other words, `f` is iterated `n` times on `a`.
+
+This is a tail-recursive version of `Nat.repeat` that's used at runtime.
+
+Examples:
+* `Nat.repeatTR f 3 a = f <| f <| f <| a`
+* `Nat.repeatTR (· ++ "!") 4 "Hello" = "Hello!!!!"`
+-/
 @[inline] def repeatTR {α : Type u} (f : α → α) (n : Nat) (a : α) : α :=
   let rec @[specialize] loop
     | 0,      a => a
     | succ n, a => loop n (f a)
   loop n a
 
-/-- Boolean less-than of natural numbers. -/
+/--
+The Boolean less-than comparison on natural numbers.
+
+This function is overridden in both the kernel and the compiler to efficiently evaluate using the
+arbitrary-precision arithmetic library. The definition provided here is the logical model.
+
+Examples:
+ * `Nat.blt 2 5 = true`
+ * `Nat.blt 5 2 = false`
+ * `Nat.blt 5 5 = false`
+-/
 def blt (a b : Nat) : Bool :=
   ble a.succ b
 
@@ -500,6 +534,9 @@ protected theorem le_of_add_le_add_right {a b c : Nat} : a + b ≤ c + b → a �
 @[simp] protected theorem add_le_add_iff_right {n : Nat} : m + n ≤ k + n ↔ m ≤ k :=
   ⟨Nat.le_of_add_le_add_right, fun h => Nat.add_le_add_right h _⟩
 
+@[simp] protected theorem add_le_add_iff_left {n : Nat} : n + m ≤ n + k ↔ m ≤ k :=
+  ⟨Nat.le_of_add_le_add_left, fun h => Nat.add_le_add_left h _⟩
+
 /-! ### le/lt -/
 
 protected theorem lt_asymm {a b : Nat} (h : a < b) : ¬ b < a := Nat.not_lt.2 (Nat.le_of_lt h)
@@ -709,6 +746,16 @@ protected theorem le_of_mul_le_mul_left {a b c : Nat} (h : c * a ≤ c * b) (hc 
     have h' : c * b < c * a := Nat.mul_lt_mul_of_pos_left hlt hc
     absurd h (Nat.not_le_of_gt h')
 
+protected theorem le_of_mul_le_mul_right {a b c : Nat} (h : a * c ≤ b * c) (hc : 0 < c) : a ≤ b := by
+  rw [Nat.mul_comm a c, Nat.mul_comm b c] at h
+  exact Nat.le_of_mul_le_mul_left h hc
+
+protected theorem mul_le_mul_left_iff {n m k : Nat} (w : 0 < k) : k * n ≤ k * m ↔ n ≤ m :=
+  ⟨fun h => Nat.le_of_mul_le_mul_left h w, fun h => mul_le_mul_left _ h⟩
+
+protected theorem mul_le_mul_right_iff {n m k : Nat} (w : 0 < k) : n * k ≤ m * k ↔ n ≤ m :=
+  ⟨fun h => Nat.le_of_mul_le_mul_right h w, fun h => mul_le_mul_right _ h⟩
+
 protected theorem eq_of_mul_eq_mul_left {m k n : Nat} (hn : 0 < n) (h : n * m = n * k) : m = k :=
   Nat.le_antisymm (Nat.le_of_mul_le_mul_left (Nat.le_of_eq h) hn)
                   (Nat.le_of_mul_le_mul_left (Nat.le_of_eq h.symm) hn)
@@ -726,41 +773,61 @@ protected theorem pow_add_one (n m : Nat) : n^(m + 1) = n^m * n :=
 
 protected theorem pow_zero (n : Nat) : n^0 = 1 := rfl
 
-theorem pow_le_pow_of_le_left {n m : Nat} (h : n ≤ m) : ∀ (i : Nat), n^i ≤ m^i
+theorem pow_le_pow_left {n m : Nat} (h : n ≤ m) : ∀ (i : Nat), n^i ≤ m^i
   | 0      => Nat.le_refl _
-  | succ i => Nat.mul_le_mul (pow_le_pow_of_le_left h i) h
+  | succ i => Nat.mul_le_mul (pow_le_pow_left h i) h
 
-theorem pow_le_pow_of_le_right {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤ j → n^i ≤ n^j
+theorem pow_le_pow_right {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤ j → n^i ≤ n^j
   | 0,      h =>
     have : i = 0 := eq_zero_of_le_zero h
     this.symm ▸ Nat.le_refl _
   | succ j, h =>
     match le_or_eq_of_le_succ h with
     | Or.inl h => show n^i ≤ n^j * n from
-      have : n^i * 1 ≤ n^j * n := Nat.mul_le_mul (pow_le_pow_of_le_right hx h) hx
+      have : n^i * 1 ≤ n^j * n := Nat.mul_le_mul (pow_le_pow_right hx h) hx
       Nat.mul_one (n^i) ▸ this
     | Or.inr h =>
       h.symm ▸ Nat.le_refl _
 
-theorem pos_pow_of_pos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n^m :=
-  pow_le_pow_of_le_right h (Nat.zero_le _)
+set_option linter.missingDocs false in
+@[deprecated Nat.pow_le_pow_left (since := "2025-02-17")]
+abbrev pow_le_pow_of_le_left := @pow_le_pow_left
+
+set_option linter.missingDocs false in
+@[deprecated Nat.pow_le_pow_right (since := "2025-02-17")]
+abbrev pow_le_pow_of_le_right := @pow_le_pow_right
+
+protected theorem pow_pos (h : 0 < a) : 0 < a^n :=
+  match n with
+  | 0 => Nat.zero_lt_one
+  | _ + 1 => Nat.mul_pos (Nat.pow_pos h) h
+
+set_option linter.missingDocs false in
+@[deprecated Nat.pow_pos (since := "2025-02-17")]
+abbrev pos_pow_of_pos := @Nat.pow_pos
 
 @[simp] theorem zero_pow_of_pos (n : Nat) (h : 0 < n) : 0 ^ n = 0 := by
   cases n with
   | zero => cases h
   | succ n => simp [Nat.pow_succ]
 
-protected theorem two_pow_pos (w : Nat) : 0 < 2^w := Nat.pos_pow_of_pos _ (by decide)
+protected theorem two_pow_pos (w : Nat) : 0 < 2^w := Nat.pow_pos (by decide)
 
 instance {n m : Nat} [NeZero n] : NeZero (n^m) :=
-  ⟨Nat.ne_zero_iff_zero_lt.mpr (Nat.pos_pow_of_pos m (pos_of_neZero _))⟩
+  ⟨Nat.ne_zero_iff_zero_lt.mpr (Nat.pow_pos (pos_of_neZero _))⟩
 
 /-! # min/max -/
 
 /--
-`Nat.min a b` is the minimum of `a` and `b`:
-* if `a ≤ b` then `Nat.min a b = a`
-* if `b ≤ a` then `Nat.min a b = b`
+Returns the lesser of two natural numbers. Usually accessed via `Min.min`.
+
+Returns `n` if `n ≤ m`, or `m` if `m ≤ n`.
+
+Examples:
+* `min 0 5 = 0`
+* `min 4 5 = 4`
+* `min 4 3 = 3`
+* `min 8 8 = 8`
 -/
 protected abbrev min (n m : Nat) := min n m
 
@@ -769,9 +836,15 @@ protected theorem min_def {n m : Nat} : min n m = if n ≤ m then n else m := rf
 instance : Max Nat := maxOfLe
 
 /--
-`Nat.max a b` is the maximum of `a` and `b`:
-* if `a ≤ b` then `Nat.max a b = b`
-* if `b ≤ a` then `Nat.max a b = a`
+Returns the greater of two natural numbers. Usually accessed via `Max.max`.
+
+Returns `m` if `n ≤ m`, or `n` if `m ≤ n`.
+
+Examples:
+* `max 0 5 = 5`
+* `max 4 5 = 5`
+* `max 4 3 = 4`
+* `max 8 8 = 8`
 -/
 protected abbrev max (n m : Nat) := max n m
 
@@ -780,16 +853,19 @@ protected theorem max_def {n m : Nat} : max n m = if n ≤ m then m else n := rf
 
 /-! # Auxiliary theorems for well-founded recursion -/
 
-theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := by
+protected theorem ne_zero_of_lt (h : b < a) : a ≠ 0 := by
   cases a
   exact absurd h (Nat.not_lt_zero _)
   apply Nat.noConfusion
 
+@[deprecated Nat.ne_zero_of_lt (since := "2025-02-06")]
+theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := Nat.ne_zero_of_lt h
+
 theorem pred_lt_of_lt {n m : Nat} (h : m < n) : pred n < n :=
-  pred_lt (not_eq_zero_of_lt h)
+  pred_lt (Nat.ne_zero_of_lt h)
 
 theorem sub_one_lt_of_lt {n m : Nat} (h : m < n) : n - 1 < n :=
-  sub_one_lt (not_eq_zero_of_lt h)
+  sub_one_lt (Nat.ne_zero_of_lt h)
 
 /-! # pred theorems -/
 
@@ -854,7 +930,7 @@ theorem zero_lt_sub_of_lt (h : i < a) : 0 < a - i := by
 theorem sub_succ_lt_self (a i : Nat) (h : i < a) : a - (i + 1) < a - i := by
   rw [Nat.add_succ, Nat.sub_succ]
   apply Nat.pred_lt
-  apply Nat.not_eq_zero_of_lt
+  apply Nat.ne_zero_of_lt
   apply Nat.zero_lt_sub_of_lt
   assumption
 

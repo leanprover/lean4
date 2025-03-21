@@ -77,7 +77,7 @@ theorem ex2 : P (semired o) := by simp [semired]; fail
 
 /-- info: true -/
 #guard_msgs in
-run_meta Lean.logInfo m!"{← Lean.hasConst `semired.eq_1}"
+run_meta Lean.logInfo m!"{← Lean.hasConst (skipRealize := false) `semired.eq_1}"
 
 def semired2 : Option α → Bool
   | .some _ => true

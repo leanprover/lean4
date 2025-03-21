@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "runtime/debug.h"
 #include "runtime/sstream.h"
-#include "runtime/load_dynlib.h"
 #include "runtime/array_ref.h"
 #include "runtime/object_ref.h"
 #include "runtime/utf8.h"
@@ -31,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/elab_environment.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/trace.h"
+#include "library/dynlib.h"
 #include "library/formatter.h"
 #include "library/module.h"
 #include "library/time_task.h"
@@ -336,6 +336,7 @@ extern "C" object * lean_run_frontend(
     object * ilean_filename,
     uint8_t  json_output,
     object * error_kinds,
+    object * plugins,
     object * w
 );
 pair_ref<elab_environment, object_ref> run_new_frontend(
@@ -360,6 +361,7 @@ pair_ref<elab_environment, object_ref> run_new_frontend(
         oilean_file_name,
         json_output,
         error_kinds.to_obj_arg(),
+        mk_empty_array(),
         io_mk_world()
     ));
 }
@@ -432,6 +434,24 @@ void check_optarg(char const * option_name) {
 
 extern "C" object * lean_enable_initializer_execution(object * w);
 
+namespace lean {
+extern void (*g_lean_report_task_get_blocked_time)(std::chrono::nanoseconds);
+}
+static bool trace_task_get_blocked = getenv("LEAN_TRACE_TASK_GET_BLOCKED") != nullptr;
+static void report_task_get_blocked_time(std::chrono::nanoseconds d) {
+    if (has_no_block_profiling_task()) {
+        report_profiling_time("blocked (unaccounted)", d);
+        exclude_profiling_time_from_current_task(d);
+        if (trace_task_get_blocked) {
+            sstream ss;
+            ss << "Task.get blocked for " << std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(d).count() << "ms";
+            // using a panic for reporting is a bit of a hack, but good enough for this
+            // `lean`-specific use case
+            lean_panic(ss.str().c_str(), /* force stderr */ true);
+        }
+    }
+}
+
 extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 #ifdef LEAN_EMSCRIPTEN
     // When running in command-line mode under Node.js, we make system directories available in the virtual filesystem.
@@ -454,6 +474,9 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 #elif defined(LEAN_WINDOWS)
     // "best practice" according to https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-seterrormode
     SetErrorMode(SEM_FAILCRITICALERRORS);
+    // properly formats Unicode characters on the Windows console
+    // see https://github.com/leanprover/lean4/issues/4291
+    SetConsoleOutputCP(CP_UTF8);
 #endif
     auto init_start = std::chrono::steady_clock::now();
     lean::initializer init;
@@ -649,6 +672,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     }
 
     if (get_profiler(opts)) {
+        g_lean_report_task_get_blocked_time = report_task_get_blocked_time;
         report_profiling_time("initialization", init_time);
     }
 

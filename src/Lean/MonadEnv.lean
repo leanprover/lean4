@@ -24,22 +24,22 @@ def withEnv [Monad m] [MonadFinally m] [MonadEnv m] (env : Environment) (x : m �
   finally
     setEnv saved
 
-def isInductive [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
-  match (← getEnv).find? declName with
-  | some (ConstantInfo.inductInfo ..) => return true
-  | _ => return false
+def isInductiveCore (env : Environment) (declName : Name) : Bool :=
+  env.findAsync? declName matches some { kind := .induct, .. }
+
+def isInductive [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
+  return isInductiveCore (← getEnv) declName
 
 def isRecCore (env : Environment) (declName : Name) : Bool :=
-  match env.find? declName with
-  | some (ConstantInfo.recInfo ..) => true
-  | _ => false
+  env.findAsync? declName matches some { kind := .recursor, .. }
 
 def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
   return isRecCore (← getEnv) declName
 
 @[inline] def withoutModifyingEnv [Monad m] [MonadEnv m] [MonadFinally m] {α : Type} (x : m α) : m α := do
-  let env ← getEnv
-  try x finally setEnv env
+  -- Allow `x` to define new declarations even outside the asynchronous prefix (if any) as all
+  -- results will be discarded anway.
+  withEnv (← getEnv).unlockAsync x
 
 /-- Similar to `withoutModifyingEnv`, but also returns the updated environment -/
 @[inline] def withoutModifyingEnv' [Monad m] [MonadEnv m] [MonadFinally m] {α : Type} (x : m α) : m (α × Environment) := do
@@ -76,8 +76,8 @@ def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
     | ConstantInfo.recInfo val => k val us
     | _                        => failK ()
 
-def hasConst [Monad m] [MonadEnv m] (constName : Name) : m Bool := do
-  return (← getEnv).contains constName
+def hasConst [Monad m] [MonadEnv m] (constName : Name) (skipRealize := true) : m Bool := do
+  return (← getEnv).contains (skipRealize := skipRealize) constName
 
 private partial def mkAuxNameAux (env : Environment) (base : Name) (i : Nat) : Name :=
   let candidate := base.appendIndexAfter i
@@ -94,8 +94,18 @@ def getConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Co
   | some info => pure info
   | none      => throwError "unknown constant '{.ofConstName constName}'"
 
+def getConstVal [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstantVal := do
+  match (← getEnv).findConstVal? constName with
+  | some val => pure val
+  | none     => throwError "unknown constant '{mkConst constName}'"
+
+def getAsyncConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) (skipRealize := false) : m AsyncConstantInfo := do
+  match (← getEnv).findAsync? (skipRealize := skipRealize) constName with
+  | some val => pure val
+  | none     => throwError "unknown constant '{mkConst constName}'"
+
 def mkConstWithLevelParams [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Expr := do
-  let info ← getConstInfo constName
+  let info ← getConstVal constName
   return mkConst constName (info.levelParams.map mkLevelParam)
 
 def getConstInfoDefn [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m DefinitionVal := do

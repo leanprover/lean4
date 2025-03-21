@@ -1,3 +1,5 @@
+%reset_grind_attrs
+
 namespace List
 
 attribute [local grind =] List.length_cons in
@@ -20,8 +22,9 @@ attribute [local grind =] Option.map_some' Option.map_none' in
 attribute [local grind =] getElem?_map in
 attribute [local grind =] getElem?_replicate in
 theorem map_replicate' : (replicate n a).map f = replicate n (f a) := by
-  ext i
-  grind
+  grind?
+
+#print map_replicate'
 
 attribute [local grind =] getLast?_eq_some_iff in
 attribute [local grind] mem_concat_self in

@@ -380,7 +380,9 @@ def addTraceAsMessages [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] : m Un
     pos2traces := pos2traces.insert (pos, endPos) <| pos2traces.getD (pos, endPos) #[] |>.push traceElem.msg
   let traces' := pos2traces.toArray.qsort fun ((a, _), _) ((b, _), _) => a < b
   for ((pos, endPos), traceMsg) in traces' do
-    let data := .tagged `trace <| .joinSep traceMsg.toList "\n"
+    -- cmdline and info view differ in how they insert newlines in between trace nodes so we just
+    -- put them in a synthetic root node for now and let the rendering functions handle this case
+    let data := .tagged `trace <| .trace { cls := .anonymous } .nil traceMsg
     logMessage <| Elab.mkMessageCore (← getFileName) (← getFileMap) data .information pos endPos
 
 end Lean

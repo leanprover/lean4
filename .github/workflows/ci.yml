@@ -300,6 +300,7 @@ jobs:
   # build jobs that should not be considered by `all-done` below
   build-secondary:
     needs: [configure]
+    if: needs.configure.outputs.matrix-secondary != '[]'
     uses: ./.github/workflows/build-template.yml
     with:
       config: ${{needs.configure.outputs.matrix-secondary}}

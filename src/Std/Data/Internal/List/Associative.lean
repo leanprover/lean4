@@ -4945,7 +4945,7 @@ theorem minKey_alterKey_eq_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α
 
 end Const
 
-/-- Given a proof that the list is nonempty, returns the smallest key in an associative list. -/
+/-- Returns the smallest key in an associative list or panics if the list is empty. -/
 def minKey! [Ord α] [Inhabited α] (xs : List ((a : α) × β a)) : α :=
   minKey? xs |>.get!
 

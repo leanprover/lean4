@@ -3008,22 +3008,27 @@ theorem le_minKey [TransCmp cmp] {k he} :
     (cmp k (t.minKey he)).isLE ↔ (∀ k', k' ∈ t → (cmp k k').isLE) :=
   Impl.le_minKey t.wf
 
+@[simp]
 theorem getKey?_minKey [TransCmp cmp] {he} :
     t.getKey? (t.minKey he) = some (t.minKey he) :=
   Impl.getKey?_minKey t.wf
 
+@[simp]
 theorem getKey_minKey [TransCmp cmp] {he hc} :
     t.getKey (t.minKey he) hc = t.minKey he :=
   Impl.getKey_minKey t.wf
 
+@[simp]
 theorem getKey!_minKey [TransCmp cmp] [Inhabited α] {he} :
     t.getKey! (t.minKey he) = t.minKey he :=
   Impl.getKey!_minKey t.wf
 
+@[simp]
 theorem getKeyD_minKey [TransCmp cmp] {he fallback} :
     t.getKeyD (t.minKey he) fallback = t.minKey he :=
   Impl.getKeyD_minKey t.wf
 
+@[simp]
 theorem minKey_erase_eq_iff_not_compare_eq_minKey [TransCmp cmp] {k he} :
     (t.erase k |>.minKey he) =
         t.minKey (isEmpty_eq_false_of_isEmpty_erase_eq_false he) ↔
@@ -3055,6 +3060,7 @@ theorem minKey_insertIfNew_le_self [TransCmp cmp] {k v} :
     cmp (t.insertIfNew k v |>.minKey <| isEmpty_insertIfNew) k |>.isLE :=
   Impl.minKey_insertIfNew_le_self t.wf
 
+@[simp]
 theorem minKey_modify [TransCmp cmp] [LawfulEqCmp cmp] {k f he} :
     (t.modify k f).minKey he = t.minKey (cast (congrArg (· = false) isEmpty_modify) he) :=
   Impl.minKey_modify t.wf
@@ -3076,6 +3082,7 @@ theorem minKey_modify [TransCmp cmp] {k f he} :
         (t.minKey <| cast (congrArg (· = false) isEmpty_modify) he) :=
   Impl.Const.minKey_modify t.wf
 
+@[simp]
 theorem minKey_modify_eq_minKey [TransCmp cmp] [LawfulEqCmp cmp] {k f he} :
     (modify t k f).minKey he = t.minKey (cast (congrArg (· = false) isEmpty_modify) he) :=
   Impl.Const.minKey_modify_eq_minKey t.wf

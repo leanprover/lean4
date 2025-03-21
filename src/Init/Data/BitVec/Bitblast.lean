@@ -682,6 +682,12 @@ theorem getLsbD_mul (x y : BitVec w) (i : Nat) :
   · simp
   · omega
 
+theorem mul_eq_mulRec {x y : BitVec w} :
+    x * y = mulRec x y w := by
+  apply eq_of_getLsbD_eq
+  intro i hi
+  apply getLsbD_mul
+
 theorem getMsbD_mul (x y : BitVec w) (i : Nat) :
     (x * y).getMsbD i = (mulRec x y w).getMsbD i := by
   simp only [mulRec_eq_mul_signExtend_setWidth]
@@ -1351,7 +1357,6 @@ theorem eq_iff_eq_of_inv (f : α → BitVec w) (g : BitVec w → α) (h : ∀ x,
     simpa [h] using this
 
 /-! ### Lemmas that use Bitblasting Infrastructure -/
-
 /-- The value of `(carry i x y false)` can be computed by truncating `x` and `y`
 to `len` bits where `len ≥ i`. -/
 theorem carry_extractLsb'_eq_carry {w i len : Nat} (hi : i < len)
@@ -1369,10 +1374,110 @@ theorem carry_extractLsb'_eq_carry {w i len : Nat} (hi : i < len)
 The `[0..len)` low bits of `x + y` can be computed by truncating `x` and `y`
 to `len` bits and then adding.
 -/
-theorem extractLsb'_add {w len : Nat} {x y : BitVec w} (hlen : len ≤ w) : 
+theorem extractLsb'_add {w len : Nat} {x y : BitVec w} (hlen : len ≤ w) :
     (x + y).extractLsb' 0 len = x.extractLsb' 0 len + y.extractLsb' 0 len := by
   ext i hi
   rw [getElem_extractLsb', Nat.zero_add, getLsbD_add (by omega)]
   simp [getElem_add, carry_extractLsb'_eq_carry hi, getElem_extractLsb', Nat.zero_add]
 
+/--
+If `y` is zero upto (and including) index `i`,
+then `(x + y).getLsbD i = x.getLsbD i`, as the bits of `y` do not affect the sum.
+-/
+theorem getElem_add_eq_getElem_add_left {x y : BitVec w} {i : Nat}
+    (hi : i < w) (hy : ∀ j, j ≤ i → y.getLsbD j = false) :
+    (x + y)[i] = x[i] :=
+  @go w x y i hi hy |>.1
+  where
+    go {w : Nat} {x y : BitVec w} {i : Nat}
+        (hi : i < w) (hy : ∀ (j : Nat) (hj : j ≤ i), y[j] = false) :
+        (x + y)[i] = x[i] ∧ carry i x y false = false := by
+      induction i
+      case zero =>
+        rw [getElem_add (by omega), hy 0 (by omega)]
+        simp
+      case succ i ih =>
+        rw [getElem_add (by omega), hy _ (by omega)]
+        simp
+        rw [carry_succ]
+        have hy : ∀ j, j ≤ i → y.getLsbD j = false := by
+          intro j hj
+          apply hy
+          omega
+        specialize ih (by omega) hy
+        rw [ih.2, hy i (by omega)]
+        simp
+
+theorem getElem_add_eq_getElem_add_right {x y : BitVec w} {i : Nat}
+    (hi : i < w) (hx : ∀ j, j ≤ i → x.getLsbD j = false) :
+    (x + y)[i] = y[i] := by
+  rw [BitVec.add_comm]
+  apply getElem_add_eq_getElem_add_left <;> assumption
+
+/-- extractLsb' commutes with `mulRec`. -/
+theorem extractLsb'_mulRec {w len} {x y : BitVec w} (hlen : len ≤ w) (hi : n ≤ len):
+    (mulRec x y n).extractLsb' 0 len
+    = mulRec (x.extractLsb' 0 len) (y.extractLsb' 0 len) n := by
+  induction n
+  case zero =>
+    simp [mulRec]
+    by_cases hlen : len = 0
+    · subst hlen
+      simp [extractLsb'_eq_zero]
+    · simp [show 0 < len by omega]
+      by_cases hy : y.getLsbD 0  <;> simp [hy]
+  case succ i ihi =>
+    simp [mulRec]
+    cases hy : y.getLsbD (i + 1)
+    · simp only [false_eq_true, ↓reduceIte, BitVec.add_zero, _root_.and_false]
+      rw [ihi (by omega)]
+    · simp only [↓reduceIte, _root_.and_true]
+      rw [extractLsb'_add (by omega), ihi (by omega)]
+      simp only [BitVec.add_right_inj]
+      ext j hj
+      simp only [getElem_extractLsb', Nat.zero_add, getLsbD_shiftLeft]
+      simp only [show j < w by omega, decide_true, Bool.true_and]
+      by_cases hi' : i + 1 < len
+      · simp [hi']
+      · simp [hi']
+        omega
+
+/-- Running `mulRec` for `(n + 1)` iterations agrees with the results
+from `n` iterations for all indices `j < n`. -/
+theorem getElem_mulRec_succ_eq_getElem_mulRec {w} {x y : BitVec w} (hlen : n ≤ w) (hj : j < n) :
+    (mulRec x y n)[j]
+    = (mulRec x y (n + 1))[j] := by
+  rw [mulRec]
+  by_cases hy : y.getLsbD n.succ
+  · simp only [succ_eq_add_one, hy, ↓reduceIte]
+    rw [getElem_add_eq_getElem_add_left (by omega) (by intros k; simp; omega)]
+  · simp [hy]
+
+
+/-- Running `mulRec` for more iterations `m ≥ n` does not change the results at indices `j ≤ n`. -/
+theorem getElem_mulRec_eq_getElem_mulRec_of_le {w} {x y : BitVec w} (hn : n ≤ m) (hm : m ≤ w)  (hj : j < n) :
+    (mulRec x y n)[j] = (mulRec x y m)[j] := by
+  have : ∃ (δ : Nat), n + δ = m := by exact le.dest hn
+  obtain ⟨δ, hδ⟩ := this
+  subst hδ
+  induction δ
+  case zero => simp
+  case succ δ ih =>
+    simp [show n + (δ + 1) = (n + δ) + 1 by omega]
+    conv =>
+      rhs
+      rw [← getElem_mulRec_succ_eq_getElem_mulRec (by omega) (by omega)]
+    rw [ih (by omega) (by omega)]
+
+/--
+The [0..len) bits of the product of `x` and `y` are equal to the product
+of the [0..len) bits of `x` and `y`.
+-/
+theorem extractLsb'_mul {w len} {x y : BitVec w} (hlen : len < w) :
+    (x * y).extractLsb' 0 len = x.extractLsb' 0 len * y.extractLsb' 0 len := by
+  ext i hi
+  rw [mul_eq_mulRec, mul_eq_mulRec, ← extractLsb'_mulRec (by omega) (by omega)]
+  simp only [getElem_extractLsb', Nat.zero_add]
+  rw [getLsbD_eq_getElem (by omega), getLsbD_eq_getElem (by omega),
+      getElem_mulRec_eq_getElem_mulRec_of_le (n := len) (m := w)] <;> omega
 end BitVec

@@ -529,11 +529,6 @@ private def searchAssigmentMain : SearchM Unit := do
       trace[grind.debug.cutsat.search] "next var: {← getVar x}, {x}, {(← get').assignment.toList}"
       processVar x
 
-private def traceModel : GoalM Unit := do
-  if (← isTracingEnabledFor `grind.cutsat.model) then
-    for (x, v) in (← mkModel (← get)) do
-      trace[grind.cutsat.model] "{quoteIfNotAtom x} := {v}"
-
 private def resetDecisionStack : SearchM Unit := do
   if (← get).cases.isEmpty then
     -- Nothing to reset
@@ -568,6 +563,5 @@ def searchAssigment : GoalM Unit := do
     if (← isInconsistent) then return ()
   -- TODO: constructing a model is only worth if `grind` will **not** continue searching.
   assignElimVars
-  traceModel
 
 end Lean.Meta.Grind.Arith.Cutsat

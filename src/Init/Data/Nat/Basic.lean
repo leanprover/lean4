@@ -23,35 +23,69 @@ private theorem rec_eq_recCompiled : @Nat.rec = @Nat.recCompiled :=
   funext fun _ => funext fun _ => funext fun succ => funext fun t =>
     Nat.recOn t rfl (fun n ih => congrArg (succ n) ih)
 
-/-- Recursor identical to `Nat.rec` but uses notations `0` for `Nat.zero` and `· + 1` for `Nat.succ`.
-Used as the default `Nat` eliminator by the `induction` tactic. -/
+/--
+A recursor for `Nat` that uses the notations `0` for `Nat.zero` and `n + 1` for `Nat.succ`.
+
+It is otherwise identical to the default recursor `Nat.rec`. It is used by the `induction` tactic
+by default for `Nat`.
+-/
 @[elab_as_elim, induction_eliminator]
 protected abbrev recAux {motive : Nat → Sort u} (zero : motive 0) (succ : (n : Nat) → motive n → motive (n + 1)) (t : Nat) : motive t :=
   Nat.rec zero succ t
 
-/-- Recursor identical to `Nat.casesOn` but uses notations `0` for `Nat.zero` and `· + 1` for `Nat.succ`.
-Used as the default `Nat` eliminator by the `cases` tactic. -/
+/--
+A case analysis principle for `Nat` that uses the notations `0` for `Nat.zero` and `n + 1` for
+`Nat.succ`.
+
+It is otherwise identical to the default recursor `Nat.casesOn`. It is used as the default `Nat`
+case analysis principle for `Nat` by the `cases` tactic.
+-/
 @[elab_as_elim, cases_eliminator]
 protected abbrev casesAuxOn {motive : Nat → Sort u} (t : Nat) (zero : motive 0) (succ : (n : Nat) → motive (n + 1)) : motive t :=
   Nat.casesOn t zero succ
 
 
 /--
-`Nat.repeat f n a` is `f^(n) a`; that is, it iterates `f` `n` times on `a`.
+Applies a function to a starting value the specified number of times.
+
+In other words, `f` is iterated `n` times on `a`.
+
+Examples:
 * `Nat.repeat f 3 a = f <| f <| f <| a`
+* `Nat.repeat (· ++ "!") 4 "Hello" = "Hello!!!!"`
 -/
 @[specialize] def repeat {α : Type u} (f : α → α) : (n : Nat) → (a : α) → α
   | 0,      a => a
   | succ n, a => f (repeat f n a)
 
-/-- Tail-recursive version of `Nat.repeat`. -/
+/--
+Applies a function to a starting value the specified number of times.
+
+In other words, `f` is iterated `n` times on `a`.
+
+This is a tail-recursive version of `Nat.repeat` that's used at runtime.
+
+Examples:
+* `Nat.repeatTR f 3 a = f <| f <| f <| a`
+* `Nat.repeatTR (· ++ "!") 4 "Hello" = "Hello!!!!"`
+-/
 @[inline] def repeatTR {α : Type u} (f : α → α) (n : Nat) (a : α) : α :=
   let rec @[specialize] loop
     | 0,      a => a
     | succ n, a => loop n (f a)
   loop n a
 
-/-- Boolean less-than of natural numbers. -/
+/--
+The Boolean less-than comparison on natural numbers.
+
+This function is overridden in both the kernel and the compiler to efficiently evaluate using the
+arbitrary-precision arithmetic library. The definition provided here is the logical model.
+
+Examples:
+ * `Nat.blt 2 5 = true`
+ * `Nat.blt 5 2 = false`
+ * `Nat.blt 5 5 = false`
+-/
 def blt (a b : Nat) : Bool :=
   ble a.succ b
 
@@ -791,9 +825,15 @@ instance {n m : Nat} [NeZero n] : NeZero (n^m) :=
 /-! # min/max -/
 
 /--
-`Nat.min a b` is the minimum of `a` and `b`:
-* if `a ≤ b` then `Nat.min a b = a`
-* if `b ≤ a` then `Nat.min a b = b`
+Returns the lesser of two natural numbers. Usually accessed via `Min.min`.
+
+Returns `n` if `n ≤ m`, or `m` if `m ≤ n`.
+
+Examples:
+* `min 0 5 = 0`
+* `min 4 5 = 4`
+* `min 4 3 = 3`
+* `min 8 8 = 8`
 -/
 protected abbrev min (n m : Nat) := min n m
 
@@ -802,9 +842,15 @@ protected theorem min_def {n m : Nat} : min n m = if n ≤ m then n else m := rf
 instance : Max Nat := maxOfLe
 
 /--
-`Nat.max a b` is the maximum of `a` and `b`:
-* if `a ≤ b` then `Nat.max a b = b`
-* if `b ≤ a` then `Nat.max a b = a`
+Returns the greater of two natural numbers. Usually accessed via `Max.max`.
+
+Returns `m` if `n ≤ m`, or `n` if `m ≤ n`.
+
+Examples:
+* `max 0 5 = 5`
+* `max 4 5 = 5`
+* `max 4 3 = 4`
+* `max 8 8 = 8`
 -/
 protected abbrev max (n m : Nat) := max n m
 

@@ -361,7 +361,7 @@ theorem Expr.denote_toPoly'_go (ctx : Context) (e : Expr) :
     simp only [mul_def, denote]
     rw [Int.mul_comm (denote _ _) _]
     simpa [Int.mul_assoc] using ih
-  | case10 k a ih => simp [toPoly'.go, ih]
+  | case10 k a ih => simp [toPoly'.go, ih, Int.neg_mul, Int.mul_neg]
 
 theorem Expr.denote_norm (ctx : Context) (e : Expr) : e.norm.denote ctx = e.denote ctx := by
   simp [norm, toPoly', Expr.denote_toPoly'_go]
@@ -798,7 +798,7 @@ theorem dvd_solve_elim (ctx : Context) (d₁ : Int) (p₁ : Poly) (d₂ : Int) (
   simp [dvd_solve_elim_cert]
   split <;> simp
   next a₁ x₁ p₁ a₂ x₂ p₂ =>
-  intro _ hd _; subst x₁ p; simp
+  intro _ hd _; subst x₁ p; simp [Int.neg_mul]
   intro h₁ h₂
   rw [Int.add_comm] at h₁ h₂
   rw [Int.add_neg_eq_sub]
@@ -908,7 +908,7 @@ def Poly.coeff (p : Poly) (x : Var) : Int :=
   | .num _ => 0
 
 private theorem eq_add_coeff_insert (ctx : Context) (p : Poly) (x : Var) : p.denote ctx = (p.coeff x) * (x.denote ctx) + (p.insert (-p.coeff x) x).denote ctx := by
-  simp; rw [← Int.add_assoc, Int.add_neg_cancel_right]
+  simp; rw [← Int.add_assoc, Int.neg_mul, Int.add_neg_cancel_right]
 
 private theorem dvd_of_eq' {a x p : Int} : a*x + p = 0 → a ∣ p := by
   intro h
@@ -977,7 +977,7 @@ theorem eq_dvd_subst (ctx : Context) (x : Var) (p₁ : Poly) (d₂ : Int) (p₂ 
   have := eq_dvd_subst' h₁ h₂
   rw [Int.sub_eq_add_neg, Int.add_comm] at this
   apply abs_dvd
-  simp [this]
+  simp [this, Int.neg_mul]
 
 def eq_eq_subst_cert (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
   let a := p₁.coeff x
@@ -1017,7 +1017,7 @@ theorem eq_le_subst_nonpos (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly)
   intro h
   intro; subst p₃
   intro h₁ h₂
-  simp [*, -Int.neg_nonpos_iff]
+  simp [*, -Int.neg_nonpos_iff, Int.neg_mul]
   replace h₂ := Int.mul_le_mul_of_nonpos_left h₂ h; simp at h₂; clear h
   rw [Int.mul_comm]
   assumption

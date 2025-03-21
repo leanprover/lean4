@@ -9,7 +9,6 @@ import Init.Data.Array.BinSearch
 import Init.Data.Stream
 import Init.System.Promise
 import Lean.ImportingFlag
-import Lean.Data.HashMap
 import Lean.Data.NameTrie
 import Lean.Data.SMap
 import Lean.Declaration
@@ -553,6 +552,14 @@ def asyncPrefix? (env : Environment) : Option Name :=
 /-- True while inside `realizeConst`'s `realize`. -/
 def isRealizing (env : Environment) : Bool :=
   env.asyncCtx?.any (·.realizing)
+
+/--
+Returns the environment just after importing. `none` if `finalizeImport` has never been called on
+it.
+-/
+def importEnv? (env : Environment) : Option Environment :=
+  -- safety: `RealizationContext` is private
+  unsafe env.realizedImportedConsts?.map (unsafeCast (β := Environment) ·.env)
 
 /-- Forgets about the asynchronous context restrictions. Used only for `withoutModifyingEnv`. -/
 def unlockAsync (env : Environment) : Environment :=

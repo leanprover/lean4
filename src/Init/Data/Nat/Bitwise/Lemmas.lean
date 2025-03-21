@@ -36,7 +36,10 @@ private theorem two_mul_sub_one {n : Nat} (n_pos : n > 0) : (2*n - 1) % 2 = 1 :=
 /-! ### Preliminaries -/
 
 /--
-An induction principal that works on division by two.
+An induction principle for the natural numbers with two cases:
+ * `n = 0`, and the motive is satisfied for `0`
+ * `n > 0`, and the motive should be satisfied for `n` on the assumption that it is satisfied for
+   `n / 2`.
 -/
 noncomputable def div2Induction {motive : Nat → Sort u}
     (n : Nat) (ind : ∀(n : Nat), (n > 0 → motive (n/2)) → motive n) : motive n := by
@@ -713,7 +716,8 @@ theorem testBit_two_pow_mul :
 @[deprecated testBit_two_pow_mul (since := "2025-03-18")]
 abbrev testBit_mul_pow_two := @testBit_two_pow_mul
 
-theorem mul_add_lt_is_or {b : Nat} (b_lt : b < 2^i) (a : Nat) : 2^i * a + b = 2^i * a ||| b := by
+theorem two_pow_add_eq_or_of_lt {b : Nat} (b_lt : b < 2^i) (a : Nat) :
+    2^i * a + b = 2^i * a ||| b := by
   apply eq_of_testBit_eq
   intro j
   simp only [testBit_two_pow_mul_add _ b_lt,
@@ -726,6 +730,9 @@ theorem mul_add_lt_is_or {b : Nat} (b_lt : b < 2^i) (a : Nat) : 2^i * a + b = 2^
             calc b < 2 ^ i := b_lt
                  _ ≤ 2 ^ j := Nat.pow_le_pow_right Nat.zero_lt_two i_le
     simp [i_le, j_lt, testBit_lt_two_pow, b_lt_j]
+
+@[deprecated two_pow_add_eq_or_of_lt (since := "2025-03-18")]
+abbrev mul_add_lt_is_or := @two_pow_add_eq_or_of_lt
 
 /-! ### shiftLeft and shiftRight -/
 

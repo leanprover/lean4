@@ -12,15 +12,14 @@ namespace Int
 /-! ## bit operations -/
 
 /--
-Bitwise not
+Bitwise not, usually accessed via the `~~~` prefix operator.
 
-Interprets the integer as an infinite sequence of bits in two's complement
-and complements each bit.
-```
-~~~(0:Int) = -1
-~~~(1:Int) = -2
-~~~(-1:Int) = 0
-```
+Interprets the integer as an infinite sequence of bits in two's complement and complements each bit.
+
+Examples:
+ * `~~~(0 : Int) = -1`
+ * `~~~(1 : Int) = -2`
+ * `~~~(-1 : Int) = 0`
 -/
 protected def not : Int → Int
   | Int.ofNat n => Int.negSucc n
@@ -29,17 +28,16 @@ protected def not : Int → Int
 instance : Complement Int := ⟨.not⟩
 
 /--
-Bitwise shift right.
+Bitwise right shift, usually accessed via the `>>>` operator.
 
-Conceptually, this treats the integer as an infinite sequence of bits in two's
-complement and shifts the value to the right.
+Interprets the integer as an infinite sequence of bits in two's complement and shifts the value to
+the right.
 
-```lean
-( 0b0111:Int) >>> 1 =  0b0011
-( 0b1000:Int) >>> 1 =  0b0100
-(-0b1000:Int) >>> 1 = -0b0100
-(-0b0111:Int) >>> 1 = -0b0100
-```
+Examples:
+* `( 0b0111 : Int) >>> 1 =  0b0011`
+* `( 0b1000 : Int) >>> 1 =  0b0100`
+* `(-0b1000 : Int) >>> 1 = -0b0100`
+* `(-0b0111 : Int) >>> 1 = -0b0100`
 -/
 protected def shiftRight : Int → Nat → Int
   | Int.ofNat n, s => Int.ofNat (n >>> s)

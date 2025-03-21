@@ -38,7 +38,6 @@ theorem mkUlt_denote_eq (aig : AIG α) (lhs rhs : BitVec w) (input : BinaryRefVe
     rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]
     rw [AIG.LawfulVecOperator.denote_mem_prefix (f := BVExpr.bitblast.blastNot)]
     apply hleft
-    assumption
   · dsimp only
     intro idx hidx
     rw [AIG.LawfulOperator.denote_mem_prefix (f := AIG.mkConstCached)]

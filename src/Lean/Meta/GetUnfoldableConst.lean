@@ -41,12 +41,11 @@ def getUnfoldableConst? (constName : Name) : MetaM (Option ConstantInfo) := do
   match ainfo.kind with
   | .thm =>
     if (← shouldReduceAll) then
-      return some ainfo.constInfo.get
+      return some ainfo.toConstantInfo
     else
       return none
-  | _ => match ainfo.toConstantInfo with
-    | info@(.defnInfo _) => if (← canUnfold info) then return info else return none
-    | _                  => return none
+  | .defn => if (← canUnfold ainfo.toConstantInfo) then return ainfo.toConstantInfo else return none
+  | _ => return none
 
 /--
 As with `getUnfoldableConst?` but return `none` instead of failing if the constant is not found.

@@ -20,7 +20,21 @@ namespace Int
 
 /-! ## gcd -/
 
-/-- Computes the greatest common divisor of two integers, as a `Nat`. -/
+/--
+Computes the greatest common divisor of two integers as a natural number. The GCD of two integers is
+the largest natural number that evenly divides both. However, the GCD of a number and `0` is the
+number's absolute value.
+
+This implementation uses `Nat.gcd`, which is overridden in both the kernel and the compiler to
+efficiently evaluate using arbitrary-precision arithmetic.
+
+Examples:
+* `Int.gcd 10 15 = 5`
+* `Int.gcd 10 (-15) = 5`
+* `Int.gcd (-6) (-9) = 3`
+* `Int.gcd 0 5 = 5`
+* `Int.gcd (-7) 0 = 7`
+-/
 def gcd (m n : Int) : Nat := m.natAbs.gcd n.natAbs
 
 theorem gcd_dvd_left {a b : Int} : (gcd a b : Int) ∣ a := by
@@ -41,7 +55,18 @@ theorem gcd_dvd_right {a b : Int} : (gcd a b : Int) ∣ b := by
 
 /-! ## lcm -/
 
-/-- Computes the least common multiple of two integers, as a `Nat`. -/
+/--
+Computes the least common multiple of two integers as a natural number. The LCM of two integers is
+the smallest natural number that's evenly divisible by the absolute values of both.
+
+Examples:
+ * `Int.lcm 9 6 = 18`
+ * `Int.lcm 9 (-6) = 18`
+ * `Int.lcm 9 3 = 9`
+ * `Int.lcm 9 (-3) = 9`
+ * `Int.lcm 0 3 = 0`
+ * `Int.lcm (-3) 0 = 0`
+-/
 def lcm (m n : Int) : Nat := m.natAbs.lcm n.natAbs
 
 theorem lcm_ne_zero (hm : m ≠ 0) (hn : n ≠ 0) : lcm m n ≠ 0 := by

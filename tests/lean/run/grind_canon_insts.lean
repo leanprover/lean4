@@ -81,6 +81,14 @@ info: [Meta.debug] [@HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast
        (@NatCast.natCast Int instNatCastInt a),
      @HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
        (@NatCast.natCast Int instNatCastInt d),
+     @HMul.hMul Int Int Int (@instHMul Int Int.instMul)
+       (@Neg.neg Int Int.instNegInt (@OfNat.ofNat Int 1 (@instOfNat 1)))
+       (@HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
+         (@NatCast.natCast Int instNatCastInt a)),
+     @HMul.hMul Int Int Int (@instHMul Int Int.instMul)
+       (@Neg.neg Int Int.instNegInt (@OfNat.ofNat Int 1 (@instOfNat 1)))
+       (@HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
+         (@NatCast.natCast Int instNatCastInt d)),
      @HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b a,
      @HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b d]
 -/

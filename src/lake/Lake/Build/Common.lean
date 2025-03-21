@@ -353,11 +353,11 @@ def buildLeanO
 
 /-- Build a static library from object file jobs using the Lean toolchain's `ar`. -/
 def buildStaticLib
-  (libFile : FilePath) (oFileJobs : Array (Job FilePath))
+  (libFile : FilePath) (oFileJobs : Array (Job FilePath)) (thin :=  false)
 : SpawnM (Job FilePath) :=
   (Job.collectArray oFileJobs).mapM fun oFiles => do
     buildFileUnlessUpToDate' libFile do
-      compileStaticLib libFile oFiles (← getLeanAr)
+      compileStaticLib libFile oFiles (← getLeanAr) thin
     return libFile
 
 /--
@@ -392,8 +392,8 @@ def buildLeanExe
     addPlatformTrace -- executables are platform-dependent artifacts
     buildFileUnlessUpToDate' exeFile do
       let lean ← getLeanInstall
-      let args := weakArgs ++ traceArgs ++ lean.ccLinkFlags sharedLean
-      compileExe exeFile links args lean.cc
+      let args := links.map toString ++ weakArgs ++ traceArgs ++ lean.ccLinkFlags sharedLean
+      compileExe exeFile args lean.cc
     return exeFile
 
 /--

@@ -5124,7 +5124,7 @@ theorem minKey!_modifyKey_beq [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] 
   · simp_all [modifyKey]
 
 theorem minKey!_alterKey_eq_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited α]
-    {l : List ((_ : α) × β)} (hd : DistinctKeys l) {k f} (he : (alterKey k f l).isEmpty = false):
+    {l : List ((_ : α) × β)} (hd : DistinctKeys l) {k f} (he : (alterKey k f l).isEmpty = false) :
     (alterKey k f l |> minKey!) = k ↔
       (f (getValue? k l)).isSome ∧ ∀ k', containsKey k' l → (compare k k').isLE := by
   simpa only [minKey_eq_minKey!] using minKey_alterKey_eq_self hd (he := he)

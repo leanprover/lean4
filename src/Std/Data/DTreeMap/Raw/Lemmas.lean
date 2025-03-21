@@ -73,9 +73,9 @@ theorem isEmpty_eq_false_iff_exists_mem [TransCmp cmp] (h : t.WF) :
     t.isEmpty = false ↔ ∃ a, a ∈ t :=
   Impl.isEmpty_eq_false_iff_exists_mem h
 
-theorem isEmpty_eq_false_of_contains [TransCmp cmp] (h : t.WF) {a : α} :
-    (hc : t.contains a = true) → t.isEmpty = false :=
-  Impl.isEmpty_eq_false_of_contains h
+theorem isEmpty_eq_false_of_contains [TransCmp cmp] (h : t.WF) {a : α} (hc : t.contains a = true) :
+    t.isEmpty = false :=
+  Impl.isEmpty_eq_false_of_contains h hc
 
 theorem isEmpty_iff_forall_contains [TransCmp cmp] (h : t.WF) :
     t.isEmpty = true ↔ ∀ a, t.contains a = false :=
@@ -2981,48 +2981,44 @@ theorem minKey!_eq_iff_getKey?_eq_self_and_forall [TransCmp cmp] [Inhabited α] 
     t.minKey! = km ↔ t.getKey? km = some km ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
   Impl.minKey!_eq_iff_getKey?_eq_self_and_forall h
 
-theorem minKey!_eq_some_iff_mem_and_forall [TransCmp cmp]
-    [LawfulEqCmp cmp] [Inhabited α] (h : t.WF) :
-    (he : t.isEmpty = false) → ∀ {km},
+theorem minKey!_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF)
+    (he : t.isEmpty = false) {km} :
     t.minKey! = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
-  Impl.minKey!_eq_some_iff_mem_and_forall h
+  Impl.minKey!_eq_some_iff_mem_and_forall h he
 
 theorem minKey!_insert [TransCmp cmp] [Inhabited α] (h : t.WF) {k v} :
     (t.insert k v |>.minKey!) =
       (t.minKey?.elim k fun k' => if cmp k k'|>.isLE then k else k') :=
   Impl.minKey!_insert! h
 
-theorem minKey!_insert_le_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) :
-    (he : t.isEmpty = false) → ∀ {k v},
+theorem minKey!_insert_le_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false)
+    {k v} :
     cmp (t.insert k v |>.minKey!) t.minKey! |>.isLE :=
-  Impl.minKey!_insert!_le_minKey! h (instOrd := ⟨cmp⟩)
+  Impl.minKey!_insert!_le_minKey! h he (instOrd := ⟨cmp⟩)
 
 theorem minKey!_insert_le_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k v} :
     cmp (t.insert k v |>.minKey!) k |>.isLE :=
   Impl.minKey!_insert!_le_self h (instOrd := ⟨cmp⟩)
 
-theorem contains_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) :
-    (he : t.isEmpty = false) → t.contains t.minKey! :=
-  Impl.contains_minKey! h
+theorem contains_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
+    t.contains t.minKey! :=
+  Impl.contains_minKey! h he
 
-theorem minKey!_mem [TransCmp cmp] [Inhabited α] (h : t.WF) :
-    (he : t.isEmpty = false) → t.minKey! ∈ t :=
-  Impl.minKey!_mem h
+theorem minKey!_mem [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
+    t.minKey! ∈ t :=
+  Impl.minKey!_mem h he
 
-theorem minKey!_le_of_contains [TransCmp cmp] [Inhabited α] (h : t.WF) :
-    ∀ {k}, (hc : t.contains k) →
+theorem minKey!_le_of_contains [TransCmp cmp] [Inhabited α] (h : t.WF) {k} (hc : t.contains k) :
     cmp t.minKey! k |>.isLE :=
-  Impl.minKey!_le_of_contains h
+  Impl.minKey!_le_of_contains h hc
 
-theorem minKey!_le_of_mem [TransCmp cmp] [Inhabited α] (h : t.WF) :
-    ∀ {k}, (hc : k ∈ t) →
+theorem minKey!_le_of_mem [TransCmp cmp] [Inhabited α] (h : t.WF) {k} (hc : k ∈ t) :
     cmp t.minKey! k |>.isLE :=
-  Impl.minKey!_le_of_mem h
+  Impl.minKey!_le_of_mem h hc
 
-theorem le_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) :
-    (he : t.isEmpty = false) → ∀ {k},
+theorem le_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) {k} :
     (cmp k t.minKey!).isLE ↔ (∀ k', k' ∈ t → (cmp k k').isLE) :=
-  Impl.le_minKey! h (instOrd := ⟨cmp⟩)
+  Impl.le_minKey! h he (instOrd := ⟨cmp⟩)
 
 theorem getKey?_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
     t.getKey? t.minKey! = some t.minKey! :=
@@ -3031,8 +3027,6 @@ theorem getKey?_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty
 theorem getKey_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) {hc} :
     t.getKey t.minKey! hc = t.minKey! :=
   Impl.getKey_minKey! h
-
--- TODO: minKey
 
 theorem getKey!_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
     t.getKey! t.minKey! = t.minKey! :=
@@ -3071,6 +3065,7 @@ theorem minKey!_insertIfNew_le_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k 
     cmp (t.insertIfNew k v |>.minKey!) k |>.isLE :=
   Impl.minKey!_insertIfNew!_le_self h (instOrd := ⟨cmp⟩)
 
+@[simp]
 theorem minKey!_modify [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF) {k f} :
     (t.modify k f |>.minKey!) = t.minKey! :=
   Impl.minKey!_modify h
@@ -3089,19 +3084,21 @@ theorem minKey!_modify [TransCmp cmp] [Inhabited α] (h : t.WF) {k f}
     (modify t k f |> minKey!) = if cmp t.minKey! k = .eq then k else t.minKey! :=
   Impl.Const.minKey!_modify h he
 
+@[simp]
 theorem minKey!_modify_eq_minKey! [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF) {k f} :
     (modify t k f |>.minKey!) = t.minKey! :=
   Impl.Const.minKey!_modify_eq_minKey! h
 
+@[simp]
 theorem compare_minKey!_modify_eq [TransCmp cmp] [Inhabited α] (h : t.WF) {k f} :
     cmp (modify t k f |> minKey!) t.minKey! = .eq :=
   Impl.Const.compare_minKey!_modify_eq h (instOrd := ⟨cmp⟩)
 
-theorem minKey!_alter_eq_self [TransCmp cmp] [Inhabited α] (h : t.WF) :
-    ∀ {k f}, (he : (alter t k f).isEmpty = false) →
+theorem minKey!_alter_eq_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k f}
+    (he : (alter t k f).isEmpty = false) :
     (alter t k f |>.minKey!) = k ↔
       (f (Const.get? t k)).isSome ∧ ∀ k', k' ∈ t → (cmp k k').isLE :=
-  Impl.Const.minKey!_alter!_eq_self h
+  Impl.Const.minKey!_alter!_eq_self h he
 
 end Const
 

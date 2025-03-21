@@ -280,7 +280,7 @@ jobs:
             console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`);
             matrix = matrix.filter((job) => level >= job["check-level"]);
             core.setOutput('matrix', matrix.filter((job) => !job["secondary"]));
-            core.setOutput('matrix-secondary', matrix.filter((job) => job["secondary"]));
+            core.setOutput('matrix-secondary', matrix.filter((job) => false));
 
   build:
     if: github.event_name != 'schedule' || github.repository == 'leanprover/lean4'

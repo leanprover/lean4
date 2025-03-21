@@ -13,7 +13,6 @@ We'll use `v4.6.0` as the intended release version as a running example.
 - In `src/CMakeLists.txt`, verify you see
   - `set(LEAN_VERSION_MINOR 6)` (for whichever `6` is appropriate)
   - `set(LEAN_VERSION_IS_RELEASE 1)`
-  - `set(LEAN_MANUAL_ROOT "https://lean-lang.org/doc/reference/4.6.0/")`
   - (all of these should already be in place from the release candidates)
 
 - `git tag v4.6.0`
@@ -82,6 +81,15 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag
       - There is no `stable` branch; skip this step
+    - [Reference Manual](https://github.com/leanprover/reference-manual)
+      - Dependencies: Verso
+      - Toolchain bump PR including updated Lake manifest
+      - The tag should be called `v4.6.0` for both all RCs and for the
+        final release.
+      - For the final release, delete the existing `v4.6.0` tag from
+        the RC, recreate it after the bump, and push it. Pushing the
+        tag (whether for an RC or a final) triggers a deployment.
+      - There is no `stable` branch; skip this step
     - [Cli](https://github.com/leanprover/lean4-cli)
       - No dependencies
       - Toolchain bump PR
@@ -126,7 +134,6 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Create and push the tag
       - Merge the tag into `stable`
 - Run `script/release_checklist.py v4.6.0` again to check that everything is in order.
-- Deploy the reference manual for the release to the specified URL, replacing the version that was deployed for the RC.
 - Finally, make an announcement!
   This should go in https://leanprover.zulipchat.com/#narrow/stream/113486-announce, with topic `v4.6.0`.
   Please see previous announcements for suggested language.
@@ -168,7 +175,6 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
 - In `src/CMakeLists.txt`,
   - verify that you see `set(LEAN_VERSION_MINOR 7)` (for whichever `7` is appropriate); this should already have been updated when the development cycle began.
   - change the `LEAN_VERSION_IS_RELEASE` line to `set(LEAN_VERSION_IS_RELEASE 1)` (this should be a change; on `master` and nightly releases it is always `0`).
-  - change the `LEAN_MANUAL_ROOT` line to `set(LEAN_MANUAL_ROOT "https://.../4.7.0/")`, with the correct version, after confirming the deployment location for the reference manual for this release. (this should be a change; on `master` and nightly releases it is always `""`).
   - Commit your changes to `src/CMakeLists.txt`, and push.
 - `git tag v4.7.0-rc1`
 - `git push origin v4.7.0-rc1`
@@ -206,8 +212,6 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
   - It is essential for Mathlib and Batteries CI that you then create the next `bump/v4.8.0` branch
     for the next development cycle.
     Set the `lean-toolchain` file on this branch to same `nightly` you used for this release.
-  - Deploy the reference manual for the release candidate to the URL specified above. It will be replaced by
-    the final release's manual as part of the release process.
   - (Note: we're currently uncertain if we really want to do this step. Check with Kim Morrison if you're unsure.)
     For Batteries/Aesop/Mathlib, which maintain a `nightly-testing` branch, make sure there is a tag
     `nightly-testing-2024-02-29` with date corresponding to the nightly used for the release

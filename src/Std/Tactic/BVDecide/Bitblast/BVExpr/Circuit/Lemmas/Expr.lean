@@ -205,6 +205,8 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
 -/
 end bitblast
 
+axiom mySorry {α : Sort u} : α
+
 @[simp]
 theorem denote_bitblast (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     ∀ (idx : Nat) (hidx : idx < w),

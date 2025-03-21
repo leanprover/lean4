@@ -275,104 +275,139 @@ where
       ⟨⟨res, this⟩, cache.cast (AIG.LawfulVecOperator.le_size (f := bitblast.blastArithShiftRight) ..)⟩
   termination_by (sizeOf expr, 0)
 
-/-
-theorem bitblast.go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) :
-    ∀ (idx : Nat) (h1) (h2), (go aig expr).val.aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
-  intros idx h1 h2
-  induction expr generalizing aig with
-  | var =>
-    dsimp only [go]
+
+namespace bitblast
+
+mutual
+
+theorem goCache_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
+    ∀ (idx : Nat) (h1) (h2), (goCache aig expr cache).result.val.aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
+  generalize hres : goCache aig expr cache = res
+  intro idx h1 h2
+  unfold goCache at hres
+  split at hres
+  · rw [getElem_congr_coll]
+    rw [← hres]
+  · symm at hres
+    subst hres
+    apply go_decl_eq
+termination_by (sizeOf expr, 1)
+
+theorem go_decl_eq (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
+    ∀ (idx : Nat) (h1) (h2), (go aig expr cache).result.val.aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
+  generalize hres : go aig expr cache = res
+  intro idx h1 h2
+  unfold go at hres
+  split at hres
+  · symm at hres
+    subst hres
     rw [AIG.LawfulVecOperator.decl_eq (f := blastVar)]
-  | const =>
-    dsimp only [go]
+  · symm at hres
+    subst hres
     rw [AIG.LawfulVecOperator.decl_eq (f := blastConst)]
-  | bin lhs op rhs lih rih =>
+  · next op lhsExpr rhsExpr =>
     match op with
     | .and | .or | .xor | .add | .mul | .udiv | .umod =>
-      dsimp only [go]
-      have := (bitblast.go aig lhs).property
-      have := (go (go aig lhs).1.aig rhs).property
-      have := (bitblast.go aig lhs).property
+      dsimp only at hres
+      symm at hres
+      subst hres
+      have hl := (goCache aig lhsExpr cache).result.property
+      have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
       rw [AIG.LawfulVecOperator.decl_eq]
-      rw [rih, lih]
+      rw [goCache_decl_eq, goCache_decl_eq]
       · omega
-      · apply Nat.lt_of_lt_of_le h1 -- omega cannot do this :(
-        apply Nat.le_trans <;> assumption
-  | un op expr ih =>
+      · apply Nat.lt_of_lt_of_le
+        · exact h1
+        · apply Nat.le_trans <;> assumption
+  · next op expr =>
     match op with
-    | .not | .rotateLeft .. | .rotateRight ..
-    | .arithShiftRightConst .. =>
-      dsimp only [go]
+    | .not | .rotateLeft .. | .rotateRight .. | .arithShiftRightConst .. =>
+      dsimp only at hres
+      symm at hres
+      subst hres
       rw [AIG.LawfulVecOperator.decl_eq]
-      rw [ih]
-      have := (go aig expr).property
+      rw [goCache_decl_eq]
+      have := (goCache aig expr cache).result.property
       omega
-  | append lhs rhs _ lih rih =>
-    dsimp only [go]
-    have := (bitblast.go aig lhs).property
-    have := (bitblast.go aig lhs).property
-    have := (go (go aig lhs).1.aig rhs).property
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastAppend)]
-    rw [rih, lih]
+  · next lhsExpr rhsExpr h =>
+    dsimp only at hres
+    symm at hres
+    subst hres
+    have hl := (goCache aig lhsExpr cache).result.property
+    have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
+    rw [AIG.LawfulVecOperator.decl_eq]
+    rw [goCache_decl_eq, goCache_decl_eq]
     · omega
-    · apply Nat.lt_of_lt_of_le h1
-      apply Nat.le_trans <;> assumption
-  | replicate n inner _ ih =>
-    dsimp only [go]
+    · apply Nat.lt_of_lt_of_le
+      · exact h1
+      · apply Nat.le_trans <;> assumption
+  · next inner _ =>
+    dsimp only at hres
+    symm at hres
+    subst hres
     rw [AIG.LawfulVecOperator.decl_eq (f := blastReplicate)]
-    rw [ih]
-    have := (go aig inner).property
+    rw [goCache_decl_eq]
+    have := (goCache aig inner cache).result.property
     omega
-  | extract hi lo inner ih =>
-    dsimp only [go]
+  · next hi lo inner =>
+    dsimp only at hres
+    symm at hres
+    subst hres
     rw [AIG.LawfulVecOperator.decl_eq (f := blastExtract)]
-    rw [ih]
-    have := (go aig inner).property
+    rw [goCache_decl_eq]
+    have := (goCache aig inner cache).result.property
     omega
-  | shiftLeft lhs rhs lih rih =>
-    dsimp only [go]
-    have := (bitblast.go aig lhs).property
-    have := (bitblast.go aig lhs).property
-    have := (go (go aig lhs).1.aig rhs).property
+  · next rhsExpr lhsExpr =>
+    dsimp only at hres
+    symm at hres
+    subst hres
+    have hl := (goCache aig lhsExpr cache).result.property
+    have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
     rw [AIG.LawfulVecOperator.decl_eq (f := blastShiftLeft)]
-    rw [rih, lih]
+    rw [goCache_decl_eq, goCache_decl_eq]
     · omega
-    · apply Nat.lt_of_lt_of_le h1
-      apply Nat.le_trans <;> assumption
-  | shiftRight lhs rhs lih rih =>
-    dsimp only [go]
-    have := (bitblast.go aig lhs).property
-    have := (bitblast.go aig lhs).property
-    have := (go (go aig lhs).1.aig rhs).property
+    · apply Nat.lt_of_lt_of_le
+      · exact h1
+      · apply Nat.le_trans <;> assumption
+  · next rhsExpr lhsExpr =>
+    dsimp only at hres
+    symm at hres
+    subst hres
+    have hl := (goCache aig lhsExpr cache).result.property
+    have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
     rw [AIG.LawfulVecOperator.decl_eq (f := blastShiftRight)]
-    rw [rih, lih]
+    rw [goCache_decl_eq, goCache_decl_eq]
     · omega
-    · apply Nat.lt_of_lt_of_le h1
-      apply Nat.le_trans <;> assumption
-  | arithShiftRight lhs rhs lih rih =>
-    dsimp only [go]
-    have := (bitblast.go aig lhs).property
-    have := (bitblast.go aig lhs).property
-    have := (go (go aig lhs).1.aig rhs).property
+    · apply Nat.lt_of_lt_of_le
+      · exact h1
+      · apply Nat.le_trans <;> assumption
+  · next rhsExpr lhsExpr =>
+    dsimp only at hres
+    symm at hres
+    subst hres
+    have hl := (goCache aig lhsExpr cache).result.property
+    have hr := (goCache (goCache aig lhsExpr cache).1.1.aig rhsExpr (goCache aig lhsExpr cache).cache).result.property
     rw [AIG.LawfulVecOperator.decl_eq (f := blastArithShiftRight)]
-    rw [rih, lih]
+    rw [goCache_decl_eq, goCache_decl_eq]
     · omega
-    · apply Nat.lt_of_lt_of_le h1
-      apply Nat.le_trans <;> assumption
-  -/
+    · apply Nat.lt_of_lt_of_le
+      · exact h1
+      · apply Nat.le_trans <;> assumption
+termination_by (sizeOf expr, 0)
 
-set_option linter.unusedVariables false
-axiom mySorry {α : Sort u} : α
+end
+
+end bitblast
 
 instance : AIG.LawfulVecOperator BVBit (fun _ w => BVExpr w) bitblast where
-  le_size := mySorry
-    --intro _ aig expr
-    --unfold bitblast
-    --exact (bitblast.go aig expr).property
-  decl_eq := mySorry
-    --intros
-    --unfold bitblast
-    --apply bitblast.go_decl_eq
+  le_size := by
+    intro _ aig expr
+    unfold bitblast
+    exact (bitblast.goCache aig expr _).result.property
+  decl_eq := by
+    intros
+    unfold bitblast
+    apply bitblast.goCache_decl_eq
 
 end BVExpr
 

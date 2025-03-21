@@ -40,7 +40,7 @@ example : foo x = Nat.gcd 10 20 := by
   trace_state
   rw [foo]
 
-example  : foo x = min 20 10 := by
+example : foo x = min 20 10 := by
   simp only [seval]
   trace_state
   rw [foo]

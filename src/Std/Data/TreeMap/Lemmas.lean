@@ -2040,9 +2040,9 @@ theorem minKey_alter_eq_self [TransCmp cmp] {k f he} :
       (f t[k]?).isSome ∧ ∀ k', k' ∈ t → (cmp k k').isLE :=
   DTreeMap.Const.minKey_alter_eq_self
 
-theorem minKey?_eq_some_minKey! [TransCmp cmp] [Inhabited α] :
-    (he : t.isEmpty = false) → t.minKey? = some t.minKey! :=
-  DTreeMap.minKey?_eq_some_minKey!
+theorem minKey?_eq_some_minKey! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
+    t.minKey? = some t.minKey! :=
+  DTreeMap.minKey?_eq_some_minKey! he
 
 theorem minKey!_eq_default [TransCmp cmp] [Inhabited α] (he : t.isEmpty) :
     t.minKey! = default :=

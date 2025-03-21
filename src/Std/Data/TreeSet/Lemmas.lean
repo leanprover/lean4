@@ -872,9 +872,9 @@ theorem min_le_min_erase [TransCmp cmp] {k he} :
       (t.erase k |>.min he) |>.isLE :=
   DTreeMap.minKey_le_minKey_erase
 
-theorem min?_eq_some_min! [TransCmp cmp] [Inhabited α] :
-    (he : t.isEmpty = false) → t.min? = some t.min! :=
-  DTreeMap.minKey?_eq_some_minKey!
+theorem min?_eq_some_min! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
+    t.min? = some t.min! :=
+  DTreeMap.minKey?_eq_some_minKey! he
 
 theorem min!_eq_default [TransCmp cmp] [Inhabited α] (he : t.isEmpty) :
     t.min! = default :=

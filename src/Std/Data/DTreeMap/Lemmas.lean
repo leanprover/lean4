@@ -3104,9 +3104,9 @@ theorem minKey_alter_eq_self [TransCmp cmp] {k f he} :
 
 end Const
 
-theorem minKey?_eq_some_minKey! [TransCmp cmp] [Inhabited α] :
-    (he : t.isEmpty = false) → t.minKey? = some t.minKey! :=
-  Impl.minKey?_eq_some_minKey! t.wf
+theorem minKey?_eq_some_minKey! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
+    t.minKey? = some t.minKey! :=
+  Impl.minKey?_eq_some_minKey! t.wf he
 
 theorem minKey!_eq_default [TransCmp cmp] [Inhabited α] (he : t.isEmpty) :
     t.minKey! = default :=

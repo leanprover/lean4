@@ -69,6 +69,10 @@ theorem isEmpty_eq_false_iff_exists_mem [TransCmp cmp] :
     t.isEmpty = false ↔ ∃ a, a ∈ t :=
   DTreeMap.isEmpty_eq_false_iff_exists_mem
 
+theorem isEmpty_eq_false_of_contains [TransCmp cmp] {a : α} (hc : t.contains a = true) :
+    t.isEmpty = false :=
+  DTreeMap.isEmpty_eq_false_of_contains hc
+
 theorem isEmpty_iff_forall_contains [TransCmp cmp] :
     t.isEmpty = true ↔ ∀ a, t.contains a = false :=
   DTreeMap.isEmpty_iff_forall_contains
@@ -2035,6 +2039,122 @@ theorem minKey_alter_eq_self [TransCmp cmp] {k f he} :
     (alter t k f).minKey he = k ↔
       (f t[k]?).isSome ∧ ∀ k', k' ∈ t → (cmp k k').isLE :=
   DTreeMap.Const.minKey_alter_eq_self
+
+theorem minKey?_eq_some_minKey! [TransCmp cmp] [Inhabited α] :
+    (he : t.isEmpty = false) → t.minKey? = some t.minKey! :=
+  DTreeMap.minKey?_eq_some_minKey!
+
+theorem minKey!_eq_default [TransCmp cmp] [Inhabited α] (he : t.isEmpty) :
+    t.minKey! = default :=
+  DTreeMap.minKey!_eq_default he
+
+theorem minKey!_eq_iff_getKey?_eq_self_and_forall [TransCmp cmp] [Inhabited α]
+    (he : t.isEmpty = false) {km} :
+    t.minKey! = km ↔ t.getKey? km = some km ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
+  DTreeMap.minKey!_eq_iff_getKey?_eq_self_and_forall he
+
+theorem minKey!_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α]
+    (he : t.isEmpty = false) {km} :
+    t.minKey! = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
+  DTreeMap.minKey!_eq_some_iff_mem_and_forall he
+
+theorem minKey!_insert [TransCmp cmp] [Inhabited α] {k v} :
+    (t.insert k v |>.minKey!) =
+      (t.minKey?.elim k fun k' => if cmp k k'|>.isLE then k else k') :=
+  DTreeMap.minKey!_insert
+
+theorem minKey!_insert_le_minKey! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) {k v} :
+    cmp (t.insert k v |>.minKey!) t.minKey! |>.isLE :=
+  DTreeMap.minKey!_insert_le_minKey! he
+
+theorem minKey!_insert_le_self [TransCmp cmp] [Inhabited α] {k v} :
+    cmp (t.insert k v |>.minKey!) k |>.isLE :=
+  DTreeMap.minKey!_insert_le_self
+
+theorem contains_minKey! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
+    t.contains t.minKey! :=
+  DTreeMap.contains_minKey! he
+
+theorem minKey!_mem [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
+    t.minKey! ∈ t :=
+  DTreeMap.minKey!_mem he
+
+theorem minKey!_le_of_contains [TransCmp cmp] [Inhabited α] {k} (hc : t.contains k) :
+    cmp t.minKey! k |>.isLE :=
+  DTreeMap.minKey!_le_of_contains hc
+
+theorem minKey!_le_of_mem [TransCmp cmp] [Inhabited α] {k} (hc : k ∈ t) :
+    cmp t.minKey! k |>.isLE :=
+  DTreeMap.minKey!_le_of_mem hc
+
+theorem le_minKey! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) {k} :
+    (cmp k t.minKey!).isLE ↔ (∀ k', k' ∈ t → (cmp k k').isLE) :=
+  DTreeMap.le_minKey! he
+
+theorem getKey?_minKey! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
+    t.getKey? t.minKey! = some t.minKey! :=
+  DTreeMap.getKey?_minKey! he
+
+theorem getKey_minKey! [TransCmp cmp] [Inhabited α] {hc} :
+    t.getKey t.minKey! hc = t.minKey! :=
+  DTreeMap.getKey_minKey!
+
+@[simp]
+theorem getKey_minKey!_eq_minKey [TransCmp cmp] [Inhabited α] {hc} :
+    t.getKey t.minKey! hc = t.minKey (isEmpty_eq_false_of_contains hc) :=
+  DTreeMap.getKey_minKey!_eq_minKey
+
+theorem getKey!_minKey! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
+    t.getKey! t.minKey! = t.minKey! :=
+  DTreeMap.getKey!_minKey! he
+
+theorem getKeyD_minKey! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) {fallback} :
+    t.getKeyD t.minKey! fallback = t.minKey! :=
+  DTreeMap.getKeyD_minKey! he
+
+theorem minKey!_erase_eq_of_not_compare_minKey!_eq [TransCmp cmp] [Inhabited α] {k}
+    (he : (t.erase k).isEmpty = false) (heq : ¬ cmp k t.minKey! = .eq) :
+    (t.erase k |>.minKey!) = t.minKey! :=
+  DTreeMap.minKey!_erase_eq_of_not_compare_minKey!_eq he heq
+
+theorem minKey!_le_minKey!_erase [TransCmp cmp] [Inhabited α] {k}
+    (he : (t.erase k).isEmpty = false) :
+    cmp t.minKey! (t.erase k |>.minKey!) |>.isLE :=
+  DTreeMap.minKey!_le_minKey!_erase he
+
+theorem minKey!_insertIfNew [TransCmp cmp] [Inhabited α] {k v} :
+    (t.insertIfNew k v |>.minKey!) =
+      t.minKey?.elim k fun k' => if cmp k k' = .lt then k else k' :=
+  DTreeMap.minKey!_insertIfNew
+
+theorem minKey!_insertIfNew_le_minKey! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) {k v} :
+    cmp (t.insertIfNew k v |>.minKey!) t.minKey! |>.isLE :=
+  DTreeMap.minKey!_insertIfNew_le_minKey! he
+
+theorem minKey!_insertIfNew_le_self [TransCmp cmp] [Inhabited α] {k v} :
+    cmp (t.insertIfNew k v |>.minKey!) k |>.isLE :=
+  DTreeMap.minKey!_insertIfNew_le_self
+
+theorem minKey!_modify [TransCmp cmp] [Inhabited α] {k f}
+    (he : (modify t k f).isEmpty = false) :
+    (modify t k f |> minKey!) = if cmp t.minKey! k = .eq then k else t.minKey! :=
+  DTreeMap.Const.minKey!_modify he
+
+@[simp]
+theorem minKey!_modify_eq_minKey! [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] {k f} :
+    (modify t k f |>.minKey!) = t.minKey! :=
+  DTreeMap.Const.minKey!_modify_eq_minKey!
+
+@[simp]
+theorem compare_minKey!_modify_eq [TransCmp cmp] [Inhabited α] {k f} :
+    cmp (modify t k f |> minKey!) t.minKey! = .eq :=
+  DTreeMap.Const.compare_minKey!_modify_eq
+
+theorem minKey!_alter_eq_self [TransCmp cmp] [Inhabited α] {k f}
+    (he : (alter t k f).isEmpty = false) :
+    (alter t k f |>.minKey!) = k ↔
+      (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (cmp k k').isLE :=
+  DTreeMap.Const.minKey!_alter_eq_self he
 
 end Min
 

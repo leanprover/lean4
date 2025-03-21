@@ -72,6 +72,9 @@ jobs:
         with:
           # the default is to use a virtual merge commit between the PR and master: just use the PR
           ref: ${{ github.event.pull_request.head.sha }}
+      - name: Open Nix shell once
+        run: true
+        if: runner.os == 'Linux'
       # Do check out some CI-relevant files from virtual merge commit to accommodate CI changes on
       # master (as the workflow files themselves are always taken from the merge)
       # (needs to be after "Install *" to use the right shell)
@@ -130,6 +133,7 @@ jobs:
           echo "NPROC=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)" >> $GITHUB_ENV
       - name: Build
         run: |
+          ulimit -c unlimited  # coredumps
           [ -d build ] || mkdir build
           cd build
           # arguments passed to `cmake`
@@ -197,6 +201,7 @@ jobs:
       - name: Test
         id: test
         run: |
+          ulimit -c unlimited  # coredumps
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
         if: (matrix.wasm || !matrix.cross) && inputs.check-level >= 1
       - name: Test Summary
@@ -232,3 +237,10 @@ jobs:
         if: matrix.name == 'Linux' && inputs.check-level >= 1
       - name: CCache stats
         run: ccache -s
+      - name: Show stacktrace for coredumps
+        if: failure() && runner.os == 'Linux'
+        run: |
+          for c in $(find . -name core); do
+            progbin="$(file $c | sed "s/.*execfn: '\([^']*\)'.*/\1/")"
+            echo bt | $GDB/bin/gdb -q $progbin $c || true
+          done

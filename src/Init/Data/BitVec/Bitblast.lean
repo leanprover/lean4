@@ -1313,7 +1313,6 @@ theorem ssubOverflow_eq {w : Nat} (x y : BitVec w) :
     simp only [Nat.add_one_sub_one, ge_iff_le, msb_eq_toInt, ← decide_not, Int.not_lt, toInt_sub]
     simp only [bool_to_prop]
     omega
-    omega
 
 theorem negOverflow_eq {w : Nat} (x : BitVec w) :
     (negOverflow x) = (decide (0 < w) && (x == intMin w)) := by

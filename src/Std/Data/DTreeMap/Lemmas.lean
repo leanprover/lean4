@@ -2883,6 +2883,18 @@ theorem getKey?_minKey? [TransCmp cmp] {km} :
     (hkm : t.minKey? = some km) → t.getKey? km = some km :=
   Impl.getKey?_minKey? t.wf
 
+theorem getKey_minKey? [TransCmp cmp] {km hc} :
+    (hkm : t.minKey?.get (isSome_minKey?_of_contains hc) = km) → t.getKey km hc = km :=
+  Impl.getKey_minKey? t.wf
+
+theorem getKey!_minKey? [TransCmp cmp] [Inhabited α] {km} :
+    (hkm : t.minKey? = some km) → t.getKey! km = km :=
+  Impl.getKey!_minKey? t.wf
+
+theorem getKeyD_minKey? [TransCmp cmp] {km fallback} :
+    (hkm : t.minKey? = some km) → t.getKeyD km fallback = km :=
+  Impl.getKeyD_minKey? t.wf
+
 @[simp]
 theorem minKey?_bind_getKey? [TransCmp cmp] :
     t.minKey?.bind t.getKey? = t.minKey? :=

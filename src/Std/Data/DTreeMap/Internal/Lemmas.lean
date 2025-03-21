@@ -4364,6 +4364,18 @@ theorem getKey?_minKey? [TransOrd α] (h : t.WF) {km} :
     (hkm : t.minKey? = some km) → t.getKey? km = some km := by
   simp_to_model using List.getKey?_minKey?
 
+theorem getKey_minKey? [TransOrd α] (h : t.WF) {km hc} :
+    (hkm : t.minKey?.get (isSome_minKey?_of_contains h hc) = km) → t.getKey km hc = km := by
+  simp_to_model using List.getKey_minKey?
+
+theorem getKey!_minKey? [TransOrd α] [Inhabited α] (h : t.WF) {km} :
+    (hkm : t.minKey? = some km) → t.getKey! km = km := by
+  simp_to_model using List.getKey!_minKey?
+
+theorem getKeyD_minKey? [TransOrd α] (h : t.WF) {km fallback} :
+    (hkm : t.minKey? = some km) → t.getKeyD km fallback = km := by
+  simp_to_model using List.getKeyD_minKey?
+
 @[simp]
 theorem minKey?_bind_getKey? [TransOrd α] (h : t.WF) :
     t.minKey?.bind t.getKey? = t.minKey? := by

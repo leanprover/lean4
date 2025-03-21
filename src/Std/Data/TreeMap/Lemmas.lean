@@ -1848,6 +1848,18 @@ theorem getKey?_minKey? [TransCmp cmp] {km} :
     (hkm : t.minKey? = some km) → t.getKey? km = some km :=
   DTreeMap.getKey?_minKey?
 
+theorem getKey_minKey? [TransCmp cmp] {km hc} :
+    (hkm : t.minKey?.get (isSome_minKey?_of_contains hc) = km) → t.getKey km hc = km :=
+  DTreeMap.getKey_minKey?
+
+theorem getKey!_minKey? [TransCmp cmp] [Inhabited α] {km} :
+    (hkm : t.minKey? = some km) → t.getKey! km = km :=
+  DTreeMap.getKey!_minKey?
+
+theorem getKeyD_minKey? [TransCmp cmp] {km fallback} :
+    (hkm : t.minKey? = some km) → t.getKeyD km fallback = km :=
+  DTreeMap.getKeyD_minKey?
+
 @[simp]
 theorem minKey?_bind_getKey? [TransCmp cmp] :
     t.minKey?.bind t.getKey? = t.minKey? :=

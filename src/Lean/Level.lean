@@ -5,8 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Array.QSort
-import Lean.Data.HashMap
-import Lean.Data.HashSet
 import Lean.Data.PersistentHashMap
 import Lean.Data.PersistentHashSet
 import Lean.Hygiene

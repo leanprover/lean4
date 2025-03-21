@@ -85,11 +85,16 @@ where
     | HAppend.hAppend _ _ _ _ lhsExpr rhsExpr =>
       let some lhs ← goOrAtom lhsExpr | return none
       let some rhs ← goOrAtom rhsExpr | return none
-      let bvExpr := .append lhs.bvExpr rhs.bvExpr
-      let expr := mkApp4 (mkConst ``BVExpr.append)
-        (toExpr lhs.width)
-        (toExpr rhs.width)
-        lhs.expr rhs.expr
+      let bvExpr := .append lhs.bvExpr rhs.bvExpr rfl
+      let wExpr := toExpr (lhs.width + rhs.width)
+      let expr :=
+        mkApp6 (mkConst ``BVExpr.append)
+          (toExpr lhs.width)
+          (toExpr rhs.width)
+          wExpr
+          lhs.expr
+          rhs.expr
+          (← mkEqRefl wExpr)
       let proof := do
         let lhsEval ← ReifiedBVExpr.mkEvalExpr lhs.width lhs.expr
         let rhsEval ← ReifiedBVExpr.mkEvalExpr rhs.width rhs.expr
@@ -108,11 +113,15 @@ where
     | BitVec.replicate _ nExpr innerExpr =>
       let some inner ← goOrAtom innerExpr | return none
       let some n ← getNatValue? nExpr | return none
-      let bvExpr := .replicate n inner.bvExpr
-      let expr := mkApp3 (mkConst ``BVExpr.replicate)
-        (toExpr inner.width)
-        (toExpr n)
-        inner.expr
+      let bvExpr := .replicate n inner.bvExpr rfl
+      let newWExpr := toExpr (inner.width * n)
+      let expr :=
+        mkApp5 (mkConst ``BVExpr.replicate)
+          (toExpr inner.width)
+          newWExpr
+          (toExpr n)
+          inner.expr
+          (← mkEqRefl newWExpr)
       let proof := do
         let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
         -- This is safe as `replicate_congr` holds definitionally if the arguments are defeq.

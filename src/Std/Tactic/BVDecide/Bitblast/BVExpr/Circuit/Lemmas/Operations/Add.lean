@@ -200,21 +200,20 @@ theorem go_denote_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref
   · omega
 termination_by w - curr
 
-end blastAdd
 
-theorem denote_blastAdd (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
+theorem denote_blast (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
       (input : BinaryRefVec aig w)
       (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign⟧ = lhs.getLsbD idx)
       (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign⟧ = rhs.getLsbD idx) :
       ∀ (idx : Nat) (hidx : idx < w),
-          ⟦(blastAdd aig input).aig, (blastAdd aig input).vec.get idx hidx, assign⟧
+          ⟦(blast aig input).aig, (blast aig input).vec.get idx hidx, assign⟧
             =
           (lhs + rhs).getLsbD idx := by
   intro idx hidx
   rw [BitVec.getLsbD_add]
   · rw [← hleft idx hidx]
     rw [← hright idx hidx]
-    unfold blastAdd
+    unfold blast
     dsimp only
     rw [blastAdd.go_denote_eq _ 0 (by omega) _ _ _ _ assign lhs rhs _ _]
     · simp only [BinaryRefVec.lhs_get_cast, Ref.cast_eq, BinaryRefVec.rhs_get_cast]
@@ -231,6 +230,24 @@ theorem denote_blastAdd (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Boo
       rw [LawfulOperator.denote_mem_prefix (f := mkConstCached)]
       rw [hright]
   · assumption
+
+end blastAdd
+
+theorem denote_blastAdd (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
+      (input : BinaryRefVec aig w)
+      (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign⟧ = lhs.getLsbD idx)
+      (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign⟧ = rhs.getLsbD idx) :
+      ∀ (idx : Nat) (hidx : idx < w),
+        ⟦(blastAdd aig input).aig, (blastAdd aig input).vec.get idx hidx, assign⟧
+          =
+        (lhs + rhs).getLsbD idx := by
+  intro idx hidx
+  generalize hb : blastAdd aig input = res
+  unfold blastAdd at hb
+  dsimp only at hb
+  split at hb
+  · rw [← hb, blastAdd.denote_blast] <;> assumption
+  · rw [BitVec.add_comm, ← hb, blastAdd.denote_blast] <;> assumption
 
 end bitblast
 end BVExpr

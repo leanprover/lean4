@@ -753,6 +753,10 @@ theorem distinct_keys [TransCmp cmp] :
     t.keys.Pairwise (fun a b => ¬ cmp a b = .eq) :=
   DTreeMap.distinct_keys
 
+theorem ordered_keys [TransCmp cmp] :
+    t.keys.Pairwise (fun a b => cmp a b = .lt) :=
+  DTreeMap.ordered_keys
+
 @[simp]
 theorem map_fst_toList_eq_keys :
     (toList t).map Prod.fst = t.keys :=
@@ -800,6 +804,10 @@ theorem find?_toList_eq_none_iff_not_mem [TransCmp cmp] {k : α} :
 theorem distinct_keys_toList [TransCmp cmp] :
     (toList t).Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq) :=
   DTreeMap.Const.distinct_keys_toList
+
+theorem ordered_keys_toList [TransCmp cmp] :
+    (toList t).Pairwise (fun a b => cmp a.1 b.1 = .lt) :=
+  DTreeMap.Const.ordered_keys_toList
 
 section monadic
 
@@ -1887,6 +1895,10 @@ theorem minKey?_insertIfNew_le_self [TransCmp cmp] {k v kmi} :
     cmp kmi k |>.isLE :=
   DTreeMap.minKey?_insertIfNew_le_self
 
+theorem minKey?_eq_head?_keys [TransCmp cmp] :
+    t.minKey? = t.keys.head? :=
+  DTreeMap.minKey?_eq_head?_keys
+
 theorem minKey?_modify [TransCmp cmp] {k f} :
     (t.modify k f).minKey? = t.minKey?.map fun km => if cmp km k = .eq then k else km :=
   DTreeMap.Const.minKey?_modify
@@ -2017,6 +2029,10 @@ theorem minKey_insertIfNew_le_self [TransCmp cmp] {k v} :
     cmp (t.insertIfNew k v |>.minKey <| isEmpty_insertIfNew) k |>.isLE :=
   DTreeMap.minKey_insertIfNew_le_self
 
+theorem minKey_eq_head_keys [TransCmp cmp] {he} :
+    t.minKey he = t.keys.head (List.isEmpty_eq_false_iff.mp <| isEmpty_keys ▸ he) :=
+  DTreeMap.minKey_eq_head_keys
+
 theorem minKey_modify [TransCmp cmp] {k f he} :
     (modify t k f).minKey he =
       if cmp (t.minKey <| cast (congrArg (· = false) isEmpty_modify) he) k = .eq then
@@ -2135,6 +2151,10 @@ theorem minKey!_insertIfNew_le_self [TransCmp cmp] [Inhabited α] {k v} :
     cmp (t.insertIfNew k v |>.minKey!) k |>.isLE :=
   DTreeMap.minKey!_insertIfNew_le_self
 
+theorem minKey!_eq_head!_keys [TransCmp cmp] [Inhabited α] :
+    t.minKey! = t.keys.head! :=
+  DTreeMap.minKey!_eq_head!_keys
+
 theorem minKey!_modify [TransCmp cmp] [Inhabited α] {k f}
     (he : (modify t k f).isEmpty = false) :
     (modify t k f |> minKey!) = if cmp t.minKey! k = .eq then k else t.minKey! :=
@@ -2251,6 +2271,10 @@ theorem minKeyD_insertIfNew_le_minKeyD [TransCmp cmp]
 theorem minKeyD_insertIfNew_le_self [TransCmp cmp] {k v fallback} :
     cmp (t.insertIfNew k v |>.minKeyD fallback) k |>.isLE :=
   DTreeMap.minKeyD_insertIfNew_le_self
+
+theorem minKeyD_eq_headD_keys [TransCmp cmp] {fallback} :
+    t.minKeyD fallback = t.keys.headD fallback :=
+  DTreeMap.minKeyD_eq_headD_keys
 
 theorem minKeyD_modify [TransCmp cmp] {k f}
     (he : (modify t k f).isEmpty = false) {fallback} :

@@ -425,6 +425,10 @@ theorem distinct_toList [TransCmp cmp] :
     t.toList.Pairwise (fun a b => ¬ cmp a b = .eq) :=
   DTreeMap.distinct_keys
 
+theorem ordered_toList [TransCmp cmp] :
+    t.toList.Pairwise (fun a b => cmp a b = .lt) :=
+  DTreeMap.ordered_keys
+
 section monadic
 
 variable {δ : Type w} {m : Type w → Type w}
@@ -872,6 +876,10 @@ theorem min_le_min_erase [TransCmp cmp] {k he} :
       (t.erase k |>.min he) |>.isLE :=
   DTreeMap.minKey_le_minKey_erase
 
+theorem min?_eq_head?_toList [TransCmp cmp] :
+    t.min? = t.toList.head? :=
+  TreeMap.minKey?_eq_head?_keys
+
 theorem min?_eq_some_min! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
     t.min? = some t.min! :=
   DTreeMap.minKey?_eq_some_minKey! he
@@ -954,6 +962,10 @@ theorem min!_le_min!_erase [TransCmp cmp] [Inhabited α] {k}
     cmp t.min! (t.erase k |>.min!) |>.isLE :=
   DTreeMap.minKey!_le_minKey!_erase he
 
+theorem min!_eq_head!_toList [TransCmp cmp] [Inhabited α] :
+    t.min! = t.toList.head! :=
+  TreeMap.minKey!_eq_head!_keys
+
 theorem min?_eq_some_minD [TransCmp cmp] (he : t.isEmpty = false) {fallback} :
     t.min? = some (t.minD fallback) :=
   TreeMap.minKey?_eq_some_minKeyD he
@@ -1035,6 +1047,14 @@ theorem minD_le_minD_erase [TransCmp cmp] {k}
     (he : (t.erase k).isEmpty = false) {fallback} :
     cmp (t.minD fallback) (t.erase k |>.minD fallback) |>.isLE :=
   TreeMap.minKeyD_le_minKeyD_erase he
+
+theorem min_eq_head_toList [TransCmp cmp] {he} :
+    t.min he = t.toList.head (List.isEmpty_eq_false_iff.mp <| isEmpty_toList ▸ he) :=
+  DTreeMap.minKey_eq_head_keys
+
+theorem minD_eq_headD_toList [TransCmp cmp] {fallback} :
+    t.minD fallback = t.toList.headD fallback :=
+  TreeMap.minKeyD_eq_headD_keys
 
 end Min
 

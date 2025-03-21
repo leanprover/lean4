@@ -4665,6 +4665,11 @@ theorem minKey?_insertEntryIfNew_le_self [Ord α] [TransOrd α] [BEq α] [Lawful
       rw [OrientedCmp.eq_swap (cmp := compare)]
       simp_all
 
+theorem minKey?_eq_head?_keys [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (ho : l.Pairwise fun a b => compare a.1 b.1 = .lt) :
+    minKey? l = (keys l).head? := by
+  simp [minKey?, minEntry?_eq_head? ho, keys_eq_map]
+
 theorem minKey?_modifyKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [LawfulEqOrd α] {k f}
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) :
     minKey? (modifyKey k f l) = minKey? l := by
@@ -4903,6 +4908,12 @@ theorem minKey_insertEntryIfNew_le_self [Ord α] [TransOrd α] [BEq α] [LawfulB
     compare (insertEntryIfNew k v l  |> minKey <| isEmpty_insertEntryIfNew) k |>.isLE :=
   minKey?_insertEntryIfNew_le_self hd minKey_eq_get_minKey?.symm
 
+theorem minKey_eq_head_keys [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (ho : l.Pairwise fun a b => compare a.1 b.1 = .lt) {he} :
+    minKey l he = (keys l).head (by simp_all [keys_eq_map, List.isEmpty_eq_false_iff]) := by
+  simp [minKey_eq_get_minKey?, Option.get_eq_iff_eq_some, ← List.head?_eq_head,
+    minKey?_eq_head?_keys ho]
+
 theorem minKey_modifyKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [LawfulEqOrd α] {k f}
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {he} :
     (modifyKey k f l |> minKey <| he) = minKey l (isEmpty_modifyKey k f l ▸ he):= by
@@ -5079,6 +5090,14 @@ theorem minKey!_insertEntryIfNew_le_self [Ord α] [TransOrd α] [BEq α] [Lawful
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v} :
     compare (insertEntryIfNew k v l |> minKey!) k |>.isLE := by
   simpa only [minKey_eq_minKey!] using minKey_insertEntryIfNew_le_self hd
+
+theorem minKey!_eq_head!_keys [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited α]
+    {l : List ((a : α) × β a)} (ho : l.Pairwise fun a b => compare a.1 b.1 = .lt) :
+    minKey! l = (keys l).head! := by
+  cases l
+  · rfl
+  · simp only [minKey!_eq_get!_minKey?, minKey?_eq_head?_keys ho]
+    rfl
 
 theorem minKey!_modifyKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [LawfulEqOrd α]
     [Inhabited α] {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k f} :
@@ -5283,6 +5302,11 @@ theorem minKeyD_insertEntryIfNew_le_self [Ord α] [TransOrd α] [BEq α] [Lawful
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v fallback} :
     compare (insertEntryIfNew k v l |> minKeyD <| fallback) k |>.isLE := by
   simpa only [minKey_eq_minKeyD (fallback := fallback)] using minKey_insertEntryIfNew_le_self hd
+
+theorem minKeyD_eq_headD_keys [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (ho : l.Pairwise fun a b => compare a.1 b.1 = .lt) {fallback} :
+    minKeyD l fallback = (keys l).headD fallback := by
+  simp [minKeyD_eq_getD_minKey?, minKey?_eq_head?_keys ho]
 
 theorem minKeyD_modifyKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [LawfulEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k f fallback} :

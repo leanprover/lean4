@@ -286,6 +286,9 @@ theorem sub_one_lt : ∀ {n : Nat}, n ≠ 0 → n - 1 < n := pred_lt
   | zero      => exact Nat.le_refl (n - 0)
   | succ m ih => apply Nat.le_trans (pred_le (n - m)) ih
 
+theorem sub_lt_of_lt {a b c : Nat} (h : a < c) : a - b < c :=
+  Nat.lt_of_le_of_lt (Nat.sub_le _ _) h
+
 theorem sub_lt : ∀ {n m : Nat}, 0 < n → 0 < m → n - m < n
   | 0,   _,   h1, _  => absurd h1 (Nat.lt_irrefl 0)
   | _+1, 0,   _, h2  => absurd h2 (Nat.lt_irrefl 0)
@@ -412,6 +415,9 @@ protected theorem lt_add_right (c : Nat) (h : a < b) : a < b + c :=
 
 theorem lt_of_add_right_lt {n m k : Nat} (h : n + k < m) : n < m :=
   Nat.lt_of_le_of_lt (Nat.le_add_right ..) h
+
+theorem lt_of_add_left_lt {n m k : Nat} (h : k + n < m) : n < m :=
+  lt_of_add_right_lt (Nat.add_comm _ _ ▸ h)
 
 theorem le.dest : ∀ {n m : Nat}, n ≤ m → Exists (fun k => n + k = m)
   | zero,   zero,   _ => ⟨0, rfl⟩

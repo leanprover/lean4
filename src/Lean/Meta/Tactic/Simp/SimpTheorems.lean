@@ -192,6 +192,9 @@ instance : BEq SimpTheorem where
 
 abbrev SimpTheoremTree := DiscrTree SimpTheorem
 
+/--
+The theorems in a simp set.
+-/
 structure SimpTheorems where
   pre          : SimpTheoremTree := DiscrTree.empty
   post         : SimpTheoremTree := DiscrTree.empty
@@ -423,6 +426,12 @@ inductive SimpEntry where
   | toUnfoldThms : Name → Array Name → SimpEntry
   deriving Inhabited
 
+/--
+The environment extension that contains a simp set, returned by `Lean.Meta.registerSimpAttr`.
+
+Use the simp set's attribute or `Lean.Meta.addSimpTheorem` to add theorems to the simp set. Use
+`Lean.Meta.SimpExtension.getTheorems` to get the contents.
+-/
 abbrev SimpExtension := SimpleScopedEnvExtension SimpEntry SimpTheorems
 
 def SimpExtension.getTheorems (ext : SimpExtension) : CoreM SimpTheorems :=

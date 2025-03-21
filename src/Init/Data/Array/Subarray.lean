@@ -7,6 +7,7 @@ prelude
 import Init.Data.Array.Basic
 
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.missingDocs true
 
 universe u v w
 
@@ -121,6 +122,12 @@ instance : EmptyCollection (Subarray α) :=
 instance : Inhabited (Subarray α) :=
   ⟨{}⟩
 
+/--
+The run-time implementation of `ForIn.forIn` for `Subarray`, which allows it to be used with `for`
+loops in `do`-notation.
+
+This definition replaces `Subarray.forIn`.
+-/
 @[inline] unsafe def forInUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   let sz := USize.ofNat s.stop
   let rec @[specialize] loop (i : USize) (b : β) : m β := do

@@ -1307,14 +1307,12 @@ theorem ssubOverflow_eq {w : Nat} (x y : BitVec w) :
   simp only [ssubOverflow]
   rcases w with _|w
   · revert x y; decide
-  · have := le_two_mul_toInt (x := x); have := two_mul_toInt_lt (x := x)
-    have := le_two_mul_toInt (x := y); have := two_mul_toInt_lt (x := y)
-    simp only [msb_eq_toInt, toInt_sub, Nat.add_one_sub_one, ge_iff_le]
-    have h₁ := BitVec.toInt_sub_toInt_lt_twoPow_iff (x := x) (y := y)
+  · have h₁ := BitVec.toInt_sub_toInt_lt_twoPow_iff (x := x) (y := y)
     have h₂ := BitVec.twoPow_le_toInt_sub_toInt_iff (x := x) (y := y)
     simp only [Nat.add_one_sub_one] at h₁ h₂
-    simp only [decide_and, ← decide_not, Int.not_lt]
+    simp only [Nat.add_one_sub_one, ge_iff_le, msb_eq_toInt, ← decide_not, Int.not_lt, toInt_sub]
     simp only [bool_to_prop]
+    omega
     omega
 
 theorem negOverflow_eq {w : Nat} (x : BitVec w) :

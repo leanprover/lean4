@@ -1350,7 +1350,31 @@ theorem eq_iff_eq_of_inv (f : α → BitVec w) (g : BitVec w → α) (h : ∀ x,
     have := congrArg g h'
     simpa [h] using this
 
-/-! ### Lemmas that use Bitblasting Infrastructure -/
+/-! ### Lemmas that use Bitblasting circuits -/
+
+theorem add_sub_comm {x y : BitVec w} : x + y - z = x - z + y := by
+  apply eq_of_toNat_eq
+  simp only [toNat_sub, toNat_add, add_mod_mod, mod_add_mod]
+  congr 1
+  omega
+
+theorem sub_add_comm {x y : BitVec w} : x - y + z = x + z - y := by
+  rw [add_sub_comm]
+
+theorem not_add_one {x : BitVec w} : ~~~ (x + 1#w) = ~~~ x - 1#w := by
+  rw [not_eq_neg_add, not_eq_neg_add, neg_add]
+
+theorem not_add_eq_not_neg {x y : BitVec w} : ~~~ (x + y) = ~~~ x - y := by
+  rw [not_eq_neg_add, not_eq_neg_add, neg_add]
+  simp only [sub_toAdd]
+  rw [BitVec.add_assoc, @BitVec.add_comm _ (-y), ← BitVec.add_assoc]
+
+theorem not_sub_one_eq_not_add_one {x : BitVec w} : ~~~ (x - 1#w) = ~~~ x + 1#w := by
+  rw [not_eq_neg_add, not_eq_neg_add, neg_sub,
+    BitVec.add_sub_cancel, BitVec.sub_add_cancel]
+
+theorem not_sub_eq_not_add {x y : BitVec w} : ~~~ (x - y) = ~~~ x + y := by
+  rw [BitVec.sub_toAdd, not_add_eq_not_neg, sub_neg]
 
 /-- The value of `(carry i x y false)` can be computed by truncating `x` and `y`
 to `len` bits where `len ≥ i`. -/

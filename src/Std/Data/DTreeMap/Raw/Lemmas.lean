@@ -2990,11 +2990,11 @@ theorem minKey!_insert [TransCmp cmp] [Inhabited α] (h : t.WF) {k v} :
 
 theorem minKey!_insert_le_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v},
-    cmp (t.insert k v h.balanced |>.impl.minKey!) t.minKey! |>.isLE := by
+    cmp (t.insert k v h.balanced |>.minKey!) t.minKey! |>.isLE := by
   simp_to_model [minKey!, isEmpty, insert] using List.minKey!_insertEntry_le_minKey!
 
 theorem minKey!_insert_le_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k v} :
-    cmp (t.insert k v h.balanced |>.impl.minKey!) k |>.isLE := by
+    cmp (t.insert k v h.balanced |>.minKey!) k |>.isLE := by
   simp_to_model [minKey!, insert] using List.minKey!_insertEntry_le_self
 
 theorem contains_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) :
@@ -3040,42 +3040,42 @@ theorem getKeyD_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) :
   simp_to_model [minKey!, getKeyD, minKey, isEmpty] using List.getKeyD_minKey!
 
 theorem minKey!_erase_eq_iff_not_cmp_minKey_eq [TransCmp cmp] [Inhabited α] (h : t.WF) :
-    ∀ {k}, (he : (t.erase k h.balanced).impl.isEmpty = false) →
-    (t.erase k h.balanced |>.impl.minKey!) = t.minKey! ↔
+    ∀ {k}, (he : (t.erase k h.balanced).isEmpty = false) →
+    (t.erase k h.balanced |>.minKey!) = t.minKey! ↔
       ¬ cmp k (t.minKey <| isEmpty_eq_false_of_isEmpty_erase_eq_false h he) = .eq := by
   simp_to_model [minKey!, isEmpty, erase, minKey] using
     List.minKey!_eraseKey_eq_iff_beq_minKey_eq_false
 
 theorem minKey!_erase_eq_iff_not_cmp_minKey!_eq [TransCmp cmp] [Inhabited α] (h : t.WF) :
-    ∀ {k}, (he : (t.erase k h.balanced).impl.isEmpty = false) →
-    (t.erase k h.balanced |>.impl.minKey!) = t.minKey! ↔
+    ∀ {k}, (he : (t.erase k h.balanced).isEmpty = false) →
+    (t.erase k h.balanced |>.minKey!) = t.minKey! ↔
       ¬ cmp k t.minKey! = .eq := by
   simp_to_model [minKey!, isEmpty, erase] using List.minKey!_eraseKey_eq_iff_beq_minKey!_eq_false
 
 theorem minKey!_erase_eq_of_not_cmp_minKey!_eq [TransCmp cmp] [Inhabited α] (h : t.WF) :
-    ∀ {k}, (he : (t.erase k h.balanced).impl.isEmpty = false) → (heq : ¬ cmp k t.minKey! = .eq) →
-    (t.erase k h.balanced |>.impl.minKey!) =
+    ∀ {k}, (he : (t.erase k h.balanced).isEmpty = false) → (heq : ¬ cmp k t.minKey! = .eq) →
+    (t.erase k h.balanced |>.minKey!) =
         t.minKey (isEmpty_eq_false_of_isEmpty_erase_eq_false h he) := by
   simp_to_model [minKey!, isEmpty, erase, minKey] using
     List.minKey!_eraseKey_eq_of_beq_minKey!_eq_false
 
 theorem minKey!_le_minKey!_erase [TransCmp cmp] [Inhabited α] (h : t.WF) :
-    ∀ {k}, (he : (t.erase k h.balanced).impl.isEmpty = false) →
-    cmp t.minKey! (t.erase k h.balanced |>.impl.minKey!) |>.isLE := by
+    ∀ {k}, (he : (t.erase k h.balanced).isEmpty = false) →
+    cmp t.minKey! (t.erase k h.balanced |>.minKey!) |>.isLE := by
   simp_to_model [minKey!, isEmpty, erase] using List.minKey!_le_minKey!_erase
 
 theorem minKey!_insertIfNew [TransCmp cmp] [Inhabited α] (h : t.WF) : ∀ {k v},
-    (t.insertIfNew k v h.balanced |>.impl.minKey!) =
+    (t.insertIfNew k v h.balanced |>.minKey!) =
       t.minKey?.elim k fun k' => if cmp k k' = .lt then k else k' := by
   simp_to_model [minKey!, minKey?, insertIfNew] using List.minKey!_insertEntryIfNew
 
 theorem minKey!_insertIfNew_le_minKey! [TransCmp cmp] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v},
-    cmp (t.insertIfNew k v h.balanced |>.impl.minKey!) t.minKey! |>.isLE := by
+    cmp (t.insertIfNew k v h.balanced |>.minKey!) t.minKey! |>.isLE := by
   simp_to_model [minKey!, isEmpty, insertIfNew] using List.minKey!_insertEntryIfNew_le_minKey!
 
 theorem minKey!_insertIfNew_le_self [TransCmp cmp] [Inhabited α] (h : t.WF) : ∀ {k v},
-    cmp (t.insertIfNew k v h.balanced |>.impl.minKey!) k |>.isLE := by
+    cmp (t.insertIfNew k v h.balanced |>.minKey!) k |>.isLE := by
   simp_to_model [minKey!, insertIfNew] using List.minKey!_insertEntryIfNew_le_self
 
 theorem minKey!_modify [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF) : ∀ {k f},
@@ -3083,8 +3083,8 @@ theorem minKey!_modify [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF
   simp_to_model [minKey!, modify] using List.minKey!_modifyKey
 
 theorem minKey!_alter_eq_self [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF) :
-    ∀ {k f}, (he : (t.alter k f h.balanced).impl.isEmpty = false) →
-    (t.alter k f h.balanced |>.impl.minKey!) = k ↔
+    ∀ {k f}, (he : (t.alter k f h.balanced).isEmpty = false) →
+    (t.alter k f h.balanced |>.minKey!) = k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (cmp k k').isLE := by
   simp_to_model [minKey!, alter, isEmpty, contains, get?] using List.minKey!_alterKey_eq_self
 
@@ -3110,8 +3110,8 @@ theorem cmp_minKey!_modify_eq [TransCmp cmp] [Inhabited α] (h : t.WF) : ∀ {k 
   simp_to_model [minKey!, Const.modify] using List.Const.minKey!_modifyKey_beq
 
 theorem minKey!_alter_eq_self [TransCmp cmp] [Inhabited α] (h : t.WF) :
-    ∀ {k f}, (he : (Const.alter k f t h.balanced).impl.isEmpty = false) →
-    (Const.alter k f t h.balanced |>.impl.minKey!) = k ↔
+    ∀ {k f}, (he : (Const.alter k f t h.balanced).isEmpty = false) →
+    (Const.alter k f t h.balanced |>.minKey!) = k ↔
       (f (Const.get? t k)).isSome ∧ ∀ k', k' ∈ t → (cmp k k').isLE := by
   simp_to_model [minKey!, Const.alter, contains, isEmpty, Const.get?] using
     List.Const.minKey!_alterKey_eq_self

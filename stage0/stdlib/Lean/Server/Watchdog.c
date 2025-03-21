@@ -95244,7 +95244,7 @@ static lean_object* _init_l_Lean_Server_Watchdog_initAndRunWatchdog___closed__6(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("0.2.0", 5, 5);
+x_1 = lean_mk_string_unchecked("0.3.0", 5, 5);
 return x_1;
 }
 }

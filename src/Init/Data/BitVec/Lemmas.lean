@@ -4018,12 +4018,12 @@ theorem toNat_rotateLeft {x : BitVec w} {r : Nat} :
 theorem toInt_rotateLeft {x : BitVec w} {r : Nat} :
   (x.rotateLeft r).toInt =
     ((x <<< (r % w)).toNat ||| (x >>> (w - r % w)).toNat : Int).bmod (2 ^ w) := by
-  simp only [rotateLeft_def, toInt_shiftLeft, toInt_ushiftRight, toInt_or]
+  simp [rotateLeft_def, toInt_shiftLeft, toInt_ushiftRight, toInt_or]
 
 theorem toFin_rotateLeft {x : BitVec w} {r : Nat} :
   (x.rotateLeft r).toFin =
     Fin.ofNat' (2 ^ w) (x.toNat <<< (r % w)) ||| x.toFin / Fin.ofNat' (2 ^ w) (2 ^ (w - r % w)) := by
-  simp only [rotateLeft_def, toFin_shiftLeft, toFin_uShiftRight, toFin_or]
+  simp [rotateLeft_def, toFin_shiftLeft, toFin_ushiftRight, toFin_or]
 
 /-! ## Rotate Right -/
 
@@ -4173,11 +4173,11 @@ theorem toNat_rotateRight {x : BitVec w} {r : Nat} :
 
 theorem toInt_rotateRight {x : BitVec w} {r : Nat} :
     (x.rotateRight r).toInt = ((x >>> (r % w)).toNat ||| (x <<< (w - r % w)).toNat : Int).bmod (2 ^ w) := by
-  simp only [rotateRight_def, toInt_shiftLeft, toInt_ushiftRight, toInt_or]
+  simp [rotateRight_def, toInt_shiftLeft, toInt_ushiftRight, toInt_or]
 
 theorem toFin_rotateRight {x : BitVec w} {r : Nat} :
     (x.rotateRight r).toFin = x.toFin / Fin.ofNat' (2 ^ w) (2 ^ (r % w)) ||| Fin.ofNat' (2 ^ w) (x.toNat <<< (w - r % w)) := by
-  simp only [rotateRight_def, toFin_shiftLeft, toFin_uShiftRight, toFin_or]
+  simp [rotateRight_def, toFin_shiftLeft, toFin_ushiftRight, toFin_or]
 
 /- ## twoPow -/
 

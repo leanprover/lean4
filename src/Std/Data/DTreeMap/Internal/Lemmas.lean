@@ -173,6 +173,10 @@ theorem isEmpty_eq_false_iff_exists_mem [TransOrd α] (h : t.WF) :
     t.isEmpty = false ↔ ∃ a, a ∈ t := by
   simpa only [mem_iff_contains] using isEmpty_eq_false_iff_exists_contains_eq_true h
 
+theorem isEmpty_eq_false_of_contains [TransOrd α] (h : t.WF) {a : α} : (hc : t.contains a = true) →
+    t.isEmpty = false := by
+  simp_to_model [isEmpty, contains] using List.isEmpty_eq_false_of_containsKey
+
 theorem isEmpty_iff_forall_contains [TransOrd α] (h : t.WF) :
     t.isEmpty = true ↔ ∀ a, t.contains a = false := by
   simp_to_model [isEmpty, contains] using List.isEmpty_iff_forall_containsKey
@@ -4698,35 +4702,25 @@ theorem le_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
 
 theorem getKey?_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) →
-    t.getKey? t.minKey! = some (t.minKey he) := by
-  simp_to_model [minKey!, minKey, getKey?, isEmpty] using List.getKey?_minKey!
+    t.getKey? t.minKey! = some t.minKey! := by
+  simp_to_model [minKey!, getKey?, isEmpty] using List.getKey?_minKey!
 
-theorem getKey_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
-    (he : t.isEmpty = false) →
-    t.getKey t.minKey! (contains_minKey! h he) = t.minKey he := by
-  simp_to_model [minKey!, contains, minKey, isEmpty, getKey] using List.getKey_minKey!
+theorem getKey_minKey! [TransOrd α] [Inhabited α] (h : t.WF) : ∀ {he},
+    t.getKey t.minKey! he = t.minKey! := by
+  simp_to_model [minKey!, contains, isEmpty, getKey] using List.getKey_minKey!
+
+theorem getKey_minKey!_eq_minKey [TransOrd α] [Inhabited α] (h : t.WF) : ∀ {hc},
+    t.getKey t.minKey! hc = t.minKey (isEmpty_eq_false_of_contains h hc) := by
+  simp_to_model [minKey!, minKey, contains, isEmpty, getKey] using List.getKey_minKey!_eq_minKey
 
 theorem getKey!_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
-    (he : t.isEmpty = false) → t.getKey! t.minKey! = t.minKey he := by
-  simp_to_model [minKey!, isEmpty, getKey!, minKey] using List.getKey!_minKey!
+    (he : t.isEmpty = false) → t.getKey! t.minKey! = t.minKey! := by
+  simp_to_model [minKey!, isEmpty, getKey!] using List.getKey!_minKey!
 
 theorem getKeyD_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {fallback},
-    t.getKeyD t.minKey! fallback = t.minKey he := by
-  simp_to_model [minKey!, getKeyD, minKey, isEmpty] using List.getKeyD_minKey!
-
-theorem minKey!_erase_eq_iff_not_compare_minKey_eq [TransOrd α] [Inhabited α] (h : t.WF) :
-    ∀ {k}, (he : (t.erase k h.balanced).impl.isEmpty = false) →
-    (t.erase k h.balanced |>.impl.minKey!) = t.minKey! ↔
-      ¬ compare k (t.minKey <| isEmpty_eq_false_of_isEmpty_erase_eq_false h he) = .eq := by
-  simp_to_model [minKey!, isEmpty, erase, minKey] using
-    List.minKey!_eraseKey_eq_iff_beq_minKey_eq_false
-
-theorem minKey!_erase!_eq_iff_not_compare_minKey_eq [TransOrd α] [Inhabited α] (h : t.WF) {k} :
-    (he : (t.erase! k).isEmpty = false) →
-    (t.erase! k |>.minKey!) = t.minKey! ↔
-      ¬ compare k (t.minKey <| isEmpty_eq_false_of_isEmpty_erase!_eq_false h he) = .eq := by
-  simpa only [erase_eq_erase!] using minKey!_erase_eq_iff_not_compare_minKey_eq h
+    t.getKeyD t.minKey! fallback = t.minKey! := by
+  simp_to_model [minKey!, getKeyD, isEmpty] using List.getKeyD_minKey!
 
 theorem minKey!_erase_eq_iff_not_compare_minKey!_eq [TransOrd α] [Inhabited α] (h : t.WF) :
     ∀ {k}, (he : (t.erase k h.balanced).impl.isEmpty = false) →
@@ -4742,15 +4736,13 @@ theorem minKey!_erase!_eq_iff_not_compare_minKey!_eq [TransOrd α] [Inhabited α
 
 theorem minKey!_erase_eq_of_not_compare_minKey!_eq [TransOrd α] [Inhabited α] (h : t.WF) :
     ∀ {k}, (he : (t.erase k h.balanced).impl.isEmpty = false) → (heq : ¬ compare k t.minKey! = .eq) →
-    (t.erase k h.balanced |>.impl.minKey!) =
-        t.minKey (isEmpty_eq_false_of_isEmpty_erase_eq_false h he) := by
-  simp_to_model [minKey!, isEmpty, erase, minKey] using
+    (t.erase k h.balanced |>.impl.minKey!) = t.minKey! := by
+  simp_to_model [minKey!, isEmpty, erase] using
     List.minKey!_eraseKey_eq_of_beq_minKey!_eq_false
 
 theorem minKey!_erase!_eq_of_not_compare_minKey!_eq [TransOrd α] [Inhabited α] (h : t.WF) {k} :
     (he : (t.erase! k).isEmpty = false) → (heq : ¬ compare k t.minKey! = .eq) →
-    (t.erase! k |>.minKey!) =
-        t.minKey (isEmpty_eq_false_of_isEmpty_erase!_eq_false h he) := by
+    (t.erase! k |>.minKey!) = t.minKey! := by
   simpa only [erase_eq_erase!] using minKey!_erase_eq_of_not_compare_minKey!_eq h
 
 theorem minKey!_le_minKey!_erase [TransOrd α] [Inhabited α] (h : t.WF) :
@@ -4813,11 +4805,7 @@ variable {β : Type v} {t : Impl α β}
 
 theorem minKey!_modify [TransOrd α] [Inhabited α] (h : t.WF) :
     ∀ {k f}, (he : (modify k f t).isEmpty = false) →
-    (modify k f t |> minKey!) =
-      if (t.minKey <| isEmpty_modify h ▸ he) == k then
-        k
-      else
-        (t.minKey <| isEmpty_modify h ▸ he) := by
+    (modify k f t |> minKey!) = if compare t.minKey! k = .eq then k else t.minKey! := by
   simp_to_model [minKey!, minKey, isEmpty, Const.modify] using List.Const.minKey!_modifyKey
 
 theorem minKey!_modify_eq_minKey! [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) :

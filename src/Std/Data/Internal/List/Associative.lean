@@ -5131,7 +5131,7 @@ theorem minKey!_alterKey_eq_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd �
 
 end Const
 
-/-- Given a proof that the list is nonempty, returns the smallest key in an associative list. -/
+/-- Returns the smallest key in an associative list or `fallback` if the list is empty. -/
 def minKeyD [Ord α] (xs : List ((a : α) × β a)) (fallback : α) : α :=
   minKey? xs |>.getD fallback
 
@@ -5218,12 +5218,14 @@ theorem getKey?_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
 theorem getKey_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {fallback he} :
     getKey (minKeyD l fallback) l he = minKeyD l fallback := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using getKey_minKey hd (he := isEmpty_eq_false_of_containsKey he)
+  simpa [minKey_eq_minKeyD (fallback := fallback)] using
+    getKey_minKey hd (he := isEmpty_eq_false_of_containsKey he)
 
 theorem getKey_minKeyD_eq_minKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {fallback he} :
     getKey (minKeyD l fallback) l he = minKey l (isEmpty_eq_false_of_containsKey he) := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using getKey_minKey hd (he := isEmpty_eq_false_of_containsKey he)
+  simpa [minKey_eq_minKeyD (fallback := fallback)] using
+    getKey_minKey hd (he := isEmpty_eq_false_of_containsKey he)
 
 theorem getKey!_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) (he : l.isEmpty = false) {fallback} :
@@ -5240,26 +5242,30 @@ theorem minKeyD_eraseKey_eq_iff_beq_minKey_eq_false [Ord α] [TransOrd α] [BEq 
     (he : (eraseKey k l).isEmpty = false) :
     (eraseKey k l |> minKeyD <| fallback) = minKeyD l fallback ↔
       (k == (minKeyD l fallback)) = false := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using minKey_eraseKey_eq_iff_beq_minKey_eq_false hd (he := he)
+  simpa [minKey_eq_minKeyD (fallback := fallback)] using
+    minKey_eraseKey_eq_iff_beq_minKey_eq_false hd (he := he)
 
 theorem minKeyD_eraseKey_eq_iff_beq_minKeyD_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k fallback}
     (he : (eraseKey k l).isEmpty = false) :
     (eraseKey k l |> minKeyD <| fallback) = minKeyD l fallback ↔
       (k == (minKeyD l fallback)) = false := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using minKey_eraseKey_eq_iff_beq_minKey_eq_false hd (he := he)
+  simpa [minKey_eq_minKeyD (fallback := fallback)] using
+    minKey_eraseKey_eq_iff_beq_minKey_eq_false hd (he := he)
 
 theorem minKeyD_eraseKey_eq_of_beq_minKeyD_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k fallback}
     (he : (eraseKey k l).isEmpty = false) : (heq : (k == minKeyD l fallback) = false) →
     (eraseKey k l |> minKeyD <| fallback) = minKeyD l fallback:= by
-  simpa only [minKey_eq_minKeyD (fallback := fallback)] using minKey_eraseKey_eq_of_beq_minKey_eq_false hd (he := he)
+  simpa only [minKey_eq_minKeyD (fallback := fallback)] using
+    minKey_eraseKey_eq_of_beq_minKey_eq_false hd (he := he)
 
 theorem minKeyD_le_minKeyD_erase [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k} (he : (eraseKey k l).isEmpty = false)
     {fallback} :
     compare (minKeyD l fallback) (eraseKey k l |> minKeyD <| fallback) |>.isLE := by
-  simpa only [minKey_eq_minKeyD (fallback := fallback)] using minKey_le_minKey_erase hd (he := he)
+  simpa only [minKey_eq_minKeyD (fallback := fallback)] using
+    minKey_le_minKey_erase hd (he := he)
 
 theorem minKeyD_insertEntryIfNew [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v fallback} :
@@ -5270,7 +5276,8 @@ theorem minKeyD_insertEntryIfNew [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd �
 theorem minKeyD_insertEntryIfNew_le_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) (he : l.isEmpty = false) {k v fallback} :
     compare (insertEntryIfNew k v l |> minKeyD <| fallback) (minKeyD l fallback) |>.isLE := by
-  simpa only [minKey_eq_minKeyD (fallback := fallback)] using minKey_insertEntryIfNew_le_minKey hd (he := he)
+  simpa only [minKey_eq_minKeyD (fallback := fallback)] using
+    minKey_insertEntryIfNew_le_minKey hd (he := he)
 
 theorem minKeyD_insertEntryIfNew_le_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v fallback} :

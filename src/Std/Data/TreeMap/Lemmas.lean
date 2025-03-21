@@ -2224,8 +2224,8 @@ theorem getKey!_minKeyD [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) {
     t.getKey! (t.minKeyD fallback) = t.minKeyD fallback :=
   DTreeMap.getKey!_minKeyD he
 
-theorem getKeyD_minKeyD [TransCmp cmp] (he : t.isEmpty = false) {fallback} :
-    t.getKeyD (t.minKeyD fallback) fallback = t.minKeyD fallback :=
+theorem getKeyD_minKeyD [TransCmp cmp] (he : t.isEmpty = false) {fallback fallback'} :
+    t.getKeyD (t.minKeyD fallback) fallback' = t.minKeyD fallback :=
   DTreeMap.getKeyD_minKeyD he
 
 theorem minKeyD_erase_eq_of_not_compare_minKeyD_eq [TransCmp cmp] {k fallback}
@@ -2254,7 +2254,8 @@ theorem minKeyD_insertIfNew_le_self [TransCmp cmp] {k v fallback} :
 
 theorem minKeyD_modify [TransCmp cmp] {k f}
     (he : (modify t k f).isEmpty = false) {fallback} :
-    (modify t k f |>.minKeyD fallback) = if cmp (t.minKeyD fallback) k = .eq then k else (t.minKeyD fallback) :=
+    (modify t k f |>.minKeyD fallback) =
+      if cmp (t.minKeyD fallback) k = .eq then k else (t.minKeyD fallback) :=
   DTreeMap.Const.minKeyD_modify he
 
 @[simp]

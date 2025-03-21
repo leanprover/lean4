@@ -1022,8 +1022,8 @@ theorem get!_minD [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) {fallba
     t.get! (t.minD fallback) = t.minD fallback :=
   TreeMap.getKey!_minKeyD he
 
-theorem getD_minD [TransCmp cmp] (he : t.isEmpty = false) {fallback} :
-    t.getD (t.minD fallback) fallback = t.minD fallback :=
+theorem getD_minD [TransCmp cmp] (he : t.isEmpty = false) {fallback fallback'} :
+    t.getD (t.minD fallback) fallback' = t.minD fallback :=
   TreeMap.getKeyD_minKeyD he
 
 theorem minD_erase_eq_of_not_compare_minD_eq [TransCmp cmp] {k fallback}

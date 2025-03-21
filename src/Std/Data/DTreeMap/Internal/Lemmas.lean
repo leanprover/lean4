@@ -4980,7 +4980,8 @@ theorem minKeyD_insertIfNew! [TransOrd α] (h : t.WF) {k v fallback} :
 
 theorem minKeyD_insertIfNew_le_minKeyD [TransOrd α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v fallback},
-    compare (t.insertIfNew k v h.balanced |>.impl.minKeyD <| fallback) (t.minKeyD fallback) |>.isLE := by
+    compare (t.insertIfNew k v h.balanced |>.impl.minKeyD <| fallback)
+      (t.minKeyD fallback) |>.isLE := by
   simp_to_model [minKeyD, isEmpty, insertIfNew] using List.minKeyD_insertEntryIfNew_le_minKeyD
 
 theorem minKeyD_insertIfNew!_le_minKeyD [TransOrd α] (h : t.WF) :
@@ -5018,7 +5019,8 @@ variable {β : Type v} {t : Impl α β}
 
 theorem minKeyD_modify [TransOrd α] (h : t.WF) :
     ∀ {k f}, (he : (modify k f t).isEmpty = false) → ∀ {fallback},
-    (modify k f t |>.minKeyD fallback) = if compare (t.minKeyD fallback) k = .eq then k else t.minKeyD fallback := by
+    (modify k f t |>.minKeyD fallback) =
+      if compare (t.minKeyD fallback) k = .eq then k else t.minKeyD fallback := by
   simp_to_model [minKeyD, minKey, isEmpty, Const.modify] using List.Const.minKeyD_modifyKey
 
 theorem minKeyD_modify_eq_minKeyD [TransOrd α] [LawfulEqOrd α] (h : t.WF) :

@@ -428,7 +428,10 @@ theorem forall_mem_ne {a : α} {l : List α} : (∀ a' : α, a' ∈ l → ¬a = 
 theorem forall_mem_ne' {a : α} {l : List α} : (∀ a' : α, a' ∈ l → ¬a' = a) ↔ a ∉ l :=
   ⟨fun h m => h _ m rfl, fun h _ m e => h (e.symm ▸ m)⟩
 
-theorem exists_mem_nil (p : α → Prop) : ¬ (∃ x, ∃ _ : x ∈ @nil α, p x) := nofun
+theorem not_exists_mem_nil (p : α → Prop) : ¬ (∃ x, ∃ _ : x ∈ @nil α, p x) := nofun
+
+@[deprecated not_exists_mem_nil (since := "2025-03-18")]
+abbrev exists_mem_nil := @not_exists_mem_nil
 
 theorem forall_mem_nil (p : α → Prop) : ∀ (x) (_ : x ∈ @nil α), p x := nofun
 

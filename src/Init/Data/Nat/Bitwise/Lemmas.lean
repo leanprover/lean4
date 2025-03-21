@@ -137,7 +137,7 @@ theorem toNat_testBit (x i : Nat) :
   rw [Nat.testBit_to_div_mod]
   rcases Nat.mod_two_eq_zero_or_one (x / 2^i) <;> simp_all
 
-theorem ne_zero_implies_bit_true {x : Nat} (xnz : x ≠ 0) : ∃ i, testBit x i := by
+theorem exists_testBit_of_ne_zero {x : Nat} (xnz : x ≠ 0) : ∃ i, testBit x i := by
   induction x using div2Induction with
   | ind x hyp =>
     have x_pos : x > 0 := Nat.pos_of_ne_zero xnz
@@ -152,14 +152,17 @@ theorem ne_zero_implies_bit_true {x : Nat} (xnz : x ≠ 0) : ∃ i, testBit x i 
       apply Exists.intro 0
       simp_all
 
-theorem ne_implies_bit_diff {x y : Nat} (p : x ≠ y) : ∃ i, testBit x i ≠ testBit y i := by
+@[deprecated exists_testBit_of_ne_zero (since := "2025-03-18")]
+abbrev ne_zero_implies_bit_true := @exists_testBit_of_ne_zero
+
+theorem exists_testBit_ne_of_ne {x y : Nat} (p : x ≠ y) : ∃ i, testBit x i ≠ testBit y i := by
   induction y using Nat.div2Induction generalizing x with
   | ind y hyp =>
     cases Nat.eq_zero_or_pos y with
     | inl yz =>
       simp only [yz, Nat.zero_testBit, Bool.eq_false_iff]
       simp only [yz] at p
-      have ⟨i,ip⟩  := ne_zero_implies_bit_true p
+      have ⟨i,ip⟩  := exists_testBit_of_ne_zero p
       apply Exists.intro i
       simp [ip]
     | inr ypos =>
@@ -178,6 +181,9 @@ theorem ne_implies_bit_diff {x y : Nat} (p : x ≠ y) : ∃ i, testBit x i ≠ t
           cases mod_two_eq_zero_or_one y with | _ q =>
             simp [p,q]
 
+@[deprecated exists_testBit_ne_of_ne (since := "2025-03-18")]
+abbrev ne_implies_bit_diff := @exists_testBit_ne_of_ne
+
 /--
 `eq_of_testBit_eq` allows proving two natural numbers are equal
 if their bits are all equal.
@@ -186,18 +192,18 @@ theorem eq_of_testBit_eq {x y : Nat} (pred : ∀i, testBit x i = testBit y i) : 
   if h : x = y then
     exact h
   else
-    let ⟨i,eq⟩ := ne_implies_bit_diff h
+    let ⟨i,eq⟩ := exists_testBit_ne_of_ne h
     have p := pred i
     contradiction
 
-theorem ge_two_pow_implies_high_bit_true {x : Nat} (p : x ≥ 2^n) : ∃ i, i ≥ n ∧ testBit x i := by
+theorem exists_testBit_ge_of_ge_two_pow {x : Nat} (p : x ≥ 2^n) : ∃ i, i ≥ n ∧ testBit x i := by
   induction x using div2Induction generalizing n with
   | ind x hyp =>
     have x_pos : x > 0 := Nat.lt_of_lt_of_le (Nat.two_pow_pos n) p
     have x_ne_zero : x ≠ 0 := Nat.ne_of_gt x_pos
     match n with
     | zero =>
-      let ⟨j, jp⟩ := ne_zero_implies_bit_true x_ne_zero
+      let ⟨j, jp⟩ := exists_testBit_of_ne_zero x_ne_zero
       exact Exists.intro j (And.intro (Nat.zero_le _) jp)
     | succ n =>
       have x_ge_n : x / 2 ≥ 2 ^ n := by
@@ -210,25 +216,31 @@ theorem ge_two_pow_implies_high_bit_true {x : Nat} (p : x ≥ 2^n) : ∃ i, i �
       case right =>
         simpa using jp.right
 
-theorem testBit_implies_ge {x : Nat} (p : testBit x i = true) : x ≥ 2^i := by
+@[deprecated exists_testBit_ge_of_ge_two_pow (since := "2025-03-18")]
+abbrev ge_two_pow_implies_high_bit_true := @exists_testBit_ge_of_ge_two_pow
+
+theorem ge_two_pow_of_testBit {x : Nat} (p : testBit x i = true) : x ≥ 2^i := by
   simp only [testBit_to_div_mod] at p
   apply Decidable.by_contra
   intro not_ge
   have x_lt : x < 2^i := Nat.lt_of_not_le not_ge
   simp [div_eq_of_lt x_lt] at p
 
+@[deprecated ge_two_pow_of_testBit (since := "2025-03-18")]
+abbrev testBit_implies_ge := @ge_two_pow_of_testBit
+
 theorem testBit_lt_two_pow {x i : Nat} (lt : x < 2^i) : x.testBit i = false := by
   match p : x.testBit i with
   | false => trivial
   | true =>
     exfalso
-    exact Nat.not_le_of_gt lt (testBit_implies_ge p)
+    exact Nat.not_le_of_gt lt (ge_two_pow_of_testBit p)
 
 theorem lt_pow_two_of_testBit (x : Nat) (p : ∀i, i ≥ n → testBit x i = false) : x < 2^n := by
   apply Decidable.by_contra
   intro not_lt
   have x_ge_n := Nat.ge_of_not_lt not_lt
-  have ⟨i, ⟨i_ge_n, test_true⟩⟩ := ge_two_pow_implies_high_bit_true x_ge_n
+  have ⟨i, ⟨i_ge_n, test_true⟩⟩ := exists_testBit_ge_of_ge_two_pow x_ge_n
   have test_false := p _ i_ge_n
   simp [test_true] at test_false
 

@@ -510,7 +510,7 @@ theorem toList_append (xs : Vector α m) (ys : Vector α n) :
     (xs.drop i).toList = xs.toList.drop i := by
   simp [List.take_of_length_le]
 
-theorem toList_empty : (#v[] : Vector α 0).toArray = #[] := by simp
+theorem toList_empty : (#v[] : Vector α 0).toList = [] := by simp
 
 theorem toList_emptyWithCapacity (cap) :
     (Vector.emptyWithCapacity (α := α) cap).toList = [] := rfl
@@ -579,8 +579,8 @@ theorem toList_swap (xs : Vector α n) (i j) (hi hj) :
 @[simp] theorem toList_take (xs : Vector α n) (i) : (xs.take i).toList = xs.toList.take i := by
   simp [List.take_of_length_le]
 
-@[simp] theorem toList_zipWith (f : α → β → γ) (as : Vector α n) (bs : Vector β n) :
-    (Vector.zipWith f as bs).toArray = Array.zipWith f as.toArray bs.toArray := rfl
+theorem toList_zipWith (f : α → β → γ) (as : Vector α n) (bs : Vector β n) :
+    (Vector.zipWith f as bs).toList = List.zipWith f as.toList bs.toList := by simp
 
 @[simp] theorem anyM_toList [Monad m] (p : α → m Bool) (xs : Vector α n) :
     xs.toList.anyM p = xs.anyM p := by
@@ -649,10 +649,13 @@ theorem toList_inj {xs ys : Vector α n} : xs.toList = ys.toList ↔ xs = ys := 
   cases ys
   simp [Array.toList_inj]
 
-@[simp] theorem toList_eq_empty_iff (xs : Vector α n) : xs.toList = [] ↔ n = 0 := by
+@[simp] theorem toList_eq_nil_iff (xs : Vector α n) : xs.toList = [] ↔ n = 0 := by
   rcases xs with ⟨xs, h⟩
   simp only [Array.toList_eq_nil_iff]
   exact ⟨by rintro rfl; simp_all, by rintro rfl; simpa using h⟩
+
+@[deprecated toList_eq_nil_iff (since := "2025-03-18")]
+abbrev toList_eq_empty_iff := @toList_eq_nil_iff
 
 @[simp] theorem mem_toList_iff (a : α) (xs : Vector α n) : a ∈ xs.toList ↔ a ∈ xs := by
   simp

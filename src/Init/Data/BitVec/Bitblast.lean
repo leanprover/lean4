@@ -134,14 +134,14 @@ private theorem testBit_limit {x i : Nat} (x_lt_succ : x < 2^(i+1)) :
     testBit x i = decide (x ≥ 2^i) := by
   cases xi : testBit x i with
   | true =>
-    simp [testBit_implies_ge xi]
+    simp [ge_two_pow_of_testBit xi]
   | false =>
     simp
     cases Nat.lt_or_ge x (2^i) with
     | inl x_lt =>
       exact x_lt
     | inr x_ge =>
-      have ⟨j, ⟨j_ge, jp⟩⟩  := ge_two_pow_implies_high_bit_true x_ge
+      have ⟨j, ⟨j_ge, jp⟩⟩ := exists_testBit_ge_of_ge_two_pow x_ge
       cases Nat.lt_or_eq_of_le j_ge with
       | inr x_eq =>
         simp [x_eq, jp] at xi
@@ -150,7 +150,7 @@ private theorem testBit_limit {x i : Nat} (x_lt_succ : x < 2^(i+1)) :
         apply Nat.lt_irrefl
         calc x < 2^(i+1) := x_lt_succ
              _ ≤ 2 ^ j := Nat.pow_le_pow_right Nat.zero_lt_two x_lt
-             _ ≤ x := testBit_implies_ge jp
+             _ ≤ x := ge_two_pow_of_testBit jp
 
 private theorem mod_two_pow_succ (x i : Nat) :
     x % 2^(i+1) = 2^i*(x.testBit i).toNat + x % (2 ^ i):= by
@@ -419,7 +419,7 @@ theorem getLsbD_neg {i : Nat} {x : BitVec w} :
       · rintro h j hj; exact And.right <| h j (by omega)
       · rintro h j hj; exact ⟨by omega, h j (by omega)⟩
   · have h_ge : w ≤ i := by omega
-    simp [getLsbD_ge _ _ h_ge, h_ge, hi]
+    simp [getLsbD_of_ge _ _ h_ge, h_ge, hi]
 
 theorem getElem_neg {i : Nat} {x : BitVec w} (h : i < w) :
     (-x)[i] = (x[i] ^^ decide (∃ j < i, x.getLsbD j = true)) := by

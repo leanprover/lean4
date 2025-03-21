@@ -31,7 +31,7 @@ theorem denote_getD_eq_getLsbD (aig : AIG α) (assign : α → Bool) (x : BitVec
   · rw [hx]
   · rw [hfalse]
     symm
-    apply BitVec.getLsbD_ge
+    apply BitVec.getLsbD_of_ge
     omega
 
 @[simp]

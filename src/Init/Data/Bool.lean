@@ -108,8 +108,14 @@ Needed for confluence of term `(a && b) ↔ a` which reduces to `(a && b) = a` v
 @[simp] theorem iff_self_and : ∀ {a b : Bool}, (a = (a && b)) ↔ (a → b) := by decide
 @[simp] theorem iff_and_self : ∀ {a b : Bool}, (b = (a && b)) ↔ (b → a) := by decide
 
-@[simp] theorem not_and_iff_left_iff_imp  : ∀ {a b : Bool}, ((!a && b) = a) ↔ !a ∧ !b := by decide
-@[simp] theorem and_not_iff_right_iff_imp : ∀ {a b : Bool}, ((a && !b) = b) ↔ !a ∧ !b := by decide
+@[simp] theorem not_and_eq_left_iff_not_and_not : ∀ {a b : Bool}, ((!a && b) = a) ↔ !a ∧ !b := by decide
+@[deprecated not_and_eq_left_iff_not_and_not (since := "2025-03-18")]
+abbrev not_and_iff_left_iff_imp := @not_and_eq_left_iff_not_and_not
+
+@[simp] theorem and_not_eq_right_iff_not_and_not : ∀ {a b : Bool}, ((a && !b) = b) ↔ !a ∧ !b := by decide
+@[deprecated and_not_eq_right_iff_not_and_not (since := "2025-03-18")]
+abbrev and_not_iff_right_iff_imp := @and_not_eq_right_iff_not_and_not
+
 @[simp] theorem iff_not_self_and : ∀ {a b : Bool}, (a = (!a && b)) ↔ !a ∧ !b := by decide
 @[simp] theorem iff_and_not_self : ∀ {a b : Bool}, (b = (a && !b)) ↔ !a ∧ !b := by decide
 
@@ -142,8 +148,14 @@ Needed for confluence of term `(a || b) ↔ a` which reduces to `(a || b) = a` v
 @[simp] theorem iff_self_or : ∀ {a b : Bool}, (a = (a || b)) ↔ (b → a) := by decide
 @[simp] theorem iff_or_self : ∀ {a b : Bool}, (b = (a || b)) ↔ (a → b) := by decide
 
-@[simp] theorem not_or_iff_left_iff_imp  : ∀ {a b : Bool}, ((!a || b) = a) ↔ a ∧ b := by decide
-@[simp] theorem or_not_iff_right_iff_imp : ∀ {a b : Bool}, ((a || !b) = b) ↔ a ∧ b := by decide
+@[simp] theorem not_or_eq_left_iff_and  : ∀ {a b : Bool}, ((!a || b) = a) ↔ a ∧ b := by decide
+@[deprecated not_or_eq_left_iff_and (since := "2025-03-18")]
+abbrev not_or_iff_left_iff_imp := @not_or_eq_left_iff_and
+
+@[simp] theorem or_not_eq_right_iff_and : ∀ {a b : Bool}, ((a || !b) = b) ↔ a ∧ b := by decide
+@[deprecated or_not_eq_right_iff_and (since := "2025-03-18")]
+abbrev or_not_iff_right_iff_imp := @or_not_eq_right_iff_and
+
 @[simp] theorem iff_not_self_or : ∀ {a b : Bool}, (a = (!a || b)) ↔ a ∧ b := by decide
 @[simp] theorem iff_or_not_self : ∀ {a b : Bool}, (b = (a || !b)) ↔ a ∧ b := by decide
 

@@ -2273,3 +2273,147 @@ theorem UInt64.ofNat_le_iff_le {a b : Nat} (ha : a < UInt64.size) (hb : b < UInt
 theorem USize.ofNat_le_iff_le {a b : Nat} (ha : a < USize.size) (hb : b < USize.size) :
     USize.ofNat a ≤ USize.ofNat b ↔ a ≤ b := by
   rw [← ofNatLT_eq_ofNat (h := ha), ← ofNatLT_eq_ofNat (h := hb), ofNatLT_le_iff_le]
+
+theorem UInt8.toNat_one : (1 : UInt8).toNat = 1 := rfl
+theorem UInt16.toNat_one : (1 : UInt16).toNat = 1 := rfl
+theorem UInt32.toNat_one : (1 : UInt32).toNat = 1 := rfl
+theorem UInt64.toNat_one : (1 : UInt64).toNat = 1 := rfl
+theorem USize.toNat_one : (1 : USize).toNat = 1 := by simp
+
+theorem UInt8.zero_lt_one : (0 : UInt8) < 1 := by simp
+theorem UInt16.zero_lt_one : (0 : UInt16) < 1 := by simp
+theorem UInt32.zero_lt_one : (0 : UInt32) < 1 := by simp
+theorem UInt64.zero_lt_one : (0 : UInt64) < 1 := by simp
+theorem USize.zero_lt_one : (0 : USize) < 1 := by simp [lt_iff_toNat_lt]
+
+theorem UInt8.zero_ne_one : (0 : UInt8) ≠ 1 := by simp
+theorem UInt16.zero_ne_one : (0 : UInt16) ≠ 1 := by simp
+theorem UInt32.zero_ne_one : (0 : UInt32) ≠ 1 := by simp
+theorem UInt64.zero_ne_one : (0 : UInt64) ≠ 1 := by simp
+theorem USize.zero_ne_one : (0 : USize) ≠ 1 := by simp [← USize.toNat_inj]
+
+theorem UInt8.add_assoc (a b c : UInt8) : a + b + c = a + (b + c) :=
+  UInt8.toBitVec_inj.1 (BitVec.add_assoc _ _ _)
+theorem UInt16.add_assoc (a b c : UInt16) : a + b + c = a + (b + c) :=
+  UInt16.toBitVec_inj.1 (BitVec.add_assoc _ _ _)
+theorem UInt32.add_assoc (a b c : UInt32) : a + b + c = a + (b + c) :=
+  UInt32.toBitVec_inj.1 (BitVec.add_assoc _ _ _)
+theorem UInt64.add_assoc (a b c : UInt64) : a + b + c = a + (b + c) :=
+  UInt64.toBitVec_inj.1 (BitVec.add_assoc _ _ _)
+theorem USize.add_assoc (a b c : USize) : a + b + c = a + (b + c) :=
+  USize.toBitVec_inj.1 (BitVec.add_assoc _ _ _)
+
+instance : Std.Associative (α := UInt8) (· + ·) := ⟨UInt8.add_assoc⟩
+instance : Std.Associative (α := UInt16) (· + ·) := ⟨UInt16.add_assoc⟩
+instance : Std.Associative (α := UInt32) (· + ·) := ⟨UInt32.add_assoc⟩
+instance : Std.Associative (α := UInt64) (· + ·) := ⟨UInt64.add_assoc⟩
+instance : Std.Associative (α := USize) (· + ·) := ⟨USize.add_assoc⟩
+
+theorem UInt8.add_comm (a b : UInt8) : a + b = b + a := UInt8.toBitVec_inj.1 (BitVec.add_comm _ _)
+theorem UInt16.add_comm (a b : UInt16) : a + b = b + a := UInt16.toBitVec_inj.1 (BitVec.add_comm _ _)
+theorem UInt32.add_comm (a b : UInt32) : a + b = b + a := UInt32.toBitVec_inj.1 (BitVec.add_comm _ _)
+theorem UInt64.add_comm (a b : UInt64) : a + b = b + a := UInt64.toBitVec_inj.1 (BitVec.add_comm _ _)
+theorem USize.add_comm (a b : USize) : a + b = b + a := USize.toBitVec_inj.1 (BitVec.add_comm _ _)
+
+instance : Std.Commutative (α := UInt8) (· + ·) := ⟨UInt8.add_comm⟩
+instance : Std.Commutative (α := UInt16) (· + ·) := ⟨UInt16.add_comm⟩
+instance : Std.Commutative (α := UInt32) (· + ·) := ⟨UInt32.add_comm⟩
+instance : Std.Commutative (α := UInt64) (· + ·) := ⟨UInt64.add_comm⟩
+instance : Std.Commutative (α := USize) (· + ·) := ⟨USize.add_comm⟩
+
+@[simp] theorem UInt8.add_zero (a : UInt8) : a + 0 = a := UInt8.toBitVec_inj.1 (BitVec.add_zero _)
+@[simp] theorem UInt16.add_zero (a : UInt16) : a + 0 = a := UInt16.toBitVec_inj.1 (BitVec.add_zero _)
+@[simp] theorem UInt32.add_zero (a : UInt32) : a + 0 = a := UInt32.toBitVec_inj.1 (BitVec.add_zero _)
+@[simp] theorem UInt64.add_zero (a : UInt64) : a + 0 = a := UInt64.toBitVec_inj.1 (BitVec.add_zero _)
+@[simp] theorem USize.add_zero (a : USize) : a + 0 = a := USize.toBitVec_inj.1 (BitVec.add_zero _)
+
+@[simp] theorem UInt8.zero_add (a : UInt8) : 0 + a = a := UInt8.toBitVec_inj.1 (BitVec.zero_add _)
+@[simp] theorem UInt16.zero_add (a : UInt16) : 0 + a = a := UInt16.toBitVec_inj.1 (BitVec.zero_add _)
+@[simp] theorem UInt32.zero_add (a : UInt32) : 0 + a = a := UInt32.toBitVec_inj.1 (BitVec.zero_add _)
+@[simp] theorem UInt64.zero_add (a : UInt64) : 0 + a = a := UInt64.toBitVec_inj.1 (BitVec.zero_add _)
+@[simp] theorem USize.zero_add (a : USize) : 0 + a = a := USize.toBitVec_inj.1 (BitVec.zero_add _)
+
+instance : Std.LawfulIdentity (α := UInt8) (· + ·) 0 where
+  left_id := UInt8.zero_add
+  right_id := UInt8.add_zero
+instance : Std.LawfulIdentity (α := UInt16) (· + ·) 0 where
+  left_id := UInt16.zero_add
+  right_id := UInt16.add_zero
+instance : Std.LawfulIdentity (α := UInt32) (· + ·) 0 where
+  left_id := UInt32.zero_add
+  right_id := UInt32.add_zero
+instance : Std.LawfulIdentity (α := UInt64) (· + ·) 0 where
+  left_id := UInt64.zero_add
+  right_id := UInt64.add_zero
+instance : Std.LawfulIdentity (α := USize) (· + ·) 0 where
+  left_id := USize.zero_add
+  right_id := USize.add_zero
+
+@[simp] theorem UInt8.sub_zero (a : UInt8) : a - 0 = a := UInt8.toBitVec_inj.1 (BitVec.sub_zero _)
+@[simp] theorem UInt16.sub_zero (a : UInt16) : a - 0 = a := UInt16.toBitVec_inj.1 (BitVec.sub_zero _)
+@[simp] theorem UInt32.sub_zero (a : UInt32) : a - 0 = a := UInt32.toBitVec_inj.1 (BitVec.sub_zero _)
+@[simp] theorem UInt64.sub_zero (a : UInt64) : a - 0 = a := UInt64.toBitVec_inj.1 (BitVec.sub_zero _)
+@[simp] theorem USize.sub_zero (a : USize) : a - 0 = a := USize.toBitVec_inj.1 (BitVec.sub_zero _)
+
+@[simp] theorem UInt8.zero_sub (a : UInt8) : 0 - a = -a := UInt8.toBitVec_inj.1 (BitVec.zero_sub _)
+@[simp] theorem UInt16.zero_sub (a : UInt16) : 0 - a = -a := UInt16.toBitVec_inj.1 (BitVec.zero_sub _)
+@[simp] theorem UInt32.zero_sub (a : UInt32) : 0 - a = -a := UInt32.toBitVec_inj.1 (BitVec.zero_sub _)
+@[simp] theorem UInt64.zero_sub (a : UInt64) : 0 - a = -a := UInt64.toBitVec_inj.1 (BitVec.zero_sub _)
+@[simp] theorem USize.zero_sub (a : USize) : 0 - a = -a := USize.toBitVec_inj.1 (BitVec.zero_sub _)
+
+@[simp] theorem UInt8.sub_self (a : UInt8) : a - a = 0 := UInt8.toBitVec_inj.1 (BitVec.sub_self _)
+@[simp] theorem UInt16.sub_self (a : UInt16) : a - a = 0 := UInt16.toBitVec_inj.1 (BitVec.sub_self _)
+@[simp] theorem UInt32.sub_self (a : UInt32) : a - a = 0 := UInt32.toBitVec_inj.1 (BitVec.sub_self _)
+@[simp] theorem UInt64.sub_self (a : UInt64) : a - a = 0 := UInt64.toBitVec_inj.1 (BitVec.sub_self _)
+@[simp] theorem USize.sub_self (a : USize) : a - a = 0 := USize.toBitVec_inj.1 (BitVec.sub_self _)
+
+@[simp] theorem UInt8.neg_zero : -(0 : UInt8) = 0 := rfl
+@[simp] theorem UInt16.neg_zero : -(0 : UInt16) = 0 := rfl
+@[simp] theorem UInt32.neg_zero : -(0 : UInt32) = 0 := rfl
+@[simp] theorem UInt64.neg_zero : -(0 : UInt64) = 0 := rfl
+@[simp] theorem USize.neg_zero : -(0 : USize) = 0 := USize.toBitVec_inj.1 (BitVec.neg_zero _)
+
+@[simp] theorem UInt8.sub_add_cancel (a b : UInt8) : a - b + b = a :=
+  UInt8.toBitVec_inj.1 (BitVec.sub_add_cancel _ _)
+@[simp] theorem UInt16.sub_add_cancel (a b : UInt16) : a - b + b = a :=
+  UInt16.toBitVec_inj.1 (BitVec.sub_add_cancel _ _)
+@[simp] theorem UInt32.sub_add_cancel (a b : UInt32) : a - b + b = a :=
+  UInt32.toBitVec_inj.1 (BitVec.sub_add_cancel _ _)
+@[simp] theorem UInt64.sub_add_cancel (a b : UInt64) : a - b + b = a :=
+  UInt64.toBitVec_inj.1 (BitVec.sub_add_cancel _ _)
+@[simp] theorem USize.sub_add_cancel (a b : USize) : a - b + b = a :=
+  USize.toBitVec_inj.1 (BitVec.sub_add_cancel _ _)
+
+theorem UInt8.eq_sub_iff_add_eq {a b c : UInt8} : a = c - b ↔ a + b = c := by
+  simpa [← UInt8.toBitVec_inj] using BitVec.eq_sub_iff_add_eq
+theorem UInt16.eq_sub_iff_add_eq {a b c : UInt16} : a = c - b ↔ a + b = c := by
+  simpa [← UInt16.toBitVec_inj] using BitVec.eq_sub_iff_add_eq
+theorem UInt32.eq_sub_iff_add_eq {a b c : UInt32} : a = c - b ↔ a + b = c := by
+  simpa [← UInt32.toBitVec_inj] using BitVec.eq_sub_iff_add_eq
+theorem UInt64.eq_sub_iff_add_eq {a b c : UInt64} : a = c - b ↔ a + b = c := by
+  simpa [← UInt64.toBitVec_inj] using BitVec.eq_sub_iff_add_eq
+theorem USize.eq_sub_iff_add_eq {a b c : USize} : a = c - b ↔ a + b = c := by
+  simpa [← USize.toBitVec_inj] using BitVec.eq_sub_iff_add_eq
+
+theorem UInt8.sub_eq_iff_eq_add {a b c : UInt8} : a - b = c ↔ a = c + b := by
+  simpa [← UInt8.toBitVec_inj] using BitVec.sub_eq_iff_eq_add
+theorem UInt16.sub_eq_iff_eq_add {a b c : UInt16} : a - b = c ↔ a = c + b := by
+  simpa [← UInt16.toBitVec_inj] using BitVec.sub_eq_iff_eq_add
+theorem UInt32.sub_eq_iff_eq_add {a b c : UInt32} : a - b = c ↔ a = c + b := by
+  simpa [← UInt32.toBitVec_inj] using BitVec.sub_eq_iff_eq_add
+theorem UInt64.sub_eq_iff_eq_add {a b c : UInt64} : a - b = c ↔ a = c + b := by
+  simpa [← UInt64.toBitVec_inj] using BitVec.sub_eq_iff_eq_add
+theorem USize.sub_eq_iff_eq_add {a b c : USize} : a - b = c ↔ a = c + b := by
+  simpa [← USize.toBitVec_inj] using BitVec.sub_eq_iff_eq_add
+
+@[simp] theorem UInt8.neg_neg {a : UInt8} : - -a = a := UInt8.toBitVec_inj.1 (BitVec.neg_neg)
+@[simp] theorem UInt16.neg_neg {a : UInt16} : - -a = a := UInt16.toBitVec_inj.1 (BitVec.neg_neg)
+@[simp] theorem UInt32.neg_neg {a : UInt32} : - -a = a := UInt32.toBitVec_inj.1 (BitVec.neg_neg)
+@[simp] theorem UInt64.neg_neg {a : UInt64} : - -a = a := UInt64.toBitVec_inj.1 (BitVec.neg_neg)
+@[simp] theorem USize.neg_neg {a : USize} : - -a = a := USize.toBitVec_inj.1 (BitVec.neg_neg)
+
+@[simp] theorem UInt8.neg_inj {a b : UInt8} : -a = -b ↔ a = b := by simp [← UInt8.toBitVec_inj]
+@[simp] theorem UInt16.neg_inj {a b : UInt16} : -a = -b ↔ a = b := by simp [← UInt16.toBitVec_inj]
+@[simp] theorem UInt32.neg_inj {a b : UInt32} : -a = -b ↔ a = b := by simp [← UInt32.toBitVec_inj]
+@[simp] theorem UInt64.neg_inj {a b : UInt64} : -a = -b ↔ a = b := by simp [← UInt64.toBitVec_inj]
+@[simp] theorem USize.neg_inj {a b : USize} : -a = -b ↔ a = b := by simp [← USize.toBitVec_inj]

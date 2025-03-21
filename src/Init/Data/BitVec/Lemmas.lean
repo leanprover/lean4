@@ -3216,21 +3216,8 @@ theorem sub_eq_self {x : BitVec 1} : -x = x := by
   have ha : x = 0 ∨ x = 1 := eq_zero_or_eq_one _
   rcases ha with h | h <;> simp [h]
 
-theorem not_neg (x : BitVec w) : ~~~(-x) = x + -1#w := by
-  rcases w with _ | w
-  · apply Subsingleton.elim
-  · rw [BitVec.not_eq_comm]
-    apply BitVec.eq_of_toNat_eq
-    simp only [BitVec.toNat_neg, BitVec.toNat_not, BitVec.toNat_add, BitVec.toNat_ofNat,
-      Nat.add_mod_mod]
-    by_cases hx : x.toNat = 0
-    · simp [hx]
-    · rw [show (_ - 1 % _) = _ by rw [Nat.mod_eq_of_lt (by omega)],
-        show _ + (_ - 1) = (x.toNat - 1) + 2^(w + 1) by omega,
-        Nat.add_mod_right,
-        show (x.toNat - 1) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)],
-        show (_ - x.toNat) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)]]
-      omega
+theorem not_neg (x : BitVec w) : ~~~(-x) = x - 1#w := by
+  rw [not_eq_neg_add, neg_neg]
 
 theorem neg_add {x y : BitVec w} : - (x + y) = - x - y := by
   apply eq_of_toInt_eq

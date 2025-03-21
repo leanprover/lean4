@@ -694,3 +694,15 @@ expression `(a >>> b).toUInt8` is not a function of `a.toUInt8` and `b.toUInt8`.
     toFin_ofFin, toFin_ofNat', ← Fin.ofNat'_val_eq_self ⟨System.Platform.numBits, _⟩]
   rw [USize.toNat_mod, toNat_ofNat']
   cases System.Platform.numBits_eq <;> simpa [*] using Nat.mod_lt _ (by decide)
+
+theorem UInt8.neg_eq_not_add (a : UInt8) : -a = ~~~a + 1 := UInt8.toBitVec_inj.1 (BitVec.neg_eq_not_add _)
+theorem UInt16.neg_eq_not_add (a : UInt16) : -a = ~~~a + 1 := UInt16.toBitVec_inj.1 (BitVec.neg_eq_not_add _)
+theorem UInt32.neg_eq_not_add (a : UInt32) : -a = ~~~a + 1 := UInt32.toBitVec_inj.1 (BitVec.neg_eq_not_add _)
+theorem UInt64.neg_eq_not_add (a : UInt64) : -a = ~~~a + 1 := UInt64.toBitVec_inj.1 (BitVec.neg_eq_not_add _)
+theorem USize.neg_eq_not_add (a : USize) : -a = ~~~a + 1 := USize.toBitVec_inj.1 (BitVec.neg_eq_not_add _)
+
+theorem UInt8.not_eq_neg_sub (a : UInt8) : ~~~a = -a - 1 := UInt8.toBitVec_inj.1 (BitVec.not_eq_neg_add _)
+theorem UInt16.not_eq_neg_sub (a : UInt16) : ~~~a = -a - 1 := UInt16.toBitVec_inj.1 (BitVec.not_eq_neg_add _)
+theorem UInt32.not_eq_neg_sub (a : UInt32) : ~~~a = -a - 1 := UInt32.toBitVec_inj.1 (BitVec.not_eq_neg_add _)
+theorem UInt64.not_eq_neg_sub (a : UInt64) : ~~~a = -a - 1 := UInt64.toBitVec_inj.1 (BitVec.not_eq_neg_add _)
+theorem USize.not_eq_neg_sub (a : USize) : ~~~a = -a - 1 := USize.toBitVec_inj.1 (BitVec.not_eq_neg_add _)

@@ -830,22 +830,27 @@ theorem le_min [TransCmp cmp] {k he} :
     (cmp k (t.min he)).isLE ↔ (∀ k', k' ∈ t → (cmp k k').isLE) :=
   DTreeMap.le_minKey
 
+@[simp]
 theorem get?_min [TransCmp cmp] {he} :
     t.get? (t.min he) = some (t.min he) :=
   DTreeMap.getKey?_minKey
 
+@[simp]
 theorem get_min [TransCmp cmp] {he hc} :
     t.get (t.min he) hc = t.min he :=
   DTreeMap.getKey_minKey
 
+@[simp]
 theorem get!_min [TransCmp cmp] [Inhabited α] {he} :
     t.get! (t.min he) = t.min he :=
   DTreeMap.getKey!_minKey
 
+@[simp]
 theorem getD_min [TransCmp cmp] {he fallback} :
     t.getD (t.min he) fallback = t.min he :=
   DTreeMap.getKeyD_minKey
 
+@[simp]
 theorem min_erase_eq_iff_not_cmp_eq_min [TransCmp cmp] {k he} :
     (t.erase k |>.min he) =
         t.min (isEmpty_eq_false_of_isEmpty_erase_eq_false he) ↔

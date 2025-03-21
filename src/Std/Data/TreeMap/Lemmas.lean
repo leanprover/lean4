@@ -1961,22 +1961,27 @@ theorem le_minKey [TransCmp cmp] {k he} :
     (cmp k (t.minKey he)).isLE ↔ (∀ k', k' ∈ t → (cmp k k').isLE) :=
   DTreeMap.le_minKey
 
+@[simp]
 theorem getKey?_minKey [TransCmp cmp] {he} :
     t.getKey? (t.minKey he) = some (t.minKey he) :=
   DTreeMap.getKey?_minKey
 
+@[simp]
 theorem getKey_minKey [TransCmp cmp] {he hc} :
     t.getKey (t.minKey he) hc = t.minKey he :=
   DTreeMap.getKey_minKey
 
+@[simp]
 theorem getKey!_minKey [TransCmp cmp] [Inhabited α] {he} :
     t.getKey! (t.minKey he) = t.minKey he :=
   DTreeMap.getKey!_minKey
 
+@[simp]
 theorem getKeyD_minKey [TransCmp cmp] {he fallback} :
     t.getKeyD (t.minKey he) fallback = t.minKey he :=
   DTreeMap.getKeyD_minKey
 
+@[simp]
 theorem minKey_erase_eq_iff_not_cmp_eq_minKey [TransCmp cmp] {k he} :
     (t.erase k |>.minKey he) =
         t.minKey (isEmpty_eq_false_of_isEmpty_erase_eq_false he) ↔
@@ -2016,6 +2021,7 @@ theorem minKey_modify [TransCmp cmp] {k f he} :
         (t.minKey <| cast (congrArg (· = false) isEmpty_modify) he) :=
   DTreeMap.Const.minKey_modify
 
+@[simp]
 theorem minKey_modify_eq_minKey [TransCmp cmp] [LawfulEqCmp cmp] {k f he} :
     (modify t k f).minKey he = t.minKey (cast (congrArg (· = false) isEmpty_modify) he) :=
   DTreeMap.Const.minKey_modify_eq_minKey

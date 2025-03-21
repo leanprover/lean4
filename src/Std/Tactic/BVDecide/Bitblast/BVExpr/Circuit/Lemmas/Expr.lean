@@ -65,14 +65,17 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     simp [go, denote_blastConst]
   | var =>
     simp [go, hidx, denote_blastVar]
-  | append lhs rhs lih rih =>
+  | append lhs rhs hw lih rih =>
     rename_i lw rw
+    subst hw
     simp only [go, denote_blastAppend, RefVec.get_cast, Ref.cast_eq, eval_append,
       BitVec.getLsbD_append]
     split
     · next hsplit => rw [rih]
     · next hsplit => rw [go_denote_mem_prefix, lih]
-  | replicate n expr ih => simp [go, ih, hidx, ← BitVec.getLsbD_eq_getElem]
+  | replicate n expr hw ih =>
+    subst hw
+    simp [go, ih, hidx, ← BitVec.getLsbD_eq_getElem]
   | @extract w start len inner ih =>
     simp only [go, denote_blastExtract, Bool.if_false_right, eval_extract,
       BitVec.getLsbD_extractLsb', hidx, decide_true, Bool.true_and]

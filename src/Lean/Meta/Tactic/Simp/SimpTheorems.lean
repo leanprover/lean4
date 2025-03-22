@@ -398,7 +398,7 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
       match type.eq? with
       | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs noIndexAtArgs, ← isPerm lhs rhs)
       | none => throwError "unexpected kind of 'simp' theorem{indentExpr type}"
-    return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := (← isRflProof proof) }
+    return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := false /- TODO: delete -/ }
 
 private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool) (prio : Nat) : MetaM (Array SimpTheorem) := do
   let cinfo ← getConstVal declName

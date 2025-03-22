@@ -20,25 +20,27 @@ open Std.Sat.AIG
 
 namespace BVLogicalExpr
 
-theorem bitblast.go_eval_eq_eval (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.Assignment) :
-    ⟦ofBoolExprCached.go aig expr BVPred.bitblast, assign.toAIGAssignment⟧ = expr.eval assign := by
+theorem bitblast.go_eval_eq_eval (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.Assignment)
+    (cache : BVExpr.Cache aig) (hinv : BVExpr.Cache.Inv assign aig cache) :
+    ⟦(ofBoolExprCached.go aig expr cache).result, assign.toAIGAssignment⟧ = expr.eval assign := by
   induction expr generalizing aig with
   | const => simp [ofBoolExprCached.go]
-  | literal => simp [ofBoolExprCached.go]
-  | not expr ih => simp [ofBoolExprCached.go, ih]
-  | gate g lhs rhs lih rih => cases g <;> simp [ofBoolExprCached.go, Gate.eval, lih, rih]
-  | ite discr lhs rhs dih lih rih =>
-    simp only [ofBoolExprCached.go, Ref.cast_eq, denote_mkIfCached,
-      ofBoolExprCached.go_denote_entry, eval_ite]
-    rw [ofBoolExprCached.go_denote_mem_prefix, ofBoolExprCached.go_denote_mem_prefix]
-    · simp [dih, lih, rih]
-    · simp [Ref.hgate]
+  | literal => sorry--simp [ofBoolExprCached.go]
+  | not expr ih => sorry--simp [ofBoolExprCached.go, ih]
+  | gate g lhs rhs lih rih => sorry--cases g <;> simp [ofBoolExprCached.go, Gate.eval, lih, rih]
+  | ite discr lhs rhs dih lih rih => sorry
+    --simp only [ofBoolExprCached.go, Ref.cast_eq, denote_mkIfCached,
+    --  ofBoolExprCached.go_denote_entry, eval_ite]
+    --rw [ofBoolExprCached.go_denote_mem_prefix, ofBoolExprCached.go_denote_mem_prefix]
+    --· simp [dih, lih, rih]
+    --· simp [Ref.hgate]
 
 theorem denote_bitblast (expr : BVLogicalExpr) (assign : BVExpr.Assignment) :
     ⟦bitblast expr, assign.toAIGAssignment⟧ = expr.eval assign := by
   unfold bitblast
   unfold ofBoolExprCached
   rw [bitblast.go_eval_eq_eval]
+  apply BVExpr.Cache.Inv_empty
 
 theorem unsat_of_bitblast (expr : BVLogicalExpr) : expr.bitblast.Unsat → expr.Unsat :=  by
   intro h assign

@@ -22,9 +22,12 @@ open Std.Sat.AIG
 
 namespace BVPred
 
-@[simp]
-theorem denote_bitblast (aig : AIG BVBit) (pred : BVPred) (assign : BVExpr.Assignment) :
-    ⟦bitblast aig pred, assign.toAIGAssignment⟧ = pred.eval assign := by
+theorem denote_bitblast (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig)
+    (assign : BVExpr.Assignment) (hinv : BVExpr.Cache.Inv assign aig input.cache ) :
+    ⟦(bitblast aig input).result.val.aig, (bitblast aig input).result.val.ref, assign.toAIGAssignment⟧
+      =
+    input.val.eval assign := by
+  rcases input with ⟨pred, cache⟩
   cases pred with
   | bin lhs op rhs =>
     cases op with
@@ -35,12 +38,12 @@ theorem denote_bitblast (aig : AIG BVBit) (pred : BVPred) (assign : BVExpr.Assig
         rw [BVExpr.bitblast_denote_mem_prefix]
         · simp only [RefVec.get_cast, Ref.cast_eq]
           rw [BVExpr.denote_bitblast]
-          apply BVExpr.Cache.Inv_empty
+          exact hinv
         · simp [Ref.hgate]
       · intros
         rw [BVExpr.denote_bitblast]
         apply BVExpr.bitblast_Inv_of_Inv
-        apply BVExpr.Cache.Inv_empty
+        exact hinv
     | ult =>
       simp only [bitblast, eval_bin, BVBinPred.eval_ult]
       rw [mkUlt_denote_eq]
@@ -48,17 +51,17 @@ theorem denote_bitblast (aig : AIG BVBit) (pred : BVPred) (assign : BVExpr.Assig
         rw [BVExpr.bitblast_denote_mem_prefix]
         · simp only [RefVec.get_cast, Ref.cast_eq]
           rw [BVExpr.denote_bitblast]
-          apply BVExpr.Cache.Inv_empty
+          exact hinv
         · simp [Ref.hgate]
       · intros
         rw [BVExpr.denote_bitblast]
         apply BVExpr.bitblast_Inv_of_Inv
-        apply BVExpr.Cache.Inv_empty
+        exact hinv
   | getLsbD expr idx =>
-    simp only [bitblast, denote_blastGetLsbD, eval_getLsbD]
+    simp only [bitblast, denote_projected_entry, denote_blastGetLsbD, eval_getLsbD]
     split
     · rw [BVExpr.denote_bitblast]
-      apply BVExpr.Cache.Inv_empty
+      exact hinv
     · symm
       apply BitVec.getLsbD_ge
       omega

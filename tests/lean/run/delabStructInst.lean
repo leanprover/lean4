@@ -158,3 +158,37 @@ structure H where
 
 /-- info: { x := 1 } : H -/
 #guard_msgs in #check { x := 1 : H }
+
+/-!
+Diamond inheritance
+-/
+structure D1 where
+  x := 1
+structure D2 extends D1 where
+structure D3 extends D1 where
+  x := 3
+structure D4 extends D2, D3
+
+/-- info: { } : D1 -/
+#guard_msgs in #check { : D1 }
+set_option pp.structureInstances.defaults true in
+/-- info: { x := 1 } : D1 -/
+#guard_msgs in #check { : D1 }
+
+/-- info: { } : D2 -/
+#guard_msgs in #check { : D2 }
+set_option pp.structureInstances.defaults true in
+/-- info: { x := 1 } : D2 -/
+#guard_msgs in #check { : D2 }
+
+/-- info: { } : D3 -/
+#guard_msgs in #check { : D3 }
+set_option pp.structureInstances.defaults true in
+/-- info: { x := 3 } : D3 -/
+#guard_msgs in #check { : D3 }
+
+/-- info: { } : D4 -/
+#guard_msgs in #check { : D4 }
+set_option pp.structureInstances.defaults true in
+/-- info: { x := 3 } : D4 -/
+#guard_msgs in #check { : D4 }

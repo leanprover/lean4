@@ -972,14 +972,7 @@ abbrev M := ReaderT Context (StateRefT State TermElabM)
 def isRoundDone : M Bool := do
   return (← get).progress && (← read).maxDistance > 0
 
-/-- Returns the `expr?` for the given field. -/
-def getFieldValue?' (struct : StructInstView) (fieldName : Name) : Option Expr :=
-  struct.fields.findSome? fun field =>
-    if getFieldName field == fieldName then
-      field.expr?
-    else
-      none
-
+/-- Returns the `expr?` for the given field. The value may be inside a subobject. -/
 partial def getFieldValue? (struct : StructInstView) (fieldName : Name) : MetaM (Option Expr) := do
   for field in struct.fields do
     let fieldName' := getFieldName field

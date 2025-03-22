@@ -172,10 +172,11 @@ structure StructFieldInfo where
   Note: `.otherParent` fields are let decls, there is no need for `projExpr?`. -/
   projExpr? : Option Expr := none
   /-- The default value, as explicitly given in this `structure`. -/
-  default?   : Option StructFieldDefault := none
+  default?  : Option StructFieldDefault := none
   /-- The inherited default values, as parent structure / value pairs. -/
   inheritedDefaults : Array (Name × StructFieldDefault) := #[]
-  resolvedDefault? : Option StructFieldDefault := none
+  /-- The default that will be used for this structure. -/
+  resolvedDefault?  : Option StructFieldDefault := none
   deriving Inhabited, Repr
 
 /-!
@@ -485,6 +486,8 @@ private def addFieldInheritedDefault (fieldName : Name) (structName : Name) (d :
 
 /--
 Reduces projections applied to constructors or parent fvars, for structure types that have appeared as parents.
+
+If `zetaDelta` is true (default), then zeta reduces parent fvars.
 -/
 private def reduceFieldProjs (e : Expr) (zetaDelta := true) : StructElabM Expr := do
   let e ← instantiateMVars e
@@ -546,6 +549,15 @@ private def etaStructReduce (e : Expr) : StructElabM Expr := do
     else
       return .continue)
 
+/--
+Puts an expression into "field normal form".
+- All projections of constructors for parent structures are reduced.
+- If `zetaDelta` is true (default) then all parent fvars are zeta reduced.
+- Constructors of parent structures are eta reduced.
+-/
+private def fieldNormalizeExpr (e : Expr) (zetaDelta : Bool := true) : StructElabM Expr := do
+  etaStructReduce <| ← reduceFieldProjs e (zetaDelta := zetaDelta)
+
 private def fieldFromMsg (info : StructFieldInfo) : MessageData :=
   if let some sourceStructName := info.sourceStructNames.head? then
     m!"field '{info.name}' from '{.ofConstName sourceStructName}'"
@@ -553,36 +565,12 @@ private def fieldFromMsg (info : StructFieldInfo) : MessageData :=
     m!"field '{info.name}'"
 
 /--
-Copies the default value for field `fieldName` set at structure `structName`.
+Instantiates default value for field `fieldName` set at structure `structName`.
 The arguments for the `_default` auxiliary function are provided by `fieldMap`.
-Recall some of the entries in `fieldMap` are constructor applications, and they needed
-to be reduced using `reduceProjs`. Otherwise, the produced default value may be "cyclic".
-That is, we reduce projections of the structures in `expandedStructNames`. Here is
-an example that shows why the reduction is needed.
-```
-structure A where
-  a : Nat
-
-structure B where
-  a : Nat
-  b : Nat
-  c : Nat
-
-structure C extends B where
-  d : Nat
-  c := b + d
-
-structure D extends A, C
-
-#print D.c._default
-```
-Without the reduction, it produces
-```
-def D.c._default : A → Nat → Nat → Nat → Nat :=
-fun toA b c d => id ({ a := toA.a, b := b, c := c : B }.b + d)
-```
+After default values are resolved, then the one that is added to the environment
+as an `_inherited_default` auxiliary function is normalized; we don't do those normalizations here.
 -/
-private partial def getFieldDefaultValue? (structName : Name) (fieldName : Name) : StructElabM (Option Expr) := do
+private partial def getFieldDefaultValue? (structName : Name) (paramMap : NameMap Expr) (fieldName : Name) : StructElabM (Option Expr) := do
   match getDefaultFnForField? (← getEnv) structName fieldName with
   | none => return none
   | some defaultFn =>
@@ -605,18 +593,22 @@ where
         else
           failed
       else
-        let arg ← mkFreshExprMVar d
-        go? (b.instantiate1 arg)
+        let some param := paramMap.find? n | return none
+        if ← isDefEq (← inferType param) d then
+          go? (b.instantiate1 param)
+        else
+          failed
     | e =>
       let r := if e.isAppOfArity ``id 2 then e.appArg! else e
       return some (← reduceFieldProjs r)
 
-private def getFieldDefault? (structName : Name) (fieldName : Name) (autoParam? : Option Expr) :
+private def getFieldDefault? (structName : Name) (paramMap : NameMap Expr) (fieldName : Name) (autoParam? : Option Expr) :
     StructElabM (Option StructFieldDefault) := do
   if let some tactic := autoParam? then
     trace[Elab.structure] "found autoparam for '{fieldName}' from '{.ofConstName structName}'"
     return StructFieldDefault.autoParam tactic
-  else if let some val ← getFieldDefaultValue? structName fieldName then
+  else if let some val ← getFieldDefaultValue? structName (paramMap : NameMap Expr) fieldName then
+    -- Important: we use `getFieldDefaultValue?` because we want default value definitions, not *inherited* ones, to properly handle diamonds
     trace[Elab.structure] "found default value for '{fieldName}' from '{.ofConstName structName}'{indentExpr val}"
     return StructFieldDefault.optParam val
   else
@@ -637,7 +629,7 @@ Adds `fieldName` of type `fieldType` from structure `structName`.
 See `withStructFields` for meanings of other arguments.
 -/
 private partial def withStructField (view : StructView) (sourceStructNames : List Name) (inSubobject? : Option Expr)
-    (structName : Name) (fieldName : Name) (fieldType : Expr)
+    (structName : Name) (paramMap : NameMap Expr) (fieldName : Name) (fieldType : Expr)
     (k : Expr → StructElabM α) : StructElabM α := do
   trace[Elab.structure] "withStructField '{.ofConstName structName}', field '{fieldName}'"
   let fieldType ← instantiateMVars fieldType
@@ -657,12 +649,12 @@ private partial def withStructField (view : StructView) (sourceStructNames : Lis
     let existingFieldType ← inferType existingField.fvar
     unless (← isDefEq fieldType existingFieldType) do
       throwError "field type mismatch, field '{fieldName}' from parent '{.ofConstName structName}' {← mkHasTypeButIsExpectedMsg fieldType existingFieldType}"
-    if let some d ← getFieldDefault? structName fieldName autoParam? then
+    if let some d ← getFieldDefault? structName paramMap fieldName autoParam? then
       addFieldInheritedDefault fieldName structName d
     k existingField.fvar
   else
     -- It's a not-yet-seen field
-    /- For `.fromSubobject`: the following `declName` is only used for creating the `_default` auxiliary declaration name when
+    /- For `.fromSubobject`: the following `declName` is only used for creating the `_default`/`_inherited_default` auxiliary declaration name when
        its default value is overridden, otherwise the `declName` is irrelevant, except to ensure a declaration is not already declared. -/
     let mut declName := view.declName ++ fieldName
     if inSubobject?.isNone then
@@ -682,7 +674,7 @@ private partial def withStructField (view : StructView) (sourceStructNames : Lis
         projExpr?
         binfo := fieldInfo.binderInfo
       }
-      if let some d ← getFieldDefault? structName fieldName autoParam? then
+      if let some d ← getFieldDefault? structName paramMap fieldName autoParam? then
         addFieldInheritedDefault fieldName structName d
       k fieldFVar
 
@@ -695,7 +687,7 @@ Does not add a parent field for the structure itself; that is done by `withStruc
 - the continuation `k` is run with a constructor expression for this structure
 -/
 private partial def withStructFields (view : StructView) (sourceStructNames : List Name)
-    (structType : Expr) (inSubobject? : Option Expr)
+    (structType : Expr) (inSubobject? : Option Expr) (paramMap : NameMap Expr)
     (k : Expr → StructElabM α) : StructElabM α := do
   let structName ← getStructureName structType
   let .const _ us := structType.getAppFn | unreachable!
@@ -731,7 +723,7 @@ private partial def withStructFields (view : StructView) (sourceStructNames : Li
       let fieldName := fields[i]
       let fieldMVar := fieldMVars[i]!
       let fieldType ← inferType fieldMVar
-      withStructField view sourceStructNames inSubobject? structName fieldName fieldType fun fieldFVar => do
+      withStructField view sourceStructNames inSubobject? structName paramMap fieldName fieldType fun fieldFVar => do
         fieldMVar.mvarId!.assign fieldFVar
         goFields (i + 1)
     else
@@ -756,6 +748,7 @@ private partial def withStruct (view : StructView) (sourceStructNames : List Nam
   let env ← getEnv
   let structType ← reduceFieldProjs (← whnf structType)
   let structName ← getStructureName structType
+  let params := structType.getAppArgs
   trace[Elab.structure] "withStructField '{.ofConstName structName}', using parent field '{structFieldName}'"
   if let some info ← findFieldInfo? structFieldName then
     -- Exact field name match. If it's a parent, then check defeq, otherwise it's a name conflict.
@@ -781,13 +774,25 @@ private partial def withStruct (view : StructView) (sourceStructNames : List Nam
 
     let allFields := getStructureFieldsFlattened env structName (includeSubobjectFields := false)
     let withStructFields' (kind : StructFieldKind) (inSubobject? : Option Expr) (k : StructFieldInfo → StructElabM α) : StructElabM α := do
-      withStructFields view sourceStructNames structType inSubobject? fun structVal => do
+      -- Create a parameter map for default value processing
+      let info ← getConstInfoInduct structName
+      let paramMap : NameMap Expr ← forallTelescope info.type fun xs _ => do
+        let mut paramMap := {}
+        for param in params, x in xs do
+          paramMap := paramMap.insert (← x.fvarId!.getUserName) param
+        return paramMap
+      withStructFields view sourceStructNames structType inSubobject? paramMap fun structVal => do
         if let some _ ← findFieldInfo? structFieldName then
           throwErrorAt projRef "field '{structFieldName}' has already been declared\n\n\
             The 'toParent : P' syntax can be used to adjust the name for the parent projection"
-        -- Add default values
+        -- Add default values.
+        -- We've added some default values so far, but we want all overridden default values,
+        -- which for inherited fields might not have been seen yet.
+        -- Note: duplication is ok for now. We use a stable sort later.
+        -- TODO(kmill): locate all autoParams too. We are only seeing the ones present in constructors,
+        -- and we are not correctly handling diamond inheritence.
         for fieldName in allFields do
-          if let some d ← getFieldDefault? structName fieldName none then
+          if let some d ← getFieldDefault? structName paramMap fieldName none then
             addFieldInheritedDefault fieldName structName d
         withLetDecl rawStructFieldName structType structVal fun structFVar => do
           let info : StructFieldInfo := {
@@ -811,6 +816,7 @@ private partial def withStruct (view : StructView) (sourceStructNames : List Nam
       This is mainly to support test files that define structures with no fields.
       TODO(kmill): remove check that there are any fields so far.
       This is to get around some oddities when parent projections are all no-ops (tests fail when it is removed).
+      TODO(kmill): allow overlapping proof fields between subobjects! This does not harm defeq, and it should be more efficient.
       -/
       let elideParent := allFields.isEmpty && (← get).fields.any (·.kind.isInCtor)
       if elideParent || (← allFields.anyM hasFieldName) then
@@ -848,13 +854,13 @@ private partial def withParent (view : StructView) (projRef : Syntax)
   withStruct view [] (projRef := projRef) (rawStructFieldName := rawStructFieldName)
     (binfo := binfo) (inSubobject? := none) structFieldName structType k
 
-def mkToParentName (parentStructName : Name) : Name :=
+private def mkToParentName (parentStructName : Name) : Name :=
   Name.mkSimple <| "to" ++ parentStructName.eraseMacroScopes.getString!
 
 private def StructParentView.mkToParentNames (parentView : StructParentView) (parentStructName : Name) : Name × Name :=
   match parentView.rawName?, parentView.name? with
   | some rawName, some name => (rawName, name)
-  | _, _ => Id.run do
+  | _, _ =>
     let toParentName := mkToParentName parentStructName
     (toParentName, toParentName)
 
@@ -912,6 +918,34 @@ private def registerFailedToInferDefaultValue (fieldName : Name) (e : Expr) (ref
 
 /--
 Goes through all the natural mvars appearing in `e`, assigning any whose type is one of the inherited parents.
+
+Rationale 1: Structures can only extend a parent once.
+There should be no other occurences of a parent except for the parent itself.
+
+Rationale 2: Consider the following code in the test `lean/run/balg.lean`:
+```lean
+structure Magma where
+  α   : Type u
+  mul : α → α → α
+
+instance : CoeSort Magma (Type u) where
+  coe s := s.α
+
+abbrev mul {M : Magma} (a b : M) : M :=
+  M.mul a b
+
+infixl:70 (priority := high) "*" => mul
+
+structure Semigroup extends Magma where
+  mul_assoc (a b c : α) : a * b * c = a * (b * c)
+```
+When elaborating `*` in `mul_assoc`'s type, the `M` parameter of `mul` cannot be synthesized by unification.
+Now `α` and `mul` are cdecls and `toMagma` is an ldecl,
+but it used to be that `toMagma` was the cdecl and `α` and `mul` were projections of it,
+which made it possible for unification to infer `toMagma` from `α`.
+However, now `α` does not know its relationship to `toMagma`.
+
+This was not robust, since in diamond inheritance `α` only remembered *one* of its parents in this indirect way.
 -/
 private def solveParentMVars (e : Expr) : StructElabM Expr := do
   let env ← getEnv
@@ -1049,8 +1083,7 @@ private def mkCtorLCtx : StructElabM LocalContext := do
   -- A map of all field fvars to eliminate
   let mut fvarMap : ExprMap Expr := {}
   let mut lctx ← instantiateLCtxMVars (← getLCtx)
-  let replace (fvarMap : ExprMap Expr) (e : Expr) : Expr :=
-    e.replace fun e' => fvarMap[e']?
+  let replace (fvarMap : ExprMap Expr) (e : Expr) : Expr := e.replace fun e' => fvarMap[e']?
   -- As we build the map, we eagerly do the replacements. We go through the local context in order, so replacements do not need to be recursive.
   let insert (fvarMap : ExprMap Expr) (field : StructFieldInfo) (e : Expr) : MetaM (ExprMap Expr) := do
     let e ← instantiateMVars e
@@ -1074,7 +1107,7 @@ private def mkCtorLCtx : StructElabM LocalContext := do
   return lctx
 
 /--
-Builds a constructor for the type.
+Builds a constructor for the type, for adding the inductive type to the environment.
 -/
 private def mkCtor (view : StructView) (r : ElabHeaderResult) (params : Array Expr) : StructElabM Constructor :=
   withRef view.ref do
@@ -1085,8 +1118,7 @@ private def mkCtor (view : StructView) (r : ElabHeaderResult) (params : Array Ex
   let type := lctx.mkForall fieldCtorFVars type
   withLCtx lctx {} do
     trace[Elab.structure] "constructor type before reductions:{indentExpr type}"
-    let type ← reduceFieldProjs type
-    let type ← etaStructReduce type
+    let type ← fieldNormalizeExpr type
     trace[Elab.structure] "constructor type after reductions:{indentExpr type}"
     let type ← mkForallFVars params type
     let type ← instantiateMVars type
@@ -1096,36 +1128,38 @@ private def mkCtor (view : StructView) (r : ElabHeaderResult) (params : Array Ex
 
 /--
 Creates an alternative constructor that takes all the fields directly.
+Assumes the inductive type has already been added to the environment.
 
-Note: we can't genereally use optParams here since the default values might depend on previous ones.
+Note: we can't generally use optParams here since the default values might depend on previous ones.
 We include autoParams however.
 -/
 private partial def mkFlatCtorExpr (levelParams : List Name) (params : Array Expr) (structName : Name) (replaceIndFVars : Expr → MetaM Expr) :
     StructElabM Expr := do
   let env ← getEnv
+  -- build the constructor application using the fields in the local context
   let ctor := getStructureCtor env structName
   let mut val := mkAppN (mkConst ctor.name (levelParams.map mkLevelParam)) params
   let fieldInfos := (← get).fields
   for fieldInfo in fieldInfos do
     if fieldInfo.kind.isInCtor then
       val := mkApp val fieldInfo.fvar
+  -- zeta delta reduce the parent ldecls
   let parentFVars := fieldInfos |>.filter (·.kind.isParent) |>.map (·.fvar.fvarId!)
   val ← zetaDeltaFVars (← instantiateMVars val) parentFVars
+  -- abstract all non-parent fields to make a lambda expression
   let fields' := fieldInfos |>.filter (!·.kind.isParent)
   val ← fields'.foldrM (init := val) fun fieldInfo val => do
     let decl ← fieldInfo.fvar.fvarId!.getDecl
     let type ←
       match fieldInfo.resolvedDefault? with
-      | some (.autoParam tactic) =>
-        mkAppM ``autoParam #[decl.type, tactic]
+      | some (.autoParam tactic) => mkAppM ``autoParam #[decl.type, tactic]
       | _ => pure decl.type
     let type ← zetaDeltaFVars (← instantiateMVars type) parentFVars
     let type ← replaceIndFVars type
     return .lam decl.userName type (val.abstract #[fieldInfo.fvar]) decl.binderInfo
   val ← mkLambdaFVars params val
-  val := val.inferImplicit params.size true
   val ← replaceIndFVars val
-  etaStructReduce <| ← reduceFieldProjs val
+  fieldNormalizeExpr val
 
 private partial def mkFlatCtor (levelParams : List Name) (params : Array Expr) (structName : Name) (replaceIndFVars : Expr → MetaM Expr) :
     StructElabM Unit := do
@@ -1134,6 +1168,7 @@ private partial def mkFlatCtor (levelParams : List Name) (params : Array Expr) (
   unless val.hasSyntheticSorry do
     let flatCtorName := mkFlatCtorOfStructName structName
     let valType ← replaceIndFVars (← instantiateMVars (← inferType val))
+    let valType := valType.inferImplicit params.size true
     addDecl <| Declaration.defnDecl (← mkDefinitionValInferrringUnsafe flatCtorName levelParams valType val .abbrev)
 
 private partial def checkResultingUniversesForFields (fieldInfos : Array StructFieldInfo) (u : Level) : TermElabM Unit := do
@@ -1191,6 +1226,8 @@ private def checkDefaults (fieldInfos : Array StructFieldInfo) : TermElabM Unit 
 Computes the resolution order and for the structure and sorts the inherited defaults.
 -/
 private def resolveFieldDefaults (structName : Name) : StructElabM Unit := do
+  -- Resolve the order, but don't report any resolution order issues at this point.
+  -- We will do that in `checkResolutionOrder`, which is after the structure is registered.
   let { resolutionOrder, .. } ← mergeStructureResolutionOrders structName ((← get).parents.map (·.structName)) (relaxed := true)
   let mut resOrderMap : NameMap Nat := {}
   for h : i in [0:resolutionOrder.size] do
@@ -1206,11 +1243,26 @@ private def resolveFieldDefaults (structName : Name) : StructElabM Unit := do
         resolvedDefault? := inheritedDefaults[0]?.map (·.2)
       }
 
+/--
+Adds declarations representing default values to the environment.
+
+- Default values introduced for this structure specifically are registered under the name given by `mkDefaultFnOfProjFn`
+- Default values inherited by this structure are registered under the name given by `mkInheritedDefaultFnOfProjFn`
+
+Having both is how we are able to handle diamond inheritance of default values.
+When a `structure` extends other structures, only the first type of default values are considered.
+
+In both cases, the default values take the fields as arguments, and everything is suitably normalized.
+It used to be that subobject fields would appear as fields too, but that required
+the structure instance notation elaborator to do reductions when making use of default values.
+This arrangement of having declarations for all inherited values also makes
+the structure instance notation delaborator able to omit default values reliably.
+-/
 private def addDefaults (params : Array Expr) (replaceIndFVars : Expr → MetaM Expr) : StructElabM Unit := do
   let fieldInfos := (← get).fields
   let lctx ← getLCtx
   /- The `lctx` and `defaultAuxDecls` are used to create the auxiliary "default value" declarations
-    The parameters `params` for these definitions must be marked as implicit, and all others as explicit. -/
+     The parameters `params` for these definitions must be marked as implicit, and all others as explicit. -/
   let lctx :=
     params.foldl (init := lctx) fun (lctx : LocalContext) (p : Expr) =>
       if p.isFVar then
@@ -1236,7 +1288,7 @@ private def addDefaults (params : Array Expr) (replaceIndFVars : Expr → MetaM 
     let addDefault (fieldInfo : StructFieldInfo) (declName : Name) (value : Expr) : StructElabM Unit := do
       let type ← replaceIndFVars (← inferType fieldInfo.fvar)
       let value ← instantiateMVars (← replaceIndFVars value)
-      let value ← etaStructReduce (← reduceFieldProjs value)
+      let value ← fieldNormalizeExpr value
       trace[Elab.structure] "default value after 'replaceIndFVars': {indentExpr value}"
       -- If there are mvars, `checkDefaults` already logged an error.
       unless value.hasMVar || value.hasSyntheticSorry do
@@ -1298,6 +1350,11 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
   addDeclarationRangesFromSyntax declName view.ref parent.ref
   return { structName := parent.structName, subobject := false, projFn := declName }
 
+/--
+Make projections to parents that are not represented as subobjects.
+
+All other projections we get indirectly from the elaborator, which can construct projections by chaining subobject projections.
+-/
 private def mkRemainingProjections (levelParams : List Name) (params : Array Expr) (view : StructView) : StructElabM (Array StructureParentInfo) := do
   let us := levelParams.map mkLevelParam
   let structType := mkAppN (Lean.mkConst view.declName us) params
@@ -1308,18 +1365,21 @@ private def mkRemainingProjections (levelParams : List Name) (params : Array Exp
     https://github.com/leanprover/lean4/issues/2611
     -/
     let mut fvarToConst : ExprMap Expr := {}
-    -- First add all constructor projections
+    -- First add all constructor projections to `fvarToConst`
     for field in (← get).fields do
       if field.kind.isInCtor then
         fvarToConst := fvarToConst.insert field.fvar <| mkApp (mkAppN (.const field.declName us) params) source
-    -- Then add remaining fields
+    -- Then add remaining fields to `fvarToConst`
     for field in (← get).fields do
       if !field.kind.isInCtor then
         if let some val ← pure field.projExpr? <||> field.fvar.fvarId!.getValue? then
           let val ← instantiateMVars val
           let val := val.replace (fvarToConst[·]?)
-          let val ← etaStructReduce (← reduceFieldProjs val (zetaDelta := false))
+          -- No need to zeta delta reduce; `fvarToConst` has replaced such fvars.
+          let val ← fieldNormalizeExpr val (zetaDelta := false)
           fvarToConst := fvarToConst.insert field.fvar val
+          -- TODO(kmill): if it is a direct parent, add the coercion function the environment and use that instead of `val`,
+          -- and evaluate the difference.
         else
           throwError m!"(mkRemainingProjections internal error) {field.name} has no value"
 
@@ -1330,11 +1390,9 @@ private def mkRemainingProjections (levelParams : List Name) (params : Array Exp
         parentInfos := parentInfos.push { structName := parent.structName, subobject := true, projFn := info.declName }
       else
         let parent_type := (← instantiateMVars (← inferType parent.fvar)).replace (fvarToConst[·]?)
+        let parent_type ← fieldNormalizeExpr parent_type (zetaDelta := false)
         let parent_value := fvarToConst[parent.fvar]!
-        let parent_type ← etaStructReduce (← reduceFieldProjs parent_type (zetaDelta := false))
-        let parent_value ← etaStructReduce (← reduceFieldProjs parent_value (zetaDelta := false))
         let parentInfo ← mkCoercionToCopiedParent levelParams params view source parent parent_type parent_value
---        fvarToConst := fvarToConst.insert parent.fvar <|  mkApp (mkAppN (.const parentInfo.projFn us) params) source
         parentInfos := parentInfos.push parentInfo
     return parentInfos
 
@@ -1394,9 +1452,7 @@ def elabStructureCommand : InductiveElabDescr where
             finalizeTermElab := withLCtx lctx localInsts do checkDefaults fieldInfos
             prefinalize := fun _ _ _ => do
               withLCtx lctx localInsts do
-                trace[Elab.structure] "adding projections"
                 addProjections r fieldInfos
-                trace[Elab.structure] "added projections"
                 registerStructure view.declName fieldInfos
               withSaveInfoContext do  -- save new env
                 for field in view.fields do
@@ -1404,9 +1460,7 @@ def elabStructureCommand : InductiveElabDescr where
                   if (← getEnv).contains field.declName then
                     Term.addTermInfo' field.ref (← mkConstWithLevelParams field.declName) (isBinder := true)
             finalize := fun levelParams params replaceIndFVars => do
-              trace[Elab.structure] "adding remaining projections"
               let parentInfos ← runStructElabM (init := state) <| withLCtx lctx localInsts <| mkRemainingProjections levelParams params view
-              trace[Elab.structure] "added remaining projections"
               withSaveInfoContext do
                 -- Add terminfo for parents now that all parent projections exist.
                 for parent in parents do

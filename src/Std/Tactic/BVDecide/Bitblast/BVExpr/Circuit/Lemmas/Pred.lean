@@ -22,6 +22,52 @@ open Std.Sat.AIG
 
 namespace BVPred
 
+theorem bitblast_aig_IsPrefix (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig) :
+    IsPrefix aig.decls (bitblast aig input).result.val.aig.decls := by
+  apply IsPrefix.of
+  · intros
+    apply bitblast_decl_eq
+  · intros
+    apply (bitblast aig input).result.property
+
+theorem bitblast_denote_mem_prefix (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig)
+    (assign : BVExpr.Assignment) (start : Nat) (hstart) :
+    ⟦
+      (bitblast aig input).result.val.aig,
+      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply (bitblast aig input).result.property⟩,
+      assign.toAIGAssignment
+    ⟧
+      =
+    ⟦aig, ⟨start, inv, hstart⟩, assign.toAIGAssignment⟧ := by
+  apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
+  apply bitblast_aig_IsPrefix
+
+theorem bitblast_Inv_of_Inv (input : BVExpr.WithCache BVPred aig)
+    (hinv : BVExpr.Cache.Inv assign aig input.cache) :
+    BVExpr.Cache.Inv assign (bitblast aig input).result.val.aig (bitblast aig input).cache := by
+  unfold bitblast
+  dsimp only
+  split
+  · next op _ _ =>
+    cases op
+    · dsimp only
+      apply BVExpr.Cache.Inv_cast
+      · apply AIG.LawfulOperator.isPrefix_aig (f := mkEq)
+      · apply BVExpr.bitblast_Inv_of_Inv
+        apply BVExpr.bitblast_Inv_of_Inv
+        exact hinv
+    · dsimp only
+      apply BVExpr.Cache.Inv_cast
+      · apply AIG.LawfulOperator.isPrefix_aig (f := mkUlt)
+      · apply BVExpr.bitblast_Inv_of_Inv
+        apply BVExpr.bitblast_Inv_of_Inv
+        exact hinv
+  · dsimp only
+    apply BVExpr.Cache.Inv_cast
+    · apply AIG.LawfulOperator.isPrefix_aig (f := blastGetLsbD)
+    · apply BVExpr.bitblast_Inv_of_Inv
+      exact hinv
+
 theorem denote_bitblast (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig)
     (assign : BVExpr.Assignment) (hinv : BVExpr.Cache.Inv assign aig input.cache ) :
     ⟦(bitblast aig input).result.val.aig, (bitblast aig input).result.val.ref, assign.toAIGAssignment⟧

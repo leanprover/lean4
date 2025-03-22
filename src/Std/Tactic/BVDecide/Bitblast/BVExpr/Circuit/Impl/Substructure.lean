@@ -16,10 +16,12 @@ namespace Std.Tactic.BVDecide
 
 open Std.Sat Std.Sat.AIG
 
+namespace BVLogicalExpr
+
 /--
 Turn a `BoolExpr` into an `Entrypoint`.
 -/
-def ofBoolExprCached (expr : BVLogicalExpr) : Entrypoint BVBit :=
+def bitblast (expr : BVLogicalExpr) : Entrypoint BVBit :=
   go AIG.empty expr .empty |>.result.val
 where
   go (aig : AIG BVBit) (expr : BVLogicalExpr) (cache : BVExpr.Cache aig) : Return aig :=
@@ -102,11 +104,11 @@ where
           omega
         ⟨⟨ret, this⟩, cache⟩
 
-namespace ofBoolExprCached
+namespace bitblast
 
 theorem go_le_size (aig : AIG BVBit) (expr : BVLogicalExpr) (cache : BVExpr.Cache aig) :
-    aig.decls.size ≤ (ofBoolExprCached.go aig expr cache).result.val.aig.decls.size :=
-  (ofBoolExprCached.go aig expr cache).result.property
+    aig.decls.size ≤ (go aig expr cache).result.val.aig.decls.size :=
+  (go aig expr cache).result.property
 
 theorem go_lt_size_of_lt_aig_size (aig : AIG BVBit) (expr : BVLogicalExpr)
     (cache : BVExpr.Cache aig) (h : x < aig.decls.size) :
@@ -116,7 +118,7 @@ theorem go_lt_size_of_lt_aig_size (aig : AIG BVBit) (expr : BVLogicalExpr)
   · apply go_le_size
 
 theorem go_decl_eq (idx) (aig : AIG BVBit) (cache : BVExpr.Cache aig) (h : idx < aig.decls.size) (hbounds) :
-    (ofBoolExprCached.go aig expr cache).result.val.aig.decls[idx]'hbounds = aig.decls[idx] := by
+    (go aig expr cache).result.val.aig.decls[idx]'hbounds = aig.decls[idx] := by
   induction expr generalizing aig with
   | const =>
     simp only [go]
@@ -181,7 +183,7 @@ theorem go_isPrefix_aig {aig : AIG BVBit} (cache : BVExpr.Cache aig) :
     IsPrefix aig.decls (go aig expr cache).result.val.aig.decls := by
   apply IsPrefix.of
   · intro idx h
-    apply ofBoolExprCached.go_decl_eq
+    apply go_decl_eq
   · apply go_le_size
 
 theorem go_denote_mem_prefix (aig : AIG BVBit) (cache : BVExpr.Cache aig) (hstart) :
@@ -195,6 +197,7 @@ theorem go_denote_mem_prefix (aig : AIG BVBit) (cache : BVExpr.Cache aig) (hstar
   apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply go_isPrefix_aig
 
-end ofBoolExprCached
+end bitblast
+end BVLogicalExpr
 
 end Std.Tactic.BVDecide

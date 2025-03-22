@@ -478,8 +478,15 @@ termination_by idx => (sizeOf expr, 0, idx)
 
 end
 
-
 end bitblast
+
+theorem bitblast_aig_IsPrefix (aig : AIG BVBit) (input : WithCache (BVExpr w) aig) :
+    IsPrefix aig.decls (bitblast aig input).result.val.aig.decls := by
+  apply IsPrefix.of
+  · intros
+    apply bitblast_decl_eq
+  · intros
+    apply (bitblast aig input).result.property
 
 theorem bitblast_denote_mem_prefix (aig : AIG BVBit) (input : WithCache (BVExpr w) aig)
     (assign : Assignment) (start : Nat) (hstart) :
@@ -491,11 +498,7 @@ theorem bitblast_denote_mem_prefix (aig : AIG BVBit) (input : WithCache (BVExpr 
       =
     ⟦aig, ⟨start, inv, hstart⟩, assign.toAIGAssignment⟧ := by
   apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
-  apply IsPrefix.of
-  · intros
-    apply bitblast_decl_eq
-  · intros
-    apply (bitblast aig input).result.property
+  apply bitblast_aig_IsPrefix
 
 theorem bitblast_Inv_of_Inv (input : WithCache (BVExpr w) aig)
     (hinv : Cache.Inv assign aig input.cache) :

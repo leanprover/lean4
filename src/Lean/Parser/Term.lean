@@ -73,7 +73,7 @@ builtin_initialize
   register_parser_alias sepBy1IndentSemicolon
 
 @[builtin_doc] def tacticSeq1Indented : Parser := leading_parser
-  sepBy1IndentSemicolon tacticParser
+  sepByIndentSemicolon tacticParser
 /-- The syntax `{ tacs }` is an alternative syntax for `· tacs`.
 It runs the tactics in sequence, and fails if the goal is not solved. -/
 @[builtin_doc] def tacticSeqBracketed : Parser := leading_parser

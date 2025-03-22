@@ -12,7 +12,6 @@ The basic measures relate at each recursive call as follows:
 1) 61:29-43 = ?
 2) 61:46-62 ? _
 Please use `termination_by` to specify a decreasing measure.
-decreasing_by.lean:75:13-77:3: error: unexpected token 'end'; expected '{' or tactic
 decreasing_by.lean:75:0-75:13: error: unsolved goals
 n m : Nat
 ⊢ Prod.Lex (fun a₁ a₂ => a₁ < a₂) (fun a₁ a₂ => a₁ < a₂) (n, dec2 m) (n, m)

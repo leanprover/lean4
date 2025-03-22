@@ -69,9 +69,30 @@ def smartInsertVerTags (pat : StrPat) (t : Table) : Table :=
 instance : InsertField (PackageConfig n) `versionTags where
   insertField cfg := smartInsertVerTags cfg.versionTags
 
+/-! ## Dependency Configuration Encoders -/
+
+protected def Dependency.toToml (dep : Dependency) (t : Table  := {}) : Table :=
+  let t := t
+    |>.insert `name dep.name
+    |>.insertD `scope dep.scope ""
+    |>.smartInsert `version dep.version?
+  let t :=
+    if let some src := dep.src? then
+      match src with
+      | .path dir => t.insert `path (toToml dir)
+      | .git url rev subDir? =>
+        t.insert `git url
+        |>.smartInsert `rev rev
+        |>.smartInsert `subDir subDir?
+    else
+      t
+  t.smartInsert `options <| dep.opts.fold (·.insert · ·) Table.empty
+
+instance : ToToml Dependency := ⟨(toToml ·.toToml)⟩
+
 /-! ## Package & Target Configuration Encoders -/
 
-def genToToml
+private def genToToml
   (cmds : Array Command)
   (tyName : Name) (fields : Array Name) (takesName : Bool)
   (exclude : Array Name := #[])
@@ -106,26 +127,11 @@ local macro "gen_toml_encoders%" : command => do
 
 gen_toml_encoders%
 
-/-! ## Dependency Configuration Encoders -/
-
-protected def Dependency.toToml (dep : Dependency) (t : Table  := {}) : Table :=
-  let t := t
-    |>.insert `name dep.name
-    |>.insertD `scope dep.scope ""
-    |>.smartInsert `version dep.version?
-  let t :=
-    if let some src := dep.src? then
-      match src with
-      | .path dir => t.insert `path (toToml dir)
-      | .git url rev subDir? =>
-        t.insert `git url
-        |>.smartInsert `rev rev
-        |>.smartInsert `subDir subDir?
-    else
-      t
-  t.smartInsert `options <| dep.opts.fold (·.insert · ·) Table.empty
-
-instance : ToToml Dependency := ⟨(toToml ·.toToml)⟩
+@[inline] def Toml.Table.insertTargets
+  (pkg : Package) (kind : Name)
+  (toToml : {n : Name} → ConfigType kind pkg.name n → Table) (t : Table)
+: Table :=
+  t.smartInsert kind <| pkg.targetDecls.filterMap (·.config? kind |>.map toToml)
 
 /-! ## Root Encoder -/
 
@@ -136,5 +142,5 @@ def Package.mkTomlConfig (pkg : Package) (t : Table := {}) : Table :=
   cfg.toToml t
   |>.smartInsert `defaultTargets pkg.defaultTargets
   |>.smartInsert `require pkg.depConfigs
-  |>.smartInsert `lean_lib (pkg.targetDecls.filterMap (·.leanLibConfig?.map toToml))
-  |>.smartInsert `lean_exe (pkg.targetDecls.filterMap (·.leanExeConfig?.map toToml))
+  |>.insertTargets pkg `lean_lib LeanLibConfig.toToml
+  |>.insertTargets pkg `lean_exe LeanExeConfig.toToml

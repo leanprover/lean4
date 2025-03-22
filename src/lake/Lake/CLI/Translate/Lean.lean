@@ -20,6 +20,9 @@ open DSL
 
 /-! ## General Helpers -/
 
+private local instance : BEq FilePath where
+  beq a b := a.normalize == b.normalize
+
 /-- Like `Quote`, but with some custom Lake-specific instances. -/
 class ToLean (α : Type u) (k : SyntaxNodeKind := `term) where
   toLean : α → TSyntax k
@@ -35,9 +38,6 @@ instance : ToLean FilePath where
 instance [ToLean α] : ToLean (Array α) where
   toLean xs := let xs : Array Term := xs.map toLean; Unhygienic.run `(#[$xs,*])
 
-private local instance : BEq FilePath where
-  beq a b := a.normalize == b.normalize
-
 instance : ToLean Bool where
   toLean b := mkIdent <| if b then `true else `false
 
@@ -47,28 +47,41 @@ class AddDeclField (σ : Type u) (name : Name) where
 abbrev addDeclField (cfg : σ) (name : Name) [AddDeclField σ name] (fs : Array DeclField) : Array DeclField :=
   AddDeclField.addDeclField name cfg fs
 
-@[inline] def addDeclFieldCore [ToLean α] (name : Name) (val : α) (fs : Array DeclField) : Array DeclField :=
-  fs.push <| Unhygienic.run `(declField|$(mkIdent name) := $(toLean val))
+def addDeclFieldCore
+  (name : Name) (val : Term) (fs : Array DeclField)
+: Array DeclField :=
+  fs.push <| Unhygienic.run `(declField|$(mkIdent name) := $val)
 
-@[inline] def addDeclFieldNotEmpty [ToLean α] (name : Name) (val : Array α) (fs : Array DeclField) : Array DeclField :=
-  if val.isEmpty then fs else addDeclFieldCore name val fs
+@[inline] def addDeclFieldNotEmpty
+  [ToLean α] (name : Name) (val : Array α) (fs : Array DeclField)
+: Array DeclField :=
+  if val.isEmpty then fs else addDeclFieldCore name (toLean val) fs
 
 instance [ToLean α] [field : ConfigField σ name (Array α)] : AddDeclField σ name where
   addDeclField cfg := addDeclFieldNotEmpty name (field.get cfg)
 
-@[inline] def addDeclFieldD [ToLean α] [BEq α] (name : Name) (val : α) (default : α) (fs : Array DeclField) : Array DeclField :=
-  if val == default then fs else addDeclFieldCore name val fs
+@[inline] def addDeclFieldD
+  [ToLean α] [BEq α] (name : Name) (val : α) (default : α) (fs : Array DeclField)
+: Array DeclField :=
+  if val == default then fs else addDeclFieldCore name (toLean val) fs
 
 instance [ToLean α] [BEq α] [field : ConfigField σ name α] : AddDeclField σ name where
   addDeclField cfg := addDeclFieldD name (field.get cfg) (field.mkDefault cfg)
 
-@[inline] def addDeclField? [ToLean α] (name : Name) (val? : Option α) (fs : Array DeclField) : Array DeclField :=
-  if let some val := val? then addDeclFieldCore name val fs else fs
+@[inline] def addDeclField?
+  [ToLean α] (name : Name) (val? : Option α) (fs : Array DeclField)
+: Array DeclField :=
+  if let some val := val? then addDeclFieldCore name (toLean val) fs else fs
 
 instance [ToLean α] [field : ConfigField σ name (Option α)] : AddDeclField σ name where
   addDeclField cfg := addDeclField? name (field.get cfg)
 
-@[inline] def mkDeclValWhere? (fields : Array DeclField) : Option (TSyntax ``declValWhere) :=
+class MkDeclFields (α : Type u) where
+  mkDeclFields : α → Array DeclField
+
+export MkDeclFields (mkDeclFields)
+
+def mkDeclValWhere? (fields : Array DeclField) : Option (TSyntax ``declValWhere) :=
   if fields.isEmpty then none else Unhygienic.run `(declValWhere|where $fields*)
 
 /-! ## Value Encoders -/
@@ -142,14 +155,33 @@ def quoteVerTags? (pat : StrPat) : Option Term :=
 instance : AddDeclField (PackageConfig n) `versionTags where
   addDeclField cfg := addDeclField? `versionTags (quoteVerTags? cfg.versionTags)
 
-class MkDeclFields (α : Type u) where
-  mkDeclFields : α → Array DeclField
+/-! ## Dependency Configuration Encoder -/
 
-export MkDeclFields (mkDeclFields)
+def Dependency.mkRequire (cfg : Dependency) : RequireDecl := Unhygienic.run do
+  let src? ← cfg.src?.mapM fun src =>
+    match src with
+    | .path dir =>
+      `(fromSource|$(toLean dir):term)
+    | .git url rev? subDir? =>
+      `(fromSource|git $(toLean url) $[@ $(rev?.map toLean)]? $[/ $(subDir?.map toLean)]?)
+  let ver? ←
+    if let some ver := cfg.version? then
+      if ver.startsWith "git#" then
+        some <$> `(verSpec|git $(toLean <| ver.drop 4))
+      else
+        some <$> `(verSpec|$(toLean ver):term)
+    else
+      pure none
+  let scope? := if cfg.scope.isEmpty then none else some (toLean cfg.scope)
+  let opts? := if cfg.opts.isEmpty then none else some <| Unhygienic.run do
+    cfg.opts.foldM (init := mkCIdent ``NameMap.empty) fun stx opt val =>
+      `($stx |>.insert $(toLean opt) $(toLean val))
+  `(requireDecl|require $[$scope? /]? $(mkIdent cfg.name):ident $[@ $ver?]?
+    $[from $src?]? $[with $opts?]?)
 
-/-! ## Configuration Encoders -/
+/-! ## Package & Target Configuration Encoders -/
 
-def genMkDeclFields
+private def genMkDeclFields
   (cmds : Array Command) (tyName : Name) (fields : Array Name) (takesName : Bool)
   (exclude : Array Name := #[])
 : MacroM (Array Command) := do
@@ -188,61 +220,38 @@ def PackageConfig.mkCommand (cfg : PackageConfig n) : PackageCommand := Unhygien
   `(packageCommand|package $(mkIdent n):ident $[$declVal?]?)
 
 protected def LeanLibConfig.mkCommand
-  (cfg : LeanLibConfig n) (defaultTarget := false)
-: LeanLibCommand := Unhygienic.run do
+  (cfg : LeanLibConfig n) (defaultTarget : Bool)
+: Command := Unhygienic.run do
   let declVal? := mkDeclValWhere? (mkDeclFields cfg)
   let attrs? ← if defaultTarget then some <$> `(Term.attributes|@[default_target]) else pure none
   `(leanLibCommand|$[$attrs?:attributes]? lean_lib $(mkIdent n):ident $[$declVal?]?)
 
 protected def LeanExeConfig.mkCommand
-  (cfg : LeanExeConfig n) (defaultTarget := false)
-: LeanExeCommand := Unhygienic.run do
+  (cfg : LeanExeConfig n) (defaultTarget : Bool)
+: Command := Unhygienic.run do
   let declVal? := mkDeclValWhere? (mkDeclFields cfg)
   let attrs? ← if defaultTarget then some <$> `(Term.attributes|@[default_target]) else pure none
   `(leanExeCommand|$[$attrs?:attributes]? lean_exe $(mkIdent n):ident $[$declVal?]?)
 
-/-! ## Dependency Configuration Encoder -/
-
-protected def Dependency.mkSyntax (cfg : Dependency) : RequireDecl := Unhygienic.run do
-  let src? ← cfg.src?.mapM fun src =>
-    match src with
-    | .path dir =>
-      `(fromSource|$(toLean dir):term)
-    | .git url rev? subDir? =>
-      `(fromSource|git $(toLean url) $[@ $(rev?.map toLean)]? $[/ $(subDir?.map toLean)]?)
-  let ver? ←
-    if let some ver := cfg.version? then
-      if ver.startsWith "git#" then
-        some <$> `(verSpec|git $(toLean <| ver.drop 4))
-      else
-        some <$> `(verSpec|$(toLean ver):term)
-    else
-      pure none
-  let scope? := if cfg.scope.isEmpty then none else some (toLean cfg.scope)
-  let opts? := if cfg.opts.isEmpty then none else some <| Unhygienic.run do
-    cfg.opts.foldM (init := mkCIdent ``NameMap.empty) fun stx opt val =>
-      `($stx |>.insert $(toLean opt) $(toLean val))
-  `(requireDecl|require $[$scope? /]? $(mkIdent cfg.name):ident $[@ $ver?]?
-    $[from $src?]? $[with $opts?]?)
+@[inline] def Package.mkTargetCommands
+  (pkg : Package) (defaultTargets : NameSet) (kind : Name)
+  (mkCommand : {n : Name} → ConfigType kind pkg.name n → Bool → Command)
+: Array Command :=
+  pkg.targetDecls.filterMap fun t => (t.config? kind).map fun cfg =>
+    mkCommand cfg (defaultTargets.contains t.name)
 
 /-! ## Root Encoder -/
 
 /-- Create a Lean module that encodes the declarative configuration of the package. -/
 def Package.mkLeanConfig (pkg : Package) : TSyntax ``module := Unhygienic.run do
-  let defaultTargets := pkg.defaultTargets.foldl NameSet.insert NameSet.empty
-  let cfg : PackageConfig pkg.name :=
+  let pkgConfig : PackageConfig pkg.name :=
     {pkg.config with testDriver := pkg.testDriver, lintDriver := pkg.lintDriver}
-  let pkgConfig := cfg.mkCommand
-  let requires := pkg.depConfigs.map (·.mkSyntax)
-  let leanLibs := pkg.targetDecls.filterMap fun t => t.leanLibConfig?.map fun cfg =>
-    cfg.mkCommand (defaultTargets.contains cfg.name)
-  let leanExes := pkg.targetDecls.filterMap fun t => t.leanExeConfig?.map fun cfg =>
-    cfg.mkCommand (defaultTargets.contains cfg.name)
+  let defaultTargets := pkg.defaultTargets.foldl NameSet.insert NameSet.empty
   `(module|
   import $(mkIdent `Lake)
   open $(mkIdent `System) $(mkIdent `Lake) $(mkIdent `DSL)
-  $pkgConfig:command
-  $[$requires:command]*
-  $[$leanLibs:command]*
-  $[$leanExes:command]*
+  $(pkgConfig.mkCommand):command
+  $[$(pkg.depConfigs.map (·.mkRequire)):command]*
+  $[$(pkg.mkTargetCommands defaultTargets `lean_lib LeanLibConfig.mkCommand):command]*
+  $[$(pkg.mkTargetCommands defaultTargets `lean_exe LeanExeConfig.mkCommand):command]*
   )

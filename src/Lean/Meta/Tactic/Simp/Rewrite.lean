@@ -110,10 +110,7 @@ where
       return false
 
 private def useImplicitDefEqProof (thm : SimpTheorem) : SimpM Bool := do
-  if thm.rfl then
-    return (← getConfig).implicitDefEqProofs
-  else
-    return false
+  pure (← getConfig).implicitDefEqProofs <&&> isRflProof thm.proof
 
 private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) := do
   recordTriedSimpTheorem thm.origin
@@ -218,7 +215,7 @@ where
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
       for (thm, numExtraArgs) in candidates do
-        unless inErasedSet thm || (rflOnly && !thm.rfl) do
+        unless inErasedSet thm || (rflOnly && !(← isRflProof thm.proof)) do
           if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs then
             trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
             return some result
@@ -236,7 +233,7 @@ where
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.priority > e₂.priority
       for thm in candidates do
-        unless inErasedSet thm || (rflOnly && !thm.rfl) do
+        unless inErasedSet thm || (rflOnly && !(← isRflProof thm.proof)) do
           let result? ← withNewMCtxDepth do
             let val  ← thm.getValue
             let type ← inferType val

@@ -1454,7 +1454,7 @@ theorem Int.tdiv_cases (n m : Int) : n.tdiv m =
     · rw [Int.tdiv_eq_ediv, Int.neg_ediv, Int.ediv_neg]
       simp [hn, Int.sub_eq_add_neg, Int.neg_ite]
 
-theorem BitVec.intMin_eq_neg_two_pow : intMin w = BitVec.ofInt w (-2 ^ (w - 1)) := by
+theorem intMin_eq_neg_two_pow : intMin w = BitVec.ofInt w (-2 ^ (w - 1)) := by
   apply BitVec.eq_of_toInt_eq
   refine (Nat.eq_zero_or_pos w).elim (by rintro rfl; simp [BitVec.toInt_zero_length]) (fun hw => ?_)
   rw [BitVec.toInt_intMin_of_pos hw, BitVec.toInt_ofInt_eq_self hw (Int.le_refl _)]
@@ -1462,10 +1462,10 @@ theorem BitVec.intMin_eq_neg_two_pow : intMin w = BitVec.ofInt w (-2 ^ (w - 1)) 
   apply Int.pow_pos
   omega
 
-theorem BitVec.toInt_intMin_eq_bmod : (intMin w).toInt = (-2 ^ (w - 1)).bmod (2 ^ w) := by
+theorem toInt_intMin_eq_bmod : (intMin w).toInt = (-2 ^ (w - 1)).bmod (2 ^ w) := by
   rw [intMin_eq_neg_two_pow, toInt_ofInt]
 
-theorem BitVec.toInt_eq_toInt_bmod (b : BitVec w) : b.toInt = b.toInt.bmod (2 ^ w) := by
+theorem toInt_eq_toInt_bmod (b : BitVec w) : b.toInt = b.toInt.bmod (2 ^ w) := by
   rw [toInt_eq_toNat_bmod, Int.bmod_bmod]
 
 theorem sdiv_ne_intMin_of_ne_intMin {x y : BitVec w} (h : x ≠ intMin w) :
@@ -1605,7 +1605,7 @@ theorem toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1
         if_pos (toInt_nonneg_of_msb_false hb), ha, hb, toInt_udiv_of_msb ha,
         toInt_eq_toNat_of_msb ha, toInt_eq_toNat_of_msb hb]
 
-theorem BitVec.intMin_sdiv_neg_one : (intMin w).sdiv (-1#w) = intMin w := by
+theorem intMin_sdiv_neg_one : (intMin w).sdiv (-1#w) = intMin w := by
   refine (Nat.eq_zero_or_pos w).elim (by rintro rfl; exact Subsingleton.elim _ _) (fun hw => ?_)
   apply BitVec.eq_of_toNat_eq
   rw [sdiv]
@@ -1614,15 +1614,7 @@ theorem BitVec.intMin_sdiv_neg_one : (intMin w).sdiv (-1#w) = intMin w := by
   rw [Nat.sub_sub_self (by omega), Nat.mod_eq_of_lt, Nat.div_one]
   omega
 
-theorem Int.bmod_eq_neg {n : Nat} {m : Int} (hm : 0 ≤ m) (hn : n = 2 * m) : m.bmod n = -m := by
-  by_cases h : m = 0
-  · subst h; simp
-  · rw [Int.bmod_def, hn, if_neg]
-    · rw [Int.emod_eq_of_lt hm] <;> omega
-    · simp only [Int.not_lt]
-      rw [Int.emod_eq_of_lt hm] <;> omega
-
-theorem BitVec.toInt_sdiv (a b : BitVec w) : (a.sdiv b).toInt = (a.toInt.tdiv b.toInt).bmod (2 ^ w) := by
+theorem toInt_sdiv (a b : BitVec w) : (a.sdiv b).toInt = (a.toInt.tdiv b.toInt).bmod (2 ^ w) := by
   by_cases h : a = intMin w ∧ b = -1#w
   · rcases h with ⟨rfl, rfl⟩
     rw [BitVec.intMin_sdiv_neg_one]

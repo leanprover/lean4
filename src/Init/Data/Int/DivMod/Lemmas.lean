@@ -2269,6 +2269,14 @@ theorem bmod_lt {x : Int} {m : Nat} (h : 0 < m) : bmod x m < (m + 1) / 2 := by
 theorem bmod_eq_emod_of_lt {x : Int} {m : Nat} (hx : x % m < (m + 1) / 2) : bmod x m = x % m := by
   simp [bmod, hx]
 
+theorem bmod_eq_neg {n : Nat} {m : Int} (hm : 0 ≤ m) (hn : n = 2 * m) : m.bmod n = -m := by
+  by_cases h : m = 0
+  · subst h; simp
+  · rw [Int.bmod_def, hn, if_neg]
+    · rw [Int.emod_eq_of_lt hm] <;> omega
+    · simp only [Int.not_lt]
+      rw [Int.emod_eq_of_lt hm] <;> omega
+
 theorem bmod_le {x : Int} {m : Nat} (h : 0 < m) : bmod x m ≤ (m - 1) / 2 := by
   refine lt_add_one_iff.mp ?_
   calc

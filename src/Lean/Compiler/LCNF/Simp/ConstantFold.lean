@@ -397,7 +397,7 @@ structure FolderOleanEntry where
 structure FolderEntry extends FolderOleanEntry where
   folder : Folder
 
-builtin_initialize folderExt : PersistentEnvExtension FolderOleanEntry FolderEntry (List FolderOleanEntry × SMap Name Folder) ←
+builtin_initialize folderExt : PersistentEnvExtension FolderOleanEntry FolderEntry (List FolderEntry × SMap Name Folder) ←
   registerPersistentEnvExtension {
     mkInitial := return ([], builtinFolders)
     addImportedFn := fun entriesArray => do
@@ -408,9 +408,12 @@ builtin_initialize folderExt : PersistentEnvExtension FolderOleanEntry FolderEnt
           let folder ← IO.ofExcept <| getFolderCore ctx.env ctx.opts folderDeclName
           folders := folders.insert declName folder
       return ([], folders.switch)
-    addEntryFn := fun (entries, map) entry => (entry.toFolderOleanEntry :: entries, map.insert entry.declName entry.folder)
-    exportEntriesFn := fun (entries, _) => entries.reverse.toArray
+    addEntryFn := fun (entries, map) entry => (entry :: entries, map.insert entry.declName entry.folder)
+    exportEntriesFn := fun (entries, _) => entries.reverse.toArray.map (·.toFolderOleanEntry)
     asyncMode := .sync
+    replay? := some fun oldState newState _ s =>
+      let newEntries := newState.1.take (newState.1.length - oldState.1.length)
+      (newEntries ++ s.1, newEntries.foldl (init := s.2) fun s e => s.insert e.declName (newState.2.find! e.declName))
   }
 
 def registerFolder (declName : Name) (folderDeclName : Name) : CoreM Unit := do

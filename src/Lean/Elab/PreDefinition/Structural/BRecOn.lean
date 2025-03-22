@@ -240,14 +240,7 @@ def mkBRecOnConst (recArgInfos : Array RecArgInfo) (positions : Positions)
   let indGroup := recArgInfos[0]!.indGroupInst
   let motive := motives[0]!
   let brecOnUniv ← lambdaTelescope motive fun _ type => getLevel type
-  let indInfo ← getConstInfoInduct indGroup.all[0]!
-  let useBInductionOn := indInfo.isReflexive && brecOnUniv == levelZero
-  let brecOnUniv ←
-    if indInfo.isReflexive && brecOnUniv != levelZero then
-      decLevel brecOnUniv
-    else
-      pure brecOnUniv
-  let brecOnCons := fun idx => indGroup.brecOn useBInductionOn brecOnUniv idx
+  let brecOnCons := fun idx => indGroup.brecOn false brecOnUniv idx
   -- Pick one as a prototype
   let brecOnAux := brecOnCons 0
   -- Infer the type of the packed motive arguments

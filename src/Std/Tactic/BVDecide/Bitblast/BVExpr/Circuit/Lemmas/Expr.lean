@@ -41,21 +41,81 @@ abbrev Inv (assign : Assignment) (aig : AIG BVBit) (cache : Cache aig) : Prop :=
       =
     (k.expr.eval assign).getLsbD i
 
-theorem Inv_empty (aig : AIG BVBit) : Inv assign aig Cache.empty := sorry
+theorem Inv_empty (aig : AIG BVBit) : Inv assign aig Cache.empty := by
+  intro k hk
+  simp [Cache.empty] at hk
 
-theorem Inv_cast (cache : Cache aig1) (hle : aig1.decls.size ≤ aig2.decls.size)
+theorem Inv_cast (cache : Cache aig1) (hpref : IsPrefix aig1.decls aig2.decls)
     (hinv : Inv assign aig1 cache):
-    Inv assign aig2 (cache.cast hle) := sorry
+    Inv assign aig2 (cache.cast hpref.size_le) := by
+  unfold Cache.cast
+  intro k hk i h2
+  specialize hinv k hk i h2
+  rw [← hinv]
+  apply denote.eq_of_isPrefix (entry := ⟨aig1, _, _, _⟩)
+  exact hpref
 
 theorem Inv_insert (cache : Cache aig) (expr : BVExpr w) (refs : AIG.RefVec aig w)
     (hinv : Inv assign aig cache)
     (hrefs : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, refs.get idx hidx, assign.toAIGAssignment⟧ = (expr.eval assign).getLsbD idx) :
-    Inv assign aig (cache.insert expr refs) := sorry
+    Inv assign aig (cache.insert expr refs) := by
+  intro k hk i hi
+  by_cases heq : ⟨w, expr⟩ = k
+  · rcases k with ⟨kw, kexpr⟩
+    simp only [Key.mk.injEq] at heq
+    rcases heq with ⟨hkeq, hexpr⟩
+    subst hkeq
+    replace hexpr := eq_of_heq hexpr
+    subst hexpr
+    have : ((cache.insert expr refs).map.get ⟨w, expr⟩ hk) = refs.refs := by
+      unfold Cache.insert
+      apply Std.DHashMap.get_insert_self
+    specialize hrefs i hi
+    rw [← hrefs]
+    congr 3
+    all_goals
+      rw [getElem_congr_coll]
+      exact this
+  · have hmem : k ∈ cache.map := by
+      unfold Cache.insert at hk
+      apply Std.DHashMap.mem_of_mem_insert
+      · exact hk
+      · simp [heq]
+    have : ((cache.insert expr refs).map.get k hk) = cache.map.get k hmem := by
+      unfold Cache.insert
+      rw [Std.DHashMap.get_insert]
+      simp [heq]
+    specialize hinv k hmem i hi
+    rw [← hinv]
+    congr 3
+    all_goals
+      rw [getElem_congr_coll]
+      exact this
+
+theorem get?_eq_some_iff (cache : Cache aig) (expr : BVExpr w) :
+    cache.get? expr = some refs ↔ cache.map.get? ⟨w, expr⟩ = some refs.refs := by
+  cases refs
+  unfold Cache.get?
+  split <;> simp_all
 
 theorem denote_eq_eval_of_get?_eq_some_of_Inv (cache : Cache aig) (expr : BVExpr w)
     (refs : AIG.RefVec aig w) (hsome : cache.get? expr = some refs) (hinv : Inv assign aig cache) :
     ∀ (i : Nat) (h : i < w),
-      ⟦aig,  refs.get i h, assign.toAIGAssignment⟧ = (expr.eval assign).getLsbD i := sorry
+      ⟦aig,  refs.get i h, assign.toAIGAssignment⟧ = (expr.eval assign).getLsbD i := by
+  intro i h
+  rcases refs with ⟨refs, _⟩
+  rw [get?_eq_some_iff] at hsome
+  have hmem : ⟨w, expr⟩ ∈ cache.map := by
+    rw [Std.DHashMap.mem_iff_contains, Std.DHashMap.contains_eq_isSome_get?]
+    simp [hsome]
+  have : refs = cache.map.get ⟨w, expr⟩ hmem := by
+    rw [Std.DHashMap.get?_eq_some_get (h := hmem)] at hsome
+    simp only [Option.some.injEq] at hsome
+    rw [hsome]
+  specialize hinv ⟨w, expr⟩ hmem i h
+  rw [← hinv]
+  subst this
+  congr
 
 end Cache
 

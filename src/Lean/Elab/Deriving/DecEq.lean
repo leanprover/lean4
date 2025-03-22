@@ -19,7 +19,8 @@ def mkDecEqHeader (indVal : InductiveVal) : TermElabM Header := do
 def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Term := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
-  `(match $[$discrs],* with $alts:matchAlt*)
+  `(withPtrEqDecEq $(mkIdent header.targetNames[0]!) $(mkIdent header.targetNames[1]!) fun _ =>
+    match $[$discrs],* with $alts:matchAlt*)
 where
   mkSameCtorRhs : List (Ident × Ident × Option Name × Bool) → TermElabM Term
     | [] => ``(isTrue rfl)

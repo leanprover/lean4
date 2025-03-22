@@ -14,7 +14,7 @@ namespace Lake
 open Lean System
 
 /-- A Lean library's declarative configuration. -/
-structure LeanLibConfig (name : Name) extends LeanConfig where
+configuration LeanLibConfig (name : Name) extends LeanConfig where
   /--
   The subdirectory of the package's source directory containing the library's
   Lean source files. Defaults simply to said `srcDir`.
@@ -46,7 +46,7 @@ structure LeanLibConfig (name : Name) extends LeanConfig where
   Used as a base for the file names of its static and dynamic binaries.
   Defaults to the name of the target.
   -/
-  libName := name.toString (escape := false)
+  libName : String := name.toString (escape := false)
 
   /-- An `Array` of target names to build before the library's modules. -/
   extraDepTargets : Array Name := #[]
@@ -80,6 +80,8 @@ structure LeanLibConfig (name : Name) extends LeanConfig where
     #[if shouldExport then Module.oExportFacet else Module.oFacet]
 
 deriving Inhabited
+
+instance : EmptyCollection (LeanLibConfig n) := ⟨{}⟩
 
 namespace LeanLibConfig
 

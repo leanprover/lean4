@@ -1,0 +1,156 @@
+/-
+Copyright (c) 2025 Mac Malone. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Mac Malone
+-/
+prelude
+import Lake.Util.Name
+import Lake.Util.Binder
+
+open Lean Syntax Parser Command
+
+namespace Lake
+
+structure ConfigProj (σ : Type u) (α : Type v) where
+  get (cfg : σ) : α
+  set (val : α) (cfg : σ) : σ
+  modify (f : α → α) (cfg : σ) : σ
+
+class ConfigField (σ : Type u) (name : Name) (α : outParam $ Type v) extends ConfigProj σ α where
+  mkDefault : σ → α
+
+class ConfigParent (σ : Type u) (ρ : semiOutParam $ Type v) extends ConfigProj σ ρ
+
+class ConfigFields (σ : Type u) where
+  fields : Array Name
+
+instance [parent : ConfigParent σ ρ] [field : ConfigField ρ name α] : ConfigField σ name α where
+  mkDefault s := field.mkDefault (parent.get s)
+  get s := field.get (parent.get s)
+  set a := parent.modify (field.set a)
+  modify f := parent.modify (field.modify f)
+
+abbrev FieldMap (α : Type u) (β : Name → Type v) :=
+  DNameMap fun name => ConfigField α name (β name)
+
+syntax configField :=
+  atomic(nestedDeclModifiers ident,+) declSig " := " term
+
+/--
+An tailored `structure` command for producing Lake configuration data types.
+It supports additional field annotations and generates additional metadata used
+during serialization to/from Lean and TOML.
+
+It is not a perfect superset of `structure`, but instead just the parts
+that are / could be reasonably needed by Lake.
+-/
+scoped syntax (name := configDecl)
+  declModifiers "configuration " declId
+  ppIndent((ppSpace bracketedBinder)* Term.optType «extends»?)
+  ((" := " <|> " where ") (structCtor)? manyIndent(ppLine colGe ppGroup(configField)))?
+  optDeriving
+: command
+
+instance : Coe Ident (TSyntax ``Term.structInstLVal) where
+  coe stx := Unhygienic.run `(Term.structInstLVal| $stx:ident)
+
+private structure FieldView where
+  ref : Syntax
+  mods : TSyntax ``Command.declModifiers := Unhygienic.run `(declModifiers|)
+  id : Ident
+  idLit : Term := quote id.getId
+  ids : Array Ident := #[id]
+  type : Term
+  defVal : Term := ⟨.missing⟩
+  decl? : Option (TSyntax ``structSimpleBinder) := none
+  parent  : Bool := false
+
+private structure FieldMetadata where
+  cmds : Array Command := #[]
+  fields : Term := Unhygienic.run `(Array.empty)
+
+private def mkConfigAuxDecls
+  (structId : Ident) (structTy : Term) (views : Array FieldView)
+: MacroM (Array Command) := do
+  let data : FieldMetadata := {}
+  -- `..` is used to avoid missing pattern error from an incomplete match.
+  -- Such errors are too verbose, so we prefer errors on use of the missing field.
+  let structPat ← `({$[$(views.map (·.id)):ident],* ..})
+  let data ← views.foldlM (init := data) fun {cmds, fields} view => do
+    let {id, idLit, type, defVal, parent, ..} := view
+    let projId := mkIdentFrom id <| id.getId.modifyBase (structId.getId ++ · |>.str "_proj")
+    let cmds ← cmds.push <$> `(
+      def $projId:ident : ConfigProj $structTy $type where
+        get cfg := cfg.$id
+        set val cfg := {cfg with $id := val}
+        modify f cfg := {cfg with $id := f cfg.$id}
+    )
+    if parent then
+      let instId := mkIdentFrom id <| id.getId.modifyBase (structId.getId ++ · |>.str "instConfigParent")
+      let cmds ← cmds.push <$> `(
+        instance $instId:ident : ConfigParent $structTy $type := ⟨$projId⟩
+      )
+      let fields ← withRef fields `($(fields) |>.append (ConfigFields.fields $type))
+      return {cmds, fields}
+    else
+      let instId := mkIdentFrom id <| id.getId.modifyBase (structId.getId ++ · |>.str "instConfigField")
+      let cmds ← cmds.push <$> `(
+        instance $instId:ident : ConfigField $structTy $idLit $type where
+          toConfigProj := $projId
+          mkDefault := fun $structPat => $defVal
+      )
+      let fields ← withRef fields `($(fields) |>.push $idLit)
+      return {cmds, fields}
+  let instId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "instConfigFields")
+  let fieldsId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "_fields")
+  let fieldsDef ← `(def $fieldsId:ident := $(data.fields))
+  let fieldsInst ← `(instance $instId:ident : ConfigFields $structTy := ⟨$fieldsId⟩)
+  return data.cmds.push fieldsDef |>.push fieldsInst
+
+private def mkFieldView (stx : TSyntax ``configField) : MacroM FieldView := withRef stx do
+  let `(configField|$mods:declModifiers $ids,* $bs* : $rty := $val) := stx
+    | Macro.throwError "ill-formed configuration field declaration"
+  let bvs ← expandBinders bs
+  let type := mkDepArrow bvs rty
+  let some id := ids.getElems[0]?
+    | Macro.throwError "expected a least one field name"
+  let defVal ← `(fun $(bvs.map (·.id))* => $val)
+  let decl ← `(structSimpleBinder|$mods:declModifiers $id : $type := $defVal)
+  return {ref := stx, mods, id, ids, type, defVal, decl? := decl}
+
+private def mkParentFieldView (stx : TSyntax ``structParent) : MacroM FieldView := withRef stx do
+  let `(structParent|$[$id? :]? $type) := stx
+    | Macro.throwError "ill-formed parent"
+  let id ← do
+    if let some id := id? then
+      pure id
+    else
+      let typeId ←
+        match type with
+        | `($id:ident) => pure id
+        | `($id:ident $(_)*) => pure id
+        | _ => Macro.throwErrorAt type "unsupported parent syntax"
+      pure <| mkIdentFrom typeId <| typeId.getId.modifyBase fun typeName =>
+        Name.mkSimple s!"to{typeName.getString!}"
+  return {ref := stx, id, type, parent := true}
+
+@[macro configDecl]
+def expandConfigDecl : Macro := fun stx => do
+  let `($mods:declModifiers configuration%$tk $declId $bs* $[$ty?]?
+      $[extends $ps?,* $[$xty?]?]? $[where $[$ctor?]? $fs?*]? $drv) := stx
+    | Macro.throwError "ill-formed configuration declaration"
+  withRef tk do
+  let bvs ← expandBinders bs
+  let structId : Ident := ⟨declId.raw[0]⟩
+  let structTy := Syntax.mkApp structId (bvs.map (⟨·.mkArgument⟩))
+  let views : Array FieldView ← (fs?.getD #[]).mapM mkFieldView
+  let ps := ps?.getD <| TSepArray.mk #[]
+  let views ← ps.getElems.foldlM (init := views) (·.push <$> mkParentFieldView ·)
+  let fields := views.filterMap (·.decl?)
+  let struct ← `(
+    $mods:declModifiers structure $declId $bs* $[$ty?]?
+    extends $ps,* $(xty?.join)? where $(ctor?.join)? $fields* $drv:optDeriving
+  )
+  let auxDecls ← mkConfigAuxDecls structId structTy views
+  let cmds := #[struct] ++ auxDecls
+  return mkNullNode cmds

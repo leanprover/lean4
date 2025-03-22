@@ -81,8 +81,6 @@ protected def BuildType.toLean : BuildType → Term
 
 instance : ToLean BuildType := ⟨BuildType.toLean⟩
 
-set_option linter.unusedVariables false
-
 protected def Backend.toLean : Backend → Term
 | .c => mkCIdent ``c
 | .llvm => mkCIdent ``llvm
@@ -144,87 +142,62 @@ def quoteVerTags? (pat : StrPat) : Option Term :=
 instance : AddDeclField (PackageConfig n) `versionTags where
   addDeclField cfg := addDeclField? `versionTags (quoteVerTags? cfg.versionTags)
 
+class MkDeclFields (α : Type u) where
+  mkDeclFields : α → Array DeclField
+
+export MkDeclFields (mkDeclFields)
+
 /-! ## Configuration Encoders -/
 
-def WorkspaceConfig.addDeclFields (cfg : WorkspaceConfig) (fs : Array DeclField) : Array DeclField :=
-  addDeclField cfg `packagesDir fs
+def genMkDeclFields
+  (cmds : Array Command) (tyName : Name) (fields : Array Name) (takesName : Bool)
+  (exclude : Array Name := #[])
+: MacroM (Array Command) := do
+  let val ← `(fs)
+  let ty := if takesName then Syntax.mkCApp tyName #[mkIdent `n] else mkCIdent tyName
+  let val ← fields.foldlM (init := val) fun val name => do
+    if exclude.contains name then
+      return val
+    else
+      `($val |> addDeclField cfg $(quote name))
+  let id ← mkIdentFromRef <| `_root_ ++ tyName.str "mkDeclFields"
+  let cmds ← cmds.push <$> `(def $id (cfg : $ty) (fs : Array DeclField := #[]) := $val)
+  let instId ← mkIdentFromRef <| `_root_ ++ tyName.str "instMkDeclFields"
+  let cmds ← cmds.push <$> `(instance $instId:ident : MkDeclFields $ty := ⟨$id⟩)
+  return cmds
 
-def LeanConfig.addDeclFields (cfg : LeanConfig) (fs : Array DeclField) : Array DeclField :=
-  fs
-  |> addDeclField cfg `buildType
-  |> addDeclField cfg `backend
-  |> addDeclField cfg `platformIndependent
-  |> addDeclField cfg `leanOptions
-  |> addDeclField cfg `moreServerOptions
-  |> addDeclField cfg `moreLeanArgs
-  |> addDeclField cfg `weakLeanArgs
-  |> addDeclField cfg `moreLeancArgs
-  |> addDeclField cfg `weakLeancArgs
-  |> addDeclField cfg `moreLinkArgs
-  |> addDeclField cfg `weakLinkArgs
+local macro "gen_lean_encoders%" : command => do
+  let cmds := #[]
+  -- Targets
+  let cmds ← genMkDeclFields cmds ``LeanConfig LeanConfig._fields false
+    (exclude := #[`dynlibs, `plugins])
+  let cmds ← genMkDeclFields cmds ``LeanLibConfig LeanLibConfig._fields true
+    (exclude := #[`nativeFacets, `dynlibs, `plugins])
+  let cmds ← genMkDeclFields cmds ``LeanExeConfig LeanExeConfig._fields true
+    (exclude := #[`nativeFacets, `dynlibs, `plugins])
+  -- Package
+  let cmds ← genMkDeclFields cmds ``WorkspaceConfig WorkspaceConfig._fields false
+  let cmds ← genMkDeclFields cmds ``PackageConfig PackageConfig._fields true
+    (exclude := #[`nativeFacets, `dynlibs, `plugins])
+  return ⟨mkNullNode cmds⟩
 
-def PackageConfig.mkDeclFields (cfg : PackageConfig n) : Array DeclField :=
-  Array.empty
-  |> addDeclField cfg `precompileModules
-  |> addDeclField cfg `moreGlobalServerArgs
-  |> addDeclField cfg `srcDir
-  |> addDeclField cfg `buildDir
-  |> addDeclField cfg `leanLibDir
-  |> addDeclField cfg `nativeLibDir
-  |> addDeclField cfg `binDir
-  |> addDeclField cfg `irDir
-  |> addDeclField cfg `releaseRepo
-  |> addDeclField cfg `buildArchive
-  |> addDeclField cfg `preferReleaseBuild
-  |> addDeclField cfg `testDriver
-  |> addDeclField cfg `testDriverArgs
-  |> addDeclField cfg `lintDriver
-  |> addDeclField cfg `lintDriverArgs
-  |> addDeclField cfg `version
-  |> addDeclField cfg `versionTags
-  |> addDeclField cfg `description
-  |> addDeclField cfg `keywords
-  |> addDeclField cfg `homepage
-  |> addDeclField cfg `license
-  |> addDeclField cfg `licenseFiles
-  |> addDeclField cfg `readmeFile
-  |> addDeclField cfg `reservoir
-  |> cfg.toWorkspaceConfig.addDeclFields
-  |> cfg.toLeanConfig.addDeclFields
+gen_lean_encoders%
 
 def PackageConfig.mkCommand (cfg : PackageConfig n) : PackageCommand := Unhygienic.run do
-  let declVal? := mkDeclValWhere? cfg.mkDeclFields
+  let declVal? := mkDeclValWhere? (mkDeclFields cfg)
   `(packageCommand|package $(mkIdent n):ident $[$declVal?]?)
-
-protected def LeanLibConfig.mkDeclFields (cfg : LeanLibConfig n) : Array DeclField :=
-  Array.empty
-  |> addDeclField cfg `srcDir
-  |> addDeclField cfg `roots
-  |> addDeclField cfg `globs
-  |> addDeclField cfg `libName
-  |> addDeclField cfg `precompileModules
-  |> addDeclField cfg `defaultFacets
-  |> cfg.toLeanConfig.addDeclFields
 
 protected def LeanLibConfig.mkCommand
   (cfg : LeanLibConfig n) (defaultTarget := false)
 : LeanLibCommand := Unhygienic.run do
-  let declVal? := mkDeclValWhere? cfg.mkDeclFields
+  let declVal? := mkDeclValWhere? (mkDeclFields cfg)
   let attrs? ← if defaultTarget then some <$> `(Term.attributes|@[default_target]) else pure none
   `(leanLibCommand|$[$attrs?:attributes]? lean_lib $(mkIdent n):ident $[$declVal?]?)
-
-protected def LeanExeConfig.mkDeclFields (cfg : LeanExeConfig n) : Array DeclField :=
-  Array.empty
-  |> addDeclField cfg `srcDir
-  |> addDeclField cfg `root
-  |> addDeclField cfg `exeName
-  |> addDeclField cfg `supportInterpreter
-  |> cfg.toLeanConfig.addDeclFields
 
 protected def LeanExeConfig.mkCommand
   (cfg : LeanExeConfig n) (defaultTarget := false)
 : LeanExeCommand := Unhygienic.run do
-  let declVal? := mkDeclValWhere? cfg.mkDeclFields
+  let declVal? := mkDeclValWhere? (mkDeclFields cfg)
   let attrs? ← if defaultTarget then some <$> `(Term.attributes|@[default_target]) else pure none
   `(leanExeCommand|$[$attrs?:attributes]? lean_exe $(mkIdent n):ident $[$declVal?]?)
 
@@ -257,9 +230,9 @@ protected def Dependency.mkSyntax (cfg : Dependency) : RequireDecl := Unhygienic
 /-- Create a Lean module that encodes the declarative configuration of the package. -/
 def Package.mkLeanConfig (pkg : Package) : TSyntax ``module := Unhygienic.run do
   let defaultTargets := pkg.defaultTargets.foldl NameSet.insert NameSet.empty
-  let pkgConfig : PackageConfig pkg.name :=
+  let cfg : PackageConfig pkg.name :=
     {pkg.config with testDriver := pkg.testDriver, lintDriver := pkg.lintDriver}
-  let pkgConfig := pkgConfig.mkCommand
+  let pkgConfig := cfg.mkCommand
   let requires := pkg.depConfigs.map (·.mkSyntax)
   let leanLibs := pkg.targetDecls.filterMap fun t => t.leanLibConfig?.map fun cfg =>
     cfg.mkCommand (defaultTargets.contains cfg.name)

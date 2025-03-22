@@ -125,73 +125,6 @@ theorem goCache_val_eq_bitblast (aig : AIG BVBit) (expr : BVExpr w) :
     (goCache aig expr .empty).result.val = bitblast aig expr := by
   rfl
 
-/-
-
-theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
-    ∀ (idx : Nat) (hidx : idx < w),
-        ⟦(go aig expr).val.aig, (go aig expr).val.vec.get idx hidx, assign.toAIGAssignment⟧
-          =
-        (expr.eval assign).getLsbD idx := by
-  intro idx hidx
-  induction expr generalizing aig idx with
-  | append lhs rhs hw lih rih =>
-    rename_i lw rw
-    subst hw
-    simp only [go, denote_blastAppend, RefVec.get_cast, Ref.cast_eq, eval_append,
-      BitVec.getLsbD_append]
-    split
-    · next hsplit => rw [rih]
-    · next hsplit => rw [go_denote_mem_prefix, lih]
-  | replicate n expr hw ih =>
-    subst hw
-    simp [go, ih, hidx, ← BitVec.getLsbD_eq_getElem]
-  | @extract w start len inner ih =>
-    simp only [go, denote_blastExtract, Bool.if_false_right, eval_extract,
-      BitVec.getLsbD_extractLsb', hidx, decide_true, Bool.true_and]
-    split
-    · next hsplit =>
-      rw [ih]
-    · apply Eq.symm
-      apply BitVec.getLsbD_ge
-      omega
-  | shiftLeft lhs rhs lih rih =>
-    simp only [go, eval_shiftLeft]
-    apply denote_blastShiftLeft
-    · intros
-      dsimp only
-      rw [go_denote_mem_prefix]
-      rw [← lih (aig := aig)]
-      · simp
-      · assumption
-      · simp [Ref.hgate]
-    · intros
-      rw [← rih]
-  | shiftRight lhs rhs lih rih =>
-    simp only [go, eval_shiftRight]
-    apply denote_blastShiftRight
-    · intros
-      dsimp only
-      rw [go_denote_mem_prefix]
-      rw [← lih (aig := aig)]
-      · simp
-      · assumption
-      · simp [Ref.hgate]
-    · intros
-      rw [← rih]
-  | arithShiftRight lhs rhs lih rih =>
-    simp only [go, eval_arithShiftRight]
-    apply denote_blastArithShiftRight
-    · intros
-      dsimp only
-      rw [go_denote_mem_prefix]
-      rw [← lih (aig := aig)]
-      · simp
-      · assumption
-      · simp [Ref.hgate]
-    · intros
-      rw [← rih]
--/
-
 theorem go_denote_mem_prefix (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
     (cache : Cache aig) (start : Nat) (hstart) :
     ⟦
@@ -246,6 +179,7 @@ theorem goCache_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cach
     · intro idx hidx
       rw [go_denote_eq]
       exact hinv
+termination_by expr => (sizeOf expr, 1, sizeOf aig)
 
 theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
     ∀ (expr : BVExpr w),
@@ -266,7 +200,7 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
     split at hres
     all_goals
       rw [← hres]
-      simp only
+      dsimp only
       apply Cache.Inv_cast
       · apply LawfulVecOperator.isPrefix_aig
       · apply goCache_Inv_of_Inv
@@ -276,51 +210,52 @@ theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
     split at hres
     all_goals
       rw [← hres]
-      simp only
+      dsimp only
       apply Cache.Inv_cast
       · apply LawfulVecOperator.isPrefix_aig
       · apply goCache_Inv_of_Inv
         exact hinv
   · rw [← hres]
-    simp only
+    dsimp only
     apply Cache.Inv_cast
     · apply LawfulVecOperator.isPrefix_aig
     · apply goCache_Inv_of_Inv
       apply goCache_Inv_of_Inv
       exact hinv
   · rw [← hres]
-    simp only
+    dsimp only
     apply Cache.Inv_cast
     · apply LawfulVecOperator.isPrefix_aig
     · apply goCache_Inv_of_Inv
       exact hinv
   · rw [← hres]
-    simp only
+    dsimp only
     apply Cache.Inv_cast
     · apply LawfulVecOperator.isPrefix_aig
     · apply goCache_Inv_of_Inv
       exact hinv
   · rw [← hres]
-    simp only
+    dsimp only
     apply Cache.Inv_cast
     · apply LawfulVecOperator.isPrefix_aig
     · apply goCache_Inv_of_Inv
       apply goCache_Inv_of_Inv
       exact hinv
   · rw [← hres]
-    simp only
+    dsimp only
     apply Cache.Inv_cast
     · apply LawfulVecOperator.isPrefix_aig
     · apply goCache_Inv_of_Inv
       apply goCache_Inv_of_Inv
       exact hinv
   · rw [← hres]
-    simp only
+    dsimp only
     apply Cache.Inv_cast
     · apply LawfulVecOperator.isPrefix_aig
     · apply goCache_Inv_of_Inv
       apply goCache_Inv_of_Inv
       exact hinv
+termination_by expr => (sizeOf expr, 0, 0)
 
 theorem goCache_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
     (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
@@ -340,6 +275,8 @@ theorem goCache_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignme
   · rw [← hres]
     rw [go_denote_eq]
     exact hinv
+termination_by (sizeOf expr, 0, w)
+
 
 theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
     (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
@@ -358,7 +295,8 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
   · dsimp only at hres
     split at hres
     · rw [← hres]
-      simp
+      simp only [RefVec.denote_zip, RefVec.get_cast, Ref.cast_eq, denote_mkAndCached, eval_bin,
+        BVBinOp.eval_and, BitVec.getLsbD_and]
       congr 1
       · rw [goCache_denote_mem_prefix]
         rw [goCache_denote_eq]
@@ -367,7 +305,8 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
         apply goCache_Inv_of_Inv
         exact hinv
     · rw [← hres]
-      simp
+      simp only [RefVec.denote_zip, RefVec.get_cast, Ref.cast_eq, denote_mkOrCached, eval_bin,
+        BVBinOp.eval_or, BitVec.getLsbD_or]
       congr 1
       · rw [goCache_denote_mem_prefix]
         rw [goCache_denote_eq]
@@ -376,7 +315,8 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
         apply goCache_Inv_of_Inv
         exact hinv
     · rw [← hres]
-      simp
+      simp only [RefVec.denote_zip, RefVec.get_cast, Ref.cast_eq, denote_mkXorCached, eval_bin,
+        BVBinOp.eval_xor, BitVec.getLsbD_xor]
       congr 1
       · rw [goCache_denote_mem_prefix]
         rw [goCache_denote_eq]
@@ -385,11 +325,11 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
         apply goCache_Inv_of_Inv
         exact hinv
     · rw [← hres]
-      simp
+      simp only [eval_bin, BVBinOp.eval_add]
       rw [denote_blastAdd]
       · intro idx hidx
         rw [goCache_denote_mem_prefix]
-        simp
+        simp only [RefVec.get_cast, Ref.cast_eq]
         rw [goCache_denote_eq]
         · exact hinv
         · simp [Ref.hgate]
@@ -398,11 +338,11 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
         apply goCache_Inv_of_Inv
         exact hinv
     · rw [← hres]
-      simp
+      simp only [eval_bin, BVBinOp.eval_mul]
       rw [denote_blastMul]
       · intro idx hidx
         rw [goCache_denote_mem_prefix]
-        simp
+        simp only [RefVec.get_cast, Ref.cast_eq]
         rw [goCache_denote_eq]
         · exact hinv
         · simp [Ref.hgate]
@@ -411,11 +351,11 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
         apply goCache_Inv_of_Inv
         exact hinv
     · rw [← hres]
-      simp
+      simp only [eval_bin, BVBinOp.eval_udiv]
       rw [denote_blastUdiv]
       · intro idx hidx
         rw [goCache_denote_mem_prefix]
-        simp
+        simp only [RefVec.get_cast, Ref.cast_eq]
         rw [goCache_denote_eq]
         · exact hinv
         · simp [Ref.hgate]
@@ -424,11 +364,11 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
         apply goCache_Inv_of_Inv
         exact hinv
     · rw [← hres]
-      simp
+      simp only [eval_bin, BVBinOp.eval_umod]
       rw [denote_blastUmod]
       · intro idx hidx
         rw [goCache_denote_mem_prefix]
-        simp
+        simp only [RefVec.get_cast, Ref.cast_eq]
         rw [goCache_denote_eq]
         · exact hinv
         · simp [Ref.hgate]
@@ -439,26 +379,30 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
   · dsimp only at hres
     split at hres
     · rw [← hres]
-      simp [hidx]
+      simp only [denote_blastNot, eval_un, BVUnOp.eval_not, hidx, BitVec.getLsbD_eq_getElem,
+        BitVec.getElem_not, Bool.not_eq_eq_eq_not, Bool.not_not]
       rw [goCache_denote_eq]
       · apply BitVec.getLsbD_eq_getElem
       · exact hinv
     · rw [← hres]
-      simp [hidx]
+      simp only [denote_blastRotateLeft, eval_un, BVUnOp.eval_rotateLeft, hidx,
+        BitVec.getLsbD_eq_getElem, BitVec.getElem_rotateLeft]
       split
       all_goals
       · rw [goCache_denote_eq]
         · apply BitVec.getLsbD_eq_getElem
         · exact hinv
     · rw [← hres]
-      simp [hidx]
+      simp only [denote_blastRotateRight, eval_un, BVUnOp.eval_rotateRight, hidx,
+        BitVec.getLsbD_eq_getElem, BitVec.getElem_rotateRight]
       split
       all_goals
       · rw [goCache_denote_eq]
         · apply BitVec.getLsbD_eq_getElem
         · exact hinv
     · rw [← hres]
-      simp [hidx, BitVec.getElem_sshiftRight]
+      simp only [denote_blastArithShiftRightConst, eval_un, BVUnOp.eval_arithShiftRightConst, hidx,
+        BitVec.getLsbD_eq_getElem, BitVec.getElem_sshiftRight]
       split
       · rw [goCache_denote_eq]
         · apply BitVec.getLsbD_eq_getElem
@@ -469,7 +413,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
   · next h =>
     subst h
     rw [← hres]
-    simp [BitVec.getLsbD_append]
+    simp only [denote_blastAppend, RefVec.get_cast, Ref.cast_eq, eval_append, BitVec.getLsbD_append]
     split
     · rw [goCache_denote_eq]
       apply goCache_Inv_of_Inv
@@ -480,15 +424,17 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
   · next h =>
     subst h
     rw [← hres]
-    simp [hidx]
+    simp only [denote_blastReplicate, eval_replicate, hidx, BitVec.getLsbD_eq_getElem,
+      BitVec.getElem_replicate]
     split
     · next h =>
-      simp [h] at hidx
+      simp only [h, Nat.zero_mul, Nat.not_lt_zero] at hidx
     · rw [goCache_denote_eq]
       · apply BitVec.getLsbD_eq_getElem
       · exact hinv
   · rw [← hres]
-    simp [hidx]
+    simp only [denote_blastExtract, eval_extract, hidx, BitVec.getLsbD_eq_getElem,
+      BitVec.getElem_extractLsb']
     split
     · rw [goCache_denote_eq]
       exact hinv
@@ -498,7 +444,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
   · rw [eval_shiftLeft, ← hres, denote_blastShiftLeft]
     · intro idx hidx
       rw [goCache_denote_mem_prefix]
-      · simp
+      · simp only [RefVec.get_cast, Ref.cast_eq]
         rw [goCache_denote_eq]
         exact hinv
       · simp [Ref.hgate]
@@ -509,7 +455,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
   · rw [eval_shiftRight, ← hres, denote_blastShiftRight]
     · intro idx hidx
       rw [goCache_denote_mem_prefix]
-      · simp
+      · simp only [RefVec.get_cast, Ref.cast_eq]
         rw [goCache_denote_eq]
         exact hinv
       · simp [Ref.hgate]
@@ -520,7 +466,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
   · rw [eval_arithShiftRight, ← hres, denote_blastArithShiftRight]
     · intro idx hidx
       rw [goCache_denote_mem_prefix]
-      · simp
+      · simp only [RefVec.get_cast, Ref.cast_eq]
         rw [goCache_denote_eq]
         exact hinv
       · simp [Ref.hgate]
@@ -528,6 +474,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       rw [goCache_denote_eq]
       apply goCache_Inv_of_Inv
       exact hinv
+termination_by idx => (sizeOf expr, 0, idx)
 
 end
 

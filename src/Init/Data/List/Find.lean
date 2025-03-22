@@ -1038,7 +1038,7 @@ theorem idxOf_eq_length [BEq α] [LawfulBEq α] {l : List α} (h : a ∉ l) : l.
 @[deprecated idxOf_eq_length (since := "2025-01-29")]
 abbrev indexOf_eq_length := @idxOf_eq_length
 
-theorem idxOf_lt_length [BEq α] [LawfulBEq α] {l : List α} (h : a ∈ l) : l.idxOf a < l.length := by
+theorem idxOf_lt_length [BEq α] [EquivBEq α] {l : List α} (h : a ∈ l) : l.idxOf a < l.length := by
   induction l with
   | nil => simp at h
   | cons x xs ih =>

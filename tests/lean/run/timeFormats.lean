@@ -801,7 +801,7 @@ Truncation Test
 
 /--
 info: ("19343232432-01-04T01:04:03.000000000",
- Except.ok (datetime("19343232432-01-04T01:04:03.000000000")),
+ Except.error "offset 4: expected: -",
  datetime("1932-01-02T05:04:03.000000000"))
 -/
 #guard_msgs in
@@ -810,3 +810,31 @@ info: ("19343232432-01-04T01:04:03.000000000",
   let s := r.toLeanDateTimeString
   let r := PlainDateTime.parse s
   (s, r, datetime("1932-01-02T05:04:03.000000000"))
+
+/-
+Error tests with some formats.
+-/
+
+/--
+info: zoned("2002-07-14T14:13:12.000000000+23:59")
+-/
+#guard_msgs in
+#eval zoned("2002-07-14T14:13:12+23:59")
+
+/--
+info: Except.error "offset 22: invalid hour offset: 24. Must be between 0 and 23."
+-/
+#guard_msgs in
+#eval ZonedDateTime.fromLeanDateTimeWithZoneString "2002-07-14T14:13:12+24:59"
+
+/--
+info: Except.error "offset 25: invalid minute offset: 60. Must be between 0 and 59."
+-/
+#guard_msgs in
+#eval ZonedDateTime.fromLeanDateTimeWithZoneString "2002-07-14T14:13:12+23:60"
+
+/--
+info: Except.ok (zoned("2002-07-14T14:13:12.000000000Z"))
+-/
+#guard_msgs in
+#eval ZonedDateTime.fromLeanDateTimeWithZoneString "2002-07-14T14:13:12+00:00"

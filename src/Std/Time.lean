@@ -129,6 +129,10 @@ Format strings are used to convert between `String` representations and date/tim
 The table below shows the available format specifiers. Some specifiers can be repeated to control truncation or offsets.
 When a character is repeated `n` times, it usually truncates the value to `n` characters.
 
+The `number` type format specifiers, such as `h` and `K`, are parsed based on the number of repetitions.
+If the repetition count is one, the format allows values ranging from 1 up to the maximum capacity of
+the respective data type.
+
 The supported formats include:
 - `G`: Represents the era, such as AD (Anno Domini) or BC (Before Christ).
   - `G`, `GG`, `GGG` (short): Displays the era in a short format (e.g., "AD").

@@ -192,3 +192,24 @@ set_option pp.structureInstances.defaults true in
 set_option pp.structureInstances.defaults true in
 /-- info: { x := 3 } : D4 -/
 #guard_msgs in #check { : D4 }
+
+/-!
+Inheritance with parameters
+-/
+namespace Test1
+
+structure A (α : Type) [Inhabited α] where
+  x : α := default
+structure B (β : Type) [Inhabited β] extends A β where
+
+/-- info: { } : B Nat -/
+#guard_msgs in #check { : B Nat }
+set_option pp.structureInstances.defaults true in
+/-- info: { x := default } : B Nat -/
+#guard_msgs in #check { : B Nat }
+
+-- Only reducible defeq, so the `x` fields is still included:
+/-- info: { x := 0 } : B Nat -/
+#guard_msgs in #check { x := 0 : B Nat }
+
+end Test1

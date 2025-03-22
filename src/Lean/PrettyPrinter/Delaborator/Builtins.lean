@@ -557,20 +557,12 @@ def delabDelayedAssignedMVar : Delab := whenNotPPOption getPPMVarsDelayed do
 
 private partial def collectStructFields
     (structName : Name)
+    (paramMap : NameMap Expr)
     (fields : Array (TSyntax ``Parser.Term.structInstField))
     (fieldValues : NameMap Expr)
     (s : ConstructorVal) :
     DelabM (NameMap Expr × Array (TSyntax ``Parser.Term.structInstField)) := do
   let env ← getEnv
-  -- For default value handling, we need to create a map of type parameter names to expressions.
-  -- TODO(kmill): after stage0 update move this out, since all default values are on `structName` itself now
-  -- and parameters need to be `structName`s parameters.
-  let args := (← getExpr).getAppArgs
-  let paramMap : NameMap Expr ← forallTelescope s.type fun xs _ => do
-    let mut paramMap := {}
-    for i in [:s.numParams] do
-      paramMap := paramMap.insert (← xs[i]!.fvarId!.getUserName) args[i]!
-    return paramMap
   let fieldNames := getStructureFields env s.induct
   let (_, fieldValues, fields) ← withBoundedAppFnArgs s.numFields
     (do return (0, fieldValues, fields))
@@ -583,7 +575,7 @@ private partial def collectStructFields
         if ← getPPOption getPPStructureInstancesFlatten then
           if let some s' ← isConstructorApp? (← getExpr) then
             if s'.induct == parentName then
-              let (fieldValues, fields) ← collectStructFields structName fields fieldValues s'
+              let (fieldValues, fields) ← collectStructFields structName paramMap fields fieldValues s'
               return (i + 1, fieldValues, fields)
       /- Does it have the default value, and should it be omitted? -/
       unless ← getPPOption getPPStructureInstancesDefaults do
@@ -671,7 +663,14 @@ def delabStructureInstance : Delab := do
     If `pp.structureInstances.flatten` is true (and `pp.explicit` is false or the subobject has no parameters)
     then subobjects are flattened.
     -/
-    let (_, fields) ← collectStructFields s.induct #[] {} s
+    -- For default value handling, we need to create a map of type parameter names to expressions.
+    let args := (← getExpr).getAppArgs
+    let paramMap : NameMap Expr ← forallTelescope s.type fun xs _ => do
+      let mut paramMap := {}
+      for param in args[:s.numParams], x in xs do
+        paramMap := paramMap.insert (← x.fvarId!.getUserName) param
+      return paramMap
+    let (_, fields) ← collectStructFields s.induct paramMap #[] {} s
     if ← withType <| getPPOption getPPStructureInstanceType then
       let tyStx ← withType delab
       `({ $fields,* : $tyStx })

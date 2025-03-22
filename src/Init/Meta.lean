@@ -1009,6 +1009,13 @@ private partial def splitNameLitAux (ss : Substring) (acc : List Substring) : Li
 def splitNameLit (ss : Substring) : List Substring :=
   splitNameLitAux ss [] |>.reverse
 
+/--
+Converts a substring to the Lean compiler's representation of names. The resulting name is
+hierarchical, and the string is split at the dots (`'.'`).
+
+`"a.b".toSubstring.toName` is the name `a.b`, not `«a.b»`. For the latter, use
+`Name.mkSimple ∘ Substring.toString`.
+-/
 def _root_.Substring.toName (s : Substring) : Name :=
   match splitNameLitAux s [] with
   | [] => .anonymous

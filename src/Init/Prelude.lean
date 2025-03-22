@@ -2709,13 +2709,20 @@ instance : DecidableEq String.Pos :=
     | isFalse h => isFalse (fun he => String.Pos.noConfusion he fun he => absurd he h)
 
 /--
-A `Substring` is a view into some subslice of a `String`.
-The actual string slicing is deferred because this would require copying the
-string; here we only store a reference to the original string for
-garbage collection purposes.
+A region or slice of some underlying string.
+
+A substring contains an string together with the start and end byte positions of a region of
+interest. Actually extracting a substring requires copying and memory allocation, while many
+substrings of the same underlying string may exist with very little overhead, and they are more
+convenient than tracking the bounds by hand.
+
+Using its constructor explicitly, it is possible to construct a `Substring` in which one or both of
+the positions is invalid for the string. Many operations will return unexpected or confusing results
+if the start and stop positions are not valid. Instead, it's better to use API functions that ensure
+the validity of the positions in a substring to create and manipulate them.
 -/
 structure Substring where
-  /-- The underlying string to slice. -/
+  /-- The underlying string. -/
   str      : String
   /-- The byte position of the start of the string slice. -/
   startPos : String.Pos
@@ -2725,7 +2732,9 @@ structure Substring where
 instance : Inhabited Substring where
   default := ⟨"", {}, {}⟩
 
-/-- The byte length of the substring. -/
+/--
+The number of bytes used by the string's UTF-8 encoding.
+-/
 @[inline] def Substring.bsize : Substring → Nat
   | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
 

@@ -121,8 +121,8 @@ end Cache
 
 namespace bitblast
 
-theorem goCache_val_eq_bitblast (aig : AIG BVBit) (expr : BVExpr w) :
-    (goCache aig expr .empty).result.val = bitblast aig expr := by
+theorem goCache_val_eq_bitblast (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) :
+    goCache aig expr cache = bitblast aig ⟨expr, cache⟩ := by
   rfl
 
 theorem go_denote_mem_prefix (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
@@ -481,17 +481,40 @@ end
 
 end bitblast
 
-@[simp]
-theorem denote_bitblast (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
+theorem bitblast_denote_mem_prefix (aig : AIG BVBit) (input : WithCache (BVExpr w) aig)
+    (assign : Assignment) (start : Nat) (hstart) :
+    ⟦
+      (bitblast aig input).result.val.aig,
+      ⟨start, inv, by apply Nat.lt_of_lt_of_le; exact hstart; apply (bitblast aig input).result.property⟩,
+      assign.toAIGAssignment
+    ⟧
+      =
+    ⟦aig, ⟨start, inv, hstart⟩, assign.toAIGAssignment⟧ := by
+  apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
+  apply IsPrefix.of
+  · intros
+    apply bitblast_decl_eq
+  · intros
+    apply (bitblast aig input).result.property
+
+theorem bitblast_Inv_of_Inv (input : WithCache (BVExpr w) aig)
+    (hinv : Cache.Inv assign aig input.cache) :
+    Cache.Inv assign (bitblast aig input).result.val.aig (bitblast aig input).cache := by
+  unfold bitblast
+  apply bitblast.goCache_Inv_of_Inv
+  exact hinv
+
+theorem denote_bitblast (aig : AIG BVBit) (input : WithCache (BVExpr w) aig) (assign : Assignment)
+    (hinv : Cache.Inv assign aig input.cache) :
     ∀ (idx : Nat) (hidx : idx < w),
-        ⟦(bitblast aig expr).aig, (bitblast aig expr).vec.get idx hidx, assign.toAIGAssignment⟧
+        ⟦(bitblast aig input).result.val.aig, (bitblast aig input).result.val.vec.get idx hidx, assign.toAIGAssignment⟧
           =
-        (expr.eval assign).getLsbD idx
+        (input.val.eval assign).getLsbD idx
     := by
   intros
   rw [← bitblast.goCache_val_eq_bitblast]
   rw [bitblast.goCache_denote_eq]
-  apply Cache.Inv_empty
+  exact hinv
 
 end BVExpr
 

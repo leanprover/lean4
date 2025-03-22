@@ -32,26 +32,36 @@ theorem denote_bitblast (aig : AIG BVBit) (pred : BVPred) (assign : BVExpr.Assig
       simp only [bitblast, eval_bin, BVBinPred.eval_eq]
       rw [mkEq_denote_eq]
       · intros
-        rw [AIG.LawfulVecOperator.denote_mem_prefix (f := BVExpr.bitblast)]
-        · simp
+        rw [BVExpr.bitblast_denote_mem_prefix]
+        · simp only [RefVec.get_cast, Ref.cast_eq]
           rw [BVExpr.denote_bitblast]
+          apply BVExpr.Cache.Inv_empty
         · simp [Ref.hgate]
       · intros
-        simp
+        rw [BVExpr.denote_bitblast]
+        apply BVExpr.bitblast_Inv_of_Inv
+        apply BVExpr.Cache.Inv_empty
     | ult =>
       simp only [bitblast, eval_bin, BVBinPred.eval_ult]
       rw [mkUlt_denote_eq]
       · intros
-        rw [AIG.LawfulVecOperator.denote_mem_prefix (f := BVExpr.bitblast)]
-        · simp
+        rw [BVExpr.bitblast_denote_mem_prefix]
+        · simp only [RefVec.get_cast, Ref.cast_eq]
           rw [BVExpr.denote_bitblast]
+          apply BVExpr.Cache.Inv_empty
         · simp [Ref.hgate]
       · intros
-        simp
+        rw [BVExpr.denote_bitblast]
+        apply BVExpr.bitblast_Inv_of_Inv
+        apply BVExpr.Cache.Inv_empty
   | getLsbD expr idx =>
-    simp only [bitblast, denote_blastGetLsbD, BVExpr.denote_bitblast, dite_eq_ite,
-      Bool.if_false_right, eval_getLsbD, Bool.and_iff_right_iff_imp, decide_eq_true_eq]
-    apply BitVec.lt_of_getLsbD
+    simp only [bitblast, denote_blastGetLsbD, eval_getLsbD]
+    split
+    · rw [BVExpr.denote_bitblast]
+      apply BVExpr.Cache.Inv_empty
+    · symm
+      apply BitVec.getLsbD_ge
+      omega
 
 end BVPred
 

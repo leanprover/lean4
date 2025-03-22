@@ -338,3 +338,133 @@ fun n h => A2.mk (A1.mk n) h
 #guard_msgs in #print A2._flat_ctor
 
 end Test7
+
+/-!
+Diamond inheritance, override autoParam with an autoParam
+-/
+namespace TestO1
+
+structure S1 where
+  x : Nat := by exact 0
+structure S2 extends S1 where
+structure S3 extends S1 where
+  x := by exact 1
+structure S4 extends S2, S3
+
+
+/-- info: TestO1.S1.mk (x : Nat := by exact 0) : S1 -/
+#guard_msgs in #check S1.mk
+/-- info: TestO1.S2.mk (toS1 : S1) : S2 -/
+#guard_msgs in #check S2.mk
+/-- info: TestO1.S3.mk (toS1 : S1) : S3 -/
+#guard_msgs in #check S3.mk
+/-- info: TestO1.S4.mk (toS2 : S2) : S4 -/
+#guard_msgs in #check S4.mk
+/-- info: TestO1.S1._flat_ctor (x : Nat := by exact 0) : S1 -/
+#guard_msgs in #check S1._flat_ctor
+/-- info: TestO1.S2._flat_ctor (x : Nat := by exact 0) : S2 -/
+#guard_msgs in #check S2._flat_ctor
+/-- info: TestO1.S3._flat_ctor (x : Nat := by exact 1) : S3 -/
+#guard_msgs in #check S3._flat_ctor
+/-- info: TestO1.S4._flat_ctor (x : Nat := by exact 1) : S4 -/
+#guard_msgs in #check S4._flat_ctor
+
+-- TODO These don't work yet. Need to fix structure instance notation elaborator.
+/-- info: S1.mk 0 : S1 -/
+#guard_msgs in #check { : S1 }
+/-- info: S2.mk (S1.mk 0) : S2 -/
+#guard_msgs in #check { : S2 }
+/-- info: S3.mk (S1.mk 0) : S3 -/
+#guard_msgs in #check { : S3 }
+/-- info: S4.mk (S2.mk (S1.mk 0)) : S4 -/
+#guard_msgs in #check { : S4 }
+
+end TestO1
+
+/-!
+Diamond inheritance, override autoParam with an optParam
+-/
+namespace TestO2
+
+structure S1 where
+  x : Nat := by exact 0
+structure S2 extends S1 where
+structure S3 extends S1 where
+  x := 1
+structure S4 extends S2, S3
+
+
+/-- info: TestO2.S1.mk (x : Nat := by exact 0) : S1 -/
+#guard_msgs in #check S1.mk
+/-- info: TestO2.S2.mk (toS1 : S1) : S2 -/
+#guard_msgs in #check S2.mk
+/-- info: TestO2.S3.mk (toS1 : S1) : S3 -/
+#guard_msgs in #check S3.mk
+/-- info: TestO2.S4.mk (toS2 : S2) : S4 -/
+#guard_msgs in #check S4.mk
+/-- info: TestO2.S1._flat_ctor (x : Nat := by exact 0) : S1 -/
+#guard_msgs in #check S1._flat_ctor
+/-- info: TestO2.S2._flat_ctor (x : Nat := by exact 0) : S2 -/
+#guard_msgs in #check S2._flat_ctor
+/-- info: TestO2.S3._flat_ctor (x : Nat) : S3 -/
+#guard_msgs in #check S3._flat_ctor
+/-- info: TestO2.S3.x._default : Nat -/
+#guard_msgs in #check S3.x._default
+/-- info: TestO2.S4._flat_ctor (x : Nat) : S4 -/
+#guard_msgs in #check S4._flat_ctor
+/-- info: TestO2.S4.x._inherited_default : Nat -/
+#guard_msgs in #check S4.x._inherited_default
+
+-- TODO These don't work yet. Need to fix structure instance notation elaborator.
+/-- info: S1.mk 0 : S1 -/
+#guard_msgs in #check { : S1 }
+/-- info: S2.mk (S1.mk 0) : S2 -/
+#guard_msgs in #check { : S2 }
+/-- info: S3.mk (S1.mk 0) : S3 -/
+#guard_msgs in #check { : S3 }
+/-- info: S4.mk (S2.mk (S1.mk 0)) : S4 -/
+#guard_msgs in #check { : S4 }
+
+end TestO2
+
+/-!
+Some failures from unsupported autoparams
+-/
+namespace TestFail1
+
+/-- error: invalid field declaration, type must be provided when auto-param tactic is used -/
+#guard_msgs in
+structure F1 where
+  x := by exact 0
+
+structure F2 where
+  x (n : Nat) : Nat
+/-- error: omit field 'x' type to set auto-param tactic -/
+#guard_msgs in
+structure F3 extends F2 where
+  x : Nat → Nat := by exact 0
+
+/-- error: invalid field, unexpected binders when setting auto-param tactic for inherited field -/
+#guard_msgs in
+structure F4 extends F2 where
+  x (n : Nat) := by exact 0
+
+/-- error: field 'x' new default value has already been set -/
+#guard_msgs in
+structure F5 extends F2 where
+  x := by exact 0
+  x := by exact 0
+
+/-- error: field 'x' new default value has already been set -/
+#guard_msgs in
+structure F6 extends F2 where
+  x := id
+  x := by exact 0
+
+/-- error: field 'x' new default value has already been set -/
+#guard_msgs in
+structure F7 extends F2 where
+  x := by exact 0
+  x := id
+
+end TestFail1

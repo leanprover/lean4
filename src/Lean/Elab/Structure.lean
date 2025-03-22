@@ -47,6 +47,10 @@ structure StructParentView where
   rawName?   : Option Name
   type       : Syntax
 
+inductive StructFieldViewDefault where
+  | optParam (value : Syntax)
+  | autoParam (tactic : Syntax)
+
 /--
 Represents the data of the syntax of a structure field declaration.
 -/
@@ -64,7 +68,7 @@ structure StructFieldView where
   rawName    : Name
   binders    : Syntax
   type?      : Option Syntax
-  value?     : Option Syntax
+  default?   : Option StructFieldViewDefault
 
 structure StructView extends InductiveView where
   parents : Array StructParentView
@@ -292,7 +296,7 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
       throwError "invalid 'private' field in a 'private' structure"
     if fieldModifiers.isProtected && structModifiers.isPrivate then
       throwError "invalid 'protected' field in a 'private' structure"
-    let (binders, type?, value?) ←
+    let (binders, type?, default?) ←
       if binfo == BinderInfo.default then
         let (binders, type?) := expandOptDeclSig fieldBinder[3]
         let optBinderTacticDefault := fieldBinder[4]
@@ -300,19 +304,13 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
           pure (binders, type?, none)
         else if optBinderTacticDefault[0].getKind != ``Parser.Term.binderTactic then
           -- binderDefault := leading_parser " := " >> termParser
-          pure (binders, type?, some optBinderTacticDefault[0][1])
+          let value := optBinderTacticDefault[0][1]
+          pure (binders, type?, some <| StructFieldViewDefault.optParam value)
         else
           let binderTactic := optBinderTacticDefault[0]
-          match type? with
-          | none => throwErrorAt binderTactic "invalid field declaration, type must be provided when auto-param (tactic) is used"
-          | some type =>
-            let tac := binderTactic[2]
-            let name ← Term.declareTacticSyntax tac
-            -- The tactic should be for binders+type.
-            -- It is safe to reset the binders to a "null" node since there is no value to be elaborated
-            let type ← `(forall $(binders.getArgs):bracketedBinder*, $type)
-            let type ← `(autoParam $type $(mkIdentFrom tac name))
-            pure (mkNullNode, some type.raw, none)
+          let tac := binderTactic[2]
+          -- Auto-param applies to `forall $binders*, $type`, which will be handled in `elabFieldTypeValue`
+          pure (binders, type?, some <| StructFieldViewDefault.autoParam tac)
       else
         let (binders, type) := expandDeclSig fieldBinder[3]
         pure (binders, some type, none)
@@ -335,7 +333,7 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
         rawName
         binders
         type?
-        value?
+        default?
       }
 
 /-
@@ -602,15 +600,15 @@ where
       let r := if e.isAppOfArity ``id 2 then e.appArg! else e
       return some (← reduceFieldProjs r)
 
-private def getFieldDefault? (structName : Name) (paramMap : NameMap Expr) (fieldName : Name) (autoParam? : Option Expr) :
+private def getFieldDefault? (structName : Name) (paramMap : NameMap Expr) (fieldName : Name) :
     StructElabM (Option StructFieldDefault) := do
-  if let some tactic := autoParam? then
-    trace[Elab.structure] "found autoparam for '{fieldName}' from '{.ofConstName structName}'"
-    return StructFieldDefault.autoParam tactic
-  else if let some val ← getFieldDefaultValue? structName (paramMap : NameMap Expr) fieldName then
+  if let some val ← getFieldDefaultValue? structName (paramMap : NameMap Expr) fieldName then
     -- Important: we use `getFieldDefaultValue?` because we want default value definitions, not *inherited* ones, to properly handle diamonds
     trace[Elab.structure] "found default value for '{fieldName}' from '{.ofConstName structName}'{indentExpr val}"
     return StructFieldDefault.optParam val
+  else if let some fn := getAutoParamFnForField? (← getEnv) structName fieldName then
+    trace[Elab.structure] "found autoparam for '{fieldName}' from '{.ofConstName structName}'"
+    return StructFieldDefault.autoParam (Expr.const fn [])
   else
     return none
 
@@ -633,8 +631,7 @@ private partial def withStructField (view : StructView) (sourceStructNames : Lis
     (k : Expr → StructElabM α) : StructElabM α := do
   trace[Elab.structure] "withStructField '{.ofConstName structName}', field '{fieldName}'"
   let fieldType ← instantiateMVars fieldType
-  let autoParam? := fieldType.getAutoParamTactic?
-  let fieldType := fieldType.consumeTypeAnnotations
+  let fieldType := fieldType.consumeTypeAnnotations -- remove autoParam from constructor field
   let env ← getEnv
   let some fieldInfo := getFieldInfo? env structName fieldName
     | throwError "(withStructField internal error) no such field '{fieldName}' of '{.ofConstName structName}'"
@@ -649,7 +646,7 @@ private partial def withStructField (view : StructView) (sourceStructNames : Lis
     let existingFieldType ← inferType existingField.fvar
     unless (← isDefEq fieldType existingFieldType) do
       throwError "field type mismatch, field '{fieldName}' from parent '{.ofConstName structName}' {← mkHasTypeButIsExpectedMsg fieldType existingFieldType}"
-    if let some d ← getFieldDefault? structName paramMap fieldName autoParam? then
+    if let some d ← getFieldDefault? structName paramMap fieldName then
       addFieldInheritedDefault fieldName structName d
     k existingField.fvar
   else
@@ -674,7 +671,7 @@ private partial def withStructField (view : StructView) (sourceStructNames : Lis
         projExpr?
         binfo := fieldInfo.binderInfo
       }
-      if let some d ← getFieldDefault? structName paramMap fieldName autoParam? then
+      if let some d ← getFieldDefault? structName paramMap fieldName then
         addFieldInheritedDefault fieldName structName d
       k fieldFVar
 
@@ -789,10 +786,8 @@ private partial def withStruct (view : StructView) (sourceStructNames : List Nam
         -- We've added some default values so far, but we want all overridden default values,
         -- which for inherited fields might not have been seen yet.
         -- Note: duplication is ok for now. We use a stable sort later.
-        -- TODO(kmill): locate all autoParams too. We are only seeing the ones present in constructors,
-        -- and we are not correctly handling diamond inheritence.
         for fieldName in allFields do
-          if let some d ← getFieldDefault? structName paramMap fieldName none then
+          if let some d ← getFieldDefault? structName paramMap fieldName then
             addFieldInheritedDefault fieldName structName d
         withLetDecl rawStructFieldName structType structVal fun structFVar => do
           let info : StructFieldInfo := {
@@ -967,9 +962,9 @@ private def elabFieldTypeValue (view : StructFieldView) : StructElabM (Option Ex
   Term.withAutoBoundImplicit <| Term.withAutoBoundImplicitForbiddenPred (fun n => view.name == n) <| Term.elabBinders view.binders.getArgs fun params => do
     match view.type? with
     | none         =>
-      match view.value? with
+      match view.default? with
       | none        => return (none, none)
-      | some valStx =>
+      | some (.optParam valStx) =>
         Term.synthesizeSyntheticMVarsNoPostponing
         -- TODO: add forbidden predicate using `shortDeclName` from `view`
         let params ← Term.addAutoBoundImplicits params (view.nameId.getTailPos? (canonicalOnly := true))
@@ -979,21 +974,19 @@ private def elabFieldTypeValue (view : StructFieldView) : StructElabM (Option Ex
         registerFailedToInferDefaultValue view.name value valStx
         let value ← mkLambdaFVars params value
         return (none, StructFieldDefault.optParam value)
+      | some (.autoParam tacticStx) =>
+        throwErrorAt tacticStx "invalid field declaration, type must be provided when auto-param tactic is used"
     | some typeStx =>
       let type ← Term.elabType typeStx
       let type ← runStructElabM (init := state) <| solveParentMVars type
       registerFailedToInferFieldType view.name type typeStx
       Term.synthesizeSyntheticMVarsNoPostponing
       let params ← Term.addAutoBoundImplicits params (view.nameId.getTailPos? (canonicalOnly := true))
-      match view.value? with
+      match view.default? with
       | none        =>
         let type ← mkForallFVars params type
-        let type ← instantiateMVars type
-        if let some tactic := type.getAutoParamTactic? then
-          return (type.consumeTypeAnnotations, StructFieldDefault.autoParam tactic)
-        else
-          return (type, none)
-      | some valStx =>
+        return (type, none)
+      | some (.optParam valStx) =>
         let value ← Term.withoutAutoBoundImplicit <| Term.elabTermEnsuringType valStx type
         let value ← runStructElabM (init := state) <| solveParentMVars value
         registerFailedToInferDefaultValue view.name value valStx
@@ -1001,6 +994,11 @@ private def elabFieldTypeValue (view : StructFieldView) : StructElabM (Option Ex
         let type  ← mkForallFVars params type
         let value ← mkLambdaFVars params value
         return (type, StructFieldDefault.optParam value)
+      | some (.autoParam tacticStx) =>
+        let name := mkAutoParamFnOfProjFn view.declName
+        discard <| Term.declareTacticSyntax tacticStx name
+        let type ← mkForallFVars params type
+        return (type, StructFieldDefault.autoParam <| .const name [])
 
 private partial def withFields (views : Array StructFieldView) (k : StructElabM α) : StructElabM α := do
   go 0
@@ -1035,9 +1033,9 @@ where
           throwError "field '{view.name}' has an autoparam but no type"
       | some info =>
         let updateDefaultValue : StructElabM α := do
-          match view.value? with
+          match view.default? with
           | none       => throwError "field '{view.name}' has been declared in parent structure"
-          | some valStx =>
+          | some (.optParam valStx) =>
             if let some type := view.type? then
               throwErrorAt type "omit field '{view.name}' type to set default value"
             else
@@ -1051,6 +1049,18 @@ where
               registerFailedToInferDefaultValue view.name value valStx
               pushInfoLeaf <| .ofFieldRedeclInfo { stx := view.ref }
               replaceFieldInfo { info with ref := view.nameId, default? := StructFieldDefault.optParam value }
+              go (i+1)
+          | some (.autoParam tacticStx) =>
+            if let some type := view.type? then
+              throwErrorAt type "omit field '{view.name}' type to set auto-param tactic"
+            else
+              if info.default?.isSome then
+                throwError "field '{view.name}' new default value has already been set"
+              if view.binders.getArgs.size > 0 then
+                throwErrorAt view.binders "invalid field, unexpected binders when setting auto-param tactic for inherited field"
+              let name := mkAutoParamFnOfProjFn view.declName
+              discard <| Term.declareTacticSyntax tacticStx name
+              replaceFieldInfo { info with ref := view.nameId, default? := StructFieldDefault.autoParam (.const name []) }
               go (i+1)
         match info.kind with
         | StructFieldKind.newField      => throwError "field '{view.name}' has already been declared"
@@ -1074,7 +1084,7 @@ private def collectUsedFVars (lctx : LocalContext) (localInsts : LocalInstances)
 Creates a local context suitable for creating the constructor.
 - Eliminates fields with a `projExpr?` field
 - Eliminates non-subobject parent fields
-- Adds autoParam for default values
+- Adds autoParam for default values (not used by structure elaborator or structure instance elaborator)
 
 Does not do any reductions.
 -/

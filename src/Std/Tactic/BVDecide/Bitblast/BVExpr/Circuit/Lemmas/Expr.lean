@@ -224,6 +224,8 @@ theorem goCache_denote_mem_prefix (aig : AIG BVBit) (expr : BVExpr w) (assign : 
   · intros
     apply (goCache aig expr cache).result.property
 
+set_option maxHeartbeats 400000
+
 mutual
 
 
@@ -247,7 +249,78 @@ theorem goCache_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cach
 
 theorem go_Inv_of_Inv (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
     ∀ (expr : BVExpr w),
-        Cache.Inv assign (go aig expr cache).result.val.aig (go aig expr cache).cache := sorry
+        Cache.Inv assign (go aig expr cache).result.val.aig (go aig expr cache).cache := by
+  intro expr
+  generalize hres : go aig expr cache = res
+  unfold go at hres
+  split at hres
+  · rw [← hres]
+    apply Cache.Inv_cast
+    · apply LawfulVecOperator.isPrefix_aig (f := blastVar)
+    · exact hinv
+  · rw [← hres]
+    apply Cache.Inv_cast
+    · apply LawfulVecOperator.isPrefix_aig (f := blastConst)
+    · exact hinv
+  · dsimp only at hres
+    split at hres
+    all_goals
+      rw [← hres]
+      simp only
+      apply Cache.Inv_cast
+      · apply LawfulVecOperator.isPrefix_aig
+      · apply goCache_Inv_of_Inv
+        apply goCache_Inv_of_Inv
+        exact hinv
+  · dsimp only at hres
+    split at hres
+    all_goals
+      rw [← hres]
+      simp only
+      apply Cache.Inv_cast
+      · apply LawfulVecOperator.isPrefix_aig
+      · apply goCache_Inv_of_Inv
+        exact hinv
+  · rw [← hres]
+    simp only
+    apply Cache.Inv_cast
+    · apply LawfulVecOperator.isPrefix_aig
+    · apply goCache_Inv_of_Inv
+      apply goCache_Inv_of_Inv
+      exact hinv
+  · rw [← hres]
+    simp only
+    apply Cache.Inv_cast
+    · apply LawfulVecOperator.isPrefix_aig
+    · apply goCache_Inv_of_Inv
+      exact hinv
+  · rw [← hres]
+    simp only
+    apply Cache.Inv_cast
+    · apply LawfulVecOperator.isPrefix_aig
+    · apply goCache_Inv_of_Inv
+      exact hinv
+  · rw [← hres]
+    simp only
+    apply Cache.Inv_cast
+    · apply LawfulVecOperator.isPrefix_aig
+    · apply goCache_Inv_of_Inv
+      apply goCache_Inv_of_Inv
+      exact hinv
+  · rw [← hres]
+    simp only
+    apply Cache.Inv_cast
+    · apply LawfulVecOperator.isPrefix_aig
+    · apply goCache_Inv_of_Inv
+      apply goCache_Inv_of_Inv
+      exact hinv
+  · rw [← hres]
+    simp only
+    apply Cache.Inv_cast
+    · apply LawfulVecOperator.isPrefix_aig
+    · apply goCache_Inv_of_Inv
+      apply goCache_Inv_of_Inv
+      exact hinv
 
 theorem goCache_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
     (cache : Cache aig) (hinv : Cache.Inv assign aig cache) :
@@ -393,15 +466,27 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
       · rw [goCache_denote_eq]
         · simp [BitVec.msb_eq_getLsbD_last]
         · exact hinv
-  · rw [← hres]
-    simp [BitVec.getLsbD_append, ]
+  · next h =>
+    subst h
+    rw [← hres]
+    simp [BitVec.getLsbD_append]
     split
     · rw [goCache_denote_eq]
-      · sorry
-      · apply goCache_Inv_of_Inv
-        exact hinv
-    · sorry
-  · sorry
+      apply goCache_Inv_of_Inv
+      exact hinv
+    · rw [goCache_denote_mem_prefix]
+      rw [goCache_denote_eq]
+      exact hinv
+  · next h =>
+    subst h
+    rw [← hres]
+    simp [hidx]
+    split
+    · next h =>
+      simp [h] at hidx
+    · rw [goCache_denote_eq]
+      · apply BitVec.getLsbD_eq_getElem
+      · exact hinv
   · rw [← hres]
     simp [hidx]
     split
@@ -410,9 +495,39 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
     · symm
       apply BitVec.getLsbD_ge
       omega
-  · sorry
-  · sorry
-  · sorry
+  · rw [eval_shiftLeft, ← hres, denote_blastShiftLeft]
+    · intro idx hidx
+      rw [goCache_denote_mem_prefix]
+      · simp
+        rw [goCache_denote_eq]
+        exact hinv
+      · simp [Ref.hgate]
+    · intro idx hidx
+      rw [goCache_denote_eq]
+      apply goCache_Inv_of_Inv
+      exact hinv
+  · rw [eval_shiftRight, ← hres, denote_blastShiftRight]
+    · intro idx hidx
+      rw [goCache_denote_mem_prefix]
+      · simp
+        rw [goCache_denote_eq]
+        exact hinv
+      · simp [Ref.hgate]
+    · intro idx hidx
+      rw [goCache_denote_eq]
+      apply goCache_Inv_of_Inv
+      exact hinv
+  · rw [eval_arithShiftRight, ← hres, denote_blastArithShiftRight]
+    · intro idx hidx
+      rw [goCache_denote_mem_prefix]
+      · simp
+        rw [goCache_denote_eq]
+        exact hinv
+      · simp [Ref.hgate]
+    · intro idx hidx
+      rw [goCache_denote_eq]
+      apply goCache_Inv_of_Inv
+      exact hinv
 
 end
 

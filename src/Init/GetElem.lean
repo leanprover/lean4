@@ -135,13 +135,21 @@ theorem getElem_congr_idx [GetElem coll idx elem valid] {c : coll} {i j : idx} {
     (h' : i = j) : c[i] = c[j]'(h' ▸ w) := by
   cases h'; rfl
 
+/--
+Lawful `GetElem?` instances (which extend `GetElem`) are those for which the potentially-failing
+`GetElem?.getElem?` and `GetElem?.getElem!` operators succeed when the validity predicate is
+satisfied, and fail when it is not.
+-/
 class LawfulGetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w))
    (dom : outParam (cont → idx → Prop)) [ge : GetElem? cont idx elem dom] : Prop where
 
+  /-- `GetElem?.getElem?` succeeds when the validity predicate is satisfied and fails otherwise. -/
   getElem?_def (c : cont) (i : idx) [Decidable (dom c i)] :
       c[i]? = if h : dom c i then some (c[i]'h) else none := by
     intros
     try simp only [getElem?] <;> congr
+
+  /-- `GetElem?.getElem!` succeeds and fails when `GetElem.getElem?` succeeds and fails. -/
   getElem!_def [Inhabited elem] (c : cont) (i : idx) :
       c[i]! = match c[i]? with | some e => e | none => default := by
     intros

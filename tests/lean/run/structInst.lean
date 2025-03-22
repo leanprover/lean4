@@ -2,6 +2,9 @@
 # Tests for structure instance notation
 -/
 
+-- Make sure defaults pretty print so we can see what they elaborate to.
+set_option pp.structureInstances.defaults true
+
 namespace Ex1
 
 structure A where

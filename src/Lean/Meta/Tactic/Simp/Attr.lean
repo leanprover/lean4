@@ -56,6 +56,16 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
         modifyEnv fun env => ext.modifyState env fun _ => s
   }
 
+/--
+Registers the given name as a custom simp set. Applying the name as an attribute to a name adds it
+to the simp set, and using the name as a parameter to the `simp` tactic causes `simp` to use the
+included lemmas.
+
+Custom simp sets must be registered during [initialization](lean-manual://section/initialization).
+
+The description should be a short, singular noun phrase that describes the contents of the custom
+simp set.
+-/
 def registerSimpAttr (attrName : Name) (attrDescr : String)
     (ref : Name := by exact decl_name%) : IO SimpExtension := do
   let ext ← mkSimpExt ref

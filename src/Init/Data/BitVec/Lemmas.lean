@@ -1081,6 +1081,17 @@ theorem getElem_eq_extractLsb' (x : BitVec w) (i : Nat) (h : i < w) :
     x[i] = (x.extractLsb' i 1 == 1#1) := by
   rw [← getLsbD_eq_getElem, getLsbD_eq_extractLsb']
 
+@[simp]
+theorem extractLsb'_zero {w start len : Nat} : (0#w).extractLsb' start len = 0#len := by
+  apply eq_of_toNat_eq
+  simp [extractLsb']
+
+@[simp]
+theorem extractLsb'_eq_zero {x : BitVec w} {start : Nat} :
+    x.extractLsb' start 0 = 0#0 := by
+  ext i hi
+  omega
+
 /-! ### allOnes -/
 
 @[simp] theorem toNat_allOnes : (allOnes v).toNat = 2^v - 1 := by
@@ -1561,6 +1572,22 @@ theorem ne_not_self {a : BitVec w} (h : 0 < w) : a ≠ ~~~a := by
 theorem not_self_ne {a : BitVec w} (h : 0 < w) : ~~~a ≠ a := by
   rw [ne_comm]
   simp [h]
+
+theorem not_and {x y : BitVec w} : ~~~ (x &&& y) = ~~~ x ||| ~~~ y := by
+  ext i
+  simp
+
+theorem not_or {x y : BitVec w} : ~~~ (x ||| y) = ~~~ x &&& ~~~ y := by
+  ext i
+  simp
+
+theorem not_xor_left {x y : BitVec w} : ~~~ (x ^^^ y) = ~~~ x ^^^ y := by
+  ext i
+  simp
+
+theorem not_xor_right {x y : BitVec w} : ~~~ (x ^^^ y) = x ^^^ ~~~ y := by
+  ext i
+  simp
 
 /-! ### cast -/
 

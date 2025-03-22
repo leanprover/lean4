@@ -6,7 +6,6 @@ Authors: David Thrane Christiansen
 prelude
 import Init.Data.Array.Subarray.Split
 import Init.Data.Range
-import Lean.Data.HashMap
 import Std.Data.HashMap.Basic
 import Init.Omega
 

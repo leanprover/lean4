@@ -1299,6 +1299,21 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
     simp
     omega
 
+theorem usubOverflow_eq {w : Nat} (x y : BitVec w) :
+    usubOverflow x y = decide (x < y) := rfl
+
+theorem ssubOverflow_eq {w : Nat} (x y : BitVec w) :
+    ssubOverflow x y = ((!x.msb && y.msb && (x - y).msb) || (x.msb && !y.msb && !(x - y).msb)) := by
+  simp only [ssubOverflow]
+  rcases w with _|w
+  · simp [BitVec.of_length_zero]
+  · have h₁ := BitVec.toInt_sub_toInt_lt_twoPow_iff (x := x) (y := y)
+    have h₂ := BitVec.twoPow_le_toInt_sub_toInt_iff (x := x) (y := y)
+    simp only [Nat.add_one_sub_one] at h₁ h₂
+    simp only [Nat.add_one_sub_one, ge_iff_le, msb_eq_toInt, ← decide_not, Int.not_lt, toInt_sub]
+    simp only [bool_to_prop]
+    omega
+
 theorem negOverflow_eq {w : Nat} (x : BitVec w) :
     (negOverflow x) = (decide (0 < w) && (x == intMin w)) := by
   simp only [negOverflow]

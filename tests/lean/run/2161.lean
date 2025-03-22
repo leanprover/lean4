@@ -19,9 +19,16 @@ since its 'Decidable' instance
   instDecidableEqFoo (((mul 4 1).mul 1).mul 1) 4
 did not reduce to 'isTrue' or 'isFalse'.
 
-After unfolding the instances 'decEqFoo✝', 'instDecidableEqFoo', 'instDecidableEqNat' and
-'Nat.decEq', reduction got stuck at the 'Decidable' instance
-  match h : (((mul 4 1).mul 1).mul 1).num.beq 4 with
+After unfolding the instances 'decEqFoo✝', 'instDecidableEqFoo', 'instDecidableEqNat', 'withPtrEqDecEq' and 'Nat.decEq', reduction got stuck at the 'Decidable' instance
+  match h :
+    withPtrEq (((mul 4 1).mul 1).mul 1) 4
+      (fun x =>
+        toBoolUsing
+          ((fun x =>
+              match ((mul 4 1).mul 1).mul 1, 4 with
+              | { num := a }, { num := b } => if h : a = b then h ▸ isTrue ⋯ else isFalse ⋯)
+            ()))
+      ⋯ with
   | true => isTrue ⋯
   | false => isFalse ⋯
 -/
@@ -40,9 +47,16 @@ since its 'Decidable' instance
   instDecidableEqFoo (((add 4 1).add 1).add 1) 4
 did not reduce to 'isTrue' or 'isFalse'.
 
-After unfolding the instances 'decEqFoo✝', 'instDecidableEqFoo', 'instDecidableEqNat' and
-'Nat.decEq', reduction got stuck at the 'Decidable' instance
-  match h : (((add 4 1).add 1).add 1).num.beq 4 with
+After unfolding the instances 'decEqFoo✝', 'instDecidableEqFoo', 'instDecidableEqNat', 'withPtrEqDecEq' and 'Nat.decEq', reduction got stuck at the 'Decidable' instance
+  match h :
+    withPtrEq (((add 4 1).add 1).add 1) 4
+      (fun x =>
+        toBoolUsing
+          ((fun x =>
+              match ((add 4 1).add 1).add 1, 4 with
+              | { num := a }, { num := b } => if h : a = b then h ▸ isTrue ⋯ else isFalse ⋯)
+            ()))
+      ⋯ with
   | true => isTrue ⋯
   | false => isFalse ⋯
 -/

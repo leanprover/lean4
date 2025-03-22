@@ -131,17 +131,16 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
 x_29 = lean_ctor_get(x_2, 0);
 lean_inc(x_29);
 x_30 = lean_ctor_get(x_2, 1);
 lean_inc(x_30);
-x_31 = lean_ctor_get(x_2, 2);
+x_31 = lean_ctor_get(x_2, 3);
 lean_inc(x_31);
-x_32 = lean_ctor_get(x_2, 3);
+x_32 = lean_ctor_get(x_2, 4);
 lean_inc(x_32);
 lean_dec(x_2);
-x_33 = lean_apply_4(x_7, x_29, x_30, x_31, x_32);
+x_33 = lean_apply_6(x_7, x_1, x_29, x_30, x_31, x_32, lean_box(0));
 return x_33;
 }
 case 6:
@@ -156,15 +155,14 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
 x_34 = lean_ctor_get(x_2, 0);
 lean_inc(x_34);
-x_35 = lean_ctor_get(x_2, 1);
+x_35 = lean_ctor_get(x_2, 2);
 lean_inc(x_35);
-x_36 = lean_ctor_get(x_2, 2);
+x_36 = lean_ctor_get(x_2, 3);
 lean_inc(x_36);
 lean_dec(x_2);
-x_37 = lean_apply_3(x_8, x_34, x_35, x_36);
+x_37 = lean_apply_5(x_8, x_1, x_34, x_35, x_36, lean_box(0));
 return x_37;
 }
 case 7:

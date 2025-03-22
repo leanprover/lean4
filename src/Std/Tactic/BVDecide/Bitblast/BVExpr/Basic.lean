@@ -74,7 +74,7 @@ inductive BVBinOp where
   Unsigned modulo.
   -/
   | umod
-  deriving DecidableEq, Hashable
+  deriving Hashable, DecidableEq
 
 namespace BVBinOp
 
@@ -135,7 +135,7 @@ inductive BVUnOp where
   constant `Nat` value.
   -/
   | arithShiftRightConst (n : Nat)
-  deriving DecidableEq, Hashable
+  deriving Hashable, DecidableEq
 
 namespace BVUnOp
 

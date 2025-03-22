@@ -483,6 +483,7 @@ inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
 @[match_pattern] protected def HEq.rfl {α : Sort u} {a : α} : HEq a a :=
   HEq.refl a
 
+/-- If two heterogeneously equal terms have the same type, then they are propositionally equal. -/
 theorem eq_of_heq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
   have : (α β : Sort u) → (a : α) → (b : β) → HEq a b → (h : Eq α β) → Eq (cast h a) b :=
     fun _ _ _ _ h₁ =>

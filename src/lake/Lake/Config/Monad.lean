@@ -28,6 +28,7 @@ abbrev LakeEnvT := ReaderT Lake.Env
 
 /-- A monad equipped with a (read-only) Lake `Workspace`. -/
 class MonadWorkspace (m : Type → Type u) where
+  /-- Gets the current Lake workspace. -/
   getWorkspace : m Workspace
 
 export MonadWorkspace (getWorkspace)
@@ -128,6 +129,9 @@ variable [MonadLakeEnv m]
 
 /-! ## Environment Helpers -/
 
+/--
+Gets the current Lake environment.
+-/
 @[inline] def getLakeEnv : m Lake.Env :=
   read
 

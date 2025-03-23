@@ -671,11 +671,9 @@ def delabStructureInstance : Delab := do
         paramMap := paramMap.insert (← x.fvarId!.getUserName) param
       return paramMap
     let (_, fields) ← collectStructFields s.induct paramMap #[] {} s
-    if ← withType <| getPPOption getPPStructureInstanceType then
-      let tyStx ← withType delab
-      `({ $fields,* : $tyStx })
-    else
-      `({ $fields,* })
+    let tyStx? : Option Term ← withType do
+      if ← getPPOption getPPStructureInstanceType then delab else pure none
+    `({ $fields,* $[: $tyStx?]? })
 
 
 /-- State for `delabAppMatch` and helpers. -/

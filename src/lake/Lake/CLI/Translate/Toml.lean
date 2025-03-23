@@ -94,13 +94,13 @@ instance : ToToml Dependency := ⟨(toToml ·.toToml)⟩
 
 private def genToToml
   (cmds : Array Command)
-  (tyName : Name) (fields : Array Name) (takesName : Bool)
+  (tyName : Name) [info : ConfigInfo tyName] (takesName : Bool)
   (exclude : Array Name := #[])
 : MacroM (Array Command) := do
   let val ← if takesName then `(t.insert `name $(mkIdent `n)) else `(t)
   let ty := if takesName then Syntax.mkCApp tyName #[mkIdent `n] else mkCIdent tyName
-  let val ← fields.foldlM (init := val) fun val name => do
-    if exclude.contains name then
+  let val ← info.fields.foldlM (init := val) fun val {name, canonical, ..} => do
+    if !canonical || exclude.contains name then
       return val
     else
       `($val |>.insertField cfg $(quote name))
@@ -113,15 +113,15 @@ private def genToToml
 local macro "gen_toml_encoders%" : command => do
   let cmds := #[]
   -- Targets
-  let cmds ← genToToml cmds ``LeanConfig LeanConfig._fields false
+  let cmds ← genToToml cmds ``LeanConfig false
     (exclude := #[`dynlibs, `plugins])
-  let cmds ← genToToml cmds ``LeanLibConfig LeanLibConfig._fields true
+  let cmds ← genToToml cmds ``LeanLibConfig true
     (exclude := #[`nativeFacets, `dynlibs, `plugins])
-  let cmds ← genToToml cmds ``LeanExeConfig LeanExeConfig._fields true
+  let cmds ← genToToml cmds ``LeanExeConfig true
     (exclude := #[`nativeFacets, `dynlibs, `plugins])
   -- Package
-  let cmds ← genToToml cmds ``WorkspaceConfig WorkspaceConfig._fields false
-  let cmds ← genToToml cmds ``PackageConfig PackageConfig._fields true
+  let cmds ← genToToml cmds ``WorkspaceConfig false
+  let cmds ← genToToml cmds ``PackageConfig true
     (exclude := #[`nativeFacets, `dynlibs, `plugins])
   return ⟨mkNullNode cmds⟩
 

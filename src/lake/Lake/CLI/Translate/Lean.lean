@@ -182,13 +182,14 @@ def Dependency.mkRequire (cfg : Dependency) : RequireDecl := Unhygienic.run do
 /-! ## Package & Target Configuration Encoders -/
 
 private def genMkDeclFields
-  (cmds : Array Command) (tyName : Name) (fields : Array Name) (takesName : Bool)
+  (cmds : Array Command)
+  (tyName : Name) [info : ConfigInfo tyName] (takesName : Bool)
   (exclude : Array Name := #[])
 : MacroM (Array Command) := do
   let val ← `(fs)
   let ty := if takesName then Syntax.mkCApp tyName #[mkIdent `n] else mkCIdent tyName
-  let val ← fields.foldlM (init := val) fun val name => do
-    if exclude.contains name then
+  let val ← info.fields.foldlM (init := val) fun val {name, canonical, ..} => do
+    if !canonical || exclude.contains name then
       return val
     else
       `($val |> addDeclField cfg $(quote name))
@@ -201,15 +202,15 @@ private def genMkDeclFields
 local macro "gen_lean_encoders%" : command => do
   let cmds := #[]
   -- Targets
-  let cmds ← genMkDeclFields cmds ``LeanConfig LeanConfig._fields false
+  let cmds ← genMkDeclFields cmds ``LeanConfig false
     (exclude := #[`dynlibs, `plugins])
-  let cmds ← genMkDeclFields cmds ``LeanLibConfig LeanLibConfig._fields true
+  let cmds ← genMkDeclFields cmds ``LeanLibConfig true
     (exclude := #[`nativeFacets, `dynlibs, `plugins])
-  let cmds ← genMkDeclFields cmds ``LeanExeConfig LeanExeConfig._fields true
+  let cmds ← genMkDeclFields cmds ``LeanExeConfig true
     (exclude := #[`nativeFacets, `dynlibs, `plugins])
   -- Package
-  let cmds ← genMkDeclFields cmds ``WorkspaceConfig WorkspaceConfig._fields false
-  let cmds ← genMkDeclFields cmds ``PackageConfig PackageConfig._fields true
+  let cmds ← genMkDeclFields cmds ``WorkspaceConfig false
+  let cmds ← genMkDeclFields cmds ``PackageConfig true
     (exclude := #[`nativeFacets, `dynlibs, `plugins])
   return ⟨mkNullNode cmds⟩
 

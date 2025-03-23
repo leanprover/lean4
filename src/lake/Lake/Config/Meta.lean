@@ -15,23 +15,35 @@ structure ConfigProj (σ : Type u) (α : Type v) where
   get (cfg : σ) : α
   set (val : α) (cfg : σ) : σ
   modify (f : α → α) (cfg : σ) : σ
-
-class ConfigField (σ : Type u) (name : Name) (α : outParam $ Type v) extends ConfigProj σ α where
   mkDefault : σ → α
+
+class ConfigField (σ : Type u) (name : Name) (α : outParam $ Type v) extends ConfigProj σ α
 
 class ConfigParent (σ : Type u) (ρ : semiOutParam $ Type v) extends ConfigProj σ ρ
 
+structure ConfigFieldInfo where
+  /-- The name of the field (possibly an alias). -/
+  name : Name
+  /-- The real name of the field in the configuration structure. -/
+  realName : Name
+  /-- Whether `name == realName` and the field is not a parent projection. -/
+  canonical : Bool := false
+  /-- Whether the field is a parent projection. -/
+  parent : Bool := false
+
 class ConfigFields (σ : Type u) where
-  fields : Array Name
+  fields : Array ConfigFieldInfo
+
+class ConfigInfo (name : Name) where
+  fields : Array ConfigFieldInfo
+  fieldMap : NameMap ConfigFieldInfo :=
+    fields.foldl (init := ∅) fun m i => m.insert i.name i
 
 instance [parent : ConfigParent σ ρ] [field : ConfigField ρ name α] : ConfigField σ name α where
   mkDefault s := field.mkDefault (parent.get s)
   get s := field.get (parent.get s)
   set a := parent.modify (field.set a)
   modify f := parent.modify (field.modify f)
-
-abbrev FieldMap (α : Type u) (β : Name → Type v) :=
-  DNameMap fun name => ConfigField α name (β name)
 
 syntax configField :=
   atomic(nestedDeclModifiers ident,+) declSig " := " term
@@ -58,10 +70,9 @@ private structure FieldView where
   ref : Syntax
   mods : TSyntax ``Command.declModifiers := Unhygienic.run `(declModifiers|)
   id : Ident
-  idLit : Term := quote id.getId
   ids : Array Ident := #[id]
   type : Term
-  defVal : Term := ⟨.missing⟩
+  defVal : Term
   decl? : Option (TSyntax ``structSimpleBinder) := none
   parent  : Bool := false
 
@@ -77,35 +88,57 @@ private def mkConfigAuxDecls
   -- Such errors are too verbose, so we prefer errors on use of the missing field.
   let structPat ← `({$[$(views.map (·.id)):ident],* ..})
   let data ← views.foldlM (init := data) fun {cmds, fields} view => do
-    let {id, idLit, type, defVal, parent, ..} := view
+    let {id, ids, type, defVal, parent, ..} := view
     let projId := mkIdentFrom id <| id.getId.modifyBase (structId.getId ++ · |>.str "_proj")
     let cmds ← cmds.push <$> `(
       def $projId:ident : ConfigProj $structTy $type where
         get cfg := cfg.$id
         set val cfg := {cfg with $id := val}
         modify f cfg := {cfg with $id := f cfg.$id}
+        mkDefault := fun $structPat => $defVal
     )
+    let realNameLit := Name.quoteFrom id id.getId
     if parent then
       let instId := mkIdentFrom id <| id.getId.modifyBase (structId.getId ++ · |>.str "instConfigParent")
       let cmds ← cmds.push <$> `(
         instance $instId:ident : ConfigParent $structTy $type := ⟨$projId⟩
       )
       let fields ← withRef fields `($(fields) |>.append (ConfigFields.fields $type))
+      let fields ← withRef fields `($(fields) |>.push {
+        name := $realNameLit
+        realName := $realNameLit
+        parent := true
+        : ConfigFieldInfo
+      })
       return {cmds, fields}
     else
-      let instId := mkIdentFrom id <| id.getId.modifyBase (structId.getId ++ · |>.str "instConfigField")
-      let cmds ← cmds.push <$> `(
-        instance $instId:ident : ConfigField $structTy $idLit $type where
-          toConfigProj := $projId
-          mkDefault := fun $structPat => $defVal
-      )
-      let fields ← withRef fields `($(fields) |>.push $idLit)
-      return {cmds, fields}
-  let instId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "instConfigFields")
+      let data := {cmds, fields}
+      let addName canonical data id := do
+        let {cmds, fields} := data
+        let nameLit := Name.quoteFrom id id.getId
+        let instId := mkIdentFrom id <|
+          id.getId.modifyBase (structId.getId ++ · |>.str "instConfigField")
+        let cmds ← cmds.push <$> `(
+          instance $instId:ident : ConfigField $structTy $nameLit $type := ⟨$projId⟩
+        )
+        let fields ← withRef fields `($(fields) |>.push {
+          name := $nameLit
+          realName := $realNameLit
+          canonical := $(quote canonical)
+          : ConfigFieldInfo
+        })
+        return {cmds, fields}
+      let data ← addName true data id
+      let data ← ids.foldlM (start := 1) (addName false) data
+      return data
   let fieldsId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "_fields")
   let fieldsDef ← `(def $fieldsId:ident := $(data.fields))
+  let instId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "instConfigFields")
   let fieldsInst ← `(instance $instId:ident : ConfigFields $structTy := ⟨$fieldsId⟩)
-  return data.cmds.push fieldsDef |>.push fieldsInst
+  let instId := mkIdentFrom structId <| structId.getId.modifyBase (·.str "instConfigMeta")
+  let structNameLit : Term := ⟨mkNode ``Term.doubleQuotedName #[mkAtom "`", mkAtom "`", structId]⟩
+  let infoInst ← `(instance $instId:ident : ConfigInfo $structNameLit := {fields := $fieldsId})
+  return data.cmds.push fieldsDef |>.push fieldsInst |>.push infoInst
 
 private def mkFieldView (stx : TSyntax ``configField) : MacroM FieldView := withRef stx do
   let `(configField|$mods:declModifiers $ids,* $bs* : $rty := $val) := stx
@@ -132,7 +165,7 @@ private def mkParentFieldView (stx : TSyntax ``structParent) : MacroM FieldView 
         | _ => Macro.throwErrorAt type "unsupported parent syntax"
       pure <| mkIdentFrom typeId <| typeId.getId.modifyBase fun typeName =>
         Name.mkSimple s!"to{typeName.getString!}"
-  return {ref := stx, id, type, parent := true}
+  return {ref := stx, id, type, defVal := ← `(∅), parent := true}
 
 @[macro configDecl]
 def expandConfigDecl : Macro := fun stx => do

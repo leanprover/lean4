@@ -267,18 +267,18 @@ instance : DecodeToml Dependency := ⟨fun v => do Dependency.decodeToml (← v.
 
 private def genDecodeToml
   (cmds : Array Command)
-  (tyName : Name) (fields : Array Name) (takesName : Bool)
+  (tyName : Name) [info : ConfigInfo tyName]  (takesName : Bool)
   (exclude : Array Name := {})
 : MacroM (Array Command) := do
   let init ← `(TomlFieldInfos.empty)
   let ty := if takesName then Syntax.mkCApp tyName #[mkIdent `n] else mkCIdent tyName
-  let info ← fields.foldlM (init := init) fun info name =>
-    if exclude.contains name then
-      return info
+  let infos ← info.fields.foldlM (init := init) fun infos {name, parent, ..} =>
+    if parent || exclude.contains name then
+      return infos
     else
-      `($info |>.insert $(quote name))
+      `($infos |>.insert $(quote name))
   let instId ← mkIdentFromRef <| `_root_ ++ tyName.str "instConfigTomlInfo"
-  let cmds ← cmds.push <$> `(instance $instId:ident : ConfigTomlInfo $ty := ⟨$info⟩)
+  let cmds ← cmds.push <$> `(instance $instId:ident : ConfigTomlInfo $ty := ⟨$infos⟩)
   let decId ← mkIdentFromRef <| `_root_ ++ tyName.str "decodeToml"
   let cmds ← cmds.push <$> `(protected def $decId (t : Table) : DecodeM $ty := t.decodeConfig)
   let instId ← mkIdentFromRef <| `_root_ ++ tyName.str "instDecodeToml"
@@ -288,15 +288,15 @@ private def genDecodeToml
 local macro "gen_toml_decoders%" : command => do
   let cmds := #[]
   -- Targets
-  let cmds ← genDecodeToml cmds ``LeanConfig LeanConfig._fields false
+  let cmds ← genDecodeToml cmds ``LeanConfig false
     (exclude := #[`dynlibs, `plugins])
-  let cmds ← genDecodeToml cmds ``LeanLibConfig LeanLibConfig._fields true
+  let cmds ← genDecodeToml cmds ``LeanLibConfig true
     (exclude := #[`nativeFacets, `dynlibs, `plugins])
-  let cmds ← genDecodeToml cmds ``LeanExeConfig LeanExeConfig._fields true
+  let cmds ← genDecodeToml cmds ``LeanExeConfig true
     (exclude := #[`nativeFacets, `dynlibs, `plugins])
   -- Package
-  let cmds ← genDecodeToml cmds ``WorkspaceConfig WorkspaceConfig._fields false
-  let cmds ← genDecodeToml cmds ``PackageConfig PackageConfig._fields true
+  let cmds ← genDecodeToml cmds ``WorkspaceConfig false
+  let cmds ← genDecodeToml cmds ``PackageConfig true
     (exclude := #[`dynlibs, `plugins])
   return ⟨mkNullNode cmds⟩
 

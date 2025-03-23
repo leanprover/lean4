@@ -166,23 +166,10 @@ configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig wh
   releaseRepo, releaseRepo? : Option String := none
 
   /--
-  The URL of the GitHub repository to upload and download releases of this package.
-  If `none` (the default), for downloads, Lake uses the URL the package was download
-  from (if it is a dependency) and for uploads, uses `gh`'s default.
-  -/
-  releaseRepo? : Option String := none
-
-  /--
   A custom name for the build archive for the GitHub cloud release.
   If `none` (the default), Lake defaults to `{(pkg-)name}-{System.Platform.target}.tar.gz`.
   -/
   buildArchive, buildArchive? : Option String := none
-
-   /--
-  A custom name for the build archive for the GitHub cloud release.
-  If `none` (the default), Lake defaults to `{(pkg-)name}-{System.Platform.target}.tar.gz`.
-  -/
-  buildArchive? : Option String := none
 
   /--
   Whether to prefer downloading a prebuilt release (from GitHub) rather than
@@ -411,7 +398,7 @@ structure Package where
   postUpdateHooks : Array (OpaquePostUpdateHook name) := #[]
   /-- The package's `buildArchive`/`buildArchive?` configuration. -/
   buildArchive : String :=
-    if let some n := config.buildArchive? then n else defaultBuildArchive name
+    if let some n := config.buildArchive then n else defaultBuildArchive name
   /-- The driver used for `lake test` when this package is the workspace root. -/
   testDriver : String := config.testDriver
   /-- The driver used for `lake lint` when this package is the workspace root. -/
@@ -551,7 +538,7 @@ namespace Package
 
 /-- The package's `releaseRepo`/`releaseRepo?` configuration. -/
 @[inline] def releaseRepo? (self : Package) : Option String :=
-  self.config.releaseRepo <|> self.config.releaseRepo?
+  self.config.releaseRepo
 
 /-- The packages `remoteUrl` as an `Option` (`none` if empty). -/
 @[inline] def remoteUrl? (self : Package) : Option String :=

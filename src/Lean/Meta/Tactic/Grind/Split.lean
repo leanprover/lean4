@@ -86,7 +86,11 @@ private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
   match_expr e with
   | Or a b => checkDisjunctStatus e a b
   | And a b => checkConjunctStatus e a b
-  | Eq _ a b => checkIffStatus e a b
+  | Eq _ a b =>
+    if isMorallyIff e then
+      checkIffStatus e a b
+    else
+      return .ready 2
   | ite _ c _ _ _ => checkIteCondStatus c
   | dite _ c _ _ _ => checkIteCondStatus c
   | _ =>
@@ -161,10 +165,14 @@ private def mkCasesMajor (c : Expr) : GoalM Expr := do
   | ite _ c _ _ _ => return mkGrindEM c
   | dite _ c _ _ _ => return mkGrindEM c
   | Eq _ a b =>
-    if (← isEqTrue c) then
-      return mkApp3 (mkConst ``Grind.of_eq_eq_true) a b (← mkEqTrueProof c)
+    if isMorallyIff c then
+      if (← isEqTrue c) then
+        return mkApp3 (mkConst ``Grind.of_eq_eq_true) a b (← mkEqTrueProof c)
+      else
+        return mkApp3 (mkConst ``Grind.of_eq_eq_false) a b (← mkEqFalseProof c)
     else
-      return mkApp3 (mkConst ``Grind.of_eq_eq_false) a b (← mkEqFalseProof c)
+      -- model-based theory combination split
+      return mkGrindEM c
   | _ =>
     if (← isEqTrue c) then
       return mkOfEqTrueCore c (← mkEqTrueProof c)

@@ -1,3 +1,4 @@
+# instantiated by ci.yml
 name: build-template
 on:
   workflow_call:
@@ -198,7 +199,7 @@ jobs:
         id: test
         run: |
           time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
-        if: (matrix.wasm || !matrix.cross) && inputs.check-level >= 1
+        if: (matrix.wasm || !matrix.cross) && inputs.check-level >= -1
       - name: Test Summary
         uses: test-summary/action@v2
         with:

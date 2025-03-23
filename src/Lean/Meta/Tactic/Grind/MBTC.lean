@@ -43,6 +43,7 @@ private def mkCandidateKey (a b : Expr) : Expr × Expr :=
 
 /-- Model-based theory combination. -/
 def mbtc (ctx : MBTC.Context) : GoalM Bool := do
+  unless (← getConfig).mbtc do return false
   let mut map : Map := {}
   let mut candidates : Candidates := {}
   for ({ expr := e }, _) in (← get).enodes do

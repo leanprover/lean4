@@ -177,6 +177,9 @@ structure StructFieldInfo where
   projExpr? : Option Expr := none
   /-- The default value, as explicitly given in this `structure`. -/
   default?  : Option StructFieldDefault := none
+  /-- If this is an inherited field, the name of the projection function.
+  Used for adding terminfo for fields with overridden default values. -/
+  projFn?   : Option Name := none
   /-- The inherited default values, as parent structure / value pairs. -/
   inheritedDefaults : Array (Name × StructFieldDefault) := #[]
   /-- The default that will be used for this structure. -/
@@ -670,6 +673,7 @@ private partial def withStructField (view : StructView) (sourceStructNames : Lis
         fvar := fieldFVar
         projExpr?
         binfo := fieldInfo.binderInfo
+        projFn? := fieldInfo.projFn
       }
       if let some d ← getFieldDefault? structName paramMap fieldName then
         addFieldInheritedDefault fieldName structName d
@@ -1048,6 +1052,7 @@ where
               let value ← Term.elabTermEnsuringType valStx fvarType
               registerFailedToInferDefaultValue view.name value valStx
               pushInfoLeaf <| .ofFieldRedeclInfo { stx := view.ref }
+              if let some projFn := info.projFn? then Term.addTermInfo' view.ref (← mkConstWithLevelParams projFn)
               replaceFieldInfo { info with ref := view.nameId, default? := StructFieldDefault.optParam value }
               go (i+1)
           | some (.autoParam tacticStx) =>
@@ -1061,6 +1066,8 @@ where
               let name := mkAutoParamFnOfProjFn view.declName
               discard <| Term.declareTacticSyntax tacticStx name
               replaceFieldInfo { info with ref := view.nameId, default? := StructFieldDefault.autoParam (.const name []) }
+              pushInfoLeaf <| .ofFieldRedeclInfo { stx := view.ref }
+              if let some projFn := info.projFn? then Term.addTermInfo' view.ref (← mkConstWithLevelParams projFn)
               go (i+1)
         match info.kind with
         | StructFieldKind.newField      => throwError "field '{view.name}' has already been declared"

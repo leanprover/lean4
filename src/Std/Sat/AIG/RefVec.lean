@@ -167,7 +167,7 @@ where
       let ref := s.refs[idx]
       let decl := aig.decls[ref.1]'(s.hrefs h)
       match decl with
-      | .const .. => go aig s (idx + 1) (acc + 1)
+      | .false => go aig s (idx + 1) (acc + 1)
       | _ => go aig s (idx + 1) acc
     else
       acc

@@ -288,6 +288,20 @@ def getEffectiveDefaultFnForField? (env : Environment) (structName : Name) (fiel
   getDefaultFnForField? env structName fieldName
   <|> getFnForFieldUsing? mkInheritedDefaultFnOfProjFn env structName fieldName
 
+/--
+Gets the name of the auxiliary definition that would have the autoParam definition for a field.
+-/
+def mkAutoParamFnOfProjFn (projFn : Name) : Name :=
+  projFn ++ `_autoParam
+
+/--
+Returns the name of the auxiliary definition that defines the autoParam for the field, if any such definition exists.
+This is not the inherited autoParam, but the one that is defined or overridden by this structure.
+The effective autoParams are collected in the flat constructor.
+-/
+def getAutoParamFnForField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
+  getFnForFieldUsing? mkAutoParamFnOfProjFn env structName fieldName
+
 partial def getPathToBaseStructureAux (env : Environment) (baseStructName : Name) (structName : Name) (path : List Name) : Option (List Name) :=
   if baseStructName == structName then
     some path.reverse

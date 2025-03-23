@@ -53,7 +53,7 @@ def mbtc (ctx : MBTC.Context) : GoalM Bool := do
       let f := e.getAppFn
       let mut i := 0
       for arg in e.getAppArgs do
-        let arg ← getRoot arg
+        let some arg ← getRoot? arg | pure ()
         if (← ctx.hasTheoryVar arg) then
           trace[grind.debug.mbtc] "{arg} @ {f}:{i}"
           if let some others := map[(f, i)]? then

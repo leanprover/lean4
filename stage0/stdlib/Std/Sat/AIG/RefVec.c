@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sat.AIG.RefVec
-// Imports: Std.Sat.AIG.LawfulOperator Std.Sat.AIG.CachedGatesLemmas
+// Imports: Std.Sat.AIG.LawfulOperator Std.Sat.AIG.CachedGatesLemmas Init.Data.Vector.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_get(lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_cast_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_get___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_cast_x27___rarg___boxed(lean_object*, lean_object*);
@@ -70,7 +71,6 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RefVec_0__Std_Sat_AIG_BinaryRefVec_cast_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_countKnown___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_Sat_AIG_RefVec_countKnown___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* _init_l_Std_Sat_AIG_RefVec_empty___closed__1() {
 _start:
@@ -104,7 +104,7 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_emptyWithCapacity___rarg(lean_obje
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
@@ -298,7 +298,7 @@ LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RefVec_0__Std_Sat_AIG_RefVec_ge
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_apply_3(x_2, x_1, lean_box(0), lean_box(0));
+x_3 = lean_apply_2(x_2, x_1, lean_box(0));
 return x_3;
 }
 }
@@ -626,6 +626,7 @@ return x_7;
 }
 lean_object* initialize_Std_Sat_AIG_LawfulOperator(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Sat_AIG_CachedGatesLemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Vector_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Sat_AIG_RefVec(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -635,6 +636,9 @@ res = initialize_Std_Sat_AIG_LawfulOperator(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Sat_AIG_CachedGatesLemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Vector_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Sat_AIG_RefVec_empty___closed__1 = _init_l_Std_Sat_AIG_RefVec_empty___closed__1();

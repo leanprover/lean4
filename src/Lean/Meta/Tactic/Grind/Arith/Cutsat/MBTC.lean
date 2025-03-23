@@ -11,8 +11,20 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
+private def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do
+  let val? ← getAssignment? (← get) (← getENode e)
+  if val?.isSome then
+    return val?
+  let type ← inferType e
+  if type == Nat.mkType then
+    for parent in (← getParents e) do
+      let_expr NatCast.natCast _ inst _ := parent | pure ()
+      let_expr instNatCastInt := inst | pure ()
+      return (← getAssignment? (← get) (← getENode parent))
+  return none
+
 private def hasTheoryVar (e : Expr) : GoalM Bool := do
-  return (← getAssignment? (← get) (← getENode e)).isSome
+  return (← getAssignmentExt? e).isSome
 
 private def isInterpreted (e : Expr) : GoalM Bool := do
   if isInterpretedTerm e then return true
@@ -20,8 +32,8 @@ private def isInterpreted (e : Expr) : GoalM Bool := do
   return f.isConstOf ``LE.le || f.isConstOf ``Dvd.dvd
 
 private def eqAssignment (a b : Expr) : GoalM Bool := do
-  let some v₁ ← getAssignment? (← get) (← getENode a) | return false
-  let some v₂ ← getAssignment? (← get) (← getENode b) | return false
+  let some v₁ ← getAssignmentExt? a | return false
+  let some v₂ ← getAssignmentExt? b | return false
   return v₁ == v₂
 
 def mbtcTac : GrindTactic :=

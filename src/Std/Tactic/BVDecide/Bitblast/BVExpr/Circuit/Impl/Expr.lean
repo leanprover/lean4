@@ -93,13 +93,18 @@ def Cache.cast (cache : Cache aig1) (h : aig1.decls.size ≤ aig2.decls.size) :
     · exact h
   ⟨map, this⟩
 
+structure WithCache (α : Type u) (aig : AIG BVBit) where
+  val : α
+  cache : Cache aig
+
 structure Return (aig : AIG BVBit) (w : Nat) where
   result : AIG.ExtendingRefVecEntry aig w
   cache : Cache result.val.aig
 
 set_option maxHeartbeats 400000 in
-def bitblast (aig : AIG BVBit) (expr : BVExpr w) : AIG.RefVecEntry BVBit w :=
-  goCache aig expr .empty |>.result.val
+def bitblast (aig : AIG BVBit) (input : WithCache (BVExpr w) aig) : Return aig w :=
+  let ⟨expr, cache⟩ := input
+  goCache aig expr cache
 where
   goCache {w : Nat} (aig : AIG BVBit) (expr : BVExpr w) (cache : Cache aig) : Return aig w :=
     match cache.get? expr with
@@ -370,15 +375,22 @@ end
 
 end bitblast
 
-instance : AIG.LawfulVecOperator BVBit (fun _ w => BVExpr w) bitblast where
-  le_size := by
-    intro _ aig expr
-    unfold bitblast
-    exact (bitblast.goCache aig expr _).result.property
-  decl_eq := by
-    intros
-    unfold bitblast
-    apply bitblast.goCache_decl_eq
+theorem bitblast_decl_eq (aig : AIG BVBit) (input : WithCache (BVExpr w) aig) :
+    ∀ (idx : Nat) (h1) (h2), (bitblast aig input).result.val.aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
+  intros
+  unfold bitblast
+  apply bitblast.goCache_decl_eq
+
+theorem bitblast_le_size (aig : AIG BVBit) (input : WithCache (BVExpr w) aig) :
+    aig.decls.size ≤ (bitblast aig input).result.val.aig.decls.size := by
+  exact (bitblast aig input).result.property
+
+theorem bitblast_lt_size_of_lt_aig_size (aig : AIG BVBit) (input : WithCache (BVExpr w) aig)
+    (h : x < aig.decls.size) :
+    x < (bitblast aig input).result.val.aig.decls.size := by
+  apply Nat.lt_of_lt_of_le
+  · exact h
+  · exact bitblast_le_size aig input
 
 end BVExpr
 

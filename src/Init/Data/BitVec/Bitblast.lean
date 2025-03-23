@@ -1385,7 +1385,7 @@ theorem extractLsb'_add {w len : Nat} {x y : BitVec w} (hlen : len ≤ w) :
 theorem setWidth_mul {w len} {x y : BitVec w} (hlen : len ≤ w) :
     (x * y).setWidth len = (x.setWidth len) * (y.setWidth len) := by
   apply eq_of_toNat_eq
-  simp
+  simp only [toNat_setWidth, toNat_mul, mul_mod_mod, mod_mul_mod]
   rw [Nat.mod_mod_of_dvd]
   exact pow_dvd_pow_iff_le_right'.mpr hlen
 

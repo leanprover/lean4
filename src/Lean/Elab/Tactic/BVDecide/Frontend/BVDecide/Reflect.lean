@@ -300,6 +300,18 @@ structure LemmaState where
   The list of top level lemmas that got created on the fly during reflection.
   -/
   lemmas : Array SatAtBVLogical := #[]
+  /--
+  Cache for reification of `BVExpr`.
+  -/
+  bvExprCache : Std.HashMap Expr (Option ReifiedBVExpr) := {}
+  /--
+  Cache for reification of `BVPred`.
+  -/
+  bvPredCache : Std.HashMap Expr (Option ReifiedBVPred) := {}
+  /--
+  Cache for reification of `BVLogicalExpr`.
+  -/
+  bvLogicalCache : Std.HashMap Expr (Option ReifiedBVLogical) := {}
 
 /--
 The lemma reflection monad. It extends the usual reflection monad `M` by adding the ability to
@@ -318,6 +330,36 @@ Add another top level lemma.
 -/
 def addLemma (lemma : SatAtBVLogical) : LemmaM Unit := do
   modify fun s => { s with lemmas := s.lemmas.push lemma }
+
+@[specialize]
+def withBVExprCache (e : Expr) (f : Expr → LemmaM (Option ReifiedBVExpr)) :
+    LemmaM (Option ReifiedBVExpr) := do
+  match (← get).bvExprCache[e]? with
+  | some hit => return hit
+  | none =>
+    let res ← f e
+    modify fun s => { s with bvExprCache := s.bvExprCache.insert e res }
+    return res
+
+@[specialize]
+def withBVPredCache (e : Expr) (f : Expr → LemmaM (Option ReifiedBVPred)) :
+    LemmaM (Option ReifiedBVPred) := do
+  match (← get).bvPredCache[e]? with
+  | some hit => return hit
+  | none =>
+    let res ← f e
+    modify fun s => { s with bvPredCache := s.bvPredCache.insert e res }
+    return res
+
+@[specialize]
+def withBVLogicalCache (e : Expr) (f : Expr → LemmaM (Option ReifiedBVLogical)) :
+    LemmaM (Option ReifiedBVLogical) := do
+  match (← get).bvLogicalCache[e]? with
+  | some hit => return hit
+  | none =>
+    let res ← f e
+    modify fun s => { s with bvLogicalCache := s.bvLogicalCache.insert e res }
+    return res
 
 end LemmaM
 

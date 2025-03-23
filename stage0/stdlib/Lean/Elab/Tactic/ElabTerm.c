@@ -294,7 +294,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_withCollectingNewGoalsFrom___boxed(l
 static lean_object* l___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_elabNativeDecideCoreUnsafe___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_elabAsFVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__35;
-lean_object* l_Array_qsort_sort___at_Lean_computeStructureResolutionOrder___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_sortMVarIdsByIndex___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalRename___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__10;
@@ -471,6 +470,7 @@ lean_object* l_Lean_MVarId_assert(lean_object*, lean_object*, lean_object*, lean
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalWithReducible__1___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_blameDecideReductionFailure___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalRefine_declRange__1(lean_object*);
+lean_object* l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalWithReducible_declRange__1___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalWithUnfoldingAll__1___closed__2;
 static lean_object* l_Lean_Elab_Tactic_evalDecideCore_diagnose___lambda__4___closed__64;
@@ -17699,7 +17699,7 @@ if (x_48 == 0)
 {
 lean_object* x_49; 
 lean_inc(x_45);
-x_49 = l_Array_qsort_sort___at_Lean_computeStructureResolutionOrder___spec__12(x_43, x_26, x_45, x_45, lean_box(0), lean_box(0));
+x_49 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_43, x_26, x_45, x_45, lean_box(0), lean_box(0));
 lean_dec(x_45);
 lean_dec(x_43);
 x_27 = x_49;
@@ -17708,7 +17708,7 @@ goto block_42;
 else
 {
 lean_object* x_50; 
-x_50 = l_Array_qsort_sort___at_Lean_computeStructureResolutionOrder___spec__12(x_43, x_26, x_46, x_45, lean_box(0), lean_box(0));
+x_50 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_43, x_26, x_46, x_45, lean_box(0), lean_box(0));
 lean_dec(x_45);
 lean_dec(x_43);
 x_27 = x_50;
@@ -18164,7 +18164,7 @@ if (x_205 == 0)
 {
 lean_object* x_206; 
 lean_inc(x_202);
-x_206 = l_Array_qsort_sort___at_Lean_computeStructureResolutionOrder___spec__12(x_200, x_185, x_202, x_202, lean_box(0), lean_box(0));
+x_206 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_200, x_185, x_202, x_202, lean_box(0), lean_box(0));
 lean_dec(x_202);
 lean_dec(x_200);
 x_186 = x_206;
@@ -18173,7 +18173,7 @@ goto block_199;
 else
 {
 lean_object* x_207; 
-x_207 = l_Array_qsort_sort___at_Lean_computeStructureResolutionOrder___spec__12(x_200, x_185, x_203, x_202, lean_box(0), lean_box(0));
+x_207 = l_Array_qsort_sort___at_Lean_mergeStructureResolutionOrders___spec__11(x_200, x_185, x_203, x_202, lean_box(0), lean_box(0));
 lean_dec(x_202);
 lean_dec(x_200);
 x_186 = x_207;

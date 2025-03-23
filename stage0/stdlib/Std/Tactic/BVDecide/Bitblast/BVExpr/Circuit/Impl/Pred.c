@@ -19,9 +19,9 @@ LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit
 lean_object* l_Std_Tactic_BVDecide_BVPred_mkEq___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__32(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___at_Std_Tactic_BVDecide_BVPred_bitblast___spec__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__1_splitter___rarg(uint8_t, lean_object*, lean_object*);
-lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_go(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Pred_0__Std_Tactic_BVDecide_BVPred_bitblast_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Sat_AIG_mkConstCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__3(lean_object*, uint8_t);
+lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Tactic_BVDecide_instDecidableEqBVBit___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVPred_blastGetLsbD___at_Std_Tactic_BVDecide_BVPred_bitblast___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -107,14 +107,14 @@ x_6 = lean_ctor_get(x_2, 2);
 lean_inc(x_6);
 lean_dec(x_2);
 lean_inc(x_3);
-x_7 = l_Std_Tactic_BVDecide_BVExpr_bitblast_go(x_3, x_1, x_4);
+x_7 = l_Std_Tactic_BVDecide_BVExpr_bitblast(x_3, x_1, x_4);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec(x_7);
 lean_inc(x_3);
-x_10 = l_Std_Tactic_BVDecide_BVExpr_bitblast_go(x_3, x_8, x_6);
+x_10 = l_Std_Tactic_BVDecide_BVExpr_bitblast(x_3, x_8, x_6);
 if (x_5 == 0)
 {
 uint8_t x_11; 
@@ -180,7 +180,7 @@ lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean
 x_26 = lean_ctor_get(x_2, 0);
 x_27 = lean_ctor_get(x_2, 1);
 lean_inc(x_26);
-x_28 = l_Std_Tactic_BVDecide_BVExpr_bitblast_go(x_26, x_1, x_27);
+x_28 = l_Std_Tactic_BVDecide_BVExpr_bitblast(x_26, x_1, x_27);
 x_29 = lean_ctor_get(x_28, 0);
 lean_inc(x_29);
 x_30 = lean_ctor_get(x_28, 1);
@@ -203,7 +203,7 @@ lean_inc(x_33);
 lean_inc(x_32);
 lean_dec(x_2);
 lean_inc(x_32);
-x_35 = l_Std_Tactic_BVDecide_BVExpr_bitblast_go(x_32, x_1, x_33);
+x_35 = l_Std_Tactic_BVDecide_BVExpr_bitblast(x_32, x_1, x_33);
 x_36 = lean_ctor_get(x_35, 0);
 lean_inc(x_36);
 x_37 = lean_ctor_get(x_35, 1);

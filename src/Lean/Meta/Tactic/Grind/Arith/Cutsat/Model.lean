@@ -53,7 +53,7 @@ where
     else
       go (next + 1)
 
-private def isInterpretedTerm (e : Expr) : Bool :=
+def isInterpretedTerm (e : Expr) : Bool :=
   isNatNum e || isIntNum e || e.isAppOf ``HAdd.hAdd || e.isAppOf ``HMul.hMul || e.isAppOf ``HSub.hSub
   || e.isAppOf ``Neg.neg || e.isAppOf ``HDiv.hDiv || e.isAppOf ``HMod.hMod
   || e.isAppOf ``NatCast.natCast || e.isIte || e.isDIte
@@ -69,7 +69,7 @@ private def assignEqc (goal : Goal) (e : Expr) (v : Rat) (a : Std.HashMap Expr R
     a := a.insert e v
   return a
 
-private def getAssignment? (goal : Goal) (node : ENode) : MetaM (Option Rat) := do
+def getAssignment? (goal : Goal) (node : ENode) : MetaM (Option Rat) := do
   assert! isSameExpr node.self node.root
   if let some v := getCutsatAssignment? goal node then
     return some v

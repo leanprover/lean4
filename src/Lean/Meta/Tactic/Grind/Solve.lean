@@ -62,6 +62,8 @@ def trySplit : Goal → M Bool := applyTac splitNext
 
 def tryArith : Goal → M Bool := applyTac Arith.check
 
+def tryMBTC : Goal → M Bool := applyTac Arith.Cutsat.mbtcTac
+
 def maxNumFailuresReached : M Bool := do
   return (← get).failures.length ≥ (← getConfig).failures
 
@@ -80,6 +82,8 @@ partial def main (fallback : Fallback) : M Unit := do
     if (← tryEmatch goal) then
       continue
     if (← trySplit goal) then
+      continue
+    if (← tryMBTC goal) then
       continue
     let goal ← GoalM.run' goal fallback
     if goal.inconsistent || (← goal.mvarId.isAssigned) then

@@ -340,6 +340,20 @@ fun n h => A2.mk (A1.mk n) h
 end Test7
 
 /-!
+Binders and default values
+-/
+namespace Test8
+
+structure S where
+  n (x : Nat) : Nat := x
+  m (x : Nat) : Nat := by intros; assumption
+
+/-- info: S.mk (fun x => x) fun x => x : S -/
+#guard_msgs in #check { : S }
+
+end Test8
+
+/-!
 Diamond inheritance, override autoParam with an autoParam
 -/
 namespace TestO1

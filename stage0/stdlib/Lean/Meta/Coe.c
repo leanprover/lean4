@@ -879,7 +879,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_217____c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("insert monadic lifts (i.e., `liftM` and coercions) when needed", 62, 62);
+x_1 = lean_mk_string_unchecked("Insert monadic lifts (i.e., `liftM` and coercions) when needed.", 63, 63);
 return x_1;
 }
 }

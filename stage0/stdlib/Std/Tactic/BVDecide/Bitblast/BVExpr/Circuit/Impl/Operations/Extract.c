@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastExtract_go(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastExtract___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -24,7 +25,6 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Std_Sat_AIG_mkConstCached___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastExtract_go___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastExtract_go___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
@@ -137,7 +137,7 @@ if (x_11 == 0)
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_12 = lean_ctor_get(x_10, 0);
 x_13 = lean_ctor_get(x_10, 1);
-x_14 = l_Array_emptyWithCapacity(lean_box(0), x_3);
+x_14 = lean_mk_empty_array_with_capacity(x_3);
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastExtract_go___rarg(x_1, x_2, x_3, x_12, x_6, x_7, x_8, x_13, x_15, lean_box(0), x_14);
 lean_dec(x_13);
@@ -154,7 +154,7 @@ x_18 = lean_ctor_get(x_10, 1);
 lean_inc(x_18);
 lean_inc(x_17);
 lean_dec(x_10);
-x_19 = l_Array_emptyWithCapacity(lean_box(0), x_3);
+x_19 = lean_mk_empty_array_with_capacity(x_3);
 x_20 = lean_unsigned_to_nat(0u);
 x_21 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastExtract_go___rarg(x_1, x_2, x_3, x_17, x_6, x_7, x_8, x_18, x_20, lean_box(0), x_19);
 lean_dec(x_18);

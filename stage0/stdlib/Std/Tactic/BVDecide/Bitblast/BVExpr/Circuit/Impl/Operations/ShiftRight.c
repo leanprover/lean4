@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastArithShiftRight_go(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastArithShiftRight___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -50,7 +51,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastShiftRight(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastShiftRight_twoPowShift___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastArithShiftRightConst___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastShiftRightConst_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastArithShiftRight_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastShiftRightConst_go___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
@@ -169,7 +169,7 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_6 = lean_ctor_get(x_5, 0);
 x_7 = lean_ctor_get(x_5, 1);
-x_8 = l_Array_emptyWithCapacity(lean_box(0), x_3);
+x_8 = lean_mk_empty_array_with_capacity(x_3);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastShiftRightConst_go___rarg(x_1, x_2, x_3, x_4, x_6, x_7, x_9, lean_box(0), x_8);
 return x_10;
@@ -317,7 +317,7 @@ if (x_6 == 0)
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = lean_ctor_get(x_5, 0);
 x_8 = lean_ctor_get(x_5, 1);
-x_9 = l_Array_emptyWithCapacity(lean_box(0), x_3);
+x_9 = lean_mk_empty_array_with_capacity(x_3);
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastArithShiftRightConst_go___rarg(x_1, x_2, x_3, x_4, x_7, x_8, x_10, lean_box(0), x_9);
 lean_dec(x_8);
@@ -334,7 +334,7 @@ x_13 = lean_ctor_get(x_5, 1);
 lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_5);
-x_14 = l_Array_emptyWithCapacity(lean_box(0), x_3);
+x_14 = lean_mk_empty_array_with_capacity(x_3);
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = l_Std_Tactic_BVDecide_BVExpr_bitblast_blastArithShiftRightConst_go___rarg(x_1, x_2, x_3, x_4, x_12, x_13, x_15, lean_box(0), x_14);
 lean_dec(x_13);

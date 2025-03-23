@@ -28,6 +28,7 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 */
 #include <string>
 #include <vector>
+#include <shared_mutex>
 #ifdef LEAN_WINDOWS
 #include <windows.h>
 #include <psapi.h>
@@ -341,6 +342,19 @@ void * lookup_symbol_in_cur_exe(char const * sym) {
 class interpreter;
 LEAN_THREAD_PTR(interpreter, g_interpreter);
 
+struct native_symbol_cache_entry {
+    // symbol address; `nullptr` if function does not have native code
+    void * m_addr;
+    // true iff we chose the boxed version of a function where the IR uses the unboxed version
+    bool m_boxed;
+};
+
+// Caches native symbol lookup successes _and_ failures; we assume no native code is loaded or
+// unloaded after the interpreter is first invoked, so this can be a global cache.
+name_map<native_symbol_cache_entry> * g_native_symbol_cache;
+// could be `shared_mutex` with C++17
+std::shared_timed_mutex * g_native_symbol_cache_mutex;
+
 class interpreter {
     // stack of IR variable slots
     std::vector<value> m_arg_stack;
@@ -366,11 +380,10 @@ class interpreter {
     // caches values of nullary functions ("constants")
     name_map<constant_cache_entry> m_constant_cache;
     struct symbol_cache_entry {
+        // looking up IR from .oleans is slow enough to warrant its own cache; but as local IR can
+        // be backtracked, this cache needs to be local as well.
         decl m_decl;
-        // symbol address; `nullptr` if function does not have native code
-        void * m_addr;
-        // true iff we chose the boxed version of a function where the IR uses the unboxed version
-        bool m_boxed;
+        native_symbol_cache_entry m_native;
     };
     // caches symbol lookup successes _and_ failures
     name_map<symbol_cache_entry> m_symbol_cache;
@@ -515,9 +528,9 @@ private:
             }
             case expr_kind::PAp: { // unsatured (partial) application of top-level function
                 symbol_cache_entry sym = lookup_symbol(expr_pap_fun(e));
-                if (sym.m_addr) {
+                if (sym.m_native.m_addr) {
                     // point closure directly at native symbol
-                    object * cls = alloc_closure(sym.m_addr, decl_params(sym.m_decl).size(), expr_pap_args(e).size());
+                    object * cls = alloc_closure(sym.m_native.m_addr, decl_params(sym.m_decl).size(), expr_pap_args(e).size());
                     for (unsigned i = 0; i < expr_pap_args(e).size(); i++) {
                         closure_set(cls, i, eval_arg(expr_pap_args(e)[i]).m_obj);
                     }
@@ -789,23 +802,36 @@ private:
     symbol_cache_entry lookup_symbol(name const & fn) {
         if (symbol_cache_entry const * e = m_symbol_cache.find(fn)) {
             return *e;
-        } else {
-            symbol_cache_entry e_new { get_decl(fn), nullptr, false };
-            if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
-                string_ref mangled = name_mangle(fn, *g_mangle_prefix);
-                string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
-                // check for boxed version first
-                if (void *p_boxed = lookup_symbol_in_cur_exe(boxed_mangled.data())) {
-                    e_new.m_addr = p_boxed;
-                    e_new.m_boxed = true;
-                } else if (void *p = lookup_symbol_in_cur_exe(mangled.data())) {
-                    // if there is no boxed version, there are no unboxed parameters, so use default version
-                    e_new.m_addr = p;
-                }
-            }
+        }
+        std::shared_lock<std::shared_timed_mutex> lock(*g_native_symbol_cache_mutex);
+        if (native_symbol_cache_entry const * ne = g_native_symbol_cache->find(fn)) {
+            symbol_cache_entry e_new { get_decl(fn), *ne };
             m_symbol_cache.insert(fn, e_new);
             return e_new;
         }
+        lock.unlock();
+        std::unique_lock<std::shared_timed_mutex> unique_lock(*g_native_symbol_cache_mutex);
+        if (native_symbol_cache_entry const * ne = g_native_symbol_cache->find(fn)) {
+            symbol_cache_entry e_new { get_decl(fn), *ne };
+            m_symbol_cache.insert(fn, e_new);
+            return e_new;
+        }
+        symbol_cache_entry e_new { get_decl(fn), {nullptr, false} };
+        if (m_prefer_native || decl_tag(e_new.m_decl) == decl_kind::Extern || has_init_attribute(m_env, fn)) {
+            string_ref mangled = name_mangle(fn, *g_mangle_prefix);
+            string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
+            // check for boxed version first
+            if (void *p_boxed = lookup_symbol_in_cur_exe(boxed_mangled.data())) {
+                e_new.m_native.m_addr = p_boxed;
+                e_new.m_native.m_boxed = true;
+            } else if (void *p = lookup_symbol_in_cur_exe(mangled.data())) {
+                // if there is no boxed version, there are no unboxed parameters, so use default version
+                e_new.m_native.m_addr = p;
+            }
+        }
+        g_native_symbol_cache->insert(fn, e_new.m_native);
+        m_symbol_cache.insert(fn, e_new);
+        return e_new;
     }
 
     /** \brief Retrieve Lean declaration from elab_environment. */
@@ -831,22 +857,22 @@ private:
         }
 
         symbol_cache_entry e = lookup_symbol(fn);
-        if (e.m_addr) {
+        if (e.m_native.m_addr) {
             // we can assume that all native code has been initialized (see e.g. `evalConst`)
 
             // constants do not have boxed wrappers, but we'll survive
             switch (t) {
-                case type::Float: return value::from_float(*static_cast<double *>(e.m_addr));
-                case type::Float32: return value::from_float32(*static_cast<float *>(e.m_addr));
-                case type::UInt8: return *static_cast<uint8 *>(e.m_addr);
-                case type::UInt16: return *static_cast<uint16 *>(e.m_addr);
-                case type::UInt32: return *static_cast<uint32 *>(e.m_addr);
-                case type::UInt64: return *static_cast<uint64 *>(e.m_addr);
-                case type::USize: return *static_cast<size_t *>(e.m_addr);
+                case type::Float: return value::from_float(*static_cast<double *>(e.m_native.m_addr));
+                case type::Float32: return value::from_float32(*static_cast<float *>(e.m_native.m_addr));
+                case type::UInt8: return *static_cast<uint8 *>(e.m_native.m_addr);
+                case type::UInt16: return *static_cast<uint16 *>(e.m_native.m_addr);
+                case type::UInt32: return *static_cast<uint32 *>(e.m_native.m_addr);
+                case type::UInt64: return *static_cast<uint64 *>(e.m_native.m_addr);
+                case type::USize: return *static_cast<size_t *>(e.m_native.m_addr);
                 case type::Object:
                 case type::TObject:
                 case type::Irrelevant:
-                    return *static_cast<object **>(e.m_addr);
+                    return *static_cast<object **>(e.m_native.m_addr);
                 case type::Struct:
                 case type::Union:
                     throw exception("not implemented yet");
@@ -872,12 +898,12 @@ private:
         size_t old_size = m_arg_stack.size();
         value r;
         symbol_cache_entry e = lookup_symbol(fn);
-        if (e.m_addr) {
+        if (e.m_native.m_addr) {
             object ** args2 = static_cast<object **>(LEAN_ALLOCA(args.size() * sizeof(object *))); // NOLINT
             for (size_t i = 0; i < args.size(); i++) {
                 type t = param_type(decl_params(e.m_decl)[i]);
                 args2[i] = box_t(eval_arg(args[i]), t);
-                if (e.m_boxed && param_borrow(decl_params(e.m_decl)[i])) {
+                if (e.m_native.m_boxed && param_borrow(decl_params(e.m_decl)[i])) {
                     // NOTE: If we chose the boxed version where the IR chose the unboxed one, we need to manually increment
                     // originally borrowed parameters because the wrapper will decrement these after the call.
                     // Basically the wrapper is more homogeneous (removing both unboxed and borrowed parameters) than we
@@ -886,10 +912,10 @@ private:
                 }
             }
             push_frame(e.m_decl, old_size);
-            object * o = curry(e.m_addr, args.size(), args2);
+            object * o = curry(e.m_native.m_addr, args.size(), args2);
             type t = decl_type(e.m_decl);
             if (type_is_scalar(t)) {
-                lean_assert(e.m_boxed);
+                lean_assert(e.m_native.m_boxed);
                 // NOTE: this unboxing does not exist in the IR, so we should manually consume `o`
                 r = unbox_t(o, t);
                 lean_dec(o);
@@ -1006,9 +1032,9 @@ public:
         } else {
             // First allocate a closure with zero fixed parameters. This is slightly wasteful in the under-application
             // case, but simpler to handle.
-            if (e.m_addr) {
+            if (e.m_native.m_addr) {
                 // `lookup_symbol` always prefers the boxed version for compiled functions, so nothing to do here
-                r = alloc_closure(e.m_addr, arity, 0);
+                r = alloc_closure(e.m_native.m_addr, arity, 0);
             } else {
                 // `lookup_symbol` does not prefer the boxed version for interpreted functions, so check manually.
                 decl d = e.m_decl;
@@ -1073,8 +1099,8 @@ public:
                 mark_persistent(o);
                 dec_ref(r);
                 symbol_cache_entry e = lookup_symbol(decl);
-                if (e.m_addr) {
-                    *((object **)e.m_addr) = o;
+                if (e.m_native.m_addr) {
+                    *((object **)e.m_native.m_addr) = o;
                 } else {
                     g_init_globals->insert(decl, o);
                 }
@@ -1165,9 +1191,13 @@ void initialize_ir_interpreter() {
         register_trace_class({"interpreter", "call"});
         register_trace_class({"interpreter", "step"});
     });
+    ir::g_native_symbol_cache = new name_map<ir::native_symbol_cache_entry>();
+    ir::g_native_symbol_cache_mutex = new std::shared_timed_mutex();
 }
 
 void finalize_ir_interpreter() {
+    delete ir::g_native_symbol_cache_mutex;
+    delete ir::g_native_symbol_cache;
     delete ir::g_init_globals;
     delete ir::g_interpreter_prefer_native;
     delete ir::g_boxed_mangled_suffix;

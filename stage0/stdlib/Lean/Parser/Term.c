@@ -1992,6 +1992,7 @@ static lean_object* l___regBuiltin_Lean_Parser_Term_showTermElabImpl_declRange__
 static lean_object* l___regBuiltin_Lean_Parser_Term_byTactic_x27_formatter__1___closed__2;
 static lean_object* l_Lean_Parser_Term_letIdDecl___closed__6;
 static lean_object* l_Lean_Parser_Term_funImplicitBinder_parenthesizer___closed__6;
+LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Term_stateRefT_docString__1(lean_object*);
 static lean_object* l_Lean_Parser_Term_matchExprPat___closed__12;
 static lean_object* l___regBuiltin_Lean_Parser_Tactic_tacticSeq1Indented_parenthesizer__1___closed__1;
 static lean_object* l_Lean_Parser_Term_forall_formatter___closed__12;
@@ -2908,6 +2909,7 @@ static lean_object* l_Lean_Parser_Term_panic_formatter___closed__2;
 static lean_object* l___regBuiltin_Lean_Parser_Term_typeOf_declRange__1___closed__2;
 static lean_object* l_Lean_Parser_Term_matchDiscr_formatter___closed__3;
 static lean_object* l___regBuiltin_Lean_Parser_Term_structInstArrayRef_parenthesizer__1___closed__2;
+static lean_object* l___regBuiltin_Lean_Parser_Term_stateRefT_docString__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_unsafe_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_letIdBinder_parenthesizer___closed__1;
 static lean_object* l_Lean_Parser_Term_fun_parenthesizer___closed__6;
@@ -65757,6 +65759,24 @@ x_7 = l_Lean_Parser_addBuiltinParser(x_2, x_3, x_4, x_5, x_6, x_1);
 return x_7;
 }
 }
+static lean_object* _init_l___regBuiltin_Lean_Parser_Term_stateRefT_docString__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("A state monad that uses an actual mutable reference cell (i.e. an `ST.Ref`).\n\nThis is syntax, rather than a function, to make it easier to use. Its elaborator synthesizes an\nappropriate parameter for the underlying monad's `ST` effects, then passes it to `StateRefT'`.\n", 269, 269);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Term_stateRefT_docString__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_Parser_Term_stateRefT___closed__2;
+x_3 = l___regBuiltin_Lean_Parser_Term_stateRefT_docString__1___closed__1;
+x_4 = l_Lean_addBuiltinDocString(x_2, x_3, x_1);
+return x_4;
+}
+}
 static lean_object* _init_l___regBuiltin_Lean_Parser_Term_stateRefT_declRange__1___closed__1() {
 _start:
 {
@@ -83067,6 +83087,11 @@ lean_mark_persistent(l_Lean_Parser_Term_stateRefT___closed__11);
 l_Lean_Parser_Term_stateRefT = _init_l_Lean_Parser_Term_stateRefT();
 lean_mark_persistent(l_Lean_Parser_Term_stateRefT);
 if (builtin) {res = l___regBuiltin_Lean_Parser_Term_stateRefT__1(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+}l___regBuiltin_Lean_Parser_Term_stateRefT_docString__1___closed__1 = _init_l___regBuiltin_Lean_Parser_Term_stateRefT_docString__1___closed__1();
+lean_mark_persistent(l___regBuiltin_Lean_Parser_Term_stateRefT_docString__1___closed__1);
+if (builtin) {res = l___regBuiltin_Lean_Parser_Term_stateRefT_docString__1(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }l___regBuiltin_Lean_Parser_Term_stateRefT_declRange__1___closed__1 = _init_l___regBuiltin_Lean_Parser_Term_stateRefT_declRange__1___closed__1();

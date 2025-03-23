@@ -73,7 +73,7 @@ Structure instance notation makes use of the expected type.
     let stxNew   := stx.setArg 4 mkNullNode
     `(($stxNew : $expected))
 
-def mkStructInstField (lval : TSyntax ``Parser.Term.structInstLVal) (binders : TSyntaxArray ``Parser.Term.structInstFieldBinder)
+private def mkStructInstField (lval : TSyntax ``Parser.Term.structInstLVal) (binders : TSyntaxArray ``Parser.Term.structInstFieldBinder)
     (type? : Option Term) (val : Term) : MacroM (TSyntax ``Parser.Term.structInstField) := do
   let mut val := val
   if let some type := type? then

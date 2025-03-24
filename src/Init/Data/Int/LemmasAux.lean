@@ -153,7 +153,7 @@ theorem mul_le_mul_self_of_natAbs_le {x y : Int} {s : Nat} (hx : x.natAbs ≤ s)
   · simp [show x = 0 by omega]
   · have := Nat.mul_pos (n := (s + 1)) (m := (s + 1)) (by omega) (by omega)
     by_cases hx : 0 < x <;> by_cases hy : 0 < y
-    · exact Int.mul_le_mul (by omega) (by omega) (by omega) (by omega)
+    · apply Int.mul_le_mul <;> omega
     · have : x * y ≤ 0 := Int.mul_nonpos_of_nonneg_of_nonpos (by omega) (by omega); omega
     · have : x * y ≤ 0 := Int.mul_nonpos_of_nonpos_of_nonneg (by omega) (by omega); omega
     · have : -x * -y ≤ (s + 1) * (s + 1) := Int.mul_le_mul (by omega) (by omega) (by omega) (by omega)

@@ -951,7 +951,7 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
   (extractLsb hi lo x).toNat = (x.toNat >>> lo) % 2^(hi-lo+1) := rfl
 
 @[simp] theorem toInt_extractLsb' {s m : Nat} {x : BitVec n} :
-    (extractLsb' s m x).toInt = ((x.toNat >>> s) : Int).bmod (2 ^ m) := by 
+    (extractLsb' s m x).toInt = ((x.toNat >>> s) : Int).bmod (2 ^ m) := by
   simp [extractLsb', toInt_ofNat]
 
 @[simp] theorem toInt_extractLsb {hi lo : Nat} {x : BitVec n} :
@@ -3123,7 +3123,7 @@ theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toN
   simp [toInt_eq_toNat_bmod, @Int.ofNat_sub y.toNat (2 ^ w) (by omega)]
 
 theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
-    (x.toInt - y.toInt < - 2 ^ (w - 1)) 
+    (x.toInt - y.toInt < - 2 ^ (w - 1))
     ↔ (x.toInt < 0 ∧ 0 ≤ y.toInt ∧ 0 ≤ (x.toInt - y.toInt).bmod (2 ^ w)) := by
   rcases w with _|w
   · simp [of_length_zero]
@@ -3139,7 +3139,7 @@ theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
       omega
 
 theorem twoPow_le_toInt_sub_toInt_iff {x y : BitVec w} :
-    (2 ^ (w - 1) ≤ x.toInt - y.toInt) 
+    (2 ^ (w - 1) ≤ x.toInt - y.toInt)
     ↔ (0 ≤ x.toInt ∧ y.toInt < 0 ∧ (x.toInt - y.toInt).bmod (2 ^ w) < 0) := by
   rcases w with _|w
   · simp [of_length_zero]
@@ -4768,6 +4768,41 @@ theorem sub_le_sub_iff_le {x y z : BitVec w} (hxz : z ≤ x) (hyz : z ≤ y) :
   rw [BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega),
     BitVec.toNat_sub_of_le (by rw [BitVec.le_def]; omega)]
   omega
+
+theorem two_pow_le_toInt_mul_toInt_iff {x y : BitVec w} :
+    2 ^ (w - 1) ≤ x.toInt * y.toInt ↔
+      (signExtend (w * 2) (intMax w)).slt (signExtend (w * 2) x * signExtend (w * 2) y) := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · have := Int.pow_lt_pow (a := 2) (b := (w + 1) * 2 - 2) (c := (w + 1) * 2 - 1) (by omega)
+    have := @BitVec.le_toInt_mul_toInt (w + 1) x y
+    have := @BitVec.toInt_mul_toInt_lt (w + 1) x y
+    simp only [Nat.add_one_sub_one, BitVec.slt, intMax, ofNat_eq_ofNat, toInt_mul,
+      decide_eq_true_eq]
+    repeat rw [BitVec.toInt_signExtend_of_le (by omega)]
+    simp only [show BitVec.twoPow (w + 1) w - 1#(w + 1) = BitVec.intMax (w + 1) by simp [intMax],
+      toInt_intMax, Nat.add_one_sub_one]
+    push_cast
+    rw [← Nat.two_pow_pred_add_two_pow_pred (by omega),
+      Int.bmod_eq_of_le_of_lt (by rw [← Nat.mul_two]; push_cast; omega)
+                              (by rw [← Nat.mul_two]; push_cast; omega)]
+    omega
+
+theorem toInt_mul_toInt_lt_two_pow_iff {x y : BitVec w} :
+    x.toInt * y.toInt < - 2 ^ (w - 1) ↔
+      (signExtend (w * 2) x * signExtend (w * 2) y).slt (signExtend (w * 2) (intMin w)) := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · have := Int.pow_lt_pow (a := 2) (b := (w + 1) * 2 - 2) (c := (w + 1) * 2 - 1) (by omega)
+    have := @BitVec.le_toInt_mul_toInt (w + 1) x y
+    have := @BitVec.toInt_mul_toInt_lt (w + 1) x y
+    simp only [BitVec.slt, toInt_mul, intMin, Nat.add_one_sub_one, decide_eq_true_eq]
+    repeat rw [BitVec.toInt_signExtend_of_le (by omega)]
+    simp only [toInt_twoPow, show ¬w + 1 ≤ w by omega, ↓reduceIte]
+    push_cast
+    rw [← Nat.two_pow_pred_add_two_pow_pred (by omega),
+      Int.bmod_eq_of_le_of_lt (by rw [← Nat.mul_two]; push_cast; omega)
+                              (by rw [← Nat.mul_two]; push_cast; omega)]
 
 /-! ### neg -/
 

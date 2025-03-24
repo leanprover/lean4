@@ -932,7 +932,7 @@ and the second `setWidth` is a non-trivial extension.
   have h : x.getLsbD (n - 1) = false := getLsbD_ge _ _ (by omega)
   simp [msb_setWidth', -setWidth'_eq, h]
 
-@[simp] theorem toInt_setWidth'_of_lt {m n : Nat} (p : m < n) (x : BitVec m) :
+@[simp] theorem toInt_setWidth'_of_lt {m n : Nat} (p : m < n) {x : BitVec m} :
     (setWidth' (by omega : m ≤ n) x).toInt = x.toNat := by
   rw [toInt_eq_toNat_of_msb]
   · rfl

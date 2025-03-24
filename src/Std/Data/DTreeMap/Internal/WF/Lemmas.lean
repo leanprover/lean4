@@ -1828,4 +1828,13 @@ theorem minKey?_eq_minKey? [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Orde
     l.minKey? = List.minKey? l.toListModel := by
   simp only [minKey?_eq_minEntry?_map_fst, minEntry?_eq_minEntry? hlo, List.minKey?]
 
+theorem minKey_eq_minKey [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) {he} :
+    l.minKey he = List.minKey l.toListModel (isEmpty_eq_isEmpty ▸ he) := by
+  simp [minKey_eq_get_minKey?, minKey_eq_minEntry_fst, minEntry_eq_get_minEntry?,
+    minEntry?_eq_minEntry? hlo, List.minKey?, Option.get_map]
+
+theorem minKey!_eq_minKey! [Ord α] [TransOrd α] [Inhabited α] {l : Impl α β} (hlo : l.Ordered) :
+    l.minKey! = List.minKey! l.toListModel := by
+  simp [Impl.minKey!_eq_get!_minKey?, List.minKey!_eq_get!_minKey?, minKey?_eq_minKey? hlo]
+
 end Std.DTreeMap.Internal.Impl

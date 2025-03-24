@@ -157,7 +157,8 @@ theorem mul_le_mul_self {x y : Int} {s : Nat} (hx : x.natAbs ≤ s) (hy : y.natA
     · have : x * y ≤ 0 := Int.mul_nonpos_of_nonneg_of_nonpos (by omega) (by omega); omega
     · have : x * y ≤ 0 := Int.mul_nonpos_of_nonpos_of_nonneg (by omega) (by omega); omega
     · have : -x * -y ≤ (s + 1) * (s + 1) := Int.mul_le_mul (by omega) (by omega) (by omega) (by omega)
-      simp_all
+      simp [Int.neg_mul_neg] at this
+      norm_cast
 
 theorem neg_mul_self_le_mul {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -s ≤ y) (uby : y < s) :
       -(s * s) ≤ x * y := by

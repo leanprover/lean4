@@ -77,6 +77,7 @@ structure ElabMatchTypeAndDiscrsResult where
 
 private partial def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptMotive : Syntax) (matchAltViews : Array MatchAltView) (expectedType : Expr)
       : TermElabM ElabMatchTypeAndDiscrsResult := do
+  trace[Elab.match] m!"elabMatchType {discrStxs} expecting {expectedType}"
   if matchOptMotive.isNone then
     elabDiscrs 0 #[]
   else
@@ -99,6 +100,8 @@ where
       | Expr.forallE _ d b _ =>
         let discr ← fullApproxDefEq <| elabTermEnsuringType discrStx[1] d
         trace[Elab.match] "discr #{i} {discr} : {d}"
+        if isInvalidDiscriminantType d then
+          logInvalidDiscriminant discrStx[1] d
         if b.hasLooseBVars then
           isDep := true
         matchType := b.instantiate1 discr
@@ -116,6 +119,7 @@ where
 
   /-- Elaborate discriminants inferring the match-type -/
   elabDiscrs (i : Nat) (discrs : Array Discr) : TermElabM ElabMatchTypeAndDiscrsResult := do
+    trace[Elab.match] "elabDiscrs {i} {discrs.map fun d => d.expr}"
     if h : i < discrStxs.size then
       let discrStx := discrStxs[i]
       let discr     ← elabAtomicDiscr discrStx
@@ -141,10 +145,23 @@ where
         the term to the kernel.
       -/
       let discrType ← transform (usedLetOnly := true) (← instantiateMVars (← inferType discr))
+      if isInvalidDiscriminantType discrType then
+        logInvalidDiscriminant discrStx discrType
       let matchType := Lean.mkForall userName BinderInfo.default discrType matchTypeBody
+      trace[Elab.match] m!"elabMatchType update type:{indentExpr matchType}"
       return { result with matchType }
     else
+      trace[Elab.match] m!"elabMatchType base case:{indentExpr expectedType}"
       return { discrs, alts := matchAltViews, isDep := false, matchType := expectedType }
+
+  isInvalidDiscriminantType (type : Expr) :=
+    type.isForall || type.isSort
+
+  logInvalidDiscriminant (stx : Syntax) (type : Expr) :=
+    let msg := m!"Invalid match discriminant: Cannot pattern match on a value of type{indentExpr type}\n\
+          because this type is not inductively defined"
+      ++ (if type.isProp then "\n\nHint: to pattern match on a decidable proposition `P` as a Boolean, write `decide P`" else "")
+    logErrorAt stx msg
 
 def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array MatchAltView) := do
   matchAlts.mapM fun matchAlt => do
@@ -156,16 +173,20 @@ private def getMatchGeneralizing? : Syntax → Option Bool
   | `(match (generalizing := false) $[$motive]? $_discrs,* with $_alts:matchAlt*) => some false
   | _ => none
 
-/-- Given `stx` a match-expression, return its alternatives. -/
-private def getMatchAlts : Syntax → Array MatchAltView
-  | `(match $[$gen]? $[$motive]? $_discrs,* with $alts:matchAlt*) =>
-    alts.filterMap fun alt => match alt with
-      | `(matchAltExpr| | $patterns,* => $rhs) => some {
+/-- Given the `stx` of a single match alternative, return a corresponding `MatchAltView`. -/
+def getMatchAlt : Syntax → Option MatchAltView
+  | alt@`(matchAltExpr| | $patterns,* => $rhs) => some {
           ref      := alt,
           patterns := patterns,
+          lhs      := alt[1],
           rhs      := rhs
         }
-      | _ => none
+  | _ => none
+
+/-- Given `stx` a match-expression, return its alternatives. -/
+def getMatchAlts : Syntax → Array MatchAltView
+  | `(match $[$gen]? $[$motive]? $_discrs,* with $alts:matchAlt*) =>
+    alts.filterMap getMatchAlt
   | _ => #[]
 
 @[builtin_term_elab inaccessible] def elabInaccessible : TermElab := fun stx expectedType? => do
@@ -333,16 +354,30 @@ private partial def eraseIndices (type : Expr) : MetaM Expr := do
     let params ← args[:info.numParams].toArray.mapM eraseIndices
     let result := mkAppN type'.getAppFn params
     let resultType ← inferType result
-    let (newIndices, _, _) ←  forallMetaTelescopeReducing resultType (some (args.size - info.numParams))
+    let (newIndices, _, _) ← forallMetaTelescopeReducing resultType (some (args.size - info.numParams))
     return mkAppN result newIndices
 
 private def withPatternElabConfig (x : TermElabM α) : TermElabM α :=
   withoutErrToSorry <| withReader (fun ctx => { ctx with inPattern := true }) <| x
 
-private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : ExceptT PatternElabException TermElabM (Array Expr × Expr) :=
+open Meta.Match (throwIncorrectNumberOfPatternsAt logIncorrectNumberOfPatternsAt)
+
+private def elabPatterns (patternStxs : Array Syntax) (numDiscrs : Nat) (matchType : Expr) : ExceptT PatternElabException TermElabM (Array Expr × Expr) :=
   withReader (fun ctx => { ctx with implicitLambda := false }) do
     let mut patterns  := #[]
     let mut matchType := matchType
+    let mut patternStxs := patternStxs
+    if patternStxs.size < numDiscrs then
+      -- If there are too few patterns, log the error but continue elaborating with holes for the missing patterns
+      logIncorrectNumberOfPatternsAt (← getRef) "not enough" numDiscrs patternStxs.size patternStxs.toList
+      let numHoles := numDiscrs - patternStxs.size
+      let mut extraStxs := Array.emptyWithCapacity numHoles
+      for _ in [:numHoles] do
+        extraStxs := extraStxs.push (← `(_))
+      patternStxs := patternStxs ++ extraStxs
+    else if patternStxs.size > numDiscrs then
+      throwIncorrectNumberOfPatternsAt (← getRef) "too many" numDiscrs patternStxs.size patternStxs.toList
+
     for h : idx in [:patternStxs.size] do
       let patternStx := patternStxs[idx]
       matchType ← whnf matchType
@@ -734,9 +769,9 @@ end ToDepElimPattern
 def withDepElimPatterns (patternVarDecls : Array PatternVarDecl) (ps : Array Expr) (matchType : Expr) (k : Array LocalDecl → Array Pattern → Expr → TermElabM α) : TermElabM α := do
   ToDepElimPattern.main patternVarDecls ps matchType k
 
-private def withElaboratedLHS {α} (ref : Syntax) (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (matchType : Expr)
+private def withElaboratedLHS {α} (ref : Syntax) (patternVarDecls : Array PatternVarDecl) (patternStxs : Array Syntax) (lhsStx : Syntax) (numDiscrs : Nat) (matchType : Expr)
     (k : AltLHS → Expr → TermElabM α) : ExceptT PatternElabException TermElabM α := do
-  let (patterns, matchType) ← withSynthesize <| elabPatterns patternStxs matchType
+  let (patterns, matchType) ← withSynthesize <| withRef lhsStx <| elabPatterns patternStxs numDiscrs matchType
   id (α := TermElabM α) do
     trace[Elab.match] "patterns: {patterns}"
     withDepElimPatterns patternVarDecls patterns matchType fun localDecls patterns matchType => do
@@ -792,7 +827,7 @@ private def elabMatchAltView (discrs : Array Discr) (alt : MatchAltView) (matchT
     let (patternVars, alt) ← collectPatternVars alt
     trace[Elab.match] "patternVars: {patternVars}"
     withPatternVars patternVars fun patternVarDecls => do
-      withElaboratedLHS alt.ref patternVarDecls alt.patterns matchType fun altLHS matchType =>
+      withElaboratedLHS alt.ref patternVarDecls alt.patterns alt.lhs discrs.size matchType fun altLHS matchType =>
         withEqs discrs altLHS.patterns fun eqs =>
           withLocalInstances altLHS.fvarDecls do
             trace[Elab.match] "elabMatchAltView: {matchType}"
@@ -1008,8 +1043,10 @@ def reportMatcherResultErrors (altLHSS : List AltLHS) (result : MatcherResult) :
     let mut i := 0
     for alt in altLHSS do
       if result.unusedAltIdxs.contains i then
-        withRef alt.ref do
-          logError "redundant alternative"
+        withRef alt.ref do withInPattern do withExistingLocalDecls alt.fvarDecls do
+          let pats ← alt.patterns.mapM fun p => return toMessageData (← Pattern.toExpr p)
+          let pats := MessageData.joinSep pats ", "
+          logError m!"redundant alternative: expressions matching{indentD pats}\nwill always match one of the preceding alternatives"
       i := i + 1
 
 /--
@@ -1095,10 +1132,12 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
         pure altLHS
     return (discrs, matchType, altLHSS, isDep, rhss)
   if let some r ← if isDep then pure none else isMatchUnit? altLHSS rhss then
+    trace[Elab.match] m!"discrs: is match unit"
     return r
   else
     let numDiscrs := discrs.size
     let matcherName ← mkAuxName `match
+    trace[Elab.match] m!"discrs: {discrs.map fun d => d.expr}"
     let matcherResult ← mkMatcher { matcherName, matchType, discrInfos := discrs.map fun discr => { hName? := discr.h?.map (·.getId) }, lhss := altLHSS }
     reportMatcherResultErrors altLHSS matcherResult
     matcherResult.addMatcher

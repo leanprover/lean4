@@ -9,6 +9,9 @@ import Lean.Elab.Term
 import Lean.Elab.BindersUtil
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.PreDefinition.TerminationHint
+import Lean.Parser.Term
+import Lean.PrettyPrinter
+import Lean.Elab.Match
 
 namespace Lean.Elab.Term
 open Meta
@@ -553,6 +556,35 @@ def expandMatchAltsIntoMatch (ref : Syntax) (matchAlts : Syntax) (useExplicit :=
 def expandMatchAltsIntoMatchTactic (ref : Syntax) (matchAlts : Syntax) : MacroM Syntax :=
   withRef ref <| expandMatchAltsIntoMatchAux matchAlts (isTactic := true) (useExplicit := false) (getMatchAltsNumPatterns matchAlts) #[] #[]
 
+private def checkMatchAltPatternCounts (matchAlts : Syntax) (numDiscrs : Nat) (expectedType : Expr)
+    : MetaM Unit := do
+  let sepPats (pats : List Syntax) := MessageData.joinSep (pats.map toMessageData) ", "
+  let maxDiscrs? ← forallTelescopeReducing expectedType fun xs e =>
+    if e.getAppFn.isMVar then pure none else pure (some xs.size)
+  let matchAltViews := matchAlts[0].getArgs.filterMap getMatchAlt
+  let numPatternsStr (n : Nat) := s!"{n} {if n == 1 then "pattern" else "patterns"}"
+  if h : matchAltViews.size > 0 then
+    if let some maxDiscrs := maxDiscrs? then
+      if numDiscrs > maxDiscrs then
+        if maxDiscrs == 0 then
+          throwErrorAt matchAltViews[0].lhs m!"cannot define a value of type{indentExpr expectedType}\n\
+            by pattern matching\n\nOnly values of function types can be defined by pattern matching, \
+            but the type{indentExpr expectedType}\nis not a function type."
+        else
+          throwErrorAt matchAltViews[0].lhs m!"too many patterns in match alternative: \
+            at most {numPatternsStr maxDiscrs} expected in a definition of type {indentExpr expectedType}\n\
+            but found {numDiscrs}:{indentD <| sepPats matchAltViews[0].patterns.toList}"
+    -- Catch inconsistencies between pattern counts here so that we can report them as "incorrect"
+    -- rather than as "too many" or "too few" (as the `match` elaborator does)
+    for view in matchAltViews do
+      let numPats := view.patterns.size
+      if numPats ≠ numDiscrs then
+        let origPats := sepPats matchAltViews[0].patterns.toList
+        let pats := sepPats view.patterns.toList
+        throwErrorAt view.lhs m!"inconsistent number of patterns in match alternatives: this \
+          alternative contains {numPatternsStr numPats}:{indentD pats}\n\
+          but a preceding alternative contains {numDiscrs}:{indentD origPats}"
+
 /--
   Similar to `expandMatchAltsIntoMatch`, but supports an optional `where` clause.
 
@@ -581,19 +613,21 @@ def expandMatchAltsIntoMatchTactic (ref : Syntax) (matchAlts : Syntax) : MacroM 
     | i, _    => ... f i + g i ...
   ```
 -/
-def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
+def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) (expectedType : Expr) : TermElabM Syntax :=
   let matchAlts     := matchAltsWhereDecls[0]
   -- matchAltsWhereDecls[1] is the termination hints, collected elsewhere
   let whereDeclsOpt := matchAltsWhereDecls[2]
-  let rec loop (i : Nat) (discrs : Array Syntax) : MacroM Syntax :=
+  let rec loop (i : Nat) (discrs : Array Syntax) : TermElabM Syntax :=
     match i with
     | 0   => do
+      checkMatchAltPatternCounts matchAlts discrs.size expectedType
       let matchStx ← `(match $[@$discrs:term],* with $matchAlts:matchAlts)
-      let matchStx ← clearInMatch matchStx discrs
-      if whereDeclsOpt.isNone then
-        return matchStx
-      else
-        expandWhereDeclsOpt whereDeclsOpt matchStx
+      liftMacroM do
+        let matchStx ← clearInMatch matchStx discrs
+        if whereDeclsOpt.isNone then
+          return matchStx
+        else
+          expandWhereDeclsOpt whereDeclsOpt matchStx
     | n+1 => withFreshMacroScope do
       let body ← loop n (discrs.push (← `(x)))
       `(@fun x => $body)

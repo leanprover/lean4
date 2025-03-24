@@ -118,6 +118,23 @@ structure Context where
   newArgs       : Array Term := #[]
   deriving Inhabited
 
+private def mkInvalidNamedArgsMsg (namedArgs : Array NamedArg) (funId : Ident) :=
+  let names := (namedArgs.map fun narg => m!"'{narg.name}'").toList
+  let nameStr := if names.length == 1 then "name" else "names"
+  m!"Invalid argument {nameStr} {.andList names} for function '{funId}'"
+
+private def throwWrongArgCount (ctx : Context) (tooMany : Bool) : M α := do
+  let numExpectedArgs :=
+    (if ctx.explicit then ctx.paramDecls else ctx.paramDecls.filter (·.2.isExplicit)).size
+  let argKind := if ctx.explicit then "" else "explicit "
+  let discrepancyKind := if tooMany then "Too many" else "Not enough"
+  let mut msg := m!"Invalid match pattern: {discrepancyKind} arguments to '{ctx.funId}'; expected {numExpectedArgs} {argKind}arguments"
+  if !tooMany then
+    msg := msg ++ "\n\nHint: To elide all remaining arguments, use the ellipsis notation `..`"
+  if !ctx.namedArgs.isEmpty then
+    logError <| mkInvalidNamedArgsMsg ctx.namedArgs ctx.funId
+  throwError msg
+
 private def isDone (ctx : Context) : Bool :=
   ctx.paramDeclIdx ≥ ctx.paramDecls.size
 
@@ -125,8 +142,10 @@ private def finalize (ctx : Context) : M Syntax := do
   if ctx.namedArgs.isEmpty && ctx.args.isEmpty then
     let fStx ← `(@$(ctx.funId):ident)
     return Syntax.mkApp fStx ctx.newArgs
+  else if ctx.args.isEmpty then
+    throwError mkInvalidNamedArgsMsg ctx.namedArgs ctx.funId
   else
-    throwError "too many arguments"
+    throwWrongArgCount ctx true
 
 private def isNextArgAccessible (ctx : Context) : Bool :=
   let i := ctx.paramDeclIdx
@@ -316,7 +335,7 @@ where
       if ctx.ellipsis then
         pushNewArg accessible ctx (Arg.stx (← `(_)))
       else
-        throwError "explicit parameter is missing, unused named arguments {ctx.namedArgs.map fun narg => narg.name}"
+        throwWrongArgCount ctx false
     | arg::args =>
       pushNewArg accessible { ctx with args := args } arg
 

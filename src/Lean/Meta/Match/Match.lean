@@ -17,10 +17,44 @@ import Lean.Meta.Match.MVarRenaming
 
 namespace Lean.Meta.Match
 
+private def mkIncorrectNumberOfPatternsMsg [ToMessageData α]
+    (discrepancyKind : String) (expected actual : Nat) (pats : List α) :=
+  let patternsMsg := MessageData.joinSep (pats.map toMessageData) ", "
+  m!"{discrepancyKind} patterns in match alternative: expected {expected}, \
+    but found {actual}:{indentD patternsMsg}"
+
+/--
+Throws an error indicating that the alternative at `ref` contains an unexpected number of patterns.
+Remark: we allow `α` to be arbitrary because this error may be thrown before or after elaborating
+pattern syntax.
+-/
+def throwIncorrectNumberOfPatternsAt [ToMessageData α]
+    (ref : Syntax) (discrepancyKind : String) (expected actual : Nat) (pats : List α)
+    : MetaM Unit := do
+  throwErrorAt ref (mkIncorrectNumberOfPatternsMsg discrepancyKind expected actual pats)
+
+/--
+Logs an error indicating that the alternative at `ref` contains an unexpected number of patterns.
+Remark: we allow `α` to be arbitrary because this error may be thrown before or after elaborating
+pattern syntax.
+-/
+def logIncorrectNumberOfPatternsAt [ToMessageData α]
+    (ref : Syntax) (discrepancyKind : String) (expected actual : Nat) (pats : List α)
+    : MetaM Unit :=
+  logErrorAt ref (mkIncorrectNumberOfPatternsMsg discrepancyKind expected actual pats)
+
 /-- The number of patterns in each AltLHS must be equal to the number of discriminants. -/
 private def checkNumPatterns (numDiscrs : Nat) (lhss : List AltLHS) : MetaM Unit := do
-  if lhss.any fun lhs => lhs.patterns.length != numDiscrs then
-    throwError "incorrect number of patterns"
+  for lhs in lhss do
+    let doThrow (kind : String) := withExistingLocalDecls lhs.fvarDecls do
+      throwIncorrectNumberOfPatternsAt lhs.ref kind numDiscrs lhs.patterns.length
+        (lhs.patterns.map Pattern.toMessageData)
+    if lhs.patterns.length < numDiscrs then
+      doThrow "not enough"
+    else if lhs.patterns.length > numDiscrs then
+      -- This case should be impossible, as an alternative with too many patterns will cause an
+      -- error to be thrown in `Lean.Elab.Term.elabPatterns`
+      doThrow "too many"
 
 /--
   Execute `k hs` where `hs` contains new equalities `h : lhs[i] = rhs[i]` for each `discrInfos[i] = some h`.

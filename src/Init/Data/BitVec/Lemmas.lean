@@ -730,16 +730,6 @@ theorem zeroExtend_eq_setWidth {v : Nat} {x : BitVec w} :
     (setWidth' p x).toNat = x.toNat := by
   simp [setWidth']
 
-@[simp] theorem toInt_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
-    (setWidth' p x).toInt = Int.bmod x.toNat (2 ^ n) := by
-  simp [toInt_eq_toNat_bmod, toNat_setWidth', Int.emod_bmod]
-
-@[simp] theorem toFin_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
-    (setWidth' p x).toFin = Fin.ofNat' (2 ^ n) x.toNat := by
-  ext
-  simp only [val_toFin, toNat_setWidth', Fin.val_ofNat', Nat.pow_le_pow_of_le (a := 2) (n := m) (m := n)]
-  rw [Nat.mod_eq_of_lt (by have := Nat.pow_le_pow_of_le (a := 2) (n := m) (m := n); omega)]
-
 @[simp, bitvec_to_nat] theorem toNat_setWidth (i : Nat) (x : BitVec n) :
     BitVec.toNat (setWidth i x) = x.toNat % 2^i := by
   let ⟨x, lt_n⟩ := x
@@ -931,6 +921,45 @@ and the second `setWidth` is a non-trivial extension.
   have := @lt_of_getLsbD u x i
   by_cases h' : x.getLsbD i = true <;> simp [h'] at * <;> omega
 
+@[simp] theorem msb_setWidth'_of_lt {m n : Nat} (p : m < n) (x : BitVec m) :
+    (setWidth' (by omega : m ≤ n) x).msb = false := by
+  simp [msb_setWidth', msb_eq_false_iff_two_mul_lt]
+  have : x.toNat < 2 ^ n := by sorry
+  rw [Nat.mod_eq_of_lt (by omega)]
+  have : m < n := by omega
+  have : m ≤ n - 1 := by omega
+  have : 2 ^ m ≤ 2 ^ (n - 1) := by sorry
+  have : x.toNat < 2 ^ m := by omega
+  have : x.toNat < 2 ^ (n - 1) := by omega
+  have : x.toNat < 2 ^ m := by omega
+  have := Nat.pow_lt_pow_of_lt (a := 2) (n := m) (m := n) (by omega) (by omega)
+  have := Nat.pow_succ (n := 2) (m := n - 1)
+  simp [show n - 1 + 1 = n by omega] at this
+  rw [this, Nat.mul_comm]
+  have := Nat.mul_lt_mul_right (a := 2) (b := x.toNat) (c := 2 ^ (n -1)) (by omega)
+  simp [this]
+  omega
+
+@[simp] theorem toInt_setWidth'_of_lt {m n : Nat} (p : m < n) (x : BitVec m) :
+    (setWidth' (by omega : m ≤ n) x).toInt = x.toNat := by
+  rw [toInt_eq_toNat_of_msb]
+  · rfl
+  · apply msb_setWidth'_of_lt p
+
+theorem toInt_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
+    (setWidth' p x).toInt = if m = n then x.toInt else x.toNat := by
+  by_cases h : m = n
+  · simp [h, toInt_eq_toNat_bmod]
+  · have h' : m < n := by omega
+    rw [toInt_setWidth'_of_lt h']
+    simp [h]
+
+@[simp] theorem toFin_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
+    (setWidth' p x).toFin = Fin.ofNat' (2 ^ n) x.toNat := by
+  ext
+  simp only [val_toFin, toNat_setWidth', Fin.val_ofNat', Nat.pow_le_pow_of_le (a := 2) (n := m) (m := n)]
+  rw [Nat.mod_eq_of_lt (by have := Nat.pow_le_pow_of_le (a := 2) (n := m) (m := n); omega)]
+
 /-! ## extractLsb -/
 
 @[simp]
@@ -950,7 +979,7 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
   (extractLsb hi lo x).toNat = (x.toNat >>> lo) % 2^(hi-lo+1) := rfl
 
 @[simp] theorem toInt_extractLsb' {s m : Nat} {x : BitVec n} :
-    (extractLsb' s m x).toInt = ((x.toNat >>> s) : Int).bmod (2 ^ m) := by 
+    (extractLsb' s m x).toInt = ((x.toNat >>> s) : Int).bmod (2 ^ m) := by
   simp [extractLsb', toInt_ofNat]
 
 @[simp] theorem toInt_extractLsb {hi lo : Nat} {x : BitVec n} :
@@ -3089,7 +3118,7 @@ theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toN
   simp [toInt_eq_toNat_bmod, @Int.ofNat_sub y.toNat (2 ^ w) (by omega)]
 
 theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
-    (x.toInt - y.toInt < - 2 ^ (w - 1)) 
+    (x.toInt - y.toInt < - 2 ^ (w - 1))
     ↔ (x.toInt < 0 ∧ 0 ≤ y.toInt ∧ 0 ≤ (x.toInt - y.toInt).bmod (2 ^ w)) := by
   rcases w with _|w
   · simp [of_length_zero]
@@ -3105,7 +3134,7 @@ theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
       omega
 
 theorem twoPow_le_toInt_sub_toInt_iff {x y : BitVec w} :
-    (2 ^ (w - 1) ≤ x.toInt - y.toInt) 
+    (2 ^ (w - 1) ≤ x.toInt - y.toInt)
     ↔ (0 ≤ x.toInt ∧ y.toInt < 0 ∧ (x.toInt - y.toInt).bmod (2 ^ w) < 0) := by
   rcases w with _|w
   · simp [of_length_zero]

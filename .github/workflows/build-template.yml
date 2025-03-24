@@ -243,5 +243,11 @@ jobs:
         if: always() && steps.restore-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
+          path: |
+            .ccache
+            ${{ matrix.name == 'Linux Lake' && 'build/stage1/**/*.trace
+            build/stage1/**/*.olean
+            build/stage1/**/*.ilean
+            build/stage1/**/*.c
+            build/stage1/**/*.c.o*' || '' }}
           key: ${{ steps.restore-cache.outputs.cache-primary-key }}
-          path: ${{ steps.restore-cache.inputs.path }}

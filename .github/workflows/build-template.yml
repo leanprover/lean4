@@ -159,7 +159,9 @@ jobs:
           fi
           # contortion to support empty OPTIONS with old macOS bash
           cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} -B . ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
-          time make -j$NPROC
+          make stage0-configure
+          time CCACHE_DEBUG=1 make -C stage0 -j$NPROC util/shell.cpp.o VERBOSE=1
+          cat stage0/CMakeFiles/leanshell.dir/util/*ccache*
       - name: Install
         run: |
           make -C build install

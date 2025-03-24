@@ -580,7 +580,6 @@ theorem mul_mod (a b n : Nat) : a * b % n = (a % n) * (b % n) % n := by
 @[simp] theorem mul_mod_mod (m n l : Nat) : (m * (n % l)) % l = (m * n) % l := by
   rw [mul_mod, mod_mod, ← mul_mod]
 
-
 @[simp] theorem add_mod_mod (m n k : Nat) : (m + n % k) % k = (m + n) % k := by
   rw [Nat.add_comm, mod_add_mod, Nat.add_comm]
 

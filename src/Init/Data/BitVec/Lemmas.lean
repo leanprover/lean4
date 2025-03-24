@@ -2423,8 +2423,6 @@ theorem toFin_signExtend (x : BitVec w) :
     have : 2 ^ w < 2 ^ v := by apply Nat.pow_lt_pow_of_lt <;> omega
     rw [Nat.mod_eq_of_lt]
     rcases x.msb <;> simp <;> omega
-
-
 /-! ### append -/
 
 theorem append_def (x : BitVec v) (y : BitVec w) :

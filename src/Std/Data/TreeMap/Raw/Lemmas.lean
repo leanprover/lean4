@@ -2372,6 +2372,123 @@ theorem maxKey?_alter_eq_self [TransCmp cmp] (h : t.WF) {k f} :
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (cmp k' k).isLE :=
   DTreeMap.Raw.Const.maxKey?_alter_eq_self h
 
+theorem maxKey?_eq_some_maxKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
+    t.maxKey? = some t.maxKey! :=
+  DTreeMap.Raw.maxKey?_eq_some_maxKey! h he
+
+theorem maxKey!_eq_default [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty) :
+    t.maxKey! = default :=
+  DTreeMap.Raw.maxKey!_eq_default h he
+
+theorem maxKey!_eq_iff_getKey?_eq_self_and_forall [TransCmp cmp] [Inhabited α] (h : t.WF)
+    (he : t.isEmpty = false) {km} :
+    t.maxKey! = km ↔ t.getKey? km = some km ∧ ∀ k, k ∈ t → (cmp k km).isLE :=
+  DTreeMap.Raw.maxKey!_eq_iff_getKey?_eq_self_and_forall h he
+
+theorem maxKey!_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF)
+    (he : t.isEmpty = false) {km} :
+    t.maxKey! = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (cmp k km).isLE :=
+  DTreeMap.Raw.maxKey!_eq_some_iff_mem_and_forall h he
+
+theorem maxKey!_insert [TransCmp cmp] [Inhabited α] (h : t.WF) {k v} :
+    (t.insert k v |>.maxKey!) =
+      (t.maxKey?.elim k fun k' => if cmp k' k |>.isLE then k else k') :=
+  DTreeMap.Raw.maxKey!_insert h
+
+theorem maxKey!_insert_le_maxKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false)
+    {k v} :
+    cmp t.maxKey! (t.insert k v |>.maxKey!) |>.isLE :=
+  DTreeMap.Raw.maxKey!_insert_le_maxKey! h he
+
+theorem maxKey!_insert_le_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k v} :
+    cmp k (t.insert k v |>.maxKey!) |>.isLE :=
+  DTreeMap.Raw.maxKey!_insert_le_self h
+
+theorem contains_maxKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
+    t.contains t.maxKey! :=
+  DTreeMap.Raw.contains_maxKey! h he
+
+theorem maxKey!_mem [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
+    t.maxKey! ∈ t :=
+  DTreeMap.Raw.maxKey!_mem h he
+
+theorem maxKey!_le_of_contains [TransCmp cmp] [Inhabited α] (h : t.WF) {k} (hc : t.contains k) :
+    cmp k t.maxKey! |>.isLE :=
+  DTreeMap.Raw.maxKey!_le_of_contains h hc
+
+theorem maxKey!_le_of_mem [TransCmp cmp] [Inhabited α] (h : t.WF) {k} (hc : k ∈ t) :
+    cmp k t.maxKey! |>.isLE :=
+  DTreeMap.Raw.maxKey!_le_of_mem h hc
+
+theorem le_maxKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) {k} :
+    (cmp t.maxKey! k).isLE ↔ (∀ k', k' ∈ t → (cmp k' k).isLE) :=
+  DTreeMap.Raw.le_maxKey! h he
+
+theorem getKey?_maxKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
+    t.getKey? t.maxKey! = some t.maxKey! :=
+  DTreeMap.Raw.getKey?_maxKey! h he
+
+theorem getKey_maxKey! [TransCmp cmp] [Inhabited α] (h : t.WF) {hc} :
+    t.getKey t.maxKey! hc = t.maxKey! :=
+  DTreeMap.Raw.getKey_maxKey! h
+
+theorem getKey!_maxKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) :
+    t.getKey! t.maxKey! = t.maxKey! :=
+  DTreeMap.Raw.getKey!_maxKey! h he
+
+theorem getKeyD_maxKey! [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) {fallback} :
+    t.getKeyD t.maxKey! fallback = t.maxKey! :=
+  DTreeMap.Raw.getKeyD_maxKey! h he
+
+theorem maxKey!_erase_eq_of_not_compare_maxKey!_eq [TransCmp cmp] [Inhabited α] (h : t.WF) {k}
+    (he : (t.erase k).isEmpty = false) (heq : ¬ cmp k t.maxKey! = .eq) :
+    (t.erase k |>.maxKey!) = t.maxKey! :=
+  DTreeMap.Raw.maxKey!_erase_eq_of_not_compare_maxKey!_eq h he heq
+
+theorem maxKey!_le_maxKey!_erase [TransCmp cmp] [Inhabited α] (h : t.WF) {k}
+    (he : (t.erase k).isEmpty = false) :
+    cmp (t.erase k |>.maxKey!) t.maxKey! |>.isLE :=
+  DTreeMap.Raw.maxKey!_le_maxKey!_erase h he
+
+theorem maxKey!_insertIfNew [TransCmp cmp] [Inhabited α] (h : t.WF) {k v} :
+    (t.insertIfNew k v |>.maxKey!) =
+      t.maxKey?.elim k fun k' => if cmp k' k = .lt then k else k' :=
+  DTreeMap.Raw.maxKey!_insertIfNew h
+
+theorem maxKey!_insertIfNew_le_maxKey! [TransCmp cmp] [Inhabited α] (h : t.WF)
+    (he : t.isEmpty = false) {k v} :
+    cmp t.maxKey! (t.insertIfNew k v |>.maxKey!) |>.isLE :=
+  DTreeMap.Raw.maxKey!_insertIfNew_le_maxKey! h he
+
+theorem maxKey!_insertIfNew_le_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k v} :
+    cmp k (t.insertIfNew k v |>.maxKey!) |>.isLE :=
+  DTreeMap.Raw.maxKey!_insertIfNew_le_self h
+
+theorem maxKey!_eq_head!_keys [TransCmp cmp] [Inhabited α] (h : t.WF) :
+    t.maxKey! = t.keys.getLast! :=
+  DTreeMap.Raw.maxKey!_eq_head!_keys h
+
+theorem maxKey!_modify [TransCmp cmp] [Inhabited α] (h : t.WF) {k f}
+    (he : (modify t k f).isEmpty = false) :
+    (modify t k f |> maxKey!) = if cmp t.maxKey! k = .eq then k else t.maxKey! :=
+  DTreeMap.Raw.Const.maxKey!_modify h he
+
+@[simp]
+theorem maxKey!_modify_eq_maxKey! [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF) {k f} :
+    (modify t k f |>.maxKey!) = t.maxKey! :=
+  DTreeMap.Raw.Const.maxKey!_modify_eq_maxKey! h
+
+@[simp]
+theorem compare_maxKey!_modify_eq [TransCmp cmp] [Inhabited α] (h : t.WF) {k f} :
+    cmp (modify t k f |> maxKey!) t.maxKey! = .eq :=
+  DTreeMap.Raw.Const.compare_maxKey!_modify_eq h
+
+theorem maxKey!_alter_eq_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k f}
+    (he : (alter t k f).isEmpty = false) :
+    (alter t k f |>.maxKey!) = k ↔
+      (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (cmp k' k).isLE :=
+  DTreeMap.Raw.Const.maxKey!_alter_eq_self h he
+
 end Max
 
 end Std.TreeMap.Raw

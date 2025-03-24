@@ -5507,7 +5507,7 @@ theorem maxKey?_le_maxKey?_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBE
   letI : Ord α := .opposite inferInstance
   minKey?_insertEntry_le_minKey? hd hkm hkmi
 
-theorem self_maxKey?_insertEntry_le [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α}
+theorem self_le_maxKey?_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α}
     {v : β k} {l : List ((a : α) × β a)} (hd : DistinctKeys l) {kmi}
     (hkmi : (insertEntry k v l |> maxKey? |>.get <| isSome_maxKey?_insertEntry hd) = kmi) :
     compare k kmi |>.isLE :=

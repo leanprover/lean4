@@ -3078,6 +3078,39 @@ theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toN
     (x - y).toInt = (x.toInt - y.toInt).bmod (2 ^ w) := by
   simp [toInt_eq_toNat_bmod, @Int.ofNat_sub y.toNat (2 ^ w) (by omega)]
 
+theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
+    (x.toInt - y.toInt < - 2 ^ (w - 1)) 
+    ↔ (x.toInt < 0 ∧ 0 ≤ y.toInt ∧ 0 ≤ (x.toInt - y.toInt).bmod (2 ^ w)) := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · have := le_two_mul_toInt (x := x)
+    have := two_mul_toInt_lt (x := y)
+    simp only [Nat.add_one_sub_one]
+    constructor
+    · intros h
+      rw_mod_cast [← Int.bmod_add_cancel, Int.bmod_eq_self_of_le]
+      <;> omega
+    · have := Int.bmod_neg_iff (x := x.toInt - y.toInt) (m := 2 ^ (w + 1))
+      push_cast at this
+      omega
+
+theorem twoPow_le_toInt_sub_toInt_iff {x y : BitVec w} :
+    (2 ^ (w - 1) ≤ x.toInt - y.toInt) 
+    ↔ (0 ≤ x.toInt ∧ y.toInt < 0 ∧ (x.toInt - y.toInt).bmod (2 ^ w) < 0) := by
+  rcases w with _|w
+  · simp [of_length_zero]
+  · have := le_two_mul_toInt (x := x); have := two_mul_toInt_lt (x := x)
+    have := le_two_mul_toInt (x := y); have := two_mul_toInt_lt (x := y)
+    simp only [Nat.add_one_sub_one]
+    constructor
+    · intros h
+      simp only [show 0 ≤ x.toInt by omega, show y.toInt < 0 by omega, _root_.true_and]
+      rw_mod_cast [← Int.bmod_sub_cancel, Int.bmod_eq_self_of_le (by omega) (by omega)]
+      omega
+    · have := Int.bmod_neg_iff (x := x.toInt - y.toInt) (m := 2 ^ (w + 1))
+      push_cast at this
+      omega
+
 -- We prefer this lemma to `toNat_sub` for the `bitvec_to_nat` simp set.
 -- For reasons we don't yet understand, unfolding via `toNat_sub` sometimes
 -- results in `omega` generating proof terms that are very slow in the kernel.

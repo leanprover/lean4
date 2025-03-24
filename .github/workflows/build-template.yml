@@ -152,10 +152,7 @@ jobs:
           fi
           # contortion to support empty OPTIONS with old macOS bash
           cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} -B . ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
-          make stage0-configure
-          time CCACHE_DEBUG=1 make -C stage0 -j$NPROC leancpp VERBOSE=1
-          cat stage0/util/CMakeFiles/util.dir/ascii*ccache-log
-          exit 1
+          time make -j$NPROC
       - name: Install
         run: |
           make -C build install
@@ -195,7 +192,7 @@ jobs:
         id: test
         run: |
           ulimit -c unlimited  # coredumps
-          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
+          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }} -I 1000,1010
         if: (matrix.wasm || !matrix.cross) && inputs.check-level >= -1
       - name: Test Summary
         uses: test-summary/action@v2

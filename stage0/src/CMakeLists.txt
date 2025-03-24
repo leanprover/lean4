@@ -516,6 +516,7 @@ if(USE_GITHASH)
   endif()
 else()
   if(USE_LAKE AND ${STAGE} EQUAL 0)
+    # we need to embed *some* hash for Lake to invalidate stage 1 on stage 0 changes
     execute_process(
         COMMAND git ls-tree HEAD "${CMAKE_CURRENT_SOURCE_DIR}/../../stage0" --object-only
         OUTPUT_VARIABLE GIT_SHA1
@@ -822,6 +823,10 @@ set(LINK_OPTS_TOML "${LEANC_INTERNAL_LINKER_FLAGS} -L${CMAKE_BINARY_DIR}/lib/lea
 toml_escape("${LEAN_EXTRA_MAKE_OPTS}" LEAN_EXTRA_OPTS_TOML)
 toml_escape("${LEANC_OPTS_TOML}" LEANC_OPTS_TOML)
 toml_escape("${LINK_OPTS_TOML}" LINK_OPTS_TOML)
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  set(LAKE_LIB_PREFIX "lib")
+endif()
 
 if(USE_LAKE AND STAGE EQUAL 1)
   configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${LEAN_SOURCE_DIR}/lakefile.toml)

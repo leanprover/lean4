@@ -30,11 +30,15 @@ open List
 namespace Std.DHashMap.Internal
 
 @[simp]
-theorem toListModel_mkArray_nil {c} :
-    toListModel (mkArray c (AssocList.nil : AssocList α β)) = [] := by
+theorem toListModel_replicate_nil {c} :
+    toListModel (Array.replicate c (AssocList.nil : AssocList α β)) = [] := by
   suffices ∀ d, (List.replicate d AssocList.nil).flatMap AssocList.toList = [] from this _
   intro d
   induction d <;> simp_all [List.replicate]
+
+set_option linter.missingDocs false in
+@[deprecated toListModel_replicate_nil (since := "2025-03-18")]
+abbrev toListModel_mkArray_nil := @toListModel_replicate_nil
 
 @[simp]
 theorem computeSize_eq {buckets : Array (AssocList α β)} :
@@ -218,7 +222,7 @@ namespace Raw₀
 
 @[simp]
 theorem toListModel_buckets_emptyWithCapacity {c} : toListModel (emptyWithCapacity c : Raw₀ α β).1.buckets = [] :=
-  toListModel_mkArray_nil
+  toListModel_replicate_nil
 
 set_option linter.missingDocs false in
 @[deprecated toListModel_buckets_emptyWithCapacity (since := "2025-03-12")]
@@ -312,7 +316,7 @@ theorem toListModel_expand [BEq α] [Hashable α] [PartialEquivBEq α]
     {buckets : {d : Array (AssocList α β) // 0 < d.size}} :
     Perm (toListModel (expand buckets).1) (toListModel buckets.1) := by
   simpa [expand, expand.go_eq] using toListModel_foldl_reinsertAux (toListModel buckets.1)
-    ⟨mkArray (buckets.1.size * 2) .nil, by simpa using Nat.mul_pos buckets.2 Nat.two_pos⟩
+    ⟨.replicate (buckets.1.size * 2) .nil, by simpa using Nat.mul_pos buckets.2 Nat.two_pos⟩
 
 theorem toListModel_expandIfNecessary [BEq α] [Hashable α] [PartialEquivBEq α] (m : Raw₀ α β) :
     Perm (toListModel (expandIfNecessary m).1.2) (toListModel m.1.2) := by

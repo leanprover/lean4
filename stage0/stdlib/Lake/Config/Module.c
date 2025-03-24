@@ -2849,7 +2849,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5;
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_3, 3);
-x_5 = lean_ctor_get_uint8(x_4, sizeof(void*)*28);
+x_5 = lean_ctor_get_uint8(x_4, sizeof(void*)*26);
 if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; 

@@ -180,6 +180,16 @@ Examples:
 def toDigits (base : Nat) (n : Nat) : List Char :=
   toDigitsCore base (n+1) n []
 
+/--
+Converts a word-sized unsigned integer into a decimal string.
+
+This function is overridden at runtime with an efficient implementation.
+
+Examples:
+ * `USize.repr 0 = "0"`
+ * `USize.repr 28 = "28"`
+ * `USize.repr 307 = "307"`
+-/
 @[extern "lean_string_of_usize"]
 protected def _root_.USize.repr (n : @& USize) : String :=
   (toDigits 10 n.toNat).asString

@@ -593,8 +593,11 @@ and simplifies these to the function directly taking the value.
   unfold Array.unattach
   rfl
 
-@[simp] theorem unattach_mkVector {p : α → Prop} {n : Nat} {x : { x // p x }} :
-    (mkVector n x).unattach = mkVector n x.1 := by
+@[simp] theorem unattach_replicate {p : α → Prop} {n : Nat} {x : { x // p x }} :
+    (replicate n x).unattach = replicate n x.1 := by
   simp [unattach]
+
+@[deprecated unattach_replicate (since := "2025-03-18")]
+abbrev unattach_mkVector := @unattach_replicate
 
 end Vector

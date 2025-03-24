@@ -1133,11 +1133,18 @@ where doRealize inductName := do
     { name := inductName, levelParams := us, type := eTyp, value := e' }
 
   if names.size = 1 then
+    let mut params := #[]
+    for h : i in [:fixedParamPerms.perms[0]!.size] do
+      if let some idx := fixedParamPerms.perms[0]![i] then
+        if paramMask[idx]! then
+          params := params.push .param
+        else
+          params := params.push .dropped
+      else
+        params := params.push .target
+
     setFunIndInfo {
-      funIndName := inductName
-      levelMask := usMask
-      params := paramMask.map (cond · .param .dropped) ++
-        mkArray motiveArities[0]! .target
+      funIndName := inductName, levelMask := usMask, params := params
     }
 
 
@@ -1206,7 +1213,7 @@ def deriveCases (name : Name) : MetaM Unit := do
     setFunIndInfo {
       funIndName := casesName
       levelMask := usMask
-      params := mkArray motiveArity .target
+      params := .replicate motiveArity .target
     }
 
 

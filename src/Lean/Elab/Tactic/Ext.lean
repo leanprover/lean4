@@ -110,7 +110,7 @@ def realizeExtTheorem (structName : Name) (flat : Bool) : Elab.Command.CommandEl
         let type ← mkExtType structName flat
         let pf ← withSynthesize do
           let indVal ← getConstInfoInduct structName
-          let params := Array.mkArray indVal.numParams (← `(_))
+          let params := Array.replicate indVal.numParams (← `(_))
           Elab.Term.elabTermEnsuringType (expectedType? := type) (implicitLambda := false)
             -- introduce the params, do cases on 'x' and 'y', and then substitute each equation
             (← `(by intro $params* {..} {..}; intros; subst_eqs; rfl))

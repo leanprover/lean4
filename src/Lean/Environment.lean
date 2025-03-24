@@ -389,8 +389,11 @@ private structure AsyncContext where mkRaw ::
   prefixes.
   -/
   declPrefix : Name
-  /-- Whether we are in `realizeConst`, used to restrict env ext modifications. -/
-  realizing  : Bool
+  /--
+  Reverse list of ongoing `realizeConst` calls, used to restrict env ext modifications and detect
+  cyclic realizations.
+  -/
+  realizingStack : List Name
 deriving Nonempty
 
 /--
@@ -551,7 +554,7 @@ def asyncPrefix? (env : Environment) : Option Name :=
 
 /-- True while inside `realizeConst`'s `realize`. -/
 def isRealizing (env : Environment) : Bool :=
-  env.asyncCtx?.any (·.realizing)
+  env.asyncCtx?.any (!·.realizingStack.isEmpty)
 
 /--
 Returns the environment just after importing. `none` if `finalizeImport` has never been called on
@@ -746,11 +749,14 @@ structure PromiseCheckedResult where
   private checkedEnvPromise : IO.Promise Kernel.Environment
 
 /-- Creates an async context for the given declaration name, normalizing it for use as a prefix. -/
-private def enterAsync (declName : Name) (realizing := false) (env : Environment) : Environment :=
+private def enterAsync (declName : Name) (realizing? : Option Name := none) (env : Environment) : Environment :=
   { env with asyncCtx? := some {
     declPrefix := privateToUserName declName.eraseMacroScopes
-    -- `realizing` is sticky
-    realizing := realizing || env.asyncCtx?.any (·.realizing) } }
+    realizingStack :=
+      let s := env.asyncCtx?.map (·.realizingStack) |>.getD []
+      match realizing? with
+      | none   => s
+      | some n => n :: s } }
 
 /--
 Starts an asynchronous modification of the kernel environment. The environment is split into a
@@ -1146,15 +1152,15 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
   | .mainOnly =>
     if let some asyncCtx := env.asyncCtx? then
       return panic! s!"environment extension is marked as `mainOnly` but used in \
-        {if asyncCtx.realizing then "realization" else "async"} context '{asyncCtx.declPrefix}'"
+        {if env.isRealizing then "realization" else "async"} context '{asyncCtx.declPrefix}'"
     return { env with base.extensions := unsafe ext.modifyStateImpl env.base.extensions f }
   | .local =>
     return { env with base.extensions := unsafe ext.modifyStateImpl env.base.extensions f }
   | _ =>
     if ext.replay?.isNone then
-      if let some asyncCtx := env.asyncCtx?.filter (·.realizing) then
+      if let some (n :: _) := env.asyncCtx?.map (·.realizingStack) then
         return panic! s!"environment extension must set `replay?` field to be \
-          used in realization context '{asyncCtx.declPrefix}'"
+          used in realization context '{n}'"
     env.modifyCheckedAsync fun env =>
       { env with extensions := unsafe ext.modifyStateImpl env.extensions f }
 
@@ -1635,7 +1641,7 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) (st
   for extDescr in extDescrs[startingAt:] do
     -- safety: as in `modifyState`
     states := unsafe extDescr.toEnvExtension.modifyStateImpl states fun s =>
-      { s with importedEntries := mkArray mods.size #[] }
+      { s with importedEntries := .replicate mods.size #[] }
   /- For each module `mod`, and `mod.entries`, if the extension name is one of the extensions after `startingAt`, set `entries` -/
   let extNameIdx ← mkExtNameMap startingAt
   for h : modIdx in [:mods.size] do
@@ -1989,6 +1995,8 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
   -- the following code is inherently non-deterministic in number of heartbeats, reset them at the
   -- end
   let heartbeats ← IO.getNumHeartbeats
+  if env.asyncCtx?.any (·.realizingStack.contains constName) then
+    throw <| IO.userError s!"Environment.realizeConst: cyclic realization of '{constName}'"
   let mut env := env
   -- find `RealizationContext` for `forConst` in `realizedImportedConsts?` or `realizedLocalConsts`
   let ctx ← if env.base.const2ModIdx.contains forConst then
@@ -2019,7 +2027,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
       }
       -- ensure realized constants are nested below `forConst` and that environment extension
       -- modifications know they are in an async context
-      let realizeEnv := realizeEnv.enterAsync (realizing := true) forConst
+      let realizeEnv := realizeEnv.enterAsync (realizing? := constName) forConst
       -- skip kernel in `realize`, we'll re-typecheck anyway
       let realizeOpts := debug.skipKernelTC.set ctx.opts true
       let (realizeEnv', dyn) ← realize realizeEnv realizeOpts

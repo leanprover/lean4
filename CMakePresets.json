@@ -16,6 +16,7 @@
       "name": "debug",
       "displayName": "Debug build config",
       "cacheVariables": {
+        "LEAN_EXTRA_CXX_FLAGS": "-DLEAN_DEFAULT_THREAD_STACK_SIZE=16*1024*1024",
         "CMAKE_BUILD_TYPE": "Debug"
       },
       "generator": "Unix Makefiles",

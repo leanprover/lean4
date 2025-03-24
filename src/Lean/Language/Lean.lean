@@ -645,7 +645,7 @@ where
         let infoTree := infoSt.trees[0]!
         let opts := cmdState.scopes.head!.opts
         let mut msgLog := MessageLog.empty
-        if (← isTracingEnabledForCore `Elab.info opts) then
+        if checkTraceOption (← inheritedTraceOptions.get) opts `Elab.info then
           if let .ok msg ← infoTree.format.toBaseIO then
             let data := .tagged `trace <| .trace { cls := `Elab.info } .nil #[msg]
             msgLog := msgLog.add {
@@ -661,7 +661,7 @@ where
 
       -- report traces when *all* tasks are finished
       let traceTask ←
-        if (← isTracingEnabledForCore `Elab.snapshotTree cmdState.scopes.head!.opts) then
+        if checkTraceOption (← inheritedTraceOptions.get) cmdState.scopes.head!.opts `Elab.snapshotTree then
           -- We want to trace all of `CommandParsedSnapshot` but `traceTask` is part of it, so let's
           -- create a temporary snapshot tree containing all tasks but it
           let snaps := #[

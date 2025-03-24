@@ -24,17 +24,19 @@ namespace Std.Tactic.BVDecide
 
 open Std.Sat
 
+variable [Hashable α] [DecidableEq α]
+
 namespace BVExpr
 namespace bitblast
 
-def blastMul (aig : AIG BVBit) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry BVBit w :=
+def blastMul (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry α w :=
   if input.lhs.countKnown < input.rhs.countKnown then
     blast aig input
   else
     let ⟨lhs, rhs⟩ := input
     blast aig ⟨rhs, lhs⟩
 where
-  blast (aig : AIG BVBit) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry BVBit w :=
+  blast (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry α w :=
     if h : w = 0 then
       ⟨aig, h ▸ .empty⟩
     else
@@ -53,9 +55,8 @@ where
       let rhs := rhs.cast this
       go aig lhs rhs 1 acc
 
-  go (aig : AIG BVBit) (lhs rhs : AIG.RefVec aig w) (curr : Nat)
-      (acc : AIG.RefVec aig w) :
-      AIG.RefVecEntry BVBit w :=
+  go (aig : AIG α) (lhs rhs : AIG.RefVec aig w) (curr : Nat) (acc : AIG.RefVec aig w) :
+      AIG.RefVecEntry α w :=
     if h : curr < w then
       -- If the rhs is false we can skip this iteration as we would add zero
       if aig.isConstant (rhs.get curr h) false then
@@ -87,7 +88,7 @@ where
 
 namespace blastMul
 
-theorem go_le_size {w : Nat} (aig : AIG BVBit) (curr : Nat) (acc : AIG.RefVec aig w)
+theorem go_le_size {w : Nat} (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w)
     (lhs rhs : AIG.RefVec aig w) :
     aig.decls.size ≤ (go aig lhs rhs curr acc).aig.decls.size := by
   unfold go
@@ -101,7 +102,7 @@ theorem go_le_size {w : Nat} (aig : AIG BVBit) (curr : Nat) (acc : AIG.RefVec ai
       apply AIG.LawfulVecOperator.le_size (f := blastShiftLeftConst)
   · simp
 
-theorem go_decl_eq {w : Nat} (aig : AIG BVBit) (curr : Nat) (acc : AIG.RefVec aig w)
+theorem go_decl_eq {w : Nat} (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w)
     (lhs rhs : AIG.RefVec aig w) :
     ∀ (idx : Nat) (h1) (h2),
        (go aig lhs rhs curr acc).aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
@@ -130,7 +131,7 @@ theorem go_decl_eq {w : Nat} (aig : AIG BVBit) (curr : Nat) (acc : AIG.RefVec ai
         assumption
   · simp [← hgo]
 
-instance : AIG.LawfulVecOperator BVBit AIG.BinaryRefVec blast where
+instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blast where
   le_size := by
     intros
     unfold blast
@@ -157,7 +158,7 @@ instance : AIG.LawfulVecOperator BVBit AIG.BinaryRefVec blast where
 
 end blastMul
 
-instance : AIG.LawfulVecOperator BVBit AIG.BinaryRefVec blastMul where
+instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastMul where
   le_size := by
     intros
     unfold blastMul

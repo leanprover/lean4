@@ -67,6 +67,18 @@
     <<: *time
     cmd: lean ../../src/Init/Data/List/Sublist.lean -DElab.async=true
 - attributes:
+    description: Std.Data.Internal.List.Associative
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean ../../src/Std/Data/Internal/List/Associative.lean -DElab.async=true
+- attributes:
+    description: Std.Data.DHashMap.Internal.RawLemmas
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean ../../src/Std/Data/DHashMap/Internal/RawLemmas.lean -DElab.async=true
+- attributes:
     description: import Lean
     tags: [fast]
   run_config:

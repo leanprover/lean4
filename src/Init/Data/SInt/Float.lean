@@ -7,6 +7,8 @@ prelude
 import Init.Data.Float
 import Init.Data.SInt.Basic
 
+set_option linter.missingDocs true
+
 /--
 Truncates the value to the nearest integer, rounding towards zero.
 If NaN, returns `0`.
@@ -59,13 +61,25 @@ If smaller than the minimum value for `ISize` (including -Inf), returns the mini
 @[extern "lean_int16_to_float"] opaque Int16.toFloat (n : Int16) : Float
 /-- Obtains the `Float` whose value is the same as the given `Int32`. -/
 @[extern "lean_int32_to_float"] opaque Int32.toFloat (n : Int32) : Float
-/-- Obtains a `Float` whose value is near the given `Int64`. It will be exactly the value of the
-given `Int64` if such a `Float` exists. If no such `Float` exists, the returned value will either
-be the smallest `Float` this is larger than the given value, or the largest `Float` this is smaller
-than the given value. -/
+/--
+Obtains a `Float` whose value is near the given `Int64`.
+
+It will be exactly the value of the given `Int64` if such a `Float` exists. If no such `Float`
+exists, the returned value will either be the smallest `Float` that is larger than the given value,
+or the largest `Float` that is smaller than the given value.
+
+This function is opaque in the kernel, but is overridden at runtime with an efficient
+implementation.
+-/
 @[extern "lean_int64_to_float"] opaque Int64.toFloat (n : Int64) : Float
-/-- Obtains a `Float` whose value is near the given `ISize`. It will be exactly the value of the
-given `ISize` if such a `Float` exists. If no such `Float` exists, the returned value will either
-be the smallest `Float` this is larger than the given value, or the largest `Float` this is smaller
-than the given value. -/
+/--
+Obtains a `Float` whose value is near the given `ISize`.
+
+It will be exactly the value of the given `ISize` if such a `Float` exists. If no such `Float`
+exists, the returned value will either be the smallest `Float` that is larger than the given value,
+or the largest `Float` that is smaller than the given value.
+
+This function is opaque in the kernel, but is overridden at runtime with an efficient
+implementation.
+-/
 @[extern "lean_isize_to_float"] opaque ISize.toFloat (n : ISize) : Float

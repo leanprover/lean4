@@ -131,20 +131,37 @@ instance : ToString Float32 where
 @[extern "lean_uint8_to_float32"] opaque UInt8.toFloat32 (n : UInt8) : Float32
 /-- Obtains the `Float32` whose value is the same as the given `UInt16`. -/
 @[extern "lean_uint16_to_float32"] opaque UInt16.toFloat32 (n : UInt16) : Float32
-/-- Obtains a `Float32` whose value is near the given `UInt32`. It will be exactly the value of the
-given `UInt32` if such a `Float32` exists. If no such `Float32` exists, the returned value will either
-be the smallest `Float32` this is larger than the given value, or the largest `Float32` this is smaller
-than the given value. -/
+/--
+Obtains a `Float32` whose value is near the given `UInt32`.
+
+It will be exactly the value of the given `UInt32` if such a `Float32` exists. If no such `Float32`
+exists, the returned value will either be the smallest `Float32` that is larger than the given
+value, or the largest `Float32` that is smaller than the given value.
+
+This function is opaque in the kernel, but is overridden at runtime with an efficient
+implementation.
+-/
 @[extern "lean_uint32_to_float32"] opaque UInt32.toFloat32 (n : UInt32) : Float32
-/-- Obtains a `Float32` whose value is near the given `UInt64`. It will be exactly the value of the
-given `UInt64` if such a `Float32` exists. If no such `Float32` exists, the returned value will either
-be the smallest `Float32` this is larger than the given value, or the largest `Float32` this is smaller
-than the given value. -/
+/--
+Obtains a `Float32` whose value is near the given `UInt64`.
+
+It will be exactly the value of the given `UInt64` if such a `Float32` exists. If no such `Float32`
+exists, the returned value will either be the smallest `Float32` that is larger than the given
+value, or the largest `Float32` that is smaller than the given value.
+
+This function is opaque in the kernel, but is overridden at runtime with an efficient
+implementation.
+-/
 @[extern "lean_uint64_to_float32"] opaque UInt64.toFloat32 (n : UInt64) : Float32
-/-- Obtains a `Float32` whose value is near the given `USize`. It will be exactly the value of the
-given `USize` if such a `Float32` exists. If no such `Float32` exists, the returned value will either
-be the smallest `Float32` this is larger than the given value, or the largest `Float32` this is smaller
-than the given value. -/
+/-- Obtains a `Float32` whose value is near the given `USize`.
+
+It will be exactly the value of the given `USize` if such a `Float32` exists. If no such `Float32`
+exists, the returned value will either be the smallest `Float32` that is larger than the given
+value, or the largest `Float32` that is smaller than the given value.
+
+This function is opaque in the kernel, but is overridden at runtime with an efficient
+implementation.
+-/
 @[extern "lean_usize_to_float32"] opaque USize.toFloat32 (n : USize) : Float32
 
 instance : Inhabited Float32 where

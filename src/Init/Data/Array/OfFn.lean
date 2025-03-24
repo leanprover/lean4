@@ -16,7 +16,8 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 
 namespace Array
 
-@[simp] theorem ofFn_zero (f : Fin 0 → α) : ofFn f = #[] := rfl
+@[simp] theorem ofFn_zero (f : Fin 0 → α) : ofFn f = #[] := by
+  simp [ofFn, ofFn.go]
 
 theorem ofFn_succ (f : Fin (n+1) → α) :
     ofFn f = (ofFn (fun (i : Fin n) => f i.castSucc)).push (f ⟨n, by omega⟩) := by

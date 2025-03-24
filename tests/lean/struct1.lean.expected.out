@@ -7,7 +7,7 @@ The purpose of the change is to accommodate 'structure S extends toP : P' syntax
 struct1.lean:15:28-15:33: warning: field 'x' from 'B' has already been declared
 struct1.lean:16:1-16:2: error: field 'x' has been declared in parent structure
 struct1.lean:17:30-17:35: warning: duplicate parent structure 'A', skipping
-struct1.lean:19:27-19:33: error: parent field type mismatch, field 'x' from parent 'B' has type
+struct1.lean:19:27-19:33: error: field type mismatch, field 'x' from parent 'B' has type
   Bool : Type
 but is expected to have type
   Nat : Type

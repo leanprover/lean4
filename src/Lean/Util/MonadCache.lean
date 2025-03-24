@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Control.StateRef
-import Lean.Data.HashMap
 import Std.Data.HashMap.Basic
 
 namespace Lean

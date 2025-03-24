@@ -74,6 +74,7 @@ inductive BVBinOp where
   Unsigned modulo.
   -/
   | umod
+  deriving Hashable, DecidableEq
 
 namespace BVBinOp
 
@@ -134,6 +135,7 @@ inductive BVUnOp where
   constant `Nat` value.
   -/
   | arithShiftRightConst (n : Nat)
+  deriving Hashable, DecidableEq
 
 namespace BVUnOp
 
@@ -197,11 +199,11 @@ inductive BVExpr : Nat → Type where
   /--
   Concatenate two bit vectors.
   -/
-  | append (lhs : BVExpr l) (rhs : BVExpr r) : BVExpr (l + r)
+  | append (lhs : BVExpr l) (rhs : BVExpr r) (h : w = l + r) : BVExpr w
   /--
   Concatenate a bit vector with itself `n` times.
   -/
-  | replicate (n : Nat) (expr : BVExpr w) : BVExpr (w * n)
+  | replicate (n : Nat) (expr : BVExpr w) (h : w' = w * n) : BVExpr w'
   /--
   shift left by another BitVec expression. For constant shifts there exists a `BVUnop`.
   -/
@@ -214,6 +216,7 @@ inductive BVExpr : Nat → Type where
   shift right arithmetically by another BitVec expression. For constant shifts there exists a `BVUnop`.
   -/
   | arithShiftRight (lhs : BVExpr m) (rhs : BVExpr n) : BVExpr m
+  deriving DecidableEq, Hashable
 
 namespace BVExpr
 
@@ -223,8 +226,8 @@ def toString : BVExpr w → String
   | .extract start len expr => s!"{expr.toString}[{start}, {len}]"
   | .bin lhs op rhs => s!"({lhs.toString} {op.toString} {rhs.toString})"
   | .un op operand => s!"({op.toString} {toString operand})"
-  | .append lhs rhs => s!"({toString lhs} ++ {toString rhs})"
-  | .replicate n expr => s!"(replicate {n} {toString expr})"
+  | .append lhs rhs _ => s!"({toString lhs} ++ {toString rhs})"
+  | .replicate n expr _ => s!"(replicate {n} {toString expr})"
   | .shiftLeft lhs rhs => s!"({lhs.toString} << {rhs.toString})"
   | .shiftRight lhs rhs => s!"({lhs.toString} >> {rhs.toString})"
   | .arithShiftRight lhs rhs => s!"({lhs.toString} >>a {rhs.toString})"
@@ -268,8 +271,8 @@ def eval (assign : Assignment) : BVExpr w → BitVec w
   | .extract start len expr => BitVec.extractLsb' start len (eval assign expr)
   | .bin lhs op rhs => op.eval (eval assign lhs) (eval assign rhs)
   | .un op operand => op.eval (eval assign operand)
-  | .append lhs rhs => (eval assign lhs) ++ (eval assign rhs)
-  | .replicate n expr => BitVec.replicate n (eval assign expr)
+  | .append lhs rhs h => h ▸ ((eval assign lhs) ++ (eval assign rhs))
+  | .replicate n expr h => h ▸ (BitVec.replicate n (eval assign expr))
   | .shiftLeft lhs rhs => (eval assign lhs) <<< (eval assign rhs)
   | .shiftRight lhs rhs => (eval assign lhs) >>> (eval assign rhs)
   | .arithShiftRight lhs rhs => BitVec.sshiftRight' (eval assign lhs) (eval assign rhs)
@@ -299,11 +302,11 @@ theorem eval_un : eval assign (.un op operand) = op.eval (operand.eval assign) :
   rfl
 
 @[simp]
-theorem eval_append : eval assign (.append lhs rhs) = (lhs.eval assign) ++ (rhs.eval assign) := by
+theorem eval_append : eval assign (.append lhs rhs h) = (lhs.eval assign) ++ (rhs.eval assign) := by
   rfl
 
 @[simp]
-theorem eval_replicate : eval assign (.replicate n expr) = BitVec.replicate n (expr.eval assign) := by
+theorem eval_replicate : eval assign (.replicate n expr h) = BitVec.replicate n (expr.eval assign) := by
   rfl
 
 @[simp]

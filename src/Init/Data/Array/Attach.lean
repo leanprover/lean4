@@ -570,7 +570,9 @@ state, the right approach is usually the tactic `simp [Array.unattach, -Array.ma
 -/
 def unattach {α : Type _} {p : α → Prop} (xs : Array { x // p x }) : Array α := xs.map (·.val)
 
-@[simp] theorem unattach_nil {p : α → Prop} : (#[] : Array { x // p x }).unattach = #[] := rfl
+@[simp] theorem unattach_nil {p : α → Prop} : (#[] : Array { x // p x }).unattach = #[] := by
+  simp [unattach]
+
 @[simp] theorem unattach_push {p : α → Prop} {a : { x // p x }} {xs : Array { x // p x }} :
     (xs.push a).unattach = xs.unattach.push a.1 := by
   simp only [unattach, Array.map_push]
@@ -741,9 +743,12 @@ and simplifies these to the function directly taking the value.
     List.map_toArray, List.map_flatten, map_subtype, map_id_fun', List.unattach_toArray, mk.injEq]
   simp only [List.unattach]
 
-@[simp] theorem unattach_mkArray {p : α → Prop} {n : Nat} {x : { x // p x }} :
-    (Array.mkArray n x).unattach = Array.mkArray n x.1 := by
+@[simp] theorem unattach_replicate {p : α → Prop} {n : Nat} {x : { x // p x }} :
+    (Array.replicate n x).unattach = Array.replicate n x.1 := by
   simp [unattach]
+
+@[deprecated unattach_replicate (since := "2025-03-18")]
+abbrev unattach_mkArray := @unattach_replicate
 
 /-! ### Well-founded recursion preprocessing setup -/
 

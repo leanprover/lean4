@@ -15,16 +15,34 @@ Converts a declarative Lake configuration into a TOML table.
 namespace Lake
 open Lean System Toml
 
-/-! ## Helper Encoders -/
+/-! ## General Helpers -/
 
 private local instance : BEq FilePath where
   beq a b := a.normalize == b.normalize
 
+class InsertField (σ : Type u) (name : Name) where
+  insertField : σ → Table → Table
+
+abbrev Toml.Table.insertField
+  (cfg : σ) (name : Name) [field : InsertField σ name] (t : Table)
+: Table := InsertField.insertField name cfg t
+
+instance [SmartInsert α] [field : ConfigField σ name α] : InsertField σ name where
+  insertField cfg t := t.smartInsert name (field.get cfg)
+
+instance [ToToml α] [BEq α] [field : ConfigField σ name α] : InsertField σ name where
+  insertField cfg t := t.insertD name (field.get cfg) (field.mkDefault cfg)
+
+/-! ## Value Encoders -/
+
+instance : ToToml LeanVer := ⟨(toToml <| toString ·)⟩
+instance : ToToml BuildType := ⟨(toToml ·.toString)⟩
+instance : ToToml Glob := ⟨(toToml ·.toString)⟩
+
 instance : ToToml Backend := ⟨(toToml ·.toString)⟩
+
 instance : SmartInsert Backend where
   smartInsert k v t := match v with | .default => t | v => t.insert k (toToml v)
-
-instance : ToToml BuildType := ⟨(toToml ·.toString)⟩
 
 def Toml.encodeLeanOptionValue (v : LeanOptionValue) : Value :=
   match v with
@@ -37,91 +55,21 @@ instance : ToToml LeanOptionValue := ⟨encodeLeanOptionValue⟩
 def Toml.encodeLeanOptions (opts : Array LeanOption) : Table :=
   opts.foldl (init := {}) fun vs ⟨k,v⟩ => vs.insert k (toToml v)
 
-def Toml.leanOptionsEncoder : ToToml (Array LeanOption) where
+instance : ToToml (Array LeanOption) where
   toToml opts := .table .missing <| encodeLeanOptions opts
 
-/-! ## Configuration Encoders -/
+def smartInsertVerTags (pat : StrPat) (t : Table) : Table :=
+  match pat with
+  | .mem s => t.insert `versionTags (toToml s)
+  | .startsWith p => t.insert `versionTags.startsWith (toToml p)
+  | .satisfies _ n =>
+    if n.isAnonymous || n == `default then t else
+    t.insert `versionTags.preset (toToml n)
 
-protected def WorkspaceConfig.toToml (cfg : WorkspaceConfig) (t : Table := {}) : Table :=
-  t.insertD `packagesDir cfg.packagesDir defaultPackagesDir
+instance : InsertField (PackageConfig n) `versionTags where
+  insertField cfg := smartInsertVerTags cfg.versionTags
 
-instance : ToToml WorkspaceConfig := ⟨(toToml ·.toToml)⟩
-
-def LeanConfig.toToml (cfg : LeanConfig) (t : Table := {}) : Table :=
-  have : ToToml (Array LeanOption) := leanOptionsEncoder
-  t.insertD `buildType cfg.buildType .release
-  |>.smartInsert `backend cfg.backend
-  |>.smartInsert `platformIndependent cfg.platformIndependent
-  |>.smartInsert `leanOptions cfg.leanOptions
-  |>.smartInsert `moreServerOptions cfg.moreServerOptions
-  |>.smartInsert `moreLeanArgs cfg.moreLeanArgs
-  |>.smartInsert `weakLeanArgs cfg.weakLeanArgs
-  |>.smartInsert `moreLeancArgs cfg.moreLeancArgs
-  |>.smartInsert `weakLeancArgs cfg.weakLeancArgs
-  |>.smartInsert `moreLinkArgs cfg.moreLinkArgs
-  |>.smartInsert `weakLinkArgs cfg.weakLinkArgs
-
-instance : ToToml LeanConfig := ⟨(toToml ·.toToml)⟩
-instance : ToToml LeanVer := ⟨(toToml <| toString ·)⟩
-
-protected def PackageConfig.toToml (cfg : PackageConfig n) (t : Table := {}) : Table :=
-  t.insert `name n
-  |>.insertD `precompileModules cfg.precompileModules false
-  |>.smartInsert `moreGlobalServerArgs cfg.moreGlobalServerArgs
-  |>.insertD `srcDir cfg.srcDir "."
-  |>.insertD `buildDir cfg.buildDir defaultBuildDir
-  |>.insertD `leanLibDir cfg.leanLibDir defaultLeanLibDir
-  |>.insertD `nativeLibDir cfg.nativeLibDir defaultNativeLibDir
-  |>.insertD `binDir cfg.binDir defaultBinDir
-  |>.insertD `irDir cfg.irDir defaultIrDir
-  |>.smartInsert `releaseRepo (cfg.releaseRepo <|> cfg.releaseRepo?)
-  |>.insertD `buildArchive (cfg.buildArchive?.getD cfg.buildArchive) (defaultBuildArchive n)
-  |>.insertD `preferReleaseBuild cfg.preferReleaseBuild false
-  |>.insertD `version cfg.version {}
-  |> smartInsertVerTags cfg.versionTags
-  |>.smartInsert `keywords cfg.description
-  |>.smartInsert `keywords cfg.keywords
-  |>.smartInsert `homepage cfg.homepage
-  |>.smartInsert `license cfg.license
-  |>.insertD `licenseFiles cfg.licenseFiles #["LICENSE"]
-  |>.insertD `readmeFile cfg.readmeFile "README.md"
-  |>.insertD `reservoir cfg.reservoir true
-  |> cfg.toWorkspaceConfig.toToml
-  |> cfg.toLeanConfig.toToml
-where
-  smartInsertVerTags (pat : StrPat) (t : Table) : Table :=
-    match pat with
-    | .mem s => t.insert `versionTags (toToml s)
-    | .startsWith p => t.insert `versionTags.startsWith (toToml p)
-    | .satisfies _ n =>
-      if n.isAnonymous || n == `default then t else
-      t.insert `versionTags.preset (toToml n)
-
-instance : ToToml (PackageConfig n) := ⟨(toToml ·.toToml)⟩
-
-instance : ToToml Glob := ⟨(toToml ·.toString)⟩
-
-protected def LeanLibConfig.toToml (cfg : LeanLibConfig n) (t : Table := {}) : Table :=
-  t.insert `name n
-  |>.insertD `srcDir cfg.srcDir "."
-  |>.insertD `roots cfg.roots #[n]
-  |>.insertD `globs cfg.globs (cfg.roots.map .one)
-  |>.insertD `libName cfg.libName (n.toString (escape := false))
-  |>.insertD `precompileModules cfg.precompileModules false
-  |>.insertD `defaultFacets cfg.defaultFacets #[LeanLib.leanArtsFacet]
-  |> cfg.toLeanConfig.toToml
-
-instance : ToToml (LeanLibConfig n) := ⟨(toToml ·.toToml)⟩
-
-protected def LeanExeConfig.toToml (cfg : LeanExeConfig n) (t : Table  := {}) : Table :=
-  t.insert `name n
-  |>.insertD `srcDir cfg.srcDir "."
-  |>.insertD `root cfg.root n
-  |>.insertD `exeName cfg.exeName (n.toStringWithSep "-" (escape := false))
-  |>.insertD `supportInterpreter cfg.supportInterpreter false
-  |> cfg.toLeanConfig.toToml
-
-instance : ToToml (LeanExeConfig n) := ⟨(toToml ·.toToml)⟩
+/-! ## Dependency Configuration Encoders -/
 
 protected def Dependency.toToml (dep : Dependency) (t : Table  := {}) : Table :=
   let t := t
@@ -142,16 +90,57 @@ protected def Dependency.toToml (dep : Dependency) (t : Table  := {}) : Table :=
 
 instance : ToToml Dependency := ⟨(toToml ·.toToml)⟩
 
+/-! ## Package & Target Configuration Encoders -/
+
+private def genToToml
+  (cmds : Array Command)
+  (tyName : Name) [info : ConfigInfo tyName] (takesName : Bool)
+  (exclude : Array Name := #[])
+: MacroM (Array Command) := do
+  let val ← if takesName then `(t.insert `name $(mkIdent `n)) else `(t)
+  let ty := if takesName then Syntax.mkCApp tyName #[mkIdent `n] else mkCIdent tyName
+  let val ← info.fields.foldlM (init := val) fun val {name, canonical, ..} => do
+    if !canonical || exclude.contains name then
+      return val
+    else
+      `($val |>.insertField cfg $(quote name))
+  let id ← mkIdentFromRef <| `_root_ ++ tyName.str "toToml"
+  let cmds ← cmds.push <$> `(def $id (cfg : $ty) (t : Table := {}) := $val)
+  let instId ← mkIdentFromRef <| `_root_ ++ tyName.str "instToToml"
+  let cmds ← cmds.push <$> `(instance $instId:ident : ToToml $ty := ⟨(toToml ·.toToml)⟩)
+  return cmds
+
+local macro "gen_toml_encoders%" : command => do
+  let cmds := #[]
+  -- Targets
+  let cmds ← genToToml cmds ``LeanConfig false
+    (exclude := #[`dynlibs, `plugins])
+  let cmds ← genToToml cmds ``LeanLibConfig true
+    (exclude := #[`nativeFacets, `dynlibs, `plugins])
+  let cmds ← genToToml cmds ``LeanExeConfig true
+    (exclude := #[`nativeFacets, `dynlibs, `plugins])
+  -- Package
+  let cmds ← genToToml cmds ``WorkspaceConfig false
+  let cmds ← genToToml cmds ``PackageConfig true
+    (exclude := #[`nativeFacets, `dynlibs, `plugins])
+  return ⟨mkNullNode cmds⟩
+
+gen_toml_encoders%
+
+@[inline] def Toml.Table.insertTargets
+  (pkg : Package) (kind : Name)
+  (toToml : {n : Name} → ConfigType kind pkg.name n → Table) (t : Table)
+: Table :=
+  t.smartInsert kind <| pkg.targetDecls.filterMap (·.config? kind |>.map toToml)
+
 /-! ## Root Encoder -/
 
 /-- Create a TOML table that encodes the declarative configuration of the package. -/
 def Package.mkTomlConfig (pkg : Package) (t : Table := {}) : Table :=
-  pkg.config.toToml t
-  |>.smartInsert `testDriver pkg.testDriver
-  |>.smartInsert `testDriverArgs pkg.testDriverArgs
-  |>.smartInsert `lintDriver pkg.lintDriver
-  |>.smartInsert `lintDriverArgs pkg.lintDriverArgs
+  let cfg : PackageConfig pkg.name :=
+    {pkg.config with testDriver := pkg.testDriver, lintDriver := pkg.lintDriver}
+  cfg.toToml t
   |>.smartInsert `defaultTargets pkg.defaultTargets
   |>.smartInsert `require pkg.depConfigs
-  |>.smartInsert `lean_lib (pkg.targetDecls.filterMap (·.leanLibConfig?.map toToml))
-  |>.smartInsert `lean_exe (pkg.targetDecls.filterMap (·.leanExeConfig?.map toToml))
+  |>.insertTargets pkg `lean_lib LeanLibConfig.toToml
+  |>.insertTargets pkg `lean_exe LeanExeConfig.toToml

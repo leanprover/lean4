@@ -85,11 +85,16 @@ where
     | HAppend.hAppend _ _ _ _ lhsExpr rhsExpr =>
       let some lhs ← goOrAtom lhsExpr | return none
       let some rhs ← goOrAtom rhsExpr | return none
-      let bvExpr := .append lhs.bvExpr rhs.bvExpr
-      let expr := mkApp4 (mkConst ``BVExpr.append)
-        (toExpr lhs.width)
-        (toExpr rhs.width)
-        lhs.expr rhs.expr
+      let bvExpr := .append lhs.bvExpr rhs.bvExpr rfl
+      let wExpr := toExpr (lhs.width + rhs.width)
+      let expr :=
+        mkApp6 (mkConst ``BVExpr.append)
+          (toExpr lhs.width)
+          (toExpr rhs.width)
+          wExpr
+          lhs.expr
+          rhs.expr
+          (← mkEqRefl wExpr)
       let proof := do
         let lhsEval ← ReifiedBVExpr.mkEvalExpr lhs.width lhs.expr
         let rhsEval ← ReifiedBVExpr.mkEvalExpr rhs.width rhs.expr
@@ -108,11 +113,15 @@ where
     | BitVec.replicate _ nExpr innerExpr =>
       let some inner ← goOrAtom innerExpr | return none
       let some n ← getNatValue? nExpr | return none
-      let bvExpr := .replicate n inner.bvExpr
-      let expr := mkApp3 (mkConst ``BVExpr.replicate)
-        (toExpr inner.width)
-        (toExpr n)
-        inner.expr
+      let bvExpr := .replicate n inner.bvExpr rfl
+      let newWExpr := toExpr (inner.width * n)
+      let expr :=
+        mkApp5 (mkConst ``BVExpr.replicate)
+          (toExpr inner.width)
+          newWExpr
+          (toExpr n)
+          inner.expr
+          (← mkEqRefl newWExpr)
       let proof := do
         let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
         -- This is safe as `replicate_congr` holds definitionally if the arguments are defeq.
@@ -175,10 +184,11 @@ where
   to return `some`.
   -/
   goOrAtom (x : Expr) : LemmaM (Option ReifiedBVExpr) := do
-    let res ← go x
-    match res with
-    | some exp => return some exp
-    | none => ReifiedBVExpr.bitVecAtom x false
+    LemmaM.withBVExprCache x fun x => do
+      let res ← go x
+      match res with
+      | some exp => return some exp
+      | none => ReifiedBVExpr.bitVecAtom x false
 
   shiftConstLikeReflection (distance : Nat) (innerExpr : Expr) (shiftOp : Nat → BVUnOp)
       (shiftOpName : Name) (congrThm : Name) :
@@ -274,9 +284,10 @@ Reify an `Expr` that is a predicate about `BitVec`.
 Unless this function is called on something that is not a `Bool` it is always going to return `some`.
 -/
 partial def ReifiedBVPred.of (t : Expr) : LemmaM (Option ReifiedBVPred) := do
-  match ← go t with
-  | some pred => return some pred
-  | none => ReifiedBVPred.boolAtom t
+  LemmaM.withBVPredCache t fun t => do
+    match ← go t with
+    | some pred => return some pred
+    | none => ReifiedBVPred.boolAtom t
 where
   /--
   Reify `t`, returns `none` if the reification procedure failed.
@@ -335,9 +346,10 @@ where
   Unless this function is called on something that is not a `Bool` it is always going to return `some`.
   -/
   goOrAtom (t : Expr) : LemmaM (Option ReifiedBVLogical) := do
-    match ← go t with
-    | some boolExpr => return some boolExpr
-    | none => ReifiedBVLogical.boolAtom t
+    LemmaM.withBVLogicalCache t fun t => do
+      match ← go t with
+      | some boolExpr => return some boolExpr
+      | none => ReifiedBVLogical.boolAtom t
 
   gateReflection (lhsExpr rhsExpr : Expr) (gate : Gate) :
       LemmaM (Option ReifiedBVLogical) := do

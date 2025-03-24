@@ -13,6 +13,16 @@ theorem nextPowerOfTwo_dec {n power : Nat} (h₁ : power > 0) (h₂ : power < n)
   rw [this, Nat.sub_add_eq]
   exact Nat.sub_lt (Nat.zero_lt_sub_of_lt h₂) h₁
 
+/--
+Returns the least power of two that's greater than or equal to `n`.
+
+Examples:
+ * `Nat.nextPowerOfTwo 0 = 1`
+ * `Nat.nextPowerOfTwo 1 = 1`
+ * `Nat.nextPowerOfTwo 2 = 2`
+ * `Nat.nextPowerOfTwo 3 = 4`
+ * `Nat.nextPowerOfTwo 5 = 8`
+-/
 def nextPowerOfTwo (n : Nat) : Nat :=
   go 1 (by decide)
 where
@@ -24,6 +34,9 @@ where
   termination_by n - power
   decreasing_by simp_wf; apply nextPowerOfTwo_dec <;> assumption
 
+/--
+A natural number `n` is a power of two if there exists some `k : Nat` such that `n = 2 ^ k`.
+-/
 def isPowerOfTwo (n : Nat) := ∃ k, n = 2 ^ k
 
 theorem isPowerOfTwo_one : isPowerOfTwo 1 :=

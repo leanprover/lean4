@@ -4629,6 +4629,10 @@ theorem msb_intMin {w : Nat} : (intMin w).msb = decide (0 < w) := by
 /-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
 def intMax (w : Nat) := (twoPow w (w - 1)) - 1
 
+theorem intMax_def {w} :
+    intMax w = (twoPow w (w - 1)) - 1#w := rfl
+
+
 @[simp, bitvec_to_nat]
 theorem toNat_intMax : (intMax w).toNat = 2 ^ (w - 1) - 1 := by
   simp only [intMax]
@@ -4656,16 +4660,21 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
 
 @[simp]
 theorem toInt_intMax : (intMax w).toInt = 2 ^ (w - 1) - 1 := by
-  have : intMax w = BitVec.twoPow w (w - 1) - 1#w := by simp [intMax]
-  rw [this]
+  rw [intMax_def, toInt_eq_toNat_bmod, toNat_sub]
   rcases w with _|_|w
   · decide
   · decide
   · have : 1 < 2 ^ (w + 1 + 1) := Nat.one_lt_two_pow (by omega)
-    rw_mod_cast [BitVec.twoPow, BitVec.toInt_sub, BitVec.toInt_shiftLeft, BitVec.toNat_ofNat,
-      Int.bmod_sub_bmod_congr, toInt_one_of_lt (by omega), Nat.shiftLeft_eq,
-      Nat.mod_eq_of_lt (by omega), Int.bmod_eq_of_le_of_lt (by omega) (by rw [← Nat.two_pow_pred_add_two_pow_pred (w := w + 1 + 1) (by omega)]; omega)]
-    simp [Nat.add_one_sub_one, Nat.one_mul]
+    have : 1 < 2 ^ (w + 2) := by simp [show 1 + 1 = 2 by rfl]
+    simp only [toNat_ofNat, Nat.lt_add_left_iff_pos, Nat.zero_lt_succ, Nat.one_mod_two_pow,
+      Nat.add_one_sub_one, toNat_twoPow, Nat.add_mod_mod, Int.ofNat_emod, Int.natCast_add,
+      Int.emod_bmod_congr]
+    norm_cast
+    simp only [show w + 1 + 1 = w + 2 by omega,
+      show (2 ^ (w + 2) - 1 + 2 ^ (w + 1)) = (2 ^ (w + 1) - 1) + (2 ^ (w + 2)) by omega,
+      Int.natCast_add, Int.bmod_add_cancel (n := 2 ^ (w + 2))]
+    rw [Int.bmod_eq_of_le_of_lt (by omega) (by simp [Nat.pow_add]; omega)]
+    omega
 
 /-! ### Non-overflow theorems -/
 

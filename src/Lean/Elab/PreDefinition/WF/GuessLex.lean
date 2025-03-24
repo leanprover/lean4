@@ -494,7 +494,7 @@ def RecCallCache.mk (funNames : Array Name) (decrTactics : Array (Option Decreas
   let decrTactic? := decrTactics[rcc.caller]!
   let callerMeasures := measuress[rcc.caller]!
   let calleeMeasures := measuress[rcc.callee]!
-  let cache ← IO.mkRef <| Array.mkArray callerMeasures.size (Array.mkArray calleeMeasures.size Option.none)
+  let cache ← IO.mkRef <| Array.replicate callerMeasures.size (Array.replicate calleeMeasures.size Option.none)
   return { callerName, decrTactic?, callerMeasures, calleeMeasures, rcc, cache }
 
 /-- Run `evalRecCall` and cache there result -/
@@ -551,7 +551,7 @@ where
   -- Enumerate all permissible uniform combinations
   goUniform (idx : Nat) : OptionT (StateM (Array (Array Nat))) Unit  := do
     if numMeasures.all (idx < ·) then
-      modify (·.push (Array.mkArray numMeasures.size idx))
+      modify (·.push (Array.replicate numMeasures.size idx))
       goUniform (idx + 1)
 
   -- Enumerate all other permissible combinations

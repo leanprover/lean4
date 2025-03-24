@@ -77,8 +77,9 @@ def StrPat.matches (s : String) : (self : StrPat) → Bool
 /-! # PackageConfig -/
 --------------------------------------------------------------------------------
 
+set_option linter.unusedVariables false in
 /-- A `Package`'s declarative configuration. -/
-structure PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig where
+configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig where
   /--
   **This field is deprecated.**
 
@@ -162,28 +163,13 @@ structure PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig where
   If `none` (the default), for downloads, Lake uses the URL the package was download
   from (if it is a dependency) and for uploads, uses `gh`'s default.
   -/
-  releaseRepo? : Option String := none
-
-  /--
-  The URL of the GitHub repository to upload and download releases of this package.
-  If `none` (the default), for downloads, Lake uses the URL the package was download
-  from (if it is a dependency) and for uploads, uses `gh`'s default.
-  -/
-  releaseRepo : Option String := none
+  releaseRepo, releaseRepo? : Option String := none
 
   /--
   A custom name for the build archive for the GitHub cloud release.
-  If `none` (the default), Lake uses `buildArchive`, which defaults to
-  `{(pkg-)name}-{System.Platform.target}.tar.gz`.
+  If `none` (the default), Lake defaults to `{(pkg-)name}-{System.Platform.target}.tar.gz`.
   -/
-  buildArchive? : Option String := none
-
-  /--
-  A custom name for the build archive for the GitHub cloud release.
-  Defaults to `{(pkg-)name}-{System.Platform.target}.tar.gz`.
-  -/
-  buildArchive : String :=
-    if let some name := buildArchive? then name else defaultBuildArchive name
+  buildArchive, buildArchive? : Option String := none
 
   /--
   Whether to prefer downloading a prebuilt release (from GitHub) rather than
@@ -201,7 +187,7 @@ structure PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig where
   (e.g., via  `lake lint -- <args>...`). An executable driver will be built
   and then run like a script. A library will just be built.
   -/
-  testDriver : String := ""
+  testDriver, testRunner : String := ""
 
   /--
   Arguments to pass to the package's test driver.
@@ -354,6 +340,8 @@ structure PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig where
 
 deriving Inhabited
 
+instance : EmptyCollection (PackageConfig n) := ⟨{}⟩
+
 /-- The package's name. -/
 abbrev PackageConfig.name (_ : PackageConfig n) := n
 
@@ -408,6 +396,9 @@ structure Package where
   defaultScripts : Array Script := #[]
   /-- Post-`lake update` hooks for the package. -/
   postUpdateHooks : Array (OpaquePostUpdateHook name) := #[]
+  /-- The package's `buildArchive`/`buildArchive?` configuration. -/
+  buildArchive : String :=
+    if let some n := config.buildArchive then n else defaultBuildArchive name
   /-- The driver used for `lake test` when this package is the workspace root. -/
   testDriver : String := config.testDriver
   /-- The driver used for `lake lint` when this package is the workspace root. -/
@@ -547,15 +538,11 @@ namespace Package
 
 /-- The package's `releaseRepo`/`releaseRepo?` configuration. -/
 @[inline] def releaseRepo? (self : Package) : Option String :=
-  self.config.releaseRepo <|> self.config.releaseRepo?
+  self.config.releaseRepo
 
 /-- The packages `remoteUrl` as an `Option` (`none` if empty). -/
 @[inline] def remoteUrl? (self : Package) : Option String :=
   if self.remoteUrl.isEmpty then some self.remoteUrl else none
-
-/-- The package's `buildArchive`/`buildArchive?` configuration. -/
-@[inline] def buildArchive (self : Package) : String :=
-  self.config.buildArchive
 
 /-- The package's `lakeDir` joined with its `buildArchive`. -/
 @[inline] def buildArchiveFile (self : Package) : FilePath :=

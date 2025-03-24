@@ -556,18 +556,13 @@ def delabDelayedAssignedMVar : Delab := whenNotPPOption getPPMVarsDelayed do
     delabMVarAux decl.mvarIdPending
 
 private partial def collectStructFields
+    (structName : Name)
+    (paramMap : NameMap Expr)
     (fields : Array (TSyntax ``Parser.Term.structInstField))
     (fieldValues : NameMap Expr)
     (s : ConstructorVal) :
     DelabM (NameMap Expr × Array (TSyntax ``Parser.Term.structInstField)) := do
   let env ← getEnv
-  -- For default value handling, we need to create a map of type parameter names to expressions.
-  let args := (← getExpr).getAppArgs
-  let paramMap : NameMap Expr ← forallTelescope s.type fun xs _ => do
-    let mut paramMap := {}
-    for i in [:s.numParams] do
-      paramMap := paramMap.insert (← xs[i]!.fvarId!.getUserName) args[i]!
-    return paramMap
   let fieldNames := getStructureFields env s.induct
   let (_, fieldValues, fields) ← withBoundedAppFnArgs s.numFields
     (do return (0, fieldValues, fields))
@@ -580,11 +575,11 @@ private partial def collectStructFields
         if ← getPPOption getPPStructureInstancesFlatten then
           if let some s' ← isConstructorApp? (← getExpr) then
             if s'.induct == parentName then
-              let (fieldValues, fields) ← collectStructFields fields fieldValues s'
+              let (fieldValues, fields) ← collectStructFields structName paramMap fields fieldValues s'
               return (i + 1, fieldValues, fields)
       /- Does it have the default value, and should it be omitted? -/
       unless ← getPPOption getPPStructureInstancesDefaults do
-        if let some defFn := getDefaultFnForField? (← getEnv) s.induct fieldName then
+        if let some defFn := getEffectiveDefaultFnForField? (← getEnv) structName fieldName then
           let cinfo ← getConstInfo defFn
           let defValue := cinfo.instantiateValueLevelParams! (← mkFreshLevelMVarsFor cinfo)
           if let some defValue ← withNewMCtxDepth <| processDefaultValue paramMap fieldValues defValue then
@@ -668,12 +663,17 @@ def delabStructureInstance : Delab := do
     If `pp.structureInstances.flatten` is true (and `pp.explicit` is false or the subobject has no parameters)
     then subobjects are flattened.
     -/
-    let (_, fields) ← collectStructFields #[] {} s
-    if ← withType <| getPPOption getPPStructureInstanceType then
-      let tyStx ← withType delab
-      `({ $fields,* : $tyStx })
-    else
-      `({ $fields,* })
+    -- For default value handling, we need to create a map of type parameter names to expressions.
+    let args := (← getExpr).getAppArgs
+    let paramMap : NameMap Expr ← forallTelescope s.type fun xs _ => do
+      let mut paramMap := {}
+      for param in args[:s.numParams], x in xs do
+        paramMap := paramMap.insert (← x.fvarId!.getUserName) param
+      return paramMap
+    let (_, fields) ← collectStructFields s.induct paramMap #[] {} s
+    let tyStx? : Option Term ← withType do
+      if ← getPPOption getPPStructureInstanceType then delab else pure none
+    `({ $fields,* $[: $tyStx?]? })
 
 
 /-- State for `delabAppMatch` and helpers. -/

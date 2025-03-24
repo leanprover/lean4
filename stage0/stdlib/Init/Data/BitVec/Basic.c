@@ -134,6 +134,7 @@ LEAN_EXPORT lean_object* l_BitVec_toHex___boxed(lean_object*, lean_object*);
 static lean_object* l_BitVec_term_____x23_x27_______closed__5;
 static lean_object* l_BitVec___aux__Init__Data__BitVec__Basic______macroRules__BitVec__term_____x23______1___closed__5;
 LEAN_EXPORT lean_object* l_BitVec_ushiftRight___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_BitVec_negOverflow(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_ule___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_setWidth_x27___rarg(lean_object*);
 lean_object* l_Int_pow(lean_object*, lean_object*);
@@ -299,9 +300,11 @@ static lean_object* l_BitVec_term_____x23_______closed__19;
 static lean_object* l_BitVec_term_____x23_x27_______closed__8;
 LEAN_EXPORT lean_object* l_BitVec_xor(lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_negOverflow___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_ult___boxed(lean_object*);
 static lean_object* l_BitVec___aux__Init__Data__BitVec__Basic______macroRules__BitVec__term_____x23______1___closed__12;
 LEAN_EXPORT lean_object* l_BitVec_not___boxed(lean_object*, lean_object*);
+uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_zero___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_toHex(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_rotateRightAux(lean_object*, lean_object*, lean_object*);
@@ -3711,6 +3714,34 @@ x_4 = l_BitVec_saddOverflow(x_1, x_2, x_3);
 lean_dec(x_1);
 x_5 = lean_box(x_4);
 return x_5;
+}
+}
+LEAN_EXPORT uint8_t l_BitVec_negOverflow(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_3 = l_BitVec_toInt(x_1, x_2);
+x_4 = lean_unsigned_to_nat(1u);
+x_5 = lean_nat_sub(x_1, x_4);
+x_6 = l_BitVec_saddOverflow___closed__1;
+x_7 = l_Int_pow(x_6, x_5);
+lean_dec(x_5);
+x_8 = lean_int_neg(x_7);
+lean_dec(x_7);
+x_9 = lean_int_dec_eq(x_3, x_8);
+lean_dec(x_8);
+lean_dec(x_3);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_negOverflow___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_BitVec_negOverflow(x_1, x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_BitVec_reverse(lean_object* x_1, lean_object* x_2) {

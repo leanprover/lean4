@@ -89,7 +89,7 @@ inductive Inv2 (decls : Array (Decl α)) : Nat → HashMap α Nat → Prop where
   (hmap : map[a]? = none) : Inv2 decls (idx + 1) (map.insert a val)
 | oldAtom (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .atom a)
   (hmap : map[a]? = some n) : Inv2 decls (idx + 1) map
-| const (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .const b) :
+| false (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .false) :
   Inv2 decls (idx + 1) map
 | gate (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .gate l r li ri) :
   Inv2 decls (idx + 1) map
@@ -113,7 +113,7 @@ theorem Inv2.property (decls : Array (Decl α)) (idx upper : Nat) (map : HashMap
     replace hidx : idx ≤ idx' := by omega
     rw [HashMap.getElem?_insert]
     match heq2 : a' == a with
-    | false =>
+    | .false =>
       simp only [Bool.false_eq_true, ↓reduceIte]
       cases Nat.eq_or_lt_of_le hidx with
       | inl hidxeq =>
@@ -134,8 +134,8 @@ theorem Inv2.property (decls : Array (Decl α)) (idx upper : Nat) (map : HashMap
       apply Exists.intro
       assumption
     | inr hlt => apply ih5 <;> assumption
-  | const ih1 ih2 ih3 ih4 =>
-    next idx' _ _ =>
+  | false ih1 ih2 ih3 ih4 =>
+    next idx' _ =>
     replace hidx : idx ≤ idx' := by omega
     cases Nat.eq_or_lt_of_le hidx with
     | inl hidxeq => simp [hidxeq, ih3] at heq
@@ -210,14 +210,14 @@ def addAtom {decls : Array (Decl α)} {hidx} (state : State α decls idx) (a : �
     }
 
 /--
-Insert a `Decl.const` into the `State` structure.
+Insert a `Decl.false` into the `State` structure.
 -/
-def addConst {decls : Array (Decl α)} {hidx} (state : State α decls idx) (b : Bool)
-    (h : decls[idx]'hidx = .const b) :
+def addFalse {decls : Array (Decl α)} {hidx} (state : State α decls idx)
+    (h : decls[idx]'hidx = .false) :
     State α decls (idx + 1) :=
   { state with
     inv2 := by
-      apply Inv2.const
+      apply Inv2.false
       · exact state.inv2
       · assumption
   }
@@ -246,7 +246,7 @@ where
       let decl := decls[idx]
       match hdecl : decl with
       | .atom a => go decls (idx + 1) (state.addAtom a hdecl)
-      | .const b => go decls (idx + 1) (state.addConst b hdecl)
+      | .false => go decls (idx + 1) (state.addFalse hdecl)
       | .gate lhs rhs linv rinv => go decls (idx + 1) (state.addGate lhs rhs linv rinv hdecl)
     else
       have : idx = decls.size := by

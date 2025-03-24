@@ -27,7 +27,7 @@ info: [Meta.debug] [‹i < a.toList.length›, ‹j < a.toList.length›, ‹j <
 -/
 #guard_msgs (info) in
 example (i j : Nat) (a b : Array Nat) (h1 : j < a.size) (h : j < b.size) (h2 : i ≤ j) : a[i] < a[j] + b[j] → i = j → a = b → False := by
-  grind on_failure fallback
+  grind -mbtc on_failure fallback
 
 /--
 info: [Meta.debug] [‹i < a.toList.length›, ‹j < a.toList.length›, ‹j < b.toList.length›]
@@ -35,4 +35,4 @@ info: [Meta.debug] [‹i < a.toList.length›, ‹j < a.toList.length›, ‹j <
 -/
 #guard_msgs (info) in
 example (i j : Nat) (a b : Array Nat) (h1 : j < a.size) (h : j < b.size) (h2 : i ≤ j) : a[i] < a[j] + b[j] → i = j → False := by
-  grind on_failure fallback
+  grind -mbtc on_failure fallback

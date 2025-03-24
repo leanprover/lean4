@@ -68,20 +68,20 @@ private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) 
   logInfo m
 
 /--
-Computes the origin of a field. Returns its projection function at the origin.
+Computes the origin of a field. Returns its `StructureFieldInfo` at the origin.
 Multiple parents could be the origin of a field, but we say the first parent that provides it is the one that determines the origin.
 -/
-private partial def getFieldOrigin (structName field : Name) : MetaM Name := do
+private partial def getFieldOrigin (structName field : Name) : MetaM StructureFieldInfo := do
   let env ← getEnv
   for parent in getStructureParentInfo env structName do
     if (findField? env parent.structName field).isSome then
       return ← getFieldOrigin parent.structName field
   let some fi := getFieldInfo? env structName field
     | throwError "no such field {field} in {structName}"
-  return fi.projFn
+  return fi
 
 open Meta in
-private def printStructure (id : Name) (levelParams : List Name) (numParams : Nat) (type : Expr)
+private partial def printStructure (id : Name) (levelParams : List Name) (numParams : Nat) (type : Expr)
     (isUnsafe : Bool) : CommandElabM Unit := do
   let env ← getEnv
   let kind := if isClass env id then "class" else "structure"
@@ -103,17 +103,47 @@ private def printStructure (id : Name) (levelParams : List Name) (numParams : Na
           let ptype ← inferType (mkApp (mkAppN (.const parent.projFn (levelParams.map .param)) params) self)
           m := m ++ indentD m!"{.ofConstName parent.projFn (fullNames := true)} : {ptype}"
       -- Fields
+      -- Collect params in a map for default value processing
+      let paramMap : NameMap Expr ← params.foldlM (init := {}) fun paramMap param => do
+        pure <| paramMap.insert (← param.fvarId!.getUserName) param
+      -- Collect autoParam tactics, which are all on the flat constructor:
+      let flatCtorName := mkFlatCtorOfStructName id
+      let autoParams : NameMap Syntax ← forallTelescope (← getConstInfo flatCtorName).type fun args _ =>
+        args[numParams:].foldlM (init := {}) fun set arg => do
+          let decl ← arg.fvarId!.getDecl
+          if let some (.const tacticDecl _) := decl.type.getAutoParamTactic? then
+            let tacticSyntax ← ofExcept <| evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl
+            pure <| set.insert decl.userName tacticSyntax
+          else
+            pure set
       let fields := getStructureFieldsFlattened env id (includeSubobjectFields := false)
       if fields.isEmpty then
         m := m ++ Format.line ++ "fields: (none)"
       else
         m := m ++ Format.line ++ "fields:"
+        -- Map of fields to projections of `self`
+        let fieldMap : NameMap Expr ← fields.foldlM (init := {}) fun fieldMap field => do
+          pure <| fieldMap.insert field (← mkProjection self field)
         for field in fields do
           let some source := findField? env id field | panic! "missing structure field info"
-          let proj ← getFieldOrigin source field
+          let fi ← getFieldOrigin source field
+          let proj := fi.projFn
           let modifier := if isPrivateName proj then "private " else ""
-          let ftype ← inferType (← mkProjection self field)
-          m := m ++ indentD (m!"{modifier}{.ofConstName proj (fullNames := true)} : {ftype}")
+          let ftype ← inferType (fieldMap.find! field)
+          let value ←
+            if let some stx := autoParams.find? field then
+              let stx : TSyntax ``Parser.Tactic.tacticSeq := ⟨stx⟩
+              pure m!" := by{indentD stx}"
+            else if let some defFn := getEffectiveDefaultFnForField? env id field then
+              let cinfo ← getConstInfo defFn
+              let defValue ← instantiateValueLevelParams cinfo (levelParams.map .param)
+              if let some val ← processDefaultValue paramMap fieldMap defValue then
+                pure m!" :={indentExpr val}"
+              else
+                pure m!" := <error>"
+            else
+              pure m!""
+          m := m ++ indentD (m!"{modifier}{.ofConstName proj (fullNames := true)} : {MessageData.nest 2 ftype}{value}")
       -- Constructor
       let cinfo := getStructureCtor (← getEnv) id
       let ctorModifier := if isPrivateName cinfo.name then "private " else ""
@@ -123,7 +153,27 @@ private def printStructure (id : Name) (levelParams : List Name) (numParams : Na
       if resOrder.size > 1 then
         m := m ++ Format.line ++ "field notation resolution order:"
           ++ indentD (MessageData.joinSep (resOrder.map (.ofConstName · (fullNames := true))).toList ", ")
-      logInfo m
+      -- Omit proofs; the delaborator enables `pp.proofs` for non-constant proofs, but we don't want this for default values
+      withOptions (fun opts => opts.set pp.proofs.name false) do
+        logInfo m
+where
+  processDefaultValue (paramMap : NameMap Expr) (fieldValues : NameMap Expr) : Expr → MetaM (Option Expr)
+  | .lam n d b c => do
+    if c.isExplicit then
+      let some val := fieldValues.find? n | return none
+      if ← isDefEq (← inferType val) d then
+        processDefaultValue paramMap fieldValues (b.instantiate1 val)
+      else
+        return none
+    else
+      let some param := paramMap.find? n | return none
+      if ← isDefEq (← inferType param) d then
+        processDefaultValue paramMap fieldValues (b.instantiate1 param)
+      else
+        return none
+  | e =>
+    let_expr id _ a := e | return some e
+    return some a
 
 private def printIdCore (id : Name) : CommandElabM Unit := do
   let env ← getEnv

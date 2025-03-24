@@ -865,37 +865,55 @@ noncomputable def HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : S
 noncomputable def HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : HEq a b) (h₂ : p a) : p b :=
   eq_of_heq h₁ ▸ h₂
 
+/-- Substitution with heterogeneous equality. -/
 theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : HEq a b) (h₂ : p α a) : p β b :=
   HEq.ndrecOn h₁ h₂
 
+/-- Heterogeneous equality is symmetric. -/
 @[symm] theorem HEq.symm (h : HEq a b) : HEq b a :=
   h.rec (HEq.refl a)
 
+/-- Propositionally equal terms are also heterogeneously equal. -/
 theorem heq_of_eq (h : a = a') : HEq a a' :=
   Eq.subst h (HEq.refl a)
 
+/-- Heterogeneous equality is transitive. -/
 theorem HEq.trans (h₁ : HEq a b) (h₂ : HEq b c) : HEq a c :=
   HEq.subst h₂ h₁
 
+/-- Heterogeneous equality precomposes with propositional equality. -/
 theorem heq_of_heq_of_eq (h₁ : HEq a b) (h₂ : b = b') : HEq a b' :=
   HEq.trans h₁ (heq_of_eq h₂)
 
+/-- Heterogeneous equality postcomposes with propositional equality. -/
 theorem heq_of_eq_of_heq (h₁ : a = a') (h₂ : HEq a' b) : HEq a b :=
   HEq.trans (heq_of_eq h₁) h₂
 
+/-- If two terms are heterogeneously equal then their types are propositionally equal. -/
 theorem type_eq_of_heq (h : HEq a b) : α = β :=
   h.rec (Eq.refl α)
 
 end
 
+/--
+Rewriting inside `φ` using `Eq.recOn` yields a term that's heterogeneously equal to the original
+term.
+-/
 theorem eqRec_heq {α : Sort u} {φ : α → Sort v} {a a' : α} : (h : a = a') → (p : φ a) → HEq (Eq.recOn (motive := fun x _ => φ x) h p) p
   | rfl, p => HEq.refl p
 
+/--
+If casting a term with `Eq.rec` to another type makes it equal to some other term, then the two
+terms are heterogeneously equal.
+-/
 theorem heq_of_eqRec_eq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ : Eq.rec (motive := fun α _ => α) a h₁ = b) : HEq a b := by
   subst h₁
   apply heq_of_eq
   exact h₂
 
+/--
+The result of casting a term with `cast` is heterogeneously equal to the original term.
+-/
 theorem cast_heq {α β : Sort u} : (h : α = β) → (a : α) → HEq (cast h a) a
   | rfl, a => HEq.refl a
 

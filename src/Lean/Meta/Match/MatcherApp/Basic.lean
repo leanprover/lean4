@@ -54,7 +54,7 @@ def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (alsoCases
       let params     := args[:info.numParams]
       let motive     := args[info.numParams]!
       let discrs     := args[info.numParams + 1 : info.numParams + 1 + info.numIndices + 1]
-      let discrInfos := Array.mkArray (info.numIndices + 1) {}
+      let discrInfos := .replicate (info.numIndices + 1) {}
       let alts       := args[info.numParams + 1 + info.numIndices + 1 : info.numParams + 1 + info.numIndices + 1 + info.numCtors]
       let remaining  := args[info.numParams + 1 + info.numIndices + 1 + info.numCtors :]
       let uElimPos?  := if info.levelParams.length == declLevels.length then none else some 0

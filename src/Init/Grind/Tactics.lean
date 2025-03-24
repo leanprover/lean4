@@ -74,6 +74,11 @@ structure Config where
   using rational numbers, and ignoring divisibility constraints.
   This approach is cheaper but incomplete. -/
   qlia : Bool := false
+  /--
+  If `mbtc` is `true`, `grind` will use model-based theory commbination for creating new case splits.
+  See paper "Model-based Theory Combination" for details.
+  -/
+  mbtc : Bool := true
   deriving Inhabited, BEq
 
 end Lean.Grind

@@ -23,16 +23,16 @@ namespace AIG
 namespace Decl
 
 /--
-Produce a Tseitin style CNF for a `Decl.const`, using `output` as the tree node variable.
+Produce a Tseitin style CNF for a `Decl.false`, using `output` as the tree node variable.
 -/
-def constToCNF (output : α) (const : Bool) : CNF α :=
-  [[(output, const)]]
+def falseToCNF (output : α) : CNF α :=
+  [[(output, .false)]]
 
 /--
 Produce a Tseitin style CNF for a `Decl.atom`, using `output` as the tree node variable.
 -/
 def atomToCNF (output : α) (atom : α) : CNF α :=
-  [[(output, true), (atom, false)], [(output, false), (atom, true)]]
+  [[(output, true), (atom, .false)], [(output, .false), (atom, true)]]
 
 /--
 Produce a Tseitin style CNF for a `Decl.gate`, using `output` as the tree node variable.
@@ -43,17 +43,17 @@ def gateToCNF (output : α) (lhs rhs : α) (linv rinv : Bool) : CNF α :=
     -- a ↔ (¬b and c) as CNF: (¬a ∨ ¬b) ∧ (¬a ∨ c) ∧ (a ∨ b ∨ ¬c)
     -- a ↔ (¬b and ¬c) as CNF: (¬a ∨ ¬b) ∧ (¬a ∨ ¬c) ∧ (a ∨ b ∨ c)
    [
-     [(output, false), (lhs, !linv)],
-     [(output, false), (rhs, !rinv)],
+     [(output, .false), (lhs, !linv)],
+     [(output, .false), (rhs, !rinv)],
      [(output, true),  (lhs, linv), (rhs, rinv)]
    ]
 
 @[simp]
-theorem constToCNF_eval :
-    (constToCNF output b).eval assign
+theorem falseToCNF_eval :
+    (falseToCNF output).eval assign
       =
-    (assign output == b) := by
-  simp [constToCNF, CNF.eval, CNF.Clause.eval]
+    (assign output == .false) := by
+  simp [falseToCNF, CNF.eval, CNF.Clause.eval]
 
 @[simp]
 theorem atomToCNF_eval :
@@ -162,7 +162,7 @@ structure Cache.Inv (cnf : CNF (CNFVar aig)) (marks : Array Bool) (hmarks : mark
 /--
 The `Cache` invariant always holds for an empty CNF when all nodes are unmarked.
 -/
-theorem Cache.Inv_init : Inv ([] : CNF (CNFVar aig)) (mkArray aig.decls.size false) (by simp) where
+theorem Cache.Inv_init : Inv ([] : CNF (CNFVar aig)) (.replicate aig.decls.size false) (by simp) where
   hmark := by
     intro lhs rhs linv rinv idx hbound hmarked heq
     simp at hmarked
@@ -254,17 +254,17 @@ theorem Cache.IsExtensionBy_set (cache1 : Cache aig cnf1) (cache2 : Cache aig cn
 A cache with no entries is valid for an empty CNF.
 -/
 def Cache.init (aig : AIG Nat) : Cache aig [] where
-  marks := mkArray aig.decls.size false
+  marks := .replicate aig.decls.size false
   hmarks := by simp
   inv := Inv_init
 
 /--
-Add a `Decl.const` to a `Cache`.
+Add a `Decl.false` to a `Cache`.
 -/
-def Cache.addConst (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
-    (htip : aig.decls[idx]'h = .const b) :
+def Cache.addFalse (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
+    (htip : aig.decls[idx]'h = .false) :
     {
-      out : Cache aig (Decl.constToCNF (.inr ⟨idx, h⟩) b ++ cnf)
+      out : Cache aig (Decl.falseToCNF (.inr ⟨idx, h⟩) ++ cnf)
         //
       Cache.IsExtensionBy cache out idx h
     } :=
@@ -285,11 +285,11 @@ def Cache.addConst (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size
           rw [Array.getElem_set] at hmarked
           split at hmarked
           · next heq =>
-            simp only [heq, CNF.eval_append, Decl.constToCNF_eval, Bool.and_eq_true, beq_iff_eq]
+            simp only [heq, CNF.eval_append, Decl.falseToCNF_eval, Bool.and_eq_true, beq_iff_eq]
               at htip heval
-            simp [denote_idx_const htip, projectRightAssign_property, heval]
+            simp [denote_idx_false htip, projectRightAssign_property, heval]
           · next heq =>
-            simp only [CNF.eval_append, Decl.constToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
+            simp only [CNF.eval_append, Decl.falseToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
             have := cache.inv.heval assign heval.right idx hbound hmarked
             rw [this]
     }
@@ -409,12 +409,12 @@ theorem State.Inv_append (h1 : State.Inv cnf1) (h2 : State.Inv cnf2) :
   constructor <;> assumption
 
 /--
-`State.Inv` holds for the CNF that we produce for a `Decl.const`.
+`State.Inv` holds for the CNF that we produce for a `Decl.false`.
 -/
-theorem State.Inv_constToCNF (heq : aig.decls[upper] = .const b) :
-    State.Inv (aig := aig) (Decl.constToCNF (.inr ⟨upper, h⟩) b) := by
+theorem State.Inv_falseToCNF (heq : aig.decls[upper] = .false) :
+    State.Inv (aig := aig) (Decl.falseToCNF (.inr ⟨upper, h⟩)) := by
   intro assign1
-  simp [CNF.sat_def, denote_idx_const heq]
+  simp [CNF.sat_def, denote_idx_false heq]
 
 /--
 `State.Inv` holds for the CNF that we produce for a `Decl.atom`
@@ -496,15 +496,15 @@ theorem State.IsExtensionBy_rfl (state : State aig) {h}
   apply Cache.IsExtensionBy_rfl <;> assumption
 
 /--
-Add the CNF for a `Decl.const` to the state.
+Add the CNF for a `Decl.false` to the state.
 -/
-def State.addConst (state : State aig) (idx : Nat) (h : idx < aig.decls.size)
-    (htip : aig.decls[idx]'h = .const b) :
+def State.addFalse (state : State aig) (idx : Nat) (h : idx < aig.decls.size)
+    (htip : aig.decls[idx]'h = .false) :
     { out : State aig // State.IsExtensionBy state out idx h } :=
   let ⟨cnf, cache, inv⟩ := state
-  let newCnf := Decl.constToCNF (.inr ⟨idx, h⟩) b
-  have hinv := toCNF.State.Inv_constToCNF htip
-  let ⟨cache, hcache⟩ := cache.addConst idx h htip
+  let newCnf := Decl.falseToCNF (.inr ⟨idx, h⟩)
+  have hinv := toCNF.State.Inv_falseToCNF htip
+  let ⟨cache, hcache⟩ := cache.addFalse idx h htip
   ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [newCnf, hcache]⟩
 
 /--
@@ -597,7 +597,7 @@ where
     else
       let decl := aig.decls[upper]
       match heq : decl with
-      | .const _ => state.addConst upper h heq
+      | .false => state.addFalse upper h heq
       | .atom _ => state.addAtom upper h heq
       | .gate lhs rhs _ _ =>
         have := aig.invariant h heq

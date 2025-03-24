@@ -16,6 +16,7 @@
       "name": "debug",
       "displayName": "Debug build config",
       "cacheVariables": {
+        "LEAN_EXTRA_CXX_FLAGS": "-DLEAN_DEFAULT_THREAD_STACK_SIZE=16*1024*1024",
         "CMAKE_BUILD_TYPE": "Debug"
       },
       "generator": "Unix Makefiles",
@@ -25,10 +26,12 @@
       "name": "sanitize",
       "displayName": "Sanitize build config",
       "cacheVariables": {
-        "LEAN_EXTRA_CXX_FLAGS": "-fsanitize=address,undefined",
-        "LEANC_EXTRA_CC_FLAGS": "-fsanitize=address,undefined -fsanitize-link-c++-runtime",
+        "LEAN_EXTRA_CXX_FLAGS": "-fsanitize=address,undefined -DLEAN_DEFAULT_THREAD_STACK_SIZE=16*1024*1024",
+        "LEANC_EXTRA_CC_FLAGS": "-fsanitize=address,undefined",
+        "LEAN_EXTRA_LINKER_FLAGS": "-fsanitize=address,undefined -fsanitize-link-c++-runtime",
         "SMALL_ALLOCATOR": "OFF",
-        "BSYMBOLIC": "OFF"
+        "BSYMBOLIC": "OFF",
+        "LEAN_TEST_VARS": "MAIN_STACK_SIZE=16000"
       },
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build/sanitize"

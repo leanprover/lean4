@@ -194,7 +194,7 @@ def expandTargetCommand : Macro := fun stx => do
 
 def mkConfigDecl
   (tyName kind : Name)
-  [delTyName : TypeName (KConfigDecl kind)]
+  [ConfigInfo tyName] [delTyName : TypeName (KConfigDecl kind)]
   (doc? : Option DocComment) (attrs? : Option Attributes)
   (nameStx? : Option IdentOrStr) (cfg : OptConfig)
 : CommandElabM Command := do

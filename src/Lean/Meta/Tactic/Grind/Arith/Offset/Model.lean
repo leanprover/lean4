@@ -16,12 +16,12 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
   let dbg := grind.debug.get (← getOptions)
   let nodes := s.nodes
   let isInterpreted (u : Nat) : Bool := isNatNum s.nodes[u]!
-  let mut pre : Array (Option Int) := mkArray nodes.size none
+  let mut pre : Array (Option Int) := .replicate nodes.size none
   /-
   `needAdjust[u]` is true if `u` assignment is not connected to an interpreted value in the graph.
   That is, its assignment may be negative.
   -/
-  let mut needAdjust : Array Bool := mkArray nodes.size true
+  let mut needAdjust : Array Bool := .replicate nodes.size true
   -- Initialize `needAdjust`
   for u in [: nodes.size] do
     if isInterpreted u then

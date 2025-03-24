@@ -334,7 +334,7 @@ private def main (p : Expr) (cnstrs : List Cnstr) : M Unit := do
   let some apps := (← getThe Goal).appMap.find? p.toHeadIndex
     | return ()
   let numParams  := (← read).thm.numParams
-  let assignment := mkArray numParams unassigned
+  let assignment := .replicate numParams unassigned
   let useMT      := (← read).useMT
   let gmt        := (← getThe Goal).ematch.gmt
   for app in apps do
@@ -356,7 +356,7 @@ It traverses disequalities `a = b`, and tries to solve two matching problems:
 private def matchEqBwdPat (p : Expr) : M Unit := do
   let_expr Grind.eqBwdPattern pα plhs prhs := p | return ()
   let numParams  := (← read).thm.numParams
-  let assignment := mkArray numParams unassigned
+  let assignment := .replicate numParams unassigned
   let useMT      := (← read).useMT
   let gmt        := (← getThe Goal).ematch.gmt
   let false      ← getFalseExpr

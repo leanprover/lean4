@@ -924,15 +924,11 @@ and the second `setWidth` is a non-trivial extension.
 @[simp] theorem msb_setWidth'_of_lt {m n : Nat} (p : m < n) (x : BitVec m) :
     (setWidth' (by omega : m ≤ n) x).msb = false := by
   simp [msb_setWidth', msb_eq_false_iff_two_mul_lt]
-  have : x.toNat < 2 ^ n := by sorry
-  rw [Nat.mod_eq_of_lt (by omega)]
-  have : m < n := by omega
-  have : m ≤ n - 1 := by omega
-  have : 2 ^ m ≤ 2 ^ (n - 1) := by sorry
-  have : x.toNat < 2 ^ m := by omega
-  have : x.toNat < 2 ^ (n - 1) := by omega
-  have : x.toNat < 2 ^ m := by omega
+  have := Nat.pow_le_pow_of_le (a := 2) (n := m) (m := n - 1) (by omega) (by omega)
   have := Nat.pow_lt_pow_of_lt (a := 2) (n := m) (m := n) (by omega) (by omega)
+  have : x.toNat < 2 ^ m := by omega
+  have : x.toNat < 2 ^ n := by omega
+  rw [Nat.mod_eq_of_lt (by omega)]
   have := Nat.pow_succ (n := 2) (m := n - 1)
   simp [show n - 1 + 1 = n by omega] at this
   rw [this, Nat.mul_comm]
@@ -952,7 +948,7 @@ theorem toInt_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
   · simp [h, toInt_eq_toNat_bmod]
   · have h' : m < n := by omega
     rw [toInt_setWidth'_of_lt h']
-    simp [h]
+    simp [toInt_setWidth'_of_lt h', h]
 
 @[simp] theorem toFin_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
     (setWidth' p x).toFin = Fin.ofNat' (2 ^ n) x.toNat := by

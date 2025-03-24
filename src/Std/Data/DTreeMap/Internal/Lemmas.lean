@@ -4290,12 +4290,12 @@ theorem isSome_minKey?_iff_isEmpty_eq_false [TransOrd α] (h : t.WF) :
 
 theorem minKey?_insert [TransOrd α] (h : t.WF) {k v} :
     (t.insert k v h.balanced).impl.minKey? =
-      some (t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k') := by
+      some (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simp_to_model [insert] using List.minKey?_insertEntry
 
 theorem minKey?_insert! [TransOrd α] (h : t.WF) {k v} :
     (t.insert! k v).minKey? =
-      some (t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k') := by
+      some (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simpa only [insert_eq_insert!] using minKey?_insert h
 
 theorem isSome_minKey?_insert [TransOrd α] (h : t.WF) {k v} :
@@ -4542,7 +4542,7 @@ theorem minKey_eq_some_iff_mem_and_forall [TransOrd α] [LawfulEqOrd α] (h : t.
 
 theorem minKey_insert [TransOrd α] (h : t.WF) {k v} :
     (t.insert k v h.balanced).impl.minKey (isEmpty_insert h) =
-      t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k' := by
+      t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k' := by
   simp_to_model [insert, minKey, minKey?] using List.minKey_insertEntry
 
 theorem minKey_insert_le_minKey [TransOrd α] (h : t.WF) {k v he} :
@@ -4687,12 +4687,12 @@ theorem minKey!_eq_some_iff_mem_and_forall [TransOrd α]
 
 theorem minKey!_insert [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
     (t.insert k v h.balanced |>.impl.minKey!) =
-      (t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k') := by
+      (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simp_to_model [minKey!, minKey?, insert] using List.minKey!_insertEntry
 
 theorem minKey!_insert! [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
     (t.insert! k v |>.minKey!) =
-      (t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k') := by
+      (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simpa [insert_eq_insert!] using minKey!_insert h
 
 theorem minKey!_insert_le_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
@@ -4901,12 +4901,12 @@ theorem minKeyD_eq_some_iff_mem_and_forall [TransOrd α]
 
 theorem minKeyD_insert [TransOrd α] (h : t.WF) {k v fallback} :
     (t.insert k v h.balanced |>.impl.minKeyD <| fallback) =
-      (t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k') := by
+      (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simp_to_model [minKeyD, minKey?, insert] using List.minKeyD_insertEntry
 
 theorem minKeyD_insert! [TransOrd α] (h : t.WF) {k v fallback} :
     (t.insert! k v |>.minKeyD fallback) =
-      (t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k') := by
+      (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simpa [insert_eq_insert!] using minKeyD_insert h
 
 theorem minKeyD_insert_le_minKeyD [TransOrd α] (h : t.WF) :
@@ -5158,7 +5158,7 @@ theorem maxKey?_le_maxKey?_insert! [TransOrd α] (h : t.WF) {k v km kmi} :
 theorem self_le_maxKey?_insert [TransOrd α] (h : t.WF) {k v kmi} :
     (hkmi : (t.insert k v h.balanced |>.impl.maxKey?.get <| isSome_maxKey?_insert h) = kmi) →
     compare k kmi |>.isLE := by
-  simp_to_model [insert] using List.self_maxKey?_insertEntry_le
+  simp_to_model [insert] using List.self_le_maxKey?_insertEntry
 
 theorem self_le_maxKey?_insert! [TransOrd α] (h : t.WF) {k v kmi} :
     (hkmi : (t.insert! k v |>.maxKey?.get <| isSome_maxKey?_insert! h) = kmi) →
@@ -5186,7 +5186,7 @@ theorem isSome_maxKey?_of_mem [TransOrd α] (h : t.WF) {k} :
 theorem le_maxKey?_of_contains [TransOrd α] (h : t.WF) {k km} :
     (hc : t.contains k) → (hkm : (t.maxKey?.get <| isSome_maxKey?_of_contains h hc) = km) →
     compare k km |>.isLE := by
-  simp_to_model using le_maxKey?_of_containsKey
+  simp_to_model using maxKey?_le_of_containsKey
 
 theorem le_maxKey?_of_mem [TransOrd α] (h : t.WF) {k km} :
     (hc : k ∈ t) → (hkm : (t.maxKey?.get <| isSome_maxKey?_of_mem h hc) = km) →

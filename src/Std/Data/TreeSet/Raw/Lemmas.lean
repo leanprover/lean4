@@ -972,4 +972,138 @@ theorem minD_eq_headD_toList [TransCmp cmp] (h : t.WF) {fallback} :
 
 end Min
 
+section Max
+
+@[simp]
+theorem max?_emptyc :
+    (empty : Raw α cmp).max? = none :=
+  TreeMap.Raw.maxKey?_emptyc
+
+theorem max?_of_isEmpty [TransCmp cmp] (h : t.WF) :
+    (he : t.isEmpty) → t.max? = none :=
+  TreeMap.Raw.maxKey?_of_isEmpty h
+
+@[simp]
+theorem max?_eq_none_iff [TransCmp cmp] (h : t.WF) :
+    t.max? = none ↔ t.isEmpty :=
+  TreeMap.Raw.maxKey?_eq_none_iff h
+
+theorem max?_eq_some_iff_get?_eq_self_and_forall [TransCmp cmp] (h : t.WF) {km} :
+    t.max? = some km ↔ t.get? km = some km ∧ ∀ k ∈ t, (cmp k km).isLE :=
+  DTreeMap.Raw.maxKey?_eq_some_iff_getKey?_eq_self_and_forall h
+
+theorem max?_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {km} :
+    t.max? = some km ↔ km ∈ t ∧ ∀ k ∈ t, (cmp k km).isLE :=
+  DTreeMap.Raw.maxKey?_eq_some_iff_mem_and_forall h
+
+@[simp]
+theorem isNone_max?_eq_isEmpty [TransCmp cmp] (h : t.WF) :
+    t.max?.isNone = t.isEmpty :=
+  TreeMap.Raw.isNone_maxKey?_eq_isEmpty h
+
+@[simp]
+theorem isSome_max?_eq_not_isEmpty [TransCmp cmp] (h : t.WF) :
+    t.max?.isSome = !t.isEmpty :=
+  TreeMap.Raw.isSome_maxKey?_eq_not_isEmpty h
+
+theorem isSome_max?_iff_isEmpty_eq_false [TransCmp cmp] (h : t.WF) :
+    t.max?.isSome ↔ t.isEmpty = false :=
+  TreeMap.Raw.isSome_maxKey?_iff_isEmpty_eq_false h
+
+theorem max?_insert [TransCmp cmp] (h : t.WF) {k} :
+    (t.insert k).max? =
+      t.max?.elim k fun k' => if cmp k' k = .lt then k else k' :=
+  TreeMap.Raw.maxKey?_insertIfNew h
+
+theorem isSome_max?_insert [TransCmp cmp] (h : t.WF) {k} :
+    (t.insert k).max?.isSome :=
+  TreeMap.Raw.isSome_maxKey?_insertIfNew h
+
+theorem max?_le_max?_insert [TransCmp cmp] (h : t.WF) {k km kmi} :
+    (hkm : t.max? = some km) →
+    (hkmi : (t.insert k |>.max? |>.get <| isSome_max?_insert h) = kmi) →
+    cmp km kmi |>.isLE :=
+  TreeMap.Raw.maxKey?_le_maxKey?_insertIfNew h
+
+theorem self_le_max?_insert [TransCmp cmp] (h : t.WF) {k kmi} :
+    (hkmi : (t.insert k |>.max?.get <| isSome_max?_insert h) = kmi) →
+    cmp k kmi |>.isLE :=
+  TreeMap.Raw.self_le_maxKey?_insertIfNew h
+
+theorem contains_max? [TransCmp cmp] (h : t.WF) {km} :
+    (hkm : t.max? = some km) →
+    t.contains km :=
+  TreeMap.Raw.contains_maxKey? h
+
+theorem isSome_max?_of_contains [TransCmp cmp] (h : t.WF) {k} :
+    (hc : t.contains k) → t.max?.isSome :=
+  TreeMap.Raw.isSome_maxKey?_of_contains h
+
+theorem isSome_max?_of_mem [TransCmp cmp] (h : t.WF) {k} :
+    k ∈ t → t.max?.isSome :=
+  TreeMap.Raw.isSome_maxKey?_of_mem h
+
+theorem le_max?_of_contains [TransCmp cmp] (h : t.WF) {k km} :
+    (hc : t.contains k) → (hkm : (t.max?.get <| isSome_max?_of_contains h hc) = km) →
+    cmp k km |>.isLE :=
+  TreeMap.Raw.le_maxKey?_of_contains h
+
+theorem le_max?_of_mem [TransCmp cmp] (h : t.WF) {k km} :
+    (hc : k ∈ t) → (hkm : (t.max?.get <| isSome_max?_of_mem h hc) = km) →
+    cmp k km |>.isLE :=
+  TreeMap.Raw.le_maxKey?_of_mem h
+
+theorem max?_le [TransCmp cmp] {k} (h : t.WF) :
+    (∀ k', t.max? = some k' → (cmp k' k).isLE) ↔ (∀ k', k' ∈ t → (cmp k' k).isLE) :=
+  TreeMap.Raw.maxKey?_le h
+
+theorem get?_max? [TransCmp cmp] (h : t.WF) {km} :
+    (hkm : t.max? = some km) → t.get? km = some km :=
+  TreeMap.Raw.getKey?_maxKey? h
+
+theorem get_max? [TransCmp cmp] (h : t.WF) {km hc} :
+    (hkm : t.max?.get (isSome_max?_of_contains h hc) = km) → t.get km hc = km :=
+  TreeMap.Raw.getKey_maxKey? h
+
+theorem get!_max? [TransCmp cmp] [Inhabited α] (h : t.WF) {km} :
+    (hkm : t.max? = some km) → t.get! km = km :=
+  TreeMap.Raw.getKey!_maxKey? h
+
+theorem getD_max? [TransCmp cmp] (h : t.WF) {km fallback} :
+    (hkm : t.max? = some km) → t.getD km fallback = km :=
+  TreeMap.Raw.getKeyD_maxKey? h
+
+@[simp]
+theorem max?_bind_get? [TransCmp cmp] (h : t.WF) :
+    t.max?.bind t.get? = t.max? :=
+  TreeMap.Raw.maxKey?_bind_getKey? h
+
+theorem max?_erase_eq_iff_not_compare_eq_max? [TransCmp cmp] (h : t.WF) {k} :
+    (t.erase k |>.max?) = t.max? ↔
+      ∀ {km}, t.max? = some km → ¬ cmp k km = .eq :=
+  TreeMap.Raw.maxKey?_erase_eq_iff_not_compare_eq_maxKey? h
+
+theorem max?_erase_eq_of_not_compare_eq_max? [TransCmp cmp] (h : t.WF) {k} :
+    (hc : ∀ {km}, t.max? = some km → ¬ cmp k km = .eq) →
+    (t.erase k |>.max?) = t.max? :=
+  TreeMap.Raw.maxKey?_erase_eq_of_not_compare_eq_maxKey? h
+
+theorem isSome_max?_of_isSome_max?_erase [TransCmp cmp] (h : t.WF) {k} :
+    (hs : t.erase k |>.max?.isSome) →
+    t.max?.isSome :=
+  TreeMap.Raw.isSome_maxKey?_of_isSome_maxKey?_erase h
+
+theorem max?_erase_le_max? [TransCmp cmp] (h : t.WF) {k km kme} :
+    (hkme : (t.erase k |>.max?) = some kme) →
+    (hkm : (t.max?.get <|
+      isSome_max?_of_isSome_max?_erase h <| hkme ▸ Option.isSome_some) = km) →
+    cmp kme km |>.isLE :=
+  TreeMap.Raw.maxKey?_erase_le_maxKey? h
+
+theorem max?_eq_head?_toList [TransCmp cmp] (h : t.WF) :
+    t.max? = t.toList.getLast? :=
+  TreeMap.Raw.maxKey?_eq_getLast?_keys h
+
+end Max
+
 end Std.TreeSet.Raw

@@ -4832,7 +4832,7 @@ theorem minKey_eq_some_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [Lawfu
 theorem minKey_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l : List ((a : α) × β a)}
     (hd : DistinctKeys l) {k v} :
     (insertEntry k v l |> minKey <| isEmpty_insertEntry) =
-      ((minKey? l).elim k fun k' => if compare k k'|>.isLE then k else k') := by
+      ((minKey? l).elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simp [minKey_eq_get_minKey?, Option.get_eq_iff_eq_some, minKey?_insertEntry hd]
 
 theorem minKey_insertEntry_le_minKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
@@ -5018,7 +5018,7 @@ theorem minKey!_eq_some_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [Lawf
 theorem minKey!_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v} :
     (insertEntry k v l |> minKey!) =
-      ((minKey? l).elim k fun k' => if compare k k'|>.isLE then k else k') := by
+      ((minKey? l).elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simpa [minKey_eq_minKey!] using minKey_insertEntry hd
 
 theorem minKey!_insertEntry_le_minKey! [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited α]
@@ -5220,7 +5220,7 @@ theorem minKeyD_eq_some_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [Lawf
 theorem minKeyD_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v fallback} :
     (insertEntry k v l |> minKeyD <| fallback) =
-      ((minKey? l).elim k fun k' => if compare k k'|>.isLE then k else k') := by
+      ((minKey? l).elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simpa [minKey_eq_minKeyD (fallback := fallback)] using minKey_insertEntry hd
 
 theorem minKeyD_insertEntry_le_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
@@ -5514,7 +5514,7 @@ theorem self_le_maxKey?_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOr
   letI : Ord α := .opposite inferInstance
   minKey?_insertEntry_le_self hd hkmi
 
-theorem le_maxKey?_of_containsKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k km}
+theorem maxKey?_le_of_containsKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k km}
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) (hc : containsKey k l)
     (hkm : (maxKey? l |>.get <| isSome_maxKey?_of_containsKey hc) = km) :
     compare k km |>.isLE :=

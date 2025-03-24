@@ -9,7 +9,6 @@ import Init.Data.Array.BinSearch
 import Init.Data.Stream
 import Init.System.Promise
 import Lean.ImportingFlag
-import Lean.Data.HashMap
 import Lean.Data.NameTrie
 import Lean.Data.SMap
 import Lean.Declaration
@@ -1636,7 +1635,7 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) (st
   for extDescr in extDescrs[startingAt:] do
     -- safety: as in `modifyState`
     states := unsafe extDescr.toEnvExtension.modifyStateImpl states fun s =>
-      { s with importedEntries := mkArray mods.size #[] }
+      { s with importedEntries := .replicate mods.size #[] }
   /- For each module `mod`, and `mod.entries`, if the extension name is one of the extensions after `startingAt`, set `entries` -/
   let extNameIdx ← mkExtNameMap startingAt
   for h : modIdx in [:mods.size] do

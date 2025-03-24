@@ -122,6 +122,9 @@ end Prim
 section
 variable {σ : Type} {m : Type → Type} [Monad m] [MonadLiftT (ST σ) m]
 
+/--
+Creates a new mutable reference that contains the provided value `a`.
+-/
 @[inline] def mkRef {α : Type} (a : α) : m (Ref σ α) :=  liftM <| Prim.mkRef a
 /--
 Reads the value of a mutable reference.

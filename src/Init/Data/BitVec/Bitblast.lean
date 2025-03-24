@@ -92,7 +92,7 @@ First, we prove bitvector lemmas to unfold a high-level operation (such as multi
 into already bitblastable operations (such as addition and left shift).
 We then use these lemmas to prove the correctness of the circuit that `bv_decide` builds.
 
-We use this workflow to implement bitblasting for all SMT-LIB2 operations.
+We use this workflow to implement bitblasting for all SMT-LIB v2 operations.
 
 ## Main results
 * `x + y : BitVec w` is `(adc x y false).2`.
@@ -1299,6 +1299,15 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
     rw_mod_cast [Int.bmod_neg_iff (by omega) (by omega)]
     simp
     omega
+    
+theorem negOverflow_eq {w : Nat} (x : BitVec w) :
+    (negOverflow x) = (decide (0 < w) && (x == intMin w)) := by
+  simp only [negOverflow]
+  rcases w with _|w
+  · simp [toInt_of_zero_length, Int.min_eq_right]
+  · suffices - 2 ^ w = (intMin (w + 1)).toInt by simp [beq_eq_decide_eq, ← toInt_inj, this]
+    simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod, Int.neg_inj]
+    rw_mod_cast [Nat.mod_eq_of_lt (by simp [Nat.pow_lt_pow_succ])]
 
 theorem umulOverflow_eq {w : Nat} (x y : BitVec w) :
     umulOverflow x y =
@@ -1337,7 +1346,7 @@ theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
     simp only [bool_to_prop]
     omega
 
-/-! ### umod -/
+/- ### umod -/
 
 theorem getElem_umod {n d : BitVec w} (hi : i < w) :
     (n % d)[i]
@@ -1378,5 +1387,54 @@ theorem eq_iff_eq_of_inv (f : α → BitVec w) (g : BitVec w → α) (h : ∀ x,
   · intro h'
     have := congrArg g h'
     simpa [h] using this
+
+/-! ### Lemmas that use Bitblasting circuits -/
+
+theorem add_sub_comm {x y : BitVec w} : x + y - z = x - z + y := by
+  apply eq_of_toNat_eq
+  simp only [toNat_sub, toNat_add, add_mod_mod, mod_add_mod]
+  congr 1
+  omega
+
+theorem sub_add_comm {x y : BitVec w} : x - y + z = x + z - y := by
+  rw [add_sub_comm]
+
+theorem not_add_one {x : BitVec w} : ~~~ (x + 1#w) = ~~~ x - 1#w := by
+  rw [not_eq_neg_add, not_eq_neg_add, neg_add]
+
+theorem not_add_eq_not_neg {x y : BitVec w} : ~~~ (x + y) = ~~~ x - y := by
+  rw [not_eq_neg_add, not_eq_neg_add, neg_add]
+  simp only [sub_toAdd]
+  rw [BitVec.add_assoc, @BitVec.add_comm _ (-y), ← BitVec.add_assoc]
+
+theorem not_sub_one_eq_not_add_one {x : BitVec w} : ~~~ (x - 1#w) = ~~~ x + 1#w := by
+  rw [not_eq_neg_add, not_eq_neg_add, neg_sub,
+    BitVec.add_sub_cancel, BitVec.sub_add_cancel]
+
+theorem not_sub_eq_not_add {x y : BitVec w} : ~~~ (x - y) = ~~~ x + y := by
+  rw [BitVec.sub_toAdd, not_add_eq_not_neg, sub_neg]
+
+/-- The value of `(carry i x y false)` can be computed by truncating `x` and `y`
+to `len` bits where `len ≥ i`. -/
+theorem carry_extractLsb'_eq_carry {w i len : Nat} (hi : i < len)
+    {x y : BitVec w} {b : Bool}: 
+    (carry i (extractLsb' 0 len x) (extractLsb' 0 len y) b)
+    = (carry i x y b) := by
+  simp only [carry, extractLsb'_toNat, shiftRight_zero, toNat_false, Nat.add_zero, ge_iff_le,
+    decide_eq_decide]
+  have : 2 ^ i ∣ 2^len := by
+    apply Nat.pow_dvd_pow
+    omega
+  rw [Nat.mod_mod_of_dvd _ this, Nat.mod_mod_of_dvd _ this]
+
+/--
+The `[0..len)` low bits of `x + y` can be computed by truncating `x` and `y`
+to `len` bits and then adding.
+-/
+theorem extractLsb'_add {w len : Nat} {x y : BitVec w} (hlen : len ≤ w) : 
+    (x + y).extractLsb' 0 len = x.extractLsb' 0 len + y.extractLsb' 0 len := by
+  ext i hi
+  rw [getElem_extractLsb', Nat.zero_add, getLsbD_add (by omega)]
+  simp [getElem_add, carry_extractLsb'_eq_carry hi, getElem_extractLsb', Nat.zero_add]
 
 end BitVec

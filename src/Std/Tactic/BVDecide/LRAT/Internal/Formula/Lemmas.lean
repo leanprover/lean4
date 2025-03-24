@@ -107,17 +107,17 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
   · simp only [ofArray]
   · have hsize : (ofArray arr).assignments.size = n := by
       simp only [ofArray, ← Array.foldl_toList]
-      have hb : (mkArray n unassigned).size = n := by simp only [Array.size_mkArray]
+      have hb : (Array.replicate n unassigned).size = n := by simp only [Array.size_replicate]
       have hl (acc : Array Assignment) (ih : acc.size = n) (cOpt : Option (DefaultClause n)) (_cOpt_in_arr : cOpt ∈ arr.toList) :
         (ofArray_fold_fn acc cOpt).size = n := by rw [size_ofArray_fold_fn acc cOpt, ih]
-      exact List.foldlRecOn arr.toList ofArray_fold_fn (mkArray n unassigned) hb hl
+      exact List.foldlRecOn arr.toList ofArray_fold_fn (.replicate n unassigned) hb hl
     apply Exists.intro hsize
     let ModifiedAssignmentsInvariant (assignments : Array Assignment) : Prop :=
       ∃ hsize : assignments.size = n,
         ∀ i : PosFin n, ∀ b : Bool, hasAssignment b (assignments[i.1]'(by rw [hsize]; exact i.2.2)) →
         (unit (i, b)) ∈ toList (ofArray arr)
-    have hb : ModifiedAssignmentsInvariant (mkArray n unassigned) := by
-      have hsize : (mkArray n unassigned).size = n := by simp only [Array.size_mkArray]
+    have hb : ModifiedAssignmentsInvariant (.replicate n unassigned) := by
+      have hsize : (Array.replicate n unassigned).size = n := by simp only [Array.size_replicate]
       apply Exists.intro hsize
       intro i b h
       by_cases hb : b <;> simp [hasAssignment, hb, hasPosAssignment, hasNegAssignment] at h
@@ -185,7 +185,7 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
           · next i_ne_l =>
             simp only [Array.getElem_modify_of_ne (Ne.symm i_ne_l)] at h
             exact ih i b h
-    rcases List.foldlRecOn arr.toList ofArray_fold_fn (mkArray n unassigned) hb hl with ⟨_h_size, h'⟩
+    rcases List.foldlRecOn arr.toList ofArray_fold_fn (.replicate n unassigned) hb hl with ⟨_h_size, h'⟩
     intro i b h
     simp only [ofArray, ← Array.foldl_toList] at h
     exact h' i b h

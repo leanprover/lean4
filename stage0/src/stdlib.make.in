@@ -6,7 +6,11 @@ SHELL := $(LEAN_BASH) -eo pipefail
 
 # any absolute path to the stdlib breaks the Makefile
 export LEAN_PATH=
-export LEAN_CC=${CMAKE_C_COMPILER_LAUNCHER} ${CMAKE_C_COMPILER}
+ifeq "${USE_LAKE} ${STAGE}" "ON 1"
+  export LEAN_CC=${CMAKE_C_COMPILER}
+else
+  export LEAN_CC=${CMAKE_C_COMPILER_LAUNCHER} ${CMAKE_C_COMPILER}
+endif
 export LEAN_ABORT_ON_PANIC=1
 
 # LEAN_OPTS: don't use native code (except for primitives) since it is from the previous stage
@@ -58,7 +62,7 @@ Lean: Std
 
 Lake:
 # lake is in its own subdirectory, so must adjust relative paths...
-	+"${LEAN_BIN}/leanmake" -C lake lib lib.export ../${LIB}/temp/LakeMain.o.export  PKG=Lake $(LEANMAKE_OPTS) OUT="../${LIB}" LIB_OUT="../${LIB}/lean" TEMP_OUT="../${LIB}/temp" OLEAN_OUT="../${LIB}/lean" LEAN_OPTS+="--plugin=${PREV_STAGE}/${CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}" EXTRA_SRC_ROOTS=LakeMain.lean
+	+"${LEAN_BIN}/leanmake" -C lake lib lib.export ../${LIB}/temp/LakeMain.o.export  PKG=Lake $(LEANMAKE_OPTS) OUT="../${LIB}" LIB_OUT="../${LIB}/lean" TEMP_OUT="../${LIB}/temp" OLEAN_OUT="../${LIB}/lean" EXTRA_SRC_ROOTS=LakeMain.lean
 
 endif
 

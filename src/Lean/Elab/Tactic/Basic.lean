@@ -35,7 +35,19 @@ structure Context where
   -/
   recover    : Bool := true
 
+/--
+The tactic monad, which extends the term elaboration monad `TermElabM` with state that contains the
+current goals (`Lean.Elab.Tactic.State`, accessible via `MonadStateOf`) and local information about
+the current tactic's name and whether error recovery is enabled (`Lean.Elab.Tactic.Context`,
+accessible via `MonadReaderOf`).
+-/
 abbrev TacticM := ReaderT Context $ StateRefT State TermElabM
+/--
+A tactic is a function from syntax to an action in the tactic monad.
+
+A given tactic syntax kind may have multiple `Tactic`s associated with it, all of which will be
+attempted until one succeeds.
+-/
 abbrev Tactic  := Syntax → TacticM Unit
 
 /-

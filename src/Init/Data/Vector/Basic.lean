@@ -67,16 +67,19 @@ def elimAsList {motive : Vector α n → Sort u}
 abbrev mkEmpty := @emptyWithCapacity
 
 /-- Makes a vector of size `n` with all cells containing `v`. -/
-@[inline] def mkVector (n) (v : α) : Vector α n := ⟨mkArray n v, by simp⟩
+@[inline] def replicate (n) (v : α) : Vector α n := ⟨Array.replicate n v, by simp⟩
+
+@[deprecated replicate (since := "2025-03-18")]
+abbrev mkVector := @replicate
 
 instance : Nonempty (Vector α 0) := ⟨#v[]⟩
-instance [Nonempty α] : Nonempty (Vector α n) := ⟨mkVector _ Classical.ofNonempty⟩
+instance [Nonempty α] : Nonempty (Vector α n) := ⟨replicate _ Classical.ofNonempty⟩
 
 /-- Returns a vector of size `1` with element `v`. -/
 @[inline] def singleton (v : α) : Vector α 1 := ⟨#[v], rfl⟩
 
 instance [Inhabited α] : Inhabited (Vector α n) where
-  default := mkVector n default
+  default := replicate n default
 
 /-- Get an element of a vector using a `Fin` index. -/
 @[inline] def get (xs : Vector α n) (i : Fin n) : α :=
@@ -471,7 +474,7 @@ Note that we immediately simplify this to an `++` operation,
 and do not provide separate verification theorems.
 -/
 @[inline, simp] def leftpad (n : Nat) (a : α) (xs : Vector α m) : Vector α (max n m) :=
-  (mkVector (n - m) a ++ xs).cast (by omega)
+  (replicate (n - m) a ++ xs).cast (by omega)
 
 /--
 Pad a vector on the right with a given element.
@@ -480,7 +483,7 @@ Note that we immediately simplify this to an `++` operation,
 and do not provide separate verification theorems.
 -/
 @[inline, simp] def rightpad (n : Nat) (a : α) (xs : Vector α m) : Vector α (max n m) :=
-  (xs ++ mkVector (n - m) a).cast (by omega)
+  (xs ++ replicate (n - m) a).cast (by omega)
 
 /-! ### ForIn instance -/
 

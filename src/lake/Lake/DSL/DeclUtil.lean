@@ -7,11 +7,18 @@ prelude
 import Lake.DSL.Config
 import Lake.Util.Binder
 import Lake.Util.Name
+import Lake.Config.Meta
 import Lean.Parser.Command
 import Lean.Elab.Command
 
-namespace Lake.DSL
 open Lean Parser Command
+
+namespace Lake.DSL
+
+/-- The name given to the definition created by the `package` syntax. -/
+def packageDeclName := `_package
+
+---
 
 abbrev DocComment := TSyntax ``docComment
 abbrev Attributes := TSyntax ``Term.attributes
@@ -60,8 +67,13 @@ syntax declValWhere :=
 syntax simpleDeclSig :=
   ident Term.typeSpec declValSimple
 
-syntax structDeclSig :=
-  ((identOrStr)? (declValWhere <|> declValStruct)?) <|> identOrStr
+-- syntax structDeclSig :=
+--   ((identOrStr)? (declValWhere <|> declValStruct)?) <|> identOrStr
+
+syntax optConfig :=
+  (declValWhere <|> declValStruct)?
+
+abbrev OptConfig := TSyntax ``optConfig
 
 syntax bracketedSimpleBinder :=
   "(" ident (" : " term)? ")"
@@ -87,46 +99,42 @@ structure Field where
   ref : Syntax
   val : Term
 
-open Lean Syntax Elab Command
+open Syntax Elab Command
 
-def elabConfigDecl
-  (tyName : Name)
-  (sig : TSyntax ``structDeclSig)
-  (doc? : Option DocComment) (attrs : Array AttrInstance)
-  (name? : Option Name := none)
+def mkConfigFields
+  (tyName : Name) (infos : NameMap ConfigFieldInfo) (fs : Array DeclField)
+: CommandElabM (TSyntax ``Term.structInstFields) := do
+  let mut m := mkNameMap Field
+  for x in fs do
+    let `(declField| $id := $val) := x
+      | throwErrorAt x "ill-formed field declaration syntax"
+    let fieldName := id.getId
+    addCompletionInfo <| .fieldId x fieldName {} tyName
+    if let some info := infos.find? fieldName then
+      let c := info.realName
+      if !info.canonical && m.contains c then
+        logWarningAt id m!"redefined field '{c}' ('{fieldName}' is an alias of '{c}')"
+      m := m.insert c {ref := id, val}
+    else
+      logWarningAt id m!"unknown '{.ofConstName tyName}' field '{fieldName}'"
+  let fs ← m.foldM (init := #[]) fun a k {ref, val} => do
+    let id := mkIdentFrom ref k true
+    -- An unhygienic quotation is used to avoid introducing source info
+    -- which will break field auto-completion.
+    let fieldStx := Unhygienic.run `(Term.structInstField| $id:ident := $val)
+    return a.push fieldStx
+  return mkNode ``Term.structInstFields #[mkSep fs mkNullNode]
+
+def mkConfigDeclIdent (stx? : Option IdentOrStr) : CommandElabM Ident := do
+  match stx? with
+  | some stx => return expandIdentOrStrAsIdent stx
+  | none => Elab.Term.mkFreshIdent (← getRef)
+
+def elabConfig
+  (tyName : Name) [info : ConfigInfo tyName]
+  (id : Ident) (ty : Term) (config : TSyntax ``optConfig)
 : CommandElabM PUnit := do
-  let mkCmd (whereInfo : SourceInfo) (nameStx? : Option IdentOrStr) (fs : TSyntaxArray ``declField) wds? := do
-    let mut m := mkNameMap Field
-    let nameId? := nameStx?.map expandIdentOrStrAsIdent
-    if let some id := nameId? then
-      m := m.insert `name {ref := id, val := Name.quoteFrom id id.getId}
-    for x in fs do
-      let `(declField| $id := $val) := x
-        | throwErrorAt x "ill-formed field declaration syntax"
-      let fieldName := id.getId
-      addCompletionInfo <| .fieldId x fieldName {} tyName
-      if findField? (← getEnv) tyName fieldName |>.isSome then
-        m := m.insert fieldName {ref := id, val}
-      else
-        logWarningAt id m!"unknown '{.ofConstName tyName}' field '{fieldName}'"
-    let fs ← m.foldM (init := #[]) fun a k {ref, val} => do
-      let id := mkIdentFrom ref k true
-      -- An unhygienic quotation is used to avoid introducing source info
-      -- which will break field auto-completion.
-      let fieldStx := Unhygienic.run `(Term.structInstField| $id:ident := $val)
-      return a.push fieldStx
-    let ty := mkCIdentFrom (← getRef) tyName
-    let declId ← id do
-      if let some id := nameId? then
-        if let some name := name? then
-          return mkIdentFrom id name
-        else
-          return id
-      else
-        if let some name := name? then
-          mkIdentFromRef name
-        else
-          Elab.Term.mkFreshIdent (← getRef)
+  let mkCmd (whereInfo : SourceInfo) (fs : TSyntaxArray ``declField) wds? := do
     /-
     Quotation syntax produces synthetic source information.
     However, field auto-completion requires the trailing position of this token,
@@ -134,15 +142,15 @@ def elabConfigDecl
     construct this token manually to preserve its original source info.
     -/
     let whereTk := atom whereInfo "where"
-    let fields := mkNode ``Term.structInstFields #[mkSep fs mkNullNode]
+    let fields ← mkConfigFields tyName info.fieldMap fs
     let whereStx := mkNode ``whereStructInst #[whereTk, fields, mkOptionalNode wds?]
-    let cmd ← `($[$doc?]? @[$attrs,*] abbrev $declId : $ty $whereStx:whereStructInst)
-    withMacroExpansion sig cmd <| elabCommand cmd
-  match sig with
-  | `(structDeclSig| $nameStx:identOrStr) =>
-    mkCmd .none nameStx #[] none
-  | `(structDeclSig| $[$nameStx?]? where%$tk $fs;* $[$wds?:whereDecls]?) =>
-    mkCmd tk.getHeadInfo nameStx? fs.getElems wds?
-  | `(structDeclSig| $[$nameStx?]? {%$tk $fs;* } $[$wds?:whereDecls]?) =>
-    mkCmd tk.getHeadInfo nameStx? fs wds?
+    let cmd ← `(def $id : $ty $whereStx:whereStructInst)
+    withMacroExpansion config cmd <| elabCommand cmd
+  match config with
+  | `(optConfig| ) =>
+    mkCmd .none #[] none
+  | `(optConfig| where%$tk $fs;* $[$wds?:whereDecls]?) =>
+    mkCmd tk.getHeadInfo fs.getElems wds?
+  | `(optConfig| {%$tk $fs;* } $[$wds?:whereDecls]?) =>
+    mkCmd tk.getHeadInfo fs wds?
   | stx => throwErrorAt stx "ill-formed configuration syntax"

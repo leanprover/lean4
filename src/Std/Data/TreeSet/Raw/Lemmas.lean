@@ -653,4 +653,118 @@ theorem isEmpty_ofList [TransCmp cmp] {l : List α} :
     (ofList l cmp).isEmpty = l.isEmpty :=
   TreeMap.Raw.isEmpty_unitOfList
 
+section Min
+
+@[simp]
+theorem min?_emptyc :
+    (empty : Raw α cmp).min? = none :=
+  TreeMap.Raw.minKey?_emptyc
+
+theorem min?_of_isEmpty [TransCmp cmp] (h : t.WF) :
+    (he : t.isEmpty) → t.min? = none :=
+  TreeMap.Raw.minKey?_of_isEmpty h
+
+@[simp]
+theorem min?_eq_none_iff [TransCmp cmp] (h : t.WF) :
+    t.min? = none ↔ t.isEmpty :=
+  TreeMap.Raw.minKey?_eq_none_iff h
+
+theorem min?_eq_some_iff_get?_eq_self_and_forall [TransCmp cmp] (h : t.WF) {km} :
+    t.min? = some km ↔ t.get? km = some km ∧ ∀ k ∈ t, (cmp km k).isLE :=
+  DTreeMap.Raw.minKey?_eq_some_iff_getKey?_eq_self_and_forall h
+
+theorem min?_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {km} :
+    t.min? = some km ↔ km ∈ t ∧ ∀ k ∈ t, (cmp km k).isLE :=
+  DTreeMap.Raw.minKey?_eq_some_iff_mem_and_forall h
+
+@[simp]
+theorem isNone_min?_eq_isEmpty [TransCmp cmp] (h : t.WF) :
+    t.min?.isNone = t.isEmpty :=
+  TreeMap.Raw.isNone_minKey?_eq_isEmpty h
+
+@[simp]
+theorem isSome_min?_eq_not_isEmpty [TransCmp cmp] (h : t.WF) :
+    t.min?.isSome = !t.isEmpty :=
+  TreeMap.Raw.isSome_minKey?_eq_not_isEmpty h
+
+theorem min?_insert [TransCmp cmp] (h : t.WF) {k} :
+    (t.insert k).min? =
+      t.min?.elim k fun k' => if cmp k k' = .lt then k else k' :=
+  TreeMap.Raw.minKey?_insertIfNew h
+
+theorem isSome_min?_insert [TransCmp cmp] (h : t.WF) {k} :
+    (t.insert k).min?.isSome :=
+  TreeMap.Raw.isSome_minKey?_insertIfNew h
+
+theorem min?_insert_le_min? [TransCmp cmp] (h : t.WF) {k km kmi} :
+    (hkm : t.min? = some km) →
+    (hkmi : (t.insert k |>.min? |>.get <| isSome_min?_insert h) = kmi) →
+    cmp kmi km |>.isLE :=
+  TreeMap.Raw.minKey?_insertIfNew_le_minKey? h
+
+theorem min?_insert_le_self [TransCmp cmp] (h : t.WF) {k kmi} :
+    (hkmi : (t.insert k |>.min?.get <| isSome_min?_insert h) = kmi) →
+    cmp kmi k |>.isLE :=
+  TreeMap.Raw.minKey?_insertIfNew_le_self h
+
+theorem contains_min? [TransCmp cmp] (h : t.WF) {km} :
+    (hkm : t.min? = some km) →
+    t.contains km :=
+  TreeMap.Raw.contains_minKey? h
+
+theorem isSome_min?_of_contains [TransCmp cmp] (h : t.WF) {k} :
+    (hc : t.contains k) → t.min?.isSome :=
+  TreeMap.Raw.isSome_minKey?_of_contains h
+
+theorem isSome_min?_of_mem [TransCmp cmp] (h : t.WF) {k} :
+    k ∈ t → t.min?.isSome :=
+  TreeMap.Raw.isSome_minKey?_of_mem h
+
+theorem min?_le_of_contains [TransCmp cmp] (h : t.WF) {k km} :
+    (hc : t.contains k) → (hkm : (t.min?.get <| isSome_min?_of_contains h hc) = km) →
+    cmp km k |>.isLE :=
+  TreeMap.Raw.minKey?_le_of_contains h
+
+theorem min?_le_of_mem [TransCmp cmp] (h : t.WF) {k km} :
+    (hc : k ∈ t) → (hkm : (t.min?.get <| isSome_min?_of_mem h hc) = km) →
+    cmp km k |>.isLE :=
+  TreeMap.Raw.minKey?_le_of_mem h
+
+theorem le_min? [TransCmp cmp] {k} (h : t.WF) :
+    (∀ k', t.min? = some k' → (cmp k k').isLE) ↔ (∀ k', k' ∈ t → (cmp k k').isLE) :=
+  TreeMap.Raw.le_minKey? h
+
+theorem get?_min? [TransCmp cmp] (h : t.WF) {km} :
+    (hkm : t.min? = some km) → t.get? km = some km :=
+  TreeMap.Raw.getKey?_minKey? h
+
+@[simp]
+theorem min?_bind_get? [TransCmp cmp] (h : t.WF) :
+    t.min?.bind t.get? = t.min? :=
+  TreeMap.Raw.minKey?_bind_getKey? h
+
+theorem min?_erase_eq_iff_not_compare_eq_min? [TransCmp cmp] (h : t.WF) {k} :
+    (t.erase k |>.min?) = t.min? ↔
+      ∀ {km}, t.min? = some km → ¬ cmp k km = .eq :=
+  TreeMap.Raw.minKey?_erase_eq_iff_not_compare_eq_minKey? h
+
+theorem min?_erase_eq_of_not_compare_eq_min? [TransCmp cmp] (h : t.WF) {k} :
+    (hc : ∀ {km}, t.min? = some km → ¬ cmp k km = .eq) →
+    (t.erase k |>.min?) = t.min? :=
+  TreeMap.Raw.minKey?_erase_eq_of_not_compare_eq_minKey? h
+
+theorem isSome_min?_of_isSome_min?_erase [TransCmp cmp] (h : t.WF) {k} :
+    (hs : t.erase k |>.min?.isSome) →
+    t.min?.isSome :=
+  TreeMap.Raw.isSome_minKey?_of_isSome_minKey?_erase h
+
+theorem min?_le_min?_erase [TransCmp cmp] (h : t.WF) {k km kme} :
+    (hkme : (t.erase k |>.min?) = some kme) →
+    (hkm : (t.min?.get <|
+      isSome_min?_of_isSome_min?_erase h <| hkme ▸ Option.isSome_some) = km) →
+    cmp km kme |>.isLE :=
+  TreeMap.Raw.minKey?_le_minKey?_erase h
+
+end Min
+
 end Std.TreeSet.Raw

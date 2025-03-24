@@ -91,14 +91,14 @@ Create an `AsyncTask` that resolves to the value of `x`.
 -/
 @[inline]
 def ofPromise (x : IO.Promise (Except IO.Error α)) : AsyncTask α :=
-  x.result
+  x.result!
 
 /--
 Create an `AsyncTask` that resolves to the value of `x`.
 -/
 @[inline]
 def ofPurePromise (x : IO.Promise α) : AsyncTask α :=
-  x.result.map pure
+  x.result!.map pure
 
 /--
 Obtain the `IO.TaskState` of `x`.

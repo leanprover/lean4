@@ -5,7 +5,7 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Data.List.Zip
-import Init.Data.Int.DivModLemmas
+import Init.Data.Int.DivMod.Bootstrap
 import Init.Data.Nat.Gcd
 
 namespace Lean.Omega
@@ -21,18 +21,18 @@ abbrev IntList := List Int
 namespace IntList
 
 /-- Get the `i`-th element (interpreted as `0` if the list is not long enough). -/
-def get (xs : IntList) (i : Nat) : Int := (xs.get? i).getD 0
+def get (xs : IntList) (i : Nat) : Int := xs[i]?.getD 0
 
 @[simp] theorem get_nil : get ([] : IntList) i = 0 := rfl
-@[simp] theorem get_cons_zero : get (x :: xs) 0 = x := rfl
-@[simp] theorem get_cons_succ : get (x :: xs) (i+1) = get xs i := rfl
+@[simp] theorem get_cons_zero : get (x :: xs) 0 = x := by simp [get]
+@[simp] theorem get_cons_succ : get (x :: xs) (i+1) = get xs i := by simp [get]
 
 theorem get_map {xs : IntList} (h : f 0 = 0) : get (xs.map f) i = f (xs.get i) := by
-  simp only [get, List.get?_eq_getElem?, List.getElem?_map]
+  simp only [get, List.getElem?_map]
   cases xs[i]? <;> simp_all
 
 theorem get_of_length_le {xs : IntList} (h : xs.length ≤ i) : xs.get i = 0 := by
-  rw [get, List.get?_eq_none_iff.mpr h]
+  rw [get, List.getElem?_eq_none_iff.mpr h]
   rfl
 
 /-- Like `List.set`, but right-pad with zeroes as necessary first. -/
@@ -62,7 +62,7 @@ theorem add_def (xs ys : IntList) :
   rfl
 
 @[simp] theorem add_get (xs ys : IntList) (i : Nat) : (xs + ys).get i = xs.get i + ys.get i := by
-  simp only [get, add_def, List.get?_eq_getElem?, List.getElem?_zipWithAll]
+  simp only [get, add_def, List.getElem?_zipWithAll]
   cases xs[i]? <;> cases ys[i]? <;> simp
 
 @[simp] theorem add_nil (xs : IntList) : xs + [] = xs := by simp [add_def]
@@ -79,7 +79,7 @@ theorem mul_def (xs ys : IntList) : xs * ys = List.zipWith (· * ·) xs ys :=
   rfl
 
 @[simp] theorem mul_get (xs ys : IntList) (i : Nat) : (xs * ys).get i = xs.get i * ys.get i := by
-  simp only [get, mul_def, List.get?_eq_getElem?, List.getElem?_zipWith]
+  simp only [get, mul_def, List.getElem?_zipWith]
   cases xs[i]? <;> cases ys[i]? <;> simp
 
 @[simp] theorem mul_nil_left : ([] : IntList) * ys = [] := rfl
@@ -94,7 +94,7 @@ instance : Neg IntList := ⟨neg⟩
 theorem neg_def (xs : IntList) : - xs = xs.map fun x => -x := rfl
 
 @[simp] theorem neg_get (xs : IntList) (i : Nat) : (- xs).get i = - xs.get i := by
-  simp only [get, neg_def, List.get?_eq_getElem?, List.getElem?_map]
+  simp only [get, neg_def, List.getElem?_map]
   cases xs[i]? <;> simp
 
 @[simp] theorem neg_nil : (- ([] : IntList)) = [] := rfl
@@ -120,7 +120,7 @@ instance : HMul Int IntList IntList where
 theorem smul_def (xs : IntList) (i : Int) : i * xs = xs.map fun x => i * x := rfl
 
 @[simp] theorem smul_get (xs : IntList) (a : Int) (i : Nat) : (a * xs).get i = a * xs.get i := by
-  simp only [get, smul_def, List.get?_eq_getElem?, List.getElem?_map]
+  simp only [get, smul_def, List.getElem?_map]
   cases xs[i]? <;> simp
 
 @[simp] theorem smul_nil {i : Int} : i * ([] : IntList) = [] := rfl
@@ -303,7 +303,7 @@ theorem dvd_gcd (xs : IntList) (c : Nat) (w : ∀ {a : Int}, a ∈ xs → (c : I
     c ∣ xs.gcd := by
   simp only [Int.ofNat_dvd_left] at w
   induction xs with
-  | nil => have := Nat.dvd_zero c; simp at this; exact this
+  | nil => have := Nat.dvd_zero c; simp
   | cons x xs ih =>
     simp
     apply Nat.dvd_gcd
@@ -402,7 +402,7 @@ theorem dvd_bmod_dot_sub_dot_bmod (m : Nat) (xs ys : IntList) :
       rw [Int.sub_emod, Int.bmod_emod, Int.add_emod, Int.add_emod (Int.bmod x m * y),
         ← Int.sub_emod, ← Int.sub_sub, Int.sub_eq_add_neg, Int.sub_eq_add_neg,
         Int.add_assoc (x * y % m), Int.add_comm (IntList.dot _ _ % m), ← Int.add_assoc,
-        Int.add_assoc, ← Int.sub_eq_add_neg, ← Int.sub_eq_add_neg, Int.add_emod, ih, Int.add_zero,
+        Int.add_assoc, Int.add_neg_eq_sub, Int.add_neg_eq_sub, Int.add_emod, ih, Int.add_zero,
         Int.emod_emod, Int.mul_emod, Int.mul_emod (Int.bmod x m), Int.bmod_emod, Int.sub_self,
         Int.zero_emod]
 

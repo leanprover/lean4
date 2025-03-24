@@ -800,7 +800,7 @@ def getElabElimExprInfo (elimExpr : Expr) : MetaM ElabElimInfo := do
         throwError "unexpected number of arguments at motive type{indentExpr motiveType}"
       unless motiveResultType.isSort do
         throwError "motive result type must be a sort{indentExpr motiveType}"
-    let some motivePos ← pure (xs.indexOf? motive) |
+    let some motivePos ← pure (xs.idxOf? motive) |
       throwError "unexpected eliminator type{indentExpr elimType}"
     /-
     Compute transitive closure of fvars appearing in arguments to the motive.
@@ -1215,7 +1215,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     let fullName := Name.mkStr structName fieldName
     for localDecl in (← getLCtx) do
       if localDecl.isAuxDecl then
-        if let some localDeclFullName := (← read).auxDeclToFullName.find? localDecl.fvarId then
+        if let some localDeclFullName := (← getLCtx).auxDeclToFullName.find? localDecl.fvarId then
           if fullName == (privateToUserName? localDeclFullName).getD localDeclFullName then
             /- LVal notation is being used to make a "local" recursive call. -/
             return LValResolution.localRec structName fullName localDecl.toExpr

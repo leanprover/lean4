@@ -259,6 +259,17 @@ bool object_compactor::insert_task(object * o) {
     return true;
 }
 
+bool object_compactor::insert_promise(object * o) {
+    object * t = (object *)lean_to_promise(o)->m_result;
+    object_offset c = to_offset(t);
+    if (c == g_null_offset)
+        return false;
+    object * r = copy_object(o);
+    lean_to_promise(r)->m_result = (lean_task_object *)c;
+    save_max_sharing(o, r, lean_object_byte_size(o));
+    return true;
+}
+
 void object_compactor::insert_mpz(object * o) {
 #ifdef LEAN_USE_GMP
     size_t nlimbs = mpz_size(to_mpz(o)->m_value.m_val);
@@ -310,6 +321,7 @@ struct tag_counter_manager {
         display_kind("#mpz:      ", LeanMPZ);
         display_kind("#thunk:    ", LeanThunk);
         display_kind("#task:     ", LeanTask);
+        display_kind("#promise:  ", LeanPromise);
         display_kind("#ref:      ", LeanRef);
         display_kind("#external: ", LeanExternal);
 
@@ -349,6 +361,7 @@ void object_compactor::operator()(object * o) {
             case LeanMPZ:             insert_mpz(curr); break;
             case LeanThunk:           r = insert_thunk(curr); break;
             case LeanTask:            r = insert_task(curr); break;
+            case LeanPromise:         r = insert_promise(curr); break;
             case LeanRef:             r = insert_ref(curr); break;
             case LeanExternal:        lean_internal_panic("external objects cannot be compacted");
             case LeanReserved:        lean_unreachable();
@@ -433,6 +446,11 @@ inline void compacted_region::fix_task(object * o) {
     move(sizeof(lean_task_object));
 }
 
+inline void compacted_region::fix_promise(object * o) {
+    lean_to_promise(o)->m_result = (lean_task_object *)fix_object_ptr((lean_object *)lean_to_promise(o)->m_result);
+    move(sizeof(lean_promise_object));
+}
+
 void compacted_region::fix_mpz(object * o) {
 #ifdef LEAN_USE_GMP
     __mpz_struct & m = to_mpz(o)->m_value.m_val[0];
@@ -472,6 +490,7 @@ object * compacted_region::read() {
             case LeanThunk:           fix_thunk(curr); break;
             case LeanRef:             fix_ref(curr); break;
             case LeanTask:            fix_task(curr); break;
+            case LeanPromise:         fix_promise(curr); break;
             case LeanExternal:        lean_unreachable();
             default:                  lean_unreachable();
             }

@@ -29,7 +29,7 @@ def mkAtomCached (aig : AIG α) (n : α) : Entrypoint α :=
   let decl := .atom n
   match cache.get? decl with
   | some hit =>
-    ⟨⟨decls, cache, inv⟩ , hit.idx, hit.hbound⟩
+    ⟨⟨decls, cache, inv⟩ , hit.idx, false, hit.hbound⟩
   | none =>
     let g := decls.size
     let cache := cache.insert decls decl
@@ -40,7 +40,7 @@ def mkAtomCached (aig : AIG α) (n : α) : Entrypoint α :=
       split at h2
       · apply inv <;> assumption
       · contradiction
-  ⟨⟨decls, cache, inv⟩, ⟨g, by simp [g, decls]⟩⟩
+    ⟨⟨decls, cache, inv⟩, ⟨g, false, by simp [g, decls]⟩⟩
 
 /--
 A version of `AIG.mkConst` that uses the subterm cache in `AIG`. This version is meant for
@@ -48,10 +48,10 @@ programming, for proving purposes use `AIG.mkGate` and equality theorems to this
 -/
 def mkConstCached (aig : AIG α) (val : Bool) : Entrypoint α :=
   let ⟨decls, cache, inv⟩ := aig
-  let decl := .const val
+  let decl := .false
   match cache.get? decl with
   | some hit =>
-    ⟨⟨decls, cache, inv⟩, hit.idx, hit.hbound⟩
+    ⟨⟨decls, cache, inv⟩, hit.idx, val, hit.hbound⟩
   | none =>
     let g := decls.size
     let cache := cache.insert decls decl
@@ -62,7 +62,7 @@ def mkConstCached (aig : AIG α) (val : Bool) : Entrypoint α :=
       split at h2
       · apply inv <;> assumption
       · contradiction
-  ⟨⟨decls, cache, inv⟩, ⟨g, by simp [g, decls]⟩⟩
+    ⟨⟨decls, cache, inv⟩, ⟨g, val, by simp [g, decls]⟩⟩
 
 /--
 A version of `AIG.mkGate` that uses the subterm cache in `AIG`. This version is meant for
@@ -70,62 +70,61 @@ programming, for proving purposes use `AIG.mkGate` and equality theorems to this
 
 Beyond caching this function also implements a subset of the optimizations presented in:
 -/
-def mkGateCached (aig : AIG α) (input : GateInput aig) : Entrypoint α :=
-  let lhs := input.lhs.ref.gate
-  let rhs := input.rhs.ref.gate
+def mkGateCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
+  let lhs := input.lhs.gate
+  let rhs := input.rhs.gate
   if lhs < rhs then
     go aig ⟨input.lhs, input.rhs⟩
   else
     go aig ⟨input.rhs, input.lhs⟩
 where
-  go (aig : AIG α) (input : GateInput aig) : Entrypoint α :=
+  go (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
     let ⟨decls, cache, inv⟩ := aig
-    let lhs := input.lhs.ref.gate
-    let rhs := input.rhs.ref.gate
-    let linv := input.lhs.inv
-    let rinv := input.rhs.inv
-    have := input.lhs.ref.hgate
-    have := input.rhs.ref.hgate
+    let lhs := input.lhs.gate
+    let rhs := input.rhs.gate
+    let linv := input.lhs.invert
+    let rinv := input.rhs.invert
+    have := input.lhs.hgate
+    have := input.rhs.hgate
     let decl := .gate lhs rhs linv rinv
     match cache.get? decl with
     | some hit =>
-      ⟨⟨decls, cache, inv⟩, ⟨hit.idx, hit.hbound⟩⟩
+      ⟨⟨decls, cache, inv⟩, ⟨hit.idx, false, hit.hbound⟩⟩
     | none =>
       /-
-      Here we implement the constant propagating subset of:
+      Here we implement the one-level subset of:
       https://fmv.jku.at/papers/BrummayerBiere-MEMICS06.pdf
       TODO: rest of the table
       -/
-      match decls[lhs], decls[rhs], linv, rinv with
+      let lhsVal := AIG.getConstant ⟨decls, cache, inv⟩ input.lhs
+      let rhsVal := AIG.getConstant ⟨decls, cache, inv⟩ input.rhs
+      match lhsVal, rhsVal with
       -- Boundedness
-      | .const true, _, true, _ | .const false, _, false, _
-      | _, .const true, _, true | _, .const false, _, false =>
-        mkConstCached ⟨decls, cache, inv⟩ false
+      | .some false, _ | _, .some false => mkConstCached ⟨decls, cache, inv⟩ false
       -- Left Neutrality
-      | .const true, _, false, false | .const false, _, true, false =>
-        ⟨⟨decls, cache, inv⟩, rhs, (by assumption)⟩
+      | .some true, _ => ⟨⟨decls, cache, inv⟩, ⟨rhs, rinv, by assumption⟩⟩
       -- Right Neutrality
-      | _, .const true, false, false | _, .const false, false, true =>
-        ⟨⟨decls, cache, inv⟩, lhs, (by assumption)⟩
-      | _, _, _, _ =>
-        if lhs == rhs && linv == false && rinv == false then
-          -- Idempotency rule
-         ⟨⟨decls, cache, inv⟩, lhs, (by assumption)⟩
-        else if lhs == rhs && linv == !rinv then
-          -- Contradiction rule
-          mkConstCached ⟨decls, cache, inv⟩ false
+      | _, .some true => ⟨⟨decls, cache, inv⟩, ⟨lhs, linv, by assumption⟩⟩
+      -- No constant inputs
+      | _, _ =>
+        if lhs == rhs then
+           -- Idempotency
+          if linv == rinv then ⟨⟨decls, cache, inv⟩, ⟨lhs, linv, by assumption⟩⟩
+          -- Contradiction
+          else mkConstCached ⟨decls, cache, inv⟩ false
         else
+          -- Gate couldn't be simplified
           let g := decls.size
           let cache := cache.insert decls decl
           let decls := decls.push decl
           have inv := by
             intro i lhs rhs linv rinv h1 h2
-            simp only [decls] at *
             simp only [Array.getElem_push] at h2
+            simp_all
             split at h2
             · apply inv <;> assumption
             · injections; omega
-          ⟨⟨decls, cache, inv⟩, ⟨g, by simp [g, decls]⟩⟩
+          ⟨⟨decls, cache, inv⟩, ⟨g, false, by simp [g, decls]⟩⟩
 
 end AIG
 

@@ -7,6 +7,9 @@ prelude
 import Std.Data.DHashMap
 import Std.Data.HashMap
 import Std.Data.HashSet
+import Std.Data.DTreeMap
+import Std.Data.TreeMap
+import Std.Data.TreeSet
 
 -- The three imports above only import the modules needed to work with the version which bundles
 -- the well-formedness invariant, so we need to additionally import the files that deal with the

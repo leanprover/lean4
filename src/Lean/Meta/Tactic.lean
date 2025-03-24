@@ -27,7 +27,6 @@ import Lean.Meta.Tactic.TryThis
 import Lean.Meta.Tactic.Cleanup
 import Lean.Meta.Tactic.Unfold
 import Lean.Meta.Tactic.Rename
-import Lean.Meta.Tactic.LinearArith
 import Lean.Meta.Tactic.AC
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Congr
@@ -42,3 +41,4 @@ import Lean.Meta.Tactic.Rfl
 import Lean.Meta.Tactic.Rewrites
 import Lean.Meta.Tactic.Grind
 import Lean.Meta.Tactic.Ext
+import Lean.Meta.Tactic.Try

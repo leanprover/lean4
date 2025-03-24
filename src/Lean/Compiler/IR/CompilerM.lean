@@ -89,6 +89,12 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
     toArrayFn     := fun s =>
       let decls := s.foldl (init := #[]) fun decls decl => decls.push decl
       sortDecls decls
+    -- Written to on codegen environment branch but accessed from other elaboration branches when
+    -- calling into the interpreter. We cannot use `async` as the IR declarations added may not
+    -- share a name prefix with the top-level Lean declaration being compiled, e.g. from
+    -- specialization.
+    asyncMode     := .sync
+    replay?       := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.name) (fun s d => s.insert d.name d)
   }
 
 @[export lean_ir_find_env_decl]

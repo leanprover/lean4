@@ -5,10 +5,12 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Arith.Offset
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Inv
 
 namespace Lean.Meta.Grind.Arith
 
-def checkInvariants : GoalM Unit :=
+def checkInvariants : GoalM Unit := do
   Offset.checkInvariants
+  Cutsat.checkInvariants
 
 end Lean.Meta.Grind.Arith

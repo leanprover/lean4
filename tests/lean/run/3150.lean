@@ -11,7 +11,7 @@ structure Subone where
   mem : R → Prop
   one_mem : mem One.one
 
-structure Subalgebra [OneHom R A] extends Subone A : Type where
+structure Subalgebra [OneHom R A] : Type extends Subone A where
   algebraMap_mem : ∀ r : R, mem (OneHom.toFun r)
   one_mem := OneHom.map_one (R := R) (A := A) ▸ algebraMap_mem One.one
 

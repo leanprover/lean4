@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_KVMap_instForInProdNameDataValue___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_repr___at___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_Lean_Data_KVMap___hyg_920____spec__1___closed__4;
-lean_object* l___private_Init_Meta_0__Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2170_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_getSyntax(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_updateNat(lean_object*, lean_object*, lean_object*);
@@ -39,6 +38,7 @@ LEAN_EXPORT lean_object* l_Lean_KVMap_instValueString___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_KVMap_0__Lean_beqDataValue____x40_Lean_Data_KVMap___hyg_70____boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_size___boxed(lean_object*);
+lean_object* l___private_Init_Meta_0__Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2035_(lean_object*, lean_object*);
 static lean_object* l_Lean_KVMap_instValueString___closed__1;
 static lean_object* l_Lean_KVMap_instValueName___closed__1;
 lean_object* l_String_quote(lean_object*);
@@ -1357,7 +1357,7 @@ lean_inc(x_181);
 lean_dec(x_1);
 x_182 = lean_unsigned_to_nat(1024u);
 x_183 = lean_nat_dec_le(x_182, x_2);
-x_184 = l___private_Init_Meta_0__Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2170_(x_181, x_182);
+x_184 = l___private_Init_Meta_0__Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2035_(x_181, x_182);
 x_185 = l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x40_Lean_Data_KVMap___hyg_253____closed__35;
 x_186 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_186, 0, x_185);

@@ -46,7 +46,7 @@ partial def withCheckpoint (x : PullM Code) : PullM Code := do
     else
       return c
   let (c, keep) := go toPullSizeSaved (← read).included |>.run #[]
-  modify fun s => { s with toPull := s.toPull.take toPullSizeSaved ++ keep }
+  modify fun s => { s with toPull := s.toPull.shrink toPullSizeSaved ++ keep }
   return c
 
 def attachToPull (c : Code) : PullM Code := do

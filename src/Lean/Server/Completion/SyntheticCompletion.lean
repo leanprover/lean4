@@ -311,7 +311,7 @@ private def isSyntheticStructFieldCompletion
     if isCompletionInEmptyBlock then
       return true
 
-    let isCompletionAfterSep := fieldsAndSeps.zipWithIndex.any fun (fieldOrSep, i) => Id.run do
+    let isCompletionAfterSep := fieldsAndSeps.zipIdx.any fun (fieldOrSep, i) => Id.run do
       if i % 2 == 0 || !fieldOrSep.isAtom then
         return false
       let sep := fieldOrSep

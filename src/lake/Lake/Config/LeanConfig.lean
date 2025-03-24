@@ -5,6 +5,11 @@ Authors: Mac Malone
 -/
 prelude
 import Lean.Util.LeanOptions
+import Lake.Build.Target.Basic
+import Lake.Config.Dynlib
+import Lake.Config.Meta
+
+open System
 
 namespace Lake
 
@@ -127,16 +132,16 @@ def LeanOption.asCliArg (o : LeanOption) : String :=
   s!"-D{o.name}={o.value.asCliFlagValue}"
 
 /-- Configuration options common to targets that build modules. -/
-structure LeanConfig where
+configuration LeanConfig where
   /--
   The mode in which the modules should be built (e.g., `debug`, `release`).
   Defaults to `release`.
   -/
   buildType : BuildType := .release
   /--
-  Additional options to pass to both the Lean language server
-  (i.e., `lean --server`) launched by `lake serve` and to `lean`
-  when compiling a module's Lean source files.
+  An `Array` of additional options to pass to both the Lean language server
+  (i.e., `lean --server`) launched by `lake serve` and to `lean` when compiling
+  a module's Lean source files.
   -/
   leanOptions : Array LeanOption := #[]
   /--
@@ -218,4 +223,25 @@ structure LeanConfig where
   and Lake will not catch it. Defaults to `none`.
   -/
   platformIndependent : Option Bool := none
+  /-
+  An array of dynamic library targets to load during the elaboration
+  of a module (via `lean --load-dynlib`).
+  -/
+  dynlibs : TargetArray Dynlib := #[]
+  /-
+  An array of Lean plugin targets to load during the elaboration
+  of a module (via `lean --plugin`).
+  -/
+  plugins : TargetArray Dynlib := #[]
 deriving Inhabited, Repr
+
+instance : EmptyCollection LeanConfig := ⟨{}⟩
+
+/-- The options to pass to `lean` based on the build type. -/
+def BuildType.leanOptions : BuildType → Array LeanOption
+| debug => #[{ name := `debugAssertions, value := true }]
+| _ => #[]
+
+/-- The arguments to pass to `lean` based on the build type. -/
+def BuildType.leanArgs (t : BuildType) : Array String :=
+  t.leanOptions.map (·.asCliArg)

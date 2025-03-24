@@ -11,9 +11,10 @@ import Lean.Meta.SynthInstance
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.UnifyEq
 import Lean.Meta.Tactic.Simp.Types
-import Lean.Meta.Tactic.LinearArith.Simp
+import Lean.Meta.Tactic.Simp.Arith
 import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Meta.Tactic.Simp.Attr
+import Lean.Meta.BinderNameHint
 
 namespace Lean.Meta.Simp
 
@@ -146,7 +147,8 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
         if !(← acLt rhs e .reduceSimpleOnly) then
           trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, perm rejected {e} ==> {rhs}"
           return none
-      trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, {e} ==> {rhs}"
+      trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}:{indentExpr e}\n==>{indentExpr rhs}"
+      let rhs ← if type.hasBinderNameHint then rhs.resolveBinderNameHint else pure rhs
       recordSimpTheorem thm.origin
       return some { expr := rhs, proof? }
     else
@@ -278,22 +280,38 @@ where
   catch _ =>
     return .continue
 
+private def isNatExpr (e : Expr) : MetaM Bool := do
+  let type ← inferType e
+  let_expr Nat ← type | return false
+  return true
+
 def simpArith (e : Expr) : SimpM Step := do
   unless (← getConfig).arith do
     return .continue
-  if Linear.isLinearCnstr e then
-    let some (e', h) ← Linear.Nat.simpCnstr? e
-      | return .continue
-    return .visit { expr := e', proof? := h }
-  else if Linear.isLinearTerm e then
-    if Linear.parentIsTarget (← getContext).parent? then
+  if Arith.isLinearCnstr e then
+    if let some (e', h) ← Arith.Nat.simpCnstr? e then
+      return .visit { expr := e', proof? := h }
+    if let some (e', h) ← Arith.Int.simpRel? e then
+      return .visit { expr := e', proof? := h }
+    if let some (e', h) ← Arith.Int.simpEq? e then
+      return .visit { expr := e', proof? := h }
+    return .continue
+  let isNat ← isNatExpr e
+  if Arith.isLinearTerm e isNat then
+    if Arith.parentIsTarget (← getContext).parent? isNat then
       -- We mark `cache := false` to ensure we do not miss simplifications.
       return .continue (some { expr := e, cache := false })
-    let some (e', h) ← Linear.Nat.simpExpr? e
-      | return .continue
-    return .visit { expr := e', proof? := h }
-  else
+    if isNat then
+      let some (e', h) ← Arith.Nat.simpExpr? e | pure ()
+      return .visit { expr := e', proof? := h }
+    else
+      let some (e', h) ← Arith.Int.simpExpr? e | pure ()
+      return .visit { expr := e', proof? := h }
     return .continue
+  if Arith.isDvdCnstr e then
+    let some (e', h) ← Arith.Int.simpDvd? e | pure ()
+    return .visit { expr := e', proof? := h }
+  return .continue
 
 /--
 Given a match-application `e` with `MatcherInfo` `info`, return `some result`

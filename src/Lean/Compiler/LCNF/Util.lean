@@ -80,7 +80,7 @@ List of types that have builtin runtime support
 def builtinRuntimeTypes : List Name := [
   ``String,
   ``UInt8, ``UInt16, ``UInt32, ``UInt64, ``USize,
-  ``Float,
+  ``Float, ``Float32,
   ``Thunk, ``Task,
   ``Array, ``ByteArray, ``FloatArray,
   ``Nat, ``Int

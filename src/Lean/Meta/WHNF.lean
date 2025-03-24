@@ -112,7 +112,7 @@ private def mkNullaryCtor (type : Expr) (nparams : Nat) : MetaM (Option Expr) :=
   let .const d lvls := type.getAppFn
     | return none
   let (some ctor) ← getFirstCtor d | pure none
-  return mkAppN (mkConst ctor lvls) (type.getAppArgs.take nparams)
+  return mkAppN (mkConst ctor lvls) (type.getAppArgs.shrink nparams)
 
 private def getRecRuleFor (recVal : RecursorVal) (major : Expr) : Option RecursorRule :=
   match major.getAppFn with
@@ -180,7 +180,7 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
       else
         let some ctorName ← getFirstCtor d | pure major
         let ctorInfo ← getConstInfoCtor ctorName
-        let params := majorType.getAppArgs.take ctorInfo.numParams
+        let params := majorType.getAppArgs.shrink ctorInfo.numParams
         let mut result := mkAppN (mkConst ctorName us) params
         for i in [:ctorInfo.numFields] do
           result := mkApp result (← mkProjFn ctorInfo us params i major)
@@ -332,7 +332,7 @@ mutual
           unless projInfo.fromClass do return none
           let args := e.getAppArgs
           -- First check whether `e`s instance is stuck.
-          if let some major := args.get? projInfo.numParams then
+          if let some major := args[projInfo.numParams]? then
             if let some mvarId ← getStuckMVar? major then
               return mvarId
           /-
@@ -588,18 +588,30 @@ expand let-expressions, expand assigned meta-variables.
 partial def whnfCore (e : Expr) : MetaM Expr :=
   go e
 where
+  expandLet (e : Expr) (vs : Array Expr) : Expr :=
+    if let .letE _ _ v b _  := e then
+      expandLet b (vs.push <| v.instantiateRev vs)
+    else if let some (#[], _, _, v, b) := e.letFunAppArgs? then
+      expandLet b (vs.push <| v.instantiateRev vs)
+    else
+      e.instantiateRev vs
+
   go (e : Expr) : MetaM Expr :=
     whnfEasyCases e fun e => do
       trace[Meta.whnf] e
       match e with
       | .const ..  => pure e
-      | .letE _ _ v b _ => if (← getConfig).zeta then go <| b.instantiate1 v else return e
+      | .letE _ _ v b _ =>
+        if (← getConfig).zeta then
+          go <| expandLet b #[v]
+        else
+          return e
       | .app f ..       =>
         let cfg ← getConfig
         if cfg.zeta then
           if let some (args, _, _, v, b) := e.letFunAppArgs? then
             -- When zeta reducing enabled, always reduce `letFun` no matter the current reducibility level
-            return (← go <| mkAppN (b.instantiate1 v) args)
+            return (← go <| mkAppN (expandLet b #[v]) args)
         let f := f.getAppFn
         let f' ← go f
         /-
@@ -760,7 +772,7 @@ mutual
             else
               return none
           if smartUnfolding.get (← getOptions) then
-            match ((← getEnv).find? (mkSmartUnfoldingNameFor fInfo.name)) with
+            match ((← getEnv).find? (skipRealize := true) (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(.defnInfo _) =>
               -- We use `preserveMData := true` to make sure the smart unfolding annotation are not erased in an over-application.
               deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (preserveMData := true) (fun _ => pure none) fun e₁ => do

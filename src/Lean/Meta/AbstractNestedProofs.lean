@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Grind.Util
 import Lean.Meta.Closure
 
 namespace Lean.Meta
@@ -16,7 +17,12 @@ def getLambdaBody (e : Expr) : Expr :=
 
 def isNonTrivialProof (e : Expr) : MetaM Bool := do
   if !(← isProof e) then
-    pure false
+    return false
+  else if e.isAppOf ``Grind.nestedProof then
+    -- Grind.nestedProof is a gadget created by the `grind` tactic.
+    -- We want to avoid the situation where `grind` keeps creating them,
+    -- and this module, which is used by `grind`, keeps abstracting them.
+    return false
   else
     -- We consider proofs such as `fun x => f x a` as trivial.
     -- For example, we don't want to abstract the body of `def rfl`
@@ -56,7 +62,7 @@ partial def visit (e : Expr) : M Expr := do
         let localDecl ← match localDecl.value? with
            | some value => let value ← visit value; pure <| localDecl.setValue value
            | none       => pure localDecl
-        lctx :=lctx.modifyLocalDecl xFVarId fun _ => localDecl
+        lctx := lctx.modifyLocalDecl xFVarId fun _ => localDecl
       withLCtx lctx localInstances k
     checkCache { val := e : ExprStructEq } fun _ => do
       if (← isNonTrivialProof e) then
@@ -67,7 +73,7 @@ partial def visit (e : Expr) : M Expr := do
         | .forallE ..  => forallTelescope e fun xs b => visitBinders xs do mkForallFVars xs (← visit b)
         | .mdata _ b   => return e.updateMData! (← visit b)
         | .proj _ _ b  => return e.updateProj! (← visit b)
-        | .app ..      => e.withApp fun f args => return mkAppN f (← args.mapM visit)
+        | .app ..      => e.withApp fun f args => return mkAppN (← visit f) (← args.mapM visit)
         | _            => pure e
 
 end AbstractNestedProofs

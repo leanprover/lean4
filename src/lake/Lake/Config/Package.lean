@@ -4,13 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 prelude
-import Lake.Config.Opaque
 import Lake.Config.Defaults
-import Lake.Config.LeanLibConfig
-import Lake.Config.LeanExeConfig
-import Lake.Config.ExternLibConfig
+import Lake.Config.OutFormat
 import Lake.Config.WorkspaceConfig
 import Lake.Config.Dependency
+import Lake.Config.ConfigDecl
 import Lake.Config.Script
 import Lake.Load.Config
 import Lake.Util.DRBMap
@@ -79,12 +77,9 @@ def StrPat.matches (s : String) : (self : StrPat) → Bool
 /-! # PackageConfig -/
 --------------------------------------------------------------------------------
 
+set_option linter.unusedVariables false in
 /-- A `Package`'s declarative configuration. -/
-structure PackageConfig extends WorkspaceConfig, LeanConfig where
-
-  /-- The `Name` of the package. -/
-  name : Name
-
+configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig where
   /--
   **This field is deprecated.**
 
@@ -168,28 +163,13 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   If `none` (the default), for downloads, Lake uses the URL the package was download
   from (if it is a dependency) and for uploads, uses `gh`'s default.
   -/
-  releaseRepo? : Option String := none
-
-  /--
-  The URL of the GitHub repository to upload and download releases of this package.
-  If `none` (the default), for downloads, Lake uses the URL the package was download
-  from (if it is a dependency) and for uploads, uses `gh`'s default.
-  -/
-  releaseRepo : Option String := none
+  releaseRepo, releaseRepo? : Option String := none
 
   /--
   A custom name for the build archive for the GitHub cloud release.
-  If `none` (the default), Lake uses `buildArchive`, which defaults to
-  `{(pkg-)name}-{System.Platform.target}.tar.gz`.
+  If `none` (the default), Lake defaults to `{(pkg-)name}-{System.Platform.target}.tar.gz`.
   -/
-  buildArchive? : Option String := none
-
-  /--
-  A custom name for the build archive for the GitHub cloud release.
-  Defaults to `{(pkg-)name}-{System.Platform.target}.tar.gz`.
-  -/
-  buildArchive : String :=
-    if let some name := buildArchive? then name else defaultBuildArchive name
+  buildArchive, buildArchive? : Option String := none
 
   /--
   Whether to prefer downloading a prebuilt release (from GitHub) rather than
@@ -207,7 +187,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   (e.g., via  `lake lint -- <args>...`). An executable driver will be built
   and then run like a script. A library will just be built.
   -/
-  testDriver : String := ""
+  testDriver, testRunner : String := ""
 
   /--
   Arguments to pass to the package's test driver.
@@ -358,24 +338,35 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   -/
   reservoir : Bool := true
 
-
 deriving Inhabited
+
+instance : EmptyCollection (PackageConfig n) := ⟨{}⟩
+
+/-- The package's name. -/
+abbrev PackageConfig.name (_ : PackageConfig n) := n
+
+/-- A package declaration from a configuration written in Lean. -/
+structure PackageDecl where
+  name : Name
+  config : PackageConfig name
+  deriving TypeName
 
 --------------------------------------------------------------------------------
 /-! # Package -/
 --------------------------------------------------------------------------------
 
-
 declare_opaque_type OpaquePostUpdateHook (pkg : Name)
 
 /-- A Lake package -- its location plus its configuration. -/
 structure Package where
+  /-- The name of the package. -/
+  name : Name
   /-- The path to the package's directory. -/
   dir : FilePath
   /-- The path to the package's directory relative to the workspace. -/
   relDir : FilePath
   /-- The package's user-defined configuration. -/
-  config : PackageConfig
+  config : PackageConfig name
   /-- The path to the package's configuration file (relative to `dir`). -/
   relConfigFile : FilePath
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
@@ -386,14 +377,11 @@ structure Package where
   remoteUrl : String
   /-- Dependency configurations for the package. -/
   depConfigs : Array Dependency := #[]
-  /-- Lean library configurations for the package. -/
-  leanLibConfigs : OrdNameMap LeanLibConfig := {}
-  /-- Lean binary executable configurations for the package. -/
-  leanExeConfigs : OrdNameMap LeanExeConfig := {}
-  /-- External library targets for the package. -/
-  externLibConfigs : DNameMap (ExternLibConfig config.name) := {}
-  /-- (Opaque references to) targets defined in the package. -/
-  opaqueTargetConfigs : DNameMap (OpaqueTargetConfig config.name) := {}
+  /-- Target configurations in the order declared by the package. -/
+  targetDecls : Array (PConfigDecl name) := #[]
+  /-- Name-declaration map of target configurations in the package. -/
+  targetDeclMap : DNameMap (NConfigDecl name) :=
+    targetDecls.foldl (fun m d => m.insert d.name (.mk d rfl)) {}
   /--
   The names of the package's targets to build by default
   (i.e., on a bare `lake build` of the package).
@@ -407,41 +395,39 @@ structure Package where
   -/
   defaultScripts : Array Script := #[]
   /-- Post-`lake update` hooks for the package. -/
-  postUpdateHooks : Array (OpaquePostUpdateHook config.name) := #[]
+  postUpdateHooks : Array (OpaquePostUpdateHook name) := #[]
+  /-- The package's `buildArchive`/`buildArchive?` configuration. -/
+  buildArchive : String :=
+    if let some n := config.buildArchive then n else defaultBuildArchive name
   /-- The driver used for `lake test` when this package is the workspace root. -/
   testDriver : String := config.testDriver
   /-- The driver used for `lake lint` when this package is the workspace root. -/
   lintDriver : String := config.lintDriver
 
-
 instance : Nonempty Package :=
   have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance
   ⟨by constructor <;> exact default⟩
 
-instance : Hashable Package where hash pkg := hash pkg.config.name
-instance : BEq Package where beq p1 p2 := p1.config.name == p2.config.name
+instance : Hashable Package where hash pkg := hash pkg.name
+instance : BEq Package where beq p1 p2 := p1.name == p2.name
 
 abbrev PackageSet := Std.HashSet Package
-@[inline] def PackageSet.empty : PackageSet := Std.HashSet.empty
+@[inline] def PackageSet.empty : PackageSet := ∅
 
 abbrev OrdPackageSet := OrdHashSet Package
 @[inline] def OrdPackageSet.empty : OrdPackageSet := OrdHashSet.empty
 
-/-- The package's name. -/
-abbrev Package.name (self : Package) : Name :=
-  self.config.name
+instance : ToText Package := ⟨(·.name.toString)⟩
+instance : ToJson Package := ⟨(toJson ·.name)⟩
 
 /-- A package with a name known at type-level. -/
-structure NPackage (name : Name) extends Package where
-  name_eq : toPackage.name = name
+structure NPackage (n : Name) extends Package where
+  name_eq : toPackage.name = n
 
 attribute [simp] NPackage.name_eq
 
-instance : CoeOut (NPackage name) Package := ⟨NPackage.toPackage⟩
+instance : CoeOut (NPackage n) Package := ⟨NPackage.toPackage⟩
 instance : CoeDep Package pkg (NPackage pkg.name) := ⟨⟨pkg, rfl⟩⟩
-
-/-- The package's name. -/
-abbrev NPackage.name (_ : NPackage n) := n
 
 /--
 The type of a post-update hooks monad.
@@ -458,6 +444,7 @@ hydrate_opaque_type OpaquePostUpdateHook PostUpdateHook name
 structure PostUpdateHookDecl where
   pkg : Name
   fn : PostUpdateFn pkg
+  deriving TypeName
 
 namespace Package
 
@@ -551,15 +538,11 @@ namespace Package
 
 /-- The package's `releaseRepo`/`releaseRepo?` configuration. -/
 @[inline] def releaseRepo? (self : Package) : Option String :=
-  self.config.releaseRepo <|> self.config.releaseRepo?
+  self.config.releaseRepo
 
 /-- The packages `remoteUrl` as an `Option` (`none` if empty). -/
 @[inline] def remoteUrl? (self : Package) : Option String :=
   if self.remoteUrl.isEmpty then some self.remoteUrl else none
-
-/-- The package's `buildArchive`/`buildArchive?` configuration. -/
-@[inline] def buildArchive (self : Package) : String :=
-  self.config.buildArchive
 
 /-- The package's `lakeDir` joined with its `buildArchive`. -/
 @[inline] def buildArchiveFile (self : Package) : FilePath :=
@@ -592,6 +575,14 @@ namespace Package
 /-- The package's `backend` configuration. -/
 @[inline] def backend (self : Package) : Backend :=
   self.config.backend
+
+/-- The package's `dynlibs` configuration. -/
+@[inline] def dynlibs (self : Package) : TargetArray Dynlib :=
+  self.config.dynlibs
+
+/-- The package's `plugins` configuration. -/
+@[inline] def plugins (self : Package) : TargetArray Dynlib :=
+  self.config.plugins
 
 /-- The package's `leanOptions` configuration. -/
 @[inline] def leanOptions (self : Package) : Array LeanOption :=
@@ -647,12 +638,13 @@ namespace Package
 
 /-- Whether the given module is considered local to the package. -/
 def isLocalModule (mod : Name) (self : Package) : Bool :=
-  self.leanLibConfigs.any (fun lib => lib.isLocalModule mod)
+  self.targetDecls.any (·.leanLibConfig?.any (·.isLocalModule mod))
 
 /-- Whether the given module is in the package (i.e., can build it). -/
 def isBuildableModule (mod : Name) (self : Package) : Bool :=
-  self.leanLibConfigs.any (fun lib => lib.isBuildableModule mod) ||
-  self.leanExeConfigs.any (fun exe => exe.root == mod)
+  self.targetDecls.any fun t =>
+    t.leanLibConfig?.any (·.isBuildableModule mod) ||
+    t.leanExeConfig?.any (·.root == mod)
 
 /-- Remove the package's build outputs (i.e., delete its build directory). -/
 def clean (self : Package) : IO PUnit := do

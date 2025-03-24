@@ -12,7 +12,8 @@ namespace Lean.Compiler.LCNF
 
 abbrev AuxDeclCache := PHashMap Decl Name
 
-builtin_initialize auxDeclCacheExt : EnvExtension AuxDeclCache ← registerEnvExtension (pure {})
+builtin_initialize auxDeclCacheExt : EnvExtension AuxDeclCache ←
+  registerEnvExtension (pure {}) (asyncMode := .sync)  -- compilation is non-parallel anyway
 
 inductive CacheAuxDeclResult where
   | new
@@ -29,4 +30,3 @@ def cacheAuxDecl (decl : Decl) : CompilerM CacheAuxDeclResult := do
     return .new
 
 end Lean.Compiler.LCNF
-

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Proof
+import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.Arith.Inv
 
 namespace Lean.Meta.Grind
@@ -46,27 +47,48 @@ private def checkEqc (root : ENode) : GoalM Unit := do
   -- The size of the equivalence class is correct.
   assert! root.size == size
 
+def checkChild (e : Expr) (child : Expr) : GoalM Bool := do
+  let some childRoot ← getRoot? child | return false
+  return isSameExpr childRoot e
+
+private def checkMatchCondParent (e : Expr) (parent : Expr) : GoalM Bool := do
+  let_expr Grind.MatchCond parent ← parent | return false
+  let mut curr := parent
+  repeat
+    let .forallE _ d b _ := curr
+      | return false
+    match_expr d with
+    | Eq _ lhs _ => if (← checkChild e lhs) then return true -- found it
+    | HEq α lhs _ _ => if (← checkChild e α <||> checkChild e lhs) then return true -- found it
+    | _ => pure ()
+    curr := b
+  return false
+
 private def checkParents (e : Expr) : GoalM Unit := do
   if (← isRoot e) then
     for parent in (← getParents e) do
-      let mut found := false
-      let checkChild (child : Expr) : GoalM Bool := do
-        let some childRoot ← getRoot? child | return false
-        return isSameExpr childRoot e
-      -- There is an argument `arg` s.t. root of `arg` is `e`.
-      for arg in parent.getAppArgs do
-        if (← checkChild arg) then
-          found := true
-          break
-      -- Recall that we have support for `Expr.forallE` propagation. See `ForallProp.lean`.
-      if let .forallE _ d b _ := parent then
-        if (← checkChild d) then
-          found := true
-        unless b.hasLooseBVars do
-          if (← checkChild b) then
+      if isMatchCond parent then
+        unless (← checkMatchCondParent e parent) do
+          throwError "e: {e}, parent: {parent}"
+        assert! (← checkMatchCondParent e parent)
+      else
+        let mut found := false
+        -- There is an argument `arg` s.t. root of `arg` is `e`.
+        for arg in parent.getAppArgs do
+          if (← checkChild e arg) then
             found := true
-      unless found do
-        assert! (← checkChild parent.getAppFn)
+            break
+        -- Recall that we have support for `Expr.forallE` propagation. See `ForallProp.lean`.
+        if let .forallE _ d b _ := parent then
+          if (← checkChild e d) then
+            found := true
+          unless b.hasLooseBVars do
+            if (← checkChild e b) then
+              found := true
+        unless found do
+          unless (← checkChild e parent.getAppFn) do
+            throwError "e: {e}, parent: {parent}"
+          assert! (← checkChild e parent.getAppFn)
   else
     -- All the parents are stored in the root of the equivalence class.
     assert! (← getParents e).isEmpty

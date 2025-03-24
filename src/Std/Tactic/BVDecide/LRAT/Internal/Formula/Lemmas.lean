@@ -69,7 +69,7 @@ theorem limplies_of_assignmentsInvariant {n : Nat} (f : DefaultFormula n)
   · next h =>
     specialize f_AssignmentsInvariant h p pf
     by_cases hpi : p i <;> simp [hpi, Entails.eval] at f_AssignmentsInvariant
-  · next h => simp_all [getElem!, i.2.2, decidableGetElem?]
+  · next h => simp_all [getElem!_def, i.2.2, decidableGetElem?]
 
 /--
 performRupAdd adds to f.rupUnits and then clears f.rupUnits. If f begins with some units in f.rupUnits,
@@ -107,17 +107,17 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
   · simp only [ofArray]
   · have hsize : (ofArray arr).assignments.size = n := by
       simp only [ofArray, ← Array.foldl_toList]
-      have hb : (mkArray n unassigned).size = n := by simp only [Array.size_mkArray]
+      have hb : (Array.replicate n unassigned).size = n := by simp only [Array.size_replicate]
       have hl (acc : Array Assignment) (ih : acc.size = n) (cOpt : Option (DefaultClause n)) (_cOpt_in_arr : cOpt ∈ arr.toList) :
         (ofArray_fold_fn acc cOpt).size = n := by rw [size_ofArray_fold_fn acc cOpt, ih]
-      exact List.foldlRecOn arr.toList ofArray_fold_fn (mkArray n unassigned) hb hl
+      exact List.foldlRecOn arr.toList ofArray_fold_fn (.replicate n unassigned) hb hl
     apply Exists.intro hsize
     let ModifiedAssignmentsInvariant (assignments : Array Assignment) : Prop :=
       ∃ hsize : assignments.size = n,
         ∀ i : PosFin n, ∀ b : Bool, hasAssignment b (assignments[i.1]'(by rw [hsize]; exact i.2.2)) →
         (unit (i, b)) ∈ toList (ofArray arr)
-    have hb : ModifiedAssignmentsInvariant (mkArray n unassigned) := by
-      have hsize : (mkArray n unassigned).size = n := by simp only [Array.size_mkArray]
+    have hb : ModifiedAssignmentsInvariant (.replicate n unassigned) := by
+      have hsize : (Array.replicate n unassigned).size = n := by simp only [Array.size_replicate]
       apply Exists.intro hsize
       intro i b h
       by_cases hb : b <;> simp [hasAssignment, hb, hasPosAssignment, hasNegAssignment] at h
@@ -185,7 +185,7 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
           · next i_ne_l =>
             simp only [Array.getElem_modify_of_ne (Ne.symm i_ne_l)] at h
             exact ih i b h
-    rcases List.foldlRecOn arr.toList ofArray_fold_fn (mkArray n unassigned) hb hl with ⟨_h_size, h'⟩
+    rcases List.foldlRecOn arr.toList ofArray_fold_fn (.replicate n unassigned) hb hl with ⟨_h_size, h'⟩
     intro i b h
     simp only [ofArray, ← Array.foldl_toList] at h
     exact h' i b h
@@ -246,7 +246,7 @@ theorem limplies_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) :
   simp only [formulaEntails_def, List.all_eq_true, decide_eq_true_eq]
   intro h c' c'_in_f
   have c'_in_fc : c' ∈ toList (insert f c) := by
-    simp only [insert_iff, Array.toList_toArray, List.mem_singleton]
+    simp only [insert_iff, List.toList_toArray, List.mem_singleton]
     exact Or.inr c'_in_f
   exact h c' c'_in_fc
 
@@ -494,10 +494,10 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
             · next id_eq_idx =>
               exfalso
               have idx_in_bounds2 : idx < f.clauses.size := by
-                conv => rhs; rw [Array.size_toArray]
+                conv => rhs; rw [List.size_toArray]
                 exact hbound
-              simp only [getElem!, id_eq_idx, Array.length_toList, idx_in_bounds2, ↓reduceDIte,
-                Fin.eta, Array.get_eq_getElem, ← Array.getElem_toList, decidableGetElem?] at heq
+              simp only [id_eq_idx, getElem!_def, idx_in_bounds2, Array.getElem?_eq_getElem, ←
+                Array.getElem_toList] at heq
               rw [hidx, hl] at heq
               simp only [unit, Option.some.injEq, DefaultClause.mk.injEq, List.cons.injEq, and_true] at heq
               simp only [← heq] at l_ne_b
@@ -527,10 +527,10 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
             · next id_eq_idx =>
               exfalso
               have idx_in_bounds2 : idx < f.clauses.size := by
-                conv => rhs; rw [Array.size_toArray]
+                conv => rhs; rw [List.size_toArray]
                 exact hbound
-              simp only [getElem!, id_eq_idx, Array.length_toList, idx_in_bounds2, ↓reduceDIte,
-                Fin.eta, Array.get_eq_getElem, ← Array.getElem_toList, decidableGetElem?] at heq
+              simp only [id_eq_idx, getElem!_def, idx_in_bounds2, Array.getElem?_eq_getElem, ←
+                Array.getElem_toList] at heq
               rw [hidx, hl] at heq
               simp only [unit, Option.some.injEq, DefaultClause.mk.injEq, List.cons.injEq, and_true] at heq
               have i_eq_l : i = l.1 := by rw [← heq]
@@ -587,10 +587,10 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
             · next id_eq_idx =>
               exfalso
               have idx_in_bounds2 : idx < f.clauses.size := by
-                conv => rhs; rw [Array.size_toArray]
+                conv => rhs; rw [List.size_toArray]
                 exact hbound
-              simp only [getElem!, id_eq_idx, Array.length_toList, idx_in_bounds2, ↓reduceDIte,
-                Fin.eta, Array.get_eq_getElem, ← Array.getElem_toList, decidableGetElem?] at heq
+              simp only [id_eq_idx, getElem!_def, idx_in_bounds2, Array.getElem?_eq_getElem, ←
+                Array.getElem_toList] at heq
               rw [hidx] at heq
               simp only [Option.some.injEq] at heq
               rw [← heq] at hl

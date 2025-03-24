@@ -7,15 +7,21 @@ info: [Meta.Tactic.simp.unify] eq_self:1000, failed to unify
       ?a = ?a
     with
       ⟨v₂, hv₂⟩ = ⟨v₁, hv₁⟩
-[Meta.Tactic.simp.rewrite] Fin.mk.injEq:1000, ⟨v₂, hv₂⟩ = ⟨v₁, hv₁⟩ ==> v₂ = v₁
+[Meta.Tactic.simp.rewrite] Fin.mk.injEq:1000:
+      ⟨v₂, hv₂⟩ = ⟨v₁, hv₁⟩
+    ==>
+      v₂ = v₁
 [Meta.Tactic.simp.unify] eq_self:1000, failed to unify
       ?a = ?a
     with
       v₂ = v₁
 [Meta.Tactic.simp.discharge] Nat.ne_of_gt discharge ✅️
       v₁ < v₂
-  [Meta.Tactic.simp.rewrite] hv:1000, v₁ < v₂ ==> True
-[Meta.Tactic.simp.rewrite] Nat.ne_of_gt:1000, v₂ = v₁ ==> False
+  [Meta.Tactic.simp.rewrite] hv:1000:
+        v₁ < v₂
+      ==>
+        True
+[Meta.Tactic.simp.rewrite] Nat.ne_of_gt:1000: v₂ = v₁ ==> False
 -/
 #guard_msgs in
 set_option trace.Meta.Tactic.simp true in

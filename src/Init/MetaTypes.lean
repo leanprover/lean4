@@ -109,6 +109,11 @@ structure Config where
   to find candidate `simp` theorems. It approximates Lean 3 `simp` behavior.
   -/
   index             : Bool := true
+  /--
+  When `true` (default : `true`), then simps will remove unused let-declarations:
+  `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
+  -/
+  zetaUnused : Bool := true
   deriving Inhabited, BEq
 
 end DSimp
@@ -228,6 +233,11 @@ structure Config where
   input and output terms are definitionally equal.
   -/
   implicitDefEqProofs : Bool := true
+  /--
+  When `true` (default : `true`), then simps will remove unused let-declarations:
+  `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
+  -/
+  zetaUnused : Bool := true
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`
@@ -248,6 +258,7 @@ def neutralConfig : Simp.Config := {
   autoUnfold        := false
   ground            := false
   zetaDelta         := false
+  zetaUnused        := false
 }
 
 structure NormCastConfig extends Simp.Config where

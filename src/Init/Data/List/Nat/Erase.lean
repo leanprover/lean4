@@ -7,6 +7,9 @@ prelude
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Erase
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 theorem getElem?_eraseIdx (l : List α) (i : Nat) (j : Nat) :
@@ -64,6 +67,11 @@ theorem getElem_eraseIdx_of_ge (l : List α) (i : Nat) (j : Nat) (h : j < (l.era
     (l.eraseIdx i)[j] = l[j + 1]'(by rw [length_eraseIdx] at h; split at h <;> omega) := by
   rw [getElem_eraseIdx, dif_neg]
   omega
+
+theorem eraseIdx_eq_dropLast (l : List α) (i : Nat) (h : i + 1 = l.length) :
+    l.eraseIdx i = l.dropLast := by
+  simp [eraseIdx_eq_take_drop_succ, h]
+  rw [take_eq_dropLast h]
 
 theorem eraseIdx_set_eq {l : List α} {i : Nat} {a : α} :
     (l.set i a).eraseIdx i = l.eraseIdx i := by

@@ -34,7 +34,7 @@ theorem get_mem : ∀ {o : Option α} (h : isSome o), o.get h ∈ o
 theorem get_of_mem : ∀ {o : Option α} (h : isSome o), a ∈ o → o.get h = a
   | _, _, rfl => rfl
 
-theorem not_mem_none (a : α) : a ∉ (none : Option α) := nofun
+@[simp] theorem not_mem_none (a : α) : a ∉ (none : Option α) := nofun
 
 theorem getD_of_ne_none {x : Option α} (hx : x ≠ none) (y : α) : some (x.getD y) = x := by
   cases x; {contradiction}; rw [getD_some]
@@ -138,6 +138,10 @@ theorem bind_comm {f : α → β → Option γ} (a : Option α) (b : Option β) 
 theorem bind_assoc (x : Option α) (f : α → Option β) (g : β → Option γ) :
     (x.bind f).bind g = x.bind fun y => (f y).bind g := by cases x <;> rfl
 
+theorem bind_congr {α β} {o : Option α} {f g : α → Option β} :
+    (h : ∀ a, o = some a → f a = g a) → o.bind f = o.bind g := by
+  cases o <;> simp
+
 theorem join_eq_some : x.join = some a ↔ x = some (some a) := by
   simp [bind_eq_some]
 
@@ -229,9 +233,12 @@ theorem map_inj_right {f : α → β} {o o' : Option α} (w : ∀ x y, f x = f y
 
 theorem filter_some : Option.filter p (some a) = if p a then some a else none := rfl
 
-theorem isSome_filter_of_isSome (p : α → Bool) (o : Option α) (h : (o.filter p).isSome) :
+theorem isSome_of_isSome_filter (p : α → Bool) (o : Option α) (h : (o.filter p).isSome) :
     o.isSome := by
   cases o <;> simp at h ⊢
+
+@[deprecated isSome_of_isSome_filter (since := "2025-03-18")]
+abbrev isSome_filter_of_isSome := @isSome_of_isSome_filter
 
 @[simp] theorem filter_eq_none {p : α → Bool} :
     o.filter p = none ↔ o = none ∨ ∀ a, a ∈ o → ¬ p a := by
@@ -295,8 +302,11 @@ theorem map_orElse {x y : Option α} : (x <|> y).map f = (x.map f <|> y.map f) :
 @[simp] theorem guard_eq_some [DecidablePred p] : guard p a = some b ↔ a = b ∧ p a :=
   if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
 
-@[simp] theorem guard_isSome [DecidablePred p] : (Option.guard p a).isSome ↔ p a :=
+@[simp] theorem isSome_guard [DecidablePred p] : (Option.guard p a).isSome ↔ p a :=
   if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
+
+@[deprecated isSome_guard (since := "2025-03-18")]
+abbrev guard_isSome := @isSome_guard
 
 @[simp] theorem guard_eq_none [DecidablePred p] : Option.guard p a = none ↔ ¬ p a :=
   if h : p a then by simp [Option.guard, h] else by simp [Option.guard, h]
@@ -352,7 +362,12 @@ section choice
 
 attribute [local instance] Classical.propDecidable
 
-/-- An arbitrary `some a` with `a : α` if `α` is nonempty, and otherwise `none`. -/
+/--
+An optional arbitrary element of a given type.
+
+If `α` is non-empty, then there exists some `v : α` and this arbitrary element is `some v`.
+Otherwise, it is `none`.
+-/
 noncomputable def choice (α : Type _) : Option α :=
   if h : Nonempty α then some (Classical.choice h) else none
 
@@ -361,8 +376,11 @@ theorem choice_eq {α : Type _} [Subsingleton α] (a : α) : choice α = some a 
   rw [dif_pos (⟨a⟩ : Nonempty α)]
   simp; apply Subsingleton.elim
 
-theorem choice_isSome_iff_nonempty {α : Type _} : (choice α).isSome ↔ Nonempty α :=
+theorem isSome_choice_iff_nonempty {α : Type _} : (choice α).isSome ↔ Nonempty α :=
   ⟨fun h => ⟨(choice α).get h⟩, fun h => by simp only [choice, dif_pos h, isSome_some]⟩
+
+@[deprecated isSome_choice_iff_nonempty (since := "2025-03-18")]
+abbrev choice_isSome_iff_nonempty := @isSome_choice_iff_nonempty
 
 end choice
 
@@ -374,6 +392,9 @@ end choice
 
 @[simp] theorem some_or : (some a).or o = some a := rfl
 @[simp] theorem none_or : none.or o = o := rfl
+
+theorem or_eq_right_of_none {o o' : Option α} (h : o = none) : o.or o' = o' := by
+  cases h; simp
 
 @[deprecated some_or (since := "2024-11-03")] theorem or_some : (some a).or o = some a := rfl
 
@@ -403,6 +424,10 @@ instance : Std.Associative (or (α := α)) := ⟨@or_assoc _⟩
 @[simp]
 theorem or_none : or o none = o := by
   cases o <;> rfl
+
+theorem or_eq_left_of_none {o o' : Option α} (h : o' = none) : o.or o' = o := by
+  cases h; simp
+
 instance : Std.LawfulIdentity (or (α := α)) none where
   left_id := @none_or _
   right_id := @or_none _
@@ -647,6 +672,11 @@ theorem map_pmap {p : α → Prop} (g : β → γ) (f : ∀ a, p a → β) (o H)
     Option.map g (pmap f o H) = pmap (fun a h => g (f a h)) o H := by
   cases o <;> simp
 
+theorem pmap_map (o : Option α) (f : α → β) {p : β → Prop} (g : ∀ b, p b → γ) (H) :
+    pmap g (o.map f) H =
+      pmap (fun a h => g (f a) h) o (fun a m => H (f a) (mem_map_of_mem f m)) := by
+  cases o <;> simp
+
 /-! ### pelim -/
 
 @[simp] theorem pelim_none : pelim none b f = b := rfl
@@ -654,5 +684,87 @@ theorem map_pmap {p : α → Prop} (g : β → γ) (f : ∀ a, p a → β) (o H)
 
 @[simp] theorem pelim_eq_elim : pelim o b (fun a _ => f a) = o.elim b f := by
   cases o <;> simp
+
+@[simp] theorem elim_pmap {p : α → Prop} (f : (a : α) → p a → β) (o : Option α)
+    (H : ∀ (a : α), a ∈ o → p a) (g : γ) (g' : β → γ) :
+    (o.pmap f H).elim g g' =
+       o.pelim g (fun a h => g' (f a (H a h))) := by
+  cases o <;> simp
+
+/-! ### LT and LE -/
+
+@[simp] theorem not_lt_none [LT α] {a : Option α} : ¬ a < none := by cases a <;> simp [LT.lt, Option.lt]
+@[simp] theorem none_lt_some [LT α] {a : α} : none < some a := by simp [LT.lt, Option.lt]
+@[simp] theorem some_lt_some [LT α] {a b : α} : some a < some b ↔ a < b := by simp [LT.lt, Option.lt]
+
+@[simp] theorem none_le [LE α] {a : Option α} : none ≤ a := by cases a <;> simp [LE.le, Option.le]
+@[simp] theorem not_some_le_none [LE α] {a : α} : ¬ some a ≤ none := by simp [LE.le, Option.le]
+@[simp] theorem some_le_some [LE α] {a b : α} : some a ≤ some b ↔ a ≤ b := by simp [LE.le, Option.le]
+
+/-! ### min and max -/
+
+theorem min_eq_left [LE α] [Min α] (min_eq_left : ∀ x y : α, x ≤ y → min x y = x)
+    {a b : Option α} (h : a ≤ b) : min a b = a := by
+  cases a <;> cases b <;> simp_all
+
+theorem min_eq_right [LE α] [Min α] (min_eq_right : ∀ x y : α, y ≤ x → min x y = y)
+    {a b : Option α} (h : b ≤ a) : min a b = b := by
+  cases a <;> cases b <;> simp_all
+
+theorem min_eq_left_of_lt [LT α] [Min α] (min_eq_left : ∀ x y : α, x < y → min x y = x)
+    {a b : Option α} (h : a < b) : min a b = a := by
+  cases a <;> cases b <;> simp_all
+
+theorem min_eq_right_of_lt [LT α] [Min α] (min_eq_right : ∀ x y : α, y < x → min x y = y)
+    {a b : Option α} (h : b < a) : min a b = b := by
+  cases a <;> cases b <;> simp_all
+
+theorem min_eq_or [LE α] [Min α] (min_eq_or : ∀ x y : α, min x y = x ∨ min x y = y)
+    {a b : Option α} : min a b = a ∨ min a b = b := by
+  cases a <;> cases b <;> simp_all
+
+theorem min_le_left [LE α] [Min α] (min_le_left : ∀ x y : α, min x y ≤ x)
+    {a b : Option α} : min a b ≤ a := by
+  cases a <;> cases b <;> simp_all
+
+theorem min_le_right [LE α] [Min α] (min_le_right : ∀ x y : α, min x y ≤ y)
+    {a b : Option α} : min a b ≤ b := by
+  cases a <;> cases b <;> simp_all
+
+theorem le_min [LE α] [Min α] (le_min : ∀ x y z : α, x ≤ min y z ↔ x ≤ y ∧ x ≤ z)
+    {a b c : Option α} : a ≤ min b c ↔ a ≤ b ∧ a ≤ c := by
+  cases a <;> cases b <;> cases c <;> simp_all
+
+theorem max_eq_left [LE α] [Max α] (max_eq_left : ∀ x y : α, x ≤ y → max x y = y)
+    {a b : Option α} (h : a ≤ b) : max a b = b := by
+  cases a <;> cases b <;> simp_all
+
+theorem max_eq_right [LE α] [Max α] (max_eq_right : ∀ x y : α, y ≤ x → max x y = x)
+    {a b : Option α} (h : b ≤ a) : max a b = a := by
+  cases a <;> cases b <;> simp_all
+
+theorem max_eq_left_of_lt [LT α] [Max α] (max_eq_left : ∀ x y : α, x < y → max x y = y)
+    {a b : Option α} (h : a < b) : max a b = b := by
+  cases a <;> cases b <;> simp_all
+
+theorem max_eq_right_of_lt [LT α] [Max α] (max_eq_right : ∀ x y : α, y < x → max x y = x)
+    {a b : Option α} (h : b < a) : max a b = a := by
+  cases a <;> cases b <;> simp_all
+
+theorem max_eq_or [LE α] [Max α] (max_eq_or : ∀ x y : α, max x y = x ∨ max x y = y)
+    {a b : Option α} : max a b = a ∨ max a b = b := by
+  cases a <;> cases b <;> simp_all
+
+theorem left_le_max [LE α] [Max α] (le_refl : ∀ x : α, x ≤ x) (left_le_max : ∀ x y : α, x ≤ max x y)
+    {a b : Option α} : a ≤ max a b := by
+  cases a <;> cases b <;> simp_all
+
+theorem right_le_max [LE α] [Max α] (le_refl : ∀ x : α, x ≤ x) (right_le_max : ∀ x y : α, y ≤ max x y)
+    {a b : Option α} : b ≤ max a b := by
+  cases a <;> cases b <;> simp_all
+
+theorem max_le [LE α] [Max α] (max_le : ∀ x y z : α, max x y ≤ z ↔ x ≤ z ∧ y ≤ z)
+    {a b c : Option α} : max a b ≤ c ↔ a ≤ c ∧ b ≤ c := by
+  cases a <;> cases b <;> cases c <;> simp_all
 
 end Option

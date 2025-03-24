@@ -1,3 +1,4 @@
+set_option grind.warning false
 example (a b : List Nat) : a = [] → b = [2] → a = b → False := by
   grind
 
@@ -116,7 +117,6 @@ end dite_propagator_test
 info: [grind.eqc] x = 2 * a
 [grind.eqc] y = x
 [grind.eqc] (y = 2 * a) = False
-[grind.eqc] (y = 2 * a) = True
 -/
 #guard_msgs (info) in
 set_option trace.grind.eqc true in
@@ -127,7 +127,6 @@ example (a : Nat) : let x := a + a; y = x → y = a + a := by
 info: [grind.eqc] x = 2 * a
 [grind.eqc] y = x
 [grind.eqc] (y = 2 * a) = False
-[grind.eqc] (y = 2 * a) = True
 -/
 #guard_msgs (info) in
 set_option trace.grind.eqc true in
@@ -228,7 +227,7 @@ example (P Q : Prop) : (¬P → ¬Q) ↔ (Q → P) := by
 
 example {α} (a b c : α) [LE α] :
   ¬(¬a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ a ≤ b) ↔ a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ ¬a ≤ b := by
-  simp_arith -- should not fail
+  simp +arith -- should not fail
   sorry
 
 example {α} (a b c : α) [LE α] :
@@ -242,10 +241,10 @@ example (x y : Bool) : ¬(x = true ↔ y = true) ↔ (¬(x = true) ↔ y = true)
 error: `grind` failed
 case grind
 p q : Prop
-a✝¹ : p = q
-a✝ : p
+h : p = q
+h_1 : p
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] p = q
     [prop] p
@@ -263,10 +262,23 @@ example (p q : Prop) : (p ↔ q) → p → False := by
 error: `grind` failed
 case grind
 p q : Prop
-a✝¹ : p = ¬q
-a✝ : p
+h : p = q
+h_1 : p
 ⊢ False
-[grind] Diagnostics
+-/
+#guard_msgs (error) in
+example (p q : Prop) : (p ↔ q) → p → False := by
+  grind -verbose -- We should not get any diagnostics
+
+
+/--
+error: `grind` failed
+case grind
+p q : Prop
+h : p = ¬q
+h_1 : p
+⊢ False
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] p = ¬q
     [prop] p
@@ -300,7 +312,7 @@ example : (replicate n a).map f = replicate n (f a) := by
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
-  grind only [Exists, Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  grind only [cases Exists, Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
@@ -334,10 +346,10 @@ error: `grind` failed
 case grind
 a : Nat
 b : Bool
-a✝¹ : (if b = true then 10 else 20) = a
-a✝ : b = true
+h : (if b = true then 10 else 20) = a
+h_1 : b = true
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] (if b = true then 10 else 20) = a
     [prop] b = true
@@ -357,3 +369,18 @@ set_option trace.grind.issues true in
 example : (if n + 2 < m then a else b) = (if n + 1 < m then c else d) := by
   fail_if_success grind (splits := 0)
   sorry
+
+example (f : Nat → Nat) : f (a + 1) = 1 → a = 0 → f 1 = 1 := by
+  grind
+
+example [Decidable p] : a = true → decide p = a → p := by
+  grind
+
+example [Decidable p] : false = a → decide p = a → ¬p := by
+  grind
+
+example [Decidable p] : a = true → p → decide p = a := by
+  grind
+
+example [Decidable p] : false = a → ¬p → decide p = a := by
+  grind

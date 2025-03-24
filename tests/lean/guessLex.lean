@@ -90,7 +90,7 @@ def confuseLex2 : @PSigma Nat (fun _ => Nat) → Nat
   | ⟨0,_⟩ => 0
   | ⟨.succ y,.succ n⟩ => confuseLex2 ⟨y,n⟩
 
--- NB: uses sizeOf to make the termination argument non-dependent
+-- NB: uses sizeOf to make the termination measure non-dependent
 def dependent : (n : Nat) → (m : Fin n) → Nat
  | 0, i => Fin.elim0 i
  | .succ 0, 0 => 0
@@ -137,7 +137,7 @@ def shadow2 (some_n : Nat) : Nat → Nat
   | .succ n => shadow2 (some_n + 1) n
 decreasing_by decreasing_tactic
 
--- Tests that the inferred termination argument is shown without extra underscores
+-- Tests that the inferred termination measure is shown without extra underscores
 def foo : Nat → Nat → Nat → Nat
   | _, 0, acc => acc
   | k, n+1, acc => foo (k+1) n (acc + k)
@@ -181,7 +181,7 @@ end VarNames
 namespace MutualNotNat1
 
 -- A type that isn't Nat, checking that the inferred argument uses `sizeOf` so that
--- the types of the termination argument aligns.
+-- the types of the termination measure aligns.
 structure OddNat2 where nat : Nat
 instance : SizeOf OddNat2 := ⟨fun n => n.nat⟩
 @[simp] theorem  OddNat2.sizeOf_eq (n : OddNat2) : sizeOf n = n.nat := rfl
@@ -197,7 +197,7 @@ end MutualNotNat1
 
 namespace MutualNotNat2
 -- A type that is defeq to Nat, but with a different `sizeOf`, checking that the
--- inferred argument uses `sizeOf` so that the types of the termination argument aligns.
+-- inferred argument uses `sizeOf` so that the types of the termination measure aligns.
 def OddNat3 := Nat
 instance : SizeOf OddNat3 := ⟨fun n => 42 - @id Nat n⟩
 @[simp] theorem  OddNat3.sizeOf_eq (n : OddNat3) : sizeOf n = 42 - @id Nat n := rfl

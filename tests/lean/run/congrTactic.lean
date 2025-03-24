@@ -12,11 +12,11 @@ def f (p : Prop) (a : Nat) (h : a > 0) [Decidable p] : Nat :=
   else
     a + 1
 
-example (h : a = b) : f True (a + 1) (by simp_arith) = f (0 = 0) (b + 1) (by simp_arith) := by
+example (h : a = b) : f True (a + 1) (by simp +arith) = f (0 = 0) (b + 1) (by simp +arith) := by
   congr
   decide
 
-example (h : a = b) : f True (a + 1) (by simp_arith) = f (0 = 0) (b + 1) (by simp_arith) := by
+example (h : a = b) : f True (a + 1) (by simp +arith) = f (0 = 0) (b + 1) (by simp +arith) := by
   congr 1
   · decide
   · show a + 1 = b + 1

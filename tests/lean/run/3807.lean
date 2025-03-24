@@ -954,8 +954,8 @@ structure AddMonoidHom (M : Type _) (N : Type _) [AddZeroClass M] [AddZeroClass 
 
 infixr:25 " →+ " => AddMonoidHom
 
-class AddMonoidHomClass (F M N : Type _) [AddZeroClass M] [AddZeroClass N] [FunLike F M N]
-  extends AddHomClass F M N, ZeroHomClass F M N : Prop
+class AddMonoidHomClass (F M N : Type _) [AddZeroClass M] [AddZeroClass N] [FunLike F M N] : Prop
+  extends AddHomClass F M N, ZeroHomClass F M N
 
 section One
 
@@ -1053,8 +1053,8 @@ structure MonoidHom (M : Type _) (N : Type _) [MulOneClass M] [MulOneClass N] ex
 infixr:25 " →* " => MonoidHom
 
 class MonoidHomClass (F : Type _) (M N : outParam (Type _)) [MulOneClass M] [MulOneClass N]
-  [FunLike F M N]
-  extends MulHomClass F M N, OneHomClass F M N : Prop
+  [FunLike F M N] : Prop
+  extends MulHomClass F M N, OneHomClass F M N
 
 instance MonoidHom.instFunLike : FunLike (M →* N) M N where
   coe f := f.toFun
@@ -1120,7 +1120,7 @@ variable {F α β γ δ : Type _} [MulZeroOneClass α] [MulZeroOneClass β] [Mul
   [MulZeroOneClass δ]
 
 class MonoidWithZeroHomClass (F : Type _) (α β : outParam (Type _)) [MulZeroOneClass α]
-  [MulZeroOneClass β] [FunLike F α β] extends MonoidHomClass F α β, ZeroHomClass F α β : Prop
+  [MulZeroOneClass β] [FunLike F α β] : Prop extends MonoidHomClass F α β, ZeroHomClass F α β
 
 structure MonoidWithZeroHom (α β : Type _) [MulZeroOneClass α] [MulZeroOneClass β]
   extends ZeroHom α β, MonoidHom α β
@@ -1211,8 +1211,8 @@ infixr:25 " →+* " => RingHom
 section RingHomClass
 
 class RingHomClass (F : Type _) (α β : outParam (Type _))
-    [NonAssocSemiring α] [NonAssocSemiring β] [FunLike F α β]
-  extends MonoidHomClass F α β, AddMonoidHomClass F α β, MonoidWithZeroHomClass F α β : Prop
+    [NonAssocSemiring α] [NonAssocSemiring β] [FunLike F α β] : Prop
+  extends MonoidHomClass F α β, AddMonoidHomClass F α β, MonoidWithZeroHomClass F α β
 
 variable [FunLike F α β]
 
@@ -1870,7 +1870,7 @@ universe u v w
 section AddSubmonoidWithOneClass
 
 class AddSubmonoidWithOneClass (S R : Type _) [AddMonoidWithOne R]
-  [SetLike S R] extends AddSubmonoidClass S R : Prop
+  [SetLike S R] : Prop extends AddSubmonoidClass S R
 
 variable {S R : Type _} [AddMonoidWithOne R] [SetLike S R] (s : S)
 
@@ -1889,7 +1889,7 @@ variable {R : Type u} {S : Type v} [NonAssocSemiring R]
 section SubsemiringClass
 
 class SubsemiringClass (S : Type _) (R : Type u) [NonAssocSemiring R]
-  [SetLike S R] extends SubmonoidClass S R, AddSubmonoidClass S R : Prop
+  [SetLike S R] : Prop extends SubmonoidClass S R, AddSubmonoidClass S R
 
 instance (priority := 100) SubsemiringClass.addSubmonoidWithOneClass (S : Type _)
     (R : Type u) [NonAssocSemiring R] [SetLike S R] [h : SubsemiringClass S R] :
@@ -1963,8 +1963,8 @@ variable {R : Type u} {S : Type v} {T : Type w} [Ring R]
 
 section SubringClass
 
-class SubringClass (S : Type _) (R : Type u) [Ring R] [SetLike S R] extends
-  SubsemiringClass S R : Prop
+class SubringClass (S : Type _) (R : Type u) [Ring R] [SetLike S R] : Prop
+  extends SubsemiringClass S R
 
 instance (priority := 100) SubringClass.addSubmonoidClass (S : Type _) (R : Type u)
     [SetLike S R] [Ring R] [h : SubringClass S R] : AddSubmonoidClass S R :=
@@ -2070,7 +2070,7 @@ notation:25 A " →ₐ[" R "] " B => AlgHom R A B
 from `A` to `B`.  -/
 class AlgHomClass (F : Type _) (R A B : outParam (Type _))
   [Semiring R] [Semiring A] [Semiring B] [Algebra R A] [Algebra R B]
-  [FunLike F A B] extends RingHomClass F A B : Prop where
+  [FunLike F A B] : Prop extends RingHomClass F A B where
   commutes : ∀ (f : F) (r : R), f (algebraMap R A r) = algebraMap R B r
 
 namespace AlgHom
@@ -2179,8 +2179,8 @@ section Mathlib.Algebra.Algebra.Subalgebra.Basic
 universe u u' v w
 
 /-- A subalgebra is a sub(semi)ring that includes the range of `algebraMap`. -/
-structure Subalgebra (R : Type u) (A : Type v) [Semiring R] [Semiring A] [Algebra R A] extends
-    Subsemiring A : Type v where
+structure Subalgebra (R : Type u) (A : Type v) [Semiring R] [Semiring A] [Algebra R A] : Type v
+  extends Subsemiring A  where
 
 namespace Subalgebra
 
@@ -2346,7 +2346,7 @@ variable {K : Type u} {L : Type v}
 variable [DivisionRing K] [DivisionRing L]
 
 /-- `SubfieldClass S K` states `S` is a type of subsets `s ⊆ K` closed under field operations. -/
-class SubfieldClass (S K : Type _) [DivisionRing K] [SetLike S K] extends SubringClass S K : Prop
+class SubfieldClass (S K : Type _) [DivisionRing K] [SetLike S K] : Prop extends SubringClass S K
 
 namespace SubfieldClass
 

@@ -24,8 +24,7 @@ info: [grind] closed `grind.1`
 #guard_msgs (info) in
 set_option trace.grind true in
 example : h as ≠ 0 := by
-  unfold h
-  grind
+  grind [h.eq_def]
 
 example : h as ≠ 0 := by
   unfold h

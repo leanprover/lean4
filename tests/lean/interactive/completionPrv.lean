@@ -1,14 +1,14 @@
-private def blaBlaBoo := 2
+private def longAndHopefullyUniqueBlaBlaBoo := 2
 
-#check blaB
-         --^ textDocument/completion
+#check longAndHopefullyUniqueBlaB
+                               --^ textDocument/completion
 
 namespace Foo
 
-private def booBoo := 3
+private def longAndHopefullyUniqueBooBoo := 3
 
-#check booB
-         --^ textDocument/completion
+#check longAndHopefullyUniqueBooB
+                               --^ textDocument/completion
 
 end Foo
 

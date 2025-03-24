@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.DoNotSimp
+import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
 
@@ -40,8 +40,8 @@ protected def getSimprocs : MetaM (Array Simprocs) := do
   We don't want it to be simplified to `[] = []`.
   -/
   let s := s.erase ``List.reduceReplicate
-  let s ← addDoNotSimp s
-  let s ← addMatchCond s
+  let s ← addSimpMatchDiscrsOnly s
+  let s ← addPreMatchCondSimproc s
   return #[s]
 
 /-- Returns the simplification context used by `grind`. -/

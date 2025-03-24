@@ -292,18 +292,57 @@ deriving instance Repr for Syntax.Preresolved
 deriving instance Repr for Syntax
 deriving instance Repr for TSyntax
 
+/--
+Syntax that represents a Lean term.
+-/
 abbrev Term := TSyntax `term
+/--
+Syntax that represents a command.
+-/
 abbrev Command := TSyntax `command
+/--
+Syntax that represents a universe level.
+-/
 protected abbrev Level := TSyntax `level
+/--
+Syntax that represents a tactic.
+-/
 protected abbrev Tactic := TSyntax `tactic
+/--
+Syntax that represents a precedence (e.g. for an operator).
+-/
 abbrev Prec := TSyntax `prec
+/--
+Syntax that represents a priority (e.g. for an instance declaration).
+-/
 abbrev Prio := TSyntax `prio
+/--
+Syntax that represents an identifier.
+-/
 abbrev Ident := TSyntax identKind
+/--
+Syntax that represents a string literal.
+-/
 abbrev StrLit := TSyntax strLitKind
+/--
+Syntax that represents a character literal.
+-/
 abbrev CharLit := TSyntax charLitKind
+/--
+Syntax that represents a quoted name literal that begins with a back-tick.
+-/
 abbrev NameLit := TSyntax nameLitKind
+/--
+Syntax that represents a scientific numeric literal that may have decimal and exponential parts.
+-/
 abbrev ScientificLit := TSyntax scientificLitKind
+/--
+Syntax that represents a numeric literal.
+-/
 abbrev NumLit := TSyntax numLitKind
+/--
+Syntax that represents macro hygiene info.
+-/
 abbrev HygieneInfo := TSyntax hygieneInfoKind
 
 end Syntax
@@ -735,8 +774,8 @@ def decodeNatLitVal? (s : String) : Option Nat :=
 def isLit? (litKind : SyntaxNodeKind) (stx : Syntax) : Option String :=
   match stx with
   | Syntax.node _ k args =>
-    if k == litKind && args.size == 1 then
-      match args.get! 0 with
+    if h : k == litKind ∧ args.size = 1 then
+      match args[0]'(Nat.lt_of_sub_eq_succ h.2) with
       | (Syntax.atom _ val) => some val
       | _ => none
     else
@@ -987,7 +1026,8 @@ def _root_.Substring.toName (s : Substring) : Name :=
         Name.mkStr n comp
 
 /--
-Converts a `String` to a hierarchical `Name` after splitting it at the dots.
+Converts a string to the Lean compiler's representation of names. The resulting name is
+hierarchical, and the string is split at the dots (`'.'`).
 
 `"a.b".toName` is the name `a.b`, not `«a.b»`. For the latter, use `Name.mkSimple`.
 -/
@@ -1042,24 +1082,63 @@ end Syntax
 
 namespace TSyntax
 
+/--
+Interprets a numeric literal as a natural number.
+
+Returns `0` if the syntax is malformed.
+-/
 def getNat (s : NumLit) : Nat :=
   s.raw.isNatLit?.getD 0
 
+/--
+Extracts the parsed name from the syntax of an identifier.
+
+Returns `Name.anonymous` if the syntax is malformed.
+-/
 def getId (s : Ident) : Name :=
   s.raw.getId
 
+/--
+Extracts the components of a scientific numeric literal.
+
+Returns a triple `(n, sign, e) : Nat × Bool × Nat`; the number's value is given by:
+
+```
+if sign then n * 10 ^ (-e) else n * 10 ^ e
+```
+
+Returns `(0, false, 0)` if the syntax is malformed.
+-/
 def getScientific (s : ScientificLit) : Nat × Bool × Nat :=
   s.raw.isScientificLit?.getD (0, false, 0)
 
+/--
+Decodes a string literal, removing quotation marks and unescaping escaped characters.
+
+Returns `""` if the syntax is malformed.
+-/
 def getString (s : StrLit) : String :=
   s.raw.isStrLit?.getD ""
 
+/--
+Decodes a character literal.
+
+Returns `(default : Char)` if the syntax is malformed.
+-/
 def getChar (s : CharLit) : Char :=
   s.raw.isCharLit?.getD default
 
+/--
+Decodes a quoted name literal, returning the name.
+
+Returns `Lean.Name.anonymous` if the syntax is malformed.
+-/
 def getName (s : NameLit) : Name :=
   s.raw.isNameLit?.getD .anonymous
 
+/--
+Decodes macro hygiene information.
+-/
 def getHygieneInfo (s : HygieneInfo) : Name :=
   s.raw[0].getId
 
@@ -1207,9 +1286,19 @@ private partial def filterSepElemsMAux {m : Type → Type} [Monad m] (a : Array 
   else
     pure acc
 
+/--
+Filters an array of syntax, treating every other element as a separator rather than an element to
+test with the monadic predicate `p`. The resulting array contains the tested elements for which `p`
+returns `true`, separated by the corresponding separator elements.
+-/
 def filterSepElemsM {m : Type → Type} [Monad m] (a : Array Syntax) (p : Syntax → m Bool) : m (Array Syntax) :=
   filterSepElemsMAux a p 0 #[]
 
+/--
+Filters an array of syntax, treating every other element as a separator rather than an element to
+test with the predicate `p`. The resulting array contains the tested elements for which `p` returns
+`true`, separated by the corresponding separator elements.
+-/
 def filterSepElems (a : Array Syntax) (p : Syntax → Bool) : Array Syntax :=
   Id.run <| a.filterSepElemsM p
 
@@ -1509,25 +1598,35 @@ This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
 declare_simp_like_tactic simpAutoUnfold "simp! " (autoUnfold := true)
 
-/-- `simp_arith` is shorthand for `simp` with `arith := true` and `decide := true`.
-This enables the use of normalization by linear arithmetic. -/
-declare_simp_like_tactic simpArith "simp_arith " (arith := true) (decide := true)
+/--
+`simp_arith` has been deprecated. It was a shorthand for `simp +arith +decide`.
+Note that `+decide` is not needed for reducing arithmetic terms since simprocs have been added to Lean.
+-/
+syntax (name := simpArith) "simp_arith " optConfig (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 
-/-- `simp_arith!` is shorthand for `simp_arith` with `autoUnfold := true`.
-This will rewrite with all equation lemmas, which can be used to
-partially evaluate many definitions. -/
-declare_simp_like_tactic simpArithAutoUnfold "simp_arith! " (arith := true) (autoUnfold := true) (decide := true)
+/--
+`simp_arith!` has been deprecated. It was a shorthand for `simp! +arith +decide`.
+Note that `+decide` is not needed for reducing arithmetic terms since simprocs have been added to Lean.
+-/
+syntax (name := simpArithBang) "simp_arith! " optConfig (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 
 /-- `simp_all!` is shorthand for `simp_all` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
 declare_simp_like_tactic (all := true) simpAllAutoUnfold "simp_all! " (autoUnfold := true)
 
-/-- `simp_all_arith` combines the effects of `simp_all` and `simp_arith`. -/
-declare_simp_like_tactic (all := true) simpAllArith "simp_all_arith " (arith := true) (decide := true)
+/--
+`simp_all_arith` has been deprecated. It was a shorthand for `simp_all +arith +decide`.
+Note that `+decide` is not needed for reducing arithmetic terms since simprocs have been added to Lean.
+-/
+syntax (name := simpAllArith) "simp_all_arith" optConfig (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? : tactic
 
-/-- `simp_all_arith!` combines the effects of `simp_all`, `simp_arith` and `simp!`. -/
-declare_simp_like_tactic (all := true) simpAllArithAutoUnfold "simp_all_arith! " (arith := true) (autoUnfold := true) (decide := true)
+/--
+`simp_all_arith!` has been deprecated. It was a shorthand for `simp_all! +arith +decide`.
+Note that `+decide` is not needed for reducing arithmetic terms since simprocs have been added to Lean.
+-/
+syntax (name := simpAllArithBang) "simp_all_arith!" optConfig (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? : tactic
+
 
 /-- `dsimp!` is shorthand for `dsimp` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to

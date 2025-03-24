@@ -18,10 +18,11 @@ def headerToImports (header : Syntax) : Array Import :=
     { module := id, runtimeOnly := runtime }
 
 def processHeader (header : Syntax) (opts : Options) (messages : MessageLog)
-    (inputCtx : Parser.InputContext) (trustLevel : UInt32 := 0) (leakEnv := false)
+    (inputCtx : Parser.InputContext) (trustLevel : UInt32 := 0)
+    (plugins : Array System.FilePath := #[]) (leakEnv := false)
     : IO (Environment × MessageLog) := do
   try
-    let env ← importModules (leakEnv := leakEnv) (headerToImports header) opts trustLevel
+    let env ← importModules (leakEnv := leakEnv) (headerToImports header) opts trustLevel plugins
     pure (env, messages)
   catch e =>
     let env ← mkEmptyEnvironment

@@ -10,3 +10,4 @@ import Lake.Build.Package
 import Lake.Build.Library
 import Lake.Build.Imports
 import Lake.Build.Targets
+import Lake.Build.Job

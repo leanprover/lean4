@@ -112,6 +112,7 @@ static lean_object* l___private_Std_Time_Duration_0__Std_Time_reprDuration____x4
 lean_object* l_Std_Time_Hour_Offset_toSeconds___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_instReprDuration__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Duration_ofMillisecond(lean_object*);
+lean_object* lean_int_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Duration_toMinutes___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Duration_addMilliseconds(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Duration_toSeconds(lean_object*);
@@ -1310,7 +1311,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Std_Time_Duration_ofNanoseconds___closed__1;
-x_3 = lean_int_ediv(x_1, x_2);
+x_3 = lean_int_div(x_1, x_2);
 x_4 = lean_int_mod(x_1, x_2);
 x_5 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_5, 0, x_3);
@@ -1517,7 +1518,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = l_Std_Time_Duration_toMinutes___closed__1;
-x_4 = lean_int_ediv(x_2, x_3);
+x_4 = lean_int_div(x_2, x_3);
 return x_4;
 }
 }
@@ -1545,7 +1546,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = l_Std_Time_Duration_toDays___closed__1;
-x_4 = lean_int_ediv(x_2, x_3);
+x_4 = lean_int_div(x_2, x_3);
 return x_4;
 }
 }

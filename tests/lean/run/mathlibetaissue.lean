@@ -86,8 +86,8 @@ section Mathlib.Algebra.GroupWithZero.Defs
 class MulZeroClass (M₀ : Type u) extends Mul M₀, Zero M₀ where
 class IsLeftCancelMulZero (M₀ : Type u) [Mul M₀] [Zero M₀] : Prop where
 class IsRightCancelMulZero (M₀ : Type u) [Mul M₀] [Zero M₀] : Prop where
-class IsCancelMulZero (M₀ : Type u) [Mul M₀] [Zero M₀]
-  extends IsLeftCancelMulZero M₀, IsRightCancelMulZero M₀ : Prop
+class IsCancelMulZero (M₀ : Type u) [Mul M₀] [Zero M₀] : Prop
+  extends IsLeftCancelMulZero M₀, IsRightCancelMulZero M₀
 class NoZeroDivisors (M₀ : Type _) [Mul M₀] [Zero M₀] : Prop where
 class SemigroupWithZero (S₀ : Type u) extends Semigroup S₀, MulZeroClass S₀
 class MulZeroOneClass (M₀ : Type u) extends MulOneClass M₀, MulZeroClass M₀
@@ -122,7 +122,7 @@ class CommSemiring (R : Type u) extends Semiring R, CommMonoid R
 class CommRing (α : Type u) extends Ring α, CommMonoid α
 instance CommRing.toCommSemiring [s : CommRing α] : CommSemiring α :=
   { s with }
-class IsDomain (α : Type u) [Semiring α] extends IsCancelMulZero α, Nontrivial α : Prop
+class IsDomain (α : Type u) [Semiring α] : Prop extends IsCancelMulZero α, Nontrivial α
 
 end Mathlib.Algebra.Ring.Defs
 

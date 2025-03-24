@@ -618,7 +618,6 @@ template<typename F> optional<expr> type_checker::reduce_bin_nat_pred(F const & 
 }
 
 optional<expr> type_checker::reduce_nat(expr const & e) {
-    if (has_fvar(e)) return none_expr();
     unsigned nargs = get_app_num_args(e);
     if (nargs == 1) {
         expr const & f = app_fn(e);

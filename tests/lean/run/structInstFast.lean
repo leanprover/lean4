@@ -68,7 +68,7 @@ where go (val : TSyntax `ident) (width depth : Nat) (cmds : Array <| TSyntax `co
     let newTerm' (s : String) := if len = 1 then baseIdent else mkIdent' s (m+1)
     let fieldsStx ← mkFieldsStx type (s!"x{m}_") width
     let nextStruct ←
-      `(structure $(mkIdent' "A" m) extends $(newTerm "A") where
+      `(structure $(mkIdent' "A" m) extends $(newTerm "A"):term where
         $fieldsStx:structFields)
     let structVals ← (List.range width).mapM fun j =>
       `(Term.structInstField| $(mkIdent' s!"x{m}_" j):ident := $val)

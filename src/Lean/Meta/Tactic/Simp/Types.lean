@@ -80,7 +80,7 @@ structure Context where
   we don't miss simplification opportunities. For example, consider the following:
   ```
   example (x y : Nat) (h : y = 0) : id ((x + x) + y) = id (x + x) := by
-    simp_arith only
+    simp +arith only
     ...
   ```
   If we don't set `Result.cache := false` for the first `x + x`, then we get
@@ -134,6 +134,7 @@ private def mkIndexConfig (c : Config) : MetaM ConfigWithKey := do
     beta         := c.beta
     iota         := c.iota
     zeta         := c.zeta
+    zetaUnused   := c.zetaUnused
     zetaDelta    := c.zetaDelta
     etaStruct    := c.etaStruct
     /-
@@ -153,6 +154,7 @@ private def mkMetaConfig (c : Config) : MetaM ConfigWithKey := do
     beta         := c.beta
     zeta         := c.zeta
     iota         := c.iota
+    zetaUnused   := c.zetaUnused
     zetaDelta    := c.zetaDelta
     etaStruct    := c.etaStruct
     proj         := if c.proj then .yesWithDelta else .no
@@ -769,6 +771,15 @@ def DStep.addExtraArgs (s : DStep) (extraArgs : Array Expr) : DStep :=
   | .done eNew => .done (mkAppN eNew extraArgs)
   | .continue none => .continue none
   | .continue (some eNew) => .continue (mkAppN eNew extraArgs)
+
+def Result.addLambdas (r : Result) (xs : Array Expr) : MetaM Result := do
+  let eNew ← mkLambdaFVars xs r.expr
+  match r.proof? with
+  | none   => return { expr := eNew }
+  | some h =>
+    let p ← xs.foldrM (init := h) fun x h => do
+      mkFunExt (← mkLambdaFVars #[x] h)
+    return { expr := eNew, proof? := p }
 
 end Simp
 

@@ -927,7 +927,7 @@ and the second `setWidth` is a non-trivial extension.
   have := @lt_of_getLsbD u x i
   by_cases h' : x.getLsbD i = true <;> simp [h'] at * <;> omega
 
-@[simp] theorem msb_setWidth'_of_lt {m n : Nat} (p : m < n) (x : BitVec m) :
+@[simp] theorem msb_setWidth'_of_lt {m n : Nat} (p : m < n) {x : BitVec m} :
     (setWidth' (by omega : m ≤ n) x).msb = false := by
   have h : x.getLsbD (n - 1) = false := getLsbD_ge _ _ (by omega)
   simp [msb_setWidth', -setWidth'_eq, h]

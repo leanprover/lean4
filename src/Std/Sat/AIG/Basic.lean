@@ -25,9 +25,10 @@ A circuit node. These are not recursive but instead contain indices into an `AIG
 -/
 inductive Decl (α : Type) where
   /--
-  A node with a constant output value.
+  A node with the constant value false. The constant true can be represented
+  with a `Ref` to `false` with `invert` set true
   -/
-  | const (b : Bool)
+  | false
   /--
   An input node to the circuit.
   -/
@@ -329,7 +330,7 @@ where
       return acc
     modify (fun s ↦ s.insert fidx)
     match elem : decls[idx] with
-    | Decl.const _ => return acc
+    | Decl.false => return acc
     | Decl.atom _ => return acc
     | Decl.gate lidx ridx linv rinv =>
       let curr := s!"{idx} -> {lidx}{invEdgeStyle linv}; {idx} -> {ridx}{invEdgeStyle rinv};"
@@ -341,7 +342,7 @@ where
   toGraphvizString {α : Type} [DecidableEq α] [ToString α] [Hashable α] (decls : Array (Decl α))
       (idx : Fin decls.size) : String :=
     match decls[idx] with
-    | Decl.const b => s!"{idx} [label=\"{b}\", shape=box];"
+    | Decl.false => s!"{idx} [label=\"{false}\", shape=box];"
     | Decl.atom i => s!"{idx} [label=\"{i}\", shape=doublecircle];"
     | Decl.gate _ _ _ _ => s!"{idx} [label=\"{idx} ∧\",shape=trapezium];"
 
@@ -391,7 +392,7 @@ where
       (h2 : IsDAG α decls) :
       Bool :=
     match h3 : decls[x] with
-    | .const b => b
+    | .false => false
     | .atom v => assign v
     | .gate lhs rhs linv rinv =>
       have := h2 h1 h3
@@ -474,7 +475,7 @@ for production purposes use `AIG.mkConstCached` and equality theorems to this on
 -/
 def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
   let g := aig.decls.size
-  let decls := aig.decls.push (.const val)
+  let decls := aig.decls.push .false
   let cache := aig.cache.noUpdate
   have invariant := by
     intro i lhs rhs linv rinv h1 h2
@@ -482,7 +483,7 @@ def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
     split at h2
     · apply aig.invariant <;> assumption
     · contradiction
-  ⟨{ decls, invariant, cache }, ⟨g, false, by simp [g, decls]⟩⟩
+  ⟨{ decls, invariant, cache }, ⟨g, val, by simp [g, decls]⟩⟩
 
 
 /--
@@ -492,8 +493,18 @@ def isConstant (aig : AIG α) (ref : Ref aig) (b : Bool) : Bool :=
   let ⟨gate, invert, hgate⟩ := ref
   let decl := aig.decls[gate]'hgate
   match decl with
-  | .const val => (invert ^^ b) = val
+  | .false => invert = b
   | _ => false
+
+/--
+Get the value of `ref` if it is constant.
+-/
+def getConstant (aig : AIG α) (ref : Ref aig) : Option Bool :=
+  let ⟨gate, invert, hgate⟩ := ref
+  let decl := aig.decls[gate]'hgate
+  match decl with
+  | .false => some invert
+  | _ => none
 
 end AIG
 

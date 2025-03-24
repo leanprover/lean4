@@ -538,10 +538,15 @@ private theorem popWhile_toArray_aux (p : α → Bool) (l : List α) :
   · simp
   · simp_all [List.set_eq_of_length_le]
 
-@[simp] theorem toArray_replicate (n : Nat) (v : α) : (List.replicate n v).toArray = mkArray n v := rfl
+@[simp] theorem toArray_replicate (n : Nat) (v : α) :
+    (List.replicate n v).toArray = Array.replicate n v := rfl
 
-theorem _root_.Array.mkArray_eq_toArray_replicate : mkArray n v = (List.replicate n v).toArray := by
+theorem _root_.Array.replicate_eq_toArray_replicate :
+    Array.replicate n v = (List.replicate n v).toArray := by
   simp
+
+@[deprecated _root_.Array.replicate_eq_toArray_replicate (since := "2025-03-18")]
+abbrev _root_.Array.mkArray_eq_toArray_replicate := @_root_.Array.replicate_eq_toArray_replicate
 
 @[simp] theorem flatMap_empty {β} (f : α → Array β) : (#[] : Array α).flatMap f = #[] := rfl
 

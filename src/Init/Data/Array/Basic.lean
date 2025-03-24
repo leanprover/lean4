@@ -203,11 +203,25 @@ Creates an array that contains `n` repetitions of `v`.
 The corresponding `List` function is `List.replicate`.
 
 Examples:
+ * `Array.replicate 2 true = #[true, true]`
+ * `Array.replicate 3 () = #[(), (), ()]`
+ * `Array.replicate 0 "anything" = #[]`
+-/
+@[extern "lean_mk_array"]
+def replicate {α : Type u} (n : Nat) (v : α) : Array α where
+  toList := List.replicate n v
+
+/--
+Creates an array that contains `n` repetitions of `v`.
+
+The corresponding `List` function is `List.replicate`.
+
+Examples:
  * `Array.mkArray 2 true = #[true, true]`
  * `Array.mkArray 3 () = #[(), (), ()]`
  * `Array.mkArray 0 "anything" = #[]`
 -/
-@[extern "lean_mk_array"]
+@[extern "lean_mk_array", deprecated replicate (since := "2025-03-18")]
 def mkArray {α : Type u} (n : Nat) (v : α) : Array α where
   toList := List.replicate n v
 
@@ -2056,7 +2070,7 @@ Examples:
  * `#["red", "green", "blue"].leftpad 3 "blank" = #["red", "green", "blue"]`
  * `#["red", "green", "blue"].leftpad 1 "blank" = #["red", "green", "blue"]`
 -/
-def leftpad (n : Nat) (a : α) (xs : Array α) : Array α := mkArray (n - xs.size) a ++ xs
+def leftpad (n : Nat) (a : α) (xs : Array α) : Array α := replicate (n - xs.size) a ++ xs
 
 /--
 Pads `xs : Array α` on the right with repeated occurrences of `a : α` until it is of length `n`. If
@@ -2068,7 +2082,7 @@ Examples:
  * `#["red", "green", "blue"].rightpad 3 "blank" = #["red", "green", "blue"]`
  * `#["red", "green", "blue"].rightpad 1 "blank" = #["red", "green", "blue"]`
 -/
-def rightpad (n : Nat) (a : α) (xs : Array α) : Array α := xs ++ mkArray (n - xs.size) a
+def rightpad (n : Nat) (a : α) (xs : Array α) : Array α := xs ++ replicate (n - xs.size) a
 
 /- ### reduceOption -/
 

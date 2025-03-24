@@ -149,6 +149,15 @@ theorem isEmpty_erase [TransCmp cmp] (h : t.WF) {k : α} :
     (t.erase k).isEmpty = (t.isEmpty || (t.size == 1 && t.contains k)) :=
   TreeMap.Raw.isEmpty_erase h
 
+theorem isEmpty_eq_isEmpty_erase_and_not_containsKey [TransCmp cmp] (h : t.WF) (k : α) :
+    t.isEmpty = ((t.erase k).isEmpty && !(t.contains k)) :=
+  TreeMap.Raw.isEmpty_eq_isEmpty_erase_and_not_containsKey h k
+
+theorem isEmpty_eq_false_of_isEmpty_erase_eq_false [TransCmp cmp] (h : t.WF) {k : α}
+    (he : (t.erase k).isEmpty = false) :
+    t.isEmpty = false :=
+  TreeMap.Raw.isEmpty_eq_false_of_isEmpty_erase_eq_false h he
+
 @[simp]
 theorem contains_erase [TransCmp cmp] (h : t.WF) {k a : α} :
     (t.erase k).contains a = (cmp k a != .eq && t.contains a) :=
@@ -686,6 +695,10 @@ theorem isNone_min?_eq_isEmpty [TransCmp cmp] (h : t.WF) :
 theorem isSome_min?_eq_not_isEmpty [TransCmp cmp] (h : t.WF) :
     t.min?.isSome = !t.isEmpty :=
   TreeMap.Raw.isSome_minKey?_eq_not_isEmpty h
+
+theorem isSome_min?_iff_isEmpty_eq_false [TransCmp cmp] (h : t.WF) :
+    t.min?.isSome ↔ t.isEmpty = false :=
+  TreeMap.Raw.isSome_minKey?_iff_isEmpty_eq_false h
 
 theorem min?_insert [TransCmp cmp] (h : t.WF) {k} :
     (t.insert k).min? =

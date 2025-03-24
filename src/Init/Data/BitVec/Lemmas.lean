@@ -716,6 +716,9 @@ theorem slt_zero_eq_msb {w : Nat} {x : BitVec  w} : x.slt 0#w = x.msb := by
 theorem sle_iff_toInt_le {w : Nat} {b b' : BitVec w} : b.sle b' ↔ b.toInt ≤ b'.toInt :=
   decide_eq_true_iff
 
+theorem slt_iff_toInt_lt {w : Nat} {b b' : BitVec w} : b.slt b' ↔ b.toInt < b'.toInt :=
+  decide_eq_true_iff
+
 /-! ### setWidth, zeroExtend and truncate -/
 
 @[simp]
@@ -1243,6 +1246,9 @@ theorem extractLsb_or {x : BitVec w} {hi lo : Nat} :
   ext k hk
   simp [hk, show k ≤ lo - hi by omega]
 
+@[simp] theorem ofNat_or {x y : Nat} : BitVec.ofNat w (x ||| y) = BitVec.ofNat w x ||| BitVec.ofNat w y :=
+  eq_of_toNat_eq (by simp [Nat.or_mod_two_pow])
+
 /-! ### and -/
 
 @[simp] theorem toNat_and (x y : BitVec v) :
@@ -1339,6 +1345,9 @@ theorem extractLsb_and {x : BitVec w} {hi lo : Nat} :
    (x &&& y).extractLsb lo hi = (x.extractLsb lo hi) &&& (y.extractLsb lo hi) := by
   ext k hk
   simp [hk, show k ≤ lo - hi by omega]
+
+@[simp] theorem ofNat_and {x y : Nat} : BitVec.ofNat w (x &&& y) = BitVec.ofNat w x &&& BitVec.ofNat w y :=
+  eq_of_toNat_eq (by simp [Nat.and_mod_two_pow])
 
 /-! ### xor -/
 
@@ -1439,6 +1448,9 @@ theorem extractLsb_xor {x : BitVec w} {hi lo : Nat} :
    (x ^^^ y).extractLsb lo hi = (x.extractLsb lo hi) ^^^ (y.extractLsb lo hi) := by
   ext k hk
   simp [hk, show k ≤ lo - hi by omega]
+
+@[simp] theorem ofNat_xor {x y : Nat} : BitVec.ofNat w (x ^^^ y) = BitVec.ofNat w x ^^^ BitVec.ofNat w y :=
+  eq_of_toNat_eq (by simp [Nat.xor_mod_two_pow])
 
 /-! ### not -/
 
@@ -2401,6 +2413,30 @@ theorem toInt_signExtend (x : BitVec w) :
 theorem toInt_signExtend_eq_toInt_bmod_of_le (x : BitVec w) (h : v ≤ w) :
     (x.signExtend v).toInt = x.toInt.bmod (2 ^ v) := by
   rw [BitVec.toInt_signExtend, Nat.min_eq_left h]
+
+@[simp] theorem signExtend_and {x y : BitVec w} :
+    (x &&& y).signExtend v = (x.signExtend v) &&& (y.signExtend v) := by
+  refine eq_of_getElem_eq (fun i hi => ?_)
+  simp only [getElem_signExtend, getElem_and, msb_and]
+  split <;> simp
+
+@[simp] theorem signExtend_or {x y : BitVec w} :
+    (x ||| y).signExtend v = (x.signExtend v) ||| (y.signExtend v) := by
+  refine eq_of_getElem_eq (fun i hi => ?_)
+  simp only [getElem_signExtend, getElem_or, msb_or]
+  split <;> simp
+
+@[simp] theorem signExtend_xor {x y : BitVec w} :
+    (x ^^^ y).signExtend v = (x.signExtend v) ^^^ (y.signExtend v) := by
+  refine eq_of_getElem_eq (fun i hi => ?_)
+  simp only [getElem_signExtend, getElem_xor, msb_xor]
+  split <;> simp
+
+@[simp] theorem signExtend_not {x : BitVec w} (h : 0 < w) :
+    (~~~x).signExtend v = ~~~(x.signExtend v) := by
+  refine eq_of_getElem_eq (fun i hi => ?_)
+  simp [getElem_signExtend]
+  split <;> simp_all
 
 /-! ### append -/
 
@@ -3462,6 +3498,11 @@ theorem neg_mul_not_eq_add_mul {x y : BitVec w} :
 
 theorem neg_eq_neg_one_mul (b : BitVec w) : -b = -1#w * b :=
   BitVec.eq_of_toInt_eq (by simp)
+
+theorem setWidth_mul (x y : BitVec w) (h : i ≤ w) :
+    (x * y).setWidth i = x.setWidth i * y.setWidth i := by
+  have dvd : 2^i ∣ 2^w := Nat.pow_dvd_pow _ h
+  simp [bitvec_to_nat, h, Nat.mod_mod_of_dvd _ dvd]
 
 /-! ### le and lt -/
 
@@ -4624,6 +4665,14 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
   · simp [h]
   · rw [Nat.sub_add_cancel (Nat.two_pow_pos (w - 1)), Nat.two_pow_pred_mod_two_pow (by omega)]
 
+@[simp] theorem toInt_intMax : (BitVec.intMax w).toInt = 2 ^ (w - 1) - 1 := by
+  refine (Nat.eq_zero_or_pos w).elim (by rintro rfl; simp [BitVec.toInt_of_zero_length]) (fun hw => ?_)
+  rw [BitVec.toInt, toNat_intMax, if_pos]
+  · rw [Int.ofNat_sub Nat.one_le_two_pow, Int.natCast_pow, Int.cast_ofNat_Int, Int.cast_ofNat_Int]
+  · rw [Nat.mul_sub_left_distrib, ← Nat.pow_succ', Nat.succ_eq_add_one, Nat.sub_add_cancel hw]
+    apply Nat.sub_lt_self (by decide)
+    rw [Nat.mul_one]
+    apply Nat.le_pow hw
 
 /-! ### Non-overflow theorems -/
 

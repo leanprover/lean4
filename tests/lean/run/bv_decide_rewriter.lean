@@ -633,6 +633,10 @@ example {x y : BitVec 8} :
     BitVec.extractLsb' 0 4 (x + y) = BitVec.extractLsb' 0 4 x + BitVec.extractLsb' 0 4 y := by
   bv_normalize
 
+example {x y : BitVec 8} :
+    BitVec.extractLsb' 0 4 (x * y) = BitVec.extractLsb' 0 4 x * BitVec.extractLsb' 0 4 y := by
+  bv_normalize
+
 section
 
 namespace NormalizeMul

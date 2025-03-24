@@ -3107,7 +3107,7 @@ theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toN
   simp [toInt_eq_toNat_bmod, @Int.ofNat_sub y.toNat (2 ^ w) (by omega)]
 
 theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
-    (x.toInt - y.toInt < - 2 ^ (w - 1))
+    (x.toInt - y.toInt < - 2 ^ (w - 1)) 
     ↔ (x.toInt < 0 ∧ 0 ≤ y.toInt ∧ 0 ≤ (x.toInt - y.toInt).bmod (2 ^ w)) := by
   rcases w with _|w
   · simp [of_length_zero]

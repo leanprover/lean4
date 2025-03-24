@@ -395,8 +395,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_interface(b_obj_ar
     char interface_addr_str[INET_ADDRSTRLEN];
     lean_ip_addr_ntop(interface_addr, interface_addr_str, sizeof(interface_addr_str));
 
-    printf("%s sei la\n", interface_addr_str);
-
     event_loop_lock(&global_ev);
     int result = uv_udp_set_multicast_interface(udp_socket->m_uv_udp, interface_addr_str);
     event_loop_unlock(&global_ev);

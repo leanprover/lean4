@@ -29,7 +29,7 @@ instance [DecidableEq α] (j : α) (o : Option α) : Decidable (j ∈ o) :=
 @[simp] theorem isNone_iff_eq_none {o : Option α} : o.isNone ↔ o = none :=
   ⟨Option.eq_none_of_isNone, fun e => e.symm ▸ rfl⟩
 
-theorem some_inj {a b : α} : some a = some b ↔ a = b := by simp; rfl
+theorem some_inj {a b : α} : some a = some b ↔ a = b := by simp
 
 /--
 Equality with `none` is decidable even if the wrapped type does not have decidable equality.

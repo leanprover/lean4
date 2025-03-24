@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Mario Carneiro
 -/
 prelude
 import Init.Control.Basic
+import Init.Ptr
 
 namespace Option
 

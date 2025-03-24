@@ -5,6 +5,7 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Core
+import Init.Ptr
 
 deriving instance DecidableEq for PLift
 

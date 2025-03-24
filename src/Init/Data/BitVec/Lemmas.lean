@@ -2388,6 +2388,19 @@ theorem toInt_signExtend_eq_toNat_bmod_of_le {x : BitVec w} (hv : v ≤ w) :
 
 /--
 Interpreting the sign extension of `(x : BitVec w)` to width `v`
+computes `x % 2^v` (where `%` is the balanced mod). See `toInt_signExtend` for a version stated
+in terms of `toInt` instead of `toNat`.
+-/
+theorem toInt_signExtend_eq_toNat_bmod (x : BitVec w) :
+    (x.signExtend v).toInt = Int.bmod x.toNat (2 ^ min v w) := by
+  by_cases hv : v ≤ w
+  · simp [toInt_signExtend_eq_toNat_bmod_of_le hv, Nat.min_eq_left hv]
+  · simp only [Nat.not_le] at hv
+    rw [toInt_signExtend_of_le (Nat.le_of_lt hv),
+      Nat.min_eq_right (by omega), toInt_eq_toNat_bmod]
+
+/--
+Interpreting the sign extension of `(x : BitVec w)` to width `v`
 computes `x % 2^v` (where `%` is the balanced mod).
 -/
 theorem toInt_signExtend (x : BitVec w) :

@@ -943,12 +943,11 @@ protected theorem toNat_lt_of_le (h : m ≤ n) (x : BitVec m) :
   apply Nat.lt_of_lt_of_le x.isLt
   apply Nat.pow_le_pow_of_le
   <;> omega
-open BitVec (toNat_lt_of_le)
 
 @[simp] theorem toFin_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
     (setWidth' p x).toFin = x.toFin.castLE (Nat.pow_le_pow_right (by omega) (by omega)) := by
   ext
-  simp [Nat.mod_eq_of_lt (toNat_lt_of_le p x)]
+  simp [Nat.mod_eq_of_lt (BitVec.toNat_lt_of_le p x)]
 
 /-! ## extractLsb -/
 

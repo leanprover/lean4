@@ -311,8 +311,7 @@ theorem le_count_iff_replicate_sublist {l : List α} : n ≤ count a l ↔ repli
 
 theorem replicate_count_eq_of_count_eq_length {l : List α} (h : count a l = length l) :
     replicate (count a l) a = l :=
-  (le_count_iff_replicate_sublist.mp (Nat.le_refl _)).eq_of_length <|
-    (length_replicate (count a l) a).trans h
+  (le_count_iff_replicate_sublist.mp (Nat.le_refl _)).eq_of_length <| length_replicate.trans h
 
 @[simp] theorem count_filter {l : List α} (h : p a) : count a (filter p l) = count a l := by
   rw [count, countP_filter]; congr; funext b

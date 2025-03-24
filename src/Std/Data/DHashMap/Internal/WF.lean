@@ -515,7 +515,7 @@ theorem wfImp_replaceₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α
 theorem toListModel_consₘ [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α]
     (m : Raw₀ α β) (h : Raw.WFImp m.1) (a : α) (b : β a) :
     Perm (toListModel (m.consₘ a b).1.buckets) (⟨a, b⟩ :: (toListModel m.1.2)) :=
-  toListModel_updateBucket h .rfl (fun _ => Perm.cons _) (fun _ => cons_append _ _ _)
+  toListModel_updateBucket h .rfl (fun _ => Perm.cons _) (fun _ => cons_append)
 
 theorem isHashSelf_consₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] (m : Raw₀ α β)
     (h : Raw.WFImp m.1) (a : α) (b : β a) : IsHashSelf (m.consₘ a b).1.buckets := by

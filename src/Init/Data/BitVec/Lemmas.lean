@@ -1712,10 +1712,9 @@ theorem toNat_shiftLeftZeroExtend {x : BitVec w} :
   · simp only [hn, ↓reduceIte]
     have :=  Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := w + n) (by omega) (by omega)
     have : x.toNat < 2 ^ (w + n) := by omega
-    rw [Nat.mod_eq_of_lt
-      (by rw [Nat.mod_eq_of_lt (by omega), Nat.shiftLeft_eq, Nat.pow_add, Nat.mul_lt_mul_right
-        (by apply Nat.two_pow_pos (w := n))]; omega),
-      Nat.mod_eq_of_lt (by omega)]
+    have : x.toNat <<< n < 2 ^ (w + n) := by
+      rw [Nat.shiftLeft_eq, Nat.pow_add, Nat.mul_lt_mul_right (by apply Nat.two_pow_pos (w := n))]; omega
+    rw [Nat.mod_eq_of_lt (by rw [Nat.mod_eq_of_lt (by omega)]; omega), Nat.mod_eq_of_lt (by omega)]
   · simp [show n = 0 by omega]
 
 theorem toInt_shiftLeftZeroExtend {x : BitVec w} :

@@ -2399,10 +2399,6 @@ theorem toInt_signExtend_eq_toNat_bmod (x : BitVec w) :
     rw [toInt_signExtend_of_le (Nat.le_of_lt hv),
       Nat.min_eq_right (by omega), toInt_eq_toNat_bmod]
 
-/--
-Interpreting the sign extension of `(x : BitVec w)` to width `v`
-computes `x % 2^v` (where `%` is the balanced mod).
--/
 theorem toInt_signExtend (x : BitVec w) :
     (x.signExtend v).toInt = x.toInt.bmod (2 ^ min v w) := by
   rw [toInt_signExtend_eq_toNat_bmod, BitVec.toInt_eq_toNat_bmod, Int.bmod_bmod_of_dvd]

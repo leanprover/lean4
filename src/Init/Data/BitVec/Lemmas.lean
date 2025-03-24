@@ -3123,7 +3123,7 @@ theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
       omega
 
 theorem twoPow_le_toInt_sub_toInt_iff {x y : BitVec w} :
-    (2 ^ (w - 1) ≤ x.toInt - y.toInt)
+    (2 ^ (w - 1) ≤ x.toInt - y.toInt) 
     ↔ (0 ≤ x.toInt ∧ y.toInt < 0 ∧ (x.toInt - y.toInt).bmod (2 ^ w) < 0) := by
   rcases w with _|w
   · simp [of_length_zero]

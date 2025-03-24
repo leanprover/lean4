@@ -1438,7 +1438,7 @@ theorem not_sub_eq_not_add {x y : BitVec w} : ~~~ (x - y) = ~~~ x + y := by
 /-- The value of `(carry i x y false)` can be computed by truncating `x` and `y`
 to `len` bits where `len ≥ i`. -/
 theorem carry_extractLsb'_eq_carry {w i len : Nat} (hi : i < len)
-    {x y : BitVec w} {b : Bool}:
+    {x y : BitVec w} {b : Bool}: 
     (carry i (extractLsb' 0 len x) (extractLsb' 0 len y) b)
     = (carry i x y b) := by
   simp only [carry, extractLsb'_toNat, shiftRight_zero, toNat_false, Nat.add_zero, ge_iff_le,

@@ -353,8 +353,8 @@ def maxKey? : Impl α β → Option α
 
 /-- Implementation detail of the tree map -/
 def maxKey : (t : Impl α β) → (h : t.isEmpty = false) → α
-  | .inner _ k _ .leaf _, _ => k
-  | .inner _ _ _ l@(.inner ..) _, h => l.maxKey (by simp_all [isEmpty])
+  | .inner _ k _ _ .leaf, _ => k
+  | .inner _ _ _ _ l@(.inner ..), h => l.maxKey (by simp_all [isEmpty])
 
 /-- Implementation detail of the tree map -/
 def maxKey! [Inhabited α] : Impl α β → α

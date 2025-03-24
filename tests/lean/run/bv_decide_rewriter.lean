@@ -97,8 +97,6 @@ example (x y : BitVec w) : BitVec.smulOverflow x y =
     (BitVec.signExtend (w * 2) x * BitVec.signExtend (w * 2) y).slt (BitVec.signExtend (w * 2) (BitVec.intMin w))))
   := by bv_normalize
 
-
-
 -- not_neg
 example {x : BitVec 16} : ~~~(-x) = x + (-1#16) := by bv_normalize
 example {x : BitVec 16} : ~~~(~~~x + 1#16) = x + (-1#16) := by bv_normalize

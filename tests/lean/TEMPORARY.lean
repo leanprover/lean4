@@ -18,30 +18,16 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
 @[inline] private unsafe def attachWithImpl
     (o : Option α) (P : α → Prop) (_ : ∀ x ∈ o, P x) : Option {x // P x} := unsafeCast o
 
-/--
-“Attaches” a proof that some predicate holds for an optional value, if present, returning a subtype
-that expresses this fact.
-
-This function is primarily used to implement `Option.attach`, which allows definitions by
-well-founded recursion that use iteration operators (such as `Option.map`) to prove that an optional
-value drawn from a parameter is smaller than the parameter. This allows the well-founded recursion
-mechanism to prove that the function terminates.
--/
+/-- "Attach" a proof `P x` that holds for the element of `o`, if present,
+to produce a new option with the same element but in the type `{x // P x}`. -/
 @[implemented_by attachWithImpl] def attachWith
     (xs : Option α) (P : α → Prop) (H : ∀ x ∈ xs, P x) : Option {x // P x} :=
   match xs with
   | none => none
   | some x => some ⟨x, H x (mem_some_self x)⟩
 
-/--
-“Attaches” a proof that an optional value, if present, is indeed this value, returning a subtype
-that expresses this fact.
-
-This function is primarily used to allow definitions by well-founded recursion that use iteration
-operators (such as `Option.map`) to prove that an optional value drawn from a parameter is smaller
-than the parameter. This allows the well-founded recursion mechanism to prove that the function
-terminates.
--/
+/-- "Attach" the proof that the element of `xs`, if present, is in `xs`
+to produce a new option with the same elements but in the type `{x // x ∈ xs}`. -/
 @[inline] def attach (xs : Option α) : Option {x // x ∈ xs} := xs.attachWith _ fun _ => id
 
 @[simp] theorem attach_none : (none : Option α).attach = none := rfl
@@ -62,29 +48,33 @@ theorem attachWith_congr {o₁ o₂ : Option α} (w : o₁ = o₂) {P : α → P
   subst w
   simp
 
-theorem attach_map_val (o : Option α) (f : α → β) :
+theorem attach_map_coe (o : Option α) (f : α → β) :
     (o.attach.map fun (i : {i // i ∈ o}) => f i) = o.map f := by
   cases o <;> simp
 
-@[deprecated attach_map_val (since := "2025-02-17")]
-abbrev attach_map_coe := @attach_map_val
+theorem attach_map_val (o : Option α) (f : α → β) :
+    (o.attach.map fun i => f i.val) = o.map f :=
+  attach_map_coe _ _
 
+@[simp]
 theorem attach_map_subtype_val (o : Option α) :
     o.attach.map Subtype.val = o :=
-  (attach_map_val _ _).trans (congrFun Option.map_id _)
+  (attach_map_coe _ _).trans (congrFun Option.map_id _)
 
-theorem attachWith_map_val {p : α → Prop} (f : α → β) (o : Option α) (H : ∀ a ∈ o, p a) :
+theorem attachWith_map_coe {p : α → Prop} (f : α → β) (o : Option α) (H : ∀ a ∈ o, p a) :
     ((o.attachWith p H).map fun (i : { i // p i}) => f i.val) = o.map f := by
   cases o <;> simp [H]
 
-@[deprecated attachWith_map_val (since := "2025-02-17")]
-abbrev attachWith_map_coe := @attachWith_map_val
+theorem attachWith_map_val {p : α → Prop} (f : α → β) (o : Option α) (H : ∀ a ∈ o, p a) :
+    ((o.attachWith p H).map fun i => f i.val) = o.map f :=
+  attachWith_map_coe _ _ _
 
+@[simp]
 theorem attachWith_map_subtype_val {p : α → Prop} (o : Option α) (H : ∀ a ∈ o, p a) :
     (o.attachWith p H).map Subtype.val = o :=
-  (attachWith_map_val _ _ _).trans (congrFun Option.map_id _)
+  (attachWith_map_coe _ _ _).trans (congrFun Option.map_id _)
 
-theorem mem_attach : ∀ (o : Option α) (x : {x // x ∈ o}), x ∈ o.attach
+@[simp] theorem mem_attach : ∀ (o : Option α) (x : {x // x ∈ o}), x ∈ o.attach
   | none, ⟨x, h⟩ => by simp at h
   | some a, ⟨x, h⟩ => by simpa using h
 
@@ -102,14 +92,14 @@ theorem mem_attach : ∀ (o : Option α) (x : {x // x ∈ o}), x ∈ o.attach
     (o.attachWith p H).isSome = o.isSome := by
   cases o <;> simp
 
-@[simp] theorem attach_eq_none_iff {o : Option α} : o.attach = none ↔ o = none := by
+@[simp] theorem attach_eq_none_iff (o : Option α) : o.attach = none ↔ o = none := by
   cases o <;> simp
 
 @[simp] theorem attach_eq_some_iff {o : Option α} {x : {x // x ∈ o}} :
     o.attach = some x ↔ o = some x.val := by
   cases o <;> cases x <;> simp
 
-@[simp] theorem attachWith_eq_none_iff {p : α → Prop} {o : Option α} (H : ∀ a ∈ o, p a) :
+@[simp] theorem attachWith_eq_none_iff {p : α → Prop} (o : Option α) (H : ∀ a ∈ o, p a) :
     o.attachWith p H = none ↔ o = none := by
   cases o <;> simp
 
@@ -129,12 +119,8 @@ theorem mem_attach : ∀ (o : Option α) (x : {x // x ∈ o}), x ∈ o.attach
   · simp at h
   · simp [get_some]
 
-theorem toList_attach (o : Option α) :
+@[simp] theorem toList_attach (o : Option α) :
     o.attach.toList = o.toList.attach.map fun ⟨x, h⟩ => ⟨x, by simpa using h⟩ := by
-  cases o <;> simp
-
-@[simp] theorem attach_toList (o : Option α) :
-    o.toList.attach = (o.attach.map fun ⟨a, h⟩ => ⟨a, by simpa using h⟩).toList := by
   cases o <;> simp
 
 theorem attach_map {o : Option α} (f : α → β) :
@@ -146,28 +132,15 @@ theorem attachWith_map {o : Option α} (f : α → β) {P : β → Prop} {H : �
       fun ⟨x, h⟩ => ⟨f x, h⟩ := by
   cases o <;> simp
 
-theorem map_attach_eq_pmap {o : Option α} (f : { x // x ∈ o } → β) :
+theorem map_attach {o : Option α} (f : { x // x ∈ o } → β) :
     o.attach.map f = o.pmap (fun a (h : a ∈ o) => f ⟨a, h⟩) (fun _ h => h) := by
   cases o <;> simp
 
-@[deprecated map_attach_eq_pmap (since := "2025-02-09")]
-abbrev map_attach := @map_attach_eq_pmap
-
-@[simp] theorem map_attachWith {l : Option α} {P : α → Prop} {H : ∀ (a : α), a ∈ l → P a}
-    (f : { x // P x } → β) :
-    (l.attachWith P H).map f = l.attach.map fun ⟨x, h⟩ => f ⟨x, H _ h⟩ := by
-  cases l <;> simp_all
-
-theorem map_attachWith_eq_pmap {o : Option α} {P : α → Prop} {H : ∀ (a : α), a ∈ o → P a}
+theorem map_attachWith {o : Option α} {P : α → Prop} {H : ∀ (a : α), a ∈ o → P a}
     (f : { x // P x } → β) :
     (o.attachWith P H).map f =
       o.pmap (fun a (h : a ∈ o ∧ P a) => f ⟨a, h.2⟩) (fun a h => ⟨h, H a h⟩) := by
   cases o <;> simp
-
-@[simp]
-theorem map_attach_eq_attachWith {o : Option α} {p : α → Prop} (f : ∀ a, a ∈ o → p a) :
-    o.attach.map (fun x => ⟨x.1, f x.1 x.2⟩) = o.attachWith p f := by
-  cases o <;> simp_all [Function.comp_def]
 
 theorem attach_bind {o : Option α} {f : α → Option β} :
     (o.bind f).attach =
@@ -215,15 +188,11 @@ Further, we provide simp lemmas that push `unattach` inwards.
 -/
 
 /--
-Remove an attached proof that the value in an `Option` is indeed that value.
+A synonym for `l.map (·.val)`. Mostly this should not be needed by users.
+It is introduced as an intermediate step by lemmas such as `map_subtype`,
+and is ideally subsequently simplified away by `unattach_attach`.
 
-This function is usually inserted automatically by Lean, rather than explicitly in code. It is
-introduced as an intermediate step during the elaboration of definitions by well-founded recursion.
-
-If this function is encountered in a proof state, the right approach is usually the tactic
-`simp [Option.unattach, -Option.map_subtype]`.
-
-It is a synonym for `Option.map Subtype.val`.
+If not, usually the right approach is `simp [Option.unattach, -Option.map_subtype]` to unfold.
 -/
 def unattach {α : Type _} {p : α → Prop} (o : Option { x // p x }) := o.map (·.val)
 
@@ -254,17 +223,17 @@ This lemma identifies maps over lists of subtypes, where the function only depen
 and simplifies these to the function directly taking the value.
 -/
 @[simp] theorem map_subtype {p : α → Prop} {o : Option { x // p x }}
-    {f : { x // p x } → β} {g : α → β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    {f : { x // p x } → β} {g : α → β} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
     o.map f = o.unattach.map g := by
   cases o <;> simp [hf]
 
 @[simp] theorem bind_subtype {p : α → Prop} {o : Option { x // p x }}
-    {f : { x // p x } → Option β} {g : α → Option β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    {f : { x // p x } → Option β} {g : α → Option β} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
     (o.bind f) = o.unattach.bind g := by
   cases o <;> simp [hf]
 
 @[simp] theorem unattach_filter {p : α → Prop} {o : Option { x // p x }}
-    {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    {f : { x // p x } → Bool} {g : α → Bool} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
     (o.filter f).unattach = o.unattach.filter g := by
   cases o
   · simp

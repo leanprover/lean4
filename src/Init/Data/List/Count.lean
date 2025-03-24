@@ -257,9 +257,8 @@ variable [LawfulBEq α]
 @[simp] theorem count_cons_self (a : α) (l : List α) : count a (a :: l) = count a l + 1 := by
   simp [count_cons]
 
-@[simp] theorem count_cons_of_ne (h : a ≠ b) (l : List α) : count a (b :: l) = count a l := by
-  simp only [count_cons, cond_eq_if, beq_iff_eq]
-  split <;> simp_all
+@[simp] theorem count_cons_of_ne (h : b ≠ a) (l : List α) : count a (b :: l) = count a l := by
+  simp [count_cons, h]
 
 theorem count_singleton_self (a : α) : count a [a] = 1 := by simp
 

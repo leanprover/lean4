@@ -169,7 +169,7 @@ theorem mul_le_mul_of_le_of_le_of_nonneg_of_nonpos {a b c d : Int}
   Int.le_trans (Int.mul_le_mul_of_nonneg_right hac hb) (Int.mul_le_mul_of_nonpos_left hc hbd)
 
 /--
-A corollary of |s| ≤ x, and |s| ≤ y, then |s|² ≤ x * y,
+A corollary of `Int. mul_le_mul_self_of_natAbs_le`, which says that if |s| ≤ x, and |s| ≤ y, then |s|² ≤ x * y,
 -/
 theorem neg_mul_self_le_mul {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -s ≤ y) (uby : y < s) :
       -(s * s) ≤ x * y := by

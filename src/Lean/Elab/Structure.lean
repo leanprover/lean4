@@ -1150,11 +1150,9 @@ Assumes the inductive type has already been added to the environment.
 Note: we can't generally use optParams here since the default values might depend on previous ones.
 We include autoParams however.
 -/
-private def mkFlatCtorExpr (levelParams : List Name) (params : Array Expr) (structName : Name) (replaceIndFVars : Expr → MetaM Expr) :
+private def mkFlatCtorExpr (levelParams : List Name) (params : Array Expr) (ctor : ConstructorVal) (replaceIndFVars : Expr → MetaM Expr) :
     StructElabM Expr := do
-  let env ← getEnv
   -- build the constructor application using the fields in the local context
-  let ctor := getStructureCtor env structName
   let mut val := mkAppN (mkConst ctor.name (levelParams.map mkLevelParam)) params
   let fieldInfos := (← get).fields
   for fieldInfo in fieldInfos do
@@ -1180,10 +1178,13 @@ private def mkFlatCtorExpr (levelParams : List Name) (params : Array Expr) (stru
 
 private partial def mkFlatCtor (levelParams : List Name) (params : Array Expr) (structName : Name) (replaceIndFVars : Expr → MetaM Expr) :
     StructElabM Unit := do
-  let val ← mkFlatCtorExpr levelParams params structName replaceIndFVars
+  let env ← getEnv
+  let ctor := getStructureCtor env structName
+  let val ← mkFlatCtorExpr levelParams params ctor replaceIndFVars
   withLCtx {} {} do trace[Elab.structure] "created flat constructor:{indentExpr val}"
   unless val.hasSyntheticSorry do
-    let flatCtorName := mkFlatCtorOfStructName structName
+    -- Note: flatCtorName will be private if the constructor is private
+    let flatCtorName := mkFlatCtorOfStructCtorName ctor.name
     let valType ← replaceIndFVars (← instantiateMVars (← inferType val))
     let valType := valType.inferImplicit params.size true
     addDecl <| Declaration.defnDecl (← mkDefinitionValInferrringUnsafe flatCtorName levelParams valType val .abbrev)

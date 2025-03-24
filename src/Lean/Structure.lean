@@ -204,8 +204,8 @@ The body of the flat constructor has the following properties (recursively):
 - for subobject fields, the value is the unfolded flat constructor for that field
 - for standard fields, the value is one of the flat constructor parameters
 -/
-def mkFlatCtorOfStructName (structName : Name) : Name :=
-  structName ++ `_flat_ctor
+def mkFlatCtorOfStructCtorName (structCtorName : Name) : Name :=
+  structCtorName ++ `_flat_ctor
 
 private partial def getStructureFieldsFlattenedAux (env : Environment) (structName : Name) (fullNames : Array Name) (includeSubobjectFields : Bool) : Array Name :=
   (getStructureFields env structName).foldl (init := fullNames) fun fullNames fieldName =>

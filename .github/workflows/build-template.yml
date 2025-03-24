@@ -95,8 +95,9 @@ jobs:
           sudo apt-get install -y gcc-multilib g++-multilib ccache libuv1-dev:i386 pkgconf:i386
         if: matrix.cmultilib
       - name: Cache
+        id: restore-cache
         if: matrix.name != 'Linux Lake'
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             .ccache
@@ -105,9 +106,10 @@ jobs:
           restore-keys: |
             ${{ matrix.name }}-build-v3
           save-always: true
-      - name: Cache
+      - name: Restore Cache
+        id: restore-cache
         if: matrix.name == 'Linux Lake'
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             .ccache
@@ -163,6 +165,7 @@ jobs:
           time CCACHE_DEBUG=1 make -C stage0 -j$NPROC util/shell.cpp.o VERBOSE=1
           cat stage0/CMakeFiles/leanshell.dir/util/*ccache-log
           exit 1
+          oooooooo
       - name: Install
         run: |
           make -C build install
@@ -235,4 +238,11 @@ jobs:
           make -C build update-stage0 && rm -rf build/stage* && make -C build -j$NPROC
         if: matrix.name == 'Linux' && inputs.check-level >= 1
       - name: CCache stats
+        if: always()
         run: ccache -s
+      - name: Save Cache
+        if: always() && steps.restore-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ steps.restore-cache.outputs.cache-primary-key }}
+          path: ${{ steps.restore-cache.inputs.path }}

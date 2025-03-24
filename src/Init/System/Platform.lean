@@ -74,5 +74,8 @@ theorem numBits_le : numBits ≤ 64 := by
 @[simp] theorem System.Platform.numBits_dvd : System.Platform.numBits ∣ 64 :=
   numBits_eq.elim (fun h => ⟨2, h ▸ rfl⟩) (fun h => ⟨1, by simp [h]⟩)
 
+instance : NeZero System.Platform.numBits where
+  out := Nat.ne_zero_of_lt System.Platform.numBits_pos
+
 end Platform
 end System

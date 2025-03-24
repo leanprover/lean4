@@ -778,6 +778,11 @@ theorem two_pow_pred_mul_two (h : 0 < w) :
     2 ^ (w - 1) * 2 = 2 ^ w := by
   simp [← Nat.pow_succ, Nat.sub_add_cancel h]
 
+theorem le_pow {a b : Nat} (h : 0 < b) : a ≤ a ^ b := by
+  refine (eq_zero_or_pos a).elim (by rintro rfl; simp) (fun ha => ?_)
+  rw [(show b = b - 1 + 1 by omega), Nat.pow_succ]
+  exact Nat.le_mul_of_pos_left _ (Nat.pow_pos ha)
+
 /-! ### log2 -/
 
 @[simp]

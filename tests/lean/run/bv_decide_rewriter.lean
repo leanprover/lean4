@@ -645,7 +645,6 @@ example {x : BitVec 8} : (x ≥ -2#8) → (¬ BitVec.smulOverflow x x) := by bv_
 
 example {x : BitVec 8} : (x < 12#8) → (¬ BitVec.smulOverflow x x) := by bv_decide
 
-
 -- BV_EXTRACT_ADD_MUL
 example {x y : BitVec 8} :
     BitVec.extractLsb' 0 4 (x + y) = BitVec.extractLsb' 0 4 x + BitVec.extractLsb' 0 4 y := by

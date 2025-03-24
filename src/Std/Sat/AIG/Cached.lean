@@ -47,19 +47,20 @@ A version of `AIG.mkConst` that uses the subterm cache in `AIG`. This version is
 programming, for proving purposes use `AIG.mkGate` and equality theorems to this one.
 -/
 def mkConstCached (aig : AIG α) (val : Bool) : Entrypoint α :=
+  let ⟨decls, cache, inv⟩ := aig
   let decl := .false
-  match aig.cache.get? decl with
+  match cache.get? decl with
   | some hit =>
-    ⟨aig, ⟨hit.idx, val, hit.hbound⟩⟩
+    ⟨⟨decls, cache, inv⟩, hit.idx, val, hit.hbound⟩
   | none =>
-    let g := aig.decls.size
-    let cache := aig.cache.insert aig.decls decl
-    let decls := aig.decls.push decl
+    let g := decls.size
+    let cache := cache.insert decls decl
+    let decls := decls.push decl
     have inv := by
       intro i lhs rhs linv rinv h1 h2
       simp only [Array.getElem_push] at h2
       split at h2
-      · apply aig.invariant <;> assumption
+      · apply inv <;> assumption
       · contradiction
     ⟨⟨decls, cache, inv⟩, ⟨g, val, by simp [g, decls]⟩⟩
 
@@ -78,6 +79,7 @@ def mkGateCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
     go aig ⟨input.rhs, input.lhs⟩
 where
   go (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
+    let ⟨decls, cache, inv⟩ := aig
     let lhs := input.lhs.gate
     let rhs := input.rhs.gate
     let linv := input.lhs.invert
@@ -85,39 +87,42 @@ where
     have := input.lhs.hgate
     have := input.rhs.hgate
     let decl := .gate lhs rhs linv rinv
-    match aig.cache.get? decl with
+    match cache.get? decl with
     | some hit =>
-      ⟨aig, ⟨hit.idx, false, hit.hbound⟩⟩
+      ⟨⟨decls, cache, inv⟩, ⟨hit.idx, false, hit.hbound⟩⟩
     | none =>
       /-
       Here we implement the one-level subset of:
       https://fmv.jku.at/papers/BrummayerBiere-MEMICS06.pdf
       TODO: rest of the table
       -/
-      match aig.getConstant input.lhs, aig.getConstant input.rhs with
+      let lhsVal := AIG.getConstant ⟨decls, cache, inv⟩ input.lhs
+      let rhsVal := AIG.getConstant ⟨decls, cache, inv⟩ input.rhs
+      match lhsVal, rhsVal with
       -- Boundedness
-      | .some false, _ | _, .some false => mkConstCached aig false
+      | .some false, _ | _, .some false => mkConstCached ⟨decls, cache, inv⟩ false
       -- Left Neutrality
-      | .some true, _ => ⟨aig, input.rhs⟩
+      | .some true, _ => ⟨⟨decls, cache, inv⟩, ⟨rhs, rinv, by assumption⟩⟩
       -- Right Neutrality
-      | _, .some true => ⟨aig, input.lhs⟩
+      | _, .some true => ⟨⟨decls, cache, inv⟩, ⟨lhs, linv, by assumption⟩⟩
       -- No constant inputs
       | _, _ =>
         if lhs == rhs then
            -- Idempotency
-          if linv == rinv then ⟨aig, input.lhs⟩
+          if linv == rinv then ⟨⟨decls, cache, inv⟩, ⟨lhs, linv, by assumption⟩⟩
           -- Contradiction
-          else mkConstCached aig false
+          else mkConstCached ⟨decls, cache, inv⟩ false
         else
           -- Gate couldn't be simplified
-          let g := aig.decls.size
-          let cache := aig.cache.insert aig.decls decl
-          let decls := aig.decls.push decl
+          let g := decls.size
+          let cache := cache.insert decls decl
+          let decls := decls.push decl
           have inv := by
             intro i lhs rhs linv rinv h1 h2
             simp only [Array.getElem_push] at h2
+            simp_all
             split at h2
-            · apply aig.invariant <;> assumption
+            · apply inv <;> assumption
             · injections; omega
           ⟨⟨decls, cache, inv⟩, ⟨g, false, by simp [g, decls]⟩⟩
 

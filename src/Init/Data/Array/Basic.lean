@@ -42,7 +42,7 @@ namespace Array
     (set xs i v h).size = xs.size :=
   List.length_set ..
 
-@[simp] theorem size_push {xs : Array α} {v : α} : (push xs v).size = xs.size + 1 :=
+@[simp] theorem size_push {xs : Array α} (v : α) : (push xs v).size = xs.size + 1 :=
   List.length_concat ..
 
 theorem ext {xs ys : Array α}
@@ -1784,7 +1784,7 @@ termination_by xs.size - i
 decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ h
 
 -- This is required in `Lean.Data.PersistentHashMap`.
-@[simp] theorem size_eraseIdx {xs : Array α} {i : Nat} (h) : (xs.eraseIdx i h).size = xs.size - 1 := by
+@[simp] theorem size_eraseIdx {xs : Array α} (i : Nat) (h) : (xs.eraseIdx i h).size = xs.size - 1 := by
   induction xs, i, h using Array.eraseIdx.induct with
   | @case1 xs i h h' xs' ih =>
     unfold eraseIdx

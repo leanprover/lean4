@@ -467,8 +467,8 @@ theorem mapFinIdxM_toArray [Monad m] [LawfulMonad m] (l : List α)
       conv => enter [2, 2, 3]; rw [← getElem_cons_drop l acc.size (by omega)]
       simp only [Array.mapFinIdxM.map, mapFinIdxM.go, _root_.map_bind]
       congr; funext x
-      conv => enter [1, 4]; rw [← Array.size_push _ x]
-      conv => enter [2, 2, 3]; rw [← Array.size_push _ x]
+      conv => enter [1, 4]; rw [← Array.size_push x]
+      conv => enter [2, 2, 3]; rw [← Array.size_push x]
       refine go k (acc.push x) _
   simp only [Array.mapFinIdxM, mapFinIdxM]
   exact go _ #[] _

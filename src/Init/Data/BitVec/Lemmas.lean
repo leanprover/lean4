@@ -128,7 +128,7 @@ theorem toNat_ne_iff_ne {n} {x y : BitVec n} : x.toNat ≠ y.toNat ↔ x ≠ y :
 @[bitvec_to_nat] theorem toNat_ne {x y : BitVec n} : x ≠ y ↔ x.toNat ≠ y.toNat := by
   rw [Ne, toNat_eq]
 
-protected theorem toNat_lt_of_le (h : m ≤ n) (x : BitVec m) :
+protected theorem toNat_lt_of_le (h : m ≤ n) {x : BitVec m} :
     x.toNat < 2 ^ n := by
   apply Nat.lt_of_lt_of_le x.isLt
   apply Nat.pow_le_pow_of_le

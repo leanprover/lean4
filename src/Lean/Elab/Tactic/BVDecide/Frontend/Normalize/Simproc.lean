@@ -479,5 +479,27 @@ builtin_simproc [bv_normalize] extract_add
       (← mkDecideProof (← mkLe lenExpr widthExpr))
   return .visit { expr := expr, proof? := some proof }
 
+builtin_simproc [bv_normalize] extract_mul
+    (BitVec.extractLsb' _ _ ((_ : BitVec _) * (_ : BitVec _))) := fun e => do
+  let_expr BitVec.extractLsb' widthExpr startExpr lenExpr targetExpr := e | return .continue
+  let_expr HMul.hMul _ _ _ _ lhsExpr rhsExpr := targetExpr | return .continue
+  let some start ← getNatValue? startExpr | return .continue
+  let some len ← getNatValue? lenExpr | return .continue
+  let some width ← getNatValue? widthExpr | return .continue
+  if !(start == 0 && len ≤ width) then return .continue
+
+  let newLhsExpr := mkApp4 (mkConst ``BitVec.extractLsb') widthExpr startExpr lenExpr lhsExpr
+  let newRhsExpr := mkApp4 (mkConst ``BitVec.extractLsb') widthExpr startExpr lenExpr rhsExpr
+  let expr ← mkMul newLhsExpr newRhsExpr
+  let proof :=
+    mkApp5
+      (mkConst ``BitVec.extractLsb'_mul)
+      widthExpr
+      lenExpr
+      lhsExpr
+      rhsExpr
+      (← mkDecideProof (← mkLe lenExpr widthExpr))
+  return .visit { expr := expr, proof? := some proof }
+
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

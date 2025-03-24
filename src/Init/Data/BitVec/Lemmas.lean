@@ -128,6 +128,12 @@ theorem toNat_ne_iff_ne {n} {x y : BitVec n} : x.toNat ≠ y.toNat ↔ x ≠ y :
 @[bitvec_to_nat] theorem toNat_ne {x y : BitVec n} : x ≠ y ↔ x.toNat ≠ y.toNat := by
   rw [Ne, toNat_eq]
 
+protected theorem toNat_lt_of_le (h : m ≤ n) (x : BitVec m) :
+    x.toNat < 2 ^ n := by
+  apply Nat.lt_of_lt_of_le x.isLt
+  apply Nat.pow_le_pow_of_le
+  <;> omega
+
 theorem testBit_toNat (x : BitVec w) : x.toNat.testBit i = x.getLsbD i := rfl
 
 theorem getMsb'_eq_getLsb' (x : BitVec w) (i : Fin w) :
@@ -937,12 +943,6 @@ theorem toInt_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
   split
   case isTrue h   => simp [h, toInt_eq_toNat_bmod]
   case isFalse h  => rw [toInt_setWidth'_of_lt (by omega)]
-
-protected theorem toNat_lt_of_le (h : m ≤ n) (x : BitVec m) :
-    x.toNat < 2 ^ n := by
-  apply Nat.lt_of_lt_of_le x.isLt
-  apply Nat.pow_le_pow_of_le
-  <;> omega
 
 @[simp] theorem toFin_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
     (setWidth' p x).toFin = x.toFin.castLE (Nat.pow_le_pow_right (by omega) (by omega)) := by

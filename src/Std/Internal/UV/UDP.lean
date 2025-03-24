@@ -93,16 +93,17 @@ Sets the time-to-live (TTL) value for multicast packets.
 opaque setMulticastTTL (socket : @& Socket) (ttl : UInt32) : IO Unit
 
 /--
-Sets the membership for joining or leaving a multicast group.
+Sets the membership for joining or leaving a multicast group. If `interfaceAddr` is `none`, the
+default network interface is used.
 -/
 @[extern "lean_uv_udp_set_membership"]
-opaque setMembership (socket : @& Socket) (multicastAddr interfaceAddr : @& String) (membership : UInt8) : IO Unit
+opaque setMembership (socket : @& Socket) (multicastAddr : @& IPAddr) (interfaceAddr : @& Option IPAddr) (membership : UInt8) : IO Unit
 
 /--
 Sets the multicast interface for sending packets.
 -/
 @[extern "lean_uv_udp_set_multicast_interface"]
-opaque setMulticastInterface (socket : @& Socket) (interfaceAddr : @& String) : IO Unit
+opaque setMulticastInterface (socket : @& Socket) (interfaceAddr : @& IPAddr) : IO Unit
 
 /--
 Sets the TTL value for outgoing packets.

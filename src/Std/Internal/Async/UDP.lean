@@ -115,7 +115,7 @@ def setMulticastTTL (s : Socket) (ttl : UInt32) : IO Unit :=
 Sets the membership for joining or leaving a multicast group.
 -/
 @[inline]
-def setMembership (s : Socket) (multicastAddr : String) (interfaceAddr : String) (membership : Membership) : IO Unit :=
+def setMembership (s : Socket) (multicastAddr : IPAddr) (interfaceAddr : Option IPAddr) (membership : Membership) : IO Unit :=
   let membership := match membership with
     | .leaveGroup => 0
     | .enterGroup => 1
@@ -125,7 +125,7 @@ def setMembership (s : Socket) (multicastAddr : String) (interfaceAddr : String)
 Sets the multicast interface for sending packets.
 -/
 @[inline]
-def setMulticastInterface (s : Socket) (interfaceAddr : String) : IO Unit :=
+def setMulticastInterface (s : Socket) (interfaceAddr : IPAddr) : IO Unit :=
   s.native.setMulticastInterface interfaceAddr
 
 /--

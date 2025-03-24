@@ -362,15 +362,23 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_ttl(b_obj_arg sock
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-/* Std.Internal.UV.UDP.Socket.setMembership (socket : @& Socket) (multicast_addr interface_addr : @& String) (membership : UInt8) : IO Unit */
+/* Std.Internal.UV.UDP.Socket.setMembership (socket : @& Socket) (multicastAddr : @& IpAddr) (interfaceAddr : @& Option IpAddr) (membership : UInt8) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_membership(b_obj_arg socket, b_obj_arg multicast_addr, b_obj_arg interface_addr, uint8_t membership, obj_arg /* w */) {
     lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
 
-    const char *multicast_addr_str = lean_string_cstr(multicast_addr);
-    const char *interface_addr_str = lean_string_cstr(interface_addr);
+    char multicast_addr_str[INET_ADDRSTRLEN];
+    lean_ip_addr_ntop(multicast_addr, multicast_addr_str, sizeof(multicast_addr_str));
+
+    bool is_interface_null = is_scalar(interface_addr);
+    char interface_addr_str[INET_ADDRSTRLEN];
+
+    if (!is_interface_null) {
+        lean_object* interface_addr_obj = lean_ctor_get(interface_addr, 0);
+        lean_ip_addr_ntop(interface_addr_obj, interface_addr_str, sizeof(interface_addr_str));
+    }
 
     event_loop_lock(&global_ev);
-    int result = uv_udp_set_membership(udp_socket->m_uv_udp, multicast_addr_str, interface_addr_str, (uv_membership)membership);
+    int result = uv_udp_set_membership(udp_socket->m_uv_udp, multicast_addr_str, is_interface_null ? nullptr : interface_addr_str, (uv_membership)membership);
     event_loop_unlock(&global_ev);
 
     if (result < 0) {
@@ -380,11 +388,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_membership(b_obj_arg socket,
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-/* Std.Internal.UV.UDP.Socket.setMulticastInterface (socket : @& Socket) (interface_addr : @& String) : IO Unit */
+/* Std.Internal.UV.UDP.Socket.setMulticastInterface (socket : @& Socket) (interfaceAddr : @& IPAddr) : IO Unit */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_set_multicast_interface(b_obj_arg socket, b_obj_arg interface_addr, obj_arg /* w */) {
     lean_uv_udp_socket_object *udp_socket = lean_to_uv_udp_socket(socket);
 
-    const char *interface_addr_str = lean_string_cstr(interface_addr);
+    char interface_addr_str[INET_ADDRSTRLEN];
+    lean_ip_addr_ntop(interface_addr, interface_addr_str, sizeof(interface_addr_str));
+
+    printf("%s sei la\n", interface_addr_str);
 
     event_loop_lock(&global_ev);
     int result = uv_udp_set_multicast_interface(udp_socket->m_uv_udp, interface_addr_str);

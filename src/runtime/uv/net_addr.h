@@ -19,7 +19,9 @@ typedef union in_addr_storage {
 
 void lean_ipv4_addr_to_in_addr(b_obj_arg ipv4_addr, struct in_addr* out);
 void lean_ipv6_addr_to_in6_addr(b_obj_arg ipv6_addr, struct in6_addr* out);
+void lean_ip_addr_to_in_addr_storage(b_obj_arg ip_addr, int* type, in_addr_storage* out);
 void lean_socket_address_to_sockaddr_storage(b_obj_arg ip_addr, struct sockaddr_storage* out);
+void lean_ip_addr_ntop(b_obj_arg ip_addr, char *buffer, size_t buffer_size);
 
 lean_obj_res lean_phys_addr_to_mac_addr(char phys_addr[6]);
 lean_obj_res lean_in_addr_to_ipv4_addr(const struct in_addr* ipv4_addr);

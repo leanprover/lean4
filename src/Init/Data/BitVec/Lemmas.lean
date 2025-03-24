@@ -2415,7 +2415,7 @@ theorem toFin_signExtend_of_le {x : BitVec w} (hv : v ≤ w):
 theorem toFin_signExtend (x : BitVec w) :
     (x.signExtend v).toFin = Fin.ofNat' (2 ^ v) (x.toNat + if x.msb = true then 2 ^ v - 2 ^ w else 0):= by
   by_cases hv : v ≤ w
-  · simp [toInt_signExtend_of_le hv, Nat.min_eq_left hv]
+  · simp [toFin_signExtend_of_le hv, show 2 ^ v - 2 ^ w = 0 by rw [@Nat.sub_eq_zero_iff_le]; apply Nat.pow_le_pow_of_le (by decide) (by omega)]
   · simp only [Nat.not_le] at hv
     apply Fin.eq_of_val_eq
     simp only [val_toFin, Fin.val_ofNat']

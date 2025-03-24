@@ -938,7 +938,7 @@ and the second `setWidth` is a non-trivial extension.
   · rfl
   · apply msb_setWidth'_of_lt p
 
-theorem toInt_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
+theorem toInt_setWidth' {m n : Nat} (p : m ≤ n) {x : BitVec m} :
     (setWidth' p x).toInt = if m = n then x.toInt else x.toNat := by
   split
   case isTrue h   => simp [h, toInt_eq_toNat_bmod]

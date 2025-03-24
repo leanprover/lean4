@@ -46,7 +46,7 @@ instance if we need to shadow another coercion.
 
 /--
 The canonical homomorphism `Nat → R`. In most use cases, the target type will have a (semi)ring
-structure, and this homomorphism should be a ring homomorphism.
+structure, and this homomorphism should be a (semi)ring homomorphism.
 
 `NatCast` and `IntCast` exist to allow different libraries with their own types that can be notated
 as natural numbers to have consistent `simp` normal forms without needing to create coercion

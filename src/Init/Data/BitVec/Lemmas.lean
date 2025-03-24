@@ -940,11 +940,9 @@ and the second `setWidth` is a non-trivial extension.
 
 theorem toInt_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
     (setWidth' p x).toInt = if m = n then x.toInt else x.toNat := by
-  by_cases h : m = n
-  · simp [h, toInt_eq_toNat_bmod]
-  · have h' : m < n := by omega
-    rw [toInt_setWidth'_of_lt h']
-    simp [toInt_setWidth'_of_lt h', h]
+  split
+  case isTrue h   => simp [h, toInt_eq_toNat_bmod]
+  case isFalse h  => rw [toInt_setWidth'_of_lt (by omega)]
 
 @[simp] theorem toFin_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
     (setWidth' p x).toFin = Fin.ofNat' (2 ^ n) x.toNat := by

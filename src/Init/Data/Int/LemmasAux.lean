@@ -160,7 +160,11 @@ theorem mul_le_mul_self_of_natAbs_le {x y : Int} {s : Nat} (hx : x.natAbs ≤ s)
       simp [Int.neg_mul_neg] at this
       norm_cast
 
-theorem mul_le_mul_neg {a b c d : Int}
+/--
+This is a generalization of `a ≤ c` and `b ≤ d` implying `a * b ≤ c * d` for natural numbers,
+appropriately generalized to integers when `b` is nonnegative and `c` is nonpositive.
+-/
+theorem mul_le_mul_of_le_of_le_of_nonneg_of_nonpos {a b c d : Int}
     (hac : a ≤ c) (hbd : d ≤ b) (hb : 0 ≤ b) (hc : c ≤ 0) : a * b ≤ c * d :=
   Int.le_trans (Int.mul_le_mul_of_nonneg_right hac hb) (Int.mul_le_mul_of_nonpos_left hc hbd)
 

@@ -1452,7 +1452,7 @@ theorem carry_extractLsb'_eq_carry {w i len : Nat} (hi : i < len)
 The `[0..len)` low bits of `x + y` can be computed by truncating `x` and `y`
 to `len` bits and then adding.
 -/
-theorem extractLsb'_add {w len : Nat} {x y : BitVec w} (hlen : len ≤ w) :
+theorem extractLsb'_add {w len : Nat} {x y : BitVec w} (hlen : len ≤ w) : 
     (x + y).extractLsb' 0 len = x.extractLsb' 0 len + y.extractLsb' 0 len := by
   ext i hi
   rw [getElem_extractLsb', Nat.zero_add, getLsbD_add (by omega)]

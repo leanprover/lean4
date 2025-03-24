@@ -645,9 +645,17 @@ example {x : BitVec 8} : (x ≥ -2#8) → (¬ BitVec.smulOverflow x x) := by bv_
 
 example {x : BitVec 8} : (x < 12#8) → (¬ BitVec.smulOverflow x x) := by bv_decide
 
+example {x y : BitVec 64} : ((x = 0#64) ∧ (y = BitVec.allOnes 64)) → (BitVec.usubOverflow x y) := by bv_decide
+
+example {x y : BitVec 64} : ((x = BitVec.twoPow 64 62) ∧ (y = BitVec.twoPow 64 63)) → (BitVec.ssubOverflow x y) := by bv_decide
+
 -- BV_EXTRACT_ADD_MUL
 example {x y : BitVec 8} :
     BitVec.extractLsb' 0 4 (x + y) = BitVec.extractLsb' 0 4 x + BitVec.extractLsb' 0 4 y := by
+  bv_normalize
+
+example {x y : BitVec 8} :
+    BitVec.extractLsb' 0 4 (x * y) = BitVec.extractLsb' 0 4 x * BitVec.extractLsb' 0 4 y := by
   bv_normalize
 
 section

@@ -219,16 +219,24 @@ inductive BVExpr : Nat → Type where
 with
   @[computed_field]
   hashCode : (w : Nat) → BVExpr w → UInt64
-    | _, .var idx => mixHash 5 (hash idx)
-    | _, .const val => mixHash 7 (hash val)
-    | _, .extract start len expr => mixHash (hash start) <| mixHash (hash len) (hashCode _ expr)
-    | _, .bin lhs op rhs => mixHash (hashCode _ lhs) <| mixHash (hash op) (hashCode _ rhs)
-    | _, .un op operand => mixHash (hash op) (hashCode _ operand)
-    | _, .append lhs rhs _ => mixHash (hashCode _ lhs) (hashCode _ rhs)
-    | _, .replicate n expr _ => mixHash (hash n) (hashCode _ expr)
-    | _, .shiftLeft lhs rhs => mixHash (hashCode _ lhs) (hashCode _ rhs)
-    | _, .shiftRight lhs rhs => mixHash (hashCode _ lhs) (hashCode _ rhs)
-    | _, .arithShiftRight lhs rhs => mixHash (hashCode _ lhs) (hashCode _ rhs)
+    | w, .var idx => mixHash 5 <| mixHash (hash w) (hash idx)
+    | w, .const val => mixHash 7 <| mixHash (hash w) (hash val)
+    | w, .extract start _ expr =>
+      mixHash 11 <| mixHash (hash start) <| mixHash (hash w) (hashCode _ expr)
+    | w, .bin lhs op rhs =>
+      mixHash 13 <| mixHash (hash w) <| mixHash (hashCode _ lhs) <| mixHash (hash op) (hashCode _ rhs)
+    | w, .un op operand =>
+      mixHash 17 <| mixHash (hash w) <| mixHash (hash op) (hashCode _ operand)
+    | w, .append lhs rhs _ =>
+      mixHash 19 <| mixHash (hash w) <| mixHash (hashCode _ lhs) (hashCode _ rhs)
+    | w, .replicate n expr _ =>
+      mixHash 23 <| mixHash (hash w) <| mixHash (hash n) (hashCode _ expr)
+    | w, .shiftLeft lhs rhs =>
+      mixHash 29 <| mixHash (hash w) <| mixHash (hashCode _ lhs) (hashCode _ rhs)
+    | w, .shiftRight lhs rhs =>
+      mixHash 31 <| mixHash (hash w) <| mixHash (hashCode _ lhs) (hashCode _ rhs)
+    | w, .arithShiftRight lhs rhs =>
+      mixHash 37 <| mixHash (hash w) <| mixHash (hashCode _ lhs) (hashCode _ rhs)
 
 
 namespace BVExpr

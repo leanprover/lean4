@@ -4383,7 +4383,7 @@ theorem toInt_mul_toInt_lt {x y : BitVec w} : x.toInt * y.toInt ≤ 2 ^ (w * 2 -
       rw [← Nat.pow_add, ←Nat.mul_two, Nat.mul_comm (m := 2) (n := (w + 1) - 1), Nat.mul_sub_one, Nat.mul_comm]
     rw_mod_cast [h]
     rw [← Nat.two_pow_pred_mul_two (by omega), Int.natCast_mul] at xlt ylt xle yle
-    exact Int.mul_le_mul_self (by omega) (by omega)
+    exact Int.mul_le_mul_self_of_natAbs_le (by omega) (by omega)
 
 theorem le_toInt_mul_toInt {x y : BitVec w} : - (2 ^ (w * 2 - 2)) ≤ x.toInt * y.toInt := by
   rcases w with _|w

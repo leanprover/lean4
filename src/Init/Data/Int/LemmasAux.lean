@@ -147,7 +147,7 @@ theorem bmod_eq_of_le_of_lt {x : Int} {y : Nat} (hle : -y ≤ x * 2) (hlt : x * 
   · rw [Int.emod_eq_of_lt (by simp only [ofNat_eq_coe]; omega) (by omega)]; omega
   · rw [Int.emod_eq_add_self_emod, Int.emod_eq_of_lt (by omega) (by omega)]; omega
 
-theorem mul_le_mul_self {x y : Int} {s : Nat} (hx : x.natAbs ≤ s) (hy : y.natAbs ≤ s) :
+theorem mul_le_mul_self_of_natAbs_le {x y : Int} {s : Nat} (hx : x.natAbs ≤ s) (hy : y.natAbs ≤ s) :
     x * y ≤ s * s := by
   rcases s with _|s
   · simp [show x = 0 by omega]
@@ -168,9 +168,11 @@ theorem neg_mul_self_le_mul {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s)
       -(s * s) ≤ x * y := by
   have := Nat.mul_pos (n := s) (m := s) (by omega) (by omega)
   by_cases 0 ≤ x <;> by_cases 0 ≤ y
-  · have : 0 ≤ x * y := Int.mul_nonneg (by omega) (by omega); omega
-  · rw [← Int.neg_mul, Int.mul_comm (a := x)]; exact Int.mul_le_mul_neg (by omega) (by omega) (by omega) (by omega)
-  · rw [← Int.neg_mul]; exact Int.mul_le_mul_neg (by omega) (by omega) (by omega) (by omega)
-  · have : 0 < x * y := Int.mul_pos_of_neg_of_neg (by omega) (by omega); omega
+  · have : 0 ≤ x * y := by apply Int.mul_nonneg <;> omega
+    omega
+  · rw [← Int.neg_mul, Int.mul_comm (a := x)]; apply Int.mul_le_mul_neg <;> omega
+  · rw [← Int.neg_mul]; apply Int.mul_le_mul_neg <;> omega
+  · have : 0 < x * y := by apply Int.mul_pos_of_neg_of_neg <;> omega
+    omega
 
 end Int

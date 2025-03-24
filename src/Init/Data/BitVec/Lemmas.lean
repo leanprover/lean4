@@ -940,7 +940,7 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
   (extractLsb hi lo x).toNat = (x.toNat >>> lo) % 2^(hi-lo+1) := rfl
 
 @[simp] theorem toInt_extractLsb' {s m : Nat} {x : BitVec n} :
-    (extractLsb' s m x).toInt = ((x.toNat >>> s) : Int).bmod (2 ^ m) := by 
+    (extractLsb' s m x).toInt = ((x.toNat >>> s) : Int).bmod (2 ^ m) := by
   simp [extractLsb', toInt_ofNat]
 
 @[simp] theorem toInt_extractLsb {hi lo : Nat} {x : BitVec n} :
@@ -1710,14 +1710,12 @@ theorem toNat_shiftLeftZeroExtend {x : BitVec w} :
   simp only [shiftLeftZeroExtend_eq, toNat_shiftLeft, toNat_setWidth]
   by_cases hn : 0 < n
   · simp only [hn, ↓reduceIte]
-    have := Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := n + w) (by omega) (by omega)
-    rw [Nat.add_comm, Nat.pow_add] at this
-    have : ((x.toNat % 2 ^ (w + n)) <<< n) < 2 ^ (w + n) := by
-      rw [Nat.pow_add, Nat.shiftLeft_eq, Nat.mod_eq_of_lt (by omega)]
-      have := Nat.mul_lt_mul_right (b := x.toNat) (a := 2 ^ n) (c := 2 ^ w)
-      have :=  Nat.two_pow_pos (w := n)
-      omega
-    rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by rw [Nat.pow_add]; omega)]
+    have :=  Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := w + n) (by omega) (by omega)
+    have : x.toNat < 2 ^ (w + n) := by omega
+    rw [Nat.mod_eq_of_lt
+      (by rw [Nat.mod_eq_of_lt (by omega), Nat.shiftLeft_eq, Nat.pow_add, Nat.mul_lt_mul_right
+        (by apply Nat.two_pow_pos (w := n))]; omega),
+      Nat.mod_eq_of_lt (by omega)]
   · simp [show n = 0 by omega]
 
 theorem toInt_shiftLeftZeroExtend {x : BitVec w} :
@@ -3113,7 +3111,7 @@ theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toN
   simp [toInt_eq_toNat_bmod, @Int.ofNat_sub y.toNat (2 ^ w) (by omega)]
 
 theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
-    (x.toInt - y.toInt < - 2 ^ (w - 1)) 
+    (x.toInt - y.toInt < - 2 ^ (w - 1))
     ↔ (x.toInt < 0 ∧ 0 ≤ y.toInt ∧ 0 ≤ (x.toInt - y.toInt).bmod (2 ^ w)) := by
   rcases w with _|w
   · simp [of_length_zero]
@@ -3129,7 +3127,7 @@ theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
       omega
 
 theorem twoPow_le_toInt_sub_toInt_iff {x y : BitVec w} :
-    (2 ^ (w - 1) ≤ x.toInt - y.toInt) 
+    (2 ^ (w - 1) ≤ x.toInt - y.toInt)
     ↔ (0 ≤ x.toInt ∧ y.toInt < 0 ∧ (x.toInt - y.toInt).bmod (2 ^ w) < 0) := by
   rcases w with _|w
   · simp [of_length_zero]

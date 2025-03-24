@@ -940,7 +940,7 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
   (extractLsb hi lo x).toNat = (x.toNat >>> lo) % 2^(hi-lo+1) := rfl
 
 @[simp] theorem toInt_extractLsb' {s m : Nat} {x : BitVec n} :
-    (extractLsb' s m x).toInt = ((x.toNat >>> s) : Int).bmod (2 ^ m) := by 
+    (extractLsb' s m x).toInt = ((x.toNat >>> s) : Int).bmod (2 ^ m) := by
   simp [extractLsb', toInt_ofNat]
 
 @[simp] theorem toInt_extractLsb {hi lo : Nat} {x : BitVec n} :
@@ -2346,7 +2346,13 @@ theorem toNat_signExtend (x : BitVec w) {v : Nat} :
   · have : 2^w ≤ 2^v := Nat.pow_le_pow_right Nat.two_pos (by omega)
     rw [toNat_signExtend_of_le x (by omega), toNat_setWidth, Nat.mod_eq_of_lt (by omega)]
 
-/--
+/-- Sign extending to a smaller bitwidth equals setting the width. -/
+theorem toNat_signExtend_of_lt {x : BitVec w} {v : Nat} (h : v < w) :
+    (x.signExtend v).toNat = (x.setWidth v).toNat := by
+  rw [toNat_signExtend, show 2 ^ v - 2 ^ w = 0 by rw [@Nat.sub_eq_zero_iff_le]; apply Nat.pow_le_pow_of_le (by decide) (by omega)]
+  rcases x.msb <;> simp
+
+/-
 If the current width `w` is smaller than the extended width `v`,
 then the value when interpreted as an integer does not change.
 -/
@@ -2382,17 +2388,8 @@ theorem toInt_signExtend_eq_toNat_bmod_of_le {x : BitVec w} (hv : v ≤ w) :
 
 /--
 Interpreting the sign extension of `(x : BitVec w)` to width `v`
-computes `x % 2^v` (where `%` is the balanced mod). See `toInt_signExtend` for a version stated
-in terms of `toInt` instead of `toNat`.
+computes `x % 2^v` (where `%` is the balanced mod).
 -/
-theorem toInt_signExtend_eq_toNat_bmod (x : BitVec w) :
-    (x.signExtend v).toInt = Int.bmod x.toNat (2 ^ min v w) := by
-  by_cases hv : v ≤ w
-  · simp [toInt_signExtend_eq_toNat_bmod_of_le hv, Nat.min_eq_left hv]
-  · simp only [Nat.not_le] at hv
-    rw [toInt_signExtend_of_le (Nat.le_of_lt hv),
-      Nat.min_eq_right (by omega), toInt_eq_toNat_bmod]
-
 theorem toInt_signExtend (x : BitVec w) :
     (x.signExtend v).toInt = x.toInt.bmod (2 ^ min v w) := by
   rw [toInt_signExtend_eq_toNat_bmod, BitVec.toInt_eq_toNat_bmod, Int.bmod_bmod_of_dvd]
@@ -2401,6 +2398,23 @@ theorem toInt_signExtend (x : BitVec w) :
 theorem toInt_signExtend_eq_toInt_bmod_of_le (x : BitVec w) (h : v ≤ w) :
     (x.signExtend v).toInt = x.toInt.bmod (2 ^ v) := by
   rw [BitVec.toInt_signExtend, Nat.min_eq_left h]
+
+theorem toFin_signExtend_of_le {x : BitVec w} (hv : v ≤ w):
+    (x.signExtend v).toFin = Fin.ofNat' (2 ^ v) x.toNat := by
+  simp [signExtend_eq_setWidth_of_le _ hv]
+
+theorem toFin_signExtend (x : BitVec w) :
+    (x.signExtend v).toFin = Fin.ofNat' (2 ^ v) (x.toNat + if x.msb = true then 2 ^ v - 2 ^ w else 0):= by
+  by_cases hv : v ≤ w
+  · simp [toInt_signExtend_of_le hv, Nat.min_eq_left hv]
+  · simp only [Nat.not_le] at hv
+    apply Fin.eq_of_val_eq
+    simp only [val_toFin, Fin.val_ofNat']
+    rw [toNat_signExtend_of_le _ (by omega)]
+    have : 2 ^ w < 2 ^ v := by apply Nat.pow_lt_pow_of_lt <;> omega
+    rw [Nat.mod_eq_of_lt]
+    rcases x.msb <;> simp <;> omega
+
 
 /-! ### append -/
 
@@ -3079,7 +3093,7 @@ theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toN
   simp [toInt_eq_toNat_bmod, @Int.ofNat_sub y.toNat (2 ^ w) (by omega)]
 
 theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
-    (x.toInt - y.toInt < - 2 ^ (w - 1)) 
+    (x.toInt - y.toInt < - 2 ^ (w - 1))
     ↔ (x.toInt < 0 ∧ 0 ≤ y.toInt ∧ 0 ≤ (x.toInt - y.toInt).bmod (2 ^ w)) := by
   rcases w with _|w
   · simp [of_length_zero]
@@ -3095,7 +3109,7 @@ theorem toInt_sub_toInt_lt_twoPow_iff {x y : BitVec w} :
       omega
 
 theorem twoPow_le_toInt_sub_toInt_iff {x y : BitVec w} :
-    (2 ^ (w - 1) ≤ x.toInt - y.toInt) 
+    (2 ^ (w - 1) ≤ x.toInt - y.toInt)
     ↔ (0 ≤ x.toInt ∧ y.toInt < 0 ∧ (x.toInt - y.toInt).bmod (2 ^ w) < 0) := by
   rcases w with _|w
   · simp [of_length_zero]

@@ -168,9 +168,9 @@ This function does not reduce in the kernel.
 /--
 Converts a floating-point number to an 8-bit unsigned integer.
 
-If the given `Float` is non-negative, truncates the value to a positive integer, rounding down and
-clamping to the range of `UInt8`. Returns `0` if the `Float` is negative, or the largest `UInt8`
-value (i.e. `UInt8.size - 1`) if the float is larger than it.
+If the given `Float32` is non-negative, truncates the value to a positive integer, rounding down and
+clamping to the range of `UInt8`. Returns `0` if the `Float32` is negative or `NaN`, and returns the
+largest `UInt8` value (i.e. `UInt8.size - 1`) if the float is larger than it.
 
 This function does not reduce in the kernel.
 -/
@@ -178,9 +178,9 @@ This function does not reduce in the kernel.
 /--
 Converts a floating-point number to a 16-bit unsigned integer.
 
-If the given `Float` is non-negative, truncates the value to a positive integer, rounding down and
-clamping to the range of `UInt16`. Returns `0` if the `Float` is negative, or the largest `UInt16`
-value (i.e. `UInt16.size - 1`) if the float is larger than it.
+If the given `Float32` is non-negative, truncates the value to a positive integer, rounding down and
+clamping to the range of `UInt16`. Returns `0` if the `Float32` is negative or `NaN`, and returns
+the largest `UInt16` value (i.e. `UInt16.size - 1`) if the float is larger than it.
 
 This function does not reduce in the kernel.
 -/
@@ -188,9 +188,9 @@ This function does not reduce in the kernel.
 /--
 Converts a floating-point number to a 32-bit unsigned integer.
 
-If the given `Float` is non-negative, truncates the value to a positive integer, rounding down and
-clamping to the range of `UInt32`. Returns `0` if the `Float` is negative, or the largest `UInt32`
-value (i.e. `UInt32.size - 1`) if the float is larger than it.
+If the given `Float32` is non-negative, truncates the value to a positive integer, rounding down and
+clamping to the range of `UInt32`. Returns `0` if the `Float32` is negative or `NaN`, and returns
+the largest `UInt32` value (i.e. `UInt32.size - 1`) if the float is larger than it.
 
 This function does not reduce in the kernel.
 -/
@@ -198,9 +198,9 @@ This function does not reduce in the kernel.
 /--
 Converts a floating-point number to a 64-bit unsigned integer.
 
-If the given `Float` is non-negative, truncates the value to a positive integer, rounding down and
-clamping to the range of `UInt64`. Returns `0` if the `Float` is negative, or the largest `UInt64`
-value (i.e. `UInt64.size - 1`) if the float is larger than it.
+If the given `Float32` is non-negative, truncates the value to a positive integer, rounding down and
+clamping to the range of `UInt64`. Returns `0` if the `Float32` is negative or `NaN`, and returns
+the largest `UInt64` value (i.e. `UInt64.size - 1`) if the float is larger than it.
 
 This function does not reduce in the kernel.
 -/
@@ -208,9 +208,9 @@ This function does not reduce in the kernel.
 /--
 Converts a floating-point number to a word-sized unsigned integer.
 
-If the given `Float` is non-negative, truncates the value to a positive integer, rounding down and
-clamping to the range of `USize`. Returns `0` if the `Float` is negative, or the largest `USize`
-value (i.e. `USize.size - 1`) if the float is larger than it.
+If the given `Float32` is non-negative, truncates the value to a positive integer, rounding down and
+clamping to the range of `USize`. Returns `0` if the `Float32` is negative or `NaN`, and returns the
+largest `USize` value (i.e. `USize.size - 1`) if the float is larger than it.
 
 This function does not reduce in the kernel.
 -/

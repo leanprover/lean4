@@ -87,12 +87,16 @@ number of parameters: 1
 parents:
   Alternative.toApplicative : Applicative f
 fields:
-  Functor.map : {α β : Type u} → (α → β) → f α → f β
-  Functor.mapConst : {α β : Type u} → α → f β → f α
+  Functor.map : {α β : Type u} → (α → β) → f α → f β :=
+    fun {α β} x y => pure x <*> y
+  Functor.mapConst : {α β : Type u} → α → f β → f α :=
+    fun {α β} => Functor.map ∘ Function.const β
   Pure.pure : {α : Type u} → α → f α
   Seq.seq : {α β : Type u} → f (α → β) → (Unit → f α) → f β
-  SeqLeft.seqLeft : {α β : Type u} → f α → (Unit → f β) → f α
-  SeqRight.seqRight : {α β : Type u} → f α → (Unit → f β) → f β
+  SeqLeft.seqLeft : {α β : Type u} → f α → (Unit → f β) → f α :=
+    fun {α β} a b => Function.const β <$> a <*> b ()
+  SeqRight.seqRight : {α β : Type u} → f α → (Unit → f β) → f β :=
+    fun {α β} a b => Function.const α id <$> a <*> b ()
   Alternative.failure : {α : Type u} → f α
   Alternative.orElse : {α : Type u} → f α → (Unit → f α) → f α
 constructor:
@@ -115,12 +119,16 @@ parents:
   Applicative.toSeqLeft : SeqLeft f
   Applicative.toSeqRight : SeqRight f
 fields:
-  Functor.map : {α β : Type u} → (α → β) → f α → f β
-  Functor.mapConst : {α β : Type u} → α → f β → f α
+  Functor.map : {α β : Type u} → (α → β) → f α → f β :=
+    fun {α β} x y => pure x <*> y
+  Functor.mapConst : {α β : Type u} → α → f β → f α :=
+    fun {α β} => Functor.map ∘ Function.const β
   Pure.pure : {α : Type u} → α → f α
   Seq.seq : {α β : Type u} → f (α → β) → (Unit → f α) → f β
-  SeqLeft.seqLeft : {α β : Type u} → f α → (Unit → f β) → f α
-  SeqRight.seqRight : {α β : Type u} → f α → (Unit → f β) → f β
+  SeqLeft.seqLeft : {α β : Type u} → f α → (Unit → f β) → f α :=
+    fun {α β} a b => Function.const β <$> a <*> b ()
+  SeqRight.seqRight : {α β : Type u} → f α → (Unit → f β) → f β :=
+    fun {α β} a b => Function.const α id <$> a <*> b ()
 constructor:
   Applicative.mk.{u, v} {f : Type u → Type v} [toFunctor : Functor f] [toPure : Pure f] [toSeq : Seq f]
     [toSeqLeft : SeqLeft f] [toSeqRight : SeqRight f] : Applicative f

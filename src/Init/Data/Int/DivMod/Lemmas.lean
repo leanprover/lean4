@@ -1007,10 +1007,6 @@ theorem add_ediv {a b c : Int} (h : c ≠ 0) :
 protected theorem ediv_le_ediv {a b c : Int} (H : 0 < c) (H' : a ≤ b) : a / c ≤ b / c :=
   Int.le_ediv_of_mul_le H (Int.le_trans (Int.ediv_mul_le _ (Int.ne_of_gt H)) H')
 
-theorem mul_le_mul_neg {a b c d : Int}
-    (hac : a ≤ c) (hbd : d ≤ b) (hb : 0 ≤ b) (hc : c ≤ 0) : a * b ≤ c * d :=
-  Int.le_trans (Int.mul_le_mul_of_nonneg_right hac hb) (Int.mul_le_mul_of_nonpos_left hc hbd)
-
 /-! ### tdiv -/
 
 -- `tdiv` analogues of `ediv` lemmas from `Bootstrap.lean`

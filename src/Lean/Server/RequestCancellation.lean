@@ -15,28 +15,28 @@ structure RequestCancellationToken where
 
 namespace RequestCancellationToken
 
-def new : IO RequestCancellationToken := do
+def new : BaseIO RequestCancellationToken := do
   return {
     cancelledByCancelRequest := ← IO.mkRef false
     cancelledByEdit          := ← IO.mkRef false
     cancellationPromise      := ← IO.Promise.new
   }
 
-def cancelByCancelRequest (tk : RequestCancellationToken) : IO Unit := do
+def cancelByCancelRequest (tk : RequestCancellationToken) : BaseIO Unit := do
   tk.cancelledByCancelRequest.set true
   tk.cancellationPromise.resolve ()
 
-def cancelByEdit (tk : RequestCancellationToken) : IO Unit := do
+def cancelByEdit (tk : RequestCancellationToken) : BaseIO Unit := do
   tk.cancelledByEdit.set true
   tk.cancellationPromise.resolve ()
 
 def cancellationTask (tk : RequestCancellationToken) : Task Unit :=
   tk.cancellationPromise.result!
 
-def wasCancelledByCancelRequest (tk : RequestCancellationToken) : IO Bool :=
+def wasCancelledByCancelRequest (tk : RequestCancellationToken) : BaseIO Bool :=
   tk.cancelledByCancelRequest.get
 
-def wasCancelledByEdit (tk : RequestCancellationToken) : IO Bool := do
+def wasCancelledByEdit (tk : RequestCancellationToken) : BaseIO Bool := do
   tk.cancelledByEdit.get
 
 end RequestCancellationToken
@@ -56,7 +56,7 @@ def CancellableM.run (tk : RequestCancellationToken) (x : CancellableM α) :
     IO (Except RequestCancellation α) :=
   CancellableT.run tk x
 
-def CancellableT.checkCancelled [Monad m] [MonadLiftT IO m] : CancellableT m Unit := do
+def CancellableT.checkCancelled [Monad m] [MonadLiftT BaseIO m] : CancellableT m Unit := do
   let tk ← read
   if ← tk.wasCancelledByCancelRequest then
     throw .requestCancelled
@@ -70,7 +70,7 @@ class MonadCancellable (m : Type → Type v) where
 instance (m n) [MonadLift m n] [MonadCancellable m] : MonadCancellable n where
   checkCancelled := liftM (MonadCancellable.checkCancelled : m PUnit)
 
-instance [Monad m] [MonadLiftT IO m] : MonadCancellable (CancellableT m) where
+instance [Monad m] [MonadLiftT BaseIO m] : MonadCancellable (CancellableT m) where
   checkCancelled := CancellableT.checkCancelled
 
 def RequestCancellation.check [MonadCancellable m] : m Unit :=

@@ -7,6 +7,7 @@ Authors: Joscha Mennicken
 prelude
 import Lean.Data.Lsp.Internal
 import Lean.Server.Utils
+import Std.Data.TreeMap
 
 /-! # Representing collected and deduplicated definitions and usages -/
 
@@ -93,7 +94,7 @@ def toLspRefInfo (i : RefInfo) : BaseIO Lsp.RefInfo := do
 end RefInfo
 
 /-- All references from within a module for all identifiers used in a single module. -/
-def ModuleRefs := Std.HashMap RefIdent RefInfo
+abbrev ModuleRefs := Std.TreeMap RefIdent RefInfo
 
 namespace ModuleRefs
 
@@ -104,9 +105,10 @@ def addRef (self : ModuleRefs) (ref : Reference) : ModuleRefs :=
 
 /-- Converts `refs` to a JSON-serializable `Lsp.ModuleRefs`. -/
 def toLspModuleRefs (refs : ModuleRefs) : BaseIO Lsp.ModuleRefs := do
-  let refs ← refs.toList.mapM fun (k, v) => do
-    return (k, ← v.toLspRefInfo)
-  return Std.HashMap.ofList refs
+  let mut refs' := ∅
+  for (k, v) in refs do
+    refs' := refs'.insert k (← v.toLspRefInfo)
+  return refs'
 
 end ModuleRefs
 
@@ -163,14 +165,14 @@ def findAt
     (includeStop := false)
     : Array RefIdent := Id.run do
   let mut result := #[]
-  for (ident, info) in self.toArray do
+  for (ident, info) in self do
     if info.contains pos includeStop then
       result := result.push ident
   result
 
 /-- Finds the first range in `self` that contains `pos`. -/
 def findRange? (self : ModuleRefs) (pos : Lsp.Position) (includeStop := false) : Option Range := do
-  for (_, info) in self.toList do
+  for (_, info) in self do
     if let some loc := info.findReferenceLocation? pos includeStop then
       return loc.range
   none
@@ -206,9 +208,8 @@ end Ilean
 
 /-- Gets the name of the module that contains `declName`. -/
 def getModuleContainingDecl? (env : Environment) (declName : Name) : Option Name := do
-  if env.constants.map₂.contains declName then
-    return env.header.mainModule
-  let modIdx ← env.getModuleIdxFor? declName
+  let some modIdx := env.getModuleIdxFor? declName
+    | env.header.mainModule
   env.allImportedModuleNames[modIdx]?
 
 /--
@@ -261,7 +262,7 @@ all identifiers that are being collapsed into one.
 -/
 partial def combineIdents (trees : Array InfoTree) (refs : Array Reference) : Array Reference := Id.run do
   -- Deduplicate definitions based on their exact range
-  let mut posMap : Std.HashMap Lsp.Range RefIdent := Std.HashMap.empty
+  let mut posMap : Std.HashMap Lsp.Range RefIdent := ∅
   for ref in refs do
     if let { ident, range, isBinder := true, .. } := ref then
       posMap := posMap.insert range ident
@@ -288,12 +289,12 @@ where
 
     -- collect equivalence classes
     let mut classesById : Std.HashMap RefIdent (Std.HashSet RefIdent) := ∅
-    for ⟨id, baseId⟩ in idMap.toArray do
+    for ⟨id, baseId⟩ in idMap do
       classesById := insertIntoClass classesById id
       classesById := insertIntoClass classesById baseId
 
     let mut r := ∅
-    for ⟨currentRepresentative, «class»⟩ in classesById.toArray do
+    for ⟨currentRepresentative, «class»⟩ in classesById do
       -- find best representative (ideally a const if available)
       let mut bestRepresentative := currentRepresentative
       for id in «class» do
@@ -316,7 +317,7 @@ where
       canonicalRepresentative := idMap[canonicalRepresentative]
     return canonicalRepresentative
 
-  buildIdMap posMap := Id.run <| StateT.run' (s := Std.HashMap.empty) do
+  buildIdMap posMap := Id.run <| StateT.run' (s := ∅) do
     -- map fvar defs to overlapping fvar defs/uses
     for ref in refs do
       let baseId := ref.ident
@@ -346,7 +347,7 @@ are added to the `aliases` of the representative of the group.
 Yields to separate groups for declaration and usages if `allowSimultaneousBinderUse` is set.
 -/
 def dedupReferences (refs : Array Reference) (allowSimultaneousBinderUse := false) : Array Reference := Id.run do
-  let mut refsByIdAndRange : Std.HashMap (RefIdent × Option Bool × Lsp.Range) Reference := Std.HashMap.empty
+  let mut refsByIdAndRange : Std.HashMap (RefIdent × Option Bool × Lsp.Range) Reference := ∅
   for ref in refs do
     let isBinder := if allowSimultaneousBinderUse then some ref.isBinder else none
     let key := (ref.ident, isBinder, ref.range)
@@ -371,21 +372,29 @@ def findModuleRefs (text : FileMap) (trees : Array InfoTree) (localVars : Bool :
     refs := refs.filter fun
       | { ident := RefIdent.fvar .., .. } => false
       | _ => true
-  refs.foldl (init := Std.HashMap.empty) fun m ref => m.addRef ref
+  refs.foldl (init := Std.TreeMap.empty) fun m ref => m.addRef ref
 
 /-! # Collecting and maintaining reference info from different sources -/
+
+/-- Paths and module references for every module name. Loaded from `.ilean` files. -/
+abbrev ILeanMap := Std.TreeMap Name (System.FilePath × Lsp.ModuleRefs) Name.quickCmp
+/--
+Document versions and module references for every module name. Loaded from the current state
+in a file worker.
+-/
+abbrev WorkerRefMap := Std.TreeMap Name (Nat × Lsp.ModuleRefs) Name.quickCmp
 
 /-- References from ilean files and current ilean information from file workers. -/
 structure References where
   /-- References loaded from ilean files -/
-  ileans : Std.HashMap Name (System.FilePath × Lsp.ModuleRefs)
+  ileans : ILeanMap
   /-- References from workers, overriding the corresponding ilean files -/
-  workers : Std.HashMap Name (Nat × Lsp.ModuleRefs)
+  workers : WorkerRefMap
 
 namespace References
 
 /-- No ilean files, no information from workers. -/
-def empty : References := { ileans := Std.HashMap.empty, workers := Std.HashMap.empty }
+def empty : References := { ileans := ∅, workers := ∅ }
 
 /-- Adds the contents of an ilean file `ilean` at `path` to `self`. -/
 def addIlean (self : References) (path : System.FilePath) (ilean : Ilean) : References :=
@@ -393,9 +402,8 @@ def addIlean (self : References) (path : System.FilePath) (ilean : Ilean) : Refe
 
 /-- Removes the ilean file data at `path` from `self`. -/
 def removeIlean (self : References) (path : System.FilePath) : References :=
-  let namesToRemove := self.ileans.toList.filter (fun (_, p, _) => p == path)
-    |>.map (fun (n, _, _) => n)
-  namesToRemove.foldl (init := self) fun self name =>
+  let namesToRemove := self.ileans.filter (fun _ (p, _) => p == path)
+  namesToRemove.foldl (init := self) fun self name _ =>
     { self with ileans := self.ileans.erase name }
 
 /--
@@ -408,8 +416,8 @@ def updateWorkerRefs (self : References) (name : Name) (version : Nat) (refs : L
     if version > currVersion then
       return { self with workers := self.workers.insert name (version, refs) }
     if version == currVersion then
-      let current := self.workers.getD name (version, Std.HashMap.empty)
-      let merged := refs.fold (init := current.snd) fun m ident info =>
+      let current := self.workers.getD name (version, Std.TreeMap.empty)
+      let merged := refs.foldl (init := current.snd) fun m ident info =>
         m.getD ident Lsp.RefInfo.empty |>.merge info |> m.insert ident
       return { self with workers := self.workers.insert name (version, merged) }
   return self
@@ -428,10 +436,23 @@ def finalizeWorkerRefs (self : References) (name : Name) (version : Nat) (refs :
 def removeWorkerRefs (self : References) (name : Name) : References :=
   { self with workers := self.workers.erase name }
 
+/--
+All references for a module.
+The current references in a file worker take precedence over those in .ilean files.
+-/
+abbrev AllRefsMap := Std.TreeMap Name Lsp.ModuleRefs Name.quickCmp
+
 /-- Yields a map from all modules to all of their references. -/
-def allRefs (self : References) : Std.HashMap Name Lsp.ModuleRefs :=
-  let ileanRefs := self.ileans.toArray.foldl (init := Std.HashMap.empty) fun m (name, _, refs) => m.insert name refs
-  self.workers.toArray.foldl (init := ileanRefs) fun m (name, _, refs) => m.insert name refs
+def allRefs (self : References) : AllRefsMap :=
+  let ileanRefs := self.ileans.foldl (init := ∅) fun m name (_, refs) => m.insert name refs
+  self.workers.foldl (init := ileanRefs) fun m name (_, refs) => m.insert name refs
+
+/--
+Gets the references for `mod`.
+The current references in a file worker take precedence over those in .ilean files.
+-/
+def getModuleRefs? (self : References) (mod : Name) : Option Lsp.ModuleRefs :=
+  self.workers[mod]?.map (·.2) <|> self.ileans[mod]?.map (·.2)
 
 /--
 Yields all references in `self` for `ident`, as well as the `DocumentUri` that each
@@ -446,7 +467,7 @@ def allRefsFor
     | RefIdent.const .. => self.allRefs.toArray
     | RefIdent.fvar identModule .. =>
       let identModuleName := identModule.toName
-      match self.allRefs[identModuleName]? with
+      match self.getModuleRefs? identModuleName with
       | none => #[]
       | some refs => #[(identModuleName, refs)]
   let mut result := #[]
@@ -463,13 +484,13 @@ def allRefsFor
 
 /-- Yields all references in `module` at `pos`. -/
 def findAt (self : References) (module : Name) (pos : Lsp.Position) (includeStop := false) : Array RefIdent := Id.run do
-  if let some refs := self.allRefs[module]? then
+  if let some refs := self.getModuleRefs? module then
     return refs.findAt pos includeStop
   #[]
 
 /-- Yields the first reference in `module` at `pos`. -/
 def findRange? (self : References) (module : Name) (pos : Lsp.Position) (includeStop := false) : Option Range := do
-  let refs ← self.allRefs[module]?
+  let refs ← self.getModuleRefs? module
   refs.findRange? pos includeStop
 
 /-- Location and parent declaration of a reference. -/
@@ -514,11 +535,11 @@ def definitionsMatching
     (filter        : Name → Option α)
     (maxAmount?    : Option Nat := none) : IO $ Array (α × Location) := do
   let mut result := #[]
-  for (module, refs) in self.allRefs.toList do
+  for (module, refs) in self.allRefs do
     let some path ← srcSearchPath.findModuleWithExt "lean" module
       | continue
     let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
-    for (ident, info) in refs.toList do
+    for (ident, info) in refs do
       let (RefIdent.const _ nameString, some ⟨definitionRange, _⟩) := (ident, info.definition?)
         | continue
       let some a := filter nameString.toName

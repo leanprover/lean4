@@ -190,6 +190,26 @@ where
           return (x, toExpr <| UInt64.ofBitVec (h ▸ value.bv))
         else
           throwError m!"Value for UInt64 was not 64 bit but {value.w} bit"
+      | Int8.toBitVec x =>
+        if h : value.w = 8 then
+          return (x, toExpr <| Int8.ofBitVec (h ▸ value.bv))
+        else
+          throwError m!"Value for Int8 was not 8 bit but {value.w} bit"
+      | Int16.toBitVec x =>
+        if h : value.w = 16 then
+          return (x, toExpr <| Int16.ofBitVec (h ▸ value.bv))
+        else
+          throwError m!"Value for Int16 was not 16 bit but {value.w} bit"
+      | Int32.toBitVec x =>
+        if h : value.w = 32 then
+          return (x, toExpr <| Int32.ofBitVec (h ▸ value.bv))
+        else
+          throwError m!"Value for Int32 was not 32 bit but {value.w} bit"
+      | Int64.toBitVec x =>
+        if h : value.w = 64 then
+          return (x, toExpr <| Int64.ofBitVec (h ▸ value.bv))
+        else
+          throwError m!"Value for Int64 was not 64 bit but {value.w} bit"
       | _ =>
         match var with
         | .app (.const (.str p s) []) arg =>

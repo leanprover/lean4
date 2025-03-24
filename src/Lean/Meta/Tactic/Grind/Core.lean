@@ -38,7 +38,7 @@ where
     }
 
 /--
-Remove `root` parents from the congruence table.
+Removes `root` parents from the congruence table.
 This is an auxiliary function performed while merging equivalence classes.
 -/
 private def removeParents (root : Expr) : GoalM ParentSet := do
@@ -51,7 +51,7 @@ private def removeParents (root : Expr) : GoalM ParentSet := do
   return parents
 
 /--
-Reinsert parents into the congruence table and detect new equalities.
+Reinserts parents into the congruence table and detect new equalities.
 This is an auxiliary function performed while merging equivalence classes.
 -/
 private def reinsertParents (parents : ParentSet) : GoalM Unit := do
@@ -90,16 +90,16 @@ private partial def updateMT (root : Expr) : GoalM Unit := do
       updateMT parent
 
 /--
-Helper function for combining `ENode.offset?` fields and propagating an equality
+Helper function for combining `ENode.offset?` fields and propagating equalities
 to the offset constraint module.
 -/
 private def propagateOffsetEq (rhsRoot lhsRoot : ENode) : GoalM Unit := do
   match lhsRoot.offset? with
   | some lhsOffset =>
     if let some rhsOffset := rhsRoot.offset? then
-      Arith.processNewOffsetEq lhsOffset rhsOffset
+      Arith.Offset.processNewEq lhsOffset rhsOffset
     else if isNatNum rhsRoot.self then
-      Arith.processNewOffsetEqLit lhsOffset rhsRoot.self
+      Arith.Offset.processNewEqLit lhsOffset rhsRoot.self
     else
       -- We have to retrieve the node because other fields have been updated
       let rhsRoot ← getENode rhsRoot.self
@@ -107,7 +107,36 @@ private def propagateOffsetEq (rhsRoot lhsRoot : ENode) : GoalM Unit := do
   | none =>
     if isNatNum lhsRoot.self then
     if let some rhsOffset := rhsRoot.offset? then
-      Arith.processNewOffsetEqLit rhsOffset lhsRoot.self
+      Arith.Offset.processNewEqLit rhsOffset lhsRoot.self
+
+/--
+Helper function for combining `ENode.cutsat?` fields and propagating equalities
+to the offset constraint module.
+It returns a set of parents that should be traversed for disequality propagation.
+-/
+private def propagateCutsatEq (rhsRoot lhsRoot : ENode) : GoalM ParentSet := do
+  match lhsRoot.cutsat? with
+  | some lhsCutsat =>
+    if let some rhsCutsat := rhsRoot.cutsat? then
+      Arith.Cutsat.processNewEq lhsCutsat rhsCutsat
+      return {}
+    else if isNum rhsRoot.self then
+      Arith.Cutsat.processNewEqLit lhsCutsat rhsRoot.self
+      return {}
+    else
+      -- We have to retrieve the node because other fields have been updated
+      let rhsRoot ← getENode rhsRoot.self
+      setENode rhsRoot.self { rhsRoot with cutsat? := lhsCutsat }
+      getParents rhsRoot.self
+  | none =>
+    if let some rhsCutsat := rhsRoot.cutsat? then
+      if isNum lhsRoot.self then
+        Arith.Cutsat.processNewEqLit rhsCutsat lhsRoot.self
+        return {}
+      else
+        getParents lhsRoot.self
+    else
+      return {}
 
 /--
 Tries to apply beta-reductiong using the parent applications of the functions in `fns` with
@@ -193,7 +222,13 @@ where
     updateRoots lhs rhsNode.root
     trace_goal[grind.debug] "{← ppENodeRef lhs} new root {← ppENodeRef rhsNode.root}, {← ppENodeRef (← getRoot lhs)}"
     reinsertParents parents
-    propagateEqcDown lhs
+    /-
+    Remark: we used to `propagateDown` here, but this was problematic
+    because it limits what the propagator can do because several invariants do not
+    hold until we complete all updates.
+    -/
+    -- TODO: improve performance: we only need to collect terms that may propagate.
+    let toPropagateDown ← getEqc lhs
     setENode lhsNode.root { (← getENode lhsRoot.self) with -- We must retrieve `lhsRoot` since it was updated.
       next := rhsRoot.next
     }
@@ -205,49 +240,37 @@ where
     }
     propagateBeta lams₁ fns₁
     propagateBeta lams₂ fns₂
+    propagateOffsetEq rhsRoot lhsRoot
+    let parentsToPropagateDiseqs ← propagateCutsatEq rhsRoot lhsRoot
     resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
       updateMT rhsRoot.self
-    propagateOffsetEq rhsRoot lhsRoot
     unless (← isInconsistent) do
       for parent in parents do
         propagateUp parent
+      for e in toPropagateDown do
+        propagateDown e
+      propagateCutsatDiseqs parentsToPropagateDiseqs
 
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
     traverseEqc lhs fun n =>
       setENode n.self { n with root := rootNew }
 
-  propagateEqcDown (lhs : Expr) : GoalM Unit := do
-    traverseEqc lhs fun n =>
-      unless (← isInconsistent) do
-        propagateDown n.self
-
 /-- Ensures collection of equations to be processed is empty. -/
-private def resetNewEqs : GoalM Unit :=
-  modify fun s => { s with newEqs := #[] }
+private def resetNewFacts : GoalM Unit :=
+  modify fun s => { s with newFacts := #[] }
 
 /-- Pops and returns the next equality to be processed. -/
-private def popNextEq? : GoalM (Option NewEq) := do
-  let r := (← get).newEqs.back?
+private def popNextFact? : GoalM (Option NewFact) := do
+  let r := (← get).newFacts.back?
   if r.isSome then
-    modify fun s => { s with newEqs := s.newEqs.pop }
+    modify fun s => { s with newFacts := s.newFacts.pop }
   return r
-
-@[export lean_grind_process_new_eqs]
-private def processNewEqsImpl : GoalM Unit := do
-  repeat
-    if (← isInconsistent) then
-      resetNewEqs
-      return ()
-    checkSystem "grind"
-    let some { lhs, rhs, proof, isHEq } := (← popNextEq?)
-      | return ()
-    addEqStep lhs rhs proof isHEq
 
 private def addEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   addEqStep lhs rhs proof isHEq
-  processNewEqsImpl
+  processNewFacts
 
 /-- Adds a new equality `lhs = rhs`. It assumes `lhs` and `rhs` have already been internalized. -/
 private def addEq (lhs rhs proof : Expr) : GoalM Unit := do
@@ -269,13 +292,9 @@ def addNewEq (lhs rhs proof : Expr) (generation : Nat) : GoalM Unit := do
   internalize rhs generation eq
   addEq lhs rhs proof
 
-/-- Adds a new `fact` justified by the given proof and using the given generation. -/
-def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
-  if fact.isTrue then return ()
+private def addFactStep (fact : Expr) (proof : Expr) (generation : Nat) : GoalM Unit := do
   storeFact fact
   trace_goal[grind.assert] "{fact}"
-  if (← isInconsistent) then return ()
-  resetNewEqs
   let_expr Not p := fact
     | go fact false
   go p true
@@ -307,6 +326,26 @@ where
       internalize lhs generation p
       internalize rhs generation p
       addEqCore lhs rhs proof isHEq
+
+@[export lean_grind_process_new_facts]
+private def processNewFactsImpl : GoalM Unit := do
+  repeat
+    if (← isInconsistent) then
+      resetNewFacts
+      return ()
+    checkSystem "grind"
+    let some next := (← popNextFact?)
+      | return ()
+    match next with
+    | .eq lhs rhs proof isHEq => addEqStep lhs rhs proof isHEq
+    | .fact prop proof gen => addFactStep prop proof gen
+
+/-- Adds a new `fact` justified by the given proof and using the given generation. -/
+def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
+  if fact.isTrue then return ()
+  if (← isInconsistent) then return ()
+  resetNewFacts
+  addFactStep fact proof generation
 
 /-- Adds a new hypothesis. -/
 def addHypothesis (fvarId : FVarId) (generation := 0) : GoalM Unit := do

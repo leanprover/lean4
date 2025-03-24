@@ -10,6 +10,7 @@ import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Apply
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Eqns
+import Lean.Elab.PreDefinition.FixedParams
 import Lean.Elab.PreDefinition.Structural.Basic
 
 namespace Lean.Elab
@@ -21,7 +22,7 @@ namespace Structural
 structure EqnInfo extends EqnInfoCore where
   recArgPos : Nat
   declNames : Array Name
-  numFixed  : Nat
+  fixedParamPerms : FixedParamPerms
   deriving Inhabited
 
 private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
@@ -74,21 +75,26 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
     trace[Elab.definition.structural.eqns] "eqnType {i}: {type}"
     let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
+    -- determinism: `type` should be independent of the environment changes since `baseName` was
+    -- added
+    realizeConst baseName name (doRealize name type)
+  return thmNames
+where
+  doRealize name type := withOptions (tactic.hygienic.set · false) do
     let value ← mkProof info.declName type
     let (type, value) ← removeUnusedEqnHypotheses type value
     addDecl <| Declaration.thmDecl {
       name, type, value
       levelParams := info.levelParams
     }
-  return thmNames
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
 def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (recArgPos : Nat)
-    (numFixed : Nat) : CoreM Unit := do
+    (fixedParamPerms : FixedParamPerms) : CoreM Unit := do
   ensureEqnReservedNamesAvailable preDef.declName
   modifyEnv fun env => eqnInfoExt.insert env preDef.declName
-    { preDef with recArgPos, declNames, numFixed }
+    { preDef with recArgPos, declNames, fixedParamPerms }
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then

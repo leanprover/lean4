@@ -35,7 +35,7 @@ section arithmetic
 Addition for bit vectors. This can be interpreted as either signed or unsigned addition
 modulo `2^n`.
 
-SMT-Lib name: `bvadd`.
+SMT-LIB name: `bvadd`.
 -/
 protected def add (x y : BitVec n) : BitVec n := .ofNat n (x.toNat + y.toNat)
 instance : Add (BitVec n) := ⟨BitVec.add⟩

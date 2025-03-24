@@ -66,9 +66,6 @@ abbrev SpawnM := FetchT <| ReaderT BuildTrace <| BaseIO
 
 instance : MonadLift SpawnM JobM := ⟨JobM.runSpawnM⟩
 
-/-- The monad used to spawn asynchronous Lake build jobs. **Replaced by `SpawnM`.** -/
-@[deprecated SpawnM (since := "2024-05-21")] abbrev SchedulerM := SpawnM
-
 /--
 Run a `JobM` action in `FetchM`.
 
@@ -110,8 +107,8 @@ namespace Job
 
 /-- Spawn a job that asynchronously performs `act`. -/
 @[inline] protected def async
-  (act : JobM α) (prio := Task.Priority.default)
-: SpawnM (Job α) := fun fetch stack store ctx => .ofTask <$> do
+  (act : JobM α) (prio := Task.Priority.default) (caption := "")
+: SpawnM (Job α) := fun fetch stack store ctx => .ofTask (caption := caption) <$> do
   BaseIO.asTask (prio := prio) do (withLoggedIO act) fetch stack store ctx {}
 
 /-- Wait a the job to complete and return the result. -/

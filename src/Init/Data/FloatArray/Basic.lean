@@ -17,11 +17,14 @@ attribute [extern "lean_float_array_data"] FloatArray.data
 
 namespace FloatArray
 @[extern "lean_mk_empty_float_array"]
-def mkEmpty (c : @& Nat) : FloatArray :=
+def emptyWithCapacity (c : @& Nat) : FloatArray :=
   { data := #[] }
 
+@[deprecated emptyWithCapacity (since := "2025-03-12")]
+abbrev mkEmpty := emptyWithCapacity
+
 def empty : FloatArray :=
-  mkEmpty 0
+  emptyWithCapacity 0
 
 instance : Inhabited FloatArray where
   default := empty
@@ -164,6 +167,9 @@ def foldl {β : Type v} (f : β → Float → β) (init : β) (as : FloatArray) 
 
 end FloatArray
 
+/--
+Converts a list of floats into a `FloatArray`.
+-/
 def List.toFloatArray (ds : List Float) : FloatArray :=
   let rec loop
     | [],    r => r

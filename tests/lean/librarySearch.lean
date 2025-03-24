@@ -49,7 +49,7 @@ example : x < x + 1 := exact?%
 #guard_msgs in
 example {α : Sort u} (x y : α) : Eq x y := exact?%
 
-/-- error: `exact?%` could not close the goal. Try `by apply` to see partial suggestions. -/
+/-- error: `exact?%` could not close the goal. Try `by apply?` to see partial suggestions. -/
 #guard_msgs in
 example (x y : Nat) : x ≤ y := exact?%
 

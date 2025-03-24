@@ -13,8 +13,8 @@ import Init.Control.Lawful.Lemmas
 # Lemmas about `Vector.forIn'` and `Vector.forIn`.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Vector
 
@@ -28,6 +28,12 @@ open Nat
   _root_.map_inj_right (by simp)
 
 /-! ### mapM -/
+
+@[simp]
+theorem mapM_pure [Monad m] [LawfulMonad m] {xs : Vector α n} (f : α → β) :
+    xs.mapM (m := m) (pure <| f ·) = pure (xs.map f) := by
+  apply map_toArray_inj.mp
+  simp
 
 @[congr] theorem mapM_congr [Monad m] {xs ys : Vector α n} (w : xs = ys)
     {f : α → m β} :
@@ -153,7 +159,7 @@ theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
   rcases xs with ⟨xs, rfl⟩
   simp
 
-theorem forIn'_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
+@[simp] theorem forIn'_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
     (xs : Vector α n) (f : (a : α) → a ∈ xs → β → β) (init : β) :
     forIn' xs init (fun a m b => pure (.yield (f a m b))) =
       pure (f := m) (xs.attach.foldl (fun b ⟨a, h⟩ => f a h b) init) := by
@@ -195,7 +201,7 @@ theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
   rcases xs with ⟨xs, rfl⟩
   simp
 
-theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
+@[simp] theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
     (xs : Vector α n) (f : α → β → β) (init : β) :
     forIn xs init (fun a b => pure (.yield (f a b))) =
       pure (f := m) (xs.foldl (fun b a => f a b) init) := by
@@ -213,6 +219,32 @@ theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
     (xs : Vector α n) (g : α → β) (f : β → γ → m (ForInStep γ)) :
     forIn (xs.map g) init f = forIn xs init fun a y => f (g a) y := by
   rcases xs with ⟨xs, rfl⟩
+  simp
+
+
+/-! ### allM and anyM -/
+
+@[simp] theorem anyM_pure [Monad m] [LawfulMonad m] (p : α → Bool) (xs : Vector α n) :
+    xs.anyM (m := m) (pure <| p ·) = pure (xs.any p) := by
+  cases xs
+  simp
+
+@[simp] theorem allM_pure [Monad m] [LawfulMonad m] (p : α → Bool) (xs : Vector α n) :
+    xs.allM (m := m) (pure <| p ·) = pure (xs.all p) := by
+  cases xs
+  simp
+
+/-! ### findM? and findSomeM? -/
+
+theorem findM?_pure {m} [Monad m] [LawfulMonad m] (p : α → Bool) (xs : Vector α n) :
+    findM? (m := m) (pure <| p ·) xs = pure (xs.find? p) := by
+  cases xs
+  simp
+
+@[simp]
+theorem findSomeM?_pure [Monad m] [LawfulMonad m] (f : α → Option β) (xs : Vector α n) :
+    findSomeM? (m := m) (pure <| f ·) xs = pure (xs.findSome? f) := by
+  cases xs
   simp
 
 end Vector

@@ -14,7 +14,7 @@ This file develops the type `Std.DTreeMap` of dependent tree maps.
 Lemmas about the operations on `Std.DTreeMap` will be available in the
 module `Std.Data.DTreeMap.Lemmas`.
 
-See the module `Std.Data.DTreeMap.Raw` for a variant of this type which is safe to use in
+See the module `Std.Data.DTreeMap.Raw.Basic` for a variant of this type which is safe to use in
 nested inductive types.
 -/
 
@@ -102,7 +102,7 @@ instance : Insert ((a : α) × β a) (DTreeMap α β cmp) where
   insert e s := s.insert e.1 e.2
 
 instance : LawfulSingleton ((a : α) × β a) (DTreeMap α β cmp) where
-  insert_emptyc_eq _ := rfl
+  insert_empty_eq _ := rfl
 
 /--
 If there is no mapping for the given key, inserts the given mapping into the map. Otherwise,
@@ -273,62 +273,94 @@ Tries to retrieve the key-value pair with the smallest key in the tree map, retu
 map is empty.
 -/
 @[inline]
+def minEntry? (t : DTreeMap α β cmp) : Option ((a : α) × β a) :=
+  letI : Ord α := ⟨cmp⟩; t.inner.minEntry?
+
+@[inline, inherit_doc minEntry?, deprecated minEntry? (since := "2025-03-13")]
 def min? (t : DTreeMap α β cmp) : Option ((a : α) × β a) :=
-  letI : Ord α := ⟨cmp⟩; t.inner.min?
+  t.minEntry?
 
 /--
 Given a proof that the tree map is not empty, retrieves the key-value pair with the smallest key.
 -/
 @[inline]
+def minEntry (t : DTreeMap α β cmp) (h : t.isEmpty = false) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.minEntry h
+
+@[inline, inherit_doc minEntry, deprecated minEntry (since := "2025-03-13")]
 def min (t : DTreeMap α β cmp) (h : t.isEmpty = false) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; t.inner.min h
+  t.minEntry h
 
 /--
 Tries to retrieve the key-value pair with the smallest key in the tree map, panicking if the map is
 empty.
 -/
 @[inline]
+def minEntry! [Inhabited ((a : α) × β a)] (t : DTreeMap α β cmp) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.minEntry!
+
+@[inline, inherit_doc minEntry!, deprecated minEntry! (since := "2025-03-13")]
 def min! [Inhabited ((a : α) × β a)] (t : DTreeMap α β cmp) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; t.inner.min!
+  t.minEntry!
 
 /--
 Tries to retrieve the key-value pair with the smallest key in the tree map, returning `fallback` if
 the tree map is empty.
 -/
 @[inline]
+def minEntryD (t : DTreeMap α β cmp) (fallback : (a : α) × β a) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.minEntryD fallback
+
+@[inline, inherit_doc minEntryD, deprecated minEntryD (since := "2025-03-13")]
 def minD (t : DTreeMap α β cmp) (fallback : (a : α) × β a) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; t.inner.minD fallback
+  t.minEntryD fallback
 
 /--
 Tries to retrieve the key-value pair with the largest key in the tree map, returning `none` if the
 map is empty.
 -/
 @[inline]
+def maxEntry? (t : DTreeMap α β cmp) : Option ((a : α) × β a) :=
+  letI : Ord α := ⟨cmp⟩; t.inner.maxEntry?
+
+@[inline, inherit_doc maxEntry?, deprecated maxEntry? (since := "2025-03-13")]
 def max? (t : DTreeMap α β cmp) : Option ((a : α) × β a) :=
-  letI : Ord α := ⟨cmp⟩; t.inner.max?
+  t.maxEntry?
 
 /--
 Given a proof that the tree map is not empty, retrieves the key-value pair with the largest key.
 -/
 @[inline]
+def maxEntry (t : DTreeMap α β cmp) (h : t.isEmpty = false) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.maxEntry h
+
+@[inline, inherit_doc maxEntry, deprecated maxEntry (since := "2025-03-13")]
 def max (t : DTreeMap α β cmp) (h : t.isEmpty = false) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; t.inner.max h
+  t.maxEntry h
 
 /--
 Tries to retrieve the key-value pair with the largest key in the tree map, panicking if the map is
 empty.
 -/
 @[inline]
+def maxEntry! [Inhabited ((a : α) × β a)] (t : DTreeMap α β cmp) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.maxEntry!
+
+@[inline, inherit_doc maxEntry!, deprecated maxEntry! (since := "2025-03-13")]
 def max! [Inhabited ((a : α) × β a)] (t : DTreeMap α β cmp) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; t.inner.max!
+  t.maxEntry!
 
 /--
 Tries to retrieve the key-value pair with the largest key in the tree map, returning `fallback` if
 the tree map is empty.
 -/
 @[inline]
+def maxEntryD (t : DTreeMap α β cmp) (fallback : (a : α) × β a) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.maxEntryD fallback
+
+@[inline, inherit_doc maxEntryD, deprecated maxEntryD (since := "2025-03-13")]
 def maxD (t : DTreeMap α β cmp) (fallback : (a : α) × β a) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; t.inner.maxD fallback
+  t.maxEntryD fallback
 
 /--
 Tries to retrieve the smallest key in the tree map, returning `none` if the map is empty.
@@ -629,12 +661,12 @@ variable {β : Type v}
 def getThenInsertIfNew? (t : DTreeMap α β cmp) (a : α) (b : β) :
     Option β × DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
-  let p := Impl.Const.getThenInsertIfNew? a b t.inner t.wf.balanced
+  let p := Impl.Const.getThenInsertIfNew? t.inner a b t.wf.balanced
   (p.1, ⟨p.2, t.wf.constGetThenInsertIfNew?⟩)
 
 @[inline, inherit_doc DTreeMap.get?]
 def get? (t : DTreeMap α β cmp) (a : α) : Option β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.get? a t.inner
+  letI : Ord α := ⟨cmp⟩; Impl.Const.get? t.inner a
 
 @[inline, inherit_doc get?, deprecated get? (since := "2025-02-12")]
 def find? (t : DTreeMap α β cmp) (a : α) : Option β :=
@@ -642,11 +674,11 @@ def find? (t : DTreeMap α β cmp) (a : α) : Option β :=
 
 @[inline, inherit_doc DTreeMap.get]
 def get (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.get a t.inner h
+  letI : Ord α := ⟨cmp⟩; Impl.Const.get t.inner a h
 
 @[inline, inherit_doc DTreeMap.get!]
 def get! (t : DTreeMap α β cmp) (a : α) [Inhabited β] : β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.get! a t.inner
+  letI : Ord α := ⟨cmp⟩; Impl.Const.get! t.inner a
 
 @[inline, inherit_doc get!, deprecated get! (since := "2025-02-12")]
 def find! (t : DTreeMap α β cmp) (a : α) [Inhabited β] : β :=
@@ -654,43 +686,75 @@ def find! (t : DTreeMap α β cmp) (a : α) [Inhabited β] : β :=
 
 @[inline, inherit_doc DTreeMap.getD]
 def getD (t : DTreeMap α β cmp) (a : α) (fallback : β) : β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.getD a t.inner fallback
+  letI : Ord α := ⟨cmp⟩; Impl.Const.getD t.inner a fallback
 
 @[inline, inherit_doc getD, deprecated getD (since := "2025-02-12")]
 def findD (t : DTreeMap α β cmp) (a : α) (fallback : β) : β :=
   getD t a fallback
 
-@[inline, inherit_doc DTreeMap.min?]
+@[inline, inherit_doc DTreeMap.minEntry?]
+def minEntry? (t : DTreeMap α β cmp) : Option (α × β) :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.minEntry? t.inner
+
+@[inline, inherit_doc minEntry?, deprecated minEntry? (since := "2025-03-13")]
 def min? (t : DTreeMap α β cmp) : Option (α × β) :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.min? t.inner
+  minEntry? t
 
-@[inline, inherit_doc DTreeMap.min]
+@[inline, inherit_doc DTreeMap.minEntry]
+def minEntry (t : DTreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.minEntry t.inner h
+
+@[inline, inherit_doc minEntry, deprecated minEntry (since := "2025-03-13")]
 def min (t : DTreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.min t.inner h
+  minEntry t h
 
-@[inline, inherit_doc DTreeMap.min!]
+@[inline, inherit_doc DTreeMap.minEntry!]
+def minEntry! [Inhabited (α × β)] (t : DTreeMap α β cmp) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.minEntry! t.inner
+
+@[inline, inherit_doc minEntry!, deprecated minEntry! (since := "2025-03-13")]
 def min! [Inhabited (α × β)] (t : DTreeMap α β cmp) : α × β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.min! t.inner
+  minEntry! t
 
-@[inline, inherit_doc DTreeMap.minD]
+@[inline, inherit_doc DTreeMap.minEntryD]
+def minEntryD (t : DTreeMap α β cmp) (fallback : α × β) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.minEntryD t.inner fallback
+
+@[inline, inherit_doc minEntryD, deprecated minEntryD (since := "2025-03-13")]
 def minD (t : DTreeMap α β cmp) (fallback : α × β) : α × β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.minD t.inner fallback
+  minEntryD t fallback
 
-@[inline, inherit_doc DTreeMap.max?]
+@[inline, inherit_doc DTreeMap.maxEntry?]
+def maxEntry? (t : DTreeMap α β cmp) : Option (α × β) :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.maxEntry? t.inner
+
+@[inline, inherit_doc maxEntry?, deprecated maxEntry? (since := "2025-03-13")]
 def max? (t : DTreeMap α β cmp) : Option (α × β) :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.max? t.inner
+  maxEntry? t
 
-@[inline, inherit_doc DTreeMap.max]
+@[inline, inherit_doc DTreeMap.maxEntry]
+def maxEntry (t : DTreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.maxEntry t.inner h
+
+@[inline, inherit_doc maxEntry, deprecated maxEntry (since := "2025-03-13")]
 def max (t : DTreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.max t.inner h
+  maxEntry t h
 
-@[inline, inherit_doc DTreeMap.max!]
+@[inline, inherit_doc DTreeMap.maxEntry!]
+def maxEntry! [Inhabited (α × β)] (t : DTreeMap α β cmp) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.maxEntry! t.inner
+
+@[inline, inherit_doc maxEntry!, deprecated maxEntry! (since := "2025-03-13")]
 def max! [Inhabited (α × β)] (t : DTreeMap α β cmp) : α × β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.max! t.inner
+  maxEntry! t
 
-@[inline, inherit_doc DTreeMap.maxD]
+@[inline, inherit_doc DTreeMap.maxEntryD]
+def maxEntryD (t : DTreeMap α β cmp) (fallback : α × β) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.maxEntryD t.inner fallback
+
+@[inline, inherit_doc maxEntryD, deprecated maxEntryD (since := "2025-03-13")]
 def maxD (t : DTreeMap α β cmp) (fallback : α × β) : α × β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.maxD t.inner fallback
+  maxEntryD t fallback
 
 @[inline, inherit_doc DTreeMap.entryAtIdx?]
 def entryAtIdx? (t : DTreeMap α β cmp) (n : Nat) : Option (α × β) :=
@@ -791,17 +855,17 @@ def fold (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β c
 
 /-- Folds the given monadic function over the mappings in the map in descending order. -/
 @[inline]
-def foldrM (f : δ → (a : α) → β a → m δ) (init : δ) (t : DTreeMap α β cmp) : m δ :=
+def foldrM (f : (a : α) → β a → δ → m δ) (init : δ) (t : DTreeMap α β cmp) : m δ :=
   t.inner.foldrM f init
 
 /-- Folds the given function over the mappings in the map in descending order. -/
 @[inline]
-def foldr (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
+def foldr (f : (a : α) → β a → δ → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
   t.inner.foldr f init
 
 @[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
 def revFold (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
-  foldr f init t
+  foldr (fun k v acc => f acc k v) init t
 
 /-- Partitions a tree map into two tree maps based on a predicate. -/
 @[inline] def partition (f : (a : α) → β a → Bool)
@@ -820,13 +884,33 @@ def forM (f : (a : α) → β a → m PUnit) (t : DTreeMap α β cmp) : m PUnit 
 /-- Support for the `for` loop construct in `do` blocks. Iteration happens in ascending order. -/
 @[inline]
 def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (t : DTreeMap α β cmp) : m δ :=
-  t.inner.forIn (fun c a b => f a b c) init
+  t.inner.forIn f init
 
 instance : ForM m (DTreeMap α β cmp) ((a : α) × β a) where
   forM t f := t.forM (fun a b => f ⟨a, b⟩)
 
 instance : ForIn m (DTreeMap α β cmp) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
+
+namespace Const
+
+variable {β : Type v}
+
+/-!
+We do not define `ForM` and `ForIn` instances that are specialized to constant `β`. Instead, we
+define uncurried versions of `forM` and `forIn` that will be used in the `Const` lemmas and to
+define the `ForM` and `ForIn` instances for `DTreeMap`.
+-/
+
+@[inline, inherit_doc DTreeMap.forM]
+def forMUncurried (f : α × β → m PUnit) (t : DTreeMap α β cmp) : m PUnit :=
+  t.inner.forM fun a b => f ⟨a, b⟩
+
+@[inline, inherit_doc DTreeMap.forIn]
+def forInUncurried (f : α × β → δ → m (ForInStep δ)) (init : δ) (t : DTreeMap α β cmp) : m δ :=
+  t.inner.forIn (fun a b acc => f ⟨a, b⟩ acc) init
+
+end Const
 
 /-- Check if any element satisfes the predicate, short-circuiting if a predicate fails. -/
 @[inline]

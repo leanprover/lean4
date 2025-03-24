@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.FoldConsts
-// Imports: Lean.Expr Lean.Environment
+// Imports: Lean.Expr Lean.Util.PtrSet Lean.Declaration
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,7 +17,6 @@ static lean_object* l_Lean_ConstantInfo_getUsedConstantsAsSet___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Expr_getUsedConstantsAsSet(lean_object*);
 static lean_object* l_Lean_Expr_FoldConstsImpl_foldUnsafe___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_RBTree_ofList___at_Lean_ConstantInfo_getUsedConstantsAsSet___spec__1(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_getMaxHeight___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at_Lean_Expr_FoldConstsImpl_fold_visit___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
@@ -30,7 +29,6 @@ uint8_t l_Lean_NameHashSet_contains(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_getUsedConstantsAsSet(lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FoldConstsImpl_fold(lean_object*);
-lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_nextPowerOfTwo_go(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_getUsedConstants___closed__2;
@@ -38,13 +36,11 @@ lean_object* l_Lean_NameSet_append___lambda__1___boxed(lean_object*, lean_object
 lean_object* l_Lean_ConstantInfo_value_x3f(lean_object*, uint8_t);
 size_t lean_ptr_addr(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_getMaxHeight(lean_object*, lean_object*);
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Expr_getUsedConstants___lambda__1(lean_object*, lean_object*);
 uint64_t lean_usize_to_uint64(size_t);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_getMaxHeight___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_FoldConstsImpl_fold_visit___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkPtrSet___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Expr_FoldConstsImpl_fold_visit___spec__4(lean_object*, lean_object*, lean_object*);
@@ -69,10 +65,8 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FoldConstsImpl_foldUnsafe(lean_object*);
 lean_object* l_Lean_NameHashSet_insert(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FoldConstsImpl_fold_visit___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint32_t l_Lean_getMaxHeight___lambda__1(lean_object*, lean_object*, uint32_t);
 size_t lean_usize_sub(size_t, size_t);
 lean_object* lean_array_mk(lean_object*);
-uint8_t lean_uint32_dec_lt(uint32_t, uint32_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_getUsedConstants(lean_object*);
@@ -1093,96 +1087,9 @@ return x_41;
 }
 }
 }
-LEAN_EXPORT uint32_t l_Lean_getMaxHeight___lambda__1(lean_object* x_1, lean_object* x_2, uint32_t x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Environment_find_x3f(x_1, x_2);
-if (lean_obj_tag(x_4) == 0)
-{
-return x_3;
-}
-else
-{
-lean_object* x_5; 
-x_5 = lean_ctor_get(x_4, 0);
-lean_inc(x_5);
-lean_dec(x_4);
-if (lean_obj_tag(x_5) == 1)
-{
-lean_object* x_6; lean_object* x_7; 
-x_6 = lean_ctor_get(x_5, 0);
-lean_inc(x_6);
-lean_dec(x_5);
-x_7 = lean_ctor_get(x_6, 2);
-lean_inc(x_7);
-lean_dec(x_6);
-if (lean_obj_tag(x_7) == 2)
-{
-uint32_t x_8; uint8_t x_9; 
-x_8 = lean_ctor_get_uint32(x_7, 0);
-lean_dec(x_7);
-x_9 = lean_uint32_dec_lt(x_3, x_8);
-if (x_9 == 0)
-{
-return x_3;
-}
-else
-{
-return x_8;
-}
-}
-else
-{
-lean_dec(x_7);
-return x_3;
-}
-}
-else
-{
-lean_dec(x_5);
-return x_3;
-}
-}
-}
-}
-static lean_object* _init_l_Lean_getMaxHeight___boxed__const__1() {
-_start:
-{
-uint32_t x_1; lean_object* x_2; 
-x_1 = 0;
-x_2 = lean_box_uint32(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_getMaxHeight(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = lean_alloc_closure((void*)(l_Lean_getMaxHeight___lambda__1___boxed), 3, 1);
-lean_closure_set(x_3, 0, x_1);
-x_4 = l_Lean_Expr_FoldConstsImpl_foldUnsafe___rarg___closed__5;
-x_5 = l_Lean_getMaxHeight___boxed__const__1;
-x_6 = l_Lean_Expr_FoldConstsImpl_fold_visit___rarg(x_3, x_2, x_5, x_4);
-x_7 = lean_ctor_get(x_6, 0);
-lean_inc(x_7);
-lean_dec(x_6);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_getMaxHeight___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint32_t x_4; uint32_t x_5; lean_object* x_6; 
-x_4 = lean_unbox_uint32(x_3);
-lean_dec(x_3);
-x_5 = l_Lean_getMaxHeight___lambda__1(x_1, x_2, x_4);
-x_6 = lean_box_uint32(x_5);
-return x_6;
-}
-}
 lean_object* initialize_Lean_Expr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Environment(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Util_PtrSet(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Declaration(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Util_FoldConsts(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1191,7 +1098,10 @@ _G_initialized = true;
 res = initialize_Lean_Expr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Environment(builtin, lean_io_mk_world());
+res = initialize_Lean_Util_PtrSet(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Declaration(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Expr_FoldConstsImpl_foldUnsafe___rarg___closed__1 = _init_l_Lean_Expr_FoldConstsImpl_foldUnsafe___rarg___closed__1();
@@ -1214,8 +1124,6 @@ l_Lean_ConstantInfo_getUsedConstantsAsSet___closed__1 = _init_l_Lean_ConstantInf
 lean_mark_persistent(l_Lean_ConstantInfo_getUsedConstantsAsSet___closed__1);
 l_Lean_ConstantInfo_getUsedConstantsAsSet___closed__2 = _init_l_Lean_ConstantInfo_getUsedConstantsAsSet___closed__2();
 lean_mark_persistent(l_Lean_ConstantInfo_getUsedConstantsAsSet___closed__2);
-l_Lean_getMaxHeight___boxed__const__1 = _init_l_Lean_getMaxHeight___boxed__const__1();
-lean_mark_persistent(l_Lean_getMaxHeight___boxed__const__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

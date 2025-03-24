@@ -65,7 +65,12 @@ def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
   let oJobs ← mods.flatMapM fun mod =>
     mod.nativeFacets shouldExport |>.mapM fun facet => fetch <| mod.facet facet.name
   let libFile := if shouldExport then self.staticExportLibFile else self.staticLibFile
-  buildStaticLib libFile oJobs
+  /-
+  Static libraries with explicit exports are built as thin libraries.
+  The Lean build itself requires a thin static library with exported symbols
+  as part of its build process on Windows. It does not distribute this library.
+  -/
+  buildStaticLib libFile oJobs (thin := shouldExport)
 
 /-- The `LibraryFacetConfig` for the builtin `staticFacet`. -/
 def LeanLib.staticFacetConfig : LibraryFacetConfig staticFacet :=

@@ -19,7 +19,7 @@ error: `grind` failed
 case grind
 h : ¬Even 16
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] ¬Even 16
     [prop] Even 14 → Even 16
@@ -41,7 +41,7 @@ h : ¬Even 16
   [limits] Thresholds reached
     [limit] maximum number of E-matching rounds has been reached, threshold: `(ematch := 5)`
     [limit] maximum term generation has been reached, threshold: `(gen := 5)`
-[grind] Counters
+[grind] Diagnostics
   [thm] E-Matching instances
     [thm] Even.plus_two ↦ 5
 -/

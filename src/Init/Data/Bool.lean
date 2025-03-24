@@ -9,7 +9,19 @@ import Init.NotationExtra
 
 namespace Bool
 
-/-- Boolean exclusive or -/
+/--
+Boolean “exclusive or”. `xor x y` can be written `x ^^ y`.
+
+`x ^^ y` is `true` when precisely one of `x` or `y` is `true`. Unlike `and` and `or`, it does not
+have short-circuiting behavior, because one argument's value never determines the final value. Also
+unlike `and` and `or`, there is no commonly-used corresponding propositional connective.
+
+Examples:
+ * `false ^^ false = false`
+ * `true ^^ false = true`
+ * `false ^^ true = true`
+ * `true ^^ true = false`
+-/
 abbrev xor : Bool → Bool → Bool := bne
 
 @[inherit_doc] infixl:33 " ^^ " => xor
@@ -367,7 +379,9 @@ theorem and_or_inj_left_iff :
 
 /-! ## toNat -/
 
-/-- convert a `Bool` to a `Nat`, `false -> 0`, `true -> 1` -/
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 def toNat (b : Bool) : Nat := cond b 1 0
 
 @[simp, bitvec_to_nat] theorem toNat_false : false.toNat = 0 := rfl
@@ -388,7 +402,9 @@ theorem toNat_lt (b : Bool) : b.toNat < 2 :=
 
 /-! ## toInt -/
 
-/-- convert a `Bool` to an `Int`, `false -> 0`, `true -> 1` -/
+/--
+Converts `true` to `1` and `false` to `0`.
+-/
 def toInt (b : Bool) : Int := cond b 1 0
 
 @[simp] theorem toInt_false : false.toInt = 0 := rfl
@@ -539,8 +555,8 @@ theorem cond_decide {α} (p : Prop) [Decidable p] (t e : α) :
 @[simp] theorem cond_eq_false_distrib : ∀(c t f : Bool),
     (cond c t f = false) = ite (c = true) (t = false) (f = false) := by decide
 
-protected theorem cond_true  {α : Type u} {a b : α} : cond true  a b = a := cond_true  a b
-protected theorem cond_false {α : Type u} {a b : α} : cond false a b = b := cond_false a b
+protected theorem cond_true  {α : Sort u} {a b : α} : cond true  a b = a := cond_true  a b
+protected theorem cond_false {α : Sort u} {a b : α} : cond false a b = b := cond_false a b
 
 @[simp] theorem cond_true_left   : ∀(c f : Bool), cond c true f  = ( c || f) := by decide
 @[simp] theorem cond_false_left  : ∀(c f : Bool), cond c false f = (!c && f) := by decide

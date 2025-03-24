@@ -14,7 +14,7 @@ This file develops the type `Std.TreeMap` of tree maps.
 Lemmas about the operations on `Std.TreeMap` will be available in the
 module `Std.Data.TreeMap.Lemmas`.
 
-See the module `Std.Data.TreeMap.Raw` for a variant of this type which is safe to use in
+See the module `Std.Data.TreeMap.Raw.Basic` for a variant of this type which is safe to use in
 nested inductive types.
 -/
 
@@ -52,8 +52,8 @@ Internally, the tree maps are represented as size-bounded trees, a type of self-
 search tree with efficient order statistic lookups.
 
 These tree maps contain a bundled well-formedness invariant, which means that they cannot
-be used in nested inductive types. For these use cases, `Std.Data.TreeMap.Raw` and
-`Std.Data.TreeMap.Raw.WF` unbundle the invariant from the tree map. When in doubt, prefer
+be used in nested inductive types. For these use cases, `Std.TreeMap.Raw` and
+`Std.TreeMap.Raw.WF` unbundle the invariant from the tree map. When in doubt, prefer
 `TreeMap` over `TreeMap.Raw`.
 -/
 structure TreeMap (α : Type u) (β : Type v) (cmp : α → α → Ordering := by exact compare) where
@@ -86,7 +86,7 @@ instance : Insert (α × β) (TreeMap α β cmp) where
   insert e s := s.insert e.1 e.2
 
 instance : LawfulSingleton (α × β) (TreeMap α β cmp) where
-  insert_emptyc_eq _ := rfl
+  insert_empty_eq _ := rfl
 
 @[inline, inherit_doc DTreeMap.insertIfNew]
 def insertIfNew (t : TreeMap α β cmp) (a : α) (b : β) : TreeMap α β cmp :=
@@ -180,37 +180,69 @@ def getKey! [Inhabited α] (t : TreeMap α β cmp) (a : α) : α :=
 def getKeyD (t : TreeMap α β cmp) (a : α) (fallback : α) : α :=
   t.inner.getKeyD a fallback
 
-@[inline, inherit_doc DTreeMap.Const.min?]
+@[inline, inherit_doc DTreeMap.Const.minEntry?]
+def minEntry? (t : TreeMap α β cmp) : Option (α × β) :=
+  DTreeMap.Const.minEntry? t.inner
+
+@[inline, inherit_doc minEntry?, deprecated minEntry? (since := "2025-03-13")]
 def min? (t : TreeMap α β cmp) : Option (α × β) :=
-  DTreeMap.Const.min? t.inner
+  t.minEntry?
 
-@[inline, inherit_doc DTreeMap.Const.min]
+@[inline, inherit_doc DTreeMap.Const.minEntry]
+def minEntry (t : TreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
+  DTreeMap.Const.minEntry t.inner h
+
+@[inline, inherit_doc minEntry, deprecated minEntry (since := "2025-03-13")]
 def min (t : TreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
-  DTreeMap.Const.min t.inner h
+  t.minEntry h
 
-@[inline, inherit_doc DTreeMap.Const.min!]
+@[inline, inherit_doc DTreeMap.Const.minEntry!]
+def minEntry! [Inhabited (α × β)] (t : TreeMap α β cmp) : α × β :=
+  DTreeMap.Const.minEntry! t.inner
+
+@[inline, inherit_doc minEntry!, deprecated minEntry! (since := "2025-03-13")]
 def min! [Inhabited (α × β)] (t : TreeMap α β cmp) : α × β :=
-  DTreeMap.Const.min! t.inner
+  t.minEntry!
 
-@[inline, inherit_doc DTreeMap.Const.minD]
+@[inline, inherit_doc DTreeMap.Const.minEntryD]
+def minEntryD (t : TreeMap α β cmp) (fallback : α × β) : α × β :=
+  DTreeMap.Const.minEntryD t.inner fallback
+
+@[inline, inherit_doc minEntryD, deprecated minEntryD (since := "2025-03-13")]
 def minD (t : TreeMap α β cmp) (fallback : α × β) : α × β :=
-  DTreeMap.Const.minD t.inner fallback
+  t.minEntryD fallback
 
-@[inline, inherit_doc DTreeMap.Const.max?]
+@[inline, inherit_doc DTreeMap.Const.maxEntry?]
+def maxEntry? (t : TreeMap α β cmp) : Option (α × β) :=
+  DTreeMap.Const.maxEntry? t.inner
+
+@[inline, inherit_doc maxEntry?, deprecated minEntry? (since := "2025-03-13")]
 def max? (t : TreeMap α β cmp) : Option (α × β) :=
-  DTreeMap.Const.max? t.inner
+  t.maxEntry?
 
-@[inline, inherit_doc DTreeMap.Const.max]
+@[inline, inherit_doc DTreeMap.Const.maxEntry]
+def maxEntry (t : TreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
+  DTreeMap.Const.maxEntry t.inner h
+
+@[inline, inherit_doc maxEntry, deprecated minEntry (since := "2025-03-13")]
 def max (t : TreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
-  DTreeMap.Const.max t.inner h
+  t.maxEntry h
 
-@[inline, inherit_doc DTreeMap.Const.max!]
+@[inline, inherit_doc DTreeMap.Const.maxEntry!]
+def maxEntry! [Inhabited (α × β)] (t : TreeMap α β cmp) : α × β :=
+  DTreeMap.Const.maxEntry! t.inner
+
+@[inline, inherit_doc maxEntry!, deprecated minEntry! (since := "2025-03-13")]
 def max! [Inhabited (α × β)] (t : TreeMap α β cmp) : α × β :=
-  DTreeMap.Const.max! t.inner
+  t.maxEntry!
 
-@[inline, inherit_doc DTreeMap.Const.maxD]
+@[inline, inherit_doc DTreeMap.Const.maxEntryD]
+def maxEntryD (t : TreeMap α β cmp) (fallback : α × β) : α × β :=
+  DTreeMap.Const.maxEntryD t.inner fallback
+
+@[inline, inherit_doc maxEntryD, deprecated minEntryD (since := "2025-03-13")]
 def maxD (t : TreeMap α β cmp) (fallback : α × β) : α × β :=
-  DTreeMap.Const.maxD t.inner fallback
+  t.maxEntryD fallback
 
 @[inline, inherit_doc DTreeMap.minKey?]
 def minKey? (t : TreeMap α β cmp) : Option α :=
@@ -405,16 +437,16 @@ def fold (f : δ → (a : α) → β → δ) (init : δ) (t : TreeMap α β cmp)
   t.foldl f init
 
 @[inline, inherit_doc DTreeMap.foldrM]
-def foldrM (f : δ → (a : α) → β → m δ) (init : δ) (t : TreeMap α β cmp) : m δ :=
+def foldrM (f : (a : α) → β → δ → m δ) (init : δ) (t : TreeMap α β cmp) : m δ :=
   t.inner.foldrM f init
 
 @[inline, inherit_doc DTreeMap.foldr]
-def foldr (f : δ → (a : α) → β → δ) (init : δ) (t : TreeMap α β cmp) : δ :=
+def foldr (f : (a : α) → β → δ → δ) (init : δ) (t : TreeMap α β cmp) : δ :=
   t.inner.foldr f init
 
 @[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
 def revFold (f : δ → (a : α) → β → δ) (init : δ) (t : TreeMap α β cmp) : δ :=
-  foldr f init t
+  foldr (fun k v acc => f acc k v) init t
 
 @[inline, inherit_doc DTreeMap.partition]
 def partition (f : (a : α) → β → Bool) (t : TreeMap α β cmp) : TreeMap α β cmp × TreeMap α β cmp :=

@@ -9,6 +9,7 @@ import Init.PropLemmas
 import Init.Classical
 import Init.ByCases
 import Init.Data.Int.Linear
+import Init.Data.Int.Pow
 
 namespace Lean.Grind
 /-!
@@ -70,6 +71,18 @@ theorem beq_eq_decide_eq {_ : BEq α} [LawfulBEq α] [DecidableEq α] (a b : α)
 theorem bne_eq_decide_not_eq {_ : BEq α} [LawfulBEq α] [DecidableEq α] (a b : α) : (a != b) = (decide (¬ a = b)) := by
   by_cases a = b <;> simp [*]
 
+theorem natCast_div (a b : Nat) : (↑(a / b) : Int) = ↑a / ↑b := by
+  rfl
+
+theorem natCast_mod (a b : Nat) : (↑(a % b) : Int) = ↑a % ↑b := by
+  rfl
+
+theorem Nat.pow_one (a : Nat) : a ^ 1 = a := by
+  simp
+
+theorem Int.pow_one (a : Int) : a ^ 1 = a := by
+  simp [Int.pow_succ]
+
 init_grind_norm
   /- Pre theorems -/
   not_and not_or not_ite not_forall not_exists
@@ -113,20 +126,23 @@ init_grind_norm
   Bool.not_eq_true Bool.not_eq_false
   -- decide
   decide_eq_true_eq decide_not not_decide_eq_true
-  -- Nat LE
-  Nat.le_zero_eq
-  -- Nat/Int LT
-  Nat.lt_eq
-  -- Nat.succ
-  Nat.succ_eq_add_one
-  -- Nat op folding
+  -- Nat
+  Nat.le_zero_eq Nat.lt_eq Nat.succ_eq_add_one
   Nat.add_eq Nat.sub_eq Nat.mul_eq Nat.zero_eq Nat.le_eq
+  Nat.div_zero Nat.mod_zero Nat.div_one Nat.mod_one
+  Nat.sub_sub Nat.pow_zero Nat.pow_one
   -- Int
   Int.lt_eq
+  Int.emod_neg Int.ediv_neg
+  Int.ediv_zero Int.emod_zero
+  Int.ediv_one Int.emod_one
+  Int.natCast_add Int.natCast_mul Int.natCast_pow
+  Int.natCast_zero natCast_div natCast_mod
+  Int.pow_zero Int.pow_one
   -- GT GE
   ge_eq gt_eq
   -- Int op folding
-  Int.add_def Int.mul_def
+  Int.add_def Int.mul_def Int.ofNat_eq_coe
   Int.Linear.sub_fold Int.Linear.neg_fold
   -- Int divides
   Int.one_dvd Int.zero_dvd

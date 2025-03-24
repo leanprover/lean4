@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lean.Data.HashSet
 import Std.Data.HashSet.Basic
 
 open Lean
@@ -22,12 +21,12 @@ variable [Hashable α] [BEq α]
 instance : Coe (OrdHashSet α) (Std.HashSet α) := ⟨toHashSet⟩
 
 def empty : OrdHashSet α :=
-  ⟨.empty, .empty⟩
+  ⟨∅, .empty⟩
 
 instance : EmptyCollection (OrdHashSet α) := ⟨empty⟩
 
 def mkEmpty (size : Nat) : OrdHashSet α :=
-  ⟨.empty, .mkEmpty size⟩
+  ⟨∅, .mkEmpty size⟩
 
 def insert (self : OrdHashSet α) (a : α) : OrdHashSet α :=
   if self.toHashSet.contains a then

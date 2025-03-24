@@ -8,19 +8,19 @@ import Init.Data.Array.Mem
 import Init.Data.Array.Lemmas
 import Init.Data.Array.Count
 import Init.Data.List.Attach
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Array
 
 /--
-`O(n)`. Partial map. If `f : Π a, P a → β` is a partial function defined on
-`a : α` satisfying `P`, then `pmap f l h` is essentially the same as `map f l`
-but is defined only when all members of `l` satisfy `P`, using the proof
-to apply `f`.
+Maps a partially defined function (defined on those terms of `α` that satisfy a predicate `P`) over
+an array `xs : Array α`, given a proof that every element of `xs` in fact satisfies `P`.
 
-We replace this at runtime with a more efficient version via the `csimp` lemma `pmap_eq_pmapImpl`.
+`Array.pmap`, named for “partial map,” is the equivalent of `Array.map` for such partial functions.
 -/
+
 def pmap {P : α → Prop} (f : ∀ a, P a → β) (xs : Array α) (H : ∀ a ∈ xs, P a) : Array β :=
   (xs.toList.pmap f (fun a m => H a (mem_def.mpr m))).toArray
 
@@ -31,14 +31,27 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
 @[inline] private unsafe def attachWithImpl
     (xs : Array α) (P : α → Prop) (_ : ∀ x ∈ xs, P x) : Array {x // P x} := unsafeCast xs
 
-/-- `O(1)`. "Attach" a proof `P x` that holds for all the elements of `xs` to produce a new array
-  with the same elements but in the type `{x // P x}`. -/
+/--
+“Attaches” individual proofs to an array of values that satisfy a predicate `P`, returning an array
+of elements in the corresponding subtype `{ x // P x }`.
+
+`O(1)`.
+-/
 @[implemented_by attachWithImpl] def attachWith
     (xs : Array α) (P : α → Prop) (H : ∀ x ∈ xs, P x) : Array {x // P x} :=
   ⟨xs.toList.attachWith P fun x h => H x (Array.Mem.mk h)⟩
 
-/-- `O(1)`. "Attach" the proof that the elements of `xs` are in `xs` to produce a new array
-  with the same elements but in the type `{x // x ∈ xs}`. -/
+/--
+“Attaches” the proof that the elements of `xs` are in fact elements of `xs`, producing a new array with
+the same elements but in the subtype `{ x // x ∈ xs }`.
+
+`O(1)`.
+
+This function is primarily used to allow definitions by [well-founded
+recursion](lean-manual://section/well-founded-recursion) that use higher-order functions (such as
+`Array.map`) to prove that an value taken from a list is smaller than the list. This allows the
+well-founded recursion mechanism to prove that the function terminates.
+-/
 @[inline] def attach (xs : Array α) : Array {x // x ∈ xs} := xs.attachWith _ fun _ => id
 
 @[simp] theorem _root_.List.attachWith_toArray {l : List α} {P : α → Prop} {H : ∀ x ∈ l.toArray, P x} :
@@ -541,18 +554,32 @@ Further, we provide simp lemmas that push `unattach` inwards.
 -/
 
 /--
-A synonym for `l.map (·.val)`. Mostly this should not be needed by users.
-It is introduced as in intermediate step by lemmas such as `map_subtype`,
-and is ideally subsequently simplified away by `unattach_attach`.
+Maps an array of terms in a subtype to the corresponding terms in the type by forgetting that they
+satisfy the predicate.
 
-If not, usually the right approach is `simp [Array.unattach, -Array.map_subtype]` to unfold.
+This is the inverse of `Array.attachWith` and a synonym for `xs.map (·.val)`.
+
+Mostly this should not be needed by users. It is introduced as an intermediate step by lemmas such
+as `map_subtype`, and is ideally subsequently simplified away by `unattach_attach`.
+
+This function is usually inserted automatically by Lean as an intermediate step while proving
+termination. It is rarely used explicitly in code. It is introduced as an intermediate step during
+the elaboration of definitions by [well-founded
+recursion](lean-manual://section/well-founded-recursion). If this function is encountered in a proof
+state, the right approach is usually the tactic `simp [Array.unattach, -Array.map_subtype]`.
 -/
 def unattach {α : Type _} {p : α → Prop} (xs : Array { x // p x }) : Array α := xs.map (·.val)
 
-@[simp] theorem unattach_nil {p : α → Prop} : (#[] : Array { x // p x }).unattach = #[] := rfl
+@[simp] theorem unattach_nil {p : α → Prop} : (#[] : Array { x // p x }).unattach = #[] := by
+  simp [unattach]
+
 @[simp] theorem unattach_push {p : α → Prop} {a : { x // p x }} {xs : Array { x // p x }} :
     (xs.push a).unattach = xs.unattach.push a.1 := by
   simp only [unattach, Array.map_push]
+
+@[simp] theorem mem_unattach {p : α → Prop} {xs : Array { x // p x }} {a} :
+    a ∈ xs.unattach ↔ ∃ h : p a, ⟨a, h⟩ ∈ xs := by
+  simp only [unattach, mem_map, Subtype.exists, exists_and_right, exists_eq_right]
 
 @[simp] theorem size_unattach {p : α → Prop} {xs : Array { x // p x }} :
     xs.unattach.size = xs.size := by
@@ -675,6 +702,20 @@ and simplifies these to the function directly taking the value.
   simp
   rw [List.find?_subtype hf]
 
+@[simp] theorem all_subtype {p : α → Prop} {xs : Array { x // p x }} {f : { x // p x } → Bool} {g : α → Bool}
+    (hf : ∀ x h, f ⟨x, h⟩ = g x) (w : stop = xs.size) :
+    xs.all f 0 stop = xs.unattach.all g := by
+  subst w
+  rcases xs with ⟨xs⟩
+  simp [hf]
+
+@[simp] theorem any_subtype {p : α → Prop} {xs : Array { x // p x }} {f : { x // p x } → Bool} {g : α → Bool}
+    (hf : ∀ x h, f ⟨x, h⟩ = g x) (w : stop = xs.size) :
+    xs.any f 0 stop = xs.unattach.any g := by
+  subst w
+  rcases xs with ⟨xs⟩
+  simp [hf]
+
 /-! ### Simp lemmas pushing `unattach` inwards. -/
 
 @[simp] theorem unattach_filter {p : α → Prop} {xs : Array { x // p x }}
@@ -702,9 +743,12 @@ and simplifies these to the function directly taking the value.
     List.map_toArray, List.map_flatten, map_subtype, map_id_fun', List.unattach_toArray, mk.injEq]
   simp only [List.unattach]
 
-@[simp] theorem unattach_mkArray {p : α → Prop} {n : Nat} {x : { x // p x }} :
-    (Array.mkArray n x).unattach = Array.mkArray n x.1 := by
+@[simp] theorem unattach_replicate {p : α → Prop} {n : Nat} {x : { x // p x }} :
+    (Array.replicate n x).unattach = Array.replicate n x.1 := by
   simp [unattach]
+
+@[deprecated unattach_replicate (since := "2025-03-18")]
+abbrev unattach_mkArray := @unattach_replicate
 
 /-! ### Well-founded recursion preprocessing setup -/
 

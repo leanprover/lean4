@@ -514,7 +514,9 @@ def inferStep : InterpM Bool := do
     let currentVal ← getFunVal idx
     withReader (fun ctx => { ctx with currFnIdx := idx }) do
       decl.params.forM fun p => updateVarAssignment p.fvarId .top
-      decl.value.forCodeM interpCode
+      match decl.value with
+      | .code code .. => interpCode code
+      | .extern .. => updateCurrFnSummary .top
     let newVal ← getFunVal idx
     if currentVal != newVal then
       return true

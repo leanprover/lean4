@@ -52,10 +52,22 @@ a well founded relation, then the function terminates.
 Well-founded relations are sometimes called _Artinian_ or said to satisfy the “descending chain condition”.
 -/
 inductive WellFounded {α : Sort u} (r : α → α → Prop) : Prop where
+  /--
+  If all elements are accessible via `r`, then `r` is well-founded.
+  -/
   | intro (h : ∀ a, Acc r a) : WellFounded r
 
+/--
+A type that has a standard well-founded relation.
+
+Instances are used to prove that functions terminate using well-founded recursion by showing that
+recursive calls reduce some measure according to a well-founded relation. This relation can combine
+well-founded relations on the recursive function's parameters.
+-/
 class WellFoundedRelation (α : Sort u) where
+  /-- A well-founded relation on `α`. -/
   rel : α → α → Prop
+  /-- A proof that `rel` is, in fact, well-founded. -/
   wf  : WellFounded rel
 
 namespace WellFounded
@@ -88,6 +100,13 @@ end
 
 variable {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
 
+/--
+A well-founded fixpoint. If satisfying the motive `C` for all values that are smaller according to a
+well-founded relation allows it to be satisfied for the current value, then it is satisfied for all
+values.
+
+This function is used as part of the elaboration of well-founded recursion.
+-/
 -- Well-founded fixpoint
 noncomputable def fix (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) : C x :=
   fixF F x (apply hwf x)
@@ -145,6 +164,9 @@ theorem wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
   ⟨fun a => accessible f (apply h (f a))⟩
 end InvImage
 
+/--
+The inverse image of a well-founded relation is well-founded.
+-/
 @[reducible] def invImage (f : α → β) (h : WellFoundedRelation β) : WellFoundedRelation α where
   rel := InvImage h.rel f
   wf  := InvImage.wf f h.wf
@@ -168,8 +190,6 @@ theorem acc_transGen_iff : Acc (TransGen r) a ↔ Acc r a :=
 theorem WellFounded.transGen (h : WellFounded r) : WellFounded (TransGen r) :=
   ⟨fun a ↦ (h.apply a).transGen⟩
 
-@[deprecated Acc.transGen (since := "2024-07-16")] abbrev TC.accessible := @Acc.transGen
-@[deprecated WellFounded.transGen (since := "2024-07-16")] abbrev TC.wf := @WellFounded.transGen
 namespace Nat
 
 -- less-than is well-founded
@@ -191,19 +211,21 @@ def lt_wfRel : WellFoundedRelation Nat where
       | Or.inl e => subst e; assumption
       | Or.inr e => exact Acc.inv ih e
 
+/--
+Strong induction on the natural numbers.
+
+The induction hypothesis is that all numbers less than a given number satisfy the motive, which
+should be demonstrated for the given number.
+-/
 @[elab_as_elim] protected noncomputable def strongRecOn
     {motive : Nat → Sort u}
     (n : Nat)
     (ind : ∀ n, (∀ m, m < n → motive m) → motive n) : motive n :=
   Nat.lt_wfRel.wf.fix ind n
 
-@[deprecated Nat.strongRecOn (since := "2024-08-27")]
-protected noncomputable def strongInductionOn
-    {motive : Nat → Sort u}
-    (n : Nat)
-    (ind : ∀ n, (∀ m, m < n → motive m) → motive n) : motive n :=
-  Nat.strongRecOn n ind
-
+/--
+Case analysis based on strong induction for the natural numbers.
+-/
 @[elab_as_elim] protected noncomputable def caseStrongRecOn
     {motive : Nat → Sort u}
     (a : Nat)
@@ -213,14 +235,6 @@ protected noncomputable def strongInductionOn
     match n with
     | 0   => fun _  => zero
     | n+1 => fun h₁ => ind n (λ _ h₂ => h₁ _ (lt_succ_of_le h₂))
-
-@[deprecated Nat.caseStrongRecOn (since := "2024-08-27")]
-protected noncomputable def caseStrongInductionOn
-    {motive : Nat → Sort u}
-    (a : Nat)
-    (zero : motive 0)
-    (ind : ∀ n, (∀ m, m ≤ n → motive m) → motive (succ n)) : motive a :=
-  Nat.caseStrongRecOn a zero ind
 
 end Nat
 
@@ -241,9 +255,18 @@ variable {α : Type u} {β : Type v}
 variable  (ra  : α → α → Prop)
 variable  (rb  : β → β → Prop)
 
--- Lexicographical order based on ra and rb
+/--
+A lexicographical order based on the orders `ra` and `rb` for the elements of pairs.
+-/
 protected inductive Lex : α × β → α × β → Prop where
+  /--
+  If the first projections of two pairs are ordered, then they are lexicographically ordered.
+  -/
   | left  {a₁} (b₁) {a₂} (b₂) (h : ra a₁ a₂) : Prod.Lex (a₁, b₁) (a₂, b₂)
+  /--
+  If the first projections of two pairs are equal, then they are lexicographically ordered if the
+  second projections are ordered.
+  -/
   | right (a) {b₁ b₂} (h : rb b₁ b₂)         : Prod.Lex (a, b₁)  (a, b₂)
 
 theorem lex_def {r : α → α → Prop} {s : β → β → Prop} {p q : α × β} :

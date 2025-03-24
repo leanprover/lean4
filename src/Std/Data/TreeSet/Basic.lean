@@ -14,7 +14,7 @@ This file develops the type `Std.TreeSet` of tree sets.
 Lemmas about the operations on `Std.Data.TreeSet` will be available in the
 module `Std.Data.TreeSet.Lemmas`.
 
-See the module `Std.Data.TreeSet.Raw` for a variant of this type which is safe to use in
+See the module `Std.Data.TreeSet.Raw.Basic` for a variant of this type which is safe to use in
 nested inductive types.
 -/
 
@@ -51,8 +51,8 @@ Internally, the tree sets are represented as size-bounded trees, a type of self-
 search tree with efficient order statistic lookups.
 
 These tree sets contain a bundled well-formedness invariant, which means that they cannot
-be used in nested inductive types. For these use cases, `Std.Data.TreeSet.Raw` and
-`Std.Data.TreeSet.Raw.WF` unbundle the invariant from the tree set. When in doubt, prefer
+be used in nested inductive types. For these use cases, `Std.TreeSet.Raw` and
+`Std.TreeSet.Raw.WF` unbundle the invariant from the tree set. When in doubt, prefer
 `TreeSet` over `TreeSet.Raw`.
 -/
 structure TreeSet (α : Type u) (cmp : α → α → Ordering := by exact compare) where
@@ -99,7 +99,7 @@ instance : Insert α (TreeSet α cmp) where
   insert e s := s.insert e
 
 instance : LawfulSingleton α (TreeSet α cmp) where
-  insert_emptyc_eq _ := rfl
+  insert_empty_eq _ := rfl
 
 /--
 Checks whether an element is present in a set and inserts the element if it was not found.
@@ -388,17 +388,17 @@ Monadically computes a value by folding the given function over the elements in 
 descending order.
 -/
 @[inline]
-def foldrM {m δ} [Monad m] (f : δ → (a : α) → m δ) (init : δ) (t : TreeSet α cmp) : m δ :=
-  t.inner.foldrM (fun c a _ => f c a) init
+def foldrM {m δ} [Monad m] (f : (a : α) → δ → m δ) (init : δ) (t : TreeSet α cmp) : m δ :=
+  t.inner.foldrM (fun a _ acc => f a acc) init
 
 /-- Folds the given function over the elements of the tree set in descending order. -/
 @[inline]
-def foldr (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
-  t.inner.foldr (fun c a _ => f c a) init
+def foldr (f : (a : α) → δ → δ) (init : δ) (t : TreeSet α cmp) : δ :=
+  t.inner.foldr (fun a _ acc => f a acc) init
 
 @[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
 def revFold (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
-  foldr f init t
+  foldr (fun a acc => f acc a) init t
 
 /-- Partitions a tree set into two tree sets based on a predicate. -/
 @[inline]
@@ -437,7 +437,7 @@ def all (t : TreeSet α cmp) (p : α → Bool) : Bool :=
 /-- Transforms the tree set into a list of elements in ascending order. -/
 @[inline]
 def toList (t : TreeSet α cmp) : List α :=
-  t.inner.inner.inner.foldr (fun l a _ => a :: l) ∅
+  t.inner.inner.inner.foldr (fun a _ l => a :: l) ∅
 
 /-- Transforms a list into a tree set. -/
 def ofList (l : List α) (cmp : α → α → Ordering := by exact compare) : TreeSet α cmp :=

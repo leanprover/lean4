@@ -58,7 +58,7 @@ abbrev M := ReaderT Context MetaM
 def getComputedFieldValue (computedField : Name) (ctorTerm : Expr) : MetaM Expr := do
   let ctorName := ctorTerm.getAppFn.constName!
   let ind ← getConstInfoInduct (← getConstInfoCtor ctorName).induct
-  let val ← mkAppOptM computedField (mkArray (ind.numParams+ind.numIndices) none ++ #[some ctorTerm])
+  let val ← mkAppOptM computedField (.replicate (ind.numParams+ind.numIndices) none ++ #[some ctorTerm])
   let val ←
     if let some wfEqn := WF.eqnInfoExt.find? (← getEnv) computedField then
       pure <| mkAppN (wfEqn.value.instantiateLevelParams wfEqn.levelParams val.getAppFn.constLevels!) val.getAppArgs

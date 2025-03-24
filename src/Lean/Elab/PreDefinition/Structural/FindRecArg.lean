@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Joachim Breitner
 -/
 prelude
 import Lean.Elab.PreDefinition.TerminationMeasure
+import Lean.Elab.PreDefinition.FixedParams
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.Structural.RecArgInfo
 
@@ -58,9 +59,10 @@ private def hasBadParamDep? (ys : Array Expr) (indParams : Array Expr) : MetaM (
 Assemble the `RecArgInfo` for the `i`th parameter in the parameter list `xs`. This performs
 various sanity checks on the parameter (is it even of inductive type etc).
 -/
-def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) : MetaM RecArgInfo := do
+def getRecArgInfo (fnName : Name) (fixedParamPerm : FixedParamPerm) (xs : Array Expr) (i : Nat) : MetaM RecArgInfo := do
+  assert! fixedParamPerm.size = xs.size
   if h : i < xs.size then
-    if i < numFixed then
+    if fixedParamPerm.isFixed i then
       throwError "it is unchanged in the recursive calls"
     let x := xs[i]
     let localDecl ← getFVarLocalDecl x
@@ -79,16 +81,14 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
       else if !indIndices.allDiff then
         throwError "its type {indInfo.name} is an inductive family and indices are not pairwise distinct{indentExpr xType}"
       else
-        let indexMinPos := getIndexMinPos xs indIndices
-        let numFixed    := if indexMinPos < numFixed then indexMinPos else numFixed
-        let ys          := xs[numFixed:]
+        let ys := fixedParamPerm.pickVarying xs
         match (← hasBadIndexDep? ys indIndices) with
         | some (index, y) =>
           throwError "its type {indInfo.name} is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}"
         | none =>
           match (← hasBadParamDep? ys indParams) with
           | some (indParam, y) =>
-            throwError "its type is an inductive datatype{indentExpr xType}\nand the datatype parameter{indentExpr indParam}\ndepends on the function parameter{indentExpr y}\nwhich does not come before the varying parameters and before the indices of the recursion parameter."
+            throwError "its type is an inductive datatype{indentExpr xType}\nand the datatype parameter{indentExpr indParam}\ndepends on the function parameter{indentExpr y}\nwhich is not fixed."
           | none =>
             let indAll := indInfo.all.toArray
             let .some indIdx := indAll.idxOf? indInfo.name | panic! "{indInfo.name} not in {indInfo.all}"
@@ -98,7 +98,7 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
               levels := us
               params := indParams }
             return { fnName       := fnName
-                     numFixed     := numFixed
+                     fixedParamPerm := fixedParamPerm
                      recArgPos    := i
                      indicesPos   := indicesPos
                      indGroupInst := indGroupInst
@@ -115,25 +115,27 @@ The `xs` are the fixed parameters, `value` the body with the fixed prefix instan
 Takes the optional user annotation into account (`termMeasure?`). If this is given and the measure
 is unsuitable, throw an error.
 -/
-def getRecArgInfos (fnName : Name) (xs : Array Expr) (value : Expr)
-    (termMeasure? : Option TerminationMeasure) : MetaM (Array RecArgInfo × MessageData) := do
+def getRecArgInfos (fnName : Name) (fixedParamPerm : FixedParamPerm) (xs : Array Expr)
+    (value : Expr) (termMeasure? : Option TerminationMeasure) : MetaM (Array RecArgInfo × MessageData) := do
   lambdaTelescope value fun ys _ => do
     if let .some termMeasure := termMeasure? then
       -- User explicitly asked to use a certain measure, so throw errors eagerly
       let recArgInfo ← withRef termMeasure.ref do
         mapError (f := (m!"cannot use specified measure for structural recursion:{indentD ·}")) do
-          getRecArgInfo fnName xs.size (xs ++ ys) (← termMeasure.structuralArg)
+          let args := fixedParamPerm.buildArgs xs ys
+          getRecArgInfo fnName fixedParamPerm args (← termMeasure.structuralArg)
       return (#[recArgInfo], m!"")
     else
+      let args := fixedParamPerm.buildArgs xs ys
       let mut recArgInfos := #[]
       let mut report : MessageData := m!""
       -- No `termination_by`, so try all, and remember the errors
-      for idx in [:xs.size + ys.size] do
+      for idx in [:args.size] do
         try
-          let recArgInfo ← getRecArgInfo fnName xs.size (xs ++ ys) idx
+          let recArgInfo ← getRecArgInfo fnName fixedParamPerm args idx
           recArgInfos := recArgInfos.push recArgInfo
         catch e =>
-          report := report ++ (m!"Not considering parameter {← prettyParam (xs ++ ys) idx} of {fnName}:" ++
+          report := report ++ (m!"Not considering parameter {← prettyParam args idx} of {fnName}:" ++
             indentD e.toMessageData) ++ "\n"
       trace[Elab.definition.structural] "getRecArgInfos report: {report}"
       return (recArgInfos, report)
@@ -211,7 +213,7 @@ def argsInGroup (group : IndGroupInst) (xs : Array Expr) (value : Expr)
           let indicesPos := indIndices.map fun index => match (xs++ys).idxOf? index with | some i => i | none => unreachable!
           return .some
             { fnName       := recArgInfo.fnName
-              numFixed     := recArgInfo.numFixed
+              fixedParamPerm  := recArgInfo.fixedParamPerm
               recArgPos    := recArgInfo.recArgPos
               indicesPos   := indicesPos
               indGroupInst := group
@@ -232,13 +234,13 @@ def allCombinations (xss : Array (Array α)) : Option (Array (Array α)) :=
     some (go 0 #[])
 
 
-def tryAllArgs (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
-   (termMeasure?s : Array (Option TerminationMeasure)) (k : Array RecArgInfo → M α) : M α := do
+def tryAllArgs (fnNames : Array Name) (fixedParamPerms : FixedParamPerms) (xs : Array Expr)
+   (values : Array Expr) (termMeasure?s : Array (Option TerminationMeasure)) (k : Array RecArgInfo → M α) : M α := do
   let mut report := m!""
   -- Gather information on all possible recursive arguments
   let mut recArgInfoss := #[]
-  for fnName in fnNames, value in values, termMeasure? in termMeasure?s do
-    let (recArgInfos, thisReport) ← getRecArgInfos fnName xs value termMeasure?
+  for fnName in fnNames, value in values, termMeasure? in termMeasure?s, fixedParamPerm in fixedParamPerms.perms do
+    let (recArgInfos, thisReport) ← getRecArgInfos fnName fixedParamPerm xs value termMeasure?
     report := report ++ thisReport
     recArgInfoss := recArgInfoss.push recArgInfos
   -- Put non-indices first
@@ -266,8 +268,6 @@ def tryAllArgs (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
           -- are ok in a nested group. This logic can maybe simplified)
           unless (← hasConst (group.brecOnName false 0)) do
             throwError "the type {group} does not have a `.brecOn` recursor"
-          -- TODO: Here we used to save and restore the state. But should the `try`-`catch`
-          -- not suffice?
           let r ← k comb
           trace[Elab.definition.structural] "tryAllArgs report:\n{report}"
           return r

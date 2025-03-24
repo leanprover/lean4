@@ -1,4 +1,4 @@
-
+--^ sync
 def foo1(bar : Nat) : Bool := true
                      --^ textDocument/documentHighlight
 

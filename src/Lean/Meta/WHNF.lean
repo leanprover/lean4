@@ -588,18 +588,30 @@ expand let-expressions, expand assigned meta-variables.
 partial def whnfCore (e : Expr) : MetaM Expr :=
   go e
 where
+  expandLet (e : Expr) (vs : Array Expr) : Expr :=
+    if let .letE _ _ v b _  := e then
+      expandLet b (vs.push <| v.instantiateRev vs)
+    else if let some (#[], _, _, v, b) := e.letFunAppArgs? then
+      expandLet b (vs.push <| v.instantiateRev vs)
+    else
+      e.instantiateRev vs
+
   go (e : Expr) : MetaM Expr :=
     whnfEasyCases e fun e => do
       trace[Meta.whnf] e
       match e with
       | .const ..  => pure e
-      | .letE _ _ v b _ => if (← getConfig).zeta then go <| b.instantiate1 v else return e
+      | .letE _ _ v b _ =>
+        if (← getConfig).zeta then
+          go <| expandLet b #[v]
+        else
+          return e
       | .app f ..       =>
         let cfg ← getConfig
         if cfg.zeta then
           if let some (args, _, _, v, b) := e.letFunAppArgs? then
             -- When zeta reducing enabled, always reduce `letFun` no matter the current reducibility level
-            return (← go <| mkAppN (b.instantiate1 v) args)
+            return (← go <| mkAppN (expandLet b #[v]) args)
         let f := f.getAppFn
         let f' ← go f
         /-
@@ -760,7 +772,7 @@ mutual
             else
               return none
           if smartUnfolding.get (← getOptions) then
-            match ((← getEnv).find? (mkSmartUnfoldingNameFor fInfo.name)) with
+            match ((← getEnv).find? (skipRealize := true) (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(.defnInfo _) =>
               -- We use `preserveMData := true` to make sure the smart unfolding annotation are not erased in an over-application.
               deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (preserveMData := true) (fun _ => pure none) fun e₁ => do

@@ -5,7 +5,7 @@ Authors: Paul Reichert
 -/
 prelude
 import Std.Data.TreeSet.Basic
-import Std.Data.TreeSet.Raw
+import Std.Data.TreeSet.Raw.Basic
 import Std.Data.TreeMap.AdditionalOperations
 
 /-!

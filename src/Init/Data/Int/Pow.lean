@@ -11,7 +11,7 @@ namespace Int
 
 /-! # pow -/
 
-protected theorem pow_zero (b : Int) : b^0 = 1 := rfl
+@[simp] protected theorem pow_zero (b : Int) : b^0 = 1 := rfl
 
 protected theorem pow_succ (b : Int) (e : Nat) : b ^ (e+1) = (b ^ e) * b := rfl
 protected theorem pow_succ' (b : Int) (e : Nat) : b ^ (e+1) = b * (b ^ e) := by
@@ -27,11 +27,11 @@ abbrev pow_le_pow_of_le_right := @Nat.pow_le_pow_right
 abbrev pos_pow_of_pos := @Nat.pow_pos
 
 @[norm_cast]
-theorem natCast_pow (b n : Nat) : ((b^n : Nat) : Int) = (b : Int) ^ n := by
+protected theorem natCast_pow (b n : Nat) : ((b^n : Nat) : Int) = (b : Int) ^ n := by
   match n with
   | 0 => rfl
   | n + 1 =>
-    simp only [Nat.pow_succ, Int.pow_succ, natCast_mul, natCast_pow _ n]
+    simp only [Nat.pow_succ, Int.pow_succ, Int.natCast_mul, Int.natCast_pow _ n]
 
 @[simp]
 protected theorem two_pow_pred_sub_two_pow {w : Nat} (h : 0 < w) :

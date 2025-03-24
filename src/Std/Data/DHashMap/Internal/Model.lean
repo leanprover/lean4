@@ -197,7 +197,7 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
     (hg : ∀ {l l'}, Perm (g (l ++ l')) (g l ++ g l')) :
     Perm (toListModel (updateAllBuckets m.1.buckets f)) (g (toListModel m.1.2)) := by
   have hg₀ : g [] = [] := by
-    rw [← List.length_eq_zero]
+    rw [← List.length_eq_zero_iff]
     have := (hg (l := []) (l' := [])).length_eq
     rw [List.length_append, List.append_nil] at this
     omega
@@ -221,9 +221,13 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
 namespace IsHashSelf
 
 @[simp]
-theorem mkArray [BEq α] [Hashable α] {c : Nat} : IsHashSelf
-    (mkArray c (AssocList.nil : AssocList α β)) :=
+theorem replicate [BEq α] [Hashable α] {c : Nat} : IsHashSelf
+    (Array.replicate c (AssocList.nil : AssocList α β)) :=
   ⟨by simp⟩
+
+set_option linter.missingDocs false in
+@[deprecated replicate (since := "2025-03-18")]
+abbrev mkArray := @replicate
 
 theorem uset [BEq α] [Hashable α] {m : Array (AssocList α β)} {i : USize} {h : i.toNat < m.size}
     {d : AssocList α β}

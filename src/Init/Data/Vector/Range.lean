@@ -14,8 +14,8 @@ import Init.Data.Array.Range
 
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Vector
 
@@ -49,7 +49,7 @@ theorem range'_succ (s n step) :
 theorem range'_zero : range' s 0 step = #v[] := by
   simp
 
-@[simp] theorem range'_one {s step : Nat} : range' s 1 step = #v[s] := rfl
+@[simp] theorem range'_one {s step : Nat} : range' s 1 step = #v[s] := by simp
 
 @[simp] theorem range'_inj : range' s n = range' s' n ↔ (n = 0 ∨ s = s') := by
   rw [← toArray_inj]
@@ -76,7 +76,7 @@ theorem range'_append (s m n step : Nat) :
     range' s m ++ range' (s + m) n = range' s (m + n) := by simpa using range'_append s m n 1
 
 theorem range'_concat (s n : Nat) : range' s (n + 1) step = range' s n step ++ #v[s + step * n] := by
-  exact (range'_append s n 1 step).symm
+  simpa using (range'_append s n 1 step).symm
 
 theorem range'_1_concat (s n : Nat) : range' s (n + 1) = range' s n ++ #v[s + n] := by
   simp [range'_concat]
@@ -114,6 +114,9 @@ theorem range'_eq_append_iff : range' s (n + m) = xs ++ ys ↔ xs = range' s n �
   simp [range'_eq_mk_range']
 
 /-! ### range -/
+
+@[simp] theorem getElem_range (i : Nat) (hi : i < n) : (Vector.range n)[i] = i := by
+  simp [Vector.range]
 
 theorem range_eq_range' (n : Nat) : range n = range' 0 n := by
   simp [range, range', Array.range_eq_range']

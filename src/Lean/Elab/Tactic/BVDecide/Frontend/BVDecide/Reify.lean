@@ -49,40 +49,24 @@ where
       unaryReflection innerExpr .not ``Std.Tactic.BVDecide.Reflect.BitVec.not_congr
     | HShiftLeft.hShiftLeft _ β _ _ innerExpr distanceExpr =>
       let distance? ← ReifiedBVExpr.getNatOrBvValue? β distanceExpr
-      if distance?.isSome then
-        shiftConstReflection
-          β
-          distanceExpr
-          innerExpr
-          .shiftLeftConst
-          ``BVUnOp.shiftLeftConst
-          ``Std.Tactic.BVDecide.Reflect.BitVec.shiftLeftNat_congr
-      else
-        let_expr BitVec _ := β | return none
-        shiftReflection
-          distanceExpr
-          innerExpr
-          .shiftLeft
-          ``BVExpr.shiftLeft
-          ``Std.Tactic.BVDecide.Reflect.BitVec.shiftLeft_congr
+      if distance?.isSome then throwError "internal error: constant shift should have been eliminated."
+      let_expr BitVec _ := β | return none
+      shiftReflection
+        distanceExpr
+        innerExpr
+        .shiftLeft
+        ``BVExpr.shiftLeft
+        ``Std.Tactic.BVDecide.Reflect.BitVec.shiftLeft_congr
     | HShiftRight.hShiftRight _ β _ _ innerExpr distanceExpr =>
       let distance? ← ReifiedBVExpr.getNatOrBvValue? β distanceExpr
-      if distance?.isSome then
-        shiftConstReflection
-          β
-          distanceExpr
-          innerExpr
-          .shiftRightConst
-          ``BVUnOp.shiftRightConst
-          ``Std.Tactic.BVDecide.Reflect.BitVec.shiftRightNat_congr
-      else
-        let_expr BitVec _ := β | return none
-        shiftReflection
-          distanceExpr
-          innerExpr
-          .shiftRight
-          ``BVExpr.shiftRight
-          ``Std.Tactic.BVDecide.Reflect.BitVec.shiftRight_congr
+      if distance?.isSome then throwError "internal error: constant shift should have been eliminated."
+      let_expr BitVec _ := β | return none
+      shiftReflection
+        distanceExpr
+        innerExpr
+        .shiftRight
+        ``BVExpr.shiftRight
+        ``Std.Tactic.BVDecide.Reflect.BitVec.shiftRight_congr
     | BitVec.sshiftRight _ innerExpr distanceExpr =>
       let some distance ← getNatValue? distanceExpr | return none
       shiftConstLikeReflection
@@ -98,56 +82,19 @@ where
         .arithShiftRight
         ``BVExpr.arithShiftRight
         ``Std.Tactic.BVDecide.Reflect.BitVec.arithShiftRight_congr
-    | BitVec.zeroExtend _ newWidthExpr innerExpr =>
-      let some newWidth ← getNatValue? newWidthExpr | return none
-      let some inner ← goOrAtom innerExpr | return none
-      let bvExpr := .zeroExtend newWidth inner.bvExpr
-      let expr :=
-        mkApp3
-          (mkConst ``BVExpr.zeroExtend)
-          (toExpr inner.width)
-          newWidthExpr
-          inner.expr
-      let proof := do
-        let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
-        -- This is safe as `zeroExtend_congr` holds definitionally if the arguments are defeq.
-        let some innerProof ← inner.evalsAtAtoms | return none
-        return mkApp5 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.zeroExtend_congr)
-          newWidthExpr
-          (toExpr inner.width)
-          innerExpr
-          innerEval
-          innerProof
-      return some ⟨newWidth, bvExpr, proof, expr⟩
-    | BitVec.signExtend _ newWidthExpr innerExpr =>
-      let some newWidth ← getNatValue? newWidthExpr | return none
-      let some inner ← goOrAtom innerExpr | return none
-      let bvExpr := .signExtend newWidth inner.bvExpr
-      let expr :=
-        mkApp3
-          (mkConst ``BVExpr.signExtend)
-          (toExpr inner.width)
-          newWidthExpr
-          inner.expr
-      let proof := do
-        let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
-        -- This is safe as `zeroExtend_congr` holds definitionally if the arguments are defeq.
-        let some innerProof ← inner.evalsAtAtoms | return none
-        return mkApp5 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.signExtend_congr)
-          newWidthExpr
-          (toExpr inner.width)
-          innerExpr
-          innerEval
-          innerProof
-      return some ⟨newWidth, bvExpr, proof, expr⟩
     | HAppend.hAppend _ _ _ _ lhsExpr rhsExpr =>
       let some lhs ← goOrAtom lhsExpr | return none
       let some rhs ← goOrAtom rhsExpr | return none
-      let bvExpr := .append lhs.bvExpr rhs.bvExpr
-      let expr := mkApp4 (mkConst ``BVExpr.append)
-        (toExpr lhs.width)
-        (toExpr rhs.width)
-        lhs.expr rhs.expr
+      let bvExpr := .append lhs.bvExpr rhs.bvExpr rfl
+      let wExpr := toExpr (lhs.width + rhs.width)
+      let expr :=
+        mkApp6 (mkConst ``BVExpr.append)
+          (toExpr lhs.width)
+          (toExpr rhs.width)
+          wExpr
+          lhs.expr
+          rhs.expr
+          (← mkEqRefl wExpr)
       let proof := do
         let lhsEval ← ReifiedBVExpr.mkEvalExpr lhs.width lhs.expr
         let rhsEval ← ReifiedBVExpr.mkEvalExpr rhs.width rhs.expr
@@ -166,14 +113,18 @@ where
     | BitVec.replicate _ nExpr innerExpr =>
       let some inner ← goOrAtom innerExpr | return none
       let some n ← getNatValue? nExpr | return none
-      let bvExpr := .replicate n inner.bvExpr
-      let expr := mkApp3 (mkConst ``BVExpr.replicate)
-        (toExpr inner.width)
-        (toExpr n)
-        inner.expr
+      let bvExpr := .replicate n inner.bvExpr rfl
+      let newWExpr := toExpr (inner.width * n)
+      let expr :=
+        mkApp5 (mkConst ``BVExpr.replicate)
+          (toExpr inner.width)
+          newWExpr
+          (toExpr n)
+          inner.expr
+          (← mkEqRefl newWExpr)
       let proof := do
         let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
-        -- This is safe as `zeroExtend_congr` holds definitionally if the arguments are defeq.
+        -- This is safe as `replicate_congr` holds definitionally if the arguments are defeq.
         let some innerProof ← inner.evalsAtAtoms | return none
         return mkApp5 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.replicate_congr)
           (toExpr n)
@@ -194,7 +145,7 @@ where
         inner.expr
       let proof := do
         let innerEval ← ReifiedBVExpr.mkEvalExpr inner.width inner.expr
-        -- This is safe as `zeroExtend_congr` holds definitionally if the arguments are defeq.
+        -- This is safe as `extract_congr` holds definitionally if the arguments are defeq.
         let some innerProof ← inner.evalsAtAtoms | return none
         return mkApp6 (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.extract_congr)
           startExpr
@@ -233,10 +184,11 @@ where
   to return `some`.
   -/
   goOrAtom (x : Expr) : LemmaM (Option ReifiedBVExpr) := do
-    let res ← go x
-    match res with
-    | some exp => return some exp
-    | none => ReifiedBVExpr.bitVecAtom x false
+    LemmaM.withBVExprCache x fun x => do
+      let res ← go x
+      match res with
+      | some exp => return some exp
+      | none => ReifiedBVExpr.bitVecAtom x false
 
   shiftConstLikeReflection (distance : Nat) (innerExpr : Expr) (shiftOp : Nat → BVUnOp)
       (shiftOpName : Name) (congrThm : Name) :
@@ -261,12 +213,6 @@ where
       LemmaM (Option ReifiedBVExpr) := do
     let some distance ← getNatValue? distanceExpr | return none
     shiftConstLikeReflection distance innerExpr rotateOp rotateOpName congrThm
-
-  shiftConstReflection (β : Expr) (distanceExpr : Expr) (innerExpr : Expr) (shiftOp : Nat → BVUnOp)
-      (shiftOpName : Name) (congrThm : Name) :
-      LemmaM (Option ReifiedBVExpr) := do
-    let some distance ← ReifiedBVExpr.getNatOrBvValue? β distanceExpr | return none
-    shiftConstLikeReflection distance innerExpr shiftOp shiftOpName congrThm
 
   shiftReflection (distanceExpr : Expr) (innerExpr : Expr)
       (shiftOp : {m n : Nat} → BVExpr m → BVExpr n → BVExpr m) (shiftOpName : Name)
@@ -338,9 +284,10 @@ Reify an `Expr` that is a predicate about `BitVec`.
 Unless this function is called on something that is not a `Bool` it is always going to return `some`.
 -/
 partial def ReifiedBVPred.of (t : Expr) : LemmaM (Option ReifiedBVPred) := do
-  match ← go t with
-  | some pred => return some pred
-  | none => ReifiedBVPred.boolAtom t
+  LemmaM.withBVPredCache t fun t => do
+    match ← go t with
+    | some pred => return some pred
+    | none => ReifiedBVPred.boolAtom t
 where
   /--
   Reify `t`, returns `none` if the reification procedure failed.
@@ -399,9 +346,10 @@ where
   Unless this function is called on something that is not a `Bool` it is always going to return `some`.
   -/
   goOrAtom (t : Expr) : LemmaM (Option ReifiedBVLogical) := do
-    match ← go t with
-    | some boolExpr => return some boolExpr
-    | none => ReifiedBVLogical.boolAtom t
+    LemmaM.withBVLogicalCache t fun t => do
+      match ← go t with
+      | some boolExpr => return some boolExpr
+      | none => ReifiedBVLogical.boolAtom t
 
   gateReflection (lhsExpr rhsExpr : Expr) (gate : Gate) :
       LemmaM (Option ReifiedBVLogical) := do

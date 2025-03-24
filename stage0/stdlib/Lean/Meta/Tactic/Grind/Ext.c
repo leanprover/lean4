@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_Lean_Meta_Grind_addNewRawFact(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_instantiateExtTheorem___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_withNewMCtxDepth___at_Lean_Meta_Grind_instantiateExtTheorem___spec__5(lean_object*);
@@ -62,7 +63,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instantiateExtTheorem___lambda__4___b
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instantiateExtTheorem___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at_Lean_Meta_Grind_instantiateExtTheorem___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_addNewFact(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static uint64_t l_Lean_Meta_Grind_instantiateExtTheorem___lambda__5___closed__1;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_instantiateExtTheorem___spec__1___closed__3;
 lean_object* l_Lean_Meta_Grind_mkEqFalseProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1703,7 +1703,7 @@ lean_dec(x_14);
 x_17 = lean_unsigned_to_nat(1u);
 x_18 = lean_nat_add(x_15, x_17);
 lean_dec(x_15);
-x_19 = l_Lean_Meta_Grind_addNewFact(x_2, x_3, x_18, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_16);
+x_19 = l_Lean_Meta_Grind_addNewRawFact(x_2, x_3, x_18, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_16);
 return x_19;
 }
 }

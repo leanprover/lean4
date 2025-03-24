@@ -31,9 +31,7 @@ Execute a registered reserved action for the given reserved name.
 Note that the handler can throw an exception.
 -/
 def executeReservedNameAction (name : Name) : CoreM Unit := do
-  for act in (← reservedNameActionsRef.get) do
-    if (← act name) then
-      return ()
+  let _ ← (← reservedNameActionsRef.get).anyM (· name)
 
 /--
 Similar to `resolveGlobalName`, but also executes reserved name actions.
@@ -46,7 +44,9 @@ def realizeGlobalName (id : Name) : CoreM (List (Name × List String)) := do
     else
       try
         executeReservedNameAction c
-        return (← getEnv).contains c
+        -- note that even if an action "handled" a name, it may still be undefined, e.g. with an
+        -- out-of-bounds equation index
+        return (← getEnv).containsOnBranch c
       catch ex =>
         -- We record the error produced by the reserved name action generator
         logError m!"Failed to realize constant {id}:{indentD ex.toMessageData}"

@@ -689,8 +689,8 @@ def foo (fixed : Bool := false) (n : Nat) (m : Nat := 0) : Nat :=
 termination_by n
 
 /--
-info: DefaultArgument.foo.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 0 m)
-  (case2 : ∀ (m n : Nat), motive n m → motive n.succ m) (n m : Nat) : motive n m
+info: DefaultArgument.foo.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive n.succ)
+  (n : Nat) : motive n
 -/
 #guard_msgs in
 #check foo.induct

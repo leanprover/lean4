@@ -11,8 +11,8 @@ import Init.Data.List.Nat.Count
 # Lemmas about `Array.countP` and `Array.count`.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Array
 
@@ -22,6 +22,18 @@ open Nat
 section countP
 
 variable (p q : α → Bool)
+
+@[simp] theorem _root_.List.countP_toArray (l : List α) : countP p l.toArray = l.countP p := by
+  simp [countP]
+  induction l with
+  | nil => rfl
+  | cons hd tl ih =>
+    simp only [List.foldr_cons, ih, List.countP_cons]
+    split <;> simp_all
+
+@[simp] theorem countP_toList (xs : Array α) : xs.toList.countP p = countP p xs := by
+  cases xs
+  simp
 
 @[simp] theorem countP_empty : countP p #[] = 0 := rfl
 
@@ -76,9 +88,12 @@ theorem countP_le_size : countP p xs ≤ xs.size := by
   rcases xs with ⟨xs⟩
   simp
 
-theorem countP_mkArray (p : α → Bool) (a : α) (n : Nat) :
-    countP p (mkArray n a) = if p a then n else 0 := by
+theorem countP_replicate (p : α → Bool) (a : α) (n : Nat) :
+    countP p (replicate n a) = if p a then n else 0 := by
   simp [← List.toArray_replicate, List.countP_replicate]
+
+@[deprecated countP_replicate (since := "2025-03-18")]
+abbrev countP_mkArray := @countP_replicate
 
 theorem boole_getElem_le_countP (p : α → Bool) (xs : Array α) (i : Nat) (h : i < xs.size) :
     (if p xs[i] then 1 else 0) ≤ xs.countP p := by
@@ -149,6 +164,13 @@ end countP
 section count
 
 variable [BEq α]
+
+@[simp] theorem _root_.List.count_toArray (l : List α) (a : α) : count a l.toArray = l.count a := by
+  simp [count, List.count_eq_countP]
+
+@[simp] theorem count_toList (xs : Array α) (a : α) : xs.toList.count a = xs.count a := by
+  cases xs
+  simp
 
 @[simp] theorem count_empty (a : α) : count a #[] = 0 := rfl
 
@@ -222,24 +244,33 @@ theorem count_eq_size {xs : Array α} : count a xs = xs.size ↔ ∀ b ∈ xs, a
   · simpa using h b hb
   · rw [h b hb, beq_self_eq_true]
 
-@[simp] theorem count_mkArray_self (a : α) (n : Nat) : count a (mkArray n a) = n := by
+@[simp] theorem count_replicate_self (a : α) (n : Nat) : count a (replicate n a) = n := by
   simp [← List.toArray_replicate]
 
-theorem count_mkArray (a b : α) (n : Nat) : count a (mkArray n b) = if b == a then n else 0 := by
+@[deprecated count_replicate_self (since := "2025-03-18")]
+abbrev count_mkArray_self := @count_replicate_self
+
+theorem count_replicate (a b : α) (n : Nat) : count a (replicate n b) = if b == a then n else 0 := by
   simp [← List.toArray_replicate, List.count_replicate]
 
-theorem filter_beq (xs : Array α) (a : α) : xs.filter (· == a) = mkArray (count a xs) a := by
+@[deprecated count_replicate (since := "2025-03-18")]
+abbrev count_mkArray := @count_replicate
+
+theorem filter_beq (xs : Array α) (a : α) : xs.filter (· == a) = replicate (count a xs) a := by
   rcases xs with ⟨xs⟩
   simp [List.filter_beq]
 
-theorem filter_eq {α} [DecidableEq α] (xs : Array α) (a : α) : xs.filter (· = a) = mkArray (count a xs) a :=
+theorem filter_eq {α} [DecidableEq α] (xs : Array α) (a : α) : xs.filter (· = a) = replicate (count a xs) a :=
   filter_beq xs a
 
-theorem mkArray_count_eq_of_count_eq_size {xs : Array α} (h : count a xs = xs.size) :
-    mkArray (count a xs) a = xs := by
+theorem replicate_count_eq_of_count_eq_size {xs : Array α} (h : count a xs = xs.size) :
+    replicate (count a xs) a = xs := by
   rcases xs with ⟨xs⟩
   rw [← toList_inj]
   simp [List.replicate_count_eq_of_count_eq_length (by simpa using h)]
+
+@[deprecated replicate_count_eq_of_count_eq_size (since := "2025-03-18")]
+abbrev mkArray_count_eq_of_count_eq_size := @replicate_count_eq_of_count_eq_size
 
 @[simp] theorem count_filter {xs : Array α} (h : p a) : count a (filter p xs) = count a xs := by
   rcases xs with ⟨xs⟩

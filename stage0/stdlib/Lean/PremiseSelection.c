@@ -84,7 +84,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_PremiseSelection_elabSetPre
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_PremiseSelection_select___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_PremiseSelection_evalSuggestPremises___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PremiseSelection_elabSetPremiseSelector___lambda__1___closed__1;
-lean_object* l_Lean_registerEnvExtension___rarg(lean_object*, uint8_t, lean_object*);
+lean_object* l_Lean_registerEnvExtension___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
 static lean_object* l___regBuiltin_Lean_PremiseSelection_evalSuggestPremises__1___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_PremiseSelection_elabSetPremiseSelector___spec__1___rarg(lean_object*);
 double l_Float_ofScientific(lean_object*, uint8_t, lean_object*);
@@ -511,11 +511,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_326_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_2 = l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_326____closed__1;
-x_3 = 2;
-x_4 = l_Lean_registerEnvExtension___rarg(x_2, x_3, x_1);
-return x_4;
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
+x_2 = lean_box(0);
+x_3 = l_Lean_PremiseSelection_initFn____x40_Lean_PremiseSelection___hyg_326____closed__1;
+x_4 = 2;
+x_5 = l_Lean_registerEnvExtension___rarg(x_3, x_2, x_4, x_1);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_PremiseSelection_select___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -596,7 +597,7 @@ lean_inc(x_11);
 lean_dec(x_9);
 x_12 = lean_box(0);
 x_13 = l_Lean_PremiseSelection_premiseSelectorExt;
-x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*2);
+x_14 = lean_ctor_get_uint8(x_13, sizeof(void*)*3);
 x_15 = l_Lean_PremiseSelection_select___closed__1;
 x_16 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___rarg(x_12, x_15, x_11, x_14);
 if (lean_obj_tag(x_16) == 0)
@@ -868,7 +869,7 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
 x_9 = lean_ctor_get(x_6, 5);
-x_10 = lean_ctor_get(x_2, 2);
+x_10 = lean_ctor_get(x_2, 1);
 lean_inc(x_10);
 lean_inc(x_10);
 x_11 = l_Lean_Elab_getBetterRef(x_9, x_10);

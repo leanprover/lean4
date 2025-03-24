@@ -10,8 +10,8 @@ import Init.Data.List.Sublist
 # Lemmas about `List.countP` and `List.count`.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
 
@@ -87,10 +87,10 @@ theorem countP_le_length : countP p l ≤ l.length := by
   countP_pos_iff
 
 @[simp] theorem countP_eq_zero {p} : countP p l = 0 ↔ ∀ a ∈ l, ¬p a := by
-  simp only [countP_eq_length_filter, length_eq_zero, filter_eq_nil_iff]
+  simp only [countP_eq_length_filter, length_eq_zero_iff, filter_eq_nil_iff]
 
 @[simp] theorem countP_eq_length {p} : countP p l = l.length ↔ ∀ a ∈ l, p a := by
-  rw [countP_eq_length_filter, filter_length_eq_length]
+  rw [countP_eq_length_filter, length_filter_eq_length_iff]
 
 theorem countP_replicate (p : α → Bool) (a : α) (n : Nat) :
     countP p (replicate n a) = if p a then n else 0 := by
@@ -257,9 +257,8 @@ variable [LawfulBEq α]
 @[simp] theorem count_cons_self (a : α) (l : List α) : count a (a :: l) = count a l + 1 := by
   simp [count_cons]
 
-@[simp] theorem count_cons_of_ne (h : a ≠ b) (l : List α) : count a (b :: l) = count a l := by
-  simp only [count_cons, cond_eq_if, beq_iff_eq]
-  split <;> simp_all
+@[simp] theorem count_cons_of_ne (h : b ≠ a) (l : List α) : count a (b :: l) = count a l := by
+  simp [count_cons, h]
 
 theorem count_singleton_self (a : α) : count a [a] = 1 := by simp
 

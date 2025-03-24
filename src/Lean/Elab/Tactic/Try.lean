@@ -48,14 +48,6 @@ private def isExprAccessible (e : Expr) : MetaM Bool := do
   let (_, s) ← e.collectFVars |>.run {}
   s.fvarIds.allM isAccessible
 
-/-- Creates a temporary local context where all names are exposed, and executes `k`-/
-private def withExposedNames (k : MetaM α) : MetaM α := do
-  withNewMCtxDepth do
-    -- Create a helper goal to apply
-    let mvarId := (← mkFreshExprMVar (mkConst ``True)).mvarId!
-    let mvarId ← mvarId.exposeNames
-    mvarId.withContext do k
-
 /-- Executes `tac` in the saved state. This function is used to validate a tactic before suggesting it. -/
 def checkTactic (savedState : SavedState) (tac : TSyntax `tactic) : TacticM Unit := do
   let currState ← saveState

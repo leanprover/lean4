@@ -137,12 +137,15 @@ def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
       message := s!"Cannot parse request params: {params.compress}\n{inner}" }
 
 structure RequestContext where
-  rpcSessions   : RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
-  srcSearchPath : SearchPath
-  doc           : FileWorker.EditableDocument
-  hLog          : IO.FS.Stream
-  initParams    : Lsp.InitializeParams
-  cancelTk      : RequestCancellationToken
+  rpcSessions       : RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
+  srcSearchPathTask : ServerTask SearchPath
+  doc               : FileWorker.EditableDocument
+  hLog              : IO.FS.Stream
+  initParams        : Lsp.InitializeParams
+  cancelTk          : RequestCancellationToken
+
+def RequestContext.srcSearchPath (rc : RequestContext) : SearchPath :=
+  rc.srcSearchPathTask.get
 
 abbrev RequestTask α := ServerTask (Except RequestError α)
 abbrev RequestT m := ReaderT RequestContext <| ExceptT RequestError m
@@ -301,10 +304,9 @@ def findCmdDataAtPos
   findCmdParsedSnap doc hoverPos |>.bindCheap fun
     | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos doc.meta.text hoverPos includeStop |>.bindCheap fun
       | some infoTree => .pure <| some (cmdParsed.stx, infoTree)
-      | none          => cmdParsed.finishedSnap.task.asServerTask.mapCheap fun s =>
-        -- the parser returns exactly one command per snapshot, and the elaborator creates exactly one node per command
-        assert! s.cmdState.infoState.trees.size == 1
-        some (cmdParsed.stx, s.cmdState.infoState.trees[0]!)
+      | none          => cmdParsed.infoTreeSnap.task.asServerTask.mapCheap fun s =>
+        assert! s.infoTree?.isSome
+        some (cmdParsed.stx, s.infoTree?.get!)
     | none => .pure none
 
 open Language in

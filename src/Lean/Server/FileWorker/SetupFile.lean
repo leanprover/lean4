@@ -110,11 +110,6 @@ partial def setupFile (m : DocumentMeta) (imports : Array Import) (handleStderr 
   let some filePath := System.Uri.fileUriToPath? m.uri
     | return ← FileSetupResult.ofNoLakefile -- untitled files have no lakefile
 
-  -- NOTE: we assume for now that `lakefile.lean` does not have any non-core-Lean deps
-  -- NOTE: lake does not exist in stage 0 (yet?)
-  if filePath.fileName == "lakefile.lean" then
-    return ← FileSetupResult.ofNoLakefile -- the lakefile itself has no lakefile
-
   let lakePath ← determineLakePath
   if !(← System.FilePath.pathExists lakePath) then
     return ← FileSetupResult.ofNoLakefile

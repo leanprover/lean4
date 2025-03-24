@@ -274,6 +274,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; uint8_t x_14; 
 x_13 = l_Lean_findDeclarationRanges_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__1___closed__1;
+lean_inc(x_1);
 x_14 = l_Lean_TagDeclarationExtension_isTagged(x_13, x_8, x_1);
 if (x_14 == 0)
 {

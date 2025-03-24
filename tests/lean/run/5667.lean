@@ -32,14 +32,25 @@ error: Failed to realize constant optimize.eq_def:
   ⊢ Expr.const 0 = Expr.op bop✝ (Expr.const 0)
 ---
 error: Failed to realize constant optimize.eq_def:
-  failed to generate unfold theorem for 'optimize'
-  case h_2.h_1
-  x e1 : Expr
-  bop✝ bop_1 : Unit
-  x_1 : Expr
+  failed to generate equational theorem for 'optimize'
+  case h_2
+  e1 : Expr
   i : BitVec 32
-  heq✝ : optimize e1 = Expr.const i
-  ⊢ optimize (Expr.op bop✝ e1) = Expr.op bop✝ (Expr.const 0)
+  heq : optimize e1 = Expr.const i
+  bop✝ bop_1 : Unit
+  x : Expr
+  x_3 :
+    ∀ (i : BitVec 32),
+      (Expr.rec (fun i => ⟨Expr.const i, PUnit.unit⟩)
+              (fun op e1 e1_ih =>
+                ⟨match op, e1_ih.1 with
+                  | x, Expr.const i => Expr.op op (Expr.const 0)
+                  | x, x_1 => Expr.const 0,
+                  e1_ih⟩)
+              e1).1 =
+          Expr.const i →
+        False
+  ⊢ Expr.const 0 = Expr.op bop✝ (Expr.const 0)
 ---
 error: unknown identifier 'optimize.eq_def'
 -/

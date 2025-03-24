@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 import Std.Data.TreeSet.Basic
+import Std.Data.TreeSet.Lemmas
 
 open Std
 
@@ -29,3 +30,12 @@ example [TransOrd α] [LawfulEqOrd α] (a : α) (b : β) : Option β :=
 
 example [TransOrd α] [LawfulEqOrd α] (a : α) (b : β) : Option β :=
   (mkTreeMapSingleton a b)[a]?
+
+example [TransOrd α] (a : α) (b : β) : (mkTreeMapSingleton a b).contains a := by
+  simp [mkTreeMapSingleton, Id.run]
+
+example [TransOrd α] (a : α) (b : β) : (mkDTreeMapSingleton a b).contains a := by
+  simp [mkDTreeMapSingleton, Id.run]
+
+example [TransOrd α] (a : α) : (mkTreeSetSingleton a).contains a := by
+  simp [mkTreeSetSingleton, Id.run]

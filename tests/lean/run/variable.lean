@@ -78,6 +78,7 @@ variable [ToString α] [ToString β]
 /--
 error: failed to synthesize
   ToString α
+
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
@@ -88,6 +89,7 @@ theorem t8 (a : α) (b : β) : True :=
 /--
 error: failed to synthesize
   ToString β
+
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
@@ -98,10 +100,12 @@ theorem t9 (a : α) (b : β) : True :=
 /--
 error: failed to synthesize
   ToString α
+
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 ---
 error: failed to synthesize
   ToString β
+
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 -/
 #guard_msgs in
@@ -118,21 +122,13 @@ variable (a : α) in
 omit α in
 theorem t11 (a : α) : True := trivial
 
-/--
-error: cannot omit referenced section variable 'α'
----
-error: cannot omit referenced section variable 'α'
--/
+/-- error: cannot omit referenced section variable 'α' -/
 #guard_msgs in
 variable (α : Type) in
 omit α in
 theorem t12 (a : α) : True := trivial
 
-/--
-error: cannot omit referenced section variable 'inst✝'
----
-error: cannot omit referenced section variable 'inst✝'
--/
+/-- error: cannot omit referenced section variable 'inst✝' -/
 #guard_msgs in
 variable [ToString α] in
 omit [ToString α] in
@@ -161,10 +157,10 @@ omit [ToString Nat]
 variable (α : Type) in
 include α in
 omit α in
-theorem t13 : True := trivial
+theorem t14 : True := trivial
 
 /--
-warning: automatically included section variable(s) unused in theorem 't14':
+warning: automatically included section variable(s) unused in theorem 't15':
   α
 consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
   omit α in theorem ...
@@ -175,7 +171,7 @@ variable (α : Type) in
 include α in
 omit α in
 include α in
-theorem t14 : True := trivial
+theorem t15 : True := trivial
 
 /-! But you probably shouldn't use it -/
 
@@ -188,4 +184,4 @@ note: this linter can be disabled with `set_option linter.omit false`
 variable (α : Type) in
 include α in
 omit α in
-theorem t15 : True := trivial
+theorem t16 : True := trivial

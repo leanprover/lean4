@@ -20,7 +20,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Meta_Try_Coll
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_instInhabitedOrdSet___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_visitApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_inCurrentModule(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_Meta_Try_Collector_checkInductive___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_instInhabitedOrdSet(lean_object*);
@@ -46,7 +45,7 @@ extern lean_object* l_Lean_Meta_Grind_instHashableEMatchTheoremKind;
 static lean_object* l_Lean_Meta_Try_Collector_main___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_checkInductive___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_isEligible___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Try_Collector_main___closed__6;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Meta_Try_Collector_saveLibSearchCandidates___spec__3(lean_object*);
@@ -70,7 +69,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_saveEqnCandidate___lambda__1(
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_Try_Collector_checkInductive___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_Meta_Try_Collector_main_go___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Meta_FunInd_Collector_visit___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Try_Collector_OrdSet_isEmpty___rarg(lean_object*);
 static lean_object* l_Lean_Meta_Try_Collector_instInhabitedOrdSet___rarg___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_saveFunInd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -94,7 +92,6 @@ lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0_
 lean_object* l_Lean_Meta_getEqnsFor_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_mkPtrSet___rarg(lean_object*);
-lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Meta_FunInd_Collector_visit___spec__4(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_getEqDefDecl_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Try_Collector_OrdSet_insert___at_Lean_Meta_Try_Collector_saveLibSearchCandidates___spec__1___closed__1;
@@ -119,6 +116,7 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_collect(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_isEligible___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_OrdSet_isEmpty___rarg___boxed(lean_object*);
+uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Expr_NumObjs_visit___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_inCurrentModule___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_getEqDefDecl_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -203,7 +201,9 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_isEligible___lambda__1(lean_o
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_saveFunInd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at_Lean_Meta_Try_Collector_checkInductive___spec__1___closed__4;
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
+lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Expr_NumObjs_visit___spec__2(lean_object*);
 extern lean_object* l_Lean_instHashableName;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 static lean_object* _init_l_Lean_Meta_Try_Collector_instInhabitedOrdSet___rarg___closed__1() {
@@ -211,7 +211,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -3500,20 +3500,20 @@ x_9 = lean_st_ref_get(x_7, x_8);
 x_10 = !lean_is_exclusive(x_9);
 if (x_10 == 0)
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; 
 x_11 = lean_ctor_get(x_9, 0);
 x_12 = lean_ctor_get(x_9, 1);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec(x_11);
+x_14 = 0;
 lean_inc(x_1);
-x_14 = l_Lean_Environment_find_x3f(x_13, x_1);
-if (lean_obj_tag(x_14) == 0)
+x_15 = l_Lean_Environment_find_x3f(x_13, x_1, x_14);
+if (lean_obj_tag(x_15) == 0)
 {
-uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 lean_free_object(x_9);
-x_15 = 0;
-x_16 = l_Lean_MessageData_ofConstName(x_1, x_15);
+x_16 = l_Lean_MessageData_ofConstName(x_1, x_14);
 x_17 = l_Lean_getConstInfo___at_Lean_Meta_Try_Collector_checkInductive___spec__1___closed__2;
 x_18 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
@@ -3529,16 +3529,16 @@ else
 {
 lean_object* x_22; 
 lean_dec(x_1);
-x_22 = lean_ctor_get(x_14, 0);
+x_22 = lean_ctor_get(x_15, 0);
 lean_inc(x_22);
-lean_dec(x_14);
+lean_dec(x_15);
 lean_ctor_set(x_9, 0, x_22);
 return x_9;
 }
 }
 else
 {
-lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; lean_object* x_27; 
 x_23 = lean_ctor_get(x_9, 0);
 x_24 = lean_ctor_get(x_9, 1);
 lean_inc(x_24);
@@ -3547,13 +3547,13 @@ lean_dec(x_9);
 x_25 = lean_ctor_get(x_23, 0);
 lean_inc(x_25);
 lean_dec(x_23);
+x_26 = 0;
 lean_inc(x_1);
-x_26 = l_Lean_Environment_find_x3f(x_25, x_1);
-if (lean_obj_tag(x_26) == 0)
+x_27 = l_Lean_Environment_find_x3f(x_25, x_1, x_26);
+if (lean_obj_tag(x_27) == 0)
 {
-uint8_t x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
-x_27 = 0;
-x_28 = l_Lean_MessageData_ofConstName(x_1, x_27);
+lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
+x_28 = l_Lean_MessageData_ofConstName(x_1, x_26);
 x_29 = l_Lean_getConstInfo___at_Lean_Meta_Try_Collector_checkInductive___spec__1___closed__2;
 x_30 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_30, 0, x_29);
@@ -3569,9 +3569,9 @@ else
 {
 lean_object* x_34; lean_object* x_35; 
 lean_dec(x_1);
-x_34 = lean_ctor_get(x_26, 0);
+x_34 = lean_ctor_get(x_27, 0);
 lean_inc(x_34);
-lean_dec(x_26);
+lean_dec(x_27);
 x_35 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_35, 0, x_34);
 lean_ctor_set(x_35, 1, x_24);
@@ -4355,7 +4355,7 @@ x_29 = lean_usize_sub(x_27, x_28);
 x_30 = lean_usize_land(x_26, x_29);
 x_31 = lean_array_uget(x_14, x_30);
 lean_dec(x_14);
-x_32 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Meta_FunInd_Collector_visit___spec__1(x_1, x_31);
+x_32 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Expr_NumObjs_visit___spec__1(x_1, x_31);
 lean_dec(x_31);
 if (x_32 == 0)
 {
@@ -4378,7 +4378,7 @@ lean_dec(x_90);
 x_92 = lean_usize_sub(x_91, x_28);
 x_93 = lean_usize_land(x_26, x_92);
 x_94 = lean_array_uget(x_89, x_93);
-x_95 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Meta_FunInd_Collector_visit___spec__1(x_1, x_94);
+x_95 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Expr_NumObjs_visit___spec__1(x_1, x_94);
 if (x_95 == 0)
 {
 lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; uint8_t x_106; 
@@ -4404,7 +4404,7 @@ lean_dec(x_104);
 if (x_106 == 0)
 {
 lean_object* x_107; lean_object* x_108; lean_object* x_109; 
-x_107 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Meta_FunInd_Collector_visit___spec__4(x_100);
+x_107 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Expr_NumObjs_visit___spec__2(x_100);
 lean_ctor_set(x_85, 1, x_107);
 lean_ctor_set(x_85, 0, x_97);
 x_108 = lean_st_ref_set(x_2, x_85, x_86);
@@ -4453,7 +4453,7 @@ lean_dec(x_116);
 x_118 = lean_usize_sub(x_117, x_28);
 x_119 = lean_usize_land(x_26, x_118);
 x_120 = lean_array_uget(x_115, x_119);
-x_121 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Meta_FunInd_Collector_visit___spec__1(x_1, x_120);
+x_121 = l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Expr_NumObjs_visit___spec__1(x_1, x_120);
 if (x_121 == 0)
 {
 lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; uint8_t x_132; 
@@ -4479,7 +4479,7 @@ lean_dec(x_130);
 if (x_132 == 0)
 {
 lean_object* x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; 
-x_133 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Meta_FunInd_Collector_visit___spec__4(x_126);
+x_133 = l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Expr_NumObjs_visit___spec__2(x_126);
 x_134 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_134, 0, x_123);
 lean_ctor_set(x_134, 1, x_133);

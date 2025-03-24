@@ -8,6 +8,7 @@ prelude
 import Init.Data.Array.Lemmas
 import Init.Data.Array.MapIdx
 import Init.Data.Array.InsertIdx
+import Init.Data.Array.Range
 import Init.Data.Range
 import Init.Data.Stream
 
@@ -17,8 +18,8 @@ import Init.Data.Stream
 `Vector α n` is a thin wrapper around `Array α` for arrays of fixed size `n`.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 /-- `Vector α n` is an `Array α` with size `n`. -/
 structure Vector (α : Type u) (n : Nat) extends Array α where
@@ -28,7 +29,9 @@ deriving Repr, DecidableEq
 
 attribute [simp] Vector.size_toArray
 
-/-- Convert `xs : Array α` to `Vector α xs.size`. -/
+/--
+Converts an array to a vector. The resulting vector's size is the array's size.
+-/
 abbrev Array.toVector (xs : Array α) : Vector α xs.size := .mk xs rfl
 
 namespace Vector
@@ -58,19 +61,25 @@ def elimAsList {motive : Vector α n → Sort u}
   | ⟨⟨xs⟩, ha⟩ => mk xs ha
 
 /-- Make an empty vector with pre-allocated capacity. -/
-@[inline] def mkEmpty (capacity : Nat) : Vector α 0 := ⟨.mkEmpty capacity, rfl⟩
+@[inline] def emptyWithCapacity (capacity : Nat) : Vector α 0 := ⟨.mkEmpty capacity, rfl⟩
+
+@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
+abbrev mkEmpty := @emptyWithCapacity
 
 /-- Makes a vector of size `n` with all cells containing `v`. -/
-@[inline] def mkVector (n) (v : α) : Vector α n := ⟨mkArray n v, by simp⟩
+@[inline] def replicate (n) (v : α) : Vector α n := ⟨Array.replicate n v, by simp⟩
+
+@[deprecated replicate (since := "2025-03-18")]
+abbrev mkVector := @replicate
 
 instance : Nonempty (Vector α 0) := ⟨#v[]⟩
-instance [Nonempty α] : Nonempty (Vector α n) := ⟨mkVector _ Classical.ofNonempty⟩
+instance [Nonempty α] : Nonempty (Vector α n) := ⟨replicate _ Classical.ofNonempty⟩
 
 /-- Returns a vector of size `1` with element `v`. -/
 @[inline] def singleton (v : α) : Vector α 1 := ⟨#[v], rfl⟩
 
 instance [Inhabited α] : Inhabited (Vector α n) where
-  default := mkVector n default
+  default := replicate n default
 
 /-- Get an element of a vector using a `Fin` index. -/
 @[inline] def get (xs : Vector α n) (i : Fin n) : α :=
@@ -454,6 +463,27 @@ to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
 /-- Count the number of elements of a vector that are equal to `a`. -/
 @[inline] def count [BEq α] (a : α) (xs : Vector α n) : Nat :=
   xs.toArray.count a
+
+@[inline] def replace [BEq α] (xs : Vector α n) (a b : α) : Vector α n :=
+  ⟨xs.toArray.replace a b, by simp⟩
+
+/--
+Pad a vector on the left with a given element.
+
+Note that we immediately simplify this to an `++` operation,
+and do not provide separate verification theorems.
+-/
+@[inline, simp] def leftpad (n : Nat) (a : α) (xs : Vector α m) : Vector α (max n m) :=
+  (replicate (n - m) a ++ xs).cast (by omega)
+
+/--
+Pad a vector on the right with a given element.
+
+Note that we immediately simplify this to an `++` operation,
+and do not provide separate verification theorems.
+-/
+@[inline, simp] def rightpad (n : Nat) (a : α) (xs : Vector α m) : Vector α (max n m) :=
+  (xs ++ replicate (n - m) a).cast (by omega)
 
 /-! ### ForIn instance -/
 

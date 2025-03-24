@@ -36,8 +36,6 @@ instance : ToExpr BVUnOp where
   toExpr x :=
     match x with
     | .not => mkConst ``BVUnOp.not
-    | .shiftLeftConst n => mkApp (mkConst ``BVUnOp.shiftLeftConst) (toExpr n)
-    | .shiftRightConst n => mkApp (mkConst ``BVUnOp.shiftRightConst) (toExpr n)
     | .rotateLeft n => mkApp (mkConst ``BVUnOp.rotateLeft) (toExpr n)
     | .rotateRight n => mkApp (mkConst ``BVUnOp.rotateRight) (toExpr n)
     | .arithShiftRightConst n => mkApp (mkConst ``BVUnOp.arithShiftRightConst) (toExpr n)
@@ -50,16 +48,16 @@ where
   go {w : Nat} : BVExpr w → Expr
   | .var idx => mkApp2 (mkConst ``BVExpr.var) (toExpr w) (toExpr idx)
   | .const val => mkApp2 (mkConst ``BVExpr.const) (toExpr w) (toExpr val)
-  | .zeroExtend (w := oldWidth) val inner =>
-    mkApp3 (mkConst ``BVExpr.zeroExtend) (toExpr oldWidth) (toExpr val) (go inner)
-  | .signExtend (w := oldWidth) val inner =>
-    mkApp3 (mkConst ``BVExpr.signExtend) (toExpr oldWidth) (toExpr val) (go inner)
   | .bin lhs op rhs => mkApp4 (mkConst ``BVExpr.bin) (toExpr w) (go lhs) (toExpr op) (go rhs)
   | .un op operand => mkApp3 (mkConst ``BVExpr.un) (toExpr w) (toExpr op) (go operand)
-  | .append (l := l) (r := r) lhs rhs =>
-    mkApp4 (mkConst ``BVExpr.append) (toExpr l) (toExpr r) (go lhs) (go rhs)
-  | .replicate (w := oldWidth) w inner =>
-    mkApp3 (mkConst ``BVExpr.replicate) (toExpr oldWidth) (toExpr w) (go inner)
+  | .append (w := w) (l := l) (r := r) lhs rhs _ =>
+    let wExpr := toExpr w
+    let proof := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Nat) wExpr
+    mkApp6 (mkConst ``BVExpr.append) (toExpr l) (toExpr r) wExpr (go lhs) (go rhs) proof
+  | .replicate (w' := newWidth) (w := oldWidth) w inner _ =>
+    let newWExpr := toExpr newWidth
+    let proof := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Nat) newWExpr
+    mkApp5 (mkConst ``BVExpr.replicate) (toExpr oldWidth) newWExpr (toExpr w) (go inner) proof
   | .extract (w := oldWidth) hi lo expr =>
     mkApp4 (mkConst ``BVExpr.extract) (toExpr oldWidth) (toExpr hi) (toExpr lo) (go expr)
   | .shiftLeft (m := m) (n := n) lhs rhs =>
@@ -302,6 +300,18 @@ structure LemmaState where
   The list of top level lemmas that got created on the fly during reflection.
   -/
   lemmas : Array SatAtBVLogical := #[]
+  /--
+  Cache for reification of `BVExpr`.
+  -/
+  bvExprCache : Std.HashMap Expr (Option ReifiedBVExpr) := {}
+  /--
+  Cache for reification of `BVPred`.
+  -/
+  bvPredCache : Std.HashMap Expr (Option ReifiedBVPred) := {}
+  /--
+  Cache for reification of `BVLogicalExpr`.
+  -/
+  bvLogicalCache : Std.HashMap Expr (Option ReifiedBVLogical) := {}
 
 /--
 The lemma reflection monad. It extends the usual reflection monad `M` by adding the ability to
@@ -320,6 +330,36 @@ Add another top level lemma.
 -/
 def addLemma (lemma : SatAtBVLogical) : LemmaM Unit := do
   modify fun s => { s with lemmas := s.lemmas.push lemma }
+
+@[specialize]
+def withBVExprCache (e : Expr) (f : Expr → LemmaM (Option ReifiedBVExpr)) :
+    LemmaM (Option ReifiedBVExpr) := do
+  match (← get).bvExprCache[e]? with
+  | some hit => return hit
+  | none =>
+    let res ← f e
+    modify fun s => { s with bvExprCache := s.bvExprCache.insert e res }
+    return res
+
+@[specialize]
+def withBVPredCache (e : Expr) (f : Expr → LemmaM (Option ReifiedBVPred)) :
+    LemmaM (Option ReifiedBVPred) := do
+  match (← get).bvPredCache[e]? with
+  | some hit => return hit
+  | none =>
+    let res ← f e
+    modify fun s => { s with bvPredCache := s.bvPredCache.insert e res }
+    return res
+
+@[specialize]
+def withBVLogicalCache (e : Expr) (f : Expr → LemmaM (Option ReifiedBVLogical)) :
+    LemmaM (Option ReifiedBVLogical) := do
+  match (← get).bvLogicalCache[e]? with
+  | some hit => return hit
+  | none =>
+    let res ← f e
+    modify fun s => { s with bvLogicalCache := s.bvLogicalCache.insert e res }
+    return res
 
 end LemmaM
 

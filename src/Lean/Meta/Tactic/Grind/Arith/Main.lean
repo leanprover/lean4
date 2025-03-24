@@ -7,7 +7,7 @@ prelude
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Combinators
 import Lean.Meta.Tactic.Grind.Arith.Offset
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.RelCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
 
 namespace Lean.Meta.Grind.Arith
@@ -30,11 +30,11 @@ builtin_grind_propagator propagateLE ↓LE.le := fun e => do
   if (← isEqTrue e) then
     if let some c ← Offset.isCnstr? e then
       Offset.assertTrue c (← mkEqTrueProof e)
-    Cutsat.propagateIfIntLe e (eqTrue := true)
+    Cutsat.propagateIfSupportedLe e (eqTrue := true)
   if (← isEqFalse e) then
     if let some c ← Offset.isCnstr? e then
       Offset.assertFalse c (← mkEqFalseProof e)
-    Cutsat.propagateIfIntLe e (eqTrue := false)
+    Cutsat.propagateIfSupportedLe e (eqTrue := false)
 
 def check : GrindTactic := fun goal => do
   let (progress, goal) ← GoalM.run goal do

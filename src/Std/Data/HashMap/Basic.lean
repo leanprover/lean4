@@ -62,21 +62,31 @@ structure HashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
 
 namespace HashMap
 
-@[inline, inherit_doc DHashMap.empty] def empty [BEq α] [Hashable α] (capacity := 8) :
+@[inline, inherit_doc DHashMap.empty] def emptyWithCapacity [BEq α] [Hashable α] (capacity := 8) :
     HashMap α β :=
-  ⟨DHashMap.empty capacity⟩
+  ⟨DHashMap.emptyWithCapacity capacity⟩
+
+@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
+abbrev empty := @emptyWithCapacity
 
 instance [BEq α] [Hashable α] : EmptyCollection (HashMap α β) where
-  emptyCollection := empty
+  emptyCollection := emptyWithCapacity
 
 instance [BEq α] [Hashable α] : Inhabited (HashMap α β) where
   default := ∅
+
+@[inherit_doc DHashMap.Equiv]
+structure Equiv (m₁ m₂ : HashMap α β) where
+  /-- Internal implementation detail of the hash map -/
+  inner : m₁.1.Equiv m₂.1
+
+@[inherit_doc] scoped infixl:50 " ~m " => Equiv
 
 @[inline, inherit_doc DHashMap.insert] def insert (m : HashMap α β) (a : α)
     (b : β) : HashMap α β :=
   ⟨m.inner.insert a b⟩
 
-instance : Singleton (α × β) (HashMap α β) := ⟨fun ⟨a, b⟩ => HashMap.empty.insert a b⟩
+instance : Singleton (α × β) (HashMap α β) := ⟨fun ⟨a, b⟩ => (∅ : HashMap α β).insert a b⟩
 
 instance : Insert (α × β) (HashMap α β) := ⟨fun ⟨a, b⟩ s => s.insert a b⟩
 
@@ -118,10 +128,6 @@ Tries to retrieve the mapping for the given key, returning `none` if no such map
 @[inline] def get? (m : HashMap α β) (a : α) : Option β :=
   DHashMap.Const.get? m.inner a
 
-@[deprecated get? "Use `m[a]?` or `m.get? a` instead" (since := "2024-08-07"), inherit_doc get?]
-def find? (m : HashMap α β) (a : α) : Option β :=
-  m.get? a
-
 @[inline, inherit_doc DHashMap.contains] def contains (m : HashMap α β)
     (a : α) : Bool :=
   m.inner.contains a
@@ -145,10 +151,6 @@ Retrieves the mapping for the given key. Ensures that such a mapping exists by r
     (fallback : β) : β :=
   DHashMap.Const.getD m.inner a fallback
 
-@[deprecated getD (since := "2024-08-07"), inherit_doc getD]
-def findD (m : HashMap α β) (a : α) (fallback : β) : β :=
-  m.getD a fallback
-
 /--
 The notation `m[a]!` is preferred over calling this function directly.
 
@@ -156,10 +158,6 @@ Tries to retrieve the mapping for the given key, panicking if no such mapping is
 -/
 @[inline] def get! [Inhabited β] (m : HashMap α β) (a : α) : β :=
   DHashMap.Const.get! m.inner a
-
-@[deprecated get! "Use `m[a]!` or `m.get! a` instead" (since := "2024-08-07"), inherit_doc get!]
-def find! [Inhabited β] (m : HashMap α β) (a : α) : Option β :=
-  m.get! a
 
 instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a ∈ m) where
   getElem m a h := m.get a h
@@ -203,19 +201,6 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
     List (α × β) :=
   DHashMap.Const.toList m.inner
 
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
-
-@[inline, inherit_doc DHashMap.filter] def filter (f : α → β → Bool)
-    (m : HashMap α β) : HashMap α β :=
-  ⟨m.inner.filter f⟩
-
-@[inline, inherit_doc DHashMap.partition] def partition (f : α → β → Bool)
-    (m : HashMap α β) : HashMap α β × HashMap α β :=
-  let ⟨l, r⟩ := m.inner.partition f
-  ⟨⟨l⟩, ⟨r⟩⟩
-
 @[inline, inherit_doc DHashMap.foldM] def foldM {m : Type w → Type w}
     [Monad m] {γ : Type w} (f : γ → α → β → m γ) (init : γ) (b : HashMap α β) : m γ :=
   b.inner.foldM f init
@@ -237,6 +222,19 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForM m (HashMap α β)
 
 instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
+@[inline, inherit_doc DHashMap.filter] def filter (f : α → β → Bool)
+    (m : HashMap α β) : HashMap α β :=
+  ⟨m.inner.filter f⟩
+
+@[inline, inherit_doc DHashMap.partition] def partition (f : α → β → Bool)
+    (m : HashMap α β) : HashMap α β × HashMap α β :=
+  let ⟨l, r⟩ := m.inner.partition f
+  ⟨⟨l⟩, ⟨r⟩⟩
 
 @[inline, inherit_doc DHashMap.Const.toArray] def toArray (m : HashMap α β) :
     Array (α × β) :=
@@ -291,8 +289,16 @@ end Unverified
 end Std.HashMap
 
 /--
-Groups all elements `x`, `y` in `xs` with `key x == key y` into the same array
-`(xs.groupByKey key).find! (key x)`. Groups preserve the relative order of elements in `xs`.
+Groups the elements of an array `xs` according to the function `key`, returning a hash map in which
+each group is associated with its key. Groups preserve the relative order of elements in `xs`.
+
+Example:
+```lean example
+#eval #[0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2)
+```
+```output
+Std.HashMap.ofList [(0, #[0, 2, 4, 6]), (1, #[1, 3, 5])]
+```
 -/
 def Array.groupByKey [BEq α] [Hashable α] (key : β → α) (xs : Array β)
     : Std.HashMap α (Array β) := Id.run do
@@ -302,8 +308,16 @@ def Array.groupByKey [BEq α] [Hashable α] (key : β → α) (xs : Array β)
   return groups
 
 /--
-Groups all elements `x`, `y` in `xs` with `key x == key y` into the same list
-`(xs.groupByKey key).find! (key x)`. Groups preserve the relative order of elements in `xs`.
+Groups the elements of a list `xs` according to the function `key`, returning a hash map in which
+each group is associated with its key. Groups preserve the relative order of elements in `xs`.
+
+Example:
+```lean example
+#eval [0, 1, 2, 3, 4, 5, 6].groupByKey (· % 2)
+```
+```output
+Std.HashMap.ofList [(0, [0, 2, 4, 6]), (1, [1, 3, 5])]
+```
 -/
 def List.groupByKey [BEq α] [Hashable α] (key : β → α) (xs : List β) :
     Std.HashMap α (List β) :=

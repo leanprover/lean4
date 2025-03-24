@@ -28,7 +28,6 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Entrypoint_relabelNat___at_Std_Tactic_BVDecide_Reflect_verifyBVExpr___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at_Std_Tactic_BVDecide_Reflect_verifyBVExpr___spec__13(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Std_Sat_AIG_empty___at_Std_Tactic_BVDecide_BVLogicalExpr_bitblast___spec__2;
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Reflect_0__Std_Tactic_BVDecide_Reflect_verifyCert_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_Std_Tactic_BVDecide_Reflect_verifyBVExpr___spec__15(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_nextPowerOfTwo_go(lean_object*, lean_object*, lean_object*);
@@ -76,6 +75,7 @@ size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIG___at_Std_Tactic_BVDecide_Reflect_verifyBVExpr___spec__4(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_ofAIGAux___at_Std_Tactic_BVDecide_Reflect_verifyBVExpr___spec__5___boxed(lean_object*);
 lean_object* l_instDecidableEqNat___boxed(lean_object*, lean_object*);
+lean_object* l_Std_Tactic_BVDecide_BVLogicalExpr_bitblast(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -87,7 +87,6 @@ static lean_object* l_Std_Sat_AIG_RelabelNat_State_empty___at_Std_Tactic_BVDecid
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_addGate___at_Std_Tactic_BVDecide_Reflect_verifyBVExpr___spec__16___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Std_Sat_AIG_Decl_relabel___rarg(lean_object*, lean_object*);
-lean_object* l_Std_Tactic_BVDecide_ofBoolExprCached_go___at_Std_Tactic_BVDecide_BVLogicalExpr_bitblast___spec__3(lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 lean_object* l_instHashableNat___boxed(lean_object*);
 static lean_object* _init_l_Std_Tactic_BVDecide_Reflect_verifyCert___closed__1() {
@@ -1033,42 +1032,48 @@ return x_3;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_Entrypoint_relabelNat___at_Std_Tactic_BVDecide_Reflect_verifyBVExpr___spec__1(lean_object* x_1) {
 _start:
 {
-uint8_t x_2; 
-x_2 = !lean_is_exclusive(x_1);
-if (x_2 == 0)
+lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+x_3 = l_Std_Sat_AIG_relabelNat___at_Std_Tactic_BVDecide_Reflect_verifyBVExpr___spec__2(x_2);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = !lean_is_exclusive(x_4);
+if (x_5 == 0)
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_ctor_get(x_1, 0);
-x_4 = l_Std_Sat_AIG_relabelNat___at_Std_Tactic_BVDecide_Reflect_verifyBVExpr___spec__2(x_3);
-lean_ctor_set(x_1, 0, x_4);
-return x_1;
+lean_object* x_6; 
+x_6 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_6, 0, x_3);
+lean_ctor_set(x_6, 1, x_4);
+return x_6;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = lean_ctor_get(x_1, 0);
-x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_dec(x_1);
-x_7 = l_Std_Sat_AIG_relabelNat___at_Std_Tactic_BVDecide_Reflect_verifyBVExpr___spec__2(x_5);
-x_8 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_8, 0, x_7);
-lean_ctor_set(x_8, 1, x_6);
-return x_8;
+lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; 
+x_7 = lean_ctor_get(x_4, 0);
+x_8 = lean_ctor_get_uint8(x_4, sizeof(void*)*1);
+lean_inc(x_7);
+lean_dec(x_4);
+x_9 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_9, 0, x_7);
+lean_ctor_set_uint8(x_9, sizeof(void*)*1, x_8);
+x_10 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_10, 0, x_3);
+lean_ctor_set(x_10, 1, x_9);
+return x_10;
 }
 }
 }
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_Reflect_verifyBVExpr(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_3 = l_Std_Sat_AIG_empty___at_Std_Tactic_BVDecide_BVLogicalExpr_bitblast___spec__2;
-x_4 = l_Std_Tactic_BVDecide_ofBoolExprCached_go___at_Std_Tactic_BVDecide_BVLogicalExpr_bitblast___spec__3(x_3, x_1);
-x_5 = l_Std_Sat_AIG_Entrypoint_relabelNat___at_Std_Tactic_BVDecide_Reflect_verifyBVExpr___spec__1(x_4);
-x_6 = l_Std_Sat_AIG_toCNF(x_5);
-x_7 = l_Std_Tactic_BVDecide_Reflect_verifyCert(x_6, x_2);
-return x_7;
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_3 = l_Std_Tactic_BVDecide_BVLogicalExpr_bitblast(x_1);
+x_4 = l_Std_Sat_AIG_Entrypoint_relabelNat___at_Std_Tactic_BVDecide_Reflect_verifyBVExpr___spec__1(x_3);
+x_5 = l_Std_Sat_AIG_toCNF(x_4);
+x_6 = l_Std_Tactic_BVDecide_Reflect_verifyCert(x_5, x_2);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RelabelNat_State_empty___at_Std_Tactic_BVDecide_Reflect_verifyBVExpr___spec__6___boxed(lean_object* x_1) {

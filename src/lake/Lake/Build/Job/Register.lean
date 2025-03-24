@@ -32,13 +32,17 @@ def Job.renew (self : Job α) : Job α :=
 Registers the job for the top-level build monitor,
 (e.g., the Lake CLI progress UI), assigning it `caption`.
 -/
-def registerJob (caption : String) (job : Job α) (optional := false) : FetchM (Job α) := do
+@[inline] def registerJob
+  [Monad m] [MonadLiftT (ST IO.RealWorld) m] [MonadBuild m]
+  (caption : String) (job : Job α) (optional := false)
+: m (Job α) := do
   let job : Job α := {job with caption, optional}
   (← getBuildContext).registeredJobs.modify (·.push job)
   return job.renew
 
 /-- Wraps stray I/O, logs, and errors in `x` into the produced job.  -/
-def ensureJob (x : FetchM (Job α))
+def ensureJob
+  (x : FetchM (Job α))
 : FetchM (Job α) := fun fetch stack store ctx log => do
   let iniPos := log.endPos
   match (← (withLoggedIO x) fetch stack store ctx log) with

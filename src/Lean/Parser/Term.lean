@@ -998,11 +998,23 @@ interpolated string literal) to stderr. It should only be used for debugging.
 /-- `assert! cond` panics if `cond` evaluates to `false`. -/
 @[builtin_term_parser] def assert := leading_parser:leadPrec
   withPosition ("assert! " >> termParser) >> optSemicolon termParser
+/--
+`debug_assert! cond` panics if `cond` evaluates to `false` and the executing code has been built
+with debug assertions enabled (see the `debugAssertions` option).
+-/
+@[builtin_term_parser] def debugAssert := leading_parser:leadPrec
+  withPosition ("debug_assert! " >> termParser) >> optSemicolon termParser
 
 def macroArg       := termParser maxPrec
 def macroDollarArg := leading_parser "$" >> termParser 10
 def macroLastArg   := macroDollarArg <|> macroArg
 
+/--
+A state monad that uses an actual mutable reference cell (i.e. an `ST.Ref`).
+
+This is syntax, rather than a function, to make it easier to use. Its elaborator synthesizes an
+appropriate parameter for the underlying monad's `ST` effects, then passes it to `StateRefT'`.
+-/
 -- Macro for avoiding exponentially big terms when using `STWorld`
 @[builtin_term_parser] def stateRefT := leading_parser
   "StateRefT " >> macroArg >> ppSpace >> macroLastArg

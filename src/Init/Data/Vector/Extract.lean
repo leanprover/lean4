@@ -11,8 +11,8 @@ import Init.Data.Array.Extract
 # Lemmas about `Vector.extract`
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 open Nat
 
@@ -131,10 +131,13 @@ theorem extract_append_left {xs : Vector α n} {ys : Vector α m} :
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem extract_mkVector {a : α} {n i j : Nat} :
-    (mkVector n a).extract i j = mkVector (min j n - i) a := by
+@[simp] theorem extract_replicate {a : α} {n i j : Nat} :
+    (replicate n a).extract i j = replicate (min j n - i) a := by
   ext i h
   simp
+
+@[deprecated extract_mkVector (since := "2025-03-18")]
+abbrev extract_mkVector := @extract_replicate
 
 theorem extract_add_left {xs : Vector α n} {i j k : Nat} :
     xs.extract (i + j) k = ((xs.extract i k).extract j (k - i)).cast (by omega) := by

@@ -11,8 +11,8 @@ import Init.Data.List.Attach
 # Lemmas about `List.mapM` and `List.forM`.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
 
@@ -31,10 +31,13 @@ attribute [simp] mapA forA filterAuxM firstM anyM allM findM? findSomeM?
 
 /-! ### mapM -/
 
-/-- Alternate (non-tail-recursive) form of mapM for proofs.
+/--
+Applies the monadic action `f` on every element in the list, left-to-right, and returns the list of
+results.
 
-Note that we can not have this as the main definition and replace it using a `@[csimp]` lemma,
-because they are only equal when `m` is a `LawfulMonad`.
+This is a non-tail-recursive variant of `List.mapM` that's easier to reason about. It cannot be used
+as the main definition and replaced by the tail-recursive version because they can only be proved
+equal when `m` is a `LawfulMonad`.
 -/
 def mapM' [Monad m] (f : α → m β) : List α → m (List β)
   | [] => pure []
@@ -56,8 +59,12 @@ theorem mapM'_eq_mapM [Monad m] [LawfulMonad m] (f : α → m β) (l : List α) 
 @[simp] theorem mapM_cons [Monad m] [LawfulMonad m] (f : α → m β) :
     (a :: l).mapM f = (return (← f a) :: (← l.mapM f)) := by simp [← mapM'_eq_mapM, mapM']
 
-@[simp] theorem mapM_id {l : List α} {f : α → Id β} : l.mapM f = l.map f := by
+@[simp] theorem mapM_pure [Monad m] [LawfulMonad m] (l : List α) (f : α → β) :
+    l.mapM (m := m) (pure <| f ·) = pure (l.map f) := by
   induction l <;> simp_all
+
+@[simp] theorem mapM_id {l : List α} {f : α → Id β} : l.mapM f = l.map f :=
+  mapM_pure _ _
 
 @[simp] theorem mapM_append [Monad m] [LawfulMonad m] (f : α → m β) {l₁ l₂ : List α} :
     (l₁ ++ l₂).mapM f = (return (← l₁.mapM f) ++ (← l₂.mapM f)) := by induction l₁ <;> simp [*]
@@ -323,7 +330,7 @@ theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
   simp only [forIn'_eq_foldlM]
   induction l.attach generalizing init <;> simp_all
 
-theorem forIn'_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
+@[simp] theorem forIn'_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
     (l : List α) (f : (a : α) → a ∈ l → β → β) (init : β) :
     forIn' l init (fun a m b => pure (.yield (f a m b))) =
       pure (f := m) (l.attach.foldl (fun b ⟨a, h⟩ => f a h b) init) := by
@@ -376,7 +383,7 @@ theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
   simp only [forIn_eq_foldlM]
   induction l generalizing init <;> simp_all
 
-theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
+@[simp] theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
     (l : List α) (f : α → β → β) (init : β) :
     forIn l init (fun a b => pure (.yield (f a b))) =
       pure (f := m) (l.foldl (fun b a => f a b) init) := by
@@ -395,7 +402,7 @@ theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
     forIn (l.map g) init f = forIn l init fun a y => f (g a) y := by
   induction l generalizing init <;> simp_all
 
-/-! ### allM -/
+/-! ### allM and anyM -/
 
 theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] (p : α → m Bool) (as : List α) :
     allM p as = (! ·) <$> anyM ((! ·) <$> p ·) as := by
@@ -406,6 +413,18 @@ theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] (p : α → m Bool) (as :
     congr
     funext b
     split <;> simp_all
+
+@[simp] theorem anyM_pure [Monad m] [LawfulMonad m] (p : α → Bool) (as : List α) :
+    as.anyM (m := m) (pure <| p ·) = pure (as.any p) := by
+  induction as with
+  | nil => simp
+  | cons a as ih =>
+    simp only [anyM, ih, pure_bind, all_cons]
+    split <;> simp_all
+
+@[simp] theorem allM_pure [Monad m] [LawfulMonad m] (p : α → Bool) (as : List α) :
+    as.allM (m := m) (pure <| p ·) = pure (as.all p) := by
+  simp [allM_eq_not_anyM_not, all_eq_not_any_not]
 
 /-! ### Recognizing higher order functions using a function that only depends on the value. -/
 
@@ -422,12 +441,12 @@ and simplifies these to the function directly taking the value.
   | nil => simp
   | cons a l ih => simp [ih, hf]
 
-@[wf_preprocess] theorem foldlM_wfParam [Monad m] (xs : List α) (f : β → α → m β) :
-    (wfParam xs).foldlM f = xs.attach.unattach.foldlM f := by
+@[wf_preprocess] theorem foldlM_wfParam [Monad m] (xs : List α) (f : β → α → m β) (init : β) :
+    (wfParam xs).foldlM f init = xs.attach.unattach.foldlM f init := by
   simp [wfParam]
 
-@[wf_preprocess] theorem foldlM_unattach [Monad m] (P : α → Prop) (xs : List (Subtype P)) (f : β → α → m β) :
-    xs.unattach.foldlM f = xs.foldlM fun b ⟨x, h⟩ =>
+@[wf_preprocess] theorem foldlM_unattach [Monad m] (P : α → Prop) (xs : List (Subtype P)) (f : β → α → m β) (init : β):
+    xs.unattach.foldlM f init = xs.foldlM (init := init) fun b ⟨x, h⟩ =>
       binderNameHint b f <| binderNameHint x (f b) <| binderNameHint h () <|
       f b (wfParam x) := by
   simp [wfParam]
@@ -449,12 +468,12 @@ and simplifies these to the function directly taking the value.
     funext b
     simp [hf]
 
-@[wf_preprocess] theorem foldrM_wfParam [Monad m] [LawfulMonad m] (xs : List α) (f : α → β → m β) :
-    (wfParam xs).foldrM f = xs.attach.unattach.foldrM f := by
+@[wf_preprocess] theorem foldrM_wfParam [Monad m] [LawfulMonad m] (xs : List α) (f : α → β → m β) (init : β) :
+    (wfParam xs).foldrM f init = xs.attach.unattach.foldrM f init := by
   simp [wfParam]
 
-@[wf_preprocess] theorem foldrM_unattach [Monad m] [LawfulMonad m] (P : α → Prop) (xs : List (Subtype P)) (f : α → β → m β) :
-    xs.unattach.foldrM f = xs.foldrM fun ⟨x, h⟩ b =>
+@[wf_preprocess] theorem foldrM_unattach [Monad m] [LawfulMonad m] (P : α → Prop) (xs : List (Subtype P)) (f : α → β → m β) (init : β) :
+    xs.unattach.foldrM f init = xs.foldrM (init := init) fun ⟨x, h⟩ b =>
       binderNameHint x f <| binderNameHint h () <| binderNameHint b (f x) <|
       f (wfParam x) b := by
   simp [wfParam]

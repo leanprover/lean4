@@ -243,7 +243,7 @@ def link! (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
       if delta * szl < szr then
         balanceL! k'' v'' (link! k v l l'') r''
       else if delta * szr < szl then
-        balanceR! k' v' l' (link! k v r r')
+        balanceR! k' v' l' (link! k v r' r)
       else
         .inner (l.size + 1 + r.size) k v l r
 termination_by sizeOf l + sizeOf r
@@ -401,7 +401,7 @@ def containsThenInsertIfNew! [Ord α] (k : α) (v : β k) (t : Impl α β) :
 
 /-- Implementation detail of the tree map -/
 @[inline]
-def getThenInsertIfNew? [Ord α] [LawfulEqOrd α] (k : α) (v : β k) (t : Impl α β) (ht : t.Balanced) :
+def getThenInsertIfNew? [Ord α] [LawfulEqOrd α] (t : Impl α β) (k : α) (v : β k) (ht : t.Balanced) :
     Option (β k) × Impl α β :=
   match t.get? k with
   | none => (none, t.insertIfNew k v ht |>.impl)
@@ -412,7 +412,7 @@ Slower version of `getThenInsertIfNew?` which can be used in the absence of bala
 information but still assumes the preconditions of `getThenInsertIfNew?`, otherwise might panic.
 -/
 @[inline]
-def getThenInsertIfNew?! [Ord α] [LawfulEqOrd α] (k : α) (v : β k) (t : Impl α β) :
+def getThenInsertIfNew?! [Ord α] [LawfulEqOrd α] (t : Impl α β) (k : α) (v : β k) :
     Option (β k) × Impl α β :=
   match t.get? k with
   | none => (none, t.insertIfNew! k v)
@@ -604,9 +604,9 @@ variable {β : Type v}
 
 /-- Implementation detail of the tree map -/
 @[inline]
-def getThenInsertIfNew? [Ord α] (k : α) (v : β) (t : Impl α (fun _ => β))
+def getThenInsertIfNew? [Ord α] (t : Impl α (fun _ => β)) (k : α) (v : β)
     (ht : t.Balanced) : Option β × Impl α (fun _ => β) :=
-  match get? k t with
+  match get? t k with
   | none => (none, t.insertIfNew k v ht |>.impl)
   | some b => (some b, t)
 
@@ -615,9 +615,9 @@ Slower version of `getThenInsertIfNew?` which can be used in the absence of bala
 information but still assumes the preconditions of `getThenInsertIfNew?`, otherwise might panic.
 -/
 @[inline]
-def getThenInsertIfNew?! [Ord α] (k : α) (v : β) (t : Impl α (fun _ => β))
+def getThenInsertIfNew?! [Ord α] (t : Impl α (fun _ => β)) (k : α) (v : β)
     : Option β × Impl α (fun _ => β) :=
-  match get? k t with
+  match get? t k with
   | none => (none, t.insertIfNew! k v)
   | some b => (some b, t)
 
@@ -784,7 +784,7 @@ def modify [Ord α] [LawfulEqOrd α] (k : α) (f : β k → β k) (t : Impl α �
     | .eq => .inner sz k (f <| cast (congrArg β <| compare_eq_iff_eq.mp h).symm v') l r
 
 @[Std.Internal.tree_tac]
-theorem size_modify [Ord α] [LawfulEqOrd α] {k f} {t : Impl α β} :
+theorem aux_size_modify [Ord α] [LawfulEqOrd α] {k f} {t : Impl α β} :
     (t.modify k f).size = t.size := by
   unfold modify
   split <;> (try split) <;> rfl
@@ -891,7 +891,7 @@ def modify [Ord α] (k : α) (f : β → β) (t : Impl α β) :
     | .eq => .inner sz k (f v') l r
 
 @[Std.Internal.tree_tac]
-theorem size_modify [Ord α] {k f} {t : Impl α β} :
+theorem aux_size_modify [Ord α] {k f} {t : Impl α β} :
     (modify k f t).size = t.size := by
   unfold modify
   split <;> (try split) <;> rfl

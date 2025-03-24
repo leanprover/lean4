@@ -682,6 +682,12 @@ theorem getLsbD_mul (x y : BitVec w) (i : Nat) :
   · simp
   · omega
 
+theorem mul_eq_mulRec {x y : BitVec w} :
+    x * y = mulRec x y w := by
+  apply eq_of_getLsbD_eq
+  intro i hi
+  apply getLsbD_mul
+
 theorem getMsbD_mul (x y : BitVec w) (i : Nat) :
     (x * y).getMsbD i = (mulRec x y w).getMsbD i := by
   simp only [mulRec_eq_mul_signExtend_setWidth]
@@ -1413,5 +1419,18 @@ theorem extractLsb'_add {w len : Nat} {x y : BitVec w} (hlen : len ≤ w) :
   ext i hi
   rw [getElem_extractLsb', Nat.zero_add, getLsbD_add (by omega)]
   simp [getElem_add, carry_extractLsb'_eq_carry hi, getElem_extractLsb', Nat.zero_add]
+
+-- `setWidth` commutes with multiplication. -/
+theorem setWidth_mul {w len} {x y : BitVec w} (hlen : len ≤ w) :
+    (x * y).setWidth len = (x.setWidth len) * (y.setWidth len) := by
+  apply eq_of_toNat_eq
+  simp only [toNat_setWidth, toNat_mul, mul_mod_mod, mod_mul_mod]
+  rw [Nat.mod_mod_of_dvd]
+  exact pow_dvd_pow_iff_le_right'.mpr hlen
+
+/-- `extractLsb'` commutes with multiplication. -/
+theorem extractLsb'_mul {w len} {x y : BitVec w} (hlen : len ≤ w) :
+    (x * y).extractLsb' 0 len = (x.extractLsb' 0 len) * (y.extractLsb' 0 len) := by
+  simp [← setWidth_eq_extractLsb' hlen, setWidth_mul hlen]
 
 end BitVec

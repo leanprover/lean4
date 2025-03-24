@@ -2352,7 +2352,7 @@ theorem toNat_signExtend_of_lt {x : BitVec w} {v : Nat} (h : v < w) :
   rw [toNat_signExtend, show 2 ^ v - 2 ^ w = 0 by rw [@Nat.sub_eq_zero_iff_le]; apply Nat.pow_le_pow_of_le (by decide) (by omega)]
   rcases x.msb <;> simp
 
-/-
+/--
 If the current width `w` is smaller than the extended width `v`,
 then the value when interpreted as an integer does not change.
 -/

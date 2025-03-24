@@ -30,17 +30,18 @@ opaque floatSpec : FloatSpec := {
 64-bit floating-point numbers.
 
 `Float` corresponds to the IEEE 754 *binary64* format (`double` in C or `f64` in Rust).
-Floating-point numbers are a finite representation of a subset of the real numbers, and arithmetic
-on them approximates the corresponding operations on the real numbers by rounding the results to
-numbers that are representable as floating-point numbers.
+Floating-point numbers are a finite representation of a subset of the real numbers, extended with
+extra “sentinel” values that represent undefined and infinite results as well as separate positive
+and negative zeroes. Arithmetic on floating-point numbers approximates the corresponding operations
+on the real numbers by rounding the results to numbers that are representable, propagating error and
+infinite values.
 
-The floating-point numbers are not a strict subset of the real numbers. They distinguish positive
-and negative `0`, include [subnormal numbers](https://en.wikipedia.org/wiki/Subnormal_number), and
-additionally include the following special values:
- * `NaN` denotes a class of “not a number” values that result from operations such as dividing zero
-   by zero.
- * `Inf` and `-Inf` represent positive and infinities that result from dividing non-zero values by
-   zero.
+Floating-point numbers include [subnormal numbers](https://en.wikipedia.org/wiki/Subnormal_number).
+Their special values are:
+ * `NaN`, which denotes a class of “not a number” values that result from operations such as
+   dividing zero by zero, and
+ * `Inf` and `-Inf`, which represent positive and infinities that result from dividing non-zero
+   values by zero.
 -/
 structure Float where
   val : floatSpec.float

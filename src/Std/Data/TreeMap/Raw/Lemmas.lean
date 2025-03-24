@@ -143,6 +143,15 @@ theorem isEmpty_erase [TransCmp cmp] (h : t.WF) {k : α} :
     (t.erase k).isEmpty = (t.isEmpty || (t.size == 1 && t.contains k)) :=
   DTreeMap.Raw.isEmpty_erase h
 
+theorem isEmpty_eq_isEmpty_erase_and_not_containsKey [TransCmp cmp] (h : t.WF) (k : α) :
+    t.isEmpty = ((t.erase k).isEmpty && !(t.contains k)) :=
+  DTreeMap.Raw.isEmpty_eq_isEmpty_erase_and_not_containsKey h k
+
+theorem isEmpty_eq_false_of_isEmpty_erase_eq_false [TransCmp cmp] (h : t.WF) {k : α}
+    (he : (t.erase k).isEmpty = false) :
+    t.isEmpty = false :=
+  DTreeMap.Raw.isEmpty_eq_false_of_isEmpty_erase_eq_false h he
+
 @[simp]
 theorem contains_erase [TransCmp cmp] (h : t.WF) {k a : α} :
     (t.erase k).contains a = (cmp k a != .eq && t.contains a) :=
@@ -311,6 +320,11 @@ theorem getElem?_eq_some_getElem! [TransCmp cmp] [Inhabited β] (h : t.WF) {a : 
     a ∈ t → t[a]? = some t[a]! :=
   DTreeMap.Raw.Const.get?_eq_some_get! h
 
+theorem getElem!_eq_get!_getElem? [TransCmp cmp] [Inhabited β] (h : t.WF) {a : α} :
+    t[a]! = t[a]?.get! :=
+  DTreeMap.Raw.Const.get!_eq_get!_get? h
+
+@[deprecated getElem!_eq_get!_getElem? (since := "2025-03-19")]
 theorem getElem!_eq_getElem!_getElem? [TransCmp cmp] [Inhabited β] (h : t.WF) {a : α} :
     t[a]! = t[a]?.get! :=
   DTreeMap.Raw.Const.get!_eq_get!_get? h
@@ -1774,6 +1788,10 @@ theorem isNone_minKey?_eq_isEmpty [TransCmp cmp] (h : t.WF) :
 theorem isSome_minKey?_eq_not_isEmpty [TransCmp cmp] (h : t.WF) :
     t.minKey?.isSome = !t.isEmpty :=
   DTreeMap.Raw.isSome_minKey?_eq_not_isEmpty h
+
+theorem isSome_minKey?_iff_isEmpty_eq_false [TransCmp cmp] (h : t.WF) :
+    t.minKey?.isSome ↔ t.isEmpty = false :=
+  DTreeMap.Raw.isSome_minKey?_iff_isEmpty_eq_false h
 
 theorem minKey?_insert [TransCmp cmp] (h : t.WF) {k v} :
     (t.insert k v).minKey? =

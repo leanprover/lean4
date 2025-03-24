@@ -7,6 +7,7 @@ prelude
 import Lake.DSL.Config
 import Lake.Util.Binder
 import Lake.Util.Name
+import Lake.Config.Meta
 import Lean.Parser.Command
 import Lean.Elab.Command
 
@@ -101,7 +102,7 @@ structure Field where
 open Syntax Elab Command
 
 def mkConfigFields
-  (tyName : Name) (fs : Array DeclField)
+  (tyName : Name) (infos : NameMap ConfigFieldInfo) (fs : Array DeclField)
 : CommandElabM (TSyntax ``Term.structInstFields) := do
   let mut m := mkNameMap Field
   for x in fs do
@@ -109,8 +110,11 @@ def mkConfigFields
       | throwErrorAt x "ill-formed field declaration syntax"
     let fieldName := id.getId
     addCompletionInfo <| .fieldId x fieldName {} tyName
-    if findField? (← getEnv) tyName fieldName |>.isSome then
-      m := m.insert fieldName {ref := id, val}
+    if let some info := infos.find? fieldName then
+      let c := info.realName
+      if !info.canonical && m.contains c then
+        logWarningAt id m!"redefined field '{c}' ('{fieldName}' is an alias of '{c}')"
+      m := m.insert c {ref := id, val}
     else
       logWarningAt id m!"unknown '{.ofConstName tyName}' field '{fieldName}'"
   let fs ← m.foldM (init := #[]) fun a k {ref, val} => do
@@ -127,7 +131,8 @@ def mkConfigDeclIdent (stx? : Option IdentOrStr) : CommandElabM Ident := do
   | none => Elab.Term.mkFreshIdent (← getRef)
 
 def elabConfig
-  (tyName : Name) (id : Ident)  (ty : Term) (config : TSyntax ``optConfig)
+  (tyName : Name) [info : ConfigInfo tyName]
+  (id : Ident) (ty : Term) (config : TSyntax ``optConfig)
 : CommandElabM PUnit := do
   let mkCmd (whereInfo : SourceInfo) (fs : TSyntaxArray ``declField) wds? := do
     /-
@@ -137,7 +142,7 @@ def elabConfig
     construct this token manually to preserve its original source info.
     -/
     let whereTk := atom whereInfo "where"
-    let fields ← mkConfigFields tyName fs
+    let fields ← mkConfigFields tyName info.fieldMap fs
     let whereStx := mkNode ``whereStructInst #[whereTk, fields, mkOptionalNode wds?]
     let cmd ← `(def $id : $ty $whereStx:whereStructInst)
     withMacroExpansion config cmd <| elabCommand cmd

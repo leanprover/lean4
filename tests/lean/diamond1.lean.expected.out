@@ -1,4 +1,4 @@
-diamond1.lean:11:40-11:45: error: parent field type mismatch, field 'a' from parent 'Baz' has type
+diamond1.lean:11:40-11:45: error: field type mismatch, field 'a' from parent 'Baz' has type
   α → α : Type
 but is expected to have type
   α : Type

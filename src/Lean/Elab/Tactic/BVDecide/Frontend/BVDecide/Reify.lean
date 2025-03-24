@@ -184,10 +184,11 @@ where
   to return `some`.
   -/
   goOrAtom (x : Expr) : LemmaM (Option ReifiedBVExpr) := do
-    let res ← go x
-    match res with
-    | some exp => return some exp
-    | none => ReifiedBVExpr.bitVecAtom x false
+    LemmaM.withBVExprCache x fun x => do
+      let res ← go x
+      match res with
+      | some exp => return some exp
+      | none => ReifiedBVExpr.bitVecAtom x false
 
   shiftConstLikeReflection (distance : Nat) (innerExpr : Expr) (shiftOp : Nat → BVUnOp)
       (shiftOpName : Name) (congrThm : Name) :
@@ -283,9 +284,10 @@ Reify an `Expr` that is a predicate about `BitVec`.
 Unless this function is called on something that is not a `Bool` it is always going to return `some`.
 -/
 partial def ReifiedBVPred.of (t : Expr) : LemmaM (Option ReifiedBVPred) := do
-  match ← go t with
-  | some pred => return some pred
-  | none => ReifiedBVPred.boolAtom t
+  LemmaM.withBVPredCache t fun t => do
+    match ← go t with
+    | some pred => return some pred
+    | none => ReifiedBVPred.boolAtom t
 where
   /--
   Reify `t`, returns `none` if the reification procedure failed.
@@ -344,9 +346,10 @@ where
   Unless this function is called on something that is not a `Bool` it is always going to return `some`.
   -/
   goOrAtom (t : Expr) : LemmaM (Option ReifiedBVLogical) := do
-    match ← go t with
-    | some boolExpr => return some boolExpr
-    | none => ReifiedBVLogical.boolAtom t
+    LemmaM.withBVLogicalCache t fun t => do
+      match ← go t with
+      | some boolExpr => return some boolExpr
+      | none => ReifiedBVLogical.boolAtom t
 
   gateReflection (lhsExpr rhsExpr : Expr) (gate : Gate) :
       LemmaM (Option ReifiedBVLogical) := do

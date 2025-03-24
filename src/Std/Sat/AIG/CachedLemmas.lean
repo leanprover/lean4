@@ -130,7 +130,6 @@ theorem mkConstCached_decl_eq (aig : AIG α) (val : Bool) (idx : Nat) {h : idx <
     (aig.mkConstCached val).aig.decls[idx]'hbound = aig.decls[idx] := by
   match hcache : aig.cache.get? .false with
   | some gate =>
-
     have := mkConstCached_hit_aig aig val hcache
     simp [this]
   | none =>

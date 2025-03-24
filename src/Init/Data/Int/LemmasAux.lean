@@ -140,7 +140,7 @@ theorem bmod_bmod_of_dvd {a : Int} {n m : Nat} (hnm : n ∣ m) :
   obtain ⟨k, rfl⟩ := hnm
   simp [Int.mul_assoc]
 
-theorem bmod_eq_of_le_of_lt {x : Int} {y : Nat} (hge : -y ≤ x * 2) (hlt : x * 2 < y) :
+theorem bmod_eq_of_le_of_lt {x : Int} {y : Nat} (hle : -y ≤ x * 2) (hlt : x * 2 < y) :
     x.bmod y = x := by
   simp only [Int.bmod_def]
   rcases x

@@ -46,7 +46,7 @@ jobs:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       CCACHE_COMPRESS: true
       # current cache limit
-      CCACHE_MAXSIZE: 200M
+      CCACHE_MAXSIZE: 1G
       # squelch error message about missing nixpkgs channel
       NIX_BUILD_SHELL: bash
       LSAN_OPTIONS: max_leaks=10
@@ -153,8 +153,7 @@ jobs:
           # contortion to support empty OPTIONS with old macOS bash
           cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} -B . ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
           make stage0-configure
-          time make -C stage0 -j$NPROC make_stdlib
-          exit 1
+          time make -j$NPROC
       - name: Install
         run: |
           make -C build install
@@ -194,7 +193,7 @@ jobs:
         id: test
         run: |
           ulimit -c unlimited  # coredumps
-          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }} -I 1000,1010
+          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }} -I 0,100
         if: (matrix.wasm || !matrix.cross) && inputs.check-level >= -1
       - name: Test Summary
         uses: test-summary/action@v2

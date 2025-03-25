@@ -948,7 +948,7 @@ theorem toInt_setWidth' {m n : Nat} (p : m ≤ n) {x : BitVec m} :
     (setWidth' p x).toFin = x.toFin.castLE (Nat.pow_le_pow_right (by omega) (by omega)) := by
   ext
   rw [setWidth'_eq, toFin_setWidth, Fin.val_ofNat', Fin.coe_castLE, val_toFin,
-    Nat.mod_eq_of_lt (by apply BitVec.toNat_lt_of_le p)]
+    Nat.mod_eq_of_lt (by apply BitVec.toNat_lt_twoPow_of_le p)]
 
 /-! ## extractLsb -/
 

@@ -3792,13 +3792,13 @@ theorem maxKey!_insert [TransCmp cmp] [Inhabited α] {k v} :
       (t.maxKey?.elim k fun k' => if cmp k' k |>.isLE then k else k') :=
   Impl.maxKey!_insert t.wf
 
-theorem maxKey!_insert_le_maxKey! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) {k v} :
+theorem maxKey!_le_maxKey!_insert [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) {k v} :
     cmp t.maxKey! (t.insert k v |>.maxKey!) |>.isLE :=
-  Impl.maxKey!_insert_le_maxKey! t.wf he
+  Impl.maxKey!_le_maxKey!_insert t.wf he
 
-theorem maxKey!_insert_le_self [TransCmp cmp] [Inhabited α] {k v} :
+theorem self_le_maxKey!_insert [TransCmp cmp] [Inhabited α] {k v} :
     cmp k (t.insert k v |>.maxKey!) |>.isLE :=
-  Impl.maxKey!_insert_le_self t.wf
+  Impl.self_le_maxKey!_insert t.wf
 
 theorem contains_maxKey! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
     t.contains t.maxKey! :=
@@ -3808,17 +3808,17 @@ theorem maxKey!_mem [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
     t.maxKey! ∈ t :=
   Impl.maxKey!_mem t.wf he
 
-theorem maxKey!_le_of_contains [TransCmp cmp] [Inhabited α] {k} (hc : t.contains k) :
+theorem le_maxKey!_of_contains [TransCmp cmp] [Inhabited α] {k} (hc : t.contains k) :
     cmp k t.maxKey! |>.isLE :=
-  Impl.maxKey!_le_of_contains t.wf hc
+  Impl.le_maxKey!_of_contains t.wf hc
 
-theorem maxKey!_le_of_mem [TransCmp cmp] [Inhabited α] {k} (hc : k ∈ t) :
+theorem le_maxKey!_of_mem [TransCmp cmp] [Inhabited α] {k} (hc : k ∈ t) :
     cmp k t.maxKey! |>.isLE :=
-  Impl.maxKey!_le_of_mem t.wf hc
+  Impl.le_maxKey!_of_mem t.wf hc
 
-theorem le_maxKey! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) {k} :
+theorem maxKey!_le [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) {k} :
     (cmp t.maxKey! k).isLE ↔ (∀ k', k' ∈ t → (cmp k' k).isLE) :=
-  Impl.le_maxKey! t.wf he
+  Impl.maxKey!_le t.wf he
 
 theorem getKey?_maxKey! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
     t.getKey? t.maxKey! = some t.maxKey! :=
@@ -3846,23 +3846,23 @@ theorem maxKey!_erase_eq_of_not_compare_maxKey!_eq [TransCmp cmp] [Inhabited α]
     (t.erase k |>.maxKey!) = t.maxKey! :=
   Impl.maxKey!_erase_eq_of_not_compare_maxKey!_eq t.wf he heq
 
-theorem maxKey!_le_maxKey!_erase [TransCmp cmp] [Inhabited α] {k}
+theorem maxKey!_erase_le_maxKey! [TransCmp cmp] [Inhabited α] {k}
     (he : (t.erase k).isEmpty = false) :
     cmp (t.erase k |>.maxKey!) t.maxKey! |>.isLE :=
-  Impl.maxKey!_le_maxKey!_erase t.wf he
+  Impl.maxKey!_erase_le_maxKey! t.wf he
 
 theorem maxKey!_insertIfNew [TransCmp cmp] [Inhabited α] {k v} :
     (t.insertIfNew k v |>.maxKey!) =
       t.maxKey?.elim k fun k' => if cmp k' k = .lt then k else k' :=
   Impl.maxKey!_insertIfNew t.wf
 
-theorem maxKey!_insertIfNew_le_maxKey! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) {k v} :
+theorem maxKey!_le_maxKey!_insertIfNew [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) {k v} :
     cmp t.maxKey! (t.insertIfNew k v |>.maxKey!) |>.isLE :=
-  Impl.maxKey!_insertIfNew_le_maxKey! t.wf he
+  Impl.maxKey!_le_maxKey!_insertIfNew t.wf he
 
-theorem maxKey!_insertIfNew_le_self [TransCmp cmp] [Inhabited α] {k v} :
+theorem self_le_maxKey!_insertIfNew [TransCmp cmp] [Inhabited α] {k v} :
     cmp k (t.insertIfNew k v |>.maxKey!) |>.isLE :=
-  Impl.maxKey!_insertIfNew_le_self t.wf
+  Impl.self_le_maxKey!_insertIfNew t.wf
 
 theorem maxKey!_eq_head!_keys [TransCmp cmp] [Inhabited α] :
     t.maxKey! = t.keys.getLast! :=

@@ -2752,8 +2752,6 @@ theorem maxKey!_alter_eq_self [TransCmp cmp] [Inhabited α] {k f}
       (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (cmp k' k).isLE :=
   DTreeMap.Const.maxKey!_alter_eq_self he
 
-
-
 end Max
 
 end Std.TreeMap

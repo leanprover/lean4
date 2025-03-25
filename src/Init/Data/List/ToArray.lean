@@ -619,15 +619,15 @@ private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j
     simp only [append_assoc, cons_append]
     rw [insertIdx_loop_toArray _ _ _ _ (by omega)]
     simp only [swap_toArray, w, append_assoc, cons_append, mk.injEq]
-    rw [take_set_of_le _ _ (by omega), drop_eq_getElem_cons (i := j) (by simpa), getElem_set_self,
-      drop_set_of_lt _ _ (by omega), drop_set_of_lt _ _ (by omega), getElem_set_ne (by omega),
-      getElem_set_self, take_set_of_le (j := j - 1) _ _ (by omega),
-      take_set_of_le (j := j - 1) _ _ (by omega), take_eq_append_getElem_of_pos (by omega) hj,
+    rw [take_set_of_le (by omega), drop_eq_getElem_cons (i := j) (by simpa), getElem_set_self,
+      drop_set_of_lt (by omega), drop_set_of_lt (by omega), getElem_set_ne (by omega),
+      getElem_set_self, take_set_of_le (j := j - 1) (by omega),
+      take_set_of_le (j := j - 1) (by omega), take_eq_append_getElem_of_pos (by omega) hj,
       drop_append_of_le_length (by simp; omega)]
     simp only [append_assoc, cons_append, nil_append, append_cancel_right_eq]
     cases i with
     | zero => simp
-    | succ i => rw [take_set_of_le _ _ (by omega)]
+    | succ i => rw [take_set_of_le (by omega)]
   · simp only [Nat.not_lt] at h'
     have : i = j := by omega
     subst this

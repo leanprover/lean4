@@ -464,7 +464,7 @@ theorem mapFinIdxM_toArray [Monad m] [LawfulMonad m] {l : List α}
       rw [Nat.zero_add] at inv
       simp only [Array.mapFinIdxM.map, inv, drop_length, mapFinIdxM.go, map_pure]
     | k + 1 =>
-      conv => enter [2, 2, 3]; rw [← getElem_cons_drop l acc.size (by omega)]
+      conv => enter [2, 2, 3]; rw [← getElem_cons_drop (by omega)]
       simp only [Array.mapFinIdxM.map, mapFinIdxM.go, _root_.map_bind]
       congr; funext x
       conv => enter [1, 4]; rw [← Array.size_push x]

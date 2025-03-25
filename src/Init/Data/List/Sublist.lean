@@ -991,10 +991,10 @@ theorem drop_subset_drop_left (l : List α) {i j : Nat} (h : i ≤ j) : drop j l
   (drop_sublist_drop_left l h).subset
 
 theorem takeWhile_prefix (p : α → Bool) : l.takeWhile p <+: l :=
-  ⟨l.dropWhile p, takeWhile_append_dropWhile p l⟩
+  ⟨l.dropWhile p, takeWhile_append_dropWhile⟩
 
 theorem dropWhile_suffix (p : α → Bool) : l.dropWhile p <:+ l :=
-  ⟨l.takeWhile p, takeWhile_append_dropWhile p l⟩
+  ⟨l.takeWhile p, takeWhile_append_dropWhile⟩
 
 theorem takeWhile_sublist (p : α → Bool) : l.takeWhile p <+ l :=
   (takeWhile_prefix p).sublist

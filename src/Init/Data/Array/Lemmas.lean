@@ -1149,7 +1149,7 @@ where
 
 @[simp] theorem toList_map {f : α → β} {xs : Array α} : (xs.map f).toList = xs.toList.map f := by
   rw [map, mapM_eq_foldlM]
-  apply congrArg toList (foldl_toList (fun bs a => push bs (f a)) #[] xs).symm |>.trans
+  apply congrArg toList (foldl_toList fun bs a => push bs (f a)).symm |>.trans
   have H (l xs) : List.foldl (fun bs a => push bs (f a)) xs l = ⟨xs.toList ++ l.map f⟩ := by
     induction l generalizing xs <;> simp [*]
   simp [H]

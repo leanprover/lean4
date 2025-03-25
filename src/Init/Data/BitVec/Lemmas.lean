@@ -2414,6 +2414,23 @@ theorem toInt_signExtend_eq_toInt_bmod_of_le (x : BitVec w) (h : v ≤ w) :
     (x.signExtend v).toInt = x.toInt.bmod (2 ^ v) := by
   rw [BitVec.toInt_signExtend, Nat.min_eq_left h]
 
+
+theorem toFin_signExtend_of_le {x : BitVec w} (hv : v ≤ w):
+    (x.signExtend v).toFin = Fin.ofNat' (2 ^ v) x.toNat := by
+  simp [signExtend_eq_setWidth_of_le _ hv]
+
+theorem toFin_signExtend (x : BitVec w) :
+    (x.signExtend v).toFin = Fin.ofNat' (2 ^ v) (x.toNat + if x.msb = true then 2 ^ v - 2 ^ w else 0):= by
+  by_cases hv : v ≤ w
+  · simp [toFin_signExtend_of_le hv, show 2 ^ v - 2 ^ w = 0 by rw [@Nat.sub_eq_zero_iff_le]; apply Nat.pow_le_pow_of_le (by decide) (by omega)]
+  · simp only [Nat.not_le] at hv
+    apply Fin.eq_of_val_eq
+    simp only [val_toFin, Fin.val_ofNat']
+    rw [toNat_signExtend_of_le _ (by omega)]
+    have : 2 ^ w < 2 ^ v := by apply Nat.pow_lt_pow_of_lt <;> omega
+    rw [Nat.mod_eq_of_lt]
+    rcases x.msb <;> simp <;> omega
+
 @[simp] theorem signExtend_and {x y : BitVec w} :
     (x &&& y).signExtend v = (x.signExtend v) &&& (y.signExtend v) := by
   refine eq_of_getElem_eq (fun i hi => ?_)

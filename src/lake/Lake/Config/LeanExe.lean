@@ -10,13 +10,7 @@ namespace Lake
 open Lean System
 
 /-- A Lean executable -- its package plus its configuration. -/
-structure LeanExe where
-  /-- The package the executable belongs to. -/
-  pkg : Package
-  /-- The executable's name. -/
-  name : Name
-  /-- The executable's user-defined configuration. -/
-  config : LeanExeConfig name
+def LeanExe := ConfigTarget LeanExe.KIND
 
 /-- The Lean executables of the package (as an Array). -/
 @[inline] def Package.leanExes (self : Package) : Array LeanExe :=
@@ -41,6 +35,10 @@ def LeanExeConfig.toLeanLibConfig (self : LeanExeConfig n) : LeanLibConfig n whe
   toLeanConfig := self.toLeanConfig
 
 namespace LeanExe
+
+/-- The executable's user-defined configuration. -/
+@[inline] nonrec def config (self : LeanExe) : LeanExeConfig self.name :=
+  self.config
 
 /-- Converts the executable into a library with a single module (the root). -/
 @[inline] def toLeanLib (self : LeanExe) : LeanLib :=

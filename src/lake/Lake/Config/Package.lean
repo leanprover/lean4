@@ -446,6 +446,18 @@ structure PostUpdateHookDecl where
   fn : PostUpdateFn pkg
   deriving TypeName
 
+/--
+A user-configured target -- its package and its configuration.
+This is the general structure from which `LeanLib`, `LeanExe`, etc. are derived.
+-/
+structure ConfigTarget (kind : Name) where
+  /-- The package the target belongs to. -/
+  pkg : Package
+  /-- The target's name. -/
+  name : Name
+  /-- The target's user-defined configuration. -/
+  config : ConfigType kind pkg.name name
+
 namespace Package
 
 /-- The package version. -/

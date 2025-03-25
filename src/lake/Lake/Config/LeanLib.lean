@@ -10,13 +10,7 @@ namespace Lake
 open Lean System
 
 /-- A Lean library -- its package plus its configuration. -/
-structure LeanLib where
-  /-- The package the library belongs to. -/
-  pkg : Package
-  /-- The library's name. -/
-  name : Name
-   /-- The library's user-defined configuration. -/
-  config : LeanLibConfig name
+def LeanLib := ConfigTarget LeanLib.KIND
 
 /-- The Lean libraries of the package (as an Array). -/
 @[inline] def Package.leanLibs (self : Package) : Array LeanLib :=
@@ -29,6 +23,10 @@ structure LeanLib where
     ⟨self, name, cfg⟩
 
 namespace LeanLib
+
+/-- The library's user-defined configuration. -/
+@[inline] nonrec def config (self : LeanLib) : LeanLibConfig self.name :=
+  self.config
 
 /-- The package's `srcDir` joined with the library's `srcDir`. -/
 @[inline] def srcDir (self : LeanLib) : FilePath :=

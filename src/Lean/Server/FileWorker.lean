@@ -123,7 +123,10 @@ def WorkerContext.initPendingServerRequest
   ctx.pendingServerRequestsRef.modify (·.insert id responsePromise)
   let responseTask := responsePromise.result!.asServerTask
   let responseTask := responseTask.mapCheap fun
-    | .success response     => .success (fromJson? response |>.toOption.get!)
+    | .success response =>
+      match fromJson? response with
+      | .ok response   => .success response
+      | .error message => .failure .invalidParams message
     | .failure code message => .failure code message
   return responseTask
 

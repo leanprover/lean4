@@ -129,7 +129,7 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_unresolveNameGlobal_unr
 LEAN_EXPORT lean_object* l_Lean_SMap_find_x3f___at_Lean_addAliasEntry___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobal___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initializing(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_isReservedName(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t lean_is_reserved_name(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterMapTR_go___at_Lean_preprocessSyntaxAndResolve___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_unresolveNameGlobal___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalName___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -835,7 +835,7 @@ x_1 = l_Lean_reservedNamePredicatesExt;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_isReservedName(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t lean_is_reserved_name(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
@@ -888,7 +888,7 @@ LEAN_EXPORT lean_object* l_Lean_isReservedName___boxed(lean_object* x_1, lean_ob
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_isReservedName(x_1, x_2);
+x_3 = lean_is_reserved_name(x_1, x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -3218,7 +3218,7 @@ if (x_3 == 0)
 uint8_t x_4; 
 lean_inc(x_2);
 lean_inc(x_1);
-x_4 = l_Lean_isReservedName(x_1, x_2);
+x_4 = lean_is_reserved_name(x_1, x_2);
 if (x_4 == 0)
 {
 uint8_t x_5; uint8_t x_6; 
@@ -4267,7 +4267,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__1;
 x_2 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__2;
-x_3 = lean_unsigned_to_nat(202u);
+x_3 = lean_unsigned_to_nat(203u);
 x_4 = lean_unsigned_to_nat(9u);
 x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -5999,7 +5999,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__1;
 x_2 = l_Lean_ensureNonAmbiguous___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(366u);
+x_3 = lean_unsigned_to_nat(367u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

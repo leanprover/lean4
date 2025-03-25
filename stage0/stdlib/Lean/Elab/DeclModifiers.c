@@ -93,7 +93,7 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_RecKind_noConfusion(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Visibility_toCtorIdx___boxed(lean_object*);
-uint8_t l_Lean_isReservedName(lean_object*, lean_object*);
+uint8_t lean_is_reserved_name(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__2___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Lean_Elab_RecKind_toCtorIdx___boxed(lean_object*);
 static lean_object* l_Lean_Elab_instToFormatModifiers___closed__2;
@@ -692,7 +692,7 @@ lean_closure_set(x_9, 4, x_5);
 lean_closure_set(x_9, 5, x_6);
 lean_closure_set(x_9, 6, x_7);
 lean_inc(x_1);
-x_10 = l_Lean_isReservedName(x_3, x_1);
+x_10 = lean_is_reserved_name(x_3, x_1);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 

@@ -74,6 +74,7 @@ inductive BVBinOp where
   Unsigned modulo.
   -/
   | umod
+  deriving Hashable, DecidableEq
 
 namespace BVBinOp
 
@@ -134,6 +135,7 @@ inductive BVUnOp where
   constant `Nat` value.
   -/
   | arithShiftRightConst (n : Nat)
+  deriving Hashable, DecidableEq
 
 namespace BVUnOp
 
@@ -197,11 +199,11 @@ inductive BVExpr : Nat → Type where
   /--
   Concatenate two bit vectors.
   -/
-  | append (lhs : BVExpr l) (rhs : BVExpr r) : BVExpr (l + r)
+  | append (lhs : BVExpr l) (rhs : BVExpr r) (h : w = l + r) : BVExpr w
   /--
   Concatenate a bit vector with itself `n` times.
   -/
-  | replicate (n : Nat) (expr : BVExpr w) : BVExpr (w * n)
+  | replicate (n : Nat) (expr : BVExpr w) (h : w' = w * n) : BVExpr w'
   /--
   shift left by another BitVec expression. For constant shifts there exists a `BVUnop`.
   -/
@@ -214,8 +216,146 @@ inductive BVExpr : Nat → Type where
   shift right arithmetically by another BitVec expression. For constant shifts there exists a `BVUnop`.
   -/
   | arithShiftRight (lhs : BVExpr m) (rhs : BVExpr n) : BVExpr m
+with
+  @[computed_field]
+  hashCode : (w : Nat) → BVExpr w → UInt64
+    | w, .var idx => mixHash 5 <| mixHash (hash w) (hash idx)
+    | w, .const val => mixHash 7 <| mixHash (hash w) (hash val)
+    | w, .extract start _ expr =>
+      mixHash 11 <| mixHash (hash start) <| mixHash (hash w) (hashCode _ expr)
+    | w, .bin lhs op rhs =>
+      mixHash 13 <| mixHash (hash w) <| mixHash (hashCode _ lhs) <| mixHash (hash op) (hashCode _ rhs)
+    | w, .un op operand =>
+      mixHash 17 <| mixHash (hash w) <| mixHash (hash op) (hashCode _ operand)
+    | w, .append lhs rhs _ =>
+      mixHash 19 <| mixHash (hash w) <| mixHash (hashCode _ lhs) (hashCode _ rhs)
+    | w, .replicate n expr _ =>
+      mixHash 23 <| mixHash (hash w) <| mixHash (hash n) (hashCode _ expr)
+    | w, .shiftLeft lhs rhs =>
+      mixHash 29 <| mixHash (hash w) <| mixHash (hashCode _ lhs) (hashCode _ rhs)
+    | w, .shiftRight lhs rhs =>
+      mixHash 31 <| mixHash (hash w) <| mixHash (hashCode _ lhs) (hashCode _ rhs)
+    | w, .arithShiftRight lhs rhs =>
+      mixHash 37 <| mixHash (hash w) <| mixHash (hashCode _ lhs) (hashCode _ rhs)
+
 
 namespace BVExpr
+
+instance : Hashable (BVExpr w) where
+  hash expr := expr.hashCode _
+
+def decEq : DecidableEq (BVExpr w) := fun l r =>
+  withPtrEqDecEq l r fun _ =>
+    match l with
+    | .var lidx =>
+      match r with
+      | .var ridx =>
+        if h : lidx = ridx then .isTrue (by simp [h]) else .isFalse (by simp [h])
+      | .const .. | .extract .. | .bin .. | .un .. | .append .. | .replicate .. | .shiftLeft ..
+      | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
+    | .const lval =>
+      match r with
+      | .const rval =>
+        if h : lval = rval then .isTrue (by simp [h]) else .isFalse (by simp [h])
+      | .var .. | .extract .. | .bin .. | .un .. | .append .. | .replicate .. | .shiftLeft ..
+      | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
+    | .extract (w := lw) lstart _ lexpr =>
+      match r with
+      | .extract (w := rw) rstart _ rexpr  =>
+        if h1 : lw = rw ∧ lstart = rstart then
+          match decEq (h1.left ▸ lexpr) rexpr with
+          | .isTrue h2 => .isTrue (by cases h1.left; simp_all)
+          | .isFalse h2 => .isFalse (by cases h1.left; simp_all)
+        else
+          .isFalse (by simp_all)
+      | .var .. | .const .. | .bin .. | .un .. | .append .. | .replicate .. | .shiftLeft ..
+      | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
+    | .bin llhs lop lrhs =>
+      match r with
+      | .bin rlhs rop rrhs =>
+        if h1 : lop = rop then
+          match decEq llhs rlhs, decEq lrhs rrhs with
+          | .isTrue h2, .isTrue h3 => .isTrue (by simp [h1, h2, h3])
+          | .isFalse h2, _ => .isFalse (by simp [h2])
+          | _, .isFalse h3 => .isFalse (by simp [h3])
+        else
+          .isFalse (by simp [h1])
+      | .const .. | .var .. | .extract .. | .un .. | .append .. | .replicate .. | .shiftLeft ..
+      | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
+    | .un lop lexpr => 
+      match r with
+      | .un rop rexpr =>
+        if h1 : lop = rop then
+          match decEq lexpr rexpr with
+          | .isTrue h2 => .isTrue (by simp [h1, h2])
+          | .isFalse h2 => .isFalse (by simp [h2])
+        else
+          .isFalse (by simp [h1])
+      | .const .. | .var .. | .extract .. | .bin .. | .append .. | .replicate .. | .shiftLeft ..
+      | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
+    | .append (l := ll) (r := lr) llhs lrhs lh =>
+      match r with
+      | .append (l := rl) (r := rr) rlhs rrhs rh =>
+        if h1 : ll = rl ∧ lr = rr then
+          match decEq (h1.left ▸ llhs) rlhs, decEq (h1.right ▸ lrhs) rrhs with
+          | .isTrue h2, .isTrue h3 => .isTrue (by cases h1.left; cases h1.right; simp [h2, h3])
+          | .isFalse h2, _ => .isFalse (by cases h1.left; cases h1.right; simp [h2])
+          | _, .isFalse h3 => .isFalse (by cases h1.left; cases h1.right; simp [h3])
+        else
+          .isFalse (by simp; omega)
+      | .const .. | .var .. | .extract .. | .bin .. | .un .. | .replicate .. | .shiftLeft ..
+      | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
+    | .replicate (w := lw) ln lexpr lh =>
+      match r with
+      | .replicate (w := rw) rn rexpr rh =>
+        if h1 : ln = rn ∧ lw = rw then
+          match decEq (h1.right ▸ lexpr) rexpr with
+          | .isTrue h2 => .isTrue (by cases h1.left; cases h1.right; simp [h2])
+          | .isFalse h2 => .isFalse (by cases h1.left; cases h1.right; simp [h2])
+        else
+          .isFalse (by simp; omega)
+      | .const .. | .var .. | .extract .. | .bin .. | .un .. | .append .. | .shiftLeft ..
+      | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
+
+    | .shiftLeft (n := lw) llhs lrhs =>
+      match r with
+      | .shiftLeft (n := rw) rlhs rrhs =>
+        if h1 : lw = rw then
+          match decEq llhs rlhs, decEq (h1 ▸ lrhs) rrhs with
+          | .isTrue h2, .isTrue h3 => .isTrue (by cases h1; simp [h2, h3])
+          | .isFalse h2, _ => .isFalse (by cases h1; simp [h2])
+          | _, .isFalse h3 => .isFalse (by cases h1; simp [h3])
+        else
+          .isFalse (by simp [h1])
+      | .const .. | .var .. | .extract .. | .bin .. | .un .. | .append .. | .replicate ..
+      | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
+    | .shiftRight (n := lw) llhs lrhs =>
+      match r with
+      | .shiftRight (n := rw) rlhs rrhs =>
+        if h1 : lw = rw then
+          match decEq llhs rlhs, decEq (h1 ▸ lrhs) rrhs with
+          | .isTrue h2, .isTrue h3 => .isTrue (by cases h1; simp [h2, h3])
+          | .isFalse h2, _ => .isFalse (by cases h1; simp [h2])
+          | _, .isFalse h3 => .isFalse (by cases h1; simp [h3])
+        else
+          .isFalse (by simp [h1])
+      | .const .. | .var .. | .extract .. | .bin .. | .un .. | .append .. | .replicate ..
+      |.shiftLeft .. | .arithShiftRight .. => .isFalse (by simp)
+    | .arithShiftRight (n := lw) llhs lrhs =>
+      match r with
+      | .arithShiftRight (n := rw) rlhs rrhs =>
+        if h1 : lw = rw then
+          match decEq llhs rlhs, decEq (h1 ▸ lrhs) rrhs with
+          | .isTrue h2, .isTrue h3 => .isTrue (by cases h1; simp [h2, h3])
+          | .isFalse h2, _ => .isFalse (by cases h1; simp [h2])
+          | _, .isFalse h3 => .isFalse (by cases h1; simp [h3])
+        else
+          .isFalse (by simp [h1])
+      | .const .. | .var .. | .extract .. | .bin .. | .un .. | .append .. | .replicate ..
+      | .shiftRight .. | .shiftLeft .. => .isFalse (by simp)
+        
+
+instance : DecidableEq (BVExpr w) := decEq
 
 def toString : BVExpr w → String
   | .var idx => s!"var{idx}"
@@ -223,8 +363,8 @@ def toString : BVExpr w → String
   | .extract start len expr => s!"{expr.toString}[{start}, {len}]"
   | .bin lhs op rhs => s!"({lhs.toString} {op.toString} {rhs.toString})"
   | .un op operand => s!"({op.toString} {toString operand})"
-  | .append lhs rhs => s!"({toString lhs} ++ {toString rhs})"
-  | .replicate n expr => s!"(replicate {n} {toString expr})"
+  | .append lhs rhs _ => s!"({toString lhs} ++ {toString rhs})"
+  | .replicate n expr _ => s!"(replicate {n} {toString expr})"
   | .shiftLeft lhs rhs => s!"({lhs.toString} << {rhs.toString})"
   | .shiftRight lhs rhs => s!"({lhs.toString} >> {rhs.toString})"
   | .arithShiftRight lhs rhs => s!"({lhs.toString} >>a {rhs.toString})"
@@ -268,8 +408,8 @@ def eval (assign : Assignment) : BVExpr w → BitVec w
   | .extract start len expr => BitVec.extractLsb' start len (eval assign expr)
   | .bin lhs op rhs => op.eval (eval assign lhs) (eval assign rhs)
   | .un op operand => op.eval (eval assign operand)
-  | .append lhs rhs => (eval assign lhs) ++ (eval assign rhs)
-  | .replicate n expr => BitVec.replicate n (eval assign expr)
+  | .append lhs rhs h => h ▸ ((eval assign lhs) ++ (eval assign rhs))
+  | .replicate n expr h => h ▸ (BitVec.replicate n (eval assign expr))
   | .shiftLeft lhs rhs => (eval assign lhs) <<< (eval assign rhs)
   | .shiftRight lhs rhs => (eval assign lhs) >>> (eval assign rhs)
   | .arithShiftRight lhs rhs => BitVec.sshiftRight' (eval assign lhs) (eval assign rhs)
@@ -299,11 +439,11 @@ theorem eval_un : eval assign (.un op operand) = op.eval (operand.eval assign) :
   rfl
 
 @[simp]
-theorem eval_append : eval assign (.append lhs rhs) = (lhs.eval assign) ++ (rhs.eval assign) := by
+theorem eval_append : eval assign (.append lhs rhs h) = (lhs.eval assign) ++ (rhs.eval assign) := by
   rfl
 
 @[simp]
-theorem eval_replicate : eval assign (.replicate n expr) = BitVec.replicate n (expr.eval assign) := by
+theorem eval_replicate : eval assign (.replicate n expr h) = BitVec.replicate n (expr.eval assign) := by
   rfl
 
 @[simp]

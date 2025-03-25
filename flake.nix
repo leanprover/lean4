@@ -63,6 +63,7 @@
           GLIBC_DEV = pkgsDist.glibc.dev;
           GCC_LIB = pkgsDist.gcc.cc.lib;
           ZLIB = pkgsDist.zlib;
+          # for CI coredumps
           GDB = pkgsDist.gdb;
         });
     in {

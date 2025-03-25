@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.PtrSet
-// Imports: Init.Data.Hashable Lean.Data.HashSet Lean.Data.HashMap Std.Data.HashSet.Basic Std.Data.HashMap.Basic
+// Imports: Init.Data.Hashable Std.Data.HashSet.Basic Std.Data.HashMap.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1508,8 +1508,6 @@ return x_3;
 }
 }
 lean_object* initialize_Init_Data_Hashable(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_HashSet(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_HashMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_HashSet_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_HashMap_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1518,12 +1516,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_Hashable(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_HashSet(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_HashMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_HashSet_Basic(builtin, lean_io_mk_world());

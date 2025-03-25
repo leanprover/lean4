@@ -915,7 +915,7 @@ private:
             object * o = curry(e.m_native.m_addr, args.size(), args2);
             type t = decl_type(e.m_decl);
             if (type_is_scalar(t)) {
-                lean_assert(e.m_boxed);
+                lean_assert(e.m_native.m_boxed);
                 // NOTE: this unboxing does not exist in the IR, so we should manually consume `o`
                 r = unbox_t(o, t);
                 lean_dec(o);

@@ -1465,7 +1465,18 @@ extern "C" LEAN_EXPORT obj_res lean_runtime_mark_persistent(obj_arg a, obj_arg /
     return io_result_mk_ok(a);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_runtime_forget(obj_arg /* a */, obj_arg /* w */) {
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+#include <sanitizer/lsan_interface.h>
+#endif
+#endif
+
+extern "C" LEAN_EXPORT obj_res lean_runtime_forget(obj_arg o, obj_arg /* w */) {
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+    __lsan_ignore_object(o);
+#endif
+#endif
     return io_result_mk_ok(box(0));
 }
 

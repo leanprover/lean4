@@ -401,8 +401,14 @@ instance : Max Int := maxOfLe
 end Int
 
 /--
-The canonical homomorphism `Int → R`.
-In most use cases `R` will have a ring structure and this will be a ring homomorphism.
+The canonical homomorphism `Int → R`. In most use cases, the target type will have a ring structure,
+and this homomorphism should be a ring homomorphism.
+
+`IntCast` and `NatCast` exist to allow different libraries with their own types that can be notated
+as natural numbers to have consistent `simp` normal forms without needing to create coercion
+simplification sets that are aware of all combinations. Libraries should make it easy to work with
+`IntCast` where possible. For instance, in Mathlib there will be such a homomorphism (and thus an
+`IntCast R` instance) whenever `R` is an additive group with a `1`.
 -/
 class IntCast (R : Type u) where
   /-- The canonical map `Int → R`. -/
@@ -410,12 +416,8 @@ class IntCast (R : Type u) where
 
 instance : IntCast Int where intCast n := n
 
-/--
-Apply the canonical homomorphism from `Int` to a type `R` from an `IntCast R` instance.
-
-In Mathlib there will be such a homomorphism whenever `R` is an additive group with a `1`.
--/
-@[coe, reducible, match_pattern] protected def Int.cast {R : Type u} [IntCast R] : Int → R :=
+@[coe, reducible, match_pattern, inherit_doc IntCast]
+protected def Int.cast {R : Type u} [IntCast R] : Int → R :=
   IntCast.intCast
 
 -- see the notes about coercions into arbitrary types in the module doc-string

@@ -193,6 +193,20 @@ partial def findField? (env : Environment) (structName : Name) (fieldName : Name
   else
     getStructureSubobjects env structName |>.findSome? fun parentStructName => findField? env parentStructName fieldName
 
+/--
+Gets the name for a structure constructor where the fields have been fully flattened.
+This constructor simulates a flat representation for structures,
+and it is used by structure instance notation when elaborating structure fields
+and for organizing the fields into subobjects.
+
+The body of the flat constructor has the following properties (recursively):
+- the fields come in order
+- for subobject fields, the value is the unfolded flat constructor for that field
+- for standard fields, the value is one of the flat constructor parameters
+-/
+def mkFlatCtorOfStructName (structName : Name) : Name :=
+  structName ++ `_flat_ctor
+
 private partial def getStructureFieldsFlattenedAux (env : Environment) (structName : Name) (fullNames : Array Name) (includeSubobjectFields : Bool) : Array Name :=
   (getStructureFields env structName).foldl (init := fullNames) fun fullNames fieldName =>
     match isSubobjectField? env structName fieldName with
@@ -239,18 +253,54 @@ def getProjFnInfoForField? (env : Environment) (structName : Name) (fieldName : 
   else
     none
 
-/-- Get the name of the auxiliary definition that would have the default value for the structure field. -/
+/--
+Gets the name of the auxiliary definition that would have the default value for the structure field if it exists.
+-/
 def mkDefaultFnOfProjFn (projFn : Name) : Name :=
   projFn ++ `_default
 
-def getDefaultFnForField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
+/--
+Gets the name of the auxiliary definition that would have the inherited default value for the structure field if it exists.
+-/
+def mkInheritedDefaultFnOfProjFn (projFn : Name) : Name :=
+  projFn ++ `_inherited_default
+
+private def getFnForFieldUsing? (mkName : Name → Name) (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
   if let some projName := getProjFnForField? env structName fieldName then
-    let defFn := mkDefaultFnOfProjFn projName
+    let defFn := mkName projName
     if env.contains defFn then defFn else none
   else
     -- Check if we have a default function for a default values overridden by substructure.
-    let defFn := mkDefaultFnOfProjFn (structName ++ fieldName)
+    let defFn := mkName (structName ++ fieldName)
     if env.contains defFn then defFn else none
+
+/--
+Returns the name of the auxiliary definition that defines a default value for the field, if any such definition exists.
+This is *not* an inherited default. We need to store provided defaults so that it is possible to resolve defaults according to the resolution order.
+-/
+def getDefaultFnForField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
+  getFnForFieldUsing? mkDefaultFnOfProjFn env structName fieldName
+
+/--
+Returns the name of the auxiliary definition for a default value for the field, even if inherited, if any such definition exists.
+-/
+def getEffectiveDefaultFnForField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
+  getDefaultFnForField? env structName fieldName
+  <|> getFnForFieldUsing? mkInheritedDefaultFnOfProjFn env structName fieldName
+
+/--
+Gets the name of the auxiliary definition that would have the autoParam definition for a field.
+-/
+def mkAutoParamFnOfProjFn (projFn : Name) : Name :=
+  projFn ++ `_autoParam
+
+/--
+Returns the name of the auxiliary definition that defines the autoParam for the field, if any such definition exists.
+This is not the inherited autoParam, but the one that is defined or overridden by this structure.
+The effective autoParams are collected in the flat constructor.
+-/
+def getAutoParamFnForField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
+  getFnForFieldUsing? mkAutoParamFnOfProjFn env structName fieldName
 
 partial def getPathToBaseStructureAux (env : Environment) (baseStructName : Name) (structName : Name) (path : List Name) : Option (List Name) :=
   if baseStructName == structName then
@@ -367,6 +417,8 @@ structure StructureResolutionOrderResult where
   conflicts : Array StructureResolutionOrderConflict := #[]
   deriving Inhabited
 
+mutual
+
 /--
 Computes and caches the C3 linearization. Assumes parents have already been set with `setStructureParents`.
 If `relaxed` is false, then if the linearization cannot be computed, conflicts are recorded in the return value.
@@ -377,6 +429,12 @@ partial def computeStructureResolutionOrder [Monad m] [MonadEnv m]
   if let some resOrder := getStructureResolutionOrder? env structName then
     return { resolutionOrder := resOrder }
   let parentNames := getStructureParentInfo env structName |>.map (·.structName)
+  let result ← mergeStructureResolutionOrders structName parentNames relaxed
+  setStructureResolutionOrder structName result.resolutionOrder
+  return result
+
+partial def mergeStructureResolutionOrders [Monad m] [MonadEnv m]
+    (structName : Name) (parentNames : Array Name) (relaxed : Bool) : m StructureResolutionOrderResult := do
   -- Don't be strict about parents: if they were supposed to be checked, they were already checked.
   let parentResOrders ← parentNames.mapM fun parentName => return (← computeStructureResolutionOrder parentName true).resolutionOrder
 
@@ -405,7 +463,6 @@ partial def computeStructureResolutionOrder [Monad m] [MonadEnv m]
       |>.map (fun resOrder => resOrder.filter (· != name))
       |>.filter (!·.isEmpty)
 
-  setStructureResolutionOrder structName resOrder
   return { resolutionOrder := resOrder, conflicts := defects }
 where
   selectParent (resOrders : Array (Array Name)) : m (Bool × Name) := do
@@ -420,6 +477,8 @@ where
           return (n' == 0, parent)
     -- unreachable, but correct default:
     return (false, resOrders[0]![0]!)
+
+end
 
 /--
 Gets the resolution order for a structure.

@@ -1,6 +1,6 @@
 set -euo pipefail
 
-ulimit -s 8192
+ulimit -s ${MAIN_STACK_SIZE:-8192}
 DIFF=diff
 if diff --color --help >/dev/null 2>&1; then
     DIFF="diff --color";

@@ -367,7 +367,7 @@ theorem mergeSort_cons {le : α → α → Bool}
       ∀ b, b ∈ l₁ → !le a b := by
   rw [← mergeSort_zipIdx]
   rw [zipIdx_cons]
-  have nd : Nodup ((a :: l).zipIdx.map (·.2)) := by rw [zipIdx_map_snd]; exact nodup_range' _ _
+  have nd : Nodup ((a :: l).zipIdx.map (·.2)) := by rw [zipIdx_map_snd]; exact nodup_range' _
   have m₁ : (a, 0) ∈ mergeSort ((a :: l).zipIdx) (zipIdxLE le) :=
     mem_mergeSort.mpr mem_cons_self
   obtain ⟨l₁, l₂, h⟩ := append_of_mem m₁

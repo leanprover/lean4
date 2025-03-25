@@ -135,7 +135,7 @@ def addModuleFacetConfig (cfg : ModuleFacetConfig name) (self : Workspace) : Wor
 
 /-- Try to find a module facet configuration in the workspace with the given name. -/
 def findModuleFacetConfig? (name : Name) (self : Workspace) : Option (ModuleFacetConfig name) :=
-  self.findFacetConfig? Module.facetKind name
+  self.findFacetConfig? Module.KIND name
 
 /-- Add a package facet to the workspace. -/
 def addPackageFacetConfig (cfg : PackageFacetConfig name) (self : Workspace) : Workspace :=
@@ -143,7 +143,7 @@ def addPackageFacetConfig (cfg : PackageFacetConfig name) (self : Workspace) : W
 
 /-- Try to find a package facet configuration in the workspace with the given name. -/
 def findPackageFacetConfig? (name : Name) (self : Workspace) : Option (PackageFacetConfig name) :=
-  self.findFacetConfig? Package.facetKind name
+  self.findFacetConfig? Package.KIND name
 
 /-- Add a library facet to the workspace. -/
 def addLibraryFacetConfig (cfg : LibraryFacetConfig name) (self : Workspace) : Workspace :=
@@ -151,7 +151,7 @@ def addLibraryFacetConfig (cfg : LibraryFacetConfig name) (self : Workspace) : W
 
 /-- Try to find a library facet configuration in the workspace with the given name. -/
 def findLibraryFacetConfig? (name : Name) (self : Workspace) : Option (LibraryFacetConfig name) :=
-  self.findFacetConfig? LeanLib.facetKind name
+  self.findFacetConfig? LeanLib.KIND name
 
 /-- The workspace's binary directories (which are added to `Path`). -/
 def binPath (self : Workspace) : SearchPath :=

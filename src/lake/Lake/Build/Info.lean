@@ -47,22 +47,22 @@ abbrev Package.targetBuildKey
 : BuildKey := .packageTarget self.name target kind
 
 abbrev LeanLib.buildKey (self : LeanLib) : BuildKey :=
-  .packageTarget self.pkg.name self.name facetKind
+  .packageTarget self.pkg.name self.name KIND
 
 abbrev LeanLib.facetBuildKey (self : LeanLib) (facet : Name) : BuildKey :=
-  .targetFacet self.pkg.name self.name facetKind facet
+  .targetFacet self.pkg.name self.name KIND facet
 
 abbrev LeanExe.buildKey (self : LeanExe) : BuildKey :=
-  .packageTarget self.pkg.name self.name facetKind
+  .packageTarget self.pkg.name self.name KIND
 
 abbrev LeanExe.exeBuildKey (self : LeanExe) : BuildKey :=
-  .targetFacet self.pkg.name self.name facetKind exeFacet
+  .targetFacet self.pkg.name self.name KIND exeFacet
 
 abbrev ExternLib.buildKey (self : ExternLib) : BuildKey :=
-  .packageTarget self.pkg.name self.name facetKind
+  .packageTarget self.pkg.name self.name KIND
 
 abbrev ExternLib.facetBuildKey (facet : Name) (self : ExternLib) : BuildKey :=
-  .targetFacet self.pkg.name self.name facetKind facet
+  .targetFacet self.pkg.name self.name KIND facet
 
 abbrev ExternLib.staticBuildKey (self : ExternLib) : BuildKey :=
   self.facetBuildKey staticFacet

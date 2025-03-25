@@ -142,5 +142,5 @@ def Package.mkTomlConfig (pkg : Package) (t : Table := {}) : Table :=
   cfg.toToml t
   |>.smartInsert `defaultTargets pkg.defaultTargets
   |>.smartInsert `require pkg.depConfigs
-  |>.insertTargets pkg `lean_lib LeanLibConfig.toToml
-  |>.insertTargets pkg `lean_exe LeanExeConfig.toToml
+  |>.insertTargets pkg LeanLib.KIND LeanLibConfig.toToml
+  |>.insertTargets pkg LeanExe.KIND LeanExeConfig.toToml

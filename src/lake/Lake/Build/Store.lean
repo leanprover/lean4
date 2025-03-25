@@ -90,4 +90,4 @@ def collectTargetFacetArray
 /-- Derive an array of built external shared libraries from the store. -/
 def collectSharedExternLibs
   (self : BuildStore) [FamilyOut ExternLibData `shared α]
-: Array (Job α) := self.collectTargetFacetArray ExternLib.facetKind `shared
+: Array (Job α) := self.collectTargetFacetArray ExternLib.KIND `shared

@@ -15,9 +15,9 @@ namespace Lake
 
 abbrev ConfigType (kind : Name) (pkgName name : Name) : Type :=
   match kind with
-  | `lean_lib => LeanLibConfig name
-  | `lean_exe => LeanExeConfig name
-  | `extern_lib => ExternLibConfig pkgName name
+  | `leanLib => LeanLibConfig name
+  | `leanExe => LeanExeConfig name
+  | `externLib => ExternLibConfig pkgName name
   | .anonymous => OpaqueTargetConfig pkgName name
   | _ => Empty
 
@@ -50,31 +50,31 @@ structure KConfigDecl (k : Name) extends ConfigDecl where
   cast (by simp [self.name_eq]) (self.toPConfigDecl.config? kind)
 
 @[inline] def ConfigDecl.leanLibConfig? (self : ConfigDecl) : Option (LeanLibConfig self.name) :=
-  self.config? `lean_lib
+  self.config? LeanLib.KIND
 
 @[inline] def NConfigDecl.leanLibConfig? (self : NConfigDecl p n) : Option (LeanLibConfig n) :=
-  self.config? `lean_lib
+  self.config? LeanLib.KIND
 
 /-- A  Lean library declaration from a configuration written in Lean. -/
-abbrev LeanLibDecl := KConfigDecl `lean_lib
+abbrev LeanLibDecl := KConfigDecl LeanLib.KIND
 
 @[inline] def ConfigDecl.leanExeConfig? (self : ConfigDecl) : Option (LeanExeConfig self.name) :=
-  self.config? `lean_exe
+  self.config? LeanExe.KIND
 
 @[inline] def NConfigDecl.leanExeConfig? (self : NConfigDecl p n) : Option (LeanExeConfig n) :=
-  self.config? `lean_exe
+  self.config? LeanExe.KIND
 
 /-- A Lean executable declaration from a configuration written in Lean. -/
-abbrev LeanExeDecl := KConfigDecl `lean_exe
+abbrev LeanExeDecl := KConfigDecl LeanExe.KIND
 
 @[inline] def PConfigDecl.externLibConfig? (self : PConfigDecl p) : Option (ExternLibConfig p self.name) :=
-  self.config? `extern_lib
+  self.config? ExternLib.KIND
 
 @[inline] def NConfigDecl.externLibConfig? (self : NConfigDecl p n) : Option (ExternLibConfig p n) :=
-  self.config? `extern_lib
+  self.config? ExternLib.KIND
 
 /-- An external library declaration from a configuration written in Lean. -/
-abbrev ExternLibDecl := KConfigDecl `extern_lib
+abbrev ExternLibDecl := KConfigDecl ExternLib.KIND
 
 @[inline] def PConfigDecl.opaqueTargetConfig? (self : PConfigDecl p) : Option (OpaqueTargetConfig p self.name) :=
   if h : self.kind.isAnonymous then

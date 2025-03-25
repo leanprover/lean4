@@ -17,8 +17,8 @@ namespace Lake
 /-- The initial set of Lake facets. -/
 def initFacetConfigs : FacetMap :=
   FacetMap.empty
-  |>.insert Module.facetKind Module.initFacetConfigs
-  |>.insert Package.facetKind Package.initFacetConfigs
-  |>.insert LeanLib.facetKind LeanLib.initFacetConfigs
-  |>.insert LeanExe.facetKind LeanExe.initFacetConfigs
-  |>.insert ExternLib.facetKind ExternLib.initFacetConfigs
+  |>.insert Module.KIND Module.initFacetConfigs
+  |>.insert Package.KIND Package.initFacetConfigs
+  |>.insert LeanLib.KIND LeanLib.initFacetConfigs
+  |>.insert LeanExe.KIND LeanExe.initFacetConfigs
+  |>.insert ExternLib.KIND ExternLib.initFacetConfigs

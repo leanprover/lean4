@@ -306,8 +306,8 @@ def decodeTargetDecls
   (p : Name) (t : Table)
 : DecodeM (Array (PConfigDecl p) × DNameMap (NConfigDecl p)) := do
   let r := (#[], {})
-  let r ← go r `lean_lib LeanLibConfig.decodeToml
-  let r ← go r `lean_exe LeanExeConfig.decodeToml
+  let r ← go r LeanLib.KIND LeanLibConfig.decodeToml
+  let r ← go r LeanExe.KIND LeanExeConfig.decodeToml
   return r
 where
   go r k (decode : {n : Name} → Table → DecodeM (ConfigType k p n)) := do

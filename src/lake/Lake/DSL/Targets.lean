@@ -239,7 +239,7 @@ def elabLeanLibCommand : CommandElab := fun stx => do
   let `(leanLibCommand|$(doc?)? $(attrs?)? lean_lib%$kw $(nameStx?)? $cfg) := stx
     | throwErrorAt stx "ill-formed lean_lib declaration"
   withRef kw do
-  let cmd ← mkConfigDecl ``LeanLibConfig `lean_lib doc? attrs? nameStx? cfg
+  let cmd ← mkConfigDecl ``LeanLibConfig LeanLib.KIND doc? attrs? nameStx? cfg
   withMacroExpansion stx cmd <| elabCommand cmd
 
 @[inherit_doc leanLibCommand] abbrev LeanLibCommand := TSyntax ``leanLibCommand
@@ -266,7 +266,7 @@ def elabLeanExeCommand : CommandElab := fun stx => do
   let `(leanExeCommand|$(doc?)? $(attrs?)? lean_exe%$kw $(nameStx?)? $cfg) := stx
     | throwErrorAt stx "ill-formed lean_exe declaration"
   withRef kw do
-  let cmd ← mkConfigDecl ``LeanExeConfig `lean_exe doc? attrs? nameStx? cfg
+  let cmd ← mkConfigDecl ``LeanExeConfig LeanExe.KIND doc? attrs? nameStx? cfg
   withMacroExpansion stx cmd <| elabCommand cmd
 
 @[inherit_doc leanExeCommand] abbrev LeanExeCommand := TSyntax ``leanExeCommand
@@ -282,7 +282,7 @@ abbrev mkExternLibDecl
   (pkgName name : Name)
   [FamilyDef (CustomData pkgName) (.str name "static") FilePath]
 : ExternLibDecl :=
-  .mk (.mk pkgName name `extern_lib {getPath := cast (by simp)}) rfl
+  .mk (.mk pkgName name ExternLib.KIND {getPath := cast (by simp)}) rfl
 
 syntax externLibDeclSpec :=
   identOrStr (ppSpace simpleBinder)? declValSimple

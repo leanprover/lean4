@@ -644,6 +644,10 @@ def addExtraName (env : Environment) (name : Name) : Environment :=
   else
     env.modifyCheckedAsync fun env => { env with extraConstNames := env.extraConstNames.insert name }
 
+-- forward reference due to too many cyclic dependencies
+@[extern "lean_is_reserved_name"]
+private opaque isReservedName (env : Environment) (name : Name) : Bool
+
 /-- `findAsync?` after `base` access -/
 private def findAsyncCore? (env : Environment) (n : Name) (skipRealize := false) :
     Option AsyncConstantInfo := do
@@ -654,7 +658,7 @@ private def findAsyncCore? (env : Environment) (n : Name) (skipRealize := false)
   if let some c := env.asyncConsts.findRec? n then
     -- Constant generated in a different environment branch
     return c.constInfo
-  unless skipRealize do
+  if !skipRealize && isReservedName env n then
     if let some c := env.allRealizations.get.find? n then
       return c.constInfo
   -- Not in the kernel environment nor in the name prefix of a known environment branch: undefined
@@ -673,7 +677,7 @@ private def findTaskCore (env : Environment) (n : Name) (skipRealize := false) :
     -- Constant generated in a different environment branch
     .pure c.constInfo
   | _ => Id.run do
-    unless skipRealize do
+    if isReservedName env n && !skipRealize then
       return env.allRealizations.map (sync := true) fun allRealizations => do
         if let some c := allRealizations.find? n then
           return c.constInfo

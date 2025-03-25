@@ -1632,7 +1632,7 @@ theorem keys_eraseKey [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)
 
 theorem DistinctKeys.eraseKey [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {k : α} :
     DistinctKeys l → DistinctKeys (eraseKey k l) := by
-  apply distinctKeys_of_sublist_keys (by simpa using erase_sublist _ _)
+  apply distinctKeys_of_sublist_keys (by simpa using erase_sublist)
 
 theorem getEntry?_eraseKey_self [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {k : α}
     (h : DistinctKeys l) : getEntry? k (eraseKey k l) = none := by

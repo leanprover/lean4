@@ -3605,6 +3605,144 @@ theorem maxKey!_alter_eq_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k f}
 
 end Const
 
+theorem maxKey?_eq_some_maxKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
+    t.maxKey? = some (t.maxKeyD fallback) :=
+  Impl.maxKey?_eq_some_maxKeyD h he (instOrd := ⟨cmp⟩)
+
+theorem maxKeyD_eq_fallback [TransCmp cmp] (h : t.WF) (he : t.isEmpty) {fallback} :
+    t.maxKeyD fallback = fallback :=
+  Impl.maxKeyD_eq_fallback h he (instOrd := ⟨cmp⟩)
+
+theorem maxKey!_eq_maxKeyD_default [TransCmp cmp] [Inhabited α] (h : t.WF) :
+    t.maxKey! = t.maxKeyD default :=
+  Impl.maxKey!_eq_maxKeyD_default h (instOrd := ⟨cmp⟩)
+
+theorem maxKeyD_eq_iff_getKey?_eq_self_and_forall [TransCmp cmp] (h : t.WF)
+    (he : t.isEmpty = false) {km fallback} :
+    t.maxKeyD fallback = km ↔ t.getKey? km = some km ∧ ∀ k, k ∈ t → (cmp k km).isLE :=
+  Impl.maxKeyD_eq_iff_getKey?_eq_self_and_forall h he
+
+theorem maxKeyD_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF)
+    (he : t.isEmpty = false) {km fallback} :
+    t.maxKeyD fallback = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (cmp k km).isLE :=
+  Impl.maxKeyD_eq_some_iff_mem_and_forall h he
+
+theorem maxKeyD_insert [TransCmp cmp] (h : t.WF) {k v fallback} :
+    (t.insert k v |>.maxKeyD fallback) =
+      (t.maxKey?.elim k fun k' => if cmp k' k |>.isLE then k else k') :=
+  Impl.maxKeyD_insert! h
+
+theorem maxKeyD_insert_le_maxKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false)
+    {k v fallback} :
+    cmp (t.maxKeyD fallback) (t.insert k v |>.maxKeyD fallback) |>.isLE :=
+  Impl.maxKeyD_insert!_le_maxKeyD h he (instOrd := ⟨cmp⟩)
+
+theorem maxKeyD_insert_le_self [TransCmp cmp] (h : t.WF) {k v fallback} :
+    cmp k (t.insert k v |>.maxKeyD fallback) |>.isLE :=
+  Impl.maxKeyD_insert!_le_self h (instOrd := ⟨cmp⟩)
+
+theorem contains_maxKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
+    t.contains (t.maxKeyD fallback) :=
+  Impl.contains_maxKeyD h he
+
+theorem maxKeyD_mem [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
+    t.maxKeyD fallback ∈ t :=
+  Impl.maxKeyD_mem h he
+
+theorem maxKeyD_le_of_contains [TransCmp cmp] (h : t.WF) {k} (hc : t.contains k) {fallback} :
+    cmp k (t.maxKeyD fallback) |>.isLE :=
+  Impl.maxKeyD_le_of_contains h hc
+
+theorem maxKeyD_le_of_mem [TransCmp cmp] (h : t.WF) {k} (hc : k ∈ t) {fallback} :
+    cmp k (t.maxKeyD fallback) |>.isLE :=
+  Impl.maxKeyD_le_of_mem h hc
+
+theorem le_maxKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {k fallback} :
+    (cmp (t.maxKeyD fallback) k).isLE ↔ (∀ k', k' ∈ t → (cmp k' k).isLE) :=
+  Impl.le_maxKeyD h he (instOrd := ⟨cmp⟩)
+
+theorem getKey?_maxKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
+    t.getKey? (t.maxKeyD fallback) = some (t.maxKeyD fallback) :=
+  Impl.getKey?_maxKeyD h he
+
+theorem getKey_maxKeyD [TransCmp cmp] (h : t.WF) {fallback hc} :
+    t.getKey (t.maxKeyD fallback) hc = t.maxKeyD fallback :=
+  Impl.getKey_maxKeyD h
+
+theorem getKey!_maxKeyD [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) {fallback} :
+    t.getKey! (t.maxKeyD fallback) = t.maxKeyD fallback :=
+  Impl.getKey!_maxKeyD h he
+
+theorem getKeyD_maxKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback fallback'} :
+    t.getKeyD (t.maxKeyD fallback) fallback' = t.maxKeyD fallback :=
+  Impl.getKeyD_maxKeyD h he
+
+theorem maxKeyD_erase_eq_of_not_compare_maxKeyD_eq [TransCmp cmp] (h : t.WF) {k fallback}
+    (he : (t.erase k).isEmpty = false) (heq : ¬ cmp k (t.maxKeyD fallback) = .eq) :
+    (t.erase k |>.maxKeyD fallback) = t.maxKeyD fallback :=
+  Impl.maxKeyD_erase!_eq_of_not_compare_maxKeyD_eq h he heq
+
+theorem maxKeyD_le_maxKeyD_erase [TransCmp cmp] (h : t.WF) {k}
+    (he : (t.erase k).isEmpty = false) {fallback} :
+    cmp (t.erase k |>.maxKeyD fallback) (t.maxKeyD fallback) |>.isLE :=
+  Impl.maxKeyD_le_maxKeyD_erase! h he
+
+theorem maxKeyD_insertIfNew [TransCmp cmp] (h : t.WF) {k v fallback} :
+    (t.insertIfNew k v |>.maxKeyD fallback) =
+      t.maxKey?.elim k fun k' => if cmp k' k = .lt then k else k' :=
+  Impl.maxKeyD_insertIfNew! h
+
+theorem maxKeyD_insertIfNew_le_maxKeyD [TransCmp cmp] (h : t.WF)
+    (he : t.isEmpty = false) {k v fallback} :
+    cmp (t.maxKeyD fallback) (t.insertIfNew k v |>.maxKeyD fallback) |>.isLE :=
+  Impl.maxKeyD_insertIfNew!_le_maxKeyD h he (instOrd := ⟨cmp⟩)
+
+theorem maxKeyD_insertIfNew_le_self [TransCmp cmp] (h : t.WF) {k v fallback} :
+    cmp k (t.insertIfNew k v |>.maxKeyD fallback) |>.isLE :=
+  Impl.maxKeyD_insertIfNew!_le_self h (instOrd := ⟨cmp⟩)
+
+theorem maxKeyD_eq_headD_keys [TransCmp cmp] (h : t.WF) {fallback} :
+    t.maxKeyD fallback = t.keys.getLastD fallback :=
+  Impl.maxKeyD_eq_headD_keys h (instOrd := ⟨cmp⟩)
+
+@[simp]
+theorem maxKeyD_modify [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k f fallback} :
+    (t.modify k f |>.maxKeyD fallback) = t.maxKeyD fallback :=
+  Impl.maxKeyD_modify h
+
+theorem maxKeyD_alter_eq_self [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k f}
+    (he : (t.alter k f).isEmpty = false) {fallback} :
+    (t.alter k f |>.maxKeyD fallback) = k ↔ (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (cmp k' k).isLE :=
+  Impl.maxKeyD_alter!_eq_self h he
+
+namespace Const
+
+variable {β : Type v} {t : Raw α β cmp}
+
+theorem maxKeyD_modify [TransCmp cmp] (h : t.WF) {k f}
+    (he : (modify t k f).isEmpty = false) {fallback} :
+    (modify t k f |>.maxKeyD fallback) =
+      if cmp (t.maxKeyD fallback) k = .eq then k else (t.maxKeyD fallback) :=
+  Impl.Const.maxKeyD_modify h he
+
+@[simp]
+theorem maxKeyD_modify_eq_maxKeyD [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k f fallback} :
+    (modify t k f |>.maxKeyD fallback) = t.maxKeyD fallback :=
+  Impl.Const.maxKeyD_modify_eq_maxKeyD h
+
+@[simp]
+theorem compare_maxKeyD_modify_eq [TransCmp cmp] (h : t.WF) {k f fallback} :
+    cmp (modify t k f |>.maxKeyD fallback) (t.maxKeyD fallback) = .eq :=
+  Impl.Const.compare_maxKeyD_modify_eq h (instOrd := ⟨cmp⟩)
+
+theorem maxKeyD_alter_eq_self [TransCmp cmp] (h : t.WF) {k f}
+    (he : (alter t k f).isEmpty = false) {fallback} :
+    (alter t k f |>.maxKeyD fallback) = k ↔
+      (f (Const.get? t k)).isSome ∧ ∀ k', k' ∈ t → (cmp k' k).isLE :=
+  Impl.Const.maxKeyD_alter!_eq_self h he
+
+end Const
+
 end Max
 
 end Std.DTreeMap.Raw

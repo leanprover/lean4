@@ -1864,4 +1864,9 @@ theorem maxKey!_eq_maxKey! [Ord α] [TransOrd α] [Inhabited α] {t : Impl α β
     t.maxKey! = List.maxKey! t.toListModel := by
   simp only [List.maxKey!_eq_get!_maxKey?, maxKey!_eq_get!_maxKey?, maxKey?_eq_maxKey? hlo]
 
+theorem maxKeyD_eq_maxKeyD [Ord α] [TransOrd α] {t : Impl α β} (hlo : t.Ordered)
+    {fallback} :
+    t.maxKeyD fallback = List.maxKeyD t.toListModel fallback := by
+  simp only [List.maxKeyD_eq_getD_maxKey?, maxKeyD_eq_getD_maxKey?, maxKey?_eq_maxKey? hlo]
+
 end Std.DTreeMap.Internal.Impl

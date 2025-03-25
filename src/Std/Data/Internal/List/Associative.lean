@@ -6053,7 +6053,7 @@ theorem maxKey!_alterKey_eq_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd �
 end Const
 
 /-- Returns the smallest key in an associative list or `fallback` if the list is empty. -/
-def maxKeyD [Ord α] (xs : List ((a : α) × β a)) (fallback : α) : α :=
+abbrev maxKeyD [Ord α] (xs : List ((a : α) × β a)) (fallback : α) : α :=
   letI : Ord α := .opposite inferInstance; minKeyD xs fallback
 
 theorem maxKeyD_of_perm [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
@@ -6223,12 +6223,11 @@ theorem maxKeyD_insertEntryIfNew_le_self [Ord α] [TransOrd α] [BEq α] [Lawful
   minKeyD_insertEntryIfNew_le_self hd
 
 theorem maxKeyD_eq_headD_keys [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
-    {l : List ((a : α) × β a)} (ho : l.Pairwise fun a b => compare a.1 b.1 = .lt) {fallback} :
-    maxKeyD l fallback = (keys l).headD fallback := by
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l)
+    (ho : l.Pairwise fun a b => compare a.1 b.1 = .lt) {fallback} :
+    maxKeyD l fallback = (keys l).getLastD fallback := by
   simp only [List.getLastD_eq_getLast?, maxKeyD_eq_getD_maxKey?,
     Option.get!_eq_getD, maxKey?_eq_getLast?_keys hd ho]
-  letI : Ord α := .opposite inferInstance
-  minKeyD_eq_headD_keys ho
 
 theorem maxKeyD_modifyKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [LawfulEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k f fallback} :

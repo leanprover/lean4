@@ -5362,10 +5362,6 @@ theorem maxKey?_alter!_eq_self [TransOrd α] (h : t.WF) {k f} :
 
 end Const
 
--- theorem maxKey_eq_get_maxKey? [TransOrd α] (h : t.WF) {he} :
---     t.maxKey he = t.maxKey?.get (isSome_maxKey?_iff_isEmpty_eq_false h |>.mpr he) := by
---   simp_to_model [maxKey, maxKey?] using List.maxKey_eq_get_maxKey?
-
 theorem maxKey?_eq_some_maxKey [TransOrd α] (h : t.WF) {he} :
     t.maxKey? = some (t.maxKey he) := by
   simp_to_model [maxKey, maxKey?] using List.maxKey?_eq_some_maxKey
@@ -5443,7 +5439,7 @@ theorem maxKey_erase_eq_of_not_compare_eq_maxKey [TransOrd α] (h : t.WF) {k he}
 theorem maxKey_erase_le_maxKey [TransOrd α] (h : t.WF) {k he} :
     compare (t.erase k h.balanced |>.impl.maxKey he)
         (t.maxKey <| isEmpty_eq_false_of_isEmpty_erase_eq_false h he) |>.isLE := by
-  simp_to_model [maxKey, erase] using List.maxKey_erase_le_maxKey
+  simp_to_model [maxKey, erase] using List.maxKey_eraseKey_le_maxKey
 
 theorem maxKey_insertIfNew [TransOrd α] (h : t.WF) {k v} :
     (t.insertIfNew k v h.balanced).impl.maxKey (isEmpty_insertIfNew h) =

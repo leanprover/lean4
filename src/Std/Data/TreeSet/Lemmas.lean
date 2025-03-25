@@ -871,13 +871,13 @@ theorem getD_min [TransCmp cmp] {he fallback} :
   DTreeMap.getKeyD_minKey
 
 @[simp]
-theorem min_erase_eq_iff_not_cmp_eq_min [TransCmp cmp] {k he} :
+theorem min_erase_eq_iff_not_compare_eq_min [TransCmp cmp] {k he} :
     (t.erase k |>.min he) =
         t.min (isEmpty_eq_false_of_isEmpty_erase_eq_false he) ↔
       ¬ cmp k (t.min <| isEmpty_eq_false_of_isEmpty_erase_eq_false he) = .eq :=
   DTreeMap.minKey_erase_eq_iff_not_compare_eq_minKey
 
-theorem min_erase_eq_of_not_cmp_eq_min [TransCmp cmp] {k he} :
+theorem min_erase_eq_of_not_compare_eq_min [TransCmp cmp] {k he} :
     (hc : ¬ cmp k (t.min (isEmpty_eq_false_of_isEmpty_erase_eq_false he)) = .eq) →
     (t.erase k |>.min he) =
       t.min (isEmpty_eq_false_of_isEmpty_erase_eq_false he) :=
@@ -1268,13 +1268,13 @@ theorem getD_max [TransCmp cmp] {he fallback} :
     t.getD (t.max he) fallback = t.max he :=
   DTreeMap.getKeyD_maxKey
 
-theorem max_erase_eq_iff_not_cmp_eq_max [TransCmp cmp] {k he} :
+theorem max_erase_eq_iff_not_compare_eq_max [TransCmp cmp] {k he} :
     (t.erase k |>.max he) =
         t.max (isEmpty_eq_false_of_isEmpty_erase_eq_false he) ↔
       ¬ cmp k (t.max <| isEmpty_eq_false_of_isEmpty_erase_eq_false he) = .eq :=
   DTreeMap.maxKey_erase_eq_iff_not_compare_eq_maxKey
 
-theorem max_erase_eq_of_not_cmp_eq_max [TransCmp cmp] {k he} :
+theorem max_erase_eq_of_not_compare_eq_max [TransCmp cmp] {k he} :
     (hc : ¬ cmp k (t.max (isEmpty_eq_false_of_isEmpty_erase_eq_false he)) = .eq) →
     (t.erase k |>.max he) =
       t.max (isEmpty_eq_false_of_isEmpty_erase_eq_false he) :=

@@ -5757,7 +5757,7 @@ theorem maxKey_eraseKey_eq_of_beq_maxKey_eq_false [Ord α] [TransOrd α] [BEq α
   letI : Ord α := .opposite inferInstance
   minKey_eraseKey_eq_of_beq_minKey_eq_false hd
 
-theorem maxKey_erase_le_maxKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKey_eraseKey_le_maxKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k he} :
     compare (eraseKey k l |> maxKey <| he)
       (maxKey l <| isEmpty_eq_false_of_isEmpty_eraseKey_eq_false hd he) |>.isLE :=

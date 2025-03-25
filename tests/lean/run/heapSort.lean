@@ -31,7 +31,7 @@ def heapifyDown (lt : α → α → Bool) (a : Array α) (i : Fin a.size) :
     have : a'.size - j < a.size - i := by
       rw [a.size_swap i j]; sorry
     let ⟨a₂, h₂⟩ := heapifyDown lt a' j'
-    ⟨a₂, h₂.trans (a.size_swap i j)⟩
+    ⟨a₂, h₂.trans a.size_swap⟩
 termination_by a.size - i
 decreasing_by assumption
 

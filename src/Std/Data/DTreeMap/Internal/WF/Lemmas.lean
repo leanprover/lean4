@@ -1824,7 +1824,7 @@ theorem minEntry?_eq_minEntry? [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.
     l.minEntry? = List.minEntry? l.toListModel := by
   rw [minEntry?_eq_minEntry?ₘ, minEntry?ₘ_eq_minEntry? hlo]
 
-theorem minKey?_eq_minKey? [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
+theorem minKey?_eq_minKey? {_ : Ord α} [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
     l.minKey? = List.minKey? l.toListModel := by
   simp only [minKey?_eq_minEntry?_map_fst, minEntry?_eq_minEntry? hlo, List.minKey?]
 
@@ -1841,5 +1841,19 @@ theorem minKeyD_eq_minKeyD [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Orde
     {fallback} :
     l.minKeyD fallback = List.minKeyD l.toListModel fallback := by
   simp [Impl.minKeyD_eq_getD_minKey?, List.minKeyD_eq_getD_minKey?, minKey?_eq_minKey? hlo]
+
+theorem toListModel_reverse {l : Impl α β} :
+    (reverse l).toListModel = l.toListModel.reverse := by
+  induction l <;> simp_all [reverse]
+
+theorem Ordered.reverse [Ord α] {t : Impl α β} (h : t.Ordered) :
+    letI : Ord α := .opposite inferInstance; t.reverse.Ordered := by
+  simp only [Ordered, toListModel_reverse]
+  exact List.pairwise_reverse.mpr h
+
+theorem maxKey?_eq_maxKey? [Ord α] [TransOrd α] {t : Impl α β} (hlo : t.Ordered) :
+    t.maxKey? = List.maxKey? t.toListModel := by
+  rw [maxKey?_of_perm hlo.distinctKeys (List.reverse_perm t.toListModel).symm, List.maxKey?]
+  rw [maxKey?_eq_minKey?_reverse, minKey?_eq_minKey? hlo.reverse, toListModel_reverse]
 
 end Std.DTreeMap.Internal.Impl

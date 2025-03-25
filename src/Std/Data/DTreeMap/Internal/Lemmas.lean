@@ -99,7 +99,8 @@ private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSynta
      ⟨`minKey?, (``minKey?_eq_minKey?, #[``(minKey?_of_perm _)])⟩,
      ⟨`minKey, (``minKey_eq_minKey, #[``(minKey_of_perm _)])⟩,
      ⟨`minKey!, (``minKey!_eq_minKey!, #[``(minKey!_of_perm _)])⟩,
-     ⟨`minKeyD, (``minKeyD_eq_minKeyD, #[``(minKeyD_of_perm _)])⟩]
+     ⟨`minKeyD, (``minKeyD_eq_minKeyD, #[``(minKeyD_of_perm _)])⟩,
+     ⟨`maxKey?, (``maxKey?_eq_maxKey?, #[``(maxKey?_of_perm _)])⟩]
 
 /-- Internal implementation detail of the tree map -/
 scoped syntax "simp_to_model" (" [" (ident,*) "]")? ("using" term)? : tactic
@@ -4289,12 +4290,12 @@ theorem isSome_minKey?_iff_isEmpty_eq_false [TransOrd α] (h : t.WF) :
 
 theorem minKey?_insert [TransOrd α] (h : t.WF) {k v} :
     (t.insert k v h.balanced).impl.minKey? =
-      some (t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k') := by
+      some (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simp_to_model [insert] using List.minKey?_insertEntry
 
 theorem minKey?_insert! [TransOrd α] (h : t.WF) {k v} :
     (t.insert! k v).minKey? =
-      some (t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k') := by
+      some (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simpa only [insert_eq_insert!] using minKey?_insert h
 
 theorem isSome_minKey?_insert [TransOrd α] (h : t.WF) {k v} :
@@ -4541,7 +4542,7 @@ theorem minKey_eq_some_iff_mem_and_forall [TransOrd α] [LawfulEqOrd α] (h : t.
 
 theorem minKey_insert [TransOrd α] (h : t.WF) {k v} :
     (t.insert k v h.balanced).impl.minKey (isEmpty_insert h) =
-      t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k' := by
+      t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k' := by
   simp_to_model [insert, minKey, minKey?] using List.minKey_insertEntry
 
 theorem minKey_insert_le_minKey [TransOrd α] (h : t.WF) {k v he} :
@@ -4686,12 +4687,12 @@ theorem minKey!_eq_some_iff_mem_and_forall [TransOrd α]
 
 theorem minKey!_insert [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
     (t.insert k v h.balanced |>.impl.minKey!) =
-      (t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k') := by
+      (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simp_to_model [minKey!, minKey?, insert] using List.minKey!_insertEntry
 
 theorem minKey!_insert! [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
     (t.insert! k v |>.minKey!) =
-      (t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k') := by
+      (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simpa [insert_eq_insert!] using minKey!_insert h
 
 theorem minKey!_insert_le_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
@@ -4900,12 +4901,12 @@ theorem minKeyD_eq_some_iff_mem_and_forall [TransOrd α]
 
 theorem minKeyD_insert [TransOrd α] (h : t.WF) {k v fallback} :
     (t.insert k v h.balanced |>.impl.minKeyD <| fallback) =
-      (t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k') := by
+      (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simp_to_model [minKeyD, minKey?, insert] using List.minKeyD_insertEntry
 
 theorem minKeyD_insert! [TransOrd α] (h : t.WF) {k v fallback} :
     (t.insert! k v |>.minKeyD fallback) =
-      (t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k') := by
+      (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simpa [insert_eq_insert!] using minKeyD_insert h
 
 theorem minKeyD_insert_le_minKeyD [TransOrd α] (h : t.WF) :
@@ -5089,5 +5090,277 @@ theorem minKeyD_alter!_eq_self [TransOrd α] (h : t.WF) {k f} :
 end Const
 
 end Min
+
+section Max
+
+theorem maxKey?_empty :
+    (empty : Impl α β).maxKey? = none := by
+  unfold maxKey?; rfl
+
+theorem maxKey?_of_isEmpty [TransOrd α] (h : t.WF) :
+    (he : t.isEmpty) → t.maxKey? = none := by
+  simp_to_model using List.maxKey?_of_isEmpty
+
+theorem maxKey?_eq_none_iff [TransOrd α] (h : t.WF) :
+    t.maxKey? = none ↔ t.isEmpty := by
+  simp_to_model using List.maxKey?_eq_none_iff_isEmpty
+
+theorem maxKey?_eq_some_iff_getKey?_eq_self_and_forall [TransOrd α] (h : t.WF) {km} :
+    t.maxKey? = some km ↔ t.getKey? km = some km ∧ ∀ k ∈ t, (compare k km).isLE := by
+  simp_to_model using List.maxKey?_eq_some_iff_getKey?_eq_self_and_forall
+
+theorem maxKey?_eq_some_iff_mem_and_forall [TransOrd α] [LawfulEqOrd α] (h : t.WF) {km} :
+    t.maxKey? = some km ↔ km ∈ t ∧ ∀ k ∈ t, (compare k km).isLE := by
+  simp_to_model using List.maxKey?_eq_some_iff_mem_and_forall
+
+theorem isNone_maxKey?_eq_isEmpty [TransOrd α] (h : t.WF) :
+    t.maxKey?.isNone = t.isEmpty := by
+  simp_to_model using List.isNone_maxKey?_eq_isEmpty
+
+theorem isSome_maxKey?_eq_not_isEmpty [TransOrd α] (h : t.WF) :
+    t.maxKey?.isSome = !t.isEmpty := by
+  simp_to_model using List.isSome_maxKey?_eq_not_isEmpty
+
+theorem isSome_maxKey?_iff_isEmpty_eq_false [TransOrd α] (h : t.WF) :
+    t.maxKey?.isSome ↔ t.isEmpty = false := by
+  simp [isSome_maxKey?_eq_not_isEmpty h]
+
+theorem maxKey?_insert [TransOrd α] (h : t.WF) {k v} :
+    (t.insert k v h.balanced).impl.maxKey? =
+      some (t.maxKey?.elim k fun k' => if compare k' k|>.isLE then k else k') := by
+  simp_to_model [insert] using List.maxKey?_insertEntry
+
+theorem maxKey?_insert! [TransOrd α] (h : t.WF) {k v} :
+    (t.insert! k v).maxKey? =
+      some (t.maxKey?.elim k fun k' => if compare k' k|>.isLE then k else k') := by
+  simpa only [insert_eq_insert!] using maxKey?_insert h
+
+theorem isSome_maxKey?_insert [TransOrd α] (h : t.WF) {k v} :
+    (t.insert k v h.balanced).impl.maxKey?.isSome := by
+  simp_to_model [insert] using List.isSome_maxKey?_insertEntry
+
+theorem isSome_maxKey?_insert! [TransOrd α] (h : t.WF) {k v} :
+    (t.insert! k v).maxKey?.isSome := by
+  simpa only [insert_eq_insert!] using isSome_maxKey?_insert h
+
+theorem maxKey?_le_maxKey?_insert [TransOrd α] (h : t.WF) {k v km kmi} :
+    (hkm : t.maxKey? = some km) →
+    (hkmi : (t.insert k v h.balanced |>.impl.maxKey? |>.get <| isSome_maxKey?_insert h) = kmi) →
+    compare km kmi |>.isLE := by
+  simp_to_model [insert] using List.maxKey?_le_maxKey?_insertEntry
+
+theorem maxKey?_le_maxKey?_insert! [TransOrd α] (h : t.WF) {k v km kmi} :
+    (hkm : t.maxKey? = some km) →
+    (hkmi : (t.insert! k v |>.maxKey? |>.get <| isSome_maxKey?_insert! h) = kmi) →
+    compare km kmi |>.isLE := by
+  simpa only [insert_eq_insert!] using maxKey?_le_maxKey?_insert h
+
+theorem self_le_maxKey?_insert [TransOrd α] (h : t.WF) {k v kmi} :
+    (hkmi : (t.insert k v h.balanced |>.impl.maxKey?.get <| isSome_maxKey?_insert h) = kmi) →
+    compare k kmi |>.isLE := by
+  simp_to_model [insert] using List.self_le_maxKey?_insertEntry
+
+theorem self_le_maxKey?_insert! [TransOrd α] (h : t.WF) {k v kmi} :
+    (hkmi : (t.insert! k v |>.maxKey?.get <| isSome_maxKey?_insert! h) = kmi) →
+    compare k kmi |>.isLE := by
+  simpa only [insert_eq_insert!] using self_le_maxKey?_insert h
+
+theorem contains_maxKey? [TransOrd α] (h : t.WF) {km} :
+    (hkm : t.maxKey? = some km) →
+    t.contains km := by
+  simp_to_model using List.containsKey_maxKey?
+
+theorem maxKey?_mem [TransOrd α] (h : t.WF) {km} :
+    (hkm : t.maxKey? = some km) →
+    km ∈ t := by
+  simp_to_model using List.containsKey_maxKey?
+
+theorem isSome_maxKey?_of_contains [TransOrd α] (h : t.WF) {k} :
+    (hc : t.contains k) → t.maxKey?.isSome := by
+  simp_to_model using List.isSome_maxKey?_of_containsKey
+
+theorem isSome_maxKey?_of_mem [TransOrd α] (h : t.WF) {k} :
+    k ∈ t → t.maxKey?.isSome :=
+  isSome_maxKey?_of_contains h
+
+theorem le_maxKey?_of_contains [TransOrd α] (h : t.WF) {k km} :
+    (hc : t.contains k) → (hkm : (t.maxKey?.get <| isSome_maxKey?_of_contains h hc) = km) →
+    compare k km |>.isLE := by
+  simp_to_model using maxKey?_le_of_containsKey
+
+theorem le_maxKey?_of_mem [TransOrd α] (h : t.WF) {k km} :
+    (hc : k ∈ t) → (hkm : (t.maxKey?.get <| isSome_maxKey?_of_mem h hc) = km) →
+    compare k km |>.isLE :=
+  le_maxKey?_of_contains h
+
+theorem maxKey?_le [TransOrd α] {k} (h : t.WF) :
+    (∀ k', t.maxKey? = some k' → (compare k' k).isLE) ↔
+      (∀ k', k' ∈ t → (compare k' k).isLE) := by
+  simp_to_model using List.maxKey?_le
+
+theorem getKey?_maxKey? [TransOrd α] (h : t.WF) {km} :
+    (hkm : t.maxKey? = some km) → t.getKey? km = some km := by
+  simp_to_model using List.getKey?_maxKey?
+
+theorem getKey_maxKey? [TransOrd α] (h : t.WF) {km hc} :
+    (hkm : t.maxKey?.get (isSome_maxKey?_of_contains h hc) = km) → t.getKey km hc = km := by
+  simp_to_model using List.getKey_maxKey?
+
+theorem getKey!_maxKey? [TransOrd α] [Inhabited α] (h : t.WF) {km} :
+    (hkm : t.maxKey? = some km) → t.getKey! km = km := by
+  simp_to_model using List.getKey!_maxKey?
+
+theorem getKeyD_maxKey? [TransOrd α] (h : t.WF) {km fallback} :
+    (hkm : t.maxKey? = some km) → t.getKeyD km fallback = km := by
+  simp_to_model using List.getKeyD_maxKey?
+
+@[simp]
+theorem maxKey?_bind_getKey? [TransOrd α] (h : t.WF) :
+    t.maxKey?.bind t.getKey? = t.maxKey? := by
+  change (t.maxKey?.bind fun k => t.getKey? k) = t.maxKey?
+  simp_to_model using List.maxKey?_bind_getKey?
+
+theorem maxKey?_erase_eq_iff_not_compare_eq_maxKey? [TransOrd α] (h : t.WF) {k} :
+    (t.erase k h.balanced |>.impl.maxKey?) = t.maxKey? ↔
+      ∀ {km}, t.maxKey? = some km → ¬ compare k km = .eq := by
+  simp_to_model [erase] using maxKey?_eraseKey_eq_iff_beq_maxKey?_eq_false
+
+theorem maxKey?_erase!_eq_iff_not_compare_eq_maxKey? [TransOrd α] (h : t.WF) {k} :
+    (t.erase! k |>.maxKey?) = t.maxKey? ↔
+      ∀ {km}, t.maxKey? = some km → ¬ compare k km = .eq := by
+  simpa only [erase_eq_erase!] using maxKey?_erase_eq_iff_not_compare_eq_maxKey? h
+
+theorem maxKey?_erase_eq_of_not_compare_eq_maxKey? [TransOrd α] (h : t.WF) {k} :
+    (hc : ∀ {km}, t.maxKey? = some km → ¬ compare k km = .eq) →
+    (t.erase k h.balanced |>.impl.maxKey?) = t.maxKey? := by
+  simp_to_model [erase] using maxKey?_eraseKey_eq_of_beq_maxKey?_eq_false
+
+theorem maxKey?_erase!_eq_of_not_compare_eq_maxKey? [TransOrd α] (h : t.WF) {k} :
+    (hc : ∀ {km}, t.maxKey? = some km → ¬ compare k km = .eq) →
+    (t.erase! k |>.maxKey?) = t.maxKey? := by
+  simpa only [erase_eq_erase!] using maxKey?_erase_eq_of_not_compare_eq_maxKey? h
+
+theorem isSome_maxKey?_of_isSome_maxKey?_erase [TransOrd α] (h : t.WF) {k} :
+    (hs : t.erase k h.balanced |>.impl.maxKey?.isSome) →
+    t.maxKey?.isSome := by
+  simp_to_model [erase] using isSome_maxKey?_of_isSome_maxKey?_eraseKey
+
+theorem isSome_maxKey?_of_isSome_maxKey?_erase! [TransOrd α] (h : t.WF) {k} :
+    (hs : t.erase! k |>.maxKey?.isSome) →
+    t.maxKey?.isSome := by
+  simpa only [erase_eq_erase!] using isSome_maxKey?_of_isSome_maxKey?_erase h
+
+theorem maxKey?_erase_le_maxKey? [TransOrd α] (h : t.WF) {k km kme} :
+    (hkme : (t.erase k h.balanced |>.impl.maxKey?) = some kme) →
+    (hkm : (t.maxKey?.get <|
+      isSome_maxKey?_of_isSome_maxKey?_erase h <| hkme ▸ Option.isSome_some) = km) →
+    compare kme km |>.isLE := by
+  simp_to_model [erase] using maxKey?_eraseKey_le_maxKey?
+
+theorem maxKey?_erase!_le_maxKey? [TransOrd α] (h : t.WF) {k km kme} :
+    (hkme : (t.erase! k |>.maxKey?) = some kme) →
+    (hkm : (t.maxKey?.get <|
+      isSome_maxKey?_of_isSome_maxKey?_erase! h <| hkme ▸ Option.isSome_some) = km) →
+    compare kme km |>.isLE := by
+  simpa only [erase_eq_erase!] using maxKey?_erase_le_maxKey? h
+
+theorem maxKey?_insertIfNew [TransOrd α] (h : t.WF) {k v} :
+    (t.insertIfNew k v h.balanced).impl.maxKey? =
+      t.maxKey?.elim k fun k' => if compare k' k = .lt then k else k' := by
+  simp_to_model [insertIfNew] using List.maxKey?_insertEntryIfNew
+
+theorem maxKey?_insertIfNew! [TransOrd α] (h : t.WF) {k v} :
+    (t.insertIfNew! k v).maxKey? =
+      t.maxKey?.elim k fun k' => if compare k' k = .lt then k else k' := by
+  simpa only [insertIfNew_eq_insertIfNew!] using maxKey?_insertIfNew h
+
+theorem isSome_maxKey?_insertIfNew [TransOrd α] (h : t.WF) {k v} :
+    (t.insertIfNew k v h.balanced).impl.maxKey?.isSome := by
+  simp_to_model [insertIfNew] using List.isSome_maxKey?_insertEntryIfNew
+
+theorem isSome_maxKey?_insertIfNew! [TransOrd α] (h : t.WF) {k v} :
+    (t.insertIfNew! k v).maxKey?.isSome := by
+  simpa only [insertIfNew_eq_insertIfNew!] using isSome_maxKey?_insertIfNew h
+
+theorem maxKey?_le_maxKey?_insertIfNew [TransOrd α] (h : t.WF) {k v km kmi} :
+    (hkm : t.maxKey? = some km) →
+    (hkmi : (t.insertIfNew k v h.balanced |>.impl.maxKey? |>.get <| isSome_maxKey?_insertIfNew h) = kmi) →
+    compare km kmi |>.isLE := by
+  simp_to_model [insertIfNew] using List.maxKey?_le_maxKey?_insertEntryIfNew
+
+theorem maxKey?_le_maxKey?_insertIfNew! [TransOrd α] (h : t.WF) {k v km kmi} :
+    (hkm : t.maxKey? = some km) →
+    (hkmi : (t.insertIfNew! k v |>.maxKey? |>.get <| isSome_maxKey?_insertIfNew! h) = kmi) →
+    compare km kmi |>.isLE := by
+  simpa only [insertIfNew_eq_insertIfNew!] using maxKey?_le_maxKey?_insertIfNew h
+
+theorem self_le_maxKey?_insertIfNew [TransOrd α] (h : t.WF) {k v kmi} :
+    (hkmi : (t.insertIfNew k v h.balanced |>.impl.maxKey?.get <| isSome_maxKey?_insertIfNew h) = kmi) →
+    compare k kmi |>.isLE := by
+  simp_to_model [insertIfNew] using List.self_le_maxKey?_insertEntryIfNew
+
+theorem self_le_maxKey?_insertIfNew! [TransOrd α] (h : t.WF) {k v kmi} :
+    (hkmi : (t.insertIfNew! k v |>.maxKey?.get <| isSome_maxKey?_insertIfNew! h) = kmi) →
+    compare k kmi |>.isLE := by
+  simpa only [insertIfNew_eq_insertIfNew!] using self_le_maxKey?_insertIfNew h
+
+theorem maxKey?_eq_getLast?_keys [TransOrd α] (h : t.WF) :
+    t.maxKey? = t.keys.getLast? := by
+  simp_to_model [maxKey?, keys] using List.maxKey?_eq_getLast?_keys _ h.ordered
+
+theorem maxKey?_modify [TransOrd α] [LawfulEqOrd α] {k f} (h : t.WF) :
+    (t.modify k f).maxKey? = t.maxKey? := by
+  simp_to_model [modify] using List.maxKey?_modifyKey
+
+theorem maxKey?_alter_eq_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f} :
+    (t.alter k f h.balanced).impl.maxKey? = some k ↔
+      (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
+  simp_to_model [alter] using List.maxKey?_alterKey_eq_self
+
+theorem maxKey?_alter!_eq_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f} :
+    (t.alter! k f).maxKey? = some k ↔
+      (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
+  simpa only [alter_eq_alter!] using maxKey?_alter_eq_self h
+
+namespace Const
+
+variable {β : Type v} {t : Impl α β}
+
+theorem maxKey?_modify [TransOrd α] (h : t.WF) {k f} :
+    (Const.modify k f t).maxKey? = t.maxKey?.map fun km => if compare km k = .eq then k else km := by
+  simp_to_model [Const.modify] using List.Const.maxKey?_modifyKey
+
+theorem maxKey?_modify_eq_maxKey? [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f} :
+    (Const.modify k f t).maxKey? = t.maxKey? := by
+  simp_to_model [Const.modify] using List.Const.maxKey?_modifyKey_eq_maxKey?
+
+theorem isSome_maxKey?_modify [TransOrd α] {k f}  (h : t.WF) :
+    (Const.modify k f t).maxKey?.isSome = !t.isEmpty := by
+  simp_to_model [Const.modify] using List.Const.isSome_maxKey?_modifyKey
+
+theorem isSome_maxKey?_modify_eq_isSome [TransOrd α] (h : t.WF) {k f} :
+    (Const.modify k f t).maxKey?.isSome = t.maxKey?.isSome := by
+  simp_to_model [Const.modify] using List.Const.isSome_maxKey?_modifyKey_eq_isSome
+
+theorem compare_maxKey?_modify_eq [TransOrd α] (h : t.WF) {k f km kmm} :
+    (hkm : t.maxKey? = some km) →
+    (hkmm : (Const.modify k f t |>.maxKey? |>.get <|
+        (isSome_maxKey?_modify_eq_isSome h).trans <| hkm ▸ Option.isSome_some) = kmm) →
+    compare kmm km = .eq := by
+  simp_to_model [Const.modify] using List.Const.maxKey?_modifyKey_beq
+
+theorem maxKey?_alter_eq_self [TransOrd α] (h : t.WF) {k f} :
+    (Const.alter k f t h.balanced).impl.maxKey? = some k ↔
+      (f (Const.get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
+  simp_to_model [Const.alter] using List.Const.maxKey?_alterKey_eq_self
+
+theorem maxKey?_alter!_eq_self [TransOrd α] (h : t.WF) {k f} :
+    (Const.alter! k f t).maxKey? = some k ↔
+      (f (Const.get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
+  simpa [alter_eq_alter!] using maxKey?_alter_eq_self h
+
+end Const
+
+end Max
 
 end Std.DTreeMap.Internal.Impl

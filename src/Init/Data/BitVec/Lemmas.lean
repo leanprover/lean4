@@ -2357,6 +2357,7 @@ theorem toNat_signExtend (x : BitVec w) {v : Nat} :
     simp [signExtend_eq_setWidth_of_le x h, toNat_setWidth, Nat.sub_eq_zero_of_le this]
   · have : 2^w ≤ 2^v := Nat.pow_le_pow_right Nat.two_pos (by omega)
     rw [toNat_signExtend_of_le x (by omega), toNat_setWidth, Nat.mod_eq_of_lt (by omega)]
+
 /--
 If the current width `w` is smaller than the extended width `v`,
 then the value when interpreted as an integer does not change.

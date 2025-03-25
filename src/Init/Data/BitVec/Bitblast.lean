@@ -1370,7 +1370,7 @@ theorem eq_iff_eq_of_inv (f : α → BitVec w) (g : BitVec w → α) (h : ∀ x,
   · intro h'
     have := congrArg g h'
     simpa [h] using this
-    
+
 @[simp]
 theorem ne_intMin_of_lt_of_msb_false {x : BitVec w} (hw : 0 < w) (hx : x.msb = false) :
     x ≠ intMin w := by
@@ -1414,8 +1414,7 @@ theorem sdiv_intMin {x : BitVec w} :
   · subst h
     simp
     omega
-  · simp [sdiv_eq]
-    simp [msb_intMin, show 0 < w by omega, h]
+  · simp only [sdiv_eq, msb_intMin, show 0 < w by omega, h]
     have := Nat.two_pow_pos (w-1)
     by_cases hx : x.msb
     · simp [msb_neg_of_ne_intMin_of_ne_zero (by simp [h])

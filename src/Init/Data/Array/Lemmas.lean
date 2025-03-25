@@ -231,7 +231,7 @@ theorem back?_pop {xs : Array α} :
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   simp only [List.append_toArray, List.pop_toArray, mk.injEq]
-  rw [List.dropLast_append_of_ne_nil _ (by simpa using h)]
+  rw [List.dropLast_append_of_ne_nil (by simpa using h)]
 
 /-! ### push -/
 
@@ -915,7 +915,7 @@ theorem set_comm (a b : α)
     {i j : Nat} (xs : Array α) {hi : i < xs.size} {hj : j < (xs.set i a).size} (h : i ≠ j) :
     (xs.set i a).set j b = (xs.set j b (by simpa using hj)).set i a (by simpa using hi) := by
   cases xs
-  simp [List.set_comm _ _ _ h]
+  simp [List.set_comm _ _ h]
 
 @[simp]
 theorem set_set (a b : α) (xs : Array α) (i : Nat) (h : i < xs.size) :
@@ -1003,7 +1003,7 @@ theorem setIfInBounds_comm (a b : α)
     {i j : Nat} (xs : Array α) (h : i ≠ j) :
     (xs.setIfInBounds i a).setIfInBounds j b = (xs.setIfInBounds j b).setIfInBounds i a := by
   cases xs
-  simp [List.set_comm _ _ _ h]
+  simp [List.set_comm _ _ h]
 
 @[simp]
 theorem setIfInBounds_setIfInBounds (a b : α) (xs : Array α) (i : Nat) :
@@ -2589,16 +2589,16 @@ theorem getElem?_swap (xs : Array α) (i j : Nat) (hi hj) (k : Nat) : (xs.swap i
           ← getElem?_toList]
         split <;> rename_i h₂
         · simp only [← h₂, Nat.not_le.2 (Nat.lt_succ_self _), Nat.le_refl, and_false]
-          exact (List.getElem?_reverse' (j+1) i (Eq.trans (by simp +arith) h)).symm
+          exact (List.getElem?_reverse' (Eq.trans (by simp +arith) h)).symm
         split <;> rename_i h₃
         · simp only [← h₃, Nat.not_le.2 (Nat.lt_succ_self _), Nat.le_refl, false_and]
-          exact (List.getElem?_reverse' i (j+1) (Eq.trans (by simp +arith) h)).symm
+          exact (List.getElem?_reverse' (Eq.trans (by simp +arith) h)).symm
         simp only [Nat.succ_le, Nat.lt_iff_le_and_ne.trans (and_iff_left h₃),
           Nat.lt_succ.symm.trans (Nat.lt_iff_le_and_ne.trans (and_iff_left (Ne.symm h₂)))]
     · rw [H]; split <;> rename_i h₂
       · cases Nat.le_antisymm (Nat.not_lt.1 h₁) (Nat.le_trans h₂.1 h₂.2)
         cases Nat.le_antisymm h₂.1 h₂.2
-        exact (List.getElem?_reverse' _ _ h).symm
+        exact (List.getElem?_reverse' h).symm
       · rfl
     termination_by j - i
   simp only [reverse]
@@ -2652,7 +2652,7 @@ theorem getElem?_reverse' {xs : Array α} (i j) (h : i + j + 1 = xs.size) : xs.r
   rcases xs with ⟨xs⟩
   simp at h
   simp only [List.reverse_toArray, List.getElem?_toArray]
-  rw [List.getElem?_reverse' (l := xs) _ _ h]
+  rw [List.getElem?_reverse' h]
 
 @[simp]
 theorem getElem?_reverse {xs : Array α} {i} (h : i < xs.size) :
@@ -3316,7 +3316,7 @@ theorem foldl_map_hom' (g : α → β) (f : α → α → α) (f' : β → β �
   subst w
   cases xs
   simp
-  rw [List.foldl_map_hom _ _ _ _ _ h]
+  rw [List.foldl_map_hom h]
 
 theorem foldr_map_hom' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (xs : Array α)
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) (w : start = xs.size) :
@@ -3324,21 +3324,21 @@ theorem foldr_map_hom' (g : α → β) (f : α → α → α) (f' : β → β �
   subst w
   cases xs
   simp
-  rw [List.foldr_map_hom _ _ _ _ _ h]
+  rw [List.foldr_map_hom h]
 
 theorem foldl_map_hom (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (xs : Array α)
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (xs.map g).foldl f' (g a) = g (xs.foldl f a) := by
   cases xs
   simp
-  rw [List.foldl_map_hom _ _ _ _ _ h]
+  rw [List.foldl_map_hom h]
 
 theorem foldr_map_hom (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (xs : Array α)
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (xs.map g).foldr f' (g a) = g (xs.foldr f a) := by
   cases xs
   simp
-  rw [List.foldr_map_hom _ _ _ _ _ h]
+  rw [List.foldr_map_hom h]
 
 /-- Variant of `foldrM_append` with a side condition for the `start` argument. -/
 @[simp] theorem foldrM_append' [Monad m] [LawfulMonad m] (f : α → β → m β) (b) (xs ys : Array α)
@@ -3443,13 +3443,13 @@ theorem foldl_hom (f : α₁ → α₂) (g₁ : α₁ → β → α₁) (g₂ : 
     (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) : xs.foldl g₂ (f init) = f (xs.foldl g₁ init) := by
   cases xs
   simp
-  rw [List.foldl_hom _ _ _ _ _ H]
+  rw [List.foldl_hom _ H]
 
 theorem foldr_hom (f : β₁ → β₂) (g₁ : α → β₁ → β₁) (g₂ : α → β₂ → β₂) (xs : Array α) (init : β₁)
     (H : ∀ x y, g₂ x (f y) = f (g₁ x y)) : xs.foldr g₂ (f init) = f (xs.foldr g₁ init) := by
   cases xs
   simp
-  rw [List.foldr_hom _ _ _ _ _ H]
+  rw [List.foldr_hom _ H]
 
 /--
 We can prove that two folds over the same array are related (by some arbitrary relation)
@@ -3460,7 +3460,7 @@ theorem foldl_rel {xs : Array α} {f g : β → α → β} {a b : β} (r : β �
     (h : r a b) (h' : ∀ (a : α), a ∈ xs → ∀ (c c' : β), r c c' → r (f c a) (g c' a)) :
     r (xs.foldl (fun acc a => f acc a) a) (xs.foldl (fun acc a => g acc a) b) := by
   rcases xs with ⟨xs⟩
-  simpa using List.foldl_rel r h (by simpa using h')
+  simpa using List.foldl_rel h (by simpa using h')
 
 /--
 We can prove that two folds over the same array are related (by some arbitrary relation)
@@ -3471,7 +3471,7 @@ theorem foldr_rel {xs : Array α} {f g : α → β → β} {a b : β} (r : β �
     (h : r a b) (h' : ∀ (a : α), a ∈ xs → ∀ (c c' : β), r c c' → r (f a c) (g a c')) :
     r (xs.foldr (fun a acc => f a acc) a) (xs.foldr (fun a acc => g a acc) b) := by
   rcases xs with ⟨xs⟩
-  simpa using List.foldr_rel r h (by simpa using h')
+  simpa using List.foldr_rel h (by simpa using h')
 
 @[simp] theorem foldl_add_const (xs : Array α) (a b : Nat) :
     xs.foldl (fun x _ => x + a) b = b + a * xs.size := by
@@ -3564,7 +3564,7 @@ theorem back_filterMap_of_eq_some {f : α → Option β} {xs : Array α} {w : 0 
   rcases xs with ⟨xs⟩
   simp only [List.back_toArray] at h
   simp only [List.size_toArray, List.filterMap_toArray', List.back_toArray]
-  rw [List.getLast_filterMap_of_eq_some h]
+  rw [List.getLast_filterMap_of_eq_some _ h]
 
 theorem back?_flatMap {xs : Array α} {f : α → Array β} :
     (xs.flatMap f).back? = xs.reverse.findSome? fun a => (f a).back? := by

@@ -86,7 +86,7 @@ theorem pmap_congr_left {p q : α → Prop} {f : ∀ a, p a → β} {g : ∀ a, 
   induction l with
   | nil => rfl
   | cons x l ih =>
-    rw [pmap, pmap, h _ (mem_cons_self _ _), ih fun a ha => h a (mem_cons_of_mem _ ha)]
+    rw [pmap, pmap, h _ mem_cons_self, ih fun a ha => h a (mem_cons_of_mem _ ha)]
 
 @[deprecated pmap_congr_left (since := "2024-09-06")] abbrev pmap_congr := @pmap_congr_left
 
@@ -97,7 +97,7 @@ theorem map_pmap {p : α → Prop} (g : β → γ) (f : ∀ a, p a → β) (l H)
   · simp only [*, pmap, map]
 
 theorem pmap_map {p : β → Prop} (g : ∀ b, p b → γ) (f : α → β) (l H) :
-    pmap g (map f l) H = pmap (fun a h => g (f a) h) l fun _ h => H _ (mem_map_of_mem _ h) := by
+    pmap g (map f l) H = pmap (fun a h => g (f a) h) l fun _ h => H _ (mem_map_of_mem h) := by
   induction l
   · rfl
   · simp only [*, pmap, map]
@@ -114,7 +114,7 @@ theorem attachWith_congr {l₁ l₂ : List α} (w : l₁ = l₂) {P : α → Pro
 
 @[simp] theorem attach_cons {x : α} {xs : List α} :
     (x :: xs).attach =
-      ⟨x, mem_cons_self x xs⟩ :: xs.attach.map fun ⟨y, h⟩ => ⟨y, mem_cons_of_mem x h⟩ := by
+      ⟨x, mem_cons_self⟩ :: xs.attach.map fun ⟨y, h⟩ => ⟨y, mem_cons_of_mem x h⟩ := by
   simp only [attach, attachWith, pmap, map_pmap, cons.injEq, true_and]
   apply pmap_congr_left
   intros a _ m' _
@@ -122,7 +122,7 @@ theorem attachWith_congr {l₁ l₂ : List α} (w : l₁ = l₂) {P : α → Pro
 
 @[simp]
 theorem attachWith_cons {x : α} {xs : List α} {p : α → Prop} (h : ∀ a ∈ x :: xs, p a) :
-    (x :: xs).attachWith p h = ⟨x, h x (mem_cons_self x xs)⟩ ::
+    (x :: xs).attachWith p h = ⟨x, h x (mem_cons_self)⟩ ::
       xs.attachWith p (fun a ha ↦ h a (mem_cons_of_mem x ha)) :=
   rfl
 
@@ -146,7 +146,7 @@ theorem attach_map_val (l : List α) (f : α → β) :
 abbrev attach_map_coe := @attach_map_val
 
 theorem attach_map_subtype_val (l : List α) : l.attach.map Subtype.val = l :=
-  (attach_map_val _ _).trans (List.map_id _)
+  (attach_map_val _ _).trans List.map_id
 
 theorem attachWith_map_val {p : α → Prop} (f : α → β) (l : List α) (H : ∀ a ∈ l, p a) :
     ((l.attachWith p H).map fun (i : { i // p i}) => f i) = l.map f := by
@@ -157,7 +157,7 @@ abbrev attachWith_map_coe := @attachWith_map_val
 
 theorem attachWith_map_subtype_val {p : α → Prop} (l : List α) (H : ∀ a ∈ l, p a) :
     (l.attachWith p H).map Subtype.val = l :=
-  (attachWith_map_val _ _ _).trans (List.map_id _)
+  (attachWith_map_val _ _ _).trans List.map_id
 
 @[simp]
 theorem mem_attach (l : List α) : ∀ x, x ∈ l.attach
@@ -423,11 +423,11 @@ theorem foldr_attach (l : List α) (f : α → β → β) (b : β) :
   | cons a l ih => rw [foldr_cons, attach_cons, foldr_cons, foldr_map, ih]
 
 theorem attach_map {l : List α} (f : α → β) :
-    (l.map f).attach = l.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem f h⟩) := by
+    (l.map f).attach = l.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem h⟩) := by
   induction l <;> simp [*]
 
 theorem attachWith_map {l : List α} (f : α → β) {P : β → Prop} {H : ∀ (b : β), b ∈ l.map f → P b} :
-    (l.map f).attachWith P H = (l.attachWith (P ∘ f) (fun _ h => H _ (mem_map_of_mem f h))).map
+    (l.map f).attachWith P H = (l.attachWith (P ∘ f) (fun _ h => H _ (mem_map_of_mem h))).map
       fun ⟨x, h⟩ => ⟨f x, h⟩ := by
   induction l <;> simp [*]
 
@@ -494,7 +494,7 @@ theorem attach_filterMap {l : List α} {f : α → Option β} :
 theorem attach_filter {l : List α} (p : α → Bool) :
     (l.filter p).attach = l.attach.filterMap
       fun x => if w : p x.1 then some ⟨x.1, mem_filter.mpr ⟨x.2, w⟩⟩ else none := by
-  rw [attach_congr (congrFun (filterMap_eq_filter _).symm _), attach_filterMap, map_filterMap]
+  rw [attach_congr (congrFun filterMap_eq_filter.symm _), attach_filterMap, map_filterMap]
   simp only [Option.guard]
   congr
   ext1

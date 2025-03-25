@@ -562,7 +562,7 @@ theorem eraseIdx_subset (l : List α) (k : Nat) : eraseIdx l k ⊆ l := (eraseId
 @[simp]
 theorem eraseIdx_eq_self : ∀ {l : List α} {k : Nat}, eraseIdx l k = l ↔ length l ≤ k
   | [], _ => by simp
-  | a::l, 0 => by simp [(cons_ne_self _ _).symm]
+  | a::l, 0 => by simp [cons_ne_self.symm]
   | a::l, k + 1 => by simp [eraseIdx_eq_self]
 
 theorem eraseIdx_of_length_le {l : List α} {k : Nat} (h : length l ≤ k) : eraseIdx l k = l := by

@@ -230,7 +230,7 @@ theorem find?_eq_some_iff_append :
         cases as with
         | nil => simp_all
         | cons a as =>
-          specialize h₂ a (mem_cons_self _ _)
+          specialize h₂ a mem_cons_self
           simp only [cons_append] at h₁
           obtain ⟨rfl, -⟩ := h₁
           simp_all

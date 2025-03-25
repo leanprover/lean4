@@ -115,7 +115,7 @@ theorem getEntry?_eq_some_iff [BEq α] [EquivBEq α] {l : List ((a : α) × β a
       · rfl
       · exfalso
         rename_i h
-        have := hd.1 _ <| keys_eq_map ▸ List.mem_map_of_mem _ h
+        have := hd.1 _ <| keys_eq_map ▸ List.mem_map_of_mem h
         simp_all [BEq.trans hlkk hbeq]
     · rename_i h
       replace h := h.imp BEq.symm
@@ -617,7 +617,7 @@ theorem getKey?_eq_getEntry? [BEq α] {l : List ((a : α) × β a)} {a : α} :
 
 theorem fst_mem_keys_of_mem [BEq α] [EquivBEq α] {a : (a : α) × β a} {l : List ((a : α) × β a)}
     (hm : a ∈ l) : a.1 ∈ keys l :=
-  keys_eq_map ▸ List.mem_map_of_mem _ hm
+  keys_eq_map ▸ List.mem_map_of_mem hm
 
 theorem getKey?_eq_some_iff [BEq α] [EquivBEq α] {l : List ((a : α) × β a)} {k k'}
     (hd : DistinctKeys l) :
@@ -1691,7 +1691,7 @@ theorem DistinctKeys.filterMap [BEq α] [PartialEquivBEq α] {l : List ((a : α)
   apply distinctKeys_of_sublist_keys
   rw [keys_filterMap, keys_eq_map, keys_eq_map]
   apply Sublist.map
-  exact filter_sublist l
+  exact filter_sublist
 
 theorem DistinctKeys.map [BEq α] {l : List ((a : α) × β a)} {f : (a : α) → β a → γ a}
     (h : DistinctKeys l) : DistinctKeys (l.map fun p => ⟨p.1, f p.1 p.2⟩) :=
@@ -1699,7 +1699,7 @@ theorem DistinctKeys.map [BEq α] {l : List ((a : α) × β a)} {f : (a : α) �
 
 theorem DistinctKeys.filter [BEq α] {l : List ((a : α) × β a)} {f : (a : α) → β a → Bool}
     (h : DistinctKeys l) : DistinctKeys (l.filter fun p => f p.1 p.2) :=
-  distinctKeys_of_sublist (filter_sublist _) h
+  distinctKeys_of_sublist filter_sublist h
 
 section
 
@@ -2450,7 +2450,7 @@ theorem insertList_cons_perm [BEq α] [EquivBEq α] {l₁ l₂ : List ((a : α) 
     simp only [getEntry?_insertEntry]
     split <;> rename_i hp <;> split <;> rename_i hh <;> try rfl
     rw [DistinctKeys.def] at hl₂
-    have := List.rel_of_pairwise_cons hl₂ (List.mem_cons_self _ _)
+    have := List.rel_of_pairwise_cons hl₂ List.mem_cons_self
     simp [BEq.trans hh (BEq.symm hp)] at this
 
 theorem getEntry?_insertList [BEq α] [EquivBEq α]
@@ -2853,7 +2853,7 @@ theorem length_insertListConst_le [BEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} :
     (insertListConst l toInsert).length ≤ l.length + toInsert.length := by
   unfold insertListConst
-  rw [← List.length_map toInsert Prod.toSigma]
+  rw [← List.length_map Prod.toSigma]
   apply length_insertList_le
 
 theorem isEmpty_insertListConst [BEq α]

@@ -406,7 +406,7 @@ theorem map_zipIdx (f : α → β) (l : List α) (k : Nat) :
   induction l generalizing k <;> simp_all
 
 theorem fst_mem_of_mem_zipIdx {x : α × Nat} {l : List α} {k : Nat} (h : x ∈ zipIdx l k) : x.1 ∈ l :=
-  zipIdx_map_fst k l ▸ mem_map_of_mem _ h
+  zipIdx_map_fst k l ▸ mem_map_of_mem h
 
 theorem fst_eq_of_mem_zipIdx {x : α × Nat} {l : List α} {k : Nat} (h : x ∈ zipIdx l k) :
     x.1 = l[x.2 - k]'(by have := le_snd_of_mem_zipIdx h; have := snd_lt_add_of_mem_zipIdx h; omega) := by
@@ -532,7 +532,7 @@ theorem map_enumFrom (f : α → β) (n : Nat) (l : List α) :
 
 @[deprecated fst_mem_of_mem_zipIdx (since := "2025-01-21")]
 theorem snd_mem_of_mem_enumFrom {x : Nat × α} {n : Nat} {l : List α} (h : x ∈ enumFrom n l) : x.2 ∈ l :=
-  enumFrom_map_snd n l ▸ mem_map_of_mem _ h
+  enumFrom_map_snd n l ▸ mem_map_of_mem h
 
 @[deprecated fst_eq_of_mem_zipIdx (since := "2025-01-21")]
 theorem snd_eq_of_mem_enumFrom {x : Nat × α} {n : Nat} {l : List α} (h : x ∈ enumFrom n l) :

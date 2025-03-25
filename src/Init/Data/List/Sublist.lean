@@ -256,10 +256,10 @@ protected theorem Sublist.filter (p : α → Bool) {l₁ l₂} (s : l₁ <+ l₂
   rw [← filterMap_eq_filter]; apply s.filterMap
 
 theorem head_filter_mem (xs : List α) (p : α → Bool) (h) : (xs.filter p).head h ∈ xs :=
-  (filter_sublist xs).head_mem h
+  filter_sublist.head_mem h
 
 theorem getLast_filter_mem (xs : List α) (p : α → Bool) (h) : (xs.filter p).getLast h ∈ xs :=
-  (filter_sublist xs).getLast_mem h
+  filter_sublist.getLast_mem h
 
 theorem sublist_filterMap_iff {l₁ : List β} {f : α → Option β} :
     l₁ <+ l₂.filterMap f ↔ ∃ l', l' <+ l₂ ∧ l₁ = l'.filterMap f := by

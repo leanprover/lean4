@@ -490,9 +490,9 @@ theorem mapIdx_eq_mapIdx_iff {l : List α} :
   cases l with
   | nil => simp at h
   | cons _ _ =>
-    simp only [← getElem_cons_length _ _ _ rfl]
+    simp only [← getElem_cons_length rfl]
     simp only [mapIdx_cons]
-    simp only [← getElem_cons_length _ _ _ rfl]
+    simp only [← getElem_cons_length rfl]
     simp only [← mapIdx_cons, getElem_mapIdx]
     simp
 

@@ -2446,7 +2446,7 @@ theorem foldl_rel {xs : Array α} {f g : β → α → β} {a b : β} (r : β �
     (h : r a b) (h' : ∀ (a : α), a ∈ xs → ∀ (c c' : β), r c c' → r (f c a) (g c' a)) :
     r (xs.foldl (fun acc a => f acc a) a) (xs.foldl (fun acc a => g acc a) b) := by
   rcases xs with ⟨xs⟩
-  simpa using List.foldl_rel r h (by simpa using h')
+  simpa using List.foldl_rel h (by simpa using h')
 
 /--
 We can prove that two folds over the same array are related (by some arbitrary relation)
@@ -2457,7 +2457,7 @@ theorem foldr_rel {xs : Array α} {f g : α → β → β} {a b : β} (r : β �
     (h : r a b) (h' : ∀ (a : α), a ∈ xs → ∀ (c c' : β), r c c' → r (f a c) (g a c')) :
     r (xs.foldr (fun a acc => f a acc) a) (xs.foldr (fun a acc => g a acc) b) := by
   rcases xs with ⟨xs⟩
-  simpa using List.foldr_rel r h (by simpa using h')
+  simpa using List.foldr_rel h (by simpa using h')
 
 @[simp] theorem foldl_add_const (xs : Array α) (a b : Nat) :
     xs.foldl (fun x _ => x + a) b = b + a * xs.size := by

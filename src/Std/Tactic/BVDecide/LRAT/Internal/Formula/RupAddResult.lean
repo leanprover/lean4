@@ -477,7 +477,7 @@ theorem size_clearUnit_foldl {α : Type u} (assignments : Array Assignment)
   have hb : assignments.size = assignments.size := rfl
   have hl (assignments' : Array Assignment) (hsize : assignments'.size = assignments.size) (a : α) (_ : a ∈ l) :
     (f assignments' a).size = assignments.size := by rw [f_preserves_size assignments' a, hsize]
-  exact List.foldlRecOn l f assignments hb hl
+  exact List.foldlRecOn l f hb hl
 
 def ClearInsertInductionMotive {n : Nat} (f : DefaultFormula n) (assignments_size : f.assignments.size = n)
     (units : Array (Literal (PosFin n))) :
@@ -743,7 +743,7 @@ theorem size_assignments_performRupCheck {n : Nat} (f : DefaultFormula n) (rupHi
     (id : Nat) (_ : id ∈ rupHints.toList) : (confirmRupHint f.clauses acc id).1.size = f.assignments.size := by
     have h := size_assignemnts_confirmRupHint f.clauses acc.1 acc.2.1 acc.2.2.1 acc.2.2.2 id
     rw [h, hsize]
-  exact List.foldlRecOn rupHints.toList (confirmRupHint f.clauses) (f.assignments, [], false, false) hb hl
+  exact List.foldlRecOn rupHints.toList (confirmRupHint f.clauses) hb hl
 
 def DerivedLitsInvariant {n : Nat} (f : DefaultFormula n)
     (fassignments_size : f.assignments.size = n) (assignments : Array Assignment)

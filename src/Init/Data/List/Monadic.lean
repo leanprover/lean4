@@ -246,7 +246,7 @@ theorem forIn'_loop_congr [Monad m] {as bs : List α}
 
 @[simp] theorem forIn'_cons [Monad m] {a : α} {as : List α}
     (f : (a' : α) → a' ∈ a :: as → β → m (ForInStep β)) (b : β) :
-    forIn' (a::as) b f = f a (mem_cons_self a as) b >>=
+    forIn' (a::as) b f = f a mem_cons_self b >>=
       fun | ForInStep.done b => pure b | ForInStep.yield b => forIn' as b fun a' m b => f a' (mem_cons_of_mem a m) b := by
   simp only [forIn', List.forIn', forIn'.loop]
   congr 1
@@ -346,7 +346,7 @@ theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
 
 @[simp] theorem forIn'_map [Monad m] [LawfulMonad m]
     (l : List α) (g : α → β) (f : (b : β) → b ∈ l.map g → γ → m (ForInStep γ)) :
-    forIn' (l.map g) init f = forIn' l init fun a h y => f (g a) (mem_map_of_mem g h) y := by
+    forIn' (l.map g) init f = forIn' l init fun a h y => f (g a) (mem_map_of_mem h) y := by
   induction l generalizing init <;> simp_all
 
 /--

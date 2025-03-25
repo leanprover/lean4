@@ -26,7 +26,7 @@ theorem zipWith_comm {f : α → β → γ} {as : Array α} {bs : Array β} :
     zipWith f as bs = zipWith (fun b a => f a b) bs as := by
   cases as
   cases bs
-  simpa using List.zipWith_comm _ _ _
+  simpa using List.zipWith_comm
 
 theorem zipWith_comm_of_comm {f : α → α → β} (comm : ∀ x y : α, f x y = f y x) {xs ys : Array α} :
     zipWith f xs ys = zipWith f ys xs := by

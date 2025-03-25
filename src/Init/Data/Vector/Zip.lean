@@ -26,7 +26,7 @@ theorem zipWith_comm {f : α → β → γ} {as : Vector α n} {bs : Vector β n
     zipWith f as bs = zipWith (fun b a => f a b) bs as := by
   rcases as with ⟨as, rfl⟩
   rcases bs with ⟨bs, h⟩
-  simpa using Array.zipWith_comm _ _ _
+  simpa using Array.zipWith_comm
 
 theorem zipWith_comm_of_comm {f : α → α → β} (comm : ∀ x y : α, f x y = f y x) {xs ys : Vector α n} :
     zipWith f xs ys = zipWith f ys xs := by
@@ -93,14 +93,13 @@ theorem zipWith_foldr_eq_zip_foldr {f : α → β → γ} {i : δ} :
     (zipWith f as bs).foldr g i = (zip as bs).foldr (fun p r => g (f p.1 p.2) r) i := by
   rcases as with ⟨as, rfl⟩
   rcases bs with ⟨bs, h⟩
-  simpa using Array.zipWith_foldr_eq_zip_foldr _
+  simpa using Array.zipWith_foldr_eq_zip_foldr
 
 theorem zipWith_foldl_eq_zip_foldl {f : α → β → γ} {i : δ} :
     (zipWith f as bs).foldl g i = (zip as bs).foldl (fun r p => g r (f p.1 p.2)) i := by
   rcases as with ⟨as, rfl⟩
   rcases bs with ⟨bs, h⟩
-  simpa using Array.zipWith_foldl_eq_zip_foldl _
-
+  simpa using Array.zipWith_foldl_eq_zip_foldl
 
 theorem map_zipWith {δ : Type _} {f : α → β} {g : γ → δ → α} {as : Vector γ n} {bs : Vector δ n} :
     map f (zipWith g as bs) = zipWith (fun x y => f (g x y)) as bs := by

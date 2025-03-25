@@ -18,11 +18,11 @@ namespace Std.Tactic.BVDecide
 
 open Std.Sat
 
+namespace BVPred
+
 structure Return (aig : AIG BVBit) where
   result : AIG.ExtendingEntrypoint aig
   cache : BVExpr.Cache result.val.aig
-
-namespace BVPred
 
 def bitblast (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig) : Return aig :=
   let ⟨pred, cache⟩ := input

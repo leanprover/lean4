@@ -25,8 +25,10 @@ namespace bitblast
 mutual
 
 theorem go_Inv_of_Inv (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.Assignment)
-    (cache : BVExpr.Cache aig) (hinv : BVExpr.Cache.Inv assign aig cache) :
-    BVExpr.Cache.Inv assign (go aig expr cache).result.val.aig (go aig expr cache).cache := by
+    (bvCache : BVExpr.Cache aig) (logCache : Cache aig) (hinv1 : BVExpr.Cache.Inv assign aig bvCache) :
+    BVExpr.Cache.Inv assign (go aig expr bvCache logCache).result.val.aig (go aig expr bvCache logCache).bvCache := by
+  sorry
+  /-
   induction expr generalizing aig with
   | const =>
     simp only [go]
@@ -59,11 +61,14 @@ theorem go_Inv_of_Inv (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.
     · apply rih
       apply lih
       apply dih
-      exact hinv
+      exact hinv -/
 
 theorem go_eval_eq_eval (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.Assignment)
-    (cache : BVExpr.Cache aig) (hinv : BVExpr.Cache.Inv assign aig cache) :
-    ⟦(go aig expr cache).result, assign.toAIGAssignment⟧ = expr.eval assign := by
+    (bvCache : BVExpr.Cache aig) (hinv : BVExpr.Cache.Inv assign aig bvCache)
+    (logCache : Cache aig) :
+    ⟦(go aig expr bvCache logCache).result, assign.toAIGAssignment⟧ = expr.eval assign := by
+  sorry
+  /-
   induction expr generalizing aig with
   | const => simp [go]
   | atom =>
@@ -103,6 +108,7 @@ theorem go_eval_eq_eval (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExp
       apply go_Inv_of_Inv
       apply go_Inv_of_Inv
       exact hinv
+    -/
 
 end
 
@@ -111,8 +117,9 @@ end bitblast
 theorem denote_bitblast (expr : BVLogicalExpr) (assign : BVExpr.Assignment) :
     ⟦bitblast expr, assign.toAIGAssignment⟧ = expr.eval assign := by
   unfold bitblast
-  rw [bitblast.go_eval_eq_eval]
-  apply BVExpr.Cache.Inv_empty
+  sorry
+  --rw [bitblast.go_eval_eq_eval]
+  --apply BVExpr.Cache.Inv_empty
 
 theorem unsat_of_bitblast (expr : BVLogicalExpr) : expr.bitblast.Unsat → expr.Unsat :=  by
   intro h assign

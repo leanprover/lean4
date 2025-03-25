@@ -150,7 +150,7 @@ abbrev length_eq_one := @length_eq_one_iff
 theorem cons_ne_nil (a : α) (l : List α) : a :: l ≠ [] := nofun
 
 @[simp]
-theorem cons_ne_self {a : α} {l : List α} : a :: l ≠ l := mt (congrArg length) (Nat.succ_ne_self _)
+theorem cons_ne_self (a : α) (l : List α) : a :: l ≠ l := mt (congrArg length) (Nat.succ_ne_self _)
 
 @[simp] theorem ne_cons_self {a : α} {l : List α} : l ≠ a :: l := by
   rw [ne_eq, eq_comm]

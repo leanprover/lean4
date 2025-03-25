@@ -1182,7 +1182,7 @@ theorem max!_erase_le_max! [TransCmp cmp] [Inhabited α] (h : t.WF) {k}
     cmp (t.erase k |>.max!) t.max! |>.isLE :=
   DTreeMap.Raw.maxKey!_erase_le_maxKey! h he
 
-theorem max!_eq_head!_toList [TransCmp cmp] [Inhabited α] (h : t.WF) :
+theorem max!_eq_getLast!_toList [TransCmp cmp] [Inhabited α] (h : t.WF) :
     t.max! = t.toList.getLast! :=
   TreeMap.Raw.maxKey!_eq_getLast!_keys h
 

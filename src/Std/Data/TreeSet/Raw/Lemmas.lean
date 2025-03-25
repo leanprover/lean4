@@ -1213,14 +1213,14 @@ theorem maxD_insert [TransCmp cmp] (h : t.WF) {k fallback} :
       t.max?.elim k fun k' => if cmp k' k = .lt then k else k' :=
   DTreeMap.Raw.maxKeyD_insertIfNew h
 
-theorem maxD_insert_le_maxD [TransCmp cmp] (h : t.WF)
+theorem maxD_le_maxD_insert [TransCmp cmp] (h : t.WF)
     (he : t.isEmpty = false) {k fallback} :
     cmp (t.maxD fallback) (t.insert k |>.maxD fallback) |>.isLE :=
-  DTreeMap.Raw.maxKeyD_insertIfNew_le_maxKeyD h he
+  DTreeMap.Raw.maxKeyD_le_maxKeyD_insertIfNew h he
 
-theorem maxD_insert_le_self [TransCmp cmp] (h : t.WF) {k fallback} :
+theorem self_le_maxD_insert [TransCmp cmp] (h : t.WF) {k fallback} :
     cmp k (t.insert k |>.maxD fallback) |>.isLE :=
-  DTreeMap.Raw.maxKeyD_insertIfNew_le_self h
+  DTreeMap.Raw.self_le_maxKeyD_insertIfNew h
 
 theorem contains_maxD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
     t.contains (t.maxD fallback) :=
@@ -1230,17 +1230,17 @@ theorem maxD_mem [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
     t.maxD fallback ∈ t :=
   DTreeMap.Raw.maxKeyD_mem h he
 
-theorem maxD_le_of_contains [TransCmp cmp] (h : t.WF) {k} (hc : t.contains k) {fallback} :
+theorem le_maxD_of_contains [TransCmp cmp] (h : t.WF) {k} (hc : t.contains k) {fallback} :
     cmp k (t.maxD fallback) |>.isLE :=
-  DTreeMap.Raw.maxKeyD_le_of_contains h hc
+  DTreeMap.Raw.le_maxKeyD_of_contains h hc
 
-theorem maxD_le_of_mem [TransCmp cmp] (h : t.WF) {k} (hc : k ∈ t) {fallback} :
+theorem le_maxD_of_mem [TransCmp cmp] (h : t.WF) {k} (hc : k ∈ t) {fallback} :
     cmp k (t.maxD fallback) |>.isLE :=
-  DTreeMap.Raw.maxKeyD_le_of_mem h hc
+  DTreeMap.Raw.le_maxKeyD_of_mem h hc
 
-theorem le_maxD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {k fallback} :
+theorem maxD_le [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {k fallback} :
     (cmp (t.maxD fallback) k).isLE ↔ (∀ k', k' ∈ t → (cmp k' k).isLE) :=
-  DTreeMap.Raw.le_maxKeyD h he
+  DTreeMap.Raw.maxKeyD_le h he
 
 theorem get?_maxD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
     t.get? (t.maxD fallback) = some (t.maxD fallback) :=
@@ -1263,14 +1263,14 @@ theorem maxD_erase_eq_of_not_compare_maxD_eq [TransCmp cmp] (h : t.WF) {k fallba
     (t.erase k |>.maxD fallback) = t.maxD fallback :=
   DTreeMap.Raw.maxKeyD_erase_eq_of_not_compare_maxKeyD_eq h he heq
 
-theorem maxD_le_maxD_erase [TransCmp cmp] (h : t.WF) {k}
+theorem maxD_erase_le_maxD [TransCmp cmp] (h : t.WF) {k}
     (he : (t.erase k).isEmpty = false) {fallback} :
     cmp (t.erase k |>.maxD fallback) (t.maxD fallback) |>.isLE :=
-  DTreeMap.Raw.maxKeyD_le_maxKeyD_erase h he
+  DTreeMap.Raw.maxKeyD_erase_le_maxKeyD h he
 
 theorem maxD_eq_headD_toList [TransCmp cmp] (h : t.WF) {fallback} :
     t.maxD fallback = t.toList.getLastD fallback :=
-  TreeMap.Raw.maxKeyD_eq_headD_keys h
+  TreeMap.Raw.maxKeyD_eq_getLastD_keys h
 
 end Max
 

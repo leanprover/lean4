@@ -2516,14 +2516,14 @@ theorem maxKeyD_insert [TransCmp cmp] (h : t.WF) {k v fallback} :
       (t.maxKey?.elim k fun k' => if cmp k' k |>.isLE then k else k') :=
   DTreeMap.Raw.maxKeyD_insert h
 
-theorem maxKeyD_insert_le_maxKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false)
+theorem maxKeyD_le_maxKeyD_insert [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false)
     {k v fallback} :
     cmp (t.maxKeyD fallback) (t.insert k v |>.maxKeyD fallback) |>.isLE :=
-  DTreeMap.Raw.maxKeyD_insert_le_maxKeyD h he
+  DTreeMap.Raw.maxKeyD_le_maxKeyD_insert h he
 
-theorem maxKeyD_insert_le_self [TransCmp cmp] (h : t.WF) {k v fallback} :
+theorem self_le_maxKeyD_insert [TransCmp cmp] (h : t.WF) {k v fallback} :
     cmp k (t.insert k v |>.maxKeyD fallback) |>.isLE :=
-  DTreeMap.Raw.maxKeyD_insert_le_self h
+  DTreeMap.Raw.self_le_maxKeyD_insert h
 
 theorem contains_maxKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
     t.contains (t.maxKeyD fallback) :=
@@ -2533,17 +2533,17 @@ theorem maxKeyD_mem [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback
     t.maxKeyD fallback ∈ t :=
   DTreeMap.Raw.maxKeyD_mem h he
 
-theorem maxKeyD_le_of_contains [TransCmp cmp] (h : t.WF) {k} (hc : t.contains k) {fallback} :
+theorem le_maxKeyD_of_contains [TransCmp cmp] (h : t.WF) {k} (hc : t.contains k) {fallback} :
     cmp k (t.maxKeyD fallback) |>.isLE :=
-  DTreeMap.Raw.maxKeyD_le_of_contains h hc
+  DTreeMap.Raw.le_maxKeyD_of_contains h hc
 
-theorem maxKeyD_le_of_mem [TransCmp cmp] (h : t.WF) {k} (hc : k ∈ t) {fallback} :
+theorem le_maxKeyD_of_mem [TransCmp cmp] (h : t.WF) {k} (hc : k ∈ t) {fallback} :
     cmp k (t.maxKeyD fallback) |>.isLE :=
-  DTreeMap.Raw.maxKeyD_le_of_mem h hc
+  DTreeMap.Raw.le_maxKeyD_of_mem h hc
 
-theorem le_maxKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {k fallback} :
+theorem maxKeyD_le [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {k fallback} :
     (cmp (t.maxKeyD fallback) k).isLE ↔ (∀ k', k' ∈ t → (cmp k' k).isLE) :=
-  DTreeMap.Raw.le_maxKeyD h he
+  DTreeMap.Raw.maxKeyD_le h he
 
 theorem getKey?_maxKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
     t.getKey? (t.maxKeyD fallback) = some (t.maxKeyD fallback) :=
@@ -2566,28 +2566,28 @@ theorem maxKeyD_erase_eq_of_not_compare_maxKeyD_eq [TransCmp cmp] (h : t.WF) {k 
     (t.erase k |>.maxKeyD fallback) = t.maxKeyD fallback :=
   DTreeMap.Raw.maxKeyD_erase_eq_of_not_compare_maxKeyD_eq h he heq
 
-theorem maxKeyD_le_maxKeyD_erase [TransCmp cmp] (h : t.WF) {k}
+theorem maxKeyD_erase_le_maxKeyD [TransCmp cmp] (h : t.WF) {k}
     (he : (t.erase k).isEmpty = false) {fallback} :
     cmp (t.erase k |>.maxKeyD fallback) (t.maxKeyD fallback) |>.isLE :=
-  DTreeMap.Raw.maxKeyD_le_maxKeyD_erase h he
+  DTreeMap.Raw.maxKeyD_erase_le_maxKeyD h he
 
 theorem maxKeyD_insertIfNew [TransCmp cmp] (h : t.WF) {k v fallback} :
     (t.insertIfNew k v |>.maxKeyD fallback) =
       t.maxKey?.elim k fun k' => if cmp k' k = .lt then k else k' :=
   DTreeMap.Raw.maxKeyD_insertIfNew h
 
-theorem maxKeyD_insertIfNew_le_maxKeyD [TransCmp cmp] (h : t.WF)
+theorem maxKeyD_le_maxKeyD_insertIfNew [TransCmp cmp] (h : t.WF)
     (he : t.isEmpty = false) {k v fallback} :
     cmp (t.maxKeyD fallback) (t.insertIfNew k v |>.maxKeyD fallback) |>.isLE :=
-  DTreeMap.Raw.maxKeyD_insertIfNew_le_maxKeyD h he
+  DTreeMap.Raw.maxKeyD_le_maxKeyD_insertIfNew h he
 
-theorem maxKeyD_insertIfNew_le_self [TransCmp cmp] (h : t.WF) {k v fallback} :
+theorem self_le_maxKeyD_insertIfNew [TransCmp cmp] (h : t.WF) {k v fallback} :
     cmp k (t.insertIfNew k v |>.maxKeyD fallback) |>.isLE :=
-  DTreeMap.Raw.maxKeyD_insertIfNew_le_self h
+  DTreeMap.Raw.self_le_maxKeyD_insertIfNew h
 
-theorem maxKeyD_eq_headD_keys [TransCmp cmp] (h : t.WF) {fallback} :
+theorem maxKeyD_eq_getLastD_keys [TransCmp cmp] (h : t.WF) {fallback} :
     t.maxKeyD fallback = t.keys.getLastD fallback :=
-  DTreeMap.Raw.maxKeyD_eq_headD_keys h
+  DTreeMap.Raw.maxKeyD_eq_getLastD_keys h
 
 theorem maxKeyD_modify [TransCmp cmp] (h : t.WF) {k f}
     (he : (modify t k f).isEmpty = false) {fallback} :

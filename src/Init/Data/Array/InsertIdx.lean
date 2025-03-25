@@ -30,13 +30,13 @@ section InsertIdx
 
 variable {a : α}
 
-@[simp] theorem toList_insertIdx (xs : Array α) (i x) (h) :
+@[simp] theorem toList_insertIdx {xs : Array α} {i : Nat} {x : α} (h : i ≤ xs.size) :
     (xs.insertIdx i x h).toList = xs.toList.insertIdx i x := by
   rcases xs with ⟨xs⟩
   simp
 
 @[simp]
-theorem insertIdx_zero (xs : Array α) (x : α) : xs.insertIdx 0 x = #[x] ++ xs := by
+theorem insertIdx_zero {xs : Array α} {x : α} : xs.insertIdx 0 x = #[x] ++ xs := by
   rcases xs with ⟨xs⟩
   simp
 
@@ -44,7 +44,7 @@ theorem insertIdx_zero (xs : Array α) (x : α) : xs.insertIdx 0 x = #[x] ++ xs 
   rcases xs with ⟨xs⟩
   simp [List.length_insertIdx, h]
 
-theorem eraseIdx_insertIdx (i : Nat) (xs : Array α) (h : i ≤ xs.size) :
+theorem eraseIdx_insertIdx {i : Nat} {xs : Array α} (h : i ≤ xs.size) :
     (xs.insertIdx i a).eraseIdx i (by simp; omega) = xs := by
   rcases xs with ⟨xs⟩
   simp_all
@@ -54,27 +54,27 @@ theorem insertIdx_eraseIdx_of_ge {as : Array α}
     (as.eraseIdx i).insertIdx j a =
       (as.insertIdx (j + 1) a (by simp at w₂; omega)).eraseIdx i (by simp_all; omega) := by
   cases as
-  simpa using List.insertIdx_eraseIdx_of_ge _ _ _ (by simpa) (by simpa)
+  simpa using List.insertIdx_eraseIdx_of_ge (by simpa) (by simpa)
 
 theorem insertIdx_eraseIdx_of_le {as : Array α}
     (w₁ : i < as.size) (w₂ : j ≤ (as.eraseIdx i).size) (h : j ≤ i) :
     (as.eraseIdx i).insertIdx j a =
       (as.insertIdx j a (by simp at w₂; omega)).eraseIdx (i + 1) (by simp_all) := by
   cases as
-  simpa using List.insertIdx_eraseIdx_of_le _ _ _ (by simpa) (by simpa)
+  simpa using List.insertIdx_eraseIdx_of_le (by simpa) (by simpa)
 
-theorem insertIdx_comm (a b : α) (i j : Nat) (xs : Array α) (_ : i ≤ j) (_ : j ≤ xs.size) :
+theorem insertIdx_comm (a b : α) {i j : Nat} {xs : Array α} (_ : i ≤ j) (_ : j ≤ xs.size) :
     (xs.insertIdx i a).insertIdx (j + 1) b (by simpa) =
       (xs.insertIdx j b).insertIdx i a (by simp; omega) := by
   rcases xs with ⟨xs⟩
-  simpa using List.insertIdx_comm a b i j _ (by simpa) (by simpa)
+  simpa using List.insertIdx_comm a b (by simpa) (by simpa)
 
 theorem mem_insertIdx {xs : Array α} {h : i ≤ xs.size} : a ∈ xs.insertIdx i b h ↔ a = b ∨ a ∈ xs := by
   rcases xs with ⟨xs⟩
   simpa using List.mem_insertIdx (by simpa)
 
 @[simp]
-theorem insertIdx_size_self (xs : Array α) (x : α) : xs.insertIdx xs.size x = xs.push x := by
+theorem insertIdx_size_self {xs : Array α} {x : α} : xs.insertIdx xs.size x = xs.push x := by
   rcases xs with ⟨xs⟩
   simp
 

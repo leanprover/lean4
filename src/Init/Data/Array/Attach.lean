@@ -126,7 +126,7 @@ theorem map_pmap {p : α → Prop} (g : β → γ) (f : ∀ a, p a → β) (xs H
   simp [List.map_pmap]
 
 theorem pmap_map {p : β → Prop} (g : ∀ b, p b → γ) (f : α → β) (xs H) :
-    pmap g (map f xs) H = pmap (fun a h => g (f a) h) xs fun _ h => H _ (mem_map_of_mem _ h) := by
+    pmap g (map f xs) H = pmap (fun a h => g (f a) h) xs fun _ h => H _ (mem_map_of_mem h) := by
   cases xs
   simp [List.pmap_map]
 
@@ -358,12 +358,12 @@ theorem foldr_attach (xs : Array α) (f : α → β → β) (b : β) :
   simpa using fun a => List.mem_of_getElem? a
 
 theorem attach_map {xs : Array α} (f : α → β) :
-    (xs.map f).attach = xs.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem f h⟩) := by
+    (xs.map f).attach = xs.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem h⟩) := by
   cases xs
   ext <;> simp
 
 theorem attachWith_map {xs : Array α} (f : α → β) {P : β → Prop} {H : ∀ (b : β), b ∈ xs.map f → P b} :
-    (xs.map f).attachWith P H = (xs.attachWith (P ∘ f) (fun _ h => H _ (mem_map_of_mem f h))).map
+    (xs.map f).attachWith P H = (xs.attachWith (P ∘ f) (fun _ h => H _ (mem_map_of_mem h))).map
       fun ⟨x, h⟩ => ⟨f x, h⟩ := by
   cases xs
   simp [List.attachWith_map]
@@ -393,14 +393,14 @@ theorem attach_filterMap {xs : Array α} {f : α → Option β} :
     (xs.filterMap f).attach = xs.attach.filterMap
       fun ⟨x, h⟩ => (f x).pbind (fun b m => some ⟨b, mem_filterMap.mpr ⟨x, h, m⟩⟩) := by
   cases xs
-  rw [attach_congr (List.filterMap_toArray f _)]
+  rw [attach_congr List.filterMap_toArray]
   simp [List.attach_filterMap, List.map_filterMap, Function.comp_def]
 
 theorem attach_filter {xs : Array α} (p : α → Bool) :
     (xs.filter p).attach = xs.attach.filterMap
       fun x => if w : p x.1 then some ⟨x.1, mem_filter.mpr ⟨x.2, w⟩⟩ else none := by
   cases xs
-  rw [attach_congr (List.filter_toArray p _)]
+  rw [attach_congr List.filter_toArray]
   simp [List.attach_filter, List.map_filterMap, Function.comp_def]
 
 -- We are still missing here `attachWith_filterMap` and `attachWith_filter`.
@@ -484,7 +484,7 @@ theorem reverse_attachWith {P : α → Prop} {xs : Array α}
 @[simp] theorem attach_reverse (xs : Array α) :
     xs.reverse.attach = xs.attach.reverse.map fun ⟨x, h⟩ => ⟨x, by simpa using h⟩ := by
   cases xs
-  rw [attach_congr (List.reverse_toArray _)]
+  rw [attach_congr List.reverse_toArray]
   simp
 
 theorem reverse_attach (xs : Array α) :

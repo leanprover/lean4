@@ -1295,7 +1295,7 @@ theorem setIfInBound_comm (a b : α) {i j : Nat} (xs : Vector α n) (h : i ≠ j
     (xs.setIfInBounds i a).setIfInBounds j b = (xs.setIfInBounds j b).setIfInBounds i a := by
   rcases xs with ⟨xs, rfl⟩
   simp only [setIfInBounds_mk, mk.injEq]
-  rw [Array.setIfInBounds_comm _ _ _ h]
+  rw [Array.setIfInBounds_comm _ _ h]
 
 @[simp] theorem setIfInBounds_setIfInBounds (a b : α) (xs : Vector α n) (i : Nat) :
     (xs.setIfInBounds i a).setIfInBounds i b = xs.setIfInBounds i b := by
@@ -1405,7 +1405,7 @@ theorem back?_eq_getElem? (xs : Vector α n) : xs.back? = xs[n - 1]? := by
 @[simp]
 theorem map_empty (f : α → β) : map f #v[] = #v[] := by
   rw [map, mk.injEq]
-  exact Array.map_empty f
+  exact Array.map_empty
 
 @[simp] theorem map_push {f : α → β} {as : Vector α n} {x : α} :
     (as.push x).map f = (as.map f).push (f x) := by
@@ -2174,7 +2174,7 @@ theorem getElem_eq_getElem_reverse {xs : Vector α n} {i} (h : i < n) :
 /-- Variant of `getElem?_reverse` with a hypothesis giving the linear relation between the indices. -/
 theorem getElem?_reverse' {xs : Vector α n} (i j) (h : i + j + 1 = n) : xs.reverse[i]? = xs[j]? := by
   rcases xs with ⟨xs, rfl⟩
-  simpa using Array.getElem?_reverse' i j h
+  simpa using Array.getElem?_reverse' h
 
 @[simp]
 theorem getElem?_reverse {xs : Vector α n} {i} (h : i < n) :
@@ -2290,12 +2290,12 @@ theorem extract_empty (start stop : Nat) :
 @[simp]
 theorem foldlM_pure [Monad m] [LawfulMonad m] (f : β → α → β) (b) (xs : Vector α n) :
     xs.foldlM (m := m) (pure <| f · ·) b = pure (xs.foldl f b) :=
-  Array.foldlM_pure _ _ _
+  Array.foldlM_pure
 
 @[simp]
 theorem foldrM_pure [Monad m] [LawfulMonad m] (f : α → β → β) (b) (xs : Vector α n) :
     xs.foldrM (m := m) (pure <| f · ·) b = pure (xs.foldr f b) :=
-  Array.foldrM_pure _ _ _
+  Array.foldrM_pure
 
 theorem foldl_eq_foldlM (f : β → α → β) (b) (xs : Vector α n) :
     xs.foldl f b = xs.foldlM (m := Id) f b := by
@@ -2371,14 +2371,14 @@ theorem foldl_map_hom (g : α → β) (f : α → α → α) (f' : β → β →
     (xs.map g).foldl f' (g a) = g (xs.foldl f a) := by
   rcases xs with ⟨xs, rfl⟩
   simp
-  rw [Array.foldl_map_hom' _ _ _ _ _ h rfl]
+  rw [Array.foldl_map_hom' h rfl]
 
 theorem foldr_map_hom (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (xs : Vector α n)
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (xs.map g).foldr f' (g a) = g (xs.foldr f a) := by
   rcases xs with ⟨xs, rfl⟩
   simp
-  rw [Array.foldr_map_hom' _ _ _ _ _ h rfl]
+  rw [Array.foldr_map_hom' h rfl]
 
 @[simp] theorem foldrM_append [Monad m] [LawfulMonad m] (f : α → β → m β) (b) (xs : Vector α n) (ys : Vector α k) :
     (xs ++ ys).foldrM f b = ys.foldrM f b >>= xs.foldrM f := by
@@ -2429,13 +2429,13 @@ theorem foldl_hom (f : α₁ → α₂) (g₁ : α₁ → β → α₁) (g₂ : 
     (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) : xs.foldl g₂ (f init) = f (xs.foldl g₁ init) := by
   rcases xs with ⟨xs, rfl⟩
   simp
-  rw [Array.foldl_hom _ _ _ _ _ H]
+  rw [Array.foldl_hom _ H]
 
 theorem foldr_hom (f : β₁ → β₂) (g₁ : α → β₁ → β₁) (g₂ : α → β₂ → β₂) (xs : Vector α n) (init : β₁)
     (H : ∀ x y, g₂ x (f y) = f (g₁ x y)) : xs.foldr g₂ (f init) = f (xs.foldr g₁ init) := by
   rcases xs with ⟨xs, rfl⟩
   simp
-  rw [Array.foldr_hom _ _ _ _ _ H]
+  rw [Array.foldr_hom _ H]
 
 /--
 We can prove that two folds over the same array are related (by some arbitrary relation)

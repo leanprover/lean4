@@ -185,7 +185,7 @@ theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
 
 @[simp] theorem forIn'_map [Monad m] [LawfulMonad m]
     (xs : Array α) (g : α → β) (f : (b : β) → b ∈ xs.map g → γ → m (ForInStep γ)) :
-    forIn' (xs.map g) init f = forIn' xs init fun a h y => f (g a) (mem_map_of_mem g h) y := by
+    forIn' (xs.map g) init f = forIn' xs init fun a h y => f (g a) (mem_map_of_mem h) y := by
   rcases xs with ⟨xs⟩
   simp
 

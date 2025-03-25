@@ -1268,7 +1268,7 @@ theorem maxD_erase_le_maxD [TransCmp cmp] (h : t.WF) {k}
     cmp (t.erase k |>.maxD fallback) (t.maxD fallback) |>.isLE :=
   DTreeMap.Raw.maxKeyD_erase_le_maxKeyD h he
 
-theorem maxD_eq_headD_toList [TransCmp cmp] (h : t.WF) {fallback} :
+theorem maxD_eq_getLastD_toList [TransCmp cmp] (h : t.WF) {fallback} :
     t.maxD fallback = t.toList.getLastD fallback :=
   TreeMap.Raw.maxKeyD_eq_getLastD_keys h
 

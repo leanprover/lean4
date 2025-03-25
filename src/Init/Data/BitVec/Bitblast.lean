@@ -1677,4 +1677,5 @@ theorem extractLsb'_add {w len : Nat} {x y : BitVec w} (hlen : len ≤ w) :
 theorem extractLsb'_mul {w len} {x y : BitVec w} (hlen : len ≤ w) :
     (x * y).extractLsb' 0 len = (x.extractLsb' 0 len) * (y.extractLsb' 0 len) := by
   simp [← setWidth_eq_extractLsb' hlen, setWidth_mul _ _ hlen]
+
 end BitVec

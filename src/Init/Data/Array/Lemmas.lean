@@ -1659,7 +1659,7 @@ theorem forall_mem_filterMap {f : α → Option β} {xs : Array α} {P : β → 
   cases ys
   simp
 
-theorem map_filterMap_of_inv {f : α → Option β} {g : β → α} {H : ∀ x : α, (f x).map g = some x} {xs : Array α} :
+theorem map_filterMap_of_inv {f : α → Option β} {g : β → α} (H : ∀ x : α, (f x).map g = some x) {xs : Array α} :
     map g (filterMap f xs) = xs := by
   simp only [map_filterMap, H, filterMap_some, id]
 

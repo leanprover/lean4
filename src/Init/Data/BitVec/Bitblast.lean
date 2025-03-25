@@ -1493,7 +1493,7 @@ theorem toInt_eq_neg_toNat_neg_of_msb_true {x : BitVec w} (h : x.msb = true) :
     simp only [ne_eq, toNat_eq, toNat_ofNat, zero_mod] at ne_zero
     omega
 
-theorem toInt_eq_neg_toNat_neg_of_nonneg {x : BitVec w} (h : x = 0#w ∨ x.msb = true) :
+theorem toInt_eq_neg_toNat_neg_of_nonpos {x : BitVec w} (h : x = 0#w ∨ x.msb = true) :
     x.toInt = -((-x).toNat) := by
   cases h
   case inl h' =>
@@ -1565,8 +1565,8 @@ theorem toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1
   · by_cases ha : a.msb <;> by_cases hb : b.msb
     <;> simp only [not_eq_true] at ha hb
     · simp only [sdiv_eq, ha, hb, udiv_eq]
-      rw [toInt_eq_neg_toNat_neg_of_nonneg (x := a) (by simp [ha]),
-        toInt_eq_neg_toNat_neg_of_nonneg (x := b) (by simp [hb]),
+      rw [toInt_eq_neg_toNat_neg_of_nonpos (x := a) (by simp [ha]),
+        toInt_eq_neg_toNat_neg_of_nonpos (x := b) (by simp [hb]),
         Int.neg_tdiv_neg, Int.tdiv_eq_ediv_of_nonneg (by omega)]
       rw [toInt_eq_toNat_of_msb]
       · rfl
@@ -1577,7 +1577,7 @@ theorem toInt_sdiv_of_ne_or_ne (a b : BitVec w) (h : a ≠ intMin w ∨ b ≠ -1
     · have sdiv_toInt_of_msb_true_of_msb_false :
           (a.sdiv b).toInt = -((-a).toNat / b.toNat) := by
         simp only [sdiv_eq, ha, hb, udiv_eq]
-        rw [toInt_eq_neg_toNat_neg_of_nonneg]
+        rw [toInt_eq_neg_toNat_neg_of_nonpos]
         · rw [neg_neg, toNat_udiv, toNat_neg, Int.ofNat_emod, Int.neg_inj]
           norm_cast
         · rw [neg_eq_zero_iff]

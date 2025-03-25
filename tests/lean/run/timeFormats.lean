@@ -12,6 +12,7 @@ def Time12Hour : GenericFormat .any := datespec("hh:mm:ss aa")
 def FullDayTimeZone : GenericFormat .any := datespec("EEEE, MMMM dd, uuuu HH:mm:ss ZZZ")
 def CustomDayTime : GenericFormat .any := datespec("EEE dd MMM uuuu HH:mm")
 def EraDate : GenericFormat .any := datespec("MM D, uuuu G")
+def DateSmall : GenericFormat .any := datespec("uu-MM-dd")
 
 -- Dates
 
@@ -794,6 +795,13 @@ info: 1
 #eval
   let t : ZonedDateTime := .ofPlainDateTime datetime("2018-12-31T12:00:00") (TimeZone.ZoneRules.ofTimeZone TimeZone.UTC)
   IO.println s!"{t.format "w"}"
+
+
+/--
+info: Except.error "offset 0: condition not satisfied"
+-/
+#guard_msgs in
+#eval DateSmall.parse "-23-12-12"
 
 /-
 Truncation Test

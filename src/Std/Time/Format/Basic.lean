@@ -98,6 +98,8 @@ end Fraction
 `Year` represents different year formatting styles based on the number of pattern letters.
 -/
 inductive Year
+  /-- Any size (e.g., "19000000000000") -/
+  | any
   /-- Two-digit year format (e.g., "23" for 2023) -/
   | twoDigit
   /-- Four-digit year format (e.g., "2023") -/
@@ -787,11 +789,13 @@ private def formatWith (modifier : Modifier) (data: TypeFormat modifier) : Strin
     let info := data.toInt
     let info := if info ≤ 0 then -info + 1 else info
     match format with
+    | .any => pad 0 (data.toInt)
     | .twoDigit => pad 2 (info % 100)
     | .fourDigit => pad 4 info
     | .extended n => pad n info
   | .u format =>
     match format with
+    | .any => pad 0 (data.toInt)
     | .twoDigit => pad 2 (data.toInt % 100)
     | .fourDigit => pad 4 data.toInt
     | .extended n => pad n data.toInt
@@ -1124,12 +1128,14 @@ private def parseWith : (mod : Modifier) → Parser (TypeFormat mod)
     | .narrow => parseEraNarrow
   | .y format =>
     match format with
-    | .twoDigit => (2000 + ·) <$> (Int.ofNat <$> parseNum 2)
+    | .any => Int.ofNat <$> parseAtLeastNum 1
+    | .twoDigit => (2000 + ·) <$> Int.ofNat <$> parseNum 2
     | .fourDigit => Int.ofNat <$> parseNum 4
     | .extended n => Int.ofNat <$> parseNum n
   | .u format =>
     match format with
-    | .twoDigit => (2000 + ·) <$> (parseSigned <| parseNum 2)
+    | .any => parseSigned <| parseAtLeastNum 1
+    | .twoDigit => (2000 + ·) <$> Int.ofNat <$> parseNum 2
     | .fourDigit => parseSigned <| parseNum 4
     | .extended n => parseSigned <| parseNum n
   | .D format => Sigma.mk true <$> parseNatToBounded (parseFlexibleNum format.padding)

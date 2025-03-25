@@ -139,10 +139,12 @@ The supported formats include:
   - `GGGG` (full): Displays the era in a full format (e.g., "Anno Domini").
   - `GGGGG` (narrow): Displays the era in a narrow format (e.g., "A").
 - `y`: Represents the year of the era.
+  - `y`: Represents the year in its full form, without a fixed length. It can handle years of any size, (e.g., "1", "2025", or "12345678").
   - `yy`: Displays the year in a two-digit format, showing the last two digits (e.g., "04" for 2004).
   - `yyyy`: Displays the year in a four-digit format (e.g., "2004").
   - `yyyy+`: Extended format for years with more than four digits.
 - `u`: Represents the year.
+  - `u`: Represents the year in its full form, without a fixed length. It can handle years of any size, (e.g., "1", "2025", or "12345678").
   - `uu`: Two-digit year format, showing the last two digits (e.g., "04" for 2004).
   - `uuuu`: Displays the year in a four-digit format (e.g., "2004" or "-1000").
   - `uuuu+`: Extended format for handling years with more than four digits (e.g., "12345" or "-12345"). Useful for historical dates far into the past or future!

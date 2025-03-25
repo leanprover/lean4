@@ -37,11 +37,11 @@ static lean_object* l_Lean_Meta_Try_Collector_OrdSet_insert___at_Lean_Meta_Try_C
 lean_object* lean_array_push(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_LibrarySearch_droppedKeys;
 lean_object* l_Lean_Meta_Grind_isEMatchTheorem(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Try_Collector_main_go___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_instInhabitedOrdSet___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Grind_instHashableEMatchTheoremKind;
+lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Try_Collector_main___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_checkInductive___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);

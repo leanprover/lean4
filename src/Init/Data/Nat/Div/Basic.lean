@@ -39,7 +39,7 @@ Examples:
  * `0 / 22 = 0`
  * `5 / 0 = 0`
 -/
-@[extern "lean_nat_div"]
+@[extern "lean_nat_div", irreducible]
 protected def div (x y : @& Nat) : Nat :=
   if hy : 0 < y then
     let rec
@@ -140,7 +140,7 @@ reductions](lean-manual://section/type-system) when the `Nat`s contain free vari
 This function is overridden at runtime with an efficient implementation. This definition is the
 logical model.
 -/
-@[extern "lean_nat_mod"]
+@[extern "lean_nat_mod", irreducible]
 protected noncomputable def modCore (x y : Nat) : Nat :=
   if hy : 0 < y then
     let rec
@@ -319,6 +319,9 @@ theorem mod_le (x y : Nat) : x % y ≤ x := by
   | Or.inr h₁ => match eq_zero_or_pos y with
     | Or.inl h₂ => rw [h₂, Nat.mod_zero x]; apply Nat.le_refl
     | Or.inr h₂ => exact Nat.le_trans (Nat.le_of_lt (mod_lt _ h₂)) h₁
+
+theorem mod_lt_of_lt {a b c : Nat} (h : a < c) : a % b < c :=
+  Nat.lt_of_le_of_lt (Nat.mod_le _ _) h
 
 @[simp] theorem zero_mod (b : Nat) : 0 % b = 0 := by
   rw [mod_eq]

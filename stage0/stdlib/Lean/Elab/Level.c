@@ -59,7 +59,6 @@ static lean_object* l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Level_elabLe
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__5___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__9;
-uint8_t l_List_elem___at_Lean_addAliasEntry___spec__16(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_mkFreshLevelMVar___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___lambda__1(lean_object*, lean_object*);
@@ -73,6 +72,7 @@ static lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_296___
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__22;
+uint8_t l_List_elem___at_Lean_Environment_realizeConst___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instAddMessageContextLevelElabM___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_elabLevel___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_296____closed__4;
@@ -1616,7 +1616,7 @@ x_53 = lean_ctor_get(x_3, 1);
 lean_inc(x_53);
 x_54 = lean_ctor_get(x_3, 2);
 lean_inc(x_54);
-x_55 = l_List_elem___at_Lean_addAliasEntry___spec__16(x_51, x_54);
+x_55 = l_List_elem___at_Lean_Environment_realizeConst___spec__5(x_51, x_54);
 if (x_55 == 0)
 {
 if (x_10 == 0)
@@ -2438,7 +2438,7 @@ x_258 = lean_ctor_get(x_3, 1);
 lean_inc(x_258);
 x_259 = lean_ctor_get(x_3, 2);
 lean_inc(x_259);
-x_260 = l_List_elem___at_Lean_addAliasEntry___spec__16(x_256, x_259);
+x_260 = l_List_elem___at_Lean_Environment_realizeConst___spec__5(x_256, x_259);
 if (x_260 == 0)
 {
 if (x_216 == 0)

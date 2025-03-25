@@ -29,6 +29,7 @@ import Lean.Meta.Tactic.Grind.Ext
 import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.Diseq
+import Lean.Meta.Tactic.Grind.MBTC
 
 namespace Lean
 
@@ -50,6 +51,7 @@ builtin_initialize registerTraceClass `grind.split
 builtin_initialize registerTraceClass `grind.split.candidate
 builtin_initialize registerTraceClass `grind.split.resolved
 builtin_initialize registerTraceClass `grind.beta
+builtin_initialize registerTraceClass `grind.mbtc
 
 /-! Trace options for `grind` developers -/
 builtin_initialize registerTraceClass `grind.debug
@@ -68,5 +70,6 @@ builtin_initialize registerTraceClass `grind.debug.internalize
 builtin_initialize registerTraceClass `grind.debug.matchCond
 builtin_initialize registerTraceClass `grind.debug.matchCond.lambda
 builtin_initialize registerTraceClass `grind.debug.matchCond.proveFalse
+builtin_initialize registerTraceClass `grind.debug.mbtc
 
 end Lean

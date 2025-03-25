@@ -439,7 +439,17 @@ may throw an exception of type `IO.Error`, the result of the task is an `Except 
     (prio := Task.Priority.default) (sync := false) : BaseIO (Task (Except IO.Error β)) :=
   EIO.bindTask t f prio sync
 
-/-- `IO` specialization of `EIO.chainTask`. -/
+/--
+Creates a new task that waits for `t` to complete and then runs the `IO` action `f` on its result.
+This new task has priority `prio`.
+
+This is a version of `IO.mapTask` that ignores the result value.
+
+Running the resulting `IO` action causes the task to be started eagerly. Unlike pure tasks created
+by `Task.spawn`, tasks created by this function will run even if the last reference to the task is
+dropped. The act should explicitly check for cancellation via `IO.checkCanceled` if it should be
+terminated or otherwise react to the last reference being dropped.
+-/
 def chainTask (t : Task α) (f : α → IO Unit) (prio := Task.Priority.default)
     (sync := false) : IO Unit :=
   EIO.chainTask t f prio sync
@@ -1573,6 +1583,10 @@ end CancelToken
 namespace FS
 namespace Stream
 
+/--
+Creates a Lean stream from a file handle. Each stream operation is implemented by the corresponding
+file handle operation.
+-/
 @[export lean_stream_of_handle]
 def ofHandle (h : Handle) : Stream where
   flush   := Handle.flush h

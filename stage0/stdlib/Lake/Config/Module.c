@@ -39,11 +39,11 @@ LEAN_EXPORT lean_object* l_Lake_instToTextModule(lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanLib_getModuleArray(lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_System_FilePath_extension(lean_object*);
 lean_object* lean_io_metadata(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_leanLibPath___boxed(lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_platformIndependent(lean_object*);
 lean_object* l_System_FilePath_withExtension(lean_object*, lean_object*);
 static lean_object* l_Lake_Module_traceFile___closed__1;
@@ -2849,7 +2849,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5;
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get(x_3, 3);
-x_5 = lean_ctor_get_uint8(x_4, sizeof(void*)*28);
+x_5 = lean_ctor_get_uint8(x_4, sizeof(void*)*26);
 if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; 

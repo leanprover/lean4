@@ -1824,8 +1824,36 @@ theorem minEntry?_eq_minEntry? [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.
     l.minEntry? = List.minEntry? l.toListModel := by
   rw [minEntry?_eq_minEntry?ₘ, minEntry?ₘ_eq_minEntry? hlo]
 
-theorem minKey?_eq_minKey? [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
+theorem minKey?_eq_minKey? {_ : Ord α} [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
     l.minKey? = List.minKey? l.toListModel := by
   simp only [minKey?_eq_minEntry?_map_fst, minEntry?_eq_minEntry? hlo, List.minKey?]
+
+theorem minKey_eq_minKey [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) {he} :
+    l.minKey he = List.minKey l.toListModel (isEmpty_eq_isEmpty ▸ he) := by
+  simp [minKey_eq_get_minKey?, minKey_eq_minEntry_fst, minEntry_eq_get_minEntry?,
+    minEntry?_eq_minEntry? hlo, List.minKey?, Option.get_map]
+
+theorem minKey!_eq_minKey! [Ord α] [TransOrd α] [Inhabited α] {l : Impl α β} (hlo : l.Ordered) :
+    l.minKey! = List.minKey! l.toListModel := by
+  simp [Impl.minKey!_eq_get!_minKey?, List.minKey!_eq_get!_minKey?, minKey?_eq_minKey? hlo]
+
+theorem minKeyD_eq_minKeyD [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered)
+    {fallback} :
+    l.minKeyD fallback = List.minKeyD l.toListModel fallback := by
+  simp [Impl.minKeyD_eq_getD_minKey?, List.minKeyD_eq_getD_minKey?, minKey?_eq_minKey? hlo]
+
+theorem toListModel_reverse {l : Impl α β} :
+    (reverse l).toListModel = l.toListModel.reverse := by
+  induction l <;> simp_all [reverse]
+
+theorem Ordered.reverse [Ord α] {t : Impl α β} (h : t.Ordered) :
+    letI : Ord α := .opposite inferInstance; t.reverse.Ordered := by
+  simp only [Ordered, toListModel_reverse]
+  exact List.pairwise_reverse.mpr h
+
+theorem maxKey?_eq_maxKey? [Ord α] [TransOrd α] {t : Impl α β} (hlo : t.Ordered) :
+    t.maxKey? = List.maxKey? t.toListModel := by
+  rw [maxKey?_of_perm hlo.distinctKeys (List.reverse_perm t.toListModel).symm, List.maxKey?]
+  rw [maxKey?_eq_minKey?_reverse, minKey?_eq_minKey? hlo.reverse, toListModel_reverse]
 
 end Std.DTreeMap.Internal.Impl

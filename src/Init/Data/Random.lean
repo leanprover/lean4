@@ -34,11 +34,15 @@ structure StdGen where
 
 instance : Inhabited StdGen := ⟨{ s1 := 0, s2 := 0 }⟩
 
+/-- The range of values returned by `StdGen` -/
 def stdRange := (1, 2147483562)
 
 instance : Repr StdGen where
   reprPrec | ⟨s1, s2⟩, _ => Std.Format.bracket "⟨" (repr s1 ++ ", " ++ repr s2) "⟩"
 
+/--
+The next value from a `StdGen`, paired with an updated generator state.
+-/
 def stdNext : StdGen → Nat × StdGen
   | ⟨s1, s2⟩ =>
     let k    : Int := Int.ofNat (s1 / 53668)
@@ -51,6 +55,9 @@ def stdNext : StdGen → Nat × StdGen
     let z'   : Nat := if z < 1 then (z + 2147483562).toNat else z.toNat % 2147483562
     (z', ⟨s1'', s2''⟩)
 
+/--
+Splits a `StdGen` into two separate states.
+-/
 def stdSplit : StdGen → StdGen × StdGen
   | g@⟨s1, s2⟩ =>
     let newS1  := if s1 = 2147483562 then 1 else s1 + 1

@@ -159,13 +159,18 @@ theorem get_out_bound (s : RefVec aig len) (idx : Nat) (alt : Ref aig) (hidx : l
   · omega
   · rfl
 
-def countKnown [Inhabited α] (aig : AIG α) (s : RefVec aig len) : Nat := Id.run do
-  let folder acc ref :=
-    let decl := aig.decls[ref.1]!
-    match decl with
-    | .const .. => acc + 1
-    | _ => acc
-  return s.refs.foldl (b := 0) folder
+def countKnown (aig : AIG α) (s : RefVec aig len) : Nat :=
+  go aig s 0 0
+where
+  go (aig : AIG α) (s : RefVec aig len) (idx : Nat) (acc : Nat) : Nat :=
+    if h : idx < len then
+      let ref := s.refs[idx]
+      let decl := aig.decls[ref.1]'(s.hrefs h)
+      match decl with
+      | .false => go aig s (idx + 1) (acc + 1)
+      | _ => go aig s (idx + 1) acc
+    else
+      acc
 
 end RefVec
 

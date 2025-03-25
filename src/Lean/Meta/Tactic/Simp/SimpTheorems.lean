@@ -122,45 +122,56 @@ structure SimpTheorem where
     It is also viewed an `id` used to "erase" `simp` theorems from `SimpTheorems`.
   -/
   origin      : Origin
-  /-- `rfl` is true if `proof` is by `Eq.refl` or `rfl`. -/
-  rfl         : Bool
+  /-- True if `proof` is by `Eq.refl` or `rfl`. Lazy so `[simp]` doesn't block the main thread. -/
+  rflTask     : Task Bool
   deriving Inhabited
 
+def SimpTheorem.getRfl (t : SimpTheorem) : CoreM Bool :=
+  traceBlock "SimpTheorem.getRfl" t.rflTask
+
 mutual
-  partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := do
+  partial def isRflProofCore (env : Environment) (type : Expr) (proof : Expr) : Task Bool :=
     match type with
     | .forallE _ _ type _ =>
       if let .lam _ _ proof _ := proof then
-        isRflProofCore type proof
+        isRflProofCore env type proof
       else
-        return false
+        .pure false
     | _ =>
       if type.isAppOfArity ``Eq 3 then
         if proof.isAppOfArity ``Eq.refl 2 || proof.isAppOfArity ``rfl 2 then
-          return true
+          .pure true
         else if proof.isAppOfArity ``Eq.symm 4 then
           -- `Eq.symm` of rfl theorem is a rfl theorem
-          isRflProofCore type proof.appArg! -- small hack: we don't need to set the exact type
+          isRflProofCore env type proof.appArg! -- small hack: we don't need to set the exact type
         else if proof.getAppFn.isConst then
           -- The application of a `rfl` theorem is a `rfl` theorem
           -- A constant which is a `rfl` theorem is a `rfl` theorem
-          isRflTheorem proof.getAppFn.constName!
+          isRflTheoremCore env proof.getAppFn.constName!
         else
-          return false
+          .pure false
       else
-        return false
+        .pure false
 
-  partial def isRflTheorem (declName : Name) : CoreM Bool := do
-    let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false
-    let .thmInfo info ← traceBlock "isRflTheorem theorem body" constInfo | return false
-    isRflProofCore info.type info.value
+  partial def isRflTheoremCore (env : Environment) (declName : Name) : Task Bool := Id.run do
+    env.findTask declName |>.bind (sync := true) fun
+      | none => .pure false
+      | some aconst => aconst.constInfo.bind (sync := true) fun
+        | .thmInfo info => isRflProofCore env info.type info.value
+        | _             => .pure false
 end
 
-def isRflProof (proof : Expr) : MetaM Bool := do
+def isRflProof (proof : Expr) : MetaM (Task Bool) := do
+  let env ← getEnv
   if let .const declName .. := proof then
-    isRflTheorem declName
+    return isRflTheoremCore env declName
   else
-    isRflProofCore (← inferType proof) proof
+    let type ← inferType proof
+    return isRflProofCore env type proof
+
+def isRflTheorem (declName : Name) : MetaM (Task Bool) := do
+  let env ← getEnv
+  return isRflTheoremCore env declName
 
 instance : ToFormat SimpTheorem where
   format s :=
@@ -192,6 +203,9 @@ instance : BEq SimpTheorem where
 
 abbrev SimpTheoremTree := DiscrTree SimpTheorem
 
+/--
+The theorems in a simp set.
+-/
 structure SimpTheorems where
   pre          : SimpTheoremTree := DiscrTree.empty
   post         : SimpTheoremTree := DiscrTree.empty
@@ -398,7 +412,7 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
       match type.eq? with
       | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs noIndexAtArgs, ← isPerm lhs rhs)
       | none => throwError "unexpected kind of 'simp' theorem{indentExpr type}"
-    return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := (← isRflProof proof) }
+    return { origin, keys, perm, post, levelParams, proof, priority := prio, rflTask := (← isRflProof proof) }
 
 private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool) (prio : Nat) : MetaM (Array SimpTheorem) := do
   let cinfo ← getConstVal declName
@@ -423,6 +437,12 @@ inductive SimpEntry where
   | toUnfoldThms : Name → Array Name → SimpEntry
   deriving Inhabited
 
+/--
+The environment extension that contains a simp set, returned by `Lean.Meta.registerSimpAttr`.
+
+Use the simp set's attribute or `Lean.Meta.addSimpTheorem` to add theorems to the simp set. Use
+`Lean.Meta.SimpExtension.getTheorems` to get the contents.
+-/
 abbrev SimpExtension := SimpleScopedEnvExtension SimpEntry SimpTheorems
 
 def SimpExtension.getTheorems (ext : SimpExtension) : CoreM SimpTheorems :=

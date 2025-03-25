@@ -51,11 +51,11 @@ LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at_Lean_Meta_Closure_preproce
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Meta_Closure_visitLevel___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Closure_collectLevelAux(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Closure_collectExprAux___closed__12;
-lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 lean_object* l_Lean_compileDecl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Closure_collectExprAux___closed__13;
+lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Closure_collectExprAux___closed__6;
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
@@ -2654,7 +2654,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Closure_collectLevelAux___closed__1;
 x_2 = l_Lean_Meta_Closure_collectLevelAux___closed__2;
-x_3 = lean_unsigned_to_nat(541u);
+x_3 = lean_unsigned_to_nat(539u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_Meta_Closure_collectLevelAux___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2683,7 +2683,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Closure_collectLevelAux___closed__1;
 x_2 = l_Lean_Meta_Closure_collectLevelAux___closed__5;
-x_3 = lean_unsigned_to_nat(552u);
+x_3 = lean_unsigned_to_nat(550u);
 x_4 = lean_unsigned_to_nat(19u);
 x_5 = l_Lean_Meta_Closure_collectLevelAux___closed__6;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2712,7 +2712,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Closure_collectLevelAux___closed__1;
 x_2 = l_Lean_Meta_Closure_collectLevelAux___closed__8;
-x_3 = lean_unsigned_to_nat(563u);
+x_3 = lean_unsigned_to_nat(561u);
 x_4 = lean_unsigned_to_nat(20u);
 x_5 = l_Lean_Meta_Closure_collectLevelAux___closed__9;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

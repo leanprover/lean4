@@ -63,7 +63,6 @@ LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_Std_HashMap_Raw_instRepr___sp
 LEAN_EXPORT lean_object* l_Prod_repr___at_Std_HashMap_Raw_instRepr___spec__21(lean_object*, lean_object*);
 static lean_object* l_Std_HashMap_Raw_instEmptyCollection___closed__3;
 LEAN_EXPORT lean_object* l_List_repr___at_Std_HashMap_Raw_instRepr___spec__2(lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Std_HashMap_Raw_term___x7em_____closed__12;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Std_HashMap_Raw_keys___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -73,6 +72,7 @@ LEAN_EXPORT lean_object* l_List_repr___at_Std_HashMap_Raw_instRepr___spec__2___r
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_alter(lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_Const_modify___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_Raw_forM___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Std_HashMap_Raw_instRepr___spec__18(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_Raw_forM___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

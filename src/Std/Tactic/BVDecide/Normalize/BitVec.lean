@@ -355,6 +355,8 @@ attribute [bv_normalize] BitVec.umod_eq_and
 attribute [bv_normalize] BitVec.saddOverflow_eq
 attribute [bv_normalize] BitVec.uaddOverflow_eq
 attribute [bv_normalize] BitVec.negOverflow_eq
+attribute [bv_normalize] BitVec.usubOverflow_eq
+attribute [bv_normalize] BitVec.ssubOverflow_eq
 
 /-- `x / (BitVec.ofNat n)` where `n = 2^k` is the same as shifting `x` right by `k`. -/
 theorem BitVec.udiv_ofNat_eq_of_lt (w : Nat) (x : BitVec w) (n : Nat) (k : Nat) (hk : 2 ^ k = n) (hlt : k < w) :
@@ -478,6 +480,18 @@ theorem BitVec.norm_bv_add_mul {x y : BitVec w} : ~~~(x * ~~~y) + 1#w = x + (x *
 @[bv_normalize]
 theorem BitVec.norm_bv_add_mul' {x y : BitVec w} : ~~~(~~~y * x) + 1#w = x + (y * x) := by
   rw [BitVec.mul_comm (~~~y) x, BitVec.mul_comm y x, BitVec.norm_bv_add_mul]
+
+theorem BitVec.mul_beq_mul_short_circuit_left {x₁ x₂ y : BitVec w} :
+    (x₁ * y == x₂ * y) = !(!x₁ == x₂ && !x₁ * y == x₂ * y) := by
+  simp only [Bool.not_and, Bool.not_not, Bool.iff_or_self, beq_iff_eq]
+  intros
+  congr
+
+theorem BitVec.mul_beq_mul_short_circuit_right {x y₁ y₂ : BitVec w} :
+    (x * y₁ == x * y₂) = !(!y₁ == y₂ && !x * y₁ == x * y₂) := by
+  simp only [Bool.not_and, Bool.not_not, Bool.iff_or_self, beq_iff_eq]
+  intros
+  congr
 
 @[int_toBitVec]
 theorem UInt8.toBitVec_cond :

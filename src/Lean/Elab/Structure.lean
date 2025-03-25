@@ -488,7 +488,7 @@ private def addFieldInheritedDefault (fieldName : Name) (structName : Name) (d :
 /--
 Reduces projections applied to constructors or parent fvars, for structure types that have appeared as parents.
 
-If `zetaDelta` is true (default), then zeta reduces parent fvars.
+If `zetaDelta` is true (default), then zeta reduces parent fvars as needed to do the reductions.
 -/
 private def reduceFieldProjs (e : Expr) (zetaDelta := true) : StructElabM Expr := do
   let e ← instantiateMVars e
@@ -1150,7 +1150,7 @@ Assumes the inductive type has already been added to the environment.
 Note: we can't generally use optParams here since the default values might depend on previous ones.
 We include autoParams however.
 -/
-private partial def mkFlatCtorExpr (levelParams : List Name) (params : Array Expr) (structName : Name) (replaceIndFVars : Expr → MetaM Expr) :
+private def mkFlatCtorExpr (levelParams : List Name) (params : Array Expr) (structName : Name) (replaceIndFVars : Expr → MetaM Expr) :
     StructElabM Expr := do
   let env ← getEnv
   -- build the constructor application using the fields in the local context
@@ -1275,50 +1275,48 @@ the structure instance notation elaborator to do reductions when making use of d
 This arrangement of having declarations for all inherited values also makes
 the structure instance notation delaborator able to omit default values reliably.
 -/
-private def addDefaults (params : Array Expr) (replaceIndFVars : Expr → MetaM Expr) : StructElabM Unit := do
+private def addDefaults (levelParams : List Name) (params : Array Expr) (replaceIndFVars : Expr → MetaM Expr) : StructElabM Unit := do
   let fieldInfos := (← get).fields
-  let lctx ← getLCtx
-  /- The `lctx` and `defaultAuxDecls` are used to create the auxiliary "default value" declarations
-     The parameters `params` for these definitions must be marked as implicit, and all others as explicit. -/
+  let lctx ← instantiateLCtxMVars (← getLCtx)
+  /- The parameters `params` for the auxiliary "default value" definitions must be marked as implicit, and all others as explicit. -/
   let lctx :=
     params.foldl (init := lctx) fun (lctx : LocalContext) (p : Expr) =>
       if p.isFVar then
         lctx.setBinderInfo p.fvarId! BinderInfo.implicit
       else
         lctx
-  let lctx :=
-    fieldInfos.foldl (init := lctx) fun (lctx : LocalContext) (info : StructFieldInfo) =>
-      if info.kind.isParent then lctx
-      else lctx.setBinderInfo info.fvar.fvarId! BinderInfo.default
-  -- Make all indFVar replacements in the local context.
-  let lctx ←
-    lctx.foldlM (init := {}) fun lctx ldecl => do
-     match ldecl with
-     | .cdecl _ fvarId userName type bi k =>
-       let type ← replaceIndFVars type
-       return lctx.mkLocalDecl fvarId userName type bi k
-     | .ldecl _ fvarId userName type value nonDep k =>
-       let type ← replaceIndFVars type
-       let value ← replaceIndFVars value
-       return lctx.mkLetDecl fvarId userName type value nonDep k
+  let parentFVarIds := fieldInfos |>.filter (·.kind.isParent) |>.map (·.fvar.fvarId!)
+  let fields := fieldInfos |>.filter (!·.kind.isParent)
   withLCtx lctx (← getLocalInstances) do
-    let addDefault (fieldInfo : StructFieldInfo) (declName : Name) (value : Expr) : StructElabM Unit := do
-      let type ← replaceIndFVars (← inferType fieldInfo.fvar)
-      let value ← instantiateMVars (← replaceIndFVars value)
-      let value ← fieldNormalizeExpr value
-      trace[Elab.structure] "default value after 'replaceIndFVars': {indentExpr value}"
+    let addDefault (declName : Name) (value : Expr) : StructElabM Unit := do
+      let value ← instantiateMVars value
       -- If there are mvars, `checkDefaults` already logged an error.
       unless value.hasMVar || value.hasSyntheticSorry do
         /- The identity function is used as "marker". -/
         let value ← mkId value
+        let value ← zetaDeltaFVars value parentFVarIds
+        let value ← fields.foldrM (init := value) fun fieldInfo val => do
+          let decl ← fieldInfo.fvar.fvarId!.getDecl
+          let type ← zetaDeltaFVars decl.type parentFVarIds
+          let val' := val.abstract #[fieldInfo.fvar]
+          if val'.hasLooseBVar 0 then
+            return .lam decl.userName type val' .default
+          else
+            return val
+        let value ← mkLambdaFVars params value
+        let value ← fieldNormalizeExpr value
+        let value ← replaceIndFVars value
+        withLCtx {} {} do trace[Elab.structure] "default value after abstraction:{indentExpr value}"
+        if value.hasFVar then withLCtx {} {} <| logError m!"(internal error) default value contains fvars{indentD value}"
+        let type ← inferType value
         -- No need to compile the definition, since it is only used during elaboration.
-        discard <| mkAuxDefinition declName type value (zetaDelta := true) (compile := false)
-        setReducibleAttribute declName
+        addDecl <| Declaration.defnDecl
+          (← mkDefinitionValInferrringUnsafe declName levelParams type value ReducibilityHints.abbrev)
     for fieldInfo in fieldInfos do
       if let some (.optParam value) := fieldInfo.default? then
-        addDefault fieldInfo (mkDefaultFnOfProjFn fieldInfo.declName) value
+        addDefault (mkDefaultFnOfProjFn fieldInfo.declName) value
       else if let some (.optParam value) := fieldInfo.resolvedDefault? then
-        addDefault fieldInfo (mkInheritedDefaultFnOfProjFn fieldInfo.declName) value
+        addDefault (mkInheritedDefaultFnOfProjFn fieldInfo.declName) value
 
 /--
 Given `type` of the form `forall ... (source : A), B`, return `forall ... [source : A], B`.
@@ -1490,7 +1488,7 @@ def elabStructureCommand : InductiveElabDescr where
 
               runStructElabM (init := state) <| withLCtx lctx localInsts do
                 mkFlatCtor levelParams params view.declName replaceIndFVars
-                addDefaults params replaceIndFVars
+                addDefaults levelParams params replaceIndFVars
           }
     }
 

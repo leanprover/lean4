@@ -2544,22 +2544,27 @@ theorem maxKey_le [TransCmp cmp] {k he} :
     (cmp (t.maxKey he) k).isLE ↔ (∀ k', k' ∈ t → (cmp k' k).isLE) :=
   DTreeMap.maxKey_le
 
+@[simp]
 theorem getKey?_maxKey [TransCmp cmp] {he} :
     t.getKey? (t.maxKey he) = some (t.maxKey he) :=
   DTreeMap.getKey?_maxKey
 
+@[simp]
 theorem getKey_maxKey [TransCmp cmp] {he hc} :
     t.getKey (t.maxKey he) hc = t.maxKey he :=
   DTreeMap.getKey_maxKey
 
+@[simp]
 theorem getKey!_maxKey [TransCmp cmp] [Inhabited α] {he} :
     t.getKey! (t.maxKey he) = t.maxKey he :=
   DTreeMap.getKey!_maxKey
 
+@[simp]
 theorem getKeyD_maxKey [TransCmp cmp] {he fallback} :
     t.getKeyD (t.maxKey he) fallback = t.maxKey he :=
   DTreeMap.getKeyD_maxKey
 
+@[simp]
 theorem maxKey_erase_eq_iff_not_compare_eq_maxKey [TransCmp cmp] {k he} :
     (t.erase k |>.maxKey he) =
         t.maxKey (isEmpty_eq_false_of_isEmpty_erase_eq_false he) ↔
@@ -2603,10 +2608,12 @@ theorem maxKey_modify [TransCmp cmp] {k f he} :
         (t.maxKey <| cast (congrArg (· = false) isEmpty_modify) he) :=
   DTreeMap.Const.maxKey_modify
 
+@[simp]
 theorem maxKey_modify_eq_maxKey [TransCmp cmp] [LawfulEqCmp cmp] {k f he} :
     (modify t k f).maxKey he = t.maxKey (cast (congrArg (· = false) isEmpty_modify) he) :=
   DTreeMap.Const.maxKey_modify_eq_maxKey
 
+@[simp]
 theorem compare_maxKey_modify_eq [TransCmp cmp] {k f he} :
     cmp (modify t k f |>.maxKey he)
       (t.maxKey <| cast (congrArg (· = false) isEmpty_modify) he) = .eq :=

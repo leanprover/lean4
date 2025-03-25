@@ -1252,22 +1252,27 @@ theorem max_le [TransCmp cmp] {k he} :
     (cmp (t.max he) k).isLE ↔ (∀ k', k' ∈ t → (cmp k' k).isLE) :=
   TreeMap.maxKey_le
 
+@[simp]
 theorem get?_max [TransCmp cmp] {he} :
     t.get? (t.max he) = some (t.max he) :=
   TreeMap.getKey?_maxKey
 
+@[simp]
 theorem get_max [TransCmp cmp] {he hc} :
     t.get (t.max he) hc = t.max he :=
   TreeMap.getKey_maxKey
 
+@[simp]
 theorem get!_max [TransCmp cmp] [Inhabited α] {he} :
     t.get! (t.max he) = t.max he :=
   TreeMap.getKey!_maxKey
 
+@[simp]
 theorem getD_max [TransCmp cmp] {he fallback} :
     t.getD (t.max he) fallback = t.max he :=
   TreeMap.getKeyD_maxKey
 
+@[simp]
 theorem max_erase_eq_iff_not_compare_eq_max [TransCmp cmp] {k he} :
     (t.erase k |>.max he) =
         t.max (isEmpty_eq_false_of_isEmpty_erase_eq_false he) ↔

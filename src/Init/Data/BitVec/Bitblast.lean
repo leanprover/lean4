@@ -1451,44 +1451,12 @@ theorem neg_sdiv_neg {x y : BitVec w} (h : x ≠ intMin w) (h' : y ≠ intMin w)
          msb_neg_of_ne_intMin_of_ne_zero h' (by simp [hy0])]
       cases x.msb <;> cases y.msb <;> simp
 
-theorem Int.neg_lt_self_iff {n : Int} : -n < n ↔ 0 < n := by
-  omega
-
-theorem Int.pow_pos {n : Int} {m : Nat} : 0 < n → 0 < n ^ m := by
-  induction m with
-  | zero => simp
-  | succ m ih => exact fun h => Int.mul_pos (ih h) h
-
-theorem Int.pow_nonneg {n : Int} {m : Nat} : 0 ≤ n → 0 ≤ n ^ m := by
-  induction m with
-  | zero => simp
-  | succ m ih => exact fun h => Int.mul_nonneg (ih h) h
-
-theorem Int.neg_ite {n m : Int} {P : Prop} [Decidable P] : (-if P then n else m) = (if P then -n else -m) := by
-  split <;> simp
-
-theorem Int.tdiv_cases (n m : Int) : n.tdiv m =
-    if 0 ≤ n then
-      if 0 ≤ m then n / m else -(n / (-m))
-    else
-      if 0 ≤ m then -((-n) / m) else (-n) / (-m) := by
-  split <;> rename_i hn
-  · split <;> rename_i hm
-    · rw [Int.tdiv_eq_ediv_of_nonneg hn]
-    · rw [Int.tdiv_eq_ediv_of_nonneg hn]
-      simp
-  · split <;> rename_i hm
-    · rw [Int.tdiv_eq_ediv, Int.neg_ediv]
-      simp [hn, Int.neg_sub, Int.add_comm]
-    · rw [Int.tdiv_eq_ediv, Int.neg_ediv, Int.ediv_neg]
-      simp [hn, Int.sub_eq_add_neg, Int.neg_ite]
-
 theorem intMin_eq_neg_two_pow : intMin w = BitVec.ofInt w (-2 ^ (w - 1)) := by
   apply BitVec.eq_of_toInt_eq
   refine (Nat.eq_zero_or_pos w).elim (by rintro rfl; simp [BitVec.toInt_zero_length]) (fun hw => ?_)
   rw [BitVec.toInt_intMin_of_pos hw, BitVec.toInt_ofInt_eq_self hw (Int.le_refl _)]
-  simp [Int.neg_lt_self_iff]
-  apply Int.pow_pos
+  have := Nat.two_pow_pos (w - 1)
+  norm_cast
   omega
 
 theorem toInt_intMin_eq_bmod : (intMin w).toInt = (-2 ^ (w - 1)).bmod (2 ^ w) := by
@@ -1707,5 +1675,5 @@ theorem extractLsb'_add {w len : Nat} {x y : BitVec w} (hlen : len ≤ w) :
 /-- `extractLsb'` commutes with multiplication. -/
 theorem extractLsb'_mul {w len} {x y : BitVec w} (hlen : len ≤ w) :
     (x * y).extractLsb' 0 len = (x.extractLsb' 0 len) * (y.extractLsb' 0 len) := by
-  simp [← setWidth_eq_extractLsb' hlen, setWidth_mul hlen]
+  simp [← setWidth_eq_extractLsb' hlen, setWidth_mul _ _ hlen]
 end BitVec

@@ -732,6 +732,22 @@ theorem neg_ediv {a b : Int} : (-a) / b = -(a / b) - if b ∣ a then 0 else b.si
         · have := emod_lt_of_neg a hb
           omega
 
+theorem tdiv_cases (n m : Int) : n.tdiv m =
+    if 0 ≤ n then
+      if 0 ≤ m then n / m else -(n / (-m))
+    else
+      if 0 ≤ m then -((-n) / m) else (-n) / (-m) := by
+  split <;> rename_i hn
+  · split <;> rename_i hm
+    · rw [Int.tdiv_eq_ediv_of_nonneg hn]
+    · rw [Int.tdiv_eq_ediv_of_nonneg hn]
+      simp
+  · split <;> rename_i hm
+    · rw [Int.tdiv_eq_ediv, Int.neg_ediv]
+      simp [hn, Int.neg_sub, Int.add_comm]
+    · rw [Int.tdiv_eq_ediv, Int.neg_ediv, Int.ediv_neg]
+      simp [hn, Int.sub_eq_add_neg, Int.neg_ite]
+
 theorem neg_emod {a b : Int} : (-a) % b = if b ∣ a then 0 else b.natAbs - (a % b) := by
   rw [emod_def, emod_def, neg_ediv, Int.mul_sub, Int.mul_neg]
   split <;> rename_i h

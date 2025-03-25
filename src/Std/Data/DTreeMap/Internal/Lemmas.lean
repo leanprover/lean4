@@ -1560,6 +1560,11 @@ theorem distinct_keys [TransOrd α] (h : t.WF) :
     t.keys.Pairwise (fun a b => ¬ compare a b = .eq) := by
   simp_to_model [keys] using h.ordered.distinctKeys.distinct
 
+theorem ordered_keys [TransOrd α] (h : t.WF) :
+    t.keys.Pairwise (fun a b => compare a b = .lt) := by
+  simp_to_model; simp only [keys_eq_map]
+  exact h.ordered.map _ fun _ _ hcmp => hcmp
+
 theorem map_fst_toList_eq_keys :
     t.toList.map Sigma.fst = t.keys := by
   simp_to_model [toList, keys] using (List.keys_eq_map ..).symm
@@ -1592,6 +1597,10 @@ theorem find?_toList_eq_none_iff_not_mem [TransOrd α] {k : α} (h : t.WF) :
 theorem distinct_keys_toList [TransOrd α] (h : t.WF) :
     t.toList.Pairwise (fun a b => ¬ compare a.1 b.1 = .eq) := by
   simp_to_model [toList] using List.pairwise_fst_eq_false
+
+theorem ordered_keys_toList [TransOrd α] (h : t.WF) :
+    t.toList.Pairwise (fun a b => compare a.1 b.1 = .lt) := by
+  simp_to_model [toList] using h.ordered
 
 namespace Const
 
@@ -1641,6 +1650,11 @@ theorem find?_toList_eq_none_iff_not_mem [TransOrd α] {k : α} (h : t.WF) :
 theorem distinct_keys_toList [TransOrd α] (h : t.WF) :
     (toList t).Pairwise (fun a b => ¬ compare a.1 b.1 = .eq) := by
   simp_to_model [Const.toList] using List.pairwise_fst_eq_false_map_toProd
+
+theorem ordered_keys_toList [TransOrd α] (h : t.WF) :
+    (toList t).Pairwise (fun a b => compare a.1 b.1 = .lt) := by
+  simp_to_model
+  exact h.ordered.map _ fun _ _ hcmp => hcmp
 
 end Const
 
@@ -4350,6 +4364,18 @@ theorem getKey?_minKey? [TransOrd α] (h : t.WF) {km} :
     (hkm : t.minKey? = some km) → t.getKey? km = some km := by
   simp_to_model using List.getKey?_minKey?
 
+theorem getKey_minKey? [TransOrd α] (h : t.WF) {km hc} :
+    (hkm : t.minKey?.get (isSome_minKey?_of_contains h hc) = km) → t.getKey km hc = km := by
+  simp_to_model using List.getKey_minKey?
+
+theorem getKey!_minKey? [TransOrd α] [Inhabited α] (h : t.WF) {km} :
+    (hkm : t.minKey? = some km) → t.getKey! km = km := by
+  simp_to_model using List.getKey!_minKey?
+
+theorem getKeyD_minKey? [TransOrd α] (h : t.WF) {km fallback} :
+    (hkm : t.minKey? = some km) → t.getKeyD km fallback = km := by
+  simp_to_model using List.getKeyD_minKey?
+
 @[simp]
 theorem minKey?_bind_getKey? [TransOrd α] (h : t.WF) :
     t.minKey?.bind t.getKey? = t.minKey? := by
@@ -4439,6 +4465,10 @@ theorem minKey?_insertIfNew!_le_self [TransOrd α] (h : t.WF) {k v kmi} :
     (hkmi : (t.insertIfNew! k v |>.minKey?.get <| isSome_minKey?_insertIfNew! h) = kmi) →
     compare kmi k |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using minKey?_insertIfNew_le_self h
+
+theorem minKey?_eq_head?_keys [TransOrd α] (h : t.WF) :
+    t.minKey? = t.keys.head? := by
+  simp_to_model [minKey?, keys] using List.minKey?_eq_head?_keys h.ordered
 
 theorem minKey?_modify [TransOrd α] [LawfulEqOrd α] {k f} (h : t.WF) :
     (t.modify k f).minKey? = t.minKey? := by
@@ -4589,6 +4619,10 @@ theorem minKey_insertIfNew_le_minKey [TransOrd α] (h : t.WF) {k v he} :
 theorem minKey_insertIfNew_le_self [TransOrd α] (h : t.WF) {k v} :
     compare (t.insertIfNew k v h.balanced |>.impl.minKey <| isEmpty_insertIfNew h) k |>.isLE := by
   simp_to_model [minKey, insertIfNew] using List.minKey_insertEntryIfNew_le_self
+
+theorem minKey_eq_head_keys [TransOrd α] (h : t.WF) {he} :
+    t.minKey he = t.keys.head (List.isEmpty_eq_false_iff.mp <| isEmpty_keys ▸ he) := by
+  simp_to_model [minKey, keys] using List.minKey_eq_head_keys h.ordered
 
 theorem minKey_modify [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f he} :
     (t.modify k f).minKey he = t.minKey (isEmpty_modify h ▸ he):= by
@@ -4783,6 +4817,10 @@ theorem minKey!_insertIfNew_le_self [TransOrd α] [Inhabited α] (h : t.WF) : �
 theorem minKey!_insertIfNew!_le_self [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
     compare (t.insertIfNew! k v |>.minKey!) k |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using minKey!_insertIfNew_le_self h
+
+theorem minKey!_eq_head!_keys [TransOrd α] [Inhabited α] (h : t.WF) :
+    t.minKey! = t.keys.head! := by
+  simp_to_model [minKey!, keys] using List.minKey!_eq_head!_keys h.ordered
 
 theorem minKey!_modify [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) : ∀ {k f},
     (t.modify k f |>.minKey!) = t.minKey! := by
@@ -4996,6 +5034,10 @@ theorem minKeyD_insertIfNew_le_self [TransOrd α] (h : t.WF) : ∀ {k v fallback
 theorem minKeyD_insertIfNew!_le_self [TransOrd α] (h : t.WF) {k v fallback} :
     compare (t.insertIfNew! k v |>.minKeyD fallback) k |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using minKeyD_insertIfNew_le_self h
+
+theorem minKeyD_eq_headD_keys [TransOrd α] (h : t.WF) {fallback} :
+    t.minKeyD fallback = t.keys.headD fallback := by
+  simp_to_model [minKeyD, keys] using List.minKeyD_eq_headD_keys h.ordered
 
 theorem minKeyD_modify [TransOrd α] [LawfulEqOrd α] (h : t.WF) : ∀ {k f fallback},
     (t.modify k f |>.minKeyD fallback) = t.minKeyD fallback := by

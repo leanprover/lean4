@@ -1025,6 +1025,10 @@ theorem distinct_keys [TransCmp cmp] (h : t.WF) :
     t.keys.Pairwise (fun a b => ¬ cmp a b = .eq) :=
   Impl.distinct_keys h.out
 
+theorem ordered_keys [TransCmp cmp] (h : t.WF) :
+    t.keys.Pairwise (fun a b => cmp a b = .lt) :=
+  Impl.ordered_keys h.out
+
 @[simp]
 theorem map_fst_toList_eq_keys :
     t.toList.map Sigma.fst = t.keys :=
@@ -1061,6 +1065,10 @@ theorem find?_toList_eq_none_iff_not_mem [TransCmp cmp] (h : t.WF) {k : α} :
 theorem distinct_keys_toList [TransCmp cmp] (h : t.WF) :
     t.toList.Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq) :=
   Impl.distinct_keys_toList h.out
+
+theorem ordered_keys_toList [TransCmp cmp] (h : t.WF) :
+    t.toList.Pairwise (fun a b => cmp a.1 b.1 = .lt) :=
+  Impl.ordered_keys_toList h.out
 
 namespace Const
 
@@ -1113,6 +1121,10 @@ theorem find?_toList_eq_none_iff_not_mem [TransCmp cmp] (h : t.WF) {k : α} :
 theorem distinct_keys_toList [TransCmp cmp] (h : t.WF) :
     (toList t).Pairwise (fun a b => ¬ cmp a.1 b.1 = .eq) :=
   Impl.Const.distinct_keys_toList h.out
+
+theorem ordered_keys_toList [TransCmp cmp] (h : t.WF) :
+    (toList t).Pairwise (fun a b => cmp a.1 b.1 = .lt) :=
+  Impl.Const.ordered_keys_toList h.out
 
 end Const
 
@@ -2876,6 +2888,18 @@ theorem getKey?_minKey? [TransCmp cmp] (h : t.WF) {km} :
     (hkm : t.minKey? = some km) → t.getKey? km = some km :=
   Impl.getKey?_minKey? h
 
+theorem getKey_minKey? [TransCmp cmp] (h : t.WF) {km hc} :
+    (hkm : t.minKey?.get (isSome_minKey?_of_contains h hc) = km) → t.getKey km hc = km :=
+  Impl.getKey_minKey? h
+
+theorem getKey!_minKey? [TransCmp cmp] [Inhabited α] (h : t.WF) {km} :
+    (hkm : t.minKey? = some km) → t.getKey! km = km :=
+  Impl.getKey!_minKey? h
+
+theorem getKeyD_minKey? [TransCmp cmp] (h : t.WF) {km fallback} :
+    (hkm : t.minKey? = some km) → t.getKeyD km fallback = km :=
+  Impl.getKeyD_minKey? h
+
 @[simp]
 theorem minKey?_bind_getKey? [TransCmp cmp] (h : t.WF) :
     t.minKey?.bind t.getKey? = t.minKey? :=
@@ -2922,6 +2946,10 @@ theorem minKey?_insertIfNew_le_self [TransCmp cmp] (h : t.WF) {k v kmi} :
     (hkmi : (t.insertIfNew k v |>.minKey?.get <| isSome_minKey?_insertIfNew h) = kmi) →
     cmp kmi k |>.isLE :=
   Impl.minKey?_insertIfNew!_le_self h
+
+theorem minKey?_eq_head?_keys [TransCmp cmp] (h : t.WF) :
+    t.minKey? = t.keys.head? :=
+  Impl.minKey?_eq_head?_keys h
 
 @[simp]
 theorem minKey?_modify [TransCmp cmp] [LawfulEqCmp cmp] {k f} (h : t.WF) :
@@ -3060,6 +3088,10 @@ theorem minKey!_insertIfNew_le_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k 
     cmp (t.insertIfNew k v |>.minKey!) k |>.isLE :=
   Impl.minKey!_insertIfNew!_le_self h (instOrd := ⟨cmp⟩)
 
+theorem minKey!_eq_head!_keys [TransCmp cmp] [Inhabited α] (h : t.WF) :
+    t.minKey! = t.keys.head! :=
+  Impl.minKey!_eq_head!_keys h
+
 @[simp]
 theorem minKey!_modify [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF) {k f} :
     (t.modify k f |>.minKey!) = t.minKey! :=
@@ -3192,6 +3224,10 @@ theorem minKeyD_insertIfNew_le_minKeyD [TransCmp cmp] (h : t.WF)
 theorem minKeyD_insertIfNew_le_self [TransCmp cmp] (h : t.WF) {k v fallback} :
     cmp (t.insertIfNew k v |>.minKeyD fallback) k |>.isLE :=
   Impl.minKeyD_insertIfNew!_le_self h (instOrd := ⟨cmp⟩)
+
+theorem minKeyD_eq_headD_keys [TransCmp cmp] (h : t.WF) {fallback} :
+    t.minKeyD fallback = t.keys.headD fallback :=
+  Impl.minKeyD_eq_headD_keys h
 
 @[simp]
 theorem minKeyD_modify [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k f fallback} :

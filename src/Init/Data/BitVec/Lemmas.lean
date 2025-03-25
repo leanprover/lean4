@@ -4807,6 +4807,10 @@ theorem msb_eq_toInt {x : BitVec w}:
     x.msb = decide (x.toInt < 0) := by
   by_cases h : x.msb <;> simp [h, toInt_eq_msb_cond] <;> omega
 
+theorem msb_eq_toNat {x : BitVec w}:
+    x.msb = decide (x.toNat ≥ 2 ^ (w - 1)) := by
+  simp only [msb_eq_decide, ge_iff_le]
+
 /-! ### abs -/
 
 theorem abs_eq (x : BitVec w) : x.abs = if x.msb then -x else x := by rfl

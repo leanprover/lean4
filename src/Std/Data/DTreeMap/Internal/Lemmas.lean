@@ -5654,9 +5654,9 @@ theorem self_le_maxKey!_insertIfNew! [TransOrd α] [Inhabited α] (h : t.WF) {k 
     compare k (t.insertIfNew! k v |>.maxKey!) |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using self_le_maxKey!_insertIfNew h
 
-theorem maxKey!_eq_head!_keys [TransOrd α] [Inhabited α] (h : t.WF) :
+theorem maxKey!_eq_getLast!_keys [TransOrd α] [Inhabited α] (h : t.WF) :
     t.maxKey! = t.keys.getLast! := by
-  simp_to_model [maxKey!, keys] using List.maxKey!_eq_head!_keys h.ordered.distinctKeys h.ordered
+  simp_to_model [maxKey!, keys] using List.maxKey!_eq_getLast!_keys h.ordered.distinctKeys h.ordered
 
 theorem maxKey!_modify [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) : ∀ {k f},
     (t.modify k f |>.maxKey!) = t.maxKey! := by

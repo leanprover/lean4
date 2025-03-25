@@ -800,6 +800,10 @@ theorem min?_le_min?_erase [TransCmp cmp] {k km kme} :
     cmp km kme |>.isLE :=
   TreeMap.minKey?_le_minKey?_erase
 
+theorem min?_eq_head?_toList [TransCmp cmp] :
+    t.min? = t.toList.head? :=
+  TreeMap.minKey?_eq_head?_keys
+
 theorem min_eq_get_min? [TransCmp cmp] {he} :
     t.min he = t.min?.get (isSome_min?_iff_isEmpty_eq_false.mpr he) :=
   TreeMap.minKey_eq_get_minKey?
@@ -888,9 +892,9 @@ theorem min_le_min_erase [TransCmp cmp] {k he} :
       (t.erase k |>.min he) |>.isLE :=
   DTreeMap.minKey_le_minKey_erase
 
-theorem min?_eq_head?_toList [TransCmp cmp] :
-    t.min? = t.toList.head? :=
-  TreeMap.minKey?_eq_head?_keys
+theorem min_eq_head_toList [TransCmp cmp] {he} :
+    t.min he = t.toList.head (List.isEmpty_eq_false_iff.mp <| isEmpty_toList ▸ he) :=
+  DTreeMap.minKey_eq_head_keys
 
 theorem min?_eq_some_min! [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) :
     t.min? = some t.min! :=
@@ -1063,10 +1067,6 @@ theorem minD_le_minD_erase [TransCmp cmp] {k}
     (he : (t.erase k).isEmpty = false) {fallback} :
     cmp (t.minD fallback) (t.erase k |>.minD fallback) |>.isLE :=
   TreeMap.minKeyD_le_minKeyD_erase he
-
-theorem min_eq_head_toList [TransCmp cmp] {he} :
-    t.min he = t.toList.head (List.isEmpty_eq_false_iff.mp <| isEmpty_toList ▸ he) :=
-  DTreeMap.minKey_eq_head_keys
 
 theorem minD_eq_headD_toList [TransCmp cmp] {fallback} :
     t.minD fallback = t.toList.headD fallback :=
@@ -1384,9 +1384,9 @@ theorem max!_erase_le_max! [TransCmp cmp] [Inhabited α] {k}
     cmp (t.erase k |>.max!) t.max! |>.isLE :=
   DTreeMap.maxKey!_erase_le_maxKey! he
 
-theorem max!_eq_head!_toList [TransCmp cmp] [Inhabited α] :
+theorem max!_eq_getLast!_toList [TransCmp cmp] [Inhabited α] :
     t.max! = t.toList.getLast! :=
-  TreeMap.maxKey!_eq_head!_keys
+  TreeMap.maxKey!_eq_getLast!_keys
 
 
 end Max

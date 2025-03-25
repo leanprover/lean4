@@ -3564,9 +3564,9 @@ theorem self_le_maxKey!_insertIfNew [TransCmp cmp] [Inhabited α] (h : t.WF) {k 
     cmp k (t.insertIfNew k v |>.maxKey!) |>.isLE :=
   Impl.self_le_maxKey!_insertIfNew! h (instOrd := ⟨cmp⟩)
 
-theorem maxKey!_eq_head!_keys [TransCmp cmp] [Inhabited α] (h : t.WF) :
+theorem maxKey!_eq_getLast!_keys [TransCmp cmp] [Inhabited α] (h : t.WF) :
     t.maxKey! = t.keys.getLast! :=
-  Impl.maxKey!_eq_head!_keys h (instOrd := ⟨cmp⟩)
+  Impl.maxKey!_eq_getLast!_keys h (instOrd := ⟨cmp⟩)
 
 @[simp]
 theorem maxKey!_modify [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF) {k f} :

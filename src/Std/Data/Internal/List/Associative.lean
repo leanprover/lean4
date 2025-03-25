@@ -6000,7 +6000,7 @@ theorem self_le_maxKey!_insertEntryIfNew [Ord α] [TransOrd α] [BEq α] [Lawful
   letI : Ord α := .opposite inferInstance
   minKey!_insertEntryIfNew_le_self hd
 
-theorem maxKey!_eq_head!_keys [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited α]
+theorem maxKey!_eq_getLast!_keys [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l)
     (ho : l.Pairwise fun a b => compare a.1 b.1 = .lt) :
     maxKey! l = (keys l).getLast! := by

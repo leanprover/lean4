@@ -2727,9 +2727,9 @@ theorem self_le_maxKey!_insertIfNew [TransCmp cmp] [Inhabited α] {k v} :
     cmp k (t.insertIfNew k v |>.maxKey!) |>.isLE :=
   DTreeMap.self_le_maxKey!_insertIfNew
 
-theorem maxKey!_eq_head!_keys [TransCmp cmp] [Inhabited α] :
+theorem maxKey!_eq_getLast!_keys [TransCmp cmp] [Inhabited α] :
     t.maxKey! = t.keys.getLast! :=
-  DTreeMap.maxKey!_eq_head!_keys
+  DTreeMap.maxKey!_eq_getLast!_keys
 
 theorem maxKey!_modify [TransCmp cmp] [Inhabited α] {k f}
     (he : (modify t k f).isEmpty = false) :

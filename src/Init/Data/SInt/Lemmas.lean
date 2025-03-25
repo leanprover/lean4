@@ -1666,6 +1666,8 @@ theorem BitVec.toInt_srem (a b : BitVec w) : (a.srem b).toInt = a.toInt.tmod b.t
 -- This one is a bit strange; I'm sure it can be generalized.
 theorem BitVec.toNat_smod_ofNat_self (b : BitVec w) : (b.smod (BitVec.ofNat w w)).toNat = (b.toInt % w).toNat := sorry
 
+theorem Int.two_pow_pos (n : Nat) : 0 < (2 : Int) ^ n := by
+  simpa [-Int.ofNat_lt, -ofNat_pos, Int.natCast_pow] using Int.ofNat_lt.2 (Nat.two_pow_pos n)
 
 ---------------------------- END TODO
 
@@ -1883,26 +1885,6 @@ theorem ISize.toInt64_div_of_ne_right (a b : ISize) (hb : b ≠ -1) : (a / b).to
 @[simp] theorem Int64.minValue_div_neg_one : minValue / -1 = minValue := rfl
 @[simp] theorem ISize.minValue_div_neg_one : minValue / -1 = minValue :=
   ISize.toBitVec_inj.1 (by simpa [BitVec.intMin_eq_neg_two_pow] using BitVec.intMin_sdiv_neg_one)
-
-def allBv (w : Nat) : List (BitVec w) := List.range (2 ^ w) |>.map (BitVec.ofNat w)
-def allBv8 := allBv 8
-def allInt8 : List Int8 := List.range UInt8.size |>.map Int8.ofNat
-def allInt16 : List Int16 := List.range UInt16.size |>.map Int16.ofNat
-
--- def counterexamples [DecidableEq γ] (f g : α → β → γ) (l₁ : List α) (l₂ : List β) : List (α × β × γ × γ) :=
---   l₁.flatMap (fun x => l₂.filterMap (fun y => if f x y = g x y then none else some (x, (y, (f x y, g x y)))))
-
-@[specialize] def counterexamples [DecidableEq γ] (f g : α → β → γ) (l₁ : List α) (l₂ : List β) : Array (α × β × γ × γ) := Id.run do
-  let mut res := #[]
-  for x in l₁ do
-    for y in l₂ do
-      if f x y ≠ g x y then
-        res := res.push (x, (y, (f x y, g x y)))
-  return res
-
-#eval counterexamples (fun x y => (x.srem y).toInt) (fun x y => x.toInt.tmod y.toInt) allBv8 allBv8
-#eval counterexamples (fun x y => (x / y).toInt16) (fun x y => (x.toInt16 / y.toInt16) % 256) allInt8 allInt8
--- #eval counterexamples (fun x y => (x / y).toInt8) (fun x y => (x.toInt8 / y.toInt8)) allInt16 allInt16
 
 @[simp] theorem Int8.toInt_mod (a b : Int8) : (a % b).toInt = a.toInt.tmod b.toInt := by
   rw [← toInt_toBitVec, Int8.toBitVec_mod, BitVec.toInt_srem, toInt_toBitVec, toInt_toBitVec]
@@ -2227,9 +2209,6 @@ theorem Int64.ofIntLE_mul {a b : Int} {hab₁ hab₂} : Int64.ofIntLE (a * b) ha
   simp [Int64.ofIntLE_eq_ofInt]
 theorem ISize.ofIntLE_mul {a b : Int} {hab₁ hab₂} : ISize.ofIntLE (a * b) hab₁ hab₂ = ISize.ofInt a * ISize.ofInt b := by
   simp [ISize.ofIntLE_eq_ofInt]
-
-theorem Int.two_pow_pos (n : Nat) : 0 < (2 : Int) ^ n := by
-  simpa [-Int.ofNat_lt, -ofNat_pos, Int.natCast_pow] using Int.ofNat_lt.2 (Nat.two_pow_pos n)
 
 theorem Int8.toInt_minValue_lt_zero : minValue.toInt < 0 := by decide
 theorem Int16.toInt_minValue_lt_zero : minValue.toInt < 0 := by decide
@@ -3038,39 +3017,112 @@ theorem Int64.lt_iff_le_and_ne {a b : Int64} : a < b ↔ a ≤ b ∧ a ≠ b := 
 theorem ISize.lt_iff_le_and_ne {a b : ISize} : a < b ↔ a ≤ b ∧ a ≠ b := by
   simpa [lt_iff_toInt_lt, le_iff_toInt_le, ← ISize.toInt_inj] using Int.lt_iff_le_and_ne
 
--- @[simp] theorem Int8.not_lt_zero {a : Int8} : ¬a < minValue := by simp [Int8.lt_iff_toBitVec_slt]
--- @[simp] theorem Int16.not_lt_zero {a : Int16} : ¬a < 0 := by simp [Int16.lt_iff_toBitVec_slt]
--- @[simp] theorem Int32.not_lt_zero {a : Int32} : ¬a < 0 := by simp [Int32.lt_iff_toBitVec_slt]
--- @[simp] theorem Int64.not_lt_zero {a : Int64} : ¬a < 0 := by simp [Int64.lt_iff_toBitVec_slt]
--- @[simp] theorem ISize.not_lt_zero {a : ISize} : ¬a < 0 := by simp [ISize.lt_iff_toBitVec_slt]
+@[simp] theorem Int8.lt_irrefl {a : Int8} : ¬a < a := by simp [lt_iff_toInt_lt]
+@[simp] theorem Int16.lt_irrefl {a : Int16} : ¬a < a := by simp [lt_iff_toInt_lt]
+@[simp] theorem Int32.lt_irrefl {a : Int32} : ¬a < a := by simp [lt_iff_toInt_lt]
+@[simp] theorem Int64.lt_irrefl {a : Int64} : ¬a < a := by simp [lt_iff_toInt_lt]
+@[simp] theorem ISize.lt_irrefl {a : ISize} : ¬a < a := by simp [lt_iff_toInt_lt]
 
--- @[simp] theorem Int8.zero_le {a : Int8} : 0 ≤ a := by simp [← Int8.not_lt]
--- @[simp] theorem Int16.zero_le {a : Int16} : 0 ≤ a := by simp [← Int16.not_lt]
--- @[simp] theorem Int32.zero_le {a : Int32} : 0 ≤ a := by simp [← Int32.not_lt]
--- @[simp] theorem Int64.zero_le {a : Int64} : 0 ≤ a := by simp [← Int64.not_lt]
--- @[simp] theorem ISize.zero_le {a : ISize} : 0 ≤ a := by simp [← ISize.not_lt]
+@[simp] theorem Int8.lt_of_le_of_lt {a b c : Int8} : a ≤ b → b < c → a < c := by
+  simpa [le_iff_toInt_le, lt_iff_toInt_lt] using Int.lt_of_le_of_lt
+@[simp] theorem Int16.lt_of_le_of_lt {a b c : Int16} : a ≤ b → b < c → a < c := by
+  simpa [le_iff_toInt_le, lt_iff_toInt_lt] using Int.lt_of_le_of_lt
+@[simp] theorem Int32.lt_of_le_of_lt {a b c : Int32} : a ≤ b → b < c → a < c := by
+  simpa [le_iff_toInt_le, lt_iff_toInt_lt] using Int.lt_of_le_of_lt
+@[simp] theorem Int64.lt_of_le_of_lt {a b c : Int64} : a ≤ b → b < c → a < c := by
+  simpa [le_iff_toInt_le, lt_iff_toInt_lt] using Int.lt_of_le_of_lt
+@[simp] theorem ISize.lt_of_le_of_lt {a b c : ISize} : a ≤ b → b < c → a < c := by
+  simpa [le_iff_toInt_le, lt_iff_toInt_lt] using Int.lt_of_le_of_lt
 
--- @[simp] theorem Int8.le_zero_iff {a : Int8} : a ≤ 0 ↔ a = 0 := by
---   simp [Int8.le_iff_toBitVec_le, ← Int8.toBitVec_inj]
--- @[simp] theorem Int16.le_zero_iff {a : Int16} : a ≤ 0 ↔ a = 0 := by
---   simp [Int16.le_iff_toBitVec_le, ← Int16.toBitVec_inj]
--- @[simp] theorem Int32.le_zero_iff {a : Int32} : a ≤ 0 ↔ a = 0 := by
---   simp [Int32.le_iff_toBitVec_le, ← Int32.toBitVec_inj]
--- @[simp] theorem Int64.le_zero_iff {a : Int64} : a ≤ 0 ↔ a = 0 := by
---   simp [Int64.le_iff_toBitVec_le, ← Int64.toBitVec_inj]
--- @[simp] theorem ISize.le_zero_iff {a : ISize} : a ≤ 0 ↔ a = 0 := by
---   simp [ISize.le_iff_toBitVec_le, ← ISize.toBitVec_inj]
+@[simp] theorem Int8.lt_of_lt_of_le {a b c : Int8} : a < b → b ≤ c → a < c := by
+  simpa [le_iff_toInt_le, lt_iff_toInt_lt] using Int.lt_of_lt_of_le
+@[simp] theorem Int16.lt_of_lt_of_le {a b c : Int16} : a < b → b ≤ c → a < c := by
+  simpa [le_iff_toInt_le, lt_iff_toInt_lt] using Int.lt_of_lt_of_le
+@[simp] theorem Int32.lt_of_lt_of_le {a b c : Int32} : a < b → b ≤ c → a < c := by
+  simpa [le_iff_toInt_le, lt_iff_toInt_lt] using Int.lt_of_lt_of_le
+@[simp] theorem Int64.lt_of_lt_of_le {a b c : Int64} : a < b → b ≤ c → a < c := by
+  simpa [le_iff_toInt_le, lt_iff_toInt_lt] using Int.lt_of_lt_of_le
+@[simp] theorem ISize.lt_of_lt_of_le {a b c : ISize} : a < b → b ≤ c → a < c := by
+  simpa [le_iff_toInt_le, lt_iff_toInt_lt] using Int.lt_of_lt_of_le
 
--- @[simp] theorem Int8.lt_one_iff {a : Int8} : a < 1 ↔ a = 0 := by
---   simp [Int8.lt_iff_toBitVec_slt, ← Int8.toBitVec_inj]
--- @[simp] theorem Int16.lt_one_iff {a : Int16} : a < 1 ↔ a = 0 := by
---   simp [Int16.lt_iff_toBitVec_slt, ← Int16.toBitVec_inj]
--- @[simp] theorem Int32.lt_one_iff {a : Int32} : a < 1 ↔ a = 0 := by
---   simp [Int32.lt_iff_toBitVec_slt, ← Int32.toBitVec_inj]
--- @[simp] theorem Int64.lt_one_iff {a : Int64} : a < 1 ↔ a = 0 := by
---   simp [Int64.lt_iff_toBitVec_slt, ← Int64.toBitVec_inj]
--- @[simp] theorem ISize.lt_one_iff {a : ISize} : a < 1 ↔ a = 0 := by
---   simp [ISize.lt_iff_toBitVec_slt, ← ISize.toBitVec_inj]
+@[simp] theorem Int8.minValue_le (a : Int8) : minValue ≤ a := by simpa [le_iff_toInt_le] using a.minValue_le_toInt
+@[simp] theorem Int16.minValue_le (a : Int16) : minValue ≤ a := by simpa [le_iff_toInt_le] using a.minValue_le_toInt
+@[simp] theorem Int32.minValue_le (a : Int32) : minValue ≤ a := by simpa [le_iff_toInt_le] using a.minValue_le_toInt
+@[simp] theorem Int64.minValue_le (a : Int64) : minValue ≤ a := by simpa [le_iff_toInt_le] using a.minValue_le_toInt
+@[simp] theorem ISize.minValue_le (a : ISize) : minValue ≤ a := by simpa [le_iff_toInt_le] using a.minValue_le_toInt
+
+@[simp] theorem Int8.le_maxValue (a : Int8) : a ≤ maxValue := by simpa [le_iff_toInt_le] using a.toInt_le
+@[simp] theorem Int16.le_maxValue (a : Int16) : a ≤ maxValue := by simpa [le_iff_toInt_le] using a.toInt_le
+@[simp] theorem Int32.le_maxValue (a : Int32) : a ≤ maxValue := by simpa [le_iff_toInt_le] using a.toInt_le
+@[simp] theorem Int64.le_maxValue (a : Int64) : a ≤ maxValue := by simpa [le_iff_toInt_le] using a.toInt_le
+@[simp] theorem ISize.le_maxValue (a : ISize) : a ≤ maxValue := by simpa [le_iff_toInt_le] using a.toInt_le
+
+@[simp] theorem Int8.not_lt_minValue {a : Int8} : ¬a < minValue :=
+  fun h => Int8.lt_irrefl (Int8.lt_of_le_of_lt a.minValue_le h)
+@[simp] theorem Int16.not_lt_minValue {a : Int16} : ¬a < minValue :=
+  fun h => Int16.lt_irrefl (Int16.lt_of_le_of_lt a.minValue_le h)
+@[simp] theorem Int32.not_lt_minValue {a : Int32} : ¬a < minValue :=
+  fun h => Int32.lt_irrefl (Int32.lt_of_le_of_lt a.minValue_le h)
+@[simp] theorem Int64.not_lt_minValue {a : Int64} : ¬a < minValue :=
+  fun h => Int64.lt_irrefl (Int64.lt_of_le_of_lt a.minValue_le h)
+@[simp] theorem ISize.not_lt_minValue {a : ISize} : ¬a < minValue :=
+  fun h => ISize.lt_irrefl (ISize.lt_of_le_of_lt a.minValue_le h)
+
+@[simp] theorem Int8.not_maxValue_lt {a : Int8} : ¬maxValue < a :=
+  fun h => Int8.lt_irrefl (Int8.lt_of_lt_of_le h a.le_maxValue)
+@[simp] theorem Int16.not_maxValue_lt {a : Int16} : ¬maxValue < a :=
+  fun h => Int16.lt_irrefl (Int16.lt_of_lt_of_le h a.le_maxValue)
+@[simp] theorem Int32.not_maxValue_lt {a : Int32} : ¬maxValue < a :=
+  fun h => Int32.lt_irrefl (Int32.lt_of_lt_of_le h a.le_maxValue)
+@[simp] theorem Int64.not_maxValue_lt {a : Int64} : ¬maxValue < a :=
+  fun h => Int64.lt_irrefl (Int64.lt_of_lt_of_le h a.le_maxValue)
+@[simp] theorem ISize.not_maxValue_lt {a : ISize} : ¬maxValue < a :=
+  fun h => ISize.lt_irrefl (ISize.lt_of_lt_of_le h a.le_maxValue)
+
+@[simp] theorem Int8.le_refl (a : Int8) : a ≤ a := by simp [Int8.le_iff_toInt_le]
+@[simp] theorem Int16.le_refl (a : Int16) : a ≤ a := by simp [Int16.le_iff_toInt_le]
+@[simp] theorem Int32.le_refl (a : Int32) : a ≤ a := by simp [Int32.le_iff_toInt_le]
+@[simp] theorem Int64.le_refl (a : Int64) : a ≤ a := by simp [Int64.le_iff_toInt_le]
+@[simp] theorem ISize.le_refl (a : ISize) : a ≤ a := by simp [ISize.le_iff_toInt_le]
+
+theorem Int8.le_antisymm_iff {a b : Int8} : a = b ↔ a ≤ b ∧ b ≤ a :=
+  ⟨by rintro rfl; simp, by simpa [← Int8.toInt_inj, le_iff_toInt_le] using Int.le_antisymm⟩
+theorem Int16.le_antisymm_iff {a b : Int16} : a = b ↔ a ≤ b ∧ b ≤ a :=
+  ⟨by rintro rfl; simp, by simpa [← Int16.toInt_inj, le_iff_toInt_le] using Int.le_antisymm⟩
+theorem Int32.le_antisymm_iff {a b : Int32} : a = b ↔ a ≤ b ∧ b ≤ a :=
+  ⟨by rintro rfl; simp, by simpa [← Int32.toInt_inj, le_iff_toInt_le] using Int.le_antisymm⟩
+theorem Int64.le_antisymm_iff {a b : Int64} : a = b ↔ a ≤ b ∧ b ≤ a :=
+  ⟨by rintro rfl; simp, by simpa [← Int64.toInt_inj, le_iff_toInt_le] using Int.le_antisymm⟩
+theorem ISize.le_antisymm_iff {a b : ISize} : a = b ↔ a ≤ b ∧ b ≤ a :=
+  ⟨by rintro rfl; simp, by simpa [← ISize.toInt_inj, le_iff_toInt_le] using Int.le_antisymm⟩
+
+theorem Int8.le_antisymm {a b : Int8} : a ≤ b → b ≤ a → a = b := by simpa using Int8.le_antisymm_iff.2
+theorem Int16.le_antisymm {a b : Int16} : a ≤ b → b ≤ a → a = b := by simpa using Int16.le_antisymm_iff.2
+theorem Int32.le_antisymm {a b : Int32} : a ≤ b → b ≤ a → a = b := by simpa using Int32.le_antisymm_iff.2
+theorem Int64.le_antisymm {a b : Int64} : a ≤ b → b ≤ a → a = b := by simpa using Int64.le_antisymm_iff.2
+theorem ISize.le_antisymm {a b : ISize} : a ≤ b → b ≤ a → a = b := by simpa using ISize.le_antisymm_iff.2
+
+@[simp] theorem Int8.le_minValue_iff {a : Int8} : a ≤ minValue ↔ a = minValue :=
+  ⟨fun h => Int8.le_antisymm h a.minValue_le, by rintro rfl; simp⟩
+@[simp] theorem Int16.le_minValue_iff {a : Int16} : a ≤ minValue ↔ a = minValue :=
+  ⟨fun h => Int16.le_antisymm h a.minValue_le, by rintro rfl; simp⟩
+@[simp] theorem Int32.le_minValue_iff {a : Int32} : a ≤ minValue ↔ a = minValue :=
+  ⟨fun h => Int32.le_antisymm h a.minValue_le, by rintro rfl; simp⟩
+@[simp] theorem Int64.le_minValue_iff {a : Int64} : a ≤ minValue ↔ a = minValue :=
+  ⟨fun h => Int64.le_antisymm h a.minValue_le, by rintro rfl; simp⟩
+@[simp] theorem ISize.le_minValue_iff {a : ISize} : a ≤ minValue ↔ a = minValue :=
+  ⟨fun h => ISize.le_antisymm h a.minValue_le, by rintro rfl; simp⟩
+
+@[simp] theorem Int8.maxValue_le_iff {a : Int8} : maxValue ≤ a ↔ a = maxValue :=
+  ⟨fun h => Int8.le_antisymm a.le_maxValue h, by rintro rfl; simp⟩
+@[simp] theorem Int16.maxValue_le_iff {a : Int16} : maxValue ≤ a ↔ a = maxValue :=
+  ⟨fun h => Int16.le_antisymm a.le_maxValue h, by rintro rfl; simp⟩
+@[simp] theorem Int32.maxValue_le_iff {a : Int32} : maxValue ≤ a ↔ a = maxValue :=
+  ⟨fun h => Int32.le_antisymm a.le_maxValue h, by rintro rfl; simp⟩
+@[simp] theorem Int64.maxValue_le_iff {a : Int64} : maxValue ≤ a ↔ a = maxValue :=
+  ⟨fun h => Int64.le_antisymm a.le_maxValue h, by rintro rfl; simp⟩
+@[simp] theorem ISize.maxValue_le_iff {a : ISize} : maxValue ≤ a ↔ a = maxValue :=
+  ⟨fun h => ISize.le_antisymm a.le_maxValue h, by rintro rfl; simp⟩
 
 @[simp] theorem Int8.zero_div {a : Int8} : 0 / a = 0 := Int8.toBitVec_inj.1 BitVec.zero_sdiv
 @[simp] theorem Int16.zero_div {a : Int16} : 0 / a = 0 := Int16.toBitVec_inj.1 BitVec.zero_sdiv
@@ -3131,3 +3183,76 @@ theorem ISize.div_self {a : ISize} : a / a = if a = 0 then 0 else 1 := by
 @[simp] theorem Int32.mod_self {a : Int32} : a % a = 0 := Int32.toBitVec_inj.1 BitVec.srem_self
 @[simp] theorem Int64.mod_self {a : Int64} : a % a = 0 := Int64.toBitVec_inj.1 BitVec.srem_self
 @[simp] theorem ISize.mod_self {a : ISize} : a % a = 0 := ISize.toBitVec_inj.1 BitVec.srem_self
+
+@[simp] theorem Int8.not_lt {a b : Int8} : ¬ a < b ↔ b ≤ a := by
+  simp [lt_iff_toBitVec_slt, le_iff_toBitVec_sle, BitVec.sle_eq_not_slt]
+@[simp] theorem Int16.not_lt {a b : Int16} : ¬ a < b ↔ b ≤ a := by
+  simp [lt_iff_toBitVec_slt, le_iff_toBitVec_sle, BitVec.sle_eq_not_slt]
+@[simp] theorem Int32.not_lt {a b : Int32} : ¬ a < b ↔ b ≤ a := by
+  simp [lt_iff_toBitVec_slt, le_iff_toBitVec_sle, BitVec.sle_eq_not_slt]
+@[simp] theorem Int64.not_lt {a b : Int64} : ¬ a < b ↔ b ≤ a := by
+  simp [lt_iff_toBitVec_slt, le_iff_toBitVec_sle, BitVec.sle_eq_not_slt]
+@[simp] theorem ISize.not_lt {a b : ISize} : ¬ a < b ↔ b ≤ a := by
+  simp [lt_iff_toBitVec_slt, le_iff_toBitVec_sle, BitVec.sle_eq_not_slt]
+
+theorem Int8.le_trans {a b c : Int8} : a ≤ b → b ≤ c → a ≤ c := by
+  simpa [le_iff_toInt_le] using Int.le_trans
+theorem Int16.le_trans {a b c : Int16} : a ≤ b → b ≤ c → a ≤ c := by
+  simpa [le_iff_toInt_le] using Int.le_trans
+theorem Int32.le_trans {a b c : Int32} : a ≤ b → b ≤ c → a ≤ c := by
+  simpa [le_iff_toInt_le] using Int.le_trans
+theorem Int64.le_trans {a b c : Int64} : a ≤ b → b ≤ c → a ≤ c := by
+  simpa [le_iff_toInt_le] using Int.le_trans
+theorem ISize.le_trans {a b c : ISize} : a ≤ b → b ≤ c → a ≤ c := by
+  simpa [le_iff_toInt_le] using Int.le_trans
+
+theorem Int8.lt_trans {a b c : Int8} : a < b → b < c → a < c := by
+  simpa [lt_iff_toInt_lt] using Int.lt_trans
+theorem Int16.lt_trans {a b c : Int16} : a < b → b < c → a < c := by
+  simpa [lt_iff_toInt_lt] using Int.lt_trans
+theorem Int32.lt_trans {a b c : Int32} : a < b → b < c → a < c := by
+  simpa [lt_iff_toInt_lt] using Int.lt_trans
+theorem Int64.lt_trans {a b c : Int64} : a < b → b < c → a < c := by
+  simpa [lt_iff_toInt_lt] using Int.lt_trans
+theorem ISize.lt_trans {a b c : ISize} : a < b → b < c → a < c := by
+  simpa [lt_iff_toInt_lt] using Int.lt_trans
+
+theorem Int8.le_total (a b : Int8) : a ≤ b ∨ b ≤ a := by
+  simpa [le_iff_toInt_le] using Int.le_total _ _
+theorem Int16.le_total (a b : Int16) : a ≤ b ∨ b ≤ a := by
+  simpa [le_iff_toInt_le] using Int.le_total _ _
+theorem Int32.le_total (a b : Int32) : a ≤ b ∨ b ≤ a := by
+  simpa [le_iff_toInt_le] using Int.le_total _ _
+theorem Int64.le_total (a b : Int64) : a ≤ b ∨ b ≤ a := by
+  simpa [le_iff_toInt_le] using Int.le_total _ _
+theorem ISize.le_total (a b : ISize) : a ≤ b ∨ b ≤ a := by
+  simpa [le_iff_toInt_le] using Int.le_total _ _
+
+theorem Int8.lt_asymm {a b : Int8} : a < b → ¬b < a :=
+  fun hab hba => Int8.lt_irrefl (Int8.lt_trans hab hba)
+theorem Int16.lt_asymm {a b : Int16} : a < b → ¬b < a :=
+  fun hab hba => Int16.lt_irrefl (Int16.lt_trans hab hba)
+theorem Int32.lt_asymm {a b : Int32} : a < b → ¬b < a :=
+  fun hab hba => Int32.lt_irrefl (Int32.lt_trans hab hba)
+theorem Int64.lt_asymm {a b : Int64} : a < b → ¬b < a :=
+  fun hab hba => Int64.lt_irrefl (Int64.lt_trans hab hba)
+theorem ISize.lt_asymm {a b : ISize} : a < b → ¬b < a :=
+  fun hab hba => ISize.lt_irrefl (ISize.lt_trans hab hba)
+
+theorem Int8.add_neg_eq_sub {a b : Int8} : a + -b = a - b := Int8.toBitVec_inj.1 BitVec.add_neg_eq_sub
+theorem Int16.add_neg_eq_sub {a b : Int16} : a + -b = a - b := Int16.toBitVec_inj.1 BitVec.add_neg_eq_sub
+theorem Int32.add_neg_eq_sub {a b : Int32} : a + -b = a - b := Int32.toBitVec_inj.1 BitVec.add_neg_eq_sub
+theorem Int64.add_neg_eq_sub {a b : Int64} : a + -b = a - b := Int64.toBitVec_inj.1 BitVec.add_neg_eq_sub
+theorem ISize.add_neg_eq_sub {a b : ISize} : a + -b = a - b := ISize.toBitVec_inj.1 BitVec.add_neg_eq_sub
+
+theorem Int8.neg_eq_neg_one_mul (a : Int8) : -a = -1 * a := Int8.toInt_inj.1 (by simp)
+theorem Int16.neg_eq_neg_one_mul (a : Int16) : -a = -1 * a := Int16.toInt_inj.1 (by simp)
+theorem Int32.neg_eq_neg_one_mul (a : Int32) : -a = -1 * a := Int32.toInt_inj.1 (by simp)
+theorem Int64.neg_eq_neg_one_mul (a : Int64) : -a = -1 * a := Int64.toInt_inj.1 (by simp)
+theorem ISize.neg_eq_neg_one_mul (a : ISize) : -a = -1 * a := ISize.toInt_inj.1 (by simp)
+
+@[simp] theorem Int8.add_sub_cancel (a b : Int8) : a + b - b = a := Int8.toBitVec_inj.1 (BitVec.add_sub_cancel _ _)
+@[simp] theorem Int16.add_sub_cancel (a b : Int16) : a + b - b = a := Int16.toBitVec_inj.1 (BitVec.add_sub_cancel _ _)
+@[simp] theorem Int32.add_sub_cancel (a b : Int32) : a + b - b = a := Int32.toBitVec_inj.1 (BitVec.add_sub_cancel _ _)
+@[simp] theorem Int64.add_sub_cancel (a b : Int64) : a + b - b = a := Int64.toBitVec_inj.1 (BitVec.add_sub_cancel _ _)
+@[simp] theorem ISize.add_sub_cancel (a b : ISize) : a + b - b = a := ISize.toBitVec_inj.1 (BitVec.add_sub_cancel _ _)

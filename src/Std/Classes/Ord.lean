@@ -5,6 +5,7 @@ Authors: Markus Himmel, Paul Reichert
 -/
 prelude
 import Init.Data.Ord
+import Init.Data.Nat.Compare
 
 /-!
 # Type classes related to `Ord`
@@ -434,5 +435,37 @@ theorem lawfulBEq_of_lawfulEqOrd [Ord α] [LawfulEqOrd α] : LawfulBEq α where
   rfl := by simp
 
 end Internal
+
+section Nat
+
+instance : OrientedOrd Nat where
+  eq_swap {a b} := Nat.compare_swap b a |>.symm
+
+protected theorem _root_.Nat.isLE_compare {a b : Nat} :
+    (compare a b).isLE ↔ a ≤ b := by
+  simp only [Nat.compare_def_le]
+  repeat' split <;> simp_all
+
+instance : TransOrd Nat where
+  isLE_trans {a b c} := by
+    simp only [Nat.isLE_compare]
+    exact Nat.le_trans
+
+instance : LawfulEqOrd Nat where
+  eq_of_compare := Nat.compare_eq_eq.mp
+
+end Nat
+
+section Int
+
+protected theorem _root_.Int.isLE_compare {a b : Nat} :
+    (compare a b).isLE ↔ a ≤ b := by
+  simp only [Int.compare_def_le]
+  repeat' split <;> simp_all
+
+instance : OrientedOrd Int where
+  eq_swap {a b} := Int.compare
+
+end Int
 
 end Std

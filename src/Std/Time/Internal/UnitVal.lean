@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
+import Std.Classes.Ord
 import Std.Internal.Rat
 
 namespace Std
@@ -27,10 +28,16 @@ structure UnitVal (α : Rat) where
   Value inside the UnitVal Value.
   -/
   val : Int
-  deriving Inhabited, BEq
+  deriving Inhabited, DecidableEq, Ord
 
 instance : LE (UnitVal x) where
   le x y := x.val ≤ y.val
+
+instance : OrientedOrd (UnitVal x) where
+  eq_swap := OrientedCmp.eq_swap (cmp := (compare : Int → Int → Ordering))
+
+instance : TransOrd (UnitVal x) where
+  eq_swap {x y} := OrientedCmp.eq_swap (α := Int)
 
 instance { x y : UnitVal z }: Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))

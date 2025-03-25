@@ -1930,3 +1930,14 @@ warning: declaration uses 'sorry'
 #eval TreeSet.merge t (.ofList [0, 1, 2])
 
 end TreeSet
+
+/-!
+# Ideas
+
+* date/time
+* integer variants
+* strings
+* Option, List, Char, Vector, Array, Option, Fin
+-/
+
+#synth Ord String

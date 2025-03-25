@@ -300,7 +300,9 @@ theorem eraseP_eq_eraseIdx {xs : List α} {p : α → Bool} :
 section erase
 variable [BEq α]
 
-@[simp] theorem erase_cons_head [LawfulBEq α] {a : α} {l : List α} : (a :: l).erase a = l := by
+-- The arguments are explicit to allow determining the type,
+-- and to allow rewriting from right to left.
+@[simp] theorem erase_cons_head [LawfulBEq α] (a : α) (l : List α) : (a :: l).erase a = l := by
   simp [erase_cons]
 
 @[simp] theorem erase_cons_tail {a b : α} {l : List α} (h : ¬(b == a)) :
@@ -420,7 +422,9 @@ theorem erase_replicate [LawfulBEq α] {n : Nat} {a b : α} :
   rw [erase_eq_eraseP]
   simp [eraseP_replicate]
 
-theorem erase_comm [LawfulBEq α] {a b : α} {l : List α} :
+-- The arguments `a b` are explicit,
+-- so they can be specified to prevent `simp` repeatedly applying the lemma.
+theorem erase_comm [LawfulBEq α] (a b : α) {l : List α} :
     (l.erase a).erase b = (l.erase b).erase a := by
   if ab : a == b then rw [eq_of_beq ab] else ?_
   if ha : a ∈ l then ?_ else

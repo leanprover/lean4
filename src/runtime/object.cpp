@@ -685,11 +685,11 @@ class task_manager {
         return result;
     }
 
-    void enqueue_core(unique_lock<mutex> & lock, lean_task_object * t) {
+    void enqueue_core(unique_lock<mutex> & lock, lean_task_object * t, bool do_notify = true) {
         lean_assert(t->m_imp);
         unsigned prio = t->m_imp->m_prio;
         if (prio == LEAN_SYNC_PRIO) {
-            run_task(lock, t);
+            run_task(lock, t, false);
             return;
         }
         if (prio > LEAN_MAX_PRIO) {
@@ -700,10 +700,12 @@ class task_manager {
             m_max_prio = prio;
         m_queues[prio].push_back(t);
         m_queues_size++;
-        if (!m_idle_std_workers && m_std_workers.size() < m_max_std_workers)
-            spawn_worker();
-        else
-            m_queue_cv.notify_one();
+        if (do_notify) {
+            if (!m_idle_std_workers && m_std_workers.size() < m_max_std_workers)
+                spawn_worker();
+            else
+                m_queue_cv.notify_one();
+        }
     }
 
     void deactivate_task_core(unique_lock<mutex> & lock, lean_task_object * t) {
@@ -747,7 +749,7 @@ class task_manager {
 
                 lean_task_object * t = dequeue();
                 m_idle_std_workers--;
-                run_task(lock, t);
+                run_task(lock, t, true);
                 m_idle_std_workers++;
                 reset_heartbeat();
             }
@@ -760,13 +762,13 @@ class task_manager {
         lthread([this, t]() {
             save_stack_info(false);
             unique_lock<mutex> lock(m_mutex);
-            run_task(lock, t);
+            run_task(lock, t, false);
             m_num_dedicated_workers--;
         });
         // `lthread` will be implicitly freed, which frees up its control resources but does not terminate the thread
     }
 
-    void run_task(unique_lock<mutex> & lock, lean_task_object * t) {
+    void run_task(unique_lock<mutex> & lock, lean_task_object * t, bool will_dequeue) {
         lean_assert(t->m_imp);
         if (t->m_imp->m_deleted) {
             free_task(t);
@@ -794,7 +796,7 @@ class task_manager {
             lock.lock();
         } else if (v != nullptr) {
             lean_assert(t->m_imp->m_closure == nullptr);
-            resolve_core(lock, t, v);
+            resolve_core(lock, t, v, will_dequeue);
         } else {
             // `bind` task has not finished yet, re-add as dependency of nested task
             // NOTE: closure MUST be extracted before unlocking the mutex as otherwise
@@ -807,19 +809,19 @@ class task_manager {
         }
     }
 
-    void resolve_core(unique_lock<mutex> & lock, lean_task_object * t, object * v) {
+    void resolve_core(unique_lock<mutex> & lock, lean_task_object * t, object * v, bool will_dequeue = false) {
         mark_mt(v);
         t->m_value = v;
         lean_task_imp * imp = t->m_imp;
         t->m_imp   = nullptr;
-        handle_finished(lock, t, imp);
+        handle_finished(lock, t, imp, will_dequeue);
         /* After the task has been finished and we propagated
            dependencies, we can release `imp` and keep just the value */
         free_task_imp(imp);
         m_task_finished_cv.notify_all();
     }
 
-    void handle_finished(unique_lock<mutex> & lock, lean_task_object * t, lean_task_imp * imp) {
+    void handle_finished(unique_lock<mutex> & lock, lean_task_object * t, lean_task_imp * imp, bool will_dequeue) {
         lean_task_object * it = imp->m_head_dep;
         imp->m_head_dep = nullptr;
         while (it) {
@@ -830,7 +832,9 @@ class task_manager {
             if (it->m_imp->m_deleted) {
                 free_task(it);
             } else {
-                enqueue_core(lock, it);
+                unsigned size = m_queues_size;
+                enqueue_core(lock, it, !will_dequeue);
+                if (m_queues_size > size) will_dequeue = false;
             }
             it = next_it;
         }
@@ -872,7 +876,7 @@ public:
         enqueue_core(lock, t);
     }
 
-    void resolve(lean_task_object * t, object * v) {
+    void resolve(lean_task_object * t, object * v, bool will_dequeue = false) {
         if (t->m_value) {
             dec(v);
             return;
@@ -883,7 +887,7 @@ public:
             dec(v);
             return;
         }
-        resolve_core(lock, t, v);
+        resolve_core(lock, t, v, will_dequeue);
     }
 
     void add_dep(lean_task_object * t1, lean_task_object * t2) {
@@ -1179,8 +1183,8 @@ obj_res lean_promise_new() {
     return (lean_object *) o;
 }
 
-void lean_promise_resolve(obj_arg value, b_obj_arg promise) {
-    g_task_manager->resolve(lean_to_promise(promise)->m_result, mk_option_some(value));
+void lean_promise_resolve(obj_arg value, b_obj_arg promise, bool will_dequeue) {
+    g_task_manager->resolve(lean_to_promise(promise)->m_result, mk_option_some(value), will_dequeue);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg) {
@@ -1188,8 +1192,8 @@ extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg) {
     return io_result_mk_ok(o);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise, obj_arg) {
-    lean_promise_resolve(value, promise);
+extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise, bool will_dequeue, obj_arg) {
+    lean_promise_resolve(value, promise, will_dequeue);
     return io_result_mk_ok(box(0));
 }
 

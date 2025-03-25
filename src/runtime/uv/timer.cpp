@@ -53,7 +53,7 @@ void handle_timer_event(uv_timer_t* handle) {
 
     if (timer->m_repeating) {
         if (!timer_promise_is_finished(timer)) {
-            lean_object* res = lean_io_promise_resolve(lean_box(0), timer->m_promise, lean_io_mk_world());
+            lean_object* res = lean_io_promise_resolve(lean_box(0), timer->m_promise, false, lean_io_mk_world());
             lean_dec(res);
         }
     } else {
@@ -61,7 +61,7 @@ void handle_timer_event(uv_timer_t* handle) {
         uv_timer_stop(timer->m_uv_timer);
         timer->m_state = TIMER_STATE_FINISHED;
 
-        lean_object* res = lean_io_promise_resolve(lean_box(0), timer->m_promise, lean_io_mk_world());
+        lean_object* res = lean_io_promise_resolve(lean_box(0), timer->m_promise, false, lean_io_mk_world());
         lean_dec(res);
 
         // The loop does not need to keep the timer alive anymore.

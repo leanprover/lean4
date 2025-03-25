@@ -302,7 +302,8 @@ theorem head?_dropWhile_not (p : α → Bool) (l : List α) :
     simp only [dropWhile_cons]
     split <;> rename_i h <;> split at h <;> simp_all
 
-theorem head_dropWhile_not {p : α → Bool} {l : List α} (w) :
+-- The argument `p` is explicit, as otherwise the head of the left hand side may be a metavariable.
+theorem head_dropWhile_not (p : α → Bool) {l : List α} (w) :
     p ((l.dropWhile p).head w) = false := by
   simpa [head?_eq_head, w] using head?_dropWhile_not p l
 

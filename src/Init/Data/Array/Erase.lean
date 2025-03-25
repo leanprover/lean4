@@ -264,10 +264,12 @@ theorem erase_replicate [LawfulBEq α] {n : Nat} {a b : α} :
 @[deprecated erase_replicate (since := "2025-03-18")]
 abbrev erase_mkArray := @erase_replicate
 
-theorem erase_comm [LawfulBEq α] {a b : α} {xs : Array α} :
+-- The arguments `a b` are explicit,
+-- so they can be specified to prevent `simp` repeatedly applying the lemma.
+theorem erase_comm [LawfulBEq α] (a b : α) {xs : Array α} :
     (xs.erase a).erase b = (xs.erase b).erase a := by
   rcases xs with ⟨xs⟩
-  simpa using List.erase_comm
+  simpa using List.erase_comm a b
 
 theorem erase_eq_iff [LawfulBEq α] {a : α} {xs : Array α} :
     xs.erase a = ys ↔

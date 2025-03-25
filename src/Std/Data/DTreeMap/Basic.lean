@@ -1114,7 +1114,7 @@ def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : DTreeMap α Unit cmp) (l : ρ
 end Const
 
 instance [Repr α] [(a : α) → Repr (β a)] : Repr (DTreeMap α β cmp) where
-  reprPrec m prec := Repr.addAppParen ("DTreeMap.ofList " ++ repr m.toList) prec
+  reprPrec m prec := Repr.addAppParen ("Std.DTreeMap.ofList " ++ repr m.toList) prec
 
 end DTreeMap
 

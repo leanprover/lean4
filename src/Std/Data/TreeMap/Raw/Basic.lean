@@ -549,7 +549,7 @@ def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp
   ⟨t.inner.eraseMany l⟩
 
 instance [Repr α] [Repr β] : Repr (Raw α β cmp) where
-  reprPrec m prec := Repr.addAppParen ("TreeMap.Raw.ofList " ++ repr m.toList) prec
+  reprPrec m prec := Repr.addAppParen ("Std.TreeMap.Raw.ofList " ++ repr m.toList) prec
 
 end Raw
 

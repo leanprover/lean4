@@ -346,7 +346,7 @@ def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α cmp) (l : ρ) : Raw α cmp :=
   ⟨t.inner.eraseMany l⟩
 
 instance [Repr α] : Repr (Raw α cmp) where
-  reprPrec m prec := Repr.addAppParen ("TreeSet.Raw.ofList " ++ repr m.toList) prec
+  reprPrec m prec := Repr.addAppParen ("Std.TreeSet.Raw.ofList " ++ repr m.toList) prec
 
 end Raw
 

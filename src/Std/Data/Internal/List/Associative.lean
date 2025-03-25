@@ -5384,7 +5384,7 @@ end Min
 
 section Max
 
-/-- Returns the smallest key in an associative list. -/
+/-- Returns the largest key in an associative list. -/
 abbrev maxKey? [Ord α] (xs : List ((a : α) × β a)) : Option α :=
   letI : Ord α := .opposite inferInstance
   minKey? xs

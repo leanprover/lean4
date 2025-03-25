@@ -1437,19 +1437,21 @@ theorem neg_sdiv {x y : BitVec w} (h : x ≠ intMin w) :
   · simp only [BitVec.sdiv, msb_neg_of_ne_intMin_of_ne_zero h (by simp [hx0])]
     cases x.msb <;> cases y.msb <;> simp
 
--- h' is likely not necessary
-theorem neg_sdiv_neg {x y : BitVec w} (h : x ≠ intMin w) (h' : y ≠ intMin w) :
+theorem neg_sdiv_neg {x y : BitVec w} (h : x ≠ intMin w) :
     (-x).sdiv (-y) = x.sdiv y := by
-  by_cases hy0 : y = 0#w
-  · subst hy0
-    simp
-  · by_cases hx0 : x = 0#w
-    · subst hx0
+  by_cases h' : y = intMin w
+  · subst h'
+    simp [sdiv_intMin, neg_intMin]
+  · by_cases hy0 : y = 0#w
+    · subst hy0
       simp
-    · simp only [BitVec.sdiv,
-         msb_neg_of_ne_intMin_of_ne_zero h  (by simp [hx0]),
-         msb_neg_of_ne_intMin_of_ne_zero h' (by simp [hy0])]
-      cases x.msb <;> cases y.msb <;> simp
+    · by_cases hx0 : x = 0#w
+      · subst hx0
+        simp
+      · simp only [BitVec.sdiv,
+           msb_neg_of_ne_intMin_of_ne_zero h  (by simp [hx0]),
+           msb_neg_of_ne_intMin_of_ne_zero h' (by simp [hy0])]
+        cases x.msb <;> cases y.msb <;> simp
 
 theorem intMin_eq_neg_two_pow : intMin w = BitVec.ofInt w (-2 ^ (w - 1)) := by
   apply BitVec.eq_of_toInt_eq

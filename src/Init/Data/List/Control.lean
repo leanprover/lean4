@@ -420,7 +420,7 @@ theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] (p : α → m Bool) (as :
       match (← f a this b) with
       | ForInStep.done b  => pure b
       | ForInStep.yield b =>
-        have : Exists (fun bs => bs ++ as' = as) := have ⟨bs, h⟩ := h; ⟨bs ++ [a], by rw [← h, append_cons as']⟩
+        have : Exists (fun bs => bs ++ as' = as) := have ⟨bs, h⟩ := h; ⟨bs ++ [a], by rw [← h, append_cons (bs := as')]⟩
         loop as' b this
   loop as init ⟨[], rfl⟩
 

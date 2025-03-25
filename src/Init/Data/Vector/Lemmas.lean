@@ -1395,7 +1395,8 @@ theorem back?_eq_getElem? {xs : Vector α n} : xs.back? = xs[n - 1]? := by
 
 /-! ### map -/
 
-@[simp] theorem getElem_map {f : α → β} {xs : Vector α n} (hi : i < n) :
+-- The argument `f : α → β` is explicit, to facilitate rewriting from right to left.
+@[simp] theorem getElem_map (f : α → β) {xs : Vector α n} (hi : i < n) :
     (xs.map f)[i] = f xs[i] := by
   cases xs
   simp

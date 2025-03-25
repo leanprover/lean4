@@ -1163,7 +1163,8 @@ where
   simp only [← length_toList]
   simp
 
-@[simp] theorem getElem_map {f : α → β} {xs : Array α} {i : Nat} (hi : i < (xs.map f).size) :
+-- The argument `f : α → β` is explicit, to facilitate rewriting from right to left.
+@[simp] theorem getElem_map (f : α → β) {xs : Array α} {i : Nat} (hi : i < (xs.map f).size) :
     (xs.map f)[i] = f (xs[i]'(by simpa using hi)) := by
   cases xs
   simp

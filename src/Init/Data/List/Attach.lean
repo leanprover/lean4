@@ -146,7 +146,7 @@ theorem attach_map_val (l : List α) (f : α → β) :
 abbrev attach_map_coe := @attach_map_val
 
 theorem attach_map_subtype_val (l : List α) : l.attach.map Subtype.val = l :=
-  (attach_map_val _ _).trans List.map_id
+  (attach_map_val _ _).trans (List.map_id _)
 
 theorem attachWith_map_val {p : α → Prop} (f : α → β) (l : List α) (H : ∀ a ∈ l, p a) :
     ((l.attachWith p H).map fun (i : { i // p i}) => f i) = l.map f := by
@@ -157,7 +157,7 @@ abbrev attachWith_map_coe := @attachWith_map_val
 
 theorem attachWith_map_subtype_val {p : α → Prop} (l : List α) (H : ∀ a ∈ l, p a) :
     (l.attachWith p H).map Subtype.val = l :=
-  (attachWith_map_val _ _ _).trans List.map_id
+  (attachWith_map_val _ _ _).trans (List.map_id _)
 
 @[simp]
 theorem mem_attach (l : List α) : ∀ x, x ∈ l.attach

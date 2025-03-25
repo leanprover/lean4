@@ -1058,7 +1058,8 @@ theorem getLast?_tail {l : List α} : (tail l).getLast? = if l.length = 1 then n
   | _ :: _, 0 => by simp
   | _ :: l, i+1 => by simp [getElem?_map]
 
-@[simp] theorem getElem_map {f : α → β} {l} {i : Nat} {h : i < (map f l).length} :
+-- The argument `f : α → β` is explicit, to facilitate rewriting from right to left.
+@[simp] theorem getElem_map (f : α → β) {l} {i : Nat} {h : i < (map f l).length} :
     (map f l)[i] = f (l[i]'(length_map f ▸ h)) :=
   Option.some.inj <| by rw [← getElem?_eq_getElem, getElem?_map, getElem?_eq_getElem]; rfl
 

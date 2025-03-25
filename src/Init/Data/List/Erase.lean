@@ -556,15 +556,16 @@ theorem eraseIdx_ne_nil_iff {l : List α} {i : Nat} : eraseIdx l i ≠ [] ↔ 2 
 @[deprecated eraseIdx_ne_nil_iff (since := "2025-01-30")]
 abbrev eraseIdx_ne_nil := @eraseIdx_ne_nil_iff
 
-theorem eraseIdx_sublist : ∀ {l : List α} {k : Nat}, eraseIdx l k <+ l
+theorem eraseIdx_sublist : ∀ (l : List α) (k : Nat), eraseIdx l k <+ l
   | [], _ => by simp
   | a::l, 0 => by simp
   | a::l, k + 1 => by simp [eraseIdx_sublist]
 
 theorem mem_of_mem_eraseIdx {l : List α} {i : Nat} {a : α} (h : a ∈ l.eraseIdx i) : a ∈ l :=
-  eraseIdx_sublist.mem h
+  (eraseIdx_sublist _ _).mem h
 
-theorem eraseIdx_subset {l : List α} {k : Nat} : eraseIdx l k ⊆ l := eraseIdx_sublist.subset
+theorem eraseIdx_subset {l : List α} {k : Nat} : eraseIdx l k ⊆ l :=
+  (eraseIdx_sublist _ _).subset
 
 @[simp]
 theorem eraseIdx_eq_self : ∀ {l : List α} {k : Nat}, eraseIdx l k = l ↔ length l ≤ k
@@ -577,7 +578,7 @@ theorem eraseIdx_of_length_le {l : List α} {k : Nat} (h : length l ≤ k) : era
 
 -- Arguments are intentionally explicit.
 theorem length_eraseIdx_le (l : List α) (i : Nat) : length (l.eraseIdx i) ≤ length l :=
-  eraseIdx_sublist.length_le
+  (eraseIdx_sublist _ _).length_le
 
 -- Arguments are intentionally explicit.
 theorem le_length_eraseIdx (l : List α) (i : Nat) : length l - 1 ≤ length (l.eraseIdx i) := by
@@ -614,7 +615,7 @@ theorem eraseIdx_replicate {n : Nat} {a : α} {k : Nat} :
   · rw [eraseIdx_of_length_le (by simpa using h)]
 
 theorem Pairwise.eraseIdx {l : List α} (k) : Pairwise p l → Pairwise p (l.eraseIdx k) :=
-  Pairwise.sublist <| eraseIdx_sublist
+  Pairwise.sublist <| eraseIdx_sublist _ _
 
 theorem Nodup.eraseIdx {l : List α} (k) : Nodup l → Nodup (l.eraseIdx k) :=
   Pairwise.eraseIdx k

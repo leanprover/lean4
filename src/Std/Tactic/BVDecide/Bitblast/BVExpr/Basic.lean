@@ -7,7 +7,6 @@ prelude
 import Init.Data.Hashable
 import Init.Data.BitVec
 import Init.Data.RArray
-import Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
 
 /-!
 This module contains the definition of the `BitVec` fragment that `bv_decide` internally operates
@@ -543,20 +542,61 @@ theorem eval_getLsbD : eval assign (.getLsbD expr idx) = (expr.eval assign).getL
 
 end BVPred
 
+inductive Gate
+  | and
+  | xor
+  | beq
+  | or
+
+namespace Gate
+
+def toString : Gate → String
+  | and => "&&"
+  | xor => "^^"
+  | beq => "=="
+  | or => "||"
+
+def eval : Gate → Bool → Bool → Bool
+  | and => (· && ·)
+  | xor => (· ^^ ·)
+  | beq => (· == ·)
+  | or => (· || ·)
+
+end Gate
+
 /--
 Boolean substructure of problems involving predicates on BitVec as atoms.
 -/
-abbrev BVLogicalExpr := BoolExpr BVPred
+inductive BVLogicalExpr
+  | atom (pred : BVPred)
+  | const (val : Bool)
+  | not (expr : BVLogicalExpr)
+  | gate (g : Gate) (lhs rhs : BVLogicalExpr)
+  | ite (discr lhs rhs : BVLogicalExpr)
 
 namespace BVLogicalExpr
+
+def toString : BVLogicalExpr → String
+  | atom a => ToString.toString a
+  | const b => ToString.toString b
+  | not x => "!" ++ toString x
+  | gate g x y => "(" ++ toString x ++ " " ++ g.toString ++ " " ++ toString y ++ ")"
+  | ite d l r => "(if " ++ toString d ++ " " ++ toString l ++ " " ++ toString r ++ ")"
+
+instance : ToString BVLogicalExpr := ⟨toString⟩
 
 /--
 The semantics of boolean problems involving BitVec predicates as atoms.
 -/
 def eval (assign : BVExpr.Assignment) (expr : BVLogicalExpr) : Bool :=
-  BoolExpr.eval (·.eval assign) expr
+  match expr with
+  | .atom a => a.eval assign
+  | .const b => b
+  | .not x => !eval assign x
+  | .gate g x y => g.eval (eval assign x) (eval assign y)
+  | .ite d l r => bif d.eval assign then l.eval assign else r.eval assign
 
-@[simp] theorem eval_literal : eval assign (.literal pred) = pred.eval assign := rfl
+@[simp] theorem eval_atom : eval assign (.atom pred) = pred.eval assign := rfl
 @[simp] theorem eval_const : eval assign (.const b) = b := rfl
 @[simp] theorem eval_not : eval assign (.not x) = !eval assign x := rfl
 @[simp] theorem eval_gate : eval assign (.gate g x y) = g.eval (eval assign x) (eval assign y) := rfl

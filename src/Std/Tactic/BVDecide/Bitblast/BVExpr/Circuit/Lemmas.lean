@@ -33,7 +33,7 @@ theorem go_Inv_of_Inv (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExpr.
     apply BVExpr.Cache.Inv_cast
     apply LawfulOperator.isPrefix_aig (f := mkConstCached)
     exact hinv
-  | literal =>
+  | atom =>
     simp only [go]
     apply BVPred.bitblast_Inv_of_Inv
     exact hinv
@@ -66,8 +66,8 @@ theorem go_eval_eq_eval (expr : BVLogicalExpr) (aig : AIG BVBit) (assign : BVExp
     ⟦(go aig expr cache).result, assign.toAIGAssignment⟧ = expr.eval assign := by
   induction expr generalizing aig with
   | const => simp [go]
-  | literal =>
-    simp only [go, eval_literal]
+  | atom =>
+    simp only [go, eval_atom]
     rw [BVPred.denote_bitblast]
     exact hinv
   | not expr ih =>

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
-import Std.Tactic.BVDecide.Bitblast.BoolExpr
 import Std.Tactic.BVDecide.Bitblast.BVExpr
 
 /-!

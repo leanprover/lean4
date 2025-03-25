@@ -19,14 +19,14 @@ open Std.Sat Std.Sat.AIG
 namespace BVLogicalExpr
 
 /--
-Turn a `BoolExpr` into an `Entrypoint`.
+Turn a `BVLogicalExpr` into an `Entrypoint`.
 -/
 def bitblast (expr : BVLogicalExpr) : Entrypoint BVBit :=
   go AIG.empty expr .empty |>.result.val
 where
   go (aig : AIG BVBit) (expr : BVLogicalExpr) (cache : BVExpr.Cache aig) : Return aig :=
     match expr with
-    | .literal var => BVPred.bitblast aig ⟨var, cache⟩
+    | .atom pred => BVPred.bitblast aig ⟨pred, cache⟩
     | .const val =>
       have := LawfulOperator.le_size (f := mkConstCached) ..
       ⟨⟨aig.mkConstCached val, this⟩, cache.cast this⟩
@@ -123,7 +123,7 @@ theorem go_decl_eq (idx) (aig : AIG BVBit) (cache : BVExpr.Cache aig) (h : idx <
   | const =>
     simp only [go]
     rw [AIG.LawfulOperator.decl_eq (f := mkConstCached)]
-  | literal =>
+  | atom =>
     simp only [go]
     rw [BVPred.bitblast_decl_eq]
   | not expr ih =>

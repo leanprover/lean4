@@ -94,16 +94,16 @@ where
     mkApp3 (mkConst ``BVPred.getLsbD) (toExpr w) (toExpr expr) (toExpr idx)
 
 
-instance [ToExpr α] : ToExpr (BoolExpr α) where
+instance : ToExpr BVLogicalExpr where
   toExpr x := go x
-  toTypeExpr := mkApp (mkConst ``BoolExpr) (toTypeExpr α)
+  toTypeExpr := (mkConst ``BVLogicalExpr)
 where
-  go : (BoolExpr α) → Expr
-  | .literal lit => mkApp2 (mkConst ``BoolExpr.literal) (toTypeExpr α) (toExpr lit)
-  | .const b => mkApp2 (mkConst ``BoolExpr.const) (toTypeExpr α) (toExpr b)
-  | .not x => mkApp2 (mkConst ``BoolExpr.not) (toTypeExpr α) (go x)
-  | .gate g x y => mkApp4 (mkConst ``BoolExpr.gate) (toTypeExpr α) (toExpr g) (go x) (go y)
-  | .ite d l r => mkApp4 (mkConst ``BoolExpr.ite) (toTypeExpr α) (go d) (go l) (go r)
+  go : BVLogicalExpr → Expr
+  | .atom a => mkApp (mkConst ``BVLogicalExpr.atom) (toExpr a)
+  | .const b => mkApp (mkConst ``BVLogicalExpr.const) (toExpr b)
+  | .not x => mkApp (mkConst ``BVLogicalExpr.not) (go x)
+  | .gate g x y => mkApp3 (mkConst ``BVLogicalExpr.gate) (toExpr g) (go x) (go y)
+  | .ite d l r => mkApp3 (mkConst ``BVLogicalExpr.ite) (go d) (go l) (go r)
 
 
 open Lean.Meta

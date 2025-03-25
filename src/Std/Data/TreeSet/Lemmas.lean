@@ -1221,69 +1221,73 @@ theorem max_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] {he km} 
 theorem max_insert [TransCmp cmp] {k} :
     (t.insert k).max isEmpty_insert =
       t.max?.elim k fun k' => if cmp k' k = .lt then k else k' :=
-  DTreeMap.maxKey_insertIfNew
+  TreeMap.maxKey_insertIfNew
 
 theorem max_le_max_insert [TransCmp cmp] {k he} :
     cmp (t.max he)
       (t.insert k |>.max isEmpty_insert) |>.isLE :=
-  DTreeMap.maxKey_le_maxKey_insertIfNew
+  TreeMap.maxKey_le_maxKey_insertIfNew
 
 theorem self_le_max_insert [TransCmp cmp] {k} :
     cmp k (t.insert k |>.max <| isEmpty_insert) |>.isLE :=
-  DTreeMap.self_le_maxKey_insertIfNew
+  TreeMap.self_le_maxKey_insertIfNew
 
 theorem contains_max [TransCmp cmp] {he} :
     t.contains (t.max he) :=
-  DTreeMap.contains_maxKey
+  TreeMap.contains_maxKey
 
 theorem max_mem [TransCmp cmp] {he} :
     t.max he ∈ t :=
-  DTreeMap.maxKey_mem
+  TreeMap.maxKey_mem
 
 theorem le_max_of_contains [TransCmp cmp] {k} (hc : t.contains k) :
     cmp k (t.max <| isEmpty_eq_false_iff_exists_contains_eq_true.mpr ⟨k, hc⟩) |>.isLE :=
-  DTreeMap.le_maxKey_of_contains hc
+  TreeMap.le_maxKey_of_contains hc
 
 theorem le_max_of_mem [TransCmp cmp] {k} (hc : k ∈ t) :
     cmp k (t.max <| isEmpty_eq_false_iff_exists_contains_eq_true.mpr ⟨k, hc⟩) |>.isLE :=
-  DTreeMap.le_maxKey_of_mem hc
+  TreeMap.le_maxKey_of_mem hc
 
 theorem max_le [TransCmp cmp] {k he} :
     (cmp (t.max he) k).isLE ↔ (∀ k', k' ∈ t → (cmp k' k).isLE) :=
-  DTreeMap.maxKey_le
+  TreeMap.maxKey_le
 
 theorem get?_max [TransCmp cmp] {he} :
     t.get? (t.max he) = some (t.max he) :=
-  DTreeMap.getKey?_maxKey
+  TreeMap.getKey?_maxKey
 
 theorem get_max [TransCmp cmp] {he hc} :
     t.get (t.max he) hc = t.max he :=
-  DTreeMap.getKey_maxKey
+  TreeMap.getKey_maxKey
 
 theorem get!_max [TransCmp cmp] [Inhabited α] {he} :
     t.get! (t.max he) = t.max he :=
-  DTreeMap.getKey!_maxKey
+  TreeMap.getKey!_maxKey
 
 theorem getD_max [TransCmp cmp] {he fallback} :
     t.getD (t.max he) fallback = t.max he :=
-  DTreeMap.getKeyD_maxKey
+  TreeMap.getKeyD_maxKey
 
 theorem max_erase_eq_iff_not_compare_eq_max [TransCmp cmp] {k he} :
     (t.erase k |>.max he) =
         t.max (isEmpty_eq_false_of_isEmpty_erase_eq_false he) ↔
       ¬ cmp k (t.max <| isEmpty_eq_false_of_isEmpty_erase_eq_false he) = .eq :=
-  DTreeMap.maxKey_erase_eq_iff_not_compare_eq_maxKey
+  TreeMap.maxKey_erase_eq_iff_not_compare_eq_maxKey
 
 theorem max_erase_eq_of_not_compare_eq_max [TransCmp cmp] {k he} :
     (hc : ¬ cmp k (t.max (isEmpty_eq_false_of_isEmpty_erase_eq_false he)) = .eq) →
     (t.erase k |>.max he) =
       t.max (isEmpty_eq_false_of_isEmpty_erase_eq_false he) :=
-  DTreeMap.maxKey_erase_eq_of_not_compare_eq_maxKey
+  TreeMap.maxKey_erase_eq_of_not_compare_eq_maxKey
 
 theorem max_erase_le_max [TransCmp cmp] {k he} :
     cmp (t.erase k |>.max he)
       (t.max <| isEmpty_eq_false_of_isEmpty_erase_eq_false he) |>.isLE :=
-  DTreeMap.maxKey_erase_le_maxKey
+  TreeMap.maxKey_erase_le_maxKey
+
+theorem max_eq_getLast_toList [TransCmp cmp] {he} :
+    t.max he = t.toList.getLast (List.isEmpty_eq_false_iff.mp <| isEmpty_toList ▸ he) :=
+  TreeMap.maxKey_eq_getLast_keys
 
 end Max
 

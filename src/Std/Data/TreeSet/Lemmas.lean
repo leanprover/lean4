@@ -1223,14 +1223,14 @@ theorem max_insert [TransCmp cmp] {k} :
       t.max?.elim k fun k' => if cmp k' k = .lt then k else k' :=
   DTreeMap.maxKey_insertIfNew
 
-theorem max_insert_le_max [TransCmp cmp] {k he} :
+theorem max_le_max_insert [TransCmp cmp] {k he} :
     cmp (t.max he)
       (t.insert k |>.max isEmpty_insert) |>.isLE :=
-  DTreeMap.maxKey_insertIfNew_le_maxKey
+  DTreeMap.maxKey_le_maxKey_insertIfNew
 
-theorem max_insert_le_self [TransCmp cmp] {k} :
+theorem self_le_max_insert [TransCmp cmp] {k} :
     cmp k (t.insert k |>.max <| isEmpty_insert) |>.isLE :=
-  DTreeMap.maxKey_insertIfNew_le_self
+  DTreeMap.self_le_maxKey_insertIfNew
 
 theorem contains_max [TransCmp cmp] {he} :
     t.contains (t.max he) :=
@@ -1240,17 +1240,17 @@ theorem max_mem [TransCmp cmp] {he} :
     t.max he ∈ t :=
   DTreeMap.maxKey_mem
 
-theorem max_le_of_contains [TransCmp cmp] {k} (hc : t.contains k) :
+theorem le_max_of_contains [TransCmp cmp] {k} (hc : t.contains k) :
     cmp k (t.max <| isEmpty_eq_false_iff_exists_contains_eq_true.mpr ⟨k, hc⟩) |>.isLE :=
-  DTreeMap.maxKey_le_of_contains hc
+  DTreeMap.le_maxKey_of_contains hc
 
-theorem max_le_of_mem [TransCmp cmp] {k} (hc : k ∈ t) :
+theorem le_max_of_mem [TransCmp cmp] {k} (hc : k ∈ t) :
     cmp k (t.max <| isEmpty_eq_false_iff_exists_contains_eq_true.mpr ⟨k, hc⟩) |>.isLE :=
-  DTreeMap.maxKey_le_of_mem hc
+  DTreeMap.le_maxKey_of_mem hc
 
-theorem le_max [TransCmp cmp] {k he} :
+theorem max_le [TransCmp cmp] {k he} :
     (cmp (t.max he) k).isLE ↔ (∀ k', k' ∈ t → (cmp k' k).isLE) :=
-  DTreeMap.le_maxKey
+  DTreeMap.maxKey_le
 
 theorem get?_max [TransCmp cmp] {he} :
     t.get? (t.max he) = some (t.max he) :=
@@ -1280,10 +1280,10 @@ theorem max_erase_eq_of_not_cmp_eq_max [TransCmp cmp] {k he} :
       t.max (isEmpty_eq_false_of_isEmpty_erase_eq_false he) :=
   DTreeMap.maxKey_erase_eq_of_not_compare_eq_maxKey
 
-theorem max_le_max_erase [TransCmp cmp] {k he} :
+theorem max_erase_le_max [TransCmp cmp] {k he} :
     cmp (t.erase k |>.max he)
       (t.max <| isEmpty_eq_false_of_isEmpty_erase_eq_false he) |>.isLE :=
-  DTreeMap.maxKey_le_maxKey_erase
+  DTreeMap.maxKey_erase_le_maxKey
 
 end Max
 

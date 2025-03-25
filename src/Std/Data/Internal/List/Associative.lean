@@ -5687,13 +5687,13 @@ theorem maxKey_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l 
   letI : Ord α := .opposite inferInstance
   minKey_insertEntry hd
 
-theorem maxKey_insertEntry_le_maxKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKey_le_maxKey_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v he} :
     compare (maxKey l he) (insertEntry k v l |> maxKey <| isEmpty_insertEntry) |>.isLE :=
   letI : Ord α := .opposite inferInstance
   minKey_insertEntry_le_minKey hd
 
-theorem maxKey_insertEntry_le_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem self_le_maxKey_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v} :
     compare k (insertEntry k v l |> maxKey <| isEmpty_insertEntry) |>.isLE :=
   letI : Ord α := .opposite inferInstance
@@ -5705,13 +5705,13 @@ theorem containsKey_maxKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
   letI : Ord α := .opposite inferInstance
   containsKey_minKey hd
 
-theorem maxKey_le_of_containsKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem le_maxKey_of_containsKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k} (hc : containsKey k l) :
     compare k (maxKey l <| isEmpty_eq_false_iff_exists_containsKey.mpr ⟨k, hc⟩) |>.isLE :=
   letI : Ord α := .opposite inferInstance
   minKey_le_of_containsKey hd hc
 
-theorem le_maxKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKey_le [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k he} :
     (compare (maxKey l he) k).isLE ↔ (∀ k', containsKey k' l → (compare k' k).isLE) :=
   letI : Ord α := .opposite inferInstance
@@ -5757,7 +5757,7 @@ theorem maxKey_eraseKey_eq_of_beq_maxKey_eq_false [Ord α] [TransOrd α] [BEq α
   letI : Ord α := .opposite inferInstance
   minKey_eraseKey_eq_of_beq_minKey_eq_false hd
 
-theorem maxKey_le_maxKey_erase [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKey_erase_le_maxKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k he} :
     compare (eraseKey k l |> maxKey <| he)
       (maxKey l <| isEmpty_eq_false_of_isEmpty_eraseKey_eq_false hd he) |>.isLE :=
@@ -5771,20 +5771,20 @@ theorem maxKey_insertEntryIfNew [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α
   letI : Ord α := .opposite inferInstance
   minKey_insertEntryIfNew hd
 
-theorem maxKey_insertEntryIfNew_le_maxKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKey_le_maxKey_insertEntryIfNew [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v he} :
     compare (maxKey l he)
       (insertEntryIfNew k v l |> maxKey <| isEmpty_insertEntryIfNew) |>.isLE :=
   letI : Ord α := .opposite inferInstance
   minKey_insertEntryIfNew_le_minKey hd
 
-theorem maxKey_insertEntryIfNew_le_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem self_le_maxKey_insertEntryIfNew [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v} :
     compare k (insertEntryIfNew k v l  |> maxKey <| isEmpty_insertEntryIfNew) |>.isLE :=
   letI : Ord α := .opposite inferInstance
   minKey_insertEntryIfNew_le_self hd
 
-theorem maxKey_eq_head_keys [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKey_eq_getLast_keys [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l)
     (ho : l.Pairwise fun a b => compare a.1 b.1 = .lt) {he} :
     maxKey l he = (keys l).getLast (by simp_all [keys_eq_map, List.isEmpty_eq_false_iff]) := by

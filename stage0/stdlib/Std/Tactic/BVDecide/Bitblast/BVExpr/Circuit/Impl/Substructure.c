@@ -14,27 +14,27 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Substructure_0__Std_Tactic_BVDecide_BVLogicalExpr_bitblast_go_match__3_splitter(lean_object*);
-lean_object* l_Std_Sat_AIG_mkOrCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__11(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_empty___at_Std_Tactic_BVDecide_BVLogicalExpr_bitblast___spec__1___closed__2;
 static lean_object* l_Std_Sat_AIG_empty___at_Std_Tactic_BVDecide_BVLogicalExpr_bitblast___spec__1___closed__3;
 lean_object* l_Nat_nextPowerOfTwo_go(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_Sat_AIG_mkIfCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__26(lean_object*, lean_object*);
+lean_object* l_Std_Sat_AIG_mkXorCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__13(lean_object*, lean_object*);
 lean_object* l_Std_Sat_AIG_mkGateCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__7(lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_BVLogicalExpr_bitblast_go___closed__1;
+lean_object* l_Std_Sat_AIG_mkOrCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__12(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Substructure_0__Std_Tactic_BVDecide_BVLogicalExpr_bitblast_go_match__3_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_empty___at_Std_Tactic_BVDecide_BVLogicalExpr_bitblast___spec__1;
 static lean_object* l_Std_Sat_AIG_empty___at_Std_Tactic_BVDecide_BVLogicalExpr_bitblast___spec__1___closed__1;
-lean_object* l_Std_Sat_AIG_mkXorCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__12(lean_object*, lean_object*);
 lean_object* l_Std_Sat_AIG_mkConstCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__3(lean_object*, uint8_t);
 lean_object* l_Std_Tactic_BVDecide_instDecidableEqBVBit___boxed(lean_object*, lean_object*);
+lean_object* l_Std_Sat_AIG_mkBEqCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__34(lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_empty___at_Std_Tactic_BVDecide_BVLogicalExpr_bitblast___spec__1___closed__4;
 static lean_object* l_Std_Sat_AIG_empty___at_Std_Tactic_BVDecide_BVLogicalExpr_bitblast___spec__1___closed__5;
 lean_object* l_Std_Tactic_BVDecide_BVPred_bitblast(lean_object*, lean_object*);
 lean_object* lean_array_mk(lean_object*);
-lean_object* l_Std_Sat_AIG_mkIfCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__25(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVLogicalExpr_bitblast_go(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVLogicalExpr_bitblast(lean_object*);
-lean_object* l_Std_Sat_AIG_mkBEqCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__33(lean_object*, lean_object*);
 static lean_object* _init_l_Std_Tactic_BVDecide_BVLogicalExpr_bitblast_go___closed__1() {
 _start:
 {
@@ -356,21 +356,21 @@ return x_71;
 case 1:
 {
 lean_object* x_78; 
-x_78 = l_Std_Sat_AIG_mkXorCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__12(x_76, x_73);
+x_78 = l_Std_Sat_AIG_mkXorCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__13(x_76, x_73);
 lean_ctor_set(x_71, 0, x_78);
 return x_71;
 }
 case 2:
 {
 lean_object* x_79; 
-x_79 = l_Std_Sat_AIG_mkBEqCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__33(x_76, x_73);
+x_79 = l_Std_Sat_AIG_mkBEqCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__34(x_76, x_73);
 lean_ctor_set(x_71, 0, x_79);
 return x_71;
 }
 default: 
 {
 lean_object* x_80; 
-x_80 = l_Std_Sat_AIG_mkOrCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__11(x_76, x_73);
+x_80 = l_Std_Sat_AIG_mkOrCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__12(x_76, x_73);
 lean_ctor_set(x_71, 0, x_80);
 return x_71;
 }
@@ -399,21 +399,21 @@ return x_71;
 case 1:
 {
 lean_object* x_86; 
-x_86 = l_Std_Sat_AIG_mkXorCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__12(x_81, x_73);
+x_86 = l_Std_Sat_AIG_mkXorCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__13(x_81, x_73);
 lean_ctor_set(x_71, 0, x_86);
 return x_71;
 }
 case 2:
 {
 lean_object* x_87; 
-x_87 = l_Std_Sat_AIG_mkBEqCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__33(x_81, x_73);
+x_87 = l_Std_Sat_AIG_mkBEqCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__34(x_81, x_73);
 lean_ctor_set(x_71, 0, x_87);
 return x_71;
 }
 default: 
 {
 lean_object* x_88; 
-x_88 = l_Std_Sat_AIG_mkOrCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__11(x_81, x_73);
+x_88 = l_Std_Sat_AIG_mkOrCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__12(x_81, x_73);
 lean_ctor_set(x_71, 0, x_88);
 return x_71;
 }
@@ -459,21 +459,21 @@ return x_71;
 case 1:
 {
 lean_object* x_97; 
-x_97 = l_Std_Sat_AIG_mkXorCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__12(x_89, x_95);
+x_97 = l_Std_Sat_AIG_mkXorCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__13(x_89, x_95);
 lean_ctor_set(x_71, 0, x_97);
 return x_71;
 }
 case 2:
 {
 lean_object* x_98; 
-x_98 = l_Std_Sat_AIG_mkBEqCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__33(x_89, x_95);
+x_98 = l_Std_Sat_AIG_mkBEqCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__34(x_89, x_95);
 lean_ctor_set(x_71, 0, x_98);
 return x_71;
 }
 default: 
 {
 lean_object* x_99; 
-x_99 = l_Std_Sat_AIG_mkOrCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__11(x_89, x_95);
+x_99 = l_Std_Sat_AIG_mkOrCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__12(x_89, x_95);
 lean_ctor_set(x_71, 0, x_99);
 return x_71;
 }
@@ -537,7 +537,7 @@ return x_111;
 case 1:
 {
 lean_object* x_112; lean_object* x_113; 
-x_112 = l_Std_Sat_AIG_mkXorCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__12(x_102, x_109);
+x_112 = l_Std_Sat_AIG_mkXorCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__13(x_102, x_109);
 x_113 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_113, 0, x_112);
 lean_ctor_set(x_113, 1, x_101);
@@ -546,7 +546,7 @@ return x_113;
 case 2:
 {
 lean_object* x_114; lean_object* x_115; 
-x_114 = l_Std_Sat_AIG_mkBEqCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__33(x_102, x_109);
+x_114 = l_Std_Sat_AIG_mkBEqCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__34(x_102, x_109);
 x_115 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_115, 0, x_114);
 lean_ctor_set(x_115, 1, x_101);
@@ -555,7 +555,7 @@ return x_115;
 default: 
 {
 lean_object* x_116; lean_object* x_117; 
-x_116 = l_Std_Sat_AIG_mkOrCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__11(x_102, x_109);
+x_116 = l_Std_Sat_AIG_mkOrCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__12(x_102, x_109);
 x_117 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_117, 0, x_116);
 lean_ctor_set(x_117, 1, x_101);
@@ -619,7 +619,7 @@ lean_ctor_set_tag(x_2, 0);
 lean_ctor_set(x_2, 2, x_136);
 lean_ctor_set(x_2, 1, x_131);
 lean_ctor_set(x_2, 0, x_126);
-x_139 = l_Std_Sat_AIG_mkIfCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__25(x_135, x_2);
+x_139 = l_Std_Sat_AIG_mkIfCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__26(x_135, x_2);
 lean_ctor_set(x_132, 0, x_139);
 return x_132;
 }
@@ -637,7 +637,7 @@ lean_ctor_set_tag(x_2, 0);
 lean_ctor_set(x_2, 2, x_136);
 lean_ctor_set(x_2, 1, x_142);
 lean_ctor_set(x_2, 0, x_126);
-x_143 = l_Std_Sat_AIG_mkIfCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__25(x_135, x_2);
+x_143 = l_Std_Sat_AIG_mkIfCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__26(x_135, x_2);
 lean_ctor_set(x_132, 0, x_143);
 return x_132;
 }
@@ -673,7 +673,7 @@ lean_ctor_set_tag(x_2, 0);
 lean_ctor_set(x_2, 2, x_136);
 lean_ctor_set(x_2, 1, x_150);
 lean_ctor_set(x_2, 0, x_146);
-x_151 = l_Std_Sat_AIG_mkIfCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__25(x_135, x_2);
+x_151 = l_Std_Sat_AIG_mkIfCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__26(x_135, x_2);
 lean_ctor_set(x_132, 0, x_151);
 return x_132;
 }
@@ -729,7 +729,7 @@ lean_ctor_set_tag(x_2, 0);
 lean_ctor_set(x_2, 2, x_155);
 lean_ctor_set(x_2, 1, x_163);
 lean_ctor_set(x_2, 0, x_159);
-x_164 = l_Std_Sat_AIG_mkIfCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__25(x_154, x_2);
+x_164 = l_Std_Sat_AIG_mkIfCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__26(x_154, x_2);
 x_165 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_165, 0, x_164);
 lean_ctor_set(x_165, 1, x_153);
@@ -824,7 +824,7 @@ x_193 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_193, 0, x_188);
 lean_ctor_set(x_193, 1, x_192);
 lean_ctor_set(x_193, 2, x_184);
-x_194 = l_Std_Sat_AIG_mkIfCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__25(x_183, x_193);
+x_194 = l_Std_Sat_AIG_mkIfCached___at_Std_Tactic_BVDecide_BVExpr_bitblast_go___spec__26(x_183, x_193);
 if (lean_is_scalar(x_182)) {
  x_195 = lean_alloc_ctor(0, 2, 0);
 } else {

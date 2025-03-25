@@ -33,6 +33,7 @@ LEAN_EXPORT lean_object* l_BitVec_instAndOp(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_neg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instHShiftRightNat(lean_object*);
 static lean_object* l_BitVec_term_____x23_______closed__21;
+LEAN_EXPORT uint8_t l_BitVec_usubOverflow___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_smtSDiv___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_smod___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_replicate(lean_object*, lean_object*, lean_object*);
@@ -47,6 +48,7 @@ static lean_object* l_BitVec_term_____x23_______closed__10;
 static lean_object* l_BitVec_term_____x23_x27_______closed__2;
 LEAN_EXPORT lean_object* l_BitVec_append___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_BitVec_getMsbD(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_usubOverflow___boxed(lean_object*);
 static lean_object* l_BitVec___aux__Init__Data__BitVec__Basic______macroRules__BitVec__term_____x23_x27______1___closed__1;
 LEAN_EXPORT lean_object* l_BitVec_term_____x23_x27____;
 LEAN_EXPORT lean_object* l_BitVec_rotateRightAux___boxed(lean_object*, lean_object*, lean_object*);
@@ -106,6 +108,7 @@ static lean_object* l_BitVec___aux__Init__Data__BitVec__Basic______macroRules__B
 static lean_object* l_BitVec___aux__Init__Data__BitVec__Basic______macroRules__BitVec__term_____x23______1___closed__4;
 LEAN_EXPORT lean_object* l_BitVec_instInhabited___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_concat___rarg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_usubOverflow(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_getLsbD(lean_object*);
 static lean_object* l_BitVec___aux__Init__Data__BitVec__Basic______macroRules__BitVec__term_____x23_x27______1___closed__6;
 LEAN_EXPORT lean_object* l_BitVec_ofBoolListLE(lean_object*);
@@ -130,6 +133,7 @@ static lean_object* l_BitVec_term_____x23_x27_______closed__4;
 LEAN_EXPORT lean_object* l_BitVec_getLsb_x27(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instHShiftLeftNat(lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_ssubOverflow___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_toHex___boxed(lean_object*, lean_object*);
 static lean_object* l_BitVec_term_____x23_x27_______closed__5;
 static lean_object* l_BitVec___aux__Init__Data__BitVec__Basic______macroRules__BitVec__term_____x23______1___closed__5;
@@ -214,7 +218,9 @@ static lean_object* l_BitVec_saddOverflow___closed__1;
 LEAN_EXPORT lean_object* l_BitVec_instXor(lean_object*);
 lean_object* l_Int_shiftRight(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_cast(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_usubOverflow___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Nat_toDigits(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_BitVec_ssubOverflow(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_instHShiftLeft(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_BitVec_term_____x23_______closed__9;
 LEAN_EXPORT lean_object* l_BitVec_twoPow(lean_object*, lean_object*);
@@ -3711,6 +3717,87 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_BitVec_saddOverflow(x_1, x_2, x_3);
+lean_dec(x_1);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
+LEAN_EXPORT uint8_t l_BitVec_usubOverflow___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = lean_nat_dec_lt(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_usubOverflow(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_BitVec_usubOverflow___rarg___boxed), 2, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_usubOverflow___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_BitVec_usubOverflow___rarg(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_usubOverflow___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_BitVec_usubOverflow(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT uint8_t l_BitVec_ssubOverflow(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+x_4 = lean_unsigned_to_nat(1u);
+x_5 = lean_nat_sub(x_1, x_4);
+x_6 = l_BitVec_saddOverflow___closed__1;
+x_7 = l_Int_pow(x_6, x_5);
+lean_dec(x_5);
+x_8 = l_BitVec_toInt(x_1, x_2);
+x_9 = l_BitVec_toInt(x_1, x_3);
+x_10 = lean_int_sub(x_8, x_9);
+lean_dec(x_9);
+lean_dec(x_8);
+x_11 = lean_int_dec_le(x_7, x_10);
+if (x_11 == 0)
+{
+lean_object* x_12; uint8_t x_13; 
+x_12 = lean_int_neg(x_7);
+lean_dec(x_7);
+x_13 = lean_int_dec_lt(x_10, x_12);
+lean_dec(x_12);
+lean_dec(x_10);
+return x_13;
+}
+else
+{
+uint8_t x_14; 
+lean_dec(x_10);
+lean_dec(x_7);
+x_14 = 1;
+return x_14;
+}
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_ssubOverflow___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_BitVec_ssubOverflow(x_1, x_2, x_3);
 lean_dec(x_1);
 x_5 = lean_box(x_4);
 return x_5;

@@ -14,48 +14,49 @@
 extern "C" {
 #endif
 static lean_object* l_Lean_Language_instInhabitedDynamicSnapshot___closed__5;
-static lean_object* l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__3;
+static lean_object* l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__1;
 lean_object* l_Lean_Json_compress(lean_object*);
 lean_object* l_Lean_MessageData_kind(lean_object*);
+static lean_object* l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__3;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 size_t lean_usize_shift_right(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Language_printMessageEndPos;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldM___at_Lean_Language_SnapshotTree_runAndReport___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__36;
 LEAN_EXPORT lean_object* l_Lean_Language_instInhabitedDynamicSnapshot;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_cancelRec(lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__33;
 LEAN_EXPORT lean_object* l_Lean_Language_DynamicSnapshot_toTyped_x3f___rarg___boxed(lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__26;
 LEAN_EXPORT lean_object* l_Lean_Language_mkIncrementalProcessor___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Snapshot_Diagnostics_ofMessageLog(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_DynamicSnapshot_toTyped_x3f___rarg(lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__30;
 static lean_object* l_Lean_Language_diagnosticsOfHeaderError___closed__2;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_reportMessages___spec__5___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 static uint64_t l_Lean_Language_instInhabitedSnapshot___closed__1;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__5;
 lean_object* lean_io_as_task(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-static lean_object* l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__1;
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__10;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__26;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_reportMessages___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_ofIO(lean_object*);
-static lean_object* l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_895____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Language_DynamicSnapshot_ofTyped___at_Lean_Language_instInhabitedDynamicSnapshot___spec__1(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__40;
 LEAN_EXPORT lean_object* l_Lean_Language_DynamicSnapshot_toTyped_x3f(lean_object*);
 static lean_object* l_Lean_Language_instInhabitedDynamicSnapshot___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_ofIO___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__33;
 static lean_object* l_Lean_Language_Snapshot_Diagnostics_empty___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_reportMessages___spec__8(uint8_t, lean_object*, uint8_t, lean_object*, size_t, size_t, uint8_t, lean_object*);
 static lean_object* l_Lean_Language_instInhabitedSnapshot___closed__3;
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__23;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__22;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__21;
 static lean_object* l_Lean_Language_reportMessages___closed__1;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__30;
 LEAN_EXPORT lean_object* l_Lean_Language_instToSnapshotTreeDynamicSnapshot(lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__9;
 static lean_object* l_Lean_Language_withHeaderExceptions___rarg___closed__2;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_bindIO___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_reportMessages___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_SnapshotTask_cancelRec___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -67,77 +68,82 @@ LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_getAll(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_forM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_reportMessages___spec__12(uint8_t, lean_object*, uint8_t, lean_object*, size_t, size_t, uint8_t, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Language_instInhabitedDynamicSnapshot___lambda__1(lean_object*);
+static lean_object* l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__2;
 static lean_object* l_Lean_Language_instInhabitedSnapshot___closed__4;
 lean_object* lean_string_utf8_byte_size(lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__25;
 LEAN_EXPORT lean_object* l_Lean_Language_withHeaderExceptions___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__2;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__32;
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_Lean_Language_reportMessages___spec__10(uint8_t, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__20;
+static lean_object* l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_891____closed__1;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__10;
 size_t lean_usize_of_nat(lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__36;
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__34;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_bindIO(lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__19;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__11;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_SnapshotTask_cancelRec___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_task_pure(lean_object*);
 static lean_object* l_Lean_Language_instInhabitedDynamicSnapshot___closed__7;
 static lean_object* l_Lean_Language_instToSnapshotTreeSnapshotLeaf___closed__1;
 static size_t l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__3;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__1;
 static lean_object* l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_runAndReport(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_runAndReport___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Language_instInhabitedSnapshotTree___closed__1;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__14;
 static lean_object* l_Lean_Language_diagnosticsOfHeaderError___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldM___at_Lean_Language_SnapshotTree_getAll___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Language_instInhabitedDynamicSnapshot___closed__8;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__23;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_waitAll(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_cancelRec___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_reportMessages___spec__5___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_DynamicSnapshot_ofTyped___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_reportMessages___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__21;
+static lean_object* l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Language_instInhabitedSnapshotTree;
 LEAN_EXPORT lean_object* l_Lean_Language_reportMessages(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_instToSnapshotTreeOption___rarg(lean_object*, lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__18;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_forM___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_map___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_strict_or(uint8_t, uint8_t);
-static lean_object* l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Language_instToSnapshotTreeSnapshotTree(lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__19;
 static lean_object* l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Language_instMonadLiftProcessingMProcessingTIO(lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__4;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 static lean_object* l_Lean_Language_instInhabitedDynamicSnapshot___closed__6;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_SnapshotTree_runAndReport___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_cancelRec___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___auto____x40_Lean_Language_Basic___hyg_62_;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_reportMessages___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at_Lean_Language_reportMessages___spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Language_instToSnapshotTreeSnapshotTree___boxed(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_get_x3f(lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__16;
 LEAN_EXPORT lean_object* l_Lean_Language_mkIncrementalProcessor(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_finished(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__13;
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__17;
 uint64_t lean_uint64_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_forM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__5;
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__1;
-static lean_object* l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__2;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__17;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__16;
 static lean_object* l_Lean_Language_instInhabitedDynamicSnapshot___closed__3;
 static lean_object* l_Lean_Language_withHeaderExceptions___rarg___closed__3;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__34;
 static lean_object* l_Lean_Language_instInhabitedDynamicSnapshot___closed__1;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__39;
+static lean_object* l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__4;
 lean_object* lean_thunk_get_own(lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__22;
 LEAN_EXPORT lean_object* l_Lean_Language_diagnosticsOfHeaderError(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_print___at_IO_println___spec__1(lean_object*, lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__15;
 extern lean_object* l_Task_Priority_default;
-static lean_object* l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_895____closed__2;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__27;
 LEAN_EXPORT lean_object* l_Lean_Language_instInhabitedSnapshotTask___rarg(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__1;
@@ -145,19 +151,17 @@ LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_cancelRec___rarg___lambda_
 extern lean_object* l_Lean_MessageLog_empty;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_defaultReportingRange_x3f___boxed(lean_object*);
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__29;
-static lean_object* l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__5;
 LEAN_EXPORT lean_object* l_Lean_Language_instInhabitedSnapshot;
 LEAN_EXPORT lean_object* l_Lean_Language_instToSnapshotTreeOption(lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__5;
+LEAN_EXPORT lean_object* l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_891_;
 LEAN_EXPORT lean_object* l_Lean_Language_Snapshot_Diagnostics_empty;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_reportMessages___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__7;
 LEAN_EXPORT lean_object* l_Lean_Language_DynamicSnapshot_ofTyped(lean_object*);
 lean_object* lean_task_get_own(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_waitAll_go(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_reportMessages___spec__9(uint8_t, lean_object*, uint8_t, lean_object*, size_t, size_t, uint8_t, lean_object*);
 static lean_object* l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__4;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__28;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_reportMessages___spec__6(uint8_t, lean_object*, uint8_t, lean_object*, size_t, size_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_instToSnapshotTreeDynamicSnapshot___boxed(lean_object*);
 static lean_object* l_Lean_Language_instInhabitedDynamicSnapshot___closed__4;
@@ -168,62 +172,63 @@ LEAN_EXPORT lean_object* l_Lean_Language_mkIncrementalProcessor___elambda__1___r
 lean_object* lean_mk_thunk(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_SnapshotTree_getAll___spec__2(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_Lean_Language_reportMessages___spec__3(uint8_t, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_895_;
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__11;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Language_mkIncrementalProcessor___elambda__1(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_SnapshotTree_getAll___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__8;
 static lean_object* l_Lean_Language_SnapshotTree_waitAll_go___closed__1;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Language_instMonadLiftProcessingMProcessingTIO___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_reportMessages___spec__13(uint8_t, lean_object*, uint8_t, lean_object*, size_t, size_t, uint8_t, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__4;
+LEAN_EXPORT lean_object* l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183_(lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__31;
 LEAN_EXPORT lean_object* l_Lean_Language_DynamicSnapshot_ofTyped___at_Lean_Language_instInhabitedDynamicSnapshot___spec__1___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_reportMessages___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_reportMessages___spec__5(uint8_t, lean_object*, uint8_t, lean_object*, size_t, size_t, uint8_t, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__39;
 extern lean_object* l_Lean_NameSet_empty;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_map(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_forM(lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__35;
 lean_object* l_IO_println___at_Lean_Environment_displayStats___spec__3(lean_object*, lean_object*);
 static lean_object* l_Lean_Language_withHeaderExceptions___rarg___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187_(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__37;
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__41;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_cancelRec___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_withHeaderExceptions(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__27;
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__25;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__29;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_defaultReportingRange_x3f(lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_get_x3f___rarg(lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__12;
+static lean_object* l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__5;
+static lean_object* l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__3;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_get(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_bindIO___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_instInhabitedSnapshotTask(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662_;
 lean_object* lean_io_get_task_state(lean_object*, lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_DynamicSnapshot_ofTyped___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__4;
+static lean_object* l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_891____closed__2;
 LEAN_EXPORT lean_object* l_Lean_Language_instTypeNameSnapshotTree;
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__37;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_waitAll_go___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__38;
 lean_object* lean_io_bind_task(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__2;
 lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__31;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_finished___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Language_instInhabitedSnapshot___closed__2;
 static lean_object* l_Lean_Language_instInhabitedDynamicSnapshot___closed__9;
 size_t lean_usize_sub(size_t, size_t);
 lean_object* lean_array_mk(lean_object*);
+static lean_object* l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__2;
 LEAN_EXPORT lean_object* l_Lean_Language_DynamicSnapshot_ofTyped___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__40;
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at_Lean_Language_reportMessages___spec__2(uint8_t, lean_object*, uint8_t, lean_object*, size_t, size_t, uint8_t, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__18;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldM___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_map___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_foldlM___at_Lean_Language_reportMessages___spec__1(uint8_t, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -231,50 +236,45 @@ lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_reportMessages___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_Lean_Language_reportMessages___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__24;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_get___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_reportMessages___spec__11(uint8_t, lean_object*, uint8_t, lean_object*, size_t, size_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_mkIncrementalProcessor___elambda__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__28;
-static lean_object* l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__3;
 size_t lean_usize_shift_left(size_t, size_t);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at_Lean_Language_reportMessages___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__24;
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__3;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_SnapshotTree_runAndReport___spec__2(lean_object*, uint8_t, lean_object*, lean_object*, size_t, size_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_forM___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_instToSnapshotTreeSnapshotLeaf(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldM___at_Lean_Language_SnapshotTree_runAndReport___spec__1(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__2;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_reportMessages___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__32;
+LEAN_EXPORT lean_object* l_Lean_Language_Snapshot_desc___autoParam;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_reportMessages___spec__7(uint8_t, lean_object*, uint8_t, lean_object*, size_t, size_t, uint8_t, lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__20;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_BaseIO_chainTask___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_bindIO___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_Lean_Language_reportMessages___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_DynamicSnapshot_ofTyped___at_Lean_Language_instInhabitedDynamicSnapshot___spec__1___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(lean_object*, lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__9;
 lean_object* lean_nat_add(lean_object*, lean_object*);
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__41;
+static lean_object* l_Lean_Language_Snapshot_desc___autoParam___closed__38;
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_SnapshotTask_cancelRec___spec__1___closed__1;
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__6;
 LEAN_EXPORT lean_object* l_Lean_Language_reportMessages___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__15;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_waitAll_go___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_foldlM___at_Lean_Language_reportMessages___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__14;
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldM(lean_object*, lean_object*);
-static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__35;
 lean_object* l___private_Init_Dynamic_0__Dynamic_get_x3fImpl___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_forM___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666_;
 lean_object* l_Lean_Message_toString(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_instTypeNameSnapshotLeaf;
 lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_Profile___hyg_5____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -376,7 +376,7 @@ x_1 = l_Lean_Language_Snapshot_Diagnostics_empty___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__1() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -384,7 +384,7 @@ x_1 = lean_mk_string_unchecked("Lean", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__2() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -392,7 +392,7 @@ x_1 = lean_mk_string_unchecked("Parser", 6, 6);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__3() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -400,7 +400,7 @@ x_1 = lean_mk_string_unchecked("Tactic", 6, 6);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__4() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -408,19 +408,19 @@ x_1 = lean_mk_string_unchecked("tacticSeq", 9, 9);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__5() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__1;
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__2;
-x_3 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__3;
-x_4 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__4;
+x_1 = l_Lean_Language_Snapshot_desc___autoParam___closed__1;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__2;
+x_3 = l_Lean_Language_Snapshot_desc___autoParam___closed__3;
+x_4 = l_Lean_Language_Snapshot_desc___autoParam___closed__4;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__6() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -428,19 +428,19 @@ x_1 = lean_mk_string_unchecked("tacticSeq1Indented", 18, 18);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__7() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__1;
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__2;
-x_3 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__3;
-x_4 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__6;
+x_1 = l_Lean_Language_Snapshot_desc___autoParam___closed__1;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__2;
+x_3 = l_Lean_Language_Snapshot_desc___autoParam___closed__3;
+x_4 = l_Lean_Language_Snapshot_desc___autoParam___closed__6;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__8() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -448,17 +448,17 @@ x_1 = lean_mk_string_unchecked("null", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__9() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__8;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__8;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__10() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__10() {
 _start:
 {
 lean_object* x_1; 
@@ -466,41 +466,41 @@ x_1 = lean_mk_string_unchecked("exact", 5, 5);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__11() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__1;
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__2;
-x_3 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__3;
-x_4 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__10;
+x_1 = l_Lean_Language_Snapshot_desc___autoParam___closed__1;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__2;
+x_3 = l_Lean_Language_Snapshot_desc___autoParam___closed__3;
+x_4 = l_Lean_Language_Snapshot_desc___autoParam___closed__10;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__12() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(2);
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__10;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__10;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__13() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__1;
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__12;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__12;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__14() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__14() {
 _start:
 {
 lean_object* x_1; 
@@ -508,7 +508,7 @@ x_1 = lean_mk_string_unchecked("Term", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__15() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__15() {
 _start:
 {
 lean_object* x_1; 
@@ -516,19 +516,19 @@ x_1 = lean_mk_string_unchecked("proj", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__16() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__1;
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__2;
-x_3 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__14;
-x_4 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__15;
+x_1 = l_Lean_Language_Snapshot_desc___autoParam___closed__1;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__2;
+x_3 = l_Lean_Language_Snapshot_desc___autoParam___closed__14;
+x_4 = l_Lean_Language_Snapshot_desc___autoParam___closed__15;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__17() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__17() {
 _start:
 {
 lean_object* x_1; 
@@ -536,19 +536,19 @@ x_1 = lean_mk_string_unchecked("declName", 8, 8);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__18() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__18() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__1;
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__2;
-x_3 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__14;
-x_4 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__17;
+x_1 = l_Lean_Language_Snapshot_desc___autoParam___closed__1;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__2;
+x_3 = l_Lean_Language_Snapshot_desc___autoParam___closed__14;
+x_4 = l_Lean_Language_Snapshot_desc___autoParam___closed__17;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__19() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__19() {
 _start:
 {
 lean_object* x_1; 
@@ -556,35 +556,35 @@ x_1 = lean_mk_string_unchecked("decl_name%", 10, 10);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__20() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__20() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(2);
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__19;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__19;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__21() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__21() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__1;
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__20;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__20;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__22() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__22() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(2);
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__18;
-x_3 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__21;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__18;
+x_3 = l_Lean_Language_Snapshot_desc___autoParam___closed__21;
 x_4 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -592,17 +592,17 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__23() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__23() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__1;
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__22;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__22;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__24() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__24() {
 _start:
 {
 lean_object* x_1; 
@@ -610,29 +610,29 @@ x_1 = lean_mk_string_unchecked(".", 1, 1);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__25() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__25() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(2);
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__24;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__24;
 x_3 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__26() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__26() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__23;
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__25;
+x_1 = l_Lean_Language_Snapshot_desc___autoParam___closed__23;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__25;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__27() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__27() {
 _start:
 {
 lean_object* x_1; 
@@ -640,22 +640,22 @@ x_1 = lean_mk_string_unchecked("toString", 8, 8);
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__28() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__28() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__27;
+x_1 = l_Lean_Language_Snapshot_desc___autoParam___closed__27;
 x_2 = lean_string_utf8_byte_size(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__29() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__29() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__27;
+x_1 = l_Lean_Language_Snapshot_desc___autoParam___closed__27;
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__28;
+x_3 = l_Lean_Language_Snapshot_desc___autoParam___closed__28;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -663,24 +663,24 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__30() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__30() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__27;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__27;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__31() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__31() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = lean_box(0);
 x_2 = lean_box(2);
-x_3 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__29;
-x_4 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__30;
+x_3 = l_Lean_Language_Snapshot_desc___autoParam___closed__29;
+x_4 = l_Lean_Language_Snapshot_desc___autoParam___closed__30;
 x_5 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_5, 0, x_2);
 lean_ctor_set(x_5, 1, x_3);
@@ -689,23 +689,23 @@ lean_ctor_set(x_5, 3, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__32() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__32() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__26;
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__31;
+x_1 = l_Lean_Language_Snapshot_desc___autoParam___closed__26;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__31;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__33() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__33() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(2);
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__16;
-x_3 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__32;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__16;
+x_3 = l_Lean_Language_Snapshot_desc___autoParam___closed__32;
 x_4 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -713,23 +713,23 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__34() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__34() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__13;
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__33;
+x_1 = l_Lean_Language_Snapshot_desc___autoParam___closed__13;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__33;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__35() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__35() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(2);
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__11;
-x_3 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__34;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__11;
+x_3 = l_Lean_Language_Snapshot_desc___autoParam___closed__34;
 x_4 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -737,47 +737,23 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__36() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__1;
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__35;
-x_3 = lean_array_push(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__37() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_box(2);
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__9;
-x_3 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__36;
-x_4 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__38() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__36() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__1;
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__37;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__35;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__39() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__37() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(2);
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__7;
-x_3 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__38;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__9;
+x_3 = l_Lean_Language_Snapshot_desc___autoParam___closed__36;
 x_4 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -785,23 +761,23 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__40() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__38() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__1;
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__39;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__37;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__41() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__39() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(2);
-x_2 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__5;
-x_3 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__40;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__7;
+x_3 = l_Lean_Language_Snapshot_desc___autoParam___closed__38;
 x_4 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -809,11 +785,35 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Language_Basic___hyg_62_() {
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__40() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Language_Snapshot_instInhabitedDiagnostics___closed__1;
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__39;
+x_3 = lean_array_push(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam___closed__41() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = lean_box(2);
+x_2 = l_Lean_Language_Snapshot_desc___autoParam___closed__5;
+x_3 = l_Lean_Language_Snapshot_desc___autoParam___closed__40;
+x_4 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Language_Snapshot_desc___autoParam() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__41;
+x_1 = l_Lean_Language_Snapshot_desc___autoParam___closed__41;
 return x_1;
 }
 }
@@ -1373,7 +1373,7 @@ x_1 = l_Lean_Language_instInhabitedSnapshotTree___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__1() {
+static lean_object* _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1381,7 +1381,7 @@ x_1 = lean_mk_string_unchecked("Language", 8, 8);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__2() {
+static lean_object* _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1389,22 +1389,22 @@ x_1 = lean_mk_string_unchecked("SnapshotTree", 12, 12);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__3() {
+static lean_object* _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__1;
-x_2 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__1;
-x_3 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__2;
+x_1 = l_Lean_Language_Snapshot_desc___autoParam___closed__1;
+x_2 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__1;
+x_3 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__2;
 x_4 = l_Lean_Name_mkStr3(x_1, x_2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666_() {
+static lean_object* _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662_() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__3;
+x_1 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__3;
 return x_1;
 }
 }
@@ -1412,7 +1412,7 @@ static lean_object* _init_l_Lean_Language_instTypeNameSnapshotTree() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666_;
+x_1 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662_;
 return x_1;
 }
 }
@@ -1687,7 +1687,7 @@ lean_dec(x_3);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_895____closed__1() {
+static lean_object* _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_891____closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1695,22 +1695,22 @@ x_1 = lean_mk_string_unchecked("SnapshotLeaf", 12, 12);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_895____closed__2() {
+static lean_object* _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_891____closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__1;
-x_2 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__1;
-x_3 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_895____closed__1;
+x_1 = l_Lean_Language_Snapshot_desc___autoParam___closed__1;
+x_2 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__1;
+x_3 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_891____closed__1;
 x_4 = l_Lean_Name_mkStr3(x_1, x_2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_895_() {
+static lean_object* _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_891_() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_895____closed__2;
+x_1 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_891____closed__2;
 return x_1;
 }
 }
@@ -1718,7 +1718,7 @@ static lean_object* _init_l_Lean_Language_instTypeNameSnapshotLeaf() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_895_;
+x_1 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_891_;
 return x_1;
 }
 }
@@ -1878,8 +1878,8 @@ static lean_object* _init_l_Lean_Language_instInhabitedDynamicSnapshot___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__1;
-x_2 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__1;
+x_1 = l_Lean_Language_Snapshot_desc___autoParam___closed__1;
+x_2 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__1;
 x_3 = l_Lean_Language_instInhabitedDynamicSnapshot___closed__1;
 x_4 = l_Lean_Name_mkStr3(x_1, x_2, x_3);
 return x_4;
@@ -2210,7 +2210,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_foldM___rarg), 4, 
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__1() {
+static lean_object* _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2218,17 +2218,17 @@ x_1 = lean_mk_string_unchecked("printMessageEndPos", 18, 18);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__2() {
+static lean_object* _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__1;
+x_2 = l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__1;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__3() {
+static lean_object* _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -2236,13 +2236,13 @@ x_1 = lean_mk_string_unchecked("print end position of each message in addition t
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__4() {
+static lean_object* _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__4() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = 0;
 x_2 = l_Lean_Language_instInhabitedSnapshot___closed__3;
-x_3 = l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__3;
+x_3 = l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__3;
 x_4 = lean_box(x_1);
 x_5 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_5, 0, x_4);
@@ -2251,24 +2251,24 @@ lean_ctor_set(x_5, 2, x_3);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__5() {
+static lean_object* _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__1;
-x_2 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__1;
-x_3 = l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__1;
+x_1 = l_Lean_Language_Snapshot_desc___autoParam___closed__1;
+x_2 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__1;
+x_3 = l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__1;
 x_4 = l_Lean_Name_mkStr3(x_1, x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__2;
-x_3 = l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__4;
-x_4 = l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__5;
+x_2 = l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__2;
+x_3 = l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__4;
+x_4 = l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__5;
 x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_Profile___hyg_5____spec__1(x_2, x_3, x_4, x_1);
 return x_5;
 }
@@ -5493,8 +5493,8 @@ static lean_object* _init_l_Lean_Language_withHeaderExceptions___rarg___closed__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l___auto____x40_Lean_Language_Basic___hyg_62____closed__1;
-x_2 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__1;
+x_1 = l_Lean_Language_Snapshot_desc___autoParam___closed__1;
+x_2 = l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__1;
 x_3 = l_Lean_Language_withHeaderExceptions___rarg___closed__1;
 x_4 = l_Lean_Name_mkStr3(x_1, x_2, x_3);
 return x_4;
@@ -5876,90 +5876,90 @@ l_Lean_Language_Snapshot_Diagnostics_empty___closed__1 = _init_l_Lean_Language_S
 lean_mark_persistent(l_Lean_Language_Snapshot_Diagnostics_empty___closed__1);
 l_Lean_Language_Snapshot_Diagnostics_empty = _init_l_Lean_Language_Snapshot_Diagnostics_empty();
 lean_mark_persistent(l_Lean_Language_Snapshot_Diagnostics_empty);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__1 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__1();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__1);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__2 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__2();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__2);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__3 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__3();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__3);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__4 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__4();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__4);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__5 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__5();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__5);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__6 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__6();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__6);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__7 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__7();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__7);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__8 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__8();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__8);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__9 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__9();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__9);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__10 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__10();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__10);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__11 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__11();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__11);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__12 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__12();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__12);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__13 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__13();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__13);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__14 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__14();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__14);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__15 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__15();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__15);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__16 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__16();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__16);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__17 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__17();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__17);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__18 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__18();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__18);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__19 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__19();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__19);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__20 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__20();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__20);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__21 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__21();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__21);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__22 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__22();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__22);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__23 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__23();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__23);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__24 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__24();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__24);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__25 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__25();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__25);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__26 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__26();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__26);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__27 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__27();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__27);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__28 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__28();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__28);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__29 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__29();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__29);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__30 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__30();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__30);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__31 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__31();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__31);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__32 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__32();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__32);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__33 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__33();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__33);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__34 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__34();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__34);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__35 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__35();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__35);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__36 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__36();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__36);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__37 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__37();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__37);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__38 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__38();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__38);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__39 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__39();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__39);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__40 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__40();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__40);
-l___auto____x40_Lean_Language_Basic___hyg_62____closed__41 = _init_l___auto____x40_Lean_Language_Basic___hyg_62____closed__41();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62____closed__41);
-l___auto____x40_Lean_Language_Basic___hyg_62_ = _init_l___auto____x40_Lean_Language_Basic___hyg_62_();
-lean_mark_persistent(l___auto____x40_Lean_Language_Basic___hyg_62_);
+l_Lean_Language_Snapshot_desc___autoParam___closed__1 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__1();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__1);
+l_Lean_Language_Snapshot_desc___autoParam___closed__2 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__2();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__2);
+l_Lean_Language_Snapshot_desc___autoParam___closed__3 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__3();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__3);
+l_Lean_Language_Snapshot_desc___autoParam___closed__4 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__4();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__4);
+l_Lean_Language_Snapshot_desc___autoParam___closed__5 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__5();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__5);
+l_Lean_Language_Snapshot_desc___autoParam___closed__6 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__6();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__6);
+l_Lean_Language_Snapshot_desc___autoParam___closed__7 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__7();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__7);
+l_Lean_Language_Snapshot_desc___autoParam___closed__8 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__8();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__8);
+l_Lean_Language_Snapshot_desc___autoParam___closed__9 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__9();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__9);
+l_Lean_Language_Snapshot_desc___autoParam___closed__10 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__10();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__10);
+l_Lean_Language_Snapshot_desc___autoParam___closed__11 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__11();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__11);
+l_Lean_Language_Snapshot_desc___autoParam___closed__12 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__12();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__12);
+l_Lean_Language_Snapshot_desc___autoParam___closed__13 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__13();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__13);
+l_Lean_Language_Snapshot_desc___autoParam___closed__14 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__14();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__14);
+l_Lean_Language_Snapshot_desc___autoParam___closed__15 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__15();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__15);
+l_Lean_Language_Snapshot_desc___autoParam___closed__16 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__16();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__16);
+l_Lean_Language_Snapshot_desc___autoParam___closed__17 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__17();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__17);
+l_Lean_Language_Snapshot_desc___autoParam___closed__18 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__18();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__18);
+l_Lean_Language_Snapshot_desc___autoParam___closed__19 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__19();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__19);
+l_Lean_Language_Snapshot_desc___autoParam___closed__20 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__20();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__20);
+l_Lean_Language_Snapshot_desc___autoParam___closed__21 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__21();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__21);
+l_Lean_Language_Snapshot_desc___autoParam___closed__22 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__22();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__22);
+l_Lean_Language_Snapshot_desc___autoParam___closed__23 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__23();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__23);
+l_Lean_Language_Snapshot_desc___autoParam___closed__24 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__24();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__24);
+l_Lean_Language_Snapshot_desc___autoParam___closed__25 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__25();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__25);
+l_Lean_Language_Snapshot_desc___autoParam___closed__26 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__26();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__26);
+l_Lean_Language_Snapshot_desc___autoParam___closed__27 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__27();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__27);
+l_Lean_Language_Snapshot_desc___autoParam___closed__28 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__28();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__28);
+l_Lean_Language_Snapshot_desc___autoParam___closed__29 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__29();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__29);
+l_Lean_Language_Snapshot_desc___autoParam___closed__30 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__30();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__30);
+l_Lean_Language_Snapshot_desc___autoParam___closed__31 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__31();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__31);
+l_Lean_Language_Snapshot_desc___autoParam___closed__32 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__32();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__32);
+l_Lean_Language_Snapshot_desc___autoParam___closed__33 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__33();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__33);
+l_Lean_Language_Snapshot_desc___autoParam___closed__34 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__34();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__34);
+l_Lean_Language_Snapshot_desc___autoParam___closed__35 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__35();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__35);
+l_Lean_Language_Snapshot_desc___autoParam___closed__36 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__36();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__36);
+l_Lean_Language_Snapshot_desc___autoParam___closed__37 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__37();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__37);
+l_Lean_Language_Snapshot_desc___autoParam___closed__38 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__38();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__38);
+l_Lean_Language_Snapshot_desc___autoParam___closed__39 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__39();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__39);
+l_Lean_Language_Snapshot_desc___autoParam___closed__40 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__40();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__40);
+l_Lean_Language_Snapshot_desc___autoParam___closed__41 = _init_l_Lean_Language_Snapshot_desc___autoParam___closed__41();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam___closed__41);
+l_Lean_Language_Snapshot_desc___autoParam = _init_l_Lean_Language_Snapshot_desc___autoParam();
+lean_mark_persistent(l_Lean_Language_Snapshot_desc___autoParam);
 l_Lean_Language_instInhabitedSnapshot___closed__1 = _init_l_Lean_Language_instInhabitedSnapshot___closed__1();
 l_Lean_Language_instInhabitedSnapshot___closed__2 = _init_l_Lean_Language_instInhabitedSnapshot___closed__2();
 lean_mark_persistent(l_Lean_Language_instInhabitedSnapshot___closed__2);
@@ -5973,24 +5973,24 @@ l_Lean_Language_instInhabitedSnapshotTree___closed__1 = _init_l_Lean_Language_in
 lean_mark_persistent(l_Lean_Language_instInhabitedSnapshotTree___closed__1);
 l_Lean_Language_instInhabitedSnapshotTree = _init_l_Lean_Language_instInhabitedSnapshotTree();
 lean_mark_persistent(l_Lean_Language_instInhabitedSnapshotTree);
-l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__1 = _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__1();
-lean_mark_persistent(l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__1);
-l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__2 = _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__2();
-lean_mark_persistent(l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__2);
-l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__3 = _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__3();
-lean_mark_persistent(l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666____closed__3);
-l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666_ = _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666_();
-lean_mark_persistent(l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_666_);
+l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__1 = _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__1();
+lean_mark_persistent(l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__1);
+l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__2 = _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__2();
+lean_mark_persistent(l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__2);
+l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__3 = _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__3();
+lean_mark_persistent(l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662____closed__3);
+l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662_ = _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662_();
+lean_mark_persistent(l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_662_);
 l_Lean_Language_instTypeNameSnapshotTree = _init_l_Lean_Language_instTypeNameSnapshotTree();
 lean_mark_persistent(l_Lean_Language_instTypeNameSnapshotTree);
 l_Array_foldlMUnsafe_fold___at_Lean_Language_SnapshotTask_cancelRec___spec__1___closed__1 = _init_l_Array_foldlMUnsafe_fold___at_Lean_Language_SnapshotTask_cancelRec___spec__1___closed__1();
 lean_mark_persistent(l_Array_foldlMUnsafe_fold___at_Lean_Language_SnapshotTask_cancelRec___spec__1___closed__1);
-l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_895____closed__1 = _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_895____closed__1();
-lean_mark_persistent(l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_895____closed__1);
-l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_895____closed__2 = _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_895____closed__2();
-lean_mark_persistent(l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_895____closed__2);
-l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_895_ = _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_895_();
-lean_mark_persistent(l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_895_);
+l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_891____closed__1 = _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_891____closed__1();
+lean_mark_persistent(l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_891____closed__1);
+l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_891____closed__2 = _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_891____closed__2();
+lean_mark_persistent(l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_891____closed__2);
+l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_891_ = _init_l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_891_();
+lean_mark_persistent(l_Lean_Language_instImpl____x40_Lean_Language_Basic___hyg_891_);
 l_Lean_Language_instTypeNameSnapshotLeaf = _init_l_Lean_Language_instTypeNameSnapshotLeaf();
 lean_mark_persistent(l_Lean_Language_instTypeNameSnapshotLeaf);
 l_Lean_Language_instToSnapshotTreeSnapshotLeaf___closed__1 = _init_l_Lean_Language_instToSnapshotTreeSnapshotLeaf___closed__1();
@@ -6015,17 +6015,17 @@ l_Lean_Language_instInhabitedDynamicSnapshot___closed__9 = _init_l_Lean_Language
 lean_mark_persistent(l_Lean_Language_instInhabitedDynamicSnapshot___closed__9);
 l_Lean_Language_instInhabitedDynamicSnapshot = _init_l_Lean_Language_instInhabitedDynamicSnapshot();
 lean_mark_persistent(l_Lean_Language_instInhabitedDynamicSnapshot);
-l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__1 = _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__1();
-lean_mark_persistent(l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__1);
-l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__2 = _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__2();
-lean_mark_persistent(l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__2);
-l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__3 = _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__3();
-lean_mark_persistent(l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__3);
-l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__4 = _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__4();
-lean_mark_persistent(l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__4);
-l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__5 = _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__5();
-lean_mark_persistent(l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187____closed__5);
-if (builtin) {res = l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1187_(lean_io_mk_world());
+l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__1 = _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__1();
+lean_mark_persistent(l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__1);
+l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__2 = _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__2();
+lean_mark_persistent(l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__2);
+l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__3 = _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__3();
+lean_mark_persistent(l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__3);
+l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__4 = _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__4();
+lean_mark_persistent(l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__4);
+l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__5 = _init_l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__5();
+lean_mark_persistent(l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183____closed__5);
+if (builtin) {res = l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1183_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Language_printMessageEndPos = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Language_printMessageEndPos);

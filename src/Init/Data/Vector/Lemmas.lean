@@ -1424,14 +1424,17 @@ theorem map_empty {f : α → β} : map f #v[] = #v[] := by
 @[simp] theorem map_id_fun' : map (n := n) (fun (a : α) => a) = id := map_id_fun
 
 -- This is not a `@[simp]` lemma because `map_id_fun` will apply.
-theorem map_id {xs : Vector α n} : map (id : α → α) xs = xs := by
+-- The argument `xs : Vector α n` is explicit to allow rewriting from right to left.
+theorem map_id (xs : Vector α n) : map (id : α → α) xs = xs := by
   cases xs <;> simp_all
 
 /-- `map_id'` differs from `map_id` by representing the identity function as a lambda, rather than `id`. -/
 -- This is not a `@[simp]` lemma because `map_id_fun'` will apply.
-theorem map_id' {xs : Vector α n} : map (fun (a : α) => a) xs = xs := map_id
+-- The argument `xs : Vector α n` is explicit to allow rewriting from right to left.
+theorem map_id' (xs : Vector α n) : map (fun (a : α) => a) xs = xs := map_id xs
 
 /-- Variant of `map_id`, with a side condition that the function is pointwise the identity. -/
+-- The argument `xs : Vector α n` is explicit to allow rewriting from right to left.
 theorem map_id'' {f : α → α} (h : ∀ x, f x = x) (xs : Vector α n) : map f xs = xs := by
   simp [show f = id from funext h]
 

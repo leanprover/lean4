@@ -662,8 +662,8 @@ instance : Std.LawfulIdentity (α := List α) (· ++ ·) [] where
 
 instance : Std.Associative (α := List α) (· ++ ·) := ⟨append_assoc⟩
 
--- Last argument is explicit as there is often ambiguity inferring the arguments.
-theorem append_cons {as : List α} {b : α} (bs : List α) : as ++ b :: bs = as ++ [b] ++ bs := by
+-- Arguments are explicit as there is often ambiguity inferring the arguments.
+theorem append_cons (as : List α) (b : α) (bs : List α) : as ++ b :: bs = as ++ [b] ++ bs := by
   simp
 
 @[simp] theorem concat_eq_append {as : List α} {a : α} : as.concat a = as ++ [a] := by

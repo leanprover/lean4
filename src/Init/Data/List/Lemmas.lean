@@ -1070,15 +1070,18 @@ theorem getLast?_tail {l : List α} : (tail l).getLast? = if l.length = 1 then n
 @[simp] theorem map_id_fun' : map (fun (a : α) => a) = id := map_id_fun
 
 -- This is not a `@[simp]` lemma because `map_id_fun` will apply.
-theorem map_id {l : List α} : map (id : α → α) l = l := by
+-- The argument `l : List α` is explicit to allow rewriting from right to left.
+theorem map_id (l : List α) : map (id : α → α) l = l := by
   induction l <;> simp_all
 
 /-- `map_id'` differs from `map_id` by representing the identity function as a lambda, rather than `id`. -/
 -- This is not a `@[simp]` lemma because `map_id_fun'` will apply.
-theorem map_id' {l : List α} : map (fun (a : α) => a) l = l := map_id
+-- The argument `l : List α` is explicit to allow rewriting from right to left.
+theorem map_id' (l : List α) : map (fun (a : α) => a) l = l := map_id l
 
 /-- Variant of `map_id`, with a side condition that the function is pointwise the identity. -/
-theorem map_id'' {f : α → α} (h : ∀ x, f x = x) {l : List α} : map f l = l := by
+-- The argument `l : List α` is explicit to allow rewriting from right to left.
+theorem map_id'' {f : α → α} (h : ∀ x, f x = x) (l : List α) : map f l = l := by
   simp [show f = id from funext h]
 
 theorem map_singleton {f : α → β} {a : α} : map f [a] = [f a] := rfl

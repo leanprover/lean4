@@ -118,7 +118,7 @@ theorem map_pmap {p : α → Prop} (g : β → γ) (f : ∀ a, p a → β) (xs :
   simp [Array.map_pmap]
 
 theorem pmap_map {p : β → Prop} (g : ∀ b, p b → γ) (f : α → β) (xs : Vector α n) (H) :
-    pmap g (map f xs) H = pmap (fun a h => g (f a) h) xs fun _ h => H _ (mem_map_of_mem _ h) := by
+    pmap g (map f xs) H = pmap (fun a h => g (f a) h) xs fun _ h => H _ (mem_map_of_mem h) := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.pmap_map]
 
@@ -298,12 +298,12 @@ theorem foldr_attach (xs : Vector α n) (f : α → β → β) (b : β) :
   simp [Array.foldr_attach]
 
 theorem attach_map {xs : Vector α n} (f : α → β) :
-    (xs.map f).attach = xs.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem f h⟩) := by
+    (xs.map f).attach = xs.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem h⟩) := by
   cases xs
   ext <;> simp
 
 theorem attachWith_map {xs : Vector α n} (f : α → β) {P : β → Prop} {H : ∀ (b : β), b ∈ xs.map f → P b} :
-    (xs.map f).attachWith P H = (xs.attachWith (P ∘ f) (fun _ h => H _ (mem_map_of_mem f h))).map
+    (xs.map f).attachWith P H = (xs.attachWith (P ∘ f) (fun _ h => H _ (mem_map_of_mem h))).map
       fun ⟨x, h⟩ => ⟨f x, h⟩ := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.attachWith_map]

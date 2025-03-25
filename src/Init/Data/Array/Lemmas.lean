@@ -3466,7 +3466,7 @@ We can prove that two folds over the same array are related (by some arbitrary r
 if we know that the initial elements are related and the folding function, for each element of the array,
 preserves the relation.
 -/
-theorem foldl_rel {xs : Array α} {f g : β → α → β} {a b : β} (r : β → β → Prop)
+theorem foldl_rel {xs : Array α} {f g : β → α → β} {a b : β} {r : β → β → Prop}
     (h : r a b) (h' : ∀ (a : α), a ∈ xs → ∀ (c c' : β), r c c' → r (f c a) (g c' a)) :
     r (xs.foldl (fun acc a => f acc a) a) (xs.foldl (fun acc a => g acc a) b) := by
   rcases xs with ⟨xs⟩
@@ -3477,7 +3477,7 @@ We can prove that two folds over the same array are related (by some arbitrary r
 if we know that the initial elements are related and the folding function, for each element of the array,
 preserves the relation.
 -/
-theorem foldr_rel {xs : Array α} {f g : α → β → β} {a b : β} (r : β → β → Prop)
+theorem foldr_rel {xs : Array α} {f g : α → β → β} {a b : β} {r : β → β → Prop}
     (h : r a b) (h' : ∀ (a : α), a ∈ xs → ∀ (c c' : β), r c c' → r (f a c) (g a c')) :
     r (xs.foldr (fun a acc => f a acc) a) (xs.foldr (fun a acc => g a acc) b) := by
   rcases xs with ⟨xs⟩
@@ -4190,7 +4190,7 @@ theorem foldl_toList_eq_map {l : List α} {acc : Array β} {G : α → β} :
 
 attribute [simp] uset
 
-theorem size_uset {xs : Array α} {v : α} {i : USize} {h : i.toNat < xs.size} :
+theorem size_uset {xs : Array α} {v : α} {i : USize} (h : i.toNat < xs.size) :
     (uset xs i v h).size = xs.size := by
   simp
 

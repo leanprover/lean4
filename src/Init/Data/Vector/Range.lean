@@ -231,7 +231,7 @@ theorem map_zipIdx (f : α → β) (xs : Vector α n) (k : Nat) :
   simp [Array.map_zipIdx]
 
 theorem fst_mem_of_mem_zipIdx {x : α × Nat} {xs : Vector α n} {k : Nat} (h : x ∈ zipIdx xs k) : x.1 ∈ xs :=
-  zipIdx_map_fst k xs ▸ mem_map_of_mem _ h
+  zipIdx_map_fst k xs ▸ mem_map_of_mem h
 
 theorem fst_eq_of_mem_zipIdx {x : α × Nat} {xs : Vector α n} {k : Nat} (h : x ∈ zipIdx xs k) :
     x.1 = xs[x.2 - k]'(by have := le_snd_of_mem_zipIdx h; have := snd_lt_add_of_mem_zipIdx h; omega) := by

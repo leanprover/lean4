@@ -137,11 +137,11 @@ structure State where
   -/
   atoms : Std.HashMap Expr Atom := {}
   /--
-  A cache for `atomsAssignment`. We maintain the invariant that this value is only used if
-  `atoms` is non empty. The reason for not using an `Option` is that it would pollute a lot of code
-  with error handling that is never hit as this invariant is enforced before all of this code.
+  A cache for `atomsAssignment`. If it is `none` the cache is currently invalidated as new atoms
+  have been added since it was last updated, if it is `some` it must be consistent with the atoms
+  contained in `atoms`.
   -/
-  atomsAssignmentCache : Expr := mkConst `illegal
+  atomsAssignmentCache : Option Expr := none
 
 /--
 The reflection monad, used to track `BitVec` variables that we see as we traverse the context.
@@ -237,7 +237,21 @@ def atoms : M (Array (Nat × Expr)) := do
 Retrieve a `BitVec.Assignment` representing the atoms we found so far.
 -/
 def atomsAssignment : M Expr := do
-  return (← getThe State).atomsAssignmentCache
+  match (← getThe State).atomsAssignmentCache with
+  | some cache => return cache
+  | none => updateAtomsAssignment
+where
+  updateAtomsAssignment : M Expr := do
+    let as ← atoms
+    if h : 0 < as.size then
+      let ras := Lean.RArray.ofArray as h
+      let packedType := mkConst ``BVExpr.PackedBitVec
+      let pack := fun (width, expr) => mkApp2 (mkConst ``BVExpr.PackedBitVec.mk) (toExpr width) expr
+      let newAtomsAssignment := ras.toExpr packedType pack
+      modify fun s => { s with atomsAssignmentCache := some newAtomsAssignment }
+      return newAtomsAssignment
+    else
+      throwError "updateAtomsAssignment should only be called when there is an atom"
 
 /--
 Look up an expression in the atoms, recording it if it has not previously appeared.
@@ -252,20 +266,8 @@ def lookup (e : Expr) (width : Nat) (synthetic : Bool) : M Nat := do
     trace[Meta.Tactic.bv] "New atom of width {width}, synthetic? {synthetic}: {e}"
     let ident ← modifyGetThe State fun s =>
       let newAtom := { width, synthetic, atomNumber := s.atoms.size}
-      (s.atoms.size, { s with atoms := s.atoms.insert e newAtom })
-    updateAtomsAssignment
+      (s.atoms.size, { s with atoms := s.atoms.insert e newAtom, atomsAssignmentCache := none })
     return ident
-where
-  updateAtomsAssignment : M Unit := do
-    let as ← atoms
-    if h : 0 < as.size then
-      let ras := Lean.RArray.ofArray as h
-      let packedType := mkConst ``BVExpr.PackedBitVec
-      let pack := fun (width, expr) => mkApp2 (mkConst ``BVExpr.PackedBitVec.mk) (toExpr width) expr
-      let newAtomsAssignment := ras.toExpr packedType pack
-      modify fun s => { s with atomsAssignmentCache := newAtomsAssignment }
-    else
-      throwError "updateAtomsAssignment should only be called when there is an atom"
 
 @[specialize]
 def simplifyBinaryProof' (mkFRefl : Expr → Expr) (fst : Expr) (fproof : Option Expr)

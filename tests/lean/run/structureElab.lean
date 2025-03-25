@@ -71,26 +71,26 @@ structure D3 extends D1 where
 structure D4 extends D2, D3
 
 /--
-info: @[reducible] def TestD1.D1.x._default : Nat :=
+info: def TestD1.D1.x._default : Nat :=
 id 1
 -/
 #guard_msgs in #print D1.x._default
 /-- error: unknown constant 'D2.x._default' -/
 #guard_msgs in #print D2.x._default
 /--
-info: @[reducible] def TestD1.D2.x._inherited_default : Nat :=
+info: def TestD1.D2.x._inherited_default : Nat :=
 id 1
 -/
 #guard_msgs in #print D2.x._inherited_default
 /--
-info: @[reducible] def TestD1.D3.x._default : Nat :=
+info: def TestD1.D3.x._default : Nat :=
 id 3
 -/
 #guard_msgs in #print D3.x._default
 /-- error: unknown constant 'D4.x._default' -/
 #guard_msgs in #print D4.x._default
 /--
-info: @[reducible] def TestD1.D4.x._inherited_default : Nat :=
+info: def TestD1.D4.x._inherited_default : Nat :=
 id 3
 -/
 #guard_msgs in #print D4.x._inherited_default
@@ -108,21 +108,21 @@ structure D2 (α : Type) [Inhabited α] extends D1 α where
 structure D3 extends D1 Nat where
 
 /--
-info: @[reducible] def TestD2.D1.x._default : {α : Type} → {inst : Inhabited α} → α :=
+info: def TestD2.D1.x._default : {α : Type} → {inst : Inhabited α} → α :=
 fun {α} {inst} => id default
 -/
 #guard_msgs in #print D1.x._default
 /-- error: unknown constant 'D2.x._default' -/
 #guard_msgs in #print D2.x._default
 /--
-info: @[reducible] def TestD2.D2.x._inherited_default : {α : Type} → {inst : Inhabited α} → α :=
+info: def TestD2.D2.x._inherited_default : {α : Type} → {inst : Inhabited α} → α :=
 fun {α} {inst} => id default
 -/
 #guard_msgs in #print D2.x._inherited_default
 /-- error: unknown constant 'D3.x._default' -/
 #guard_msgs in #print D3.x._default
 /--
-info: @[reducible] def TestD2.D3.x._inherited_default : Nat :=
+info: def TestD2.D3.x._inherited_default : Nat :=
 id default
 -/
 #guard_msgs in #print D3.x._inherited_default
@@ -201,7 +201,7 @@ structure C extends B where
 structure D extends A, C
 
 /--
-info: @[reducible] def Test3.D.c._inherited_default : Nat → Nat → Nat :=
+info: def Test3.D.c._inherited_default : Nat → Nat → Nat :=
 fun b d => @id Nat (@HAdd.hAdd Nat Nat Nat (@instHAdd Nat instAddNat) b d)
 -/
 #guard_msgs in set_option pp.explicit true in #print D.c._inherited_default
@@ -265,7 +265,7 @@ structure C (α : Type) extends Mul α where
   z := x * y
 
 /--
-info: @[reducible] def Test5.C.z._default : {α : Type} → (α → α → α) → α → α → α :=
+info: def Test5.C.z._default : {α : Type} → (α → α → α) → α → α → α :=
 fun {α} mul x y => @id α (@HMul.hMul α α α (@instHMul α (@Mul.mk α mul)) x y)
 -/
 #guard_msgs in set_option pp.explicit true in #print C.z._default
@@ -289,32 +289,32 @@ structure C extends B where
   x := z + 3
 
 /--
-info: @[reducible] def Test6.A.x._default : Nat :=
+info: def Test6.A.x._default : Nat :=
 id 1
 -/
 #guard_msgs in #print A.x._default
 /--
-info: @[reducible] def Test6.B.y._default : Nat → Nat :=
+info: def Test6.B.y._default : Nat → Nat :=
 fun x => id (x + 1)
 -/
 #guard_msgs in #print B.y._default
 /--
-info: @[reducible] def Test6.B.x._default : Nat → Nat :=
+info: def Test6.B.x._default : Nat → Nat :=
 fun y => id (y + 1)
 -/
 #guard_msgs in #print B.x._default
 /--
-info: @[reducible] def Test6.C.x._default : Nat → Nat :=
+info: def Test6.C.x._default : Nat → Nat :=
 fun z => id (z + 3)
 -/
 #guard_msgs in #print C.x._default
 /--
-info: @[reducible] def Test6.C.y._inherited_default : Nat → Nat :=
+info: def Test6.C.y._inherited_default : Nat → Nat :=
 fun x => id (x + 1)
 -/
 #guard_msgs in #print C.y._inherited_default
 /--
-info: @[reducible] def Test6.C.z._default : Nat → Nat :=
+info: def Test6.C.z._default : Nat → Nat :=
 fun y => id (2 * y)
 -/
 #guard_msgs in #print C.z._default
@@ -352,6 +352,16 @@ structure S where
 #guard_msgs in #check { : S }
 
 end Test8
+
+/-!
+The default value declaration has the parameters even if they're not used.
+-/
+namespace Test9
+structure Baz (α : Type u) where
+  n : Nat := 0
+/-- info: Test9.Baz.n._default.{u} {α : Type u} : Nat -/
+#guard_msgs in #check Baz.n._default
+end Test9
 
 /-!
 Diamond inheritance, override autoParam with an autoParam

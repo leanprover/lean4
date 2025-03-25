@@ -233,8 +233,13 @@ def handleUnknownIdentifierCodeAction
     queries := queries.map (·.toLeanModuleQuery)
     : LeanQueryModuleParams
   }
-  let .success response := responseTask.get
-    | return #[]
+  let r ← ServerTask.waitAny [
+    responseTask.mapCheap Sum.inl,
+    rc.cancelTk.requestCancellationTask.mapCheap Sum.inr
+  ]
+  let .inl (.success response) := r
+    | RequestM.checkCancelled
+      return #[]
   let headerStx := doc.initSnap.stx
   let importInsertionPos : Lsp.Position :=
     match headerStx.getTailPos? with

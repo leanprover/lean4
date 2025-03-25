@@ -240,7 +240,7 @@ structure LeanIdentifier where
   /-- Module that `decl` is defined in. -/
   module : Name
   /-- Full name of the declaration that matches the query. -/
-  decl   : Name
+  decl : Name
   /-- Whether this `decl` matched the query exactly. -/
   isExactMatch : Bool
   deriving FromJson, ToJson

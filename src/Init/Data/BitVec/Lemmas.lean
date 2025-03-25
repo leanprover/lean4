@@ -1547,9 +1547,19 @@ theorem not_not {b : BitVec w} : ~~~(~~~b) = b := by
 protected theorem not_inj {x y : BitVec w} : ~~~x = ~~~y ↔ x = y :=
   ⟨fun h => by rw [← @not_not w x, ← @not_not w y, h], congrArg _⟩
 
-@[simp] theorem and_not_self (x : BitVec n) : x &&& ~~~x = 0 := by
+@[simp] theorem and_not_self (x : BitVec w) : x &&& ~~~x = 0 := by
    ext i
    simp_all
+
+@[simp] theorem not_and_self (x : BitVec w) : ~~~x &&& x = 0 := by
+  simp [and_comm]
+
+@[simp] theorem or_not_self (x : BitVec w) : x ||| ~~~x = allOnes w := by
+  ext
+  simp
+
+@[simp] theorem not_or_self (x : BitVec w) : ~~~x ||| x = allOnes w := by
+  simp [or_comm]
 
 theorem not_eq_comm {x y : BitVec w} : ~~~ x = y ↔ x = ~~~ y := by
   constructor

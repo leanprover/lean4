@@ -2541,7 +2541,7 @@ theorem le_maxKey_of_mem [TransCmp cmp] {k} (hc : k ∈ t) :
 
 theorem maxKey_le [TransCmp cmp] {k he} :
     (cmp (t.maxKey he) k).isLE ↔ (∀ k', k' ∈ t → (cmp k' k).isLE) :=
-  DTreeMap.le_maxKey
+  DTreeMap.maxKey_le
 
 theorem getKey?_maxKey [TransCmp cmp] {he} :
     t.getKey? (t.maxKey he) = some (t.maxKey he) :=

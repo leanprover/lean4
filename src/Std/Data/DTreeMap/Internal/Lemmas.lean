@@ -5406,7 +5406,7 @@ theorem le_maxKey_of_mem [TransOrd α] (h : t.WF) {k} (hc : k ∈ t) :
 
 theorem maxKey_le [TransOrd α] (h : t.WF) {k he} :
     (compare (t.maxKey he) k).isLE ↔ (∀ k', k' ∈ t → (compare k' k).isLE) := by
-  simp_to_model [maxKey, contains] using List.le_maxKey
+  simp_to_model [maxKey, contains] using List.maxKey_le
 
 theorem getKey?_maxKey [TransOrd α] (h : t.WF) {he} :
     t.getKey? (t.maxKey he) = some (t.maxKey he) := by

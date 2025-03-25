@@ -4693,7 +4693,7 @@ theorem minKey!_insert [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
   simp_to_model [minKey!, minKey?, insert] using List.minKey!_insertEntry
 
 theorem minKey!_insert! [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
-    (t.insert! k v |>.minKey!) =
+    (t.insert! k v).minKey! =
       (t.minKey?.elim k fun k' => if compare k k' |>.isLE then k else k') := by
   simpa [insert_eq_insert!] using minKey!_insert h
 
@@ -4704,7 +4704,7 @@ theorem minKey!_insert_le_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
 
 theorem minKey!_insert!_le_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v},
-    compare (t.insert! k v |>.minKey!) t.minKey! |>.isLE := by
+    compare (t.insert! k v).minKey! t.minKey! |>.isLE := by
   simpa only [insert_eq_insert!] using minKey!_insert_le_minKey! h
 
 theorem minKey!_insert_le_self [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
@@ -4712,7 +4712,7 @@ theorem minKey!_insert_le_self [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
   simp_to_model [minKey!, insert] using List.minKey!_insertEntry_le_self
 
 theorem minKey!_insert!_le_self [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
-    compare (t.insert! k v |>.minKey!) k |>.isLE := by
+    compare (t.insert! k v).minKey! k |>.isLE := by
   simpa only [insert_eq_insert!] using minKey!_insert_le_self h
 
 theorem contains_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
@@ -4768,7 +4768,7 @@ theorem minKey!_erase_eq_iff_not_compare_minKey!_eq [TransOrd α] [Inhabited α]
 
 theorem minKey!_erase!_eq_iff_not_compare_minKey!_eq [TransOrd α] [Inhabited α] (h : t.WF) {k} :
     (he : (t.erase! k).isEmpty = false) →
-    (t.erase! k |>.minKey!) = t.minKey! ↔
+    (t.erase! k).minKey! = t.minKey! ↔
       ¬ compare k t.minKey! = .eq := by
   simpa only [erase_eq_erase!] using minKey!_erase_eq_iff_not_compare_minKey!_eq h
 
@@ -4780,7 +4780,7 @@ theorem minKey!_erase_eq_of_not_compare_minKey!_eq [TransOrd α] [Inhabited α] 
 
 theorem minKey!_erase!_eq_of_not_compare_minKey!_eq [TransOrd α] [Inhabited α] (h : t.WF) {k} :
     (he : (t.erase! k).isEmpty = false) → (heq : ¬ compare k t.minKey! = .eq) →
-    (t.erase! k |>.minKey!) = t.minKey! := by
+    (t.erase! k).minKey! = t.minKey! := by
   simpa only [erase_eq_erase!] using minKey!_erase_eq_of_not_compare_minKey!_eq h
 
 theorem minKey!_le_minKey!_erase [TransOrd α] [Inhabited α] (h : t.WF) :
@@ -4790,7 +4790,7 @@ theorem minKey!_le_minKey!_erase [TransOrd α] [Inhabited α] (h : t.WF) :
 
 theorem minKey!_le_minKey!_erase! [TransOrd α] [Inhabited α] (h : t.WF) {k} :
     (he : (t.erase! k).isEmpty = false) →
-    compare t.minKey! (t.erase! k |>.minKey!) |>.isLE := by
+    compare t.minKey! (t.erase! k).minKey! |>.isLE := by
   simpa only [erase_eq_erase!] using minKey!_le_minKey!_erase h
 
 theorem minKey!_insertIfNew [TransOrd α] [Inhabited α] (h : t.WF) : ∀ {k v},
@@ -4799,7 +4799,7 @@ theorem minKey!_insertIfNew [TransOrd α] [Inhabited α] (h : t.WF) : ∀ {k v},
   simp_to_model [minKey!, minKey?, insertIfNew] using List.minKey!_insertEntryIfNew
 
 theorem minKey!_insertIfNew! [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
-    (t.insertIfNew! k v |>.minKey!) =
+    (t.insertIfNew! k v).minKey! =
       t.minKey?.elim k fun k' => if compare k k' = .lt then k else k' := by
   simpa only [insertIfNew_eq_insertIfNew!] using minKey!_insertIfNew h
 
@@ -4810,7 +4810,7 @@ theorem minKey!_insertIfNew_le_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
 
 theorem minKey!_insertIfNew!_le_minKey! [TransOrd α] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v},
-    compare (t.insertIfNew! k v |>.minKey!) t.minKey! |>.isLE := by
+    compare (t.insertIfNew! k v).minKey! t.minKey! |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using minKey!_insertIfNew_le_minKey! h
 
 theorem minKey!_insertIfNew_le_self [TransOrd α] [Inhabited α] (h : t.WF) : ∀ {k v},
@@ -4818,7 +4818,7 @@ theorem minKey!_insertIfNew_le_self [TransOrd α] [Inhabited α] (h : t.WF) : �
   simp_to_model [minKey!, insertIfNew] using List.minKey!_insertEntryIfNew_le_self
 
 theorem minKey!_insertIfNew!_le_self [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
-    compare (t.insertIfNew! k v |>.minKey!) k |>.isLE := by
+    compare (t.insertIfNew! k v).minKey! k |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using minKey!_insertIfNew_le_self h
 
 theorem minKey!_eq_head!_keys [TransOrd α] [Inhabited α] (h : t.WF) :
@@ -4826,7 +4826,7 @@ theorem minKey!_eq_head!_keys [TransOrd α] [Inhabited α] (h : t.WF) :
   simp_to_model [minKey!, keys] using List.minKey!_eq_head!_keys h.ordered
 
 theorem minKey!_modify [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) : ∀ {k f},
-    (t.modify k f |>.minKey!) = t.minKey! := by
+    (t.modify k f).minKey! = t.minKey! := by
   simp_to_model [minKey!, modify] using List.minKey!_modifyKey
 
 theorem minKey!_alter_eq_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) :
@@ -4837,7 +4837,7 @@ theorem minKey!_alter_eq_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h :
 
 theorem minKey!_alter!_eq_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k f} :
     (he : (t.alter! k f).isEmpty = false) →
-    (t.alter! k f |>.minKey!) = k ↔
+    (t.alter! k f).minKey! = k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
   simpa only [alter_eq_alter!] using minKey!_alter_eq_self h
 
@@ -5526,7 +5526,7 @@ theorem maxKey!_insert [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
   simp_to_model [maxKey!, maxKey?, insert] using List.maxKey!_insertEntry
 
 theorem maxKey!_insert! [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
-    (t.insert! k v |>.maxKey!) =
+    (t.insert! k v).maxKey! =
       (t.maxKey?.elim k fun k' => if compare k' k |>.isLE then k else k') := by
   simpa [insert_eq_insert!] using maxKey!_insert h
 
@@ -5537,7 +5537,7 @@ theorem maxKey!_le_maxKey!_insert [TransOrd α] [Inhabited α] (h : t.WF) :
 
 theorem maxKey!_le_maxKey!_insert! [TransOrd α] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v},
-    compare t.maxKey! (t.insert! k v |>.maxKey!) |>.isLE := by
+    compare t.maxKey! (t.insert! k v).maxKey! |>.isLE := by
   simpa only [insert_eq_insert!] using maxKey!_le_maxKey!_insert h
 
 theorem self_le_maxKey!_insert [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
@@ -5545,7 +5545,7 @@ theorem self_le_maxKey!_insert [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
   simp_to_model [maxKey!, insert] using List.self_le_maxKey!_insertEntry
 
 theorem self_le_maxKey!_insert! [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
-    compare k (t.insert! k v |>.maxKey!) |>.isLE := by
+    compare k (t.insert! k v).maxKey! |>.isLE := by
   simpa only [insert_eq_insert!] using self_le_maxKey!_insert h
 
 theorem contains_maxKey! [TransOrd α] [Inhabited α] (h : t.WF) :
@@ -5601,7 +5601,7 @@ theorem maxKey!_erase_eq_iff_not_compare_maxKey!_eq [TransOrd α] [Inhabited α]
 
 theorem maxKey!_erase!_eq_iff_not_compare_maxKey!_eq [TransOrd α] [Inhabited α] (h : t.WF) {k} :
     (he : (t.erase! k).isEmpty = false) →
-    (t.erase! k |>.maxKey!) = t.maxKey! ↔
+    (t.erase! k).maxKey! = t.maxKey! ↔
       ¬ compare k t.maxKey! = .eq := by
   simpa only [erase_eq_erase!] using maxKey!_erase_eq_iff_not_compare_maxKey!_eq h
 
@@ -5613,7 +5613,7 @@ theorem maxKey!_erase_eq_of_not_compare_maxKey!_eq [TransOrd α] [Inhabited α] 
 
 theorem maxKey!_erase!_eq_of_not_compare_maxKey!_eq [TransOrd α] [Inhabited α] (h : t.WF) {k} :
     (he : (t.erase! k).isEmpty = false) → (heq : ¬ compare k t.maxKey! = .eq) →
-    (t.erase! k |>.maxKey!) = t.maxKey! := by
+    (t.erase! k).maxKey! = t.maxKey! := by
   simpa only [erase_eq_erase!] using maxKey!_erase_eq_of_not_compare_maxKey!_eq h
 
 theorem maxKey!_erase_le_maxKey! [TransOrd α] [Inhabited α] (h : t.WF) :
@@ -5623,7 +5623,7 @@ theorem maxKey!_erase_le_maxKey! [TransOrd α] [Inhabited α] (h : t.WF) :
 
 theorem maxKey!_erase!_le_maxKey! [TransOrd α] [Inhabited α] (h : t.WF) {k} :
     (he : (t.erase! k).isEmpty = false) →
-    compare (t.erase! k |>.maxKey!) t.maxKey! |>.isLE := by
+    compare (t.erase! k).maxKey! t.maxKey! |>.isLE := by
   simpa only [erase_eq_erase!] using maxKey!_erase_le_maxKey! h
 
 theorem maxKey!_insertIfNew [TransOrd α] [Inhabited α] (h : t.WF) : ∀ {k v},
@@ -5632,7 +5632,7 @@ theorem maxKey!_insertIfNew [TransOrd α] [Inhabited α] (h : t.WF) : ∀ {k v},
   simp_to_model [maxKey!, maxKey?, insertIfNew] using List.maxKey!_insertEntryIfNew
 
 theorem maxKey!_insertIfNew! [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
-    (t.insertIfNew! k v |>.maxKey!) =
+    (t.insertIfNew! k v).maxKey! =
       t.maxKey?.elim k fun k' => if compare k' k = .lt then k else k' := by
   simpa only [insertIfNew_eq_insertIfNew!] using maxKey!_insertIfNew h
 
@@ -5643,7 +5643,7 @@ theorem maxKey!_le_maxKey!_insertIfNew [TransOrd α] [Inhabited α] (h : t.WF) :
 
 theorem maxKey!_le_maxKey!_insertIfNew! [TransOrd α] [Inhabited α] (h : t.WF) :
     (he : t.isEmpty = false) → ∀ {k v},
-    compare t.maxKey! (t.insertIfNew! k v |>.maxKey!) |>.isLE := by
+    compare t.maxKey! (t.insertIfNew! k v).maxKey! |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using maxKey!_le_maxKey!_insertIfNew h
 
 theorem self_le_maxKey!_insertIfNew [TransOrd α] [Inhabited α] (h : t.WF) : ∀ {k v},
@@ -5651,7 +5651,7 @@ theorem self_le_maxKey!_insertIfNew [TransOrd α] [Inhabited α] (h : t.WF) : �
   simp_to_model [maxKey!, insertIfNew] using List.self_le_maxKey!_insertEntryIfNew
 
 theorem self_le_maxKey!_insertIfNew! [TransOrd α] [Inhabited α] (h : t.WF) {k v} :
-    compare k (t.insertIfNew! k v |>.maxKey!) |>.isLE := by
+    compare k (t.insertIfNew! k v).maxKey! |>.isLE := by
   simpa only [insertIfNew_eq_insertIfNew!] using self_le_maxKey!_insertIfNew h
 
 theorem maxKey!_eq_getLast!_keys [TransOrd α] [Inhabited α] (h : t.WF) :
@@ -5659,7 +5659,7 @@ theorem maxKey!_eq_getLast!_keys [TransOrd α] [Inhabited α] (h : t.WF) :
   simp_to_model [maxKey!, keys] using List.maxKey!_eq_getLast!_keys h.ordered.distinctKeys h.ordered
 
 theorem maxKey!_modify [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) : ∀ {k f},
-    (t.modify k f |>.maxKey!) = t.maxKey! := by
+    (t.modify k f).maxKey! = t.maxKey! := by
   simp_to_model [maxKey!, modify] using List.maxKey!_modifyKey
 
 theorem maxKey!_alter_eq_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) :
@@ -5670,7 +5670,7 @@ theorem maxKey!_alter_eq_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h :
 
 theorem maxKey!_alter!_eq_self [TransOrd α] [LawfulEqOrd α] [Inhabited α] (h : t.WF) {k f} :
     (he : (t.alter! k f).isEmpty = false) →
-    (t.alter! k f |>.maxKey!) = k ↔
+    (t.alter! k f).maxKey! = k ↔
       (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k' k).isLE := by
   simpa only [alter_eq_alter!] using maxKey!_alter_eq_self h
 

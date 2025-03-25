@@ -98,7 +98,8 @@ private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSynta
      ⟨`forM, (``forM_eq_forM, #[])⟩,
      ⟨`minKey?, (``minKey?_eq_minKey?, #[``(minKey?_of_perm _)])⟩,
      ⟨`minKey, (``minKey_eq_minKey, #[``(minKey_of_perm _)])⟩,
-     ⟨`minKey!, (``minKey!_eq_minKey!, #[``(minKey!_of_perm _)])⟩]
+     ⟨`minKey!, (``minKey!_eq_minKey!, #[``(minKey!_of_perm _)])⟩,
+     ⟨`minKeyD, (``minKeyD_eq_minKeyD, #[``(minKeyD_of_perm _)])⟩]
 
 /-- Internal implementation detail of the tree map -/
 scoped syntax "simp_to_model" (" [" (ident,*) "]")? ("using" term)? : tactic
@@ -4828,6 +4829,220 @@ theorem minKey!_alter!_eq_self [TransOrd α] [Inhabited α] (h : t.WF) {k f} :
     (alter! k f t |>.minKey!) = k ↔
       (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
   simpa only [alter_eq_alter!] using minKey!_alter_eq_self h
+
+end Const
+
+theorem minKey_eq_minKeyD [TransOrd α] (h : t.WF) {he fallback} :
+    t.minKey he = t.minKeyD fallback := by
+  simp_to_model [minKey, minKeyD] using List.minKey_eq_minKeyD
+
+theorem minKey?_eq_some_minKeyD [TransOrd α] (h : t.WF) {fallback} :
+    (he : t.isEmpty = false) → t.minKey? = some (t.minKeyD fallback) := by
+  simp_to_model [minKey?, minKeyD, isEmpty] using List.minKey?_eq_some_minKeyD
+
+theorem minKeyD_eq_fallback [TransOrd α] (h : t.WF) {fallback} :
+    (he : t.isEmpty) → t.minKeyD fallback = fallback := by
+  simp_to_model [minKeyD, isEmpty] using List.minKeyD_eq_fallback
+
+theorem minKey!_eq_minKeyD_default [TransOrd α] [Inhabited α] (h : t.WF) :
+    t.minKey! = t.minKeyD default := by
+  simp_to_model [minKey!, minKeyD] using List.minKey!_eq_minKeyD_default
+
+theorem minKeyD_eq_iff_getKey?_eq_self_and_forall [TransOrd α] (h : t.WF) :
+    (he : t.isEmpty = false) → ∀ {km fallback},
+    t.minKeyD fallback = km ↔ t.getKey? km = some km ∧ ∀ k, k ∈ t → (compare km k).isLE := by
+  simp_to_model [minKeyD, getKey?, contains, isEmpty] using
+    List.minKeyD_eq_iff_getKey?_eq_self_and_forall
+
+theorem minKeyD_eq_some_iff_mem_and_forall [TransOrd α]
+    [LawfulEqOrd α] (h : t.WF) :
+    (he : t.isEmpty = false) → ∀ {km fallback},
+    t.minKeyD fallback = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (compare km k).isLE := by
+  simp_to_model [minKeyD, contains, isEmpty] using List.minKeyD_eq_some_iff_mem_and_forall
+
+theorem minKeyD_insert [TransOrd α] (h : t.WF) {k v fallback} :
+    (t.insert k v h.balanced |>.impl.minKeyD <| fallback) =
+      (t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k') := by
+  simp_to_model [minKeyD, minKey?, insert] using List.minKeyD_insertEntry
+
+theorem minKeyD_insert! [TransOrd α] (h : t.WF) {k v fallback} :
+    (t.insert! k v |>.minKeyD fallback) =
+      (t.minKey?.elim k fun k' => if compare k k'|>.isLE then k else k') := by
+  simpa [insert_eq_insert!] using minKeyD_insert h
+
+theorem minKeyD_insert_le_minKeyD [TransOrd α] (h : t.WF) :
+    (he : t.isEmpty = false) → ∀ {k v fallback},
+    compare (t.insert k v h.balanced |>.impl.minKeyD <| fallback) (t.minKeyD fallback) |>.isLE := by
+  simp_to_model [minKeyD, isEmpty, insert] using List.minKeyD_insertEntry_le_minKeyD
+
+theorem minKeyD_insert!_le_minKeyD [TransOrd α] (h : t.WF) :
+    (he : t.isEmpty = false) → ∀ {k v fallback},
+    compare (t.insert! k v |>.minKeyD fallback) (t.minKeyD fallback) |>.isLE := by
+  simpa only [insert_eq_insert!] using minKeyD_insert_le_minKeyD h
+
+theorem minKeyD_insert_le_self [TransOrd α] (h : t.WF) {k v fallback} :
+    compare (t.insert k v h.balanced |>.impl.minKeyD <| fallback) k |>.isLE := by
+  simp_to_model [minKeyD, insert] using List.minKeyD_insertEntry_le_self
+
+theorem minKeyD_insert!_le_self [TransOrd α] (h : t.WF) {k v fallback} :
+    compare (t.insert! k v |>.minKeyD fallback) k |>.isLE := by
+  simpa only [insert_eq_insert!] using minKeyD_insert_le_self h
+
+theorem contains_minKeyD [TransOrd α] (h : t.WF) :
+    (he : t.isEmpty = false) → ∀ {fallback}, t.contains (t.minKeyD fallback) := by
+  simp_to_model [minKeyD, isEmpty, contains] using List.containsKey_minKeyD
+
+theorem minKeyD_mem [TransOrd α] (h : t.WF) :
+    (he : t.isEmpty = false) → ∀ {fallback}, (t.minKeyD fallback) ∈ t :=
+  contains_minKeyD h
+
+theorem minKeyD_le_of_contains [TransOrd α] (h : t.WF) :
+    ∀ {k}, (hc : t.contains k) → ∀ {fallback},
+    compare (t.minKeyD fallback) k |>.isLE := by
+  simp_to_model [minKeyD, contains] using List.minKeyD_le_of_containsKey
+
+theorem minKeyD_le_of_mem [TransOrd α] (h : t.WF) :
+    ∀ {k}, (hc : k ∈ t) → ∀ {fallback},
+    compare (t.minKeyD fallback) k |>.isLE :=
+  minKeyD_le_of_contains h
+
+theorem le_minKeyD [TransOrd α] (h : t.WF) :
+    (he : t.isEmpty = false) → ∀ {k fallback},
+    (compare k (t.minKeyD fallback)).isLE ↔ (∀ k', k' ∈ t → (compare k k').isLE) := by
+  simp_to_model [minKeyD, contains, isEmpty] using List.le_minKeyD
+
+theorem getKey?_minKeyD [TransOrd α] (h : t.WF) :
+    (he : t.isEmpty = false) → ∀ {fallback},
+    t.getKey? (t.minKeyD fallback) = some (t.minKeyD fallback) := by
+  simp_to_model [minKeyD, getKey?, isEmpty] using List.getKey?_minKeyD
+
+theorem getKey_minKeyD [TransOrd α] (h : t.WF) : ∀ {fallback he},
+    t.getKey (t.minKeyD fallback) he = (t.minKeyD fallback) := by
+  simp_to_model [minKeyD, contains, isEmpty, getKey] using List.getKey_minKeyD
+
+theorem getKey_minKeyD_eq_minKey [TransOrd α] (h : t.WF) : ∀ {fallback hc},
+    t.getKey (t.minKeyD fallback) hc = t.minKey (isEmpty_eq_false_of_contains h hc) := by
+  simp_to_model [minKeyD, minKey, contains, isEmpty, getKey] using List.getKey_minKeyD_eq_minKey
+
+theorem getKey!_minKeyD [TransOrd α] [Inhabited α] (h : t.WF) :
+    (he : t.isEmpty = false) → ∀ {fallback},
+    t.getKey! (t.minKeyD fallback) = (t.minKeyD fallback) := by
+  simp_to_model [minKeyD, isEmpty, getKey!] using List.getKey!_minKeyD
+
+theorem getKeyD_minKeyD [TransOrd α] (h : t.WF) :
+    (he : t.isEmpty = false) → ∀ {fallback fallback'},
+    t.getKeyD (t.minKeyD fallback) fallback' = t.minKeyD fallback := by
+  simp_to_model [minKeyD, getKeyD, isEmpty] using List.getKeyD_minKeyD
+
+theorem minKeyD_erase_eq_iff_not_compare_minKeyD_eq [TransOrd α] (h : t.WF) :
+    ∀ {k fallback}, (he : (t.erase k h.balanced).impl.isEmpty = false) →
+    (t.erase k h.balanced |>.impl.minKeyD <| fallback) = t.minKeyD fallback ↔
+      ¬ compare k (t.minKeyD fallback) = .eq := by
+  simp_to_model [minKeyD, isEmpty, erase] using List.minKeyD_eraseKey_eq_iff_beq_minKeyD_eq_false
+
+theorem minKeyD_erase!_eq_iff_not_compare_minKeyD_eq [TransOrd α] (h : t.WF) {k fallback} :
+    (he : (t.erase! k).isEmpty = false) →
+    (t.erase! k |>.minKeyD fallback) = t.minKeyD fallback ↔
+      ¬ compare k (t.minKeyD fallback) = .eq := by
+  simpa only [erase_eq_erase!] using minKeyD_erase_eq_iff_not_compare_minKeyD_eq h
+
+theorem minKeyD_erase_eq_of_not_compare_minKeyD_eq [TransOrd α] (h : t.WF) :
+    ∀ {k fallback}, (he : (t.erase k h.balanced).impl.isEmpty = false) →
+    (heq : ¬ compare k (t.minKeyD fallback) = .eq) →
+    (t.erase k h.balanced |>.impl.minKeyD <| fallback) = t.minKeyD fallback := by
+  simp_to_model [minKeyD, isEmpty, erase] using
+    List.minKeyD_eraseKey_eq_of_beq_minKeyD_eq_false
+
+theorem minKeyD_erase!_eq_of_not_compare_minKeyD_eq [TransOrd α] (h : t.WF) {k fallback} :
+    (he : (t.erase! k).isEmpty = false) → (heq : ¬ compare k (t.minKeyD fallback) = .eq) →
+    (t.erase! k |>.minKeyD fallback) = t.minKeyD fallback := by
+  simpa only [erase_eq_erase!] using minKeyD_erase_eq_of_not_compare_minKeyD_eq h
+
+theorem minKeyD_le_minKeyD_erase [TransOrd α] (h : t.WF) :
+    ∀ {k}, (he : (t.erase k h.balanced).impl.isEmpty = false) → ∀ {fallback},
+    compare (t.minKeyD fallback) (t.erase k h.balanced |>.impl.minKeyD <| fallback) |>.isLE := by
+  simp_to_model [minKeyD, isEmpty, erase] using List.minKeyD_le_minKeyD_erase
+
+theorem minKeyD_le_minKeyD_erase! [TransOrd α] (h : t.WF) {k} :
+    (he : (t.erase! k).isEmpty = false) → ∀ {fallback},
+    compare (t.minKeyD fallback) (t.erase! k |>.minKeyD fallback) |>.isLE := by
+  simpa only [erase_eq_erase!] using minKeyD_le_minKeyD_erase h
+
+theorem minKeyD_insertIfNew [TransOrd α] (h : t.WF) : ∀ {k v fallback},
+    (t.insertIfNew k v h.balanced |>.impl.minKeyD <| fallback) =
+      t.minKey?.elim k fun k' => if compare k k' = .lt then k else k' := by
+  simp_to_model [minKeyD, minKey?, insertIfNew] using List.minKeyD_insertEntryIfNew
+
+theorem minKeyD_insertIfNew! [TransOrd α] (h : t.WF) {k v fallback} :
+    (t.insertIfNew! k v |>.minKeyD fallback) =
+      t.minKey?.elim k fun k' => if compare k k' = .lt then k else k' := by
+  simpa only [insertIfNew_eq_insertIfNew!] using minKeyD_insertIfNew h
+
+theorem minKeyD_insertIfNew_le_minKeyD [TransOrd α] (h : t.WF) :
+    (he : t.isEmpty = false) → ∀ {k v fallback},
+    compare (t.insertIfNew k v h.balanced |>.impl.minKeyD <| fallback)
+      (t.minKeyD fallback) |>.isLE := by
+  simp_to_model [minKeyD, isEmpty, insertIfNew] using List.minKeyD_insertEntryIfNew_le_minKeyD
+
+theorem minKeyD_insertIfNew!_le_minKeyD [TransOrd α] (h : t.WF) :
+    (he : t.isEmpty = false) → ∀ {k v fallback},
+    compare (t.insertIfNew! k v |>.minKeyD fallback) (t.minKeyD fallback) |>.isLE := by
+  simpa only [insertIfNew_eq_insertIfNew!] using minKeyD_insertIfNew_le_minKeyD h
+
+theorem minKeyD_insertIfNew_le_self [TransOrd α] (h : t.WF) : ∀ {k v fallback},
+    compare (t.insertIfNew k v h.balanced |>.impl.minKeyD <| fallback) k |>.isLE := by
+  simp_to_model [minKeyD, insertIfNew] using List.minKeyD_insertEntryIfNew_le_self
+
+theorem minKeyD_insertIfNew!_le_self [TransOrd α] (h : t.WF) {k v fallback} :
+    compare (t.insertIfNew! k v |>.minKeyD fallback) k |>.isLE := by
+  simpa only [insertIfNew_eq_insertIfNew!] using minKeyD_insertIfNew_le_self h
+
+theorem minKeyD_modify [TransOrd α] [LawfulEqOrd α] (h : t.WF) : ∀ {k f fallback},
+    (t.modify k f |>.minKeyD fallback) = t.minKeyD fallback := by
+  simp_to_model [minKeyD, modify] using List.minKeyD_modifyKey
+
+theorem minKeyD_alter_eq_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) :
+    ∀ {k f fallback}, (he : (t.alter k f h.balanced).impl.isEmpty = false) →
+    (t.alter k f h.balanced |>.impl.minKeyD <| fallback) = k ↔
+      (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
+  simp_to_model [minKeyD, alter, isEmpty, contains, get?] using List.minKeyD_alterKey_eq_self
+
+theorem minKeyD_alter!_eq_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k f fallback} :
+    (he : (t.alter! k f).isEmpty = false) →
+    (t.alter! k f |>.minKeyD fallback) = k ↔
+      (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
+  simpa only [alter_eq_alter!] using minKeyD_alter_eq_self h
+
+namespace Const
+
+variable {β : Type v} {t : Impl α β}
+
+theorem minKeyD_modify [TransOrd α] (h : t.WF) :
+    ∀ {k f}, (he : (modify k f t).isEmpty = false) → ∀ {fallback},
+    (modify k f t |>.minKeyD fallback) =
+      if compare (t.minKeyD fallback) k = .eq then k else t.minKeyD fallback := by
+  simp_to_model [minKeyD, minKey, isEmpty, Const.modify] using List.Const.minKeyD_modifyKey
+
+theorem minKeyD_modify_eq_minKeyD [TransOrd α] [LawfulEqOrd α] (h : t.WF) :
+    ∀ {k f fallback}, (modify k f t |>.minKeyD fallback) = t.minKeyD fallback := by
+  simp_to_model [minKeyD, Const.modify] using List.Const.minKeyD_modifyKey_eq_minKeyD
+
+theorem compare_minKeyD_modify_eq [TransOrd α] (h : t.WF) : ∀ {k f fallback},
+    compare (Const.modify k f t |>.minKeyD fallback) (t.minKeyD fallback) = .eq := by
+  simp_to_model [minKeyD, Const.modify] using List.Const.minKeyD_modifyKey_beq
+
+theorem minKeyD_alter_eq_self [TransOrd α] (h : t.WF) :
+    ∀ {k f}, (he : (alter k f t h.balanced).impl.isEmpty = false) → ∀ {fallback},
+    (alter k f t h.balanced |>.impl.minKeyD <| fallback) = k ↔
+      (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
+  simp_to_model [minKeyD, Const.alter, contains, isEmpty, Const.get?] using
+    List.Const.minKeyD_alterKey_eq_self
+
+theorem minKeyD_alter!_eq_self [TransOrd α] (h : t.WF) {k f} :
+    (he : (alter! k f t).isEmpty = false) → ∀ {fallback},
+    (alter! k f t |>.minKeyD fallback) = k ↔
+      (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (compare k k').isLE := by
+  simpa only [alter_eq_alter!] using minKeyD_alter_eq_self h
 
 end Const
 

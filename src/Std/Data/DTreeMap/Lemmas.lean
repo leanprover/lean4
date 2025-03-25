@@ -3236,6 +3236,140 @@ theorem minKey!_alter_eq_self [TransCmp cmp] [Inhabited α] {k f}
 
 end Const
 
+theorem minKey?_eq_some_minKeyD [TransCmp cmp] (he : t.isEmpty = false) {fallback} :
+    t.minKey? = some (t.minKeyD fallback) :=
+  Impl.minKey?_eq_some_minKeyD t.wf he
+
+theorem minKeyD_eq_fallback [TransCmp cmp] (he : t.isEmpty) {fallback} :
+    t.minKeyD fallback = fallback :=
+  Impl.minKeyD_eq_fallback t.wf he
+
+theorem minKey!_eq_minKeyD_default [TransCmp cmp] [Inhabited α] :
+    t.minKey! = t.minKeyD default :=
+  Impl.minKey!_eq_minKeyD_default t.wf
+
+theorem minKeyD_eq_iff_getKey?_eq_self_and_forall [TransCmp cmp]
+    (he : t.isEmpty = false) {km fallback} :
+    t.minKeyD fallback = km ↔ t.getKey? km = some km ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
+  Impl.minKeyD_eq_iff_getKey?_eq_self_and_forall t.wf he
+
+theorem minKeyD_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp]
+    (he : t.isEmpty = false) {km fallback} :
+    t.minKeyD fallback = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
+  Impl.minKeyD_eq_some_iff_mem_and_forall t.wf he
+
+theorem minKeyD_insert [TransCmp cmp] {k v fallback} :
+    (t.insert k v |>.minKeyD fallback) =
+      (t.minKey?.elim k fun k' => if cmp k k'|>.isLE then k else k') :=
+  Impl.minKeyD_insert t.wf
+
+theorem minKeyD_insert_le_minKeyD [TransCmp cmp] (he : t.isEmpty = false)
+    {k v fallback} :
+    cmp (t.insert k v |>.minKeyD fallback) (t.minKeyD fallback) |>.isLE :=
+  Impl.minKeyD_insert_le_minKeyD t.wf he (instOrd := ⟨cmp⟩)
+
+theorem minKeyD_insert_le_self [TransCmp cmp] {k v fallback} :
+    cmp (t.insert k v |>.minKeyD fallback) k |>.isLE :=
+  Impl.minKeyD_insert_le_self t.wf (instOrd := ⟨cmp⟩)
+
+theorem contains_minKeyD [TransCmp cmp] (he : t.isEmpty = false) {fallback} :
+    t.contains (t.minKeyD fallback) :=
+  Impl.contains_minKeyD t.wf he
+
+theorem minKeyD_mem [TransCmp cmp] (he : t.isEmpty = false) {fallback} :
+    t.minKeyD fallback ∈ t :=
+  Impl.minKeyD_mem t.wf he
+
+theorem minKeyD_le_of_contains [TransCmp cmp] {k} (hc : t.contains k) {fallback} :
+    cmp (t.minKeyD fallback) k |>.isLE :=
+  Impl.minKeyD_le_of_contains t.wf hc
+
+theorem minKeyD_le_of_mem [TransCmp cmp] {k} (hc : k ∈ t) {fallback} :
+    cmp (t.minKeyD fallback) k |>.isLE :=
+  Impl.minKeyD_le_of_mem t.wf hc
+
+theorem le_minKeyD [TransCmp cmp] (he : t.isEmpty = false) {k fallback} :
+    (cmp k (t.minKeyD fallback)).isLE ↔ (∀ k', k' ∈ t → (cmp k k').isLE) :=
+  Impl.le_minKeyD t.wf he (instOrd := ⟨cmp⟩)
+
+theorem getKey?_minKeyD [TransCmp cmp] (he : t.isEmpty = false) {fallback} :
+    t.getKey? (t.minKeyD fallback) = some (t.minKeyD fallback) :=
+  Impl.getKey?_minKeyD t.wf he
+
+theorem getKey_minKeyD [TransCmp cmp] {fallback hc} :
+    t.getKey (t.minKeyD fallback) hc = t.minKeyD fallback :=
+  Impl.getKey_minKeyD t.wf
+
+theorem getKey!_minKeyD [TransCmp cmp] [Inhabited α] (he : t.isEmpty = false) {fallback} :
+    t.getKey! (t.minKeyD fallback) = t.minKeyD fallback :=
+  Impl.getKey!_minKeyD t.wf he
+
+theorem getKeyD_minKeyD [TransCmp cmp] (he : t.isEmpty = false) {fallback fallback'} :
+    t.getKeyD (t.minKeyD fallback) fallback' = t.minKeyD fallback :=
+  Impl.getKeyD_minKeyD t.wf he
+
+theorem minKeyD_erase_eq_of_not_compare_minKeyD_eq [TransCmp cmp] {k fallback}
+    (he : (t.erase k).isEmpty = false) (heq : ¬ cmp k (t.minKeyD fallback) = .eq) :
+    (t.erase k |>.minKeyD fallback) = t.minKeyD fallback :=
+  Impl.minKeyD_erase_eq_of_not_compare_minKeyD_eq t.wf he heq
+
+theorem minKeyD_le_minKeyD_erase [TransCmp cmp] {k}
+    (he : (t.erase k).isEmpty = false) {fallback} :
+    cmp (t.minKeyD fallback) (t.erase k |>.minKeyD fallback) |>.isLE :=
+  Impl.minKeyD_le_minKeyD_erase t.wf he
+
+theorem minKeyD_insertIfNew [TransCmp cmp] {k v fallback} :
+    (t.insertIfNew k v |>.minKeyD fallback) =
+      t.minKey?.elim k fun k' => if cmp k k' = .lt then k else k' :=
+  Impl.minKeyD_insertIfNew t.wf
+
+theorem minKeyD_insertIfNew_le_minKeyD [TransCmp cmp]
+    (he : t.isEmpty = false) {k v fallback} :
+    cmp (t.insertIfNew k v |>.minKeyD fallback) (t.minKeyD fallback) |>.isLE :=
+  Impl.minKeyD_insertIfNew_le_minKeyD t.wf he (instOrd := ⟨cmp⟩)
+
+theorem minKeyD_insertIfNew_le_self [TransCmp cmp] {k v fallback} :
+    cmp (t.insertIfNew k v |>.minKeyD fallback) k |>.isLE :=
+  Impl.minKeyD_insertIfNew_le_self t.wf (instOrd := ⟨cmp⟩)
+
+@[simp]
+theorem minKeyD_modify [TransCmp cmp] [LawfulEqCmp cmp] {k f fallback} :
+    (t.modify k f |>.minKeyD fallback) = t.minKeyD fallback :=
+  Impl.minKeyD_modify t.wf
+
+theorem minKeyD_alter_eq_self [TransCmp cmp] [LawfulEqCmp cmp] {k f}
+    (he : (t.alter k f).isEmpty = false) {fallback} :
+    (t.alter k f |>.minKeyD fallback) = k ↔ (f (t.get? k)).isSome ∧ ∀ k', k' ∈ t → (cmp k k').isLE :=
+  Impl.minKeyD_alter_eq_self t.wf he
+
+namespace Const
+
+variable {β : Type v} {t : DTreeMap α β cmp}
+
+theorem minKeyD_modify [TransCmp cmp] {k f}
+    (he : (modify t k f).isEmpty = false) {fallback} :
+    (modify t k f |>.minKeyD fallback) =
+      if cmp (t.minKeyD fallback) k = .eq then k else (t.minKeyD fallback) :=
+  Impl.Const.minKeyD_modify t.wf he
+
+@[simp]
+theorem minKeyD_modify_eq_minKeyD [TransCmp cmp] [LawfulEqCmp cmp] {k f fallback} :
+    (modify t k f |>.minKeyD fallback) = t.minKeyD fallback :=
+  Impl.Const.minKeyD_modify_eq_minKeyD t.wf
+
+@[simp]
+theorem compare_minKeyD_modify_eq [TransCmp cmp] {k f fallback} :
+    cmp (modify t k f |>.minKeyD fallback) (t.minKeyD fallback) = .eq :=
+  Impl.Const.compare_minKeyD_modify_eq t.wf (instOrd := ⟨cmp⟩)
+
+theorem minKeyD_alter_eq_self [TransCmp cmp] {k f}
+    (he : (alter t k f).isEmpty = false) {fallback} :
+    (alter t k f |>.minKeyD fallback) = k ↔
+      (f (Const.get? t k)).isSome ∧ ∀ k', k' ∈ t → (cmp k k').isLE :=
+  Impl.Const.minKeyD_alter_eq_self t.wf he
+
+end Const
+
 end Min
 
 end Std.DTreeMap

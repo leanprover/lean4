@@ -810,3 +810,105 @@ info: ("19343232432-01-04T01:04:03.000000000",
   let s := r.toLeanDateTimeString
   let r := PlainDateTime.parse s
   (s, r, datetime("1932-01-02T05:04:03.000000000"))
+
+def tuple2Mk (a : f) (b : g) := some (a, b)
+def tuple3Mk (a : f) (b : g) (c : h) := some (a, b, c)
+def tuple4Mk (a : f) (b : g) (c : h) (d : i) := some (a, b, c, d)
+def tuple5Mk (a : f) (b : g) (c : h) (d : i) (e : j) := some (a, b, c, d, e)
+
+def year : GenericFormat .any := datespec("uu uuu uuuu uuuuu uuuuuu")
+
+/--
+info: Except.ok (2011, 123, 1234, 12345, 145679)
+-/
+#guard_msgs in
+#eval year.parseBuilder tuple5Mk "11 123 1234 12345 145679"
+
+/--
+info: Except.error "offset 2: expected:  "
+-/
+#guard_msgs in
+#eval year.parseBuilder tuple5Mk "111 123 1234 12345 145679"
+
+/--
+info: Except.error "offset 11: expected:  "
+-/
+#guard_msgs in
+#eval year.parseBuilder tuple5Mk "11 123 13234 12345 145679"
+
+/-
+Parsing Length Tests
+-/
+
+def yFormat : GenericFormat .any := datespec("yy yyyy yyyyy")
+
+#eval do assert! (yFormat.parseBuilder tuple3Mk "11 1211 12311" |>.isOk)
+
+#eval do assert! (not <| yFormat.parseBuilder tuple3Mk "1 12 1234" |>.isOk)
+#eval do assert! (not <| yFormat.parseBuilder tuple3Mk "11 1213 111123" |>.isOk)
+#eval do assert! (not <| yFormat.parseBuilder tuple3Mk "367 1211 12311" |>.isOk)
+
+def dFormat : GenericFormat .any := datespec("D DD DDD")
+
+#eval do assert! (dFormat.parseBuilder tuple3Mk "1 12 123" |>.isOk)
+#eval do assert! (dFormat.parseBuilder tuple3Mk "323 12 123" |>.isOk)
+
+#eval do assert! (not <| dFormat.parseBuilder tuple3Mk "1 12 1234" |>.isOk)
+#eval do assert! (not <| dFormat.parseBuilder tuple3Mk "1 123 123" |>.isOk)
+#eval do assert! (not <| dFormat.parseBuilder tuple3Mk "367 12 123" |>.isOk)
+
+def dddFormat : GenericFormat .any := datespec("d dd ddd dddd ddddd")
+
+#eval do assert! (dddFormat.parseBuilder tuple5Mk "1 12 031 0031 00031" |>.isOk)
+#eval do assert! (dddFormat.parseBuilder tuple5Mk "000031 12 031 0031 00031" |>.isOk)
+
+#eval do assert! (not <| dddFormat.parseBuilder tuple5Mk "1 12 0031 00031" |>.isOk)
+#eval do assert! (not <| dddFormat.parseBuilder tuple5Mk "1 031 0031 000031" |>.isOk)
+
+def wFormat : GenericFormat .any := datespec("w ww www wwww")
+
+#eval do assert! (wFormat.parseBuilder tuple4Mk "1 01 031 0031" |>.isOk)
+#eval do assert! (wFormat.parseBuilder tuple4Mk "2 01 031 0031" |>.isOk)
+
+#eval do assert! (not <| wFormat.parseBuilder tuple4Mk "2 01 031 00310" |>.isOk)
+#eval do assert! (not <| wFormat.parseBuilder tuple4Mk "2 01 031 031" |>.isOk)
+
+def qFormat : GenericFormat .any := datespec("q qq")
+
+#eval do assert! (qFormat.parseBuilder tuple2Mk "1 02" |>.isOk)
+#eval do assert! (qFormat.parseBuilder tuple2Mk "3 03" |>.isOk)
+
+#eval do assert! (not <| qFormat.parseBuilder tuple2Mk "12 32" |>.isOk)
+#eval do assert! (not <| qFormat.parseBuilder tuple2Mk "000001 003" |>.isOk)
+
+def WFormat : GenericFormat .any := datespec("W WW")
+
+#eval do assert! (WFormat.parseBuilder tuple2Mk "1 06" |>.isOk)
+#eval do assert! (WFormat.parseBuilder tuple2Mk "3 03" |>.isOk)
+
+#eval do assert! (not <| WFormat.parseBuilder tuple2Mk "12 32" |>.isOk)
+#eval do assert! (not <| WFormat.parseBuilder tuple2Mk "000001 003" |>.isOk)
+
+def eFormat : GenericFormat .any := datespec("e ee")
+
+#eval do assert! (eFormat.parseBuilder tuple2Mk "1 07" |>.isOk)
+#eval do assert! (eFormat.parseBuilder tuple2Mk "3 03" |>.isOk)
+
+#eval do assert! (not <| eFormat.parseBuilder tuple2Mk "12 32" |>.isOk)
+#eval do assert! (not <| eFormat.parseBuilder tuple2Mk "000001 003" |>.isOk)
+
+def FFormat : GenericFormat .any := datespec("F FF")
+
+#eval do assert! (FFormat.parseBuilder tuple2Mk "1 04" |>.isOk)
+#eval do assert! (FFormat.parseBuilder tuple2Mk "3 03" |>.isOk)
+
+#eval do assert! (not <| FFormat.parseBuilder tuple2Mk "12 32" |>.isOk)
+#eval do assert! (not <| FFormat.parseBuilder tuple2Mk "000001 003" |>.isOk)
+
+def hFormat : GenericFormat .any := datespec("h hh")
+
+#eval do assert! (hFormat.parseBuilder tuple2Mk "1 09" |>.isOk)
+#eval do assert! (hFormat.parseBuilder tuple2Mk "12 12" |>.isOk)
+
+#eval do assert! (not <| hFormat.parseBuilder tuple2Mk "12 32" |>.isOk)
+#eval do assert! (not <| hFormat.parseBuilder tuple2Mk "000001 003" |>.isOk)

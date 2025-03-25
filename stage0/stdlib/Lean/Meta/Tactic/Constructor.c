@@ -24,8 +24,8 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_existsIntro___lambda__1(lean_object*, lea
 uint8_t l_Lean_Exception_isInterrupt(lean_object*);
 lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getType_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_constructor___lambda__2___closed__3;
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_MVarId_existsIntro___lambda__2___closed__7;

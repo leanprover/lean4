@@ -2575,3 +2575,559 @@ theorem Int16.ofBitVec_lt_iff_slt (a b : BitVec 16) : Int16.ofBitVec a < Int16.o
 theorem Int32.ofBitVec_lt_iff_slt (a b : BitVec 32) : Int32.ofBitVec a < Int32.ofBitVec b ↔ a.slt b := Iff.rfl
 theorem Int64.ofBitVec_lt_iff_slt (a b : BitVec 64) : Int64.ofBitVec a < Int64.ofBitVec b ↔ a.slt b := Iff.rfl
 theorem ISize.ofBitVec_lt_iff_slt (a b : BitVec System.Platform.numBits) : ISize.ofBitVec a < ISize.ofBitVec b ↔ a.slt b := Iff.rfl
+
+theorem Int8.toNatClampNeg_one : (1 : Int8).toNatClampNeg = 1 := rfl
+theorem Int16.toNatClampNeg_one : (1 : Int16).toNatClampNeg = 1 := rfl
+theorem Int32.toNatClampNeg_one : (1 : Int32).toNatClampNeg = 1 := rfl
+theorem Int64.toNatClampNeg_one : (1 : Int64).toNatClampNeg = 1 := rfl
+theorem ISize.toNatClampNeg_one : (1 : ISize).toNatClampNeg = 1 := by simp
+
+theorem Int8.toInt_one : (1 : Int8).toInt = 1 := rfl
+theorem Int16.toInt_one : (1 : Int16).toInt = 1 := rfl
+theorem Int32.toInt_one : (1 : Int32).toInt = 1 := rfl
+theorem Int64.toInt_one : (1 : Int64).toInt = 1 := rfl
+theorem ISize.toInt_one : (1 : ISize).toInt = 1 := by simp
+
+theorem Int8.zero_lt_one : (0 : Int8) < 1 := by simp
+theorem Int16.zero_lt_one : (0 : Int16) < 1 := by simp
+theorem Int32.zero_lt_one : (0 : Int32) < 1 := by simp
+theorem Int64.zero_lt_one : (0 : Int64) < 1 := by simp
+theorem ISize.zero_lt_one : (0 : ISize) < 1 := by simp [lt_iff_toInt_lt]
+
+theorem Int8.zero_ne_one : (0 : Int8) ≠ 1 := by simp
+theorem Int16.zero_ne_one : (0 : Int16) ≠ 1 := by simp
+theorem Int32.zero_ne_one : (0 : Int32) ≠ 1 := by simp
+theorem Int64.zero_ne_one : (0 : Int64) ≠ 1 := by simp
+theorem ISize.zero_ne_one : (0 : ISize) ≠ 1 := by simp [← ISize.toInt_inj]
+
+theorem Int8.add_assoc (a b c : Int8) : a + b + c = a + (b + c) :=
+  Int8.toBitVec_inj.1 (BitVec.add_assoc _ _ _)
+theorem Int16.add_assoc (a b c : Int16) : a + b + c = a + (b + c) :=
+  Int16.toBitVec_inj.1 (BitVec.add_assoc _ _ _)
+theorem Int32.add_assoc (a b c : Int32) : a + b + c = a + (b + c) :=
+  Int32.toBitVec_inj.1 (BitVec.add_assoc _ _ _)
+theorem Int64.add_assoc (a b c : Int64) : a + b + c = a + (b + c) :=
+  Int64.toBitVec_inj.1 (BitVec.add_assoc _ _ _)
+theorem ISize.add_assoc (a b c : ISize) : a + b + c = a + (b + c) :=
+  ISize.toBitVec_inj.1 (BitVec.add_assoc _ _ _)
+
+instance : Std.Associative (α := Int8) (· + ·) := ⟨Int8.add_assoc⟩
+instance : Std.Associative (α := Int16) (· + ·) := ⟨Int16.add_assoc⟩
+instance : Std.Associative (α := Int32) (· + ·) := ⟨Int32.add_assoc⟩
+instance : Std.Associative (α := Int64) (· + ·) := ⟨Int64.add_assoc⟩
+instance : Std.Associative (α := ISize) (· + ·) := ⟨ISize.add_assoc⟩
+
+theorem Int8.add_comm (a b : Int8) : a + b = b + a := Int8.toBitVec_inj.1 (BitVec.add_comm _ _)
+theorem Int16.add_comm (a b : Int16) : a + b = b + a := Int16.toBitVec_inj.1 (BitVec.add_comm _ _)
+theorem Int32.add_comm (a b : Int32) : a + b = b + a := Int32.toBitVec_inj.1 (BitVec.add_comm _ _)
+theorem Int64.add_comm (a b : Int64) : a + b = b + a := Int64.toBitVec_inj.1 (BitVec.add_comm _ _)
+theorem ISize.add_comm (a b : ISize) : a + b = b + a := ISize.toBitVec_inj.1 (BitVec.add_comm _ _)
+
+instance : Std.Commutative (α := Int8) (· + ·) := ⟨Int8.add_comm⟩
+instance : Std.Commutative (α := Int16) (· + ·) := ⟨Int16.add_comm⟩
+instance : Std.Commutative (α := Int32) (· + ·) := ⟨Int32.add_comm⟩
+instance : Std.Commutative (α := Int64) (· + ·) := ⟨Int64.add_comm⟩
+instance : Std.Commutative (α := ISize) (· + ·) := ⟨ISize.add_comm⟩
+
+@[simp] theorem Int8.add_zero (a : Int8) : a + 0 = a := Int8.toBitVec_inj.1 (BitVec.add_zero _)
+@[simp] theorem Int16.add_zero (a : Int16) : a + 0 = a := Int16.toBitVec_inj.1 (BitVec.add_zero _)
+@[simp] theorem Int32.add_zero (a : Int32) : a + 0 = a := Int32.toBitVec_inj.1 (BitVec.add_zero _)
+@[simp] theorem Int64.add_zero (a : Int64) : a + 0 = a := Int64.toBitVec_inj.1 (BitVec.add_zero _)
+@[simp] theorem ISize.add_zero (a : ISize) : a + 0 = a := ISize.toBitVec_inj.1 (BitVec.add_zero _)
+
+@[simp] theorem Int8.zero_add (a : Int8) : 0 + a = a := Int8.toBitVec_inj.1 (BitVec.zero_add _)
+@[simp] theorem Int16.zero_add (a : Int16) : 0 + a = a := Int16.toBitVec_inj.1 (BitVec.zero_add _)
+@[simp] theorem Int32.zero_add (a : Int32) : 0 + a = a := Int32.toBitVec_inj.1 (BitVec.zero_add _)
+@[simp] theorem Int64.zero_add (a : Int64) : 0 + a = a := Int64.toBitVec_inj.1 (BitVec.zero_add _)
+@[simp] theorem ISize.zero_add (a : ISize) : 0 + a = a := ISize.toBitVec_inj.1 (BitVec.zero_add _)
+
+instance : Std.LawfulIdentity (α := Int8) (· + ·) 0 where
+  left_id := Int8.zero_add
+  right_id := Int8.add_zero
+instance : Std.LawfulIdentity (α := Int16) (· + ·) 0 where
+  left_id := Int16.zero_add
+  right_id := Int16.add_zero
+instance : Std.LawfulIdentity (α := Int32) (· + ·) 0 where
+  left_id := Int32.zero_add
+  right_id := Int32.add_zero
+instance : Std.LawfulIdentity (α := Int64) (· + ·) 0 where
+  left_id := Int64.zero_add
+  right_id := Int64.add_zero
+instance : Std.LawfulIdentity (α := ISize) (· + ·) 0 where
+  left_id := ISize.zero_add
+  right_id := ISize.add_zero
+
+@[simp] theorem Int8.sub_zero (a : Int8) : a - 0 = a := Int8.toBitVec_inj.1 (BitVec.sub_zero _)
+@[simp] theorem Int16.sub_zero (a : Int16) : a - 0 = a := Int16.toBitVec_inj.1 (BitVec.sub_zero _)
+@[simp] theorem Int32.sub_zero (a : Int32) : a - 0 = a := Int32.toBitVec_inj.1 (BitVec.sub_zero _)
+@[simp] theorem Int64.sub_zero (a : Int64) : a - 0 = a := Int64.toBitVec_inj.1 (BitVec.sub_zero _)
+@[simp] theorem ISize.sub_zero (a : ISize) : a - 0 = a := ISize.toBitVec_inj.1 (BitVec.sub_zero _)
+
+@[simp] theorem Int8.zero_sub (a : Int8) : 0 - a = -a := Int8.toBitVec_inj.1 (BitVec.zero_sub _)
+@[simp] theorem Int16.zero_sub (a : Int16) : 0 - a = -a := Int16.toBitVec_inj.1 (BitVec.zero_sub _)
+@[simp] theorem Int32.zero_sub (a : Int32) : 0 - a = -a := Int32.toBitVec_inj.1 (BitVec.zero_sub _)
+@[simp] theorem Int64.zero_sub (a : Int64) : 0 - a = -a := Int64.toBitVec_inj.1 (BitVec.zero_sub _)
+@[simp] theorem ISize.zero_sub (a : ISize) : 0 - a = -a := ISize.toBitVec_inj.1 (BitVec.zero_sub _)
+
+@[simp] theorem Int8.sub_self (a : Int8) : a - a = 0 := Int8.toBitVec_inj.1 (BitVec.sub_self _)
+@[simp] theorem Int16.sub_self (a : Int16) : a - a = 0 := Int16.toBitVec_inj.1 (BitVec.sub_self _)
+@[simp] theorem Int32.sub_self (a : Int32) : a - a = 0 := Int32.toBitVec_inj.1 (BitVec.sub_self _)
+@[simp] theorem Int64.sub_self (a : Int64) : a - a = 0 := Int64.toBitVec_inj.1 (BitVec.sub_self _)
+@[simp] theorem ISize.sub_self (a : ISize) : a - a = 0 := ISize.toBitVec_inj.1 (BitVec.sub_self _)
+
+@[simp] theorem Int8.sub_add_cancel (a b : Int8) : a - b + b = a :=
+  Int8.toBitVec_inj.1 (BitVec.sub_add_cancel _ _)
+@[simp] theorem Int16.sub_add_cancel (a b : Int16) : a - b + b = a :=
+  Int16.toBitVec_inj.1 (BitVec.sub_add_cancel _ _)
+@[simp] theorem Int32.sub_add_cancel (a b : Int32) : a - b + b = a :=
+  Int32.toBitVec_inj.1 (BitVec.sub_add_cancel _ _)
+@[simp] theorem Int64.sub_add_cancel (a b : Int64) : a - b + b = a :=
+  Int64.toBitVec_inj.1 (BitVec.sub_add_cancel _ _)
+@[simp] theorem ISize.sub_add_cancel (a b : ISize) : a - b + b = a :=
+  ISize.toBitVec_inj.1 (BitVec.sub_add_cancel _ _)
+
+theorem Int8.eq_sub_iff_add_eq {a b c : Int8} : a = c - b ↔ a + b = c := by
+  simpa [← Int8.toBitVec_inj] using BitVec.eq_sub_iff_add_eq
+theorem Int16.eq_sub_iff_add_eq {a b c : Int16} : a = c - b ↔ a + b = c := by
+  simpa [← Int16.toBitVec_inj] using BitVec.eq_sub_iff_add_eq
+theorem Int32.eq_sub_iff_add_eq {a b c : Int32} : a = c - b ↔ a + b = c := by
+  simpa [← Int32.toBitVec_inj] using BitVec.eq_sub_iff_add_eq
+theorem Int64.eq_sub_iff_add_eq {a b c : Int64} : a = c - b ↔ a + b = c := by
+  simpa [← Int64.toBitVec_inj] using BitVec.eq_sub_iff_add_eq
+theorem ISize.eq_sub_iff_add_eq {a b c : ISize} : a = c - b ↔ a + b = c := by
+  simpa [← ISize.toBitVec_inj] using BitVec.eq_sub_iff_add_eq
+
+theorem Int8.sub_eq_iff_eq_add {a b c : Int8} : a - b = c ↔ a = c + b := by
+  simpa [← Int8.toBitVec_inj] using BitVec.sub_eq_iff_eq_add
+theorem Int16.sub_eq_iff_eq_add {a b c : Int16} : a - b = c ↔ a = c + b := by
+  simpa [← Int16.toBitVec_inj] using BitVec.sub_eq_iff_eq_add
+theorem Int32.sub_eq_iff_eq_add {a b c : Int32} : a - b = c ↔ a = c + b := by
+  simpa [← Int32.toBitVec_inj] using BitVec.sub_eq_iff_eq_add
+theorem Int64.sub_eq_iff_eq_add {a b c : Int64} : a - b = c ↔ a = c + b := by
+  simpa [← Int64.toBitVec_inj] using BitVec.sub_eq_iff_eq_add
+theorem ISize.sub_eq_iff_eq_add {a b c : ISize} : a - b = c ↔ a = c + b := by
+  simpa [← ISize.toBitVec_inj] using BitVec.sub_eq_iff_eq_add
+
+@[simp] theorem Int8.neg_neg {a : Int8} : - -a = a := Int8.toBitVec_inj.1 BitVec.neg_neg
+@[simp] theorem Int16.neg_neg {a : Int16} : - -a = a := Int16.toBitVec_inj.1 BitVec.neg_neg
+@[simp] theorem Int32.neg_neg {a : Int32} : - -a = a := Int32.toBitVec_inj.1 BitVec.neg_neg
+@[simp] theorem Int64.neg_neg {a : Int64} : - -a = a := Int64.toBitVec_inj.1 BitVec.neg_neg
+@[simp] theorem ISize.neg_neg {a : ISize} : - -a = a := ISize.toBitVec_inj.1 BitVec.neg_neg
+
+@[simp] theorem Int8.neg_inj {a b : Int8} : -a = -b ↔ a = b := by simp [← Int8.toBitVec_inj]
+@[simp] theorem Int16.neg_inj {a b : Int16} : -a = -b ↔ a = b := by simp [← Int16.toBitVec_inj]
+@[simp] theorem Int32.neg_inj {a b : Int32} : -a = -b ↔ a = b := by simp [← Int32.toBitVec_inj]
+@[simp] theorem Int64.neg_inj {a b : Int64} : -a = -b ↔ a = b := by simp [← Int64.toBitVec_inj]
+@[simp] theorem ISize.neg_inj {a b : ISize} : -a = -b ↔ a = b := by simp [← ISize.toBitVec_inj]
+
+@[simp] theorem Int8.neg_ne_zero {a : Int8} : -a ≠ 0 ↔ a ≠ 0 := by simp [← Int8.toBitVec_inj]
+@[simp] theorem Int16.neg_ne_zero {a : Int16} : -a ≠ 0 ↔ a ≠ 0 := by simp [← Int16.toBitVec_inj]
+@[simp] theorem Int32.neg_ne_zero {a : Int32} : -a ≠ 0 ↔ a ≠ 0 := by simp [← Int32.toBitVec_inj]
+@[simp] theorem Int64.neg_ne_zero {a : Int64} : -a ≠ 0 ↔ a ≠ 0 := by simp [← Int64.toBitVec_inj]
+@[simp] theorem ISize.neg_ne_zero {a : ISize} : -a ≠ 0 ↔ a ≠ 0 := by simp [← ISize.toBitVec_inj]
+
+theorem Int8.neg_add {a b : Int8} : - (a + b) = -a - b := Int8.toBitVec_inj.1 BitVec.neg_add
+theorem Int16.neg_add {a b : Int16} : - (a + b) = -a - b := Int16.toBitVec_inj.1 BitVec.neg_add
+theorem Int32.neg_add {a b : Int32} : - (a + b) = -a - b := Int32.toBitVec_inj.1 BitVec.neg_add
+theorem Int64.neg_add {a b : Int64} : - (a + b) = -a - b := Int64.toBitVec_inj.1 BitVec.neg_add
+theorem ISize.neg_add {a b : ISize} : - (a + b) = -a - b := ISize.toBitVec_inj.1 BitVec.neg_add
+
+@[simp] theorem Int8.sub_neg {a b : Int8} : a - -b = a + b := Int8.toBitVec_inj.1 BitVec.sub_neg
+@[simp] theorem Int16.sub_neg {a b : Int16} : a - -b = a + b := Int16.toBitVec_inj.1 BitVec.sub_neg
+@[simp] theorem Int32.sub_neg {a b : Int32} : a - -b = a + b := Int32.toBitVec_inj.1 BitVec.sub_neg
+@[simp] theorem Int64.sub_neg {a b : Int64} : a - -b = a + b := Int64.toBitVec_inj.1 BitVec.sub_neg
+@[simp] theorem ISize.sub_neg {a b : ISize} : a - -b = a + b := ISize.toBitVec_inj.1 BitVec.sub_neg
+
+@[simp] theorem Int8.neg_sub {a b : Int8} : -(a - b) = b - a := by
+  rw [sub_eq_add_neg, neg_add, sub_neg, add_comm, ← sub_eq_add_neg]
+@[simp] theorem Int16.neg_sub {a b : Int16} : -(a - b) = b - a := by
+  rw [sub_eq_add_neg, neg_add, sub_neg, add_comm, ← sub_eq_add_neg]
+@[simp] theorem Int32.neg_sub {a b : Int32} : -(a - b) = b - a := by
+  rw [sub_eq_add_neg, neg_add, sub_neg, add_comm, ← sub_eq_add_neg]
+@[simp] theorem Int64.neg_sub {a b : Int64} : -(a - b) = b - a := by
+  rw [sub_eq_add_neg, neg_add, sub_neg, add_comm, ← sub_eq_add_neg]
+@[simp] theorem ISize.neg_sub {a b : ISize} : -(a - b) = b - a := by
+  rw [sub_eq_add_neg, neg_add, sub_neg, add_comm, ← sub_eq_add_neg]
+
+@[simp] theorem Int8.add_left_inj {a b : Int8} (c : Int8) : (a + c = b + c) ↔ a = b := by
+  simp [← Int8.toBitVec_inj]
+@[simp] theorem Int16.add_left_inj {a b : Int16} (c : Int16) : (a + c = b + c) ↔ a = b := by
+  simp [← Int16.toBitVec_inj]
+@[simp] theorem Int32.add_left_inj {a b : Int32} (c : Int32) : (a + c = b + c) ↔ a = b := by
+  simp [← Int32.toBitVec_inj]
+@[simp] theorem Int64.add_left_inj {a b : Int64} (c : Int64) : (a + c = b + c) ↔ a = b := by
+  simp [← Int64.toBitVec_inj]
+@[simp] theorem ISize.add_left_inj {a b : ISize} (c : ISize) : (a + c = b + c) ↔ a = b := by
+  simp [← ISize.toBitVec_inj]
+
+@[simp] theorem Int8.add_right_inj {a b : Int8} (c : Int8) : (c + a = c + b) ↔ a = b := by
+  simp [← Int8.toBitVec_inj]
+@[simp] theorem Int16.add_right_inj {a b : Int16} (c : Int16) : (c + a = c + b) ↔ a = b := by
+  simp [← Int16.toBitVec_inj]
+@[simp] theorem Int32.add_right_inj {a b : Int32} (c : Int32) : (c + a = c + b) ↔ a = b := by
+  simp [← Int32.toBitVec_inj]
+@[simp] theorem Int64.add_right_inj {a b : Int64} (c : Int64) : (c + a = c + b) ↔ a = b := by
+  simp [← Int64.toBitVec_inj]
+@[simp] theorem ISize.add_right_inj {a b : ISize} (c : ISize) : (c + a = c + b) ↔ a = b := by
+  simp [← ISize.toBitVec_inj]
+
+@[simp] theorem Int8.sub_left_inj {a b : Int8} (c : Int8) : (a - c = b - c) ↔ a = b := by
+  simp [← Int8.toBitVec_inj]
+@[simp] theorem Int16.sub_left_inj {a b : Int16} (c : Int16) : (a - c = b - c) ↔ a = b := by
+  simp [← Int16.toBitVec_inj]
+@[simp] theorem Int32.sub_left_inj {a b : Int32} (c : Int32) : (a - c = b - c) ↔ a = b := by
+  simp [← Int32.toBitVec_inj]
+@[simp] theorem Int64.sub_left_inj {a b : Int64} (c : Int64) : (a - c = b - c) ↔ a = b := by
+  simp [← Int64.toBitVec_inj]
+@[simp] theorem ISize.sub_left_inj {a b : ISize} (c : ISize) : (a - c = b - c) ↔ a = b := by
+  simp [← ISize.toBitVec_inj]
+
+@[simp] theorem Int8.sub_right_inj {a b : Int8} (c : Int8) : (c - a = c - b) ↔ a = b := by
+  simp [← Int8.toBitVec_inj]
+@[simp] theorem Int16.sub_right_inj {a b : Int16} (c : Int16) : (c - a = c - b) ↔ a = b := by
+  simp [← Int16.toBitVec_inj]
+@[simp] theorem Int32.sub_right_inj {a b : Int32} (c : Int32) : (c - a = c - b) ↔ a = b := by
+  simp [← Int32.toBitVec_inj]
+@[simp] theorem Int64.sub_right_inj {a b : Int64} (c : Int64) : (c - a = c - b) ↔ a = b := by
+  simp [← Int64.toBitVec_inj]
+@[simp] theorem ISize.sub_right_inj {a b : ISize} (c : ISize) : (c - a = c - b) ↔ a = b := by
+  simp [← ISize.toBitVec_inj]
+
+@[simp] theorem Int8.add_eq_right {a b : Int8} : a + b = b ↔ a = 0 := by
+  simp [← Int8.toBitVec_inj]
+@[simp] theorem Int16.add_eq_right {a b : Int16} : a + b = b ↔ a = 0 := by
+  simp [← Int16.toBitVec_inj]
+@[simp] theorem Int32.add_eq_right {a b : Int32} : a + b = b ↔ a = 0 := by
+  simp [← Int32.toBitVec_inj]
+@[simp] theorem Int64.add_eq_right {a b : Int64} : a + b = b ↔ a = 0 := by
+  simp [← Int64.toBitVec_inj]
+@[simp] theorem ISize.add_eq_right {a b : ISize} : a + b = b ↔ a = 0 := by
+  simp [← ISize.toBitVec_inj]
+
+@[simp] theorem Int8.add_eq_left {a b : Int8} : a + b = a ↔ b = 0 := by
+  simp [← Int8.toBitVec_inj]
+@[simp] theorem Int16.add_eq_left {a b : Int16} : a + b = a ↔ b = 0 := by
+  simp [← Int16.toBitVec_inj]
+@[simp] theorem Int32.add_eq_left {a b : Int32} : a + b = a ↔ b = 0 := by
+  simp [← Int32.toBitVec_inj]
+@[simp] theorem Int64.add_eq_left {a b : Int64} : a + b = a ↔ b = 0 := by
+  simp [← Int64.toBitVec_inj]
+@[simp] theorem ISize.add_eq_left {a b : ISize} : a + b = a ↔ b = 0 := by
+  simp [← ISize.toBitVec_inj]
+
+@[simp] theorem Int8.right_eq_add {a b : Int8} : b = a + b ↔ a = 0 := by
+  simp [← Int8.toBitVec_inj]
+@[simp] theorem Int16.right_eq_add {a b : Int16} : b = a + b ↔ a = 0 := by
+  simp [← Int16.toBitVec_inj]
+@[simp] theorem Int32.right_eq_add {a b : Int32} : b = a + b ↔ a = 0 := by
+  simp [← Int32.toBitVec_inj]
+@[simp] theorem Int64.right_eq_add {a b : Int64} : b = a + b ↔ a = 0 := by
+  simp [← Int64.toBitVec_inj]
+@[simp] theorem ISize.right_eq_add {a b : ISize} : b = a + b ↔ a = 0 := by
+  simp [← ISize.toBitVec_inj]
+
+@[simp] theorem Int8.left_eq_add {a b : Int8} : a = a + b ↔ b = 0 := by
+  simp [← Int8.toBitVec_inj]
+@[simp] theorem Int16.left_eq_add {a b : Int16} : a = a + b ↔ b = 0 := by
+  simp [← Int16.toBitVec_inj]
+@[simp] theorem Int32.left_eq_add {a b : Int32} : a = a + b ↔ b = 0 := by
+  simp [← Int32.toBitVec_inj]
+@[simp] theorem Int64.left_eq_add {a b : Int64} : a = a + b ↔ b = 0 := by
+  simp [← Int64.toBitVec_inj]
+@[simp] theorem ISize.left_eq_add {a b : ISize} : a = a + b ↔ b = 0 := by
+  simp [← ISize.toBitVec_inj]
+
+theorem Int8.mul_comm (a b : Int8) : a * b = b * a := Int8.toBitVec_inj.1 (BitVec.mul_comm _ _)
+theorem Int16.mul_comm (a b : Int16) : a * b = b * a := Int16.toBitVec_inj.1 (BitVec.mul_comm _ _)
+theorem Int32.mul_comm (a b : Int32) : a * b = b * a := Int32.toBitVec_inj.1 (BitVec.mul_comm _ _)
+theorem Int64.mul_comm (a b : Int64) : a * b = b * a := Int64.toBitVec_inj.1 (BitVec.mul_comm _ _)
+theorem ISize.mul_comm (a b : ISize) : a * b = b * a := ISize.toBitVec_inj.1 (BitVec.mul_comm _ _)
+
+instance : Std.Commutative (α := Int8) (· * ·) := ⟨Int8.mul_comm⟩
+instance : Std.Commutative (α := Int16) (· * ·) := ⟨Int16.mul_comm⟩
+instance : Std.Commutative (α := Int32) (· * ·) := ⟨Int32.mul_comm⟩
+instance : Std.Commutative (α := Int64) (· * ·) := ⟨Int64.mul_comm⟩
+instance : Std.Commutative (α := ISize) (· * ·) := ⟨ISize.mul_comm⟩
+
+theorem Int8.mul_assoc (a b c : Int8) : a * b * c = a * (b * c) := Int8.toBitVec_inj.1 (BitVec.mul_assoc _ _ _)
+theorem Int16.mul_assoc (a b c : Int16) : a * b * c = a * (b * c) := Int16.toBitVec_inj.1 (BitVec.mul_assoc _ _ _)
+theorem Int32.mul_assoc (a b c : Int32) : a * b * c = a * (b * c) := Int32.toBitVec_inj.1 (BitVec.mul_assoc _ _ _)
+theorem Int64.mul_assoc (a b c : Int64) : a * b * c = a * (b * c) := Int64.toBitVec_inj.1 (BitVec.mul_assoc _ _ _)
+theorem ISize.mul_assoc (a b c : ISize) : a * b * c = a * (b * c) := ISize.toBitVec_inj.1 (BitVec.mul_assoc _ _ _)
+
+instance : Std.Associative (α := Int8) (· * ·) := ⟨Int8.mul_assoc⟩
+instance : Std.Associative (α := Int16) (· * ·) := ⟨Int16.mul_assoc⟩
+instance : Std.Associative (α := Int32) (· * ·) := ⟨Int32.mul_assoc⟩
+instance : Std.Associative (α := Int64) (· * ·) := ⟨Int64.mul_assoc⟩
+instance : Std.Associative (α := ISize) (· * ·) := ⟨ISize.mul_assoc⟩
+
+@[simp] theorem Int8.mul_one (a : Int8) : a * 1 = a := Int8.toBitVec_inj.1 (BitVec.mul_one _)
+@[simp] theorem Int16.mul_one (a : Int16) : a * 1 = a := Int16.toBitVec_inj.1 (BitVec.mul_one _)
+@[simp] theorem Int32.mul_one (a : Int32) : a * 1 = a := Int32.toBitVec_inj.1 (BitVec.mul_one _)
+@[simp] theorem Int64.mul_one (a : Int64) : a * 1 = a := Int64.toBitVec_inj.1 (BitVec.mul_one _)
+@[simp] theorem ISize.mul_one (a : ISize) : a * 1 = a := ISize.toBitVec_inj.1 (BitVec.mul_one _)
+
+@[simp] theorem Int8.one_mul (a : Int8) : 1 * a = a := Int8.toBitVec_inj.1 (BitVec.one_mul _)
+@[simp] theorem Int16.one_mul (a : Int16) : 1 * a = a := Int16.toBitVec_inj.1 (BitVec.one_mul _)
+@[simp] theorem Int32.one_mul (a : Int32) : 1 * a = a := Int32.toBitVec_inj.1 (BitVec.one_mul _)
+@[simp] theorem Int64.one_mul (a : Int64) : 1 * a = a := Int64.toBitVec_inj.1 (BitVec.one_mul _)
+@[simp] theorem ISize.one_mul (a : ISize) : 1 * a = a := ISize.toBitVec_inj.1 (BitVec.one_mul _)
+
+instance : Std.LawfulCommIdentity (α := Int8) (· * ·) 1 where
+  right_id := Int8.mul_one
+instance : Std.LawfulCommIdentity (α := Int16) (· * ·) 1 where
+  right_id := Int16.mul_one
+instance : Std.LawfulCommIdentity (α := Int32) (· * ·) 1 where
+  right_id := Int32.mul_one
+instance : Std.LawfulCommIdentity (α := Int64) (· * ·) 1 where
+  right_id := Int64.mul_one
+instance : Std.LawfulCommIdentity (α := ISize) (· * ·) 1 where
+  right_id := ISize.mul_one
+
+@[simp] theorem Int8.mul_zero {a : Int8} : a * 0 = 0 := Int8.toBitVec_inj.1 BitVec.mul_zero
+@[simp] theorem Int16.mul_zero {a : Int16} : a * 0 = 0 := Int16.toBitVec_inj.1 BitVec.mul_zero
+@[simp] theorem Int32.mul_zero {a : Int32} : a * 0 = 0 := Int32.toBitVec_inj.1 BitVec.mul_zero
+@[simp] theorem Int64.mul_zero {a : Int64} : a * 0 = 0 := Int64.toBitVec_inj.1 BitVec.mul_zero
+@[simp] theorem ISize.mul_zero {a : ISize} : a * 0 = 0 := ISize.toBitVec_inj.1 BitVec.mul_zero
+
+@[simp] theorem Int8.zero_mul {a : Int8} : 0 * a = 0 := Int8.toBitVec_inj.1 BitVec.zero_mul
+@[simp] theorem Int16.zero_mul {a : Int16} : 0 * a = 0 := Int16.toBitVec_inj.1 BitVec.zero_mul
+@[simp] theorem Int32.zero_mul {a : Int32} : 0 * a = 0 := Int32.toBitVec_inj.1 BitVec.zero_mul
+@[simp] theorem Int64.zero_mul {a : Int64} : 0 * a = 0 := Int64.toBitVec_inj.1 BitVec.zero_mul
+@[simp] theorem ISize.zero_mul {a : ISize} : 0 * a = 0 := ISize.toBitVec_inj.1 BitVec.zero_mul
+
+theorem Int8.mul_add {a b c : Int8} : a * (b + c) = a * b + a * c :=
+    Int8.toBitVec_inj.1 BitVec.mul_add
+theorem Int16.mul_add {a b c : Int16} : a * (b + c) = a * b + a * c :=
+    Int16.toBitVec_inj.1 BitVec.mul_add
+theorem Int32.mul_add {a b c : Int32} : a * (b + c) = a * b + a * c :=
+    Int32.toBitVec_inj.1 BitVec.mul_add
+theorem Int64.mul_add {a b c : Int64} : a * (b + c) = a * b + a * c :=
+    Int64.toBitVec_inj.1 BitVec.mul_add
+theorem ISize.mul_add {a b c : ISize} : a * (b + c) = a * b + a * c :=
+    ISize.toBitVec_inj.1 BitVec.mul_add
+
+theorem Int8.add_mul {a b c : Int8} : (a + b) * c = a * c + b * c := by
+  rw [mul_comm, mul_add, mul_comm a c, mul_comm c b]
+theorem Int16.add_mul {a b c : Int16} : (a + b) * c = a * c + b * c := by
+  rw [mul_comm, mul_add, mul_comm a c, mul_comm c b]
+theorem Int32.add_mul {a b c : Int32} : (a + b) * c = a * c + b * c := by
+  rw [mul_comm, mul_add, mul_comm a c, mul_comm c b]
+theorem Int64.add_mul {a b c : Int64} : (a + b) * c = a * c + b * c := by
+  rw [mul_comm, mul_add, mul_comm a c, mul_comm c b]
+theorem ISize.add_mul {a b c : ISize} : (a + b) * c = a * c + b * c := by
+  rw [mul_comm, mul_add, mul_comm a c, mul_comm c b]
+
+theorem Int8.mul_succ {a b : Int8} : a * (b + 1) = a * b + a := by simp [mul_add]
+theorem Int16.mul_succ {a b : Int16} : a * (b + 1) = a * b + a := by simp [mul_add]
+theorem Int32.mul_succ {a b : Int32} : a * (b + 1) = a * b + a := by simp [mul_add]
+theorem Int64.mul_succ {a b : Int64} : a * (b + 1) = a * b + a := by simp [mul_add]
+theorem ISize.mul_succ {a b : ISize} : a * (b + 1) = a * b + a := by simp [mul_add]
+
+theorem Int8.succ_mul {a b : Int8} : (a + 1) * b = a * b + b := by simp [add_mul]
+theorem Int16.succ_mul {a b : Int16} : (a + 1) * b = a * b + b := by simp [add_mul]
+theorem Int32.succ_mul {a b : Int32} : (a + 1) * b = a * b + b := by simp [add_mul]
+theorem Int64.succ_mul {a b : Int64} : (a + 1) * b = a * b + b := by simp [add_mul]
+theorem ISize.succ_mul {a b : ISize} : (a + 1) * b = a * b + b := by simp [add_mul]
+
+theorem Int8.two_mul {a : Int8} : 2 * a = a + a := Int8.toBitVec_inj.1 BitVec.two_mul
+theorem Int16.two_mul {a : Int16} : 2 * a = a + a := Int16.toBitVec_inj.1 BitVec.two_mul
+theorem Int32.two_mul {a : Int32} : 2 * a = a + a := Int32.toBitVec_inj.1 BitVec.two_mul
+theorem Int64.two_mul {a : Int64} : 2 * a = a + a := Int64.toBitVec_inj.1 BitVec.two_mul
+theorem ISize.two_mul {a : ISize} : 2 * a = a + a := ISize.toBitVec_inj.1 BitVec.two_mul
+
+theorem Int8.mul_two {a : Int8} : a * 2 = a + a := Int8.toBitVec_inj.1 BitVec.mul_two
+theorem Int16.mul_two {a : Int16} : a * 2 = a + a := Int16.toBitVec_inj.1 BitVec.mul_two
+theorem Int32.mul_two {a : Int32} : a * 2 = a + a := Int32.toBitVec_inj.1 BitVec.mul_two
+theorem Int64.mul_two {a : Int64} : a * 2 = a + a := Int64.toBitVec_inj.1 BitVec.mul_two
+theorem ISize.mul_two {a : ISize} : a * 2 = a + a := ISize.toBitVec_inj.1 BitVec.mul_two
+
+theorem Int8.neg_mul (a b : Int8) : -a * b = -(a * b) := Int8.toBitVec_inj.1 (BitVec.neg_mul _ _)
+theorem Int16.neg_mul (a b : Int16) : -a * b = -(a * b) := Int16.toBitVec_inj.1 (BitVec.neg_mul _ _)
+theorem Int32.neg_mul (a b : Int32) : -a * b = -(a * b) := Int32.toBitVec_inj.1 (BitVec.neg_mul _ _)
+theorem Int64.neg_mul (a b : Int64) : -a * b = -(a * b) := Int64.toBitVec_inj.1 (BitVec.neg_mul _ _)
+theorem ISize.neg_mul (a b : ISize) : -a * b = -(a * b) := ISize.toBitVec_inj.1 (BitVec.neg_mul _ _)
+
+theorem Int8.mul_neg (a b : Int8) : a * -b = -(a * b) := Int8.toBitVec_inj.1 (BitVec.mul_neg _ _)
+theorem Int16.mul_neg (a b : Int16) : a * -b = -(a * b) := Int16.toBitVec_inj.1 (BitVec.mul_neg _ _)
+theorem Int32.mul_neg (a b : Int32) : a * -b = -(a * b) := Int32.toBitVec_inj.1 (BitVec.mul_neg _ _)
+theorem Int64.mul_neg (a b : Int64) : a * -b = -(a * b) := Int64.toBitVec_inj.1 (BitVec.mul_neg _ _)
+theorem ISize.mul_neg (a b : ISize) : a * -b = -(a * b) := ISize.toBitVec_inj.1 (BitVec.mul_neg _ _)
+
+theorem Int8.neg_mul_neg (a b : Int8) : -a * -b = a * b := Int8.toBitVec_inj.1 (BitVec.neg_mul_neg _ _)
+theorem Int16.neg_mul_neg (a b : Int16) : -a * -b = a * b := Int16.toBitVec_inj.1 (BitVec.neg_mul_neg _ _)
+theorem Int32.neg_mul_neg (a b : Int32) : -a * -b = a * b := Int32.toBitVec_inj.1 (BitVec.neg_mul_neg _ _)
+theorem Int64.neg_mul_neg (a b : Int64) : -a * -b = a * b := Int64.toBitVec_inj.1 (BitVec.neg_mul_neg _ _)
+theorem ISize.neg_mul_neg (a b : ISize) : -a * -b = a * b := ISize.toBitVec_inj.1 (BitVec.neg_mul_neg _ _)
+
+theorem Int8.neg_mul_comm (a b : Int8) : -a * b = a * -b := Int8.toBitVec_inj.1 (BitVec.neg_mul_comm _ _)
+theorem Int16.neg_mul_comm (a b : Int16) : -a * b = a * -b := Int16.toBitVec_inj.1 (BitVec.neg_mul_comm _ _)
+theorem Int32.neg_mul_comm (a b : Int32) : -a * b = a * -b := Int32.toBitVec_inj.1 (BitVec.neg_mul_comm _ _)
+theorem Int64.neg_mul_comm (a b : Int64) : -a * b = a * -b := Int64.toBitVec_inj.1 (BitVec.neg_mul_comm _ _)
+theorem ISize.neg_mul_comm (a b : ISize) : -a * b = a * -b := ISize.toBitVec_inj.1 (BitVec.neg_mul_comm _ _)
+
+theorem Int8.mul_sub {a b c : Int8} : a * (b - c) = a * b - a * c := Int8.toBitVec_inj.1 BitVec.mul_sub
+theorem Int16.mul_sub {a b c : Int16} : a * (b - c) = a * b - a * c := Int16.toBitVec_inj.1 BitVec.mul_sub
+theorem Int32.mul_sub {a b c : Int32} : a * (b - c) = a * b - a * c := Int32.toBitVec_inj.1 BitVec.mul_sub
+theorem Int64.mul_sub {a b c : Int64} : a * (b - c) = a * b - a * c := Int64.toBitVec_inj.1 BitVec.mul_sub
+theorem ISize.mul_sub {a b c : ISize} : a * (b - c) = a * b - a * c := ISize.toBitVec_inj.1 BitVec.mul_sub
+
+theorem Int8.sub_mul {a b c : Int8} : (a - b) * c = a * c - b * c := by
+  rw [mul_comm, mul_sub, mul_comm, mul_comm c]
+theorem Int16.sub_mul {a b c : Int16} : (a - b) * c = a * c - b * c := by
+  rw [mul_comm, mul_sub, mul_comm, mul_comm c]
+theorem Int32.sub_mul {a b c : Int32} : (a - b) * c = a * c - b * c := by
+  rw [mul_comm, mul_sub, mul_comm, mul_comm c]
+theorem Int64.sub_mul {a b c : Int64} : (a - b) * c = a * c - b * c := by
+  rw [mul_comm, mul_sub, mul_comm, mul_comm c]
+theorem ISize.sub_mul {a b c : ISize} : (a - b) * c = a * c - b * c := by
+  rw [mul_comm, mul_sub, mul_comm, mul_comm c]
+
+theorem Int8.neg_add_mul_eq_mul_not {a b : Int8} : -(a + a * b) = a * ~~~b :=
+  Int8.toBitVec_inj.1 BitVec.neg_add_mul_eq_mul_not
+theorem Int16.neg_add_mul_eq_mul_not {a b : Int16} : -(a + a * b) = a * ~~~b :=
+  Int16.toBitVec_inj.1 BitVec.neg_add_mul_eq_mul_not
+theorem Int32.neg_add_mul_eq_mul_not {a b : Int32} : -(a + a * b) = a * ~~~b :=
+  Int32.toBitVec_inj.1 BitVec.neg_add_mul_eq_mul_not
+theorem Int64.neg_add_mul_eq_mul_not {a b : Int64} : -(a + a * b) = a * ~~~b :=
+  Int64.toBitVec_inj.1 BitVec.neg_add_mul_eq_mul_not
+theorem ISize.neg_add_mul_eq_mul_not {a b : ISize} : -(a + a * b) = a * ~~~b :=
+  ISize.toBitVec_inj.1 BitVec.neg_add_mul_eq_mul_not
+
+theorem Int8.neg_mul_not_eq_add_mul {a b : Int8} : -(a * ~~~b) = a + a * b :=
+  Int8.toBitVec_inj.1 BitVec.neg_mul_not_eq_add_mul
+theorem Int16.neg_mul_not_eq_add_mul {a b : Int16} : -(a * ~~~b) = a + a * b :=
+  Int16.toBitVec_inj.1 BitVec.neg_mul_not_eq_add_mul
+theorem Int32.neg_mul_not_eq_add_mul {a b : Int32} : -(a * ~~~b) = a + a * b :=
+  Int32.toBitVec_inj.1 BitVec.neg_mul_not_eq_add_mul
+theorem Int64.neg_mul_not_eq_add_mul {a b : Int64} : -(a * ~~~b) = a + a * b :=
+  Int64.toBitVec_inj.1 BitVec.neg_mul_not_eq_add_mul
+theorem ISize.neg_mul_not_eq_add_mul {a b : ISize} : -(a * ~~~b) = a + a * b :=
+  ISize.toBitVec_inj.1 BitVec.neg_mul_not_eq_add_mul
+
+theorem Int8.le_of_lt {a b : Int8} : a < b → a ≤ b := by
+  simpa [lt_iff_toInt_lt, le_iff_toInt_le] using Int.le_of_lt
+theorem Int16.le_of_lt {a b : Int16} : a < b → a ≤ b := by
+  simpa [lt_iff_toInt_lt, le_iff_toInt_le] using Int.le_of_lt
+theorem Int32.le_of_lt {a b : Int32} : a < b → a ≤ b := by
+  simpa [lt_iff_toInt_lt, le_iff_toInt_le] using Int.le_of_lt
+theorem Int64.le_of_lt {a b : Int64} : a < b → a ≤ b := by
+  simpa [lt_iff_toInt_lt, le_iff_toInt_le] using Int.le_of_lt
+theorem ISize.le_of_lt {a b : ISize} : a < b → a ≤ b := by
+  simpa [lt_iff_toInt_lt, le_iff_toInt_le] using Int.le_of_lt
+
+theorem Int8.lt_of_le_of_ne {a b : Int8} : a ≤ b → a ≠ b → a < b := by
+  simpa [lt_iff_toInt_lt, le_iff_toInt_le, ← Int8.toInt_inj] using (Int.lt_iff_le_and_ne.2 ⟨·, ·⟩)
+theorem Int16.lt_of_le_of_ne {a b : Int16} : a ≤ b → a ≠ b → a < b := by
+  simpa [lt_iff_toInt_lt, le_iff_toInt_le, ← Int16.toInt_inj] using (Int.lt_iff_le_and_ne.2 ⟨·, ·⟩)
+theorem Int32.lt_of_le_of_ne {a b : Int32} : a ≤ b → a ≠ b → a < b := by
+  simpa [lt_iff_toInt_lt, le_iff_toInt_le, ← Int32.toInt_inj] using (Int.lt_iff_le_and_ne.2 ⟨·, ·⟩)
+theorem Int64.lt_of_le_of_ne {a b : Int64} : a ≤ b → a ≠ b → a < b := by
+  simpa [lt_iff_toInt_lt, le_iff_toInt_le, ← Int64.toInt_inj] using (Int.lt_iff_le_and_ne.2 ⟨·, ·⟩)
+theorem ISize.lt_of_le_of_ne {a b : ISize} : a ≤ b → a ≠ b → a < b := by
+  simpa [lt_iff_toInt_lt, le_iff_toInt_le, ← ISize.toInt_inj] using (Int.lt_iff_le_and_ne.2 ⟨·, ·⟩)
+
+theorem Int8.lt_iff_le_and_ne {a b : Int8} : a < b ↔ a ≤ b ∧ a ≠ b := by
+  simpa [lt_iff_toInt_lt, le_iff_toInt_le, ← Int8.toInt_inj] using Int.lt_iff_le_and_ne
+theorem Int16.lt_iff_le_and_ne {a b : Int16} : a < b ↔ a ≤ b ∧ a ≠ b := by
+  simpa [lt_iff_toInt_lt, le_iff_toInt_le, ← Int16.toInt_inj] using Int.lt_iff_le_and_ne
+theorem Int32.lt_iff_le_and_ne {a b : Int32} : a < b ↔ a ≤ b ∧ a ≠ b := by
+  simpa [lt_iff_toInt_lt, le_iff_toInt_le, ← Int32.toInt_inj] using Int.lt_iff_le_and_ne
+theorem Int64.lt_iff_le_and_ne {a b : Int64} : a < b ↔ a ≤ b ∧ a ≠ b := by
+  simpa [lt_iff_toInt_lt, le_iff_toInt_le, ← Int64.toInt_inj] using Int.lt_iff_le_and_ne
+theorem ISize.lt_iff_le_and_ne {a b : ISize} : a < b ↔ a ≤ b ∧ a ≠ b := by
+  simpa [lt_iff_toInt_lt, le_iff_toInt_le, ← ISize.toInt_inj] using Int.lt_iff_le_and_ne
+
+-- @[simp] theorem Int8.not_lt_zero {a : Int8} : ¬a < minValue := by simp [Int8.lt_iff_toBitVec_slt]
+-- @[simp] theorem Int16.not_lt_zero {a : Int16} : ¬a < 0 := by simp [Int16.lt_iff_toBitVec_slt]
+-- @[simp] theorem Int32.not_lt_zero {a : Int32} : ¬a < 0 := by simp [Int32.lt_iff_toBitVec_slt]
+-- @[simp] theorem Int64.not_lt_zero {a : Int64} : ¬a < 0 := by simp [Int64.lt_iff_toBitVec_slt]
+-- @[simp] theorem ISize.not_lt_zero {a : ISize} : ¬a < 0 := by simp [ISize.lt_iff_toBitVec_slt]
+
+-- @[simp] theorem Int8.zero_le {a : Int8} : 0 ≤ a := by simp [← Int8.not_lt]
+-- @[simp] theorem Int16.zero_le {a : Int16} : 0 ≤ a := by simp [← Int16.not_lt]
+-- @[simp] theorem Int32.zero_le {a : Int32} : 0 ≤ a := by simp [← Int32.not_lt]
+-- @[simp] theorem Int64.zero_le {a : Int64} : 0 ≤ a := by simp [← Int64.not_lt]
+-- @[simp] theorem ISize.zero_le {a : ISize} : 0 ≤ a := by simp [← ISize.not_lt]
+
+-- @[simp] theorem Int8.le_zero_iff {a : Int8} : a ≤ 0 ↔ a = 0 := by
+--   simp [Int8.le_iff_toBitVec_le, ← Int8.toBitVec_inj]
+-- @[simp] theorem Int16.le_zero_iff {a : Int16} : a ≤ 0 ↔ a = 0 := by
+--   simp [Int16.le_iff_toBitVec_le, ← Int16.toBitVec_inj]
+-- @[simp] theorem Int32.le_zero_iff {a : Int32} : a ≤ 0 ↔ a = 0 := by
+--   simp [Int32.le_iff_toBitVec_le, ← Int32.toBitVec_inj]
+-- @[simp] theorem Int64.le_zero_iff {a : Int64} : a ≤ 0 ↔ a = 0 := by
+--   simp [Int64.le_iff_toBitVec_le, ← Int64.toBitVec_inj]
+-- @[simp] theorem ISize.le_zero_iff {a : ISize} : a ≤ 0 ↔ a = 0 := by
+--   simp [ISize.le_iff_toBitVec_le, ← ISize.toBitVec_inj]
+
+-- @[simp] theorem Int8.lt_one_iff {a : Int8} : a < 1 ↔ a = 0 := by
+--   simp [Int8.lt_iff_toBitVec_slt, ← Int8.toBitVec_inj]
+-- @[simp] theorem Int16.lt_one_iff {a : Int16} : a < 1 ↔ a = 0 := by
+--   simp [Int16.lt_iff_toBitVec_slt, ← Int16.toBitVec_inj]
+-- @[simp] theorem Int32.lt_one_iff {a : Int32} : a < 1 ↔ a = 0 := by
+--   simp [Int32.lt_iff_toBitVec_slt, ← Int32.toBitVec_inj]
+-- @[simp] theorem Int64.lt_one_iff {a : Int64} : a < 1 ↔ a = 0 := by
+--   simp [Int64.lt_iff_toBitVec_slt, ← Int64.toBitVec_inj]
+-- @[simp] theorem ISize.lt_one_iff {a : ISize} : a < 1 ↔ a = 0 := by
+--   simp [ISize.lt_iff_toBitVec_slt, ← ISize.toBitVec_inj]
+
+@[simp] theorem Int8.zero_div {a : Int8} : 0 / a = 0 := Int8.toBitVec_inj.1 BitVec.zero_sdiv
+@[simp] theorem Int16.zero_div {a : Int16} : 0 / a = 0 := Int16.toBitVec_inj.1 BitVec.zero_sdiv
+@[simp] theorem Int32.zero_div {a : Int32} : 0 / a = 0 := Int32.toBitVec_inj.1 BitVec.zero_sdiv
+@[simp] theorem Int64.zero_div {a : Int64} : 0 / a = 0 := Int64.toBitVec_inj.1 BitVec.zero_sdiv
+@[simp] theorem ISize.zero_div {a : ISize} : 0 / a = 0 := ISize.toBitVec_inj.1 BitVec.zero_sdiv
+
+@[simp] theorem Int8.div_zero {a : Int8} : a / 0 = 0 := Int8.toBitVec_inj.1 BitVec.sdiv_zero
+@[simp] theorem Int16.div_zero {a : Int16} : a / 0 = 0 := Int16.toBitVec_inj.1 BitVec.sdiv_zero
+@[simp] theorem Int32.div_zero {a : Int32} : a / 0 = 0 := Int32.toBitVec_inj.1 BitVec.sdiv_zero
+@[simp] theorem Int64.div_zero {a : Int64} : a / 0 = 0 := Int64.toBitVec_inj.1 BitVec.sdiv_zero
+@[simp] theorem ISize.div_zero {a : ISize} : a / 0 = 0 := ISize.toBitVec_inj.1 BitVec.sdiv_zero
+
+@[simp] theorem Int8.div_one {a : Int8} : a / 1 = a := Int8.toBitVec_inj.1 BitVec.sdiv_one
+@[simp] theorem Int16.div_one {a : Int16} : a / 1 = a := Int16.toBitVec_inj.1 BitVec.sdiv_one
+@[simp] theorem Int32.div_one {a : Int32} : a / 1 = a := Int32.toBitVec_inj.1 BitVec.sdiv_one
+@[simp] theorem Int64.div_one {a : Int64} : a / 1 = a := Int64.toBitVec_inj.1 BitVec.sdiv_one
+@[simp] theorem ISize.div_one {a : ISize} : a / 1 = a := ISize.toBitVec_inj.1 BitVec.sdiv_one
+
+theorem Int8.div_self {a : Int8} : a / a = if a = 0 then 0 else 1 := by
+  simp [← Int8.toBitVec_inj, apply_ite]
+theorem Int16.div_self {a : Int16} : a / a = if a = 0 then 0 else 1 := by
+  simp [← Int16.toBitVec_inj, apply_ite]
+theorem Int32.div_self {a : Int32} : a / a = if a = 0 then 0 else 1 := by
+  simp [← Int32.toBitVec_inj, apply_ite]
+theorem Int64.div_self {a : Int64} : a / a = if a = 0 then 0 else 1 := by
+  simp [← Int64.toBitVec_inj, apply_ite]
+theorem ISize.div_self {a : ISize} : a / a = if a = 0 then 0 else 1 := by
+  simp [← ISize.toInt_inj]
+  split
+  · simp_all
+  · rw [Int.tdiv_self, Int.bmod_eq_self_of_le]
+    · simp
+    · cases System.Platform.numBits_eq <;> simp_all
+    · cases System.Platform.numBits_eq <;> simp_all
+    · cases System.Platform.numBits_eq <;> simp_all
+
+@[simp] theorem Int8.mod_zero {a : Int8} : a % 0 = a := Int8.toBitVec_inj.1 BitVec.srem_zero
+@[simp] theorem Int16.mod_zero {a : Int16} : a % 0 = a := Int16.toBitVec_inj.1 BitVec.srem_zero
+@[simp] theorem Int32.mod_zero {a : Int32} : a % 0 = a := Int32.toBitVec_inj.1 BitVec.srem_zero
+@[simp] theorem Int64.mod_zero {a : Int64} : a % 0 = a := Int64.toBitVec_inj.1 BitVec.srem_zero
+@[simp] theorem ISize.mod_zero {a : ISize} : a % 0 = a := ISize.toBitVec_inj.1 BitVec.srem_zero
+
+@[simp] theorem Int8.zero_mod {a : Int8} : 0 % a = 0 := Int8.toBitVec_inj.1 BitVec.zero_srem
+@[simp] theorem Int16.zero_mod {a : Int16} : 0 % a = 0 := Int16.toBitVec_inj.1 BitVec.zero_srem
+@[simp] theorem Int32.zero_mod {a : Int32} : 0 % a = 0 := Int32.toBitVec_inj.1 BitVec.zero_srem
+@[simp] theorem Int64.zero_mod {a : Int64} : 0 % a = 0 := Int64.toBitVec_inj.1 BitVec.zero_srem
+@[simp] theorem ISize.zero_mod {a : ISize} : 0 % a = 0 := ISize.toBitVec_inj.1 BitVec.zero_srem
+
+@[simp] theorem Int8.mod_one {a : Int8} : a % 1 = 0 := Int8.toBitVec_inj.1 BitVec.srem_one
+@[simp] theorem Int16.mod_one {a : Int16} : a % 1 = 0 := Int16.toBitVec_inj.1 BitVec.srem_one
+@[simp] theorem Int32.mod_one {a : Int32} : a % 1 = 0 := Int32.toBitVec_inj.1 BitVec.srem_one
+@[simp] theorem Int64.mod_one {a : Int64} : a % 1 = 0 := Int64.toBitVec_inj.1 BitVec.srem_one
+@[simp] theorem ISize.mod_one {a : ISize} : a % 1 = 0 := ISize.toBitVec_inj.1 BitVec.srem_one
+
+@[simp] theorem Int8.mod_self {a : Int8} : a % a = 0 := Int8.toBitVec_inj.1 BitVec.srem_self
+@[simp] theorem Int16.mod_self {a : Int16} : a % a = 0 := Int16.toBitVec_inj.1 BitVec.srem_self
+@[simp] theorem Int32.mod_self {a : Int32} : a % a = 0 := Int32.toBitVec_inj.1 BitVec.srem_self
+@[simp] theorem Int64.mod_self {a : Int64} : a % a = 0 := Int64.toBitVec_inj.1 BitVec.srem_self
+@[simp] theorem ISize.mod_self {a : ISize} : a % a = 0 := ISize.toBitVec_inj.1 BitVec.srem_self

@@ -3807,6 +3807,18 @@ theorem srem_eq (x y : BitVec w) : srem x y =
   rw [BitVec.srem]
   rcases x.msb <;> rcases y.msb <;> simp
 
+@[simp] theorem srem_zero {x : BitVec w} : x.srem 0#w = x := by
+  cases h : x.msb <;> simp [h, srem_eq]
+
+@[simp] theorem zero_srem {x : BitVec w} : (0#w).srem x = 0#w := by
+  cases h : x.msb <;> simp [h, srem_eq]
+
+@[simp] theorem srem_one {x : BitVec w} : x.srem 1#w = 0#w := by
+  cases h : x.msb <;> by_cases hw : w = 1 <;> (try subst hw) <;> simp_all [srem_eq]
+
+@[simp] theorem srem_self {x : BitVec w} : x.srem x = 0#w := by
+  cases h : x.msb <;> simp [h, srem_eq]
+
 /-! ### smod -/
 
 /-- Equation theorem for `smod` in terms of `umod`. -/

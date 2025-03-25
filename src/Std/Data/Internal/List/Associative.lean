@@ -6053,213 +6053,227 @@ theorem maxKey!_alterKey_eq_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd �
 end Const
 
 /-- Returns the smallest key in an associative list or `fallback` if the list is empty. -/
-def maxKey [Ord α] (xs : List ((a : α) × β a)) (fallback : α) : α :=
-  minKey? xs |>.getD fallback
+def maxKeyD [Ord α] (xs : List ((a : α) × β a)) (fallback : α) : α :=
+  letI : Ord α := .opposite inferInstance; minKeyD xs fallback
 
-theorem minKeyD_of_perm [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_of_perm [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l l' : List ((a : α) × β a)} {fallback} (hd : DistinctKeys l) (hp : l.Perm l') :
-    minKeyD l fallback = minKeyD l' fallback := by
-  simp [minKeyD, minKey?_of_perm hd hp]
+    maxKeyD l fallback = maxKeyD l' fallback :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_of_perm hd hp
 
-theorem minKeyD_eq_getD_minKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_eq_getD_maxKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} {fallback} :
-    minKeyD l fallback = (minKey? l).getD fallback :=
-  rfl
+    maxKeyD l fallback = (maxKey? l).getD fallback :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_eq_getD_minKey?
 
-theorem minKey_eq_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKey_eq_maxKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} {he fallback} :
-    minKey l he = minKeyD l fallback := by
-  simp [minKey_eq_get_minKey?, minKeyD_eq_getD_minKey?, Option.get_eq_getD (fallback := fallback)]
+    maxKey l he = maxKeyD l fallback :=
+  letI : Ord α := .opposite inferInstance
+  minKey_eq_minKeyD
 
-theorem minKey?_eq_some_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKey?_eq_some_maxKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} {fallback} (he : l.isEmpty = false) :
-    minKey? l = some (minKeyD l fallback) := by
-  simp [← minKey_eq_minKeyD (he := he), minKey_eq_get_minKey?]
+    maxKey? l = some (maxKeyD l fallback) :=
+  letI : Ord α := .opposite inferInstance
+  minKey?_eq_some_minKeyD he
 
-theorem minKey!_eq_minKeyD_default [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited α]
+theorem maxKey!_eq_maxKeyD_default [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited α]
     {l : List ((a : α) × β a)} :
-    minKey! l = minKeyD l default := by
-  simp [minKey!_eq_get!_minKey?, minKeyD_eq_getD_minKey?, Option.get!_eq_getD]
+    maxKey! l = maxKeyD l default :=
+  letI : Ord α := .opposite inferInstance
+  minKey!_eq_minKeyD_default
 
-theorem minKeyD_eq_fallback [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_eq_fallback [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} {fallback} (h : l.isEmpty) :
-    minKeyD l fallback = fallback := by
-  simp [minKeyD, minKey?_eq_none_iff_isEmpty.mpr h]
+    maxKeyD l fallback = fallback :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_eq_fallback h
 
-theorem minKeyD_eq_iff_getKey?_eq_self_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_eq_iff_getKey?_eq_self_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) (he : l.isEmpty = false) {km fallback} :
-    minKeyD l fallback = km ↔
-      getKey? km l = some km ∧ ∀ k, containsKey k l → (compare km k).isLE := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using
-    minKey_eq_iff_getKey?_eq_self_and_forall hd (he := he)
+    maxKeyD l fallback = km ↔
+      getKey? km l = some km ∧ ∀ k, containsKey k l → (compare k km).isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_eq_iff_getKey?_eq_self_and_forall hd he
 
-theorem minKeyD_eq_some_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_eq_some_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     [LawfulEqOrd α] {l : List ((a : α) × β a)} (hd : DistinctKeys l)
     (he : l.isEmpty = false) {km fallback} :
-    minKeyD l fallback = km ↔ containsKey km l ∧ ∀ k, containsKey k l → (compare km k).isLE := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using
-    minKey_eq_some_iff_mem_and_forall hd (he := he)
+    maxKeyD l fallback = km ↔ containsKey km l ∧ ∀ k, containsKey k l → (compare k km).isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_eq_some_iff_mem_and_forall hd he
 
-theorem minKeyD_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v fallback} :
-    (insertEntry k v l |> minKeyD <| fallback) =
-      ((minKey? l).elim k fun k' => if compare k k' |>.isLE then k else k') := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using minKey_insertEntry hd
+    (insertEntry k v l |> maxKeyD <| fallback) =
+      ((maxKey? l).elim k fun k' => if compare k' k |>.isLE then k else k') :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_insertEntry hd
 
-theorem minKeyD_insertEntry_le_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_insertEntry_le_maxKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) (he : l.isEmpty = false) {k v fallback} :
-    compare (insertEntry k v l |> minKeyD <| fallback) (minKeyD l fallback) |>.isLE := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using minKey_insertEntry_le_minKey hd (he := he)
+    compare (maxKeyD l fallback) (insertEntry k v l |> maxKeyD <| fallback) |>.isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_insertEntry_le_minKeyD hd he
 
-theorem minKeyD_insertEntry_le_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_insertEntry_le_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v fallback} :
-    compare (insertEntry k v l |> minKeyD <| fallback) k |>.isLE := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using minKey_insertEntry_le_self hd
+    compare k (insertEntry k v l |> maxKeyD <| fallback) |>.isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_insertEntry_le_self hd
 
-theorem containsKey_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem containsKey_maxKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) (he : l.isEmpty = false) {fallback} :
-    containsKey (minKeyD l fallback) l := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using containsKey_minKey hd (he := he)
+    containsKey (maxKeyD l fallback) l :=
+  letI : Ord α := .opposite inferInstance
+  containsKey_minKeyD hd he
 
-theorem minKeyD_le_of_containsKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_le_of_containsKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k} (hc : containsKey k l) {fallback} :
-    compare (minKeyD l fallback) k |>.isLE := by
-   simpa [minKey_eq_minKeyD (fallback := fallback)] using minKey_le_of_containsKey hd hc
+    compare k (maxKeyD l fallback) |>.isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_le_of_containsKey hd hc
 
-theorem le_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem le_maxKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) (he : l.isEmpty = false) {k fallback} :
-    (compare k (minKeyD l fallback)).isLE ↔ (∀ k', containsKey k' l → (compare k k').isLE) := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using le_minKey hd (he := he)
+    (compare (maxKeyD l fallback) k).isLE ↔ (∀ k', containsKey k' l → (compare k' k).isLE) :=
+  letI : Ord α := .opposite inferInstance
+  le_minKeyD hd he
 
-theorem getKey?_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKey?_maxKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) (he : l.isEmpty = false) {fallback} :
-    getKey? (minKeyD l fallback) l = some (minKeyD l fallback) := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using getKey?_minKey hd (he := he)
+    getKey? (maxKeyD l fallback) l = some (maxKeyD l fallback) :=
+  letI : Ord α := .opposite inferInstance
+  getKey?_minKeyD hd he
 
-theorem getKey_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKey_maxKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {fallback he} :
-    getKey (minKeyD l fallback) l he = minKeyD l fallback := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using
-    getKey_minKey hd (he := isEmpty_eq_false_of_containsKey he)
+    getKey (maxKeyD l fallback) l he = maxKeyD l fallback :=
+  letI : Ord α := .opposite inferInstance
+  getKey_minKeyD hd
 
-theorem getKey_minKeyD_eq_minKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKey_maxKeyD_eq_maxKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {fallback he} :
-    getKey (minKeyD l fallback) l he = minKey l (isEmpty_eq_false_of_containsKey he) := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using
-    getKey_minKey hd (he := isEmpty_eq_false_of_containsKey he)
+    getKey (maxKeyD l fallback) l he = maxKey l (isEmpty_eq_false_of_containsKey he) :=
+  letI : Ord α := .opposite inferInstance
+  getKey_minKeyD_eq_minKey hd
 
-theorem getKey!_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited α]
+theorem getKey!_maxKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) (he : l.isEmpty = false) {fallback} :
-    getKey! (minKeyD l fallback) l = minKeyD l fallback := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using getKey!_minKey hd (he := he)
+    getKey! (maxKeyD l fallback) l = maxKeyD l fallback :=
+  letI : Ord α := .opposite inferInstance
+  getKey!_minKeyD hd he
 
-theorem getKeyD_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem getKeyD_maxKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) (he : l.isEmpty = false) {fallback fallback'} :
-    getKeyD (minKeyD l fallback) l fallback' = minKeyD l fallback := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using getKeyD_minKey hd (he := he)
+    getKeyD (maxKeyD l fallback) l fallback' = maxKeyD l fallback :=
+  letI : Ord α := .opposite inferInstance
+  getKeyD_minKeyD hd he
 
-theorem minKeyD_eraseKey_eq_iff_beq_minKey_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_eraseKey_eq_iff_beq_maxKey_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k fallback}
     (he : (eraseKey k l).isEmpty = false) :
-    (eraseKey k l |> minKeyD <| fallback) = minKeyD l fallback ↔
-      (k == (minKeyD l fallback)) = false := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using
-    minKey_eraseKey_eq_iff_beq_minKey_eq_false hd (he := he)
+    (eraseKey k l |> maxKeyD <| fallback) = maxKeyD l fallback ↔
+      (k == (maxKeyD l fallback)) = false :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_eraseKey_eq_iff_beq_minKey_eq_false hd he
 
-theorem minKeyD_eraseKey_eq_iff_beq_minKeyD_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_eraseKey_eq_iff_beq_maxKeyD_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k fallback}
     (he : (eraseKey k l).isEmpty = false) :
-    (eraseKey k l |> minKeyD <| fallback) = minKeyD l fallback ↔
-      (k == (minKeyD l fallback)) = false := by
-  simpa [minKey_eq_minKeyD (fallback := fallback)] using
-    minKey_eraseKey_eq_iff_beq_minKey_eq_false hd (he := he)
+    (eraseKey k l |> maxKeyD <| fallback) = maxKeyD l fallback ↔
+      (k == (maxKeyD l fallback)) = false :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_eraseKey_eq_iff_beq_minKeyD_eq_false hd he
 
-theorem minKeyD_eraseKey_eq_of_beq_minKeyD_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_eraseKey_eq_of_beq_maxKeyD_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k fallback}
-    (he : (eraseKey k l).isEmpty = false) : (heq : (k == minKeyD l fallback) = false) →
-    (eraseKey k l |> minKeyD <| fallback) = minKeyD l fallback:= by
-  simpa only [minKey_eq_minKeyD (fallback := fallback)] using
-    minKey_eraseKey_eq_of_beq_minKey_eq_false hd (he := he)
+    (he : (eraseKey k l).isEmpty = false) : (heq : (k == maxKeyD l fallback) = false) →
+    (eraseKey k l |> maxKeyD <| fallback) = maxKeyD l fallback:=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_eraseKey_eq_of_beq_minKeyD_eq_false hd he
 
-theorem minKeyD_le_minKeyD_erase [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_le_maxKeyD_erase [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k} (he : (eraseKey k l).isEmpty = false)
     {fallback} :
-    compare (minKeyD l fallback) (eraseKey k l |> minKeyD <| fallback) |>.isLE := by
-  simpa only [minKey_eq_minKeyD (fallback := fallback)] using
-    minKey_le_minKey_erase hd (he := he)
+    compare (eraseKey k l |> maxKeyD <| fallback) (maxKeyD l fallback) |>.isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_le_minKeyD_erase hd he
 
-theorem minKeyD_insertEntryIfNew [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_insertEntryIfNew [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v fallback} :
-    (insertEntryIfNew k v l |> minKeyD <| fallback) =
-      (minKey? l).elim k fun k' => if compare k k' = .lt then k else k' := by
-  simpa only [minKey_eq_minKeyD (fallback := fallback)] using minKey_insertEntryIfNew hd
+    (insertEntryIfNew k v l |> maxKeyD <| fallback) =
+      (maxKey? l).elim k fun k' => if compare k' k = .lt then k else k' :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_insertEntryIfNew hd
 
-theorem minKeyD_insertEntryIfNew_le_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_insertEntryIfNew_le_maxKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) (he : l.isEmpty = false) {k v fallback} :
-    compare (insertEntryIfNew k v l |> minKeyD <| fallback) (minKeyD l fallback) |>.isLE := by
-  simpa only [minKey_eq_minKeyD (fallback := fallback)] using
-    minKey_insertEntryIfNew_le_minKey hd (he := he)
+    compare (maxKeyD l fallback) (insertEntryIfNew k v l |> maxKeyD <| fallback) |>.isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_insertEntryIfNew_le_minKeyD hd he
 
-theorem minKeyD_insertEntryIfNew_le_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_insertEntryIfNew_le_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v fallback} :
-    compare (insertEntryIfNew k v l |> minKeyD <| fallback) k |>.isLE := by
-  simpa only [minKey_eq_minKeyD (fallback := fallback)] using minKey_insertEntryIfNew_le_self hd
+    compare k (insertEntryIfNew k v l |> maxKeyD <| fallback) |>.isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_insertEntryIfNew_le_self hd
 
-theorem minKeyD_eq_headD_keys [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_eq_headD_keys [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (ho : l.Pairwise fun a b => compare a.1 b.1 = .lt) {fallback} :
-    minKeyD l fallback = (keys l).headD fallback := by
-  simp [minKeyD_eq_getD_minKey?, minKey?_eq_head?_keys ho]
+    maxKeyD l fallback = (keys l).headD fallback := by
+  simp only [List.getLastD_eq_getLast?, maxKeyD_eq_getD_maxKey?,
+    Option.get!_eq_getD, maxKey?_eq_getLast?_keys hd ho]
+  letI : Ord α := .opposite inferInstance
+  minKeyD_eq_headD_keys ho
 
-theorem minKeyD_modifyKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [LawfulEqOrd α]
+theorem maxKeyD_modifyKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [LawfulEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k f fallback} :
-    (modifyKey k f l |> minKeyD <| fallback) = minKeyD l fallback := by
-  cases he : l.isEmpty
-  · have := minKey_modifyKey hd (he := isEmpty_modifyKey k f l ▸ he)
-    -- fails after inlining `this`
-    simpa [minKey_eq_minKeyD (fallback := fallback)] using this
-  · simp_all [modifyKey]
+    (modifyKey k f l |> maxKeyD <| fallback) = maxKeyD l fallback :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_modifyKey hd
 
-theorem minKeyD_alterKey_eq_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [LawfulEqOrd α]
+theorem maxKeyD_alterKey_eq_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [LawfulEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k f fallback}
     (he : (alterKey k f l).isEmpty = false) :
-    (alterKey k f l |> minKeyD <| fallback) = k ↔
-      (f (getValueCast? k l)).isSome ∧ ∀ k', containsKey k' l → (compare k k').isLE := by
-  simpa only [minKey_eq_minKeyD (fallback := fallback)] using minKey_alterKey_eq_self hd (he := he)
+    (alterKey k f l |> maxKeyD <| fallback) = k ↔
+      (f (getValueCast? k l)).isSome ∧ ∀ k', containsKey k' l → (compare k' k).isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_alterKey_eq_self hd he
 
 namespace Const
 
 variable {β : Type v}
 
-theorem minKeyD_modifyKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_modifyKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((_ : α) × β)} (hd : DistinctKeys l) {k f} (he : (modifyKey k f l).isEmpty = false)
     {fallback} :
-    (modifyKey k f l |> minKeyD <| fallback) = if (minKeyD l fallback) == k then k else (minKeyD l fallback) := by
-  simpa only [minKey_eq_minKeyD (fallback := fallback)] using minKey_modifyKey hd (he := he)
+    (modifyKey k f l |> maxKeyD <| fallback) = if (maxKeyD l fallback) == k then k else (maxKeyD l fallback) :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_modifyKey hd he
 
-theorem minKeyD_modifyKey_eq_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [LawfulEqOrd α]
+theorem maxKeyD_modifyKey_eq_maxKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [LawfulEqOrd α]
     {l : List ((_ : α) × β)} (hd : DistinctKeys l) {k f fallback} :
-    (modifyKey k f l |> minKeyD <| fallback) = minKeyD l fallback := by
-  cases he : l.isEmpty
-  · have := minKey_modifyKey_eq_minKey hd (he := isEmpty_modifyKey k f l ▸ he)
-    -- fails after inlining `this`
-    simpa [minKey_eq_minKeyD (fallback := fallback)] using this
-  · simp_all [modifyKey]
+    (modifyKey k f l |> maxKeyD <| fallback) = maxKeyD l fallback :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_modifyKey_eq_minKeyD hd
 
-theorem minKeyD_modifyKey_beq [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_modifyKey_beq [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((_ : α) × β)} (hd : DistinctKeys l) {k f fallback} :
-    (modifyKey k f l |> minKeyD <| fallback) == (minKeyD l fallback) := by
-  cases he : l.isEmpty
-  · have := minKey_modifyKey_beq hd (he := isEmpty_modifyKey k f l ▸ he)
-    -- fails after inlining `this`
-    simpa [minKey_eq_minKeyD (fallback := fallback)] using this
-  · simp_all [modifyKey]
+    (modifyKey k f l |> maxKeyD <| fallback) == (maxKeyD l fallback) :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_modifyKey_beq hd
 
-theorem minKeyD_alterKey_eq_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_alterKey_eq_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((_ : α) × β)} (hd : DistinctKeys l) {k f} (he : (alterKey k f l).isEmpty = false)
     {fallback} :
-    (alterKey k f l |> minKeyD <| fallback) = k ↔
-      (f (getValue? k l)).isSome ∧ ∀ k', containsKey k' l → (compare k k').isLE := by
-  simpa only [minKey_eq_minKeyD (fallback := fallback)] using minKey_alterKey_eq_self hd (he := he)
+    (alterKey k f l |> maxKeyD <| fallback) = k ↔
+      (f (getValue? k l)).isSome ∧ ∀ k', containsKey k' l → (compare k' k).isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKeyD_alterKey_eq_self hd he
 
 end Const
 

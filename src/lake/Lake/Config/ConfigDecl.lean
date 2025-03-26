@@ -39,12 +39,15 @@ abbrev ConfigType (kind : Name) (pkgName name : Name) : Type :=
   | .anonymous => OpaqueTargetConfig pkgName name
   | _ => Empty
 
+/-- Forward declared `ConfigTarget` to work around current recursion with `Package`. -/
+opaque OpaqueConfigTarget (kind : Name) : Type
+
 structure ConfigDecl where
   pkg : Name
   name : Name
   kind : Name
   config : ConfigType kind pkg name
-  wf_data : ¬ kind.isAnonymous → CustomData pkg name = TargetData kind
+  wf_data : ¬ kind.isAnonymous → CustomData pkg name = TargetData kind ∧ TargetData kind = OpaqueConfigTarget kind
   deriving TypeName
 
 structure PConfigDecl (p : Name) extends ConfigDecl where
@@ -58,6 +61,12 @@ structure KConfigDecl (k : Name) extends ConfigDecl where
 
 instance : Nonempty (NConfigDecl pkg name) :=
   ⟨{pkg, name, kind := .anonymous, config := Classical.ofNonempty, wf_data := by simp [Name.isAnonymous]}⟩
+
+@[inline] def PConfigDecl.config' (self : PConfigDecl p) : ConfigType self.kind p self.name :=
+  cast (by simp [self.pkg_eq]) self.config
+
+@[inline] def NConfigDecl.config' (self : NConfigDecl p n) : ConfigType self.kind p n :=
+  cast (by simp [self.name_eq]) self.toPConfigDecl.config'
 
 @[inline] def ConfigDecl.config? (kind : Name) (self : ConfigDecl) : Option (ConfigType kind self.pkg self.name) :=
   if h : self.kind = kind then
@@ -98,11 +107,15 @@ abbrev LeanExeDecl := KConfigDecl LeanExe.configKind
 /-- An external library declaration from a configuration written in Lean. -/
 abbrev ExternLibDecl := KConfigDecl ExternLib.configKind
 
+@[inline] def PConfigDecl.opaqueTargetConfig (self : PConfigDecl p) (h : self.kind.isAnonymous) : OpaqueTargetConfig p self.name :=
+  cast (by simp [self.pkg_eq, Name.eq_anonymous_of_isAnonymous h, ConfigType]) self.config
+
+@[inline] def NConfigDecl.opaqueTargetConfig (self : NConfigDecl p n) (h : self.kind.isAnonymous) : OpaqueTargetConfig p n :=
+  cast (by simp [self.name_eq]) (self.toPConfigDecl.opaqueTargetConfig h)
+
 @[inline] def PConfigDecl.opaqueTargetConfig? (self : PConfigDecl p) : Option (OpaqueTargetConfig p self.name) :=
   if h : self.kind.isAnonymous then
-    have h : self.kind = .anonymous := by
-      revert h; cases self.kind <;> simp [Name.isAnonymous]
-    some <| cast (by simp [self.pkg_eq, h, ConfigType]) self.config
+    some <| self.opaqueTargetConfig h
   else
     none
 

@@ -57,6 +57,9 @@ def eraseHead : Name → Name
 | .str p s => .str (eraseHead p) s
 | .num p s => .num (eraseHead p) s
 
+theorem eq_anonymous_of_isAnonymous {n : Name} : (h : n.isAnonymous) → n = .anonymous := by
+  cases n <;> simp [Name.isAnonymous]
+
 @[simp] protected theorem beq_false (m n : Name) : (m == n) = false ↔ ¬ (m = n) := by
   rw [← beq_iff_eq (a := m) (b := n)]; cases m == n <;> simp +decide
 

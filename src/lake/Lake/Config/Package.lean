@@ -458,6 +458,8 @@ structure ConfigTarget (kind : Name) where
   /-- The target's user-defined configuration. -/
   config : ConfigType kind pkg.name name
 
+@[simp] axiom OpaqueConfigTarget.def {k : Name} : OpaqueConfigTarget k = ConfigTarget k
+
 namespace Package
 
 /-- The package version. -/
@@ -647,6 +649,10 @@ namespace Package
 /-- The package's `buildDir` joined with its `irDir` configuration. -/
 @[inline] def irDir (self : Package) : FilePath :=
   self.buildDir / self.config.irDir
+
+/-- Try to find a target configuration in the package with the given name. -/
+def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.name name) :=
+  self.targetDeclMap.find? name
 
 /-- Whether the given module is considered local to the package. -/
 def isLocalModule (mod : Name) (self : Package) : Bool :=

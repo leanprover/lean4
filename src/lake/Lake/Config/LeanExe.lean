@@ -10,7 +10,7 @@ namespace Lake
 open Lean System
 
 /-- A Lean executable -- its package plus its configuration. -/
-def LeanExe := ConfigTarget LeanExe.configKind
+abbrev LeanExe := ConfigTarget LeanExe.configKind
 
 /-- The Lean executables of the package (as an Array). -/
 @[inline] def Package.leanExes (self : Package) : Array LeanExe :=
@@ -19,7 +19,7 @@ def LeanExe := ConfigTarget LeanExe.configKind
 
 /-- Try to find a Lean executable in the package with the given name. -/
 @[inline] def Package.findLeanExe? (name : Name) (self : Package) : Option LeanExe :=
-  self.targetDeclMap.find? name |>.bind fun t => t.leanExeConfig?.map fun cfg =>
+  self.findTargetDecl? name |>.bind fun t => t.leanExeConfig?.map fun cfg =>
     ⟨self, name, cfg⟩
 
 /--

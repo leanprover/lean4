@@ -10,7 +10,7 @@ namespace Lake
 open Lean (Name)
 
 /-- An external library -- its package plus its configuration. -/
-def ExternLib := ConfigTarget ExternLib.configKind
+abbrev ExternLib := ConfigTarget ExternLib.configKind
 
 /-- The external libraries of the package (as an Array). -/
 @[inline] def Package.externLibs (self : Package) : Array ExternLib :=
@@ -19,7 +19,7 @@ def ExternLib := ConfigTarget ExternLib.configKind
 
 /-- Try to find a external library in the package with the given name. -/
 @[inline] def Package.findExternLib? (name : Name) (self : Package) : Option ExternLib :=
-  self.targetDeclMap.find? name |>.bind fun t => t.externLibConfig?.map fun cfg =>
+  self.findTargetDecl? name |>.bind fun t => t.externLibConfig?.map fun cfg =>
     ⟨self, name, cfg⟩
 
 namespace ExternLib

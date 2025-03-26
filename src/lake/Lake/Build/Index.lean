@@ -40,26 +40,21 @@ def mkTargetFacetBuild
 def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) :=
   match info with
   | .target pkg target kind => do
-    match kind with
-    | .anonymous =>
-      if let some config := pkg.findTargetConfig? target then
-        config.fetchFn pkg
+    if let some decl := pkg.findTargetDecl? target then
+      if k_eq : kind = decl.kind then
+        if h : decl.kind.isAnonymous then
+          let cfg := decl.targetConfig h
+          have h := Name.eq_anonymous_of_isAnonymous h
+          cast (by rw [k_eq, h]) (cfg.fetchFn pkg)
+        else
+          let tgt := ConfigTarget.mk pkg target decl.config'
+          have h_kind := BuildKey.packageTarget pkg.name target decl.kind |>.data_eq_of_kind h
+          let tgt := cast (by simp [k_eq, h_kind, decl.wf_data h |>.2]) tgt
+          return Job.pure tgt
       else
-        error s!"invalid target '{info}': custom target '{target}' not found in package '{pkg.name}'"
-    | LeanLib.facetKind =>
-      let some lib := pkg.findLeanLib? target
-        | error s!"invalid target '{info}': Lean library '{target}' not found in package '{pkg.name}'"
-      return Job.pure <| toFamily lib
-    | LeanExe.facetKind =>
-      let some exe := pkg.findLeanExe? target
-        | error s!"invalid target '{info}': Lean executable '{target}' not found in package '{pkg.name}'"
-      return Job.pure <| toFamily exe
-    | ExternLib.facetKind =>
-      let some lib := pkg.findExternLib? target
-        | error s!"invalid target '{info}': external library '{target}' not found in package '{pkg.name}'"
-      return Job.pure <| toFamily lib
-    | _ =>
-      error s!"invalid target '{info}': unknown target kind '{kind}'"
+        error s!"invalid target '{info}': target is of kind '{decl.kind}', but requested as '{kind}'"
+    else
+      error s!"invalid target '{info}': target not found in package"
   | .facet target data facet => do
     if let some config := (← getWorkspace).findFacetConfig? facet then
       if h : config.kind = target.kind then
@@ -67,7 +62,7 @@ def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) :=
       else
         error s!"invalid target '{info}': target is of kind '{target.kind}', but facet expects '{config.kind}'"
     else
-      error s!"invalid target '{info}': unknown facet`{facet}`"
+      error s!"invalid target '{info}': unknown facet '{facet}'"
 
 /-- Recursive build function with memoization. -/
 def recFetchWithIndex : (info : BuildInfo) → RecBuildM (Job (BuildData info.key)) :=

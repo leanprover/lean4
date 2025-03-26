@@ -29,6 +29,9 @@ structure TargetConfig (pkgName name : Name) : Type where
 
 hydrate_opaque_type OpaqueTargetConfig TargetConfig pkgName name
 
+@[inline] def NConfigDecl.targetConfig (self : NConfigDecl p n) (h : self.kind.isAnonymous) : TargetConfig p n :=
+  self.opaqueTargetConfig h |>.get
+
 @[inline] def NConfigDecl.targetConfig? (self : NConfigDecl p n) : Option (TargetConfig p n) :=
   self.opaqueTargetConfig?.map (·.get)
 

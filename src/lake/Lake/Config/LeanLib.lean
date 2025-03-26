@@ -10,7 +10,7 @@ namespace Lake
 open Lean System
 
 /-- A Lean library -- its package plus its configuration. -/
-def LeanLib := ConfigTarget LeanLib.configKind
+abbrev LeanLib := ConfigTarget LeanLib.configKind
 
 /-- The Lean libraries of the package (as an Array). -/
 @[inline] def Package.leanLibs (self : Package) : Array LeanLib :=
@@ -19,7 +19,7 @@ def LeanLib := ConfigTarget LeanLib.configKind
 
 /-- Try to find a Lean library in the package with the given name. -/
 @[inline] def Package.findLeanLib? (name : Name) (self : Package) : Option LeanLib :=
-  self.targetDeclMap.find? name |>.bind fun t => t.leanLibConfig?.map fun cfg =>
+  self.findTargetDecl? name |>.bind fun t => t.leanLibConfig?.map fun cfg =>
     ⟨self, name, cfg⟩
 
 namespace LeanLib

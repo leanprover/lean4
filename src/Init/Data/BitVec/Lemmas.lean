@@ -732,7 +732,7 @@ theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
     rw [(show w = w - 1 + 1 by omega), Int.pow_succ] at this
     omega
 
-/-! ### slt -/
+/-! ### sle/slt -/
 
 /--
 A bitvector, when interpreted as an integer, is less than zero iff
@@ -761,6 +761,15 @@ theorem sle_iff_toInt_le {w : Nat} {b b' : BitVec w} : b.sle b' ↔ b.toInt ≤ 
 
 theorem slt_iff_toInt_lt {w : Nat} {b b' : BitVec w} : b.slt b' ↔ b.toInt < b'.toInt :=
   decide_eq_true_iff
+
+theorem sle_eq_slt_or_eq (n m : BitVec w) : n.sle m = (n.slt m || n == m) := by
+  apply Bool.eq_iff_iff.2
+  simp only [BitVec.sle, decide_eq_true_eq, BitVec.slt, Bool.or_eq_true, beq_iff_eq, ← toInt_inj]
+  omega
+
+theorem slt_eq_sle_and_ne (n m : BitVec w) : n.slt m = (n.sle m && n != m) := by
+  apply Bool.eq_iff_iff.2
+  simp [BitVec.slt, BitVec.sle, Int.lt_iff_le_and_ne, BitVec.toInt_inj]
 
 /-! ### setWidth, zeroExtend and truncate -/
 
@@ -4762,6 +4771,12 @@ theorem toInt_neg_eq_ite {x : BitVec w} :
 theorem msb_intMin {w : Nat} : (intMin w).msb = decide (0 < w) := by
   simp only [msb_eq_decide, toNat_intMin, decide_eq_decide]
   by_cases h : 0 < w <;> simp_all
+
+theorem ne_intMin_of_msb_eq_false (h : 0 < w) {n : BitVec w} (hn : n.msb = false) :
+    n ≠ intMin w := by
+  rintro rfl
+  simp only [msb_intMin, decide_eq_false_iff_not, Nat.not_lt, Nat.le_zero_eq] at hn
+  omega
 
 /-! ### intMax -/
 

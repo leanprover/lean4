@@ -333,7 +333,7 @@ private def saveBVar (idx : Nat) : M Unit := do
   modify fun s => { s with bvarsFound := s.bvarsFound.insert idx }
 
 private def getPatternFn? (pattern : Expr) : Option Expr :=
-  if !pattern.isApp then
+  if !pattern.isApp && !pattern.isConst then
     none
   else match pattern.getAppFn with
     | f@(.const declName _) => if isForbidden declName then none else some f

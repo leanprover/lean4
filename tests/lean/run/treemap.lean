@@ -152,23 +152,23 @@ local instance : Inhabited ((_ : Nat) × Nat) where
 
 /-- info: some 2 -/
 #guard_msgs in
-#eval t.keyAtIndex? 1
+#eval t.keyAtIdx? 1
 
 /-- info: none -/
 #guard_msgs in
-#eval t.keyAtIndex? 3
+#eval t.keyAtIdx? 3
 
 /-- info: 2 -/
 #guard_msgs in
-#eval t.keyAtIndex! 1
+#eval t.keyAtIdx! 1
 
 /-- info: 2 -/
 #guard_msgs in
-#eval t.keyAtIndexD 1 42
+#eval t.keyAtIdxD 1 42
 
 /-- info: 42 -/
 #guard_msgs in
-#eval t.keyAtIndexD 3 42
+#eval t.keyAtIdxD 3 42
 
 /-- info: [none, none, some ⟨1, 2⟩, some ⟨2, 4⟩, some ⟨3, 6⟩] -/
 #guard_msgs in
@@ -591,11 +591,11 @@ warning: declaration uses 'sorry'
 
 /-- info: some 2 -/
 #guard_msgs in
-#eval t.keyAtIndex? 1
+#eval t.keyAtIdx? 1
 
 /-- info: none -/
 #guard_msgs in
-#eval t.keyAtIndex? 3
+#eval t.keyAtIdx? 3
 
 /--
 info: 2
@@ -603,19 +603,19 @@ info: 2
 warning: declaration uses 'sorry'
 -/
 #guard_msgs in
-#eval! t.keyAtIndex 1 sorry
+#eval! t.keyAtIdx 1 sorry
 
 /-- info: 2 -/
 #guard_msgs in
-#eval t.keyAtIndex! 1
+#eval t.keyAtIdx! 1
 
 /-- info: 2 -/
 #guard_msgs in
-#eval t.keyAtIndexD 1 42
+#eval t.keyAtIdxD 1 42
 
 /-- info: 42 -/
 #guard_msgs in
-#eval t.keyAtIndexD 3 42
+#eval t.keyAtIdxD 3 42
 
 /-- info: [none, none, some ⟨1, 2⟩, some ⟨2, 4⟩, some ⟨3, 6⟩] -/
 #guard_msgs in
@@ -1031,23 +1031,23 @@ local instance : Inhabited ((_ : Nat) × Nat) where
 
 /-- info: some 2 -/
 #guard_msgs in
-#eval t.keyAtIndex? 1
+#eval t.keyAtIdx? 1
 
 /-- info: none -/
 #guard_msgs in
-#eval t.keyAtIndex? 3
+#eval t.keyAtIdx? 3
 
 /-- info: 2 -/
 #guard_msgs in
-#eval t.keyAtIndex! 1
+#eval t.keyAtIdx! 1
 
 /-- info: 2 -/
 #guard_msgs in
-#eval t.keyAtIndexD 1 42
+#eval t.keyAtIdxD 1 42
 
 /-- info: 42 -/
 #guard_msgs in
-#eval t.keyAtIndexD 3 42
+#eval t.keyAtIdxD 3 42
 
 /-- info: [none, none, some (1, 2), some (2, 4), some (3, 6)] -/
 #guard_msgs in
@@ -1345,11 +1345,11 @@ warning: declaration uses 'sorry'
 
 /-- info: some 2 -/
 #guard_msgs in
-#eval t.keyAtIndex? 1
+#eval t.keyAtIdx? 1
 
 /-- info: none -/
 #guard_msgs in
-#eval t.keyAtIndex? 3
+#eval t.keyAtIdx? 3
 
 /--
 info: 2
@@ -1357,19 +1357,19 @@ info: 2
 warning: declaration uses 'sorry'
 -/
 #guard_msgs in
-#eval! t.keyAtIndex 1 sorry
+#eval! t.keyAtIdx 1 sorry
 
 /-- info: 2 -/
 #guard_msgs in
-#eval t.keyAtIndex! 1
+#eval t.keyAtIdx! 1
 
 /-- info: 2 -/
 #guard_msgs in
-#eval t.keyAtIndexD 1 42
+#eval t.keyAtIdxD 1 42
 
 /-- info: 42 -/
 #guard_msgs in
-#eval t.keyAtIndexD 3 42
+#eval t.keyAtIdxD 3 42
 
 /-- info: [none, none, some (1, 2), some (2, 4), some (3, 6)] -/
 #guard_msgs in

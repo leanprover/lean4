@@ -406,40 +406,40 @@ def entryAtIdxD : Impl α β → Nat → (a : α) × β a → (a : α) × β a
     | .gt => r.entryAtIdxD (n - l.size - 1) fallback
 
 /-- Implementation detail of the tree map -/
-def keyAtIndex : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → α
+def keyAtIdx : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → α
   | .inner _ k _ l' r', hl, n, h =>
     match h : compare n l'.size with
-    | .lt => keyAtIndex l' hl.left n (by simpa only [Std.Internal.tree_tac] using h)
+    | .lt => keyAtIdx l' hl.left n (by simpa only [Std.Internal.tree_tac] using h)
     | .eq => k
     | .gt =>
-      keyAtIndex r' hl.right (n - l'.size - 1) (by simp_all only [Std.Internal.tree_tac]; omega)
+      keyAtIdx r' hl.right (n - l'.size - 1) (by simp_all only [Std.Internal.tree_tac]; omega)
 
 /-- Implementation detail of the tree map -/
-def keyAtIndex? : Impl α β → Nat → Option α
+def keyAtIdx? : Impl α β → Nat → Option α
   | .leaf, _ => none
   | .inner _ k _ l r, n =>
     match compare n l.size with
-    | .lt => keyAtIndex? l n
+    | .lt => keyAtIdx? l n
     | .eq => some k
-    | .gt => keyAtIndex? r (n - l.size - 1)
+    | .gt => keyAtIdx? r (n - l.size - 1)
 
 /-- Implementation detail of the tree map -/
-def keyAtIndex! [Inhabited α] : Impl α β → Nat → α
+def keyAtIdx! [Inhabited α] : Impl α β → Nat → α
   | .leaf, _ => panic! "Out-of-bounds access"
   | .inner _ k _ l r, n =>
     match compare n l.size with
-    | .lt => keyAtIndex! l n
+    | .lt => keyAtIdx! l n
     | .eq => k
-    | .gt => keyAtIndex! r (n - l.size - 1)
+    | .gt => keyAtIdx! r (n - l.size - 1)
 
 /-- Implementation detail of the tree map -/
-def keyAtIndexD : Impl α β → Nat → α → α
+def keyAtIdxD : Impl α β → Nat → α → α
   | .leaf, _, fallback => fallback
   | .inner _ k _ l r, n, fallback =>
     match compare n l.size with
-    | .lt => keyAtIndexD l n fallback
+    | .lt => keyAtIdxD l n fallback
     | .eq => k
-    | .gt => keyAtIndexD r (n - l.size - 1) fallback
+    | .gt => keyAtIdxD r (n - l.size - 1) fallback
 
 /-- Implementation detail of the tree map -/
 @[inline]

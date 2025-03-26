@@ -872,12 +872,12 @@ def simpTarget (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray 
 def applySimpResultToProp (mvarId : MVarId) (proof : Expr) (prop : Expr) (r : Simp.Result) (mayCloseGoal := true) : MetaM (Option (Expr × Expr)) := do
   if mayCloseGoal && r.expr.isFalse then
     match r.proof? with
-    | some eqProof => mvarId.assign (← mkFalseElim (← mvarId.getType) (← mkEqMP eqProof proof))
+    | some eqProof => mvarId.assign (← mkFalseElim (← mvarId.getType) (mkApp4 (mkConst ``Eq.mp [levelZero]) prop r.expr eqProof proof))
     | none => mvarId.assign (← mkFalseElim (← mvarId.getType) proof)
     return none
   else
     match r.proof? with
-    | some eqProof => return some ((← mkEqMP eqProof proof), r.expr)
+    | some eqProof => return some (mkApp4 (mkConst ``Eq.mp [levelZero]) proof r.expr eqProof proof, r.expr)
     | none =>
       if r.expr != prop then
         return some ((← mkExpectedTypeHint proof r.expr), r.expr)

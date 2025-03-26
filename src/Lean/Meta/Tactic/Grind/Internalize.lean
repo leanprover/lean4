@@ -116,14 +116,19 @@ private def mkENode' (e : Expr) (generation : Nat) : GoalM Unit :=
 
 /-- Internalizes the nested ground terms in the given pattern. -/
 private partial def internalizePattern (pattern : Expr) (generation : Nat) : GoalM Expr := do
-  if pattern.isBVar || isPatternDontCare pattern then
-    return pattern
-  else if let some e := groundPattern? pattern then
-    let e ← preprocessGroundPattern e
-    internalize e generation none
-    return mkGroundPattern e
-  else pattern.withApp fun f args => do
-    return mkAppN f (← args.mapM (internalizePattern · generation))
+  -- Recall that it is important to ensure patterns are maximally shared since
+  -- we assume that in functions such as `getAppsOf` in `EMatch.lean`
+  go (← shareCommon pattern)
+where
+  go (pattern : Expr) : GoalM Expr := do
+    if pattern.isBVar || isPatternDontCare pattern then
+      return pattern
+    else if let some e := groundPattern? pattern then
+      let e ← preprocessGroundPattern e
+      internalize e generation none
+      return mkGroundPattern e
+    else pattern.withApp fun f args => do
+      return mkAppN f (← args.mapM go)
 
 /-- Internalizes the `MatchCond` gadget. -/
 private def internalizeMatchCond (matchCond : Expr) (generation : Nat) : GoalM Unit := do

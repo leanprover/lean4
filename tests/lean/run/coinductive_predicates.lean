@@ -1,7 +1,7 @@
 open Lean.Order
 
-set_option trace.Elab.definition.partialFixpoint true
-set_option trace.Elab.definition.partialFixpoint.induction true
+-- set_option trace.Elab.definition.partialFixpoint true
+-- set_option trace.Elab.definition.partialFixpoint.induction true
 
 @[partial_fixpoint_monotone] theorem monotone_exists
     {α} [PartialOrder α] {β} (f : α → β → Prop)
@@ -28,6 +28,5 @@ def infinite_chain_fixpoint {α} (step : α → Option α) (x : α) :
 theorem infinite_chain.coind {α} (P : α → Prop) (step : α → Option α)
   (h : ∀ (x : α), P x → ∃ y, step x = some y ∧ P y) :
   ∀ x, P x → infinite_chain step x := by
-    delta infinite_chain
     apply infinite_chain.fixpoint_induct
     apply h

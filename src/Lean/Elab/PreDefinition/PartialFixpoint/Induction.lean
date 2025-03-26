@@ -85,12 +85,36 @@ def deriveInduction (name : Name) : MetaM Unit :=
         let_expr gfp_monotone α instcomplete_lattice F hmono := fixApp
           | throwError "Unexpected function body {body}, not an application of gfp_coinduction"
         let e' ← mkAppOptM  ``gfp_coinduction_monotone #[α, instcomplete_lattice, F, hmono]
+        --get the type
+        let eTyp ← inferType e'
+        let f ← mkConstWithLevelParams infos[0]!.name
+        let fEtaExpanded ← lambdaTelescope infos[0]!.value fun ys _ =>
+            mkLambdaFVars ys (mkAppN f ys)
+        let fInst ← eqnInfo.fixedParamPerms.perms[0]!.instantiateLambda fEtaExpanded xs
+        let fInst := fInst.eta
+
+        -- and change it so it doesn't mention gfp
+        let newTyp := forallTelescope eTyp (fun args econc =>
+          if (econc.isAppOfArity ``PartialOrder.rel 4) then
+          let oldArgs := econc.getAppArgs.pop
+          let newArgs := oldArgs.append #[fInst]
+          let newBody := mkAppN econc.getAppFn newArgs
+          mkForallFVars args newBody
+        else
+          throwError "Unexpected conclusion of the fixpoint induction principle: {econc}"
+        )
+
+        let e' ← mkExpectedTypeHint e' (←newTyp)
         let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
         let e' ← instantiateMVars e'
         trace[Elab.definition.partialFixpoint.induction] "complete body of fixpoint induction principle:{indentExpr e'}"
+
         pure e'
+      -- get function
+
       let eTyp ← inferType e'
       let eTyp ← elimOptParam eTyp
+
       -- logInfo m!"eTyp: {eTyp}"
       let params := (collectLevelParams {} eTyp).params
       -- Prune unused level parameters, preserving the original order

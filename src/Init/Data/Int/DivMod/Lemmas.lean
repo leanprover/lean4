@@ -746,7 +746,7 @@ theorem tdiv_cases (n m : Int) : n.tdiv m =
     · rw [Int.tdiv_eq_ediv, Int.neg_ediv]
       simp [hn, Int.neg_sub, Int.add_comm]
     · rw [Int.tdiv_eq_ediv, Int.neg_ediv, Int.ediv_neg]
-      simp [hn, Int.sub_eq_add_neg, Int.neg_ite]
+      simp [hn, Int.sub_eq_add_neg, apply_ite Neg.neg]
 
 theorem neg_emod {a b : Int} : (-a) % b = if b ∣ a then 0 else b.natAbs - (a % b) := by
   rw [emod_def, emod_def, neg_ediv, Int.mul_sub, Int.mul_neg]

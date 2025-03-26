@@ -582,10 +582,4 @@ protected theorem natCast_succ (n : Nat) : ((n + 1 : Nat) : Int) = (n : Int) + 1
 @[simp] protected theorem natCast_mul (a b : Nat) : ((a * b : Nat) : Int) = (a : Int) * (b : Int) := by
   simp
 
-/-! 'if then else' lemmas -/
-
-theorem Int.neg_ite {n m : Int} {P : Prop} [Decidable P] :
-    (-if P then n else m) = (if P then -n else -m) := by
-  split <;> simp
-
 end Int

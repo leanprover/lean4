@@ -88,7 +88,7 @@ theorem contradiction_of_insertUnit_fold_success {n : Nat} (assignments : Array 
     intro insertUnit_res_success
     rcases h with ⟨acc_size, h⟩
     exact contradiction_of_insertUnit_success acc.2.1 acc_size acc.1 acc.2.2 l' h insertUnit_res_success
-  rcases List.foldlRecOn l insertUnit acc0 hb hl with ⟨_, h⟩
+  rcases List.foldlRecOn l insertUnit hb hl with ⟨_, h⟩
   exact h insertUnit_fold_success
 
 theorem mem_insertUnit_units {n : Nat} (units : Array (Literal (PosFin n))) (assignments : Array Assignment)
@@ -118,7 +118,7 @@ theorem mem_insertUnit_fold_units {n : Nat} (units : Array (Literal (PosFin n)))
     · rw [l'_eq_l'']
       exact Or.inl l''_in_l
     · exact h l' l'_in_acc
-  exact List.foldlRecOn l insertUnit (units, assignments, foundContradiction) hb hl
+  exact List.foldlRecOn l insertUnit hb hl
 
 theorem sat_of_insertRup {n : Nat} (f : DefaultFormula n) (f_readyForRupAdd : ReadyForRupAdd f) (c : DefaultClause n)
     (p : PosFin n → Bool) (pf : p ⊨ f) :
@@ -394,7 +394,7 @@ theorem unsat_of_encounteredBoth {n : Nat} (c : DefaultClause n)
         simp [heq, has_both] at hp
       · simp at h
     · simp at h
-  exact List.foldlRecOn c.clause (reduce_fold_fn assignment) reducedToEmpty hb hl
+  exact List.foldlRecOn c.clause (reduce_fold_fn assignment) hb hl
 
 def ReducePostconditionInductionMotive (c_arr : Array (Literal (PosFin n)))
     (assignment : Array Assignment) (idx : Nat) (res : ReduceResult (PosFin n)) :

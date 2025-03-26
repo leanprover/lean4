@@ -243,7 +243,7 @@ theorem merge_of_le : ∀ {xs ys : List α} (_ : ∀ a b, a ∈ xs → b ∈ ys 
     rw [if_pos, merge_of_le]
     · intro a b ma mb
       exact h a b (mem_cons_of_mem _ ma) mb
-    · exact h x y (mem_cons_self _ _) (mem_cons_self _ _)
+    · exact h x y mem_cons_self mem_cons_self
 
 variable (le) in
 theorem merge_perm_append : ∀ {xs ys : List α}, merge xs ys le ~ xs ++ ys
@@ -367,9 +367,9 @@ theorem mergeSort_cons {le : α → α → Bool}
       ∀ b, b ∈ l₁ → !le a b := by
   rw [← mergeSort_zipIdx]
   rw [zipIdx_cons]
-  have nd : Nodup ((a :: l).zipIdx.map (·.2)) := by rw [zipIdx_map_snd]; exact nodup_range' _ _
+  have nd : Nodup ((a :: l).zipIdx.map (·.2)) := by rw [zipIdx_map_snd]; exact nodup_range' _
   have m₁ : (a, 0) ∈ mergeSort ((a :: l).zipIdx) (zipIdxLE le) :=
-    mem_mergeSort.mpr (mem_cons_self _ _)
+    mem_mergeSort.mpr mem_cons_self
   obtain ⟨l₁, l₂, h⟩ := append_of_mem m₁
   have s := sorted_mergeSort (zipIdxLE_trans trans) (zipIdxLE_total total) ((a :: l).zipIdx)
   rw [h] at s
@@ -408,9 +408,9 @@ theorem mergeSort_cons {le : α → α → Bool}
     have nd' := nd.perm p.symm
     rw [map_append] at nd'
     have j0 := nd'.rel_of_mem_append
-      (mem_map_of_mem (·.2) m) (mem_map_of_mem _ (mem_cons_self _ _))
+      (mem_map_of_mem m) (mem_map_of_mem mem_cons_self)
     simp only [ne_eq] at j0
-    have r := s.rel_of_mem_append m (mem_cons_self _ _)
+    have r := s.rel_of_mem_append m mem_cons_self
     simp_all [zipIdxLE]
 
 /--

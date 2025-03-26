@@ -225,7 +225,7 @@ theorem toListModel_find?_of_lt [Ord α] [TransOrd α] {k : α → Ordering} [Is
     (inner sz k' v' l r : Impl α β).toListModel.find? (k ·.1 == .eq) =
       l.toListModel.find? (k ·.1 == .eq) := by
   rw [toListModel_inner, List.find?_append, Option.or_eq_left_of_none]
-  rw [List.find?_cons_of_neg _ (by simp [hcmp])]
+  rw [List.find?_cons_of_neg (by simp [hcmp])]
   refine List.find?_eq_none.2 (fun p hp => by simp [IsCut.lt hcmp (ho.compare_right hp)])
 
 theorem toListModel_filter_lt_of_gt [Ord α] [TransOrd α] {k : α → Ordering} [IsCut compare k]

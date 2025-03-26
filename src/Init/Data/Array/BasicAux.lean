@@ -17,7 +17,7 @@ theorem Array.of_push_eq_push {as bs : Array α} (h : as.push a = bs.push b) : a
   cases as; cases bs
   simp_all
 
-private theorem List.size_toArrayAux (as : List α) (bs : Array α) : (as.toArrayAux bs).size = as.length + bs.size := by
+private theorem List.size_toArrayAux {as : List α} {bs : Array α} : (as.toArrayAux bs).size = as.length + bs.size := by
   induction as generalizing bs with
   | nil => simp [toArrayAux]
   | cons a as ih => simp +arith [toArrayAux, *]
@@ -35,7 +35,7 @@ private theorem List.of_toArrayAux_eq_toArrayAux {as bs : List α} {cs ds : Arra
     have := Array.of_push_eq_push ih₂
     simp [this]
 
-theorem List.toArray_eq_toArray_eq (as bs : List α) : (as.toArray = bs.toArray) = (as = bs) := by
+theorem List.toArray_eq_toArray_eq {as bs : List α} : (as.toArray = bs.toArray) = (as = bs) := by
   simp
 
 /--

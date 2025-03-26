@@ -39,7 +39,7 @@ protected theorem sub_eq_iff_eq_add' {b a c : Int} : a - b = c ↔ a = b + c := 
 @[simp] theorem neg_ofNat_le_natCast (n m : Nat) : -(no_index (OfNat.ofNat n)) ≤ (m : Int) :=
   Int.le_trans (by simp) (ofNat_zero_le m)
 
-theorem Int.neg_lt_self_iff {n : Int} : -n < n ↔ 0 < n := by
+theorem neg_lt_self_iff {n : Int} : -n < n ↔ 0 < n := by
   omega
 
 /-! ### toNat -/

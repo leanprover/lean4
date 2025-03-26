@@ -13,18 +13,23 @@ open Lean (Name)
 
 namespace Lake
 
-/--
-The keyword and type kind for Lean library configurations. -/
+/-- The keyword for Lean library configurations. -/
 abbrev LeanLib.keyword : Name := `lean_lib
-@[inherit_doc keyword, match_pattern] abbrev LeanLib.configKind := keyword
 
-/-- The keyword and type kind for Lean executable configurations. -/
+/-- The type kind for Lean library configurations. -/
+@[match_pattern] abbrev LeanLib.configKind := facetKind
+
+/-- The keyword for Lean executable configurations. -/
 abbrev LeanExe.keyword : Name := `lean_exe
-@[inherit_doc keyword, match_pattern] abbrev LeanExe.configKind := keyword
 
-/-- The keyword and type kind for external library configurations. -/
+/-- The type kind for Lean executable configurations. -/
+@[match_pattern] abbrev LeanExe.configKind := facetKind
+
+/-- The keyword for external library configurations. -/
 abbrev ExternLib.keyword : Name := `extern_lib
-@[inherit_doc keyword, match_pattern] abbrev ExternLib.configKind := keyword
+
+/-- The type kind for external library configurations. -/
+@[match_pattern] abbrev ExternLib.configKind := facetKind
 
 abbrev ConfigType (kind : Name) (pkgName name : Name) : Type :=
   match kind with
@@ -39,16 +44,20 @@ structure ConfigDecl where
   name : Name
   kind : Name
   config : ConfigType kind pkg name
+  wf_data : ¬ kind.isAnonymous → CustomData pkg name = TargetData kind
   deriving TypeName
 
 structure PConfigDecl (p : Name) extends ConfigDecl where
-  pkg_eq : toConfigDecl.pkg = p
+  pkg_eq : toConfigDecl.pkg = p := by rfl
 
 structure NConfigDecl (p n : Name) extends PConfigDecl p where
-  name_eq : toConfigDecl.name = n
+  name_eq : toConfigDecl.name = n := by rfl
 
 structure KConfigDecl (k : Name) extends ConfigDecl where
-  kind_eq : toConfigDecl.kind = k
+  kind_eq : toConfigDecl.kind = k := by rfl
+
+instance : Nonempty (NConfigDecl pkg name) :=
+  ⟨{pkg, name, kind := .anonymous, config := Classical.ofNonempty, wf_data := by simp [Name.isAnonymous]}⟩
 
 @[inline] def ConfigDecl.config? (kind : Name) (self : ConfigDecl) : Option (ConfigType kind self.pkg self.name) :=
   if h : self.kind = kind then

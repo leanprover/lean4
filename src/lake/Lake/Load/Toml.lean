@@ -309,14 +309,14 @@ local macro "gen_toml_decoders%" : command => do
 gen_toml_decoders%
 
 def decodeTargetDecls
-  (p : Name) (t : Table)
-: DecodeM (Array (PConfigDecl p) × DNameMap (NConfigDecl p)) := do
+  (pkg : Name) (t : Table)
+: DecodeM (Array (PConfigDecl pkg) × DNameMap (NConfigDecl pkg)) := do
   let r := (#[], {})
   let r ← go r LeanLib.keyword LeanLib.configKind LeanLibConfig.decodeToml
   let r ← go r LeanExe.keyword LeanExe.configKind LeanExeConfig.decodeToml
   return r
 where
-  go r kw k (decode : {n : Name} → Table → DecodeM (ConfigType k p n)) := do
+  go r kw kind (decode : {n : Name} → Table → DecodeM (ConfigType kind pkg n)) := do
     let some tableArrayVal := t.find? kw | return r
     let some vals ← tryDecode? tableArrayVal.decodeValueArray | return r
     vals.foldlM (init := r) fun r val => do
@@ -326,13 +326,15 @@ where
       let (decls, map) := r
       if let some orig := map.find? name then
         modify fun es => es.push <| .mk val.ref s!"\
-          {p}: target '{name}' was already defined as a '{orig.kind}', \
-          but then redefined as a '{k}'"
+          {pkg}: target '{name}' was already defined as a '{orig.kind}', \
+          but then redefined as a '{kind}'"
         return (decls, map)
       else
-        let cfg ← @decode name t
-        let decl := .mk (.mk p name k cfg) rfl
-        return (decls.push decl, map.insert name (.mk decl rfl))
+        let config ← @decode name t
+        let decl : NConfigDecl pkg name :=
+          -- Safety: By definition, config kind = facet kind for declarative configurations.
+          unsafe {pkg, name, kind, config, wf_data := lcProof}
+        return (decls.push decl.toPConfigDecl, map.insert name decl)
 
 /-! ## Root Loader -/
 

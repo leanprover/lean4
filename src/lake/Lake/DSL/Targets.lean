@@ -155,7 +155,7 @@ abbrev mkTargetDecl
   let cfg := mkTargetJobConfig fun pkg => do
     withRegisterJob (pkg.target target |>.key.toSimpleString)
       (f pkg)
-  .mk (.mk pkgName target .anonymous (.mk cfg)) rfl
+  .mk (.mk pkgName target .anonymous (.mk cfg) (by simp [Name.isAnonymous])) rfl
 
 /--
 Define a new custom target for the package. Has one form:
@@ -182,7 +182,7 @@ def expandTargetCommand : Macro := fun stx => do
   let attr ← `(Term.attrInstance| «target»)
   let attrs := #[attr] ++ expandAttrs attrs?
   let name := Name.quoteFrom id id.getId
-  let pkgName := mkIdentFrom id `_package.name
+  let pkgName := mkIdentFrom id (packageDeclName.str "name")
   let pkg ← expandOptSimpleBinder pkg?
   `(family_def $id : CustomOut ($pkgName, $name) := $ty
     $[$doc?]? abbrev $id :=
@@ -194,7 +194,14 @@ def expandTargetCommand : Macro := fun stx => do
 /-! ## Lean Library & Executable Target Declarations -/
 --------------------------------------------------------------------------------
 
-def mkConfigDecl
+abbrev mkConfigDecl
+  (pkg name kind : Name)
+  (config : ConfigType kind pkg name)
+  [FamilyDef (CustomData pkg) name (TargetData kind)]
+: KConfigDecl kind :=
+  {pkg, name, kind, config, wf_data := fun _ => FamilyDef.fam_eq, kind_eq := rfl}
+
+def mkConfigDeclDef
   (tyName attr kind : Name)
   [ConfigInfo tyName] [delTyName : TypeName (KConfigDecl kind)]
   (doc? : Option DocComment) (attrs? : Option Attributes)
@@ -212,11 +219,9 @@ def mkConfigDecl
   let pkg ← mkIdentFromRef (packageDeclName.str "name")
   let declTy ← mkIdentFromRef delTyName.typeName
   let kind := Name.quoteFrom (← getRef) kind
-  `(
-    $[$doc?]? abbrev $id : $declTy := {
-        pkg := $pkg, name := $name, config := $configId
-        kind := $kind, kind_eq := rfl
-    }
+  `(family_def $id : CustomOut ($pkg, $name) := TargetData $kind
+    $[$doc?]? abbrev $id : $declTy :=
+      Lake.DSL.mkConfigDecl $pkg $name $kind $configId
     @[$attrs,*] def configDecl : ConfigDecl := $(id).toConfigDecl
   )
 
@@ -239,7 +244,7 @@ def elabLeanLibCommand : CommandElab := fun stx => do
   let `(leanLibCommand|$(doc?)? $(attrs?)? lean_lib%$kw $(nameStx?)? $cfg) := stx
     | throwErrorAt stx "ill-formed lean_lib declaration"
   withRef kw do
-  let cmd ← mkConfigDecl ``LeanLibConfig LeanLib.keyword LeanLib.configKind doc? attrs? nameStx? cfg
+  let cmd ← mkConfigDeclDef ``LeanLibConfig LeanLib.keyword LeanLib.configKind doc? attrs? nameStx? cfg
   withMacroExpansion stx cmd <| elabCommand cmd
 
 @[inherit_doc leanLibCommand] abbrev LeanLibCommand := TSyntax ``leanLibCommand
@@ -266,7 +271,7 @@ def elabLeanExeCommand : CommandElab := fun stx => do
   let `(leanExeCommand|$(doc?)? $(attrs?)? lean_exe%$kw $(nameStx?)? $cfg) := stx
     | throwErrorAt stx "ill-formed lean_exe declaration"
   withRef kw do
-  let cmd ← mkConfigDecl ``LeanExeConfig LeanExe.keyword LeanExe.configKind doc? attrs? nameStx? cfg
+  let cmd ← mkConfigDeclDef ``LeanExeConfig LeanExe.keyword LeanExe.configKind doc? attrs? nameStx? cfg
   withMacroExpansion stx cmd <| elabCommand cmd
 
 @[inherit_doc leanExeCommand] abbrev LeanExeCommand := TSyntax ``leanExeCommand
@@ -281,8 +286,9 @@ instance : Coe LeanExeCommand Command where
 abbrev mkExternLibDecl
   (pkgName name : Name)
   [FamilyDef (CustomData pkgName) (.str name "static") FilePath]
+  [FamilyDef (CustomData pkgName) name (TargetData ExternLib.facetKind)]
 : ExternLibDecl :=
-  .mk (.mk pkgName name ExternLib.configKind {getPath := cast (by simp)}) rfl
+  mkConfigDecl pkgName name ExternLib.configKind {getPath := cast (by simp)}
 
 syntax externLibDeclSpec :=
   identOrStr (ppSpace simpleBinder)? declValSimple
@@ -318,7 +324,9 @@ def expandExternLibCommand : Macro := fun stx => do
   let pkgName := mkIdentFrom kw (packageDeclName.str "name")
   let targetId := mkIdentFrom id <| id.getId.modifyBase (· ++ `static)
   let name := Name.quoteFrom id id.getId
+  let kind := Name.quoteFrom kw ExternLib.facetKind
   `(target $targetId:ident $[$pkg?]? : FilePath := $defn $[$wds?:whereDecls]?
+    family_def $id : CustomOut ($pkgName, $name) := TargetData $kind
     $[$doc?:docComment]? def $id : ExternLibDecl :=
       Lake.DSL.mkExternLibDecl $pkgName $name
     @[$attrs,*] def configDecl : ConfigDecl := $(id).toConfigDecl)

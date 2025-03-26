@@ -10,7 +10,7 @@ namespace Lake
 open Lean System
 
 /-- A Lean executable -- its package plus its configuration. -/
-def LeanExe := ConfigTarget LeanExe.KIND
+def LeanExe := ConfigTarget LeanExe.configKind
 
 /-- The Lean executables of the package (as an Array). -/
 @[inline] def Package.leanExes (self : Package) : Array LeanExe :=

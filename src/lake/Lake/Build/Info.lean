@@ -47,22 +47,22 @@ abbrev Package.targetBuildKey
 : BuildKey := .packageTarget self.name target kind
 
 abbrev LeanLib.buildKey (self : LeanLib) : BuildKey :=
-  .packageTarget self.pkg.name self.name KIND
+  .packageTarget self.pkg.name self.name facetKind
 
 abbrev LeanLib.facetBuildKey (self : LeanLib) (facet : Name) : BuildKey :=
-  .targetFacet self.pkg.name self.name KIND facet
+  .targetFacet self.pkg.name self.name facetKind facet
 
 abbrev LeanExe.buildKey (self : LeanExe) : BuildKey :=
-  .packageTarget self.pkg.name self.name KIND
+  .packageTarget self.pkg.name self.name facetKind
 
 abbrev LeanExe.exeBuildKey (self : LeanExe) : BuildKey :=
-  .targetFacet self.pkg.name self.name KIND exeFacet
+  .targetFacet self.pkg.name self.name facetKind exeFacet
 
 abbrev ExternLib.buildKey (self : ExternLib) : BuildKey :=
-  .packageTarget self.pkg.name self.name KIND
+  .packageTarget self.pkg.name self.name facetKind
 
 abbrev ExternLib.facetBuildKey (facet : Name) (self : ExternLib) : BuildKey :=
-  .targetFacet self.pkg.name self.name KIND facet
+  .targetFacet self.pkg.name self.name facetKind facet
 
 abbrev ExternLib.staticBuildKey (self : ExternLib) : BuildKey :=
   self.facetBuildKey staticFacet
@@ -155,7 +155,7 @@ abbrev Module.facetCore (facet : Name) (self : Module) : BuildInfo :=
 
 /-- Build info for a module facet. -/
 abbrev Module.facet (facet : Name) (self : Module) : BuildInfo :=
-  self.facetCore (Module.KIND ++ facet)
+  self.facetCore (Module.facetKind ++ facet)
 
 @[deprecated Module.facetCore (since := "2025-03-04")]
 abbrev BuildInfo.moduleFacet (module : Module) (facet : Name) : BuildInfo :=
@@ -229,7 +229,7 @@ abbrev Package.facetCore (facet : Name) (self : Package) : BuildInfo :=
 
 /-- Build info for a package facet. -/
 abbrev Package.facet (facet : Name) (self : Package) : BuildInfo :=
-  self.facetCore (Package.KIND ++ facet)
+  self.facetCore (Package.facetKind ++ facet)
 
 @[deprecated Package.facetCore (since := "2025-03-04")]
 abbrev BuildInfo.packageFacet (package : Package) (facet : Name) : BuildInfo :=
@@ -290,7 +290,7 @@ abbrev LeanLib.facetCore (facet : Name) (self : LeanLib) : BuildInfo :=
 
 /-- Build info for a facet of a Lean library. -/
 abbrev LeanLib.facet (facet : Name) (self : LeanLib) : BuildInfo :=
-  self.facetCore (LeanLib.KIND ++ facet)
+  self.facetCore (LeanLib.facetKind ++ facet)
 
 @[deprecated LeanLib.facetCore (since := "2025-03-04")]
 abbrev BuildInfo.libraryFacet (lib : LeanLib) (facet : Name) : BuildInfo :=

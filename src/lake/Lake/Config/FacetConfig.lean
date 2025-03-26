@@ -63,19 +63,19 @@ structure NamedConfigDecl (β : Name → Type u) where
   config : β name
 
 /-- A module facet's declarative configuration. -/
-abbrev ModuleFacetConfig := KFacetConfig Module.KIND
+abbrev ModuleFacetConfig := KFacetConfig Module.facetKind
 
 /-- A module facet declaration from a configuration file. -/
 abbrev ModuleFacetDecl := NamedConfigDecl ModuleFacetConfig
 
 /-- A package facet's declarative configuration. -/
-abbrev PackageFacetConfig := KFacetConfig Package.KIND
+abbrev PackageFacetConfig := KFacetConfig Package.facetKind
 
 /-- A package facet declaration from a configuration file. -/
 abbrev PackageFacetDecl := NamedConfigDecl PackageFacetConfig
 
 /-- A library facet's declarative configuration. -/
-abbrev LibraryFacetConfig := KFacetConfig LeanLib.KIND
+abbrev LibraryFacetConfig := KFacetConfig LeanLib.facetKind
 
 /-- A library facet declaration from a configuration file. -/
 abbrev LibraryFacetDecl := NamedConfigDecl LibraryFacetConfig
@@ -87,7 +87,7 @@ deriving instance TypeName for
 abbrev LeanLibFacetConfig := LibraryFacetConfig
 
 /-- A Lean executable facet's declarative configuration. -/
-abbrev LeanExeFacetConfig := KFacetConfig LeanExe.KIND
+abbrev LeanExeFacetConfig := KFacetConfig LeanExe.facetKind
 
 /-- An external library facet's declarative configuration. -/
-abbrev ExternLibFacetConfig := KFacetConfig ExternLib.KIND
+abbrev ExternLibFacetConfig := KFacetConfig ExternLib.facetKind

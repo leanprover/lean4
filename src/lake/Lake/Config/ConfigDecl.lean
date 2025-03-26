@@ -13,11 +13,24 @@ open Lean (Name)
 
 namespace Lake
 
+/--
+The keyword and type kind for Lean library configurations. -/
+abbrev LeanLib.keyword : Name := `lean_lib
+@[inherit_doc keyword, match_pattern] abbrev LeanLib.configKind := keyword
+
+/-- The keyword and type kind for Lean executable configurations. -/
+abbrev LeanExe.keyword : Name := `lean_exe
+@[inherit_doc keyword, match_pattern] abbrev LeanExe.configKind := keyword
+
+/-- The keyword and type kind for external library configurations. -/
+abbrev ExternLib.keyword : Name := `extern_lib
+@[inherit_doc keyword, match_pattern] abbrev ExternLib.configKind := keyword
+
 abbrev ConfigType (kind : Name) (pkgName name : Name) : Type :=
   match kind with
-  | `leanLib => LeanLibConfig name
-  | `leanExe => LeanExeConfig name
-  | `externLib => ExternLibConfig pkgName name
+  | LeanLib.configKind => LeanLibConfig name
+  | LeanExe.configKind => LeanExeConfig name
+  | ExternLib.configKind => ExternLibConfig pkgName name
   | .anonymous => OpaqueTargetConfig pkgName name
   | _ => Empty
 
@@ -50,31 +63,31 @@ structure KConfigDecl (k : Name) extends ConfigDecl where
   cast (by simp [self.name_eq]) (self.toPConfigDecl.config? kind)
 
 @[inline] def ConfigDecl.leanLibConfig? (self : ConfigDecl) : Option (LeanLibConfig self.name) :=
-  self.config? LeanLib.KIND
+  self.config? LeanLib.configKind
 
 @[inline] def NConfigDecl.leanLibConfig? (self : NConfigDecl p n) : Option (LeanLibConfig n) :=
-  self.config? LeanLib.KIND
+  self.config? LeanLib.configKind
 
 /-- A  Lean library declaration from a configuration written in Lean. -/
-abbrev LeanLibDecl := KConfigDecl LeanLib.KIND
+abbrev LeanLibDecl := KConfigDecl LeanLib.configKind
 
 @[inline] def ConfigDecl.leanExeConfig? (self : ConfigDecl) : Option (LeanExeConfig self.name) :=
-  self.config? LeanExe.KIND
+  self.config? LeanExe.configKind
 
 @[inline] def NConfigDecl.leanExeConfig? (self : NConfigDecl p n) : Option (LeanExeConfig n) :=
-  self.config? LeanExe.KIND
+  self.config? LeanExe.configKind
 
 /-- A Lean executable declaration from a configuration written in Lean. -/
-abbrev LeanExeDecl := KConfigDecl LeanExe.KIND
+abbrev LeanExeDecl := KConfigDecl LeanExe.configKind
 
 @[inline] def PConfigDecl.externLibConfig? (self : PConfigDecl p) : Option (ExternLibConfig p self.name) :=
-  self.config? ExternLib.KIND
+  self.config? ExternLib.configKind
 
 @[inline] def NConfigDecl.externLibConfig? (self : NConfigDecl p n) : Option (ExternLibConfig p n) :=
-  self.config? ExternLib.KIND
+  self.config? ExternLib.configKind
 
 /-- An external library declaration from a configuration written in Lean. -/
-abbrev ExternLibDecl := KConfigDecl ExternLib.KIND
+abbrev ExternLibDecl := KConfigDecl ExternLib.configKind
 
 @[inline] def PConfigDecl.opaqueTargetConfig? (self : PConfigDecl p) : Option (OpaqueTargetConfig p self.name) :=
   if h : self.kind.isAnonymous then

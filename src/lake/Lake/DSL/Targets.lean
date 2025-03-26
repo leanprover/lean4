@@ -29,7 +29,7 @@ abbrev mkModuleFacetDecl
   (α) (facet : Name)
   [FormatQuery α] [FamilyDef ModuleData facet α]
   (f : Module → FetchM (Job α))
-: ModuleFacetDecl := .mk (Module.KIND ++ facet) <| mkFacetJobConfig fun mod => do
+: ModuleFacetDecl := .mk (Module.facetKind ++ facet) <| mkFacetJobConfig fun mod => do
   withRegisterJob (mod.facet facet |>.key.toSimpleString)
     (f mod)
 
@@ -68,7 +68,7 @@ abbrev mkPackageFacetDecl
   (α) (facet : Name)
   [FormatQuery α] [FamilyDef PackageData facet α]
   (f : Package → FetchM (Job α))
-: PackageFacetDecl := .mk (Package.KIND ++ facet) <| mkFacetJobConfig fun pkg => do
+: PackageFacetDecl := .mk (Package.facetKind ++ facet) <| mkFacetJobConfig fun pkg => do
   withRegisterJob (pkg.facet facet |>.key.toSimpleString)
     (f pkg)
 
@@ -107,7 +107,7 @@ abbrev mkLibraryFacetDecl
   (α) (facet : Name)
   [FormatQuery α] [FamilyDef LibraryData facet α]
   (f : LeanLib → FetchM (Job α))
-: LibraryFacetDecl := .mk (LeanLib.KIND ++ facet) <| mkFacetJobConfig fun lib => do
+: LibraryFacetDecl := .mk (LeanLib.facetKind ++ facet) <| mkFacetJobConfig fun lib => do
   withRegisterJob (lib.facet facet |>.key.toSimpleString)
     (f lib)
 
@@ -239,7 +239,7 @@ def elabLeanLibCommand : CommandElab := fun stx => do
   let `(leanLibCommand|$(doc?)? $(attrs?)? lean_lib%$kw $(nameStx?)? $cfg) := stx
     | throwErrorAt stx "ill-formed lean_lib declaration"
   withRef kw do
-  let cmd ← mkConfigDecl ``LeanLibConfig `lean_lib LeanLib.KIND doc? attrs? nameStx? cfg
+  let cmd ← mkConfigDecl ``LeanLibConfig LeanLib.keyword LeanLib.configKind doc? attrs? nameStx? cfg
   withMacroExpansion stx cmd <| elabCommand cmd
 
 @[inherit_doc leanLibCommand] abbrev LeanLibCommand := TSyntax ``leanLibCommand
@@ -266,7 +266,7 @@ def elabLeanExeCommand : CommandElab := fun stx => do
   let `(leanExeCommand|$(doc?)? $(attrs?)? lean_exe%$kw $(nameStx?)? $cfg) := stx
     | throwErrorAt stx "ill-formed lean_exe declaration"
   withRef kw do
-  let cmd ← mkConfigDecl ``LeanExeConfig `lean_exe LeanExe.KIND doc? attrs? nameStx? cfg
+  let cmd ← mkConfigDecl ``LeanExeConfig LeanExe.keyword LeanExe.configKind doc? attrs? nameStx? cfg
   withMacroExpansion stx cmd <| elabCommand cmd
 
 @[inherit_doc leanExeCommand] abbrev LeanExeCommand := TSyntax ``leanExeCommand
@@ -282,7 +282,7 @@ abbrev mkExternLibDecl
   (pkgName name : Name)
   [FamilyDef (CustomData pkgName) (.str name "static") FilePath]
 : ExternLibDecl :=
-  .mk (.mk pkgName name ExternLib.KIND {getPath := cast (by simp)}) rfl
+  .mk (.mk pkgName name ExternLib.configKind {getPath := cast (by simp)}) rfl
 
 syntax externLibDeclSpec :=
   identOrStr (ppSpace simpleBinder)? declValSimple

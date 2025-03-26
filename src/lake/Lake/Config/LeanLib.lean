@@ -10,7 +10,7 @@ namespace Lake
 open Lean System
 
 /-- A Lean library -- its package plus its configuration. -/
-def LeanLib := ConfigTarget LeanLib.KIND
+def LeanLib := ConfigTarget LeanLib.configKind
 
 /-- The Lean libraries of the package (as an Array). -/
 @[inline] def Package.leanLibs (self : Package) : Array LeanLib :=

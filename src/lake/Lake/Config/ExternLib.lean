@@ -10,7 +10,7 @@ namespace Lake
 open Lean (Name)
 
 /-- An external library -- its package plus its configuration. -/
-def ExternLib := ConfigTarget ExternLib.KIND
+def ExternLib := ConfigTarget ExternLib.configKind
 
 /-- The external libraries of the package (as an Array). -/
 @[inline] def Package.externLibs (self : Package) : Array ExternLib :=

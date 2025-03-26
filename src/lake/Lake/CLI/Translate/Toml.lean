@@ -127,11 +127,11 @@ local macro "gen_toml_encoders%" : command => do
 
 gen_toml_encoders%
 
-@[inline] def Toml.Table.insertTargets
+@[inline] def Package.mkTomlTargets
   (pkg : Package) (kind : Name)
-  (toToml : {n : Name} → ConfigType kind pkg.name n → Table) (t : Table)
-: Table :=
-  t.smartInsert kind <| pkg.targetDecls.filterMap (·.config? kind |>.map toToml)
+  (toToml : {n : Name} → ConfigType kind pkg.name n → Table)
+: Array Table :=
+  pkg.targetDecls.filterMap (·.config? kind |>.map toToml)
 
 /-! ## Root Encoder -/
 
@@ -142,5 +142,5 @@ def Package.mkTomlConfig (pkg : Package) (t : Table := {}) : Table :=
   cfg.toToml t
   |>.smartInsert `defaultTargets pkg.defaultTargets
   |>.smartInsert `require pkg.depConfigs
-  |>.insertTargets pkg LeanLib.KIND LeanLibConfig.toToml
-  |>.insertTargets pkg LeanExe.KIND LeanExeConfig.toToml
+  |>.smartInsert LeanLib.keyword (pkg.mkTomlTargets LeanLib.configKind LeanLibConfig.toToml)
+  |>.smartInsert LeanExe.keyword (pkg.mkTomlTargets LeanExe.configKind LeanExeConfig.toToml)

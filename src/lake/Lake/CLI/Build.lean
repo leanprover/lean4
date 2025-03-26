@@ -68,7 +68,7 @@ def resolveModuleTarget
   if facet.isAnonymous then
     return mkBuildSpec mod.leanArts
   else
-    let facet := Module.KIND ++ facet
+    let facet := Module.facetKind ++ facet
     if let some config := ws.findModuleFacetConfig? facet then do
       return mkConfigBuildSpec (mod.facetCore config.name) config.toFacetConfig rfl
     else
@@ -80,7 +80,7 @@ def resolveLibTarget
   if facet.isAnonymous then
     lib.defaultFacets.mapM (resolveFacet ·)
   else
-    Array.singleton <$> resolveFacet (LeanLib.KIND ++ facet)
+    Array.singleton <$> resolveFacet (LeanLib.facetKind ++ facet)
 where
   resolveFacet facet :=
     if let some config := ws.findLibraryFacetConfig? facet then do
@@ -142,7 +142,7 @@ def resolvePackageTarget
   if facet.isAnonymous then
     resolveDefaultPackageTarget ws pkg
   else
-    let facet := Package.KIND ++ facet
+    let facet := Package.facetKind ++ facet
     if let some config := ws.findPackageFacetConfig? facet then do
       return #[mkConfigBuildSpec (pkg.facetCore config.name) config.toFacetConfig rfl]
     else

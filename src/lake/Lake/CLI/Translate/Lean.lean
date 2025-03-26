@@ -253,6 +253,6 @@ def Package.mkLeanConfig (pkg : Package) : TSyntax ``module := Unhygienic.run do
   open $(mkIdent `System) $(mkIdent `Lake) $(mkIdent `DSL)
   $(pkgConfig.mkCommand):command
   $[$(pkg.depConfigs.map (·.mkRequire)):command]*
-  $[$(pkg.mkTargetCommands defaultTargets LeanLib.KIND LeanLibConfig.mkCommand):command]*
-  $[$(pkg.mkTargetCommands defaultTargets LeanExe.KIND LeanExeConfig.mkCommand):command]*
+  $[$(pkg.mkTargetCommands defaultTargets LeanLib.configKind LeanLibConfig.mkCommand):command]*
+  $[$(pkg.mkTargetCommands defaultTargets LeanExe.configKind LeanExeConfig.mkCommand):command]*
   )

@@ -55,7 +55,7 @@ For example, a `FilePath` for the module `olean` facet.
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `module_data`).
 -/
-abbrev ModuleData := FacetData Module.KIND
+abbrev ModuleData := FacetData Module.facetKind
 
 /--
 The open type family which maps a package facet's name to output type.
@@ -64,10 +64,10 @@ For example, an `Arrry Package` of direct dependencies for the `deps` facet.
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `package_data`).
 -/
-abbrev PackageData := FacetData Package.KIND
+abbrev PackageData := FacetData Package.facetKind
 
-/-- The kind identifier for facets and configurations of a Lean library. -/
-abbrev LeanLib.KIND : Name := `leanLib
+/-- The kind identifier for facets of a Lean library. -/
+abbrev LeanLib.facetKind : Name := `leanLib
 
 /--
 The open type family which maps a Lean library facet's name to its output type.
@@ -76,28 +76,28 @@ For example, the `FilePath` pf the generated static library for the `static` fac
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `library_data`).
 -/
-abbrev LibraryData := FacetData LeanLib.KIND
+abbrev LibraryData := FacetData LeanLib.facetKind
 
 @[inherit_doc LibraryData]
 abbrev LeanLibData := LibraryData
 
-/-- The kind identifier for facets and configurations of a Lean executable. -/
-abbrev LeanExe.KIND : Name := `leanExe
+/-- The kind identifier for facets of a Lean executable. -/
+abbrev LeanExe.facetKind : Name := `leanExe
 
 /--
 The type family which maps a Lean executable facet's name to its output type.
 For example, the `FilePath` of the executable for the `exe` facet.
 -/
-abbrev LeanExeData := FacetData LeanExe.KIND
+abbrev LeanExeData := FacetData LeanExe.facetKind
 
-/-- The kind identifier for facets and configurations of an external library. -/
-abbrev ExternLib.KIND : Name := `externLib
+/-- The kind identifier for facets of an external library. -/
+abbrev ExternLib.facetKind : Name := `externLib
 
 /--
 The type family which maps an external library facet's name to its output type.
 For example, the `FilePath` of the generated static library for the `static` facet.
 -/
-abbrev ExternLibData := FacetData ExternLib.KIND
+abbrev ExternLibData := FacetData ExternLib.facetKind
 
 /--
 The open type family which maps a custom package target
@@ -129,8 +129,8 @@ It is a simple type function composed of the separate open type families for
 modules facets, package facets, Lake target facets, and custom targets.
 -/
 abbrev BuildData : BuildKey → Type
-| .module _ => TargetData Module.KIND
-| .package _ => TargetData Package.KIND
+| .module _ => TargetData Module.facetKind
+| .package _ => TargetData Package.facetKind
 | .packageTarget p t .anonymous => CustomData p t
 | .packageTarget _ _ k => TargetData k
 | .facet _ f => FacetOut f
@@ -138,24 +138,24 @@ abbrev BuildData : BuildKey → Type
 instance (priority := low) : FamilyDef BuildData (.customTarget p t) (CustomData p t) := ⟨rfl⟩
 instance (priority := low) : FamilyDef BuildData (.facet t f) (FacetOut f) := ⟨rfl⟩
 
-instance [FamilyOut TargetData Module.KIND α]
+instance [FamilyOut TargetData Module.facetKind α]
 : FamilyDef BuildData (.module k) α where
   fam_eq := by unfold BuildData; simp
 
-instance [FamilyOut TargetData Package.KIND α]
+instance [FamilyOut TargetData Package.facetKind α]
 : FamilyDef BuildData (.package k) α where
   fam_eq := by unfold BuildData; simp
 
-instance [FamilyOut TargetData LeanLib.KIND α]
-: FamilyDef BuildData (.packageTarget p t LeanLib.KIND) α where
+instance [FamilyOut TargetData LeanLib.facetKind α]
+: FamilyDef BuildData (.packageTarget p t LeanLib.facetKind) α where
   fam_eq := by unfold BuildData; simp
 
-instance [FamilyOut TargetData LeanExe.KIND α]
-: FamilyDef BuildData (.packageTarget p t LeanExe.KIND) α where
+instance [FamilyOut TargetData LeanExe.facetKind α]
+: FamilyDef BuildData (.packageTarget p t LeanExe.facetKind) α where
   fam_eq := by unfold BuildData; simp
 
-instance [FamilyOut TargetData ExternLib.KIND α]
-: FamilyDef BuildData (.packageTarget p t ExternLib.KIND) α where
+instance [FamilyOut TargetData ExternLib.facetKind α]
+: FamilyDef BuildData (.packageTarget p t ExternLib.facetKind) α where
   fam_eq := by unfold BuildData; simp
 
 theorem BuildKey.data_eq_of_kind {k : BuildKey} :
@@ -202,17 +202,17 @@ scoped macro (name := facetDataDecl)
 /-- Macro for declaring new `PackageData`. -/
 scoped macro (name := packageDataDecl)
   doc?:optional(docComment) tk:"package_data " facet:ident " : " ty:term
-: command => `($[$doc?]? facet_data%$tk $(mkIdentFrom tk Package.KIND) $facet : $ty)
+: command => `($[$doc?]? facet_data%$tk $(mkIdentFrom tk Package.facetKind) $facet : $ty)
 
 /-- Macro for declaring new `ModuleData`. -/
 scoped macro (name := moduleDataDecl)
   doc?:optional(docComment) tk:"module_data " facet:ident " : " ty:term
-: command => `($[$doc?]? facet_data%$tk $(mkIdentFrom tk Module.KIND) $facet : $ty)
+: command => `($[$doc?]? facet_data%$tk $(mkIdentFrom tk Module.facetKind) $facet : $ty)
 
 /-- Macro for declaring new `LibraryData`. -/
 scoped macro (name := libraryDataDecl)
   doc?:optional(docComment) tk:"library_data " facet:ident " : " ty:term
-: command => `($[$doc?]? facet_data%$tk $(mkIdentFrom tk LeanLib.KIND) $facet : $ty)
+: command => `($[$doc?]? facet_data%$tk $(mkIdentFrom tk LeanLib.facetKind) $facet : $ty)
 
 /-- Macro for declaring new `TargetData`. -/
 scoped macro (name := targetDataDecl)

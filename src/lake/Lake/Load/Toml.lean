@@ -306,12 +306,12 @@ def decodeTargetDecls
   (p : Name) (t : Table)
 : DecodeM (Array (PConfigDecl p) × DNameMap (NConfigDecl p)) := do
   let r := (#[], {})
-  let r ← go r LeanLib.KIND LeanLibConfig.decodeToml
-  let r ← go r LeanExe.KIND LeanExeConfig.decodeToml
+  let r ← go r LeanLib.keyword LeanLib.configKind LeanLibConfig.decodeToml
+  let r ← go r LeanExe.keyword LeanExe.configKind LeanExeConfig.decodeToml
   return r
 where
-  go r k (decode : {n : Name} → Table → DecodeM (ConfigType k p n)) := do
-    let some tableArrayVal := t.find? k | return r
+  go r kw k (decode : {n : Name} → Table → DecodeM (ConfigType k p n)) := do
+    let some tableArrayVal := t.find? kw | return r
     let some vals ← tryDecode? tableArrayVal.decodeValueArray | return r
     vals.foldlM (init := r) fun r val => do
       let some t ← tryDecode? val.decodeTable | return r

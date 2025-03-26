@@ -29,7 +29,27 @@ structure PlainDateTime where
   The `Time` component of a `PlainTime`
   -/
   time : PlainTime
-  deriving Inhabited, BEq, Repr
+  deriving Inhabited, DecidableEq, Repr
+
+@[ext]
+theorem PlainDateTime.ext {a b : PlainDateTime} (hd : a.date = b.date) (hm : a.time = b.time) :
+    a = b := by
+  cases a <;> cases b <;> simp_all
+
+instance : Ord PlainDateTime where
+  compare := compareLex (compareOn (·.date)) (compareOn (·.time))
+
+theorem PlainDateTime.compare_def :
+    compare (α := PlainDateTime) = compareLex (compareOn (·.date)) (compareOn (·.time)) := rfl
+
+instance : TransOrd PlainDateTime := inferInstanceAs <| TransCmp (compareLex _ _)
+
+instance : LawfulEqOrd PlainDateTime where
+  eq_of_compare {a b} h := by
+    simp only [PlainDateTime.compare_def, compareLex_eq_eq] at h
+    apply PlainDateTime.ext
+    · exact LawfulEqOrd.eq_of_compare h.1
+    · exact LawfulEqOrd.eq_of_compare h.2
 
 namespace PlainDateTime
 

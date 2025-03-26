@@ -34,13 +34,33 @@ structure PlainDate where
 
   /-- Validates the date by ensuring that the year, month, and day form a correct and valid date. -/
   valid : year.Valid month day
-  deriving Repr
+  deriving Repr, DecidableEq
+
+@[ext]
+theorem PlainDate.ext {a b : PlainDate} (hy : a.year = b.year) (hm : a.month = b.month)
+    (hd : a.day = b.day) :
+    a = b := by
+  cases a <;> cases b <;> simp_all
 
 instance : Inhabited PlainDate where
   default := ⟨1, 1, 1, by decide⟩
 
-instance : BEq PlainDate where
-  beq x y := x.day == y.day && x.month == y.month && x.year == y.year
+instance : Ord PlainDate where
+  compare := compareLex (compareOn (·.year)) <| compareLex (compareOn (·.month)) (compareOn (·.day))
+
+theorem PlainDate.compare_def :
+    compare (α := PlainDate) =
+      compareLex (compareOn (·.year)) (compareLex (compareOn (·.month)) (compareOn (·.day))) := rfl
+
+instance : TransOrd PlainDate := inferInstanceAs <| TransCmp (compareLex _ _)
+
+instance : LawfulEqOrd PlainDate where
+  eq_of_compare {a b} h := by
+    simp only [PlainDate.compare_def, compareLex_eq_eq] at h
+    ext
+    · exact LawfulEqOrd.eq_of_compare h.1
+    · exact LawfulEqOrd.eq_of_compare h.2.1
+    · exact LawfulEqOrd.eq_of_compare h.2.2
 
 namespace PlainDate
 

@@ -14,7 +14,8 @@ namespace Time
 -- set_option linter.all true
 
 /--
-Represents a date and time with timezone information.
+Represents a date and time with timezone information. Boolean equality (`BEq`/`==`) of two instances
+means that the underlying time zone independent timestamps are equal.
 -/
 structure ZonedDateTime where
   private mk::
@@ -41,6 +42,17 @@ structure ZonedDateTime where
 
 instance : Inhabited ZonedDateTime where
   default := ⟨Thunk.mk Inhabited.default, Inhabited.default, Inhabited.default, Inhabited.default⟩
+
+instance : BEq ZonedDateTime where
+  beq a b := a.timestamp == b.timestamp
+
+instance : Ord ZonedDateTime where
+  compare := compareOn (·.timestamp)
+
+instance : TransOrd ZonedDateTime := inferInstanceAs <| TransCmp (compareOn _)
+
+instance : LawfulBEqOrd ZonedDateTime where
+  compare_eq_iff_beq := LawfulBEqOrd.compare_eq_iff_beq (α := Timestamp)
 
 namespace ZonedDateTime
 open DateTime

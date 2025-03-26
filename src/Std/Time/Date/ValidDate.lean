@@ -22,8 +22,26 @@ is valid only if `leap` is `true`.
 -/
 def ValidDate (leap : Bool) := { val : Month.Ordinal × Day.Ordinal // Valid leap (Prod.fst val) (Prod.snd val) }
 
+@[ext]
+theorem ValidDate.ext {a b : ValidDate leap} (h : a.val = b.val) : a = b := by
+  cases a <;> cases b <;> simp_all
+
 instance : Inhabited (ValidDate l) where
   default := ⟨⟨1, 1⟩, (by cases l <;> decide)⟩
+
+instance : DecidableEq (ValidDate leap) := Subtype.instDecidableEq
+
+instance : Ord (ValidDate leap) where
+  compare a b := compare a.val b.val
+
+instance : OrientedOrd (ValidDate leap) where
+  eq_swap := OrientedOrd.eq_swap (α := Month.Ordinal × Day.Ordinal)
+
+instance : TransOrd (ValidDate leap) where
+  isLE_trans := TransOrd.isLE_trans (α := Month.Ordinal × Day.Ordinal)
+
+instance : LawfulEqOrd (ValidDate leap) where
+  eq_of_compare := ValidDate.ext ∘ LawfulEqOrd.eq_of_compare (α := Month.Ordinal × Day.Ordinal)
 
 namespace ValidDate
 

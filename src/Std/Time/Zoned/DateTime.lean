@@ -36,6 +36,14 @@ instance : BEq (DateTime tz) where
 instance : Inhabited (DateTime tz) where
   default := ⟨Inhabited.default, Thunk.mk fun _ => Inhabited.default⟩
 
+instance : Ord (DateTime tz) where
+  compare := compareOn (·.timestamp)
+
+instance : TransOrd (DateTime tz) := inferInstanceAs <| TransCmp (compareOn _)
+
+instance : LawfulBEqOrd (DateTime tz) where
+  compare_eq_iff_beq := LawfulBEqOrd.compare_eq_iff_beq (α := Timestamp)
+
 namespace DateTime
 
 /--

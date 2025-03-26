@@ -367,6 +367,11 @@ To lexicographically combine two `Ordering`s, use `Ordering.then`.
 @[inline] def compareLex (cmp₁ cmp₂ : α → β → Ordering) (a : α) (b : β) : Ordering :=
   (cmp₁ a b).then (cmp₂ a b)
 
+@[simp]
+theorem compareLex_eq_eq {α} {cmp₁ cmp₂} {a b : α} :
+    compareLex cmp₁ cmp₂ a b = .eq ↔ cmp₁ a b = .eq ∧ cmp₂ a b = .eq := by
+  simp [compareLex, Ordering.then_eq_eq]
+
 /--
 `Ord α` provides a computable total order on `α`, in terms of the
 `compare : α → α → Ordering` function.

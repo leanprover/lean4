@@ -32,7 +32,12 @@ structure Duration where
   Proof that the duration is valid, ensuring that the `second` and `nano` values are correctly related.
   -/
   proof : (second.val ≥ 0 ∧ nano.val ≥ 0) ∨ (second.val ≤ 0 ∧ nano.val ≤ 0)
-  deriving Repr
+  deriving Repr, DecidableEq
+
+@[ext]
+theorem Duration.ext {a b : Duration} (hs : a.second = b.second) (hn : a.nano = b.nano) :
+    a = b := by
+  cases a <;> cases b <;> simp_all
 
 instance : ToString Duration where
   toString s :=
@@ -47,9 +52,6 @@ instance : ToString Duration where
 instance : Repr Duration where
   reprPrec s := reprPrec (toString s)
 
-instance : BEq Duration where
-  beq x y := x.second == y.second && y.nano == x.nano
-
 instance : Inhabited Duration where
   default := ⟨0, Bounded.LE.mk 0 (by decide), by decide⟩
 
@@ -57,6 +59,21 @@ instance : OfNat Duration n where
   ofNat := by
     refine ⟨.ofInt n, ⟨0, by decide⟩, ?_⟩
     simp <;> exact Int.le_total n 0 |>.symm
+
+instance : Ord Duration where
+  compare := compareLex (compareOn (·.second)) (compareOn (·.nano))
+
+theorem Duration.compare_def :
+    compare (α := Duration) = compareLex (compareOn (·.second)) (compareOn (·.nano)) := rfl
+
+instance : TransOrd Duration := inferInstanceAs <| TransCmp (compareLex _ _)
+
+instance : LawfulEqOrd Duration where
+  eq_of_compare {a b} h := by
+    simp only [Duration.compare_def, compareLex_eq_eq] at h
+    ext
+    · exact LawfulEqOrd.eq_of_compare h.1
+    · exact LawfulEqOrd.eq_of_compare h.2
 
 namespace Duration
 

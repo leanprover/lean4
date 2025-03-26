@@ -68,6 +68,9 @@ abbrev OrientedOrd (α : Type u) [Ord α] := OrientedCmp (compare : α → α �
 
 variable {α : Type u} {cmp : α → α → Ordering}
 
+theorem OrientedOrd.eq_swap [Ord α] [OrientedOrd α] {a b : α} :
+    compare a b = (compare b a).swap := OrientedCmp.eq_swap
+
 instance [OrientedCmp cmp] : ReflCmp cmp where
   compare_self := Ordering.eq_eq_of_eq_swap OrientedCmp.eq_swap
 
@@ -159,10 +162,18 @@ abbrev TransOrd (α : Type u) [Ord α] := TransCmp (compare : α → α → Orde
 
 variable {α : Type u} {cmp : α → α → Ordering}
 
+theorem TransOrd.isLE_trans [Ord α] [TransOrd α] {a b c : α} :
+    (compare a b).isLE → (compare b c).isLE → (compare a c).isLE :=
+  TransCmp.isLE_trans
+
 theorem TransCmp.isGE_trans [TransCmp cmp] {a b c : α} (h₁ : (cmp a b).isGE) (h₂ : (cmp b c).isGE) :
     (cmp a c).isGE := by
   rw [OrientedCmp.isGE_iff_isLE] at *
   exact TransCmp.isLE_trans h₂ h₁
+
+theorem TransOrd.isGE_trans [Ord α] [TransOrd α] {a b c : α} :
+    (compare a b).isGE → (compare b c).isGE → (compare a c).isGE :=
+  TransCmp.isGE_trans
 
 instance TransCmp.opposite [TransCmp cmp] : TransCmp fun a b => cmp b a where
   isLE_trans := flip TransCmp.isLE_trans
@@ -304,6 +315,9 @@ boolean equality (`==`).
 abbrev LawfulEqOrd (α : Type u) [Ord α] := LawfulEqCmp (compare : α → α → Ordering)
 
 variable {α : Type u} {cmp : α → α → Ordering} [LawfulEqCmp cmp]
+
+theorem LawfulEqOrd.eq_of_compare [Ord α] [LawfulEqOrd α] {a b : α} :
+    compare a b = .eq → a = b := LawfulEqCmp.eq_of_compare
 
 instance LawfulEqCmp.opposite [OrientedCmp cmp] [LawfulEqCmp cmp] :
     LawfulEqCmp (fun a b => cmp b a) where
@@ -600,6 +614,14 @@ instance : LawfulEqOrd (Fin n) where
 
 end Fin
 
+section String
+#synth LE String
+instance : OrientedOrd String where
+  eq_swap := by
+    rw [String.comp
+
+end String
+
 section Lex
 
 instance {α} {cmp₁ cmp₂} [ReflCmp cmp₁] [ReflCmp cmp₂] :
@@ -651,6 +673,14 @@ attribute [instance] lexOrd in
 instance {α β} [Ord α] [Ord β] [TransOrd α] [TransOrd β] :
     TransOrd (α × β) :=
   inferInstanceAs <| TransCmp (compareLex _ _)
+
+attribute [instance] lexOrd in
+instance {α β} [Ord α] [Ord β] [LawfulEqOrd α] [LawfulEqOrd β] : LawfulEqOrd (α × β) where
+  eq_of_compare {a b} h := by
+    simp only [lexOrd, compareLex_eq_eq, compareOn] at h
+    ext
+    · exact LawfulEqOrd.eq_of_compare h.1
+    · exact LawfulEqOrd.eq_of_compare h.2
 
 end Lex
 

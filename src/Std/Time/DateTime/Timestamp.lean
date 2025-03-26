@@ -25,7 +25,12 @@ structure Timestamp where
   Duration since the unix epoch.
   -/
   val : Duration
-  deriving Repr, BEq, Inhabited
+  deriving Repr, DecidableEq, Inhabited
+
+@[ext]
+theorem Timestamp.ext {a b : Timestamp} (hs : a.val = b.val) :
+    a = b := by
+  cases a <;> cases b <;> simp_all
 
 instance : LE Timestamp where
   le x y := x.val ≤ y.val
@@ -41,6 +46,20 @@ instance : ToString Timestamp where
 
 instance : Repr Timestamp where
   reprPrec s := Repr.addAppParen ("Timestamp.ofNanosecondsSinceUnixEpoch " ++ repr s.val.toNanoseconds)
+
+instance : Ord Timestamp where
+  compare := compareOn (·.val)
+
+theorem Timestamp.compare_def :
+    compare (α := Timestamp) = compareOn (·.val) := rfl
+
+instance : TransOrd Timestamp := inferInstanceAs <| TransCmp (compareOn _)
+
+instance : LawfulEqOrd Timestamp where
+  eq_of_compare {a b} h := by
+    simp only [Timestamp.compare_def] at h
+    apply Timestamp.ext
+    exact LawfulEqOrd.eq_of_compare h
 
 namespace Timestamp
 

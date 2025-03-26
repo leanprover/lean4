@@ -37,7 +37,7 @@ instance : ToString Era where
 `Offset` represents a year offset, defined as an `Int`.
 -/
 def Offset : Type := Int
-  deriving Repr, BEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
+  deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 instance {x y : Offset} : Decidable (x ≤ y) :=
   let x : Int := x
@@ -48,6 +48,12 @@ instance {x y : Offset} : Decidable (x < y) :=
   inferInstanceAs (Decidable (x < y))
 
 instance : OfNat Offset n := ⟨Int.ofNat n⟩
+
+instance : Ord Offset := inferInstanceAs <| Ord Int
+
+instance : TransOrd Offset := inferInstanceAs <| TransOrd Int
+
+instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd Int
 
 namespace Offset
 

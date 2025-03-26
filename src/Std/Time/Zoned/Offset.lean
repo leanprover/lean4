@@ -27,13 +27,29 @@ structure Offset where
   The same timezone offset in seconds.
   -/
   second : Second.Offset
-  deriving Repr
+  deriving Repr, DecidableEq
+
+@[ext]
+theorem Offset.ext {a b : Offset} (h : a.second = b.second) :
+    a = b := by
+  cases a <;> cases b <;> simp_all
 
 instance : Inhabited Offset where
   default := ⟨0⟩
 
-instance : BEq Offset where
-  beq x y := BEq.beq x.second y.second
+instance : Ord Offset where
+  compare := compareOn (·.second)
+
+theorem Offset.compare_def :
+    compare (α := Offset) = compareOn (·.second) := rfl
+
+instance : TransOrd Offset := inferInstanceAs <| TransCmp (compareOn _)
+
+instance : LawfulEqOrd Offset where
+  eq_of_compare {a b} h := by
+    simp only [Offset.compare_def] at h
+    apply Offset.ext
+    exact LawfulEqOrd.eq_of_compare h
 
 namespace Offset
 

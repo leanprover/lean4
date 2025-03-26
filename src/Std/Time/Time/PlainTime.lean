@@ -36,14 +36,36 @@ structure PlainTime where
   `Nanoseconds` component of the `PlainTime`
   -/
   nanosecond : Nanosecond.Ordinal
-  deriving Repr
+  deriving Repr, DecidableEq
+
+@[ext]
+theorem PlainTime.ext {a b : PlainTime} (hh : a.hour = b.hour) (hm : a.minute = b.minute)
+    (hs : a.second = b.second) (hn : a.nanosecond = b.nanosecond) :
+    a = b := by
+  cases a <;> cases b <;> simp_all
 
 instance : Inhabited PlainTime where
   default := ⟨0, 0, 0, 0, by decide⟩
 
-instance : BEq PlainTime where
-  beq x y := x.hour.val == y.hour.val && x.minute == y.minute
-          && x.second.val == y.second.val && x.nanosecond == y.nanosecond
+instance : Ord PlainTime where
+  compare := compareLex (compareOn (·.hour)) <| compareLex (compareOn (·.minute)) <|
+      compareLex (compareOn (·.second)) (compareOn (·.nanosecond))
+
+theorem PlainTime.compare_def :
+    compare (α := PlainTime) =
+      (compareLex (compareOn (·.hour)) <| compareLex (compareOn (·.minute)) <|
+          compareLex (compareOn (·.second)) (compareOn (·.nanosecond))) := rfl
+
+instance : TransOrd PlainTime := inferInstanceAs <| TransCmp (compareLex _ _)
+
+instance : LawfulEqOrd PlainTime where
+  eq_of_compare {a b} h := by
+    simp only [PlainTime.compare_def, compareLex_eq_eq] at h
+    ext
+    · exact LawfulEqOrd.eq_of_compare h.1
+    · exact LawfulEqOrd.eq_of_compare h.2.1
+    · exact LawfulEqOrd.eq_of_compare h.2.2.1
+    · exact LawfulEqOrd.eq_of_compare h.2.2.2
 
 namespace PlainTime
 

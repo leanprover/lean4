@@ -28,18 +28,33 @@ structure UnitVal (α : Rat) where
   Value inside the UnitVal Value.
   -/
   val : Int
-  deriving Inhabited, DecidableEq, Ord
+  deriving Inhabited, DecidableEq
+
+@[ext]
+theorem UnitVal.ext {x} {a b : UnitVal x} (h : a.val = b.val) : a = b := by
+  cases a
+  cases b
+  simp_all [h]
 
 instance : LE (UnitVal x) where
   le x y := x.val ≤ y.val
 
+instance : Ord (UnitVal x) where
+  compare x y := compare x.val y.val
+
+theorem UnitVal.compare_def {x} {a b : UnitVal x} :
+    compare a b = compare a.1 b.1 := by rfl
+
 instance : OrientedOrd (UnitVal x) where
-  eq_swap := OrientedCmp.eq_swap (cmp := (compare : Int → Int → Ordering))
+  eq_swap := OrientedOrd.eq_swap (α := Int)
 
 instance : TransOrd (UnitVal x) where
-  eq_swap {x y} := OrientedCmp.eq_swap (α := Int)
+  isLE_trans := TransOrd.isLE_trans (α := Int)
 
-instance { x y : UnitVal z }: Decidable (x ≤ y) :=
+instance : LawfulEqOrd (UnitVal x) where
+  eq_of_compare := UnitVal.ext ∘ LawfulEqOrd.eq_of_compare (α := Int)
+
+instance {x y : UnitVal z}: Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
 
 namespace UnitVal

@@ -32,7 +32,7 @@ structure Workspace : Type where
   /-- Name-package map of packages within the workspace. -/
   packageMap : DNameMap NPackage := {}
   /-- Configuration map of facets defined in the workspace. -/
-  facetConfigs : FacetMap
+  facetConfigs : DNameMap FacetConfig := {}
 
 instance : Nonempty Workspace :=
   have : Inhabited Package := Classical.inhabited_of_nonempty inferInstance
@@ -119,39 +119,36 @@ def findTargetConfig? (name : Name) (self : Workspace) : Option ((pkg : Package)
   self.packages.findSome? fun pkg => pkg.findTargetConfig? name <&> (⟨pkg, ·⟩)
 
 /-- Add a facet to the workspace. -/
-def addFacetConfig {kind name} (cfg : FacetConfig kind name) (self : Workspace) : Workspace :=
-  let facets := self.facetConfigs.findD kind {}
-  let self := {self with facetConfigs := self.facetConfigs.erase kind} -- for linearity
-  let facets := facets.insert name cfg
-  {self with facetConfigs := self.facetConfigs.insert kind facets}
+def addFacetConfig {name} (cfg : FacetConfig name) (self : Workspace) : Workspace :=
+  {self with facetConfigs := self.facetConfigs.insert name cfg}
 
 /-- Try to find a facet configuration in the workspace of the given kind and name. -/
-def findFacetConfig? (kind name : Name) (self : Workspace) : Option (FacetConfig kind name) :=
-  self.facetConfigs.find? kind |>.bind (·.find? name)
+def findFacetConfig? (name : Name) (self : Workspace) : Option (FacetConfig name) :=
+  self.facetConfigs.find? name
 
 /-- Add a module facet to the workspace. -/
 def addModuleFacetConfig (cfg : ModuleFacetConfig name) (self : Workspace) : Workspace :=
-  self.addFacetConfig cfg
+  self.addFacetConfig cfg.toFacetConfig
 
 /-- Try to find a module facet configuration in the workspace with the given name. -/
 def findModuleFacetConfig? (name : Name) (self : Workspace) : Option (ModuleFacetConfig name) :=
-  self.findFacetConfig? Module.KIND name
+  self.findFacetConfig? name |>.bind (·.toKind? Module.KIND)
 
 /-- Add a package facet to the workspace. -/
 def addPackageFacetConfig (cfg : PackageFacetConfig name) (self : Workspace) : Workspace :=
-  self.addFacetConfig cfg
+  self.addFacetConfig cfg.toFacetConfig
 
 /-- Try to find a package facet configuration in the workspace with the given name. -/
 def findPackageFacetConfig? (name : Name) (self : Workspace) : Option (PackageFacetConfig name) :=
-  self.findFacetConfig? Package.KIND name
+  self.findFacetConfig? name |>.bind (·.toKind? Package.KIND)
 
 /-- Add a library facet to the workspace. -/
 def addLibraryFacetConfig (cfg : LibraryFacetConfig name) (self : Workspace) : Workspace :=
-  self.addFacetConfig cfg
+  self.addFacetConfig cfg.toFacetConfig
 
 /-- Try to find a library facet configuration in the workspace with the given name. -/
 def findLibraryFacetConfig? (name : Name) (self : Workspace) : Option (LibraryFacetConfig name) :=
-  self.findFacetConfig? LeanLib.KIND name
+  self.findFacetConfig? name |>.bind (·.toKind? LeanLib.KIND)
 
 /-- The workspace's binary directories (which are added to `Path`). -/
 def binPath (self : Workspace) : SearchPath :=

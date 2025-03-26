@@ -315,7 +315,7 @@ def Module.recBuildDynlib (mod : Module) : FetchM (Job Dynlib) :=
   withRegisterJob s!"{mod.name}:dynlib" do
 
   -- Fetch object files
-  let linkJobs ← mod.nativeFacets true |>.mapM (fetch <| mod.facet ·.name)
+  let linkJobs ← mod.nativeFacets true |>.mapM (·.fetch mod)
   let linksJob := Job.collectArray linkJobs
 
   -- Fetch dependencies' dynlibs

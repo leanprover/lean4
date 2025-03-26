@@ -28,8 +28,8 @@ structure BuildSpec where
 
 @[inline] def mkConfigBuildSpec
   (info : BuildInfo)
-  (config : FacetConfig kind facet)
-  (h : BuildData info.key = FacetData kind facet)
+  (config : FacetConfig facet)
+  (h : BuildData info.key = FacetOut facet)
 : BuildSpec where
   info
   buildable := config.buildable
@@ -66,11 +66,13 @@ def resolveModuleTarget
   (ws : Workspace) (mod : Module) (facet : Name)
 : Except CliError BuildSpec :=
   if facet.isAnonymous then
-    return mkBuildSpec (mod.facet leanArtsFacet)
-  else if let some config := ws.findModuleFacetConfig? facet then do
-    return mkConfigBuildSpec (mod.facet facet) config rfl
+    return mkBuildSpec mod.leanArts
   else
-    throw <| CliError.unknownFacet "module" facet
+    let facet := Module.KIND ++ facet
+    if let some config := ws.findModuleFacetConfig? facet then do
+      return mkConfigBuildSpec (mod.facetCore config.name) config.toFacetConfig rfl
+    else
+      throw <| CliError.unknownFacet "module" facet
 
 def resolveLibTarget
   (ws : Workspace) (lib : LeanLib) (facet : Name := .anonymous)
@@ -78,11 +80,11 @@ def resolveLibTarget
   if facet.isAnonymous then
     lib.defaultFacets.mapM (resolveFacet ·)
   else
-    Array.singleton <$> resolveFacet facet
+    Array.singleton <$> resolveFacet (LeanLib.KIND ++ facet)
 where
   resolveFacet facet :=
     if let some config := ws.findLibraryFacetConfig? facet then do
-      return mkConfigBuildSpec (lib.facet facet) config rfl
+      return mkConfigBuildSpec (lib.facetCore config.name) config.toFacetConfig rfl
     else
       throw <| CliError.unknownFacet "library" facet
 
@@ -139,10 +141,12 @@ def resolvePackageTarget
 : Except CliError (Array BuildSpec) :=
   if facet.isAnonymous then
     resolveDefaultPackageTarget ws pkg
-  else if let some config := ws.findPackageFacetConfig? facet then do
-    return #[mkConfigBuildSpec (pkg.facet facet) config rfl]
   else
-    throw <| CliError.unknownFacet "package" facet
+    let facet := Package.KIND ++ facet
+    if let some config := ws.findPackageFacetConfig? facet then do
+      return #[mkConfigBuildSpec (pkg.facetCore config.name) config.toFacetConfig rfl]
+    else
+      throw <| CliError.unknownFacet "package" facet
 
 def resolveTargetInWorkspace
   (ws : Workspace) (target : Name) (facet : Name)

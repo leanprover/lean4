@@ -54,7 +54,7 @@ def toSimpleString : (self : BuildKey) → String
 | module m => s!"{m}"
 | package p => s!"{p}"
 | packageTarget p t _ => s!"{p}/{t}"
-| facet t f => s!"{toSimpleString t}:{f}"
+| facet t f => s!"{toSimpleString t}:{Name.eraseHead f}"
 
 instance : ToString BuildKey := ⟨(·.toString)⟩
 

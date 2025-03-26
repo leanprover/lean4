@@ -25,20 +25,32 @@ as needed (via `target_data`).
 opaque TargetData (name : Name) : Type
 
 /--
-The open type family which maps a facet to its build data in
-the Lake build store. For example, the imports of a module.
+The open type family which maps a Lake facet to its output type.
+For example, a `FilePath` for the `module.olean` facet.
 
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `facet_data`).
 -/
-abbrev FacetData (kind facet : Name) := TargetData (kind ++ facet)
+opaque FacetOut (facet : Name) : Type
 
-instance [h : FamilyDef TargetData (kind ++ facet) α] : FamilyDef (FacetData kind) facet α :=
+/--
+The open type family which maps a Lake facet kind and name to its output type.
+For example, a `FilePath` for the `module` `olean` facet.
+
+It is an open type, meaning additional mappings can be add lazily
+as needed (via `facet_data`).
+-/
+abbrev FacetData (kind facet : Name) := FacetOut (kind ++ facet)
+
+instance [h : FamilyDef FacetOut (kind ++ facet) α] : FamilyDef (FacetData kind) facet α :=
+  ⟨h.fam_eq⟩
+
+instance [h :  FamilyDef (FacetData kind) facet α] : FamilyDef FacetOut (kind ++ facet) α :=
   ⟨h.fam_eq⟩
 
 /--
-The open type family which maps a module facet's name to its build data
-in the Lake build store. For example, the generated C file for `c`.
+The open type family which maps a module facet's name to its output type.
+For example, a `FilePath` for the module `olean` facet.
 
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `module_data`).
@@ -46,9 +58,8 @@ as needed (via `module_data`).
 abbrev ModuleData := FacetData Module.KIND
 
 /--
-The open type family which maps a package facet's name to its build data
-in the Lake build store. For example, the direct dependencies of the package
-for the `deps` facet.
+The open type family which maps a package facet's name to output type.
+For example, an `Arrry Package` of direct dependencies for the `deps` facet.
 
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `package_data`).
@@ -59,9 +70,8 @@ abbrev PackageData := FacetData Package.KIND
 abbrev LeanLib.KIND : Name := `leanLib
 
 /--
-The open type family which maps a Lean library facet's name to its build data
-in the Lake build store. For example, the generated static library for the
-`static` facet.
+The open type family which maps a Lean library facet's name to its output type.
+For example, the `FilePath` pf the generated static library for the `static` facet.
 
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `library_data`).
@@ -75,9 +85,8 @@ abbrev LeanLibData := LibraryData
 abbrev LeanExe.KIND : Name := `leanExe
 
 /--
-The type family which maps a Lean executable facet's name to its build data
-in the Lake build store. For example, the generated executable for the
-`exe` facet.
+The type family which maps a Lean executable facet's name to its output type.
+For example, the `FilePath` of the executable for the `exe` facet.
 -/
 abbrev LeanExeData := FacetData LeanExe.KIND
 
@@ -85,31 +94,29 @@ abbrev LeanExeData := FacetData LeanExe.KIND
 abbrev ExternLib.KIND : Name := `externLib
 
 /--
-The type family which maps an external library facet's name to its build data
-in the Lake build store. For example, the generated static library for the
-`static` facet.
+The type family which maps an external library facet's name to its output type.
+For example, the `FilePath` of the generated static library for the `static` facet.
 -/
 abbrev ExternLibData := FacetData ExternLib.KIND
 
 /--
 The open type family which maps a custom package target
-(package × target name) to its build data in the Lake build store.
+(package × target name) to its output type.
 
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `custom_data`).
 -/
-opaque CustomDataFam (target : Name × Name) : Type
+opaque CustomOut (target : Name × Name) : Type
 
 /--
-The open type family which maps a custom package target
-to its build data in the Lake build store.
+The open type family which maps a custom package targetto its output type.
 
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `custom_data`).
 -/
-abbrev CustomData (package target : Name) := CustomDataFam (package, target)
+abbrev CustomData (package target : Name) := CustomOut (package, target)
 
-instance [h : FamilyDef CustomDataFam (p, t) α] : FamilyDef (CustomData p) t α :=
+instance [h : FamilyDef CustomOut (p, t) α] : FamilyDef (CustomData p) t α :=
   ⟨h.fam_eq⟩
 
 --------------------------------------------------------------------------------
@@ -126,15 +133,10 @@ abbrev BuildData : BuildKey → Type
 | .package _ => TargetData Package.KIND
 | .packageTarget p t .anonymous => CustomData p t
 | .packageTarget _ _ k => TargetData k
-| .facet t f => FacetData t.kind f
+| .facet _ f => FacetOut f
 
-instance (priority := low) : FamilyDef BuildData (.moduleFacet m f) (ModuleData f) := ⟨rfl⟩
-instance (priority := low) : FamilyDef BuildData (.packageFacet p f) (PackageData f) := ⟨rfl⟩
 instance (priority := low) : FamilyDef BuildData (.customTarget p t) (CustomData p t) := ⟨rfl⟩
-instance (priority := low) : FamilyDef BuildData (.facet t f) (FacetData t.kind f) := ⟨rfl⟩
-instance (priority := low) : FamilyDef BuildData (.targetFacet p t LeanLib.KIND f) (LeanLibData f) := ⟨rfl⟩
-instance (priority := low) : FamilyDef BuildData (.targetFacet p t LeanExe.KIND f) (LeanExeData f) := ⟨rfl⟩
-instance (priority := low) : FamilyDef BuildData (.targetFacet p t ExternLib.KIND f) (ExternLibData f) := ⟨rfl⟩
+instance (priority := low) : FamilyDef BuildData (.facet t f) (FacetOut f) := ⟨rfl⟩
 
 instance [FamilyOut TargetData Module.KIND α]
 : FamilyDef BuildData (.module k) α where
@@ -166,45 +168,65 @@ theorem BuildKey.data_eq_of_kind {k : BuildKey} :
 
 open Parser Command
 
+/-- Internal macro for declaring new facet within Lake. -/
+scoped macro (name := builtinFacetCommand)
+  doc?:optional(docComment) tk:"builtin_facet " id:ident kind:ident name:ident " : " ty:term
+: command => withRef tk do
+  let fam := mkCIdentFrom tk ``FacetOut
+  let nameLit := Name.quoteFrom name name.getId
+  let kindLit := Name.quoteFrom kind kind.getId
+  let facet := kind.getId ++ name.getId
+  let facetId := mkIdentFrom tk facet (canonical := true)
+  let facetLit := Name.quoteFrom tk facet
+  `(
+    $[$doc?]? abbrev $id := $facetLit
+    family_def $facetId : $fam $facetLit := $ty
+    instance : FamilyDef FacetOut ($kindLit ++ $nameLit) $ty :=
+      inferInstanceAs (FamilyDef FacetOut $facetLit $ty)
+  )
+
 /-- Macro for declaring new `FacetData`. -/
 scoped macro (name := facetDataDecl)
-  doc?:optional(docComment) "facet_data " kind:ident facet:ident " : " ty:term
-: command => do
-  let fam := mkCIdentFrom (← getRef) ``TargetData
-  let kindName := Name.quoteFrom kind kind.getId
-  let facetName := Name.quoteFrom facet facet.getId
-  let id := mkIdentFrom facet (canonical := true) <|
-    facet.getId.modifyBase (kind.getId ++ ·)
-  `($[$doc?]? family_def $id : $fam ($kindName ++ $facetName) := $ty)
+  doc?:optional(docComment) tk:"facet_data " kind:ident name:ident " : " ty:term
+: command => withRef tk do
+  let fam := mkCIdentFrom tk ``FacetOut
+  let kindLit := Name.quoteFrom kind kind.getId
+  let nameLit := Name.quoteFrom name name.getId
+  let facet := kind.getId ++ name.getId
+  let facetLit := Name.quoteFrom tk facet
+  let id := mkIdentFrom tk facet (canonical := true)
+  `($[$doc?]? family_def $id : $fam $facetLit := $ty
+    instance : FamilyDef FacetOut ($kindLit ++ $nameLit) $ty :=
+      inferInstanceAs (FamilyDef FacetOut $facetLit $ty))
 
 /-- Macro for declaring new `PackageData`. -/
 scoped macro (name := packageDataDecl)
-  doc?:optional(docComment) "package_data " facet:ident " : " ty:term
-: command => `($[$doc?]? facet_data $(mkIdent Package.KIND) $facet : $ty)
+  doc?:optional(docComment) tk:"package_data " facet:ident " : " ty:term
+: command => `($[$doc?]? facet_data%$tk $(mkIdentFrom tk Package.KIND) $facet : $ty)
 
 /-- Macro for declaring new `ModuleData`. -/
 scoped macro (name := moduleDataDecl)
-  doc?:optional(docComment) "module_data " facet:ident " : " ty:term
-: command => `($[$doc?]? facet_data $(mkIdent Module.KIND) $facet : $ty)
+  doc?:optional(docComment) tk:"module_data " facet:ident " : " ty:term
+: command => `($[$doc?]? facet_data%$tk $(mkIdentFrom tk Module.KIND) $facet : $ty)
 
 /-- Macro for declaring new `LibraryData`. -/
 scoped macro (name := libraryDataDecl)
-  doc?:optional(docComment) "library_data " facet:ident " : " ty:term
-: command => `($[$doc?]? facet_data $(mkIdent LeanLib.KIND) $facet : $ty)
+  doc?:optional(docComment) tk:"library_data " facet:ident " : " ty:term
+: command => `($[$doc?]? facet_data%$tk $(mkIdentFrom tk LeanLib.KIND) $facet : $ty)
 
 /-- Macro for declaring new `TargetData`. -/
 scoped macro (name := targetDataDecl)
-  doc?:optional(docComment) "target_data " id:ident " : " ty:term
-: command => do
+  doc?:optional(docComment) tk:"target_data " id:ident " : " ty:term
+: command => withRef tk do
   let fam := mkCIdentFrom (← getRef) ``TargetData
   let idx := Name.quoteFrom id id.getId
   `($[$doc?]? family_def $id : $fam $idx := $ty)
 
 /-- Macro for declaring new `CustomData`. -/
 scoped macro (name := customDataDecl)
-  doc?:optional(docComment) "custom_data " pkg:ident tgt:ident " : " ty:term
-: command => do
-  let fam := mkCIdentFrom (← getRef) ``CustomDataFam
+  doc?:optional(docComment) tk:"custom_data " pkg:ident tgt:ident " : " ty:term
+: command => withRef tk do
+  let fam := mkCIdentFrom (← getRef) ``CustomOut
   let id := mkIdentFrom tgt (pkg.getId ++ tgt.getId)
   let pkg := Name.quoteFrom pkg pkg.getId
   let tgt := Name.quoteFrom pkg tgt.getId

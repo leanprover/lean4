@@ -22,11 +22,11 @@ def LeanExe.recBuildExe (self : LeanExe) : FetchM (Job FilePath) :=
   -/
   let mut linkJobs := #[]
   for facet in self.root.nativeFacets self.supportInterpreter do
-    linkJobs := linkJobs.push <| ← fetch <| self.root.facet facet.name
+    linkJobs := linkJobs.push <| ← facet.fetch self.root
   let imports ← (← self.root.transImports.fetch).await
   for mod in imports do
     for facet in mod.nativeFacets self.supportInterpreter do
-      linkJobs := linkJobs.push <| ← fetch <| mod.facet facet.name
+      linkJobs := linkJobs.push <| ← facet.fetch mod
   let deps := (← (← self.pkg.transDeps.fetch).await).push self.pkg
   for dep in deps do for lib in dep.externLibs do
     linkJobs := linkJobs.push <| ← lib.static.fetch

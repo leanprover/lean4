@@ -34,13 +34,13 @@ structure ModuleFacet (α) where
   /-- The name of the module facet. -/
   name : Name
   /-- Proof that module's facet build result is of type α. -/
-  data_eq : ModuleData name = α
+  data_eq : FacetOut name = α
   deriving Repr
 
-instance (facet : ModuleFacet α) : FamilyDef ModuleData facet.name α :=
+instance (facet : ModuleFacet α) : FamilyDef FacetOut facet.name α :=
   ⟨facet.data_eq⟩
 
-instance [FamilyOut ModuleData facet α] : CoeDep Name facet (ModuleFacet α) :=
+instance [FamilyOut FacetOut facet α] : CoeDep Name facet (ModuleFacet α) :=
   ⟨facet, FamilyOut.fam_eq⟩
 
 /--
@@ -48,8 +48,7 @@ The facet which builds all of a module's dependencies
 (i.e., transitive local imports and `--load-dynlib` shared libraries).
 Returns the list of shared libraries to load along with their search path.
 -/
-abbrev Module.depsFacet := `deps
-module_data deps : ModuleDeps
+builtin_facet Module.depsFacet module deps : ModuleDeps
 
 /--
 The core build facet of a Lean file.
@@ -57,59 +56,47 @@ Elaborates the Lean file via `lean` and produces all the Lean artifacts
 of the module (i.e., `olean`, `ilean`, `c`).
 Its trace just includes its dependencies.
 -/
-abbrev Module.leanArtsFacet := `leanArts
-module_data leanArts : Unit
+builtin_facet Module.leanArtsFacet module leanArts : Unit
 
 /-- The `olean` file produced by `lean`. -/
-abbrev Module.oleanFacet := `olean
-module_data olean : FilePath
+builtin_facet Module.oleanFacet module olean : FilePath
 
 /-- The `ilean` file produced by `lean`. -/
-abbrev Module.ileanFacet := `ilean
-module_data ilean : FilePath
+builtin_facet Module.ileanFacet module ilean : FilePath
 
 /-- The C file built from the Lean file via `lean`. -/
-abbrev Module.cFacet := `c
-module_data c : FilePath
+builtin_facet Module.cFacet module c : FilePath
 
 /-- The LLVM BC file built from the Lean file via `lean`. -/
-abbrev Module.bcFacet := `bc
-module_data bc : FilePath
+builtin_facet Module.bcFacet module bc : FilePath
 
 /--
 The object file `.c.o` built from `c`.
 On Windows, this is `c.o.noexport`, on other systems it is `c.o.export`).
 -/
-abbrev Module.coFacet := `c.o
-module_data c.o : FilePath
+builtin_facet Module.coFacet module c.o : FilePath
 
 /-- The object file `.c.o.export` built from `c` (with `-DLEAN_EXPORTING`). -/
-abbrev Module.coExportFacet := `c.o.export
-module_data c.o.export : FilePath
+builtin_facet Module.coExportFacet module c.o.export : FilePath
 
 /-- The object file `.c.o.noexport` built from `c` (without `-DLEAN_EXPORTING`). -/
-abbrev Module.coNoExportFacet := `c.o.noexport
-module_data c.o.noexport : FilePath
+builtin_facet Module.coNoExportFacet module c.o.noexport : FilePath
 
 /-- The object file `.bc.o` built from `bc`. -/
-abbrev Module.bcoFacet := `bc.o
-module_data bc.o : FilePath
+builtin_facet Module.bcoFacet module bc.o : FilePath
 
 /--
 The object file built from `c`/`bc`.
 On Windows with the C backend, no Lean symbols are exported.
 On every other configuration, symbols are exported.
 -/
-abbrev Module.oFacet := `o
-module_data o : FilePath
+builtin_facet Module.oFacet module o : FilePath
 
 /-- The object file built from `c`/`bc` (with Lean symbols exported). -/
-abbrev Module.oExportFacet := `o.export
-module_data o.export : FilePath
+builtin_facet Module.oExportFacet module o.export : FilePath
 
 /-- The object file built from `c`/`bc` (without Lean symbols exported). -/
-abbrev Module.oNoExportFacet := `o.noexport
-module_data o.noexport : FilePath
+builtin_facet Module.oNoExportFacet module o.noexport : FilePath
 
 
 /-! ## Package Facets -/
@@ -118,36 +105,31 @@ module_data o.noexport : FilePath
 A package's *optional* cached build archive (e.g., from Reservoir or GitHub).
 Will NOT cause the whole build to fail if the archive cannot be fetched.
 -/
-abbrev Package.optBuildCacheFacet := `optCache
-package_data optCache : Bool
+builtin_facet Package.optBuildCacheFacet package optCache : Bool
 
 /--
 A package's cached build archive (e.g., from Reservoir or GitHub).
 Will cause the whole build to fail if the archive cannot be fetched.
 -/
-abbrev Package.buildCacheFacet := `cache
-package_data cache : Unit
+builtin_facet Package.buildCacheFacet package cache : Unit
 
 /--
 A package's *optional* build archive from Reservoir.
 Will NOT cause the whole build to fail if the barrel cannot be fetched.
 -/
-abbrev Package.optReservoirBarrelFacet := `optBarrel
-package_data optBarrel : Bool
+builtin_facet Package.optReservoirBarrelFacet package optBarrel : Bool
 
 /--
 A package's Reservoir build archive from Reservoir.
 Will cause the whole build to fail if the barrel cannot be fetched.
 -/
-abbrev Package.reservoirBarrelFacet := `barrel
-package_data barrel : Unit
+builtin_facet Package.reservoirBarrelFacet package barrel : Unit
 
 /--
 A package's *optional* build archive from a GitHub release.
 Will NOT cause the whole build to fail if the release cannot be fetched.
 -/
-abbrev Package.optGitHubReleaseFacet := `optRelease
-package_data optRelease : Bool
+builtin_facet Package.optGitHubReleaseFacet package optRelease : Bool
 
 @[deprecated optGitHubReleaseFacet (since := "2024-09-27")]
 abbrev Package.optReleaseFacet := optGitHubReleaseFacet
@@ -156,25 +138,21 @@ abbrev Package.optReleaseFacet := optGitHubReleaseFacet
 A package's build archive from a GitHub release.
 Will cause the whole build to fail if the release cannot be fetched.
 -/
-abbrev Package.gitHubReleaseFacet := `release
-package_data release : Unit
+builtin_facet Package.gitHubReleaseFacet package release : Unit
 
 @[deprecated gitHubReleaseFacet (since := "2024-09-27")]
 abbrev Package.releaseFacet := gitHubReleaseFacet
 
 /-- A package's `extraDepTargets` mixed with its transitive dependencies'. -/
-abbrev Package.extraDepFacet := `extraDep
-package_data extraDep : Unit
+builtin_facet Package.extraDepFacet package extraDep : Unit
 
 /-! ## Target Facets -/
 
 /-- A Lean library's Lean artifacts (i.e., `olean`, `ilean`, `c`). -/
-abbrev LeanLib.leanArtsFacet := `leanArts
-library_data leanArts : Unit
+builtin_facet LeanLib.leanArtsFacet leanLib leanArts : Unit
 
 /-- A Lean library's static artifact. -/
-abbrev LeanLib.staticFacet := `static
-library_data static : FilePath
+builtin_facet LeanLib.staticFacet leanLib static : FilePath
 
 /--
 A Lean library's static artifact (with exported symbols).
@@ -184,29 +162,22 @@ Such libraries are usually used as part of the local build process of some
 shared artifact and not publicly distributed. Standard static libraries are
 much better for distribution.
 -/
-abbrev LeanLib.staticExportFacet := `static.export
-library_data static.export : FilePath
+builtin_facet LeanLib.staticExportFacet leanLib static.export : FilePath
 
 /-- A Lean library's shared artifact. -/
-abbrev LeanLib.sharedFacet := `shared
-library_data shared : FilePath
+builtin_facet LeanLib.sharedFacet leanLib shared : FilePath
 
 /-- A Lean library's `extraDepTargets` mixed with its package's. -/
-abbrev LeanLib.extraDepFacet := `extraDep
-library_data extraDep : Unit
+builtin_facet LeanLib.extraDepFacet leanLib extraDep : Unit
 
 /-- A Lean binary executable. -/
-abbrev LeanExe.exeFacet := `exe
-facet_data leanExe exe : FilePath
+builtin_facet LeanExe.exeFacet leanExe exe : FilePath
 
 /-- A external library's static binary. -/
-abbrev ExternLib.staticFacet := `static
-facet_data externLib static : FilePath
+builtin_facet ExternLib.staticFacet externLib static : FilePath
 
 /-- A external library's shared binary. -/
-abbrev ExternLib.sharedFacet := `shared
-facet_data externLib shared : FilePath
+builtin_facet ExternLib.sharedFacet externLib shared : FilePath
 
 /-- A external library's dynlib. -/
-abbrev ExternLib.dynlibFacet := `dynlib
-facet_data externLib dynlib : Dynlib
+builtin_facet ExternLib.dynlibFacet externLib dynlib : Dynlib

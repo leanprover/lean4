@@ -61,8 +61,11 @@ def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) :=
     | _ =>
       error s!"invalid target '{info}': unknown target kind '{kind}'"
   | .facet target data facet => do
-    if let some config := (← getWorkspace).findFacetConfig? target.kind facet then
-      config.fetchFn data
+    if let some config := (← getWorkspace).findFacetConfig? facet then
+      if h : config.kind = target.kind then
+        config.fetchFn <| cast (by simp [h]) data
+      else
+        error s!"invalid target '{info}': target is of kind '{target.kind}', but facet expects '{config.kind}'"
     else
       error s!"invalid target '{info}': unknown facet`{facet}`"
 

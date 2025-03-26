@@ -15,10 +15,13 @@ import Lake.Build.ExternLib
 namespace Lake
 
 /-- The initial set of Lake facets. -/
-def initFacetConfigs : FacetMap :=
-  FacetMap.empty
-  |>.insert Module.KIND Module.initFacetConfigs
-  |>.insert Package.KIND Package.initFacetConfigs
-  |>.insert LeanLib.KIND LeanLib.initFacetConfigs
-  |>.insert LeanExe.KIND LeanExe.initFacetConfigs
-  |>.insert ExternLib.KIND ExternLib.initFacetConfigs
+def initFacetConfigs : DNameMap FacetConfig :=
+  DNameMap.empty
+  |> insert Module.initFacetConfigs
+  |> insert Package.initFacetConfigs
+  |> insert LeanLib.initFacetConfigs
+  |> insert LeanExe.initFacetConfigs
+  |> insert ExternLib.initFacetConfigs
+where
+  insert {k} (group : DNameMap (KFacetConfig k)) map :=
+    group.fold (init := map) fun m k v => m.insert k v.toFacetConfig

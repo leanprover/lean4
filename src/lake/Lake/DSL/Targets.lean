@@ -29,7 +29,7 @@ abbrev mkModuleFacetDecl
   (α) (facet : Name)
   [FormatQuery α] [FamilyDef ModuleData facet α]
   (f : Module → FetchM (Job α))
-: ModuleFacetDecl := .mk facet <| mkFacetJobConfig fun mod => do
+: ModuleFacetDecl := .mk (Module.KIND ++ facet) <| mkFacetJobConfig fun mod => do
   withRegisterJob (mod.facet facet |>.key.toSimpleString)
     (f mod)
 
@@ -68,7 +68,7 @@ abbrev mkPackageFacetDecl
   (α) (facet : Name)
   [FormatQuery α] [FamilyDef PackageData facet α]
   (f : Package → FetchM (Job α))
-: PackageFacetDecl := .mk facet <| mkFacetJobConfig fun pkg => do
+: PackageFacetDecl := .mk (Package.KIND ++ facet) <| mkFacetJobConfig fun pkg => do
   withRegisterJob (pkg.facet facet |>.key.toSimpleString)
     (f pkg)
 
@@ -107,7 +107,7 @@ abbrev mkLibraryFacetDecl
   (α) (facet : Name)
   [FormatQuery α] [FamilyDef LibraryData facet α]
   (f : LeanLib → FetchM (Job α))
-: LibraryFacetDecl := .mk facet <| mkFacetJobConfig fun lib => do
+: LibraryFacetDecl := .mk (LeanLib.KIND ++ facet) <| mkFacetJobConfig fun lib => do
   withRegisterJob (lib.facet facet |>.key.toSimpleString)
     (f lib)
 
@@ -184,7 +184,7 @@ def expandTargetCommand : Macro := fun stx => do
   let name := Name.quoteFrom id id.getId
   let pkgName := mkIdentFrom id `_package.name
   let pkg ← expandOptSimpleBinder pkg?
-  `(family_def $id : CustomDataFam ($pkgName, $name) := $ty
+  `(family_def $id : CustomOut ($pkgName, $name) := $ty
     $[$doc?]? abbrev $id :=
       Lake.DSL.mkTargetDecl $ty $pkgName $name (fun $pkg => $defn)
     $[$wds?:whereDecls]?
@@ -195,7 +195,7 @@ def expandTargetCommand : Macro := fun stx => do
 --------------------------------------------------------------------------------
 
 def mkConfigDecl
-  (tyName kind : Name)
+  (tyName attr kind : Name)
   [ConfigInfo tyName] [delTyName : TypeName (KConfigDecl kind)]
   (doc? : Option DocComment) (attrs? : Option Attributes)
   (nameStx? : Option IdentOrStr) (cfg : OptConfig)
@@ -205,9 +205,9 @@ def mkConfigDecl
   let name := Name.quoteFrom id id.getId
   let ty := Syntax.mkCApp tyName #[name]
   elabConfig tyName configId ty cfg
-  let kindId ← mkIdentFromRef kind
+  let attrId ← mkIdentFromRef attr
   let targetAttr ← `(Term.attrInstance| «target»)
-  let kindAttr ← `(Term.attrInstance| $kindId:ident)
+  let kindAttr ← `(Term.attrInstance| $attrId:ident)
   let attrs := #[targetAttr, kindAttr] ++ expandAttrs attrs?
   let pkg ← mkIdentFromRef (packageDeclName.str "name")
   let declTy ← mkIdentFromRef delTyName.typeName
@@ -239,7 +239,7 @@ def elabLeanLibCommand : CommandElab := fun stx => do
   let `(leanLibCommand|$(doc?)? $(attrs?)? lean_lib%$kw $(nameStx?)? $cfg) := stx
     | throwErrorAt stx "ill-formed lean_lib declaration"
   withRef kw do
-  let cmd ← mkConfigDecl ``LeanLibConfig LeanLib.KIND doc? attrs? nameStx? cfg
+  let cmd ← mkConfigDecl ``LeanLibConfig `lean_lib LeanLib.KIND doc? attrs? nameStx? cfg
   withMacroExpansion stx cmd <| elabCommand cmd
 
 @[inherit_doc leanLibCommand] abbrev LeanLibCommand := TSyntax ``leanLibCommand
@@ -266,7 +266,7 @@ def elabLeanExeCommand : CommandElab := fun stx => do
   let `(leanExeCommand|$(doc?)? $(attrs?)? lean_exe%$kw $(nameStx?)? $cfg) := stx
     | throwErrorAt stx "ill-formed lean_exe declaration"
   withRef kw do
-  let cmd ← mkConfigDecl ``LeanExeConfig LeanExe.KIND doc? attrs? nameStx? cfg
+  let cmd ← mkConfigDecl ``LeanExeConfig `lean_exe LeanExe.KIND doc? attrs? nameStx? cfg
   withMacroExpansion stx cmd <| elabCommand cmd
 
 @[inherit_doc leanExeCommand] abbrev LeanExeCommand := TSyntax ``leanExeCommand

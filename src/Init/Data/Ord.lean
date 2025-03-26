@@ -304,6 +304,28 @@ theorem then_eq_eq {o₁ o₂ : Ordering} : o₁.then o₂ = eq ↔ o₁ = eq �
 theorem then_eq_gt {o₁ o₂ : Ordering} : o₁.then o₂ = gt ↔ o₁ = gt ∨ o₁ = eq ∧ o₂ = gt := by
   cases o₁ <;> cases o₂ <;> decide
 
+@[simp]
+theorem then_lt {o : Ordering} : lt.then o = lt := rfl
+
+@[simp]
+theorem then_gt {o : Ordering} : gt.then o = gt := rfl
+
+@[simp]
+theorem then_eq {o : Ordering} : eq.then o = o := rfl
+
+theorem isLE_then {o₁ o₂ : Ordering} : (o₁.then o₂).isLE ↔ o₁ = lt ∨ (o₁ = eq ∧ o₂.isLE) := by
+  cases o₁ <;> simp
+
+-- TODO rename
+theorem isLE_then' {o₁ o₂ : Ordering} : (o₁.then o₂).isLE ↔ o₁.isLE ∧ (o₁ = lt ∨ o₂.isLE) := by
+  cases o₁ <;> simp
+
+theorem isLE_left_of_isLE_then {o₁ o₂ : Ordering} (h : (o₁.then o₂).isLE) : o₁.isLE := by
+  cases o₁ <;> simp_all
+
+theorem isGE_left_of_isGE_then {o₁ o₂ : Ordering} (h : (o₁.then o₂).isGE) : o₁.isGE := by
+  cases o₁ <;> simp_all
+
 end Lemmas
 
 end Ordering

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 -/
 prelude
-import Init.Classical
 import Init.Data.Ord
 
 /-! # Basic lemmas about comparing natural numbers
@@ -53,5 +52,15 @@ protected theorem compare_ne_gt {a b : Nat} : compare a b ≠ .gt ↔ a ≤ b :=
 
 protected theorem compare_ne_lt {a b : Nat} : compare a b ≠ .lt ↔ b ≤ a := by
   rw [compare_def_le]; (repeat' split) <;> simp [Nat.le_of_not_le, *]
+
+protected theorem isLE_compare {a b : Nat} :
+    (compare a b).isLE ↔ a ≤ b := by
+  simp only [Nat.compare_def_le]
+  repeat' split <;> simp_all
+
+protected theorem isGE_compare {a b : Nat} :
+    (compare a b).isLE ↔ a ≤ b := by
+  simp only [Nat.compare_def_le]
+  repeat' split <;> simp_all
 
 end Nat

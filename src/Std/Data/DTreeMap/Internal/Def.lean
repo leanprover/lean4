@@ -19,6 +19,8 @@ universe u v
 
 namespace Std.DTreeMap.Internal
 
+mutual
+
 /-- (Implementation detail) The actual inductive type for the size-balanced tree data structure. -/
 inductive Impl (α : Type u) (β : α → Type v) where
   /-- (Implementation detail) -/
@@ -26,6 +28,10 @@ inductive Impl (α : Type u) (β : α → Type v) where
   /-- (Implementation detail) -/
   | leaf
 deriving Inhabited
+
+inductive ImplPred where
+
+end
 
 /-- The "delta" parameter of the size-bounded tree. Controls how imbalanced the tree can be. -/
 @[inline, Std.Internal.tree_tac]

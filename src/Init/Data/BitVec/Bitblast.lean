@@ -595,6 +595,24 @@ theorem sle_eq_carry (x y : BitVec w) :
     x.sle y = !((x.msb == y.msb).xor (carry w y (~~~x) true)) := by
   rw [sle_eq_not_slt, slt_eq_not_carry, beq_comm]
 
+theorem neg_slt_zero (h : 0 < w) (n : BitVec w) :
+    (-n).slt 0#w = ((n == intMin w) || (0#w).slt n) := by
+  rw [slt_zero_eq_msb, msb_neg, slt_eq_sle_and_ne, zero_sle_eq_not_msb]
+  apply Bool.eq_iff_iff.2
+  cases hmsb : n.msb with
+  | false => simpa [ne_intMin_of_msb_eq_false h hmsb] using Decidable.not_iff_not.2 (eq_comm)
+  | true =>
+    simp only [Bool.bne_true, Bool.not_and, Bool.or_eq_true, Bool.not_eq_eq_eq_not, Bool.not_true,
+      bne_eq_false_iff_eq, Bool.false_and, Bool.or_false, beq_iff_eq,
+      _root_.or_iff_right_iff_imp]
+    rintro rfl
+    simp at hmsb
+
+theorem neg_sle_zero (h : 0 < w) (n : BitVec w) :
+    (-n).sle 0#w = (n == intMin w || (0#w).sle n) := by
+  rw [sle_eq_slt_or_eq, neg_slt_zero h, sle_eq_slt_or_eq]
+  simp [Bool.beq_eq_decide_eq (-n), Bool.beq_eq_decide_eq _ n, Eq.comm (a := n), Bool.or_assoc]
+
 /-! ### mul recurrence for bitblasting -/
 
 /--

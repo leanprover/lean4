@@ -36,6 +36,12 @@ def Float.ofBinaryScientific (m : Nat) (e : Int) : Float :=
   let e := e + s
   m.toFloat.scaleB e
 
+/--
+Constructs a `Float` from the given mantissa, sign, and exponent values.
+
+This function is part of the implementation of the `OfScientific Float` instance that is used to
+interpret floating-point literals.
+-/
 protected opaque Float.ofScientific (m : Nat) (s : Bool) (e : Nat) : Float :=
   if s then
     let s := 64 - m.log2 -- ensure we have 64 bits of mantissa left after division
@@ -56,12 +62,17 @@ instance : OfScientific Float where
   ofScientific := Float.ofScientific
 
 /--
-Converts a natural number into a 64-bit floating point number.
+Converts a natural number into the closest-possible 64-bit floating-point number, or an infinite
+floating-point value if the range of `Float` is exceeded.
 -/
 @[export lean_float_of_nat]
 def Float.ofNat (n : Nat) : Float :=
   OfScientific.ofScientific n false 0
 
+/--
+Converts an integer into the closest-possible 64-bit floating-point number, or positive or negative
+infinite floating-point value if the range of `Float` is exceeded.
+-/
 def Float.ofInt : Int → Float
   | Int.ofNat n => Float.ofNat n
   | Int.negSucc n => Float.neg (Float.ofNat (Nat.succ n))
@@ -78,6 +89,12 @@ def Float32.ofBinaryScientific (m : Nat) (e : Int) : Float32 :=
   let e := e + s
   m.toFloat32.scaleB e
 
+/--
+Constructs a `Float32` from the given mantissa, sign, and exponent values.
+
+This function is part of the implementation of the `OfScientific Float32` instance that is used to
+interpret floating-point literals.
+-/
 protected opaque Float32.ofScientific (m : Nat) (s : Bool) (e : Nat) : Float32 :=
   if s then
     let s := 64 - m.log2 -- ensure we have 64 bits of mantissa left after division
@@ -90,12 +107,17 @@ instance : OfScientific Float32 where
   ofScientific := Float32.ofScientific
 
 /--
-Converts a natural number into a 32-bit floating point number.
+Converts a natural number into the closest-possible 32-bit floating-point number, or an infinite
+floating-point value if the range of `Float32` is exceeded.
 -/
 @[export lean_float32_of_nat]
 def Float32.ofNat (n : Nat) : Float32 :=
   OfScientific.ofScientific n false 0
 
+/--
+Converts an integer into the closest-possible 32-bit floating-point number, or positive or negative
+infinite floating-point value if the range of `Float32` is exceeded.
+-/
 def Float32.ofInt : Int → Float32
   | Int.ofNat n => Float32.ofNat n
   | Int.negSucc n => Float32.neg (Float32.ofNat (Nat.succ n))

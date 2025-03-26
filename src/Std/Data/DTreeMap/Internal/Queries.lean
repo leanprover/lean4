@@ -307,8 +307,8 @@ def maxEntry? : Impl α β → Option ((a : α) × β a)
 
 /-- Implementation detail of the tree map -/
 def maxEntry : (t : Impl α β) → (h : t.isEmpty = false) → (a : α) × β a
-  | .inner _ k v .leaf _, _ => ⟨k, v⟩
-  | .inner _ _ _ l@(.inner ..) _, h => l.maxEntry (by simp_all [isEmpty])
+  | .inner _ k v _ .leaf, _ => ⟨k, v⟩
+  | .inner _ _ _ _ l@(.inner ..), h => l.maxEntry (by simp_all [isEmpty])
 
 /-- Implementation detail of the tree map -/
 def maxEntry! [Inhabited ((a : α) × β a)] : Impl α β → (a : α) × β a
@@ -353,8 +353,8 @@ def maxKey? : Impl α β → Option α
 
 /-- Implementation detail of the tree map -/
 def maxKey : (t : Impl α β) → (h : t.isEmpty = false) → α
-  | .inner _ k _ .leaf _, _ => k
-  | .inner _ _ _ l@(.inner ..) _, h => l.maxKey (by simp_all [isEmpty])
+  | .inner _ k _ _ .leaf, _ => k
+  | .inner _ _ _ _ l@(.inner ..), h => l.maxKey (by simp_all [isEmpty])
 
 /-- Implementation detail of the tree map -/
 def maxKey! [Inhabited α] : Impl α β → α
@@ -756,8 +756,8 @@ def maxEntry? : Impl α β → Option (α × β)
 
 /-- Implementation detail of the tree map -/
 def maxEntry : (t : Impl α β) → (h : t.isEmpty = false) → α × β
-  | .inner _ k v .leaf _, _ => ⟨k, v⟩
-  | .inner _ _ _ l@(.inner ..) _, h => maxEntry l (by simp_all [isEmpty])
+  | .inner _ k v _ .leaf, _ => ⟨k, v⟩
+  | .inner _ _ _ _ l@(.inner ..), h => maxEntry l (by simp_all [isEmpty])
 
 /-- Implementation detail of the tree map -/
 def maxEntry! [Inhabited (α × β)] : Impl α β → α × β

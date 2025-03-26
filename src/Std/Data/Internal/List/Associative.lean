@@ -5647,6 +5647,199 @@ theorem maxKey?_alterKey_eq_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd �
 
 end Const
 
+/-- Given a proof that the list is nonempty, returns the largest key in an associative list. -/
+abbrev maxKey [Ord α] (xs : List ((a : α) × β a)) (h : xs.isEmpty = false) : α :=
+  letI : Ord α := .opposite inferInstance; minKey xs h
+
+theorem maxKey_of_perm [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l l' : List ((a : α) × β a)}
+    {hl} (hd : DistinctKeys l) (hp : l.Perm l') :
+    maxKey l hl = maxKey l' (hp.isEmpty_eq ▸ hl) :=
+  letI : Ord α := .opposite inferInstance
+  minKey_of_perm hd hp
+
+theorem maxKey_eq_get_maxKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} {he} :
+    maxKey l he = (maxKey? l |>.get (by simp [isSome_maxKey?_eq_not_isEmpty, he])) :=
+  rfl
+
+theorem maxKey?_eq_some_maxKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} {he} :
+    maxKey? l = some (maxKey l he) :=
+  letI : Ord α := .opposite inferInstance
+  minKey?_eq_some_minKey
+
+theorem maxKey_eq_iff_getKey?_eq_self_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {he km} :
+    maxKey l he = km ↔ getKey? km l = some km ∧ ∀ k, containsKey k l → (compare k km).isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKey_eq_iff_getKey?_eq_self_and_forall hd
+
+theorem maxKey_eq_some_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    [LawfulEqOrd α] {l : List ((a : α) × β a)} (hd : DistinctKeys l) {he km} :
+    maxKey l he = km ↔ containsKey km l ∧ ∀ k, containsKey k l → (compare k km).isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKey_eq_some_iff_mem_and_forall hd
+
+theorem maxKey_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l : List ((a : α) × β a)}
+    (hd : DistinctKeys l) {k v} :
+    (insertEntry k v l |> maxKey <| isEmpty_insertEntry) =
+      ((maxKey? l).elim k fun k' => if compare k' k |>.isLE then k else k') :=
+  letI : Ord α := .opposite inferInstance
+  minKey_insertEntry hd
+
+theorem maxKey_le_maxKey_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v he} :
+    compare (maxKey l he) (insertEntry k v l |> maxKey <| isEmpty_insertEntry) |>.isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKey_insertEntry_le_minKey hd
+
+theorem self_le_maxKey_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v} :
+    compare k (insertEntry k v l |> maxKey <| isEmpty_insertEntry) |>.isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKey_insertEntry_le_self hd
+
+theorem containsKey_maxKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {he} :
+    containsKey (maxKey l he) l :=
+  letI : Ord α := .opposite inferInstance
+  containsKey_minKey hd
+
+theorem le_maxKey_of_containsKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k} (hc : containsKey k l) :
+    compare k (maxKey l <| isEmpty_eq_false_iff_exists_containsKey.mpr ⟨k, hc⟩) |>.isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKey_le_of_containsKey hd hc
+
+theorem maxKey_le [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k he} :
+    (compare (maxKey l he) k).isLE ↔ (∀ k', containsKey k' l → (compare k' k).isLE) :=
+  letI : Ord α := .opposite inferInstance
+  le_minKey hd
+
+theorem getKey?_maxKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {he} :
+    getKey? (maxKey l he) l = some (maxKey l he) :=
+  letI : Ord α := .opposite inferInstance
+  getKey?_minKey hd
+
+theorem getKey_maxKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {he} :
+    getKey (maxKey l he) l (containsKey_maxKey hd) = maxKey l he :=
+  letI : Ord α := .opposite inferInstance
+  getKey_minKey hd
+
+theorem getKey!_maxKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {he} :
+    getKey! (maxKey l he) l = maxKey l he :=
+  letI : Ord α := .opposite inferInstance
+  getKey!_minKey hd
+
+theorem getKeyD_maxKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {he fallback} :
+    getKeyD (maxKey l he) l fallback = maxKey l he :=
+  letI : Ord α := .opposite inferInstance
+  getKeyD_minKey hd
+
+theorem maxKey_eraseKey_eq_iff_beq_maxKey_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k he} :
+    (eraseKey k l |> maxKey <| he) =
+        maxKey l (isEmpty_eq_false_of_isEmpty_eraseKey_eq_false hd he) ↔
+      (k == (maxKey l <| isEmpty_eq_false_of_isEmpty_eraseKey_eq_false hd he)) = false :=
+  letI : Ord α := .opposite inferInstance
+  minKey_eraseKey_eq_iff_beq_minKey_eq_false hd
+
+theorem maxKey_eraseKey_eq_of_beq_maxKey_eq_false [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k he} :
+    (hc : (k == (maxKey l (isEmpty_eq_false_of_isEmpty_eraseKey_eq_false hd he))) = false) →
+    (eraseKey k l |> maxKey <| he) =
+      maxKey l (isEmpty_eq_false_of_isEmpty_eraseKey_eq_false hd he) :=
+  letI : Ord α := .opposite inferInstance
+  minKey_eraseKey_eq_of_beq_minKey_eq_false hd
+
+theorem maxKey_eraseKey_le_maxKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k he} :
+    compare (eraseKey k l |> maxKey <| he)
+      (maxKey l <| isEmpty_eq_false_of_isEmpty_eraseKey_eq_false hd he) |>.isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKey_le_minKey_erase hd
+
+theorem maxKey_insertEntryIfNew [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v} :
+    (insertEntryIfNew k v l |> maxKey <| isEmpty_insertEntryIfNew) =
+      (maxKey? l).elim k fun k' => if compare k' k = .lt then k else k' :=
+  letI : Ord α := .opposite inferInstance
+  minKey_insertEntryIfNew hd
+
+theorem maxKey_le_maxKey_insertEntryIfNew [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v he} :
+    compare (maxKey l he)
+      (insertEntryIfNew k v l |> maxKey <| isEmpty_insertEntryIfNew) |>.isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKey_insertEntryIfNew_le_minKey hd
+
+theorem self_le_maxKey_insertEntryIfNew [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v} :
+    compare k (insertEntryIfNew k v l  |> maxKey <| isEmpty_insertEntryIfNew) |>.isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKey_insertEntryIfNew_le_self hd
+
+theorem maxKey_eq_getLast_keys [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l)
+    (ho : l.Pairwise fun a b => compare a.1 b.1 = .lt) {he} :
+    maxKey l he = (keys l).getLast (by simp_all [keys_eq_map, List.isEmpty_eq_false_iff]) := by
+  simp only [List.getLast_eq_head_reverse, reverse_keys, maxKey_of_perm hd (List.reverse_perm l).symm]
+  letI : Ord α := .opposite inferInstance
+  exact minKey_eq_head_keys (List.pairwise_reverse.mpr ho)
+
+theorem maxKey_modifyKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [LawfulEqOrd α] {k f}
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {he} :
+    (modifyKey k f l |> maxKey <| he) = maxKey l (isEmpty_modifyKey k f l ▸ he):=
+  letI : Ord α := .opposite inferInstance
+  minKey_modifyKey hd
+
+theorem maxKey_alterKey_eq_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [LawfulEqOrd α]
+    {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k f he} :
+    (alterKey k f l |> maxKey <| he) = k ↔
+      (f (getValueCast? k l)).isSome ∧ ∀ k', containsKey k' l → (compare k' k).isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKey_alterKey_eq_self hd
+
+namespace Const
+
+variable {β : Type v}
+
+theorem maxKey_modifyKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((_ : α) × β)} (hd : DistinctKeys l) {k f he} :
+    (modifyKey k f l |> maxKey <| he) =
+      if (maxKey l <| isEmpty_modifyKey k f l ▸ he) == k then
+        k
+      else
+        (maxKey l <| isEmpty_modifyKey k f l ▸ he) :=
+  letI : Ord α := .opposite inferInstance
+  minKey_modifyKey hd
+
+theorem maxKey_modifyKey_eq_maxKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [LawfulEqOrd α]
+    {l : List ((_ : α) × β)} (hd : DistinctKeys l) {k f he} :
+    (modifyKey k f l |> maxKey <| he) = maxKey l (isEmpty_modifyKey k f l ▸ he) :=
+  letI : Ord α := .opposite inferInstance
+  minKey_modifyKey_eq_minKey hd
+
+theorem maxKey_modifyKey_beq [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((_ : α) × β)} (hd : DistinctKeys l) {k f he} :
+    (modifyKey k f l |> maxKey <| he) == (maxKey l <| isEmpty_modifyKey k f l ▸ he) :=
+  letI : Ord α := .opposite inferInstance
+  minKey_modifyKey_beq hd
+
+theorem maxKey_alterKey_eq_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+    {l : List ((_ : α) × β)} (hd : DistinctKeys l) {k f he} :
+    (alterKey k f l |> maxKey <| he) = k ↔
+      (f (getValue? k l)).isSome ∧ ∀ k', containsKey k' l → (compare k' k).isLE :=
+  letI : Ord α := .opposite inferInstance
+  minKey_alterKey_eq_self hd
+
+end Const
+
 end Max
 
 end Std.Internal.List

@@ -84,12 +84,12 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Monotonicit
 lean_object* l_Lean_Meta_DiscrTree_instInhabited(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaBoundedTelescope___at_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_245____spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Monotonicity_headBetaUnderLambda___lambda__1(lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_Monotonicity_solveMonoStep___spec__3(size_t, size_t, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_245____lambda__6___closed__1;
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_Simp_Arith_withAbstractAtoms_go___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static uint64_t l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_245____lambda__5___closed__2;
+lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bvar___override(lean_object*);
 static lean_object* l_Lean_Loop_forIn_loop___at_Lean_Meta_Monotonicity_headBetaUnderLambda___spec__1___closed__3;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);

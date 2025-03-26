@@ -105,7 +105,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Eqns_mkUnfoldProof_go___lambda__4___boxed(l
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Eqns_mkEqns___spec__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Eqns_simpMatch_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Eqns_simpEqnType___lambda__2___closed__4;
-lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_findMatchToSplit_x3f___spec__3___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_saveEqn_collectDeps___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -115,6 +114,7 @@ LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at___private_Lean_Elab_Pr
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_saveEqn___spec__8(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getType_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Eqns_mkUnfoldProof_go___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Eqns_removeUnusedEqnHypotheses_go___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Eqns_simpEqnType___spec__1___lambda__2___closed__2;
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);

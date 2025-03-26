@@ -16,14 +16,14 @@ namespace Vector
 
 /-! ### Lexicographic ordering -/
 
-@[simp] theorem lt_toArray [LT α] (xs ys : Vector α n) : xs.toArray < ys.toArray ↔ xs < ys := Iff.rfl
-@[simp] theorem le_toArray [LT α] (xs ys : Vector α n) : xs.toArray ≤ ys.toArray ↔ xs ≤ ys := Iff.rfl
+@[simp] theorem lt_toArray [LT α] {xs ys : Vector α n} : xs.toArray < ys.toArray ↔ xs < ys := Iff.rfl
+@[simp] theorem le_toArray [LT α] {xs ys : Vector α n} : xs.toArray ≤ ys.toArray ↔ xs ≤ ys := Iff.rfl
 
-@[simp] theorem lt_toList [LT α] (xs ys : Vector α n) : xs.toList < ys.toList ↔ xs < ys := Iff.rfl
-@[simp] theorem le_toList [LT α] (xs ys : Vector α n) : xs.toList ≤ ys.toList ↔ xs ≤ ys := Iff.rfl
+@[simp] theorem lt_toList [LT α] {xs ys : Vector α n} : xs.toList < ys.toList ↔ xs < ys := Iff.rfl
+@[simp] theorem le_toList [LT α] {xs ys : Vector α n} : xs.toList ≤ ys.toList ↔ xs ≤ ys := Iff.rfl
 
-protected theorem not_lt_iff_ge [LT α] (xs ys : Vector α n) : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
-protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] (xs ys : Vector α n) :
+protected theorem not_lt_iff_ge [LT α] {xs ys : Vector α n} : ¬ xs < ys ↔ ys ≤ xs := Iff.rfl
+protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {xs ys : Vector α n} :
     ¬ xs ≤ ys ↔ ys < xs :=
   Decidable.not_not
 
@@ -33,18 +33,18 @@ protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] (xs ys
 @[simp] theorem mk_le_mk [LT α] :
     Vector.mk (α := α) (n := n) data₁ size₁ ≤ Vector.mk data₂ size₂ ↔ data₁ ≤ data₂ := Iff.rfl
 
-@[simp] theorem mk_lex_mk [BEq α] (lt : α → α → Bool) {xs ys : Array α} {n₁ : xs.size = n} {n₂ : ys.size = n} :
+@[simp] theorem mk_lex_mk [BEq α] {lt : α → α → Bool} {xs ys : Array α} {n₁ : xs.size = n} {n₂ : ys.size = n} :
     (Vector.mk xs n₁).lex (Vector.mk ys n₂) lt = xs.lex ys lt := by
   simp [Vector.lex, Array.lex, n₁, n₂]
   rfl
 
-@[simp] theorem lex_toArray [BEq α] (lt : α → α → Bool) (xs ys : Vector α n) :
+@[simp] theorem lex_toArray [BEq α] {lt : α → α → Bool} {xs ys : Vector α n} :
     xs.toArray.lex ys.toArray lt = xs.lex ys lt := by
   cases xs
   cases ys
   simp
 
-@[simp] theorem lex_toList [BEq α] (lt : α → α → Bool) (xs ys : Vector α n) :
+@[simp] theorem lex_toList [BEq α] {lt : α → α → Bool} {xs ys : Vector α n} :
     xs.toList.lex ys.toList lt = xs.lex ys lt := by
   rcases xs with ⟨xs, n₁⟩
   rcases ys with ⟨ys, n₂⟩
@@ -68,7 +68,7 @@ instance ltIrrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Irre
 @[simp] theorem not_lt_empty [LT α] (xs : Vector α 0) : ¬ xs < #v[] := Array.not_lt_empty xs.toArray
 @[simp] theorem empty_le [LT α] (xs : Vector α 0) : #v[] ≤ xs := Array.empty_le xs.toArray
 
-@[simp] theorem le_empty [LT α] (xs : Vector α 0) : xs ≤ #v[] ↔ xs = #v[] := by
+@[simp] theorem le_empty [LT α] {xs : Vector α 0} : xs ≤ #v[] ↔ xs = #v[] := by
   cases xs
   simp
 

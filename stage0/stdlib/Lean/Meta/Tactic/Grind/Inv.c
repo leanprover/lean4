@@ -50,11 +50,11 @@ static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_M
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findEntryAux___at___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkEqc___spec__5(lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkParents___spec__3___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_Meta_Grind_checkInvariants___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkParents___spec__3___lambda__2___closed__3;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkParents___spec__3___lambda__1___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkParents___closed__2;
+lean_object* lean_mk_array(lean_object*, lean_object*);
 uint64_t l_Lean_Meta_Grind_congrHash(lean_object*, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkParents___spec__3___lambda__4___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Goal_checkInvariants___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

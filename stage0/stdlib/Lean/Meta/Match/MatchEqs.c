@@ -152,7 +152,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match
 LEAN_EXPORT lean_object* l_Lean_Meta_transform_visit___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertTemplate___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_withSplitterAlts___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_SimpH_processNextEq___lambda__2___closed__2;
-lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__6___closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_Match_forallAltTelescope_go___spec__2(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -170,6 +169,7 @@ static lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_Match_MatchE
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___boxed(lean_object**);
 static lean_object* l_Lean_Meta_Match_initFn____x40_Lean_Meta_Match_MatchEqs___hyg_13991____closed__16;
 LEAN_EXPORT lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Meta_Match_proveCondEqThm_go___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___private_Lean_Meta_Match_MatchEqs_0__Lean_MVarId_contradictionQuick___spec__6___boxed(lean_object*, lean_object*);
 lean_object* l_instInhabitedReaderT___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_getEquationsForImpl_go___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

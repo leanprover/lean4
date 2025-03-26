@@ -16,10 +16,10 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 
 namespace Array
 
-@[simp] theorem ofFn_zero (f : Fin 0 → α) : ofFn f = #[] := by
+@[simp] theorem ofFn_zero {f : Fin 0 → α} : ofFn f = #[] := by
   simp [ofFn, ofFn.go]
 
-theorem ofFn_succ (f : Fin (n+1) → α) :
+theorem ofFn_succ {f : Fin (n+1) → α} :
     ofFn f = (ofFn (fun (i : Fin n) => f i.castSucc)).push (f ⟨n, by omega⟩) := by
   ext i h₁ h₂
   · simp
@@ -30,10 +30,10 @@ theorem ofFn_succ (f : Fin (n+1) → α) :
       simp at h₁ h₂
       omega
 
-@[simp] theorem _rooy_.List.toArray_ofFn (f : Fin n → α) : (List.ofFn f).toArray = Array.ofFn f := by
+@[simp] theorem _root_.List.toArray_ofFn {f : Fin n → α} : (List.ofFn f).toArray = Array.ofFn f := by
   ext <;> simp
 
-@[simp] theorem toList_ofFn (f : Fin n → α) : (Array.ofFn f).toList = List.ofFn f := by
+@[simp] theorem toList_ofFn {f : Fin n → α} : (Array.ofFn f).toList = List.ofFn f := by
   apply List.ext_getElem <;> simp
 
 @[simp]
@@ -42,7 +42,7 @@ theorem ofFn_eq_empty_iff {f : Fin n → α} : ofFn f = #[] ↔ n = 0 := by
   simp
 
 @[simp 500]
-theorem mem_ofFn {n} (f : Fin n → α) (a : α) : a ∈ ofFn f ↔ ∃ i, f i = a := by
+theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i = a := by
   constructor
   · intro w
     obtain ⟨i, h, rfl⟩ := getElem_of_mem w

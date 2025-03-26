@@ -45,6 +45,7 @@ builtin_initialize reservedNamePredicatesExt : EnvExtension (Array (Environment 
 /--
 Returns `true` if `name` is a reserved name.
 -/
+@[export lean_is_reserved_name]
 def isReservedName (env : Environment) (name : Name) : Bool :=
   reservedNamePredicatesExt.getState env |>.any (· env name)
 

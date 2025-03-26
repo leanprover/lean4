@@ -46,6 +46,7 @@ theorem exists_of_eraseP {xs : Array α} {a} (hm : a ∈ xs) (hp : p a) :
   obtain ⟨a, l₁, l₂, h₁, h₂, rfl, h₃⟩ := List.exists_of_eraseP (by simpa using hm) (hp)
   refine ⟨a, ⟨l₁⟩, ⟨l₂⟩, by simpa using h₁, h₂, by simp, by simpa using h₃⟩
 
+-- The arguments are explicit here, so this lemma can be used as a case split.
 theorem exists_or_eq_self_of_eraseP (p) (xs : Array α) :
     xs.eraseP p = xs ∨
     ∃ a ys zs, (∀ b ∈ ys, ¬p b) ∧ p a ∧ xs = ys.push a ++ zs ∧ xs.eraseP p = ys ++ zs :=
@@ -69,13 +70,13 @@ theorem size_eraseP {xs : Array α} : (xs.eraseP p).size = if xs.any p then xs.s
     rw [eraseP_of_forall_getElem_not]
     simp_all
 
-theorem size_eraseP_le (xs : Array α) : (xs.eraseP p).size ≤ xs.size := by
+theorem size_eraseP_le {xs : Array α} : (xs.eraseP p).size ≤ xs.size := by
   rcases xs with ⟨xs⟩
-  simpa using List.length_eraseP_le xs
+  simpa using List.length_eraseP_le
 
-theorem le_size_eraseP (xs : Array α) : xs.size - 1 ≤ (xs.eraseP p).size := by
+theorem le_size_eraseP {xs : Array α} : xs.size - 1 ≤ (xs.eraseP p).size := by
   rcases xs with ⟨xs⟩
-  simpa using List.le_length_eraseP xs
+  simpa using List.le_length_eraseP
 
 theorem mem_of_mem_eraseP {xs : Array α} : a ∈ xs.eraseP p → a ∈ xs := by
   rcases xs with ⟨xs⟩
@@ -89,19 +90,19 @@ theorem mem_of_mem_eraseP {xs : Array α} : a ∈ xs.eraseP p → a ∈ xs := by
   rcases xs with ⟨xs⟩
   simp
 
-theorem eraseP_map (f : β → α) (xs : Array β) : (xs.map f).eraseP p = (xs.eraseP (p ∘ f)).map f := by
+theorem eraseP_map {f : β → α} {xs : Array β} : (xs.map f).eraseP p = (xs.eraseP (p ∘ f)).map f := by
   rcases xs with ⟨xs⟩
-  simpa using List.eraseP_map f xs
+  simpa using List.eraseP_map
 
-theorem eraseP_filterMap (f : α → Option β) (xs : Array α) :
+theorem eraseP_filterMap {f : α → Option β} {xs : Array α} :
     (filterMap f xs).eraseP p = filterMap f (xs.eraseP (fun x => match f x with | some y => p y | none => false)) := by
   rcases xs with ⟨xs⟩
-  simpa using List.eraseP_filterMap f xs
+  simpa using List.eraseP_filterMap
 
-theorem eraseP_filter (f : α → Bool) (xs : Array α) :
+theorem eraseP_filter {f : α → Bool} {xs : Array α} :
     (filter f xs).eraseP p = filter f (xs.eraseP (fun x => p x && f x)) := by
   rcases xs with ⟨xs⟩
-  simpa using List.eraseP_filter f xs
+  simpa using List.eraseP_filter
 
 theorem eraseP_append_left {a : α} (pa : p a) {xs : Array α} {ys : Array α} (h : a ∈ xs) :
     (xs ++ ys).eraseP p = xs.eraseP p ++ ys := by
@@ -122,7 +123,7 @@ theorem eraseP_append {xs : Array α} {ys : Array α} :
   simp only [List.append_toArray, List.eraseP_toArray, List.eraseP_append, List.any_toArray]
   split <;> simp
 
-theorem eraseP_replicate (n : Nat) (a : α) (p : α → Bool) :
+theorem eraseP_replicate {n : Nat} {a : α} {p : α → Bool} :
     (replicate n a).eraseP p = if p a then replicate (n - 1) a else replicate n a := by
   simp only [← List.toArray_replicate, List.eraseP_toArray, List.eraseP_replicate]
   split <;> simp
@@ -175,10 +176,12 @@ theorem erase_of_not_mem [LawfulBEq α] {a : α} {xs : Array α} (h : a ∉ xs) 
   rcases xs with ⟨xs⟩
   simp [List.erase_of_not_mem (by simpa using h)]
 
+-- The arguments are intentionally explicit.
 theorem erase_eq_eraseP' (a : α) (xs : Array α) : xs.erase a = xs.eraseP (· == a) := by
   rcases xs with ⟨xs⟩
   simp [List.erase_eq_eraseP']
 
+-- The arguments are intentionally explicit.
 theorem erase_eq_eraseP [LawfulBEq α] (a : α) (xs : Array α) : xs.erase a = xs.eraseP (a == ·) := by
   rcases xs with ⟨xs⟩
   simp [List.erase_eq_eraseP]
@@ -202,19 +205,19 @@ theorem exists_erase_eq [LawfulBEq α] {a : α} {xs : Array α} (h : a ∈ xs) :
     (xs.erase a).size = xs.size - 1 := by
   rw [erase_eq_eraseP]; exact size_eraseP_of_mem h (beq_self_eq_true a)
 
-theorem size_erase [LawfulBEq α] (a : α) (xs : Array α) :
+theorem size_erase [LawfulBEq α] {a : α} {xs : Array α} :
     (xs.erase a).size = if a ∈ xs then xs.size - 1 else xs.size := by
   rw [erase_eq_eraseP, size_eraseP]
   congr
   simp [mem_iff_getElem, eq_comm (a := a)]
 
-theorem size_erase_le (a : α) (xs : Array α) : (xs.erase a).size ≤ xs.size := by
+theorem size_erase_le {a : α} {xs : Array α} : (xs.erase a).size ≤ xs.size := by
   rcases xs with ⟨xs⟩
-  simpa using List.length_erase_le a xs
+  simpa using List.length_erase_le
 
-theorem le_size_erase [LawfulBEq α] (a : α) (xs : Array α) : xs.size - 1 ≤ (xs.erase a).size := by
+theorem le_size_erase [LawfulBEq α] {a : α} {xs : Array α} : xs.size - 1 ≤ (xs.erase a).size := by
   rcases xs with ⟨xs⟩
-  simpa using List.le_length_erase a xs
+  simpa using List.le_length_erase
 
 theorem mem_of_mem_erase {a b : α} {xs : Array α} (h : a ∈ xs.erase b) : a ∈ xs := by
   rcases xs with ⟨xs⟩
@@ -228,10 +231,10 @@ theorem mem_of_mem_erase {a b : α} {xs : Array α} (h : a ∈ xs.erase b) : a �
   rw [erase_eq_eraseP', eraseP_eq_self_iff]
   simp [forall_mem_ne']
 
-theorem erase_filter [LawfulBEq α] (f : α → Bool) (xs : Array α) :
+theorem erase_filter [LawfulBEq α] {f : α → Bool} {xs : Array α} :
     (filter f xs).erase a = filter f (xs.erase a) := by
   rcases xs with ⟨xs⟩
-  simpa using List.erase_filter f xs
+  simpa using List.erase_filter
 
 theorem erase_append_left [LawfulBEq α] {xs : Array α} (ys) (h : a ∈ xs) :
     (xs ++ ys).erase a = xs.erase a ++ ys := by
@@ -252,7 +255,7 @@ theorem erase_append [LawfulBEq α] {a : α} {xs ys : Array α} :
   simp only [List.append_toArray, List.erase_toArray, List.erase_append, mem_toArray]
   split <;> simp
 
-theorem erase_replicate [LawfulBEq α] (n : Nat) (a b : α) :
+theorem erase_replicate [LawfulBEq α] {n : Nat} {a b : α} :
     (replicate n a).erase b = if b == a then replicate (n - 1) a else replicate n a := by
   simp only [← List.toArray_replicate, List.erase_toArray]
   simp only [List.erase_replicate, beq_iff_eq, List.toArray_replicate]
@@ -261,10 +264,12 @@ theorem erase_replicate [LawfulBEq α] (n : Nat) (a b : α) :
 @[deprecated erase_replicate (since := "2025-03-18")]
 abbrev erase_mkArray := @erase_replicate
 
-theorem erase_comm [LawfulBEq α] (a b : α) (xs : Array α) :
+-- The arguments `a b` are explicit,
+-- so they can be specified to prevent `simp` repeatedly applying the lemma.
+theorem erase_comm [LawfulBEq α] (a b : α) {xs : Array α} :
     (xs.erase a).erase b = (xs.erase b).erase a := by
   rcases xs with ⟨xs⟩
-  simpa using List.erase_comm a b xs
+  simpa using List.erase_comm a b
 
 theorem erase_eq_iff [LawfulBEq α] {a : α} {xs : Array α} :
     xs.erase a = ys ↔
@@ -304,7 +309,8 @@ theorem eraseIdx_eq_eraseIdxIfInBounds {xs : Array α} {i : Nat} (h : i < xs.siz
     xs.eraseIdx i h = xs.eraseIdxIfInBounds i := by
   simp [eraseIdxIfInBounds, h]
 
-theorem eraseIdx_eq_take_drop_succ (xs : Array α) (i : Nat) (h) : xs.eraseIdx i = xs.take i ++ xs.drop (i + 1) := by
+theorem eraseIdx_eq_take_drop_succ {xs : Array α} {i : Nat} (h) :
+    xs.eraseIdx i h = xs.take i ++ xs.drop (i + 1) := by
   rcases xs with ⟨xs⟩
   simp only [List.size_toArray] at h
   simp only [List.eraseIdx_toArray, List.eraseIdx_eq_take_drop_succ, take_eq_extract,
@@ -313,24 +319,24 @@ theorem eraseIdx_eq_take_drop_succ (xs : Array α) (i : Nat) (h) : xs.eraseIdx i
   rw [List.take_of_length_le]
   simp
 
-theorem getElem?_eraseIdx (xs : Array α) (i : Nat) (h : i < xs.size) (j : Nat) :
+theorem getElem?_eraseIdx {xs : Array α} {i : Nat} (h : i < xs.size) {j : Nat} :
     (xs.eraseIdx i)[j]? = if j < i then xs[j]? else xs[j + 1]? := by
   rcases xs with ⟨xs⟩
   simp [List.getElem?_eraseIdx]
 
-theorem getElem?_eraseIdx_of_lt (xs : Array α) (i : Nat) (h : i < xs.size) (j : Nat) (h' : j < i) :
+theorem getElem?_eraseIdx_of_lt {xs : Array α} {i : Nat} (h : i < xs.size) {j : Nat} (h' : j < i) :
     (xs.eraseIdx i)[j]? = xs[j]? := by
   rw [getElem?_eraseIdx]
   simp [h']
 
-theorem getElem?_eraseIdx_of_ge (xs : Array α) (i : Nat) (h : i < xs.size) (j : Nat) (h' : i ≤ j) :
+theorem getElem?_eraseIdx_of_ge {xs : Array α} {i : Nat} (h : i < xs.size) {j : Nat} (h' : i ≤ j) :
     (xs.eraseIdx i)[j]? = xs[j + 1]? := by
   rw [getElem?_eraseIdx]
   simp only [dite_eq_ite, ite_eq_right_iff]
   intro h'
   omega
 
-theorem getElem_eraseIdx (xs : Array α) (i : Nat) (h : i < xs.size) (j : Nat) (h' : j < (xs.eraseIdx i).size) :
+theorem getElem_eraseIdx {xs : Array α} {i : Nat} (h : i < xs.size) {j : Nat} (h' : j < (xs.eraseIdx i).size) :
     (xs.eraseIdx i)[j] = if h'' : j < i then
         xs[j]
       else
@@ -388,18 +394,18 @@ theorem mem_eraseIdx_iff_getElem? {x : α} {xs : Array α} {k} {h} : x ∈ xs.er
   rcases xs with ⟨xs⟩
   simp [List.mem_eraseIdx_iff_getElem?, *]
 
-theorem erase_eq_eraseIdx_of_idxOf [BEq α] [LawfulBEq α] (xs : Array α) (a : α) (i : Nat) (w : xs.idxOf a = i) (h : i < xs.size) :
+theorem erase_eq_eraseIdx_of_idxOf [BEq α] [LawfulBEq α] {xs : Array α} {a : α} {i : Nat} (w : xs.idxOf a = i) (h : i < xs.size) :
     xs.erase a = xs.eraseIdx i := by
   rcases xs with ⟨xs⟩
   simp at w
   simp [List.erase_eq_eraseIdx_of_idxOf, *]
 
-theorem getElem_eraseIdx_of_lt (xs : Array α) (i : Nat) (w : i < xs.size) (j : Nat) (h : j < (xs.eraseIdx i).size) (h' : j < i) :
+theorem getElem_eraseIdx_of_lt {xs : Array α} {i : Nat} (w : i < xs.size) {j : Nat} (h : j < (xs.eraseIdx i).size) (h' : j < i) :
     (xs.eraseIdx i)[j] = xs[j] := by
   rcases xs with ⟨xs⟩
   simp [List.getElem_eraseIdx_of_lt, *]
 
-theorem getElem_eraseIdx_of_ge (xs : Array α) (i : Nat) (w : i < xs.size) (j : Nat) (h : j < (xs.eraseIdx i).size) (h' : i ≤ j) :
+theorem getElem_eraseIdx_of_ge {xs : Array α} {i : Nat} (w : i < xs.size) {j : Nat} (h : j < (xs.eraseIdx i).size) (h' : i ≤ j) :
     (xs.eraseIdx i)[j] = xs[j + 1]'(by simp at h; omega) := by
   rcases xs with ⟨xs⟩
   simp [List.getElem_eraseIdx_of_ge, *]

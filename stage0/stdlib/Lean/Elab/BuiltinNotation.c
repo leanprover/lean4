@@ -176,7 +176,6 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_elabCoeFunNotation__1(lea
 static lean_object* l_Lean_Elab_Term_expandShow___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabPanic(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_elabRunElab___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabAnonymousCtor_declRange__1___closed__3;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Term_hasCDot___spec__1(lean_object*, size_t, size_t);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -196,6 +195,7 @@ lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_elabBorrowed__1(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_Term_elabPanic___lambda__1(lean_object*);
 static lean_object* l_Lean_Elab_Term_expandDbgTrace___closed__9;
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Elab_Term_elabAnonymousCtor___spec__6___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_expandSuffices___closed__5;
 lean_object* l_Lean_throwError___at_Lean_Elab_Term_throwErrorIfErrors___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

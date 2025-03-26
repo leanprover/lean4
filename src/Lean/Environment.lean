@@ -461,6 +461,15 @@ private partial def AsyncConsts.findRec? (aconsts : AsyncConsts) (declName : Nam
   let aconsts ← c.consts.get.get? AsyncConsts
   AsyncConsts.findRec? aconsts declName
 
+/-- Like `findRec?`; allocating tasks is (currently?) too costly to do always. -/
+private partial def AsyncConsts.findRecTask (aconsts : AsyncConsts) (declName : Name) : Task (Option AsyncConst) := Id.run do
+  let some c := aconsts.findPrefix? declName | .pure none
+  if c.constInfo.name == declName then
+    return .pure c
+  c.consts.bind (sync := true) fun aconsts => Id.run do
+    let some aconsts := aconsts.get? AsyncConsts | .pure none
+    AsyncConsts.findRecTask aconsts declName
+
 /-- Context for `realizeConst` established by `enableRealizationsForConst`. -/
 private structure RealizationContext where
   /--
@@ -635,6 +644,10 @@ def addExtraName (env : Environment) (name : Name) : Environment :=
   else
     env.modifyCheckedAsync fun env => { env with extraConstNames := env.extraConstNames.insert name }
 
+-- forward reference due to too many cyclic dependencies
+@[extern "lean_is_reserved_name"]
+private opaque isReservedName (env : Environment) (name : Name) : Bool
+
 /-- `findAsync?` after `base` access -/
 private def findAsyncCore? (env : Environment) (n : Name) (skipRealize := false) :
     Option AsyncConstantInfo := do
@@ -645,12 +658,33 @@ private def findAsyncCore? (env : Environment) (n : Name) (skipRealize := false)
   if let some c := env.asyncConsts.findRec? n then
     -- Constant generated in a different environment branch
     return c.constInfo
-  unless skipRealize do
+  if !skipRealize && isReservedName env n then
     if let some c := env.allRealizations.get.find? n then
       return c.constInfo
   -- Not in the kernel environment nor in the name prefix of a known environment branch: undefined
   -- by `addDeclCore` invariant.
   none
+
+/-- Like `findAsyncCore?`; allocating tasks is (currently?) too costly to do always. -/
+private def findTaskCore (env : Environment) (n : Name) (skipRealize := false) :
+    Task (Option AsyncConstantInfo) := Id.run do
+  if let some c := env.asyncConsts.find? n then
+    -- Constant for which an asynchronous elaboration task was spawned
+    -- (this is an optimized special case of the next branch)
+    return .pure c.constInfo
+  env.asyncConsts.findRecTask n |>.bind (sync := true) fun
+  | some c =>
+    -- Constant generated in a different environment branch
+    .pure c.constInfo
+  | _ => Id.run do
+    if isReservedName env n && !skipRealize then
+      return env.allRealizations.map (sync := true) fun allRealizations => do
+        if let some c := allRealizations.find? n then
+          return c.constInfo
+        none
+    -- Not in the kernel environment nor in the name prefix of a known environment branch: undefined
+    -- by `addDeclCore` invariant.
+    .pure none
 
 /--
 Looks up the given declaration name in the environment, avoiding forcing any in-progress elaboration
@@ -663,12 +697,21 @@ of a declaration found on another branch. Thus when we cannot find the declarati
 prefix-based lookup, we fall back to waiting for and looking at the realizations from all branches.
 To avoid this expensive search for realizations from other branches, `skipRealize` can set to ensure
 negative lookups are as fast as positive ones.
+
+Use `findTask` instead if any blocking should be avoided.
 -/
 def findAsync? (env : Environment) (n : Name) (skipRealize := false) : Option AsyncConstantInfo := do
   -- Avoid going through `AsyncConstantInfo` for `base` access
   if let some c := env.base.constants.map₁[n]? then
     return .ofConstantInfo c
   findAsyncCore? (skipRealize := skipRealize) env n
+
+/-- Like `findAsync?` but returns a task instead of resorting to blocking. -/
+def findTask (env : Environment) (n : Name) (skipRealize := false) : Task (Option AsyncConstantInfo) := Id.run do
+  -- Avoid going through `AsyncConstantInfo` for `base` access
+  if let some c := env.base.constants.map₁[n]? then
+    return .pure <| some <| .ofConstantInfo c
+  findTaskCore (skipRealize := skipRealize) env n
 
 /--
 Like `findAsync` but blocks on everything but the constant's body (if any), which is not accessible

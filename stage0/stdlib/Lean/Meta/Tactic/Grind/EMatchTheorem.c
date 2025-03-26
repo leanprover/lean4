@@ -156,7 +156,6 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_Tactic_
 LEAN_EXPORT lean_object* l_Lean_RBTree_ofList___at___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_checkCoverage___spec__4(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_reprEMatchTheoremKind____x40_Lean_Meta_Tactic_Grind_EMatchTheorem___hyg_1354____closed__37;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkEMatchEqTheoremCore___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkEMatchEqTheoremCore___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_foldProjs___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -169,6 +168,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at___priv
 uint8_t l_Lean_ConstantInfo_isAxiom(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_checkCoverage___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instBEqOrigin__1___boxed(lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkEMatchTheorem___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_ppPattern___closed__8;
 static lean_object* l_Lean_Meta_Grind_mkGroundPattern___closed__1;

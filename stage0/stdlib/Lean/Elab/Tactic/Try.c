@@ -129,7 +129,6 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Elab_Tactic_
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Try_evalSuggestExact___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_evalSuggestImpl___lambda__3___closed__1;
 static lean_object* l___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_isExprAccessible___closed__4;
-lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_mergeSimp_x3f(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_mkGrindEqnParams(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -140,6 +139,7 @@ lean_object* l_Lean_Syntax_getArgs(lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_mkSimpleTacStx___closed__3;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_isOnlyAndNonOnly___spec__2(lean_object*, size_t, size_t);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_getKindsSolvedAll(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_mkGrindStx___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_Try_mkFunIndStx___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

@@ -65,7 +65,6 @@ LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_FileWorker_initFn____x40_
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_instBEqAbsoluteLspSemanticToken___closed__1;
 static lean_object* l_Lean_Server_FileWorker_noHighlightKinds___closed__2;
-lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_collectSyntaxBasedSemanticTokens___closed__5;
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Server_FileWorker_collectSyntaxBasedSemanticTokens___spec__1___boxed(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -73,6 +72,7 @@ lean_object* l_Std_Mutex_new___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_SemanticHighlighting_0__Lean_Server_FileWorker_fromJsonAbsoluteLspSemanticToken____x40_Lean_Server_FileWorker_SemanticHighlighting___hyg_236____closed__7;
 uint8_t l_Ord_instDecidableRelLt___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 extern lean_object* l_Lean_Lsp_instOrdPosition;
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 static lean_object* l_Lean_Server_FileWorker_noHighlightKinds___closed__17;

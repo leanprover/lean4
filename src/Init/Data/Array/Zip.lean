@@ -22,19 +22,19 @@ open Nat
 
 /-! ### zipWith -/
 
-theorem zipWith_comm (f : α → β → γ) (as : Array α) (bs : Array β) :
+theorem zipWith_comm {f : α → β → γ} {as : Array α} {bs : Array β} :
     zipWith f as bs = zipWith (fun b a => f a b) bs as := by
   cases as
   cases bs
-  simpa using List.zipWith_comm _ _ _
+  simpa using List.zipWith_comm
 
-theorem zipWith_comm_of_comm (f : α → α → β) (comm : ∀ x y : α, f x y = f y x) (xs ys : Array α) :
+theorem zipWith_comm_of_comm {f : α → α → β} (comm : ∀ x y : α, f x y = f y x) {xs ys : Array α} :
     zipWith f xs ys = zipWith f ys xs := by
   rw [zipWith_comm]
   simp only [comm]
 
 @[simp]
-theorem zipWith_self (f : α → α → δ) (xs : Array α) : zipWith f xs xs = xs.map fun a => f a a := by
+theorem zipWith_self {f : α → α → δ} {xs : Array α} : zipWith f xs xs = xs.map fun a => f a a := by
   cases xs
   simp
 
@@ -74,31 +74,31 @@ theorem getElem?_zip_eq_some {as : Array α} {bs : Array β} {z : α × β} {i :
     exact ⟨_, _, h₀, h₁, rfl⟩
 
 @[simp]
-theorem zipWith_map {μ} (f : γ → δ → μ) (g : α → γ) (h : β → δ) (as : Array α) (bs : Array β) :
+theorem zipWith_map {μ} {f : γ → δ → μ} {g : α → γ} {h : β → δ} {as : Array α} {bs : Array β} :
     zipWith f (as.map g) (bs.map h) = zipWith (fun a b => f (g a) (h b)) as bs := by
   cases as
   cases bs
   simp [List.zipWith_map]
 
-theorem zipWith_map_left (as : Array α) (bs : Array β) (f : α → α') (g : α' → β → γ) :
+theorem zipWith_map_left {as : Array α} {bs : Array β} {f : α → α'} {g : α' → β → γ} :
     zipWith g (as.map f) bs = zipWith (fun a b => g (f a) b) as bs := by
   cases as
   cases bs
   simp [List.zipWith_map_left]
 
-theorem zipWith_map_right (as : Array α) (bs : Array β) (f : β → β') (g : α → β' → γ) :
+theorem zipWith_map_right {as : Array α} {bs : Array β} {f : β → β'} {g : α → β' → γ} :
     zipWith g as (bs.map f) = zipWith (fun a b => g a (f b)) as bs := by
   cases as
   cases bs
   simp [List.zipWith_map_right]
 
-theorem zipWith_foldr_eq_zip_foldr {f : α → β → γ} (i : δ):
+theorem zipWith_foldr_eq_zip_foldr {f : α → β → γ} {i : δ} :
     (zipWith f as bs).foldr g i = (zip as bs).foldr (fun p r => g (f p.1 p.2) r) i := by
   cases as
   cases bs
   simp [List.zipWith_foldr_eq_zip_foldr]
 
-theorem zipWith_foldl_eq_zip_foldl {f : α → β → γ} (i : δ):
+theorem zipWith_foldl_eq_zip_foldl {f : α → β → γ} {i : δ} :
     (zipWith f as bs).foldl g i = (zip as bs).foldl (fun r p => g r (f p.1 p.2)) i := by
   cases as
   cases bs
@@ -108,7 +108,7 @@ theorem zipWith_foldl_eq_zip_foldl {f : α → β → γ} (i : δ):
 theorem zipWith_eq_empty_iff {f : α → β → γ} {as : Array α} {bs : Array β} : zipWith f as bs = #[] ↔ as = #[] ∨ bs = #[] := by
   cases as <;> cases bs <;> simp
 
-theorem map_zipWith {δ : Type _} (f : α → β) (g : γ → δ → α) (cs : Array γ) (ds : Array δ) :
+theorem map_zipWith {δ : Type _} {f : α → β} {g : γ → δ → α} {cs : Array γ} {ds : Array δ} :
     map f (zipWith g cs ds) = zipWith (fun x y => f (g x y)) cs ds := by
   cases cs
   cases ds
@@ -124,7 +124,7 @@ theorem extract_zipWith : (zipWith f as bs).extract i j = zipWith f (as.extract 
   cases bs
   simp [List.drop_zipWith, List.take_zipWith]
 
-theorem zipWith_append (f : α → β → γ) (as as' : Array α) (bs bs' : Array β)
+theorem zipWith_append {f : α → β → γ} {as as' : Array α} {bs bs' : Array β}
     (h : as.size = bs.size) :
     zipWith f (as ++ as') (bs ++ bs') = zipWith f as bs ++ zipWith f as' bs' := by
   cases as
@@ -156,13 +156,13 @@ theorem zipWith_eq_append_iff {f : α → β → γ} {as : Array α} {bs : Array
 @[deprecated zipWith_replicate (since := "2025-03-18")]
 abbrev zipWith_mkArray := @zipWith_replicate
 
-theorem map_uncurry_zip_eq_zipWith (f : α → β → γ) (as : Array α) (bs : Array β) :
+theorem map_uncurry_zip_eq_zipWith {f : α → β → γ} {as : Array α} {bs : Array β} :
     map (Function.uncurry f) (as.zip bs) = zipWith f as bs := by
   cases as
   cases bs
   simp [List.map_uncurry_zip_eq_zipWith]
 
-theorem map_zip_eq_zipWith (f : α × β → γ) (as : Array α) (bs : Array β) :
+theorem map_zip_eq_zipWith {f : α × β → γ} {as : Array α} {bs : Array β} :
     map f (as.zip bs) = zipWith (Function.curry f) as bs := by
   cases as
   cases bs
@@ -203,21 +203,21 @@ theorem getElem_zip {as : Array α} {bs : Array β} {i : Nat} {h : i < (zip as b
       (as[i]'(lt_size_left_of_zip h), bs[i]'(lt_size_right_of_zip h)) :=
   getElem_zipWith (hi := by simpa using h)
 
-theorem zip_eq_zipWith (as : Array α) (bs : Array β) : zip as bs = zipWith Prod.mk as bs := by
+theorem zip_eq_zipWith {as : Array α} {bs : Array β} : zip as bs = zipWith Prod.mk as bs := by
   cases as
   cases bs
   simp [List.zip_eq_zipWith]
 
-theorem zip_map (f : α → γ) (g : β → δ) (as : Array α) (bs : Array β) :
+theorem zip_map {f : α → γ} {g : β → δ} {as : Array α} {bs : Array β} :
     zip (as.map f) (bs.map g) = (zip as bs).map (Prod.map f g) := by
   cases as
   cases bs
   simp [List.zip_map]
 
-theorem zip_map_left (f : α → γ) (as : Array α) (bs : Array β) :
+theorem zip_map_left {f : α → γ} {as : Array α} {bs : Array β} :
     zip (as.map f) bs = (zip as bs).map (Prod.map f id) := by rw [← zip_map, map_id]
 
-theorem zip_map_right (f : β → γ) (as : Array α) (bs : Array β) :
+theorem zip_map_right {f : β → γ} {as : Array α} {bs : Array β} :
     zip as (bs.map f) = (zip as bs).map (Prod.map id f) := by rw [← zip_map, map_id]
 
 theorem zip_append {as bs : Array α} {cs ds : Array β} (_h : as.size = cs.size) :
@@ -228,7 +228,7 @@ theorem zip_append {as bs : Array α} {cs ds : Array β} (_h : as.size = cs.size
   cases ds
   simp_all [List.zip_append]
 
-theorem zip_map' (f : α → β) (g : α → γ) (xs : Array α) :
+theorem zip_map' {f : α → β} {g : α → γ} {xs : Array α} :
     zip (xs.map f) (xs.map g) = xs.map fun a => (f a, g a) := by
   cases xs
   simp [List.zip_map']
@@ -238,25 +238,25 @@ theorem of_mem_zip {a b} {as : Array α} {bs : Array β} : (a, b) ∈ zip as bs 
   cases bs
   simpa using List.of_mem_zip
 
-theorem map_fst_zip (as : Array α) (bs : Array β) (h : as.size ≤ bs.size) :
+theorem map_fst_zip {as : Array α} {bs : Array β} (h : as.size ≤ bs.size) :
     map Prod.fst (zip as bs) = as := by
   cases as
   cases bs
   simp_all [List.map_fst_zip]
 
-theorem map_snd_zip (as : Array α) (bs : Array β) (h : bs.size ≤ as.size) :
+theorem map_snd_zip {as : Array α} {bs : Array β} (h : bs.size ≤ as.size) :
     map Prod.snd (zip as bs) = bs := by
   cases as
   cases bs
   simp_all [List.map_snd_zip]
 
-theorem map_prod_left_eq_zip {xs : Array α} (f : α → β) :
+theorem map_prod_left_eq_zip {xs : Array α} {f : α → β} :
     (xs.map fun x => (x, f x)) = xs.zip (xs.map f) := by
   rw [← zip_map']
   congr
   simp
 
-theorem map_prod_right_eq_zip {xs : Array α} (f : α → β) :
+theorem map_prod_right_eq_zip {xs : Array α} {f : α → β} :
     (xs.map fun x => (f x, x)) = (xs.map f).zip xs := by
   rw [← zip_map']
   congr
@@ -280,7 +280,7 @@ theorem zip_eq_append_iff {as : Array α} {bs : Array β} :
 @[deprecated zip_replicate (since := "2025-03-18")]
 abbrev zip_mkArray := @zip_replicate
 
-theorem zip_eq_zip_take_min (as : Array α) (bs : Array β) :
+theorem zip_eq_zip_take_min {as : Array α} {bs : Array β} :
     zip as bs = zip (as.take (min as.size bs.size)) (bs.take (min as.size bs.size)) := by
   cases as
   cases bs
@@ -298,25 +298,25 @@ theorem getElem?_zipWithAll {f : Option α → Option β → γ} {i : Nat} :
   simp [List.getElem?_zipWithAll]
   rfl
 
-theorem zipWithAll_map {μ} (f : Option γ → Option δ → μ) (g : α → γ) (h : β → δ) (as : Array α) (bs : Array β) :
+theorem zipWithAll_map {μ} {f : Option γ → Option δ → μ} {g : α → γ} {h : β → δ} {as : Array α} {bs : Array β} :
     zipWithAll f (as.map g) (bs.map h) = zipWithAll (fun a b => f (g <$> a) (h <$> b)) as bs := by
   cases as
   cases bs
   simp [List.zipWithAll_map]
 
-theorem zipWithAll_map_left (as : Array α) (bs : Array β) (f : α → α') (g : Option α' → Option β → γ) :
+theorem zipWithAll_map_left {as : Array α} {bs : Array β} {f : α → α'} {g : Option α' → Option β → γ} :
     zipWithAll g (as.map f) bs = zipWithAll (fun a b => g (f <$> a) b) as bs := by
   cases as
   cases bs
   simp [List.zipWithAll_map_left]
 
-theorem zipWithAll_map_right (as : Array α) (bs : Array β) (f : β → β') (g : Option α → Option β' → γ) :
+theorem zipWithAll_map_right {as : Array α} {bs : Array β} {f : β → β'} {g : Option α → Option β' → γ} :
     zipWithAll g as (bs.map f) = zipWithAll (fun a b => g a (f <$> b)) as bs := by
   cases as
   cases bs
   simp [List.zipWithAll_map_right]
 
-theorem map_zipWithAll {δ : Type _} (f : α → β) (g : Option γ → Option δ → α) (cs : Array γ) (ds : Array δ) :
+theorem map_zipWithAll {δ : Type _} {f : α → β} {g : Option γ → Option δ → α} {cs : Array γ} {ds : Array δ} :
     map f (zipWithAll g cs ds) = zipWithAll (fun x y => f (g x y)) cs ds := by
   cases cs
   cases ds
@@ -337,10 +337,11 @@ abbrev zipWithAll_mkArray := @zipWithAll_replicate
 @[simp] theorem unzip_snd : (unzip l).snd = l.map Prod.snd := by
   induction l <;> simp_all
 
-theorem unzip_eq_map (xs : Array (α × β)) : unzip xs = (xs.map Prod.fst, xs.map Prod.snd) := by
+theorem unzip_eq_map {xs : Array (α × β)} : unzip xs = (xs.map Prod.fst, xs.map Prod.snd) := by
   cases xs
   simp [List.unzip_eq_map]
 
+-- The argument `xs` is explicit so we can rewrite from right to left.
 theorem zip_unzip (xs : Array (α × β)) : zip (unzip xs).1 (unzip xs).2 = xs := by
   cases xs
   simp only [List.unzip_toArray, Prod.map_fst, Prod.map_snd, List.zip_toArray, List.zip_unzip]

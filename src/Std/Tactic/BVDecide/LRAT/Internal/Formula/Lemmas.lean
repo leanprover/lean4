@@ -110,7 +110,7 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
       have hb : (Array.replicate n unassigned).size = n := by simp only [Array.size_replicate]
       have hl (acc : Array Assignment) (ih : acc.size = n) (cOpt : Option (DefaultClause n)) (_cOpt_in_arr : cOpt ∈ arr.toList) :
         (ofArray_fold_fn acc cOpt).size = n := by rw [size_ofArray_fold_fn acc cOpt, ih]
-      exact List.foldlRecOn arr.toList ofArray_fold_fn (.replicate n unassigned) hb hl
+      exact List.foldlRecOn arr.toList ofArray_fold_fn hb hl
     apply Exists.intro hsize
     let ModifiedAssignmentsInvariant (assignments : Array Assignment) : Prop :=
       ∃ hsize : assignments.size = n,
@@ -185,7 +185,7 @@ theorem readyForRupAdd_ofArray {n : Nat} (arr : Array (Option (DefaultClause n))
           · next i_ne_l =>
             simp only [Array.getElem_modify_of_ne (Ne.symm i_ne_l)] at h
             exact ih i b h
-    rcases List.foldlRecOn arr.toList ofArray_fold_fn (.replicate n unassigned) hb hl with ⟨_h_size, h'⟩
+    rcases List.foldlRecOn arr.toList ofArray_fold_fn hb hl with ⟨_h_size, h'⟩
     intro i b h
     simp only [ofArray, ← Array.foldl_toList] at h
     exact h' i b h
@@ -379,7 +379,7 @@ theorem mem_of_insertRupUnits {n : Nat} (f : DefaultFormula n) (units : CNF.Clau
       · exact ih l l_in_acc
       · rw [l_eq_unit]
         exact Or.inr unit_in_units
-  have h_insertUnit_fold := List.foldlRecOn units insertUnit (f.rupUnits, f.assignments, false) hb hl
+  have h_insertUnit_fold := List.foldlRecOn units insertUnit hb hl
   rcases h with h | ⟨i, ⟨h1, h2⟩ | ⟨h1, h2⟩⟩ | h
   · exact Or.inr <| Or.inl h
   · rcases h_insertUnit_fold (i, false) h1 with h_insertUnit_fold | h_insertUnit_fold
@@ -416,7 +416,7 @@ theorem mem_of_insertRatUnits {n : Nat} (f : DefaultFormula n) (units : CNF.Clau
       · exact ih l l_in_acc
       · rw [l_eq_unit]
         exact Or.inr unit_in_units
-  have h_insertUnit_fold := List.foldlRecOn units insertUnit (f.ratUnits, f.assignments, false) hb hl
+  have h_insertUnit_fold := List.foldlRecOn units insertUnit hb hl
   rcases h with h | h | ⟨i, ⟨h1, h2⟩ | ⟨h1, h2⟩⟩
   · exact Or.inr <| Or.inl h
   · exact (Or.inr ∘ Or.inr ∘ Or.inl) h
@@ -610,11 +610,11 @@ theorem readyForRupAdd_delete {n : Nat} (f : DefaultFormula n) (arr : Array Nat)
   · have hb : f.rupUnits = #[] := h.1
     have hl (acc : DefaultFormula n) (ih : acc.rupUnits = #[]) (id : Nat) (_id_in_arr : id ∈ arr.toList) :
       (deleteOne acc id).rupUnits = #[] := by rw [deleteOne_preserves_rupUnits, ih]
-    exact List.foldlRecOn arr.toList deleteOne f hb hl
+    exact List.foldlRecOn arr.toList deleteOne hb hl
   · have hb : StrongAssignmentsInvariant f := h.2
     have hl (acc : DefaultFormula n) (ih : StrongAssignmentsInvariant acc) (id : Nat) (_id_in_arr : id ∈ arr.toList) :
       StrongAssignmentsInvariant (deleteOne acc id) := deleteOne_preserves_strongAssignmentsInvariant acc id ih
-    exact List.foldlRecOn arr.toList deleteOne f hb hl
+    exact List.foldlRecOn arr.toList deleteOne hb hl
 
 theorem deleteOne_preserves_ratUnits {n : Nat} (f : DefaultFormula n) (id : Nat) :
     (deleteOne f id).ratUnits = f.ratUnits := by
@@ -629,7 +629,7 @@ theorem readyForRatAdd_delete {n : Nat} (f : DefaultFormula n) (arr : Array Nat)
     have hb : f.ratUnits = #[] := h.1
     have hl (acc : DefaultFormula n) (ih : acc.ratUnits = #[]) (id : Nat) (_id_in_arr : id ∈ arr.toList) :
       (deleteOne acc id).ratUnits = #[] := by rw [deleteOne_preserves_ratUnits, ih]
-    exact List.foldlRecOn arr.toList deleteOne f hb hl
+    exact List.foldlRecOn arr.toList deleteOne hb hl
   · exact readyForRupAdd_delete f arr h.2
 
 theorem deleteOne_subset (f : DefaultFormula n) (id : Nat) (c : DefaultClause n) :
@@ -663,7 +663,7 @@ theorem delete_subset (f : DefaultFormula n) (arr : Array Nat) (c : DefaultClaus
   have hb : c ∈ toList f → c ∈ toList f := id
   have hl (f' : DefaultFormula n) (ih : c ∈ toList f' → c ∈ toList f) (id : Nat) (_ : id ∈ arr.toList) :
     c ∈ toList (deleteOne f' id) → c ∈ toList f := by intro h; exact ih <| deleteOne_subset f' id c h
-  exact List.foldlRecOn arr.toList deleteOne f hb hl
+  exact List.foldlRecOn arr.toList deleteOne hb hl
 
 end DefaultFormula
 

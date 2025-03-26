@@ -238,7 +238,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_ElabAppArgs
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_App_0__Lean_Elab_Term_findMethod_x3f___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_computeStructureResolutionOrder___at___private_Lean_Elab_App_0__Lean_Elab_Term_findMethod_x3f___spec__5___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_initFn____x40_Lean_Elab_App___hyg_24903____closed__14;
-lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppFn___spec__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppFn___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabDotIdent__1___closed__1;
@@ -268,6 +267,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_reprElabEli
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_instReprElabElimInfo;
 lean_object* l_Lean_Elab_Term_exceptionToSorry(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Elab_App_0__Lean_Elab_Term_resolveDotName_withForallBody___spec__1(lean_object*);
 lean_object* l_instInhabitedReaderT___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_App_0__Lean_Elab_Term_mergeFailures___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

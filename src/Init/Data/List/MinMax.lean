@@ -37,19 +37,19 @@ theorem min?_cons' [Min α] {xs : List α} : (x :: xs).min? = foldl min x xs := 
 
 theorem isSome_min?_of_mem {l : List α} [Min α] {a : α} (h : a ∈ l) :
     l.min?.isSome := by
-  cases l <;> simp_all [List.min?_cons']
+  cases l <;> simp_all [min?_cons']
 
 theorem min?_eq_head? {α : Type u} [Min α] {l : List α}
     (h : l.Pairwise (fun a b => min a b = a)) : l.min? = l.head? := by
   cases l with
   | nil => rfl
   | cons x l =>
-    rw [List.head?_cons, List.min?_cons', Option.some.injEq]
+    rw [head?_cons, min?_cons', Option.some.injEq]
     induction l generalizing x with
     | nil => simp
     | cons y l ih =>
-      have hx : min x y = x := List.rel_of_pairwise_cons h (List.mem_cons_self _ _)
-      rw [List.foldl_cons, ih _ (hx.symm ▸ h.sublist (by simp)), hx]
+      have hx : min x y = x := rel_of_pairwise_cons h mem_cons_self
+      rw [foldl_cons, ih _ (hx.symm ▸ h.sublist (by simp)), hx]
 
 theorem min?_mem [Min α] (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b) :
     {xs : List α} → xs.min? = some a → a ∈ xs := by
@@ -57,7 +57,7 @@ theorem min?_mem [Min α] (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b
   match xs with
   | nil => simp
   | x :: xs =>
-    simp only [min?_cons', Option.some.injEq, List.mem_cons]
+    simp only [min?_cons', Option.some.injEq, mem_cons]
     intro eq
     induction xs generalizing x with
     | nil =>
@@ -138,7 +138,7 @@ theorem max?_cons' [Max α] {xs : List α} : (x :: xs).max? = foldl max x xs := 
 
 theorem isSome_max?_of_mem {l : List α} [Max α] {a : α} (h : a ∈ l) :
     l.max?.isSome := by
-  cases l <;> simp_all [List.max?_cons']
+  cases l <;> simp_all [max?_cons']
 
 theorem max?_mem [Max α] (min_eq_or : ∀ a b : α, max a b = a ∨ max a b = b) :
     {xs : List α} → xs.max? = some a → a ∈ xs

@@ -86,7 +86,6 @@ static lean_object* l_Lean_Linter_List_numericalIndices___lambda__4___closed__34
 static lean_object* l_Lean_Linter_List_numericalWidths___closed__1;
 static lean_object* l_Lean_Linter_List_numericalIndices___lambda__4___closed__27;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Linter_List_indexLinter___elambda__1___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Linter_List_numericalWidths___lambda__1___closed__15;
 static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_List_numericalIndices___spec__6___closed__2;
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_Linter_List_listVariablesLinter___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_List_allowedListNames___closed__3;
@@ -306,7 +305,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Linter_List_list
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Linter_List_indexLinter___elambda__1___spec__8___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_List_initFn____x40_Lean_Linter_List___hyg_7____closed__5;
 static lean_object* l_Lean_Linter_List_numericalIndices___lambda__4___closed__37;
-static lean_object* l_Lean_Linter_List_numericalWidths___lambda__1___closed__14;
 static lean_object* l_Lean_Linter_List_indexLinter___elambda__1___lambda__4___closed__1;
 static lean_object* l_Lean_Linter_List_indexLinter___elambda__1___lambda__3___closed__1;
 static lean_object* l_Lean_Linter_List_initFn____x40_Lean_Linter_List___hyg_46____closed__2;
@@ -2858,7 +2856,7 @@ static lean_object* _init_l_Lean_Linter_List_numericalWidths___lambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("mkVector", 8, 8);
+x_1 = lean_mk_string_unchecked("replicate", 9, 9);
 return x_1;
 }
 }
@@ -2875,35 +2873,19 @@ return x_3;
 static lean_object* _init_l_Lean_Linter_List_numericalWidths___lambda__1___closed__12() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("mkArray", 7, 7);
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Linter_List_numericalIndices___lambda__4___closed__5;
+x_2 = l_Lean_Linter_List_numericalWidths___lambda__1___closed__10;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Linter_List_numericalWidths___lambda__1___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Linter_List_numericalIndices___lambda__4___closed__5;
-x_2 = l_Lean_Linter_List_numericalWidths___lambda__1___closed__12;
-x_3 = l_Lean_Name_mkStr2(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Linter_List_numericalWidths___lambda__1___closed__14() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("replicate", 9, 9);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Linter_List_numericalWidths___lambda__1___closed__15() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Linter_List_initFn____x40_Lean_Linter_List___hyg_7____closed__9;
-x_2 = l_Lean_Linter_List_numericalWidths___lambda__1___closed__14;
+x_2 = l_Lean_Linter_List_numericalWidths___lambda__1___closed__10;
 x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
@@ -3012,12 +2994,12 @@ x_42 = l_Lean_Expr_isConstOf(x_34, x_41);
 if (x_42 == 0)
 {
 lean_object* x_43; uint8_t x_44; 
-x_43 = l_Lean_Linter_List_numericalWidths___lambda__1___closed__13;
+x_43 = l_Lean_Linter_List_numericalWidths___lambda__1___closed__12;
 x_44 = l_Lean_Expr_isConstOf(x_34, x_43);
 if (x_44 == 0)
 {
 lean_object* x_45; uint8_t x_46; 
-x_45 = l_Lean_Linter_List_numericalWidths___lambda__1___closed__15;
+x_45 = l_Lean_Linter_List_numericalWidths___lambda__1___closed__13;
 x_46 = l_Lean_Expr_isConstOf(x_34, x_45);
 lean_dec(x_34);
 if (x_46 == 0)
@@ -16172,10 +16154,6 @@ l_Lean_Linter_List_numericalWidths___lambda__1___closed__12 = _init_l_Lean_Linte
 lean_mark_persistent(l_Lean_Linter_List_numericalWidths___lambda__1___closed__12);
 l_Lean_Linter_List_numericalWidths___lambda__1___closed__13 = _init_l_Lean_Linter_List_numericalWidths___lambda__1___closed__13();
 lean_mark_persistent(l_Lean_Linter_List_numericalWidths___lambda__1___closed__13);
-l_Lean_Linter_List_numericalWidths___lambda__1___closed__14 = _init_l_Lean_Linter_List_numericalWidths___lambda__1___closed__14();
-lean_mark_persistent(l_Lean_Linter_List_numericalWidths___lambda__1___closed__14);
-l_Lean_Linter_List_numericalWidths___lambda__1___closed__15 = _init_l_Lean_Linter_List_numericalWidths___lambda__1___closed__15();
-lean_mark_persistent(l_Lean_Linter_List_numericalWidths___lambda__1___closed__15);
 l_Lean_Linter_List_numericalWidths___closed__1 = _init_l_Lean_Linter_List_numericalWidths___closed__1();
 lean_mark_persistent(l_Lean_Linter_List_numericalWidths___closed__1);
 l_Lean_Linter_List_bitVecWidths___lambda__1___closed__1 = _init_l_Lean_Linter_List_bitVecWidths___lambda__1___closed__1();

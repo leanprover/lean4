@@ -70,12 +70,12 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Op_isSam
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_canonicalizeWithSharing___spec__2___lambda__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, double, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvAcNfpost___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_CoefficientsMap_toExpr___spec__4___lambda__1___boxed(lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3026_(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvAcNormalizePass___closed__3;
 static lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_canonicalizeWithSharing___spec__2___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_StateT_bind___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_canonicalizeWithSharing___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_mkBitVecLit___closed__2;
 static lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_canonicalizeWithSharing___spec__2___lambda__4___closed__3;
 lean_object* l_Lean_Meta_Simp_main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

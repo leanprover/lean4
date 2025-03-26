@@ -426,7 +426,6 @@ lean_dec(x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec(x_12);
 x_13 = lean_unsigned_to_nat(1u);
 x_14 = lean_nat_add(x_6, x_13);
 lean_dec(x_6);

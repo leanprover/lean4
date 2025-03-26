@@ -126,7 +126,6 @@ LEAN_EXPORT lean_object* l_Lake_PackageConfig_extraDepTargets___proj(lean_object
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Package_licenseFiles___spec__1(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_leanLibDir___proj(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_homepage___proj___elambda__1(lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 extern lean_object* l_Lake_defaultPackagesDir;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_srcDir___proj___elambda__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -141,6 +140,7 @@ static lean_object* l_Lake_PackageConfig___fields___closed__72;
 LEAN_EXPORT uint8_t l_Lake_Package_reservoir(lean_object*);
 static lean_object* l_Lake_PackageConfig___fields___closed__15;
 LEAN_EXPORT lean_object* l_Lake_Package_manifestFile(lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_buildArchive___proj___elambda__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PackageConfig___fields___closed__55;
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_buildArchive___proj___elambda__4___boxed(lean_object*);

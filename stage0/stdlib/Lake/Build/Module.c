@@ -85,7 +85,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_collectImportsAux__
 static lean_object* l_Lake_Module_clearOutputHashes___closed__2;
 static lean_object* l_IO_FS_withIsolatedStreams___at_Lake_Module_recParseImports___spec__9___closed__5;
 static lean_object* l_Lake_Module_depsFacetConfig___closed__5;
-lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Module_recParseImports___spec__8___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_transImportsFacetConfig;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_recBuildExternDynlibs___spec__3___lambda__1___closed__1;
@@ -99,6 +98,7 @@ static lean_object* l_Lake_initModuleFacetConfigs___closed__8;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Module_recBuildDeps___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Ord_instDecidableRelLt___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_stdFormat___at_Lake_Module_importsFacetConfig___elambda__1___spec__1___closed__2;
+lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lake_buildUnlessUpToDate_x3f_go(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_coFacetConfig___elambda__1(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Functor_mapRev___at_Lake_Module_recParseImports___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

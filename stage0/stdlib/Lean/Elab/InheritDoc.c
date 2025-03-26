@@ -29,7 +29,6 @@ static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____closed_
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____spec__4___lambda__2___closed__2;
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_166_(uint8_t, uint8_t);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____lambda__3___closed__5;
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____closed__1;
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
@@ -124,6 +123,7 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obj
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 static lean_object* l_Lean_getConstVal___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____spec__2___closed__1;
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_162_(uint8_t, uint8_t);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____closed__2;
 static lean_object* l_Lean_getConstVal___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____spec__2___closed__4;
 static lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_3____spec__4___closed__2;
@@ -2800,7 +2800,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; 
 x_8 = 0;
-x_9 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_166_(x_4, x_8);
+x_9 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_162_(x_4, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 

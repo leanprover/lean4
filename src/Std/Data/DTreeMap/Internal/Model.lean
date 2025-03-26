@@ -272,6 +272,11 @@ def minEntry?ₘ' [Ord α] (l : Impl α β) : Option ((a : α) × β a) :=
 def minEntry?ₘ [Ord α] (l : Impl α β) : Option ((a : α) × β a) :=
   applyPartition (fun (_ : α) => .lt) l fun _ _ _ r => r.head?
 
+/-- Internal implementation detail of the tree map -/
+def reverse : Impl α β → Impl α β
+  | .leaf => .leaf
+  | .inner sz k v l r => .inner sz k v (reverse r) (reverse l)
+
 /--
 Model implementation of the `insert` function.
 Internal implementation detail of the tree map
@@ -483,6 +488,18 @@ theorem minKey!_eq_get!_minKey? [Ord α] [Inhabited α] {l : Impl α β} :
 theorem minKeyD_eq_getD_minKey? [Ord α] {l : Impl α β} {fallback} :
     l.minKeyD fallback = l.minKey?.getD fallback := by
   induction l, fallback using minKeyD.induct <;> simp_all only [minKeyD, minKey?] <;> rfl
+
+theorem maxKey?_eq_minKey?_reverse [Ord α] {l : Impl α β} :
+    l.maxKey? = (letI : Ord α := .opposite inferInstance; (reverse l).minKey?) := by
+  induction l using maxKey?.induct <;> simp_all only [minKey?, maxKey?, reverse]
+
+theorem some_maxKey_eq_maxKey? [Ord α] {l : Impl α β} {he} :
+    some (l.maxKey he) = l.maxKey? := by
+  induction l, he using maxKey.induct <;> simp_all [maxKey, maxKey?]
+
+theorem maxKey_eq_get_maxKey? [Ord α] {l : Impl α β} {he} :
+    l.maxKey he = l.maxKey?.get (by simp [← some_maxKey_eq_maxKey? (he := he)]) := by
+  simp [← some_maxKey_eq_maxKey? (he := he)]
 
 theorem balanceL_eq_balance {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceL k v l r hlb hrb hlr = balance k v l r hlb hrb (Or.inl hlr.erase) := by

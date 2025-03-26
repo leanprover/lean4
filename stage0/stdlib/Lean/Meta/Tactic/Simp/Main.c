@@ -158,7 +158,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Sim
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_Lean_Meta_Simp_cacheResult___spec__10(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_lambdaTelescopeDSimp(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_simpLambda(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyMAux___at_Lean_Meta_Simp_simpProj___spec__6(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Simp_isOfNatNatLit(lean_object*);
 static lean_object* l_Lean_throwMaxRecDepthAt___at___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_reduce___spec__1___closed__2;
@@ -182,6 +181,7 @@ static lean_object* l_Lean_Meta_Simp_simpArrow___closed__1;
 static lean_object* l_Lean_Meta_Simp_trySimpCongrTheorem_x3f___lambda__5___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_transform_visit_visitLet___at___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_dsimpImpl___spec__6___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_trySimpCongrTheorem_x3f___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_reduceStep___lambda__2___closed__11;
 lean_object* l_Lean_Meta_mkExpectedTypeHint(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);

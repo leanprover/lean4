@@ -53,13 +53,13 @@ static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_186____lam
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_335____spec__4(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_mul(size_t, size_t);
 lean_object* l_Lean_RBNode_fold___at_Lean_RBMap_size___spec__1___rarg(lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isReducible___rarg___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_reducibilityExtraExt;
 LEAN_EXPORT lean_object* l_Lean_ReducibilityStatus_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_ReducibilityStatus_noConfusion___rarg___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_186____spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_335____closed__10;
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_335____spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_1409____closed__1;
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_reprReducibilityStatus____x40_Lean_ReducibilityAttrs___hyg_18____closed__6;

@@ -94,6 +94,9 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
 
   @[simp] protected theorem le_refl (a : $typeName) : a ≤ a := by simp [le_iff_toBitVec_le]
 
+  open $typeName (le_refl) in
+  protected theorem le_rfl {a : $typeName} : a ≤ a := le_refl _
+
   @[simp] protected theorem lt_irrefl (a : $typeName) : ¬ a < a := by simp
 
   protected theorem le_trans {a b c : $typeName} : a ≤ b → b ≤ c → a ≤ c := BitVec.le_trans
@@ -2831,3 +2834,82 @@ theorem USize.div_self {a : USize} : a / a = if a = 0 then 0 else 1 := by
 @[simp] theorem UInt32.mod_self {a : UInt32} : a % a = 0 := UInt32.toBitVec_inj.1 BitVec.umod_self
 @[simp] theorem UInt64.mod_self {a : UInt64} : a % a = 0 := UInt64.toBitVec_inj.1 BitVec.umod_self
 @[simp] theorem USize.mod_self {a : USize} : a % a = 0 := USize.toBitVec_inj.1 BitVec.umod_self
+
+theorem UInt8.pos_iff_ne_zero {a : UInt8} : 0 < a ↔ a ≠ 0 := by simp [lt_iff_le_and_ne, Eq.comm]
+theorem UInt16.pos_iff_ne_zero {a : UInt16} : 0 < a ↔ a ≠ 0 := by simp [lt_iff_le_and_ne, Eq.comm]
+theorem UInt32.pos_iff_ne_zero {a : UInt32} : 0 < a ↔ a ≠ 0 := by simp [lt_iff_le_and_ne, Eq.comm]
+theorem UInt64.pos_iff_ne_zero {a : UInt64} : 0 < a ↔ a ≠ 0 := by simp [lt_iff_le_and_ne, Eq.comm]
+theorem USize.pos_iff_ne_zero {a : USize} : 0 < a ↔ a ≠ 0 := by simp [lt_iff_le_and_ne, Eq.comm]
+
+theorem UInt8.lt_of_le_of_lt {a b c : UInt8} : a ≤ b → b < c → a < c := by
+  simpa [le_iff_toNat_le, lt_iff_toNat_lt] using Nat.lt_of_le_of_lt
+theorem UInt16.lt_of_le_of_lt {a b c : UInt16} : a ≤ b → b < c → a < c := by
+  simpa [le_iff_toNat_le, lt_iff_toNat_lt] using Nat.lt_of_le_of_lt
+theorem UInt32.lt_of_le_of_lt {a b c : UInt32} : a ≤ b → b < c → a < c := by
+  simpa [le_iff_toNat_le, lt_iff_toNat_lt] using Nat.lt_of_le_of_lt
+theorem UInt64.lt_of_le_of_lt {a b c : UInt64} : a ≤ b → b < c → a < c := by
+  simpa [le_iff_toNat_le, lt_iff_toNat_lt] using Nat.lt_of_le_of_lt
+theorem USize.lt_of_le_of_lt {a b c : USize} : a ≤ b → b < c → a < c := by
+  simpa [le_iff_toNat_le, lt_iff_toNat_lt] using Nat.lt_of_le_of_lt
+
+theorem UInt8.lt_of_lt_of_le {a b c : UInt8} : a < b → b ≤ c → a < c := by
+  simpa [le_iff_toNat_le, lt_iff_toNat_lt] using Nat.lt_of_lt_of_le
+theorem UInt16.lt_of_lt_of_le {a b c : UInt16} : a < b → b ≤ c → a < c := by
+  simpa [le_iff_toNat_le, lt_iff_toNat_lt] using Nat.lt_of_lt_of_le
+theorem UInt32.lt_of_lt_of_le {a b c : UInt32} : a < b → b ≤ c → a < c := by
+  simpa [le_iff_toNat_le, lt_iff_toNat_lt] using Nat.lt_of_lt_of_le
+theorem UInt64.lt_of_lt_of_le {a b c : UInt64} : a < b → b ≤ c → a < c := by
+  simpa [le_iff_toNat_le, lt_iff_toNat_lt] using Nat.lt_of_lt_of_le
+theorem USize.lt_of_lt_of_le {a b c : USize} : a < b → b ≤ c → a < c := by
+  simpa [le_iff_toNat_le, lt_iff_toNat_lt] using Nat.lt_of_lt_of_le
+
+theorem UInt8.lt_or_lt_of_ne {a b : UInt8} : a ≠ b → a < b ∨ b < a := by
+  simpa [lt_iff_toNat_lt, ← UInt8.toNat_inj] using Nat.lt_or_lt_of_ne
+theorem UInt16.lt_or_lt_of_ne {a b : UInt16} : a ≠ b → a < b ∨ b < a := by
+  simpa [lt_iff_toNat_lt, ← UInt16.toNat_inj] using Nat.lt_or_lt_of_ne
+theorem UInt32.lt_or_lt_of_ne {a b : UInt32} : a ≠ b → a < b ∨ b < a := by
+  simpa [lt_iff_toNat_lt, ← UInt32.toNat_inj] using Nat.lt_or_lt_of_ne
+theorem UInt64.lt_or_lt_of_ne {a b : UInt64} : a ≠ b → a < b ∨ b < a := by
+  simpa [lt_iff_toNat_lt, ← UInt64.toNat_inj] using Nat.lt_or_lt_of_ne
+theorem USize.lt_or_lt_of_ne {a b : USize} : a ≠ b → a < b ∨ b < a := by
+  simpa [lt_iff_toNat_lt, ← USize.toNat_inj] using Nat.lt_or_lt_of_ne
+
+theorem UInt8.lt_or_le (a b : UInt8) : a < b ∨ b ≤ a := by
+  simp [lt_iff_toNat_lt, le_iff_toNat_le]; omega
+theorem UInt16.lt_or_le (a b : UInt16) : a < b ∨ b ≤ a := by
+  simp [lt_iff_toNat_lt, le_iff_toNat_le]; omega
+theorem UInt32.lt_or_le (a b : UInt32) : a < b ∨ b ≤ a := by
+  simp [lt_iff_toNat_lt, le_iff_toNat_le]; omega
+theorem UInt64.lt_or_le (a b : UInt64) : a < b ∨ b ≤ a := by
+  simp [lt_iff_toNat_lt, le_iff_toNat_le]; omega
+theorem USize.lt_or_le (a b : USize) : a < b ∨ b ≤ a := by
+  simp [lt_iff_toNat_lt, le_iff_toNat_le]; omega
+
+theorem UInt8.le_or_lt (a b : UInt8) : a ≤ b ∨ b < a := (b.lt_or_le a).symm
+theorem UInt16.le_or_lt (a b : UInt16) : a ≤ b ∨ b < a := (b.lt_or_le a).symm
+theorem UInt32.le_or_lt (a b : UInt32) : a ≤ b ∨ b < a := (b.lt_or_le a).symm
+theorem UInt64.le_or_lt (a b : UInt64) : a ≤ b ∨ b < a := (b.lt_or_le a).symm
+theorem USize.le_or_lt (a b : USize) : a ≤ b ∨ b < a := (b.lt_or_le a).symm
+
+theorem UInt8.le_of_eq {a b : UInt8} : a = b → a ≤ b := (· ▸ UInt8.le_rfl)
+theorem UInt16.le_of_eq {a b : UInt16} : a = b → a ≤ b := (· ▸ UInt16.le_rfl)
+theorem UInt32.le_of_eq {a b : UInt32} : a = b → a ≤ b := (· ▸ UInt32.le_rfl)
+theorem UInt64.le_of_eq {a b : UInt64} : a = b → a ≤ b := (· ▸ UInt64.le_rfl)
+theorem USize.le_of_eq {a b : USize} : a = b → a ≤ b := (· ▸ USize.le_rfl)
+
+theorem UInt8.le_iff_lt_or_eq {a b : UInt8} : a ≤ b ↔ a < b ∨ a = b := by
+  simpa [← UInt8.toNat_inj, le_iff_toNat_le, lt_iff_toNat_lt] using Nat.le_iff_lt_or_eq
+theorem UInt16.le_iff_lt_or_eq {a b : UInt16} : a ≤ b ↔ a < b ∨ a = b := by
+  simpa [← UInt16.toNat_inj, le_iff_toNat_le, lt_iff_toNat_lt] using Nat.le_iff_lt_or_eq
+theorem UInt32.le_iff_lt_or_eq {a b : UInt32} : a ≤ b ↔ a < b ∨ a = b := by
+  simpa [← UInt32.toNat_inj, le_iff_toNat_le, lt_iff_toNat_lt] using Nat.le_iff_lt_or_eq
+theorem UInt64.le_iff_lt_or_eq {a b : UInt64} : a ≤ b ↔ a < b ∨ a = b := by
+  simpa [← UInt64.toNat_inj, le_iff_toNat_le, lt_iff_toNat_lt] using Nat.le_iff_lt_or_eq
+theorem USize.le_iff_lt_or_eq {a b : USize} : a ≤ b ↔ a < b ∨ a = b := by
+  simpa [← USize.toNat_inj, le_iff_toNat_le, lt_iff_toNat_lt] using Nat.le_iff_lt_or_eq
+
+theorem UInt8.lt_or_eq_of_le {a b : UInt8} : a ≤ b → a < b ∨ a = b := UInt8.le_iff_lt_or_eq.mp
+theorem UInt16.lt_or_eq_of_le {a b : UInt16} : a ≤ b → a < b ∨ a = b := UInt16.le_iff_lt_or_eq.mp
+theorem UInt32.lt_or_eq_of_le {a b : UInt32} : a ≤ b → a < b ∨ a = b := UInt32.le_iff_lt_or_eq.mp
+theorem UInt64.lt_or_eq_of_le {a b : UInt64} : a ≤ b → a < b ∨ a = b := UInt64.le_iff_lt_or_eq.mp
+theorem USize.lt_or_eq_of_le {a b : USize} : a ≤ b → a < b ∨ a = b := USize.le_iff_lt_or_eq.mp

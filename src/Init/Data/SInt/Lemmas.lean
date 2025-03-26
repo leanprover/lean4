@@ -2946,6 +2946,12 @@ theorem ISize.lt_iff_le_and_ne {a b : ISize} : a < b ↔ a ≤ b ∧ a ≠ b := 
 @[simp] theorem Int64.le_refl (a : Int64) : a ≤ a := by simp [Int64.le_iff_toInt_le]
 @[simp] theorem ISize.le_refl (a : ISize) : a ≤ a := by simp [ISize.le_iff_toInt_le]
 
+theorem Int8.le_rfl {a : Int8} : a ≤ a := le_refl _
+theorem Int16.le_rfl {a : Int16} : a ≤ a := le_refl _
+theorem Int32.le_rfl {a : Int32} : a ≤ a := le_refl _
+theorem Int64.le_rfl {a : Int64} : a ≤ a := le_refl _
+theorem ISize.le_rfl {a : ISize} : a ≤ a := le_refl _
+
 theorem Int8.le_antisymm_iff {a b : Int8} : a = b ↔ a ≤ b ∧ b ≤ a :=
   ⟨by rintro rfl; simp, by simpa [← Int8.toInt_inj, le_iff_toInt_le] using Int.le_antisymm⟩
 theorem Int16.le_antisymm_iff {a b : Int16} : a = b ↔ a ≤ b ∧ b ≤ a :=
@@ -3117,3 +3123,54 @@ theorem ISize.neg_eq_neg_one_mul (a : ISize) : -a = -1 * a := ISize.toInt_inj.1 
 @[simp] theorem Int32.add_sub_cancel (a b : Int32) : a + b - b = a := Int32.toBitVec_inj.1 (BitVec.add_sub_cancel _ _)
 @[simp] theorem Int64.add_sub_cancel (a b : Int64) : a + b - b = a := Int64.toBitVec_inj.1 (BitVec.add_sub_cancel _ _)
 @[simp] theorem ISize.add_sub_cancel (a b : ISize) : a + b - b = a := ISize.toBitVec_inj.1 (BitVec.add_sub_cancel _ _)
+
+theorem Int8.lt_or_lt_of_ne {a b : Int8} : a ≠ b → a < b ∨ b < a := by
+  simp [lt_iff_toInt_lt, ← Int8.toInt_inj]; omega
+theorem Int16.lt_or_lt_of_ne {a b : Int16} : a ≠ b → a < b ∨ b < a := by
+  simp [lt_iff_toInt_lt, ← Int16.toInt_inj]; omega
+theorem Int32.lt_or_lt_of_ne {a b : Int32} : a ≠ b → a < b ∨ b < a := by
+  simp [lt_iff_toInt_lt, ← Int32.toInt_inj]; omega
+theorem Int64.lt_or_lt_of_ne {a b : Int64} : a ≠ b → a < b ∨ b < a := by
+  simp [lt_iff_toInt_lt, ← Int64.toInt_inj]; omega
+theorem ISize.lt_or_lt_of_ne {a b : ISize} : a ≠ b → a < b ∨ b < a := by
+  simp [lt_iff_toInt_lt, ← ISize.toInt_inj]; omega
+
+theorem Int8.lt_or_le (a b : Int8) : a < b ∨ b ≤ a := by
+  simp [lt_iff_toInt_lt, le_iff_toInt_le]; omega
+theorem Int16.lt_or_le (a b : Int16) : a < b ∨ b ≤ a := by
+  simp [lt_iff_toInt_lt, le_iff_toInt_le]; omega
+theorem Int32.lt_or_le (a b : Int32) : a < b ∨ b ≤ a := by
+  simp [lt_iff_toInt_lt, le_iff_toInt_le]; omega
+theorem Int64.lt_or_le (a b : Int64) : a < b ∨ b ≤ a := by
+  simp [lt_iff_toInt_lt, le_iff_toInt_le]; omega
+theorem ISize.lt_or_le (a b : ISize) : a < b ∨ b ≤ a := by
+  simp [lt_iff_toInt_lt, le_iff_toInt_le]; omega
+
+theorem Int8.le_or_lt (a b : Int8) : a ≤ b ∨ b < a := (b.lt_or_le a).symm
+theorem Int16.le_or_lt (a b : Int16) : a ≤ b ∨ b < a := (b.lt_or_le a).symm
+theorem Int32.le_or_lt (a b : Int32) : a ≤ b ∨ b < a := (b.lt_or_le a).symm
+theorem Int64.le_or_lt (a b : Int64) : a ≤ b ∨ b < a := (b.lt_or_le a).symm
+theorem ISize.le_or_lt (a b : ISize) : a ≤ b ∨ b < a := (b.lt_or_le a).symm
+
+theorem Int8.le_of_eq {a b : Int8} : a = b → a ≤ b := (· ▸ Int8.le_rfl)
+theorem Int16.le_of_eq {a b : Int16} : a = b → a ≤ b := (· ▸ Int16.le_rfl)
+theorem Int32.le_of_eq {a b : Int32} : a = b → a ≤ b := (· ▸ Int32.le_rfl)
+theorem Int64.le_of_eq {a b : Int64} : a = b → a ≤ b := (· ▸ Int64.le_rfl)
+theorem ISize.le_of_eq {a b : ISize} : a = b → a ≤ b := (· ▸ ISize.le_rfl)
+
+theorem Int8.le_iff_lt_or_eq {a b : Int8} : a ≤ b ↔ a < b ∨ a = b := by
+  simp [← Int8.toInt_inj, le_iff_toInt_le, lt_iff_toInt_lt]; omega
+theorem Int16.le_iff_lt_or_eq {a b : Int16} : a ≤ b ↔ a < b ∨ a = b := by
+  simp [← Int16.toInt_inj, le_iff_toInt_le, lt_iff_toInt_lt]; omega
+theorem Int32.le_iff_lt_or_eq {a b : Int32} : a ≤ b ↔ a < b ∨ a = b := by
+  simp [← Int32.toInt_inj, le_iff_toInt_le, lt_iff_toInt_lt]; omega
+theorem Int64.le_iff_lt_or_eq {a b : Int64} : a ≤ b ↔ a < b ∨ a = b := by
+  simp [← Int64.toInt_inj, le_iff_toInt_le, lt_iff_toInt_lt]; omega
+theorem ISize.le_iff_lt_or_eq {a b : ISize} : a ≤ b ↔ a < b ∨ a = b := by
+  simp [← ISize.toInt_inj, le_iff_toInt_le, lt_iff_toInt_lt]; omega
+
+theorem Int8.lt_or_eq_of_le {a b : Int8} : a ≤ b → a < b ∨ a = b := Int8.le_iff_lt_or_eq.mp
+theorem Int16.lt_or_eq_of_le {a b : Int16} : a ≤ b → a < b ∨ a = b := Int16.le_iff_lt_or_eq.mp
+theorem Int32.lt_or_eq_of_le {a b : Int32} : a ≤ b → a < b ∨ a = b := Int32.le_iff_lt_or_eq.mp
+theorem Int64.lt_or_eq_of_le {a b : Int64} : a ≤ b → a < b ∨ a = b := Int64.le_iff_lt_or_eq.mp
+theorem ISize.lt_or_eq_of_le {a b : ISize} : a ≤ b → a < b ∨ a = b := ISize.le_iff_lt_or_eq.mp

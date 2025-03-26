@@ -46,7 +46,7 @@ theorem run_bind [Monad m] (x : ExceptT ε m α)
     : (f <$> x).run = Except.map f <$> x.run := by
   simp [Functor.map, ExceptT.map, ←bind_pure_comp]
   apply bind_congr
-  intro a; cases a <;> simp [Except.map]
+  intro a; cases a <;> simp [Except.map, ExceptT.map, ExceptT.mk]
 
 protected theorem seq_eq {α β ε : Type u} [Monad m] (mf : ExceptT ε m (α → β)) (x : ExceptT ε m α) : mf <*> x = mf >>= fun f => f <$> x :=
   rfl
@@ -64,7 +64,7 @@ protected theorem seqLeft_eq {α β ε : Type u} {m : Type u → Type v} [Monad 
   | Except.error _ => simp
   | Except.ok _ =>
     simp [←bind_pure_comp]; apply bind_congr; intro b;
-    cases b <;> simp [comp, Except.map, const]
+    cases b <;> simp [comp, Except.map, const, ExceptT.map, ExceptT.mk]
 
 protected theorem seqRight_eq [Monad m] [LawfulMonad m] (x : ExceptT ε m α) (y : ExceptT ε m β) : x *> y = const α id <$> x <*> y := by
   show (x >>= fun _ => y) = (const α id <$> x) >>= fun f => f <$> y

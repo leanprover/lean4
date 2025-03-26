@@ -46,15 +46,15 @@ def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) :=
         config.fetchFn pkg
       else
         error s!"invalid target '{info}': custom target '{target}' not found in package '{pkg.name}'"
-    | `leanLib =>
+    | LeanLib.facetKind =>
       let some lib := pkg.findLeanLib? target
         | error s!"invalid target '{info}': Lean library '{target}' not found in package '{pkg.name}'"
       return Job.pure <| toFamily lib
-    | `leanExe =>
+    | LeanExe.facetKind =>
       let some exe := pkg.findLeanExe? target
         | error s!"invalid target '{info}': Lean executable '{target}' not found in package '{pkg.name}'"
       return Job.pure <| toFamily exe
-    | `externLib =>
+    | ExternLib.facetKind =>
       let some lib := pkg.findExternLib? target
         | error s!"invalid target '{info}': external library '{target}' not found in package '{pkg.name}'"
       return Job.pure <| toFamily lib

@@ -18,10 +18,10 @@ inductive BuildKey
 deriving Inhabited, Repr, DecidableEq, Hashable
 
 /-- The kind identifier for facets of a package. -/
-abbrev Package.facetKind : Name := `package
+@[match_pattern] abbrev Package.facetKind : Name := `package
 
 /-- The kind identifier for facets of a (Lean) module. -/
-abbrev Module.facetKind : Name := `module
+@[match_pattern] abbrev Module.facetKind : Name := `module
 
 namespace BuildKey
 

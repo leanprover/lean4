@@ -114,10 +114,12 @@ namespace Year
 `classify` classifies the number of pattern letters into a `Year` format.
 -/
 def classify (num : Nat) : Option Year :=
-  if num = 2 then
-    some (.twoDigit)
+  if num = 1 then
+    some .any
+  else if num = 2 then
+    some .twoDigit
   else if num = 4 then
-    some (.fourDigit)
+    some .fourDigit
   else if num > 4 ∨ num = 3 then
     some (.extended num)
   else

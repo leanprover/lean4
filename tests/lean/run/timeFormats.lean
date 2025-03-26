@@ -823,38 +823,42 @@ def tuple2Mk (a : f) (b : g) := some (a, b)
 def tuple3Mk (a : f) (b : g) (c : h) := some (a, b, c)
 def tuple4Mk (a : f) (b : g) (c : h) (d : i) := some (a, b, c, d)
 def tuple5Mk (a : f) (b : g) (c : h) (d : i) (e : j) := some (a, b, c, d, e)
+def tuple6Mk (a : f) (b : g) (c : h) (d : i) (e : j) (k : z) := some (a, b, c, d, e, k)
 
-def year : GenericFormat .any := datespec("uu uuu uuuu uuuuu uuuuuu")
-
-/--
-info: Except.ok (2011, 123, 1234, 12345, 145679)
--/
-#guard_msgs in
-#eval year.parseBuilder tuple5Mk "11 123 1234 12345 145679"
-
-/--
-info: Except.error "offset 2: expected:  "
--/
-#guard_msgs in
-#eval year.parseBuilder tuple5Mk "111 123 1234 12345 145679"
-
-/--
-info: Except.error "offset 11: expected:  "
--/
-#guard_msgs in
-#eval year.parseBuilder tuple5Mk "11 123 13234 12345 145679"
 
 /-
 Parsing Length Tests
 -/
 
-def yFormat : GenericFormat .any := datespec("yy yyyy yyyyy")
+def uFormat : GenericFormat .any := datespec("u uu uuuu uuuuu")
 
-#eval do assert! (yFormat.parseBuilder tuple3Mk "11 1211 12311" |>.isOk)
+#eval do assert! (uFormat.parseBuilder tuple4Mk "1 11 1211 12311" |>.isOk)
+#eval do assert! (uFormat.parseBuilder tuple4Mk "12 11 1211 12311" |>.isOk)
+#eval do assert! (uFormat.parseBuilder tuple4Mk "123443 11 1211 12311" |>.isOk)
+#eval do assert! (uFormat.parseBuilder tuple4Mk "-1 11 1211 12311" |>.isOk)
+#eval do assert! (uFormat.parseBuilder tuple4Mk "1 11 -1211 12311" |>.isOk)
+#eval do assert! (uFormat.parseBuilder tuple4Mk "1 11 1211 -12311" |>.isOk)
 
-#eval do assert! (not <| yFormat.parseBuilder tuple3Mk "1 12 1234" |>.isOk)
-#eval do assert! (not <| yFormat.parseBuilder tuple3Mk "11 1213 111123" |>.isOk)
-#eval do assert! (not <| yFormat.parseBuilder tuple3Mk "367 1211 12311" |>.isOk)
+#eval do assert! (not <| uFormat.parseBuilder tuple4Mk "1 -11 1211 12311" |>.isOk)
+#eval do assert! (not <| uFormat.parseBuilder tuple4Mk "11 1211 12134" |>.isOk)
+#eval do assert! (not <| uFormat.parseBuilder tuple4Mk "1 1 12 1234" |>.isOk)
+#eval do assert! (not <| uFormat.parseBuilder tuple4Mk "1 11 1213 111123" |>.isOk)
+#eval do assert! (not <| uFormat.parseBuilder tuple4Mk "1 367 1211 12311" |>.isOk)
+
+def yFormat : GenericFormat .any := datespec("y yy yyyy yyyyy")
+
+#eval do assert! (yFormat.parseBuilder tuple4Mk "1 11 1211 12311" |>.isOk)
+#eval do assert! (yFormat.parseBuilder tuple4Mk "12 11 1211 12311" |>.isOk)
+#eval do assert! (yFormat.parseBuilder tuple4Mk "123443 11 1211 12311" |>.isOk)
+
+#eval do assert! (not <| yFormat.parseBuilder tuple4Mk "-1 11 1211 12311" |>.isOk)
+#eval do assert! (not <| yFormat.parseBuilder tuple4Mk "1 -11 1211 12311" |>.isOk)
+#eval do assert! (not <| yFormat.parseBuilder tuple4Mk "1 11 -1211 12311" |>.isOk)
+#eval do assert! (not <| yFormat.parseBuilder tuple4Mk "1 11 1211 -12311" |>.isOk)
+#eval do assert! (not <| yFormat.parseBuilder tuple4Mk "11 1211 12134" |>.isOk)
+#eval do assert! (not <| yFormat.parseBuilder tuple4Mk "1 1 12 1234" |>.isOk)
+#eval do assert! (not <| yFormat.parseBuilder tuple4Mk "1 11 1213 111123" |>.isOk)
+#eval do assert! (not <| yFormat.parseBuilder tuple4Mk "1 367 1211 12311" |>.isOk)
 
 def dFormat : GenericFormat .any := datespec("D DD DDD")
 

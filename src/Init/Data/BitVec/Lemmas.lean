@@ -3945,11 +3945,15 @@ theorem toNat_smod {x y : BitVec w} : (x.smod y).toNat =
   <;> simp [h'', h''']
 
 @[simp]
-theorem smod_zero {x : BitVec n} : x.smod 0#n = x := by
+theorem smod_zero {x : BitVec w} : x.smod 0#w = x := by
   simp only [smod_eq, msb_zero]
   rcases x.msb with msb | msb <;> apply eq_of_toNat_eq
   · simp
-  · by_cases h : x = 0#n <;> simp [h]
+  · by_cases h : x = 0#w <;> simp [h]
+
+@[simp]
+theorem zero_smod {x : BitVec w} : (0#w).smod x = 0#w := by
+  cases _ : x.msb <;> simp_all [smod_eq]
 
 /-! ### ofBoolList -/
 

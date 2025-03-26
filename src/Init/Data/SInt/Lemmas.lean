@@ -89,6 +89,12 @@ theorem ISize.toInt_inj {x y : ISize} : x.toInt = y.toInt ↔ x = y := ⟨ISize.
 @[simp] theorem Int64.toBitVec_zero : toBitVec 0 = 0#64 := rfl
 @[simp] theorem ISize.toBitVec_zero : toBitVec 0 = 0#System.Platform.numBits := rfl
 
+theorem Int8.toBitVec_one : (1 : Int8).toBitVec = 1#8 := rfl
+theorem Int16.toBitVec_one : (1 : Int16).toBitVec = 1#16 := rfl
+theorem Int32.toBitVec_one : (1 : Int32).toBitVec = 1#32 := rfl
+theorem Int64.toBitVec_one : (1 : Int64).toBitVec = 1#64 := rfl
+theorem ISize.toBitVec_one : (1 : ISize).toBitVec = 1#System.Platform.numBits := rfl
+
 @[simp] theorem Int8.toBitVec_ofInt (i : Int) : (ofInt i).toBitVec = BitVec.ofInt _ i := rfl
 @[simp] theorem Int16.toBitVec_ofInt (i : Int) : (ofInt i).toBitVec = BitVec.ofInt _ i := rfl
 @[simp] theorem Int32.toBitVec_ofInt (i : Int) : (ofInt i).toBitVec = BitVec.ofInt _ i := rfl

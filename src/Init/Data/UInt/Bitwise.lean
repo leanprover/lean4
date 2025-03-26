@@ -1149,19 +1149,19 @@ theorem USize.shiftLeft_or {a b c : USize} : (a ||| b) <<< c = (a <<< c) ||| (b 
 
 theorem UInt8.shiftLeft_add_of_toNat_lt {a b c : UInt8} (h : b.toNat + c.toNat < 8) :
     a <<< (b + c) = (a <<< b) <<< c := by
-  simp [← UInt8.toBitVec_inj,Nat.mod_eq_of_lt h, Nat.mod_eq_of_lt (show b.toNat < 8 by omega),
+  simp [← UInt8.toBitVec_inj, Nat.mod_eq_of_lt h, Nat.mod_eq_of_lt (show b.toNat < 8 by omega),
     Nat.mod_eq_of_lt (show c.toNat < 8 by omega), BitVec.shiftLeft_add]
 theorem UInt16.shiftLeft_add_of_toNat_lt {a b c : UInt16} (h : b.toNat + c.toNat < 16) :
     a <<< (b + c) = (a <<< b) <<< c := by
-  simp [← UInt16.toBitVec_inj,Nat.mod_eq_of_lt h, Nat.mod_eq_of_lt (show b.toNat < 16 by omega),
+  simp [← UInt16.toBitVec_inj, Nat.mod_eq_of_lt h, Nat.mod_eq_of_lt (show b.toNat < 16 by omega),
     Nat.mod_eq_of_lt (show c.toNat < 16 by omega), BitVec.shiftLeft_add]
 theorem UInt32.shiftLeft_add_of_toNat_lt {a b c : UInt32} (h : b.toNat + c.toNat < 32) :
     a <<< (b + c) = (a <<< b) <<< c := by
-  simp [← UInt32.toBitVec_inj,Nat.mod_eq_of_lt h, Nat.mod_eq_of_lt (show b.toNat < 32 by omega),
+  simp [← UInt32.toBitVec_inj, Nat.mod_eq_of_lt h, Nat.mod_eq_of_lt (show b.toNat < 32 by omega),
     Nat.mod_eq_of_lt (show c.toNat < 32 by omega), BitVec.shiftLeft_add]
 theorem UInt64.shiftLeft_add_of_toNat_lt {a b c : UInt64} (h : b.toNat + c.toNat < 64) :
     a <<< (b + c) = (a <<< b) <<< c := by
-  simp [← UInt64.toBitVec_inj,Nat.mod_eq_of_lt h, Nat.mod_eq_of_lt (show b.toNat < 64 by omega),
+  simp [← UInt64.toBitVec_inj, Nat.mod_eq_of_lt h, Nat.mod_eq_of_lt (show b.toNat < 64 by omega),
     Nat.mod_eq_of_lt (show c.toNat < 64 by omega), BitVec.shiftLeft_add]
 theorem USize.shiftLeft_add_of_toNat_lt {a b c : USize}
     (h : b.toNat + c.toNat < System.Platform.numBits) :

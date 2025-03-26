@@ -233,8 +233,11 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
         internalizeImpl b generation e
         registerParent e b
       propagateUp e
-  | .lit .. | .const .. =>
+  | .lit .. =>
     mkENode e generation
+  | .const declName _ =>
+    mkENode e generation
+    activateTheoremPatterns declName generation
   | .mvar .. =>
     reportIssue! "unexpected metavariable during internalization{indentExpr e}\n`grind` is not supposed to be used in goals containing metavariables."
     mkENode' e generation

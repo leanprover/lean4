@@ -98,6 +98,8 @@ end Fraction
 `Year` represents different year formatting styles based on the number of pattern letters.
 -/
 inductive Year
+  /-- Any size (e.g., "19000000000000") -/
+  | any
   /-- Two-digit year format (e.g., "23" for 2023) -/
   | twoDigit
   /-- Four-digit year format (e.g., "2023") -/
@@ -112,10 +114,12 @@ namespace Year
 `classify` classifies the number of pattern letters into a `Year` format.
 -/
 def classify (num : Nat) : Option Year :=
-  if num = 2 then
-    some (.twoDigit)
+  if num = 1 then
+    some .any
+  else if num = 2 then
+    some .twoDigit
   else if num = 4 then
-    some (.fourDigit)
+    some .fourDigit
   else if num > 4 ∨ num = 3 then
     some (.extended num)
   else
@@ -787,11 +791,13 @@ private def formatWith (modifier : Modifier) (data: TypeFormat modifier) : Strin
     let info := data.toInt
     let info := if info ≤ 0 then -info + 1 else info
     match format with
+    | .any => pad 0 (data.toInt)
     | .twoDigit => pad 2 (info % 100)
     | .fourDigit => pad 4 info
     | .extended n => pad n info
   | .u format =>
     match format with
+    | .any => pad 0 (data.toInt)
     | .twoDigit => pad 2 (data.toInt % 100)
     | .fourDigit => pad 4 data.toInt
     | .extended n => pad n data.toInt
@@ -1076,6 +1082,9 @@ private def parseAtLeastNum (size : Nat) : Parser Nat :=
     let end_ ← manyChars (satisfy Char.isDigit)
     pure (start ++ end_)
 
+private def parseFlexibleNum (size : Nat) : Parser Nat :=
+  if size = 1 then parseAtLeastNum 1 else parseNum size
+
 private def parseFractionNum (size : Nat) (pad : Nat) : Parser Nat :=
   String.toNat! <$> rightPad pad '0' <$> exactlyChars (satisfy Char.isDigit) size
 
@@ -1121,30 +1130,32 @@ private def parseWith : (mod : Modifier) → Parser (TypeFormat mod)
     | .narrow => parseEraNarrow
   | .y format =>
     match format with
-    | .twoDigit => (2000 + ·) <$> (Int.ofNat <$> parseNum 2)
+    | .any => Int.ofNat <$> parseAtLeastNum 1
+    | .twoDigit => (2000 + ·) <$> Int.ofNat <$> parseNum 2
     | .fourDigit => Int.ofNat <$> parseNum 4
-    | .extended n => Int.ofNat <$> parseAtLeastNum n
+    | .extended n => Int.ofNat <$> parseNum n
   | .u format =>
     match format with
-    | .twoDigit => (2000 + ·) <$> (parseSigned <| parseNum 2)
-    | .fourDigit => parseSigned <| parseAtLeastNum 4
-    | .extended n => parseSigned <| parseAtLeastNum n
-  | .D format => Sigma.mk true <$> parseNatToBounded (parseAtLeastNum format.padding)
+    | .any => parseSigned <| parseAtLeastNum 1
+    | .twoDigit => (2000 + ·) <$> Int.ofNat <$> parseNum 2
+    | .fourDigit => parseSigned <| parseNum 4
+    | .extended n => parseSigned <| parseNum n
+  | .D format => Sigma.mk true <$> parseNatToBounded (parseFlexibleNum format.padding)
   | .MorL format =>
     match format with
-    | .inl format => parseNatToBounded (parseAtLeastNum format.padding)
+    | .inl format => parseNatToBounded (parseFlexibleNum format.padding)
     | .inr .short => parseMonthShort
     | .inr .full => parseMonthLong
     | .inr .narrow => parseMonthNarrow
-  | .d format => parseNatToBounded (parseAtLeastNum format.padding)
+  | .d format => parseNatToBounded (parseFlexibleNum format.padding)
   | .Qorq format =>
     match format with
-    | .inl format => parseNatToBounded (parseAtLeastNum format.padding)
+    | .inl format => parseNatToBounded (parseFlexibleNum format.padding)
     | .inr .short => parseQuarterShort
     | .inr .full => parseQuarterLong
     | .inr .narrow => parseQuarterNumber
-  | .w format => parseNatToBounded (parseAtLeastNum format.padding)
-  | .W format => parseNatToBounded (parseAtLeastNum format.padding)
+  | .w format => parseNatToBounded (parseFlexibleNum format.padding)
+  | .W format => parseNatToBounded (parseFlexibleNum format.padding)
   | .E format =>
     match format with
     | .short => parseWeekdayShort
@@ -1152,29 +1163,29 @@ private def parseWith : (mod : Modifier) → Parser (TypeFormat mod)
     | .narrow => parseWeekdayNarrow
   | .eorc format =>
     match format with
-    | .inl format => Weekday.ofOrdinal <$> parseNatToBounded (parseAtLeastNum format.padding)
+    | .inl format => Weekday.ofOrdinal <$> parseNatToBounded (parseFlexibleNum format.padding)
     | .inr .short => parseWeekdayShort
     | .inr .full => parseWeekdayLong
     | .inr .narrow => parseWeekdayNarrow
-  | .F format => parseNatToBounded (parseAtLeastNum format.padding)
+  | .F format => parseNatToBounded (parseFlexibleNum format.padding)
   | .a format =>
     match format with
     | .short => parseMarkerShort
     | .full => parseMarkerLong
     | .narrow => parseMarkerNarrow
-  | .h format => parseNatToBounded (parseAtLeastNum format.padding)
-  | .K format => parseNatToBounded (parseAtLeastNum format.padding)
-  | .k format => parseNatToBounded (parseAtLeastNum format.padding)
-  | .H format => parseNatToBounded (parseAtLeastNum format.padding)
-  | .m format => parseNatToBounded (parseAtLeastNum format.padding)
-  | .s format => parseNatToBounded (parseAtLeastNum format.padding)
+  | .h format => parseNatToBounded (parseFlexibleNum format.padding)
+  | .K format => parseNatToBounded (parseFlexibleNum format.padding)
+  | .k format => parseNatToBounded (parseFlexibleNum format.padding)
+  | .H format => parseNatToBounded (parseFlexibleNum format.padding)
+  | .m format => parseNatToBounded (parseFlexibleNum format.padding)
+  | .s format => parseNatToBounded (parseFlexibleNum format.padding)
   | .S format =>
     match format with
-    | .nano => parseNatToBounded (parseAtLeastNum 9)
+    | .nano => parseNatToBounded (parseFlexibleNum 9)
     | .truncated n => parseNatToBounded (parseFractionNum n 9)
-  | .A format => Millisecond.Offset.ofNat <$> (parseAtLeastNum format.padding)
-  | .n format => parseNatToBounded (parseAtLeastNum format.padding)
-  | .N format => Nanosecond.Offset.ofNat <$> (parseAtLeastNum format.padding)
+  | .A format => Millisecond.Offset.ofNat <$> (parseFlexibleNum format.padding)
+  | .n format => parseNatToBounded (parseFlexibleNum format.padding)
+  | .N format => Nanosecond.Offset.ofNat <$> (parseFlexibleNum format.padding)
   | .V => parseIdentifier
   | .z format =>
     match format with

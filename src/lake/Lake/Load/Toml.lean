@@ -219,6 +219,12 @@ instance : DecodeField (PackageConfig n) `versionTags where
 -- for `platformIndependent`, `releaseRepo`, `buildArchive`, etc.
 instance [DecodeToml α] : DecodeToml (Option α) := ⟨(some <$> decodeToml ·)⟩
 
+def decodeFacets (kind : Name) (val : Value) : EDecodeM (Array Name) := do
+  return (← val.decodeArray).map (kind ++ ·)
+
+instance : DecodeField (LeanLibConfig n) `defaultFacets where
+  decodeField := decodeFieldCore `defaultFacets (decodeFacets LeanLib.facetKind)
+
 /-! ## Dependency Configuration Decoders -/
 
 protected def DependencySrc.decodeToml (t : Table) (ref := Syntax.missing) : EDecodeM DependencySrc := do

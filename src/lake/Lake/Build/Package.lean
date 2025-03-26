@@ -177,7 +177,7 @@ private def Package.mkBuildArchiveFacetConfig
   [FamilyDef FacetOut optFacet Bool]
 : PackageFacetConfig facet :=
   mkFacetJobConfig fun pkg =>
-    withRegisterJob s!"{pkg.name}:{facet}" do
+    withRegisterJob s!"{pkg.name}:{Name.eraseHead facet}" do
       (← fetch <| pkg.facetCore optFacet).mapM fun success => do
         unless success do
           error s!"failed to fetch {what}{← pkg.optFacetDetails optFacet}"

@@ -20,6 +20,11 @@ open Lean System Toml
 private local instance : BEq FilePath where
   beq a b := a.normalize == b.normalize
 
+class EncodeField (σ : Type u) (name : Name) (α : Type u) where
+  encodeField : α → Value
+
+instance [ToToml α] : EncodeField σ name α := ⟨toToml⟩
+
 class InsertField (σ : Type u) (name : Name) where
   insertField : σ → Table → Table
 
@@ -30,8 +35,8 @@ abbrev Toml.Table.insertField
 instance [SmartInsert α] [field : ConfigField σ name α] : InsertField σ name where
   insertField cfg t := t.smartInsert name (field.get cfg)
 
-instance [ToToml α] [BEq α] [field : ConfigField σ name α] : InsertField σ name where
-  insertField cfg t := t.insertD name (field.get cfg) (field.mkDefault cfg)
+instance [enc : EncodeField σ name α] [BEq α] [field : ConfigField σ name α] : InsertField σ name where
+  insertField cfg t := t.insertD name (field.get cfg) (field.mkDefault cfg) (enc := ⟨enc.encodeField⟩)
 
 /-! ## Value Encoders -/
 
@@ -68,6 +73,11 @@ def smartInsertVerTags (pat : StrPat) (t : Table) : Table :=
 
 instance : InsertField (PackageConfig n) `versionTags where
   insertField cfg := smartInsertVerTags cfg.versionTags
+
+def encodeFacets (facets : Array Name) : Value :=
+  toToml <| facets.map (toToml <| Name.eraseHead ·)
+
+instance : EncodeField (LeanLibConfig n) `defaultFacets (Array Name) := ⟨encodeFacets⟩
 
 /-! ## Dependency Configuration Encoders -/
 

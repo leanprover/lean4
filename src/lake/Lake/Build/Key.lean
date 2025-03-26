@@ -47,7 +47,7 @@ def toString : (self : BuildKey) → String
 | module m => s!"+{m}"
 | package p => s!"@{p}"
 | packageTarget p t _ => s!"{p}/{t}"
-| facet t f => s!"{toString t}:{f}"
+| facet t f => s!"{toString t}:{Name.eraseHead f}"
 
 /-- Like the default `toString`, but without disambiguation markers. -/
 def toSimpleString : (self : BuildKey) → String

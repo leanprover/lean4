@@ -100,5 +100,7 @@ instance : LawfulCmpEq Name Name.quickCmp where
   cmp_rfl := quickCmp_rfl
 
 open Syntax in
-def quoteFrom (ref : Syntax) (n : Name) : Term :=
-  ⟨copyHeadTailInfoFrom (quote n : Term) ref⟩
+def quoteFrom (ref : Syntax) (n : Name) (canonical := false) : Term :=
+  let ref := ref.setHeadInfo (SourceInfo.fromRef ref canonical)
+  let stx := copyHeadTailInfoFrom (quote n : Term) ref
+  ⟨stx⟩

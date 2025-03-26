@@ -119,25 +119,25 @@ target_data leanExe : LeanExe
 target_data externLib : ExternLib
 
 /-- The direct local imports of the Lean module. -/
-builtin_facet Module.importsFacet module imports : Array Module
+builtin_facet imports : Module => Array Module
 
 /-- The transitive local imports of the Lean module. -/
-builtin_facet Module.transImportsFacet module transImports : Array Module
+builtin_facet transImports : Module => Array Module
 
 /-- The transitive local imports of the Lean module. -/
-builtin_facet Module.precompileImportsFacet module precompileImports : Array Module
+builtin_facet precompileImports : Module => Array Module
 
 /-- Shared library for `--load-dynlib`. -/
-builtin_facet Module.dynlibFacet module dynlib : Dynlib
+builtin_facet dynlib : Module => Dynlib
 
 /-- A Lean library's Lean modules. -/
-builtin_facet LeanLib.modulesFacet leanLib modules : Array Module
+builtin_facet modules : LeanLib => Array Module
 
 /-- The package's array of dependencies. -/
-builtin_facet Package.depsFacet package deps : Array Package
+builtin_facet deps : Package => Array Package
 
 /-- The package's complete array of transitive dependencies. -/
-builtin_facet Package.transDepsFacet package transDeps : Array Package
+builtin_facet transDeps : Package => Array Package
 
 /-!
 ### Facet Build Info Helper Constructors

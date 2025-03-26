@@ -48,7 +48,7 @@ The facet which builds all of a module's dependencies
 (i.e., transitive local imports and `--load-dynlib` shared libraries).
 Returns the list of shared libraries to load along with their search path.
 -/
-builtin_facet Module.depsFacet module deps : ModuleDeps
+builtin_facet deps : Module => ModuleDeps
 
 /--
 The core build facet of a Lean file.
@@ -56,47 +56,47 @@ Elaborates the Lean file via `lean` and produces all the Lean artifacts
 of the module (i.e., `olean`, `ilean`, `c`).
 Its trace just includes its dependencies.
 -/
-builtin_facet Module.leanArtsFacet module leanArts : Unit
+builtin_facet leanArts : Module => Unit
 
 /-- The `olean` file produced by `lean`. -/
-builtin_facet Module.oleanFacet module olean : FilePath
+builtin_facet olean : Module => FilePath
 
 /-- The `ilean` file produced by `lean`. -/
-builtin_facet Module.ileanFacet module ilean : FilePath
+builtin_facet ilean : Module => FilePath
 
 /-- The C file built from the Lean file via `lean`. -/
-builtin_facet Module.cFacet module c : FilePath
+builtin_facet c : Module => FilePath
 
 /-- The LLVM BC file built from the Lean file via `lean`. -/
-builtin_facet Module.bcFacet module bc : FilePath
+builtin_facet bc : Module => FilePath
 
 /--
 The object file `.c.o` built from `c`.
 On Windows, this is `c.o.noexport`, on other systems it is `c.o.export`).
 -/
-builtin_facet Module.coFacet module c.o : FilePath
+builtin_facet coFacet @ c.o : Module => FilePath
 
 /-- The object file `.c.o.export` built from `c` (with `-DLEAN_EXPORTING`). -/
-builtin_facet Module.coExportFacet module c.o.export : FilePath
+builtin_facet coExportFacet @ c.o.export : Module => FilePath
 
 /-- The object file `.c.o.noexport` built from `c` (without `-DLEAN_EXPORTING`). -/
-builtin_facet Module.coNoExportFacet module c.o.noexport : FilePath
+builtin_facet coNoExportFacet @ c.o.noexport : Module => FilePath
 
 /-- The object file `.bc.o` built from `bc`. -/
-builtin_facet Module.bcoFacet module bc.o : FilePath
+builtin_facet bcoFacet @ bc.o : Module => FilePath
 
 /--
 The object file built from `c`/`bc`.
 On Windows with the C backend, no Lean symbols are exported.
 On every other configuration, symbols are exported.
 -/
-builtin_facet Module.oFacet module o : FilePath
+builtin_facet o : Module => FilePath
 
 /-- The object file built from `c`/`bc` (with Lean symbols exported). -/
-builtin_facet Module.oExportFacet module o.export : FilePath
+builtin_facet oExportFacet @ o.export : Module => FilePath
 
 /-- The object file built from `c`/`bc` (without Lean symbols exported). -/
-builtin_facet Module.oNoExportFacet module o.noexport : FilePath
+builtin_facet oNoExportFacet @ o.noexport : Module => FilePath
 
 
 /-! ## Package Facets -/
@@ -105,31 +105,31 @@ builtin_facet Module.oNoExportFacet module o.noexport : FilePath
 A package's *optional* cached build archive (e.g., from Reservoir or GitHub).
 Will NOT cause the whole build to fail if the archive cannot be fetched.
 -/
-builtin_facet Package.optBuildCacheFacet package optCache : Bool
+builtin_facet optBuildCacheFacet @ optCache : Package => Bool
 
 /--
 A package's cached build archive (e.g., from Reservoir or GitHub).
 Will cause the whole build to fail if the archive cannot be fetched.
 -/
-builtin_facet Package.buildCacheFacet package cache : Unit
+builtin_facet buildCacheFacet @ cache : Package => Unit
 
 /--
 A package's *optional* build archive from Reservoir.
 Will NOT cause the whole build to fail if the barrel cannot be fetched.
 -/
-builtin_facet Package.optReservoirBarrelFacet package optBarrel : Bool
+builtin_facet optReservoirBarrelFacet @ optBarrel : Package => Bool
 
 /--
 A package's Reservoir build archive from Reservoir.
 Will cause the whole build to fail if the barrel cannot be fetched.
 -/
-builtin_facet Package.reservoirBarrelFacet package barrel : Unit
+builtin_facet reservoirBarrelFacet @ barrel : Package => Unit
 
 /--
 A package's *optional* build archive from a GitHub release.
 Will NOT cause the whole build to fail if the release cannot be fetched.
 -/
-builtin_facet Package.optGitHubReleaseFacet package optRelease : Bool
+builtin_facet optGitHubReleaseFacet @ optRelease : Package => Bool
 
 @[deprecated optGitHubReleaseFacet (since := "2024-09-27")]
 abbrev Package.optReleaseFacet := optGitHubReleaseFacet
@@ -138,21 +138,21 @@ abbrev Package.optReleaseFacet := optGitHubReleaseFacet
 A package's build archive from a GitHub release.
 Will cause the whole build to fail if the release cannot be fetched.
 -/
-builtin_facet Package.gitHubReleaseFacet package release : Unit
+builtin_facet gitHubReleaseFacet @ release : Package => Unit
 
 @[deprecated gitHubReleaseFacet (since := "2024-09-27")]
 abbrev Package.releaseFacet := gitHubReleaseFacet
 
 /-- A package's `extraDepTargets` mixed with its transitive dependencies'. -/
-builtin_facet Package.extraDepFacet package extraDep : Unit
+builtin_facet extraDep : Package => Unit
 
 /-! ## Target Facets -/
 
 /-- A Lean library's Lean artifacts (i.e., `olean`, `ilean`, `c`). -/
-builtin_facet LeanLib.leanArtsFacet leanLib leanArts : Unit
+builtin_facet leanArts : LeanLib => Unit
 
 /-- A Lean library's static artifact. -/
-builtin_facet LeanLib.staticFacet leanLib static : FilePath
+builtin_facet static : LeanLib => FilePath
 
 /--
 A Lean library's static artifact (with exported symbols).
@@ -162,22 +162,22 @@ Such libraries are usually used as part of the local build process of some
 shared artifact and not publicly distributed. Standard static libraries are
 much better for distribution.
 -/
-builtin_facet LeanLib.staticExportFacet leanLib static.export : FilePath
+builtin_facet staticExportFacet @ static.export : LeanLib => FilePath
 
 /-- A Lean library's shared artifact. -/
-builtin_facet LeanLib.sharedFacet leanLib shared : FilePath
+builtin_facet  shared : LeanLib => FilePath
 
 /-- A Lean library's `extraDepTargets` mixed with its package's. -/
-builtin_facet LeanLib.extraDepFacet leanLib extraDep : Unit
+builtin_facet extraDep : LeanLib => Unit
 
 /-- A Lean binary executable. -/
-builtin_facet LeanExe.exeFacet leanExe exe : FilePath
+builtin_facet exe : LeanExe => FilePath
 
 /-- A external library's static binary. -/
-builtin_facet ExternLib.staticFacet externLib static : FilePath
+builtin_facet static : ExternLib => FilePath
 
 /-- A external library's shared binary. -/
-builtin_facet ExternLib.sharedFacet externLib shared : FilePath
+builtin_facet shared : ExternLib => FilePath
 
 /-- A external library's dynlib. -/
-builtin_facet ExternLib.dynlibFacet externLib dynlib : Dynlib
+builtin_facet dynlib : ExternLib => Dynlib

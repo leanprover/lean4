@@ -170,14 +170,30 @@ open Parser Command
 
 /-- Internal macro for declaring new facet within Lake. -/
 scoped macro (name := builtinFacetCommand)
-  doc?:optional(docComment) tk:"builtin_facet " id:ident kind:ident name:ident " : " ty:term
+  doc?:optional(docComment) tk:"builtin_facet "
+  id?:optional(atomic(group(ident " @ "))) name:ident " : " ns:ident " => " ty:term
 : command => withRef tk do
   let fam := mkCIdentFrom tk ``FacetOut
-  let nameLit := Name.quoteFrom name name.getId
-  let kindLit := Name.quoteFrom kind kind.getId
-  let facet := kind.getId ++ name.getId
+  let kindName ← match ns.getId with
+    | `Package => pure Package.facetKind
+    | `Module => pure Module.facetKind
+    | `LeanLib => pure LeanLib.facetKind
+    | `LeanExe => pure LeanExe.facetKind
+    | `ExternLib => pure ExternLib.facetKind
+    | _ => Macro.throwErrorAt ns "unknown facet kind"
+  let nameLit := Name.quoteFrom name name.getId (canonical := id?.isSome)
+  let kindLit := Name.quoteFrom ns kindName (canonical := true)
+  let facet := kindName ++ name.getId
   let facetId := mkIdentFrom tk facet (canonical := true)
   let facetLit := Name.quoteFrom tk facet
+  let id ←
+    if let some id := id? then
+      let id := id.raw[0]
+      pure <| mkIdentFrom id (ns.getId ++ id.getId) (canonical := true)
+    else
+      match name.getId with
+      | .str .anonymous n => pure <| mkIdentFrom name (ns.getId.str s!"{n}Facet") (canonical := true)
+      | _ =>  Macro.throwErrorAt name "cannot generate facet declaration name from facet name"
   `(
     $[$doc?]? abbrev $id := $facetLit
     family_def $facetId : $fam $facetLit := $ty

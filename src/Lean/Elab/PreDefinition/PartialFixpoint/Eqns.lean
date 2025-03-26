@@ -22,12 +22,13 @@ structure EqnInfo extends EqnInfoCore where
   declNames       : Array Name
   declNameNonRec  : Name
   fixedParamPerms : FixedParamPerms
+  lattice?       : Bool := false
   deriving Inhabited
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
 def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name)
-    (fixedParamPerms : FixedParamPerms) : MetaM Unit := do
+    (fixedParamPerms : FixedParamPerms) (lattice? : Bool): MetaM Unit := do
   preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   unless preDefs.all fun p => p.kind.isTheorem do
     unless (← preDefs.allM fun p => isProp p.type) do
@@ -35,7 +36,7 @@ def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name)
       modifyEnv fun env =>
         preDefs.foldl (init := env) fun env preDef =>
           eqnInfoExt.insert env preDef.declName { preDef with
-            declNames, declNameNonRec, fixedParamPerms }
+            declNames, declNameNonRec, fixedParamPerms, lattice? }
 
 private def deltaLHSUntilFix (declName declNameNonRec : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let target ← mvarId.getType'
@@ -46,6 +47,8 @@ private def deltaLHSUntilFix (declName declNameNonRec : Name) (mvarId : MVarId) 
 partial def rwFixUnder (lhs : Expr) : MetaM Expr := do
   if lhs.isAppOfArity ``Order.fix 4 then
     return mkAppN (mkConst ``Order.fix_eq lhs.getAppFn.constLevels!) lhs.getAppArgs
+  else if lhs.isAppOfArity ``Order.gfp_monotone 4 then
+    return mkAppN (mkConst ``Order.gfp_fix_monotone lhs.getAppFn.constLevels!) lhs.getAppArgs
   else if lhs.isApp then
     let h ← rwFixUnder lhs.appFn!
     mkAppM ``congrFun #[h, lhs.appArg!]

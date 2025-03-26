@@ -265,7 +265,7 @@ def lfp (f : α → α) : α :=
 def gfp (f : α → α) : α :=
     sup (fun c => c ⊑ f c)
 
-def gfp_monotone {f : α → α} {hm : monotone f} : α :=
+def gfp_monotone (f : α → α) (hm : monotone f) : α :=
   gfp f
 
 theorem gfp_postfixed {f : α → α} {hm : monotone f} :
@@ -313,6 +313,12 @@ theorem gfp_fix {f : α → α} {hm : monotone f} :
   apply gfp_prefixed
   exact hm
 
+theorem gfp_fix_monotone {f : α → α} (hm : monotone f) :
+  gfp_monotone f hm = f (gfp_monotone f hm) := by
+    unfold gfp_monotone
+    apply gfp_fix
+    trivial
+
 theorem lfp_fix {f : α → α} {hm : monotone f} :
   lfp f = f (lfp f) := by
   apply rel_antisymm
@@ -323,6 +329,13 @@ theorem lfp_fix {f : α → α} {hm : monotone f} :
 
 theorem gfp_coinduction {f : α → α} :
   x ⊑ f x → x ⊑ gfp f := fun hx => le_sup hx
+
+theorem gfp_coinduction_monotone (f : α → α) {hm : monotone f} (x : α):
+ x ⊑ f x → x ⊑ gfp_monotone f hm := by
+  unfold gfp_monotone
+  apply gfp_coinduction
+
+#check @gfp_coinduction_monotone
 
 theorem lfp_induction {f : α → α} :
   f x ⊑ x → lfp f ⊑ x := fun hx => inf_le hx

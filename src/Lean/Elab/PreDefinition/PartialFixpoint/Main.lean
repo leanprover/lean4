@@ -216,8 +216,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
 
     Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
     let preDefs ← Mutual.cleanPreDefs preDefs
-    if !isGreatest then
-      PartialFixpoint.registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms
+    PartialFixpoint.registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms isGreatest
     Mutual.addPreDefAttributes preDefs
 
 end Lean.Elab

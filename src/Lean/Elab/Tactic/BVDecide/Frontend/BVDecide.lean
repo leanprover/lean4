@@ -79,9 +79,22 @@ def reconstructCounterExample (var2Cnf : Std.HashMap BVBit Nat) (assignment : Ar
   return finalMap
 
 structure ReflectionResult where
+  /--
+  The reflected expression.
+  -/
   bvExpr : BVLogicalExpr
+  /--
+  Function to prove `False` given a satisfiability proof of `bvExpr`
+  -/
   proveFalse : Expr → M Expr
+  /--
+  Set of unused hypotheses for diagnostic purposes.
+  -/
   unusedHypotheses : Std.HashSet FVarId
+  /--
+  A cache for `toExpr bvExpr`.
+  -/
+  expr: Expr
 
 /--
 A counter example generated from the bitblaster.
@@ -257,6 +270,61 @@ def explainCounterExampleQuality (counterExample : CounterExample) : MetaM Messa
   err := diagnosis.derivedEquations.foldl (init := err) folder
   return err
 
+/--
+Add an auxiliary declaration. Only used to create constants that appear in our reflection proof.
+-/
+def mkAuxDecl (name : Name) (value type : Expr) : CoreM Unit :=
+  addAndCompile <| .defnDecl {
+    name := name,
+    levelParams := [],
+    type := type,
+    value := value,
+    hints := .abbrev,
+    safety := .safe
+  }
+
+/--
+Turn an `LratCert` into a proof that some `reflectedExpr` is UNSAT by providing a `verifier`
+function together with a correctness theorem for it.
+
+- `verifier` is expected to have type `α → LratCert → Bool`
+- `unsat_of_verifier_eq_true` is expected to have type
+  `∀ (b : α) (c : LratCert), verifier b c = true → unsat b`
+-/
+def LratCert.toReflectionProof (cert : LratCert) (cfg : TacticContext)
+    (reflectionResult : ReflectionResult) : MetaM Expr := do
+  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling expr term") do
+    mkAuxDecl cfg.exprDef reflectionResult.expr (mkConst ``BVLogicalExpr)
+
+  let certType := toTypeExpr LratCert
+
+  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling proof certificate term") do
+    mkAuxDecl cfg.certDef (toExpr cert) certType
+
+  let reflectedExpr := mkConst cfg.exprDef
+  let certExpr := mkConst cfg.certDef
+
+  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling reflection proof term") do
+    let auxValue := mkApp2 (mkConst ``verifyBVExpr) reflectedExpr certExpr
+    mkAuxDecl cfg.reflectionDef auxValue (mkConst ``Bool)
+
+  let auxType ← mkEq (mkConst cfg.reflectionDef) (toExpr true)
+  let auxProof :=
+    mkApp3
+      (mkConst ``Lean.ofReduceBool)
+      (mkConst cfg.reflectionDef)
+      (toExpr true)
+      (← mkEqRefl (toExpr true))
+  try
+    let auxLemma ←
+      -- disable async TC so we can catch its exceptions
+      withOptions (Elab.async.set · false) do
+        withTraceNode `Meta.Tactic.sat (fun _ => return "Verifying LRAT certificate") do
+          mkAuxLemma [] auxType auxProof
+    return mkApp3 (mkConst ``unsat_of_verifyBVExpr_eq_true) reflectedExpr certExpr (mkConst auxLemma)
+  catch e =>
+    throwError m!"Failed to check the LRAT certificate in the kernel:\n{e.toMessageData}"
+
 def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : ReflectionResult)
     (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :
     MetaM (Except CounterExample UnsatProver.Result) := do
@@ -287,13 +355,12 @@ def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : Ref
   match res with
   | .ok cert =>
     trace[Meta.Tactic.sat] "SAT solver found a proof."
-    let proof ← cert.toReflectionProof ctx bvExpr ``verifyBVExpr ``unsat_of_verifyBVExpr_eq_true
+    let proof ← cert.toReflectionProof ctx reflectionResult
     return .ok ⟨proof, cert⟩
   | .error assignment =>
     trace[Meta.Tactic.sat] "SAT solver found a counter example."
     let equations := reconstructCounterExample map assignment aigSize atomsAssignment
     return .error { goal, unusedHypotheses := reflectionResult.unusedHypotheses, equations }
-
 
 def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
   let hyps ← getPropHyps
@@ -314,9 +381,10 @@ def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
   else
     let sat := sats[1:].foldl (init := sats[0]) SatAtBVLogical.and
     return {
-      bvExpr := sat.bvExpr,
+      bvExpr := ShareCommon.shareCommon sat.bvExpr,
       proveFalse := sat.proveFalse,
-      unusedHypotheses := unusedHypotheses
+      unusedHypotheses := unusedHypotheses,
+      expr := sat.expr
     }
 
 

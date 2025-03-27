@@ -45,7 +45,7 @@ cf. https://github.com/leanprover/lean4/issues/4157
 -/
 @[irreducible, inline] def mkIdx (sz : Nat) (h : 0 < sz) (hash : UInt64) :
     { u : USize // u.toNat < sz } :=
-  ⟨(scrambleHash hash).toUSize &&& (sz.toUSize - 1), by
+  ⟨(scrambleHash hash).toUSize &&& (USize.ofNat sz - 1), by
     -- This proof is a good test for our USize API
     by_cases h' : sz < USize.size
     · rw [USize.toNat_and, USize.toNat_sub_of_le, USize.toNat_ofNat_of_lt' h']

@@ -567,19 +567,19 @@ theorem slt_eq_not_ult_of_msb_neq {x y : BitVec w} (h : x.msb ≠ y.msb) :
   simp only [BitVec.slt, toInt_eq_msb_cond, Bool.eq_not_of_ne h, ult_eq_msb_of_msb_neq h]
   cases y.msb <;> (simp; omega)
 
-theorem slt_eq_ult (x y : BitVec w) :
+theorem slt_eq_ult {x y : BitVec w} :
     x.slt y = (x.msb != y.msb).xor (x.ult y) := by
   by_cases h : x.msb = y.msb
   · simp [h, slt_eq_ult_of_msb_eq]
   · have h' : x.msb != y.msb := by simp_all
     simp [slt_eq_not_ult_of_msb_neq h, h']
 
-theorem slt_eq_not_carry (x y : BitVec w) :
+theorem slt_eq_not_carry {x y : BitVec w} :
     x.slt y = (x.msb == y.msb).xor (carry w x (~~~y) true) := by
   simp only [slt_eq_ult, bne, ult_eq_not_carry]
   cases x.msb == y.msb <;> simp
 
-theorem sle_eq_not_slt (x y : BitVec w) : x.sle y = !y.slt x := by
+theorem sle_eq_not_slt {x y : BitVec w} : x.sle y = !y.slt x := by
   simp only [BitVec.sle, BitVec.slt, ← decide_not, decide_eq_decide]; omega
 
 theorem zero_sle_eq_not_msb {w : Nat} {x : BitVec w} : BitVec.sle 0#w x = !x.msb := by
@@ -588,14 +588,14 @@ theorem zero_sle_eq_not_msb {w : Nat} {x : BitVec w} : BitVec.sle 0#w x = !x.msb
 theorem zero_sle_iff_msb_eq_false {w : Nat} {x : BitVec w} : BitVec.sle 0#w x ↔ x.msb = false := by
   simp [zero_sle_eq_not_msb]
 
-theorem toNat_toInt_of_sle {w : Nat} (x : BitVec w) (hx : BitVec.sle 0#w x) : x.toInt.toNat = x.toNat :=
+theorem toNat_toInt_of_sle {w : Nat} {x : BitVec w} (hx : BitVec.sle 0#w x) : x.toInt.toNat = x.toNat :=
   toNat_toInt_of_msb x (zero_sle_iff_msb_eq_false.1 hx)
 
-theorem sle_eq_carry (x y : BitVec w) :
+theorem sle_eq_carry {x y : BitVec w} :
     x.sle y = !((x.msb == y.msb).xor (carry w y (~~~x) true)) := by
   rw [sle_eq_not_slt, slt_eq_not_carry, beq_comm]
 
-theorem neg_slt_zero (h : 0 < w) (x : BitVec w) :
+theorem neg_slt_zero (h : 0 < w) {x : BitVec w} :
     (-x).slt 0#w = ((x == intMin w) || (0#w).slt x) := by
   rw [slt_zero_eq_msb, msb_neg, slt_eq_sle_and_ne, zero_sle_eq_not_msb]
   apply Bool.eq_iff_iff.2
@@ -608,10 +608,16 @@ theorem neg_slt_zero (h : 0 < w) (x : BitVec w) :
     rintro rfl
     simp at hmsb
 
-theorem neg_sle_zero (h : 0 < w) (x : BitVec w) :
+theorem neg_sle_zero (h : 0 < w) {x : BitVec w} :
     (-x).sle 0#w = (x == intMin w || (0#w).sle x) := by
   rw [sle_eq_slt_or_eq, neg_slt_zero h, sle_eq_slt_or_eq]
   simp [Bool.beq_eq_decide_eq (-x), Bool.beq_eq_decide_eq _ x, Eq.comm (a := x), Bool.or_assoc]
+
+theorem sle_eq_ule {x y : BitVec w} : x.sle y = (x.msb != y.msb ^^ x.ule y) := by
+  rw [sle_eq_not_slt, slt_eq_ult, ← Bool.xor_not, ← ule_eq_not_ult, bne_comm]
+
+theorem sle_eq_ule_of_msb_eq {x y : BitVec w} (h : x.msb = y.msb) : x.sle y = x.ule y := by
+  simp [BitVec.sle_eq_ule, h]
 
 /-! ### mul recurrence for bitblasting -/
 

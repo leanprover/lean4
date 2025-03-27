@@ -23,23 +23,23 @@ as needed (via `data_type`).
 -/
 opaque DataType (kind : Name) : Type u
 
-class DataKind (α : Type u) where
+class OptDataKind (α : Type u) where
   name : Name
   wf (h : ¬ name.isAnonymous) : α = DataType name
 
-instance : CoeOut (DataKind α) Lean.Name := ⟨(·.name)⟩
-instance : ToString (DataKind α) := ⟨(·.name.toString)⟩
+instance : CoeOut (OptDataKind α) Lean.Name := ⟨(·.name)⟩
+instance : ToString (OptDataKind α) := ⟨(·.name.toString)⟩
 
 @[instance low]
-def DataKind.anonymous : DataKind α where
+def OptDataKind.anonymous : OptDataKind α where
   name := .anonymous
   wf h := by simp [Name.isAnonymous] at h
 
-@[inline] def DataKind.isAnonymous (self : DataKind α) : Bool :=
+@[inline] def OptDataKind.isAnonymous (self : OptDataKind α) : Bool :=
   self.name.isAnonymous
 
-theorem DataKind.eq_data_type
-  {self : DataKind α} (h : ¬ self.isAnonymous) : α = DataType self.name
+theorem OptDataKind.eq_data_type
+  {self : OptDataKind α} (h : ¬ self.isAnonymous) : α = DataType self.name
 := self.wf h
 
 @[deprecated DataType (since := "2025-03-26")] abbrev TargetData := DataType

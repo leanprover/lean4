@@ -93,7 +93,7 @@ structure Job (α : Type u) where
   /-- The Lean `Task` object for the job. -/
   task : JobTask α
    /-- The kind of data this job produces. -/
-  [kind : DataKind α]
+  [kind : OptDataKind α]
   /--
   A caption for the job in Lake's build monitor.
   Will be formatted like `✔ [3/5] Ran <caption>`.
@@ -111,17 +111,17 @@ protected def cast (self : Job α) (h : ¬ self.kind.isAnonymous) : Job (DataTyp
     match kind_eq:self.kind with
     | ⟨_, wf⟩ =>
       simp only
-      simp only [DataKind.isAnonymous, kind_eq] at h
+      simp only [OptDataKind.isAnonymous, kind_eq] at h
       rw [wf h]
   cast h self
 
-@[inline] def ofTask [DataKind α] (task : JobTask α) (caption := "") : Job α :=
+@[inline] def ofTask [OptDataKind α] (task : JobTask α) (caption := "") : Job α :=
   {task, caption}
 
-@[inline] protected def error [DataKind α] (log : Log := {}) (caption := "") : Job α :=
+@[inline] protected def error [OptDataKind α] (log : Log := {}) (caption := "") : Job α :=
   .ofTask (Task.pure (.error 0 {log})) caption
 
-@[inline] protected def pure [DataKind α] (a : α) (log : Log := {}) (caption := "") : Job α :=
+@[inline] protected def pure [OptDataKind α] (a : α) (log : Log := {}) (caption := "") : Job α :=
   .ofTask (Task.pure (.ok a {log})) caption
 
 --instance : Pure Job := ⟨Job.pure⟩
@@ -141,12 +141,12 @@ protected def cast (self : Job α) (h : ¬ self.kind.isAnonymous) : Job (DataTyp
   if job.caption.isEmpty then {job with caption} else job
 
 @[inline] def mapResult
-  [DataKind β] (f : JobResult α → JobResult β) (self : Job α)
+  [OptDataKind β] (f : JobResult α → JobResult β) (self : Job α)
   (prio := Task.Priority.default) (sync := false)
 : Job β := {self with task := self.task.map f prio sync, kind := inferInstance}
 
 @[inline] def mapOk
-  [DataKind β] (f : α → JobState → JobResult β) (self : Job α)
+  [OptDataKind β] (f : α → JobState → JobResult β) (self : Job α)
   (prio := Task.Priority.default) (sync := false)
 : Job β :=
   self.mapResult (prio := prio) (sync := sync) fun
@@ -154,7 +154,7 @@ protected def cast (self : Job α) (h : ¬ self.kind.isAnonymous) : Job (DataTyp
     | .error e s => .error e s
 
 @[inline] protected def map
-  [DataKind β] (f : α → β) (self : Job α)
+  [OptDataKind β] (f : α → β) (self : Job α)
   (prio := Task.Priority.default) (sync := false)
 : Job β := self.mapResult (·.map f) prio sync
 

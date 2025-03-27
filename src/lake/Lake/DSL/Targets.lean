@@ -27,7 +27,7 @@ syntax buildDeclSig :=
 
 abbrev mkModuleFacetDecl
   (α) (facet : Name)
-  [DataKind α] [FormatQuery α] [FamilyDef ModuleData facet α]
+  [OptDataKind α] [FormatQuery α] [FamilyDef ModuleData facet α]
   (f : Module → FetchM (Job α))
 : ModuleFacetDecl := .mk (Module.facetKind ++ facet) <| mkFacetJobConfig fun mod => do
   withRegisterJob (mod.facet facet |>.key.toSimpleString)
@@ -66,7 +66,7 @@ def expandModuleFacetDecl : Macro := fun stx => do
 
 abbrev mkPackageFacetDecl
   (α) (facet : Name)
-  [DataKind α] [FormatQuery α] [FamilyDef PackageData facet α]
+  [OptDataKind α] [FormatQuery α] [FamilyDef PackageData facet α]
   (f : Package → FetchM (Job α))
 : PackageFacetDecl := .mk (Package.facetKind ++ facet) <| mkFacetJobConfig fun pkg => do
   withRegisterJob (pkg.facet facet |>.key.toSimpleString)
@@ -105,7 +105,7 @@ def expandPackageFacetDecl : Macro := fun stx => do
 
 abbrev mkLibraryFacetDecl
   (α) (facet : Name)
-  [DataKind α] [FormatQuery α] [FamilyDef LibraryData facet α]
+  [OptDataKind α] [FormatQuery α] [FamilyDef LibraryData facet α]
   (f : LeanLib → FetchM (Job α))
 : LibraryFacetDecl := .mk (LeanLib.facetKind ++ facet) <| mkFacetJobConfig fun lib => do
   withRegisterJob (lib.facet facet |>.key.toSimpleString)
@@ -149,7 +149,7 @@ def expandLibraryFacetDecl : Macro := fun stx => do
 
 abbrev mkTargetDecl
   (α) (pkgName target : Name)
-  [DataKind α] [FormatQuery α] [FamilyDef (CustomData pkgName) target α]
+  [OptDataKind α] [FormatQuery α] [FamilyDef (CustomData pkgName) target α]
   (f : NPackage pkgName → FetchM (Job α))
 : TargetDecl :=
   let cfg := mkTargetJobConfig fun pkg => do

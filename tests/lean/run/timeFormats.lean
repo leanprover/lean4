@@ -924,3 +924,31 @@ def hFormat : GenericFormat .any := datespec("h hh")
 
 #eval do assert! (not <| hFormat.parseBuilder tuple2Mk "12 32" |>.isOk)
 #eval do assert! (not <| hFormat.parseBuilder tuple2Mk "000001 003" |>.isOk)
+
+/-
+Error tests with some formats.
+-/
+
+/--
+info: zoned("2002-07-14T14:13:12.000000000+23:59")
+-/
+#guard_msgs in
+#eval zoned("2002-07-14T14:13:12+23:59")
+
+/--
+info: Except.error "offset 22: invalid hour offset: 24. Must be between 0 and 23."
+-/
+#guard_msgs in
+#eval ZonedDateTime.fromLeanDateTimeWithZoneString "2002-07-14T14:13:12+24:59"
+
+/--
+info: Except.error "offset 25: invalid minute offset: 60. Must be between 0 and 59."
+-/
+#guard_msgs in
+#eval ZonedDateTime.fromLeanDateTimeWithZoneString "2002-07-14T14:13:12+23:60"
+
+/--
+info: Except.ok (zoned("2002-07-14T14:13:12.000000000Z"))
+-/
+#guard_msgs in
+#eval ZonedDateTime.fromLeanDateTimeWithZoneString "2002-07-14T14:13:12+00:00"

@@ -569,15 +569,104 @@ theorem instOrientedCmp_compareOfLessAndEq {α} [LT α] [DecidableLT α] [Decida
 --         · rfl
 --         · rw [if_neg (hab'.imp Eq.symm)]
 
+theorem transOrd_of_lt_trans_of_lt_iff {α : Type u} [LT α] [DecidableLT α] [DecidableEq α]
+    (lt_trans : ∀ {a b c : α}, a < b → b < c → a < c)
+    (h : ∀ x y : α, x < y ↔ ¬y < x ∧ x ≠ y) :
+    TransCmp (fun x y : α => compareOfLessAndEq x y) where
+  eq_swap {x y} := by
+    simp only [compare, compareOfLessAndEq]
+    split
+    · rename_i h'
+      rw [h] at h'
+      simp only [h'.1, h'.2.symm, reduceIte, Ordering.swap_gt]
+    · split
+      · rename_i h'
+        have : ¬y < y := Not.imp (·.2 rfl) <| (h y y).mp
+        simp only [h', this, reduceIte, Ordering.swap_eq]
+      · rename_i h' h''
+        replace h' := (h y x).mpr ⟨h', Ne.symm h''⟩
+        simp only [h', Ne.symm h'', reduceIte, Ordering.swap_lt]
+  isLE_trans {x y z} h₁ h₂ := by
+    simp only [compare, compareOfLessAndEq, apply_ite Ordering.isLE,
+      Ordering.isLE_lt, Ordering.isLE_eq, Ordering.isLE_gt] at h₁ h₂ ⊢
+    simp only [Bool.if_true_left, Bool.or_false, Bool.or_eq_true, decide_eq_true_eq] at h₁ h₂ ⊢
+    rcases h₁ with (h₁ | rfl)
+    · rcases h₂ with (h₂ | rfl)
+      · exact .inl (lt_trans h₁ h₂)
+      · exact .inl h₁
+    · exact h₂
+
+theorem transOrd_of_refl_of_antisymm_of_trans_of_total_of_not_le
+    {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
+    (refl : ∀ (x : α), x ≤ x) (antisymm : ∀ {x y : α}, x ≤ y → y ≤ x → x = y)
+    (trans : ∀ {x y z : α}, x ≤ y → y ≤ z → x ≤ z) (total : ∀ (x y : α), x ≤ y ∨ y ≤ x)
+    (not_le : ∀ {x y : α}, ¬x ≤ y ↔ y < x) :
+    TransCmp (fun x y : α => compareOfLessAndEq x y) := by
+  refine transOrd_of_lt_trans_of_lt_iff ?_ ?_
+  · intro a b c
+    simp only [← not_le]
+    intro h₁ h₂ h₃
+    replace h₁ := (total _ _).resolve_left h₁
+    exact h₂ (trans h₃ h₁)
+  · intro x y
+    simp only [← not_le, Decidable.not_not]
+    constructor
+    · intro h
+      exact ⟨(total _ _).resolve_left h, fun h' => (h' ▸ h) (refl _)⟩
+    · intro ⟨h₁, h₂⟩ h₃
+      exact h₂ (antisymm h₁ h₃)
+
+theorem compareOfLessAndEq_eq_lt
+    {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α] {x y : α} :
+    compareOfLessAndEq x y = .lt ↔ x < y := by
+  rw [compareOfLessAndEq]
+  repeat' split <;> simp_all
+
+theorem compareOfLessAndEq_eq_eq
+    {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
+    (refl : ∀ (x : α), x ≤ x) (not_le : ∀ {x y : α}, ¬x ≤ y ↔ y < x) {x y : α} :
+    compareOfLessAndEq x y = .eq ↔ x = y := by
+  rw [compareOfLessAndEq]
+  repeat' split <;> try (simp_all; done)
+  simp only [reduceCtorEq, false_iff]
+  rintro rfl
+  rename_i hlt
+  simp [← not_le] at hlt
+  exact hlt (refl x)
+
+theorem isLE_compareOfLessAndEq
+    {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
+    (refl : ∀ (x : α), x ≤ x) (antisymm : ∀ {x y : α}, x ≤ y → y ≤ x → x = y)
+    (not_le : ∀ {x y : α}, ¬x ≤ y ↔ y < x) (total : ∀ (x y : α), x ≤ y ∨ y ≤ x) {x y : α} :
+    (compareOfLessAndEq x y).isLE ↔ x ≤ y := by
+  rw [Ordering.isLE_iff_eq_lt_or_eq_eq, compareOfLessAndEq_eq_lt,
+    compareOfLessAndEq_eq_eq refl not_le]
+  constructor
+  · rintro (h | rfl)
+    · rw [← not_le] at h
+      exact total _ _ |>.resolve_left h
+    · exact refl x
+  · intro hle
+    by_cases hge : x ≥ y
+    · exact Or.inr <| antisymm hle hge
+    · exact Or.inl <| not_le.mp hge
+
+section Bool
+
+instance : TransOrd Bool where
+  eq_swap {x y} := by cases x <;> cases y <;> rfl
+  isLE_trans {x y z} h₁ h₂ := by cases x <;> cases y <;> cases z <;> trivial
+
+instance : LawfulEqOrd Bool where
+  eq_of_compare {x y} := by cases x <;> cases y <;> simp
+
+end Bool
+
 section Nat
 
-instance : OrientedOrd Nat where
-  eq_swap {a b} := Nat.compare_swap b a |>.symm
-
-instance : TransOrd Nat where
-  isLE_trans {a b c} := by
-    simp only [Nat.isLE_compare]
-    exact Nat.le_trans
+instance : TransOrd Nat :=
+  transOrd_of_refl_of_antisymm_of_trans_of_total_of_not_le
+    Nat.le_refl Nat.le_antisymm Nat.le_trans Nat.le_total Nat.not_le
 
 instance : LawfulEqOrd Nat where
   eq_of_compare := Nat.compare_eq_eq.mp
@@ -586,13 +675,9 @@ end Nat
 
 section Int
 
-instance : OrientedOrd Int where
-  eq_swap {a b} := Int.compare_swap b a |>.symm
-
-instance : TransOrd Int where
-  isLE_trans {a b c} := by
-    simp only [Int.isLE_compare]
-    exact Int.le_trans
+instance : TransOrd Int :=
+  transOrd_of_refl_of_antisymm_of_trans_of_total_of_not_le
+    Int.le_refl Int.le_antisymm Int.le_trans Int.le_total Int.not_le
 
 instance : LawfulEqOrd Int where
   eq_of_compare := Int.compare_eq_eq.mp
@@ -610,17 +695,108 @@ instance : TransOrd (Fin n) where
   isLE_trans := TransCmp.isLE_trans (α := Nat) (cmp := compare)
 
 instance : LawfulEqOrd (Fin n) where
-  eq_of_compare h := Fin.eq_of_val_eq <| LawfulEqCmp.eq_of_compare (cmp := compare) h
+  eq_of_compare h := Fin.eq_of_val_eq <| LawfulEqOrd.eq_of_compare h
 
 end Fin
 
 section String
-#synth LE String
-instance : OrientedOrd String where
-  eq_swap := by
-    rw [String.comp
+
+instance : TransOrd String :=
+  transOrd_of_refl_of_antisymm_of_trans_of_total_of_not_le
+    String.le_refl String.le_antisymm String.le_trans String.le_total String.not_le
+
+instance : LawfulEqOrd String where
+  eq_of_compare h := compareOfLessAndEq_eq_eq String.le_refl String.not_le |>.mp h
 
 end String
+
+section Char
+
+instance : TransOrd Char :=
+  transOrd_of_refl_of_antisymm_of_trans_of_total_of_not_le
+    Char.le_refl Char.le_antisymm Char.le_trans Char.le_total Char.not_le
+
+instance : LawfulEqOrd Char where
+  eq_of_compare h := compareOfLessAndEq_eq_eq Char.le_refl Char.not_le |>.mp h
+
+end Char
+
+section UInt8
+
+instance : TransOrd UInt8 :=
+  transOrd_of_refl_of_antisymm_of_trans_of_total_of_not_le
+    UInt8.le_refl UInt8.le_antisymm UInt8.le_trans UInt8.le_total UInt8.not_le
+
+instance : LawfulEqOrd UInt8 where
+  eq_of_compare h := compareOfLessAndEq_eq_eq UInt8.le_refl UInt8.not_le |>.mp h
+
+end UInt8
+
+section UInt16
+
+instance : TransOrd UInt16 :=
+  transOrd_of_refl_of_antisymm_of_trans_of_total_of_not_le
+    UInt16.le_refl UInt16.le_antisymm UInt16.le_trans UInt16.le_total UInt16.not_le
+
+instance : LawfulEqOrd UInt16 where
+  eq_of_compare h := compareOfLessAndEq_eq_eq UInt16.le_refl UInt16.not_le |>.mp h
+
+end UInt16
+
+section UInt32
+
+instance : TransOrd UInt32 :=
+  transOrd_of_refl_of_antisymm_of_trans_of_total_of_not_le
+    UInt32.le_refl UInt32.le_antisymm UInt32.le_trans UInt32.le_total UInt32.not_le
+
+instance : LawfulEqOrd UInt32 where
+  eq_of_compare h := compareOfLessAndEq_eq_eq UInt32.le_refl UInt32.not_le |>.mp h
+
+end UInt32
+
+section UInt64
+
+instance : TransOrd UInt64 :=
+  transOrd_of_refl_of_antisymm_of_trans_of_total_of_not_le
+    UInt64.le_refl UInt64.le_antisymm UInt64.le_trans UInt64.le_total UInt64.not_le
+
+instance : LawfulEqOrd UInt64 where
+  eq_of_compare h := compareOfLessAndEq_eq_eq UInt64.le_refl UInt64.not_le |>.mp h
+
+end UInt64
+
+section UInt32
+
+instance : TransOrd UInt32 :=
+  transOrd_of_refl_of_antisymm_of_trans_of_total_of_not_le
+    UInt32.le_refl UInt32.le_antisymm UInt32.le_trans UInt32.le_total UInt32.not_le
+
+instance : LawfulEqOrd UInt32 where
+  eq_of_compare h := compareOfLessAndEq_eq_eq UInt32.le_refl UInt32.not_le |>.mp h
+
+end UInt32
+
+section UInt32
+
+instance : TransOrd UInt32 :=
+  transOrd_of_refl_of_antisymm_of_trans_of_total_of_not_le
+    UInt32.le_refl UInt32.le_antisymm UInt32.le_trans UInt32.le_total UInt32.not_le
+
+instance : LawfulEqOrd UInt32 where
+  eq_of_compare h := compareOfLessAndEq_eq_eq UInt32.le_refl UInt32.not_le |>.mp h
+
+end UInt32
+
+section UInt32
+
+instance : TransOrd UInt32 :=
+  transOrd_of_refl_of_antisymm_of_trans_of_total_of_not_le
+    UInt32.le_refl UInt32.le_antisymm UInt32.le_trans UInt32.le_total UInt32.not_le
+
+instance : LawfulEqOrd UInt32 where
+  eq_of_compare h := compareOfLessAndEq_eq_eq UInt32.le_refl UInt32.not_le |>.mp h
+
+end UInt32
 
 section Lex
 

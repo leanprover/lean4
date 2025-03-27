@@ -1428,6 +1428,9 @@ standard input is exhausted.
 @[extern "lean_io_process_child_take_stdin"] opaque Child.takeStdin {cfg : @& StdioConfig} : Child cfg →
     IO (cfg.stdin.toHandleType × Child { cfg with stdin := Stdio.null })
 
+/-- Returns the operating system process id of the child process. -/
+@[extern "lean_io_process_child_pid"] opaque Child.pid {cfg : @& StdioConfig} : Child cfg → UInt32
+
 /--
 The result of running a process to completion.
 -/

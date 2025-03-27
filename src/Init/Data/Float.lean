@@ -134,7 +134,34 @@ Returns an undefined value if `x` is not finite.
 instance : ToString Float where
   toString := Float.toString
 
+/-- Obtains the `Float` whose value is the same as the given `UInt8`. -/
+@[extern "lean_uint8_to_float"] opaque UInt8.toFloat (n : UInt8) : Float
+/-- Obtains the `Float` whose value is the same as the given `UInt16`. -/
+@[extern "lean_uint16_to_float"] opaque UInt16.toFloat (n : UInt16) : Float
+/-- Obtains the `Float` whose value is the same as the given `UInt32`. -/
+@[extern "lean_uint32_to_float"] opaque UInt32.toFloat (n : UInt32) : Float
+/--
+Obtains a `Float` whose value is near the given `UInt64`.
+
+It will be exactly the value of the given `UInt64` if such a `Float` exists. If no such `Float`
+exists, the returned value will either be the smallest `Float` that is larger than the given value,
+or the largest `Float` that is smaller than the given value.
+
+This function is opaque in the kernel, but is overridden at runtime with an efficient
+implementation.
+-/
 @[extern "lean_uint64_to_float"] opaque UInt64.toFloat (n : UInt64) : Float
+/--
+Obtains a `Float` whose value is near the given `USize`.
+
+It will be exactly the value of the given `USize` if such a `Float` exists. If no such `Float`
+exists, the returned value will either be the smallest `Float` that is larger than the given value,
+or the largest `Float` that is smaller than the given value.
+
+This function is opaque in the kernel, but is overridden at runtime with an efficient
+implementation.
+-/
+@[extern "lean_usize_to_float"] opaque USize.toFloat (n : USize) : Float
 
 instance : Inhabited Float where
   default := UInt64.toFloat 0

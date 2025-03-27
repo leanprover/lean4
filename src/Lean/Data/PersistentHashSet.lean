@@ -49,3 +49,15 @@ variable {_ : BEq α} {_ : Hashable α}
 
 @[inline] def fold {β : Type v} (f : β → α → β) (init : β) (s : PersistentHashSet α) : β :=
   Id.run $ s.foldM f init
+
+def toList (s : PersistentHashSet α) : List α :=
+  s.set.toList.map (·.1)
+
+protected def forIn {_ : BEq α} {_ : Hashable α} [Monad m]
+    (s : PersistentHashSet α) (init : σ) (f : α → σ → m (ForInStep σ)) : m σ := do
+  PersistentHashMap.forIn s.set init fun p s => f p.1 s
+
+instance {_ : BEq α} {_ : Hashable α} : ForIn m (PersistentHashSet α) α where
+  forIn := PersistentHashSet.forIn
+
+end PersistentHashSet

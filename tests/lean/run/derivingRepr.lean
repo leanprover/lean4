@@ -15,7 +15,7 @@ info: { name := "Joe",
   flag := true }
 -/
 #guard_msgs in
-#eval { name := "Joe", val := List.iota 40, flag := true, inv := by decide : Foo }
+#eval { name := "Joe", val := (List.range' 1 40).reverse, flag := true, inv := by decide : Foo }
 
 inductive Tree (α : Type) where
   | node : List (Tree α) → Bool → Tree α
@@ -37,7 +37,7 @@ info: Tree.node
   true
 -/
 #guard_msgs in
-#eval Tree.node (List.iota 10 |>.map fun i => Tree.node [Tree.leaf i] (i%2==0)) true
+#eval Tree.node ((List.range' 1 10).reverse |>.map fun i => Tree.node [Tree.leaf i] (i%2==0)) true
 
 inductive StructureLikeInductive where
   | field : Nat -> StructureLikeInductive

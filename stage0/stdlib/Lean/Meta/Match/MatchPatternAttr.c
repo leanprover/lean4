@@ -141,7 +141,6 @@ lean_object* x_3; uint8_t x_4;
 x_3 = l_Lean_hasMatchPatternAttribute___closed__1;
 x_4 = l_Lean_TagAttribute_hasTag(x_3, x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_4;
 }
 }

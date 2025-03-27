@@ -74,6 +74,10 @@ namespace Workspace
 @[inline] def manifestFile (self : Workspace) : FilePath :=
   self.root.manifestFile
 
+/-- The path to the workspace file used to configure automatic package overloads. -/
+@[inline] def packageOverridesFile (self : Workspace) : FilePath :=
+  self.lakeDir / "package-overrides.json"
+
 /-- Add a package to the workspace. -/
 def addPackage (pkg : Package) (self : Workspace) : Workspace :=
   {self with packages := self.packages.push pkg, packageMap := self.packageMap.insert pkg.name pkg}
@@ -153,8 +157,11 @@ def leanPath (self : Workspace) : SearchPath :=
 /-- The workspace's source directories (which are added to `LEAN_SRC_PATH`). -/
 def leanSrcPath (self : Workspace) : SearchPath :=
   self.packages.foldl (init := {}) fun dirs pkg =>
-    pkg.leanLibConfigs.foldr (init := dirs) fun cfg dirs =>
+    pkg.targetDecls.foldr (init := dirs) fun cfg dirs =>
+      if let some cfg := cfg.leanLibConfig? then
         pkg.srcDir / cfg.srcDir :: dirs
+      else
+        dirs
 
 /--
 The workspace's shared library path (e.g., for `--load-dynlib`).

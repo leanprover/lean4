@@ -5,7 +5,6 @@ Authors: Sofia Rodrigues
 -/
 prelude
 import Std.Time.Internal
-import Init.Data.Int
 import Init.System.IO
 import Std.Time.Time
 import Std.Time.Date
@@ -38,10 +37,10 @@ instance : OfNat Timestamp n where
   ofNat := ⟨OfNat.ofNat n⟩
 
 instance : ToString Timestamp where
-  toString s := toString s.val.toMilliseconds
+  toString s := toString s.val.toSeconds
 
 instance : Repr Timestamp where
-  reprPrec s := reprPrec (toString s)
+  reprPrec s := Repr.addAppParen ("Timestamp.ofNanosecondsSinceUnixEpoch " ++ repr s.val.toNanoseconds)
 
 namespace Timestamp
 

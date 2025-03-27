@@ -1,29 +1,31 @@
 /--
-error: `List` is a recursive datatype
+error: invalid `[grind cases eager]`, `List` is not a non-recursive inductive datatype or an alias for one
 -/
-#guard_msgs in
-attribute [grind_cases] List
+#guard_msgs (error) in
+attribute [grind cases eager] List
+
+attribute [grind cases] List
+
+attribute [grind] Prod
 
 /--
-error: `Prod.mk` is not an inductive datatype or an alias for one
+error: invalid `[grind cases]`, `id` is not an inductive datatype or an alias for one
 -/
-#guard_msgs in
-attribute [grind_cases] Prod.mk
+#guard_msgs (error) in
+attribute [grind cases] id
 
 /--
-error: `List.append` is a definition, but it is not an alias/abbreviation for an inductive datatype
+error: invalid `[grind cases eager]`, `id` is not a non-recursive inductive datatype or an alias for one
 -/
-#guard_msgs in
-attribute [grind_cases] List.append
+#guard_msgs (error) in
+attribute [grind cases eager] id
 
-attribute [grind_cases] Prod
+example : True := by
+  grind [-List]
 
-def Foo (α : Type u) := Sum α α
-
-attribute [grind_cases] Foo
-
-attribute [grind_cases] And
-
-attribute [grind_cases] False
-
-attribute [grind_cases] Empty
+/--
+error: `Array` is not marked with the `[grind]` attribute
+-/
+#guard_msgs (error) in
+example : True := by
+  grind [-Array]

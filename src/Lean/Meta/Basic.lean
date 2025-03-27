@@ -141,18 +141,6 @@ structure Config where
     Controls which definitions and theorems can be unfolded by `isDefEq` and `whnf`.
    -/
   transparency       : TransparencyMode := TransparencyMode.default
-  /--
-  When `trackZetaDelta = true`, we track all free variables that have been zetaDelta-expanded.
-  That is, suppose the local context contains
-  the declaration `x : t := v`, and we reduce `x` to `v`, then we insert `x` into `State.zetaDeltaFVarIds`.
-  We use `trackZetaDelta` to discover which let-declarations `let x := v; e` can be represented as `(fun x => e) v`.
-  When we find these declarations we set their `nonDep` flag with `true`.
-  To find these let-declarations in a given term `s`, we
-  1- Reset `State.zetaDeltaFVarIds`
-  2- Set `trackZetaDelta := true`
-  3- Type-check `s`.
-  -/
-  trackZetaDelta     : Bool := false
   /-- Eta for structures configuration mode. -/
   etaStruct          : EtaStructMode := .all
   /--
@@ -187,7 +175,12 @@ structure Config where
   Zeta-delta reduction: given a local context containing entry `x : t := e`, free variable `x` reduces to `e`.
   -/
   zetaDelta : Bool := true
-  deriving Inhabited
+  /--
+  Zeta reduction for unused let-declarations: `let x := v; e` reduces to `e` when `x` does not occur
+  in `e`.
+  -/
+  zetaUnused : Bool := true
+  deriving Inhabited, Repr
 
 /-- Convert `isDefEq` and `WHNF` relevant parts into a key for caching results -/
 private def Config.toKey (c : Config) : UInt64 :=
@@ -419,7 +412,7 @@ structure Diagnostics where
 structure State where
   mctx             : MetavarContext := {}
   cache            : Cache := {}
-  /-- When `trackZetaDelta == true`, then any let-decl free variable that is zetaDelta-expanded by `MetaM` is stored in `zetaDeltaFVarIds`. -/
+  /-- When `Context.trackZetaDelta == true`, then any let-decl free variable that is zetaDelta-expanded by `MetaM` is stored in `zetaDeltaFVarIds`. -/
   zetaDeltaFVarIds : FVarIdSet := {}
   /-- Array of postponed universe level constraints -/
   postponed        : PersistentArray PostponedEntry := {}
@@ -445,6 +438,28 @@ register_builtin_option maxSynthPendingDepth : Nat := {
 structure Context where
   private config    : Config               := {}
   private configKey : UInt64               := config.toKey
+  /--
+  When `trackZetaDelta = true`, we track all free variables that have been zetaDelta-expanded.
+  That is, suppose the local context contains
+  the declaration `x : t := v`, and we reduce `x` to `v`, then we insert `x` into `State.zetaDeltaFVarIds`.
+  We use `trackZetaDelta` to discover which let-declarations `let x := v; e` can be represented as `(fun x => e) v`.
+  When we find these declarations we set their `nonDep` flag with `true`.
+  To find these let-declarations in a given term `s`, we
+  1- Reset `State.zetaDeltaFVarIds`
+  2- Set `trackZetaDelta := true`
+  3- Type-check `s`.
+
+  Note that, we do not include this field in the `Config` structure because this field is not
+  taken into account while caching results. See also field `zetaDeltaSet`.
+  -/
+  trackZetaDelta     : Bool := false
+  /--
+  If `config.zetaDelta := false`, we may select specific local declarations to be unfolded using
+  the field `zetaDeltaSet`. Note that, we do not include this field in the `Config` structure
+  because this field is not taken into account while caching results.
+  Moreover, we reset all caches whenever setting it.
+  -/
+  zetaDeltaSet : FVarIdSet := {}
   /-- Local context -/
   lctx              : LocalContext         := {}
   /-- Local instances in `lctx`. -/
@@ -594,6 +609,9 @@ variable [MonadControlT MetaM n] [Monad n]
 
 @[inline] def modifyCache (f : Cache → Cache) : MetaM Unit :=
   modify fun { mctx, cache, zetaDeltaFVarIds, postponed, diag } => { mctx, cache := f cache, zetaDeltaFVarIds, postponed, diag }
+
+def resetCache : MetaM Unit :=
+  modifyCache fun _ => {}
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
   modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
@@ -1086,11 +1104,42 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 @[inline] def withInTypeClassResolution : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with inTypeClassResolution := true })
 
+@[inline] def withFreshCache : n α → n α :=
+  mapMetaM fun x => do
+    let cacheSaved := (← get).cache
+    modify fun s => { s with cache := {} }
+    try
+      x
+    finally
+      modify fun s => { s with cache := cacheSaved }
+
 /--
 Executes `x` tracking zetaDelta reductions `Config.trackZetaDelta := true`
 -/
-@[inline] def withTrackingZetaDelta (x : n α) : n α :=
-  withConfig (fun cfg => { cfg with trackZetaDelta := true }) x
+@[inline] def withTrackingZetaDelta : n α → n α :=
+  mapMetaM fun x =>
+    withFreshCache <| withReader (fun ctx => { ctx with trackZetaDelta := true }) x
+
+/--
+`withZetaDeltaSet s x` executes `x` with `zetaDeltaSet := s`.
+The cache is reset while executing `x` if `s` is not empty.
+-/
+def withZetaDeltaSet (s : FVarIdSet) : n α → n α :=
+  mapMetaM fun x =>
+    if s.isEmpty then
+      x
+    else
+      withFreshCache <| withReader (fun ctx => { ctx with zetaDeltaSet := s }) x
+
+/--
+Similar to `withZetaDeltaSet`, but also enables `withTrackingZetaDelta` if `s` is not empty.
+-/
+def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
+  mapMetaM fun x =>
+    if s.isEmpty then
+      x
+    else
+      withFreshCache <| withReader (fun ctx => { ctx with zetaDeltaSet := s, trackZetaDelta := true }) x
 
 @[inline] def withoutProofIrrelevance (x : n α) : n α :=
   withConfig (fun cfg => { cfg with proofIrrelevance := false }) x
@@ -1583,6 +1632,8 @@ def withLocalDeclNoLocalInstanceUpdate (name : Name) (bi : BinderInfo) (type : E
 - the binder info of the variable
 - a type constructor for the variable, where the array consists of all of the free variables
   defined prior to this one. This is needed because the type of the variable may depend on prior variables.
+
+See `withLocalDeclsD` and `withLocalDeclsDND` for simplier variants.
 -/
 partial def withLocalDecls
     [Inhabited α]
@@ -1598,9 +1649,35 @@ where
     else
       k acc
 
+/--
+Variant of `withLocalDecls` using `Binderinfo.default`
+-/
 def withLocalDeclsD [Inhabited α] (declInfos : Array (Name × (Array Expr → n Expr))) (k : (xs : Array Expr) → n α) : n α :=
   withLocalDecls
     (declInfos.map (fun (name, typeCtor) => (name, BinderInfo.default, typeCtor))) k
+
+/--
+Simpler variant of `withLocalDeclsD` for bringing variables into scope whose types do not depend
+on each other.
+-/
+def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs : Array Expr) → n α) : n α :=
+  withLocalDeclsD
+    (declInfos.map (fun (name, typeCtor) => (name, fun _ => pure typeCtor))) k
+
+private def withAuxDeclImp (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → MetaM α) : MetaM α := do
+  let fvarId ← mkFreshFVarId
+  let ctx ← read
+  let lctx := ctx.lctx.mkAuxDecl fvarId shortDeclName type declName
+  let fvar := mkFVar fvarId
+  withReader (fun ctx => { ctx with lctx := lctx }) do
+    withNewFVar fvar type k
+
+/--
+  Declare an auxiliary local declaration `shortDeclName : type` for elaborating recursive
+  declaration `declName`, update the mapping `auxDeclToFullName`, and then execute `k`.
+-/
+def withAuxDecl (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → n α) : n α :=
+  map1MetaM (fun k => withAuxDeclImp shortDeclName type declName k) k
 
 private def withNewBinderInfosImp (bs : Array (FVarId × BinderInfo)) (k : MetaM α) : MetaM α := do
   let lctx := bs.foldl (init := (← getLCtx)) fun lctx (fvarId, bi) =>
@@ -1736,9 +1813,9 @@ private def withMVarContextImp (mvarId : MVarId) (x : MetaM α) : MetaM α := do
   withLocalContextImp mvarDecl.lctx mvarDecl.localInstances x
 
 /--
-  Execute `x` using the given metavariable `LocalContext` and `LocalInstances`.
-  The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
-  different from the current ones. -/
+Executes `x` using the given metavariable `LocalContext` and `LocalInstances`.
+The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
+different from the current ones. -/
 def _root_.Lean.MVarId.withContext (mvarId : MVarId) : n α → n α :=
   mapMetaM <| withMVarContextImp mvarId
 
@@ -1748,12 +1825,24 @@ private def withMCtxImp (mctx : MetavarContext) (x : MetaM α) : MetaM α := do
   try x finally setMCtx mctx'
 
 /--
-  `withMCtx mctx k` replaces the metavariable context and then executes `k`.
-  The metavariable context is restored after executing `k`.
+`withMCtx mctx k` replaces the metavariable context and then executes `k`.
+The metavariable context is restored after executing `k`.
 
-  This method is used to implement the type class resolution procedure. -/
+This method is used to implement the type class resolution procedure. -/
 def withMCtx (mctx : MetavarContext) : n α → n α :=
   mapMetaM <| withMCtxImp mctx
+
+/--
+`withoutModifyingMCtx k` executes `k` and then restores the metavariable context.
+-/
+def withoutModifyingMCtx : n α → n α :=
+  mapMetaM fun x => do
+    let mctx ← getMCtx
+    try
+      x
+    finally
+      resetCache
+      setMCtx mctx
 
 @[inline] private def approxDefEqImp (x : MetaM α) : MetaM α :=
   withConfig (fun config => { config with foApprox := true, ctxApprox := true, quasiPatternApprox := true}) x
@@ -1908,15 +1997,22 @@ def sortFVarIds (fvarIds : Array FVarId) : MetaM (Array FVarId) := do
 
 end Methods
 
+/--
+Return `some info` if `declName` is an inductive predicate where `info : InductiveVal`.
+That is, `inductive` type in `Prop`.
+-/
+def isInductivePredicate? (declName : Name) : MetaM (Option InductiveVal) := do
+  match (← getEnv).find? declName with
+  | some (.inductInfo info) =>
+    forallTelescopeReducing info.type fun _ type => do
+      match (← whnfD type) with
+      | .sort u .. => if u == levelZero then return some info else return none
+      | _ => return none
+  | _ => return none
+
 /-- Return `true` if `declName` is an inductive predicate. That is, `inductive` type in `Prop`. -/
 def isInductivePredicate (declName : Name) : MetaM Bool := do
-  match (← getEnv).find? declName with
-  | some (.inductInfo { type := type, ..}) =>
-    forallTelescopeReducing type fun _ type => do
-      match (← whnfD type) with
-      | .sort u .. => return u == levelZero
-      | _ => return false
-  | _ => return false
+  return (← isInductivePredicate? declName).isSome
 
 def isListLevelDefEqAux : List Level → List Level → MetaM Bool
   | [],    []    => return true
@@ -2122,10 +2218,120 @@ def instantiateMVarsIfMVarApp (e : Expr) : MetaM Expr := do
   else
     return e
 
+private partial def setAllDiagRanges (snap : Language.SnapshotTree) (pos endPos : Position) :
+    BaseIO Language.SnapshotTree := do
+  let msgLog := snap.element.diagnostics.msgLog
+  let msgLog := { msgLog with unreported := msgLog.unreported.map fun diag =>
+      { diag with pos, endPos } }
+  return {
+    element.diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog msgLog)
+    children := (← snap.children.mapM fun task => return { task with
+      stx? := none
+      task := (← BaseIO.mapTask (t := task.task) (setAllDiagRanges · pos endPos)) })
+  }
+
+open Language
+
+private structure RealizeConstantResult where
+  snap       : SnapshotTree
+  error? : Option Exception
+deriving TypeName
+
+/--
+Makes the helper constant `constName` that is derived from `forConst` available in the environment.
+`enableRealizationsForConst forConst` must have been called first on this environment branch. If
+this is the first environment branch requesting `constName` to be realized (atomically), `realize`
+is called with the environment and options at the time of calling `enableRealizationsForConst` if
+`forConst` is from the current module and the state just after importing  otherwise, thus helping
+achieve deterministic results despite the non-deterministic choice of which thread is tasked with
+realization. In other words, the state after calling `realizeConst` is *as if* `realize` had been
+called immediately after `enableRealizationsForConst forConst`, though the effects of this call are
+visible only after calling `realizeConst`. See below for more details on the replayed effects.
+
+`realizeConst` cannot check what other data is captured in the `realize` closure,
+so it is best practice to extract it into a separate function and pay close attention to the passed
+arguments, if any. `realize` must return with `constName` added to the environment,
+at which point all callers of `realizeConst` with this `constName` will be unblocked
+and have access to an updated version of their own environment containing any new constants
+`realize` added, including recursively realized constants. Traces, diagnostics, and raw std stream
+output are reported at all callers via `Core.logSnapshotTask` (so that the location of generated
+diagnostics is deterministic). Note that, as `realize` is run using the options at declaration time
+of `forConst`, trace options must be set prior to that (or, for imported constants, on the cmdline)
+in order to be active. The environment extension state at the end of `realize` is available to each
+caller via `EnvExtension.findStateAsync` for `constName`. If `realize` throws an exception or fails
+to add `constName` to the environment, an appropriate diagnostic is reported to all callers but no
+constants are added to the environment.
+-/
+def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
+    MetaM Unit := do
+  let env ← getEnv
+  -- If `constName` is already known on this branch, avoid the trace node. We should not use
+  -- `contains` as it could block as well as find realizations on other branches, which would lack
+  -- the relevant local environment extension state when accessed on this branch.
+  if env.containsOnBranch constName then
+    return
+  withTraceNode `Meta.realizeConst (fun _ => return constName) do
+    let coreCtx ← readThe Core.Context
+    let coreCtx := {
+      -- these fields should be invariant throughout the file
+      fileName := coreCtx.fileName, fileMap := coreCtx.fileMap
+      -- heartbeat limits inside `realizeAndReport` should be measured from this point on
+      initHeartbeats := (← IO.getNumHeartbeats)
+    }
+    let (env, exTask, dyn) ← env.realizeConst forConst constName (realizeAndReport coreCtx)
+    let exAct ← Core.wrapAsyncAsSnapshot (cancelTk? := none) fun
+      | none => return
+      | some ex => do
+        logError <| ex.toMessageData (← getOptions)
+    Core.logSnapshotTask {
+      stx? := none
+      task := (← BaseIO.mapTask (t := exTask) exAct)
+    }
+    if let some res := dyn.get? RealizeConstantResult then
+      let mut snap := res.snap
+      -- localize diagnostics
+      if let some range := (← getRef).getRange? then
+        let fileMap ← getFileMap
+        snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
+      Core.logSnapshotTask <| .finished (stx? := none) snap
+      if let some e := res.error? then
+        throw e
+    setEnv env
+where
+  -- similar to `wrapAsyncAsSnapshot` but not sufficiently so to share code
+  realizeAndReport (coreCtx : Core.Context) env opts := do
+    let coreCtx := { coreCtx with options := opts }
+    let act :=
+      IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get opts) do
+        -- catch all exceptions
+        let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
+        observing do
+          realize
+          if !(← getEnv).contains constName then
+            throwError "Lean.Meta.realizeConst: {constName} was not added to the environment"
+        <* addTraceAsMessages
+    let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO
+    match res? with
+    | .ok ((output, err?), st) => pure (st.env, .mk {
+      snap := (← Core.mkSnapshot output coreCtx st)
+      error? := match err? with
+        | .ok ()   => none
+        | .error e => some e
+      : RealizeConstantResult
+    })
+    | _ =>
+      let _ : Inhabited (Environment × Dynamic) := ⟨env, .mk {
+        snap := (← Core.mkSnapshot "" coreCtx { env })
+        error? := none
+        : RealizeConstantResult
+      }⟩
+      unreachable!
+
 end Meta
 
 builtin_initialize
   registerTraceClass `Meta.isLevelDefEq.postponed
+  registerTraceClass `Meta.realizeConst
 
 export Meta (MetaM)
 

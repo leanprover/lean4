@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Leonardo de Moura, Gabriel Ebner, Mario Carneiro
 -/
 prelude
-import Lean.Parser
 import Lean.PrettyPrinter.Delaborator.Attributes
 import Lean.PrettyPrinter.Delaborator.Basic
 import Lean.PrettyPrinter.Delaborator.SubExpr
@@ -202,49 +201,6 @@ def shouldShowMotive (motive : Expr) (opts : Options) : MetaM Bool := do
   <||> (pure (getPPMotivesNonConst opts) <&&> isNonConstFun motive)
 
 /--
-Takes application syntax and converts it into structure instance notation, if possible.
-Assumes that the application is pretty printed in implicit mode.
--/
-def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStructureInstances do
-  let env ← getEnv
-  let e ← getExpr
-  let some s ← isConstructorApp? e | failure
-  guard <| isStructure env s.induct
-  /- If implicit arguments should be shown, and the structure has parameters, we should not
-     pretty print using { ... }, because we will not be able to see the parameters. -/
-  let fieldNames := getStructureFields env s.induct
-  let mut fields := #[]
-  guard $ fieldNames.size == stx[1].getNumArgs
-  if hasPPUsingAnonymousConstructorAttribute env s.induct then
-    /- Note that we don't flatten anonymous constructor notation. Only a complete such notation receives TermInfo,
-       and flattening would cause the flattened-in notation to lose its TermInfo.
-       Potentially it would be justified to flatten anonymous constructor notation when the terms are
-       from the same type family (think `Sigma`), but for now users can write a custom delaborator in such instances. -/
-    return ← withTypeAscription (cond := (← withType <| getPPOption getPPStructureInstanceType)) do
-      `(⟨$[$(stx[1].getArgs)],*⟩)
-  let args := e.getAppArgs
-  let fieldVals := args.extract s.numParams args.size
-  for h : idx in [:fieldNames.size] do
-    let fieldName := fieldNames[idx]
-    if (← getPPOption getPPStructureInstancesFlatten) && (Lean.isSubobjectField? env s.induct fieldName).isSome then
-      match stx[1][idx] with
-      | `({ $fields',* $[: $_]?}) =>
-        -- We have found a subobject field that itself is printed with structure instance notation.
-        -- Scavenge its fields.
-        fields := fields ++ fields'.getElems
-        continue
-      | _ => pure ()
-    let fieldId := mkIdent fieldName
-    let fieldPos ← nextExtraPos
-    let fieldId := annotatePos fieldPos fieldId
-    addFieldInfo fieldPos (s.induct ++ fieldName) fieldName fieldId fieldVals[idx]!
-    let field ← `(structInstField|$fieldId:ident := $(stx[1][idx]))
-    fields := fields.push field
-  let tyStx ← withType do
-    if (← getPPOption getPPStructureInstanceType) then delab >>= pure ∘ some else pure none
-  `({ $fields,* $[: $tyStx]? })
-
-/--
 If `e` is an application that is a candidate for using field notation,
 returns the parameter index and the field name to use.
 Checks that there are enough arguments.
@@ -394,25 +350,18 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
       appFieldNotationCandidate?
     else
       pure none
-  let (fnStx, args') ←
+  let (fnStx, args) ←
     withBoundedAppFnArgs numArgs
       (do return ((← delabHead), Array.mkEmpty numArgs))
       (fun (fnStx, args) => return (fnStx, args.push (← mkArg paramKinds[args.size]!)))
 
-  -- Strip off optional arguments. We save the original `args'` for structure instance notation
-  let args := args'.popWhile (· matches .optional ..)
+  -- Strip off optional arguments.
+  let args := args.popWhile (· matches .optional ..)
 
   -- App unexpanders
   if ← pure unexpand <&&> getPPOption getPPNotation then
     -- Try using an app unexpander for a prefix of the arguments.
     if let some stx ← (some <$> tryAppUnexpanders fnStx args) <|> pure none then
-      return stx
-
-  -- Structure instance notation
-  if ← pure (unexpand && args'.all (·.canUnexpand)) <&&> getPPOption getPPStructureInstances then
-    -- Try using the structure instance unexpander.
-    let stx := Syntax.mkApp fnStx (args'.filterMap (·.syntax?))
-    if let some stx ← (some <$> unexpandStructureInstance stx) <|> pure none then
       return stx
 
   -- Field notation
@@ -428,7 +377,7 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
         let isFirst := args[0:fieldIdx].all (· matches .skip)
         -- Clear the `obj` argument from `args`.
         let args' := args.set! fieldIdx .skip
-        let mut head : Term ← `($obj.$(mkIdent field))
+        let mut head : Term ← `($obj.$(mkIdentFrom fnStx field))
         if isFirst then
           -- If the object is the first argument (after some implicit arguments),
           -- we can annotate `obj.field` with the prefix of the application
@@ -465,15 +414,21 @@ where
   /--
   Runs the given unexpanders, returning the resulting syntax if any are applicable, and otherwise fails.
   -/
-  tryUnexpand (fs : List Unexpander) (stx : Syntax) : DelabM Syntax := do
-    fs.firstM fun f =>
-      match f stx |>.run .missing |>.run () with
+  tryUnexpand (ref : Syntax) (fs : List Unexpander) (stx : Syntax) : DelabM Syntax := do
+    withAnnotateTermInfoUnlessAnnotated <| fs.firstM fun f =>
+      match f stx |>.run ref |>.run () with
       | EStateM.Result.ok stx _ => return stx
       | _ => failure
   /--
   If the expression is a candidate for app unexpanders,
   try applying an app unexpander using some prefix of the arguments, longest prefix first.
   This function makes sure that the unexpanded syntax is annotated and given TermInfo so that it is hoverable in the InfoView.
+
+  Ref logic:
+  1. The unexpanders are run with the head constant's syntax as the ref.
+  2. If `pp.tagAppFns` is false, then this does nothing, since `delabConst` won't register any terminfo for the constant.
+  3. If `pp.tagAppFns` is true, then this causes all tokens in app unexpanders to refer to the head constant.
+     The effect is that in docgen, every token will be linkified (supposing the app unexpander uses syntax quotations).
   -/
   tryAppUnexpanders (fnStx : Term) (args : Array AppImplicitArg) : Delab := do
     let .const c _ := (← getExpr).getAppFn.consumeMData | unreachable!
@@ -482,13 +437,13 @@ where
     let rec go (i : Nat) (implicitArgs : Nat) (argStxs : Array Syntax) : DelabM Term := do
       match i with
       | 0 =>
-        let stx ← tryUnexpand fs fnStx
-        return Syntax.mkApp (← annotateTermInfo stx) (args.filterMap (·.syntax?))
+        let stx ← tryUnexpand fnStx fs fnStx
+        return Syntax.mkApp stx (args.filterMap (·.syntax?))
       | i' + 1 =>
         if args[i']!.syntax?.isSome then
-          (do let stx ← tryUnexpand fs <| Syntax.mkApp fnStx argStxs
+          (do let stx ← tryUnexpand fnStx fs <| Syntax.mkApp fnStx argStxs
               let argStxs' := args.extract i args.size |>.filterMap (·.syntax?)
-              return Syntax.mkApp (← annotateTermInfo stx) argStxs')
+              return Syntax.mkApp stx argStxs')
           <|> withBoundedAppFn (implicitArgs + 1) (go i' 0 argStxs.pop)
         else
           go i' (implicitArgs + 1) argStxs
@@ -587,7 +542,7 @@ def withOverApp (arity : Nat) (x : Delab) : Delab := do
   else
     let delabHead (insertExplicit : Bool) : Delab := do
       guard <| !insertExplicit
-      withAnnotateTermInfo x
+      withAnnotateTermInfoUnlessAnnotated x
     delabAppCore (n - arity) delabHead (unexpand := false)
 
 @[builtin_delab app]
@@ -599,6 +554,127 @@ def delabDelayedAssignedMVar : Delab := whenNotPPOption getPPMVarsDelayed do
     -- Only delaborate using decl.mvarIdPending if the delayed mvar is applied to fvars
     guard <| args.all Expr.isFVar
     delabMVarAux decl.mvarIdPending
+
+private partial def collectStructFields
+    (structName : Name)
+    (paramMap : NameMap Expr)
+    (fields : Array (TSyntax ``Parser.Term.structInstField))
+    (fieldValues : NameMap Expr)
+    (s : ConstructorVal) :
+    DelabM (NameMap Expr × Array (TSyntax ``Parser.Term.structInstField)) := do
+  let env ← getEnv
+  let fieldNames := getStructureFields env s.induct
+  let (_, fieldValues, fields) ← withBoundedAppFnArgs s.numFields
+    (do return (0, fieldValues, fields))
+    (fun (i, fieldValues, fields) => do
+      let fieldName := fieldNames[i]!
+      let some fieldInfo := Lean.getFieldInfo? env s.induct fieldName | failure
+      let fieldValues := fieldValues.insert fieldName (← getExpr)
+      /- Is it a subobject that should be flattened? -/
+      if let some parentName := fieldInfo.subobject? then
+        if ← getPPOption getPPStructureInstancesFlatten then
+          if let some s' ← isConstructorApp? (← getExpr) then
+            if s'.induct == parentName then
+              let (fieldValues, fields) ← collectStructFields structName paramMap fields fieldValues s'
+              return (i + 1, fieldValues, fields)
+      /- Does it have the default value, and should it be omitted? -/
+      unless ← getPPOption getPPStructureInstancesDefaults do
+        if let some defFn := getEffectiveDefaultFnForField? (← getEnv) structName fieldName then
+          let cinfo ← getConstInfo defFn
+          let defValue := cinfo.instantiateValueLevelParams! (← mkFreshLevelMVarsFor cinfo)
+          if let some defValue ← withNewMCtxDepth <| processDefaultValue paramMap fieldValues defValue then
+            if ← withReducible <| withNewMCtxDepth <| isDefEq defValue (← getExpr) then
+              -- Default value matches, skip the field.
+              return (i + 1, fieldValues, fields)
+      /- Main case: add the field -/
+      let value ←
+        if ← getPPOption getPPAnalysisHole then `(_)
+        else delab
+      let fieldPos ← nextExtraPos
+      let fieldId := annotatePos fieldPos (mkIdent fieldName)
+      addFieldInfo fieldPos fieldInfo.projFn fieldName fieldId (← getExpr)
+      let field ← `(structInstField|$fieldId:ident := $value)
+      return (i + 1, fieldValues, fields.push field))
+  return (fieldValues, fields)
+where
+  processDefaultValue (paramMap : NameMap Expr) (fieldValues : NameMap Expr) : Expr → MetaM (Option Expr)
+  | .lam n d b c => do
+    if c.isExplicit then
+      let some val := fieldValues.find? n | return none
+      if ← isDefEq (← inferType val) d then
+        processDefaultValue paramMap fieldValues (b.instantiate1 val)
+      else
+        return none
+    else
+      let some param := paramMap.find? n | return none
+      if ← isDefEq (← inferType param) d then
+        processDefaultValue paramMap fieldValues (b.instantiate1 param)
+      else
+        return none
+  | e =>
+    let_expr id _ a := e | return some e
+    return some a
+
+/--
+Delaborate structure constructor applications using structure instance notation or anonymous constructor notation.
+-/
+@[builtin_delab app]
+def delabStructureInstance : Delab := do
+  let env ← getEnv
+  let e ← getExpr
+  let some s ← isConstructorApp? e | failure
+  guard <| isStructure env s.induct
+  guard <| ← getPPOption getPPStructureInstances
+  -- Don't use structure instance notation if an unexpander exists
+  guard <| (appUnexpanderAttribute.getValues env s.name).isEmpty
+  unless s.levelParams.isEmpty do
+    guard <| ← withAppFn <| not <$> getPPOption getPPUniverses
+  let explicit ← getPPOption getPPExplicit
+  if explicit then guard <| s.numParams == 0
+  withAppFnArgs
+    (pure ())
+    (fun _ => do guard <| ← not <$> getPPOption getPPAnalysisNamedArg)
+  if hasPPUsingAnonymousConstructorAttribute env s.induct then
+    /-
+    The type has opted-in to anonymous constructor notation.
+    - If a type opts in, then it's either this or application notation. Structure instance notation is never used.
+    - In explicit mode, we require every field be explicit.
+    - We don't flatten anonymous constructor notation. Only a complete such notation receives TermInfo,
+      and flattening would cause the flattened-in notation to lose its TermInfo.
+      Potentially it would be justified to flatten anonymous constructor notation when the terms are
+      from the same type family (think `Sigma`), but for now users can write a custom delaborator in such instances.
+    -/
+    let bis ← forallTelescope s.type fun xs _ => xs.mapM (·.fvarId!.getBinderInfo)
+    if explicit then guard <| bis[s.numParams:].all (·.isExplicit)
+    let (_, args) ← withBoundedAppFnArgs s.numFields
+      (do return (0, #[]))
+      (fun (i, args) => do
+        if ← getPPOption getPPAnalysisHole then
+          return (i + 1, args.push (← `(_)))
+        else if bis[s.numParams + i]!.isExplicit then
+          return (i + 1, args.push (← delab))
+        else
+          return (i + 1, args))
+    withTypeAscription (cond := (← withType <| getPPOption getPPStructureInstanceType)) do
+      `(⟨$[$args],*⟩)
+  else
+    /-
+    Otherwise, we use structure instance notation.
+    If `pp.structureInstances.flatten` is true (and `pp.explicit` is false or the subobject has no parameters)
+    then subobjects are flattened.
+    -/
+    -- For default value handling, we need to create a map of type parameter names to expressions.
+    let args := (← getExpr).getAppArgs
+    let paramMap : NameMap Expr ← forallTelescope s.type fun xs _ => do
+      let mut paramMap := {}
+      for param in args[:s.numParams], x in xs do
+        paramMap := paramMap.insert (← x.fvarId!.getUserName) param
+      return paramMap
+    let (_, fields) ← collectStructFields s.induct paramMap #[] {} s
+    let tyStx? : Option Term ← withType do
+      if ← getPPOption getPPStructureInstanceType then delab else pure none
+    `({ $fields,* $[: $tyStx?]? })
+
 
 /-- State for `delabAppMatch` and helpers. -/
 structure AppMatchState where
@@ -687,7 +763,7 @@ partial def delabAppMatch : Delab := whenNotPPOption getPPExplicit <| whenPPOpti
       (do
         let params := (← getExpr).getAppArgs
         let matcherTy : SubExpr :=
-          { expr := ← instantiateForall (← instantiateTypeLevelParams (← getConstInfo c) us) params
+          { expr := ← instantiateForall (← instantiateTypeLevelParams (← getConstVal c) us) params
             pos := (← getPos).pushType }
         guard <| ← isDefEq matcherTy.expr (← inferType (← getExpr))
         return { info, matcherTy })
@@ -877,9 +953,9 @@ def delabLam : Delab :=
           -- as a term, i.e. a single `Syntax.ident` or an application thereof
           let stxCurNames ←
             if h : curNames.size > 1 then
-              `($(curNames.get! 0) $(curNames.eraseIdx 0)*)
+              `($(curNames[0]!) $(curNames.eraseIdx 0)*)
             else
-              pure $ curNames.get! 0;
+              pure $ curNames[0]!;
           `(funBinder| ($stxCurNames : $stxT))
         else
           pure curNames.back!  -- here `curNames.size == 1`
@@ -1118,9 +1194,12 @@ where
     withTypeAscription (cond := ← getPPOption getPPCoercionsTypes) do
       guard <| !insertExplicit
       if info.type == .coeFun && nargs > 0 then
-        -- In the CoeFun case, annotate with the coercee itself.
+        -- In the `.coeFun` case, delaborate the coercee itself.
         -- We can still see the whole coercion expression by hovering over the whitespace between the arguments.
-        withNaryArg info.coercee <| withAnnotateTermInfo delab
+        -- In the `pp.tagAppFns` case, if the coercee is a constant application,
+        -- then `delab` will tag the result with the constant, ensuring docgen linkifies it.
+        let tagAppFns ← getPPOption getPPTagAppFns
+        withNaryArg info.coercee <| withOptionAtCurrPos `pp.tagAppFns tagAppFns delab
       else
         withAnnotateTermInfo do
           match info.type with
@@ -1287,6 +1366,35 @@ def delabNameMkStr : Delab := whenPPOption getPPNotation do
 @[builtin_delab app.Lean.Name.num]
 def delabNameMkNum : Delab := delabNameMkStr
 
+@[builtin_delab app.sorryAx]
+def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExplicit do
+  let numArgs := (← getExpr).getAppNumArgs
+  guard <| numArgs ≥ 2
+  -- Cache the current position's value, since it might be applied to the entire application.
+  let sorrySource ← getPPOption getPPSorrySource
+  -- If this is constructed by `Lean.Meta.mkLabeledSorry`, then normally we don't print the unique tag.
+  -- But, if `pp.explicit` is false and `pp.sorrySource` is true, then print a simplified version of the tag.
+  if let some view := isLabeledSorry? (← getExpr) then
+    withOverApp 3 do
+      if let some loc := view.module? then
+        let (stx, explicit) ←
+          if ← pure sorrySource <||> getPPOption getPPSorrySource then
+            let posAsName := Name.mkSimple s!"{loc.module}:{loc.range.pos.line}:{loc.range.pos.column}"
+            let pos := mkNode ``Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{posAsName}"]
+            let src ← withAppArg <| annotateTermInfo pos
+            pure (← `(sorry $src), true)
+          else
+            -- Set `explicit` to false so that the first hover sets `pp.sorrySource` to true in `Lean.Widget.ppExprTagged`
+            pure (← `(sorry), false)
+        let stx ← annotateCurPos stx
+        addDelabTermInfo (← getPos) stx (← getExpr) (explicit := explicit) (location? := loc)
+          (docString? := "This is a `sorry` term associated to a source position. Use 'Go to definition' to go there.")
+        return stx
+      else
+        `(sorry)
+  else
+    withOverApp 2 `(sorry)
+
 open Parser Command Term in
 @[run_builtin_parser_attribute_hooks]
 -- use `termParser` instead of `declId` so we can reuse `delabConst`
@@ -1349,25 +1457,38 @@ where
     let e@(.forallE n d e' i) ← getExpr | unreachable!
     let n ← if bindingNames.contains n then withFreshMacroScope <| MonadQuotation.addMacroScope n else pure n
     let bindingNames := bindingNames.insert n
-    let stxN := mkIdent n
-    let curIds := curIds.push ⟨stxN⟩
     if shouldGroupWithNext bindingNames e e' then
-      withBindingBody n <| delabParamsAux bindingNames idStx groups curIds
+      withBindingBody' n (mkAnnotatedIdent n) fun stxN =>
+        delabParamsAux bindingNames idStx groups (curIds.push stxN)
     else
-      let group ← withBindingDomain do
+      /-
+      `mkGroup` constructs binder syntax for the binder names `curIds : Array Ident`, which all have the same type and binder info.
+      This being a function is solving the following issue:
+      - To get the last binder name, we need to be under `withBindingBody'`, which lets us annotate the binder with its fvar.
+      - However, we should delaborate the binder type from outside `withBindingBody'`.
+      - Thus, we need to partially construct the binder syntax, waiting on the final value of `curIds`.
+      -/
+      let mkGroup : Array Ident → DelabM Syntax ← withBindingDomain do
         match i with
-        | .implicit       => `(bracketedBinderF|{$curIds* : $(← delabTy)})
-        | .strictImplicit => `(bracketedBinderF|⦃$curIds* : $(← delabTy)⦄)
-        | .instImplicit   => `(bracketedBinderF|[$stxN : $(← delabTy)])
+        | .implicit       => let ty ← delabTy; pure fun curIds => `(bracketedBinderF|{$curIds* : $ty})
+        | .strictImplicit => let ty ← delabTy; pure fun curIds => `(bracketedBinderF|⦃$curIds* : $ty⦄)
+        | .instImplicit   => let ty ← delabTy; pure fun curIds => `(bracketedBinderF|[$(curIds[0]!) : $ty])
         | _ =>
           if d.isOptParam then
-            `(bracketedBinderF|($curIds* : $(← withAppFn <| withAppArg delabTy) := $(← withAppArg delabTy)))
+            let ty ← withAppFn <| withAppArg delabTy
+            let val ← withAppArg delabTy
+            pure fun curIds => `(bracketedBinderF|($curIds* : $ty := $val))
           else if let some (.const tacticDecl _) := d.getAutoParamTactic? then
+            let ty ← withAppFn <| withAppArg delabTy
             let tacticSyntax ← ofExcept <| evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl
-            `(bracketedBinderF|($curIds* : $(← withAppFn <| withAppArg delabTy) := by $tacticSyntax))
+            pure fun curIds => `(bracketedBinderF|($curIds* : $ty := by $tacticSyntax))
           else
-            `(bracketedBinderF|($curIds* : $(← delabTy)))
-      withBindingBody n <| delabParams bindingNames idStx (groups.push group)
+            let ty ← delabTy
+            pure fun curIds => `(bracketedBinderF|($curIds* : $ty))
+      withBindingBody' n (mkAnnotatedIdent n) fun stxN => do
+        let curIds := curIds.push stxN
+        let group ← mkGroup curIds
+        delabParams bindingNames idStx (groups.push group)
   /-
   Given the forall `e` with body `e'`, determines if the binder from `e'` (if it is a forall) should be grouped with `e`'s binder.
   -/

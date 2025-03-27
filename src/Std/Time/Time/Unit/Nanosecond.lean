@@ -42,6 +42,9 @@ def Offset : Type := UnitVal (1 / 1000000000)
 instance { x y : Offset } : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
 
+instance { x y : Offset } : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
+
 instance : OfNat Offset n :=
   ⟨UnitVal.ofNat n⟩
 

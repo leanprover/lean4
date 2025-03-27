@@ -1,5 +1,3 @@
-import Init.Data.Nat.Div
-
 /-!
 This tests that `0 : Fin (n + 1)` unfolds to `0 : Nat`, which is a property kept for backwards
 compatibility with mathlib in Lean 3.

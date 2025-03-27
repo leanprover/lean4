@@ -6,6 +6,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 prelude
 import Lean.Data.Lsp.Basic
+import Lean.Data.Lsp.CancelParams
 import Lean.Data.Lsp.Capabilities
 import Lean.Data.Lsp.Client
 import Lean.Data.Lsp.Communication
@@ -19,3 +20,4 @@ import Lean.Data.Lsp.Utf16
 import Lean.Data.Lsp.Workspace
 import Lean.Data.Lsp.Ipc
 import Lean.Data.Lsp.CodeActions
+import Lean.Data.Lsp.Window

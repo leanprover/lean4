@@ -12,16 +12,18 @@ t 2
  [{"source": "Lean 4",
    "severity": 1,
    "range":
-   {"start": {"line": 4, "character": 4}, "end": {"line": 4, "character": 13}},
+   {"start": {"line": 4, "character": 12}, "end": {"line": 4, "character": 13}},
    "message":
    "tactic 'introN' failed, insufficient number of binders\na n : Nat\n⊢ True",
    "fullRange":
-   {"start": {"line": 4, "character": 4}, "end": {"line": 4, "character": 13}}},
+   {"start": {"line": 4, "character": 12},
+    "end": {"line": 4, "character": 13}}},
   {"source": "Lean 4",
    "severity": 1,
    "range":
    {"start": {"line": 2, "character": 22}, "end": {"line": 3, "character": 0}},
    "message": "unsolved goals\nthis : Nat → Nat → True\n⊢ True",
+   "leanTags": [1],
    "fullRange":
    {"start": {"line": 2, "character": 22},
     "end": {"line": 10, "character": 11}}}]}
@@ -51,6 +53,7 @@ t 2
    "range":
    {"start": {"line": 3, "character": 9}, "end": {"line": 3, "character": 16}},
    "message": "unsolved goals\n⊢ Nat",
+   "leanTags": [1],
    "fullRange":
    {"start": {"line": 3, "character": 9},
     "end": {"line": 3, "character": 16}}}]}
@@ -82,6 +85,7 @@ s
    "range":
    {"start": {"line": 3, "character": 12}, "end": {"line": 3, "character": 16}},
    "message": "unsolved goals\ncase zero\n⊢ True",
+   "leanTags": [1],
    "fullRange":
    {"start": {"line": 3, "character": 12},
     "end": {"line": 3, "character": 16}}}]}
@@ -93,6 +97,7 @@ s
    "range":
    {"start": {"line": 2, "character": 6}, "end": {"line": 2, "character": 10}},
    "message": "unsolved goals\n⊢ True",
+   "leanTags": [1],
    "fullRange":
    {"start": {"line": 2, "character": 6}, "end": {"line": 2, "character": 10}}},
   {"source": "Lean 4",

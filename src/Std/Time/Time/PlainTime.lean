@@ -30,7 +30,7 @@ structure PlainTime where
   /--
   `Second` component of the `PlainTime`
   -/
-  second : Sigma Second.Ordinal
+  second : Second.Ordinal true
 
   /--
   `Nanoseconds` component of the `PlainTime`
@@ -39,11 +39,11 @@ structure PlainTime where
   deriving Repr
 
 instance : Inhabited PlainTime where
-  default := ⟨0, 0, Sigma.mk false 0, 0, by decide⟩
+  default := ⟨0, 0, 0, 0, by decide⟩
 
 instance : BEq PlainTime where
   beq x y := x.hour.val == y.hour.val && x.minute == y.minute
-          && x.second.snd.val == y.second.snd.val && x.nanosecond == y.nanosecond
+          && x.second.val == y.second.val && x.nanosecond == y.nanosecond
 
 namespace PlainTime
 
@@ -51,20 +51,20 @@ namespace PlainTime
 Creates a `PlainTime` value representing midnight (00:00:00.000000000).
 -/
 def midnight : PlainTime :=
-  ⟨0, 0, ⟨true, 0⟩, 0⟩
+  ⟨0, 0, 0, 0⟩
 
 /--
 Creates a `PlainTime` value from the provided hours, minutes, seconds and nanoseconds components.
 -/
 @[inline]
-def ofHourMinuteSecondsNano (hour : Hour.Ordinal) (minute : Minute.Ordinal) (second : Second.Ordinal leap) (nano : Nanosecond.Ordinal) : PlainTime :=
-  ⟨hour, minute, Sigma.mk leap second, nano⟩
+def ofHourMinuteSecondsNano (hour : Hour.Ordinal) (minute : Minute.Ordinal) (second : Second.Ordinal true) (nano : Nanosecond.Ordinal) : PlainTime :=
+  ⟨hour, minute, second, nano⟩
 
 /--
 Creates a `PlainTime` value from the provided hours, minutes, and seconds.
 -/
 @[inline]
-def ofHourMinuteSeconds (hour : Hour.Ordinal) (minute : Minute.Ordinal) (second : Second.Ordinal leap) : PlainTime :=
+def ofHourMinuteSeconds (hour : Hour.Ordinal) (minute : Minute.Ordinal) (second : Second.Ordinal true) : PlainTime :=
   ofHourMinuteSecondsNano hour minute second 0
 
 /--
@@ -73,7 +73,7 @@ Converts a `PlainTime` value to the total number of milliseconds.
 def toMilliseconds (time : PlainTime) : Millisecond.Offset :=
   time.hour.toOffset.toMilliseconds +
   time.minute.toOffset.toMilliseconds +
-  time.second.snd.toOffset.toMilliseconds +
+  time.second.toOffset.toMilliseconds +
   time.nanosecond.toOffset.toMilliseconds
 
 /--
@@ -82,7 +82,7 @@ Converts a `PlainTime` value to the total number of nanoseconds.
 def toNanoseconds (time : PlainTime) : Nanosecond.Offset :=
   time.hour.toOffset.toNanoseconds +
   time.minute.toOffset.toNanoseconds +
-  time.second.snd.toOffset.toNanoseconds +
+  time.second.toOffset.toNanoseconds +
   time.nanosecond.toOffset
 
 /--
@@ -91,7 +91,7 @@ Converts a `PlainTime` value to the total number of seconds.
 def toSeconds (time : PlainTime) : Second.Offset :=
   time.hour.toOffset.toSeconds +
   time.minute.toOffset.toSeconds +
-  time.second.snd.toOffset
+  time.second.toOffset
 
 /--
 Converts a `PlainTime` value to the total number of minutes.
@@ -99,7 +99,7 @@ Converts a `PlainTime` value to the total number of minutes.
 def toMinutes (time : PlainTime) : Minute.Offset :=
   time.hour.toOffset.toMinutes +
   time.minute.toOffset +
-  time.second.snd.toOffset.toMinutes
+  time.second.toOffset.toMinutes
 
 /--
 Converts a `PlainTime` value to the total number of hours.
@@ -115,9 +115,12 @@ def ofNanoseconds (nanos : Nanosecond.Offset) : PlainTime :=
   have remainingNanos := Bounded.LE.byEmod nanos.val 1000000000 (by decide)
   have hours := Bounded.LE.byEmod (totalSeconds.val / 3600) 24 (by decide)
   have minutes := (Bounded.LE.byEmod totalSeconds.val 3600 (by decide)).ediv 60 (by decide)
+
   have seconds := Bounded.LE.byEmod totalSeconds.val 60 (by decide)
+  have seconds := seconds.expandTop (by decide)
+
   let nanos := Bounded.LE.byEmod nanos.val 1000000000 (by decide)
-  PlainTime.mk hours minutes (Sigma.mk false seconds) nanos
+  PlainTime.mk hours minutes seconds nanos
 
 /--
 Creates a `PlainTime` value from a total number of millisecond.
@@ -222,7 +225,7 @@ def subMilliseconds (time : PlainTime) (millisToSub : Millisecond.Offset) : Plai
 Creates a new `PlainTime` by adjusting the `second` component to the given value.
 -/
 @[inline]
-def withSeconds (pt : PlainTime) (second : Sigma Second.Ordinal) : PlainTime :=
+def withSeconds (pt : PlainTime) (second : Second.Ordinal true) : PlainTime :=
   { pt with second := second }
 
 /--

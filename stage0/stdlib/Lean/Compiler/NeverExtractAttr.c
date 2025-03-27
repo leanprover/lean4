@@ -143,6 +143,7 @@ _start:
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = l_Lean_hasNeverExtractAttribute_visit___closed__1;
+lean_inc(x_1);
 x_4 = l_Lean_TagAttribute_hasTag(x_3, x_1, x_2);
 if (x_4 == 0)
 {
@@ -152,6 +153,7 @@ if (x_5 == 0)
 {
 uint8_t x_6; 
 lean_dec(x_2);
+lean_dec(x_1);
 x_6 = 0;
 return x_6;
 }
@@ -168,6 +170,7 @@ else
 {
 uint8_t x_9; 
 lean_dec(x_2);
+lean_dec(x_1);
 x_9 = 1;
 return x_9;
 }
@@ -178,7 +181,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_hasNeverExtractAttribute_visit(x_1, x_2);
-lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -188,7 +190,6 @@ _start:
 {
 uint8_t x_3; 
 x_3 = l_Lean_hasNeverExtractAttribute_visit(x_1, x_2);
-lean_dec(x_1);
 return x_3;
 }
 }

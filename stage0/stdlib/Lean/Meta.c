@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta
-// Imports: Lean.Meta.Basic Lean.Meta.LevelDefEq Lean.Meta.WHNF Lean.Meta.InferType Lean.Meta.FunInfo Lean.Meta.ExprDefEq Lean.Meta.DecLevel Lean.Meta.DiscrTree Lean.Meta.Reduce Lean.Meta.Instances Lean.Meta.AbstractMVars Lean.Meta.SynthInstance Lean.Meta.AppBuilder Lean.Meta.Tactic Lean.Meta.KAbstract Lean.Meta.RecursorInfo Lean.Meta.GeneralizeTelescope Lean.Meta.Match Lean.Meta.ReduceEval Lean.Meta.Closure Lean.Meta.AbstractNestedProofs Lean.Meta.ForEachExpr Lean.Meta.Transform Lean.Meta.PPGoal Lean.Meta.UnificationHint Lean.Meta.Inductive Lean.Meta.SizeOf Lean.Meta.IndPredBelow Lean.Meta.Coe Lean.Meta.CollectFVars Lean.Meta.GeneralizeVars Lean.Meta.Injective Lean.Meta.Structure Lean.Meta.Constructions Lean.Meta.CongrTheorems Lean.Meta.Eqns Lean.Meta.ExprLens Lean.Meta.ExprTraverse Lean.Meta.Eval Lean.Meta.CoeAttr Lean.Meta.Iterator Lean.Meta.LazyDiscrTree Lean.Meta.LitValues Lean.Meta.CheckTactic Lean.Meta.Canonicalizer Lean.Meta.Diagnostics
+// Imports: Lean.Meta.Basic Lean.Meta.LevelDefEq Lean.Meta.WHNF Lean.Meta.InferType Lean.Meta.FunInfo Lean.Meta.ExprDefEq Lean.Meta.DecLevel Lean.Meta.DiscrTree Lean.Meta.Reduce Lean.Meta.Instances Lean.Meta.AbstractMVars Lean.Meta.SynthInstance Lean.Meta.AppBuilder Lean.Meta.Sorry Lean.Meta.Tactic Lean.Meta.KAbstract Lean.Meta.RecursorInfo Lean.Meta.GeneralizeTelescope Lean.Meta.Match Lean.Meta.ReduceEval Lean.Meta.Closure Lean.Meta.AbstractNestedProofs Lean.Meta.ForEachExpr Lean.Meta.Transform Lean.Meta.PPGoal Lean.Meta.UnificationHint Lean.Meta.Inductive Lean.Meta.SizeOf Lean.Meta.IndPredBelow Lean.Meta.Coe Lean.Meta.CollectFVars Lean.Meta.GeneralizeVars Lean.Meta.Injective Lean.Meta.Structure Lean.Meta.Constructions Lean.Meta.CongrTheorems Lean.Meta.Eqns Lean.Meta.ExprLens Lean.Meta.ExprTraverse Lean.Meta.Eval Lean.Meta.CoeAttr Lean.Meta.Iterator Lean.Meta.LazyDiscrTree Lean.Meta.LitValues Lean.Meta.CheckTactic Lean.Meta.Canonicalizer Lean.Meta.Diagnostics Lean.Meta.BinderNameHint
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -26,6 +26,7 @@ lean_object* initialize_Lean_Meta_Instances(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_AbstractMVars(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_SynthInstance(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Sorry(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_KAbstract(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_RecursorInfo(uint8_t builtin, lean_object*);
@@ -59,6 +60,7 @@ lean_object* initialize_Lean_Meta_LitValues(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_CheckTactic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Canonicalizer(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Diagnostics(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_BinderNameHint(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -101,6 +103,9 @@ res = initialize_Lean_Meta_SynthInstance(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_AppBuilder(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Sorry(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic(builtin, lean_io_mk_world());
@@ -200,6 +205,9 @@ res = initialize_Lean_Meta_Canonicalizer(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Diagnostics(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_BinderNameHint(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

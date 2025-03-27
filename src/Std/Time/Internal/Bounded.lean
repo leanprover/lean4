@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
-import Init.Data.Int
+import Init.Omega
+import Init.Data.Int.DivMod.Lemmas
 
 namespace Std
 namespace Time

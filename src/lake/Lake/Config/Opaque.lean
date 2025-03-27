@@ -5,7 +5,7 @@ Authors: Mac Malone
 -/
 prelude
 import Lake.Util.Name
-import Lake.Util.Opaque
+import Lake.Util.OpaqueType
 
 namespace Lake
 

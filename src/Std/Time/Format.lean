@@ -280,7 +280,7 @@ def format (time : PlainTime) (format : String) : String :=
 Parses a time string in the 24-hour format (`HH:mm:ss`) and returns a `PlainTime`.
 -/
 def fromTime24Hour (input : String) : Except String PlainTime :=
-  Formats.time24Hour.parseBuilder (fun h m s => some (PlainTime.ofHourMinuteSeconds h m s.snd)) input
+  Formats.time24Hour.parseBuilder (fun h m s => some (PlainTime.ofHourMinuteSeconds h m s)) input
 
 /--
 Formats a `PlainTime` value into a 24-hour format string (`HH:mm:ss`).
@@ -292,8 +292,8 @@ def toTime24Hour (input : PlainTime) : String :=
 Parses a time string in the lean 24-hour format (`HH:mm:ss.SSSSSSSSS` or `HH:mm:ss`) and returns a `PlainTime`.
 -/
 def fromLeanTime24Hour (input : String) : Except String PlainTime :=
-  Formats.leanTime24Hour.parseBuilder (fun h m s n => some (PlainTime.ofHourMinuteSecondsNano h m s.snd n)) input
-  <|> Formats.leanTime24HourNoNanos.parseBuilder (fun h m s => some (PlainTime.ofHourMinuteSecondsNano h m s.snd 0)) input
+  Formats.leanTime24Hour.parseBuilder (fun h m s n => some <| PlainTime.ofHourMinuteSecondsNano h m s n) input
+  <|> Formats.leanTime24HourNoNanos.parseBuilder (fun h m s => some <| PlainTime.ofHourMinuteSecondsNano h m s 0) input
 
 /--
 Formats a `PlainTime` value into a 24-hour format string (`HH:mm:ss.SSSSSSSSS`).
@@ -307,7 +307,7 @@ Parses a time string in the 12-hour format (`hh:mm:ss aa`) and returns a `PlainT
 def fromTime12Hour (input : String) : Except String PlainTime := do
   let builder h m s a : Option PlainTime := do
     let value ← Internal.Bounded.ofInt? h.val
-    some <| PlainTime.ofHourMinuteSeconds (HourMarker.toAbsolute a value) m s.snd
+    some <| PlainTime.ofHourMinuteSeconds (HourMarker.toAbsolute a value) m s
 
   Formats.time12Hour.parseBuilder builder input
 

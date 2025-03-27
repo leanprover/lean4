@@ -82,14 +82,20 @@ def ofSeconds (s : Second.Offset) : Duration := by
 Creates a new `Duration` out of `Nanosecond.Offset`.
 -/
 def ofNanoseconds (s : Nanosecond.Offset) : Duration := by
-  refine ⟨s.ediv 1000000000, Bounded.LE.byMod s.val 1000000000 (by decide), ?_⟩
+  refine ⟨s.tdiv 1000000000, Bounded.LE.byMod s.val 1000000000 (by decide), ?_⟩
+
   cases Int.le_total s.val 0
-  next n => exact Or.inr (And.intro (Int.ediv_le_ediv (by decide) n) (mod_nonpos 1000000000 n (by decide)))
-  next n => exact Or.inl (And.intro (Int.ediv_nonneg n (by decide)) (Int.tmod_nonneg 1000000000 n))
+  next n => exact Or.inr (And.intro (tdiv_neg n (by decide)) (mod_nonpos 1000000000 n (by decide)))
+  next n => exact Or.inl (And.intro (Int.tdiv_nonneg n (by decide)) (Int.tmod_nonneg 1000000000 n))
   where
     mod_nonpos : ∀ {a : Int} (b : Int), (a ≤ 0) → (b ≥ 0) → 0 ≥ a.tmod b
     | .negSucc m, .ofNat n, _, _ => Int.neg_le_neg (Int.tmod_nonneg (↑n) (Int.ofNat_le.mpr (Nat.zero_le (m + 1))))
     | 0, n, _, _ => Int.eq_iff_le_and_ge.mp (Int.zero_tmod n) |>.left
+
+    tdiv_neg {a b : Int} (Ha : a ≤ 0) (Hb : 0 ≤ b) : a.tdiv b ≤ 0 :=
+    match a, b, Ha with
+    | .negSucc _, .ofNat _, _ => Int.neg_le_neg (Int.ofNat_le.mpr (Nat.zero_le _))
+    | 0,  n, _ => Int.eq_iff_le_and_ge.mp (Int.zero_tdiv n) |>.left
 
 /--
 Creates a new `Duration` out of `Millisecond.Offset`.
@@ -142,14 +148,14 @@ Converts a `Duration` to a `Minute.Offset`
 -/
 @[inline]
 def toMinutes (tm : Duration) : Minute.Offset :=
-  tm.second.ediv 60
+  tm.second.tdiv 60
 
 /--
 Converts a `Duration` to a `Day.Offset`
 -/
 @[inline]
 def toDays (tm : Duration) : Day.Offset :=
-  tm.second.ediv 86400
+  tm.second.tdiv 86400
 
 /--
 Normalizes `Second.Offset` and `NanoSecond.span` in order to build a new `Duration` out of it.

@@ -6,9 +6,6 @@ import Lean.Elab.Command
 open Lean
 open Lean.Compiler.LCNF
 
--- Run compilation twice to avoid the output caused by the inliner
-run_meta Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo]
-
 -- #eval fails if we uncomment this pass after I added a `floatLetIn` pass at the mono phase
 -- @[cpass]
 -- def floatLetInFixTest : PassInstaller := Testing.assertIsAtFixPoint |>.install `floatLetIn `floatLetInFix

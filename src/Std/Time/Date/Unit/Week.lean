@@ -39,6 +39,12 @@ instance : Inhabited Ordinal where
 def Offset : Type := UnitVal (86400 * 7)
   deriving Repr, BEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
+instance {x y : Offset} : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.val ≤ y.val))
+
+instance {x y : Offset} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
+
 instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
 
 namespace Ordinal

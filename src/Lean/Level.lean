@@ -5,8 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Array.QSort
-import Lean.Data.HashMap
-import Lean.Data.HashSet
 import Lean.Data.PersistentHashMap
 import Lean.Data.PersistentHashSet
 import Lean.Hygiene
@@ -359,7 +357,7 @@ private partial def isExplicitSubsumedAux (lvls : Array Level) (maxExplicit : Na
 private def isExplicitSubsumed (lvls : Array Level) (firstNonExplicit : Nat) : Bool :=
   if firstNonExplicit == 0 then false
   else
-    let max := (lvls.get! (firstNonExplicit - 1)).getOffset;
+    let max := lvls[firstNonExplicit - 1]!.getOffset
     isExplicitSubsumedAux lvls max firstNonExplicit
 
 partial def normalize (l : Level) : Level :=

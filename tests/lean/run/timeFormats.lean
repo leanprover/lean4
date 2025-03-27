@@ -277,7 +277,7 @@ Format
 
 def time₄ := time("23:13:12.324354679")
 def date₄ := date("2002-07-14")
-def datetime₅ := PlainDateTime.mk (PlainDate.ofYearMonthDayClip (-2000) 3 4) (PlainTime.mk 12 23 ⟨false, 12⟩ 0)
+def datetime₅ := PlainDateTime.mk (PlainDate.ofYearMonthDayClip (-2000) 3 4) (PlainTime.mk 12 23 12 0)
 def datetime₄ := datetime("2002-07-14T23:13:12.324354679")
 def zoned₄ := zoned("2002-07-14T23:13:12.324354679+09:00")
 def zoned₅ := zoned("2002-07-14T23:13:12.324354679+00:00")
@@ -806,7 +806,7 @@ info: ("19343232432-01-04T01:04:03.000000000",
 -/
 #guard_msgs in
 #eval
-  let r := (PlainDateTime.mk (PlainDate.ofYearMonthDayClip 19343232432 1 4) (PlainTime.mk 25 64 ⟨true, 3⟩ 0))
+  let r := PlainDateTime.mk (PlainDate.ofYearMonthDayClip 19343232432 1 4) (PlainTime.mk 25 64 3 0)
   let s := r.toLeanDateTimeString
   let r := PlainDateTime.parse s
   (s, r, datetime("1932-01-02T05:04:03.000000000"))

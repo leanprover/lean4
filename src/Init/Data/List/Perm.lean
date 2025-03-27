@@ -18,6 +18,10 @@ another.
 The notation `~` is used for permutation equivalence.
 -/
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- TODO: restore after an update-stage0
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 open Nat
 
 namespace List
@@ -43,6 +47,14 @@ instance : Trans (Perm (α := α)) (Perm (α := α)) (Perm (α := α)) where
   trans h₁ h₂ := Perm.trans h₁ h₂
 
 theorem perm_comm {l₁ l₂ : List α} : l₁ ~ l₂ ↔ l₂ ~ l₁ := ⟨Perm.symm, Perm.symm⟩
+
+protected theorem Perm.congr_left {l₁ l₂ : List α} (h : l₁ ~ l₂) (l₃ : List α) :
+    l₁ ~ l₃ ↔ l₂ ~ l₃ :=
+  ⟨h.symm.trans, h.trans⟩
+
+protected theorem Perm.congr_right {l₁ l₂ : List α} (h : l₁ ~ l₂) (l₃ : List α) :
+    l₃ ~ l₁ ↔ l₃ ~ l₂ :=
+  ⟨fun h' => h'.trans h, fun h' => h'.trans h.symm⟩
 
 theorem Perm.swap' (x y : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) : y :: x :: l₁ ~ x :: y :: l₂ :=
   (swap ..).trans <| p.cons _ |>.cons _
@@ -90,8 +102,8 @@ theorem Perm.append_left {t₁ t₂ : List α} : ∀ l : List α, t₁ ~ t₂ �
 theorem Perm.append {l₁ l₂ t₁ t₂ : List α} (p₁ : l₁ ~ l₂) (p₂ : t₁ ~ t₂) : l₁ ++ t₁ ~ l₂ ++ t₂ :=
   (p₁.append_right t₁).trans (p₂.append_left l₂)
 
-theorem Perm.append_cons (a : α) {h₁ h₂ t₁ t₂ : List α} (p₁ : h₁ ~ h₂) (p₂ : t₁ ~ t₂) :
-    h₁ ++ a :: t₁ ~ h₂ ++ a :: t₂ := p₁.append (p₂.cons a)
+theorem Perm.append_cons (a : α) {l₁ l₂ r₁ r₂ : List α} (p₁ : l₁ ~ l₂) (p₂ : r₁ ~ r₂) :
+    l₁ ++ a :: r₁ ~ l₂ ++ a :: r₂ := p₁.append (p₂.cons a)
 
 @[simp] theorem perm_middle {a : α} : ∀ {l₁ l₂ : List α}, l₁ ++ a :: l₂ ~ a :: (l₁ ++ l₂)
   | [], _ => .refl _
@@ -167,7 +179,7 @@ theorem Perm.singleton_eq (h : [a] ~ l) : [a] = l := singleton_perm.mp h
 theorem singleton_perm_singleton {a b : α} : [a] ~ [b] ↔ a = b := by simp
 
 theorem perm_cons_erase [DecidableEq α] {a : α} {l : List α} (h : a ∈ l) : l ~ a :: l.erase a :=
-  let ⟨_l₁, _l₂, _, e₁, e₂⟩ := exists_erase_eq h
+  let ⟨_, _, _, e₁, e₂⟩ := exists_erase_eq h
   e₂ ▸ e₁ ▸ perm_middle
 
 theorem Perm.filterMap (f : α → Option β) {l₁ l₂ : List α} (p : l₁ ~ l₂) :
@@ -216,7 +228,7 @@ theorem exists_perm_sublist {l₁ l₂ l₂' : List α} (s : l₁ <+ l₂) (p : 
     | .cons₂ _ (.cons _ s) => exact ⟨y :: _, .rfl, (s.cons₂ _).cons _⟩
     | .cons₂ _ (.cons₂ _ s) => exact ⟨x :: y :: _, .swap .., (s.cons₂ _).cons₂ _⟩
   | trans _ _ IH₁ IH₂ =>
-    let ⟨m₁, pm, sm⟩ := IH₁ s
+    let ⟨_, pm, sm⟩ := IH₁ s
     let ⟨r₁, pr, sr⟩ := IH₂ sm
     exact ⟨r₁, pr.trans pm, sr⟩
 
@@ -509,5 +521,19 @@ theorem Perm.eraseP (f : α → Bool) {l₁ l₂ : List α}
   | trans p₁ _ IH₁ IH₂ =>
     refine (IH₁ H).trans (IH₂ ((p₁.pairwise_iff ?_).1 H))
     exact fun h h₁ h₂ => h h₂ h₁
+
+theorem perm_insertIdx {α} (x : α) (l : List α) {i} (h : i ≤ l.length) :
+    l.insertIdx i x ~ x :: l := by
+  induction l generalizing i with
+  | nil =>
+    cases i with
+    | zero => rfl
+    | succ => cases h
+  | cons _ _ ih =>
+    cases i with
+    | zero => simp [insertIdx]
+    | succ =>
+      simp only [insertIdx, modifyTailIdx]
+      refine .trans (.cons _ (ih (Nat.le_of_succ_le_succ h))) (.swap ..)
 
 end List

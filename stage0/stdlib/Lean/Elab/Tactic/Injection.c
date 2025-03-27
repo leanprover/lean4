@@ -80,11 +80,11 @@ static lean_object* l___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_c
 lean_object* l_List_reverse___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalInjections(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_mapTR_loop___at_Lean_compileDecls_doCompile___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalInjection___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_checkUnusedIds___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInjections__1___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_getInjectionNewIds(lean_object*);
-lean_object* l_List_mapTR_loop___at_Lean_compileDecl___spec__1(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInjections_declRange__1___closed__3;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInjection__1(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInjection_declRange__1___closed__1;
@@ -216,7 +216,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_10 = lean_box(0);
-x_11 = l_List_mapTR_loop___at_Lean_compileDecl___spec__1(x_3, x_10);
+x_11 = l_List_mapTR_loop___at_Lean_compileDecls_doCompile___spec__1(x_3, x_10);
 x_12 = l_Lean_MessageData_ofList(x_11);
 x_13 = l___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_checkUnusedIds___closed__2;
 x_14 = lean_alloc_ctor(7, 2, 0);

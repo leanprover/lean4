@@ -309,6 +309,127 @@ def tryContradiction (mvarId : MVarId) : MetaM Bool := do
   mvarId.contradictionCore { genDiseq := true }
 
 /--
+Returns the type of the unfold theorem, as the starting point for calculating the equational
+types.
+-/
+private def unfoldThmType (declName : Name) : MetaM Expr := do
+  if let some unfoldThm ← getUnfoldEqnFor? declName (nonRec := false) then
+    let info ← getConstInfo unfoldThm
+    pure info.type
+  else
+    let info ← getConstInfoDefn declName
+    let us := info.levelParams.map mkLevelParam
+    lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
+      let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
+      mkForallFVars xs type
+
+private def unfoldLHS (declName : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+  if let some unfoldThm ← getUnfoldEqnFor? declName (nonRec := false) then
+    -- Recursive definition: Use unfolding lemma
+    let mut mvarId := mvarId
+    let target ← mvarId.getType'
+    let some (_, lhs, rhs) := target.eq? | throwError "unfoldLHS: Unexpected target {target}"
+    unless lhs.isAppOf declName do throwError "unfoldLHS: Unexpected LHS {lhs}"
+    let h := mkAppN (.const unfoldThm lhs.getAppFn.constLevels!) lhs.getAppArgs
+    let some (_, _, lhsNew) := (← inferType h).eq? | unreachable!
+    let targetNew ← mkEq lhsNew rhs
+    let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew
+    mvarId.assign (← mkEqTrans h mvarNew)
+    return mvarNew.mvarId!
+  else
+    -- Else use delta reduction
+    deltaLHS mvarId
+
+private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) : MetaM Expr := do
+  trace[Elab.definition.eqns] "proving: {type}"
+  withNewMCtxDepth do
+    let main ← mkFreshExprSyntheticOpaqueMVar type
+    let (_, mvarId) ← main.mvarId!.intros
+
+    -- Try rfl before deltaLHS to avoid `id` checkpoints in the proof, which would make
+    -- the lemma ineligible for dsimp
+    -- For well-founded recursion this is disabled: The equation may hold
+    -- definitionally as written, but not embedded in larger proofs
+    if tryRefl then
+      if (← withAtLeastTransparency .all (tryURefl mvarId)) then
+        return ← instantiateMVars main
+
+    go (← unfoldLHS declName mvarId)
+    instantiateMVars main
+  where
+  /--
+  The core loop of proving an equation. Assumes that the function call on the left-hand side has
+  already been unfolded, using whatever method applies to the current function definition strategy.
+
+  Currently used for non-recursive functions and partial fixpoints; maybe later well-founded
+  recursion and structural recursion can and should use this too.
+  -/
+  go (mvarId : MVarId) : MetaM Unit := do
+    trace[Elab.definition.eqns] "step\n{MessageData.ofGoal mvarId}"
+    if ← withAtLeastTransparency .all (tryURefl mvarId) then
+      return ()
+    else if (← tryContradiction mvarId) then
+      return ()
+    else if let some mvarId ← simpMatch? mvarId then
+      go mvarId
+    else if let some mvarId ← simpIf? mvarId then
+      go mvarId
+    else if let some mvarId ← whnfReducibleLHS? mvarId then
+      go mvarId
+    else
+      let ctx ← Simp.mkContext (config := { dsimp := false })
+      match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
+      | TacticResultCNM.closed => return ()
+      | TacticResultCNM.modified mvarId => go mvarId
+      | TacticResultCNM.noChange =>
+        if let some mvarIds ← casesOnStuckLHS? mvarId then
+          mvarIds.forM go
+        else if let some mvarIds ← splitTarget? mvarId then
+          mvarIds.forM go
+        else
+          throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+
+
+/--
+Generate equations for `declName`.
+
+This unfolds the function application on the LHS (using an unfold theorem, if present, or else by
+delta-reduction), calculates the types for the equational theorems using `mkEqnTypes`, and then
+proves them using `mkEqnProof`.
+
+This is currently used for non-recursive functions, well-founded recursion and partial_fixpoint,
+but not for structural recursion.
+-/
+def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (Array Name) := do
+  let info ← getConstInfoDefn declName
+  let us := info.levelParams.map mkLevelParam
+  withOptions (tactic.hygienic.set · false) do
+  let target ← unfoldThmType declName
+  let eqnTypes ← withNewMCtxDepth <|
+    forallTelescope (cleanupAnnotations := true) target fun xs target => do
+      let goal ← mkFreshExprSyntheticOpaqueMVar target
+      withReducible do
+        mkEqnTypes declNames goal.mvarId!
+  let mut thmNames := #[]
+  for h : i in [: eqnTypes.size] do
+    let type := eqnTypes[i]
+    trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
+    let name := (Name.str declName eqnThmSuffixBase).appendIndexAfter (i+1)
+    thmNames := thmNames.push name
+    -- determinism: `type` should be independent of the environment changes since `baseName` was
+    -- added
+    realizeConst declName name (doRealize name info type)
+  return thmNames
+where
+  doRealize name info type := withOptions (tactic.hygienic.set · false) do
+    let value ← mkEqnProof declName type tryRefl
+    let (type, value) ← removeUnusedEqnHypotheses type value
+    addDecl <| Declaration.thmDecl {
+      name, type, value
+      levelParams := info.levelParams
+    }
+
+/--
   Auxiliary method for `mkUnfoldEq`. The structure is based on `mkEqnTypes`.
   `mvarId` is the goal to be proved. It is a goal of the form
   ```
@@ -349,9 +470,12 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
   go mvarId
 
 /-- Generate the "unfold" lemma for `declName`. -/
-def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {} {} do
-  withOptions (tactic.hygienic.set · false) do
-    let baseName := declName
+def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := do
+  let name := Name.str declName unfoldThmSuffix
+  realizeConst declName name (doRealize name)
+  return name
+where
+  doRealize name := withOptions (tactic.hygienic.set · false) do
     lambdaTelescope info.value fun xs body => do
       let us := info.levelParams.map mkLevelParam
       let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
@@ -359,12 +483,10 @@ def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {
       mkUnfoldProof declName goal.mvarId!
       let type ← mkForallFVars xs type
       let value ← mkLambdaFVars xs (← instantiateMVars goal)
-      let name := Name.str baseName unfoldThmSuffix
       addDecl <| Declaration.thmDecl {
         name, type, value
         levelParams := info.levelParams
       }
-      return name
 
 def getUnfoldFor? (declName : Name) (getInfo? : Unit → Option EqnInfoCore) : MetaM (Option Name) := do
   if let some info := getInfo? () then

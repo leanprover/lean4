@@ -101,7 +101,7 @@ def StdVer.parse (ver : String) : Except String StdVer := do
     let core ← SemVerCore.parse <| ver.extract 0 sepPos
     let specialDescr := ver.extract (ver.next' sepPos h) ver.endPos
     if specialDescr.isEmpty then
-      throw "invalid Lean version: '-' suffix cannot be empty"
+      throw "invalid version: '-' suffix cannot be empty"
     return {toSemVerCore := core, specialDescr}
 
 protected def StdVer.toString (ver : StdVer) : String :=
@@ -250,7 +250,8 @@ private def toResultExpr [ToExpr α] (x : Except String α) : Except String Expr
 /-- A Lake version literal. -/
 scoped syntax:max (name := verLit) "v!" noWs interpolatedStr(term) : term
 
-@[term_elab verLit] def elabVerLit : TermElab := fun stx expectedType? => do
+@[term_elab verLit]
+def elabVerLit : TermElab := fun stx expectedType? => do
   let `(v!$v) := stx | throwUnsupportedSyntax
   tryPostponeIfNoneOrMVar expectedType?
   let some expectedType := expectedType?

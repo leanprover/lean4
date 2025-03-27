@@ -8,9 +8,8 @@ def f (x : MyEmpty) : Nat :=
 set_option trace.Compiler.result true
 /--
 info: [Compiler.result] size: 0
-    def f._redArg : Nat :=
+    def f x : Nat :=
       ⊥
-[Compiler.result] size: 0 def f x : Nat := ⊥
 -/
 #guard_msgs in
 run_meta Lean.Compiler.compile #[``f]

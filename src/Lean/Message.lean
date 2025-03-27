@@ -91,7 +91,7 @@ inductive MessageData where
   If the thunked message is produced for a term that contains a synthetic sorry,
   `hasSyntheticSorry` should return `true`.
   This is used to filter out certain messages. -/
-  | ofLazy (f : Option PPContext → IO Dynamic) (hasSyntheticSorry : MetavarContext → Bool)
+  | ofLazy (f : Option PPContext → BaseIO Dynamic) (hasSyntheticSorry : MetavarContext → Bool)
   deriving Inhabited, TypeName
 
 namespace MessageData
@@ -103,7 +103,7 @@ def ofFormat (fmt : Format) : MessageData := .ofFormatWithInfos ⟨fmt, .empty�
 Lazy message data production, with access to the context as given by
 a surrounding `MessageData.withContext` (which is expected to exist).
 -/
-def lazy (f : PPContext → IO MessageData)
+def lazy (f : PPContext → BaseIO MessageData)
     (hasSyntheticSorry : MetavarContext → Bool := fun _ => false) : MessageData :=
   .ofLazy (hasSyntheticSorry := hasSyntheticSorry) fun ctx? => do
     let msg ← match ctx? with
@@ -220,9 +220,18 @@ where
   | trace _ msg msgs        => visit mctx? msg || msgs.any (visit mctx?)
   | _                       => false
 
-partial def formatAux : NamingContext → Option MessageDataContext → MessageData → IO Format
-  | _, _,            ofFormatWithInfos fmt    => return fmt.1
-  | _,    none,      ofGoal mvarId            => return "goal " ++ format (mkMVar mvarId)
+/--
+Maximum number of trace node children to display by default to prevent slowdowns from rendering. In
+the info view, more children can be expanded interactively.
+-/
+register_option maxTraceChildren : Nat := {
+  defValue := 50
+  descr := "Maximum number of trace node children to display"
+}
+
+partial def formatAux : NamingContext → Option MessageDataContext → MessageData → BaseIO Format
+  | _,    _,         ofFormatWithInfos fmt    => return fmt.1
+  | _,    none,      ofGoal mvarId            => return formatRawGoal mvarId
   | nCtx, some ctx,  ofGoal mvarId            => ppGoal (mkPPContext nCtx ctx) mvarId
   | nCtx, ctx,       ofWidget _ d             => formatAux nCtx ctx d
   | nCtx, _,         withContext ctx d        => formatAux nCtx ctx d
@@ -232,22 +241,31 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | nCtx, ctx,       compose d₁ d₂            => return (← formatAux nCtx ctx d₁) ++ (← formatAux nCtx ctx d₂)
   | nCtx, ctx,       group d                  => Format.group <$> formatAux nCtx ctx d
   | nCtx, ctx,       trace data header children => do
+    let childFmts ← children.mapM (formatAux nCtx ctx)
+    if data.cls.isAnonymous then
+      -- Sequence of top-level traces collected by `addTraceAsMessages`, do not indent.
+      return .joinSep childFmts.toList "\n"
+
     let mut msg := f!"[{data.cls}]"
     if data.startTime != 0 then
       msg := f!"{msg} [{data.stopTime - data.startTime}]"
     msg := f!"{msg} {(← formatAux nCtx ctx header).nest 2}"
-    let children ← children.mapM (formatAux nCtx ctx)
-    return .nest 2 (.joinSep (msg::children.toList) "\n")
+    let mut children := children
+    if let some maxNum := ctx.map (maxTraceChildren.get ·.opts) then
+      if maxNum > 0 && children.size > maxNum then
+        children := children.take maxNum |>.push <|
+          ofFormat f!"{children.size - maxNum} more entries... (increase `maxTraceChildren` to see more)"
+    return .nest 2 (.joinSep (msg::childFmts.toList) "\n")
   | nCtx, ctx?,      ofLazy pp _             => do
     let dyn ← pp (ctx?.map (mkPPContext nCtx))
     let some msg := dyn.get? MessageData
       | panic! s!"MessageData.ofLazy: expected MessageData in Dynamic, got {dyn.typeName}"
     formatAux nCtx ctx? msg
 
-protected def format (msgData : MessageData) (ctx? : Option MessageDataContext := none) : IO Format :=
+protected def format (msgData : MessageData) (ctx? : Option MessageDataContext := none) : BaseIO Format :=
   formatAux { currNamespace := Name.anonymous, openDecls := [] } ctx? msgData
 
-protected def toString (msgData : MessageData) : IO String := do
+protected def toString (msgData : MessageData) : BaseIO String := do
   return toString (← msgData.format)
 
 instance : Append MessageData := ⟨compose⟩
@@ -329,6 +347,12 @@ structure BaseMessage (α : Type u) where
   /-- If `true`, report range as given; see `msgToInteractiveDiagnostic`. -/
   keepFullRange : Bool := false
   severity      : MessageSeverity := .error
+  /--
+  If `true`, filter this message from non-language server output.
+  In the language server, silent messages are served as silent diagnostics.
+  See also `DiagnosticWith.isSilent?`.
+  -/
+  isSilent      : Bool := false
   caption       : String          := ""
   /-- The content of the message. -/
   data          : α
@@ -374,14 +398,14 @@ namespace Message
   msg.data.kind
 
 /-- Serializes the message, converting its data into a string and saving its kind. -/
-@[inline] def serialize (msg : Message) : IO SerialMessage := do
+@[inline] def serialize (msg : Message) : BaseIO SerialMessage := do
   return {msg with kind := msg.kind, data := ← msg.data.toString}
 
-protected def toString (msg : Message) (includeEndPos := false) : IO String := do
+protected def toString (msg : Message) (includeEndPos := false) : BaseIO String := do
   -- Remark: The inline here avoids a new message allocation when `msg` is shared
   return inline <| (← msg.serialize).toString includeEndPos
 
-protected def toJson (msg : Message) : IO Json := do
+protected def toJson (msg : Message) : BaseIO Json := do
   -- Remark: The inline here avoids a new message allocation when `msg` is shared
   return inline <| toJson (← msg.serialize)
 
@@ -391,23 +415,14 @@ end Message
 A persistent array of messages.
 
 In the Lean elaborator, we use a fresh message log per command but may also report diagnostics at
-various points inside a command, which will empty `unreported` and updated `hadErrors` accordingly
-(see `CoreM.getAndEmptyMessageLog`).
+various points inside a command, which will empty `unreported` and move its messages to `reported`.
+Reported messages are preserved for some specific "lookback" operations such as `hasError` that
+should consider the entire message history of the current command; most other functions such as
+`add` and `toList` will only operate on unreported messages.
 -/
 structure MessageLog where
-  /--
-  If true, there was an error in the log previously that has already been reported to the user and
-  removed from the log. Thus we say that in the current context (usually the current command), we
-  "have errors" if either this flag is set or there is an error in `msgs`; see
-  `MessageLog.hasErrors`. If we have errors, we suppress some error messages that are often the
-  result of a previous error.
-  -/
-  /-
-  Design note: We considered introducing a `hasErrors` field instead that already includes the
-  presence of errors in `msgs` but this would not be compatible with e.g.
-  `MessageLog.errorsToWarnings`.
-  -/
-  hadErrors : Bool := false
+  /-- The list of messages already reported (i.e. saved in a `Snapshot`), in insertion order. -/
+  reported : PersistentArray Message := {}
   /-- The list of messages not already reported, in insertion order. -/
   unreported : PersistentArray Message := {}
   /--
@@ -416,15 +431,20 @@ structure MessageLog where
   the configuration option `exponentiation.threshold`.
   We don't produce a warning if the kind is already in the following set.
   -/
-  reportedKinds : NameSet := {}
+  loggedKinds : NameSet := {}
   deriving Inhabited
 
 namespace MessageLog
 def empty : MessageLog := {}
 
+-- Despite having been deprecated, the archived `LeanInk` project (which CI still uses)
+-- relies on this name.
 @[deprecated "renamed to `unreported`; direct access should in general be avoided in favor of \
 using `MessageLog.toList/toArray`" (since := "2024-05-22")]
 def msgs : MessageLog → PersistentArray Message := unreported
+
+def reportedPlusUnreported : MessageLog → PersistentArray Message
+  | { reported := r, unreported := u, .. } => r ++ u
 
 def hasUnreported (log : MessageLog) : Bool :=
   !log.unreported.isEmpty
@@ -432,21 +452,30 @@ def hasUnreported (log : MessageLog) : Bool :=
 def add (msg : Message) (log : MessageLog) : MessageLog :=
   { log with unreported := log.unreported.push msg }
 
-protected def append (l₁ l₂ : MessageLog) : MessageLog :=
-  { hadErrors := l₁.hadErrors || l₂.hadErrors, unreported := l₁.unreported ++ l₂.unreported }
+protected def append (l₁ l₂ : MessageLog) : MessageLog where
+  reported := l₁.reported ++ l₂.reported
+  unreported := l₁.unreported ++ l₂.unreported
+  loggedKinds := l₁.loggedKinds.union l₂.loggedKinds
 
 instance : Append MessageLog :=
   ⟨MessageLog.append⟩
 
+/--
+Checks if either of `reported` or `unreported` contains an error, i.e. whether the current command
+has errored yet.
+-/
 def hasErrors (log : MessageLog) : Bool :=
-  log.hadErrors || log.unreported.any (·.severity matches .error)
+  log.reported.any (·.severity matches .error) || log.unreported.any (·.severity matches .error)
 
-/-- Clears unreported messages while preserving `hasErrors`. -/
+/-- Moves `unreported` messages to `reported`. -/
 def markAllReported (log : MessageLog) : MessageLog :=
-  { log with unreported := {}, hadErrors  := log.hasErrors }
+  { log with unreported := {}, reported := log.reported ++ log.unreported }
 
 def errorsToWarnings (log : MessageLog) : MessageLog :=
   { unreported := log.unreported.map (fun m => match m.severity with | MessageSeverity.error => { m with severity := MessageSeverity.warning } | _ => m) }
+
+def errorsToInfos (log : MessageLog) : MessageLog :=
+  { unreported := log.unreported.map (fun m => match m.severity with | MessageSeverity.error => { m with severity := MessageSeverity.information } | _ => m) }
 
 def getInfoMessages (log : MessageLog) : MessageLog :=
   { unreported := log.unreported.filter fun m => match m.severity with | MessageSeverity.information => true | _ => false }
@@ -472,6 +501,17 @@ def indentD (msg : MessageData) : MessageData :=
 
 def indentExpr (e : Expr) : MessageData :=
   indentD e
+
+/-- Atom quotes -/
+def aquote (msg : MessageData) : MessageData :=
+  "「" ++ msg ++ "」"
+
+/-- Quote `e` using `「` and `」` if `e` is not a free variable, constant, or literal. -/
+def quoteIfNotAtom (e : Expr) : MessageData :=
+  if e.isFVar || e.isConst || e.isLit then
+    e
+  else
+    aquote e
 
 class AddMessageContext (m : Type → Type) where
   /--
@@ -537,12 +577,12 @@ macro_rules
 def toMessageList (msgs : Array MessageData) : MessageData :=
   indentD (MessageData.joinSep msgs.toList m!"\n\n")
 
-namespace KernelException
+namespace Kernel.Exception
 
 private def mkCtx (env : Environment) (lctx : LocalContext) (opts : Options) (msg : MessageData) : MessageData :=
-  MessageData.withContext { env := env, mctx := {}, lctx := lctx, opts := opts } msg
+  MessageData.withContext { env := .ofKernelEnv env, mctx := {}, lctx := lctx, opts := opts } msg
 
-def toMessageData (e : KernelException) (opts : Options) : MessageData :=
+def toMessageData (e : Kernel.Exception) (opts : Options) : MessageData :=
   match e with
   | unknownConstant env constName       => mkCtx env {} opts m!"(kernel) unknown constant '{constName}'"
   | alreadyDeclared env constName       => mkCtx env {} opts m!"(kernel) constant has already been declared '{.ofConstName constName true}'"
@@ -561,7 +601,7 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   | letTypeMismatch  env lctx n _ _     => mkCtx env lctx opts m!"(kernel) let-declaration type mismatch '{n}'"
   | exprTypeMismatch env lctx e _       => mkCtx env lctx opts m!"(kernel) type mismatch at{indentExpr e}"
   | appTypeMismatch  env lctx e fnType argType =>
-    mkCtx env lctx opts m!"application type mismatch{indentExpr e}\nargument has type{indentExpr argType}\nbut function has type{indentExpr fnType}"
+    mkCtx env lctx opts m!"(kernel) application type mismatch{indentExpr e}\nargument has type{indentExpr argType}\nbut function has type{indentExpr fnType}"
   | invalidProj env lctx e              => mkCtx env lctx opts m!"(kernel) invalid projection{indentExpr e}"
   | thmTypeIsNotProp env constName type => mkCtx env {} opts m!"(kernel) type of theorem '{.ofConstName constName true}' is not a proposition{indentExpr type}"
   | other msg                           => m!"(kernel) {msg}"
@@ -570,5 +610,5 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   | deepRecursion                       => "(kernel) deep recursion detected"
   | interrupted                         => "(kernel) interrupted"
 
-end KernelException
+end Kernel.Exception
 end Lean

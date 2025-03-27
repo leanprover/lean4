@@ -1,5 +1,6 @@
 macroSwizzle.lean:4:7-4:23: error: failed to synthesize
   HAdd Bool String ?m
+
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 macroSwizzle.lean:6:7-6:10: error: application type mismatch
   Nat.succ "x"

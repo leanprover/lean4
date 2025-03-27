@@ -4,30 +4,24 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Revert
 
 namespace Lean.Meta.Grind
-
 /--
-Revert all free variables at goal `mvarId`.
+Reverts all free variables in the goal `mvarId`.
+**Remark**: Auxiliary local declarations are cleared.
+The `grind` tactic also clears them, but this tactic can be used independently by users.
 -/
 def _root_.Lean.MVarId.revertAll (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   mvarId.checkNotAssigned `revertAll
-  let fvarIds := (← getLCtx).getFVarIds
-  let fvars ← fvarIds.filterMapM fun fvarId => do
-    if (← fvarId.getDecl).isAuxDecl then
-      return none
-    else
-      return some (mkFVar fvarId)
-  let tag ← mvarId.getTag
+  let mut toRevert := #[]
+  for fvarId in (← getLCtx).getFVarIds do
+    unless (← fvarId.getDecl).isAuxDecl do
+      toRevert := toRevert.push fvarId
   mvarId.setKind .natural
-  let (e, _) ←
-    try
-      liftMkBindingM <| MetavarContext.revert fvars mvarId (preserveOrder := true)
-    finally
-      mvarId.setKind .syntheticOpaque
-  let mvar := e.getAppFn
-  mvar.mvarId!.setTag tag
-  return mvar.mvarId!
+  let (_, mvarId) ← mvarId.revert toRevert
+    (preserveOrder := true)
+    (clearAuxDeclsInsteadOfRevert := true)
+  return mvarId
 
 end Lean.Meta.Grind

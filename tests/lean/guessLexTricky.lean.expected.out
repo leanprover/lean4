@@ -1,6 +1,6 @@
-Inferred termination argument:
+Inferred termination measure:
 termination_by (y, 1, 0)
-Inferred termination argument:
+Inferred termination measure:
 termination_by (y, 0, 1)
-Inferred termination argument:
+Inferred termination measure:
 termination_by (y, 0, 0)

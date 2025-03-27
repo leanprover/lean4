@@ -16,7 +16,7 @@ namespace Decl
 
 def relabel (r : α → β) (decl : Decl α) : Decl β :=
   match decl with
-  | .const b => .const b
+  | .false => .false
   | .atom a => .atom (r a)
   | .gate lhs rhs linv rinv => .gate lhs rhs linv rinv
 
@@ -28,9 +28,9 @@ theorem relabel_comp (decl : Decl α) (g : α → β) (h : β → γ) :
     relabel (h ∘ g) decl = relabel h (relabel g decl) := by
   cases decl <;> rfl
 
-theorem relabel_const {decls : Array (Decl α)} {r : α → β} {hidx : idx < decls.size}
-    (h : relabel r decls[idx] = .const b) :
-    decls[idx] = (.const b) := by
+theorem relabel_false {decls : Array (Decl α)} {r : α → β} {hidx : idx < decls.size}
+    (h : relabel r decls[idx] = .false) :
+    decls[idx] = .false := by
   unfold relabel at h
   split at h <;> simp_all
 
@@ -65,7 +65,7 @@ def relabel (r : α → β) (aig : AIG α) : AIG β :=
     cache,
     invariant := by
       intro idx lhs rhs linv rinv hbound hgate
-      simp [decls] at hgate
+      simp +zetaDelta [decls] at hgate
       have := Decl.relabel_gate hgate
       apply aig.invariant
       assumption
@@ -76,10 +76,10 @@ theorem relabel_size_eq_size {aig : AIG α} {r : α → β} :
     (aig.relabel r).decls.size = aig.decls.size := by
   simp [relabel]
 
-theorem relabel_const {aig : AIG α} {r : α → β} {hidx : idx < (relabel r aig).decls.size}
-    (h : (relabel r aig).decls[idx]'hidx = .const b) :
-    aig.decls[idx]'(by rw [← relabel_size_eq_size (r := r)]; omega) = .const b := by
-  apply Decl.relabel_const
+theorem relabel_false {aig : AIG α} {r : α → β} {hidx : idx < (relabel r aig).decls.size}
+    (h : (relabel r aig).decls[idx]'hidx = .false) :
+    aig.decls[idx]'(by rw [← relabel_size_eq_size (r := r)]; omega) = .false := by
+  apply Decl.relabel_false
   simpa [relabel] using h
 
 
@@ -98,14 +98,14 @@ theorem relabel_gate {aig : AIG α} {r : α → β} {hidx : idx < (relabel r aig
 @[simp]
 theorem denote_relabel (aig : AIG α) (r : α → β) (start : Nat) {hidx}
     (assign : β → Bool) :
-    ⟦aig.relabel r, ⟨start, hidx⟩, assign⟧
+    ⟦aig.relabel r, ⟨start, invert, hidx⟩, assign⟧
       =
-    ⟦aig, ⟨start, by rw [← relabel_size_eq_size (r := r)]; omega⟩, (assign ∘ r)⟧ := by
+    ⟦aig, ⟨start, invert, by rw [← relabel_size_eq_size (r := r)]; omega⟩, (assign ∘ r)⟧ := by
   apply denote_idx_trichotomy
-  · intro b heq1
-    have heq2 := relabel_const heq1
-    rw [denote_idx_const heq1]
-    rw [denote_idx_const heq2]
+  · intro heq1
+    have heq2 := relabel_false heq1
+    rw [denote_idx_false heq1]
+    rw [denote_idx_false heq2]
   · intro a heq1
     rw [denote_idx_atom heq1]
     rcases relabel_atom heq1 with ⟨x, ⟨hlx, hrx⟩⟩
@@ -121,14 +121,14 @@ theorem denote_relabel (aig : AIG α) (r : α → β) (start : Nat) {hidx}
     rw [denote_relabel aig r rhs assign]
 
 theorem unsat_relabel {aig : AIG α} (r : α → β) {hidx} :
-    aig.UnsatAt idx hidx → (aig.relabel r).UnsatAt idx (by simp [hidx]) := by
+    aig.UnsatAt idx invert hidx → (aig.relabel r).UnsatAt idx invert (by simp [hidx]) := by
   intro h assign
   specialize h (assign ∘ r)
   simp [h]
 
 theorem relabel_unsat_iff [Nonempty α] {aig : AIG α} {r : α → β} {hidx1} {hidx2}
     (hinj : ∀ x y, x ∈ aig → y ∈ aig → r x = r y → x = y) :
-    (aig.relabel r).UnsatAt idx hidx1 ↔ aig.UnsatAt idx hidx2 := by
+    (aig.relabel r).UnsatAt idx invert hidx1 ↔ aig.UnsatAt idx invert hidx2 := by
   constructor
   · intro h assign
     let g : β → α := fun b =>

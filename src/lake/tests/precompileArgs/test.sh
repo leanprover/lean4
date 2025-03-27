@@ -21,9 +21,9 @@ fi
 
 # Test that dynlibs are part of the module trace unless `platformIndependent` is set
 $LAKE build -R
-echo foo > .lake/build/lib/${LIB_PREFIX}Foo-Bar-1.$SHARED_LIB_EXT
+echo foo > .lake/build/lib/lean/Foo_Bar.$SHARED_LIB_EXT
 ($LAKE build 2>&1 --rehash && exit 1 || true) | grep --color "Building Foo"
-rm .lake/build/lib/${LIB_PREFIX}Foo-Bar-1.$SHARED_LIB_EXT
+rm .lake/build/lib/lean/Foo_Bar.$SHARED_LIB_EXT
 $LAKE build -R -KplatformIndependent=true
-echo foo > .lake/build/lib/${LIB_PREFIX}Foo-Bar-1.$SHARED_LIB_EXT
+echo foo > .lake/build/lib/lean/Foo_Bar.$SHARED_LIB_EXT
 $LAKE build --rehash --no-build

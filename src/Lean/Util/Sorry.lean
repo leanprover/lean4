@@ -9,17 +9,17 @@ import Lean.Declaration
 
 namespace Lean
 
-def Expr.isSorry : Expr → Bool
-  | app (app (.const ``sorryAx ..) ..) .. => true
-  | _ => false
+/-- Returns `true` if the expression is an application of `sorryAx`. -/
+def Expr.isSorry (e : Expr) : Bool :=
+  e.isAppOf ``sorryAx
 
-def Expr.isSyntheticSorry : Expr → Bool
-  | app (app (const ``sorryAx ..) ..) (const ``Bool.true ..) => true
-  | _ => false
+/-- Returns `true` if the expression is of the form `sorryAx _ true ..`. -/
+def Expr.isSyntheticSorry (e : Expr) : Bool :=
+  e.isAppOf ``sorryAx && e.getAppNumArgs ≥ 2 && (e.getArg! 1).isConstOf ``Bool.true
 
-def Expr.isNonSyntheticSorry : Expr → Bool
-  | app (app (const ``sorryAx ..) ..) (const ``Bool.false ..) => true
-  | _ => false
+/-- Returns `true` if the expression is of the form `sorryAx _ false ..`. -/
+def Expr.isNonSyntheticSorry (e : Expr) : Bool :=
+  e.isAppOf ``sorryAx && e.getAppNumArgs ≥ 2 && (e.getArg! 1).isConstOf ``Bool.false
 
 def Expr.hasSorry (e : Expr) : Bool :=
   Option.isSome <| e.find? (·.isConstOf ``sorryAx)

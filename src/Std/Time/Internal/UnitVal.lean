@@ -59,11 +59,20 @@ def mul (unit : UnitVal a) (factor : Int) : UnitVal (a / factor) :=
   ⟨unit.val * factor⟩
 
 /--
-Divides the `UnitVal` by an `Int`, resulting in a new `UnitVal` with an adjusted ratio.
+Divides the `UnitVal` by an `Int`, resulting in a new `UnitVal` with an adjusted ratio. Using the
+E-rounding convention (euclidean division)
 -/
 @[inline]
 def ediv (unit : UnitVal a) (divisor : Int) : UnitVal (a * divisor) :=
   ⟨unit.val.ediv divisor⟩
+
+/--
+Divides the `UnitVal` by an `Int`, resulting in a new `UnitVal` with an adjusted ratio. Using the
+"T-rounding" (Truncation-rounding) convention
+-/
+@[inline]
+def tdiv (unit : UnitVal a) (divisor : Int) : UnitVal (a * divisor) :=
+  ⟨unit.val.tdiv divisor⟩
 
 /--
 Divides the `UnitVal` by an `Int`, resulting in a new `UnitVal` with an adjusted ratio.

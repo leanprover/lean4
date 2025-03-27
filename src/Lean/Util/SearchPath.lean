@@ -19,5 +19,7 @@ This must not be used in files that are potentially compiled on another machine 
 (That is, if used in an imported file it will embed the search path from whichever machine
 compiled the `.olean`.)
 -/
-elab "compile_time_search_path%" : term =>
+@[deprecated "Deprecated without replacement." (since := "2025-02-10")]
+elab "compile_time_search_path%" : term => do
+  logWarning "`compile_time_search_path%` is deprecated; use `initSearchPath (← findSysroot)` instead."
   return toExpr (← searchPathRef.get)

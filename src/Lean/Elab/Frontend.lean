@@ -33,7 +33,6 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
     cmdPos       := s.cmdPos
     fileName     := ctx.inputCtx.fileName
     fileMap      := ctx.inputCtx.fileMap
-    tacticCache? := none
     snap?        := none
     cancelTk?    := none
   }
@@ -113,9 +112,9 @@ where
         |>.foldl (· ++ ·) {}
       -- In contrast to messages, we should collect info trees only from the top-level command
       -- snapshots as they subsume any info trees reported incrementally by their children.
-      let trees := commands.map (·.finishedSnap.get.infoTree?) |>.filterMap id |>.toPArray'
+      let trees := commands.map (·.infoTreeSnap.get.infoTree?) |>.filterMap id |>.toPArray'
       return {
-        commandState := { snap.finishedSnap.get.cmdState with messages, infoState.trees := trees }
+        commandState := { snap.resultSnap.get.cmdState with messages, infoState.trees := trees }
         parserState := snap.parserState
         cmdPos := snap.parserState.pos
         commands := commands.map (·.stx)
@@ -142,15 +141,20 @@ def runFrontend
     (trustLevel : UInt32 := 0)
     (ileanFileName? : Option String := none)
     (jsonOutput : Bool := false)
+    (errorOnKinds : Array Name := #[])
+    (plugins : Array System.FilePath := #[])
     : IO (Environment × Bool) := do
   let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
-  let opts := Language.Lean.internal.cmdlineSnapshots.setIfNotSet opts true
+  let opts := Lean.internal.cmdlineSnapshots.setIfNotSet opts true
+  -- default to async elaboration; see also `Elab.async` docs
+  let opts := Elab.async.setIfNotSet opts true
   let ctx := { inputCtx with }
   let processor := Language.Lean.process
-  let snap ← processor (fun _ => pure <| .ok { mainModuleName, opts, trustLevel }) none ctx
+  let snap ← processor (fun _ => pure <| .ok { mainModuleName, opts, trustLevel, plugins }) none ctx
   let snaps := Language.toSnapshotTree snap
-  snaps.runAndReport opts jsonOutput
+  let severityOverrides := errorOnKinds.foldl (·.insert · .error) {}
+  let hasErrors ← snaps.runAndReport opts jsonOutput severityOverrides
 
   if let some ileanFileName := ileanFileName? then
     let trees := snaps.getAll.flatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
@@ -168,7 +172,6 @@ def runFrontend
     let profile ← Firefox.Profile.export mainModuleName.toString startTime traceStates opts
     IO.FS.writeFile ⟨out⟩ <| Json.compress <| toJson profile
 
-  let hasErrors := snaps.getAll.any (·.diagnostics.msgLog.hasErrors)
   -- no point in freeing the snapshot graph and all referenced data this close to process exit
   Runtime.forget snaps
   pure (cmdState.env, !hasErrors)

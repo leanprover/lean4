@@ -358,7 +358,6 @@ set_option pp.analyze.trustSubtypeMk true in
 #testDelabN Array.mk.injEq
 #testDelabN Lean.PrefixTree.empty
 #testDelabN Lean.PersistentHashMap.getCollisionNodeSize.match_1
-#testDelabN Lean.HashMap.size.match_1
 #testDelabN and_false
 #testDelabN Lean.Server.FileWorker.handlePlainTermGoal
 #testDelabN Lean.Server.FileWorker.handlePlainGoal

@@ -252,6 +252,13 @@ def registerEnumAttributes (attrDescrs : List (Name × String × α))
       let r : Array (Name × α) := m.fold (fun a n p => a.push (n, p)) #[]
       r.qsort (fun a b => Name.quickLt a.1 b.1)
     statsFn         := fun s => "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
+    -- We assume (and check below) that, if used asynchronously, enum attributes are set only in the
+    -- same context in which the tagged declaration was created
+    asyncMode       := .async
+    replay?         := some fun _ newState consts st => consts.foldl (init := st) fun st c =>
+      match newState.find? c with
+      | some v => st.insert c v
+      | _      => st
   }
   let attrs := attrDescrs.map fun (name, descr, val) => {
     ref             := ref
@@ -279,15 +286,16 @@ def getValue [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl
     match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
     | some (_, val) => some val
     | none          => none
-  | none        => (attr.ext.getState env).find? decl
+  | none        => (attr.ext.findStateAsync env decl).find? decl
 
-def setValue (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val : α) : Except String Environment :=
+def setValue (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val : α) : Except String Environment := do
   if (env.getModuleIdxFor? decl).isSome then
-    Except.error ("invalid '" ++ toString attrs.ext.name ++ "'.setValue, declaration is in an imported module")
-  else if ((attrs.ext.getState env).find? decl).isSome then
-    Except.error ("invalid '" ++ toString attrs.ext.name ++ "'.setValue, attribute has already been set")
-  else
-    Except.ok (attrs.ext.addEntry env (decl, val))
+    throw s!"invalid '{attrs.ext.name}'.setValue, declaration is in an imported module"
+  if !env.asyncMayContain decl then
+    throw s!"invalid '{attrs.ext.name}'.setValue, declaration is not from this async context"
+  if ((attrs.ext.findStateAsync env decl).find? decl).isSome then
+    throw s!"invalid '{attrs.ext.name}'.setValue, attribute has already been set"
+  return attrs.ext.addEntry env (decl, val)
 
 end EnumAttributes
 

@@ -10,7 +10,17 @@ import Init.Control.Lawful.Basic
 
 namespace Option
 
-@[congr] theorem forIn'_congr [Monad m] [LawfulMonad m]{as bs : Option α} (w : as = bs)
+@[simp] theorem forM_none [Monad m] (f : α → m PUnit) :
+    none.forM f = pure .unit := rfl
+
+@[simp] theorem forM_some [Monad m] (f : α → m PUnit) (a : α) :
+    (some a).forM f = f a := rfl
+
+@[simp] theorem forM_map [Monad m] [LawfulMonad m] (o : Option α) (g : α → β) (f : β → m PUnit) :
+    (o.map g).forM f = o.forM (fun a => f (g a)) := by
+  cases o <;> simp
+
+@[congr] theorem forIn'_congr [Monad m] [LawfulMonad m] {as bs : Option α} (w : as = bs)
     {b b' : β} (hb : b = b')
     {f : (a' : α) → a' ∈ as → β → m (ForInStep β)}
     {g : (a' : α) → a' ∈ bs → β → m (ForInStep β)}
@@ -36,7 +46,7 @@ theorem forIn'_eq_pelim [Monad m] [LawfulMonad m]
       o.pelim (pure b) (fun a h => g a h b <$> f a h b) := by
   cases o <;> simp
 
-theorem forIn'_pure_yield_eq_pelim [Monad m] [LawfulMonad m]
+@[simp] theorem forIn'_pure_yield_eq_pelim [Monad m] [LawfulMonad m]
     (o : Option α) (f : (a : α) → a ∈ o → β → β) (b : β) :
     forIn' o b (fun a m b => pure (.yield (f a m b))) =
       pure (f := m) (o.pelim b (fun a h => f a h b)) := by
@@ -46,6 +56,11 @@ theorem forIn'_pure_yield_eq_pelim [Monad m] [LawfulMonad m]
     (o : Option α) (f : (a : α) → a ∈ o → β → β) (b : β) :
     forIn' (m := Id) o b (fun a m b => .yield (f a m b)) =
       o.pelim b (fun a h => f a h b) := by
+  cases o <;> simp
+
+@[simp] theorem forIn'_map [Monad m] [LawfulMonad m]
+    (o : Option α) (g : α → β) (f : (b : β) → b ∈ o.map g → γ → m (ForInStep γ)) :
+    forIn' (o.map g) init f = forIn' o init fun a h y => f (g a) (mem_map_of_mem g h) y := by
   cases o <;> simp
 
 theorem forIn_eq_elim [Monad m] [LawfulMonad m]
@@ -60,7 +75,7 @@ theorem forIn_eq_elim [Monad m] [LawfulMonad m]
       o.elim (pure b) (fun a => g a b <$> f a b) := by
   cases o <;> simp
 
-theorem forIn_pure_yield_eq_elim [Monad m] [LawfulMonad m]
+@[simp] theorem forIn_pure_yield_eq_elim [Monad m] [LawfulMonad m]
     (o : Option α) (f : (a : α) → β → β) (b : β) :
     forIn o b (fun a b => pure (.yield (f a b))) =
       pure (f := m) (o.elim b (fun a => f a b)) := by
@@ -70,6 +85,11 @@ theorem forIn_pure_yield_eq_elim [Monad m] [LawfulMonad m]
     (o : Option α) (f : (a : α) → β → β) (b : β) :
     forIn (m := Id) o b (fun a b => .yield (f a b)) =
       o.elim b (fun a => f a b) := by
+  cases o <;> simp
+
+@[simp] theorem forIn_map [Monad m] [LawfulMonad m]
+    (o : Option α) (g : α → β) (f : β → γ → m (ForInStep γ)) :
+    forIn (o.map g) init f = forIn o init fun a y => f (g a) y := by
   cases o <;> simp
 
 end Option

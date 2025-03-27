@@ -94,7 +94,7 @@ fields:
   D.d : Nat
 constructor:
   D.mk (toB : B) (c d : Nat) : D
-resolution order:
+field notation resolution order:
   D, B, C, A
 -/
 #guard_msgs in #print D

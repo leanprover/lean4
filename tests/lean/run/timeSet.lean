@@ -91,7 +91,7 @@ info: zoned("2014-06-16T10:03:03.000000000-03:00")
 info: zoned("2014-06-16T10:03:59.000000000-03:00")
 -/
 #guard_msgs in
-#eval date₁.withSeconds ⟨true, 59⟩
+#eval date₁.withSeconds 59
 
 /--
 info: zoned("2014-06-16T10:03:03.000000002-03:00")

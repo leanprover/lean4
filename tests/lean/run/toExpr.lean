@@ -14,16 +14,17 @@ let decl := Declaration.defnDecl {
   safety      := DefinitionSafety.safe
 };
 IO.println (toExpr a);
-(match env.addAndCompile {} decl with
-| Except.error _ => throwError "addDecl failed"
-| Except.ok env  =>
-  match env.evalConst α {} auxName with
-  | Except.error ex => throwError ex
-  | Except.ok b => do
-    IO.println b;
-    unless a == b do
-      throwError "toExpr failed";
-    pure ())
+let oldEnv ← getEnv;
+addAndCompile decl;
+let newEnv ← getEnv
+setEnv oldEnv
+match newEnv.evalConst α {} auxName with
+| Except.error ex => throwError ex
+| Except.ok b => do
+  IO.println b;
+  unless a == b do
+    throwError "toExpr failed";
+  pure ()
 
 #eval test #[(1, 2), (3, 4)]
 #eval test ['a', 'b', 'c']

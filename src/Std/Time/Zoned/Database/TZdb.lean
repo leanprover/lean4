@@ -60,8 +60,8 @@ Extracts a timezone ID from a file path.
 -/
 def idFromPath (path : System.FilePath) : Option String := do
   let res := path.components.toArray
-  let last ← res.get? (res.size - 1)
-  let last₁ ← res.get? (res.size - 2)
+  let last ← res[res.size - 1]?
+  let last₁ ← res[res.size - 2]?
 
   if last₁ = some "zoneinfo"
     then last.trim
@@ -71,12 +71,7 @@ def idFromPath (path : System.FilePath) : Option String := do
 Retrieves the timezone rules from the local timezone data file.
 -/
 def localRules (path : System.FilePath) : IO ZoneRules := do
-  let localTimePath ←
-    try
-      IO.Process.run { cmd := "readlink", args := #["-f", path.toString] }
-    catch _ =>
-      throw <| IO.userError "cannot find the local timezone database"
-
+  let localTimePath ← IO.FS.realPath path
   if let some id := idFromPath localTimePath
     then parseTZIfFromDisk path id
     else throw (IO.userError "cannot read the id of the path.")

@@ -3401,7 +3401,6 @@ theorem minKeyD_modify_eq_minKeyD [TransCmp cmp] [LawfulEqCmp cmp] {k f fallback
     (modify t k f |>.minKeyD fallback) = t.minKeyD fallback :=
   Impl.Const.minKeyD_modify_eq_minKeyD t.wf
 
-@[simp]
 theorem compare_minKeyD_modify_eq [TransCmp cmp] {k f fallback} :
     cmp (modify t k f |>.minKeyD fallback) (t.minKeyD fallback) = .eq :=
   Impl.Const.compare_minKeyD_modify_eq t.wf (instOrd := ⟨cmp⟩)
@@ -4030,7 +4029,6 @@ theorem maxKeyD_modify_eq_maxKeyD [TransCmp cmp] [LawfulEqCmp cmp] {k f fallback
     (modify t k f |>.maxKeyD fallback) = t.maxKeyD fallback :=
   Impl.Const.maxKeyD_modify_eq_maxKeyD t.wf
 
-@[simp]
 theorem compare_maxKeyD_modify_eq [TransCmp cmp] {k f fallback} :
     cmp (modify t k f |>.maxKeyD fallback) (t.maxKeyD fallback) = .eq :=
   Impl.Const.compare_maxKeyD_modify_eq t.wf (instOrd := ⟨cmp⟩)

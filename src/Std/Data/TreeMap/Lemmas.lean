@@ -2304,7 +2304,6 @@ theorem minKeyD_modify_eq_minKeyD [TransCmp cmp] [LawfulEqCmp cmp] {k f fallback
     (modify t k f |>.minKeyD fallback) = t.minKeyD fallback :=
   DTreeMap.Const.minKeyD_modify_eq_minKeyD
 
-@[simp]
 theorem compare_minKeyD_modify_eq [TransCmp cmp] {k f fallback} :
     cmp (modify t k f |>.minKeyD fallback) (t.minKeyD fallback) = .eq :=
   DTreeMap.Const.compare_minKeyD_modify_eq
@@ -2863,7 +2862,6 @@ theorem maxKeyD_modify_eq_maxKeyD [TransCmp cmp] [LawfulEqCmp cmp] {k f fallback
     (modify t k f |>.maxKeyD fallback) = t.maxKeyD fallback :=
   DTreeMap.Const.maxKeyD_modify_eq_maxKeyD
 
-@[simp]
 theorem compare_maxKeyD_modify_eq [TransCmp cmp] {k f fallback} :
     cmp (modify t k f |>.maxKeyD fallback) (t.maxKeyD fallback) = .eq :=
   DTreeMap.Const.compare_maxKeyD_modify_eq

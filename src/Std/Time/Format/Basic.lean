@@ -581,7 +581,7 @@ structure FormatConfig where
   -/
   allowLeapSeconds : Bool := false
 
-  deriving Inhabited, Repr
+deriving Inhabited, Repr
 
 /--
 A specification on how to format a data or parse some string.

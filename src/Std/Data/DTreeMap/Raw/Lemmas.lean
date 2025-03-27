@@ -3121,10 +3121,10 @@ theorem compare_minKey!_modify_eq [TransCmp cmp] [Inhabited α] (h : t.WF) {k f}
   Impl.Const.compare_minKey!_modify_eq h (instOrd := ⟨cmp⟩)
 
 @[simp]
-theorem Ord.compare_minKey!_modify_eq [Ord α] [TransOrd α] {t : Raw α β} [Inhabited α] (h : t.WF)
+theorem ordCompare_minKey!_modify_eq [Ord α] [TransOrd α] {t : Raw α β} [Inhabited α] (h : t.WF)
     {k f} :
     compare (modify t k f).minKey! t.minKey! = .eq :=
-  Const.compare_minKey!_modify_eq h
+  compare_minKey!_modify_eq h
 
 theorem minKey!_alter_eq_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k f}
     (he : (alter t k f).isEmpty = false) :
@@ -3264,9 +3264,9 @@ theorem compare_minKeyD_modify_eq [TransCmp cmp] (h : t.WF) {k f fallback} :
   Impl.Const.compare_minKeyD_modify_eq h (instOrd := ⟨cmp⟩)
 
 @[simp]
-theorem Ord.compare_minKeyD_modify_eq [Ord α] [TransOrd α] {t : Raw α β} (h : t.WF) {k f fallback} :
+theorem ordCompare_minKeyD_modify_eq [Ord α] [TransOrd α] {t : Raw α β} (h : t.WF) {k f fallback} :
     compare (modify t k f |>.minKeyD fallback) (t.minKeyD fallback) = .eq :=
-  Const.compare_minKeyD_modify_eq h
+  compare_minKeyD_modify_eq h
 
 theorem minKeyD_alter_eq_self [TransCmp cmp] (h : t.WF) {k f}
     (he : (alter t k f).isEmpty = false) {fallback} :
@@ -3606,10 +3606,10 @@ theorem compare_maxKey!_modify_eq [TransCmp cmp] [Inhabited α] (h : t.WF) {k f}
   Impl.Const.compare_maxKey!_modify_eq h (instOrd := ⟨cmp⟩)
 
 @[simp]
-theorem Ord.compare_maxKey!_modify_eq [Ord α] [TransOrd α] {t : Raw α β} [Inhabited α] (h : t.WF)
+theorem ordCompare_maxKey!_modify_eq [Ord α] [TransOrd α] {t : Raw α β} [Inhabited α] (h : t.WF)
     {k f} :
     compare (modify t k f).maxKey! t.maxKey! = .eq :=
-  Const.compare_maxKey!_modify_eq h
+  compare_maxKey!_modify_eq h
 
 theorem maxKey!_alter_eq_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k f}
     (he : (alter t k f).isEmpty = false) :
@@ -3749,9 +3749,9 @@ theorem compare_maxKeyD_modify_eq [TransCmp cmp] (h : t.WF) {k f fallback} :
   Impl.Const.compare_maxKeyD_modify_eq h (instOrd := ⟨cmp⟩)
 
 @[simp]
-theorem Ord.compare_maxKeyD_modify_eq [Ord α] [TransOrd α] {t : Raw α β} (h : t.WF) {k f fallback} :
+theorem ordCompare_maxKeyD_modify_eq [Ord α] [TransOrd α] {t : Raw α β} (h : t.WF) {k f fallback} :
     compare (modify t k f |>.maxKeyD fallback) (t.maxKeyD fallback) = .eq :=
-  Const.compare_maxKeyD_modify_eq h
+  compare_maxKeyD_modify_eq h
 
 theorem maxKeyD_alter_eq_self [TransCmp cmp] (h : t.WF) {k f}
     (he : (alter t k f).isEmpty = false) {fallback} :

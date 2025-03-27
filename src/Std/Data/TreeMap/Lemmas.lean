@@ -2064,10 +2064,10 @@ theorem compare_minKey_modify_eq [TransCmp cmp] {k f he} :
   DTreeMap.Const.compare_minKey_modify_eq
 
 @[simp]
-theorem Ord.compare_minKey_modify_eq [Ord α] [TransOrd α] {t : TreeMap α β} {k f he} :
+theorem ordCompare_minKey_modify_eq [Ord α] [TransOrd α] {t : TreeMap α β} {k f he} :
     compare (modify t k f |>.minKey he)
       (t.minKey <| cast (congrArg (· = false) isEmpty_modify) he) = .eq :=
-  TreeMap.compare_minKey_modify_eq
+  compare_minKey_modify_eq
 
 theorem minKey_alter_eq_self [TransCmp cmp] {k f he} :
     (alter t k f).minKey he = k ↔
@@ -2192,9 +2192,9 @@ theorem compare_minKey!_modify_eq [TransCmp cmp] [Inhabited α] {k f} :
   DTreeMap.Const.compare_minKey!_modify_eq
 
 @[simp]
-theorem Ord.compare_minKey!_modify_eq [Ord α] [TransOrd α] {t : TreeMap α β} [Inhabited α] {k f} :
+theorem ordCompare_minKey!_modify_eq [Ord α] [TransOrd α] {t : TreeMap α β} [Inhabited α] {k f} :
     compare (modify t k f).minKey! t.minKey! = .eq :=
-  TreeMap.compare_minKey!_modify_eq
+  compare_minKey!_modify_eq
 
 theorem minKey!_alter_eq_self [TransCmp cmp] [Inhabited α] {k f}
     (he : (alter t k f).isEmpty = false) :
@@ -2318,9 +2318,9 @@ theorem compare_minKeyD_modify_eq [TransCmp cmp] {k f fallback} :
   DTreeMap.Const.compare_minKeyD_modify_eq
 
 @[simp]
-theorem Ord.compare_minKeyD_modify_eq [Ord α] [TransOrd α] {t : TreeMap α β} {k f fallback} :
+theorem ordCompare_minKeyD_modify_eq [Ord α] [TransOrd α] {t : TreeMap α β} {k f fallback} :
     compare (modify t k f |>.minKeyD fallback) (t.minKeyD fallback) = .eq :=
-  TreeMap.compare_minKeyD_modify_eq
+  compare_minKeyD_modify_eq
 
 theorem minKeyD_alter_eq_self [TransCmp cmp] {k f}
     (he : (alter t k f).isEmpty = false) {fallback} :
@@ -2636,10 +2636,10 @@ theorem compare_maxKey_modify_eq [TransCmp cmp] {k f he} :
   DTreeMap.Const.compare_maxKey_modify_eq
 
 @[simp]
-theorem Ord.compare_maxKey_modify_eq [Ord α] [TransOrd α] {t : TreeMap α β} {k f he} :
+theorem ordCompare_maxKey_modify_eq [Ord α] [TransOrd α] {t : TreeMap α β} {k f he} :
     compare (modify t k f |>.maxKey he)
       (t.maxKey <| cast (congrArg (· = false) isEmpty_modify) he) = .eq :=
-  TreeMap.compare_maxKey_modify_eq
+  compare_maxKey_modify_eq
 
 theorem maxKey_alter_eq_self [TransCmp cmp] {k f he} :
     (alter t k f).maxKey he = k ↔
@@ -2764,9 +2764,9 @@ theorem compare_maxKey!_modify_eq [TransCmp cmp] [Inhabited α] {k f} :
   DTreeMap.Const.compare_maxKey!_modify_eq
 
 @[simp]
-theorem Ord.compare_maxKey!_modify_eq [Ord α] [TransOrd α] {t : TreeMap α β} [Inhabited α] {k f} :
+theorem ordCompare_maxKey!_modify_eq [Ord α] [TransOrd α] {t : TreeMap α β} [Inhabited α] {k f} :
     compare (modify t k f).maxKey! t.maxKey! = .eq :=
-  TreeMap.compare_maxKey!_modify_eq
+  compare_maxKey!_modify_eq
 
 theorem maxKey!_alter_eq_self [TransCmp cmp] [Inhabited α] {k f}
     (he : (alter t k f).isEmpty = false) :
@@ -2890,9 +2890,9 @@ theorem compare_maxKeyD_modify_eq [TransCmp cmp] {k f fallback} :
   DTreeMap.Const.compare_maxKeyD_modify_eq
 
 @[simp]
-theorem Ord.compare_maxKeyD_modify_eq [Ord α] [TransOrd α] {t : TreeMap α β} {k f fallback} :
+theorem ordCompare_maxKeyD_modify_eq [Ord α] [TransOrd α] {t : TreeMap α β} {k f fallback} :
     compare (modify t k f |>.maxKeyD fallback) (t.maxKeyD fallback) = .eq :=
-  TreeMap.compare_maxKeyD_modify_eq
+  compare_maxKeyD_modify_eq
 
 theorem maxKeyD_alter_eq_self [TransCmp cmp] {k f}
     (he : (alter t k f).isEmpty = false) {fallback} :

@@ -23,12 +23,22 @@ as needed (via `data_type`).
 -/
 opaque DataType (kind : Name) : Type u
 
-class OptDataKind (α : Type u) where
+/-- A `Name` descriptor of a data type. -/
+class DataKind (α : Type u) where
+  /-- The name which describes `α`. -/
   name : Name
-  wf (h : ¬ name.isAnonymous) : α = DataType name
+  /-- Proof that `α` is the data type described by `name`. -/
+  wf : α = DataType name
 
-instance : CoeOut (OptDataKind α) Lean.Name := ⟨(·.name)⟩
-instance : ToString (OptDataKind α) := ⟨(·.name.toString)⟩
+/--
+Tries to synthesize a `Name` descriptor of a data type.
+Otherwise uses `Name.anonymous` to indicate none was found.
+-/
+class OptDataKind (α : Type u) where
+  /-- The name which describes `α` (or `Name.anonymous` if none). -/
+  name : Name
+  /-- Proof that `α` is the data type described by `name` (if valid). -/
+  wf (h : ¬ name.isAnonymous) : α = DataType name
 
 @[instance low]
 def OptDataKind.anonymous : OptDataKind α where
@@ -41,6 +51,13 @@ def OptDataKind.anonymous : OptDataKind α where
 theorem OptDataKind.eq_data_type
   {self : OptDataKind α} (h : ¬ self.isAnonymous) : α = DataType self.name
 := self.wf h
+
+instance [DataKind α] : OptDataKind α where
+  name := DataKind.name α
+  wf _ := DataKind.wf
+
+instance : CoeOut (OptDataKind α) Lean.Name := ⟨(·.name)⟩
+instance : ToString (OptDataKind α) := ⟨(·.name.toString)⟩
 
 @[deprecated DataType (since := "2025-03-26")] abbrev TargetData := DataType
 
@@ -171,7 +188,8 @@ scoped macro (name := dataTypeDecl)
   let kindName := Name.quoteFrom kind kind.getId
   let id := mkIdentFrom kind (canonical := true) <|
     kind.getId.modifyBase (kind.getId ++ ·)
-  `($[$doc?]? family_def $id : $fam $kindName := $ty)
+  `($[$doc?]? family_def $id : $fam $kindName := $ty
+    instance : DataKind $ty := ⟨$kindName, by simp⟩)
 
 /-- Internal macro for declaring new facet within Lake. -/
 scoped macro (name := builtinFacetCommand)

@@ -121,10 +121,10 @@ protected def cast (self : Job α) (h : ¬ self.kind.isAnonymous) : Job (DataTyp
 @[inline] protected def error [OptDataKind α] (log : Log := {}) (caption := "") : Job α :=
   .ofTask (Task.pure (.error 0 {log})) caption
 
-@[inline] protected def pure [OptDataKind α] (a : α) (log : Log := {}) (caption := "") : Job α :=
+@[inline] protected def pure [kind : OptDataKind α] (a : α) (log : Log := {}) (caption := "") : Job α :=
   .ofTask (Task.pure (.ok a {log})) caption
 
---instance : Pure Job := ⟨Job.pure⟩
+instance : Pure Job := ⟨Job.pure⟩
 
 @[inline] protected def nop (log : Log := {}) (caption := "") : Job Unit :=
   .pure () log caption
@@ -158,7 +158,7 @@ protected def cast (self : Job α) (h : ¬ self.kind.isAnonymous) : Job (DataTyp
   (prio := Task.Priority.default) (sync := false)
 : Job β := self.mapResult (·.map f) prio sync
 
---instance : Functor Job where map := Job.map
+instance : Functor Job where map := Job.map
 
 end Job
 

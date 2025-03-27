@@ -29,9 +29,9 @@ def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) :=
       if h : decl.kind.isAnonymous then
         (decl.targetConfig h).fetchFn pkg
       else
-        let tgt := decl.mkConfigTarget pkg
-        let tgt := cast (by simp [decl.data_eq_target h]) tgt
-        return Job.pure tgt
+        let kind := ⟨decl.kind, by simp [decl.target_eq_type h]⟩
+        let job := Job.pure (kind := kind) <| decl.mkConfigTarget pkg
+        return cast (by simp [decl.data_eq_target h]) job
     else
       error s!"invalid target '{info}': target not found in package"
   | .facet _ kind data facet => do

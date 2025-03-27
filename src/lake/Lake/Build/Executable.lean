@@ -22,12 +22,32 @@ def LeanExe.recBuildExe (self : LeanExe) : FetchM (Job FilePath) :=
   -/
   let mut linkJobs := #[]
   for facet in self.root.nativeFacets self.supportInterpreter do
-    linkJobs := linkJobs.push <| ← fetch <| self.root.facet facet.name
+    linkJobs := linkJobs.push <| ← facet.fetch self.root
   let imports ← (← self.root.transImports.fetch).await
   for mod in imports do
     for facet in mod.nativeFacets self.supportInterpreter do
-      linkJobs := linkJobs.push <| ← fetch <| mod.facet facet.name
+      linkJobs := linkJobs.push <| ← facet.fetch mod
   let deps := (← (← self.pkg.transDeps.fetch).await).push self.pkg
   for dep in deps do for lib in dep.externLibs do
     linkJobs := linkJobs.push <| ← lib.static.fetch
   buildLeanExe self.file linkJobs self.weakLinkArgs self.linkArgs self.sharedLean
+
+/-- The facet configuration for the builtin `LeanExe.exeFacet`. -/
+def LeanExe.exeFacetConfig : LeanExeFacetConfig exeFacet :=
+  mkFacetJobConfig recBuildExe
+
+def LeanExe.recBuildDefault (lib : LeanExe) : FetchM (Job FilePath) :=
+  lib.exe.fetch
+
+/-- The facet configuration for the builtin `ExternLib.dynlibFacet`. -/
+def LeanExe.defaultFacetConfig : LeanExeFacetConfig defaultFacet :=
+  mkFacetJobConfig recBuildDefault
+
+/--
+A name-configuration map for the initial set of
+Lean executable facets (e.g., `exe`).
+-/
+def LeanExe.initFacetConfigs : DNameMap LeanExeFacetConfig :=
+  DNameMap.empty
+  |>.insert defaultFacet defaultFacetConfig
+  |>.insert exeFacet exeFacetConfig

@@ -6,6 +6,7 @@ Authors: Mac Malone
 prelude
 import Lake.Build.Run
 import Lake.Build.Targets
+import Lake.Build.Common
 import Lake.CLI.Build
 
 namespace Lake

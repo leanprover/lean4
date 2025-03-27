@@ -7,6 +7,7 @@ Authors: Dany Fabian, Sebastian Ullrich
 prelude
 import Init.Data.String
 import Init.Data.Array.Basic
+import Init.Data.SInt.Basic
 
 /--
 The result of a comparison according to a total order.
@@ -528,6 +529,27 @@ instance : Ord USize where
   compare x y := compareOfLessAndEq x y
 
 instance : Ord Char where
+  compare x y := compareOfLessAndEq x y
+
+instance : Ord Int8 where
+  compare x y := compareOfLessAndEq x y
+
+instance : Ord Int16 where
+  compare x y := compareOfLessAndEq x y
+
+instance : Ord Int32 where
+  compare x y := compareOfLessAndEq x y
+
+instance : Ord Int64 where
+  compare x y := compareOfLessAndEq x y
+
+instance : Ord ISize where
+  compare x y := compareOfLessAndEq x y
+
+instance {n} : Ord (BitVec n) where
+  compare x y := compareOfLessAndEq x y
+
+instance [LT α] [DecidableLT α] [DecidableEq α] : Ord (List α) where
   compare x y := compareOfLessAndEq x y
 
 instance [Ord α] : Ord (Option α) where

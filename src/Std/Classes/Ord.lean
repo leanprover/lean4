@@ -461,114 +461,6 @@ end Internal
 
 section Instances
 
-theorem instOrientedCmp_compareOfLessAndEq {α} [LT α] [DecidableLT α] [DecidableEq α]
-    (h : ∀ (x y : α), x < y ↔ ¬ (x = y ∨ y < x)) :
-    OrientedCmp (fun (x y : α) => compareOfLessAndEq x y) where
-  eq_swap {a b} := by
-    simp only [compareOfLessAndEq, h a b]
-    by_cases hba : b < a
-    · rw [if_pos hba, if_neg, Ordering.swap_lt]
-      · rw [if_neg]
-        simp only [h b a, not_or] at hba
-        exact hba.1.imp Eq.symm
-      · simp [hba]
-    · rw [if_neg hba]
-      by_cases heq : b = a
-      · rw [if_pos heq, if_neg, if_pos]
-        · rfl
-        · exact heq.symm
-        · simp [heq]
-      · rw [if_neg heq, if_pos]
-        · rfl
-        · simp only [not_or]
-          exact ⟨heq.imp Eq.symm, hba⟩
-
-/- theorem isLE_compareOfLessAndEq {α} [LT α] [DecidableLT α] [DecidableEq α]
-    [OrientedCmp (fun (x y : α) => compareOfLessAndEq x y)] {x y} :
-    (compareOfLessAndEq x y).isLE ↔ x = y ∨ x < y := by
-
- -/
-
--- theorem ne_of_le_of_compareOfLessAndEq {α} [LT α] [DecidableLT α]  [DecidableEq α]
---     [OrientedCmp (fun (x y : α) => compareOfLessAndEq x y)] {x y : α} (h : x < y) :
---     ¬ x = y := by
---   intro heq
---   have : compareOfLessAndEq x y = .lt := by rw [compareOfLessAndEq, if_pos h]
---   rw [← OrientedCmp.gt_iff_lt (cmp := fun x y => compareOfLessAndEq x y)] at this
---   rw [compareOfLessAndEq, if_pos heq.symm] at this
---   split at this <;> contradiction
-
--- theorem compareOfLessAndEq_eq {α} [LT α] [DecidableLT α]  [DecidableEq α] {x y : α}
---     [OrientedCmp (fun (x y : α) => compareOfLessAndEq x y)] :
---     compareOfLessAndEq x y = .eq ↔ x = y := by
---   simp [compareOfLessAndEq]
---   split
---   · next hxy =>
---     simp only [reduceCtorEq, false_iff, ne_eq]
---     intro heq
---     have : compareOfLessAndEq x y = .lt := by rw [compareOfLessAndEq, if_pos hxy]
---     rw [← OrientedCmp.gt_iff_lt (cmp := fun x y => compareOfLessAndEq x y)] at this
---     rw [compareOfLessAndEq, if_pos heq.symm] at this
---     split at this <;> contradiction
---   · split <;> rename_i hxy <;> simp [hxy]
-
--- theorem compareOfLessAndEq_eq_lt {α} [LT α] [DecidableLT α]  [DecidableEq α] {x y : α} :
---     compareOfLessAndEq x y = .lt ↔ x < y := by
---   rw [compareOfLessAndEq]
---   repeat' split <;> simp_all
-
--- theorem compareOfLessAndEq_eq {α} [LT α] [DecidableLT α]  [DecidableEq α] {x y : α}
---     (h : ∀ (x y : α), x < y → ¬ x = y) :
---     compareOfLessAndEq x y = .eq ↔ x = y := by
---   simp [compareOfLessAndEq]
---   split
---   · next hxy =>
---     simp [h _ _ hxy]
---   · split <;> rename_i hxy <;> simp [hxy]
-
--- theorem instTransCmp_compareOfLessAndEq {α} [LT α] [DecidableLT α]  [DecidableEq α]
---     (h : ∀ (x y z : α), x < y → y < z → x < z)
---     (h' : ∀ (x y : α), x < y ↔ ¬ x = y ∧ ¬ y < x) :
---     TransCmp (fun (x y : α) => compareOfLessAndEq x y) where
---   isLE_trans {a b c} hab hbc := by
---     simp only [Ordering.isLE_iff_eq_lt_or_eq_eq] at *
---     simp only [compareOfLessAndEq_eq (fun x y hxy => h' x y |>.mp hxy |>.1)] at *
---     cases hab
---     case inl hab =>
---       cases hbc
---       case inl hbc =>
---         simp only [compareOfLessAndEq_eq_lt] at *
---         exact Or.inl (h a b c hab hbc)
---       case inr hbc =>
---         cases hbc
---         exact Or.inl hab
---     case inr hab =>
---       cases hab
---       exact hbc
---   eq_swap {a b} := by
---     simp [compareOfLessAndEq]
---     split
---     · rename_i hab
---       split
---       · rename_i hba
---         have := h' _ _ <| h _ _ _ hab hba
---         contradiction
---       · split
---         · rename_i hba
---           cases hba
---           contradiction
---         · rfl
---     · rename_i hab
---       split
---       · rename_i hab'
---         cases hab'
---         rw [if_neg hab, if_pos rfl]
---         rfl
---       · rename_i hab'
---         split
---         · rfl
---         · rw [if_neg (hab'.imp Eq.symm)]
-
 theorem transOrd_of_lt_trans_of_lt_iff {α : Type u} [LT α] [DecidableLT α] [DecidableEq α]
     (lt_trans : ∀ {a b c : α}, a < b → b < c → a < c)
     (h : ∀ x y : α, x < y ↔ ¬y < x ∧ x ≠ y) :
@@ -765,38 +657,16 @@ instance : LawfulEqOrd UInt64 where
 
 end UInt64
 
-section UInt32
+section USize
 
-instance : TransOrd UInt32 :=
+instance : TransOrd USize :=
   transOrd_of_refl_of_antisymm_of_trans_of_total_of_not_le
-    UInt32.le_refl UInt32.le_antisymm UInt32.le_trans UInt32.le_total UInt32.not_le
+    USize.le_refl USize.le_antisymm USize.le_trans USize.le_total USize.not_le
 
-instance : LawfulEqOrd UInt32 where
-  eq_of_compare h := compareOfLessAndEq_eq_eq UInt32.le_refl UInt32.not_le |>.mp h
+instance : LawfulEqOrd USize where
+  eq_of_compare h := compareOfLessAndEq_eq_eq USize.le_refl USize.not_le |>.mp h
 
-end UInt32
-
-section UInt32
-
-instance : TransOrd UInt32 :=
-  transOrd_of_refl_of_antisymm_of_trans_of_total_of_not_le
-    UInt32.le_refl UInt32.le_antisymm UInt32.le_trans UInt32.le_total UInt32.not_le
-
-instance : LawfulEqOrd UInt32 where
-  eq_of_compare h := compareOfLessAndEq_eq_eq UInt32.le_refl UInt32.not_le |>.mp h
-
-end UInt32
-
-section UInt32
-
-instance : TransOrd UInt32 :=
-  transOrd_of_refl_of_antisymm_of_trans_of_total_of_not_le
-    UInt32.le_refl UInt32.le_antisymm UInt32.le_trans UInt32.le_total UInt32.not_le
-
-instance : LawfulEqOrd UInt32 where
-  eq_of_compare h := compareOfLessAndEq_eq_eq UInt32.le_refl UInt32.not_le |>.mp h
-
-end UInt32
+end USize
 
 section Lex
 

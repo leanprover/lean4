@@ -33,8 +33,9 @@ open Language in
 /--
 Evaluates a tactic script in form of a syntax node with alternating tactics and separators as
 children.
- -/
-partial def evalSepTactics : Tactic := goEven
+-/
+@[specialize]
+partial def evalSepTactics (evalTac : Tactic := evalTactic) : Tactic := goEven
 where
   -- `stx[0]` is the next tactic step, if any
   goEven stx := do
@@ -64,7 +65,7 @@ where
     -- compare `stx[0]` for `finished`/`next` reuse, focus on remainder of script
     Term.withNarrowedTacticReuse (stx := stx) (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) fun stxs => do
       let some snap := (← readThe Term.Context).tacSnap?
-        | do evalTactic tac; goOdd stxs
+        | do evalTac tac; goOdd stxs
       let mut reusableResult? := none
       let mut oldNext? := none
       if let some old := snap.old? then
@@ -87,15 +88,15 @@ where
         next := #[{ stx? := stxs, task := next.resultD default }]
       }
       -- Run `tac` in a fresh info tree state and store resulting state in snapshot for
-      -- incremental reporting, then add back saved trees. Here we rely on `evalTactic`
+      -- incremental reporting, then add back saved trees. Here we rely on `evalTac`
       -- producing at most one info tree as otherwise `getInfoTreeWithContext?` would panic.
       let trees ← getResetInfoTrees
       try
         let (_, state) ← withRestoreOrSaveFull reusableResult?
-            -- set up nested reuse; `evalTactic` will check for `isIncrementalElab`
+            -- set up nested reuse; `evalTac` will check for `isIncrementalElab`
             (tacSnap? := some { old? := oldInner?, new := inner }) do
           Term.withReuseContext tac do
-            evalTactic tac
+            evalTac tac
         finished.resolve {
           diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog
             (← Core.getAndEmptyMessageLog))
@@ -120,7 +121,7 @@ where
     Term.withNarrowedTacticReuse (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) goEven stx
 
 @[builtin_tactic seq1] def evalSeq1 : Tactic := fun stx =>
-  evalSepTactics stx[0]
+  (evalSepTactics) stx[0]
 
 @[builtin_tactic paren, builtin_incremental] def evalParen : Tactic :=
   Term.withNarrowedArgTacticReuse 1 evalTactic

@@ -12,6 +12,8 @@ def plainDate2 := PlainDate.ofYearMonthDay? 2025 01 02 |>.get!
 def plainDate3 := PlainDate.ofYearMonthDay? 2025 02 01 |>.get!
 
 example : Std.TransOrd PlainDate := inferInstance
+example : Std.LawfulEqOrd PlainDate := inferInstance
+example : Std.LawfulBEqOrd PlainDate := inferInstance
 example : strictly_ordered
   [PlainDate.ofYearMonthDay? 2020 03 02 |>.get!,
    PlainDate.ofYearMonthDay? 2025 01 02 |>.get!,
@@ -23,6 +25,8 @@ def plainTime3 := PlainTime.ofHourMinuteSecondsNano 0 1 0 0
 def plainTime4 := PlainTime.ofHourMinuteSecondsNano 1 0 0 0
 
 example : Std.TransOrd PlainTime := inferInstance
+example : Std.LawfulEqOrd PlainTime := inferInstance
+example : Std.LawfulBEqOrd PlainTime := inferInstance
 example : strictly_ordered
   [PlainTime.ofHourMinuteSecondsNano 0 0 0 1,
    PlainTime.ofHourMinuteSecondsNano 0 0 1 0,
@@ -37,8 +41,7 @@ def dateTime5 := DateTime.fromAscTimeString "Sat Feb 01 01:01:01 2025" |>.toOpti
 def dateTime6 := DateTime.fromAscTimeString "Sat Jan 01 01:01:01 2026" |>.toOption.get!
 
 example : Std.TransOrd (DateTime TimeZone.GMT) := inferInstance
-example : Ordering.lt = Ordering.lt := by decide
-example : compare dateTime1.timestamp.val.second.val.toNat dateTime2.timestamp.val.second.val.toNat = .lt := by decide
+example : Std.LawfulBEqOrd (DateTime TimeZone.GMT) := inferInstance
 
 -- We cannot use `decide` here becuase the reduction gets stuck.
 /-- info: true -/

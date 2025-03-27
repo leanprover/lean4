@@ -10,6 +10,8 @@ import Init.Data.Ord
 
 This file introduce some basic lemmas about compare as applied to natural
 numbers.
+
+Import `Std.Classes.Ord` in order to obtain the `TransOrd` and `LawfulEqOrd` instances for `Nat`.
 -/
 namespace Nat
 
@@ -59,8 +61,8 @@ protected theorem isLE_compare {a b : Nat} :
   repeat' split <;> simp_all
 
 protected theorem isGE_compare {a b : Nat} :
-    (compare a b).isLE ↔ a ≤ b := by
-  simp only [Nat.compare_def_le]
-  repeat' split <;> simp_all
+    (compare a b).isGE ↔ b ≤ a := by
+  rw [← Nat.compare_swap, Ordering.isGE_swap]
+  exact Nat.isLE_compare
 
 end Nat

@@ -655,7 +655,7 @@ instance {α} {cmp₁ cmp₂} [TransCmp cmp₁] [TransCmp cmp₂] :
     TransCmp (α := α) (compareLex cmp₁ cmp₂) where
   isLE_trans {a b c} hab hbc := by
     simp only [compareLex] at *
-    simp only [Ordering.isLE_then'] at *
+    simp only [Ordering.isLE_then_iff_and] at *
     refine ⟨TransCmp.isLE_trans hab.1 hbc.1, ?_⟩
     cases hab.2
     case inl hab' => exact Or.inl <| TransCmp.lt_of_lt_of_isLE hab' hbc.1

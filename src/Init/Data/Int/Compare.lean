@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Paul Reichert
+Authors: Paul Reichert, Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 -/
 prelude
 import Init.Data.Ord
@@ -10,6 +10,8 @@ import Init.Data.Int.Order
 /-! # Basic lemmas about comparing integers
 
 This file introduces some basic lemmas about `compare` as applied to integers.
+
+Import `Std.Classes.Ord` in order to obtain the `TransOrd` and `LawfulEqOrd` instances for `Int`.
 -/
 namespace Int
 
@@ -47,26 +49,26 @@ protected theorem compare_eq_eq {a b : Int} : compare a b = .eq ↔ a = b := by
   rw [compare_def_lt]; (repeat' split) <;> simp [Int.ne_of_lt, Int.ne_of_gt, *]
   next hlt hgt => exact Int.le_antisymm (Int.not_lt.1 hgt) (Int.not_lt.1 hlt)
 
--- protected theorem compare_eq_lt {a b : Nat} : compare a b = .lt ↔ a < b := by
---   rw [compare_def_lt]; (repeat' split) <;> simp [*]
+protected theorem compare_eq_lt {a b : Int} : compare a b = .lt ↔ a < b := by
+  rw [compare_def_lt]; (repeat' split) <;> simp [*]
 
--- protected theorem compare_eq_gt {a b : Nat} : compare a b = .gt ↔ b < a := by
---   rw [compare_def_lt]; (repeat' split) <;> simp [Nat.le_of_lt, *]
+protected theorem compare_eq_gt {a b : Int} : compare a b = .gt ↔ b < a := by
+  rw [compare_def_lt]; (repeat' split) <;> simp [Int.le_of_lt, *]
 
--- protected theorem compare_ne_gt {a b : Nat} : compare a b ≠ .gt ↔ a ≤ b := by
---   rw [compare_def_le]; (repeat' split) <;> simp [*]
+protected theorem compare_ne_gt {a b : Int} : compare a b ≠ .gt ↔ a ≤ b := by
+  rw [compare_def_le]; (repeat' split) <;> simp [*]
 
--- protected theorem compare_ne_lt {a b : Nat} : compare a b ≠ .lt ↔ b ≤ a := by
---   rw [compare_def_le]; (repeat' split) <;> simp [Nat.le_of_not_le, *]
+protected theorem compare_ne_lt {a b : Int} : compare a b ≠ .lt ↔ b ≤ a := by
+  rw [compare_def_le]; (repeat' split) <;> simp [Int.le_of_not_le, *]
 
 protected theorem isLE_compare {a b : Int} :
     (compare a b).isLE ↔ a ≤ b := by
   simp only [Int.compare_def_le]
   repeat' split <;> simp_all
 
--- protected theorem isGE_compare {a b : Nat} :
---     (compare a b).isLE ↔ a ≤ b := by
---   simp only [Nat.compare_def_le]
---   repeat' split <;> simp_all
+protected theorem isGE_compare {a b : Int} :
+    (compare a b).isGE ↔ b ≤ a := by
+  rw [← Int.compare_swap, Ordering.isGE_swap]
+  exact Int.isLE_compare
 
 end Int

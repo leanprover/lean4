@@ -143,6 +143,8 @@ structure State where
   -/
   atomsAssignmentCache : Option Expr := none
 
+  evalsAtCache : Std.HashMap Expr (Option Expr) := {}
+
 /--
 The reflection monad, used to track `BitVec` variables that we see as we traverse the context.
 -/
@@ -158,13 +160,25 @@ structure ReifiedBVExpr where
   -/
   bvExpr : BVExpr width
   /--
+  The expression that was reflected, used for caching of `evalsAtAtoms`.
+  -/
+  originalExpr : Expr
+  /--
   A proof that `bvExpr.eval atomsAssignment = originalBVExpr`, none if it holds by `rfl`.
   -/
-  evalsAtAtoms : M (Option Expr)
+  evalsAtAtoms' : M (Option Expr)
   /--
   A cache for `toExpr bvExpr`.
   -/
   expr : Expr
+
+def ReifiedBVExpr.evalsAtAtoms (reified : ReifiedBVExpr) : M (Option Expr) := do
+  match (← get).evalsAtCache[reified.originalExpr]? with
+  | some hit => return hit
+  | none =>
+    let proof? ← reified.evalsAtAtoms'
+    modify fun s => { s with evalsAtCache :=  s.evalsAtCache.insert reified.originalExpr proof? }
+    return proof?
 
 /--
 A reified version of an `Expr` representing a `BVPred`.
@@ -266,7 +280,14 @@ def lookup (e : Expr) (width : Nat) (synthetic : Bool) : M Nat := do
     trace[Meta.Tactic.bv] "New atom of width {width}, synthetic? {synthetic}: {e}"
     let ident ← modifyGetThe State fun s =>
       let newAtom := { width, synthetic, atomNumber := s.atoms.size}
-      (s.atoms.size, { s with atoms := s.atoms.insert e newAtom, atomsAssignmentCache := none })
+      let newAtomNumber := s.atoms.size
+      let s := {
+        s with
+          atoms := s.atoms.insert e newAtom,
+          atomsAssignmentCache := none
+          evalsAtCache := {}
+      }
+      (newAtomNumber, s)
     return ident
 
 @[specialize]

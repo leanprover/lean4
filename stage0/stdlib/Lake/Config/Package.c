@@ -222,6 +222,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_preferReleaseBuild___boxed(lean_object*)
 LEAN_EXPORT lean_object* l_Lake_Package_description___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_version___proj___elambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_nativeLibDir___proj___elambda__4(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Package_findTargetDecl_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_buildArchive___proj___elambda__3___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Package_isLocalModule(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_binDir___proj___elambda__4(lean_object*);
@@ -431,6 +432,7 @@ static lean_object* l_Lake_PackageConfig___fields___closed__125;
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_testDriverArgs___proj___elambda__3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PackageConfig___fields___closed__13;
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_toLeanConfig_instConfigParent(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Package_findTargetDecl_x3f___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_lintDriver___proj___elambda__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_weakLinkArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_toWorkspaceConfig___proj(lean_object*);
@@ -587,6 +589,7 @@ LEAN_EXPORT lean_object* l_Lake_instToJsonPackage(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_version___proj___elambda__4___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_precompileModules___proj(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_readmeFile___proj___elambda__3(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Package_findTargetDecl_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaquePostUpdateHook_instCoePostUpdateHook___boxed(lean_object*);
 static lean_object* l_Lake_PackageConfig_instConfigMeta___closed__11;
 LEAN_EXPORT lean_object* l_Lake_instCoeForallStringBoolStrPat(lean_object*);
@@ -594,6 +597,7 @@ LEAN_EXPORT lean_object* l_Lake_instInhabitedStrPat;
 LEAN_EXPORT lean_object* l_Lake_defaultVersionTags;
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_releaseRepo_x3f_instConfigField(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_toWorkspaceConfig___proj___elambda__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Package_findTargetDecl_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_toWorkspaceConfig___proj___elambda__4___rarg(lean_object*);
 static size_t l_Lake_PackageConfig_instConfigMeta___closed__8;
 static lean_object* l_Lake_instInhabitedStrPat___closed__1;
@@ -15902,6 +15906,76 @@ lean_dec(x_3);
 x_7 = l_System_FilePath_join(x_5, x_6);
 lean_dec(x_6);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Package_findTargetDecl_x3f___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_4; 
+x_4 = lean_box(0);
+return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_5 = lean_ctor_get(x_2, 0);
+x_6 = lean_ctor_get(x_2, 1);
+x_7 = lean_ctor_get(x_2, 2);
+x_8 = lean_ctor_get(x_2, 3);
+x_9 = l_Lean_Name_quickCmp(x_3, x_6);
+switch (x_9) {
+case 0:
+{
+x_2 = x_5;
+goto _start;
+}
+case 1:
+{
+lean_object* x_11; 
+lean_inc(x_7);
+x_11 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_11, 0, x_7);
+return x_11;
+}
+default: 
+{
+x_2 = x_8;
+goto _start;
+}
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Package_findTargetDecl_x3f(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_ctor_get(x_2, 10);
+x_4 = l_Lake_RBNode_dFind___at_Lake_Package_findTargetDecl_x3f___spec__1(x_2, x_3, x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_RBNode_dFind___at_Lake_Package_findTargetDecl_x3f___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lake_RBNode_dFind___at_Lake_Package_findTargetDecl_x3f___spec__1(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Package_findTargetDecl_x3f___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lake_Package_findTargetDecl_x3f(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_Array_anyMUnsafe_any___at_Lake_Package_isLocalModule___spec__1___closed__1() {

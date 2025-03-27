@@ -12655,55 +12655,75 @@ return x_8;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_NormalizePattern_getPatternFn_x3f(lean_object* x_1) {
 _start:
 {
-uint8_t x_2; 
-x_2 = l_Lean_Expr_isApp(x_1);
-if (x_2 == 0)
+lean_object* x_2; uint8_t x_12; 
+x_12 = l_Lean_Expr_isApp(x_1);
+if (x_12 == 0)
 {
-lean_object* x_3; 
-x_3 = lean_box(0);
-return x_3;
+uint8_t x_13; 
+x_13 = l_Lean_Expr_isConst(x_1);
+if (x_13 == 0)
+{
+lean_object* x_14; 
+x_14 = lean_box(0);
+return x_14;
 }
 else
 {
-lean_object* x_4; 
-x_4 = l_Lean_Expr_getAppFn(x_1);
-switch (lean_obj_tag(x_4)) {
+lean_object* x_15; 
+x_15 = lean_box(0);
+x_2 = x_15;
+goto block_11;
+}
+}
+else
+{
+lean_object* x_16; 
+x_16 = lean_box(0);
+x_2 = x_16;
+goto block_11;
+}
+block_11:
+{
+lean_object* x_3; 
+lean_dec(x_2);
+x_3 = l_Lean_Expr_getAppFn(x_1);
+switch (lean_obj_tag(x_3)) {
 case 1:
 {
-lean_object* x_5; 
-x_5 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_5, 0, x_4);
-return x_5;
+lean_object* x_4; 
+x_4 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_4, 0, x_3);
+return x_4;
 }
 case 4:
 {
-lean_object* x_6; lean_object* x_7; uint8_t x_8; 
-x_6 = lean_ctor_get(x_4, 0);
-lean_inc(x_6);
-x_7 = l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_forbiddenDeclNames;
-x_8 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_7, x_6);
-lean_dec(x_6);
-if (x_8 == 0)
+lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_5 = lean_ctor_get(x_3, 0);
+lean_inc(x_5);
+x_6 = l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_forbiddenDeclNames;
+x_7 = l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(x_6, x_5);
+lean_dec(x_5);
+if (x_7 == 0)
 {
-lean_object* x_9; 
-x_9 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_9, 0, x_4);
-return x_9;
+lean_object* x_8; 
+x_8 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_8, 0, x_3);
+return x_8;
 }
 else
 {
-lean_object* x_10; 
-lean_dec(x_4);
-x_10 = lean_box(0);
-return x_10;
+lean_object* x_9; 
+lean_dec(x_3);
+x_9 = lean_box(0);
+return x_9;
 }
 }
 default: 
 {
-lean_object* x_11; 
-lean_dec(x_4);
-x_11 = lean_box(0);
-return x_11;
+lean_object* x_10; 
+lean_dec(x_3);
+x_10 = lean_box(0);
+return x_10;
 }
 }
 }

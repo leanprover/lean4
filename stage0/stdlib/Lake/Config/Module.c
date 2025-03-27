@@ -499,25 +499,25 @@ uint8_t x_6;
 x_6 = lean_usize_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; size_t x_13; size_t x_14; 
+lean_object* x_7; size_t x_8; size_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_7 = lean_array_uget(x_2, x_3);
-x_8 = lean_ctor_get(x_7, 1);
-lean_inc(x_8);
-x_9 = lean_ctor_get(x_7, 2);
-lean_inc(x_9);
-x_10 = lean_ctor_get(x_7, 3);
+x_8 = 1;
+x_9 = lean_usize_add(x_3, x_8);
+x_10 = lean_ctor_get(x_7, 1);
 lean_inc(x_10);
+x_11 = lean_ctor_get(x_7, 2);
+lean_inc(x_11);
+x_12 = lean_ctor_get(x_7, 3);
+lean_inc(x_12);
 lean_dec(x_7);
-x_11 = l_Array_foldlMUnsafe_fold___at_Lake_Package_findModule_x3f___spec__3___closed__2;
-x_12 = lean_name_eq(x_9, x_11);
-lean_dec(x_9);
-x_13 = 1;
-x_14 = lean_usize_add(x_3, x_13);
-if (x_12 == 0)
+x_13 = l_Array_foldlMUnsafe_fold___at_Lake_Package_findModule_x3f___spec__3___closed__2;
+x_14 = lean_name_eq(x_11, x_13);
+lean_dec(x_11);
+if (x_14 == 0)
 {
+lean_dec(x_12);
 lean_dec(x_10);
-lean_dec(x_8);
-x_3 = x_14;
+x_3 = x_9;
 goto _start;
 }
 else
@@ -526,10 +526,10 @@ lean_object* x_16; lean_object* x_17;
 lean_inc(x_1);
 x_16 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_16, 0, x_1);
-lean_ctor_set(x_16, 1, x_8);
-lean_ctor_set(x_16, 2, x_10);
+lean_ctor_set(x_16, 1, x_10);
+lean_ctor_set(x_16, 2, x_12);
 x_17 = lean_array_push(x_5, x_16);
-x_3 = x_14;
+x_3 = x_9;
 x_5 = x_17;
 goto _start;
 }

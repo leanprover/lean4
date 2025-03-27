@@ -302,19 +302,20 @@ where
     match_expr t with
     | BEq.beq α _ lhsExpr rhsExpr =>
       let_expr BitVec _ := α | return none
-      binaryReflection lhsExpr rhsExpr .eq
+      binaryReflection lhsExpr rhsExpr .eq t
     | BitVec.ult _ lhsExpr rhsExpr =>
-      binaryReflection lhsExpr rhsExpr .ult
+      binaryReflection lhsExpr rhsExpr .ult t
     | BitVec.getLsbD _ subExpr idxExpr =>
       let some sub ← ReifiedBVExpr.of subExpr | return none
       let some idx ← getNatValue? idxExpr | return none
-      return some (← ReifiedBVPred.mkGetLsbD sub subExpr idx)
+      return some (← ReifiedBVPred.mkGetLsbD sub subExpr idx t)
     | _ => return none
 
-  binaryReflection (lhsExpr rhsExpr : Expr) (pred : BVBinPred) : LemmaM (Option ReifiedBVPred) := do
+  binaryReflection (lhsExpr rhsExpr : Expr) (pred : BVBinPred) (origExpr : Expr)
+      : LemmaM (Option ReifiedBVPred) := do
     let some lhs ← ReifiedBVExpr.of lhsExpr | return none
     let some rhs ← ReifiedBVExpr.of rhsExpr | return none
-    ReifiedBVPred.mkBinPred lhs rhs lhsExpr rhsExpr pred
+    ReifiedBVPred.mkBinPred lhs rhs lhsExpr rhsExpr pred origExpr
 
 /--
 Reify an `Expr` that is a boolean expression containing predicates about `BitVec` as atoms.
@@ -332,19 +333,19 @@ where
     | Bool.false => ReifiedBVLogical.mkBoolConst false
     | Bool.not subExpr =>
       let some sub ← goOrAtom subExpr | return none
-      return some (← ReifiedBVLogical.mkNot sub subExpr)
-    | Bool.and lhsExpr rhsExpr => gateReflection lhsExpr rhsExpr .and
-    | Bool.xor lhsExpr rhsExpr => gateReflection lhsExpr rhsExpr .xor
+      return some (← ReifiedBVLogical.mkNot sub subExpr t)
+    | Bool.and lhsExpr rhsExpr => gateReflection lhsExpr rhsExpr .and t
+    | Bool.xor lhsExpr rhsExpr => gateReflection lhsExpr rhsExpr .xor t
     | BEq.beq α _ lhsExpr rhsExpr =>
       match_expr α with
-      | Bool => gateReflection lhsExpr rhsExpr .beq
+      | Bool => gateReflection lhsExpr rhsExpr .beq t
       | BitVec _ => goPred t
       | _ => return none
     | cond _ discrExpr lhsExpr rhsExpr =>
       let some discr ← goOrAtom discrExpr | return none
       let some lhs ← goOrAtom lhsExpr | return none
       let some rhs ← goOrAtom rhsExpr | return none
-      return some (← ReifiedBVLogical.mkIte discr lhs rhs discrExpr lhsExpr rhsExpr)
+      return some (← ReifiedBVLogical.mkIte discr lhs rhs discrExpr lhsExpr rhsExpr t)
     | _ => goPred t
 
   /--
@@ -357,11 +358,11 @@ where
       | some boolExpr => return some boolExpr
       | none => ReifiedBVLogical.boolAtom t
 
-  gateReflection (lhsExpr rhsExpr : Expr) (gate : Gate) :
+  gateReflection (lhsExpr rhsExpr : Expr) (gate : Gate) (origExpr : Expr) :
       LemmaM (Option ReifiedBVLogical) := do
     let some lhs ← goOrAtom lhsExpr | return none
     let some rhs ← goOrAtom rhsExpr | return none
-    ReifiedBVLogical.mkGate lhs rhs lhsExpr rhsExpr gate
+    ReifiedBVLogical.mkGate lhs rhs lhsExpr rhsExpr gate origExpr
 
   goPred (t : Expr) : LemmaM (Option ReifiedBVLogical) := do
     let some pred ← ReifiedBVPred.of t | return none

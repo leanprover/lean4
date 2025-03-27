@@ -44,15 +44,15 @@ def boolAtom (t : Expr) : M (Option ReifiedBVPred) := do
       t
       atomEval
       atomProof
-  return some ⟨bvExpr, proof, expr⟩
+  return some ⟨bvExpr, t, proof, expr⟩
 
 /--
 Construct the reified version of applying the predicate in `pred` to `lhs` and `rhs`.
 This function assumes that `lhsExpr` and `rhsExpr` are the corresponding expressions to `lhs`
 and `rhs`.
 -/
-def mkBinPred (lhs rhs : ReifiedBVExpr) (lhsExpr rhsExpr : Expr) (pred : BVBinPred) :
-    M (Option ReifiedBVPred) := do
+def mkBinPred (lhs rhs : ReifiedBVExpr) (lhsExpr rhsExpr : Expr) (pred : BVBinPred)
+    (origExpr : Expr) : M (Option ReifiedBVPred) := do
   if h : lhs.width = rhs.width then
     let congrThm := congrThmofBinPred pred
     let bvExpr : BVPred := .bin (w := lhs.width) lhs.bvExpr pred (h ▸ rhs.bvExpr)
@@ -79,7 +79,7 @@ def mkBinPred (lhs rhs : ReifiedBVExpr) (lhsExpr rhsExpr : Expr) (pred : BVBinPr
         lhsExpr rhsExpr lhsEval rhsEval
         lhsProof
         rhsProof
-    return some ⟨bvExpr, proof, expr⟩
+    return some ⟨bvExpr, origExpr, proof, expr⟩
   else
     return none
 where
@@ -92,7 +92,8 @@ where
 Construct the reified version of `BitVec.getLsbD subExpr idx`.
 This function assumes that `subExpr` is the expression corresponding to `sub`.
 -/
-def mkGetLsbD (sub : ReifiedBVExpr) (subExpr : Expr) (idx : Nat) : M ReifiedBVPred := do
+def mkGetLsbD (sub : ReifiedBVExpr) (subExpr : Expr) (idx : Nat) (origExpr : Expr) :
+    M ReifiedBVPred := do
   let bvExpr : BVPred := .getLsbD sub.bvExpr idx
   let idxExpr := toExpr idx
   let expr := mkApp3 (mkConst ``BVPred.getLsbD) (toExpr sub.width) sub.expr idxExpr
@@ -107,7 +108,7 @@ def mkGetLsbD (sub : ReifiedBVExpr) (subExpr : Expr) (idx : Nat) : M ReifiedBVPr
       subExpr
       subEval
       subProof
-  return ⟨bvExpr, proof, expr⟩
+  return ⟨bvExpr, origExpr, proof, expr⟩
 
 end ReifiedBVPred
 

@@ -14,13 +14,11 @@ abbrev LeanExe := ConfigTarget LeanExe.configKind
 
 /-- The Lean executables of the package (as an Array). -/
 @[inline] def Package.leanExes (self : Package) : Array LeanExe :=
-  self.targetDecls.foldl (init := #[]) fun a t =>
-    if let some cfg := t.leanExeConfig? then a.push ⟨self, t.name, cfg⟩ else a
+  self.configTargets LeanExe.configKind
 
 /-- Try to find a Lean executable in the package with the given name. -/
 @[inline] def Package.findLeanExe? (name : Name) (self : Package) : Option LeanExe :=
-  self.findTargetDecl? name |>.bind fun t => t.leanExeConfig?.map fun cfg =>
-    ⟨self, name, cfg⟩
+  self.findConfigTarget? LeanExe.configKind name
 
 /--
 Converts the executable configuration into a library

@@ -21,46 +21,25 @@ open System (FilePath)
 
 namespace Lake
 
-/--
-Converts a conveniently-typed target facet build function into its
-dynamically-typed equivalent.
--/
-@[macro_inline, deprecated "Deprecated without replacement." (since := "2025-02-27")]
-def mkTargetFacetBuild
-  (facet : Name) (build : FetchM (Job α))
-  [h : FamilyOut TargetData facet α]
-: FetchM (Job (TargetData facet)) :=
-  cast (by rw [← h.fam_eq]) build
-
-/-!
-## Topologically-based Recursive Build Using the Index
--/
-
 /-- Recursive build function for anything in the Lake build index. -/
 def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) :=
   match info with
-  | .target pkg target kind => do
+  | .target pkg target => do
     if let some decl := pkg.findTargetDecl? target then
-      if k_eq : kind = decl.kind then
-        if h : decl.kind.isAnonymous then
-          let cfg := decl.targetConfig h
-          have h := Name.eq_anonymous_of_isAnonymous h
-          cast (by rw [k_eq, h]) (cfg.fetchFn pkg)
-        else
-          let tgt := ConfigTarget.mk pkg target decl.config'
-          have h_kind := BuildKey.packageTarget pkg.name target decl.kind |>.data_eq_of_kind h
-          let tgt := cast (by simp [k_eq, h_kind, decl.wf_data h |>.2]) tgt
-          return Job.pure tgt
+      if h : decl.kind.isAnonymous then
+        (decl.targetConfig h).fetchFn pkg
       else
-        error s!"invalid target '{info}': target is of kind '{decl.kind}', but requested as '{kind}'"
+        let tgt := ConfigTarget.mk pkg target decl.config'
+        let tgt := cast (by simp [decl.wf_data' h]) tgt
+        return Job.pure tgt
     else
       error s!"invalid target '{info}': target not found in package"
-  | .facet target data facet => do
+  | .facet _ kind data facet => do
     if let some config := (← getWorkspace).findFacetConfig? facet then
-      if h : config.kind = target.kind then
+      if h : config.kind = kind then
         config.fetchFn <| cast (by simp [h]) data
       else
-        error s!"invalid target '{info}': target is of kind '{target.kind}', but facet expects '{config.kind}'"
+        error s!"invalid target '{info}': target is of kind '{kind}', but facet expects '{config.kind}'"
     else
       error s!"invalid target '{info}': unknown facet '{facet}'"
 

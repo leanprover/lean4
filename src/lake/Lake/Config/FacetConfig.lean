@@ -15,7 +15,7 @@ structure FacetConfig (name : Name) : Type where
   /-- The facet kind (i.e., the kind of targets that support this facet). -/
   kind : Name
   /-- The facet's fetch function. -/
-  fetchFn : TargetData kind → FetchM (Job (FacetOut name))
+  fetchFn : DataType kind → FetchM (Job (FacetOut name))
   /-- Is this facet compatible with the `lake build` CLI? -/
   buildable : Bool := true
   /-- Format this facet's output (e.g., for `lake query`). -/
@@ -40,7 +40,7 @@ def FacetConfig.toKind? (kind : Name) (self : FacetConfig name) : Option (KFacet
 
 /-- Run the facet configuration's fetch function. -/
 @[inline] def KFacetConfig.run
-  [FamilyOut TargetData kind α]
+  [FamilyOut DataType kind α]
   [FamilyOut FacetOut facet β]
   (self : KFacetConfig kind facet) (info : α)
 : FetchM (Job β) :=
@@ -49,7 +49,7 @@ def FacetConfig.toKind? (kind : Name) (self : FacetConfig name) : Option (KFacet
 /-- A smart constructor for facet configurations that generate jobs for the CLI. -/
 @[inline] def mkFacetJobConfig
   [FormatQuery β]
-  [i : FamilyOut TargetData kind α]
+  [i : FamilyOut DataType kind α]
   [o : FamilyOut FacetOut facet β]
   (build : α → FetchM (Job β)) (buildable := true)
 : KFacetConfig kind facet where

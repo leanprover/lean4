@@ -79,7 +79,7 @@ def collectTargetFacetArray
   let mut res : Array (Job α) := #[]
   for ⟨k, v⟩ in self do
     match k with
-    | .targetFacet _ _ _ f =>
+    | .targetFacet _ _ f =>
       if hf : f = facet then
         have of_data := by unfold BuildData; simp [hf]
         res := res.push <| cast of_data v

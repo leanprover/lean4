@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lake.Config.Package
+import Lake.Config.ConfigTarget
 
 namespace Lake
 open Lean (Name)
@@ -14,13 +14,11 @@ abbrev ExternLib := ConfigTarget ExternLib.configKind
 
 /-- The external libraries of the package (as an Array). -/
 @[inline] def Package.externLibs (self : Package) : Array ExternLib :=
-  self.targetDecls.foldl (init := #[]) fun a t =>
-    if let some cfg := t.externLibConfig? then a.push ⟨self, t.name, cfg⟩ else a
+  self.configTargets ExternLib.configKind
 
 /-- Try to find a external library in the package with the given name. -/
 @[inline] def Package.findExternLib? (name : Name) (self : Package) : Option ExternLib :=
-  self.findTargetDecl? name |>.bind fun t => t.externLibConfig?.map fun cfg =>
-    ⟨self, name, cfg⟩
+  self.findConfigTarget? ExternLib.configKind name
 
 namespace ExternLib
 

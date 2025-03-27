@@ -15,14 +15,34 @@ namespace Lake
 --------------------------------------------------------------------------------
 
 /--
-The open type family which maps a Lake target to its associated build data.
-For example, the generated static library for the `externLib.static` facet of
-an external library.
+The open type family which maps a Lake data kind to its associated type.
+For example, `LeanLib.facetKind` maps to `LeanLib`.
 
 It is an open type, meaning additional mappings can be add lazily
-as needed (via `target_data`).
+as needed (via `data_type`).
 -/
-opaque TargetData (name : Name) : Type
+opaque DataType (kind : Name) : Type u
+
+class DataKind (α : Type u) where
+  name : Name
+  wf (h : ¬ name.isAnonymous) : α = DataType name
+
+instance : CoeOut (DataKind α) Lean.Name := ⟨(·.name)⟩
+instance : ToString (DataKind α) := ⟨(·.name.toString)⟩
+
+@[instance low]
+def DataKind.anonymous : DataKind α where
+  name := .anonymous
+  wf h := by simp [Name.isAnonymous] at h
+
+@[inline] def DataKind.isAnonymous (self : DataKind α) : Bool :=
+  self.name.isAnonymous
+
+theorem DataKind.eq_data_type
+  {self : DataKind α} (h : ¬ self.isAnonymous) : α = DataType self.name
+:= self.wf h
+
+@[deprecated DataType (since := "2025-03-26")] abbrev TargetData := DataType
 
 /--
 The open type family which maps a Lake facet to its output type.
@@ -84,20 +104,8 @@ abbrev LeanLibData := LibraryData
 /-- The kind identifier for facets of a Lean executable. -/
 @[match_pattern] abbrev LeanExe.facetKind : Name := `leanExe
 
-/--
-The type family which maps a Lean executable facet's name to its output type.
-For example, the `FilePath` of the executable for the `exe` facet.
--/
-abbrev LeanExeData := FacetData LeanExe.facetKind
-
 /-- The kind identifier for facets of an external library. -/
 @[match_pattern] abbrev ExternLib.facetKind : Name := `externLib
-
-/--
-The type family which maps an external library facet's name to its output type.
-For example, the `FilePath` of the generated static library for the `static` facet.
--/
-abbrev ExternLibData := FacetData ExternLib.facetKind
 
 /--
 The open type family which maps a custom package target
@@ -129,44 +137,41 @@ It is a simple type function composed of the separate open type families for
 modules facets, package facets, Lake target facets, and custom targets.
 -/
 abbrev BuildData : BuildKey → Type
-| .module _ => TargetData Module.facetKind
-| .package _ => TargetData Package.facetKind
-| .packageTarget p t .anonymous => CustomData p t
-| .packageTarget _ _ k => TargetData k
+| .module _ => DataType Module.facetKind
+| .package _ => DataType Package.facetKind
+| .packageTarget p t => CustomData p t
 | .facet _ f => FacetOut f
 
-instance (priority := low) : FamilyDef BuildData (.customTarget p t) (CustomData p t) := ⟨rfl⟩
+instance (priority := low) : FamilyDef BuildData (.packageTarget p t) (CustomData p t) := ⟨rfl⟩
 instance (priority := low) : FamilyDef BuildData (.facet t f) (FacetOut f) := ⟨rfl⟩
 
-instance [FamilyOut TargetData Module.facetKind α]
+instance [FamilyOut (CustomData p) t α]
+: FamilyDef BuildData (.packageTarget p t) α where
+  fam_eq := by unfold BuildData; simp
+
+instance [FamilyOut DataType Module.facetKind α]
 : FamilyDef BuildData (.module k) α where
   fam_eq := by unfold BuildData; simp
 
-instance [FamilyOut TargetData Package.facetKind α]
+instance [FamilyOut DataType Package.facetKind α]
 : FamilyDef BuildData (.package k) α where
   fam_eq := by unfold BuildData; simp
-
-instance [FamilyOut TargetData LeanLib.facetKind α]
-: FamilyDef BuildData (.packageTarget p t LeanLib.facetKind) α where
-  fam_eq := by unfold BuildData; simp
-
-instance [FamilyOut TargetData LeanExe.facetKind α]
-: FamilyDef BuildData (.packageTarget p t LeanExe.facetKind) α where
-  fam_eq := by unfold BuildData; simp
-
-instance [FamilyOut TargetData ExternLib.facetKind α]
-: FamilyDef BuildData (.packageTarget p t ExternLib.facetKind) α where
-  fam_eq := by unfold BuildData; simp
-
-theorem BuildKey.data_eq_of_kind {k : BuildKey} :
-  ¬ k.kind.isAnonymous → (BuildData k) = TargetData k.kind
-:= by unfold BuildData; split <;> simp [BuildKey.kind, Lean.Name.isAnonymous]
 
 --------------------------------------------------------------------------------
 /-! ## Macros for Declaring Build Data                                        -/
 --------------------------------------------------------------------------------
 
 open Parser Command
+
+/-- Macro for declaring new `DatayType`. -/
+scoped macro (name := dataTypeDecl)
+  doc?:optional(docComment) "data_type " kind:ident " : " ty:term
+: command => do
+  let fam := mkCIdentFrom (← getRef) ``DataType
+  let kindName := Name.quoteFrom kind kind.getId
+  let id := mkIdentFrom kind (canonical := true) <|
+    kind.getId.modifyBase (kind.getId ++ ·)
+  `($[$doc?]? family_def $id : $fam $kindName := $ty)
 
 /-- Internal macro for declaring new facet within Lake. -/
 scoped macro (name := builtinFacetCommand)

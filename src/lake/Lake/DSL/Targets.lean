@@ -27,7 +27,7 @@ syntax buildDeclSig :=
 
 abbrev mkModuleFacetDecl
   (α) (facet : Name)
-  [FormatQuery α] [FamilyDef ModuleData facet α]
+  [DataKind α] [FormatQuery α] [FamilyDef ModuleData facet α]
   (f : Module → FetchM (Job α))
 : ModuleFacetDecl := .mk (Module.facetKind ++ facet) <| mkFacetJobConfig fun mod => do
   withRegisterJob (mod.facet facet |>.key.toSimpleString)
@@ -66,7 +66,7 @@ def expandModuleFacetDecl : Macro := fun stx => do
 
 abbrev mkPackageFacetDecl
   (α) (facet : Name)
-  [FormatQuery α] [FamilyDef PackageData facet α]
+  [DataKind α] [FormatQuery α] [FamilyDef PackageData facet α]
   (f : Package → FetchM (Job α))
 : PackageFacetDecl := .mk (Package.facetKind ++ facet) <| mkFacetJobConfig fun pkg => do
   withRegisterJob (pkg.facet facet |>.key.toSimpleString)
@@ -105,7 +105,7 @@ def expandPackageFacetDecl : Macro := fun stx => do
 
 abbrev mkLibraryFacetDecl
   (α) (facet : Name)
-  [FormatQuery α] [FamilyDef LibraryData facet α]
+  [DataKind α] [FormatQuery α] [FamilyDef LibraryData facet α]
   (f : LeanLib → FetchM (Job α))
 : LibraryFacetDecl := .mk (LeanLib.facetKind ++ facet) <| mkFacetJobConfig fun lib => do
   withRegisterJob (lib.facet facet |>.key.toSimpleString)
@@ -149,7 +149,7 @@ def expandLibraryFacetDecl : Macro := fun stx => do
 
 abbrev mkTargetDecl
   (α) (pkgName target : Name)
-  [FormatQuery α] [FamilyDef (CustomData pkgName) target α]
+  [DataKind α] [FormatQuery α] [FamilyDef (CustomData pkgName) target α]
   (f : NPackage pkgName → FetchM (Job α))
 : TargetDecl :=
   let cfg := mkTargetJobConfig fun pkg => do
@@ -197,8 +197,7 @@ def expandTargetCommand : Macro := fun stx => do
 abbrev mkConfigDecl
   (pkg name kind : Name)
   (config : ConfigType kind pkg name)
-  [FamilyDef (CustomData pkg) name (TargetData kind)]
-  [FamilyDef TargetData kind (ConfigTarget kind)]
+  [FamilyDef (CustomData pkg) name (ConfigTarget kind)]
 : KConfigDecl kind :=
   {pkg, name, kind, config, wf_data := fun _ => by simp, kind_eq := rfl}
 
@@ -220,7 +219,7 @@ def mkConfigDeclDef
   let pkg ← mkIdentFromRef (packageDeclName.str "name")
   let declTy ← mkIdentFromRef delTyName.typeName
   let kind := Name.quoteFrom (← getRef) kind
-  `(family_def $id : CustomOut ($pkg, $name) := TargetData $kind
+  `(family_def $id : CustomOut ($pkg, $name) := ConfigTarget $kind
     $[$doc?]? abbrev $id : $declTy :=
       Lake.DSL.mkConfigDecl $pkg $name $kind $configId
     @[$attrs,*] def configDecl : ConfigDecl := $(id).toConfigDecl
@@ -287,7 +286,7 @@ instance : Coe LeanExeCommand Command where
 abbrev mkExternLibDecl
   (pkgName name : Name)
   [FamilyDef (CustomData pkgName) (.str name "static") FilePath]
-  [FamilyDef (CustomData pkgName) name (TargetData ExternLib.facetKind)]
+  [FamilyDef (CustomData pkgName) name (ConfigTarget ExternLib.facetKind)]
 : ExternLibDecl :=
   mkConfigDecl pkgName name ExternLib.configKind {getPath := cast (by simp)}
 
@@ -327,7 +326,7 @@ def expandExternLibCommand : Macro := fun stx => do
   let name := Name.quoteFrom id id.getId
   let kind := Name.quoteFrom kw ExternLib.facetKind
   `(target $targetId:ident $[$pkg?]? : FilePath := $defn $[$wds?:whereDecls]?
-    family_def $id : CustomOut ($pkgName, $name) := TargetData $kind
+    family_def $id : CustomOut ($pkgName, $name) := ConfigTarget $kind
     $[$doc?:docComment]? def $id : ExternLibDecl :=
       Lake.DSL.mkExternLibDecl $pkgName $name
     @[$attrs,*] def configDecl : ConfigDecl := $(id).toConfigDecl)

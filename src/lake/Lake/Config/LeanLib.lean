@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lake.Config.Package
+import Lake.Config.ConfigTarget
 
 namespace Lake
 open Lean System
@@ -14,13 +14,11 @@ abbrev LeanLib := ConfigTarget LeanLib.configKind
 
 /-- The Lean libraries of the package (as an Array). -/
 @[inline] def Package.leanLibs (self : Package) : Array LeanLib :=
-  self.targetDecls.foldl (init := #[]) fun a t =>
-    if let some cfg := t.leanLibConfig? then a.push ⟨self, t.name, cfg⟩ else a
+  self.configTargets LeanLib.configKind
 
 /-- Try to find a Lean library in the package with the given name. -/
 @[inline] def Package.findLeanLib? (name : Name) (self : Package) : Option LeanLib :=
-  self.findTargetDecl? name |>.bind fun t => t.leanLibConfig?.map fun cfg =>
-    ⟨self, name, cfg⟩
+  self.findConfigTarget? LeanLib.configKind name
 
 namespace LeanLib
 

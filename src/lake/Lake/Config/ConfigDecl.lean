@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2022 Mac Malone. All rights reserved.
+Copyright (c) 2025 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
@@ -39,7 +39,7 @@ abbrev ConfigType (kind : Name) (pkgName name : Name) : Type :=
   | .anonymous => OpaqueTargetConfig pkgName name
   | _ => Empty
 
-/-- Forward declared `ConfigTarget` to work around current recursion with `Package`. -/
+/-- Forward declared `ConfigTarget` to work around recursion issues (e.g., with `Package`). -/
 opaque OpaqueConfigTarget (kind : Name) : Type
 
 structure ConfigDecl where
@@ -47,7 +47,7 @@ structure ConfigDecl where
   name : Name
   kind : Name
   config : ConfigType kind pkg name
-  wf_data : ¬ kind.isAnonymous → CustomData pkg name = TargetData kind ∧ TargetData kind = OpaqueConfigTarget kind
+  wf_data : ¬ kind.isAnonymous → CustomData pkg name = OpaqueConfigTarget kind
   deriving TypeName
 
 structure PConfigDecl (p : Name) extends ConfigDecl where
@@ -63,22 +63,26 @@ instance : Nonempty (NConfigDecl pkg name) :=
   ⟨{pkg, name, kind := .anonymous, config := Classical.ofNonempty, wf_data := by simp [Name.isAnonymous]}⟩
 
 @[inline] def PConfigDecl.config' (self : PConfigDecl p) : ConfigType self.kind p self.name :=
-  cast (by simp [self.pkg_eq]) self.config
+  cast (by rw [self.pkg_eq]) self.config
 
 @[inline] def NConfigDecl.config' (self : NConfigDecl p n) : ConfigType self.kind p n :=
-  cast (by simp [self.name_eq]) self.toPConfigDecl.config'
+  cast (by rw [self.name_eq]) self.toPConfigDecl.config'
+
+theorem NConfigDecl.wf_data' (self : NConfigDecl p n) :
+  ¬ self.kind.isAnonymous → CustomData p n = OpaqueConfigTarget self.kind
+:= by simpa [self.pkg_eq, self.name_eq] using self.wf_data
 
 @[inline] def ConfigDecl.config? (kind : Name) (self : ConfigDecl) : Option (ConfigType kind self.pkg self.name) :=
   if h : self.kind = kind then
-    some <| cast (by simp [h]) self.config
+    some <| cast (by rw [h]) self.config
   else
     none
 
 @[inline] def PConfigDecl.config? (kind : Name) (self : PConfigDecl p) : Option (ConfigType kind p self.name) :=
-  cast (by simp [self.pkg_eq]) (self.toConfigDecl.config? kind)
+  cast (by rw [self.pkg_eq]) (self.toConfigDecl.config? kind)
 
 @[inline] def NConfigDecl.config? (kind : Name) (self : NConfigDecl p n) : Option (ConfigType kind p n) :=
-  cast (by simp [self.name_eq]) (self.toPConfigDecl.config? kind)
+  cast (by rw [self.name_eq]) (self.toPConfigDecl.config? kind)
 
 @[inline] def ConfigDecl.leanLibConfig? (self : ConfigDecl) : Option (LeanLibConfig self.name) :=
   self.config? LeanLib.configKind
@@ -108,10 +112,10 @@ abbrev LeanExeDecl := KConfigDecl LeanExe.configKind
 abbrev ExternLibDecl := KConfigDecl ExternLib.configKind
 
 @[inline] def PConfigDecl.opaqueTargetConfig (self : PConfigDecl p) (h : self.kind.isAnonymous) : OpaqueTargetConfig p self.name :=
-  cast (by simp [self.pkg_eq, Name.eq_anonymous_of_isAnonymous h, ConfigType]) self.config
+  cast (by rw [self.pkg_eq, Name.eq_anonymous_of_isAnonymous h, ConfigType]) self.config
 
 @[inline] def NConfigDecl.opaqueTargetConfig (self : NConfigDecl p n) (h : self.kind.isAnonymous) : OpaqueTargetConfig p n :=
-  cast (by simp [self.name_eq]) (self.toPConfigDecl.opaqueTargetConfig h)
+  cast (by rw [self.name_eq]) (self.toPConfigDecl.opaqueTargetConfig h)
 
 @[inline] def PConfigDecl.opaqueTargetConfig? (self : PConfigDecl p) : Option (OpaqueTargetConfig p self.name) :=
   if h : self.kind.isAnonymous then
@@ -120,6 +124,6 @@ abbrev ExternLibDecl := KConfigDecl ExternLib.configKind
     none
 
 @[inline] def NConfigDecl.opaqueTargetConfig? (self : NConfigDecl p n) : Option (OpaqueTargetConfig p n) :=
-  cast (by simp [self.name_eq]) self.toPConfigDecl.opaqueTargetConfig?
+  cast (by rw [self.name_eq]) self.toPConfigDecl.opaqueTargetConfig?
 
 deriving instance TypeName for LeanLibDecl, LeanExeDecl

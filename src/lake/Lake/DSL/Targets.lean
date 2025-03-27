@@ -287,7 +287,7 @@ instance : Coe LeanExeCommand Command where
 abbrev mkExternLibDecl
   (pkgName name : Name)
   [FamilyDef (CustomData pkgName) (.str name "static") FilePath]
-  [FamilyDef (CustomData pkgName) name (ConfigTarget ExternLib.facetKind)]
+  [FamilyDef (CustomData pkgName) name (ConfigTarget ExternLib.configKind)]
 : ExternLibDecl :=
   mkConfigDecl pkgName name ExternLib.configKind {getPath := cast (by simp)}
 
@@ -325,7 +325,7 @@ def expandExternLibCommand : Macro := fun stx => do
   let pkgName := mkIdentFrom kw (packageDeclName.str "name")
   let targetId := mkIdentFrom id <| id.getId.modifyBase (· ++ `static)
   let name := Name.quoteFrom id id.getId
-  let kind := Name.quoteFrom kw ExternLib.facetKind
+  let kind := Name.quoteFrom kw ExternLib.configKind
   `(target $targetId:ident $[$pkg?]? : FilePath := $defn $[$wds?:whereDecls]?
     family_def $id : CustomOut ($pkgName, $name) := ConfigTarget $kind
     $[$doc?:docComment]? def $id : ExternLibDecl :=

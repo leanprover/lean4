@@ -114,9 +114,9 @@ definitions.
 
 data_type module : Module
 data_type package : Package
-data_type leanLib : LeanLib
-data_type leanExe : LeanExe
-data_type externLib : ExternLib
+data_type lean_lib : LeanLib
+data_type lean_exe : LeanExe
+data_type extern_lib : ExternLib
 
 /-- The direct local imports of the Lean module. -/
 builtin_facet imports : Module => Array Module

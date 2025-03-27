@@ -87,7 +87,7 @@ as needed (via `package_data`).
 abbrev PackageData := FacetData Package.facetKind
 
 /-- The kind identifier for facets of a Lean library. -/
-@[match_pattern] abbrev LeanLib.facetKind : Name := `leanLib
+@[match_pattern] abbrev LeanLib.facetKind : Name := `lean_lib
 
 /--
 The open type family which maps a Lean library facet's name to its output type.
@@ -102,10 +102,10 @@ abbrev LibraryData := FacetData LeanLib.facetKind
 abbrev LeanLibData := LibraryData
 
 /-- The kind identifier for facets of a Lean executable. -/
-@[match_pattern] abbrev LeanExe.facetKind : Name := `leanExe
+@[match_pattern] abbrev LeanExe.facetKind : Name := `lean_exe
 
 /-- The kind identifier for facets of an external library. -/
-@[match_pattern] abbrev ExternLib.facetKind : Name := `externLib
+@[match_pattern] abbrev ExternLib.facetKind : Name := `extern_lib
 
 /--
 The open type family which maps a custom package target

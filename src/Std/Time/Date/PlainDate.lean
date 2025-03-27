@@ -34,7 +34,7 @@ structure PlainDate where
 
   /-- Validates the date by ensuring that the year, month, and day form a correct and valid date. -/
   valid : year.Valid month day
-  deriving Repr, DecidableEq
+deriving Repr, DecidableEq
 
 @[ext]
 theorem PlainDate.ext {a b : PlainDate} (hy : a.year = b.year) (hm : a.month = b.month)

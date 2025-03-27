@@ -32,7 +32,7 @@ structure Duration where
   Proof that the duration is valid, ensuring that the `second` and `nano` values are correctly related.
   -/
   proof : (second.val ≥ 0 ∧ nano.val ≥ 0) ∨ (second.val ≤ 0 ∧ nano.val ≤ 0)
-  deriving Repr, DecidableEq
+deriving Repr, DecidableEq
 
 @[ext]
 theorem Duration.ext {a b : Duration} (hs : a.second = b.second) (hn : a.nano = b.nano) :

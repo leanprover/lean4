@@ -19,7 +19,7 @@ set_option linter.all true
 `Ordinal` represents a bounded value for weeks, which ranges between 1 and 53.
 -/
 def Ordinal := Bounded.LE 1 53
-  deriving Repr, DecidableEq, LE, LT
+deriving Repr, DecidableEq, LE, LT
 
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 1 (1 + (52 : Nat))) n)
@@ -43,7 +43,7 @@ instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 1 _
 `Offset` represents an offset in weeks.
 -/
 def Offset : Type := UnitVal (86400 * 7)
-  deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
+deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 instance {x y : Offset} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
@@ -73,7 +73,7 @@ def ofInt (data : Int) (h : 1 ≤ data ∧ data ≤ 53) : Ordinal :=
 correct bounds—either 1 to 6, representing the possible weeks in a month.
 -/
 def OfMonth := Bounded.LE 1 6
-  deriving Repr, DecidableEq
+deriving Repr, DecidableEq
 
 instance : OfNat OfMonth n := inferInstanceAs (OfNat (Bounded.LE 1 (1 + (5 : Nat))) n)
 

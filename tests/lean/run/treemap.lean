@@ -1931,13 +1931,3 @@ warning: declaration uses 'sorry'
 
 end TreeSet
 
-/-!
-# Ideas
-
-* date/time
-* integer variants
-* strings
-* Option, List, Char, Vector, Array, Option, Fin
--/
-
-#synth Ord String

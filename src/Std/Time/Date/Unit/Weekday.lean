@@ -38,7 +38,7 @@ inductive Weekday
 
     /-- Sunday. -/
   | sunday
-  deriving Repr, Inhabited, DecidableEq
+deriving Repr, Inhabited, DecidableEq
 
 namespace Weekday
 

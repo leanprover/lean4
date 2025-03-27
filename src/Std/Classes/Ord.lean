@@ -5,8 +5,6 @@ Authors: Markus Himmel, Paul Reichert
 -/
 prelude
 import Init.Data.Ord
-import Init.Data.Nat.Compare
-import Init.Data.Int.Compare
 
 /-!
 # Type classes related to `Ord`
@@ -109,12 +107,12 @@ theorem OrientedCmp.eq_symm [OrientedCmp cmp] {a b : α} : cmp a b = .eq → cmp
   OrientedCmp.eq_comm.1
 
 theorem OrientedCmp.not_isLE_of_lt [OrientedCmp cmp] {a b : α} :
-    cmp a b = .lt → ¬(cmp b a).isLE := by
+    cmp a b = .lt → ¬ (cmp b a).isLE := by
   rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
   simp
 
 theorem OrientedCmp.not_isGE_of_gt [OrientedCmp cmp] {a b : α} :
-    cmp a b = .gt → ¬(cmp b a).isGE := by
+    cmp a b = .gt → ¬ (cmp b a).isGE := by
   rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
   simp
 
@@ -139,12 +137,12 @@ theorem OrientedCmp.not_gt_of_gt [OrientedCmp cmp] {a b : α} :
   cases cmp b a <;> simp
 
 theorem OrientedCmp.lt_of_not_isLE [OrientedCmp cmp] {a b : α} :
-    ¬(cmp a b).isLE → cmp b a = .lt := by
+    ¬ (cmp a b).isLE → cmp b a = .lt := by
   rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
   cases cmp b a <;> simp
 
 theorem OrientedCmp.gt_of_not_isGE [OrientedCmp cmp] {a b : α} :
-    ¬(cmp a b).isGE → cmp b a = .gt := by
+    ¬ (cmp a b).isGE → cmp b a = .gt := by
   rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
   cases cmp b a <;> simp
 
@@ -463,7 +461,7 @@ section Instances
 
 theorem TransOrd.of_lt_trans_of_lt_iff {α : Type u} [LT α] [DecidableLT α] [DecidableEq α]
     (lt_trans : ∀ {a b c : α}, a < b → b < c → a < c)
-    (h : ∀ x y : α, x < y ↔ ¬y < x ∧ x ≠ y) :
+    (h : ∀ x y : α, x < y ↔ ¬ y < x ∧ x ≠ y) :
     TransCmp (fun x y : α => compareOfLessAndEq x y) where
   eq_swap := compareOfLessAndEq_eq_swap_of_lt_iff_not_gt_and_ne h
   isLE_trans {x y z} h₁ h₂ := by
@@ -476,11 +474,11 @@ theorem TransOrd.of_lt_trans_of_lt_iff {α : Type u} [LT α] [DecidableLT α] [D
       · exact .inl h₁
     · exact h₂
 
-theorem TransOrd._of_antisymm_of_trans_of_total_of_not_le
+theorem TransOrd.of_antisymm_of_trans_of_total_of_not_le
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
     (antisymm : ∀ {x y : α}, x ≤ y → y ≤ x → x = y)
     (trans : ∀ {x y z : α}, x ≤ y → y ≤ z → x ≤ z) (total : ∀ (x y : α), x ≤ y ∨ y ≤ x)
-    (not_le : ∀ {x y : α}, ¬x ≤ y ↔ y < x) :
+    (not_le : ∀ {x y : α}, ¬ x ≤ y ↔ y < x) :
     TransCmp (fun x y : α => compareOfLessAndEq x y) := by
   refine of_lt_trans_of_lt_iff ?_ ?_
   · intro a b c
@@ -504,22 +502,22 @@ end Bool
 namespace Nat
 
 instance : TransOrd Nat :=
-  TransOrd._of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.of_antisymm_of_trans_of_total_of_not_le
     Nat.le_antisymm Nat.le_trans Nat.le_total Nat.not_le
 
 instance : LawfulEqOrd Nat where
-  eq_of_compare := Nat.compare_eq_eq.mp
+  eq_of_compare := compareOfLessAndEq_eq_eq Nat.le_refl Nat.not_le |>.mp
 
 end Nat
 
 namespace Int
 
 instance : TransOrd Int :=
-  TransOrd._of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.of_antisymm_of_trans_of_total_of_not_le
     Int.le_antisymm Int.le_trans Int.le_total Int.not_le
 
 instance : LawfulEqOrd Int where
-  eq_of_compare := Int.compare_eq_eq.mp
+  eq_of_compare := compareOfLessAndEq_eq_eq Int.le_refl Int.not_le |>.mp
 
 end Int
 
@@ -528,10 +526,10 @@ namespace Fin
 variable (n : Nat)
 
 instance : OrientedOrd (Fin n) where
-  eq_swap := OrientedCmp.eq_swap (α := Nat) (cmp := compare)
+  eq_swap := OrientedOrd.eq_swap (α := Nat)
 
 instance : TransOrd (Fin n) where
-  isLE_trans := TransCmp.isLE_trans (α := Nat) (cmp := compare)
+  isLE_trans := TransOrd.isLE_trans (α := Nat)
 
 instance : LawfulEqOrd (Fin n) where
   eq_of_compare h := Fin.eq_of_val_eq <| LawfulEqOrd.eq_of_compare h
@@ -541,7 +539,7 @@ end Fin
 namespace String
 
 instance : TransOrd String :=
-  TransOrd._of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.of_antisymm_of_trans_of_total_of_not_le
     String.le_antisymm String.le_trans String.le_total String.not_le
 
 instance : LawfulEqOrd String where
@@ -552,7 +550,7 @@ end String
 namespace Char
 
 instance : TransOrd Char :=
-  TransOrd._of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.of_antisymm_of_trans_of_total_of_not_le
     Char.le_antisymm Char.le_trans Char.le_total Char.not_le
 
 instance : LawfulEqOrd Char where
@@ -563,7 +561,7 @@ end Char
 namespace UInt8
 
 instance : TransOrd UInt8 :=
-  TransOrd._of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.of_antisymm_of_trans_of_total_of_not_le
     UInt8.le_antisymm UInt8.le_trans UInt8.le_total UInt8.not_le
 
 instance : LawfulEqOrd UInt8 where
@@ -574,7 +572,7 @@ end UInt8
 namespace UInt16
 
 instance : TransOrd UInt16 :=
-  TransOrd._of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.of_antisymm_of_trans_of_total_of_not_le
     UInt16.le_antisymm UInt16.le_trans UInt16.le_total UInt16.not_le
 
 instance : LawfulEqOrd UInt16 where
@@ -585,7 +583,7 @@ end UInt16
 namespace UInt32
 
 instance : TransOrd UInt32 :=
-  TransOrd._of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.of_antisymm_of_trans_of_total_of_not_le
     UInt32.le_antisymm UInt32.le_trans UInt32.le_total UInt32.not_le
 
 instance : LawfulEqOrd UInt32 where
@@ -596,7 +594,7 @@ end UInt32
 namespace UInt64
 
 instance : TransOrd UInt64 :=
-  TransOrd._of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.of_antisymm_of_trans_of_total_of_not_le
     UInt64.le_antisymm UInt64.le_trans UInt64.le_total UInt64.not_le
 
 instance : LawfulEqOrd UInt64 where
@@ -607,7 +605,7 @@ end UInt64
 namespace USize
 
 instance : TransOrd USize :=
-  TransOrd._of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.of_antisymm_of_trans_of_total_of_not_le
     USize.le_antisymm USize.le_trans USize.le_total USize.not_le
 
 instance : LawfulEqOrd USize where
@@ -666,15 +664,15 @@ instance {α} {cmp₁ cmp₂} [TransCmp cmp₁] [TransCmp cmp₂] :
 
 instance {α β} {f : α → β} [Ord β] [ReflOrd β] :
     ReflCmp (compareOn f) where
-  compare_self := ReflCmp.compare_self (α := β) (cmp := compare)
+  compare_self := ReflOrd.compare_self (α := β)
 
 instance {α β} {f : α → β} [Ord β] [OrientedOrd β] :
     OrientedCmp (compareOn f) where
-  eq_swap := OrientedCmp.eq_swap (α := β) (cmp := compare)
+  eq_swap := OrientedOrd.eq_swap (α := β)
 
 instance {α β} {f : α → β} [Ord β] [TransOrd β] :
     TransCmp (compareOn f) where
-  isLE_trans := TransCmp.isLE_trans (α := β) (cmp := compare)
+  isLE_trans := TransOrd.isLE_trans (α := β)
 
 attribute [instance] lexOrd in
 instance {α β} [Ord α] [Ord β] [ReflOrd α] [ReflOrd β] :

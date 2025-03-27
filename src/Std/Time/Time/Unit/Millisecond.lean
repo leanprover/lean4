@@ -20,7 +20,7 @@ set_option linter.all true
 `Ordinal` represents a bounded value for milliseconds, ranging from 0 to 999 milliseconds.
 -/
 def Ordinal := Bounded.LE 0 999
-  deriving Repr, DecidableEq, LE, LT
+deriving Repr, DecidableEq, LE, LT
 
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 0 (0 + (999 : Nat))) n)
@@ -44,7 +44,7 @@ instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 0 _
 `Offset` represents a duration offset in milliseconds.
 -/
 def Offset : Type := UnitVal (1 / 1000)
-  deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
+deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 instance {x y : Offset} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))

@@ -25,7 +25,7 @@ structure Timestamp where
   Duration since the unix epoch.
   -/
   val : Duration
-  deriving Repr, DecidableEq, Inhabited
+deriving Repr, DecidableEq, Inhabited
 
 @[ext]
 theorem Timestamp.ext {a b : Timestamp} (hs : a.val = b.val) :

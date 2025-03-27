@@ -29,7 +29,7 @@ structure PlainDateTime where
   The `Time` component of a `PlainTime`
   -/
   time : PlainTime
-  deriving Inhabited, DecidableEq, Repr
+deriving Inhabited, DecidableEq, Repr
 
 @[ext]
 theorem PlainDateTime.ext {a b : PlainDateTime} (hd : a.date = b.date) (hm : a.time = b.time) :

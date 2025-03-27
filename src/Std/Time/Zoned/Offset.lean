@@ -27,7 +27,7 @@ structure Offset where
   The same timezone offset in seconds.
   -/
   second : Second.Offset
-  deriving Repr, DecidableEq
+deriving Repr, DecidableEq
 
 @[ext]
 theorem Offset.ext {a b : Offset} (h : a.second = b.second) :

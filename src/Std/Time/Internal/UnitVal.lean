@@ -28,7 +28,7 @@ structure UnitVal (α : Rat) where
   Value inside the UnitVal Value.
   -/
   val : Int
-  deriving Inhabited, DecidableEq
+deriving Inhabited, DecidableEq
 
 @[ext]
 theorem UnitVal.ext {x} {a b : UnitVal x} (h : a.val = b.val) : a = b := by

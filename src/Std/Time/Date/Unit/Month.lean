@@ -19,7 +19,7 @@ set_option linter.all true
 `Ordinal` represents a bounded value for months, which ranges between 1 and 12.
 -/
 def Ordinal := Bounded.LE 1 12
-  deriving Repr, DecidableEq, LE, LT
+deriving Repr, DecidableEq, LE, LT
 
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 1 (1 + (11 : Nat))) n)
@@ -43,7 +43,7 @@ instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 1 _
 `Offset` represents an offset in months. It is defined as an `Int`.
 -/
 def Offset : Type := Int
-  deriving Repr, DecidableEq, Inhabited, Add, Sub, Mul, Div, Neg, ToString, LT, LE
+deriving Repr, DecidableEq, Inhabited, Add, Sub, Mul, Div, Neg, ToString, LT, LE
 
 instance {x y : Offset} : Decidable (x ≤ y) :=
   Int.decLe x y

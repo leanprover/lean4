@@ -17,7 +17,7 @@ set_option linter.all true
 `Ordinal` represents a bounded value for days, which ranges between 1 and 31.
 -/
 def Ordinal := Bounded.LE 1 31
-  deriving Repr, DecidableEq, LE, LT
+deriving Repr, DecidableEq, LE, LT
 
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 1 (1 + (30 : Nat))) n)
@@ -41,7 +41,7 @@ instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 1 _
 (the number of seconds in a day).
 -/
 def Offset : Type := UnitVal 86400
-  deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
+deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 instance : OfNat Offset n := ⟨UnitVal.ofNat n⟩
 
@@ -71,12 +71,6 @@ def ofInt (data : Int) (h : 1 ≤ data ∧ data ≤ 31) : Ordinal :=
 depending on whether it's a leap year.
 -/
 def OfYear (leap : Bool) := Bounded.LE 1 (.ofNat (if leap then 366 else 365))
-
-instance : LE (OfYear leap) where
-  le x y := LE.le x.val y.val
-
-instance : LT (OfYear leap) where
-  lt x y := LT.lt x.val y.val
 
 instance : Repr (OfYear leap) where
   reprPrec r p := reprPrec r.val p

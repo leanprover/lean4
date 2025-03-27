@@ -36,7 +36,7 @@ structure PlainTime where
   `Nanoseconds` component of the `PlainTime`
   -/
   nanosecond : Nanosecond.Ordinal
-  deriving Repr, DecidableEq
+deriving Repr, DecidableEq
 
 @[ext]
 theorem PlainTime.ext {a b : PlainTime} (hh : a.hour = b.hour) (hm : a.minute = b.minute)

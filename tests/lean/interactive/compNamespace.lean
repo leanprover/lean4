@@ -3,11 +3,11 @@ namespace LongNamespaceExample
 
 def x := 10
 
-#check LongN
+#check LongNam
           --^ textDocument/completion
 end LongNamespaceExample
 
-#check LongN
+#check LongNam
           --^ textDocument/completion
 end Foo
 
@@ -18,5 +18,5 @@ end Foo
               --^ textDocument/completion
 open Foo
 
-#check LongN
+#check LongNam
           --^ textDocument/completion

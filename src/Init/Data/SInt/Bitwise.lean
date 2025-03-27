@@ -185,7 +185,8 @@ theorem ISize.not_eq_neg_add (a : ISize) : ~~~a = -a - 1 := ISize.toBitVec_inj.1
 @[simp] theorem Int16.toInt_not (a : Int16) : (~~~a).toInt = (-a.toInt - 1).bmod (2 ^ 16) := by simp [Int16.not_eq_neg_add]
 @[simp] theorem Int32.toInt_not (a : Int32) : (~~~a).toInt = (-a.toInt - 1).bmod (2 ^ 32) := by simp [Int32.not_eq_neg_add]
 @[simp] theorem Int64.toInt_not (a : Int64) : (~~~a).toInt = (-a.toInt - 1).bmod (2 ^ 64) := by simp [Int64.not_eq_neg_add]
-@[simp] theorem ISize.toInt_not (a : ISize) : (~~~a).toInt = (-a.toInt - 1).bmod (2 ^ System.Platform.numBits) := by simp [ISize.not_eq_neg_add]
+@[simp] theorem ISize.toInt_not (a : ISize) : (~~~a).toInt = (-a.toInt - 1).bmod (2 ^ System.Platform.numBits) := by
+  simp [ISize.not_eq_neg_add, toInt_neg]
 
 @[simp] theorem Int16.toInt8_not (a : Int16) : (~~~a).toInt8 = ~~~a.toInt8 := Int8.toBitVec_inj.1 (by simp)
 @[simp] theorem Int32.toInt8_not (a : Int32) : (~~~a).toInt8 = ~~~a.toInt8 := Int8.toBitVec_inj.1 (by simp)
@@ -200,50 +201,6 @@ theorem ISize.not_eq_neg_add (a : ISize) : ~~~a = -a - 1 := ISize.toBitVec_inj.1
 @[simp] theorem ISize.toInt32_not (a : ISize) : (~~~a).toInt32 = ~~~a.toInt32 := Int32.toBitVec_inj.1 (by simp [System.Platform.numBits_pos])
 
 @[simp] theorem Int64.toISize_not (a : Int64) : (~~~a).toISize = ~~~a.toISize := ISize.toBitVec_inj.1 (by simp)
-
-
--- We don't actually want bitwise theory about integers!
-
--- theorem BitVec.toInt_shiftLeft_eq_toInt {n : Nat} {x : BitVec w} : (x <<< n).toInt = (x.toInt * 2 ^ n).bmod (2 ^ w) := by
---   rw [toInt_shiftLeft, Nat.shiftLeft_eq, Int.natCast_mul, BitVec.toInt_eq_toNat_bmod,
---     Int.natCast_pow, Int.bmod_mul_bmod, Int.cast_ofNat_Int]
-
--- -- These are quite strange, I'm sure that more general statements are possible.
--- theorem BitVec.smod_ofNat_self (b : BitVec w) : (b.smod (BitVec.ofNat w w)).toNat = (b.toInt % w).toNat := sorry
--- theorem BitVec.smod_ofNat_self' (b : BitVec w) : (b.smod (OfNat.ofNat w)).toNat = (b.toInt % w).toNat := BitVec.smod_ofNat_self b
--- theorem BitVec.smod_natCast_self (b : BitVec w) : (b.smod (Nat.cast w)).toNat = (b.toInt % w).toNat := BitVec.smod_ofNat_self b
-
--- @[simp] theorem Int8.toInt_shiftLeft (a b : Int8) : (a <<< b).toInt = (a.toInt * (2 ^ (b.toInt % 8).toNat)).bmod (2 ^ 8) := by
---   rw [← toInt_toBitVec, Int8.toBitVec_shiftLeft, BitVec.shiftLeft_eq', BitVec.toInt_shiftLeft_eq_toInt,
---     toInt_toBitVec, BitVec.smod_ofNat_self', toInt_toBitVec]; simp
--- @[simp] theorem Int16.toInt_shiftLeft (a b : Int16) : (a <<< b).toInt = (a.toInt * (2 ^ (b.toInt % 16).toNat)).bmod (2 ^ 16) := by
---   rw [← toInt_toBitVec, Int16.toBitVec_shiftLeft, BitVec.shiftLeft_eq', BitVec.toInt_shiftLeft_eq_toInt,
---     toInt_toBitVec, BitVec.smod_ofNat_self', toInt_toBitVec]; simp
--- @[simp] theorem Int32.toInt_shiftLeft (a b : Int32) : (a <<< b).toInt = (a.toInt * (2 ^ (b.toInt % 32).toNat)).bmod (2 ^ 32) := by
---   rw [← toInt_toBitVec, Int32.toBitVec_shiftLeft, BitVec.shiftLeft_eq', BitVec.toInt_shiftLeft_eq_toInt,
---     toInt_toBitVec, BitVec.smod_ofNat_self', toInt_toBitVec]; simp
--- @[simp] theorem Int64.toInt_shiftLeft (a b : Int64) : (a <<< b).toInt = (a.toInt * (2 ^ (b.toInt % 64).toNat)).bmod (2 ^ 64) := by
---   rw [← toInt_toBitVec, Int64.toBitVec_shiftLeft, BitVec.shiftLeft_eq', BitVec.toInt_shiftLeft_eq_toInt,
---     toInt_toBitVec, BitVec.smod_ofNat_self', toInt_toBitVec]; simp
--- @[simp] theorem ISize.toInt_shiftLeft (a b : ISize) : (a <<< b).toInt = (a.toInt * (2 ^ (b.toInt % System.Platform.numBits).toNat)).bmod (2 ^ System.Platform.numBits) := by
---   rw [← toInt_toBitVec, ISize.toBitVec_shiftLeft, BitVec.shiftLeft_eq', BitVec.toInt_shiftLeft_eq_toInt,
---     toInt_toBitVec, BitVec.smod_natCast_self, toInt_toBitVec]
-
--- @[simp] theorem Int8.toInt_shiftRight (a b : Int8) : (a >>> b).toInt = a.toInt >>> (b.toInt % 8).toNat := by
---   rw [← toInt_toBitVec, Int8.toBitVec_shiftRight, BitVec.sshiftRight_eq',
---     BitVec.toInt_sshiftRight, BitVec.smod_ofNat_self']; simp
--- @[simp] theorem Int16.toInt_shiftRight (a b : Int16) : (a >>> b).toInt = a.toInt >>> (b.toInt % 16).toNat := by
---   rw [← toInt_toBitVec, Int16.toBitVec_shiftRight, BitVec.sshiftRight_eq',
---     BitVec.toInt_sshiftRight, BitVec.smod_ofNat_self']; simp
--- @[simp] theorem Int32.toInt_shiftRight (a b : Int32) : (a >>> b).toInt = a.toInt >>> (b.toInt % 32).toNat := by
---   rw [← toInt_toBitVec, Int32.toBitVec_shiftRight, BitVec.sshiftRight_eq',
---     BitVec.toInt_sshiftRight, BitVec.smod_ofNat_self']; simp
--- @[simp] theorem Int64.toInt_shiftRight (a b : Int64) : (a >>> b).toInt = a.toInt >>> (b.toInt % 64).toNat := by
---   rw [← toInt_toBitVec, Int64.toBitVec_shiftRight, BitVec.sshiftRight_eq',
---     BitVec.toInt_sshiftRight, BitVec.smod_ofNat_self']; simp
--- @[simp] theorem ISize.toInt_shiftRight (a b : ISize) : (a >>> b).toInt = a.toInt >>> (b.toInt % System.Platform.numBits).toNat := by
---   rw [← toInt_toBitVec, ISize.toBitVec_shiftRight, BitVec.sshiftRight_eq',
---     BitVec.toInt_sshiftRight, BitVec.smod_natCast_self, toInt_toBitVec, toInt_toBitVec]
 
 @[simp] theorem Int8.ofBitVec_and (a b : BitVec 8) : Int8.ofBitVec (a &&& b) = Int8.ofBitVec a &&& Int8.ofBitVec b := rfl
 @[simp] theorem Int16.ofBitVec_and (a b : BitVec 16) : Int16.ofBitVec (a &&& b) = Int16.ofBitVec a &&& Int16.ofBitVec b := rfl

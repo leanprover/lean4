@@ -220,7 +220,7 @@ theorem BitVec.neg_add (a : BitVec w) : (~~~a + 1#w) + a = 0#w := by
 @[bv_normalize]
 theorem BitVec.not_neg (x : BitVec w) : ~~~(~~~x + 1#w) = x + -1#w := by
   rw [← BitVec.neg_eq_not_add x]
-  rw [_root_.BitVec.not_neg, _root_.BitVec.sub_toAdd]
+  rw [_root_.BitVec.not_neg, BitVec.sub_eq_add_neg]
 
 @[bv_normalize]
 theorem BitVec.not_neg' (x : BitVec w) : ~~~(x + 1#w) = ~~~x + -1#w := by
@@ -483,13 +483,13 @@ theorem BitVec.norm_bv_add_mul' {x y : BitVec w} : ~~~(~~~y * x) + 1#w = x + (y 
 
 theorem BitVec.mul_beq_mul_short_circuit_left {x₁ x₂ y : BitVec w} :
     (x₁ * y == x₂ * y) = !(!x₁ == x₂ && !x₁ * y == x₂ * y) := by
-  simp only [Bool.not_and, Bool.not_not, Bool.iff_or_self, beq_iff_eq]
+  simp only [Bool.not_and, Bool.not_not, Bool.eq_or_self, beq_iff_eq]
   intros
   congr
 
 theorem BitVec.mul_beq_mul_short_circuit_right {x y₁ y₂ : BitVec w} :
     (x * y₁ == x * y₂) = !(!y₁ == y₂ && !x * y₁ == x * y₂) := by
-  simp only [Bool.not_and, Bool.not_not, Bool.iff_or_self, beq_iff_eq]
+  simp only [Bool.not_and, Bool.not_not, Bool.eq_or_self, beq_iff_eq]
   intros
   congr
 

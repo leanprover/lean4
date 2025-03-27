@@ -1812,11 +1812,11 @@ theorem ISize.toInt64_div_of_ne_right (a b : ISize) (hb : b ≠ -1) : (a / b).to
 @[simp] theorem Int64.toISize_mul (a b : Int64) : (a * b).toISize = a.toISize * b.toISize :=
   ISize.toBitVec_inj.1 (by simp [BitVec.signExtend_eq_setWidth_of_le, BitVec.setWidth_mul])
 
-theorem Int8.sub_eq_add_neg (a b : Int8) : a - b = a + -b := Int8.toBitVec.inj (by simp [BitVec.sub_toAdd])
-theorem Int16.sub_eq_add_neg (a b : Int16) : a - b = a + -b := Int16.toBitVec.inj (by simp [BitVec.sub_toAdd])
-theorem Int32.sub_eq_add_neg (a b : Int32) : a - b = a + -b := Int32.toBitVec.inj (by simp [BitVec.sub_toAdd])
-theorem Int64.sub_eq_add_neg (a b : Int64) : a - b = a + -b := Int64.toBitVec.inj (by simp [BitVec.sub_toAdd])
-theorem ISize.sub_eq_add_neg (a b : ISize) : a - b = a + -b := ISize.toBitVec.inj (by simp [BitVec.sub_toAdd])
+theorem Int8.sub_eq_add_neg (a b : Int8) : a - b = a + -b := Int8.toBitVec.inj (by simp [BitVec.sub_eq_add_neg])
+theorem Int16.sub_eq_add_neg (a b : Int16) : a - b = a + -b := Int16.toBitVec.inj (by simp [BitVec.sub_eq_add_neg])
+theorem Int32.sub_eq_add_neg (a b : Int32) : a - b = a + -b := Int32.toBitVec.inj (by simp [BitVec.sub_eq_add_neg])
+theorem Int64.sub_eq_add_neg (a b : Int64) : a - b = a + -b := Int64.toBitVec.inj (by simp [BitVec.sub_eq_add_neg])
+theorem ISize.sub_eq_add_neg (a b : ISize) : a - b = a + -b := ISize.toBitVec.inj (by simp [BitVec.sub_eq_add_neg])
 
 @[simp] theorem Int8.toInt_sub (a b : Int8) : (a - b).toInt = (a.toInt - b.toInt).bmod (2 ^ 8) := by
   simp [sub_eq_add_neg, Int.sub_eq_add_neg]
@@ -3141,7 +3141,7 @@ theorem Int64.toUInt64_le {a b : Int64} (ha : 0 ≤ a) (hab : a ≤ b) : a.toUIn
   rw [UInt64.le_iff_toNat_le, toNat_toUInt64_of_le ha, toNat_toUInt64_of_le (Int64.le_trans ha hab)]
   exact Int64.toNatClampNeg_le hab
 theorem ISize.toUSize_le {a b : ISize} (ha : 0 ≤ a) (hab : a ≤ b) : a.toUSize ≤ b.toUSize := by
-  rw [USize.le_iff_toNat_le, toNat_toUISize_of_le ha, toNat_toUISize_of_le (ISize.le_trans ha hab)]
+  rw [USize.le_iff_toNat_le, toNat_toUSize_of_le ha, toNat_toUSize_of_le (ISize.le_trans ha hab)]
   exact ISize.toNatClampNeg_le hab
 
 theorem Int8.zero_le_ofNat_of_lt {a : Nat} (ha : a < 2 ^ 7) : 0 ≤ Int8.ofNat a := by
@@ -3204,9 +3204,9 @@ theorem Int64.toNatClampNeg_sub_of_le {a b : Int64} (hb : 0 ≤ b) (hab : b ≤ 
     ← toNat_toUInt64_of_le (Int64.le_trans hb hab), ← toNat_toUInt64_of_le hb]
 theorem ISize.toNatClampNeg_sub_of_le {a b : ISize} (hb : 0 ≤ b) (hab : b ≤ a) :
     (a - b).toNatClampNeg = a.toNatClampNeg - b.toNatClampNeg := by
-  rw [← toNat_toUISize_of_le (ISize.sub_nonneg_of_le hb hab), toUSize_sub,
+  rw [← toNat_toUSize_of_le (ISize.sub_nonneg_of_le hb hab), toUSize_sub,
     USize.toNat_sub_of_le _ _ (ISize.toUSize_le hb hab),
-    ← toNat_toUISize_of_le (ISize.le_trans hb hab), ← toNat_toUISize_of_le hb]
+    ← toNat_toUSize_of_le (ISize.le_trans hb hab), ← toNat_toUSize_of_le hb]
 
 theorem Int8.toInt_sub_of_le (a b : Int8) (hb : 0 ≤ b) (h : b ≤ a) :
     (a - b).toInt = a.toInt - b.toInt := by

@@ -1633,7 +1633,7 @@ theorem intMin_sdiv_neg_one : (intMin w).sdiv (-1#w) = intMin w := by
   refine (Nat.eq_zero_or_pos w).elim (by rintro rfl; exact Subsingleton.elim _ _) (fun hw => ?_)
   apply BitVec.eq_of_toNat_eq
   rw [sdiv]
-  simp [msb_intMin, hw, negOne_eq_allOnes, msb_allOnes]
+  simp [msb_intMin, hw, neg_one_eq_allOnes, msb_allOnes]
   have : 2 ≤ 2 ^ w := Nat.pow_one 2 ▸ (Nat.pow_le_pow_iff_right (by omega)).2 (by omega)
   rw [Nat.sub_sub_self (by omega), Nat.mod_eq_of_lt, Nat.div_one]
   omega
@@ -1643,7 +1643,7 @@ theorem toInt_sdiv (a b : BitVec w) : (a.sdiv b).toInt = (a.toInt.tdiv b.toInt).
   · rcases h with ⟨rfl, rfl⟩
     rw [BitVec.intMin_sdiv_neg_one]
     refine (Nat.eq_zero_or_pos w).elim (by rintro rfl; simp [toInt_of_zero_length]) (fun hw => ?_)
-    rw [toInt_intMin_of_pos hw, negOne_eq_allOnes, toInt_allOnes, if_pos hw, Int.tdiv_neg,
+    rw [toInt_intMin_of_pos hw, neg_one_eq_allOnes, toInt_allOnes, if_pos hw, Int.tdiv_neg,
       Int.tdiv_one, Int.neg_neg, Int.bmod_eq_neg (Int.pow_nonneg (by omega))]
     conv => lhs; rw [(by omega: w = (w - 1) + 1)]
     simp [Nat.pow_succ, Int.natCast_pow, Int.mul_comm]
@@ -1666,7 +1666,7 @@ theorem not_add_one {x : BitVec w} : ~~~ (x + 1#w) = ~~~ x - 1#w := by
 
 theorem not_add_eq_not_neg {x y : BitVec w} : ~~~ (x + y) = ~~~ x - y := by
   rw [not_eq_neg_add, not_eq_neg_add, neg_add]
-  simp only [sub_toAdd]
+  simp only [sub_eq_add_neg]
   rw [BitVec.add_assoc, @BitVec.add_comm _ (-y), ← BitVec.add_assoc]
 
 theorem not_sub_one_eq_not_add_one {x : BitVec w} : ~~~ (x - 1#w) = ~~~ x + 1#w := by
@@ -1674,7 +1674,7 @@ theorem not_sub_one_eq_not_add_one {x : BitVec w} : ~~~ (x - 1#w) = ~~~ x + 1#w 
     BitVec.add_sub_cancel, BitVec.sub_add_cancel]
 
 theorem not_sub_eq_not_add {x y : BitVec w} : ~~~ (x - y) = ~~~ x + y := by
-  rw [BitVec.sub_toAdd, not_add_eq_not_neg, sub_neg]
+  rw [BitVec.sub_eq_add_neg, not_add_eq_not_neg, sub_neg]
 
 /-- The value of `(carry i x y false)` can be computed by truncating `x` and `y`
 to `len` bits where `len ≥ i`. -/

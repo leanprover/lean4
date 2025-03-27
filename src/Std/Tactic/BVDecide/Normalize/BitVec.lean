@@ -220,7 +220,7 @@ theorem BitVec.neg_add (a : BitVec w) : (~~~a + 1#w) + a = 0#w := by
 @[bv_normalize]
 theorem BitVec.not_neg (x : BitVec w) : ~~~(~~~x + 1#w) = x + -1#w := by
   rw [← BitVec.neg_eq_not_add x]
-  rw [_root_.BitVec.not_neg]
+  rw [_root_.BitVec.not_neg, _root_.BitVec.sub_toAdd]
 
 @[bv_normalize]
 theorem BitVec.not_neg' (x : BitVec w) : ~~~(x + 1#w) = ~~~x + -1#w := by

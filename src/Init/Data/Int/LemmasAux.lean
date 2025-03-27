@@ -39,6 +39,9 @@ protected theorem sub_eq_iff_eq_add' {b a c : Int} : a - b = c ↔ a = b + c := 
 @[simp] theorem neg_ofNat_le_natCast (n m : Nat) : -(no_index (OfNat.ofNat n)) ≤ (m : Int) :=
   Int.le_trans (by simp) (ofNat_zero_le m)
 
+theorem neg_lt_self_iff {n : Int} : -n < n ↔ 0 < n := by
+  omega
+
 /-! ### toNat -/
 
 @[simp] theorem toNat_sub' (a : Int) (b : Nat) : (a - b).toNat = a.toNat - b := by
@@ -69,6 +72,9 @@ protected theorem sub_eq_iff_eq_add' {b a c : Int} : a - b = c ↔ a = b + c := 
 
 @[simp] theorem toNat_le {m : Int} {n : Nat} : m.toNat ≤ n ↔ m ≤ n := by omega
 @[simp] theorem toNat_lt' {m : Int} {n : Nat} (hn : 0 < n) : m.toNat < n ↔ m < n := by omega
+
+theorem pos_iff_toNat_pos {n : Int} : 0 < n ↔ 0 < n.toNat := by
+  omega
 
 /-! ### natAbs -/
 

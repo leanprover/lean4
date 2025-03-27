@@ -732,7 +732,7 @@ theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
     rw [(show w = w - 1 + 1 by omega), Int.pow_succ] at this
     omega
 
-/-! ### slt -/
+/-! ### sle/slt -/
 
 /--
 A bitvector, when interpreted as an integer, is less than zero iff
@@ -756,11 +756,20 @@ theorem slt_zero_iff_msb_cond {x : BitVec w} : x.slt 0#w ↔ x.msb = true := by
 theorem slt_zero_eq_msb {w : Nat} {x : BitVec  w} : x.slt 0#w = x.msb := by
   rw [Bool.eq_iff_iff, BitVec.slt_zero_iff_msb_cond]
 
-theorem sle_iff_toInt_le {w : Nat} {b b' : BitVec w} : b.sle b' ↔ b.toInt ≤ b'.toInt :=
+theorem sle_iff_toInt_le {w : Nat} {x y : BitVec w} : x.sle y ↔ x.toInt ≤ y.toInt :=
   decide_eq_true_iff
 
-theorem slt_iff_toInt_lt {w : Nat} {b b' : BitVec w} : b.slt b' ↔ b.toInt < b'.toInt :=
+theorem slt_iff_toInt_lt {w : Nat} {x y : BitVec w} : x.slt y ↔ x.toInt < y.toInt :=
   decide_eq_true_iff
+
+theorem sle_eq_slt_or_eq {x y : BitVec w} : x.sle y = (x.slt y || x == y) := by
+  apply Bool.eq_iff_iff.2
+  simp only [BitVec.sle, decide_eq_true_eq, BitVec.slt, Bool.or_eq_true, beq_iff_eq, ← toInt_inj]
+  omega
+
+theorem slt_eq_sle_and_ne {x y : BitVec w} : x.slt y = (x.sle y && x != y) := by
+  apply Bool.eq_iff_iff.2
+  simp [BitVec.slt, BitVec.sle, Int.lt_iff_le_and_ne, BitVec.toInt_inj]
 
 /-! ### setWidth, zeroExtend and truncate -/
 
@@ -1618,9 +1627,19 @@ theorem not_not {b : BitVec w} : ~~~(~~~b) = b := by
 protected theorem not_inj {x y : BitVec w} : ~~~x = ~~~y ↔ x = y :=
   ⟨fun h => by rw [← @not_not w x, ← @not_not w y, h], congrArg _⟩
 
-@[simp] theorem and_not_self (x : BitVec n) : x &&& ~~~x = 0 := by
+@[simp] theorem and_not_self (x : BitVec w) : x &&& ~~~x = 0 := by
    ext i
    simp_all
+
+@[simp] theorem not_and_self (x : BitVec w) : ~~~x &&& x = 0 := by
+  simp [and_comm]
+
+@[simp] theorem or_not_self (x : BitVec w) : x ||| ~~~x = allOnes w := by
+  ext
+  simp
+
+@[simp] theorem not_or_self (x : BitVec w) : ~~~x ||| x = allOnes w := by
+  simp [or_comm]
 
 theorem not_eq_comm {x y : BitVec w} : ~~~ x = y ↔ x = ~~~ y := by
   constructor
@@ -3377,21 +3396,8 @@ theorem sub_eq_self {x : BitVec 1} : -x = x := by
   have ha : x = 0 ∨ x = 1 := eq_zero_or_eq_one _
   rcases ha with h | h <;> simp [h]
 
-theorem not_neg (x : BitVec w) : ~~~(-x) = x + -1#w := by
-  rcases w with _ | w
-  · apply Subsingleton.elim
-  · rw [BitVec.not_eq_comm]
-    apply BitVec.eq_of_toNat_eq
-    simp only [BitVec.toNat_neg, BitVec.toNat_not, BitVec.toNat_add, BitVec.toNat_ofNat,
-      Nat.add_mod_mod]
-    by_cases hx : x.toNat = 0
-    · simp [hx]
-    · rw [show (_ - 1 % _) = _ by rw [Nat.mod_eq_of_lt (by omega)],
-        show _ + (_ - 1) = (x.toNat - 1) + 2^(w + 1) by omega,
-        Nat.add_mod_right,
-        show (x.toNat - 1) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)],
-        show (_ - x.toNat) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)]]
-      omega
+theorem not_neg (x : BitVec w) : ~~~(-x) = x - 1#w := by
+  rw [not_eq_neg_add, neg_neg]
 
 theorem neg_add {x y : BitVec w} : - (x + y) = - x - y := by
   apply eq_of_toInt_eq
@@ -3982,6 +3988,18 @@ theorem srem_eq (x y : BitVec w) : srem x y =
   rw [BitVec.srem]
   rcases x.msb <;> rcases y.msb <;> simp
 
+@[simp] theorem srem_zero {x : BitVec w} : x.srem 0#w = x := by
+  cases h : x.msb <;> simp [h, srem_eq]
+
+@[simp] theorem zero_srem {x : BitVec w} : (0#w).srem x = 0#w := by
+  cases h : x.msb <;> simp [h, srem_eq]
+
+@[simp] theorem srem_one {x : BitVec w} : x.srem 1#w = 0#w := by
+  cases h : x.msb <;> by_cases hw : w = 1 <;> (try subst hw) <;> simp_all [srem_eq]
+
+@[simp] theorem srem_self {x : BitVec w} : x.srem x = 0#w := by
+  cases h : x.msb <;> simp [h, srem_eq]
+
 /-! ### smod -/
 
 /-- Equation theorem for `smod` in terms of `umod`. -/
@@ -4017,11 +4035,15 @@ theorem toNat_smod {x y : BitVec w} : (x.smod y).toNat =
   <;> simp [h'', h''']
 
 @[simp]
-theorem smod_zero {x : BitVec n} : x.smod 0#n = x := by
+theorem smod_zero {x : BitVec w} : x.smod 0#w = x := by
   simp only [smod_eq, msb_zero]
   rcases x.msb with msb | msb <;> apply eq_of_toNat_eq
   · simp
-  · by_cases h : x = 0#n <;> simp [h]
+  · by_cases h : x = 0#w <;> simp [h]
+
+@[simp]
+theorem zero_smod {x : BitVec w} : (0#w).smod x = 0#w := by
+  cases _ : x.msb <;> simp_all [smod_eq]
 
 /-! ### ofBoolList -/
 
@@ -4750,6 +4772,12 @@ theorem toInt_neg_eq_ite {x : BitVec w} :
 theorem msb_intMin {w : Nat} : (intMin w).msb = decide (0 < w) := by
   simp only [msb_eq_decide, toNat_intMin, decide_eq_decide]
   by_cases h : 0 < w <;> simp_all
+
+theorem ne_intMin_of_msb_eq_false (h : 0 < w) {n : BitVec w} (hn : n.msb = false) :
+    n ≠ intMin w := by
+  rintro rfl
+  simp only [msb_intMin, decide_eq_false_iff_not, Nat.not_lt, Nat.le_zero_eq] at hn
+  omega
 
 /-! ### intMax -/
 

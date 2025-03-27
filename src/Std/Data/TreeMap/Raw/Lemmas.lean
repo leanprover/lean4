@@ -1962,10 +1962,10 @@ theorem minKey!_eq_iff_getKey?_eq_self_and_forall [TransCmp cmp] [Inhabited α] 
     t.minKey! = km ↔ t.getKey? km = some km ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
   DTreeMap.Raw.minKey!_eq_iff_getKey?_eq_self_and_forall h he
 
-theorem minKey!_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF)
+theorem minKey!_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF)
     (he : t.isEmpty = false) {km} :
     t.minKey! = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
-  DTreeMap.Raw.minKey!_eq_some_iff_mem_and_forall h he
+  DTreeMap.Raw.minKey!_eq_iff_mem_and_forall h he
 
 theorem minKey!_insert [TransCmp cmp] [Inhabited α] (h : t.WF) {k v} :
     (t.insert k v).minKey! =
@@ -2082,10 +2082,10 @@ theorem minKeyD_eq_iff_getKey?_eq_self_and_forall [TransCmp cmp] (h : t.WF)
     t.minKeyD fallback = km ↔ t.getKey? km = some km ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
   DTreeMap.Raw.minKeyD_eq_iff_getKey?_eq_self_and_forall h he
 
-theorem minKeyD_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF)
+theorem minKeyD_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF)
     (he : t.isEmpty = false) {km fallback} :
     t.minKeyD fallback = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
-  DTreeMap.Raw.minKeyD_eq_some_iff_mem_and_forall h he
+  DTreeMap.Raw.minKeyD_eq_iff_mem_and_forall h he
 
 theorem minKeyD_insert [TransCmp cmp] (h : t.WF) {k v fallback} :
     (t.insert k v |>.minKeyD fallback) =
@@ -2383,10 +2383,10 @@ theorem maxKey!_eq_iff_getKey?_eq_self_and_forall [TransCmp cmp] [Inhabited α] 
     t.maxKey! = km ↔ t.getKey? km = some km ∧ ∀ k, k ∈ t → (cmp k km).isLE :=
   DTreeMap.Raw.maxKey!_eq_iff_getKey?_eq_self_and_forall h he
 
-theorem maxKey!_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF)
+theorem maxKey!_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α] (h : t.WF)
     (he : t.isEmpty = false) {km} :
     t.maxKey! = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (cmp k km).isLE :=
-  DTreeMap.Raw.maxKey!_eq_some_iff_mem_and_forall h he
+  DTreeMap.Raw.maxKey!_eq_iff_mem_and_forall h he
 
 theorem maxKey!_insert [TransCmp cmp] [Inhabited α] (h : t.WF) {k v} :
     (t.insert k v).maxKey! =
@@ -2485,6 +2485,127 @@ theorem maxKey!_alter_eq_self [TransCmp cmp] [Inhabited α] (h : t.WF) {k f}
     (alter t k f).maxKey! = k ↔
       (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (cmp k' k).isLE :=
   DTreeMap.Raw.Const.maxKey!_alter_eq_self h he
+
+theorem maxKey?_eq_some_maxKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
+    t.maxKey? = some (t.maxKeyD fallback) :=
+  DTreeMap.Raw.maxKey?_eq_some_maxKeyD h he
+
+theorem maxKeyD_eq_fallback [TransCmp cmp] (h : t.WF) (he : t.isEmpty) {fallback} :
+    t.maxKeyD fallback = fallback :=
+  DTreeMap.Raw.maxKeyD_eq_fallback h he
+
+theorem maxKey!_eq_maxKeyD_default [TransCmp cmp] [Inhabited α] (h : t.WF) :
+    t.maxKey! = t.maxKeyD default :=
+  DTreeMap.Raw.maxKey!_eq_maxKeyD_default h
+
+theorem maxKeyD_eq_iff_getKey?_eq_self_and_forall [TransCmp cmp] (h : t.WF)
+    (he : t.isEmpty = false) {km fallback} :
+    t.maxKeyD fallback = km ↔ t.getKey? km = some km ∧ ∀ k, k ∈ t → (cmp k km).isLE :=
+  DTreeMap.Raw.maxKeyD_eq_iff_getKey?_eq_self_and_forall h he
+
+theorem maxKeyD_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF)
+    (he : t.isEmpty = false) {km fallback} :
+    t.maxKeyD fallback = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (cmp k km).isLE :=
+  DTreeMap.Raw.maxKeyD_eq_iff_mem_and_forall h he
+
+theorem maxKeyD_insert [TransCmp cmp] (h : t.WF) {k v fallback} :
+    (t.insert k v |>.maxKeyD fallback) =
+      (t.maxKey?.elim k fun k' => if cmp k' k |>.isLE then k else k') :=
+  DTreeMap.Raw.maxKeyD_insert h
+
+theorem maxKeyD_le_maxKeyD_insert [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false)
+    {k v fallback} :
+    cmp (t.maxKeyD fallback) (t.insert k v |>.maxKeyD fallback) |>.isLE :=
+  DTreeMap.Raw.maxKeyD_le_maxKeyD_insert h he
+
+theorem self_le_maxKeyD_insert [TransCmp cmp] (h : t.WF) {k v fallback} :
+    cmp k (t.insert k v |>.maxKeyD fallback) |>.isLE :=
+  DTreeMap.Raw.self_le_maxKeyD_insert h
+
+theorem contains_maxKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
+    t.contains (t.maxKeyD fallback) :=
+  DTreeMap.Raw.contains_maxKeyD h he
+
+theorem maxKeyD_mem [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
+    t.maxKeyD fallback ∈ t :=
+  DTreeMap.Raw.maxKeyD_mem h he
+
+theorem le_maxKeyD_of_contains [TransCmp cmp] (h : t.WF) {k} (hc : t.contains k) {fallback} :
+    cmp k (t.maxKeyD fallback) |>.isLE :=
+  DTreeMap.Raw.le_maxKeyD_of_contains h hc
+
+theorem le_maxKeyD_of_mem [TransCmp cmp] (h : t.WF) {k} (hc : k ∈ t) {fallback} :
+    cmp k (t.maxKeyD fallback) |>.isLE :=
+  DTreeMap.Raw.le_maxKeyD_of_mem h hc
+
+theorem maxKeyD_le [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {k fallback} :
+    (cmp (t.maxKeyD fallback) k).isLE ↔ (∀ k', k' ∈ t → (cmp k' k).isLE) :=
+  DTreeMap.Raw.maxKeyD_le h he
+
+theorem getKey?_maxKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback} :
+    t.getKey? (t.maxKeyD fallback) = some (t.maxKeyD fallback) :=
+  DTreeMap.Raw.getKey?_maxKeyD h he
+
+theorem getKey_maxKeyD [TransCmp cmp] (h : t.WF) {fallback hc} :
+    t.getKey (t.maxKeyD fallback) hc = t.maxKeyD fallback :=
+  DTreeMap.Raw.getKey_maxKeyD h
+
+theorem getKey!_maxKeyD [TransCmp cmp] [Inhabited α] (h : t.WF) (he : t.isEmpty = false) {fallback} :
+    t.getKey! (t.maxKeyD fallback) = t.maxKeyD fallback :=
+  DTreeMap.Raw.getKey!_maxKeyD h he
+
+theorem getKeyD_maxKeyD [TransCmp cmp] (h : t.WF) (he : t.isEmpty = false) {fallback fallback'} :
+    t.getKeyD (t.maxKeyD fallback) fallback' = t.maxKeyD fallback :=
+  DTreeMap.Raw.getKeyD_maxKeyD h he
+
+theorem maxKeyD_erase_eq_of_not_compare_maxKeyD_eq [TransCmp cmp] (h : t.WF) {k fallback}
+    (he : (t.erase k).isEmpty = false) (heq : ¬ cmp k (t.maxKeyD fallback) = .eq) :
+    (t.erase k |>.maxKeyD fallback) = t.maxKeyD fallback :=
+  DTreeMap.Raw.maxKeyD_erase_eq_of_not_compare_maxKeyD_eq h he heq
+
+theorem maxKeyD_erase_le_maxKeyD [TransCmp cmp] (h : t.WF) {k}
+    (he : (t.erase k).isEmpty = false) {fallback} :
+    cmp (t.erase k |>.maxKeyD fallback) (t.maxKeyD fallback) |>.isLE :=
+  DTreeMap.Raw.maxKeyD_erase_le_maxKeyD h he
+
+theorem maxKeyD_insertIfNew [TransCmp cmp] (h : t.WF) {k v fallback} :
+    (t.insertIfNew k v |>.maxKeyD fallback) =
+      t.maxKey?.elim k fun k' => if cmp k' k = .lt then k else k' :=
+  DTreeMap.Raw.maxKeyD_insertIfNew h
+
+theorem maxKeyD_le_maxKeyD_insertIfNew [TransCmp cmp] (h : t.WF)
+    (he : t.isEmpty = false) {k v fallback} :
+    cmp (t.maxKeyD fallback) (t.insertIfNew k v |>.maxKeyD fallback) |>.isLE :=
+  DTreeMap.Raw.maxKeyD_le_maxKeyD_insertIfNew h he
+
+theorem self_le_maxKeyD_insertIfNew [TransCmp cmp] (h : t.WF) {k v fallback} :
+    cmp k (t.insertIfNew k v |>.maxKeyD fallback) |>.isLE :=
+  DTreeMap.Raw.self_le_maxKeyD_insertIfNew h
+
+theorem maxKeyD_eq_getLastD_keys [TransCmp cmp] (h : t.WF) {fallback} :
+    t.maxKeyD fallback = t.keys.getLastD fallback :=
+  DTreeMap.Raw.maxKeyD_eq_getLastD_keys h
+
+theorem maxKeyD_modify [TransCmp cmp] (h : t.WF) {k f}
+    (he : (modify t k f).isEmpty = false) {fallback} :
+    (modify t k f |>.maxKeyD fallback) =
+      if cmp (t.maxKeyD fallback) k = .eq then k else (t.maxKeyD fallback) :=
+  DTreeMap.Raw.Const.maxKeyD_modify h he
+
+@[simp]
+theorem maxKeyD_modify_eq_maxKeyD [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k f fallback} :
+    (modify t k f |>.maxKeyD fallback) = t.maxKeyD fallback :=
+  DTreeMap.Raw.Const.maxKeyD_modify_eq_maxKeyD h
+
+theorem compare_maxKeyD_modify_eq [TransCmp cmp] (h : t.WF) {k f fallback} :
+    cmp (modify t k f |>.maxKeyD fallback) (t.maxKeyD fallback) = .eq :=
+  DTreeMap.Raw.Const.compare_maxKeyD_modify_eq h
+
+theorem maxKeyD_alter_eq_self [TransCmp cmp] (h : t.WF) {k f}
+    (he : (alter t k f).isEmpty = false) {fallback} :
+    (alter t k f |>.maxKeyD fallback) = k ↔
+      (f (get? t k)).isSome ∧ ∀ k', k' ∈ t → (cmp k' k).isLE :=
+  DTreeMap.Raw.Const.maxKeyD_alter_eq_self h he
 
 end Max
 

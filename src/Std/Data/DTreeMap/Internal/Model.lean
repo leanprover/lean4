@@ -505,6 +505,10 @@ theorem maxKey!_eq_get!_maxKey? [Ord α] [Inhabited α] {l : Impl α β} :
     l.maxKey! = l.maxKey?.get! := by
   induction l using maxKey!.induct <;> simp_all only [maxKey!, maxKey?] <;> rfl
 
+theorem maxKeyD_eq_getD_maxKey? [Ord α] {l : Impl α β} {fallback} :
+    l.maxKeyD fallback = l.maxKey?.getD fallback := by
+  induction l, fallback using maxKeyD.induct <;> simp_all only [maxKeyD, maxKey?] <;> rfl
+
 theorem balanceL_eq_balance {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceL k v l r hlb hrb hlr = balance k v l r hlb hrb (Or.inl hlr.erase) := by
   rw [balanceL_eq_balanceLErase, balanceLErase_eq_balanceL!,

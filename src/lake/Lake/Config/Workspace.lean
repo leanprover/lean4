@@ -118,11 +118,15 @@ protected def findExternLib? (name : Name) (self : Workspace) : Option ExternLib
 def findTargetConfig? (name : Name) (self : Workspace) : Option ((pkg : Package) × TargetConfig pkg.name name) :=
   self.packages.findSome? fun pkg => pkg.findTargetConfig? name <&> (⟨pkg, ·⟩)
 
+/-- Try to find a target declaration in the workspace with the given name.  -/
+def findTargetDecl? (name : Name) (self : Workspace) : Option ((pkg : Package) × NConfigDecl pkg.name name) :=
+  self.packages.findSome? fun pkg => pkg.findTargetDecl? name <&> (⟨pkg, ·⟩)
+
 /-- Add a facet to the workspace. -/
 def addFacetConfig {name} (cfg : FacetConfig name) (self : Workspace) : Workspace :=
   {self with facetConfigs := self.facetConfigs.insert name cfg}
 
-/-- Try to find a facet configuration in the workspace of the given kind and name. -/
+/-- Try to find a facet configuration in the workspace with the given name. -/
 def findFacetConfig? (name : Name) (self : Workspace) : Option (FacetConfig name) :=
   self.facetConfigs.find? name
 

@@ -74,6 +74,30 @@ def resolveModuleTarget
     else
       throw <| CliError.unknownFacet "module" facet
 
+def resolveCustomTarget
+  (pkg : Package) (name facet : Name) (config : TargetConfig pkg.name name)
+: Except CliError BuildSpec :=
+  if !facet.isAnonymous then
+    throw <| CliError.invalidFacet name facet
+  else do
+    return {info := pkg.target name, format := config.format}
+
+def resolveConfigDeclTarget
+  (ws : Workspace) (pkg : Package)
+  {target : Name} (decl : NConfigDecl pkg.name target) (facet : Name)
+: Except CliError (Array BuildSpec) := do
+  if h : decl.kind.isAnonymous then
+    Array.singleton <$> resolveCustomTarget pkg target facet (decl.targetConfig h)
+  else
+    let facet := if facet.isAnonymous then `default else facet
+    if let some config := ws.findFacetConfig? (decl.kind ++ facet) then
+      let tgt := decl.mkConfigTarget pkg
+      let tgt := cast (by simp [decl.target_eq_type h]) tgt
+      let info := BuildInfo.facet (.packageTarget pkg.name decl.name) decl.kind tgt config.name
+      return #[mkConfigBuildSpec info config rfl]
+    else
+      throw <| CliError.unknownFacet decl.kind.toString facet
+
 def resolveLibTarget
   (ws : Workspace) (lib : LeanLib) (facet : Name := .anonymous)
 : Except CliError (Array BuildSpec) :=
@@ -106,26 +130,11 @@ def resolveExternLibTarget
   else
     throw <| CliError.unknownFacet "external library" facet
 
-set_option linter.unusedVariables false in
-def resolveCustomTarget
-  (pkg : Package) (name facet : Name) (config : TargetConfig pkg.name name)
-: Except CliError BuildSpec :=
-  if !facet.isAnonymous then
-    throw <| CliError.invalidFacet name facet
-  else do
-    return {info := pkg.target name, format := config.format}
-
 def resolveTargetInPackage
   (ws : Workspace) (pkg : Package) (target facet : Name)
-: Except CliError (Array BuildSpec) :=
-  if let some config := pkg.findTargetConfig? target then
-    Array.singleton <$> resolveCustomTarget pkg target facet config
-  else if let some exe := pkg.findLeanExe? target then
-    Array.singleton <$> resolveExeTarget exe facet
-  else if let some lib := pkg.findExternLib? target then
-    Array.singleton <$> resolveExternLibTarget lib facet
-  else if let some lib := pkg.findLeanLib? target then
-    resolveLibTarget ws lib facet
+: Except CliError (Array BuildSpec) := do
+  if let some decl := pkg.findTargetDecl? target then
+    resolveConfigDeclTarget ws pkg decl facet
   else if let some mod := pkg.findTargetModule? target then
     Array.singleton <$> resolveModuleTarget ws mod facet
   else
@@ -151,14 +160,8 @@ def resolvePackageTarget
 def resolveTargetInWorkspace
   (ws : Workspace) (target : Name) (facet : Name)
 : Except CliError (Array BuildSpec) :=
-  if let some ⟨pkg, config⟩ := ws.findTargetConfig? target then
-    Array.singleton <$> resolveCustomTarget pkg target facet config
-  else if let some exe := ws.findLeanExe? target then
-    Array.singleton <$> resolveExeTarget exe facet
-  else if let some lib := ws.findExternLib? target then
-    Array.singleton <$> resolveExternLibTarget lib facet
-  else if let some lib := ws.findLeanLib? target then
-    resolveLibTarget ws lib facet
+  if let some ⟨pkg, decl⟩ := ws.findTargetDecl? target then
+    resolveConfigDeclTarget ws pkg decl facet
   else if let some pkg := ws.findPackage? target then
     resolvePackageTarget ws pkg facet
   else if let some mod := ws.findTargetModule? target then

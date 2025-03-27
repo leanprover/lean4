@@ -47,7 +47,7 @@ structure ConfigDecl where
   name : Name
   kind : Name
   config : ConfigType kind pkg name
-  wf_data : ¬ kind.isAnonymous → CustomData pkg name = OpaqueConfigTarget kind
+  wf_data : ¬ kind.isAnonymous → CustomData pkg name = DataType kind ∧ DataType kind = OpaqueConfigTarget kind
   deriving TypeName
 
 structure PConfigDecl (p : Name) extends ConfigDecl where
@@ -68,9 +68,13 @@ instance : Nonempty (NConfigDecl pkg name) :=
 @[inline] def NConfigDecl.config' (self : NConfigDecl p n) : ConfigType self.kind p n :=
   cast (by rw [self.name_eq]) self.toPConfigDecl.config'
 
-theorem NConfigDecl.wf_data' (self : NConfigDecl p n) :
-  ¬ self.kind.isAnonymous → CustomData p n = OpaqueConfigTarget self.kind
-:= by simpa [self.pkg_eq, self.name_eq] using self.wf_data
+theorem NConfigDecl.target_eq_type (self : NConfigDecl p n)
+  (h : ¬ self.kind.isAnonymous) : DataType self.kind = OpaqueConfigTarget self.kind
+:= self.wf_data h |>.2
+
+theorem NConfigDecl.data_eq_target (self : NConfigDecl p n)
+  (h : ¬ self.kind.isAnonymous) : CustomData p n = OpaqueConfigTarget self.kind
+:= by simpa [self.pkg_eq, self.name_eq, self.target_eq_type h] using (self.wf_data h).1
 
 @[inline] def ConfigDecl.config? (kind : Name) (self : ConfigDecl) : Option (ConfigType kind self.pkg self.name) :=
   if h : self.kind = kind then

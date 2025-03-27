@@ -80,7 +80,6 @@ def LeanLib.staticFacetConfig : LibraryFacetConfig staticFacet :=
 def LeanLib.staticExportFacetConfig : LibraryFacetConfig staticExportFacet :=
   mkFacetJobConfig (LeanLib.recBuildStatic · true)
 
-
 /-! ## Build Shared Lib -/
 
 protected def LeanLib.recBuildShared
@@ -108,12 +107,23 @@ def LeanLib.recBuildExtraDepTargets (self : LeanLib) : FetchM (Job Unit) := do
 def LeanLib.extraDepFacetConfig : LibraryFacetConfig extraDepFacet :=
   mkFacetJobConfig LeanLib.recBuildExtraDepTargets
 
+/-- Build the default facets for the library. -/
+def LeanLib.recBuildDefaultFacets (self : LeanLib) : FetchM (Job Unit) := do
+  Job.mixArray <$> self.defaultFacets.mapM fun facet => do
+    let job ← (self.facetCore facet).fetch
+    return job.toOpaque
+
+/-- The `LibraryFacetConfig` for the builtin `defaultFacet`. -/
+def LeanLib.defaultFacetConfig : LibraryFacetConfig defaultFacet :=
+  mkFacetJobConfig LeanLib.recBuildDefaultFacets
+
 /--
 A name-configuration map for the initial set of
 Lean library facets (e.g., `lean`, `static`, `shared`).
 -/
 def LeanLib.initFacetConfigs : DNameMap LeanLibFacetConfig :=
   DNameMap.empty
+  |>.insert defaultFacet defaultFacetConfig
   |>.insert modulesFacet modulesFacetConfig
   |>.insert leanArtsFacet leanArtsFacetConfig
   |>.insert staticFacet staticFacetConfig

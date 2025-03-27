@@ -24,6 +24,9 @@ structure ConfigTarget (kind : Name) where
 
 @[simp] axiom OpaqueConfigTarget.def {k : Name} : OpaqueConfigTarget k = ConfigTarget k
 
+@[inline] def PConfigDecl.mkConfigTarget (pkg : Package) (self : PConfigDecl pkg.name) : ConfigTarget self.kind :=
+  ConfigTarget.mk pkg self.name self.config'
+
 /-- Returns the package targets of the specified kind (as an `Array`). -/
 @[inline] def Package.configTargets (kind : Name) (self : Package) : Array (ConfigTarget kind) :=
   self.targetDecls.foldl (init := #[]) fun a t =>

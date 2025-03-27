@@ -148,6 +148,9 @@ builtin_facet extraDep : Package => Unit
 
 /-! ## Target Facets -/
 
+/-- The library's default facets (as specified by its `defaultFacets` configuration). . -/
+builtin_facet default : LeanLib => Unit
+
 /-- A Lean library's Lean artifacts (i.e., `olean`, `ilean`, `c`). -/
 builtin_facet leanArts : LeanLib => Unit
 
@@ -165,13 +168,19 @@ much better for distribution.
 builtin_facet staticExportFacet @ static.export : LeanLib => FilePath
 
 /-- A Lean library's shared artifact. -/
-builtin_facet  shared : LeanLib => FilePath
+builtin_facet shared : LeanLib => FilePath
 
 /-- A Lean library's `extraDepTargets` mixed with its package's. -/
 builtin_facet extraDep : LeanLib => Unit
 
+/-- The executable's default facet (i.e., an alias for `exe`) -/
+builtin_facet default : LeanExe => FilePath
+
 /-- A Lean binary executable. -/
 builtin_facet exe : LeanExe => FilePath
+
+/-- The external library's default facet (i.e., an alias for `static`) -/
+builtin_facet default : ExternLib => FilePath
 
 /-- A external library's static binary. -/
 builtin_facet static : ExternLib => FilePath

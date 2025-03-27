@@ -36,10 +36,18 @@ def LeanExe.recBuildExe (self : LeanExe) : FetchM (Job FilePath) :=
 def LeanExe.exeFacetConfig : LeanExeFacetConfig exeFacet :=
   mkFacetJobConfig recBuildExe
 
+def LeanExe.recBuildDefault (lib : LeanExe) : FetchM (Job FilePath) :=
+  lib.exe.fetch
+
+/-- The facet configuration for the builtin `ExternLib.dynlibFacet`. -/
+def LeanExe.defaultFacetConfig : LeanExeFacetConfig defaultFacet :=
+  mkFacetJobConfig recBuildDefault
+
 /--
 A name-configuration map for the initial set of
 Lean executable facets (e.g., `exe`).
 -/
 def LeanExe.initFacetConfigs : DNameMap LeanExeFacetConfig :=
   DNameMap.empty
+  |>.insert defaultFacet defaultFacetConfig
   |>.insert exeFacet exeFacetConfig

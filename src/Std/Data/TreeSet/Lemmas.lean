@@ -816,9 +816,9 @@ theorem min_eq_iff_getKey?_eq_self_and_forall [TransCmp cmp] {he km} :
     t.min he = km ↔ t.get? km = some km ∧ ∀ k ∈ t, (cmp km k).isLE :=
   TreeMap.minKey_eq_iff_getKey?_eq_self_and_forall
 
-theorem min_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] {he km} :
+theorem min_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] {he km} :
     t.min he = km ↔ km ∈ t ∧ ∀ k ∈ t, (cmp km k).isLE :=
-  TreeMap.minKey_eq_some_iff_mem_and_forall
+  TreeMap.minKey_eq_iff_mem_and_forall
 
 theorem min_insert [TransCmp cmp] {k} :
     (t.insert k).min isEmpty_insert =
@@ -913,10 +913,10 @@ theorem min!_eq_iff_get?_eq_self_and_forall [TransCmp cmp] [Inhabited α]
     t.min! = km ↔ t.get? km = some km ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
   DTreeMap.minKey!_eq_iff_getKey?_eq_self_and_forall he
 
-theorem min!_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α]
+theorem min!_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α]
     (he : t.isEmpty = false) {km} :
     t.min! = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
-  DTreeMap.minKey!_eq_some_iff_mem_and_forall he
+  DTreeMap.minKey!_eq_iff_mem_and_forall he
 
 theorem min!_insert [TransCmp cmp] [Inhabited α] {k} :
     (t.insert k |>.min!) =
@@ -1003,10 +1003,10 @@ theorem minD_eq_iff_get?_eq_self_and_forall [TransCmp cmp]
     t.minD fallback = km ↔ t.get? km = some km ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
   TreeMap.minKeyD_eq_iff_getKey?_eq_self_and_forall he
 
-theorem minD_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp]
+theorem minD_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp]
     (he : t.isEmpty = false) {km fallback} :
     t.minD fallback = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
-  TreeMap.minKeyD_eq_some_iff_mem_and_forall he
+  TreeMap.minKeyD_eq_iff_mem_and_forall he
 
 theorem minD_insert [TransCmp cmp] {k fallback} :
     (t.insert k |>.minD fallback) =
@@ -1218,9 +1218,9 @@ theorem max_eq_iff_getKey?_eq_self_and_forall [TransCmp cmp] {he km} :
     t.max he = km ↔ t.get? km = some km ∧ ∀ k ∈ t, (cmp k km).isLE :=
   TreeMap.maxKey_eq_iff_getKey?_eq_self_and_forall
 
-theorem max_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] {he km} :
+theorem max_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] {he km} :
     t.max he = km ↔ km ∈ t ∧ ∀ k ∈ t, (cmp k km).isLE :=
-  TreeMap.maxKey_eq_some_iff_mem_and_forall
+  TreeMap.maxKey_eq_iff_mem_and_forall
 
 theorem max_insert [TransCmp cmp] {k} :
     (t.insert k).max isEmpty_insert =
@@ -1315,10 +1315,10 @@ theorem max!_eq_iff_get?_eq_self_and_forall [TransCmp cmp] [Inhabited α]
     t.max! = km ↔ t.get? km = some km ∧ ∀ k, k ∈ t → (cmp k km).isLE :=
   DTreeMap.maxKey!_eq_iff_getKey?_eq_self_and_forall he
 
-theorem max!_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α]
+theorem max!_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α]
     (he : t.isEmpty = false) {km} :
     t.max! = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (cmp k km).isLE :=
-  DTreeMap.maxKey!_eq_some_iff_mem_and_forall he
+  DTreeMap.maxKey!_eq_iff_mem_and_forall he
 
 theorem max!_insert [TransCmp cmp] [Inhabited α] {k} :
     (t.insert k |>.max!) =
@@ -1405,10 +1405,10 @@ theorem maxD_eq_iff_get?_eq_self_and_forall [TransCmp cmp]
     t.maxD fallback = km ↔ t.get? km = some km ∧ ∀ k, k ∈ t → (cmp k km).isLE :=
   TreeMap.maxKeyD_eq_iff_getKey?_eq_self_and_forall he
 
-theorem maxD_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp]
+theorem maxD_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp]
     (he : t.isEmpty = false) {km fallback} :
     t.maxD fallback = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (cmp k km).isLE :=
-  TreeMap.maxKeyD_eq_some_iff_mem_and_forall he
+  TreeMap.maxKeyD_eq_iff_mem_and_forall he
 
 theorem maxD_insert [TransCmp cmp] {k fallback} :
     (t.insert k |>.maxD fallback) =

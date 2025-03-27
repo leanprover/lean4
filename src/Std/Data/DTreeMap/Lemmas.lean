@@ -3003,9 +3003,9 @@ theorem minKey_eq_iff_getKey?_eq_self_and_forall [TransCmp cmp] {he km} :
     t.minKey he = km ↔ t.getKey? km = some km ∧ ∀ k ∈ t, (cmp km k).isLE :=
   Impl.minKey_eq_iff_getKey?_eq_self_and_forall t.wf
 
-theorem minKey_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] {he km} :
+theorem minKey_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] {he km} :
     t.minKey he = km ↔ km ∈ t ∧ ∀ k ∈ t, (cmp km k).isLE :=
-  Impl.minKey_eq_some_iff_mem_and_forall t.wf
+  Impl.minKey_eq_iff_mem_and_forall t.wf
 
 theorem minKey_insert [TransCmp cmp] {k v} :
     (t.insert k v).minKey isEmpty_insert =
@@ -3153,10 +3153,10 @@ theorem minKey!_eq_iff_getKey?_eq_self_and_forall [TransCmp cmp] [Inhabited α]
     t.minKey! = km ↔ t.getKey? km = some km ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
   Impl.minKey!_eq_iff_getKey?_eq_self_and_forall t.wf he
 
-theorem minKey!_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α]
+theorem minKey!_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α]
     (he : t.isEmpty = false) {km} :
     t.minKey! = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
-  Impl.minKey!_eq_some_iff_mem_and_forall t.wf he
+  Impl.minKey!_eq_iff_mem_and_forall t.wf he
 
 theorem minKey!_insert [TransCmp cmp] [Inhabited α] {k v} :
     (t.insert k v).minKey! =
@@ -3293,10 +3293,10 @@ theorem minKeyD_eq_iff_getKey?_eq_self_and_forall [TransCmp cmp]
     t.minKeyD fallback = km ↔ t.getKey? km = some km ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
   Impl.minKeyD_eq_iff_getKey?_eq_self_and_forall t.wf he
 
-theorem minKeyD_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp]
+theorem minKeyD_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp]
     (he : t.isEmpty = false) {km fallback} :
     t.minKeyD fallback = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (cmp km k).isLE :=
-  Impl.minKeyD_eq_some_iff_mem_and_forall t.wf he
+  Impl.minKeyD_eq_iff_mem_and_forall t.wf he
 
 theorem minKeyD_insert [TransCmp cmp] {k v fallback} :
     (t.insert k v |>.minKeyD fallback) =
@@ -3632,9 +3632,9 @@ theorem maxKey_eq_iff_getKey?_eq_self_and_forall [TransCmp cmp] {he km} :
     t.maxKey he = km ↔ t.getKey? km = some km ∧ ∀ k ∈ t, (cmp k km).isLE :=
   Impl.maxKey_eq_iff_getKey?_eq_self_and_forall t.wf
 
-theorem maxKey_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] {he km} :
+theorem maxKey_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] {he km} :
     t.maxKey he = km ↔ km ∈ t ∧ ∀ k ∈ t, (cmp k km).isLE :=
-  Impl.maxKey_eq_some_iff_mem_and_forall t.wf
+  Impl.maxKey_eq_iff_mem_and_forall t.wf
 
 theorem maxKey_insert [TransCmp cmp] {k v} :
     (t.insert k v).maxKey isEmpty_insert =
@@ -3782,10 +3782,10 @@ theorem maxKey!_eq_iff_getKey?_eq_self_and_forall [TransCmp cmp] [Inhabited α]
     t.maxKey! = km ↔ t.getKey? km = some km ∧ ∀ k, k ∈ t → (cmp k km).isLE :=
   Impl.maxKey!_eq_iff_getKey?_eq_self_and_forall t.wf he
 
-theorem maxKey!_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α]
+theorem maxKey!_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α]
     (he : t.isEmpty = false) {km} :
     t.maxKey! = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (cmp k km).isLE :=
-  Impl.maxKey!_eq_some_iff_mem_and_forall t.wf he
+  Impl.maxKey!_eq_iff_mem_and_forall t.wf he
 
 theorem maxKey!_insert [TransCmp cmp] [Inhabited α] {k v} :
     (t.insert k v).maxKey! =
@@ -3922,10 +3922,10 @@ theorem maxKeyD_eq_iff_getKey?_eq_self_and_forall [TransCmp cmp]
     t.maxKeyD fallback = km ↔ t.getKey? km = some km ∧ ∀ k, k ∈ t → (cmp k km).isLE :=
   Impl.maxKeyD_eq_iff_getKey?_eq_self_and_forall t.wf he
 
-theorem maxKeyD_eq_some_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp]
+theorem maxKeyD_eq_iff_mem_and_forall [TransCmp cmp] [LawfulEqCmp cmp]
     (he : t.isEmpty = false) {km fallback} :
     t.maxKeyD fallback = km ↔ km ∈ t ∧ ∀ k, k ∈ t → (cmp k km).isLE :=
-  Impl.maxKeyD_eq_some_iff_mem_and_forall t.wf he
+  Impl.maxKeyD_eq_iff_mem_and_forall t.wf he
 
 theorem maxKeyD_insert [TransCmp cmp] {k v fallback} :
     (t.insert k v |>.maxKeyD fallback) =

@@ -4824,7 +4824,7 @@ theorem minKey_eq_iff_getKey?_eq_self_and_forall [Ord α] [TransOrd α] [BEq α]
   simp [minKey_eq_get_minKey?, Option.get_eq_iff_eq_some,
     minKey?_eq_some_iff_getKey?_eq_self_and_forall hd]
 
-theorem minKey_eq_some_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem minKey_eq_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     [LawfulEqOrd α] {l : List ((a : α) × β a)} (hd : DistinctKeys l) {he km} :
     minKey l he = km ↔ containsKey km l ∧ ∀ k, containsKey k l → (compare km k).isLE := by
   simp [minKey_eq_get_minKey?, Option.get_eq_iff_eq_some, minKey?_eq_some_iff_mem_and_forall hd]
@@ -5009,11 +5009,11 @@ theorem minKey!_eq_iff_getKey?_eq_self_and_forall [Ord α] [TransOrd α] [BEq α
     minKey! l = km ↔ getKey? km l = some km ∧ ∀ k, containsKey k l → (compare km k).isLE := by
   simpa [minKey_eq_minKey!] using minKey_eq_iff_getKey?_eq_self_and_forall hd (he := he)
 
-theorem minKey!_eq_some_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem minKey!_eq_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     [LawfulEqOrd α] [Inhabited α] {l : List ((a : α) × β a)} (hd : DistinctKeys l)
     (he : l.isEmpty = false) {km} :
     minKey! l = km ↔ containsKey km l ∧ ∀ k, containsKey k l → (compare km k).isLE := by
-  simpa [minKey_eq_minKey!] using minKey_eq_some_iff_mem_and_forall hd (he := he)
+  simpa [minKey_eq_minKey!] using minKey_eq_iff_mem_and_forall hd (he := he)
 
 theorem minKey!_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v} :
@@ -5210,12 +5210,12 @@ theorem minKeyD_eq_iff_getKey?_eq_self_and_forall [Ord α] [TransOrd α] [BEq α
   simpa [minKey_eq_minKeyD (fallback := fallback)] using
     minKey_eq_iff_getKey?_eq_self_and_forall hd (he := he)
 
-theorem minKeyD_eq_some_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem minKeyD_eq_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     [LawfulEqOrd α] {l : List ((a : α) × β a)} (hd : DistinctKeys l)
     (he : l.isEmpty = false) {km fallback} :
     minKeyD l fallback = km ↔ containsKey km l ∧ ∀ k, containsKey k l → (compare km k).isLE := by
   simpa [minKey_eq_minKeyD (fallback := fallback)] using
-    minKey_eq_some_iff_mem_and_forall hd (he := he)
+    minKey_eq_iff_mem_and_forall hd (he := he)
 
 theorem minKeyD_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v fallback} :
@@ -5674,11 +5674,11 @@ theorem maxKey_eq_iff_getKey?_eq_self_and_forall [Ord α] [TransOrd α] [BEq α]
   letI : Ord α := .opposite inferInstance
   minKey_eq_iff_getKey?_eq_self_and_forall hd
 
-theorem maxKey_eq_some_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKey_eq_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     [LawfulEqOrd α] {l : List ((a : α) × β a)} (hd : DistinctKeys l) {he km} :
     maxKey l he = km ↔ containsKey km l ∧ ∀ k, containsKey k l → (compare k km).isLE :=
   letI : Ord α := .opposite inferInstance
-  minKey_eq_some_iff_mem_and_forall hd
+  minKey_eq_iff_mem_and_forall hd
 
 theorem maxKey_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l : List ((a : α) × β a)}
     (hd : DistinctKeys l) {k v} :
@@ -5880,12 +5880,12 @@ theorem maxKey!_eq_iff_getKey?_eq_self_and_forall [Ord α] [TransOrd α] [BEq α
   letI : Ord α := .opposite inferInstance
   minKey!_eq_iff_getKey?_eq_self_and_forall hd he
 
-theorem maxKey!_eq_some_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKey!_eq_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     [LawfulEqOrd α] [Inhabited α] {l : List ((a : α) × β a)} (hd : DistinctKeys l)
     (he : l.isEmpty = false) {km} :
     maxKey! l = km ↔ containsKey km l ∧ ∀ k, containsKey k l → (compare k km).isLE :=
   letI : Ord α := .opposite inferInstance
-  minKey!_eq_some_iff_mem_and_forall hd he
+  minKey!_eq_iff_mem_and_forall hd he
 
 theorem maxKey!_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] [Inhabited α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v} :
@@ -6099,12 +6099,12 @@ theorem maxKeyD_eq_iff_getKey?_eq_self_and_forall [Ord α] [TransOrd α] [BEq α
   letI : Ord α := .opposite inferInstance
   minKeyD_eq_iff_getKey?_eq_self_and_forall hd he
 
-theorem maxKeyD_eq_some_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
+theorem maxKeyD_eq_iff_mem_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     [LawfulEqOrd α] {l : List ((a : α) × β a)} (hd : DistinctKeys l)
     (he : l.isEmpty = false) {km fallback} :
     maxKeyD l fallback = km ↔ containsKey km l ∧ ∀ k, containsKey k l → (compare k km).isLE :=
   letI : Ord α := .opposite inferInstance
-  minKeyD_eq_some_iff_mem_and_forall hd he
+  minKeyD_eq_iff_mem_and_forall hd he
 
 theorem maxKeyD_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {l : List ((a : α) × β a)} (hd : DistinctKeys l) {k v fallback} :

@@ -434,7 +434,7 @@ static lean_object* _init_l_Std_Time_Formats_iso8601___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(1);
+x_1 = lean_box(2);
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;

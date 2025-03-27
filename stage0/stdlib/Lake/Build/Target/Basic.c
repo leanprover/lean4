@@ -41,7 +41,7 @@ static lean_object* l___private_Lake_Build_Target_Basic_0__Lake_reprTarget____x4
 LEAN_EXPORT lean_object* l___private_Lake_Build_Target_Basic_0__Lake_reprTarget____x40_Lake_Build_Target_Basic___hyg_25____rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Target_repr(lean_object*);
 static lean_object* l___private_Lake_Build_Target_Basic_0__Lake_reprTarget____x40_Lake_Build_Target_Basic___hyg_25____rarg___closed__2;
-lean_object* l___private_Lake_Build_Key_0__Lake_reprBuildKey____x40_Lake_Build_Key___hyg_94_(lean_object*, lean_object*);
+lean_object* l___private_Lake_Build_Key_0__Lake_reprBuildKey____x40_Lake_Build_Key___hyg_69_(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Build_Target_Basic_0__Lake_reprTarget____x40_Lake_Build_Target_Basic___hyg_25____rarg___closed__6;
 LEAN_EXPORT lean_object* l_Lake_Target_repr___rarg___boxed(lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
@@ -239,7 +239,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = l___private_Lake_Build_Key_0__Lake_reprBuildKey____x40_Lake_Build_Key___hyg_94_(x_1, x_3);
+x_4 = l___private_Lake_Build_Key_0__Lake_reprBuildKey____x40_Lake_Build_Key___hyg_69_(x_1, x_3);
 x_5 = l___private_Lake_Build_Target_Basic_0__Lake_reprTarget____x40_Lake_Build_Target_Basic___hyg_25____rarg___closed__7;
 x_6 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_6, 0, x_5);
@@ -395,7 +395,7 @@ _start:
 lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_3 = lean_unsigned_to_nat(1024u);
 x_4 = lean_nat_dec_le(x_3, x_2);
-x_5 = l___private_Lake_Build_Key_0__Lake_reprBuildKey____x40_Lake_Build_Key___hyg_94_(x_1, x_3);
+x_5 = l___private_Lake_Build_Key_0__Lake_reprBuildKey____x40_Lake_Build_Key___hyg_69_(x_1, x_3);
 x_6 = l_Lake_Target_repr___rarg___closed__3;
 x_7 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_7, 0, x_6);

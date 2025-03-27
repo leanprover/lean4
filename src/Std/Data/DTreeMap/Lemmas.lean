@@ -3123,7 +3123,6 @@ theorem minKey_modify_eq_minKey [TransCmp cmp] [LawfulEqCmp cmp] {k f he} :
     (modify t k f).minKey he = t.minKey (cast (congrArg (· = false) isEmpty_modify) he) :=
   Impl.Const.minKey_modify_eq_minKey t.wf
 
-@[simp]
 theorem compare_minKey_modify_eq [TransCmp cmp] {k f he} :
     cmp (modify t k f |>.minKey he)
       (t.minKey <| cast (congrArg (· = false) isEmpty_modify) he) = .eq :=
@@ -3263,7 +3262,6 @@ theorem minKey!_modify_eq_minKey! [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α
     (modify t k f).minKey! = t.minKey! :=
   Impl.Const.minKey!_modify_eq_minKey! t.wf
 
-@[simp]
 theorem compare_minKey!_modify_eq [TransCmp cmp] [Inhabited α] {k f} :
     cmp (modify t k f).minKey! t.minKey! = .eq :=
   Impl.Const.compare_minKey!_modify_eq t.wf (instOrd := ⟨cmp⟩)
@@ -3401,7 +3399,6 @@ theorem minKeyD_modify_eq_minKeyD [TransCmp cmp] [LawfulEqCmp cmp] {k f fallback
     (modify t k f |>.minKeyD fallback) = t.minKeyD fallback :=
   Impl.Const.minKeyD_modify_eq_minKeyD t.wf
 
-@[simp]
 theorem compare_minKeyD_modify_eq [TransCmp cmp] {k f fallback} :
     cmp (modify t k f |>.minKeyD fallback) (t.minKeyD fallback) = .eq :=
   Impl.Const.compare_minKeyD_modify_eq t.wf (instOrd := ⟨cmp⟩)
@@ -3752,7 +3749,6 @@ theorem maxKey_modify_eq_maxKey [TransCmp cmp] [LawfulEqCmp cmp] {k f he} :
     (modify t k f).maxKey he = t.maxKey (cast (congrArg (· = false) isEmpty_modify) he) :=
   Impl.Const.maxKey_modify_eq_maxKey t.wf
 
-@[simp]
 theorem compare_maxKey_modify_eq [TransCmp cmp] {k f he} :
     cmp (modify t k f |>.maxKey he)
       (t.maxKey <| cast (congrArg (· = false) isEmpty_modify) he) = .eq :=
@@ -3892,7 +3888,6 @@ theorem maxKey!_modify_eq_maxKey! [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α
     (modify t k f).maxKey! = t.maxKey! :=
   Impl.Const.maxKey!_modify_eq_maxKey! t.wf
 
-@[simp]
 theorem compare_maxKey!_modify_eq [TransCmp cmp] [Inhabited α] {k f} :
     cmp (modify t k f).maxKey! t.maxKey! = .eq :=
   Impl.Const.compare_maxKey!_modify_eq t.wf (instOrd := ⟨cmp⟩)

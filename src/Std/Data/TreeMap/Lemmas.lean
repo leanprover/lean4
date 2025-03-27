@@ -2058,7 +2058,6 @@ theorem minKey_modify_eq_minKey [TransCmp cmp] [LawfulEqCmp cmp] {k f he} :
     (modify t k f).minKey he = t.minKey (cast (congrArg (· = false) isEmpty_modify) he) :=
   DTreeMap.Const.minKey_modify_eq_minKey
 
-@[simp]
 theorem compare_minKey_modify_eq [TransCmp cmp] {k f he} :
     cmp (modify t k f |>.minKey he)
       (t.minKey <| cast (congrArg (· = false) isEmpty_modify) he) = .eq :=
@@ -2182,7 +2181,6 @@ theorem minKey!_modify_eq_minKey! [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α
     (modify t k f).minKey! = t.minKey! :=
   DTreeMap.Const.minKey!_modify_eq_minKey!
 
-@[simp]
 theorem compare_minKey!_modify_eq [TransCmp cmp] [Inhabited α] {k f} :
     cmp (modify t k f).minKey! t.minKey! = .eq :=
   DTreeMap.Const.compare_minKey!_modify_eq
@@ -2304,7 +2302,6 @@ theorem minKeyD_modify_eq_minKeyD [TransCmp cmp] [LawfulEqCmp cmp] {k f fallback
     (modify t k f |>.minKeyD fallback) = t.minKeyD fallback :=
   DTreeMap.Const.minKeyD_modify_eq_minKeyD
 
-@[simp]
 theorem compare_minKeyD_modify_eq [TransCmp cmp] {k f fallback} :
     cmp (modify t k f |>.minKeyD fallback) (t.minKeyD fallback) = .eq :=
   DTreeMap.Const.compare_minKeyD_modify_eq
@@ -2617,7 +2614,6 @@ theorem maxKey_modify_eq_maxKey [TransCmp cmp] [LawfulEqCmp cmp] {k f he} :
     (modify t k f).maxKey he = t.maxKey (cast (congrArg (· = false) isEmpty_modify) he) :=
   DTreeMap.Const.maxKey_modify_eq_maxKey
 
-@[simp]
 theorem compare_maxKey_modify_eq [TransCmp cmp] {k f he} :
     cmp (modify t k f |>.maxKey he)
       (t.maxKey <| cast (congrArg (· = false) isEmpty_modify) he) = .eq :=
@@ -2741,7 +2737,6 @@ theorem maxKey!_modify_eq_maxKey! [TransCmp cmp] [LawfulEqCmp cmp] [Inhabited α
     (modify t k f).maxKey! = t.maxKey! :=
   DTreeMap.Const.maxKey!_modify_eq_maxKey!
 
-@[simp]
 theorem compare_maxKey!_modify_eq [TransCmp cmp] [Inhabited α] {k f} :
     cmp (modify t k f).maxKey! t.maxKey! = .eq :=
   DTreeMap.Const.compare_maxKey!_modify_eq

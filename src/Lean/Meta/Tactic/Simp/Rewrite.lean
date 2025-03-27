@@ -110,8 +110,8 @@ where
       return false
 
 private def useImplicitDefEqProof (thm : SimpTheorem) : SimpM Bool := do
-  if (← getConfig).implicitDefEqProofs then
-    thm.getRfl
+  if thm.rfl then
+    return (← getConfig).implicitDefEqProofs
   else
     return false
 
@@ -218,7 +218,7 @@ where
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
       for (thm, numExtraArgs) in candidates do
-        unless inErasedSet thm || (rflOnly && !(← thm.getRfl)) do
+        unless inErasedSet thm || (rflOnly && !thm.rfl) do
           if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs then
             trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
             return some result
@@ -236,7 +236,7 @@ where
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.priority > e₂.priority
       for thm in candidates do
-        unless inErasedSet thm || (rflOnly && !(← thm.getRfl)) do
+        unless inErasedSet thm || (rflOnly && !thm.rfl) do
           let result? ← withNewMCtxDepth do
             let val  ← thm.getValue
             let type ← inferType val
@@ -352,7 +352,7 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
 def simpMatchCore (matcherName : Name) (e : Expr) : SimpM Step := do
   for matchEq in (← Match.getEquationsFor matcherName).eqnNames do
     -- Try lemma
-    match (← withReducible <| Simp.tryTheorem? e { origin := .decl matchEq, proof := mkConst matchEq, rflTask := (← isRflTheorem matchEq) }) with
+    match (← withReducible <| Simp.tryTheorem? e { origin := .decl matchEq, proof := mkConst matchEq, rfl := (← isRflTheorem matchEq) }) with
     | none   => pure ()
     | some r => return .visit r
   return .continue
@@ -433,7 +433,7 @@ def sevalGround : Simproc := fun e => do
     -- `declName` has equation theorems associated with it.
     for eqn in eqns do
       -- TODO: cache SimpTheorem to avoid calls to `isRflTheorem`
-      if let some result ← Simp.tryTheorem? e { origin := .decl eqn, proof := mkConst eqn, rflTask := (← isRflTheorem eqn) } then
+      if let some result ← Simp.tryTheorem? e { origin := .decl eqn, proof := mkConst eqn, rfl := (← isRflTheorem eqn) } then
         trace[Meta.Tactic.simp.ground] "unfolded, {e} => {result.expr}"
         return .visit result
     return .continue

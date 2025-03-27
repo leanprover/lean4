@@ -122,56 +122,45 @@ structure SimpTheorem where
     It is also viewed an `id` used to "erase" `simp` theorems from `SimpTheorems`.
   -/
   origin      : Origin
-  /-- True if `proof` is by `Eq.refl` or `rfl`. Lazy so `[simp]` doesn't block the main thread. -/
-  rflTask     : Task Bool
+  /-- `rfl` is true if `proof` is by `Eq.refl` or `rfl`. -/
+  rfl         : Bool
   deriving Inhabited
 
-def SimpTheorem.getRfl (t : SimpTheorem) : CoreM Bool :=
-  traceBlock "SimpTheorem.getRfl" t.rflTask
-
 mutual
-  partial def isRflProofCore (env : Environment) (type : Expr) (proof : Expr) : Task Bool :=
+  partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := do
     match type with
     | .forallE _ _ type _ =>
       if let .lam _ _ proof _ := proof then
-        isRflProofCore env type proof
+        isRflProofCore type proof
       else
-        .pure false
+        return false
     | _ =>
       if type.isAppOfArity ``Eq 3 then
         if proof.isAppOfArity ``Eq.refl 2 || proof.isAppOfArity ``rfl 2 then
-          .pure true
+          return true
         else if proof.isAppOfArity ``Eq.symm 4 then
           -- `Eq.symm` of rfl theorem is a rfl theorem
-          isRflProofCore env type proof.appArg! -- small hack: we don't need to set the exact type
+          isRflProofCore type proof.appArg! -- small hack: we don't need to set the exact type
         else if proof.getAppFn.isConst then
           -- The application of a `rfl` theorem is a `rfl` theorem
           -- A constant which is a `rfl` theorem is a `rfl` theorem
-          isRflTheoremCore env proof.getAppFn.constName!
+          isRflTheorem proof.getAppFn.constName!
         else
-          .pure false
+          return false
       else
-        .pure false
+        return false
 
-  partial def isRflTheoremCore (env : Environment) (declName : Name) : Task Bool := Id.run do
-    env.findTask declName |>.bind (sync := true) fun
-      | none => .pure false
-      | some aconst => aconst.constInfo.bind (sync := true) fun
-        | .thmInfo info => isRflProofCore env info.type info.value
-        | _             => .pure false
+  partial def isRflTheorem (declName : Name) : CoreM Bool := do
+    let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false
+    let .thmInfo info ← traceBlock "isRflTheorem theorem body" constInfo | return false
+    isRflProofCore info.type info.value
 end
 
-def isRflProof (proof : Expr) : MetaM (Task Bool) := do
-  let env ← getEnv
+def isRflProof (proof : Expr) : MetaM Bool := do
   if let .const declName .. := proof then
-    return isRflTheoremCore env declName
+    isRflTheorem declName
   else
-    let type ← inferType proof
-    return isRflProofCore env type proof
-
-def isRflTheorem (declName : Name) : MetaM (Task Bool) := do
-  let env ← getEnv
-  return isRflTheoremCore env declName
+    isRflProofCore (← inferType proof) proof
 
 instance : ToFormat SimpTheorem where
   format s :=
@@ -412,7 +401,7 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
       match type.eq? with
       | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs noIndexAtArgs, ← isPerm lhs rhs)
       | none => throwError "unexpected kind of 'simp' theorem{indentExpr type}"
-    return { origin, keys, perm, post, levelParams, proof, priority := prio, rflTask := (← isRflProof proof) }
+    return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := (← isRflProof proof) }
 
 private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool) (prio : Nat) : MetaM (Array SimpTheorem) := do
   let cinfo ← getConstVal declName

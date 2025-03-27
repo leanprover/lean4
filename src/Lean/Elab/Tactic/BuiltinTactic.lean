@@ -33,6 +33,8 @@ open Language in
 /--
 Evaluates a tactic script in form of a syntax node with alternating tactics and separators as
 children.
+
+The user can provide their own tactic evaluation function `evalTac`.
 -/
 @[specialize]
 partial def evalSepTactics (evalTac : Tactic := evalTactic) : Tactic := goEven

@@ -45,6 +45,10 @@ theorem implies_dep_congr_ctx {p₁ p₂ q₁ : Prop} (h₁ : p₁ = p₂) {q₂
 theorem implies_congr_ctx {p₁ p₂ q₁ q₂ : Prop} (h₁ : p₁ = p₂) (h₂ : p₂ → q₁ = q₂) : (p₁ → q₁) = (p₂ → q₂) :=
   implies_dep_congr_ctx h₁ h₂
 
+theorem pi_congr {α : Sort u} {β β' : α → Sort v} (h : ∀ a, β a = β' a) : (∀ a, β a) = ∀ a, β' a :=
+  (funext h : β = β') ▸ rfl
+
+@[deprecated pi_congr (since := "2025-03-20")]
 theorem forall_congr {α : Sort u} {p q : α → Prop} (h : ∀ a, p a = q a) : (∀ a, p a) = (∀ a, q a) :=
   (funext h : p = q) ▸ rfl
 
@@ -57,9 +61,6 @@ theorem forall_prop_domain_congr {p₁ p₂ : Prop} {q₁ : p₁ → Prop} {q₂
 theorem forall_prop_congr_dom {p₁ p₂ : Prop} (h : p₁ = p₂) (q : p₁ → Prop) :
     (∀ a : p₁, q a) = (∀ a : p₂, q (h.substr a)) :=
   h ▸ rfl
-
-theorem pi_congr {α : Sort u} {β β' : α → Sort v} (h : ∀ a, β a = β' a) : (∀ a, β a) = ∀ a, β' a :=
-  (funext h : β = β') ▸ rfl
 
 theorem let_congr {α : Sort u} {β : Sort v} {a a' : α} {b b' : α → β}
     (h₁ : a = a') (h₂ : ∀ x, b x = b' x) : (let x := a; b x) = (let x := a'; b' x) :=

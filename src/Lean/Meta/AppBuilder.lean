@@ -632,8 +632,8 @@ def mkImpCongrCtx (h₁ h₂ : Expr) : MetaM Expr :=
 def mkImpDepCongrCtx (h₁ h₂ : Expr) : MetaM Expr :=
   mkAppM ``implies_dep_congr_ctx #[h₁, h₂]
 
-def mkForallCongr (h : Expr) : MetaM Expr :=
-  mkAppM ``forall_congr #[h]
+def mkPiCongr (h : Expr) : MetaM Expr :=
+  mkAppM ``pi_congr #[h]
 
 /-- Returns instance for `[Monad m]` if there is one -/
 def isMonad? (m : Expr) : MetaM (Option Expr) :=

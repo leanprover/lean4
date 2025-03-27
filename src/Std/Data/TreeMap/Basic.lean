@@ -312,7 +312,7 @@ def keyAtIndex (t : TreeMap α β cmp) (n : Nat) (h : n < t.size) : α :=
 def keyAtIdx! [Inhabited α] (t : TreeMap α β cmp) (n : Nat) : α :=
   DTreeMap.keyAtIdx! t.inner n
 
-@[inline, inherit_doc DTreeMap.keyAtIdx, deprecated keyAtIdx (since := "2025-03-25")]
+@[inline, inherit_doc DTreeMap.keyAtIdx!, deprecated keyAtIdx! (since := "2025-03-25")]
 def keyAtIndex! [Inhabited α] (t : TreeMap α β cmp) (n : Nat) : α :=
   keyAtIdx! t n
 
@@ -320,7 +320,7 @@ def keyAtIndex! [Inhabited α] (t : TreeMap α β cmp) (n : Nat) : α :=
 def keyAtIdxD (t : TreeMap α β cmp) (n : Nat) (fallback : α) : α :=
   DTreeMap.keyAtIdxD t.inner n fallback
 
-@[inline, inherit_doc DTreeMap.keyAtIdx, deprecated keyAtIdx (since := "2025-03-25")]
+@[inline, inherit_doc DTreeMap.keyAtIdxD, deprecated keyAtIdxD (since := "2025-03-25")]
 def keyAtIndexD (t : TreeMap α β cmp) (n : Nat) (fallback : α) : α :=
   keyAtIdxD t n fallback
 

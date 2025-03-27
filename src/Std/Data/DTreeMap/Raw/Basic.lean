@@ -319,7 +319,7 @@ We do not provide `keyAtIdx` for the raw trees.
 def keyAtIdx! [Inhabited α] (t : Raw α β cmp) (n : Nat) : α :=
   letI : Ord α := ⟨cmp⟩; t.inner.keyAtIdx! n
 
-@[inline, inherit_doc DTreeMap.keyAtIdx!, deprecated keyAtIdx? (since := "2025-03-25")]
+@[inline, inherit_doc DTreeMap.keyAtIdx!, deprecated keyAtIdx! (since := "2025-03-25")]
 def keyAtIndex! [Inhabited α] (t : Raw α β cmp) (n : Nat) : α :=
   keyAtIdx! t n
 

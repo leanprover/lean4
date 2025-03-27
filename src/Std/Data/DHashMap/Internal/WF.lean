@@ -21,9 +21,11 @@ open Std.Internal
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v w
 
-variable {α : Type u} {β : α → Type v} {γ : Type w} {δ : α → Type w}
+
+universe u u' v v' w
+
+variable {α : Type u} {α' : Type u'} {β : α → Type v} {β' : α' → Type v'} {γ : Type w} {δ : α → Type w}
 
 open List
 
@@ -1008,6 +1010,17 @@ theorem wfImp_mapₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m
   size_eq := by rw [toListModel_mapₘ.length_eq, List.length_map, ← h.size_eq, mapₘ]
   distinct := h.distinct.map.perm toListModel_mapₘ
 
+/-! # `mapKeyValueInPlaceₘ` -/
+
+theorem wfImp_mapKeyValueInPlaceₘ [BEq α] [BEq α'] [Hashable α] [Hashable α'] {m : Raw₀ α β}
+    {f : (a : α) → β a → ((a' : α') × β' a')}
+    (h₁: ∀ a b, hash (f a b).1 = hash a)
+    (h₂: ∀ a b a' b', (f a b).1 == (f a' b').1 → a == a')
+    (h : Raw.WFImp m.1) : Raw.WFImp (m.mapKeyValueInPlaceₘ f).1 where
+  buckets_hash_self := sorry
+  size_eq := sorry
+  distinct := sorry
+
 /-! # `map` -/
 
 theorem toListModel_map {m : Raw₀ α β} {f : (a : α) → β a → δ a} :
@@ -1020,6 +1033,16 @@ theorem wfImp_map [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m : 
     {f : (a : α) → β a → δ a} (h : Raw.WFImp m.1) : Raw.WFImp (m.map f).1 := by
   rw [map_eq_mapₘ]
   exact wfImp_mapₘ h
+
+/-! # `mapKeyValueInPlace` -/
+
+theorem wfImp_mapKeyValueInPlace [BEq α] [BEq α'] [Hashable α] [Hashable α'] {m : Raw₀ α β}
+    {f : (a : α) → β a → ((a' : α') × β' a')}
+    (h₁: ∀ a b, hash (f a b).1 = hash a)
+    (h₂: ∀ a b a' b', (f a b).1 == (f a' b').1 → a == a')
+    (h : Raw.WFImp m.1) : Raw.WFImp (m.mapKeyValueInPlace f).1 := by
+  rw [mapKeyValueInPlace_eq_mapKeyValueInPlaceₘ]
+  exact wfImp_mapKeyValueInPlaceₘ h₁ h₂ h
 
 /-! # `filterₘ` -/
 

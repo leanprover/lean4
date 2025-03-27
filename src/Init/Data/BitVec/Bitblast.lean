@@ -1353,6 +1353,245 @@ theorem negOverflow_eq {w : Nat} (x : BitVec w) :
     simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod, Int.neg_inj]
     rw_mod_cast [Nat.mod_eq_of_lt (by simp [Nat.pow_lt_pow_succ])]
 
+theorem Int.le_of_nonpos_of_pos {x : Int} (hx : x ≤ 0) {y : Int} (hy : 0 < y) : x * y ≤ x := by
+  conv => rhs; rw [← Int.mul_one x] -- this is crazy lazy, find the theorem...
+  apply Int.mul_le_mul_of_nonpos_left <;> omega
+
+theorem foo {x y : Nat} : - (x : Int) ≤ (y : Int) := by
+  omega
+
+theorem Int.lt_ediv_of_nonpos_of_nonpos {x y: Int} (hx : 0 < x) (hy : y < - 1) (hy' : - x ≤ y) :
+    (- x) / y < x := by
+  rw [Int.div_def]
+  unfold Int.ediv
+  obtain ⟨xn, hx⟩ := Int.eq_negSucc_of_lt_zero (a := -x) (by omega)
+  obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y) (by omega)
+  subst hy
+  rw [hx]
+  simp
+  have : x = 1 + xn := by omega
+  subst this
+  simp [Int.add_comm (a := 1)]
+  apply Nat.div_lt_self
+  omega
+  omega
+
+-- #check Int.ediv
+
+theorem Int.negSucc_ediv_ofNat_eq_negSucc_div_of_ne_zero {n d : Nat} (hd : d ≠ 0) : (Int.negSucc n).ediv ( d) =  - ((1 + (n / d)) : Nat) := by
+  unfold Int.ediv
+  rcases d with rfl | d
+  · contradiction
+  · simp
+    omega
+
+theorem udivOverflow_eq {w : Nat} (x y : BitVec w) :
+    x.toNat / y.toNat < 2 ^ w := by
+  have hy : y.toNat = 0 ∨ y.toNat = 1 ∨ 1 < y.toNat := by omega
+  rcases hy with hy|hy|hy
+  · simp [hy]
+    omega
+  · simp [hy]
+    omega
+  · have := Nat.div_lt_iff_lt_mul (k := y.toNat) (x := x.toNat) (y := 2 ^ w) (by omega)
+    simp [this]
+    have :=  Nat.mul_lt_mul_of_le_of_lt (a := x.toNat) (b :=1) (c := 2 ^ w) (d := y.toNat) (by omega) (by omega) (by omega)
+    omega
+
+-- y.natAbs >= 2 => no overflow
+-- y = 1 => x.sdiv y = x
+-- y = 0 => x.sdiv y = 0
+-- y = -1 => x.sdiv y = neg x
+
+theorem sdivOverflow_false_of_natAbs_ge_two {w : Nat} {x y : BitVec w} (hy : 2 ≤ (y.toInt.natAbs)) :
+    (sdivOverflow x y) = false := by
+  sorry
+
+theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
+    (sdivOverflow x y) = (decide (0 < w) && (x == intMin w) && (y == allOnes w)) := by
+  simp only [sdivOverflow]
+  rcases w with _|w
+  · simp [of_length_zero]
+  · simp
+    have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
+    have yle := le_two_mul_toInt (x := y); have ylt := two_mul_toInt_lt (x := y)
+    have := Nat.two_pow_pos (w := w)
+    by_cases hx : x = intMin (w + 1) <;> by_cases hy : y = allOnes (w + 1)
+    · simp [hx, hy, toInt_intMin]
+      rw_mod_cast [mod_eq_of_lt (by omega)]
+      omega
+    · simp [← beq_eq_false_iff_ne] at hy
+      simp [hx, hy, toInt_intMin]
+      rw_mod_cast [mod_eq_of_lt (by omega)]
+      push_cast
+      rw [Int.div_def]
+      have hy' : y.toInt < 0 ∨ y.toInt = 0 ∨ 0 < y.toInt := by omega
+      rcases hy' with hy'|hy'|hy'
+      · have := Int.neg_neg_of_pos (a := 2 ^ w) (by norm_cast)
+        and_intros
+        have : - 2 ^ w ≤ y.toInt ∧ y.toInt < 2 ^ w := by
+          and_intros
+          · norm_cast; omega
+          · rw_mod_cast [Nat.pow_succ, Nat.mul_comm] at ylt
+            omega
+        · have := Int.ediv_pos_of_neg_of_neg (a := -2 ^ w) (b := y.toInt) (by omega) (by omega)
+          rw [← Int.div_def]
+          have : y.toInt < - 1 := by simp at hy; rw [← toInt_inj] at hy; simp [toInt_allOnes] at hy; omega
+          have : - 2 ^ w ≤ y.toInt := by omega
+          have := Int.natAbs_ediv_le_natAbs (a := - 2 ^ w) (b := y.toInt)
+          simp [Int.lt_ediv_of_nonpos_of_nonpos (x := 2 ^ w) (y := y.toInt) (by omega) (by omega) (by omega)]
+        · rw [← Int.div_def]
+          have := Int.ediv_pos_of_neg_of_neg (a := -2 ^ w) (b := y.toInt) (by omega) (by omega)
+          omega
+      · simp [hy']
+        rw [← Int.div_def, Int.ediv_zero]
+        norm_cast
+        omega
+      · have := Int.neg_neg_of_pos (a := 2 ^ w) (by norm_cast)
+        have := Int.ediv_neg_of_neg_of_pos (a := - 2 ^ w) (b := y.toInt)
+          (by omega) (by omega)
+        rw [← Int.div_def]
+        and_intros
+        · apply Int.lt_trans
+          · exact this
+          · norm_cast
+        · have : - 2 ^ w ≤ y.toInt ∧ y.toInt < 2 ^ w := by
+            and_intros
+            · omega
+            · rw_mod_cast [Nat.pow_succ, Nat.mul_comm] at ylt
+              omega
+          have := Int.ediv_le_self (a := 2 ^ w) (b := y.toInt) (by omega)
+          simp [Int.ediv_le_of_le_mul (a := - 2 ^ w) (b := y.toInt)]
+          have := Int.le_ediv_iff_mul_le (c := y.toInt) (a := - 2 ^ w) (b := - 2 ^ w) (by omega)
+          simp [this]
+          apply Int.le_of_nonpos_of_pos (by omega) (by omega)
+    · simp [← beq_eq_false_iff_ne] at hx
+      have hy' := toInt_allOnes (w := w + 1)
+      simp [hx, hy, hy']
+      and_intros
+      · rw [Int.pow_succ, Int.mul_comm] at xlt xle
+        by_cases hx' : 0 < x.toInt
+        · omega
+        · have : - 2 ^ w ≤ x.toInt := by omega
+          simp [← beq_eq_decide_eq] at hx
+          rw [← toInt_inj] at hx
+          simp [toInt_intMin] at hx
+          norm_cast at hx
+          rw [Nat.mod_eq_of_lt (by omega)] at hx
+          push_cast at hx
+          omega
+      · omega
+    · simp [← beq_eq_false_iff_ne] at hx hy
+      simp [hx, hy]
+      simp [← beq_eq_decide_eq] at hx hy
+      rw [← toInt_inj] at hx hy
+      simp [toInt_intMin] at hx
+      simp [toInt_allOnes] at hy
+      norm_cast at hx
+      rw [Nat.mod_eq_of_lt (by omega)] at hx
+      push_cast at hx
+      have : - 2 ^ w < x.toInt := by omega
+      have : - 2 ^ w ≤ y.toInt := by omega
+      have : x.toInt < 2 ^ w := by omega
+      have : y.toInt < 2 ^ w := by omega
+      have hy' : (- 2 ^ w ≤ y.toInt ∧ y.toInt < - 1) ∨ (y.toInt = 0) ∨ (0 < y.toInt ∧ y.toInt < 2 ^ w) := by omega
+      by_cases 0 ≤ x.toInt
+      · have := Int.ediv_le_self (a := x.toInt) (b := y.toInt) (by omega)
+        rcases hy' with hy'|hy'|hy'
+        · and_intros
+          · omega
+          · have := Int.ediv_le_self (a := x.toInt) (b := y.toInt) (by omega)
+            obtain ⟨xn, hx⟩ := Int.eq_ofNat_of_zero_le (a := x.toInt) (by omega)
+            obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y.toInt) (by omega)
+            rw [Int.div_def]
+            unfold Int.ediv
+            rw [hx, hy]
+            simp
+            norm_cast
+            apply Nat.le_trans (m := xn)
+            · exact div_le_self xn (yn + 1)
+            · suffices (xn : Int) ≤ 2^w by norm_cast at this -- Omega pls ;_;
+              omega
+        · and_intros
+          · omega
+          · simp [hy']
+            omega
+        · and_intros
+          · omega
+          · have := Int.ediv_le_self (a := x.toInt) (b := y.toInt) (by omega)
+            have := Int.ediv_le_of_le_mul (a := x.toInt) (c := y.toInt) (b := x.toInt) (by omega)
+            have : 1 ≤ y.toInt := by omega
+            have : x.toInt * 1 ≤ x.toInt * y.toInt := by
+              exact Int.mul_le_mul_of_nonneg_left this (by omega)
+            have := Int.le_ediv_iff_mul_le (c := y.toInt) (a := - 2 ^ w) (b := x.toInt) (by omega)
+            simp [this]
+            have := Int.mul_neg_of_neg_of_pos (a := - 2 ^ w) (b := y.toInt) (by omega) (by omega)
+            omega
+      · rcases hy' with hy'|hy'|hy'
+        · obtain ⟨xn, hx⟩ := Int.eq_negSucc_of_lt_zero (a := x.toInt) (by omega)
+          obtain ⟨yn, hy⟩ := Int.eq_negSucc_of_lt_zero (a := y.toInt) (by omega)
+          rw [Int.div_def]
+          unfold Int.ediv
+          rw [hx, hy]
+          simp
+          norm_cast
+          and_intros
+          · have := Int.mul_pos_of_neg_of_neg (a := - 2 ^ w) (b := y.toInt) (by omega) (by omega)
+            have : yn ≥ 1 := by omega
+            have := Nat.add_lt_iff_lt_sub_right (a := xn / (yn + 1)) (b := 1) (c := 2 ^w)
+            simp [this]
+            have : yn + 1 ≥ 2 := by omega
+            have := Nat.div_lt_iff_lt_mul (k := yn + 1) (x := xn) (y := 2 ^ w - 1) (by omega)
+            simp [this]
+            have : 1 ≤ 2 ^ w := by omega
+            by_cases hw : 0 < w
+            · have hx₃ : -2^w + 1 ≤ x.toInt := by omega
+              have hx₄ : x.toInt = - (1 + xn) := by omega
+              have hx₅ : - ((2^w : Nat) : Int) + 1 ≤ - (1 + xn) := by
+                rw [← hx₄]
+                push_cast
+                omega
+              have hx₆ : xn ≤ 2^w - 2 := by omega
+              have hy₂ : yn + 1≥ 2 := by omega
+              have :=  Nat.mul_lt_mul_of_le_of_lt (a := xn) (b :=1) (c := 2 ^ w - 1) (d := yn + 1) (by omega) (by omega) (by omega)
+              omega
+            · simp [show w = 0 by omega]
+              simp_all
+              omega
+          · have : y.toInt < 0 := by omega
+            have : x.toInt < 0 := by omega
+            have := Int.mul_pos_of_neg_of_neg (a := x.toInt) (b := y.toInt) (by omega) (by omega)
+            have : - 2 ^ w < 0 := by omega
+            push_cast
+            refine Int.le_add_one ?_
+            norm_cast
+            apply foo
+        · simp [hy']
+          omega
+        · have := Int.ediv_neg_of_neg_of_pos (a := x.toInt) (b := y.toInt) (by omega) (by omega)
+          obtain ⟨xn, hx⟩ := Int.eq_negSucc_of_lt_zero (a := x.toInt) (by omega)
+          obtain ⟨yn, hy⟩ := Int.eq_ofNat_of_zero_le (a := y.toInt) (by omega)
+          rw [Int.div_def]
+          rw [hx, hy]
+          rw [Int.negSucc_ediv_ofNat_eq_negSucc_div_of_ne_zero (by omega)]
+          and_intros
+          · push_cast
+            have := Int.negSucc_lt_zero (n := xn / yn)
+            rw [Int.neg_add]
+            omega
+          · have := Int.le_ediv_iff_mul_le (c := y.toInt) (a := - 2 ^ w) (b := x.toInt) (by omega)
+            simp [this]
+            push_cast
+            rw_mod_cast [Nat.add_comm, Nat.add_one_le_iff]
+            have := Nat.div_lt_iff_lt_mul (k := yn) (x := xn) (y := 2 ^ w) (by omega)
+            simp [this]
+            by_cases hy1 : yn = 1
+            · simp [hy1]
+              omega
+            · have : 1 < yn := by omega
+              have :=  Nat.mul_lt_mul_of_le_of_lt (a := xn) (b :=1) (c := 2 ^ w) (d := yn) (by omega) (by omega) (by omega)
+              omega
+
 /- ### umod -/
 
 theorem getElem_umod {n d : BitVec w} (hi : i < w) :

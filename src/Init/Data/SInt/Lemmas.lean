@@ -1530,7 +1530,8 @@ theorem ISize.ofBitVec_ofNatLT (n : Nat) (hn) : ISize.ofBitVec (BitVec.ofNatLT n
 @[simp] theorem Int16.toInt_neg (n : Int16) : (-n).toInt = (-n.toInt).bmod (2 ^ 16) := BitVec.toInt_neg
 @[simp] theorem Int32.toInt_neg (n : Int32) : (-n).toInt = (-n.toInt).bmod (2 ^ 32) := BitVec.toInt_neg
 @[simp] theorem Int64.toInt_neg (n : Int64) : (-n).toInt = (-n.toInt).bmod (2 ^ 64) := BitVec.toInt_neg
-@[simp] theorem ISize.toInt_neg (n : ISize) : (-n).toInt = (-n.toInt).bmod (2 ^ System.Platform.numBits) := BitVec.toInt_neg
+-- Simp on this seems to do more harm than good when numeric literals are involved
+theorem ISize.toInt_neg (n : ISize) : (-n).toInt = (-n.toInt).bmod (2 ^ System.Platform.numBits) := BitVec.toInt_neg
 
 @[simp] theorem Int8.toNatClampNeg_eq_zero_iff {n : Int8} : n.toNatClampNeg = 0 ↔ n ≤ 0 := by
   rw [toNatClampNeg, Int.toNat_eq_zero, le_iff_toInt_le, toInt_zero]
@@ -1826,7 +1827,7 @@ theorem ISize.sub_eq_add_neg (a b : ISize) : a - b = a + -b := ISize.toBitVec.in
 @[simp] theorem Int64.toInt_sub (a b : Int64) : (a - b).toInt = (a.toInt - b.toInt).bmod (2 ^ 64) := by
   simp [sub_eq_add_neg, Int.sub_eq_add_neg]
 @[simp] theorem ISize.toInt_sub (a b : ISize) : (a - b).toInt = (a.toInt - b.toInt).bmod (2 ^ System.Platform.numBits) := by
-  simp [sub_eq_add_neg, Int.sub_eq_add_neg]
+  simp [sub_eq_add_neg, Int.sub_eq_add_neg, toInt_neg]
 
 @[simp] theorem Int16.toInt8_sub (a b : Int16) : (a - b).toInt8 = a.toInt8 - b.toInt8 := by
   simp [sub_eq_add_neg, Int8.sub_eq_add_neg]
@@ -1910,7 +1911,8 @@ theorem ISize.sub_eq_add_neg (a b : ISize) : a - b = a + -b := ISize.toBitVec.in
 @[simp] theorem Int16.ofInt_neg (a : Int) : Int16.ofInt (-a) = -Int16.ofInt a := Int16.toInt_inj.1 (by simp)
 @[simp] theorem Int32.ofInt_neg (a : Int) : Int32.ofInt (-a) = -Int32.ofInt a := Int32.toInt_inj.1 (by simp)
 @[simp] theorem Int64.ofInt_neg (a : Int) : Int64.ofInt (-a) = -Int64.ofInt a := Int64.toInt_inj.1 (by simp)
-@[simp] theorem ISize.ofInt_neg (a : Int) : ISize.ofInt (-a) = -ISize.ofInt a := ISize.toInt_inj.1 (by simp [ISize.toInt_ofInt])
+@[simp] theorem ISize.ofInt_neg (a : Int) : ISize.ofInt (-a) = -ISize.ofInt a :=
+  ISize.toInt_inj.1 (by simp [ISize.toInt_ofInt, toInt_neg])
 
 theorem Int8.ofInt_eq_iff_bmod_eq_toInt (a : Int) (b : Int8) : Int8.ofInt a = b ↔ a.bmod (2 ^ 8) = b.toInt := by
   simp [← Int8.toInt_inj]
@@ -2097,10 +2099,10 @@ theorem ISize.ofInt_tdiv {a b : Int} (ha₁ : minValue.toInt ≤ a) (ha₂ : a �
     (hb₁ : minValue.toInt ≤ b) (hb₂ : b ≤ maxValue.toInt) : ISize.ofInt (a.tdiv b) = ISize.ofInt a / ISize.ofInt b := by
   rw [ISize.ofInt_eq_iff_bmod_eq_toInt, toInt_div, toInt_ofInt, toInt_ofInt,
     Int.bmod_eq_self_of_le (n := a), Int.bmod_eq_self_of_le (n := b)]
-  · exact le_of_eq_of_le (by cases System.Platform.numBits_eq <;> simp_all [size, toInt_ofInt]) hb₁
+  · exact le_of_eq_of_le (by cases System.Platform.numBits_eq <;> simp_all [size, toInt_ofInt, toInt_neg]) hb₁
   · refine Int.lt_of_le_sub_one (le_of_le_of_eq hb₂ ?_)
     cases System.Platform.numBits_eq <;> simp_all [size, toInt_ofInt]
-  · exact le_of_eq_of_le (by cases System.Platform.numBits_eq <;> simp_all [size, toInt_ofInt]) ha₁
+  · exact le_of_eq_of_le (by cases System.Platform.numBits_eq <;> simp_all [size, toInt_ofInt, toInt_neg]) ha₁
   · refine Int.lt_of_le_sub_one (le_of_le_of_eq ha₂ ?_)
     cases System.Platform.numBits_eq <;> simp_all [size, toInt_ofInt]
 
@@ -2992,7 +2994,7 @@ theorem Int8.neg_eq_neg_one_mul (a : Int8) : -a = -1 * a := Int8.toInt_inj.1 (by
 theorem Int16.neg_eq_neg_one_mul (a : Int16) : -a = -1 * a := Int16.toInt_inj.1 (by simp)
 theorem Int32.neg_eq_neg_one_mul (a : Int32) : -a = -1 * a := Int32.toInt_inj.1 (by simp)
 theorem Int64.neg_eq_neg_one_mul (a : Int64) : -a = -1 * a := Int64.toInt_inj.1 (by simp)
-theorem ISize.neg_eq_neg_one_mul (a : ISize) : -a = -1 * a := ISize.toInt_inj.1 (by simp)
+theorem ISize.neg_eq_neg_one_mul (a : ISize) : -a = -1 * a := ISize.toInt_inj.1 (by simp [toInt_neg])
 
 @[simp] theorem Int8.add_sub_cancel (a b : Int8) : a + b - b = a := Int8.toBitVec_inj.1 (BitVec.add_sub_cancel _ _)
 @[simp] theorem Int16.add_sub_cancel (a b : Int16) : a + b - b = a := Int16.toBitVec_inj.1 (BitVec.add_sub_cancel _ _)

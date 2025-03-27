@@ -668,6 +668,30 @@ instance : LawfulEqOrd USize where
 
 end USize
 
+section Option
+
+instance {α} [Ord α] [OrientedOrd α] : OrientedOrd (Option α) where
+  eq_swap {a b} := by cases a <;> cases b <;> simp [Ord.compare, ← OrientedOrd.eq_swap]
+
+instance {α} [Ord α] [TransOrd α] : TransOrd (Option α) where
+  isLE_trans {a b c} hab hbc := by
+    cases a <;> cases b <;> cases c <;> (try simp_all [Ord.compare]; done)
+    simp only [Ord.compare] at *
+    apply TransOrd.isLE_trans <;> assumption
+
+instance {α} [Ord α] [ReflOrd α] : ReflOrd (Option α) where
+  compare_self {a} := by cases a <;> simp [Ord.compare]
+
+instance {α} [Ord α] [LawfulEqOrd α] : LawfulEqOrd (Option α) where
+  eq_of_compare {a b} := by
+    cases a <;> cases b <;> simp_all [Ord.compare, LawfulEqOrd.eq_of_compare]
+
+instance {α} [Ord α] [BEq α] [LawfulBEqOrd α] : LawfulBEqOrd (Option α) where
+  compare_eq_iff_beq {a b} := by
+    cases a <;> cases b <;> simp_all [Ord.compare, LawfulBEqOrd.compare_eq_iff_beq]
+
+end Option
+
 section Lex
 
 instance {α} {cmp₁ cmp₂} [ReflCmp cmp₁] [ReflCmp cmp₂] :

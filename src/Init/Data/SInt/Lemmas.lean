@@ -1530,11 +1530,6 @@ theorem ISize.ofBitVec_ofNatLT (n : Nat) (hn) : ISize.ofBitVec (BitVec.ofNatLT n
 
 theorem BitVec.toInt_srem (a b : BitVec w) : (a.srem b).toInt = a.toInt.tmod b.toInt := sorry
 
-theorem Int.ofNat_toNat_eq_self {a : Int} : a.toNat = a ↔ 0 ≤ a := by omega
-theorem Int.eq_ofNat_toNat {a : Int} : a = a.toNat ↔ 0 ≤ a := by omega
-theorem Int.toNat_le_toNat {n m : Int} (h : n ≤ m) : n.toNat ≤ m.toNat := by omega
-theorem Int.toNat_lt_toNat {n m : Int} (hn : 0 ≤ n) (h : n < m) : n.toNat < m.toNat := by omega
-
 ---------------------------- END TODO
 
 @[simp] theorem Int8.toInt_neg (n : Int8) : (-n).toInt = (-n.toInt).bmod (2 ^ 8) := BitVec.toInt_neg

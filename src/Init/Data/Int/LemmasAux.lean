@@ -76,6 +76,11 @@ theorem neg_lt_self_iff {n : Int} : -n < n ↔ 0 < n := by
 theorem pos_iff_toNat_pos {n : Int} : 0 < n ↔ 0 < n.toNat := by
   omega
 
+theorem Int.ofNat_toNat_eq_self {a : Int} : a.toNat = a ↔ 0 ≤ a := by omega
+theorem Int.eq_ofNat_toNat {a : Int} : a = a.toNat ↔ 0 ≤ a := by omega
+theorem Int.toNat_le_toNat {n m : Int} (h : n ≤ m) : n.toNat ≤ m.toNat := by omega
+theorem Int.toNat_lt_toNat {n m : Int} (hn : 0 ≤ n) (h : n < m) : n.toNat < m.toNat := by omega
+
 /-! ### natAbs -/
 
 theorem eq_zero_of_dvd_of_natAbs_lt_natAbs {d n : Int} (h : d ∣ n) (h₁ : n.natAbs < d.natAbs) :

@@ -307,6 +307,28 @@ rebuilds across platforms.
   if text then inputTextFile path else inputBinFile path
 
 /--
+A build job for a directory of files that are expected to already exist.
+Returns an array of the files in the directory that match the filter.
+
+If `text := true`, the files are handled as text files rather than a binary files.
+Any byte difference in a binary file will trigger a rebuild of its dependents.
+In contrast, text file traces have normalized line endings to avoid unnecessary
+rebuilds across platforms.
+-/
+def inputDir
+  (path : FilePath) (text : Bool) (filter : FilePath → Bool)
+: SpawnM (Job (Array FilePath)) := do
+  let job ← Job.async do
+    let fs ← path.readDir
+    let ps := fs.filterMap fun f =>
+      if filter f.path then some f.path else none
+    -- Makes the order of files consistent across platforms
+    let ps := ps.qsort (toString · < toString ·)
+    return ps
+  job.bindM fun ps =>
+    Job.collectArray <$> ps.mapM (inputFile · text)
+
+/--
 Build an object file from a source file job using `compiler`. The invocation is:
 
 ```

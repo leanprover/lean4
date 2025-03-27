@@ -1,0 +1,16 @@
+name = "test"
+defaultTargets = ["test"]
+
+[[input_file]]
+name = "foo"
+path = "inputs/foo.txt"
+text = true
+
+[[input_dir]]
+name = "barz"
+path = "inputs/barz"
+text = true
+
+[[lean_exe]]
+name = "test"
+needs = ["foo", "barz"]

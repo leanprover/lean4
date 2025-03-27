@@ -1,0 +1,45 @@
+/-
+Copyright (c) 2025 Mac Malone. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Mac Malone
+-/
+prelude
+import Lake.Build.Common
+import Lake.Config.InputFile
+
+/-! # Input File Build
+Build function definitions for input files and directories.
+-/
+
+open System (FilePath)
+
+namespace Lake
+
+/-! ## Input File -/
+
+/-- The default facet for an input file. Produces the file path. -/
+builtin_facet default : InputFile => FilePath
+
+private def InputFile.recFetch (t : InputFile) : FetchM (Job FilePath) :=
+  withRegisterJob s!"{t.name}" do
+  inputFile t.config.path t.config.text
+
+/-- The facet configuration for the builtin `ExternLib.staticFacet`. -/
+def InputFile.defaultFacetConfig : KFacetConfig InputFile.facetKind defaultFacet :=
+  mkFacetJobConfig recFetch
+
+/-! ## Input Directory -/
+
+/--
+The default facet for an input directory.
+Produces the matching files in the directory.
+-/
+builtin_facet default : InputDir => Array FilePath
+
+private def InputDir.recFetch (t : InputDir) : FetchM (Job (Array FilePath)) :=
+  withRegisterJob s!"{t.name}" do
+  inputDir t.config.path t.config.text t.config.filter.matches
+
+/-- The facet configuration for the builtin `ExternLib.staticFacet`. -/
+def InputDir.defaultFacetConfig : KFacetConfig InputDir.facetKind defaultFacet :=
+  mkFacetJobConfig recFetch

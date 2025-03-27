@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 prelude
 import Lake.Util.Name
+import Lake.Config.Kinds
 
 namespace Lake
 open Lean (Name)
@@ -16,12 +17,6 @@ inductive BuildKey
 | packageTarget (package target : Name)
 | facet (target : BuildKey) (facet : Name)
 deriving Inhabited, Repr, DecidableEq, Hashable
-
-/-- The kind identifier for facets of a package. -/
-@[match_pattern] abbrev Package.facetKind : Name := `package
-
-/-- The kind identifier for facets of a (Lean) module. -/
-@[match_pattern] abbrev Module.facetKind : Name := `module
 
 namespace BuildKey
 

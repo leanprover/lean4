@@ -8,28 +8,11 @@ import Lake.Config.Opaque
 import Lake.Config.LeanLibConfig
 import Lake.Config.LeanExeConfig
 import Lake.Config.ExternLibConfig
+import Lake.Config.InputFileConfig
 
 open Lean (Name)
 
 namespace Lake
-
-/-- The keyword for Lean library configurations. -/
-abbrev LeanLib.keyword : Name := `lean_lib
-
-/-- The type kind for Lean library configurations. -/
-@[match_pattern] abbrev LeanLib.configKind := facetKind
-
-/-- The keyword for Lean executable configurations. -/
-abbrev LeanExe.keyword : Name := `lean_exe
-
-/-- The type kind for Lean executable configurations. -/
-@[match_pattern] abbrev LeanExe.configKind := facetKind
-
-/-- The keyword for external library configurations. -/
-abbrev ExternLib.keyword : Name := `extern_lib
-
-/-- The type kind for external library configurations. -/
-@[match_pattern] abbrev ExternLib.configKind := facetKind
 
 abbrev ConfigType (kind : Name) (pkgName name : Name) : Type :=
   match kind with
@@ -37,6 +20,8 @@ abbrev ConfigType (kind : Name) (pkgName name : Name) : Type :=
   | LeanExe.configKind => LeanExeConfig name
   | ExternLib.configKind => ExternLibConfig pkgName name
   | .anonymous => OpaqueTargetConfig pkgName name
+  | InputFile.configKind => InputFileConfig name
+  | InputDir.configKind => InputDirConfig name
   | _ => Empty
 
 /-- Forward declared `ConfigTarget` to work around recursion issues (e.g., with `Package`). -/

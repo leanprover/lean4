@@ -1530,6 +1530,11 @@ theorem ISize.ofBitVec_ofNatLT (n : Nat) (hn) : ISize.ofBitVec (BitVec.ofNatLT n
 
 theorem BitVec.toInt_srem (a b : BitVec w) : (a.srem b).toInt = a.toInt.tmod b.toInt := sorry
 
+theorem Int.ofNat_toNat_eq_self {a : Int} : a.toNat = a ↔ 0 ≤ a := by omega
+theorem Int.eq_ofNat_toNat {a : Int} : a = a.toNat ↔ 0 ≤ a := by omega
+theorem Int.toNat_le_toNat {n m : Int} (h : n ≤ m) : n.toNat ≤ m.toNat := by omega
+theorem Int.toNat_lt_toNat {n m : Int} (hn : 0 ≤ n) (h : n < m) : n.toNat < m.toNat := by omega
+
 ---------------------------- END TODO
 
 @[simp] theorem Int8.toInt_neg (n : Int8) : (-n).toInt = (-n.toInt).bmod (2 ^ 8) := BitVec.toInt_neg
@@ -3175,9 +3180,6 @@ theorem Int32.lt_or_eq_of_le {a b : Int32} : a ≤ b → a < b ∨ a = b := Int3
 theorem Int64.lt_or_eq_of_le {a b : Int64} : a ≤ b → a < b ∨ a = b := Int64.le_iff_lt_or_eq.mp
 theorem ISize.lt_or_eq_of_le {a b : ISize} : a ≤ b → a < b ∨ a = b := ISize.le_iff_lt_or_eq.mp
 
-theorem Int.ofNat_toNat_eq_self {a : Int} : a.toNat = a ↔ 0 ≤ a := by omega
-theorem Int.eq_ofNat_toNat {a : Int} : a = a.toNat ↔ 0 ≤ a := by omega
-
 theorem Int8.toInt_eq_toNatClampNeg {a : Int8} (ha : 0 ≤ a) : a.toInt = a.toNatClampNeg := by
   simpa only [← toNat_toInt, Int.eq_ofNat_toNat, le_iff_toInt_le] using ha
 theorem Int16.toInt_eq_toNatClampNeg {a : Int16} (ha : 0 ≤ a) : a.toInt = a.toNatClampNeg := by
@@ -3237,60 +3239,101 @@ theorem ISize.toInt_eq_toNatClampNeg {a : ISize} (ha : 0 ≤ a) : a.toInt = a.to
 @[simp] theorem Int64.toUInt64_mul (a b : Int64) : (a * b).toUInt64 = a.toUInt64 * b.toUInt64 := rfl
 @[simp] theorem ISize.toUSize_mul (a b : ISize) : (a * b).toUSize = a.toUSize * b.toUSize := rfl
 
-#check Int8.toNat_toUInt8_of_le
-
-theorem Int.toNat_le_toNat {n m : Int} (h : n ≤ m) : n.toNat ≤ m.toNat := by omega
-theorem Int.toNat_lt_toNat {n m : Int} (hn : 0 ≤ n) (h : n < m) : n.toNat < m.toNat := by omega
-
 theorem Int8.toNatClampNeg_le {a b : Int8} (hab : a ≤ b) : a.toNatClampNeg ≤ b.toNatClampNeg := by
   rw [← Int8.toNat_toInt, ← Int8.toNat_toInt]
   exact Int.toNat_le_toNat (Int8.le_iff_toInt_le.1 hab)
+theorem Int16.toNatClampNeg_le {a b : Int16} (hab : a ≤ b) : a.toNatClampNeg ≤ b.toNatClampNeg := by
+  rw [← Int16.toNat_toInt, ← Int16.toNat_toInt]
+  exact Int.toNat_le_toNat (Int16.le_iff_toInt_le.1 hab)
+theorem Int32.toNatClampNeg_le {a b : Int32} (hab : a ≤ b) : a.toNatClampNeg ≤ b.toNatClampNeg := by
+  rw [← Int32.toNat_toInt, ← Int32.toNat_toInt]
+  exact Int.toNat_le_toNat (Int32.le_iff_toInt_le.1 hab)
+theorem Int64.toNatClampNeg_le {a b : Int64} (hab : a ≤ b) : a.toNatClampNeg ≤ b.toNatClampNeg := by
+  rw [← Int64.toNat_toInt, ← Int64.toNat_toInt]
+  exact Int.toNat_le_toNat (Int64.le_iff_toInt_le.1 hab)
+theorem ISize.toNatClampNeg_le {a b : ISize} (hab : a ≤ b) : a.toNatClampNeg ≤ b.toNatClampNeg := by
+  rw [← ISize.toNat_toInt, ← ISize.toNat_toInt]
+  exact Int.toNat_le_toNat (ISize.le_iff_toInt_le.1 hab)
 
 theorem Int8.toUInt8_le {a b : Int8} (ha : 0 ≤ a) (hab : a ≤ b) : a.toUInt8 ≤ b.toUInt8 := by
   rw [UInt8.le_iff_toNat_le, toNat_toUInt8_of_le ha, toNat_toUInt8_of_le (Int8.le_trans ha hab)]
   exact Int8.toNatClampNeg_le hab
+theorem Int16.toUInt16_le {a b : Int16} (ha : 0 ≤ a) (hab : a ≤ b) : a.toUInt16 ≤ b.toUInt16 := by
+  rw [UInt16.le_iff_toNat_le, toNat_toUInt16_of_le ha, toNat_toUInt16_of_le (Int16.le_trans ha hab)]
+  exact Int16.toNatClampNeg_le hab
+theorem Int32.toUInt32_le {a b : Int32} (ha : 0 ≤ a) (hab : a ≤ b) : a.toUInt32 ≤ b.toUInt32 := by
+  rw [UInt32.le_iff_toNat_le, toNat_toUInt32_of_le ha, toNat_toUInt32_of_le (Int32.le_trans ha hab)]
+  exact Int32.toNatClampNeg_le hab
+theorem Int64.toUInt64_le {a b : Int64} (ha : 0 ≤ a) (hab : a ≤ b) : a.toUInt64 ≤ b.toUInt64 := by
+  rw [UInt64.le_iff_toNat_le, toNat_toUInt64_of_le ha, toNat_toUInt64_of_le (Int64.le_trans ha hab)]
+  exact Int64.toNatClampNeg_le hab
+theorem ISize.toUSize_le {a b : ISize} (ha : 0 ≤ a) (hab : a ≤ b) : a.toUSize ≤ b.toUSize := by
+  rw [USize.le_iff_toNat_le, toNat_toUISize_of_le ha, toNat_toUISize_of_le (ISize.le_trans ha hab)]
+  exact ISize.toNatClampNeg_le hab
 
-#check BitVec.slt_eq_ult
-#check BitVec.slt_eq_ult_of_msb_eq
+theorem Int8.zero_le_ofNat_of_lt {a : Nat} (ha : a < 2 ^ 7) : 0 ≤ Int8.ofNat a := by
+  rw [le_iff_toInt_le, toInt_ofNat_of_lt ha, Int8.toInt_zero]
+  exact Int.ofNat_zero_le _
+theorem Int16.zero_le_ofNat_of_lt {a : Nat} (ha : a < 2 ^ 15) : 0 ≤ Int16.ofNat a := by
+  rw [le_iff_toInt_le, toInt_ofNat_of_lt ha, Int16.toInt_zero]
+  exact Int.ofNat_zero_le _
+theorem Int32.zero_le_ofNat_of_lt {a : Nat} (ha : a < 2 ^ 31) : 0 ≤ Int32.ofNat a := by
+  rw [le_iff_toInt_le, toInt_ofNat_of_lt ha, Int32.toInt_zero]
+  exact Int.ofNat_zero_le _
+theorem Int64.zero_le_ofNat_of_lt {a : Nat} (ha : a < 2 ^ 63) : 0 ≤ Int64.ofNat a := by
+  rw [le_iff_toInt_le, toInt_ofNat_of_lt ha, Int64.toInt_zero]
+  exact Int.ofNat_zero_le _
+theorem ISize.zero_le_ofNat_of_lt {a : Nat} (ha : a < 2 ^ (System.Platform.numBits - 1)) :
+    0 ≤ ISize.ofNat a := by
+  rw [le_iff_toInt_le, toInt_ofNat_of_lt_two_pow_numBits ha, ISize.toInt_zero]
+  exact Int.ofNat_zero_le _
 
-theorem BitVec.sle_eq_ule (x y : BitVec w) : x.sle y = (x.msb != y.msb ^^ x.ule y) := by
-  rw [sle_eq_not_slt, slt_eq_ult, ← Bool.xor_not, ← ule_eq_not_ult, bne_comm]
-
-theorem BitVec.sle_eq_ule_of_msb_eq {x y : BitVec w} (h : x.msb = y.msb) : x.sle y = x.ule y := by
-  simp [BitVec.sle_eq_ule, h]
-
-
-#check BitVec.slt_iff
-
-theorem BitVec.msb_false_of_msb_false_of_ule {x y : BitVec w} (hx : x.msb = false) (hxy : x.ule y) :
-    y.msb = false := by
-
-
-
-theorem BitVec.sle_of_ule_of_msb_false {x y : BitVec w} (hx : x.msb = false)
-    (hy : x.ule y) : x.sle y := by
-  have : y.msb = false := by exact?
-  rwa [sle_eq_ule_of_msb_eq (by simp_all)]
-
-
-
-theorem Int8.le_of_toUInt8_le {a b : Int8} (ha : 0 ≤ a) (hab : a.toUInt8 ≤ b.toUInt8) : a ≤ b := by
-  rw [UInt8.le_iff_toNat_le] at hab
-
-  rw [Int8.le_iff_toInt_le]
-
-  -- rw [zero_sle_eq_not_msb, Bool.not_eq_eq_eq_not, Bool.not_true, BitVec.msb_sub]
-
-theorem Int8.sub_nonneg_of_le {a b : Int8} (hb : 0 ≤ b) (hab : b ≤ a) : 0 ≤ a - b := sorry
+theorem Int8.sub_nonneg_of_le {a b : Int8} (hb : 0 ≤ b) (hab : b ≤ a) : 0 ≤ a - b := by
+  rw [← ofNat_toNatClampNeg _ hb, ← ofNat_toNatClampNeg _ (Int8.le_trans hb hab),
+    ← ofNat_sub _ _ (Int8.toNatClampNeg_le hab)]
+  exact Int8.zero_le_ofNat_of_lt (Nat.sub_lt_of_lt a.toNatClampNeg_lt)
+theorem Int16.sub_nonneg_of_le {a b : Int16} (hb : 0 ≤ b) (hab : b ≤ a) : 0 ≤ a - b := by
+  rw [← ofNat_toNatClampNeg _ hb, ← ofNat_toNatClampNeg _ (Int16.le_trans hb hab),
+    ← ofNat_sub _ _ (Int16.toNatClampNeg_le hab)]
+  exact Int16.zero_le_ofNat_of_lt (Nat.sub_lt_of_lt a.toNatClampNeg_lt)
+theorem Int32.sub_nonneg_of_le {a b : Int32} (hb : 0 ≤ b) (hab : b ≤ a) : 0 ≤ a - b := by
+  rw [← ofNat_toNatClampNeg _ hb, ← ofNat_toNatClampNeg _ (Int32.le_trans hb hab),
+    ← ofNat_sub _ _ (Int32.toNatClampNeg_le hab)]
+  exact Int32.zero_le_ofNat_of_lt (Nat.sub_lt_of_lt a.toNatClampNeg_lt)
+theorem Int64.sub_nonneg_of_le {a b : Int64} (hb : 0 ≤ b) (hab : b ≤ a) : 0 ≤ a - b := by
+  rw [← ofNat_toNatClampNeg _ hb, ← ofNat_toNatClampNeg _ (Int64.le_trans hb hab),
+    ← ofNat_sub _ _ (Int64.toNatClampNeg_le hab)]
+  exact Int64.zero_le_ofNat_of_lt (Nat.sub_lt_of_lt a.toNatClampNeg_lt)
+theorem ISize.sub_nonneg_of_le {a b : ISize} (hb : 0 ≤ b) (hab : b ≤ a) : 0 ≤ a - b := by
+  rw [← ofNat_toNatClampNeg _ hb, ← ofNat_toNatClampNeg _ (ISize.le_trans hb hab),
+    ← ofNat_sub _ _ (ISize.toNatClampNeg_le hab)]
+  exact ISize.zero_le_ofNat_of_lt (Nat.sub_lt_of_lt a.toNatClampNeg_lt_two_pow_numBits)
 
 theorem Int8.toNatClampNeg_sub_of_le {a b : Int8} (hb : 0 ≤ b) (hab : b ≤ a) :
     (a - b).toNatClampNeg = a.toNatClampNeg - b.toNatClampNeg := by
   rw [← toNat_toUInt8_of_le (Int8.sub_nonneg_of_le hb hab), toUInt8_sub,
     UInt8.toNat_sub_of_le _ _ (Int8.toUInt8_le hb hab),
     ← toNat_toUInt8_of_le (Int8.le_trans hb hab), ← toNat_toUInt8_of_le hb]
-
-
-#check ISize.toInt_sub
+theorem Int16.toNatClampNeg_sub_of_le {a b : Int16} (hb : 0 ≤ b) (hab : b ≤ a) :
+    (a - b).toNatClampNeg = a.toNatClampNeg - b.toNatClampNeg := by
+  rw [← toNat_toUInt16_of_le (Int16.sub_nonneg_of_le hb hab), toUInt16_sub,
+    UInt16.toNat_sub_of_le _ _ (Int16.toUInt16_le hb hab),
+    ← toNat_toUInt16_of_le (Int16.le_trans hb hab), ← toNat_toUInt16_of_le hb]
+theorem Int32.toNatClampNeg_sub_of_le {a b : Int32} (hb : 0 ≤ b) (hab : b ≤ a) :
+    (a - b).toNatClampNeg = a.toNatClampNeg - b.toNatClampNeg := by
+  rw [← toNat_toUInt32_of_le (Int32.sub_nonneg_of_le hb hab), toUInt32_sub,
+    UInt32.toNat_sub_of_le _ _ (Int32.toUInt32_le hb hab),
+    ← toNat_toUInt32_of_le (Int32.le_trans hb hab), ← toNat_toUInt32_of_le hb]
+theorem Int64.toNatClampNeg_sub_of_le {a b : Int64} (hb : 0 ≤ b) (hab : b ≤ a) :
+    (a - b).toNatClampNeg = a.toNatClampNeg - b.toNatClampNeg := by
+  rw [← toNat_toUInt64_of_le (Int64.sub_nonneg_of_le hb hab), toUInt64_sub,
+    UInt64.toNat_sub_of_le _ _ (Int64.toUInt64_le hb hab),
+    ← toNat_toUInt64_of_le (Int64.le_trans hb hab), ← toNat_toUInt64_of_le hb]
+theorem ISize.toNatClampNeg_sub_of_le {a b : ISize} (hb : 0 ≤ b) (hab : b ≤ a) :
+    (a - b).toNatClampNeg = a.toNatClampNeg - b.toNatClampNeg := by
+  rw [← toNat_toUISize_of_le (ISize.sub_nonneg_of_le hb hab), toUSize_sub,
+    USize.toNat_sub_of_le _ _ (ISize.toUSize_le hb hab),
+    ← toNat_toUISize_of_le (ISize.le_trans hb hab), ← toNat_toUISize_of_le hb]
 
 theorem Int8.toInt_sub_of_le (a b : Int8) (hb : 0 ≤ b) (h : b ≤ a) :
     (a - b).toInt = a.toInt - b.toInt := by
@@ -3298,61 +3341,49 @@ theorem Int8.toInt_sub_of_le (a b : Int8) (hb : 0 ≤ b) (h : b ≤ a) :
     Int8.toInt_eq_toNatClampNeg (Int8.le_trans hb h), Int8.toInt_eq_toNatClampNeg hb,
     Int8.toNatClampNeg_sub_of_le hb h, Int.ofNat_sub]
   exact Int8.toNatClampNeg_le h
-
-
-  -- rw [toInt_sub, Int.bmod_eq_self_of_le] <;>
-  --   (have := a.toInt_le; simp_all [toInt_maxValue, le_iff_toInt_le]; omega)
 theorem Int16.toInt_sub_of_le (a b : Int16) (hb : 0 ≤ b) (h : b ≤ a) :
     (a - b).toInt = a.toInt - b.toInt := by
-  rw [toInt_sub, Int.bmod_eq_self_of_le] <;>
-    (have := a.toInt_le; simp_all [toInt_maxValue, le_iff_toInt_le]; omega)
+  rw [Int16.toInt_eq_toNatClampNeg (Int16.sub_nonneg_of_le hb h),
+    Int16.toInt_eq_toNatClampNeg (Int16.le_trans hb h), Int16.toInt_eq_toNatClampNeg hb,
+    Int16.toNatClampNeg_sub_of_le hb h, Int.ofNat_sub]
+  exact Int16.toNatClampNeg_le h
 theorem Int32.toInt_sub_of_le (a b : Int32) (hb : 0 ≤ b) (h : b ≤ a) :
     (a - b).toInt = a.toInt - b.toInt := by
-  rw [toInt_sub, Int.bmod_eq_self_of_le] <;>
-    (have := a.toInt_le; simp_all [toInt_maxValue, le_iff_toInt_le]; omega)
+  rw [Int32.toInt_eq_toNatClampNeg (Int32.sub_nonneg_of_le hb h),
+    Int32.toInt_eq_toNatClampNeg (Int32.le_trans hb h), Int32.toInt_eq_toNatClampNeg hb,
+    Int32.toNatClampNeg_sub_of_le hb h, Int.ofNat_sub]
+  exact Int32.toNatClampNeg_le h
 theorem Int64.toInt_sub_of_le (a b : Int64) (hb : 0 ≤ b) (h : b ≤ a) :
     (a - b).toInt = a.toInt - b.toInt := by
-  rw [toInt_sub, Int.bmod_eq_self_of_le] <;>
-    (have := a.toInt_le; simp_all [toInt_maxValue, le_iff_toInt_le]; omega)
-
+  rw [Int64.toInt_eq_toNatClampNeg (Int64.sub_nonneg_of_le hb h),
+    Int64.toInt_eq_toNatClampNeg (Int64.le_trans hb h), Int64.toInt_eq_toNatClampNeg hb,
+    Int64.toNatClampNeg_sub_of_le hb h, Int.ofNat_sub]
+  exact Int64.toNatClampNeg_le h
 theorem ISize.toInt_sub_of_le (a b : ISize) (hb : 0 ≤ b) (h : b ≤ a) :
     (a - b).toInt = a.toInt - b.toInt := by
-
-
-
-  -- rw [toInt_sub, Int.bmod_eq_self_of_le] <;> cases System.Platform.numBits_eq <;>
-  --   (have := a.toInt_le; simp_all [toInt_maxValue, toInt_ofInt, le_iff_toInt_le])
-
-
+  rw [ISize.toInt_eq_toNatClampNeg (ISize.sub_nonneg_of_le hb h),
+    ISize.toInt_eq_toNatClampNeg (ISize.le_trans hb h), ISize.toInt_eq_toNatClampNeg hb,
+    ISize.toNatClampNeg_sub_of_le hb h, Int.ofNat_sub]
+  exact ISize.toNatClampNeg_le h
 
 theorem Int8.sub_le {a b : Int8} (hb : 0 ≤ b) (hab : b ≤ a) : a - b ≤ a := by
   simp_all [le_iff_toInt_le, Int8.toInt_sub_of_le _ _ hb hab]; omega
-theorem Int16.sub_le {a b : Int16} (hab : b ≤ a) : a - b ≤ a := by
-  simp [le_iff_toInt_le, Int16.toInt_sub_of_le _ _ hab]
-theorem Int32.sub_le {a b : Int32} (hab : b ≤ a) : a - b ≤ a := by
-  simp [le_iff_toInt_le, Int32.toInt_sub_of_le _ _ hab]
-theorem Int64.sub_le {a b : Int64} (hab : b ≤ a) : a - b ≤ a := by
-  simp [le_iff_toInt_le, Int64.toInt_sub_of_le _ _ hab]
-theorem ISize.sub_le {a b : ISize} (hab : b ≤ a) : a - b ≤ a := by
-  simp [le_iff_toInt_le, ISize.toInt_sub_of_le _ _ hab]
+theorem Int16.sub_le {a b : Int16} (hb : 0 ≤ b) (hab : b ≤ a) : a - b ≤ a := by
+  simp_all [le_iff_toInt_le, Int16.toInt_sub_of_le _ _ hb hab]; omega
+theorem Int32.sub_le {a b : Int32} (hb : 0 ≤ b) (hab : b ≤ a) : a - b ≤ a := by
+  simp_all [le_iff_toInt_le, Int32.toInt_sub_of_le _ _ hb hab]; omega
+theorem Int64.sub_le {a b : Int64} (hb : 0 ≤ b) (hab : b ≤ a) : a - b ≤ a := by
+  simp_all [le_iff_toInt_le, Int64.toInt_sub_of_le _ _ hb hab]; omega
+theorem ISize.sub_le {a b : ISize} (hb : 0 ≤ b) (hab : b ≤ a) : a - b ≤ a := by
+  simp_all [le_iff_toInt_le, ISize.toInt_sub_of_le _ _ hb hab]; omega
 
 theorem Int8.sub_lt {a b : Int8} (hb : 0 < b) (hab : b ≤ a) : a - b < a := by
-  rw [lt_iff_toInt_lt, Int8.toInt_sub_of_le _ _ hab]
-  refine Int.sub_lt ?_ (Int8.lt_iff_toInt_lt.1 hb)
-  exact Int8.lt_iff_toInt_lt.1 (Int8.lt_of_lt_of_le hb hab)
+  simp_all [lt_iff_toInt_lt, Int8.toInt_sub_of_le _ _ (Int8.le_of_lt hb) hab]; omega
 theorem Int16.sub_lt {a b : Int16} (hb : 0 < b) (hab : b ≤ a) : a - b < a := by
-  rw [lt_iff_toInt_lt, Int16.toInt_sub_of_le _ _ hab]
-  refine Int.sub_lt ?_ (Int16.lt_iff_toInt_lt.1 hb)
-  exact Int16.lt_iff_toInt_lt.1 (Int16.lt_of_lt_of_le hb hab)
+  simp_all [lt_iff_toInt_lt, Int16.toInt_sub_of_le _ _ (Int16.le_of_lt hb) hab]; omega
 theorem Int32.sub_lt {a b : Int32} (hb : 0 < b) (hab : b ≤ a) : a - b < a := by
-  rw [lt_iff_toInt_lt, Int32.toInt_sub_of_le _ _ hab]
-  refine Int.sub_lt ?_ (Int32.lt_iff_toInt_lt.1 hb)
-  exact Int32.lt_iff_toInt_lt.1 (Int32.lt_of_lt_of_le hb hab)
+  simp_all [lt_iff_toInt_lt, Int32.toInt_sub_of_le _ _ (Int32.le_of_lt hb) hab]; omega
 theorem Int64.sub_lt {a b : Int64} (hb : 0 < b) (hab : b ≤ a) : a - b < a := by
-  rw [lt_iff_toInt_lt, Int64.toInt_sub_of_le _ _ hab]
-  refine Int.sub_lt ?_ (Int64.lt_iff_toInt_lt.1 hb)
-  exact Int64.lt_iff_toInt_lt.1 (Int64.lt_of_lt_of_le hb hab)
+  simp_all [lt_iff_toInt_lt, Int64.toInt_sub_of_le _ _ (Int64.le_of_lt hb) hab]; omega
 theorem ISize.sub_lt {a b : ISize} (hb : 0 < b) (hab : b ≤ a) : a - b < a := by
-  rw [lt_iff_toInt_lt, ISize.toInt_sub_of_le _ _ hab]
-  refine Int.sub_lt ?_ (ISize.lt_iff_toInt_lt.1 hb)
-  exact ISize.lt_iff_toInt_lt.1 (ISize.lt_of_lt_of_le hb hab)
+  simp_all [lt_iff_toInt_lt, ISize.toInt_sub_of_le _ _ (ISize.le_of_lt hb) hab]; omega

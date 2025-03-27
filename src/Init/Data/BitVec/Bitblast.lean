@@ -613,6 +613,12 @@ theorem neg_sle_zero (h : 0 < w) (x : BitVec w) :
   rw [sle_eq_slt_or_eq, neg_slt_zero h, sle_eq_slt_or_eq]
   simp [Bool.beq_eq_decide_eq (-x), Bool.beq_eq_decide_eq _ x, Eq.comm (a := x), Bool.or_assoc]
 
+theorem sle_eq_ule (x y : BitVec w) : x.sle y = (x.msb != y.msb ^^ x.ule y) := by
+  rw [sle_eq_not_slt, slt_eq_ult, ← Bool.xor_not, ← ule_eq_not_ult, bne_comm]
+
+theorem sle_eq_ule_of_msb_eq {x y : BitVec w} (h : x.msb = y.msb) : x.sle y = x.ule y := by
+  simp [BitVec.sle_eq_ule, h]
+
 /-! ### mul recurrence for bitblasting -/
 
 /--

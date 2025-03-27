@@ -756,16 +756,34 @@ theorem slt_zero_iff_msb_cond {x : BitVec w} : x.slt 0#w ↔ x.msb = true := by
 theorem slt_zero_eq_msb {w : Nat} {x : BitVec  w} : x.slt 0#w = x.msb := by
   rw [Bool.eq_iff_iff, BitVec.slt_zero_iff_msb_cond]
 
+theorem sle_eq_decide {x y : BitVec w} : x.sle y = decide (x.toInt ≤ y.toInt) := rfl
+
+theorem slt_eq_decide {x y : BitVec w} : x.slt y = decide (x.toInt < y.toInt) := rfl
+
+theorem ule_eq_decide {x y : BitVec w} : x.ule y = decide (x.toNat ≤ y.toNat) := rfl
+
+theorem ult_eq_decide {x y : BitVec w} : x.ult y = decide (x.toNat < y.toNat) := rfl
+
+theorem ule_eq_decide_le {x y : BitVec w} : x.ule y = decide (x ≤ y) := rfl
+
+theorem ult_eq_decide_lt {x y : BitVec w} : x.ult y = decide (x < y) := rfl
+
+theorem ule_iff_le {x y : BitVec w} : x.ule y ↔ x ≤ y :=
+  decide_eq_true_iff
+
+theorem ult_iff_lt {x y : BitVec w} : x.ult y ↔ x < y :=
+  decide_eq_true_iff
+
 theorem sle_iff_toInt_le {w : Nat} {x y : BitVec w} : x.sle y ↔ x.toInt ≤ y.toInt :=
   decide_eq_true_iff
 
 theorem slt_iff_toInt_lt {w : Nat} {x y : BitVec w} : x.slt y ↔ x.toInt < y.toInt :=
   decide_eq_true_iff
 
-theorem BitVec.ule_iff_toNat_le {x y : BitVec w} : x.ule y ↔ x.toNat ≤ y.toNat :=
+theorem ule_iff_toNat_le {x y : BitVec w} : x.ule y ↔ x.toNat ≤ y.toNat :=
   decide_eq_true_iff
 
-theorem BitVec.ult_iff_toNat_lt {x y : BitVec w} : x.ult y ↔ x.toNat < y.toNat :=
+theorem ult_iff_toNat_lt {x y : BitVec w} : x.ult y ↔ x.toNat < y.toNat :=
   decide_eq_true_iff
 
 theorem sle_eq_slt_or_eq {x y : BitVec w} : x.sle y = (x.slt y || x == y) := by

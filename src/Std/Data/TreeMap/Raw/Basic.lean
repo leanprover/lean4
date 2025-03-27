@@ -300,21 +300,33 @@ def entryAtIdx! [Inhabited (α × β)] (t : Raw α β cmp) (n : Nat) : α × β 
 def entryAtIdxD (t : Raw α β cmp) (n : Nat) (fallback : α × β) : α × β :=
   DTreeMap.Raw.Const.entryAtIdxD t.inner n fallback
 
-@[inline, inherit_doc DTreeMap.Raw.keyAtIndex?]
+@[inline, inherit_doc DTreeMap.Raw.keyAtIdx?]
+def keyAtIdx? (t : Raw α β cmp) (n : Nat) : Option α :=
+  DTreeMap.Raw.keyAtIdx? t.inner n
+
+@[inline, inherit_doc DTreeMap.Raw.keyAtIdx?, deprecated keyAtIdx? (since := "2025-03-26")]
 def keyAtIndex? (t : Raw α β cmp) (n : Nat) : Option α :=
-  DTreeMap.Raw.keyAtIndex? t.inner n
+  keyAtIdx? t n
 
 /-!
-We do not provide `keyAtIndex` for the raw trees.
+We do not provide `keyAtIdx` for the raw trees.
 -/
 
-@[inline, inherit_doc DTreeMap.Raw.keyAtIndex!]
-def keyAtIndex! [Inhabited α] (t : Raw α β cmp) (n : Nat) : α :=
-  DTreeMap.Raw.keyAtIndex! t.inner n
+@[inline, inherit_doc DTreeMap.Raw.keyAtIdx!]
+def keyAtIdx! [Inhabited α] (t : Raw α β cmp) (n : Nat) : α :=
+  DTreeMap.Raw.keyAtIdx! t.inner n
 
-@[inline, inherit_doc DTreeMap.Raw.keyAtIndexD]
+@[inline, inherit_doc DTreeMap.Raw.keyAtIdx!, deprecated keyAtIdx! (since := "2025-03-26")]
+def keyAtIndex! [Inhabited α] (t : Raw α β cmp) (n : Nat) : α :=
+  keyAtIdx! t n
+
+@[inline, inherit_doc DTreeMap.Raw.keyAtIdxD]
+def keyAtIdxD (t : Raw α β cmp) (n : Nat) (fallback : α) : α :=
+  DTreeMap.Raw.keyAtIdxD t.inner n fallback
+
+@[inline, inherit_doc DTreeMap.Raw.keyAtIdxD, deprecated keyAtIdxD (since := "2025-03-26")]
 def keyAtIndexD (t : Raw α β cmp) (n : Nat) (fallback : α) : α :=
-  DTreeMap.Raw.keyAtIndexD t.inner n fallback
+  keyAtIdxD t n fallback
 
 @[inline, inherit_doc DTreeMap.Raw.Const.getEntryGE?]
 def getEntryGE? (t : Raw α β cmp) (k : α) : Option (α × β) :=
@@ -549,7 +561,7 @@ def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp
   ⟨t.inner.eraseMany l⟩
 
 instance [Repr α] [Repr β] : Repr (Raw α β cmp) where
-  reprPrec m prec := Repr.addAppParen ("TreeMap.Raw.ofList " ++ repr m.toList) prec
+  reprPrec m prec := Repr.addAppParen ("Std.TreeMap.Raw.ofList " ++ repr m.toList) prec
 
 end Raw
 

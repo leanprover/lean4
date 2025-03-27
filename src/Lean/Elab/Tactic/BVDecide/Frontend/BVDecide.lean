@@ -94,7 +94,7 @@ structure ReflectionResult where
   /--
   A cache for `toExpr bvExpr`.
   -/
-  expr: Expr
+  expr : Expr
 
 /--
 A counter example generated from the bitblaster.
@@ -271,35 +271,15 @@ def explainCounterExampleQuality (counterExample : CounterExample) : MetaM Messa
   return err
 
 /--
-Add an auxiliary declaration. Only used to create constants that appear in our reflection proof.
--/
-def mkAuxDecl (name : Name) (value type : Expr) : CoreM Unit :=
-  addAndCompile <| .defnDecl {
-    name := name,
-    levelParams := [],
-    type := type,
-    value := value,
-    hints := .abbrev,
-    safety := .safe
-  }
-
-/--
-Turn an `LratCert` into a proof that some `reflectedExpr` is UNSAT by providing a `verifier`
-function together with a correctness theorem for it.
-
-- `verifier` is expected to have type `α → LratCert → Bool`
-- `unsat_of_verifier_eq_true` is expected to have type
-  `∀ (b : α) (c : LratCert), verifier b c = true → unsat b`
+Turn an `LratCert` into a proof that some `reflectedExpr` is UNSAT.
 -/
 def LratCert.toReflectionProof (cert : LratCert) (cfg : TacticContext)
     (reflectionResult : ReflectionResult) : MetaM Expr := do
   withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling expr term") do
     mkAuxDecl cfg.exprDef reflectionResult.expr (mkConst ``BVLogicalExpr)
 
-  let certType := toTypeExpr LratCert
-
   withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling proof certificate term") do
-    mkAuxDecl cfg.certDef (toExpr cert) certType
+    mkAuxDecl cfg.certDef (toExpr cert) (mkConst ``String)
 
   let reflectedExpr := mkConst cfg.exprDef
   let certExpr := mkConst cfg.certDef
@@ -324,6 +304,19 @@ def LratCert.toReflectionProof (cert : LratCert) (cfg : TacticContext)
     return mkApp3 (mkConst ``unsat_of_verifyBVExpr_eq_true) reflectedExpr certExpr (mkConst auxLemma)
   catch e =>
     throwError m!"Failed to check the LRAT certificate in the kernel:\n{e.toMessageData}"
+where
+  /--
+  Add an auxiliary declaration. Only used to create constants that appear in our reflection proof.
+  -/
+  mkAuxDecl (name : Name) (value type : Expr) : CoreM Unit :=
+    addAndCompile <| .defnDecl {
+      name := name,
+      levelParams := [],
+      type := type,
+      value := value,
+      hints := .abbrev,
+      safety := .safe
+    }
 
 def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : ReflectionResult)
     (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :
@@ -386,7 +379,6 @@ def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
       unusedHypotheses := unusedHypotheses,
       expr := sat.expr
     }
-
 
 def closeWithBVReflection (g : MVarId) (unsatProver : UnsatProver) :
     MetaM (Except CounterExample LratCert) := M.run do

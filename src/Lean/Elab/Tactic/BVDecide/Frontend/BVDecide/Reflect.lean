@@ -143,7 +143,8 @@ structure State where
   -/
   atomsAssignmentCache : Option Expr := none
   /--
-  Cached calls to `evalsAtAtoms` of various reflection structures.
+  Cached calls to `evalsAtAtoms` of various reflection structures. Whenever `atoms` is modified
+  this cache is invalidated as `evalsAtAtoms` relies on `atoms`.
   -/
   evalsAtCache : Std.HashMap Expr (Option Expr) := {}
 
@@ -310,6 +311,7 @@ def lookup (e : Expr) (width : Nat) (synthetic : Bool) : M Nat := do
       let s := {
         s with
           atoms := s.atoms.insert e newAtom,
+          -- must clear the caches as they depend on `atoms`.
           atomsAssignmentCache := none
           evalsAtCache := {}
       }

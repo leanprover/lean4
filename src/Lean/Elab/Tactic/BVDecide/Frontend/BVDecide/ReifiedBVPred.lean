@@ -19,9 +19,9 @@ open Lean.Meta
 namespace ReifiedBVPred
 
 /--
-Construct an uninterpreted `Bool` atom from `t`.
+Construct an uninterpreted `Bool` atom from `origExpr`.
 -/
-def boolAtom (t : Expr) : M (Option ReifiedBVPred) := do
+def boolAtom (origExpr : Expr) : M (Option ReifiedBVPred) := do
   /-
   Idea: we have t : Bool here, let's construct:
     BitVec.ofBool t : BitVec 1
@@ -29,9 +29,9 @@ def boolAtom (t : Expr) : M (Option ReifiedBVPred) := do
     BitVec.getLsb (BitVec.ofBool t) 0 : Bool
   We can prove that this is equivalent to `t`. This allows us to have boolean variables in BVPred.
   -/
-  let ty ← inferType t
+  let ty ← inferType origExpr
   let_expr Bool := ty | return none
-  let atom ← ReifiedBVExpr.mkAtom (mkApp (mkConst ``BitVec.ofBool) t) 1 false
+  let atom ← ReifiedBVExpr.mkAtom (mkApp (mkConst ``BitVec.ofBool) origExpr) 1 false
   let bvExpr : BVPred := .getLsbD atom.bvExpr 0
   let expr := mkApp3 (mkConst ``BVPred.getLsbD) (toExpr 1) atom.expr (toExpr 0)
   let proof := do
@@ -41,10 +41,10 @@ def boolAtom (t : Expr) : M (Option ReifiedBVPred) := do
     let atomProof := (← atom.evalsAtAtoms).getD (ReifiedBVExpr.mkBVRefl atom.width atomEval)
     return mkApp3
       (mkConst ``Std.Tactic.BVDecide.Reflect.BitVec.ofBool_congr)
-      t
+      origExpr
       atomEval
       atomProof
-  return some ⟨bvExpr, t, proof, expr⟩
+  return some ⟨bvExpr, origExpr, proof, expr⟩
 
 /--
 Construct the reified version of applying the predicate in `pred` to `lhs` and `rhs`.

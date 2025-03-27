@@ -448,7 +448,7 @@ local instance : Inhabited ((_ : Nat) × Nat) where
 
 /-- info: Std.DTreeMap.Raw.ofList [⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
 #guard_msgs in
-#eval t.eraseMany  [0]
+#eval t.eraseMany [0]
 
 /-- info: Std.DTreeMap.Raw.ofList [⟨2, 4⟩, ⟨3, 6⟩] -/
 #guard_msgs in
@@ -932,7 +932,7 @@ warning: declaration uses 'sorry'
 
 /-- info: Std.DTreeMap.ofList [⟨1, 2⟩, ⟨2, 4⟩, ⟨3, 6⟩] -/
 #guard_msgs in
-#eval t.eraseMany  [0]
+#eval t.eraseMany [0]
 
 /-- info: Std.DTreeMap.ofList [⟨2, 4⟩, ⟨3, 6⟩] -/
 #guard_msgs in
@@ -1239,7 +1239,7 @@ local instance : Inhabited ((_ : Nat) × Nat) where
 
 /-- info: Std.TreeMap.Raw.ofList [(1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
-#eval t.eraseMany  [0]
+#eval t.eraseMany [0]
 
 /-- info: Std.TreeMap.Raw.ofList [(2, 4), (3, 6)] -/
 #guard_msgs in
@@ -1577,7 +1577,7 @@ warning: declaration uses 'sorry'
 
 /-- info: Std.TreeMap.ofList [(1, 2), (2, 4), (3, 6)] -/
 #guard_msgs in
-#eval t.eraseMany  [0]
+#eval t.eraseMany [0]
 
 /-- info: Std.TreeMap.ofList [(2, 4), (3, 6)] -/
 #guard_msgs in
@@ -1744,7 +1744,7 @@ def t : TreeSet.Raw Nat :=
 
 /-- info: Std.TreeSet.Raw.ofList [1, 2, 3] -/
 #guard_msgs in
-#eval t.eraseMany  [0]
+#eval t.eraseMany [0]
 
 /-- info: Std.TreeSet.Raw.ofList [2, 3] -/
 #guard_msgs in
@@ -1911,7 +1911,7 @@ warning: declaration uses 'sorry'
 
 /-- info: Std.TreeSet.ofList [1, 2, 3] -/
 #guard_msgs in
-#eval t.eraseMany  [0]
+#eval t.eraseMany [0]
 
 /-- info: Std.TreeSet.ofList [2, 3] -/
 #guard_msgs in

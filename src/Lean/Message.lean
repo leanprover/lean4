@@ -66,7 +66,10 @@ inductive MessageData where
   `alt` may nest any structured message,
   for example `ofGoal` to approximate a tactic state widget,
   and, if necessary, even other widget instances
-  (for which approximations are computed recursively). -/
+  (for which approximations are computed recursively).
+
+  Note that unlike with `Widget.savePanelWidgetInfo`,
+  the infoview will not pass any additional props to the widget instance. -/
   | ofWidget          : Widget.WidgetInstance → MessageData → MessageData
   /-- `withContext ctx d` specifies the pretty printing context `(env, mctx, lctx, opts)` for the nested expressions in `d`. -/
   | withContext       : MessageDataContext → MessageData → MessageData

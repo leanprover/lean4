@@ -315,7 +315,7 @@ def Module.recBuildDynlib (mod : Module) : FetchM (Job Dynlib) :=
   withRegisterJob s!"{mod.name}:dynlib" do
 
   -- Fetch object files
-  let linkJobs ← mod.nativeFacets true |>.mapM (fetch <| mod.facet ·.name)
+  let linkJobs ← mod.nativeFacets true |>.mapM (·.fetch mod)
   let linksJob := Job.collectArray linkJobs
 
   -- Fetch dependencies' dynlibs
@@ -355,12 +355,11 @@ def Module.recBuildDynlib (mod : Module) : FetchM (Job Dynlib) :=
 def Module.dynlibFacetConfig : ModuleFacetConfig dynlibFacet :=
   mkFacetJobConfig Module.recBuildDynlib
 
-open Module in
 /--
 A name-configuration map for the initial set of
-Lake module facets (e.g., `lean.{imports, c, o, dynlib]`).
+Lake module facets (e.g., `imports`, `c`, `o`, `dynlib`).
 -/
-def initModuleFacetConfigs : DNameMap ModuleFacetConfig :=
+def Module.initFacetConfigs : DNameMap ModuleFacetConfig :=
   DNameMap.empty
   |>.insert importsFacet importsFacetConfig
   |>.insert transImportsFacet transImportsFacetConfig
@@ -379,3 +378,6 @@ def initModuleFacetConfigs : DNameMap ModuleFacetConfig :=
   |>.insert oExportFacet oExportFacetConfig
   |>.insert oNoExportFacet oNoExportFacetConfig
   |>.insert dynlibFacet dynlibFacetConfig
+
+@[inherit_doc Module.initFacetConfigs]
+abbrev initModuleFacetConfigs := Module.initFacetConfigs

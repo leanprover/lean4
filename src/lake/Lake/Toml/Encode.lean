@@ -32,6 +32,7 @@ instance : ToToml Nat := ⟨fun n => .integer .missing (.ofNat n)⟩
 instance : ToToml Float := ⟨.float .missing⟩
 instance : ToToml Bool := ⟨.boolean .missing⟩
 instance [ToToml α] : ToToml (Array α) := ⟨(.array .missing <| ·.map toToml)⟩
+instance : ToToml (Array Value) := ⟨(.array .missing <| ·)⟩
 instance : ToToml Table := ⟨.table .missing⟩
 
 /-- Insert a value into a table unless it represents a nullish value. -/

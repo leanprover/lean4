@@ -142,6 +142,11 @@ structure State where
   contained in `atoms`.
   -/
   atomsAssignmentCache : Option Expr := none
+  /--
+  Cached calls to `evalsAtAtoms` of various reflection structures. Whenever `atoms` is modified
+  this cache is invalidated as `evalsAtAtoms` relies on `atoms`.
+  -/
+  evalsAtCache : Std.HashMap Expr (Option Expr) := {}
 
 /--
 The reflection monad, used to track `BitVec` variables that we see as we traverse the context.
@@ -158,13 +163,25 @@ structure ReifiedBVExpr where
   -/
   bvExpr : BVExpr width
   /--
-  A proof that `bvExpr.eval atomsAssignment = originalBVExpr`, none if it holds by `rfl`.
+  The expression that was reflected, used for caching of `evalsAtAtoms`.
   -/
-  evalsAtAtoms : M (Option Expr)
+  originalExpr : Expr
+  /--
+  A proof that `bvExpr.eval atomsAssignment = originalExpr`, none if it holds by `rfl`.
+  -/
+  evalsAtAtoms' : M (Option Expr)
   /--
   A cache for `toExpr bvExpr`.
   -/
   expr : Expr
+
+def ReifiedBVExpr.evalsAtAtoms (reified : ReifiedBVExpr) : M (Option Expr) := do
+  match (← get).evalsAtCache[reified.originalExpr]? with
+  | some hit => return hit
+  | none =>
+    let proof? ← reified.evalsAtAtoms'
+    modify fun s => { s with evalsAtCache :=  s.evalsAtCache.insert reified.originalExpr proof? }
+    return proof?
 
 /--
 A reified version of an `Expr` representing a `BVPred`.
@@ -175,13 +192,25 @@ structure ReifiedBVPred where
   -/
   bvPred : BVPred
   /--
-  A proof that `bvPred.eval atomsAssignment = originalBVPredExpr`, none if it holds by `rfl`.
+  The expression that was reflected, usef for caching of `evalsAtAtoms`.
   -/
-  evalsAtAtoms : M (Option Expr)
+  originalExpr : Expr
+  /--
+  A proof that `bvPred.eval atomsAssignment = originalExpr`, none if it holds by `rfl`.
+  -/
+  evalsAtAtoms' : M (Option Expr)
   /--
   A cache for `toExpr bvPred`
   -/
   expr : Expr
+
+def ReifiedBVPred.evalsAtAtoms (reified : ReifiedBVPred) : M (Option Expr) := do
+  match (← get).evalsAtCache[reified.originalExpr]? with
+  | some hit => return hit
+  | none =>
+    let proof? ← reified.evalsAtAtoms'
+    modify fun s => { s with evalsAtCache :=  s.evalsAtCache.insert reified.originalExpr proof? }
+    return proof?
 
 /--
 A reified version of an `Expr` representing a `BVLogicalExpr`.
@@ -192,13 +221,25 @@ structure ReifiedBVLogical where
   -/
   bvExpr : BVLogicalExpr
   /--
-  A proof that `bvExpr.eval atomsAssignment = originalBVLogicalExpr`, none if it holds by `rfl`.
+  The expression that was reflected, usef for caching of `evalsAtAtoms`.
   -/
-  evalsAtAtoms : M (Option Expr)
+  originalExpr : Expr
+  /--
+  A proof that `bvExpr.eval atomsAssignment = originalExpr`, none if it holds by `rfl`.
+  -/
+  evalsAtAtoms' : M (Option Expr)
   /--
   A cache for `toExpr bvExpr`
   -/
   expr : Expr
+
+def ReifiedBVLogical.evalsAtAtoms (reified : ReifiedBVLogical) : M (Option Expr) := do
+  match (← get).evalsAtCache[reified.originalExpr]? with
+  | some hit => return hit
+  | none =>
+    let proof? ← reified.evalsAtAtoms'
+    modify fun s => { s with evalsAtCache :=  s.evalsAtCache.insert reified.originalExpr proof? }
+    return proof?
 
 /--
 A reified version of an `Expr` representing a `BVLogicalExpr` that we know to be true.
@@ -266,7 +307,15 @@ def lookup (e : Expr) (width : Nat) (synthetic : Bool) : M Nat := do
     trace[Meta.Tactic.bv] "New atom of width {width}, synthetic? {synthetic}: {e}"
     let ident ← modifyGetThe State fun s =>
       let newAtom := { width, synthetic, atomNumber := s.atoms.size}
-      (s.atoms.size, { s with atoms := s.atoms.insert e newAtom, atomsAssignmentCache := none })
+      let newAtomNumber := s.atoms.size
+      let s := {
+        s with
+          atoms := s.atoms.insert e newAtom,
+          -- must clear the caches as they depend on `atoms`.
+          atomsAssignmentCache := none
+          evalsAtCache := {}
+      }
+      (newAtomNumber, s)
     return ident
 
 @[specialize]

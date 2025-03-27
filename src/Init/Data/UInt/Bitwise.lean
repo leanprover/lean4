@@ -1279,3 +1279,47 @@ theorem UInt64.shiftRight_or {a b c : UInt64} : (a ||| b) >>> c = (a >>> c) ||| 
   simp [← UInt64.toBitVec_inj, BitVec.ushiftRight_or_distrib]
 theorem USize.shiftRight_or {a b c : USize} : (a ||| b) >>> c = (a >>> c) ||| (b >>> c) := by
   simp [← USize.toBitVec_inj, BitVec.ushiftRight_or_distrib]
+
+theorem UInt8.and_le_right {a b : UInt8} : a &&& b ≤ b := by
+  simpa [UInt8.le_iff_toNat_le] using Nat.and_le_right
+theorem UInt16.and_le_right {a b : UInt16} : a &&& b ≤ b := by
+  simpa [UInt16.le_iff_toNat_le] using Nat.and_le_right
+theorem UInt32.and_le_right {a b : UInt32} : a &&& b ≤ b := by
+  simpa [UInt32.le_iff_toNat_le] using Nat.and_le_right
+theorem UInt64.and_le_right {a b : UInt64} : a &&& b ≤ b := by
+  simpa [UInt64.le_iff_toNat_le] using Nat.and_le_right
+theorem USize.and_le_right {a b : USize} : a &&& b ≤ b := by
+  simpa [USize.le_iff_toNat_le] using Nat.and_le_right
+
+theorem UInt8.and_le_left {a b : UInt8} : a &&& b ≤ a := by
+  simpa [UInt8.le_iff_toNat_le] using Nat.and_le_left
+theorem UInt16.and_le_left {a b : UInt16} : a &&& b ≤ a := by
+  simpa [UInt16.le_iff_toNat_le] using Nat.and_le_left
+theorem UInt32.and_le_left {a b : UInt32} : a &&& b ≤ a := by
+  simpa [UInt32.le_iff_toNat_le] using Nat.and_le_left
+theorem UInt64.and_le_left {a b : UInt64} : a &&& b ≤ a := by
+  simpa [UInt64.le_iff_toNat_le] using Nat.and_le_left
+theorem USize.and_le_left {a b : USize} : a &&& b ≤ a := by
+  simpa [USize.le_iff_toNat_le] using Nat.and_le_left
+
+theorem UInt8.left_le_or {a b : UInt8} : a ≤ a ||| b := by
+  simpa [UInt8.le_iff_toNat_le] using Nat.left_le_or
+theorem UInt16.left_le_or {a b : UInt16} : a ≤ a ||| b := by
+  simpa [UInt16.le_iff_toNat_le] using Nat.left_le_or
+theorem UInt32.left_le_or {a b : UInt32} : a ≤ a ||| b := by
+  simpa [UInt32.le_iff_toNat_le] using Nat.left_le_or
+theorem UInt64.left_le_or {a b : UInt64} : a ≤ a ||| b := by
+  simpa [UInt64.le_iff_toNat_le] using Nat.left_le_or
+theorem USize.left_le_or {a b : USize} : a ≤ a ||| b := by
+  simpa [USize.le_iff_toNat_le] using Nat.left_le_or
+
+theorem UInt8.right_le_or {a b : UInt8} : b ≤ a ||| b := by
+  simpa [UInt8.le_iff_toNat_le] using Nat.right_le_or
+theorem UInt16.right_le_or {a b : UInt16} : b ≤ a ||| b := by
+  simpa [UInt16.le_iff_toNat_le] using Nat.right_le_or
+theorem UInt32.right_le_or {a b : UInt32} : b ≤ a ||| b := by
+  simpa [UInt32.le_iff_toNat_le] using Nat.right_le_or
+theorem UInt64.right_le_or {a b : UInt64} : b ≤ a ||| b := by
+  simpa [UInt64.le_iff_toNat_le] using Nat.right_le_or
+theorem USize.right_le_or {a b : USize} : b ≤ a ||| b := by
+  simpa [USize.le_iff_toNat_le] using Nat.right_le_or

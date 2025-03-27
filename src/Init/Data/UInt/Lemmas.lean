@@ -2913,3 +2913,35 @@ theorem UInt16.lt_or_eq_of_le {a b : UInt16} : a ≤ b → a < b ∨ a = b := UI
 theorem UInt32.lt_or_eq_of_le {a b : UInt32} : a ≤ b → a < b ∨ a = b := UInt32.le_iff_lt_or_eq.mp
 theorem UInt64.lt_or_eq_of_le {a b : UInt64} : a ≤ b → a < b ∨ a = b := UInt64.le_iff_lt_or_eq.mp
 theorem USize.lt_or_eq_of_le {a b : USize} : a ≤ b → a < b ∨ a = b := USize.le_iff_lt_or_eq.mp
+
+theorem UInt8.sub_le {a b : UInt8} (hab : b ≤ a) : a - b ≤ a := by
+  simp [le_iff_toNat_le, UInt8.toNat_sub_of_le _ _ hab]
+theorem UInt16.sub_le {a b : UInt16} (hab : b ≤ a) : a - b ≤ a := by
+  simp [le_iff_toNat_le, UInt16.toNat_sub_of_le _ _ hab]
+theorem UInt32.sub_le {a b : UInt32} (hab : b ≤ a) : a - b ≤ a := by
+  simp [le_iff_toNat_le, UInt32.toNat_sub_of_le _ _ hab]
+theorem UInt64.sub_le {a b : UInt64} (hab : b ≤ a) : a - b ≤ a := by
+  simp [le_iff_toNat_le, UInt64.toNat_sub_of_le _ _ hab]
+theorem USize.sub_le {a b : USize} (hab : b ≤ a) : a - b ≤ a := by
+  simp [le_iff_toNat_le, USize.toNat_sub_of_le _ _ hab]
+
+theorem UInt8.sub_lt {a b : UInt8} (hb : 0 < b) (hab : b ≤ a) : a - b < a := by
+  rw [lt_iff_toNat_lt, UInt8.toNat_sub_of_le _ _ hab]
+  refine Nat.sub_lt ?_ (UInt8.lt_iff_toNat_lt.1 hb)
+  exact UInt8.lt_iff_toNat_lt.1 (UInt8.lt_of_lt_of_le hb hab)
+theorem UInt16.sub_lt {a b : UInt16} (hb : 0 < b) (hab : b ≤ a) : a - b < a := by
+  rw [lt_iff_toNat_lt, UInt16.toNat_sub_of_le _ _ hab]
+  refine Nat.sub_lt ?_ (UInt16.lt_iff_toNat_lt.1 hb)
+  exact UInt16.lt_iff_toNat_lt.1 (UInt16.lt_of_lt_of_le hb hab)
+theorem UInt32.sub_lt {a b : UInt32} (hb : 0 < b) (hab : b ≤ a) : a - b < a := by
+  rw [lt_iff_toNat_lt, UInt32.toNat_sub_of_le _ _ hab]
+  refine Nat.sub_lt ?_ (UInt32.lt_iff_toNat_lt.1 hb)
+  exact UInt32.lt_iff_toNat_lt.1 (UInt32.lt_of_lt_of_le hb hab)
+theorem UInt64.sub_lt {a b : UInt64} (hb : 0 < b) (hab : b ≤ a) : a - b < a := by
+  rw [lt_iff_toNat_lt, UInt64.toNat_sub_of_le _ _ hab]
+  refine Nat.sub_lt ?_ (UInt64.lt_iff_toNat_lt.1 hb)
+  exact UInt64.lt_iff_toNat_lt.1 (UInt64.lt_of_lt_of_le hb hab)
+theorem USize.sub_lt {a b : USize} (hb : 0 < b) (hab : b ≤ a) : a - b < a := by
+  rw [lt_iff_toNat_lt, USize.toNat_sub_of_le _ _ hab]
+  refine Nat.sub_lt ?_ (USize.lt_iff_toNat_lt.1 hb)
+  exact USize.lt_iff_toNat_lt.1 (USize.lt_of_lt_of_le hb hab)

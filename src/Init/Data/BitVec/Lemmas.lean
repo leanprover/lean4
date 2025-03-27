@@ -762,6 +762,12 @@ theorem sle_iff_toInt_le {w : Nat} {b b' : BitVec w} : b.sle b' ↔ b.toInt ≤ 
 theorem slt_iff_toInt_lt {w : Nat} {b b' : BitVec w} : b.slt b' ↔ b.toInt < b'.toInt :=
   decide_eq_true_iff
 
+theorem BitVec.ule_iff_toNat_le {x y : BitVec w} : x.ule y ↔ x.toNat ≤ y.toNat :=
+  decide_eq_true_iff
+
+theorem BitVec.ult_iff_toNat_lt {x y : BitVec w} : x.ult y ↔ x.toNat < y.toNat :=
+  decide_eq_true_iff
+
 theorem sle_eq_slt_or_eq (n m : BitVec w) : n.sle m = (n.slt m || n == m) := by
   apply Bool.eq_iff_iff.2
   simp only [BitVec.sle, decide_eq_true_eq, BitVec.slt, Bool.or_eq_true, beq_iff_eq, ← toInt_inj]

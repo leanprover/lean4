@@ -166,6 +166,9 @@ end Constant
 attribute [bv_normalize] BitVec.zero_and
 attribute [bv_normalize] BitVec.and_zero
 
+attribute [bv_normalize] BitVec.intMax
+attribute [bv_normalize] BitVec.intMin
+
 -- Used in simproc because of - normalization
 theorem BitVec.ones_and (a : BitVec w) : (-1#w) &&& a = a := by
   ext
@@ -355,6 +358,8 @@ attribute [bv_normalize] BitVec.umod_eq_and
 attribute [bv_normalize] BitVec.saddOverflow_eq
 attribute [bv_normalize] BitVec.uaddOverflow_eq
 attribute [bv_normalize] BitVec.negOverflow_eq
+attribute [bv_normalize] BitVec.umulOverflow_eq
+attribute [bv_normalize] BitVec.smulOverflow_eq
 attribute [bv_normalize] BitVec.usubOverflow_eq
 attribute [bv_normalize] BitVec.ssubOverflow_eq
 

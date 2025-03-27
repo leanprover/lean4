@@ -68,13 +68,7 @@ def elabConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
   let s ← Elab.IO.processCommands inputCtx parserState commandState
 
   -- Log messages
-  for msg in s.commandState.messages.toList do
-    if msg.isSilent then
-      continue
-    match msg.severity with
-    | MessageSeverity.information => logInfo (← msg.toString)
-    | MessageSeverity.warning     => logWarning (← msg.toString)
-    | MessageSeverity.error       => logError (← msg.toString)
+  s.commandState.messages.forM (logMessage ·)
 
   -- Check result
   if s.commandState.messages.hasErrors then

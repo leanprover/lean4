@@ -46,5 +46,5 @@ instance [MonadLiftT (ST ω) m] [Monad m] : MonadStore Name α (StateRefT' ω (N
   store k a := modify (·.insert k a)
 
 @[inline] instance [MonadDStore κ β m] [t : FamilyOut β k α] : MonadStore1Of k α m where
-  fetch? := cast (by rw [t.family_key_eq_type]) <| fetch? (m := m) k
-  store a := store k <| cast t.family_key_eq_type.symm a
+  fetch? := cast (by rw [t.fam_eq]) <| fetch? (m := m) k
+  store a := store k <| cast t.fam_eq.symm a

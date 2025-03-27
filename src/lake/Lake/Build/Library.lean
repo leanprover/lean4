@@ -63,9 +63,14 @@ def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
   withRegisterJob s!"{self.name}:static{suffix}" do
   let mods ← (← self.modules.fetch).await
   let oJobs ← mods.flatMapM fun mod =>
-    mod.nativeFacets shouldExport |>.mapM fun facet => fetch <| mod.facet facet.name
+    mod.nativeFacets shouldExport |>.mapM (·.fetch mod)
   let libFile := if shouldExport then self.staticExportLibFile else self.staticLibFile
-  buildStaticLib libFile oJobs
+  /-
+  Static libraries with explicit exports are built as thin libraries.
+  The Lean build itself requires a thin static library with exported symbols
+  as part of its build process on Windows. It does not distribute this library.
+  -/
+  buildStaticLib libFile oJobs (thin := shouldExport)
 
 /-- The `LibraryFacetConfig` for the builtin `staticFacet`. -/
 def LeanLib.staticFacetConfig : LibraryFacetConfig staticFacet :=
@@ -75,7 +80,6 @@ def LeanLib.staticFacetConfig : LibraryFacetConfig staticFacet :=
 def LeanLib.staticExportFacetConfig : LibraryFacetConfig staticExportFacet :=
   mkFacetJobConfig (LeanLib.recBuildStatic · true)
 
-
 /-! ## Build Shared Lib -/
 
 protected def LeanLib.recBuildShared
@@ -83,7 +87,7 @@ protected def LeanLib.recBuildShared
   withRegisterJob s!"{self.name}:shared" do
   let mods ← (← self.modules.fetch).await
   let oJobs ← mods.flatMapM fun mod =>
-    mod.nativeFacets true |>.mapM fun facet => fetch <| mod.facet facet.name
+    mod.nativeFacets true |>.mapM (·.fetch mod)
   let pkgs := mods.foldl (·.insert ·.pkg) OrdPackageSet.empty |>.toArray
   let externJobs ← pkgs.flatMapM (·.externLibs.mapM (·.shared.fetch))
   buildLeanSharedLib self.sharedLibFile (oJobs ++ externJobs) self.weakLinkArgs self.linkArgs
@@ -103,16 +107,30 @@ def LeanLib.recBuildExtraDepTargets (self : LeanLib) : FetchM (Job Unit) := do
 def LeanLib.extraDepFacetConfig : LibraryFacetConfig extraDepFacet :=
   mkFacetJobConfig LeanLib.recBuildExtraDepTargets
 
-open LeanLib in
+/-- Build the default facets for the library. -/
+def LeanLib.recBuildDefaultFacets (self : LeanLib) : FetchM (Job Unit) := do
+  Job.mixArray <$> self.defaultFacets.mapM fun facet => do
+    let job ← (self.facetCore facet).fetch
+    return job.toOpaque
+
+/-- The `LibraryFacetConfig` for the builtin `defaultFacet`. -/
+def LeanLib.defaultFacetConfig : LibraryFacetConfig defaultFacet :=
+  mkFacetJobConfig LeanLib.recBuildDefaultFacets
+
 /--
-A library facet name to build function map that contains builders for
-the initial set of Lake library facets (e.g., `lean`, `static`, and `shared`).
+A name-configuration map for the initial set of
+Lean library facets (e.g., `lean`, `static`, `shared`).
 -/
-def initLibraryFacetConfigs : DNameMap LibraryFacetConfig :=
+def LeanLib.initFacetConfigs : DNameMap LeanLibFacetConfig :=
   DNameMap.empty
+  |>.insert defaultFacet defaultFacetConfig
   |>.insert modulesFacet modulesFacetConfig
   |>.insert leanArtsFacet leanArtsFacetConfig
   |>.insert staticFacet staticFacetConfig
   |>.insert staticExportFacet staticExportFacetConfig
   |>.insert sharedFacet sharedFacetConfig
   |>.insert extraDepFacet extraDepFacetConfig
+
+@[inherit_doc LeanLib.initFacetConfigs]
+abbrev initLibraryFacetConfigs : DNameMap LibraryFacetConfig :=
+  LeanLib.initFacetConfigs

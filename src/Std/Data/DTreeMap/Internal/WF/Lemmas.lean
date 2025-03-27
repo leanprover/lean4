@@ -225,7 +225,7 @@ theorem toListModel_find?_of_lt [Ord α] [TransOrd α] {k : α → Ordering} [Is
     (inner sz k' v' l r : Impl α β).toListModel.find? (k ·.1 == .eq) =
       l.toListModel.find? (k ·.1 == .eq) := by
   rw [toListModel_inner, List.find?_append, Option.or_eq_left_of_none]
-  rw [List.find?_cons_of_neg _ (by simp [hcmp])]
+  rw [List.find?_cons_of_neg (by simp [hcmp])]
   refine List.find?_eq_none.2 (fun p hp => by simp [IsCut.lt hcmp (ho.compare_right hp)])
 
 theorem toListModel_filter_lt_of_gt [Ord α] [TransOrd α] {k : α → Ordering} [IsCut compare k]
@@ -1797,5 +1797,76 @@ theorem size_map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} : (t
 
 theorem WF.map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} (h : t.WF) : (t.map f).WF :=
   sameKeys_map.symm.wf h
+
+/-!
+### `minEntry?`
+-/
+
+instance [Ord α] : IsStrictCut (compare : α → α → Ordering) (fun _ => .lt) where
+  lt := by simp
+  gt := by simp
+  eq := by simp
+
+theorem minEntry?ₘ_eq_minEntry? [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
+    l.minEntry?ₘ = List.minEntry? l.toListModel := by
+  rw [minEntry?ₘ, applyPartition_eq_apply_toListModel' hlo]
+  simp only [List.append_assoc, reduceCtorEq, imp_false, implies_true, forall_const]
+  intro ll rr c h₁ h₂ h₃
+  obtain rfl : ll = [] := List.eq_nil_iff_forall_not_mem.2 h₃
+  obtain hc : c.inner.toList = [] := by
+    cases h : c.inner
+    · simp
+    · have := c.property _ h
+      contradiction
+  rw [hc, List.nil_append, List.nil_append, minEntry?_eq_head? (by simpa [hc] using h₂)]
+
+theorem minEntry?_eq_minEntry? [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
+    l.minEntry? = List.minEntry? l.toListModel := by
+  rw [minEntry?_eq_minEntry?ₘ, minEntry?ₘ_eq_minEntry? hlo]
+
+theorem minKey?_eq_minKey? {_ : Ord α} [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
+    l.minKey? = List.minKey? l.toListModel := by
+  simp only [minKey?_eq_minEntry?_map_fst, minEntry?_eq_minEntry? hlo, List.minKey?]
+
+theorem minKey_eq_minKey [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) {he} :
+    l.minKey he = List.minKey l.toListModel (isEmpty_eq_isEmpty ▸ he) := by
+  simp [minKey_eq_get_minKey?, minKey_eq_minEntry_fst, minEntry_eq_get_minEntry?,
+    minEntry?_eq_minEntry? hlo, List.minKey?, Option.get_map]
+
+theorem minKey!_eq_minKey! [Ord α] [TransOrd α] [Inhabited α] {l : Impl α β} (hlo : l.Ordered) :
+    l.minKey! = List.minKey! l.toListModel := by
+  simp [Impl.minKey!_eq_get!_minKey?, List.minKey!_eq_get!_minKey?, minKey?_eq_minKey? hlo]
+
+theorem minKeyD_eq_minKeyD [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered)
+    {fallback} :
+    l.minKeyD fallback = List.minKeyD l.toListModel fallback := by
+  simp [Impl.minKeyD_eq_getD_minKey?, List.minKeyD_eq_getD_minKey?, minKey?_eq_minKey? hlo]
+
+theorem toListModel_reverse {l : Impl α β} :
+    (reverse l).toListModel = l.toListModel.reverse := by
+  induction l <;> simp_all [reverse]
+
+theorem Ordered.reverse [Ord α] {t : Impl α β} (h : t.Ordered) :
+    letI : Ord α := .opposite inferInstance; t.reverse.Ordered := by
+  simp only [Ordered, toListModel_reverse]
+  exact List.pairwise_reverse.mpr h
+
+theorem maxKey?_eq_maxKey? [Ord α] [TransOrd α] {t : Impl α β} (hlo : t.Ordered) :
+    t.maxKey? = List.maxKey? t.toListModel := by
+  rw [maxKey?_of_perm hlo.distinctKeys (List.reverse_perm t.toListModel).symm, List.maxKey?]
+  rw [maxKey?_eq_minKey?_reverse, minKey?_eq_minKey? hlo.reverse, toListModel_reverse]
+
+theorem maxKey_eq_maxKey [Ord α] [TransOrd α] {t : Impl α β} (hlo : t.Ordered) {he} :
+    t.maxKey he = List.maxKey t.toListModel (isEmpty_eq_isEmpty ▸ he) := by
+  simp only [List.maxKey_eq_get_maxKey?, maxKey_eq_get_maxKey?, maxKey?_eq_maxKey? hlo]
+
+theorem maxKey!_eq_maxKey! [Ord α] [TransOrd α] [Inhabited α] {t : Impl α β} (hlo : t.Ordered) :
+    t.maxKey! = List.maxKey! t.toListModel := by
+  simp only [List.maxKey!_eq_get!_maxKey?, maxKey!_eq_get!_maxKey?, maxKey?_eq_maxKey? hlo]
+
+theorem maxKeyD_eq_maxKeyD [Ord α] [TransOrd α] {t : Impl α β} (hlo : t.Ordered)
+    {fallback} :
+    t.maxKeyD fallback = List.maxKeyD t.toListModel fallback := by
+  simp only [List.maxKeyD_eq_getD_maxKey?, maxKeyD_eq_getD_maxKey?, maxKey?_eq_maxKey? hlo]
 
 end Std.DTreeMap.Internal.Impl

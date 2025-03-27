@@ -206,8 +206,7 @@ theorem denote_mkConst {aig : AIG α} : ⟦(aig.mkConst val), assign⟧ = val :=
   split
   · next heq =>
     rw [mkConst, Array.getElem_push_eq] at heq
-    injection heq with heq
-    simp [heq, mkConst]
+    simp [mkConst]
   · next heq =>
     rw [mkConst, Array.getElem_push_eq] at heq
     contradiction
@@ -216,10 +215,10 @@ theorem denote_mkConst {aig : AIG α} : ⟦(aig.mkConst val), assign⟧ = val :=
     contradiction
 
 /--
-If an index contains a `Decl.const` we know how to denote it.
+If an index contains a `Decl.false` we know how to denote it.
 -/
-theorem denote_idx_const {aig : AIG α} {hstart} (h : aig.decls[start]'hstart = .const b) :
-    ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = (b ^^ invert) := by
+theorem denote_idx_false {aig : AIG α} {hstart} (h : aig.decls[start]'hstart = .false) :
+    ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = invert := by
   unfold denote denote.go
   split <;> simp_all
 
@@ -254,17 +253,17 @@ theorem denote_idx_gate {aig : AIG α} {hstart} (h : aig.decls[start] = .gate lh
     simp_all
 
 theorem idx_trichotomy (aig : AIG α) (hstart : start < aig.decls.size) {prop : Prop}
-    (hconst : ∀ b, aig.decls[start]'hstart = .const b → prop)
+    (hfalse : aig.decls[start]'hstart = .false → prop)
     (hatom : ∀ a, aig.decls[start]'hstart = .atom a → prop)
     (hgate : ∀ lhs rhs linv rinv, aig.decls[start]'hstart = .gate lhs rhs linv rinv → prop)
     : prop := by
   match h : aig.decls[start]'hstart with
-  | .const b => apply hconst; assumption
+  | .false => apply hfalse; assumption
   | .atom a => apply hatom; assumption
   | .gate lhs rhs linv rinv => apply hgate; assumption
 
 theorem denote_idx_trichotomy {aig : AIG α} {hstart : start < aig.decls.size}
-    (hconst : ∀ b, aig.decls[start]'hstart = .const b → ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = res)
+    (hfalse : aig.decls[start]'hstart = .false → ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = res)
     (hatom : ∀ a, aig.decls[start]'hstart = .atom a → ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = res)
     (hgate :
       ∀ lhs rhs linv rinv,
@@ -274,7 +273,7 @@ theorem denote_idx_trichotomy {aig : AIG α} {hstart : start < aig.decls.size}
     ) :
     ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = res := by
   apply idx_trichotomy aig hstart
-  · exact hconst
+  · exact hfalse
   · exact hatom
   · exact hgate
 
@@ -285,8 +284,8 @@ theorem denote_congr (assign1 assign2 : α → Bool) (aig : AIG α) (idx : Nat) 
     (hidx : idx < aig.decls.size) (h : ∀ a, a ∈ aig → assign1 a = assign2 a) :
     ⟦aig, ⟨idx, invert, hidx⟩, assign1⟧ = ⟦aig, ⟨idx, invert, hidx⟩, assign2⟧ := by
   apply denote_idx_trichotomy
-  · intro b heq
-    simp [denote_idx_const heq]
+  · intro heq
+    simp [denote_idx_false heq]
   · intro a heq
     simp only [denote_idx_atom heq, Bool.bne_left_inj]
     apply h
@@ -305,7 +304,19 @@ theorem of_isConstant {aig : AIG α} {assign : α → Bool} {ref : Ref aig} {b :
   dsimp only at h
   split at h
   · next heq =>
-    rw [denote_idx_const (h := heq)]
+    rw [denote_idx_false heq]
+    cases invert <;> simp_all
+  · contradiction
+
+theorem denote_getConstant {aig : AIG α} {assign : α → Bool} {ref : Ref aig} {b : Bool} :
+    aig.getConstant ref = some b → ⟦aig, ref, assign⟧ = b := by
+  rcases ref with ⟨gate, invert, hgate⟩
+  intro h
+  unfold getConstant at h
+  dsimp only at h
+  split at h
+  · next heq =>
+    rw [denote_idx_false heq]
     cases invert <;> simp_all
   · contradiction
 

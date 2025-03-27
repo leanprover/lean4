@@ -10,23 +10,15 @@ namespace Lake
 open Lean System
 
 /-- A Lean executable -- its package plus its configuration. -/
-structure LeanExe where
-  /-- The package the executable belongs to. -/
-  pkg : Package
-  /-- The executable's name. -/
-  name : Name
-  /-- The executable's user-defined configuration. -/
-  config : LeanExeConfig name
+abbrev LeanExe := ConfigTarget LeanExe.configKind
 
 /-- The Lean executables of the package (as an Array). -/
 @[inline] def Package.leanExes (self : Package) : Array LeanExe :=
-  self.targetDecls.foldl (init := #[]) fun a t =>
-    if let some cfg := t.leanExeConfig? then a.push ⟨self, t.name, cfg⟩ else a
+  self.configTargets LeanExe.configKind
 
 /-- Try to find a Lean executable in the package with the given name. -/
 @[inline] def Package.findLeanExe? (name : Name) (self : Package) : Option LeanExe :=
-  self.targetDeclMap.find? name |>.bind fun t => t.leanExeConfig?.map fun cfg =>
-    ⟨self, name, cfg⟩
+  self.findConfigTarget? LeanExe.configKind name
 
 /--
 Converts the executable configuration into a library
@@ -41,6 +33,10 @@ def LeanExeConfig.toLeanLibConfig (self : LeanExeConfig n) : LeanLibConfig n whe
   toLeanConfig := self.toLeanConfig
 
 namespace LeanExe
+
+/-- The executable's user-defined configuration. -/
+@[inline] nonrec def config (self : LeanExe) : LeanExeConfig self.name :=
+  self.config
 
 /-- Converts the executable into a library with a single module (the root). -/
 @[inline] def toLeanLib (self : LeanExe) : LeanLib :=

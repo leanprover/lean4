@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.EmitLLVM
-// Imports: Lean.Data.HashMap Lean.Runtime Lean.Compiler.NameMangling Lean.Compiler.ExportAttr Lean.Compiler.InitAttr Lean.Compiler.IR.CompilerM Lean.Compiler.IR.EmitUtil Lean.Compiler.IR.NormIds Lean.Compiler.IR.SimpCase Lean.Compiler.IR.Boxing Lean.Compiler.IR.ResetReuse Lean.Compiler.IR.LLVMBindings
+// Imports: Lean.Runtime Lean.Compiler.NameMangling Lean.Compiler.ExportAttr Lean.Compiler.InitAttr Lean.Compiler.IR.CompilerM Lean.Compiler.IR.EmitUtil Lean.Compiler.IR.NormIds Lean.Compiler.IR.SimpCase Lean.Compiler.IR.Boxing Lean.Compiler.IR.ResetReuse Lean.Compiler.IR.LLVMBindings
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -143,7 +143,6 @@ lean_object* l_LLVM_i8Type(size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitFnDeclAux___lambda__2(lean_object*, uint8_t, size_t, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_emitTailCall___closed__3;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_callLeanIOResultIsError(size_t, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_IR_EmitLLVM_emitFnDeclAux___spec__1(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_getEnv___rarg(lean_object*, lean_object*);
@@ -160,6 +159,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_callLeanIOResultIsOk(size_t, size_t,
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitReset(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_llvm_write_bitcode_to_file(size_t, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_getExternEntryFor(lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_toHexDigit___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_hasMainFn___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_buildWhile_____boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -13376,7 +13376,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_IR_EmitLLVM_toLLVMType___closed__1;
 x_2 = l_Lean_IR_EmitLLVM_toLLVMType___closed__2;
-x_3 = lean_unsigned_to_nat(328u);
+x_3 = lean_unsigned_to_nat(327u);
 x_4 = lean_unsigned_to_nat(25u);
 x_5 = l_Lean_IR_EmitLLVM_toLLVMType___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -13389,7 +13389,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_IR_EmitLLVM_toLLVMType___closed__1;
 x_2 = l_Lean_IR_EmitLLVM_toLLVMType___closed__2;
-x_3 = lean_unsigned_to_nat(329u);
+x_3 = lean_unsigned_to_nat(328u);
 x_4 = lean_unsigned_to_nat(25u);
 x_5 = l_Lean_IR_EmitLLVM_toLLVMType___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -62306,7 +62306,6 @@ lean_dec(x_3);
 return x_8;
 }
 }
-lean_object* initialize_Lean_Data_HashMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Runtime(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_NameMangling(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_ExportAttr(uint8_t builtin, lean_object*);
@@ -62323,9 +62322,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_EmitLLVM(uint8_t builtin, l
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Data_HashMap(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Runtime(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

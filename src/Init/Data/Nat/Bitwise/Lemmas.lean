@@ -33,7 +33,10 @@ private theorem two_mul_sub_one {n : Nat} (n_pos : n > 0) : (2*n - 1) % 2 = 1 :=
 /-! ### Preliminaries -/
 
 /--
-An induction principal that works on division by two.
+An induction principle for the natural numbers with two cases:
+ * `n = 0`, and the motive is satisfied for `0`
+ * `n > 0`, and the motive should be satisfied for `n` on the assumption that it is satisfied for
+   `n / 2`.
 -/
 noncomputable def div2Induction {motive : Nat → Sort u}
     (n : Nat) (ind : ∀(n : Nat), (n > 0 → motive (n/2)) → motive n) : motive n := by
@@ -468,6 +471,14 @@ theorem bitwise_div_two_pow (of_false_false : f false false = false := by rfl) :
   apply Nat.eq_of_testBit_eq
   simp [testBit_bitwise of_false_false, testBit_div_two_pow]
 
+theorem bitwise_mod_two_pow (of_false_false : f false false = false := by rfl) :
+  (bitwise f x y) % 2 ^ n = bitwise f (x % 2 ^ n) (y % 2 ^ n) := by
+  apply Nat.eq_of_testBit_eq
+  simp only [testBit_mod_two_pow, testBit_bitwise of_false_false]
+  intro i
+  by_cases h : i < n <;> simp only [h, decide_true, decide_false, Bool.true_and, Bool.false_and,
+    of_false_false]
+
 /-! ### and -/
 
 @[simp] theorem testBit_and (x y i : Nat) : (x &&& y).testBit i = (x.testBit i && y.testBit i) := by
@@ -534,6 +545,9 @@ theorem and_div_two_pow : (a &&& b) / 2 ^ n = a / 2 ^ n &&& b / 2 ^ n :=
 
 theorem and_div_two : (a &&& b) / 2 = a / 2 &&& b / 2 :=
   and_div_two_pow (n := 1)
+
+theorem and_mod_two_pow : (a &&& b) % 2 ^ n = (a % 2 ^ n) &&& (b % 2 ^ n) :=
+  bitwise_mod_two_pow
 
 /-! ### lor -/
 
@@ -605,6 +619,9 @@ theorem or_div_two_pow : (a ||| b) / 2 ^ n = a / 2 ^ n ||| b / 2 ^ n :=
 theorem or_div_two : (a ||| b) / 2 = a / 2 ||| b / 2 :=
   or_div_two_pow (n := 1)
 
+theorem or_mod_two_pow : (a ||| b) % 2 ^ n = a % 2 ^ n ||| b % 2 ^ n :=
+  bitwise_mod_two_pow
+
 /-! ### xor -/
 
 @[simp] theorem testBit_xor (x y i : Nat) :
@@ -663,6 +680,9 @@ theorem xor_div_two_pow : (a ^^^ b) / 2 ^ n = a / 2 ^ n ^^^ b / 2 ^ n :=
 theorem xor_div_two : (a ^^^ b) / 2 = a / 2 ^^^ b / 2 :=
   xor_div_two_pow (n := 1)
 
+theorem xor_mod_two_pow : (a ^^^ b) % 2 ^ n = a % 2 ^ n ^^^ b % 2 ^ n :=
+  bitwise_mod_two_pow
+
 /-! ### Arithmetic -/
 
 theorem testBit_two_pow_mul_add (a : Nat) {b i : Nat} (b_lt : b < 2^i) (j : Nat) :
@@ -707,7 +727,8 @@ theorem testBit_two_pow_mul :
 @[deprecated testBit_two_pow_mul (since := "2025-03-18")]
 abbrev testBit_mul_pow_two := @testBit_two_pow_mul
 
-theorem mul_add_lt_is_or {b : Nat} (b_lt : b < 2^i) (a : Nat) : 2^i * a + b = 2^i * a ||| b := by
+theorem two_pow_add_eq_or_of_lt {b : Nat} (b_lt : b < 2^i) (a : Nat) :
+    2^i * a + b = 2^i * a ||| b := by
   apply eq_of_testBit_eq
   intro j
   simp only [testBit_two_pow_mul_add _ b_lt,
@@ -720,6 +741,9 @@ theorem mul_add_lt_is_or {b : Nat} (b_lt : b < 2^i) (a : Nat) : 2^i * a + b = 2^
             calc b < 2 ^ i := b_lt
                  _ ≤ 2 ^ j := Nat.pow_le_pow_right Nat.zero_lt_two i_le
     simp [i_le, j_lt, testBit_lt_two_pow, b_lt_j]
+
+@[deprecated two_pow_add_eq_or_of_lt (since := "2025-03-18")]
+abbrev mul_add_lt_is_or := @two_pow_add_eq_or_of_lt
 
 /-! ### shiftLeft and shiftRight -/
 
@@ -778,6 +802,20 @@ theorem shiftRight_or_distrib {a b : Nat} : (a ||| b) >>> i = a >>> i ||| b >>> 
 theorem shiftRight_xor_distrib {a b : Nat} : (a ^^^ b) >>> i = a >>> i ^^^ b >>> i :=
   shiftRight_bitwise_distrib
 
+theorem mod_two_pow_shiftLeft_mod_two_pow {a b c : Nat} : ((a % 2 ^ c) <<< b) % 2 ^ c = (a <<< b) % 2 ^ c := by
+  apply Nat.eq_of_testBit_eq
+  simp only [testBit_mod_two_pow, testBit_shiftLeft, ge_iff_le]
+  intro i
+  by_cases hic : i < c
+  · simp [(by omega : i - b < c)]
+  · simp [*]
+
+theorem le_shiftLeft {a b : Nat} : a ≤ a <<< b :=
+  shiftLeft_eq _ _ ▸ Nat.le_mul_of_pos_right _ (Nat.two_pow_pos _)
+
+theorem lt_of_shiftLeft_lt {a b c : Nat} (h : a <<< b < c) : a < c :=
+  Nat.lt_of_le_of_lt le_shiftLeft h
+
 /-! ### le -/
 
 theorem le_of_testBit {n m : Nat} (h : ∀ i, n.testBit i = true → m.testBit i = true) : n ≤ m := by
@@ -801,3 +839,9 @@ theorem and_le_left {n m : Nat} : n &&& m ≤ n :=
 
 theorem and_le_right {n m : Nat} : n &&& m ≤ m :=
   le_of_testBit (by simp)
+
+theorem left_le_or {n m : Nat} : n ≤ n ||| m :=
+  le_of_testBit (by simpa using fun i => Or.inl)
+
+theorem right_le_or {n m : Nat} : m ≤ n ||| m :=
+  le_of_testBit (by simpa using fun i => Or.inr)

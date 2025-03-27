@@ -20,24 +20,26 @@ namespace Std.Tactic.BVDecide
 open Std.Sat
 open Std.Sat.AIG
 
+variable [Hashable α] [DecidableEq α]
+
 namespace BVExpr
 
 namespace bitblast
 namespace blastMul
 
-theorem go_denote_eq {w : Nat} (aig : AIG BVBit) (curr : Nat) (hcurr : curr + 1 ≤ w)
-    (acc : AIG.RefVec aig w) (lhs rhs : AIG.RefVec aig w) (lexpr rexpr : BitVec w) (assign : Assignment)
-    (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, lhs.get idx hidx, assign.toAIGAssignment⟧ = lexpr.getLsbD idx)
-    (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, rhs.get idx hidx, assign.toAIGAssignment⟧ = rexpr.getLsbD idx)
+theorem go_denote_eq {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr + 1 ≤ w)
+    (acc : AIG.RefVec aig w) (lhs rhs : AIG.RefVec aig w) (lexpr rexpr : BitVec w) (assign : α → Bool)
+    (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, lhs.get idx hidx, assign⟧ = lexpr.getLsbD idx)
+    (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, rhs.get idx hidx, assign⟧ = rexpr.getLsbD idx)
     (hacc : ∀ (idx : Nat) (hidx : idx < w),
-                ⟦aig, acc.get idx hidx, assign.toAIGAssignment⟧
+                ⟦aig, acc.get idx hidx, assign⟧
                   =
                 (BitVec.mulRec lexpr rexpr curr).getLsbD idx) :
     ∀ (idx : Nat) (hidx : idx < w),
         ⟦
           (go aig lhs rhs (curr + 1) acc).aig,
           (go aig lhs rhs (curr + 1) acc).vec.get idx hidx,
-          assign.toAIGAssignment
+          assign
         ⟧
           =
         (BitVec.mulRec lexpr rexpr w).getLsbD idx := by
@@ -118,12 +120,12 @@ theorem go_denote_eq {w : Nat} (aig : AIG BVBit) (curr : Nat) (hcurr : curr + 1 
     simp [this]
 termination_by w - curr
 
-theorem denote_blast (aig : AIG BVBit) (lhs rhs : BitVec w) (assign : Assignment)
+theorem denote_blast (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
       (input : BinaryRefVec aig w)
-      (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign.toAIGAssignment⟧ = lhs.getLsbD idx)
-      (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign.toAIGAssignment⟧ = rhs.getLsbD idx) :
+      (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign⟧ = lhs.getLsbD idx)
+      (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign⟧ = rhs.getLsbD idx) :
       ∀ (idx : Nat) (hidx : idx < w),
-        ⟦(blast aig input).aig, (blast aig input).vec.get idx hidx, assign.toAIGAssignment⟧
+        ⟦(blast aig input).aig, (blast aig input).vec.get idx hidx, assign⟧
           =
         (lhs * rhs).getLsbD idx := by
   intro idx hidx
@@ -176,12 +178,12 @@ theorem denote_blast (aig : AIG BVBit) (lhs rhs : BitVec w) (assign : Assignment
 
 end blastMul
 
-theorem denote_blastMul (aig : AIG BVBit) (lhs rhs : BitVec w) (assign : Assignment)
+theorem denote_blastMul (aig : AIG α) (lhs rhs : BitVec w) (assign : α → Bool)
       (input : BinaryRefVec aig w)
-      (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign.toAIGAssignment⟧ = lhs.getLsbD idx)
-      (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign.toAIGAssignment⟧ = rhs.getLsbD idx) :
+      (hleft : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.lhs.get idx hidx, assign⟧ = lhs.getLsbD idx)
+      (hright : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, input.rhs.get idx hidx, assign⟧ = rhs.getLsbD idx) :
       ∀ (idx : Nat) (hidx : idx < w),
-        ⟦(blastMul aig input).aig, (blastMul aig input).vec.get idx hidx, assign.toAIGAssignment⟧
+        ⟦(blastMul aig input).aig, (blastMul aig input).vec.get idx hidx, assign⟧
           =
         (lhs * rhs).getLsbD idx := by
   intro idx hidx

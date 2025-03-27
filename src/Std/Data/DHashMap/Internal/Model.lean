@@ -101,7 +101,7 @@ theorem exists_bucket_of_uset [BEq α] [Hashable α]
         ∀ k : α, (mkIdx self.size (by omega) (hash k)).1.toNat = i.toNat →
           containsKey k l = false) := by
   have h₀ : 0 < self.size := by omega
-  obtain ⟨l₁, l₂, h₁, h₂, h₃⟩ := Array.exists_of_uset self i d hi
+  obtain ⟨l₁, l₂, h₁, h₂, h₃⟩ := Array.exists_of_uset hi
   refine ⟨l₁.flatMap AssocList.toList ++ l₂.flatMap AssocList.toList, ?_, ?_, ?_⟩
   · rw [toListModel, h₁]
     simpa using perm_append_comm_assoc _ _ _
@@ -221,9 +221,13 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
 namespace IsHashSelf
 
 @[simp]
-theorem mkArray [BEq α] [Hashable α] {c : Nat} : IsHashSelf
-    (mkArray c (AssocList.nil : AssocList α β)) :=
+theorem replicate [BEq α] [Hashable α] {c : Nat} : IsHashSelf
+    (Array.replicate c (AssocList.nil : AssocList α β)) :=
   ⟨by simp⟩
+
+set_option linter.missingDocs false in
+@[deprecated replicate (since := "2025-03-18")]
+abbrev mkArray := @replicate
 
 theorem uset [BEq α] [Hashable α] {m : Array (AssocList α β)} {i : USize} {h : i.toNat < m.size}
     {d : AssocList α β}

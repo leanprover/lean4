@@ -9,7 +9,6 @@ import Init.Data.Array.BinSearch
 import Init.Data.Stream
 import Init.System.Promise
 import Lean.ImportingFlag
-import Lean.Data.HashMap
 import Lean.Data.NameTrie
 import Lean.Data.SMap
 import Lean.Declaration
@@ -390,8 +389,11 @@ private structure AsyncContext where mkRaw ::
   prefixes.
   -/
   declPrefix : Name
-  /-- Whether we are in `realizeConst`, used to restrict env ext modifications. -/
-  realizing  : Bool
+  /--
+  Reverse list of ongoing `realizeConst` calls, used to restrict env ext modifications and detect
+  cyclic realizations.
+  -/
+  realizingStack : List Name
 deriving Nonempty
 
 /--
@@ -458,6 +460,15 @@ private partial def AsyncConsts.findRec? (aconsts : AsyncConsts) (declName : Nam
     return c
   let aconsts ← c.consts.get.get? AsyncConsts
   AsyncConsts.findRec? aconsts declName
+
+/-- Like `findRec?`; allocating tasks is (currently?) too costly to do always. -/
+private partial def AsyncConsts.findRecTask (aconsts : AsyncConsts) (declName : Name) : Task (Option AsyncConst) := Id.run do
+  let some c := aconsts.findPrefix? declName | .pure none
+  if c.constInfo.name == declName then
+    return .pure c
+  c.consts.bind (sync := true) fun aconsts => Id.run do
+    let some aconsts := aconsts.get? AsyncConsts | .pure none
+    AsyncConsts.findRecTask aconsts declName
 
 /-- Context for `realizeConst` established by `enableRealizationsForConst`. -/
 private structure RealizationContext where
@@ -552,7 +563,7 @@ def asyncPrefix? (env : Environment) : Option Name :=
 
 /-- True while inside `realizeConst`'s `realize`. -/
 def isRealizing (env : Environment) : Bool :=
-  env.asyncCtx?.any (·.realizing)
+  env.asyncCtx?.any (!·.realizingStack.isEmpty)
 
 /--
 Returns the environment just after importing. `none` if `finalizeImport` has never been called on
@@ -633,6 +644,10 @@ def addExtraName (env : Environment) (name : Name) : Environment :=
   else
     env.modifyCheckedAsync fun env => { env with extraConstNames := env.extraConstNames.insert name }
 
+-- forward reference due to too many cyclic dependencies
+@[extern "lean_is_reserved_name"]
+private opaque isReservedName (env : Environment) (name : Name) : Bool
+
 /-- `findAsync?` after `base` access -/
 private def findAsyncCore? (env : Environment) (n : Name) (skipRealize := false) :
     Option AsyncConstantInfo := do
@@ -643,12 +658,33 @@ private def findAsyncCore? (env : Environment) (n : Name) (skipRealize := false)
   if let some c := env.asyncConsts.findRec? n then
     -- Constant generated in a different environment branch
     return c.constInfo
-  unless skipRealize do
+  if !skipRealize && isReservedName env n then
     if let some c := env.allRealizations.get.find? n then
       return c.constInfo
   -- Not in the kernel environment nor in the name prefix of a known environment branch: undefined
   -- by `addDeclCore` invariant.
   none
+
+/-- Like `findAsyncCore?`; allocating tasks is (currently?) too costly to do always. -/
+private def findTaskCore (env : Environment) (n : Name) (skipRealize := false) :
+    Task (Option AsyncConstantInfo) := Id.run do
+  if let some c := env.asyncConsts.find? n then
+    -- Constant for which an asynchronous elaboration task was spawned
+    -- (this is an optimized special case of the next branch)
+    return .pure c.constInfo
+  env.asyncConsts.findRecTask n |>.bind (sync := true) fun
+  | some c =>
+    -- Constant generated in a different environment branch
+    .pure c.constInfo
+  | _ => Id.run do
+    if isReservedName env n && !skipRealize then
+      return env.allRealizations.map (sync := true) fun allRealizations => do
+        if let some c := allRealizations.find? n then
+          return c.constInfo
+        none
+    -- Not in the kernel environment nor in the name prefix of a known environment branch: undefined
+    -- by `addDeclCore` invariant.
+    .pure none
 
 /--
 Looks up the given declaration name in the environment, avoiding forcing any in-progress elaboration
@@ -661,12 +697,21 @@ of a declaration found on another branch. Thus when we cannot find the declarati
 prefix-based lookup, we fall back to waiting for and looking at the realizations from all branches.
 To avoid this expensive search for realizations from other branches, `skipRealize` can set to ensure
 negative lookups are as fast as positive ones.
+
+Use `findTask` instead if any blocking should be avoided.
 -/
 def findAsync? (env : Environment) (n : Name) (skipRealize := false) : Option AsyncConstantInfo := do
   -- Avoid going through `AsyncConstantInfo` for `base` access
   if let some c := env.base.constants.map₁[n]? then
     return .ofConstantInfo c
   findAsyncCore? (skipRealize := skipRealize) env n
+
+/-- Like `findAsync?` but returns a task instead of resorting to blocking. -/
+def findTask (env : Environment) (n : Name) (skipRealize := false) : Task (Option AsyncConstantInfo) := Id.run do
+  -- Avoid going through `AsyncConstantInfo` for `base` access
+  if let some c := env.base.constants.map₁[n]? then
+    return .pure <| some <| .ofConstantInfo c
+  findTaskCore (skipRealize := skipRealize) env n
 
 /--
 Like `findAsync` but blocks on everything but the constant's body (if any), which is not accessible
@@ -747,11 +792,14 @@ structure PromiseCheckedResult where
   private checkedEnvPromise : IO.Promise Kernel.Environment
 
 /-- Creates an async context for the given declaration name, normalizing it for use as a prefix. -/
-private def enterAsync (declName : Name) (realizing := false) (env : Environment) : Environment :=
+private def enterAsync (declName : Name) (realizing? : Option Name := none) (env : Environment) : Environment :=
   { env with asyncCtx? := some {
     declPrefix := privateToUserName declName.eraseMacroScopes
-    -- `realizing` is sticky
-    realizing := realizing || env.asyncCtx?.any (·.realizing) } }
+    realizingStack :=
+      let s := env.asyncCtx?.map (·.realizingStack) |>.getD []
+      match realizing? with
+      | none   => s
+      | some n => n :: s } }
 
 /--
 Starts an asynchronous modification of the kernel environment. The environment is split into a
@@ -1147,15 +1195,15 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
   | .mainOnly =>
     if let some asyncCtx := env.asyncCtx? then
       return panic! s!"environment extension is marked as `mainOnly` but used in \
-        {if asyncCtx.realizing then "realization" else "async"} context '{asyncCtx.declPrefix}'"
+        {if env.isRealizing then "realization" else "async"} context '{asyncCtx.declPrefix}'"
     return { env with base.extensions := unsafe ext.modifyStateImpl env.base.extensions f }
   | .local =>
     return { env with base.extensions := unsafe ext.modifyStateImpl env.base.extensions f }
   | _ =>
     if ext.replay?.isNone then
-      if let some asyncCtx := env.asyncCtx?.filter (·.realizing) then
+      if let some (n :: _) := env.asyncCtx?.map (·.realizingStack) then
         return panic! s!"environment extension must set `replay?` field to be \
-          used in realization context '{asyncCtx.declPrefix}'"
+          used in realization context '{n}'"
     env.modifyCheckedAsync fun env =>
       { env with extensions := unsafe ext.modifyStateImpl env.extensions f }
 
@@ -1636,7 +1684,7 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) (st
   for extDescr in extDescrs[startingAt:] do
     -- safety: as in `modifyState`
     states := unsafe extDescr.toEnvExtension.modifyStateImpl states fun s =>
-      { s with importedEntries := mkArray mods.size #[] }
+      { s with importedEntries := .replicate mods.size #[] }
   /- For each module `mod`, and `mod.entries`, if the extension name is one of the extensions after `startingAt`, set `entries` -/
   let extNameIdx ← mkExtNameMap startingAt
   for h : modIdx in [:mods.size] do
@@ -1990,6 +2038,8 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
   -- the following code is inherently non-deterministic in number of heartbeats, reset them at the
   -- end
   let heartbeats ← IO.getNumHeartbeats
+  if env.asyncCtx?.any (·.realizingStack.contains constName) then
+    throw <| IO.userError s!"Environment.realizeConst: cyclic realization of '{constName}'"
   let mut env := env
   -- find `RealizationContext` for `forConst` in `realizedImportedConsts?` or `realizedLocalConsts`
   let ctx ← if env.base.const2ModIdx.contains forConst then
@@ -2020,7 +2070,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
       }
       -- ensure realized constants are nested below `forConst` and that environment extension
       -- modifications know they are in an async context
-      let realizeEnv := realizeEnv.enterAsync (realizing := true) forConst
+      let realizeEnv := realizeEnv.enterAsync (realizing? := constName) forConst
       -- skip kernel in `realize`, we'll re-typecheck anyway
       let realizeOpts := debug.skipKernelTC.set ctx.opts true
       let (realizeEnv', dyn) ← realize realizeEnv realizeOpts

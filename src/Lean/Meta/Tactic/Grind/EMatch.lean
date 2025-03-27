@@ -197,9 +197,22 @@ private partial def processOffset (c : Choice) (pArg : Expr) (k : Nat) (e : Expr
     curr ← getNext curr
     if isSameExpr curr e then break
 
+/--
+Retuns "applications" in the given goal that may match `p`.
+We say "applications," because we assume a constant is a zero-ary application.
+-/
+private def getAppsOf (p : Expr) : GoalM (Option (List Expr)) := do
+  if p.isConst then
+    if (← alreadyInternalized p) then
+      return some [p]
+    else
+      return none
+  else
+    return (← get).appMap.find? p.toHeadIndex
+
 /-- Processes `continue` contraint used to implement multi-patterns. -/
 private def processContinue (c : Choice) (p : Expr) : M Unit := do
-  let some apps := (← getThe Goal).appMap.find? p.toHeadIndex
+  let some apps ← getAppsOf p
     | return ()
   let maxGeneration ← getMaxGeneration
   for app in apps do
@@ -331,10 +344,10 @@ private def processChoices : M Unit := do
       | .continue p :: cnstrs => processContinue { c with cnstrs } p
 
 private def main (p : Expr) (cnstrs : List Cnstr) : M Unit := do
-  let some apps := (← getThe Goal).appMap.find? p.toHeadIndex
+  let some apps ← getAppsOf p
     | return ()
   let numParams  := (← read).thm.numParams
-  let assignment := mkArray numParams unassigned
+  let assignment := .replicate numParams unassigned
   let useMT      := (← read).useMT
   let gmt        := (← getThe Goal).ematch.gmt
   for app in apps do
@@ -356,7 +369,7 @@ It traverses disequalities `a = b`, and tries to solve two matching problems:
 private def matchEqBwdPat (p : Expr) : M Unit := do
   let_expr Grind.eqBwdPattern pα plhs prhs := p | return ()
   let numParams  := (← read).thm.numParams
-  let assignment := mkArray numParams unassigned
+  let assignment := .replicate numParams unassigned
   let useMT      := (← read).useMT
   let gmt        := (← getThe Goal).ematch.gmt
   let false      ← getFalseExpr

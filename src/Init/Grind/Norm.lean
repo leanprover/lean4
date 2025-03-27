@@ -77,6 +77,12 @@ theorem natCast_div (a b : Nat) : (↑(a / b) : Int) = ↑a / ↑b := by
 theorem natCast_mod (a b : Nat) : (↑(a % b) : Int) = ↑a % ↑b := by
   rfl
 
+theorem Nat.pow_one (a : Nat) : a ^ 1 = a := by
+  simp
+
+theorem Int.pow_one (a : Int) : a ^ 1 = a := by
+  simp [Int.pow_succ]
+
 init_grind_norm
   /- Pre theorems -/
   not_and not_or not_ite not_forall not_exists
@@ -124,6 +130,7 @@ init_grind_norm
   Nat.le_zero_eq Nat.lt_eq Nat.succ_eq_add_one
   Nat.add_eq Nat.sub_eq Nat.mul_eq Nat.zero_eq Nat.le_eq
   Nat.div_zero Nat.mod_zero Nat.div_one Nat.mod_one
+  Nat.sub_sub Nat.pow_zero Nat.pow_one
   -- Int
   Int.lt_eq
   Int.emod_neg Int.ediv_neg
@@ -131,6 +138,7 @@ init_grind_norm
   Int.ediv_one Int.emod_one
   Int.natCast_add Int.natCast_mul Int.natCast_pow
   Int.natCast_zero natCast_div natCast_mod
+  Int.pow_zero Int.pow_one
   -- GT GE
   ge_eq gt_eq
   -- Int op folding

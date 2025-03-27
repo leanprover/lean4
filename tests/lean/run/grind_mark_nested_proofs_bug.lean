@@ -14,7 +14,7 @@ example (as bs cs : Array α) (v : α)
 
 theorem Array.getElem_set_ne_abstracted (xs : Array α) (i : Nat) (h' : i < xs.size) (v : α) {j : Nat}
     (pj : j < xs.size) (h : i ≠ j) :
-    (xs.set i v)[j]'(by as_aux_lemma => simp [*]) = xs[j] := Array.getElem_set_ne xs i h' v pj h
+    (xs.set i v)[j]'(by as_aux_lemma => simp [*]) = xs[j] := Array.getElem_set_ne h' pj h
 
 example (as bs cs : Array α) (v : α)
         (i : Nat)

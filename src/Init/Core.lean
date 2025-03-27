@@ -294,68 +294,78 @@ inductive Exists {α : Sort u} (p : α → Prop) : Prop where
   | intro (w : α) (h : p w) : Exists p
 
 /--
-Auxiliary type used to compile `for x in xs` notation.
+An indication of whether a loop's body terminated early that's used to compile the `for x in xs`
+notation.
 
-This is the return value of the body of a `ForIn` call,
-representing the body of a for loop. It can be:
-
-* `.yield (a : α)`, meaning that we should continue the loop and `a` is the new state.
-  `.yield` is produced by `continue` and reaching the bottom of the loop body.
-* `.done (a : α)`, meaning that we should early-exit the loop with state `a`.
-  `.done` is produced by calls to `break` or `return` in the loop,
+A collection's `ForIn` or `ForIn'` instance describe's how to iterate over its elements. The monadic
+action that represents the body of the loop returns a `ForInStep α`, where `α` is the local state
+used to implement features such as `let mut`.
 -/
 inductive ForInStep (α : Type u) where
-  /-- `.done a` means that we should early-exit the loop.
-  `.done` is produced by calls to `break` or `return` in the loop. -/
+  /--
+  The loop should terminate early.
+
+  `ForInStep.done` is produced by uses of `break` or `return` in the loop body.
+  -/
   | done  : α → ForInStep α
-  /-- `.yield a` means that we should continue the loop.
-  `.yield` is produced by `continue` and reaching the bottom of the loop body. -/
+  /--
+  The loop should continue with the next iteration, using the returned state.
+
+  `ForInStep.yield` is produced by `continue` and by reaching the bottom of the loop body.
+  -/
   | yield : α → ForInStep α
   deriving Inhabited
 
 /--
-`ForIn m ρ α` is the typeclass which supports `for x in xs` notation.
-Here `xs : ρ` is the type of the collection to iterate over, `x : α`
-is the element type which is made available inside the loop, and `m` is the monad
-for the encompassing `do` block.
+Monadic iteration in `do`-blocks, using the `for x in xs` notation.
+
+The parameter `m` is the monad of the `do`-block in which iteration is performed, `ρ` is the type of
+the collection being iterated over, and `α` is the type of elements.
 -/
 class ForIn (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)) where
-  /-- `forIn x b f : m β` runs a for-loop in the monad `m` with additional state `β`.
-  This traverses over the "contents" of `x`, and passes the elements `a : α` to
-  `f : α → β → m (ForInStep β)`. `b : β` is the initial state, and the return value
-  of `f` is the new state as well as a directive `.done` or `.yield`
-  which indicates whether to abort early or continue iteration.
+  /--
+  Monadically iterates over the contents of a collection `xs`, with a local state `b` and the
+  possibility of early termination.
 
-  The expression
-  ```
-  let mut b := ...
-  for x in xs do
-    b ← foo x b
-  ```
-  in a `do` block is syntactic sugar for:
-  ```
-  let b := ...
-  let b ← forIn xs b (fun x b => do
-    let b ← foo x b
-    return .yield b)
-  ```
-  (Here `b` corresponds to the variables mutated in the loop.) -/
-  forIn {β} [Monad m] (x : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β
+  Because a `do` block supports local mutable bindings along with `return`, and `break`, the monadic
+  action passed to `ForIn.forIn` takes a starting state in addition to the current element of the
+  collection and returns an updated state together with an indication of whether iteration should
+  continue or terminate. If the action returns `ForInStep.done`, then `ForIn.forIn` should stop
+  iteration and return the updated state. If the action returns `ForInStep.yield`, then
+  `ForIn.forIn` should continue iterating if there are further elements, passing the updated state
+  to the action.
+
+  More information about the translation of `for` loops into `ForIn.forIn` is available in [the Lean
+  reference manual](lean-manual://section/monad-iteration-syntax).
+  -/
+  forIn {β} [Monad m] (xs : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β
 
 export ForIn (forIn)
 
 /--
-`ForIn' m ρ α d` is a variation on the `ForIn m ρ α` typeclass which supports the
-`for h : x in xs` notation. It is the same as `for x in xs` except that `h : x ∈ xs`
-is provided as an additional argument to the body of the for-loop.
+Monadic iteration in `do`-blocks with a membership proof, using the `for h : x in xs` notation.
+
+The parameter `m` is the monad of the `do`-block in which iteration is performed, `ρ` is the type of
+the collection being iterated over, `α` is the type of elements, and `d` is the specific membership
+predicate to provide.
 -/
-class ForIn' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)) (d : outParam $ Membership α ρ) where
-  /-- `forIn' x b f : m β` runs a for-loop in the monad `m` with additional state `β`.
-  This traverses over the "contents" of `x`, and passes the elements `a : α` along
-  with a proof that `a ∈ x` to `f : (a : α) → a ∈ x → β → m (ForInStep β)`.
-  `b : β` is the initial state, and the return value
-  of `f` is the new state as well as a directive `.done` or `.yield`
-  which indicates whether to abort early or continue iteration. -/
+class ForIn' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)) (d : outParam (Membership α ρ)) where
+  /--
+  Monadically iterates over the contents of a collection `xs`, with a local state `b` and the
+  possibility of early termination. At each iteration, the body of the loop is provided with a proof
+  that the current element is in the collection.
+
+  Because a `do` block supports local mutable bindings along with `return`, and `break`, the monadic
+  action passed to `ForIn'.forIn'` takes a starting state in addition to the current element of the
+  collection with its membership proof. The action returns an updated state together with an
+  indication of whether iteration should continue or terminate. If the action returns
+  `ForInStep.done`, then `ForIn'.forIn'` should stop iteration and return the updated state. If the
+  action returns `ForInStep.yield`, then `ForIn'.forIn'` should continue iterating if there are
+  further elements, passing the updated state to the action.
+
+  More information about the translation of `for` loops into `ForIn'.forIn'` is available in [the
+  Lean reference manual](lean-manual://section/monad-iteration-syntax).
+  -/
   forIn' {β} [Monad m] (x : ρ) (b : β) (f : (a : α) → a ∈ x → β → m (ForInStep β)) : m β
 
 export ForIn' (forIn')
@@ -865,37 +875,55 @@ noncomputable def HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : S
 noncomputable def HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : HEq a b) (h₂ : p a) : p b :=
   eq_of_heq h₁ ▸ h₂
 
+/-- Substitution with heterogeneous equality. -/
 theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : HEq a b) (h₂ : p α a) : p β b :=
   HEq.ndrecOn h₁ h₂
 
+/-- Heterogeneous equality is symmetric. -/
 @[symm] theorem HEq.symm (h : HEq a b) : HEq b a :=
   h.rec (HEq.refl a)
 
+/-- Propositionally equal terms are also heterogeneously equal. -/
 theorem heq_of_eq (h : a = a') : HEq a a' :=
   Eq.subst h (HEq.refl a)
 
+/-- Heterogeneous equality is transitive. -/
 theorem HEq.trans (h₁ : HEq a b) (h₂ : HEq b c) : HEq a c :=
   HEq.subst h₂ h₁
 
+/-- Heterogeneous equality precomposes with propositional equality. -/
 theorem heq_of_heq_of_eq (h₁ : HEq a b) (h₂ : b = b') : HEq a b' :=
   HEq.trans h₁ (heq_of_eq h₂)
 
+/-- Heterogeneous equality postcomposes with propositional equality. -/
 theorem heq_of_eq_of_heq (h₁ : a = a') (h₂ : HEq a' b) : HEq a b :=
   HEq.trans (heq_of_eq h₁) h₂
 
+/-- If two terms are heterogeneously equal then their types are propositionally equal. -/
 theorem type_eq_of_heq (h : HEq a b) : α = β :=
   h.rec (Eq.refl α)
 
 end
 
+/--
+Rewriting inside `φ` using `Eq.recOn` yields a term that's heterogeneously equal to the original
+term.
+-/
 theorem eqRec_heq {α : Sort u} {φ : α → Sort v} {a a' : α} : (h : a = a') → (p : φ a) → HEq (Eq.recOn (motive := fun x _ => φ x) h p) p
   | rfl, p => HEq.refl p
 
+/--
+If casting a term with `Eq.rec` to another type makes it equal to some other term, then the two
+terms are heterogeneously equal.
+-/
 theorem heq_of_eqRec_eq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ : Eq.rec (motive := fun α _ => α) a h₁ = b) : HEq a b := by
   subst h₁
   apply heq_of_eq
   exact h₂
 
+/--
+The result of casting a term with `cast` is heterogeneously equal to the original term.
+-/
 theorem cast_heq {α β : Sort u} : (h : α = β) → (a : α) → HEq (cast h a) a
   | rfl, a => HEq.refl a
 
@@ -2291,6 +2319,12 @@ Keep in mind that if you are using Lean as programming language, you are already
 So, you are mainly losing the capability of type checking your development using external checkers.
 -/
 axiom ofReduceNat (a b : Nat) (h : reduceNat a = b) : a = b
+
+
+/--
+The term `opaqueId x` will not be reduced by the kernel.
+-/
+opaque opaqueId {α : Sort u} (x : α) : α := x
 
 end Lean
 

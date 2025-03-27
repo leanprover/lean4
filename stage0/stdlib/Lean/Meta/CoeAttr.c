@@ -33,7 +33,6 @@ static lean_object* l_Lean_Meta_instToExprCoeFnType___lambda__1___closed__5;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_772____closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_CoeFnType_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
 static lean_object* l_Lean_Meta_instToExprCoeFnType___lambda__1___closed__9;
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_166_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_instToExprCoeFnType___closed__1;
 lean_object* l_Array_findIdx_x3f_loop___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_772____lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -179,6 +178,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_instToExprCoeFnType___lambda__1___boxed(lea
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_772____lambda__3___closed__2;
 static lean_object* l___private_Lean_Meta_CoeAttr_0__Lean_Meta_reprCoeFnInfo____x40_Lean_Meta_CoeAttr___hyg_314____closed__18;
 static lean_object* l___private_Lean_Meta_CoeAttr_0__Lean_Meta_reprCoeFnInfo____x40_Lean_Meta_CoeAttr___hyg_314____closed__16;
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_162_(uint8_t, uint8_t);
 lean_object* lean_array_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_registerCoercion___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_CoeAttr_0__Lean_Meta_reprCoeFnType____x40_Lean_Meta_CoeAttr___hyg_19____closed__7;
@@ -2465,7 +2465,7 @@ _start:
 {
 uint8_t x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; 
 x_7 = 0;
-x_8 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_166_(x_3, x_7);
+x_8 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_162_(x_3, x_7);
 x_9 = l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_772____lambda__2___closed__11;
 x_10 = lean_st_mk_ref(x_9, x_6);
 if (x_8 == 0)

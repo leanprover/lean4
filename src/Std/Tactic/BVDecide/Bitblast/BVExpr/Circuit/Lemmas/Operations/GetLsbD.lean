@@ -35,8 +35,7 @@ theorem denote_getD_eq_getLsbD (aig : AIG α) (assign : α → Bool) (x : BitVec
     omega
 
 @[simp]
-theorem denote_blastGetLsbD (aig : AIG α) (target : GetLsbDTarget aig)
-    (assign : α → Bool) :
+theorem denote_blastGetLsbD (aig : AIG α) (target : GetLsbDTarget aig) (assign : α → Bool) :
     ⟦blastGetLsbD aig target, assign⟧
       =
     if h : target.idx < target.w then

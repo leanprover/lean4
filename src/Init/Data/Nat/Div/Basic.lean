@@ -24,7 +24,22 @@ theorem div_rec_fuel_lemma {x y fuel : Nat} (hy : 0 < y) (hle : y ≤ x) (hfuel 
     x - y < fuel :=
   Nat.lt_of_lt_of_le (div_rec_lemma ⟨hy, hle⟩) (Nat.le_of_lt_succ hfuel)
 
-@[extern "lean_nat_div"]
+/--
+Division of natural numbers, discarding the remainder. Division by `0` returns `0`. Usually accessed
+via the `/` operator.
+
+This operation is sometimes called “floor division.”
+
+This function is overridden at runtime with an efficient implementation. This definition is
+the logical model.
+
+Examples:
+ * `21 / 3 = 7`
+ * `21 / 5 = 4`
+ * `0 / 22 = 0`
+ * `5 / 0 = 0`
+-/
+@[extern "lean_nat_div", irreducible]
 protected def div (x y : @& Nat) : Nat :=
   if hy : 0 < y then
     let rec
@@ -71,6 +86,10 @@ theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 e
   next =>
     simp only [false_and, ↓reduceIte, *]
 
+/--
+An induction principle customized for reasoning about the recursion pattern of natural number
+division by iterated subtraction.
+-/
 def div.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
       (x y : Nat)
@@ -108,6 +127,20 @@ theorem div_lt_self {n k : Nat} (hLtN : 0 < n) (hLtK : 1 < k) : n / k < n := by
     have := Nat.add_le_of_le_sub hKN this
     exact Nat.lt_of_lt_of_le (Nat.add_lt_add_left hLtK _) this
 
+/--
+The modulo operator, which computes the remainder when dividing one natural number by another.
+Usually accessed via the `%` operator. When the divisor is `0`, the result is the dividend rather
+than an error.
+
+This is the core implementation of `Nat.mod`. It computes the correct result for any two closed
+natural numbers, but it does not have some convenient [definitional
+reductions](lean-manual://section/type-system) when the `Nat`s contain free variables. The wrapper
+`Nat.mod` handles those cases specially and then calls `Nat.modCore`.
+
+This function is overridden at runtime with an efficient implementation. This definition is the
+logical model.
+-/
+@[extern "lean_nat_mod", irreducible]
 protected noncomputable def modCore (x y : Nat) : Nat :=
   if hy : 0 < y then
     let rec
@@ -155,13 +188,38 @@ protected theorem modCore_eq (x y : Nat) : Nat.modCore x y =
     simp only [false_and, ↓reduceIte, *]
 
 
+/--
+The modulo operator, which computes the remainder when dividing one natural number by another.
+Usually accessed via the `%` operator. When the divisor is `0`, the result is the dividend rather
+than an error.
+
+`Nat.mod` is a wrapper around `Nat.modCore` that special-cases two situations, giving better
+definitional reductions:
+ * `Nat.mod 0 m` should reduce to `m`, for all terms `m : Nat`.
+ * `Nat.mod n (m + n + 1)` should reduce to `n` for concrete `Nat` literals `n`.
+
+These reductions help `Fin n` literals work well, because the `OfNat` instance for `Fin` uses
+`Nat.mod`. In particular, `(0 : Fin (n + 1)).val` should reduce definitionally to `0`. `Nat.modCore`
+can handle all numbers, but its definitional reductions are not as convenient.
+
+This function is overridden at runtime with an efficient implementation. This definition is the
+logical model.
+
+Examples:
+ * `7 % 2 = 1`
+ * `9 % 3 = 0`
+ * `5 % 7 = 5`
+ * `5 % 0 = 5`
+ * `show ∀ (n : Nat), 0 % n = 0 from fun _ => rfl`
+ * `show ∀ (m : Nat), 5 % (m + 6) = 5 from fun _ => rfl`
+-/
 @[extern "lean_nat_mod"]
 protected def mod : @& Nat → @& Nat → Nat
   /-
   Nat.modCore is defined with fuel and thus does not reduce with open terms very well.
   Nevertheless it is desirable for trivial `Nat.mod` calculations, namely
   * `Nat.mod 0 m` for all `m`
-  * `Nat.mod n (m+n)` for concrete literals `n`,
+  * `Nat.mod n (m + n + 1)` for concrete literals `n`,
   to reduce definitionally.
   This property is desirable for `Fin n` literals, as it means `(ofNat 0 : Fin n).val = 0` by
   definition.
@@ -189,6 +247,9 @@ protected theorem modCore_eq_mod (n m : Nat) : Nat.modCore n m = n % m := by
 theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by
   rw [←Nat.modCore_eq_mod, ←Nat.modCore_eq_mod, Nat.modCore_eq]
 
+/--
+An induction principle customized for reasoning about the recursion pattern of `Nat.mod`.
+-/
 def mod.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
       (x y  : Nat)
@@ -258,6 +319,9 @@ theorem mod_le (x y : Nat) : x % y ≤ x := by
   | Or.inr h₁ => match eq_zero_or_pos y with
     | Or.inl h₂ => rw [h₂, Nat.mod_zero x]; apply Nat.le_refl
     | Or.inr h₂ => exact Nat.le_trans (Nat.le_of_lt (mod_lt _ h₂)) h₁
+
+theorem mod_lt_of_lt {a b c : Nat} (h : a < c) : a % b < c :=
+  Nat.lt_of_le_of_lt (Nat.mod_le _ _) h
 
 @[simp] theorem zero_mod (b : Nat) : 0 % b = 0 := by
   rw [mod_eq]

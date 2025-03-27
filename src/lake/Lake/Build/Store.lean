@@ -32,7 +32,7 @@ namespace BuildStore
 
 /-- Derive an array of built module facets from the store. -/
 def collectModuleFacetArray
-  (self : BuildStore) (facet : Name) [FamilyOut ModuleData facet α]
+  (self : BuildStore) (facet : Name) [FamilyOut FacetOut facet α]
 : Array (Job α) := Id.run do
   let mut res : Array (Job α) := #[]
   for ⟨k, v⟩ in self do
@@ -46,7 +46,7 @@ def collectModuleFacetArray
 
 /-- Derive a map of module names to built facets from the store. -/
 def collectModuleFacetMap
-  (self : BuildStore) (facet : Name) [FamilyOut ModuleData facet α]
+  (self : BuildStore) (facet : Name) [FamilyOut FacetOut facet α]
 : NameMap (Job α) := Id.run do
   let mut res := Lean.mkNameMap (Job α)
   for ⟨k, v⟩ in self do
@@ -60,12 +60,12 @@ def collectModuleFacetMap
 
 /-- Derive an array of built package facets from the store. -/
 def collectPackageFacetArray
-  (self : BuildStore) (facet : Name) [FamilyOut PackageData facet α]
+  (self : BuildStore) (facet : Name) [FamilyOut FacetOut facet α]
 : Array (Job α) := Id.run do
   let mut res : Array (Job α) := #[]
   for ⟨k, v⟩ in self do
     match k with
-    | .packageFacet _ f =>
+    | .packageFacet p f =>
       if h : f = facet then
         have of_data := by unfold BuildData; simp [h]
         res := res.push <| cast of_data v
@@ -74,19 +74,19 @@ def collectPackageFacetArray
 
 /-- Derive an array of built target facets from the store. -/
 def collectTargetFacetArray
-  (self : BuildStore) (facet : Name) [FamilyOut TargetData facet α]
+  (self : BuildStore) (facet : Name) [FamilyOut FacetOut facet α]
 : Array (Job α) := Id.run do
   let mut res : Array (Job α) := #[]
   for ⟨k, v⟩ in self do
     match k with
     | .targetFacet _ _ f =>
-      if h : f = facet then
-        have of_data := by unfold BuildData; simp [h]
+      if hf : f = facet then
+        have of_data := by unfold BuildData; simp [hf]
         res := res.push <| cast of_data v
     | _ => pure ()
   return res
 
 /-- Derive an array of built external shared libraries from the store. -/
 def collectSharedExternLibs
-  (self : BuildStore) [FamilyOut TargetData `externLib.shared α]
+  (self : BuildStore) [FamilyOut FacetOut `externLib.shared α]
 : Array (Job α) := self.collectTargetFacetArray `externLib.shared

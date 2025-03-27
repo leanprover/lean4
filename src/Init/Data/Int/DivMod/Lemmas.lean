@@ -556,7 +556,7 @@ protected theorem eq_ediv_of_mul_eq_left {a b c : Int}
 
 theorem sign_ediv (a b : Int) : sign (a / b) = if 0 ≤ a ∧ a < b.natAbs then 0 else sign a * sign b := by
   induction b using wlog_sign
-  case inv => simp; split <;> simp
+  case inv => simp; split <;> simp [Int.mul_neg]
   case w b =>
     match b with
     | 0 => simp
@@ -697,7 +697,7 @@ protected theorem ediv_emod_unique {a b r q : Int} (h : 0 < b) :
 protected theorem ediv_emod_unique' {a b r q : Int} (h : b < 0) :
     a / b = q ∧ a % b = r ↔ r + b * q = a ∧ 0 ≤ r ∧ r < -b := by
   have := Int.ediv_emod_unique (a := a) (b := -b) (r := r) (q := -q) (by omega)
-  simpa [Int.neg_inj]
+  simpa [Int.neg_inj, Int.neg_mul, Int.mul_neg]
 
 @[simp] theorem mul_emod_mul_of_pos
     {a : Int} (b c : Int) (H : 0 < a) : (a * b) % (a * c) = a * (b % c) := by
@@ -731,6 +731,22 @@ theorem neg_ediv {a b : Int} : (-a) / b = -(a / b) - if b ∣ a then 0 else b.si
           omega
         · have := emod_lt_of_neg a hb
           omega
+
+theorem tdiv_cases (n m : Int) : n.tdiv m =
+    if 0 ≤ n then
+      if 0 ≤ m then n / m else -(n / (-m))
+    else
+      if 0 ≤ m then -((-n) / m) else (-n) / (-m) := by
+  split <;> rename_i hn
+  · split <;> rename_i hm
+    · rw [Int.tdiv_eq_ediv_of_nonneg hn]
+    · rw [Int.tdiv_eq_ediv_of_nonneg hn]
+      simp
+  · split <;> rename_i hm
+    · rw [Int.tdiv_eq_ediv, Int.neg_ediv]
+      simp [hn, Int.neg_sub, Int.add_comm]
+    · rw [Int.tdiv_eq_ediv, Int.neg_ediv, Int.ediv_neg]
+      simp [hn, Int.sub_eq_add_neg, apply_ite Neg.neg]
 
 theorem neg_emod {a b : Int} : (-a) % b = if b ∣ a then 0 else b.natAbs - (a % b) := by
   rw [emod_def, emod_def, neg_ediv, Int.mul_sub, Int.mul_neg]
@@ -1122,10 +1138,10 @@ protected theorem neg_tdiv_neg (a b : Int) : (-a).tdiv (-b) = a.tdiv b := by
 
 theorem sign_tdiv (a b : Int) : sign (a.tdiv b) = if natAbs a < natAbs b then 0 else sign a * sign b := by
   induction b using wlog_sign
-  case inv => simp; split <;> simp
+  case inv => simp; split <;> simp [Int.mul_neg]
   case w b =>
     induction a using wlog_sign
-    case inv => simp; split <;> simp
+    case inv => simp; split <;> simp [Int.neg_mul]
     case w a =>
       rw [tdiv_eq_ediv_of_nonneg (by simp), sign_ediv]
       simp
@@ -1186,9 +1202,9 @@ theorem lt_tmod_of_pos (a : Int) {b : Int} (H : 0 < b) : -b < tmod a b :=
 
 theorem mul_tmod (a b n : Int) : (a * b).tmod n = (a.tmod n * b.tmod n).tmod n := by
   induction a using wlog_sign
-  case inv => simp
+  case inv => simp [Int.neg_mul]
   induction b using wlog_sign
-  case inv => simp
+  case inv => simp [Int.mul_neg]
   induction n using wlog_sign
   case inv => simp
   simp only [← Int.natCast_mul, ← ofNat_tmod]
@@ -1331,14 +1347,14 @@ protected theorem tdiv_tmod_unique {a b r q : Int} (ha : 0 ≤ a) (hb : b ≠ 0)
   · replace hb' : 0 < -b := by omega
     have := Int.ediv_emod_unique (a := a) (q := -q) (r := r) hb'
     simp at this
-    simp [this]
+    simp [this, Int.neg_mul, Int.mul_neg]
     omega
 
 protected theorem tdiv_tmod_unique' {a b r q : Int} (ha : a ≤ 0) (hb : b ≠ 0) :
     a.tdiv b = q ∧ a.tmod b = r ↔ r + b * q = a ∧ -natAbs b < r ∧ r ≤ 0 := by
   have := Int.tdiv_tmod_unique (a := -a) (q := -q) (r := -r) (by omega) hb
   simp at this
-  simp [this]
+  simp [this, Int.mul_neg]
   omega
 
 @[simp] theorem mul_tmod_mul_of_pos
@@ -1971,7 +1987,7 @@ protected theorem fdiv_fmod_unique' {a b r q : Int} (h : b < 0) :
     a.fdiv b = q ∧ a.fmod b = r ↔ r + b * q = a ∧ b < r ∧ r ≤ 0 := by
   have := Int.fdiv_fmod_unique (a := -a) (b := -b) (r := -r) (q := q) (by omega)
   simp at this
-  simp [this]
+  simp [this, Int.neg_mul]
   omega
 
 @[simp] theorem mul_fmod_mul_of_pos
@@ -2268,6 +2284,14 @@ theorem bmod_lt {x : Int} {m : Nat} (h : 0 < m) : bmod x m < (m + 1) / 2 := by
 
 theorem bmod_eq_emod_of_lt {x : Int} {m : Nat} (hx : x % m < (m + 1) / 2) : bmod x m = x % m := by
   simp [bmod, hx]
+
+theorem bmod_eq_neg {n : Nat} {m : Int} (hm : 0 ≤ m) (hn : n = 2 * m) : m.bmod n = -m := by
+  by_cases h : m = 0
+  · subst h; simp
+  · rw [Int.bmod_def, hn, if_neg]
+    · rw [Int.emod_eq_of_lt hm] <;> omega
+    · simp only [Int.not_lt]
+      rw [Int.emod_eq_of_lt hm] <;> omega
 
 theorem bmod_le {x : Int} {m : Nat} (h : 0 < m) : bmod x m ≤ (m - 1) / 2 := by
   refine lt_add_one_iff.mp ?_

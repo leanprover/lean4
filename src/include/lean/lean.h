@@ -349,7 +349,7 @@ static inline lean_object * lean_alloc_small_object(unsigned sz) {
 #else
     lean_inc_heartbeat();
 #ifdef LEAN_MIMALLOC
-    void * mem = mi_malloc(sizeof(size_t) + sz);
+    void * mem = mi_malloc_small(sizeof(size_t) + sz);
 #else
     void * mem = malloc(sizeof(size_t) + sz);
 #endif
@@ -405,7 +405,7 @@ static inline void lean_free_small_object(lean_object * o) {
     lean_free_small(o);
 #elif defined(LEAN_MIMALLOC)
     size_t* ptr = (size_t*)o - 1;
-    mi_free(ptr);
+    mi_free_size(ptr, *ptr + sizeof(size_t));
 #else
     size_t* ptr = (size_t*)o - 1;
     free_sized(ptr, *ptr + sizeof(size_t));

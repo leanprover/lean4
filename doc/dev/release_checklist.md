@@ -13,7 +13,8 @@ We'll use `v4.6.0` as the intended release version as a running example.
 - In `src/CMakeLists.txt`, verify you see
   - `set(LEAN_VERSION_MINOR 6)` (for whichever `6` is appropriate)
   - `set(LEAN_VERSION_IS_RELEASE 1)`
-  - (both of these should already be in place from the release candidates)
+  - (all of these should already be in place from the release candidates)
+
 - `git tag v4.6.0`
 - `git push $REMOTE v4.6.0`, where `$REMOTE` is the upstream Lean repository (e.g., `origin`, `upstream`)
 - Now wait, while CI runs.
@@ -79,6 +80,15 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Warnings during `lake update` and `lake build` are expected.
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag
+      - There is no `stable` branch; skip this step
+    - [Reference Manual](https://github.com/leanprover/reference-manual)
+      - Dependencies: Verso
+      - Toolchain bump PR including updated Lake manifest
+      - The tag should be called `v4.6.0` for both all RCs and for the
+        final release.
+      - For the final release, delete the existing `v4.6.0` tag from
+        the RC, recreate it after the bump, and push it. Pushing the
+        tag (whether for an RC or a final) triggers a deployment.
       - There is no `stable` branch; skip this step
     - [Cli](https://github.com/leanprover/lean4-cli)
       - No dependencies

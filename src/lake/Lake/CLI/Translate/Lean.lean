@@ -204,25 +204,30 @@ protected def PathPatDescr.toLean? (p : PathPatDescr) : Option Term :=
 
 instance : ToLean? PathPatDescr := ⟨PathPatDescr.toLean?⟩
 
-protected def PartialBuildKey.toLean (k : BuildKey) : Term := Unhygienic.run do
+@[inline] protected def PartialBuildKey.toLean (k : BuildKey) : Term :=
   go k []
 where
-  go k (fs : List Name) :=
+  go k (fs : List Name) := Unhygienic.run do
     match k with
-    | .module n => `(`+$(mkIdent n)$(mkSuffixes fs)*)
+    | .module n =>
+      `(`+$(mkIdent n)$(mkSuffixes fs)*)
     | .package n =>
       if n.isAnonymous then
-        match fs with
-        | f :: fs => `(`:$(mkIdent f)$(mkSuffixes fs)*)
-        | [] => `(`@)
+        `(`@$(mkSuffixes fs):facetSuffix*)
       else
         `(`@$(mkIdent n)$(mkSuffixes fs)*)
     | .packageTarget p t =>
+      let t ←
+        if let some t := t.eraseSuffix? moduleTargetIndicator then
+          `(packageTargetLit|+$(mkIdent t))
+        else
+          `(packageTargetLit|$(mkIdent t):ident)
       if p.isAnonymous then
-        `(`/$(mkIdent t)$(mkSuffixes fs)*)
+        `(`@/$t$(mkSuffixes fs)*)
       else
-        `(`@$(mkIdent p)/$(mkIdent t)$(mkSuffixes fs)*)
-    | .facet k f => go k (f :: fs)
+        `(`@$(mkIdent p)/$t$(mkSuffixes fs)*)
+    | .facet k f =>
+      return go k (f :: fs)
   mkSuffixes facets : Array (TSyntax ``facetSuffix) :=
     facets.toArray.map fun f => Unhygienic.run `(facetSuffix|:$(mkIdent f))
 

@@ -16,7 +16,7 @@ class IsPattern (α : Type u) (β : outParam $ Type v) where
   /-- Returns whether the value matches the pattern. -/
   satisfies (pat : α) (val : β) : Bool
 
-@[inherit_doc] infix:50 " =~ " => IsPattern.satisfies
+@[inherit_doc] scoped infix:50 " =~ " => IsPattern.satisfies
 
 /-! ## Abstract Patterns -/
 

@@ -17,9 +17,6 @@ namespace Lake
 
 /-! ## Input File -/
 
-/-- The default facet for an input file. Produces the file path. -/
-builtin_facet default : InputFile => FilePath
-
 private def InputFile.recFetch (t : InputFile) : FetchM (Job FilePath) :=
   withRegisterJob s!"{t.name}" do
   inputFile t.config.path t.config.text
@@ -37,12 +34,6 @@ def InputFile.initFacetConfigs : DNameMap (KFacetConfig InputFile.facetKind) :=
   |>.insert defaultFacet defaultFacetConfig
 
 /-! ## Input Directory -/
-
-/--
-The default facet for an input directory.
-Produces the matching files in the directory.
--/
-builtin_facet default : InputDir => Array FilePath
 
 private def InputDir.recFetch (t : InputDir) : FetchM (Job (Array FilePath)) :=
   withRegisterJob s!"{t.name}" do

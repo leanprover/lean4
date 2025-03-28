@@ -190,3 +190,12 @@ builtin_facet shared : ExternLib => FilePath
 
 /-- A external library's dynlib. -/
 builtin_facet dynlib : ExternLib => Dynlib
+
+/-- The default facet for an input file. Produces the file path. -/
+builtin_facet default : InputFile => FilePath
+
+/--
+The default facet for an input directory.
+Produces the matching files in the directory.
+-/
+builtin_facet default : InputDir => Array FilePath

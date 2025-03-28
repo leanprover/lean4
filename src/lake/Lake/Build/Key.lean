@@ -18,10 +18,16 @@ inductive BuildKey
 | facet (target : BuildKey) (facet : Name)
 deriving Inhabited, Repr, DecidableEq, Hashable
 
+def PartialBuildKey.moduleTargetIndicator := `«_+»
+
 /--
 A build key with some missing info.
-Package names may be elided (replaced by `Name.anonymous`),
-and facet names are unqualified (they do not include the input target kind).
+
+* Package names may be elided (replaced by `Name.anonymous`).
+* Facet names are unqualified (they do not include the input target kind)
+  and may also be ellided.
+* Module package targets are supported via a fake `packageTarget` with
+  a target name ending in `moduleTargetIndicator`.
 -/
 def PartialBuildKey := BuildKey
 
@@ -30,46 +36,63 @@ Parses a `PartialBuildKey` from a `String`.
 Uses the same syntax as the `lake build` / `lake query` CLI.
 -/
 def PartialBuildKey.parse (s : String) : Except String PartialBuildKey := do
-  let decodeTarget s := do
+  if s.isEmpty then
+    throw "ill-formed target: empty string"
+  match s.splitOn ":" with
+  | target :: facets =>
+    let target ← parseTarget target
+    facets.foldlM (init := target) fun target facet => do
+      if facet.isEmpty then
+        throw "ill-formed target: empty facet"
+      else
+        return .facet target (stringToLegalOrSimpleName facet)
+  | [] =>
+    -- ∀ str, length (str.splitOn sep) > 0
+    unreachable!
+where
+  parseTarget s := do
     match s.splitOn "/" with
     | [target] =>
       if target.isEmpty then
         return .package .anonymous
       if target.startsWith "@" then
-        let pkg := target.drop 1 |> stringToLegalOrSimpleName
-        return .package pkg
-      else if target.startsWith "+" then
-        throw s!"ill-formed target: module targets are not allowed in partial build keys"
-      else
-        let target := stringToLegalOrSimpleName target
-        return .packageTarget .anonymous target
-    | [pkg, target] =>
-      if target.isEmpty then
-        throw s!"ill-formed target: default package targets are not supported in partial build keys"
-      let pkg :=
+        let pkg := target.drop 1
         if pkg.isEmpty then
-          .anonymous
+          return .package .anonymous
         else
-          let pkg := if pkg.startsWith "@" then pkg.drop 1 else pkg
-          stringToLegalOrSimpleName pkg
-      let target := stringToLegalOrSimpleName target
-      return .packageTarget pkg target
+          return .package (stringToLegalOrSimpleName pkg)
+      else if target.startsWith "+" then
+        return .module (stringToLegalOrSimpleName (target.drop 1))
+      else
+        parsePackageTarget .anonymous target
+    | [pkg, target] =>
+      let pkg := if pkg.startsWith "@" then pkg.drop 1 else pkg
+      if pkg.isEmpty then
+        parsePackageTarget .anonymous target
+      else
+        parsePackageTarget (stringToLegalOrSimpleName pkg) target
     | _ =>
       throw "ill-formed target: too many '/'"
-  match s.splitOn ":" with
-  | [target] =>
-    decodeTarget target
-  | [target, facetSpec] =>
-    let target ← decodeTarget target
-    let facet := stringToLegalOrSimpleName facetSpec
-    return .facet target facet
-  | _ =>
-    throw "ill-formed target: too many':'"
+  parsePackageTarget pkg target :=
+    if target.isEmpty then
+      throw s!"ill-formed target: default package targets are not supported in partial build keys"
+    else if target.startsWith "+" then
+      let target := target.drop 1 |> stringToLegalOrSimpleName
+      let target := target ++ moduleTargetIndicator
+      return .packageTarget pkg target
+    else
+      let target := stringToLegalOrSimpleName target
+      return .packageTarget pkg target
 
 def PartialBuildKey.toString : (self : PartialBuildKey) → String
 | .module m => s!"+{m}"
 | .package p => if p.isAnonymous then "" else s!"@{p}"
-| .packageTarget p t => if p.isAnonymous then s!"{t}" else s!"{p}/{t}"
+| .packageTarget p t =>
+  let t :=
+    if let some t := t.eraseSuffix? moduleTargetIndicator then
+      s!"+{t}"
+    else t.toString
+  if p.isAnonymous then t else s!"{p}/{t}"
 | .facet t f => if f.isAnonymous then toString t else s!"{toString t}:{f}"
 
 instance : ToString PartialBuildKey := ⟨PartialBuildKey.toString⟩

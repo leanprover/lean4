@@ -15,21 +15,33 @@ open Lean
 namespace Lake.DSL
 
 syntax facetSuffix := ":" noWs ident
+syntax packageTargetLit := ("+" noWs)? ident
 
-syntax:max "`+" noWs ident facetSuffix* : term
-syntax:max "`@" noWs (ident)? (noWs "/" noWs ident)? facetSuffix* : term
-syntax:max "`/" noWs ident facetSuffix* : term
-syntax:max "`:" noWs ident facetSuffix* : term
+scoped syntax:max "`+" noWs ident facetSuffix* : term
+scoped syntax:max "`@" noWs (ident)? (noWs "/" noWs packageTargetLit)? facetSuffix* : term
 
-private def addFacets (tgt : Term) (facets : Array Ident) : MacroM Term := do
+private def expandFacets (tgt : Term) (facets : Array Ident) : MacroM Term := do
   let facetLits := facets.map fun facet => Name.quoteFrom facet facet.getId
   facetLits.foldlM (init := tgt) fun tgt lit => `(BuildKey.facet $tgt $lit)
+
+private def expandPackageTargetLit
+  (pkg : Term) (stx : TSyntax ``packageTargetLit)
+: MacroM Term := withRef stx do
+  let `(packageTargetLit|$[+%$mod?]?$tgt) := stx
+    | Macro.throwError "ill-formed package target literal"
+  let tgtName :=
+    if mod?.isSome then
+      tgt.getId ++ PartialBuildKey.moduleTargetIndicator
+    else
+      tgt.getId
+  let tgtLit := Name.quoteFrom tgt tgtName
+  `(BuildKey.packageTarget $pkg $tgtLit)
 
 macro_rules
 | `(`+%$tk$mod$[:$facets]*) => withRef tk do
   let modLit := Name.quoteFrom mod mod.getId
   let tgt ← `(BuildKey.module $modLit)
-  addFacets tgt facets
+  expandFacets tgt facets
 | `(`@%$tk$(pkg?)?$[/$tgt?]?$[:$facets]*) => withRef tk do
   let pkgLit :=
     if let some pkg := pkg? then
@@ -38,17 +50,7 @@ macro_rules
       Name.quoteFrom tk Name.anonymous
   let tgt ←
     if let some tgt := tgt? then
-      let tgtLit := Name.quoteFrom tgt tgt.getId
-      `(BuildKey.packageTarget $pkgLit $tgtLit)
+      expandPackageTargetLit pkgLit tgt
     else
       `(BuildKey.package $pkgLit)
-  addFacets tgt facets
-| `(`/%$tk$tgt$[:$facets]*) => withRef tk do
-  let pkgLit := Name.quoteFrom tk Name.anonymous
-  let tgtLit := Name.quoteFrom tgt tgt.getId
-  let tgt ← `(BuildKey.packageTarget $pkgLit $tgtLit)
-  addFacets tgt facets
-| `(`:%$tk$facet$[:$facets]*) => withRef tk do
-  let pkgLit := Name.quoteFrom tk Name.anonymous
-  let tgt ← `(BuildKey.package $pkgLit)
-  addFacets tgt (#[facet] ++ facets)
+  expandFacets tgt facets

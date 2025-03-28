@@ -4,7 +4,7 @@ open System Lake DSL
 
 package test
 
-@[default_target] lean_exe test where needs := #[`/foo, `/barz]
+@[default_target] lean_exe test where needs := #[`@/foo, `@/barz]
 
 input_file foo where
   path := "inputs/foo.txt"

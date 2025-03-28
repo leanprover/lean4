@@ -25,23 +25,28 @@ private def PartialBuildKey.fetchInCore
     return ⟨.package pkg.name, cast (by simp) <| Job.pure pkg⟩
   | .packageTarget pkgName target =>
     let pkg ← resolveTargetPackageD pkgName
-    let key := BuildKey.packageTarget pkg.name target
-    if facetless then
-      if let some decl := pkg.findTargetDecl? target then
-        if h : decl.kind.isAnonymous then
-          let job ← ( pkg.target target).fetch
-          return ⟨key, cast (by simp) job⟩
-        else
-          let facet := decl.kind.str "default"
-          let tgt := decl.mkConfigTarget pkg
-          let tgt := cast (by simp [decl.target_eq_type h]) tgt
-          let info := BuildInfo.facet key decl.kind tgt facet
-          return ⟨key.facet facet, ← info.fetch⟩
-      else
-        error s!"invalid target '{root}': target not found in package '{pkg.name}'"
+    if let some modName := target.eraseSuffix? PartialBuildKey.moduleTargetIndicator then
+      let some mod := pkg.findTargetModule? modName
+        | error s!"invalid target '{root}': module target '{modName}' not found in package '{pkg.name}'"
+      return ⟨.module mod.keyName, cast (by simp) <| Job.pure mod⟩
     else
-      let job ← (pkg.target target).fetch
-      return ⟨key, cast (by simp) job⟩
+      let key := BuildKey.packageTarget pkg.name target
+      if facetless then
+        if let some decl := pkg.findTargetDecl? target then
+          if h : decl.kind.isAnonymous then
+            let job ← ( pkg.target target).fetch
+            return ⟨key, cast (by simp) job⟩
+          else
+            let facet := decl.kind.str "default"
+            let tgt := decl.mkConfigTarget pkg
+            let tgt := cast (by simp [decl.target_eq_type h]) tgt
+            let info := BuildInfo.facet key decl.kind tgt facet
+            return ⟨key.facet facet, ← info.fetch⟩
+        else
+          error s!"invalid target '{root}': target not found in package '{pkg.name}'"
+      else
+        let job ← (pkg.target target).fetch
+        return ⟨key, cast (by simp) job⟩
   | .facet target shortFacet =>
       let ⟨key, job⟩ ← PartialBuildKey.fetchInCore target false
       let kind := job.kind
@@ -64,8 +69,13 @@ where
 
 /--
 Fetches the target specified by this key, resolving gaps as needed.
-A missing package is filled in with `defaultPkg` and facets are qualified
-by the their input target's kind.
+
+* A missing package (i.e., `Name.anoanmoyus`) is filled in with `defaultPkg`.
+* Facets are qualified by the their input target's kind, and missing facets
+  are replaced by their kind's `default`.
+* Package targets ending in `moduleTargetIndicator` are converted to module package targets.
+* Package targets for non-dynamic targets (i.e., non-`target`) produce their default facet
+  rather than their configuration.
 -/
 @[inline] def PartialBuildKey.fetchIn (defaultPkg : Package) (self : PartialBuildKey) : FetchM OpaqueJob :=
   (·.2.toOpaque) <$> fetchInCore defaultPkg self self true

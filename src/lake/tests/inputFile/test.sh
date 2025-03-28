@@ -26,7 +26,7 @@ $LAKE -f lakefileAlt.lean -q build --no-build 2>&1 | diff - /dev/null
 # Validate TOML->Lean translation
 $LAKE translate-config lean lakefile.produced.lean 2>&1 | diff - /dev/null
 diff -u --strip-trailing-cr lakefile.expected.lean lakefile.produced.lean
-$LAKE -f lakefile.produced.lean -q build --no-build 2>&1 | diff - /dev/null
+$LAKE -f lakefile.expected.lean -q build --no-build 2>&1 | diff - /dev/null
 
 # Test input file target
 cat "`$LAKE query foo`" | diff -u --strip-trailing-cr <(echo foo) -

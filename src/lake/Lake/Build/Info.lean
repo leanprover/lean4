@@ -31,54 +31,63 @@ inductive BuildInfo
 
 /-! ### Build Key Helper Constructors -/
 
+abbrev Module.key (self : Module) : BuildKey :=
+  .module self.keyName
+
+@[deprecated Module.key (since := "2025-03-28")]
 abbrev Module.buildKey (self : Module) : BuildKey :=
   .module self.keyName
 
+@[deprecated BuildKey.facet (since := "2025-03-28")]
 abbrev Module.facetBuildKey (facet : Name) (self : Module) : BuildKey :=
-  .moduleFacet self.keyName facet
+  self.key.facet facet
 
+abbrev Package.key (self : Package) : BuildKey :=
+  .package self.name
+
+@[deprecated Package.key (since := "2025-03-28")]
 abbrev Package.buildKey (self : Package) : BuildKey :=
   .package self.name
 
+@[deprecated BuildKey.facet (since := "2025-03-28")]
 abbrev Package.facetBuildKey (facet : Name) (self : Package) : BuildKey :=
-  .packageFacet self.name facet
+  self.key.facet facet
 
-abbrev Package.targetBuildKey
-  (target : Name) (self : Package)
-: BuildKey := .packageTarget self.name target
+abbrev Package.targetKey (target : Name) (self : Package) : BuildKey :=
+  .packageTarget self.name target
 
-abbrev LeanLib.buildKey (self : LeanLib) : BuildKey :=
+@[deprecated Package.targetKey (since := "2025-03-28")]
+abbrev Package.targetBuildKey (target : Name) (self : Package) : BuildKey :=
+  .packageTarget self.name target
+
+abbrev ConfigTarget.key (self : ConfigTarget kind) : BuildKey :=
   .packageTarget self.pkg.name self.name
 
-abbrev LeanLib.facetBuildKey (self : LeanLib) (facet : Name) : BuildKey :=
-  .targetFacet self.pkg.name self.name facet
-
-abbrev LeanExe.buildKey (self : LeanExe) : BuildKey :=
+@[deprecated ConfigTarget.key (since := "2025-03-28")]
+abbrev ConfigTarget.buildKey (self : ConfigTarget kind) : BuildKey :=
   .packageTarget self.pkg.name self.name
+
+@[deprecated BuildKey.facet (since := "2025-03-28")]
+abbrev ConfigTarget.facetBuildKey (self : ConfigTarget kind) (facet : Name) : BuildKey :=
+  self.key.facet facet
 
 abbrev LeanExe.exeBuildKey (self : LeanExe) : BuildKey :=
-  .targetFacet self.pkg.name self.name exeFacet
-
-abbrev ExternLib.buildKey (self : ExternLib) : BuildKey :=
-  .packageTarget self.pkg.name self.name
-
-abbrev ExternLib.facetBuildKey (facet : Name) (self : ExternLib) : BuildKey :=
-  .targetFacet self.pkg.name self.name facet
+  self.key.facet exeFacet
 
 abbrev ExternLib.staticBuildKey (self : ExternLib) : BuildKey :=
-  self.facetBuildKey staticFacet
+  self.key.facet staticFacet
 
 abbrev ExternLib.sharedBuildKey (self : ExternLib) : BuildKey :=
-  self.facetBuildKey sharedFacet
+  self.key.facet sharedFacet
 
 abbrev ExternLib.dynlibBuildKey (self : ExternLib) : BuildKey :=
-  self.facetBuildKey dynlibFacet
+  self.key.facet dynlibFacet
 
 /-! ### Build Info to Key -/
 
 /-- The key that identifies the build in the Lake build store. -/
 @[reducible] def BuildInfo.key : (self : BuildInfo) → BuildKey
-| target p t => p.targetBuildKey t
+| target p t => p.targetKey t
 | facet (target := t) (facet := f) .. => .facet t f
 
 instance : ToString BuildInfo := ⟨(toString ·.key)⟩
@@ -94,7 +103,7 @@ instance {p : NPackage n} [FamilyOut (CustomData n) t α]
 
 instance {p : NPackage n} [FamilyOut BuildData (.packageTarget n t) α]
 : FamilyDef BuildData (BuildInfo.key (.target p.toPackage t)) α where
-  fam_eq := by unfold BuildInfo.key Package.targetBuildKey; simp
+  fam_eq := by unfold BuildInfo.key Package.targetKey; simp
 
 instance [FamilyOut FacetOut f α]
 : FamilyDef BuildData (BuildInfo.key (.facet t k d f)) α where
@@ -149,12 +158,14 @@ Definitions to easily construct `BuildInfo` values for module, package,
 and target facets.
 -/
 
+/-! #### Module Infos -/
+
 /--
 Build info for applying the specified facet to the module.
 It is the user's obiligation to ensure the facet in question is a module facet.
 -/
 abbrev Module.facetCore (facet : Name) (self : Module) : BuildInfo :=
-  .facet self.buildKey facetKind (toFamily self) facet
+  .facet self.key facetKind (toFamily self) facet
 
 /-- Build info for a module facet. -/
 abbrev Module.facet (facet : Name) (self : Module) : BuildInfo :=
@@ -219,6 +230,8 @@ namespace Module
 
 end Module
 
+/-! #### Package Infos -/
+
 /-- Build info for a package target (e.g., a library, executable, or custom target). -/
 abbrev Package.target (target : Name) (self : Package) : BuildInfo :=
   .target self target
@@ -228,7 +241,7 @@ Build info for applying the specified facet to the package.
 It is the user's obiligation to ensure the facet in question is a package facet.
 -/
 abbrev Package.facetCore (facet : Name) (self : Package) : BuildInfo :=
-  .facet self.buildKey facetKind (toFamily self) facet
+  .facet self.key facetKind (toFamily self) facet
 
 /-- Build info for a package facet. -/
 abbrev Package.facet (facet : Name) (self : Package) : BuildInfo :=
@@ -284,12 +297,14 @@ abbrev transDeps (self : Package) : BuildInfo :=
 
 end Package
 
+/-! #### Lean Library Infos -/
+
 /-
 Build info for applying the specified facet to the library.
 It is the user's obiligation to ensure the facet in question is a library facet.
 -/
 abbrev LeanLib.facetCore (facet : Name) (self : LeanLib) : BuildInfo :=
-  .facet self.buildKey facetKind (toFamily self) facet
+  .facet self.key facetKind (toFamily self) facet
 
 /-- Build info for a facet of a Lean library. -/
 abbrev LeanLib.facet (facet : Name) (self : LeanLib) : BuildInfo :=
@@ -327,12 +342,14 @@ abbrev extraDep (self : LeanLib) : BuildInfo :=
 
 end LeanLib
 
+/-! #### Lean Executable Infos -/
+
 /-
 Build info for applying the specified facet to the executable.
 It is the user's obiligation to ensure the facet in question is the executable facet.
 -/
 abbrev LeanExe.facetCore (facet : Name) (self : LeanExe) : BuildInfo :=
-  .facet self.buildKey facetKind (toFamily self) facet
+  .facet self.key facetKind (toFamily self) facet
 
 /-- Build info of the Lean executable. -/
 abbrev LeanExe.exe (self : LeanExe) : BuildInfo :=
@@ -342,12 +359,14 @@ abbrev LeanExe.exe (self : LeanExe) : BuildInfo :=
 abbrev BuildInfo.leanExe (exe : LeanExe) : BuildInfo :=
   exe.exe
 
+/-! #### External Library Infos -/
+
 /-
 Build info for applying the specified facet to the external library.
 It is the user's obiligation to ensure the facet in question is an external library facet.
 -/
 abbrev ExternLib.facetCore (facet : Name) (self : ExternLib) : BuildInfo :=
-  .facet self.buildKey facetKind (toFamily self) facet
+  .facet self.key facetKind (toFamily self) facet
 
 /-- Build info of the external library's static binary. -/
 abbrev ExternLib.static (self : ExternLib) : BuildInfo :=
@@ -372,3 +391,27 @@ abbrev ExternLib.dynlib (self : ExternLib) : BuildInfo :=
 @[deprecated ExternLib.dynlib (since := "2025-03-04")]
 abbrev BuildInfo.dynlibExternLib (lib : ExternLib) : BuildInfo :=
   lib.facetCore ExternLib.dynlibFacet
+
+/-! #### Input File & Directory Infos -/
+
+/-
+Build info for applying the specified facet to the input file.
+It is the user's obiligation to ensure the facet in question is an external library facet.
+-/
+abbrev InputFile.facetCore (facet : Name) (self : InputFile) : BuildInfo :=
+  .facet self.key facetKind (toFamily self) facet
+
+/-- Build info of the input file's default facet. -/
+abbrev InputFile.default (self : InputFile) : BuildInfo :=
+  self.facetCore InputFile.defaultFacet
+
+/-
+Build info for applying the specified facet to the input directory.
+It is the user's obiligation to ensure the facet in question is an external library facet.
+-/
+abbrev InputDir.facetCore (facet : Name) (self : InputDir) : BuildInfo :=
+  .facet self.key facetKind (toFamily self) facet
+
+/-- Build info of the input directory's default facet. -/
+abbrev InputDir.default (self : InputDir) : BuildInfo :=
+  self.facetCore InputDir.defaultFacet

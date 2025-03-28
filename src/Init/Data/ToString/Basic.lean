@@ -11,7 +11,14 @@ open Sum Subtype Nat
 
 open Std
 
+/--
+Types that can be converted into a string for display.
+
+There is no expectation that the resulting string can be parsed back to the original data (see
+`Repr` for a similar class with this expectation).
+-/
 class ToString (α : Type u) where
+  /-- Converts a value into a string. -/
   toString : α → String
 
 export ToString (toString)

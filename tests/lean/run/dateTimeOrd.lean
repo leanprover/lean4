@@ -33,13 +33,6 @@ example : strictly_ordered
    PlainTime.ofHourMinuteSecondsNano 0 1 0 0,
    PlainTime.ofHourMinuteSecondsNano 1 0 0 0] := by decide
 
-def dateTime1 := DateTime.fromAscTimeString "Sat Jan 01 01:01:02 2025" |>.toOption.get!
-def dateTime2 := DateTime.fromAscTimeString "Sat Jan 01 01:02:01 2025" |>.toOption.get!
-def dateTime3 := DateTime.fromAscTimeString "Sat Jan 01 02:01:01 2025" |>.toOption.get!
-def dateTime4 := DateTime.fromAscTimeString "Sat Jan 02 01:01:01 2025" |>.toOption.get!
-def dateTime5 := DateTime.fromAscTimeString "Sat Feb 01 01:01:01 2025" |>.toOption.get!
-def dateTime6 := DateTime.fromAscTimeString "Sat Jan 01 01:01:01 2026" |>.toOption.get!
-
 example : Std.TransOrd (DateTime TimeZone.GMT) := inferInstance
 example : Std.LawfulBEqOrd (DateTime TimeZone.GMT) := inferInstance
 

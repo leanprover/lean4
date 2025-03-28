@@ -410,13 +410,13 @@ theorem compareOfLessAndEq_eq_swap
   apply compareOfLessAndEq_eq_swap_of_lt_iff_not_gt_and_ne
   exact lt_iff_not_gt_and_ne_of_antisymm_of_total_of_not_le antisymm total not_le
 
+@[simp]
 theorem compareOfLessAndEq_eq_lt
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableEq α] {x y : α} :
     compareOfLessAndEq x y = .lt ↔ x < y := by
   rw [compareOfLessAndEq]
   repeat' split <;> simp_all
 
-@[simp]
 theorem compareOfLessAndEq_eq_eq
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
     (refl : ∀ (x : α), x ≤ x) (not_le : ∀ {x y : α}, ¬ x ≤ y ↔ y < x) {x y : α} :

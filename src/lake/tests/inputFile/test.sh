@@ -19,12 +19,12 @@ EOF
 ) -
 
 # Test input file target
-$LAKE query foo | diff -u --strip-trailing-cr <(echo inputs/foo.txt) -
+cat "`$LAKE query foo`" | diff -u --strip-trailing-cr <(echo foo) -
 
 # Test input directory target
-$LAKE query barz | diff -u --strip-trailing-cr <(cat << 'EOF'
-inputs/barz/bar.txt
-inputs/barz/baz.txt
+cat `$LAKE query barz` | diff -u --strip-trailing-cr <(cat << 'EOF'
+bar
+baz
 EOF
 ) -
 

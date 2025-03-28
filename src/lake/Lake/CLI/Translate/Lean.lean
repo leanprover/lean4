@@ -204,6 +204,16 @@ protected def PathPatDescr.toLean? (p : PathPatDescr) : Option Term :=
 
 instance : ToLean? PathPatDescr := ⟨PathPatDescr.toLean?⟩
 
+protected def BuildKey.toLean (k : BuildKey) : Term := Unhygienic.run do
+  match k with
+  | .module n => `(.$(mkIdent `package) $(quote n))
+  | .package n => `(.$(mkIdent `package) $(quote n))
+  | .packageTarget p n => `(.$(mkIdent `packageTarget) $(quote p) $(quote n))
+  | .facet k f => `(.$(mkIdent `facet) $(BuildKey.toLean k) $(quote f))
+
+instance : ToLean BuildKey := ⟨BuildKey.toLean⟩
+instance : ToLean PartialBuildKey := ⟨BuildKey.toLean⟩
+
 /-! ## Dependency Configuration Encoder -/
 
 def Dependency.mkRequire (cfg : Dependency) : RequireDecl := Unhygienic.run do

@@ -112,6 +112,9 @@ def encodeFacets (facets : Array Name) : Value :=
 
 instance : EncodeField (LeanLibConfig n) `defaultFacets (Array Name) := ⟨encodeFacets⟩
 
+instance : ToToml BuildKey := ⟨(toToml ·.toString)⟩
+instance : ToToml PartialBuildKey := ⟨(toToml ·.toString)⟩
+
 /-! ## Dependency Configuration Encoders -/
 
 protected def Dependency.toToml (dep : Dependency) (t : Table  := {}) : Table :=

@@ -276,6 +276,16 @@ def decodeFacets (kind : Name) (val : Value) : EDecodeM (Array Name) := do
 instance : DecodeField (LeanLibConfig n) `defaultFacets where
   decodeField := decodeFieldCore `defaultFacets (decodeFacets LeanLib.facetKind)
 
+def PartialBuildKey.decodeToml (v : Value) : EDecodeM PartialBuildKey := do
+  match PartialBuildKey.parse (← v.decodeString) with
+  | .ok k => return k
+  | .error e => throwDecodeErrorAt v.ref e
+
+instance : DecodeToml PartialBuildKey := ⟨PartialBuildKey.decodeToml⟩
+
+instance : DecodeField (LeanLibConfig n) `defaultFacets where
+  decodeField := decodeFieldCore `defaultFacets (decodeFacets LeanLib.facetKind)
+
 /-! ## Dependency Configuration Decoders -/
 
 protected def DependencySrc.decodeToml (t : Table) (ref := Syntax.missing) : EDecodeM DependencySrc := do

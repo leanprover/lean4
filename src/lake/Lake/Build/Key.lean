@@ -18,6 +18,60 @@ inductive BuildKey
 | facet (target : BuildKey) (facet : Name)
 deriving Inhabited, Repr, DecidableEq, Hashable
 
+/--
+A build key with some missing info.
+Package names may be elided (replaced by `Name.anonymous`),
+and facet names are unqualified (they do not include the input target kind).
+-/
+def PartialBuildKey := BuildKey
+
+/--
+Parses a `PartialBuildKey` from a `String`.
+Uses the same syntax as the `lake build` / `lake query` CLI.
+-/
+def PartialBuildKey.parse (s : String) : Except String PartialBuildKey := do
+  let decodeTarget s := do
+    match s.splitOn "/" with
+    | [target] =>
+      if target.isEmpty then
+        return .package .anonymous
+      if target.startsWith "@" then
+        let pkg := target.drop 1 |> stringToLegalOrSimpleName
+        return .package pkg
+      else if target.startsWith "+" then
+        let mod := target.drop 1 |>.toName
+        if mod.isAnonymous then
+          throw s!"ill-formed target: ill-formed module name '{mod}'"
+        return .module mod
+      else
+        let target := stringToLegalOrSimpleName target
+        return .packageTarget .anonymous target
+    | [pkg, target] =>
+      let pkg := if pkg.startsWith "@" then pkg.drop 1 else pkg
+      let pkg := stringToLegalOrSimpleName pkg
+      let target := stringToLegalOrSimpleName target
+      return .packageTarget pkg target
+    | _ =>
+      throw "ill-formed target: too many '/'"
+  match s.splitOn ":" with
+  | [target] =>
+    let target ← decodeTarget target
+    return .facet target `default
+  | [target, facetSpec] =>
+    let target ← decodeTarget target
+    let facet := stringToLegalOrSimpleName facetSpec
+    return .facet target facet
+  | _ =>
+    throw "ill-formed target: too many':'"
+
+def PartialBuildKey.toString : (self : PartialBuildKey) → String
+| .module m => s!"+{m}"
+| .package p => if p.isAnonymous then "" else s!"@{p}"
+| .packageTarget p t => if p.isAnonymous then s!"{t}" else s!"{p}/{t}"
+| .facet t f => s!"{toString t}:{f}"
+
+instance : ToString PartialBuildKey := ⟨PartialBuildKey.toString⟩
+
 namespace BuildKey
 
 @[match_pattern] abbrev moduleFacet (module facet : Name) : BuildKey :=

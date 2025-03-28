@@ -432,7 +432,7 @@ private def mkCtorHeader (ctorVal : ConstructorVal) (structureType? : Option Exp
 
 
 /--
-Normalizes the heads of the LHS of the `FieldViews` in the following ways:
+Normalizes the head of the LHS of the `FieldView` in the following ways:
 - Replaces numeric index field LHS's with the corresponding named field.
   If this is a subobject field, continues normalizing it.
 - Consumes nonterminal parent projections, e.g. `toA.x` becomes `x`. Throws an error if `A` does not have an `x` field.
@@ -445,42 +445,36 @@ On validation errors, errors are logged and the corresponding fields are omitted
 
 Assumed invariant: parent projections and field names are disjoint sets. This is validated in the `structure` elaborator.
 
-Resulting invariant: every field has an LHS that has one of these forms:
+Resulting invariant: the field has a LHS that has one of these forms:
 - `.fieldName .. :: _`
 - `[.parentFieldName ..]`
 -/
-private partial def normalizeFields (structName : Name) (fieldViews : Array FieldView) : MetaM (Array FieldView) := do
-  fieldViews.filterMapM (normalizeField structName)
-where
-  normalizeField (structName : Name) (fieldView : FieldView) : MetaM (Option FieldView) := do
-    let env ← getEnv
-    match fieldView.lhs with
-    | .fieldIndex ref idx :: rest =>
-      if idx == 0 then
-        logErrorAt ref m!"invalid field index, index must be greater than 0"
-        return none
-      let fieldNames := getStructureFields env structName
-      if idx > fieldNames.size then
-        logErrorAt ref m!"invalid field index, structure '{.ofConstName structName}' has only {fieldNames.size} fields"
-        return none
-      normalizeField structName { fieldView with lhs := .fieldName ref fieldNames[idx - 1]! :: rest }
-    | .fieldName ref name :: rest =>
-      if !name.isAtomic then
-        let newEntries := name.components.map (FieldLHS.fieldName ref ·)
-        normalizeField structName { fieldView with lhs := newEntries ++ rest }
-      else
-        addCompletionInfo <| CompletionInfo.fieldId ref name (← getLCtx) structName
-        if let some parentName := findParentProjStruct? env structName name then
-          if rest.isEmpty then
-            return some { fieldView with lhs := [.parentFieldName ref parentName name] }
-          else
-            normalizeField parentName { fieldView with lhs := rest }
-        else if (findField? env structName name).isSome then
-          return fieldView
+private partial def normalizeField (structName : Name) (fieldView : FieldView) : MetaM FieldView := do
+  let env ← getEnv
+  match fieldView.lhs with
+  | .fieldIndex ref idx :: rest =>
+    if idx == 0 then
+      throwErrorAt ref m!"invalid field index, index must be greater than 0"
+    let fieldNames := getStructureFields env structName
+    if idx > fieldNames.size then
+      throwErrorAt ref m!"invalid field index, structure '{.ofConstName structName}' has only {fieldNames.size} fields"
+    normalizeField structName { fieldView with lhs := .fieldName ref fieldNames[idx - 1]! :: rest }
+  | .fieldName ref name :: rest =>
+    if !name.isAtomic then
+      let newEntries := name.components.map (FieldLHS.fieldName ref ·)
+      normalizeField structName { fieldView with lhs := newEntries ++ rest }
+    else
+      addCompletionInfo <| CompletionInfo.fieldId ref name (← getLCtx) structName
+      if let some parentName := findParentProjStruct? env structName name then
+        if rest.isEmpty then
+          return { fieldView with lhs := [.parentFieldName ref parentName name] }
         else
-          logErrorAt ref m!"'{name}' is not a field of structure '{.ofConstName structName}'"
-          return none
-    | _ => unreachable!
+          normalizeField parentName { fieldView with lhs := rest }
+      else if (findField? env structName name).isSome then
+        return fieldView
+      else
+        throwErrorAt ref m!"'{name}' is not a field of structure '{.ofConstName structName}'"
+  | _ => unreachable!
 
 private inductive ExpandedFieldVal
   | term (stx : Term)
@@ -511,38 +505,46 @@ abbrev ExpandedFields := NameMap ExpandedField
 Normalizes and expands the field views.
 Validates that there are no duplicate fields.
 -/
-private def expandFields (structName : Name) (fieldViews : Array FieldView) : MetaM ExpandedFields := do
-  let fieldViews ← normalizeFields structName fieldViews
+private def expandFields (structName : Name) (fieldViews : Array FieldView) (recover : Bool) : MetaM (Bool × ExpandedFields) := do
   let mut fields : ExpandedFields := {}
+  let mut errors : Bool := false
   for fieldView in fieldViews do
-    match fieldView.lhs with
-    | .fieldName ref name :: rest =>
-      if let some field := fields.find? name then
-        if rest.isEmpty || !field.isNested then
-          logErrorAt ref m!"field '{name}' has already been specified"
+    try
+      let fieldView ← normalizeField structName fieldView
+      match fieldView.lhs with
+      | .fieldName ref name :: rest =>
+        if let some field := fields.find? name then
+          if rest.isEmpty || !field.isNested then
+            throwErrorAt ref m!"field '{name}' has already been specified"
+          else
+            -- There is a pre-existing nested field, and we are looking at a nested field. So, insert.
+            let .nested views' sources := field.val | unreachable!
+            let views' := views'.push { fieldView with lhs := rest }
+            fields := fields.insert name { field with val := .nested views' sources }
+        else if rest.isEmpty then
+          -- A simple field
+          fields := fields.insert name { ref := ref, name, val := .term fieldView.val }
         else
-          -- There is a pre-existing nested field, and we are looking at a nested field. So, insert.
-          let .nested views' sources := field.val | unreachable!
-          let views' := views'.push { fieldView with lhs := rest }
-          fields := fields.insert name { field with val := .nested views' sources }
-      else if rest.isEmpty then
-        -- A simple field
-        fields := fields.insert name { ref := fieldView.ref, name, val := .term fieldView.val }
+          -- A new nested field
+          let fieldView' := { fieldView with lhs := rest }
+          fields := fields.insert name { ref := ref, name, val := .nested #[fieldView'] #[] }
+      | [.parentFieldName ref parentStructName name] =>
+        -- Parent field
+        let fvarId ← mkFreshFVarId
+        for parentField in getStructureFieldsFlattened (← getEnv) parentStructName false do
+          if fields.contains parentField then
+            throwErrorAt ref m!"field '{name}' from structure '{.ofConstName parentStructName}' has already been specified"
+          else
+            let val := ExpandedFieldVal.proj fvarId fieldView.val parentStructName
+            fields := fields.insert parentField { ref := ref, name := parentField, val }
+      | _ => unreachable!
+    catch ex =>
+      if recover then
+        logException ex
+        errors := true
       else
-        -- A new nested field
-        let fieldView' := { fieldView with lhs := rest }
-        fields := fields.insert name { ref := fieldView.ref, name, val := .nested #[fieldView'] #[] }
-    | [.parentFieldName ref parentStructName name] =>
-      -- Parent field
-      let fvarId ← mkFreshFVarId
-      for parentField in getStructureFieldsFlattened (← getEnv) parentStructName false do
-        if fields.contains parentField then
-          logErrorAt ref m!"field '{name}' from structure '{.ofConstName parentStructName}' has already been specified"
-        else
-          let val := ExpandedFieldVal.proj fvarId fieldView.val parentStructName
-          fields := fields.insert parentField { ref := fieldView.ref, name := parentField, val }
-    | _ => unreachable!
-  return fields
+        throw ex
+  return (errors, fields)
 
 /--
 Adds fields from the sources, updating any nested fields.
@@ -819,7 +821,18 @@ private def synthDefaultFields : StructInstM Unit := do
           toRemove := toRemove.push selected.fieldName
       if toRemove.isEmpty then
         let assignErrorsMsg := MessageData.joinSep (assignErrors.map (m!"\n\n" ++ ·)).toList ""
-        throwError "fields missing: {", ".intercalate <| pendingFields.toList.map (s!"'{·.fieldName}'")}{assignErrorsMsg}"
+        let msg := m!"fields missing: {", ".intercalate <| pendingFields.toList.map (s!"'{·.fieldName}'")}{assignErrorsMsg}"
+        if (← readThe Term.Context).errToSorry then
+          -- Assign all pending problems using synthetic sorries and log an error.
+          for pendingField in pendingFields do
+            if let some val := pendingField.val? then
+              let val ← instantiateMVars val
+              if val.isMVar then
+                val.mvarId!.assign <| ← mkLabeledSorry (← inferType val) (synthetic := true) (unique := true)
+          logError msg
+          return
+        else
+          throwError msg
       pendingSet := pendingSet.filter (!toRemove.contains ·)
       pendingFields := pendingFields.filter fun pendingField => pendingField.val?.isNone || !toRemove.contains pendingField.fieldName
 
@@ -895,57 +908,41 @@ private def mkProjStx (s : Syntax) (fieldName : Name) : Syntax :=
     #[mkAtomFrom s "@",
       mkNode ``Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]]
 
--- avoiding compiler bug
-
-private def processTermField (loop : StructInstM α) (field : ExpandedField) (fieldType : Expr) (val : Term) : StructInstM α := do
-  trace[Elab.struct] "field.val is term {field.name}"
-  let e ← elabStructField field.name val fieldType
-  addStructField field e
-  loop
-
-private def processNestedField (loop : StructInstM α) (field : ExpandedField) (fieldType : Expr)
-    (fields : Array FieldView) (sources : Array ExplicitSourceView) : StructInstM α := withRef field.ref do
-  trace[Elab.struct] "field.val is nested {field.name}"
-  -- Nested field. Create synthetic structure instance notation with projected sources, then elaborate it like a `.term` field.
-  let sourceStxs : Array Term := sources.map (fun source => mkProjStx source.stx field.name)
-  let fieldStxs := fields.map (fun field => field.toSyntax)
-  let ellipsis := (← read).view.sources.implicit
-  let stx ← `({ $sourceStxs,* with $fieldStxs,* $[..%$ellipsis]? })
-  let e ← elabStructField field.name stx fieldType
-  addStructField field e
-  loop
-
--- private def processProjAux (loop : StructInstM α) (field : ExpandedField) (fvarId : FVarId) (fieldType : Expr)  : StructInstM α := do
---   let e ← mkProjection (.fvar fvarId) field.name
---   let eType ← inferType e
---   unless ← isDefEq eType fieldType do
---     throwError m!"consistency error, type of projected field {field.name} {← mkHasTypeButIsExpectedMsg eType fieldType}"
---   addStructFieldAux field.name e
---   loop
-
-private def withLiftedFVar (fvarId : FVarId) (sourceName : Name) (type val : Expr) (k : StructInstM α) : StructInstM α := do
-  let sourceName' := sourceName.eraseMacroScopes
-  let declNameStr := if sourceName'.isStr then s!"__{sourceName'.getString!}" else "__psrc"
-  let declName ← Core.mkFreshUserName (Name.mkSimple declNameStr)
-  let decl := LocalDecl.ldecl 0 fvarId declName type val false .implDetail
-  modify fun s => { s with liftedFVars := s.liftedFVars.push (.fvar fvarId) }
-  withExistingLocalDecls [decl] k
-
 private def processField (loop : StructInstM α) (field : ExpandedField) (fieldType : Expr) : StructInstM α := do
   let fieldType := fieldType.consumeTypeAnnotations
   trace[Elab.struct] "processing field {field.name}{indentD (toMessageData field)}"
   match field.val with
-  | .term val => processTermField loop field fieldType val
-  | .nested fields sources => processNestedField loop field fieldType fields sources
+  | .term val =>
+    trace[Elab.struct] "field.val is term {field.name}"
+    let e ← elabStructField field.name val fieldType
+    addStructField field e
+    loop
+  | .nested fields sources =>
+    trace[Elab.struct] "field.val is nested {field.name}"
+    -- Nested field. Create synthetic structure instance notation with projected sources, then elaborate it like a `.term` field.
+    let sourceStxs : Array Term := sources.map (fun source => mkProjStx source.stx field.name)
+    let fieldStxs := fields.map (fun field => field.toSyntax)
+    let ellipsis := (← read).view.sources.implicit
+    let stx ← `({ $sourceStxs,* with $fieldStxs,* $[..%$ellipsis]? })
+    let e ← elabStructField field.name stx fieldType
+    addStructField field e
+    loop
   | .proj fvarId val parentStructName =>
     trace[Elab.struct] "field.val is proj {field.name}"
     let processProjAux (fvarId : FVarId) : StructInstM α := do
-      let e ← mkProjection (.fvar fvarId) field.name
-      let eType ← inferType e
-      unless ← isDefEq eType fieldType do
-        throwError m!"type of field '{field.name}' from structure '{.ofConstName parentStructName}' \
-          {← mkHasTypeButIsExpectedMsg eType fieldType}"
-      addStructFieldAux field.name e
+      try
+        let e ← mkProjection (.fvar fvarId) field.name
+        let eType ← inferType e
+        unless ← isDefEq eType fieldType do
+          throwError m!"type of field '{field.name}' from structure '{.ofConstName parentStructName}' \
+            {← mkHasTypeButIsExpectedMsg eType fieldType}"
+        addStructFieldAux field.name e
+      catch ex =>
+        if (← readThe Term.Context).errToSorry then
+          let e ← exceptionToSorry ex fieldType
+          addStructFieldAux field.name e
+        else
+          throw ex
       loop
     if let some fvarId' := (← get).liftedFVarRemap.find? fvarId then
       processProjAux fvarId'
@@ -961,8 +958,12 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
         modify fun s => { s with liftedFVarRemap := s.liftedFVarRemap.insert fvarId fvarId' }
         processProjAux fvarId'
       else
-        withLiftedFVar fvarId parentStructName parentTy parentVal do
-          processProjAux fvarId
+        let parentStructName' := parentStructName.eraseMacroScopes
+        let declNameStr := if parentStructName'.isStr then s!"__{parentStructName'.getString!}" else "__psrc"
+        let declName ← Core.mkFreshUserName (Name.mkSimple declNameStr)
+        let decl := LocalDecl.ldecl 0 fvarId declName parentTy parentVal false .implDetail
+        modify fun s => { s with liftedFVars := s.liftedFVars.push (.fvar fvarId) }
+        withExistingLocalDecls [decl] do processProjAux fvarId
 
 private def processDefault (loop : StructInstM α) (fieldName : Name) (binfo : BinderInfo) (fieldType : Expr) : StructInstM α := withViewRef do
   trace[Elab.struct] "processDefault {fieldName}"
@@ -1030,7 +1031,7 @@ private def elabStructInstView (s : StructInstView) (structName : Name) (structT
   if isPrivateNameFromImportedModule env ctorVal.name then
     throwError "invalid \{...} notation, constructor for '{structName}' is marked as private"
   let { ctorFn, ctorFnType, structType, levels, params } ← mkCtorHeader ctorVal structType?
-  let fields ← expandFields structName s.fields
+  let (_, fields) ← expandFields structName s.fields (recover := (← read).errToSorry)
   let fields ← addSourceFields structName s.sources.explicit fields
   trace[Elab.struct] "expanded fields:\n{MessageData.joinSep (fields.toList.map (fun (_, field) => m!"- {MessageData.nestD (toMessageData field)}")) "\n"}"
   let (val, _) ← main

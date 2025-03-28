@@ -1427,10 +1427,12 @@ def elabStructureCommand : InductiveElabDescr where
             collectUsedFVars := collectUsedFVars lctx localInsts fieldInfos
             checkUniverses := fun _ u => withLCtx lctx localInsts do checkResultingUniversesForFields fieldInfos u
             finalizeTermElab := withLCtx lctx localInsts do checkDefaults fieldInfos
-            prefinalize := fun _ _ _ => do
+            prefinalize := fun levelParams _ replaceIndFVars => do
               withLCtx lctx localInsts do
                 addProjections r fieldInfos
                 registerStructure view.declName fieldInfos
+                runStructElabM (init := state) do
+                  mkFlatCtor levelParams params view.declName replaceIndFVars
               withSaveInfoContext do  -- save new env
                 for field in view.fields do
                   -- may not exist if overriding inherited field
@@ -1449,7 +1451,6 @@ def elabStructureCommand : InductiveElabDescr where
                 addParentInstances parentInfos
 
               runStructElabM (init := state) <| withLCtx lctx localInsts do
-                mkFlatCtor levelParams params view.declName replaceIndFVars
                 addDefaults levelParams params replaceIndFVars
           }
     }

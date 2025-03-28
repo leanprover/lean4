@@ -1222,8 +1222,8 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     -- Then search the environment
     if let some (baseStructName, fullName) ← findMethod? structName (.mkSimple fieldName) then
       return LValResolution.const baseStructName structName fullName
-    throwLValError e eType
-      m!"invalid field '{fieldName}', the environment does not contain '{Name.mkStr structName fieldName}'"
+    let msg := mkUnknownIdentifierMessage m!"invalid field '{fieldName}', the environment does not contain '{Name.mkStr structName fieldName}'"
+    throwLValError e eType msg
   | none, LVal.fieldName _ _ (some suffix) _ =>
     if e.isConst then
       throwUnknownConstant (e.constName! ++ suffix)
@@ -1502,7 +1502,7 @@ where
       else if let some (fvar, []) ← resolveLocalName idNew then
         return fvar
       else
-        throwError "invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
+        throwUnknownIdentifier m!"invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
     catch
       | ex@(.error ..) =>
         match (← unfoldDefinition? resultType) with
@@ -1550,7 +1550,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `(@$_)     => throwUnsupportedSyntax -- invalid occurrence of `@`
     | `(_)       => throwError "placeholders '_' cannot be used where a function is expected"
     | `(.$id:ident) =>
-        addCompletionInfo <| CompletionInfo.dotId f id.getId (← getLCtx) expectedType?
+        addCompletionInfo <| CompletionInfo.dotId id id.getId (← getLCtx) expectedType?
         let fConst ← resolveDotName id expectedType?
         let s ← observing do
           -- Use (force := true) because we want to record the result of .ident resolution even in patterns

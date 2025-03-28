@@ -165,7 +165,7 @@ def handleSemanticTokensFull (_ : SemanticTokensParams) (_ : SemanticTokensState
   -- for the full file before sending a response. This means that the response will be incomplete,
   -- which we mitigate by regularly sending `workspace/semanticTokens/refresh` requests in the
   -- `FileWorker` to tell the client to re-compute the semantic tokens.
-  let (snaps, _, isComplete) ← doc.cmdSnaps.getFinishedPrefixWithTimeout 3000 (cancelTk? := ctx.cancelTk.cancellationTask)
+  let (snaps, _, isComplete) ← doc.cmdSnaps.getFinishedPrefixWithTimeout 3000 (cancelTks := ctx.cancelTk.cancellationTasks)
   let response ← computeSemanticTokens doc 0 none snaps
   return ({ response, isComplete }, ⟨⟩)
 

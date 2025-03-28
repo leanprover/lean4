@@ -414,6 +414,131 @@ section ServerM
     s.references.modify fun refs =>
       refs.finalizeWorkerRefs module params.version params.references
 
+  def emitServerRequestResponse [ToJson α] (fw : FileWorker) (r : Response α) : IO Unit := do
+    if ! ((← fw.state.atomically get) matches .running) then
+      return
+    try
+      fw.stdin.writeLspResponse r
+    catch _ =>
+      pure ()
+
+  def emitServerRequestResponseError (fw : FileWorker) (r : ResponseError Unit) : IO Unit := do
+    if ! ((← fw.state.atomically get) matches .running) then
+      return
+    try
+      fw.stdin.writeLspResponseError r
+    catch _ =>
+      pure ()
+
+  structure ModuleQueryMatchScore where
+    isExactMatch : Bool
+    score        : Float
+
+  def ModuleQueryMatchScore.compare (ms1 ms2 : ModuleQueryMatchScore) : Ordering :=
+    let ⟨e1, s1⟩ := ms1
+    let ⟨e2, s2⟩ := ms2
+    if e1 && !e2 then
+      .gt
+    else if !e1 && e2 then
+      .lt
+    else
+      let d := s1 - s2
+      if d >= 0.0001 then
+        .gt
+      else if d <= -0.0001 then
+        .lt
+      else
+        .eq
+
+  structure ModuleQueryMatch extends ModuleQueryMatchScore where
+    decl : Name
+    declAsString : String
+
+  def ModuleQueryMatch.fastCompare (m1 m2 : ModuleQueryMatch) : Ordering :=
+    let ⟨ms1, _, s1⟩ := m1
+    let ⟨ms2, _, s2⟩ := m2
+    let r := ms1.compare ms2
+    if r != .eq then
+      r
+    else
+      Ord.compare s2.length s1.length
+
+  def ModuleQueryMatch.compare (m1 m2 : ModuleQueryMatch) : Ordering :=
+    let d1 := m1.decl
+    let d2 := m2.decl
+    if d2.isSuffixOf d1 then
+      .lt
+    else if d1.isSuffixOf d2 then
+      .gt
+    else
+      m1.fastCompare m2
+
+  def matchAgainstQuery? (query : LeanModuleQuery) (decl : Name) : Option ModuleQueryMatch := do
+    if isPrivateName decl then
+      none
+    let mut bestMatch? : Option ModuleQueryMatch := matchDecl? decl decl.toString
+    for openNamespace in query.openNamespaces do
+      match openNamespace with
+      | .allExcept «namespace» exceptions =>
+        if exceptions.contains decl then
+          continue
+        if ! «namespace».isPrefixOf decl then
+          continue
+        let namespacedDecl : Name := decl.replacePrefix «namespace» .anonymous
+        let match? := matchDecl? decl namespacedDecl.toString
+        bestMatch? := chooseBestMatch? bestMatch? match?
+      | .renamed «from» to =>
+        if decl != «from» then
+          continue
+        let match? := matchDecl? decl to.toString
+        bestMatch? := chooseBestMatch? bestMatch? match?
+    bestMatch?
+  where
+    matchDecl? (decl : Name) (identifier : String) : Option ModuleQueryMatch := do
+      if identifier == query.identifier then
+        return { decl, declAsString := decl.toString, isExactMatch := true, score := 1.0 }
+      let score ← FuzzyMatching.fuzzyMatchScoreWithThreshold? query.identifier identifier
+      return { decl, declAsString := decl.toString, isExactMatch := false, score }
+    chooseBestMatch? : Option ModuleQueryMatch → Option ModuleQueryMatch → Option ModuleQueryMatch
+      | none, none => none
+      | none, some m => some m
+      | some m, none => some m
+      | some m1, some m2 =>
+        if m1.compare m2 == .lt then
+          m2
+        else
+          m1
+
+  def handleQueryModule (fw : FileWorker) (id : RequestID) (params : LeanQueryModuleParams)
+      : ServerM (ServerTask Unit × CancelToken) := do
+    let s ← read
+    let cancelTk ← CancelToken.new
+    let task ← ServerTask.IO.asTask do
+      let refs ← s.references.get
+      let mut queryResults : Array LeanQueriedModule := #[]
+      for query in params.queries do
+        let filterMapMod mod := pure <| some mod
+        let filterMapIdent decl := pure <| matchAgainstQuery? query decl
+        let symbols ← refs.definitionsMatching filterMapMod filterMapIdent cancelTk
+        let sorted := symbols.qsort fun { ident := m1, .. } { ident := m2, .. } =>
+          m1.fastCompare m2 == .gt
+        let result : LeanQueriedModule := sorted.extract 0 10 |>.map fun m => {
+          module := m.mod
+          decl := m.ident.decl
+          isExactMatch := m.ident.isExactMatch
+        }
+        queryResults := queryResults.push result
+      if ← cancelTk.isSet then
+        emitServerRequestResponseError fw {
+          id, code := ErrorCode.requestCancelled, message := ""
+        }
+        return
+      emitServerRequestResponse fw {
+        id, result := { queryResults }
+        : Response LeanQueryModuleResponse
+      }
+    return (task.mapCheap (fun _ => ()), cancelTk)
+
   /--
   Updates the global import data with the import closure provided by the file worker after it
   successfully processed its header.
@@ -432,28 +557,42 @@ section ServerM
       | Except.error e => WorkerEvent.ioError e
   where
     loop : ServerM WorkerEvent := do
-      let uri := fw.doc.uri
-      let o := (←read).hOut
-      let msg ←
-        try
-          fw.stdout.readLspMessage
-        catch _ =>
-          let exitCode ← fw.waitForProc
-          -- Remove surviving descendant processes, if any, such as from nested builds.
-          -- On Windows, we instead rely on elan doing this.
-          try fw.proc.kill catch _ => pure ()
-          -- TODO: Wait for process group to finish
-          match exitCode with
-            | 0 => return .terminated
-            | 2 => return .importsChanged
-            | _ => return .crashed exitCode
+      let mut pendingWorkerToWatchdogRequests : Std.TreeMap RequestID (ServerTask Unit × CancelToken) := ∅
+      while true do
+        let msg ←
+          try
+            fw.stdout.readLspMessage
+          catch _ =>
+            let exitCode ← fw.waitForProc
+            -- Remove surviving descendant processes, if any, such as from nested builds.
+            -- On Windows, we instead rely on elan doing this.
+            try fw.proc.kill catch _ => pure ()
+            -- TODO: Wait for process group to finish
+            match exitCode with
+              | 0 => return .terminated
+              | 2 => return .importsChanged
+              | _ => return .crashed exitCode
 
+        let (_, pendingWorkerToWatchdogRequests') ←
+          StateT.run (s := pendingWorkerToWatchdogRequests) <| handleMessage msg
+
+        pendingWorkerToWatchdogRequests := ∅
+        for (id, task, cancelTk) in pendingWorkerToWatchdogRequests' do
+          if ← task.hasFinished then
+            continue
+          pendingWorkerToWatchdogRequests := pendingWorkerToWatchdogRequests.insert id (task, cancelTk)
+      return .terminated
+
+    handleMessage (msg : JsonRpc.Message)
+        : StateT (Std.TreeMap RequestID (ServerTask Unit × CancelToken)) ServerM Unit :=
       -- When the file worker is terminated by the main thread, the client can immediately launch
       -- another file worker using `didOpen`. In this case, even when this task and the old file
       -- worker process haven't terminated yet, we want to avoid emitting diagnostics and responses
       -- from the old process, so that they can't race with one another in the client.
-      fw.state.atomically do
+      fw.state.atomically (m := StateT (Std.TreeMap RequestID (ServerTask Unit × CancelToken)) ServerM) do
         let s ← get
+        let o := (← read).hOut
+        let uri := fw.doc.uri
         if s matches .terminating then
           return
         -- Re. `o.writeLspMessage msg`:
@@ -468,14 +607,24 @@ section ServerM
           -- that were still pending.
           if wasPending then
             o.writeLspMessage msg
-        | Message.responseError id _ _ _ => do
+        | Message.responseError id code _ _ => do
           let wasPending ← erasePendingRequest uri id
+          if code matches .requestCancelled then
+            let pendingWorkerToWatchdogRequests ← getThe (Std.TreeMap RequestID (ServerTask Unit × CancelToken))
+            if let some (_, cancelTk) := pendingWorkerToWatchdogRequests.get? id then
+              cancelTk.set
           if wasPending then
             o.writeLspMessage msg
         | Message.request id method params? =>
-          let globalID ← (←read).serverRequestData.modifyGet
-            (·.trackOutboundRequest fw.doc.uri id)
-          o.writeLspMessage (Message.request globalID method params?)
+          if method == "$/lean/queryModule" then
+            if let some params := params? then
+              if let .ok (params : LeanQueryModuleParams) := fromJson? <| toJson params then
+                let (task, cancelTk) ← handleQueryModule fw id params
+                modifyThe (Std.TreeMap RequestID (ServerTask Unit × CancelToken)) (·.insert params.sourceRequestID (task, cancelTk))
+          else
+            let globalID ← (← read).serverRequestData.modifyGet
+              (·.trackOutboundRequest fw.doc.uri id)
+            o.writeLspMessage (Message.request globalID method params?)
         | Message.notification "$/lean/ileanInfoUpdate" params =>
           if let some params := params then
             if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
@@ -490,8 +639,6 @@ section ServerM
               handleImportClosure fw params
         | _ =>
           o.writeLspMessage msg
-
-      loop
 
   def startFileWorker (m : DocumentMeta) : ServerM Unit := do
     let st ← read
@@ -818,19 +965,27 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ReaderT ReferenceRequest
   if p.query.isEmpty then
     return #[]
   let references := (← read).references
-  let srcSearchPath := (← read).srcSearchPath
-  let symbols ← references.definitionsMatching srcSearchPath (maxAmount? := none)
-    fun name =>
-      let name := privateToUserName? name |>.getD name
-      if let some score := fuzzyMatchScoreWithThreshold? p.query name.toString then
-        some (name.toString, score)
-      else
-        none
+  let srcSearchPath : Lean.SearchPath := (← read).srcSearchPath
+  let filterMapMod mod := do
+    let some path ← srcSearchPath.findModuleWithExt "lean" mod
+      | return none
+    let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
+    return some uri
+  let filterMapIdent ident := do
+    let ident := privateToUserName? ident |>.getD ident
+    if let some score := fuzzyMatchScoreWithThreshold? p.query ident.toString then
+      return some (ident.toString, score)
+    else
+      return none
+  let symbols ← references.definitionsMatching filterMapMod filterMapIdent
   return symbols
-    |>.qsort (fun ((_, s1), _) ((_, s2), _) => s1 > s2)
+    |>.qsort (fun { ident := (_, s1), .. } { ident := (_, s2), .. } => s1 > s2)
     |>.extract 0 100 -- max amount
-    |>.map fun ((name, _), location) =>
-      { name, kind := SymbolKind.constant, location }
+    |>.map fun m => {
+      name := m.ident.1
+      kind := SymbolKind.constant
+      location := { uri := m.mod, range := m.range }
+    }
 
 def handlePrepareRename (p : PrepareRenameParams) : ReaderT ReferenceRequestContext IO (Option Range) := do
   -- This just checks that the cursor is over a renameable identifier
@@ -1189,7 +1344,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
   }
   codeActionProvider? := some {
     resolveProvider? := true,
-    codeActionKinds? := some #["quickfix", "refactor"]
+    codeActionKinds? := some #["quickfix", "refactor", "source.organizeImports"]
   }
   inlayHintProvider? := some {
     resolveProvider? := false

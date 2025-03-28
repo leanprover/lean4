@@ -479,8 +479,9 @@ private partial def normalizeField (structName : Name) (fieldView : FieldView) :
 private inductive ExpandedFieldVal
   | term (stx : Term)
   /-- Like `stx.fieldName`, but later we will be sure to elaborate `stx` exactly once for the given `parentStructName`.
-  The `fvarId` will be used later when elaborating `stx`. It becomes a local decl; if it is a new fvar, an impl. detail. -/
-  | proj (fvarId : FVarId) (stx : Term) (parentStructName : Name)
+  The `fvarId` will be used later when elaborating `stx`. It becomes a local decl; if it is a new fvar, an impl. detail.
+  The `fieldName?` is the name used in the corresponding `parentFieldName`, if it came from the user. -/
+  | proj (fvarId : FVarId) (stx : Term) (parentStructName : Name) (parentFieldName : Option Name)
   | nested (fieldViews : Array FieldView) (sources : Array ExplicitSourceView)
 
 private structure ExpandedField where
@@ -493,7 +494,7 @@ private def ExpandedField.isNested (f : ExpandedField) : Bool := f.val matches .
 instance : ToMessageData ExpandedFieldVal where
   toMessageData
     | .term stx => m!"term {stx}"
-    | .proj fvarId stx parentStructName => m!"proj {Expr.fvar fvarId} {.ofConstName parentStructName}{indentD stx}"
+    | .proj fvarId stx parentStructName _ => m!"proj {Expr.fvar fvarId} {.ofConstName parentStructName}{indentD stx}"
     | .nested fieldViews sources => m!"nested {MessageData.joinSep (sources.map (·.stx)).toList ", "} {MessageData.joinSep (fieldViews.map (indentD <| toMessageData ·)).toList "\n"}"
 
 instance : ToMessageData ExpandedField where
@@ -535,7 +536,7 @@ private def expandFields (structName : Name) (fieldViews : Array FieldView) (rec
           if fields.contains parentField then
             throwErrorAt ref m!"field '{name}' from structure '{.ofConstName parentStructName}' has already been specified"
           else
-            let val := ExpandedFieldVal.proj fvarId fieldView.val parentStructName
+            let val := ExpandedFieldVal.proj fvarId fieldView.val parentStructName name
             fields := fields.insert parentField { ref := ref, name := parentField, val }
       | _ => unreachable!
     catch ex =>
@@ -563,8 +564,8 @@ private def addSourceFields (structName : Name) (sources : Array ExplicitSourceV
         match fields.find? fieldName with
         | none =>
           -- Missing field, take it from this source
-          let val := ExpandedFieldVal.proj fvarId source.stx source.structName
-          fields := fields.insert fieldName { ref := source.stx, name := fieldName, val }
+          let val := ExpandedFieldVal.proj fvarId source.stx source.structName none
+          fields := fields.insert fieldName { ref := source.stx.mkSynthetic, name := fieldName, val }
         | some field@{ val := .nested subFields sources', .. } =>
           -- Existing nested field, add this source
           let val := ExpandedFieldVal.nested subFields (sources'.push source)
@@ -681,10 +682,9 @@ private def addStructField (fieldView : ExpandedField) (e : Expr) : StructInstM 
   let fieldName := fieldView.name
   addStructFieldAux fieldName e
   let projName := (← read).structName ++ fieldName
-  unless fieldView.ref.isMissing do
-    pushInfoTree <| InfoTree.node (children := {}) <| Info.ofFieldInfo {
-      projName, fieldName, lctx := (← getLCtx), val := e, stx := fieldView.ref
-    }
+  pushInfoTree <| InfoTree.node (children := {}) <| Info.ofFieldInfo {
+    projName, fieldName, lctx := (← getLCtx), val := e, stx := fieldView.ref
+  }
 
 private def elabStructField (_fieldName : Name) (stx : Term) (fieldType : Expr) : StructInstM Expr := do
   let fieldType ← normalizeExpr fieldType
@@ -745,101 +745,102 @@ private structure PendingField where
 
 private def synthDefaultFields : StructInstM Unit := do
   let pendingFields := (← get).pendingFields
-  unless pendingFields.isEmpty do
-    /-
-    We try to synthesize pending problems combinator before trying to use default values.
-    This is important in examples such as
-    ```
-    structure MyStruct where
-        {α : Type u}
-        {β : Type v}
-        a : α
-        b : β
+  if pendingFields.isEmpty then return
+  /-
+  We try to synthesize pending problems combinator before trying to use default values.
+  This is important in examples such as
+  ```
+  structure MyStruct where
+      {α : Type u}
+      {β : Type v}
+      a : α
+      b : β
 
-    #check { a := 10, b := true : MyStruct }
-    ```
-    were the `α` will remain "unknown" until the default instance for `OfNat` is used to ensure that `10` is a `Nat`.
+  #check { a := 10, b := true : MyStruct }
+  ```
+  were the `α` will remain "unknown" until the default instance for `OfNat` is used to ensure that `10` is a `Nat`.
 
-    TODO: investigate whether this design decision may have unintended side effects or produce confusing behavior.
-    -/
-    synthesizeSyntheticMVarsUsingDefault
+  TODO: investigate whether this design decision may have unintended side effects or produce confusing behavior.
+  -/
+  synthesizeSyntheticMVarsUsingDefault
 
-    trace[Elab.struct] "field values before default value synth:{indentD <| toMessageData (← get).fieldMap.toArray}"
+  trace[Elab.struct] "field values before default value synth:{indentD <| toMessageData (← get).fieldMap.toArray}"
 
-    -- Collect all default values. We then try to find a synthesis order.
-    let mut pendingFields : Array PendingField ← pendingFields.mapM fun (fieldName, required) => do
-      let (deps, val?) ← getFieldDefaultValue? fieldName
-      if let some val := val? then
-        trace[Elab.struct] "default value for {fieldName}:{indentExpr val}"
-      else
-        trace[Elab.struct] "no default value for {fieldName}"
-      pure { fieldName, required, deps, val? }
-    let mut pendingSet : NameSet := pendingFields.foldl (init := {}) fun set pending => set.insert pending.fieldName
-    while !pendingSet.isEmpty do
-      let selectedFields := pendingFields.filter fun pendingField =>
-        pendingField.val?.isSome
-        && pendingField.deps.all (fun dep => !pendingSet.contains dep)
-      let mut toRemove : Array Name := #[]
-      let mut assignErrors : Array MessageData := #[]
-      for selected in selectedFields do
-        let some selectedVal := selected.val? | unreachable!
-        let selectedVal ← normalizeExpr selectedVal
-        let some fieldVal := (← get).fieldMap.find? selected.fieldName | unreachable!
-        let fieldVal ← instantiateMVars fieldVal
-        if let .mvar mvarId := fieldVal then
-          let fieldType ← inferType fieldVal
-          let selectedType ← inferType selected.val?.get!
-          if ← isDefEq fieldType selectedType then
-            /-
-            We must use `checkedAssign` here to ensure we do not create a cyclic
-            assignment. See #3150.
-            This can happen when there are holes in the the fields the default value
-            depends on.
-            Possible improvement: create a new `_` instead of returning `false` when
-            `checkedAssign` fails. Reason: the field will not be needed after the
-            other `_` are resolved by the user.
-            -/
-            if ← MVarId.checkedAssign mvarId selectedVal then
-              toRemove := toRemove.push selected.fieldName
-            else
-              assignErrors := assignErrors.push m!"\
-                occurs check failed, field '{selected.fieldName}' of type{indentExpr fieldType}\n\
-                cannot be assigned the default value{indentExpr selectedVal}"
+  -- Collect all default values. We then try to find a synthesis order.
+  let mut pendingFields : Array PendingField ← pendingFields.mapM fun (fieldName, required) => do
+    let (deps, val?) ← getFieldDefaultValue? fieldName
+    if let some val := val? then
+      trace[Elab.struct] "default value for {fieldName}:{indentExpr val}"
+    else
+      trace[Elab.struct] "no default value for {fieldName}"
+    pure { fieldName, required, deps, val? }
+  let mut pendingSet : NameSet := pendingFields.foldl (init := {}) fun set pending => set.insert pending.fieldName
+  while !pendingSet.isEmpty do
+    let selectedFields := pendingFields.filter fun pendingField =>
+      pendingField.val?.isSome
+      && pendingField.deps.all (fun dep => !pendingSet.contains dep)
+    let mut toRemove : Array Name := #[]
+    let mut assignErrors : Array MessageData := #[]
+    for selected in selectedFields do
+      let some selectedVal := selected.val? | unreachable!
+      let selectedVal ← normalizeExpr selectedVal
+      let some fieldVal := (← get).fieldMap.find? selected.fieldName | unreachable!
+      let fieldVal ← instantiateMVars fieldVal
+      if let .mvar mvarId := fieldVal then
+        let fieldType ← inferType fieldVal
+        let selectedType ← inferType selected.val?.get!
+        if ← isDefEq fieldType selectedType then
+          /-
+          We must use `checkedAssign` here to ensure we do not create a cyclic
+          assignment. See #3150.
+          This can happen when there are holes in the the fields the default value
+          depends on.
+          Possible improvement: create a new `_` instead of returning `false` when
+          `checkedAssign` fails. Reason: the field will not be needed after the
+          other `_` are resolved by the user.
+          -/
+          if ← MVarId.checkedAssign mvarId selectedVal then
+            toRemove := toRemove.push selected.fieldName
           else
             assignErrors := assignErrors.push m!"\
-              default value for field '{selected.fieldName}' {← mkHasTypeButIsExpectedMsg selectedType fieldType}"
+              occurs check failed, field '{selected.fieldName}' of type{indentExpr fieldType}\n\
+              cannot be assigned the default value{indentExpr selectedVal}"
         else
-          if selected.required then
-            -- Clear the value but preserve its pending status, for the "fields missing" error.
-            -- Rationale: this is a field that must be explicitly provided (if default values don't solve for it),
-            -- *not* solved for by unification
-            pendingFields := pendingFields.map fun pending =>
-              if pending.fieldName == selected.fieldName then
-                { pending with val? := none }
-              else
-                pending
-          toRemove := toRemove.push selected.fieldName
-      if toRemove.isEmpty then
-        let assignErrorsMsg := MessageData.joinSep (assignErrors.map (m!"\n\n" ++ ·)).toList ""
-        let msg := m!"fields missing: {", ".intercalate <| pendingFields.toList.map (s!"'{·.fieldName}'")}{assignErrorsMsg}"
-        if (← readThe Term.Context).errToSorry then
-          -- Assign all pending problems using synthetic sorries and log an error.
-          for pendingField in pendingFields do
-            if let some val := pendingField.val? then
-              let val ← instantiateMVars val
-              if val.isMVar then
-                val.mvarId!.assign <| ← mkLabeledSorry (← inferType val) (synthetic := true) (unique := true)
-          logError msg
-          return
-        else
-          throwError msg
-      pendingSet := pendingSet.filter (!toRemove.contains ·)
-      pendingFields := pendingFields.filter fun pendingField => pendingField.val?.isNone || !toRemove.contains pendingField.fieldName
+          assignErrors := assignErrors.push m!"\
+            default value for field '{selected.fieldName}' {← mkHasTypeButIsExpectedMsg selectedType fieldType}"
+      else
+        if selected.required then
+          -- Clear the value but preserve its pending status, for the "fields missing" error.
+          -- Rationale: this is a field that must be explicitly provided (if default values don't solve for it),
+          -- *not* solved for by unification
+          pendingFields := pendingFields.map fun pending =>
+            if pending.fieldName == selected.fieldName then
+              { pending with val? := none }
+            else
+              pending
+        toRemove := toRemove.push selected.fieldName
+    if toRemove.isEmpty then
+      let assignErrorsMsg := MessageData.joinSep (assignErrors.map (m!"\n\n" ++ ·)).toList ""
+      let msg := m!"fields missing: {", ".intercalate <| pendingFields.toList.map (s!"'{·.fieldName}'")}{assignErrorsMsg}"
+      if (← readThe Term.Context).errToSorry then
+        -- Assign all pending problems using synthetic sorries and log an error.
+        for pendingField in pendingFields do
+          if let some val := pendingField.val? then
+            let val ← instantiateMVars val
+            if val.isMVar then
+              val.mvarId!.assign <| ← mkLabeledSorry (← inferType val) (synthetic := true) (unique := true)
+        logError msg
+        return
+      else
+        throwError msg
+    pendingSet := pendingSet.filter (!toRemove.contains ·)
+    pendingFields := pendingFields.filter fun pendingField => pendingField.val?.isNone || !toRemove.contains pendingField.fieldName
 
 private def finalize : StructInstM Expr := withViewRef do
   let val := (← read).val.beta (← get).fields
+  trace[Elab.struct] "constructor{indentExpr val}"
   synthesizeAppInstMVars (← get).instMVars val
-  trace[Elab.struct] "before default value synthesis{indentExpr val}"
+  trace[Elab.struct] "constructor after synthesizing instMVars{indentExpr val}"
   synthDefaultFields
   -- Compact the constructors:
   let val ← etaStructReduce' val
@@ -875,10 +876,10 @@ where
     return mkAppN fieldExpr args[numParams + 1:]
 
 /--
-If there is a path to `parentStructName`, compute its type.
+If there is a path to `parentStructName`, compute its type. Also returns the last projection to the parent.
 Otherwise, create a type with fresh metavariables.
 -/
-private def getParentStructType (parentStructName : Name) : StructInstM Expr := do
+private def getParentStructType (parentStructName : Name) : StructInstM (Expr × Option Name) := do
   let env ← getEnv
   let structName := (← read).structName
   let structType := (← read).structType
@@ -894,11 +895,11 @@ private def getParentStructType (parentStructName : Name) : StructInstM Expr := 
       let projTy ← normalizeExpr projTy
       if projTy.containsFVar self.fvarId! then
         throwError "projection to parent structure '{.ofConstName parentStructName}' has unsupported dependent types{indentExpr projTy}"
-      return projTy
+      return (projTy, path.getLast?)
   else
     let c ← mkConstWithFreshMVarLevels parentStructName
     let (args, _, _) ← forallMetaTelescopeReducing (← inferType c)
-    return mkAppN c args
+    return (mkAppN c args, none)
 
 /--
 Creates projection notation for the given structure field.
@@ -912,12 +913,12 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
   let fieldType := fieldType.consumeTypeAnnotations
   trace[Elab.struct] "processing field {field.name}{indentD (toMessageData field)}"
   match field.val with
-  | .term val =>
+  | .term val => withRef val do
     trace[Elab.struct] "field.val is term {field.name}"
     let e ← elabStructField field.name val fieldType
     addStructField field e
     loop
-  | .nested fields sources =>
+  | .nested fields sources => withRef field.ref do
     trace[Elab.struct] "field.val is nested {field.name}"
     -- Nested field. Create synthetic structure instance notation with projected sources, then elaborate it like a `.term` field.
     let sourceStxs : Array Term := sources.map (fun source => mkProjStx source.stx field.name)
@@ -927,7 +928,7 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
     let e ← elabStructField field.name stx fieldType
     addStructField field e
     loop
-  | .proj fvarId val parentStructName =>
+  | .proj fvarId val parentStructName parentFieldName? => withRef field.ref do
     trace[Elab.struct] "field.val is proj {field.name}"
     let processProjAux (fvarId : FVarId) : StructInstM α := do
       try
@@ -949,8 +950,13 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
     else if (← getLCtx).contains fvarId then
       processProjAux fvarId
     else
-      let parentTy ← getParentStructType parentStructName
+      let (parentTy, projName?) ← getParentStructType parentStructName
       let parentVal ← elabTermEnsuringType val parentTy
+      -- Add terminfo so that the `toParent` field has some hover information.
+      if let (some parentFieldName, some projName) := (parentFieldName?, projName?) then
+        pushInfoTree <| InfoTree.node (children := {}) <| Info.ofFieldInfo {
+          projName := projName, fieldName := parentFieldName, lctx := (← getLCtx), val := parentVal, stx := field.ref
+        }
       let parentVal ← instantiateMVars parentVal
       if parentVal.isFVar then
         -- Reuse the fvar rather than add a new decl to the environment.

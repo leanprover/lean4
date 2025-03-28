@@ -31,9 +31,6 @@ theorem compare_eq_ite_lt (a b : Int) :
     | .inl h => simp [h, Int.ne_of_gt h]
     | .inr rfl => simp
 
-@[deprecated compare_eq_ite_lt (since := "2025-03-28")]
-def compare_def_lt := compare_eq_ite_lt
-
 theorem compare_eq_ite_le (a b : Int) :
     compare a b = if a ≤ b then if b ≤ a then .eq else .lt else .gt := by
   rw [compare_eq_ite_lt]
@@ -43,9 +40,6 @@ theorem compare_eq_ite_le (a b : Int) :
     split
     · next hgt => simp [Int.le_of_lt hgt, Int.not_le.2 hgt]
     · next hle => simp [Int.not_lt.1 hge, Int.not_lt.1 hle]
-
-@[deprecated compare_eq_ite_le (since := "2025-03-28")]
-def compare_def_le := compare_eq_ite_le
 
 protected theorem compare_swap (a b : Int) : (compare a b).swap = compare b a := by
   simp only [compare_eq_ite_le]; (repeat' split) <;> try rfl

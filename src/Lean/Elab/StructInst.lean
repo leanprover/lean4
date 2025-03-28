@@ -861,23 +861,31 @@ where
     let args := e.getAppArgs
     return mkAppN fieldExpr args[numParams + 1:]
 
+/--
+If there is a path to `parentStructName`, compute its type.
+Otherwise, create a type with fresh metavariables.
+-/
 private def getParentStructType (parentStructName : Name) : StructInstM Expr := do
   let env ← getEnv
   let structName := (← read).structName
   let structType := (← read).structType
-  let some path := getPathToBaseStructure? env parentStructName structName | unreachable!
-  withLocalDeclD `self structType fun self => do
-    let proj ← path.foldlM (init := self) fun e projFn => do
-      let ty ← whnf (← inferType e)
-      let .const _ us := ty.getAppFn | unreachable!
-      let params := ty.getAppArgs
-      pure <| mkApp (mkAppN (.const projFn us) params) e
-    let projTy ← whnf <| ← inferType proj
-    let projTy ← reduceSelfProjs self projTy
-    let projTy ← normalizeExpr projTy
-    if projTy.containsFVar self.fvarId! then
-      throwError "projection to parent structure '{.ofConstName parentStructName}' has unsupported dependent types{indentExpr projTy}"
-    return projTy
+  if let some path := getPathToBaseStructure? env parentStructName structName then
+    withLocalDeclD `self structType fun self => do
+      let proj ← path.foldlM (init := self) fun e projFn => do
+        let ty ← whnf (← inferType e)
+        let .const _ us := ty.getAppFn | unreachable!
+        let params := ty.getAppArgs
+        pure <| mkApp (mkAppN (.const projFn us) params) e
+      let projTy ← whnf <| ← inferType proj
+      let projTy ← reduceSelfProjs self projTy
+      let projTy ← normalizeExpr projTy
+      if projTy.containsFVar self.fvarId! then
+        throwError "projection to parent structure '{.ofConstName parentStructName}' has unsupported dependent types{indentExpr projTy}"
+      return projTy
+  else
+    let c ← mkConstWithFreshMVarLevels parentStructName
+    let (args, _, _) ← forallMetaTelescopeReducing (← inferType c)
+    return mkAppN c args
 
 /--
 Creates projection notation for the given structure field.
@@ -907,13 +915,13 @@ private def processNestedField (loop : StructInstM α) (field : ExpandedField) (
   addStructField field e
   loop
 
-private def processProjAux (loop : StructInstM α) (field : ExpandedField) (fvarId : FVarId) (fieldType : Expr)  : StructInstM α := do
-  let e ← mkProjection (.fvar fvarId) field.name
-  let eType ← inferType e
-  unless ← isDefEq eType fieldType do
-    throwError m!"consistency error, type of projected field {field.name} {← mkHasTypeButIsExpectedMsg eType fieldType}"
-  addStructFieldAux field.name e
-  loop
+-- private def processProjAux (loop : StructInstM α) (field : ExpandedField) (fvarId : FVarId) (fieldType : Expr)  : StructInstM α := do
+--   let e ← mkProjection (.fvar fvarId) field.name
+--   let eType ← inferType e
+--   unless ← isDefEq eType fieldType do
+--     throwError m!"consistency error, type of projected field {field.name} {← mkHasTypeButIsExpectedMsg eType fieldType}"
+--   addStructFieldAux field.name e
+--   loop
 
 private def withLiftedFVar (fvarId : FVarId) (sourceName : Name) (type val : Expr) (k : StructInstM α) : StructInstM α := do
   let sourceName' := sourceName.eraseMacroScopes
@@ -931,10 +939,18 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
   | .nested fields sources => processNestedField loop field fieldType fields sources
   | .proj fvarId val parentStructName =>
     trace[Elab.struct] "field.val is proj {field.name}"
+    let processProjAux (fvarId : FVarId) : StructInstM α := do
+      let e ← mkProjection (.fvar fvarId) field.name
+      let eType ← inferType e
+      unless ← isDefEq eType fieldType do
+        throwError m!"type of field '{field.name}' from structure '{.ofConstName parentStructName}' \
+          {← mkHasTypeButIsExpectedMsg eType fieldType}"
+      addStructFieldAux field.name e
+      loop
     if let some fvarId' := (← get).liftedFVarRemap.find? fvarId then
-      processProjAux loop field fvarId' fieldType
+      processProjAux fvarId'
     else if (← getLCtx).contains fvarId then
-      processProjAux loop field fvarId fieldType
+      processProjAux fvarId
     else
       let parentTy ← getParentStructType parentStructName
       let parentVal ← elabTermEnsuringType val parentTy
@@ -943,10 +959,10 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
         -- Reuse the fvar rather than add a new decl to the environment.
         let fvarId' := parentVal.fvarId!
         modify fun s => { s with liftedFVarRemap := s.liftedFVarRemap.insert fvarId fvarId' }
-        processProjAux loop field fvarId' fieldType
+        processProjAux fvarId'
       else
         withLiftedFVar fvarId parentStructName parentTy parentVal do
-          processProjAux loop field fvarId fieldType
+          processProjAux fvarId
 
 private def processDefault (loop : StructInstM α) (fieldName : Name) (binfo : BinderInfo) (fieldType : Expr) : StructInstM α := withViewRef do
   trace[Elab.struct] "processDefault {fieldName}"

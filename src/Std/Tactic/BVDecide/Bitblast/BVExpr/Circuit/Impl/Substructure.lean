@@ -20,7 +20,7 @@ namespace BVLogicalExpr
 
 structure Cache (aig : AIG BVBit) where
   map : Std.HashMap BVLogicalExpr (Nat × Bool)
-  hbound : ∀ k (h : k ∈ map), (map.get k h).1 < aig.decls.size
+  hbound : ∀ k (h : k ∈ map), (map[k]'h).1 < aig.decls.size
 
 @[inline]
 def Cache.empty : Cache aig :=
@@ -30,14 +30,28 @@ def Cache.empty : Cache aig :=
 def Cache.insert (cache : Cache aig) (expr : BVLogicalExpr) (ref : AIG.Ref aig) :
     Cache aig :=
   let ⟨map, hbound⟩ := cache
-  have := by sorry
+  have := by
+    intro k hk
+    rw [Std.HashMap.getElem_insert]
+    split
+    · exact ref.hgate
+    · apply hbound
   ⟨map.insert expr ⟨ref.gate, ref.invert⟩, this⟩
 
 @[inline]
 def Cache.get? (cache : Cache aig) (expr : BVLogicalExpr) : Option (AIG.Ref aig) :=
-  match h : cache.map.get? expr with
+  match h : cache.map[expr]? with
   | some ref =>
-    some ⟨ref.1, ref.2, sorry⟩
+    have : expr ∈ cache.map := by
+      rw [Std.HashMap.mem_iff_contains, Std.HashMap.contains_eq_isSome_getElem?]
+      simp [h]
+    have : cache.map[expr]'this = ref := by
+      rw [Std.HashMap.getElem?_eq_some_getElem (h' := this)] at h
+      simpa using h
+    have := by
+      rw [← this]
+      apply cache.hbound
+    some ⟨ref.1, ref.2, this⟩
   | none =>
     none
 
@@ -45,7 +59,11 @@ def Cache.get? (cache : Cache aig) (expr : BVLogicalExpr) : Option (AIG.Ref aig)
 def Cache.cast (cache : Cache aig1) (h : aig1.decls.size ≤ aig2.decls.size) :
     Cache aig2 :=
   let ⟨map, hbound⟩ := cache
-  have := by sorry
+  have := by
+    intro k hk
+    apply Nat.lt_of_lt_of_le
+    · apply hbound
+    · exact h
   ⟨map, this⟩
 
 structure Return (aig : AIG BVBit) where

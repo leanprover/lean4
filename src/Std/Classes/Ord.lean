@@ -821,8 +821,8 @@ instance [TransCmp cmp] : TransCmp (List.compareLex cmp) where
     | nil => exact List.isLE_compareLex_nil_left
     | cons _ _ ih =>
       cases b <;> cases c <;> (try simp [List.compareLex_cons_nil] at *; done)
-      simp [List.compareLex_cons_cons] at *
-      simp [Ordering.isLE_then_iff_and] at *
+      simp only [List.compareLex_cons_cons] at *
+      simp only [Ordering.isLE_then_iff_and] at *
       apply And.intro
       · exact TransCmp.isLE_trans hab.1 hbc.1
       · obtain ⟨hable, (hab | hab)⟩ := hab

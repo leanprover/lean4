@@ -346,13 +346,14 @@ static inline lean_object * lean_alloc_small_object(unsigned sz) {
     unsigned slot_idx = lean_get_slot_idx(sz);
     assert(sz <= LEAN_MAX_SMALL_OBJECT_SIZE);
     return (lean_object*)lean_alloc_small(sz, slot_idx);
+#elif defined(LEAN_MIMALLOC)
+    lean_inc_heartbeat();
+    void * mem = mi_malloc_small(sz);
+    if (mem == 0) lean_internal_panic_out_of_memory();
+    return (lean_object*)mem;
 #else
     lean_inc_heartbeat();
-#ifdef LEAN_MIMALLOC
-    void * mem = mi_malloc_small(sizeof(size_t) + sz);
-#else
     void * mem = malloc(sizeof(size_t) + sz);
-#endif
     if (mem == 0) lean_internal_panic_out_of_memory();
     *(size_t*)mem = sz;
     return (lean_object*)((size_t*)mem + 1);
@@ -387,6 +388,8 @@ static inline lean_object * lean_alloc_ctor_memory(unsigned sz) {
 static inline unsigned lean_small_object_size(lean_object * o) {
 #ifdef LEAN_SMALL_ALLOCATOR
     return lean_small_mem_size(o);
+#elif defined(LEAN_MIMALLOC)
+    return mi_malloc_usable_size(o);
 #else
     return *((size_t*)o - 1);
 #endif
@@ -404,8 +407,7 @@ static inline void lean_free_small_object(lean_object * o) {
 #ifdef LEAN_SMALL_ALLOCATOR
     lean_free_small(o);
 #elif defined(LEAN_MIMALLOC)
-    size_t* ptr = (size_t*)o - 1;
-    mi_free_size(ptr, *ptr + sizeof(size_t));
+    mi_free((void *)o);
 #else
     size_t* ptr = (size_t*)o - 1;
     free_sized(ptr, *ptr + sizeof(size_t));

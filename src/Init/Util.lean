@@ -42,12 +42,19 @@ def dbgSleep {α : Type u} (ms : UInt32) (f : Unit → α) : α := f ()
 @[never_extract, inline] def panicWithPosWithDecl {α : Sort u} [Inhabited α] (modName : String) (declName : String) (line col : Nat) (msg : String) : α :=
   panic (mkPanicMessageWithDecl modName declName line col msg)
 
+/--
+Returns the address at which an object is allocated.
+
+This function is unsafe because it can distinguish between definitionally equal values.
+-/
 @[extern "lean_ptr_addr"]
 unsafe opaque ptrAddrUnsafe {α : Type u} (a : @& α) : USize
 
 /--
 Returns `true` if `a` is an exclusive object.
-We say an object is exclusive if it is single-threaded and its reference counter is 1.
+
+An object is exclusive if it is single-threaded and its reference counter is 1. This function is
+unsafe because it can distinguish between definitionally equal values.
 -/
 @[extern "lean_is_exclusive_obj"]
 unsafe opaque isExclusiveUnsafe {α : Type u} (a : @& α) : Bool
@@ -56,8 +63,21 @@ set_option linter.unusedVariables.funArgs false in
 @[inline] unsafe def withPtrAddrUnsafe {α : Type u} {β : Type v} (a : α) (k : USize → β) (h : ∀ u₁ u₂, k u₁ = k u₂) : β :=
   k (ptrAddrUnsafe a)
 
+/--
+Compares two objects for pointer equality.
+
+Two objects are pointer-equal if, at runtime, they are allocated at exactly the same address. This
+function is unsafe because it can distinguish between definitionally equal values.
+-/
 @[inline] unsafe def ptrEq (a b : α) : Bool := ptrAddrUnsafe a == ptrAddrUnsafe b
 
+/--
+Compares two lists of objects for element-wise pointer equality. Returns `true` if both lists are
+the same length and the objects at the corresponding indices of each list are pointer-equal.
+
+Two objects are pointer-equal if, at runtime, they are allocated at exactly the same address. This
+function is unsafe because it can distinguish between definitionally equal values.
+-/
 unsafe def ptrEqList : (as bs : List α) → Bool
   | [], [] => true
   | a::as, b::bs => if ptrEq a b then ptrEqList as bs else false

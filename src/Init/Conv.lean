@@ -306,6 +306,10 @@ syntax (name := first) "first " withPosition((ppDedent(ppLine) colGe "| " convSe
 /-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
 macro "try " t:convSeq : conv => `(conv| first | $t | skip)
 
+/--
+`tac <;> tac'` runs `tac` on the main goal and `tac'` on each produced goal, concatenating all goals
+produced by `tac'`.
+-/
 macro:1 x:conv tk:" <;> " y:conv:0 : conv =>
   `(conv| tactic' => (conv' => $x:conv) <;>%$tk (conv' => $y:conv))
 

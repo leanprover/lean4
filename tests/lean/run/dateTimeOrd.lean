@@ -36,7 +36,7 @@ example : strictly_ordered
 example : Std.TransOrd (DateTime TimeZone.GMT) := inferInstance
 example : Std.LawfulBEqOrd (DateTime TimeZone.GMT) := inferInstance
 
--- We cannot use `decide` here becuase the reduction gets stuck.
+-- We cannot use `decide` here because the reduction gets stuck.
 /-- info: true -/
 #guard_msgs in
 #eval strictly_ordered <|

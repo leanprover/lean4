@@ -1544,11 +1544,11 @@ theorem ISize.toInt_neg (n : ISize) : (-n).toInt = (-n.toInt).bmod (2 ^ System.P
 @[simp] theorem ISize.toNatClampNeg_eq_zero_iff {n : ISize} : n.toNatClampNeg = 0 ↔ n ≤ 0 := by
   rw [toNatClampNeg, Int.toNat_eq_zero, le_iff_toInt_le, toInt_zero]
 
-@[simp] protected theorem Int8.not_le (n m : Int8) : ¬n ≤ m ↔ m < n := by simp [le_iff_toInt_le, lt_iff_toInt_lt]
-@[simp] protected theorem Int16.not_le (n m : Int16) : ¬n ≤ m ↔ m < n := by simp [le_iff_toInt_le, lt_iff_toInt_lt]
-@[simp] protected theorem Int32.not_le (n m : Int32) : ¬n ≤ m ↔ m < n := by simp [le_iff_toInt_le, lt_iff_toInt_lt]
-@[simp] protected theorem Int64.not_le (n m : Int64) : ¬n ≤ m ↔ m < n := by simp [le_iff_toInt_le, lt_iff_toInt_lt]
-@[simp] protected theorem ISize.not_le (n m : ISize) : ¬n ≤ m ↔ m < n := by simp [le_iff_toInt_le, lt_iff_toInt_lt]
+@[simp] protected theorem Int8.not_le {n m : Int8} : ¬n ≤ m ↔ m < n := by simp [le_iff_toInt_le, lt_iff_toInt_lt]
+@[simp] protected theorem Int16.not_le {n m : Int16} : ¬n ≤ m ↔ m < n := by simp [le_iff_toInt_le, lt_iff_toInt_lt]
+@[simp] protected theorem Int32.not_le {n m : Int32} : ¬n ≤ m ↔ m < n := by simp [le_iff_toInt_le, lt_iff_toInt_lt]
+@[simp] protected theorem Int64.not_le {n m : Int64} : ¬n ≤ m ↔ m < n := by simp [le_iff_toInt_le, lt_iff_toInt_lt]
+@[simp] protected theorem ISize.not_le {n m : ISize} : ¬n ≤ m ↔ m < n := by simp [le_iff_toInt_le, lt_iff_toInt_lt]
 
 @[simp] theorem Int8.neg_nonpos_iff (n : Int8) : -n ≤ 0 ↔ n = minValue ∨ 0 ≤ n := by
   rw [le_iff_toBitVec_sle, toBitVec_zero, toBitVec_neg, BitVec.neg_sle_zero (by decide)]

@@ -6,6 +6,7 @@ Authors: Mac Malone
 prelude
 import Lake.Config.LeanExe
 import Lake.Config.ExternLib
+import Lake.Config.InputFile
 import Lake.Build.Facets
 
 /-!
@@ -117,6 +118,8 @@ data_type package : Package
 data_type lean_lib : LeanLib
 data_type lean_exe : LeanExe
 data_type extern_lib : ExternLib
+data_type input_file : InputFile
+data_type input_dir : InputDir
 
 /-- The direct local imports of the Lean module. -/
 builtin_facet imports : Module => Array Module

@@ -12,9 +12,5 @@ open Lean System
 /-- An input file -- its package plus its configuration. -/
 abbrev InputFile := ConfigTarget InputFile.configKind
 
-data_type input_file : InputFile
-
 /-- An input directory -- its package plus its configuration. -/
 abbrev InputDir := ConfigTarget InputDir.configKind
-
-data_type input_dir : InputDir

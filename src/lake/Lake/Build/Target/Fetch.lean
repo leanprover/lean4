@@ -13,7 +13,7 @@ namespace Lake
 
 variable (defaultPkg : Package) (root : BuildKey) in
 private def PartialBuildKey.fetchInCore
-  (self : PartialBuildKey)
+  (self : PartialBuildKey) (facetless : Bool := false)
 : FetchM ((key : BuildKey) × Job (BuildData key)) := do
   match self with
   | .module modName =>
@@ -25,15 +25,31 @@ private def PartialBuildKey.fetchInCore
     return ⟨.package pkg.name, cast (by simp) <| Job.pure pkg⟩
   | .packageTarget pkgName target =>
     let pkg ← resolveTargetPackageD pkgName
-    let job ← (pkg.target target).fetch
-    return ⟨.packageTarget pkg.name target, cast (by simp) job⟩
-  | .facet target facetName =>
-      let ⟨key, job⟩ ← PartialBuildKey.fetchInCore target
+    let key := BuildKey.packageTarget pkg.name target
+    if facetless then
+      if let some decl := pkg.findTargetDecl? target then
+        if h : decl.kind.isAnonymous then
+          let job ← ( pkg.target target).fetch
+          return ⟨key, cast (by simp) job⟩
+        else
+          let facet := decl.kind.str "default"
+          let tgt := decl.mkConfigTarget pkg
+          let tgt := cast (by simp [decl.target_eq_type h]) tgt
+          let info := BuildInfo.facet key decl.kind tgt facet
+          return ⟨key.facet facet, ← info.fetch⟩
+      else
+        error s!"invalid target '{root}': target not found in package '{pkg.name}'"
+    else
+      let job ← (pkg.target target).fetch
+      return ⟨key, cast (by simp) job⟩
+  | .facet target shortFacet =>
+      let ⟨key, job⟩ ← PartialBuildKey.fetchInCore target false
       let kind := job.kind
       if h : kind.isAnonymous then
         error s!"invalid target '{root}': targets of opaque data kinds do not support facets"
       else
-        have facet := kind ++ facetName
+        let shortFacet := if shortFacet.isAnonymous then `default else shortFacet
+        have facet := kind ++ shortFacet
         let job ← (job.cast h).bindM fun data =>
           fetch (.facet target kind data facet)
         return ⟨.facet target facet, cast (by simp) job⟩
@@ -52,7 +68,7 @@ A missing package is filled in with `defaultPkg` and facets are qualified
 by the their input target's kind.
 -/
 @[inline] def PartialBuildKey.fetchIn (defaultPkg : Package) (self : PartialBuildKey) : FetchM OpaqueJob :=
-  (·.2.toOpaque) <$> fetchInCore defaultPkg self self
+  (·.2.toOpaque) <$> fetchInCore defaultPkg self self true
 
 variable (root : BuildKey) in
 private def BuildKey.fetchCore

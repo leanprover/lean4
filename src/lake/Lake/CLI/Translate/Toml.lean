@@ -66,7 +66,10 @@ instance : ToToml (Array LeanOption) where
 @[inline] private def encodeSingleton? [ToToml? α] (name : Name) (a : α) : Option Value :=
   toToml? a |>.map fun v => toToml <| Table.empty.insert name v
 
-protected def Pattern.toToml?  [ToToml? (PatternDescr α β)] (p : Pattern α β) : Option Value :=
+mutual
+
+partial def Pattern.toToml? [ToToml? β] (p : Pattern α β) : Option Value :=
+  have : ToToml? (PatternDescr α β) := ⟨PattternDescr.toToml?⟩
   match p.name with
   | .anonymous =>
     p.descr?.bind toToml?
@@ -77,18 +80,19 @@ protected def Pattern.toToml?  [ToToml? (PatternDescr α β)] (p : Pattern α β
   | n =>
     toToml <| Table.empty.insert `preset n
 
-instance[ToToml? (PatternDescr α β)] : ToToml? (Pattern α β) := ⟨Pattern.toToml?⟩
-
-protected partial def PattternDescr.toToml?
+partial def PattternDescr.toToml?
   [ToToml? β] (p : PatternDescr α β) : Option Value
 :=
-  have : ToToml? (PatternDescr α β) := ⟨PattternDescr.toToml?⟩
+  have : ToToml? (Pattern α β) := ⟨Pattern.toToml?⟩
   match p with
   | .not p => encodeSingleton? `not p
   | .any p => encodeSingleton? `any p
   | .all p => encodeSingleton? `all p
   | .coe p => toToml? p
 
+end
+
+instance[ToToml? β] : ToToml? (Pattern α β) := ⟨Pattern.toToml?⟩
 instance [ToToml? β] : ToToml? (PatternDescr α β) := ⟨PattternDescr.toToml?⟩
 
 protected def StrPatDescr.toToml (p : StrPatDescr) : Value :=

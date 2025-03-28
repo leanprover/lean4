@@ -39,24 +39,26 @@ def PartialBuildKey.parse (s : String) : Except String PartialBuildKey := do
         let pkg := target.drop 1 |> stringToLegalOrSimpleName
         return .package pkg
       else if target.startsWith "+" then
-        let mod := target.drop 1 |>.toName
-        if mod.isAnonymous then
-          throw s!"ill-formed target: ill-formed module name '{mod}'"
-        return .module mod
+        throw s!"ill-formed target: module targets are not allowed in partial build keys"
       else
         let target := stringToLegalOrSimpleName target
         return .packageTarget .anonymous target
     | [pkg, target] =>
-      let pkg := if pkg.startsWith "@" then pkg.drop 1 else pkg
-      let pkg := stringToLegalOrSimpleName pkg
+      if target.isEmpty then
+        throw s!"ill-formed target: default package targets are not supported in partial build keys"
+      let pkg :=
+        if pkg.isEmpty then
+          .anonymous
+        else
+          let pkg := if pkg.startsWith "@" then pkg.drop 1 else pkg
+          stringToLegalOrSimpleName pkg
       let target := stringToLegalOrSimpleName target
       return .packageTarget pkg target
     | _ =>
       throw "ill-formed target: too many '/'"
   match s.splitOn ":" with
   | [target] =>
-    let target ← decodeTarget target
-    return .facet target `default
+    decodeTarget target
   | [target, facetSpec] =>
     let target ← decodeTarget target
     let facet := stringToLegalOrSimpleName facetSpec
@@ -68,7 +70,7 @@ def PartialBuildKey.toString : (self : PartialBuildKey) → String
 | .module m => s!"+{m}"
 | .package p => if p.isAnonymous then "" else s!"@{p}"
 | .packageTarget p t => if p.isAnonymous then s!"{t}" else s!"{p}/{t}"
-| .facet t f => s!"{toString t}:{f}"
+| .facet t f => if f.isAnonymous then toString t else s!"{toString t}:{f}"
 
 instance : ToString PartialBuildKey := ⟨PartialBuildKey.toString⟩
 

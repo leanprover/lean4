@@ -193,15 +193,18 @@ protected def StdVer.decodeToml (v : Value) : EDecodeM LeanVer := do
 
 instance : DecodeToml StdVer := ⟨StdVer.decodeToml⟩
 
-protected def Pattern.decodeToml
+mutual
+
+partial def Pattern.decodeToml
   [IsPattern β α] [DecodeToml β] (v : Value) (presets : NameMap (Pattern α β) := {})
 : EDecodeM (Pattern α β) :=
+  have : DecodeToml (PatternDescr α β) := ⟨PatternDescr.decodeToml⟩
   match v with
   | .string _ s =>
     if s == "*" then
       return .star
     else
-      ofDescr <$> decodeToml v
+      .ofDescr <$> decodeToml v
   | .table r t => do
     if let some name ← t.decode? `preset then
       if let some preset := presets.find? name then
@@ -212,12 +215,10 @@ protected def Pattern.decodeToml
       .ofDescr <$> decodeToml v
   | v => .ofDescr <$> decodeToml v
 
-instance [IsPattern β α] [DecodeToml β] : DecodeToml (Pattern α β) := ⟨Pattern.decodeToml⟩
-
-protected partial def PatternDescr.decodeToml
+partial def PatternDescr.decodeToml
   [IsPattern β α] [DecodeToml β] (v : Value)
 : EDecodeM (PatternDescr α β) :=
-  have : DecodeToml (PatternDescr α β) := ⟨PatternDescr.decodeToml⟩
+  have : DecodeToml (Pattern α β) := ⟨Pattern.decodeToml⟩
   match v with
   | .table _ t => do
     if let some p ← t.decode? `not then
@@ -230,6 +231,9 @@ protected partial def PatternDescr.decodeToml
       .coe <$> decodeToml v
   | v => .coe <$> decodeToml v
 
+end
+
+instance [IsPattern β α] [DecodeToml β] : DecodeToml (Pattern α β) := ⟨Pattern.decodeToml⟩
 instance [IsPattern β α] [DecodeToml β] : DecodeToml (PatternDescr α β) := ⟨PatternDescr.decodeToml⟩
 
 protected def StrPatDescr.decodeToml (v : Value) : EDecodeM StrPatDescr :=

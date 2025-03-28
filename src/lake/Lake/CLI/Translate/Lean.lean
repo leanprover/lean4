@@ -204,6 +204,28 @@ protected def PathPatDescr.toLean? (p : PathPatDescr) : Option Term :=
 
 instance : ToLean? PathPatDescr := ⟨PathPatDescr.toLean?⟩
 
+protected def PartialBuildKey.toLean (k : BuildKey) : Term := Unhygienic.run do
+  go k []
+where
+  go k (fs : List Name) :=
+    match k with
+    | .module n => `(`+$(mkIdent n)$(mkSuffixes fs)*)
+    | .package n =>
+      if n.isAnonymous then
+        match fs with
+        | f :: fs => `(`:$(mkIdent f)$(mkSuffixes fs)*)
+        | [] => `(`@)
+      else
+        `(`@$(mkIdent n)$(mkSuffixes fs)*)
+    | .packageTarget p t =>
+      if p.isAnonymous then
+        `(`/$(mkIdent t)$(mkSuffixes fs)*)
+      else
+        `(`@$(mkIdent p)/$(mkIdent t)$(mkSuffixes fs)*)
+    | .facet k f => go k (f :: fs)
+  mkSuffixes facets : Array (TSyntax ``facetSuffix) :=
+    facets.toArray.map fun f => Unhygienic.run `(facetSuffix|:$(mkIdent f))
+
 protected def BuildKey.toLean (k : BuildKey) : Term := Unhygienic.run do
   match k with
   | .module n => `(.$(mkIdent `package) $(quote n))

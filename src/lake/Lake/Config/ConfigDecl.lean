@@ -47,6 +47,11 @@ structure KConfigDecl (k : Name) extends ConfigDecl where
 instance : Nonempty (NConfigDecl pkg name) :=
   ⟨{pkg, name, kind := .anonymous, config := Classical.ofNonempty, wf_data := by simp [Name.isAnonymous]}⟩
 
+@[inline] def ConfigDecl.partialKey (self : ConfigDecl) : PartialBuildKey :=
+  .packageTarget .anonymous self.name
+
+instance : CoeOut (KConfigDecl k) PartialBuildKey := ⟨(·.partialKey)⟩
+
 @[inline] def PConfigDecl.config' (self : PConfigDecl p) : ConfigType self.kind p self.name :=
   cast (by rw [self.pkg_eq]) self.config
 

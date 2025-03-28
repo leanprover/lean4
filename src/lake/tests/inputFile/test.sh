@@ -18,6 +18,19 @@ untraced
 EOF
 ) -
 
+# Validate Lean configuration
+$LAKE -f lakefileAlt.lean translate-config toml lakefileAlt.produced.toml 2>&1 | diff - /dev/null
+diff -u --strip-trailing-cr lakefileAlt.expected.toml lakefileAlt.produced.toml
+$LAKE -f lakefileAlt.lean -q resolve-deps 2>&1 | diff - /dev/null
+$LAKE -f lakefileAlt.lean exe test | diff -u --strip-trailing-cr <(cat << 'EOF'
+foo
+bar
+baz
+untraced
+untraced
+EOF
+) -
+
 # Test input file target
 cat "`$LAKE query foo`" | diff -u --strip-trailing-cr <(echo foo) -
 

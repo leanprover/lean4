@@ -1650,34 +1650,34 @@ theorem toInt_sdiv (a b : BitVec w) : (a.sdiv b).toInt = (a.toInt.tdiv b.toInt).
   · rw [← toInt_bmod_cancel]
     rw [BitVec.toInt_sdiv_of_ne_or_ne _ _ (by simpa only [Decidable.not_and_iff_not_or_not] using h)]
 
-theorem BitVec.toNat_intMin_of_pos (hw : 0 < w) : (intMin w).toNat = 2 ^ (w - 1) := by
+theorem toNat_intMin_of_pos (hw : 0 < w) : (intMin w).toNat = 2 ^ (w - 1) := by
   rw [toNat_intMin, Nat.mod_eq_of_lt (Nat.pow_lt_pow_of_lt (by decide) (Nat.sub_one_lt_of_lt hw))]
 
-protected theorem BitVec.le_of_lt {x y : BitVec w} (h : x < y) : x ≤ y := Nat.le_of_lt h
+protected theorem le_of_lt {x y : BitVec w} (h : x < y) : x ≤ y := Nat.le_of_lt h
 
-theorem BitVec.lt_intMin_iff {x : BitVec w} (hw : 0 < w) : x < intMin w ↔ x.msb = false := by
+theorem lt_intMin_iff {x : BitVec w} (hw : 0 < w) : x < intMin w ↔ x.msb = false := by
   simp only [msb_eq_false_iff_two_mul_lt, BitVec.toNat_intMin_of_pos hw, lt_def]
   rw [← Nat.mul_lt_mul_left (by decide : 0 < 2), ← Nat.pow_add_one', Nat.sub_one_add_one_eq_of_pos hw]
 
-theorem BitVec.intMin_le_iff {x : BitVec w} (hw : 0 < w) : intMin w ≤ x ↔ x.msb = true := by
+theorem intMin_le_iff {x : BitVec w} (hw : 0 < w) : intMin w ≤ x ↔ x.msb = true := by
   rw [← Decidable.not_iff_not, BitVec.not_le, Bool.not_eq_true]
   exact BitVec.lt_intMin_iff hw
 
-theorem BitVec.le_intMin_of_msb {x : BitVec w} (hx : x.msb = false) : x ≤ intMin w := by
+theorem le_intMin_of_msb {x : BitVec w} (hx : x.msb = false) : x ≤ intMin w := by
   match w with
   | 0 => decide +revert
   | w' + 1 =>
     apply BitVec.le_of_lt
     exact (BitVec.lt_intMin_iff (Nat.zero_lt_succ _)).mpr hx
 
-theorem BitVec.pos_of_msb {x : BitVec w} (hx : x.msb = true) : 0#w < x := by
+theorem pos_of_msb {x : BitVec w} (hx : x.msb = true) : 0#w < x := by
   apply Decidable.by_contra
   intro h
   simp only [BitVec.not_lt, le_zero_iff] at h
   cases h
   simp at hx
 
-theorem BitVec.neg_le_intMin_of_msb {x : BitVec w} (hx : x.msb = true) : -x ≤ intMin w := by
+theorem neg_le_intMin_of_msb {x : BitVec w} (hx : x.msb = true) : -x ≤ intMin w := by
   match w with
   | 0 => decide +revert
   | w' + 1 =>
@@ -1686,33 +1686,33 @@ theorem BitVec.neg_le_intMin_of_msb {x : BitVec w} (hx : x.msb = true) : -x ≤ 
     rw [msb_eq_true_iff_two_mul_ge, Nat.pow_add_one] at hx
     omega
 
-theorem BitVec.msb_umod_eq_false_of_left {x : BitVec w} (hx : x.msb = false) (y : BitVec w) : (x % y).msb = false := by
+theorem msb_umod_eq_false_of_left {x : BitVec w} (hx : x.msb = false) (y : BitVec w) : (x % y).msb = false := by
   rw [msb_eq_false_iff_two_mul_lt] at hx ⊢
   rw [toNat_umod]
   refine Nat.lt_of_le_of_lt ?_ hx
   rw [Nat.mul_le_mul_left_iff (by decide)]
   exact Nat.mod_le _ _
 
-theorem BitVec.width_pos_of_ne {x y : BitVec w} (h : x ≠ y) : 0 < w := by
+theorem length_pos_of_ne {x y : BitVec w} (h : x ≠ y) : 0 < w := by
   match w with
   | 0 => rw [eq_nil x, eq_nil y] at h; contradiction
   | w' + 1 => exact Nat.zero_lt_succ w'
 
-theorem BitVec.msb_umod_of_le_of_ne_zero_of_le {x y : BitVec w}
+theorem msb_umod_of_le_of_ne_zero_of_le {x y : BitVec w}
     (hx : x ≤ intMin w) (hy : y ≠ 0#w) (hy' : y ≤ intMin w) : (x % y).msb = false := by
   simp only [msb_umod, Bool.and_eq_false_imp, Bool.or_eq_false_iff, decide_eq_false_iff_not,
     BitVec.not_lt, beq_eq_false_iff_ne, ne_eq, hy, not_false_eq_true, _root_.and_true]
   intro h
-  rw [← intMin_le_iff (width_pos_of_ne hy)] at h
+  rw [← intMin_le_iff (length_pos_of_ne hy)] at h
   rwa [BitVec.le_antisymm hx h]
 
-theorem BitVec.toInt_neg_eq_of_msb {x : BitVec w} (h : x.msb = false) : (-x).toInt = -x.toInt := by
+theorem toInt_neg_eq_of_msb {x : BitVec w} (h : x.msb = false) : (-x).toInt = -x.toInt := by
   match w with
   | 0 => decide +revert
   | w' + 1 => exact toInt_neg_of_ne_intMin (ne_intMin_of_lt_of_msb_false (Nat.zero_lt_succ _) h)
 
 @[simp]
-theorem BitVec.toInt_srem (x y : BitVec w) : (x.srem y).toInt = x.toInt.tmod y.toInt := by
+theorem toInt_srem (x y : BitVec w) : (x.srem y).toInt = x.toInt.tmod y.toInt := by
   rw [srem_eq]
   by_cases hyz : y = 0#w
   · simp only [hyz, ofNat_eq_ofNat, msb_zero, umod_zero, neg_zero, neg_neg, toInt_zero, Int.tmod_zero]

@@ -21,15 +21,12 @@ EOF
 # Validate Lean configuration
 $LAKE -f lakefileAlt.lean translate-config toml lakefileAlt.produced.toml 2>&1 | diff - /dev/null
 diff -u --strip-trailing-cr lakefileAlt.expected.toml lakefileAlt.produced.toml
-$LAKE -f lakefileAlt.lean -q resolve-deps 2>&1 | diff - /dev/null
-$LAKE -f lakefileAlt.lean exe test | diff -u --strip-trailing-cr <(cat << 'EOF'
-foo
-bar
-baz
-untraced
-untraced
-EOF
-) -
+$LAKE -f lakefileAlt.lean -q build --no-build 2>&1 | diff - /dev/null
+
+# Validate TOML->Lean translation
+$LAKE translate-config lean lakefile.produced.lean 2>&1 | diff - /dev/null
+diff -u --strip-trailing-cr lakefile.expected.lean lakefile.produced.lean
+$LAKE -f lakefile.produced.lean -q build --no-build 2>&1 | diff - /dev/null
 
 # Test input file target
 cat "`$LAKE query foo`" | diff -u --strip-trailing-cr <(echo foo) -

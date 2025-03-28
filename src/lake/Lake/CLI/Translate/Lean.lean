@@ -226,15 +226,7 @@ where
   mkSuffixes facets : Array (TSyntax ``facetSuffix) :=
     facets.toArray.map fun f => Unhygienic.run `(facetSuffix|:$(mkIdent f))
 
-protected def BuildKey.toLean (k : BuildKey) : Term := Unhygienic.run do
-  match k with
-  | .module n => `(.$(mkIdent `package) $(quote n))
-  | .package n => `(.$(mkIdent `package) $(quote n))
-  | .packageTarget p n => `(.$(mkIdent `packageTarget) $(quote p) $(quote n))
-  | .facet k f => `(.$(mkIdent `facet) $(BuildKey.toLean k) $(quote f))
-
-instance : ToLean BuildKey := ⟨BuildKey.toLean⟩
-instance : ToLean PartialBuildKey := ⟨BuildKey.toLean⟩
+instance : ToLean PartialBuildKey := ⟨PartialBuildKey.toLean⟩
 
 /-! ## Dependency Configuration Encoder -/
 

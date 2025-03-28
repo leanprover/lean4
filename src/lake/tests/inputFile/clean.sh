@@ -1,1 +1,2 @@
-rm -rf .lake lake-manifest.json lakefileAlt.produced.toml inputs
+rm -rf .lake lake-manifest.json
+rm -rf inputs lakefile.produced.lean lakefileAlt.produced.toml

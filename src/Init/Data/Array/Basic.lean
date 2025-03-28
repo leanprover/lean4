@@ -317,6 +317,28 @@ Examples:
 instance [BEq α] : BEq (Array α) :=
   ⟨fun xs ys => isEqv xs ys BEq.beq⟩
 
+private theorem beq_toArray_eq_listBEq [BEq α] {xs ys : List α} :
+    (xs.toArray == ys.toArray) = (xs == ys) := by
+  simp only [Array.instBEq]
+  induction xs generalizing ys with
+  | nil =>
+    cases ys <;> rfl
+  | cons x xs ih =>
+    cases ys
+    case cons.nil => rfl
+    case cons.cons =>
+      simp [BEq.beq, List.beq_cons₂, Array.isEqv]
+      split
+      case isTrue hl =>
+        simp only [Nat.succ.injEq] at hl
+        simp [Array.isEqvAux]
+        sorry
+      sorry
+
+theorem beq_eq_beq_toList [BEq α] {xs ys : Array α} :
+    (xs == ys) = (xs.toList == ys.toList) := by
+  rw [← beq_toArray_eq_listBEq]
+
 /-
 `ofFn f` with `f : Fin n → α` returns the list whose ith element is `f i`.
 ```

@@ -292,21 +292,37 @@ def entryAtIdx! [Inhabited (α × β)] (t : TreeMap α β cmp) (n : Nat) : α ×
 def entryAtIdxD (t : TreeMap α β cmp) (n : Nat) (fallback : α × β) : α × β :=
   DTreeMap.Const.entryAtIdxD t.inner n fallback
 
-@[inline, inherit_doc DTreeMap.keyAtIndex?]
+@[inline, inherit_doc DTreeMap.keyAtIdx?]
+def keyAtIdx? (t : TreeMap α β cmp) (n : Nat) : Option α :=
+  DTreeMap.keyAtIdx? t.inner n
+
+@[inline, inherit_doc DTreeMap.keyAtIdx?, deprecated keyAtIdx? (since := "2025-03-25")]
 def keyAtIndex? (t : TreeMap α β cmp) (n : Nat) : Option α :=
-  DTreeMap.keyAtIndex? t.inner n
+  keyAtIdx? t n
 
-@[inline, inherit_doc DTreeMap.keyAtIndex]
+@[inline, inherit_doc DTreeMap.keyAtIdx]
+def keyAtIdx (t : TreeMap α β cmp) (n : Nat) (h : n < t.size) : α :=
+  DTreeMap.keyAtIdx t.inner n h
+
+@[inline, inherit_doc DTreeMap.keyAtIdx, deprecated keyAtIdx (since := "2025-03-25")]
 def keyAtIndex (t : TreeMap α β cmp) (n : Nat) (h : n < t.size) : α :=
-  DTreeMap.keyAtIndex t.inner n h
+  keyAtIdx t n h
 
-@[inline, inherit_doc DTreeMap.keyAtIndex!]
+@[inline, inherit_doc DTreeMap.keyAtIdx!]
+def keyAtIdx! [Inhabited α] (t : TreeMap α β cmp) (n : Nat) : α :=
+  DTreeMap.keyAtIdx! t.inner n
+
+@[inline, inherit_doc DTreeMap.keyAtIdx!, deprecated keyAtIdx! (since := "2025-03-25")]
 def keyAtIndex! [Inhabited α] (t : TreeMap α β cmp) (n : Nat) : α :=
-  DTreeMap.keyAtIndex! t.inner n
+  keyAtIdx! t n
 
-@[inline, inherit_doc DTreeMap.keyAtIndexD]
+@[inline, inherit_doc DTreeMap.keyAtIdxD]
+def keyAtIdxD (t : TreeMap α β cmp) (n : Nat) (fallback : α) : α :=
+  DTreeMap.keyAtIdxD t.inner n fallback
+
+@[inline, inherit_doc DTreeMap.keyAtIdxD, deprecated keyAtIdxD (since := "2025-03-25")]
 def keyAtIndexD (t : TreeMap α β cmp) (n : Nat) (fallback : α) : α :=
-  DTreeMap.keyAtIndexD t.inner n fallback
+  keyAtIdxD t n fallback
 
 @[inline, inherit_doc DTreeMap.Const.getEntryGE?]
 def getEntryGE? (t : TreeMap α β cmp) (k : α) : Option (α × β) :=
@@ -551,7 +567,7 @@ def eraseMany {ρ} [ForIn Id ρ α] (t : TreeMap α β cmp) (l : ρ) : TreeMap �
   ⟨t.inner.eraseMany l⟩
 
 instance [Repr α] [Repr β] : Repr (TreeMap α β cmp) where
-  reprPrec m prec := Repr.addAppParen ("TreeMap.ofList " ++ repr m.toList) prec
+  reprPrec m prec := Repr.addAppParen ("Std.TreeMap.ofList " ++ repr m.toList) prec
 
 end TreeMap
 

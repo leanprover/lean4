@@ -28,6 +28,7 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToTomlBool(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_Toml_Table_insertSome(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToTomlArray(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instToTomlArrayValue(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instToTomlFilePath(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
@@ -281,6 +282,17 @@ x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_7 = l_Array_mapMUnsafe_map___at_Lake_instToTomlArray___spec__1___rarg(x_1, x_5, x_6, x_4);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instToTomlArrayValue(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_box(0);
+x_3 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_Lake_instToTomlTable___closed__1() {

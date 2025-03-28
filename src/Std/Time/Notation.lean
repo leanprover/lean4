@@ -29,6 +29,7 @@ private def convertFraction : Fraction → MacroM (TSyntax `term)
   | .truncated digits => `(Std.Time.Fraction.truncated $(quote digits))
 
 private def convertYear : Year → MacroM (TSyntax `term)
+  | .any => `(Std.Time.Year.any)
   | .twoDigit => `(Std.Time.Year.twoDigit)
   | .fourDigit => `(Std.Time.Year.fourDigit)
   | .extended n => `(Std.Time.Year.extended $(quote n))

@@ -26,14 +26,14 @@ Examples:
 def ofFn {n} (f : Fin n → α) : List α := Fin.foldr n (f · :: ·) []
 
 @[simp]
-theorem length_ofFn (f : Fin n → α) : (ofFn f).length = n := by
+theorem length_ofFn {f : Fin n → α} : (ofFn f).length = n := by
   simp only [ofFn]
   induction n with
   | zero => simp
   | succ n ih => simp [Fin.foldr_succ, ih]
 
 @[simp]
-protected theorem getElem_ofFn (f : Fin n → α) (i : Nat) (h : i < (ofFn f).length) :
+protected theorem getElem_ofFn {f : Fin n → α} (h : i < (ofFn f).length) :
     (ofFn f)[i] = f ⟨i, by simp_all⟩ := by
   simp only [ofFn]
   induction n generalizing i with
@@ -47,7 +47,7 @@ protected theorem getElem_ofFn (f : Fin n → α) (i : Nat) (h : i < (ofFn f).le
       simp_all
 
 @[simp]
-protected theorem getElem?_ofFn (f : Fin n → α) (i) : (ofFn f)[i]? = if h : i < n then some (f ⟨i, h⟩) else none :=
+protected theorem getElem?_ofFn {f : Fin n → α} : (ofFn f)[i]? = if h : i < n then some (f ⟨i, h⟩) else none :=
   if h : i < (ofFn f).length
   then by
     rw [getElem?_eq_getElem h, List.getElem_ofFn]
@@ -58,11 +58,11 @@ protected theorem getElem?_ofFn (f : Fin n → α) (i) : (ofFn f)[i]? = if h : i
 
 /-- `ofFn` on an empty domain is the empty list. -/
 @[simp]
-theorem ofFn_zero (f : Fin 0 → α) : ofFn f = [] :=
+theorem ofFn_zero {f : Fin 0 → α} : ofFn f = [] :=
   ext_get (by simp) (fun i hi₁ hi₂ => by contradiction)
 
 @[simp]
-theorem ofFn_succ {n} (f : Fin (n + 1) → α) : ofFn f = f 0 :: ofFn fun i => f i.succ :=
+theorem ofFn_succ {n} {f : Fin (n + 1) → α} : ofFn f = f 0 :: ofFn fun i => f i.succ :=
   ext_get (by simp) (fun i hi₁ hi₂ => by
     cases i
     · simp
@@ -73,7 +73,7 @@ theorem ofFn_eq_nil_iff {f : Fin n → α} : ofFn f = [] ↔ n = 0 := by
   cases n <;> simp only [ofFn_zero, ofFn_succ, eq_self_iff_true, Nat.succ_ne_zero, reduceCtorEq]
 
 @[simp 500]
-theorem mem_ofFn {n} (f : Fin n → α) (a : α) : a ∈ ofFn f ↔ ∃ i, f i = a := by
+theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i = a := by
   constructor
   · intro w
     obtain ⟨i, h, rfl⟩ := getElem_of_mem w
@@ -81,12 +81,12 @@ theorem mem_ofFn {n} (f : Fin n → α) (a : α) : a ∈ ofFn f ↔ ∃ i, f i =
   · rintro ⟨i, rfl⟩
     apply mem_of_getElem (i := i) <;> simp
 
-theorem head_ofFn {n} (f : Fin n → α) (h : ofFn f ≠ []) :
+theorem head_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
     (ofFn f).head h = f ⟨0, Nat.pos_of_ne_zero (mt ofFn_eq_nil_iff.2 h)⟩ := by
-  rw [← getElem_zero (length_ofFn _ ▸ Nat.pos_of_ne_zero (mt ofFn_eq_nil_iff.2 h)),
+  rw [← getElem_zero (length_ofFn ▸ Nat.pos_of_ne_zero (mt ofFn_eq_nil_iff.2 h)),
     List.getElem_ofFn]
 
-theorem getLast_ofFn {n} (f : Fin n → α) (h : ofFn f ≠ []) :
+theorem getLast_ofFn {n} {f : Fin n → α} (h : ofFn f ≠ []) :
     (ofFn f).getLast h = f ⟨n - 1, Nat.sub_one_lt (mt ofFn_eq_nil_iff.2 h)⟩ := by
   simp [getLast_eq_getElem, length_ofFn, List.getElem_ofFn]
 

@@ -20,6 +20,11 @@ open Lean System Toml
 private local instance : BEq FilePath where
   beq a b := a.normalize == b.normalize
 
+class EncodeField (σ : Type u) (name : Name) (α : Type u) where
+  encodeField : α → Value
+
+instance [ToToml α] : EncodeField σ name α := ⟨toToml⟩
+
 class InsertField (σ : Type u) (name : Name) where
   insertField : σ → Table → Table
 
@@ -30,8 +35,8 @@ abbrev Toml.Table.insertField
 instance [SmartInsert α] [field : ConfigField σ name α] : InsertField σ name where
   insertField cfg t := t.smartInsert name (field.get cfg)
 
-instance [ToToml α] [BEq α] [field : ConfigField σ name α] : InsertField σ name where
-  insertField cfg t := t.insertD name (field.get cfg) (field.mkDefault cfg)
+instance [enc : EncodeField σ name α] [BEq α] [field : ConfigField σ name α] : InsertField σ name where
+  insertField cfg t := t.insertD name (field.get cfg) (field.mkDefault cfg) (enc := ⟨enc.encodeField⟩)
 
 /-! ## Value Encoders -/
 
@@ -68,6 +73,11 @@ def smartInsertVerTags (pat : StrPat) (t : Table) : Table :=
 
 instance : InsertField (PackageConfig n) `versionTags where
   insertField cfg := smartInsertVerTags cfg.versionTags
+
+def encodeFacets (facets : Array Name) : Value :=
+  toToml <| facets.map (toToml <| Name.eraseHead ·)
+
+instance : EncodeField (LeanLibConfig n) `defaultFacets (Array Name) := ⟨encodeFacets⟩
 
 /-! ## Dependency Configuration Encoders -/
 
@@ -127,11 +137,11 @@ local macro "gen_toml_encoders%" : command => do
 
 gen_toml_encoders%
 
-@[inline] def Toml.Table.insertTargets
+@[inline] def Package.mkTomlTargets
   (pkg : Package) (kind : Name)
-  (toToml : {n : Name} → ConfigType kind pkg.name n → Table) (t : Table)
-: Table :=
-  t.smartInsert kind <| pkg.targetDecls.filterMap (·.config? kind |>.map toToml)
+  (toToml : {n : Name} → ConfigType kind pkg.name n → Table)
+: Array Table :=
+  pkg.targetDecls.filterMap (·.config? kind |>.map toToml)
 
 /-! ## Root Encoder -/
 
@@ -142,5 +152,5 @@ def Package.mkTomlConfig (pkg : Package) (t : Table := {}) : Table :=
   cfg.toToml t
   |>.smartInsert `defaultTargets pkg.defaultTargets
   |>.smartInsert `require pkg.depConfigs
-  |>.insertTargets pkg `lean_lib LeanLibConfig.toToml
-  |>.insertTargets pkg `lean_exe LeanExeConfig.toToml
+  |>.smartInsert LeanLib.keyword (pkg.mkTomlTargets LeanLib.configKind LeanLibConfig.toToml)
+  |>.smartInsert LeanExe.keyword (pkg.mkTomlTargets LeanExe.configKind LeanExeConfig.toToml)

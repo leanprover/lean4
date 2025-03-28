@@ -238,22 +238,22 @@ def maxD (t : TreeSet α cmp) (fallback : α) : α :=
 /-- Returns the `n`-th smallest element, or `none` if `n` is at least `t.size`. -/
 @[inline]
 def atIdx? (t : TreeSet α cmp) (n : Nat) : Option α :=
-  TreeMap.keyAtIndex? t.inner n
+  TreeMap.keyAtIdx? t.inner n
 
 /-- Returns the `n`-th smallest element. -/
 @[inline]
 def atIdx (t : TreeSet α cmp) (n : Nat) (h : n < t.size) : α :=
-  TreeMap.keyAtIndex t.inner n h
+  TreeMap.keyAtIdx t.inner n h
 
 /-- Returns the `n`-th smallest element, or panics if `n` is at least `t.size`. -/
 @[inline]
 def atIdx! [Inhabited α] (t : TreeSet α cmp) (n : Nat) : α :=
-  TreeMap.keyAtIndex! t.inner n
+  TreeMap.keyAtIdx! t.inner n
 
 /-- Returns the `n`-th smallest element, or `fallback` if `n` is at least `t.size`. -/
 @[inline]
 def atIdxD (t : TreeSet α cmp) (n : Nat) (fallback : α) : α :=
-  TreeMap.keyAtIndexD t.inner n fallback
+  TreeMap.keyAtIdxD t.inner n fallback
 
 /--
 Tries to retrieve the smallest element that is greater than or equal to the
@@ -495,7 +495,7 @@ def eraseMany {ρ} [ForIn Id ρ α] (t : TreeSet α cmp) (l : ρ) : TreeSet α c
   ⟨t.inner.eraseMany l⟩
 
 instance [Repr α] : Repr (TreeSet α cmp) where
-  reprPrec m prec := Repr.addAppParen ("TreeSet.ofList " ++ repr m.toList) prec
+  reprPrec m prec := Repr.addAppParen ("Std.TreeSet.ofList " ++ repr m.toList) prec
 
 end TreeSet
 

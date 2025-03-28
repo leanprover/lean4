@@ -43,7 +43,7 @@ theorem Ordered.right [Ord α] {sz k v l r} (h : (.inner sz k v l r : Impl α β
 
 theorem Ordered.compare_left [Ord α] {sz k v l r} (h : (.inner sz k v l r : Impl α β).Ordered)
     {k'} (hk' : k' ∈ l.toListModel) : compare k'.1 k = .lt :=
-  h.rel_of_mem_append hk' (List.mem_cons_self _ _)
+  h.rel_of_mem_append hk' List.mem_cons_self
 
 theorem Ordered.compare_left_beq_gt [Ord α] [TransOrd α] {k : α → Ordering} [IsStrictCut compare k]
     {sz k' v' l r} (ho : (.inner sz k' v' l r : Impl α β).Ordered) (hcmp : (k k').isGE)

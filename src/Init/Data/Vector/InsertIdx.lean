@@ -29,11 +29,11 @@ section InsertIdx
 variable {a : α}
 
 @[simp]
-theorem insertIdx_zero (xs : Vector α n) (x : α) : xs.insertIdx 0 x = (#v[x] ++ xs).cast (by omega) := by
+theorem insertIdx_zero {xs : Vector α n} {x : α} : xs.insertIdx 0 x = (#v[x] ++ xs).cast (by omega) := by
   cases xs
   simp
 
-theorem eraseIdx_insertIdx (i : Nat) (xs : Vector α n) (h : i ≤ n) :
+theorem eraseIdx_insertIdx {i : Nat} {xs : Vector α n} {h : i ≤ n} :
     (xs.insertIdx i a).eraseIdx i = xs := by
   rcases xs with ⟨xs, rfl⟩
   simp_all [Array.eraseIdx_insertIdx]
@@ -52,11 +52,11 @@ theorem insertIdx_eraseIdx_of_le {xs : Vector α n}
   rcases xs with ⟨as, rfl⟩
   simpa using Array.insertIdx_eraseIdx_of_le (by simpa) (by simpa) (by simpa)
 
-theorem insertIdx_comm (a b : α) (i j : Nat) (xs : Vector α n) (_ : i ≤ j) (_ : j ≤ n) :
+theorem insertIdx_comm (a b : α) {i j : Nat} {xs : Vector α n} (_ : i ≤ j) (_ : j ≤ n) :
     (xs.insertIdx i a).insertIdx (j + 1) b =
       (xs.insertIdx j b).insertIdx i a := by
   rcases xs with ⟨as, rfl⟩
-  simpa using Array.insertIdx_comm a b i j _ (by simpa) (by simpa)
+  simpa using Array.insertIdx_comm a b (by simpa) (by simpa)
 
 theorem mem_insertIdx {xs : Vector α n} {h : i ≤ n} : a ∈ xs.insertIdx i b h ↔ a = b ∨ a ∈ xs := by
   rcases xs with ⟨as, rfl⟩
@@ -64,7 +64,7 @@ theorem mem_insertIdx {xs : Vector α n} {h : i ≤ n} : a ∈ xs.insertIdx i b 
 
 set_option linter.indexVariables false in
 @[simp]
-theorem insertIdx_size_self (xs : Vector α n) (x : α) : xs.insertIdx n x = xs.push x := by
+theorem insertIdx_size_self {xs : Vector α n} {x : α} : xs.insertIdx n x = xs.push x := by
   rcases xs with ⟨as, rfl⟩
   simp
 

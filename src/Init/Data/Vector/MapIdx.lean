@@ -15,13 +15,13 @@ namespace Vector
 
 /-! ### mapFinIdx -/
 
-@[simp] theorem getElem_mapFinIdx (xs : Vector α n) (f : (i : Nat) → α → (h : i < n) → β) (i : Nat)
+@[simp] theorem getElem_mapFinIdx {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} {i : Nat}
     (h : i < n) :
     (xs.mapFinIdx f)[i] = f i xs[i] h := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem getElem?_mapFinIdx (xs : Vector α n) (f : (i : Nat) → α → (h : i < n) → β) (i : Nat) :
+@[simp] theorem getElem?_mapFinIdx {xs : Vector α n} {f : (i : Nat) → α → (h : i < n) → β} {i : Nat} :
     (xs.mapFinIdx f)[i]? =
       xs[i]?.pbind fun b h => f i b (getElem?_eq_some_iff.1 h).1 := by
   simp only [getElem?_def, getElem_mapFinIdx]
@@ -29,12 +29,12 @@ namespace Vector
 
 /-! ### mapIdx -/
 
-@[simp] theorem getElem_mapIdx (f : Nat → α → β) (xs : Vector α n) (i : Nat) (h : i < n) :
+@[simp] theorem getElem_mapIdx {f : Nat → α → β} {xs : Vector α n} {i : Nat} (h : i < n) :
     (xs.mapIdx f)[i] = f i (xs[i]'(by simp_all)) := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem getElem?_mapIdx (f : Nat → α → β) (xs : Vector α n) (i : Nat) :
+@[simp] theorem getElem?_mapIdx {f : Nat → α → β} {xs : Vector α n} {i : Nat} :
     (xs.mapIdx f)[i]? = xs[i]?.map (f i) := by
   rcases xs with ⟨xs, rfl⟩
   simp
@@ -43,11 +43,11 @@ end Vector
 
 namespace Array
 
-@[simp] theorem mapFinIdx_toVector (xs : Array α) (f : (i : Nat) → α → (h : i < xs.size) → β) :
+@[simp] theorem mapFinIdx_toVector {xs : Array α} {f : (i : Nat) → α → (h : i < xs.size) → β} :
     xs.toVector.mapFinIdx f = (xs.mapFinIdx f).toVector.cast (by simp) := by
   ext <;> simp
 
-@[simp] theorem mapIdx_toVector (f : Nat → α → β) (xs : Array α) :
+@[simp] theorem mapIdx_toVector {f : Nat → α → β} {xs : Array α} :
     xs.toVector.mapIdx f = (xs.mapIdx f).toVector.cast (by simp) := by
   ext <;> simp
 
@@ -57,12 +57,12 @@ namespace Vector
 
 /-! ### zipIdx -/
 
-@[simp] theorem toList_zipIdx (xs : Vector α n) (k : Nat := 0) :
+@[simp] theorem toList_zipIdx {xs : Vector α n} (k : Nat := 0) :
     (xs.zipIdx k).toList = xs.toList.zipIdx k := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem getElem_zipIdx (xs : Vector α n) (i : Nat) (h : i < n) :
+@[simp] theorem getElem_zipIdx {xs : Vector α n} {i : Nat} {h : i < n} :
     (xs.zipIdx k)[i] = (xs[i]'(by simp_all), k + i) := by
   rcases xs with ⟨xs, rfl⟩
   simp
@@ -366,8 +366,8 @@ abbrev mapIdx_eq_mkVector_iff := @mapIdx_eq_replicate_iff
   rcases xs with ⟨xs, rfl⟩
   simp [Array.mapIdx_reverse]
 
-theorem toArray_mapFinIdxM [Monad m] [LawfulMonad m]
-    (xs : Vector α n) (f : (i : Nat) → α → (h : i < n) → m β) :
+theorem toArray_mapFinIdxM [Monad m] [LawfulMonad m] {xs : Vector α n}
+    {f : (i : Nat) → α → (h : i < n) → m β} :
     toArray <$> xs.mapFinIdxM f = xs.toArray.mapFinIdxM
       (fun i x h => f i x (size_toArray xs ▸ h)) := by
   let rec go (i j : Nat) (inv : i + j = n) (bs : Vector β (n - i)) :
@@ -383,8 +383,9 @@ theorem toArray_mapFinIdxM [Monad m] [LawfulMonad m]
   simp only [mapFinIdxM, Array.mapFinIdxM, size_toArray]
   exact go _ _ _ _
 
-theorem toArray_mapIdxM [Monad m] [LawfulMonad m] (xs : Vector α n) (f : Nat → α → m β) :
+theorem toArray_mapIdxM [Monad m] [LawfulMonad m] {xs : Vector α n}
+    {f : Nat → α → m β} :
     toArray <$> xs.mapIdxM f = xs.toArray.mapIdxM f := by
-  exact toArray_mapFinIdxM _ _
+  exact toArray_mapFinIdxM
 
 end Vector

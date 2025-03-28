@@ -10,9 +10,10 @@ import Lake.Config.Monad
 Utilities for fetching package, library, module, and executable targets and facets.
 -/
 
-namespace Lake
 open Lean (Name)
 open System (FilePath)
+
+namespace Lake
 
 /-! ## Package Facets & Targets -/
 
@@ -25,7 +26,7 @@ def Package.fetchTargetJob
 /-- Fetch the build result of a target. -/
 protected def TargetDecl.fetch
   (self : TargetDecl)
-  [FamilyOut CustomData (self.pkg, self.name) α]
+  [FamilyOut (CustomData self.pkg) self.name α]
 : FetchM (Job α) := do
   let some pkg ← findPackage? self.pkg
     | error s!"package '{self.pkg}' of target '{self.name}' does not exist in workspace"
@@ -39,8 +40,8 @@ def TargetDecl.fetchJob (self : TargetDecl) : FetchM OpaqueJob :=  do
 
 /-- Fetch the build result of a package facet. -/
 @[inline] protected def PackageFacetDecl.fetch
-  (pkg : Package) (self : PackageFacetDecl) [FamilyOut PackageData self.name α]
-: FetchM (Job α) := fetch <| pkg.facet self.name
+  (pkg : Package) (self : PackageFacetDecl) [FamilyOut FacetOut self.name α]
+: FetchM (Job α) := fetch <| pkg.facetCore self.name
 
 /-- Fetch the build job of a package facet. -/
 @[deprecated "Deprecated without replacement." (since := "2025-03-17")]
@@ -58,8 +59,8 @@ def Package.fetchFacetJob
 
 /-- Fetch the build result of a module facet. -/
 @[inline] protected def ModuleFacetDecl.fetch
-  (mod : Module) (self : ModuleFacetDecl) [FamilyOut ModuleData self.name α]
-: FetchM (Job α) := fetch <| mod.facet self.name
+  (mod : Module) (self : ModuleFacetDecl) [FamilyOut FacetOut self.name α]
+: FetchM (Job α) := fetch <| mod.facetCore self.name
 
 /-- Fetch the build job of a module facet. -/
 @[deprecated "Deprecated without replacement." (since := "2025-03-17")]
@@ -83,8 +84,8 @@ def Module.fetchFacetJob (name : Name) (self : Module) : FetchM OpaqueJob :=
 
 /-- Fetch the build result of a library facet. -/
 @[inline] protected def LibraryFacetDecl.fetch
-  (lib : LeanLib) (self : LibraryFacetDecl) [FamilyOut LibraryData self.name α]
-: FetchM (Job α) := fetch <| lib.facet self.name
+  (lib : LeanLib) (self : LibraryFacetDecl) [FamilyOut FacetOut self.name α]
+: FetchM (Job α) := fetch <| lib.facetCore self.name
 
 /-- Fetch the build job of a library facet. -/
 @[deprecated "Deprecated without replacement," (since := "2025-03-17")]

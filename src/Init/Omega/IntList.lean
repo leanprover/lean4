@@ -355,7 +355,7 @@ theorem dot_eq_zero_of_left_eq_zero {xs ys : IntList} (h : ∀ x, x ∈ xs → x
     cases ys with
     | nil => rfl
     | cons y ys =>
-      rw [dot_cons₂, h x (List.mem_cons_self _ _), ih (fun x m => h x (List.mem_cons_of_mem _ m)),
+      rw [dot_cons₂, h x List.mem_cons_self, ih (fun x m => h x (List.mem_cons_of_mem _ m)),
         Int.zero_mul, Int.add_zero]
 
 @[simp] theorem nil_dot (xs : IntList) : dot [] xs = 0 := rfl
@@ -377,7 +377,7 @@ theorem dot_sdiv_left (xs ys : IntList) {d : Int} (h : d ∣ xs.gcd) :
 abbrev bmod (x : IntList) (m : Nat) : IntList := x.map (Int.bmod · m)
 
 theorem bmod_length (x : IntList) (m) : (bmod x m).length ≤ x.length :=
-  Nat.le_of_eq (List.length_map _ _)
+  Nat.le_of_eq (List.length_map _)
 
 /--
 The difference between the balanced mod of a dot product,

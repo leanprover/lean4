@@ -216,7 +216,7 @@ def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : GrindTactic' := f
     let goal ← GoalM.run' goal do
       let r ← preprocess prop
       let prop' := r.expr
-      let proof' ← mkEqMP (← r.getProof) proof
+      let proof' := mkApp4 (mkConst ``Eq.mp [levelZero]) prop r.expr (← r.getProof) proof
       add prop' proof' generation
     if goal.inconsistent then return [] else return [goal]
 

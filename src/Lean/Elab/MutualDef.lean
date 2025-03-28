@@ -1162,6 +1162,9 @@ private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
     -- Skip 'goals accomplished' task if we are on the command line.
     -- These messages are only used in the language server.
     return
+  -- make sure we don't accidentally keep any nested promises alive that would otherwise
+  -- auto-resolve to `none`
+  let views := views.map fun view => (view.ref, view.kind)
   let currentLog ← Core.getMessageLog
   let snaps := #[SnapshotTask.finished none (toSnapshotTree defsParsedSnap)] ++
     (← getThe Core.State).snapshotTasks
@@ -1174,11 +1177,11 @@ private def logGoalsAccomplishedSnapshotTask (views : Array DefView)
         msg.severity matches .error || msg.data.hasTag (· == `hasSorry)
     if hasErrorOrSorry then
       return
-    for d in defsParsedSnap.defs, view in views do
+    for d in defsParsedSnap.defs, (ref, kind) in views do
       let logGoalsAccomplished :=
         let msgData := .tagged `goalsAccomplished m!"Goals accomplished!"
-        logAt view.ref msgData (severity := .information) (isSilent := true)
-      match view.kind with
+        logAt ref msgData (severity := .information) (isSilent := true)
+      match kind with
       | .theorem =>
         logGoalsAccomplished
       | .example =>

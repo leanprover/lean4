@@ -8,6 +8,7 @@ import Lake.Util.Log
 import Lake.Util.Task
 import Lake.Util.Opaque
 import Lake.Build.Trace
+import Lake.Build.Data
 
 /-! # Job Primitives
 
@@ -16,7 +17,7 @@ it defines `OpaqueJob`, which is needed for `BuildContext`. More complex
 utilities are defined in `Lake.Build.Job.Monad`, which depends on `BuildContext`.
 -/
 
-open System
+open System Lean
 
 namespace Lake
 
@@ -88,9 +89,11 @@ abbrev JobTask α := BaseIOTask (JobResult α)
 /-! ## Job -/
 
 /-- A Lake job. -/
-structure Job (α : Type u)  where
+structure Job (α : Type u) where
   /-- The Lean `Task` object for the job. -/
   task : JobTask α
+   /-- The kind of data this job produces. -/
+  [kind : OptDataKind α]
   /--
   A caption for the job in Lake's build monitor.
   Will be formatted like `✔ [3/5] Ran <caption>`.
@@ -98,18 +101,28 @@ structure Job (α : Type u)  where
   caption : String
   /-- Whether this job failing should cause the build to fail. -/
   optional : Bool := false
-  deriving Inhabited
+
+instance : Inhabited (Job α) := ⟨{task := default, caption := default, kind := .anonymous}⟩
 
 namespace Job
 
-@[inline] def ofTask (task : JobTask α) (caption := "") : Job α :=
+protected def cast (self : Job α) (h : ¬ self.kind.isAnonymous) : Job (DataType self.kind) :=
+  let h := by
+    match kind_eq:self.kind with
+    | ⟨_, wf⟩ =>
+      simp only
+      simp only [OptDataKind.isAnonymous, kind_eq] at h
+      rw [wf h]
+  cast h self
+
+@[inline] def ofTask [OptDataKind α] (task : JobTask α) (caption := "") : Job α :=
   {task, caption}
 
-@[inline] protected def error (log : Log := {}) (caption := "") : Job α :=
-  {task := Task.pure (.error 0 {log}), caption}
+@[inline] protected def error [OptDataKind α] (log : Log := {}) (caption := "") : Job α :=
+  .ofTask (Task.pure (.error 0 {log})) caption
 
-@[inline] protected def pure (a : α) (log : Log := {}) (caption := "") : Job α :=
-  {task := Task.pure (.ok a {log}), caption}
+@[inline] protected def pure [kind : OptDataKind α] (a : α) (log : Log := {}) (caption := "") : Job α :=
+  .ofTask (Task.pure (.ok a {log})) caption
 
 instance : Pure Job := ⟨Job.pure⟩
 
@@ -128,12 +141,12 @@ instance : Pure Job := ⟨Job.pure⟩
   if job.caption.isEmpty then {job with caption} else job
 
 @[inline] def mapResult
-  (f : JobResult α → JobResult β) (self : Job α)
+  [OptDataKind β] (f : JobResult α → JobResult β) (self : Job α)
   (prio := Task.Priority.default) (sync := false)
-: Job β := {self with task := self.task.map f prio sync}
+: Job β := {self with task := self.task.map f prio sync, kind := inferInstance}
 
 @[inline] def mapOk
-  (f : α → JobState → JobResult β) (self : Job α)
+  [OptDataKind β] (f : α → JobState → JobResult β) (self : Job α)
   (prio := Task.Priority.default) (sync := false)
 : Job β :=
   self.mapResult (prio := prio) (sync := sync) fun
@@ -141,7 +154,7 @@ instance : Pure Job := ⟨Job.pure⟩
     | .error e s => .error e s
 
 @[inline] protected def map
-  (f : α → β) (self : Job α)
+  [OptDataKind β] (f : α → β) (self : Job α)
   (prio := Task.Priority.default) (sync := false)
 : Job β := self.mapResult (·.map f) prio sync
 
@@ -151,15 +164,24 @@ end Job
 
 /-! ## OpaqueJob -/
 
+/-- A Lake job task with an opaque value in `Type`. -/
+abbrev OpaqueJobTask := JobTask Opaque
+
+@[inline] private unsafe def JobTask.toOpaqueImpl (self : JobTask α) : OpaqueJobTask :=
+  unsafeCast self
+
+/-- Forget the value of a job task. Implemented as a no-op cast. -/
+@[implemented_by toOpaqueImpl]
+def JobTask.toOpaque (self : JobTask α) : OpaqueJobTask :=
+  self.map (·.map Opaque.mk)
+
+instance : CoeOut (JobTask α) OpaqueJobTask := ⟨.toOpaque⟩
+
 /-- A Lake job with an opaque value in `Type`. -/
 abbrev OpaqueJob := Job Opaque
 
-@[inline] private unsafe def Job.toOpaqueImpl (job : Job α) : OpaqueJob :=
-  unsafeCast job
-
-/-- Forget the value of a job. Implemented as a no-op cast. -/
-@[implemented_by toOpaqueImpl]
+/-- Forget the value of a job. Implemented as a no-op cast on the task. -/
 def Job.toOpaque (job : Job α) : OpaqueJob :=
-  {job with task := job.task.map (·.map Opaque.mk)}
+  {job with task := job.task.toOpaque, kind := .anonymous}
 
 instance : CoeOut (Job α) OpaqueJob := ⟨.toOpaque⟩

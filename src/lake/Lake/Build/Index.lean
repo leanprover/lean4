@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lake.Build.Executable
+import Lake.Config.Monad
 import Lake.Build.Topological
 
 /-!
@@ -16,66 +16,32 @@ Lake build functions, which is used by Lake to build any Lake build info.
 This module leverages the index to perform topologically-based recursive builds.
 -/
 
-open Lean
-namespace Lake
+open Lean (Name)
 open System (FilePath)
 
-/--
-Converts a conveniently-typed target facet build function into its
-dynamically-typed equivalent.
--/
-@[macro_inline] def mkTargetFacetBuild
-  (facet : Name) (build : FetchM (Job α))
-  [h : FamilyOut TargetData facet α]
-: FetchM (Job (TargetData facet)) :=
-  cast (by rw [← h.family_key_eq_type]) build
-
-def ExternLib.recBuildStatic (lib : ExternLib) : FetchM (Job FilePath) :=
-  withRegisterJob s!"{lib.staticTargetName.toString}:static" do
-  lib.config.getPath <$> fetch (lib.pkg.target lib.staticTargetName)
-
-def ExternLib.recBuildShared (lib : ExternLib) : FetchM (Job FilePath) :=
-  withRegisterJob s!"{lib.staticTargetName.toString}:shared" do
-  buildLeanSharedLibOfStatic (← lib.static.fetch) lib.linkArgs
-
-def ExternLib.recComputeDynlib (lib : ExternLib) : FetchM (Job Dynlib) := do
-  withRegisterJob s!"{lib.staticTargetName.toString}:dynlib" do
-  computeDynlibOfShared (← lib.shared.fetch)
-
-/-!
-## Topologically-based Recursive Build Using the Index
--/
+namespace Lake
 
 /-- Recursive build function for anything in the Lake build index. -/
-def recBuildWithIndex : (info : BuildInfo) → FetchM (Job (BuildData info.key))
-| .moduleFacet mod facet => do
-  if let some config := (← getWorkspace).findModuleFacetConfig? facet then
-    config.fetchFn mod
-  else
-    error s!"do not know how to fetch module facet `{facet}`"
-| .packageFacet pkg facet => do
-  if let some config := (← getWorkspace).findPackageFacetConfig? facet then
-    config.fetchFn pkg
-  else
-    error s!"do not know how to fetch package facet `{facet}`"
-| .target pkg target =>
-  if let some config := pkg.findTargetConfig? target then
-    config.fetchFn pkg
-  else
-    error s!"could not fetch `{target}` of `{pkg.name}` -- target not found"
-| .libraryFacet lib facet => do
-  if let some config := (← getWorkspace).findLibraryFacetConfig? facet then
-    config.fetchFn lib
-  else
-    error s!"do not know how to fetch library facet `{facet}`"
-| .leanExe exe =>
-  mkTargetFacetBuild LeanExe.exeFacet exe.recBuildExe
-| .staticExternLib lib =>
-  mkTargetFacetBuild ExternLib.staticFacet lib.recBuildStatic
-| .sharedExternLib lib =>
-  mkTargetFacetBuild ExternLib.sharedFacet lib.recBuildShared
-| .dynlibExternLib lib =>
-  mkTargetFacetBuild ExternLib.dynlibFacet lib.recComputeDynlib
+def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) :=
+  match info with
+  | .target pkg target => do
+    if let some decl := pkg.findTargetDecl? target then
+      if h : decl.kind.isAnonymous then
+        (decl.targetConfig h).fetchFn pkg
+      else
+        let kind := ⟨decl.kind, by simp [decl.target_eq_type h]⟩
+        let job := Job.pure (kind := kind) <| decl.mkConfigTarget pkg
+        return cast (by simp [decl.data_eq_target h]) job
+    else
+      error s!"invalid target '{info}': target not found in package"
+  | .facet _ kind data facet => do
+    if let some config := (← getWorkspace).findFacetConfig? facet then
+      if h : config.kind = kind then
+        config.fetchFn <| cast (by simp [h]) data
+      else
+        error s!"invalid target '{info}': target is of kind '{kind}', but facet expects '{config.kind}'"
+    else
+      error s!"invalid target '{info}': unknown facet '{facet}'"
 
 /-- Recursive build function with memoization. -/
 def recFetchWithIndex : (info : BuildInfo) → RecBuildM (Job (BuildData info.key)) :=

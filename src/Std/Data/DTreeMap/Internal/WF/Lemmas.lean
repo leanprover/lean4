@@ -225,7 +225,7 @@ theorem toListModel_find?_of_lt [Ord α] [TransOrd α] {k : α → Ordering} [Is
     (inner sz k' v' l r : Impl α β).toListModel.find? (k ·.1 == .eq) =
       l.toListModel.find? (k ·.1 == .eq) := by
   rw [toListModel_inner, List.find?_append, Option.or_eq_left_of_none]
-  rw [List.find?_cons_of_neg _ (by simp [hcmp])]
+  rw [List.find?_cons_of_neg (by simp [hcmp])]
   refine List.find?_eq_none.2 (fun p hp => by simp [IsCut.lt hcmp (ho.compare_right hp)])
 
 theorem toListModel_filter_lt_of_gt [Ord α] [TransOrd α] {k : α → Ordering} [IsCut compare k]
@@ -1855,5 +1855,18 @@ theorem maxKey?_eq_maxKey? [Ord α] [TransOrd α] {t : Impl α β} (hlo : t.Orde
     t.maxKey? = List.maxKey? t.toListModel := by
   rw [maxKey?_of_perm hlo.distinctKeys (List.reverse_perm t.toListModel).symm, List.maxKey?]
   rw [maxKey?_eq_minKey?_reverse, minKey?_eq_minKey? hlo.reverse, toListModel_reverse]
+
+theorem maxKey_eq_maxKey [Ord α] [TransOrd α] {t : Impl α β} (hlo : t.Ordered) {he} :
+    t.maxKey he = List.maxKey t.toListModel (isEmpty_eq_isEmpty ▸ he) := by
+  simp only [List.maxKey_eq_get_maxKey?, maxKey_eq_get_maxKey?, maxKey?_eq_maxKey? hlo]
+
+theorem maxKey!_eq_maxKey! [Ord α] [TransOrd α] [Inhabited α] {t : Impl α β} (hlo : t.Ordered) :
+    t.maxKey! = List.maxKey! t.toListModel := by
+  simp only [List.maxKey!_eq_get!_maxKey?, maxKey!_eq_get!_maxKey?, maxKey?_eq_maxKey? hlo]
+
+theorem maxKeyD_eq_maxKeyD [Ord α] [TransOrd α] {t : Impl α β} (hlo : t.Ordered)
+    {fallback} :
+    t.maxKeyD fallback = List.maxKeyD t.toListModel fallback := by
+  simp only [List.maxKeyD_eq_getD_maxKey?, maxKeyD_eq_getD_maxKey?, maxKey?_eq_maxKey? hlo]
 
 end Std.DTreeMap.Internal.Impl

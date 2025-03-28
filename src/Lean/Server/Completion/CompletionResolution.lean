@@ -32,8 +32,7 @@ structure ResolvableCompletionItemData extends CompletionItemData where
 private partial def consumeImplicitPrefix (e : Expr) (k : Expr → MetaM α) : MetaM α := do
   match e with
   | Expr.forallE n d b c =>
-    -- We do not consume instance implicit arguments because the user probably wants be aware of this dependency
-    if c == .implicit then
+    if c != .default then
       Meta.withLocalDecl n c d fun arg =>
         consumeImplicitPrefix (b.instantiate1 arg) k
     else

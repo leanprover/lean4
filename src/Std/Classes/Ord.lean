@@ -767,7 +767,13 @@ instance {α β} [Ord α] [Ord β] [LawfulEqOrd α] [LawfulEqOrd β] : LawfulEqO
 
 end Lex
 
-namespace _root_.List
+end Instances
+
+end Std
+
+namespace List
+
+open Std
 
 variable {α} {cmp : α → α → Ordering}
 
@@ -826,8 +832,4 @@ instance [Ord α] [OrientedOrd α] : OrientedOrd (List α) :=
 instance [Ord α] [TransOrd α] : TransOrd (List α) :=
   inferInstanceAs <| TransCmp (List.compareLex compare)
 
-end _root_.List
-
-end Instances
-
-end Std
+end List

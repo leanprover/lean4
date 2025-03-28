@@ -92,7 +92,7 @@ partial def PattternDescr.toToml?
 
 end
 
-instance[ToToml? β] : ToToml? (Pattern α β) := ⟨Pattern.toToml?⟩
+instance [ToToml? β] : ToToml? (Pattern α β) := ⟨Pattern.toToml?⟩
 instance [ToToml? β] : ToToml? (PatternDescr α β) := ⟨PattternDescr.toToml?⟩
 
 protected def StrPatDescr.toToml (p : StrPatDescr) : Value :=

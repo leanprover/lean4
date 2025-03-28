@@ -120,7 +120,7 @@ abbrev ExternLibDecl := KConfigDecl ExternLib.configKind
 @[inline] def NConfigDecl.opaqueTargetConfig? (self : NConfigDecl p n) : Option (OpaqueTargetConfig p n) :=
   cast (by rw [self.name_eq]) self.toPConfigDecl.opaqueTargetConfig?
 
-/-- A input fike declaration from a configuration written in Lean. -/
+/-- A input file declaration from a configuration written in Lean. -/
 abbrev InputFileDecl := KConfigDecl InputFile.configKind
 
 /-- A inpurt directory declaration from a configuration written in Lean. -/

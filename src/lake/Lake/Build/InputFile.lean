@@ -28,6 +28,14 @@ private def InputFile.recFetch (t : InputFile) : FetchM (Job FilePath) :=
 def InputFile.defaultFacetConfig : KFacetConfig InputFile.facetKind defaultFacet :=
   mkFacetJobConfig recFetch
 
+/--
+A name-configuration map for the initial set of
+input file facets (e.g., `default`).
+-/
+def InputFile.initFacetConfigs : DNameMap (KFacetConfig InputFile.facetKind) :=
+  DNameMap.empty
+  |>.insert defaultFacet defaultFacetConfig
+
 /-! ## Input Directory -/
 
 /--
@@ -43,3 +51,11 @@ private def InputDir.recFetch (t : InputDir) : FetchM (Job (Array FilePath)) :=
 /-- The facet configuration for the builtin `ExternLib.staticFacet`. -/
 def InputDir.defaultFacetConfig : KFacetConfig InputDir.facetKind defaultFacet :=
   mkFacetJobConfig recFetch
+
+/--
+A name-configuration map for the initial set of
+input directory facets (e.g., `default`).
+-/
+def InputDir.initFacetConfigs : DNameMap (KFacetConfig InputDir.facetKind) :=
+  DNameMap.empty
+  |>.insert defaultFacet defaultFacetConfig

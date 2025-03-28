@@ -28,6 +28,7 @@ configuration InputFileConfig (name : Name) where
   -/
   text : Bool := false
 
+instance : EmptyCollection (InputFileConfig name) := ⟨{}⟩
 
 /-- The declarative configuration for an input directory. -/
 configuration InputDirConfig (name : Name) where
@@ -52,3 +53,5 @@ configuration InputDirConfig (name : Name) where
   Defaults to including every file.
   -/
   filter : PathPat := .star
+
+instance : EmptyCollection (InputDirConfig name) := ⟨{}⟩

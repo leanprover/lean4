@@ -16,14 +16,14 @@ def inputs : Std.HashMap String String :=
 
 def main (args : List String) : IO Unit := do
   if args.isEmpty then
-    IO.println foo
-    IO.println bar
-    IO.println baz
-    IO.println untraced
-    IO.println untracedBarz
+    IO.print foo
+    IO.print bar
+    IO.print baz
+    IO.print untraced
+    IO.print untracedBarz
   else
     let input :: [] := args
       | throw <| .userError "USAGE: lake exe test [input]"
     let some value := inputs[input]?
       | throw <| .userError s!"error: unknown input '{input}'"
-    IO.println value
+    IO.print value

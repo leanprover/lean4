@@ -63,16 +63,49 @@ def Toml.encodeLeanOptions (opts : Array LeanOption) : Table :=
 instance : ToToml (Array LeanOption) where
   toToml opts := .table .missing <| encodeLeanOptions opts
 
-def smartInsertVerTags (pat : StrPat) (t : Table) : Table :=
-  match pat with
-  | .mem s => t.insert `versionTags (toToml s)
-  | .startsWith p => t.insert `versionTags.startsWith (toToml p)
-  | .satisfies _ n =>
-    if n.isAnonymous || n == `default then t else
-    t.insert `versionTags.preset (toToml n)
+@[inline] private def encodeSingleton? [ToToml? α] (name : Name) (a : α) : Option Value :=
+  toToml? a |>.map fun v => toToml <| Table.empty.insert name v
 
-instance : InsertField (PackageConfig n) `versionTags where
-  insertField cfg := smartInsertVerTags cfg.versionTags
+protected def Pattern.toToml?  [ToToml? (PatternDescr α β)] (p : Pattern α β) : Option Value :=
+  match p.name with
+  | .anonymous =>
+    p.descr?.bind toToml?
+  | `default =>
+    none
+  | `star =>
+    toToml "*"
+  | n =>
+    toToml <| Table.empty.insert `preset n
+
+instance[ToToml? (PatternDescr α β)] : ToToml? (Pattern α β) := ⟨Pattern.toToml?⟩
+
+protected partial def PattternDescr.toToml?
+  [ToToml? β] (p : PatternDescr α β) : Option Value
+:=
+  have : ToToml? (PatternDescr α β) := ⟨PattternDescr.toToml?⟩
+  match p with
+  | .not p => encodeSingleton? `not p
+  | .any p => encodeSingleton? `any p
+  | .all p => encodeSingleton? `all p
+  | .coe p => toToml? p
+
+instance [ToToml? β] : ToToml? (PatternDescr α β) := ⟨PattternDescr.toToml?⟩
+
+protected def StrPatDescr.toToml (p : StrPatDescr) : Value :=
+  match p with
+  | .mem xs => toToml xs
+  | .startsWith affix => toToml <| Table.empty.insert `startsWith (toToml affix)
+  | .endsWith affix => toToml <| Table.empty.insert `endsWith (toToml affix)
+
+instance : ToToml StrPatDescr := ⟨StrPatDescr.toToml⟩
+
+protected def PathPatDescr.toToml? (p : PathPatDescr) : Option Value :=
+  match p with
+  | .path p => encodeSingleton? `path p
+  | .extension p => encodeSingleton? `extension p
+  | .fileName p => encodeSingleton? `fileName p
+
+instance : ToToml? PathPatDescr := ⟨PathPatDescr.toToml?⟩
 
 def encodeFacets (facets : Array Name) : Value :=
   toToml <| facets.map (toToml <| Name.eraseHead ·)
@@ -129,6 +162,8 @@ local macro "gen_toml_encoders%" : command => do
     (exclude := #[`nativeFacets, `dynlibs, `plugins])
   let cmds ← genToToml cmds ``LeanExeConfig true
     (exclude := #[`nativeFacets, `dynlibs, `plugins])
+  let cmds ← genToToml cmds ``InputFileConfig true
+  let cmds ← genToToml cmds ``InputDirConfig true
   -- Package
   let cmds ← genToToml cmds ``WorkspaceConfig false
   let cmds ← genToToml cmds ``PackageConfig true
@@ -154,3 +189,5 @@ def Package.mkTomlConfig (pkg : Package) (t : Table := {}) : Table :=
   |>.smartInsert `require pkg.depConfigs
   |>.smartInsert LeanLib.keyword (pkg.mkTomlTargets LeanLib.configKind LeanLibConfig.toToml)
   |>.smartInsert LeanExe.keyword (pkg.mkTomlTargets LeanExe.configKind LeanExeConfig.toToml)
+  |>.smartInsert InputFile.keyword (pkg.mkTomlTargets InputFile.configKind InputFileConfig.toToml)
+  |>.smartInsert InputDir.keyword (pkg.mkTomlTargets InputDir.configKind InputDirConfig.toToml)

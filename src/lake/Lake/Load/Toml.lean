@@ -193,25 +193,76 @@ protected def StdVer.decodeToml (v : Value) : EDecodeM LeanVer := do
 
 instance : DecodeToml StdVer := ⟨StdVer.decodeToml⟩
 
-protected def StrPat.decodeToml (v : Value) (presets : NameMap StrPat := {}) : EDecodeM StrPat :=
+protected def Pattern.decodeToml
+  [IsPattern β α] [DecodeToml β] (v : Value) (presets : NameMap (Pattern α β) := {})
+: EDecodeM (Pattern α β) :=
   match v with
-  | .array _ vs => .mem <$> decodeArray vs
+  | .string _ s =>
+    if s == "*" then
+      return .star
+    else
+      ofDescr <$> decodeToml v
   | .table r t => do
-    if let some pre ← t.decode? `startsWith then
-      return .startsWith pre
-    else if let some name ← t.decode? `preset then
+    if let some name ← t.decode? `preset then
       if let some preset := presets.find? name then
         return preset
       else
         throwDecodeErrorAt r s!"unknown preset '{name}'"
     else
-      throwDecodeErrorAt r "expected 'startsWith' or 'preset'"
-  | v => throwDecodeErrorAt v.ref "expected array or table"
+      .ofDescr <$> decodeToml v
+  | v => .ofDescr <$> decodeToml v
 
-instance : DecodeToml StrPat := ⟨StrPat.decodeToml⟩
+instance [IsPattern β α] [DecodeToml β] : DecodeToml (Pattern α β) := ⟨Pattern.decodeToml⟩
+
+protected partial def PatternDescr.decodeToml
+  [IsPattern β α] [DecodeToml β] (v : Value)
+: EDecodeM (PatternDescr α β) :=
+  have : DecodeToml (PatternDescr α β) := ⟨PatternDescr.decodeToml⟩
+  match v with
+  | .table _ t => do
+    if let some p ← t.decode? `not then
+      return .not p
+    if let some p ← t.decode? `any then
+      return .any p
+    else if let some p ← t.decode? `all then
+      return .all p
+    else
+      .coe <$> decodeToml v
+  | v => .coe <$> decodeToml v
+
+instance [IsPattern β α] [DecodeToml β] : DecodeToml (PatternDescr α β) := ⟨PatternDescr.decodeToml⟩
+
+protected def StrPatDescr.decodeToml (v : Value) : EDecodeM StrPatDescr :=
+  match v with
+  | .array _ vs => .mem <$> decodeArray vs
+  | .table r t => do
+    if let some affix ← t.decode? `startsWith then
+      return .startsWith affix
+    else if let some affix ← t.decode? `endsWith then
+      return .endsWith affix
+    else
+      throwDecodeErrorAt r "expected string pattern"
+  | v => throwDecodeErrorAt v.ref "expected string pattern"
+
+instance : DecodeToml StrPatDescr := ⟨StrPatDescr.decodeToml⟩
+
+protected def PathPatDescr.decodeToml (v : Value) : EDecodeM PathPatDescr :=
+  match v with
+  | .table r t => do
+    if let some p ← t.decode? `path then
+      return .path p
+    else if let some p ← t.decode? `extension then
+      return .extension p
+    else if let some p ← t.decode? `fileName then
+      return .fileName p
+    else
+      throwDecodeErrorAt r "expected file path pattern"
+  | v => throwDecodeErrorAt v.ref "expected file path pattern"
+
+instance : DecodeToml PathPatDescr := ⟨PathPatDescr.decodeToml⟩
 
 def decodeVersionTags (v : Value) : EDecodeM StrPat :=
-  StrPat.decodeToml (presets := versionTagPresets) v
+  inline <| Pattern.decodeToml (presets := versionTagPresets) v
 
 instance : DecodeField (PackageConfig n) `versionTags where
   decodeField := decodeFieldCore `versionTags decodeVersionTags
@@ -300,6 +351,8 @@ local macro "gen_toml_decoders%" : command => do
     (exclude := #[`nativeFacets, `dynlibs, `plugins])
   let cmds ← genDecodeToml cmds ``LeanExeConfig true
     (exclude := #[`nativeFacets, `dynlibs, `plugins])
+  let cmds ← genDecodeToml cmds ``InputFileConfig true
+  let cmds ← genDecodeToml cmds ``InputDirConfig true
   -- Package
   let cmds ← genDecodeToml cmds ``WorkspaceConfig false
   let cmds ← genDecodeToml cmds ``PackageConfig true
@@ -314,6 +367,8 @@ def decodeTargetDecls
   let r := (#[], {})
   let r ← go r LeanLib.keyword LeanLib.configKind LeanLibConfig.decodeToml
   let r ← go r LeanExe.keyword LeanExe.configKind LeanExeConfig.decodeToml
+  let r ← go r InputFile.keyword InputFile.configKind InputFileConfig.decodeToml
+  let r ← go r InputDir.keyword InputDir.configKind InputDirConfig.decodeToml
   return r
 where
   go r kw kind (decode : {n : Name} → Table → DecodeM (ConfigType kind pkg n)) := do

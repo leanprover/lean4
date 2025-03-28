@@ -20,6 +20,8 @@ class IsPattern (α : Type u) (β : outParam $ Type v) where
 
 /-! ## Abstract Patterns -/
 
+mutual
+
 /--
 A pattern. Matches some subset of the values of a type.
 May also include a declarative description.
@@ -30,7 +32,8 @@ structure Pattern (α : Type u) (β : Type v) where
    /-- An optional name for the filter. -/
   name := Name.anonymous
   /-- A optional declarative description of the filter. -/
-  descr? : Option β := none
+  descr? : Option (PatternDescr α β) := none
+  deriving Inhabited
 
 /--
 An abstract declarative pattern.
@@ -38,14 +41,16 @@ Augments another pattern description `β` with logical connectives.
 -/
 inductive PatternDescr (α : Type u) (β : Type v)
 /-- Matches a value that does not satisfy the pattern. -/
-| not (p : Pattern α (PatternDescr α β))
+| not (p : Pattern α β)
 /-- Matches a value that satisfies every pattern. Short-circuits. -/
-| all (ps : Array (Pattern α (PatternDescr α β)))
+| all (ps : Array (Pattern α β))
 /-- Matches a value that satisfies any one of the patterns. Short-circuits. -/
-| any (ps : Array (Pattern α (PatternDescr α β)))
+| any (ps : Array (Pattern α β))
 /-- Matches a value that statisfies the underlying pattern description. -/
 | coe (p : β)
 deriving Inhabited
+
+end
 
 instance : Coe β (PatternDescr α β) := ⟨.coe⟩
 
@@ -85,17 +90,17 @@ instance [IsPattern β α] : IsPattern (PatternDescr α β) α := ⟨flip Patter
 def PatternDescr.empty : PatternDescr α β := .any #[]
 
 @[inherit_doc PatternDescr.empty]
-def Pattern.empty : Pattern α (PatternDescr α β) :=
+def Pattern.empty : Pattern α β :=
   {filter := fun _ => false, descr? := some .empty, name := `empty}
 
 instance : EmptyCollection (PatternDescr α β) := ⟨.empty⟩
-instance : EmptyCollection (Pattern α (PatternDescr α β)) := ⟨.empty⟩
+instance : EmptyCollection (Pattern α β) := ⟨.empty⟩
 
 /-- Matches eveything. -/
 def PatternDescr.star : PatternDescr α β := .all #[]
 
 @[inherit_doc PatternDescr.star]
-def Pattern.star : Pattern α (PatternDescr α β) :=
+def Pattern.star : Pattern α β :=
   {filter := fun _ => true, descr? := some .star, name := `star}
 
 /-! ## String Patterns -/
@@ -120,7 +125,7 @@ def StrPatDescr.matches (s : String) (self : StrPatDescr) : Bool :=
 instance : IsPattern StrPatDescr String := ⟨flip StrPatDescr.matches⟩
 
 /-- A `String` pattern. Matches some subset of strings. -/
-abbrev StrPat := Pattern String (PatternDescr String StrPatDescr)
+abbrev StrPat := Pattern String StrPatDescr
 
 @[inherit_doc Pattern.empty]
 abbrev StrPat.none : StrPat := Pattern.empty
@@ -157,33 +162,33 @@ def StrPat.startsWith (affix : String) : StrPat :=
 def StrPat.endsWith (affix : String) : StrPat :=
   {filter := (·.endsWith affix), descr? := some <| StrPatDescr.endsWith affix}
 
-/-! ## String Patterns -/
+/-! ## File Path Patterns -/
 
 /-- A declarative `FilePath` pattern. Matches some subset of file paths. -/
 inductive PathPatDescr
 /-- Matches a file path whose normalized string representation satisfies the pattern. -/
-| ofString (p : StrPat)
+| path (p : StrPat)
 /-- Matches a file path whose extension satisfies the pattern. -/
-| withExtension (p : StrPat)
+| extension (p : StrPat)
 /-- Matches a file path whose name satisfies the pattern. -/
-| withName (p : StrPat)
+| fileName (p : StrPat)
 deriving Inhabited
 
 /-- Matches a file path that is equal to this one (when both are normalized). -/
 @[inline] def PathPatDescr.eq (p : FilePath) : PathPatDescr :=
-  .ofString p.toString
+  .path p.toString
 
 /-- Returns whether the string matches the pattern. -/
 def PathPatDescr.matches (path : FilePath) (self : PathPatDescr) : Bool :=
   match self with
-  | .ofString p => p =~ path.normalize.toString
-  | .withExtension p => path.extension.any (p =~ ·)
-  | .withName p => path.fileName.any (p =~ ·)
+  | .path p => p =~ path.normalize.toString
+  | .extension p => path.extension.any (p =~ ·)
+  | .fileName p => path.fileName.any (p =~ ·)
 
 instance : IsPattern PathPatDescr FilePath := ⟨flip PathPatDescr.matches⟩
 
 /-- A `FilePath` pattern. Matches some subset of file paths. -/
-abbrev PathPat := Pattern FilePath (PatternDescr FilePath PathPatDescr)
+abbrev PathPat := Pattern FilePath PathPatDescr
 
 /-! ## Version-specific Patterns -/
 

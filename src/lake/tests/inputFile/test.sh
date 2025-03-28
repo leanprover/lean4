@@ -5,6 +5,9 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 ./setup.sh
 
+# Validate configuration
+$LAKE -q resolve-deps 2>&1 | diff - /dev/null
+
 # Test initial directory structure
 $LAKE exe test | diff -u --strip-trailing-cr <(cat << 'EOF'
 foo
@@ -15,15 +18,25 @@ untraced
 EOF
 ) -
 
+# Test input file target
+$LAKE query foo | diff -u --strip-trailing-cr <(echo inputs/foo.txt) -
+
+# Test input directory target
+$LAKE query barz | diff -u --strip-trailing-cr <(cat << 'EOF'
+inputs/barz/bar.txt
+inputs/barz/baz.txt
+EOF
+) -
+
 # Test input file dependency
 echo traced > inputs/foo.txt
-test "$LAKE exe test foo" = "traced"
+$LAKE exe test foo | diff -u --strip-trailing-cr <(echo traced) -
 
 # Test input directory dependency
 echo traced > inputs/barz/bar.txt
-test "$LAKE exe test bar" = "traced"
+$LAKE exe test bar | diff -u --strip-trailing-cr <(echo traced) -
 echo traced > inputs/barz/baz.txt
-test "$LAKE exe test baz" = "traced"
+$LAKE exe test baz | diff -u --strip-trailing-cr <(echo traced) -
 
 # Test untraced dependencies
 echo traced > inputs/untraced.txt

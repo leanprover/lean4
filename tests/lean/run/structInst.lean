@@ -58,13 +58,17 @@ structure B extends A where
 structure C extends B where
 (z : Nat := 2*y) (x := z + 2) (y := z + 3)
 
-/-- info: { x := 1, y := 1 + 2, z := 2 * (1 + 2) } : C -/
+-- This first example does not work because the default values at `C` are the only ones considered.
+/-- error: fields missing: 'y', 'z' -/
 #guard_msgs in #check { x := 1 : C }
 /-- info: { x := 2 * 1 + 2, y := 1, z := 2 * 1 } : C -/
 #guard_msgs in #check { y := 1 : C }
 /-- info: { x := 1 + 2, y := 1 + 3, z := 1 } : C -/
 #guard_msgs in #check { z := 1 : C }
 
+-- This first example does not work because the default values at `C` are the only ones considered.
+/-- error: fields missing: 'y', 'z' -/
+#guard_msgs in
 def test1 : C where
   x := 1
 def test2 : C where

@@ -109,4 +109,52 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
           let proj := mkApp (mkAppN (.const projName lvls) params) self
           ctorType := ctorType.bindingBody!.instantiate1 proj
 
+/--
+Checks if the expression is of the form `S.mk x.1 ... x.n` with `n` nonzero
+and `S.mk` a structure constructor with `S` one of the recorded structure parents.
+Returns `x`.
+Each projection `x.i` can be either a native projection or from a projection function.
+-/
+def etaStruct? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do
+  let .const f _ := e.getAppFn | return none
+  let some (ConstantInfo.ctorInfo fVal) := (← getEnv).find? f | return none
+  unless p fVal.induct do return none
+  unless 0 < fVal.numFields && e.getAppNumArgs == fVal.numParams + fVal.numFields do return none
+  let args := e.getAppArgs
+  let some (S0, i0, x) ← getProjectedExpr args[fVal.numParams]! | return none
+  unless S0 == fVal.induct && i0 == 0 do return none
+  for i in [1 : fVal.numFields] do
+    let arg := args[fVal.numParams + i]!
+    let some (S', i', x') ← getProjectedExpr arg | return none
+    unless S' == fVal.induct && i' == i && x' == x do return none
+  return x
+where
+  /--
+  Given an expression that's either a native projection or a registered projection
+  function, gives (1) the name of the structure type, (2) the index of the projection, and
+  (3) the object being projected.
+  -/
+  getProjectedExpr (e : Expr) : MetaM (Option (Name × Nat × Expr)) := do
+    if let .proj S i x := e then
+      return (S, i, x)
+    if let .const fn _ := e.getAppFn then
+      if let some info ← getProjectionFnInfo? fn then
+        if e.getAppNumArgs == info.numParams + 1 then
+          if let some (ConstantInfo.ctorInfo fVal) := (← getEnv).find? info.ctorName then
+            return (fVal.induct, info.i, e.appArg!)
+    return none
+
+/--
+Eta reduces all structures satisfying `p` in the whole expression.
+
+See `etaStruct?` for reducing single expressions.
+-/
+def etaStructReduce (e : Expr) (p : Name → Bool) : MetaM Expr := do
+  let e ← instantiateMVars e
+  Meta.transform e (post := fun e => do
+    if let some e ← etaStruct? e p then
+      return .done e
+    else
+      return .continue)
+
 end Lean.Meta

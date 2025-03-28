@@ -16,6 +16,7 @@ set_option linter.all true
 /--
 Represents a time interval with nanoseconds precision.
 -/
+@[ext]
 structure Duration where
 
   /--
@@ -33,11 +34,6 @@ structure Duration where
   -/
   proof : (second.val ≥ 0 ∧ nano.val ≥ 0) ∨ (second.val ≤ 0 ∧ nano.val ≤ 0)
 deriving Repr, DecidableEq
-
-@[ext]
-theorem Duration.ext {a b : Duration} (hs : a.second = b.second) (hn : a.nano = b.nano) :
-    a = b := by
-  cases a <;> cases b <;> simp_all
 
 instance : ToString Duration where
   toString s :=

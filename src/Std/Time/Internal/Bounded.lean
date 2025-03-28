@@ -32,7 +32,7 @@ instance : LT (Bounded rel n m) where
 
 @[always_inline]
 instance : Ord (Bounded rel n m) where
-  compare l r := compare l.val r.val
+  compare := compareOn (·.val)
 
 @[always_inline]
 instance : Repr (Bounded rel m n) where

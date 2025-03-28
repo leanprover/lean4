@@ -19,6 +19,7 @@ set_option linter.all true
 /--
 Represents an exact point in time as a UNIX Epoch timestamp.
 -/
+@[ext]
 structure Timestamp where
 
   /--
@@ -26,11 +27,6 @@ structure Timestamp where
   -/
   val : Duration
 deriving Repr, DecidableEq, Inhabited
-
-@[ext]
-theorem Timestamp.ext {a b : Timestamp} (hs : a.val = b.val) :
-    a = b := by
-  cases a <;> cases b <;> simp_all
 
 instance : LE Timestamp where
   le x y := x.val ≤ y.val

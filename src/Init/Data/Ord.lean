@@ -305,13 +305,13 @@ theorem then_eq_gt {o₁ o₂ : Ordering} : o₁.then o₂ = gt ↔ o₁ = gt �
   cases o₁ <;> cases o₂ <;> decide
 
 @[simp]
-theorem then_lt {o : Ordering} : lt.then o = lt := rfl
+theorem lt_then {o : Ordering} : lt.then o = lt := rfl
 
 @[simp]
-theorem then_gt {o : Ordering} : gt.then o = gt := rfl
+theorem gt_then {o : Ordering} : gt.then o = gt := rfl
 
 @[simp]
-theorem then_eq {o : Ordering} : eq.then o = o := rfl
+theorem eq_then {o : Ordering} : eq.then o = o := rfl
 
 theorem isLE_then_iff_or {o₁ o₂ : Ordering} : (o₁.then o₂).isLE ↔ o₁ = lt ∨ (o₁ = eq ∧ o₂.isLE) := by
   cases o₁ <;> simp
@@ -368,6 +368,7 @@ To lexicographically combine two `Ordering`s, use `Ordering.then`.
 
 section Lemmas
 
+@[simp]
 theorem compareLex_eq_eq {α} {cmp₁ cmp₂} {a b : α} :
     compareLex cmp₁ cmp₂ a b = .eq ↔ cmp₁ a b = .eq ∧ cmp₂ a b = .eq := by
   simp [compareLex, Ordering.then_eq_eq]
@@ -415,6 +416,7 @@ theorem compareOfLessAndEq_eq_lt
   rw [compareOfLessAndEq]
   repeat' split <;> simp_all
 
+@[simp]
 theorem compareOfLessAndEq_eq_eq
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
     (refl : ∀ (x : α), x ≤ x) (not_le : ∀ {x y : α}, ¬ x ≤ y ↔ y < x) {x y : α} :
@@ -430,7 +432,7 @@ theorem compareOfLessAndEq_eq_eq
 theorem compareOfLessAndEq_eq_gt_of_lt_iff_not_gt_and_ne
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableEq α] {x y : α}
     (h : ∀ x y : α, x < y ↔ ¬ y < x ∧ x ≠ y) :
-    compareOfLessAndEq x y = .gt ↔ x > y := by
+    compareOfLessAndEq x y = .gt ↔ y < x := by
   rw [compareOfLessAndEq_eq_swap_of_lt_iff_not_gt_and_ne h, Ordering.swap_eq_gt]
   exact compareOfLessAndEq_eq_lt
 
@@ -438,7 +440,7 @@ theorem compareOfLessAndEq_eq_gt
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableEq α]
     (antisymm : ∀ {x y : α}, x ≤ y → y ≤ x → x = y)
     (total : ∀ (x y : α), x ≤ y ∨ y ≤ x) (not_le : ∀ {x y : α}, ¬ x ≤ y ↔ y < x) (x y : α) :
-    compareOfLessAndEq x y = .gt ↔ x > y := by
+    compareOfLessAndEq x y = .gt ↔ y < x := by
   apply compareOfLessAndEq_eq_gt_of_lt_iff_not_gt_and_ne
   exact lt_iff_not_gt_and_ne_of_antisymm_of_total_of_not_le antisymm total not_le
 

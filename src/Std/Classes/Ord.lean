@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Markus Himmel, Paul Reichert
+Authors: Markus Himmel, Paul Reichert, Robin Arnez
 -/
 prelude
 import Init.Data.Ord
@@ -226,10 +226,6 @@ theorem TransCmp.lt_of_lt_of_isLE [TransCmp cmp] {a b c : α} (hab : cmp a b = .
   obtain hbc|hbc := hbc
   · exact TransCmp.lt_trans hab hbc
   · exact TransCmp.lt_of_lt_of_eq hab hbc
-
-theorem TransCmp.lt_of_lt_of_lt [TransCmp cmp] {a b c : α} (hab : cmp a b = .lt)
-    (hbc : cmp b c = .lt) : cmp a c = .lt := by
-  apply lt_of_lt_of_isLE hab (Ordering.isLE_of_eq_lt hbc)
 
 theorem TransCmp.lt_of_isLE_of_lt [TransCmp cmp] {a b c : α} (hab : (cmp a b).isLE)
     (hbc : cmp b c = .lt) : cmp a c = .lt := by
@@ -459,7 +455,8 @@ end Internal
 
 section Instances
 
-theorem TransOrd.of_lt_trans_of_lt_iff {α : Type u} [LT α] [DecidableLT α] [DecidableEq α]
+theorem TransOrd.compareOfLessAndEq_of_lt_trans_of_lt_iff
+    {α : Type u} [LT α] [DecidableLT α] [DecidableEq α]
     (lt_trans : ∀ {a b c : α}, a < b → b < c → a < c)
     (h : ∀ x y : α, x < y ↔ ¬ y < x ∧ x ≠ y) :
     TransCmp (fun x y : α => compareOfLessAndEq x y) where
@@ -474,13 +471,13 @@ theorem TransOrd.of_lt_trans_of_lt_iff {α : Type u} [LT α] [DecidableLT α] [D
       · exact .inl h₁
     · exact h₂
 
-theorem TransOrd.of_antisymm_of_trans_of_total_of_not_le
+theorem TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
     (antisymm : ∀ {x y : α}, x ≤ y → y ≤ x → x = y)
     (trans : ∀ {x y z : α}, x ≤ y → y ≤ z → x ≤ z) (total : ∀ (x y : α), x ≤ y ∨ y ≤ x)
     (not_le : ∀ {x y : α}, ¬ x ≤ y ↔ y < x) :
     TransCmp (fun x y : α => compareOfLessAndEq x y) := by
-  refine of_lt_trans_of_lt_iff ?_ ?_
+  refine compareOfLessAndEq_of_lt_trans_of_lt_iff ?_ ?_
   · intro a b c
     simp only [← not_le]
     intro h₁ h₂ h₃
@@ -502,7 +499,7 @@ end Bool
 namespace Nat
 
 instance : TransOrd Nat :=
-  TransOrd.of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     Nat.le_antisymm Nat.le_trans Nat.le_total Nat.not_le
 
 instance : LawfulEqOrd Nat where
@@ -513,7 +510,7 @@ end Nat
 namespace Int
 
 instance : TransOrd Int :=
-  TransOrd.of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     Int.le_antisymm Int.le_trans Int.le_total Int.not_le
 
 instance : LawfulEqOrd Int where
@@ -539,7 +536,7 @@ end Fin
 namespace String
 
 instance : TransOrd String :=
-  TransOrd.of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     String.le_antisymm String.le_trans String.le_total String.not_le
 
 instance : LawfulEqOrd String where
@@ -550,7 +547,7 @@ end String
 namespace Char
 
 instance : TransOrd Char :=
-  TransOrd.of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     Char.le_antisymm Char.le_trans Char.le_total Char.not_le
 
 instance : LawfulEqOrd Char where
@@ -561,7 +558,7 @@ end Char
 namespace UInt8
 
 instance : TransOrd UInt8 :=
-  TransOrd.of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     UInt8.le_antisymm UInt8.le_trans UInt8.le_total UInt8.not_le
 
 instance : LawfulEqOrd UInt8 where
@@ -572,7 +569,7 @@ end UInt8
 namespace UInt16
 
 instance : TransOrd UInt16 :=
-  TransOrd.of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     UInt16.le_antisymm UInt16.le_trans UInt16.le_total UInt16.not_le
 
 instance : LawfulEqOrd UInt16 where
@@ -583,7 +580,7 @@ end UInt16
 namespace UInt32
 
 instance : TransOrd UInt32 :=
-  TransOrd.of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     UInt32.le_antisymm UInt32.le_trans UInt32.le_total UInt32.not_le
 
 instance : LawfulEqOrd UInt32 where
@@ -594,7 +591,7 @@ end UInt32
 namespace UInt64
 
 instance : TransOrd UInt64 :=
-  TransOrd.of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     UInt64.le_antisymm UInt64.le_trans UInt64.le_total UInt64.not_le
 
 instance : LawfulEqOrd UInt64 where
@@ -605,7 +602,7 @@ end UInt64
 namespace USize
 
 instance : TransOrd USize :=
-  TransOrd.of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     USize.le_antisymm USize.le_trans USize.le_total USize.not_le
 
 instance : LawfulEqOrd USize where

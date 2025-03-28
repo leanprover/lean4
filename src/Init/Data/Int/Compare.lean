@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Paul Reichert, Leonardo de Moura, Jeremy Avigad, Mario Carneiro
+Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro, Paul Reichert
 -/
 prelude
 import Init.Data.Ord
@@ -21,7 +21,7 @@ protected theorem lt_or_eq_of_le {n m : Int} (h : n ≤ m) : n < m ∨ n = m := 
 protected theorem le_iff_lt_or_eq {n m : Int} : n ≤ m ↔ n < m ∨ n = m :=
   ⟨Int.lt_or_eq_of_le, fun | .inl h => Int.le_of_lt h | .inr rfl => Int.le_refl _⟩
 
-theorem compare_def_lt (a b : Int) :
+theorem compare_eq_ite_lt (a b : Int) :
     compare a b = if a < b then .lt else if b < a then .gt else .eq := by
   simp only [compare, compareOfLessAndEq]
   split
@@ -31,9 +31,12 @@ theorem compare_def_lt (a b : Int) :
     | .inl h => simp [h, Int.ne_of_gt h]
     | .inr rfl => simp
 
-theorem compare_def_le (a b : Int) :
+@[deprecated compare_eq_ite_lt (since := "2025-03-28")]
+def compare_def_lt := compare_eq_ite_lt
+
+theorem compare_eq_ite_le (a b : Int) :
     compare a b = if a ≤ b then if b ≤ a then .eq else .lt else .gt := by
-  rw [compare_def_lt]
+  rw [compare_eq_ite_lt]
   split
   · next hlt => simp [Int.le_of_lt hlt, Int.not_le.2 hlt]
   · next hge =>
@@ -41,29 +44,32 @@ theorem compare_def_le (a b : Int) :
     · next hgt => simp [Int.le_of_lt hgt, Int.not_le.2 hgt]
     · next hle => simp [Int.not_lt.1 hge, Int.not_lt.1 hle]
 
+@[deprecated compare_eq_ite_le (since := "2025-03-28")]
+def compare_def_le := compare_eq_ite_le
+
 protected theorem compare_swap (a b : Int) : (compare a b).swap = compare b a := by
-  simp only [compare_def_le]; (repeat' split) <;> try rfl
+  simp only [compare_eq_ite_le]; (repeat' split) <;> try rfl
   next h1 h2 => cases h1 (Int.le_of_not_le h2)
 
 protected theorem compare_eq_eq {a b : Int} : compare a b = .eq ↔ a = b := by
-  rw [compare_def_lt]; (repeat' split) <;> simp [Int.ne_of_lt, Int.ne_of_gt, *]
+  rw [compare_eq_ite_lt]; (repeat' split) <;> simp [Int.ne_of_lt, Int.ne_of_gt, *]
   next hlt hgt => exact Int.le_antisymm (Int.not_lt.1 hgt) (Int.not_lt.1 hlt)
 
 protected theorem compare_eq_lt {a b : Int} : compare a b = .lt ↔ a < b := by
-  rw [compare_def_lt]; (repeat' split) <;> simp [*]
+  rw [compare_eq_ite_lt]; (repeat' split) <;> simp [*]
 
 protected theorem compare_eq_gt {a b : Int} : compare a b = .gt ↔ b < a := by
-  rw [compare_def_lt]; (repeat' split) <;> simp [Int.le_of_lt, *]
+  rw [compare_eq_ite_lt]; (repeat' split) <;> simp [Int.le_of_lt, *]
 
 protected theorem compare_ne_gt {a b : Int} : compare a b ≠ .gt ↔ a ≤ b := by
-  rw [compare_def_le]; (repeat' split) <;> simp [*]
+  rw [compare_eq_ite_le]; (repeat' split) <;> simp [*]
 
 protected theorem compare_ne_lt {a b : Int} : compare a b ≠ .lt ↔ b ≤ a := by
-  rw [compare_def_le]; (repeat' split) <;> simp [Int.le_of_not_le, *]
+  rw [compare_eq_ite_le]; (repeat' split) <;> simp [Int.le_of_not_le, *]
 
 protected theorem isLE_compare {a b : Int} :
     (compare a b).isLE ↔ a ≤ b := by
-  simp only [Int.compare_def_le]
+  simp only [Int.compare_eq_ite_le]
   repeat' split <;> simp_all
 
 protected theorem isGE_compare {a b : Int} :

@@ -15,6 +15,7 @@ set_option linter.all true
 /--
 Represents a specific point in a day, including hours, minutes, seconds, and nanoseconds.
 -/
+@[ext]
 structure PlainTime where
 
   /--
@@ -37,12 +38,6 @@ structure PlainTime where
   -/
   nanosecond : Nanosecond.Ordinal
 deriving Repr, DecidableEq
-
-@[ext]
-theorem PlainTime.ext {a b : PlainTime} (hh : a.hour = b.hour) (hm : a.minute = b.minute)
-    (hs : a.second = b.second) (hn : a.nanosecond = b.nanosecond) :
-    a = b := by
-  cases a <;> cases b <;> simp_all
 
 instance : Inhabited PlainTime where
   default := ⟨0, 0, 0, 0, by decide⟩

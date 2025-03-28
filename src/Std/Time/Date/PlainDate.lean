@@ -21,6 +21,7 @@ set_option linter.all true
 `PlainDate` represents a date in the Year-Month-Day (YMD) format. It encapsulates the year, month,
 and day components, with validation to ensure the date is valid.
 -/
+@[ext]
 structure PlainDate where
 
   /-- The year component of the date. It is represented as an `Offset` type from `Year`. -/
@@ -35,12 +36,6 @@ structure PlainDate where
   /-- Validates the date by ensuring that the year, month, and day form a correct and valid date. -/
   valid : year.Valid month day
 deriving Repr, DecidableEq
-
-@[ext]
-theorem PlainDate.ext {a b : PlainDate} (hy : a.year = b.year) (hm : a.month = b.month)
-    (hd : a.day = b.day) :
-    a = b := by
-  cases a <;> cases b <;> simp_all
 
 instance : Inhabited PlainDate where
   default := ⟨1, 1, 1, by decide⟩

@@ -27,7 +27,7 @@ inductive HourMarker
   Post meridiem.
   -/
   | pm
-  deriving Repr, DecidableEq
+deriving Repr, DecidableEq
 
 instance : Ord HourMarker where
   compare

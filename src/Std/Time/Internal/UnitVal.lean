@@ -18,6 +18,7 @@ set_option linter.all true
 /--
 A structure representing a unit of a given ratio type `α`.
 -/
+@[ext]
 structure UnitVal (α : Rat) where
   /--
   Creates a `UnitVal` from an `Int`.
@@ -29,12 +30,6 @@ structure UnitVal (α : Rat) where
   -/
   val : Int
 deriving Inhabited, DecidableEq
-
-@[ext]
-theorem UnitVal.ext {x} {a b : UnitVal x} (h : a.val = b.val) : a = b := by
-  cases a
-  cases b
-  simp_all [h]
 
 instance : LE (UnitVal x) where
   le x y := x.val ≤ y.val

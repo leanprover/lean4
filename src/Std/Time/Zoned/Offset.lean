@@ -16,6 +16,7 @@ set_option linter.all true
 /--
 Represents a timezone offset with an hour and second component.
 -/
+@[ext]
 structure Offset where
 
   /--
@@ -28,11 +29,6 @@ structure Offset where
   -/
   second : Second.Offset
 deriving Repr, DecidableEq
-
-@[ext]
-theorem Offset.ext {a b : Offset} (h : a.second = b.second) :
-    a = b := by
-  cases a <;> cases b <;> simp_all
 
 instance : Inhabited Offset where
   default := ⟨0⟩

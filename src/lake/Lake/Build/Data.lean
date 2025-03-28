@@ -103,9 +103,6 @@ as needed (via `package_data`).
 -/
 abbrev PackageData := FacetData Package.facetKind
 
-/-- The kind identifier for facets of a Lean library. -/
-@[match_pattern] abbrev LeanLib.facetKind : Name := `lean_lib
-
 /--
 The open type family which maps a Lean library facet's name to its output type.
 For example, the `FilePath` pf the generated static library for the `static` facet.
@@ -117,12 +114,6 @@ abbrev LibraryData := FacetData LeanLib.facetKind
 
 @[inherit_doc LibraryData]
 abbrev LeanLibData := LibraryData
-
-/-- The kind identifier for facets of a Lean executable. -/
-@[match_pattern] abbrev LeanExe.facetKind : Name := `lean_exe
-
-/-- The kind identifier for facets of an external library. -/
-@[match_pattern] abbrev ExternLib.facetKind : Name := `extern_lib
 
 /--
 The open type family which maps a custom package target
@@ -197,13 +188,11 @@ scoped macro (name := builtinFacetCommand)
   id?:optional(atomic(group(ident " @ "))) name:ident " : " ns:ident " => " ty:term
 : command => withRef tk do
   let fam := mkCIdentFrom tk ``FacetOut
-  let kindName ← match ns.getId with
-    | `Package => pure Package.facetKind
-    | `Module => pure Module.facetKind
-    | `LeanLib => pure LeanLib.facetKind
-    | `LeanExe => pure LeanExe.facetKind
-    | `ExternLib => pure ExternLib.facetKind
-    | _ => Macro.throwErrorAt ns "unknown facet kind"
+  let nsName :: _ ← Macro.resolveNamespace ns.getId
+    | Macro.throwErrorAt ns s!"unknown or ambiguous target namespace '{ns.getId}'"
+  let kindName := facetKindForNamespace nsName
+  if kindName.isAnonymous then
+    Macro.throwErrorAt ns s!"unknown target namespace '{ns.getId}'"
   let nameLit := Name.quoteFrom name name.getId (canonical := id?.isSome)
   let kindLit := Name.quoteFrom ns kindName (canonical := true)
   let facet := kindName ++ name.getId
@@ -218,7 +207,7 @@ scoped macro (name := builtinFacetCommand)
       | .str .anonymous n => pure <| mkIdentFrom name (ns.getId.str s!"{n}Facet") (canonical := true)
       | _ =>  Macro.throwErrorAt name "cannot generate facet declaration name from facet name"
   `(
-    $[$doc?]? abbrev $id := $facetLit
+    $[$doc?]? @[reducible] def $id := $facetLit
     family_def $facetId : $fam $facetLit := $ty
     instance : FamilyDef FacetOut ($kindLit ++ $nameLit) $ty :=
       inferInstanceAs (FamilyDef FacetOut $facetLit $ty)

@@ -9,6 +9,7 @@ import Lake.Build.Package
 import Lake.Build.Library
 import Lake.Build.Executable
 import Lake.Build.ExternLib
+import Lake.Build.InputFile
 
 /-! # Initial Facets -/
 
@@ -22,6 +23,8 @@ def initFacetConfigs : DNameMap FacetConfig :=
   |> insert LeanLib.initFacetConfigs
   |> insert LeanExe.initFacetConfigs
   |> insert ExternLib.initFacetConfigs
+  |> insert InputFile.initFacetConfigs
+  |> insert InputDir.initFacetConfigs
 where
   insert {k} (group : DNameMap (KFacetConfig k)) map :=
     group.fold (init := map) fun m k v => m.insert k v.toFacetConfig

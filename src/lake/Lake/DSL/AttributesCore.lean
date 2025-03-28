@@ -36,6 +36,12 @@ initialize leanExeAttr : OrderedTagAttribute ←
 initialize externLibAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `extern_lib "mark a definition as a Lake external library target"
 
+initialize inputFileAttr : OrderedTagAttribute ←
+  registerOrderedTagAttribute `input_file "mark a definition as a Lake input file target"
+
+initialize inputDirAttr : OrderedTagAttribute ←
+  registerOrderedTagAttribute `input_dir "mark a definition as a Lake input directory target"
+
 initialize targetAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `target "mark a definition as a Lake target"
 

@@ -6,6 +6,7 @@ Authors: Mac Malone
 prelude
 import Lake.Build.Common
 import Lake.Build.Targets
+import Lake.Build.Target.Fetch
 
 /-! # Library Facet Builds
 Build function definitions for a library's builtin facets.
@@ -96,12 +97,16 @@ protected def LeanLib.recBuildShared
 def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
   mkFacetJobConfig LeanLib.recBuildShared
 
-/-! ## Build `extraDepTargets` -/
+/-! ## Other -/
 
-/-- Build the `extraDepTargets` for the library and its package. -/
+/--
+Build extra target dependencies of the library (e.g., `extraDepTargets`, `needs`). -/
 def LeanLib.recBuildExtraDepTargets (self : LeanLib) : FetchM (Job Unit) := do
-  self.extraDepTargets.foldlM (init := ← self.pkg.extraDep.fetch) fun job target => do
+  let job ← self.extraDepTargets.foldlM (init := ← self.pkg.extraDep.fetch) fun job target => do
     return job.mix <| ← self.pkg.fetchTargetJob target
+  let job ← self.config.needs.foldlM (init := job) fun job key => do
+    return job.mix <| ← key.fetchIn self.pkg
+  return job
 
 /-- The `LibraryFacetConfig` for the builtin `extraDepFacet`. -/
 def LeanLib.extraDepFacetConfig : LibraryFacetConfig extraDepFacet :=

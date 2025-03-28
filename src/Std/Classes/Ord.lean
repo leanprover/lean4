@@ -615,7 +615,7 @@ end USize
 namespace Int8
 
 instance : TransOrd Int8 :=
-  TransOrd.of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     Int8.le_antisymm Int8.le_trans Int8.le_total (Int8.not_le ..)
 
 instance : LawfulEqOrd Int8 where
@@ -626,7 +626,7 @@ end Int8
 namespace Int16
 
 instance : TransOrd Int16 :=
-  TransOrd.of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     Int16.le_antisymm Int16.le_trans Int16.le_total (Int16.not_le ..)
 
 instance : LawfulEqOrd Int16 where
@@ -637,7 +637,7 @@ end Int16
 namespace Int32
 
 instance : TransOrd Int32 :=
-  TransOrd.of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     Int32.le_antisymm Int32.le_trans Int32.le_total (Int32.not_le ..)
 
 instance : LawfulEqOrd Int32 where
@@ -648,7 +648,7 @@ end Int32
 namespace Int64
 
 instance : TransOrd Int64 :=
-  TransOrd.of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     Int64.le_antisymm Int64.le_trans Int64.le_total (Int64.not_le ..)
 
 instance : LawfulEqOrd Int64 where
@@ -659,7 +659,7 @@ end Int64
 namespace ISize
 
 instance : TransOrd ISize :=
-  TransOrd.of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     ISize.le_antisymm ISize.le_trans ISize.le_total (ISize.not_le ..)
 
 instance : LawfulEqOrd ISize where
@@ -672,7 +672,7 @@ namespace BitVec
 variable {n : Nat}
 
 instance : TransOrd (BitVec n) :=
-  TransOrd.of_antisymm_of_trans_of_total_of_not_le
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     BitVec.le_antisymm BitVec.le_trans BitVec.le_total (BitVec.not_le ..)
 
 instance : LawfulEqOrd (BitVec n) where

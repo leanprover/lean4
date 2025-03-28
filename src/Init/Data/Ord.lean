@@ -577,91 +577,91 @@ instance {α} [Ord α] : Ord (List α) where
 protected theorem compare_eq_compareLex {α} [Ord α] :
     compare (α := List α) = List.compareLex compare := rfl
 
-theorem compareLex_cons_cons {α} {cmp} {x y : α} {xs ys : List α} :
+protected theorem compareLex_cons_cons {α} {cmp} {x y : α} {xs ys : List α} :
     (x :: xs).compareLex cmp (y :: ys) = (cmp x y).then (xs.compareLex cmp ys) :=
   rfl
 
 @[simp]
-theorem compare_cons_cons {α} [Ord α] {x y : α} {xs ys : List α} :
+protected theorem compare_cons_cons {α} [Ord α] {x y : α} {xs ys : List α} :
     compare (x :: xs) (y :: ys) = (compare x y).then (compare xs ys) :=
   rfl
 
-theorem compareLex_nil_cons {α} {cmp} {x : α} {xs : List α} :
+protected theorem compareLex_nil_cons {α} {cmp} {x : α} {xs : List α} :
     [].compareLex cmp (x :: xs) = .lt :=
   rfl
 
 @[simp]
-theorem compare_nil_cons {α} [Ord α] {x : α} {xs : List α} :
+protected theorem compare_nil_cons {α} [Ord α] {x : α} {xs : List α} :
     compare [] (x :: xs) = .lt :=
   rfl
 
-theorem compareLex_cons_nil {α} {cmp} {x : α} {xs : List α} :
+protected theorem compareLex_cons_nil {α} {cmp} {x : α} {xs : List α} :
     (x :: xs).compareLex cmp [] = .gt :=
   rfl
 
 @[simp]
-theorem compare_cons_nil {α} [Ord α] {x : α} {xs : List α} :
+protected theorem compare_cons_nil {α} [Ord α] {x : α} {xs : List α} :
     compare (x :: xs) [] = .gt :=
   rfl
 
-theorem compareLex_nil_nil {α} {cmp} :
+protected theorem compareLex_nil_nil {α} {cmp} :
     [].compareLex (α := α) cmp [] = .eq :=
   rfl
 
 @[simp]
-theorem compare_nil_nil {α} [Ord α] :
+protected theorem compare_nil_nil {α} [Ord α] :
     compare (α := List α) [] [] = .eq :=
   rfl
 
-theorem isLE_compareLex_nil_left {α} {cmp} {xs : List α} :
+protected theorem isLE_compareLex_nil_left {α} {cmp} {xs : List α} :
     (List.compareLex (cmp := cmp) [] xs).isLE := by
-  cases xs <;> simp [compareLex_nil_nil, compareLex_nil_cons]
+  cases xs <;> simp [List.compareLex_nil_nil, List.compareLex_nil_cons]
 
-theorem isLE_compare_nil_left {α} [Ord α] {xs : List α} :
+protected theorem isLE_compare_nil_left {α} [Ord α] {xs : List α} :
     (compare [] xs).isLE :=
   List.isLE_compareLex_nil_left
 
-theorem isLE_compareLex_nil_right {α} {cmp} {xs : List α} :
+protected theorem isLE_compareLex_nil_right {α} {cmp} {xs : List α} :
     (List.compareLex (cmp := cmp) xs []).isLE ↔ xs = [] := by
-  cases xs <;> simp [compareLex_nil_nil, compareLex_cons_nil]
+  cases xs <;> simp [List.compareLex_nil_nil, List.compareLex_cons_nil]
 
 @[simp]
-theorem isLE_compare_nil_right {α} [Ord α] {xs : List α} :
+protected theorem isLE_compare_nil_right {α} [Ord α] {xs : List α} :
     (compare xs []).isLE ↔ xs = [] :=
   List.isLE_compareLex_nil_right
 
-theorem isGE_compareLex_nil_left {α} {cmp} {xs : List α} :
+protected theorem isGE_compareLex_nil_left {α} {cmp} {xs : List α} :
     (List.compareLex (cmp := cmp) [] xs).isGE ↔ xs = [] := by
-  cases xs <;> simp [compareLex_nil_nil, compareLex_nil_cons]
+  cases xs <;> simp [List.compareLex_nil_nil, List.compareLex_nil_cons]
 
 @[simp]
-theorem isGE_compare_nil_left {α} [Ord α] {xs : List α} :
+protected theorem isGE_compare_nil_left {α} [Ord α] {xs : List α} :
     (compare [] xs).isGE ↔ xs = [] :=
   List.isGE_compareLex_nil_left
 
-theorem isGE_compareLex_nil_right {α} {cmp} {xs : List α} :
+protected theorem isGE_compareLex_nil_right {α} {cmp} {xs : List α} :
     (List.compareLex (cmp := cmp) xs []).isGE := by
-  cases xs <;> simp [compareLex_nil_nil, compareLex_cons_nil]
+  cases xs <;> simp [List.compareLex_nil_nil, List.compareLex_cons_nil]
 
-theorem isGE_compare_nil_right {α} [Ord α] {xs : List α} :
+protected theorem isGE_compare_nil_right {α} [Ord α] {xs : List α} :
     (compare xs []).isGE :=
   List.isGE_compareLex_nil_right
 
-theorem compareLex_nil_left_eq_eq {α} {cmp} {xs : List α} :
+protected theorem compareLex_nil_left_eq_eq {α} {cmp} {xs : List α} :
     List.compareLex cmp [] xs = .eq ↔ xs = [] := by
-  cases xs <;> simp [compareLex_nil_nil, compareLex_nil_cons]
+  cases xs <;> simp [List.compareLex_nil_nil, List.compareLex_nil_cons]
 
 @[simp]
-theorem compare_nil_left_eq_eq {α} [Ord α] {xs : List α} :
+protected theorem compare_nil_left_eq_eq {α} [Ord α] {xs : List α} :
     compare [] xs = .eq ↔ xs = [] :=
   List.compareLex_nil_left_eq_eq
 
-theorem compareLex_nil_right_eq_eq {α} {cmp} {xs : List α} :
+protected theorem compareLex_nil_right_eq_eq {α} {cmp} {xs : List α} :
     xs.compareLex cmp [] = .eq ↔ xs = [] := by
-  cases xs <;> simp [compareLex_nil_nil, compareLex_cons_nil]
+  cases xs <;> simp [List.compareLex_nil_nil, List.compareLex_cons_nil]
 
 @[simp]
-theorem compare_nil_right_eq_eq {α} [Ord α] {xs : List α} :
+protected theorem compare_nil_right_eq_eq {α} [Ord α] {xs : List α} :
     compare xs [] = .eq ↔ xs = [] :=
   List.compareLex_nil_right_eq_eq
 

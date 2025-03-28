@@ -1930,4 +1930,3 @@ warning: declaration uses 'sorry'
 #eval TreeSet.merge t (.ofList [0, 1, 2])
 
 end TreeSet
-

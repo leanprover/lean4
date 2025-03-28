@@ -69,12 +69,13 @@ option(TRACK_LIVE_EXPRS    "TRACK_LIVE_EXPRS" OFF)
 option(CUSTOM_ALLOCATORS   "CUSTOM_ALLOCATORS" ON)
 option(SAVE_SNAPSHOT       "SAVE_SNAPSHOT" ON)
 option(SAVE_INFO           "SAVE_INFO" ON)
-option(SMALL_ALLOCATOR     "SMALL_ALLOCATOR" ON)
+option(SMALL_ALLOCATOR     "SMALL_ALLOCATOR" OFF)
 option(MMAP                "MMAP" ON)
 option(LAZY_RC             "LAZY_RC" OFF)
 option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
 option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared libraries (Linux)" ON)
 option(USE_GMP "USE_GMP" ON)
+option(USE_MIMALLOC "use mimalloc" ON)
 
 # development-specific options
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" OFF)
@@ -85,10 +86,6 @@ set(LEANC_CC              ${CMAKE_C_COMPILER}          CACHE STRING "C compiler 
 
 if ("${LAZY_RC}" MATCHES "ON")
   set(LEAN_LAZY_RC "#define LEAN_LAZY_RC")
-endif()
-
-if ("${SMALL_ALLOCATOR}" MATCHES "ON")
-  set(LEAN_SMALL_ALLOCATOR "#define LEAN_SMALL_ALLOCATOR")
 endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -305,6 +302,20 @@ include_directories(${LIBUV_INCLUDE_DIRS})
 if(NOT LEAN_STANDALONE)
   string(JOIN " " LIBUV_LDFLAGS ${LIBUV_LDFLAGS})
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBUV_LDFLAGS}")
+endif()
+
+if (USE_MIMALLOC)
+  set(SMALL_ALLOCATOR OFF)
+  find_package(Mimalloc 2.0.0 REQUIRED)
+  include_directories(${MIMALLOC_INCLUDE_DIRS})
+  string(APPEND LEANC_EXTRA_CC_FLAGS " -I${MIMALLOC_INCLUDE_DIRS}")
+  list(JOIN MIMALLOC_LDFLAGS " " MIMALLOC_LDFLAGS)
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${MIMALLOC_LDFLAGS}")
+  set(LEAN_MIMALLOC "#define LEAN_MIMALLOC")
+endif()
+
+if ("${SMALL_ALLOCATOR}" MATCHES "ON")
+  set(LEAN_SMALL_ALLOCATOR "#define LEAN_SMALL_ALLOCATOR")
 endif()
 
 # Windows SDK (for ICU)

@@ -549,15 +549,122 @@ instance : Ord ISize where
 instance {n} : Ord (BitVec n) where
   compare x y := compareOfLessAndEq x y
 
-instance [LT α] [DecidableLT α] [DecidableEq α] : Ord (List α) where
-  compare x y := compareOfLessAndEq x y
-
 instance [Ord α] : Ord (Option α) where
   compare
   | none,   none   => .eq
   | none,   some _ => .lt
   | some _, none   => .gt
   | some x, some y => compare x y
+
+instance : Ord Ordering where
+  compare := compareOn (·.toCtorIdx)
+
+section List
+
+@[specialize]
+protected def List.compareLex {α} (cmp : α → α → Ordering) :
+    List α → List α → Ordering
+  | [], [] => .eq
+  | [], _ => .lt
+  | _, [] => .gt
+  | x :: xs, y :: ys =>
+    (cmp x y).then (xs.compareLex cmp ys)
+
+instance {α} [Ord α] : Ord (List α) where
+  compare := List.compareLex compare
+
+protected theorem List.compare_eq_compareLex {α} [Ord α] :
+    compare (α := List α) = List.compareLex compare := rfl
+
+theorem List.compareLex_cons_cons {α} {cmp} {x y : α} {xs ys : List α} :
+    (x :: xs).compareLex cmp (y :: ys) = (cmp x y).then (xs.compareLex cmp ys) :=
+  rfl
+
+@[simp]
+theorem List.compare_cons_cons {α} [Ord α] {x y : α} {xs ys : List α} :
+    compare (x :: xs) (y :: ys) = (compare x y).then (compare xs ys) :=
+  rfl
+
+theorem List.compareLex_nil_cons {α} {cmp} {x : α} {xs : List α} :
+    [].compareLex cmp (x :: xs) = .lt :=
+  rfl
+
+@[simp]
+theorem List.compare_nil_cons {α} [Ord α] {x : α} {xs : List α} :
+    compare [] (x :: xs) = .lt :=
+  rfl
+
+theorem List.compareLex_cons_nil {α} {cmp} {x : α} {xs : List α} :
+    (x :: xs).compareLex cmp [] = .gt :=
+  rfl
+
+@[simp]
+theorem List.compare_cons_nil {α} [Ord α] {x : α} {xs : List α} :
+    compare (x :: xs) [] = .gt :=
+  rfl
+
+theorem List.compareLex_nil_nil {α} {cmp} :
+    [].compareLex (α := α) cmp [] = .eq :=
+  rfl
+
+@[simp]
+theorem List.compare_nil_nil {α} [Ord α] :
+    compare (α := List α) [] [] = .eq :=
+  rfl
+
+theorem List.isLE_compareLex_nil_left {α} {cmp} {xs : List α} :
+    (List.compareLex (cmp := cmp) [] xs).isLE := by
+  cases xs <;> simp [compareLex_nil_nil, compareLex_nil_cons]
+
+theorem List.isLE_compare_nil_left {α} [Ord α] {xs : List α} :
+    (compare [] xs).isLE :=
+  List.isLE_compareLex_nil_left
+
+theorem List.isLE_compareLex_nil_right {α} {cmp} {xs : List α} :
+    (List.compareLex (cmp := cmp) xs []).isLE ↔ xs = [] := by
+  cases xs <;> simp [compareLex_nil_nil, compareLex_cons_nil]
+
+@[simp]
+theorem List.isLE_compare_nil_right {α} [Ord α] {xs : List α} :
+    (compare xs []).isLE ↔ xs = [] :=
+  List.isLE_compareLex_nil_right
+
+theorem List.isGE_compareLex_nil_left {α} {cmp} {xs : List α} :
+    (List.compareLex (cmp := cmp) [] xs).isGE ↔ xs = [] := by
+  cases xs <;> simp [compareLex_nil_nil, compareLex_nil_cons]
+
+@[simp]
+theorem List.isGE_compare_nil_left {α} [Ord α] {xs : List α} :
+    (compare [] xs).isGE ↔ xs = [] :=
+  List.isGE_compareLex_nil_left
+
+theorem List.isGE_compareLex_nil_right {α} {cmp} {xs : List α} :
+    (List.compareLex (cmp := cmp) xs []).isGE := by
+  cases xs <;> simp [compareLex_nil_nil, compareLex_cons_nil]
+
+theorem List.isGE_compare_nil_right {α} [Ord α] {xs : List α} :
+    (compare xs []).isGE :=
+  List.isGE_compareLex_nil_right
+
+theorem List.compareLex_nil_left_eq_eq {α} {cmp} {xs : List α} :
+    List.compareLex cmp [] xs = .eq ↔ xs = [] := by
+  cases xs <;> simp [compareLex_nil_nil, compareLex_nil_cons]
+
+@[simp]
+theorem List.compare_nil_left_eq_eq {α} [Ord α] {xs : List α} :
+    compare [] xs = .eq ↔ xs = [] :=
+  List.compareLex_nil_left_eq_eq
+
+theorem List.compareLex_nil_right_eq_eq {α} {cmp} {xs : List α} :
+    xs.compareLex cmp [] = .eq ↔ xs = [] := by
+  cases xs <;> simp [compareLex_nil_nil, compareLex_cons_nil]
+
+@[simp]
+theorem List.compare_nil_right_eq_eq {α} [Ord α] {xs : List α} :
+    compare xs [] = .eq ↔ xs = [] :=
+  List.compareLex_nil_right_eq_eq
+
+end List
 
 /-- The lexicographic order on pairs. -/
 def lexOrd [Ord α] [Ord β] : Ord (α × β) where

@@ -422,7 +422,7 @@ variable {α : Type u}
 Internal funcion to derive a `BEq` instance from an `Ord` instance in order to connect the
 verification machinery for tree maps to the verification machinery for hash maps.
 -/
-@[local instance]
+@[local instance 0]
 def beqOfOrd [Ord α] : BEq α where
   beq a b := compare a b == .eq
 
@@ -679,25 +679,6 @@ instance : LawfulEqOrd (BitVec n) where
 
 end BitVec
 
-namespace List
-
-variable {α} [LT α] [DecidableLT α] [DecidableEq α]
-
-instance
-  [Irrefl (· < · : α → α → Prop)]
-  [Asymm (· < · : α → α → Prop)]
-  [Antisymm (¬ · < · : α → α → Prop)]
-  [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
-  [Total (¬ · < · : α → α → Prop)] : TransOrd (List α) :=
-  TransOrd.of_antisymm_of_trans_of_total_of_not_le
-    List.le_antisymm List.le_trans List.le_total (List.not_le ..)
-
-instance [Irrefl (· < · : α → α → Prop)] : LawfulEqOrd (List α) where
-  compare_self {a} := by simp [compare, compareOfLessAndEq, List.le_refl]
-  eq_of_compare h := compareOfLessAndEq_eq_eq List.le_refl (List.not_le ..) |>.mp h
-
-end List
-
 -- TODO: Array, Vector
 
 namespace Option
@@ -785,6 +766,67 @@ instance {α β} [Ord α] [Ord β] [LawfulEqOrd α] [LawfulEqOrd β] : LawfulEqO
     · exact LawfulEqOrd.eq_of_compare h.2
 
 end Lex
+
+namespace _root_.List
+
+variable {α} {cmp : α → α → Ordering}
+
+instance [OrientedCmp cmp] : OrientedCmp (List.compareLex cmp) where
+  eq_swap {a b} := by
+    induction a generalizing b with
+    | nil =>
+      cases b
+      · simp [List.compareLex_nil_nil]
+      · simp [List.compareLex_nil_cons, List.compareLex_cons_nil]
+    | cons x xs ih =>
+      cases b
+      · simp [List.compareLex_nil_cons, List.compareLex_cons_nil]
+      · simp [OrientedCmp.eq_swap (a := x), List.compareLex_cons_cons, ih, Ordering.swap_then]
+
+instance [TransCmp cmp] : TransCmp (List.compareLex cmp) where
+  isLE_trans {a b c} (hab hbc) := by
+    induction a generalizing b c with
+    | nil => exact List.isLE_compareLex_nil_left
+    | cons _ _ ih =>
+      cases b <;> cases c <;> (try simp [List.compareLex_cons_nil] at *; done)
+      simp [List.compareLex_cons_cons] at *
+      simp [Ordering.isLE_then_iff_and] at *
+      apply And.intro
+      · exact TransCmp.isLE_trans hab.1 hbc.1
+      · obtain ⟨hable, (hab | hab)⟩ := hab
+        · exact Or.inl <| TransCmp.lt_of_lt_of_isLE hab hbc.1
+        · obtain ⟨_, (hbc | hbc)⟩ := hbc
+          · exact Or.inl <| TransCmp.lt_of_isLE_of_lt hable hbc
+          · exact Or.inr <| ih hab hbc
+
+instance [ReflCmp cmp] : ReflCmp (List.compareLex cmp) where
+  compare_self {a} := by
+    induction a with
+    | nil => rfl
+    | cons x xs h =>
+      simp [List.compareLex_cons_cons, Ordering.then_eq_eq, ReflCmp.compare_self, h]
+
+instance [LawfulEqCmp cmp] : LawfulEqCmp (List.compareLex cmp) where
+  eq_of_compare {a b} h := by
+    induction a generalizing b with
+    | nil => simpa [List.compareLex_nil_left_eq_eq] using h
+    | cons x xs ih =>
+      cases b
+      · simp [List.compareLex_nil_right_eq_eq] at h
+      · simp only [List.compareLex_cons_cons, Ordering.then_eq_eq, compare_eq_iff_eq,
+        List.cons.injEq] at *
+        exact ⟨h.1, ih h.2⟩
+
+instance [Ord α] [ReflOrd α] : ReflOrd (List α) :=
+  inferInstanceAs <| ReflCmp (List.compareLex compare)
+
+instance [Ord α] [OrientedOrd α] : OrientedOrd (List α) :=
+  inferInstanceAs <| OrientedCmp (List.compareLex compare)
+
+instance [Ord α] [TransOrd α] : TransOrd (List α) :=
+  inferInstanceAs <| TransCmp (List.compareLex compare)
+
+end _root_.List
 
 end Instances
 

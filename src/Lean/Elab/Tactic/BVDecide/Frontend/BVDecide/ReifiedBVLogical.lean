@@ -32,7 +32,7 @@ Construct a `ReifiedBVLogical` from `ReifiedBVPred` by wrapping it as an atom.
 -/
 def ofPred (bvPred : ReifiedBVPred) : M ReifiedBVLogical := do
   let boolExpr := .atom bvPred.bvPred
-  let expr := mkApp2 (mkConst ``BoolExpr.atom) (mkConst ``BVPred) bvPred.expr
+  let expr := mkApp (mkConst ``BVLogicalExpr.atom) bvPred.expr
   -- important: This must be the same proof as the bvPred one in order for the cache to be correct
   let proof := bvPred.evalsAtAtoms
   return ⟨boolExpr, bvPred.originalExpr, proof, expr⟩

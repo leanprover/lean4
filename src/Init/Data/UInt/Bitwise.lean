@@ -707,11 +707,11 @@ theorem UInt32.not_eq_neg_sub (a : UInt32) : ~~~a = -a - 1 := UInt32.toBitVec_in
 theorem UInt64.not_eq_neg_sub (a : UInt64) : ~~~a = -a - 1 := UInt64.toBitVec_inj.1 (BitVec.not_eq_neg_add _)
 theorem USize.not_eq_neg_sub (a : USize) : ~~~a = -a - 1 := USize.toBitVec_inj.1 (BitVec.not_eq_neg_add _)
 
-theorem UInt8.or_assoc (a b c : UInt8) : a ||| b ||| c = a ||| (b ||| c) := UInt8.toBitVec_inj.1 (BitVec.or_assoc _ _ _)
-theorem UInt16.or_assoc (a b c : UInt16) : a ||| b ||| c = a ||| (b ||| c) := UInt16.toBitVec_inj.1 (BitVec.or_assoc _ _ _)
-theorem UInt32.or_assoc (a b c : UInt32) : a ||| b ||| c = a ||| (b ||| c) := UInt32.toBitVec_inj.1 (BitVec.or_assoc _ _ _)
-theorem UInt64.or_assoc (a b c : UInt64) : a ||| b ||| c = a ||| (b ||| c) := UInt64.toBitVec_inj.1 (BitVec.or_assoc _ _ _)
-theorem USize.or_assoc (a b c : USize) : a ||| b ||| c = a ||| (b ||| c) := USize.toBitVec_inj.1 (BitVec.or_assoc _ _ _)
+protected theorem UInt8.or_assoc (a b c : UInt8) : a ||| b ||| c = a ||| (b ||| c) := UInt8.toBitVec_inj.1 (BitVec.or_assoc _ _ _)
+protected theorem UInt16.or_assoc (a b c : UInt16) : a ||| b ||| c = a ||| (b ||| c) := UInt16.toBitVec_inj.1 (BitVec.or_assoc _ _ _)
+protected theorem UInt32.or_assoc (a b c : UInt32) : a ||| b ||| c = a ||| (b ||| c) := UInt32.toBitVec_inj.1 (BitVec.or_assoc _ _ _)
+protected theorem UInt64.or_assoc (a b c : UInt64) : a ||| b ||| c = a ||| (b ||| c) := UInt64.toBitVec_inj.1 (BitVec.or_assoc _ _ _)
+protected theorem USize.or_assoc (a b c : USize) : a ||| b ||| c = a ||| (b ||| c) := USize.toBitVec_inj.1 (BitVec.or_assoc _ _ _)
 
 instance : Std.Associative (α := UInt8) (· ||| ·) := ⟨UInt8.or_assoc⟩
 instance : Std.Associative (α := UInt16) (· ||| ·) := ⟨UInt16.or_assoc⟩
@@ -719,11 +719,11 @@ instance : Std.Associative (α := UInt32) (· ||| ·) := ⟨UInt32.or_assoc⟩
 instance : Std.Associative (α := UInt64) (· ||| ·) := ⟨UInt64.or_assoc⟩
 instance : Std.Associative (α := USize) (· ||| ·) := ⟨USize.or_assoc⟩
 
-theorem UInt8.or_comm (a b : UInt8) : a ||| b = b ||| a := UInt8.toBitVec_inj.1 (BitVec.or_comm _ _)
-theorem UInt16.or_comm (a b : UInt16) : a ||| b = b ||| a := UInt16.toBitVec_inj.1 (BitVec.or_comm _ _)
-theorem UInt32.or_comm (a b : UInt32) : a ||| b = b ||| a := UInt32.toBitVec_inj.1 (BitVec.or_comm _ _)
-theorem UInt64.or_comm (a b : UInt64) : a ||| b = b ||| a := UInt64.toBitVec_inj.1 (BitVec.or_comm _ _)
-theorem USize.or_comm (a b : USize) : a ||| b = b ||| a := USize.toBitVec_inj.1 (BitVec.or_comm _ _)
+protected theorem UInt8.or_comm (a b : UInt8) : a ||| b = b ||| a := UInt8.toBitVec_inj.1 (BitVec.or_comm _ _)
+protected theorem UInt16.or_comm (a b : UInt16) : a ||| b = b ||| a := UInt16.toBitVec_inj.1 (BitVec.or_comm _ _)
+protected theorem UInt32.or_comm (a b : UInt32) : a ||| b = b ||| a := UInt32.toBitVec_inj.1 (BitVec.or_comm _ _)
+protected theorem UInt64.or_comm (a b : UInt64) : a ||| b = b ||| a := UInt64.toBitVec_inj.1 (BitVec.or_comm _ _)
+protected theorem USize.or_comm (a b : USize) : a ||| b = b ||| a := USize.toBitVec_inj.1 (BitVec.or_comm _ _)
 
 instance : Std.Commutative (α := UInt8) (· ||| ·) := ⟨UInt8.or_comm⟩
 instance : Std.Commutative (α := UInt16) (· ||| ·) := ⟨UInt16.or_comm⟩
@@ -731,11 +731,11 @@ instance : Std.Commutative (α := UInt32) (· ||| ·) := ⟨UInt32.or_comm⟩
 instance : Std.Commutative (α := UInt64) (· ||| ·) := ⟨UInt64.or_comm⟩
 instance : Std.Commutative (α := USize) (· ||| ·) := ⟨USize.or_comm⟩
 
-@[simp] theorem UInt8.or_self {a : UInt8} : a ||| a = a := UInt8.toBitVec_inj.1 BitVec.or_self
-@[simp] theorem UInt16.or_self {a : UInt16} : a ||| a = a := UInt16.toBitVec_inj.1 BitVec.or_self
-@[simp] theorem UInt32.or_self {a : UInt32} : a ||| a = a := UInt32.toBitVec_inj.1 BitVec.or_self
-@[simp] theorem UInt64.or_self {a : UInt64} : a ||| a = a := UInt64.toBitVec_inj.1 BitVec.or_self
-@[simp] theorem USize.or_self {a : USize} : a ||| a = a := USize.toBitVec_inj.1 BitVec.or_self
+@[simp] protected theorem UInt8.or_self {a : UInt8} : a ||| a = a := UInt8.toBitVec_inj.1 BitVec.or_self
+@[simp] protected theorem UInt16.or_self {a : UInt16} : a ||| a = a := UInt16.toBitVec_inj.1 BitVec.or_self
+@[simp] protected theorem UInt32.or_self {a : UInt32} : a ||| a = a := UInt32.toBitVec_inj.1 BitVec.or_self
+@[simp] protected theorem UInt64.or_self {a : UInt64} : a ||| a = a := UInt64.toBitVec_inj.1 BitVec.or_self
+@[simp] protected theorem USize.or_self {a : USize} : a ||| a = a := USize.toBitVec_inj.1 BitVec.or_self
 
 instance : Std.IdempotentOp (α := UInt8) (· ||| ·) := ⟨fun _ => UInt8.or_self⟩
 instance : Std.IdempotentOp (α := UInt16) (· ||| ·) := ⟨fun _ => UInt16.or_self⟩
@@ -743,17 +743,17 @@ instance : Std.IdempotentOp (α := UInt32) (· ||| ·) := ⟨fun _ => UInt32.or_
 instance : Std.IdempotentOp (α := UInt64) (· ||| ·) := ⟨fun _ => UInt64.or_self⟩
 instance : Std.IdempotentOp (α := USize) (· ||| ·) := ⟨fun _ => USize.or_self⟩
 
-@[simp] theorem UInt8.or_zero {a : UInt8} : a ||| 0 = a := UInt8.toBitVec_inj.1 BitVec.or_zero
-@[simp] theorem UInt16.or_zero {a : UInt16} : a ||| 0 = a := UInt16.toBitVec_inj.1 BitVec.or_zero
-@[simp] theorem UInt32.or_zero {a : UInt32} : a ||| 0 = a := UInt32.toBitVec_inj.1 BitVec.or_zero
-@[simp] theorem UInt64.or_zero {a : UInt64} : a ||| 0 = a := UInt64.toBitVec_inj.1 BitVec.or_zero
-@[simp] theorem USize.or_zero {a : USize} : a ||| 0 = a := USize.toBitVec_inj.1 BitVec.or_zero
+@[simp] protected theorem UInt8.or_zero {a : UInt8} : a ||| 0 = a := UInt8.toBitVec_inj.1 BitVec.or_zero
+@[simp] protected theorem UInt16.or_zero {a : UInt16} : a ||| 0 = a := UInt16.toBitVec_inj.1 BitVec.or_zero
+@[simp] protected theorem UInt32.or_zero {a : UInt32} : a ||| 0 = a := UInt32.toBitVec_inj.1 BitVec.or_zero
+@[simp] protected theorem UInt64.or_zero {a : UInt64} : a ||| 0 = a := UInt64.toBitVec_inj.1 BitVec.or_zero
+@[simp] protected theorem USize.or_zero {a : USize} : a ||| 0 = a := USize.toBitVec_inj.1 BitVec.or_zero
 
-@[simp] theorem UInt8.zero_or {a : UInt8} : 0 ||| a = a := UInt8.toBitVec_inj.1 BitVec.zero_or
-@[simp] theorem UInt16.zero_or {a : UInt16} : 0 ||| a = a := UInt16.toBitVec_inj.1 BitVec.zero_or
-@[simp] theorem UInt32.zero_or {a : UInt32} : 0 ||| a = a := UInt32.toBitVec_inj.1 BitVec.zero_or
-@[simp] theorem UInt64.zero_or {a : UInt64} : 0 ||| a = a := UInt64.toBitVec_inj.1 BitVec.zero_or
-@[simp] theorem USize.zero_or {a : USize} : 0 ||| a = a := USize.toBitVec_inj.1 BitVec.zero_or
+@[simp] protected theorem UInt8.zero_or {a : UInt8} : 0 ||| a = a := UInt8.toBitVec_inj.1 BitVec.zero_or
+@[simp] protected theorem UInt16.zero_or {a : UInt16} : 0 ||| a = a := UInt16.toBitVec_inj.1 BitVec.zero_or
+@[simp] protected theorem UInt32.zero_or {a : UInt32} : 0 ||| a = a := UInt32.toBitVec_inj.1 BitVec.zero_or
+@[simp] protected theorem UInt64.zero_or {a : UInt64} : 0 ||| a = a := UInt64.toBitVec_inj.1 BitVec.zero_or
+@[simp] protected theorem USize.zero_or {a : USize} : 0 ||| a = a := USize.toBitVec_inj.1 BitVec.zero_or
 
 instance : Std.LawfulCommIdentity (α := UInt8) (· ||| ·) 0 where
   right_id _ := UInt8.or_zero
@@ -782,11 +782,11 @@ instance : Std.LawfulCommIdentity (α := USize) (· ||| ·) 0 where
   rw [← USize.toBitVec_inj, USize.toBitVec_or, USize.toBitVec_neg, USize.toBitVec_one,
     BitVec.negOne_eq_allOnes, BitVec.allOnes_or]
 
-@[simp] theorem UInt8.or_neg_one {a : UInt8} : a ||| -1 = -1 := by rw [or_comm, neg_one_or]
-@[simp] theorem UInt16.or_neg_one {a : UInt16} : a ||| -1 = -1 := by rw [or_comm, neg_one_or]
-@[simp] theorem UInt32.or_neg_one {a : UInt32} : a ||| -1 = -1 := by rw [or_comm, neg_one_or]
-@[simp] theorem UInt64.or_neg_one {a : UInt64} : a ||| -1 = -1 := by rw [or_comm, neg_one_or]
-@[simp] theorem USize.or_neg_one {a : USize} : a ||| -1 = -1 := by rw [or_comm, neg_one_or]
+@[simp] theorem UInt8.or_neg_one {a : UInt8} : a ||| -1 = -1 := by rw [UInt8.or_comm, neg_one_or]
+@[simp] theorem UInt16.or_neg_one {a : UInt16} : a ||| -1 = -1 := by rw [UInt16.or_comm, neg_one_or]
+@[simp] theorem UInt32.or_neg_one {a : UInt32} : a ||| -1 = -1 := by rw [UInt32.or_comm, neg_one_or]
+@[simp] theorem UInt64.or_neg_one {a : UInt64} : a ||| -1 = -1 := by rw [UInt64.or_comm, neg_one_or]
+@[simp] theorem USize.or_neg_one {a : USize} : a ||| -1 = -1 := by rw [USize.or_comm, neg_one_or]
 
 @[simp] theorem UInt8.or_eq_zero_iff {a b : UInt8} : a ||| b = 0 ↔ a = 0 ∧ b = 0 := by
   simp [← UInt8.toBitVec_inj]
@@ -799,11 +799,11 @@ instance : Std.LawfulCommIdentity (α := USize) (· ||| ·) 0 where
 @[simp] theorem USize.or_eq_zero_iff {a b : USize} : a ||| b = 0 ↔ a = 0 ∧ b = 0 := by
   simp [← USize.toBitVec_inj]
 
-theorem UInt8.and_assoc (a b c : UInt8) : a &&& b &&& c = a &&& (b &&& c) := UInt8.toBitVec_inj.1 (BitVec.and_assoc _ _ _)
-theorem UInt16.and_assoc (a b c : UInt16) : a &&& b &&& c = a &&& (b &&& c) := UInt16.toBitVec_inj.1 (BitVec.and_assoc _ _ _)
-theorem UInt32.and_assoc (a b c : UInt32) : a &&& b &&& c = a &&& (b &&& c) := UInt32.toBitVec_inj.1 (BitVec.and_assoc _ _ _)
-theorem UInt64.and_assoc (a b c : UInt64) : a &&& b &&& c = a &&& (b &&& c) := UInt64.toBitVec_inj.1 (BitVec.and_assoc _ _ _)
-theorem USize.and_assoc (a b c : USize) : a &&& b &&& c = a &&& (b &&& c) := USize.toBitVec_inj.1 (BitVec.and_assoc _ _ _)
+protected theorem UInt8.and_assoc (a b c : UInt8) : a &&& b &&& c = a &&& (b &&& c) := UInt8.toBitVec_inj.1 (BitVec.and_assoc _ _ _)
+protected theorem UInt16.and_assoc (a b c : UInt16) : a &&& b &&& c = a &&& (b &&& c) := UInt16.toBitVec_inj.1 (BitVec.and_assoc _ _ _)
+protected theorem UInt32.and_assoc (a b c : UInt32) : a &&& b &&& c = a &&& (b &&& c) := UInt32.toBitVec_inj.1 (BitVec.and_assoc _ _ _)
+protected theorem UInt64.and_assoc (a b c : UInt64) : a &&& b &&& c = a &&& (b &&& c) := UInt64.toBitVec_inj.1 (BitVec.and_assoc _ _ _)
+protected theorem USize.and_assoc (a b c : USize) : a &&& b &&& c = a &&& (b &&& c) := USize.toBitVec_inj.1 (BitVec.and_assoc _ _ _)
 
 instance : Std.Associative (α := UInt8) (· &&& ·) := ⟨UInt8.and_assoc⟩
 instance : Std.Associative (α := UInt16) (· &&& ·) := ⟨UInt16.and_assoc⟩
@@ -811,11 +811,11 @@ instance : Std.Associative (α := UInt32) (· &&& ·) := ⟨UInt32.and_assoc⟩
 instance : Std.Associative (α := UInt64) (· &&& ·) := ⟨UInt64.and_assoc⟩
 instance : Std.Associative (α := USize) (· &&& ·) := ⟨USize.and_assoc⟩
 
-theorem UInt8.and_comm (a b : UInt8) : a &&& b = b &&& a := UInt8.toBitVec_inj.1 (BitVec.and_comm _ _)
-theorem UInt16.and_comm (a b : UInt16) : a &&& b = b &&& a := UInt16.toBitVec_inj.1 (BitVec.and_comm _ _)
-theorem UInt32.and_comm (a b : UInt32) : a &&& b = b &&& a := UInt32.toBitVec_inj.1 (BitVec.and_comm _ _)
-theorem UInt64.and_comm (a b : UInt64) : a &&& b = b &&& a := UInt64.toBitVec_inj.1 (BitVec.and_comm _ _)
-theorem USize.and_comm (a b : USize) : a &&& b = b &&& a := USize.toBitVec_inj.1 (BitVec.and_comm _ _)
+protected theorem UInt8.and_comm (a b : UInt8) : a &&& b = b &&& a := UInt8.toBitVec_inj.1 (BitVec.and_comm _ _)
+protected theorem UInt16.and_comm (a b : UInt16) : a &&& b = b &&& a := UInt16.toBitVec_inj.1 (BitVec.and_comm _ _)
+protected theorem UInt32.and_comm (a b : UInt32) : a &&& b = b &&& a := UInt32.toBitVec_inj.1 (BitVec.and_comm _ _)
+protected theorem UInt64.and_comm (a b : UInt64) : a &&& b = b &&& a := UInt64.toBitVec_inj.1 (BitVec.and_comm _ _)
+protected theorem USize.and_comm (a b : USize) : a &&& b = b &&& a := USize.toBitVec_inj.1 (BitVec.and_comm _ _)
 
 instance : Std.Commutative (α := UInt8) (· &&& ·) := ⟨UInt8.and_comm⟩
 instance : Std.Commutative (α := UInt16) (· &&& ·) := ⟨UInt16.and_comm⟩
@@ -823,11 +823,11 @@ instance : Std.Commutative (α := UInt32) (· &&& ·) := ⟨UInt32.and_comm⟩
 instance : Std.Commutative (α := UInt64) (· &&& ·) := ⟨UInt64.and_comm⟩
 instance : Std.Commutative (α := USize) (· &&& ·) := ⟨USize.and_comm⟩
 
-@[simp] theorem UInt8.and_self {a : UInt8} : a &&& a = a := UInt8.toBitVec_inj.1 BitVec.and_self
-@[simp] theorem UInt16.and_self {a : UInt16} : a &&& a = a := UInt16.toBitVec_inj.1 BitVec.and_self
-@[simp] theorem UInt32.and_self {a : UInt32} : a &&& a = a := UInt32.toBitVec_inj.1 BitVec.and_self
-@[simp] theorem UInt64.and_self {a : UInt64} : a &&& a = a := UInt64.toBitVec_inj.1 BitVec.and_self
-@[simp] theorem USize.and_self {a : USize} : a &&& a = a := USize.toBitVec_inj.1 BitVec.and_self
+@[simp] protected theorem UInt8.and_self {a : UInt8} : a &&& a = a := UInt8.toBitVec_inj.1 BitVec.and_self
+@[simp] protected theorem UInt16.and_self {a : UInt16} : a &&& a = a := UInt16.toBitVec_inj.1 BitVec.and_self
+@[simp] protected theorem UInt32.and_self {a : UInt32} : a &&& a = a := UInt32.toBitVec_inj.1 BitVec.and_self
+@[simp] protected theorem UInt64.and_self {a : UInt64} : a &&& a = a := UInt64.toBitVec_inj.1 BitVec.and_self
+@[simp] protected theorem USize.and_self {a : USize} : a &&& a = a := USize.toBitVec_inj.1 BitVec.and_self
 
 instance : Std.IdempotentOp (α := UInt8) (· &&& ·) := ⟨fun _ => UInt8.and_self⟩
 instance : Std.IdempotentOp (α := UInt16) (· &&& ·) := ⟨fun _ => UInt16.and_self⟩
@@ -835,17 +835,17 @@ instance : Std.IdempotentOp (α := UInt32) (· &&& ·) := ⟨fun _ => UInt32.and
 instance : Std.IdempotentOp (α := UInt64) (· &&& ·) := ⟨fun _ => UInt64.and_self⟩
 instance : Std.IdempotentOp (α := USize) (· &&& ·) := ⟨fun _ => USize.and_self⟩
 
-@[simp] theorem UInt8.and_zero {a : UInt8} : a &&& 0 = 0 := UInt8.toBitVec_inj.1 BitVec.and_zero
-@[simp] theorem UInt16.and_zero {a : UInt16} : a &&& 0 = 0 := UInt16.toBitVec_inj.1 BitVec.and_zero
-@[simp] theorem UInt32.and_zero {a : UInt32} : a &&& 0 = 0 := UInt32.toBitVec_inj.1 BitVec.and_zero
-@[simp] theorem UInt64.and_zero {a : UInt64} : a &&& 0 = 0 := UInt64.toBitVec_inj.1 BitVec.and_zero
-@[simp] theorem USize.and_zero {a : USize} : a &&& 0 = 0 := USize.toBitVec_inj.1 BitVec.and_zero
+@[simp] protected theorem UInt8.and_zero {a : UInt8} : a &&& 0 = 0 := UInt8.toBitVec_inj.1 BitVec.and_zero
+@[simp] protected theorem UInt16.and_zero {a : UInt16} : a &&& 0 = 0 := UInt16.toBitVec_inj.1 BitVec.and_zero
+@[simp] protected theorem UInt32.and_zero {a : UInt32} : a &&& 0 = 0 := UInt32.toBitVec_inj.1 BitVec.and_zero
+@[simp] protected theorem UInt64.and_zero {a : UInt64} : a &&& 0 = 0 := UInt64.toBitVec_inj.1 BitVec.and_zero
+@[simp] protected theorem USize.and_zero {a : USize} : a &&& 0 = 0 := USize.toBitVec_inj.1 BitVec.and_zero
 
-@[simp] theorem UInt8.zero_and {a : UInt8} : 0 &&& a = 0 := UInt8.toBitVec_inj.1 BitVec.zero_and
-@[simp] theorem UInt16.zero_and {a : UInt16} : 0 &&& a = 0 := UInt16.toBitVec_inj.1 BitVec.zero_and
-@[simp] theorem UInt32.zero_and {a : UInt32} : 0 &&& a = 0 := UInt32.toBitVec_inj.1 BitVec.zero_and
-@[simp] theorem UInt64.zero_and {a : UInt64} : 0 &&& a = 0 := UInt64.toBitVec_inj.1 BitVec.zero_and
-@[simp] theorem USize.zero_and {a : USize} : 0 &&& a = 0 := USize.toBitVec_inj.1 BitVec.zero_and
+@[simp] protected theorem UInt8.zero_and {a : UInt8} : 0 &&& a = 0 := UInt8.toBitVec_inj.1 BitVec.zero_and
+@[simp] protected theorem UInt16.zero_and {a : UInt16} : 0 &&& a = 0 := UInt16.toBitVec_inj.1 BitVec.zero_and
+@[simp] protected theorem UInt32.zero_and {a : UInt32} : 0 &&& a = 0 := UInt32.toBitVec_inj.1 BitVec.zero_and
+@[simp] protected theorem UInt64.zero_and {a : UInt64} : 0 &&& a = 0 := UInt64.toBitVec_inj.1 BitVec.zero_and
+@[simp] protected theorem USize.zero_and {a : USize} : 0 &&& a = 0 := USize.toBitVec_inj.1 BitVec.zero_and
 
 @[simp] theorem UInt8.neg_one_and {a : UInt8} : -1 &&& a = a := by
   rw [← UInt8.toBitVec_inj, UInt8.toBitVec_and, UInt8.toBitVec_neg, UInt8.toBitVec_one,
@@ -863,11 +863,11 @@ instance : Std.IdempotentOp (α := USize) (· &&& ·) := ⟨fun _ => USize.and_s
   rw [← USize.toBitVec_inj, USize.toBitVec_and, USize.toBitVec_neg, USize.toBitVec_one,
     BitVec.negOne_eq_allOnes, BitVec.allOnes_and]
 
-@[simp] theorem UInt8.and_neg_one {a : UInt8} : a &&& -1 = a := by rw [and_comm, neg_one_and]
-@[simp] theorem UInt16.and_neg_one {a : UInt16} : a &&& -1 = a := by rw [and_comm, neg_one_and]
-@[simp] theorem UInt32.and_neg_one {a : UInt32} : a &&& -1 = a := by rw [and_comm, neg_one_and]
-@[simp] theorem UInt64.and_neg_one {a : UInt64} : a &&& -1 = a := by rw [and_comm, neg_one_and]
-@[simp] theorem USize.and_neg_one {a : USize} : a &&& -1 = a := by rw [and_comm, neg_one_and]
+@[simp] theorem UInt8.and_neg_one {a : UInt8} : a &&& -1 = a := by rw [UInt8.and_comm, neg_one_and]
+@[simp] theorem UInt16.and_neg_one {a : UInt16} : a &&& -1 = a := by rw [UInt16.and_comm, neg_one_and]
+@[simp] theorem UInt32.and_neg_one {a : UInt32} : a &&& -1 = a := by rw [UInt32.and_comm, neg_one_and]
+@[simp] theorem UInt64.and_neg_one {a : UInt64} : a &&& -1 = a := by rw [UInt64.and_comm, neg_one_and]
+@[simp] theorem USize.and_neg_one {a : USize} : a &&& -1 = a := by rw [USize.and_comm, neg_one_and]
 
 instance : Std.LawfulCommIdentity (α := UInt8) (· &&& ·) (-1) where
   right_id _ := UInt8.and_neg_one
@@ -896,11 +896,11 @@ instance : Std.LawfulCommIdentity (α := USize) (· &&& ·) (-1) where
   simp only [← USize.toBitVec_inj, USize.toBitVec_and, USize.toBitVec_neg, USize.toBitVec_one,
     BitVec.negOne_eq_allOnes, BitVec.and_eq_allOnes_iff]
 
-theorem UInt8.xor_assoc (a b c : UInt8) : a ^^^ b ^^^ c = a ^^^ (b ^^^ c) := UInt8.toBitVec_inj.1 (BitVec.xor_assoc _ _ _)
-theorem UInt16.xor_assoc (a b c : UInt16) : a ^^^ b ^^^ c = a ^^^ (b ^^^ c) := UInt16.toBitVec_inj.1 (BitVec.xor_assoc _ _ _)
-theorem UInt32.xor_assoc (a b c : UInt32) : a ^^^ b ^^^ c = a ^^^ (b ^^^ c) := UInt32.toBitVec_inj.1 (BitVec.xor_assoc _ _ _)
-theorem UInt64.xor_assoc (a b c : UInt64) : a ^^^ b ^^^ c = a ^^^ (b ^^^ c) := UInt64.toBitVec_inj.1 (BitVec.xor_assoc _ _ _)
-theorem USize.xor_assoc (a b c : USize) : a ^^^ b ^^^ c = a ^^^ (b ^^^ c) := USize.toBitVec_inj.1 (BitVec.xor_assoc _ _ _)
+protected theorem UInt8.xor_assoc (a b c : UInt8) : a ^^^ b ^^^ c = a ^^^ (b ^^^ c) := UInt8.toBitVec_inj.1 (BitVec.xor_assoc _ _ _)
+protected theorem UInt16.xor_assoc (a b c : UInt16) : a ^^^ b ^^^ c = a ^^^ (b ^^^ c) := UInt16.toBitVec_inj.1 (BitVec.xor_assoc _ _ _)
+protected theorem UInt32.xor_assoc (a b c : UInt32) : a ^^^ b ^^^ c = a ^^^ (b ^^^ c) := UInt32.toBitVec_inj.1 (BitVec.xor_assoc _ _ _)
+protected theorem UInt64.xor_assoc (a b c : UInt64) : a ^^^ b ^^^ c = a ^^^ (b ^^^ c) := UInt64.toBitVec_inj.1 (BitVec.xor_assoc _ _ _)
+protected theorem USize.xor_assoc (a b c : USize) : a ^^^ b ^^^ c = a ^^^ (b ^^^ c) := USize.toBitVec_inj.1 (BitVec.xor_assoc _ _ _)
 
 instance : Std.Associative (α := UInt8) (· ^^^ ·) := ⟨UInt8.xor_assoc⟩
 instance : Std.Associative (α := UInt16) (· ^^^ ·) := ⟨UInt16.xor_assoc⟩
@@ -908,11 +908,11 @@ instance : Std.Associative (α := UInt32) (· ^^^ ·) := ⟨UInt32.xor_assoc⟩
 instance : Std.Associative (α := UInt64) (· ^^^ ·) := ⟨UInt64.xor_assoc⟩
 instance : Std.Associative (α := USize) (· ^^^ ·) := ⟨USize.xor_assoc⟩
 
-theorem UInt8.xor_comm (a b : UInt8) : a ^^^ b = b ^^^ a := UInt8.toBitVec_inj.1 (BitVec.xor_comm _ _)
-theorem UInt16.xor_comm (a b : UInt16) : a ^^^ b = b ^^^ a := UInt16.toBitVec_inj.1 (BitVec.xor_comm _ _)
-theorem UInt32.xor_comm (a b : UInt32) : a ^^^ b = b ^^^ a := UInt32.toBitVec_inj.1 (BitVec.xor_comm _ _)
-theorem UInt64.xor_comm (a b : UInt64) : a ^^^ b = b ^^^ a := UInt64.toBitVec_inj.1 (BitVec.xor_comm _ _)
-theorem USize.xor_comm (a b : USize) : a ^^^ b = b ^^^ a := USize.toBitVec_inj.1 (BitVec.xor_comm _ _)
+protected theorem UInt8.xor_comm (a b : UInt8) : a ^^^ b = b ^^^ a := UInt8.toBitVec_inj.1 (BitVec.xor_comm _ _)
+protected theorem UInt16.xor_comm (a b : UInt16) : a ^^^ b = b ^^^ a := UInt16.toBitVec_inj.1 (BitVec.xor_comm _ _)
+protected theorem UInt32.xor_comm (a b : UInt32) : a ^^^ b = b ^^^ a := UInt32.toBitVec_inj.1 (BitVec.xor_comm _ _)
+protected theorem UInt64.xor_comm (a b : UInt64) : a ^^^ b = b ^^^ a := UInt64.toBitVec_inj.1 (BitVec.xor_comm _ _)
+protected theorem USize.xor_comm (a b : USize) : a ^^^ b = b ^^^ a := USize.toBitVec_inj.1 (BitVec.xor_comm _ _)
 
 instance : Std.Commutative (α := UInt8) (· ^^^ ·) := ⟨UInt8.xor_comm⟩
 instance : Std.Commutative (α := UInt16) (· ^^^ ·) := ⟨UInt16.xor_comm⟩
@@ -920,23 +920,23 @@ instance : Std.Commutative (α := UInt32) (· ^^^ ·) := ⟨UInt32.xor_comm⟩
 instance : Std.Commutative (α := UInt64) (· ^^^ ·) := ⟨UInt64.xor_comm⟩
 instance : Std.Commutative (α := USize) (· ^^^ ·) := ⟨USize.xor_comm⟩
 
-@[simp] theorem UInt8.xor_self {a : UInt8} : a ^^^ a = 0 := UInt8.toBitVec_inj.1 BitVec.xor_self
-@[simp] theorem UInt16.xor_self {a : UInt16} : a ^^^ a = 0 := UInt16.toBitVec_inj.1 BitVec.xor_self
-@[simp] theorem UInt32.xor_self {a : UInt32} : a ^^^ a = 0 := UInt32.toBitVec_inj.1 BitVec.xor_self
-@[simp] theorem UInt64.xor_self {a : UInt64} : a ^^^ a = 0 := UInt64.toBitVec_inj.1 BitVec.xor_self
-@[simp] theorem USize.xor_self {a : USize} : a ^^^ a = 0 := USize.toBitVec_inj.1 BitVec.xor_self
+@[simp] protected theorem UInt8.xor_self {a : UInt8} : a ^^^ a = 0 := UInt8.toBitVec_inj.1 BitVec.xor_self
+@[simp] protected theorem UInt16.xor_self {a : UInt16} : a ^^^ a = 0 := UInt16.toBitVec_inj.1 BitVec.xor_self
+@[simp] protected theorem UInt32.xor_self {a : UInt32} : a ^^^ a = 0 := UInt32.toBitVec_inj.1 BitVec.xor_self
+@[simp] protected theorem UInt64.xor_self {a : UInt64} : a ^^^ a = 0 := UInt64.toBitVec_inj.1 BitVec.xor_self
+@[simp] protected theorem USize.xor_self {a : USize} : a ^^^ a = 0 := USize.toBitVec_inj.1 BitVec.xor_self
 
-@[simp] theorem UInt8.xor_zero {a : UInt8} : a ^^^ 0 = a := UInt8.toBitVec_inj.1 BitVec.xor_zero
-@[simp] theorem UInt16.xor_zero {a : UInt16} : a ^^^ 0 = a := UInt16.toBitVec_inj.1 BitVec.xor_zero
-@[simp] theorem UInt32.xor_zero {a : UInt32} : a ^^^ 0 = a := UInt32.toBitVec_inj.1 BitVec.xor_zero
-@[simp] theorem UInt64.xor_zero {a : UInt64} : a ^^^ 0 = a := UInt64.toBitVec_inj.1 BitVec.xor_zero
-@[simp] theorem USize.xor_zero {a : USize} : a ^^^ 0 = a := USize.toBitVec_inj.1 BitVec.xor_zero
+@[simp] protected theorem UInt8.xor_zero {a : UInt8} : a ^^^ 0 = a := UInt8.toBitVec_inj.1 BitVec.xor_zero
+@[simp] protected theorem UInt16.xor_zero {a : UInt16} : a ^^^ 0 = a := UInt16.toBitVec_inj.1 BitVec.xor_zero
+@[simp] protected theorem UInt32.xor_zero {a : UInt32} : a ^^^ 0 = a := UInt32.toBitVec_inj.1 BitVec.xor_zero
+@[simp] protected theorem UInt64.xor_zero {a : UInt64} : a ^^^ 0 = a := UInt64.toBitVec_inj.1 BitVec.xor_zero
+@[simp] protected theorem USize.xor_zero {a : USize} : a ^^^ 0 = a := USize.toBitVec_inj.1 BitVec.xor_zero
 
-@[simp] theorem UInt8.zero_xor {a : UInt8} : 0 ^^^ a = a := UInt8.toBitVec_inj.1 BitVec.zero_xor
-@[simp] theorem UInt16.zero_xor {a : UInt16} : 0 ^^^ a = a := UInt16.toBitVec_inj.1 BitVec.zero_xor
-@[simp] theorem UInt32.zero_xor {a : UInt32} : 0 ^^^ a = a := UInt32.toBitVec_inj.1 BitVec.zero_xor
-@[simp] theorem UInt64.zero_xor {a : UInt64} : 0 ^^^ a = a := UInt64.toBitVec_inj.1 BitVec.zero_xor
-@[simp] theorem USize.zero_xor {a : USize} : 0 ^^^ a = a := USize.toBitVec_inj.1 BitVec.zero_xor
+@[simp] protected theorem UInt8.zero_xor {a : UInt8} : 0 ^^^ a = a := UInt8.toBitVec_inj.1 BitVec.zero_xor
+@[simp] protected theorem UInt16.zero_xor {a : UInt16} : 0 ^^^ a = a := UInt16.toBitVec_inj.1 BitVec.zero_xor
+@[simp] protected theorem UInt32.zero_xor {a : UInt32} : 0 ^^^ a = a := UInt32.toBitVec_inj.1 BitVec.zero_xor
+@[simp] protected theorem UInt64.zero_xor {a : UInt64} : 0 ^^^ a = a := UInt64.toBitVec_inj.1 BitVec.zero_xor
+@[simp] protected theorem USize.zero_xor {a : USize} : 0 ^^^ a = a := USize.toBitVec_inj.1 BitVec.zero_xor
 
 @[simp] theorem UInt8.neg_one_xor {a : UInt8} : -1 ^^^ a = ~~~a := by
   rw [← UInt8.toBitVec_inj, UInt8.toBitVec_xor, UInt8.toBitVec_neg, UInt8.toBitVec_one,
@@ -954,11 +954,11 @@ instance : Std.Commutative (α := USize) (· ^^^ ·) := ⟨USize.xor_comm⟩
   rw [← USize.toBitVec_inj, USize.toBitVec_xor, USize.toBitVec_neg, USize.toBitVec_one,
     BitVec.negOne_eq_allOnes, BitVec.allOnes_xor, USize.toBitVec_not]
 
-@[simp] theorem UInt8.xor_neg_one {a : UInt8} : a ^^^ -1 = ~~~a := by rw [xor_comm, neg_one_xor]
-@[simp] theorem UInt16.xor_neg_one {a : UInt16} : a ^^^ -1 = ~~~a := by rw [xor_comm, neg_one_xor]
-@[simp] theorem UInt32.xor_neg_one {a : UInt32} : a ^^^ -1 = ~~~a := by rw [xor_comm, neg_one_xor]
-@[simp] theorem UInt64.xor_neg_one {a : UInt64} : a ^^^ -1 = ~~~a := by rw [xor_comm, neg_one_xor]
-@[simp] theorem USize.xor_neg_one {a : USize} : a ^^^ -1 = ~~~a := by rw [xor_comm, neg_one_xor]
+@[simp] theorem UInt8.xor_neg_one {a : UInt8} : a ^^^ -1 = ~~~a := by rw [UInt8.xor_comm, neg_one_xor]
+@[simp] theorem UInt16.xor_neg_one {a : UInt16} : a ^^^ -1 = ~~~a := by rw [UInt16.xor_comm, neg_one_xor]
+@[simp] theorem UInt32.xor_neg_one {a : UInt32} : a ^^^ -1 = ~~~a := by rw [UInt32.xor_comm, neg_one_xor]
+@[simp] theorem UInt64.xor_neg_one {a : UInt64} : a ^^^ -1 = ~~~a := by rw [UInt64.xor_comm, neg_one_xor]
+@[simp] theorem USize.xor_neg_one {a : USize} : a ^^^ -1 = ~~~a := by rw [USize.xor_comm, neg_one_xor]
 
 instance : Std.LawfulCommIdentity (α := UInt8) (· ^^^ ·) 0 where
   right_id _ := UInt8.xor_zero

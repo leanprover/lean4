@@ -439,7 +439,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment)
     · rw [goCache_denote_eq]
       exact hinv
     · symm
-      apply BitVec.getLsbD_ge
+      apply BitVec.getLsbD_of_ge
       omega
   · rw [eval_shiftLeft, ← hres, denote_blastShiftLeft]
     · intro idx hidx

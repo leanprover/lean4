@@ -115,7 +115,7 @@ theorem go_denote_eq {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr + 1 ≤
     rw [hacc]
     rw [BitVec.mulRec_succ_eq]
     have : rexpr.getLsbD (curr + 1) = false := by
-      apply BitVec.getLsbD_ge
+      apply BitVec.getLsbD_of_ge
       omega
     simp [this]
 termination_by w - curr

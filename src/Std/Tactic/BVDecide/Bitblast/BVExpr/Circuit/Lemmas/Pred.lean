@@ -109,7 +109,7 @@ theorem denote_bitblast (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig)
     · rw [BVExpr.denote_bitblast]
       exact hinv
     · symm
-      apply BitVec.getLsbD_ge
+      apply BitVec.getLsbD_of_ge
       omega
 
 end BVPred

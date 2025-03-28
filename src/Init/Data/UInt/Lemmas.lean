@@ -182,7 +182,7 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
       · apply toNat_lt_size
       · simpa using h2
 
-  open $typeName (toNat_mod_lt) in
+  open $typeName (toNat_mod_lt modn) in
   set_option linter.deprecated false in
   @[deprecated toNat_mod_lt (since := "2024-09-24")]
   protected theorem modn_lt {m : Nat} : ∀ (u : $typeName), m > 0 → toNat (u % m) < m := by

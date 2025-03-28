@@ -6,6 +6,7 @@ Authors: Markus Himmel, Paul Reichert, Robin Arnez
 prelude
 import Init.Data.Ord
 import Init.Data.SInt.Lemmas
+import Init.Data.Vector.Lemmas
 
 /-!
 # Type classes related to `Ord`
@@ -679,8 +680,6 @@ instance : LawfulEqOrd (BitVec n) where
 
 end BitVec
 
--- TODO: Array, Vector
-
 namespace Option
 
 instance {α} [Ord α] [OrientedOrd α] : OrientedOrd (Option α) where
@@ -865,8 +864,8 @@ instance [LawfulEqCmp cmp] : LawfulEqCmp (Array.compareLex cmp) where
 
 instance [BEq α] [LawfulBEqCmp cmp] : LawfulBEqCmp (Array.compareLex cmp) where
   compare_eq_iff_beq {a b} := by
-    simp only [Array.compareLex_eq_compareLex_toList, Array.beq_eq_beq_toList,
-      LawfulBEqCmp.compare_eq_iff_beq]
+    simp only [Array.compareLex_eq_compareLex_toList, BEq.beq, ← Array.isEqv_toList,
+      LawfulBEqCmp.compare_eq_iff_beq, List.beq_eq_isEqv]
 
 instance [OrientedCmp cmp] : OrientedCmp (Array.compareLex cmp) where
   eq_swap {a b} := by simp [Array.compareLex_eq_compareLex_toList, ← OrientedCmp.eq_swap]
@@ -892,3 +891,42 @@ instance [Ord α] [TransOrd α] : TransOrd (Array α) :=
   inferInstanceAs <| TransCmp (Array.compareLex compare)
 
 end Array
+
+namespace Vector
+
+open Std
+
+variable {α} {cmp : α → α → Ordering}
+
+instance [ReflCmp cmp] {n} : ReflCmp (Vector.compareLex cmp (n := n)) where
+  compare_self := ReflCmp.compare_self (cmp := Array.compareLex cmp)
+
+instance [LawfulEqCmp cmp] {n} : LawfulEqCmp (Vector.compareLex cmp (n := n)) where
+  eq_of_compare := by simp [Vector.compareLex_eq_compareLex_toArray]
+
+instance [BEq α] [LawfulBEqCmp cmp] {n} : LawfulBEqCmp (Vector.compareLex cmp (n := n)) where
+  compare_eq_iff_beq := by simp [Vector.compareLex_eq_compareLex_toArray,
+    LawfulBEqCmp.compare_eq_iff_beq]
+
+instance [OrientedCmp cmp] {n} : OrientedCmp (Vector.compareLex cmp (n := n)) where
+  eq_swap := OrientedCmp.eq_swap (cmp := Array.compareLex cmp)
+
+instance [TransCmp cmp] {n} : TransCmp (Vector.compareLex cmp (n := n)) where
+  isLE_trans := TransCmp.isLE_trans (cmp := Array.compareLex cmp)
+
+instance [Ord α] [ReflOrd α] {n} : ReflOrd (Vector α n) :=
+  inferInstanceAs <| ReflCmp (Vector.compareLex compare)
+
+instance [Ord α] [LawfulEqOrd α] {n} : LawfulEqOrd (Vector α n) :=
+  inferInstanceAs <| LawfulEqCmp (Vector.compareLex compare)
+
+instance [Ord α] [BEq α] [LawfulBEqOrd α] {n} : LawfulBEqOrd (Vector α n) :=
+  inferInstanceAs <| LawfulBEqCmp (Vector.compareLex compare)
+
+instance [Ord α] [OrientedOrd α] {n} : OrientedOrd (Vector α n) :=
+  inferInstanceAs <| OrientedCmp (Vector.compareLex compare)
+
+instance [Ord α] [TransOrd α] {n} : TransOrd (Vector α n) :=
+  inferInstanceAs <| TransCmp (Vector.compareLex compare)
+
+end Vector

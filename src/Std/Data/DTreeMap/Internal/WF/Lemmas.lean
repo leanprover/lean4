@@ -359,7 +359,7 @@ theorem ordered_updateAtKey [Ord α] [TransOrd α] {k : α}
 ## Connecting the tree maps machinery to the hash map machinery
 -/
 
-attribute [local instance] beqOfOrd equivBEq_of_transOrd lawfulBEq_of_lawfulEqOrd
+attribute [local instance 0] beqOfOrd equivBEq_of_transOrd lawfulBEq_of_lawfulEqOrd
 attribute [local simp] beq_eq
 
 open Std.Internal.List

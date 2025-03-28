@@ -22,7 +22,7 @@ namespace Std.DTreeMap.Internal
 open Std.Internal.List
 open Std.Internal (beqOfOrd beq_eq)
 
-attribute [local instance] beqOfOrd
+attribute [local instance 0] beqOfOrd
 
 /--
 Type for representing the place in a tree map where a mapping for `k` could live.

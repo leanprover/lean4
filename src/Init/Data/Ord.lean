@@ -8,6 +8,7 @@ prelude
 import Init.Data.String
 import Init.Data.Array.Basic
 import Init.Data.SInt.Basic
+import Init.Data.Vector
 
 /--
 The result of a comparison according to a total order.
@@ -725,6 +726,32 @@ protected theorem compare_eq_compare_toList {α} [Ord α] {a₁ a₂ : Array α}
   Array.compareLex_eq_compareLex_toList
 
 end Array
+
+namespace Vector
+
+protected def Vector.compareLex {α n} (cmp : α → α → Ordering) (a b : Vector α n) : Ordering :=
+  Array.compareLex cmp a.toArray b.toArray
+
+instance {α n} [Ord α] : Ord (Vector α n) where
+  compare := Vector.compareLex compare
+
+protected theorem compareLex_eq_compareLex_toArray {α n cmp} {a b : Vector α n} :
+    Vector.compareLex cmp a b = Array.compareLex cmp a.toArray b.toArray :=
+  rfl
+
+protected theorem compareLex_eq_compareLex_toList {α n cmp} {a b : Vector α n} :
+    Vector.compareLex cmp a b = List.compareLex cmp a.toList b.toList :=
+  Array.compareLex_eq_compareLex_toList
+
+protected theorem compare_eq_compare_toArray {α n} [Ord α] {a b : Vector α n} :
+    compare a b = compare a.toArray b.toArray :=
+  rfl
+
+protected theorem compare_eq_compare_toList {α n} [Ord α] {a b : Vector α n} :
+    compare a b = compare a.toList b.toList :=
+  Array.compare_eq_compare_toList
+
+end Vector
 
 /-- The lexicographic order on pairs. -/
 def lexOrd [Ord α] [Ord β] : Ord (α × β) where

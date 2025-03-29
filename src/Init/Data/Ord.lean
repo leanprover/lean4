@@ -7,6 +7,8 @@ Authors: Dany Fabian, Sebastian Ullrich
 prelude
 import Init.Data.String
 import Init.Data.Array.Basic
+import Init.Data.SInt.Basic
+import Init.Data.Vector
 
 /--
 The result of a comparison according to a total order.
@@ -530,12 +532,231 @@ instance : Ord USize where
 instance : Ord Char where
   compare x y := compareOfLessAndEq x y
 
+instance : Ord Int8 where
+  compare x y := compareOfLessAndEq x y
+
+instance : Ord Int16 where
+  compare x y := compareOfLessAndEq x y
+
+instance : Ord Int32 where
+  compare x y := compareOfLessAndEq x y
+
+instance : Ord Int64 where
+  compare x y := compareOfLessAndEq x y
+
+instance : Ord ISize where
+  compare x y := compareOfLessAndEq x y
+
+instance {n} : Ord (BitVec n) where
+  compare x y := compareOfLessAndEq x y
+
 instance [Ord α] : Ord (Option α) where
   compare
   | none,   none   => .eq
   | none,   some _ => .lt
   | some _, none   => .gt
   | some x, some y => compare x y
+
+instance : Ord Ordering where
+  compare := compareOn (·.toCtorIdx)
+
+namespace List
+
+@[specialize]
+protected def compareLex {α} (cmp : α → α → Ordering) :
+    List α → List α → Ordering
+  | [], [] => .eq
+  | [], _ => .lt
+  | _, [] => .gt
+  | x :: xs, y :: ys => match cmp x y with
+    | .lt => .lt
+    | .eq => xs.compareLex cmp ys
+    | .gt => .gt
+
+instance {α} [Ord α] : Ord (List α) where
+  compare := List.compareLex compare
+
+protected theorem compare_eq_compareLex {α} [Ord α] :
+    compare (α := List α) = List.compareLex compare := rfl
+
+protected theorem compareLex_cons_cons {α} {cmp} {x y : α} {xs ys : List α} :
+    (x :: xs).compareLex cmp (y :: ys) = (cmp x y).then (xs.compareLex cmp ys) := by
+  rw [List.compareLex]
+  split <;> simp_all
+
+@[simp]
+protected theorem compare_cons_cons {α} [Ord α] {x y : α} {xs ys : List α} :
+    compare (x :: xs) (y :: ys) = (compare x y).then (compare xs ys) :=
+  List.compareLex_cons_cons
+
+protected theorem compareLex_nil_cons {α} {cmp} {x : α} {xs : List α} :
+    [].compareLex cmp (x :: xs) = .lt :=
+  rfl
+
+@[simp]
+protected theorem compare_nil_cons {α} [Ord α] {x : α} {xs : List α} :
+    compare [] (x :: xs) = .lt :=
+  rfl
+
+protected theorem compareLex_cons_nil {α} {cmp} {x : α} {xs : List α} :
+    (x :: xs).compareLex cmp [] = .gt :=
+  rfl
+
+@[simp]
+protected theorem compare_cons_nil {α} [Ord α] {x : α} {xs : List α} :
+    compare (x :: xs) [] = .gt :=
+  rfl
+
+protected theorem compareLex_nil_nil {α} {cmp} :
+    [].compareLex (α := α) cmp [] = .eq :=
+  rfl
+
+@[simp]
+protected theorem compare_nil_nil {α} [Ord α] :
+    compare (α := List α) [] [] = .eq :=
+  rfl
+
+protected theorem isLE_compareLex_nil_left {α} {cmp} {xs : List α} :
+    (List.compareLex (cmp := cmp) [] xs).isLE := by
+  cases xs <;> simp [List.compareLex_nil_nil, List.compareLex_nil_cons]
+
+protected theorem isLE_compare_nil_left {α} [Ord α] {xs : List α} :
+    (compare [] xs).isLE :=
+  List.isLE_compareLex_nil_left
+
+protected theorem isLE_compareLex_nil_right {α} {cmp} {xs : List α} :
+    (List.compareLex (cmp := cmp) xs []).isLE ↔ xs = [] := by
+  cases xs <;> simp [List.compareLex_nil_nil, List.compareLex_cons_nil]
+
+@[simp]
+protected theorem isLE_compare_nil_right {α} [Ord α] {xs : List α} :
+    (compare xs []).isLE ↔ xs = [] :=
+  List.isLE_compareLex_nil_right
+
+protected theorem isGE_compareLex_nil_left {α} {cmp} {xs : List α} :
+    (List.compareLex (cmp := cmp) [] xs).isGE ↔ xs = [] := by
+  cases xs <;> simp [List.compareLex_nil_nil, List.compareLex_nil_cons]
+
+@[simp]
+protected theorem isGE_compare_nil_left {α} [Ord α] {xs : List α} :
+    (compare [] xs).isGE ↔ xs = [] :=
+  List.isGE_compareLex_nil_left
+
+protected theorem isGE_compareLex_nil_right {α} {cmp} {xs : List α} :
+    (List.compareLex (cmp := cmp) xs []).isGE := by
+  cases xs <;> simp [List.compareLex_nil_nil, List.compareLex_cons_nil]
+
+protected theorem isGE_compare_nil_right {α} [Ord α] {xs : List α} :
+    (compare xs []).isGE :=
+  List.isGE_compareLex_nil_right
+
+protected theorem compareLex_nil_left_eq_eq {α} {cmp} {xs : List α} :
+    List.compareLex cmp [] xs = .eq ↔ xs = [] := by
+  cases xs <;> simp [List.compareLex_nil_nil, List.compareLex_nil_cons]
+
+@[simp]
+protected theorem compare_nil_left_eq_eq {α} [Ord α] {xs : List α} :
+    compare [] xs = .eq ↔ xs = [] :=
+  List.compareLex_nil_left_eq_eq
+
+protected theorem compareLex_nil_right_eq_eq {α} {cmp} {xs : List α} :
+    xs.compareLex cmp [] = .eq ↔ xs = [] := by
+  cases xs <;> simp [List.compareLex_nil_nil, List.compareLex_cons_nil]
+
+@[simp]
+protected theorem compare_nil_right_eq_eq {α} [Ord α] {xs : List α} :
+    compare xs [] = .eq ↔ xs = [] :=
+  List.compareLex_nil_right_eq_eq
+
+end List
+
+namespace Array
+
+@[specialize]
+protected def compareLex {α} (cmp : α → α → Ordering) (a₁ a₂ : Array α) : Ordering :=
+  go 0
+where go i :=
+  if h₁ : a₁.size <= i then
+    if a₂.size <= i then .eq else .lt
+  else
+    if h₂ : a₂.size <= i then
+      .gt
+    else match cmp a₁[i] a₂[i] with
+      | .lt => .lt
+      | .eq => go (i + 1)
+      | .gt => .gt
+termination_by a₁.size - i
+
+instance {α} [Ord α] : Ord (Array α) where
+  compare := Array.compareLex compare
+
+protected theorem compare_eq_compareLex {α} [Ord α] :
+    compare (α := Array α) = Array.compareLex compare := rfl
+
+private theorem compareLex.go_succ {α} {cmp} {x₁ x₂} {a₁ a₂ : List α} {i} :
+    compareLex.go cmp (x₁ :: a₁).toArray (x₂ :: a₂).toArray (i + 1) =
+      compareLex.go cmp a₁.toArray a₂.toArray i := by
+  induction i using Array.compareLex.go.induct cmp a₁.toArray a₂.toArray
+  all_goals try
+    conv => congr <;> rw [compareLex.go]
+    simp
+    repeat' split <;> (try simp_all; done)
+
+protected theorem _root_.List.compareLex_eq_compareLex_toArray {α} {cmp} {l₁ l₂ : List α} :
+    List.compareLex cmp l₁ l₂ = Array.compareLex cmp l₁.toArray l₂.toArray := by
+  simp only [Array.compareLex]
+  induction l₁ generalizing l₂ with
+  | nil =>
+    cases l₂
+    · simp [Array.compareLex.go, List.compareLex_nil_nil]
+    · simp [Array.compareLex.go, List.compareLex_nil_cons]
+  | cons x xs ih =>
+    cases l₂
+    · simp [Array.compareLex.go, List.compareLex_cons_nil]
+    · rw [Array.compareLex.go, List.compareLex_cons_cons]
+      simp only [List.size_toArray, List.length_cons, Nat.le_zero_eq, Nat.add_one_ne_zero,
+        ↓reduceDIte, List.getElem_toArray, List.getElem_cons_zero, Nat.zero_add]
+      split <;> simp_all [compareLex.go_succ]
+
+protected theorem _root_.List.compare_eq_compare_toArray {α} [Ord α] {l₁ l₂ : List α} :
+    compare l₁ l₂ = compare l₁.toArray l₂.toArray :=
+  List.compareLex_eq_compareLex_toArray
+
+protected theorem compareLex_eq_compareLex_toList {α} {cmp} {a₁ a₂ : Array α} :
+    Array.compareLex cmp a₁ a₂ = List.compareLex cmp a₁.toList a₂.toList := by
+  rw [List.compareLex_eq_compareLex_toArray]
+
+protected theorem compare_eq_compare_toList {α} [Ord α] {a₁ a₂ : Array α} :
+    compare a₁ a₂ = compare a₁.toList a₂.toList :=
+  Array.compareLex_eq_compareLex_toList
+
+end Array
+
+namespace Vector
+
+protected def compareLex {α n} (cmp : α → α → Ordering) (a b : Vector α n) : Ordering :=
+  Array.compareLex cmp a.toArray b.toArray
+
+instance {α n} [Ord α] : Ord (Vector α n) where
+  compare := Vector.compareLex compare
+
+protected theorem compareLex_eq_compareLex_toArray {α n cmp} {a b : Vector α n} :
+    Vector.compareLex cmp a b = Array.compareLex cmp a.toArray b.toArray :=
+  rfl
+
+protected theorem compareLex_eq_compareLex_toList {α n cmp} {a b : Vector α n} :
+    Vector.compareLex cmp a b = List.compareLex cmp a.toList b.toList :=
+  Array.compareLex_eq_compareLex_toList
+
+protected theorem compare_eq_compare_toArray {α n} [Ord α] {a b : Vector α n} :
+    compare a b = compare a.toArray b.toArray :=
+  rfl
+
+protected theorem compare_eq_compare_toList {α n} [Ord α] {a b : Vector α n} :
+    compare a b = compare a.toList b.toList :=
+  Array.compare_eq_compare_toList
+
+end Vector
 
 /-- The lexicographic order on pairs. -/
 def lexOrd [Ord α] [Ord β] : Ord (α × β) where

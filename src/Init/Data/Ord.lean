@@ -702,8 +702,8 @@ private theorem compareLex.go_succ {α} {cmp} {x₁ x₂} {a₁ a₂ : List α} 
     simp
     repeat' split <;> (try simp_all; done)
 
-private theorem compareLex_toArray_eq_listCompareLex {α} {cmp} {l₁ l₂ : List α} :
-    Array.compareLex cmp l₁.toArray l₂.toArray = List.compareLex cmp l₁ l₂ := by
+protected theorem _root_.List.compareLex_eq_compareLex_toArray {α} {cmp} {l₁ l₂ : List α} :
+    List.compareLex cmp l₁ l₂ = Array.compareLex cmp l₁.toArray l₂.toArray := by
   simp only [Array.compareLex]
   induction l₁ generalizing l₂ with
   | nil =>
@@ -718,9 +718,13 @@ private theorem compareLex_toArray_eq_listCompareLex {α} {cmp} {l₁ l₂ : Lis
         ↓reduceDIte, List.getElem_toArray, List.getElem_cons_zero, Nat.zero_add]
       split <;> simp_all [compareLex.go_succ]
 
+protected theorem _root_.List.compare_eq_compare_toArray {α} [Ord α] {l₁ l₂ : List α} :
+    compare l₁ l₂ = compare l₁.toArray l₂.toArray :=
+  List.compareLex_eq_compareLex_toArray
+
 protected theorem compareLex_eq_compareLex_toList {α} {cmp} {a₁ a₂ : Array α} :
     Array.compareLex cmp a₁ a₂ = List.compareLex cmp a₁.toList a₂.toList := by
-  rw [← compareLex_toArray_eq_listCompareLex]
+  rw [List.compareLex_eq_compareLex_toArray]
 
 protected theorem compare_eq_compare_toList {α} [Ord α] {a₁ a₂ : Array α} :
     compare a₁ a₂ = compare a₁.toList a₂.toList :=

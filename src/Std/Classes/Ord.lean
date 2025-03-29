@@ -616,10 +616,10 @@ namespace Int8
 
 instance : TransOrd Int8 :=
   TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
-    Int8.le_antisymm Int8.le_trans Int8.le_total (Int8.not_le ..)
+    Int8.le_antisymm Int8.le_trans Int8.le_total Int8.not_le
 
 instance : LawfulEqOrd Int8 where
-  eq_of_compare h := compareOfLessAndEq_eq_eq Int8.le_refl (Int8.not_le ..) |>.mp h
+  eq_of_compare h := compareOfLessAndEq_eq_eq Int8.le_refl Int8.not_le |>.mp h
 
 end Int8
 
@@ -627,10 +627,10 @@ namespace Int16
 
 instance : TransOrd Int16 :=
   TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
-    Int16.le_antisymm Int16.le_trans Int16.le_total (Int16.not_le ..)
+    Int16.le_antisymm Int16.le_trans Int16.le_total Int16.not_le
 
 instance : LawfulEqOrd Int16 where
-  eq_of_compare h := compareOfLessAndEq_eq_eq Int16.le_refl (Int16.not_le ..) |>.mp h
+  eq_of_compare h := compareOfLessAndEq_eq_eq Int16.le_refl Int16.not_le |>.mp h
 
 end Int16
 
@@ -638,10 +638,10 @@ namespace Int32
 
 instance : TransOrd Int32 :=
   TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
-    Int32.le_antisymm Int32.le_trans Int32.le_total (Int32.not_le ..)
+    Int32.le_antisymm Int32.le_trans Int32.le_total Int32.not_le
 
 instance : LawfulEqOrd Int32 where
-  eq_of_compare h := compareOfLessAndEq_eq_eq Int32.le_refl (Int32.not_le ..) |>.mp h
+  eq_of_compare h := compareOfLessAndEq_eq_eq Int32.le_refl Int32.not_le |>.mp h
 
 end Int32
 
@@ -649,10 +649,10 @@ namespace Int64
 
 instance : TransOrd Int64 :=
   TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
-    Int64.le_antisymm Int64.le_trans Int64.le_total (Int64.not_le ..)
+    Int64.le_antisymm Int64.le_trans Int64.le_total Int64.not_le
 
 instance : LawfulEqOrd Int64 where
-  eq_of_compare h := compareOfLessAndEq_eq_eq Int64.le_refl (Int64.not_le ..) |>.mp h
+  eq_of_compare h := compareOfLessAndEq_eq_eq Int64.le_refl Int64.not_le |>.mp h
 
 end Int64
 
@@ -660,10 +660,10 @@ namespace ISize
 
 instance : TransOrd ISize :=
   TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
-    ISize.le_antisymm ISize.le_trans ISize.le_total (ISize.not_le ..)
+    ISize.le_antisymm ISize.le_trans ISize.le_total ISize.not_le
 
 instance : LawfulEqOrd ISize where
-  eq_of_compare h := compareOfLessAndEq_eq_eq ISize.le_refl (ISize.not_le ..) |>.mp h
+  eq_of_compare h := compareOfLessAndEq_eq_eq ISize.le_refl ISize.not_le |>.mp h
 
 end ISize
 
@@ -673,10 +673,10 @@ variable {n : Nat}
 
 instance : TransOrd (BitVec n) :=
   TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
-    BitVec.le_antisymm BitVec.le_trans BitVec.le_total (BitVec.not_le ..)
+    BitVec.le_antisymm BitVec.le_trans BitVec.le_total BitVec.not_le
 
 instance : LawfulEqOrd (BitVec n) where
-  eq_of_compare h := compareOfLessAndEq_eq_eq BitVec.le_refl (BitVec.not_le ..) |>.mp h
+  eq_of_compare h := compareOfLessAndEq_eq_eq BitVec.le_refl BitVec.not_le |>.mp h
 
 end BitVec
 

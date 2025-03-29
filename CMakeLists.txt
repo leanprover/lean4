@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.11)
+
+option(USE_MIMALLOC "use mimalloc" ON)
+
 # store all variables passed on the command line into CL_ARGS so we can pass them to the stage builds
 # https://stackoverflow.com/a/48555098/161659
 # MUST be done before call to 'project'
@@ -14,8 +17,7 @@ foreach(var ${vars})
     if("${var}" MATCHES "USE_GMP|CHECK_OLEAN_VERSION")
       # must forward options that generate incompatible .olean format
       list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
-    endif()
-    if("${var}" MATCHES "LLVM*|PKG_CONFIG|USE_LAKE")
+    elseif("${var}" MATCHES "LLVM*|PKG_CONFIG|USE_LAKE|USE_MIMALLOC")
       list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
     endif()
   elseif(("${var}" MATCHES "CMAKE_.*") AND NOT ("${var}" MATCHES "CMAKE_BUILD_TYPE") AND NOT ("${var}" MATCHES "CMAKE_HOME_DIRECTORY"))
@@ -55,9 +57,22 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
       BUILD_IN_SOURCE ON
       INSTALL_COMMAND "")
     set(CADICAL ${CMAKE_BINARY_DIR}/cadical/cadical${CMAKE_EXECUTABLE_SUFFIX} CACHE FILEPATH "path to cadical binary" FORCE)
-    set(EXTRA_DEPENDS "cadical")
+    list(APPEND EXTRA_DEPENDS cadical)
   endif()
   list(APPEND CL_ARGS -DCADICAL=${CADICAL})
+endif()
+
+if (USE_MIMALLOC)
+  ExternalProject_add(mimalloc
+    PREFIX mimalloc
+    GIT_REPOSITORY https://github.com/microsoft/mimalloc
+    GIT_TAG v2.2.3
+    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/mimalloc -DCMAKE_INSTALL_LIBDIR=lib
+      -DMI_OVERRIDE=OFF -DMI_INSTALL_TOPLEVEL=ON
+      "-DCMAKE_C_FLAGS=-DMI_SHARED_LIB=1 -DMI_SHARED_LIB_EXPORT=1"
+    BUILD_COMMAND $(MAKE) install
+    INSTALL_COMMAND "")
+  list(APPEND EXTRA_DEPENDS mimalloc)
 endif()
 
 ExternalProject_add(stage0

@@ -1132,7 +1132,7 @@ private def mkFlatCtorExpr (levelParams : List Name) (params : Array Expr) (ctor
       | _ => pure decl.type
     let type ← zetaDeltaFVars (← instantiateMVars type) parentFVars
     let type ← replaceIndFVars type
-    return .lam decl.userName type (val.abstract #[fieldInfo.fvar]) decl.binderInfo
+    return .lam decl.userName.eraseMacroScopes type (val.abstract #[fieldInfo.fvar]) decl.binderInfo
   val ← mkLambdaFVars params val
   val ← replaceIndFVars val
   fieldNormalizeExpr val

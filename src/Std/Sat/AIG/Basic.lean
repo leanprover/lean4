@@ -38,19 +38,20 @@ The public constructor of `Fanin`.
 -/
 @[inline]
 def mk (gate : Nat) (invert : Bool) : Fanin :=
-  ⟨gate <<< 1 ||| invert.toNat⟩
+  ⟨gate * 2 ||| invert.toNat⟩
 
 /--
 Get the gate.
 -/
 @[inline]
-def gate (f : Fanin) : Nat := f.val >>> 1
+def gate (f : Fanin) : Nat := f.val / 2
 
 /--
 Get the inverter bit.
 -/
 @[inline]
-def invert (f : Fanin) : Bool := f.val.testBit 0
+def invert (f : Fanin) : Bool :=
+  1 &&& f.val != 0
 
 /--
 Flip the inverter bit according to `val`.
@@ -60,7 +61,9 @@ def flip (f : Fanin) (val : Bool) : Fanin := ⟨f.val ^^^ val.toNat⟩
 
 @[simp]
 theorem gate_mk : (Fanin.mk g i).gate = g := by
-  cases i <;> simp [Fanin.mk, Fanin.gate, Nat.shiftRight_or_distrib]
+  cases i <;>
+    simp [mk, gate, ← Nat.shiftLeft_eq _ 1, ← Nat.shiftRight_eq_div_pow _ 1,
+      Nat.shiftRight_or_distrib]
 
 @[simp]
 theorem invert_mk : (Fanin.mk g i).invert = i := by
@@ -68,11 +71,14 @@ theorem invert_mk : (Fanin.mk g i).invert = i := by
 
 @[simp]
 theorem gate_flip (f : Fanin) : (f.flip v).gate = f.gate := by
-  cases v <;> simp [flip, gate, Nat.shiftRight_xor_distrib]
+  cases v <;> simp [flip, gate, ← Nat.shiftRight_eq_div_pow _ 1, Nat.shiftRight_xor_distrib]
+
+private theorem invert_eq_testBit (f : Fanin) : f.invert = f.val.testBit 0 := by
+  simp [invert, Nat.testBit]
 
 @[simp]
 theorem invert_flip (f : Fanin) : (f.flip v).invert = f.invert ^^ v := by
-  cases v <;> simp [flip, invert]
+  cases v <;> simp [flip, invert_eq_testBit]
 
 end Fanin
 

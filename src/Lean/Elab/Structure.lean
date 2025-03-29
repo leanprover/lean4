@@ -1355,8 +1355,8 @@ private def mkRemainingProjections (levelParams : List Name) (params : Array Exp
           -- No need to zeta delta reduce; `fvarToConst` has replaced such fvars.
           let val ← fieldNormalizeExpr val (zetaDelta := false)
           fvarToConst := fvarToConst.insert field.fvar val
-          -- TODO(kmill): if it is a direct parent, add the coercion function the environment and use that instead of `val`,
-          -- and evaluate the difference.
+          -- TODO(kmill): if it is a direct parent, try adding the coercion function from the environment and use that instead of `val`.
+          -- (This should be evaluated to see if it is a good idea.)
         else
           throwError m!"(mkRemainingProjections internal error) {field.name} has no value"
 
@@ -1433,25 +1433,25 @@ def elabStructureCommand : InductiveElabDescr where
                 registerStructure view.declName fieldInfos
                 runStructElabM (init := state) do
                   mkFlatCtor levelParams params view.declName replaceIndFVars
+                  addDefaults levelParams params replaceIndFVars
+              let parentInfos ← withLCtx lctx localInsts <| runStructElabM (init := state) do
+                mkRemainingProjections levelParams params view
+              setStructureParents view.declName parentInfos
               withSaveInfoContext do  -- save new env
                 for field in view.fields do
                   -- may not exist if overriding inherited field
                   if (← getEnv).contains field.declName then
                     Term.addTermInfo' field.ref (← mkConstWithLevelParams field.declName) (isBinder := true)
-            finalize := fun levelParams params replaceIndFVars => do
-              let parentInfos ← runStructElabM (init := state) <| withLCtx lctx localInsts <| mkRemainingProjections levelParams params view
-              withSaveInfoContext do
                 -- Add terminfo for parents now that all parent projections exist.
                 for parent in parents do
                   if parent.addTermInfo then
                     Term.addTermInfo' parent.ref (← mkConstWithLevelParams parent.declName) (isBinder := true)
-              setStructureParents view.declName parentInfos
               checkResolutionOrder view.declName
-              if view.isClass then
-                addParentInstances parentInfos
-
-              runStructElabM (init := state) <| withLCtx lctx localInsts do
-                addDefaults levelParams params replaceIndFVars
+              return {
+                finalize := do
+                  if view.isClass then
+                    addParentInstances parentInfos
+              }
           }
     }
 

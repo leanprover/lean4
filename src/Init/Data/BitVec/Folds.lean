@@ -13,15 +13,18 @@ set_option linter.missingDocs true
 namespace BitVec
 
 /--
-iunfoldr is an iterative operation that applies a function `f` repeatedly.
+Constructs a bitvector by iteratively computing a state for each bit using the function `f`,
+starting with the initial state `s`. At each step, the prior state and the current bit index are
+passed to `f`, and it produces a bit along with the next state value. These bits are assembled into
+the final bitvector.
 
-It produces a sequence of state values `[s_0, s_1 .. s_w]` and a bitvector
-`v` where `f i s_i = (s_{i+1}, b_i)` and `b_i` is bit `i`th least-significant bit
-in `v` (e.g., `getLsb v i = b_i`).
+It produces a sequence of state values `[s_0, s_1 .. s_w]` and a bitvector `v` where `f i s_i =
+(s_{i+1}, b_i)` and `b_i` is bit `i`th least-significant bit in `v` (e.g., `getLsb v i = b_i`).
 
-Theorems involving `iunfoldr` can be eliminated using `iunfoldr_replace` below.
+The theorem `iunfoldr_replace` allows uses of `BitVec.iunfoldr` to be replaced wiht declarative
+specifications that are easier to reason about.
 -/
-def iunfoldr (f : Fin w -> α → α × Bool) (s : α) : α × BitVec w :=
+def iunfoldr (f : Fin w → α → α × Bool) (s : α) : α × BitVec w :=
   Fin.hIterate (fun i => α × BitVec i) (s, nil) fun i q =>
     (fun p => ⟨p.fst, cons p.snd q.snd⟩) (f i q.fst)
 
@@ -96,7 +99,12 @@ theorem iunfoldr_getLsbD {f : Fin w → α → α × Bool} (state : Nat → α) 
   exact (iunfoldr_getLsbD' state ind).1 i
 
 /--
-Correctness theorem for `iunfoldr`.
+Given a function `state` that provides the correct state for every potential iteration count and a
+function that computes these states from the correct initial state, the result of applying
+`BitVec.iunfoldr f` to the initial state is the state corresponding to the bitvector's width paired
+with the bitvector that consists of each computed bit.
+
+This theorem can be used to prove properties of functions that are defined using `BitVec.iunfoldr`.
 -/
 theorem iunfoldr_replace
     {f : Fin w → α → α × Bool} (state : Nat → α) (value : BitVec w) (a : α)

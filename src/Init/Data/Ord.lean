@@ -568,8 +568,10 @@ protected def compareLex {α} (cmp : α → α → Ordering) :
   | [], [] => .eq
   | [], _ => .lt
   | _, [] => .gt
-  | x :: xs, y :: ys =>
-    (cmp x y).then (xs.compareLex cmp ys)
+  | x :: xs, y :: ys => match cmp x y with
+    | .lt => .lt
+    | .eq => xs.compareLex cmp ys
+    | .gt => .gt
 
 instance {α} [Ord α] : Ord (List α) where
   compare := List.compareLex compare
@@ -578,13 +580,14 @@ protected theorem compare_eq_compareLex {α} [Ord α] :
     compare (α := List α) = List.compareLex compare := rfl
 
 protected theorem compareLex_cons_cons {α} {cmp} {x y : α} {xs ys : List α} :
-    (x :: xs).compareLex cmp (y :: ys) = (cmp x y).then (xs.compareLex cmp ys) :=
-  rfl
+    (x :: xs).compareLex cmp (y :: ys) = (cmp x y).then (xs.compareLex cmp ys) := by
+  rw [List.compareLex]
+  split <;> simp_all
 
 @[simp]
 protected theorem compare_cons_cons {α} [Ord α] {x y : α} {xs ys : List α} :
     compare (x :: xs) (y :: ys) = (compare x y).then (compare xs ys) :=
-  rfl
+  List.compareLex_cons_cons
 
 protected theorem compareLex_nil_cons {α} {cmp} {x : α} {xs : List α} :
     [].compareLex cmp (x :: xs) = .lt :=

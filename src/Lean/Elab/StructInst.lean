@@ -872,6 +872,12 @@ private def synthOptParamFields : StructInstM Unit := do
               pending
         toRemove := toRemove.push selected.fieldName
     if toRemove.isEmpty then
+      if ← ellipsisMode then
+        for pendingField in pendingFields do
+          if let some mvarId ← isFieldNotSolved? pendingField.fieldName then
+            registerCustomErrorIfMVar (.mvar mvarId) (← read).view.ref m!"\
+              cannot synthesize placeholder for field '{pendingField.fieldName}'"
+        return
       let assignErrorsMsg := MessageData.joinSep (assignErrors.map (m!"\n\n" ++ ·)).toList ""
       let mut requiredErrors : Array MessageData := #[]
       for pendingField in pendingFields do
@@ -880,7 +886,8 @@ private def synthOptParamFields : StructInstM Unit := do
           requiredErrors := requiredErrors.push m!"\
             field '{pendingField.fieldName}' must be explicitly provided, synthesized value is{indentExpr e}"
       let requiredErrorsMsg := MessageData.joinSep (requiredErrors.map (m!"\n\n" ++ ·)).toList ""
-      let msg := m!"fields missing: {", ".intercalate <| pendingFields.toList.map (s!"'{·.fieldName}'")}{assignErrorsMsg}{requiredErrorsMsg}"
+      let missing := pendingFields |>.filter (fun pending => pending.val?.isNone) |>.map (s!"'{·.fieldName}'") |>.toList
+      let msg := m!"fields missing: {", ".intercalate missing}{assignErrorsMsg}{requiredErrorsMsg}"
       if (← readThe Term.Context).errToSorry then
         -- Assign all pending problems using synthetic sorries and log an error.
         for pendingField in pendingFields do
@@ -898,9 +905,8 @@ private def finalize : StructInstM Expr := withViewRef do
   trace[Elab.struct] "constructor{indentExpr val}"
   synthesizeAppInstMVars (← get).instMVars val
   trace[Elab.struct] "constructor after synthesizing instMVars{indentExpr val}"
-  unless ← ellipsisMode do
-    synthAutoParamFields
-    synthOptParamFields
+  synthAutoParamFields
+  synthOptParamFields
   trace[Elab.struct] "constructor after synthesizing defaults{indentExpr val}"
   -- Compact the constructors:
   let val ← etaStructReduce' val
@@ -1049,9 +1055,11 @@ These fields can still be solved for by parent instance synthesis later.
 -/
 private def processNoField (loop : StructInstM α) (fieldName : Name) (binfo : BinderInfo) (fieldType : Expr) : StructInstM α := do
   trace[Elab.struct] "processNoField '{fieldName}' of type {fieldType}"
-  if ← ellipsisMode then
-    -- In ellipsis mode, all other fields are holes. Do not use optParams or autoParams.
-    discard <| addStructFieldMVar fieldName fieldType
+  if (← ellipsisMode) && (← readThe Term.Context).inPattern then
+    -- See the note in `ElabAppArgs.processExplicitArg`
+    -- In ellipsis & pattern mode, do not use optParams or autoParams.
+    let e ← addStructFieldMVar fieldName fieldType
+    registerCustomErrorIfMVar e (← read).view.ref m!"don't know how to synthesize placeholder for field '{fieldName}'"
     loop
   else
     let autoParam? := fieldType.getAutoParamTactic?

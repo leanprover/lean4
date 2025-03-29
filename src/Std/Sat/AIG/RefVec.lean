@@ -32,8 +32,8 @@ theorem emptyWithCapacity_eq : emptyWithCapacity (aig := aig) c = empty := by
 @[inline]
 def cast' {aig1 aig2 : AIG α} (s : RefVec aig1 len)
     (h :
-      (∀ {i : Nat} (h : i < len), s.refs[i].1 < aig1.decls.size)
-        → ∀ {i : Nat} (h : i < len), s.refs[i].1 < aig2.decls.size) :
+      (∀ {i : Nat} (h : i < len), s.refs[i].gate < aig1.decls.size)
+        → ∀ {i : Nat} (h : i < len), s.refs[i].gate < aig2.decls.size) :
     RefVec aig2 len :=
   { s with
     hrefs := by
@@ -55,19 +55,19 @@ def cast {aig1 aig2 : AIG α} (s : RefVec aig1 len) (h : aig1.decls.size ≤ aig
 def get (s : RefVec aig len) (idx : Nat) (hidx : idx < len) : Ref aig :=
   let ⟨refs, hrefs⟩ := s
   let ref := refs[idx]
-  ⟨ref.1, ref.2, hrefs ..⟩
+  ⟨ref.gate, ref.invert, hrefs ..⟩
 
 @[inline]
 def push (s : RefVec aig len) (ref : AIG.Ref aig) : RefVec aig (len + 1) :=
   let ⟨refs, hrefs⟩ := s
   ⟨
-    refs.push (ref.gate, ref.invert),
+    refs.push (.mk ref.gate ref.invert),
     by
       intro i hi
       simp only [Vector.getElem_push hi]
       split
       · apply hrefs
-      · apply AIG.Ref.hgate
+      · simp [Ref.hgate]
   ⟩
 
 @[simp]
@@ -165,7 +165,7 @@ where
   go (aig : AIG α) (s : RefVec aig len) (idx : Nat) (acc : Nat) : Nat :=
     if h : idx < len then
       let ref := s.refs[idx]
-      let decl := aig.decls[ref.1]'(s.hrefs h)
+      let decl := aig.decls[ref.gate]'(s.hrefs h)
       match decl with
       | .false => go aig s (idx + 1) (acc + 1)
       | _ => go aig s (idx + 1) acc

@@ -53,7 +53,7 @@ Get the inverter bit.
 def invert (f : Fanin) : Bool := f.val.testBit 0
 
 /--
-Flip the inverter bit.
+Flip the inverter bit according to `val`.
 -/
 @[inline]
 def flip (f : Fanin) (val : Bool) : Fanin := ⟨f.val ^^^ val.toNat⟩
@@ -65,6 +65,14 @@ theorem gate_mk : (Fanin.mk g i).gate = g := by
 @[simp]
 theorem invert_mk : (Fanin.mk g i).invert = i := by
   cases i <;> simp [mk, invert]
+
+@[simp]
+theorem gate_flip (f : Fanin) : (f.flip v).gate = f.gate := by
+  cases v <;> simp [flip, gate, Nat.shiftRight_xor_distrib]
+
+@[simp]
+theorem invert_flip (f : Fanin) : (f.flip v).invert = f.invert ^^ v := by
+  cases v <;> simp [flip, invert]
 
 end Fanin
 
@@ -401,8 +409,8 @@ where
 A vector of references into `aig`. This is the `AIG` analog of `BitVec`.
 -/
 structure RefVec (aig : AIG α) (w : Nat) where
-  refs : Vector (Nat × Bool) w
-  hrefs : ∀ (h : i < w), refs[i].1 < aig.decls.size
+  refs : Vector Fanin w
+  hrefs : ∀ (h : i < w), refs[i].gate < aig.decls.size
 
 /--
 A sequence of references bundled with their AIG.

@@ -2298,18 +2298,6 @@ So, you are mainly losing the capability of type checking your development using
 axiom ofReduceBool (a b : Bool) (h : reduceBool a = b) : a = b
 
 /--
-The axiom `ofReduceNat` is used to perform proofs by reflection. See `reduceBool`.
-
-Warning: by using this feature, the Lean compiler and interpreter become part of your trusted code base.
-This is extra 30k lines of code. More importantly, you will probably not be able to check your development using
-external type checkers that do not implement this feature.
-Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
-So, you are mainly losing the capability of type checking your development using external checkers.
--/
-axiom ofReduceNat (a b : Nat) (h : reduceNat a = b) : a = b
-
-
-/--
 The term `opaqueId x` will not be reduced by the kernel.
 -/
 opaque opaqueId {α : Sort u} (x : α) : α := x

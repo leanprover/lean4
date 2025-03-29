@@ -176,7 +176,7 @@ The workspace's shared library path (e.g., for `--load-dynlib`).
 This is added to the `sharedLibPathEnvVar` by `lake env`.
 -/
 def sharedLibPath (self : Workspace) : SearchPath :=
-   self.packages.foldr (fun pkg dirs => pkg.nativeLibDir :: dirs) []
+   self.packages.foldr (fun pkg dirs => pkg.sharedLibDir :: dirs) []
 
 /--
 The detected `PATH` of the environment augmented with

@@ -21,7 +21,9 @@ namespace Lake
 Collect the local modules of a library.
 That is, the modules from `getModuleArray` plus their local transitive imports.
 -/
-partial def LeanLib.recCollectLocalModules (self : LeanLib) : FetchM (Job (Array Module)) := ensureJob do
+partial def LeanLib.recCollectLocalModules
+  (self : LeanLib) : FetchM (Job (Array Module))
+:= ensureJob do
   let mut mods := #[]
   let mut modSet := ModuleSet.empty
   for mod in (← self.getModuleArray) do
@@ -45,7 +47,8 @@ def LeanLib.modulesFacetConfig : LibraryFacetConfig modulesFacet :=
   mkFacetJobConfig LeanLib.recCollectLocalModules (buildable := false)
 
 protected def LeanLib.recBuildLean
-(self : LeanLib) : FetchM (Job Unit) := do
+  (self : LeanLib) : FetchM (Job Unit)
+:= do
   let mods ← (← self.modules.fetch).await
   mods.foldlM (init := Job.nil) fun job mod => do
     return job.mix <| ← mod.leanArts.fetch

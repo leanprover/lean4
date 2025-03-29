@@ -24,7 +24,7 @@ target ffi_static.o pkg : FilePath := do
 target libleanffi_static pkg : FilePath := do
   let ffiO ← ffi_static.o.fetch
   let name := nameToStaticLib "leanffi"
-  buildStaticLib (pkg.nativeLibDir / name) #[ffiO]
+  buildStaticLib (pkg.staticLibDir / name) #[ffiO]
 
 lean_lib FFI.Static where
   moreLinkObjs := #[libleanffi_static]
@@ -45,7 +45,7 @@ target libleanffi_shared pkg : FilePath := do
   let ffiO ← ffi_shared.o.fetch
   let name := nameToSharedLib "leanffi"
   let leanArgs := (← getLeanInstall).ccLinkSharedFlags
-  buildSharedLib (pkg.nativeLibDir / name) #[ffiO] #[] leanArgs "c++" getLeanTrace
+  buildSharedLib (pkg.sharedLibDir / name) #[ffiO] #[] leanArgs "c++" getLeanTrace
 
 lean_lib FFI.Shared where
   moreLinkLibs := #[libleanffi_shared]

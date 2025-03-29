@@ -25,7 +25,7 @@ def recBuildExternDynlibs (pkgs : Array Package)
   let mut libDirs := #[]
   let mut jobs : Array (Job Dynlib) := #[]
   for pkg in pkgs do
-    libDirs := libDirs.push pkg.nativeLibDir
+    libDirs := libDirs.push pkg.sharedLibDir
     jobs := jobs.append <| ← pkg.externLibs.mapM (·.dynlib.fetch)
   return (jobs, libDirs)
 

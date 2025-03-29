@@ -55,11 +55,11 @@ The names of the library's root modules
 
 /-- The path to the static library in the package's `libDir`. -/
 @[inline] def staticLibFile (self : LeanLib) : FilePath :=
-  self.pkg.nativeLibDir / self.staticLibFileName
+  self.pkg.staticLibDir / self.staticLibFileName
 
 /-- The path to the static library (with exported symbols) in the package's `libDir`. -/
 @[inline] def staticExportLibFile (self : LeanLib) : FilePath :=
-  self.pkg.nativeLibDir / self.staticLibFileName.addExtension "export"
+  self.pkg.staticLibDir / self.staticLibFileName.addExtension "export"
 
 /-- The file name of the library's shared binary (i.e., its `dll`, `dylib`, or `so`) . -/
 @[inline] def sharedLibFileName (self : LeanLib) : FilePath :=
@@ -67,7 +67,7 @@ The names of the library's root modules
 
 /-- The path to the shared library in the package's `libDir`. -/
 @[inline] def sharedLibFile (self : LeanLib) : FilePath :=
-  self.pkg.nativeLibDir / self.sharedLibFileName
+  self.pkg.sharedLibDir / self.sharedLibFileName
 
 /-- The library's `extraDepTargets` configuration. -/
 @[inline] def extraDepTargets (self : LeanLib) :=

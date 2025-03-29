@@ -16,7 +16,7 @@ structure Dynlib where
   path : FilePath
   /-- Library name without platform-specific prefix/suffix (for `-l`). -/
   name : String
-  /-- Whether this library be loaded as a plugin. -/
+  /-- Whether this library can be loaded as a plugin. -/
   plugin := false
 
 /-- Optional library directory (for `-L`). -/

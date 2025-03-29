@@ -19,7 +19,7 @@ namespace Lake
 
 private def InputFile.recFetch (t : InputFile) : FetchM (Job FilePath) :=
   withRegisterJob s!"{t.name}" do
-  inputFile (t.pkg.dir / t.config.path) t.config.text
+  inputFile t.path t.text
 
 /-- The facet configuration for the builtin `ExternLib.staticFacet`. -/
 def InputFile.defaultFacetConfig : KFacetConfig InputFile.facetKind defaultFacet :=
@@ -37,7 +37,7 @@ def InputFile.initFacetConfigs : DNameMap (KFacetConfig InputFile.facetKind) :=
 
 private def InputDir.recFetch (t : InputDir) : FetchM (Job (Array FilePath)) :=
   withRegisterJob s!"{t.name}" do
-  inputDir (t.pkg.dir / t.config.path) t.config.text t.config.filter.matches
+  inputDir t.path t.text t.filter
 
 /-- The facet configuration for the builtin `ExternLib.staticFacet`. -/
 def InputDir.defaultFacetConfig : KFacetConfig InputDir.facetKind defaultFacet :=

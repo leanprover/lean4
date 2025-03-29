@@ -581,6 +581,14 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
   else
     return none
 
+partial def expandLet (e : Expr) (vs : Array Expr) : Expr :=
+  if let .letE _ _ v b _  := e then
+    expandLet b (vs.push <| v.instantiateRev vs)
+  else if let some (#[], _, _, v, b) := e.letFunAppArgs? then
+    expandLet b (vs.push <| v.instantiateRev vs)
+  else
+    e.instantiateRev vs
+
 /--
 Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
 expand let-expressions, expand assigned meta-variables.
@@ -588,14 +596,6 @@ expand let-expressions, expand assigned meta-variables.
 partial def whnfCore (e : Expr) : MetaM Expr :=
   go e
 where
-  expandLet (e : Expr) (vs : Array Expr) : Expr :=
-    if let .letE _ _ v b _  := e then
-      expandLet b (vs.push <| v.instantiateRev vs)
-    else if let some (#[], _, _, v, b) := e.letFunAppArgs? then
-      expandLet b (vs.push <| v.instantiateRev vs)
-    else
-      e.instantiateRev vs
-
   go (e : Expr) : MetaM Expr :=
     whnfEasyCases e fun e => do
       trace[Meta.whnf] e

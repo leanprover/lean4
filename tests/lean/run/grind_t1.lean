@@ -121,11 +121,20 @@ info: [grind.eqc] x = 2 * a
 #guard_msgs (info) in
 set_option trace.grind.eqc true in
 example (a : Nat) : let x := a + a; y = x → y = a + a := by
-  grind
+  grind -zetaDelta
 
 /--
 info: [grind.eqc] x = 2 * a
 [grind.eqc] y = x
+[grind.eqc] (y = 2 * a) = False
+-/
+#guard_msgs (info) in
+set_option trace.grind.eqc true in
+example (a : Nat) : let_fun x := a + a; y = x → y = a + a := by
+  grind -zetaDelta
+
+/--
+info: [grind.eqc] y = 2 * a
 [grind.eqc] (y = 2 * a) = False
 -/
 #guard_msgs (info) in

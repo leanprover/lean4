@@ -45,16 +45,16 @@ protected def getSimprocs : MetaM (Array Simprocs) := do
   return #[s]
 
 /-- Returns the simplification context used by `grind`. -/
-protected def getSimpContext : MetaM Simp.Context := do
+protected def getSimpContext (config : Grind.Config) : MetaM Simp.Context := do
   let thms ← normExt.getTheorems
   Simp.mkContext
-    (config := { arith := true })
+    (config := { arith := true, zeta := config.zeta, zetaDelta := config.zetaDelta })
     (simpTheorems := #[thms])
     (congrTheorems := (← getSimpCongrTheorems))
 
 @[export lean_grind_normalize]
-def normalizeImp (e : Expr) : MetaM Expr := do
-  let (r, _) ← Meta.simp e (← Grind.getSimpContext) (← Grind.getSimprocs)
+def normalizeImp (e : Expr) (config : Grind.Config) : MetaM Expr := do
+  let (r, _) ← Meta.simp e (← Grind.getSimpContext config) (← Grind.getSimprocs)
   return r.expr
 
 end Lean.Meta.Grind

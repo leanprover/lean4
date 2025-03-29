@@ -17,7 +17,7 @@ import Lean.Meta.Tactic.Grind.Combinators
 namespace Lean.Meta.Grind
 
 private inductive IntroResult where
-  | done
+  | done (goal : Goal)
   | newHyp (fvarId : FVarId) (goal : Goal)
   | newDepHyp (goal : Goal)
   | newLocal (fvarId : FVarId) (goal : Goal)
@@ -98,7 +98,7 @@ private def intro1 : GoalM FVarId := do
   modify fun s => { s with mvarId }
   return fvarId
 
-private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := do
+private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := do
   Prod.fst <$> GoalM.run goal do
     let target ← (← get).mvarId.getType
     if target.isArrow then
@@ -127,6 +127,13 @@ private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := d
             -- `p` and `p'` are definitionally equal
             mvarId.assign h
             return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
+    else if (← getConfig).zetaDelta && (target.isLet || target.isLetFun) then
+      let targetNew := expandLet target #[]
+      let mvarId := (← get).mvarId
+      mvarId.withContext do
+        let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew (← mvarId.getTag)
+        mvarId.assign mvarNew
+        introNext { (← get) with mvarId := mvarNew.mvarId! } generation
     else if target.isLet || target.isForall || target.isLetFun then
       let fvarId ← intro1
       (← get).mvarId.withContext do
@@ -145,7 +152,7 @@ private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := d
           else
             return .newLocal fvarId (← get)
     else
-      return .done
+      return .done goal
 
 private def isEagerCasesCandidate (goal : Goal) (type : Expr) : Bool := Id.run do
   let .const declName _ := type.getAppFn | return false
@@ -183,7 +190,7 @@ partial def intros  (generation : Nat) : GrindTactic' := fun goal => do
     if goal.inconsistent then
       return ()
     match (← introNext goal generation) with
-    | .done =>
+    | .done goal =>
       let goal ← exfalsoIfNotProp goal
       if let some mvarId ← goal.mvarId.byContra? then
         go { goal with mvarId }

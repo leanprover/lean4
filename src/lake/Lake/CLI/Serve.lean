@@ -65,8 +65,8 @@ def setupFile
     let paths : LeanPaths := {
       oleanPath := ws.leanPath
       srcPath := ws.leanSrcPath
-      loadDynlibPaths := dynlibs
-      pluginPaths := plugins
+      loadDynlibPaths := dynlibs.map (·.path)
+      pluginPaths := plugins.map (·.path)
     }
     let setupOptions : LeanOptions ← do
       let some moduleName ← searchModuleNameOfFileName path ws.leanSrcPath

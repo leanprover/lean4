@@ -286,6 +286,7 @@ def PartialBuildKey.decodeToml (v : Value) : EDecodeM PartialBuildKey := do
   | .error e => throwDecodeErrorAt v.ref e
 
 instance : DecodeToml PartialBuildKey := ⟨PartialBuildKey.decodeToml⟩
+instance : DecodeToml (Target α) := ⟨(Target.mk <$> PartialBuildKey.decodeToml ·)⟩
 
 instance : DecodeField (LeanLibConfig n) `defaultFacets where
   decodeField := decodeFieldCore `defaultFacets (decodeFacets LeanLib.facetKind)
@@ -360,17 +361,15 @@ local macro "gen_toml_decoders%" : command => do
   let cmds := #[]
   -- Targets
   let cmds ← genDecodeToml cmds ``LeanConfig false
-    (exclude := #[`dynlibs, `plugins])
   let cmds ← genDecodeToml cmds ``LeanLibConfig true
-    (exclude := #[`nativeFacets, `dynlibs, `plugins])
+    (exclude := #[`nativeFacets])
   let cmds ← genDecodeToml cmds ``LeanExeConfig true
-    (exclude := #[`nativeFacets, `dynlibs, `plugins])
+    (exclude := #[`nativeFacets])
   let cmds ← genDecodeToml cmds ``InputFileConfig true
   let cmds ← genDecodeToml cmds ``InputDirConfig true
   -- Package
   let cmds ← genDecodeToml cmds ``WorkspaceConfig false
   let cmds ← genDecodeToml cmds ``PackageConfig true
-    (exclude := #[`dynlibs, `plugins])
   return ⟨mkNullNode cmds⟩
 
 gen_toml_decoders%

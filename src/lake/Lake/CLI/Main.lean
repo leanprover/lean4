@@ -522,8 +522,8 @@ protected def lean : CliM PUnit := do
   let spawnArgs := {
     args :=
       #[leanFile] ++
-      dynlibs.map (s!"--load-dynlib={·}") ++
-      plugins.map (s!"--plugin={·}") ++
+      dynlibs.map (s!"--load-dynlib={·.path}") ++
+      plugins.map (s!"--plugin={·.path}") ++
       ws.root.moreLeanArgs ++ opts.subArgs
     cmd := ws.lakeEnv.lean.lean.toString
     env := ws.augmentedEnvVars

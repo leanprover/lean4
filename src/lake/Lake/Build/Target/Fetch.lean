@@ -12,7 +12,7 @@ open Lean
 namespace Lake
 
 variable (defaultPkg : Package) (root : BuildKey) in
-private def PartialBuildKey.fetchInCore
+private def PartialBuildKey.fetchInCoreAux
   (self : PartialBuildKey) (facetless : Bool := false)
 : FetchM ((key : BuildKey) × Job (BuildData key)) := do
   match self with
@@ -48,7 +48,7 @@ private def PartialBuildKey.fetchInCore
         let job ← (pkg.target target).fetch
         return ⟨key, cast (by simp) job⟩
   | .facet target shortFacet =>
-      let ⟨key, job⟩ ← PartialBuildKey.fetchInCore target false
+      let ⟨key, job⟩ ← PartialBuildKey.fetchInCoreAux target false
       let kind := job.kind
       if h : kind.isAnonymous then
         error s!"invalid target '{root}': targets of opaque data kinds do not support facets"
@@ -67,6 +67,11 @@ where
         | error s!"invalid target '{root}': package '{name}' not found in workspace"
       return pkg
 
+@[inline] private def PartialBuildKey.fetchInCore
+  (defaultPkg : Package) (self : PartialBuildKey)
+: FetchM ((key : BuildKey) × Job (BuildData key)) :=
+  fetchInCoreAux defaultPkg self self true
+
 /--
 Fetches the target specified by this key, resolving gaps as needed.
 
@@ -78,7 +83,7 @@ Fetches the target specified by this key, resolving gaps as needed.
   rather than their configuration.
 -/
 @[inline] def PartialBuildKey.fetchIn (defaultPkg : Package) (self : PartialBuildKey) : FetchM OpaqueJob :=
-  (·.2.toOpaque) <$> fetchInCore defaultPkg self self true
+  (·.2.toOpaque) <$> fetchInCore defaultPkg self
 
 variable (root : BuildKey) in
 private def BuildKey.fetchCore
@@ -109,8 +114,20 @@ private def BuildKey.fetchCore
   (self : BuildKey) [FamilyOut BuildData self α] : FetchM (Job α)
 := cast (by simp) <| fetchCore self self
 
-@[inline] protected def Target.fetch (self : Target α) : FetchM (Job α) := do
- have := self.data_def; self.key.fetch
+protected def Target.fetchIn
+  [DataKind α] (defaultPkg : Package) (self : Target α) : FetchM (Job α)
+:= do
+  let ⟨_, job⟩ ← self.key.fetchInCore defaultPkg
+  have ⟨kind, ⟨h_anon, h_kind⟩⟩ := inferInstanceAs (DataKind α)
+  if h : job.kind.name = kind then
+    have h := by
+      have h_job := h ▸ job.kind.wf
+      rw [h_job h_anon, h_kind]
+    return cast h job
+  else
+    let actual := if job.kind.name.isAnonymous then "unknown" else s!"'{job.kind.name}'"
+    error s!"type mismtach in target '{self.key}': expected '{kind}', got {actual}"
 
-protected def TargetArray.fetch (self : TargetArray α) : FetchM (Job (Array α)) := do
-  Job.collectArray <$> self.mapM (·.fetch)
+protected def TargetArray.fetchIn
+  [DataKind α] (defaultPkg : Package) (self : TargetArray α) : FetchM (Job (Array α))
+:= Job.collectArray <$> self.mapM (·.fetchIn defaultPkg)

@@ -554,6 +554,14 @@ namespace Package
 @[inline] def weakLeancArgs (self : Package) : Array String :=
   self.config.weakLeancArgs
 
+/-- The package's `moreLinkObjs` configuration. -/
+@[inline] def moreLinkObjs (self : Package) : TargetArray FilePath :=
+  self.config.moreLinkObjs
+
+/-- The package's `moreLinkLibs` configuration. -/
+@[inline] def moreLinkLibs (self : Package) : TargetArray Dynlib :=
+  self.config.moreLinkLibs
+
 /-- The package's `moreLinkArgs` configuration. -/
 @[inline] def moreLinkArgs (self : Package) : Array String :=
   self.config.moreLinkArgs
@@ -574,8 +582,23 @@ namespace Package
 @[inline] def leanLibDir (self : Package) : FilePath :=
   self.buildDir / self.config.leanLibDir
 
+/--
+Where static libraries for the package are located.
+The package's `buildDir` joined with its `nativeLibDir` configuration.
+-/
+@[inline] def staticLibDir (self : Package) : FilePath :=
+  self.buildDir / self.config.nativeLibDir
+
+/--
+Where shared libraries for the package are located.
+The package's `buildDir` joined with its `nativeLibDir` configuration.
+-/
+@[inline] def sharedLibDir (self : Package) : FilePath :=
+  self.buildDir / self.config.nativeLibDir
+
 /-- The package's `buildDir` joined with its `nativeLibDir` configuration. -/
-@[inline] def nativeLibDir (self : Package) : FilePath :=
+@[deprecated "Use staticLibDir or sharedLibDir instead." (since := "2025-03-29")]
+def nativeLibDir (self : Package) : FilePath :=
   self.buildDir / self.config.nativeLibDir
 
 /-- The package's `buildDir` joined with its `binDir` configuration. -/

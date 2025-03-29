@@ -24,6 +24,7 @@ Preserves information that downstream jobs want to depend on while resetting
 job-local information that should not be inherited by downstream jobs.
 -/
 def Job.renew (self : Job α) : Job α :=
+  have : OptDataKind α := self.kind
   self.mapResult (sync := true) fun
   | .ok a s => .ok a s.renew
   | .error _ s => .error 0 s.renew

@@ -118,6 +118,7 @@ instance : EncodeField (LeanLibConfig n) `defaultFacets (Array Name) := ⟨encod
 
 instance : ToToml BuildKey := ⟨(toToml ·.toString)⟩
 instance : ToToml PartialBuildKey := ⟨(toToml ·.toString)⟩
+instance : ToToml (Target α) := ⟨(toToml ·.key.toString)⟩
 
 /-! ## Dependency Configuration Encoders -/
 
@@ -164,17 +165,15 @@ local macro "gen_toml_encoders%" : command => do
   let cmds := #[]
   -- Targets
   let cmds ← genToToml cmds ``LeanConfig false
-    (exclude := #[`dynlibs, `plugins])
   let cmds ← genToToml cmds ``LeanLibConfig true
-    (exclude := #[`nativeFacets, `dynlibs, `plugins])
+    (exclude := #[`nativeFacets])
   let cmds ← genToToml cmds ``LeanExeConfig true
-    (exclude := #[`nativeFacets, `dynlibs, `plugins])
+    (exclude := #[`nativeFacets])
   let cmds ← genToToml cmds ``InputFileConfig true
   let cmds ← genToToml cmds ``InputDirConfig true
   -- Package
   let cmds ← genToToml cmds ``WorkspaceConfig false
   let cmds ← genToToml cmds ``PackageConfig true
-    (exclude := #[`nativeFacets, `dynlibs, `plugins])
   return ⟨mkNullNode cmds⟩
 
 gen_toml_encoders%

@@ -96,6 +96,7 @@ def PartialBuildKey.toString : (self : PartialBuildKey) → String
 | .facet t f => if f.isAnonymous then toString t else s!"{toString t}:{f}"
 
 instance : ToString PartialBuildKey := ⟨PartialBuildKey.toString⟩
+instance : Repr PartialBuildKey := inferInstanceAs (Repr BuildKey)
 
 namespace BuildKey
 

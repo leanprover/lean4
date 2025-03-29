@@ -49,17 +49,21 @@ The names of the library's root modules
 @[inline] def isBuildableModule (mod : Name) (self : LeanLib) : Bool :=
   self.config.isBuildableModule mod
 
+/-- The name of the library artifact. -/
+@[inline] def libName (self : LeanLib) : String :=
+  self.config.libName
+
 /-- The file name of the library's static binary (i.e., its `.a`) -/
 @[inline] def staticLibFileName (self : LeanLib) : FilePath :=
   nameToStaticLib self.config.libName
 
 /-- The path to the static library in the package's `libDir`. -/
 @[inline] def staticLibFile (self : LeanLib) : FilePath :=
-  self.pkg.nativeLibDir / self.staticLibFileName
+  self.pkg.staticLibDir / self.staticLibFileName
 
 /-- The path to the static library (with exported symbols) in the package's `libDir`. -/
 @[inline] def staticExportLibFile (self : LeanLib) : FilePath :=
-  self.pkg.nativeLibDir / self.staticLibFileName.addExtension "export"
+  self.pkg.staticLibDir / self.staticLibFileName.addExtension "export"
 
 /-- The file name of the library's shared binary (i.e., its `dll`, `dylib`, or `so`) . -/
 @[inline] def sharedLibFileName (self : LeanLib) : FilePath :=
@@ -67,7 +71,7 @@ The names of the library's root modules
 
 /-- The path to the shared library in the package's `libDir`. -/
 @[inline] def sharedLibFile (self : LeanLib) : FilePath :=
-  self.pkg.nativeLibDir / self.sharedLibFileName
+  self.pkg.sharedLibDir / self.sharedLibFileName
 
 /-- The library's `extraDepTargets` configuration. -/
 @[inline] def extraDepTargets (self : LeanLib) :=
@@ -166,21 +170,35 @@ and then the library's `moreLeancArgs`.
 
 /--
 The arguments to weakly pass to `leanc` when compiling the library's Lean-produced C files.
-That is, the package's `weakLeancArgs` plus the library's  `weakLeancArgs`.
+That is, the package's `weakLeancArgs` plus the library's `weakLeancArgs`.
 -/
 @[inline] def weakLeancArgs (self : LeanLib) : Array String :=
   self.pkg.weakLeancArgs ++ self.config.weakLeancArgs
 
 /--
+Additionl target objects to pass to `ar` when linking the static library.
+That is, the package's `moreLinkObjs` plus the library's `moreLinkObjs`.
+-/
+@[inline] def moreLinkObjs (self : LeanLib) : TargetArray FilePath :=
+  self.pkg.moreLinkObjs ++ self.config.moreLinkObjs
+
+/-
+Additionl target libraries to are linked to the shared library.
+That is, the package's `moreLinkLibs` plus the library's `moreLinkLibs`.
+-/
+@[inline] def moreLinkLibs (self : LeanLib) : TargetArray Dynlib :=
+  self.pkg.moreLinkLibs ++ self.config.moreLinkLibs
+
+/--
 The arguments to pass to `leanc` when linking the shared library.
-That is, the package's `moreLinkArgs` plus the library's  `moreLinkArgs`.
+That is, the package's `moreLinkArgs` plus the library's `moreLinkArgs`.
 -/
 @[inline] def linkArgs (self : LeanLib) : Array String :=
   self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
 
 /--
 The arguments to weakly pass to `leanc` when linking the shared library.
-That is, the package's `weakLinkArgs` plus the library's  `weakLinkArgs`.
+That is, the package's `weakLinkArgs` plus the library's `weakLinkArgs`.
 -/
 @[inline] def weakLinkArgs (self : LeanLib) : Array String :=
   self.pkg.weakLinkArgs ++ self.config.weakLinkArgs

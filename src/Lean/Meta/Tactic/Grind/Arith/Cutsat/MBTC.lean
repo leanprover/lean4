@@ -12,7 +12,7 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 private def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do
-  let val? ← getAssignment? (← get) (← getENode e)
+  let val? ← getAssignment? (← get) e
   if val?.isSome then
     return val?
   let type ← inferType e
@@ -20,7 +20,7 @@ private def getAssignmentExt? (e : Expr) : GoalM (Option Rat) := do
     for parent in (← getParents e) do
       let_expr NatCast.natCast _ inst _ := parent | pure ()
       let_expr instNatCastInt := inst | pure ()
-      return (← getAssignment? (← get) (← getENode parent))
+      return (← getAssignment? (← get) parent)
   return none
 
 private def hasTheoryVar (e : Expr) : GoalM Bool := do

@@ -190,7 +190,7 @@ section repr_toString
 /--
 Converts a bitvector into a fixed-width hexadecimal number with enough digits to represent it.
 
-If `n` is `0`, then one digit is returned. Otherwise, `⌊n + 3 / 4⌋` digits are returned.
+If `n` is `0`, then one digit is returned. Otherwise, `⌊(n + 3) / 4⌋` digits are returned.
 -/
 protected def toHex {n : Nat} (x : BitVec n) : String :=
   let s := (Nat.toDigits 16 x.toNat).asString

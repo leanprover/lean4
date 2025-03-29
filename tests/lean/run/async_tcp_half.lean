@@ -5,6 +5,12 @@ import Std.Net.Addr
 open Std.Internal.IO.Async
 open Std.Net
 
+-- Using this function to create IO Error. For some reason the assert! is not pausing the execution.
+def assertBEq [BEq α] [ToString α] (actual expected : α) : IO Unit := do
+  unless actual == expected do
+    throw <| IO.userError <|
+      s!"expected '{expected}', got '{actual}'"
+
 -- Define the Async monad
 structure Async (α : Type) where
   run : IO (AsyncTask α)
@@ -24,6 +30,10 @@ def await (task : IO (AsyncTask α)) : Async α :=
 
 instance : MonadLift IO Async where
   monadLift io := Async.mk (io >>= (pure ∘ AsyncTask.pure))
+
+instance : MonadExcept IO.Error Async where
+  throw e := ⟨throw e⟩
+  tryCatch f x := ⟨tryCatch f.run (Async.run ∘ x)⟩
 
 /-- Joe is another client. -/
 def runJoe (addr: SocketAddress) : Async Unit := do
@@ -47,7 +57,7 @@ def acceptClose : IO Unit := do
   server.bind addr
   server.listen 128
 
-  let _ ← (runJoe addr).run
+  let joeTask ← (runJoe addr).run
 
   let task ← server.accept
   let client ← task.block
@@ -55,12 +65,15 @@ def acceptClose : IO Unit := do
   let mes ← client.recv? 1024
   let msg ← mes.block
 
-  assert! (String.fromUTF8! <$> msg) == "hello robert!"
+  assertBEq (String.fromUTF8? =<< msg) ("hello robert!")
 
   let mes ← client.recv? 1024
   let msg ← mes.block
 
-  assert! (String.fromUTF8! <$> msg) == none
+  assertBEq (String.fromUTF8? =<< msg) none
+
+  -- Waiting to avoid errors from escaping.
+  joeTask.block
 
 #eval acceptClose
 #eval listenClose

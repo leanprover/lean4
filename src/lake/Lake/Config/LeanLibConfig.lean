@@ -51,6 +51,9 @@ configuration LeanLibConfig (name : Name) extends LeanConfig where
   /-- An `Array` of target names to build before the library's modules. -/
   extraDepTargets : Array Name := #[]
 
+  /-- An `Array` of targets to build before the executable's modules. -/
+  needs : Array PartialBuildKey := #[]
+
   /--
   Whether to compile each of the library's modules into a native shared library
   that is loaded whenever the module is imported. This speeds up evaluation of

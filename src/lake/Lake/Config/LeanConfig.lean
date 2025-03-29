@@ -121,9 +121,11 @@ protected def BuildType.toString (bt : BuildType) : String :=
 
 instance : ToString BuildType := ⟨BuildType.toString⟩
 
-/-- Option that is used by Lean as if it was passed using `-D`. -/
+/-- An option that is used by Lean as if it was passed using `-D`. -/
 structure LeanOption where
+  /-- The option's name. -/
   name  : Lean.Name
+  /-- The option's value. -/
   value : Lean.LeanOptionValue
   deriving Inhabited, Repr
 

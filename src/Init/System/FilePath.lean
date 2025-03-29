@@ -17,6 +17,7 @@ Paths consist of a sequence of directories followed by the name of a file or dir
 delimited by a platform-dependent separator character (see `System.FilePath.pathSeparator`).
 -/
 structure FilePath where
+  /-- The string representation of the path. -/
   toString : String
   deriving Inhabited, DecidableEq, Hashable
 

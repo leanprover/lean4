@@ -8,28 +8,11 @@ import Lake.Config.Opaque
 import Lake.Config.LeanLibConfig
 import Lake.Config.LeanExeConfig
 import Lake.Config.ExternLibConfig
+import Lake.Config.InputFileConfig
 
 open Lean (Name)
 
 namespace Lake
-
-/-- The keyword for Lean library configurations. -/
-abbrev LeanLib.keyword : Name := `lean_lib
-
-/-- The type kind for Lean library configurations. -/
-@[match_pattern] abbrev LeanLib.configKind := facetKind
-
-/-- The keyword for Lean executable configurations. -/
-abbrev LeanExe.keyword : Name := `lean_exe
-
-/-- The type kind for Lean executable configurations. -/
-@[match_pattern] abbrev LeanExe.configKind := facetKind
-
-/-- The keyword for external library configurations. -/
-abbrev ExternLib.keyword : Name := `extern_lib
-
-/-- The type kind for external library configurations. -/
-@[match_pattern] abbrev ExternLib.configKind := facetKind
 
 abbrev ConfigType (kind : Name) (pkgName name : Name) : Type :=
   match kind with
@@ -37,6 +20,8 @@ abbrev ConfigType (kind : Name) (pkgName name : Name) : Type :=
   | LeanExe.configKind => LeanExeConfig name
   | ExternLib.configKind => ExternLibConfig pkgName name
   | .anonymous => OpaqueTargetConfig pkgName name
+  | InputFile.configKind => InputFileConfig name
+  | InputDir.configKind => InputDirConfig name
   | _ => Empty
 
 /-- Forward declared `ConfigTarget` to work around recursion issues (e.g., with `Package`). -/
@@ -61,6 +46,11 @@ structure KConfigDecl (k : Name) extends ConfigDecl where
 
 instance : Nonempty (NConfigDecl pkg name) :=
   ⟨{pkg, name, kind := .anonymous, config := Classical.ofNonempty, wf_data := by simp [Name.isAnonymous]}⟩
+
+@[inline] def ConfigDecl.partialKey (self : ConfigDecl) : PartialBuildKey :=
+  .packageTarget .anonymous self.name
+
+instance : CoeOut (KConfigDecl k) PartialBuildKey := ⟨(·.partialKey)⟩
 
 @[inline] def PConfigDecl.config' (self : PConfigDecl p) : ConfigType self.kind p self.name :=
   cast (by rw [self.pkg_eq]) self.config
@@ -94,7 +84,7 @@ theorem NConfigDecl.data_eq_target (self : NConfigDecl p n)
 @[inline] def NConfigDecl.leanLibConfig? (self : NConfigDecl p n) : Option (LeanLibConfig n) :=
   self.config? LeanLib.configKind
 
-/-- A  Lean library declaration from a configuration written in Lean. -/
+/-- A Lean library declaration from a configuration written in Lean. -/
 abbrev LeanLibDecl := KConfigDecl LeanLib.configKind
 
 @[inline] def ConfigDecl.leanExeConfig? (self : ConfigDecl) : Option (LeanExeConfig self.name) :=
@@ -130,4 +120,12 @@ abbrev ExternLibDecl := KConfigDecl ExternLib.configKind
 @[inline] def NConfigDecl.opaqueTargetConfig? (self : NConfigDecl p n) : Option (OpaqueTargetConfig p n) :=
   cast (by rw [self.name_eq]) self.toPConfigDecl.opaqueTargetConfig?
 
-deriving instance TypeName for LeanLibDecl, LeanExeDecl
+/-- A input file declaration from a configuration written in Lean. -/
+abbrev InputFileDecl := KConfigDecl InputFile.configKind
+
+/-- A inpurt directory declaration from a configuration written in Lean. -/
+abbrev InputDirDecl := KConfigDecl InputDir.configKind
+
+deriving instance TypeName for
+  LeanLibDecl, LeanExeDecl,
+  InputFileDecl, InputDirDecl

@@ -41,6 +41,9 @@ configuration LeanExeConfig (name : Name) extends LeanConfig where
   /-- An `Array` of target names to build before the executable's modules. -/
   extraDepTargets : Array Name := #[]
 
+  /-- An `Array` of targets to build before the executable's modules. -/
+  needs : Array PartialBuildKey := #[]
+
   /--
   Enables the executable to interpret Lean files (e.g., via
   `Lean.Elab.runFrontend`) by exposing symbols within the  executable

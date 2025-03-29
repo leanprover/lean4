@@ -195,7 +195,10 @@ structure Foo where
 structure Bar extends Foo where
   prop : toFun 0 = 0
 
-/-- info: ⊢ (fun x => x) 0 = 0 -/
+/-
+Rather than `(fun x => x) 0 = 0` or `{ toFun := fun x => x }.toFun 0 = 0`
+-/
+/-- info: ⊢ 0 = 0 -/
 #guard_msgs in
 def bar : Bar where
   toFun x := x
@@ -268,3 +271,31 @@ info: def Issue6046.instC : C :=
 #guard_msgs in #print Issue6046.instC
 
 end Issue6046
+
+/-!
+Make sure parent fields still work if one parent depends on another.
+-/
+namespace Ex8
+
+class A (α : Type) where
+  val : α → Nat
+class B (α : Type) [A α] where
+  val' : α → Nat
+  h : ∃ x : α, A.val x = val' x
+class C (α : Type) extends A α, B α
+
+instance : A Nat where
+  val := id
+instance : B Nat where
+  val' _ := 0
+  h := by exists 0
+
+/-
+This was "fields missing: 'val'', 'h'" at some point during testing.
+To succeed, this relies on being able to compute the type of the `B` parent,
+which depends on fields of the structure instance being elaborated.
+-/
+/-- info: { toA := instANat, toB := instBNat } : C Nat -/
+#guard_msgs in #check { : C Nat }
+
+end Ex8

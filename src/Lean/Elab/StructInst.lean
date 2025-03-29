@@ -659,7 +659,7 @@ private def reduceFieldProjs (e : Expr) : StructInstM Expr := do
           if let some major := args[projInfo.numParams]? then
             if major.isAppOfArity projInfo.ctorName (cval.numParams + cval.numFields) then
               if let some arg := major.getAppArgs[projInfo.numParams + projInfo.i]? then
-                return TransformStep.visit <| arg.beta args[projInfo.numParams+1:]
+                return TransformStep.visit <| mkAppN arg args[projInfo.numParams+1:]
     return TransformStep.continue
   Meta.transform e (post := postVisit)
 
@@ -699,7 +699,7 @@ private def markSolved (fieldName : Name) : StructInstM Unit := do
 private def addStructFieldAux (fieldName : Name) (e : Expr) : StructInstM Unit := do
   trace[Elab.struct] "setting '{fieldName}' value to{indentExpr e}"
   modify fun s => { s with
-    type := s.type.bindingBody!.instantiate1 e
+    type := s.type.bindingBody!.instantiateBetaRevRange 0 1 #[e]
     fields := s.fields.push e
     fieldMap := s.fieldMap.insert fieldName e
   }
@@ -914,36 +914,56 @@ private def finalize : StructInstM Expr := withViewRef do
   trace[Elab.struct] "constructor after synthesizing defaults{indentExpr val}"
   -- Compact the constructors:
   let val ← etaStructReduce' val
-  mkLetFVars (← get).liftedFVars val
+  if (← readThe Term.Context).inPattern then
+    -- In patterns, there is no multiple evaluation worry.
+    -- We also don't want any lingering `let`s in that case.
+    zetaDeltaFVars (← instantiateMVars val) ((← get).liftedFVars.map Expr.fvarId!)
+  else
+    mkLetFVars (← get).liftedFVars val
 
 /--
-Replace projections of a `self` fvar by the elaborated fields.
+Replace (subobject) parent projections of a `self` fvar by a constructor expression,
+if all the fields for the parent are already defined.
 -/
 private partial def reduceSelfProjs (self : Expr) (e : Expr) : StructInstM Expr := do
   let e ← instantiateMVars e
-  let postVisit (e : Expr) : StructInstM TransformStep := (TransformStep.continue ·) <$> reduceProj? e
-  Meta.transform e (post := postVisit)
+  Meta.transform (skipConstInApp := true) e (pre := replaceParentProj)
 where
-  projInfo? (env : Environment) (e : Expr) : Option (Name × Nat × Bool) := do
-    let .const c@(.str _ field) _ := e.getAppFn | failure
-    let field := Name.mkSimple field
-    let some info := env.getProjectionFnInfo? c | failure
-    let some (.ctorInfo cVal) := env.find? info.ctorName | failure
-    let isParentProj := (isSubobjectField? env cVal.induct field).isSome
-    return (field, info.numParams, isParentProj)
-  withoutParentProj (env : Environment) (e : Expr) : Expr := Id.run do
-    let some (_, numParams, true) := projInfo? env e | return e
-    unless e.getAppNumArgs == numParams + 1 do return e
-    withoutParentProj env e.appArg!
-  reduceProj? (e : Expr) : StructInstM (Option Expr) := do
+  /-- If `e` is a subobject projection from a structure type that is in `structNameSet`,
+  return the name of the structure being projected to and the object being projected. -/
+  parentProjInfo? (e : Expr) : StructInstM (Option (Name × Expr)) := do
     let env ← getEnv
-    let some (fieldName, numParams, false) := projInfo? env e | return none
-    unless e.getAppNumArgs >= numParams + 1 do return none
-    let major := withoutParentProj env (e.getArg! (numParams + 1))
-    unless major == self do return none
-    let some fieldExpr := (← get).fieldMap.find? fieldName | return none
-    let args := e.getAppArgs
-    return fieldExpr.beta args[numParams + 1:]
+    let .const c@(.str _ field) _ := e.getAppFn | return none
+    let some info := env.getProjectionFnInfo? c | return none
+    let some (.ctorInfo cVal) := env.find? info.ctorName | return none
+    let numArgs := e.getAppNumArgs
+    unless numArgs == cVal.numParams + 1 do return none
+    unless (← get).structNameSet.contains cVal.induct do return none
+    let some parentStruct := isSubobjectField? env cVal.induct (Name.mkSimple field) | return none
+    return (parentStruct, e.appArg!)
+  /-- Recursively applies `parentProjInfo?`. -/
+  withoutParentProj? (e : Expr) : StructInstM (Option (Name × Expr)) := do
+    let some (field, e') ← parentProjInfo? e | return none
+    let some (_, e'') ← withoutParentProj? e.appArg! | return (field, e')
+    return (field, e'')
+  replaceParentProj (e : Expr) : StructInstM TransformStep := do
+    let some (parentName, x) ← withoutParentProj? e | return .continue
+    unless x == self do return .continue
+    let parentFields := getStructureFieldsFlattened (← getEnv) parentName (includeSubobjectFields := false)
+    let fieldMap := (← get).fieldMap
+    -- Unless every field is present, we cannot eliminate this expression or any subexpressions
+    unless parentFields.all fieldMap.contains do return .done e
+    let type ← whnf (← inferType e)
+    let .const _ us := type.getAppFn | return .done e
+    let params := type.getAppArgs
+    let ctor := getStructureCtor (← getEnv) parentName
+    unless params.size == ctor.numParams do return .done e
+    let flatCtorName := mkFlatCtorOfStructCtorName ctor.name
+    let cinfo ← try getConstInfo flatCtorName catch _ => getConstInfo (ctor.induct ++ `_flat_ctor) -- TODO(kmill): remove catch
+    let ctorVal ← instantiateValueLevelParams cinfo us
+    let fieldArgs := parentFields.map fieldMap.find!
+    let e' := (ctorVal.beta params).beta fieldArgs
+    return .done e'
 
 private def getParentStructType? (parentStructName : Name) : StructInstM (Option (Expr × Option Name)) := do
   let env ← getEnv
@@ -961,6 +981,7 @@ private def getParentStructType? (parentStructName : Name) : StructInstM (Option
     let projTy ← normalizeExpr projTy
     if projTy.containsFVar self.fvarId! then
       -- unsupported dependent type, parent depends on fields that haven't been visited yet.
+      trace[Elab.struct] "getParentStructType? '{parentStructName}', failed, computed type depends on {self}{indentExpr projTy}"
       return none
     return (projTy, path.getLast?)
 
@@ -1125,20 +1146,30 @@ private partial def addParentInstanceFields : StructInstM Unit := do
   let allowedFields := fieldNames.filter (!fieldViews.contains ·)
   let mut remainingFields := allowedFields
 
-  for parentName in classParents do
-    if remainingFields.isEmpty then return
+  -- Worklist of parent/fields pairs. If fields is empty, then it will be computed later.
+  let mut worklist : List (Name × Array Name) := classParents |>.map (·, #[]) |>.toList
+  let mut deferred : List (Name × Array Name) := []
+
+  while !worklist.isEmpty do
+    let (parentName, parentFields) :: worklist' := worklist | unreachable!
+    worklist := worklist'
+    let parentFields := if parentFields.isEmpty then getStructureFieldsFlattened env parentName (includeSubobjectFields := false) else parentFields
     -- We only try synthesizing if the parent contains one of the remaining fields
     -- and if every parent field is an allowed field.
-    let parentFields := getStructureFieldsFlattened env parentName (includeSubobjectFields := false)
     if remainingFields.any parentFields.contains && parentFields.all allowedFields.contains then
       -- We also need to be able to compute the parent type from the structure type.
-      -- This may fail if there is a complicated dependence.
+      -- This may fail if there is a complicated dependence. In that case, we put the problem on the deferred list.
       match ← getParentStructType? parentName with
-      | none => trace[Elab.struct] "could not calculate type for parent '{.ofConstName parentName}'"
+      | none =>
+        trace[Elab.struct] "could not calculate type for parent '{.ofConstName parentName}'"
+        deferred := (parentName, parentFields) :: deferred
       | some (parentTy, _) =>
-        match ← try synthInstance? parentTy catch _ => pure none with
-        | none => trace[Elab.struct] "failed to synthesize instance for parent {parentTy}"
-        | some inst =>
+        match ← trySynthInstance parentTy with
+        | .none => trace[Elab.struct] "failed to synthesize instance for parent {parentTy}"
+        | .undef =>
+          trace[Elab.struct] "instance synthesis stuck for parent {parentTy}"
+          deferred := (parentName, parentFields) :: deferred
+        | .some inst =>
           -- The fields are all-or-nothing
           let saved ← saveState
           try
@@ -1159,8 +1190,12 @@ private partial def addParentInstanceFields : StructInstM Unit := do
                 trace[Elab.struct] "added field '{parentField}' from parent '{parentTy}'"
             -- All the fields have been added, update the list of remaining fields.
             remainingFields := remainingFields.filter (!parentFields.contains ·)
+            -- Move the deferred list back the front of the work list
+            worklist := deferred.reverseAux worklist
+            deferred := []
           catch ex =>
             restoreState saved
+            -- Failed, don't try this parent again.
             trace[Elab.struct] "failed to use instance for {parentTy}\n{ex.toMessageData}"
 
 private def main : StructInstM Expr := do

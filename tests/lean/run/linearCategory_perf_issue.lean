@@ -265,17 +265,14 @@ instance Functor.category : Category.{max u₁ v₂} (C ⥤ D) where
   comp α β := vcomp α β
   id_comp := by
     intro X Y f
-    simp_all only
     ext x : 2
     apply id_comp
   comp_id := by
     intro X Y f
-    simp_all only
     ext x : 2
     apply comp_id
   assoc := by
     intro W X Y Z f g h
-    simp_all only
     ext x : 2
     apply assoc
 

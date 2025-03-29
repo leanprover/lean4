@@ -506,7 +506,7 @@ private def reduceFieldProjs (e : Expr) (zetaDelta := true) : StructElabM Expr :
                 pure major
             if major.isAppOfArity projInfo.ctorName (cval.numParams + cval.numFields) then
               if let some arg := major.getAppArgs[projInfo.numParams + projInfo.i]? then
-                return TransformStep.visit <| mkAppN arg args[projInfo.numParams+1:]
+                return TransformStep.visit <| arg.beta args[projInfo.numParams+1:]
     return TransformStep.continue
   Meta.transform e (post := postVisit)
 

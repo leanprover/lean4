@@ -73,7 +73,7 @@ info: let __src := c2;
 /--
 info: let_fun this :=
   let __src := c2.toB;
-  { toB := __src, z := ?m.2110 : C (Nat × Nat) };
+  { toB := __src, z := __src.g __src.x __src.y : C (Nat × Nat) };
 this : C (Nat × Nat)
 -/
 #guard_msgs in #check show C _ from { c2.toB with .. }

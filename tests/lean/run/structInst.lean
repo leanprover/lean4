@@ -236,3 +236,35 @@ info: { n := 3, m := x } : S
 #guard_msgs in #check { n := 3, m := x : S }
 
 end Ex7
+
+/-!
+Diamond inheritance, acquire field values from parent classes.
+https://github.com/leanprover/lean4/issues/6046
+-/
+namespace Issue6046
+set_option structure.strictResolutionOrder true
+
+class A
+
+class B extends A where
+  b : Unit
+
+structure B' where
+  b : Unit
+
+class C extends B', B, A
+
+instance : A where
+
+instance : B where
+  b := ()
+
+instance : C where
+
+/--
+info: def Issue6046.instC : C :=
+{ b := B.b }
+-/
+#guard_msgs in #print Issue6046.instC
+
+end Issue6046

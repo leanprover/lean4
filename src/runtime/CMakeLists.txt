@@ -12,7 +12,7 @@ if (USE_MIMALLOC)
     # (C flags are incomplete, compile as C++ instead like everything else)
     LANGUAGE CXX
     # make all symbols visible, always build with optimizations as otherwise Lean becomes too slow
-    COMPILE_FLAGS "-DMI_SHARED_LIB=1 -DMI_SHARED_LIB_EXPORT=1 -O3 -DNDEBUG")
+    COMPILE_FLAGS "-DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT")
 endif()
 
 add_library(leanrt_initial-exec STATIC ${RUNTIME_OBJS})

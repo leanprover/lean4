@@ -359,9 +359,6 @@ theorem ordered_updateAtKey [Ord α] [TransOrd α] {k : α}
 ## Connecting the tree maps machinery to the hash map machinery
 -/
 
---attribute [local instance] beqOfOrd equivBEq_of_transOrd lawfulBEq_of_lawfulEqOrd
---attribute [local simp] beq_eq
-
 open Std.Internal.List
 
 theorem exists_cell_of_updateAtKey [BEq α] [Ord α] [TransOrd α] [LawfulBEqOrd α] (l : Impl α β) (hlb : l.Balanced)

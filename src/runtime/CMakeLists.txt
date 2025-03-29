@@ -5,7 +5,11 @@ platform.cpp alloc.cpp allocprof.cpp sharecommon.cpp stack_overflow.cpp
 process.cpp object_ref.cpp mpn.cpp mutex.cpp libuv.cpp uv/net_addr.cpp uv/event_loop.cpp
 uv/timer.cpp uv/tcp.cpp uv/udp.cpp)
 if (USE_MIMALLOC)
-  list(PREPEND RUNTIME_OBJS ${LEAN_BINARY_DIR}/../mimalloc/lib/mimalloc.o)
+  list(PREPEND RUNTIME_OBJS ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c)
+  include_directories(${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/include)
+  set_source_files_properties(${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c PROPERTIES
+    LANGUAGE CXX
+    COMPILE_FLAGS "-DMI_SHARED_LIB=1 -DMI_SHARED_LIB_EXPORT=1")
 endif()
 
 add_library(leanrt_initial-exec STATIC ${RUNTIME_OBJS})

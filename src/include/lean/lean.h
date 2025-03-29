@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include <lean/config.h>
 
 #ifdef LEAN_MIMALLOC
-#include <mimalloc.h>
+#include <lean/mimalloc.h>
 #endif
 
 #ifdef __cplusplus

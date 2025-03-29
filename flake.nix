@@ -31,7 +31,7 @@
           stdenv = pkgs.overrideCC pkgs.stdenv lean-packages.llvmPackages.clang;
         } ({
           buildInputs = with pkgs; [
-            cmake gmp libuv mimalloc ccache cadical pkg-config
+            cmake gmp libuv ccache cadical pkg-config
             lean-packages.llvmPackages.llvm  # llvm-symbolizer for asan/lsan
             gdb
             tree  # for CI
@@ -65,7 +65,6 @@
           ZLIB = pkgsDist.zlib;
           # for CI coredumps
           GDB = pkgsDist.gdb;
-          MIMALLOC = pkgsDist.mimalloc;
         });
     in {
       packages = {

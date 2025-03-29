@@ -138,10 +138,16 @@ from other libraries are loaded as part of the whole library.
   (mods : Array Module) : FetchM (Job (Array Dynlib))
 := do
   let (_, jobs) ← mods.foldlM (init := ({}, #[])) fun s mod => do
-    let imps ← (← mod.transImports.fetch).await
-    mod.fetchImportLibsCore imps s
+    let precompileImports ←
+      if mod.shouldPrecompile
+      then mod.transImports.fetch
+      else mod.precompileImports.fetch
+    let precompileImports ← precompileImports.await
+    mod.fetchImportLibsCore precompileImports s
   let jobs ← mods.foldlM (init := jobs) fun jobs mod => do
-    jobs.push <$> mod.dynlib.fetch
+    if mod.shouldPrecompile
+    then jobs.push <$> mod.dynlib.fetch
+    else return jobs
   return Job.collectArray jobs
 
 def computeModuleDeps

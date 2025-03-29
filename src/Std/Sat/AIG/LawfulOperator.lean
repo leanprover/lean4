@@ -55,11 +55,11 @@ theorem denote.go_eq_of_isPrefix (decls1 decls2 : Array (Decl α)) (start : Nat)
   · next heq =>
     rw [hidx1] at heq
     split <;> simp_all
-  · next lhs rhs linv rinv heq =>
+  · next lhs rhs heq =>
     rw [hidx1] at heq
     have := hdag1 hbounds1 heq
-    have hidx2 := hprefix.idx_eq lhs (by omega)
-    have hidx3 := hprefix.idx_eq rhs (by omega)
+    have hidx2 := hprefix.idx_eq lhs.gate (by omega)
+    have hidx3 := hprefix.idx_eq rhs.gate (by omega)
     split
     · simp_all
     · simp_all

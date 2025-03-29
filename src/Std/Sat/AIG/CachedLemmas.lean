@@ -171,7 +171,7 @@ theorem mkConstCached_eval_eq_mkConst_eval {aig : AIG α} :
 If we find a cached gate declaration in the AIG, denoting it is equivalent to denoting `AIG.mkGate`.
 -/
 theorem denote_mkGate_cached {aig : AIG α} {input} {hit} :
-    aig.cache.get? (.gate input.lhs.gate input.rhs.gate input.lhs.invert input.rhs.invert) = some hit
+    aig.cache.get? (.gate (.mk input.lhs.gate input.lhs.invert) (.mk input.rhs.gate input.rhs.invert)) = some hit
       →
     ⟦⟨aig, hit.idx, false, hit.hbound⟩, assign⟧
       =
@@ -182,7 +182,7 @@ theorem denote_mkGate_cached {aig : AIG α} {input} {hit} :
   conv =>
     lhs
     unfold denote denote.go
-  split <;> simp_all[denote]
+  split <;> simp_all [denote]
 
 theorem mkGateCached.go_le_size (aig : AIG α) (input : BinaryInput aig) :
     aig.decls.size ≤ (go aig input).aig.decls.size := by

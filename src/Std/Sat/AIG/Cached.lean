@@ -35,7 +35,7 @@ def mkAtomCached (aig : AIG α) (n : α) : Entrypoint α :=
     let cache := cache.insert decls decl
     let decls := decls.push decl
     have inv := by
-      intro i lhs rhs linv rinv h1 h2
+      intro i lhs rhs h1 h2
       simp only [Array.getElem_push] at h2
       split at h2
       · apply inv <;> assumption
@@ -57,7 +57,7 @@ def mkConstCached (aig : AIG α) (val : Bool) : Entrypoint α :=
     let cache := cache.insert decls decl
     let decls := decls.push decl
     have inv := by
-      intro i lhs rhs linv rinv h1 h2
+      intro i lhs rhs h1 h2
       simp only [Array.getElem_push] at h2
       split at h2
       · apply inv <;> assumption
@@ -86,7 +86,7 @@ where
     let rinv := input.rhs.invert
     have := input.lhs.hgate
     have := input.rhs.hgate
-    let decl := .gate lhs rhs linv rinv
+    let decl := .gate (.mk lhs linv) (.mk rhs rinv)
     match cache.get? decl with
     | some hit =>
       ⟨⟨decls, cache, inv⟩, ⟨hit.idx, false, hit.hbound⟩⟩
@@ -118,12 +118,14 @@ where
           let cache := cache.insert decls decl
           let decls := decls.push decl
           have inv := by
-            intro i lhs rhs linv rinv h1 h2
+            intro i lhs rhs h1 h2
             simp only [Array.getElem_push] at h2
             simp_all
             split at h2
             · apply inv <;> assumption
-            · injections; omega
+            · injection h2 with hl hr
+              simp [← hl, ← hr]
+              omega
           ⟨⟨decls, cache, inv⟩, ⟨g, false, by simp [g, decls]⟩⟩
 
 end AIG

@@ -37,7 +37,7 @@ namespace Cache
 
 abbrev Inv (assign : Assignment) (aig : AIG BVBit) (cache : Cache aig) : Prop :=
   ∀ k (h1 : k ∈ cache.map), ∀ (i : Nat) (h2 : i < k.w),
-    ⟦aig, ⟨(cache.map.get k h1)[i].1, (cache.map.get k h1)[i].2, cache.hbound ..⟩, assign.toAIGAssignment⟧
+    ⟦aig, ⟨(cache.map.get k h1)[i].gate, (cache.map.get k h1)[i].invert, cache.hbound ..⟩, assign.toAIGAssignment⟧
       =
     (k.expr.eval assign).getLsbD i
 

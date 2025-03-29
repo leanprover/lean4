@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Util
 import Lean.Meta.Closure
+import Lean.Meta.Transform
 
 namespace Lean.Meta
 namespace AbstractNestedProofs
@@ -37,16 +38,6 @@ structure State where
 
 abbrev M := ReaderT Context $ MonadCacheT ExprStructEq Expr $ StateRefT State MetaM
 
-private def mkAuxLemma (e : Expr) : M Expr := do
-  let ctx ← read
-  let s ← get
-  let lemmaName ← mkAuxName (ctx.baseName ++ `proof) s.nextIdx
-  modify fun s => { s with nextIdx := s.nextIdx + 1 }
-  /- We turn on zetaDelta-expansion to make sure we don't need to perform an expensive `check` step to
-     identify which let-decls can be abstracted. If we design a more efficient test, we can avoid the eager zetaDelta expansion step.
-     It a benchmark created by @selsam, The extra `check` step was a bottleneck. -/
-  mkAuxTheoremFor lemmaName e (zetaDelta := true)
-
 partial def visit (e : Expr) : M Expr := do
   if e.isAtomic then
     pure e
@@ -75,6 +66,20 @@ partial def visit (e : Expr) : M Expr := do
         | .proj _ _ b  => return e.updateProj! (← visit b)
         | .app ..      => e.withApp fun f args => return mkAppN (← visit f) (← args.mapM visit)
         | _            => pure e
+where
+  mkAuxLemma (e : Expr) : M Expr := do
+    let ctx ← read
+    let type ← inferType e
+    let type ← Core.betaReduce type
+    let type ← zetaReduce type
+    /- Ensure proofs nested in type are also abstracted -/
+    let type ← visit type
+    let lemmaName ← mkAuxName (ctx.baseName ++ `proof) (← get).nextIdx
+    modify fun s => { s with nextIdx := s.nextIdx + 1 }
+    /- We turn on zetaDelta-expansion to make sure we don't need to perform an expensive `check` step to
+      identify which let-decls can be abstracted. If we design a more efficient test, we can avoid the eager zetaDelta expansion step.
+      It a benchmark created by @selsam, The extra `check` step was a bottleneck. -/
+    mkAuxTheorem lemmaName type e (zetaDelta := true)
 
 end AbstractNestedProofs
 

@@ -734,7 +734,7 @@ end Array
 
 namespace Vector
 
-protected def Vector.compareLex {α n} (cmp : α → α → Ordering) (a b : Vector α n) : Ordering :=
+protected def compareLex {α n} (cmp : α → α → Ordering) (a b : Vector α n) : Ordering :=
   Array.compareLex cmp a.toArray b.toArray
 
 instance {α n} [Ord α] : Ord (Vector α n) where

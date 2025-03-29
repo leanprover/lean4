@@ -4296,7 +4296,7 @@ theorem minEntry?_eq_some_iff [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] 
   · exact fun _ _ => min_eq_or
   · exact fun a b c => le_min_iff
   · intro e e' he he' hee' he'e
-    exact hd.eq_of_mem_of_beq he he' <| compare_eq_iff_beq.mp <| TransCmp.isLE_antisymm hee' he'e
+    exact hd.eq_of_mem_of_beq he he' <| compare_eq_iff_beq.mp <| OrientedCmp.isLE_antisymm hee' he'e
 
 theorem minKey?_eq_some_iff_getKey?_eq_self_and_forall [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α]
     {k} {l : List ((a : α) × β a)} (hd : DistinctKeys l) :
@@ -4452,7 +4452,7 @@ theorem minEntry?_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] 
     replace ha := ha.2 k ‹_›
     cases hc : (compare k a.fst).isLE
     · simp_all [OrientedCmp.gt_iff_lt, ← compare_eq_iff_beq]
-    · simp_all [TransCmp.isLE_antisymm ha hc, ← compare_eq_iff_beq]
+    · simp_all [OrientedCmp.isLE_antisymm ha hc, ← compare_eq_iff_beq]
 
 theorem minKey?_insertEntry [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {k : α} {v : β k}
     {l : List ((a : α) × β a)} (hl : DistinctKeys l) :

@@ -222,7 +222,7 @@ variable (x : Fin 3)
 /--
 error: fields missing: 'n'
 
-field 'n' must be explicitly provided, synthesized value is
+field 'n' must be explicitly provided, its synthesized value is
   3
 ---
 info: { n := 3, m := x } : S

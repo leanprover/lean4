@@ -884,7 +884,7 @@ private def synthOptParamFields : StructInstM Unit := do
         if (← isFieldNotSolved? pendingField.fieldName).isNone then
           let e := (← get).fieldMap.find! pendingField.fieldName
           requiredErrors := requiredErrors.push m!"\
-            field '{pendingField.fieldName}' must be explicitly provided, synthesized value is{indentExpr e}"
+            field '{pendingField.fieldName}' must be explicitly provided, its synthesized value is{indentExpr e}"
       let requiredErrorsMsg := MessageData.joinSep (requiredErrors.map (m!"\n\n" ++ ·)).toList ""
       let missingFields := pendingFields |>.filter (fun pending => pending.val?.isNone)
       -- TODO(kmill): when fields are all stuck, report better.

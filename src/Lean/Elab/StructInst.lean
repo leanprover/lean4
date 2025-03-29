@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Kyle Miller
 -/
 prelude
 import Lean.Util.FindExpr
@@ -422,15 +422,6 @@ private def mkCtorHeader (ctorVal : ConstructorVal) (structureType? : Option Exp
   synthesizeAppInstMVars instMVars val
   return { ctorFn := val, ctorFnType := type, structType, levels := us, params }
 
-
--- /-- If the struct has all-missing fields, tries to synthesize the structure using typeclass inference. -/
--- def trySynthStructInstance? (s : StructInstView) (expectedType : Expr) : TermElabM (Option Expr) := do
---   if !s.allDefault then
---     return none
---   else
---     try synthInstance? expectedType catch _ => return none
-
-
 /--
 Normalizes the head of the LHS of the `FieldView` in the following ways:
 - Replaces numeric index field LHS's with the corresponding named field.
@@ -603,13 +594,36 @@ private structure StructInstState where
   liftedFVars : Array Expr := #[]
   /-- When processing `ExpandedFieldVal.proj` fields, sometimes we can re-use pre-existing fvars. -/
   liftedFVarRemap : FVarIdMap FVarId := {}
-  pendingFields : Array (Name × Bool) := #[]
+  /-- Fields to avoid when using parent instances to assign fields.
+  Proof fields in this set are ignored. -/
+  fieldInstAvoid : NameSet := {}
+  /-- Fields to synthesize using a tactic, if they don't get synthesized by other means. -/
+  autoParamFields : Array (Name × Expr × Syntax) := #[]
+  /-- Fields to synthesize using default values, if they don't get synthesized by other means.
+  If the boolean is `true`, then the field *must* be solved for. This is used for explicit fields. -/
+  optParamFields : Array (Name × Expr × Bool) := #[]
   deriving Inhabited
 
 /--
 Monad for elaborating the fields of structure instance notation.
 -/
 private abbrev StructInstM := ReaderT StructInstContext (StateRefT StructInstState TermElabM)
+
+private structure SavedState where
+  termState : Term.SavedState
+  state : StructInstState
+  deriving Nonempty
+
+private def saveState : StructInstM SavedState :=
+  return { termState := (← Term.saveState), state := (← get) }
+
+private def SavedState.restore (s : SavedState) : StructInstM Unit := do
+  s.termState.restore
+  set s.state
+
+private instance : MonadBacktrack SavedState StructInstM where
+  saveState      := saveState
+  restoreState b := b.restore
 
 /--
 Initialize cached data.
@@ -623,6 +637,16 @@ private def initializeState : StructInstM Unit := do
 private def withViewRef {α : Type} (x : StructInstM α) : StructInstM α := do
   let ref := (← read).view.ref
   withRef ref x
+
+private def ellipsisMode : StructInstM Bool := return (← read).view.sources.implicit.isSome
+
+/--
+If the field has already been visited by `loop` but has not been solved for yet, returns its metavariable.
+-/
+private def isFieldNotSolved? (fieldName : Name) : StructInstM (Option MVarId) := do
+  let some val := (← get).fieldMap.find? fieldName | return none
+  let .mvar mvarId ← instantiateMVars val | return none
+  return mvarId
 
 /--
 Reduce projections for all structures appearing in `structNameSet`.
@@ -638,7 +662,7 @@ private def reduceFieldProjs (e : Expr) : StructInstM Expr := do
           if let some major := args[projInfo.numParams]? then
             if major.isAppOfArity projInfo.ctorName (cval.numParams + cval.numFields) then
               if let some arg := major.getAppArgs[projInfo.numParams + projInfo.i]? then
-                return TransformStep.visit <| mkAppN arg args[projInfo.numParams+1:]
+                return TransformStep.visit <| arg.beta args[projInfo.numParams+1:]
     return TransformStep.continue
   Meta.transform e (post := postVisit)
 
@@ -669,6 +693,14 @@ private def normalizeExpr (e : Expr) (zetaDeltaImpl : Bool := true) : StructInst
   let e ← if zetaDeltaImpl then zetaDeltaImplDetailsInProps e else pure e
   let e ← reduceFieldProjs e
   etaStructReduce' e
+
+private def addFieldInstAvoid (fieldName : Name) : StructInstM Unit := do
+  modify fun s => { s with fieldInstAvoid := s.fieldInstAvoid.insert fieldName }
+
+/-- Marks a field as solved so that it does not get solved for by optParam synthesis,
+and, importantly, doesn't register an error that optParam synthesis didn't solve for it. -/
+private def markSolved (fieldName : Name) : StructInstM Unit := do
+  modify fun s => { s with optParamFields := s.optParamFields.filter fun (fieldName', _, _) => fieldName != fieldName' }
 
 private def addStructFieldAux (fieldName : Name) (e : Expr) : StructInstM Unit := do
   trace[Elab.struct] "setting {fieldName} value to{indentExpr e}"
@@ -711,8 +743,8 @@ private partial def getFieldDefaultValue? (fieldName : Name) : StructInstM (Name
     let us := (← read).levels
     go? {} <| (← instantiateValueLevelParams cinfo us).beta (← read).params
 where
-  failed : StructInstM (NameSet × Option Expr) := do
-    logWarning m!"ignoring default value for field '{fieldName}' of structure '{.ofConstName (← read).structName}'"
+  logFailure : StructInstM (NameSet × Option Expr) := do
+    logError m!"default value for field '{fieldName}' of structure '{.ofConstName (← read).structName}' could not be instantiated, ignoring"
     return ({}, none)
   go? (usedFields : NameSet) (e : Expr) : StructInstM (NameSet × Option Expr) := do
     match e with
@@ -720,34 +752,58 @@ where
       if c.isExplicit then
         let some val := (← get).fieldMap.find? n
           | trace[Elab.struct] "default value error: no value for field '{n}'"
-            failed
+            logFailure
         let valType ← inferType val
         if (← isDefEq valType d) then
           go? (usedFields.insert n) (b.instantiate1 val)
         else
           trace[Elab.struct] "default value error: {← mkHasTypeButIsExpectedMsg valType d}"
-          failed
+          logFailure
       else
         trace[Elab.struct] "default value error: unexpected implicit argument{indentExpr e}"
-        failed
+        logFailure
     | e =>
       let_expr id _ a := e | return (usedFields, some e)
       return (usedFields, some a)
+
+/--
+Synthesize pending autoParams.
+-/
+private def synthAutoParamFields : StructInstM Unit := do
+  let autoParamFields ← modifyGet fun s => (s.autoParamFields, { s with autoParamFields := #[] })
+  autoParamFields.forM fun (fieldName, fieldType, tacticStx) => do
+    if let some mvarId ← isFieldNotSolved? fieldName then
+      let stx ← `(by $tacticStx)
+      -- See comment in `Lean.Elab.Term.ElabAppArgs.processExplicitArg` about `tacticSyntax`.
+      -- We add info to get reliable positions for messages from evaluating the tactic script.
+      let info := (← getRef).getHeadInfo.nonCanonicalSynthetic
+      let stx := stx.raw.rewriteBottomUp (·.setInfo info)
+      let fieldType ← normalizeExpr fieldType
+      let mvar ← mkTacticMVar fieldType stx (.fieldAutoParam fieldName (← read).structName)
+      -- Note(kmill): We are adding terminfo to simulate a previous implementation that elaborated `tacticSyntax`.
+      -- This is necessary for the unused variable linter.
+      -- (See `processExplicitArg` for a comment about this.)
+      addTermInfo' stx mvar
+      mvarId.assign mvar
 
 /--
 Auxiliary type for `synthDefaultFields`
 -/
 private structure PendingField where
   fieldName : Name
+  fieldType : Expr
   required : Bool
   deps : NameSet
   val? : Option Expr
 
-private def synthDefaultFields : StructInstM Unit := do
-  let pendingFields := (← get).pendingFields
-  if pendingFields.isEmpty then return
+/--
+Synthesize pending optParams.
+-/
+private def synthOptParamFields : StructInstM Unit := do
+  let optParamFields ← modifyGet fun s => (s.optParamFields, { s with optParamFields := #[] })
+  if optParamFields.isEmpty then return
   /-
-  We try to synthesize pending problems combinator before trying to use default values.
+  We try to synthesize pending mvars before trying to use default values.
   This is important in examples such as
   ```
   structure MyStruct where
@@ -766,29 +822,31 @@ private def synthDefaultFields : StructInstM Unit := do
 
   trace[Elab.struct] "field values before default value synth:{indentD <| toMessageData (← get).fieldMap.toArray}"
 
-  -- Collect all default values. We then try to find a synthesis order.
-  let mut pendingFields : Array PendingField ← pendingFields.mapM fun (fieldName, required) => do
-    let (deps, val?) ← getFieldDefaultValue? fieldName
-    if let some val := val? then
-      trace[Elab.struct] "default value for {fieldName}:{indentExpr val}"
+  -- Process default values for pending optParam fields.
+  let mut pendingFields : Array PendingField ← optParamFields.filterMapM fun (fieldName, fieldType, required) => do
+    if required || (← isFieldNotSolved? fieldName).isSome then
+      let (deps, val?) ← getFieldDefaultValue? fieldName
+      if let some val := val? then
+        trace[Elab.struct] "default value for {fieldName}:{indentExpr val}"
+      else
+        trace[Elab.struct] "no default value for {fieldName}"
+      pure <| some { fieldName, fieldType, required, deps, val? }
     else
-      trace[Elab.struct] "no default value for {fieldName}"
-    pure { fieldName, required, deps, val? }
+      pure none
+  -- We then iteratively look for pending fields that do not depend on unsolved-for fields.
+  -- The assignments might fail (due to occurs checks or stuck metavariables),
+  -- so we need to keep trying until no more progress is made.
   let mut pendingSet : NameSet := pendingFields.foldl (init := {}) fun set pending => set.insert pending.fieldName
   while !pendingSet.isEmpty do
     let selectedFields := pendingFields.filter fun pendingField =>
-      pendingField.val?.isSome
-      && pendingField.deps.all (fun dep => !pendingSet.contains dep)
+      pendingField.val?.isSome && pendingField.deps.all (fun dep => !pendingSet.contains dep)
     let mut toRemove : Array Name := #[]
     let mut assignErrors : Array MessageData := #[]
     for selected in selectedFields do
       let some selectedVal := selected.val? | unreachable!
-      let selectedVal ← normalizeExpr selectedVal
-      let some fieldVal := (← get).fieldMap.find? selected.fieldName | unreachable!
-      let fieldVal ← instantiateMVars fieldVal
-      if let .mvar mvarId := fieldVal then
-        let fieldType ← inferType fieldVal
-        let selectedType ← inferType selected.val?.get!
+      if let some mvarId ← isFieldNotSolved? selected.fieldName then
+        let fieldType := selected.fieldType
+        let selectedType ← inferType selectedVal
         if ← isDefEq fieldType selectedType then
           /-
           We must use `checkedAssign` here to ensure we do not create a cyclic
@@ -812,9 +870,9 @@ private def synthDefaultFields : StructInstM Unit := do
         if selected.required then
           -- Clear the value but preserve its pending status, for the "fields missing" error.
           -- Rationale: this is a field that must be explicitly provided (if default values don't solve for it),
-          -- *not* solved for by unification
+          -- and *not* solved for by unification. Users expect explicit fields to be required to be provided by some explicit means.
           pendingFields := pendingFields.map fun pending =>
-            if pending.fieldName == selected.fieldName then
+            if pending.fieldName = selected.fieldName then
               { pending with val? := none }
             else
               pending
@@ -825,10 +883,8 @@ private def synthDefaultFields : StructInstM Unit := do
       if (← readThe Term.Context).errToSorry then
         -- Assign all pending problems using synthetic sorries and log an error.
         for pendingField in pendingFields do
-          if let some val := pendingField.val? then
-            let val ← instantiateMVars val
-            if val.isMVar then
-              val.mvarId!.assign <| ← mkLabeledSorry (← inferType val) (synthetic := true) (unique := true)
+          if let some mvarId ← isFieldNotSolved? pendingField.fieldName then
+            mvarId.assign <| ← mkLabeledSorry (← mvarId.getType) (synthetic := true) (unique := true)
         logError msg
         return
       else
@@ -836,12 +892,88 @@ private def synthDefaultFields : StructInstM Unit := do
     pendingSet := pendingSet.filter (!toRemove.contains ·)
     pendingFields := pendingFields.filter fun pendingField => pendingField.val?.isNone || !toRemove.contains pendingField.fieldName
 
+/--
+Try using parent instances to fill in fields.
+-/
+def synthWithParentInstances (val : Expr) : StructInstM Unit := do
+  let structName := (← read).structName
+  let unsolvedFields : NameSet ← (← get).fieldMap.foldM (init := {}) fun unsolved fieldName _ => do
+    pure <| if (← isFieldNotSolved? fieldName).isSome then unsolved.insert fieldName else unsolved
+  if unsolvedFields.isEmpty then return
+
+  -- The fields to avoid. It is OK to resynth proofs.
+  let avoid ← (← get).fieldInstAvoid.toArray.filterM fun fieldName => do
+    let some fieldVal := (← get).fieldMap.find? fieldName | return false
+    return !(← Meta.isProof fieldVal)
+
+  -- Filter out the avoid list. The parents we consider will only have fields that are a subset of this set.
+  let unsolvedFields := unsolvedFields.filter (!avoid.contains ·)
+  trace[Elab.struct] "parent synthesis, initial unsolved fields {unsolvedFields.toArray}"
+
+  -- We look at class parents in resolution order
+  let parents ← getAllParentStructures structName
+  let env ← getEnv
+  let classParents := parents.filter (isClass env)
+
+  -- The fields that still don't have values.
+  let mut stillUnsolvedFields := unsolvedFields
+
+  for parent in classParents do
+    if stillUnsolvedFields.isEmpty then break
+    let parentFields := getStructureFieldsFlattened env parent (includeSubobjectFields := false)
+    trace[Elab.struct] "parent synthesis for '{parent}', still unsolved fields {stillUnsolvedFields.toArray}, parent fields {parentFields}"
+    if (stillUnsolvedFields.any parentFields.contains) && parentFields.all unsolvedFields.contains then
+      -- We are now looking at a class parent, all of whose fields are in the set of allowed unsolved fields,
+      -- and at least one of whose fields is still unsolved.
+
+      -- First, we need to compute the type of this parent.
+      -- The easiest way is to use the current constructor value and project.
+      let some path := getPathToBaseStructure? env parent structName | unreachable!
+      let val' ← path.foldlM (init := val) fun e projFn => do
+        let ty ← whnf (← inferType e)
+        let .const _ us := ty.getAppFn | unreachable!
+        let params := ty.getAppArgs
+        pure <| mkApp (mkAppN (.const projFn us) params) e
+      let parentTy ← whnf (← inferType val')
+      let parentTy ← normalizeExpr parentTy
+      if let some inst ← try synthInstance? parentTy catch _ => pure none then
+        -- Found an instance. Try assigning what we found.
+        if ← tryAssignFields parentTy inst parentFields then
+          trace[Elab.struct] "synthesized instance '{parentTy}' and successfully assigned fields {parentFields}"
+          stillUnsolvedFields := stillUnsolvedFields.filter (!parentFields.contains ·)
+where
+  tryAssignFields (parentTy inst : Expr) (parentFields : Array Name) : StructInstM Bool := do
+    let state ← saveState
+    try
+      for fieldName in parentFields do
+        if let some mvarId ← isFieldNotSolved? fieldName then
+          let proj ← mkProjection inst fieldName
+          -- We need to normalize because otherwise this would be a cyclic assignment
+          let proj ← normalizeExpr proj
+          let fieldType ← mvarId.getType
+          let projType ← inferType proj
+          unless ← isDefEq projType fieldType do
+            throwError "failed to unify type for projection '{fieldName}', {← mkHasTypeButIsExpectedMsg projType fieldType}"
+          unless ← mvarId.checkedAssign proj do
+            throwError "occurs check field for projection '{fieldName}'"
+          markSolved fieldName
+      return true
+    catch ex =>
+      restoreState state
+      trace[Elab.struct] "synthesized instance '{parentTy}' but failed to assign fields. {ex.toMessageData}"
+      return false
+
+
 private def finalize : StructInstM Expr := withViewRef do
   let val := (← read).val.beta (← get).fields
   trace[Elab.struct] "constructor{indentExpr val}"
   synthesizeAppInstMVars (← get).instMVars val
   trace[Elab.struct] "constructor after synthesizing instMVars{indentExpr val}"
-  synthDefaultFields
+  unless ← ellipsisMode do
+    synthWithParentInstances val
+    synthAutoParamFields
+    synthOptParamFields
+  trace[Elab.struct] "constructor after synthesizing defaults{indentExpr val}"
   -- Compact the constructors:
   let val ← etaStructReduce' val
   mkLetFVars (← get).liftedFVars val
@@ -873,7 +1005,7 @@ where
     unless major == self do return none
     let some fieldExpr := (← get).fieldMap.find? fieldName | return none
     let args := e.getAppArgs
-    return mkAppN fieldExpr args[numParams + 1:]
+    return fieldExpr.beta args[numParams + 1:]
 
 /--
 If there is a path to `parentStructName`, compute its type. Also returns the last projection to the parent.
@@ -917,6 +1049,7 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
     trace[Elab.struct] "field.val is term {field.name}"
     let e ← elabStructField field.name val fieldType
     addStructField field e
+    addFieldInstAvoid field.name
     loop
   | .nested fields sources => withRef field.ref do
     trace[Elab.struct] "field.val is nested {field.name}"
@@ -927,6 +1060,7 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
     let stx ← `({ $sourceStxs,* with $fieldStxs,* $[..%$ellipsis]? })
     let e ← elabStructField field.name stx fieldType
     addStructField field e
+    addFieldInstAvoid field.name
     loop
   | .proj fvarId val parentStructName parentFieldName? => withRef field.ref do
     trace[Elab.struct] "field.val is proj {field.name}"
@@ -944,6 +1078,7 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
           addStructFieldAux field.name e
         else
           throw ex
+      addFieldInstAvoid field.name
       loop
     if let some fvarId' := (← get).liftedFVarRemap.find? fvarId then
       processProjAux fvarId'
@@ -971,21 +1106,20 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
         modify fun s => { s with liftedFVars := s.liftedFVars.push (.fvar fvarId) }
         withExistingLocalDecls [decl] do processProjAux fvarId
 
-private def processDefault (loop : StructInstM α) (fieldName : Name) (binfo : BinderInfo) (fieldType : Expr) : StructInstM α := withViewRef do
-  trace[Elab.struct] "processDefault {fieldName}"
-  if let some val := (← get).fieldMap.find? fieldName then
-    -- This is a field that was set by parent instance synthesis
-    trace[Elab.struct] "field {fieldName} already has value"
-    addStructFieldAux fieldName val
-    loop
-  else if (← read).view.sources.implicit.isSome then
-    -- In ellipsis mode, all other fields are holes
+/--
+Handle the case when no field is given.
+
+These fields can still be solved for by parent instance synthesis later.
+-/
+private def processNoField (loop : StructInstM α) (fieldName : Name) (binfo : BinderInfo) (fieldType : Expr) : StructInstM α := withViewRef do
+  trace[Elab.struct] "processNoField {fieldName}"
+  if ← ellipsisMode then
+    -- In ellipsis mode, all other fields are holes. Do not use optParams or autoParams.
     discard <| addStructFieldMVar fieldName fieldType
     loop
   else
     let autoParam? := fieldType.getAutoParamTactic?
     let fieldType := fieldType.consumeTypeAnnotations
-    -- TODO use parent instances for defaults
     if binfo.isInstImplicit then
       let e ← addStructFieldMVar fieldName fieldType .synthetic
       modify fun s => { s with instMVars := s.instMVars.push e.mvarId! }
@@ -994,32 +1128,25 @@ private def processDefault (loop : StructInstM α) (fieldName : Name) (binfo : B
       match evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl with
       | .error err       => throwError err
       | .ok tacticSyntax =>
-        let stx ← `(by $tacticSyntax)
-        -- See comment in `Lean.Elab.Term.ElabAppArgs.processExplicitArg` about `tacticSyntax`.
-        -- We add info to get reliable positions for messages from evaluating the tactic script.
-        let info := (← getRef).getHeadInfo.nonCanonicalSynthetic
-        let stx := stx.raw.rewriteBottomUp (·.setInfo info)
-        let fieldType ← normalizeExpr fieldType
-        let mvar ← mkTacticMVar fieldType stx (.fieldAutoParam fieldName (← read).structName)
-        -- Note(kmill): We are adding terminfo to simulate a previous implementation that elaborated `tacticBlock`.
-        -- (See the aforementioned `processExplicitArg` for a comment about this.)
-        addTermInfo' stx mvar
-        addStructFieldAux fieldName mvar
+        -- Use synthetic to discourage assignment
+        discard <| addStructFieldMVar fieldName fieldType .synthetic
+        modify fun s => { s with autoParamFields := s.autoParamFields.push (fieldName, fieldType, tacticSyntax) }
         loop
     else
+      -- Default case: natural metavariable, register it for optParams
       discard <| addStructFieldMVar fieldName fieldType
-      modify fun s => { s with pendingFields := s.pendingFields.push (fieldName, binfo.isExplicit) }
+      modify fun s => { s with optParamFields := s.optParamFields.push (fieldName, fieldType, binfo.isExplicit) }
       loop
 
 private partial def loop : StructInstM Expr := do
   let type := (← get).type
   trace[Elab.struct] m!"loop, constructor type:{indentExpr type}"
   if let .forallE fieldName fieldType _ binfo := type then
-    trace[Elab.struct] "loop, field {fieldName} of type{indentExpr fieldType}"
+    trace[Elab.struct] "next field '{fieldName}' is of type{indentExpr fieldType}"
     if let some field := (← read).fieldViews.find? fieldName then
       processField loop field fieldType
     else
-      processDefault loop fieldName binfo fieldType
+      processNoField loop fieldName binfo fieldType
   else
     finalize
 
@@ -1044,33 +1171,6 @@ private def elabStructInstView (s : StructInstView) (structName : Name) (structT
     |>.run { view := s, structName, structType, levels, params, fieldViews := fields, val := ctorFn }
     |>.run { type := ctorFnType }
   return val
-
---   /--
---   Consider the following example:
---   ```lean
---   structure A where
---     x : Nat := 1
-
---   structure B extends A where
---     y : Nat := x + 1
---     x := y + 1
-
---   structure C extends B where
---     z : Nat := 2*y
---     x := z + 3
---   ```
---   And we are trying to elaborate a structure instance for `C`. There are default values for `x` at `A`, `B`, and `C`.
---   We say the default value at `C` has distance 0, the one at `B` distance 1, and the one at `A` distance 2.
---   The field `maxDistance` specifies the maximum distance considered in a round of Default field computation.
---   Remark: since `C` does not set a default value of `y`, the default value at `B` is at distance 0.
-
---   The fixpoint for setting default values works in the following way.
---   - Keep computing default values using `maxDistance == 0`.
---   - We increase `maxDistance` whenever we failed to compute a new default value in a round.
---   - If `maxDistance > 0`, then we interrupt a round as soon as we compute some default value.
---     We use depth-first search.
---   - We sign an error if no progress is made when `maxDistance` == structure hierarchy depth (2 in the example above).
---   -/
 
 /--
 If `stx` is of the form `{ s₁, ..., sₙ with ... }` and `sᵢ` is not a local variable,

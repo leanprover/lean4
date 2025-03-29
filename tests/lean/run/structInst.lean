@@ -59,7 +59,11 @@ structure C extends B where
 (z : Nat := 2*y) (x := z + 2) (y := z + 3)
 
 -- This first example does not work because the default values at `C` are the only ones considered.
-/-- error: fields missing: 'y', 'z' -/
+/--
+error: fields missing: 'y', 'z'
+---
+info: { x := 1, y := sorry, z := sorry } : C
+-/
 #guard_msgs in #check { x := 1 : C }
 /-- info: { x := 2 * 1 + 2, y := 1, z := 2 * 1 } : C -/
 #guard_msgs in #check { y := 1 : C }
@@ -163,3 +167,40 @@ def test1 (z : Int) : A Int Int where
   z
 
 end Ex5
+
+/-!
+Default instances are applied before analyzing default values.
+Without this, `α` would be reported as being a missing field.
+-/
+namespace Ex6
+structure MyStruct where
+    {α : Type u}
+    {β : Type v}
+    a : α
+    b : β
+
+/-- info: { α := Nat, β := Bool, a := 10, b := true } : MyStruct -/
+#guard_msgs in #check { a := 10, b := true : MyStruct }
+end Ex6
+
+/-!
+Make sure we have the Lean 3 behavior, where field projections are unfolded.
+https://github.com/leanprover-community/mathlib4/issues/12129#issuecomment-2056134533
+-/
+namespace Mathlib12129
+
+structure Foo where
+  toFun : Nat → Nat
+
+structure Bar extends Foo where
+  prop : toFun 0 = 0
+
+/-- info: ⊢ (fun x => x) 0 = 0 -/
+#guard_msgs in
+def bar : Bar where
+  toFun x := x
+  prop := by
+    trace_state
+    rfl
+
+end Mathlib12129

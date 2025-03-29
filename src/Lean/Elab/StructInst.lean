@@ -568,6 +568,8 @@ private def addSourceFields (structName : Name) (sources : Array ExplicitSourceV
 
 private structure StructInstContext where
   view : StructInstView
+  /-- True if the structure instance has a trailing `..`. -/
+  ellipsis : Bool
   structName : Name
   structType : Expr
   /-- Structure universe levels. -/
@@ -634,8 +636,6 @@ private def initializeState : StructInstM Unit := do
 private def withViewRef {α : Type} (x : StructInstM α) : StructInstM α := do
   let ref := (← read).view.ref
   withRef ref x
-
-private def ellipsisMode : StructInstM Bool := return (← read).view.sources.implicit.isSome
 
 /--
 If the field has already been visited by `loop` but has not been solved for yet, returns its metavariable.
@@ -872,7 +872,7 @@ private def synthOptParamFields : StructInstM Unit := do
               pending
         toRemove := toRemove.push selected.fieldName
     if toRemove.isEmpty then
-      if ← ellipsisMode then
+      if (← read).ellipsis then
         for pendingField in pendingFields do
           if let some mvarId ← isFieldNotSolved? pendingField.fieldName then
             registerCustomErrorIfMVar (.mvar mvarId) (← read).view.ref m!"\
@@ -1059,7 +1059,7 @@ These fields can still be solved for by parent instance synthesis later.
 -/
 private def processNoField (loop : StructInstM α) (fieldName : Name) (binfo : BinderInfo) (fieldType : Expr) : StructInstM α := do
   trace[Elab.struct] "processNoField '{fieldName}' of type {fieldType}"
-  if (← ellipsisMode) && (← readThe Term.Context).inPattern then
+  if (← read).ellipsis && (← readThe Term.Context).inPattern then
     -- See the note in `ElabAppArgs.processExplicitArg`
     -- In ellipsis & pattern mode, do not use optParams or autoParams.
     let e ← addStructFieldMVar fieldName fieldType
@@ -1165,7 +1165,9 @@ private partial def addParentInstanceFields : StructInstM Unit := do
 
 private def main : StructInstM Expr := do
   initializeState
-  addParentInstanceFields
+  unless (← read).ellipsis && (← readThe Term.Context).inPattern do
+    -- Inside a pattern with ellipsis mode, users expect to match just the fields provided.
+    addParentInstanceFields
   loop
 
 /--
@@ -1181,8 +1183,9 @@ private def elabStructInstView (s : StructInstView) (structName : Name) (structT
   let (_, fields) ← expandFields structName s.fields (recover := (← read).errToSorry)
   let fields ← addSourceFields structName s.sources.explicit fields
   trace[Elab.struct] "expanded fields:\n{MessageData.joinSep (fields.toList.map (fun (_, field) => m!"- {MessageData.nestD (toMessageData field)}")) "\n"}"
+  let ellipsis := s.sources.implicit.isSome
   let (val, _) ← main
-    |>.run { view := s, structName, structType, levels, params, fieldViews := fields, val := ctorFn }
+    |>.run { view := s, structName, structType, levels, params, fieldViews := fields, val := ctorFn, ellipsis }
     |>.run { type := ctorFnType }
   return val
 

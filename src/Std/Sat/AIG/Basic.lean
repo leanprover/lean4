@@ -20,6 +20,12 @@ variable {α : Type} [Hashable α] [DecidableEq α]
 
 namespace AIG
 
+/--
+This datatype is isomorphic to a pair of a `Nat` and a `Bool`, however the `Bool` is stored in the
+lowest bit of the `Nat` in order to save memory. It is used to describe an input to an `AIG` circuit
+node which consists of a `Nat` describing the input node and a `Bool` saying whether there is an inverter
+on the input.
+-/
 structure Fanin where
   private of ::
     private val : Nat
@@ -27,16 +33,28 @@ structure Fanin where
 
 namespace Fanin
 
+/--
+The public constructor of `Fanin`.
+-/
 @[inline]
 def mk (gate : Nat) (invert : Bool) : Fanin :=
   ⟨gate <<< 1 ||| invert.toNat⟩
 
+/--
+Get the gate.
+-/
 @[inline]
 def gate (f : Fanin) : Nat := f.val >>> 1
 
+/--
+Get the inverter bit.
+-/
 @[inline]
 def invert (f : Fanin) : Bool := f.val.testBit 0
 
+/--
+Flip the inverter bit.
+-/
 @[inline]
 def flip (f : Fanin) (val : Bool) : Fanin := ⟨f.val ^^^ val.toNat⟩
 
@@ -65,8 +83,7 @@ inductive Decl (α : Type) where
   | atom (idx : α)
   /--
   An AIG gate with configurable input nodes and polarity. `l` and `r` are the
-  input node indices while `linv` and `rinv` say whether there is an inverter on
-  the left and right inputs, respectively.
+  input nodes together with their inverter bit.
   -/
   | gate (l r : Fanin)
   deriving Hashable, Repr, DecidableEq, Inhabited

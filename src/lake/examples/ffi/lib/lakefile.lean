@@ -8,20 +8,44 @@ package ffi where
 lean_exe test where
   root := `Main
 
-input_file ffi.cpp where
-  path := "c" / "ffi.cpp"
+lean_lib FFI
+
+/-! ## Static C FFI Library -/
+
+input_file ffi_static.c where
+  path := "c" / "ffi_static.c"
   text := true
 
-target ffi.o pkg : FilePath := do
-  let srcJob ← ffi.cpp.fetch
+target ffi_static.o pkg : FilePath := do
+  let srcJob ← ffi_static.c.fetch
+  let oFile := pkg.buildDir / "c" / "ffi.o"
+  buildO oFile srcJob #[] #["-fPIC"] "cc"
+
+target libleanffi_static pkg : FilePath := do
+  let ffiO ← ffi_static.o.fetch
+  let name := nameToStaticLib "leanffi"
+  buildStaticLib (pkg.nativeLibDir / name) #[ffiO]
+
+lean_lib FFI.Static where
+  moreLinkObjs := #[libleanffi_static]
+
+/-! ## Shared C++ FFI Library -/
+
+input_file ffi_shared.cpp where
+  path := "c" / "ffi_shared.cpp"
+  text := true
+
+target ffi_shared.o pkg : FilePath := do
+  let srcJob ← ffi_shared.cpp.fetch
   let oFile := pkg.buildDir / "c" / "ffi.o"
   let weakArgs := #["-I", (← getLeanIncludeDir).toString]
   buildO oFile srcJob weakArgs #["-fPIC"] "c++" getLeanTrace
 
-target libleanffi pkg : FilePath := do
-  let ffiO ← ffi.o.fetch
-  let name := nameToStaticLib "leanffi"
-  buildStaticLib (pkg.nativeLibDir / name) #[ffiO]
+target libleanffi_shared pkg : FilePath := do
+  let ffiO ← ffi_shared.o.fetch
+  let name := nameToSharedLib "leanffi"
+  buildSharedLib (pkg.nativeLibDir / name) #[ffiO]
 
-lean_lib FFI where
-  moreLinkObjs := #[libleanffi]
+lean_lib FFI.Shared where
+  moreLinkLibs := #[libleanffi_shared]
+  moreLinkArgs := #["-lstdc++"]

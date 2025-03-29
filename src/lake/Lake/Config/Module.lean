@@ -8,7 +8,6 @@ import Lake.Build.Trace
 import Lake.Config.LeanLib
 import Lake.Config.OutFormat
 import Lake.Util.OrdHashSet
-import Lean.Compiler.NameMangling
 
 namespace Lake
 open Lean System

@@ -693,7 +693,7 @@ instance {α} [Ord α] : Ord (Array α) where
 protected theorem compare_eq_compareLex {α} [Ord α] :
     compare (α := Array α) = Array.compareLex compare := rfl
 
-private theorem compareLexGo_succ {α} {cmp} {x₁ x₂} {a₁ a₂ : List α} {i} :
+private theorem compareLex.go_succ {α} {cmp} {x₁ x₂} {a₁ a₂ : List α} {i} :
     compareLex.go cmp (x₁ :: a₁).toArray (x₂ :: a₂).toArray (i + 1) =
       compareLex.go cmp a₁.toArray a₂.toArray i := by
   induction i using Array.compareLex.go.induct cmp a₁.toArray a₂.toArray
@@ -716,7 +716,7 @@ private theorem compareLex_toArray_eq_listCompareLex {α} {cmp} {l₁ l₂ : Lis
     · rw [Array.compareLex.go, List.compareLex_cons_cons]
       simp only [List.size_toArray, List.length_cons, Nat.le_zero_eq, Nat.add_one_ne_zero,
         ↓reduceDIte, List.getElem_toArray, List.getElem_cons_zero, Nat.zero_add]
-      split <;> simp_all [compareLexGo_succ]
+      split <;> simp_all [compareLex.go_succ]
 
 protected theorem compareLex_eq_compareLex_toList {α} {cmp} {a₁ a₂ : Array α} :
     Array.compareLex cmp a₁ a₂ = List.compareLex cmp a₁.toList a₂.toList := by

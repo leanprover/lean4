@@ -49,6 +49,10 @@ The names of the library's root modules
 @[inline] def isBuildableModule (mod : Name) (self : LeanLib) : Bool :=
   self.config.isBuildableModule mod
 
+/-- The name of the library artifact. -/
+@[inline] def libName (self : LeanLib) : String :=
+  self.config.libName
+
 /-- The file name of the library's static binary (i.e., its `.a`) -/
 @[inline] def staticLibFileName (self : LeanLib) : FilePath :=
   nameToStaticLib self.config.libName
@@ -127,14 +131,14 @@ then the default (which is C for now).
 The dynamic libraries to load for modules of this library.
 The targets of the package plus the targets of the library (in that order).
 -/
-@[inline] def dynlibs (self : LeanLib) : TargetArray FilePath :=
+@[inline] def dynlibs (self : LeanLib) : TargetArray Dynlib :=
   self.pkg.dynlibs ++ self.config.dynlibs
 
 /--
 The Lean plugins for modules of this library.
 The targets of the package plus the targets of the library (in that order).
 -/
-@[inline] def plugins (self : LeanLib) : TargetArray FilePath :=
+@[inline] def plugins (self : LeanLib) : TargetArray Dynlib :=
   self.pkg.plugins ++ self.config.plugins
 
 /--
@@ -182,16 +186,8 @@ That is, the package's `moreLinkObjs` plus the library's `moreLinkObjs`.
 Additionl target libraries to are linked to the shared library.
 That is, the package's `moreLinkLibs` plus the library's `moreLinkLibs`.
 -/
-@[inline] def moreLinkLibs (self : LeanLib) : TargetArray FilePath :=
+@[inline] def moreLinkLibs (self : LeanLib) : TargetArray Dynlib :=
   self.pkg.moreLinkLibs ++ self.config.moreLinkLibs
-
-/--
-Additionl target objects to pass to `leanc` when linking the shared library.
-That is, the package's `moreLinkObjs` & `moreLinkLibs` plus the library's.
--/
-@[inline] def moreSharedLinks (self : LeanLib) : TargetArray FilePath :=
-  self.pkg.moreLinkObjs ++ self.pkg.moreLinkLibs ++
-  self.config.moreLinkObjs ++ self.config.moreLinkLibs
 
 /--
 The arguments to pass to `leanc` when linking the shared library.

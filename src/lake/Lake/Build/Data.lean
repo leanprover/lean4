@@ -6,6 +6,7 @@ Authors: Mac Malone
 prelude
 import Lake.Build.Key
 import Lake.Util.Family
+import Lake.Config.Dynlib
 
 open Lean
 namespace Lake

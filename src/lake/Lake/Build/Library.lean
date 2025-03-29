@@ -88,20 +88,21 @@ def LeanLib.staticExportFacetConfig : LibraryFacetConfig staticExportFacet :=
 
 /-! ## Build Shared Lib -/
 
-protected def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job FilePath) := do
+protected def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job Dynlib) := do
   withRegisterJob s!"{self.name}:shared" do
   let mods ← (← self.modules.fetch).await
-  let oJobs ← mods.flatMapM fun mod =>
+  let objJobs ← mods.flatMapM fun mod =>
     mod.nativeFacets true |>.mapM (·.fetch mod)
-  let moreLinkJobs ← self.moreSharedLinks.mapM (·.fetchIn self.pkg)
-  let moreLinkJobs ← id do
-    -- Fetch transitive dynlibs
+  let objJobs ← self.moreLinkObjs.foldlM (init := objJobs)
+    (·.push <$> ·.fetchIn self.pkg)
+  let libJobs ← id do
+    -- Fetch dependnecy dynlibs
     -- for platforms that must link to them (e.g., Windows)
     if Platform.isWindows then
       let imps ← mods.foldlM (init := OrdModuleSet.empty) fun imps mod => do
         return imps.appendArray (← (← mod.transImports.fetch).await)
       let s := (NameSet.empty.insert self.name, #[])
-      let s ← imps.foldlM (init := s) fun (libs, jobs) imp => do
+      let (_, jobs) ← imps.foldlM (init := s) fun (libs, jobs) imp => do
         if libs.contains imp.lib.name then
           return (libs, jobs)
         else
@@ -109,27 +110,19 @@ protected def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job FilePath) :=
           let moreJobs ← imp.lib.moreLinkLibs.mapM (·.fetchIn self.pkg)
           let jobs := jobs.push job ++ moreJobs
           return (libs.insert imp.lib.name, jobs)
-      return s.2 ++ moreLinkJobs
+      let jobs ← self.moreLinkLibs.foldlM
+        (·.push <$> ·.fetchIn self.pkg) jobs
+      let jobs ← self.pkg.externLibs.foldlM
+        (·.push <$> ·.dynlib.fetch) jobs
+      return jobs
     else
-      return moreLinkJobs
-  let externJobs ← self.pkg.externLibs.mapM (·.shared.fetch)
-  let linkJobs := oJobs ++ externJobs ++ moreLinkJobs
-  buildLeanSharedLib self.sharedLibFile linkJobs self.weakLinkArgs self.linkArgs
+      return #[]
+  buildLeanSharedLib self.libName self.sharedLibFile objJobs libJobs
+    self.weakLinkArgs self.linkArgs (plugin := self.roots.size == 1)
 
 /-- The `LibraryFacetConfig` for the builtin `sharedFacet`. -/
 def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
   mkFacetJobConfig LeanLib.recBuildShared
-
-protected def LeanLib.recBuildDynlib (self : LeanLib) : FetchM (Job Dynlib) := do
-  withRegisterJob s!"{self.name}:dynlib" do
-  let job ← self.shared.fetch
-  let job := job.map (sync := true) fun path =>
-    {name := self.config.libName, path, plugin := self.roots.size == 1}
-  return job
-
-/-- The `LibraryFacetConfig` for the builtin `dynlibFacet`. -/
-def LeanLib.dynlibFacetConfig : LibraryFacetConfig dynlibFacet :=
-  mkFacetJobConfig LeanLib.recBuildDynlib
 
 /-! ## Other -/
 
@@ -168,7 +161,6 @@ def LeanLib.initFacetConfigs : DNameMap LeanLibFacetConfig :=
   |>.insert staticFacet staticFacetConfig
   |>.insert staticExportFacet staticExportFacetConfig
   |>.insert sharedFacet sharedFacetConfig
-  |>.insert dynlibFacet dynlibFacetConfig
   |>.insert extraDepFacet extraDepFacetConfig
 
 @[inherit_doc LeanLib.initFacetConfigs]

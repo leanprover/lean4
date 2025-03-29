@@ -115,11 +115,11 @@ private def Module.fetchImportLibsCore
     let job ← imp.dynlib.fetch
     return (libs, jobs.push job)
   else
-    let job ← imp.lib.dynlib.fetch
-    let moreJobs ← imp.lib.moreLinkLibs.mapM (·.fetchIn imp.pkg)
-    let moreJobs ← liftM <| moreJobs.mapM computeDynlibOfShared
+
+    let jobs ← imp.lib.moreLinkLibs.foldlM (init := jobs)
+      (·.push <$> ·.fetchIn imp.pkg)
     -- Lean wants the external library symbols before module symbols.
-    let jobs := jobs ++ moreJobs |>.push job
+    let jobs ← jobs.push <$> imp.lib.shared.fetch
     return (libs.insert imp.lib.name, jobs)
 
 /--
@@ -152,7 +152,7 @@ from other libraries are loaded as part of the whole library.
 
 def computeModuleDeps
   (impLibs : Array Dynlib) (externLibs : Array Dynlib)
-  (dynlibs : Array FilePath) (plugins : Array FilePath)
+  (dynlibs : Array Dynlib) (plugins : Array Dynlib)
 : ModuleDeps := Id.run do
   /-
   Requirements:
@@ -163,12 +163,12 @@ def computeModuleDeps
   * Linux needs the augmented path to resolve nested dependencies in dynlibs.
   -/
   let mut plugins := plugins
-  let mut dynlibs := externLibs.map (·.path) ++ dynlibs
+  let mut dynlibs := externLibs ++ dynlibs
   for impLib in impLibs do
     if impLib.plugin then
-      plugins := plugins.push impLib.path
+      plugins := plugins.push impLib
     else
-      dynlibs := dynlibs.push impLib.path
+      dynlibs := dynlibs.push impLib
   return {dynlibs, plugins}
 
 /--
@@ -375,16 +375,16 @@ def Module.recBuildDynlib (mod : Module) : FetchM (Job Dynlib) :=
   let modLinksJob := Job.collectArray modLinkJobs
 
   -- Build dynlib
-  let buildDynlib moreLinks :=
+  let buildDynlib (moreLibs : Array Dynlib) :=
     modLinksJob.mapM fun modLinks => do
       addLeanTrace
       addPlatformTrace -- shared libraries are platform-dependent artifacts
       addPureTrace mod.linkArgs
       buildFileUnlessUpToDate' mod.dynlibFile do
         let lean ← getLeanInstall
-        let args := modLinks.map toString
-        let args := args ++ moreLinks
-        let args := args ++
+        let args :=
+          modLinks.map toString ++
+          moreLibs.map (·.path.toString) ++
           mod.weakLinkArgs ++ mod.linkArgs ++ lean.ccLinkSharedFlags
         compileSharedLib mod.dynlibFile args lean.cc
       return ⟨mod.dynlibFile, mod.dynlibName, true⟩
@@ -401,9 +401,7 @@ def Module.recBuildDynlib (mod : Module) : FetchM (Job Dynlib) :=
     impLibs.bindM fun impLibs =>
     dynlibsJob.bindM (sync := true) fun dynlibs =>
     externLibsJob.bindM (sync := true) fun externLibs =>
-      let links := (impLibs ++ externLibs).map (·.path.toString)
-      let links := links ++ dynlibs.map (·.toString)
-      buildDynlib links
+      buildDynlib (impLibs ++ externLibs ++ dynlibs)
   else
     buildDynlib #[]
 

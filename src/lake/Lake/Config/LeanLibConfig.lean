@@ -43,7 +43,7 @@ configuration LeanLibConfig (name : Name) extends LeanConfig where
   globs : Array Glob := roots.map Glob.one
 
   /--
-  The name of the library.
+  The name of the library artifact.
   Used as a base for the file names of its static and dynamic binaries.
   Defaults to the mangled name of the target.
   -/

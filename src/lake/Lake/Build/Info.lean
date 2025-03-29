@@ -337,10 +337,6 @@ abbrev shared (self : LeanLib) : BuildInfo :=
   self.facetCore sharedFacet
 
 @[inherit_doc extraDepFacet]
-abbrev dynlib (self : LeanLib) : BuildInfo :=
-  self.facetCore dynlibFacet
-
-@[inherit_doc extraDepFacet]
 abbrev extraDep (self : LeanLib) : BuildInfo :=
   self.facetCore extraDepFacet
 

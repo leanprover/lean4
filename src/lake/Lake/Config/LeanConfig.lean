@@ -192,7 +192,7 @@ configuration LeanConfig where
   (e.g., for shared libraries or binary executables).
   These will come *after* the paths of other link objects.
   -/
-  moreLinkLibs : TargetArray FilePath := #[]
+  moreLinkLibs : TargetArray Dynlib := #[]
   /--
   Additional arguments to pass to `leanc` when linking (e.g., for shared
   libraries or binary executables). These will come *after* the paths of
@@ -240,12 +240,12 @@ configuration LeanConfig where
   An array of dynamic library targets to load during the elaboration
   of a module (via `lean --load-dynlib`).
   -/
-  dynlibs : TargetArray FilePath := #[]
+  dynlibs : TargetArray Dynlib := #[]
   /-
   An array of Lean plugin targets to load during the elaboration
   of a module (via `lean --plugin`).
   -/
-  plugins : TargetArray FilePath := #[]
+  plugins : TargetArray Dynlib := #[]
 deriving Inhabited, Repr
 
 instance : EmptyCollection LeanConfig := ⟨{}⟩

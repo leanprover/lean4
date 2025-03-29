@@ -66,7 +66,7 @@ quickly became a mess because of the mismatch between `siftDown.induct` and its 
 -/
 
 -- To avoid the sorry above, I redefined `siftDown` using a subtype
-def siftDown' (a : Array Int) (root : Nat) (e : Nat) (h : e ≤ a.size := by grind) : { a' : Array Int // a'.size = a.size } :=
+def siftDownAux (a : Array Int) (root : Nat) (e : Nat) (h : e ≤ a.size := by grind) : { a' : Array Int // a'.size = a.size } :=
   if _ : leftChild root < e then
     let child := leftChild root
     let child := if _ : child+1 < e then
@@ -79,7 +79,7 @@ def siftDown' (a : Array Int) (root : Nat) (e : Nat) (h : e ≤ a.size := by gri
     if a[root] < a[child] then
       let a := a.swap root child
       -- Remark: I found the following idiom ugly. The proof-plumbing is quite distracting.
-      let ⟨a, h'⟩ := siftDown' a child e
+      let ⟨a, h'⟩ := siftDownAux a child e
       ⟨a, by grind⟩
     else
       ⟨a, rfl⟩
@@ -90,6 +90,12 @@ def siftDown' (a : Array Int) (root : Nat) (e : Nat) (h : e ≤ a.size := by gri
 -- on `termination_by a.size`, `termination_by root`, ...
 termination_by e - root
 
+@[inline] def siftDown' (a : Array Int) (root : Nat) (e : Nat) (h : e ≤ a.size := by grind) : Array Int :=
+  siftDownAux a root e h
+
+@[grind] theorem siftDown'_size : (siftDown' a root e h).size = a.size :=
+  (siftDownAux a root e h).property
+
 def heapify (a : Array Int) : Array Int :=
   let start := parent (a.size - 1) + 1
   go a start
@@ -97,7 +103,7 @@ where
   go (a : Array Int) (start : Nat) : Array Int :=
     match start with
     | 0 => a
-    | start+1 => go (siftDown' a start a.size).1 start
+    | start+1 => go (siftDown' a start a.size) start
 
 def heapsort (a : Array Int) : Array Int :=
   let a := heapify a
@@ -108,8 +114,7 @@ where
     if _ : e > 1 then
       let e := e - 1
       let a := a.swap e 0
-      let ⟨a, h⟩ := siftDown' a 0 e
-      go a e
+      go (siftDown' a 0 e) e
     else
       a
 

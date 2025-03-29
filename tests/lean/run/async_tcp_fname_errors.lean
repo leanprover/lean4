@@ -36,13 +36,14 @@ instance : MonadLift IO Async where
 --------------------------------------------------------------
 
 /-- Mike is another client. -/
-def runMike (client: TCP.Socket.Client) : Async (Option ByteArray) := do
-  await (client.recv? 1024)
+def runMike (client: TCP.Socket.Client) : Async Unit := do
+  let message ← await (client.recv? 1024)
+  assertBEq (String.fromUTF8? =<< message) none
 
 /-- Joe is another client. -/
-def runJoe (client: TCP.Socket.Client) : Async (Option ByteArray) := do
-  await (client.recv? 1024)
-
+def runJoe (client: TCP.Socket.Client) : Async Unit := do
+  let message ← await (client.recv? 1024)
+  assertBEq (String.fromUTF8? =<< message) none
 
 /-- Robert is the server. -/
 def runRobert (server: TCP.Socket.Server) : Async Unit := do
@@ -81,11 +82,8 @@ def clientServer : IO Unit := do
 
   serverTask.block
 
-  let joe ← joeTask.block
-  assertBEq (String.fromUTF8? =<< joe) none
-
-  let mike ← mikeTask.block
-  assertBEq (String.fromUTF8? =<< mike) none
+  joeTask.block
+  mikeTask.block
 
 end Async
 

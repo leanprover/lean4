@@ -51,7 +51,7 @@ where
       let simpTheorem := {
         origin := .decl matchEqDeclName
         proof := mkConst matchEqDeclName
-        rfl := (← isRflTheorem matchEqDeclName)
+        rflTask := (← isRflTheorem matchEqDeclName)
       }
       match (← withReducible <| Simp.tryTheorem? e simpTheorem) with
       | none => return .continue

@@ -44,7 +44,7 @@ Resolves a `Promise`.
 Only the first call to this function has an effect.
 -/
 @[extern "lean_io_promise_resolve"]
-opaque Promise.resolve (value : α) (promise : @& Promise α) : BaseIO Unit
+opaque Promise.resolve (value : α) (promise : @& Promise α) (willDequeue := false) : BaseIO Unit
 
 /--
 Like `Promise.result`, but resolves to `none` if the promise is dropped without ever being resolved.

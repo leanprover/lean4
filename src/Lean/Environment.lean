@@ -822,7 +822,7 @@ def promiseChecked (env : Environment) : BaseIO PromiseCheckedResult := do
 def PromiseCheckedResult.commitChecked (res : PromiseCheckedResult) (env : Environment) :
     BaseIO Unit :=
   assert! env.asyncCtx?.isSome
-  res.checkedEnvPromise.resolve env.toKernelEnv
+  res.checkedEnvPromise.resolve (willDequeue := true) env.toKernelEnv
 
 /--
 Result of `Lean.Environment.addConstAsync` which is necessary to complete the asynchronous addition.
@@ -971,8 +971,8 @@ def AddConstAsyncResult.commitCheckEnv (res : AddConstAsyncResult) (env : Enviro
   -- `info?`
   if !(← res.constPromise.isResolved) then
     res.commitConst env
-  res.checkedEnvPromise.resolve env.checked.get
   res.allRealizationsPromise.resolve env.allRealizations.get
+  res.checkedEnvPromise.resolve (willDequeue := true) env.checked.get
 
 /--
 Checks whether `findAsync?` would return a result.

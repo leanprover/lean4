@@ -28,7 +28,7 @@ extern "C" {
 
 #define LEAN_CLOSURE_MAX_ARGS      16
 #define LEAN_OBJECT_SIZE_DELTA     8
-#define LEAN_MAX_SMALL_OBJECT_SIZE 256
+#define LEAN_MAX_SMALL_OBJECT_SIZE 4096
 
 #ifdef _MSC_VER
 #define LEAN_ALLOCA(s) _alloca(s)

@@ -67,10 +67,9 @@ if (USE_MIMALLOC)
     PREFIX mimalloc
     GIT_REPOSITORY https://github.com/microsoft/mimalloc
     GIT_TAG v2.2.3
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/mimalloc -DCMAKE_INSTALL_LIBDIR=lib
-      -DMI_OVERRIDE=OFF -DMI_INSTALL_TOPLEVEL=ON
-      "-DCMAKE_C_FLAGS=-DMI_SHARED_LIB=1 -DMI_SHARED_LIB_EXPORT=1"
-    BUILD_COMMAND $(MAKE) install
+    # just download, we compile it as part of each stage as it is small
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
     INSTALL_COMMAND "")
   list(APPEND EXTRA_DEPENDS mimalloc)
 endif()

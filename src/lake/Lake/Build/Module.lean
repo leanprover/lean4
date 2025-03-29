@@ -105,23 +105,65 @@ def Module.precompileImportsFacetConfig : ModuleFacetConfig precompileImportsFac
 def fetchExternLibs (pkgs : Array Package) : FetchM (Job (Array Dynlib)) :=
   Job.collectArray <$> pkgs.flatMapM (·.externLibs.mapM (·.dynlib.fetch))
 
+private def Module.fetchImportLibsCore
+  (self : Module) (imps : Array Module)
+  (init : NameSet × Array (Job Dynlib)): FetchM (NameSet × Array (Job Dynlib))
+:= imps.foldlM (init := init) fun (libs, jobs) imp => do
+  if libs.contains imp.lib.name then
+    return (libs, jobs)
+  else if self.lib.name = imp.lib.name then
+    let job ← imp.dynlib.fetch
+    return (libs, jobs.push job)
+  else
+    let job ← imp.lib.dynlib.fetch
+    let moreJobs ← imp.lib.moreLinkLibs.mapM (·.fetchIn imp.pkg)
+    let moreJobs ← liftM <| moreJobs.mapM computeDynlibOfShared
+    -- Lean wants the external library symbols before module symbols.
+    let jobs := jobs ++ moreJobs |>.push job
+    return (libs.insert imp.lib.name, jobs)
+
 /--
 Computes the transitive dynamic libraries of a module's imports.
 Modules from the same library are loaded individually, while modules
 from other libraries are loaded as part of the whole library.
 -/
-private def Module.fetchImportLibs
+@[inline] private def Module.fetchImportLibs
   (self : Module) (imps : Array Module) : FetchM (Job (Array Dynlib))
 := do
-  let s : NameSet × Array (Job Dynlib) := ({}, #[])
-  let s ← imps.foldlM (init := s) fun (libs, jobs) imp => do
-    if self.lib.name = imp.lib.name then
-      let job ← imp.dynlib.fetch
-      return (libs, jobs.push job)
-    else
-      let job ← imp.lib.dynlib.fetch
-      return (libs.insert imp.lib.name, jobs.push job)
+  let s ← self.fetchImportLibsCore imps ({}, #[])
   return Job.collectArray s.2
+
+/-- Fetch the dynlibs of a list of imports. **For internal use.**  -/
+@[inline] def fetchImportLibs
+  (mods : Array Module) : FetchM (Job (Array Dynlib))
+:= do
+  let (_, jobs) ← mods.foldlM (init := ({}, #[])) fun s mod => do
+    let imps ← (← mod.transImports.fetch).await
+    mod.fetchImportLibsCore imps s
+  let jobs ← mods.foldlM (init := jobs) fun jobs mod => do
+    jobs.push <$> mod.dynlib.fetch
+  return Job.collectArray jobs
+
+def computeModuleDeps
+  (impLibs : Array Dynlib) (externLibs : Array Dynlib)
+  (dynlibs : Array FilePath) (plugins : Array FilePath)
+: ModuleDeps := Id.run do
+  /-
+  Requirements:
+  * Lean wants the external library symbols before module symbols.
+  * Unix requires the file extension of the dynlib.
+  * For some reason, building from the Lean server requires full paths.
+    Everything else loads fine with just the augmented library path.
+  * Linux needs the augmented path to resolve nested dependencies in dynlibs.
+  -/
+  let mut plugins := plugins
+  let mut dynlibs := externLibs.map (·.path) ++ dynlibs
+  for impLib in impLibs do
+    if impLib.plugin then
+      plugins := plugins.push impLib.path
+    else
+      dynlibs := dynlibs.push impLib.path
+  return {dynlibs, plugins}
 
 /--
 Recursively build a module's dependencies, including:
@@ -163,22 +205,7 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
     | none => addTrace depTrace
     | some false => addTrace depTrace; addPlatformTrace
     | some true => setTrace depTrace
-    /-
-    Requirements:
-    * Lean wants the external library symbols before module symbols.
-    * Unix requires the file extension of the dynlib.
-    * For some reason, building from the Lean server requires full paths.
-      Everything else loads fine with just the augmented library path.
-    * Linux needs the augmented path to resolve nested dependencies in dynlibs.
-    -/
-    let mut plugins := plugins
-    let mut dynlibs := externLibs.map (·.path) ++ dynlibs
-    for impLib in impLibs do
-      if impLib.plugin then
-        plugins := plugins.push impLib.path
-      else
-        dynlibs := dynlibs.push impLib.path
-    return {dynlibs, plugins}
+    return computeModuleDeps impLibs externLibs dynlibs plugins
 
 /-- The `ModuleFacetConfig` for the builtin `depsFacet`. -/
 def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=

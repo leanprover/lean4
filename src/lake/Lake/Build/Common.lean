@@ -390,10 +390,12 @@ using the Lean toolchain's C compiler.
 def buildSharedLib
   (libFile : FilePath) (linkJobs : Array (Job FilePath))
   (weakArgs traceArgs : Array String := #[]) (linker := "c++")
+  (extraDepTrace : JobM _ := pure BuildTrace.nil)
 : SpawnM (Job FilePath) :=
   (Job.collectArray linkJobs).mapM fun links => do
     addPureTrace traceArgs
     addPlatformTrace -- shared libraries are platform-dependent artifacts
+    addTrace (← extraDepTrace)
     buildFileUnlessUpToDate' libFile do
       let args := links.map toString ++ weakArgs ++ traceArgs
       compileSharedLib libFile args linker

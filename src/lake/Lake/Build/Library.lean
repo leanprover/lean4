@@ -11,8 +11,9 @@ import Lake.Build.Targets
 Build function definitions for a library's builtin facets.
 -/
 
+open System Lean
+
 namespace Lake
-open System (FilePath)
 
 /-! ## Build Lean & Static Lib -/
 
@@ -34,7 +35,7 @@ where
       modSet := modSet.insert root
       let imps ← (← root.imports.fetch).await
       for mod in imps do
-        if self.isLocalModule mod.name then
+        if mod.lib.name = self.name then
           (mods, modSet) ← go mod mods modSet
       mods := mods.push root
     return (mods, modSet)
@@ -65,14 +66,14 @@ def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
   let mods ← (← self.modules.fetch).await
   let oJobs ← mods.flatMapM fun mod =>
     mod.nativeFacets shouldExport |>.mapM (·.fetch mod)
-  let linkJobs ← self.moreStaticLinks.mapM (·.fetchIn self.pkg)
+  let moreOJobs ← self.moreLinkObjs.mapM (·.fetchIn self.pkg)
   let libFile := if shouldExport then self.staticExportLibFile else self.staticLibFile
   /-
   Static libraries with explicit exports are built as thin libraries.
   The Lean build itself requires a thin static library with exported symbols
   as part of its build process on Windows. It does not distribute this library.
   -/
-  buildStaticLib libFile (oJobs ++ linkJobs) (thin := shouldExport)
+  buildStaticLib libFile (oJobs ++ moreOJobs) (thin := shouldExport)
 
 /-- The `LibraryFacetConfig` for the builtin `staticFacet`. -/
 def LeanLib.staticFacetConfig : LibraryFacetConfig staticFacet :=
@@ -90,6 +91,24 @@ protected def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job FilePath) :=
   let oJobs ← mods.flatMapM fun mod =>
     mod.nativeFacets true |>.mapM (·.fetch mod)
   let moreLinkJobs ← self.moreSharedLinks.mapM (·.fetchIn self.pkg)
+  let moreLinkJobs ← id do
+    -- Fetch transitive dynlibs
+    -- for platforms that must link to them (e.g., Windows)
+    if Platform.isWindows then
+      let imps ← mods.foldlM (init := OrdModuleSet.empty) fun imps mod => do
+        return imps.appendArray (← (← mod.transImports.fetch).await)
+      let s := (NameSet.empty.insert self.name, #[])
+      let s ← imps.foldlM (init := s) fun (libs, jobs) imp => do
+        if libs.contains imp.lib.name then
+          return (libs, jobs)
+        else
+          let job ← imp.lib.shared.fetch
+          let moreJobs ← imp.lib.moreLinkLibs.mapM (·.fetchIn self.pkg)
+          let jobs := jobs.push job ++ moreJobs
+          return (libs.insert imp.lib.name, jobs)
+      return s.2 ++ moreLinkJobs
+    else
+      return moreLinkJobs
   let externJobs ← self.pkg.externLibs.mapM (·.shared.fetch)
   let linkJobs := oJobs ++ externJobs ++ moreLinkJobs
   buildLeanSharedLib self.sharedLibFile linkJobs self.weakLinkArgs self.linkArgs

@@ -33,16 +33,12 @@ def buildImportsAndDeps
     let precompileImports ← (← computePrecompileImportsAux leanFile imports).await
     let pkgs := precompileImports.foldl (·.insert ·.pkg) OrdPackageSet.empty |>.toArray
     let externLibsJob ← fetchExternLibs pkgs
-    let modLibsJob ← Job.collectArray <$>
-      precompileImports.mapM (·.dynlib.fetch)
+    let impLibsJob ← fetchImportLibs imports
     let dynlibsJob ← root.dynlibs.fetchIn root
     let pluginsJob ← root.plugins.fetchIn root
     modJob.bindM fun _ =>
-    modLibsJob.bindM fun modLibs =>
+    impLibsJob.bindM fun impLibs =>
     dynlibsJob.bindM fun dynlibs =>
     pluginsJob.bindM fun plugins =>
     externLibsJob.mapM fun externLibs => do
-      -- NOTE: Lean wants the external library symbols before module symbols
-      let dynlibs := externLibs.map (·.path) ++ dynlibs
-      let plugins := modLibs.map (·.path) ++ plugins
-      return {dynlibs, plugins}
+      return computeModuleDeps impLibs externLibs dynlibs plugins

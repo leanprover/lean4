@@ -8,8 +8,8 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 $LAKE -d app build -v
 $LAKE -d lib build -v
 
-./app/.lake/build/bin/app
-./lib/.lake/build/bin/test
+$LAKE exe -d app app
+$LAKE exe -d lib test
 
 # Tests that a non-precompiled build does not load anything as a dynlib/plugin
 # https://github.com/leanprover/lean4/issues/4565

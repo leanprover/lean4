@@ -181,9 +181,13 @@ def sharedLibPath (self : Workspace) : SearchPath :=
 /--
 The detected `PATH` of the environment augmented with
 the workspace's `binDir` and Lean and Lake installations' `binDir`.
+On Windows, also adds the workspace shared library path.
 -/
 def augmentedPath (self : Workspace) : SearchPath :=
-  self.binPath ++ self.lakeEnv.path
+  if Platform.isWindows then
+    self.binPath ++ self.sharedLibPath ++ self.lakeEnv.path
+  else
+    self.binPath ++ self.lakeEnv.path
 
 /--
 The detected `LEAN_PATH` of the environment augmented with

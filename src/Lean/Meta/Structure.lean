@@ -116,32 +116,49 @@ Returns `x`.
 Each projection `x.i` can be either a native projection or from a projection function.
 -/
 def etaStruct? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do
-  let .const f _ := e.getAppFn | return none
-  let some (ConstantInfo.ctorInfo fVal) := (← getEnv).find? f | return none
+  let .const ctor _ := e.getAppFn | return none
+  let some (ConstantInfo.ctorInfo fVal) := (← getEnv).find? ctor | return none
   unless p fVal.induct do return none
   unless 0 < fVal.numFields && e.getAppNumArgs == fVal.numParams + fVal.numFields do return none
   let args := e.getAppArgs
-  let some (S0, i0, x) ← getProjectedExpr args[fVal.numParams]! | return none
-  unless S0 == fVal.induct && i0 == 0 do return none
+  let params := args.extract 0 fVal.numParams
+  let some x ← getProjectedExpr ctor fVal.induct params 0 args[fVal.numParams]! none | return none
   for i in [1 : fVal.numFields] do
     let arg := args[fVal.numParams + i]!
-    let some (S', i', x') ← getProjectedExpr arg | return none
-    unless S' == fVal.induct && i' == i && x' == x do return none
+    let some x' ← getProjectedExpr ctor fVal.induct params i arg x | return none
+    unless x' == x do return none
   return x
 where
+  sameParams (params1 params2 : Array Expr) : MetaM Bool := withNewMCtxDepth do
+    if params1.size == params2.size then
+      for p1 in params1, p2 in params2 do
+        unless ← isDefEqGuarded p1 p2 do
+          return false
+      return true
+    else
+      return false
   /--
-  Given an expression that's either a native projection or a registered projection
-  function, gives (1) the name of the structure type, (2) the index of the projection, and
-  (3) the object being projected.
+  Given an expression `e` that's either a native projection or a registered projection
+  function, gives the object being projected.
+  Checks that the parameters are defeq to `params`, that the projection index is equal to `idx`,
+  and, if `x?` is provided, that the object being projected is equal to it.
   -/
-  getProjectedExpr (e : Expr) : MetaM (Option (Name × Nat × Expr)) := do
+  getProjectedExpr (ctor induct : Name) (params : Array Expr) (idx : Nat) (e : Expr) (x? : Option Expr) : MetaM (Option Expr) := do
     if let .proj S i x := e then
-      return (S, i, x)
+      if i == idx && induct == S && (x? |>.map (· == x) |>.getD true) then
+        let ety ← whnf (← inferType e)
+        let params' := ety.getAppArgs
+        if ← sameParams params params' then
+          return x
+      return none
     if let .const fn _ := e.getAppFn then
       if let some info ← getProjectionFnInfo? fn then
-        if e.getAppNumArgs == info.numParams + 1 then
-          if let some (ConstantInfo.ctorInfo fVal) := (← getEnv).find? info.ctorName then
-            return (fVal.induct, info.i, e.appArg!)
+        if info.ctorName == ctor && info.i == idx && e.getAppNumArgs == info.numParams + 1 then
+          let x := e.appArg!
+          if (x? |>.map (· == x) |>.getD true) then
+            let params' := e.appFn!.getAppArgs
+            if ← sameParams params params' then
+              return e.appArg!
     return none
 
 /--

@@ -204,3 +204,35 @@ def bar : Bar where
     rfl
 
 end Mathlib12129
+
+/-!
+Explicit fields must be provided, even if they can be inferred.
+-/
+namespace Ex7
+
+structure S where
+  n : Nat
+  m : Fin n
+
+variable (x : Fin 3)
+
+/--
+error: fields missing: 'n'
+
+field 'n' must be explicitly provided, synthesized value is
+  3
+---
+info: { n := 3, m := x } : S
+-/
+#guard_msgs in #check { m := x : S }
+
+/-- info: { n := 3, m := x } : S -/
+#guard_msgs in #check { n := _, m := x : S }
+
+/-- info: { n := 3, m := x } : S -/
+#guard_msgs in #check { m := x, .. : S }
+
+/-- info: { n := 3, m := x } : S -/
+#guard_msgs in #check { n := 3, m := x : S }
+
+end Ex7

@@ -470,9 +470,9 @@ private partial def normalizeField (structName : Name) (fieldView : FieldView) :
 private inductive ExpandedFieldVal
   | term (stx : Term)
   /-- Like `stx.fieldName`, but later we will be sure to elaborate `stx` exactly once for the given `parentStructName`.
-  The `fvarId` will be used later when elaborating `stx`. It becomes a local decl; if it is a new fvar, an impl. detail.
-  The `fieldName?` is the name used in the corresponding `parentFieldName`, if it came from the user. -/
-  | proj (fvarId : FVarId) (stx : Term) (parentStructName : Name) (parentFieldName : Option Name)
+  The `fvarId` will be used later when elaborating `stx`. It becomes a local decl; if it is a new fvar, an impl. detail. -/
+  | proj (fvarId : FVarId) (stx : Term) (parentStructName : Name) (parentFieldName : Name)
+  | source (fvar : Expr)
   | nested (fieldViews : Array FieldView) (sources : Array ExplicitSourceView)
 
 private structure ExpandedField where
@@ -486,6 +486,7 @@ instance : ToMessageData ExpandedFieldVal where
   toMessageData
     | .term stx => m!"term {stx}"
     | .proj fvarId stx parentStructName _ => m!"proj {Expr.fvar fvarId} {.ofConstName parentStructName}{indentD stx}"
+    | .source fvar => m!"source {fvar}"
     | .nested fieldViews sources => m!"nested {MessageData.joinSep (sources.map (·.stx)).toList ", "} {MessageData.joinSep (fieldViews.map (indentD <| toMessageData ·)).toList "\n"}"
 
 instance : ToMessageData ExpandedField where
@@ -548,14 +549,13 @@ private def addSourceFields (structName : Name) (sources : Array ExplicitSourceV
   let env ← getEnv
   let fieldNames := getStructureFieldsFlattened env structName false
   for source in sources do
-    let fvarId ← mkFreshFVarId
     let sourceFieldNames := getStructureFieldsFlattened env source.structName false
     for fieldName in sourceFieldNames do
       if fieldNames.contains fieldName then
         match fields.find? fieldName with
         | none =>
           -- Missing field, take it from this source
-          let val := ExpandedFieldVal.proj fvarId source.stx source.structName none
+          let val := ExpandedFieldVal.source source.fvar
           fields := fields.insert fieldName { ref := source.stx.mkSynthetic, name := fieldName, val }
         | some field@{ val := .nested subFields sources', .. } =>
           -- Existing nested field, add this source
@@ -594,9 +594,6 @@ private structure StructInstState where
   liftedFVars : Array Expr := #[]
   /-- When processing `ExpandedFieldVal.proj` fields, sometimes we can re-use pre-existing fvars. -/
   liftedFVarRemap : FVarIdMap FVarId := {}
-  /-- Fields to avoid when using parent instances to assign fields.
-  Proof fields in this set are ignored. -/
-  fieldInstAvoid : NameSet := {}
   /-- Fields to synthesize using a tactic, if they don't get synthesized by other means. -/
   autoParamFields : Array (Name × Expr × Syntax) := #[]
   /-- Fields to synthesize using default values, if they don't get synthesized by other means.
@@ -694,16 +691,13 @@ private def normalizeExpr (e : Expr) (zetaDeltaImpl : Bool := true) : StructInst
   let e ← reduceFieldProjs e
   etaStructReduce' e
 
-private def addFieldInstAvoid (fieldName : Name) : StructInstM Unit := do
-  modify fun s => { s with fieldInstAvoid := s.fieldInstAvoid.insert fieldName }
-
 /-- Marks a field as solved so that it does not get solved for by optParam synthesis,
 and, importantly, doesn't register an error that optParam synthesis didn't solve for it. -/
 private def markSolved (fieldName : Name) : StructInstM Unit := do
   modify fun s => { s with optParamFields := s.optParamFields.filter fun (fieldName', _, _) => fieldName != fieldName' }
 
 private def addStructFieldAux (fieldName : Name) (e : Expr) : StructInstM Unit := do
-  trace[Elab.struct] "setting {fieldName} value to{indentExpr e}"
+  trace[Elab.struct] "setting '{fieldName}' value to{indentExpr e}"
   modify fun s => { s with
     type := s.type.bindingBody!.instantiate1 e
     fields := s.fields.push e
@@ -879,7 +873,14 @@ private def synthOptParamFields : StructInstM Unit := do
         toRemove := toRemove.push selected.fieldName
     if toRemove.isEmpty then
       let assignErrorsMsg := MessageData.joinSep (assignErrors.map (m!"\n\n" ++ ·)).toList ""
-      let msg := m!"fields missing: {", ".intercalate <| pendingFields.toList.map (s!"'{·.fieldName}'")}{assignErrorsMsg}"
+      let mut requiredErrors : Array MessageData := #[]
+      for pendingField in pendingFields do
+        if (← isFieldNotSolved? pendingField.fieldName).isNone then
+          let e := (← get).fieldMap.find! pendingField.fieldName
+          requiredErrors := requiredErrors.push m!"\
+            field '{pendingField.fieldName}' must be explicitly provided, synthesized value is{indentExpr e}"
+      let requiredErrorsMsg := MessageData.joinSep (requiredErrors.map (m!"\n\n" ++ ·)).toList ""
+      let msg := m!"fields missing: {", ".intercalate <| pendingFields.toList.map (s!"'{·.fieldName}'")}{assignErrorsMsg}{requiredErrorsMsg}"
       if (← readThe Term.Context).errToSorry then
         -- Assign all pending problems using synthetic sorries and log an error.
         for pendingField in pendingFields do
@@ -892,85 +893,12 @@ private def synthOptParamFields : StructInstM Unit := do
     pendingSet := pendingSet.filter (!toRemove.contains ·)
     pendingFields := pendingFields.filter fun pendingField => pendingField.val?.isNone || !toRemove.contains pendingField.fieldName
 
-/--
-Try using parent instances to fill in fields.
--/
-def synthWithParentInstances (val : Expr) : StructInstM Unit := do
-  let structName := (← read).structName
-  let unsolvedFields : NameSet ← (← get).fieldMap.foldM (init := {}) fun unsolved fieldName _ => do
-    pure <| if (← isFieldNotSolved? fieldName).isSome then unsolved.insert fieldName else unsolved
-  if unsolvedFields.isEmpty then return
-
-  -- The fields to avoid. It is OK to resynth proofs.
-  let avoid ← (← get).fieldInstAvoid.toArray.filterM fun fieldName => do
-    let some fieldVal := (← get).fieldMap.find? fieldName | return false
-    return !(← Meta.isProof fieldVal)
-
-  -- Filter out the avoid list. The parents we consider will only have fields that are a subset of this set.
-  let unsolvedFields := unsolvedFields.filter (!avoid.contains ·)
-  trace[Elab.struct] "parent synthesis, initial unsolved fields {unsolvedFields.toArray}"
-
-  -- We look at class parents in resolution order
-  let parents ← getAllParentStructures structName
-  let env ← getEnv
-  let classParents := parents.filter (isClass env)
-
-  -- The fields that still don't have values.
-  let mut stillUnsolvedFields := unsolvedFields
-
-  for parent in classParents do
-    if stillUnsolvedFields.isEmpty then break
-    let parentFields := getStructureFieldsFlattened env parent (includeSubobjectFields := false)
-    trace[Elab.struct] "parent synthesis for '{parent}', still unsolved fields {stillUnsolvedFields.toArray}, parent fields {parentFields}"
-    if (stillUnsolvedFields.any parentFields.contains) && parentFields.all unsolvedFields.contains then
-      -- We are now looking at a class parent, all of whose fields are in the set of allowed unsolved fields,
-      -- and at least one of whose fields is still unsolved.
-
-      -- First, we need to compute the type of this parent.
-      -- The easiest way is to use the current constructor value and project.
-      let some path := getPathToBaseStructure? env parent structName | unreachable!
-      let val' ← path.foldlM (init := val) fun e projFn => do
-        let ty ← whnf (← inferType e)
-        let .const _ us := ty.getAppFn | unreachable!
-        let params := ty.getAppArgs
-        pure <| mkApp (mkAppN (.const projFn us) params) e
-      let parentTy ← whnf (← inferType val')
-      let parentTy ← normalizeExpr parentTy
-      if let some inst ← try synthInstance? parentTy catch _ => pure none then
-        -- Found an instance. Try assigning what we found.
-        if ← tryAssignFields parentTy inst parentFields then
-          trace[Elab.struct] "synthesized instance '{parentTy}' and successfully assigned fields {parentFields}"
-          stillUnsolvedFields := stillUnsolvedFields.filter (!parentFields.contains ·)
-where
-  tryAssignFields (parentTy inst : Expr) (parentFields : Array Name) : StructInstM Bool := do
-    let state ← saveState
-    try
-      for fieldName in parentFields do
-        if let some mvarId ← isFieldNotSolved? fieldName then
-          let proj ← mkProjection inst fieldName
-          -- We need to normalize because otherwise this would be a cyclic assignment
-          let proj ← normalizeExpr proj
-          let fieldType ← mvarId.getType
-          let projType ← inferType proj
-          unless ← isDefEq projType fieldType do
-            throwError "failed to unify type for projection '{fieldName}', {← mkHasTypeButIsExpectedMsg projType fieldType}"
-          unless ← mvarId.checkedAssign proj do
-            throwError "occurs check field for projection '{fieldName}'"
-          markSolved fieldName
-      return true
-    catch ex =>
-      restoreState state
-      trace[Elab.struct] "synthesized instance '{parentTy}' but failed to assign fields. {ex.toMessageData}"
-      return false
-
-
 private def finalize : StructInstM Expr := withViewRef do
   let val := (← read).val.beta (← get).fields
   trace[Elab.struct] "constructor{indentExpr val}"
   synthesizeAppInstMVars (← get).instMVars val
   trace[Elab.struct] "constructor after synthesizing instMVars{indentExpr val}"
   unless ← ellipsisMode do
-    synthWithParentInstances val
     synthAutoParamFields
     synthOptParamFields
   trace[Elab.struct] "constructor after synthesizing defaults{indentExpr val}"
@@ -1007,27 +935,32 @@ where
     let args := e.getAppArgs
     return fieldExpr.beta args[numParams + 1:]
 
+private def getParentStructType? (parentStructName : Name) : StructInstM (Option (Expr × Option Name)) := do
+  let env ← getEnv
+  let structName := (← read).structName
+  let structType := (← read).structType
+  let some path := getPathToBaseStructure? env parentStructName structName | return none
+  withLocalDeclD `self structType fun self => do
+    let proj ← path.foldlM (init := self) fun e projFn => do
+      let ty ← whnf (← inferType e)
+      let .const _ us := ty.getAppFn | unreachable!
+      let params := ty.getAppArgs
+      pure <| mkApp (mkAppN (.const projFn us) params) e
+    let projTy ← whnf <| ← inferType proj
+    let projTy ← reduceSelfProjs self projTy
+    let projTy ← normalizeExpr projTy
+    if projTy.containsFVar self.fvarId! then
+      -- unsupported dependent type, parent depends on fields that haven't been visited yet.
+      return none
+    return (projTy, path.getLast?)
+
 /--
 If there is a path to `parentStructName`, compute its type. Also returns the last projection to the parent.
 Otherwise, create a type with fresh metavariables.
 -/
 private def getParentStructType (parentStructName : Name) : StructInstM (Expr × Option Name) := do
-  let env ← getEnv
-  let structName := (← read).structName
-  let structType := (← read).structType
-  if let some path := getPathToBaseStructure? env parentStructName structName then
-    withLocalDeclD `self structType fun self => do
-      let proj ← path.foldlM (init := self) fun e projFn => do
-        let ty ← whnf (← inferType e)
-        let .const _ us := ty.getAppFn | unreachable!
-        let params := ty.getAppArgs
-        pure <| mkApp (mkAppN (.const projFn us) params) e
-      let projTy ← whnf <| ← inferType proj
-      let projTy ← reduceSelfProjs self projTy
-      let projTy ← normalizeExpr projTy
-      if projTy.containsFVar self.fvarId! then
-        throwError "projection to parent structure '{.ofConstName parentStructName}' has unsupported dependent types{indentExpr projTy}"
-      return (projTy, path.getLast?)
+  if let some res ← getParentStructType? parentStructName then
+    return res
   else
     let c ← mkConstWithFreshMVarLevels parentStructName
     let (args, _, _) ← forallMetaTelescopeReducing (← inferType c)
@@ -1041,17 +974,16 @@ private def mkProjStx (s : Syntax) (fieldName : Name) : Syntax :=
     #[mkAtomFrom s "@",
       mkNode ``Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]]
 
-private def processField (loop : StructInstM α) (field : ExpandedField) (fieldType : Expr) : StructInstM α := do
+private def processField (loop : StructInstM α) (field : ExpandedField) (fieldType : Expr) : StructInstM α := withRef field.ref do
   let fieldType := fieldType.consumeTypeAnnotations
-  trace[Elab.struct] "processing field {field.name}{indentD (toMessageData field)}"
+  trace[Elab.struct] "processing field '{field.name}' of type {fieldType}{indentD (toMessageData field)}"
   match field.val with
   | .term val => withRef val do
     trace[Elab.struct] "field.val is term {field.name}"
     let e ← elabStructField field.name val fieldType
     addStructField field e
-    addFieldInstAvoid field.name
     loop
-  | .nested fields sources => withRef field.ref do
+  | .nested fields sources =>
     trace[Elab.struct] "field.val is nested {field.name}"
     -- Nested field. Create synthetic structure instance notation with projected sources, then elaborate it like a `.term` field.
     let sourceStxs : Array Term := sources.map (fun source => mkProjStx source.stx field.name)
@@ -1060,9 +992,14 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
     let stx ← `({ $sourceStxs,* with $fieldStxs,* $[..%$ellipsis]? })
     let e ← elabStructField field.name stx fieldType
     addStructField field e
-    addFieldInstAvoid field.name
     loop
-  | .proj fvarId val parentStructName parentFieldName? => withRef field.ref do
+  | .source fvar =>
+    trace[Elab.struct] "field.val is source {field.name} from {fvar}"
+    let e ← mkProjection fvar field.name
+    let e ← ensureHasType fieldType e
+    addStructFieldAux field.name e
+    loop
+  | .proj fvarId val parentStructName parentFieldName =>
     trace[Elab.struct] "field.val is proj {field.name}"
     let processProjAux (fvarId : FVarId) : StructInstM α := do
       try
@@ -1078,7 +1015,6 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
           addStructFieldAux field.name e
         else
           throw ex
-      addFieldInstAvoid field.name
       loop
     if let some fvarId' := (← get).liftedFVarRemap.find? fvarId then
       processProjAux fvarId'
@@ -1088,9 +1024,9 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
       let (parentTy, projName?) ← getParentStructType parentStructName
       let parentVal ← elabTermEnsuringType val parentTy
       -- Add terminfo so that the `toParent` field has some hover information.
-      if let (some parentFieldName, some projName) := (parentFieldName?, projName?) then
+      if let some projName := projName? then
         pushInfoTree <| InfoTree.node (children := {}) <| Info.ofFieldInfo {
-          projName := projName, fieldName := parentFieldName, lctx := (← getLCtx), val := parentVal, stx := field.ref
+          projName, fieldName := parentFieldName, lctx := (← getLCtx), val := parentVal, stx := field.ref
         }
       let parentVal ← instantiateMVars parentVal
       if parentVal.isFVar then
@@ -1111,8 +1047,8 @@ Handle the case when no field is given.
 
 These fields can still be solved for by parent instance synthesis later.
 -/
-private def processNoField (loop : StructInstM α) (fieldName : Name) (binfo : BinderInfo) (fieldType : Expr) : StructInstM α := withViewRef do
-  trace[Elab.struct] "processNoField {fieldName}"
+private def processNoField (loop : StructInstM α) (fieldName : Name) (binfo : BinderInfo) (fieldType : Expr) : StructInstM α := do
+  trace[Elab.struct] "processNoField '{fieldName}' of type {fieldType}"
   if ← ellipsisMode then
     -- In ellipsis mode, all other fields are holes. Do not use optParams or autoParams.
     discard <| addStructFieldMVar fieldName fieldType
@@ -1138,20 +1074,86 @@ private def processNoField (loop : StructInstM α) (fieldName : Name) (binfo : B
       modify fun s => { s with optParamFields := s.optParamFields.push (fieldName, fieldType, binfo.isExplicit) }
       loop
 
-private partial def loop : StructInstM Expr := do
+private partial def loop : StructInstM Expr := withViewRef do
   let type := (← get).type
-  trace[Elab.struct] m!"loop, constructor type:{indentExpr type}"
+  trace[Elab.struct] "loop, constructor type:{indentExpr type}"
   if let .forallE fieldName fieldType _ binfo := type then
-    trace[Elab.struct] "next field '{fieldName}' is of type{indentExpr fieldType}"
-    if let some field := (← read).fieldViews.find? fieldName then
+    if let some fieldValue := (← get).fieldMap.find? fieldName then
+      -- This is a field that was added by `addParentInstanceFields`
+      trace[Elab.struct] "field '{fieldName}' already exists, with type {fieldType}"
+      let fieldValueType ← inferType fieldValue
+      unless ← isDefEq fieldType fieldValueType do
+        throwError "field '{fieldName}' inferred from a parent class {← mkHasTypeButIsExpectedMsg fieldValueType fieldType}"
+      addStructFieldAux fieldName fieldValue
+      loop
+    else if let some field := (← read).fieldViews.find? fieldName then
       processField loop field fieldType
     else
       processNoField loop fieldName binfo fieldType
   else
     finalize
 
+/--
+For each parent class, see if it can be used to synthesize the fields that haven't been provided.
+-/
+private partial def addParentInstanceFields : StructInstM Unit := do
+  let env ← getEnv
+  let structName := (← read).structName
+  let fieldNames := getStructureFieldsFlattened env structName (includeSubobjectFields := false)
+  let fieldViews := (← read).fieldViews
+  if fieldNames.all fieldViews.contains then
+    -- Every field is accounted for already
+    return
+
+  -- We look at class parents in resolution order
+  let parents ← getAllParentStructures structName
+  let classParents := parents.filter (isClass env)
+  if classParents.isEmpty then return
+
+  let allowedFields := fieldNames.filter (!fieldViews.contains ·)
+  let mut remainingFields := allowedFields
+
+  for parentName in classParents do
+    if remainingFields.isEmpty then return
+    -- We only try synthesizing if the parent contains one of the remaining fields
+    -- and if every parent field is an allowed field.
+    let parentFields := getStructureFieldsFlattened env parentName (includeSubobjectFields := false)
+    if remainingFields.any parentFields.contains && parentFields.all allowedFields.contains then
+      -- We also need to be able to compute the parent type from the structure type.
+      -- This may fail if there is a complicated dependence.
+      match ← getParentStructType? parentName with
+      | none => trace[Elab.struct] "could not calculate type for parent '{.ofConstName parentName}'"
+      | some (parentTy, _) =>
+        match ← try synthInstance? parentTy catch _ => pure none with
+        | none => trace[Elab.struct] "failed to synthesize instance for parent {parentTy}"
+        | some inst =>
+          -- The fields are all-or-nothing
+          let saved ← saveState
+          try
+            for parentField in parentFields do
+              let proj ← mkProjection inst parentField
+              let proj ← normalizeExpr proj
+              match (← get).fieldMap.find? parentField with
+              | some fieldVal =>
+                let projType ← inferType proj
+                let fieldType ← inferType fieldVal
+                unless ← isDefEq projType fieldType do
+                  throwError "parent field '{parentField}' {← mkHasTypeButIsExpectedMsg proj fieldType}"
+                unless ← isDefEq proj fieldVal do
+                  throwError "parent field '{parentField}'{indentExpr proj}\nis not definitionally equal to overlapping field{indentExpr fieldVal}"
+                trace[Elab.struct] "checked field '{parentField}' from parent '{parentTy}' is definitionally equal"
+              | none =>
+                modify fun s => { s with fieldMap := s.fieldMap.insert parentField proj }
+                trace[Elab.struct] "added field '{parentField}' from parent '{parentTy}'"
+            -- All the fields have been added, update the list of remaining fields.
+            remainingFields := remainingFields.filter (!parentFields.contains ·)
+          catch ex =>
+            restoreState saved
+            trace[Elab.struct] "failed to use instance for {parentTy}\n{ex.toMessageData}"
+
 private def main : StructInstM Expr := do
   initializeState
+  addParentInstanceFields
   loop
 
 /--

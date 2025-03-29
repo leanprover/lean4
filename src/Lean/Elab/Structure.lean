@@ -1427,7 +1427,7 @@ def elabStructureCommand : InductiveElabDescr where
             collectUsedFVars := collectUsedFVars lctx localInsts fieldInfos
             checkUniverses := fun _ u => withLCtx lctx localInsts do checkResultingUniversesForFields fieldInfos u
             finalizeTermElab := withLCtx lctx localInsts do checkDefaults fieldInfos
-            prefinalize := fun levelParams _ replaceIndFVars => do
+            prefinalize := fun levelParams params replaceIndFVars => do
               withLCtx lctx localInsts do
                 addProjections r fieldInfos
                 registerStructure view.declName fieldInfos

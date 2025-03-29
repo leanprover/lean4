@@ -423,25 +423,25 @@ variable {α : Type u}
 Internal funcion to derive a `BEq` instance from an `Ord` instance in order to connect the
 verification machinery for tree maps to the verification machinery for hash maps.
 -/
-@[local instance 0]
+@[local instance]
 def beqOfOrd [Ord α] : BEq α where
-  beq a b := compare a b == .eq
+  beq a b := compare a b = .eq
 
 instance {_ : Ord α} : LawfulBEqOrd α where
-  compare_eq_iff_beq {a b} := by simp only [beqOfOrd, beq_iff_eq]
+  compare_eq_iff_beq {a b} := by simp only [beqOfOrd, decide_eq_true_eq]
 
 @[local simp]
-theorem beq_eq [Ord α] {a b : α} : (a == b) = (compare a b == .eq) :=
-  rfl
+theorem beq_eq [Ord α] {a b : α} : (a == b) = (compare a b = .eq) := by
+  rw [compare_eq_iff_beq]
 
-theorem beq_iff [Ord α] {a b : α} : (a == b) = true ↔ compare a b = .eq := by
-  rw [beq_eq, beq_iff_eq]
+theorem beq_iff [Ord α] {a b : α} : (a == b) = true ↔ compare a b = .eq :=
+  eq_iff_iff.mp beq_eq
 
 theorem eq_beqOfOrd_of_lawfulBEqOrd [Ord α] (inst : BEq α) [instLawful : LawfulBEqOrd α] :
     inst = beqOfOrd := by
   cases inst; rename_i instBEq
   congr; ext a b
-  rw [Bool.eq_iff_iff, beq_iff_eq, instLawful.compare_eq_iff_beq]
+  rw [Bool.eq_iff_iff, decide_eq_true_eq, instLawful.compare_eq_iff_beq]
   rfl
 
 theorem equivBEq_of_transOrd [Ord α] [TransOrd α] : EquivBEq α where

@@ -21,6 +21,68 @@ variable {α : Type} [Hashable α] [DecidableEq α]
 namespace AIG
 
 /--
+This datatype is isomorphic to a pair of a `Nat` and a `Bool`, however the `Bool` is stored in the
+lowest bit of the `Nat` in order to save memory. It is used to describe an input to an `AIG` circuit
+node which consists of a `Nat` describing the input node and a `Bool` saying whether there is an inverter
+on the input.
+-/
+structure Fanin where
+  private of ::
+    private val : Nat
+  deriving Hashable, Repr, DecidableEq, Inhabited
+
+namespace Fanin
+
+/--
+The public constructor of `Fanin`.
+-/
+@[inline]
+def mk (gate : Nat) (invert : Bool) : Fanin :=
+  ⟨gate * 2 ||| invert.toNat⟩
+
+/--
+Get the gate.
+-/
+@[inline]
+def gate (f : Fanin) : Nat := f.val / 2
+
+/--
+Get the inverter bit.
+-/
+@[inline]
+def invert (f : Fanin) : Bool :=
+  1 &&& f.val != 0
+
+/--
+Flip the inverter bit according to `val`.
+-/
+@[inline]
+def flip (f : Fanin) (val : Bool) : Fanin := ⟨f.val ^^^ val.toNat⟩
+
+@[simp]
+theorem gate_mk : (Fanin.mk g i).gate = g := by
+  cases i <;>
+    simp [mk, gate, ← Nat.shiftLeft_eq _ 1, ← Nat.shiftRight_eq_div_pow _ 1,
+      Nat.shiftRight_or_distrib]
+
+@[simp]
+theorem invert_mk : (Fanin.mk g i).invert = i := by
+  cases i <;> simp [mk, invert]
+
+@[simp]
+theorem gate_flip (f : Fanin) : (f.flip v).gate = f.gate := by
+  cases v <;> simp [flip, gate, ← Nat.shiftRight_eq_div_pow _ 1, Nat.shiftRight_xor_distrib]
+
+private theorem invert_eq_testBit (f : Fanin) : f.invert = f.val.testBit 0 := by
+  simp [invert, Nat.testBit]
+
+@[simp]
+theorem invert_flip (f : Fanin) : (f.flip v).invert = f.invert ^^ v := by
+  cases v <;> simp [flip, invert_eq_testBit]
+
+end Fanin
+
+/--
 A circuit node. These are not recursive but instead contain indices into an `AIG`, with inputs indexed by `α`.
 -/
 inductive Decl (α : Type) where
@@ -35,10 +97,9 @@ inductive Decl (α : Type) where
   | atom (idx : α)
   /--
   An AIG gate with configurable input nodes and polarity. `l` and `r` are the
-  input node indices while `linv` and `rinv` say whether there is an inverter on
-  the left and right inputs, respectively.
+  input nodes together with their inverter bit.
   -/
-  | gate (l r : Nat) (linv rinv : Bool)
+  | gate (l r : Fanin)
   deriving Hashable, Repr, DecidableEq, Inhabited
 
 
@@ -180,14 +241,14 @@ def Cache.get? (cache : Cache α decls) (decl : Decl α) : Option (CacheHit decl
 An `Array Decl` is a Direct Acyclic Graph (DAG) if a gate at index `i` only points to nodes with index lower than `i`.
 -/
 def IsDAG (α : Type) (decls : Array (Decl α)) : Prop :=
-  ∀ {i lhs rhs linv rinv} (h : i < decls.size),
-      decls[i] = .gate lhs rhs linv rinv → lhs < i ∧ rhs < i
+  ∀ {i lhs rhs} (h : i < decls.size),
+      decls[i] = .gate lhs rhs → lhs.gate < i ∧ rhs.gate < i
 
 /--
 The empty array is a DAG.
 -/
 theorem IsDAG.empty {α : Type} : IsDAG α #[] := by
-  intro i lhs rhs linv rinv h
+  intro i lhs rhs h
   simp only [List.size_toArray, List.length_nil] at h
   omega
 
@@ -332,7 +393,11 @@ where
     match elem : decls[idx] with
     | Decl.false => return acc
     | Decl.atom _ => return acc
-    | Decl.gate lidx ridx linv rinv =>
+    | Decl.gate lhs rhs =>
+      let lidx := lhs.gate
+      let linv := lhs.invert
+      let ridx := rhs.gate
+      let rinv := rhs.invert
       let curr := s!"{idx} -> {lidx}{invEdgeStyle linv}; {idx} -> {ridx}{invEdgeStyle rinv};"
       let hlr := hinv hidx elem
       let laig ← go (acc ++ curr) decls hinv lidx (by omega)
@@ -344,14 +409,14 @@ where
     match decls[idx] with
     | Decl.false => s!"{idx} [label=\"{false}\", shape=box];"
     | Decl.atom i => s!"{idx} [label=\"{i}\", shape=doublecircle];"
-    | Decl.gate _ _ _ _ => s!"{idx} [label=\"{idx} ∧\",shape=trapezium];"
+    | Decl.gate .. => s!"{idx} [label=\"{idx} ∧\",shape=trapezium];"
 
 /--
 A vector of references into `aig`. This is the `AIG` analog of `BitVec`.
 -/
 structure RefVec (aig : AIG α) (w : Nat) where
-  refs : Vector (Nat × Bool) w
-  hrefs : ∀ (h : i < w), refs[i].1 < aig.decls.size
+  refs : Vector Fanin w
+  hrefs : ∀ (h : i < w), refs[i].gate < aig.decls.size
 
 /--
 A sequence of references bundled with their AIG.
@@ -394,11 +459,11 @@ where
     match h3 : decls[x] with
     | .false => false
     | .atom v => assign v
-    | .gate lhs rhs linv rinv =>
+    | .gate lhs rhs =>
       have := h2 h1 h3
-      let lval := go lhs decls assign (by omega) h2
-      let rval := go rhs decls assign (by omega) h2
-      xor lval linv && xor rval rinv
+      let lval := go lhs.gate decls assign (by omega) h2
+      let rval := go rhs.gate decls assign (by omega) h2
+      xor lval lhs.invert && xor rval rhs.invert
 
 /--
 Denotation of an `AIG` at a specific `Entrypoint`.
@@ -440,16 +505,17 @@ for production purposes use `AIG.mkGateCached` and equality theorems to this one
 def mkGate (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   let g := aig.decls.size
   let decls :=
-    aig.decls.push <| .gate input.lhs.gate input.rhs.gate input.lhs.invert input.rhs.invert
+    aig.decls.push <| .gate (.mk input.lhs.gate input.lhs.invert) (.mk input.rhs.gate input.rhs.invert)
   let cache := aig.cache.noUpdate
   have invariant := by
-    intro i lhs' rhs' linv' rinv' h1 h2
+    intro i lhs' rhs' h1 h2
     simp only [Array.getElem_push] at h2
     split at h2
     · apply aig.invariant <;> assumption
-    · injections
+    · injection h2 with hl hr
       have := input.lhs.hgate
       have := input.rhs.hgate
+      simp [← hl, ← hr]
       omega
   ⟨{ aig with decls, invariant, cache }, ⟨g, false, by simp [g, decls]⟩⟩
 
@@ -462,7 +528,7 @@ def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
   let decls := aig.decls.push (.atom n)
   let cache := aig.cache.noUpdate
   have invariant := by
-    intro i lhs rhs linv rinv h1 h2
+    intro i lhs rhs h1 h2
     simp only [Array.getElem_push] at h2
     split at h2
     · apply aig.invariant <;> assumption
@@ -478,7 +544,7 @@ def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
   let decls := aig.decls.push .false
   let cache := aig.cache.noUpdate
   have invariant := by
-    intro i lhs rhs linv rinv h1 h2
+    intro i lhs rhs h1 h2
     simp only [Array.getElem_push] at h2
     split at h2
     · apply aig.invariant <;> assumption

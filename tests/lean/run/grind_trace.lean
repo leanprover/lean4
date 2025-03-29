@@ -1,4 +1,4 @@
-%reset_grind_attrs
+reset_grind_attrs%
 
 attribute [grind =] List.length_cons
 attribute [grind →] List.getElem?_eq_getElem
@@ -96,7 +96,7 @@ example : p ∧ q → p := by
 example : (List.replicate n a)[m]? = if m < n then some a else none := by
   grind?
 
-%reset_grind_attrs
+reset_grind_attrs%
 
 example : (List.replicate n a)[m]? = if m < n then some a else none := by
   fail_if_success grind?

@@ -10,7 +10,7 @@ namespace Lean.Parser
 /--
 Reset all `grind` attributes. This command is intended for testing purposes only and should not be used in applications.
 -/
-syntax (name := resetGrindAttrs) "%reset_grind_attrs" : command
+syntax (name := resetGrindAttrs) "reset_grind_attrs%" : command
 
 namespace Attr
 syntax grindEq     := "= "

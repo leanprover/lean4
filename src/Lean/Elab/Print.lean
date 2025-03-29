@@ -81,7 +81,7 @@ private partial def getFieldOrigin (structName field : Name) : MetaM StructureFi
   return fi
 
 open Meta in
-private partial def printStructure (id : Name) (levelParams : List Name) (numParams : Nat) (type : Expr)
+private partial def printStructure (id : Name) (levelParams : List Name) (numParams : Nat) (type : Expr) (ctor : Name)
     (isUnsafe : Bool) : CommandElabM Unit := do
   let env ← getEnv
   let kind := if isClass env id then "class" else "structure"
@@ -107,8 +107,9 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
       let paramMap : NameMap Expr ← params.foldlM (init := {}) fun paramMap param => do
         pure <| paramMap.insert (← param.fvarId!.getUserName) param
       -- Collect autoParam tactics, which are all on the flat constructor:
-      let flatCtorName := mkFlatCtorOfStructName id
-      let autoParams : NameMap Syntax ← forallTelescope (← getConstInfo flatCtorName).type fun args _ =>
+      let flatCtorName := mkFlatCtorOfStructCtorName ctor
+      let flatCtorInfo ← try getConstInfo flatCtorName catch _ => getConstInfo (id ++ `_flat_ctor) -- TODO(kmill): remove catch
+      let autoParams : NameMap Syntax ← forallTelescope flatCtorInfo.type fun args _ =>
         args[numParams:].foldlM (init := {}) fun set arg => do
           let decl ← arg.fvarId!.getDecl
           if let some (.const tacticDecl _) := decl.type.getAutoParamTactic? then
@@ -187,7 +188,7 @@ private def printIdCore (id : Name) : CommandElabM Unit := do
   | ConstantInfo.recInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "recursor" id us t u
   | ConstantInfo.inductInfo { levelParams := us, numParams, type := t, ctors, isUnsafe := u, .. } =>
     if isStructure env id then
-      printStructure id us numParams t u
+      printStructure id us numParams t ctors[0]! u
     else
       printInduct id us numParams t ctors u
   | none => throwUnknownId id

@@ -129,6 +129,7 @@ end Mathlib.Algebra.Ring.Defs
 section Mathlib.Data.Int.Basic
 
 instance : CommRing Int where
+  one := 1
   mul_comm := sorry
   mul_one := Int.mul_one -- Replacing this with `sorry` makes the timeout go away!
   add_zero := Int.add_zero -- Similarly here.

@@ -109,4 +109,69 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
           let proj := mkApp (mkAppN (.const projName lvls) params) self
           ctorType := ctorType.bindingBody!.instantiate1 proj
 
+/--
+Checks if the expression is of the form `S.mk x.1 ... x.n` with `n` nonzero
+and `S.mk` a structure constructor with `S` one of the recorded structure parents.
+Returns `x`.
+Each projection `x.i` can be either a native projection or from a projection function.
+-/
+def etaStruct? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do
+  let .const ctor _ := e.getAppFn | return none
+  let some (ConstantInfo.ctorInfo fVal) := (← getEnv).find? ctor | return none
+  unless p fVal.induct do return none
+  unless 0 < fVal.numFields && e.getAppNumArgs == fVal.numParams + fVal.numFields do return none
+  let args := e.getAppArgs
+  let params := args.extract 0 fVal.numParams
+  let some x ← getProjectedExpr ctor fVal.induct params 0 args[fVal.numParams]! none | return none
+  for i in [1 : fVal.numFields] do
+    let arg := args[fVal.numParams + i]!
+    let some x' ← getProjectedExpr ctor fVal.induct params i arg x | return none
+    unless x' == x do return none
+  return x
+where
+  sameParams (params1 params2 : Array Expr) : MetaM Bool := withNewMCtxDepth do
+    if params1.size == params2.size then
+      for p1 in params1, p2 in params2 do
+        unless ← isDefEqGuarded p1 p2 do
+          return false
+      return true
+    else
+      return false
+  /--
+  Given an expression `e` that's either a native projection or a registered projection
+  function, gives the object being projected.
+  Checks that the parameters are defeq to `params`, that the projection index is equal to `idx`,
+  and, if `x?` is provided, that the object being projected is equal to it.
+  -/
+  getProjectedExpr (ctor induct : Name) (params : Array Expr) (idx : Nat) (e : Expr) (x? : Option Expr) : MetaM (Option Expr) := do
+    if let .proj S i x := e then
+      if i == idx && induct == S && (x? |>.map (· == x) |>.getD true) then
+        let ety ← whnf (← inferType e)
+        let params' := ety.getAppArgs
+        if ← sameParams params params' then
+          return x
+      return none
+    if let .const fn _ := e.getAppFn then
+      if let some info ← getProjectionFnInfo? fn then
+        if info.ctorName == ctor && info.i == idx && e.getAppNumArgs == info.numParams + 1 then
+          let x := e.appArg!
+          if (x? |>.map (· == x) |>.getD true) then
+            let params' := e.appFn!.getAppArgs
+            if ← sameParams params params' then
+              return e.appArg!
+    return none
+
+/--
+Eta reduces all structures satisfying `p` in the whole expression.
+
+See `etaStruct?` for reducing single expressions.
+-/
+def etaStructReduce (e : Expr) (p : Name → Bool) : MetaM Expr := do
+  let e ← instantiateMVars e
+  Meta.transform e (post := fun e => do
+    if let some e ← etaStruct? e p then
+      return .done e
+    else
+      return .continue)
+
 end Lean.Meta

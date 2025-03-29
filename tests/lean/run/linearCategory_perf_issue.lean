@@ -384,7 +384,6 @@ instance functorCategoryPreadditive : Preadditive (C ⥤ D) where
         apply add_zero
       neg_add_cancel := by
         intros
-        dsimp only
         ext
         apply neg_add_cancel }
   add_comp := by

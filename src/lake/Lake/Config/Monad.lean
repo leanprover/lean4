@@ -231,6 +231,10 @@ variable [Functor m]
 @[inline] def getLeanCc? : m (Option String) :=
   (·.leanCc?) <$> getLeanInstall
 
+/-- Get the flags required to link shared libraries using the detected Lean installation. -/
+@[inline] def getLeanLinkSharedFlags : m (Array String) :=
+  (·.ccLinkSharedFlags) <$> getLeanInstall
+
 /-! ### Lake Install Helpers -/
 
 /-- Get the detected Lake installation. -/

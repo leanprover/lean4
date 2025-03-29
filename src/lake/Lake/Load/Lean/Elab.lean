@@ -30,7 +30,7 @@ initialize importEnvCache : IO.Ref (Std.HashMap (Array Import) Environment) ← 
 def importModulesUsingCache (imports : Array Import) (opts : Options) (trustLevel : UInt32) : IO Environment := do
   if let some env := (← importEnvCache.get)[imports]? then
     return env
-  let env ← importModules imports opts trustLevel
+  let env ← importModules (loadExts := true) imports opts trustLevel
   importEnvCache.modify (·.insert imports env)
   return env
 

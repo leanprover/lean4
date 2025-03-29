@@ -28,7 +28,7 @@ class DataKind (α : Type u) where
   /-- The name which describes `α`. -/
   name : Name
   /-- Proof that `α` is the data type described by `name`. -/
-  wf : α = DataType name
+  wf : ¬ name.isAnonymous ∧ α = DataType name
 
 /--
 Tries to synthesize a `Name` descriptor of a data type.
@@ -54,7 +54,7 @@ theorem OptDataKind.eq_data_type
 
 instance [DataKind α] : OptDataKind α where
   name := DataKind.name α
-  wf _ := DataKind.wf
+  wf _ := DataKind.wf.2
 
 instance : CoeOut (OptDataKind α) Lean.Name := ⟨(·.name)⟩
 instance : ToString (OptDataKind α) := ⟨(·.name.toString)⟩
@@ -177,10 +177,13 @@ scoped macro (name := dataTypeDecl)
 : command => do
   let fam := mkCIdentFrom (← getRef) ``DataType
   let kindName := Name.quoteFrom kind kind.getId
-  let id := mkIdentFrom kind (canonical := true) <|
-    kind.getId.modifyBase (kind.getId ++ ·)
-  `($[$doc?]? family_def $id : $fam $kindName := $ty
-    instance : DataKind $ty := ⟨$kindName, by simp⟩)
+  `($[$doc?]? family_def $kind : $fam $kindName := $ty
+    instance : DataKind $ty := ⟨$kindName, by simp [Name.isAnonymous]⟩)
+
+data_type unit : Unit
+data_type bool : Bool
+data_type file_path : System.FilePath
+data_type dynlib : Dynlib
 
 /-- Internal macro for declaring new facet within Lake. -/
 scoped macro (name := builtinFacetCommand)

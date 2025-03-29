@@ -183,15 +183,26 @@ configuration LeanConfig where
   -/
   weakLeancArgs : Array String := #[]
   /--
+  Additional target objects to use when linking (both static and shared).
+  These will come *after* the paths of native facets.
+  -/
+  moreLinkObjs : TargetArray FilePath := #[]
+  /--
+  Additional target libraries to pass to `leanc` when linking
+  (e.g., for shared libraries or binary executables).
+  These will come *after* the paths of other link objects.
+  -/
+  moreLinkLibs : TargetArray FilePath := #[]
+  /--
   Additional arguments to pass to `leanc` when linking (e.g., for shared
   libraries or binary executables). These will come *after* the paths of
-  external libraries.
+  the linked objects.
   -/
   moreLinkArgs : Array String := #[]
   /--
   Additional arguments to pass to `leanc` when linking (e.g., for shared
   libraries or binary executables). These will come *after* the paths of
-  external libraries.
+  the linked objects.
 
   Unlike `moreLinkArgs`, these arguments do not affect the trace
   of the build result, so they can be changed without triggering a rebuild.
@@ -229,12 +240,12 @@ configuration LeanConfig where
   An array of dynamic library targets to load during the elaboration
   of a module (via `lean --load-dynlib`).
   -/
-  dynlibs : TargetArray Dynlib := #[]
+  dynlibs : TargetArray FilePath := #[]
   /-
   An array of Lean plugin targets to load during the elaboration
   of a module (via `lean --plugin`).
   -/
-  plugins : TargetArray Dynlib := #[]
+  plugins : TargetArray FilePath := #[]
 deriving Inhabited, Repr
 
 instance : EmptyCollection LeanConfig := ⟨{}⟩

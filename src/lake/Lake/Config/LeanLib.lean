@@ -127,14 +127,14 @@ then the default (which is C for now).
 The dynamic libraries to load for modules of this library.
 The targets of the package plus the targets of the library (in that order).
 -/
-@[inline] def dynlibs (self : LeanLib) : TargetArray Dynlib :=
+@[inline] def dynlibs (self : LeanLib) : TargetArray FilePath :=
   self.pkg.dynlibs ++ self.config.dynlibs
 
 /--
 The Lean plugins for modules of this library.
 The targets of the package plus the targets of the library (in that order).
 -/
-@[inline] def plugins (self : LeanLib) : TargetArray Dynlib :=
+@[inline] def plugins (self : LeanLib) : TargetArray FilePath :=
   self.pkg.plugins ++ self.config.plugins
 
 /--
@@ -166,21 +166,36 @@ and then the library's `moreLeancArgs`.
 
 /--
 The arguments to weakly pass to `leanc` when compiling the library's Lean-produced C files.
-That is, the package's `weakLeancArgs` plus the library's  `weakLeancArgs`.
+That is, the package's `weakLeancArgs` plus the library's `weakLeancArgs`.
 -/
 @[inline] def weakLeancArgs (self : LeanLib) : Array String :=
   self.pkg.weakLeancArgs ++ self.config.weakLeancArgs
 
 /--
+Additionl target objects to pass to `ar` when linking the static library.
+That is, the package's `moreLinkObjs` plus the library's `moreLinkObjs`.
+-/
+@[inline] def moreStaticLinks (self : LeanLib) : TargetArray FilePath :=
+  self.pkg.moreLinkObjs ++ self.config.moreLinkObjs
+
+/--
+Additionl target objects to pass to `leanc` when linking the shared library.
+That is, the package's `moreLinkObjs`/`moreLinkLibs` plus the library's.
+-/
+@[inline] def moreSharedLinks (self : LeanLib) : TargetArray FilePath :=
+  self.pkg.moreLinkObjs ++ self.pkg.moreLinkObjs ++
+  self.config.moreLinkObjs ++ self.config.moreLinkLibs
+
+/--
 The arguments to pass to `leanc` when linking the shared library.
-That is, the package's `moreLinkArgs` plus the library's  `moreLinkArgs`.
+That is, the package's `moreLinkArgs` plus the library's `moreLinkArgs`.
 -/
 @[inline] def linkArgs (self : LeanLib) : Array String :=
   self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
 
 /--
 The arguments to weakly pass to `leanc` when linking the shared library.
-That is, the package's `weakLinkArgs` plus the library's  `weakLinkArgs`.
+That is, the package's `weakLinkArgs` plus the library's `weakLinkArgs`.
 -/
 @[inline] def weakLinkArgs (self : LeanLib) : Array String :=
   self.pkg.weakLinkArgs ++ self.config.weakLinkArgs

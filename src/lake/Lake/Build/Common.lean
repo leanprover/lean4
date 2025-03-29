@@ -6,6 +6,7 @@ Authors: Mac Malone
 prelude
 import Lake.Config.Monad
 import Lake.Util.JsonObject
+import Lake.Build.Target.Fetch
 import Lake.Build.Actions
 import Lake.Build.Job
 

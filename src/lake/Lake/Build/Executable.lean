@@ -27,9 +27,14 @@ def LeanExe.recBuildExe (self : LeanExe) : FetchM (Job FilePath) :=
   for mod in imports do
     for facet in mod.nativeFacets self.supportInterpreter do
       linkJobs := linkJobs.push <| ← facet.fetch mod
+  let libs := imports.foldl (·.insert ·.lib) OrdHashSet.empty |>.toArray
+  for lib in libs do
+    for link in lib.moreSharedLinks do
+      linkJobs := linkJobs.push <| ← link.fetchIn lib.pkg
   let deps := (← (← self.pkg.transDeps.fetch).await).push self.pkg
-  for dep in deps do for lib in dep.externLibs do
-    linkJobs := linkJobs.push <| ← lib.static.fetch
+  for dep in deps do
+    for lib in dep.externLibs do
+      linkJobs := linkJobs.push <| ← lib.static.fetch
   buildLeanExe self.file linkJobs self.weakLinkArgs self.linkArgs self.sharedLean
 
 /-- The facet configuration for the builtin `LeanExe.exeFacet`. -/

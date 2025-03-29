@@ -204,7 +204,7 @@ protected def PathPatDescr.toLean? (p : PathPatDescr) : Option Term :=
 
 instance : ToLean? PathPatDescr := ⟨PathPatDescr.toLean?⟩
 
-@[inline] protected def PartialBuildKey.toLean (k : BuildKey) : Term :=
+@[inline] protected def PartialBuildKey.toLean (k : PartialBuildKey) : Term :=
   go k []
 where
   go k (fs : List Name) := Unhygienic.run do
@@ -232,6 +232,7 @@ where
     facets.toArray.map fun f => Unhygienic.run `(facetSuffix|:$(mkIdent f))
 
 instance : ToLean PartialBuildKey := ⟨PartialBuildKey.toLean⟩
+instance : ToLean (Target α) := ⟨(·.key.toLean)⟩
 
 /-! ## Dependency Configuration Encoder -/
 
@@ -281,17 +282,15 @@ local macro "gen_lean_encoders%" : command => do
   let cmds := #[]
   -- Targets
   let cmds ← genMkDeclFields cmds ``LeanConfig false
-    (exclude := #[`dynlibs, `plugins])
   let cmds ← genMkDeclFields cmds ``LeanLibConfig true
-    (exclude := #[`nativeFacets, `dynlibs, `plugins])
+    (exclude := #[`nativeFacets])
   let cmds ← genMkDeclFields cmds ``LeanExeConfig true
-    (exclude := #[`nativeFacets, `dynlibs, `plugins])
+    (exclude := #[`nativeFacets])
   let cmds ← genMkDeclFields cmds ``InputFileConfig true
   let cmds ← genMkDeclFields cmds ``InputDirConfig true
   -- Package
   let cmds ← genMkDeclFields cmds ``WorkspaceConfig false
   let cmds ← genMkDeclFields cmds ``PackageConfig true
-    (exclude := #[`nativeFacets, `dynlibs, `plugins])
   return ⟨mkNullNode cmds⟩
 
 gen_lean_encoders%

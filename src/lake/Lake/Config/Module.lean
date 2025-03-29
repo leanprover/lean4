@@ -134,10 +134,10 @@ def dynlibSuffix := "-1"
 @[inline] def backend (self : Module) : Backend :=
   self.lib.backend
 
-@[inline] def dynlibs (self : Module) : TargetArray Dynlib :=
+@[inline] def dynlibs (self : Module) : TargetArray FilePath :=
   self.lib.dynlibs
 
-@[inline] def plugins (self : Module) : TargetArray Dynlib :=
+@[inline] def plugins (self : Module) : TargetArray FilePath :=
   self.lib.plugins
 
 @[inline] def leanArgs (self : Module) : Array String :=

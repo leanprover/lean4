@@ -527,11 +527,11 @@ namespace Package
   self.config.backend
 
 /-- The package's `dynlibs` configuration. -/
-@[inline] def dynlibs (self : Package) : TargetArray Dynlib :=
+@[inline] def dynlibs (self : Package) : TargetArray FilePath :=
   self.config.dynlibs
 
 /-- The package's `plugins` configuration. -/
-@[inline] def plugins (self : Package) : TargetArray Dynlib :=
+@[inline] def plugins (self : Package) : TargetArray FilePath :=
   self.config.plugins
 
 /-- The package's `leanOptions` configuration. -/
@@ -553,6 +553,14 @@ namespace Package
 /-- The package's `weakLeancArgs` configuration. -/
 @[inline] def weakLeancArgs (self : Package) : Array String :=
   self.config.weakLeancArgs
+
+/-- The package's `moreLinkObjs` configuration. -/
+@[inline] def moreLinkObjs (self : Package) : TargetArray FilePath :=
+  self.config.moreLinkObjs
+
+/-- The package's `moreLinkLibs` configuration. -/
+@[inline] def moreLinkLibs (self : Package) : TargetArray FilePath :=
+  self.config.moreLinkLibs
 
 /-- The package's `moreLinkArgs` configuration. -/
 @[inline] def moreLinkArgs (self : Package) : Array String :=

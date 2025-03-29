@@ -170,6 +170,9 @@ builtin_facet staticExportFacet @ static.export : LeanLib => FilePath
 /-- A Lean library's shared artifact. -/
 builtin_facet shared : LeanLib => FilePath
 
+/-- A Lean library's shared artifact as a dynlib (e.g., for `--load-dynlib`). -/
+builtin_facet dynlib : LeanLib => Dynlib
+
 /-- A Lean library's `extraDepTargets` mixed with its package's. -/
 builtin_facet extraDep : LeanLib => Unit
 

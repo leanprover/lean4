@@ -23,9 +23,10 @@ def buildImportsAndDeps
   (leanFile : FilePath) (imports : Array Module)
 : FetchM (Job ModuleDeps) := do
   withRegisterJob s!"setup ({leanFile})" do
+  let root ← getRootPackage
   if imports.isEmpty then
     -- build the package's (and its dependencies') `extraDepTarget`
-    (← getRootPackage).extraDep.fetch <&> (·.map fun _ => {})
+    root.extraDep.fetch <&> (·.map fun _ => {})
   else
     -- build local imports from list
     let modJob := Job.mixArray <| ← imports.mapM (·.olean.fetch)
@@ -34,14 +35,14 @@ def buildImportsAndDeps
     let externLibsJob ← fetchExternLibs pkgs
     let modLibsJob ← Job.collectArray <$>
       precompileImports.mapM (·.dynlib.fetch)
-    let dynlibsJob ← (← getRootPackage).dynlibs.fetch
-    let pluginsJob ← (← getRootPackage).plugins.fetch
+    let dynlibsJob ← root.dynlibs.fetchIn root
+    let pluginsJob ← root.plugins.fetchIn root
     modJob.bindM fun _ =>
     modLibsJob.bindM fun modLibs =>
     dynlibsJob.bindM fun dynlibs =>
     pluginsJob.bindM fun plugins =>
     externLibsJob.mapM fun externLibs => do
       -- NOTE: Lean wants the external library symbols before module symbols
-      let dynlibs := (externLibs ++ dynlibs).map (·.path)
-      let plugins := (modLibs ++ plugins).map (·.path)
+      let dynlibs := externLibs.map (·.path) ++ dynlibs
+      let plugins := modLibs.map (·.path) ++ plugins
       return {dynlibs, plugins}

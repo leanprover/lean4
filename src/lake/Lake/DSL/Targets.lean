@@ -153,8 +153,8 @@ abbrev mkTargetDecl
   (f : NPackage pkgName → FetchM (Job α))
 : TargetDecl :=
   let cfg := mkTargetJobConfig fun pkg => do
-    withRegisterJob (pkg.target target |>.key.toSimpleString)
-      (f pkg)
+    withRegisterJob (pkg.target target |>.key.toSimpleString) do
+      f pkg
   .mk (.mk pkgName target .anonymous (.mk cfg) (by simp [Name.isAnonymous])) rfl
 
 /--

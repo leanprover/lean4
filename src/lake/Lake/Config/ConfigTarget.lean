@@ -22,6 +22,9 @@ structure ConfigTarget (kind : Name) where
   /-- The target's user-defined configuration. -/
   config : ConfigType kind pkg.name name
 
+instance : Hashable (ConfigTarget k) := ⟨(hash ·.name)⟩
+instance : BEq (ConfigTarget k) := ⟨(·.name == ·.name)⟩
+
 @[simp] axiom OpaqueConfigTarget.def {k : Name} : OpaqueConfigTarget k = ConfigTarget k
 
 @[inline] def PConfigDecl.mkConfigTarget (pkg : Package) (self : PConfigDecl pkg.name) : ConfigTarget self.kind :=

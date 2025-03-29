@@ -18,7 +18,7 @@ input_file ffi_static.c where
 
 target ffi_static.o pkg : FilePath := do
   let srcJob ← ffi_static.c.fetch
-  let oFile := pkg.buildDir / "c" / "ffi.o"
+  let oFile := pkg.buildDir / "c" / "ffi_static.o"
   buildO oFile srcJob #[] #["-fPIC"] "cc"
 
 target libleanffi_static pkg : FilePath := do
@@ -37,7 +37,7 @@ input_file ffi_shared.cpp where
 
 target ffi_shared.o pkg : FilePath := do
   let srcJob ← ffi_shared.cpp.fetch
-  let oFile := pkg.buildDir / "c" / "ffi.o"
+  let oFile := pkg.buildDir / "c" / "ffi_shared.o"
   let weakArgs := #["-I", (← getLeanIncludeDir).toString]
   buildO oFile srcJob weakArgs #["-fPIC"] "c++" getLeanTrace
 

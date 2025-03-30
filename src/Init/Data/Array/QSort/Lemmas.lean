@@ -76,29 +76,28 @@ theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     ∀ i, (h₁ : lo ≤ i) → (h₂ : i < mid) → lt as'[i] as'[mid] := by
   unfold qpartition.loop at w_mid w_as
   subst hpivot
-  dsimp
   split at w_mid <;> rename_i h₁
   · rw [dif_pos h₁] at w_as
     split at w_mid <;> rename_i h₂
     · rw [if_pos h₂] at w_as
       apply qpartition_loop_spec₁ (w_mid := w_mid) (w_as := w_as)
-      · rw [Vector.getElem_swap_of_ne _ _ (by omega) (by omega)]
+      · rw [Vector.getElem_swap_of_ne (by omega) (by omega)]
       intro k hk₁ hk₂
       if hk₂' : k < i then
         specialize q k hk₁ hk₂'
-        rwa [Vector.getElem_swap_of_ne _ _ (by omega) (by omega),
-          Vector.getElem_swap_of_ne _ _ (by omega) (by omega)]
+        rwa [Vector.getElem_swap_of_ne (by omega) (by omega),
+          Vector.getElem_swap_of_ne (by omega) (by omega)]
       else
         obtain rfl := show k = i by omega
         rwa [Vector.getElem_swap_left,
-          Vector.getElem_swap_of_ne _ _ (by omega) (by omega)]
+          Vector.getElem_swap_of_ne (by omega) (by omega)]
     · rw [if_neg h₂] at w_as
       apply qpartition_loop_spec₁ (w_mid := w_mid) (w_as := w_as) (hpivot := rfl) (q := q)
   · rw [dif_neg h₁] at w_as
     subst w_as
     simp [w_mid]
     intro i' hi₁ hi₂
-    rw [Vector.getElem_swap_of_ne _ _ (by omega) (by omega)]
+    rw [Vector.getElem_swap_of_ne (by omega) (by omega)]
     exact q _ hi₁ hi₂
 
 theorem qpartition_loop_spec₂ {n} (lt : α → α → Bool) (lo hi : Nat)
@@ -112,22 +111,22 @@ theorem qpartition_loop_spec₂ {n} (lt : α → α → Bool) (lo hi : Nat)
     ∀ i, (h₁ : mid < i) → (h₂ : i ≤ hi) → !lt as'[i] as'[mid] := by
   unfold qpartition.loop at w_mid w_as
   subst hpivot
-  dsimp
+  -- dsimp
   split at w_mid <;> rename_i h₁
   · rw [dif_pos h₁] at w_as
     split at w_mid <;> rename_i h₂
     · rw [if_pos h₂] at w_as
       apply qpartition_loop_spec₂ (w_mid := w_mid) (w_as := w_as)
-      · rw [Vector.getElem_swap_of_ne _ _ (by omega) (by omega)]
+      · rw [Vector.getElem_swap_of_ne (by omega) (by omega)]
       intro k hk₁ hk₂
       if hk₂' : k < j then
         specialize q k (by omega) hk₂'
-        rwa [Vector.getElem_swap_of_ne _ _ (by omega) (by omega),
-          Vector.getElem_swap_of_ne _ _ (by omega) (by omega)]
+        rwa [Vector.getElem_swap_of_ne (by omega) (by omega),
+          Vector.getElem_swap_of_ne (by omega) (by omega)]
       else
         obtain rfl := show k = j by omega
         rw [Vector.getElem_swap_right,
-          Vector.getElem_swap_of_ne _ _ (by omega) (by omega)]
+          Vector.getElem_swap_of_ne (by omega) (by omega)]
         exact q i (i.le_refl) (by omega)
     · rw [if_neg h₂] at w_as
       apply qpartition_loop_spec₂ (w_mid := w_mid) (w_as := w_as) (hpivot := rfl)
@@ -142,7 +141,7 @@ theorem qpartition_loop_spec₂ {n} (lt : α → α → Bool) (lo hi : Nat)
     simp [w_mid]
     intro i' hi₁ hi₂
     if hi₂' : i' < hi then
-      rw [Vector.getElem_swap_of_ne _ _ (by omega) (by omega)]
+      rw [Vector.getElem_swap_of_ne (by omega) (by omega)]
       simpa using q i' (by omega) (by omega)
     else
       obtain rfl := show i' = hi by omega
@@ -214,7 +213,6 @@ theorem getElem_qpartition_snd_of_lt_lo {n} (lt : α → α → Bool) (as : Vect
   · (repeat' split) <;>
     { repeat rw [Vector.getElem_swap_of_ne]
       all_goals first | rfl | omega }
-  · omega
 
 theorem getElem_qsort_sort_of_lt_lo {n} (lt : α → α → Bool) (as : Vector α n) (lo hi : Nat)
     (hlo : lo < n) (hhi : hi < n) (w : lo ≤ hi)
@@ -244,7 +242,7 @@ theorem qsort_sort_spec {n} (lt : α → α → Bool) (as : Vector α n) (lo hi 
   unfold qsort.sort at w_as
   split at w_as <;> rename_i w₁
   · intro i j h₁ h₂ h₃
-    split at w_as <;> rename_i mid hmid as'' w₂
+    split at w_as <;> rename_i mid hmid as' w₂
     split at w_as <;> rename_i w₃
     · simp only [Prod.ext_iff, Subtype.ext_iff] at w₂
       obtain ⟨rfl, rfl⟩ := w₂

@@ -76,6 +76,10 @@ def clientServer (addr : SocketAddress) : IO Unit := do
   server.bind addr
   server.listen 128
 
+  let serverTask := runRobert server
+  let resChannel ← Std.Channel.new
+  sendResult resChannel serverTask
+
   assertBEq (← server.getSockName).port addr.port
 
   let joe ← TCP.Socket.Client.mk
@@ -94,16 +98,10 @@ def clientServer (addr : SocketAddress) : IO Unit := do
 
   mike.noDelay
 
-  let serverTask := runRobert server
-
-  let resChannel ← Std.Channel.new
-
   let joeTask := runJoe joe
   let mikeTask := runMike mike
 
-  sendResult resChannel serverTask
   sendResult resChannel joeTask
-  IO.sleep 200
   sendResult resChannel mikeTask
 
   for _ in [0:3] do

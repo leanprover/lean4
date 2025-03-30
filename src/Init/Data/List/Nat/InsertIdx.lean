@@ -48,14 +48,14 @@ theorem length_insertIdx : ∀ {i} {as : List α}, (as.insertIdx i a).length = i
     simp only [insertIdx_succ_cons, length_cons, length_insertIdx, Nat.add_le_add_iff_right]
     split <;> rfl
 
-theorem length_insertIdx_of_le_length (h : i ≤ length as) : (as.insertIdx i a).length = as.length + 1 := by
+theorem length_insertIdx_of_le_length (h : i ≤ length as) (a : α) : (as.insertIdx i a).length = as.length + 1 := by
   simp [length_insertIdx, h]
 
-theorem length_insertIdx_of_length_lt (h : length as < i) : (as.insertIdx i a).length = as.length := by
+theorem length_insertIdx_of_length_lt (h : length as < i) (a : α) : (as.insertIdx i a).length = as.length := by
   simp [length_insertIdx, h]
 
 @[simp]
-theorem eraseIdx_insertIdx {i : Nat} {l : List α} : (l.insertIdx i a).eraseIdx i = l := by
+theorem eraseIdx_insertIdx {i : Nat} {l : List α} (a : α) : (l.insertIdx i a).eraseIdx i = l := by
   rw [eraseIdx_eq_modifyTailIdx, insertIdx, modifyTailIdx_modifyTailIdx_self]
   exact modifyTailIdx_id _ _
 

@@ -18,7 +18,9 @@ A *structure instance* is notation to construct a term of a `structure`.
 Examples: `{ x := 2, y.z := true }`, `{ s with cache := c' }`, and `{ s with values[2] := v }`.
 Structure instances are the preferred way to invoke a `structure`'s constructor,
 since they hide Lean implementation details such as whether parents are represented as subobjects,
-and also they do correct processing of default values, which are complicated due to the fact that `structure`s can override default values of their parents.
+and also they do correct processing of default values,
+which are complicated due to the fact that `structure`s can override default values of their parents,
+and furthermore overridden default values can use fields that come after in the order the fields appear in the constructor.
 
 This module elaborates structure instance notation.
 Note that the `where` syntax to define structures (`Lean.Parser.Command.whereStructInst`)
@@ -688,11 +690,6 @@ private def normalizeExpr (e : Expr) (zetaDeltaImpl : Bool := true) : StructInst
   let e ← if zetaDeltaImpl then zetaDeltaImplDetailsInProps e else pure e
   let e ← reduceFieldProjs e
   etaStructReduce' e
-
-/-- Marks a field as solved so that it does not get solved for by optParam synthesis,
-and, importantly, doesn't register an error that optParam synthesis didn't solve for it. -/
-private def markSolved (fieldName : Name) : StructInstM Unit := do
-  modify fun s => { s with optParamFields := s.optParamFields.filter fun (fieldName', _, _) => fieldName != fieldName' }
 
 private def addStructFieldAux (fieldName : Name) (e : Expr) : StructInstM Unit := do
   trace[Elab.struct] "setting '{fieldName}' value to{indentExpr e}"

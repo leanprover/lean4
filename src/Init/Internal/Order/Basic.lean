@@ -479,7 +479,7 @@ instance instCCPOPProd [CCPO α] [CCPO β] : CCPO (α ×' β) where
   csup c := ⟨CCPO.csup (PProd.chain.fst c), CCPO.csup (PProd.chain.snd c)⟩
   csup_spec := by
     intro ⟨a, b⟩ c hchain
-    dsimp
+    try dsimp -- TODO(kmill) remove
     constructor
     next =>
       intro ⟨h₁, h₂⟩ ⟨a', b'⟩ cab

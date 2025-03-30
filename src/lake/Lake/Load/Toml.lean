@@ -352,6 +352,7 @@ def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
       let defaultTargets := defaultTargets.map stringToLegalOrSimpleName
       let depConfigs ← table.tryDecodeD `require #[]
       return {
+        name := name
         dir := cfg.pkgDir
         relDir := cfg.relPkgDir
         relConfigFile := cfg.relConfigFile

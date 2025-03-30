@@ -209,7 +209,7 @@ theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
   funext l
   apply count_eq_countP
 
-theorem count_tail : ∀ {l : List α} {a : α} (h : l ≠ []),
+theorem count_tail : ∀ {l : List α} (h : l ≠ []) (a : α),
       l.tail.count a = l.count a - if l.head h == a then 1 else 0
   | _ :: _, a, _ => by simp [count_cons]
 

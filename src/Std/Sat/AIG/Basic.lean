@@ -96,10 +96,15 @@ inductive Decl (α : Type) where
   -/
   | atom (idx : α)
   /--
-  An AIG gate with configurable input nodes and polarity. `l` and `r` are the
+  An And gate with configurable input nodes and polarity. `l` and `r` are the
   input nodes together with their inverter bit.
   -/
   | and (l r : Fanin)
+  /--
+  An Xor gate with configurable input nodes and polarity. `l` and `r` are the
+  input nodes together with their inverter bit.
+  -/
+  | xor (l r : Fanin)
   deriving Hashable, Repr, DecidableEq, Inhabited
 
 
@@ -245,6 +250,7 @@ def IsDAG (α : Type) (decls : Array (Decl α)) : Prop :=
     decls[i] = decl →
     match decl with
     | .and lhs rhs =>  lhs.gate < i ∧ rhs.gate < i
+    | .xor lhs rhs =>  lhs.gate < i ∧ rhs.gate < i
     | _ => true
 
 /--
@@ -410,7 +416,7 @@ where
     match elem : decls[idx] with
     | Decl.false => return acc
     | Decl.atom _ => return acc
-    | Decl.and lhs rhs =>
+    | Decl.and lhs rhs | Decl.xor lhs rhs =>
       let lidx := lhs.gate
       let linv := lhs.invert
       let ridx := rhs.gate
@@ -427,6 +433,7 @@ where
     | Decl.false => s!"{idx} [label=\"{false}\", shape=box];"
     | Decl.atom i => s!"{idx} [label=\"{i}\", shape=doublecircle];"
     | Decl.and .. => s!"{idx} [label=\"{idx} ∧\",shape=trapezium];"
+    | Decl.xor .. => s!"{idx} [label=\"{idx} (+)\",shape=triangle];"
 
 /--
 A vector of references into `aig`. This is the `AIG` analog of `BitVec`.
@@ -478,9 +485,14 @@ where
     | .atom v => assign v
     | .and lhs rhs =>
       have := h2 h1 h3
-      let lval := go lhs.gate decls assign (by omega) h2
-      let rval := go rhs.gate decls assign (by omega) h2
-      xor lval lhs.invert && xor rval rhs.invert
+      let lval := xor (go lhs.gate decls assign (by omega) h2) lhs.invert
+      let rval := xor (go rhs.gate decls assign (by omega) h2) rhs.invert
+      lval && rval
+    | .xor lhs rhs =>
+      have := h2 h1 h3
+      let lval := xor (go lhs.gate decls assign (by omega) h2) lhs.invert
+      let rval := xor (go rhs.gate decls assign (by omega) h2) rhs.invert
+      lval ^^ rval
 
 /--
 Denotation of an `AIG` at a specific `Entrypoint`.
@@ -516,13 +528,35 @@ def Entrypoint.Unsat (entry : Entrypoint α) : Prop :=
   entry.aig.UnsatAt entry.ref.gate entry.ref.invert entry.ref.hgate
 
 /--
-Add a new and inverter gate to the AIG in `aig`. Note that this version is only meant for proving,
+Add a new and gate to the AIG in `aig`. Note that this version is only meant for proving,
 for production purposes use `AIG.mkAndGateCached` and equality theorems to this one.
 -/
 def mkAndGate (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   let g := aig.decls.size
   let decls :=
     aig.decls.push <| .and (.mk input.lhs.gate input.lhs.invert) (.mk input.rhs.gate input.rhs.invert)
+  let cache := aig.cache.noUpdate
+  have hdag := by
+    intro i decl h1 h2
+    simp only [Array.getElem_push] at h2
+    split at h2
+    · apply aig.hdag <;> assumption
+    · simp [← h2]
+      have := input.lhs.hgate
+      have := input.rhs.hgate
+      omega
+  have hzero := by simp [decls]
+  have hconst := by simp [decls, Array.getElem_push, aig.hzero, aig.hconst]
+  ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨g, false, by simp [g, decls]⟩⟩
+
+/--
+Add a new xor gate to the AIG in `aig`. Note that this version is only meant for proving,
+for production purposes use `AIG.mkAndGateCached` and equality theorems to this one.
+-/
+def mkXorGate (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
+  let g := aig.decls.size
+  let decls :=
+    aig.decls.push <| .xor (.mk input.lhs.gate input.lhs.invert) (.mk input.rhs.gate input.rhs.invert)
   let cache := aig.cache.noUpdate
   have hdag := by
     intro i decl h1 h2

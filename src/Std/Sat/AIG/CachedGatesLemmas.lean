@@ -25,16 +25,10 @@ private theorem or_as_aig : ∀ (a b : Bool), (!(!a && !b)) = (a || b) := by
   decide
 
 /--
-Encoding of XOR as boolean expression in AIG form.
--/
-private theorem xor_as_aig : ∀ (a b : Bool), (!(a && b) && !(!a && !b)) = (a ^^ b) := by
-  decide
-
-/--
 Encoding of BEq as boolean expression in AIG form.
 -/
-private theorem beq_as_aig : ∀ (a b : Bool), (!(a && !b) && !(!a && b)) = (a == b) := by
-  decide
+private theorem beq_as_aig : ∀ (a b : Bool), (!(a ^^ b)) = (a == b) := by
+  simp
 
 /--
 Encoding of implication as boolean expression in AIG form.
@@ -110,22 +104,13 @@ theorem mkXorCached_le_size (aig : AIG α) {input : BinaryInput aig} :
     aig.decls.size ≤ (aig.mkXorCached input).aig.decls.size := by
   simp only [mkXorCached]
   apply LawfulOperator.le_size_of_le_aig_size
-  apply LawfulOperator.le_size_of_le_aig_size
-  apply LawfulOperator.le_size_of_le_aig_size
   omega
 
 theorem mkXorCached_decl_eq idx (aig : AIG α) (input : BinaryInput aig) {h : idx < aig.decls.size}
     {h2} :
     (aig.mkXorCached input).aig.decls[idx]'h2 = aig.decls[idx] := by
   simp only [mkXorCached]
-  rw [AIG.LawfulOperator.decl_eq (f := mkAndGateCached)]
-  rw [AIG.LawfulOperator.decl_eq (f := mkAndGateCached)]
-  · rw [AIG.LawfulOperator.decl_eq (f := mkAndGateCached)]
-    apply LawfulOperator.lt_size_of_lt_aig_size
-    assumption
-  · apply LawfulOperator.lt_size_of_lt_aig_size
-    apply LawfulOperator.lt_size_of_lt_aig_size
-    assumption
+  rw [AIG.LawfulOperator.decl_eq (f := mkXorGateCached)]
 
 instance : LawfulOperator α BinaryInput mkXorCached where
   le_size := mkXorCached_le_size
@@ -134,18 +119,11 @@ instance : LawfulOperator α BinaryInput mkXorCached where
 @[simp]
 theorem denote_mkXorCached {aig : AIG α} {input : BinaryInput aig} :
     ⟦aig.mkXorCached input, assign⟧ = (⟦aig, input.lhs, assign⟧ ^^ ⟦aig, input.rhs, assign⟧) := by
-  rw [← xor_as_aig]
-  simp [
-    mkXorCached,
-    LawfulOperator.denote_mem_prefix (f := mkAndGateCached) input.lhs.hgate,
-    LawfulOperator.denote_mem_prefix (f := mkAndGateCached) input.rhs.hgate
-  ]
+  simp [mkXorCached]
 
 theorem mkBEqCached_le_size (aig : AIG α) {input : BinaryInput aig} :
     aig.decls.size ≤ (aig.mkBEqCached input).aig.decls.size := by
   simp only [mkBEqCached]
-  apply LawfulOperator.le_size_of_le_aig_size
-  apply LawfulOperator.le_size_of_le_aig_size
   apply LawfulOperator.le_size_of_le_aig_size
   omega
 
@@ -153,14 +131,7 @@ theorem mkBEqCached_decl_eq idx (aig : AIG α) (input : BinaryInput aig) {h : id
     {h2} :
     (aig.mkBEqCached input).aig.decls[idx]'h2 = aig.decls[idx] := by
   simp only [mkBEqCached]
-  rw [AIG.LawfulOperator.decl_eq (f := mkAndGateCached)]
-  rw [AIG.LawfulOperator.decl_eq (f := mkAndGateCached)]
-  · rw [AIG.LawfulOperator.decl_eq (f := mkAndGateCached)]
-    apply LawfulOperator.lt_size_of_lt_aig_size
-    assumption
-  · apply LawfulOperator.lt_size_of_lt_aig_size
-    apply LawfulOperator.lt_size_of_lt_aig_size
-    assumption
+  rw [AIG.LawfulOperator.decl_eq (f := mkXorGateCached)]
 
 instance : LawfulOperator α BinaryInput mkBEqCached where
   le_size := mkBEqCached_le_size
@@ -170,11 +141,7 @@ instance : LawfulOperator α BinaryInput mkBEqCached where
 theorem denote_mkBEqCached {aig : AIG α} {input : BinaryInput aig} :
     ⟦aig.mkBEqCached input, assign⟧ = (⟦aig, input.lhs, assign⟧ == ⟦aig, input.rhs, assign⟧) := by
   rw [← beq_as_aig]
-  simp [
-    mkBEqCached,
-    LawfulOperator.denote_mem_prefix (f := mkAndGateCached) input.lhs.hgate,
-    LawfulOperator.denote_mem_prefix (f := mkAndGateCached) input.rhs.hgate
-  ]
+  simp [mkBEqCached]
 
 theorem mkImpCached_le_size (aig : AIG α) (input : BinaryInput aig) :
     aig.decls.size ≤ (aig.mkImpCached input).aig.decls.size := by

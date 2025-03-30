@@ -91,7 +91,9 @@ inductive Inv2 (decls : Array (Decl α)) : Nat → HashMap α Nat → Prop where
   (hmap : map[a]? = some n) : Inv2 decls (idx + 1) map
 | false (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .false) :
   Inv2 decls (idx + 1) map
-| gate (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .and l r) :
+| and (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .and l r) :
+  Inv2 decls (idx + 1) map
+| xor (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .xor l r) :
   Inv2 decls (idx + 1) map
 
 theorem Inv2.upper_lt_size {decls : Array (Decl α)} (hinv : Inv2 decls upper map) :
@@ -140,7 +142,13 @@ theorem Inv2.property (decls : Array (Decl α)) (idx upper : Nat) (map : HashMap
     cases Nat.eq_or_lt_of_le hidx with
     | inl hidxeq => simp [hidxeq, ih3] at heq
     | inr hlt => apply ih4 <;> assumption
-  | gate ih1 ih2 ih3 ih4 =>
+  | and ih1 ih2 ih3 ih4 =>
+    next idx' _ _ _ =>
+    replace hidx : idx ≤ idx' := by omega
+    cases Nat.eq_or_lt_of_le hidx with
+    | inl hidxeq => simp [hidxeq, ih3] at heq
+    | inr hlt => apply ih4 <;> assumption
+  | xor ih1 ih2 ih3 ih4 =>
     next idx' _ _ _ =>
     replace hidx : idx ≤ idx' := by omega
     cases Nat.eq_or_lt_of_le hidx with
@@ -230,7 +238,20 @@ def addAndGate {decls : Array (Decl α)} {hidx} (state : State α decls idx) (lh
     State α decls (idx + 1) :=
   { state with
     inv2 := by
-      apply Inv2.gate
+      apply Inv2.and
+      · exact state.inv2
+      · assumption
+  }
+
+/--
+Insert a `Decl.xor` into the `State` structure.
+-/
+def addXorGate {decls : Array (Decl α)} {hidx} (state : State α decls idx) (lhs rhs : Fanin)
+    (h : decls[idx]'hidx = .xor lhs rhs) :
+    State α decls (idx + 1) :=
+  { state with
+    inv2 := by
+      apply Inv2.xor
       · exact state.inv2
       · assumption
   }
@@ -248,6 +269,7 @@ where
       | .atom a => go decls (idx + 1) (state.addAtom a hdecl)
       | .false => go decls (idx + 1) (state.addFalse hdecl)
       | .and lhs rhs => go decls (idx + 1) (state.addAndGate lhs rhs hdecl)
+      | .xor lhs rhs => go decls (idx + 1) (state.addXorGate lhs rhs hdecl)
     else
       have : idx = decls.size := by
         have := state.inv2.upper_lt_size

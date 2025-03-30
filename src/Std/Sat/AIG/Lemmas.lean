@@ -135,6 +135,36 @@ theorem denote_mkAndGate {aig : AIG α} {input : BinaryInput aig} :
     all_goals
       apply denote.go_eq_of_isPrefix
       simp
+  · next heq =>
+    rw [mkAndGate, Array.getElem_push_eq] at heq
+    contradiction
+
+@[simp]
+theorem denote_mkXorGate {aig : AIG α} {input : BinaryInput aig} :
+    ⟦aig.mkXorGate input, assign⟧
+      =
+    (⟦aig, input.lhs, assign⟧ ^^ ⟦aig, input.rhs, assign⟧) := by
+  conv =>
+    lhs
+    unfold denote denote.go
+  split
+  · next heq =>
+    rw [mkXorGate, Array.getElem_push_eq] at heq
+    contradiction
+  · next heq =>
+    rw [mkXorGate, Array.getElem_push_eq] at heq
+    contradiction
+  · next heq =>
+    rw [mkXorGate, Array.getElem_push_eq] at heq
+    contradiction
+  · next heq =>
+    rw [mkXorGate, Array.getElem_push_eq] at heq
+    injection heq with hl hr
+    simp only [← hl, Fanin.gate_mk, mkXorGate, Fanin.invert_mk, ← hr, Bool.bne_false]
+    congr 2
+    all_goals
+      apply denote.go_eq_of_isPrefix
+      simp
 
 /--
 `AIG.mkAtom` never shrinks the underlying AIG.
@@ -171,6 +201,9 @@ theorem denote_mkAtom {aig : AIG α} :
     rw [mkAtom, Array.getElem_push_eq] at heq
     injection heq with heq
     simp [heq, mkAtom]
+  · next heq =>
+    rw [mkAtom, Array.getElem_push_eq] at heq
+    contradiction
   · next heq =>
     rw [mkAtom, Array.getElem_push_eq] at heq
     contradiction
@@ -212,6 +245,9 @@ theorem denote_mkConst {aig : AIG α} : ⟦(aig.mkConst val), assign⟧ = val :=
   · next heq =>
     rw [mkConst, Array.getElem_push_eq] at heq
     contradiction
+  · next heq =>
+    rw [mkConst, Array.getElem_push_eq] at heq
+    contradiction
 
 /--
 If an index contains a `Decl.false` we know how to denote it.
@@ -245,8 +281,28 @@ theorem denote_idx_and{aig : AIG α} {hstart} (h : aig.decls[start] = .and lhs r
     lhs
     unfold denote.go
   split
-  · simp_all
-  · simp_all
+  all_goals
+  · next heq =>
+    rw [h] at heq
+    simp_all
+
+/--
+If an index contains a `Decl.xor` we know how to denote it.
+-/
+theorem denote_idx_xor{aig : AIG α} {hstart} (h : aig.decls[start] = .xor lhs rhs) :
+    ⟦aig, ⟨start, invert, hstart⟩, assign⟧
+      =
+    ((
+      (⟦aig, ⟨lhs.gate, lhs.invert, by have := aig.hdag hstart h; omega⟩, assign⟧)
+        ^^
+      (⟦aig, ⟨rhs.gate, rhs.invert, by have := aig.hdag hstart h; omega⟩, assign⟧)
+    ) ^^ invert) := by
+  unfold denote
+  conv =>
+    lhs
+    unfold denote.go
+  split
+  all_goals
   · next heq =>
     rw [h] at heq
     simp_all
@@ -254,19 +310,27 @@ theorem denote_idx_and{aig : AIG α} {hstart} (h : aig.decls[start] = .and lhs r
 theorem idx_trichotomy (aig : AIG α) (hstart : start < aig.decls.size) {prop : Prop}
     (hfalse : aig.decls[start]'hstart = .false → prop)
     (hatom : ∀ a, aig.decls[start]'hstart = .atom a → prop)
-    (hgate : ∀ lhs rhs , aig.decls[start]'hstart = .and lhs rhs → prop)
+    (hand: ∀ lhs rhs , aig.decls[start]'hstart = .and lhs rhs → prop)
+    (hxor: ∀ lhs rhs , aig.decls[start]'hstart = .xor lhs rhs → prop)
     : prop := by
   match h : aig.decls[start]'hstart with
   | .false => apply hfalse; assumption
   | .atom a => apply hatom; assumption
-  | .and lhs rhs => apply hgate; assumption
+  | .and lhs rhs => apply hand; assumption
+  | .xor lhs rhs => apply hxor; assumption
 
 theorem denote_idx_trichotomy {aig : AIG α} {hstart : start < aig.decls.size}
     (hfalse : aig.decls[start]'hstart = .false → ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = res)
     (hatom : ∀ a, aig.decls[start]'hstart = .atom a → ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = res)
-    (hgate :
+    (hand :
       ∀ lhs rhs,
         aig.decls[start]'hstart = .and lhs rhs
+          →
+        ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = res
+    )
+    (hxor :
+      ∀ lhs rhs,
+        aig.decls[start]'hstart = .xor lhs rhs
           →
         ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = res
     ) :
@@ -274,7 +338,8 @@ theorem denote_idx_trichotomy {aig : AIG α} {hstart : start < aig.decls.size}
   apply idx_trichotomy aig hstart
   · exact hfalse
   · exact hatom
-  · exact hgate
+  · exact hand
+  · exact hxor
 
 theorem mem_def {aig : AIG α} {a : α} : (a ∈ aig) ↔ ((.atom a) ∈ aig.decls) := by
   simp [Membership.mem, Mem]
@@ -291,6 +356,11 @@ theorem denote_congr (assign1 assign2 : α → Bool) (aig : AIG α) (idx : Nat) 
     simp [mem_def, ← heq]
   · intro lhs rhs heq
     simp only [denote_idx_and heq]
+    have := aig.hdag hidx heq
+    rw [denote_congr assign1 assign2 aig lhs.gate _ (by omega) h]
+    rw [denote_congr assign1 assign2 aig rhs.gate _ (by omega) h]
+  · intro lhs rhs heq
+    simp only [denote_idx_xor heq]
     have := aig.hdag hidx heq
     rw [denote_congr assign1 assign2 aig lhs.gate _ (by omega) h]
     rw [denote_congr assign1 assign2 aig rhs.gate _ (by omega) h]

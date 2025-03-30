@@ -63,10 +63,24 @@ theorem denote.go_eq_of_isPrefix (decls1 decls2 : Array (Decl α)) (start : Nat)
     split
     · simp_all
     · simp_all
-    · simp_all
+    · simp_all only [Decl.and.injEq]
       congr 2
+      all_goals
       · apply denote.go_eq_of_isPrefix
         assumption
+    · simp_all
+  · next lhs rhs heq =>
+    rw [hidx1] at heq
+    have := hdag1 hbounds1 heq
+    have hidx2 := hprefix.idx_eq lhs.gate (by omega)
+    have hidx3 := hprefix.idx_eq rhs.gate (by omega)
+    split
+    · simp_all
+    · simp_all
+    · simp_all
+    · simp_all only [Decl.xor.injEq]
+      congr 2
+      all_goals
       · apply denote.go_eq_of_isPrefix
         assumption
 termination_by start

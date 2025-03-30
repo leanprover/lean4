@@ -54,7 +54,7 @@ def mkConstCached (aig : AIG α) (val : Bool) : Entrypoint α :=
 
 /--
 A version of `AIG.mkAndGate` that uses the subterm cache in `AIG`. This version is meant for
-programming, for proving purposes use `AIG.mkGate` and equality theorems to this one.
+programming, for proving purposes use `AIG.mkAndGate` and equality theorems to this one.
 
 Beyond caching this function also implements a subset of the optimizations presented in:
 -/
@@ -100,6 +100,64 @@ where
           if linv == rinv then ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨lhs, linv, by assumption⟩⟩
           -- Contradiction
           else mkConstCached ⟨decls, cache, hdag, hzero, hconst⟩ false
+        else
+          -- Gate couldn't be simplified
+          let g := decls.size
+          let cache := cache.insert decls decl
+          let decls := decls.push decl
+          have hdag := by
+            intro i decl h1 h2
+            simp only [Array.getElem_push] at h2
+            split at h2
+            · apply hdag <;> assumption
+            · simp [← h2]
+              simp_all
+              omega
+          have hzero' := by simp [decls]
+          have hconst := by simp [decls, Array.getElem_push, hzero, hconst]
+          ⟨⟨decls, cache, hdag, hzero', hconst⟩, ⟨g, false, by simp [g, decls]⟩⟩
+
+/--
+A version of `AIG.mkXorGate` that uses the subterm cache in `AIG`. This version is meant for
+programming, for proving purposes use `AIG.mkXorGate` and equality theorems to this one.
+
+Beyond caching this function also implements a subset of the optimizations presented in:
+-/
+def mkXorGateCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
+  let lhs := input.lhs.gate
+  let rhs := input.rhs.gate
+  if lhs < rhs then
+    go aig ⟨input.lhs, input.rhs⟩
+  else
+    go aig ⟨input.rhs, input.lhs⟩
+where
+  go (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
+    let ⟨decls, cache, hdag, hzero, hconst⟩ := aig
+    let lhs := input.lhs.gate
+    let rhs := input.rhs.gate
+    let linv := input.lhs.invert
+    let rinv := input.rhs.invert
+    have := input.lhs.hgate
+    have := input.rhs.hgate
+    let decl := .xor (.mk lhs linv) (.mk rhs rinv)
+    match cache.get? decl with
+    | some hit =>
+      ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨hit.idx, false, hit.hbound⟩⟩
+    | none =>
+      /-
+      Here we implement all possible one-level rules for Xor
+      -/
+      let lhsVal := AIG.getConstant ⟨decls, cache, hdag, hzero, hconst⟩ input.lhs
+      let rhsVal := AIG.getConstant ⟨decls, cache, hdag, hzero, hconst⟩ input.rhs
+      match lhsVal, rhsVal with
+      -- Left Constant
+      | .some invert, _ => ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨rhs, rinv ^^ invert, by assumption⟩⟩
+      -- Right Constant
+      | _, .some invert => ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨lhs, linv ^^ invert, by assumption⟩⟩
+      | _, _ =>
+        if lhs == rhs then
+          -- Contradiction
+          mkConstCached ⟨decls, cache, hdag, hzero, hconst⟩ (linv != rinv)
         else
           -- Gate couldn't be simplified
           let g := decls.size

@@ -48,6 +48,18 @@ def andToCNF(output : α) (lhs rhs : α) (linv rinv : Bool) : CNF α :=
      [(output, true),  (lhs, linv), (rhs, rinv)]
    ]
 
+/--
+Produce a Tseitin style CNF for a `Decl.xor`, using `output` as the tree node variable.
+-/
+def xorToCNF(output : α) (lhs rhs : α) (linv rinv : Bool) : CNF α :=
+    -- c ↔ (a xor b) as CNF: (¬a ∨ ¬b ∨ ¬c) ∧ (a ∨ b ∨ ¬c) ∧ (a ∨ ¬b ∨ c) ∧ (¬a ∨ b ∨ c)
+   [
+     [(lhs, !linv), (rhs, !rinv), (output, .false)],
+     [(lhs,  linv), (rhs,  rinv), (output, .false)],
+     [(lhs,  linv), (rhs, !rinv), (output, true)],
+     [(lhs, !linv), (rhs,  rinv), (output, true)],
+   ]
+
 @[simp]
 theorem falseToCNF_eval :
     (falseToCNF output).eval assign
@@ -70,6 +82,20 @@ theorem andToCNF_eval :
       =
     (assign output == (((assign lhs) ^^ linv) && ((assign rhs) ^^ rinv))) := by
   simp only [CNF.eval, andToCNF, CNF.Clause.eval, List.all_cons, List.any_cons, beq_false,
+    List.any_nil, Bool.or_false, beq_true, List.all_nil, Bool.and_true]
+  cases assign output
+    <;> cases assign lhs
+      <;> cases assign rhs
+        <;> cases linv
+          <;> cases rinv
+            <;> decide
+
+@[simp]
+theorem xorToCNF_eval :
+    (xorToCNF output lhs rhs linv rinv).eval assign
+      =
+    (assign output == (((assign lhs) ^^ linv) ^^ ((assign rhs) ^^ rinv))) := by
+  simp only [CNF.eval, xorToCNF, CNF.Clause.eval, List.all_cons, List.any_cons, beq_false,
     List.any_nil, Bool.or_false, beq_true, List.all_nil, Bool.and_true]
   cases assign output
     <;> cases assign lhs
@@ -332,9 +358,9 @@ def Cache.addAtom (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
   ⟨out, IsExtensionBy_set cache out idx hmarkbound (by simp [out])⟩
 
 /--
-Add a `Decl.gate` to a cache.
+Add a `Decl.and` to a cache.
 -/
-def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig.decls.size)
+def Cache.addAnd(cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig.decls.size)
     (htip : aig.decls[idx]'h = .and lhs rhs) (hl : cache.marks[lhs.gate]'hlb = true)
     (hr : cache.marks[rhs.gate]'hrb = true) :
     {
@@ -388,6 +414,61 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
   ⟨out, IsExtensionBy_set cache out idx hmarkbound (by simp [out])⟩
 
 /--
+Add a `Decl.xor` to a cache.
+-/
+def Cache.addXor(cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig.decls.size)
+    (htip : aig.decls[idx]'h = .xor lhs rhs) (hl : cache.marks[lhs.gate]'hlb = true)
+    (hr : cache.marks[rhs.gate]'hrb = true) :
+    {
+      out : Cache
+              aig
+              (Decl.xorToCNF
+                (.inr ⟨idx, h⟩)
+                (.inr ⟨lhs.gate, by have := aig.hdag h htip; omega⟩)
+                (.inr ⟨rhs.gate, by have := aig.hdag h htip; omega⟩)
+                lhs.invert
+                rhs.invert
+                ++ cnf)
+        //
+      Cache.IsExtensionBy cache out idx h
+    } :=
+  have := aig.hdag h htip
+  have hmarkbound : idx < cache.marks.size := by have := cache.hmarks; omega
+  let out :=
+    { cache with
+      marks := cache.marks.set idx true
+      hmarks := by simp [cache.hmarks]
+      inv := by
+        constructor
+        · intro lhs rhs idx hbound hmarked heq
+          rw [Array.getElem_set] at hmarked
+          split at hmarked
+          · next heq2 =>
+            simp only [heq2] at htip
+            rw [htip] at heq
+            cases heq
+          · have := cache.inv.hmark lhs rhs idx hbound hmarked heq
+            simp [Array.getElem_set, this]
+        · intro assign heval idx hbound hmarked
+          rw [Array.getElem_set] at hmarked
+          split at hmarked
+          · next heq =>
+            simp only [heq, CNF.eval_append, Decl.xorToCNF_eval, Bool.and_eq_true, beq_iff_eq]
+              at htip heval
+            have hleval := cache.inv.heval assign heval.right lhs.gate (by omega) hl
+            have hreval := cache.inv.heval assign heval.right rhs.gate (by omega) hr
+            simp only [denote_idx_xor htip, Bool.bne_false, projectRightAssign_property, heval]
+            generalize lhs.invert = linv
+            generalize rhs.invert = rinv
+            cases linv <;> cases rinv <;> simp [hleval, hreval]
+          · next heq =>
+            simp only [CNF.eval_append, Decl.xorToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
+            have := cache.inv.heval assign heval.right idx hbound hmarked
+            rw [this]
+    }
+  ⟨out, IsExtensionBy_set cache out idx hmarkbound (by simp [out])⟩
+
+/--
 The key invariant about the `State` itself (without cache): The CNF we produce is always satisfiable
 at `cnfSatAssignment`.
 -/
@@ -430,7 +511,7 @@ theorem State.Inv_atomToCNF (heq : aig.decls[upper] = .atom a) :
 /--
 `State.Inv` holds for the CNF that we produce for a `Decl.and`
 -/
-theorem State.Inv_gateToCNF {aig : AIG Nat} {h}
+theorem State.Inv_andToCNF {aig : AIG Nat} {h}
     (heq : aig.decls[upper]'h = .and lhs rhs) :
     State.Inv
       (aig := aig)
@@ -445,6 +526,25 @@ theorem State.Inv_gateToCNF {aig : AIG Nat} {h}
   generalize hlinv : lhs.invert = linv
   generalize hrinv : rhs.invert = rinv
   cases linv <;> cases rinv <;> simp [CNF.sat_def, denote_idx_and heq, hlinv, hrinv]
+
+/--
+`State.Inv` holds for the CNF that we produce for a `Decl.xor`
+-/
+theorem State.Inv_xorToCNF {aig : AIG Nat} {h}
+    (heq : aig.decls[upper]'h = .xor lhs rhs) :
+    State.Inv
+      (aig := aig)
+      (Decl.xorToCNF
+        (.inr ⟨upper, h⟩)
+        (.inr ⟨lhs.gate, by have := aig.hdag h heq; omega⟩)
+        (.inr ⟨rhs.gate, by have := aig.hdag h heq; omega⟩)
+        lhs.invert
+        rhs.invert)
+    := by
+  intro assign1
+  generalize hlinv : lhs.invert = linv
+  generalize hrinv : rhs.invert = rinv
+  cases linv <;> cases rinv <;> simp [CNF.sat_def, denote_idx_xor heq, hlinv, hrinv]
 
 /--
 The state to accumulate CNF clauses as we run our Tseitin transformation on the AIG.
@@ -527,7 +627,7 @@ def State.addAtom (state : State aig) (idx : Nat) (h : idx < aig.decls.size)
 /--
 Add the CNF for a `Decl.and` to the state.
 -/
-def State.addGate (state : State aig) {hlb} {hrb} (idx : Nat) (h : idx < aig.decls.size)
+def State.addAnd (state : State aig) {hlb} {hrb} (idx : Nat) (h : idx < aig.decls.size)
     (htip : aig.decls[idx]'h = .and lhs rhs) (hl : state.cache.marks[lhs.gate]'hlb = true)
     (hr : state.cache.marks[rhs.gate]'hrb = true) :
     { out : State aig // State.IsExtensionBy state out idx h } :=
@@ -540,8 +640,28 @@ def State.addGate (state : State aig) {hlb} {hrb} (idx : Nat) (h : idx < aig.dec
       (.inr ⟨rhs.gate, by omega⟩)
       lhs.invert
       rhs.invert
-  have hinv := toCNF.State.Inv_gateToCNF htip
-  let ⟨cache, hcache⟩ := cache.addGate idx h htip hl hr
+  have hinv := toCNF.State.Inv_andToCNF htip
+  let ⟨cache, hcache⟩ := cache.addAnd idx h htip hl hr
+  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [newCnf, hcache]⟩
+
+/--
+Add the CNF for a `Decl.xor` to the state.
+-/
+def State.addXor (state : State aig) {hlb} {hrb} (idx : Nat) (h : idx < aig.decls.size)
+    (htip : aig.decls[idx]'h = .xor lhs rhs) (hl : state.cache.marks[lhs.gate]'hlb = true)
+    (hr : state.cache.marks[rhs.gate]'hrb = true) :
+    { out : State aig // State.IsExtensionBy state out idx h } :=
+  have := aig.hdag h htip
+  let ⟨cnf, cache, inv⟩ := state
+  let newCnf :=
+    Decl.xorToCNF
+      (.inr ⟨idx, h⟩)
+      (.inr ⟨lhs.gate, by omega⟩)
+      (.inr ⟨rhs.gate, by omega⟩)
+      lhs.invert
+      rhs.invert
+  have hinv := toCNF.State.Inv_xorToCNF htip
+  let ⟨cache, hcache⟩ := cache.addXor idx h htip hl hr
   ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [newCnf, hcache]⟩
 
 /--
@@ -614,7 +734,27 @@ where
           · exact hlstate
           · exact hrstate
 
-        let ⟨ret, hretstate⟩ := rstate.addGate upper h heq this.trueAt hrstate.trueAt
+        let ⟨ret, hretstate⟩ := rstate.addAnd upper h heq this.trueAt hrstate.trueAt
+        ⟨
+          ret,
+          by
+            apply toCNF.State.IsExtensionBy_trans_right
+            · exact hlstate
+            · apply toCNF.State.IsExtensionBy_trans_right
+              · exact hrstate
+              · exact hretstate
+        ⟩
+      | .xor lhs rhs =>
+        have := aig.hdag h heq
+        let ⟨lstate, hlstate⟩ := go aig lhs.gate (by omega) state
+        let ⟨rstate, hrstate⟩ := go aig rhs.gate (by omega) lstate
+
+        have : toCNF.State.IsExtensionBy state rstate lhs.gate (by omega) := by
+          apply toCNF.State.IsExtensionBy_trans_left
+          · exact hlstate
+          · exact hrstate
+
+        let ⟨ret, hretstate⟩ := rstate.addXor upper h heq this.trueAt hrstate.trueAt
         ⟨
           ret,
           by

@@ -19,6 +19,7 @@ def relabel (r : α → β) (decl : Decl α) : Decl β :=
   | .false => .false
   | .atom a => .atom (r a)
   | .and lhs rhs => .and lhs rhs
+  | .xor lhs rhs => .xor lhs rhs
 
 theorem relabel_id_map (decl : Decl α) : relabel id decl = decl := by
   simp only [relabel, id_eq]
@@ -45,10 +46,17 @@ theorem relabel_atom {decls : Array (Decl α)} {r : α → β} {hidx : idx < dec
     exists x
     simp [heq, h]
   · contradiction
+  · contradiction
 
 theorem relabel_and {decls : Array (Decl α)} {r : α → β} {hidx : idx < decls.size}
     (h : relabel r decls[idx] = .and lhs rhs) :
     decls[idx] = (.and lhs rhs : Decl α) := by
+  unfold relabel at h
+  split at h <;> simp_all
+
+theorem relabel_xor {decls : Array (Decl α)} {r : α → β} {hidx : idx < decls.size}
+    (h : relabel r decls[idx] = .xor lhs rhs) :
+    decls[idx] = (.xor lhs rhs : Decl α) := by
   unfold relabel at h
   split at h <;> simp_all
 
@@ -69,6 +77,10 @@ def relabel (r : α → β) (aig : AIG α) : AIG β :=
       | and lhs rhs =>
         simp [decls] at hgate
         let heq := Decl.relabel_and hgate
+        exact aig.hdag (Array.lt_of_getElem heq) (heq)
+      | xor lhs rhs =>
+        simp [decls] at hgate
+        let heq := Decl.relabel_xor hgate
         exact aig.hdag (Array.lt_of_getElem heq) (heq)
       | _ => simp only [decls]
     hzero := by simp [decls, aig.hzero]
@@ -93,10 +105,16 @@ theorem relabel_atom {aig : AIG α} {r : α → β} {hidx : idx < (relabel r aig
   apply Decl.relabel_atom
   simpa [relabel] using h
 
-theorem relabel_gate {aig : AIG α} {r : α → β} {hidx : idx < (relabel r aig).decls.size}
+theorem relabel_and {aig : AIG α} {r : α → β} {hidx : idx < (relabel r aig).decls.size}
     (h : (relabel r aig).decls[idx]'hidx = .and lhs rhs) :
     aig.decls[idx]'(by rw [← relabel_size_eq_size (r := r)]; omega) = .and lhs rhs := by
   apply Decl.relabel_and
+  simpa [relabel] using h
+
+theorem relabel_xor {aig : AIG α} {r : α → β} {hidx : idx < (relabel r aig).decls.size}
+    (h : (relabel r aig).decls[idx]'hidx = .xor lhs rhs) :
+    aig.decls[idx]'(by rw [← relabel_size_eq_size (r := r)]; omega) = .xor lhs rhs := by
+  apply Decl.relabel_xor
   simpa [relabel] using h
 
 @[simp]
@@ -117,9 +135,16 @@ theorem denote_relabel (aig : AIG α) (r : α → β) (start : Nat) {hidx}
     rw [denote_idx_atom hlx]
     simp [hrx]
   · intro lhs rhs heq1
-    have heq2 := relabel_gate heq1
+    have heq2 := relabel_and heq1
     rw [denote_idx_and heq1]
     rw [denote_idx_and heq2]
+    have := aig.hdag (by rw [← relabel_size_eq_size (r := r)]; omega) heq2
+    rw [denote_relabel aig r lhs.gate assign]
+    rw [denote_relabel aig r rhs.gate assign]
+  · intro lhs rhs heq1
+    have heq2 := relabel_xor heq1
+    rw [denote_idx_xor heq1]
+    rw [denote_idx_xor heq2]
     have := aig.hdag (by rw [← relabel_size_eq_size (r := r)]; omega) heq2
     rw [denote_relabel aig r lhs.gate assign]
     rw [denote_relabel aig r rhs.gate assign]

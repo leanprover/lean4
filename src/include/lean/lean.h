@@ -381,6 +381,14 @@ static inline lean_object * lean_alloc_ctor_memory(unsigned sz) {
         end[-1] = 0;
     }
     return r;
+#elif defined(LEAN_MIMALLOC)
+    unsigned sz1 = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
+    lean_object* r = lean_alloc_small_object(sz);
+    if (sz1 > sz) {
+        size_t * end = (size_t*)(((char*)r) + sz1);
+        end[-1] = 0;
+    }
+    return r;
 #else
     return lean_alloc_small_object(sz);
 #endif

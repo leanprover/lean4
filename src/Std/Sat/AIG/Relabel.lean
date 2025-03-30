@@ -59,16 +59,18 @@ variable {β : Type} [Hashable β] [DecidableEq β]
 
 def relabel (r : α → β) (aig : AIG α) : AIG β :=
   let decls := aig.decls.map (Decl.relabel r)
-  let cache := Cache.empty decls
+  let cache := Cache.empty
   {
     decls,
     cache,
-    invariant := by
+    hdag := by
       intro idx lhs rhs hbound hgate
       simp +zetaDelta [decls] at hgate
       have := Decl.relabel_gate hgate
-      apply aig.invariant
+      apply aig.hdag
       assumption
+    hzero := by simp [decls, aig.hzero]
+    hconst := by simp [decls, aig.hconst, Decl.relabel]
   }
 
 @[simp]
@@ -116,7 +118,7 @@ theorem denote_relabel (aig : AIG α) (r : α → β) (start : Nat) {hidx}
     have heq2 := relabel_gate heq1
     rw [denote_idx_gate heq1]
     rw [denote_idx_gate heq2]
-    have := aig.invariant (by rw [← relabel_size_eq_size (r := r)]; omega) heq2
+    have := aig.hdag (by rw [← relabel_size_eq_size (r := r)]; omega) heq2
     rw [denote_relabel aig r lhs.gate assign]
     rw [denote_relabel aig r rhs.gate assign]
 

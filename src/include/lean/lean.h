@@ -349,6 +349,8 @@ static inline lean_object * lean_alloc_small_object(unsigned sz) {
 #else
     lean_inc_heartbeat();
 #ifdef LEAN_MIMALLOC
+    // HACK: emulate behavior of small allocator to avoid `leangz` breakage for now
+    sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
     void * mem = mi_malloc_small(sizeof(size_t) + sz);
 #else
     void * mem = malloc(sizeof(size_t) + sz);

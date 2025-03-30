@@ -299,3 +299,22 @@ which depends on fields of the structure instance being elaborated.
 #guard_msgs in #check { : C Nat }
 
 end Ex8
+
+/-!
+Autoparams are elaborated eagerly. Here we see that `a` is printed before `b`.
+-/
+namespace Ex9
+structure A where
+  n : Nat := by trace "a"; exact 1
+  m : Fin n
+
+/--
+info: a
+---
+info: b
+-/
+#guard_msgs in
+example : A where
+  m := by trace "b"; exact 0
+
+end Ex9

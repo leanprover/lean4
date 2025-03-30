@@ -596,8 +596,6 @@ private structure StructInstState where
   liftedFVars : Array Expr := #[]
   /-- When processing `ExpandedFieldVal.proj` fields, sometimes we can re-use pre-existing fvars. -/
   liftedFVarRemap : FVarIdMap FVarId := {}
-  /-- Fields to synthesize using a tactic, if they don't get synthesized by other means. -/
-  autoParamFields : Array (Name × Expr × Syntax) := #[]
   /-- Fields to synthesize using default values, if they don't get synthesized by other means.
   If the boolean is `true`, then the field *must* be solved for. This is used for explicit fields. -/
   optParamFields : Array (Name × Expr × Bool) := #[]
@@ -761,26 +759,6 @@ where
       return (usedFields, some a)
 
 /--
-Synthesize pending autoParams.
--/
-private def synthAutoParamFields : StructInstM Unit := do
-  let autoParamFields ← modifyGet fun s => (s.autoParamFields, { s with autoParamFields := #[] })
-  autoParamFields.forM fun (fieldName, fieldType, tacticStx) => do
-    if let some mvarId ← isFieldNotSolved? fieldName then
-      let stx ← `(by $tacticStx)
-      -- See comment in `Lean.Elab.Term.ElabAppArgs.processExplicitArg` about `tacticSyntax`.
-      -- We add info to get reliable positions for messages from evaluating the tactic script.
-      let info := (← getRef).getHeadInfo.nonCanonicalSynthetic
-      let stx := stx.raw.rewriteBottomUp (·.setInfo info)
-      let fieldType ← normalizeExpr fieldType
-      let mvar ← mkTacticMVar fieldType stx (.fieldAutoParam fieldName (← read).structName)
-      -- Note(kmill): We are adding terminfo to simulate a previous implementation that elaborated `tacticSyntax`.
-      -- This is necessary for the unused variable linter.
-      -- (See `processExplicitArg` for a comment about this.)
-      addTermInfo' stx mvar
-      mvarId.assign mvar
-
-/--
 Auxiliary type for `synthDefaultFields`
 -/
 private structure PendingField where
@@ -909,7 +887,6 @@ private def finalize : StructInstM Expr := withViewRef do
   trace[Elab.struct] "constructor{indentExpr val}"
   synthesizeAppInstMVars (← get).instMVars val
   trace[Elab.struct] "constructor after synthesizing instMVars{indentExpr val}"
-  synthAutoParamFields
   synthOptParamFields
   trace[Elab.struct] "constructor after synthesizing defaults{indentExpr val}"
   -- Compact the constructors:
@@ -1097,9 +1074,18 @@ private def processNoField (loop : StructInstM α) (fieldName : Name) (binfo : B
       match evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl with
       | .error err       => throwError err
       | .ok tacticSyntax =>
-        -- Use synthetic to discourage assignment
-        discard <| addStructFieldMVar fieldName fieldType .synthetic
-        modify fun s => { s with autoParamFields := s.autoParamFields.push (fieldName, fieldType, tacticSyntax) }
+        let stx ← `(by $tacticSyntax)
+        -- See comment in `Lean.Elab.Term.ElabAppArgs.processExplicitArg` about `tacticSyntax`.
+        -- We add info to get reliable positions for messages from evaluating the tactic script.
+        let info := (← getRef).getHeadInfo.nonCanonicalSynthetic
+        let stx := stx.raw.rewriteBottomUp (·.setInfo info)
+        let fieldType ← normalizeExpr fieldType
+        let mvar ← mkTacticMVar fieldType stx (.fieldAutoParam fieldName (← read).structName)
+        -- Note(kmill): We are adding terminfo to simulate a previous implementation that elaborated `tacticSyntax`.
+        -- This is necessary for the unused variable linter.
+        -- (See `processExplicitArg` for a comment about this.)
+        addTermInfo' stx mvar
+        addStructFieldAux fieldName mvar
         loop
     else
       -- Default case: natural metavariable, register it for optParams

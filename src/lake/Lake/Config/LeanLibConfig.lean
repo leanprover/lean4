@@ -49,11 +49,14 @@ configuration LeanLibConfig (name : Name) extends LeanConfig where
   -/
   libName : String := name.mangle ""
 
-  /-- An `Array` of target names to build before the library's modules. -/
-  extraDepTargets : Array Name := #[]
-
   /-- An `Array` of targets to build before the executable's modules. -/
   needs : Array PartialBuildKey := #[]
+
+  /--
+   **Deprecated. Use `needs` instead.**
+  An `Array` of target names to build before the library's modules.
+  -/
+  extraDepTargets : Array Name := #[]
 
   /--
   Whether to compile each of the library's modules into a native shared library

@@ -26,14 +26,14 @@ open Toml
 
 @[specialize] def decodeFieldCore
   (name : Name) (decode : Toml.Value → EDecodeM α) [field : ConfigField σ name α]
-  (val : Toml.Value) (cfg : σ)
+  (_ : Table) (val : Value) (cfg : σ)
 : DecodeM σ := fun es =>
   match decode val es with
   | .ok a es => .ok (field.set a cfg) es
   | .error _ es => .ok cfg es
 
 class DecodeField (σ : Type) (name : Name) where
-  decodeField (val : Toml.Value) (cfg : σ) : DecodeM σ
+  decodeField (t : Table) (val : Value) (cfg : σ) : DecodeM σ
 
 export DecodeField (decodeField)
 
@@ -41,7 +41,7 @@ instance [DecodeToml α] [ConfigField σ name α] : DecodeField σ name where
   decodeField := decodeFieldCore name decodeToml
 
 structure TomlFieldInfo (σ : Type) where
-  decodeAndSet : Toml.Value → σ → Toml.DecodeM σ
+  decodeAndSet : Table → Value → σ → DecodeM σ
 
 abbrev TomlFieldInfos (σ : Type) :=
   NameMap (TomlFieldInfo σ)
@@ -61,7 +61,7 @@ def Toml.Table.decodeConfig
 : Toml.DecodeM α :=
   t.foldM (init := {}) fun cfg key val => do
     if let some info := ConfigTomlInfo.fieldInfos.find? key then
-      info.decodeAndSet val cfg
+      info.decodeAndSet t val cfg
     else
       return cfg
 
@@ -274,12 +274,6 @@ instance : DecodeField (PackageConfig n) `versionTags where
 -- for `platformIndependent`, `releaseRepo`, `buildArchive`, etc.
 instance [DecodeToml α] : DecodeToml (Option α) := ⟨(some <$> decodeToml ·)⟩
 
-def decodeFacets (kind : Name) (val : Value) : EDecodeM (Array Name) := do
-  return (← val.decodeArray).map (kind ++ ·)
-
-instance : DecodeField (LeanLibConfig n) `defaultFacets where
-  decodeField := decodeFieldCore `defaultFacets (decodeFacets LeanLib.facetKind)
-
 def PartialBuildKey.decodeToml (v : Value) : EDecodeM PartialBuildKey := do
   match PartialBuildKey.parse (← v.decodeString) with
   | .ok k => return k
@@ -288,8 +282,24 @@ def PartialBuildKey.decodeToml (v : Value) : EDecodeM PartialBuildKey := do
 instance : DecodeToml PartialBuildKey := ⟨PartialBuildKey.decodeToml⟩
 instance : DecodeToml (Target α) := ⟨(Target.mk <$> PartialBuildKey.decodeToml ·)⟩
 
+def decodeFacets (kind : Name) (val : Value) : EDecodeM (Array Name) := do
+  return (← val.decodeArray).map (kind ++ ·)
+
 instance : DecodeField (LeanLibConfig n) `defaultFacets where
   decodeField := decodeFieldCore `defaultFacets (decodeFacets LeanLib.facetKind)
+
+-- HACK to work around the fact the TOML decoders
+-- do not support inter-field dependencies by default
+def decodeRoots
+  (t : Table) (v : Value) (cfg : LeanLibConfig n)
+: DecodeM (LeanLibConfig n) := do
+  let cfg ← decodeField `roots t v cfg
+  if t.contains `globs then
+    return cfg
+  else
+    return {cfg with globs := mkFieldDefault `globs cfg}
+
+instance : DecodeField (LeanLibConfig n) `roots := ⟨decodeRoots⟩
 
 /-! ## Dependency Configuration Decoders -/
 

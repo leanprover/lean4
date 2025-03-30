@@ -53,19 +53,11 @@ configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig wh
   precompileModules : Bool := false
 
   /--
-  **Deprecated in favor of `moreGlobalServerArgs`.**
   Additional arguments to pass to the Lean language server
   (i.e., `lean --server`) launched by `lake serve`, both for this package and
   also for any packages browsed from this one in the same session.
   -/
-  moreServerArgs : Array String := #[]
-
-  /--
-  Additional arguments to pass to the Lean language server
-  (i.e., `lean --server`) launched by `lake serve`, both for this package and
-  also for any packages browsed from this one in the same session.
-  -/
-  moreGlobalServerArgs : Array String := moreServerArgs
+  moreGlobalServerArgs, moreServerArgs : Array String := #[]
 
   /--
   The directory containing the package's Lean source files.

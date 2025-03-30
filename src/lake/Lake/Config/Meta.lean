@@ -19,6 +19,9 @@ structure ConfigProj (σ : Type u) (α : Type v) where
 
 class ConfigField (σ : Type u) (name : Name) (α : outParam $ Type v) extends ConfigProj σ α
 
+abbrev mkFieldDefault (name : Name) [field : ConfigField σ name α] (cfg : σ) : α :=
+  field.mkDefault cfg
+
 class ConfigParent (σ : Type u) (ρ : semiOutParam $ Type v) extends ConfigProj σ ρ
 
 structure ConfigFieldInfo where

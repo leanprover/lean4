@@ -1199,7 +1199,6 @@ private def registerStructure (structName : Name) (infos : Array StructFieldInfo
         fieldName  := info.name
         projFn     := info.declName
         binderInfo := info.binfo
-        autoParam? := if let some (.autoParam tactic) := info.resolvedDefault? then some tactic else none
         subobject? := if let .subobject parentName := info.kind then parentName else none
       }
     else

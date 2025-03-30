@@ -103,6 +103,7 @@ def clientServer (addr : SocketAddress) : IO Unit := do
 
   sendResult resChannel serverTask
   sendResult resChannel joeTask
+  IO.sleep 200
   sendResult resChannel mikeTask
 
   for _ in [0:3] do

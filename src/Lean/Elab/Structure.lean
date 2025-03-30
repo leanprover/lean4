@@ -529,46 +529,25 @@ private def fieldFromMsg (info : StructFieldInfo) : MessageData :=
     m!"field '{info.name}'"
 
 /--
-Instantiates default value for field `fieldName` set at structure `structName`.
-The arguments for the `_default` auxiliary function are provided by `fieldMap`.
+Instantiates default value for field `fieldName` set at structure `structName`, using the field fvars in the `StructFieldInfo`s.
 After default values are resolved, then the one that is added to the environment
-as an `_inherited_default` auxiliary function is normalized; we don't do those normalizations here.
+as an `_inherited_default` auxiliary function is normalized;
+we don't do those normalizations here, since that could be wasted effort if this default isn't chosen.
 -/
-private partial def getFieldDefaultValue? (structName : Name) (paramMap : NameMap Expr) (fieldName : Name) : StructElabM (Option Expr) := do
-  match getDefaultFnForField? (← getEnv) structName fieldName with
-  | none => return none
-  | some defaultFn =>
-    let cinfo ← getConstInfo defaultFn
-    let us ← mkFreshLevelMVarsFor cinfo
-    go? (← instantiateValueLevelParams cinfo us)
-where
-  failed : MetaM (Option Expr) := do
-    logWarning m!"ignoring default value for field '{fieldName}' defined at '{.ofConstName structName}'"
-    return none
+private partial def getFieldDefaultValue? (structName : Name) (params : Array Expr) (fieldName : Name) : StructElabM (Option Expr) := do
+  let some defFn := getDefaultFnForField? (← getEnv) structName fieldName
+    | return none
+  let fieldVal? (n : Name) : StructElabM (Option Expr) := do
+    let some info ← findFieldInfo? n | return none
+    return info.fvar
+  let some (_, val) ← instantiateStructDefaultValueFn? defFn none params fieldVal?
+    | logWarning m!"default value for field '{fieldName}' of structure '{.ofConstName structName}' could not be instantiated, ignoring"
+      return none
+  return val
 
-  go? (e : Expr) : StructElabM (Option Expr) := do
-    match e with
-    | Expr.lam n d b c =>
-      if c.isExplicit then
-        let some info ← findFieldInfo? n | failed
-        let valType ← inferType info.fvar
-        if (← isDefEq valType d) then
-          go? (b.instantiate1 info.fvar)
-        else
-          failed
-      else
-        let some param := paramMap.find? n | return none
-        if ← isDefEq (← inferType param) d then
-          go? (b.instantiate1 param)
-        else
-          failed
-    | e =>
-      let r := if e.isAppOfArity ``id 2 then e.appArg! else e
-      return some (← reduceFieldProjs r)
-
-private def getFieldDefault? (structName : Name) (paramMap : NameMap Expr) (fieldName : Name) :
+private def getFieldDefault? (structName : Name) (params : Array Expr) (fieldName : Name) :
     StructElabM (Option StructFieldDefault) := do
-  if let some val ← getFieldDefaultValue? structName (paramMap : NameMap Expr) fieldName then
+  if let some val ← getFieldDefaultValue? structName params fieldName then
     -- Important: we use `getFieldDefaultValue?` because we want default value definitions, not *inherited* ones, to properly handle diamonds
     trace[Elab.structure] "found default value for '{fieldName}' from '{.ofConstName structName}'{indentExpr val}"
     return StructFieldDefault.optParam val
@@ -593,7 +572,7 @@ Adds `fieldName` of type `fieldType` from structure `structName`.
 See `withStructFields` for meanings of other arguments.
 -/
 private partial def withStructField (view : StructView) (sourceStructNames : List Name) (inSubobject? : Option Expr)
-    (structName : Name) (paramMap : NameMap Expr) (fieldName : Name) (fieldType : Expr)
+    (structName : Name) (params : Array Expr) (fieldName : Name) (fieldType : Expr)
     (k : Expr → StructElabM α) : StructElabM α := do
   trace[Elab.structure] "withStructField '{.ofConstName structName}', field '{fieldName}'"
   let fieldType ← instantiateMVars fieldType
@@ -612,7 +591,7 @@ private partial def withStructField (view : StructView) (sourceStructNames : Lis
     let existingFieldType ← inferType existingField.fvar
     unless (← isDefEq fieldType existingFieldType) do
       throwError "field type mismatch, field '{fieldName}' from parent '{.ofConstName structName}' {← mkHasTypeButIsExpectedMsg fieldType existingFieldType}"
-    if let some d ← getFieldDefault? structName paramMap fieldName then
+    if let some d ← getFieldDefault? structName params fieldName then
       addFieldInheritedDefault fieldName structName d
     k existingField.fvar
   else
@@ -639,7 +618,7 @@ private partial def withStructField (view : StructView) (sourceStructNames : Lis
         binfo := fieldInfo.binderInfo
         projFn? := fieldInfo.projFn
       }
-      if let some d ← getFieldDefault? structName paramMap fieldName then
+      if let some d ← getFieldDefault? structName params fieldName then
         addFieldInheritedDefault fieldName structName d
       k fieldFVar
 
@@ -652,7 +631,7 @@ Does not add a parent field for the structure itself; that is done by `withStruc
 - the continuation `k` is run with a constructor expression for this structure
 -/
 private partial def withStructFields (view : StructView) (sourceStructNames : List Name)
-    (structType : Expr) (inSubobject? : Option Expr) (paramMap : NameMap Expr)
+    (structType : Expr) (inSubobject? : Option Expr)
     (k : Expr → StructElabM α) : StructElabM α := do
   let structName ← getStructureName structType
   let .const _ us := structType.getAppFn | unreachable!
@@ -688,7 +667,7 @@ private partial def withStructFields (view : StructView) (sourceStructNames : Li
       let fieldName := fields[i]
       let fieldMVar := fieldMVars[i]!
       let fieldType ← inferType fieldMVar
-      withStructField view sourceStructNames inSubobject? structName paramMap fieldName fieldType fun fieldFVar => do
+      withStructField view sourceStructNames inSubobject? structName params fieldName fieldType fun fieldFVar => do
         fieldMVar.mvarId!.assign fieldFVar
         goFields (i + 1)
     else
@@ -739,14 +718,7 @@ private partial def withStruct (view : StructView) (sourceStructNames : List Nam
 
     let allFields := getStructureFieldsFlattened env structName (includeSubobjectFields := false)
     let withStructFields' (kind : StructFieldKind) (inSubobject? : Option Expr) (k : StructFieldInfo → StructElabM α) : StructElabM α := do
-      -- Create a parameter map for default value processing
-      let info ← getConstInfoInduct structName
-      let paramMap : NameMap Expr ← forallTelescope info.type fun xs _ => do
-        let mut paramMap := {}
-        for param in params, x in xs do
-          paramMap := paramMap.insert (← x.fvarId!.getUserName) param
-        return paramMap
-      withStructFields view sourceStructNames structType inSubobject? paramMap fun structVal => do
+      withStructFields view sourceStructNames structType inSubobject? fun structVal => do
         if let some _ ← findFieldInfo? structFieldName then
           throwErrorAt projRef "field '{structFieldName}' has already been declared\n\n\
             The 'toParent : P' syntax can be used to adjust the name for the parent projection"
@@ -755,7 +727,7 @@ private partial def withStruct (view : StructView) (sourceStructNames : List Nam
         -- which for inherited fields might not have been seen yet.
         -- Note: duplication is ok for now. We use a stable sort later.
         for fieldName in allFields do
-          if let some d ← getFieldDefault? structName paramMap fieldName then
+          if let some d ← getFieldDefault? structName params fieldName then
             addFieldInheritedDefault fieldName structName d
         withLetDecl rawStructFieldName structType structVal fun structFVar => do
           let info : StructFieldInfo := {

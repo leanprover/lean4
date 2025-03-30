@@ -86,8 +86,9 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
   let env ← getEnv
   let kind := if isClass env id then "class" else "structure"
   let header ← mkHeader' kind id levelParams type isUnsafe (sig := false)
+  let levels := levelParams.map Level.param
   liftTermElabM <| forallTelescope (← getConstInfo id).type fun params _ =>
-    let s := Expr.const id (levelParams.map .param)
+    let s := Expr.const id levels
     withLocalDeclD `self (mkAppN s params) fun self => do
       let mut m : MessageData := header
       -- Signature
@@ -100,15 +101,12 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
       unless parents.isEmpty do
         m := m ++ Format.line ++ "parents:"
         for parent in parents do
-          let ptype ← inferType (mkApp (mkAppN (.const parent.projFn (levelParams.map .param)) params) self)
+          let ptype ← inferType (mkApp (mkAppN (.const parent.projFn levels) params) self)
           m := m ++ indentD m!"{.ofConstName parent.projFn (fullNames := true)} : {ptype}"
       -- Fields
-      -- Collect params in a map for default value processing
-      let paramMap : NameMap Expr ← params.foldlM (init := {}) fun paramMap param => do
-        pure <| paramMap.insert (← param.fvarId!.getUserName) param
       -- Collect autoParam tactics, which are all on the flat constructor:
       let flatCtorName := mkFlatCtorOfStructCtorName ctor
-      let flatCtorInfo ← try getConstInfo flatCtorName catch _ => getConstInfo (id ++ `_flat_ctor) -- TODO(kmill): remove catch
+      let flatCtorInfo ← getConstInfo flatCtorName
       let autoParams : NameMap Syntax ← forallTelescope flatCtorInfo.type fun args _ =>
         args[numParams:].foldlM (init := {}) fun set arg => do
           let decl ← arg.fvarId!.getDecl
@@ -136,9 +134,7 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
               let stx : TSyntax ``Parser.Tactic.tacticSeq := ⟨stx⟩
               pure m!" := by{indentD stx}"
             else if let some defFn := getEffectiveDefaultFnForField? env id field then
-              let cinfo ← getConstInfo defFn
-              let defValue ← instantiateValueLevelParams cinfo (levelParams.map .param)
-              if let some val ← processDefaultValue paramMap fieldMap defValue then
+              if let some (_, val) ← instantiateStructDefaultValueFn? defFn levels params (pure ∘ fieldMap.find?) then
                 pure m!" :={indentExpr val}"
               else
                 pure m!" := <error>"
@@ -157,24 +153,6 @@ private partial def printStructure (id : Name) (levelParams : List Name) (numPar
       -- Omit proofs; the delaborator enables `pp.proofs` for non-constant proofs, but we don't want this for default values
       withOptions (fun opts => opts.set pp.proofs.name false) do
         logInfo m
-where
-  processDefaultValue (paramMap : NameMap Expr) (fieldValues : NameMap Expr) : Expr → MetaM (Option Expr)
-  | .lam n d b c => do
-    if c.isExplicit then
-      let some val := fieldValues.find? n | return none
-      if ← isDefEq (← inferType val) d then
-        processDefaultValue paramMap fieldValues (b.instantiate1 val)
-      else
-        return none
-    else
-      let some param := paramMap.find? n | return none
-      if ← isDefEq (← inferType param) d then
-        processDefaultValue paramMap fieldValues (b.instantiate1 param)
-      else
-        return none
-  | e =>
-    let_expr id _ a := e | return some e
-    return some a
 
 private def printIdCore (id : Name) : CommandElabM Unit := do
   let env ← getEnv

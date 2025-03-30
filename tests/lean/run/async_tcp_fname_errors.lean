@@ -51,19 +51,19 @@ def runRobert (server: TCP.Socket.Server) : Async Unit := do
   discard <| await server.accept
 
 def clientServer : IO Unit := do
-  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8080
+  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8083
 
   let server ← TCP.Socket.Server.mk
   server.bind addr
   server.listen 128
 
-  assertBEq (← server.getSockName).port 8080
+  assertBEq (← server.getSockName).port 8083
 
   let joe ← TCP.Socket.Client.mk
   let task ← joe.connect addr
   task.block
 
-  assertBEq (← joe.getPeerName).port 8080
+  assertBEq (← joe.getPeerName).port 8083
 
   joe.noDelay
 
@@ -71,7 +71,7 @@ def clientServer : IO Unit := do
   let task ← mike.connect addr
   task.block
 
-  assertBEq (← mike.getPeerName).port 8080
+  assertBEq (← mike.getPeerName).port 8083
 
   mike.noDelay
 

@@ -103,5 +103,5 @@ def clientServer (addr : SocketAddress) : IO Unit := do
   joeTask.block
   mikeTask.block
 
-#eval clientServer (SocketAddressV4.mk (.ofParts 127 0 0 1) 9000)
+#eval clientServer (SocketAddressV4.mk (.ofParts 127 0 0 1) 8084)
 #eval clientServer (SocketAddressV6.mk (.ofParts 0 0 0 0 0 0 0 1) 9000)

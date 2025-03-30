@@ -31,10 +31,6 @@ def await (task : IO (AsyncTask α)) : Async α :=
 instance : MonadLift IO Async where
   monadLift io := Async.mk (io >>= (pure ∘ AsyncTask.pure))
 
-instance : MonadExcept IO.Error Async where
-  throw e := ⟨throw e⟩
-  tryCatch f x := ⟨tryCatch f.run (Async.run ∘ x)⟩
-
 /-- Joe is another client. -/
 def runJoe (addr: SocketAddress) : Async Unit := do
   let client ← TCP.Socket.Client.mk
@@ -51,7 +47,7 @@ def listenClose : IO Unit := do
   server.listen 128
 
 def acceptClose : IO Unit := do
-  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8082
+  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8081
 
   let server ← TCP.Socket.Server.mk
   server.bind addr

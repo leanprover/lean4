@@ -18,7 +18,7 @@ def relabel (r : α → β) (decl : Decl α) : Decl β :=
   match decl with
   | .false => .false
   | .atom a => .atom (r a)
-  | .gate lhs rhs => .gate lhs rhs
+  | .and lhs rhs => .and lhs rhs
 
 theorem relabel_id_map (decl : Decl α) : relabel id decl = decl := by
   simp only [relabel, id_eq]
@@ -46,9 +46,9 @@ theorem relabel_atom {decls : Array (Decl α)} {r : α → β} {hidx : idx < dec
     simp [heq, h]
   · contradiction
 
-theorem relabel_gate {decls : Array (Decl α)} {r : α → β} {hidx : idx < decls.size}
-    (h : relabel r decls[idx] = .gate lhs rhs) :
-    decls[idx] = (.gate lhs rhs : Decl α) := by
+theorem relabel_and {decls : Array (Decl α)} {r : α → β} {hidx : idx < decls.size}
+    (h : relabel r decls[idx] = .and lhs rhs) :
+    decls[idx] = (.and lhs rhs : Decl α) := by
   unfold relabel at h
   split at h <;> simp_all
 
@@ -66,7 +66,7 @@ def relabel (r : α → β) (aig : AIG α) : AIG β :=
     hdag := by
       intro idx lhs rhs hbound hgate
       simp +zetaDelta [decls] at hgate
-      have := Decl.relabel_gate hgate
+      have := Decl.relabel_and hgate
       apply aig.hdag
       assumption
     hzero := by simp [decls, aig.hzero]
@@ -92,9 +92,9 @@ theorem relabel_atom {aig : AIG α} {r : α → β} {hidx : idx < (relabel r aig
   simpa [relabel] using h
 
 theorem relabel_gate {aig : AIG α} {r : α → β} {hidx : idx < (relabel r aig).decls.size}
-    (h : (relabel r aig).decls[idx]'hidx = .gate lhs rhs) :
-    aig.decls[idx]'(by rw [← relabel_size_eq_size (r := r)]; omega) = .gate lhs rhs := by
-  apply Decl.relabel_gate
+    (h : (relabel r aig).decls[idx]'hidx = .and lhs rhs) :
+    aig.decls[idx]'(by rw [← relabel_size_eq_size (r := r)]; omega) = .and lhs rhs := by
+  apply Decl.relabel_and
   simpa [relabel] using h
 
 @[simp]
@@ -116,8 +116,8 @@ theorem denote_relabel (aig : AIG α) (r : α → β) (start : Nat) {hidx}
     simp [hrx]
   · intro lhs rhs heq1
     have heq2 := relabel_gate heq1
-    rw [denote_idx_gate heq1]
-    rw [denote_idx_gate heq2]
+    rw [denote_idx_and heq1]
+    rw [denote_idx_and heq2]
     have := aig.hdag (by rw [← relabel_size_eq_size (r := r)]; omega) heq2
     rw [denote_relabel aig r lhs.gate assign]
     rw [denote_relabel aig r rhs.gate assign]

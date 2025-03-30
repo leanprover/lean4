@@ -99,7 +99,7 @@ inductive Decl (α : Type) where
   An AIG gate with configurable input nodes and polarity. `l` and `r` are the
   input nodes together with their inverter bit.
   -/
-  | gate (l r : Fanin)
+  | and (l r : Fanin)
   deriving Hashable, Repr, DecidableEq, Inhabited
 
 
@@ -242,7 +242,7 @@ An `Array Decl` is a Direct Acyclic Graph (DAG) if a gate at index `i` only poin
 -/
 def IsDAG (α : Type) (decls : Array (Decl α)) : Prop :=
   ∀ {i lhs rhs} (h : i < decls.size),
-      decls[i] = .gate lhs rhs → lhs.gate < i ∧ rhs.gate < i
+      decls[i] = .and lhs rhs → lhs.gate < i ∧ rhs.gate < i
 
 /--
 The empty AIG is a DAG.
@@ -409,7 +409,7 @@ where
     match elem : decls[idx] with
     | Decl.false => return acc
     | Decl.atom _ => return acc
-    | Decl.gate lhs rhs =>
+    | Decl.and lhs rhs =>
       let lidx := lhs.gate
       let linv := lhs.invert
       let ridx := rhs.gate
@@ -425,7 +425,7 @@ where
     match decls[idx] with
     | Decl.false => s!"{idx} [label=\"{false}\", shape=box];"
     | Decl.atom i => s!"{idx} [label=\"{i}\", shape=doublecircle];"
-    | Decl.gate .. => s!"{idx} [label=\"{idx} ∧\",shape=trapezium];"
+    | Decl.and .. => s!"{idx} [label=\"{idx} ∧\",shape=trapezium];"
 
 /--
 A vector of references into `aig`. This is the `AIG` analog of `BitVec`.
@@ -475,7 +475,7 @@ where
     match h3 : decls[x] with
     | .false => false
     | .atom v => assign v
-    | .gate lhs rhs =>
+    | .and lhs rhs =>
       have := h2 h1 h3
       let lval := go lhs.gate decls assign (by omega) h2
       let rval := go rhs.gate decls assign (by omega) h2
@@ -516,12 +516,12 @@ def Entrypoint.Unsat (entry : Entrypoint α) : Prop :=
 
 /--
 Add a new and inverter gate to the AIG in `aig`. Note that this version is only meant for proving,
-for production purposes use `AIG.mkGateCached` and equality theorems to this one.
+for production purposes use `AIG.mkAndGateCached` and equality theorems to this one.
 -/
-def mkGate (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
+def mkAndGate (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   let g := aig.decls.size
   let decls :=
-    aig.decls.push <| .gate (.mk input.lhs.gate input.lhs.invert) (.mk input.rhs.gate input.rhs.invert)
+    aig.decls.push <| .and (.mk input.lhs.gate input.lhs.invert) (.mk input.rhs.gate input.rhs.invert)
   let cache := aig.cache.noUpdate
   have hdag := by
     intro i lhs' rhs' h1 h2

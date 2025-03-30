@@ -55,7 +55,7 @@ theorem mkAtomCached_decl_eq (aig : AIG α) (var : α) (idx : Nat) {h : idx < ai
     {hbound} :
     (aig.mkAtomCached var).aig.decls[idx]'hbound = aig.decls[idx] := by
   match hcache : aig.cache.get? (.atom var) with
-  | some gate =>
+  | some and =>
     have := mkAtomCached_hit_aig aig hcache
     simp [this]
   | none =>
@@ -129,23 +129,23 @@ theorem mkConstCached_eval_eq_mkConst_eval {aig : AIG α} :
   · next heq => simp [aig.hconst] at heq
 
 /--
-If we find a cached gate declaration in the AIG, denoting it is equivalent to denoting `AIG.mkGate`.
+If we find a cached and gate declaration in the AIG, denoting it is equivalent to denoting `AIG.mkAndGate`.
 -/
-theorem denote_mkGate_cached {aig : AIG α} {input} {hit} :
-    aig.cache.get? (.gate (.mk input.lhs.gate input.lhs.invert) (.mk input.rhs.gate input.rhs.invert)) = some hit
+theorem denote_mkAndGate_cached {aig : AIG α} {input} {hit} :
+    aig.cache.get? (.and (.mk input.lhs.gate input.lhs.invert) (.mk input.rhs.gate input.rhs.invert)) = some hit
       →
     ⟦⟨aig, hit.idx, false, hit.hbound⟩, assign⟧
       =
-    ⟦aig.mkGate input, assign⟧ := by
+    ⟦aig.mkAndGate input, assign⟧ := by
   intros
   have := hit.hvalid
-  simp only [denote_mkGate]
+  simp only [denote_mkAndGate]
   conv =>
     lhs
     unfold denote denote.go
   split <;> simp_all [denote]
 
-theorem mkGateCached.go_le_size (aig : AIG α) (input : BinaryInput aig) :
+theorem mkAndGateCached.go_le_size (aig : AIG α) (input : BinaryInput aig) :
     aig.decls.size ≤ (go aig input).aig.decls.size := by
   dsimp only [go]
   split
@@ -158,16 +158,16 @@ theorem mkGateCached.go_le_size (aig : AIG α) (input : BinaryInput aig) :
     · simp
 
 /--
-`AIG.mkGateCached` never shrinks the underlying AIG.
+`AIG.mkAndGateCached` never shrinks the underlying AIG.
 -/
-theorem mkGateCached_le_size (aig : AIG α) (input : BinaryInput aig)
-    : aig.decls.size ≤ (aig.mkGateCached input).aig.decls.size := by
-  dsimp only [mkGateCached]
+theorem mkAndGateCached_le_size (aig : AIG α) (input : BinaryInput aig)
+    : aig.decls.size ≤ (aig.mkAndGateCached input).aig.decls.size := by
+  dsimp only [mkAndGateCached]
   split
-  · apply mkGateCached.go_le_size
-  · apply mkGateCached.go_le_size
+  · apply mkAndGateCached.go_le_size
+  · apply mkAndGateCached.go_le_size
 
-theorem mkGateCached.go_decl_eq (aig : AIG α) (input : BinaryInput aig) :
+theorem mkAndGateCached.go_decl_eq (aig : AIG α) (input : BinaryInput aig) :
     ∀ (idx : Nat) (h1) (h2), (go aig input).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
     generalize hres : go aig input = res
     unfold go at hres
@@ -204,32 +204,32 @@ theorem mkGateCached.go_decl_eq (aig : AIG α) (input : BinaryInput aig) :
           simp [h2]
 
 /--
-The AIG produced by `AIG.mkGateCached` agrees with the input AIG on all indices that are valid for
+The AIG produced by `AIG.mkAndGateCached` agrees with the input AIG on all indices that are valid for
 both.
 -/
-theorem mkGateCached_decl_eq (aig : AIG α) (input : BinaryInput aig) :
-    ∀ (idx : Nat) (h1) (h2), (aig.mkGateCached input).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
-    generalize hres : mkGateCached aig input = res
-    unfold mkGateCached at hres
+theorem mkAndGateCached_decl_eq (aig : AIG α) (input : BinaryInput aig) :
+    ∀ (idx : Nat) (h1) (h2), (aig.mkAndGateCached input).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
+    generalize hres : mkAndGateCached aig input = res
+    unfold mkAndGateCached at hres
     dsimp only at hres
     split at hres
     all_goals
       rw [← hres]
       intros
-      rw [mkGateCached.go_decl_eq]
+      rw [mkAndGateCached.go_decl_eq]
 
-instance : LawfulOperator α BinaryInput mkGateCached where
-  le_size := mkGateCached_le_size
+instance : LawfulOperator α BinaryInput mkAndGateCached where
+  le_size := mkAndGateCached_le_size
   decl_eq := by
     intros
-    apply mkGateCached_decl_eq
+    apply mkAndGateCached_decl_eq
 
-theorem mkGateCached.go_eval_eq_mkGate_eval {aig : AIG α} {input : BinaryInput aig} :
-    ⟦go aig input, assign⟧ = ⟦aig.mkGate input, assign⟧ := by
+theorem mkAndGateCached.go_eval_eq_mkAndGate_eval {aig : AIG α} {input : BinaryInput aig} :
+    ⟦go aig input, assign⟧ = ⟦aig.mkAndGate input, assign⟧ := by
   simp only [go]
   split
   · next heq1 =>
-    rw [denote_mkGate_cached heq1]
+    rw [denote_mkAndGate_cached heq1]
   · split
     · simp_all [denote_getConstant]
     · simp_all [denote_getConstant]
@@ -243,19 +243,19 @@ theorem mkGateCached.go_eval_eq_mkGate_eval {aig : AIG α} {input : BinaryInput 
           simp_all
           have := Bool.eq_not_of_ne hif
           simp_all
-      · simp [mkGate, denote]
+      · simp [mkAndGate, denote]
 
 /--
-The central equality theorem between `mkGateCached` and `mkGate`.
+The central equality theorem between `mkAndGateCached` and `mkAndGate`.
 -/
 @[simp]
-theorem mkGateCached_eval_eq_mkGate_eval {aig : AIG α} {input : BinaryInput aig} :
-    ⟦aig.mkGateCached input, assign⟧ = ⟦aig.mkGate input, assign⟧ := by
-  simp only [mkGateCached]
+theorem mkAndGateCached_eval_eq_mkAndGate_eval {aig : AIG α} {input : BinaryInput aig} :
+    ⟦aig.mkAndGateCached input, assign⟧ = ⟦aig.mkAndGate input, assign⟧ := by
+  simp only [mkAndGateCached]
   split
-  · rw [mkGateCached.go_eval_eq_mkGate_eval]
-  · rw [mkGateCached.go_eval_eq_mkGate_eval]
-    simp only [denote_mkGate]
+  · rw [mkAndGateCached.go_eval_eq_mkAndGate_eval]
+  · rw [mkAndGateCached.go_eval_eq_mkAndGate_eval]
+    simp only [denote_mkAndGate]
     rw [Bool.and_comm]
 
 end AIG

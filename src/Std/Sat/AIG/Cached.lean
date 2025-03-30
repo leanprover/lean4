@@ -53,12 +53,12 @@ def mkConstCached (aig : AIG α) (val : Bool) : Entrypoint α :=
   ⟨aig, ⟨0, val, aig.hzero⟩⟩
 
 /--
-A version of `AIG.mkGate` that uses the subterm cache in `AIG`. This version is meant for
+A version of `AIG.mkAndGate` that uses the subterm cache in `AIG`. This version is meant for
 programming, for proving purposes use `AIG.mkGate` and equality theorems to this one.
 
 Beyond caching this function also implements a subset of the optimizations presented in:
 -/
-def mkGateCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
+def mkAndGateCached (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   let lhs := input.lhs.gate
   let rhs := input.rhs.gate
   if lhs < rhs then
@@ -74,7 +74,7 @@ where
     let rinv := input.rhs.invert
     have := input.lhs.hgate
     have := input.rhs.hgate
-    let decl := .gate (.mk lhs linv) (.mk rhs rinv)
+    let decl := .and (.mk lhs linv) (.mk rhs rinv)
     match cache.get? decl with
     | some hit =>
       ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨hit.idx, false, hit.hbound⟩⟩

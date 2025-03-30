@@ -91,7 +91,7 @@ inductive Inv2 (decls : Array (Decl α)) : Nat → HashMap α Nat → Prop where
   (hmap : map[a]? = some n) : Inv2 decls (idx + 1) map
 | false (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .false) :
   Inv2 decls (idx + 1) map
-| gate (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .gate l r) :
+| gate (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .and l r) :
   Inv2 decls (idx + 1) map
 
 theorem Inv2.upper_lt_size {decls : Array (Decl α)} (hinv : Inv2 decls upper map) :
@@ -223,10 +223,10 @@ def addFalse {decls : Array (Decl α)} {hidx} (state : State α decls idx)
   }
 
 /--
-Insert a `Decl.gate` into the `State` structure.
+Insert a `Decl.and` into the `State` structure.
 -/
-def addGate {decls : Array (Decl α)} {hidx} (state : State α decls idx) (lhs rhs : Fanin)
-    (h : decls[idx]'hidx = .gate lhs rhs) :
+def addAndGate {decls : Array (Decl α)} {hidx} (state : State α decls idx) (lhs rhs : Fanin)
+    (h : decls[idx]'hidx = .and lhs rhs) :
     State α decls (idx + 1) :=
   { state with
     inv2 := by
@@ -247,7 +247,7 @@ where
       match hdecl : decl with
       | .atom a => go decls (idx + 1) (state.addAtom a hdecl)
       | .false => go decls (idx + 1) (state.addFalse hdecl)
-      | .gate lhs rhs => go decls (idx + 1) (state.addGate lhs rhs hdecl)
+      | .and lhs rhs => go decls (idx + 1) (state.addAndGate lhs rhs hdecl)
     else
       have : idx = decls.size := by
         have := state.inv2.upper_lt_size

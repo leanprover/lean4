@@ -35,9 +35,9 @@ def atomToCNF (output : α) (atom : α) : CNF α :=
   [[(output, true), (atom, .false)], [(output, .false), (atom, true)]]
 
 /--
-Produce a Tseitin style CNF for a `Decl.gate`, using `output` as the tree node variable.
+Produce a Tseitin style CNF for a `Decl.and`, using `output` as the tree node variable.
 -/
-def gateToCNF (output : α) (lhs rhs : α) (linv rinv : Bool) : CNF α :=
+def andToCNF(output : α) (lhs rhs : α) (linv rinv : Bool) : CNF α :=
     -- a ↔ (b and c) as CNF: (¬a ∨ b) ∧ (¬a ∨ c) ∧ (a ∨ ¬b ∨ ¬c)
     -- a ↔ (b and ¬c) as CNF: (¬a ∨ b) ∧ (¬a ∨ ¬c) ∧ (a ∨ ¬b ∨ c)
     -- a ↔ (¬b and c) as CNF: (¬a ∨ ¬b) ∧ (¬a ∨ c) ∧ (a ∨ b ∨ ¬c)
@@ -65,11 +65,11 @@ theorem atomToCNF_eval :
   cases assign output <;> cases assign a <;> decide
 
 @[simp]
-theorem gateToCNF_eval :
-    (gateToCNF output lhs rhs linv rinv).eval assign
+theorem andToCNF_eval :
+    (andToCNF output lhs rhs linv rinv).eval assign
       =
     (assign output == (((assign lhs) ^^ linv) && ((assign rhs) ^^ rinv))) := by
-  simp only [CNF.eval, gateToCNF, CNF.Clause.eval, List.all_cons, List.any_cons, beq_false,
+  simp only [CNF.eval, andToCNF, CNF.Clause.eval, List.all_cons, List.any_cons, beq_false,
     List.any_nil, Bool.or_false, beq_true, List.all_nil, Bool.and_true]
   cases assign output
     <;> cases assign lhs
@@ -142,7 +142,7 @@ structure Cache.Inv (cnf : CNF (CNFVar aig)) (marks : Array Bool) (hmarks : mark
   also marked.
   -/
   hmark : ∀ (lhs rhs : Fanin) (idx : Nat) (hbound : idx < aig.decls.size)
-            (_hmarked : marks[idx] = true) (heq : aig.decls[idx] = .gate lhs rhs),
+            (_hmarked : marks[idx] = true) (heq : aig.decls[idx] = .and lhs rhs),
               marks[lhs.gate]'(by have := aig.hdag hbound heq; omega) = true
                 ∧
               marks[rhs.gate]'(by have := aig.hdag hbound heq; omega) = true
@@ -335,12 +335,12 @@ def Cache.addAtom (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
 Add a `Decl.gate` to a cache.
 -/
 def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig.decls.size)
-    (htip : aig.decls[idx]'h = .gate lhs rhs) (hl : cache.marks[lhs.gate]'hlb = true)
+    (htip : aig.decls[idx]'h = .and lhs rhs) (hl : cache.marks[lhs.gate]'hlb = true)
     (hr : cache.marks[rhs.gate]'hrb = true) :
     {
       out : Cache
               aig
-              (Decl.gateToCNF
+              (Decl.andToCNF
                 (.inr ⟨idx, h⟩)
                 (.inr ⟨lhs.gate, by have := aig.hdag h htip; omega⟩)
                 (.inr ⟨rhs.gate, by have := aig.hdag h htip; omega⟩)
@@ -372,16 +372,16 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
           rw [Array.getElem_set] at hmarked
           split at hmarked
           · next heq =>
-            simp only [heq, CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq]
+            simp only [heq, CNF.eval_append, Decl.andToCNF_eval, Bool.and_eq_true, beq_iff_eq]
               at htip heval
             have hleval := cache.inv.heval assign heval.right lhs.gate (by omega) hl
             have hreval := cache.inv.heval assign heval.right rhs.gate (by omega) hr
-            simp only [denote_idx_gate htip, Bool.bne_false, projectRightAssign_property, heval]
+            simp only [denote_idx_and htip, Bool.bne_false, projectRightAssign_property, heval]
             generalize lhs.invert = linv
             generalize rhs.invert = rinv
             cases linv <;> cases rinv <;> simp [hleval, hreval]
           · next heq =>
-            simp only [CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
+            simp only [CNF.eval_append, Decl.andToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
             have := cache.inv.heval assign heval.right idx hbound hmarked
             rw [this]
     }
@@ -428,13 +428,13 @@ theorem State.Inv_atomToCNF (heq : aig.decls[upper] = .atom a) :
   simp [CNF.sat_def, denote_idx_atom heq]
 
 /--
-`State.Inv` holds for the CNF that we produce for a `Decl.gate`
+`State.Inv` holds for the CNF that we produce for a `Decl.and`
 -/
 theorem State.Inv_gateToCNF {aig : AIG Nat} {h}
-    (heq : aig.decls[upper]'h = .gate lhs rhs) :
+    (heq : aig.decls[upper]'h = .and lhs rhs) :
     State.Inv
       (aig := aig)
-      (Decl.gateToCNF
+      (Decl.andToCNF
         (.inr ⟨upper, h⟩)
         (.inr ⟨lhs.gate, by have := aig.hdag h heq; omega⟩)
         (.inr ⟨rhs.gate, by have := aig.hdag h heq; omega⟩)
@@ -444,7 +444,7 @@ theorem State.Inv_gateToCNF {aig : AIG Nat} {h}
   intro assign1
   generalize hlinv : lhs.invert = linv
   generalize hrinv : rhs.invert = rinv
-  cases linv <;> cases rinv <;> simp [CNF.sat_def, denote_idx_gate heq, hlinv, hrinv]
+  cases linv <;> cases rinv <;> simp [CNF.sat_def, denote_idx_and heq, hlinv, hrinv]
 
 /--
 The state to accumulate CNF clauses as we run our Tseitin transformation on the AIG.
@@ -525,16 +525,16 @@ def State.addAtom (state : State aig) (idx : Nat) (h : idx < aig.decls.size)
   ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [newCnf, hcache]⟩
 
 /--
-Add the CNF for a `Decl.gate` to the state.
+Add the CNF for a `Decl.and` to the state.
 -/
 def State.addGate (state : State aig) {hlb} {hrb} (idx : Nat) (h : idx < aig.decls.size)
-    (htip : aig.decls[idx]'h = .gate lhs rhs) (hl : state.cache.marks[lhs.gate]'hlb = true)
+    (htip : aig.decls[idx]'h = .and lhs rhs) (hl : state.cache.marks[lhs.gate]'hlb = true)
     (hr : state.cache.marks[rhs.gate]'hrb = true) :
     { out : State aig // State.IsExtensionBy state out idx h } :=
   have := aig.hdag h htip
   let ⟨cnf, cache, inv⟩ := state
   let newCnf :=
-    Decl.gateToCNF
+    Decl.andToCNF
       (.inr ⟨idx, h⟩)
       (.inr ⟨lhs.gate, by omega⟩)
       (.inr ⟨rhs.gate, by omega⟩)
@@ -604,7 +604,7 @@ where
       match heq : decl with
       | .false => state.addFalse upper h heq
       | .atom _ => state.addAtom upper h heq
-      | .gate lhs rhs =>
+      | .and lhs rhs =>
         have := aig.hdag h heq
         let ⟨lstate, hlstate⟩ := go aig lhs.gate (by omega) state
         let ⟨rstate, hrstate⟩ := go aig rhs.gate (by omega) lstate

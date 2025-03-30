@@ -89,32 +89,32 @@ theorem denote_invert_true {aig : AIG α} {gate} {hgate} :
   simp
 
 /--
-`AIG.mkGate` never shrinks the underlying AIG.
+`AIG.mkAndGate` never shrinks the underlying AIG.
 -/
-theorem mkGate_le_size (aig : AIG α) (input : BinaryInput aig) :
-    aig.decls.size ≤ (aig.mkGate input).aig.decls.size := by
-  simp [mkGate]
+theorem mkAndGate_le_size (aig : AIG α) (input : BinaryInput aig) :
+    aig.decls.size ≤ (aig.mkAndGate input).aig.decls.size := by
+  simp [mkAndGate]
 
 /--
-The AIG produced by `AIG.mkGate` agrees with the input AIG on all indices that are valid for both.
+The AIG produced by `AIG.mkAndGate` agrees with the input AIG on all indices that are valid for both.
 -/
-theorem mkGate_decl_eq idx (aig : AIG α) (input : BinaryInput aig) {h : idx < aig.decls.size} :
-    have := mkGate_le_size aig input
-    (aig.mkGate input).aig.decls[idx]'(by omega) = aig.decls[idx] := by
-  simp only [mkGate, Array.getElem_push]
+theorem mkAndGate_decl_eq idx (aig : AIG α) (input : BinaryInput aig) {h : idx < aig.decls.size} :
+    have := mkAndGate_le_size aig input
+    (aig.mkAndGate input).aig.decls[idx]'(by omega) = aig.decls[idx] := by
+  simp only [mkAndGate, Array.getElem_push]
   split
   · rfl
   · contradiction
 
-instance : LawfulOperator α BinaryInput mkGate where
-  le_size := mkGate_le_size
+instance : LawfulOperator α BinaryInput mkAndGate where
+  le_size := mkAndGate_le_size
   decl_eq := by
     intros
-    apply mkGate_decl_eq
+    apply mkAndGate_decl_eq
 
 @[simp]
-theorem denote_mkGate {aig : AIG α} {input : BinaryInput aig} :
-    ⟦aig.mkGate input, assign⟧
+theorem denote_mkAndGate {aig : AIG α} {input : BinaryInput aig} :
+    ⟦aig.mkAndGate input, assign⟧
       =
     (⟦aig, input.lhs, assign⟧ && ⟦aig, input.rhs, assign⟧) := by
   conv =>
@@ -122,15 +122,15 @@ theorem denote_mkGate {aig : AIG α} {input : BinaryInput aig} :
     unfold denote denote.go
   split
   · next heq =>
-    rw [mkGate, Array.getElem_push_eq] at heq
+    rw [mkAndGate, Array.getElem_push_eq] at heq
     contradiction
   · next heq =>
-    rw [mkGate, Array.getElem_push_eq] at heq
+    rw [mkAndGate, Array.getElem_push_eq] at heq
     contradiction
   · next heq =>
-    rw [mkGate, Array.getElem_push_eq] at heq
+    rw [mkAndGate, Array.getElem_push_eq] at heq
     injection heq with hl hr
-    simp only [← hl, Fanin.gate_mk, mkGate, Fanin.invert_mk, ← hr, Bool.bne_false]
+    simp only [← hl, Fanin.gate_mk, mkAndGate, Fanin.invert_mk, ← hr, Bool.bne_false]
     congr 2
     all_goals
       apply denote.go_eq_of_isPrefix
@@ -230,9 +230,9 @@ theorem denote_idx_atom {aig : AIG α} {hstart} (h : aig.decls[start] = .atom a)
   split <;> simp_all
 
 /--
-If an index contains a `Decl.gate` we know how to denote it.
+If an index contains a `Decl.and` we know how to denote it.
 -/
-theorem denote_idx_gate {aig : AIG α} {hstart} (h : aig.decls[start] = .gate lhs rhs) :
+theorem denote_idx_and{aig : AIG α} {hstart} (h : aig.decls[start] = .and lhs rhs) :
     ⟦aig, ⟨start, invert, hstart⟩, assign⟧
       =
     ((
@@ -254,19 +254,19 @@ theorem denote_idx_gate {aig : AIG α} {hstart} (h : aig.decls[start] = .gate lh
 theorem idx_trichotomy (aig : AIG α) (hstart : start < aig.decls.size) {prop : Prop}
     (hfalse : aig.decls[start]'hstart = .false → prop)
     (hatom : ∀ a, aig.decls[start]'hstart = .atom a → prop)
-    (hgate : ∀ lhs rhs , aig.decls[start]'hstart = .gate lhs rhs → prop)
+    (hgate : ∀ lhs rhs , aig.decls[start]'hstart = .and lhs rhs → prop)
     : prop := by
   match h : aig.decls[start]'hstart with
   | .false => apply hfalse; assumption
   | .atom a => apply hatom; assumption
-  | .gate lhs rhs => apply hgate; assumption
+  | .and lhs rhs => apply hgate; assumption
 
 theorem denote_idx_trichotomy {aig : AIG α} {hstart : start < aig.decls.size}
     (hfalse : aig.decls[start]'hstart = .false → ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = res)
     (hatom : ∀ a, aig.decls[start]'hstart = .atom a → ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = res)
     (hgate :
       ∀ lhs rhs,
-        aig.decls[start]'hstart = .gate lhs rhs
+        aig.decls[start]'hstart = .and lhs rhs
           →
         ⟦aig, ⟨start, invert, hstart⟩, assign⟧ = res
     ) :
@@ -290,7 +290,7 @@ theorem denote_congr (assign1 assign2 : α → Bool) (aig : AIG α) (idx : Nat) 
     apply h
     simp [mem_def, ← heq]
   · intro lhs rhs heq
-    simp only [denote_idx_gate heq]
+    simp only [denote_idx_and heq]
     have := aig.hdag hidx heq
     rw [denote_congr assign1 assign2 aig lhs.gate _ (by omega) h]
     rw [denote_congr assign1 assign2 aig rhs.gate _ (by omega) h]

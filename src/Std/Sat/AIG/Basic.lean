@@ -135,7 +135,7 @@ def Cache (α : Type) [DecidableEq α] [Hashable α] (decls : Array (Decl α)) :
 Create an empty `Cache`, valid with respect to any `Array Decl`.
 -/
 @[irreducible, inline]
-def Cache.empty (decls : Array (Decl α)) : Cache α decls := ⟨{}, WF.empty⟩
+def Cache.empty {decls : Array (Decl α)} : Cache α decls := ⟨{}, WF.empty⟩
 
 @[inherit_doc Cache.WF.push_id, irreducible, inline]
 def Cache.noUpdate (cache : Cache α decls) : Cache α (decls.push decl) :=
@@ -245,12 +245,13 @@ def IsDAG (α : Type) (decls : Array (Decl α)) : Prop :=
       decls[i] = .gate lhs rhs → lhs.gate < i ∧ rhs.gate < i
 
 /--
-The empty array is a DAG.
+The empty AIG is a DAG.
 -/
-theorem IsDAG.empty {α : Type} : IsDAG α #[] := by
+theorem IsDAG.empty {α : Type} : IsDAG α #[.false] := by
   intro i lhs rhs h
-  simp only [List.size_toArray, List.length_nil] at h
-  omega
+  simp only [List.size_toArray, List.length_cons, List.length_nil, Nat.zero_add,
+    Nat.lt_one_iff] at h
+  simp [h]
 
 end AIG
 
@@ -269,14 +270,29 @@ structure AIG (α : Type) [DecidableEq α] [Hashable α] where
   /--
   In order to be a valid AIG, `decls` must form a DAG.
   -/
-  invariant : AIG.IsDAG α decls
+  hdag : AIG.IsDAG α decls
+  /--
+  The `decls` `Array` can never be empty, see `hconst`.
+  -/
+  hzero : 0 < decls.size
+  /--
+  We always store `.false` at the first position. This allows us to avoid cache lookups
+  -/
+  hconst : decls[0]'hzero = .false
 
 namespace AIG
 
 /--
 An `AIG` with an empty AIG and cache.
 -/
-def empty : AIG α := { decls := #[], cache := Cache.empty #[], invariant := IsDAG.empty }
+def empty : AIG α :=
+  {
+    decls := #[.false],
+    cache := Cache.empty,
+    hdag := IsDAG.empty,
+    hzero := by simp
+    hconst := by simp
+  }
 
 /--
 The atom `a` occurs in `aig`.
@@ -378,7 +394,7 @@ Transform an `Entrypoint` into a graphviz string. Useful for debugging purposes.
 -/
 def toGraphviz {α : Type} [DecidableEq α] [ToString α] [Hashable α] (entry : Entrypoint α) :
     String :=
-  let ⟨⟨decls, _, hinv⟩, ⟨idx, invert, h⟩⟩ := entry
+  let ⟨⟨decls, _, hinv, _, _⟩, ⟨idx, invert, h⟩⟩ := entry
   let (dag, s) := go "" decls hinv idx h |>.run ∅
   let nodes := s.fold (fun x y ↦ x ++ toGraphvizString decls y) ""
   "Digraph AIG {" ++ nodes ++ dag ++ "}"
@@ -451,7 +467,7 @@ structure ExtendTarget (aig : AIG α) (newWidth : Nat) where
 Evaluate an `AIG.Entrypoint` using some assignment for atoms.
 -/
 def denote (assign : α → Bool) (entry : Entrypoint α) : Bool :=
-  go entry.ref.gate entry.aig.decls assign entry.ref.hgate entry.aig.invariant ^^ entry.ref.invert
+  go entry.ref.gate entry.aig.decls assign entry.ref.hgate entry.aig.hdag ^^ entry.ref.invert
 where
   go (x : Nat) (decls : Array (Decl α)) (assign : α → Bool) (h1 : x < decls.size)
       (h2 : IsDAG α decls) :
@@ -507,17 +523,19 @@ def mkGate (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   let decls :=
     aig.decls.push <| .gate (.mk input.lhs.gate input.lhs.invert) (.mk input.rhs.gate input.rhs.invert)
   let cache := aig.cache.noUpdate
-  have invariant := by
+  have hdag := by
     intro i lhs' rhs' h1 h2
     simp only [Array.getElem_push] at h2
     split at h2
-    · apply aig.invariant <;> assumption
+    · apply aig.hdag <;> assumption
     · injection h2 with hl hr
       have := input.lhs.hgate
       have := input.rhs.hgate
       simp [← hl, ← hr]
       omega
-  ⟨{ aig with decls, invariant, cache }, ⟨g, false, by simp [g, decls]⟩⟩
+  have hzero := by simp [decls]
+  have hconst := by simp [decls, Array.getElem_push, aig.hzero, aig.hconst]
+  ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨g, false, by simp [g, decls]⟩⟩
 
 /--
 Add a new input node to the AIG in `aig`. Note that this version is only meant for proving,
@@ -527,13 +545,15 @@ def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
   let g := aig.decls.size
   let decls := aig.decls.push (.atom n)
   let cache := aig.cache.noUpdate
-  have invariant := by
+  have hdag := by
     intro i lhs rhs h1 h2
     simp only [Array.getElem_push] at h2
     split at h2
-    · apply aig.invariant <;> assumption
+    · apply aig.hdag <;> assumption
     · contradiction
-  ⟨{ decls, invariant, cache }, ⟨g, false, by simp [g, decls]⟩⟩
+  have hzero := by simp [decls]
+  have hconst := by simp [decls, Array.getElem_push, aig.hzero, aig.hconst]
+  ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨g, false, by simp [g, decls]⟩⟩
 
 /--
 Add a new constant node to `aig`. Note that this version is only meant for proving,
@@ -543,14 +563,15 @@ def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
   let g := aig.decls.size
   let decls := aig.decls.push .false
   let cache := aig.cache.noUpdate
-  have invariant := by
+  have hdag := by
     intro i lhs rhs h1 h2
     simp only [Array.getElem_push] at h2
     split at h2
-    · apply aig.invariant <;> assumption
+    · apply aig.hdag <;> assumption
     · contradiction
-  ⟨{ decls, invariant, cache }, ⟨g, val, by simp [g, decls]⟩⟩
-
+  have hzero := by simp [decls]
+  have hconst := by simp [decls, Array.getElem_push, aig.hzero, aig.hconst]
+  ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨g, val, by simp [g, decls]⟩⟩
 
 /--
 Determine whether `ref` is a `Decl.const` with value `b`.

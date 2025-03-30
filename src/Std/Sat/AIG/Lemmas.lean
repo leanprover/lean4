@@ -69,7 +69,7 @@ theorem denote_projected_entry' {entry : Entrypoint α} :
 theorem Ref.denote_flip {aig : AIG α} {ref : Ref aig} {inv : Bool} :
     ⟦aig, ref.flip inv, assign⟧ = (⟦aig, ref, assign⟧ ^^ inv) := by
   unfold denote
-  cases ref <;> cases inv <;> simp [Ref.flip] 
+  cases ref <;> cases inv <;> simp [Ref.flip]
 
 @[simp]
 theorem Ref.denote_not {aig : AIG α} {ref : Ref aig} :
@@ -236,9 +236,9 @@ theorem denote_idx_gate {aig : AIG α} {hstart} (h : aig.decls[start] = .gate lh
     ⟦aig, ⟨start, invert, hstart⟩, assign⟧
       =
     ((
-      (⟦aig, ⟨lhs.gate, lhs.invert, by have := aig.invariant hstart h; omega⟩, assign⟧)
+      (⟦aig, ⟨lhs.gate, lhs.invert, by have := aig.hdag hstart h; omega⟩, assign⟧)
         &&
-      (⟦aig, ⟨rhs.gate, rhs.invert, by have := aig.invariant hstart h; omega⟩, assign⟧)
+      (⟦aig, ⟨rhs.gate, rhs.invert, by have := aig.hdag hstart h; omega⟩, assign⟧)
     ) ^^ invert) := by
   unfold denote
   conv =>
@@ -291,7 +291,7 @@ theorem denote_congr (assign1 assign2 : α → Bool) (aig : AIG α) (idx : Nat) 
     simp [mem_def, ← heq]
   · intro lhs rhs heq
     simp only [denote_idx_gate heq]
-    have := aig.invariant hidx heq
+    have := aig.hdag hidx heq
     rw [denote_congr assign1 assign2 aig lhs.gate _ (by omega) h]
     rw [denote_congr assign1 assign2 aig rhs.gate _ (by omega) h]
 

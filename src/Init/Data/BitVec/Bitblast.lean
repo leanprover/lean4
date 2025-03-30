@@ -1351,7 +1351,7 @@ theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
   rcases w with _|w
   · simp [of_length_zero, toInt_zero]
   · have h₁ := BitVec.two_pow_le_toInt_mul_toInt_iff (x := x) (y := y)
-    have h₂ := BitVec.toInt_mul_toInt_lt_two_pow_iff (x := x) (y := y)
+    have h₂ := BitVec.toInt_mul_toInt_lt_neg_two_pow_iff (x := x) (y := y)
     simp only [Nat.add_one_sub_one] at h₁ h₂
     simp [h₁, h₂]
 

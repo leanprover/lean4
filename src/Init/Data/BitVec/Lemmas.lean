@@ -4788,7 +4788,7 @@ theorem two_pow_le_toInt_mul_toInt_iff {x y : BitVec w} :
                               (by rw [← Nat.mul_two]; push_cast; omega)]
     omega
 
-theorem toInt_mul_toInt_lt_iff {x y : BitVec w} :
+theorem toInt_mul_toInt_lt_neg_two_pow_iff {x y : BitVec w} :
     x.toInt * y.toInt < - 2 ^ (w - 1) ↔
       (signExtend (w * 2) x * signExtend (w * 2) y).slt (signExtend (w * 2) (intMin w)) := by
   rcases w with _|w

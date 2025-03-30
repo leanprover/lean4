@@ -2032,7 +2032,7 @@ def hasUnsafe (env : Environment) (e : Expr) : Bool :=
   c?.isSome
 
 /-- Plumbing function for `Lean.Meta.realizeConst`; see documentation there. -/
-def realizeConst (env : Environment) (forConst : Name) (constName : Name)
+@[specialize] def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     (realize : Environment → Options → BaseIO (Environment × Dynamic)) :
     IO (Environment × Task (Option Kernel.Exception) × Dynamic) := do
   -- the following code is inherently non-deterministic in number of heartbeats, reset them at the

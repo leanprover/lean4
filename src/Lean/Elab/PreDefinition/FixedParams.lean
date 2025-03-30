@@ -307,11 +307,11 @@ def FixedParamPerm.isFixed (perm : FixedParamPerm) (i : Nat) : Bool :=
 Brings the fixed parameters from `type`, which should the the type of the `funIdx`'s function, into
 scope.
 -/
-private partial def FixedParamPerm.forallTelescopeImpl (perm : FixedParamPerm)
+@[inline] private partial def FixedParamPerm.forallTelescopeImpl (perm : FixedParamPerm)
     (type : Expr) (k : Array Expr → MetaM α) : MetaM α := do
   go 0 type (.replicate perm.numFixed (mkSort 0))
 where
-  go i type xs := do
+  @[specialize] go i type xs := do
     match perm[i]? with
     | .some (Option.some fixedParamIdx) =>
       forallBoundedTelescope type (some 1) (cleanupAnnotations := true) fun xs' type => do
@@ -327,7 +327,7 @@ where
     | .none =>
       k xs
 
-def FixedParamPerm.forallTelescope [MonadControlT MetaM n] [Monad n]
+@[inline] def FixedParamPerm.forallTelescope [MonadControlT MetaM n] [Monad n]
     (perm : FixedParamPerm) (type : Expr) (k : Array Expr → n α) : n α := do
   map1MetaM (fun k => perm.forallTelescopeImpl type k) k
 

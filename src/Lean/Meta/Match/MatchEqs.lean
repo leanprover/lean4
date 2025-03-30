@@ -113,12 +113,12 @@ def unfoldNamedPattern (e : Expr) : MetaM Expr := do
 
   This can be used to use the alternative of a match expression in its splitter.
 -/
-partial def forallAltTelescope (altType : Expr) (altNumParams numDiscrEqs : Nat)
+@[inline] partial def forallAltTelescope (altType : Expr) (altNumParams numDiscrEqs : Nat)
     (k : (ys : Array Expr) → (eqs : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α)
     : MetaM α := do
   go #[] #[] #[] #[] 0 altType
 where
-  go (ys : Array Expr) (eqs : Array Expr) (args : Array Expr) (mask : Array Bool) (i : Nat) (type : Expr) : MetaM α := do
+  @[specialize] go (ys : Array Expr) (eqs : Array Expr) (args : Array Expr) (mask : Array Bool) (i : Nat) (type : Expr) : MetaM α := do
     let type ← whnfForall type
     if i < altNumParams then
       let Expr.forallE n d b .. := type
@@ -369,8 +369,8 @@ where
 
 
 /-- Construct new local declarations `xs` with types `altTypes`, and then execute `f xs`  -/
-private partial def withSplitterAlts (altTypes : Array Expr) (f : Array Expr → MetaM α) : MetaM α := do
-  let rec go (i : Nat) (xs : Array Expr) : MetaM α := do
+@[inline] private partial def withSplitterAlts (altTypes : Array Expr) (f : Array Expr → MetaM α) : MetaM α := do
+  let rec @[specialize] go (i : Nat) (xs : Array Expr) : MetaM α := do
     if h : i < altTypes.size then
       let hName := (`h).appendIndexAfter (i+1)
       withLocalDeclD hName altTypes[i] fun x =>

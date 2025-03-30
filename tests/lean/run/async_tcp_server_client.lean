@@ -2,11 +2,9 @@
 
 import Std.Internal.Async
 import Std.Internal.UV
-import Std.Sync.Channel
 import Std.Net.Addr
 
 open Std.Internal.IO.Async
-open Std.Channel
 open Std.Net
 
 -- Using this function to create IO Error. For some reason the assert! is not pausing the execution.

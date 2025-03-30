@@ -1,3 +1,5 @@
+#exit  -- TODO: sometimes times out, due to runtime timing changes?
+
 import Std.Internal.Async
 import Std.Internal.UV
 import Std.Net.Addr

@@ -10,6 +10,12 @@ Author: Leonardo de Moura
 #include <stdint.h>
 #include <limits.h>
 
+#include <lean/config.h>
+
+#ifdef LEAN_MIMALLOC
+#include <lean/mimalloc.h>
+#endif
+
 #ifdef __cplusplus
 #include <atomic>
 #include <stdlib.h>
@@ -19,7 +25,6 @@ extern "C" {
 #else
 #define  LEAN_USING_STD
 #endif
-#include <lean/config.h>
 
 #define LEAN_CLOSURE_MAX_ARGS      16
 #define LEAN_OBJECT_SIZE_DELTA     8
@@ -343,7 +348,13 @@ static inline lean_object * lean_alloc_small_object(unsigned sz) {
     return (lean_object*)lean_alloc_small(sz, slot_idx);
 #else
     lean_inc_heartbeat();
+#ifdef LEAN_MIMALLOC
+    // HACK: emulate behavior of small allocator to avoid `leangz` breakage for now
+    sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
+    void * mem = mi_malloc_small(sizeof(size_t) + sz);
+#else
     void * mem = malloc(sizeof(size_t) + sz);
+#endif
     if (mem == 0) lean_internal_panic_out_of_memory();
     *(size_t*)mem = sz;
     return (lean_object*)((size_t*)mem + 1);
@@ -366,6 +377,14 @@ static inline lean_object * lean_alloc_ctor_memory(unsigned sz) {
            not affected by uninitialized data at the (sz1 - sz) last bytes.
            Otherwise, we may mistakenly assume to structurally equal
            objects are not identical because of this uninitialized memory. */
+        size_t * end = (size_t*)(((char*)r) + sz1);
+        end[-1] = 0;
+    }
+    return r;
+#elif defined(LEAN_MIMALLOC)
+    unsigned sz1 = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
+    lean_object* r = lean_alloc_small_object(sz);
+    if (sz1 > sz) {
         size_t * end = (size_t*)(((char*)r) + sz1);
         end[-1] = 0;
     }
@@ -394,6 +413,9 @@ void free_sized(void* ptr, size_t);
 static inline void lean_free_small_object(lean_object * o) {
 #ifdef LEAN_SMALL_ALLOCATOR
     lean_free_small(o);
+#elif defined(LEAN_MIMALLOC)
+    size_t* ptr = (size_t*)o - 1;
+    mi_free_size(ptr, *ptr + sizeof(size_t));
 #else
     size_t* ptr = (size_t*)o - 1;
     free_sized(ptr, *ptr + sizeof(size_t));

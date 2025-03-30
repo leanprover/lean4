@@ -199,7 +199,7 @@ Abtracts nested proofs in `e`. This is a preprocessing step performed before int
 -/
 def abstractNestedProofs (e : Expr) : GrindM Expr := do
   let nextIdx := (← get).nextThmIdx
-  let (e, s') ← AbstractNestedProofs.visit e |>.run { baseName := (← getMainDeclName) } |>.run |>.run { nextIdx }
+  let (e, s') ← AbstractNestedProofs.visit e |>.run { cache := true, baseName := (← getMainDeclName) } |>.run |>.run { nextIdx }
   modify fun s => { s with nextThmIdx := s'.nextIdx }
   return e
 

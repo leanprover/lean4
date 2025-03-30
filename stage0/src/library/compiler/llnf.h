@@ -5,11 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "kernel/environment.h"
+#include "library/elab_environment.h"
 #include "library/compiler/util.h"
 
 namespace lean {
-environment compile_ir(environment const & env, options const & opts, comp_decls const & ds);
+elab_environment compile_ir(elab_environment const & env, options const & opts, comp_decls const & ds);
 
 bool is_llnf_apply(expr const & e);
 bool is_llnf_closure(expr const & e);
@@ -26,6 +26,7 @@ bool is_llnf_fproj(expr const & e, unsigned & n, unsigned & offset);
 bool is_llnf_uproj(expr const & e, unsigned & idx);
 bool is_llnf_sset(expr const & e, unsigned & sz, unsigned & n, unsigned & offset);
 bool is_llnf_fset(expr const & e, unsigned & n, unsigned & offset);
+bool is_llnf_f32set(expr const & e, unsigned & n, unsigned & offset);
 bool is_llnf_uset(expr const & e, unsigned & n);
 bool is_llnf_jmp(expr const & e);
 bool is_llnf_unbox(expr const & e, unsigned & n);
@@ -43,12 +44,13 @@ inline bool is_llnf_fproj(expr const & e) { unsigned d1, d2; return is_llnf_fpro
 inline bool is_llnf_uproj(expr const & e) { unsigned d; return is_llnf_uproj(e, d); }
 inline bool is_llnf_sset(expr const & e) { unsigned d1, d2, d3; return is_llnf_sset(e, d1, d2, d3); }
 inline bool is_llnf_fset(expr const & e) { unsigned d1, d2; return is_llnf_fset(e, d1, d2); }
+inline bool is_llnf_f32set(expr const & e) { unsigned d1, d2; return is_llnf_f32set(e, d1, d2); }
 inline bool is_llnf_uset(expr const & e) { unsigned d; return is_llnf_uset(e, d); }
 inline bool is_llnf_box(expr const & e) { unsigned n; return is_llnf_box(e, n); }
 inline bool is_llnf_unbox(expr const & e) { unsigned n; return is_llnf_unbox(e, n); }
 
-expr get_constant_ll_type(environment const & env, name const & c);
-unsigned get_llnf_arity(environment const & env, name const & c);
+expr get_constant_ll_type(elab_environment const & env, name const & c);
+unsigned get_llnf_arity(elab_environment const & env, name const & c);
 
 struct field_info {
     /* Remark: the position of a scalar value in
@@ -66,6 +68,7 @@ struct field_info {
         m_kind(Scalar), m_size(sz), m_idx(num), m_offset(offset), m_type(type) {}
     expr get_type() const { return m_type; }
     bool is_float() const { return is_constant(m_type, get_float_name()); }
+    bool is_float32() const { return is_constant(m_type, get_float32_name()); }
     static field_info mk_irrelevant() { return field_info(); }
     static field_info mk_object(unsigned idx) { return field_info(idx); }
     static field_info mk_usize() { return field_info(0, true); }

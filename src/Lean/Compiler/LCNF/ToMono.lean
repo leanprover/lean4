@@ -50,6 +50,10 @@ partial def LetValue.toMono (e : LetValue) : ToMonoM LetValue := do
       return .const ``Bool.true [] #[]
     else if declName == ``Decidable.isFalse then
       return .const ``Bool.false [] #[]
+    else if declName == ``Decidable.decide then
+      -- Decidable.decide is the identity function since Decidable
+      -- and Bool have the same runtime representation.
+      return args[1]!.toLetValue
     else if let some e' ← isTrivialConstructorApp? declName args then
       e'.toMono
     else if let some (.ctorInfo ctorInfo) := (← getEnv).find? declName then
@@ -139,25 +143,14 @@ where
   go : ToMonoM Decl := do
     let type ← toMonoType decl.type
     let params ← decl.params.mapM (·.toMono)
-    let value ← decl.value.toMono
+    let value ← decl.value.mapCodeM (·.toMono)
     let decl := { decl with type, params, value, levelParams := [] }
     decl.saveMono
     return decl
 
 def toMono : Pass where
   name     := `toMono
-  run      := fun decls => do
-    let decls ← decls.filterM fun decl => do
-      if hasLocalInst decl.type then
-        /-
-        Declaration is a "template" for the code specialization pass.
-        So, we should delete it before going to next phase.
-        -/
-        decl.erase
-        return false
-      else
-        return true
-    decls.mapM (·.toMono)
+  run      := (·.mapM (·.toMono))
   phase    := .base
   phaseOut := .mono
 

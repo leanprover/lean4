@@ -151,7 +151,8 @@ mutual
         return false
 
   partial def isRflTheorem (declName : Name) : CoreM Bool := do
-    let .thmInfo info ← getConstInfo declName | return false
+    let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false
+    let .thmInfo info ← traceBlock "isRflTheorem theorem body" constInfo | return false
     isRflProofCore info.type info.value
 end
 
@@ -170,7 +171,7 @@ instance : ToFormat SimpTheorem where
 
 def ppOrigin [Monad m] [MonadEnv m] [MonadError m] : Origin → m MessageData
   | .decl n post inv => do
-    let r := MessageData.ofConst (← mkConstWithLevelParams n)
+    let r := MessageData.ofConstName n
     match post, inv with
     | true,  true  => return m!"← {r}"
     | true,  false => return r
@@ -191,6 +192,9 @@ instance : BEq SimpTheorem where
 
 abbrev SimpTheoremTree := DiscrTree SimpTheorem
 
+/--
+The theorems in a simp set.
+-/
 structure SimpTheorems where
   pre          : SimpTheoremTree := DiscrTree.empty
   post         : SimpTheoremTree := DiscrTree.empty
@@ -400,7 +404,7 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
     return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := (← isRflProof proof) }
 
 private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool) (prio : Nat) : MetaM (Array SimpTheorem) := do
-  let cinfo ← getConstInfo declName
+  let cinfo ← getConstVal declName
   let us := cinfo.levelParams.map mkLevelParam
   let origin := .decl declName post inv
   let val := mkConst declName us
@@ -422,6 +426,12 @@ inductive SimpEntry where
   | toUnfoldThms : Name → Array Name → SimpEntry
   deriving Inhabited
 
+/--
+The environment extension that contains a simp set, returned by `Lean.Meta.registerSimpAttr`.
+
+Use the simp set's attribute or `Lean.Meta.addSimpTheorem` to add theorems to the simp set. Use
+`Lean.Meta.SimpExtension.getTheorems` to get the contents.
+-/
 abbrev SimpExtension := SimpleScopedEnvExtension SimpEntry SimpTheorems
 
 def SimpExtension.getTheorems (ext : SimpExtension) : CoreM SimpTheorems :=
@@ -458,7 +468,7 @@ def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post := true) (i
 
 def SimpTheorem.getValue (simpThm : SimpTheorem) : MetaM Expr := do
   if simpThm.proof.isConst && simpThm.levelParams.isEmpty then
-    let info ← getConstInfo simpThm.proof.constName!
+    let info ← getConstVal simpThm.proof.constName!
     if info.levelParams.isEmpty then
       return simpThm.proof
     else

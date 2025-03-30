@@ -142,8 +142,10 @@ open Lean PrettyPrinter Delaborator
 Turns a `MetaM FormatWithInfos` into a `MessageData.lazy` which will run the monadic value.
 -/
 def ofFormatWithInfosM (fmt : MetaM FormatWithInfos) : MessageData :=
-  .lazy fun ctx => ctx.runMetaM <|
-    .ofFormatWithInfos <$> fmt
+  .lazy fun ctx => do
+    match (← ctx.runMetaM fmt |>.toBaseIO) with
+    | .ok fmt => return .ofFormatWithInfos fmt
+    | .error ex => return m!"[Error pretty printing: {ex}]"
 
 /--
 Turns a `MetaM MessageData` into a `MessageData.lazy` which will run the monadic value.
@@ -152,7 +154,11 @@ comprise the expressions that are included in the message data.
 -/
 def ofLazyM (f : MetaM MessageData) (es : Array Expr := #[]) : MessageData :=
   .lazy
-    (f := fun ppctxt => ppctxt.runMetaM f)
+    (f := fun ppctxt => do
+      match (← ppctxt.runMetaM f |>.toBaseIO) with
+      | .ok fmt => return fmt
+      | .error ex => return m!"[Error pretty printing: {ex}]"
+      )
     (hasSyntheticSorry := fun mvarctxt => es.any (fun a =>
         instantiateMVarsCore mvarctxt a |>.1.hasSyntheticSorry
     ))
@@ -168,11 +174,16 @@ def ofConst (e : Expr) : MessageData :=
     let delab : Delab := withOptionAtCurrPos `pp.tagAppFns true delabConst
     .ofFormatWithInfosM (PrettyPrinter.ppExprWithInfos (delab := delab) e)
   else
+    have : Inhabited MessageData :=
+      ⟨m!"[Error pretty printing: expression not a constant]{Format.line}{e}"⟩
     panic! "not a constant"
 
 /-- Generates `MessageData` for a declaration `c` as `c.{<levels>} <params> : <type>`, with terminfo. -/
 def signature (c : Name) : MessageData :=
-  .ofFormatWithInfosM (PrettyPrinter.ppSignature c)
+  .lazy fun ctx => do
+    match (← ctx.runMetaM (PrettyPrinter.ppSignature c) |>.toBaseIO) with
+    | .ok fmt => return .ofFormatWithInfos fmt
+    | .error ex => return m!"[Error pretty printing signature: {ex}]{Format.line}{c}"
 
 end MessageData
 

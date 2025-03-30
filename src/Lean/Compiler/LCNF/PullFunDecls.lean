@@ -172,8 +172,8 @@ open PullFunDecls
 Pull local function declarations and join points in the given declaration.
 -/
 def Decl.pullFunDecls (decl : Decl) : CompilerM Decl := do
-  let (value, ps) ← pull decl.value |>.run []
-  let value := attach ps.toArray value
+  let (value, ps) ← decl.value.mapCodeM pull |>.run []
+  let value := value.mapCode (attach ps.toArray)
   return { decl with value }
 
 def pullFunDecls : Pass :=

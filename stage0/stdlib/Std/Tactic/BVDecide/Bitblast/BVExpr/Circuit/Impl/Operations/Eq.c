@@ -47,6 +47,8 @@ lean_ctor_set(x_12, 0, x_3);
 lean_ctor_set(x_12, 1, x_10);
 lean_ctor_set(x_12, 2, x_11);
 x_13 = l_Std_Sat_AIG_RefVec_fold___rarg(x_1, x_2, x_9, x_12);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_13;
 }
 }

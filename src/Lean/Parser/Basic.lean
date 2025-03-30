@@ -804,18 +804,45 @@ where
       else
         normalState num c s
 
-def decimalNumberFn (startPos : String.Pos) (c : ParserContext) : ParserState → ParserState := fun s =>
-  let s     := takeWhileFn (fun c => c.isDigit) c s
+/--
+Parses a sequence of the form `many (many '_' >> many1 digit)`, but if `needDigit` is true the parsed result must be nonempty.
+
+Note: this does not report that it is expecting `_` if we reach EOI or an unexpected character.
+Rationale: this error happens if there is already a `_`, and while sequences of `_` are allowed, it's a bit perverse to suggest extending the sequence.
+-/
+partial def takeDigitsFn (isDigit : Char → Bool) (expecting : String) (needDigit : Bool) : ParserFn := fun c s =>
   let input := c.input
   let i     := s.pos
-  let curr  := input.get i
-  if curr == '.' || curr == 'e' || curr == 'E' then
+  if h : input.atEnd i then
+    if needDigit then
+      s.mkEOIError [expecting]
+    else
+      s
+  else
+    let curr := input.get' i h
+    if curr == '_' then takeDigitsFn isDigit expecting true c (s.next' c.input i h)
+    else if isDigit curr then takeDigitsFn isDigit expecting false c (s.next' c.input i h)
+    else if needDigit then s.mkUnexpectedError "unexpected character" (expected := [expecting])
+    else s
+
+def decimalNumberFn (startPos : String.Pos) (c : ParserContext) : ParserState → ParserState := fun s =>
+  let s     := takeDigitsFn (fun c => c.isDigit) "decimal number" false c s
+  let input := c.input
+  let i     := s.pos
+  if h : input.atEnd i then
+    mkNodeToken numLitKind startPos c s
+  else
+    let curr := input.get' i h
+    if curr == '.' || curr == 'e' || curr == 'E' then
+      parseScientific s
+    else
+      mkNodeToken numLitKind startPos c s
+where
+  parseScientific s :=
     let s := parseOptDot s
     let s := parseOptExp s
     mkNodeToken scientificLitKind startPos c s
-  else
-    mkNodeToken numLitKind startPos c s
-where
+
   parseOptDot s :=
     let input := c.input
     let i     := s.pos
@@ -824,7 +851,7 @@ where
       let i    := input.next i
       let curr := input.get i
       if curr.isDigit then
-        takeWhileFn (fun c => c.isDigit) c (s.setPos i)
+        takeDigitsFn (fun c => c.isDigit) "decimal number" false c (s.setPos i)
       else
         s.setPos i
     else
@@ -839,22 +866,22 @@ where
       let i    := if input.get i == '-' || input.get i == '+' then input.next i else i
       let curr := input.get i
       if curr.isDigit then
-        takeWhileFn (fun c => c.isDigit) c (s.setPos i)
+        takeDigitsFn (fun c => c.isDigit) "decimal number" false c (s.setPos i)
       else
         s.mkUnexpectedError "missing exponent digits in scientific literal"
     else
       s
 
 def binNumberFn (startPos : String.Pos) : ParserFn := fun c s =>
-  let s := takeWhile1Fn (fun c => c == '0' || c == '1') "binary number" c s
+  let s := takeDigitsFn (fun c => c == '0' || c == '1') "binary number" true c s
   mkNodeToken numLitKind startPos c s
 
 def octalNumberFn (startPos : String.Pos) : ParserFn := fun c s =>
-  let s := takeWhile1Fn (fun c => '0' ≤ c && c ≤ '7') "octal number" c s
+  let s := takeDigitsFn (fun c => '0' ≤ c && c ≤ '7') "octal number" true c s
   mkNodeToken numLitKind startPos c s
 
 def hexNumberFn (startPos : String.Pos) : ParserFn := fun c s =>
-  let s := takeWhile1Fn (fun c => ('0' ≤ c && c ≤ '9') || ('a' ≤ c && c ≤ 'f') || ('A' ≤ c && c ≤ 'F')) "hexadecimal number" c s
+  let s := takeDigitsFn (fun c => ('0' ≤ c && c ≤ '9') || ('a' ≤ c && c ≤ 'f') || ('A' ≤ c && c ≤ 'F')) "hexadecimal number" true c s
   mkNodeToken numLitKind startPos c s
 
 def numberFnAux : ParserFn := fun c s =>
@@ -1305,7 +1332,7 @@ namespace ParserState
 
 def keepTop (s : SyntaxStack) (startStackSize : Nat) : SyntaxStack :=
   let node  := s.back
-  s.take startStackSize |>.push node
+  s.shrink startStackSize |>.push node
 
 def keepNewError (s : ParserState) (oldStackSize : Nat) : ParserState :=
   match s with
@@ -1314,13 +1341,13 @@ def keepNewError (s : ParserState) (oldStackSize : Nat) : ParserState :=
 def keepPrevError (s : ParserState) (oldStackSize : Nat) (oldStopPos : String.Pos) (oldError : Option Error) (oldLhsPrec : Nat) : ParserState :=
   match s with
   | ⟨stack, _, _, cache, _, errs⟩ =>
-    ⟨stack.take oldStackSize, oldLhsPrec, oldStopPos, cache, oldError, errs⟩
+    ⟨stack.shrink oldStackSize, oldLhsPrec, oldStopPos, cache, oldError, errs⟩
 
 def mergeErrors (s : ParserState) (oldStackSize : Nat) (oldError : Error) : ParserState :=
   match s with
   | ⟨stack, lhsPrec, pos, cache, some err, errs⟩ =>
     let newError := if oldError == err then err else oldError.merge err
-    ⟨stack.take oldStackSize, lhsPrec, pos, cache, some newError, errs⟩
+    ⟨stack.shrink oldStackSize, lhsPrec, pos, cache, some newError, errs⟩
   | other                         => other
 
 def keepLatest (s : ParserState) (startStackSize : Nat) : ParserState :=
@@ -1363,7 +1390,7 @@ def runLongestMatchParser (left? : Option Syntax) (startLhsPrec : Nat) (p : Pars
     s -- success or error with the expected number of nodes
   else if s.hasError then
     -- error with an unexpected number of nodes.
-    s.takeStack startSize |>.pushSyntax Syntax.missing
+    s.shrinkStack startSize |>.pushSyntax Syntax.missing
   else
     -- parser succeeded with incorrect number of nodes
     invalidLongestMatchParser s
@@ -1556,8 +1583,8 @@ namespace TokenMap
 
 def insert (map : TokenMap α) (k : Name) (v : α) : TokenMap α :=
   match map.find? k with
-  | none    => .insert map k [v]
-  | some vs => .insert map k (v::vs)
+  | none    => RBMap.insert map k [v]
+  | some vs => RBMap.insert map k (v::vs)
 
 instance : Inhabited (TokenMap α) where
   default := RBMap.empty
@@ -1578,32 +1605,36 @@ instance : Inhabited PrattParsingTables where
   default := {}
 
 /--
-  The type `LeadingIdentBehavior` specifies how the parsing table
-  lookup function behaves for identifiers.  The function `prattParser`
-  uses two tables `leadingTable` and `trailingTable`. They map tokens
-  to parsers.
+Specifies how the parsing table lookup function behaves for identifiers.
 
-  We use `LeadingIdentBehavior.symbol` and `LeadingIdentBehavior.both`
-  and `nonReservedSymbol` parser to implement the `tactic` parsers.
-  The idea is to avoid creating a reserved symbol for each
-  builtin tactic (e.g., `apply`, `assumption`, etc.).  That is, users
-  may still use these symbols as identifiers (e.g., naming a
-  function).
+The function `Lean.Parser.prattParser` uses two tables: one each for leading and trailing parsers.
+These tables map tokens to parsers. Because keyword tokens are distinct from identifier tokens,
+keywords and identifiers cannot be confused, even when they are syntactically identical.
+Specifying an alternative leading identifier behavior allows greater flexiblity and makes it
+possible to avoid reserved keywords in some situations.
+
+When the leading token is syntactically an identifier, the current syntax category's
+`LeadingIdentBehavior` specifies how the parsing table lookup function behaves, and allows
+controlled “punning” between identifiers and keywords. This feature is used to avoid creating a
+reserved symbol for each built-in tactic (e.g., `apply` or `assumption`). As a result, tactic names
+can be used as identifiers.
 -/
 inductive LeadingIdentBehavior where
-  /-- `LeadingIdentBehavior.default`: if the leading token
-  is an identifier, then `prattParser` just executes the parsers
-  associated with the auxiliary token "ident". -/
+  /--
+  If the leading token is an identifier, then the parser just executes the parsers associated
+  with the auxiliary token “ident”, which parses identifiers.
+  -/
   | default
-  /-- `LeadingIdentBehavior.symbol`: if the leading token is
-  an identifier `<foo>`, and there are parsers `P` associated with
-  the token `<foo>`, then it executes `P`. Otherwise, it executes
-  only the parsers associated with the auxiliary token "ident". -/
+  /--
+  If the leading token is an identifier `<foo>`, and there are parsers `P` associated with the token
+  `<foo>`, then the parser executes `P`. Otherwise, it executes only the parsers associated with the
+  auxiliary token “ident”, which parses identifiers.
+  -/
   | symbol
-  /-- `LeadingIdentBehavior.both`: if the leading token
-  an identifier `<foo>`, the it executes the parsers associated
-  with token `<foo>` and parsers associated with the auxiliary
-  token "ident". -/
+  /--
+  If the leading token is an identifier `<foo>`, then it executes the parsers associated with token
+  `<foo>` and parsers associated with the auxiliary token “ident”, which parses identifiers.
+  -/
   | both
   deriving Inhabited, BEq, Repr
 
@@ -1678,7 +1709,8 @@ builtin_initialize categoryParserFnRef : IO.Ref CategoryParserFn ← IO.mkRef fu
 builtin_initialize categoryParserFnExtension : EnvExtension CategoryParserFn ← registerEnvExtension $ categoryParserFnRef.get
 
 def categoryParserFn (catName : Name) : ParserFn := fun ctx s =>
-  categoryParserFnExtension.getState ctx.env catName ctx s
+  let fn := categoryParserFnExtension.getState ctx.env
+  fn catName ctx s
 
 def categoryParser (catName : Name) (prec : Nat) : Parser where
   fn := adaptCacheableContextFn ({ · with prec }) (withCacheFn catName (categoryParserFn catName))

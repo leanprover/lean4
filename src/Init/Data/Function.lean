@@ -9,10 +9,23 @@ import Init.Core
 
 namespace Function
 
+/--
+Transforms a function from pairs into an equivalent two-parameter function.
+
+Examples:
+ * `Function.curry (fun (x, y) => x + y) 3 5 = 8`
+ * `Function.curry Prod.swap 3 "five" = ("five", 3)`
+-/
 @[inline]
 def curry : (α × β → φ) → α → β → φ := fun f a b => f (a, b)
 
-/-- Interpret a function with two arguments as a function on `α × β` -/
+/--
+Transforms a two-parameter function into an equivalent function from pairs.
+
+Examples:
+ * `Function.uncurry List.drop (1, ["a", "b", "c"]) = ["b", "c"]`
+ * `[("orange", 2), ("android", 3) ].map (Function.uncurry String.take) = ["or", "and"]`
+-/
 @[inline]
 def uncurry : (α → β → φ) → α × β → φ := fun f a => f a.1 a.2
 

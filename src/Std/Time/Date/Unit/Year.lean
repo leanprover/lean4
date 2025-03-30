@@ -26,7 +26,7 @@ inductive Era
 
   /-- The Common Era (CE), represents dates from year 0 onwards. -/
   | ce
-  deriving Repr, Inhabited
+deriving Repr, Inhabited
 
 instance : ToString Era where
   toString
@@ -37,7 +37,7 @@ instance : ToString Era where
 `Offset` represents a year offset, defined as an `Int`.
 -/
 def Offset : Type := Int
-  deriving Repr, BEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
+deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
 instance {x y : Offset} : Decidable (x ≤ y) :=
   let x : Int := x
@@ -49,6 +49,12 @@ instance {x y : Offset} : Decidable (x < y) :=
 
 instance : OfNat Offset n := ⟨Int.ofNat n⟩
 
+instance : Ord Offset := inferInstanceAs <| Ord Int
+
+instance : TransOrd Offset := inferInstanceAs <| TransOrd Int
+
+instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd Int
+
 namespace Offset
 
 /--
@@ -56,7 +62,7 @@ Creates an `Offset` from a natural number.
 -/
 @[inline]
 def ofNat (data : Nat) : Offset :=
-  .ofNat data
+  Int.ofNat data
 
 /--
 Creates an `Offset` from an integer.

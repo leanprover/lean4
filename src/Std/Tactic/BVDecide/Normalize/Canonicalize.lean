@@ -33,10 +33,6 @@ theorem Bool.bne_to_beq (a b : Bool) : (a != b) = (!(a == b)) := by
   simp [bne]
 
 @[bv_normalize]
-theorem Bool.eq_false_to_beq (a : Bool) : (a = false) = ((!a) = true) := by
-  simp
-
-@[bv_normalize]
 theorem Bool.neg_to_not (a : Bool) : (¬a) = ((!a) = true) := by
   simp
 
@@ -58,9 +54,8 @@ theorem Bool.and_to_and (a b : Bool) : ((a = true) ∧ (b = true)) = ((a && b) =
   simp
 
 @[bv_normalize]
-theorem Bool.iff_to_or (a b : Bool)
-    : ((a = true) ↔ (b = true)) = (((!a || b) && (!b || a)) = true) := by
-  revert a b
+theorem Bool.iff_to_beq :
+    ∀ (a b : Bool), ((a = true) ↔ (b = true)) = ((a == b) = true) := by
   decide
 
 @[bv_normalize]
@@ -71,10 +66,6 @@ theorem Bool.eq_false (a : Bool) : ((a = true) = False) = ((!a) = true) := by
 theorem Bool.decide_eq_true (a : Bool) : (decide (a = true)) = a := by
   simp
 
-@[bv_normalize]
-theorem Bool.eq_true_eq_true_eq (x y : Bool) : ((x = true) = (y = true)) = (x = y) :=
-  by simp
-
 attribute [bv_normalize] BitVec.getLsbD_cast
 attribute [bv_normalize] BitVec.testBit_toNat
 
@@ -82,6 +73,14 @@ attribute [bv_normalize] BitVec.testBit_toNat
 theorem BitVec.lt_ult (x y : BitVec w) : (x < y) = (BitVec.ult x y = true) := by
   rw [BitVec.ult]
   simp only [(· < ·)]
+  simp
+
+@[bv_normalize]
+theorem Bool.or_elim : ∀ (a b : Bool), (a || b) = !(!a && !b) := by decide
+
+@[bv_normalize]
+theorem BitVec.or_elim (x y : BitVec w) : x ||| y = ~~~(~~~x &&& ~~~y) := by
+  ext
   simp
 
 attribute [bv_normalize] BitVec.natCast_eq_ofNat

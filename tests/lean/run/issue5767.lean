@@ -53,12 +53,11 @@ def go2 (ss : Int) (st0 : St) : Bool :=
       decreasing_by sorry
 
 /--
-info: go2.induct : Int →
-  ∀ (motive : St → Prop),
-    (∀ (x : St),
-        let st1 := { m := x.m, map := x.map.insert };
-        motive st1 → motive x) →
-      ∀ (st0 : St), motive st0
+info: go2.induct : ∀ (motive : St → Prop),
+  (∀ (x : St),
+      let st1 := { m := x.m, map := x.map.insert };
+      motive st1 → motive x) →
+    ∀ (st0 : St), motive st0
 -/
 #guard_msgs in
 #check @go2.induct

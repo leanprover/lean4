@@ -56,7 +56,7 @@ def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
   let arity        := numParams + 1 /- motive -/ + val.numIndices + 1 /- major -/ + val.numCtors
   let discrPos     := numParams + 1 /- motive -/ + val.numIndices
   -- We view indices as discriminants
-  let altsRange    := { start := discrPos + 1,  stop := arity }
+  let altsRange    := [discrPos + 1:arity]
   let altNumParams ← val.ctors.toArray.mapM fun ctor => do
     let .ctorInfo ctorVal ← getConstInfo ctor | unreachable!
     return ctorVal.numFields
@@ -80,7 +80,7 @@ List of types that have builtin runtime support
 def builtinRuntimeTypes : List Name := [
   ``String,
   ``UInt8, ``UInt16, ``UInt32, ``UInt64, ``USize,
-  ``Float,
+  ``Float, ``Float32,
   ``Thunk, ``Task,
   ``Array, ``ByteArray, ``FloatArray,
   ``Nat, ``Int

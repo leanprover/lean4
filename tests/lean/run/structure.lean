@@ -24,7 +24,7 @@ inductive D
   | mk (x y z : Nat) : D
 
 /--
-info: #[const2ModIdx, constants, extensions, extraConstNames, header]
+info: #[constants, quotInit, diagnostics, const2ModIdx, extensions, extraConstNames, header]
 #[toS2, toS1, x, y, z, toS3, w, s]
 (some [S4.toS2, S2.toS1])
 #[S2, S3]
@@ -33,7 +33,7 @@ info: #[const2ModIdx, constants, extensions, extraConstNames, header]
 #guard_msgs in
 #eval show CoreM Unit from do
   let env ← getEnv
-  IO.println (getStructureFields env `Lean.Environment)
+  IO.println (getStructureFields env ``Kernel.Environment)
   check $ getStructureFields env `S4 == #[`toS2, `toS3, `s]
   check $ getStructureFields env `S1 == #[`x, `y]
   check $ isSubobjectField? env `S4 `toS2 == some `S2

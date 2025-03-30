@@ -4,7 +4,7 @@ structure Foo.A where
 structure Boo.A extends Foo.A where
   y : Nat
 
-structure B extends Boo.A where
+structure B extends toA_1 : Boo.A where
   z : Nat
 
 def f1 (x y z : Nat) : B :=
@@ -26,7 +26,7 @@ structure Boo.C where
   x : Nat
   z : Nat
 
-structure D extends Foo.C, Boo.C
+structure D extends Foo.C, toC_1 : Boo.C
 
 def f2 (x y z : Nat) : D :=
   { x, y, z }

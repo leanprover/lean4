@@ -15,13 +15,16 @@ import Init.Data.Nat.Lemmas
 In particular, `omega` is available here.
 -/
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 open Nat
 
 namespace List
 
 /-! ### dropLast -/
 
-theorem tail_dropLast (l : List α) : tail (dropLast l) = dropLast (tail l) := by
+theorem tail_dropLast {l : List α} : tail (dropLast l) = dropLast (tail l) := by
   ext1
   simp only [getElem?_tail, getElem?_dropLast, length_tail]
   split <;> split
@@ -30,7 +33,7 @@ theorem tail_dropLast (l : List α) : tail (dropLast l) = dropLast (tail l) := b
   · omega
   · rfl
 
-@[simp] theorem dropLast_reverse (l : List α) : l.reverse.dropLast = l.tail.reverse := by
+@[simp] theorem dropLast_reverse {l : List α} : l.reverse.dropLast = l.tail.reverse := by
   apply ext_getElem
   · simp
   · intro i h₁ h₂
@@ -41,10 +44,42 @@ theorem tail_dropLast (l : List α) : tail (dropLast l) = dropLast (tail l) := b
 
 /-! ### filter -/
 
+@[simp]
+theorem length_filter_pos_iff {l : List α} {p : α → Bool} :
+    0 < (filter p l).length ↔ ∃ x ∈ l, p x := by
+  simpa [length_eq_countP_add_countP, countP_eq_length_filter] using
+    countP_pos_iff (p := p)
+
+@[simp]
 theorem length_filter_lt_length_iff_exists {l} :
-    length (filter p l) < length l ↔ ∃ x ∈ l, ¬p x := by
-  simpa [length_eq_countP_add_countP p l, countP_eq_length_filter] using
-    countP_pos_iff (p := fun x => ¬p x)
+    (filter p l).length < l.length ↔ ∃ x ∈ l, ¬p x := by
+  simp [length_eq_countP_add_countP p (l := l), countP_eq_length_filter]
+
+/-! ### filterMap -/
+
+@[simp]
+theorem length_filterMap_pos_iff {xs : List α} {f : α → Option β} :
+    0 < (filterMap f xs).length ↔ ∃ (x : α) (_ : x ∈ xs) (b : β), f x = some b := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [filterMap, mem_cons, exists_prop, exists_eq_or_imp]
+    split
+    · simp_all [ih]
+    · simp_all
+
+@[simp]
+theorem length_filterMap_lt_length_iff_exists {xs : List α} {f : α → Option β} :
+    (filterMap f xs).length < xs.length ↔ ∃ (x : α) (_ : x ∈ xs), f x = none := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [filterMap, mem_cons, exists_prop, exists_eq_or_imp]
+    split
+    · simp_all only [exists_prop, length_cons, true_or, iff_true]
+      have := length_filterMap_le f xs
+      omega
+    · simp_all
 
 /-! ### reverse -/
 
@@ -60,9 +95,17 @@ theorem getElem_eq_getElem_reverse {l : List α} {i} (h : i < l.length) :
   to the larger of `n` and `l.length` -/
 -- We don't mark this as a `@[simp]` lemma since we allow `simp` to unfold `leftpad`,
 -- so the left hand side simplifies directly to `n - l.length + l.length`.
-theorem leftpad_length (n : Nat) (a : α) (l : List α) :
+theorem length_leftpad {n : Nat} {a : α} {l : List α} :
     (leftpad n a l).length = max n l.length := by
   simp only [leftpad, length_append, length_replicate, Nat.sub_add_eq_max]
+
+@[deprecated length_leftpad (since := "2025-02-24")]
+abbrev leftpad_length := @length_leftpad
+
+theorem length_rightpad {n : Nat} {a : α} {l : List α} :
+    (rightpad n a l).length = max n l.length := by
+  simp [rightpad]
+  omega
 
 /-! ### eraseIdx -/
 

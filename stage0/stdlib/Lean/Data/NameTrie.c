@@ -37,12 +37,15 @@ LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_Name
 LEAN_EXPORT lean_object* l_Lean_NameTrie_matchingToArray(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_forMatchingM(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_matchingToArray___spec__1(lean_object*);
+lean_object* l_Lean_PrefixTreeNode_findLongestPrefix_x3f_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_find_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_foldMatchingM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrefixTreeNode_insert_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_foldMatchingM___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_foldM___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_forMatchingM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_findLongestPrefix_x3f___at_Lean_NameTrie_findLongestPrefix_x3f___spec__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_forMatchingM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_forM___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_foldM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -60,10 +63,13 @@ LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_fold___at_Lean_Name
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_matchingToArray___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_toArray___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_forMatchingM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_NameTrie_findLongestPrefix_x3f___rarg(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_find_x3f___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_find___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_NameTrie_findLongestPrefix_x3f___rarg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_findLongestPrefix_x3f___at_Lean_NameTrie_findLongestPrefix_x3f___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_forMatchingM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_fold___at_Lean_NameTrie_toArray___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___at_Lean_NameTrie_toArray___spec__3(lean_object*);
@@ -84,7 +90,7 @@ lean_object* l_Lean_PrefixTreeNode_find_x3f_loop___rarg(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_toArray___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_NamePart_cmp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_forM___rarg(lean_object*, lean_object*, lean_object*);
-uint8_t lean_string_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_NameTrie_findLongestPrefix_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_fold___at_Lean_NameTrie_matchingToArray___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_forMatchingM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_NameTrie_0__Lean_toKey_loop(lean_object*, lean_object*);
@@ -414,6 +420,50 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_NameTrie_find_x3f___rarg(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_findLongestPrefix_x3f___at_Lean_NameTrie_findLongestPrefix_x3f___spec__1___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_box(0);
+x_4 = l_Lean_NameTrie_insert___rarg___closed__1;
+x_5 = l_Lean_PrefixTreeNode_findLongestPrefix_x3f_loop___rarg(x_4, x_3, x_1, x_2);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_findLongestPrefix_x3f___at_Lean_NameTrie_findLongestPrefix_x3f___spec__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_PrefixTreeNode_findLongestPrefix_x3f___at_Lean_NameTrie_findLongestPrefix_x3f___spec__1___rarg), 2, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_NameTrie_findLongestPrefix_x3f___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = l___private_Lean_Data_NameTrie_0__Lean_toKey(x_2);
+x_4 = l_Lean_PrefixTreeNode_findLongestPrefix_x3f___at_Lean_NameTrie_findLongestPrefix_x3f___spec__1___rarg(x_1, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_NameTrie_findLongestPrefix_x3f(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_NameTrie_findLongestPrefix_x3f___rarg___boxed), 2, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_NameTrie_findLongestPrefix_x3f___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_NameTrie_findLongestPrefix_x3f___rarg(x_1, x_2);
 lean_dec(x_2);
 return x_3;
 }

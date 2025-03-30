@@ -29,6 +29,7 @@ private def convertFraction : Fraction → MacroM (TSyntax `term)
   | .truncated digits => `(Std.Time.Fraction.truncated $(quote digits))
 
 private def convertYear : Year → MacroM (TSyntax `term)
+  | .any => `(Std.Time.Year.any)
   | .twoDigit => `(Std.Time.Year.twoDigit)
   | .fourDigit => `(Std.Time.Year.fourDigit)
   | .extended n => `(Std.Time.Year.extended $(quote n))
@@ -126,7 +127,7 @@ private def convertPlainDate (d : Std.Time.PlainDate) : MacroM (TSyntax `term) :
  `(Std.Time.PlainDate.ofYearMonthDayClip $(← syntaxInt d.year) $(← syntaxBounded d.month.val) $(← syntaxBounded d.day.val))
 
 private def convertPlainTime (d : Std.Time.PlainTime) : MacroM (TSyntax `term) := do
- `(Std.Time.PlainTime.mk $(← syntaxBounded d.hour.val) $(← syntaxBounded d.minute.val) ⟨true, $(← syntaxBounded d.second.snd.val)⟩ $(← syntaxBounded d.nanosecond.val))
+ `(Std.Time.PlainTime.mk $(← syntaxBounded d.hour.val) $(← syntaxBounded d.minute.val) $(← syntaxBounded d.second.val) $(← syntaxBounded d.nanosecond.val))
 
 private def convertPlainDateTime (d : Std.Time.PlainDateTime) : MacroM (TSyntax `term) := do
  `(Std.Time.PlainDateTime.mk $(← convertPlainDate d.date) $(← convertPlainTime d.time))

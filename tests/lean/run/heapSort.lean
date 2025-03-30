@@ -27,11 +27,11 @@ def heapifyDown (lt : α → α → Bool) (a : Array α) (i : Fin a.size) :
     if lt a[j.1] a[right] then ⟨⟨right, h⟩, right_le⟩ else j else j
   if h : i.1 = j then ⟨a, rfl⟩ else
     let a' := a.swap i j
-    let j' := ⟨j, by rw [a.size_swap i j]; exact j.1.2⟩
+    let j' := ⟨j, by rw [a.size_swap]; exact j.1.2⟩
     have : a'.size - j < a.size - i := by
-      rw [a.size_swap i j]; sorry
+      rw [a.size_swap]; sorry
     let ⟨a₂, h₂⟩ := heapifyDown lt a' j'
-    ⟨a₂, h₂.trans (a.size_swap i j)⟩
+    ⟨a₂, h₂.trans a.size_swap⟩
 termination_by a.size - i
 decreasing_by assumption
 
@@ -62,8 +62,8 @@ if i0 : i.1 = 0 then ⟨a, rfl⟩ else
   let j : Fin a.size := ⟨(i.1 - 1) / 2, Nat.lt_trans this i.2⟩
   if lt a[j] a[i] then
     let a' := a.swap i j
-    let ⟨a₂, h₂⟩ := heapifyUp lt a' ⟨j.1, by rw [a.size_swap i j]; exact j.2⟩
-    ⟨a₂, h₂.trans (a.size_swap i j)⟩
+    let ⟨a₂, h₂⟩ := heapifyUp lt a' ⟨j.1, by rw [a.size_swap]; exact j.2⟩
+    ⟨a₂, h₂.trans (a.size_swap)⟩
   else ⟨a, rfl⟩
 termination_by i.1
 decreasing_by assumption
@@ -166,7 +166,8 @@ def Array.toBinaryHeap (lt : α → α → Bool) (a : Array α) : BinaryHeap α 
     | none => out
     | some x =>
       have : a.popMax.size < a.size := by
-        simp; exact Nat.sub_lt (BinaryHeap.size_pos_of_max e) Nat.zero_lt_one
+        simp +zetaDelta
+        exact Nat.sub_lt (BinaryHeap.size_pos_of_max e) Nat.zero_lt_one
       loop a.popMax (out.push x)
     termination_by a.size
     decreasing_by assumption
@@ -175,15 +176,18 @@ def Array.toBinaryHeap (lt : α → α → Bool) (a : Array α) : BinaryHeap α 
 attribute [simp] Array.heapSort.loop
 
 /--
-info: Array.heapSort.loop.eq_1.{u_1} {α : Type u_1} (gt : α → α → Bool) (a : BinaryHeap α gt) (out : Array α) :
-  Array.heapSort.loop gt a out =
+info: Array.heapSort.loop.eq_1 fun a b =>
+  decide
+    (a <
+      b) : ∀ (a : BinaryHeap Nat fun y x => decide (x < y)) (out : Array Nat),
+  Array.heapSort.loop (fun a b => decide (a < b)) a out =
     match e : a.max with
     | none => out
     | some x =>
       let_fun this := ⋯;
-      Array.heapSort.loop gt a.popMax (out.push x)
+      Array.heapSort.loop (fun a b => decide (a < b)) a.popMax (out.push x)
 -/
 #guard_msgs in
-#check Array.heapSort.loop.eq_1
+#check Array.heapSort.loop.eq_1 (fun (a b : Nat) => a < b)
 
 attribute [simp] BinaryHeap.heapifyDown

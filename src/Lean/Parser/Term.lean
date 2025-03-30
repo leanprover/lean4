@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich, Mario Carneiro
 prelude
 import Lean.Parser.Attr
 import Lean.Parser.Level
+import Lean.Parser.Term.Doc
 
 namespace Lean
 namespace Parser
@@ -137,7 +138,9 @@ def optSemicolon (p : Parser) : Parser :=
 /-- A specific universe in Lean's infinite hierarchy of universes. -/
 @[builtin_term_parser] def sort := leading_parser
   "Sort" >> optional (checkWsBefore "" >> checkPrec leadPrec >> checkColGt >> levelParser maxPrec)
-/-- The universe of propositions. `Prop ≡ Sort 0`. -/
+/-- The universe of propositions. `Prop ≡ Sort 0`.
+
+Every proposition is propositionally equal to either `True` or `False`. -/
 @[builtin_term_parser] def prop := leading_parser
   "Prop"
 /--
@@ -215,7 +218,23 @@ However, in case it is copied and pasted from the Infoview, `⋯` logs a warning
 @[builtin_term_parser] def omission := leading_parser
   "⋯"
 def binderIdent : Parser  := ident <|> hole
-/-- A temporary placeholder for a missing proof or value. -/
+/--
+The `sorry` term is a temporary placeholder for a missing proof or value.
+
+The syntax is intended for stubbing-out incomplete parts of a value or proof while still having a syntactically correct skeleton.
+Lean will give a warning whenever a declaration uses `sorry`, so you aren't likely to miss it,
+but you can double check if a declaration depends on `sorry` by looking for `sorryAx` in the output
+of the `#print axioms my_thm` command, the axiom used by the implementation of `sorry`.
+
+"Go to definition" on `sorry` in the Infoview will go to the source position where it was introduced, if such information is available.
+
+Each `sorry` is guaranteed to be unique, so for example the following fails:
+```lean
+example : (sorry : Nat) = sorry := rfl -- fails
+```
+
+See also the `sorry` tactic, which is short for `exact sorry`.
+-/
 @[builtin_term_parser] def «sorry» := leading_parser
   "sorry"
 /--
@@ -236,6 +255,8 @@ do not yield the right result.
 /-- Tuple notation; `()` is short for `Unit.unit`, `(a, b, c)` for `Prod.mk a (Prod.mk b c)`, etc. -/
 @[builtin_term_parser] def tuple := leading_parser
   "(" >> optional (withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", " (allowTrailingSep := true)))) >> ")"
+
+recommended_spelling "mk" for "(a, b)" in [Prod.mk, tuple]
 
 /--
 Parentheses, used for grouping expressions (e.g., `a * (b + c)`).
@@ -399,7 +420,7 @@ def matchAlts (rhsParser : Parser := termParser) : Parser :=
 /-- `matchDiscr` matches a "match discriminant", either `h : tm` or `tm`, used in `match` as
 `match h1 : e1, e2, h3 : e3 with ...`. -/
 @[builtin_doc] def matchDiscr := leading_parser
-  optional (atomic (ident >> " : ")) >> termParser
+  optional (atomic (binderIdent >> " : ")) >> termParser
 
 def trueVal  := leading_parser nonReservedSymbol "true"
 def falseVal := leading_parser nonReservedSymbol "false"
@@ -676,7 +697,7 @@ letrec we need them here already.
 -/
 
 /--
-Specify a termination argument for recursive functions.
+Specify a termination measure for recursive functions.
 ```
 termination_by a - b
 ```
@@ -694,22 +715,48 @@ recursion. The syntax `termination_by structural a` (or `termination_by structur
 indicates the function is expected to be structural recursive on the argument. In this case
 the body of the `termination_by` clause must be one of the function's parameters.
 
-If omitted, a termination argument will be inferred. If written as `termination_by?`,
-the inferrred termination argument will be suggested.
+If omitted, a termination measure will be inferred. If written as `termination_by?`,
+the inferrred termination measure will be suggested.
 
 -/
 @[builtin_doc] def terminationBy := leading_parser
-  "termination_by " >>
-  optional (nonReservedSymbol "structural ") >>
-  optional (atomic (many (ppSpace >> Term.binderIdent) >> " => ")) >>
-  termParser
+  "termination_by " >> (
+  (nonReservedSymbol "tailrecursion") <|>
+  (optional (nonReservedSymbol "structural ") >>
+   optional (atomic (many (ppSpace >> Term.binderIdent) >> " => ")) >>
+   termParser))
 
 @[inherit_doc terminationBy, builtin_doc]
 def terminationBy? := leading_parser
   "termination_by?"
 
 /--
-Manually prove that the termination argument (as specified with `termination_by` or inferred)
+Defines a possibly non-terminating function as a fixed-point in a suitable partial order.
+
+Such a function is compiled as if it was marked `partial`, but its equations are provided as
+theorems, so that it can be verified.
+
+In general it accepts functions whose return type has a `Lean.Order.CCPO` instance and whose
+definition is `Lean.Order.monotone` with regard to its recursive calls.
+
+Common special cases are
+
+* Functions whose type is inhabited a-priori (as with `partial`), and where all recursive
+  calls are in tail-call position.
+* Monadic in certain “monotone chain-complete monads” (in particular, `Option`) composed using
+  the bind operator and other supported monadic combinators.
+
+By default, the monotonicity proof is performed by the compositional `monotonicity` tactic. Using
+the syntax `partial_fixpoint monotonicity by $tac` the proof can be done manually.
+-/
+@[builtin_doc] def partialFixpoint := leading_parser
+  withPosition (
+    "partial_fixpoint" >>
+    optional (checkColGt "indentation" >> nonReservedSymbol "monotonicity " >>
+              checkColGt "indented monotonicity proof" >> termParser))
+
+/--
+Manually prove that the termination measure (as specified with `termination_by` or inferred)
 decreases at each recursive call.
 
 By default, the tactic `decreasing_tactic` is used.
@@ -724,7 +771,7 @@ Forces the use of well-founded recursion and is hence incompatible with
 Termination hints are `termination_by` and `decreasing_by`, in that order.
 -/
 @[builtin_doc] def suffix := leading_parser
-  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy)) >> optional decreasingBy
+  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy <|> partialFixpoint)) >> optional decreasingBy
 
 end Termination
 namespace Term
@@ -951,11 +998,23 @@ interpolated string literal) to stderr. It should only be used for debugging.
 /-- `assert! cond` panics if `cond` evaluates to `false`. -/
 @[builtin_term_parser] def assert := leading_parser:leadPrec
   withPosition ("assert! " >> termParser) >> optSemicolon termParser
+/--
+`debug_assert! cond` panics if `cond` evaluates to `false` and the executing code has been built
+with debug assertions enabled (see the `debugAssertions` option).
+-/
+@[builtin_term_parser] def debugAssert := leading_parser:leadPrec
+  withPosition ("debug_assert! " >> termParser) >> optSemicolon termParser
 
 def macroArg       := termParser maxPrec
 def macroDollarArg := leading_parser "$" >> termParser 10
 def macroLastArg   := macroDollarArg <|> macroArg
 
+/--
+A state monad that uses an actual mutable reference cell (i.e. an `ST.Ref`).
+
+This is syntax, rather than a function, to make it easier to use. Its elaborator synthesizes an
+appropriate parameter for the underlying monad's `ST` effects, then passes it to `StateRefT'`.
+-/
 -- Macro for avoiding exponentially big terms when using `STWorld`
 @[builtin_term_parser] def stateRefT := leading_parser
   "StateRefT " >> macroArg >> ppSpace >> macroLastArg

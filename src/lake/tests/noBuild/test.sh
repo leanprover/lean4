@@ -11,9 +11,9 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 # Test `--no-build` for setup-file and module builds (`buildUnlessUpToDate`)
 $LAKE setup-file ./Irrelevant.lean Test --no-build && exit 1 || [ $? = $NO_BUILD_CODE ]
-test ! -f .lake/build/lib/Test.olean
+test ! -f .lake/build/lib/lean/Test.olean
 $LAKE build Test
-test -f .lake/build/lib/Test.olean
+test -f .lake/build/lib/lean/Test.olean
 $LAKE setup-file ./Irrelevant.lean Test --no-build
 
 # Test `--no-build` for file builds (`buildFileUnlessUpToDate`)

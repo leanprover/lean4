@@ -33,8 +33,13 @@ structure DateTime (tz : TimeZone) where
 instance : BEq (DateTime tz) where
   beq x y := x.timestamp == y.timestamp
 
-instance : Inhabited (DateTime tz) where
-  default := ⟨Inhabited.default, Thunk.mk fun _ => Inhabited.default⟩
+instance : Ord (DateTime tz) where
+  compare := compareOn (·.timestamp)
+
+instance : TransOrd (DateTime tz) := inferInstanceAs <| TransCmp (compareOn _)
+
+instance : LawfulBEqOrd (DateTime tz) where
+  compare_eq_iff_beq := LawfulBEqOrd.compare_eq_iff_beq (α := Timestamp)
 
 namespace DateTime
 
@@ -44,6 +49,9 @@ Creates a new `DateTime` out of a `Timestamp` that is in a `TimeZone`.
 @[inline]
 def ofTimestamp (tm : Timestamp) (tz : TimeZone) : DateTime tz :=
   DateTime.mk tm (Thunk.mk fun _ => tm.toPlainDateTimeAssumingUTC |>.addSeconds tz.toSeconds)
+
+instance : Inhabited (DateTime tz) where
+  default := ofTimestamp Inhabited.default tz
 
 /--
 Converts a `DateTime` to the number of days since the UNIX epoch.
@@ -305,7 +313,7 @@ def withMinutes (dt : DateTime tz) (minute : Minute.Ordinal) : DateTime tz :=
 Creates a new `DateTime tz` by adjusting the `second` component.
 -/
 @[inline]
-def withSeconds (dt : DateTime tz) (second : Sigma Second.Ordinal) : DateTime tz :=
+def withSeconds (dt : DateTime tz) (second : Second.Ordinal true) : DateTime tz :=
   ofPlainDateTime (dt.date.get.withSeconds second) tz
 
 /--
@@ -368,7 +376,7 @@ def minute (dt : DateTime tz) : Minute.Ordinal :=
 Getter for the `Second` inside of a `DateTime`
 -/
 @[inline]
-def second (dt : DateTime tz) : Second.Ordinal dt.date.get.time.second.fst :=
+def second (dt : DateTime tz) : Second.Ordinal true :=
   dt.date.get.second
 
 /--

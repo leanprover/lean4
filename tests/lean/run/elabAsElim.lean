@@ -34,10 +34,10 @@ def f3' (x : Nat) : (Nat → Nat) → Nat → Nat :=
   x.casesOn
 
 def f4 (xs : List Nat) : xs ≠ [] → xs.length > 0 :=
-  xs.casesOn (by intros; contradiction) (by intros; simp_arith)
+  xs.casesOn (by intros; contradiction) (by intros; simp +arith)
 
 def f5 (xs : List Nat) (h : xs ≠ []) : xs.length > 0 :=
-  xs.casesOn (by intros; contradiction) (by intros; simp_arith) h
+  xs.casesOn (by intros; contradiction) (by intros; simp +arith) h
 
 def f6 (x : Nat) :=
   2 * x.casesOn 0 id
@@ -50,7 +50,7 @@ def f7 (xs : Vec α n) : Nat :=
   xs.casesOn (a := 10) 0
 
 def f8 (xs : List Nat) : xs ≠ [] → xs.length > 0 :=
-  @List.casesOn _ (fun xs => xs ≠ [] → xs.length > 0) xs (by dsimp; intros; contradiction) (by dsimp; intros; simp_arith)
+  @List.casesOn _ (fun xs => xs ≠ [] → xs.length > 0) xs (by dsimp; intros; contradiction) (by dsimp; intros; simp +arith)
 
 def f5' (xs : List Nat) (h : xs ≠ []) : xs.length > 0 :=
   xs.casesOn (fun h => absurd rfl h) (fun _ _ _ => Nat.zero_lt_succ ..) h

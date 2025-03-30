@@ -12,5 +12,5 @@ fields:
   Monoid.mul_one : ∀ (m : R), m * 1 = m
 constructor:
   Semiring.mk.{u} {R : Type u} [toAddCommMonoid : AddCommMonoid R] [toMonoid : Monoid R] : Semiring R
-resolution order:
+field notation resolution order:
   Semiring, AddCommMonoid, MonoidWithZero, Add, Monoid, Zero, Mul, One

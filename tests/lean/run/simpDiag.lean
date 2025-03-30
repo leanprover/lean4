@@ -8,11 +8,14 @@ theorem f_eq : f (x + 1) = q (f x) := rfl
 axiom q_eq (x : Nat) : q x = x
 
 /--
-info: [simp] used theorems (max: 50, num: 2):
-  [simp] f_eq ↦ 50
-  [simp] q_eq ↦ 50[simp] tried theorems (max: 101, num: 2):
-  [simp] f_eq ↦ 101, succeeded: 50
-  [simp] q_eq ↦ 50, succeeded: 50use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+info: [simp] Diagnostics
+  [simp] used theorems (max: 50, num: 2):
+    [simp] f_eq ↦ 50
+    [simp] q_eq ↦ 50
+  [simp] tried theorems (max: 101, num: 2):
+    [simp] f_eq ↦ 101, succeeded: 50
+    [simp] q_eq ↦ 50, succeeded: 50
+  use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 example : f (x + 50) = f x := by
@@ -29,12 +32,15 @@ def ack : Nat → Nat → Nat
   | x+1, y+1 => ack x (ack (x+1) y)
 
 /--
-info: [simp] used theorems (max: 1201, num: 3):
-  [simp] ack.eq_3 ↦ 1201
-  [simp] Nat.reduceAdd (builtin simproc) ↦ 771
-  [simp] ack.eq_1 ↦ 768[simp] tried theorems (max: 1973, num: 2):
-  [simp] ack.eq_3 ↦ 1973, succeeded: 1201
-  [simp] ack.eq_1 ↦ 768, succeeded: 768use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+info: [simp] Diagnostics
+  [simp] used theorems (max: 1201, num: 3):
+    [simp] ack.eq_3 ↦ 1201
+    [simp] Nat.reduceAdd (builtin simproc) ↦ 771
+    [simp] ack.eq_1 ↦ 768
+  [simp] tried theorems (max: 1973, num: 2):
+    [simp] ack.eq_3 ↦ 1973, succeeded: 1201
+    [simp] ack.eq_1 ↦ 768, succeeded: 768
+  use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached
@@ -92,15 +98,21 @@ opaque q1 : Nat → Nat → Prop
 @[simp] axiom q1_ax (x : Nat) : q1 x 10
 
 /--
-info: [simp] used theorems (max: 1, num: 1):
-  [simp] q1_ax ↦ 1[simp] tried theorems (max: 1, num: 1):
-  [simp] q1_ax ↦ 1, succeeded: 1use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+info: [simp] Diagnostics
+  [simp] used theorems (max: 1, num: 1):
+    [simp] q1_ax ↦ 1
+  [simp] tried theorems (max: 1, num: 1):
+    [simp] q1_ax ↦ 1, succeeded: 1
+  use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
-info: [reduction] unfolded declarations (max: 246, num: 2):
-  [reduction] Nat.rec ↦ 246
-  [reduction] OfNat.ofNat ↦ 24[reduction] unfolded reducible declarations (max: 246, num: 2):
-  [reduction] h ↦ 246
-  [reduction] Nat.casesOn ↦ 246use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+info: [diag] Diagnostics
+  [reduction] unfolded declarations (max: 246, num: 2):
+    [reduction] Nat.rec ↦ 246
+    [reduction] OfNat.ofNat ↦ 24
+  [reduction] unfolded reducible declarations (max: 246, num: 2):
+    [reduction] h ↦ 246
+    [reduction] Nat.casesOn ↦ 246
+  use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 example : q1 x (h 40) := by

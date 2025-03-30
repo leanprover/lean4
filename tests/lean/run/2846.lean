@@ -17,13 +17,13 @@ The List argument is not named, it is not printed as a named argument.
 /-!
 All arguments are named, all are printed as named arguments.
 -/
-/-- info: Nat.pos_pow_of_pos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n ^ m -/
-#guard_msgs in #check Nat.pos_pow_of_pos
+/-- info: Nat.pow_pos {a n : Nat} (h : 0 < a) : 0 < a ^ n -/
+#guard_msgs in #check Nat.pow_pos
 
 /-!
 The hypothesis is not a named argument, so it's not printed as a named argument.
 -/
-def Nat.pos_pow_of_pos' {n : Nat} (m : Nat) : 0 < n → 0 < n ^ m := Nat.pos_pow_of_pos m
+def Nat.pos_pow_of_pos' {n : Nat} (m : Nat) : 0 < n → 0 < n ^ m := @Nat.pow_pos _ m
 
 /-- info: Nat.pos_pow_of_pos' {n : Nat} (m : Nat) : 0 < n → 0 < n ^ m -/
 #guard_msgs in #check Nat.pos_pow_of_pos'

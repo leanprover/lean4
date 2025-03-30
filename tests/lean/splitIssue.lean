@@ -8,7 +8,7 @@ def f (x : Nat) : Nat :=
 example : f x = 2*x + 1 := by
   unfold f
   split
-  next h => simp_arith [g] at h
+  next h => simp +arith [g] at h
   next y h =>
     trace_state
     -- split tactic should *not* rewrite `g x` to `Nat.succ y`

@@ -75,23 +75,30 @@ builtin_initialize inheritedTraceOptions : IO.Ref (Std.HashSet Name) ← IO.mkRe
 class MonadTrace (m : Type → Type) where
   modifyTraceState : (TraceState → TraceState) → m Unit
   getTraceState    : m TraceState
+  /--
+  Should return the value of `inheritedTraceOptions.get`, which does not change after
+  initialization. As `IO.Ref.get` may be too expensive on frequent and multi-threaded access, the
+  value may want to be cached, which is done in the stdlib in `CoreM`.
+  -/
+  getInheritedTraceOptions : m (Std.HashSet Name) := by exact inheritedTraceOptions.get
 
 export MonadTrace (getTraceState modifyTraceState)
 
 instance (m n) [MonadLift m n] [MonadTrace m] : MonadTrace n where
   modifyTraceState := fun f => liftM (modifyTraceState f : m _)
   getTraceState    := liftM (getTraceState : m _)
+  getInheritedTraceOptions := liftM (MonadTrace.getInheritedTraceOptions : m _)
 
 variable {α : Type} {m : Type → Type} [Monad m] [MonadTrace m] [MonadOptions m] [MonadLiftT IO m]
 
 def printTraces : m Unit := do
   for {msg, ..} in (← getTraceState).traces do
-    IO.println (← msg.format)
+    IO.println (← msg.format.toIO)
 
 def resetTraceState : m Unit :=
   modifyTraceState (fun _ => {})
 
-private def checkTraceOption (inherited : Std.HashSet Name) (opts : Options) (cls : Name) : Bool :=
+def checkTraceOption (inherited : Std.HashSet Name) (opts : Options) (cls : Name) : Bool :=
   !opts.isEmpty && go (`trace ++ cls)
 where
   go (opt : Name) : Bool :=
@@ -102,12 +109,8 @@ where
     else
       false
 
-def isTracingEnabledForCore (cls : Name) (opts : Options) : BaseIO Bool := do
-  let inherited ← inheritedTraceOptions.get
-  return checkTraceOption inherited opts cls
-
 def isTracingEnabledFor (cls : Name) : m Bool := do
-  (isTracingEnabledForCore cls (← getOptions) : IO _)
+  return checkTraceOption (← MonadTrace.getInheritedTraceOptions) (← getOptions) cls
 
 @[inline] def getTraces : m (PersistentArray TraceElem) := do
   let s ← getTraceState
@@ -293,12 +296,15 @@ def registerTraceClass (traceClassName : Name) (inherited := false) (ref : Name 
   if inherited then
     inheritedTraceOptions.modify (·.insert optionName)
 
-macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
-  let msg ← if s.raw.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
+def expandTraceMacro (id : Syntax) (s : Syntax) : MacroM (TSyntax `doElem) := do
+  let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
   `(doElem| do
     let cls := $(quote id.getId.eraseMacroScopes)
     if (← Lean.isTracingEnabledFor cls) then
       Lean.addTrace cls $msg)
+
+macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
+  expandTraceMacro id s.raw
 
 def bombEmoji := "💥️"
 def checkEmoji := "✅️"
@@ -377,7 +383,9 @@ def addTraceAsMessages [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] : m Un
     pos2traces := pos2traces.insert (pos, endPos) <| pos2traces.getD (pos, endPos) #[] |>.push traceElem.msg
   let traces' := pos2traces.toArray.qsort fun ((a, _), _) ((b, _), _) => a < b
   for ((pos, endPos), traceMsg) in traces' do
-    let data := .tagged `trace <| .joinSep traceMsg.toList "\n"
+    -- cmdline and info view differ in how they insert newlines in between trace nodes so we just
+    -- put them in a synthetic root node for now and let the rendering functions handle this case
+    let data := .tagged `trace <| .trace { cls := .anonymous } .nil traceMsg
     logMessage <| Elab.mkMessageCore (← getFileName) (← getFileMap) data .information pos endPos
 
 end Lean

@@ -26,7 +26,7 @@ However, this dot notation fails since there is no `FinSet` argument.
 However, unfolding is the preferred method.
 -/
 /--
-error: invalid field notation, function 'FinSet.union' does not have argument with type (FinSet ...) that can be used, it must be explicit or implicit with a unique name
+error: invalid field notation, function 'Set.union' does not have argument with type (FinSet ...) that can be used, it must be explicit or implicit with a unique name
 -/
 #guard_msgs in
 example (x y : FinSet 10) : FinSet 10 :=

@@ -105,12 +105,13 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
     let scopeLevelNames ← Term.getLevelNames
     let ⟨shortName, declName, allUserLevelNames⟩ ← Term.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
     addDeclarationRangesForBuiltin declName modifiers.stx stx
+    Term.withAutoBoundImplicit do
     Term.withAutoBoundImplicitForbiddenPred (fun n => shortName == n) do
     Term.withDeclName declName <| Term.withLevelNames allUserLevelNames <| Term.elabBinders binders.getArgs fun xs => do
       Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.beforeElaboration
       let type ← Term.elabType typeStx
       Term.synthesizeSyntheticMVarsNoPostponing
-      let xs ← Term.addAutoBoundImplicits xs
+      let xs ← Term.addAutoBoundImplicits xs (declId.getTailPos? (canonicalOnly := true))
       let type ← instantiateMVars type
       let type ← mkForallFVars xs type
       let type ← mkForallFVars vars type (usedOnly := true)

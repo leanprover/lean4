@@ -6,9 +6,6 @@ import Lean.Elab.Command
 open Lean
 open Lean.Compiler.LCNF
 
--- Run compilation twice to avoid the output caused by the inliner
-run_meta Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo]
-
 @[cpass]
 def pullInstancesFixTest : PassInstaller := Testing.assertIsAtFixPoint |>.install `pullInstances `pullInstancesFix
 

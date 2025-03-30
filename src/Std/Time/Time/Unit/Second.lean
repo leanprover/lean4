@@ -21,17 +21,17 @@ for potential leap second.
 -/
 def Ordinal (leap : Bool) := Bounded.LE 0 (.ofNat (if leap then 60 else 59))
 
-instance : BEq (Ordinal leap) where
-  beq x y := BEq.beq x.val y.val
-
 instance : LE (Ordinal leap) where
   le x y := LE.le x.val y.val
 
 instance : LT (Ordinal leap) where
   lt x y := LT.lt x.val y.val
 
-instance : Repr (Ordinal l) where
+instance : Repr (Ordinal leap) where
   reprPrec r := reprPrec r.val
+
+instance : ToString (Ordinal leap) where
+  toString r := toString r.val
 
 instance : OfNat (Ordinal leap) n := by
   have inst := inferInstanceAs (OfNat (Bounded.LE 0 (0 + (59 : Nat))) n)
@@ -39,20 +39,40 @@ instance : OfNat (Ordinal leap) n := by
   · exact inst
   · exact ⟨inst.ofNat.expandTop (by decide)⟩
 
-instance {x y : Ordinal l} : Decidable (x ≤ y) :=
+instance {x y : Ordinal leap} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
 
-instance {x y : Ordinal l} : Decidable (x < y) :=
+instance {x y : Ordinal leap} : Decidable (x < y) :=
   inferInstanceAs (Decidable (x.val < y.val))
+
+instance : DecidableEq (Ordinal leap) := inferInstanceAs <| DecidableEq (Bounded.LE 0 _)
+
+instance : Ord (Ordinal leap) := inferInstanceAs <| Ord (Bounded.LE 0 _)
+
+instance : TransOrd (Ordinal leap) := inferInstanceAs <| TransOrd (Bounded.LE 0 _)
+
+instance : LawfulEqOrd (Ordinal leap) := inferInstanceAs <| LawfulEqOrd (Bounded.LE 0 _)
 
 /--
 `Offset` represents an offset in seconds. It is defined as an `Int`.
 -/
 def Offset : Type := UnitVal 1
-  deriving Repr, BEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
+deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
+
+instance {x y : Offset} : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.val ≤ y.val))
+
+instance {x y : Offset} : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
 
 instance : OfNat Offset n :=
   ⟨UnitVal.ofNat n⟩
+
+instance : Ord Offset := inferInstanceAs <| Ord (UnitVal _)
+
+instance : TransOrd Offset := inferInstanceAs <| TransOrd (UnitVal _)
+
+instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd (UnitVal _)
 
 namespace Offset
 

@@ -16,6 +16,7 @@ set_option linter.all true
 /--
 Represents a time interval with nanoseconds precision.
 -/
+@[ext]
 structure Duration where
 
   /--
@@ -32,7 +33,7 @@ structure Duration where
   Proof that the duration is valid, ensuring that the `second` and `nano` values are correctly related.
   -/
   proof : (second.val ≥ 0 ∧ nano.val ≥ 0) ∨ (second.val ≤ 0 ∧ nano.val ≤ 0)
-  deriving Repr
+deriving Repr, DecidableEq
 
 instance : ToString Duration where
   toString s :=
@@ -47,9 +48,6 @@ instance : ToString Duration where
 instance : Repr Duration where
   reprPrec s := reprPrec (toString s)
 
-instance : BEq Duration where
-  beq x y := x.second == y.second && y.nano == x.nano
-
 instance : Inhabited Duration where
   default := ⟨0, Bounded.LE.mk 0 (by decide), by decide⟩
 
@@ -57,6 +55,21 @@ instance : OfNat Duration n where
   ofNat := by
     refine ⟨.ofInt n, ⟨0, by decide⟩, ?_⟩
     simp <;> exact Int.le_total n 0 |>.symm
+
+instance : Ord Duration where
+  compare := compareLex (compareOn (·.second)) (compareOn (·.nano))
+
+theorem Duration.compare_def :
+    compare (α := Duration) = compareLex (compareOn (·.second)) (compareOn (·.nano)) := rfl
+
+instance : TransOrd Duration := inferInstanceAs <| TransCmp (compareLex _ _)
+
+instance : LawfulEqOrd Duration where
+  eq_of_compare {a b} h := by
+    simp only [Duration.compare_def, compareLex_eq_eq] at h
+    ext
+    · exact LawfulEqOrd.eq_of_compare h.1
+    · exact LawfulEqOrd.eq_of_compare h.2
 
 namespace Duration
 
@@ -82,14 +95,20 @@ def ofSeconds (s : Second.Offset) : Duration := by
 Creates a new `Duration` out of `Nanosecond.Offset`.
 -/
 def ofNanoseconds (s : Nanosecond.Offset) : Duration := by
-  refine ⟨s.ediv 1000000000, Bounded.LE.byMod s.val 1000000000 (by decide), ?_⟩
+  refine ⟨s.tdiv 1000000000, Bounded.LE.byMod s.val 1000000000 (by decide), ?_⟩
+
   cases Int.le_total s.val 0
-  next n => exact Or.inr (And.intro (Int.ediv_le_ediv (by decide) n) (mod_nonpos 1000000000 n (by decide)))
-  next n => exact Or.inl (And.intro (Int.ediv_nonneg n (by decide)) (Int.tmod_nonneg 1000000000 n))
+  next n => exact Or.inr (And.intro (tdiv_neg n (by decide)) (mod_nonpos 1000000000 n (by decide)))
+  next n => exact Or.inl (And.intro (Int.tdiv_nonneg n (by decide)) (Int.tmod_nonneg 1000000000 n))
   where
     mod_nonpos : ∀ {a : Int} (b : Int), (a ≤ 0) → (b ≥ 0) → 0 ≥ a.tmod b
     | .negSucc m, .ofNat n, _, _ => Int.neg_le_neg (Int.tmod_nonneg (↑n) (Int.ofNat_le.mpr (Nat.zero_le (m + 1))))
     | 0, n, _, _ => Int.eq_iff_le_and_ge.mp (Int.zero_tmod n) |>.left
+
+    tdiv_neg {a b : Int} (Ha : a ≤ 0) (Hb : 0 ≤ b) : a.tdiv b ≤ 0 :=
+    match a, b, Ha with
+    | .negSucc _, .ofNat _, _ => Int.neg_le_neg (Int.ofNat_le.mpr (Nat.zero_le _))
+    | 0,  n, _ => Int.eq_iff_le_and_ge.mp (Int.zero_tdiv n) |>.left
 
 /--
 Creates a new `Duration` out of `Millisecond.Offset`.
@@ -142,14 +161,14 @@ Converts a `Duration` to a `Minute.Offset`
 -/
 @[inline]
 def toMinutes (tm : Duration) : Minute.Offset :=
-  tm.second.ediv 60
+  tm.second.tdiv 60
 
 /--
 Converts a `Duration` to a `Day.Offset`
 -/
 @[inline]
 def toDays (tm : Duration) : Day.Offset :=
-  tm.second.ediv 86400
+  tm.second.tdiv 86400
 
 /--
 Normalizes `Second.Offset` and `NanoSecond.span` in order to build a new `Duration` out of it.

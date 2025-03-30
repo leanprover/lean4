@@ -10,7 +10,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 16)
+set(LEAN_VERSION_MINOR 19)
 set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -69,12 +69,13 @@ option(TRACK_LIVE_EXPRS    "TRACK_LIVE_EXPRS" OFF)
 option(CUSTOM_ALLOCATORS   "CUSTOM_ALLOCATORS" ON)
 option(SAVE_SNAPSHOT       "SAVE_SNAPSHOT" ON)
 option(SAVE_INFO           "SAVE_INFO" ON)
-option(SMALL_ALLOCATOR     "SMALL_ALLOCATOR" ON)
+option(SMALL_ALLOCATOR     "SMALL_ALLOCATOR" OFF)
 option(MMAP                "MMAP" ON)
 option(LAZY_RC             "LAZY_RC" OFF)
 option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
 option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared libraries (Linux)" ON)
 option(USE_GMP "USE_GMP" ON)
+option(USE_MIMALLOC "use mimalloc" ON)
 
 # development-specific options
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" OFF)
@@ -85,6 +86,11 @@ set(LEANC_CC              ${CMAKE_C_COMPILER}          CACHE STRING "C compiler 
 
 if ("${LAZY_RC}" MATCHES "ON")
   set(LEAN_LAZY_RC "#define LEAN_LAZY_RC")
+endif()
+
+if (USE_MIMALLOC)
+  set(SMALL_ALLOCATOR OFF)
+  set(LEAN_MIMALLOC "#define LEAN_MIMALLOC")
 endif()
 
 if ("${SMALL_ALLOCATOR}" MATCHES "ON")
@@ -144,11 +150,12 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   # do not import the world from windows.h using appropriately named flag
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D WIN32_LEAN_AND_MEAN")
   # DLLs must go next to executables on Windows
-  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+  set(CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY "bin")
 else()
-  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean")
+  set(CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY "lib/lean")
 endif()
 
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY}")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean")
 
 # OSX default thread stack size is very small. Moreover, in Debug mode, each new stack frame consumes a lot of extra memory.
@@ -295,14 +302,15 @@ index 5e8e0166..f3b29134 100644
 	  PATCH_COMMAND git reset --hard HEAD && printf "${LIBUV_PATCH}" > patch.diff && git apply patch.diff
     BUILD_IN_SOURCE ON
     INSTALL_COMMAND "")
-  set(LIBUV_INCLUDE_DIR "${CMAKE_BINARY_DIR}/libuv/src/libuv/include")
-  set(LIBUV_LIBRARIES "${CMAKE_BINARY_DIR}/libuv/src/libuv/libuv.a")
+  set(LIBUV_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/libuv/src/libuv/include")
+  set(LIBUV_LDFLAGS "${CMAKE_BINARY_DIR}/libuv/src/libuv/libuv.a")
 else()
   find_package(LibUV 1.0.0 REQUIRED)
 endif()
-include_directories(${LIBUV_INCLUDE_DIR})
+include_directories(${LIBUV_INCLUDE_DIRS})
 if(NOT LEAN_STANDALONE)
-  string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBUV_LIBRARIES}")
+  string(JOIN " " LIBUV_LDFLAGS ${LIBUV_LDFLAGS})
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBUV_LDFLAGS}")
 endif()
 
 # Windows SDK (for ICU)
@@ -453,20 +461,20 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC -ftls-model=initial-exec")
   string(APPEND LEANC_EXTRA_CC_FLAGS " -fPIC")
   string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,-rpath=\\$$ORIGIN/..:\\$$ORIGIN")
-  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/temp/libLake.a.export -Wl,--no-whole-archive")
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=\\\$ORIGIN/../lib:\\\$ORIGIN/../lib/lean")
+  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=$ORIGIN/../lib:$ORIGIN/../lib/lean")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(APPEND CMAKE_CXX_FLAGS " -ftls-model=initial-exec")
   string(APPEND INIT_SHARED_LINKER_FLAGS " -install_name @rpath/libInit_shared.dylib")
   string(APPEND LEANSHARED_1_LINKER_FLAGS " -install_name @rpath/libleanshared_1.dylib")
   string(APPEND LEANSHARED_LINKER_FLAGS " -install_name @rpath/libleanshared.dylib")
-  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/temp/libLake.a.export -install_name @rpath/libLake_shared.dylib")
+  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -install_name @rpath/libLake_shared.dylib")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC")
   string(APPEND LEANC_EXTRA_CC_FLAGS " -fPIC")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libLake_shared.dll.a -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/temp/libLake.a.export -Wl,--no-whole-archive")
+  string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libLake_shared.dll.a -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/lean/libLake.a.export -Wl,--no-whole-archive")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -513,7 +521,16 @@ if(USE_GITHASH)
     message(STATUS "git commit sha1: ${GIT_SHA1}")
   endif()
 else()
-  set(GIT_SHA1 "")
+  if(USE_LAKE AND ${STAGE} EQUAL 0)
+    # we need to embed *some* hash for Lake to invalidate stage 1 on stage 0 changes
+    execute_process(
+        COMMAND git ls-tree HEAD "${CMAKE_CURRENT_SOURCE_DIR}/../../stage0" --object-only
+        OUTPUT_VARIABLE GIT_SHA1
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+    message(STATUS "stage0 sha1: ${GIT_SHA1}")
+  else()
+    set(GIT_SHA1 "")
+  endif()
 endif()
 configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
 
@@ -532,6 +549,9 @@ else()
   set(LEAN_IS_STAGE0 "#define LEAN_IS_STAGE0 0")
 endif()
 configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_BINARY_DIR}/include/lean/config.h")
+if (USE_MIMALLOC)
+  file(COPY "${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/include/mimalloc.h" DESTINATION "${LEAN_BINARY_DIR}/include/lean")
+endif()
 install(DIRECTORY ${LEAN_BINARY_DIR}/include/ DESTINATION include)
 configure_file(${LEAN_SOURCE_DIR}/lean.mk.in ${LEAN_BINARY_DIR}/share/lean/lean.mk)
 install(DIRECTORY ${LEAN_BINARY_DIR}/share/ DESTINATION share)
@@ -539,6 +559,9 @@ install(DIRECTORY ${LEAN_BINARY_DIR}/share/ DESTINATION share)
 include_directories(${LEAN_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})  # version.h etc., "private" headers
 include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" headers
+
+# Lean code only needs this one include
+string(APPEND LEANC_OPTS " -I${CMAKE_BINARY_DIR}/include")
 
 # Use CMake profile C++ flags for building Lean libraries, but do not embed in `leanc`
 string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
@@ -698,12 +721,12 @@ else()
 endif()
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  add_custom_target(lake_lib ALL
+  add_custom_target(lake_lib
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS leanshared
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Lake
     VERBATIM)
-  add_custom_target(lake_shared ALL
+  add_custom_target(lake_shared
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS lake_lib
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make libLake_shared
@@ -752,7 +775,12 @@ add_custom_target(clean-olean
   DEPENDS clean-stdlib)
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/" DESTINATION lib
-  PATTERN temp EXCLUDE)
+  PATTERN temp
+  PATTERN "*.export"
+  PATTERN "*.hash"
+  PATTERN "*.trace"
+  PATTERN "*.rsp"
+  EXCLUDE)
 
 # symlink source into expected installation location for go-to-definition, if file system allows it
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
@@ -783,9 +811,31 @@ if(LEAN_INSTALL_PREFIX)
 endif()
 
 # Escape for `make`. Yes, twice.
-string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
+string(REPLACE "$" "\\\$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
 string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE "${CMAKE_EXE_LINKER_FLAGS_MAKE}")
 configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
+
+# hacky
+function(toml_escape IN OUTVAR)
+  if(IN)
+    string(STRIP "${IN}" OUT)
+    string(REPLACE " " "\", \"" OUT "${OUT}")
+    set(${OUTVAR} "\"${OUT}\"" PARENT_SCOPE)
+  endif()
+endfunction()
+string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_CC "${LEANC_CC}")
+string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_FLAGS "${LEANC_INTERNAL_FLAGS}")
+string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_LINKER_FLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
+set(LEANC_OPTS_TOML "${LEANC_OPTS} ${LEANC_EXTRA_CC_FLAGS} ${LEANC_INTERNAL_FLAGS}")
+set(LINK_OPTS_TOML "${LEANC_INTERNAL_LINKER_FLAGS} -L${CMAKE_BINARY_DIR}/lib/lean ${LEAN_EXTRA_LINKER_FLAGS}")
+
+toml_escape("${LEAN_EXTRA_MAKE_OPTS}" LEAN_EXTRA_OPTS_TOML)
+toml_escape("${LEANC_OPTS_TOML}" LEANC_OPTS_TOML)
+toml_escape("${LINK_OPTS_TOML}" LINK_OPTS_TOML)
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  set(LAKE_LIB_PREFIX "lib")
+endif()
 
 if(USE_LAKE AND STAGE EQUAL 1)
   configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${LEAN_SOURCE_DIR}/lakefile.toml)

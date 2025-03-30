@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
+import Lean.Compiler.NameMangling
 import Lake.Util.Casing
 import Lake.Build.Facets
 import Lake.Config.InstallPath
@@ -14,10 +15,7 @@ namespace Lake
 open Lean System
 
 /-- A Lean library's declarative configuration. -/
-structure LeanLibConfig extends LeanConfig where
-  /-- The name of the target. -/
-  name : Name
-
+configuration LeanLibConfig (name : Name) extends LeanConfig where
   /--
   The subdirectory of the package's source directory containing the library's
   Lean source files. Defaults simply to said `srcDir`.
@@ -45,13 +43,19 @@ structure LeanLibConfig extends LeanConfig where
   globs : Array Glob := roots.map Glob.one
 
   /--
-  The name of the library.
+  The name of the library artifact.
   Used as a base for the file names of its static and dynamic binaries.
-  Defaults to the name of the target.
+  Defaults to the mangled name of the target.
   -/
-  libName := name.toString (escape := false)
+  libName : String := name.mangle ""
 
-  /-- An `Array` of target names to build before the library's modules. -/
+  /-- An `Array` of targets to build before the executable's modules. -/
+  needs : Array PartialBuildKey := #[]
+
+  /--
+   **Deprecated. Use `needs` instead.**
+  An `Array` of target names to build before the library's modules.
+  -/
   extraDepTargets : Array Name := #[]
 
   /--
@@ -79,19 +83,24 @@ structure LeanLibConfig extends LeanConfig where
   `Module.oFacet`. That is, the  object files compiled from the Lean sources,
   potentially with exported Lean symbols.
   -/
-  nativeFacets (shouldExport : Bool) : Array (ModuleFacet (BuildJob FilePath)) :=
+  nativeFacets (shouldExport : Bool) : Array (ModuleFacet FilePath) :=
     #[if shouldExport then Module.oExportFacet else Module.oFacet]
 
 deriving Inhabited
 
+instance : EmptyCollection (LeanLibConfig n) := ⟨{}⟩
+
 namespace LeanLibConfig
 
+/-- The library's name. -/
+abbrev name (_ : LeanLibConfig n) := n
+
 /-- Whether the given module is considered local to the library. -/
-def isLocalModule (mod : Name) (self : LeanLibConfig) : Bool :=
+def isLocalModule (mod : Name) (self : LeanLibConfig n) : Bool :=
   self.roots.any (fun root => root.isPrefixOf mod) ||
   self.globs.any (fun glob => glob.matches mod)
 
 /-- Whether the given module is a buildable part of the library. -/
-def isBuildableModule (mod : Name) (self : LeanLibConfig) : Bool :=
+def isBuildableModule (mod : Name) (self : LeanLibConfig n) : Bool :=
   self.globs.any (fun glob => glob.matches mod) ||
   self.roots.any (fun root => root.isPrefixOf mod && self.globs.any (·.matches root))

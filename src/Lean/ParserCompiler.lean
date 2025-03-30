@@ -46,7 +46,7 @@ partial def parserNodeKind? (e : Expr) : MetaM (Option Name) := do
   else forallTelescope (← inferType e.getAppFn) fun params _ => do
     let lctx ← getLCtx
     -- if there is exactly one parameter of type `Parser`, search there
-    if let [(i, _)] := params.toList.enum.filter (lctx.getFVar! ·.2 |>.type.isConstOf ``Parser) then
+    if let #[(_, i)] := params.zipIdx.filter (lctx.getFVar! ·.1 |>.type.isConstOf ``Parser) then
       parserNodeKind? (e.getArg! i)
     else
       return none
@@ -103,11 +103,8 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
           name := c', levelParams := []
           type := ty, value := value, hints := ReducibilityHints.opaque, safety := DefinitionSafety.safe
         }
-        let env ← getEnv
-        let env ← match env.addAndCompile {} decl with
-          | Except.ok    env => pure env
-          | Except.error kex => do throwError (← (kex.toMessageData {}).toString)
-        setEnv <| ctx.combinatorAttr.setDeclFor env c c'
+        addAndCompile decl
+        modifyEnv (ctx.combinatorAttr.setDeclFor · c c')
         if cinfo.type.isConst then
           if let some kind ← parserNodeKind? cinfo.value! then
             -- If the parser is parameter-less and produces a node of kind `kind`,

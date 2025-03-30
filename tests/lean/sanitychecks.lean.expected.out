@@ -9,6 +9,7 @@ sanitychecks.lean:4:8-4:32: error: 'partial' theorems are not allowed, 'partial'
 sanitychecks.lean:7:7-7:31: error: 'unsafe' theorems are not allowed
 sanitychecks.lean:10:0-10:23: error: failed to synthesize
   Inhabited False
+
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 sanitychecks.lean:18:12-18:20: error: invalid use of 'partial', 'Foo.unsound3' is not a function
   False

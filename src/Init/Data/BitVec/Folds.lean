@@ -101,14 +101,14 @@ Correctness theorem for `iunfoldr`.
 theorem iunfoldr_replace
     {f : Fin w → α → α × Bool} (state : Nat → α) (value : BitVec w) (a : α)
     (init : state 0 = a)
-    (step : ∀(i : Fin w), f i (state i.val) = (state (i.val+1), value.getLsbD i.val)) :
+    (step : ∀(i : Fin w), f i (state i.val) = (state (i.val+1), value[i.val])) :
     iunfoldr f a = (state w, value) := by
   simp [iunfoldr.eq_test state value a init step]
 
 theorem iunfoldr_replace_snd
   {f : Fin w → α → α × Bool} (state : Nat → α) (value : BitVec w) (a : α)
     (init : state 0 = a)
-    (step : ∀(i : Fin w), f i (state i.val) = (state (i.val+1), value.getLsbD i.val)) :
+    (step : ∀(i : Fin w), f i (state i.val) = (state (i.val+1), value[i.val])) :
     (iunfoldr f a).snd = value := by
   simp [iunfoldr.eq_test state value a init step]
 

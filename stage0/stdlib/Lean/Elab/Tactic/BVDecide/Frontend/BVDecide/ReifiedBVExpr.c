@@ -15,6 +15,7 @@ extern "C" {
 #endif
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkBVConst___closed__3;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
+lean_object* l_Std_Tactic_BVDecide_BVExpr_var___override(lean_object*, lean_object*);
 lean_object* l_Lean_mkNatLit(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkBVRefl___closed__6;
 lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_M_lookup(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -83,6 +84,7 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_getNatOrB
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkBVRefl___closed__2;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkBVConst___closed__6;
+lean_object* l_Std_Tactic_BVDecide_BVExpr_const___override(lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkBVRefl___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_getNatOrBvValue_x3f___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -157,8 +159,11 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkEvalExpr(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-lean_object* x_9; uint8_t x_10; 
+lean_object* x_9; 
 x_9 = l_Lean_Elab_Tactic_BVDecide_Frontend_M_atomsAssignment(x_3, x_4, x_5, x_6, x_7, x_8);
+if (lean_obj_tag(x_9) == 0)
+{
+uint8_t x_10; 
 x_10 = !lean_is_exclusive(x_9);
 if (x_10 == 0)
 {
@@ -185,6 +190,31 @@ x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
 lean_ctor_set(x_20, 1, x_16);
 return x_20;
+}
+}
+else
+{
+uint8_t x_21; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_21 = !lean_is_exclusive(x_9);
+if (x_21 == 0)
+{
+return x_9;
+}
+else
+{
+lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_22 = lean_ctor_get(x_9, 0);
+x_23 = lean_ctor_get(x_9, 1);
+lean_inc(x_23);
+lean_inc(x_22);
+lean_dec(x_9);
+x_24 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_24, 0, x_22);
+lean_ctor_set(x_24, 1, x_23);
+return x_24;
+}
 }
 }
 }
@@ -371,14 +401,14 @@ x_17 = lean_box(0);
 x_18 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkAtom___spec__1___rarg___boxed), 7, 1);
 lean_closure_set(x_18, 0, x_17);
 lean_inc(x_2);
-x_19 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_19, 0, x_2);
-lean_ctor_set(x_19, 1, x_12);
-x_20 = lean_alloc_ctor(0, 4, 0);
+x_19 = l_Std_Tactic_BVDecide_BVExpr_var___override(x_2, x_12);
+lean_inc(x_16);
+x_20 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_20, 0, x_2);
 lean_ctor_set(x_20, 1, x_19);
-lean_ctor_set(x_20, 2, x_18);
-lean_ctor_set(x_20, 3, x_16);
+lean_ctor_set(x_20, 2, x_16);
+lean_ctor_set(x_20, 3, x_18);
+lean_ctor_set(x_20, 4, x_16);
 lean_ctor_set(x_10, 0, x_20);
 return x_10;
 }
@@ -400,14 +430,14 @@ x_27 = lean_box(0);
 x_28 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkAtom___spec__1___rarg___boxed), 7, 1);
 lean_closure_set(x_28, 0, x_27);
 lean_inc(x_2);
-x_29 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_29, 0, x_2);
-lean_ctor_set(x_29, 1, x_21);
-x_30 = lean_alloc_ctor(0, 4, 0);
+x_29 = l_Std_Tactic_BVDecide_BVExpr_var___override(x_2, x_21);
+lean_inc(x_26);
+x_30 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_30, 0, x_2);
 lean_ctor_set(x_30, 1, x_29);
-lean_ctor_set(x_30, 2, x_28);
-lean_ctor_set(x_30, 3, x_26);
+lean_ctor_set(x_30, 2, x_26);
+lean_ctor_set(x_30, 3, x_28);
+lean_ctor_set(x_30, 4, x_26);
 x_31 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
 lean_ctor_set(x_31, 1, x_22);
@@ -1283,9 +1313,7 @@ _start:
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 lean_inc(x_2);
 lean_inc(x_1);
-x_9 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_9, 0, x_1);
-lean_ctor_set(x_9, 1, x_2);
+x_9 = l_Std_Tactic_BVDecide_BVExpr_const___override(x_1, x_2);
 lean_inc(x_1);
 x_10 = l_Lean_mkNatLit(x_1);
 x_11 = l_Lean_mkNatLit(x_2);
@@ -1293,13 +1321,15 @@ x_12 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkBVConst___closed__6;
 lean_inc(x_10);
 x_13 = l_Lean_mkAppB(x_12, x_10, x_11);
 x_14 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkBVConst___closed__3;
+lean_inc(x_13);
 x_15 = l_Lean_mkAppB(x_14, x_10, x_13);
 x_16 = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkBVConst___closed__7;
-x_17 = lean_alloc_ctor(0, 4, 0);
+x_17 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_17, 0, x_1);
 lean_ctor_set(x_17, 1, x_9);
-lean_ctor_set(x_17, 2, x_16);
-lean_ctor_set(x_17, 3, x_15);
+lean_ctor_set(x_17, 2, x_13);
+lean_ctor_set(x_17, 3, x_16);
+lean_ctor_set(x_17, 4, x_15);
 x_18 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_8);

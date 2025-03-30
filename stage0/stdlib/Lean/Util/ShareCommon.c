@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.ShareCommon
-// Imports: Init.ShareCommon Std.Data.HashSet Std.Data.HashMap Lean.Data.PersistentHashMap Lean.Data.PersistentHashSet
+// Imports: Init.ShareCommon Std.Data.HashSet.Basic Std.Data.HashMap.Basic Lean.Data.PersistentHashMap Lean.Data.PersistentHashSet
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1100,8 +1100,8 @@ return x_2;
 }
 }
 lean_object* initialize_Init_ShareCommon(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_HashSet(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_HashMap(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_HashSet_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_HashMap_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_PersistentHashMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_PersistentHashSet(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1112,10 +1112,10 @@ _G_initialized = true;
 res = initialize_Init_ShareCommon(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_HashSet(builtin, lean_io_mk_world());
+res = initialize_Std_Data_HashSet_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_HashMap(builtin, lean_io_mk_world());
+res = initialize_Std_Data_HashMap_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_PersistentHashMap(builtin, lean_io_mk_world());

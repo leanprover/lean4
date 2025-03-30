@@ -8,6 +8,9 @@ import Init.Data.Array.QSort.Basic
 import Init.Data.Vector.Lemmas
 import Init.Data.Array.Perm
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- We do not enable `linter.indexVariables` because it is helpful to name index variables `lo`, `mid`, `hi`, etc.
+
 namespace Array
 
 open List Vector

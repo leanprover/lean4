@@ -20,17 +20,21 @@ structure Module where
 
 namespace Meta
 
+/--
+Which constants should be unfolded?
+-/
 inductive TransparencyMode where
-  /-- unfold all constants, even those tagged as `@[irreducible]`. -/
+  /-- Unfolds all constants, even those tagged as `@[irreducible]`. -/
   | all
-  /-- unfold all constants except those tagged as `@[irreducible]`. -/
+  /-- Unfolds all constants except those tagged as `@[irreducible]`. -/
   | default
-  /-- unfold only constants tagged with the `@[reducible]` attribute. -/
+  /-- Unfolds only constants tagged with the `@[reducible]` attribute. -/
   | reducible
-  /-- unfold reducible constants and constants tagged with the `@[instance]` attribute. -/
+  /-- Unfolds reducible constants and constants tagged with the `@[instance]` attribute. -/
   | instances
   deriving Inhabited, BEq
 
+/-- Which structure types should eta be used with? -/
 inductive EtaStructMode where
   /-- Enable eta for structure and classes. -/
   | all
@@ -109,6 +113,11 @@ structure Config where
   to find candidate `simp` theorems. It approximates Lean 3 `simp` behavior.
   -/
   index             : Bool := true
+  /--
+  When `true` (default : `true`), then simps will remove unused let-declarations:
+  `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
+  -/
+  zetaUnused : Bool := true
   deriving Inhabited, BEq
 
 end DSimp
@@ -228,6 +237,11 @@ structure Config where
   input and output terms are definitionally equal.
   -/
   implicitDefEqProofs : Bool := true
+  /--
+  When `true` (default : `true`), then simps will remove unused let-declarations:
+  `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
+  -/
+  zetaUnused : Bool := true
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`
@@ -248,6 +262,7 @@ def neutralConfig : Simp.Config := {
   autoUnfold        := false
   ground            := false
   zetaDelta         := false
+  zetaUnused        := false
 }
 
 structure NormCastConfig extends Simp.Config where

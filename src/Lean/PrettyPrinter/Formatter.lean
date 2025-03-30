@@ -146,7 +146,7 @@ def fold (fn : Array Format → Format) (x : FormatterM Unit) : FormatterM Unit 
   x
   let stack ← getStack
   let f := fn $ stack.extract sp stack.size
-  setStack $ (stack.take sp).push f
+  setStack $ (stack.shrink sp).push f
 
 /-- Execute `x` and concatenate generated Format objects. -/
 def concat (x : FormatterM Unit) : FormatterM Unit := do
@@ -441,9 +441,9 @@ def identNoAntiquot.formatter : Formatter := do
 
 @[combinator_formatter rawIdentNoAntiquot] def rawIdentNoAntiquot.formatter : Formatter := do
   checkKind identKind
-  let Syntax.ident info _ id _ ← getCur
+  let stx@(Syntax.ident info _ id _) ← getCur
     | throwError m!"not an ident: {← getCur}"
-  pushToken info id.toString true
+  withMaybeTag (getExprPos? stx) (pushToken info id.toString true)
   goLeft
 
 @[combinator_formatter identEq] def identEq.formatter (_id : Name) := rawIdentNoAntiquot.formatter

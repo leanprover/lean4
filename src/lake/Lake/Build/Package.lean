@@ -8,6 +8,7 @@ import Lake.Util.Git
 import Lake.Util.Sugar
 import Lake.Build.Common
 import Lake.Build.Targets
+import Lake.Build.Topological
 import Lake.Reservoir
 
 /-! # Package Facet Builds
@@ -18,23 +19,36 @@ open System
 namespace Lake
 open Lean (Name)
 
-/-- Compute a topological ordering of the package's transitive dependencies. -/
-def Package.recComputeDeps (self : Package) : FetchM (Array Package) := do
-  (·.toArray) <$> self.depConfigs.foldlM (init := OrdPackageSet.empty) fun deps cfg => do
+/-- Fetch the package's direct dependencies. -/
+def Package.recFetchDeps (self : Package) : FetchM (Job (Array Package)) := ensureJob do
+  (pure ·) <$> self.depConfigs.mapM fun cfg => do
     let some dep ← findPackage? cfg.name
       | error s!"{self.name}: package not found for dependency '{cfg.name}' \
         (this is likely a bug in Lake)"
-    return (← fetch <| dep.facet `deps).foldl (·.insert ·) deps |>.insert dep
+    return dep
 
 /-- The `PackageFacetConfig` for the builtin `depsFacet`. -/
 def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
-  mkFacetConfig Package.recComputeDeps
+  mkFacetJobConfig recFetchDeps (buildable := false)
+
+/-- Compute a topological ordering of the package's transitive dependencies. -/
+def Package.recComputeTransDeps (self : Package) : FetchM (Job (Array Package)) := ensureJob do
+  (pure ·.toArray) <$> self.depConfigs.foldlM (init := OrdPackageSet.empty) fun deps cfg => do
+    let some dep ← findPackage? cfg.name
+      | error s!"{self.name}: package not found for dependency '{cfg.name}' \
+        (this is likely a bug in Lake)"
+    let depDeps ← (← fetch <| dep.transDeps).await
+    return depDeps.foldl (·.insert ·) deps |>.insert dep
+
+/-- The `PackageFacetConfig` for the builtin `transDepsFacet`. -/
+def Package.transDepsFacetConfig : PackageFacetConfig transDepsFacet :=
+  mkFacetJobConfig recComputeTransDeps (buildable := false)
 
 /--
 Tries to download and unpack the package's cached build archive
 (e.g., from Reservoir or GitHub).
 -/
-private def Package.fetchOptBuildCacheCore (self : Package) : FetchM (BuildJob Bool) := do
+private def Package.fetchOptBuildCacheCore (self : Package) : FetchM (Job Bool) := do
   if self.preferReleaseBuild then
     self.optGitHubRelease.fetch
   else
@@ -45,7 +59,7 @@ def Package.optBuildCacheFacetConfig : PackageFacetConfig optBuildCacheFacet :=
   mkFacetJobConfig (·.fetchOptBuildCacheCore)
 
 /-- Tries to download the package's build cache (if configured). -/
-def Package.maybeFetchBuildCache (self : Package) : FetchM (BuildJob Bool) := do
+def Package.maybeFetchBuildCache (self : Package) : FetchM (Job Bool) := do
   let shouldFetch :=
     (← getTryCache) &&
     !(← self.buildDir.pathExists) && -- do not automatically clobber prebuilt artifacts
@@ -70,7 +84,7 @@ Tries to download and unpack the package's cached build archive
 -/
 def Package.maybeFetchBuildCacheWithWarning (self : Package) := do
   let job ← self.maybeFetchBuildCache
-  job.bindSync fun success t => do
+  job.mapM fun success => do
     unless success do
       if self.preferReleaseBuild then
         let details ← self.optFacetDetails optGitHubReleaseFacet
@@ -78,7 +92,6 @@ def Package.maybeFetchBuildCacheWithWarning (self : Package) := do
       else
         let details ← self.optFacetDetails optReservoirBarrelFacet
         logVerbose s!"building from source; failed to fetch Reservoir build{details}"
-    return ((), t)
 
 @[deprecated maybeFetchBuildCacheWithWarning (since := "2024-09-27")]
 def Package.fetchOptRelease := @maybeFetchBuildCacheWithWarning
@@ -87,15 +100,15 @@ def Package.fetchOptRelease := @maybeFetchBuildCacheWithWarning
 Build the `extraDepTargets` for the package.
 Also, if the package is a dependency, maybe fetch its build cache.
 -/
-def Package.recBuildExtraDepTargets (self : Package) : FetchM (BuildJob Unit) :=
+def Package.recBuildExtraDepTargets (self : Package) : FetchM (Job Unit) :=
   withRegisterJob s!"{self.name}:extraDep" do
-  let mut job := BuildJob.nil
+  let mut job := Job.nil
   -- Fetch build cache if this package is a dependency
   if self.name ≠ (← getWorkspace).root.name then
-    job := job.add <| ← self.maybeFetchBuildCacheWithWarning
+    job := job.add (← self.maybeFetchBuildCacheWithWarning)
   -- Build this package's extra dep targets
   for target in self.extraDepTargets do
-    job := job.mix <| ← self.fetchTargetJob target
+    job := job.mix (← self.fetchTargetJob target)
   return job
 
 /-- The `PackageFacetConfig` for the builtin `dynlibFacet`. -/
@@ -146,29 +159,28 @@ def Package.fetchBuildArchive
 private def Package.mkOptBuildArchiveFacetConfig
   {facet : Name} (archiveFile : Package → FilePath)
   (getUrl : Package → JobM String) (headers : Array String := #[])
-  [FamilyDef PackageData facet (BuildJob Bool)]
+  [FamilyDef FacetOut facet Bool]
 : PackageFacetConfig facet := mkFacetJobConfig fun pkg =>
   withRegisterJob s!"{pkg.name}:{facet}" (optional := true) <| Job.async do
   try
     let url ← getUrl pkg
     pkg.fetchBuildArchive url (archiveFile pkg) headers
-    return (true, .nil)
+    return true
   catch _ =>
     updateAction .fetch
-    return (false, .nil)
+    return false
 
 @[inline]
 private def Package.mkBuildArchiveFacetConfig
   {facet : Name} (optFacet : Name) (what : String)
-  [FamilyDef PackageData facet (BuildJob Unit)]
-  [FamilyDef PackageData optFacet (BuildJob Bool)]
+  [FamilyDef FacetOut facet Unit]
+  [FamilyDef FacetOut optFacet Bool]
 : PackageFacetConfig facet :=
   mkFacetJobConfig fun pkg =>
-    withRegisterJob s!"{pkg.name}:{facet}" do
-      (← fetch <| pkg.facet optFacet).bindSync fun success t => do
+    withRegisterJob s!"{pkg.name}:{Name.eraseHead facet}" do
+      (← fetch <| pkg.facetCore optFacet).mapM fun success => do
         unless success do
           error s!"failed to fetch {what}{← pkg.optFacetDetails optFacet}"
-        return ((), t)
 
 /-- The `PackageFacetConfig` for the builtin `buildCacheFacet`. -/
 def Package.buildCacheFacetConfig : PackageFacetConfig buildCacheFacet :=
@@ -200,9 +212,11 @@ abbrev Package.releaseFacetConfig := gitHubReleaseFacetConfig
 Perform a build job after first checking for an (optional) cached build
 for the package (e.g., from Reservoir or GitHub).
 -/
-def Package.afterBuildCacheAsync (self : Package) (build : SpawnM (Job α)) : FetchM (Job α) := do
+def Package.afterBuildCacheAsync (self : Package) (build : JobM (Job α)) : FetchM (Job α) := do
   if self.name ≠ (← getRootPackage).name then
-    (← self.maybeFetchBuildCache).bindAsync fun _ _ => build
+    (← self.maybeFetchBuildCache).bindM fun _ => do
+      setTrace nilTrace -- ensure both branches start with the same trace
+      build
   else
     build
 
@@ -215,21 +229,23 @@ def Package.afterReleaseAsync := @afterBuildCacheAsync
 -/
 def Package.afterBuildCacheSync (self : Package) (build : JobM α) : FetchM (Job α) := do
   if self.name ≠ (← getRootPackage).name then
-    (← self.maybeFetchBuildCache).bindSync fun _ _ => build
+    (← self.maybeFetchBuildCache).mapM fun _  => do
+      setTrace nilTrace -- ensure both branches start with the same trace
+      build
   else
     Job.async build
 
 @[deprecated afterBuildCacheSync (since := "2024-09-27")]
 def Package.afterReleaseSync := @afterBuildCacheSync
 
-open Package in
 /--
-A package facet name to build function map that contains builders for
-the initial set of Lake package facets (e.g., `extraDep`).
+A name-configuration map for the initial set of
+Lake package facets (e.g., `extraDep`).
 -/
-def initPackageFacetConfigs : DNameMap PackageFacetConfig :=
+def Package.initFacetConfigs : DNameMap PackageFacetConfig :=
   DNameMap.empty
   |>.insert depsFacet depsFacetConfig
+  |>.insert transDepsFacet transDepsFacetConfig
   |>.insert extraDepFacet extraDepFacetConfig
   |>.insert optBuildCacheFacet optBuildCacheFacetConfig
   |>.insert buildCacheFacet buildCacheFacetConfig
@@ -237,3 +253,6 @@ def initPackageFacetConfigs : DNameMap PackageFacetConfig :=
   |>.insert reservoirBarrelFacet barrelFacetConfig
   |>.insert optGitHubReleaseFacet optGitHubReleaseFacetConfig
   |>.insert gitHubReleaseFacet gitHubReleaseFacetConfig
+
+@[inherit_doc Package.initFacetConfigs]
+abbrev initPackageFacetConfigs := Package.initFacetConfigs

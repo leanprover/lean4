@@ -1,5 +1,5 @@
 973b.lean:5:8-5:10: warning: declaration uses 'sorry'
-973b.lean:9:8-9:11: warning: declaration uses 'sorry'
 [Meta.Tactic.simp.discharge] ex discharge ❌️
       ?p x
 [Meta.Tactic.simp.discharge] ex discharge ❌️ ?p (f x)
+973b.lean:9:8-9:11: warning: declaration uses 'sorry'

@@ -628,7 +628,7 @@ mutual
           (in particular, `Lean.Elab.Term.withReuseContext`) controls the ref to avoid leakage of outside data.
           Note that `tacticSyntax` contains no position information itself, since it is erased by `Lean.Elab.Term.quoteAutoTactic`.
           -/
-          let info := (← getRef).getHeadInfo
+          let info := (← getRef).getHeadInfo.nonCanonicalSynthetic
           let tacticBlock := tacticBlock.raw.rewriteBottomUp (·.setInfo info)
           let mvar ← mkTacticMVar argType.consumeTypeAnnotations tacticBlock (.autoParam argName)
           -- Note(kmill): We are adding terminfo to simulate a previous implementation that elaborated `tacticBlock`.
@@ -800,7 +800,7 @@ def getElabElimExprInfo (elimExpr : Expr) : MetaM ElabElimInfo := do
         throwError "unexpected number of arguments at motive type{indentExpr motiveType}"
       unless motiveResultType.isSort do
         throwError "motive result type must be a sort{indentExpr motiveType}"
-    let some motivePos ← pure (xs.indexOf? motive) |
+    let some motivePos ← pure (xs.idxOf? motive) |
       throwError "unexpected eliminator type{indentExpr elimType}"
     /-
     Compute transitive closure of fvars appearing in arguments to the motive.
@@ -1215,7 +1215,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     let fullName := Name.mkStr structName fieldName
     for localDecl in (← getLCtx) do
       if localDecl.isAuxDecl then
-        if let some localDeclFullName := (← read).auxDeclToFullName.find? localDecl.fvarId then
+        if let some localDeclFullName := (← getLCtx).auxDeclToFullName.find? localDecl.fvarId then
           if fullName == (privateToUserName? localDeclFullName).getD localDeclFullName then
             /- LVal notation is being used to make a "local" recursive call. -/
             return LValResolution.localRec structName fullName localDecl.toExpr
@@ -1474,7 +1474,7 @@ where
     | field::fields, false => .fieldName field field.getId.getString! none fIdent :: toLVals fields false
 
 /-- Resolve `(.$id:ident)` using the expected type to infer namespace. -/
-private partial def resolveDotName (id : Syntax) (expectedType? : Option Expr) : TermElabM Name := do
+private partial def resolveDotName (id : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   tryPostponeIfNoneOrMVar expectedType?
   let some expectedType := expectedType?
     | throwError "invalid dotted identifier notation, expected type must be known"
@@ -1489,7 +1489,7 @@ where
         withForallBody body k
       else
         k body
-  go (resultType : Expr) (expectedType : Expr) (previousExceptions : Array Exception) : TermElabM Name := do
+  go (resultType : Expr) (expectedType : Expr) (previousExceptions : Array Exception) : TermElabM Expr := do
     let resultType ← instantiateMVars resultType
     let resultTypeFn := resultType.cleanupAnnotations.getAppFn
     try
@@ -1497,9 +1497,12 @@ where
       let .const declName .. := resultTypeFn.cleanupAnnotations
         | throwError "invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant{indentExpr expectedType}"
       let idNew := declName ++ id.getId.eraseMacroScopes
-      unless (← getEnv).contains idNew do
+      if (← getEnv).contains idNew then
+        mkConst idNew
+      else if let some (fvar, []) ← resolveLocalName idNew then
+        return fvar
+      else
         throwError "invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
-      return idNew
     catch
       | ex@(.error ..) =>
         match (← unfoldDefinition? resultType) with
@@ -1548,7 +1551,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `(_)       => throwError "placeholders '_' cannot be used where a function is expected"
     | `(.$id:ident) =>
         addCompletionInfo <| CompletionInfo.dotId f id.getId (← getLCtx) expectedType?
-        let fConst ← mkConst (← resolveDotName id expectedType?)
+        let fConst ← resolveDotName id expectedType?
         let s ← observing do
           -- Use (force := true) because we want to record the result of .ident resolution even in patterns
           let fConst ← addTermInfo f fConst expectedType? (force := true)

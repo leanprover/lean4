@@ -153,6 +153,7 @@ instance : Std.LawfulIdentity Or False where
 @[simp] theorem false_implies (p : Prop) : (False → p) = True := eq_true False.elim
 @[simp] theorem forall_false (p : False → Prop) : (∀ h : False, p h) = True := eq_true (False.elim ·)
 @[simp] theorem implies_true (α : Sort u) : (α → True) = True := eq_true fun _ => trivial
+-- This is later proved by the simp lemma `forall_const`, but this is useful during bootstrapping.
 @[simp] theorem true_implies (p : Prop) : (True → p) = p := propext ⟨(· trivial), (fun _ => ·)⟩
 @[simp] theorem not_false_eq_true : (¬ False) = True := eq_true False.elim
 @[simp] theorem not_true_eq_false : (¬ True) = False := by decide

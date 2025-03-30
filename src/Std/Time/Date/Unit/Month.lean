@@ -19,7 +19,7 @@ set_option linter.all true
 `Ordinal` represents a bounded value for months, which ranges between 1 and 12.
 -/
 def Ordinal := Bounded.LE 1 12
-  deriving Repr, BEq, LE, LT
+deriving Repr, DecidableEq, LE, LT
 
 instance : OfNat Ordinal n :=
   inferInstanceAs (OfNat (Bounded.LE 1 (1 + (11 : Nat))) n)
@@ -33,19 +33,49 @@ instance {x y : Ordinal} : Decidable (x ≤ y) :=
 instance {x y : Ordinal} : Decidable (x < y) :=
   inferInstanceAs (Decidable (x.val < y.val))
 
+instance : Ord Ordinal := inferInstanceAs <| Ord (Bounded.LE 1 _)
+
+instance : TransOrd Ordinal := inferInstanceAs <| TransOrd (Bounded.LE 1 _)
+
+instance : LawfulEqOrd Ordinal := inferInstanceAs <| LawfulEqOrd (Bounded.LE 1 _)
+
 /--
 `Offset` represents an offset in months. It is defined as an `Int`.
 -/
 def Offset : Type := Int
-  deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, ToString, LT, LE, DecidableEq
+deriving Repr, DecidableEq, Inhabited, Add, Sub, Mul, Div, Neg, ToString, LT, LE
+
+instance {x y : Offset} : Decidable (x ≤ y) :=
+  Int.decLe x y
+
+instance {x y : Offset} : Decidable (x < y) :=
+  Int.decLt x y
 
 instance : OfNat Offset n :=
   ⟨Int.ofNat n⟩
+
+instance : Ord Offset := inferInstanceAs <| Ord Int
+
+instance : TransOrd Offset := inferInstanceAs <| TransOrd Int
+
+instance : LawfulEqOrd Offset := inferInstanceAs <| LawfulEqOrd Int
 
 /--
 `Quarter` represents a value between 1 and 4, inclusive, corresponding to the four quarters of a year.
 -/
 def Quarter := Bounded.LE 1 4
+deriving Repr, DecidableEq, LT, LE
+
+instance : OfNat Quarter n := inferInstanceAs <| OfNat (Bounded.LE 1 (1 + (3 : Nat))) n
+
+instance : Inhabited Quarter where
+  default := 1
+
+instance : Ord Quarter := inferInstanceAs <| Ord (Bounded.LE 1 _)
+
+instance : TransOrd Quarter := inferInstanceAs <| TransOrd (Bounded.LE 1 _)
+
+instance : LawfulEqOrd Quarter := inferInstanceAs <| LawfulEqOrd (Bounded.LE 1 _)
 
 namespace Quarter
 
@@ -67,7 +97,7 @@ Creates an `Offset` from a natural number.
 -/
 @[inline]
 def ofNat (data : Nat) : Offset :=
-  .ofNat data
+  Int.ofNat data
 
 /--
 Creates an `Offset` from an integer.
@@ -236,8 +266,8 @@ def days (leap : Bool) (month : Ordinal) : Day.Ordinal :=
   else
     let ⟨months, p⟩ := monthSizesNonLeap
     let index : Fin 12 := (month.sub 1).toFin (by decide)
-    let idx := (index.cast (by rw [p]))
-    months.get idx.val idx.isLt
+    let idx : Fin months.size := index.cast (by rw [p])
+    months[idx]
 
 theorem days_gt_27 (leap : Bool) (i : Month.Ordinal) : days leap i > 27 := by
   match i with
@@ -256,7 +286,7 @@ def cumulativeDays (leap : Bool) (month : Ordinal) : Day.Offset := by
   let ⟨months, p⟩ := cumulativeSizes
   let index : Fin 12 := (month.sub 1).toFin (by decide)
   rw [← p] at index
-  let res := months.get index.val index.isLt
+  let res := months[index]
   exact res + (if leap ∧ month.val > 2 then 1 else 0)
 
 theorem cumulativeDays_le (leap : Bool) (month : Month.Ordinal) : cumulativeDays leap month ≥ 0 ∧ cumulativeDays leap month ≤ 334 + (if leap then 1 else 0) := by

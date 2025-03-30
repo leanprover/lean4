@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.NameMap
-// Imports: Std.Data.HashSet.Basic Lean.Data.HashSet Lean.Data.RBMap Lean.Data.RBTree Lean.Data.SSet Lean.Data.Name
+// Imports: Std.Data.HashSet.Basic Lean.Data.RBMap Lean.Data.RBTree Lean.Data.SSet Lean.Data.Name
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -40,12 +40,11 @@ LEAN_EXPORT lean_object* l_Lean_NameHashSet_filter(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 size_t lean_usize_mul(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at_Lean_NameSSet_insert___spec__2(lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_NameMap_filter___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_NameHashSet_contains(lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameSet_instAppend;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_nextPowerOfTwo_go(lean_object*, lean_object*, lean_object*);
@@ -105,6 +104,7 @@ LEAN_EXPORT lean_object* l_Lean_NameMap_contains___rarg___boxed(lean_object*, le
 LEAN_EXPORT lean_object* l_Lean_NameMap_instInhabited(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameSet_instEmptyCollection;
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAtAux___at_Lean_NameSSet_contains___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_NameSet_empty;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_NameSSet_insert___spec__4(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -148,6 +148,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand_go___at_Lean_N
 uint8_t l_Lean_Name_isSuffixOf(lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_AssocList_filter_go___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_NameSSet_contains(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_fold___at_Lean_RBMap_mergeBy___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -165,7 +166,6 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lean_NameMap_insert___spec__3___
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_NameSSet_insert___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_NameHashSet_filter___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_beq___at_Lean_MacroScopesView_isPrefixOf___spec__1(lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_NameSet_contains___spec__1(lean_object*, lean_object*);
@@ -9993,7 +9993,6 @@ return x_4;
 }
 }
 lean_object* initialize_Std_Data_HashSet_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_HashSet(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_RBMap(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_RBTree(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_SSet(uint8_t builtin, lean_object*);
@@ -10004,9 +10003,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Std_Data_HashSet_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_HashSet(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_RBMap(builtin, lean_io_mk_world());

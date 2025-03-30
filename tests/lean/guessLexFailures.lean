@@ -21,14 +21,14 @@ def noArguments : Nat := noArguments
 
 def noNonFixedArguments (n : Nat) : Nat := noNonFixedArguments n
 
-def Array.sum (xs : Array Nat) : Nat := xs.foldl (init := 0) Nat.add
+def Array.sum' (xs : Array Nat) : Nat := xs.foldl (init := 0) Nat.add
 
 namespace InterestingMatrix
 def f : (n m l : Nat) → Nat
   | n+1, m+1, l+1 => #[
       f (n+1) (m+1) (l+1),
       f (n+1) (m-1) (l),
-      f (n)   (m+1) (l) ].sum
+      f (n)   (m+1) (l) ].sum'
   | _, _, _ => 0
 decreasing_by decreasing_tactic
 end InterestingMatrix
@@ -38,7 +38,7 @@ def f : (n m : Nat) → (h : True) → Nat → Nat
   | n+1, m+1, h, l+1 => #[
       f (n+1) (m+1) h (l+1),
       f (n+1) (m-1) h (l),
-      f (n)   (m+1) h (l) ].sum
+      f (n)   (m+1) h (l) ].sum'
   | _, _, _, _ => 0
 decreasing_by decreasing_tactic
 end InterestingMatrixWithForbiddenArguments
@@ -49,7 +49,7 @@ def f (n m l : Nat) : Nat := match n, m, l with
   | n+1, m+1, l+1 => #[
       f (n+1) (m+1) (l+1),
       f (n+1) (m-1) (l),
-      f (n)   (m+1) (l) ].sum
+      f (n)   (m+1) (l) ].sum'
   | _, _, _ => 0
 decreasing_by decreasing_tactic
 end InterestingMatrixWithNames
@@ -60,21 +60,21 @@ mutual
     | n+1, m+1, l+1 => #[
         f fixed (n+1) (m+1) (l+1),
         f fixed (n+1) (m-1) (l),
-        g fixed (n)   (m+1) trivial (l)].sum
+        g fixed (n)   (m+1) trivial (l)].sum'
     | _, _, _ => 0
 
   def g (fixed n m : Nat) (H : True) (l : Nat) : Nat := match n, m, l with
     | n+1, m+1, l+1 => #[
         g fixed (m+1) (n+1) H (l+1),
         g fixed (m+1) (n-1) H (l),
-        h fixed (m)   (n+1)  ].sum
+        h fixed (m)   (n+1)  ].sum'
     | _, _, _ => 0
 
   def h (fixed : Nat) : (n m : Nat) -> Nat
     | n+1, m+1 => #[
         f fixed (n+1) (m+1) (n+1),
         h fixed (n+1) (m-1),
-        h fixed (n)   (m+1) ].sum
+        h fixed (n)   (m+1) ].sum'
     | _, _ => 0
 end
 end Mutual

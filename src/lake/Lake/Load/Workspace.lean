@@ -5,9 +5,7 @@ Authors: Mac Malone
 -/
 prelude
 import Lake.Load.Resolve
-import Lake.Build.Module
-import Lake.Build.Package
-import Lake.Build.Library
+import Lake.Build.InitFacets
 
 /-! # Workspace Loader
 
@@ -29,9 +27,7 @@ def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
     root
     lakeEnv := config.lakeEnv
     lakeArgs? := config.lakeArgs?
-    moduleFacetConfigs := initModuleFacetConfigs
-    packageFacetConfigs := initPackageFacetConfigs
-    libraryFacetConfigs := initLibraryFacetConfigs
+    facetConfigs := initFacetConfigs
   }
   if let some env := env? then
     IO.ofExcept <| ws.addFacetsFromEnv env config.leanOpts
@@ -44,12 +40,12 @@ elaborating its configuration file and resolving its dependencies.
 If `updateDeps` is true, updates the manifest before resolving dependencies.
 -/
 def loadWorkspace (config : LoadConfig) : LoggerIO Workspace := do
-  let {reconfigure, leanOpts, updateDeps, updateToolchain, ..} := config
+  let {reconfigure, leanOpts, updateDeps, updateToolchain, packageOverrides, ..} := config
   let ws ← loadWorkspaceRoot config
   if updateDeps then
     ws.updateAndMaterialize {} leanOpts updateToolchain
   else if let some manifest ← Manifest.load? ws.manifestFile then
-    ws.materializeDeps manifest leanOpts reconfigure
+    ws.materializeDeps manifest leanOpts reconfigure packageOverrides
   else
     ws.updateAndMaterialize {} leanOpts updateToolchain
 

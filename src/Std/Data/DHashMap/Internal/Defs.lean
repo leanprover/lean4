@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Mario Carneiro, Markus Himmel
 prelude
 import Init.Data.Array.Lemmas
 import Std.Data.DHashMap.RawDef
-import Std.Data.DHashMap.Internal.List.Defs
+import Std.Data.Internal.List.Defs
 import Std.Data.DHashMap.Internal.Index
 
 /-!
@@ -149,6 +149,7 @@ variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w
 namespace Std
 
 namespace DHashMap.Internal
+open Std.Internal
 
 @[inline] private def numBucketsForCapacity (capacity : Nat) : Nat :=
   -- a "load factor" of 0.75 is the usual standard for hash maps
@@ -169,9 +170,12 @@ abbrev Raw₀ (α : Type u) (β : α → Type v) :=
 namespace Raw₀
 
 /-- Internal implementation detail of the hash map -/
-@[inline] def empty (capacity := 8) : Raw₀ α β :=
-  ⟨⟨0, mkArray (numBucketsForCapacity capacity).nextPowerOfTwo AssocList.nil⟩,
+@[inline] def emptyWithCapacity (capacity := 8) : Raw₀ α β :=
+  ⟨⟨0, Array.replicate (numBucketsForCapacity capacity).nextPowerOfTwo AssocList.nil⟩,
     by simpa using Nat.pos_of_isPowerOfTwo (Nat.isPowerOfTwo_nextPowerOfTwo _)⟩
+
+@[deprecated emptyWithCapacity (since := "2025-03-12"), inherit_doc emptyWithCapacity]
+abbrev empty := @emptyWithCapacity
 
 -- Take `hash` as a function instead of `Hashable α` as per
 -- https://github.com/leanprover/lean4/issues/4191
@@ -187,7 +191,7 @@ def expand [Hashable α] (data : { d : Array (AssocList α β) // 0 < d.size }) 
     { d : Array (AssocList α β) // 0 < d.size } :=
   let ⟨data, hd⟩ := data
   let nbuckets := data.size * 2
-  go 0 data ⟨mkArray nbuckets AssocList.nil, by simpa [nbuckets] using Nat.mul_pos hd Nat.two_pos⟩
+  go 0 data ⟨Array.replicate nbuckets AssocList.nil, by simpa [nbuckets] using Nat.mul_pos hd Nat.two_pos⟩
 where
   /-- Inner loop of `expand`. Copies elements `source[i:]` into `target`,
   destroying `source` in the process. -/
@@ -225,6 +229,72 @@ where
     let size'    := size + 1
     let buckets' := buckets.uset i (AssocList.cons a b bkt) h
     expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def modify [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α) (f : β a → β a) :
+    Raw₀ α β :=
+  let ⟨⟨size, buckets⟩, hm⟩ := m
+  let size' := size
+  let ⟨i, hi⟩ := mkIdx buckets.size hm (hash a)
+  let bucket := buckets[i]
+  if bucket.contains a then
+    let buckets := buckets.uset i .nil hi
+    let bucket := bucket.modify a f
+    ⟨⟨size, buckets.uset i bucket (by simpa [buckets])⟩, (by simpa [buckets])⟩
+  else
+    m
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def Const.modify [BEq α] {β : Type v} [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α)
+    (f : β → β) : Raw₀ α (fun _ => β) :=
+  let ⟨⟨size, buckets⟩, hm⟩ := m
+  let size' := size
+  let ⟨i, hi⟩ := mkIdx buckets.size hm (hash a)
+  let bucket := buckets[i]
+  if bucket.contains a then
+    let buckets := buckets.uset i .nil hi
+    let bucket := AssocList.Const.modify a f bucket
+    ⟨⟨size, buckets.uset i bucket (by simpa [buckets])⟩, (by simpa [buckets])⟩
+  else
+    m
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def alter [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
+    (f : Option (β a) → Option (β a)) : Raw₀ α β :=
+  let ⟨⟨size, buckets⟩, hm⟩ := m
+  let ⟨i, h⟩ := mkIdx buckets.size hm (hash a)
+  let bkt := buckets[i]
+  if bkt.contains a then
+    let buckets' := buckets.uset i .nil h
+    let bkt' := bkt.alter a f
+    let size' := if bkt'.contains a then size else size - 1
+    ⟨⟨size', buckets'.uset i bkt' (by simpa [buckets'])⟩, by simpa [buckets']⟩
+  else
+    match f none with
+    | none => m
+    | some b =>
+      let size'    := size + 1
+      let buckets' := buckets.uset i (.cons a b bkt) h
+      expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def Const.alter [BEq α] [Hashable α] {β : Type v} (m : Raw₀ α (fun _ => β)) (a : α)
+    (f : Option β → Option β) : Raw₀ α (fun _ => β) :=
+  let ⟨⟨size, buckets⟩, hm⟩ := m
+  let ⟨i, h⟩ := mkIdx buckets.size hm (hash a)
+  let bkt := buckets[i]
+  if bkt.contains a then
+    let buckets' := buckets.uset i .nil h
+    let bkt' := AssocList.Const.alter a f bkt
+    let size' := if bkt'.contains a then size else size - 1
+    ⟨⟨size', buckets'.uset i bkt' (by simpa [buckets'])⟩, by simpa [buckets']⟩
+  else
+    match f none with
+    | none => m
+    | some b =>
+      let size'    := size + 1
+      let buckets' := buckets.uset i (.cons a b bkt) h
+      expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :

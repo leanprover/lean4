@@ -93,7 +93,8 @@ def isLetterLike (c : Char) : Bool :=
 def isSubScriptAlnum (c : Char) : Bool :=
   isNumericSubscript c ||
   (0x2090 ≤ c.val && c.val ≤ 0x209c) ||
-  (0x1d62 ≤ c.val && c.val ≤ 0x1d6a)
+  (0x1d62 ≤ c.val && c.val ≤ 0x1d6a) ||
+  c.val == 0x2c7c
 
 @[inline] def isIdFirst (c : Char) : Bool :=
   c.isAlpha || c = '_' || isLetterLike c
@@ -291,18 +292,57 @@ deriving instance Repr for Syntax.Preresolved
 deriving instance Repr for Syntax
 deriving instance Repr for TSyntax
 
+/--
+Syntax that represents a Lean term.
+-/
 abbrev Term := TSyntax `term
+/--
+Syntax that represents a command.
+-/
 abbrev Command := TSyntax `command
+/--
+Syntax that represents a universe level.
+-/
 protected abbrev Level := TSyntax `level
+/--
+Syntax that represents a tactic.
+-/
 protected abbrev Tactic := TSyntax `tactic
+/--
+Syntax that represents a precedence (e.g. for an operator).
+-/
 abbrev Prec := TSyntax `prec
+/--
+Syntax that represents a priority (e.g. for an instance declaration).
+-/
 abbrev Prio := TSyntax `prio
+/--
+Syntax that represents an identifier.
+-/
 abbrev Ident := TSyntax identKind
+/--
+Syntax that represents a string literal.
+-/
 abbrev StrLit := TSyntax strLitKind
+/--
+Syntax that represents a character literal.
+-/
 abbrev CharLit := TSyntax charLitKind
+/--
+Syntax that represents a quoted name literal that begins with a back-tick.
+-/
 abbrev NameLit := TSyntax nameLitKind
+/--
+Syntax that represents a scientific numeric literal that may have decimal and exponential parts.
+-/
 abbrev ScientificLit := TSyntax scientificLitKind
+/--
+Syntax that represents a numeric literal.
+-/
 abbrev NumLit := TSyntax numLitKind
+/--
+Syntax that represents macro hygiene info.
+-/
 abbrev HygieneInfo := TSyntax hygieneInfoKind
 
 end Syntax
@@ -679,6 +719,7 @@ private partial def decodeBinLitAux (s : String) (i : String.Pos) (val : Nat) : 
     let c := s.get i
     if c == '0' then decodeBinLitAux s (s.next i) (2*val)
     else if c == '1' then decodeBinLitAux s (s.next i) (2*val + 1)
+    else if c == '_' then decodeBinLitAux s (s.next i) val
     else none
 
 private partial def decodeOctalLitAux (s : String) (i : String.Pos) (val : Nat) : Option Nat :=
@@ -686,6 +727,7 @@ private partial def decodeOctalLitAux (s : String) (i : String.Pos) (val : Nat) 
   else
     let c := s.get i
     if '0' ≤ c && c ≤ '7' then decodeOctalLitAux s (s.next i) (8*val + c.toNat - '0'.toNat)
+    else if c == '_' then decodeOctalLitAux s (s.next i) val
     else none
 
 private def decodeHexDigit (s : String) (i : String.Pos) : Option (Nat × String.Pos) :=
@@ -700,13 +742,16 @@ private partial def decodeHexLitAux (s : String) (i : String.Pos) (val : Nat) : 
   if s.atEnd i then some val
   else match decodeHexDigit s i with
     | some (d, i) => decodeHexLitAux s i (16*val + d)
-    | none        => none
+    | none        =>
+      if s.get i == '_' then decodeHexLitAux s (s.next i) val
+      else none
 
 private partial def decodeDecimalLitAux (s : String) (i : String.Pos) (val : Nat) : Option Nat :=
   if s.atEnd i then some val
   else
     let c := s.get i
     if '0' ≤ c && c ≤ '9' then decodeDecimalLitAux s (s.next i) (10*val + c.toNat - '0'.toNat)
+    else if c == '_' then decodeDecimalLitAux s (s.next i) val
     else none
 
 def decodeNatLitVal? (s : String) : Option Nat :=
@@ -729,8 +774,8 @@ def decodeNatLitVal? (s : String) : Option Nat :=
 def isLit? (litKind : SyntaxNodeKind) (stx : Syntax) : Option String :=
   match stx with
   | Syntax.node _ k args =>
-    if k == litKind && args.size == 1 then
-      match args.get! 0 with
+    if h : k == litKind ∧ args.size = 1 then
+      match args[0]'(Nat.lt_of_sub_eq_succ h.2) with
       | (Syntax.atom _ val) => some val
       | _ => none
     else
@@ -773,6 +818,8 @@ where
       let c := s.get i
       if '0' ≤ c && c ≤ '9' then
         decodeAfterExp (s.next i) val e sign (10*exp + c.toNat - '0'.toNat)
+      else if c == '_' then
+        decodeAfterExp (s.next i) val e sign exp
       else
         none
 
@@ -793,6 +840,8 @@ where
       let c := s.get i
       if '0' ≤ c && c ≤ '9' then
         decodeAfterDot (s.next i) (10*val + c.toNat - '0'.toNat) (e+1)
+      else if c == '_' then
+        decodeAfterDot (s.next i) val e
       else if c == 'e' || c == 'E' then
         decodeExp (s.next i) val e
       else
@@ -805,6 +854,8 @@ where
       let c := s.get i
       if '0' ≤ c && c ≤ '9' then
         decode (s.next i) (10*val + c.toNat - '0'.toNat)
+      else if c == '_' then
+        decode (s.next i) val
       else if c == '.' then
         decodeAfterDot (s.next i) val 0
       else if c == 'e' || c == 'E' then
@@ -958,6 +1009,13 @@ private partial def splitNameLitAux (ss : Substring) (acc : List Substring) : Li
 def splitNameLit (ss : Substring) : List Substring :=
   splitNameLitAux ss [] |>.reverse
 
+/--
+Converts a substring to the Lean compiler's representation of names. The resulting name is
+hierarchical, and the string is split at the dots (`'.'`).
+
+`"a.b".toSubstring.toName` is the name `a.b`, not `«a.b»`. For the latter, use
+`Name.mkSimple ∘ Substring.toString`.
+-/
 def _root_.Substring.toName (s : Substring) : Name :=
   match splitNameLitAux s [] with
   | [] => .anonymous
@@ -975,7 +1033,8 @@ def _root_.Substring.toName (s : Substring) : Name :=
         Name.mkStr n comp
 
 /--
-Converts a `String` to a hierarchical `Name` after splitting it at the dots.
+Converts a string to the Lean compiler's representation of names. The resulting name is
+hierarchical, and the string is split at the dots (`'.'`).
 
 `"a.b".toName` is the name `a.b`, not `«a.b»`. For the latter, use `Name.mkSimple`.
 -/
@@ -1030,24 +1089,63 @@ end Syntax
 
 namespace TSyntax
 
+/--
+Interprets a numeric literal as a natural number.
+
+Returns `0` if the syntax is malformed.
+-/
 def getNat (s : NumLit) : Nat :=
   s.raw.isNatLit?.getD 0
 
+/--
+Extracts the parsed name from the syntax of an identifier.
+
+Returns `Name.anonymous` if the syntax is malformed.
+-/
 def getId (s : Ident) : Name :=
   s.raw.getId
 
+/--
+Extracts the components of a scientific numeric literal.
+
+Returns a triple `(n, sign, e) : Nat × Bool × Nat`; the number's value is given by:
+
+```
+if sign then n * 10 ^ (-e) else n * 10 ^ e
+```
+
+Returns `(0, false, 0)` if the syntax is malformed.
+-/
 def getScientific (s : ScientificLit) : Nat × Bool × Nat :=
   s.raw.isScientificLit?.getD (0, false, 0)
 
+/--
+Decodes a string literal, removing quotation marks and unescaping escaped characters.
+
+Returns `""` if the syntax is malformed.
+-/
 def getString (s : StrLit) : String :=
   s.raw.isStrLit?.getD ""
 
+/--
+Decodes a character literal.
+
+Returns `(default : Char)` if the syntax is malformed.
+-/
 def getChar (s : CharLit) : Char :=
   s.raw.isCharLit?.getD default
 
+/--
+Decodes a quoted name literal, returning the name.
+
+Returns `Lean.Name.anonymous` if the syntax is malformed.
+-/
 def getName (s : NameLit) : Name :=
   s.raw.isNameLit?.getD .anonymous
 
+/--
+Decodes macro hygiene information.
+-/
 def getHygieneInfo (s : HygieneInfo) : Name :=
   s.raw[0].getId
 
@@ -1195,9 +1293,19 @@ private partial def filterSepElemsMAux {m : Type → Type} [Monad m] (a : Array 
   else
     pure acc
 
+/--
+Filters an array of syntax, treating every other element as a separator rather than an element to
+test with the monadic predicate `p`. The resulting array contains the tested elements for which `p`
+returns `true`, separated by the corresponding separator elements.
+-/
 def filterSepElemsM {m : Type → Type} [Monad m] (a : Array Syntax) (p : Syntax → m Bool) : m (Array Syntax) :=
   filterSepElemsMAux a p 0 #[]
 
+/--
+Filters an array of syntax, treating every other element as a separator rather than an element to
+test with the predicate `p`. The resulting array contains the tested elements for which `p` returns
+`true`, separated by the corresponding separator elements.
+-/
 def filterSepElems (a : Array Syntax) (p : Syntax → Bool) : Array Syntax :=
   Id.run <| a.filterSepElemsM p
 
@@ -1376,12 +1484,18 @@ structure ApplyConfig where
 
 namespace Rewrite
 
+@[inherit_doc ApplyNewGoals]
 abbrev NewGoals := ApplyNewGoals
 
+/-- Configures the behavior of the `rewrite` and `rw` tactics. -/
 structure Config where
+  /-- The transparency mode to use for unfolding -/
   transparency : TransparencyMode := .reducible
+  /-- Whether to support offset constraints such as `?x + 1 =?= e` -/
   offsetCnstrs : Bool := true
+  /-- Which occurrences to rewrite-/
   occs : Occurrences := .all
+  /-- How to convert the resulting metavariables into  new goals -/
   newGoals : NewGoals := .nonDependentFirst
 
 end Rewrite
@@ -1497,25 +1611,35 @@ This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
 declare_simp_like_tactic simpAutoUnfold "simp! " (autoUnfold := true)
 
-/-- `simp_arith` is shorthand for `simp` with `arith := true` and `decide := true`.
-This enables the use of normalization by linear arithmetic. -/
-declare_simp_like_tactic simpArith "simp_arith " (arith := true) (decide := true)
+/--
+`simp_arith` has been deprecated. It was a shorthand for `simp +arith +decide`.
+Note that `+decide` is not needed for reducing arithmetic terms since simprocs have been added to Lean.
+-/
+syntax (name := simpArith) "simp_arith " optConfig (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 
-/-- `simp_arith!` is shorthand for `simp_arith` with `autoUnfold := true`.
-This will rewrite with all equation lemmas, which can be used to
-partially evaluate many definitions. -/
-declare_simp_like_tactic simpArithAutoUnfold "simp_arith! " (arith := true) (autoUnfold := true) (decide := true)
+/--
+`simp_arith!` has been deprecated. It was a shorthand for `simp! +arith +decide`.
+Note that `+decide` is not needed for reducing arithmetic terms since simprocs have been added to Lean.
+-/
+syntax (name := simpArithBang) "simp_arith! " optConfig (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 
 /-- `simp_all!` is shorthand for `simp_all` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
 declare_simp_like_tactic (all := true) simpAllAutoUnfold "simp_all! " (autoUnfold := true)
 
-/-- `simp_all_arith` combines the effects of `simp_all` and `simp_arith`. -/
-declare_simp_like_tactic (all := true) simpAllArith "simp_all_arith " (arith := true) (decide := true)
+/--
+`simp_all_arith` has been deprecated. It was a shorthand for `simp_all +arith +decide`.
+Note that `+decide` is not needed for reducing arithmetic terms since simprocs have been added to Lean.
+-/
+syntax (name := simpAllArith) "simp_all_arith" optConfig (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? : tactic
 
-/-- `simp_all_arith!` combines the effects of `simp_all`, `simp_arith` and `simp!`. -/
-declare_simp_like_tactic (all := true) simpAllArithAutoUnfold "simp_all_arith! " (arith := true) (autoUnfold := true) (decide := true)
+/--
+`simp_all_arith!` has been deprecated. It was a shorthand for `simp_all! +arith +decide`.
+Note that `+decide` is not needed for reducing arithmetic terms since simprocs have been added to Lean.
+-/
+syntax (name := simpAllArithBang) "simp_all_arith!" optConfig (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? : tactic
+
 
 /-- `dsimp!` is shorthand for `dsimp` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to

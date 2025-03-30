@@ -75,12 +75,9 @@ def ExternLib.recComputeDynlib (lib : ExternLib) : FetchM (Job Dynlib) := do
 def ExternLib.dynlibFacetConfig : ExternLibFacetConfig dynlibFacet :=
   mkFacetJobConfig recComputeDynlib
 
-def ExternLib.recBuildDefault (lib : ExternLib) : FetchM (Job FilePath) :=
-  lib.static.fetch
-
 /-- The facet configuration for the builtin `ExternLib.dynlibFacet`. -/
 def ExternLib.defaultFacetConfig : ExternLibFacetConfig defaultFacet :=
-  mkFacetJobConfig recBuildDefault
+  mkFacetJobConfig (·.static.fetch) (memoize := false)
 
 /--
 A name-configuration map for the initial set of

@@ -66,19 +66,14 @@ def runRobert (server: TCP.Socket.Server) : Async Unit := do
 
   pure ()
 
-def sendResult (channel : Std.Channel (Except IO.Error α)) (action : Async α) : IO Unit := do
-  discard <| IO.bindTask (← action.run) fun res => do
-    channel.send res
-    pure (AsyncTask.pure ())
-
 def clientServer (addr : SocketAddress) : IO Unit := do
   let server ← TCP.Socket.Server.mk
   server.bind addr
   server.listen 128
 
   let serverTask := runRobert server
-  let resChannel ← Std.Channel.new
-  sendResult resChannel serverTask
+
+  let serverTask ← serverTask.run
 
   assertBEq (← server.getSockName).port addr.port
 
@@ -101,12 +96,12 @@ def clientServer (addr : SocketAddress) : IO Unit := do
   let joeTask := runJoe joe
   let mikeTask := runMike mike
 
-  sendResult resChannel joeTask
-  sendResult resChannel mikeTask
+  let joeTask ← joeTask.run
+  let mikeTask ← mikeTask.run
 
-  for _ in [0:3] do
-    if let some result ← resChannel.sync.recv? then
-      IO.ofExcept result
+  serverTask.block
+  joeTask.block
+  mikeTask.block
 
 #eval clientServer (SocketAddressV4.mk (.ofParts 127 0 0 1) 9000)
 #eval clientServer (SocketAddressV6.mk (.ofParts 0 0 0 0 0 0 0 1) 9000)

@@ -27,6 +27,8 @@ structure StructureFieldInfo where
   subobject? : Option Name
   /-- The binder info for the field from the `structure` definition. -/
   binderInfo : BinderInfo
+  /-- Deprecated. -/
+  autoParam? : Option Expr := none
   deriving Inhabited, Repr
 
 def StructureFieldInfo.lt (i₁ i₂ : StructureFieldInfo) : Bool :=

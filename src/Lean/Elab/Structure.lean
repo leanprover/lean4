@@ -1200,6 +1200,7 @@ private def registerStructure (structName : Name) (infos : Array StructFieldInfo
         projFn     := info.declName
         binderInfo := info.binfo
         subobject? := if let .subobject parentName := info.kind then parentName else none
+        autoParam? := none -- deprecated field
       }
     else
       return none

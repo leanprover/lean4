@@ -64,11 +64,13 @@ def relabel (r : α → β) (aig : AIG α) : AIG β :=
     decls,
     cache,
     hdag := by
-      intro idx lhs rhs hbound hgate
-      simp +zetaDelta [decls] at hgate
-      have := Decl.relabel_and hgate
-      apply aig.hdag
-      assumption
+      intro idx decl hbound hgate
+      induction decl with
+      | and lhs rhs =>
+        simp [decls] at hgate
+        let heq := Decl.relabel_and hgate
+        exact aig.hdag (Array.lt_of_getElem heq) (heq)
+      | _ => simp only [decls]
     hzero := by simp [decls, aig.hzero]
     hconst := by simp [decls, aig.hconst, Decl.relabel]
   }

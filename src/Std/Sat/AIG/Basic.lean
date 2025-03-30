@@ -241,17 +241,18 @@ def Cache.get? (cache : Cache α decls) (decl : Decl α) : Option (CacheHit decl
 An `Array Decl` is a Direct Acyclic Graph (DAG) if a gate at index `i` only points to nodes with index lower than `i`.
 -/
 def IsDAG (α : Type) (decls : Array (Decl α)) : Prop :=
-  ∀ {i lhs rhs} (h : i < decls.size),
-      decls[i] = .and lhs rhs → lhs.gate < i ∧ rhs.gate < i
+  ∀ {i decl} (h : i < decls.size),
+    decls[i] = decl →
+    match decl with
+    | .and lhs rhs =>  lhs.gate < i ∧ rhs.gate < i
+    | _ => true
 
 /--
 The empty AIG is a DAG.
 -/
 theorem IsDAG.empty {α : Type} : IsDAG α #[.false] := by
-  intro i lhs rhs h
-  simp only [List.size_toArray, List.length_cons, List.length_nil, Nat.zero_add,
-    Nat.lt_one_iff] at h
-  simp [h]
+  intro i d h heq
+  simp [← heq]
 
 end AIG
 
@@ -524,14 +525,13 @@ def mkAndGate (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
     aig.decls.push <| .and (.mk input.lhs.gate input.lhs.invert) (.mk input.rhs.gate input.rhs.invert)
   let cache := aig.cache.noUpdate
   have hdag := by
-    intro i lhs' rhs' h1 h2
+    intro i decl h1 h2
     simp only [Array.getElem_push] at h2
     split at h2
     · apply aig.hdag <;> assumption
-    · injection h2 with hl hr
+    · simp [← h2]
       have := input.lhs.hgate
       have := input.rhs.hgate
-      simp [← hl, ← hr]
       omega
   have hzero := by simp [decls]
   have hconst := by simp [decls, Array.getElem_push, aig.hzero, aig.hconst]
@@ -546,11 +546,11 @@ def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
   let decls := aig.decls.push (.atom n)
   let cache := aig.cache.noUpdate
   have hdag := by
-    intro i lhs rhs h1 h2
+    intro i decl h1 h2
     simp only [Array.getElem_push] at h2
     split at h2
     · apply aig.hdag <;> assumption
-    · contradiction
+    · simp [← h2] <;> contradiction
   have hzero := by simp [decls]
   have hconst := by simp [decls, Array.getElem_push, aig.hzero, aig.hconst]
   ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨g, false, by simp [g, decls]⟩⟩
@@ -564,11 +564,11 @@ def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
   let decls := aig.decls.push .false
   let cache := aig.cache.noUpdate
   have hdag := by
-    intro i lhs rhs h1 h2
+    intro i decl h1 h2
     simp only [Array.getElem_push] at h2
     split at h2
     · apply aig.hdag <;> assumption
-    · contradiction
+    · simp [← h2] <;> contradiction
   have hzero := by simp [decls]
   have hconst := by simp [decls, Array.getElem_push, aig.hzero, aig.hconst]
   ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨g, val, by simp [g, decls]⟩⟩

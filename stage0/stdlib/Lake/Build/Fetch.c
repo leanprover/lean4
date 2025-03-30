@@ -30,17 +30,14 @@ LEAN_EXPORT lean_object* l_Lake_RecBuildT_run(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RecBuildT_run_x27___rarg___lambda__1(lean_object*);
 lean_object* l_List_mapTR_loop___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RecBuildT_run_x27___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_ModuleFacet_fetch___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lake_BuildInfo_fetch___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_BuildKey_toString(lean_object*);
 static lean_object* l_Lake_buildCycleError___rarg___closed__2;
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RecBuildT_run___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ModuleFacet_fetch___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_buildCycleError___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lake_RecBuildT_run_x27(lean_object*, lean_object*);
-static lean_object* l_Lake_ModuleFacet_fetch___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lake_buildCycleError(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lake_instMonadCycleOfBuildKeyRecBuildTOfMonadOfMonadError___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildCycleError___rarg(lean_object*, lean_object*);
@@ -50,6 +47,7 @@ lean_object* l_Lake_instMonadCallStackOfCallStackTOfMonad___rarg(lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 static lean_object* l_Lake_buildCycleError___rarg___closed__3;
 lean_object* l_String_intercalate(lean_object*, lean_object*);
+extern lean_object* l_Lake_Module_keyword;
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lake_RecBuildT_run_x27___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lake_RecBuildT_run_x27___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -495,24 +493,6 @@ x_2 = lean_alloc_closure((void*)(l_Lake_BuildInfo_fetch___rarg), 8, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_Lake_ModuleFacet_fetch___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("module", 6, 6);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_ModuleFacet_fetch___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lake_ModuleFacet_fetch___rarg___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lake_ModuleFacet_fetch___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -521,7 +501,7 @@ x_9 = lean_ctor_get(x_2, 2);
 lean_inc(x_9);
 x_10 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_10, 0, x_9);
-x_11 = l_Lake_ModuleFacet_fetch___rarg___closed__2;
+x_11 = l_Lake_Module_keyword;
 x_12 = lean_alloc_ctor(1, 4, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
@@ -586,10 +566,6 @@ l_Lake_RecBuildT_run_x27___rarg___closed__1 = _init_l_Lake_RecBuildT_run_x27___r
 lean_mark_persistent(l_Lake_RecBuildT_run_x27___rarg___closed__1);
 l_Lake_RecBuildT_run_x27___rarg___closed__2 = _init_l_Lake_RecBuildT_run_x27___rarg___closed__2();
 lean_mark_persistent(l_Lake_RecBuildT_run_x27___rarg___closed__2);
-l_Lake_ModuleFacet_fetch___rarg___closed__1 = _init_l_Lake_ModuleFacet_fetch___rarg___closed__1();
-lean_mark_persistent(l_Lake_ModuleFacet_fetch___rarg___closed__1);
-l_Lake_ModuleFacet_fetch___rarg___closed__2 = _init_l_Lake_ModuleFacet_fetch___rarg___closed__2();
-lean_mark_persistent(l_Lake_ModuleFacet_fetch___rarg___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -23,14 +23,12 @@ LEAN_EXPORT lean_object* l_Lake_Package_externLibs(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Package_externLibs___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ExternLib_config(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_findExternLib_x3f___boxed(lean_object*, lean_object*);
-static lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Package_externLibs___spec__1___closed__2;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lake_Package_externLibs___closed__1;
 LEAN_EXPORT lean_object* l_Lake_ExternLib_linkArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Package_externLibs___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-static lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Package_externLibs___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lake_ExternLib_linkArgs___boxed(lean_object*);
 lean_object* lean_array_mk(lean_object*);
 size_t lean_usize_add(size_t, size_t);
@@ -39,24 +37,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findExternLib_x3f(lean_object*, lean_obj
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ExternLib_staticTargetName(lean_object*);
-static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_Package_externLibs___spec__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("extern_lib", 10, 10);
-return x_1;
-}
-}
-static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lake_Package_externLibs___spec__1___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Array_foldlMUnsafe_fold___at_Lake_Package_externLibs___spec__1___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
+extern lean_object* l_Lake_ExternLib_keyword;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Package_externLibs___spec__1(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
 _start:
 {
@@ -75,7 +56,7 @@ lean_inc(x_11);
 x_12 = lean_ctor_get(x_7, 3);
 lean_inc(x_12);
 lean_dec(x_7);
-x_13 = l_Array_foldlMUnsafe_fold___at_Lake_Package_externLibs___spec__1___closed__2;
+x_13 = l_Lake_ExternLib_keyword;
 x_14 = lean_name_eq(x_11, x_13);
 lean_dec(x_11);
 if (x_14 == 0)
@@ -200,7 +181,7 @@ lean_inc(x_8);
 x_9 = lean_ctor_get(x_6, 3);
 lean_inc(x_9);
 lean_dec(x_6);
-x_10 = l_Array_foldlMUnsafe_fold___at_Lake_Package_externLibs___spec__1___closed__2;
+x_10 = l_Lake_ExternLib_keyword;
 x_11 = lean_name_eq(x_8, x_10);
 lean_dec(x_8);
 if (x_11 == 0)
@@ -237,7 +218,7 @@ lean_inc(x_16);
 x_17 = lean_ctor_get(x_14, 3);
 lean_inc(x_17);
 lean_dec(x_14);
-x_18 = l_Array_foldlMUnsafe_fold___at_Lake_Package_externLibs___spec__1___closed__2;
+x_18 = l_Lake_ExternLib_keyword;
 x_19 = lean_name_eq(x_16, x_18);
 lean_dec(x_16);
 if (x_19 == 0)
@@ -298,7 +279,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_ctor_get(x_2, 3);
 x_4 = lean_ctor_get(x_3, 1);
-x_5 = lean_ctor_get(x_4, 6);
+x_5 = lean_ctor_get(x_4, 8);
 lean_inc(x_5);
 return x_5;
 }
@@ -341,10 +322,6 @@ _G_initialized = true;
 res = initialize_Lake_Config_ConfigTarget(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Array_foldlMUnsafe_fold___at_Lake_Package_externLibs___spec__1___closed__1 = _init_l_Array_foldlMUnsafe_fold___at_Lake_Package_externLibs___spec__1___closed__1();
-lean_mark_persistent(l_Array_foldlMUnsafe_fold___at_Lake_Package_externLibs___spec__1___closed__1);
-l_Array_foldlMUnsafe_fold___at_Lake_Package_externLibs___spec__1___closed__2 = _init_l_Array_foldlMUnsafe_fold___at_Lake_Package_externLibs___spec__1___closed__2();
-lean_mark_persistent(l_Array_foldlMUnsafe_fold___at_Lake_Package_externLibs___spec__1___closed__2);
 l_Lake_Package_externLibs___closed__1 = _init_l_Lake_Package_externLibs___closed__1();
 lean_mark_persistent(l_Lake_Package_externLibs___closed__1);
 l_Lake_ExternLib_staticTargetName___closed__1 = _init_l_Lake_ExternLib_staticTargetName___closed__1();

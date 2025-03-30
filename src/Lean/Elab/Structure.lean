@@ -510,46 +510,6 @@ private def reduceFieldProjs (e : Expr) (zetaDelta := true) : StructElabM Expr :
     return TransformStep.continue
   Meta.transform e (post := postVisit)
 
-/-- Checks if the expression is of the form `S.mk x.1 ... x.n` with `n` nonzero
-and `S.mk` a structure constructor with `S` one of the recorded structure parents.
-Returns `x`.
-Each projection `x.i` can be either a native projection or from a projection function. -/
-private def etaStruct? (e : Expr) : StructElabM (Option Expr) := do
-  let .const f _ := e.getAppFn | return none
-  let some (ConstantInfo.ctorInfo fVal) := (← getEnv).find? f | return none
-  unless (← findParentFieldInfo? fVal.induct).isSome do return none
-  unless 0 < fVal.numFields && e.getAppNumArgs == fVal.numParams + fVal.numFields do return none
-  let args := e.getAppArgs
-  let some (S0, i0, x) ← getProjectedExpr args[fVal.numParams]! | return none
-  unless S0 == fVal.induct && i0 == 0 do return none
-  for i in [1 : fVal.numFields] do
-    let arg := args[fVal.numParams + i]!
-    let some (S', i', x') ← getProjectedExpr arg | return none
-    unless S' == fVal.induct && i' == i && x' == x do return none
-  return x
-where
-  /-- Given an expression that's either a native projection or a registered projection
-  function, gives (1) the name of the structure type, (2) the index of the projection, and
-  (3) the object being projected. -/
-  getProjectedExpr (e : Expr) : MetaM (Option (Name × Nat × Expr)) := do
-    if let .proj S i x := e then
-      return (S, i, x)
-    if let .const fn _ := e.getAppFn then
-      if let some info ← getProjectionFnInfo? fn then
-        if e.getAppNumArgs == info.numParams + 1 then
-          if let some (ConstantInfo.ctorInfo fVal) := (← getEnv).find? info.ctorName then
-            return (fVal.induct, info.i, e.appArg!)
-    return none
-
-/-- Runs `etaStruct?` over the whole expression. -/
-private def etaStructReduce (e : Expr) : StructElabM Expr := do
-  let e ← instantiateMVars e
-  Meta.transform e (post := fun e => do
-    if let some e ← etaStruct? e then
-      return .done e
-    else
-      return .continue)
-
 /--
 Puts an expression into "field normal form".
 - All projections of constructors for parent structures are reduced.
@@ -557,7 +517,8 @@ Puts an expression into "field normal form".
 - Constructors of parent structures are eta reduced.
 -/
 private def fieldNormalizeExpr (e : Expr) (zetaDelta : Bool := true) : StructElabM Expr := do
-  etaStructReduce <| ← reduceFieldProjs e (zetaDelta := zetaDelta)
+  let ancestors := (← get).ancestorFieldIdx
+  etaStructReduce (p := ancestors.contains) <| ← reduceFieldProjs e (zetaDelta := zetaDelta)
 
 private def fieldFromMsg (info : StructFieldInfo) : MessageData :=
   if let some sourceStructName := info.sourceStructNames.head? then
@@ -1150,11 +1111,9 @@ Assumes the inductive type has already been added to the environment.
 Note: we can't generally use optParams here since the default values might depend on previous ones.
 We include autoParams however.
 -/
-private def mkFlatCtorExpr (levelParams : List Name) (params : Array Expr) (structName : Name) (replaceIndFVars : Expr → MetaM Expr) :
+private def mkFlatCtorExpr (levelParams : List Name) (params : Array Expr) (ctor : ConstructorVal) (replaceIndFVars : Expr → MetaM Expr) :
     StructElabM Expr := do
-  let env ← getEnv
   -- build the constructor application using the fields in the local context
-  let ctor := getStructureCtor env structName
   let mut val := mkAppN (mkConst ctor.name (levelParams.map mkLevelParam)) params
   let fieldInfos := (← get).fields
   for fieldInfo in fieldInfos do
@@ -1173,17 +1132,20 @@ private def mkFlatCtorExpr (levelParams : List Name) (params : Array Expr) (stru
       | _ => pure decl.type
     let type ← zetaDeltaFVars (← instantiateMVars type) parentFVars
     let type ← replaceIndFVars type
-    return .lam decl.userName type (val.abstract #[fieldInfo.fvar]) decl.binderInfo
+    return .lam decl.userName.eraseMacroScopes type (val.abstract #[fieldInfo.fvar]) decl.binderInfo
   val ← mkLambdaFVars params val
   val ← replaceIndFVars val
   fieldNormalizeExpr val
 
 private partial def mkFlatCtor (levelParams : List Name) (params : Array Expr) (structName : Name) (replaceIndFVars : Expr → MetaM Expr) :
     StructElabM Unit := do
-  let val ← mkFlatCtorExpr levelParams params structName replaceIndFVars
+  let env ← getEnv
+  let ctor := getStructureCtor env structName
+  let val ← mkFlatCtorExpr levelParams params ctor replaceIndFVars
   withLCtx {} {} do trace[Elab.structure] "created flat constructor:{indentExpr val}"
   unless val.hasSyntheticSorry do
-    let flatCtorName := mkFlatCtorOfStructName structName
+    -- Note: flatCtorName will be private if the constructor is private
+    let flatCtorName := mkFlatCtorOfStructCtorName ctor.name
     let valType ← replaceIndFVars (← instantiateMVars (← inferType val))
     let valType := valType.inferImplicit params.size true
     addDecl <| Declaration.defnDecl (← mkDefinitionValInferrringUnsafe flatCtorName levelParams valType val .abbrev)
@@ -1393,8 +1355,8 @@ private def mkRemainingProjections (levelParams : List Name) (params : Array Exp
           -- No need to zeta delta reduce; `fvarToConst` has replaced such fvars.
           let val ← fieldNormalizeExpr val (zetaDelta := false)
           fvarToConst := fvarToConst.insert field.fvar val
-          -- TODO(kmill): if it is a direct parent, add the coercion function the environment and use that instead of `val`,
-          -- and evaluate the difference.
+          -- TODO(kmill): if it is a direct parent, try adding the coercion function from the environment and use that instead of `val`.
+          -- (This should be evaluated to see if it is a good idea.)
         else
           throwError m!"(mkRemainingProjections internal error) {field.name} has no value"
 
@@ -1465,30 +1427,31 @@ def elabStructureCommand : InductiveElabDescr where
             collectUsedFVars := collectUsedFVars lctx localInsts fieldInfos
             checkUniverses := fun _ u => withLCtx lctx localInsts do checkResultingUniversesForFields fieldInfos u
             finalizeTermElab := withLCtx lctx localInsts do checkDefaults fieldInfos
-            prefinalize := fun _ _ _ => do
+            prefinalize := fun levelParams params replaceIndFVars => do
               withLCtx lctx localInsts do
                 addProjections r fieldInfos
                 registerStructure view.declName fieldInfos
+                runStructElabM (init := state) do
+                  mkFlatCtor levelParams params view.declName replaceIndFVars
+                  addDefaults levelParams params replaceIndFVars
+              let parentInfos ← withLCtx lctx localInsts <| runStructElabM (init := state) do
+                mkRemainingProjections levelParams params view
+              setStructureParents view.declName parentInfos
               withSaveInfoContext do  -- save new env
                 for field in view.fields do
                   -- may not exist if overriding inherited field
                   if (← getEnv).contains field.declName then
                     Term.addTermInfo' field.ref (← mkConstWithLevelParams field.declName) (isBinder := true)
-            finalize := fun levelParams params replaceIndFVars => do
-              let parentInfos ← runStructElabM (init := state) <| withLCtx lctx localInsts <| mkRemainingProjections levelParams params view
-              withSaveInfoContext do
                 -- Add terminfo for parents now that all parent projections exist.
                 for parent in parents do
                   if parent.addTermInfo then
                     Term.addTermInfo' parent.ref (← mkConstWithLevelParams parent.declName) (isBinder := true)
-              setStructureParents view.declName parentInfos
               checkResolutionOrder view.declName
-              if view.isClass then
-                addParentInstances parentInfos
-
-              runStructElabM (init := state) <| withLCtx lctx localInsts do
-                mkFlatCtor levelParams params view.declName replaceIndFVars
-                addDefaults levelParams params replaceIndFVars
+              return {
+                finalize := do
+                  if view.isClass then
+                    addParentInstances parentInfos
+              }
           }
     }
 

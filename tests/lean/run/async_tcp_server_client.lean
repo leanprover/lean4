@@ -2,9 +2,11 @@
 
 import Std.Internal.Async
 import Std.Internal.UV
+import Std.Sync.Channel
 import Std.Net.Addr
 
 open Std.Internal.IO.Async
+open Std.Channel
 open Std.Net
 
 -- Using this function to create IO Error. For some reason the assert! is not pausing the execution.
@@ -64,6 +66,11 @@ def runRobert (server: TCP.Socket.Server) : Async Unit := do
 
   pure ()
 
+def sendResult (channel : Std.Channel (Except IO.Error α)) (action : Async α) : IO Unit := do
+  discard <| IO.bindTask (← action.run) fun res => do
+    channel.send res
+    pure (AsyncTask.pure ())
+
 def clientServer (addr : SocketAddress) : IO Unit := do
   let server ← TCP.Socket.Server.mk
   server.bind addr
@@ -87,11 +94,20 @@ def clientServer (addr : SocketAddress) : IO Unit := do
 
   mike.noDelay
 
-  let serverTask ← (runRobert server).run
+  let serverTask := runRobert server
 
-  discard <| (runJoe joe).run
-  discard <| (runMike mike).run
-  serverTask.block
+  let resChannel ← Std.Channel.new
+
+  let joeTask := runJoe joe
+  let mikeTask := runMike mike
+
+  sendResult resChannel serverTask
+  sendResult resChannel joeTask
+  sendResult resChannel mikeTask
+
+  for _ in [0:3] do
+    if let some result ← resChannel.sync.recv? then
+      IO.ofExcept result
 
 #eval clientServer (SocketAddressV4.mk (.ofParts 127 0 0 1) 9000)
 #eval clientServer (SocketAddressV6.mk (.ofParts 0 0 0 0 0 0 0 1) 9000)

@@ -57,44 +57,12 @@ Remark: while editing this comment, `siftDown` above was being recompiled by Lea
 #check siftDown.induct
 #check siftDown.eq_1
 
-/-
-We attempted to prove that `siftDown` preserves the array size, but the proof
-quickly became a mess because of the mismatch between `siftDown.induct` and its equation lemmas.
+example : (siftDown a root e h).size = a.size := by
+   -- faster than the following theorem since unfolds siftDown only in the target
+   fun_induction siftDown <;> unfold siftDown <;> grind
 
 @[grind] theorem siftDown_size : (siftDown a root e h).size = a.size := by
-   sorry
--/
-
--- To avoid the sorry above, I redefined `siftDown` using a subtype
-def siftDownAux (a : Array Int) (root : Nat) (e : Nat) (h : e ≤ a.size := by grind) : { a' : Array Int // a'.size = a.size } :=
-  if _ : leftChild root < e then
-    let child := leftChild root
-    let child := if _ : child+1 < e then
-      if a[child] < a[child + 1] then
-        child + 1
-      else
-        child
-    else
-      child
-    if a[root] < a[child] then
-      let a := a.swap root child
-      -- Remark: I found the following idiom ugly. The proof-plumbing is quite distracting.
-      let ⟨a, h'⟩ := siftDownAux a child e
-      ⟨a, by grind⟩
-    else
-      ⟨a, rfl⟩
-  else
-    ⟨a, rfl⟩
--- Without the explicit `termination_by`, I had to increase `maxHeartbeats`.
--- I am guessing `grind` is spending a lot of time with unnecessary case-splits before it fails
--- on `termination_by a.size`, `termination_by root`, ...
-termination_by e - root
-
-@[inline] def siftDown' (a : Array Int) (root : Nat) (e : Nat) (h : e ≤ a.size := by grind) : Array Int :=
-  siftDownAux a root e h
-
-@[grind] theorem siftDown'_size : (siftDown' a root e h).size = a.size :=
-  (siftDownAux a root e h).property
+   fun_induction siftDown <;> grind [siftDown]
 
 def heapify (a : Array Int) : Array Int :=
   let start := parent (a.size - 1) + 1
@@ -103,7 +71,7 @@ where
   go (a : Array Int) (start : Nat) : Array Int :=
     match start with
     | 0 => a
-    | start+1 => go (siftDown' a start a.size) start
+    | start+1 => go (siftDown a start a.size) start
 
 def heapsort (a : Array Int) : Array Int :=
   let a := heapify a
@@ -114,7 +82,7 @@ where
     if _ : e > 1 then
       let e := e - 1
       let a := a.swap e 0
-      go (siftDown' a 0 e) e
+      go (siftDown a 0 e) e
     else
       a
 

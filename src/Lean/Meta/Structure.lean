@@ -32,6 +32,8 @@ Structure projection declaration for `mkProjections`.
 structure StructProjDecl where
   ref : Syntax
   projName : Name
+  /-- Overrides to param binders to apply after param binder info inference. -/
+  paramInfoOverrides : NameMap BinderInfo := {}
 
 /--
 Adds projection functions to the environment for the one-constructor inductive type named `n`.
@@ -73,7 +75,7 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
         -- Construct the projection functions:
         let mut ctorType := ctorType
         for h : i in [0:projDecls.size] do
-          let {ref, projName} := projDecls[i]
+          let {ref, projName, paramInfoOverrides} := projDecls[i]
           unless ctorType.isForall do
             throwErrorAt ref "\
               failed to generate projection '{projName}' for '{.ofConstName n}', \
@@ -85,9 +87,12 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
               failed to generate projection '{projName}' for the 'Prop'-valued type '{.ofConstName n}', \
               field must be a proof, but it has type\
               {indentExpr resultType}"
-          let projType := lctx.mkForall projArgs resultType
+          -- Apply binder info overrides
+          let lctx' := paramInfoOverrides.fold (init := lctx) fun lctx' param bi =>
+            lctx'.setBinderInfo (lctx'.findFromUserName? param).get!.fvarId bi
+          let projType := lctx'.mkForall projArgs resultType
           let projType := projType.inferImplicit indVal.numParams (considerRange := true)
-          let projVal := lctx.mkLambda projArgs <| Expr.proj n i self
+          let projVal := lctx'.mkLambda projArgs <| Expr.proj n i self
           let cval : ConstantVal := { name := projName, levelParams := indVal.levelParams, type := projType }
           withRef ref do
             if isProp then

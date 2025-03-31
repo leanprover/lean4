@@ -27,8 +27,7 @@ structure StructureFieldInfo where
   subobject? : Option Name
   /-- The binder info for the field from the `structure` definition. -/
   binderInfo : BinderInfo
-  /-- If set, the field is an autoparam (a field declared using `fld := by ...` syntax).
-  The expression evaluates to a tactic `Syntax` object. Generally this is an `Expr.const` expression. -/
+  /-- Deprecated. -/
   autoParam? : Option Expr := none
   deriving Inhabited, Repr
 

@@ -181,4 +181,42 @@ def etaStructReduce (e : Expr) (p : Name → Bool) : MetaM Expr := do
     else
       return .continue)
 
+/--
+Instantiates the default value given by the default value function `defaultFn`.
+- `defaultFn` is the default value function returned by `Lean.getEffectiveDefaultFnForField?` or `Lean.getDefaultFnForField?`.
+- `levels?` is the list of levels to use, and otherwise the levels are inferred.
+- `params` is the list of structure parameters. These are assumed to be correct for the given levels.
+- `fieldVal?` is a function for getting fields for values, if they exist.
+
+If successful, returns a set of fields used and the resulting default value.
+Success is expected. Callers should do metacontext backtracking themselves if needed.
+-/
+partial def instantiateStructDefaultValueFn?
+    [Monad m] [MonadEnv m] [MonadError m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
+    (defaultFn : Name) (levels? : Option (List Level)) (params : Array Expr)
+    (fieldVal? : Name → m (Option Expr)) : m (Option (NameSet × Expr)) := do
+  let cinfo ← getConstInfo defaultFn
+  let us ← levels?.getDM (mkFreshLevelMVarsFor cinfo)
+  assert! us.length == cinfo.levelParams.length
+  let mut val ← liftMetaM <| instantiateValueLevelParams cinfo us
+  for param in params do
+    let .lam _ t b _ := val | return none
+    -- If no levels given, need to unify to solve for level mvars.
+    if levels?.isNone then
+      unless (← isDefEq (← inferType param) t) do return none
+    val := b.instantiate1 param
+  go? {} val
+where
+  go? (usedFields : NameSet) (e : Expr) : m (Option (NameSet × Expr)) := do
+    match e with
+    | .lam n d b _ =>
+      let some val ← fieldVal? n | return none
+      if (← isDefEq (← inferType val) d) then
+        go? (usedFields.insert n) (b.instantiate1 val)
+      else
+        return none
+    | e =>
+      let_expr id _ a := e | return some (usedFields, e)
+      return some (usedFields, a)
+
 end Lean.Meta

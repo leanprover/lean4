@@ -298,7 +298,6 @@ extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
     return (lean_object*)alloc(sz);
 #elif defined(LEAN_MIMALLOC)
     void * r = mi_malloc(sz);
-    if (r == nullptr) lean_internal_panic_out_of_memory();
     lean_object * o = (lean_object*)r;
     // not a small object
     o->m_cs_sz = 0;

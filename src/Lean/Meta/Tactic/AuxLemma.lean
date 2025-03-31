@@ -32,7 +32,7 @@ def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) (prefix? :
   let env ← getEnv
   let s := auxLemmasExt.getState env
   let mkNewAuxLemma := do
-    let auxName := prefix?.getD (env.asyncPrefix?.getD (mkPrivateName env .anonymous)) ++ `proof |>.appendIndexAfter s.idx
+    let auxName := prefix?.getD (env.asyncPrefix?.getD (mkPrivateName env .anonymous)) ++ `_proof |>.appendIndexAfter s.idx
     let decl :=
       if env.hasUnsafe type || env.hasUnsafe value then
         -- `result` contains unsafe code, thus we cannot use a theorem.

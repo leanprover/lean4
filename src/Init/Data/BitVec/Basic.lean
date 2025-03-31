@@ -9,6 +9,7 @@ import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Nat.Power2
 import Init.Data.Int.Bitwise
 import Init.Data.BitVec.BasicAux
+import Init.Data.Vector.Basic
 
 /-!
 We define the basic algebraic structure of bitvectors. We choose the `Fin` representation over
@@ -704,8 +705,8 @@ treating `x` and `y` as 2's complement signed bitvectors.
 def ssubOverflow {w : Nat} (x y : BitVec w) : Bool :=
   (x.toInt - y.toInt ≥ 2 ^ (w - 1)) || (x.toInt - y.toInt < - 2 ^ (w - 1))
 
-/-- `negOverflow x` returns `true` if the negation of `x` results in overflow. 
-For a BitVec `x` with width `0 < w`, this only happens if `x = intMin`. 
+/-- `negOverflow x` returns `true` if the negation of `x` results in overflow.
+For a BitVec `x` with width `0 < w`, this only happens if `x = intMin`.
 
   SMT-Lib name: `bvnego`.
 -/
@@ -719,4 +720,32 @@ def reverse : {w : Nat} → BitVec w → BitVec w
   | 0, x => x
   | w + 1, x => concat (reverse (x.truncate w)) (x.msb)
 
+/- ### vectors of bitvectors -/
+
+/-- Split a bitvector into a vector of bitvectors of equal length where the vector ends on the
+most significant part. -/
+def splitBE (m n : Nat) (x : BitVec (m * n)) : Vector (BitVec m) n :=
+  let rec v n' := match n' with
+  | 0 => .emptyWithCapacity n
+  | n' + 1 => (v n').push (x.extractLsb' (m * n') m)
+  v n
+
+/-- Split a bitvector into a vector of bitvectors of equal length where the vector ends on the
+least significant part. -/
+def splitLE (m n : Nat) (x : BitVec (m * n)) : Vector (BitVec m) n :=
+  let rec v n' := match n' with
+  | 0 => .emptyWithCapacity n
+  | n' + 1 => (v n').push (x.extractLsb' (m * (n - n' - 1)) m)
+  v n
+
 end BitVec
+
+/-- Flatten a `Vector α n` to a `BitVec (m * n)` using a function `f : α → BitVec m`. -/
+def Vector.flatMapBitVec (v : Vector α n) (f : α → BitVec m) : BitVec (m * n) :=
+  match n with
+  | 0 => 0#0
+  | n + 1 => ((v.pop.flatMapBitVec f).cast (by simp) : BitVec (m * n)) ++ f v.back
+
+/-- Flatten a vector of bitvectors of equal length to a single bitvector. -/
+def Vector.flattenBitVec (v : Vector (BitVec m) n) : BitVec (m * n) :=
+  v.flatMapBitVec id

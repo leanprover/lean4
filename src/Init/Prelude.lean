@@ -2030,7 +2030,9 @@ structure BitVec (w : Nat) where
   toFin : Fin (hPow 2 w)
 
 /--
-Bitvectors have decidable equality. This should be used via the instance `DecidableEq (BitVec n)`.
+Bitvectors have decidable equality.
+
+This should be used via the instance `DecidableEq (BitVec n)`.
 -/
 -- We manually derive the `DecidableEq` instances for `BitVec` because
 -- we want to have builtin support for bit-vector literals, and we
@@ -2049,8 +2051,11 @@ instance : DecidableEq (BitVec n) := BitVec.decEq
 protected def BitVec.ofNatLT {n : Nat} (i : Nat) (p : LT.lt i (hPow 2 n)) : BitVec n where
   toFin := ⟨i, p⟩
 
-/-- Given a bitvector `x`, return the underlying `Nat`. This is O(1) because `BitVec` is a
-(zero-cost) wrapper around a `Nat`. -/
+/--
+Return the underlying `Nat` that represents a bitvector.
+
+This is O(1) because `BitVec` is a (zero-cost) wrapper around a `Nat`.
+-/
 protected def BitVec.toNat (x : BitVec n) : Nat := x.toFin.val
 
 instance : LT (BitVec n) where lt := (LT.lt ·.toNat ·.toNat)

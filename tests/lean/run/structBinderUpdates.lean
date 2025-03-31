@@ -8,9 +8,7 @@ Normally one defines a `cast_eq_zero_iff'` field and restates a `cast_eq_zero_if
 -/
 namespace Issue3574
 
-variable (R : Type u)
-
-class AddMonoidWithOne extends Add R, Zero R where
+class AddMonoidWithOne (R : Type u) extends Add R, Zero R where
   natCast : Nat → R
 
 instance [AddMonoidWithOne R] : Coe Nat R where
@@ -22,8 +20,8 @@ class CharP [AddMonoidWithOne R] (p : Nat) : Prop where
 
 -- Both `R` and `p` are explicit now.
 /--
-info: Issue3574.CharP.cast_eq_zero_iff.{u} (R : Type u) {inst✝ : AddMonoidWithOne R} (p : Nat) [self : CharP R p] (x : Nat) :
-  ↑x = 0 ↔ p ∣ x
+info: Issue3574.CharP.cast_eq_zero_iff.{u_1} (R : Type u_1) {inst✝ : AddMonoidWithOne R} (p : Nat) [self : CharP p]
+  (x : Nat) : ↑x = 0 ↔ p ∣ x
 -/
 #guard_msgs in #check CharP.cast_eq_zero_iff
 
@@ -32,7 +30,7 @@ class CharP' [AddMonoidWithOne R] (p : Nat) : Prop where
   cast_eq_zero_iff (R p) : ∀ x : Nat, (x : R) = 0 ↔ p ∣ x
 
 /--
-info: Issue3574.CharP'.cast_eq_zero_iff.{u} (R : Type u) {inst✝ : AddMonoidWithOne R} (p : Nat) [self : CharP' R p]
+info: Issue3574.CharP'.cast_eq_zero_iff.{u_1} (R : Type u_1) {inst✝ : AddMonoidWithOne R} (p : Nat) [self : CharP' p]
   (x : Nat) : ↑x = 0 ↔ p ∣ x
 -/
 #guard_msgs in #check CharP'.cast_eq_zero_iff
@@ -82,15 +80,13 @@ Example with a parameter from a `variable`
 -/
 namespace Ex3
 
-variable (α : Type)
-
-class Inhabited where
+class Inhabited (α : Type) where
   default : α
 
 /-- info: Ex3.Inhabited.default {α : Type} [self : Inhabited α] : α -/
 #guard_msgs in #check Inhabited.default
 
-class Inhabited' where
+class Inhabited' (α : Type) where
   default (α) : α
 
 /-- info: Ex3.Inhabited'.default (α : Type) [self : Inhabited' α] : α -/
@@ -99,16 +95,22 @@ class Inhabited' where
 end Ex3
 
 /-!
-Trying to set a `variable` binder kind when that variable is not included as a parameter.
+Trying to set a `variable` binder kind; only parameters in the declaration itself can be overridden.
+Rationale: we found in mathlib that often users had large binder lists declared at the beginning of files,
+and the structure fields accidentally were shadowing them.
 -/
 namespace Ex4
 
 variable (α : Type)
 
-/-- error: invalid parameter binder update, not a parameter -/
+/--
+error: only parameters appearing in the declaration header may have their binders kinds be overridden
+
+If this is not intended to be an override, use a binder with a type, for example '(x : _)'.
+-/
 #guard_msgs in
 class Inhabited where
-  default (α) : Nat
+  default (α) : α
 
 end Ex4
 

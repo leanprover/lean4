@@ -936,7 +936,7 @@ private def typelessBinder? : Syntax → Option ((Array Ident) × BinderInfo)
 Takes a binder list and interprets the prefix to see if any could be construed to be binder info updates.
 Returns the binder list without these updates along with the new binder infos for these parameters.
 -/
-private def elabParamInfoUpdates (binders : Array Syntax) : StructElabM (Array Syntax × ExprMap (Syntax × BinderInfo)) := do
+private def elabParamInfoUpdates (structParams : Array Expr) (binders : Array Syntax) : StructElabM (Array Syntax × ExprMap (Syntax × BinderInfo)) := do
   let mut overrides : ExprMap (Syntax × BinderInfo) := {}
   for i in [0:binders.size] do
     match typelessBinder? binders[i]! with
@@ -950,15 +950,18 @@ private def elabParamInfoUpdates (binders : Array Syntax) : StructElabM (Array S
         -- Then either these are for a new variables or the binder isn't only for parameters
         return (binders.extract i, overrides)
       for decl in decls, id in ids do
-        overrides := overrides.insert decl.toExpr (id, bi)
         Term.addTermInfo' id decl.toExpr
+        unless structParams.contains decl.toExpr do
+          throwErrorAt id m!"only parameters appearing in the declaration header may have their binders kinds be overridden\n\n\
+            If this is not intended to be an override, use a binder with a type, for example '(x : _)'."
+        overrides := overrides.insert decl.toExpr (id, bi)
   return (#[], overrides)
 
-private def elabFieldTypeValue (view : StructFieldView) :
+private def elabFieldTypeValue (structParams : Array Expr) (view : StructFieldView) :
     StructElabM (Option Expr × ExprMap (Syntax × BinderInfo) × Option StructFieldDefault) := do
   let state ← get
   let binders := view.binders.getArgs
-  let (binders, paramInfoOverrides) ← elabParamInfoUpdates binders
+  let (binders, paramInfoOverrides) ← elabParamInfoUpdates structParams binders
   Term.withAutoBoundImplicit <| Term.withAutoBoundImplicitForbiddenPred (fun n => view.name == n) <| Term.elabBinders binders fun params => do
     match view.type? with
     | none =>
@@ -999,7 +1002,7 @@ private def elabFieldTypeValue (view : StructFieldView) :
         let type ← mkForallFVars params type
         return (type, paramInfoOverrides, StructFieldDefault.autoParam <| .const name [])
 
-private partial def withFields (views : Array StructFieldView) (k : StructElabM α) : StructElabM α := do
+private partial def withFields (structParams : Array Expr) (views : Array StructFieldView) (k : StructElabM α) : StructElabM α := do
   go 0
 where
   go (i : Nat) : StructElabM α := do
@@ -1010,7 +1013,7 @@ where
         throwError "field '{view.name}' has already been declared as a projection for parent '{.ofConstName parent.structName}'"
       match ← findFieldInfo? view.name with
       | none      =>
-        let (type?, paramInfoOverrides, default?) ← elabFieldTypeValue view
+        let (type?, paramInfoOverrides, default?) ← elabFieldTypeValue structParams view
         match type?, default? with
         | none,      none => throwError "invalid field, type expected"
         | some type, _    =>
@@ -1041,7 +1044,7 @@ where
               if info.default?.isSome then
                 throwError "field '{view.name}' new default value has already been set"
               let mut valStx := valStx
-              let (binders, paramInfoOverrides) ← elabParamInfoUpdates view.binders.getArgs
+              let (binders, paramInfoOverrides) ← elabParamInfoUpdates structParams view.binders.getArgs
               unless paramInfoOverrides.isEmpty do
                 let params := MessageData.joinSep (paramInfoOverrides.toList.map (m!"{·.1}")) ", "
                 throwError "cannot override structure parameter binder kinds when overriding the default value: {params}"
@@ -1455,7 +1458,7 @@ def elabStructureCommand : InductiveElabDescr where
       view := view.toInductiveView
       elabCtors := fun rs r params => runStructElabM do
         withParents view rs r.indFVar do
-        withFields view.fields do
+        withFields params view.fields do
         withRef view.ref do
           Term.synthesizeSyntheticMVarsNoPostponing
           resolveFieldDefaults view.declName

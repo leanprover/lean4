@@ -725,18 +725,12 @@ def reverse : {w : Nat} → BitVec w → BitVec w
 /-- Split a bitvector into a vector of bitvectors of equal length where the vector ends on the
 most significant part. -/
 def splitBE (m n : Nat) (x : BitVec (m * n)) : Vector (BitVec m) n :=
-  let rec v n' := match n' with
-  | 0 => .emptyWithCapacity n
-  | n' + 1 => (v n').push (x.extractLsb' (m * n') m)
-  v n
+  (Vector.range n).map (fun i => x.extractLsb' (m * i) m)
 
 /-- Split a bitvector into a vector of bitvectors of equal length where the vector ends on the
 least significant part. -/
 def splitLE (m n : Nat) (x : BitVec (m * n)) : Vector (BitVec m) n :=
-  let rec v n' := match n' with
-  | 0 => .emptyWithCapacity n
-  | n' + 1 => (v n').push (x.extractLsb' (m * (n - n' - 1)) m)
-  v n
+  (Vector.range n).map (fun i => x.extractLsb' (m * (n - i - 1)) m)
 
 end BitVec
 

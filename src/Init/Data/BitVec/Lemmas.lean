@@ -16,6 +16,7 @@ import Init.Data.Int.Bitwise.Lemmas
 import Init.Data.Int.LemmasAux
 import Init.Data.Int.Pow
 import Init.Data.Int.LemmasAux
+import Init.Data.Vector.Lemmas
 
 set_option linter.missingDocs true
 
@@ -5126,6 +5127,44 @@ theorem msb_replicate {n w : Nat} {x : BitVec w} :
     (x.replicate n).msb = (decide (0 < n) && x.msb) := by
   simp only [BitVec.msb, getMsbD_replicate, Nat.zero_mod]
   cases n <;> cases w <;> simp
+
+@[simp]
+theorem splitLE_pop : (splitLE m (n + 1) x).pop = splitLE m n (x.extractLsb' m _) := by
+  ext k hk i hi
+  simp at hk
+  have : m * (n - k - 1) + i < m * n := by
+    apply Nat.lt_of_lt_of_le (Nat.add_lt_add_left hi _)
+    rw [← Nat.mul_add_one]
+    apply Nat.mul_le_mul_left
+    omega
+  simp only [Nat.add_one_sub_one, splitLE, Vector.range, Vector.map_mk, Vector.pop_mk,
+    Vector.getElem_mk, Array.getElem_pop, Array.getElem_map, Array.getElem_range,
+    getElem_extractLsb', this, getLsbD_eq_getElem, ← Nat.add_assoc]
+  rw [Nat.sub_add_comm (Nat.le_of_lt hk), Nat.sub_add_comm (Nat.le_sub_of_add_le' hk)]
+  rw [Nat.mul_add m (n - k - 1), Nat.add_comm m]
+  simp
+
+@[simp]
+theorem splitLE_back : (splitLE m (n + 1) x).back = x.extractLsb' 0 m := by
+  ext i hi
+  simp [splitLE, Vector.back, Vector.range, Nat.add_sub_cancel_left]
+
+@[simp]
+theorem flattenBitVecLE_splitLE {m n : Nat} {x : BitVec (m * n)} :
+    (x.splitLE m n).flattenBitVecLE m = x := by
+  induction n with
+  | zero =>
+    simp [splitLE, Vector.flattenBitVecLE, Vector.flatMapBitVecLE, of_length_zero]
+  | succ n ih =>
+    simp only [Vector.flattenBitVecLE, Vector.flatMapBitVecLE, Nat.add_one_sub_one, splitLE_pop,
+      cast_eq, splitLE_back, id_eq] at ih ⊢
+    rw [ih]
+    ext i hi
+    by_cases hi' : i < m
+    · simp [getElem_append, hi']
+      rfl
+    · simp [getElem_append, hi', Nat.add_sub_of_le (Nat.le_of_not_lt hi')]
+      rfl
 
 /-! ### Decidable quantifiers -/
 

@@ -9,5 +9,5 @@ example (o : Type) (m' n' : o → Type) (α : Type)
     (M : (i : o) → Matrix (m' i) (n' i) α)
     (ii : o) (ix : n' ii) (ji : o) (jx : m' ji)
     (j : ii = ji) :
-    M ji jx (cast sorry ix) = M ii (cast sorry jx) ix := by
+    M ji jx (cast (congrArg n' j) ix) = M ii (cast (congrArg m' j.symm) jx) ix := by
   grind

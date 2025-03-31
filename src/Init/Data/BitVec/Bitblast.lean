@@ -1648,7 +1648,50 @@ theorem toInt_sdiv (a b : BitVec w) : (a.sdiv b).toInt = (a.toInt.tdiv b.toInt).
     conv => lhs; rw [(by omega: w = (w - 1) + 1)]
     simp [Nat.pow_succ, Int.natCast_pow, Int.mul_comm]
   · rw [← toInt_bmod_cancel]
-    rw [BitVec.toInt_sdiv_of_ne_or_ne _ _ (by simpa only [Classical.not_and_iff_not_or_not] using h)]
+    rw [BitVec.toInt_sdiv_of_ne_or_ne _ _ (by simpa only [Decidable.not_and_iff_not_or_not] using h)]
+
+theorem msb_umod_eq_false_of_left {x : BitVec w} (hx : x.msb = false) (y : BitVec w) : (x % y).msb = false := by
+  rw [msb_eq_false_iff_two_mul_lt] at hx ⊢
+  rw [toNat_umod]
+  refine Nat.lt_of_le_of_lt ?_ hx
+  rw [Nat.mul_le_mul_left_iff (by decide)]
+  exact Nat.mod_le _ _
+
+theorem msb_umod_of_le_of_ne_zero_of_le {x y : BitVec w}
+    (hx : x ≤ intMin w) (hy : y ≠ 0#w) (hy' : y ≤ intMin w) : (x % y).msb = false := by
+  simp only [msb_umod, Bool.and_eq_false_imp, Bool.or_eq_false_iff, decide_eq_false_iff_not,
+    BitVec.not_lt, beq_eq_false_iff_ne, ne_eq, hy, not_false_eq_true, _root_.and_true]
+  intro h
+  rw [← intMin_le_iff_msb_eq_true (length_pos_of_ne hy)] at h
+  rwa [BitVec.le_antisymm hx h]
+
+@[simp]
+theorem toInt_srem (x y : BitVec w) : (x.srem y).toInt = x.toInt.tmod y.toInt := by
+  rw [srem_eq]
+  by_cases hyz : y = 0#w
+  · simp only [hyz, ofNat_eq_ofNat, msb_zero, umod_zero, neg_zero, neg_neg, toInt_zero, Int.tmod_zero]
+    cases x.msb <;> rfl
+  cases h : x.msb
+  · cases h' : y.msb
+    · dsimp only
+      rw [toInt_eq_toNat_of_msb (msb_umod_eq_false_of_left h y), toNat_umod]
+      rw [toInt_eq_toNat_of_msb h, toInt_eq_toNat_of_msb h', ← Int.ofNat_tmod]
+    · dsimp only
+      rw [toInt_eq_toNat_of_msb (msb_umod_eq_false_of_left h _), toNat_umod]
+      rw [toInt_eq_toNat_of_msb h, toInt_eq_neg_toNat_neg_of_msb_true h']
+      rw [Int.tmod_neg, ← Int.ofNat_tmod]
+  · cases h' : y.msb
+    · dsimp only
+      rw [toInt_eq_neg_toNat_neg_of_msb_true h, toInt_eq_toNat_of_msb h', Int.neg_tmod]
+      rw [← Int.ofNat_tmod, ← toNat_umod, toInt_neg_eq_of_msb ?msb, toInt_eq_toNat_of_msb ?msb]
+      rw [BitVec.msb_umod_of_le_of_ne_zero_of_le (neg_le_intMin_of_msb_eq_true h) hyz]
+      exact le_intMin_of_msb_eq_false h'
+    · dsimp only
+      rw [toInt_eq_neg_toNat_neg_of_msb_true h, toInt_eq_neg_toNat_neg_of_msb_true h', Int.neg_tmod, Int.tmod_neg]
+      rw [← Int.ofNat_tmod, ← toNat_umod, toInt_neg_eq_of_msb ?msb', toInt_eq_toNat_of_msb ?msb']
+      rw [BitVec.msb_umod_of_le_of_ne_zero_of_le (neg_le_intMin_of_msb_eq_true h)
+        ((not_congr neg_eq_zero_iff).mpr hyz)]
+      exact neg_le_intMin_of_msb_eq_true h'
 
 /-! ### Lemmas that use Bitblasting circuits -/
 

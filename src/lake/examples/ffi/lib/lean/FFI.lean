@@ -1,2 +1,2 @@
-import FFI.Fn
-import FFI.Add
+import FFI.Static
+import FFI.Shared

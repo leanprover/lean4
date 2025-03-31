@@ -16,11 +16,9 @@ open Std
 
 namespace Lake
 
-/-- A Lake target that is known to produce an output of a specific type. -/
+/-- A Lake target that is expected to produce an output of a specific type. -/
 structure Target (α : Type) where
-  key : BuildKey
-  [data_def : FamilyDef BuildData key α]
-  deriving Repr
+  key : PartialBuildKey
 
 protected def Target.repr (x : Target α) (prec : Nat) : Format :=
   let indent := if prec >= max_prec then 1 else 2
@@ -29,6 +27,7 @@ protected def Target.repr (x : Target α) (prec : Nat) : Format :=
 
 instance : Repr (Target α) := ⟨Target.repr⟩
 instance : ToString (Target α) := ⟨(·.key.toString)⟩
+instance : Coe PartialBuildKey (Target α) := ⟨Target.mk⟩
 
 /--
 Shorthand for `Array (Target α)` that supports

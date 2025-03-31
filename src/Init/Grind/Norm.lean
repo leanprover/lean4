@@ -106,6 +106,7 @@ init_grind_norm
   or_true true_or or_false false_or or_assoc
   -- ite
   ite_true ite_false ite_true_false ite_false_true
+  dite_eq_ite
   -- Forall
   forall_and
   -- Exists

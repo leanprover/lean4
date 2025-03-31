@@ -1508,12 +1508,20 @@ Checks whether the substring can be interpreted as the decimal representation of
 A substring can be interpreted as a decimal natural number if it is not empty and all the characters
 in it are digits.
 
-Use `Substring.toNat?`  to convert such a string to a natural number.
-
+Use `Substring.toNat?` to convert such a substring to a natural number.
 -/
 @[inline] def isNat (s : Substring) : Bool :=
   s.all fun c => c.isDigit
 
+/--
+Checks whether the substring can be interpreted as the decimal representation of a natural number,
+returning the number if it can.
+
+A substring can be interpreted as a decimal natural number if it is not empty and all the characters
+in it are digits.
+
+Use `Substring.isNat` to check whether the substring is such a substring.
+-/
 def toNat? (s : Substring) : Option Nat :=
   if s.isNat then
     some <| s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0

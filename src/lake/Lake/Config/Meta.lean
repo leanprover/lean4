@@ -19,6 +19,9 @@ structure ConfigProj (σ : Type u) (α : Type v) where
 
 class ConfigField (σ : Type u) (name : Name) (α : outParam $ Type v) extends ConfigProj σ α
 
+abbrev mkFieldDefault (name : Name) [field : ConfigField σ name α] (cfg : σ) : α :=
+  field.mkDefault cfg
+
 class ConfigParent (σ : Type u) (ρ : semiOutParam $ Type v) extends ConfigProj σ ρ
 
 structure ConfigFieldInfo where
@@ -46,7 +49,7 @@ instance [parent : ConfigParent σ ρ] [field : ConfigField ρ name α] : Config
   modify f := parent.modify (field.modify f)
 
 syntax configField :=
-  atomic(nestedDeclModifiers ident,+) declSig " := " term
+  atomic(nestedDeclModifiers ident,+) declSig (" := " term)?
 
 /--
 An tailored `structure` command for producing Lake configuration data types.
@@ -141,12 +144,15 @@ private def mkConfigAuxDecls
   return data.cmds.push fieldsDef |>.push fieldsInst |>.push infoInst
 
 private def mkFieldView (stx : TSyntax ``configField) : MacroM FieldView := withRef stx do
-  let `(configField|$mods:declModifiers $ids,* $bs* : $rty := $val) := stx
+  let `(configField|$mods:declModifiers $ids,* $bs* : $rty $[:= $val?]?) := stx
     | Macro.throwError "ill-formed configuration field declaration"
   let bvs ← expandBinders bs
   let type := mkDepArrow bvs rty
   let some id := ids.getElems[0]?
     | Macro.throwError "expected a least one field name"
+  withRef id.raw do
+  let some val := val?
+    | Macro.throwError "expected a default value"
   let defVal ← `(fun $(bvs.map (·.id))* => $val)
   let decl ← `(structSimpleBinder|$mods:declModifiers $id : $type := $defVal)
   return {ref := stx, mods, id, ids, type, defVal, decl? := decl}

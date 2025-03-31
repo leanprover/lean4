@@ -6,6 +6,7 @@ Authors: Mac Malone
 prelude
 import Lake.Config.Monad
 import Lake.Util.JsonObject
+import Lake.Build.Target.Fetch
 import Lake.Build.Actions
 import Lake.Build.Job
 
@@ -307,6 +308,28 @@ rebuilds across platforms.
   if text then inputTextFile path else inputBinFile path
 
 /--
+A build job for a directory of files that are expected to already exist.
+Returns an array of the files in the directory that match the filter.
+
+If `text := true`, the files are handled as text files rather than a binary files.
+Any byte difference in a binary file will trigger a rebuild of its dependents.
+In contrast, text file traces have normalized line endings to avoid unnecessary
+rebuilds across platforms.
+-/
+def inputDir
+  (path : FilePath) (text : Bool) (filter : FilePath → Bool)
+: SpawnM (Job (Array FilePath)) := do
+  let job ← Job.async do
+    let fs ← path.readDir
+    let ps := fs.filterMap fun f =>
+      if filter f.path then some f.path else none
+    -- Makes the order of files consistent across platforms
+    let ps := ps.qsort (toString · < toString ·)
+    return ps
+  job.bindM fun ps =>
+    Job.collectArray <$> ps.mapM (inputFile · text)
+
+/--
 Build an object file from a source file job using `compiler`. The invocation is:
 
 ```
@@ -360,75 +383,77 @@ def buildStaticLib
       compileStaticLib libFile oFiles (← getLeanAr) thin
     return libFile
 
+private def mkLinkObjArgs
+  (objs : Array FilePath) (libs : Array Dynlib) : Array String
+:= Id.run do
+  let mut args := #[]
+  for obj in objs do
+    args := args.push obj.toString
+  for lib in libs do
+    if let some dir := lib.dir? then
+      args := args.push s!"-L{dir}"
+    args := args.push s!"-l{lib.name}"
+  return args
+
 /--
 Build a shared library by linking the results of `linkJobs`
 using the Lean toolchain's C compiler.
 -/
+def buildSharedLib
+  (libName : String) (libFile : FilePath)
+  (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
+  (weakArgs traceArgs : Array String := #[]) (linker := "c++")
+  (extraDepTrace : JobM _ := pure BuildTrace.nil)
+  (plugin := false)
+: SpawnM (Job Dynlib) :=
+  (Job.collectArray linkObjs).bindM fun objs => do
+  (Job.collectArray linkLibs).mapM (sync := true) fun libs => do
+    addPureTrace traceArgs
+    addPlatformTrace -- shared libraries are platform-dependent artifacts
+    addTrace (← extraDepTrace)
+    buildFileUnlessUpToDate' libFile do
+      let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs
+      compileSharedLib libFile args linker
+    return {name := libName, path := libFile, plugin}
+
+/--
+Build a shared library by linking the results of `linkJobs`
+using `linker`.
+-/
 def buildLeanSharedLib
-  (libFile : FilePath) (linkJobs : Array (Job FilePath))
-  (weakArgs traceArgs : Array String := #[])
-: SpawnM (Job FilePath) :=
-  (Job.collectArray linkJobs).mapM fun links => do
+  (libName : String) (libFile : FilePath)
+  (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
+  (weakArgs traceArgs : Array String := #[]) (plugin := false)
+: SpawnM (Job Dynlib) :=
+  (Job.collectArray linkObjs).bindM fun objs => do
+  (Job.collectArray linkLibs).mapM (sync := true) fun libs => do
     addLeanTrace
     addPureTrace traceArgs
     addPlatformTrace -- shared libraries are platform-dependent artifacts
     buildFileUnlessUpToDate' libFile do
       let lean ← getLeanInstall
-      let args := links.map toString ++ weakArgs ++ traceArgs ++ lean.ccLinkSharedFlags
+      let args := mkLinkObjArgs objs libs ++
+        weakArgs ++ traceArgs ++ lean.ccLinkSharedFlags
       compileSharedLib libFile args lean.cc
-    return libFile
+    return {name := libName, path := libFile, plugin}
 
 /--
 Build an executable by linking the results of `linkJobs`
 using the Lean toolchain's linker.
 -/
 def buildLeanExe
-  (exeFile : FilePath) (linkJobs : Array (Job FilePath))
+  (exeFile : FilePath)
+  (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
   (weakArgs traceArgs : Array String := #[]) (sharedLean : Bool := false)
 : SpawnM (Job FilePath) :=
-  (Job.collectArray linkJobs).mapM fun links => do
+  (Job.collectArray linkObjs).bindM fun objs => do
+  (Job.collectArray linkLibs).mapM (sync := true) fun libs => do
     addLeanTrace
     addPureTrace traceArgs
     addPlatformTrace -- executables are platform-dependent artifacts
     buildFileUnlessUpToDate' exeFile do
       let lean ← getLeanInstall
-      let args := links.map toString ++ weakArgs ++ traceArgs ++ lean.ccLinkFlags sharedLean
+      let args := mkLinkObjArgs objs libs ++
+        weakArgs ++ traceArgs ++ lean.ccLinkFlags sharedLean
       compileExe exeFile args lean.cc
     return exeFile
-
-/--
-Build a shared library from a static library using `leanc`
-using the Lean toolchain's linker.
--/
-def buildLeanSharedLibOfStatic
-  (staticLibJob : Job FilePath)
-  (weakArgs traceArgs : Array String := #[])
-: SpawnM (Job FilePath) :=
-  staticLibJob.mapM fun staticLib => do
-    addLeanTrace
-    addPureTrace traceArgs
-    addPlatformTrace -- shared libraries are platform-dependent artifacts
-    let dynlib := staticLib.withExtension sharedLibExt
-    buildFileUnlessUpToDate' dynlib do
-      let lean ← getLeanInstall
-      let baseArgs :=
-        if System.Platform.isOSX then
-          #[s!"-Wl,-force_load,{staticLib}"]
-        else
-          #["-Wl,--whole-archive", staticLib.toString, "-Wl,--no-whole-archive"]
-      let args := baseArgs ++ weakArgs ++ traceArgs ++ lean.ccLinkSharedFlags
-      compileSharedLib dynlib args lean.cc
-    return dynlib
-
-/-- Construct a `Dynlib` object for a shared library target. -/
-def computeDynlibOfShared (sharedLibTarget : Job FilePath) : SpawnM (Job Dynlib) :=
-  sharedLibTarget.mapM fun sharedLib => do
-    if let some stem := sharedLib.fileStem then
-      if Platform.isWindows then
-        return {path := sharedLib, name := stem}
-      else if stem.startsWith "lib" then
-        return {path := sharedLib, name := stem.drop 3}
-      else
-        error s!"shared library `{sharedLib}` does not start with `lib`; this is not supported on Unix"
-    else
-      error s!"shared library `{sharedLib}` has no file name"

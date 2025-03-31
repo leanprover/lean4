@@ -10,12 +10,15 @@ open System Lean
 
 namespace Lake
 
-/-- A dynamic/shared library for linking. -/
+/-- A dynamic/shared library artifact for linking. -/
 structure Dynlib where
   /-- Library file path. -/
   path : FilePath
   /-- Library name without platform-specific prefix/suffix (for `-l`). -/
   name : String
+  /-- Whether this library can be loaded as a plugin. -/
+  plugin := false
+  deriving Inhabited, Repr
 
 /-- Optional library directory (for `-L`). -/
 def Dynlib.dir? (self : Dynlib) : Option FilePath :=
@@ -23,3 +26,4 @@ def Dynlib.dir? (self : Dynlib) : Option FilePath :=
 
 instance : ToText Dynlib := ⟨(·.path.toString)⟩
 instance : ToJson Dynlib := ⟨(·.path.toString)⟩
+instance : Coe Dynlib FilePath := ⟨(·.path)⟩

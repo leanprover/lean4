@@ -1226,6 +1226,7 @@ lean_object* x_22; lean_object* x_23;
 x_22 = lean_ctor_get(x_10, 0);
 lean_inc(x_22);
 lean_dec(x_10);
+lean_inc(x_22);
 lean_inc(x_1);
 x_23 = l_Lean_getPathToBaseStructure_x3f(x_1, x_22, x_2);
 if (lean_obj_tag(x_23) == 0)

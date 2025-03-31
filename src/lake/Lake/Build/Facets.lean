@@ -23,8 +23,8 @@ open Lean hiding SearchPath
 namespace Lake
 
 structure ModuleDeps where
-  dynlibs : Array FilePath := #[]
-  plugins : Array FilePath := #[]
+  dynlibs : Array Dynlib := #[]
+  plugins : Array Dynlib := #[]
   deriving Inhabited, Repr
 
 /-! ## Module Facets -/
@@ -168,7 +168,7 @@ much better for distribution.
 builtin_facet staticExportFacet @ static.export : LeanLib => FilePath
 
 /-- A Lean library's shared artifact. -/
-builtin_facet shared : LeanLib => FilePath
+builtin_facet shared : LeanLib => Dynlib
 
 /-- A Lean library's `extraDepTargets` mixed with its package's. -/
 builtin_facet extraDep : LeanLib => Unit
@@ -190,3 +190,12 @@ builtin_facet shared : ExternLib => FilePath
 
 /-- A external library's dynlib. -/
 builtin_facet dynlib : ExternLib => Dynlib
+
+/-- The default facet for an input file. Produces the file path. -/
+builtin_facet default : InputFile => FilePath
+
+/--
+The default facet for an input directory.
+Produces the matching files in the directory.
+-/
+builtin_facet default : InputDir => Array FilePath

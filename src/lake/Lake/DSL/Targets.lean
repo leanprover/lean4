@@ -153,8 +153,8 @@ abbrev mkTargetDecl
   (f : NPackage pkgName → FetchM (Job α))
 : TargetDecl :=
   let cfg := mkTargetJobConfig fun pkg => do
-    withRegisterJob (pkg.target target |>.key.toSimpleString)
-      (f pkg)
+    withRegisterJob (pkg.target target |>.key.toSimpleString) do
+      f pkg
   .mk (.mk pkgName target .anonymous (.mk cfg) (by simp [Name.isAnonymous])) rfl
 
 /--
@@ -278,6 +278,46 @@ def elabLeanExeCommand : CommandElab := fun stx => do
 @[inherit_doc leanExeCommand] abbrev LeanExeCommand := TSyntax ``leanExeCommand
 
 instance : Coe LeanExeCommand Command where
+  coe x := ⟨x.raw⟩
+
+/--
+Define a new input file target for the package.
+Can optionally be provided with a configuration of type `InputFileConfig`.
+-/
+scoped syntax (name := inputFileCommand)
+(docComment)? (Term.attributes)? "input_file " (identOrStr)? optConfig : command
+
+@[command_elab inputFileCommand]
+def elabInputfileCommand : CommandElab := fun stx => do
+  let `(inputFileCommand|$(doc?)? $(attrs?)? input_file%$kw $(nameStx?)? $cfg) := stx
+    | throwErrorAt stx "ill-formed input_file declaration"
+  withRef kw do
+  let cmd ← mkConfigDeclDef ``InputFileConfig InputFile.keyword InputFile.configKind doc? attrs? nameStx? cfg
+  withMacroExpansion stx cmd <| elabCommand cmd
+
+@[inherit_doc inputFileCommand] abbrev InputFileCommand := TSyntax ``inputFileCommand
+
+instance : Coe InputFileCommand Command where
+  coe x := ⟨x.raw⟩
+
+/--
+Define a new input directory target for the package.
+Can optionally be provided with a configuration of type `InputDirConfig`.
+-/
+scoped syntax (name := inputDirCommand)
+(docComment)? (Term.attributes)? "input_dir " (identOrStr)? optConfig : command
+
+@[command_elab inputDirCommand]
+def elabInputDirCommand : CommandElab := fun stx => do
+  let `(inputDirCommand|$(doc?)? $(attrs?)? input_dir%$kw $(nameStx?)? $cfg) := stx
+    | throwErrorAt stx "ill-formed input_dir declaration"
+  withRef kw do
+  let cmd ← mkConfigDeclDef ``InputDirConfig InputDir.keyword InputDir.configKind doc? attrs? nameStx? cfg
+  withMacroExpansion stx cmd <| elabCommand cmd
+
+@[inherit_doc inputDirCommand] abbrev InputDirCommand := TSyntax ``inputDirCommand
+
+instance : Coe InputDirCommand Command where
   coe x := ⟨x.raw⟩
 
 --------------------------------------------------------------------------------

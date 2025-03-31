@@ -41,6 +41,10 @@ We'll use `v4.6.0` as the intended release version as a running example.
   - In order to have the access rights to push to these repositories and merge PRs,
     you will need to be a member of the `lean-release-managers` team at both `leanprover-community` and `leanprover`.
     Contact Kim Morrison (@kim-em) to arrange access.
+  - There is an experimental script that will guide you through the steps for each of the repositories below.
+    The script should be invoked as
+    `script/release_steps.py vx.y.x <repo>` where `<repo>` is a case-insensitive substring of the repo name.
+    For example: `script/release_steps.py v4.6.0 batt` will guide you through the steps for the Batteries repository.
   - For each of the repositories listed below:
     - Make a PR to `master`/`main` changing the toolchain to `v4.6.0`
       - The usual branch name would be `bump_to_v4.6.0`.

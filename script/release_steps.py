@@ -1,5 +1,32 @@
 #!/usr/bin/env python3
 
+"""
+Generate release steps script for Lean4 repositories.
+
+This script helps automate the release process for Lean4 and its dependent repositories
+by generating step-by-step instructions for updating toolchains, creating tags,
+and managing branches.
+
+Usage:
+    python3 release_steps.py <version> <repo>
+
+Arguments:
+    version: The version to set in the lean-toolchain file (e.g., v4.6.0)
+    repo: A substring of the repository name as specified in release_repos.yml
+
+Example:
+    python3 release_steps.py v4.6.0 mathlib
+    python3 release_steps.py v4.6.0 batt
+
+The script reads repository configurations from release_repos.yml in the same directory.
+Each repository may have specific requirements for:
+- Branch management
+- Toolchain updates
+- Dependency updates
+- Tagging conventions
+- Stable branch handling
+"""
+
 import argparse
 import yaml
 import os
@@ -84,9 +111,23 @@ def generate_script(repo, version, config):
     return "\n".join(script_lines)
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate release steps script.")
-    parser.add_argument("version", help="The version to set in the lean-toolchain file.")
-    parser.add_argument("repo", help="A substring of the repository name as specified in the YAML config.")
+    parser = argparse.ArgumentParser(
+        description="Generate release steps script for Lean4 repositories.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  %(prog)s v4.6.0 mathlib    Generate steps for updating Mathlib to v4.6.0
+  %(prog)s v4.6.0 batt       Generate steps for updating Batteries to v4.6.0
+  
+The script will generate shell commands to:
+1. Update the lean-toolchain file
+2. Create appropriate branches and commits
+3. Create pull requests
+4. Create version tags
+5. Update stable branches where applicable"""
+    )
+    parser.add_argument("version", help="The version to set in the lean-toolchain file (e.g., v4.6.0)")
+    parser.add_argument("repo", help="A substring of the repository name as specified in release_repos.yml")
     args = parser.parse_args()
 
     config_path = os.path.join(os.path.dirname(__file__), "release_repos.yml")

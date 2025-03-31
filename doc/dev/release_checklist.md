@@ -84,11 +84,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
     - [Reference Manual](https://github.com/leanprover/reference-manual)
       - Dependencies: Verso
       - Toolchain bump PR including updated Lake manifest
-      - The tag should be called `v4.6.0` for both all RCs and for the
-        final release.
-      - For the final release, delete the existing `v4.6.0` tag from
-        the RC, recreate it after the bump, and push it. Pushing the
-        tag (whether for an RC or a final) triggers a deployment.
+      - Pushing the tag (whether for an RC or a final) triggers a deployment.
       - There is no `stable` branch; skip this step
     - [Cli](https://github.com/leanprover/lean4-cli)
       - No dependencies
@@ -179,6 +175,7 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
 - `git tag v4.7.0-rc1`
 - `git push origin v4.7.0-rc1`
 - Now wait, while CI runs.
+  - The CI setup parses the tag to discover the `-rc1` special description, and passes it to `cmake` using a `-D` option. The `-rc1` doesn't need to be placed in the configuration file.
   - You can monitor this at `https://github.com/leanprover/lean4/actions/workflows/ci.yml`, looking for the `v4.7.0-rc1` tag.
   - This step can take up to an hour.
 - (GitHub release notes) Once the release appears at https://github.com/leanprover/lean4/releases/

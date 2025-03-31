@@ -31,6 +31,6 @@ and the cutsat model:
     [assign] j := 1
     [assign] i := 0
 ```
-At this point it would be reasonable to conjugate that `i + 1 ≤ j`.
+At this point it would be reasonable to conjecture that `i + 1 ≤ j`.
 -/
 example (p : Nat → Prop) (h : p j) (h' : ∀ i, i < j → p i) : ∀ i, i < j + 1 → p i := by grind

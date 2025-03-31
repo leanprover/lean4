@@ -61,7 +61,7 @@ Condition variable, a synchronization primitive to be used with a `BaseMutex` or
 
 The thread that wants to modify the shared variable must:
 1. Lock the `BaseMutex` or `Mutex`
-2. Work on the share variable
+2. Work on the shared variable
 3. Call `Condvar.notifyOne` or `Condvar.notifyAll` after it is done. Note that this may be done
    before or after the mutex is unlocked.
 

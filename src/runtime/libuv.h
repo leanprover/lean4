@@ -24,6 +24,7 @@ namespace lean {
 #endif
 
 extern "C" void initialize_libuv();
+extern "C" void finalize_libuv();
 
 // =======================================
 // General LibUV functions.

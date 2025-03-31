@@ -317,7 +317,7 @@ def SnapshotTree.waitAll : SnapshotTree → BaseIO (Task Unit)
 where
   go : List (SnapshotTask SnapshotTree) → BaseIO (Task Unit)
     | [] => return .pure ()
-    | t::ts => BaseIO.bindTask t.task fun _ => go ts
+    | t::ts => BaseIO.bindTask (sync := true) t.task fun _ => go ts
 
 /-- Context of an input processing invocation. -/
 structure ProcessingContext extends Parser.InputContext

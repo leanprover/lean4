@@ -121,6 +121,10 @@ private def modifyMap : Std.DHashMap Name (fun _ => Name) :=
      ⟨`map, ``toListModel_map⟩,
      ⟨`filterMap, ``toListModel_filterMap⟩]
 
+private theorem perm_map_congr_left {α : Type u} {β : Type v} {l l' : List α} {f : α → β}
+    {l₂ : List β} (h : l.Perm l') : (l.map f).Perm l₂ ↔ (l'.map f).Perm l₂ :=
+  (h.map f).congr_left _
+
 private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSyntax `term))) :=
   .ofList
     [⟨`isEmpty, (``Raw.isEmpty_eq_isEmpty, #[`(_root_.List.Perm.isEmpty_eq)])⟩,
@@ -140,7 +144,7 @@ private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSynta
      ⟨`getKey!, (``getKey!_eq_getKey!, #[`(getKey!_of_perm _)])⟩,
      ⟨`toList, (``Raw.toList_eq_toListModel, #[])⟩,
      ⟨`keys, (``Raw.keys_eq_keys_toListModel, #[])⟩,
-     ⟨`Const.toList, (``Raw.Const.toList_eq_toListModel_map, #[])⟩,
+     ⟨`Const.toList, (``Raw.Const.toList_eq_toListModel_map, #[`(perm_map_congr_left)])⟩,
      ⟨`foldM, (``Raw.foldM_eq_foldlM_toListModel, #[])⟩,
      ⟨`fold, (``Raw.fold_eq_foldl_toListModel, #[])⟩,
      ⟨`foldRevM, (``Raw.foldRevM_eq_foldrM_toListModel, #[])⟩,
@@ -3232,12 +3236,13 @@ theorem getD_filterMap [EquivBEq α] [LawfulHashable α]
       ((m.getKey? k).bind (fun x => (Const.get? m k).bind (f x))).getD fallback := by
   simp_to_model [filterMap] using List.Const.getValueD_filterMap
 
---theorem toList_filterMap [EquivBEq α] [LawfulHashable α]
---    {f : (a : α) → β → Option γ} (h : m.1.WF) :
---    (Raw.Const.toList (m.filterMap f).1).Perm
---      ((Raw.Const.toList m.1).filterMap (fun p => (f p.1 p.2).map (fun x => ⟨p.1, x⟩))) := by
---  simp_to_model [filterMap, Const.toList, Equiv]
---  sorry
+theorem toList_filterMap [EquivBEq α] [LawfulHashable α]
+   {f : (a : α) → β → Option γ} (h : m.1.WF) :
+   (Raw.Const.toList (m.filterMap f).1).Perm
+     ((Raw.Const.toList m.1).filterMap (fun p => (f p.1 p.2).map (fun x => ⟨p.1, x⟩))) := by
+ simp_to_model [filterMap, Const.toList, Equiv]
+ simp [List.map_filterMap]
+ rfl
 
 theorem getKey?_filterMap [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → β → Option γ} {k : α} (h : m.1.WF) :

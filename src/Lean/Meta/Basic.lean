@@ -1144,7 +1144,7 @@ def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
 @[inline] def withoutProofIrrelevance (x : n α) : n α :=
   withConfig (fun cfg => { cfg with proofIrrelevance := false }) x
 
-@[inline] private def Context.setTransparency (ctx : Context) (transparency : TransparencyMode) : Context :=
+private def Context.setTransparency (ctx : Context) (transparency : TransparencyMode) : Context :=
   let config := { ctx.config with transparency }
   -- Recall that `transparency` is stored in the first 2 bits
   let configKey : UInt64 := ((ctx.configKey >>> (2 : UInt64)) <<< 2) ||| transparency.toUInt64

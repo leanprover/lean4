@@ -1655,7 +1655,7 @@ theorem toInt_sdiv (a b : BitVec w) : (a.sdiv b).toInt = (a.toInt.tdiv b.toInt).
   · rw [← toInt_bmod_cancel]
     rw [BitVec.toInt_sdiv_of_ne_or_ne _ _ (by simpa only [Classical.not_and_iff_not_or_not] using h)]
 
-/-! ### Lemmas that use Bit Blasting circuits -/
+/-! ### Lemmas that use bit blasting circuits -/
 
 theorem add_sub_comm {x y : BitVec w} : x + y - z = x - z + y := by
   apply eq_of_toNat_eq

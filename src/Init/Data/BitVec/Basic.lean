@@ -255,7 +255,7 @@ def smtUDiv (x y : BitVec n) : BitVec n := if y = 0 then allOnes n else udiv x y
 
 /--
 Signed T-division (using the truncating rounding convention) for bitvectors. This function obeys the
-the Lean convention that division by zero returns zero.
+Lean convention that division by zero returns zero.
 
 Examples:
 * `(7#4).sdiv 2 = 3#4`
@@ -371,6 +371,9 @@ section cast
 /--
 If two natural numbers `n` and `m` are equal, then a bitvector of width `n` is also a bitvector of
 width `m`.
+
+Using `x.cast eq` should be preferred over `eq ▸ x` because there are special-purpose `simp` lemmas
+that can more consistently simplify `BitVec.cast` away.
 -/
 @[inline] protected def cast (eq : n = m) (x : BitVec n) : BitVec m := .ofNatLT x.toNat (eq ▸ x.isLt)
 

@@ -27,7 +27,7 @@ where
         go (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
 
 def addPreDefsFromUnary (preDefs : Array PreDefinition) (preDefsNonrec : Array PreDefinition)
-    (unaryPreDefNonRec : PreDefinition) : TermElabM Unit := do
+    (unaryPreDefNonRec : PreDefinition) (cacheProofs := true) : TermElabM Unit := do
   /-
   We must remove `implemented_by` attributes from the auxiliary application because
   this attribute is only relevant for code that is compiled. Moreover, the `[implemented_by <decl>]`
@@ -41,21 +41,21 @@ def addPreDefsFromUnary (preDefs : Array PreDefinition) (preDefsNonrec : Array P
   -- we recognize that below and then do not set @[irreducible]
   withOptions (allowUnsafeReducibility.set · true) do
     if unaryPreDefNonRec.declName = preDefs[0]!.declName then
-      addNonRec preDefNonRec (applyAttrAfterCompilation := false)
+      addNonRec preDefNonRec (applyAttrAfterCompilation := false) (cacheProofs := cacheProofs)
     else
       withEnableInfoTree false do
-        addNonRec preDefNonRec (applyAttrAfterCompilation := false)
-      preDefsNonrec.forM (addNonRec · (applyAttrAfterCompilation := false) (all := declNames))
+        addNonRec preDefNonRec (applyAttrAfterCompilation := false) (cacheProofs := cacheProofs)
+      preDefsNonrec.forM (addNonRec · (applyAttrAfterCompilation := false) (all := declNames) (cacheProofs := cacheProofs))
 
 /--
 Cleans the right-hand-sides of the predefinitions, to prepare for inclusion in the EqnInfos:
  * Remove RecAppSyntax markers
  * Abstracts nested proofs (and for that, add the `_unsafe_rec` definitions)
 -/
-def cleanPreDefs (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) := do
+def cleanPreDefs (preDefs : Array PreDefinition) (cacheProofs := true) : TermElabM (Array PreDefinition) := do
   addAndCompilePartialRec preDefs
   let preDefs ← preDefs.mapM (eraseRecAppSyntax ·)
-  let preDefs ← preDefs.mapM (abstractNestedProofs ·)
+  let preDefs ← preDefs.mapM (abstractNestedProofs (cache := cacheProofs) ·)
   return preDefs
 
 /--

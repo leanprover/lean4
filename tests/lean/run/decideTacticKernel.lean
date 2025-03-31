@@ -60,12 +60,12 @@ theorem thm1' : ∀ x < 100, x * x ≤ 10000 := by decide +kernel
 
 /--
 info: theorem thm1 : ∀ (x : Nat), x < 100 → x * x ≤ 10000 :=
-thm1._auxLemma.1
+thm1._proof_1
 -/
 #guard_msgs in #print thm1
 /--
 info: theorem thm1' : ∀ (x : Nat), x < 100 → x * x ≤ 10000 :=
-thm1'._auxLemma.1
+thm1'._proof_1
 -/
 #guard_msgs in #print thm1'
 

@@ -31,6 +31,11 @@ extern "C" LEAN_EXPORT obj_res lean_io_basemutex_lock(b_obj_arg mtx, obj_arg) {
     return io_result_mk_ok(box(0));
 }
 
+extern "C" LEAN_EXPORT obj_res lean_io_basemutex_try_lock(b_obj_arg mtx, obj_arg) {
+    bool success = basemutex_get(mtx)->try_lock();
+    return io_result_mk_ok(box(success));
+}
+
 extern "C" LEAN_EXPORT obj_res lean_io_basemutex_unlock(b_obj_arg mtx, obj_arg) {
     basemutex_get(mtx)->unlock();
     return io_result_mk_ok(box(0));

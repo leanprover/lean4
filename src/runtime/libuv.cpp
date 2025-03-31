@@ -22,6 +22,14 @@ extern "C" void initialize_libuv() {
     lthread([]() { event_loop_run_loop(&global_ev); });
 }
 
+extern "C" void finalize_libuv() {
+    uv_stop(&global_ev);
+    finalize_libuv_loop();
+    finalize_libuv_udp_socket();
+    finalize_libuv_tcp_socket();
+    finalize_libuv_timer();
+}
+
 /* Lean.libUVVersionFn : Unit → Nat */
 extern "C" LEAN_EXPORT lean_obj_res lean_libuv_version(lean_obj_arg o) {
     return lean_unsigned_to_nat(uv_version());

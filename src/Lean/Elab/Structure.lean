@@ -622,6 +622,8 @@ private partial def withStructField (view : StructView) (sourceStructNames : Lis
       declName ← applyVisibility (← toVisibility fieldInfo) declName
       -- No need to validate links because this docstring was already added to the environment previously
       addDocStringCore' declName (← findDocString? (← getEnv) fieldInfo.projFn)
+      if let some ranges ← findDeclarationRanges? fieldInfo.projFn then
+        addDeclarationRanges declName ranges
     checkNotAlreadyDeclared declName
     withLocalDecl fieldName fieldInfo.binderInfo (← reduceFieldProjs fieldType) fun fieldFVar => do
       let projExpr? ← inSubobject?.mapM fun subobject => mkProjection subobject fieldName

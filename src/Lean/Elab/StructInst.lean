@@ -702,10 +702,12 @@ private def addStructFieldAux (fieldName : Name) (e : Expr) : StructInstM Unit :
 private def addStructField (fieldView : ExpandedField) (e : Expr) : StructInstM Unit := do
   let fieldName := fieldView.name
   addStructFieldAux fieldName e
-  let projName := (← read).structName ++ fieldName
-  pushInfoTree <| InfoTree.node (children := {}) <| Info.ofFieldInfo {
-    projName, fieldName, lctx := (← getLCtx), val := e, stx := fieldView.ref
-  }
+  let env ← getEnv
+  if let some structName := findField? env (← read).structName fieldName then
+    if let some fieldInfo := getFieldInfo? env structName fieldName then
+      pushInfoTree <| InfoTree.node (children := {}) <| Info.ofFieldInfo {
+        projName := fieldInfo.projFn, fieldName, lctx := (← getLCtx), val := e, stx := fieldView.ref
+      }
 
 private def elabStructField (_fieldName : Name) (stx : Term) (fieldType : Expr) : StructInstM Expr := do
   let fieldType ← normalizeExpr fieldType

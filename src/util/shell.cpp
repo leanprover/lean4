@@ -198,7 +198,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  -v, --version          display version information\n";
     std::cout << "  -V, --short-version    display short version number\n";
     std::cout << "  -g, --githash          display the git commit hash number used to build this binary\n";
-    std::cout << "      --run              call the 'main' definition in a file with the remaining arguments\n";
+    std::cout << "      --run <file>       call the 'main' definition in the given file with the remaining arguments\n";
     std::cout << "  -o, --o=oname          create olean file\n";
     std::cout << "  -i, --i=iname          create ilean file\n";
     std::cout << "  -c, --c=fname          name of the C output file\n";
@@ -561,10 +561,6 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
                 break;
             case 'r':
                 run = true;
-                // apparently this call is necessary for `--run` to be permuted in front of any
-                // preceding file name arguments (we shouldn't permute *after* `--run` because those
-                // arguments are not ours)
-                getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
                 break;
             case 'o':
                 olean_fn = optarg;

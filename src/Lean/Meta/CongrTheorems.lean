@@ -161,7 +161,7 @@ private partial def mkCast (e : Expr) (type : Expr) (deps : Array Nat) (eqs : Ar
 private def hasCastLike (kinds : Array CongrArgKind) : Bool :=
   kinds.any fun kind => kind matches CongrArgKind.cast || kind matches CongrArgKind.subsingletonInst
 
-private def withNext (type : Expr) (k : Expr → Expr → MetaM α) : MetaM α := do
+@[inline] private def withNext (type : Expr) (k : Expr → Expr → MetaM α) : MetaM α := do
   forallBoundedTelescope type (some 1) (cleanupAnnotations := true) fun xs type => k xs[0]! type
 
 /--

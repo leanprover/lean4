@@ -104,7 +104,7 @@ where
 /--
 Build `declName.recOn.{0} (motive := motive) value (f context[0]) (f context[1]) ...`
 -/
-private def enumCases (declName : Name) (motive : Expr) (value : Expr) (context : List α)
+@[specialize] private def enumCases (declName : Name) (motive : Expr) (value : Expr) (context : List α)
     (f : α → MetaM Expr) : MetaM Expr := do
   let recOn := mkApp2 (mkConst (mkRecOnName declName) [0]) motive value
   List.foldlM (init := recOn) (fun acc a => mkApp acc <$> f a) context

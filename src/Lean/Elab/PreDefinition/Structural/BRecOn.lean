@@ -18,7 +18,7 @@ open Meta
 private def throwToBelowFailed : MetaM α :=
   throwError "toBelow failed"
 
-partial def searchPProd (e : Expr) (F : Expr) (k : Expr → Expr → MetaM α) : MetaM α := do
+@[specialize] partial def searchPProd (e : Expr) (F : Expr) (k : Expr → Expr → MetaM α) : MetaM α := do
   match (← whnf e) with
   | .app (.app (.const `PProd _) d1) d2 =>
         (do searchPProd d1 (.proj ``PProd 0 F) k)

@@ -208,17 +208,17 @@ def exec (act : M α) : MetaM (Array Expr) := do return (← run act).2
 
 def tell (x : Expr) : M Unit := fun xs => pure ((), xs.push x)
 
-def localM (f : Array Expr → MetaM (Array Expr)) (act : M α) : M α := fun xs => do
+@[inline] def localM (f : Array Expr → MetaM (Array Expr)) (act : M α) : M α := fun xs => do
   let n := xs.size
   let (b, xs') ← act xs
   pure (b, xs'[:n] ++ (← f xs'[n:]))
 
-def localMapM (f : Expr → MetaM Expr) (act : M α) : M α :=
+@[inline] def localMapM (f : Expr → MetaM Expr) (act : M α) : M α :=
   localM (·.mapM f) act
 
 def ask : M (Array Expr) := get
 
-def branch (act : M α) : M α :=
+@[inline] def branch (act : M α) : M α :=
   localM (fun _ => pure #[]) act
 
 end M

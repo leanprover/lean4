@@ -139,7 +139,7 @@ private def isValueTransition (p : Problem) : Bool :=
      | .var _ :: _ => true
      | _           => false
 
-private def isValueOnlyTransitionCore (p : Problem) (isValue : Expr → MetaM Bool) : MetaM Bool := do
+@[inline] private def isValueOnlyTransitionCore (p : Problem) (isValue : Expr → MetaM Bool) : MetaM Bool := do
   if hasVarPattern p then return false
   if !hasValPattern p then return false
   p.alts.allM fun alt => do

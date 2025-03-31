@@ -167,7 +167,7 @@ def refineThrough? (matcherApp : MatcherApp) (e : Expr) :
     return none
 
 
-@[specialize] private def withUserNamesImpl {α} (fvars : Array Expr) (names : Array Name) (k : MetaM α) : MetaM α := do
+private def withUserNamesImpl {α} (fvars : Array Expr) (names : Array Name) (k : MetaM α) : MetaM α := do
   let lctx := (Array.zip fvars names).foldl (init := ← (getLCtx)) fun lctx (fvar, name) =>
     lctx.setUserName fvar.fvarId! name
   withLCtx' lctx k
@@ -177,7 +177,7 @@ Sets the user name of the FVars in the local context according to the given arra
 
 If they differ in size the shorter size wins.
 -/
-@[inline] def withUserNames {n} [MonadControlT MetaM n] [Monad n]
+def withUserNames {n} [MonadControlT MetaM n] [Monad n]
   {α} (fvars : Array Expr) (names : Array Name) (k : n α) : n α := do
   mapMetaM (withUserNamesImpl fvars names) k
 
@@ -185,7 +185,7 @@ If they differ in size the shorter size wins.
 `Match.forallAltTelescope` lifted to a monad transformer
 (and only passing those arguments that we care about below)
 -/
-@[inline] private def forallAltTelescope'
+private def forallAltTelescope'
     {n} [Monad n] [MonadControlT MetaM n]
     {α} (origAltType : Expr) (numParams numDiscrEqs : Nat)
     (k : Array Expr → Array Expr → n α) : n α := do
@@ -214,7 +214,7 @@ This function works even if the type of alternatives do *not* fit the inferred t
 allows you to post-process the `MatcherApp` with `MatcherApp.inferMatchType`, which will
 infer a type, given all the alternatives.
 -/
-@[inline] def transform
+def transform
     {n} [MonadLiftT MetaM n] [MonadControlT MetaM n] [Monad n] [MonadError n] [MonadEnv n] [MonadLog n]
     [AddMessageContext n] [MonadOptions n]
     (matcherApp : MatcherApp)

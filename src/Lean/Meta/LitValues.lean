@@ -182,7 +182,7 @@ Check if an expression is a list literal (i.e. a nested chain of `List.cons`, en
 where each element is "recognised" by a given function `f : Expr → MetaM (Option α)`,
 and return the array of recognised values.
 -/
-partial def getListLitOf? (e : Expr) (f : Expr → MetaM (Option α)) : MetaM (Option (Array α)) := do
+@[specialize] partial def getListLitOf? (e : Expr) (f : Expr → MetaM (Option α)) : MetaM (Option (Array α)) := do
   let mut e ← instantiateMVars e.consumeMData
   let mut r := #[]
   while true do
@@ -207,7 +207,7 @@ Check if an expression is an array literal
 where each element is "recognised" by a given function `f : Expr → MetaM (Option α)`,
 and return the array of recognised values.
 -/
-def getArrayLitOf? (e : Expr) (f : Expr → MetaM (Option α)) : MetaM (Option (Array α)) := do
+@[specialize] def getArrayLitOf? (e : Expr) (f : Expr → MetaM (Option α)) : MetaM (Option (Array α)) := do
   let e ← instantiateMVars e.consumeMData
   match_expr e with
   | List.toArray _ as => getListLitOf? as f

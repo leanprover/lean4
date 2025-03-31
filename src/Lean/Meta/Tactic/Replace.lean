@@ -200,7 +200,7 @@ def _root_.Lean.MVarId.changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (type
 /--
 Modify `mvarId` target type using `f`.
 -/
-def _root_.Lean.MVarId.modifyTarget (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := do
+@[specialize] def _root_.Lean.MVarId.modifyTarget (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := do
   mvarId.withContext do
     mvarId.checkNotAssigned `modifyTarget
     mvarId.change (← f (← mvarId.getType)) (checkDefEq := false)
@@ -209,7 +209,7 @@ def _root_.Lean.MVarId.modifyTarget (mvarId : MVarId) (f : Expr → MetaM Expr) 
 Modify `mvarId` target type left-hand-side using `f`.
 Throw an error if target type is not an equality.
 -/
-def _root_.Lean.MVarId.modifyTargetEqLHS (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := do
+@[specialize] def _root_.Lean.MVarId.modifyTargetEqLHS (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := do
    mvarId.modifyTarget fun target => do
      if let some (_, lhs, rhs) ← matchEq? target then
        mkEq (← f lhs) rhs

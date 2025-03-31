@@ -271,7 +271,7 @@ def getFVarId (id : Syntax) : TacticM FVarId := withRef id <| withMainContext do
 def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) := do
   withMainContext do ids.mapM getFVarId
 
-def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syntax) : TacticM Unit := do
+@[inline] def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syntax) : TacticM Unit := do
   withMainContext do
     let mut val ← instantiateMVars (← elabTermForApply e)
     if val.isMVar then

@@ -297,7 +297,7 @@ structure Problem where
   examples      : List Example
   deriving Inhabited
 
-def withGoalOf {α} (p : Problem) (x : MetaM α) : MetaM α :=
+@[inline] def withGoalOf {α} (p : Problem) (x : MetaM α) : MetaM α :=
   p.mvarId.withContext x
 
 def Problem.toMessageData (p : Problem) : MetaM MessageData :=

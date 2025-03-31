@@ -297,7 +297,7 @@ def _root_.Lean.MVarId.cases (mvarId : MVarId) (majorFVarId : FVarId) (givenName
 /--
 Keep applying `cases` on any hypothesis that satisfies `p`.
 -/
-def _root_.Lean.MVarId.casesRec (mvarId : MVarId) (p : LocalDecl → MetaM Bool) : MetaM (List MVarId) :=
+@[specialize] def _root_.Lean.MVarId.casesRec (mvarId : MVarId) (p : LocalDecl → MetaM Bool) : MetaM (List MVarId) :=
   saturate mvarId fun mvarId =>
     mvarId.withContext do
       for localDecl in (← getLCtx) do

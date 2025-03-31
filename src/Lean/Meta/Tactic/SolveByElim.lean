@@ -115,7 +115,7 @@ def accept (cfg : SolveByElimConfig := {}) (test : MVarId → MetaM Bool) : Solv
 Create or modify a `Config` which runs a tactic on the main goal.
 If that tactic fails, fall back to the `proc` behaviour of `cfg`.
 -/
-def mainGoalProc (cfg : SolveByElimConfig := {}) (proc : MVarId → MetaM (List MVarId)) : SolveByElimConfig :=
+@[inline] def mainGoalProc (cfg : SolveByElimConfig := {}) (proc : MVarId → MetaM (List MVarId)) : SolveByElimConfig :=
   { cfg with
     proc := fun orig goals => match goals with
     | [] => cfg.proc orig []

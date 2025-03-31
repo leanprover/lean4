@@ -1124,7 +1124,7 @@ Executes `x` tracking zetaDelta reductions `Config.trackZetaDelta := true`
 `withZetaDeltaSet s x` executes `x` with `zetaDeltaSet := s`.
 The cache is reset while executing `x` if `s` is not empty.
 -/
-@[specialize] def withZetaDeltaSet (s : FVarIdSet) : n α → n α :=
+def withZetaDeltaSet (s : FVarIdSet) : n α → n α :=
   mapMetaM fun x =>
     if s.isEmpty then
       x
@@ -1134,7 +1134,7 @@ The cache is reset while executing `x` if `s` is not empty.
 /--
 Similar to `withZetaDeltaSet`, but also enables `withTrackingZetaDelta` if `s` is not empty.
 -/
-@[specialize] def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
+def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
   mapMetaM fun x =>
     if s.isEmpty then
       x
@@ -1250,7 +1250,7 @@ private partial def isClassQuick? : Expr → MetaM (LOption Name)
       | _ => return .undef
     | _            => return .none
 
-@[specialize] private def withNewLocalInstanceImp (className : Name) (fvar : Expr) (k : MetaM α) : MetaM α := do
+private def withNewLocalInstanceImp (className : Name) (fvar : Expr) (k : MetaM α) : MetaM α := do
   let localDecl ← getFVarLocalDecl fvar
   if localDecl.isImplementationDetail then
     k
@@ -1259,7 +1259,7 @@ private partial def isClassQuick? : Expr → MetaM (LOption Name)
 
 /-- Add entry `{ className := className, fvar := fvar }` to localInstances,
     and then execute continuation `k`. -/
-@[inline] def withNewLocalInstance (className : Name) (fvar : Expr) : n α → n α :=
+def withNewLocalInstance (className : Name) (fvar : Expr) : n α → n α :=
   mapMetaM <| withNewLocalInstanceImp className fvar
 
 private def fvarsSizeLtMaxFVars (fvars : Array Expr) (maxFVars? : Option Nat) : Bool :=
@@ -1274,7 +1274,7 @@ mutual
 
     - `isClassExpensive` is defined later.
     - `isClassExpensive` uses `whnf` which depends (indirectly) on the set of local instances. -/
-  @[specialize] private partial def withNewLocalInstancesImp
+  private partial def withNewLocalInstancesImp
       (fvars : Array Expr) (i : Nat) (k : MetaM α) : MetaM α := do
     if h : i < fvars.size then
       let fvar := fvars[i]
@@ -1317,11 +1317,11 @@ mutual
 
     If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
   -/
-  @[specialize] private partial def forallTelescopeReducingAuxAux
+  private partial def forallTelescopeReducingAuxAux
       (reducing          : Bool) (maxFVars? : Option Nat)
       (type              : Expr)
       (k                 : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) : MetaM α := do
-    let rec @[specialize] process (lctx : LocalContext) (fvars : Array Expr) (j : Nat) (type : Expr) : MetaM α := do
+    let rec process (lctx : LocalContext) (fvars : Array Expr) (j : Nat) (type : Expr) : MetaM α := do
       match type with
       | .forallE n d b bi =>
         if fvarsSizeLtMaxFVars fvars maxFVars? then
@@ -1351,7 +1351,7 @@ mutual
               k fvars type
     process (← getLCtx) #[] 0 type
 
-  @[specialize] private partial def forallTelescopeReducingAux (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) : MetaM α := do
+  private partial def forallTelescopeReducingAux (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) : MetaM α := do
     match maxFVars? with
     | some 0 => k #[] type
     | _ => do
@@ -1404,11 +1404,8 @@ end
 def isClass? (type : Expr) : MetaM (Option Name) :=
   try isClassImp? type catch _ => return none
 
-@[inline] private def withNewLocalInstancesImpAux (fvars : Array Expr) (j : Nat) : n α → n α :=
+def withNewLocalInstances (fvars : Array Expr) (j : Nat) : n α → n α :=
   mapMetaM <| withNewLocalInstancesImp fvars j
-
-@[inline] def withNewLocalInstances (fvars : Array Expr) (j : Nat) : n α → n α :=
-  mapMetaM <| withNewLocalInstancesImpAux fvars j
 
 @[inline] private def forallTelescopeImp (type : Expr) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) : MetaM α := do
   forallTelescopeReducingAuxAux (reducing := false) (maxFVars? := none) type k cleanupAnnotations
@@ -1420,7 +1417,7 @@ def isClass? (type : Expr) : MetaM (Option Name) :=
 
   If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
-@[inline] def forallTelescope (type : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
+def forallTelescope (type : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
   map2MetaM (fun k => forallTelescopeImp type k cleanupAnnotations) k
 
 /--
@@ -1428,7 +1425,7 @@ Given a monadic function `f` that takes a type and a term of that type and produ
 lifts this to the monadic function that opens a `∀` telescope, applies `f` to the body,
 and then builds the lambda telescope term for the new term.
 -/
-@[specialize] def mapForallTelescope' (f : Expr → Expr → MetaM Expr) (forallTerm : Expr) : MetaM Expr := do
+def mapForallTelescope' (f : Expr → Expr → MetaM Expr) (forallTerm : Expr) : MetaM Expr := do
   forallTelescope (← inferType forallTerm) fun xs ty => do
     mkLambdaFVars xs (← f ty (mkAppN forallTerm xs))
 
@@ -1437,10 +1434,10 @@ Given a monadic function `f` that takes a term and produces a new term,
 lifts this to the monadic function that opens a `∀` telescope, applies `f` to the body,
 and then builds the lambda telescope term for the new term.
 -/
-@[inline] def mapForallTelescope (f : Expr → MetaM Expr) (forallTerm : Expr) : MetaM Expr := do
+def mapForallTelescope (f : Expr → MetaM Expr) (forallTerm : Expr) : MetaM Expr := do
   mapForallTelescope' (fun _ e => f e) forallTerm
 
-@[inline] private def forallTelescopeReducingImp (type : Expr) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) : MetaM α :=
+private def forallTelescopeReducingImp (type : Expr) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) : MetaM α :=
   forallTelescopeReducingAux type (maxFVars? := none) k cleanupAnnotations
 
 /--
@@ -1449,10 +1446,10 @@ and then builds the lambda telescope term for the new term.
 
   If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
-@[inline] def forallTelescopeReducing (type : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
+def forallTelescopeReducing (type : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
   map2MetaM (fun k => forallTelescopeReducingImp type k cleanupAnnotations) k
 
-@[inline] private def forallBoundedTelescopeImp (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) : MetaM α :=
+private def forallBoundedTelescopeImp (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations : Bool) : MetaM α :=
   forallTelescopeReducingAux type maxFVars? k cleanupAnnotations
 
 /--
@@ -1461,14 +1458,14 @@ and then builds the lambda telescope term for the new term.
 
   If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
-@[inline] def forallBoundedTelescope (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
+def forallBoundedTelescope (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
   map2MetaM (fun k => forallBoundedTelescopeImp type maxFVars? k cleanupAnnotations) k
 
-@[inline] private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (maxFVars? : Option Nat)
+private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (maxFVars? : Option Nat)
     (k : Array Expr → Expr → MetaM α) (cleanupAnnotations := false) : MetaM α := do
   process consumeLet (← getLCtx) #[] e
 where
-  @[specialize] process (consumeLet : Bool) (lctx : LocalContext) (fvars : Array Expr) (e : Expr) : MetaM α := do
+  process (consumeLet : Bool) (lctx : LocalContext) (fvars : Array Expr) (e : Expr) : MetaM α := do
     match fvarsSizeLtMaxFVars fvars maxFVars?, consumeLet, e with
     | true, _, .lam n d b bi =>
       let d := d.instantiateRevRange 0 fvars.size fvars
@@ -1496,7 +1493,7 @@ Similar to `lambdaTelescope` but for lambda and let expressions.
 
 If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
-@[inline] def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
+def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
   map2MetaM (fun k => lambdaTelescopeImp e true .none k (cleanupAnnotations := cleanupAnnotations)) k
 
 /--
@@ -1506,7 +1503,7 @@ If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each ty
 
   If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
-@[inline] def lambdaTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
+def lambdaTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
   map2MetaM (fun k => lambdaTelescopeImp e false none k (cleanupAnnotations := cleanupAnnotations)) k
 
 /--
@@ -1517,7 +1514,7 @@ If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each ty
 
   If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
-@[inline] def lambdaBoundedTelescope (e : Expr) (maxFVars : Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
+def lambdaBoundedTelescope (e : Expr) (maxFVars : Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
   map2MetaM (fun k => lambdaTelescopeImp e false (.some maxFVars) k (cleanupAnnotations := cleanupAnnotations)) k
 
 /-- Return the parameter names for the given global declaration. -/
@@ -1596,13 +1593,13 @@ where
         process mvars bis j b
       | _ => finalize ()
 
-@[specialize] private def withNewFVar (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM α := do
+private def withNewFVar (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM α := do
   if let some c ← isClass? fvarType then
     withNewLocalInstance c fvar <| k fvar
   else
     k fvar
 
-@[inline] private def withLocalDeclImp (n : Name) (bi : BinderInfo) (type : Expr) (k : Expr → MetaM α) (kind : LocalDeclKind) : MetaM α := do
+private def withLocalDeclImp (n : Name) (bi : BinderInfo) (type : Expr) (k : Expr → MetaM α) (kind : LocalDeclKind) : MetaM α := do
   let fvarId ← mkFreshFVarId
   let ctx ← read
   let lctx := ctx.lctx.mkLocalDecl fvarId n type bi kind
@@ -1612,16 +1609,16 @@ where
 
 /-- Create a free variable `x` with name, binderInfo and type, add it to the context and run in `k`.
 Then revert the context. -/
-@[inline] def withLocalDecl (name : Name) (bi : BinderInfo) (type : Expr) (k : Expr → n α) (kind : LocalDeclKind := .default) : n α :=
+def withLocalDecl (name : Name) (bi : BinderInfo) (type : Expr) (k : Expr → n α) (kind : LocalDeclKind := .default) : n α :=
   map1MetaM (fun k => withLocalDeclImp name bi type k kind) k
 
-@[inline] def withLocalDeclD (name : Name) (type : Expr) (k : Expr → n α) : n α :=
+def withLocalDeclD (name : Name) (type : Expr) (k : Expr → n α) : n α :=
   withLocalDecl name BinderInfo.default type k
 
 /--
 Similar to `withLocalDecl`, but it does **not** check whether the new variable is a local instance or not.
 -/
-@[inline] def withLocalDeclNoLocalInstanceUpdate (name : Name) (bi : BinderInfo) (type : Expr) (x : Expr → MetaM α) : MetaM α := do
+def withLocalDeclNoLocalInstanceUpdate (name : Name) (bi : BinderInfo) (type : Expr) (x : Expr → MetaM α) : MetaM α := do
   let fvarId ← mkFreshFVarId
   withReader (fun ctx => { ctx with lctx := ctx.lctx.mkLocalDecl fvarId name type bi }) do
     x (mkFVar fvarId)
@@ -1635,14 +1632,14 @@ Similar to `withLocalDecl`, but it does **not** check whether the new variable i
 
 See `withLocalDeclsD` and `withLocalDeclsDND` for simplier variants.
 -/
-@[inline] partial def withLocalDecls
+partial def withLocalDecls
     [Inhabited α]
     (declInfos : Array (Name × BinderInfo × (Array Expr → n Expr)))
     (k : (xs : Array Expr) → n α)
     : n α :=
   loop #[]
 where
-  @[specialize] loop [Inhabited α] (acc : Array Expr) : n α := do
+  loop [Inhabited α] (acc : Array Expr) : n α := do
     if acc.size < declInfos.size then
       let (name, bi, typeCtor) := declInfos[acc.size]!
       withLocalDecl name bi (←typeCtor acc) fun x => loop (acc.push x)
@@ -1652,7 +1649,7 @@ where
 /--
 Variant of `withLocalDecls` using `Binderinfo.default`
 -/
-@[inline] def withLocalDeclsD [Inhabited α] (declInfos : Array (Name × (Array Expr → n Expr))) (k : (xs : Array Expr) → n α) : n α :=
+def withLocalDeclsD [Inhabited α] (declInfos : Array (Name × (Array Expr → n Expr))) (k : (xs : Array Expr) → n α) : n α :=
   withLocalDecls
     (declInfos.map (fun (name, typeCtor) => (name, BinderInfo.default, typeCtor))) k
 
@@ -1664,7 +1661,7 @@ def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs
   withLocalDeclsD
     (declInfos.map (fun (name, typeCtor) => (name, fun _ => pure typeCtor))) k
 
-@[inline] private def withAuxDeclImp (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → MetaM α) : MetaM α := do
+private def withAuxDeclImp (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → MetaM α) : MetaM α := do
   let fvarId ← mkFreshFVarId
   let ctx ← read
   let lctx := ctx.lctx.mkAuxDecl fvarId shortDeclName type declName
@@ -1676,21 +1673,21 @@ def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs
   Declare an auxiliary local declaration `shortDeclName : type` for elaborating recursive
   declaration `declName`, update the mapping `auxDeclToFullName`, and then execute `k`.
 -/
-@[inline] def withAuxDecl (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → n α) : n α :=
+def withAuxDecl (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → n α) : n α :=
   map1MetaM (fun k => withAuxDeclImp shortDeclName type declName k) k
 
-@[inline] private def withNewBinderInfosImp (bs : Array (FVarId × BinderInfo)) (k : MetaM α) : MetaM α := do
+private def withNewBinderInfosImp (bs : Array (FVarId × BinderInfo)) (k : MetaM α) : MetaM α := do
   let lctx := bs.foldl (init := (← getLCtx)) fun lctx (fvarId, bi) =>
       lctx.setBinderInfo fvarId bi
   withReader (fun ctx => { ctx with lctx := lctx }) k
 
-@[inline] def withNewBinderInfos (bs : Array (FVarId × BinderInfo)) (k : n α) : n α :=
+def withNewBinderInfos (bs : Array (FVarId × BinderInfo)) (k : n α) : n α :=
   mapMetaM (fun k => withNewBinderInfosImp bs k) k
 
 /--
  Execute `k` using a local context where any `x` in `xs` that is tagged as
  instance implicit is treated as a regular implicit. -/
-@[specialize] def withInstImplicitAsImplict (xs : Array Expr) (k : MetaM α) : MetaM α := do
+def withInstImplicitAsImplict (xs : Array Expr) (k : MetaM α) : MetaM α := do
   let newBinderInfos ← xs.filterMapM fun x => do
     let bi ← x.fvarId!.getBinderInfo
     if bi == .instImplicit then
@@ -1699,7 +1696,7 @@ def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs
       return none
   withNewBinderInfos newBinderInfos k
 
-@[inline] private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) (kind : LocalDeclKind) : MetaM α := do
+private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) (kind : LocalDeclKind) : MetaM α := do
   let fvarId ← mkFreshFVarId
   let ctx ← read
   let lctx := ctx.lctx.mkLetDecl fvarId n type val (nonDep := false) kind
@@ -1711,10 +1708,10 @@ def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs
   Add the local declaration `<name> : <type> := <val>` to the local context and execute `k x`, where `x` is a new
   free variable corresponding to the `let`-declaration. After executing `k x`, the local context is restored.
 -/
-@[inline] def withLetDecl (name : Name) (type : Expr) (val : Expr) (k : Expr → n α) (kind : LocalDeclKind := .default) : n α :=
+def withLetDecl (name : Name) (type : Expr) (val : Expr) (k : Expr → n α) (kind : LocalDeclKind := .default) : n α :=
   map1MetaM (fun k => withLetDeclImp name type val k kind) k
 
-@[specialize] def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := do
+def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := do
   let mut localInsts := (← read).localInstances
   let size := localInsts.size
   for decl in decls do
@@ -1729,10 +1726,10 @@ def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs
     withReader (fun ctx => { ctx with localInstances := localInsts }) k
 
 /-- Register any local instance in `decls` -/
-@[inline] def withLocalInstances (decls : List LocalDecl) : n α → n α :=
+def withLocalInstances (decls : List LocalDecl) : n α → n α :=
   mapMetaM <| withLocalInstancesImp decls
 
-@[inline] private def withExistingLocalDeclsImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := do
+private def withExistingLocalDeclsImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := do
   let ctx ← read
   let lctx := decls.foldl (fun (lctx : LocalContext) decl => lctx.addDecl decl) ctx.lctx
   withReader (fun ctx => { ctx with lctx := lctx }) do
@@ -1751,13 +1748,16 @@ def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs
 def withExistingLocalDecls (decls : List LocalDecl) : n α → n α :=
   mapMetaM <| withExistingLocalDeclsImp decls
 
+-- auxiliary definition to avoid inlining the branch coming from `isShared`
+def withNewMCtxDepthImpAux (allowLevelAssignments : Bool) : MetaM (MetavarContext × PersistentArray PostponedEntry) := modifyGet fun s =>
+  ((s.mctx, s.postponed), { s with mctx := s.mctx.incDepth allowLevelAssignments, postponed := {} })
+
 @[inline] private def withNewMCtxDepthImp (allowLevelAssignments : Bool) (x : MetaM α) : MetaM α := do
-  let saved ← get
-  modify fun s => { s with mctx := s.mctx.incDepth allowLevelAssignments, postponed := {} }
+  let saved ← withNewMCtxDepthImpAux allowLevelAssignments
   try
     x
   finally
-    modify fun s => { s with mctx := saved.mctx, postponed := saved.postponed }
+    modify fun s => { s with mctx := saved.1, postponed := saved.2 }
 
 /--
 Removes `fvarId` from the local context, and replaces occurrences of it with `e`.
@@ -1779,9 +1779,15 @@ assigned.  (This is used by TC synthesis.)
 @[inline] def withNewMCtxDepth (k : n α) (allowLevelAssignments := false) : n α :=
   mapMetaM (withNewMCtxDepthImp allowLevelAssignments) k
 
-@[inline] private def withLocalContextImp (lctx : LocalContext) (localInsts : LocalInstances) (x : MetaM α) : MetaM α := do
-  withReader (fun ctx => { ctx with lctx := lctx, localInstances := localInsts }) do
-    x
+-- auxiliary definitions to avoid inlining the branch coming from `isShared`
+private def withNewLocalContext (lctx : LocalContext) (localInstances : LocalInstances) (ctx : Context) : Context :=
+  { ctx with lctx, localInstances }
+
+private def withNewLocalContext' (lctx : LocalContext) (ctx : Context) : Context :=
+  { ctx with lctx }
+
+@[inline] private def withLocalContextImp (lctx : LocalContext) (localInsts : LocalInstances) : MetaM α → MetaM α :=
+  withReader <| withNewLocalContext lctx localInsts
 
 /--
 `withLCtx lctx localInsts k` replaces the local context and local instances, and then executes `k`.
@@ -1796,7 +1802,7 @@ Simpler version of `withLCtx` which just updates the local context. It is the re
 caller ensure the local instances are also properly updated.
 -/
 @[inline] def withLCtx' (lctx : LocalContext) : n α → n α :=
-  mapMetaM <| withReader (fun ctx => { ctx with lctx })
+  mapMetaM <| withReader <| withNewLocalContext' lctx
 
 /--
 Runs `k` in a local environment with the `fvarIds` erased.
@@ -2262,7 +2268,7 @@ caller via `EnvExtension.findStateAsync` for `constName`. If `realize` throws an
 to add `constName` to the environment, an appropriate diagnostic is reported to all callers but no
 constants are added to the environment.
 -/
-@[specialize] def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
+def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
     MetaM Unit := do
   let env ← getEnv
   -- If `constName` is already known on this branch, avoid the trace node. We should not use
@@ -2299,7 +2305,7 @@ constants are added to the environment.
     setEnv env
 where
   -- similar to `wrapAsyncAsSnapshot` but not sufficiently so to share code
-  @[specialize] realizeAndReport (coreCtx : Core.Context) env opts := do
+  realizeAndReport (coreCtx : Core.Context) env opts := do
     let coreCtx := { coreCtx with options := opts }
     let act :=
       IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get opts) do

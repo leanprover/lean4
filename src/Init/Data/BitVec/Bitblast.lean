@@ -624,7 +624,7 @@ theorem sle_eq_ule_of_msb_eq {x y : BitVec w} (h : x.msb = y.msb) : x.sle y = x.
 /--
 A recurrence that describes multiplication as repeated addition.
 
-Thsi function is useful for bit blasting multiplication.
+This function is useful for bit blasting multiplication.
 -/
 def mulRec (x y : BitVec w) (s : Nat) : BitVec w :=
   let cur := if y.getLsbD s then (x <<< s) else 0

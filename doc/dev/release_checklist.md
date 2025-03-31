@@ -13,7 +13,8 @@ We'll use `v4.6.0` as the intended release version as a running example.
 - In `src/CMakeLists.txt`, verify you see
   - `set(LEAN_VERSION_MINOR 6)` (for whichever `6` is appropriate)
   - `set(LEAN_VERSION_IS_RELEASE 1)`
-  - (both of these should already be in place from the release candidates)
+  - (all of these should already be in place from the release candidates)
+
 - `git tag v4.6.0`
 - `git push $REMOTE v4.6.0`, where `$REMOTE` is the upstream Lean repository (e.g., `origin`, `upstream`)
 - Now wait, while CI runs.
@@ -79,6 +80,11 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Warnings during `lake update` and `lake build` are expected.
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag
+      - There is no `stable` branch; skip this step
+    - [Reference Manual](https://github.com/leanprover/reference-manual)
+      - Dependencies: Verso
+      - Toolchain bump PR including updated Lake manifest
+      - Pushing the tag (whether for an RC or a final) triggers a deployment.
       - There is no `stable` branch; skip this step
     - [Cli](https://github.com/leanprover/lean4-cli)
       - No dependencies
@@ -169,6 +175,7 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
 - `git tag v4.7.0-rc1`
 - `git push origin v4.7.0-rc1`
 - Now wait, while CI runs.
+  - The CI setup parses the tag to discover the `-rc1` special description, and passes it to `cmake` using a `-D` option. The `-rc1` doesn't need to be placed in the configuration file.
   - You can monitor this at `https://github.com/leanprover/lean4/actions/workflows/ci.yml`, looking for the `v4.7.0-rc1` tag.
   - This step can take up to an hour.
 - (GitHub release notes) Once the release appears at https://github.com/leanprover/lean4/releases/

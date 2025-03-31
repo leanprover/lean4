@@ -1747,4 +1747,9 @@ theorem extractLsb'_mul {w len} {x y : BitVec w} (hlen : len ≤ w) :
     (x * y).extractLsb' 0 len = (x.extractLsb' 0 len) * (y.extractLsb' 0 len) := by
   simp [← setWidth_eq_extractLsb' hlen, setWidth_mul _ _ hlen]
 
+/-- Adding bitvrctors that are zero in complementary positions equals concatenation. -/
+theorem append_add_append_eq_append {v w : Nat} {x : BitVec v} {y : BitVec w} :
+    (x ++ 0#w) + (0#v ++ y) = x ++ y := by
+  rw [add_eq_or_of_and_eq_zero] <;> ext i <;> simp
+
 end BitVec

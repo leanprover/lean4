@@ -33,7 +33,7 @@ structure StructProjDecl where
   ref : Syntax
   projName : Name
   /-- Overrides to param binders to apply after param binder info inference. -/
-  paramInfoOverrides : NameMap BinderInfo := {}
+  paramInfoOverrides : List (Option BinderInfo) := []
 
 /--
 Adds projection functions to the environment for the one-constructor inductive type named `n`.
@@ -80,6 +80,10 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
             throwErrorAt ref "\
               failed to generate projection '{projName}' for '{.ofConstName n}', \
               not enough constructor fields"
+          unless paramInfoOverrides.length ≤ params.size do
+            throwErrorAt ref "\
+              failed to generate projection '{projName}' for '{.ofConstName n}', \
+              too many structure parameter overrides"
           let resultType := ctorType.bindingDomain!.consumeTypeAnnotations
           let isProp ← isProp resultType
           if isPredicate && !isProp then
@@ -87,12 +91,10 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
               failed to generate projection '{projName}' for the 'Prop'-valued type '{.ofConstName n}', \
               field must be a proof, but it has type\
               {indentExpr resultType}"
-          -- Apply binder info overrides
-          let lctx' := paramInfoOverrides.fold (init := lctx) fun lctx' param bi =>
-            lctx'.setBinderInfo (lctx'.findFromUserName? param).get!.fvarId bi
-          let projType := lctx'.mkForall projArgs resultType
+          let projType := lctx.mkForall projArgs resultType
           let projType := projType.inferImplicit indVal.numParams (considerRange := true)
-          let projVal := lctx'.mkLambda projArgs <| Expr.proj n i self
+          let projType := projType.updateForallBinderInfos paramInfoOverrides
+          let projVal := lctx.mkLambda projArgs <| Expr.proj n i self
           let cval : ConstantVal := { name := projName, levelParams := indVal.levelParams, type := projType }
           withRef ref do
             if isProp then

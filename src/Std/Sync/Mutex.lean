@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
 prelude
-import Init.System.IO
-import Init.Control.StateRef
+import Std.Sync.Basic
 
 namespace Std
 
@@ -106,8 +105,7 @@ def Condvar.waitUntil [Monad m] [MonadLift BaseIO m]
 /--
 Mutual exclusion primitive (lock) guarding shared state of type `α`.
 
-The type `Mutex α` is similar to `IO.Ref α`,
-except that concurrent accesses are guarded by a mutex
+The type `Mutex α` is similar to `IO.Ref α`, except that concurrent accesses are guarded by a mutex
 instead of atomic pointer operations and busy-waiting.
 -/
 structure Mutex (α : Type) where private mk ::
@@ -122,13 +120,11 @@ def Mutex.new (a : α) : BaseIO (Mutex α) :=
   return { ref := ← IO.mkRef a, mutex := ← BaseMutex.new }
 
 /--
-`AtomicT α m` is the monad that can be atomically executed inside a `Mutex α`,
-with outside monad `m`.
-The action has access to the state `α` of the mutex (via `get` and `set`).
--/
-abbrev AtomicT := StateRefT' IO.RealWorld
+`mutex.atomically k` runs `k` with access to the mutex's state while locking the mutex.
 
-/-- `mutex.atomically k` runs `k` with access to the mutex's state while locking the mutex. -/
+Calling `mutex.atomically` while already holding the underlying `BaseMutex` in the same thread
+is undefined behavior.
+-/
 def Mutex.atomically [Monad m] [MonadLiftT BaseIO m] [MonadFinally m]
     (mutex : Mutex α) (k : AtomicT α m β) : m β := do
   try
@@ -141,7 +137,8 @@ def Mutex.atomically [Monad m] [MonadLiftT BaseIO m] [MonadFinally m]
 `mutex.tryAtomically k` tries to lock `mutex` and runs `k` on it if it succeeds. On success the
 return value of `k` is returned as `some`, on failure `none` is returned.
 
-This function does not block on the `mutex`.
+This function does not block on the `mutex`. Additionally calling `mutex.tryAtomically` while
+already holding the underlying `BaseMutex` in the same thread is undefined behavior.
 -/
 def Mutex.tryAtomically [Monad m] [MonadLiftT BaseIO m] [MonadFinally m]
     (mutex : Mutex α) (k : AtomicT α m β) : m (Option β) := do
@@ -154,9 +151,11 @@ def Mutex.tryAtomically [Monad m] [MonadLiftT BaseIO m] [MonadFinally m]
     return none
 
 /--
-`mutex.atomicallyOnce condvar pred k` runs `k`,
-waiting on `condvar` until `pred` returns true.
+`mutex.atomicallyOnce condvar pred k` runs `k`, waiting on `condvar` until `pred` returns true.
 Both `k` and `pred` have access to the mutex's state.
+
+Calling `mutex.atomicallyOnce` while already holding the underlying `BaseMutex` in the same thread
+is undefined behavior.
 -/
 def Mutex.atomicallyOnce [Monad m] [MonadLiftT BaseIO m] [MonadFinally m]
     (mutex : Mutex α) (condvar : Condvar)

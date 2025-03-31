@@ -63,6 +63,15 @@ void event_loop_init(event_loop_t * event_loop) {
     event_loop->n_waiters = 0;
 }
 
+// Destroy the event loop
+void event_loop_destroy(event_loop_t * event_loop) {
+    uv_stop(event_loop->loop);
+    check_uv(uv_loop_close(event_loop->loop));
+    uv_close((uv_handle_t*) &event_loop->async);
+    uv_cond_destroy(&event_loop->cond_var);
+    uv_mutex_destroy(&event_loop->mutex);
+}
+
 // Locks the event loop for the side of the requesters.
 void event_loop_lock(event_loop_t * event_loop) {
     if (uv_mutex_trylock(&event_loop->mutex) != 0) {
@@ -136,6 +145,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive(obj_arg /* w */ ) {
 
 void initialize_libuv_loop() {
     event_loop_init(&global_ev);
+}
+
+void finalize_libuv_loop() {
+    event_loop_destroy(&global_ev);
 }
 
 #else

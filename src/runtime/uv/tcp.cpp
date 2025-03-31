@@ -76,6 +76,11 @@ void initialize_libuv_tcp_socket() {
     });
 }
 
+void finalize_libuv_tcp_socket() {
+    // This gets deleted by `finalize_object()`.
+    g_uv_tcp_socket_external_class = nullptr;  
+}
+
 // =======================================
 // TCP Socket Operations
 

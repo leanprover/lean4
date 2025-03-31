@@ -55,6 +55,12 @@ void initialize_libuv_udp_socket() {
     });
 }
 
+
+void finalize_libuv_udp_socket() {
+    // This gets deleted by `finalize_object()`.
+    g_uv_udp_socket_external_class = nullptr;  
+}
+
 // =======================================
 // UDP Socket Operations
 

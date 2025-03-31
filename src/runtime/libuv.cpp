@@ -23,7 +23,6 @@ extern "C" void initialize_libuv() {
 }
 
 extern "C" void finalize_libuv() {
-    uv_stop(&global_ev);
     finalize_libuv_loop();
     finalize_libuv_udp_socket();
     finalize_libuv_tcp_socket();

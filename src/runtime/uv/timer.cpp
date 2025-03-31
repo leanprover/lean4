@@ -39,6 +39,11 @@ void initialize_libuv_timer() {
     });
 }
 
+void finalize_libuv_timer() {
+    // This gets deleted by `finalize_object()`.
+    g_uv_timer_external_class = nullptr;  
+}
+
 static bool timer_promise_is_finished(lean_uv_timer_object * timer) {
     return lean_io_get_task_state_core((lean_object *)lean_to_promise(timer->m_promise)->m_result) == 2;
 }

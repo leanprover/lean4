@@ -13,6 +13,7 @@ namespace lean {
 
 static lean_external_class* g_uv_tcp_socket_external_class = NULL;
 void initialize_libuv_tcp_socket();
+void finalize_libuv_tcp_socket();
 
 #ifndef LEAN_EMSCRIPTEN
 #include <uv.h>

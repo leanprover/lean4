@@ -34,6 +34,18 @@ Reentrant locking is undefined behavior (inherited from the C++ implementation).
 opaque BaseMutex.lock (mutex : @& BaseMutex) : BaseIO Unit
 
 /--
+Attempts to lock a `BaseMutex`. If the mutex is not available return `false`, otherwise lock it and
+return `true`.
+
+This function does not block.
+
+The current thread must not have already locked the mutex.
+Reentrant locking is undefined behavior (inherited from the C++ implementation).
+-/
+@[extern "lean_io_basemutex_try_lock"]
+opaque BaseMutex.tryLock (mutex : @& BaseMutex) : BaseIO Bool
+
+/--
 Unlocks a `BaseMutex`.
 
 The current thread must have already locked the mutex.
@@ -44,7 +56,27 @@ opaque BaseMutex.unlock (mutex : @& BaseMutex) : BaseIO Unit
 
 private opaque CondvarImpl : NonemptyType.{0}
 
-/-- Condition variable. -/
+/--
+Condition variable, a synchronization primitive to be used with a `BaseMutex` or `Mutex`.
+
+The thread that wants to modify the shared variable must:
+1. Lock the `BaseMutex` or `Mutex`
+2. Work on the shared variable
+3. Call `Condvar.notifyOne` or `Condvar.notifyAll` after it is done. Note that this may be done
+   before or after the mutex is unlocked.
+
+If working with a `Mutex` the thread that waits on the `Condvar` can use `Mutex.atomicallyOnce`
+to wait until a condition is true. If working with a `BaseMutex` it must:
+1. Lock the `BaseMutex`.
+2. Do one of the following:
+  - Use `Condvar.waitUntil` to (potentially repeatedly wait) on the condition variable until
+     the condition is true.
+  - Implement the waiting manually by:
+    1. Checking the condition
+    2. Calling `Condvar.wait` which releases the `BaseMutex` and suspends execution until the
+       condition variable is notified.
+    3. Check the condition and resume waiting if not satisfied.
+-/
 def Condvar : Type := CondvarImpl.type
 
 instance : Nonempty Condvar := CondvarImpl.property
@@ -104,6 +136,22 @@ def Mutex.atomically [Monad m] [MonadLiftT BaseIO m] [MonadFinally m]
     k mutex.ref
   finally
     mutex.mutex.unlock
+
+/--
+`mutex.tryAtomically k` tries to lock `mutex` and runs `k` on it if it succeeds. On success the
+return value of `k` is returned as `some`, on failure `none` is returned.
+
+This function does not block on the `mutex`.
+-/
+def Mutex.tryAtomically [Monad m] [MonadLiftT BaseIO m] [MonadFinally m]
+    (mutex : Mutex α) (k : AtomicT α m β) : m (Option β) := do
+  if ← mutex.mutex.tryLock then
+    try
+      k mutex.ref
+    finally
+      mutex.mutex.unlock
+  else
+    return none
 
 /--
 `mutex.atomicallyOnce condvar pred k` runs `k`,

@@ -9,7 +9,7 @@ import Init.Data.Nat.Mod
 import Init.Data.Int.LemmasAux
 
 /-!
-# Bitblasting of bitvectors
+# Bit blasting of bitvectors
 
 This module provides theorems for showing the equivalence between BitVec operations using
 the `Fin 2^n` representation and Boolean vectors.  It is still under development, but
@@ -19,21 +19,21 @@ as vectors of bits into proofs about Lean `BitVec` values.
 The module is named for the bit-blasting operation in an SMT solver that converts bitvector
 expressions into expressions about individual bits in each vector.
 
-### Example: How bitblasting works for multiplication
+### Example: How bit blasting works for multiplication
 
-We explain how the lemmas here are used for bitblasting,
+We explain how the lemmas here are used for bit blasting,
 by using multiplication as a prototypical example.
-Other bitblasters for other operations follow the same pattern.
-To bitblast a multiplication of the form `x * y`,
+Other bit blasters for other operations follow the same pattern.
+To bit blast a multiplication of the form `x * y`,
 we must unfold the above into a form that the SAT solver understands.
 
-We assume that the solver already knows how to bitblast addition.
+We assume that the solver already knows how to bit blast addition.
 This is known to `bv_decide`, by exploiting the lemma `add_eq_adc`,
 which says that `x + y : BitVec w` equals `(adc x y false).2`,
 where `adc` builds an add-carry circuit in terms of the primitive operations
 (bitwise and, bitwise or, bitwise xor) that bv_decide already understands.
-In this way, we layer bitblasters on top of each other,
-by reducing the multiplication bitblaster to an addition operation.
+In this way, we layer bit blasters on top of each other,
+by reducing the multiplication bit blaster to an addition operation.
 
 The core lemma is given by `getLsbD_mul`:
 
@@ -65,7 +65,7 @@ mulRec_succ_eq
 By repeatedly applying the lemmas `mulRec_zero_eq` and `mulRec_succ_eq`,
 one obtains a circuit for multiplication.
 Note that this circuit uses `BitVec.add`, `BitVec.getLsbD`, `BitVec.shiftLeft`.
-Here, `BitVec.add` and `BitVec.shiftLeft` are (recursively) bitblasted by `bv_decide`,
+Here, `BitVec.add` and `BitVec.shiftLeft` are (recursively) bit blasted by `bv_decide`,
 using the lemmas `add_eq_adc` and `shiftLeft_eq_shiftLeftRec`,
 and `BitVec.getLsbD` is a primitive that `bv_decide` knows how to reduce to SAT.
 
@@ -88,10 +88,10 @@ computes the correct value for multiplication.
 
 To zoom out, therefore, we follow two steps:
 First, we prove bitvector lemmas to unfold a high-level operation (such as multiplication)
-into already bitblastable operations (such as addition and left shift).
+into already bit blastable operations (such as addition and left shift).
 We then use these lemmas to prove the correctness of the circuit that `bv_decide` builds.
 
-We use this workflow to implement bitblasting for all SMT-LIB v2 operations.
+We use this workflow to implement bit blasting for all SMT-LIB v2 operations.
 
 ## Main results
 * `x + y : BitVec w` is `(adc x y false).2`.
@@ -619,11 +619,12 @@ theorem sle_eq_ule {x y : BitVec w} : x.sle y = (x.msb != y.msb ^^ x.ule y) := b
 theorem sle_eq_ule_of_msb_eq {x y : BitVec w} (h : x.msb = y.msb) : x.sle y = x.ule y := by
   simp [BitVec.sle_eq_ule, h]
 
-/-! ### mul recurrence for bitblasting -/
+/-! ### mul recurrence for bit blasting -/
 
 /--
 A recurrence that describes multiplication as repeated addition.
-Is useful for bitblasting multiplication.
+
+This function is useful for bit blasting multiplication.
 -/
 def mulRec (x y : BitVec w) (s : Nat) : BitVec w :=
   let cur := if y.getLsbD s then (x <<< s) else 0
@@ -723,15 +724,16 @@ theorem getElem_mul {x y : BitVec w} {i : Nat} (h : i < w) :
     (x * y)[i] = (mulRec x y w)[i] := by
   simp [mulRec_eq_mul_signExtend_setWidth]
 
-/-! ## shiftLeft recurrence for bitblasting -/
+/-! ## shiftLeft recurrence for bit blasting -/
 
 /--
-`shiftLeftRec x y n` shifts `x` to the left by the first `n` bits of `y`.
+Shifts `x` to the left by the first `n` bits of `y`.
 
-The theorem `shiftLeft_eq_shiftLeftRec` proves the equivalence of `(x <<< y)` and `shiftLeftRec`.
+The theorem `BitVec.shiftLeft_eq_shiftLeftRec` proves the equivalence of `(x <<< y)` and
+`BitVec.shiftLeftRec x y`.
 
-Together with equations `shiftLeftRec_zero`, `shiftLeftRec_succ`,
-this allows us to unfold `shiftLeft` into a circuit for bitblasting.
+Together with equations `BitVec.shiftLeftRec_zero` and `BitVec.shiftLeftRec_succ`, this allows
+`BitVec.shiftLeft` to be unfolded into a circuit for bit blasting.
  -/
 def shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
   let shiftAmt := (y &&& (twoPow w₂ n))
@@ -785,7 +787,7 @@ theorem shiftLeftRec_eq {x : BitVec w₁} {y : BitVec w₂} {n : Nat} :
 
 /--
 Show that `x <<< y` can be written in terms of `shiftLeftRec`.
-This can be unfolded in terms of `shiftLeftRec_zero`, `shiftLeftRec_succ` for bitblasting.
+This can be unfolded in terms of `shiftLeftRec_zero`, `shiftLeftRec_succ` for bit blasting.
 -/
 theorem shiftLeft_eq_shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) :
     x <<< y = shiftLeftRec x y (w₂ - 1) := by
@@ -793,7 +795,7 @@ theorem shiftLeft_eq_shiftLeftRec (x : BitVec w₁) (y : BitVec w₂) :
   · simp [of_length_zero]
   · simp [shiftLeftRec_eq]
 
-/-! # udiv/urem recurrence for bitblasting
+/-! # udiv/urem recurrence for bit blasting
 
 In order to prove the correctness of the division algorithm on the integers,
 one shows that `n.div d = q` and `n.mod d = r` iff `n = d * q + r` and `0 ≤ r < d`.
@@ -1000,8 +1002,9 @@ def DivModState.wr_lt_w {qr : DivModState w} (h : qr.Poised args) : qr.wr < w :=
 /-! ### Division shift subtractor -/
 
 /--
-One round of the division algorithm, that tries to perform a subtract shift.
-Note that this should only be called when `r.msb = false`, so we will not overflow.
+One round of the division algorithm. It tries to perform a subtract shift.
+
+This should only be called when `r.msb = false`, so it will not overflow.
 -/
 def divSubtractShift (args : DivModArgs w) (qr : DivModState w) : DivModState w :=
   let {n, d} := args
@@ -1091,7 +1094,7 @@ theorem lawful_divSubtractShift (qr : DivModState w) (h : qr.Poised args) :
 
 /-! ### Core division algorithm circuit -/
 
-/-- A recursive definition of division for bitblasting, in terms of a shift-subtraction circuit. -/
+/-- A recursive definition of division for bit blasting, in terms of a shift-subtraction circuit. -/
 def divRec {w : Nat} (m : Nat) (args : DivModArgs w) (qr : DivModState w) :
     DivModState w :=
   match m with
@@ -1188,10 +1191,12 @@ theorem getMsbD_udiv (n d : BitVec w) (hd : 0#w < d)  (i : Nat) :
 /- ### Arithmetic shift right (sshiftRight) recurrence -/
 
 /--
-`sshiftRightRec x y n` shifts `x` arithmetically/signed to the right by the first `n` bits of `y`.
-The theorem `sshiftRight_eq_sshiftRightRec` proves the equivalence of `(x.sshiftRight y)` and `sshiftRightRec`.
-Together with equations `sshiftRightRec_zero`, `sshiftRightRec_succ`,
-this allows us to unfold `sshiftRight` into a circuit for bitblasting.
+Shifts `x` arithmetically (signed) to the right by the first `n` bits of `y`.
+
+The theorem `BitVec.sshiftRight_eq_sshiftRightRec` proves the equivalence of `(x.sshiftRight y)` and
+`BitVec.sshiftRightRec x y`. Together with equations `BitVec.sshiftRightRec_zero`, and
+`BitVec.sshiftRightRec_succ`, this allows `BitVec.sshiftRight` to be unfolded into a circuit for
+bit blasting.
 -/
 def sshiftRightRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
   let shiftAmt := (y &&& (twoPow w₂ n))
@@ -1238,7 +1243,7 @@ theorem sshiftRightRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :
 
 /--
 Show that `x.sshiftRight y` can be written in terms of `sshiftRightRec`.
-This can be unfolded in terms of `sshiftRightRec_zero_eq`, `sshiftRightRec_succ_eq` for bitblasting.
+This can be unfolded in terms of `sshiftRightRec_zero_eq`, `sshiftRightRec_succ_eq` for bit blasting.
 -/
 theorem sshiftRight_eq_sshiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
     (x.sshiftRight' y).getLsbD i = (sshiftRightRec x y (w₂ - 1)).getLsbD i := by
@@ -1246,16 +1251,16 @@ theorem sshiftRight_eq_sshiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
   · simp [of_length_zero]
   · simp [sshiftRightRec_eq]
 
-/- ### Logical shift right (ushiftRight) recurrence for bitblasting -/
+/- ### Logical shift right (ushiftRight) recurrence for bit blasting -/
 
 /--
-`ushiftRightRec x y n` shifts `x` logically to the right by the first `n` bits of `y`.
+Shifts `x` logically to the right by the first `n` bits of `y`.
 
-The theorem `shiftRight_eq_ushiftRightRec` proves the equivalence
-of `(x >>> y)` and `ushiftRightRec`.
+The theorem `BitVec.shiftRight_eq_ushiftRightRec` proves the equivalence
+of `(x >>> y)` and `BitVec.ushiftRightRec`.
 
-Together with equations `ushiftRightRec_zero`, `ushiftRightRec_succ`,
-this allows us to unfold `ushiftRight` into a circuit for bitblasting.
+Together with equations `BitVec.ushiftRightRec_zero` and `BitVec.ushiftRightRec_succ`,
+this allows `BitVec.ushiftRight` to be unfolded into a circuit for bit blasting.
 -/
 def ushiftRightRec (x : BitVec w₁) (y : BitVec w₂) (n : Nat) : BitVec w₁ :=
   let shiftAmt := (y &&& (twoPow w₂ n))
@@ -1301,7 +1306,7 @@ theorem ushiftRightRec_eq (x : BitVec w₁) (y : BitVec w₂) (n : Nat) :
 
 /--
 Show that `x >>> y` can be written in terms of `ushiftRightRec`.
-This can be unfolded in terms of `ushiftRightRec_zero`, `ushiftRightRec_succ` for bitblasting.
+This can be unfolded in terms of `ushiftRightRec_zero`, `ushiftRightRec_succ` for bit blasting.
 -/
 theorem shiftRight_eq_ushiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
     x >>> y = ushiftRightRec x y (w₂ - 1) := by
@@ -1693,7 +1698,7 @@ theorem toInt_srem (x y : BitVec w) : (x.srem y).toInt = x.toInt.tmod y.toInt :=
         ((not_congr neg_eq_zero_iff).mpr hyz)]
       exact neg_le_intMin_of_msb_eq_true h'
 
-/-! ### Lemmas that use Bitblasting circuits -/
+/-! ### Lemmas that use bit blasting circuits -/
 
 theorem add_sub_comm {x y : BitVec w} : x + y - z = x - z + y := by
   apply eq_of_toNat_eq

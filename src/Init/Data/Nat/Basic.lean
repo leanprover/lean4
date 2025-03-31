@@ -1170,8 +1170,14 @@ protected theorem mul_sub_right_distrib (n m k : Nat) : (n - m) * k = n * k - m 
   | zero => simp
   | succ m ih => rw [Nat.sub_succ, Nat.pred_mul, ih, succ_mul, Nat.sub_sub]; done
 
+protected theorem sub_mul (n m k : Nat) : (n - m) * k = n * k - m * k :=
+  Nat.mul_sub_right_distrib n m k
+
 protected theorem mul_sub_left_distrib (n m k : Nat) : n * (m - k) = n * m - n * k := by
   rw [Nat.mul_comm, Nat.mul_sub_right_distrib, Nat.mul_comm m n, Nat.mul_comm n k]
+
+protected theorem mul_sub (n m k : Nat) : n * (m - k) = n * m - n * k :=
+  Nat.mul_sub_left_distrib n m k
 
 /-! # Helper normalization theorems -/
 

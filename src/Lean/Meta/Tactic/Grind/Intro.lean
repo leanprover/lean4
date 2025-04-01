@@ -17,7 +17,7 @@ import Lean.Meta.Tactic.Grind.Combinators
 namespace Lean.Meta.Grind
 
 private inductive IntroResult where
-  | done
+  | done (goal : Goal)
   | newHyp (fvarId : FVarId) (goal : Goal)
   | newDepHyp (goal : Goal)
   | newLocal (fvarId : FVarId) (goal : Goal)
@@ -98,54 +98,81 @@ private def intro1 : GoalM FVarId := do
   modify fun s => { s with mvarId }
   return fvarId
 
-private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := do
+private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := do
   Prod.fst <$> GoalM.run goal do
     let target ← (← get).mvarId.getType
-    if target.isArrow then
+    if target.isForall then
       let p := target.bindingDomain!
       if !(← isProp p) then
         let fvarId ← intro1
         return .newLocal fvarId (← get)
       else
-        let tag ← (← get).mvarId.getTag
-        let q := target.bindingBody!
-        let r ← preprocessHypothesis p
-        let fvarId ← mkFreshFVarId
-        let lctx := (← getLCtx).mkLocalDecl fvarId (← mkCleanName target.bindingName! r.expr) r.expr target.bindingInfo!
         let mvarId := (← get).mvarId
-        let mvarNew ← mkFreshExprMVarAt lctx (← getLocalInstances) q .syntheticOpaque tag
-        let mvarIdNew := mvarNew.mvarId!
-        mvarIdNew.withContext do
-          let h ← mkLambdaFVars #[mkFVar fvarId] mvarNew
-          match r.proof? with
-          | some he =>
+        let tag ← mvarId.getTag
+        let qBase := target.bindingBody!
+        let fvarId ← mkFreshFVarId
+        let fvar := mkFVar fvarId
+        let r ← preprocessHypothesis p
+        let lctx := (← getLCtx).mkLocalDecl fvarId (← mkCleanName target.bindingName! r.expr) r.expr target.bindingInfo!
+        let mut localInsts ← getLocalInstances
+        if let some className ← isClass? r.expr then
+          localInsts := localInsts.push { className, fvar }
+        match r.proof? with
+        | some he =>
+          if target.isArrow then
+            let q := qBase
             let u ← getLevel q
-            let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq [u]) #[p, r.expr, q, he, h]
-            mvarId.assign hNew
-            return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
-          | none =>
-            -- `p` and `p'` are definitionally equal
+            let mvarNew ← mkFreshExprMVarAt lctx localInsts q .syntheticOpaque tag
+            let mvarIdNew := mvarNew.mvarId!
+            mvarIdNew.withContext do
+              let h ← mkLambdaFVars #[fvar] mvarNew
+              let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq [u]) #[p, r.expr, q, he, h]
+              mvarId.assign hNew
+              return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
+          else
+            let q := mkLambda target.bindingName! target.bindingInfo! p qBase
+            let q' := qBase.instantiate1 (mkApp4 (mkConst ``Eq.mpr_prop) p r.expr he fvar)
+            let u ← getLevel q'
+            let mvarNew ← mkFreshExprMVarAt lctx localInsts q' .syntheticOpaque tag
+            let mvarIdNew := mvarNew.mvarId!
+            mvarIdNew.withContext do
+              let h ← mkLambdaFVars #[fvar] mvarNew
+              let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq' [u]) #[p, r.expr, q, he, h]
+              mvarId.assign hNew
+              return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
+        | none =>
+          -- `p` and `p'` are definitionally equal
+          let q := if target.isArrow then qBase else qBase.instantiate1 (mkFVar fvarId)
+          let mvarNew ← mkFreshExprMVarAt lctx localInsts q .syntheticOpaque tag
+          let mvarIdNew := mvarNew.mvarId!
+          mvarIdNew.withContext do
+            let h ← mkLambdaFVars #[mkFVar fvarId] mvarNew
             mvarId.assign h
             return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
-    else if target.isLet || target.isForall || target.isLetFun then
-      let fvarId ← intro1
-      (← get).mvarId.withContext do
-        let localDecl ← fvarId.getDecl
-        if (← isProp localDecl.type) then
-          -- Add a non-dependent copy
-          let mvarId ← (← get).mvarId.assert (← mkCleanName `h localDecl.type) localDecl.type (mkFVar fvarId)
-          return .newDepHyp { (← get) with mvarId }
-        else
-          if target.isLet || target.isLetFun then
+    else if target.isLet || target.isLetFun then
+      if (← getConfig).zetaDelta then
+        let targetNew := expandLet target #[]
+        let mvarId := (← get).mvarId
+        mvarId.withContext do
+          let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew (← mvarId.getTag)
+          mvarId.assign mvarNew
+          introNext { (← get) with mvarId := mvarNew.mvarId! } generation
+      else
+        let fvarId ← intro1
+        (← get).mvarId.withContext do
+          let localDecl ← fvarId.getDecl
+          if (← isProp localDecl.type) then
+            -- Add a non-dependent copy
+            let mvarId ← (← get).mvarId.assert (← mkCleanName `h localDecl.type) localDecl.type (mkFVar fvarId)
+            return .newDepHyp { (← get) with mvarId }
+          else
             let v := (← fvarId.getDecl).value
             let r ← preprocessHypothesis v
             let x ← shareCommon (mkFVar fvarId)
             addNewEq x r.expr (← r.getProof) generation
             return .newLocal fvarId (← get)
-          else
-            return .newLocal fvarId (← get)
     else
-      return .done
+      return .done goal
 
 private def isEagerCasesCandidate (goal : Goal) (type : Expr) : Bool := Id.run do
   let .const declName _ := type.getAppFn | return false
@@ -183,7 +210,7 @@ partial def intros  (generation : Nat) : GrindTactic' := fun goal => do
     if goal.inconsistent then
       return ()
     match (← introNext goal generation) with
-    | .done =>
+    | .done goal =>
       let goal ← exfalsoIfNotProp goal
       if let some mvarId ← goal.mvarId.byContra? then
         go { goal with mvarId }
@@ -216,7 +243,7 @@ def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : GrindTactic' := f
     let goal ← GoalM.run' goal do
       let r ← preprocess prop
       let prop' := r.expr
-      let proof' ← mkEqMP (← r.getProof) proof
+      let proof' := mkApp4 (mkConst ``Eq.mp [levelZero]) prop r.expr (← r.getProof) proof
       add prop' proof' generation
     if goal.inconsistent then return [] else return [goal]
 

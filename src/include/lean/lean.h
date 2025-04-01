@@ -10,6 +10,12 @@ Author: Leonardo de Moura
 #include <stdint.h>
 #include <limits.h>
 
+#include <lean/config.h>
+
+#ifdef LEAN_MIMALLOC
+#include <lean/mimalloc.h>
+#endif
+
 #ifdef __cplusplus
 #include <atomic>
 #include <stdlib.h>
@@ -19,7 +25,6 @@ extern "C" {
 #else
 #define  LEAN_USING_STD
 #endif
-#include <lean/config.h>
 
 #define LEAN_CLOSURE_MAX_ARGS      16
 #define LEAN_OBJECT_SIZE_DELTA     8
@@ -111,7 +116,8 @@ reference counting is not needed (== 0). We don't use reference counting for obj
 marked as persistent.
 
 For "small" objects stored in compact regions, the field `m_cs_sz` contains the object size. For "small" objects not
-stored in compact regions, we use the page information to retrieve its size.
+stored in compact regions, we use the page information to retrieve its size. This is not an option
+with mimalloc, so there we always use `m_cs_sz` (TODO: do everywhere?).
 
 During deallocation and 64-bit machines, the fields `m_rc` and `m_cs_sz` store the next object in the deletion TODO list.
 These two fields together have 48-bits, and this is enough for modern computers.
@@ -343,10 +349,20 @@ static inline lean_object * lean_alloc_small_object(unsigned sz) {
     return (lean_object*)lean_alloc_small(sz, slot_idx);
 #else
     lean_inc_heartbeat();
+#ifdef LEAN_MIMALLOC
+    // HACK: emulate behavior of small allocator to avoid `leangz` breakage for now
+    sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
+    void * mem = mi_malloc_small(sz);
+    if (mem == 0) lean_internal_panic_out_of_memory();
+    lean_object * o = (lean_object*)mem;
+    o->m_cs_sz = sz;
+    return o;
+#else
     void * mem = malloc(sizeof(size_t) + sz);
     if (mem == 0) lean_internal_panic_out_of_memory();
     *(size_t*)mem = sz;
     return (lean_object*)((size_t*)mem + 1);
+#endif
 #endif
 }
 
@@ -370,6 +386,14 @@ static inline lean_object * lean_alloc_ctor_memory(unsigned sz) {
         end[-1] = 0;
     }
     return r;
+#elif defined(LEAN_MIMALLOC)
+    unsigned sz1 = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
+    lean_object* r = lean_alloc_small_object(sz);
+    if (sz1 > sz) {
+        size_t * end = (size_t*)(((char*)r) + sz1);
+        end[-1] = 0;
+    }
+    return r;
 #else
     return lean_alloc_small_object(sz);
 #endif
@@ -378,6 +402,8 @@ static inline lean_object * lean_alloc_ctor_memory(unsigned sz) {
 static inline unsigned lean_small_object_size(lean_object * o) {
 #ifdef LEAN_SMALL_ALLOCATOR
     return lean_small_mem_size(o);
+#elif defined(LEAN_MIMALLOC)
+    return o->m_cs_sz;
 #else
     return *((size_t*)o - 1);
 #endif
@@ -394,6 +420,8 @@ void free_sized(void* ptr, size_t);
 static inline void lean_free_small_object(lean_object * o) {
 #ifdef LEAN_SMALL_ALLOCATOR
     lean_free_small(o);
+#elif defined(LEAN_MIMALLOC)
+    mi_free_size((void *)o, o->m_cs_sz);
 #else
     size_t* ptr = (size_t*)o - 1;
     free_sized(ptr, *ptr + sizeof(size_t));
@@ -532,7 +560,10 @@ static inline void lean_set_st_header(lean_object * o, unsigned tag, unsigned ot
     o->m_rc       = 1;
     o->m_tag      = tag;
     o->m_other    = other;
-    o->m_cs_sz    = 0;
+#ifndef LEAN_MIMALLOC
+    // already initialized by `lean_alloc(_small)_object` when using mimalloc
+     o->m_cs_sz    = 0;
+#endif
 }
 
 /* Remark: we don't need a reference counter for objects that are not stored in the heap.

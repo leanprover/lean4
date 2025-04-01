@@ -272,6 +272,11 @@ def minEntry?ₘ' [Ord α] (l : Impl α β) : Option ((a : α) × β a) :=
 def minEntry?ₘ [Ord α] (l : Impl α β) : Option ((a : α) × β a) :=
   applyPartition (fun (_ : α) => .lt) l fun _ _ _ r => r.head?
 
+/-- Internal implementation detail of the tree map -/
+def reverse : Impl α β → Impl α β
+  | .leaf => .leaf
+  | .inner sz k v l r => .inner sz k v (reverse r) (reverse l)
+
 /--
 Model implementation of the `insert` function.
 Internal implementation detail of the tree map
@@ -479,6 +484,30 @@ theorem minKey_eq_minEntry_fst [Ord α] {l : Impl α β} {he} : l.minKey he = (l
 theorem minKey!_eq_get!_minKey? [Ord α] [Inhabited α] {l : Impl α β} :
     l.minKey! = l.minKey?.get! := by
   induction l using minKey!.induct <;> simp_all only [minKey!, minKey?] <;> rfl
+
+theorem minKeyD_eq_getD_minKey? [Ord α] {l : Impl α β} {fallback} :
+    l.minKeyD fallback = l.minKey?.getD fallback := by
+  induction l, fallback using minKeyD.induct <;> simp_all only [minKeyD, minKey?] <;> rfl
+
+theorem maxKey?_eq_minKey?_reverse [Ord α] {l : Impl α β} :
+    l.maxKey? = (letI : Ord α := .opposite inferInstance; (reverse l).minKey?) := by
+  induction l using maxKey?.induct <;> simp_all only [minKey?, maxKey?, reverse]
+
+theorem some_maxKey_eq_maxKey? [Ord α] {l : Impl α β} {he} :
+    some (l.maxKey he) = l.maxKey? := by
+  induction l, he using maxKey.induct <;> simp_all [maxKey, maxKey?]
+
+theorem maxKey_eq_get_maxKey? [Ord α] {l : Impl α β} {he} :
+    l.maxKey he = l.maxKey?.get (by simp [← some_maxKey_eq_maxKey? (he := he)]) := by
+  simp [← some_maxKey_eq_maxKey? (he := he)]
+
+theorem maxKey!_eq_get!_maxKey? [Ord α] [Inhabited α] {l : Impl α β} :
+    l.maxKey! = l.maxKey?.get! := by
+  induction l using maxKey!.induct <;> simp_all only [maxKey!, maxKey?] <;> rfl
+
+theorem maxKeyD_eq_getD_maxKey? [Ord α] {l : Impl α β} {fallback} :
+    l.maxKeyD fallback = l.maxKey?.getD fallback := by
+  induction l, fallback using maxKeyD.induct <;> simp_all only [maxKeyD, maxKey?] <;> rfl
 
 theorem balanceL_eq_balance {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceL k v l r hlb hrb hlr = balance k v l r hlb hrb (Or.inl hlr.erase) := by

@@ -20,11 +20,11 @@ open Nat
 /-! ### countP -/
 section countP
 
-variable (p q : α → Bool)
+variable {p q : α → Bool}
 
 @[simp] theorem countP_nil : countP p [] = 0 := rfl
 
-protected theorem countP_go_eq_add (l) : countP.go p l n = n + countP.go p l 0 := by
+protected theorem countP_go_eq_add {l} : countP.go p l n = n + countP.go p l 0 := by
   induction l generalizing n with
   | nil => rfl
   | cons hd _ ih =>
@@ -32,40 +32,40 @@ protected theorem countP_go_eq_add (l) : countP.go p l n = n + countP.go p l 0 :
     rw [ih (n := n + 1), ih (n := n), ih (n := 1)]
     if h : p hd then simp [h, Nat.add_assoc] else simp [h]
 
-@[simp] theorem countP_cons_of_pos (l) (pa : p a) : countP p (a :: l) = countP p l + 1 := by
+@[simp] theorem countP_cons_of_pos {l} (pa : p a) : countP p (a :: l) = countP p l + 1 := by
   have : countP.go p (a :: l) 0 = countP.go p l 1 := show cond .. = _ by rw [pa]; rfl
   unfold countP
   rw [this, Nat.add_comm, List.countP_go_eq_add]
 
-@[simp] theorem countP_cons_of_neg (l) (pa : ¬p a) : countP p (a :: l) = countP p l := by
+@[simp] theorem countP_cons_of_neg {l} (pa : ¬p a) : countP p (a :: l) = countP p l := by
   simp [countP, countP.go, pa]
 
-theorem countP_cons (a : α) (l) : countP p (a :: l) = countP p l + if p a then 1 else 0 := by
+theorem countP_cons {a : α} {l : List α} : countP p (a :: l) = countP p l + if p a then 1 else 0 := by
   by_cases h : p a <;> simp [h]
 
-@[simp] theorem countP_singleton (a : α) : countP p [a] = if p a then 1 else 0 := by
+@[simp] theorem countP_singleton {a : α} : countP p [a] = if p a then 1 else 0 := by
   simp [countP_cons]
 
-theorem length_eq_countP_add_countP (l) : length l = countP p l + countP (fun a => ¬p a) l := by
+theorem length_eq_countP_add_countP (p : α → Bool) {l : List α} : length l = countP p l + countP (fun a => ¬p a) l := by
   induction l with
   | nil => rfl
   | cons hd _ ih =>
     if h : p hd then
-      rw [countP_cons_of_pos _ _ h, countP_cons_of_neg _ _ _, length, ih]
+      rw [countP_cons_of_pos h, countP_cons_of_neg _, length, ih]
       · rw [Nat.add_assoc, Nat.add_comm _ 1, Nat.add_assoc]
       · simp [h]
     else
-      rw [countP_cons_of_pos (fun a => ¬p a) _ _, countP_cons_of_neg _ _ h, length, ih]
+      rw [countP_cons_of_pos (p := fun a => ¬p a), countP_cons_of_neg h, length, ih]
       · rfl
       · simp [h]
 
-theorem countP_eq_length_filter (l) : countP p l = length (filter p l) := by
+theorem countP_eq_length_filter {l : List α} : countP p l = length (filter p l) := by
   induction l with
   | nil => rfl
   | cons x l ih =>
     if h : p x
-    then rw [countP_cons_of_pos p l h, ih, filter_cons_of_pos h, length]
-    else rw [countP_cons_of_neg p l h, ih, filter_cons_of_neg h]
+    then rw [countP_cons_of_pos h, ih, filter_cons_of_pos h, length]
+    else rw [countP_cons_of_neg h, ih, filter_cons_of_neg h]
 
 theorem countP_eq_length_filter' : countP p = length ∘ filter p := by
   funext l
@@ -75,7 +75,7 @@ theorem countP_le_length : countP p l ≤ l.length := by
   simp only [countP_eq_length_filter]
   apply length_filter_le
 
-@[simp] theorem countP_append (l₁ l₂) : countP p (l₁ ++ l₂) = countP p l₁ + countP p l₂ := by
+@[simp] theorem countP_append {l₁ l₂ : List α} : countP p (l₁ ++ l₂) = countP p l₁ + countP p l₂ := by
   simp only [countP_eq_length_filter, filter_append, length_append]
 
 @[simp] theorem countP_pos_iff {p} : 0 < countP p l ↔ ∃ a ∈ l, p a := by
@@ -92,12 +92,12 @@ theorem countP_le_length : countP p l ≤ l.length := by
 @[simp] theorem countP_eq_length {p} : countP p l = l.length ↔ ∀ a ∈ l, p a := by
   rw [countP_eq_length_filter, length_filter_eq_length_iff]
 
-theorem countP_replicate (p : α → Bool) (a : α) (n : Nat) :
+theorem countP_replicate {p : α → Bool} {a : α} {n : Nat} :
     countP p (replicate n a) = if p a then n else 0 := by
   simp only [countP_eq_length_filter, filter_replicate]
   split <;> simp
 
-theorem boole_getElem_le_countP (p : α → Bool) (l : List α) (i : Nat) (h : i < l.length) :
+theorem boole_getElem_le_countP {p : α → Bool} {l : List α} {i : Nat} (h : i < l.length) :
     (if p l[i] then 1 else 0) ≤ l.countP p := by
   induction l generalizing i with
   | nil => simp at h
@@ -107,25 +107,25 @@ theorem boole_getElem_le_countP (p : α → Bool) (l : List α) (i : Nat) (h : i
     | succ i =>
       simp only [length_cons, add_one_lt_add_one_iff] at h
       simp only [getElem_cons_succ, countP_cons]
-      specialize ih _ h
+      specialize ih h
       exact le_add_right_of_le ih
 
 theorem Sublist.countP_le (s : l₁ <+ l₂) : countP p l₁ ≤ countP p l₂ := by
   simp only [countP_eq_length_filter]
   apply s.filter _ |>.length_le
 
-theorem IsPrefix.countP_le (s : l₁ <+: l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le _
-theorem IsSuffix.countP_le (s : l₁ <:+ l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le _
-theorem IsInfix.countP_le (s : l₁ <:+: l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le _
+theorem IsPrefix.countP_le (s : l₁ <+: l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le
+theorem IsSuffix.countP_le (s : l₁ <:+ l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le
+theorem IsInfix.countP_le (s : l₁ <:+: l₂) : countP p l₁ ≤ countP p l₂ := s.sublist.countP_le
 
 -- See `Init.Data.List.Nat.Count` for `Sublist.le_countP : countP p l₂ - (l₂.length - l₁.length) ≤ countP p l₁`.
 
 theorem countP_tail_le (l) : countP p l.tail ≤ countP p l :=
-  (tail_sublist l).countP_le _
+  (tail_sublist l).countP_le
 
 -- See `Init.Data.List.Nat.Count` for `le_countP_tail : countP p l - 1 ≤ countP p l.tail`.
 
-theorem countP_filter (l : List α) :
+theorem countP_filter {l : List α} :
     countP p (filter q l) = countP (fun a => p a && q a) l := by
   simp only [countP_eq_length_filter, filter_filter]
 
@@ -137,12 +137,12 @@ theorem countP_filter (l : List α) :
   funext l
   simp
 
-@[simp] theorem countP_map (p : β → Bool) (f : α → β) :
-    ∀ l, countP p (map f l) = countP (p ∘ f) l
+@[simp] theorem countP_map {p : β → Bool} {f : α → β} :
+    ∀ {l}, countP p (map f l) = countP (p ∘ f) l
   | [] => rfl
-  | a :: l => by rw [map_cons, countP_cons, countP_cons, countP_map p f l]; rfl
+  | a :: l => by rw [map_cons, countP_cons, countP_cons, countP_map]; rfl
 
-theorem length_filterMap_eq_countP (f : α → Option β) (l : List α) :
+theorem length_filterMap_eq_countP {f : α → Option β} {l : List α} :
     (filterMap f l).length = countP (fun a => (f a).isSome) l := by
   induction l with
   | nil => rfl
@@ -150,7 +150,7 @@ theorem length_filterMap_eq_countP (f : α → Option β) (l : List α) :
     simp only [filterMap_cons, countP_cons]
     split <;> simp [ih, *]
 
-theorem countP_filterMap (p : β → Bool) (f : α → Option β) (l : List α) :
+theorem countP_filterMap {p : β → Bool} {f : α → Option β} {l : List α} :
     countP p (filterMap f l) = countP (fun a => ((f a).map p).getD false) l := by
   simp only [countP_eq_length_filter, filter_filterMap, ← filterMap_eq_filter]
   simp only [length_filterMap_eq_countP]
@@ -158,21 +158,19 @@ theorem countP_filterMap (p : β → Bool) (f : α → Option β) (l : List α) 
   ext a
   simp +contextual [Option.getD_eq_iff, Option.isSome_eq_isSome]
 
-@[simp] theorem countP_flatten (l : List (List α)) :
+@[simp] theorem countP_flatten {l : List (List α)} :
     countP p l.flatten = (l.map (countP p)).sum := by
   simp only [countP_eq_length_filter, filter_flatten]
   simp [countP_eq_length_filter']
 
 @[deprecated countP_flatten (since := "2024-10-14")] abbrev countP_join := @countP_flatten
 
-theorem countP_flatMap (p : β → Bool) (l : List α) (f : α → List β) :
+theorem countP_flatMap {p : β → Bool} {l : List α} {f : α → List β} :
     countP p (l.flatMap f) = sum (map (countP p ∘ f) l) := by
   rw [List.flatMap, countP_flatten, map_map]
 
-@[simp] theorem countP_reverse (l : List α) : countP p l.reverse = countP p l := by
+@[simp] theorem countP_reverse {l : List α} : countP p l.reverse = countP p l := by
   simp [countP_eq_length_filter, filter_reverse]
-
-variable {p q}
 
 theorem countP_mono_left (h : ∀ x ∈ l, p x → q x) : countP p l ≤ countP q l := by
   induction l with
@@ -200,70 +198,69 @@ section count
 
 variable [BEq α]
 
-@[simp] theorem count_nil (a : α) : count a [] = 0 := rfl
+@[simp] theorem count_nil {a : α} : count a [] = 0 := rfl
 
-theorem count_cons (a b : α) (l : List α) :
+theorem count_cons {a b : α} {l : List α} :
     count a (b :: l) = count a l + if b == a then 1 else 0 := by
   simp [count, countP_cons]
 
-theorem count_eq_countP (a : α) (l : List α) : count a l = countP (· == a) l := rfl
+theorem count_eq_countP {a : α} {l : List α} : count a l = countP (· == a) l := rfl
 theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
   funext l
   apply count_eq_countP
 
-theorem count_tail : ∀ (l : List α) (a : α) (h : l ≠ []),
+theorem count_tail : ∀ {l : List α} (h : l ≠ []) (a : α),
       l.tail.count a = l.count a - if l.head h == a then 1 else 0
   | _ :: _, a, _ => by simp [count_cons]
 
-theorem count_le_length (a : α) (l : List α) : count a l ≤ l.length := countP_le_length _
+theorem count_le_length {a : α} {l : List α} : count a l ≤ l.length := countP_le_length
 
-theorem Sublist.count_le (h : l₁ <+ l₂) (a : α) : count a l₁ ≤ count a l₂ := h.countP_le _
+theorem Sublist.count_le (a : α) (h : l₁ <+ l₂) : count a l₁ ≤ count a l₂ := h.countP_le
 
-theorem IsPrefix.count_le (h : l₁ <+: l₂) (a : α) : count a l₁ ≤ count a l₂ := h.sublist.count_le _
-theorem IsSuffix.count_le (h : l₁ <:+ l₂) (a : α) : count a l₁ ≤ count a l₂ := h.sublist.count_le _
-theorem IsInfix.count_le (h : l₁ <:+: l₂) (a : α) : count a l₁ ≤ count a l₂ := h.sublist.count_le _
+theorem IsPrefix.count_le (a : α) (h : l₁ <+: l₂) : count a l₁ ≤ count a l₂ := h.sublist.count_le a
+theorem IsSuffix.count_le (a : α) (h : l₁ <:+ l₂) : count a l₁ ≤ count a l₂ := h.sublist.count_le a
+theorem IsInfix.count_le (a : α) (h : l₁ <:+: l₂) : count a l₁ ≤ count a l₂ := h.sublist.count_le a
 
 -- See `Init.Data.List.Nat.Count` for `Sublist.le_count : count a l₂ - (l₂.length - l₁.length) ≤ countP a l₁`.
 
-theorem count_tail_le (a : α) (l) : count a l.tail ≤ count a l :=
-  (tail_sublist l).count_le _
+theorem count_tail_le {a : α} {l : List α} : count a l.tail ≤ count a l :=
+  (tail_sublist l).count_le a
 
 -- See `Init.Data.List.Nat.Count` for `le_count_tail : count a l - 1 ≤ count a l.tail`.
 
-theorem count_le_count_cons (a b : α) (l : List α) : count a l ≤ count a (b :: l) :=
-  (sublist_cons_self _ _).count_le _
+theorem count_le_count_cons {a b : α} {l : List α} : count a l ≤ count a (b :: l) :=
+  (sublist_cons_self _ _).count_le a
 
-theorem count_singleton (a b : α) : count a [b] = if b == a then 1 else 0 := by
+theorem count_singleton {a b : α} : count a [b] = if b == a then 1 else 0 := by
   simp [count_cons]
 
-@[simp] theorem count_append (a : α) : ∀ l₁ l₂, count a (l₁ ++ l₂) = count a l₁ + count a l₂ :=
-  countP_append _
+@[simp] theorem count_append {a : α} {l₁ l₂ : List α} : count a (l₁ ++ l₂) = count a l₁ + count a l₂ :=
+  countP_append
 
-theorem count_flatten (a : α) (l : List (List α)) : count a l.flatten = (l.map (count a)).sum := by
+theorem count_flatten {a : α} {l : List (List α)} : count a l.flatten = (l.map (count a)).sum := by
   simp only [count_eq_countP, countP_flatten, count_eq_countP']
 
 @[deprecated count_flatten (since := "2024-10-14")] abbrev count_join := @count_flatten
 
-@[simp] theorem count_reverse (a : α) (l : List α) : count a l.reverse = count a l := by
+@[simp] theorem count_reverse {a : α} {l : List α} : count a l.reverse = count a l := by
   simp only [count_eq_countP, countP_eq_length_filter, filter_reverse, length_reverse]
 
-theorem boole_getElem_le_count (a : α) (l : List α) (i : Nat) (h : i < l.length) :
+theorem boole_getElem_le_count {a : α} {l : List α} {i : Nat} (h : i < l.length) :
     (if l[i] == a then 1 else 0) ≤ l.count a := by
   rw [count_eq_countP]
-  apply boole_getElem_le_countP (· == a)
+  apply boole_getElem_le_countP (p := (· == a))
 
 variable [LawfulBEq α]
 
-@[simp] theorem count_cons_self (a : α) (l : List α) : count a (a :: l) = count a l + 1 := by
+@[simp] theorem count_cons_self {a : α} {l : List α} : count a (a :: l) = count a l + 1 := by
   simp [count_cons]
 
-@[simp] theorem count_cons_of_ne (h : b ≠ a) (l : List α) : count a (b :: l) = count a l := by
+@[simp] theorem count_cons_of_ne (h : b ≠ a) {l : List α} : count a (b :: l) = count a l := by
   simp [count_cons, h]
 
-theorem count_singleton_self (a : α) : count a [a] = 1 := by simp
+theorem count_singleton_self {a : α} : count a [a] = 1 := by simp
 
-theorem count_concat_self (a : α) (l : List α) :
-    count a (concat l a) = (count a l) + 1 := by simp
+theorem count_concat_self {a : α} {l : List α} : count a (concat l a) = count a l + 1 := by simp
 
 @[simp]
 theorem count_pos_iff {a : α} {l : List α} : 0 < count a l ↔ a ∈ l := by
@@ -289,41 +286,40 @@ theorem count_eq_length {l : List α} : count a l = l.length ↔ ∀ b ∈ l, a 
   · simpa using h b hb
   · rw [h b hb, beq_self_eq_true]
 
-@[simp] theorem count_replicate_self (a : α) (n : Nat) : count a (replicate n a) = n :=
+@[simp] theorem count_replicate_self {a : α} {n : Nat} : count a (replicate n a) = n :=
   (count_eq_length.2 <| fun _ h => (eq_of_mem_replicate h).symm).trans (length_replicate ..)
 
-theorem count_replicate (a b : α) (n : Nat) : count a (replicate n b) = if b == a then n else 0 := by
+theorem count_replicate {a b : α} {n : Nat} : count a (replicate n b) = if b == a then n else 0 := by
   split <;> (rename_i h; simp only [beq_iff_eq] at h)
   · exact ‹b = a› ▸ count_replicate_self ..
   · exact count_eq_zero.2 <| mt eq_of_mem_replicate (Ne.symm h)
 
-theorem filter_beq (l : List α) (a : α) : l.filter (· == a) = replicate (count a l) a := by
+theorem filter_beq {l : List α} (a : α) : l.filter (· == a) = replicate (count a l) a := by
   simp only [count, countP_eq_length_filter, eq_replicate_iff, mem_filter, beq_iff_eq]
   exact ⟨trivial, fun _ h => h.2⟩
 
-theorem filter_eq {α} [DecidableEq α] (l : List α) (a : α) : l.filter (· = a) = replicate (count a l) a :=
-  filter_beq l a
+theorem filter_eq {α} [DecidableEq α] {l : List α} (a : α) : l.filter (· = a) = replicate (count a l) a :=
+  filter_beq a
 
 theorem le_count_iff_replicate_sublist {l : List α} : n ≤ count a l ↔ replicate n a <+ l := by
   refine ⟨fun h => ?_, fun h => ?_⟩
-  · exact ((replicate_sublist_replicate a).2 h).trans <| filter_beq l a ▸ filter_sublist _
+  · exact ((replicate_sublist_replicate a).2 h).trans <| filter_beq a ▸ filter_sublist
   · simpa only [count_replicate_self] using h.count_le a
 
 theorem replicate_count_eq_of_count_eq_length {l : List α} (h : count a l = length l) :
     replicate (count a l) a = l :=
-  (le_count_iff_replicate_sublist.mp (Nat.le_refl _)).eq_of_length <|
-    (length_replicate (count a l) a).trans h
+  (le_count_iff_replicate_sublist.mp (Nat.le_refl _)).eq_of_length <| length_replicate.trans h
 
 @[simp] theorem count_filter {l : List α} (h : p a) : count a (filter p l) = count a l := by
   rw [count, countP_filter]; congr; funext b
   simp; rintro rfl; exact h
 
-theorem count_le_count_map [DecidableEq β] (l : List α) (f : α → β) (x : α) :
+theorem count_le_count_map [DecidableEq β] {l : List α} {f : α → β} {x : α} :
     count x l ≤ count (f x) (map f l) := by
   rw [count, count, countP_map]
   apply countP_mono_left; simp +contextual
 
-theorem count_filterMap {α} [BEq β] (b : β) (f : α → Option β) (l : List α) :
+theorem count_filterMap {α} [BEq β] {b : β} {f : α → Option β} {l : List α} :
     count b (filterMap f l) = countP (fun a => f a == some b) l := by
   rw [count_eq_countP, countP_filterMap]
   congr
@@ -332,11 +328,11 @@ theorem count_filterMap {α} [BEq β] (b : β) (f : α → Option β) (l : List 
   · simp
   · simp
 
-theorem count_flatMap {α} [BEq β] (l : List α) (f : α → List β) (x : β) :
-    count x (l.flatMap f) = sum (map (count x ∘ f) l) := countP_flatMap _ _ _
+theorem count_flatMap {α} [BEq β] {l : List α} {f : α → List β} {x : β} :
+    count x (l.flatMap f) = sum (map (count x ∘ f) l) := countP_flatMap
 
-theorem count_erase (a b : α) :
-    ∀ l : List α, count a (l.erase b) = count a l - if b == a then 1 else 0
+theorem count_erase {a b : α} :
+    ∀ {l : List α}, count a (l.erase b) = count a l - if b == a then 1 else 0
   | [] => by simp
   | c :: l => by
     rw [erase_cons]
@@ -345,17 +341,17 @@ theorem count_erase (a b : α) :
       rw [if_pos hc_beq, hc, count_cons, Nat.add_sub_cancel]
     else
       have hc_beq := beq_false_of_ne hc
-      simp only [hc_beq, if_false, count_cons, count_cons, count_erase a b l, reduceCtorEq]
+      simp only [hc_beq, if_false, count_cons, count_cons, count_erase, reduceCtorEq]
       if ha : b = a then
         rw [ha, eq_comm] at hc
         rw [if_pos (beq_iff_eq.2 ha), if_neg (by simpa using Ne.symm hc), Nat.add_zero, Nat.add_zero]
       else
         rw [if_neg (by simpa using ha), Nat.sub_zero, Nat.sub_zero]
 
-@[simp] theorem count_erase_self (a : α) (l : List α) :
+@[simp] theorem count_erase_self {a : α} {l : List α} :
     count a (List.erase l a) = count a l - 1 := by rw [count_erase, if_pos (by simp)]
 
-@[simp] theorem count_erase_of_ne (ab : a ≠ b) (l : List α) : count a (l.erase b) = count a l := by
+@[simp] theorem count_erase_of_ne (ab : a ≠ b) {l : List α} : count a (l.erase b) = count a l := by
   rw [count_erase, if_neg (by simpa using ab.symm), Nat.sub_zero]
 
 end count

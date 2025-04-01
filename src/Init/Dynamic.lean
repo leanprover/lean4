@@ -57,10 +57,11 @@ private opaque DynamicPointed : NonemptyType.{0} :=
   ⟨Name × NonScalar, inferInstance⟩
 
 /--
-Type-tagged union that can store any type with a `TypeName` instance.
+A type-tagged union that can store any type with a `TypeName` instance.
 
-This is roughly equivalent to `(α : Type) × TypeName α × α` but without the
-universe bump.
+This is roughly equivalent to `(α : Type) × TypeName α × α`, but without the universe bump. Use
+`Dynamic.mk` to inject a value into `Dynamic` from another type, and `Dynamic.get?` to extract a
+value from `Dynamic` if it has some expected type.
 -/
 def Dynamic : Type := DynamicPointed.type
 
@@ -92,5 +93,10 @@ opaque Dynamic.get? (α) (any : Dynamic) [TypeName α] : Option α
 private unsafe def Dynamic.mkImpl [TypeName α] (obj : α) : Dynamic :=
   unsafeCast (TypeName.typeName α, (unsafeCast obj : NonScalar))
 
+/--
+Stores the provided value in a `Dynamic`.
+
+Use `Dynamic.get? α` to retrieve it.
+-/
 @[implemented_by Dynamic.mkImpl]
 opaque Dynamic.mk [TypeName α] (obj : α) : Dynamic

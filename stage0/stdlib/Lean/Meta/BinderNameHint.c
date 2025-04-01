@@ -24,9 +24,9 @@ lean_object* l_Lean_Core_instInhabitedCoreM___boxed(lean_object*, lean_object*, 
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Expr_resolveBinderNameHint_go___spec__1___closed__2;
-lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_resolveBinderNameHint___closed__4;
 LEAN_EXPORT lean_object* l_panic___at_Lean_Expr_resolveBinderNameHint_go___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

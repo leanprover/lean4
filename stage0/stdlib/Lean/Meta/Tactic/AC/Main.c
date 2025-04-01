@@ -64,7 +64,6 @@ static lean_object* l_Lean_Meta_AC_rewriteUnnormalized___closed__12;
 static lean_object* l_Lean_Meta_AC_rewriteUnnormalized___closed__14;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_AC_buildNormProof___spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Meta_AC_initFn____x40_Lean_Meta_Tactic_AC_Main___hyg_6622____closed__15;
-lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Meta_AC_acRflTactic__1___closed__8;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 extern uint8_t l_instInhabitedBool;
@@ -72,6 +71,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_AC_acNfHypMeta___lambda__1(lean_object*, le
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_Simp_Arith_withAbstractAtoms_go___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_AC_rewriteUnnormalized___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_AC_buildNormProof_convert(lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_AC_getInstance___lambda__2___closed__1;
 lean_object* l_Lean_Meta_mkExpectedTypeHint(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

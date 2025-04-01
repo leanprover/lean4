@@ -38,7 +38,8 @@ theorem rel_of_pairwise_cons (p : (a :: l).Pairwise R) : ∀ {a'}, a' ∈ l → 
 theorem Pairwise.of_cons (p : (a :: l).Pairwise R) : Pairwise R l :=
   (pairwise_cons.1 p).2
 
-theorem Pairwise.tail : ∀ {l : List α} (_p : Pairwise R l), Pairwise R l.tail
+set_option linter.unusedVariables false in
+theorem Pairwise.tail : ∀ {l : List α} (h : Pairwise R l), Pairwise R l.tail
   | [], h => h
   | _ :: _, h => h.of_cons
 
@@ -93,7 +94,7 @@ theorem Pairwise.forall_of_forall_of_flip (h₁ : ∀ x ∈ l, R x x) (h₂ : Pa
     rw [pairwise_cons] at h₂ h₃
     simp only [mem_cons]
     rintro x (rfl | hx) y (rfl | hy)
-    · exact h₁ _ (l.mem_cons_self _)
+    · exact h₁ _ l.mem_cons_self
     · exact h₂.1 _ hy
     · exact h₃.1 _ hx
     · exact ih (fun x hx => h₁ _ <| mem_cons_of_mem _ hx) h₂.2 h₃.2 hx hy
@@ -143,7 +144,7 @@ theorem pairwise_filter {p : α → Prop} [DecidablePred p] {l : List α} :
   simp
 
 theorem Pairwise.filter (p : α → Bool) : Pairwise R l → Pairwise R (filter p l) :=
-  Pairwise.sublist (filter_sublist _)
+  Pairwise.sublist filter_sublist
 
 theorem pairwise_append {l₁ l₂ : List α} :
     (l₁ ++ l₂).Pairwise R ↔ l₁.Pairwise R ∧ l₂.Pairwise R ∧ ∀ a ∈ l₁, ∀ b ∈ l₂, R a b := by

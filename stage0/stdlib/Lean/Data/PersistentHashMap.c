@@ -49,13 +49,13 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___rarg(lean_object*,
 size_t lean_usize_mul(size_t, size_t);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_isEmpty___rarg(lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_PersistentHashMap_Node_isEmpty___spec__1___rarg(lean_object*, size_t, size_t);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_empty___closed__1;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_PersistentHashMap_toArray___spec__3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_PersistentHashMap_foldlMAux___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_PersistentHashMap_forIn___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_insertAux___rarg___closed__3;
 LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_PersistentHashMap_forIn___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

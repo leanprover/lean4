@@ -197,7 +197,6 @@ LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_foldAndCollect___lambda__9(lean_ob
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_cleanupAfter_cleanupAfter_x3f___spec__4___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateT_pure___at_Lean_Tactic_FunInd_foldAndCollect___spec__16(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___lambda__9(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_cleanPackedArgs___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_M_localMapM(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Tactic_FunInd_cleanupAfter_allHeqToEq___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -230,6 +229,7 @@ static lean_object* l_Lean_Tactic_FunInd_M_run___rarg___closed__1;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_buildInductionBody___spec__27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_foldAndCollect___lambda__23___closed__4;
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_deriveInductionStructural_doRealize___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_foldAndCollect___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Tactic_FunInd_cleanupAfter_allHeqToEq___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

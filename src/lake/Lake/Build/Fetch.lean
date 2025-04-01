@@ -80,3 +80,7 @@ abbrev FetchM := FetchT LogIO
   fun build => cast (by simp) <| build self
 
 export BuildInfo (fetch)
+
+/-- Fetch the result of this facet of a module. -/
+protected def ModuleFacet.fetch (self : ModuleFacet α) (mod : Module) : FetchM (Job α) :=
+  fetch <| mod.facetCore self.name

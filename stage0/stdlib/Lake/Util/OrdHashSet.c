@@ -32,9 +32,9 @@ LEAN_EXPORT lean_object* l_Lake_OrdHashSet_instEmptyCollection___rarg(lean_objec
 size_t lean_uint64_to_usize(uint64_t);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_empty___rarg___boxed(lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_foldlM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_append(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_foldrM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdHashSet_any(lean_object*, lean_object*, lean_object*);

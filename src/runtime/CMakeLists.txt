@@ -3,7 +3,18 @@ object.cpp apply.cpp exception.cpp interrupt.cpp memory.cpp
 stackinfo.cpp compact.cpp init_module.cpp io.cpp hash.cpp
 platform.cpp alloc.cpp allocprof.cpp sharecommon.cpp stack_overflow.cpp
 process.cpp object_ref.cpp mpn.cpp mutex.cpp libuv.cpp uv/net_addr.cpp uv/event_loop.cpp
-uv/timer.cpp uv/tcp.cpp)
+uv/timer.cpp uv/tcp.cpp uv/udp.cpp)
+if (USE_MIMALLOC)
+  list(APPEND RUNTIME_OBJS ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c)
+  # Lean code includes it as `lean/mimalloc.h` but for compiling `static.c` itself, add original dir
+  include_directories(${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/include)
+  set_source_files_properties(${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c PROPERTIES
+    # (C flags are incomplete, compile as C++ instead like everything else)
+    LANGUAGE CXX
+    # make all symbols visible, always build with optimizations as otherwise Lean becomes too slow
+    COMPILE_FLAGS "-DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT")
+endif()
+
 add_library(leanrt_initial-exec STATIC ${RUNTIME_OBJS})
 set_target_properties(leanrt_initial-exec PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

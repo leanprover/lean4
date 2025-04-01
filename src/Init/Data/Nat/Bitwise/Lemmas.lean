@@ -501,7 +501,7 @@ theorem and_lt_two_pow (x : Nat) {y n : Nat} (right : y < 2^n) : (x &&& y) < 2^n
   have yf : testBit y i = false := by
           apply Nat.testBit_lt_two_pow
           apply Nat.lt_of_lt_of_le right
-          exact pow_le_pow_right Nat.zero_lt_two i_ge_n
+          exact Nat.pow_le_pow_right Nat.zero_lt_two i_ge_n
   simp [testBit_and, yf]
 
 @[simp] theorem and_two_pow_sub_one_eq_mod (x n : Nat) : x &&& 2^n - 1 = x % 2^n := by
@@ -828,3 +828,9 @@ theorem and_le_left {n m : Nat} : n &&& m ≤ n :=
 
 theorem and_le_right {n m : Nat} : n &&& m ≤ m :=
   le_of_testBit (by simp)
+
+theorem left_le_or {n m : Nat} : n ≤ n ||| m :=
+  le_of_testBit (by simpa using fun i => Or.inl)
+
+theorem right_le_or {n m : Nat} : m ≤ n ||| m :=
+  le_of_testBit (by simpa using fun i => Or.inr)

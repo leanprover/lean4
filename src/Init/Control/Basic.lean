@@ -42,7 +42,9 @@ instance (priority := 500) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α 
   simp [binderNameHint]
   rfl -- very strange why `simp` did not close it
 
-/-- Extract the value from a `ForInStep`, ignoring whether it is `done` or `yield`. -/
+/--
+Extracts the value from a `ForInStep`, ignoring whether it is `ForInStep.done` or `ForInStep.yield`.
+-/
 def ForInStep.value (x : ForInStep α) : α :=
   match x with
   | ForInStep.done b => b
@@ -385,14 +387,20 @@ def control {m : Type u → Type v} {n : Type u → Type w} [MonadControlT m n] 
   controlAt m f
 
 /--
-  Typeclass for the polymorphic `forM` operation described in the "do unchained" paper.
-  Remark:
-  - `γ` is a "container" type of elements of type `α`.
-  - `α` is treated as an output parameter by the typeclass resolution procedure.
-    That is, it tries to find an instance using only `m` and `γ`.
+Overloaded monadic iteration over some container type.
+
+An instance of `ForM m γ α` describes how to iterate a monadic operator over a container of type `γ`
+with elements of type `α` in the monad `m`. The element type should be uniquely determined by the
+monad and the container.
+
+Use `ForM.forIn` to construct a `ForIn` instance from a `ForM` instance, thus enabling the use of
+the `for` operator in `do`-notation.
 -/
 class ForM (m : Type u → Type v) (γ : Type w₁) (α : outParam (Type w₂)) where
-  forM [Monad m] : γ → (α → m PUnit) → m PUnit
+  /--
+  Runs the monadic action `f` on each element of the collection `coll`.
+  -/
+  forM [Monad m] (coll : γ) (f : α → m PUnit) : m PUnit
 
 export ForM (forM)
 

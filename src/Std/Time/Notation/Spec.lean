@@ -27,6 +27,7 @@ private def convertFraction : Fraction → MacroM (TSyntax `term)
   | .truncated digits => `(Std.Time.Fraction.truncated $(quote digits))
 
 private def convertYear : Year → MacroM (TSyntax `term)
+  | .any => `(Std.Time.Year.any)
   | .twoDigit => `(Std.Time.Year.twoDigit)
   | .fourDigit => `(Std.Time.Year.fourDigit)
   | .extended n => `(Std.Time.Year.extended $(quote n))
@@ -100,14 +101,23 @@ Syntax for defining a date spec at compile time.
 -/
 syntax "datespec(" str ")" : term
 
+/--
+Syntax for defining a date spec and configuration of this date spec at compile time.
+-/
+syntax "datespec(" str "," term ")" : term
+
+def formatStringToFormat (fmt : TSyntax `str) (config : Option (TSyntax `term)) : MacroM (TSyntax `term) := do
+  let input := fmt.getString
+  let format : Except String (GenericFormat .any) := GenericFormat.spec input
+  match format with
+  | .ok res =>
+    let alts ← res.string.mapM convertFormatPart
+    let alts := alts.foldl Syntax.TSepArray.push (Syntax.TSepArray.mk #[] (sep := ","))
+    let config := config.getD (← `({}))
+    `(⟨$config, [$alts,*]⟩)
+  | .error err =>
+    Macro.throwErrorAt fmt s!"cannot compile spec: {err}"
+
 macro_rules
-  | `(datespec( $format_string:str )) => do
-    let input := format_string.getString
-    let format : Except String (GenericFormat .any) := GenericFormat.spec input
-    match format with
-    | .ok res =>
-      let alts ← res.string.mapM convertFormatPart
-      let alts := alts.foldl Syntax.TSepArray.push (Syntax.TSepArray.mk #[] (sep := ","))
-      `(⟨[$alts,*]⟩)
-    | .error err =>
-      Macro.throwErrorAt format_string s!"cannot compile spec: {err}"
+  | `(datespec( $fmt:str )) => formatStringToFormat fmt none
+  | `(datespec( $fmt:str, $config:term )) => formatStringToFormat fmt config

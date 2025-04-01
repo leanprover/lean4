@@ -190,7 +190,6 @@ static lean_object* l_Lean_Elab_Command_elabVariable___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_replaceBinderAnnotation___spec__10___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Elab_Command_elabOmit___spec__8(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabSynth__1___closed__2;
-lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Command_elabVariable___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_filterFieldList___at_Lean_Elab_Command_elabExport___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -217,6 +216,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Command_elabNamespace_declRange__1_
 LEAN_EXPORT lean_object* l_Lean_Syntax_foldArgsM___at_Lean_Elab_Command_elabUniverse___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabOpen_declRange__1___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_addScopes(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_replaceBinderAnnotation___spec__4___lambda__2___closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Command_elabExport___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_BuiltinCommand_0__Lean_Elab_Command_addScope___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);

@@ -16,7 +16,7 @@ info: foo.eq_def (n : Nat) :
     if n = 0 then 0
     else
       let x := n - 1;
-      let_fun this := foo.proof_4;
+      let_fun this := foo._proof_4;
       foo x
 -/
 #guard_msgs in

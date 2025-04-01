@@ -27,15 +27,18 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_push(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_countKnown_go(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_empty___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Bool_toNat(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_emptyWithCapacity___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RefVec_0__Std_Sat_AIG_BinaryRefVec_cast_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_countKnown_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_BinaryRefVec_cast___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_emptyWithCapacity___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_get___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_countKnown_go___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_cast___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_push___rarg___boxed(lean_object*, lean_object*);
+lean_object* lean_nat_land(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_countKnown(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RefVec_0__Std_Sat_AIG_RefVec_get_match__1_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_empty(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -49,8 +52,10 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_emptyWithCapacity(lean_object*, le
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_getD___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_getD___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_push___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_cast___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_cast_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_cast_x27___rarg(lean_object*, lean_object*);
@@ -64,6 +69,7 @@ LEAN_EXPORT lean_object* l_Std_Sat_AIG_BinaryRefVec_cast___rarg___boxed(lean_obj
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_RefVec_0__Std_Sat_AIG_BinaryRefVec_cast_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_countKnown___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_lor(lean_object*, lean_object*);
 static lean_object* _init_l_Std_Sat_AIG_RefVec_empty___closed__1() {
 _start:
 {
@@ -205,19 +211,34 @@ return x_7;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_get___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 x_8 = lean_array_fget(x_5, x_6);
-x_9 = lean_ctor_get(x_8, 0);
-lean_inc(x_9);
-x_10 = lean_ctor_get(x_8, 1);
-lean_inc(x_10);
+x_9 = lean_unsigned_to_nat(2u);
+x_10 = lean_nat_div(x_8, x_9);
+x_11 = lean_unsigned_to_nat(1u);
+x_12 = lean_nat_land(x_11, x_8);
 lean_dec(x_8);
-x_11 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_11, 0, x_9);
-x_12 = lean_unbox(x_10);
-lean_dec(x_10);
-lean_ctor_set_uint8(x_11, sizeof(void*)*1, x_12);
-return x_11;
+x_13 = lean_unsigned_to_nat(0u);
+x_14 = lean_nat_dec_eq(x_12, x_13);
+lean_dec(x_12);
+if (x_14 == 0)
+{
+uint8_t x_15; lean_object* x_16; 
+x_15 = 1;
+x_16 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_16, 0, x_10);
+lean_ctor_set_uint8(x_16, sizeof(void*)*1, x_15);
+return x_16;
+}
+else
+{
+uint8_t x_17; lean_object* x_18; 
+x_17 = 0;
+x_18 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_18, 0, x_10);
+lean_ctor_set_uint8(x_18, sizeof(void*)*1, x_17);
+return x_18;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_get(lean_object* x_1) {
@@ -245,16 +266,17 @@ return x_8;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_push___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_3 = lean_ctor_get(x_2, 0);
 x_4 = lean_ctor_get_uint8(x_2, sizeof(void*)*1);
-x_5 = lean_box(x_4);
-lean_inc(x_3);
-x_6 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_6, 0, x_3);
-lean_ctor_set(x_6, 1, x_5);
-x_7 = lean_array_push(x_1, x_6);
-return x_7;
+x_5 = lean_unsigned_to_nat(2u);
+x_6 = lean_nat_mul(x_3, x_5);
+x_7 = l_Bool_toNat(x_4);
+x_8 = lean_nat_lor(x_6, x_7);
+lean_dec(x_7);
+lean_dec(x_6);
+x_9 = lean_array_push(x_1, x_8);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_RefVec_push(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -364,19 +386,34 @@ return x_7;
 }
 else
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 x_9 = lean_array_fget(x_5, x_6);
-x_10 = lean_ctor_get(x_9, 0);
-lean_inc(x_10);
-x_11 = lean_ctor_get(x_9, 1);
-lean_inc(x_11);
+x_10 = lean_unsigned_to_nat(2u);
+x_11 = lean_nat_div(x_9, x_10);
+x_12 = lean_unsigned_to_nat(1u);
+x_13 = lean_nat_land(x_12, x_9);
 lean_dec(x_9);
-x_12 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_12, 0, x_10);
-x_13 = lean_unbox(x_11);
-lean_dec(x_11);
-lean_ctor_set_uint8(x_12, sizeof(void*)*1, x_13);
-return x_12;
+x_14 = lean_unsigned_to_nat(0u);
+x_15 = lean_nat_dec_eq(x_13, x_14);
+lean_dec(x_13);
+if (x_15 == 0)
+{
+uint8_t x_16; lean_object* x_17; 
+x_16 = 1;
+x_17 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_17, 0, x_11);
+lean_ctor_set_uint8(x_17, sizeof(void*)*1, x_16);
+return x_17;
+}
+else
+{
+uint8_t x_18; lean_object* x_19; 
+x_18 = 0;
+x_19 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_19, 0, x_11);
+lean_ctor_set_uint8(x_19, sizeof(void*)*1, x_18);
+return x_19;
+}
 }
 }
 }
@@ -415,35 +452,34 @@ return x_7;
 }
 else
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_9 = lean_array_fget(x_5, x_6);
 x_10 = lean_ctor_get(x_4, 0);
-x_11 = lean_ctor_get(x_9, 0);
-lean_inc(x_11);
+x_11 = lean_unsigned_to_nat(2u);
+x_12 = lean_nat_div(x_9, x_11);
 lean_dec(x_9);
-x_12 = lean_array_fget(x_10, x_11);
-lean_dec(x_11);
-if (lean_obj_tag(x_12) == 0)
-{
-lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_13 = lean_array_fget(x_10, x_12);
 lean_dec(x_12);
-x_13 = lean_unsigned_to_nat(1u);
-x_14 = lean_nat_add(x_6, x_13);
+if (lean_obj_tag(x_13) == 0)
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_14 = lean_unsigned_to_nat(1u);
+x_15 = lean_nat_add(x_6, x_14);
 lean_dec(x_6);
-x_15 = lean_nat_add(x_7, x_13);
+x_16 = lean_nat_add(x_7, x_14);
 lean_dec(x_7);
-x_6 = x_14;
-x_7 = x_15;
+x_6 = x_15;
+x_7 = x_16;
 goto _start;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; 
-lean_dec(x_12);
-x_17 = lean_unsigned_to_nat(1u);
-x_18 = lean_nat_add(x_6, x_17);
+lean_object* x_18; lean_object* x_19; 
+lean_dec(x_13);
+x_18 = lean_unsigned_to_nat(1u);
+x_19 = lean_nat_add(x_6, x_18);
 lean_dec(x_6);
-x_6 = x_18;
+x_6 = x_19;
 goto _start;
 }
 }

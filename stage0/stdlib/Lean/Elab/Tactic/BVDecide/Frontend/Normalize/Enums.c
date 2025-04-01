@@ -82,7 +82,6 @@ lean_object* l_Lean_Meta_simpGoal(lean_object*, lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleSimpleEnum___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_GetElem_0__List_get_x21Internal___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleSimpleEnum___spec__10___closed__1;
-lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getEnumToBitVecLeFor___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_Simp_Arith_withAbstractAtoms_go___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -91,6 +90,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normaliz
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_initFn____x40_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums___hyg_3101____lambda__1___closed__8;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumToBitVecSuffix___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecls_loop___at___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleSimpleEnum___spec__9(lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 extern lean_object* l_Lean_ForEachExprWhere_initCache;
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass_postprocess___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDeclsDND___at___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_getMatchEqCondForAux_handleSimpleEnum___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

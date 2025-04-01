@@ -30,9 +30,9 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_clea
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_clearRatUnits___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_performRatAdd___spec__2(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_ratHintsExhaustive___spec__1(size_t, size_t, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_numClausesInFormula___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultFormula_delete___boxed(lean_object*, lean_object*, lean_object*);

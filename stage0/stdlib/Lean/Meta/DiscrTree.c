@@ -146,7 +146,6 @@ lean_object* l_Lean_PersistentHashMap_foldlMAux___rarg(lean_object*, lean_object
 size_t lean_usize_mul(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_instInhabited(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Meta_DiscrTree_getUnify___spec__9___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_DiscrTree_Trie_foldValues___spec__2___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_DiscrTree_instDecidableLtKey(lean_object*, lean_object*);
@@ -156,6 +155,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_mapM___at_Lean_Meta_DiscrTree_
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_getUnify(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Meta_DiscrTree_getMatchWithExtra_mayMatchPrefix___spec__8___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_pushArgs___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_DiscrTree_getMatchWithExtra_mayMatchPrefix___spec__4(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_DiscrTree_Trie_fold___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_DiscrTree_Key_format___lambda__1(lean_object*);

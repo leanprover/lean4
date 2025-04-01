@@ -98,7 +98,7 @@ theorem combo_eq_smul_add_smul (a : Int) (xs : Coeffs) (b : Int) (ys : Coeffs) :
 theorem gcd_dvd_dot_left (xs ys : Coeffs) : (gcd xs : Int) ∣ dot xs ys :=
   IntList.gcd_dvd_dot_left xs ys
 theorem map_length {xs : Coeffs} : (xs.map f).length ≤ xs.length :=
-  Nat.le_of_eq (List.length_map xs f)
+  Nat.le_of_eq (List.length_map f)
 
 theorem dot_nil_right {xs : Coeffs} : dot xs .nil = 0 := IntList.dot_nil_right
 theorem get_nil : get .nil i = 0 := IntList.get_nil

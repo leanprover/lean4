@@ -51,11 +51,11 @@ LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at_Lean_Meta_Closure_preproce
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Meta_Closure_visitLevel___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Closure_collectLevelAux(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Closure_collectExprAux___closed__12;
-lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 lean_object* l_Lean_compileDecl(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Closure_collectExprAux___closed__13;
+lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Closure_collectExprAux___closed__6;
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);

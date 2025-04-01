@@ -732,6 +732,22 @@ theorem neg_ediv {a b : Int} : (-a) / b = -(a / b) - if b ∣ a then 0 else b.si
         · have := emod_lt_of_neg a hb
           omega
 
+theorem tdiv_cases (n m : Int) : n.tdiv m =
+    if 0 ≤ n then
+      if 0 ≤ m then n / m else -(n / (-m))
+    else
+      if 0 ≤ m then -((-n) / m) else (-n) / (-m) := by
+  split <;> rename_i hn
+  · split <;> rename_i hm
+    · rw [Int.tdiv_eq_ediv_of_nonneg hn]
+    · rw [Int.tdiv_eq_ediv_of_nonneg hn]
+      simp
+  · split <;> rename_i hm
+    · rw [Int.tdiv_eq_ediv, Int.neg_ediv]
+      simp [hn, Int.neg_sub, Int.add_comm]
+    · rw [Int.tdiv_eq_ediv, Int.neg_ediv, Int.ediv_neg]
+      simp [hn, Int.sub_eq_add_neg, apply_ite Neg.neg]
+
 theorem neg_emod {a b : Int} : (-a) % b = if b ∣ a then 0 else b.natAbs - (a % b) := by
   rw [emod_def, emod_def, neg_ediv, Int.mul_sub, Int.mul_neg]
   split <;> rename_i h
@@ -2268,6 +2284,14 @@ theorem bmod_lt {x : Int} {m : Nat} (h : 0 < m) : bmod x m < (m + 1) / 2 := by
 
 theorem bmod_eq_emod_of_lt {x : Int} {m : Nat} (hx : x % m < (m + 1) / 2) : bmod x m = x % m := by
   simp [bmod, hx]
+
+theorem bmod_eq_neg {n : Nat} {m : Int} (hm : 0 ≤ m) (hn : n = 2 * m) : m.bmod n = -m := by
+  by_cases h : m = 0
+  · subst h; simp
+  · rw [Int.bmod_def, hn, if_neg]
+    · rw [Int.emod_eq_of_lt hm] <;> omega
+    · simp only [Int.not_lt]
+      rw [Int.emod_eq_of_lt hm] <;> omega
 
 theorem bmod_le {x : Int} {m : Nat} (h : 0 < m) : bmod x m ≤ (m - 1) / 2 := by
   refine lt_add_one_iff.mp ?_

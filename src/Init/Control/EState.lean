@@ -29,8 +29,11 @@ namespace EStateM
 
 variable {ε σ α β : Type u}
 
-/-- Alternative orElse operator that allows to select which exception should be used.
-    The default is to use the first exception since the standard `orElse` uses the second. -/
+/--
+Alternative orElse operator that allows callers to select which exception should be used when both
+operations fail. The default is to use the first exception since the standard `orElse` uses the
+second.
+-/
 @[always_inline, inline]
 protected def orElse' {δ} [Backtrackable δ σ] (x₁ x₂ : EStateM ε σ α) (useFirstEx := true) : EStateM ε σ α := fun s =>
   let d := Backtrackable.save s;
@@ -54,6 +57,11 @@ instance : MonadFinally (EStateM ε σ) := {
       | Result.error e₂ s => Result.error e₂ s
 }
 
+/--
+Converts a state monad action into a state monad action with exceptions.
+
+The resulting action does not throw an exception.
+-/
 @[always_inline, inline] def fromStateM {ε σ α : Type} (x : StateM σ α) : EStateM ε σ α := fun s =>
   match x.run s with
   | (a, s') => EStateM.Result.ok a s'

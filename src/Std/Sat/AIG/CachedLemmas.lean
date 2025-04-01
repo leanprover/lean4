@@ -91,63 +91,23 @@ theorem mkAtomCached_eval_eq_mkAtom_eval {aig : AIG α} :
     rw [denote_mkAtom_cached heq1]
   · simp [mkAtom, denote]
 
-/--
-If we find a cached const declaration in the AIG, denoting it is equivalent to denoting
-`AIG.mkConst`.
--/
-theorem denote_mkConst_cached {aig : AIG α} {hit} :
-    aig.cache.get? .false = some hit
-      →
-    ⟦aig, ⟨hit.idx, b, hit.hbound⟩, assign⟧ = ⟦aig.mkConst b, assign⟧ := by
-  have := hit.hvalid
-  simp only [denote_mkConst]
-  unfold denote denote.go
-  split <;> simp_all
-
-/--
-`mkConstCached` does not modify the input AIG upon a cache hit.
--/
-theorem mkConstCached_hit_aig (aig : AIG α) (val : Bool) {hit}
-    (hcache : aig.cache.get? .false = some hit) :
-    (aig.mkConstCached val).aig = aig := by
-  simp only [mkConstCached]
-  split <;> simp_all
-
-/--
-`mkConstCached` pushes to the input AIG upon a cache miss.
--/
-theorem mkConstCached_miss_aig (aig : AIG α) (val : Bool) (hcache : aig.cache.get? .false = none) :
-    (aig.mkConstCached val).aig.decls = aig.decls.push .false := by
-  simp only [mkConstCached]
-  split <;> simp_all
+theorem mkConstCached_aig (aig : AIG α) (val : Bool) : (aig.mkConstCached val).aig = aig := by
+  simp [mkConstCached]
 
 /--
 The AIG produced by `AIG.mkConstCached` agrees with the input AIG on all indices that are valid for
 both.
 -/
-theorem mkConstCached_decl_eq (aig : AIG α) (val : Bool) (idx : Nat) {h : idx < aig.decls.size}
-    {hbound} :
-    (aig.mkConstCached val).aig.decls[idx]'hbound = aig.decls[idx] := by
-  match hcache : aig.cache.get? .false with
-  | some gate =>
-    have := mkConstCached_hit_aig aig val hcache
-    simp [this]
-  | none =>
-    have := mkConstCached_miss_aig aig val hcache
-    simp only [this, Array.getElem_push]
-    split
-    · rfl
-    · contradiction
+theorem mkConstCached_decl_eq (aig : AIG α) (val : Bool) (idx : Nat) {h : idx < aig.decls.size} :
+    (aig.mkConstCached val).aig.decls[idx]'h = aig.decls[idx] := by
+  simp [mkConstCached_aig]
 
 /--
 `AIG.mkConstCached` never shrinks the underlying AIG.
 -/
 theorem mkConstCached_le_size (aig : AIG α) (val : Bool) :
     aig.decls.size ≤ (aig.mkConstCached val).aig.decls.size := by
-  dsimp only [mkConstCached]
-  split
-  · simp
-  · simp +arith
+  simp [mkConstCached_aig]
 
 instance : LawfulOperator α (fun _ => Bool) mkConstCached where
   le_size := mkConstCached_le_size
@@ -161,17 +121,18 @@ The central equality theorem between `mkConstCached` and `mkConst`.
 @[simp]
 theorem mkConstCached_eval_eq_mkConst_eval {aig : AIG α} :
     ⟦aig.mkConstCached val, assign⟧ = ⟦aig.mkConst val, assign⟧ := by
-  simp only [mkConstCached]
+  simp only [mkConstCached, denote_mkConst]
+  unfold denote denote.go
   split
-  · next heq1 =>
-    rw [denote_mkConst_cached heq1]
-  · simp [mkConst, denote]
+  · simp
+  · next heq => simp [aig.hconst] at heq
+  · next heq => simp [aig.hconst] at heq
 
 /--
 If we find a cached gate declaration in the AIG, denoting it is equivalent to denoting `AIG.mkGate`.
 -/
 theorem denote_mkGate_cached {aig : AIG α} {input} {hit} :
-    aig.cache.get? (.gate input.lhs.gate input.rhs.gate input.lhs.invert input.rhs.invert) = some hit
+    aig.cache.get? (.gate (.mk input.lhs.gate input.lhs.invert) (.mk input.rhs.gate input.rhs.invert)) = some hit
       →
     ⟦⟨aig, hit.idx, false, hit.hbound⟩, assign⟧
       =
@@ -182,7 +143,7 @@ theorem denote_mkGate_cached {aig : AIG α} {input} {hit} :
   conv =>
     lhs
     unfold denote denote.go
-  split <;> simp_all[denote]
+  split <;> simp_all [denote]
 
 theorem mkGateCached.go_le_size (aig : AIG α) (input : BinaryInput aig) :
     aig.decls.size ≤ (go aig input).aig.decls.size := by

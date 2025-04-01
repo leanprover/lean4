@@ -117,7 +117,6 @@ static lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___
 static lean_object* l_Lean_Elab_Tactic_Ext_evalExt___lambda__2___closed__5;
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtIffTheorem___closed__4;
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lambda__2___closed__31;
-lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lambda__2___closed__21;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_Simp_Arith_withAbstractAtoms_go___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -128,6 +127,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_Ext_applyExtThe
 static lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3067____lambda__9___closed__2;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getType_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_withExtHyps___rarg___lambda__4(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_Ext_evalExt_declRange__1(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_mkExtType___closed__3;

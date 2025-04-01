@@ -71,7 +71,6 @@ extern lean_object* l_Lean_Server_instInhabitedRequestError;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_findInfoTree_x3f___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_findTactic_x3f_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
-uint8_t l_List_elem___at_Lean_addAliasEntry___spec__16(lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__9;
 LEAN_EXPORT lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__11;
@@ -90,6 +89,7 @@ lean_object* l_Lean_Elab_PartialContextInfo_mergeIntoOuter_x3f(lean_object*, lea
 extern lean_object* l_Lean_CodeAction_cmdCodeActionExt;
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_env(lean_object*);
+uint8_t l_List_elem___at_Lean_Environment_realizeConst___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_findInfoTree_x3f___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_cmdCodeActionProvider___closed__2;
 LEAN_EXPORT lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -463,7 +463,7 @@ x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 lean_dec(x_7);
 x_9 = l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__12;
-x_10 = l_List_elem___at_Lean_addAliasEntry___spec__16(x_8, x_9);
+x_10 = l_List_elem___at_Lean_Environment_realizeConst___spec__5(x_8, x_9);
 lean_dec(x_8);
 if (x_10 == 0)
 {

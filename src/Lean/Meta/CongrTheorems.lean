@@ -61,7 +61,7 @@ partial def mkHCongrWithArity (f : Expr) (numArgs : Nat) : MetaM CongrTheorem :=
   forallBoundedTelescope fType numArgs (cleanupAnnotations := true) fun xs _ =>
   forallBoundedTelescope fType numArgs (cleanupAnnotations := true) fun ys _ => do
     if xs.size != numArgs then
-      throwError "failed to generate hcongr theorem, insufficient number of arguments"
+      throwError "failed to generate `hcongr` theorem: expected {numArgs} arguments, but got {xs.size} for{indentExpr f}"
     else
       let lctx := addPrimeToFVarUserNames ys (← getLCtx) |> setBinderInfosD ys |> setBinderInfosD xs
       withLCtx lctx (← getLocalInstances) do

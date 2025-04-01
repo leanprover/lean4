@@ -78,6 +78,19 @@ def offsetUnexpander : PrettyPrinter.Unexpander := fun stx => do
   | `($_ $lhs:term $rhs:term) => `($lhs + $rhs)
   | _ => throw ()
 
+/-
+Remark: `↑a` is notation for `Nat.cast a`. `Nat.cast` is an abbreviation
+for `NatCast.natCast`. We added it because users wanted to use dot-notation (e.g., `a.cast`).
+`grind` expands all reducible definitions. Thus, a `grind` failure state contains
+many `NatCast.natCast` applications which is too verbose. We add the following
+unexpander to cope with this issue.
+-/
+@[app_unexpander NatCast.natCast]
+def natCastUnexpander : PrettyPrinter.Unexpander := fun stx => do
+  match stx with
+  | `($_ $a:term) => `(↑$a)
+  | _ => throw ()
+
 /--
 A marker to indicate that a proposition has already been normalized and should not
 be processed again.

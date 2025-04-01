@@ -23,7 +23,7 @@ theorem extLit {n : Nat}
     (xs ys : Array α)
     (hsz₁ : xs.size = n) (hsz₂ : ys.size = n)
     (h : (i : Nat) → (hi : i < n) → xs.getLit i hsz₁ hi = ys.getLit i hsz₂ hi) : xs = ys :=
-  Array.ext xs ys (hsz₁.trans hsz₂.symm) fun i hi₁ _ => h i (hsz₁ ▸ hi₁)
+  Array.ext (hsz₁.trans hsz₂.symm) fun i hi₁ _ => h i (hsz₁ ▸ hi₁)
 
 def toListLitAux (xs : Array α) (n : Nat) (hsz : xs.size = n) : ∀ (i : Nat), i ≤ xs.size → List α → List α
   | 0,     _,  acc => acc

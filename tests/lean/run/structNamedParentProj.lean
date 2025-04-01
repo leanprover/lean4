@@ -122,3 +122,15 @@ field notation resolution order:
   S2', S, U
 -/
 #guard_msgs in #print S2'
+
+/-!
+Structure instances, setting a parent
+-/
+/-- info: { toTheS := s, y := 1 } : S2' -/
+#guard_msgs in variable (s : S) in #check { toTheS := s, y := 1 : S2' }
+/-- info: { x := s.x, y := 1 } : S2' -/
+#guard_msgs in variable (s : U) in #check { toTheU := s, y := 1 : S2' }
+/-- info: { x := 2, y := 1 } : S2' -/
+#guard_msgs in #check { toTheS.x := 2, y := 1 : S2' }
+/-- info: { x := 2, y := 1 } : S2' -/
+#guard_msgs in #check { toTheU.x := 2, y := 1 : S2' }

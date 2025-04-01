@@ -905,7 +905,7 @@ termination_by stopPos.1 - i.1
 
 /--
 Folds a function over a string from the left, accumulating a value starting with `init`. The
-accumulated value is combined with character in order, using `f`.
+accumulated value is combined with each character in order, using `f`.
 
 Examples:
  * `"coffee tea water".foldl (fun n c => if c.isWhitespace then n + 1 else n) 0 = 2`
@@ -927,7 +927,7 @@ termination_by i.1
 
 /--
 Folds a function over a string from the right, accumulating a value starting with `init`. The
-accumulated value is combined with the each character in reverse order, using `f`.
+accumulated value is combined with each character in reverse order, using `f`.
 
 Examples:
  * `"coffee tea water".foldr (fun c n => if c.isWhitespace then n + 1 else n) 0 = 2`
@@ -1166,21 +1166,46 @@ end String
 
 namespace Substring
 
+/--
+Checks whether a substring is empty.
+
+A substring is empty if its start and end positions are the same.
+-/
 @[inline] def isEmpty (ss : Substring) : Bool :=
   ss.bsize == 0
 
+/--
+Copies the region of the underlying string pointed to by a substring into a fresh string.
+-/
 @[inline] def toString : Substring → String
   | ⟨s, b, e⟩ => s.extract b e
 
+/--
+Returns an iterator into the underlying string, at the substring's starting position. The ending
+position is discarded, so the iterator alone cannot be used to determine whether its current
+position is within the original substring.
+-/
 @[inline] def toIterator : Substring → String.Iterator
   | ⟨s, b, _⟩ => ⟨s, b⟩
 
-/-- Return the codepoint at the given offset into the substring. -/
+/--
+Returns the character at the given position in the substring.
+
+The position is relative to the substring, rather than the underlying string, and no bounds checking
+is performed with respect to the substring's end position. If the relative position is not a valid
+position in the underlying string, the fallback value `(default : Char)`, which is `'A'`, is
+returned.  Does not panic.
+-/
 @[inline] def get : Substring → String.Pos → Char
   | ⟨s, b, _⟩, p => s.get (b+p)
 
-/-- Given an offset of a codepoint into the substring,
-return the offset there of the next codepoint. -/
+/--
+Returns the next position in a substring after the given position. If the position is at the end of
+the substring, it is returned unmodified.
+
+Both the input position and the returned position are interpreted relative to the substring's start
+position, not the underlying string.
+-/
 @[inline] def next : Substring → String.Pos → String.Pos
   | ⟨s, b, e⟩, p =>
     let absP := b+p
@@ -1195,48 +1220,124 @@ theorem lt_next (s : Substring) (i : String.Pos) (h : i.1 < s.bsize) :
   apply Nat.lt_sub_of_add_lt
   rw [Nat.add_comm]; apply String.lt_next
 
-/-- Given an offset of a codepoint into the substring,
-return the offset there of the previous codepoint. -/
+/--
+Returns the previous position in a substring, just prior to the given position. If the position is
+at the beginning of the substring, it is returned unmodified.
+
+Both the input position and the returned position are interpreted relative to the substring's start
+position, not the underlying string.
+-/
 @[inline] def prev : Substring → String.Pos → String.Pos
   | ⟨s, b, _⟩, p =>
     let absP := b+p
     if absP = b then p else { byteIdx := (s.prev absP).byteIdx - b.byteIdx }
 
+/--
+Returns the position that's the specified number of characters forward from the given position in a
+substring. If the end position of the substring is reached, it is returned.
+
+Both the input position and the returned position are interpreted relative to the substring's start
+position, not the underlying string.
+-/
 def nextn : Substring → Nat → String.Pos → String.Pos
   | _,  0,   p => p
   | ss, i+1, p => ss.nextn i (ss.next p)
 
+/--
+Returns the position that's the specified number of characters prior to the given position in a
+substring. If the start position of the substring is reached, it is returned.
+
+Both the input position and the returned position are interpreted relative to the substring's start
+position, not the underlying string.
+-/
 def prevn : Substring → Nat → String.Pos → String.Pos
   | _,  0,   p => p
   | ss, i+1, p => ss.prevn i (ss.prev p)
 
+/--
+Returns the first character in the substring.
+
+If the substring is empty, but the substring's start position is a valid position in the underlying
+string, then the character at the start position is returned. If the substring's start position is
+not a valid position in the string, the fallback value `(default : Char)`, which is `'A'`, is
+returned.  Does not panic.
+-/
 @[inline] def front (s : Substring) : Char :=
   s.get 0
 
-/-- Return the offset into `s` of the first occurrence of `c` in `s`,
-or `s.bsize` if `c` doesn't occur. -/
+/--
+Returns the substring-relative position of the first occurrence of `c` in `s`, or `s.bsize` if `c`
+doesn't occur.
+-/
 @[inline] def posOf (s : Substring) (c : Char) : String.Pos :=
   match s with
   | ⟨s, b, e⟩ => { byteIdx := (String.posOfAux s c e b).byteIdx - b.byteIdx }
 
+/--
+Removes the specified number of characters (Unicode code points) from the beginning of a substring
+by advancing its start position.
+
+If the substring's end position is reached, the start position is not advanced past it.
+-/
 @[inline] def drop : Substring → Nat → Substring
   | ss@⟨s, b, e⟩, n => ⟨s, b + ss.nextn n 0, e⟩
 
+/--
+Removes the specified number of characters (Unicode code points) from the end of a substring
+by moving its end position towards its start position.
+
+If the substring's start position is reached, the end position is not retracted past it.
+-/
 @[inline] def dropRight : Substring → Nat → Substring
   | ss@⟨s, b, _⟩, n => ⟨s, b, b + ss.prevn n ⟨ss.bsize⟩⟩
 
+/--
+Retains only the specified number of characters (Unicode code points) at the beginning of a
+substring, by moving its end position towards its start position.
+
+If the substring's start position is reached, the end position is not retracted past it.
+-/
 @[inline] def take : Substring → Nat → Substring
   | ss@⟨s, b, _⟩, n => ⟨s, b, b + ss.nextn n 0⟩
 
+/--
+Retains only the specified number of characters (Unicode code points) at the end of a substring, by
+moving its start position towards its end position.
+
+If the substring's end position is reached, the start position is not advanced past it.
+-/
 @[inline] def takeRight : Substring → Nat → Substring
   | ss@⟨s, b, e⟩, n => ⟨s, b + ss.prevn n ⟨ss.bsize⟩, e⟩
 
+/--
+Checks whether a position in a substring is precisely equal to its ending position.
+
+The position is understood relative to the substring's starting position, rather than the underlying
+string's starting position.
+-/
 @[inline] def atEnd : Substring → String.Pos → Bool
   | ⟨_, b, e⟩, p => b + p == e
 
+/--
+Returns the region of the substring delimited by the provided start and stop positions, as a
+substring. The positions are interpreted with respect to the substring's start position, rather than
+the underlying string.
+
+If the resulting substring is empty, then the resulting substring is a substring of the empty string
+`""`. Otherwise, the underlying string is that of the input substring with the beginning and end
+positions adjusted.
+-/
 @[inline] def extract : Substring → String.Pos → String.Pos → Substring
   | ⟨s, b, e⟩, b', e' => if b' ≥ e' then ⟨"", 0, 0⟩ else ⟨s, e.min (b+b'), e.min (b+e')⟩
 
+/--
+Splits a substring `s` on occurrences of the separator string `sep`. The default separator is `" "`.
+
+When `sep` is empty, the result is `[s]`. When `sep` occurs in overlapping patterns, the first match
+is taken. There will always be exactly `n+1` elements in the returned list if there were `n`
+non-overlapping matches of `sep` in the string. The separators are not included in the returned
+substrings, which are all substrings of `s`'s string.
+-/
 def splitOn (s : Substring) (sep : String := " ") : List Substring :=
   if sep == "" then
     [s]
@@ -1262,21 +1363,42 @@ def splitOn (s : Substring) (sep : String := " ") : List Substring :=
       termination_by s.bsize - i.1
     loop 0 0 0 []
 
+/--
+Folds a function over a substring from the left, accumulating a value starting with `init`. The
+accumulated value is combined with each character in order, using `f`.
+-/
 @[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : Substring) : α :=
   match s with
   | ⟨s, b, e⟩ => String.foldlAux f s e b init
 
+/--
+Folds a function over a substring from the right, accumulating a value starting with `init`. The
+accumulated value is combined with each character in reverse order, using `f`.
+-/
 @[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : Substring) : α :=
   match s with
   | ⟨s, b, e⟩ => String.foldrAux f init s e b
 
+/--
+Checks whether the Boolean predicate `p` returns `true` for any character in a substring.
+
+Short-circuits at the first character for which `p` returns `true`.
+-/
 @[inline] def any (s : Substring) (p : Char → Bool) : Bool :=
   match s with
   | ⟨s, b, e⟩ => String.anyAux s e p b
 
+/--
+Checks whether the Boolean predicate `p` returns `true` for every character in a substring.
+
+Short-circuits at the first character for which `p` returns `false`.
+-/
 @[inline] def all (s : Substring) (p : Char → Bool) : Bool :=
   !s.any (fun c => !p c)
 
+/--
+Checks whether a substring contains the specified character.
+-/
 @[inline] def contains (s : Substring) (c : Char) : Bool :=
   s.any (fun a => a == c)
 
@@ -1289,11 +1411,21 @@ def splitOn (s : Substring) (sep : String := " ") : List Substring :=
   else i
 termination_by stopPos.1 - i.1
 
+/--
+Retains only the longest prefix of a substring in which a Boolean predicate returns `true` for all
+characters by moving the substring's end position towards its start position.
+-/
 @[inline] def takeWhile : Substring → (Char → Bool) → Substring
   | ⟨s, b, e⟩, p =>
     let e := takeWhileAux s e p b;
     ⟨s, b, e⟩
 
+/--
+Removes the longest prefix of a substring in which a Boolean predicate returns `true` for all
+characters by moving the substring's start position. The start position is moved to the position of
+the first character for which the predicate returns `false`, or to the substring's end position if
+the predicate always returns `true`.
+-/
 @[inline] def dropWhile : Substring → (Char → Bool) → Substring
   | ⟨s, b, e⟩, p =>
     let b := takeWhileAux s e p b;
@@ -1310,49 +1442,115 @@ termination_by stopPos.1 - i.1
   else i
 termination_by i.1
 
+/--
+Retains only the longest suffix of a substring in which a Boolean predicate returns `true` for all
+characters by moving the substring's start position towards its end position.
+-/
 @[inline] def takeRightWhile : Substring → (Char → Bool) → Substring
   | ⟨s, b, e⟩, p =>
     let b := takeRightWhileAux s b p e
     ⟨s, b, e⟩
 
+/--
+Removes the longest suffix of a substring in which a Boolean predicate returns `true` for all
+characters by moving the substring's end position. The end position is moved just after the position
+of the last character for which the predicate returns `false`, or to the substring's start position
+if the predicate always returns `true`.
+-/
 @[inline] def dropRightWhile : Substring → (Char → Bool) → Substring
   | ⟨s, b, e⟩, p =>
     let e := takeRightWhileAux s b p e
     ⟨s, b, e⟩
 
+/--
+Removes leading whitespace from a substring by moving its start position to the first non-whitespace
+character, or to its end position if there is no non-whitespace character.
+
+“Whitespace” is defined as characters for which `Char.isWhitespace` returns `true`.
+-/
 @[inline] def trimLeft (s : Substring) : Substring :=
   s.dropWhile Char.isWhitespace
 
+/--
+Removes trailing whitespace from a substring by moving its end position to the last non-whitespace
+character, or to its start position if there is no non-whitespace character.
+
+“Whitespace” is defined as characters for which `Char.isWhitespace` returns `true`.
+-/
 @[inline] def trimRight (s : Substring) : Substring :=
   s.dropRightWhile Char.isWhitespace
 
+/--
+Removes leading and trailing whitespace from a substring by first moving its start position to the
+first non-whitespace character, and then moving its end position to the last non-whitespace
+character.
+
+If the substring consists only of whitespace, then the resulting substring's start position is moved
+to its end position.
+
+“Whitespace” is defined as characters for which `Char.isWhitespace` returns `true`.
+
+Examples:
+ * `" red green blue ".toSubstring.trim.toString = "red green blue"`
+ * `" red green blue ".toSubstring.trim.startPos = ⟨1⟩`
+ * `" red green blue ".toSubstring.trim.stopPos = ⟨15⟩`
+ * `"     ".toSubstring.trim.startPos = ⟨5⟩`
+-/
 @[inline] def trim : Substring → Substring
   | ⟨s, b, e⟩ =>
     let b := takeWhileAux s e Char.isWhitespace b
     let e := takeRightWhileAux s b Char.isWhitespace e
     ⟨s, b, e⟩
 
+/--
+Checks whether the substring can be interpreted as the decimal representation of a natural number.
+
+A substring can be interpreted as a decimal natural number if it is not empty and all the characters
+in it are digits.
+
+Use `Substring.toNat?` to convert such a substring to a natural number.
+-/
 @[inline] def isNat (s : Substring) : Bool :=
   s.all fun c => c.isDigit
 
+/--
+Checks whether the substring can be interpreted as the decimal representation of a natural number,
+returning the number if it can.
+
+A substring can be interpreted as a decimal natural number if it is not empty and all the characters
+in it are digits.
+
+Use `Substring.isNat` to check whether the substring is such a substring.
+-/
 def toNat? (s : Substring) : Option Nat :=
   if s.isNat then
     some <| s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
   else
     none
 
+/--
+Checks whether two substrings represent equal strings. Usually accessed via the `==` operator.
+
+Two substrings do not need to have the same underlying string or the same start and end positions;
+instead, they are equal if they contain the same sequence of characters.
+-/
 def beq (ss1 ss2 : Substring) : Bool :=
   ss1.bsize == ss2.bsize && ss1.str.substrEq ss1.startPos ss2.str ss2.startPos ss1.bsize
 
 instance hasBeq : BEq Substring := ⟨beq⟩
 
-/-- Checks whether two substrings have the same position and content. -/
+/--
+Checks whether two substrings have the same position and content.
+
+The two substrings do not need to have the same underlying string for this check to succeed.
+-/
 def sameAs (ss1 ss2 : Substring) : Bool :=
   ss1.startPos == ss2.startPos && ss1 == ss2
 
 /--
 Returns the longest common prefix of two substrings.
-The returned substring will use the same underlying string as `s`.
+
+The returned substring uses the same underlying string as `s`.
 -/
 def commonPrefix (s t : Substring) : Substring :=
   { s with stopPos := loop s.startPos t.startPos }
@@ -1371,7 +1569,8 @@ where
 
 /--
 Returns the longest common suffix of two substrings.
-The returned substring will use the same underlying string as `s`.
+
+The returned substring uses the same underlying string as `s`.
 -/
 def commonSuffix (s t : Substring) : Substring :=
   { s with startPos := loop s.stopPos t.stopPos }
@@ -1391,7 +1590,11 @@ where
   termination_by spos.byteIdx
 
 /--
-If `pre` is a prefix of `s`, i.e. `s = pre ++ t`, returns the remainder `t`.
+If `pre` is a prefix of `s`, returns the remainder. Returns `none` otherwise.
+
+The substring `pre` is a prefix of `s` if there exists a `t : Substring` such that
+`s.toString = pre.toString ++ t.toString`. If so, the result is the substring of `s` without the
+prefix.
 -/
 def dropPrefix? (s : Substring) (pre : Substring) : Option Substring :=
   let t := s.commonPrefix pre
@@ -1401,7 +1604,11 @@ def dropPrefix? (s : Substring) (pre : Substring) : Option Substring :=
     none
 
 /--
-If `suff` is a suffix of `s`, i.e. `s = t ++ suff`, returns the remainder `t`.
+If `suff` is a suffix of `s`, returns the remainder. Returns `none` otherwise.
+
+The substring `suff` is a suffix of `s` if there exists a `t : Substring` such that
+`s.toString = t.toString ++ suff.toString`. If so, the result the substring of `s` without the
+suffix.
 -/
 def dropSuffix? (s : Substring) (suff : Substring) : Option Substring :=
   let t := s.commonSuffix suff

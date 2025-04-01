@@ -26,7 +26,7 @@ end List
 
 namespace Array
 
-theorem exists_of_uset (xs : Array α) (i d h) :
+theorem exists_of_uset {xs : Array α} {i d} (h) :
     ∃ l₁ l₂, xs.toList = l₁ ++ xs[i] :: l₂ ∧ List.length l₁ = i.toNat ∧
       (xs.uset i d h).toList = l₁ ++ d :: l₂ := by
   simpa only [ugetElem_eq_getElem, ← getElem_toList, uset, toList_set] using

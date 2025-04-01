@@ -91,7 +91,7 @@ inductive Inv2 (decls : Array (Decl α)) : Nat → HashMap α Nat → Prop where
   (hmap : map[a]? = some n) : Inv2 decls (idx + 1) map
 | false (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .false) :
   Inv2 decls (idx + 1) map
-| gate (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .gate l r li ri) :
+| gate (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .gate l r) :
   Inv2 decls (idx + 1) map
 
 theorem Inv2.upper_lt_size {decls : Array (Decl α)} (hinv : Inv2 decls upper map) :
@@ -141,7 +141,7 @@ theorem Inv2.property (decls : Array (Decl α)) (idx upper : Nat) (map : HashMap
     | inl hidxeq => simp [hidxeq, ih3] at heq
     | inr hlt => apply ih4 <;> assumption
   | gate ih1 ih2 ih3 ih4 =>
-    next idx' _ _ _ _ _ =>
+    next idx' _ _ _ =>
     replace hidx : idx ≤ idx' := by omega
     cases Nat.eq_or_lt_of_le hidx with
     | inl hidxeq => simp [hidxeq, ih3] at heq
@@ -225,8 +225,8 @@ def addFalse {decls : Array (Decl α)} {hidx} (state : State α decls idx)
 /--
 Insert a `Decl.gate` into the `State` structure.
 -/
-def addGate {decls : Array (Decl α)} {hidx} (state : State α decls idx) (lhs rhs : Nat)
-    (linv rinv : Bool) (h : decls[idx]'hidx = .gate lhs rhs linv rinv) :
+def addGate {decls : Array (Decl α)} {hidx} (state : State α decls idx) (lhs rhs : Fanin)
+    (h : decls[idx]'hidx = .gate lhs rhs) :
     State α decls (idx + 1) :=
   { state with
     inv2 := by
@@ -247,7 +247,7 @@ where
       match hdecl : decl with
       | .atom a => go decls (idx + 1) (state.addAtom a hdecl)
       | .false => go decls (idx + 1) (state.addFalse hdecl)
-      | .gate lhs rhs linv rinv => go decls (idx + 1) (state.addGate lhs rhs linv rinv hdecl)
+      | .gate lhs rhs => go decls (idx + 1) (state.addGate lhs rhs hdecl)
     else
       have : idx = decls.size := by
         have := state.inv2.upper_lt_size

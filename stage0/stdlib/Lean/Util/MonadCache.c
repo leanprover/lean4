@@ -33,9 +33,9 @@ LEAN_EXPORT lean_object* l_Lean_MonadCacheT_run___rarg(lean_object*, lean_object
 static lean_object* l_Lean_MonadCacheT_run___rarg___closed__3;
 lean_object* l_ReaderT_tryFinally___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMonadCacheReaderT___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadCacheT_instMonadFinally(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_MonadStateCacheT_run___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_MonadHashMapCacheAdapter_cache(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_checkCache___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);

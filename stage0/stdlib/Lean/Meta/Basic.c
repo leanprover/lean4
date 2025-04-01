@@ -251,7 +251,6 @@ static lean_object* l_Lean_Meta_liftMkBindingM___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_FVarId_throwUnknown(lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_3508____closed__1;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_FVarId_hasForwardDeps___spec__15(lean_object*, lean_object*, size_t, size_t);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_2516____closed__6;
 LEAN_EXPORT lean_object* l_Lean_Meta_recordUnfold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -293,6 +292,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___private_Lean_Meta_B
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecls___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_realizeConst___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withNewLocalInstance___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedDefEqCacheKey;
 LEAN_EXPORT uint64_t l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Basic_0__Lean_Meta_hashSynthInstanceCacheKey____x40_Lean_Meta_Basic___hyg_1496____spec__1(lean_object*, size_t, size_t, uint64_t);

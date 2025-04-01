@@ -41,6 +41,23 @@ instance [ToLean α] : ToLean (Array α) where
 instance : ToLean Bool where
   toLean b := mkIdent <| if b then `true else `false
 
+class ToLean? (α : Type u) where
+  toLean? : α → Option Term
+
+export ToLean? (toLean?)
+
+instance (priority := high) [ToLean α] : ToLean? α where
+  toLean? a := some (toLean a)
+
+def quoteArray? [ToLean? α] (as : Array α) : Option Term :=
+  toLean <$> as.foldl (init := some #[]) fun vs? a => do
+    let vs ← vs?
+    let v ← toLean? a
+    return vs.push v
+
+instance [ToLean? α] : ToLean? (Array α) where
+  toLean? as := quoteArray? as
+
 class AddDeclField (σ : Type u) (name : Name) where
   addDeclField : σ → Array DeclField → Array DeclField
 
@@ -51,6 +68,9 @@ def addDeclFieldCore
   (name : Name) (val : Term) (fs : Array DeclField)
 : Array DeclField :=
   fs.push <| Unhygienic.run `(declField|$(mkIdent name) := $val)
+
+instance [ToLean? α] [field : ConfigField σ name α] : AddDeclField σ name where
+  addDeclField cfg fs := if let some v := toLean? (field.get cfg) then addDeclFieldCore name v fs else fs
 
 @[inline] def addDeclFieldNotEmpty
   [ToLean α] (name : Name) (val : Array α) (fs : Array DeclField)
@@ -144,16 +164,75 @@ protected def Glob.toLean (glob : Glob) : Term := Unhygienic.run do
 
 instance : ToLean Glob := ⟨Glob.toLean⟩
 
-def quoteVerTags? (pat : StrPat) : Option Term :=
-  match pat with
-  | .mem xs => if xs.isEmpty then Unhygienic.run `(∅) else some (toLean xs)
-  | .startsWith pre => Unhygienic.run `(.$(mkIdent `startsWith) $(toLean pre))
-  | .satisfies _ n =>
-    if n.isAnonymous || n == `default then none else
+@[inline] private def quoteSingleton? [ToLean? α] (name : Name) (a : α) : Option Term :=
+  toLean? a |>.map fun a => Unhygienic.run `(.$(mkIdent name) $a)
+
+protected def Pattern.toLean? [ToLean? (PatternDescr α β)] (p : Pattern α β) : Option Term :=
+  match p.name with
+  | .anonymous =>
+    p.descr?.bind toLean?
+  | `default =>
+    none
+  | n =>
     Unhygienic.run `(.$(mkIdent n))
 
-instance : AddDeclField (PackageConfig n) `versionTags where
-  addDeclField cfg := addDeclField? `versionTags (quoteVerTags? cfg.versionTags)
+instance [ToLean? (PatternDescr α β)] : ToLean? (Pattern α β) := ⟨Pattern.toLean?⟩
+
+protected partial def PattternDescr.toLean? [ToLean? β] (p : PatternDescr α β) : Option Term :=
+  have : ToLean? (PatternDescr α β) := ⟨PattternDescr.toLean?⟩
+  match p with
+  | .not p => quoteSingleton? `not p
+  | .any p => quoteSingleton? `any p
+  | .all p => quoteSingleton? `all p
+  | .coe p => toLean? p
+
+instance [ToLean? β] : ToLean? (PatternDescr α β) := ⟨PattternDescr.toLean?⟩
+
+protected def StrPatDescr.toLean (pat : StrPatDescr) : Term :=
+  match pat with
+  | .mem xs => if xs.isEmpty then Unhygienic.run `(∅) else (toLean xs)
+  | .startsWith affix => Unhygienic.run `(.$(mkIdent `startsWith) $(toLean affix))
+  | .endsWith affix => Unhygienic.run `(.$(mkIdent `endsWith) $(toLean affix))
+
+instance : ToLean StrPatDescr := ⟨StrPatDescr.toLean⟩
+
+protected def PathPatDescr.toLean? (p : PathPatDescr) : Option Term :=
+  match p with
+  | .path p => quoteSingleton? `path p
+  | .extension p => quoteSingleton? `extension p
+  | .fileName p => quoteSingleton? `fileName p
+
+instance : ToLean? PathPatDescr := ⟨PathPatDescr.toLean?⟩
+
+@[inline] protected def PartialBuildKey.toLean (k : PartialBuildKey) : Term :=
+  go k []
+where
+  go k (fs : List Name) := Unhygienic.run do
+    match k with
+    | .module n =>
+      `(`+$(mkIdent n)$(mkSuffixes fs)*)
+    | .package n =>
+      if n.isAnonymous then
+        `(`@$(mkSuffixes fs):facetSuffix*)
+      else
+        `(`@$(mkIdent n)$(mkSuffixes fs)*)
+    | .packageTarget p t =>
+      let t ←
+        if let some t := t.eraseSuffix? moduleTargetIndicator then
+          `(packageTargetLit|+$(mkIdent t))
+        else
+          `(packageTargetLit|$(mkIdent t):ident)
+      if p.isAnonymous then
+        `(`@/$t$(mkSuffixes fs)*)
+      else
+        `(`@$(mkIdent p)/$t$(mkSuffixes fs)*)
+    | .facet k f =>
+      return go k (f :: fs)
+  mkSuffixes facets : Array (TSyntax ``facetSuffix) :=
+    facets.toArray.map fun f => Unhygienic.run `(facetSuffix|:$(mkIdent f))
+
+instance : ToLean PartialBuildKey := ⟨PartialBuildKey.toLean⟩
+instance : ToLean (Target α) := ⟨(·.key.toLean)⟩
 
 /-! ## Dependency Configuration Encoder -/
 
@@ -203,15 +282,15 @@ local macro "gen_lean_encoders%" : command => do
   let cmds := #[]
   -- Targets
   let cmds ← genMkDeclFields cmds ``LeanConfig false
-    (exclude := #[`dynlibs, `plugins])
   let cmds ← genMkDeclFields cmds ``LeanLibConfig true
-    (exclude := #[`nativeFacets, `dynlibs, `plugins])
+    (exclude := #[`nativeFacets])
   let cmds ← genMkDeclFields cmds ``LeanExeConfig true
-    (exclude := #[`nativeFacets, `dynlibs, `plugins])
+    (exclude := #[`nativeFacets])
+  let cmds ← genMkDeclFields cmds ``InputFileConfig true
+  let cmds ← genMkDeclFields cmds ``InputDirConfig true
   -- Package
   let cmds ← genMkDeclFields cmds ``WorkspaceConfig false
   let cmds ← genMkDeclFields cmds ``PackageConfig true
-    (exclude := #[`nativeFacets, `dynlibs, `plugins])
   return ⟨mkNullNode cmds⟩
 
 gen_lean_encoders%
@@ -234,6 +313,20 @@ protected def LeanExeConfig.mkCommand
   let attrs? ← if defaultTarget then some <$> `(Term.attributes|@[default_target]) else pure none
   `(leanExeCommand|$[$attrs?:attributes]? lean_exe $(mkIdent n):ident $[$declVal?]?)
 
+protected def InputFileConfig.mkCommand
+  (cfg : InputFileConfig n) (defaultTarget : Bool)
+: Command := Unhygienic.run do
+  let declVal? := mkDeclValWhere? (mkDeclFields cfg)
+  let attrs? ← if defaultTarget then some <$> `(Term.attributes|@[default_target]) else pure none
+  `(inputFileCommand|$[$attrs?:attributes]? input_file $(mkIdent n):ident $[$declVal?]?)
+
+protected def InputDirConfig.mkCommand
+  (cfg : InputDirConfig n) (defaultTarget : Bool)
+: Command := Unhygienic.run do
+  let declVal? := mkDeclValWhere? (mkDeclFields cfg)
+  let attrs? ← if defaultTarget then some <$> `(Term.attributes|@[default_target]) else pure none
+  `(inputDirCommand|$[$attrs?:attributes]? input_dir $(mkIdent n):ident $[$declVal?]?)
+
 @[inline] def Package.mkTargetCommands
   (pkg : Package) (defaultTargets : NameSet) (kind : Name)
   (mkCommand : {n : Name} → ConfigType kind pkg.name n → Bool → Command)
@@ -253,6 +346,8 @@ def Package.mkLeanConfig (pkg : Package) : TSyntax ``module := Unhygienic.run do
   open $(mkIdent `System) $(mkIdent `Lake) $(mkIdent `DSL)
   $(pkgConfig.mkCommand):command
   $[$(pkg.depConfigs.map (·.mkRequire)):command]*
-  $[$(pkg.mkTargetCommands defaultTargets `lean_lib LeanLibConfig.mkCommand):command]*
-  $[$(pkg.mkTargetCommands defaultTargets `lean_exe LeanExeConfig.mkCommand):command]*
+  $[$(pkg.mkTargetCommands defaultTargets LeanLib.configKind LeanLibConfig.mkCommand):command]*
+  $[$(pkg.mkTargetCommands defaultTargets LeanExe.configKind LeanExeConfig.mkCommand):command]*
+  $[$(pkg.mkTargetCommands defaultTargets InputFile.configKind InputFileConfig.mkCommand):command]*
+  $[$(pkg.mkTargetCommands defaultTargets InputDir.configKind InputDirConfig.mkCommand):command]*
   )

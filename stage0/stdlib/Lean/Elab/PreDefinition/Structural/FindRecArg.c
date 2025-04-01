@@ -63,7 +63,6 @@ lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*)
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Structural_argsInGroup___spec__3___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_tryAllArgs___rarg___lambda__4___closed__2;
 static lean_object* l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__18;
-lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Structural_getRecArgInfo___spec__5___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_allCombinations(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_dedup(lean_object*, lean_object*);
@@ -75,6 +74,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Structural_getRecArgInfo(lean_object*, lean
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_allDiffAuxAux___at_Lean_Elab_Structural_getRecArgInfo___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_getIndexMinPos___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Structural_getRecArgInfo___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_prettyParameterSet___closed__1;
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_RecArgInfo_0__Lean_Elab_Structural_reprRecArgInfo____x40_Lean_Elab_PreDefinition_Structural_RecArgInfo___hyg_71_(lean_object*, lean_object*);

@@ -20,19 +20,19 @@ Examples:
 -/
 def finRange (n : Nat) : List (Fin n) := ofFn fun i => i
 
-@[simp] theorem length_finRange (n) : (List.finRange n).length = n := by
+@[simp] theorem length_finRange {n : Nat} : (List.finRange n).length = n := by
   simp [List.finRange]
 
-@[simp] theorem getElem_finRange (i : Nat) (h : i < (List.finRange n).length) :
-    (finRange n)[i] = Fin.cast (length_finRange n) ⟨i, h⟩ := by
+@[simp] theorem getElem_finRange {i : Nat} (h : i < (List.finRange n).length) :
+    (finRange n)[i] = Fin.cast length_finRange ⟨i, h⟩ := by
   simp [List.finRange]
 
 @[simp] theorem finRange_zero : finRange 0 = [] := by simp [finRange, ofFn]
 
-theorem finRange_succ (n) : finRange (n+1) = 0 :: (finRange n).map Fin.succ := by
+theorem finRange_succ {n} : finRange (n+1) = 0 :: (finRange n).map Fin.succ := by
   apply List.ext_getElem; simp; intro i; cases i <;> simp
 
-theorem finRange_succ_last (n) :
+theorem finRange_succ_last {n} :
     finRange (n+1) = (finRange n).map Fin.castSucc ++ [Fin.last n] := by
   apply List.ext_getElem
   · simp
@@ -43,7 +43,7 @@ theorem finRange_succ_last (n) :
     · rfl
     · next h => exact Fin.eq_last_of_not_lt h
 
-theorem finRange_reverse (n) : (finRange n).reverse = (finRange n).map Fin.rev := by
+theorem finRange_reverse {n} : (finRange n).reverse = (finRange n).map Fin.rev := by
   induction n with
   | zero => simp
   | succ n ih =>

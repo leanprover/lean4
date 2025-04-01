@@ -100,7 +100,6 @@ static lean_object* l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTr
 LEAN_EXPORT lean_object* l_Lean_Meta_LazyDiscrTree_getChildNgen___at_Lean_Meta_LazyDiscrTree_createModuleDiscrTree___spec__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_getStarResult___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LazyDiscrTree_findImportMatches___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_log___at_Lean_Meta_LazyDiscrTree_findImportMatches___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_pushArgs___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -121,6 +120,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_LazyDiscrTree_dropKeys___rarg(lean_object*,
 static uint64_t l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_getMatchLoop___rarg___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_createImportedEnvironmentSeq___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_evalNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_PreDiscrTree_modifyAt___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_log___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);

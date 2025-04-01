@@ -127,6 +127,33 @@ protected theorem ne_of_gt {a b : Fin n} (h : a < b) : b ≠ a := Fin.ne_of_val_
 
 protected theorem le_of_lt {a b : Fin n} (h : a < b) : a ≤ b := Nat.le_of_lt h
 
+protected theorem lt_of_le_of_lt {a b c : Fin n} : a ≤ b → b < c → a < c := Nat.lt_of_le_of_lt
+
+protected theorem lt_of_lt_of_le {a b c : Fin n} : a < b → b ≤ c → a < c := Nat.lt_of_lt_of_le
+
+protected theorem le_rfl {a : Fin n} : a ≤ a := Nat.le_refl _
+
+protected theorem lt_iff_le_and_ne {a b : Fin n} : a < b ↔ a ≤ b ∧ a ≠ b := by
+  rw [← val_ne_iff]; exact Nat.lt_iff_le_and_ne
+
+protected theorem lt_or_lt_of_ne {a b : Fin n} (h : a ≠ b) : a < b ∨ b < a :=
+  Nat.lt_or_lt_of_ne <| val_ne_iff.2 h
+
+protected theorem lt_or_le (a b : Fin n) : a < b ∨ b ≤ a := Nat.lt_or_ge _ _
+
+protected theorem le_or_lt (a b : Fin n) : a ≤ b ∨ b < a := (b.lt_or_le a).symm
+
+protected theorem le_of_eq {a b : Fin n} (hab : a = b) : a ≤ b :=
+  Nat.le_of_eq <| congrArg val hab
+
+protected theorem ge_of_eq {a b : Fin n} (hab : a = b) : b ≤ a := Fin.le_of_eq hab.symm
+
+protected theorem eq_or_lt_of_le {a b : Fin n} : a ≤ b → a = b ∨ a < b := by
+  rw [Fin.ext_iff]; exact Nat.eq_or_lt_of_le
+
+protected theorem lt_or_eq_of_le {a b : Fin n} : a ≤ b → a < b ∨ a = b := by
+  rw [Fin.ext_iff]; exact Nat.lt_or_eq_of_le
+
 theorem is_le (i : Fin (n + 1)) : i ≤ n := Nat.le_of_lt_succ i.is_lt
 
 @[simp] theorem is_le' {a : Fin n} : a ≤ n := Nat.le_of_lt a.is_lt

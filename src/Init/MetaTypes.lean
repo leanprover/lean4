@@ -20,17 +20,21 @@ structure Module where
 
 namespace Meta
 
+/--
+Which constants should be unfolded?
+-/
 inductive TransparencyMode where
-  /-- unfold all constants, even those tagged as `@[irreducible]`. -/
+  /-- Unfolds all constants, even those tagged as `@[irreducible]`. -/
   | all
-  /-- unfold all constants except those tagged as `@[irreducible]`. -/
+  /-- Unfolds all constants except those tagged as `@[irreducible]`. -/
   | default
-  /-- unfold only constants tagged with the `@[reducible]` attribute. -/
+  /-- Unfolds only constants tagged with the `@[reducible]` attribute. -/
   | reducible
-  /-- unfold reducible constants and constants tagged with the `@[instance]` attribute. -/
+  /-- Unfolds reducible constants and constants tagged with the `@[instance]` attribute. -/
   | instances
   deriving Inhabited, BEq
 
+/-- Which structure types should eta be used with? -/
 inductive EtaStructMode where
   /-- Enable eta for structure and classes. -/
   | all

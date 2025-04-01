@@ -1,4 +1,5 @@
 set_option grind.warning false
+
 example (a b : List Nat) : a = [] → b = [2] → a = b → False := by
   grind
 
@@ -121,11 +122,20 @@ info: [grind.eqc] x = 2 * a
 #guard_msgs (info) in
 set_option trace.grind.eqc true in
 example (a : Nat) : let x := a + a; y = x → y = a + a := by
-  grind
+  grind -zetaDelta
 
 /--
 info: [grind.eqc] x = 2 * a
 [grind.eqc] y = x
+[grind.eqc] (y = 2 * a) = False
+-/
+#guard_msgs (info) in
+set_option trace.grind.eqc true in
+example (a : Nat) : let_fun x := a + a; y = x → y = a + a := by
+  grind -zetaDelta
+
+/--
+info: [grind.eqc] y = 2 * a
 [grind.eqc] (y = 2 * a) = False
 -/
 #guard_msgs (info) in
@@ -384,3 +394,29 @@ example [Decidable p] : a = true → p → decide p = a := by
 
 example [Decidable p] : false = a → ¬p → decide p = a := by
   grind
+
+example (a : Nat) (p q r : Prop) (h₁ : if _ : a < 1 then p else q) (h₂ : r) : (if a < 1 then p else q) ↔ r := by
+  grind (splits := 0)
+
+example [BEq α] [LawfulBEq α] (a b : α) : a == b → a = b := by
+  grind
+
+example [BEq α] [LawfulBEq α] {a : α} : (a::as).replace a b = b::as := by
+  grind [List.replace]
+
+example [BEq α] [LawfulBEq α] {a : α} : (a::as).replace a b = b::as := by
+  grind [List.replace_cons]
+
+def foo [BEq α] (a b : α) :=
+  match a == b with
+  | true => 1
+  | false => 0
+
+example [BEq α] [LawfulBEq α] (a b : α) : a = b → foo a b = 1 := by
+  grind (splits := 0) [foo]
+
+example [BEq α] [LawfulBEq α] (a b : α) : a ≠ b → foo a b = 0 := by
+  grind [foo]
+
+example [BEq α] [LawfulBEq α] (a b : α) : a ≠ b → foo a b = 0 := by
+  grind (splits := 0) [foo]

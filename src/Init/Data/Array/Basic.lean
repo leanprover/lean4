@@ -38,14 +38,14 @@ namespace Array
 
 /-! ### Preliminary theorems -/
 
-@[simp] theorem size_set (xs : Array α) (i : Nat) (v : α) (h : i < xs.size) :
+@[simp] theorem size_set {xs : Array α} {i : Nat} {v : α} (h : i < xs.size) :
     (set xs i v h).size = xs.size :=
   List.length_set ..
 
-@[simp] theorem size_push (xs : Array α) (v : α) : (push xs v).size = xs.size + 1 :=
+@[simp] theorem size_push {xs : Array α} (v : α) : (push xs v).size = xs.size + 1 :=
   List.length_concat ..
 
-theorem ext (xs ys : Array α)
+theorem ext {xs ys : Array α}
     (h₁ : xs.size = ys.size)
     (h₂ : (i : Nat) → (hi₁ : i < xs.size) → (hi₂ : i < ys.size) → xs[i] = ys[i])
     : xs = ys := by
@@ -83,10 +83,10 @@ theorem ext (xs ys : Array α)
 theorem ext' {xs ys : Array α} (h : xs.toList = ys.toList) : xs = ys := by
   cases xs; cases ys; simp at h; rw [h]
 
-@[simp] theorem toArrayAux_eq (as : List α) (acc : Array α) : (as.toArrayAux acc).toList = acc.toList ++ as := by
+@[simp] theorem toArrayAux_eq {as : List α} {acc : Array α} : (as.toArrayAux acc).toList = acc.toList ++ as := by
   induction as generalizing acc <;> simp [*, List.toArrayAux, Array.push, List.append_assoc, List.concat_eq_append]
 
-@[simp] theorem toArray_toList (xs : Array α) : xs.toList.toArray = xs := rfl
+@[simp] theorem toArray_toList {xs : Array α} : xs.toList.toArray = xs := rfl
 
 @[simp] theorem getElem_toList {xs : Array α} {i : Nat} (h : i < xs.size) : xs.toList[i] = xs[i] := rfl
 
@@ -120,12 +120,12 @@ namespace List
 abbrev toArray_toList := @Array.toArray_toList
 
 -- This does not need to be a simp lemma, as already after the `whnfR` the right hand side is `as`.
-theorem toList_toArray (as : List α) : as.toArray.toList = as := rfl
+theorem toList_toArray {as : List α} : as.toArray.toList = as := rfl
 
 @[deprecated toList_toArray (since := "2025-02-17")]
 abbrev _root_.Array.toList_toArray := @List.toList_toArray
 
-@[simp] theorem size_toArray (as : List α) : as.toArray.size = as.length := by simp [Array.size]
+@[simp] theorem size_toArray {as : List α} : as.toArray.size = as.length := by simp [Array.size]
 
 @[deprecated size_toArray (since := "2025-02-17")]
 abbrev _root_.Array.size_toArray := @List.size_toArray
@@ -144,7 +144,7 @@ end List
 
 namespace Array
 
-theorem size_eq_length_toList (xs : Array α) : xs.size = xs.toList.length := rfl
+theorem size_eq_length_toList {xs : Array α} : xs.size = xs.toList.length := rfl
 
 @[deprecated toList_toArray (since := "2024-09-09")] abbrev data_toArray := @List.toList_toArray
 
@@ -192,7 +192,7 @@ Examples:
 def pop (xs : Array α) : Array α where
   toList := xs.toList.dropLast
 
-@[simp] theorem size_pop (xs : Array α) : xs.pop.size = xs.size - 1 := by
+@[simp] theorem size_pop {xs : Array α} : xs.pop.size = xs.size - 1 := by
   match xs with
   | ⟨[]⟩ => rfl
   | ⟨a::as⟩ => simp [pop, Nat.succ_sub_succ_eq_sub, size]
@@ -240,11 +240,11 @@ def swap (xs : Array α) (i j : @& Nat) (hi : i < xs.size := by get_elem_tactic)
   let v₁ := xs[i]
   let v₂ := xs[j]
   let xs'  := xs.set i v₂
-  xs'.set j v₁ (Nat.lt_of_lt_of_eq hj (size_set xs i v₂ _).symm)
+  xs'.set j v₁ (Nat.lt_of_lt_of_eq hj (size_set _).symm)
 
-@[simp] theorem size_swap (xs : Array α) (i j : Nat) {hi hj} : (xs.swap i j hi hj).size = xs.size := by
+@[simp] theorem size_swap {xs : Array α} {i j : Nat} {hi hj} : (xs.swap i j hi hj).size = xs.size := by
   show ((xs.set i xs[j]).set j xs[i]
-    (Nat.lt_of_lt_of_eq hj (size_set xs i xs[j] _).symm)).size = xs.size
+    (Nat.lt_of_lt_of_eq hj (size_set _).symm)).size = xs.size
   rw [size_set, size_set]
 
 /--
@@ -465,7 +465,7 @@ Examples:
 -/
 abbrev take (xs : Array α) (i : Nat) : Array α := extract xs 0 i
 
-@[simp] theorem take_eq_extract (xs : Array α) (i : Nat) : xs.take i = xs.extract 0 i := rfl
+@[simp] theorem take_eq_extract {xs : Array α} {i : Nat} : xs.take i = xs.extract 0 i := rfl
 
 /--
 Removes the first `i` elements of `xs`. If `xs` has fewer than `i` elements, the new array is empty.
@@ -479,7 +479,7 @@ Examples:
 -/
 abbrev drop (xs : Array α) (i : Nat) : Array α := extract xs i xs.size
 
-@[simp] theorem drop_eq_extract (xs : Array α) (i : Nat) : xs.drop i = xs.extract i xs.size := rfl
+@[simp] theorem drop_eq_extract {xs : Array α} {i : Nat} : xs.drop i = xs.extract i xs.size := rfl
 
 @[inline]
 unsafe def modifyMUnsafe [Monad m] (xs : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
@@ -490,7 +490,7 @@ unsafe def modifyMUnsafe [Monad m] (xs : Array α) (i : Nat) (f : α → m α) :
     -- of the element type, and that it is valid to store `box(0)` in any array.
     let xs'               := xs.set i (unsafeCast ())
     let v ← f v
-    pure <| xs'.set i v (Nat.lt_of_lt_of_eq h (size_set xs ..).symm)
+    pure <| xs'.set i v (Nat.lt_of_lt_of_eq h (size_set ..).symm)
   else
     pure xs
 
@@ -1026,7 +1026,7 @@ instance : ForM m (Array α) α where
   forM xs f := Array.forM f xs
 
 -- We simplify `Array.forM` to `forM`.
-@[simp] theorem forM_eq_forM [Monad m] (f : α → m PUnit) :
+@[simp] theorem forM_eq_forM [Monad m] {f : α → m PUnit} :
     Array.forM f as 0 as.size = forM as f := rfl
 
 /--
@@ -1735,7 +1735,7 @@ def popWhile (p : α → Bool) (as : Array α) : Array α :=
     as
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
-@[simp] theorem popWhile_empty (p : α → Bool) :
+@[simp] theorem popWhile_empty {p : α → Bool} :
     popWhile p #[] = #[] := by
   simp [popWhile]
 
@@ -1784,7 +1784,7 @@ termination_by xs.size - i
 decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ h
 
 -- This is required in `Lean.Data.PersistentHashMap`.
-@[simp] theorem size_eraseIdx (xs : Array α) (i : Nat) (h) : (xs.eraseIdx i h).size = xs.size - 1 := by
+@[simp] theorem size_eraseIdx {xs : Array α} (i : Nat) (h) : (xs.eraseIdx i h).size = xs.size - 1 := by
   induction xs, i, h using Array.eraseIdx.induct with
   | @case1 xs i h h' xs' ih =>
     unfold eraseIdx

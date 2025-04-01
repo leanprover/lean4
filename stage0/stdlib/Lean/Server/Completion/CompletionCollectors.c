@@ -212,7 +212,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_CompletionCollectors
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Server_Completion_CompletionCollectors_0__Lean_Server_Completion_getDotCompletionTypeNames_visit___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_Completion_tacticCompletion___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_CompletionCollectors_0__Lean_Server_Completion_normPrivateName_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_List_elem___at_Lean_addAliasEntry___spec__16(lean_object*, lean_object*);
 static lean_object* l_Lean_RBNode_forIn_visit___at_Lean_Server_Completion_optionCompletion___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Server_Completion_dotIdCompletion___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_ConstantInfo_isTheorem(lean_object*);
@@ -261,6 +260,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_Completion_forEligibleDeclsM___at___priva
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_CompletionCollectors_0__Lean_Server_Completion_forEligibleDeclsWithCancellationM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Structure_0__Lean_setStructureResolutionOrder___at___private_Lean_Server_Completion_CompletionCollectors_0__Lean_Server_Completion_getDotCompletionTypeNames_visit___spec__28___closed__5;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Completion_CompletionCollectors_0__Lean_Server_Completion_isDotCompletionMethod___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_List_elem___at_Lean_Environment_realizeConst___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___private_Lean_Server_Completion_CompletionCollectors_0__Lean_Server_Completion_idCompletionCore___spec__30___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FVarId_getDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
@@ -17334,7 +17334,7 @@ lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26;
 x_23 = lean_ctor_get(x_7, 1);
 x_24 = lean_ctor_get(x_22, 0);
 x_25 = lean_ctor_get(x_22, 1);
-x_26 = l_List_elem___at_Lean_addAliasEntry___spec__16(x_3, x_25);
+x_26 = l_List_elem___at_Lean_Environment_realizeConst___spec__5(x_3, x_25);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; 

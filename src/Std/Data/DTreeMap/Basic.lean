@@ -419,37 +419,61 @@ def maxKeyD (t : DTreeMap α β cmp) (fallback : α) : α :=
   letI : Ord α := ⟨cmp⟩; t.inner.maxKeyD fallback
 
 /-- Returns the key-value pair with the `n`-th smallest key, or `none` if `n` is at least `t.size`. -/
+@[inline]
 def entryAtIdx? (t : DTreeMap α β cmp) (n : Nat) : Option ((a : α) × β a) :=
   letI : Ord α := ⟨cmp⟩; t.inner.entryAtIdx? n
 
 /-- Returns the key-value pair with the `n`-th smallest key. -/
+@[inline]
 def entryAtIdx (t : DTreeMap α β cmp) (n : Nat) (h : n < t.size) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.entryAtIdx t.inner t.wf.balanced n h
 
 /-- Returns the key-value pair with the `n`-th smallest key, or panics if `n` is at least `t.size`. -/
+@[inline]
 def entryAtIdx! [Inhabited ((a : α) × β a)] (t : DTreeMap α β cmp) (n : Nat) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.entryAtIdx! n
 
 /-- Returns the key-value pair with the `n`-th smallest key, or `fallback` if `n` is at least `t.size`. -/
+@[inline]
 def entryAtIdxD (t : DTreeMap α β cmp) (n : Nat)
     (fallback : (a : α) × β a) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.entryAtIdxD n fallback
 
 /-- Returns the `n`-th smallest key, or `none` if `n` is at least `t.size`. -/
+@[inline]
+def keyAtIdx? (t : DTreeMap α β cmp) (n : Nat) : Option α :=
+  letI : Ord α := ⟨cmp⟩; Impl.keyAtIdx? t.inner n
+
+@[inline, inherit_doc keyAtIdx?, deprecated keyAtIdx? (since := "2025-03-25")]
 def keyAtIndex? (t : DTreeMap α β cmp) (n : Nat) : Option α :=
-  letI : Ord α := ⟨cmp⟩; Impl.keyAtIndex? t.inner n
+  keyAtIdx? t n
 
 /-- Returns the `n`-th smallest key. -/
+@[inline]
+def keyAtIdx (t : DTreeMap α β cmp) (n : Nat) (h : n < t.size) : α :=
+  letI : Ord α := ⟨cmp⟩; Impl.keyAtIdx t.inner t.wf.balanced n h
+
+@[inline, inherit_doc keyAtIdx, deprecated keyAtIdx (since := "2025-03-25")]
 def keyAtIndex (t : DTreeMap α β cmp) (n : Nat) (h : n < t.size) : α :=
-  letI : Ord α := ⟨cmp⟩; Impl.keyAtIndex t.inner t.wf.balanced n h
+  keyAtIdx t n h
 
 /-- Returns the `n`-th smallest key, or panics if `n` is at least `t.size`. -/
+@[inline]
+def keyAtIdx! [Inhabited α] (t : DTreeMap α β cmp) (n : Nat) : α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.keyAtIdx! n
+
+@[inline, inherit_doc keyAtIdx!, deprecated keyAtIdx! (since := "2025-03-25")]
 def keyAtIndex! [Inhabited α] (t : DTreeMap α β cmp) (n : Nat) : α :=
-  letI : Ord α := ⟨cmp⟩; t.inner.keyAtIndex! n
+  keyAtIdx! t n
 
 /-- Returns the `n`-th smallest key, or `fallback` if `n` is at least `t.size`. -/
+@[inline]
+def keyAtIdxD (t : DTreeMap α β cmp) (n : Nat) (fallback : α) : α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.keyAtIdxD n fallback
+
+@[inline, inherit_doc keyAtIdxD, deprecated keyAtIdxD (since := "2025-03-25")]
 def keyAtIndexD (t : DTreeMap α β cmp) (n : Nat) (fallback : α) : α :=
-  letI : Ord α := ⟨cmp⟩; t.inner.keyAtIndexD n fallback
+  keyAtIdxD t n fallback
 
 /--
 Tries to retrieve the key-value pair with the smallest key that is greater than or equal to the
@@ -1114,7 +1138,7 @@ def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : DTreeMap α Unit cmp) (l : ρ
 end Const
 
 instance [Repr α] [(a : α) → Repr (β a)] : Repr (DTreeMap α β cmp) where
-  reprPrec m prec := Repr.addAppParen ("DTreeMap.ofList " ++ repr m.toList) prec
+  reprPrec m prec := Repr.addAppParen ("Std.DTreeMap.ofList " ++ repr m.toList) prec
 
 end DTreeMap
 

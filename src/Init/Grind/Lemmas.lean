@@ -82,6 +82,9 @@ theorem ne_of_ne_of_eq_right {α : Sort u} {a b c : α} (h₁ : a = c) (h₂ : b
 theorem beq_eq_true_of_eq {α : Type u} {_ : BEq α} {_ : LawfulBEq α} {a b : α} (h : a = b) : (a == b) = true := by
   simp[*]
 
+theorem beq_eq_false_of_diseq {α : Type u} {_ : BEq α} {_ : LawfulBEq α} {a b : α} (h : ¬ a = b) : (a == b) = false := by
+  simp[*]
+
 /-! Bool.and -/
 
 theorem Bool.and_eq_of_eq_true_left {a b : Bool} (h : a = true) : (a && b) = b := by simp [h]

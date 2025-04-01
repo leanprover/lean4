@@ -172,6 +172,11 @@ builtin_grind_propagator propagateBEqUp ↑BEq.beq := fun e => do
     let lawfulBEq := mkApp2 (mkConst ``LawfulBEq u) α binst
     let .some linst ← trySynthInstance lawfulBEq | return ()
     pushEqBoolTrue e <| mkApp6 (mkConst ``Grind.beq_eq_true_of_eq u) α binst linst a b (← mkEqProof a b)
+  else if let some h ← mkDiseqProof? a b then
+    let u := f.constLevels!
+    let lawfulBEq := mkApp2 (mkConst ``LawfulBEq u) α binst
+    let .some linst ← trySynthInstance lawfulBEq | return ()
+    pushEqBoolFalse e <| mkApp6 (mkConst ``Grind.beq_eq_false_of_diseq u) α binst linst a b h
 
 /-- Propagates `EqMatch` downwards -/
 builtin_grind_propagator propagateEqMatchDown ↓Grind.EqMatch := fun e => do

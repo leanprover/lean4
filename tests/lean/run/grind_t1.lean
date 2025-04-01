@@ -413,4 +413,10 @@ def foo [BEq α] (a b : α) :=
   | false => 0
 
 example [BEq α] [LawfulBEq α] (a b : α) : a = b → foo a b = 1 := by
+  grind (splits := 0) [foo]
+
+example [BEq α] [LawfulBEq α] (a b : α) : a ≠ b → foo a b = 0 := by
   grind [foo]
+
+example [BEq α] [LawfulBEq α] (a b : α) : a ≠ b → foo a b = 0 := by
+  grind (splits := 0) [foo]

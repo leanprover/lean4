@@ -396,3 +396,6 @@ example [Decidable p] : false = a → ¬p → decide p = a := by
 
 example (a : Nat) (p q r : Prop) (h₁ : if _ : a < 1 then p else q) (h₂ : r) : (if a < 1 then p else q) ↔ r := by
   grind (splits := 0)
+
+example [BEq α] [LawfulBEq α] (a b : α) : a == b → a = b := by
+  grind

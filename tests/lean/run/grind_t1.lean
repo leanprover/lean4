@@ -406,3 +406,11 @@ example [BEq α] [LawfulBEq α] {a : α} : (a::as).replace a b = b::as := by
 
 example [BEq α] [LawfulBEq α] {a : α} : (a::as).replace a b = b::as := by
   grind [List.replace_cons]
+
+def foo [BEq α] (a b : α) :=
+  match a == b with
+  | true => 1
+  | false => 0
+
+example [BEq α] [LawfulBEq α] (a b : α) : a = b → foo a b = 1 := by
+  grind [foo]

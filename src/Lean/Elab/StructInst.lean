@@ -915,8 +915,11 @@ where
     let cinfo ← getConstInfo flatCtorName
     let ctorVal ← instantiateValueLevelParams cinfo us
     let fieldArgs := parentFields.map fieldMap.find!
+    -- Normalize the expressions since there might be some projections.
+    let params ← params.mapM normalizeExpr
     let e' := (ctorVal.beta params).beta fieldArgs
-    return .done e'
+    -- Continue, since we need to reduce the parameters.
+    return .continue e'
 
 private def getParentStructType? (parentStructName : Name) : StructInstM (Option (Expr × Option Name)) := do
   let env ← getEnv
@@ -930,6 +933,7 @@ private def getParentStructType? (parentStructName : Name) : StructInstM (Option
       let params := ty.getAppArgs
       pure <| mkApp (mkAppN (.const projFn us) params) e
     let projTy ← whnf <| ← inferType proj
+    let projTy ← normalizeExpr projTy
     let projTy ← reduceSelfProjs self projTy
     let projTy ← normalizeExpr projTy
     if projTy.containsFVar self.fvarId! then

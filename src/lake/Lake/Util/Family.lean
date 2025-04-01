@@ -16,7 +16,7 @@ The concept of families originated in Haskell with the paper
 is essentially just a fancy name for a function from an input *index* to an
 output type. However, the concept implies some additional restrictions on
 the syntax and/or functionality versus a proper function. The design here has
-similar limitations, hence the adaption of the name.
+similar limitations, hence the adoption of the name.
 
 Families come in two forms: open and closed.
 A *closed* family is an ordinary total function.

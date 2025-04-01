@@ -174,11 +174,19 @@ theorem gcd_dvd_gcd_of_dvd_left {m k : Nat} (n : Nat) (H : m ∣ k) : gcd m n �
 theorem gcd_dvd_gcd_of_dvd_right {m k : Nat} (n : Nat) (H : m ∣ k) : gcd n m ∣ gcd n k :=
   dvd_gcd (gcd_dvd_left n m) (Nat.dvd_trans (gcd_dvd_right n m) H)
 
-theorem gcd_dvd_gcd_mul_left (m n k : Nat) : gcd m n ∣ gcd (k * m) n :=
+theorem gcd_dvd_gcd_mul_left_left (m n k : Nat) : gcd m n ∣ gcd (k * m) n :=
   gcd_dvd_gcd_of_dvd_left _ (Nat.dvd_mul_left _ _)
 
-theorem gcd_dvd_gcd_mul_right (m n k : Nat) : gcd m n ∣ gcd (m * k) n :=
+@[deprecated gcd_dvd_gcd_mul_left_left (since := "2025-04-01")]
+theorem gcd_dvd_gcd_mul_left (m n k : Nat) : gcd m n ∣ gcd (k * m) n :=
+  gcd_dvd_gcd_mul_left_left m n k
+
+theorem gcd_dvd_gcd_mul_right_left (m n k : Nat) : gcd m n ∣ gcd (m * k) n :=
   gcd_dvd_gcd_of_dvd_left _ (Nat.dvd_mul_right _ _)
+
+@[deprecated gcd_dvd_gcd_mul_right_left (since := "2025-04-01")]
+theorem gcd_dvd_gcd_mul_right (m n k : Nat) : gcd m n ∣ gcd (m * k) n :=
+  gcd_dvd_gcd_mul_right_left m n k
 
 theorem gcd_dvd_gcd_mul_left_right (m n k : Nat) : gcd m n ∣ gcd m (k * n) :=
   gcd_dvd_gcd_of_dvd_right _ (Nat.dvd_mul_left _ _)

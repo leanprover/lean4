@@ -5140,8 +5140,8 @@ theorem splitLE_pop : (splitLE m (n + 1) x).pop = splitLE m n (x.extractLsb' m _
   simp only [Nat.add_one_sub_one, splitLE, Vector.range, Vector.map_mk, Vector.pop_mk,
     Vector.getElem_mk, Array.getElem_pop, Array.getElem_map, Array.getElem_range,
     getElem_extractLsb', this, getLsbD_eq_getElem, ← Nat.add_assoc]
-  rw [Nat.sub_add_comm (Nat.le_of_lt hk), Nat.sub_add_comm (Nat.le_sub_of_add_le' hk)]
-  rw [Nat.mul_add m (n - k - 1), Nat.add_comm m]
+  rw [Nat.sub_add_comm (Nat.le_of_lt hk), Nat.sub_add_comm (Nat.le_sub_of_add_le' hk),
+    Nat.mul_add m (n - k - 1), Nat.add_comm m]
   simp
 
 @[simp]

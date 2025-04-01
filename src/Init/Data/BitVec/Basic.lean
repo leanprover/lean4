@@ -764,12 +764,12 @@ def reverse : {w : Nat} → BitVec w → BitVec w
 /- ### vectors of bitvectors -/
 
 /-- Split a bitvector into a vector of bitvectors of equal length where the vector ends on the
-most significant part. -/
+most significant part ('BE' for 'big endian'). See also `BitVec.splitLE`. -/
 def splitBE (m n : Nat) (x : BitVec (m * n)) : Vector (BitVec m) n :=
   (Vector.range n).map (fun i => x.extractLsb' (m * i) m)
 
 /-- Split a bitvector into a vector of bitvectors of equal length where the vector ends on the
-least significant part. -/
+least significant part ('LE' for 'little endian'). See also `BitVec.splitGE`. -/
 def splitLE (m n : Nat) (x : BitVec (m * n)) : Vector (BitVec m) n :=
   (Vector.range n).map (fun i => x.extractLsb' (m * (n - i - 1)) m)
 

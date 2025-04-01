@@ -127,29 +127,59 @@ private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroRes
             -- `p` and `p'` are definitionally equal
             mvarId.assign h
             return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
-    else if (← getConfig).zetaDelta && (target.isLet || target.isLetFun) then
-      let targetNew := expandLet target #[]
-      let mvarId := (← get).mvarId
-      mvarId.withContext do
-        let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew (← mvarId.getTag)
-        mvarId.assign mvarNew
-        introNext { (← get) with mvarId := mvarNew.mvarId! } generation
-    else if target.isLet || target.isForall || target.isLetFun then
-      let fvarId ← intro1
-      (← get).mvarId.withContext do
-        let localDecl ← fvarId.getDecl
-        if (← isProp localDecl.type) then
-          -- Add a non-dependent copy
-          let mvarId ← (← get).mvarId.assert (← mkCleanName `h localDecl.type) localDecl.type (mkFVar fvarId)
-          return .newDepHyp { (← get) with mvarId }
-        else
-          if target.isLet || target.isLetFun then
+    else if target.isForall then
+      let p := target.bindingDomain!
+      if !(← isProp p) then
+        let fvarId ← intro1
+        return .newLocal fvarId (← get)
+      else
+        let mvarId := (← get).mvarId
+        let tag ← mvarId.getTag
+        let qBase := target.bindingBody!
+        let fvarId ← mkFreshFVarId
+        let r ← preprocessHypothesis p
+        let lctx := (← getLCtx).mkLocalDecl fvarId (← mkCleanName target.bindingName! r.expr) r.expr target.bindingInfo!
+        match r.proof? with
+        | some he =>
+          let q := mkLambda target.bindingName! target.bindingInfo! p qBase
+          let q' := qBase.instantiate1 (mkApp4 (mkConst ``Eq.mpr_prop) p r.expr he (mkFVar fvarId))
+          let u ← getLevel q'
+          let mvarNew ← mkFreshExprMVarAt lctx (← getLocalInstances) q' .syntheticOpaque tag
+          let mvarIdNew := mvarNew.mvarId!
+          mvarIdNew.withContext do
+            let h ← mkLambdaFVars #[mkFVar fvarId] mvarNew
+            let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq' [u]) #[p, r.expr, q, he, h]
+            mvarId.assign hNew
+            return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
+        | none =>
+          -- `p` and `p'` are definitionally equal
+          let mvarNew ← mkFreshExprMVarAt lctx (← getLocalInstances) (qBase.instantiate1 (mkFVar fvarId)) .syntheticOpaque tag
+          let mvarIdNew := mvarNew.mvarId!
+          mvarIdNew.withContext do
+            let h ← mkLambdaFVars #[mkFVar fvarId] mvarNew
+            mvarId.assign h
+            return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
+    else if target.isLet || target.isLetFun then
+      if (← getConfig).zetaDelta then
+        let targetNew := expandLet target #[]
+        let mvarId := (← get).mvarId
+        mvarId.withContext do
+          let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew (← mvarId.getTag)
+          mvarId.assign mvarNew
+          introNext { (← get) with mvarId := mvarNew.mvarId! } generation
+      else
+        let fvarId ← intro1
+        (← get).mvarId.withContext do
+          let localDecl ← fvarId.getDecl
+          if (← isProp localDecl.type) then
+            -- Add a non-dependent copy
+            let mvarId ← (← get).mvarId.assert (← mkCleanName `h localDecl.type) localDecl.type (mkFVar fvarId)
+            return .newDepHyp { (← get) with mvarId }
+          else
             let v := (← fvarId.getDecl).value
             let r ← preprocessHypothesis v
             let x ← shareCommon (mkFVar fvarId)
             addNewEq x r.expr (← r.getProof) generation
-            return .newLocal fvarId (← get)
-          else
             return .newLocal fvarId (← get)
     else
       return .done goal

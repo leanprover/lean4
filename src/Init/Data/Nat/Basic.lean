@@ -777,7 +777,10 @@ protected theorem pow_succ (n m : Nat) : n^(succ m) = n^m * n :=
 protected theorem pow_add_one (n m : Nat) : n^(m + 1) = n^m * n :=
   rfl
 
-protected theorem pow_zero (n : Nat) : n^0 = 1 := rfl
+@[simp] protected theorem pow_zero (n : Nat) : n^0 = 1 := rfl
+
+@[simp] protected theorem pow_one (a : Nat) : a ^ 1 = a := by
+  simp [Nat.pow_succ]
 
 theorem pow_le_pow_left {n m : Nat} (h : n ≤ m) : ∀ (i : Nat), n^i ≤ m^i
   | 0      => Nat.le_refl _
@@ -821,6 +824,33 @@ protected theorem two_pow_pos (w : Nat) : 0 < 2^w := Nat.pow_pos (by decide)
 
 instance {n m : Nat} [NeZero n] : NeZero (n^m) :=
   ⟨Nat.ne_zero_iff_zero_lt.mpr (Nat.pow_pos (pos_of_neZero _))⟩
+
+protected theorem mul_pow (a b n : Nat) : (a * b) ^ n = a ^ n * b ^ n := by
+  induction n with
+  | zero => simp [Nat.pow_zero]
+  | succ n ih =>
+    rw [Nat.pow_succ, ih, Nat.pow_succ, Nat.pow_succ, ← Nat.mul_assoc, ← Nat.mul_assoc]
+    congr 1
+    rw [Nat.mul_assoc, Nat.mul_assoc, Nat.mul_comm _ a]
+
+protected theorem pow_lt_pow_left {a b n : Nat} (hab : a < b) (h : n ≠ 0) : a ^ n < b ^ n := by
+  cases n with
+  | zero => simp at h
+  | succ n =>
+    clear h
+    induction n with
+    | zero => simpa
+    | succ n ih =>
+      rw [Nat.pow_succ a, Nat.pow_succ b]
+      exact Nat.lt_of_le_of_lt (Nat.mul_le_mul_left _ (Nat.le_of_lt hab))
+        (Nat.mul_lt_mul_of_pos_right ih (Nat.lt_of_le_of_lt (Nat.zero_le _) hab))
+
+protected theorem pow_left_inj {a b n : Nat} (hn : n ≠ 0) : a ^ n = b ^ n ↔ a = b := by
+  refine ⟨fun h => ?_, (· ▸ rfl)⟩
+  match Nat.lt_trichotomy a b with
+  | Or.inl hab => exact False.elim (absurd h (ne_of_lt (Nat.pow_lt_pow_left hab hn)))
+  | Or.inr (Or.inl hab) => exact hab
+  | Or.inr (Or.inr hab) => exact False.elim (absurd h (Nat.ne_of_lt' (Nat.pow_lt_pow_left hab hn)))
 
 /-! # min/max -/
 

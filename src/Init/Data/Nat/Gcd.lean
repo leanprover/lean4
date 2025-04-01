@@ -266,77 +266,81 @@ theorem gcd_add_mul_self (m n k : Nat) : gcd m (n + k * m) = gcd m n :=
 @[simp] theorem gcd_self_add_left (m n : Nat) : gcd (m + n) m = gcd n m := by
   simpa using gcd_mul_right_add_left _ _ 1
 
-@[simp] theorem gcd_add_left_left_of_dvd (m n k : Nat) : m ∣ k → gcd (k + n) m = gcd n m := by
+@[simp] theorem gcd_add_left_left_of_dvd {m k : Nat} (n : Nat) :
+    m ∣ k → gcd (k + n) m = gcd n m := by
   rintro ⟨l, rfl⟩; exact gcd_mul_left_add_left m n l
 
-@[simp] theorem gcd_add_right_left_of_dvd (m n k : Nat) : m ∣ k → gcd (n + k) m = gcd n m := by
+@[simp] theorem gcd_add_right_left_of_dvd {m k : Nat} (n : Nat) :
+    m ∣ k → gcd (n + k) m = gcd n m := by
   rintro ⟨l, rfl⟩; exact gcd_add_mul_left_left m n l
 
-@[simp] theorem gcd_add_left_right_of_dvd (m n k : Nat) : n ∣ k → gcd n (k + m) = gcd n m := by
+@[simp] theorem gcd_add_left_right_of_dvd {n k : Nat} (m : Nat) :
+    n ∣ k → gcd n (k + m) = gcd n m := by
   rintro ⟨l, rfl⟩; exact gcd_mul_left_add_right n m l
 
-@[simp] theorem gcd_add_right_right_of_dvd (m n k : Nat) : n ∣ k → gcd n (m + k) = gcd n m := by
+@[simp] theorem gcd_add_right_right_of_dvd {n k : Nat} (m : Nat) :
+    n ∣ k → gcd n (m + k) = gcd n m := by
   rintro ⟨l, rfl⟩; exact gcd_add_mul_left_right n m l
 
-@[simp] theorem gcd_sub_mul_right_right (m n k : Nat) (h : k * m ≤ n) :
+@[simp] theorem gcd_sub_mul_right_right {m n k : Nat} (h : k * m ≤ n) :
     gcd m (n - k * m) = gcd m n := by
   rw [← gcd_add_mul_right_right m (n - k * m) k, Nat.sub_add_cancel h]
 
-@[simp] theorem gcd_sub_mul_left_right (m n k : Nat) (h : m * k ≤ n) :
+@[simp] theorem gcd_sub_mul_left_right {m n k : Nat} (h : m * k ≤ n) :
     gcd m (n - m * k) = gcd m n := by
   rw [← gcd_add_mul_left_right m (n - m * k) k, Nat.sub_add_cancel h]
 
-@[simp] theorem gcd_mul_right_sub_right (m n k : Nat) (h : n ≤ k * m) :
+@[simp] theorem gcd_mul_right_sub_right {m n k : Nat} (h : n ≤ k * m) :
     gcd m (k * m - n) = gcd m n :=
   gcd_right_eq_iff.2 fun _ hl => dvd_sub_iff_right h (Nat.dvd_mul_left_of_dvd hl _)
 
-@[simp] theorem gcd_mul_left_sub_right (m n k : Nat) (h : n ≤ m * k) :
+@[simp] theorem gcd_mul_left_sub_right {m n k : Nat} (h : n ≤ m * k) :
     gcd m (m * k - n) = gcd m n := by
-  rw [Nat.mul_comm, gcd_mul_right_sub_right _ _ _ (Nat.mul_comm _ _ ▸ h)]
+  rw [Nat.mul_comm, gcd_mul_right_sub_right (Nat.mul_comm _ _ ▸ h)]
 
-@[simp] theorem gcd_sub_mul_right_left (m n k : Nat) (h : k * m ≤ n) :
+@[simp] theorem gcd_sub_mul_right_left {m n k : Nat} (h : k * m ≤ n) :
     gcd (n - k * m) m = gcd n m := by
-  rw [gcd_comm, gcd_sub_mul_right_right _ _ _ h, gcd_comm]
+  rw [gcd_comm, gcd_sub_mul_right_right h, gcd_comm]
 
-@[simp] theorem gcd_sub_mul_left_left (m n k : Nat) (h : m * k ≤ n) :
+@[simp] theorem gcd_sub_mul_left_left {m n k : Nat} (h : m * k ≤ n) :
     gcd (n - m * k) m = gcd n m := by
-  rw [Nat.mul_comm, gcd_sub_mul_right_left _ _ _ (Nat.mul_comm _ _ ▸ h)]
+  rw [Nat.mul_comm, gcd_sub_mul_right_left (Nat.mul_comm _ _ ▸ h)]
 
-@[simp] theorem gcd_mul_right_sub_left (m n k : Nat) (h : n ≤ k * m) :
+@[simp] theorem gcd_mul_right_sub_left {m n k : Nat} (h : n ≤ k * m) :
     gcd (k * m - n) m = gcd n m := by
-  rw [gcd_comm, gcd_mul_right_sub_right _ _ _ h, gcd_comm]
+  rw [gcd_comm, gcd_mul_right_sub_right h, gcd_comm]
 
-@[simp] theorem gcd_mul_left_sub_left (m n k : Nat) (h : n ≤ m * k) :
+@[simp] theorem gcd_mul_left_sub_left {m n k : Nat} (h : n ≤ m * k) :
     gcd (m * k - n) m = gcd n m := by
-  rw [Nat.mul_comm, gcd_mul_right_sub_left _ _ _ (Nat.mul_comm _ _ ▸ h)]
+  rw [Nat.mul_comm, gcd_mul_right_sub_left (Nat.mul_comm _ _ ▸ h)]
 
-@[simp] theorem gcd_sub_self_right (m n : Nat) (h : m ≤ n) : gcd m (n - m) = gcd m n := by
-  simpa using gcd_sub_mul_right_right _ _ 1 (by simpa using h)
+@[simp] theorem gcd_sub_self_right {m n : Nat} (h : m ≤ n) : gcd m (n - m) = gcd m n := by
+  simpa using gcd_sub_mul_right_right (k := 1) (by simpa using h)
 
-@[simp] theorem gcd_self_sub_right (m n : Nat) (h : n ≤ m) : gcd m (m - n) = gcd m n := by
-  simpa using gcd_mul_right_sub_right _ _ 1 (by simpa using h)
+@[simp] theorem gcd_self_sub_right {m n : Nat} (h : n ≤ m) : gcd m (m - n) = gcd m n := by
+  simpa using gcd_mul_right_sub_right (k := 1) (by simpa using h)
 
-@[simp] theorem gcd_sub_self_left (m n : Nat) (h : m ≤ n) : gcd (n - m) m = gcd n m := by
-  simpa using gcd_sub_mul_right_left _ _ 1 (by simpa using h)
+@[simp] theorem gcd_sub_self_left {m n : Nat} (h : m ≤ n) : gcd (n - m) m = gcd n m := by
+  simpa using gcd_sub_mul_right_left (k := 1) (by simpa using h)
 
-@[simp] theorem gcd_self_sub_left (m n : Nat) (h : n ≤ m) : gcd (m - n) m = gcd n m := by
-  simpa using gcd_mul_right_sub_left _ _ 1 (by simpa using h)
+@[simp] theorem gcd_self_sub_left {m n : Nat} (h : n ≤ m) : gcd (m - n) m = gcd n m := by
+  simpa using gcd_mul_right_sub_left (k := 1) (by simpa using h)
 
-@[simp] theorem gcd_sub_left_left_of_dvd (m n k : Nat) (h : n ≤ k) :
+@[simp] theorem gcd_sub_left_left_of_dvd {n k : Nat} (m : Nat) (h : n ≤ k) :
     m ∣ k → gcd (k - n) m = gcd n m := by
-  rintro ⟨l, rfl⟩; exact gcd_mul_left_sub_left m n l h
+  rintro ⟨l, rfl⟩; exact gcd_mul_left_sub_left h
 
-@[simp] theorem gcd_sub_right_left_of_dvd (m n k : Nat) (h : k ≤ n) :
+@[simp] theorem gcd_sub_right_left_of_dvd {n k : Nat} (m : Nat) (h : k ≤ n) :
     m ∣ k → gcd (n - k) m = gcd n m := by
-  rintro ⟨l, rfl⟩; exact gcd_sub_mul_left_left m n l h
+  rintro ⟨l, rfl⟩; exact gcd_sub_mul_left_left h
 
-@[simp] theorem gcd_sub_left_right_of_dvd (m n k : Nat) (h : m ≤ k) :
+@[simp] theorem gcd_sub_left_right_of_dvd {m k : Nat} (n : Nat) (h : m ≤ k) :
     n ∣ k → gcd n (k - m) = gcd n m := by
-  rintro ⟨l, rfl⟩; exact gcd_mul_left_sub_right n m l h
+  rintro ⟨l, rfl⟩; exact gcd_mul_left_sub_right h
 
-@[simp] theorem gcd_sub_right_right_of_dvd (m n k : Nat) (h : k ≤ m) :
+@[simp] theorem gcd_sub_right_right_of_dvd {m k : Nat} (n : Nat) (h : k ≤ m) :
     n ∣ k → gcd n (m - k) = gcd n m := by
-  rintro ⟨l, rfl⟩; exact gcd_sub_mul_left_right n m l h
+  rintro ⟨l, rfl⟩; exact gcd_sub_mul_left_right h
 
 @[simp] theorem gcd_eq_zero_iff {i j : Nat} : gcd i j = 0 ↔ i = 0 ∧ j = 0 :=
   ⟨fun h => ⟨eq_zero_of_gcd_eq_zero_left h, eq_zero_of_gcd_eq_zero_right h⟩,

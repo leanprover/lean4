@@ -19,7 +19,7 @@ private structure BarrierState where
 
 /--
 A `Barrier` will block `n - 1` threads which call `Barrier.wait` and then wake up all threads at
-once when `n`-th thread calls `Barrier.wait`.
+once when the `n`-th thread calls `Barrier.wait`.
 -/
 structure Barrier where private mk ::
   private lock : Mutex BarrierState
@@ -40,16 +40,21 @@ def Barrier.new (numThreads : Nat) : BaseIO Barrier := do
 Blocks the current thread until all threads have rendezvoused here.
 
 Barriers are re-usable after all threads have rendezvoused once, and can be used continuously.
+
+A single (arbitrary) thread will receive `true` when returning from this function, and all other
+threads will receive `false`.
 -/
-def Barrier.wait (barrier : Barrier) : BaseIO Unit := do
+def Barrier.wait (barrier : Barrier) : BaseIO Bool := do
   barrier.lock.atomically do
     let localGen := (← get).generationId
     modify fun s => { s with count := s.count + 1 }
     if (← get).count < barrier.numThreads then
       barrier.cvar.waitUntil barrier.lock.mutex do
         return (← get).generationId != localGen
+      return false
     else
       modify fun s => { count := 0, generationId := s.generationId + 1 }
       barrier.cvar.notifyAll
+      return true
 
 end Std

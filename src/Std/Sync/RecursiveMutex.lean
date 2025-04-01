@@ -60,7 +60,7 @@ by a mutex instead of atomic pointer operations and busy-waiting. Additionally l
 structure RecursiveMutex (α : Type) where private mk ::
   private ref : IO.Ref α
   mutex : BaseRecursiveMutex
-  deriving Nonempty
+deriving Nonempty
 
 instance : CoeOut (RecursiveMutex α) BaseRecursiveMutex where coe := RecursiveMutex.mutex
 
@@ -86,8 +86,8 @@ def RecursiveMutex.atomically [Monad m] [MonadLiftT BaseIO m] [MonadFinally m]
 `mutex.tryAtomically k` tries to lock `mutex` and runs `k` on it if it succeeds. On success the
 return value of `k` is returned as `some`, on failure `none` is returned.
 
-This function does not block on the `mutex`. Additionally `mutex.tryAtomically` while already
-holding the underlying in the same thread `BaseRecursiveMutex` does not block.
+This function does not block on the `mutex`. Additionally `mutex.tryAtomically`, while already
+holding the underlying `BaseRecursiveMutex` in the same thread, does not block.
 -/
 def RecursiveMutex.tryAtomically [Monad m] [MonadLiftT BaseIO m] [MonadFinally m]
     (mutex : RecursiveMutex α) (k : AtomicT α m β) : m (Option β) := do

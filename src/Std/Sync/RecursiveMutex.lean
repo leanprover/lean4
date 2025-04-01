@@ -24,14 +24,14 @@ instance : Nonempty BaseRecursiveMutex := RecursiveMutexImpl.property
 opaque BaseRecursiveMutex.new : BaseIO BaseRecursiveMutex
 
 /--
-Locks a `RecursiveBaseMutex`. Waits until no other thread has locked the mutex.
+Locks a `BaseRecursiveMutex`. Waits until no other thread has locked the mutex.
 If the current thread already holds the mutex this function doesn't block.
 -/
 @[extern "lean_io_baserecmutex_lock"]
 opaque BaseRecursiveMutex.lock (mutex : @& BaseRecursiveMutex) : BaseIO Unit
 
 /--
-Attempts to lock a `RecursiveBaseMutex`. If the mutex is not available return `false`, otherwise
+Attempts to lock a `BaseRecursiveMutex`. If the mutex is not available return `false`, otherwise
 lock it and return `true`.
 
 This function does not block. Furthermore the same thread may acquire the lock multiple times
@@ -41,7 +41,7 @@ through this function.
 opaque BaseRecursiveMutex.tryLock (mutex : @& BaseRecursiveMutex) : BaseIO Bool
 
 /--
-Unlocks a `RecursiveBaseMutex`. The owning thread must make as many `unlock` calls as `lock` and
+Unlocks a `BaseRecursiveMutex`. The owning thread must make as many `unlock` calls as `lock` and
 `tryLock` calls in order to fully relinquish ownership of the mutex.
 
 The current thread must have already locked the mutex at least once.

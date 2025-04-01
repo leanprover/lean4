@@ -5167,8 +5167,7 @@ theorem flattenBitVecLE_splitLE {m n : Nat} {x : BitVec (m * n)} :
     · simp [getElem_append, hi', Nat.add_sub_of_le (Nat.le_of_not_lt hi'),
         BitVec.getLsbD_eq_getElem hi]
 
-theorem getElem_flattenBitVecLE {m n : Nat} (v : Vector (BitVec m) n) (i : Nat)
-    (hi : i < m * n) :
+theorem getElem_flattenBitVecLE {m n : Nat} (v : Vector (BitVec m) n) {i : Nat} (hi : i < m * n) :
     (v.flattenBitVecLE m)[i] =
       (v[n - (i / m + 1)]'(Nat.sub_lt (Nat.pos_of_lt_mul_left hi) (i / m).zero_lt_succ))[i % m]'
         (Nat.mod_lt i (Nat.pos_of_lt_mul_right hi)) := by
@@ -5183,11 +5182,11 @@ theorem getElem_flattenBitVecLE {m n : Nat} (v : Vector (BitVec m) n) (i : Nat)
     by_cases him : i < m
     · simp [him, Vector.back, Nat.mod_eq_of_lt him, Nat.div_eq_of_lt him]
     · simp only [Vector.flattenBitVecLE] at ih
-      simp only [him, ↓reduceDIte, ih v.pop (i - m) (by omega)]
+      simp only [him, ↓reduceDIte, ih v.pop (i := i - m) (by omega)]
       simp [Vector.pop, ← Nat.mod_eq_sub_mod (Nat.ge_of_not_lt him),
         ← Nat.div_eq_sub_div (Nat.pos_of_lt_mul_right hi') (Nat.ge_of_not_lt him)]
 
-theorem getElem_splitLE {i : Nat} (hi : i < n) (x : BitVec (m * n)) :
+theorem getElem_splitLE {i : Nat} (x : BitVec (m * n)) (hi : i < n) :
     (x.splitLE m n)[i] = x.extractLsb' (m * (n - i - 1)) m := by
   simp [splitLE, Vector.range]
 

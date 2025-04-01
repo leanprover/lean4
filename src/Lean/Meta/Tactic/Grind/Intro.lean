@@ -98,23 +98,12 @@ private def intro1 : GoalM FVarId := do
   modify fun s => { s with mvarId }
   return fvarId
 
-/--
-Returns `true` if `p` is a proposition and not a class instance.
-We use this function when introducing a new hypothesis in `grind`.
-We do not normalize local instances even if they are propositions (e.g., `LawfulBEq`)
--/
-private def isPropAndNotClassInstance (p : Expr) : MetaM Bool := do
-  if (← isProp p) then
-    return (← isClass? p).isNone
-  else
-    return false
-
 private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := do
   Prod.fst <$> GoalM.run goal do
     let target ← (← get).mvarId.getType
     if target.isForall then
       let p := target.bindingDomain!
-      if !(← isPropAndNotClassInstance p) then
+      if !(← isProp p) then
         let fvarId ← intro1
         return .newLocal fvarId (← get)
       else
@@ -122,35 +111,39 @@ private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroRes
         let tag ← mvarId.getTag
         let qBase := target.bindingBody!
         let fvarId ← mkFreshFVarId
+        let fvar := mkFVar fvarId
         let r ← preprocessHypothesis p
         let lctx := (← getLCtx).mkLocalDecl fvarId (← mkCleanName target.bindingName! r.expr) r.expr target.bindingInfo!
+        let mut localInsts ← getLocalInstances
+        if let some className ← isClass? r.expr then
+          localInsts := localInsts.push { className, fvar }
         match r.proof? with
         | some he =>
           if target.isArrow then
             let q := qBase
             let u ← getLevel q
-            let mvarNew ← mkFreshExprMVarAt lctx (← getLocalInstances) q .syntheticOpaque tag
+            let mvarNew ← mkFreshExprMVarAt lctx localInsts q .syntheticOpaque tag
             let mvarIdNew := mvarNew.mvarId!
             mvarIdNew.withContext do
-              let h ← mkLambdaFVars #[mkFVar fvarId] mvarNew
+              let h ← mkLambdaFVars #[fvar] mvarNew
               let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq [u]) #[p, r.expr, q, he, h]
               mvarId.assign hNew
               return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
           else
             let q := mkLambda target.bindingName! target.bindingInfo! p qBase
-            let q' := qBase.instantiate1 (mkApp4 (mkConst ``Eq.mpr_prop) p r.expr he (mkFVar fvarId))
+            let q' := qBase.instantiate1 (mkApp4 (mkConst ``Eq.mpr_prop) p r.expr he fvar)
             let u ← getLevel q'
-            let mvarNew ← mkFreshExprMVarAt lctx (← getLocalInstances) q' .syntheticOpaque tag
+            let mvarNew ← mkFreshExprMVarAt lctx localInsts q' .syntheticOpaque tag
             let mvarIdNew := mvarNew.mvarId!
             mvarIdNew.withContext do
-              let h ← mkLambdaFVars #[mkFVar fvarId] mvarNew
+              let h ← mkLambdaFVars #[fvar] mvarNew
               let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq' [u]) #[p, r.expr, q, he, h]
               mvarId.assign hNew
               return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
         | none =>
           -- `p` and `p'` are definitionally equal
           let q := if target.isArrow then qBase else qBase.instantiate1 (mkFVar fvarId)
-          let mvarNew ← mkFreshExprMVarAt lctx (← getLocalInstances) q .syntheticOpaque tag
+          let mvarNew ← mkFreshExprMVarAt lctx localInsts q .syntheticOpaque tag
           let mvarIdNew := mvarNew.mvarId!
           mvarIdNew.withContext do
             let h ← mkLambdaFVars #[mkFVar fvarId] mvarNew

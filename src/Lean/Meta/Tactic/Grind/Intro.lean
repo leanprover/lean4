@@ -98,12 +98,23 @@ private def intro1 : GoalM FVarId := do
   modify fun s => { s with mvarId }
   return fvarId
 
+/--
+Returns `true` if `p` is a proposition and not a class instance.
+We use this function when introducing a new hypothesis in `grind`.
+We do not normalize local instances even if they are propositions (e.g., `LawfulBEq`)
+-/
+private def isPropAndNotClassInstance (p : Expr) : MetaM Bool := do
+  if (← isProp p) then
+    return (← isClass? p).isNone
+  else
+    return false
+
 private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := do
   Prod.fst <$> GoalM.run goal do
     let target ← (← get).mvarId.getType
     if target.isForall then
       let p := target.bindingDomain!
-      if !(← isProp p) then
+      if !(← isPropAndNotClassInstance p) then
         let fvarId ← intro1
         return .newLocal fvarId (← get)
       else

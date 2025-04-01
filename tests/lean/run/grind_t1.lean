@@ -1,4 +1,5 @@
 set_option grind.warning false
+
 example (a b : List Nat) : a = [] → b = [2] → a = b → False := by
   grind
 
@@ -399,3 +400,23 @@ example (a : Nat) (p q r : Prop) (h₁ : if _ : a < 1 then p else q) (h₂ : r) 
 
 example [BEq α] [LawfulBEq α] (a b : α) : a == b → a = b := by
   grind
+
+example [BEq α] [LawfulBEq α] {a : α} : (a::as).replace a b = b::as := by
+  grind [List.replace]
+
+example [BEq α] [LawfulBEq α] {a : α} : (a::as).replace a b = b::as := by
+  grind [List.replace_cons]
+
+def foo [BEq α] (a b : α) :=
+  match a == b with
+  | true => 1
+  | false => 0
+
+example [BEq α] [LawfulBEq α] (a b : α) : a = b → foo a b = 1 := by
+  grind (splits := 0) [foo]
+
+example [BEq α] [LawfulBEq α] (a b : α) : a ≠ b → foo a b = 0 := by
+  grind [foo]
+
+example [BEq α] [LawfulBEq α] (a b : α) : a ≠ b → foo a b = 0 := by
+  grind (splits := 0) [foo]

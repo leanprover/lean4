@@ -704,8 +704,8 @@ treating `x` and `y` as 2's complement signed bitvectors.
 def ssubOverflow {w : Nat} (x y : BitVec w) : Bool :=
   (x.toInt - y.toInt ≥ 2 ^ (w - 1)) || (x.toInt - y.toInt < - 2 ^ (w - 1))
 
-/-- `negOverflow x` returns `true` if the negation of `x` results in overflow. 
-For a BitVec `x` with width `0 < w`, this only happens if `x = intMin`. 
+/-- `negOverflow x` returns `true` if the negation of `x` results in overflow.
+For a BitVec `x` with width `0 < w`, this only happens if `x = intMin`.
 
   SMT-Lib name: `bvnego`.
 -/
@@ -731,6 +731,7 @@ treating `x` and `y` as 2's complement signed bitvectors.
   SMT-Lib name: `bvsmulo`.
 -/
 
-def smulOverflow {w : Nat} (x y : BitVec w) : Bool := (x.toInt * y.toInt ≥ 2 ^ (w - 1)) || (x.toInt * y.toInt < - 2 ^ (w - 1))
+def smulOverflow {w : Nat} (x y : BitVec w) : Bool :=
+  (x.toInt * y.toInt ≥ 2 ^ (w - 1)) || (x.toInt * y.toInt < - 2 ^ (w - 1))
 
 end BitVec

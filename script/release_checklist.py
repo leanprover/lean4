@@ -8,6 +8,11 @@ import subprocess
 import sys
 import os
 
+def debug(verbose, message):
+    """Print debug message if verbose mode is enabled."""
+    if verbose:
+        print(f"    [DEBUG] {message}")
+
 def parse_repos_config(file_path):
     with open(file_path, "r") as f:
         return yaml.safe_load(f)["repositories"]
@@ -98,8 +103,7 @@ def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token, verbo
     # Get tag's commit SHA
     tag_response = requests.get(f"{api_base}/git/refs/tags/{tag_name}", headers=headers)
     if tag_response.status_code != 200:
-        if verbose:
-            print(f"    [DEBUG] Could not fetch tag {tag_name}, status code: {tag_response.status_code}")
+        debug(verbose, f"Could not fetch tag {tag_name}, status code: {tag_response.status_code}")
         return False
     
     # Handle both single object and array responses
@@ -108,8 +112,7 @@ def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token, verbo
         # Find the exact matching tag in the list
         matching_tags = [tag for tag in tag_data if tag['ref'] == f'refs/tags/{tag_name}']
         if not matching_tags:
-            if verbose:
-                print(f"    [DEBUG] No matching tag found for {tag_name} in response list")
+            debug(verbose, f"No matching tag found for {tag_name} in response list")
             return False
         tag_sha = matching_tags[0]['object']['sha']
     else:
@@ -127,8 +130,7 @@ def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token, verbo
             tag_obj = tag_obj_response.json()
             if 'object' in tag_obj and tag_obj['object']['type'] == 'commit':
                 commit_sha = tag_obj['object']['sha']
-                if verbose:
-                    print(f"    [DEBUG] Tag is annotated. Resolved commit SHA: {commit_sha}")
+                debug(verbose, f"Tag is annotated. Resolved commit SHA: {commit_sha}")
                 tag_sha = commit_sha  # Use the actual commit SHA
     
     # Get commits on stable branch containing this SHA
@@ -137,8 +139,7 @@ def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token, verbo
         headers=headers
     )
     if commits_response.status_code != 200:
-        if verbose:
-            print(f"    [DEBUG] Could not fetch commits for branch {stable_branch}, status code: {commits_response.status_code}")
+        debug(verbose, f"Could not fetch commits for branch {stable_branch}, status code: {commits_response.status_code}")
         return False
 
     # Check if any commit in stable's history matches our tag's SHA
@@ -146,12 +147,11 @@ def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token, verbo
     
     is_merged = tag_sha in stable_commits
     
-    if verbose:
-        print(f"    [DEBUG] Tag SHA: {tag_sha}")
-        print(f"    [DEBUG] First 5 stable commits: {stable_commits[:5]}")
-        print(f"    [DEBUG] Total stable commits fetched: {len(stable_commits)}")
-        if not is_merged:
-            print(f"    [DEBUG] Tag SHA not found in first {len(stable_commits)} commits of stable branch")
+    debug(verbose, f"Tag SHA: {tag_sha}")
+    debug(verbose, f"First 5 stable commits: {stable_commits[:5]}")
+    debug(verbose, f"Total stable commits fetched: {len(stable_commits)}")
+    if not is_merged:
+        debug(verbose, f"Tag SHA not found in first {len(stable_commits)} commits of stable branch")
     
     return is_merged
 

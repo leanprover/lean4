@@ -70,16 +70,18 @@ def generate_script(repo, version, config):
     # Special cases for specific repositories
     if repo_name == "REPL":
         script_lines.extend([
-            "cd test/Mathlib",
-            f"echo leanprover/lean4:{version} > lean-toolchain",
-            'echo "Please update the dependencies in lakefile.{lean,toml}"',
             "lake update",
-            "cd ../.."
+            "cd test/Mathlib",
+            f"perl -pi -e 's/rev = \"v\\d+\\.\\d+\\.\\d+(-rc\\d+)?\"/rev = \"{version}\"/g' lakefile.toml",
+            f"echo leanprover/lean4:{version} > lean-toolchain",
+            "lake update",
+            "cd ../..",
+            "./test.sh"
         ])
     elif dependencies:
         script_lines.append('echo "Please update the dependencies in lakefile.{lean,toml}"')
+        script_lines.append("lake update")
 
-    script_lines.append("lake update")
     script_lines.append("")
 
     if re.search(r'rc\d+$', version) and repo_name in ["Batteries", "Mathlib"]:

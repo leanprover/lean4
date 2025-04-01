@@ -921,6 +921,8 @@ theorem head?_eq_getElem? : ∀ {l : List α}, l.head? = l[0]?
   | [] => rfl
   | a :: l => by simp
 
+theorem head_singleton {a : α} : head [a] (by simp) = a := by simp
+
 theorem head_eq_getElem {l : List α} (h : l ≠ []) : head l h = l[0]'(length_pos_iff.mpr h) := by
   cases l with
   | nil => simp at h

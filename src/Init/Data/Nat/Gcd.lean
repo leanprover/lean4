@@ -368,7 +368,7 @@ theorem gcd_eq_iff {a b : Nat} :
     · exact Nat.dvd_gcd ha hb
 
 /-- Represent a divisor of `m * n` as a product of a divisor of `m` and a divisor of `n`. -/
-def prod_dvd_and_dvd_of_dvd_prod {k m n : Nat} (H : k ∣ m * n) :
+def dvdProdDvdOfDvdProd {k m n : Nat} (h : k ∣ m * n) :
     {d : {m' // m' ∣ m} × {n' // n' ∣ n} // k = d.1.val * d.2.val} :=
   if h0 : gcd k m = 0 then
     ⟨⟨⟨0, eq_zero_of_gcd_eq_zero_right h0 ▸ Nat.dvd_refl 0⟩,
@@ -379,11 +379,23 @@ def prod_dvd_and_dvd_of_dvd_prod {k m n : Nat} (H : k ∣ m * n) :
     refine ⟨⟨⟨gcd k m, gcd_dvd_right k m⟩, ⟨k / gcd k m, ?_⟩⟩, hd.symm⟩
     apply Nat.dvd_of_mul_dvd_mul_left (Nat.pos_of_ne_zero h0)
     rw [hd, ← gcd_mul_right]
-    exact Nat.dvd_gcd (Nat.dvd_mul_right _ _) H
+    exact Nat.dvd_gcd (Nat.dvd_mul_right _ _) h
+
+@[inherit_doc dvdProdDvdOfDvdProd, deprecated dvdProdDvdOfDvdProd (since := "2025-04-01")]
+def prod_dvd_and_dvd_of_dvd_prod {k m n : Nat} (H : k ∣ m * n) :
+    {d : {m' // m' ∣ m} × {n' // n' ∣ n} // k = d.1.val * d.2.val} :=
+  dvdProdDvdOfDvdProd H
+
+theorem dvd_mul {k m n : Nat} : k ∣ m * n ↔ ∃ k₁ k₂, k₁ ∣ m ∧ k₂ ∣ n ∧ k₁ * k₂ = k := by
+  refine ⟨fun h => ?_, ?_⟩
+  · obtain ⟨⟨⟨k₁, hk₁⟩, ⟨k₂, hk₂⟩⟩, rfl⟩ := dvdProdDvdOfDvdProd h
+    exact ⟨k₁, k₂, hk₁, hk₂, rfl⟩
+  · rintro ⟨k₁, k₂, hk₁, hk₂, rfl⟩
+    exact Nat.mul_dvd_mul hk₁ hk₂
 
 theorem gcd_mul_dvd_mul_gcd (k m n : Nat) : gcd k (m * n) ∣ gcd k m * gcd k n := by
   let ⟨⟨⟨m', hm'⟩, ⟨n', hn'⟩⟩, (h : gcd k (m * n) = m' * n')⟩ :=
-    prod_dvd_and_dvd_of_dvd_prod <| gcd_dvd_right k (m * n)
+    dvdProdDvdOfDvdProd <| gcd_dvd_right k (m * n)
   rw [h]
   have h' : m' * n' ∣ k := h ▸ gcd_dvd_left ..
   exact Nat.mul_dvd_mul

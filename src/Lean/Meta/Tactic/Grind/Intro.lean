@@ -101,33 +101,7 @@ private def intro1 : GoalM FVarId := do
 private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := do
   Prod.fst <$> GoalM.run goal do
     let target ← (← get).mvarId.getType
-    if target.isArrow then
-      let p := target.bindingDomain!
-      if !(← isProp p) then
-        let fvarId ← intro1
-        return .newLocal fvarId (← get)
-      else
-        let tag ← (← get).mvarId.getTag
-        let q := target.bindingBody!
-        let r ← preprocessHypothesis p
-        let fvarId ← mkFreshFVarId
-        let lctx := (← getLCtx).mkLocalDecl fvarId (← mkCleanName target.bindingName! r.expr) r.expr target.bindingInfo!
-        let mvarId := (← get).mvarId
-        let mvarNew ← mkFreshExprMVarAt lctx (← getLocalInstances) q .syntheticOpaque tag
-        let mvarIdNew := mvarNew.mvarId!
-        mvarIdNew.withContext do
-          let h ← mkLambdaFVars #[mkFVar fvarId] mvarNew
-          match r.proof? with
-          | some he =>
-            let u ← getLevel q
-            let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq [u]) #[p, r.expr, q, he, h]
-            mvarId.assign hNew
-            return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
-          | none =>
-            -- `p` and `p'` are definitionally equal
-            mvarId.assign h
-            return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
-    else if target.isForall then
+    if target.isForall then
       let p := target.bindingDomain!
       if !(← isProp p) then
         let fvarId ← intro1
@@ -141,19 +115,31 @@ private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroRes
         let lctx := (← getLCtx).mkLocalDecl fvarId (← mkCleanName target.bindingName! r.expr) r.expr target.bindingInfo!
         match r.proof? with
         | some he =>
-          let q := mkLambda target.bindingName! target.bindingInfo! p qBase
-          let q' := qBase.instantiate1 (mkApp4 (mkConst ``Eq.mpr_prop) p r.expr he (mkFVar fvarId))
-          let u ← getLevel q'
-          let mvarNew ← mkFreshExprMVarAt lctx (← getLocalInstances) q' .syntheticOpaque tag
-          let mvarIdNew := mvarNew.mvarId!
-          mvarIdNew.withContext do
-            let h ← mkLambdaFVars #[mkFVar fvarId] mvarNew
-            let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq' [u]) #[p, r.expr, q, he, h]
-            mvarId.assign hNew
-            return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
+          if target.isArrow then
+            let q := qBase
+            let u ← getLevel q
+            let mvarNew ← mkFreshExprMVarAt lctx (← getLocalInstances) q .syntheticOpaque tag
+            let mvarIdNew := mvarNew.mvarId!
+            mvarIdNew.withContext do
+              let h ← mkLambdaFVars #[mkFVar fvarId] mvarNew
+              let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq [u]) #[p, r.expr, q, he, h]
+              mvarId.assign hNew
+              return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
+          else
+            let q := mkLambda target.bindingName! target.bindingInfo! p qBase
+            let q' := qBase.instantiate1 (mkApp4 (mkConst ``Eq.mpr_prop) p r.expr he (mkFVar fvarId))
+            let u ← getLevel q'
+            let mvarNew ← mkFreshExprMVarAt lctx (← getLocalInstances) q' .syntheticOpaque tag
+            let mvarIdNew := mvarNew.mvarId!
+            mvarIdNew.withContext do
+              let h ← mkLambdaFVars #[mkFVar fvarId] mvarNew
+              let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq' [u]) #[p, r.expr, q, he, h]
+              mvarId.assign hNew
+              return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
         | none =>
           -- `p` and `p'` are definitionally equal
-          let mvarNew ← mkFreshExprMVarAt lctx (← getLocalInstances) (qBase.instantiate1 (mkFVar fvarId)) .syntheticOpaque tag
+          let q := if target.isArrow then qBase else qBase.instantiate1 (mkFVar fvarId)
+          let mvarNew ← mkFreshExprMVarAt lctx (← getLocalInstances) q .syntheticOpaque tag
           let mvarIdNew := mvarNew.mvarId!
           mvarIdNew.withContext do
             let h ← mkLambdaFVars #[mkFVar fvarId] mvarNew

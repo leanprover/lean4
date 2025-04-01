@@ -12,6 +12,7 @@ Author: Sofia Rodrigues
 namespace lean {
 
 void initialize_libuv_loop();
+void finalize_libuv_loop();
 
 #ifndef LEAN_EMSCRIPTEN
 using namespace std;

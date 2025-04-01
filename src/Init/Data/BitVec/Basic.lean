@@ -769,7 +769,7 @@ def splitBE (m n : Nat) (x : BitVec (m * n)) : Vector (BitVec m) n :=
   (Vector.range n).map (fun i => x.extractLsb' (m * i) m)
 
 /-- Split a bitvector into a vector of bitvectors of equal length where the vector ends on the
-least significant part ('LE' for 'little endian'). See also `BitVec.splitGE`. -/
+least significant part ('LE' for 'little endian'). See also `BitVec.splitBE`. -/
 def splitLE (m n : Nat) (x : BitVec (m * n)) : Vector (BitVec m) n :=
   (Vector.range n).map (fun i => x.extractLsb' (m * (n - i - 1)) m)
 

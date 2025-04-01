@@ -3359,7 +3359,7 @@ theorem all_eq_not_any_not {l : List α} {p : α → Bool} : l.all p = !l.any (!
     split <;> simp_all
 
 @[simp] theorem all_filter {l : List α} {p q : α → Bool} :
-    (filter p l).all q = l.all fun a => p a → q a := by
+    (filter p l).all q = l.all fun a => !(p a) || q a := by
   induction l with
   | nil => rfl
   | cons h t ih =>

@@ -708,6 +708,8 @@ def ssubOverflow {w : Nat} (x y : BitVec w) : Bool :=
 Checks whether the negation of a bitvector results in overflow.
 
 For a bitvector `x` with nonzero width, this only happens if `x = intMin`.
+
+SMT-Lib name: `bvnego`.
 -/
 def negOverflow {w : Nat} (x : BitVec w) : Bool :=
   x.toInt == - 2 ^ (w - 1)

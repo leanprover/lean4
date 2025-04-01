@@ -66,7 +66,7 @@ void event_loop_init(event_loop_t * event_loop) {
 // Destroy the event loop
 void event_loop_destroy(event_loop_t * event_loop) {
     uv_stop(event_loop->loop);
-    check_uv(uv_loop_close(event_loop->loop));
+    check_uv(uv_loop_close(event_loop->loop), "Failed to close event loop");
     uv_close((uv_handle_t*) &event_loop->async);
     uv_cond_destroy(&event_loop->cond_var);
     uv_mutex_destroy(&event_loop->mutex);

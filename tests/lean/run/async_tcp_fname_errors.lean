@@ -5,6 +5,12 @@ import Std.Net.Addr
 open Std.Internal.IO.Async
 open Std.Net
 
+def assertBEq [BEq α] [ToString α] (actual expected : α) : IO Unit := do
+  unless actual == expected do
+    throw <| IO.userError <|
+      s!"expected '{expected}', got '{actual}'"
+
+
 -- Define the Async monad
 structure Async (α : Type) where
   run : IO (AsyncTask α)
@@ -29,17 +35,13 @@ instance : MonadLift IO Async where
 
 /-- Mike is another client. -/
 def runMike (client: TCP.Socket.Client) : Async Unit := do
-  let mes ← await (client.recv? 1024)
-  assert! String.fromUTF8!<$>  mes == some "hi mike!! :)"
-  await (client.send (String.toUTF8 "hello robert!!"))
-  await (client.shutdown)
+  let message ← await (client.recv? 1024)
+  assertBEq (String.fromUTF8? =<< message) none
 
 /-- Joe is another client. -/
 def runJoe (client: TCP.Socket.Client) : Async Unit := do
-  let mes ← await (client.recv? 1024)
-  assert! String.fromUTF8!<$>  mes == some "hi joe! :)"
-  await (client.send (String.toUTF8 "hello robert!"))
-  await client.shutdown
+  let message ← await (client.recv? 1024)
+  assertBEq (String.fromUTF8? =<< message) none
 
 /-- Robert is the server. -/
 def runRobert (server: TCP.Socket.Server) : Async Unit := do
@@ -47,19 +49,19 @@ def runRobert (server: TCP.Socket.Server) : Async Unit := do
   discard <| await server.accept
 
 def clientServer : IO Unit := do
-  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8080
+  let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8083
 
   let server ← TCP.Socket.Server.mk
   server.bind addr
   server.listen 128
 
-  assert! (← server.getSockName).port == 8080
+  assertBEq (← server.getSockName).port 8083
 
   let joe ← TCP.Socket.Client.mk
   let task ← joe.connect addr
   task.block
 
-  assert! (← joe.getPeerName).port == 8080
+  assertBEq (← joe.getPeerName).port 8083
 
   joe.noDelay
 
@@ -67,15 +69,19 @@ def clientServer : IO Unit := do
   let task ← mike.connect addr
   task.block
 
-  assert! (← mike.getPeerName).port == 8080
+  assertBEq (← mike.getPeerName).port 8083
 
   mike.noDelay
 
   let serverTask ← (runRobert server).run
 
-  discard <| (runJoe joe).run
-  discard <| (runMike mike).run
+  let joeTask ← (runJoe joe).run
+  let mikeTask ← (runMike mike).run
+
   serverTask.block
+
+  joeTask.block
+  mikeTask.block
 
 end Async
 

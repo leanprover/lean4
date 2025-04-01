@@ -133,42 +133,29 @@ theorem satAssignment_inr :
   simp [cnfSatAssignment, mixAssigns]
 
 /--
-The central invariants for the `Cache`.
+The central invariant for the `Cache`.
+
+Relate satisfiability results about our produced CNF to satisfiability results about the AIG that
+we are processing. The intuition for this is: if a node is marked, its CNF is already part of the
+current CNF. Thus the current CNF is already mirroring the semantics of the marked node.
+This means that if the CNF is satisfiable at some assignment, we can evaluate the marked node under
+the atom part of that assignment and will get the value that was assigned to the corresponding
+auxiliary variable as a result.
 -/
-structure Cache.Inv (cnf : CNF (CNFVar aig)) (marks : Array Bool) (hmarks : marks.size = aig.decls.size) : Prop where
-  /--
-  If there exists an AIG node that is marked, its children are also guaranteed to be marked already.
-  This allows us to conclude that if a gate node is marked, all of its (transitive) children are
-  also marked.
-  -/
-  hmark : ∀ (lhs rhs : Fanin) (idx : Nat) (hbound : idx < aig.decls.size)
-            (_hmarked : marks[idx] = true) (heq : aig.decls[idx] = .gate lhs rhs),
-              marks[lhs.gate]'(by have := aig.hdag hbound heq; omega) = true
-                ∧
-              marks[rhs.gate]'(by have := aig.hdag hbound heq; omega) = true
-  /--
-  Relate satisfiability results about our produced CNF to satisfiability results about the AIG that
-  we are processing. The intuition for this is: if a node is marked, its CNF (and all required
-  children CNFs according to `hmark`) are already part of the current CNF. Thus the current CNF is
-  already mirroring the semantics of the marked node. This means that if the CNF is satisfiable at
-  some assignment, we can evaluate the marked node under the atom part of that assignment and will
-  get the value that was assigned to the corresponding auxiliary variable as a result.
-  -/
-  heval : ∀ (assign : CNFVar aig → Bool) (_heval : cnf.eval assign = true) (idx : Nat)
-            (hbound : idx < aig.decls.size) (_hmark : marks[idx]'(by omega) = true),
-              ⟦aig, ⟨idx, false, hbound⟩, projectLeftAssign assign⟧ = (projectRightAssign assign) idx hbound
+def Cache.Inv (cnf : CNF (CNFVar aig)) (marks : Array Bool)
+    (hmarks : marks.size = aig.decls.size) : Prop :=
+  ∀ (assign : CNFVar aig → Bool) (_heval : cnf.eval assign = true) (idx : Nat)
+    (hbound : idx < aig.decls.size) (_hmark : marks[idx]'(by omega) = true),
+      ⟦aig, ⟨idx, false, hbound⟩, projectLeftAssign assign⟧ = (projectRightAssign assign) idx hbound
 
 
 /--
 The `Cache` invariant always holds for an empty CNF when all nodes are unmarked.
 -/
-theorem Cache.Inv_init : Inv ([] : CNF (CNFVar aig)) (.replicate aig.decls.size false) (by simp) where
-  hmark := by
-    intro lhs rhs idx hbound hmarked heq
-    simp at hmarked
-  heval := by
-    intro assign _ idx hbound hmark
-    simp at hmark
+theorem Cache.Inv_init : Inv ([] : CNF (CNFVar aig)) (.replicate aig.decls.size false)
+    (by simp) := by
+  intro assign _ idx hbound hmark
+  simp at hmark
 
 /--
 The CNF cache. It keeps track of AIG nodes that we already turned into CNF to avoid adding the same
@@ -274,24 +261,17 @@ def Cache.addFalse (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size
       marks := cache.marks.set idx true
       hmarks := by simp [cache.hmarks]
       inv := by
-        constructor
-        · intro lhs rhs idx hbound hmarked heq
-          rw [Array.getElem_set] at hmarked
-          split at hmarked
-          · simp_all
-          · have := cache.inv.hmark lhs rhs idx hbound hmarked heq
-            simp [Array.getElem_set, this]
-        · intro assign heval idx hbound hmarked
-          rw [Array.getElem_set] at hmarked
-          split at hmarked
-          · next heq =>
-            simp only [heq, CNF.eval_append, Decl.falseToCNF_eval, Bool.and_eq_true, beq_iff_eq]
-              at htip heval
-            simp [denote_idx_false htip, projectRightAssign_property, heval]
-          · next heq =>
-            simp only [CNF.eval_append, Decl.falseToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
-            have := cache.inv.heval assign heval.right idx hbound hmarked
-            rw [this]
+        intro assign heval idx hbound hmarked
+        rw [Array.getElem_set] at hmarked
+        split at hmarked
+        · next heq =>
+          simp only [heq, CNF.eval_append, Decl.falseToCNF_eval, Bool.and_eq_true, beq_iff_eq]
+            at htip heval
+          simp [denote_idx_false htip, projectRightAssign_property, heval]
+        · next heq =>
+          simp only [CNF.eval_append, Decl.falseToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
+          have := cache.inv assign heval.right idx hbound hmarked
+          rw [this]
     }
   ⟨out, IsExtensionBy_set cache out idx hmarkbound (by simp [out])⟩
 
@@ -311,23 +291,16 @@ def Cache.addAtom (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
       marks := cache.marks.set idx true
       hmarks := by simp [cache.hmarks]
       inv := by
-        constructor
-        · intro lhs rhs idx hbound hmarked heq
-          rw [Array.getElem_set] at hmarked
-          split at hmarked
-          · simp_all
-          · have := cache.inv.hmark lhs rhs idx hbound hmarked heq
-            simp [Array.getElem_set, this]
-        · intro assign heval idx hbound hmarked
-          rw [Array.getElem_set] at hmarked
-          split at hmarked
-          · next heq =>
-            simp only [heq, CNF.eval_append, Decl.atomToCNF_eval, Bool.and_eq_true, beq_iff_eq] at htip heval
-            simp [heval, denote_idx_atom htip]
-          · next heq =>
-            simp only [CNF.eval_append, Decl.atomToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
-            have := cache.inv.heval assign heval.right idx hbound hmarked
-            rw [this]
+        intro assign heval idx hbound hmarked
+        rw [Array.getElem_set] at hmarked
+        split at hmarked
+        · next heq =>
+          simp only [heq, CNF.eval_append, Decl.atomToCNF_eval, Bool.and_eq_true, beq_iff_eq] at htip heval
+          simp [heval, denote_idx_atom htip]
+        · next heq =>
+          simp only [CNF.eval_append, Decl.atomToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
+          have := cache.inv assign heval.right idx hbound hmarked
+          rw [this]
     }
   ⟨out, IsExtensionBy_set cache out idx hmarkbound (by simp [out])⟩
 
@@ -357,33 +330,22 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
       marks := cache.marks.set idx true
       hmarks := by simp [cache.hmarks]
       inv := by
-        constructor
-        · intro lhs rhs idx hbound hmarked heq
-          rw [Array.getElem_set] at hmarked
-          split at hmarked
-          · next heq2 =>
-            simp only [heq2] at htip
-            rw [htip] at heq
-            cases heq
-            simp [Array.getElem_set, hl, hr]
-          · have := cache.inv.hmark lhs rhs idx hbound hmarked heq
-            simp [Array.getElem_set, this]
-        · intro assign heval idx hbound hmarked
-          rw [Array.getElem_set] at hmarked
-          split at hmarked
-          · next heq =>
-            simp only [heq, CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq]
-              at htip heval
-            have hleval := cache.inv.heval assign heval.right lhs.gate (by omega) hl
-            have hreval := cache.inv.heval assign heval.right rhs.gate (by omega) hr
-            simp only [denote_idx_gate htip, Bool.bne_false, projectRightAssign_property, heval]
-            generalize lhs.invert = linv
-            generalize rhs.invert = rinv
-            cases linv <;> cases rinv <;> simp [hleval, hreval]
-          · next heq =>
-            simp only [CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
-            have := cache.inv.heval assign heval.right idx hbound hmarked
-            rw [this]
+        intro assign heval idx hbound hmarked
+        rw [Array.getElem_set] at hmarked
+        split at hmarked
+        · next heq =>
+          simp only [heq, CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq]
+            at htip heval
+          have hleval := cache.inv assign heval.right lhs.gate (by omega) hl
+          have hreval := cache.inv assign heval.right rhs.gate (by omega) hr
+          simp only [denote_idx_gate htip, Bool.bne_false, projectRightAssign_property, heval]
+          generalize lhs.invert = linv
+          generalize rhs.invert = rinv
+          cases linv <;> cases rinv <;> simp [hleval, hreval]
+        · next heq =>
+          simp only [CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
+          have := cache.inv assign heval.right idx hbound hmarked
+          rw [this]
     }
   ⟨out, IsExtensionBy_set cache out idx hmarkbound (by simp [out])⟩
 
@@ -697,7 +659,7 @@ theorem toCNF.denote_as_go {assign : AIG.CNFVar aig → Bool} :
   intro h
   match heval1:(go aig start h1 (State.empty aig)).val.cnf.eval assign with
   | true =>
-    have heval2 := (go aig start h1 (.empty aig)).val.cache.inv.heval
+    have heval2 := (go aig start h1 (.empty aig)).val.cache.inv
     specialize heval2 assign heval1 start h1 go_marks
     cases inv <;> simp_all
   | false =>

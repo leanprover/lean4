@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.11)
+
+option(USE_MIMALLOC "use mimalloc" ON)
+
 # store all variables passed on the command line into CL_ARGS so we can pass them to the stage builds
 # https://stackoverflow.com/a/48555098/161659
 # MUST be done before call to 'project'
@@ -14,10 +17,12 @@ foreach(var ${vars})
     if("${var}" MATCHES "USE_GMP|CHECK_OLEAN_VERSION")
       # must forward options that generate incompatible .olean format
       list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
-    endif()
-    if("${var}" MATCHES "LLVM*|PKG_CONFIG|USE_LAKE")
+    elseif("${var}" MATCHES "LLVM*|PKG_CONFIG|USE_LAKE|USE_MIMALLOC")
       list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
     endif()
+  elseif("${var}" MATCHES "USE_MIMALLOC")
+    list(APPEND CL_ARGS "-D${var}=${${var}}")
+    list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
   elseif(("${var}" MATCHES "CMAKE_.*") AND NOT ("${var}" MATCHES "CMAKE_BUILD_TYPE") AND NOT ("${var}" MATCHES "CMAKE_HOME_DIRECTORY"))
     list(APPEND PLATFORM_ARGS "-D${var}=${${var}}")
   endif()
@@ -55,9 +60,21 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
       BUILD_IN_SOURCE ON
       INSTALL_COMMAND "")
     set(CADICAL ${CMAKE_BINARY_DIR}/cadical/cadical${CMAKE_EXECUTABLE_SUFFIX} CACHE FILEPATH "path to cadical binary" FORCE)
-    set(EXTRA_DEPENDS "cadical")
+    list(APPEND EXTRA_DEPENDS cadical)
   endif()
   list(APPEND CL_ARGS -DCADICAL=${CADICAL})
+endif()
+
+if (USE_MIMALLOC)
+  ExternalProject_add(mimalloc
+    PREFIX mimalloc
+    GIT_REPOSITORY https://github.com/microsoft/mimalloc
+    GIT_TAG v2.2.3
+    # just download, we compile it as part of each stage as it is small
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND "")
+  list(APPEND EXTRA_DEPENDS mimalloc)
 endif()
 
 ExternalProject_add(stage0

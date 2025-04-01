@@ -294,39 +294,36 @@ uint8_t x_2;
 x_2 = !lean_is_exclusive(x_1);
 if (x_2 == 0)
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
 x_3 = lean_ctor_get(x_1, 0);
-x_4 = lean_ctor_get(x_1, 1);
-lean_dec(x_4);
-x_5 = l_Lake_Job_renew___rarg___closed__1;
-x_6 = l_Task_Priority_default;
-x_7 = 1;
-x_8 = lean_task_map(x_5, x_3, x_6, x_7);
-x_9 = lean_box(0);
-lean_ctor_set(x_1, 1, x_9);
-lean_ctor_set(x_1, 0, x_8);
+x_4 = l_Lake_Job_renew___rarg___closed__1;
+x_5 = l_Task_Priority_default;
+x_6 = 1;
+x_7 = lean_task_map(x_4, x_3, x_5, x_6);
+lean_ctor_set(x_1, 0, x_7);
 return x_1;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_10 = lean_ctor_get(x_1, 0);
-x_11 = lean_ctor_get(x_1, 2);
-x_12 = lean_ctor_get_uint8(x_1, sizeof(void*)*3);
-lean_inc(x_11);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; 
+x_8 = lean_ctor_get(x_1, 0);
+x_9 = lean_ctor_get(x_1, 1);
+x_10 = lean_ctor_get(x_1, 2);
+x_11 = lean_ctor_get_uint8(x_1, sizeof(void*)*3);
 lean_inc(x_10);
+lean_inc(x_9);
+lean_inc(x_8);
 lean_dec(x_1);
-x_13 = l_Lake_Job_renew___rarg___closed__1;
-x_14 = l_Task_Priority_default;
-x_15 = 1;
-x_16 = lean_task_map(x_13, x_10, x_14, x_15);
-x_17 = lean_box(0);
-x_18 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_18, 0, x_16);
-lean_ctor_set(x_18, 1, x_17);
-lean_ctor_set(x_18, 2, x_11);
-lean_ctor_set_uint8(x_18, sizeof(void*)*3, x_12);
-return x_18;
+x_12 = l_Lake_Job_renew___rarg___closed__1;
+x_13 = l_Task_Priority_default;
+x_14 = 1;
+x_15 = lean_task_map(x_12, x_8, x_13, x_14);
+x_16 = lean_alloc_ctor(0, 3, 1);
+lean_ctor_set(x_16, 0, x_15);
+lean_ctor_set(x_16, 1, x_9);
+lean_ctor_set(x_16, 2, x_10);
+lean_ctor_set_uint8(x_16, sizeof(void*)*3, x_11);
+return x_16;
 }
 }
 }

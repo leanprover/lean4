@@ -197,11 +197,11 @@ inductive BVExpr : Nat → Type where
   -/
   | un (op : BVUnOp) (operand : BVExpr w) : BVExpr w
   /--
-  Concatenate two bit vectors.
+  Concatenate two bitvectors.
   -/
   | append (lhs : BVExpr l) (rhs : BVExpr r) (h : w = l + r) : BVExpr w
   /--
-  Concatenate a bit vector with itself `n` times.
+  Concatenate a bitvector with itself `n` times.
   -/
   | replicate (n : Nat) (expr : BVExpr w) (h : w' = w * n) : BVExpr w'
   /--
@@ -282,7 +282,7 @@ def decEq : DecidableEq (BVExpr w) := fun l r =>
           .isFalse (by simp [h1])
       | .const .. | .var .. | .extract .. | .un .. | .append .. | .replicate .. | .shiftLeft ..
       | .shiftRight .. | .arithShiftRight .. => .isFalse (by simp)
-    | .un lop lexpr => 
+    | .un lop lexpr =>
       match r with
       | .un rop rexpr =>
         if h1 : lop = rop then
@@ -353,7 +353,7 @@ def decEq : DecidableEq (BVExpr w) := fun l r =>
           .isFalse (by simp [h1])
       | .const .. | .var .. | .extract .. | .bin .. | .un .. | .append .. | .replicate ..
       | .shiftRight .. | .shiftLeft .. => .isFalse (by simp)
-        
+
 
 instance : DecidableEq (BVExpr w) := decEq
 

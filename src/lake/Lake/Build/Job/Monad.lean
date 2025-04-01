@@ -134,7 +134,7 @@ Logs the job's log and throws if there was an error.
 
 /-- Apply `f` asynchronously to the job's output. -/
 protected def mapM
-  [OptDataKind β] (self : Job α) (f : α → JobM β)
+  [kind : OptDataKind β] (self : Job α) (f : α → JobM β)
   (prio := Task.Priority.default) (sync := false)
 : SpawnM (Job β) :=
   fun fetch stack store ctx trace => do
@@ -156,7 +156,7 @@ Apply `f` asynchronously to the job's output
 and asynchronously await the resulting job.
 -/
 def bindM
-  [OptDataKind β] (self : Job α) (f : α → JobM (Job β))
+  [kind : OptDataKind β] (self : Job α) (f : α → JobM (Job β))
   (prio := Task.Priority.default) (sync := false)
 : SpawnM (Job β) :=
   fun fetch stack store ctx trace => do

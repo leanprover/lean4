@@ -141,7 +141,7 @@ private def propagateEqFalse (e : Expr) (u v : NodeId) (k k' : Int) : GoalM Unit
   let v ← getExpr v
   pushEqFalse e <| mkPropagateEqFalseProof u v k kuv k'
 
-/-- Propagates all pending contraints and equalities and resets to "to do" list. -/
+/-- Propagates all pending constraints and equalities and resets to "to do" list. -/
 private def propagatePending : GoalM Unit := do
   let todo ← modifyGet fun s => (s.arith.offset.propagate, { s with arith.offset.propagate := [] })
   for p in todo do

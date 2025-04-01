@@ -74,7 +74,7 @@ theorem pairwise_le_range' {s n} (step := 1) :
 theorem nodup_range' {s n : Nat} (step := 1) (h : 0 < step := by simp) : Nodup (range' s n step) :=
   (pairwise_lt_range' step h).imp Nat.ne_of_lt
 
-theorem map_sub_range' {a s n : Nat} (h : a ≤ s) :
+theorem map_sub_range' {a s : Nat} (h : a ≤ s) (n : Nat) :
     map (· - a) (range' s n step) = range' (s - a) n step := by
   conv => lhs; rw [← Nat.add_sub_cancel' h]
   rw [← map_add_range', map_map, (?_ : _∘_ = _), map_id]

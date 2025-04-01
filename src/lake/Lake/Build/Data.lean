@@ -46,6 +46,8 @@ def OptDataKind.anonymous : OptDataKind α where
   name := .anonymous
   wf h := by simp [Name.isAnonymous] at h
 
+instance : Inhabited (OptDataKind α) := ⟨OptDataKind.anonymous⟩
+
 @[inline] def OptDataKind.isAnonymous (self : OptDataKind α) : Bool :=
   self.name.isAnonymous
 
@@ -183,7 +185,7 @@ scoped macro (name := dataTypeDecl)
 
 data_type unit : Unit
 data_type bool : Bool
-data_type file_path : System.FilePath
+data_type filepath : System.FilePath
 data_type dynlib : Dynlib
 
 /-- Internal macro for declaring new facet within Lake. -/

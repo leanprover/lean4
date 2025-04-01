@@ -121,6 +121,12 @@ structure ElabHeaderResult extends PreElabHeaderResult where
   indFVar    : Expr
   deriving Inhabited
 
+/-- An intermediate step for mutual inductive elaboration. See `InductiveElabDescr` -/
+structure InductiveElabStep3 where
+  /-- Finalize the inductive type, after they are all added to the environment, after auxiliary definitions are added, and after computed fields are registered.
+  The `levelParams`, `params`, and `replaceIndFVars` arguments of `prefinalize` are still valid here. -/
+  finalize : TermElabM Unit := pure ()
+
 /-- An intermediate step for mutual inductive elaboration. See `InductiveElabDescr`. -/
 structure InductiveElabStep2 where
   /-- The constructors produced by `InductiveElabStep1`. -/
@@ -133,9 +139,7 @@ structure InductiveElabStep2 where
   /-- Step to finalize term elaboration, done immediately after universe level processing is complete. -/
   finalizeTermElab : TermElabM Unit := pure ()
   /-- Like `finalize`, but occurs before `afterTypeChecking` attributes. -/
-  prefinalize (levelParams : List Name) (params : Array Expr) (replaceIndFVars : Expr → MetaM Expr) : TermElabM Unit := fun _ _ _ => pure ()
-  /-- Finalize the inductive type, after they are all added to the environment, after auxiliary definitions are added, and after computed fields are registered. -/
-  finalize (levelParams : List Name) (params : Array Expr) (replaceIndFVars : Expr → MetaM Expr) : TermElabM Unit := fun _ _ _ => pure ()
+  prefinalize (levelParams : List Name) (params : Array Expr) (replaceIndFVars : Expr → MetaM Expr) : TermElabM InductiveElabStep3 := fun _ _ _ => pure {}
   deriving Inhabited
 
 /-- An intermediate step for mutual inductive elaboration. See `InductiveElabDescr`. -/
@@ -160,7 +164,7 @@ Elaboration occurs in the following steps:
 - Elaboration of constructors is finalized, with additional tasks done by each `InductiveStep2.collectUniverses`.
 - The inductive family is added to the environment and is checked by the kernel.
 - Attributes and other finalization activities are performed, including those defined
-  by `InductiveStep2.prefinalize` and `InductiveStep2.finalize`.
+  by `InductiveStep2.prefinalize` and `InductiveStep3.finalize`.
 -/
 structure InductiveElabDescr where
   mkInductiveView : Modifiers → Syntax → TermElabM InductiveElabStep1
@@ -1048,9 +1052,9 @@ private def elabInductiveViewsPostprocessing (views : Array InductiveView) (res 
   let ref := view0.ref
   applyComputedFields views -- NOTE: any generated code before this line is invalid
   liftTermElabM <| withMCtx res.mctx <| withLCtx res.lctx res.localInsts do
-    for elab' in res.elabs do elab'.prefinalize res.levelParams res.params res.replaceIndFVars
+    let finalizers ← res.elabs.mapM fun elab' => elab'.prefinalize res.levelParams res.params res.replaceIndFVars
     for view in views do withRef view.declId <| Term.applyAttributesAt view.declName view.modifiers.attrs .afterTypeChecking
-    for elab' in res.elabs do elab'.finalize res.levelParams res.params res.replaceIndFVars
+    for elab' in finalizers do elab'.finalize
   applyDerivingHandlers views
   runTermElabM fun _ => Term.withDeclName view0.declName do withRef ref do
     for view in views do withRef view.declId <| Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation

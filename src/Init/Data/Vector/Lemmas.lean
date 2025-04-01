@@ -2783,7 +2783,7 @@ theorem any_eq_not_all_not {xs : Vector α n} {p : α → Bool} : xs.any p = !xs
   simp
 
 @[simp] theorem all_filter {xs : Vector α n} {p q : α → Bool} :
-    (xs.filter p).all q = xs.all fun a => p a → q a := by
+    (xs.filter p).all q = xs.all fun a => !(p a) || q a := by
   rcases xs with ⟨xs, rfl⟩
   simp
 

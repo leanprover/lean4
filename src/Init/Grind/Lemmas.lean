@@ -18,6 +18,9 @@ theorem rfl_true : true = true :=
 def intro_with_eq (p p' : Prop) (q : Sort u) (he : p = p') (h : p' → q) : p → q :=
   fun hp => h (he.mp hp)
 
+def intro_with_eq' (p p' : Prop) (q : p → Sort u) (he : p = p') (h : (h : p') → q (he.mpr_prop h)) : (h : p) → q h :=
+  fun hp => h (he.mp hp)
+
 /-! And -/
 
 theorem and_eq_of_eq_true_left {a b : Prop} (h : a = True) : (a ∧ b) = b := by simp [h]

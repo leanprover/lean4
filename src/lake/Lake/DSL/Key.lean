@@ -14,11 +14,15 @@ open Lean
 
 namespace Lake.DSL
 
-syntax facetSuffix := ":" noWs ident
-syntax packageTargetLit := ("+" noWs)? ident
+syntax facetSuffix := atomic(":" noWs) ident
+syntax packageTargetLit := atomic("+" noWs)? ident
 
+/-- A module target key literal (with optional facet). -/
 scoped syntax:max "`+" noWs ident facetSuffix* : term
-scoped syntax:max "`@" noWs (ident)? (noWs "/" noWs packageTargetLit)? facetSuffix* : term
+
+/-- A package target key literal (with optional facet). -/
+scoped syntax:max "`@" (noWs ident)?
+  (atomic(noWs "/" noWs) packageTargetLit)? (noWs facetSuffix)* : term
 
 private def expandFacets (tgt : Term) (facets : Array Ident) : MacroM Term := do
   let facetLits := facets.map fun facet => Name.quoteFrom facet facet.getId
@@ -41,7 +45,8 @@ macro_rules
 | `(`+%$tk$mod$[:$facets]*) => withRef tk do
   let modLit := Name.quoteFrom mod mod.getId
   let tgt ← `(BuildKey.module $modLit)
-  expandFacets tgt facets
+  let key ← expandFacets tgt facets
+  `(PartialBuildKey.mk $key)
 | `(`@%$tk$(pkg?)?$[/$tgt?]?$[:$facets]*) => withRef tk do
   let pkgLit :=
     if let some pkg := pkg? then
@@ -53,4 +58,5 @@ macro_rules
       expandPackageTargetLit pkgLit tgt
     else
       `(BuildKey.package $pkgLit)
-  expandFacets tgt facets
+  let key ← expandFacets tgt facets
+  `(PartialBuildKey.mk $key)

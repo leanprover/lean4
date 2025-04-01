@@ -22,6 +22,8 @@ LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout___rarg(lean
 static lean_object* l_IO_AsyncList_getFinishedPrefix___rarg___closed__2;
 static lean_object* l_IO_AsyncList_getFinishedPrefix___rarg___closed__1;
 static lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout___rarg___lambda__2___closed__1;
+LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_IO_AsyncList_ofList___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithConsistentLatency_sleepWithCancellation___lambda__1(uint32_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -29,6 +31,8 @@ LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithConsistentLatency_s
 LEAN_EXPORT lean_object* l_IO_AsyncList_waitFind_x3f___rarg(lean_object*, lean_object*);
 lean_object* lean_task_bind(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_IO_AsyncList_ofList(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldrTR___at_IO_AsyncList_ofList___spec__1___rarg(lean_object*, lean_object*);
+size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout___rarg___lambda__2(lean_object*, lean_object*);
 lean_object* lean_io_mono_ms_now(lean_object*);
 lean_object* lean_task_pure(lean_object*);
@@ -43,45 +47,54 @@ static lean_object* l_IO_AsyncList_getFinishedPrefix___rarg___closed__4;
 lean_object* l_Lean_Server_ServerTask_BaseIO_asTask___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_waitAll(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_foldr___at_IO_AsyncList_ofList___spec__1___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Server_ServerTask_hasFinished___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout_go___rarg___lambda__2(lean_object*);
 extern lean_object* l_Task_Priority_default;
-LEAN_EXPORT lean_object* l_List_foldr___at_IO_AsyncList_ofList___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_IO_AsyncList_waitAll___rarg___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithConsistentLatency(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_waitFind_x3f(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_IO_AsyncList_ofList___spec__3___rarg(lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_IO_AsyncList_ofList___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefix(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_foldr___at_IO_AsyncList_ofList___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l_IO_sleep___boxed(lean_object*, lean_object*);
 lean_object* lean_task_get_own(lean_object*);
 static lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout___rarg___closed__1;
 LEAN_EXPORT lean_object* l_IO_AsyncList_waitUntil___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithConsistentLatency___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_IO_AsyncList_ofList___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_instCoeList(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_waitAll___rarg___lambda__1___boxed(lean_object*);
 static lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout_go___rarg___closed__1;
+LEAN_EXPORT lean_object* l_List_foldrTR___at_IO_AsyncList_ofList___spec__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_waitUntil___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout_go___rarg___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_waitFind_x3f___rarg___lambda__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_IO_AsyncList_ofList___spec__2___rarg(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_IO_AsyncList_waitFind_x3f___rarg___closed__2;
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_IO_AsyncList_waitFind_x3f___rarg___closed__1;
+size_t lean_usize_sub(size_t, size_t);
+lean_object* lean_array_mk(lean_object*);
+lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_IO_AsyncList_ofList___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout___rarg___lambda__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefix___rarg(lean_object*, lean_object*);
 static lean_object* l_IO_AsyncList_waitUntil___rarg___closed__1;
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout_go(lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_instInhabited(lean_object*, lean_object*);
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithConsistentLatency_sleepWithCancellation___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_waitUntil(lean_object*, lean_object*);
 static lean_object* l_IO_AsyncList_getFinishedPrefixWithTimeout___rarg___closed__2;
 lean_object* l_EStateM_bind___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithConsistentLatency_sleepWithCancellation(lean_object*, uint32_t, lean_object*);
 static lean_object* l_IO_AsyncList_getFinishedPrefix___rarg___closed__3;
+LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_IO_AsyncList_ofList___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_getFinishedPrefixWithConsistentLatency_sleepWithCancellation___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_AsyncList_instInhabited(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -91,49 +104,128 @@ x_3 = lean_box(2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_foldr___at_IO_AsyncList_ofList___spec__1___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_IO_AsyncList_ofList___spec__2___rarg(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
-if (lean_obj_tag(x_2) == 0)
+uint8_t x_5; 
+x_5 = lean_usize_dec_eq(x_2, x_3);
+if (x_5 == 0)
 {
-lean_inc(x_1);
+size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; 
+x_6 = 1;
+x_7 = lean_usize_sub(x_2, x_6);
+x_8 = lean_array_uget(x_1, x_7);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_8);
+lean_ctor_set(x_9, 1, x_4);
+x_2 = x_7;
+x_4 = x_9;
+goto _start;
+}
+else
+{
+return x_4;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_IO_AsyncList_ofList___spec__2(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Array_foldrMUnsafe_fold___at_IO_AsyncList_ofList___spec__2___rarg___boxed), 4, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_IO_AsyncList_ofList___spec__3___rarg(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; 
+x_5 = lean_usize_dec_eq(x_2, x_3);
+if (x_5 == 0)
+{
+size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; 
+x_6 = 1;
+x_7 = lean_usize_sub(x_2, x_6);
+x_8 = lean_array_uget(x_1, x_7);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_8);
+lean_ctor_set(x_9, 1, x_4);
+x_2 = x_7;
+x_4 = x_9;
+goto _start;
+}
+else
+{
+return x_4;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_IO_AsyncList_ofList___spec__3(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Array_foldrMUnsafe_fold___at_IO_AsyncList_ofList___spec__3___rarg___boxed), 4, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_List_foldrTR___at_IO_AsyncList_ofList___spec__1___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_array_mk(x_2);
+x_4 = lean_array_get_size(x_3);
+x_5 = lean_nat_dec_le(x_4, x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; uint8_t x_7; 
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = lean_nat_dec_lt(x_6, x_4);
+if (x_7 == 0)
+{
+lean_dec(x_4);
+lean_dec(x_3);
 return x_1;
 }
 else
 {
-uint8_t x_3; 
-x_3 = !lean_is_exclusive(x_2);
-if (x_3 == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_List_foldr___at_IO_AsyncList_ofList___spec__1___rarg(x_1, x_4);
-lean_ctor_set_tag(x_2, 0);
-lean_ctor_set(x_2, 1, x_5);
-return x_2;
+size_t x_8; size_t x_9; lean_object* x_10; 
+x_8 = lean_usize_of_nat(x_4);
+lean_dec(x_4);
+x_9 = 0;
+x_10 = l_Array_foldrMUnsafe_fold___at_IO_AsyncList_ofList___spec__2___rarg(x_3, x_8, x_9, x_1);
+lean_dec(x_3);
+return x_10;
+}
 }
 else
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_6 = lean_ctor_get(x_2, 0);
-x_7 = lean_ctor_get(x_2, 1);
-lean_inc(x_7);
-lean_inc(x_6);
-lean_dec(x_2);
-x_8 = l_List_foldr___at_IO_AsyncList_ofList___spec__1___rarg(x_1, x_7);
-x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_6);
-lean_ctor_set(x_9, 1, x_8);
-return x_9;
+lean_object* x_11; uint8_t x_12; 
+x_11 = lean_unsigned_to_nat(0u);
+x_12 = lean_nat_dec_lt(x_11, x_4);
+if (x_12 == 0)
+{
+lean_dec(x_4);
+lean_dec(x_3);
+return x_1;
+}
+else
+{
+size_t x_13; size_t x_14; lean_object* x_15; 
+x_13 = lean_usize_of_nat(x_4);
+lean_dec(x_4);
+x_14 = 0;
+x_15 = l_Array_foldrMUnsafe_fold___at_IO_AsyncList_ofList___spec__3___rarg(x_3, x_13, x_14, x_1);
+lean_dec(x_3);
+return x_15;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_foldr___at_IO_AsyncList_ofList___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_foldrTR___at_IO_AsyncList_ofList___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_List_foldr___at_IO_AsyncList_ofList___spec__1___rarg___boxed), 2, 0);
+x_3 = lean_alloc_closure((void*)(l_List_foldrTR___at_IO_AsyncList_ofList___spec__1___rarg), 2, 0);
 return x_3;
 }
 }
@@ -142,7 +234,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_box(2);
-x_3 = l_List_foldr___at_IO_AsyncList_ofList___spec__1___rarg(x_2, x_1);
+x_3 = l_List_foldrTR___at_IO_AsyncList_ofList___spec__1___rarg(x_2, x_1);
 return x_3;
 }
 }
@@ -154,13 +246,30 @@ x_3 = lean_alloc_closure((void*)(l_IO_AsyncList_ofList___rarg), 1, 0);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_foldr___at_IO_AsyncList_ofList___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_IO_AsyncList_ofList___spec__2___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_List_foldr___at_IO_AsyncList_ofList___spec__1___rarg(x_1, x_2);
+size_t x_5; size_t x_6; lean_object* x_7; 
+x_5 = lean_unbox_usize(x_2);
+lean_dec(x_2);
+x_6 = lean_unbox_usize(x_3);
+lean_dec(x_3);
+x_7 = l_Array_foldrMUnsafe_fold___at_IO_AsyncList_ofList___spec__2___rarg(x_1, x_5, x_6, x_4);
 lean_dec(x_1);
-return x_3;
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_IO_AsyncList_ofList___spec__3___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+size_t x_5; size_t x_6; lean_object* x_7; 
+x_5 = lean_unbox_usize(x_2);
+lean_dec(x_2);
+x_6 = lean_unbox_usize(x_3);
+lean_dec(x_3);
+x_7 = l_Array_foldrMUnsafe_fold___at_IO_AsyncList_ofList___spec__3___rarg(x_1, x_5, x_6, x_4);
+lean_dec(x_1);
+return x_7;
 }
 }
 static lean_object* _init_l_IO_AsyncList_instCoeList___closed__1() {

@@ -14,25 +14,108 @@
 extern "C" {
 #endif
 lean_object* lean_array_push(lean_object*, lean_object*);
+LEAN_EXPORT uint64_t l_Lake_instHashableConfigTarget___rarg(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
+LEAN_EXPORT lean_object* l_Lake_instHashableConfigTarget(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instBEqConfigTarget___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lake_Package_findTargetDecl_x3f(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_findConfigTarget_x3f___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instHashableConfigTarget___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PConfigDecl_mkConfigTarget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_findConfigTarget_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Package_configTargets___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_configTargets___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lake_instBEqConfigTarget___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instHashableConfigTarget___boxed(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Package_configTargets___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_configTargets(lean_object*, lean_object*);
+uint64_t l_Lean_Name_hash___override(lean_object*);
 lean_object* lean_array_mk(lean_object*);
 static lean_object* l_Lake_Package_configTargets___closed__1;
+LEAN_EXPORT lean_object* l_Lake_instBEqConfigTarget___boxed(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_PConfigDecl_mkConfigTarget___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instBEqConfigTarget(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+LEAN_EXPORT uint64_t l_Lake_instHashableConfigTarget___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; uint64_t x_3; 
+x_2 = lean_ctor_get(x_1, 1);
+x_3 = l_Lean_Name_hash___override(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instHashableConfigTarget(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lake_instHashableConfigTarget___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instHashableConfigTarget___rarg___boxed(lean_object* x_1) {
+_start:
+{
+uint64_t x_2; lean_object* x_3; 
+x_2 = l_Lake_instHashableConfigTarget___rarg(x_1);
+lean_dec(x_1);
+x_3 = lean_box_uint64(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instHashableConfigTarget___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_instHashableConfigTarget(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT uint8_t l_Lake_instBEqConfigTarget___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_ctor_get(x_1, 1);
+x_4 = lean_ctor_get(x_2, 1);
+x_5 = lean_name_eq(x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instBEqConfigTarget(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lake_instBEqConfigTarget___rarg___boxed), 2, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instBEqConfigTarget___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lake_instBEqConfigTarget___rarg(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instBEqConfigTarget___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_instBEqConfigTarget(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_PConfigDecl_mkConfigTarget(lean_object* x_1, lean_object* x_2) {
 _start:
 {

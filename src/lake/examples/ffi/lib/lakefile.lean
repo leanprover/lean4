@@ -50,4 +50,3 @@ target libleanffi_shared pkg : Dynlib := do
 
 lean_lib FFI.Shared where
   moreLinkLibs := #[libleanffi_shared]
-  moreLinkArgs := #["-lstdc++"]

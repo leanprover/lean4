@@ -25,7 +25,7 @@ structure ProofInfo where
   deriving Inhabited
 
 /--
-Auxiliary inductive type for representing contraints and equalities
+Auxiliary inductive type for representing constraints and equalities
 that should be propagated to core.
 Recall that we cannot compute proofs until the short-distance
 data-structures have been fully updated when a new edge is inserted.

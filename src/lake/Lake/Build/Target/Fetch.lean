@@ -55,7 +55,9 @@ private def PartialBuildKey.fetchInCoreAux
       else
         let shortFacet := if shortFacet.isAnonymous then `default else shortFacet
         have facet := kind ++ shortFacet
-        let job ← (job.cast h).bindM fun data =>
+        let some cfg := (← getWorkspace).findFacetConfig? facet
+          | error s!"invalid target '{root}': unknown facet '{facet}'"
+        let job ← (job.cast h).bindM (kind := cfg.outKind) fun data =>
           fetch (.facet target kind data facet)
         return ⟨.facet target facet, cast (by simp) job⟩
 where
@@ -67,7 +69,8 @@ where
         | error s!"invalid target '{root}': package '{name}' not found in workspace"
       return pkg
 
-@[inline] private def PartialBuildKey.fetchInCore
+/-- **For internal use only.** -/
+@[inline] def PartialBuildKey.fetchInCore
   (defaultPkg : Package) (self : PartialBuildKey)
 : FetchM ((key : BuildKey) × Job (BuildData key)) :=
   fetchInCoreAux defaultPkg self self true
@@ -108,7 +111,10 @@ private def BuildKey.fetchCore
       if h : kind.isAnonymous then
         error s!"invalid target '{self}': targets of opaque data kinds do not support facets"
       else
-        (job.cast h).bindM fun data => fetch (.facet target kind data facetName)
+        let some cfg := (← getWorkspace).findFacetConfig? facetName
+          | error s!"invalid target '{root}': unknown facet '{facetName}'"
+        (job.cast h).bindM (kind := cfg.outKind) fun data =>
+          fetch (.facet target kind data facetName)
 
 @[inline] protected def BuildKey.fetch
   (self : BuildKey) [FamilyOut BuildData self α] : FetchM (Job α)

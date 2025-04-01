@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.DSL
-// Imports: Lake.DSL.DeclUtil Lake.DSL.Attributes Lake.DSL.Extensions Lake.DSL.Config Lake.DSL.Package Lake.DSL.Script Lake.DSL.Require Lake.DSL.Targets Lake.DSL.Meta
+// Imports: Lake.DSL.DeclUtil Lake.DSL.Attributes Lake.DSL.Extensions Lake.DSL.Config Lake.DSL.Package Lake.DSL.Script Lake.DSL.Require Lake.DSL.Targets Lake.DSL.Meta Lake.DSL.Key
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,6 +22,7 @@ lean_object* initialize_Lake_DSL_Script(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_DSL_Require(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_DSL_Targets(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_DSL_Meta(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_DSL_Key(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_DSL(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -52,6 +53,9 @@ res = initialize_Lake_DSL_Targets(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_DSL_Meta(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_DSL_Key(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

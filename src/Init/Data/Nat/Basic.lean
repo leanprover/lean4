@@ -777,31 +777,34 @@ protected theorem pow_succ (n m : Nat) : n^(succ m) = n^m * n :=
 protected theorem pow_add_one (n m : Nat) : n^(m + 1) = n^m * n :=
   rfl
 
-protected theorem pow_zero (n : Nat) : n^0 = 1 := rfl
+@[simp] protected theorem pow_zero (n : Nat) : n^0 = 1 := rfl
 
-theorem pow_le_pow_left {n m : Nat} (h : n ≤ m) : ∀ (i : Nat), n^i ≤ m^i
+@[simp] protected theorem pow_one (a : Nat) : a ^ 1 = a := by
+  simp [Nat.pow_succ]
+
+protected theorem pow_le_pow_left {n m : Nat} (h : n ≤ m) : ∀ (i : Nat), n^i ≤ m^i
   | 0      => Nat.le_refl _
-  | succ i => Nat.mul_le_mul (pow_le_pow_left h i) h
+  | succ i => Nat.mul_le_mul (Nat.pow_le_pow_left h i) h
 
-theorem pow_le_pow_right {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤ j → n^i ≤ n^j
+protected theorem pow_le_pow_right {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤ j → n^i ≤ n^j
   | 0,      h =>
     have : i = 0 := eq_zero_of_le_zero h
     this.symm ▸ Nat.le_refl _
   | succ j, h =>
     match le_or_eq_of_le_succ h with
     | Or.inl h => show n^i ≤ n^j * n from
-      have : n^i * 1 ≤ n^j * n := Nat.mul_le_mul (pow_le_pow_right hx h) hx
+      have : n^i * 1 ≤ n^j * n := Nat.mul_le_mul (Nat.pow_le_pow_right hx h) hx
       Nat.mul_one (n^i) ▸ this
     | Or.inr h =>
       h.symm ▸ Nat.le_refl _
 
 set_option linter.missingDocs false in
 @[deprecated Nat.pow_le_pow_left (since := "2025-02-17")]
-abbrev pow_le_pow_of_le_left := @pow_le_pow_left
+abbrev pow_le_pow_of_le_left := @Nat.pow_le_pow_left
 
 set_option linter.missingDocs false in
 @[deprecated Nat.pow_le_pow_right (since := "2025-02-17")]
-abbrev pow_le_pow_of_le_right := @pow_le_pow_right
+abbrev pow_le_pow_of_le_right := @Nat.pow_le_pow_right
 
 protected theorem pow_pos (h : 0 < a) : 0 < a^n :=
   match n with
@@ -821,6 +824,33 @@ protected theorem two_pow_pos (w : Nat) : 0 < 2^w := Nat.pow_pos (by decide)
 
 instance {n m : Nat} [NeZero n] : NeZero (n^m) :=
   ⟨Nat.ne_zero_iff_zero_lt.mpr (Nat.pow_pos (pos_of_neZero _))⟩
+
+protected theorem mul_pow (a b n : Nat) : (a * b) ^ n = a ^ n * b ^ n := by
+  induction n with
+  | zero => simp [Nat.pow_zero]
+  | succ n ih =>
+    rw [Nat.pow_succ, ih, Nat.pow_succ, Nat.pow_succ, ← Nat.mul_assoc, ← Nat.mul_assoc]
+    congr 1
+    rw [Nat.mul_assoc, Nat.mul_assoc, Nat.mul_comm _ a]
+
+protected theorem pow_lt_pow_left {a b n : Nat} (hab : a < b) (h : n ≠ 0) : a ^ n < b ^ n := by
+  cases n with
+  | zero => simp at h
+  | succ n =>
+    clear h
+    induction n with
+    | zero => simpa
+    | succ n ih =>
+      rw [Nat.pow_succ a, Nat.pow_succ b]
+      exact Nat.lt_of_le_of_lt (Nat.mul_le_mul_left _ (Nat.le_of_lt hab))
+        (Nat.mul_lt_mul_of_pos_right ih (Nat.lt_of_le_of_lt (Nat.zero_le _) hab))
+
+protected theorem pow_left_inj {a b n : Nat} (hn : n ≠ 0) : a ^ n = b ^ n ↔ a = b := by
+  refine ⟨fun h => ?_, (· ▸ rfl)⟩
+  match Nat.lt_trichotomy a b with
+  | Or.inl hab => exact False.elim (absurd h (ne_of_lt (Nat.pow_lt_pow_left hab hn)))
+  | Or.inr (Or.inl hab) => exact hab
+  | Or.inr (Or.inr hab) => exact False.elim (absurd h (Nat.ne_of_lt' (Nat.pow_lt_pow_left hab hn)))
 
 /-! # min/max -/
 
@@ -1170,8 +1200,14 @@ protected theorem mul_sub_right_distrib (n m k : Nat) : (n - m) * k = n * k - m 
   | zero => simp
   | succ m ih => rw [Nat.sub_succ, Nat.pred_mul, ih, succ_mul, Nat.sub_sub]; done
 
+protected theorem sub_mul (n m k : Nat) : (n - m) * k = n * k - m * k :=
+  Nat.mul_sub_right_distrib n m k
+
 protected theorem mul_sub_left_distrib (n m k : Nat) : n * (m - k) = n * m - n * k := by
   rw [Nat.mul_comm, Nat.mul_sub_right_distrib, Nat.mul_comm m n, Nat.mul_comm n k]
+
+protected theorem mul_sub (n m k : Nat) : n * (m - k) = n * m - n * k :=
+  Nat.mul_sub_left_distrib n m k
 
 /-! # Helper normalization theorems -/
 

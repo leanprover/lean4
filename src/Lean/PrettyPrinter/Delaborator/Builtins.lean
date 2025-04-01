@@ -9,6 +9,7 @@ import Lean.PrettyPrinter.Delaborator.Basic
 import Lean.PrettyPrinter.Delaborator.SubExpr
 import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
 import Lean.Meta.CoeAttr
+import Lean.Meta.Structure
 
 namespace Lean.PrettyPrinter.Delaborator
 open Lean.Meta
@@ -556,8 +557,7 @@ def delabDelayedAssignedMVar : Delab := whenNotPPOption getPPMVarsDelayed do
     delabMVarAux decl.mvarIdPending
 
 private partial def collectStructFields
-    (structName : Name)
-    (paramMap : NameMap Expr)
+    (structName : Name) (levels : List Level) (params : Array Expr)
     (fields : Array (TSyntax ``Parser.Term.structInstField))
     (fieldValues : NameMap Expr)
     (s : ConstructorVal) :
@@ -575,14 +575,13 @@ private partial def collectStructFields
         if ← getPPOption getPPStructureInstancesFlatten then
           if let some s' ← isConstructorApp? (← getExpr) then
             if s'.induct == parentName then
-              let (fieldValues, fields) ← collectStructFields structName paramMap fields fieldValues s'
+              let (fieldValues, fields) ← collectStructFields structName levels params fields fieldValues s'
               return (i + 1, fieldValues, fields)
-      /- Does it have the default value, and should it be omitted? -/
+      /- Does this field have a default value? and if so, can we omit the field? -/
       unless ← getPPOption getPPStructureInstancesDefaults do
         if let some defFn := getEffectiveDefaultFnForField? (← getEnv) structName fieldName then
-          let cinfo ← getConstInfo defFn
-          let defValue := cinfo.instantiateValueLevelParams! (← mkFreshLevelMVarsFor cinfo)
-          if let some defValue ← withNewMCtxDepth <| processDefaultValue paramMap fieldValues defValue then
+          -- Use `withNewMCtxDepth` to prevent delaborator from solving metavariables.
+          if let some (_, defValue) ← withNewMCtxDepth <| instantiateStructDefaultValueFn? defFn levels params (pure ∘ fieldValues.find?) then
             if ← withReducible <| withNewMCtxDepth <| isDefEq defValue (← getExpr) then
               -- Default value matches, skip the field.
               return (i + 1, fieldValues, fields)
@@ -596,24 +595,6 @@ private partial def collectStructFields
       let field ← `(structInstField|$fieldId:ident := $value)
       return (i + 1, fieldValues, fields.push field))
   return (fieldValues, fields)
-where
-  processDefaultValue (paramMap : NameMap Expr) (fieldValues : NameMap Expr) : Expr → MetaM (Option Expr)
-  | .lam n d b c => do
-    if c.isExplicit then
-      let some val := fieldValues.find? n | return none
-      if ← isDefEq (← inferType val) d then
-        processDefaultValue paramMap fieldValues (b.instantiate1 val)
-      else
-        return none
-    else
-      let some param := paramMap.find? n | return none
-      if ← isDefEq (← inferType param) d then
-        processDefaultValue paramMap fieldValues (b.instantiate1 param)
-      else
-        return none
-  | e =>
-    let_expr id _ a := e | return some e
-    return some a
 
 /--
 Delaborate structure constructor applications using structure instance notation or anonymous constructor notation.
@@ -663,14 +644,10 @@ def delabStructureInstance : Delab := do
     If `pp.structureInstances.flatten` is true (and `pp.explicit` is false or the subobject has no parameters)
     then subobjects are flattened.
     -/
-    -- For default value handling, we need to create a map of type parameter names to expressions.
+    let .const _ levels := (← getExpr).getAppFn | failure
     let args := (← getExpr).getAppArgs
-    let paramMap : NameMap Expr ← forallTelescope s.type fun xs _ => do
-      let mut paramMap := {}
-      for param in args[:s.numParams], x in xs do
-        paramMap := paramMap.insert (← x.fvarId!.getUserName) param
-      return paramMap
-    let (_, fields) ← collectStructFields s.induct paramMap #[] {} s
+    let params := args[0:s.numParams]
+    let (_, fields) ← collectStructFields s.induct levels params #[] {} s
     let tyStx? : Option Term ← withType do
       if ← getPPOption getPPStructureInstanceType then delab else pure none
     `({ $fields,* $[: $tyStx?]? })

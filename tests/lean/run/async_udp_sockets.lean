@@ -6,6 +6,11 @@ open Std.Internal.IO.Async.UDP
 open Std.Internal.IO.Async
 open Std.Net
 
+def assertBEq [BEq α] [ToString α] (actual expected : α) : IO Unit := do
+  unless actual == expected do
+    throw <| IO.userError <|
+      s!"expected '{expected}', got '{actual}'"
+
 -- Define the Async monad
 structure Async (α : Type) where
   run : IO (AsyncTask α)
@@ -48,9 +53,10 @@ def acceptClose (addr : UInt16 → SocketAddress) (first second : UInt16) : IO U
   let (msg, addr) ← res.block
 
   if let some addr := addr then
-    assert! addr.port == second
+    assertBEq addr.port second
 
-  assert! ("hello robert!" == String.fromUTF8! msg)
+  assertBEq (String.fromUTF8! msg) "hello robert!"
 
 #eval acceptClose (SocketAddress.v4 ∘ SocketAddressV4.mk (.ofParts 127 0 0 1))  9001 9002
+
 #eval acceptClose (SocketAddress.v6 ∘ SocketAddressV6.mk (.ofParts 0 0 0 0 0 0 0 1))  9003 9004

@@ -64,6 +64,7 @@ LEAN_EXPORT lean_object* l_Lake_Job_instFunctor___lambda__2(lean_object*, lean_o
 static lean_object* l_Lake_Job_nil___closed__3;
 static lean_object* l_Lake_Job_instFunctor___closed__2;
 LEAN_EXPORT lean_object* l_Lake_JobResult_prependLog(lean_object*);
+extern lean_object* l_Lake_instDataKindUnit;
 LEAN_EXPORT lean_object* l_Lake_Job_nop(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_cast(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_ofTask(lean_object*);
@@ -1629,7 +1630,7 @@ x_7 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_5);
 x_8 = lean_task_pure(x_7);
-x_9 = lean_box(0);
+x_9 = l_Lake_instDataKindUnit;
 x_10 = 0;
 x_11 = lean_alloc_ctor(0, 3, 1);
 lean_ctor_set(x_11, 0, x_8);
@@ -1665,7 +1666,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; 
 x_1 = l_Lake_Job_nil___closed__2;
-x_2 = lean_box(0);
+x_2 = l_Lake_instDataKindUnit;
 x_3 = l_Lake_instInhabitedJob___closed__3;
 x_4 = 0;
 x_5 = lean_alloc_ctor(0, 3, 1);

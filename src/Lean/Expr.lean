@@ -1321,6 +1321,17 @@ def inferImplicit (e : Expr) (numParams : Nat) (considerRange : Bool) : Expr :=
   | e, _ => e
 
 /--
+Uses `newBinderInfos` to update the binder infos of the first `numParams` foralls.
+-/
+def updateForallBinderInfos (e : Expr) (binderInfos? : List (Option BinderInfo)) : Expr :=
+  match e, binderInfos? with
+  | Expr.forallE n d b bi, newBi? :: binderInfos? =>
+    let b  := updateForallBinderInfos b binderInfos?
+    let bi := newBi?.getD bi
+    Expr.forallE n d b bi
+  | e, _ => e
+
+/--
 Instantiates the loose bound variables in `e` using the `subst` array,
 where a loose `Expr.bvar i` at "binding depth" `d` is instantiated with `subst[i - d]` if `0 <= i - d < subst.size`,
 and otherwise it is replaced with `Expr.bvar (i - subst.size)`; non-loose bound variables are not touched.

@@ -31,6 +31,9 @@ A build key with some missing info.
 -/
 def PartialBuildKey := BuildKey
 
+/-- Cast a `BuildKey` to a `PartialBuildKey`. -/
+@[inline] def PartialBuildKey.mk (key : BuildKey) : PartialBuildKey := key
+
 /--
 Parses a `PartialBuildKey` from a `String`.
 Uses the same syntax as the `lake build` / `lake query` CLI.

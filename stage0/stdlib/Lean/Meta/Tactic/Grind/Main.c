@@ -91,7 +91,7 @@ extern lean_object* l_Lean_PersistentHashMap_empty___at_Lean_Meta_Grind_Arith_Cu
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_mkCleanState___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_mkGlobalDiag___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_getBoolTrueExpr___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_getSimpContext(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_getSimpContext(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at_Lean_Meta_Grind_main___spec__2___lambda__2___closed__1;
 lean_object* l_Std_Queue_empty(lean_object*);
 static double l_Array_mapMUnsafe_map___at___private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_countersToMessageData___spec__1___closed__1;
@@ -403,7 +403,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkParams(lean_object* x_1, lean_objec
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_7 = l_Lean_Meta_Grind_getSimpContext(x_2, x_3, x_4, x_5, x_6);
+x_7 = l_Lean_Meta_Grind_getSimpContext(x_1, x_2, x_3, x_4, x_5, x_6);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 x_9 = lean_ctor_get(x_7, 1);

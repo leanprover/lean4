@@ -87,11 +87,11 @@ def applyAttributesOf (preDefs : Array PreDefinition) (applicationTime : Attribu
   for preDef in preDefs do
     applyAttributesAt preDef.declName preDef.modifiers.attrs applicationTime
 
-def abstractNestedProofs (preDef : PreDefinition) : MetaM PreDefinition := withRef preDef.ref do
+def abstractNestedProofs (preDef : PreDefinition) (cache := true) : MetaM PreDefinition := withRef preDef.ref do
   if preDef.kind.isTheorem || preDef.kind.isExample then
     pure preDef
   else do
-    let value ← Meta.abstractNestedProofs preDef.declName preDef.value
+    let value ← Meta.abstractNestedProofs (cache := cache) preDef.declName preDef.value
     pure { preDef with value := value }
 
 /-- Auxiliary method for (temporarily) adding pre definition as an axiom -/
@@ -121,9 +121,9 @@ private def reportTheoremDiag (d : TheoremVal) : TermElabM Unit := do
       -- let info
       logInfo <| MessageData.trace { cls := `theorem } m!"{d.name}" (#[sizeMsg] ++ constOccsMsg)
 
-private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) : TermElabM Unit :=
+private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) (cacheProofs := true) : TermElabM Unit :=
   withRef preDef.ref do
-    let preDef ← abstractNestedProofs preDef
+    let preDef ← abstractNestedProofs (cache := cacheProofs) preDef
     let mkDefDecl : TermElabM Declaration :=
       return Declaration.defnDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
@@ -168,8 +168,8 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
 def addAndCompileNonRec (preDef : PreDefinition) (all : List Name := [preDef.declName]) : TermElabM Unit := do
   addNonRecAux preDef (compile := true) (all := all)
 
-def addNonRec (preDef : PreDefinition) (applyAttrAfterCompilation := true) (all : List Name := [preDef.declName]) : TermElabM Unit := do
-  addNonRecAux preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation) (all := all)
+def addNonRec (preDef : PreDefinition) (applyAttrAfterCompilation := true) (all : List Name := [preDef.declName]) (cacheProofs := true) : TermElabM Unit := do
+  addNonRecAux preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation) (all := all) (cacheProofs := cacheProofs)
 
 /--
   Eliminate recursive application annotations containing syntax. These annotations are used by the well-founded recursion module

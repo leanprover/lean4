@@ -3893,7 +3893,7 @@ theorem all_map {xs : Array α} {p : β → Bool} : (xs.map f).all p = xs.all (p
 
 /-- Variant of `all_filter` with a side condition for the `stop` argument. -/
 @[simp] theorem all_filter' {xs : Array α} {p q : α → Bool} (w : stop = (xs.filter p).size) :
-    (xs.filter p).all q 0 stop = xs.all fun a => p a → q a := by
+    (xs.filter p).all q 0 stop = xs.all fun a => !(p a) || q a := by
   subst w
   rcases xs with ⟨xs⟩
   rw [List.filter_toArray]
@@ -3904,7 +3904,7 @@ theorem any_filter {xs : Array α} {p q : α → Bool} :
   simp
 
 theorem all_filter {xs : Array α} {p q : α → Bool} :
-    (xs.filter p).all q 0 = xs.all fun a => p a → q a := by
+    (xs.filter p).all q 0 = xs.all fun a => !(p a) || q a := by
   simp
 
 /-- Variant of `any_filterMap` with a side condition for the `stop` argument. -/

@@ -72,7 +72,7 @@ info: [grind.assert] x1 = appV a_2 b
 [grind.assert] ¬HEq x2 x4
 [grind.ematch.instance] appV_assoc: HEq (appV a_2 (appV b c)) (appV (appV a_2 b) c)
 [grind.assert] HEq (appV a_2 (appV b c)) (appV (appV a_2 b) c)
-[grind.assert] -1 * NatCast.natCast a ≤ 0
+[grind.assert] -1 * ↑a ≤ 0
 -/
 #guard_msgs (info) in
 example : x1 = appV a b → x2 = appV x1 c → x3 = appV b c → x4 = appV a x3 → HEq x2 x4 := by

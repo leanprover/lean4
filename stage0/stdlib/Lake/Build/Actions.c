@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Build.Actions
-// Imports: Lake.Util.Proc Lake.Util.NativeLib Lake.Util.IO
+// Imports: Lake.Config.Dynlib Lake.Util.Proc Lake.Util.NativeLib Lake.Util.IO
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -196,23 +196,26 @@ return x_12;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; size_t x_19; size_t x_20; 
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; size_t x_20; size_t x_21; 
 x_13 = lean_array_uget(x_4, x_6);
+x_14 = lean_ctor_get(x_13, 0);
+lean_inc(x_14);
+lean_dec(x_13);
 lean_inc(x_2);
-x_14 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_2);
-x_15 = l_Array_forIn_x27Unsafe_loop___at_Lake_compileLeanModule___spec__1___closed__1;
-x_16 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_14);
-x_17 = lean_array_mk(x_16);
-x_18 = l_Array_append___rarg(x_7, x_17);
-lean_dec(x_17);
-x_19 = 1;
-x_20 = lean_usize_add(x_6, x_19);
-x_6 = x_20;
-x_7 = x_18;
+x_15 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_2);
+x_16 = l_Array_forIn_x27Unsafe_loop___at_Lake_compileLeanModule___spec__1___closed__1;
+x_17 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_17, 0, x_16);
+lean_ctor_set(x_17, 1, x_15);
+x_18 = lean_array_mk(x_17);
+x_19 = l_Array_append___rarg(x_7, x_18);
+lean_dec(x_18);
+x_20 = 1;
+x_21 = lean_usize_add(x_6, x_20);
+x_6 = x_21;
+x_7 = x_19;
 goto _start;
 }
 }
@@ -244,23 +247,26 @@ return x_12;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; size_t x_19; size_t x_20; 
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; size_t x_20; size_t x_21; 
 x_13 = lean_array_uget(x_4, x_6);
+x_14 = lean_ctor_get(x_13, 0);
+lean_inc(x_14);
+lean_dec(x_13);
 lean_inc(x_2);
-x_14 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_2);
-x_15 = l_Array_forIn_x27Unsafe_loop___at_Lake_compileLeanModule___spec__2___closed__1;
-x_16 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_14);
-x_17 = lean_array_mk(x_16);
-x_18 = l_Array_append___rarg(x_7, x_17);
-lean_dec(x_17);
-x_19 = 1;
-x_20 = lean_usize_add(x_6, x_19);
-x_6 = x_20;
-x_7 = x_18;
+x_15 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_2);
+x_16 = l_Array_forIn_x27Unsafe_loop___at_Lake_compileLeanModule___spec__2___closed__1;
+x_17 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_17, 0, x_16);
+lean_ctor_set(x_17, 1, x_15);
+x_18 = lean_array_mk(x_17);
+x_19 = l_Array_append___rarg(x_7, x_18);
+lean_dec(x_18);
+x_20 = 1;
+x_21 = lean_usize_add(x_6, x_20);
+x_6 = x_21;
+x_7 = x_19;
 goto _start;
 }
 }
@@ -5714,6 +5720,7 @@ lean_dec(x_4);
 return x_8;
 }
 }
+lean_object* initialize_Lake_Config_Dynlib(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Proc(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_NativeLib(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_IO(uint8_t builtin, lean_object*);
@@ -5722,6 +5729,9 @@ LEAN_EXPORT lean_object* initialize_Lake_Build_Actions(uint8_t builtin, lean_obj
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Lake_Config_Dynlib(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lake_Util_Proc(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

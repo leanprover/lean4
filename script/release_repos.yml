@@ -85,6 +85,7 @@ repositories:
       - Batteries
       - doc-gen4
       - import-graph
+      - plausible
 
   - name: REPL
     url: https://github.com/leanprover-community/repl

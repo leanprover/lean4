@@ -1045,10 +1045,10 @@ end ConstantInfo
 
 /--
 Async access mode for environment extensions used in `EnvironmentExtension.get/set/modifyState`.
-Depending on their specific uses, extensions may opt out of the strict `sync` access mode in order
-to avoid blocking parallel elaboration and/or to optimize accesses. The access mode is set at
-environment extension registration time but can be overriden at `EnvironmentExtension.getState` in
-order to weaken it for specific accesses.
+When modified in concurrent contexts, extensions may need to switch to a different mode than the
+default `mainOnly`, which will panic in such cases. The access mode is set at environment extension
+registration time but can be overriden when calling the mentioned functions in order to weaken it
+for specific accesses.
 
 In all modes, the state stored into the `.olean` file for persistent environment extensions is the
 result of `getState` called on the main environment branch at the end of the file, i.e. it
@@ -1056,15 +1056,15 @@ encompasses all modifications for all modes but `local`.
 -/
 inductive EnvExtension.AsyncMode where
   /--
-  Default access mode, writing and reading the extension state to/from the full `checked`
+  Safest access mode, writes and reads the extension state to/from the full `checked`
   environment. This mode ensures the observed state is identical independently of whether or how
   parallel elaboration is used but `getState` will block on all prior environment branches by
   waiting for `checked`. `setState` and `modifyState` do not block.
 
-  While a safe default, any extension that reasonably could be used in parallel elaboration contexts
-  should opt for a weaker mode to avoid blocking unless there is no way to access the correct state
-  without waiting for all prior environment branches, in which case its data management should be
-  restructured if at all possible.
+  While a safe fallback for when `mainOnly` is not sufficient, any extension that reasonably could
+  be used in parallel elaboration contexts should opt for a weaker mode to avoid blocking unless
+  there is no way to access the correct state without waiting for all prior environment branches, in
+  which case its data management should be restructured if at all possible.
   -/
   | sync
   /--
@@ -1077,9 +1077,10 @@ inductive EnvExtension.AsyncMode where
   -/
   | local
   /--
-  Like `local` but panics when trying to modify the state on anything but the main environment
-  branch. For extensions that fulfill this requirement, all modes functionally coincide but this
-  is the safest and most efficient choice in that case, preventing accidental misuse.
+  Default access mode. Like `local` but panics when trying to modify the state on anything but the
+  main environment branch. For extensions that fulfill this requirement, all modes functionally
+  coincide with `local` but this is the safest and most efficient choice in that case, preventing
+  accidental misuse.
 
   This mode is suitable for extensions that are modified only at the command elaboration level
   before any environment forks in the command, and in particular for extensions that are modified

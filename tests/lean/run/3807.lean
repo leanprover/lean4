@@ -522,9 +522,11 @@ namespace Pi
 variable {ι : Type _} {α' : ι → Type _}
 
 instance instOrderTop [∀ i, LE (α' i)] [∀ i, OrderTop (α' i)] : OrderTop (∀ i, α' i) where
+  top := fun _ => ⊤
   le_top _ := fun _ => le_top
 
 instance instOrderBot [∀ i, LE (α' i)] [∀ i, OrderBot (α' i)] : OrderBot (∀ i, α' i) where
+  bot := fun _ => ⊥
   bot_le _ := fun _ => bot_le
 
 end Pi
@@ -2519,7 +2521,7 @@ variable {L : Type _} [Field L] [Algebra F L] [Algebra L E] [IsScalarTower F L E
   (f : L →ₐ[F] K)
 
 -- This only required 16,000 heartbeats prior to #3807, and now takes ~210,000.
-set_option maxHeartbeats 20000
+set_option maxHeartbeats 16000
 theorem exists_algHom_adjoin_of_splits''' :
     ∃ φ : adjoin L S →ₐ[F] K, φ.comp (IsScalarTower.toAlgHom F L _) = f := by
   let L' := (IsScalarTower.toAlgHom F L E).fieldRange
@@ -2531,7 +2533,12 @@ theorem exists_algHom_adjoin_of_splits''' :
     · simp only [← SetLike.coe_subset_coe, coe_restrictScalars, adjoin_subset_adjoin_iff]
       exact ⟨subset_adjoin_of_subset_left S (F := L'.toSubfield) le_rfl, subset_adjoin _ _⟩
     · ext x
-      exact (congrFun (congrArg (fun g : L' →ₐ[F] K => (g : L' → K)) hφ) _).trans (congrArg f <| AlgEquiv.symm_apply_apply _ _)
+      exact
+        Eq.trans
+          (congrFun (congrArg (fun g : L' →ₐ[F] K => (g : L' → K)) hφ)
+            (DFunLike.coe (AlgEquiv.ofInjectiveField _) x))
+          (congrArg f
+            (AlgEquiv.symm_apply_apply (AlgEquiv.ofInjectiveField (IsScalarTower.toAlgHom F L E)) x))
 
 end IntermediateField
 

@@ -113,6 +113,9 @@ theorem Bool.not_eq_of_eq_false {a : Bool} (h : a = false) : (!a) = true := by s
 theorem Bool.eq_false_of_not_eq_true {a : Bool} (h : (!a) = true) : a = false := by simp_all
 theorem Bool.eq_true_of_not_eq_false {a : Bool} (h : (!a) = false) : a = true := by simp_all
 
+theorem Bool.eq_false_of_not_eq_true' {a : Bool} (h : ¬ a = true) : a = false := by simp_all
+theorem Bool.eq_true_of_not_eq_false' {a : Bool} (h : ¬ a = false) : a = true := by simp_all
+
 theorem Bool.false_of_not_eq_self {a : Bool} (h : (!a) = a) : False := by
   by_cases a <;> simp_all
 

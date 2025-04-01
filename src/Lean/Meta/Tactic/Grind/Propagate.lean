@@ -119,15 +119,25 @@ builtin_grind_propagator propagateNotDown ↓Not := fun e => do
   else if (← isEqv e a) then
     closeGoal <| mkApp2 (mkConst ``Grind.false_of_not_eq_self) a (← mkEqProof e a)
 
+def propagateBoolDiseq (a : Expr) : GoalM Unit := do
+  if let some h ← mkDiseqProof? a (← getBoolFalseExpr) then
+    pushEqBoolTrue a <| mkApp2 (mkConst ``Grind.Bool.eq_true_of_not_eq_false') a h
+  if let some h ← mkDiseqProof? a (← getBoolTrueExpr) then
+    pushEqBoolFalse a <| mkApp2 (mkConst ``Grind.Bool.eq_false_of_not_eq_true') a h
+
 /-- Propagates `Eq` upwards -/
 builtin_grind_propagator propagateEqUp ↑Eq := fun e => do
-  let_expr Eq _ a b := e | return ()
+  let_expr Eq α a b := e | return ()
   if (← isEqTrue a) then
     pushEq e b <| mkApp3 (mkConst ``Grind.eq_eq_of_eq_true_left) a b (← mkEqTrueProof a)
   else if (← isEqTrue b) then
     pushEq e a <| mkApp3 (mkConst ``Grind.eq_eq_of_eq_true_right) a b (← mkEqTrueProof b)
   else if (← isEqv a b) then
     pushEqTrue e <| mkEqTrueCore e (← mkEqProof a b)
+  if α.isConstOf ``Bool then
+    if (← isEqFalse e) then
+      propagateBoolDiseq a
+      propagateBoolDiseq b
   let aRoot ← getRootENode a
   let bRoot ← getRootENode b
   if aRoot.ctor && bRoot.ctor && aRoot.self.getAppFn != bRoot.self.getAppFn then
@@ -146,6 +156,9 @@ builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
     pushEq a b <| mkOfEqTrueCore e (← mkEqTrueProof e)
   else if (← isEqFalse e) then
     let_expr Eq α lhs rhs := e | return ()
+    if α.isConstOf ``Bool then
+      propagateBoolDiseq lhs
+      propagateBoolDiseq rhs
     propagateCutsatDiseq lhs rhs
     let thms ← getExtTheorems α
     if !thms.isEmpty then

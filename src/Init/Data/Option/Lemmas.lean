@@ -312,16 +312,32 @@ theorem all_eq_true (p : α → Bool) (x : Option α) :
     x.all p = true ↔ ∀ y, x = some y → p y := by
   cases x <;> simp
 
+theorem all_eq_true' (p : α → Bool) (x : Option α) :
+    x.all p = true ↔ (h : x.isSome) → p (x.get h) := by
+  cases x <;> simp
+
 theorem all_eq_false (p : α → Bool) (x : Option α) :
     x.all p = false ↔ ∃ y, x = some y ∧ p y = false := by
+  cases x <;> simp
+
+theorem all_eq_false' (p : α → Bool) (x : Option α) :
+    x.all p = false ↔ ∃ h : x.isSome, p (x.get h) = false := by
   cases x <;> simp
 
 theorem any_eq_true (p : α → Bool) (x : Option α) :
     x.any p = true ↔ ∃ y, x = some y ∧ p y := by
   cases x <;> simp
 
+theorem any_eq_true' (p : α → Bool) (x : Option α) :
+    x.any p = true ↔ ∃ h : x.isSome, p (x.get h) := by
+  cases x <;> simp
+
 theorem any_eq_false (p : α → Bool) (x : Option α) :
     x.any p = false ↔ ∀ y, x = some y → p y = false := by
+  cases x <;> simp
+
+theorem any_eq_false' (p : α → Bool) (x : Option α) :
+    x.any p = false ↔ (h : x.isSome) → p (x.get h) = false := by
   cases x <;> simp
 
 theorem isSome_of_any {x : Option α} {p : α → Bool} (h : x.any p) : x.isSome := by

@@ -257,18 +257,9 @@ and simplifies these to the function directly taking the value.
     o.map f = o.unattach.map g := by
   cases o <;> simp [hf]
 
-theorem Option.map_subtype' {α β : Type _} {o : Option α}
-    {f : α → β} : o.attach.map (fun a => f a.1) = o.map f := by
-  cases o <;> rfl
-
-theorem Option.map_subtype'' {α β : Type _} {o : Option α}
-    {f : { x // x ∈ o } → β} {g : α → β} (hf : ∀ (x : α) (h : x ∈ o), f ⟨x, h⟩ = g x) :
-    Option.map f o.attach = Option.map g o := by
-  rw [Option.map_subtype hf, Option.unattach_attach]
-
 @[simp] theorem bind_subtype {p : α → Prop} {o : Option { x // p x }}
     {f : { x // p x } → Option β} {g : α → Option β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
-    (o.bind f) = o.unattach.bind g := by
+    o.bind f = o.unattach.bind g := by
   cases o <;> simp [hf]
 
 @[simp] theorem unattach_filter {p : α → Prop} {o : Option { x // p x }}

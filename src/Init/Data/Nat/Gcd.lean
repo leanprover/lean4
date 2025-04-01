@@ -416,7 +416,7 @@ theorem dvd_gcd_mul_gcd_iff_dvd_mul {k n m : Nat} : k ∣ gcd k n * gcd k m ↔ 
 theorem gcd_eq_one_iff {m n : Nat} : gcd m n = 1 ↔ ∀ c, c ∣ m → c ∣ n → c = 1 := by
   simp [gcd_eq_iff]
 
-theorem gcd_mul_left_right_of_gcd_eq_one {n m k : Nat} : gcd n m = 1 → gcd n (m * k) = gcd n k := by
+theorem gcd_mul_right_right_of_gcd_eq_one {n m k : Nat} : gcd n m = 1 → gcd n (m * k) = gcd n k := by
   rw [gcd_right_eq_iff, gcd_eq_one_iff]
   refine fun h l hl₁ => ⟨?_, fun a => Nat.dvd_mul_left_of_dvd a m⟩
   rw [Nat.dvd_mul]
@@ -424,22 +424,22 @@ theorem gcd_mul_left_right_of_gcd_eq_one {n m k : Nat} : gcd n m = 1 → gcd n (
   obtain rfl : k₁ = 1 := h _ (Nat.dvd_trans (Nat.dvd_mul_right k₁ k₂) hl₁) hk₁
   simpa
 
-theorem gcd_mul_right_right_of_gcd_eq_one {n m k : Nat} (h : gcd n m = 1) :
+theorem gcd_mul_left_right_of_gcd_eq_one {n m k : Nat} (h : gcd n m = 1) :
     gcd n (k * m) = gcd n k := by
-  rw [Nat.mul_comm, gcd_mul_left_right_of_gcd_eq_one h]
-
-theorem gcd_mul_left_left_of_gcd_eq_one {n m k : Nat} (h : gcd n m = 1) :
-    gcd (n * k) m = gcd k m := by
-  rw [gcd_comm, gcd_mul_left_right_of_gcd_eq_one (gcd_comm _ _ ▸ h), gcd_comm]
+  rw [Nat.mul_comm, gcd_mul_right_right_of_gcd_eq_one h]
 
 theorem gcd_mul_right_left_of_gcd_eq_one {n m k : Nat} (h : gcd n m = 1) :
+    gcd (n * k) m = gcd k m := by
+  rw [gcd_comm, gcd_mul_right_right_of_gcd_eq_one (gcd_comm _ _ ▸ h), gcd_comm]
+
+theorem gcd_mul_left_left_of_gcd_eq_one {n m k : Nat} (h : gcd n m = 1) :
     gcd (k * n) m = gcd k m := by
-  rw [Nat.mul_comm, gcd_mul_left_left_of_gcd_eq_one h]
+  rw [Nat.mul_comm, gcd_mul_right_left_of_gcd_eq_one h]
 
 theorem gcd_pow_left_of_gcd_eq_one {k n m : Nat} (h : gcd n m = 1) : gcd (n ^ k) m = 1 := by
   induction k with
   | zero => simp [Nat.pow_zero]
-  | succ k ih => rw [Nat.pow_succ, gcd_mul_right_left_of_gcd_eq_one h, ih]
+  | succ k ih => rw [Nat.pow_succ, gcd_mul_left_left_of_gcd_eq_one h, ih]
 
 theorem gcd_pow_right_of_gcd_eq_one {k n m : Nat} (h : gcd n m = 1) : gcd n (m ^ k) = 1 := by
   rw [gcd_comm, gcd_pow_left_of_gcd_eq_one (gcd_comm _ _ ▸ h)]

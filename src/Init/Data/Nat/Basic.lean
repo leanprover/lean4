@@ -782,29 +782,29 @@ protected theorem pow_add_one (n m : Nat) : n^(m + 1) = n^m * n :=
 @[simp] protected theorem pow_one (a : Nat) : a ^ 1 = a := by
   simp [Nat.pow_succ]
 
-theorem pow_le_pow_left {n m : Nat} (h : n ≤ m) : ∀ (i : Nat), n^i ≤ m^i
+protected theorem pow_le_pow_left {n m : Nat} (h : n ≤ m) : ∀ (i : Nat), n^i ≤ m^i
   | 0      => Nat.le_refl _
-  | succ i => Nat.mul_le_mul (pow_le_pow_left h i) h
+  | succ i => Nat.mul_le_mul (Nat.pow_le_pow_left h i) h
 
-theorem pow_le_pow_right {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤ j → n^i ≤ n^j
+protected theorem pow_le_pow_right {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤ j → n^i ≤ n^j
   | 0,      h =>
     have : i = 0 := eq_zero_of_le_zero h
     this.symm ▸ Nat.le_refl _
   | succ j, h =>
     match le_or_eq_of_le_succ h with
     | Or.inl h => show n^i ≤ n^j * n from
-      have : n^i * 1 ≤ n^j * n := Nat.mul_le_mul (pow_le_pow_right hx h) hx
+      have : n^i * 1 ≤ n^j * n := Nat.mul_le_mul (Nat.pow_le_pow_right hx h) hx
       Nat.mul_one (n^i) ▸ this
     | Or.inr h =>
       h.symm ▸ Nat.le_refl _
 
 set_option linter.missingDocs false in
 @[deprecated Nat.pow_le_pow_left (since := "2025-02-17")]
-abbrev pow_le_pow_of_le_left := @pow_le_pow_left
+abbrev pow_le_pow_of_le_left := @Nat.pow_le_pow_left
 
 set_option linter.missingDocs false in
 @[deprecated Nat.pow_le_pow_right (since := "2025-02-17")]
-abbrev pow_le_pow_of_le_right := @pow_le_pow_right
+abbrev pow_le_pow_of_le_right := @Nat.pow_le_pow_right
 
 protected theorem pow_pos (h : 0 < a) : 0 < a^n :=
   match n with

@@ -2,22 +2,6 @@ open List Nat
 
 attribute [grind] List.getElem_cons_zero
 
-theorem getElem_cons {l : List α} (w : i < (a :: l).length) :
-    (a :: l)[i] =
-      if h : i = 0 then a else l[i-1]'(match i, h with | i+1, _ => succ_lt_succ_iff.mp w) := by
-  split
-  · -- Fails with:
-    -- [grind] Issues ▼
-    --   [issue] type error constructing proof for getElem_cons_zero
-    --       when assigning metavariable ?h with
-    --         ‹i < (a :: l).length›
-    --       has type
-    --         i < (a :: l).length : Prop
-    --       but is expected to have type
-    --         0 < (a :: l).length : Prop
-    grind
-  · sorry
-
 attribute [grind] List.filter_nil List.filter_cons
 attribute [grind] List.any_nil List.any_cons
 

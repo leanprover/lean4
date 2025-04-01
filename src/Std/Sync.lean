@@ -8,3 +8,4 @@ import Std.Sync.Basic
 import Std.Sync.Channel
 import Std.Sync.Mutex
 import Std.Sync.RecursiveMutex
+import Std.Sync.Barrier

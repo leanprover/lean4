@@ -532,6 +532,12 @@ protected theorem pos_of_lt_mul_right {a b c : Nat} (h : a < b * c) : 0 < b := b
   replace h : 0 < b * c := by omega
   exact Nat.pos_of_mul_pos_right h
 
+protected theorem mul_dvd_mul_iff_left {a b c : Nat} (h : 0 < a) : a * b ∣ a * c ↔ b ∣ c :=
+  ⟨fun ⟨k, hk⟩ => ⟨k, Nat.mul_left_cancel h (Nat.mul_assoc _ _ _ ▸ hk)⟩, Nat.mul_dvd_mul_left _⟩
+
+protected theorem mul_dvd_mul_iff_right {a b c : Nat} (h : 0 < c) : a * c ∣ b * c ↔ a ∣ b := by
+  rw [Nat.mul_comm _ c, Nat.mul_comm _ c, Nat.mul_dvd_mul_iff_left h]
+
 /-! ### div/mod -/
 
 theorem mod_two_eq_zero_or_one (n : Nat) : n % 2 = 0 ∨ n % 2 = 1 :=
@@ -601,6 +607,27 @@ theorem add_mod (a b n : Nat) : (a + b) % n = ((a % n) + (b % n)) % n := by
 theorem mod_eq_sub (x w : Nat) : x % w = x - w * (x / w) := by
   conv => rhs; congr; rw [← mod_add_div x w]
   simp
+
+theorem div_dvd_div {m n k : Nat} : k ∣ m → m ∣ n → m / k ∣ n / k := by
+  refine (Nat.eq_zero_or_pos k).elim (by rintro rfl; simp) (fun hk => ?_)
+  rintro ⟨a, rfl⟩ ⟨b, rfl⟩
+  rw [Nat.mul_comm, Nat.mul_div_cancel _ hk, Nat.mul_comm, ← Nat.mul_assoc, Nat.mul_div_cancel _ hk]
+  exact Nat.dvd_mul_left a b
+
+@[simp] theorem div_dvd_iff_dvd_mul {a b c : Nat} (h : b ∣ a) (hb : 0 < b) :
+    a / b ∣ c ↔ a ∣ b * c := by
+  rcases h with ⟨k, rfl⟩
+  rw [Nat.mul_comm, Nat.mul_div_cancel _ hb, Nat.mul_comm, Nat.mul_dvd_mul_iff_left hb]
+
+theorem div_eq_self {m n : Nat} : m / n = m ↔ m = 0 ∨ n = 1 := by
+  refine ⟨fun h => (Nat.eq_zero_or_pos m).elim Or.inl ?_, fun h => by cases h <;> simp_all⟩
+  refine fun hm => Or.inr ?_
+  rcases Nat.lt_trichotomy n 1 with (hn|hn|hn)
+  · obtain rfl : n = 0 := by rwa [lt_one_iff] at hn
+    obtain rfl : 0 = m := by simpa [Nat.div_zero] using h
+    simp at hm
+  · exact hn
+  · exact False.elim (absurd h (Nat.ne_of_lt (Nat.div_lt_self hm hn)))
 
 /-! ### pow -/
 
@@ -863,6 +890,18 @@ theorem dvd_of_pow_dvd {p k m : Nat} (hk : 1 ≤ k) (hpk : p ^ k ∣ m) : p ∣ 
 
 protected theorem pow_div {x m n : Nat} (h : n ≤ m) (hx : 0 < x) : x ^ m / x ^ n = x ^ (m - n) := by
   rw [Nat.div_eq_iff_eq_mul_left (Nat.pow_pos hx) (Nat.pow_dvd_pow _ h), Nat.pow_sub_mul_pow _ h]
+
+protected theorem div_pow {a b c : Nat} (h : a ∣ b) : (b / a) ^ c = b ^ c / a ^ c := by
+  refine (Nat.eq_zero_or_pos c).elim (by rintro rfl; simp) (fun hc => ?_)
+  refine (Nat.eq_zero_or_pos a).elim (by rintro rfl; simp [hc]) (fun ha => ?_)
+  rw [eq_comm, Nat.div_eq_iff_eq_mul_left (Nat.pow_pos ha)
+    ((Nat.pow_dvd_pow_iff (Nat.pos_iff_ne_zero.1 hc)).2 h)]
+  clear hc
+  induction c with
+  | zero => simp
+  | succ c ih =>
+    rw [Nat.pow_succ (b / a), Nat.pow_succ a, Nat.mul_comm _ a, Nat.mul_assoc, ← Nat.mul_assoc _ a,
+      Nat.div_mul_cancel h, Nat.mul_comm b, ← Nat.mul_assoc, ← ih, Nat.pow_succ]
 
 /-! ### shiftLeft and shiftRight -/
 

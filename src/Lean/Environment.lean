@@ -1466,10 +1466,30 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
 @[implemented_by registerPersistentEnvExtensionUnsafe]
 opaque registerPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ)
 
-@[extern "lean_save_module_data"]
-opaque saveModuleData (fname : @& System.FilePath) (mod : @& Name) (data : @& ModuleData) : IO Unit
-@[extern "lean_read_module_data"]
-opaque readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion)
+/--
+Stores each given module data in the respective file name. Objects shared with prior parts are not
+duplicated. Thus the data cannot be loaded with individual `readModuleData` calls but must loaded by
+passing (a prefix of) the file names to `readModuleDataParts`. `mod` is used to determine an
+arbitrary but deterministic base address for `mmap`.
+-/
+@[extern "lean_save_module_data_parts"]
+opaque saveModuleDataParts (mod : @& Name) (parts : Array (System.FilePath × ModuleData)) : IO Unit
+
+/--
+Loads the module data from the given file names. The files must be (a prefix of) the result of a
+`saveModuleDataParts` call.
+-/
+@[extern "lean_read_module_data_parts"]
+opaque readModuleDataParts (fnames : @& Array System.FilePath) : IO (Array (ModuleData × CompactedRegion))
+
+def saveModuleData (fname : System.FilePath) (mod : Name) (data : ModuleData) : IO Unit :=
+  saveModuleDataParts mod #[(fname, data)]
+
+def readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion) := do
+  let parts ← readModuleDataParts #[fname]
+  assert! parts.size == 1
+  let some part := parts[0]? | unreachable!
+  return part
 
 /--
   Free compacted regions of imports. No live references to imported objects may exist at the time of invocation; in

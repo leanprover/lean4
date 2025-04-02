@@ -9,6 +9,7 @@ import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Nat.Power2
 import Init.Data.Int.Bitwise
 import Init.Data.BitVec.BasicAux
+import Init.Data.Vector.Basic
 
 /-!
 We define the basic algebraic structure of bitvectors. We choose the `Fin` representation over
@@ -760,4 +761,40 @@ def reverse : {w : Nat} → BitVec w → BitVec w
   | 0, x => x
   | w + 1, x => concat (reverse (x.truncate w)) (x.msb)
 
+/- ### vectors of bitvectors -/
+
+/-- Split a bitvector into a vector of bitvectors of equal length where the vector ends on the
+most significant part ('BE' for 'big endian'). See also `BitVec.splitLE`. -/
+def splitBE (m n : Nat) (x : BitVec (m * n)) : Vector (BitVec m) n :=
+  (Vector.range n).map (fun i => x.extractLsb' (m * i) m)
+
+/-- Split a bitvector into a vector of bitvectors of equal length where the vector ends on the
+least significant part ('LE' for 'little endian'). See also `BitVec.splitBE`. -/
+def splitLE (m n : Nat) (x : BitVec (m * n)) : Vector (BitVec m) n :=
+  (Vector.range n).map (fun i => x.extractLsb' (m * (n - i - 1)) m)
+
 end BitVec
+
+/-- Flatten a `Vector α n` to a `BitVec (m * n)` using a function `f : α → BitVec m`.
+The most significant bits are expected to be at the start of the vector. -/
+def Vector.flatMapBitVecLE (m : Nat) (v : Vector α n) (f : α → BitVec m) : BitVec (m * n) :=
+  match n with
+  | 0 => 0#0
+  | n + 1 => ((v.pop.flatMapBitVecLE m f).cast (by simp) : BitVec (m * n)) ++ f v.back
+
+/-- Flatten a vector of bitvectors of equal length to a single bitvector.
+The most significant bits are expected to be at the start of the vector. -/
+def Vector.flattenBitVecLE (m : Nat) (v : Vector (BitVec m) n) : BitVec (m * n) :=
+  v.flatMapBitVecLE m id
+
+/-- Flatten a `Vector α n` to a `BitVec (m * n)` using a function `f : α → BitVec m`.
+The most significant bits are expected to be at the start of the vector. -/
+def Vector.flatMapBitVecBE (m : Nat) (v : Vector α n) (f : α → BitVec m) : BitVec (m * n) :=
+  match n with
+  | 0 => 0#0
+  | n + 1 => ((v.tail.flatMapBitVecBE m f).cast (by simp) : BitVec (m * n)) ++ f v.head
+
+/-- Flatten a vector of bitvectors of equal length to a single bitvector.
+The most significant bits are expected to be at the start of the vector. -/
+def Vector.flattenBitVecBE (m : Nat) (v : Vector (BitVec m) n) : BitVec (m * n) :=
+  v.flatMapBitVecBE m id

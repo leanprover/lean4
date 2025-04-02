@@ -4600,7 +4600,7 @@ theorem le_toInt_mul_toInt {x y : BitVec w} : - (2 ^ (w * 2 - 2)) ≤ x.toInt * 
         Nat.mul_sub_one, Nat.mul_comm]
     rw_mod_cast [h]
     rw [← Nat.two_pow_pred_mul_two (by omega), Int.natCast_mul] at xlt ylt xle yle
-    exact Int.neg_mul_self_le_mul (by omega) (by omega) (by omega) (by omega)
+    exact Int.neg_mul_le_mul (by omega) (by omega) (by omega) (by omega)
 
 theorem shiftLeft_neg {x : BitVec w} {y : Nat} :
     (-x) <<< y = - (x <<< y) := by

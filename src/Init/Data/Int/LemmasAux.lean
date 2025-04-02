@@ -193,7 +193,7 @@ theorem mul_le_mul_of_le_of_le_of_nonpos_of_nonneg {a b c d : Int}
 /--
 A corollary of |s| ≤ x, and |t| ≤ y, then |s * t| ≤ x * y,
 -/
-theorem neg_mul_self_le_mul {x y : Int} {s t : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -t ≤ y) (uby : y < t) :
+theorem neg_mul_le_mul {x y : Int} {s t : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -t ≤ y) (uby : y < t) :
       -(s * t) ≤ x * y := by
   have := Nat.mul_pos (n := s) (m := t) (by omega) (by omega)
   by_cases 0 ≤ x <;> by_cases 0 ≤ y

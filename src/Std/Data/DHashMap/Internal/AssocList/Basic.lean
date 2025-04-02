@@ -250,15 +250,14 @@ where
   | cons k v t => go (cons k (f k v) acc) t
 
 /-- Internal implementation detail of the hash map -/
-@[inline] def mapKeyValue (f : (a : α) → β a → ((a' : α') × β' a')) :
-    AssocList α β → AssocList α' β' :=
-  go .nil
-where
-  @[specialize] go (acc : AssocList α' β') : AssocList α β → AssocList α' β'
-  | nil => acc
-  | cons k v t =>
-      let ⟨k', v'⟩ := f k v
-      go (cons k' v' acc) t
+@[inline] def pmapEntries {P : (a : α) → (b : β a) → Prop }
+    (f : (a : α) → (b : β a) → P a b → ((a' : α') × β' a')) :
+    ∀ (l : AssocList α β), (H : ∀ a b, ⟨a, b⟩ ∈ l.toList → P a b) → AssocList α' β'
+  | .nil, _ => .nil
+  | .cons k v t, H =>
+    let ⟨k', v'⟩ := f k v (H k v (.head t.toList))
+    let t' := pmapEntries f t (fun a b hin => H a b (.tail (Sigma.mk k v) hin))
+    .cons k' v' t'
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def filter (f : (a : α) → β a → Bool) : AssocList α β → AssocList α β :=

@@ -115,10 +115,6 @@ theorem map_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {f : (a : α) �
     m.map f = Raw₀.map f ⟨m, h.size_buckets_pos⟩ := by
   simp [Raw.map, h.size_buckets_pos]
 
-theorem mapKeyValueInPlace_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF)  {f : (a : α) → β a → ((a' : α') × β' a')} :
-    m.mapKeyValueInPlace f = Raw₀.mapKeyValueInPlace f ⟨m, h.size_buckets_pos⟩ := by
-  simp [Raw.mapKeyValueInPlace, h.size_buckets_pos]
-
 theorem filter_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {f : (a : α) → β a → Bool} :
     m.filter f = Raw₀.filter f ⟨m, h.size_buckets_pos⟩ := by
   simp [Raw.filter, h.size_buckets_pos]

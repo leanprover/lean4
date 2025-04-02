@@ -514,7 +514,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     buffer<string_ref> forwarded_args;
     buffer<name> error_kinds;
 
-    while (true) {
+    while (!run) {  // stop consuming arguments after `--run`
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
         if (c == -1)
             break; // end of command line
@@ -561,6 +561,10 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
                 break;
             case 'r':
                 run = true;
+                // apparently this call is necessary for `--run` to be permuted in front of any
+                // preceding file name arguments (we shouldn't permute *after* `--run` because those
+                // arguments are not ours)
+                getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
                 break;
             case 'o':
                 olean_fn = optarg;

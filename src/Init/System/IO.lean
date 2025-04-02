@@ -1367,8 +1367,7 @@ A child process that was spawned with configuration `cfg`.
 The configuration determines whether the child process's standard input, standard output, and
 standard error are `IO.FS.Handle`s or `Unit`.
 -/
--- TODO(Sebastian): constructor must be private
-structure Child (cfg : StdioConfig) where
+structure Child (cfg : StdioConfig) where private mk ::
   /--
   The child process's standard input handle, if it was configured as `IO.Process.Stdio.piped`, or
   `()` otherwise.

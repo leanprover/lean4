@@ -179,17 +179,19 @@ theorem mul_le_mul_of_le_of_le_of_nonneg_of_nonpos {a b c d : Int}
   Int.le_trans (Int.mul_le_mul_of_nonneg_right hac hb) (Int.mul_le_mul_of_nonpos_left hc hbd)
 
 /--
-A corollary of |s| ≤ x, and |s| ≤ y, then |s|² ≤ x * y,
+A corollary of |s| ≤ x, and |t| ≤ y, then |s * t| ≤ x * y,
 -/
-theorem neg_mul_self_le_mul {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -s ≤ y) (uby : y < s) :
-      -(s * s) ≤ x * y := by
-  have := Nat.mul_pos (n := s) (m := s) (by omega) (by omega)
+theorem neg_mul_self_le_mul {x y : Int} {s t : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -t ≤ y) (uby : y < t) :
+      -(s * t) ≤ x * y := by
+  have := Nat.mul_pos (n := s) (m := t) (by omega) (by omega)
   by_cases 0 ≤ x <;> by_cases 0 ≤ y
   · have : 0 ≤ x * y := by apply Int.mul_nonneg <;> omega
+    norm_cast
     omega
-  · rw [← Int.neg_mul, Int.mul_comm (a := x)]; apply Int.mul_le_mul_of_le_of_le_of_nonneg_of_nonpos <;> omega
+  · rw [Int.mul_comm (a := x), Int.mul_comm (a := (s : Int)), ← Int.neg_mul]; apply Int.mul_le_mul_of_le_of_le_of_nonneg_of_nonpos <;> omega
   · rw [← Int.neg_mul]; apply Int.mul_le_mul_of_le_of_le_of_nonneg_of_nonpos <;> omega
   · have : 0 < x * y := by apply Int.mul_pos_of_neg_of_neg <;> omega
+    norm_cast
     omega
 
 end Int

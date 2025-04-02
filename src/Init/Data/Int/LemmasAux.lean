@@ -151,12 +151,9 @@ theorem bmod_bmod_of_dvd {a : Int} {n m : Nat} (hnm : n ∣ m) :
   obtain ⟨k, rfl⟩ := hnm
   simp [Int.mul_assoc]
 
-theorem bmod_eq_of_le_of_lt {x : Int} {y : Nat} (hle : -y ≤ x * 2) (hlt : x * 2 < y) :
+theorem bmod_eq_self_of_le_mul_two {x : Int} {y : Nat} (hle : -y ≤ x * 2) (hlt : x * 2 < y) :
     x.bmod y = x := by
-  simp only [Int.bmod_def]
-  rcases x
-  · rw [Int.emod_eq_of_lt (by simp only [ofNat_eq_coe]; omega) (by omega)]; omega
-  · rw [Int.emod_eq_add_self_emod, Int.emod_eq_of_lt (by omega) (by omega)]; omega
+  apply bmod_eq_self_of_le (by omega) (by omega)
 
 theorem mul_le_mul_self_of_natAbs_le {x y : Int} {s : Nat} (hx : x.natAbs ≤ s) (hy : y.natAbs ≤ s) :
     x * y ≤ s * s := by

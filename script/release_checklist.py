@@ -7,6 +7,8 @@ import base64
 import subprocess
 import sys
 import os
+# Import run_command from merge_remote.py
+from merge_remote import run_command
 
 def debug(verbose, message):
     """Print debug message if verbose mode is enabled."""
@@ -230,11 +232,13 @@ def main():
     parser = argparse.ArgumentParser(description="Check release status of Lean4 repositories")
     parser.add_argument("toolchain", help="The toolchain version to check (e.g., v4.6.0)")
     parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose debugging output")
+    parser.add_argument("--dry-run", action="store_true", help="Dry run mode (no actions taken)")
     args = parser.parse_args()
 
     github_token = get_github_token()
     toolchain = args.toolchain
     verbose = args.verbose
+    # dry_run = args.dry_run  # Not used yet but available for future implementation
     
     stripped_toolchain = strip_rc_suffix(toolchain)
     lean_repo_url = "https://github.com/leanprover/lean4"
@@ -290,6 +294,7 @@ def main():
     for repo in repos:
         name = repo["name"]
         url = repo["url"]
+        org_repo = extract_org_repo_from_url(url)
         branch = repo["branch"]
         check_stable = repo["stable-branch"]
         check_tag = repo.get("toolchain-tag", True)
@@ -331,10 +336,25 @@ def main():
         print(f"  ✅ On compatible toolchain (>= {toolchain})")
 
         if check_tag:
-            if not tag_exists(url, toolchain, github_token):
-                print(f"  ❌ Tag {toolchain} does not exist. Run `script/push_repo_release_tag.py {extract_org_repo_from_url(url)} {branch} {toolchain}`.")
-                repo_status[name] = False
-                continue
+            tag_exists_initially = tag_exists(url, toolchain, github_token)
+            if not tag_exists_initially:                
+                if args.dry_run:
+                    print(f"  ❌ Tag {toolchain} does not exist. Run `script/push_repo_release_tag.py {org_repo} {branch} {toolchain}`.")
+                    repo_status[name] = False
+                    continue
+                else:
+                    print(f"  … Tag {toolchain} does not exist. Running `script/push_repo_release_tag.py {org_repo} {branch} {toolchain}`...")
+                    
+                    # Run the script to create the tag
+                    subprocess.run(["script/push_repo_release_tag.py", org_repo, branch, toolchain])
+                    
+                    # Check again if the tag exists now
+                    if not tag_exists(url, toolchain, github_token):
+                        print(f"  ❌ Manual intervention required.")
+                        repo_status[name] = False
+                        continue
+            
+            # This will print in all successful cases - whether tag existed initially or was created successfully
             print(f"  ✅ Tag {toolchain} exists")
 
         if check_stable and not is_release_candidate(toolchain):
@@ -350,9 +370,16 @@ def main():
             next_version = get_next_version(toolchain)
             bump_branch = f"bump/{next_version}"
             if not branch_exists(url, bump_branch, github_token):
-                print(f"  ❌ Bump branch {bump_branch} does not exist")
-                repo_status[name] = False
-                continue
+                if args.dry_run:
+                    print(f"  ❌ Bump branch {bump_branch} does not exist. Run `gh api -X POST /repos/{org_repo}/git/refs -f ref=refs/heads/{bump_branch} -f sha=$(gh api /repos/{org_repo}/git/refs/heads/{branch} --jq .object.sha)` to create it.")
+                    repo_status[name] = False
+                    continue
+                print(f"  … Bump branch {bump_branch} does not exist. Creating it...")
+                result = run_command(f"gh api -X POST /repos/{org_repo}/git/refs -f ref=refs/heads/{bump_branch} -f sha=$(gh api /repos/{org_repo}/git/refs/heads/{branch} --jq .object.sha)", check=False)
+                if result.returncode != 0:
+                    print(f"  ❌ Failed to create bump branch {bump_branch}")
+                    repo_status[name] = False
+                    continue
             print(f"  ✅ Bump branch {bump_branch} exists")
             if not check_bump_branch_toolchain(url, bump_branch, github_token):
                 repo_status[name] = False

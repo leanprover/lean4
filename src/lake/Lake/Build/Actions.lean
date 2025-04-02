@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone, Siddharth Bhat
 -/
 prelude
+import Lake.Config.Dynlib
 import Lake.Util.Proc
 import Lake.Util.NativeLib
 import Lake.Util.IO
@@ -21,7 +22,7 @@ def compileLeanModule
   (leanFile : FilePath)
   (oleanFile? ileanFile? cFile? bcFile?: Option FilePath)
   (leanPath : SearchPath := []) (rootDir : FilePath := ".")
-  (dynlibs : Array FilePath := #[]) (plugins : Array FilePath := #[])
+  (dynlibs plugins : Array Dynlib := #[])
   (leanArgs : Array String := #[]) (lean : FilePath := "lean")
 : LogIO Unit := do
   let mut args := leanArgs ++
@@ -39,9 +40,9 @@ def compileLeanModule
     createParentDirs bcFile
     args := args ++ #["-b", bcFile.toString]
   for dynlib in dynlibs do
-    args := args ++ #["--load-dynlib", dynlib.toString]
+    args := args ++ #["--load-dynlib", dynlib.path.toString]
   for plugin in plugins do
-    args := args ++ #["--plugin", plugin.toString]
+    args := args ++ #["--plugin", plugin.path.toString]
   args := args.push "--json"
   withLogErrorPos do
   let out ← rawProc {
@@ -56,8 +57,7 @@ def compileLeanModule
       if let .ok (msg : SerialMessage) := Json.parse ln >>= fromJson? then
         unless txt.isEmpty do
           logInfo s!"stdout:\n{txt}"
-        unless msg.isSilent do
-          logSerialMessage msg
+        logSerialMessage msg
         return txt
       else if txt.isEmpty && ln.isEmpty then
         return txt

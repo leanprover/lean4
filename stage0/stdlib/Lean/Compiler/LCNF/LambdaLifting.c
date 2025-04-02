@@ -27,9 +27,9 @@ static lean_object* l_Lean_Compiler_LCNF_LambdaLifting_mkAuxDecl___lambda__2___c
 static lean_object* l_Lean_Compiler_LCNF_LambdaLifting_mkAuxDeclName___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_lambdaLifting___closed__1;
-lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_LambdaLifting_visitCode___closed__1;
 uint8_t lean_usize_dec_eq(size_t, size_t);
+lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_LambdaLifting___hyg_1728____closed__15;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_lambdaLifting;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);

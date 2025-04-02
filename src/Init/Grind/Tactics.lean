@@ -10,7 +10,7 @@ namespace Lean.Parser
 /--
 Reset all `grind` attributes. This command is intended for testing purposes only and should not be used in applications.
 -/
-syntax (name := resetGrindAttrs) "%reset_grind_attrs" : command
+syntax (name := resetGrindAttrs) "reset_grind_attrs%" : command
 
 namespace Attr
 syntax grindEq     := "= "
@@ -79,6 +79,24 @@ structure Config where
   See paper "Model-based Theory Combination" for details.
   -/
   mbtc : Bool := true
+  /--
+  When set to `true` (default: `true`), local definitions are unfolded during normalization and internalization.
+  In other words, given a local context with an entry `x : t := e`, the free variable `x` is reduced to `e`.
+  Note that this behavior is also available in `simp`, but there its default is `false` because `simp` is not
+  always used as a terminal tactic, and it important to preserve the abstractions introduced by users.
+  Additionally, in `grind` we observed that `zetaDelta` is particularly important when combined with function induction.
+  In such scenarios, the same let-expressions can be introduced by function induction and also by unfolding the
+  corresponding definition. We want to avoid a situation in which `zetaDelta` is not applied to let-declarations
+  introduced by function induction while `zeta` unfolds the definition, causing a mismatch.
+  Finally, note that congruence closure is less effective on terms containing many binders such as
+  `lambda` and `let` expressions.
+  -/
+  zetaDelta := true
+  /--
+  When `true` (default: `true`), performs zeta reduction of let expressions during normalization.
+  That is, `let x := v; e[x]` reduces to `e[v]`. See also `zetaDelta`.
+  -/
+  zeta := true
   deriving Inhabited, BEq
 
 end Lean.Grind

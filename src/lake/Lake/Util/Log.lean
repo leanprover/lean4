@@ -149,6 +149,18 @@ instance : ToString LogEntry := ⟨LogEntry.toString⟩
 @[inline] def LogEntry.error (message : String) : LogEntry :=
   {level := .error, message}
 
+def LogEntry.ofSerialMessage (msg : SerialMessage) : LogEntry :=
+  let str := if msg.caption.trim.isEmpty then
+     msg.data.trim else s!"{msg.caption.trim}:\n{msg.data.trim}"
+  {
+    level := .ofMessageSeverity msg.severity
+    message := mkErrorStringWithPos msg.fileName msg.pos str none
+  }
+
+def LogEntry.ofMessage (msg : Message) : BaseIO LogEntry := do
+  -- Remark: The inline here avoids a new message allocation when `msg` is shared
+  return inline <| .ofSerialMessage (← msg.serialize)
+
 class MonadLog (m : Type u → Type v) where
   logEntry (e : LogEntry) : m PUnit
 
@@ -166,13 +178,13 @@ export MonadLog (logEntry)
 @[inline] def logError [MonadLog m] (message : String) : m PUnit :=
   logEntry (.error message)
 
-@[specialize] def logSerialMessage (msg : SerialMessage) [MonadLog m] : m PUnit :=
-  let str := if msg.caption.trim.isEmpty then
-     msg.data.trim else s!"{msg.caption.trim}:\n{msg.data.trim}"
-  logEntry {
-    level := .ofMessageSeverity msg.severity
-    message := mkErrorStringWithPos msg.fileName msg.pos str none
-  }
+@[inline] def logSerialMessage (msg : SerialMessage) [Monad m] [MonadLog m] : m PUnit := do
+  unless msg.isSilent do
+    logEntry (.ofSerialMessage msg)
+
+@[inline] def logMessage (msg : Message) [Monad m] [MonadLog m] [MonadLiftT BaseIO m] : m PUnit := do
+  unless msg.isSilent do
+    logEntry (← LogEntry.ofMessage msg)
 
 def logToStream
   (e : LogEntry) (out : IO.FS.Stream) (minLv : LogLevel) (useAnsi : Bool)

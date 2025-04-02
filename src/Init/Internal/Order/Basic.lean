@@ -35,8 +35,11 @@ class PartialOrder (α : Sort u) where
   This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
   -/
   rel : α → α → Prop
+  /-- The “less-or-equal-to” or “approximates” relation is reflexive. -/
   rel_refl : ∀ {x}, rel x x
+  /-- The “less-or-equal-to” or “approximates” relation is transitive. -/
   rel_trans : ∀ {x y z}, rel x y → rel y z → rel x z
+  /-- The “less-or-equal-to” or “approximates” relation is antisymmetric. -/
   rel_antisymm : ∀ {x y}, rel x y → rel y x → x = y
 
 @[inherit_doc] scoped infix:50 " ⊑ " => PartialOrder.rel
@@ -61,15 +64,21 @@ section CCPO
 /--
 A chain-complete partial order (CCPO) is a partial order where every chain has a least upper bound.
 
-This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
+This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used
+otherwise.
 -/
 class CCPO (α : Sort u) extends PartialOrder α where
   /--
   The least upper bound of a chain.
 
-  This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
+  This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used
+  otherwise.
   -/
   csup : (α → Prop) → α
+  /--
+  `csup c` is the least upper bound of the chain `c` when all elements `x` that are at
+  least as large as `csup c` are at least as large as all elements of `c`, and vice versa.
+  -/
   csup_spec {c : α → Prop} (hc : chain c) : csup c ⊑ x ↔ (∀ y, c y → y ⊑ x)
 
 open PartialOrder CCPO
@@ -479,7 +488,6 @@ instance instCCPOPProd [CCPO α] [CCPO β] : CCPO (α ×' β) where
   csup c := ⟨CCPO.csup (PProd.chain.fst c), CCPO.csup (PProd.chain.snd c)⟩
   csup_spec := by
     intro ⟨a, b⟩ c hchain
-    dsimp
     constructor
     next =>
       intro ⟨h₁, h₂⟩ ⟨a', b'⟩ cab

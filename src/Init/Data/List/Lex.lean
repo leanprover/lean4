@@ -14,11 +14,11 @@ namespace List
 
 /-! ### Lexicographic ordering -/
 
-@[simp] theorem lex_lt [LT α] (l₁ l₂ : List α) : Lex (· < ·) l₁ l₂ ↔ l₁ < l₂ := Iff.rfl
-@[simp] theorem not_lex_lt [LT α] (l₁ l₂ : List α) : ¬ Lex (· < ·) l₁ l₂ ↔ l₂ ≤ l₁ := Iff.rfl
+@[simp] theorem lex_lt [LT α] {l₁ l₂ : List α} : Lex (· < ·) l₁ l₂ ↔ l₁ < l₂ := Iff.rfl
+@[simp] theorem not_lex_lt [LT α] {l₁ l₂ : List α} : ¬ Lex (· < ·) l₁ l₂ ↔ l₂ ≤ l₁ := Iff.rfl
 
-protected theorem not_lt_iff_ge [LT α] (l₁ l₂ : List α) : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
-protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List α) :
+protected theorem not_lt_iff_ge [LT α] {l₁ l₂ : List α} : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
+protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] {l₁ l₂ : List α} :
     ¬ l₁ ≤ l₂ ↔ l₂ < l₁ :=
   Decidable.not_not
 
@@ -49,7 +49,7 @@ instance ltIrrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Irre
   · rintro rfl
     exact not_lex_nil
 
-@[simp] theorem le_nil [LT α] (l : List α) : l ≤ [] ↔ l = [] := not_nil_lex_iff
+@[simp] theorem le_nil [LT α] {l : List α} : l ≤ [] ↔ l = [] := not_nil_lex_iff
 
 -- This is named with a prime to avoid conflict with `lex [] (b :: bs) lt = true`.
 -- Better naming for the `Lex` vs `lex` distinction would be welcome.

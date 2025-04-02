@@ -16,6 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lake_RecBuildT_run___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildCycleError___at_Lake_instMonadCycleOfBuildKeyRecBuildTOfMonadOfMonadError___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RecBuildT_run___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_ModuleFacet_fetch(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_RecBuildT_run_x27___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildCycleError___at_Lake_instMonadCycleOfBuildKeyRecBuildTOfMonadOfMonadError___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -34,6 +35,7 @@ lean_object* l_ST_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*, l
 lean_object* l_Lake_BuildKey_toString(lean_object*);
 static lean_object* l_Lake_buildCycleError___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lake_RecBuildT_run___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_ModuleFacet_fetch___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_buildCycleError___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lake_RecBuildT_run_x27(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_buildCycleError(lean_object*, lean_object*);
@@ -45,6 +47,7 @@ lean_object* l_Lake_instMonadCallStackOfCallStackTOfMonad___rarg(lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 static lean_object* l_Lake_buildCycleError___rarg___closed__3;
 lean_object* l_String_intercalate(lean_object*, lean_object*);
+extern lean_object* l_Lake_Module_keyword;
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lake_RecBuildT_run_x27___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lake_RecBuildT_run_x27___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -487,6 +490,32 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lake_BuildInfo_fetch___rarg), 8, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_ModuleFacet_fetch___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_9 = lean_ctor_get(x_2, 2);
+lean_inc(x_9);
+x_10 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+x_11 = l_Lake_Module_keyword;
+x_12 = lean_alloc_ctor(1, 4, 0);
+lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set(x_12, 1, x_11);
+lean_ctor_set(x_12, 2, x_2);
+lean_ctor_set(x_12, 3, x_1);
+x_13 = lean_apply_6(x_3, x_12, x_4, x_5, x_6, x_7, x_8);
+return x_13;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_ModuleFacet_fetch(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lake_ModuleFacet_fetch___rarg), 8, 0);
 return x_2;
 }
 }

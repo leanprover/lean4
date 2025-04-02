@@ -1796,6 +1796,29 @@ theorem of_not_dvd (a b : Int) : a != 0 → ¬ (a ∣ b) → b % a > 0 := by
   simp [h₁] at h₂
   assumption
 
+def le_of_le_cert (p q : Poly) (k : Nat) : Bool :=
+  q == p.addConst (- k)
+
+theorem le_of_le (ctx : Context) (p q : Poly) (k : Nat)
+    : le_of_le_cert p q k → p.denote' ctx ≤ 0 → q.denote' ctx ≤ 0 := by
+  simp [le_of_le_cert]; intro; subst q; simp
+  intro h
+  simp [Lean.Omega.Int.add_le_zero_iff_le_neg']
+  exact Int.le_trans h (Int.ofNat_zero_le _)
+
+def not_le_of_le_cert (p q : Poly) (k : Nat) : Bool :=
+  q == (p.mul (-1)).addConst (1 + k)
+
+theorem not_le_of_le (ctx : Context) (p q : Poly) (k : Nat)
+    : not_le_of_le_cert p q k → p.denote' ctx ≤ 0 → ¬ q.denote' ctx ≤ 0 := by
+  simp [not_le_of_le_cert]; intro; subst q
+  intro h
+  apply Int.pos_of_neg_neg
+  apply Int.lt_of_add_one_le
+  simp [Int.neg_add, Int.neg_sub]
+  rw [← Int.add_assoc, ← Int.add_assoc, Int.add_neg_cancel_right, Lean.Omega.Int.add_le_zero_iff_le_neg']
+  simp; exact Int.le_trans h (Int.ofNat_zero_le _)
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

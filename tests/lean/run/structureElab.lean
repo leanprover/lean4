@@ -34,27 +34,27 @@ structure S4 (α : Type) extends S2 α, S3 α where
 /-- info: Test1.S4.mk {α : Type} (toS2 : S2 α) (w : Nat) (x' : α) : S4 α -/
 #guard_msgs in #check S4.mk
 /--
-info: def Test1.S1._flat_ctor : {α : Type} → α → Nat → S1 α :=
+info: def Test1.S1.mk._flat_ctor : {α : Type} → α → Nat → S1 α :=
 fun α x y => S1.mk x y
 -/
-#guard_msgs in #print S1._flat_ctor
+#guard_msgs in #print S1.mk._flat_ctor
 /--
-info: def Test1.S2._flat_ctor : {α : Type} → α → Nat → Nat → S2 α :=
+info: def Test1.S2.mk._flat_ctor : {α : Type} → α → Nat → Nat → S2 α :=
 fun α x y z => S2.mk (S1.mk x y) z
 -/
-#guard_msgs in #print S2._flat_ctor
+#guard_msgs in #print S2.mk._flat_ctor
 /--
-info: def Test1.S3._flat_ctor : {α : Type} → α → Nat → Nat → S3 α :=
+info: def Test1.S3.mk._flat_ctor : {α : Type} → α → Nat → Nat → S3 α :=
 fun α x y w => S3.mk (S1.mk x y) w
 -/
-#guard_msgs in #print S3._flat_ctor
+#guard_msgs in #print S3.mk._flat_ctor
 /--
-info: def Test1.S4._flat_ctor : {α : Type} → α → Nat → Nat → Nat → α → S4 α :=
+info: def Test1.S4.mk._flat_ctor : {α : Type} → α → Nat → Nat → Nat → α → S4 α :=
 fun α x y z w x' => S4.mk (S2.mk (S1.mk x y) z) w x'
 -/
-#guard_msgs in #print S4._flat_ctor
-/-- info: Test1.S4._flat_ctor {α : Type} (x : α) (y z w : Nat) (x' : α) : S4 α -/
-#guard_msgs in #check S4._flat_ctor
+#guard_msgs in #print S4.mk._flat_ctor
+/-- info: Test1.S4.mk._flat_ctor {α : Type} (x : α) (y z w : Nat) (x' : α) : S4 α -/
+#guard_msgs in #check S4.mk._flat_ctor
 
 end Test1
 
@@ -71,26 +71,26 @@ structure D3 extends D1 where
 structure D4 extends D2, D3
 
 /--
-info: @[reducible] def TestD1.D1.x._default : Nat :=
+info: def TestD1.D1.x._default : Nat :=
 id 1
 -/
 #guard_msgs in #print D1.x._default
 /-- error: unknown constant 'D2.x._default' -/
 #guard_msgs in #print D2.x._default
 /--
-info: @[reducible] def TestD1.D2.x._inherited_default : Nat :=
+info: def TestD1.D2.x._inherited_default : Nat :=
 id 1
 -/
 #guard_msgs in #print D2.x._inherited_default
 /--
-info: @[reducible] def TestD1.D3.x._default : Nat :=
+info: def TestD1.D3.x._default : Nat :=
 id 3
 -/
 #guard_msgs in #print D3.x._default
 /-- error: unknown constant 'D4.x._default' -/
 #guard_msgs in #print D4.x._default
 /--
-info: @[reducible] def TestD1.D4.x._inherited_default : Nat :=
+info: def TestD1.D4.x._inherited_default : Nat :=
 id 3
 -/
 #guard_msgs in #print D4.x._inherited_default
@@ -108,21 +108,21 @@ structure D2 (α : Type) [Inhabited α] extends D1 α where
 structure D3 extends D1 Nat where
 
 /--
-info: @[reducible] def TestD2.D1.x._default : {α : Type} → {inst : Inhabited α} → α :=
+info: def TestD2.D1.x._default : {α : Type} → {inst : Inhabited α} → α :=
 fun {α} {inst} => id default
 -/
 #guard_msgs in #print D1.x._default
 /-- error: unknown constant 'D2.x._default' -/
 #guard_msgs in #print D2.x._default
 /--
-info: @[reducible] def TestD2.D2.x._inherited_default : {α : Type} → {inst : Inhabited α} → α :=
+info: def TestD2.D2.x._inherited_default : {α : Type} → {inst : Inhabited α} → α :=
 fun {α} {inst} => id default
 -/
 #guard_msgs in #print D2.x._inherited_default
 /-- error: unknown constant 'D3.x._default' -/
 #guard_msgs in #print D3.x._default
 /--
-info: @[reducible] def TestD2.D3.x._inherited_default : Nat :=
+info: def TestD2.D3.x._inherited_default : Nat :=
 id default
 -/
 #guard_msgs in #print D3.x._inherited_default
@@ -146,16 +146,16 @@ info: Test2_1.Semigroup.mk.{u_1} {α : Type u_1} [toMul : Mul α] [toAssociative
 -/
 #guard_msgs in #check Semigroup.mk
 /--
-info: def Test2_1.Semigroup._flat_ctor.{u_1} : {α : Type u_1} →
+info: def Test2_1.Semigroup.mk._flat_ctor.{u_1} : {α : Type u_1} →
   (mul : α → α → α) → (∀ (x y z : α), @Eq α (mul (mul x y) z) (mul x (mul y z))) → Semigroup α :=
 fun α mul mul_assoc => @Semigroup.mk α (@Mul.mk α mul) (@AssociativeMul.mk α (@Mul.mk α mul) mul_assoc)
 -/
-#guard_msgs in set_option pp.explicit true in #print Semigroup._flat_ctor
+#guard_msgs in set_option pp.explicit true in #print Semigroup.mk._flat_ctor
 /--
-info: Test2_1.Semigroup._flat_ctor.{u_1} {α : Type u_1} (mul : α → α → α)
+info: Test2_1.Semigroup.mk._flat_ctor.{u_1} {α : Type u_1} (mul : α → α → α)
   (mul_assoc : ∀ (x y z : α), @Eq α (mul (mul x y) z) (mul x (mul y z))) : Semigroup α
 -/
-#guard_msgs in set_option pp.explicit true in #check Semigroup._flat_ctor
+#guard_msgs in set_option pp.explicit true in #check Semigroup.mk._flat_ctor
 
 end Test2_1
 
@@ -171,10 +171,10 @@ class Add3 (α : Type _) extends Add2 α, Add α where
   h (x : α) : x + x = x
 
 /--
-info: Test2_2.Add3._flat_ctor.{u_1} {α : Type u_1} (add : α → α → α)
+info: Test2_2.Add3.mk._flat_ctor.{u_1} {α : Type u_1} (add : α → α → α)
   (h : ∀ (x : α), @Eq α (@HAdd.hAdd α α α (@instHAdd α (@Add.mk α add)) x x) x) : Add3 α
 -/
-#guard_msgs in set_option pp.explicit true in #check Add3._flat_ctor
+#guard_msgs in set_option pp.explicit true in #check Add3.mk._flat_ctor
 
 end Test2_2
 
@@ -201,7 +201,7 @@ structure C extends B where
 structure D extends A, C
 
 /--
-info: @[reducible] def Test3.D.c._inherited_default : Nat → Nat → Nat :=
+info: def Test3.D.c._inherited_default : Nat → Nat → Nat :=
 fun b d => @id Nat (@HAdd.hAdd Nat Nat Nat (@instHAdd Nat instAddNat) b d)
 -/
 #guard_msgs in set_option pp.explicit true in #print D.c._inherited_default
@@ -243,7 +243,7 @@ info: Test4.Semigroup.mk.{u_1} (toMagma : Magma)
 #guard_msgs in set_option pp.explicit true in #check Semigroup.mk
 
 /--
-info: def Test4.Semigroup._flat_ctor.{u_1} : (α : Type u_1) →
+info: def Test4.Semigroup.mk._flat_ctor.{u_1} : (α : Type u_1) →
   (mul : α → α → α) →
     (∀ (a b c : α),
         @Eq α (@Test4.mul (Magma.mk α mul) (@Test4.mul (Magma.mk α mul) a b) c)
@@ -251,7 +251,7 @@ info: def Test4.Semigroup._flat_ctor.{u_1} : (α : Type u_1) →
       Semigroup :=
 fun α mul mul_assoc => Semigroup.mk (Magma.mk α mul) mul_assoc
 -/
-#guard_msgs in set_option pp.explicit true in #print Semigroup._flat_ctor
+#guard_msgs in set_option pp.explicit true in #print Semigroup.mk._flat_ctor
 
 end Test4
 
@@ -265,7 +265,7 @@ structure C (α : Type) extends Mul α where
   z := x * y
 
 /--
-info: @[reducible] def Test5.C.z._default : {α : Type} → (α → α → α) → α → α → α :=
+info: def Test5.C.z._default : {α : Type} → (α → α → α) → α → α → α :=
 fun {α} mul x y => @id α (@HMul.hMul α α α (@instHMul α (@Mul.mk α mul)) x y)
 -/
 #guard_msgs in set_option pp.explicit true in #print C.z._default
@@ -289,32 +289,32 @@ structure C extends B where
   x := z + 3
 
 /--
-info: @[reducible] def Test6.A.x._default : Nat :=
+info: def Test6.A.x._default : Nat :=
 id 1
 -/
 #guard_msgs in #print A.x._default
 /--
-info: @[reducible] def Test6.B.y._default : Nat → Nat :=
+info: def Test6.B.y._default : Nat → Nat :=
 fun x => id (x + 1)
 -/
 #guard_msgs in #print B.y._default
 /--
-info: @[reducible] def Test6.B.x._default : Nat → Nat :=
+info: def Test6.B.x._default : Nat → Nat :=
 fun y => id (y + 1)
 -/
 #guard_msgs in #print B.x._default
 /--
-info: @[reducible] def Test6.C.x._default : Nat → Nat :=
+info: def Test6.C.x._default : Nat → Nat :=
 fun z => id (z + 3)
 -/
 #guard_msgs in #print C.x._default
 /--
-info: @[reducible] def Test6.C.y._inherited_default : Nat → Nat :=
+info: def Test6.C.y._inherited_default : Nat → Nat :=
 fun x => id (x + 1)
 -/
 #guard_msgs in #print C.y._inherited_default
 /--
-info: @[reducible] def Test6.C.z._default : Nat → Nat :=
+info: def Test6.C.z._default : Nat → Nat :=
 fun y => id (2 * y)
 -/
 #guard_msgs in #print C.z._default
@@ -332,10 +332,10 @@ structure A2 extends A1 where
   h : n > 0
 
 /--
-info: def Test7.A2._flat_ctor : (n : Nat) → n > 0 → A2 :=
+info: def Test7.A2.mk._flat_ctor : (n : Nat) → n > 0 → A2 :=
 fun n h => A2.mk (A1.mk n) h
 -/
-#guard_msgs in #print A2._flat_ctor
+#guard_msgs in #print A2.mk._flat_ctor
 
 end Test7
 
@@ -352,6 +352,16 @@ structure S where
 #guard_msgs in #check { : S }
 
 end Test8
+
+/-!
+The default value declaration has the parameters even if they're not used.
+-/
+namespace Test9
+structure Baz (α : Type u) where
+  n : Nat := 0
+/-- info: Test9.Baz.n._default.{u} {α : Type u} : Nat -/
+#guard_msgs in #check Baz.n._default
+end Test9
 
 /-!
 Diamond inheritance, override autoParam with an autoParam
@@ -374,23 +384,22 @@ structure S4 extends S2, S3
 #guard_msgs in #check S3.mk
 /-- info: TestO1.S4.mk (toS2 : S2) : S4 -/
 #guard_msgs in #check S4.mk
-/-- info: TestO1.S1._flat_ctor (x : Nat := by exact 0) : S1 -/
-#guard_msgs in #check S1._flat_ctor
-/-- info: TestO1.S2._flat_ctor (x : Nat := by exact 0) : S2 -/
-#guard_msgs in #check S2._flat_ctor
-/-- info: TestO1.S3._flat_ctor (x : Nat := by exact 1) : S3 -/
-#guard_msgs in #check S3._flat_ctor
-/-- info: TestO1.S4._flat_ctor (x : Nat := by exact 1) : S4 -/
-#guard_msgs in #check S4._flat_ctor
+/-- info: TestO1.S1.mk._flat_ctor (x : Nat := by exact 0) : S1 -/
+#guard_msgs in #check S1.mk._flat_ctor
+/-- info: TestO1.S2.mk._flat_ctor (x : Nat := by exact 0) : S2 -/
+#guard_msgs in #check S2.mk._flat_ctor
+/-- info: TestO1.S3.mk._flat_ctor (x : Nat := by exact 1) : S3 -/
+#guard_msgs in #check S3.mk._flat_ctor
+/-- info: TestO1.S4.mk._flat_ctor (x : Nat := by exact 1) : S4 -/
+#guard_msgs in #check S4.mk._flat_ctor
 
--- TODO These don't work yet. Need to fix structure instance notation elaborator.
 /-- info: S1.mk 0 : S1 -/
 #guard_msgs in #check { : S1 }
 /-- info: S2.mk (S1.mk 0) : S2 -/
 #guard_msgs in #check { : S2 }
-/-- info: S3.mk (S1.mk 0) : S3 -/
+/-- info: S3.mk (S1.mk 1) : S3 -/
 #guard_msgs in #check { : S3 }
-/-- info: S4.mk (S2.mk (S1.mk 0)) : S4 -/
+/-- info: S4.mk (S2.mk (S1.mk 1)) : S4 -/
 #guard_msgs in #check { : S4 }
 
 end TestO1
@@ -416,27 +425,26 @@ structure S4 extends S2, S3
 #guard_msgs in #check S3.mk
 /-- info: TestO2.S4.mk (toS2 : S2) : S4 -/
 #guard_msgs in #check S4.mk
-/-- info: TestO2.S1._flat_ctor (x : Nat := by exact 0) : S1 -/
-#guard_msgs in #check S1._flat_ctor
-/-- info: TestO2.S2._flat_ctor (x : Nat := by exact 0) : S2 -/
-#guard_msgs in #check S2._flat_ctor
-/-- info: TestO2.S3._flat_ctor (x : Nat) : S3 -/
-#guard_msgs in #check S3._flat_ctor
+/-- info: TestO2.S1.mk._flat_ctor (x : Nat := by exact 0) : S1 -/
+#guard_msgs in #check S1.mk._flat_ctor
+/-- info: TestO2.S2.mk._flat_ctor (x : Nat := by exact 0) : S2 -/
+#guard_msgs in #check S2.mk._flat_ctor
+/-- info: TestO2.S3.mk._flat_ctor (x : Nat) : S3 -/
+#guard_msgs in #check S3.mk._flat_ctor
 /-- info: TestO2.S3.x._default : Nat -/
 #guard_msgs in #check S3.x._default
-/-- info: TestO2.S4._flat_ctor (x : Nat) : S4 -/
-#guard_msgs in #check S4._flat_ctor
+/-- info: TestO2.S4.mk._flat_ctor (x : Nat) : S4 -/
+#guard_msgs in #check S4.mk._flat_ctor
 /-- info: TestO2.S4.x._inherited_default : Nat -/
 #guard_msgs in #check S4.x._inherited_default
 
--- TODO These don't work yet. Need to fix structure instance notation elaborator.
 /-- info: S1.mk 0 : S1 -/
 #guard_msgs in #check { : S1 }
 /-- info: S2.mk (S1.mk 0) : S2 -/
 #guard_msgs in #check { : S2 }
-/-- info: S3.mk (S1.mk 0) : S3 -/
+/-- info: S3.mk (S1.mk 1) : S3 -/
 #guard_msgs in #check { : S3 }
-/-- info: S4.mk (S2.mk (S1.mk 0)) : S4 -/
+/-- info: S4.mk (S2.mk (S1.mk 1)) : S4 -/
 #guard_msgs in #check { : S4 }
 
 end TestO2

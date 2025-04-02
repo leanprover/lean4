@@ -2030,7 +2030,9 @@ structure BitVec (w : Nat) where
   toFin : Fin (hPow 2 w)
 
 /--
-Bitvectors have decidable equality. This should be used via the instance `DecidableEq (BitVec n)`.
+Bitvectors have decidable equality.
+
+This should be used via the instance `DecidableEq (BitVec n)`.
 -/
 -- We manually derive the `DecidableEq` instances for `BitVec` because
 -- we want to have builtin support for bit-vector literals, and we
@@ -2049,8 +2051,11 @@ instance : DecidableEq (BitVec n) := BitVec.decEq
 protected def BitVec.ofNatLT {n : Nat} (i : Nat) (p : LT.lt i (hPow 2 n)) : BitVec n where
   toFin := ⟨i, p⟩
 
-/-- Given a bitvector `x`, return the underlying `Nat`. This is O(1) because `BitVec` is a
-(zero-cost) wrapper around a `Nat`. -/
+/--
+Return the underlying `Nat` that represents a bitvector.
+
+This is O(1) because `BitVec` is a (zero-cost) wrapper around a `Nat`.
+-/
 protected def BitVec.toNat (x : BitVec n) : Nat := x.toFin.val
 
 instance : LT (BitVec n) where lt := (LT.lt ·.toNat ·.toNat)
@@ -2709,13 +2714,20 @@ instance : DecidableEq String.Pos :=
     | isFalse h => isFalse (fun he => String.Pos.noConfusion he fun he => absurd he h)
 
 /--
-A `Substring` is a view into some subslice of a `String`.
-The actual string slicing is deferred because this would require copying the
-string; here we only store a reference to the original string for
-garbage collection purposes.
+A region or slice of some underlying string.
+
+A substring contains an string together with the start and end byte positions of a region of
+interest. Actually extracting a substring requires copying and memory allocation, while many
+substrings of the same underlying string may exist with very little overhead, and they are more
+convenient than tracking the bounds by hand.
+
+Using its constructor explicitly, it is possible to construct a `Substring` in which one or both of
+the positions is invalid for the string. Many operations will return unexpected or confusing results
+if the start and stop positions are not valid. Instead, it's better to use API functions that ensure
+the validity of the positions in a substring to create and manipulate them.
 -/
 structure Substring where
-  /-- The underlying string to slice. -/
+  /-- The underlying string. -/
   str      : String
   /-- The byte position of the start of the string slice. -/
   startPos : String.Pos
@@ -2725,7 +2737,9 @@ structure Substring where
 instance : Inhabited Substring where
   default := ⟨"", {}, {}⟩
 
-/-- The byte length of the substring. -/
+/--
+The number of bytes used by the string's UTF-8 encoding.
+-/
 @[inline] def Substring.bsize : Substring → Nat
   | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
 

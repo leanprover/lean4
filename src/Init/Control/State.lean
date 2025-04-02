@@ -159,7 +159,9 @@ instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (StateT σ m) := {
 end
 end StateT
 
-/-- Adapter to create a ForIn instance from a ForM instance -/
+/--
+Creates a suitable implementation of `ForIn.forIn` from a `ForM` instance.
+-/
 @[always_inline, inline]
 def ForM.forIn [Monad m] [ForM (StateT β (ExceptT β m)) ρ α]
     (x : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β := do

@@ -14,7 +14,7 @@ $LAKE resolve-deps -R 2>&1 | grep --color impure
 $LAKE resolve-deps 2>&1 | (grep --color impure && exit 1 || true)
 
 # Test `meta if` and command `do`
-$LAKE resolve-deps -R 2>&1 | (grep --color -E "foo|bar|baz|1|2" && exit 1 || true)
+$LAKE resolve-deps -R 2>&1 | (grep --color -E "foo|bar|baz|lorem|ipsum" && exit 1 || true)
 $LAKE resolve-deps -R -Kbaz 2>&1 | grep --color baz
 $LAKE resolve-deps -R -Kenv=foo 2>&1 | grep --color foo
 $LAKE run print_env 2>&1 | grep --color foo

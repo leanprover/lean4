@@ -23,56 +23,6 @@ namespace Lake
 @[inline] def defaultBuildArchive (name : Name) : String :=
   s!"{name.toString false}-{System.Platform.target}.tar.gz"
 
-/-- A `String` pattern. Matches some subset of strings. -/
-inductive StrPat
-/--
-Matches a string that satisfies an arbitrary predicate
-(optionally identified by a `Name`).
--/
-| satisfies (f : String → Bool) (name := Name.anonymous)
-/-- Matches a string that is a member of the array -/
-| mem (xs : Array String)
-/-- Matches a string that starts with this prefix. -/
-| startsWith (pre : String)
-deriving Inhabited
-
-instance : Coe (Array String) StrPat := ⟨.mem⟩
-instance : Coe (String → Bool) StrPat := ⟨.satisfies⟩
-
-/-- Matches nothing. -/
-def StrPat.none : StrPat := .mem #[]
-
-instance : EmptyCollection StrPat := ⟨.none⟩
-
-/--
-Whether a string is "version-like".
-That is, a `v` followed by a digit.
--/
-def isVerLike (s : String) : Bool :=
-  if h : s.utf8ByteSize ≥ 2 then
-    s.get' 0 (by simp [String.atEnd]; omega) == 'v' &&
-    (s.get' ⟨1⟩ (by simp [String.atEnd]; omega)).isDigit
-  else
-    false
-
-/-- Matches a "version-like" string: a `v` followed by a digit. -/
-def StrPat.verLike : StrPat := .satisfies isVerLike `verLike
-
-/-- Default string pattern for a Package's `versionTags`. -/
-def defaultVersionTags := StrPat.satisfies isVerLike `default
-
-/-- Builtin `StrPat` presets available to TOML for `versionTags`. -/
-def versionTagPresets :=
-  NameMap.empty
-  |>.insert `verLike .verLike
-  |>.insert `default defaultVersionTags
-
-/-- Returns whether the string `s` matches the pattern. -/
-def StrPat.matches (s : String) : (self : StrPat) → Bool
-| .satisfies f _ => f s
-| .mem xs => xs.contains s
-| .startsWith p => p.isPrefixOf s
-
 --------------------------------------------------------------------------------
 /-! # PackageConfig -/
 --------------------------------------------------------------------------------
@@ -103,19 +53,11 @@ configuration PackageConfig (name : Name) extends WorkspaceConfig, LeanConfig wh
   precompileModules : Bool := false
 
   /--
-  **Deprecated in favor of `moreGlobalServerArgs`.**
   Additional arguments to pass to the Lean language server
   (i.e., `lean --server`) launched by `lake serve`, both for this package and
   also for any packages browsed from this one in the same session.
   -/
-  moreServerArgs : Array String := #[]
-
-  /--
-  Additional arguments to pass to the Lean language server
-  (i.e., `lean --server`) launched by `lake serve`, both for this package and
-  also for any packages browsed from this one in the same session.
-  -/
-  moreGlobalServerArgs : Array String := moreServerArgs
+  moreGlobalServerArgs, moreServerArgs : Array String := #[]
 
   /--
   The directory containing the package's Lean source files.
@@ -604,6 +546,14 @@ namespace Package
 @[inline] def weakLeancArgs (self : Package) : Array String :=
   self.config.weakLeancArgs
 
+/-- The package's `moreLinkObjs` configuration. -/
+@[inline] def moreLinkObjs (self : Package) : TargetArray FilePath :=
+  self.config.moreLinkObjs
+
+/-- The package's `moreLinkLibs` configuration. -/
+@[inline] def moreLinkLibs (self : Package) : TargetArray Dynlib :=
+  self.config.moreLinkLibs
+
 /-- The package's `moreLinkArgs` configuration. -/
 @[inline] def moreLinkArgs (self : Package) : Array String :=
   self.config.moreLinkArgs
@@ -624,8 +574,23 @@ namespace Package
 @[inline] def leanLibDir (self : Package) : FilePath :=
   self.buildDir / self.config.leanLibDir
 
+/--
+Where static libraries for the package are located.
+The package's `buildDir` joined with its `nativeLibDir` configuration.
+-/
+@[inline] def staticLibDir (self : Package) : FilePath :=
+  self.buildDir / self.config.nativeLibDir
+
+/--
+Where shared libraries for the package are located.
+The package's `buildDir` joined with its `nativeLibDir` configuration.
+-/
+@[inline] def sharedLibDir (self : Package) : FilePath :=
+  self.buildDir / self.config.nativeLibDir
+
 /-- The package's `buildDir` joined with its `nativeLibDir` configuration. -/
-@[inline] def nativeLibDir (self : Package) : FilePath :=
+@[deprecated "Use staticLibDir or sharedLibDir instead." (since := "2025-03-29")]
+def nativeLibDir (self : Package) : FilePath :=
   self.buildDir / self.config.nativeLibDir
 
 /-- The package's `buildDir` joined with its `binDir` configuration. -/
@@ -635,6 +600,10 @@ namespace Package
 /-- The package's `buildDir` joined with its `irDir` configuration. -/
 @[inline] def irDir (self : Package) : FilePath :=
   self.buildDir / self.config.irDir
+
+/-- Try to find a target configuration in the package with the given name. -/
+def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.name name) :=
+  self.targetDeclMap.find? name
 
 /-- Whether the given module is considered local to the package. -/
 def isLocalModule (mod : Name) (self : Package) : Bool :=

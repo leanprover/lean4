@@ -69,8 +69,8 @@ private def assignEqc (goal : Goal) (e : Expr) (v : Rat) (a : Std.HashMap Expr R
     a := a.insert e v
   return a
 
-def getAssignment? (goal : Goal) (node : ENode) : MetaM (Option Rat) := do
-  assert! isSameExpr node.self node.root
+def getAssignment? (goal : Goal) (e : Expr) : MetaM (Option Rat) := do
+  let node ← goal.getENode (← goal.getRoot e)
   if let some v := getCutsatAssignment? goal node then
     return some v
   else if let some v ← getIntValue? node.self then
@@ -97,7 +97,7 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Rat)) := do
   for node in nodes do
     if isSameExpr node.root node.self then
     if (← isIntNatENode node) then
-      if let some v ← getAssignment? goal node then
+      if let some v ← getAssignment? goal node.self then
         if v.den == 1 then used := used.insert v.num
         model := assignEqc goal node.self v model
   -- Assign cast terms

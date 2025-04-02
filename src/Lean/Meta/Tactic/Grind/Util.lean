@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Simproc
+import Init.Grind.Tactics
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Transform
 import Lean.Meta.Tactic.Util
@@ -158,7 +159,7 @@ Normalizes the given expression using the `grind` simplification theorems and si
 This function is used for normalzing E-matching patterns. Note that it does not return a proof.
 -/
 @[extern "lean_grind_normalize"] -- forward definition
-opaque normalize (e : Expr) : MetaM Expr
+opaque normalize (e : Expr) (config : Grind.Config) : MetaM Expr
 
 /--
 Returns `Grind.MatchCond e`.

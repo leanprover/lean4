@@ -38,7 +38,13 @@ configuration LeanExeConfig (name : Name) extends LeanConfig where
   -/
   exeName : String := name.toStringWithSep "-" (escape := false)
 
-  /-- An `Array` of target names to build before the executable's modules. -/
+  /-- An `Array` of targets to build before the executable's modules. -/
+  needs : Array PartialBuildKey := #[]
+
+  /--
+  **Deprecated. Use `needs` instead.**
+  An `Array` of target names to build before the executable's modules.
+  -/
   extraDepTargets : Array Name := #[]
 
   /--

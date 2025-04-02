@@ -24,6 +24,7 @@ Preserves information that downstream jobs want to depend on while resetting
 job-local information that should not be inherited by downstream jobs.
 -/
 def Job.renew (self : Job α) : Job α :=
+  have : OptDataKind α := self.kind
   self.mapResult (sync := true) fun
   | .ok a s => .ok a s.renew
   | .error _ s => .error 0 s.renew
@@ -42,7 +43,7 @@ Registers the job for the top-level build monitor,
 
 /-- Wraps stray I/O, logs, and errors in `x` into the produced job.  -/
 def ensureJob
-  (x : FetchM (Job α))
+  [OptDataKind α] (x : FetchM (Job α))
 : FetchM (Job α) := fun fetch stack store ctx log => do
   let iniPos := log.endPos
   match (← (withLoggedIO x) fetch stack store ctx log) with
@@ -64,7 +65,7 @@ Registers the produced job for the top-level build monitor
 Stray I/O, logs, and errors produced by `x` will be wrapped into the job.
 -/
 def withRegisterJob
-  (caption : String) (x : FetchM (Job α)) (optional := false)
+  [OptDataKind α] (caption : String) (x : FetchM (Job α)) (optional := false)
 : FetchM (Job α) := do
   let job ← ensureJob x
   registerJob caption job optional

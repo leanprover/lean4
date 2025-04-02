@@ -461,6 +461,15 @@ private partial def AsyncConsts.findRec? (aconsts : AsyncConsts) (declName : Nam
   let aconsts ← c.consts.get.get? AsyncConsts
   AsyncConsts.findRec? aconsts declName
 
+/-- Like `findRec?`; allocating tasks is (currently?) too costly to do always. -/
+private partial def AsyncConsts.findRecTask (aconsts : AsyncConsts) (declName : Name) : Task (Option AsyncConst) := Id.run do
+  let some c := aconsts.findPrefix? declName | .pure none
+  if c.constInfo.name == declName then
+    return .pure c
+  c.consts.bind (sync := true) fun aconsts => Id.run do
+    let some aconsts := aconsts.get? AsyncConsts | .pure none
+    AsyncConsts.findRecTask aconsts declName
+
 /-- Context for `realizeConst` established by `enableRealizationsForConst`. -/
 private structure RealizationContext where
   /--
@@ -635,6 +644,10 @@ def addExtraName (env : Environment) (name : Name) : Environment :=
   else
     env.modifyCheckedAsync fun env => { env with extraConstNames := env.extraConstNames.insert name }
 
+-- forward reference due to too many cyclic dependencies
+@[extern "lean_is_reserved_name"]
+private opaque isReservedName (env : Environment) (name : Name) : Bool
+
 /-- `findAsync?` after `base` access -/
 private def findAsyncCore? (env : Environment) (n : Name) (skipRealize := false) :
     Option AsyncConstantInfo := do
@@ -645,12 +658,33 @@ private def findAsyncCore? (env : Environment) (n : Name) (skipRealize := false)
   if let some c := env.asyncConsts.findRec? n then
     -- Constant generated in a different environment branch
     return c.constInfo
-  unless skipRealize do
+  if !skipRealize && isReservedName env n then
     if let some c := env.allRealizations.get.find? n then
       return c.constInfo
   -- Not in the kernel environment nor in the name prefix of a known environment branch: undefined
   -- by `addDeclCore` invariant.
   none
+
+/-- Like `findAsyncCore?`; allocating tasks is (currently?) too costly to do always. -/
+private def findTaskCore (env : Environment) (n : Name) (skipRealize := false) :
+    Task (Option AsyncConstantInfo) := Id.run do
+  if let some c := env.asyncConsts.find? n then
+    -- Constant for which an asynchronous elaboration task was spawned
+    -- (this is an optimized special case of the next branch)
+    return .pure c.constInfo
+  env.asyncConsts.findRecTask n |>.bind (sync := true) fun
+  | some c =>
+    -- Constant generated in a different environment branch
+    .pure c.constInfo
+  | _ => Id.run do
+    if isReservedName env n && !skipRealize then
+      return env.allRealizations.map (sync := true) fun allRealizations => do
+        if let some c := allRealizations.find? n then
+          return c.constInfo
+        none
+    -- Not in the kernel environment nor in the name prefix of a known environment branch: undefined
+    -- by `addDeclCore` invariant.
+    .pure none
 
 /--
 Looks up the given declaration name in the environment, avoiding forcing any in-progress elaboration
@@ -663,12 +697,21 @@ of a declaration found on another branch. Thus when we cannot find the declarati
 prefix-based lookup, we fall back to waiting for and looking at the realizations from all branches.
 To avoid this expensive search for realizations from other branches, `skipRealize` can set to ensure
 negative lookups are as fast as positive ones.
+
+Use `findTask` instead if any blocking should be avoided.
 -/
 def findAsync? (env : Environment) (n : Name) (skipRealize := false) : Option AsyncConstantInfo := do
   -- Avoid going through `AsyncConstantInfo` for `base` access
   if let some c := env.base.constants.map₁[n]? then
     return .ofConstantInfo c
   findAsyncCore? (skipRealize := skipRealize) env n
+
+/-- Like `findAsync?` but returns a task instead of resorting to blocking. -/
+def findTask (env : Environment) (n : Name) (skipRealize := false) : Task (Option AsyncConstantInfo) := Id.run do
+  -- Avoid going through `AsyncConstantInfo` for `base` access
+  if let some c := env.base.constants.map₁[n]? then
+    return .pure <| some <| .ofConstantInfo c
+  findTaskCore (skipRealize := skipRealize) env n
 
 /--
 Like `findAsync` but blocks on everything but the constant's body (if any), which is not accessible
@@ -1002,10 +1045,10 @@ end ConstantInfo
 
 /--
 Async access mode for environment extensions used in `EnvironmentExtension.get/set/modifyState`.
-Depending on their specific uses, extensions may opt out of the strict `sync` access mode in order
-to avoid blocking parallel elaboration and/or to optimize accesses. The access mode is set at
-environment extension registration time but can be overriden at `EnvironmentExtension.getState` in
-order to weaken it for specific accesses.
+When modified in concurrent contexts, extensions may need to switch to a different mode than the
+default `mainOnly`, which will panic in such cases. The access mode is set at environment extension
+registration time but can be overriden when calling the mentioned functions in order to weaken it
+for specific accesses.
 
 In all modes, the state stored into the `.olean` file for persistent environment extensions is the
 result of `getState` called on the main environment branch at the end of the file, i.e. it
@@ -1013,15 +1056,15 @@ encompasses all modifications for all modes but `local`.
 -/
 inductive EnvExtension.AsyncMode where
   /--
-  Default access mode, writing and reading the extension state to/from the full `checked`
+  Safest access mode, writes and reads the extension state to/from the full `checked`
   environment. This mode ensures the observed state is identical independently of whether or how
   parallel elaboration is used but `getState` will block on all prior environment branches by
   waiting for `checked`. `setState` and `modifyState` do not block.
 
-  While a safe default, any extension that reasonably could be used in parallel elaboration contexts
-  should opt for a weaker mode to avoid blocking unless there is no way to access the correct state
-  without waiting for all prior environment branches, in which case its data management should be
-  restructured if at all possible.
+  While a safe fallback for when `mainOnly` is not sufficient, any extension that reasonably could
+  be used in parallel elaboration contexts should opt for a weaker mode to avoid blocking unless
+  there is no way to access the correct state without waiting for all prior environment branches, in
+  which case its data management should be restructured if at all possible.
   -/
   | sync
   /--
@@ -1034,9 +1077,10 @@ inductive EnvExtension.AsyncMode where
   -/
   | local
   /--
-  Like `local` but panics when trying to modify the state on anything but the main environment
-  branch. For extensions that fulfill this requirement, all modes functionally coincide but this
-  is the safest and most efficient choice in that case, preventing accidental misuse.
+  Default access mode. Like `local` but panics when trying to modify the state on anything but the
+  main environment branch. For extensions that fulfill this requirement, all modes functionally
+  coincide with `local` but this is the safest and most efficient choice in that case, preventing
+  accidental misuse.
 
   This mode is suitable for extensions that are modified only at the command elaboration level
   before any environment forks in the command, and in particular for extensions that are modified
@@ -1757,16 +1801,12 @@ private def equivInfo (cinfo₁ cinfo₂ : ConstantInfo) : Bool := Id.run do
     && tval₁.all == tval₂.all
 
 /--
-  Construct environment from `importModulesCore` results.
+Constructs environment from `importModulesCore` results.
 
-  If `leakEnv` is true, we mark the environment as persistent, which means it
-  will not be freed. We set this when the object would survive until the end of
-  the process anyway. In exchange, RC updates are avoided, which is especially
-  important when they would be atomic because the environment is shared across
-  threads (potentially, storing it in an `IO.Ref` is sufficient for marking it
-  as such). -/
+See also `importModules` for parameter documentation.
+-/
 def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (leakEnv := false) : IO Environment := do
+    (leakEnv loadExts : Bool) : IO Environment := do
   let numConsts := s.moduleData.foldl (init := 0) fun numConsts mod =>
     numConsts + mod.constants.size + mod.extraConstNames.size
   let mut const2ModIdx : Std.HashMap Name ModuleIdx := Std.HashMap.emptyWithCapacity (capacity := numConsts)
@@ -1816,14 +1856,15 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
 
        Safety: There are no concurrent accesses to `env` at this point. -/
     env ← unsafe Runtime.markPersistent env
-  env ← finalizePersistentExtensions env s.moduleData opts
-  if leakEnv then
-    /- Ensure the final environment including environment extension states is
-       marked persistent as documented.
+  if loadExts then
+    env ← finalizePersistentExtensions env s.moduleData opts
+    if leakEnv then
+      /- Ensure the final environment including environment extension states is
+        marked persistent as documented.
 
-       Safety: There are no concurrent accesses to `env` at this point, assuming
-       extensions' `addImportFn`s did not spawn any unbound tasks. -/
-    env ← unsafe Runtime.markPersistent env
+        Safety: There are no concurrent accesses to `env` at this point, assuming
+        extensions' `addImportFn`s did not spawn any unbound tasks. -/
+      env ← unsafe Runtime.markPersistent env
   return { env with realizedImportedConsts? := some {
     -- safety: `RealizationContext` is private
     env := unsafe unsafeCast env
@@ -1831,9 +1872,22 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     constsRef := (← IO.mkRef {})
   } }
 
-@[export lean_import_modules]
+/--
+Creates environment object from given imports.
+
+If `leakEnv` is true, we mark the environment as persistent, which means it will not be freed. We
+set this when the object would survive until the end of the process anyway. In exchange, RC updates
+are avoided, which is especially important when they would be atomic because the environment is
+shared across threads (potentially, storing it in an `IO.Ref` is sufficient for marking it as such).
+
+If `loadExts` is true, we initialize the environment extensions using the imported data. Doing so
+may use the interpreter and thus is only safe to do after calling `enableInitializersExecution`; see
+also caveats there. If not set, every extension will have its initial value as its state. While the
+environment's constant map can be accessed without `loadExts`, many functions that take
+`Environment` or are in a monad carrying it such as `CoreM` may not function properly without it.
+-/
 def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (plugins : Array System.FilePath := #[]) (leakEnv := false)
+    (plugins : Array System.FilePath := #[]) (leakEnv := false) (loadExts := false)
     : IO Environment := profileitIO "import" opts do
   for imp in imports do
     if imp.module matches .anonymous then
@@ -1841,13 +1895,17 @@ def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32
   withImporting do
     plugins.forM Lean.loadPlugin
     let (_, s) ← importModulesCore imports |>.run
-    finalizeImport (leakEnv := leakEnv) s imports opts trustLevel
+    finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) s imports opts trustLevel
 
 /--
-  Create environment object from imports and free compacted regions after calling `act`. No live references to the
-  environment object or imported objects may exist after `act` finishes. -/
-unsafe def withImportModules {α : Type} (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) (act : Environment → IO α) : IO α := do
-  let env ← importModules imports opts trustLevel
+Creates environment object from imports and frees compacted regions after calling `act`. No live
+references to the environment object or imported objects may exist after `act` finishes. As this
+cannot be ruled out after loading environment extensions, `importModules`'s `loadExts` is always
+unset using this function.
+-/
+unsafe def withImportModules {α : Type} (imports : Array Import) (opts : Options)
+    (act : Environment → IO α) (trustLevel : UInt32 := 0) : IO α := do
+  let env ← importModules (loadExts := false) imports opts trustLevel
   try act env finally env.freeRegions
 
 @[inherit_doc Kernel.Environment.enableDiag]

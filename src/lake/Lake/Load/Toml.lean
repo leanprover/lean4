@@ -26,14 +26,14 @@ open Toml
 
 @[specialize] def decodeFieldCore
   (name : Name) (decode : Toml.Value → EDecodeM α) [field : ConfigField σ name α]
-  (val : Toml.Value) (cfg : σ)
+  (_ : Table) (val : Value) (cfg : σ)
 : DecodeM σ := fun es =>
   match decode val es with
   | .ok a es => .ok (field.set a cfg) es
   | .error _ es => .ok cfg es
 
 class DecodeField (σ : Type) (name : Name) where
-  decodeField (val : Toml.Value) (cfg : σ) : DecodeM σ
+  decodeField (t : Table) (val : Value) (cfg : σ) : DecodeM σ
 
 export DecodeField (decodeField)
 
@@ -41,7 +41,7 @@ instance [DecodeToml α] [ConfigField σ name α] : DecodeField σ name where
   decodeField := decodeFieldCore name decodeToml
 
 structure TomlFieldInfo (σ : Type) where
-  decodeAndSet : Toml.Value → σ → Toml.DecodeM σ
+  decodeAndSet : Table → Value → σ → DecodeM σ
 
 abbrev TomlFieldInfos (σ : Type) :=
   NameMap (TomlFieldInfo σ)
@@ -61,7 +61,7 @@ def Toml.Table.decodeConfig
 : Toml.DecodeM α :=
   t.foldM (init := {}) fun cfg key val => do
     if let some info := ConfigTomlInfo.fieldInfos.find? key then
-      info.decodeAndSet val cfg
+      info.decodeAndSet t val cfg
     else
       return cfg
 
@@ -193,31 +193,113 @@ protected def StdVer.decodeToml (v : Value) : EDecodeM LeanVer := do
 
 instance : DecodeToml StdVer := ⟨StdVer.decodeToml⟩
 
-protected def StrPat.decodeToml (v : Value) (presets : NameMap StrPat := {}) : EDecodeM StrPat :=
+mutual
+
+partial def Pattern.decodeToml
+  [IsPattern β α] [DecodeToml β] (v : Value) (presets : NameMap (Pattern α β) := {})
+: EDecodeM (Pattern α β) :=
+  have : DecodeToml (PatternDescr α β) := ⟨PatternDescr.decodeToml⟩
   match v with
-  | .array _ vs => .mem <$> decodeArray vs
+  | .string _ s =>
+    if s == "*" then
+      return .star
+    else
+      .ofDescr <$> decodeToml v
   | .table r t => do
-    if let some pre ← t.decode? `startsWith then
-      return .startsWith pre
-    else if let some name ← t.decode? `preset then
+    if let some name ← t.decode? `preset then
       if let some preset := presets.find? name then
         return preset
       else
         throwDecodeErrorAt r s!"unknown preset '{name}'"
     else
-      throwDecodeErrorAt r "expected 'startsWith' or 'preset'"
-  | v => throwDecodeErrorAt v.ref "expected array or table"
+      .ofDescr <$> decodeToml v
+  | v => .ofDescr <$> decodeToml v
 
-instance : DecodeToml StrPat := ⟨StrPat.decodeToml⟩
+partial def PatternDescr.decodeToml
+  [IsPattern β α] [DecodeToml β] (v : Value)
+: EDecodeM (PatternDescr α β) :=
+  have : DecodeToml (Pattern α β) := ⟨Pattern.decodeToml⟩
+  match v with
+  | .table _ t => do
+    if let some p ← t.decode? `not then
+      return .not p
+    if let some p ← t.decode? `any then
+      return .any p
+    else if let some p ← t.decode? `all then
+      return .all p
+    else
+      .coe <$> decodeToml v
+  | v => .coe <$> decodeToml v
+
+end
+
+instance [IsPattern β α] [DecodeToml β] : DecodeToml (Pattern α β) := ⟨Pattern.decodeToml⟩
+instance [IsPattern β α] [DecodeToml β] : DecodeToml (PatternDescr α β) := ⟨PatternDescr.decodeToml⟩
+
+protected def StrPatDescr.decodeToml (v : Value) : EDecodeM StrPatDescr :=
+  match v with
+  | .array _ vs => .mem <$> decodeArray vs
+  | .table r t => do
+    if let some affix ← t.decode? `startsWith then
+      return .startsWith affix
+    else if let some affix ← t.decode? `endsWith then
+      return .endsWith affix
+    else
+      throwDecodeErrorAt r "expected string pattern"
+  | v => throwDecodeErrorAt v.ref "expected string pattern"
+
+instance : DecodeToml StrPatDescr := ⟨StrPatDescr.decodeToml⟩
+
+protected def PathPatDescr.decodeToml (v : Value) : EDecodeM PathPatDescr :=
+  match v with
+  | .table r t => do
+    if let some p ← t.decode? `path then
+      return .path p
+    else if let some p ← t.decode? `extension then
+      return .extension p
+    else if let some p ← t.decode? `fileName then
+      return .fileName p
+    else
+      throwDecodeErrorAt r "expected file path pattern"
+  | v => throwDecodeErrorAt v.ref "expected file path pattern"
+
+instance : DecodeToml PathPatDescr := ⟨PathPatDescr.decodeToml⟩
 
 def decodeVersionTags (v : Value) : EDecodeM StrPat :=
-  StrPat.decodeToml (presets := versionTagPresets) v
+  inline <| Pattern.decodeToml (presets := versionTagPresets) v
 
 instance : DecodeField (PackageConfig n) `versionTags where
   decodeField := decodeFieldCore `versionTags decodeVersionTags
 
 -- for `platformIndependent`, `releaseRepo`, `buildArchive`, etc.
 instance [DecodeToml α] : DecodeToml (Option α) := ⟨(some <$> decodeToml ·)⟩
+
+def PartialBuildKey.decodeToml (v : Value) : EDecodeM PartialBuildKey := do
+  match PartialBuildKey.parse (← v.decodeString) with
+  | .ok k => return k
+  | .error e => throwDecodeErrorAt v.ref e
+
+instance : DecodeToml PartialBuildKey := ⟨PartialBuildKey.decodeToml⟩
+instance : DecodeToml (Target α) := ⟨(Target.mk <$> PartialBuildKey.decodeToml ·)⟩
+
+def decodeFacets (kind : Name) (val : Value) : EDecodeM (Array Name) := do
+  return (← val.decodeArray).map (kind ++ ·)
+
+instance : DecodeField (LeanLibConfig n) `defaultFacets where
+  decodeField := decodeFieldCore `defaultFacets (decodeFacets LeanLib.facetKind)
+
+-- HACK to work around the fact the TOML decoders
+-- do not support inter-field dependencies by default
+def decodeRoots
+  (t : Table) (v : Value) (cfg : LeanLibConfig n)
+: DecodeM (LeanLibConfig n) := do
+  let cfg ← decodeField `roots t v cfg
+  if t.contains `globs then
+    return cfg
+  else
+    return {cfg with globs := mkFieldDefault `globs cfg}
+
+instance : DecodeField (LeanLibConfig n) `roots := ⟨decodeRoots⟩
 
 /-! ## Dependency Configuration Decoders -/
 
@@ -289,29 +371,31 @@ local macro "gen_toml_decoders%" : command => do
   let cmds := #[]
   -- Targets
   let cmds ← genDecodeToml cmds ``LeanConfig false
-    (exclude := #[`dynlibs, `plugins])
   let cmds ← genDecodeToml cmds ``LeanLibConfig true
-    (exclude := #[`nativeFacets, `dynlibs, `plugins])
+    (exclude := #[`nativeFacets])
   let cmds ← genDecodeToml cmds ``LeanExeConfig true
-    (exclude := #[`nativeFacets, `dynlibs, `plugins])
+    (exclude := #[`nativeFacets])
+  let cmds ← genDecodeToml cmds ``InputFileConfig true
+  let cmds ← genDecodeToml cmds ``InputDirConfig true
   -- Package
   let cmds ← genDecodeToml cmds ``WorkspaceConfig false
   let cmds ← genDecodeToml cmds ``PackageConfig true
-    (exclude := #[`dynlibs, `plugins])
   return ⟨mkNullNode cmds⟩
 
 gen_toml_decoders%
 
 def decodeTargetDecls
-  (p : Name) (t : Table)
-: DecodeM (Array (PConfigDecl p) × DNameMap (NConfigDecl p)) := do
+  (pkg : Name) (t : Table)
+: DecodeM (Array (PConfigDecl pkg) × DNameMap (NConfigDecl pkg)) := do
   let r := (#[], {})
-  let r ← go r `lean_lib LeanLibConfig.decodeToml
-  let r ← go r `lean_exe LeanExeConfig.decodeToml
+  let r ← go r LeanLib.keyword LeanLib.configKind LeanLibConfig.decodeToml
+  let r ← go r LeanExe.keyword LeanExe.configKind LeanExeConfig.decodeToml
+  let r ← go r InputFile.keyword InputFile.configKind InputFileConfig.decodeToml
+  let r ← go r InputDir.keyword InputDir.configKind InputDirConfig.decodeToml
   return r
 where
-  go r k (decode : {n : Name} → Table → DecodeM (ConfigType k p n)) := do
-    let some tableArrayVal := t.find? k | return r
+  go r kw kind (decode : {n : Name} → Table → DecodeM (ConfigType kind pkg n)) := do
+    let some tableArrayVal := t.find? kw | return r
     let some vals ← tryDecode? tableArrayVal.decodeValueArray | return r
     vals.foldlM (init := r) fun r val => do
       let some t ← tryDecode? val.decodeTable | return r
@@ -320,13 +404,15 @@ where
       let (decls, map) := r
       if let some orig := map.find? name then
         modify fun es => es.push <| .mk val.ref s!"\
-          {p}: target '{name}' was already defined as a '{orig.kind}', \
-          but then redefined as a '{k}'"
+          {pkg}: target '{name}' was already defined as a '{orig.kind}', \
+          but then redefined as a '{kind}'"
         return (decls, map)
       else
-        let cfg ← @decode name t
-        let decl := .mk (.mk p name k cfg) rfl
-        return (decls.push decl, map.insert name (.mk decl rfl))
+        let config ← @decode name t
+        let decl : NConfigDecl pkg name :=
+          -- Safety: By definition, config kind = facet kind for declarative configurations.
+          unsafe {pkg, name, kind, config, wf_data := lcProof}
+        return (decls.push decl.toPConfigDecl, map.insert name decl)
 
 /-! ## Root Loader -/
 
@@ -344,6 +430,7 @@ def loadTomlConfig (cfg: LoadConfig) : LogIO Package := do
       let defaultTargets := defaultTargets.map stringToLegalOrSimpleName
       let depConfigs ← table.tryDecodeD `require #[]
       return {
+        name := name
         dir := cfg.pkgDir
         relDir := cfg.relPkgDir
         relConfigFile := cfg.relConfigFile

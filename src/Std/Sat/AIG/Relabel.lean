@@ -18,7 +18,7 @@ def relabel (r : α → β) (decl : Decl α) : Decl β :=
   match decl with
   | .false => .false
   | .atom a => .atom (r a)
-  | .gate lhs rhs linv rinv => .gate lhs rhs linv rinv
+  | .gate lhs rhs => .gate lhs rhs
 
 theorem relabel_id_map (decl : Decl α) : relabel id decl = decl := by
   simp only [relabel, id_eq]
@@ -47,8 +47,8 @@ theorem relabel_atom {decls : Array (Decl α)} {r : α → β} {hidx : idx < dec
   · contradiction
 
 theorem relabel_gate {decls : Array (Decl α)} {r : α → β} {hidx : idx < decls.size}
-    (h : relabel r decls[idx] = .gate lhs rhs linv rinv) :
-    decls[idx] = (.gate lhs rhs linv rinv : Decl α) := by
+    (h : relabel r decls[idx] = .gate lhs rhs) :
+    decls[idx] = (.gate lhs rhs : Decl α) := by
   unfold relabel at h
   split at h <;> simp_all
 
@@ -59,16 +59,18 @@ variable {β : Type} [Hashable β] [DecidableEq β]
 
 def relabel (r : α → β) (aig : AIG α) : AIG β :=
   let decls := aig.decls.map (Decl.relabel r)
-  let cache := Cache.empty decls
+  let cache := Cache.empty
   {
     decls,
     cache,
-    invariant := by
-      intro idx lhs rhs linv rinv hbound hgate
+    hdag := by
+      intro idx lhs rhs hbound hgate
       simp +zetaDelta [decls] at hgate
       have := Decl.relabel_gate hgate
-      apply aig.invariant
+      apply aig.hdag
       assumption
+    hzero := by simp [decls, aig.hzero]
+    hconst := by simp [decls, aig.hconst, Decl.relabel]
   }
 
 @[simp]
@@ -90,8 +92,8 @@ theorem relabel_atom {aig : AIG α} {r : α → β} {hidx : idx < (relabel r aig
   simpa [relabel] using h
 
 theorem relabel_gate {aig : AIG α} {r : α → β} {hidx : idx < (relabel r aig).decls.size}
-    (h : (relabel r aig).decls[idx]'hidx = .gate lhs rhs linv rinv) :
-    aig.decls[idx]'(by rw [← relabel_size_eq_size (r := r)]; omega) = .gate lhs rhs linv rinv := by
+    (h : (relabel r aig).decls[idx]'hidx = .gate lhs rhs) :
+    aig.decls[idx]'(by rw [← relabel_size_eq_size (r := r)]; omega) = .gate lhs rhs := by
   apply Decl.relabel_gate
   simpa [relabel] using h
 
@@ -112,13 +114,13 @@ theorem denote_relabel (aig : AIG α) (r : α → β) (start : Nat) {hidx}
     rw [hrx] at heq1
     rw [denote_idx_atom hlx]
     simp [hrx]
-  · intro lhs rhs linv rinv heq1
+  · intro lhs rhs heq1
     have heq2 := relabel_gate heq1
     rw [denote_idx_gate heq1]
     rw [denote_idx_gate heq2]
-    have := aig.invariant (by rw [← relabel_size_eq_size (r := r)]; omega) heq2
-    rw [denote_relabel aig r lhs assign]
-    rw [denote_relabel aig r rhs assign]
+    have := aig.hdag (by rw [← relabel_size_eq_size (r := r)]; omega) heq2
+    rw [denote_relabel aig r lhs.gate assign]
+    rw [denote_relabel aig r rhs.gate assign]
 
 theorem unsat_relabel {aig : AIG α} (r : α → β) {hidx} :
     aig.UnsatAt idx invert hidx → (aig.relabel r).UnsatAt idx invert (by simp [hidx]) := by

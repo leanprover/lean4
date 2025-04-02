@@ -49,6 +49,8 @@ termination_by newWidth - curr
 instance : AIG.LawfulVecOperator α ExtractTarget blastExtract where
   le_size := by
     intros
+    unfold blastExtract
+    dsimp only
     apply AIG.LawfulOperator.le_size (f := AIG.mkConstCached)
   decl_eq := by
     intros

@@ -626,9 +626,6 @@ protected theorem zero_pow {n : Nat} (H : 0 < n) : 0 ^ n = 0 := by
   | zero => rfl
   | succ _ ih => rw [Nat.pow_succ, Nat.mul_one, ih]
 
-@[simp] protected theorem pow_one (a : Nat) : a ^ 1 = a := by
-  rw [Nat.pow_succ, Nat.pow_zero, Nat.one_mul]
-
 protected theorem pow_two (a : Nat) : a ^ 2 = a * a := by rw [Nat.pow_succ, Nat.pow_one]
 
 protected theorem pow_add (a m n : Nat) : a ^ (m + n) = a ^ m * a ^ n := by
@@ -649,11 +646,6 @@ protected theorem pow_mul' (a m n : Nat) : a ^ (m * n) = (a ^ n) ^ m := by
 
 protected theorem pow_right_comm (a m n : Nat) : (a ^ m) ^ n = (a ^ n) ^ m := by
   rw [← Nat.pow_mul, Nat.pow_mul']
-
-protected theorem mul_pow (a b n : Nat) : (a * b) ^ n = a ^ n * b ^ n := by
-  induction n with
-  | zero => rw [Nat.pow_zero, Nat.pow_zero, Nat.pow_zero, Nat.mul_one]
-  | succ _ ih => rw [Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.mul_mul_mul_comm, ih]
 
 protected theorem one_lt_two_pow (h : n ≠ 0) : 1 < 2 ^ n :=
   match n, h with

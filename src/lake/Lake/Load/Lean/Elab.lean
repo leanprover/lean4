@@ -30,7 +30,7 @@ initialize importEnvCache : IO.Ref (Std.HashMap (Array Import) Environment) ← 
 def importModulesUsingCache (imports : Array Import) (opts : Options) (trustLevel : UInt32) : IO Environment := do
   if let some env := (← importEnvCache.get)[imports]? then
     return env
-  let env ← importModules imports opts trustLevel
+  let env ← importModules (loadExts := true) imports opts trustLevel
   importEnvCache.modify (·.insert imports env)
   return env
 
@@ -68,13 +68,7 @@ def elabConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
   let s ← Elab.IO.processCommands inputCtx parserState commandState
 
   -- Log messages
-  for msg in s.commandState.messages.toList do
-    if msg.isSilent then
-      continue
-    match msg.severity with
-    | MessageSeverity.information => logInfo (← msg.toString)
-    | MessageSeverity.warning     => logWarning (← msg.toString)
-    | MessageSeverity.error       => logError (← msg.toString)
+  s.commandState.messages.forM (logMessage ·)
 
   -- Check result
   if s.commandState.messages.hasErrors then

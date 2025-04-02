@@ -1,6 +1,6 @@
 theorem all_eq_not_any_not (l : List α) (p : α → Bool) :
     l.all p = !l.any fun x => binderNameHint x p (!p x)
-  := List.all_eq_not_any_not l p
+  := List.all_eq_not_any_not
 
 /--
 error: tactic 'fail' failed

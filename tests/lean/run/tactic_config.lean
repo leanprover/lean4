@@ -150,10 +150,21 @@ Responds to recovery mode. In these, `ctac` continues even though configuration 
 error: structure 'C' does not have a field named 'x'
 ---
 info: config is { b := { toA := { x := true } } }
+---
+info: ⊢ True
 -/
 #guard_msgs in
 example : True := by
   ctac -x
+  trace_state
+  trivial
+
+-- Check that when recovery mode is false, no error is reported.
+/-- info: ⊢ True -/
+#guard_msgs in
+example : True := by
+  fail_if_success ctac -x
+  trace_state
   trivial
 
 /--

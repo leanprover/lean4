@@ -16,16 +16,16 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 
 namespace Vector
 
-@[simp] theorem getElem_ofFn {α n} (f : Fin n → α) (i : Nat) (h : i < n) :
+@[simp] theorem getElem_ofFn {α n} {f : Fin n → α} (h : i < n) :
     (Vector.ofFn f)[i] = f ⟨i, by simpa using h⟩ := by
   simp [ofFn]
 
-theorem getElem?_ofFn (f : Fin n → α) (i : Nat) :
+theorem getElem?_ofFn {α n} {f : Fin n → α} :
     (ofFn f)[i]? = if h : i < n then some (f ⟨i, h⟩) else none := by
   simp [getElem?_def]
 
 @[simp 500]
-theorem mem_ofFn {n} (f : Fin n → α) (a : α) : a ∈ ofFn f ↔ ∃ i, f i = a := by
+theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i = a := by
   constructor
   · intro w
     obtain ⟨i, h, rfl⟩ := getElem_of_mem w
@@ -33,7 +33,7 @@ theorem mem_ofFn {n} (f : Fin n → α) (a : α) : a ∈ ofFn f ↔ ∃ i, f i =
   · rintro ⟨i, rfl⟩
     apply mem_of_getElem (i := i) <;> simp
 
-theorem back_ofFn {n} [NeZero n](f : Fin n → α) :
+theorem back_ofFn {n} [NeZero n] {f : Fin n → α} :
     (ofFn f).back = f ⟨n - 1, by have := NeZero.ne n; omega⟩ := by
   simp [back]
 

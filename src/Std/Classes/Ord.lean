@@ -1,10 +1,12 @@
 /-
 Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Markus Himmel, Paul Reichert
+Authors: Markus Himmel, Paul Reichert, Robin Arnez
 -/
 prelude
 import Init.Data.Ord
+import Init.Data.SInt.Lemmas
+import Init.Data.Vector.Lemmas
 
 /-!
 # Type classes related to `Ord`
@@ -66,8 +68,18 @@ abbrev OrientedOrd (α : Type u) [Ord α] := OrientedCmp (compare : α → α �
 
 variable {α : Type u} {cmp : α → α → Ordering}
 
+theorem OrientedOrd.eq_swap [Ord α] [OrientedOrd α] {a b : α} :
+    compare a b = (compare b a).swap := OrientedCmp.eq_swap
+
 instance [OrientedCmp cmp] : ReflCmp cmp where
   compare_self := Ordering.eq_eq_of_eq_swap OrientedCmp.eq_swap
+
+instance OrientedCmp.opposite [OrientedCmp cmp] : OrientedCmp fun a b => cmp b a where
+  eq_swap := OrientedCmp.eq_swap (cmp := cmp)
+
+instance OrientedOrd.opposite [Ord α] [OrientedOrd α] :
+    letI : Ord α := .opposite inferInstance; OrientedOrd α :=
+  OrientedCmp.opposite (cmp := compare)
 
 theorem OrientedCmp.gt_iff_lt [OrientedCmp cmp] {a b : α} : cmp a b = .gt ↔ cmp b a = .lt := by
   rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
@@ -97,12 +109,12 @@ theorem OrientedCmp.eq_symm [OrientedCmp cmp] {a b : α} : cmp a b = .eq → cmp
   OrientedCmp.eq_comm.1
 
 theorem OrientedCmp.not_isLE_of_lt [OrientedCmp cmp] {a b : α} :
-    cmp a b = .lt → ¬(cmp b a).isLE := by
+    cmp a b = .lt → ¬ (cmp b a).isLE := by
   rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
   simp
 
 theorem OrientedCmp.not_isGE_of_gt [OrientedCmp cmp] {a b : α} :
-    cmp a b = .gt → ¬(cmp b a).isGE := by
+    cmp a b = .gt → ¬ (cmp b a).isGE := by
   rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
   simp
 
@@ -127,12 +139,12 @@ theorem OrientedCmp.not_gt_of_gt [OrientedCmp cmp] {a b : α} :
   cases cmp b a <;> simp
 
 theorem OrientedCmp.lt_of_not_isLE [OrientedCmp cmp] {a b : α} :
-    ¬(cmp a b).isLE → cmp b a = .lt := by
+    ¬ (cmp a b).isLE → cmp b a = .lt := by
   rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
   cases cmp b a <;> simp
 
 theorem OrientedCmp.gt_of_not_isGE [OrientedCmp cmp] {a b : α} :
-    ¬(cmp a b).isGE → cmp b a = .gt := by
+    ¬ (cmp a b).isGE → cmp b a = .gt := by
   rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
   cases cmp b a <;> simp
 
@@ -150,10 +162,25 @@ abbrev TransOrd (α : Type u) [Ord α] := TransCmp (compare : α → α → Orde
 
 variable {α : Type u} {cmp : α → α → Ordering}
 
+theorem TransOrd.isLE_trans [Ord α] [TransOrd α] {a b c : α} :
+    (compare a b).isLE → (compare b c).isLE → (compare a c).isLE :=
+  TransCmp.isLE_trans
+
 theorem TransCmp.isGE_trans [TransCmp cmp] {a b c : α} (h₁ : (cmp a b).isGE) (h₂ : (cmp b c).isGE) :
     (cmp a c).isGE := by
   rw [OrientedCmp.isGE_iff_isLE] at *
   exact TransCmp.isLE_trans h₂ h₁
+
+theorem TransOrd.isGE_trans [Ord α] [TransOrd α] {a b c : α} :
+    (compare a b).isGE → (compare b c).isGE → (compare a c).isGE :=
+  TransCmp.isGE_trans
+
+instance TransCmp.opposite [TransCmp cmp] : TransCmp fun a b => cmp b a where
+  isLE_trans := flip TransCmp.isLE_trans
+
+instance TransOrd.opposite [Ord α] [TransOrd α] :
+    letI : Ord α := .opposite inferInstance; TransOrd α :=
+  TransCmp.opposite (cmp := compare)
 
 theorem TransCmp.lt_of_lt_of_eq [TransCmp cmp] {a b c : α} (hab : cmp a b = .lt)
     (hbc : cmp b c = .eq) : cmp a c = .lt := by
@@ -213,6 +240,10 @@ theorem TransCmp.gt_of_gt_of_isGE [TransCmp cmp] {a b c : α} (hab : cmp a b = .
     (hbc : (cmp b c).isGE) : cmp a c = .gt := by
   rw [OrientedCmp.gt_iff_lt, OrientedCmp.isGE_iff_isLE] at *
   exact TransCmp.lt_of_isLE_of_lt hbc hab
+
+theorem TransCmp.gt_of_gt_of_gt [TransCmp cmp] {a b c : α} (hab : cmp a b = .gt)
+    (hbc : cmp b c = .gt) : cmp a c = .gt := by
+  apply gt_of_gt_of_isGE hab (Ordering.isGE_of_eq_gt hbc)
 
 theorem TransCmp.gt_of_isGE_of_gt [TransCmp cmp] {a b c : α} (hab : (cmp a b).isGE)
     (hbc : cmp b c = .gt) : cmp a c = .gt := by
@@ -280,6 +311,19 @@ boolean equality (`==`).
 abbrev LawfulEqOrd (α : Type u) [Ord α] := LawfulEqCmp (compare : α → α → Ordering)
 
 variable {α : Type u} {cmp : α → α → Ordering} [LawfulEqCmp cmp]
+
+theorem LawfulEqOrd.eq_of_compare [Ord α] [LawfulEqOrd α] {a b : α} :
+    compare a b = .eq → a = b := LawfulEqCmp.eq_of_compare
+
+instance LawfulEqCmp.opposite [OrientedCmp cmp] [LawfulEqCmp cmp] :
+    LawfulEqCmp (fun a b => cmp b a) where
+  eq_of_compare := by
+    simp only [OrientedCmp.eq_comm (cmp := cmp)]
+    exact LawfulEqCmp.eq_of_compare
+
+instance LawfulEqOrd.opposite [Ord α] [OrientedOrd α] [LawfulEqOrd α] :
+    letI : Ord α := .opposite inferInstance; LawfulEqOrd α :=
+  LawfulEqCmp.opposite (cmp := compare)
 
 @[simp]
 theorem compare_eq_iff_eq {a b : α} : cmp a b = .eq ↔ a = b :=
@@ -360,6 +404,15 @@ instance LawfulBEqCmp.lawfulBEqCmp [inst : LawfulBEqCmp cmp] [LawfulBEq α] : La
 theorem LawfulBEqOrd.lawfulBEqOrd [Ord α] [LawfulBEqOrd α] [LawfulBEq α] : LawfulEqOrd α :=
   LawfulBEqCmp.lawfulBEqCmp
 
+instance LawfulBEqCmp.opposite [OrientedCmp cmp] [LawfulBEqCmp cmp] :
+    LawfulBEqCmp (fun a b => cmp b a) where
+  compare_eq_iff_beq := by
+    simp [OrientedCmp.eq_comm (cmp := cmp), LawfulBEqCmp.compare_eq_iff_beq]
+
+instance LawfulBEqOrd.opposite [Ord α] [OrientedOrd α] [LawfulBEqOrd α] :
+    letI : Ord α := .opposite inferInstance; LawfulBEqOrd α :=
+  LawfulBEqCmp.opposite (cmp := compare)
+
 end LawfulBEq
 
 namespace Internal
@@ -372,23 +425,23 @@ verification machinery for tree maps to the verification machinery for hash maps
 -/
 @[local instance]
 def beqOfOrd [Ord α] : BEq α where
-  beq a b := compare a b == .eq
+  beq a b := compare a b = .eq
 
 instance {_ : Ord α} : LawfulBEqOrd α where
-  compare_eq_iff_beq {a b} := by simp only [beqOfOrd, beq_iff_eq]
+  compare_eq_iff_beq {a b} := by simp only [beqOfOrd, decide_eq_true_eq]
 
 @[local simp]
-theorem beq_eq [Ord α] {a b : α} : (a == b) = (compare a b == .eq) :=
-  rfl
+theorem beq_eq [Ord α] {a b : α} : (a == b) = (compare a b = .eq) := by
+  rw [compare_eq_iff_beq]
 
-theorem beq_iff [Ord α] {a b : α} : (a == b) = true ↔ compare a b = .eq := by
-  rw [beq_eq, beq_iff_eq]
+theorem beq_iff [Ord α] {a b : α} : (a == b) = true ↔ compare a b = .eq :=
+  eq_iff_iff.mp beq_eq
 
 theorem eq_beqOfOrd_of_lawfulBEqOrd [Ord α] (inst : BEq α) [instLawful : LawfulBEqOrd α] :
     inst = beqOfOrd := by
   cases inst; rename_i instBEq
   congr; ext a b
-  rw [Bool.eq_iff_iff, beq_iff_eq, instLawful.compare_eq_iff_beq]
+  rw [Bool.eq_iff_iff, decide_eq_true_eq, instLawful.compare_eq_iff_beq]
   rfl
 
 theorem equivBEq_of_transOrd [Ord α] [TransOrd α] : EquivBEq α where
@@ -402,4 +455,477 @@ theorem lawfulBEq_of_lawfulEqOrd [Ord α] [LawfulEqOrd α] : LawfulBEq α where
 
 end Internal
 
+section Instances
+
+theorem TransOrd.compareOfLessAndEq_of_lt_trans_of_lt_iff
+    {α : Type u} [LT α] [DecidableLT α] [DecidableEq α]
+    (lt_trans : ∀ {a b c : α}, a < b → b < c → a < c)
+    (h : ∀ x y : α, x < y ↔ ¬ y < x ∧ x ≠ y) :
+    TransCmp (fun x y : α => compareOfLessAndEq x y) where
+  eq_swap := compareOfLessAndEq_eq_swap_of_lt_iff_not_gt_and_ne h
+  isLE_trans {x y z} h₁ h₂ := by
+    simp only [compare, compareOfLessAndEq, apply_ite Ordering.isLE,
+      Ordering.isLE_lt, Ordering.isLE_eq, Ordering.isLE_gt] at h₁ h₂ ⊢
+    simp only [Bool.if_true_left, Bool.or_false, Bool.or_eq_true, decide_eq_true_eq] at h₁ h₂ ⊢
+    rcases h₁ with (h₁ | rfl)
+    · rcases h₂ with (h₂ | rfl)
+      · exact .inl (lt_trans h₁ h₂)
+      · exact .inl h₁
+    · exact h₂
+
+theorem TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
+    {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
+    (antisymm : ∀ {x y : α}, x ≤ y → y ≤ x → x = y)
+    (trans : ∀ {x y z : α}, x ≤ y → y ≤ z → x ≤ z) (total : ∀ (x y : α), x ≤ y ∨ y ≤ x)
+    (not_le : ∀ {x y : α}, ¬ x ≤ y ↔ y < x) :
+    TransCmp (fun x y : α => compareOfLessAndEq x y) := by
+  refine compareOfLessAndEq_of_lt_trans_of_lt_iff ?_ ?_
+  · intro a b c
+    simp only [← not_le]
+    intro h₁ h₂ h₃
+    replace h₁ := (total _ _).resolve_left h₁
+    exact h₂ (trans h₃ h₁)
+  · exact lt_iff_not_gt_and_ne_of_antisymm_of_total_of_not_le antisymm total not_le
+
+namespace Bool
+
+instance : TransOrd Bool where
+  eq_swap {x y} := by cases x <;> cases y <;> rfl
+  isLE_trans {x y z} h₁ h₂ := by cases x <;> cases y <;> cases z <;> trivial
+
+instance : LawfulEqOrd Bool where
+  eq_of_compare {x y} := by cases x <;> cases y <;> simp
+
+end Bool
+
+namespace Nat
+
+instance : TransOrd Nat :=
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
+    Nat.le_antisymm Nat.le_trans Nat.le_total Nat.not_le
+
+instance : LawfulEqOrd Nat where
+  eq_of_compare := compareOfLessAndEq_eq_eq Nat.le_refl Nat.not_le |>.mp
+
+end Nat
+
+namespace Int
+
+instance : TransOrd Int :=
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
+    Int.le_antisymm Int.le_trans Int.le_total Int.not_le
+
+instance : LawfulEqOrd Int where
+  eq_of_compare := compareOfLessAndEq_eq_eq Int.le_refl Int.not_le |>.mp
+
+end Int
+
+namespace Fin
+
+variable (n : Nat)
+
+instance : OrientedOrd (Fin n) where
+  eq_swap := OrientedOrd.eq_swap (α := Nat)
+
+instance : TransOrd (Fin n) where
+  isLE_trans := TransOrd.isLE_trans (α := Nat)
+
+instance : LawfulEqOrd (Fin n) where
+  eq_of_compare h := Fin.eq_of_val_eq <| LawfulEqOrd.eq_of_compare h
+
+end Fin
+
+namespace String
+
+instance : TransOrd String :=
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
+    String.le_antisymm String.le_trans String.le_total String.not_le
+
+instance : LawfulEqOrd String where
+  eq_of_compare h := compareOfLessAndEq_eq_eq String.le_refl String.not_le |>.mp h
+
+end String
+
+namespace Char
+
+instance : TransOrd Char :=
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
+    Char.le_antisymm Char.le_trans Char.le_total Char.not_le
+
+instance : LawfulEqOrd Char where
+  eq_of_compare h := compareOfLessAndEq_eq_eq Char.le_refl Char.not_le |>.mp h
+
+end Char
+
+namespace UInt8
+
+instance : TransOrd UInt8 :=
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
+    UInt8.le_antisymm UInt8.le_trans UInt8.le_total UInt8.not_le
+
+instance : LawfulEqOrd UInt8 where
+  eq_of_compare h := compareOfLessAndEq_eq_eq UInt8.le_refl UInt8.not_le |>.mp h
+
+end UInt8
+
+namespace UInt16
+
+instance : TransOrd UInt16 :=
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
+    UInt16.le_antisymm UInt16.le_trans UInt16.le_total UInt16.not_le
+
+instance : LawfulEqOrd UInt16 where
+  eq_of_compare h := compareOfLessAndEq_eq_eq UInt16.le_refl UInt16.not_le |>.mp h
+
+end UInt16
+
+namespace UInt32
+
+instance : TransOrd UInt32 :=
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
+    UInt32.le_antisymm UInt32.le_trans UInt32.le_total UInt32.not_le
+
+instance : LawfulEqOrd UInt32 where
+  eq_of_compare h := compareOfLessAndEq_eq_eq UInt32.le_refl UInt32.not_le |>.mp h
+
+end UInt32
+
+namespace UInt64
+
+instance : TransOrd UInt64 :=
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
+    UInt64.le_antisymm UInt64.le_trans UInt64.le_total UInt64.not_le
+
+instance : LawfulEqOrd UInt64 where
+  eq_of_compare h := compareOfLessAndEq_eq_eq UInt64.le_refl UInt64.not_le |>.mp h
+
+end UInt64
+
+namespace USize
+
+instance : TransOrd USize :=
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
+    USize.le_antisymm USize.le_trans USize.le_total USize.not_le
+
+instance : LawfulEqOrd USize where
+  eq_of_compare h := compareOfLessAndEq_eq_eq USize.le_refl USize.not_le |>.mp h
+
+end USize
+
+namespace Int8
+
+instance : TransOrd Int8 :=
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
+    Int8.le_antisymm Int8.le_trans Int8.le_total Int8.not_le
+
+instance : LawfulEqOrd Int8 where
+  eq_of_compare h := compareOfLessAndEq_eq_eq Int8.le_refl Int8.not_le |>.mp h
+
+end Int8
+
+namespace Int16
+
+instance : TransOrd Int16 :=
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
+    Int16.le_antisymm Int16.le_trans Int16.le_total Int16.not_le
+
+instance : LawfulEqOrd Int16 where
+  eq_of_compare h := compareOfLessAndEq_eq_eq Int16.le_refl Int16.not_le |>.mp h
+
+end Int16
+
+namespace Int32
+
+instance : TransOrd Int32 :=
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
+    Int32.le_antisymm Int32.le_trans Int32.le_total Int32.not_le
+
+instance : LawfulEqOrd Int32 where
+  eq_of_compare h := compareOfLessAndEq_eq_eq Int32.le_refl Int32.not_le |>.mp h
+
+end Int32
+
+namespace Int64
+
+instance : TransOrd Int64 :=
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
+    Int64.le_antisymm Int64.le_trans Int64.le_total Int64.not_le
+
+instance : LawfulEqOrd Int64 where
+  eq_of_compare h := compareOfLessAndEq_eq_eq Int64.le_refl Int64.not_le |>.mp h
+
+end Int64
+
+namespace ISize
+
+instance : TransOrd ISize :=
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
+    ISize.le_antisymm ISize.le_trans ISize.le_total ISize.not_le
+
+instance : LawfulEqOrd ISize where
+  eq_of_compare h := compareOfLessAndEq_eq_eq ISize.le_refl ISize.not_le |>.mp h
+
+end ISize
+
+namespace BitVec
+
+variable {n : Nat}
+
+instance : TransOrd (BitVec n) :=
+  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
+    BitVec.le_antisymm BitVec.le_trans BitVec.le_total BitVec.not_le
+
+instance : LawfulEqOrd (BitVec n) where
+  eq_of_compare h := compareOfLessAndEq_eq_eq BitVec.le_refl BitVec.not_le |>.mp h
+
+end BitVec
+
+namespace Option
+
+instance {α} [Ord α] [OrientedOrd α] : OrientedOrd (Option α) where
+  eq_swap {a b} := by cases a <;> cases b <;> simp [Ord.compare, ← OrientedOrd.eq_swap]
+
+instance {α} [Ord α] [TransOrd α] : TransOrd (Option α) where
+  isLE_trans {a b c} hab hbc := by
+    cases a <;> cases b <;> cases c <;> (try simp_all [Ord.compare]; done)
+    simp only [Ord.compare] at *
+    apply TransOrd.isLE_trans <;> assumption
+
+instance {α} [Ord α] [ReflOrd α] : ReflOrd (Option α) where
+  compare_self {a} := by cases a <;> simp [Ord.compare]
+
+instance {α} [Ord α] [LawfulEqOrd α] : LawfulEqOrd (Option α) where
+  eq_of_compare {a b} := by
+    cases a <;> cases b <;> simp_all [Ord.compare, LawfulEqOrd.eq_of_compare]
+
+instance {α} [Ord α] [BEq α] [LawfulBEqOrd α] : LawfulBEqOrd (Option α) where
+  compare_eq_iff_beq {a b} := by
+    cases a <;> cases b <;> simp_all [Ord.compare, LawfulBEqOrd.compare_eq_iff_beq]
+
+end Option
+
+section Lex
+
+instance {α} {cmp₁ cmp₂} [ReflCmp cmp₁] [ReflCmp cmp₂] :
+    ReflCmp (α := α) (compareLex cmp₁ cmp₂) where
+  compare_self {a} := by simp [compareLex, ReflCmp.compare_self]
+
+instance {α} {cmp₁ cmp₂} [OrientedCmp cmp₁] [OrientedCmp cmp₂] :
+    OrientedCmp (α := α) (compareLex cmp₁ cmp₂) where
+  eq_swap {a b} := by
+    rw [compareLex, compareLex, OrientedCmp.eq_swap (cmp := cmp₁) (a := b), Ordering.swap_then,
+      Ordering.swap_swap, ← OrientedCmp.eq_swap]
+
+instance {α} {cmp₁ cmp₂} [TransCmp cmp₁] [TransCmp cmp₂] :
+    TransCmp (α := α) (compareLex cmp₁ cmp₂) where
+  isLE_trans {a b c} hab hbc := by
+    simp only [compareLex] at *
+    simp only [Ordering.isLE_then_iff_and] at *
+    refine ⟨TransCmp.isLE_trans hab.1 hbc.1, ?_⟩
+    cases hab.2
+    case inl hab' => exact Or.inl <| TransCmp.lt_of_lt_of_isLE hab' hbc.1
+    case inr hab' =>
+      cases hbc.2
+      case inl hbc' => exact Or.inl <| TransCmp.lt_of_isLE_of_lt hab.1 hbc'
+      case inr hbc' => exact Or.inr <| TransCmp.isLE_trans hab' hbc'
+
+instance {α β} {f : α → β} [Ord β] [ReflOrd β] :
+    ReflCmp (compareOn f) where
+  compare_self := ReflOrd.compare_self (α := β)
+
+instance {α β} {f : α → β} [Ord β] [OrientedOrd β] :
+    OrientedCmp (compareOn f) where
+  eq_swap := OrientedOrd.eq_swap (α := β)
+
+instance {α β} {f : α → β} [Ord β] [TransOrd β] :
+    TransCmp (compareOn f) where
+  isLE_trans := TransOrd.isLE_trans (α := β)
+
+attribute [instance] lexOrd in
+instance {α β} [Ord α] [Ord β] [ReflOrd α] [ReflOrd β] :
+    ReflOrd (α × β) :=
+  inferInstanceAs <| ReflCmp (compareLex _ _)
+
+attribute [instance] lexOrd in
+instance {α β} [Ord α] [Ord β] [OrientedOrd α] [OrientedOrd β] :
+    OrientedOrd (α × β) :=
+  inferInstanceAs <| OrientedCmp (compareLex _ _)
+
+attribute [instance] lexOrd in
+instance {α β} [Ord α] [Ord β] [TransOrd α] [TransOrd β] :
+    TransOrd (α × β) :=
+  inferInstanceAs <| TransCmp (compareLex _ _)
+
+attribute [instance] lexOrd in
+instance {α β} [Ord α] [Ord β] [LawfulEqOrd α] [LawfulEqOrd β] : LawfulEqOrd (α × β) where
+  eq_of_compare {a b} h := by
+    simp only [lexOrd, compareLex_eq_eq, compareOn] at h
+    ext
+    · exact LawfulEqOrd.eq_of_compare h.1
+    · exact LawfulEqOrd.eq_of_compare h.2
+
+end Lex
+
+end Instances
+
 end Std
+
+namespace List
+
+open Std
+
+variable {α} {cmp : α → α → Ordering}
+
+instance [ReflCmp cmp] : ReflCmp (List.compareLex cmp) where
+  compare_self {a} := by
+    induction a with
+    | nil => rfl
+    | cons x xs h =>
+      simp [List.compareLex_cons_cons, Ordering.then_eq_eq, ReflCmp.compare_self, h]
+
+instance [LawfulEqCmp cmp] : LawfulEqCmp (List.compareLex cmp) where
+  eq_of_compare {a b} h := by
+    induction a generalizing b with
+    | nil => simpa [List.compareLex_nil_left_eq_eq] using h
+    | cons x xs ih =>
+      cases b
+      · simp [List.compareLex_nil_right_eq_eq] at h
+      · simp only [List.compareLex_cons_cons, Ordering.then_eq_eq, compare_eq_iff_eq,
+        List.cons.injEq] at *
+        exact ⟨h.1, ih h.2⟩
+
+instance [BEq α] [LawfulBEqCmp cmp] : LawfulBEqCmp (List.compareLex cmp) where
+  compare_eq_iff_beq {a b} := by
+    induction a generalizing b with
+    | nil => simp [List.compareLex_nil_left_eq_eq]
+    | cons x xs ih =>
+      cases b
+      · simp [List.compareLex_cons_nil]
+      · simp [List.compareLex_cons_cons, Ordering.then_eq_eq, LawfulBEqCmp.compare_eq_iff_beq, ih]
+
+instance [OrientedCmp cmp] : OrientedCmp (List.compareLex cmp) where
+  eq_swap {a b} := by
+    induction a generalizing b with
+    | nil =>
+      cases b
+      · simp [List.compareLex_nil_nil]
+      · simp [List.compareLex_nil_cons, List.compareLex_cons_nil]
+    | cons x xs ih =>
+      cases b
+      · simp [List.compareLex_nil_cons, List.compareLex_cons_nil]
+      · simp [OrientedCmp.eq_swap (a := x), List.compareLex_cons_cons, ih, Ordering.swap_then]
+
+instance [TransCmp cmp] : TransCmp (List.compareLex cmp) where
+  isLE_trans {a b c} (hab hbc) := by
+    induction a generalizing b c with
+    | nil => exact List.isLE_compareLex_nil_left
+    | cons _ _ ih =>
+      cases b <;> cases c <;> (try simp [List.compareLex_cons_nil] at *; done)
+      simp only [List.compareLex_cons_cons, Ordering.isLE_then_iff_and] at *
+      apply And.intro
+      · exact TransCmp.isLE_trans hab.1 hbc.1
+      · obtain ⟨hable, (hab | hab)⟩ := hab
+        · exact Or.inl <| TransCmp.lt_of_lt_of_isLE hab hbc.1
+        · obtain ⟨_, (hbc | hbc)⟩ := hbc
+          · exact Or.inl <| TransCmp.lt_of_isLE_of_lt hable hbc
+          · exact Or.inr <| ih hab hbc
+
+instance [Ord α] [ReflOrd α] : ReflOrd (List α) :=
+  inferInstanceAs <| ReflCmp (List.compareLex compare)
+
+instance [Ord α] [LawfulEqOrd α] : LawfulEqOrd (List α) :=
+  inferInstanceAs <| LawfulEqCmp (List.compareLex compare)
+
+instance [Ord α] [BEq α] [LawfulBEqOrd α] : LawfulBEqOrd (List α) :=
+  inferInstanceAs <| LawfulBEqCmp (List.compareLex compare)
+
+instance [Ord α] [OrientedOrd α] : OrientedOrd (List α) :=
+  inferInstanceAs <| OrientedCmp (List.compareLex compare)
+
+instance [Ord α] [TransOrd α] : TransOrd (List α) :=
+  inferInstanceAs <| TransCmp (List.compareLex compare)
+
+end List
+
+namespace Array
+
+open Std
+
+variable {α} {cmp : α → α → Ordering}
+
+instance [ReflCmp cmp] : ReflCmp (Array.compareLex cmp) where
+  compare_self {a} := by simp [Array.compareLex_eq_compareLex_toList, ReflCmp.compare_self]
+
+instance [LawfulEqCmp cmp] : LawfulEqCmp (Array.compareLex cmp) where
+  eq_of_compare {a b} := by
+    simp only [Array.compareLex_eq_compareLex_toList, compare_eq_iff_eq]
+    exact congrArg List.toArray
+
+instance [BEq α] [LawfulBEqCmp cmp] : LawfulBEqCmp (Array.compareLex cmp) where
+  compare_eq_iff_beq {a b} := by
+    simp only [Array.compareLex_eq_compareLex_toList, BEq.beq, ← Array.isEqv_toList,
+      LawfulBEqCmp.compare_eq_iff_beq, List.beq_eq_isEqv]
+
+instance [OrientedCmp cmp] : OrientedCmp (Array.compareLex cmp) where
+  eq_swap {a b} := by simp [Array.compareLex_eq_compareLex_toList, ← OrientedCmp.eq_swap]
+
+instance [TransCmp cmp] : TransCmp (Array.compareLex cmp) where
+  isLE_trans {a b c} hab hac := by
+    simp only [Array.compareLex_eq_compareLex_toList] at *
+    exact TransCmp.isLE_trans hab hac
+
+instance [Ord α] [ReflOrd α] : ReflOrd (Array α) :=
+  inferInstanceAs <| ReflCmp (Array.compareLex compare)
+
+instance [Ord α] [LawfulEqOrd α] : LawfulEqOrd (Array α) :=
+  inferInstanceAs <| LawfulEqCmp (Array.compareLex compare)
+
+instance [Ord α] [BEq α] [LawfulBEqOrd α] : LawfulBEqOrd (Array α) :=
+  inferInstanceAs <| LawfulBEqCmp (Array.compareLex compare)
+
+instance [Ord α] [OrientedOrd α] : OrientedOrd (Array α) :=
+  inferInstanceAs <| OrientedCmp (Array.compareLex compare)
+
+instance [Ord α] [TransOrd α] : TransOrd (Array α) :=
+  inferInstanceAs <| TransCmp (Array.compareLex compare)
+
+end Array
+
+namespace Vector
+
+open Std
+
+variable {α} {cmp : α → α → Ordering}
+
+instance [ReflCmp cmp] {n} : ReflCmp (Vector.compareLex cmp (n := n)) where
+  compare_self := ReflCmp.compare_self (cmp := Array.compareLex cmp)
+
+instance [LawfulEqCmp cmp] {n} : LawfulEqCmp (Vector.compareLex cmp (n := n)) where
+  eq_of_compare := by simp [Vector.compareLex_eq_compareLex_toArray]
+
+instance [BEq α] [LawfulBEqCmp cmp] {n} : LawfulBEqCmp (Vector.compareLex cmp (n := n)) where
+  compare_eq_iff_beq := by simp [Vector.compareLex_eq_compareLex_toArray,
+    LawfulBEqCmp.compare_eq_iff_beq]
+
+instance [OrientedCmp cmp] {n} : OrientedCmp (Vector.compareLex cmp (n := n)) where
+  eq_swap := OrientedCmp.eq_swap (cmp := Array.compareLex cmp)
+
+instance [TransCmp cmp] {n} : TransCmp (Vector.compareLex cmp (n := n)) where
+  isLE_trans := TransCmp.isLE_trans (cmp := Array.compareLex cmp)
+
+instance [Ord α] [ReflOrd α] {n} : ReflOrd (Vector α n) :=
+  inferInstanceAs <| ReflCmp (Vector.compareLex compare)
+
+instance [Ord α] [LawfulEqOrd α] {n} : LawfulEqOrd (Vector α n) :=
+  inferInstanceAs <| LawfulEqCmp (Vector.compareLex compare)
+
+instance [Ord α] [BEq α] [LawfulBEqOrd α] {n} : LawfulBEqOrd (Vector α n) :=
+  inferInstanceAs <| LawfulBEqCmp (Vector.compareLex compare)
+
+instance [Ord α] [OrientedOrd α] {n} : OrientedOrd (Vector α n) :=
+  inferInstanceAs <| OrientedCmp (Vector.compareLex compare)
+
+instance [Ord α] [TransOrd α] {n} : TransOrd (Vector α n) :=
+  inferInstanceAs <| TransCmp (Vector.compareLex compare)
+
+end Vector

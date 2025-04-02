@@ -5201,9 +5201,10 @@ theorem splitLE_flattenBitVecLE {m n : Nat} {v : Vector (BitVec m) n} :
     omega
   simp only [getElem_splitLE, getElem_extractLsb', getLsbD_eq_getElem this, getElem_flattenBitVecLE,
     Nat.mul_add_mod_self_left, Nat.mod_eq_of_lt hj]
-  simp [Nat.add_div (Nat.pos_of_lt_mul_right this), Nat.div_eq_of_lt hj,
-    Nat.mul_div_cancel_left _ (Nat.pos_of_lt_mul_right this),
-    Nat.not_le_of_gt (m := j % m) (n := m) (Nat.mod_lt_of_lt hj)]
+  simp only [Nat.add_div (Nat.pos_of_lt_mul_right this),
+    Nat.mul_div_cancel_left _ (Nat.pos_of_lt_mul_right this), Nat.div_eq_of_lt hj, Nat.add_zero,
+    Nat.mul_mod_right, Nat.zero_add, Nat.not_le_of_gt (m := j % m) (n := m) (Nat.mod_lt_of_lt hj),
+    ↓reduceIte]
   congr
   omega
 

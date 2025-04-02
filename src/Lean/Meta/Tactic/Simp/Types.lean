@@ -516,18 +516,17 @@ def Result.getProof (r : Result) : MetaM Expr := do
   | none   => mkEqRefl r.expr
 
 /--
-  Similar to `Result.getProof`, but adds a `mkExpectedTypeHint` if `proof?` is `none`
-  (i.e., result is definitionally equal to input), but we cannot establish that
-  `source` and `r.expr` are definitionally when using `TransparencyMode.reducible`. -/
+Similar to `Result.getProof`, but adds a `mkExpectedTypeHint` if `proof?` is `none`
+(i.e., result is definitionally equal to input), but `source` and `r.expr` aren't equal.
+-/
 def Result.getProof' (source : Expr) (r : Result) : MetaM Expr := do
   match r.proof? with
   | some p => return p
   | none   =>
-    if (← isDefEq source r.expr) then
+    if source == r.expr then
       mkEqRefl r.expr
     else
-      /- `source` and `r.expr` must be definitionally equal, but
-         are not definitionally equal at `TransparencyMode.reducible` -/
+      /- `source` and `r.expr` must be definitionally equal, but are not equal -/
       mkExpectedTypeHint (← mkEqRefl r.expr) (← mkEq source r.expr)
 
 /-- Construct the `Expr` `cast h e`, from a `Simp.Result` with proof `h`. -/

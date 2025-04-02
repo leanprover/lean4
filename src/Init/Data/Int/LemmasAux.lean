@@ -155,16 +155,18 @@ theorem bmod_eq_self_of_le_mul_two {x : Int} {y : Nat} (hle : -y ≤ x * 2) (hlt
     x.bmod y = x := by
   apply bmod_eq_self_of_le (by omega) (by omega)
 
-theorem mul_le_mul_self_of_natAbs_le {x y : Int} {s : Nat} (hx : x.natAbs ≤ s) (hy : y.natAbs ≤ s) :
-    x * y ≤ s * s := by
-  rcases s with _|s
+theorem mul_le_mul_of_natAbs_le {x y : Int} {s t : Nat} (hx : x.natAbs ≤ s) (hy : y.natAbs ≤ t) :
+    x * y ≤ s * t := by
+  rcases s with _|s <;> rcases t with _|t
   · simp [show x = 0 by omega]
-  · have := Nat.mul_pos (n := (s + 1)) (m := (s + 1)) (by omega) (by omega)
+  · simp [show x = 0 by omega]
+  · simp [show y = 0 by omega]
+  · have := Nat.mul_pos (n := (s + 1)) (m := (t + 1)) (by omega) (by omega)
     by_cases hx : 0 < x <;> by_cases hy : 0 < y
     · apply Int.mul_le_mul <;> omega
     · have : x * y ≤ 0 := Int.mul_nonpos_of_nonneg_of_nonpos (by omega) (by omega); omega
     · have : x * y ≤ 0 := Int.mul_nonpos_of_nonpos_of_nonneg (by omega) (by omega); omega
-    · have : -x * -y ≤ (s + 1) * (s + 1) := Int.mul_le_mul (by omega) (by omega) (by omega) (by omega)
+    · have : -x * -y ≤ (s + 1) * (t + 1) := Int.mul_le_mul (by omega) (by omega) (by omega) (by omega)
       simp [Int.neg_mul_neg] at this
       norm_cast
 

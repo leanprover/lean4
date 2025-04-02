@@ -20,7 +20,7 @@
  {"start": {"line": 12, "character": 4}, "end": {"line": 12, "character": 12}},
  "contents":
  {"value":
-  "```lean\nNat.zero : Nat\n```\n***\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](https://lean-lang.org/doc/reference/latest/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.zero : Nat\n```\n***\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 21, "character": 2}}
@@ -521,7 +521,7 @@
  {"start": {"line": 257, "character": 4}, "end": {"line": 257, "character": 9}},
  "contents":
  {"value":
-  "```lean\nNat.zero : ℕ\n```\n***\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](https://lean-lang.org/doc/reference/latest/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.zero : ℕ\n```\n***\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 257, "character": 15}}
@@ -530,7 +530,7 @@
   "end": {"line": 257, "character": 18}},
  "contents":
  {"value":
-  "```lean\nNat.zero : ℕ\n```\n***\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](https://lean-lang.org/doc/reference/latest/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.zero : ℕ\n```\n***\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 260, "character": 6}}
@@ -538,7 +538,7 @@
  {"start": {"line": 260, "character": 4}, "end": {"line": 260, "character": 9}},
  "contents":
  {"value":
-  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](https://lean-lang.org/doc/reference/latest/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 260, "character": 17}}
@@ -547,7 +547,7 @@
   "end": {"line": 260, "character": 20}},
  "contents":
  {"value":
-  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](https://lean-lang.org/doc/reference/latest/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 263, "character": 27}}
@@ -565,7 +565,7 @@
   "end": {"line": 263, "character": 36}},
  "contents":
  {"value":
-  "```lean\nNat.zero : ℕ\n```\n***\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](https://lean-lang.org/doc/reference/latest/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.zero : ℕ\n```\n***\nZero, the smallest natural number.\n\nUsing `Nat.zero` explicitly should usually be avoided in favor of the literal `0`, which is the\n[simp normal form](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 269, "character": 2}}

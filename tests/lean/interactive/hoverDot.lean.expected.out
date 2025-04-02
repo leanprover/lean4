@@ -20,7 +20,7 @@
  {"start": {"line": 12, "character": 14}, "end": {"line": 12, "character": 18}},
  "contents":
  {"value":
-  "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](https://lean-lang.org/doc/reference/latest/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hoverDot.lean"},
  "position": {"line": 16, "character": 11}}
@@ -34,7 +34,7 @@
  {"start": {"line": 16, "character": 14}, "end": {"line": 16, "character": 18}},
  "contents":
  {"value":
-  "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](https://lean-lang.org/doc/reference/latest/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hoverDot.lean"},
  "position": {"line": 19, "character": 13}}
@@ -48,7 +48,7 @@
  {"start": {"line": 19, "character": 16}, "end": {"line": 19, "character": 20}},
  "contents":
  {"value":
-  "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](https://lean-lang.org/doc/reference/latest/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hoverDot.lean"},
  "position": {"line": 22, "character": 14}}
@@ -62,5 +62,5 @@
  {"start": {"line": 22, "character": 17}, "end": {"line": 22, "character": 21}},
  "contents":
  {"value":
-  "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](https://lean-lang.org/doc/reference/latest/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor of a natural number `n`.\n\nUsing `Nat.succ n` should usually be avoided in favor of `n + 1`, which is the [simp normal\nform](REFERENCE/find/?domain=Verso.Genre.Manual.section&name=simp-normal-forms).\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}

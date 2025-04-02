@@ -9,6 +9,7 @@ import Lean.Elab.Tactic.Doc
 import Lean.Server.Completion.CompletionResolution
 import Lean.Server.Completion.EligibleHeaderDecls
 import Lean.Server.RequestCancellation
+import Lean.Server.Completion.CompletionUtils
 
 namespace Lean.Server.Completion
 open Elab
@@ -268,9 +269,6 @@ end IdCompletionUtils
 
 section DotCompletionUtils
 
-  private def unfoldeDefinitionGuarded? (e : Expr) : MetaM (Option Expr) :=
-    try unfoldDefinition? e catch _ => pure none
-
   /-- Return `true` if `e` is a `declName`-application, or can be unfolded (delta-reduced) to one. -/
   private partial def isDefEqToAppOf (e : Expr) (declName : Name) : MetaM Bool := do
     let isConstOf := match e.getAppFn with
@@ -340,17 +338,11 @@ section DotCompletionUtils
     Given a type, try to extract relevant type names for dot notation field completion.
     We extract the type name, parent struct names, and unfold the type.
     The process mimics the dot notation elaboration procedure at `App.lean` -/
-  private partial def getDotCompletionTypeNames (type : Expr) : MetaM NameSetModPrivate :=
-    return (← visit type |>.run RBTree.empty).2
-  where
-    visit (type : Expr) : StateRefT NameSetModPrivate MetaM Unit := do
-      let .const typeName _ := type.getAppFn | return ()
-      modify fun s => s.insert typeName
-      if isStructure (← getEnv) typeName then
-        for parentName in (← getAllParentStructures typeName) do
-          modify fun s => s.insert parentName
-      let some type ← unfoldeDefinitionGuarded? type | return ()
-      visit type
+  private def getDotCompletionTypeNameSet (type : Expr) : MetaM NameSetModPrivate := do
+    let mut set := .empty
+    for typeName in ← getDotCompletionTypeNames type do
+      set := set.insert typeName
+    return set
 
 end DotCompletionUtils
 
@@ -478,7 +470,7 @@ def dotCompletion
     : CancellableM (Array CompletionItem) :=
   runM params completionInfoPos ctx info.lctx do
     let nameSet ← try
-      getDotCompletionTypeNames (← instantiateMVars (← inferType info.expr))
+      getDotCompletionTypeNameSet (← instantiateMVars (← inferType info.expr))
     catch _ =>
       pure RBTree.empty
     if nameSet.isEmpty then
@@ -513,7 +505,7 @@ def dotIdCompletion
       | return ()
 
     let nameSet ← try
-      getDotCompletionTypeNames resultTypeFn
+      getDotCompletionTypeNameSet resultTypeFn
     catch _ =>
       pure RBTree.empty
 

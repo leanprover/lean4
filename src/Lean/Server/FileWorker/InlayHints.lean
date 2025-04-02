@@ -141,8 +141,8 @@ def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
     | some lastEditTimestamp =>
       let timeSinceLastEditMs := timestamp - lastEditTimestamp
       inlayHintEditDelayMs - timeSinceLastEditMs
-  let (snaps, _, isComplete) ← ctx.doc.cmdSnaps.getFinishedPrefixWithConsistentLatency editDelayMs.toUInt32 (cancelTk? := ctx.cancelTk.cancellationTask)
-  if ← IO.hasFinished ctx.cancelTk.cancellationTask then
+  let (snaps, _, isComplete) ← ctx.doc.cmdSnaps.getFinishedPrefixWithConsistentLatency editDelayMs.toUInt32 (cancelTks := ctx.cancelTk.cancellationTasks)
+  if ← ctx.cancelTk.wasCancelled then
     -- Inlay hint request has been cancelled, either by a cancellation request or another edit.
     -- In the former case, we will simply discard the result and respond with a request error
     -- denoting cancellation.

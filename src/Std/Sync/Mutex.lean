@@ -100,7 +100,7 @@ opaque Condvar.notifyOne (condvar : @& Condvar) : BaseIO Unit
 opaque Condvar.notifyAll (condvar : @& Condvar) : BaseIO Unit
 
 /-- Waits on the condition variable until the predicate is true. -/
-def Condvar.waitUntil [Monad m] [MonadLift BaseIO m]
+def Condvar.waitUntil [Monad m] [MonadLiftT BaseIO m]
     (condvar : Condvar) (mutex : BaseMutex) (pred : m Bool) : m Unit := do
   while !(← pred) do
     condvar.wait mutex

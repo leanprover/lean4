@@ -92,7 +92,6 @@ def deriveInduction (name : Name) : MetaM Unit :=
             mkLambdaFVars ys (mkAppN f ys)
         let fInst ← eqnInfo.fixedParamPerms.perms[0]!.instantiateLambda fEtaExpanded xs
         let fInst := fInst.eta
-
         -- and change it so it doesn't mention gfp
         let newTyp := forallTelescope eTyp (fun args econc =>
           if (econc.isAppOfArity ``PartialOrder.rel 4) then
@@ -104,9 +103,28 @@ def deriveInduction (name : Name) : MetaM Unit :=
           throwError "Unexpected conclusion of the fixpoint induction principle: {econc}"
         )
 
+        let newTyp := forallTelescope (←newTyp) (fun args conclusion => do
+          let predicate := args[0]!
+          let predicateType ← inferType predicate
+          let premise ← inferType args[1]!
+          let lhsTypes ← forallTelescope predicateType (fun ts _ =>  ts.mapM inferType)
+          let names ← lhsTypes.mapM (fun _ => mkFreshUserName `x)
+          let input := names.zip lhsTypes
+          let res ← withLocalDeclsDND input fun expr => do
+            let conclusionArgs := conclusion.getAppArgs
+            let (lhs, rhs) := (conclusionArgs[2]!, conclusionArgs[3]!)
+            let mut applied := (lhs, rhs)
+            for e in expr do
+              applied := (mkApp applied.1 e, mkApp applied.2 e)
+            mkForallFVars expr (←mkArrow applied.1 applied.2)
+          mkForallFVars args res)
+
+
+
         let e' ← mkExpectedTypeHint e' (←newTyp)
         let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
         let e' ← instantiateMVars e'
+
         trace[Elab.definition.partialFixpoint.induction] "complete body of fixpoint induction principle:{indentExpr e'}"
 
         pure e'

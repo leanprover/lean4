@@ -3,8 +3,12 @@ source ../common.sh
 
 ./clean.sh
 
+# Test that the order of precompiled libraries is correct
+# https://github.com/leanprover/lean4/issues/7790
+test_run build OrderTest
+
 # Test that `moreLinkArgs` are included when linking precompiled modules
-test_maybe_err "-lBaz" build -KlinkArgs=-lBaz
+test_maybe_err "-lBogus" build -KlinkArgs=-lBogus
 
 # Test that dynlibs are part of the module trace unless `platformIndependent` is set
 test_run build -R

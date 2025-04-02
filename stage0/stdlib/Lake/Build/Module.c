@@ -7915,17 +7915,19 @@ return x_1;
 static lean_object* _init_l_Lake_Module_importsFacetConfig___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_importsFacetConfig___closed__1;
-x_3 = 0;
-x_4 = l_Lake_Module_importsFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = lean_box(0);
+x_4 = 0;
+x_5 = l_Lake_Module_importsFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_Module_importsFacetConfig() {
@@ -12624,17 +12626,19 @@ return x_1;
 static lean_object* _init_l_Lake_Module_transImportsFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_transImportsFacetConfig___closed__1;
-x_3 = 0;
-x_4 = l_Lake_Module_importsFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = lean_box(0);
+x_4 = 0;
+x_5 = l_Lake_Module_importsFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_Module_transImportsFacetConfig() {
@@ -14606,17 +14610,19 @@ return x_1;
 static lean_object* _init_l_Lake_Module_precompileImportsFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_precompileImportsFacetConfig___closed__1;
-x_3 = 0;
-x_4 = l_Lake_Module_importsFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = lean_box(0);
+x_4 = 0;
+x_5 = l_Lake_Module_importsFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_Module_precompileImportsFacetConfig() {
@@ -36621,17 +36627,19 @@ return x_1;
 static lean_object* _init_l_Lake_Module_depsFacetConfig___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_depsFacetConfig___closed__1;
-x_3 = 1;
-x_4 = l_Lake_Module_depsFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = lean_box(0);
+x_4 = 1;
+x_5 = l_Lake_Module_depsFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_Module_depsFacetConfig() {
@@ -48429,17 +48437,19 @@ return x_1;
 static lean_object* _init_l_Lake_Module_leanArtsFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_leanArtsFacetConfig___closed__1;
-x_3 = 1;
-x_4 = l_Lake_Module_depsFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = l_Lake_instDataKindUnit;
+x_4 = 1;
+x_5 = l_Lake_Module_depsFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_Module_leanArtsFacetConfig() {
@@ -49559,17 +49569,19 @@ return x_1;
 static lean_object* _init_l_Lake_Module_oleanFacetConfig___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_oleanFacetConfig___closed__1;
-x_3 = 1;
-x_4 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = l_Lake_instDataKindFilePath;
+x_4 = 1;
+x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_Module_oleanFacetConfig() {
@@ -50114,17 +50126,19 @@ return x_1;
 static lean_object* _init_l_Lake_Module_ileanFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_ileanFacetConfig___closed__1;
-x_3 = 1;
-x_4 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = l_Lake_instDataKindFilePath;
+x_4 = 1;
+x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_Module_ileanFacetConfig() {
@@ -50657,17 +50671,19 @@ return x_1;
 static lean_object* _init_l_Lake_Module_cFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_cFacetConfig___closed__1;
-x_3 = 1;
-x_4 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = l_Lake_instDataKindFilePath;
+x_4 = 1;
+x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_Module_cFacetConfig() {
@@ -51182,17 +51198,19 @@ return x_1;
 static lean_object* _init_l_Lake_Module_bcFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_bcFacetConfig___closed__1;
-x_3 = 1;
-x_4 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = l_Lake_instDataKindFilePath;
+x_4 = 1;
+x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_Module_bcFacetConfig() {
@@ -54028,17 +54046,19 @@ return x_1;
 static lean_object* _init_l_Lake_Module_coExportFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_coExportFacetConfig___closed__1;
-x_3 = 1;
-x_4 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = l_Lake_instDataKindFilePath;
+x_4 = 1;
+x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_Module_coExportFacetConfig() {
@@ -54338,17 +54358,19 @@ return x_1;
 static lean_object* _init_l_Lake_Module_coNoExportFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_coNoExportFacetConfig___closed__1;
-x_3 = 1;
-x_4 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = l_Lake_instDataKindFilePath;
+x_4 = 1;
+x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_Module_coNoExportFacetConfig() {
@@ -54411,17 +54433,19 @@ return x_1;
 static lean_object* _init_l_Lake_Module_coFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_coFacetConfig___closed__1;
-x_3 = 1;
-x_4 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = l_Lake_instDataKindFilePath;
+x_4 = 1;
+x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_Module_coFacetConfig() {
@@ -54699,17 +54723,19 @@ return x_1;
 static lean_object* _init_l_Lake_Module_bcoFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_bcoFacetConfig___closed__1;
-x_3 = 1;
-x_4 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = l_Lake_instDataKindFilePath;
+x_4 = 1;
+x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_Module_bcoFacetConfig() {
@@ -54794,17 +54820,19 @@ return x_1;
 static lean_object* _init_l_Lake_Module_oExportFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_oExportFacetConfig___closed__1;
-x_3 = 1;
-x_4 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = l_Lake_instDataKindFilePath;
+x_4 = 1;
+x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_Module_oExportFacetConfig() {
@@ -54911,17 +54939,19 @@ return x_1;
 static lean_object* _init_l_Lake_Module_oNoExportFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_oNoExportFacetConfig___closed__1;
-x_3 = 1;
-x_4 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = l_Lake_instDataKindFilePath;
+x_4 = 1;
+x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_Module_oNoExportFacetConfig() {
@@ -55006,17 +55036,19 @@ return x_1;
 static lean_object* _init_l_Lake_Module_oFacetConfig___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_oFacetConfig___closed__1;
-x_3 = 1;
-x_4 = l_Lake_Module_oleanFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = l_Lake_instDataKindFilePath;
+x_4 = 1;
+x_5 = l_Lake_Module_oleanFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_Module_oFacetConfig() {
@@ -61886,17 +61918,19 @@ return x_1;
 static lean_object* _init_l_Lake_Module_dynlibFacetConfig___closed__3() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_Module_keyword;
 x_2 = l_Lake_Module_dynlibFacetConfig___closed__1;
-x_3 = 1;
-x_4 = l_Lake_Module_dynlibFacetConfig___closed__2;
-x_5 = lean_alloc_ctor(0, 3, 1);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*3, x_3);
-return x_5;
+x_3 = l_Lake_instDataKindDynlib;
+x_4 = 1;
+x_5 = l_Lake_Module_dynlibFacetConfig___closed__2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_4);
+return x_6;
 }
 }
 static lean_object* _init_l_Lake_Module_dynlibFacetConfig() {

@@ -37,6 +37,7 @@ static lean_object* l___private_Lake_Build_Key_0__Lake_reprBuildKey____x40_Lake_
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lake_PartialBuildKey_parse___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Key_0__Lake_BuildKey_quickCmp_match__3_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PartialBuildKey_parse_parseTarget___lambda__1___closed__1;
+LEAN_EXPORT lean_object* l_Lake_PartialBuildKey_mk(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instReprPartialBuildKey;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Key_0__Lake_BuildKey_quickCmp_match__4_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -134,6 +135,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lake_PartialBuildKey_parse_parseTarget___lambda__1___closed__5;
 LEAN_EXPORT uint8_t l_Lake_BuildKey_quickCmp(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_PartialBuildKey_mk___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Build_Key_0__Lake_BuildKey_quickCmp_match__4_splitter(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lake_instDecidableEqBuildKey(lean_object*, lean_object*);
@@ -854,6 +856,22 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lake_PartialBuildKey_moduleTargetIndicator___closed__2;
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_PartialBuildKey_mk(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_PartialBuildKey_mk___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_PartialBuildKey_mk(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lake_PartialBuildKey_parse_parsePackageTarget___closed__1() {
@@ -1608,7 +1626,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lake_PartialBuildKey_parse___lambda__1___closed__3;
 x_2 = l_Lake_PartialBuildKey_parse___lambda__1___closed__4;
-x_3 = lean_unsigned_to_nat(51u);
+x_3 = lean_unsigned_to_nat(54u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lake_PartialBuildKey_parse___lambda__1___closed__5;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

@@ -15,6 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_format(lean_object*);
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__2;
+LEAN_EXPORT lean_object* l_Lean_IR_instInhabitedCtorFieldInfo;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__4;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__3;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__11;
@@ -34,6 +35,14 @@ LEAN_EXPORT lean_object* l_Lean_IR_getCtorLayout___boxed(lean_object*, lean_obje
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_IR_CtorFieldInfo_instToFormat___closed__1;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__5;
+static lean_object* _init_l_Lean_IR_instInhabitedCtorFieldInfo() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__1() {
 _start:
 {
@@ -335,6 +344,8 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_Format(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Lean_IR_instInhabitedCtorFieldInfo = _init_l_Lean_IR_instInhabitedCtorFieldInfo();
+lean_mark_persistent(l_Lean_IR_instInhabitedCtorFieldInfo);
 l_Lean_IR_CtorFieldInfo_format___closed__1 = _init_l_Lean_IR_CtorFieldInfo_format___closed__1();
 lean_mark_persistent(l_Lean_IR_CtorFieldInfo_format___closed__1);
 l_Lean_IR_CtorFieldInfo_format___closed__2 = _init_l_Lean_IR_CtorFieldInfo_format___closed__2();

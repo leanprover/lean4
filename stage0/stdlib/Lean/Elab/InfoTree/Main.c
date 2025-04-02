@@ -13714,7 +13714,7 @@ static lean_object* _init_l_Lean_Elab_assignInfoHoleId___rarg___lambda__2___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("( __do_lift._@.Lean.Elab.InfoTree.Main._hyg.4701.0 ).isNone\n  ", 62, 62);
+x_1 = lean_mk_string_unchecked("( __do_lift._@.Lean.Elab.InfoTree.Main._hyg.4632.0 ).isNone\n  ", 62, 62);
 return x_1;
 }
 }

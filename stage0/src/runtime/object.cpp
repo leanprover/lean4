@@ -214,6 +214,8 @@ extern "C" LEAN_EXPORT size_t lean_object_data_byte_size(lean_object * o) {
 static inline void lean_dealloc(lean_object * o, size_t sz) {
 #ifdef LEAN_SMALL_ALLOCATOR
     dealloc(o, sz);
+#elif defined(LEAN_MIMALLOC)
+    mi_free_size(o, sz);
 #else
     free_sized(o, sz);
 #endif
@@ -294,6 +296,13 @@ extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
 #endif
 #ifdef LEAN_SMALL_ALLOCATOR
     return (lean_object*)alloc(sz);
+#elif defined(LEAN_MIMALLOC)
+    void * r = mi_malloc(sz);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    lean_object * o = (lean_object*)r;
+    // not a small object
+    o->m_cs_sz = 0;
+    return o;
 #else
     void * r = malloc(sz);
     if (r == nullptr) lean_internal_panic_out_of_memory();
@@ -1011,7 +1020,9 @@ static inline void lean_set_task_header(lean_object * o) {
     o->m_rc       = -1;
     o->m_tag      = LeanTask;
     o->m_other    = 0;
+#ifndef LEAN_MIMALLOC
     o->m_cs_sz    = 0;
+#endif
 }
 
 static lean_task_object * alloc_task(obj_arg c, unsigned prio, bool keep_alive) {
@@ -1201,7 +1212,14 @@ void deactivate_promise(lean_promise_object * promise) {
 
 object * alloc_mpz(mpz const & m) {
     void * mem = lean_alloc_small_object(sizeof(mpz_object));
+#ifdef LEAN_MIMALLOC
+    // placement new is not guaranteed to preserve this field so store and restore it
+    unsigned sz = ((lean_object *)mem)->m_cs_sz;
+#endif
     mpz_object * o = new (mem) mpz_object(m);
+#ifdef LEAN_MIMALLOC
+    o->m_header.m_cs_sz = sz;
+#endif
     lean_set_st_header((lean_object*)o, LeanMPZ, 0);
     return (lean_object*)o;
 }

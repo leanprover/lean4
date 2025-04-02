@@ -78,7 +78,6 @@ static lean_object* l_Lake_Dependency_mkRequire___closed__6;
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lake_PackageConfig_mkDeclFields___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_quoteSingleton_x3f___rarg___closed__4;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__17;
 static lean_object* l_Lake_StrPatDescr_toLean___closed__13;
 static lean_object* l_Lake_PackageConfig_mkCommand___closed__2;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_mkDeclFields___spec__20___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -113,7 +112,6 @@ lean_object* l_Lake_PackageConfig_keywords___proj___elambda__1(lean_object*, lea
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_mkDeclFields___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PattternDescr_toLean_x3f___at_Lake_InputDirConfig_mkDeclFields___spec__2(lean_object*);
 static lean_object* l_Lake_LeanLibConfig_mkDeclFields___closed__13;
-static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__10;
 static lean_object* l_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___closed__12;
 lean_object* l_String_quote(lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
@@ -150,19 +148,16 @@ static lean_object* l_Lake_Dependency_mkRequire___lambda__1___closed__15;
 static lean_object* l_Lake_LeanLibConfig_mkDeclFields___closed__1;
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lake_PackageConfig_mkDeclFields___spec__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
-static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__3;
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lake_LeanLibConfig_mkDeclFields___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__54;
 static lean_object* l_Lake_StrPatDescr_toLean___closed__7;
 static lean_object* l_Lake_Dependency_mkRequire___lambda__1___closed__13;
-static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__12;
 static lean_object* l_Lake_LeanLibConfig_mkDeclFields___closed__3;
 static lean_object* l_Lake_PackageConfig_mkDeclFields___closed__15;
 static lean_object* l_Lake_WorkspaceConfig_mkDeclFields___closed__3;
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lake_PackageConfig_mkDeclFields___spec__22___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkLeanConfig___closed__17;
 static uint8_t l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___spec__5___closed__3;
-static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__13;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Package_mkLeanConfig___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_instBEqFilePath__lake___boxed(lean_object*, lean_object*);
 static lean_object* l_Lake_instToLeanBoolMkStr1___closed__1;
@@ -179,6 +174,7 @@ LEAN_EXPORT lean_object* l_Array_filterMapM___at_Lake_Package_mkLeanConfig___spe
 static lean_object* l_Lean_RBNode_foldM___at_Lake_Dependency_mkRequire___spec__1___closed__12;
 static lean_object* l_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___closed__1;
 static lean_object* l_Lake_Dependency_mkRequire___closed__17;
+static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__13;
 LEAN_EXPORT lean_object* l_Lake_addDeclFieldD(lean_object*);
 static lean_object* l_Lake_LeanLibConfig_mkCommand___lambda__1___closed__3;
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lake_PackageConfig_mkDeclFields___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -224,6 +220,7 @@ static size_t l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at_L
 LEAN_EXPORT lean_object* l_Lake_instAddDeclFieldOfToLeanMkStr1OfConfigFieldOption(lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__27;
 LEAN_EXPORT lean_object* l_Lake_instToLeanOfQuote___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966_;
 LEAN_EXPORT lean_object* l_Lake_quoteArray_x3f___at_Lake_PattternDescr_toLean_x3f___spec__2___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_quoteLeanOption(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_mkCommand(lean_object*, lean_object*, uint8_t);
@@ -244,9 +241,11 @@ static lean_object* l_Lake_LeanLibConfig_mkDeclFields___closed__17;
 lean_object* l_Lake_PackageConfig_version___proj___elambda__1(lean_object*, lean_object*);
 static lean_object* l_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___closed__5;
 static lean_object* l_Lake_instToLeanArrayMkStr1___rarg___closed__4;
+static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__7;
 static lean_object* l_Lake_Package_mkLeanConfig___closed__28;
 LEAN_EXPORT lean_object* l_Lake_instToLeanBackendMkStr1;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___spec__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__14;
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lake_PackageConfig_mkDeclFields___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___closed__8;
 LEAN_EXPORT lean_object* l_Lake_quoteArray_x3f___at_Lake_PathPatDescr_toLean_x3f___spec__4___boxed(lean_object*);
@@ -273,6 +272,8 @@ static lean_object* l_Lake_Package_mkLeanConfig___closed__14;
 static lean_object* l_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___closed__2;
 LEAN_EXPORT lean_object* l_Lake_quoteArray_x3f___at_Lake_InputDirConfig_mkDeclFields___spec__4___boxed(lean_object*);
 extern lean_object* l_Lake_InputDirConfig_instConfigMeta;
+static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__10;
+static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__4;
 static lean_object* l_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___closed__17;
 lean_object* l_Lake_PackageConfig_moreGlobalServerArgs___proj___elambda__1(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanLibConfig_mkCommand___closed__11;
@@ -290,7 +291,6 @@ LEAN_EXPORT lean_object* l_Lake_addDeclField(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_LeanConfig_mkDeclFields___closed__9;
-static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__7;
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__42;
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__33;
 size_t lean_usize_of_nat(lean_object*);
@@ -314,6 +314,7 @@ static lean_object* l_Lake_Dependency_mkRequire___closed__8;
 static lean_object* l_Lake_Dependency_mkRequire___lambda__1___closed__23;
 static lean_object* l_Array_mapMUnsafe_map___at_Lake_PartialBuildKey_toLean_mkSuffixes___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lake_mkDeclValWhere_x3f(lean_object*);
+static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__9;
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__58;
 static size_t l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___spec__13___closed__4;
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_mkCommand(lean_object*, lean_object*);
@@ -322,6 +323,7 @@ static lean_object* l_Lake_LeanConfig_mkDeclFields___closed__17;
 static lean_object* l_Lake_PackageConfig_mkDeclFields___closed__52;
 uint8_t l_Lake_instDecidableEqBuildType(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Package_mkLeanConfig___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__3;
 LEAN_EXPORT lean_object* l_Lake_StrPatDescr_toLean(lean_object*);
 static lean_object* l_Lake_PackageConfig_mkDeclFields___closed__7;
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__38;
@@ -347,6 +349,7 @@ lean_object* l_Lake_StdVer_toString(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanExeConfig_mkDeclFields___spec__13(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExeConfig_mkCommand___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
+static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__6;
 static lean_object* l_Array_foldlMUnsafe_fold___at___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___spec__2___closed__2;
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_PackageConfig_mkDeclFields___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -365,7 +368,6 @@ LEAN_EXPORT lean_object* l_Lake_instToLean_x3fPathPatDescr;
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lake_LeanLibConfig_mkDeclFields___spec__19(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_PattternDescr_toLean_x3f___spec__5___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lake_LeanLibConfig_mkDeclFields___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__1;
 LEAN_EXPORT lean_object* l_Lake_addDeclFieldNotEmpty(lean_object*);
 static lean_object* l_Lake_WorkspaceConfig_mkDeclFields___closed__2;
 LEAN_EXPORT lean_object* l_Lake_PartialBuildKey_toLean_go___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -384,10 +386,8 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanConfig_mkDeclField
 static lean_object* l_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___closed__7;
 static lean_object* l_Lake_instToLeanArrayMkStr1___rarg___closed__9;
 static lean_object* l_Lake_BuildType_toLean___closed__6;
-static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__8;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PackageConfig_mkDeclFields___closed__20;
-static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__15;
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lake_LeanExeConfig_mkDeclFields___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkLeanConfig___closed__9;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_PackageConfig_mkDeclFields___spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -424,7 +424,6 @@ static uint8_t l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at_
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanExeConfig_mkDeclFields___spec__7(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanConfig_mkDeclFields___spec__6___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanExeConfig_mkDeclFields___spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968_;
 static lean_object* l_Lake_LeanLibConfig_mkCommand___closed__4;
 LEAN_EXPORT lean_object* l_Array_filterMapM___at_Lake_Package_mkLeanConfig___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
@@ -472,6 +471,7 @@ static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields_
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanConfig_mkDeclFields___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanVer_toLean(lean_object*);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lake_LeanExeConfig_mkDeclFields___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__11;
 static lean_object* l_Lake_LeanLibConfig_mkCommand___closed__12;
 static lean_object* l_Lake_LeanLibConfig_mkDeclFields___closed__9;
 static lean_object* l_Lake_InputDirConfig_mkCommand___lambda__1___closed__2;
@@ -511,7 +511,7 @@ static lean_object* l_Lake_BuildType_toLean___closed__12;
 LEAN_EXPORT lean_object* l_Lake_Pattern_toLean_x3f___at_Lake_PattternDescr_toLean_x3f___spec__4___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_addDeclFieldNotEmpty___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instToLeanArrayMkStr1___rarg___closed__2;
-static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__14;
+static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__15;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_PackageConfig_mkDeclFields___spec__17(lean_object*, lean_object*, size_t, size_t, lean_object*);
 static uint8_t l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___spec__11___closed__3;
 static lean_object* l_Lake_LeanConfig_mkDeclFields___closed__2;
@@ -532,7 +532,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Package_mkLeanConfig__
 LEAN_EXPORT lean_object* l_Lake_instToLeanLeanOptionValueMkStr1;
 static lean_object* l_Lake_PackageConfig_mkDeclFields___closed__12;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanConfig_mkDeclFields___spec__9(lean_object*, lean_object*, size_t, size_t, lean_object*);
-static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__2;
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lake_LeanExeConfig_mkDeclFields___spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_syntax_ident(lean_object*);
 static lean_object* l_Lake_Dependency_mkRequire___lambda__1___closed__10;
@@ -604,7 +603,6 @@ static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields_
 static lean_object* l_Lake_PackageConfig_mkDeclFields___closed__10;
 static lean_object* l_Lake_PackageConfig_mkDeclFields___closed__32;
 LEAN_EXPORT lean_object* l_Lake_InputFileConfig_mkCommand___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__11;
 static lean_object* l_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___closed__16;
 static lean_object* l_Lake_PackageConfig_mkDeclFields___closed__6;
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lake_LeanConfig_mkDeclFields___spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -683,6 +681,7 @@ lean_object* lean_string_length(lean_object*);
 static lean_object* l_Lake_WorkspaceConfig_mkDeclFields___closed__1;
 static lean_object* l_Lake_instToLeanArrayMkStr1___rarg___closed__5;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_mkDeclFields___spec__15(lean_object*, size_t, size_t, lean_object*);
+static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__17;
 LEAN_EXPORT lean_object* l_Lake_instToLeanBoolMkStr1(uint8_t);
 LEAN_EXPORT lean_object* l_Lake_PattternDescr_toLean_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_PackageConfig_mkDeclFields___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -718,7 +717,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_PackageConfig_mkDeclFi
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lake_LeanConfig_mkDeclFields___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PackageConfig_mkDeclFields___closed__35;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
-static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__4;
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__47;
 static lean_object* l_Lake_LeanConfig_mkDeclFields___closed__8;
 static uint8_t l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___spec__13___closed__2;
@@ -735,6 +733,7 @@ static lean_object* l_Lake_PackageConfig_mkDeclFields___closed__5;
 static lean_object* l_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___closed__6;
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lake_LeanLibConfig_mkDeclFields___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___closed__11;
+static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__16;
 static lean_object* l_Lake_LeanConfig_mkDeclFields___closed__27;
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lake_LeanLibConfig_mkDeclFields___spec__21(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PartialBuildKey_toLean_go___closed__6;
@@ -806,6 +805,7 @@ static lean_object* l_Lake_instToLeanBoolMkStr1___closed__3;
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__5;
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__67;
 static lean_object* l_Lake_PackageConfig_mkDeclFields___closed__42;
+static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__1;
 static lean_object* l_Lake_PattternDescr_toLean_x3f___rarg___closed__8;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanConfig_mkDeclFields___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PartialBuildKey_toLean_go___closed__8;
@@ -834,6 +834,8 @@ LEAN_EXPORT lean_object* l_Lake_instToLeanTargetMkStr1___rarg(lean_object*);
 static lean_object* l_Lake_PattternDescr_toLean_x3f___rarg___closed__10;
 static lean_object* l_Array_foldlMUnsafe_fold___at___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___spec__2___closed__10;
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lake_PackageConfig_mkDeclFields___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__2;
+static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__5;
 static lean_object* l_Lake_PackageConfig_mkDeclFields___closed__31;
 static lean_object* l_Lake_Package_mkLeanConfig___closed__24;
 LEAN_EXPORT lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -850,7 +852,6 @@ static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields_
 static lean_object* l_Lake_PackageConfig_mkCommand___closed__6;
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lake_PackageConfig_mkDeclFields___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Substring_beq(lean_object*, lean_object*);
-static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__6;
 size_t lean_usize_add(size_t, size_t);
 extern lean_object* l_Lake_PartialBuildKey_moduleTargetIndicator;
 static lean_object* l_Lake_LeanLibConfig_mkCommand___closed__19;
@@ -917,7 +918,6 @@ static lean_object* l_Lake_Package_mkLeanConfig___closed__18;
 static lean_object* l_Lake_Dependency_mkRequire___lambda__1___closed__22;
 static lean_object* l_Lake_Backend_toLean___closed__6;
 static lean_object* l_Lake_LeanLibConfig_mkCommand___lambda__1___closed__2;
-static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__5;
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_quoteArray_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__3;
@@ -935,11 +935,11 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_quoteArray_x3f(lean_object*);
 static lean_object* l_Lake_LeanConfig_mkDeclFields___closed__13;
 static lean_object* l_Lake_PackageConfig_mkDeclFields___closed__53;
+static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__8;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* l_Array_mkArray2___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__22;
 static lean_object* l_Lake_LeanConfig_mkDeclFields___closed__21;
-static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__16;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_PattternDescr_toLean_x3f___spec__9(lean_object*, lean_object*);
 static lean_object* l_Lake_Dependency_mkRequire___lambda__1___closed__5;
 lean_object* l_Lake_LeanConfig_moreLeanArgs___proj___elambda__1(lean_object*);
@@ -959,13 +959,13 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_PackageConfig_mkDeclFi
 static lean_object* l_Lake_Package_mkLeanConfig___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_mkDeclFields___spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PartialBuildKey_toLean_go___closed__1;
+static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__12;
 static size_t l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___spec__7___closed__4;
 static lean_object* l_Lake_PathPatDescr_toLean_x3f___closed__4;
 static size_t l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___spec__11___closed__4;
 static lean_object* l_Array_mapMUnsafe_map___at_Lake_PartialBuildKey_toLean_mkSuffixes___spec__1___closed__4;
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lake_LeanLibConfig_mkDeclFields___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_BuildType_toLean___closed__3;
-static lean_object* l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__9;
 static lean_object* l_Lake_Dependency_mkRequire___lambda__1___closed__14;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_mkDeclFields___spec__20(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanExeConfig_mkDeclFields___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6125,7 +6125,7 @@ static lean_object* _init_l_Lake_PartialBuildKey_toLean_go___lambda__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("term`@___/___", 13, 13);
+x_1 = lean_mk_string_unchecked("term`@___/____", 14, 14);
 return x_1;
 }
 }
@@ -9521,7 +9521,7 @@ lean_dec(x_3);
 return x_9;
 }
 }
-static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__1() {
+static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -9531,7 +9531,7 @@ x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__2() {
+static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -9539,17 +9539,17 @@ x_1 = lean_mk_string_unchecked("commandGen_lean_encoders%", 25, 25);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__3() {
+static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__1;
-x_2 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__2;
+x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__1;
+x_2 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__2;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__4() {
+static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__4() {
 _start:
 {
 lean_object* x_1; 
@@ -9557,27 +9557,27 @@ x_1 = lean_mk_string_unchecked("_@", 2, 2);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__5() {
+static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__3;
-x_2 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__4;
+x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__3;
+x_2 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__4;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__6() {
+static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__5;
+x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__5;
 x_2 = l_Lake_addDeclFieldCore___closed__1;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__7() {
+static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -9585,17 +9585,17 @@ x_1 = lean_mk_string_unchecked("CLI", 3, 3);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__8() {
+static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__6;
-x_2 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__7;
+x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__6;
+x_2 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__7;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__9() {
+static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -9603,27 +9603,27 @@ x_1 = lean_mk_string_unchecked("Translate", 9, 9);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__10() {
+static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__8;
-x_2 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__9;
+x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__8;
+x_2 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__9;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__11() {
+static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__10;
+x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__10;
 x_2 = l_Lake_mkDeclValWhere_x3f___closed__5;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__12() {
+static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__12() {
 _start:
 {
 lean_object* x_1; 
@@ -9631,27 +9631,27 @@ x_1 = lean_mk_string_unchecked("_hyg", 4, 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__13() {
+static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__11;
-x_2 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__12;
+x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__11;
+x_2 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__12;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__14() {
+static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__13;
-x_2 = lean_unsigned_to_nat(3968u);
+x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__13;
+x_2 = lean_unsigned_to_nat(3966u);
 x_3 = l_Lean_Name_num___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__15() {
+static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__15() {
 _start:
 {
 lean_object* x_1; 
@@ -9659,23 +9659,23 @@ x_1 = lean_mk_string_unchecked("gen_lean_encoders%", 18, 18);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__16() {
+static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__15;
+x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__15;
 x_2 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__17() {
+static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__14;
+x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__14;
 x_2 = lean_unsigned_to_nat(1024u);
-x_3 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__16;
+x_3 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__16;
 x_4 = lean_alloc_ctor(3, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -9683,11 +9683,11 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968_() {
+static lean_object* _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966_() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__17;
+x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__17;
 return x_1;
 }
 }
@@ -15733,7 +15733,7 @@ LEAN_EXPORT lean_object* l_Lake___aux__Lake__CLI__Translate__Lean______macroRule
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
-x_4 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__14;
+x_4 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__14;
 x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
 if (x_5 == 0)
 {
@@ -29310,7 +29310,7 @@ static lean_object* _init_l_Lake_Package_mkLeanConfig___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__1;
+x_1 = l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__1;
 x_2 = lean_mk_syntax_ident(x_1);
 return x_2;
 }
@@ -30575,42 +30575,42 @@ l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__66 = _init
 lean_mark_persistent(l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__66);
 l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__67 = _init_l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__67();
 lean_mark_persistent(l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___closed__67);
-l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__1 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__1();
-lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__1);
-l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__2 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__2();
-lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__2);
-l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__3 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__3();
-lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__3);
-l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__4 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__4();
-lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__4);
-l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__5 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__5();
-lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__5);
-l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__6 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__6();
-lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__6);
-l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__7 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__7();
-lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__7);
-l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__8 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__8();
-lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__8);
-l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__9 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__9();
-lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__9);
-l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__10 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__10();
-lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__10);
-l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__11 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__11();
-lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__11);
-l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__12 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__12();
-lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__12);
-l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__13 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__13();
-lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__13);
-l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__14 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__14();
-lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__14);
-l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__15 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__15();
-lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__15);
-l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__16 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__16();
-lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__16);
-l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__17 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__17();
-lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968____closed__17);
-l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968_ = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968_();
-lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3968_);
+l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__1 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__1();
+lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__1);
+l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__2 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__2();
+lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__2);
+l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__3 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__3();
+lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__3);
+l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__4 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__4();
+lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__4);
+l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__5 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__5();
+lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__5);
+l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__6 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__6();
+lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__6);
+l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__7 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__7();
+lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__7);
+l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__8 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__8();
+lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__8);
+l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__9 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__9();
+lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__9);
+l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__10 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__10();
+lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__10);
+l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__11 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__11();
+lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__11);
+l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__12 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__12();
+lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__12);
+l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__13 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__13();
+lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__13);
+l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__14 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__14();
+lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__14);
+l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__15 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__15();
+lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__15);
+l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__16 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__16();
+lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__16);
+l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__17 = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__17();
+lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966____closed__17);
+l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966_ = _init_l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966_();
+lean_mark_persistent(l_Lake_commandGen__lean__encoders_x25____x40_Lake_CLI_Translate_Lean___hyg_3966_);
 l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___spec__1___closed__1 = _init_l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___spec__1___closed__1();
 lean_mark_persistent(l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___spec__1___closed__1);
 l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___spec__1___closed__2 = _init_l___private_Lake_CLI_Translate_Lean_0__Lake_genMkDeclFields___at_Lake___aux__Lake__CLI__Translate__Lean______macroRules__Lake__commandGen__lean__encoders_x25__1___spec__1___closed__2();

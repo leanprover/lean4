@@ -335,6 +335,7 @@ static lean_object* l_Lake___aux__Lake__Build__Data______macroRules__Lake__dataT
 lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OptDataKind_isAnonymous___rarg___boxed(lean_object*);
 lean_object* l_Lake_Name_quoteFrom(lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lake_instInhabitedOptDataKind(lean_object*);
 static lean_object* l_Lake___aux__Lake__Build__Data______macroRules__Lake__dataTypeDecl__1___closed__56;
 static lean_object* l_Lake_instToStringOptDataKind___rarg___closed__1;
 static lean_object* l_Lake_libraryDataDecl___closed__5;
@@ -343,6 +344,14 @@ static lean_object* l_Lake_builtinFacetCommand___closed__20;
 LEAN_EXPORT lean_object* l_Lake___aux__Lake__Build__Data______macroRules__Lake__targetDataDecl__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake___aux__Lake__Build__Data______macroRules__Lake__dataTypeDecl__1___closed__51;
 LEAN_EXPORT lean_object* l_Lake_OptDataKind_anonymous(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_box(0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instInhabitedOptDataKind(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -1769,7 +1778,7 @@ static lean_object* _init_l_Lake_instDataKindFilePath___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("file_path", 9, 9);
+x_1 = lean_mk_string_unchecked("filepath", 8, 8);
 return x_1;
 }
 }

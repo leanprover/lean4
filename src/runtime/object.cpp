@@ -1020,7 +1020,9 @@ static inline void lean_set_task_header(lean_object * o) {
     o->m_rc       = -1;
     o->m_tag      = LeanTask;
     o->m_other    = 0;
+#ifndef LEAN_MIMALLOC
     o->m_cs_sz    = 0;
+#endif
 }
 
 static lean_task_object * alloc_task(obj_arg c, unsigned prio, bool keep_alive) {

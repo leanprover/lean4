@@ -174,7 +174,7 @@ instance [FamilyOut DataType Package.facetKind α]
 
 open Parser Command
 
-/-- Macro for declaring new `DatayType`. -/
+/-- Macro for declaring new `DataType`. -/
 scoped macro (name := dataTypeDecl)
   doc?:optional(docComment) "data_type " kind:ident " : " ty:term
 : command => do

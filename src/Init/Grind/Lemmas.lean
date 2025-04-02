@@ -77,6 +77,14 @@ theorem eq_congr' {α : Sort u} {a₁ b₁ a₂ b₂ : α} (h₁ : a₁ = b₂) 
 theorem ne_of_ne_of_eq_left {α : Sort u} {a b c : α} (h₁ : a = b) (h₂ : b ≠ c) : a ≠ c := by simp [*]
 theorem ne_of_ne_of_eq_right {α : Sort u} {a b c : α} (h₁ : a = c) (h₂ : b ≠ c) : b ≠ a := by simp [*]
 
+/-! BEq -/
+
+theorem beq_eq_true_of_eq {α : Type u} {_ : BEq α} {_ : LawfulBEq α} {a b : α} (h : a = b) : (a == b) = true := by
+  simp[*]
+
+theorem beq_eq_false_of_diseq {α : Type u} {_ : BEq α} {_ : LawfulBEq α} {a b : α} (h : ¬ a = b) : (a == b) = false := by
+  simp[*]
+
 /-! Bool.and -/
 
 theorem Bool.and_eq_of_eq_true_left {a b : Bool} (h : a = true) : (a && b) = b := by simp [h]
@@ -104,6 +112,9 @@ theorem Bool.not_eq_of_eq_true {a : Bool} (h : a = true) : (!a) = false := by si
 theorem Bool.not_eq_of_eq_false {a : Bool} (h : a = false) : (!a) = true := by simp [h]
 theorem Bool.eq_false_of_not_eq_true {a : Bool} (h : (!a) = true) : a = false := by simp_all
 theorem Bool.eq_true_of_not_eq_false {a : Bool} (h : (!a) = false) : a = true := by simp_all
+
+theorem Bool.eq_false_of_not_eq_true' {a : Bool} (h : ¬ a = true) : a = false := by simp_all
+theorem Bool.eq_true_of_not_eq_false' {a : Bool} (h : ¬ a = false) : a = true := by simp_all
 
 theorem Bool.false_of_not_eq_self {a : Bool} (h : (!a) = a) : False := by
   by_cases a <;> simp_all

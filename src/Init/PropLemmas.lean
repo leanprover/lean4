@@ -310,12 +310,10 @@ theorem Exists.nonempty : (∃ x, p x) → Nonempty α | ⟨x, _⟩ => ⟨x⟩
 theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x, p x
   | ⟨x, hn⟩, h => hn (h x)
 
-@[simp] theorem forall_eq {p : α → Prop} {a' : α} :
-    (∀ a, a = a' → p a) ↔ p a' :=
+@[simp] theorem forall_eq {p : α → Prop} {a' : α} : (∀ a, a = a' → p a) ↔ p a' :=
   ⟨fun h => h a' rfl, fun h _ e => e.symm ▸ h⟩
 
-@[simp] theorem forall_eq' {p : α → Prop} {a' : α} :
-    (∀ a, a' = a → p a) ↔ p a' := by simp [@eq_comm _ a']
+@[simp] theorem forall_eq' {a' : α} : (∀ a, a' = a → p a) ↔ p a' := by simp [@eq_comm _ a']
 
 @[simp] theorem exists_eq : ∃ a, a = a' := ⟨_, rfl⟩
 

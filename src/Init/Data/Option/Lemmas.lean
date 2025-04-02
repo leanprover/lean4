@@ -835,7 +835,7 @@ theorem isSome_pfilter_iff_get {α : Type _} {o : Option α} {p : (a : α) → o
 
 theorem isSome_of_isSome_pfilter {α : Type _} {o : Option α} {p : (a : α) → o = some a → Bool}
     (h : (o.pfilter p).isSome) : o.isSome :=
-  (isSome_pfilter_iff'.mp h).1
+  (isSome_pfilter_iff_get.mp h).1
 
 @[simp] theorem get_pfilter {α : Type _} {o : Option α} {p : (a : α) → o = some a → Bool}
     (h : (o.pfilter p).isSome) :

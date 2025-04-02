@@ -92,7 +92,7 @@ example (x y : BitVec 16) : BitVec.smulOverflow x y =
   by bv_normalize
 example (x y : BitVec w) : BitVec.umulOverflow x y = (0 < w && BitVec.twoPow (w * 2) w ≤ x.zeroExtend (w * 2) * y.zeroExtend (w * 2)) := by bv_normalize
 example (x y : BitVec w) : BitVec.smulOverflow x y =
-    (decide (w ≠ 0) &&
+    (decide (0 < w) &&
     ((BitVec.signExtend (w * 2) (BitVec.intMax w)).slt (BitVec.signExtend (w * 2) x * BitVec.signExtend (w * 2) y) ||
     (BitVec.signExtend (w * 2) x * BitVec.signExtend (w * 2) y).slt (BitVec.signExtend (w * 2) (BitVec.intMin w))))
   := by bv_normalize

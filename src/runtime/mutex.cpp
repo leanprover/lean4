@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner, Henrik Böving
 */
-#include <shared_mutex>
 #include <lean/lean.h>
 #include "runtime/mutex.h"
 #include "runtime/io.h"
@@ -106,16 +105,16 @@ extern "C" LEAN_EXPORT obj_res lean_io_baserecmutex_unlock(b_obj_arg mtx, obj_ar
 // in C++ 17 and we are currently on C++ 14.
 static lean_external_class * g_basesharedmutex_external_class = nullptr;
 static void basesharedmutex_finalizer(void * h) {
-    delete static_cast<std::shared_timed_mutex *>(h);
+    delete static_cast<shared_timed_mutex *>(h);
 }
 static void basesharedmutex_foreach(void *, b_obj_arg) {}
 
-static std::shared_timed_mutex * basesharedmutex_get(lean_object * mtx) {
-    return static_cast<std::shared_timed_mutex *>(lean_get_external_data(mtx));
+static shared_timed_mutex * basesharedmutex_get(lean_object * mtx) {
+    return static_cast<shared_timed_mutex *>(lean_get_external_data(mtx));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_basesharedmutex_new(obj_arg) {
-    return io_result_mk_ok(lean_alloc_external(g_basesharedmutex_external_class, new std::shared_timed_mutex));
+    return io_result_mk_ok(lean_alloc_external(g_basesharedmutex_external_class, new shared_timed_mutex));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_basesharedmutex_write(b_obj_arg mtx, obj_arg) {

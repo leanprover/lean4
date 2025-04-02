@@ -11,9 +11,7 @@ namespace Std
 private opaque SharedMutexImpl : NonemptyType.{0}
 
 /--
-Read-write style exclusion primitive, providing shared access to:
-- either multiple readers at the same time
-- or a single writer at the same time
+An exclusion primitive that allows a number of readers or at most one writer.
 
 If you want to guard shared state, use `SharedMutex α` instead.
 -/
@@ -26,8 +24,8 @@ instance : Nonempty BaseSharedMutex := SharedMutexImpl.property
 opaque BaseSharedMutex.new : BaseIO BaseSharedMutex
 
 /--
-Locks a `BaseSharedMutex` for exclusive write access. Waits until no other thread has locked the
-mutex (both write or read).
+Locks a `BaseSharedMutex` for exclusive write access. This function blocks until no other
+writers or readers have access to the lock.
 
 The current thread must not have already locked the mutex.
 Reentrant locking is undefined behavior (inherited from the C++ implementation).
@@ -55,8 +53,9 @@ Unlocking an unlocked mutex is undefined behavior (inherited from the C++ implem
 opaque BaseSharedMutex.unlockWrite (mutex : @& BaseSharedMutex) : BaseIO Unit
 
 /--
-Locks a `BaseSharedMutex` for shared read access. Waits until no other thread has locked the
-mutex for writes, concurrent reads are okay though.
+Locks a `BaseSharedMutex` for shared read access. This function blocks until there are no more
+writers which hold the lock. There may be other readers currently inside the lock when this method
+returns.
 
 The current thread must not have already locked the mutex.
 Reentrant locking is undefined behavior (inherited from the C++ implementation).
@@ -84,10 +83,8 @@ Unlocking an unlocked mutex is undefined behavior (inherited from the C++ implem
 opaque BaseSharedMutex.unlockRead (mutex : @& BaseSharedMutex) : BaseIO Unit
 
 /--
-Read-write style exclusion primitive, guarding a shared state of type `α`.
-Unlike `Mutex` it provides two kinds of access:
-- either multiple readers at the same time
-- or a single writer at the same time
+An exclusion primitive that allows a number of readers or at most one writer access to a shared
+state of type `α`.
 -/
 structure SharedMutex (α : Type) where private mk ::
   private ref : IO.Ref α
@@ -117,8 +114,8 @@ def SharedMutex.atomically [Monad m] [MonadLiftT BaseIO m] [MonadFinally m]
 
 /--
 `mutex.tryAtomically k` tries to lock `mutex` for exclusive write access and runs `k` with read
-and write access to the mutex's state if it succeeds. On success the return value of `k` is
-returned as `some`, on failure `none` is returned.
+and write access to the mutex's state if it succeeds. If successful, it returns the value of `k`
+as `some`, otherwise `none`.
 
 Calling `mutex.tryAtomically` while already holding the underlying `BaseSharedMutex` in the same
 thread is undefined behavior.
@@ -151,8 +148,8 @@ def SharedMutex.atomicallyRead [Monad m] [MonadLiftT BaseIO m] [MonadFinally m]
 
 /--
 `mutex.tryAtomicallyRead k` tries to lock `mutex` for shared read access and runs `k` with read
-access to the mutex's state if it succeeds. On success the return value of `k` is returned as
-`some`, on failure `none` is returned.
+access to the mutex's state if it succeeds. If successful, it returns the value of `k`
+as `some`, otherwise `none`.
 
 Calling `mutex.tryAtomicallyRead` while already holding the underlying `BaseSharedMutex` in the
 same thread is undefined behavior.

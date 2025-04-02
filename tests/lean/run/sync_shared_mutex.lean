@@ -109,5 +109,6 @@ def tryAtomicallyRead : IO Unit := do
       throw <| .userError s!"Should be 1 but was {val}"
 
 #eval atomically
+#eval atomicallyRead
 #eval tryAtomically
 #eval tryAtomicallyRead

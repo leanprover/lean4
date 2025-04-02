@@ -381,8 +381,10 @@ def mapₘ (m : Raw₀ α β) (f : (a : α) → β a → δ a) : Raw₀ α δ :=
   ⟨⟨m.1.size, updateAllBuckets m.1.buckets (AssocList.map f)⟩, by simpa using m.2⟩
 
 /-- Internal implementation detail of the hash map -/
-def mapKeyValueInPlaceₘ (m : Raw₀ α β) (f : (a : α) → β a → ((a' : α') × β' a')) : Raw₀ α' β' :=
-  ⟨⟨m.1.size, m.1.buckets.map (AssocList.mapKeyValue f)⟩, by simpa using m.2⟩
+@[inline] def pmapEntriesₘ {P : (a : α) → (b : β a) → Prop}
+    (f : (a : α) → (b : β a) → P a b → ((a' : α') × β' a'))
+    (m : Raw₀ α β) (H : ∀ a b, ⟨a, b⟩ ∈ toListModel m.val.buckets → P a b) : Raw₀ α' β' :=
+  pmapEntries f m H -- TODO: ???
 
 /-- Internal implementation detail of the hash map -/
 def filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) : Raw₀ α β :=
@@ -596,8 +598,10 @@ theorem filterMap_eq_filterMapₘ (m : Raw₀ α β) (f : (a : α) → β a → 
 theorem map_eq_mapₘ (m : Raw₀ α β) (f : (a : α) → β a → δ a) :
     m.map f = m.mapₘ f := rfl
 
-theorem mapKeyValueInPlace_eq_mapKeyValueInPlaceₘ (m : Raw₀ α β) (f : (a : α) → β a → ((a' : α') × β' a')) :
-    m.mapKeyValueInPlace f = m.mapKeyValueInPlaceₘ f := rfl
+theorem pmapEntries_eq_pmapEntriesₘ {P : (a : α) → (b : β a) → Prop}
+    (f : (a : α) → (b : β a) → P a b → ((a' : α') × β' a'))
+    (m : Raw₀ α β) (H : ∀ a b, ⟨a, b⟩ ∈ toListModel m.val.buckets → P a b) :
+    m.pmapEntries f H = m.pmapEntriesₘ f H := rfl
 
 theorem filter_eq_filterₘ (m : Raw₀ α β) (f : (a : α) → β a → Bool) :
     m.filter f = m.filterₘ f := rfl

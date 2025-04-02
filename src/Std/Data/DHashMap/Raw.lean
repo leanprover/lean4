@@ -451,13 +451,6 @@ only those mappings where the function returns `some` value.
     Raw₀.map f ⟨m, h⟩
   else ∅ -- will never happen for well-formed inputs
 
-@[inline] def mapKeyValueInPlace
-    (f : (a : α) → β a → ((a' : α') × β' a'))
-    (m : Raw α β) : Raw α' β' :=
-  if h : 0 < m.buckets.size then
-    Raw₀.mapKeyValueInPlace f ⟨m, h⟩
-  else ∅ -- will never happen for well-formed inputs
-
 /-- Removes all mappings of the hash map for which the given function returns `false`. -/
 @[inline] def filter (f : (a : α) → β a → Bool) (m : Raw α β) : Raw α β :=
   if h : 0 < m.buckets.size then

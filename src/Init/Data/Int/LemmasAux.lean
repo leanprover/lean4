@@ -178,6 +178,18 @@ theorem mul_le_mul_of_le_of_le_of_nonneg_of_nonpos {a b c d : Int}
     (hac : a ≤ c) (hbd : d ≤ b) (hb : 0 ≤ b) (hc : c ≤ 0) : a * b ≤ c * d :=
   Int.le_trans (Int.mul_le_mul_of_nonneg_right hac hb) (Int.mul_le_mul_of_nonpos_left hc hbd)
 
+theorem mul_le_mul_of_le_of_le_of_nonneg_of_nonneg {a b c d : Int}
+    (hac : a ≤ c) (hbd : b ≤ d) (hb : 0 ≤ b) (hc : 0 ≤ c) : a * b ≤ c * d :=
+  Int.le_trans (Int.mul_le_mul_of_nonneg_right hac hb) (Int.mul_le_mul_of_nonneg_left hbd hc)
+
+theorem mul_le_mul_of_le_of_le_of_nonpos_of_nonpos {a b c d : Int}
+    (hac : c ≤ a) (hbd : d ≤ b) (hb : b ≤ 0) (hc : c ≤ 0) : a * b ≤ c * d :=
+  Int.le_trans (Int.mul_le_mul_of_nonpos_right hac hb) (Int.mul_le_mul_of_nonpos_left hc hbd)
+
+theorem mul_le_mul_of_le_of_le_of_nonpos_of_nonneg {a b c d : Int}
+    (hac : c ≤ a) (hbd : b ≤ d) (hb : b ≤ 0) (hc : 0 ≤ c) : a * b ≤ c * d :=
+  Int.le_trans (Int.mul_le_mul_of_nonpos_right hac hb) (Int.mul_le_mul_of_nonneg_left hbd hc)
+
 /--
 A corollary of |s| ≤ x, and |t| ≤ y, then |s * t| ≤ x * y,
 -/

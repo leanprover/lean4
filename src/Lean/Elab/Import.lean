@@ -22,7 +22,8 @@ def processHeader (header : Syntax) (opts : Options) (messages : MessageLog)
     (plugins : Array System.FilePath := #[]) (leakEnv := false)
     : IO (Environment × MessageLog) := do
   try
-    let env ← importModules (leakEnv := leakEnv) (headerToImports header) opts trustLevel plugins
+    let env ←
+      importModules (leakEnv := leakEnv) (loadExts := true) (headerToImports header) opts trustLevel plugins
     pure (env, messages)
   catch e =>
     let env ← mkEmptyEnvironment

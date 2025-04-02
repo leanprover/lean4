@@ -1801,16 +1801,12 @@ private def equivInfo (cinfo₁ cinfo₂ : ConstantInfo) : Bool := Id.run do
     && tval₁.all == tval₂.all
 
 /--
-  Construct environment from `importModulesCore` results.
+Constructs environment from `importModulesCore` results.
 
-  If `leakEnv` is true, we mark the environment as persistent, which means it
-  will not be freed. We set this when the object would survive until the end of
-  the process anyway. In exchange, RC updates are avoided, which is especially
-  important when they would be atomic because the environment is shared across
-  threads (potentially, storing it in an `IO.Ref` is sufficient for marking it
-  as such). -/
+See also `importModules` for parameter documentation.
+-/
 def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (leakEnv := false) : IO Environment := do
+    (leakEnv loadExts : Bool) : IO Environment := do
   let numConsts := s.moduleData.foldl (init := 0) fun numConsts mod =>
     numConsts + mod.constants.size + mod.extraConstNames.size
   let mut const2ModIdx : Std.HashMap Name ModuleIdx := Std.HashMap.emptyWithCapacity (capacity := numConsts)
@@ -1860,14 +1856,15 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
 
        Safety: There are no concurrent accesses to `env` at this point. -/
     env ← unsafe Runtime.markPersistent env
-  env ← finalizePersistentExtensions env s.moduleData opts
-  if leakEnv then
-    /- Ensure the final environment including environment extension states is
-       marked persistent as documented.
+  if loadExts then
+    env ← finalizePersistentExtensions env s.moduleData opts
+    if leakEnv then
+      /- Ensure the final environment including environment extension states is
+        marked persistent as documented.
 
-       Safety: There are no concurrent accesses to `env` at this point, assuming
-       extensions' `addImportFn`s did not spawn any unbound tasks. -/
-    env ← unsafe Runtime.markPersistent env
+        Safety: There are no concurrent accesses to `env` at this point, assuming
+        extensions' `addImportFn`s did not spawn any unbound tasks. -/
+      env ← unsafe Runtime.markPersistent env
   return { env with realizedImportedConsts? := some {
     -- safety: `RealizationContext` is private
     env := unsafe unsafeCast env
@@ -1875,9 +1872,22 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     constsRef := (← IO.mkRef {})
   } }
 
-@[export lean_import_modules]
+/--
+Creates environment object from given imports.
+
+If `leakEnv` is true, we mark the environment as persistent, which means it will not be freed. We
+set this when the object would survive until the end of the process anyway. In exchange, RC updates
+are avoided, which is especially important when they would be atomic because the environment is
+shared across threads (potentially, storing it in an `IO.Ref` is sufficient for marking it as such).
+
+If `loadExts` is true, we initialize the environment extensions using the imported data. Doing so
+may use the interpreter and thus is only safe to do after calling `enableInitializersExecution`; see
+also caveats there. If not set, every extension will have its initial value as its state. While the
+environment's constant map can be accessed without `loadExts`, many functions that take
+`Environment` or are in a monad carrying it such as `CoreM` may not function properly without it.
+-/
 def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (plugins : Array System.FilePath := #[]) (leakEnv := false)
+    (plugins : Array System.FilePath := #[]) (leakEnv := false) (loadExts := false)
     : IO Environment := profileitIO "import" opts do
   for imp in imports do
     if imp.module matches .anonymous then
@@ -1885,13 +1895,17 @@ def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32
   withImporting do
     plugins.forM Lean.loadPlugin
     let (_, s) ← importModulesCore imports |>.run
-    finalizeImport (leakEnv := leakEnv) s imports opts trustLevel
+    finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) s imports opts trustLevel
 
 /--
-  Create environment object from imports and free compacted regions after calling `act`. No live references to the
-  environment object or imported objects may exist after `act` finishes. -/
-unsafe def withImportModules {α : Type} (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) (act : Environment → IO α) : IO α := do
-  let env ← importModules imports opts trustLevel
+Creates environment object from imports and frees compacted regions after calling `act`. No live
+references to the environment object or imported objects may exist after `act` finishes. As this
+cannot be ruled out after loading environment extensions, `importModules`'s `loadExts` is always
+unset using this function.
+-/
+unsafe def withImportModules {α : Type} (imports : Array Import) (opts : Options)
+    (act : Environment → IO α) (trustLevel : UInt32 := 0) : IO α := do
+  let env ← importModules (loadExts := false) imports opts trustLevel
   try act env finally env.freeRegions
 
 @[inherit_doc Kernel.Environment.enableDiag]

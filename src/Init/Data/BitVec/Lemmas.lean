@@ -4576,7 +4576,9 @@ theorem udiv_twoPow_eq_of_lt {w : Nat} {x : BitVec w} {k : Nat} (hk : k < w) : x
   have : 2^k < 2^w := Nat.pow_lt_pow_of_lt (by decide) hk
   simp [bitvec_to_nat, Nat.shiftRight_eq_div_pow, Nat.mod_eq_of_lt this]
 
-theorem toInt_mul_toInt_lt {x y : BitVec w} : x.toInt * y.toInt ≤ 2 ^ (w * 2 - 2) := by
+#eval (1#1).toInt * (1#1).toInt < 2 ^ (1 * 2 - 2)
+
+theorem toInt_mul_toInt_le {x y : BitVec w} : x.toInt * y.toInt ≤ 2 ^ (w * 2 - 2) := by
   rcases w with _|w
   · simp [of_length_zero]
   · have xlt := two_mul_toInt_lt (x := x); have xle := le_two_mul_toInt (x := x)
@@ -4998,7 +5000,7 @@ theorem two_pow_le_toInt_mul_toInt_iff {x y : BitVec w} :
   · simp [of_length_zero]
   · have := Int.pow_lt_pow_of_lt (a := 2) (b := (w + 1) * 2 - 2) (c := (w + 1) * 2 - 1) (by omega)
     have := @BitVec.le_toInt_mul_toInt (w + 1) x y
-    have := @BitVec.toInt_mul_toInt_lt (w + 1) x y
+    have := @BitVec.toInt_mul_toInt_le (w + 1) x y
     simp only [Nat.add_one_sub_one, BitVec.slt, intMax, ofNat_eq_ofNat, toInt_mul,
       decide_eq_true_eq]
     repeat rw [BitVec.toInt_signExtend_of_le (by omega)]
@@ -5017,7 +5019,7 @@ theorem toInt_mul_toInt_lt_neg_two_pow_iff {x y : BitVec w} :
   · simp [of_length_zero]
   · have := Int.pow_lt_pow_of_lt (a := 2) (b := (w + 1) * 2 - 2) (c := (w + 1) * 2 - 1) (by omega)
     have := @BitVec.le_toInt_mul_toInt (w + 1) x y
-    have := @BitVec.toInt_mul_toInt_lt (w + 1) x y
+    have := @BitVec.toInt_mul_toInt_le (w + 1) x y
     simp only [BitVec.slt, toInt_mul, intMin, Nat.add_one_sub_one, decide_eq_true_eq]
     repeat rw [BitVec.toInt_signExtend_of_le (by omega)]
     simp only [toInt_twoPow, show ¬w + 1 ≤ w by omega, ↓reduceIte]

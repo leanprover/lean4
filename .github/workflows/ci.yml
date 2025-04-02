@@ -109,7 +109,7 @@ jobs:
         # re-running a run does not update that list, and we do want to be able to
         # rerun the workflow run after setting the `release-ci`/`merge-ci` labels.
         run: |
-          check_level=-1
+          check_level=0
 
           if [[ -n "${{ steps.set-nightly.outputs.nightly }}" || -n "${{ steps.set-release.outputs.RELEASE_TAG }}" ]]; then
             check_level=2
@@ -195,15 +195,15 @@ jobs:
                 "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest|bv_bitblast_stress|3807'"
               },
               // TODO: suddenly started failing in CI
-              {
+              /*{
                 "name": "Linux fsanitize",
                 "os": "ubuntu-latest",
-                "check-level": -1,
+                "check-level": 2,
                 // turn off custom allocator & symbolic functions to make LSAN do its magic
                 "CMAKE_PRESET": "sanitize",
                 // exclude seriously slow/problematic tests (laketests crash)
                 "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
-              },
+              },*/
               {
                 "name": "macOS",
                 "os": "macos-13",

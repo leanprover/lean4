@@ -88,7 +88,6 @@ ExternalProject_add(stage0
   BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
   INSTALL_COMMAND ""  # skip install
   DEPENDS ${EXTRA_DEPENDS}
-  STEP_TARGETS configure
 )
 ExternalProject_add(stage1
   SOURCE_DIR "${LEAN_SOURCE_DIR}"

@@ -5006,7 +5006,7 @@ theorem two_pow_le_toInt_mul_toInt_iff {x y : BitVec w} :
       toInt_intMax, Nat.add_one_sub_one]
     push_cast
     rw [← Nat.two_pow_pred_add_two_pow_pred (by omega),
-      Int.bmod_eq_of_le_of_lt (by rw [← Nat.mul_two]; push_cast; omega)
+      Int.bmod_eq_self_of_le_mul_two (by rw [← Nat.mul_two]; push_cast; omega)
                               (by rw [← Nat.mul_two]; push_cast; omega)]
     omega
 
@@ -5023,7 +5023,7 @@ theorem toInt_mul_toInt_lt_neg_two_pow_iff {x y : BitVec w} :
     simp only [toInt_twoPow, show ¬w + 1 ≤ w by omega, ↓reduceIte]
     push_cast
     rw [← Nat.two_pow_pred_add_two_pow_pred (by omega),
-      Int.bmod_eq_of_le_of_lt (by rw [← Nat.mul_two]; push_cast; omega)
+      Int.bmod_eq_self_of_le_mul_two (by rw [← Nat.mul_two]; push_cast; omega)
                               (by rw [← Nat.mul_two]; push_cast; omega)]
 
 /-! ### neg -/

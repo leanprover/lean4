@@ -9,9 +9,9 @@ if (USE_MIMALLOC)
   # Lean code includes it as `lean/mimalloc.h` but for compiling `static.c` itself, add original dir
   include_directories(${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/include)
   # make all symbols visible, always build with optimizations as otherwise Lean becomes too slow
-  list(APPEND MIMALLOC_FLAGS -DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT -Wno-unused-function)
+  set(MIMALLOC_FLAGS "-DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT -Wno-unused-function")
   if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang|Clang")
-    list(APPEND MIMALLOC_FLAGS -Wno-deprecated)
+    string(APPEND MIMALLOC_FLAGS " -Wno-deprecated")
   endif()
   set_source_files_properties(${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c PROPERTIES
     # (C flags are incomplete, compile as C++ instead like everything else)

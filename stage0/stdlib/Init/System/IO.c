@@ -399,6 +399,7 @@ LEAN_EXPORT lean_object* l_IO_print___at_IO_println___spec__1(lean_object*, lean
 LEAN_EXPORT lean_object* l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_3066_(lean_object*, lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_2802____closed__1;
+LEAN_EXPORT lean_object* l_IO_Process_Child_pid___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_instMaxTaskState___boxed(lean_object*, lean_object*);
 lean_object* lean_runtime_mark_multi_threaded(lean_object*, lean_object*);
 static lean_object* l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_2880____closed__1;
@@ -502,6 +503,7 @@ LEAN_EXPORT lean_object* l_BaseIO_mapTasks_go(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_withFile___rarg(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BaseIO_toIO(lean_object*);
 static lean_object* l_IO_Process_run___closed__2;
+uint32_t lean_io_process_child_pid(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_lines___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BaseIO_mapTasks_go___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__4;
@@ -9011,6 +9013,16 @@ _start:
 lean_object* x_4; 
 x_4 = lean_io_process_child_take_stdin(x_1, x_2, x_3);
 lean_dec(x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_IO_Process_Child_pid___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint32_t x_3; lean_object* x_4; 
+x_3 = lean_io_process_child_pid(x_1, x_2);
+lean_dec(x_1);
+x_4 = lean_box_uint32(x_3);
 return x_4;
 }
 }

@@ -54,13 +54,14 @@ theorem qsort_sort_perm {n} (as : Vector α n) (lt : α → α → Bool) (lo hi 
       apply qpartition_perm
   · simp [qpartition]
 
+grind_pattern qsort_sort_perm => (qsort.sort lt as lo hi hlo hhi).toArray
+
 theorem qsort_perm (as : Array α) (lt : α → α → Bool) (lo hi : Nat) :
     qsort as lt lo hi ~ as := by
   unfold qsort
   split
   · rfl
-  · simp [qpartition]
-    apply qsort_sort_perm
+  · grind
 
 theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega)
@@ -96,8 +97,6 @@ theorem qpartition_loop_spec₁ {n} (lt : α → α → Bool) (lo hi : Nat)
     intro i' hi₁ hi₂
     rw [Vector.getElem_swap_of_ne]
     all_goals grind
-
-example (p : Nat → Prop) (h : p j) (h' : ∀ i, i < j → p i) : ∀ i, i < j + 1 → p i := by grind
 
 theorem qpartition_loop_spec₂ {n} (lt : α → α → Bool) (lo hi : Nat)
     (hlo : lo < n := by omega) (hhi : hi < n := by omega)

@@ -125,6 +125,11 @@ private theorem perm_map_congr_left {α : Type u} {β : Type v} {l l' : List α}
     {l₂ : List β} (h : l.Perm l') : (l.map f).Perm l₂ ↔ (l'.map f).Perm l₂ :=
   (h.map f).congr_left _
 
+omit [BEq α] [Hashable α] in
+private theorem perm_keys_congr_left {l l' : List ((a : α) × β a)} {l₂ : List α} (h : l.Perm l') :
+    (List.keys l).Perm l₂ ↔ (List.keys l').Perm l₂ := by
+  simp [List.keys_eq_map, perm_map_congr_left h]
+
 private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSyntax `term))) :=
   .ofList
     [⟨`isEmpty, (``Raw.isEmpty_eq_isEmpty, #[`(_root_.List.Perm.isEmpty_eq)])⟩,
@@ -143,7 +148,7 @@ private def queryMap : Std.DHashMap Name (fun _ => Name × Array (MacroM (TSynta
      ⟨`getKeyD, (``getKeyD_eq_getKeyD, #[`(getKeyD_of_perm _)])⟩,
      ⟨`getKey!, (``getKey!_eq_getKey!, #[`(getKey!_of_perm _)])⟩,
      ⟨`toList, (``Raw.toList_eq_toListModel, #[])⟩,
-     ⟨`keys, (``Raw.keys_eq_keys_toListModel, #[])⟩,
+     ⟨`keys, (``Raw.keys_eq_keys_toListModel, #[`(perm_keys_congr_left)])⟩,
      ⟨`Const.toList, (``Raw.Const.toList_eq_toListModel_map, #[`(perm_map_congr_left)])⟩,
      ⟨`foldM, (``Raw.foldM_eq_foldlM_toListModel, #[])⟩,
      ⟨`fold, (``Raw.fold_eq_foldl_toListModel, #[])⟩,
@@ -3333,6 +3338,12 @@ theorem toList_filter
       (m.1.toList.filter (fun p => (f p.1 p.2))) := by
   simp_to_model [filter, toList, Equiv] using List.Perm.rfl
 
+--theorem keys_filter [LawfulBEq α] {f : (a : α) → β a → Bool} (h : m.1.WF):
+--    (m.filter f).1.keys.Perm
+--      (m.1.keys.attach.filter (fun ⟨x,_h⟩ => f x (m.get x ((mem_keys m h).mp _h))) ).unattach := by
+--  simp_to_model [keys, filter, Equiv, get]
+--  sorry
+
 theorem getKey?_filter [LawfulBEq α]
     {f : (a : α) → β a → Bool} {k : α} (h : m.1.WF) :
     (m.filter f).getKey? k =
@@ -3469,7 +3480,7 @@ theorem contains_of_contains_map [EquivBEq α] [LawfulHashable α]
     (m.map f).contains k = true → m.contains k = true := by
   simp [contains_map m h]
 
-theorem size_map_eq_size [EquivBEq α] [LawfulHashable α]
+theorem size_map [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → β a → γ a} (h : m.1.WF) :
     (m.map f).1.size = m.1.size := by
   simp_to_model [map, size] using List.length_map
@@ -3499,8 +3510,16 @@ omit [BEq α] [Hashable α] in
 theorem toList_map
     {f : (a : α) → β a → γ a} :
     (m.map f).1.toList.Perm
-      (m.1.toList.map (fun p => ⟨p.1,f p.1 p.2⟩)) := by
+      (m.1.toList.map (fun p => ⟨p.1, f p.1 p.2⟩)) := by
   simp_to_model [map, toList, Equiv] using List.Perm.rfl
+
+omit [Hashable α] in
+theorem keys_map
+    {f : (a : α) → β a → γ a} :
+    (m.map f).1.keys.Perm
+    m.1.keys := by
+  simp_to_model [keys, map, Equiv]
+  rw [List.keys_map]
 
 theorem getKey?_map [LawfulBEq α]
     {f : (a : α) → β a → γ a} {k : α} (h : m.1.WF) :

@@ -1817,6 +1817,27 @@ theorem keys_filterMap [BEq α] {l : List ((a : α) × β a)} {f : (a : α) → 
     simp only [List.filterMap_cons, List.filter_cons]
     cases f k v <;> simp [ih]
 
+theorem mem_keys_iff_contains [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {k : α} :
+    k ∈ keys l ↔ containsKey k l = true := by
+  induction l using assoc_induction
+  · simp
+  · next k' v t ih =>
+    simp only [keys_cons, List.mem_cons, containsKey_cons, Bool.or_eq_true, beq_iff_eq]
+    rw [ih, Eq.comm]
+
+-- theorem keys_filter [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {f : (a : α) → β a → Bool} :
+--    (keys (l.filter (fun x => f x.1 x.2))) =
+--      (List.filter (fun x => f x.1 (getValueCast x.1 l (mem_keys_iff_contains.mp x.2)))
+--        (keys l).attach).unattach := by
+--  induction l using assoc_induction with
+--  | nil => simp
+--  | cons k v tl ih =>
+--    rw [List.filter_cons]
+--    by_cases h : f k v = true
+--    · simp only [h, ↓reduceIte, keys_cons]
+--      sorry
+--    · sorry
+
 @[simp]
 theorem keys_map [BEq α] {l : List ((a : α) × β a)} {f : (a : α) → β a → γ a} :
     keys (l.map fun p => ⟨p.1, f p.1 p.2⟩) = keys l := by

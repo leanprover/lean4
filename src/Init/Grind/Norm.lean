@@ -120,7 +120,7 @@ init_grind_norm
   -- Bool not
   Bool.not_not
   -- beq
-  beq_iff_eq beq_eq_decide_eq
+  beq_iff_eq beq_eq_decide_eq beq_self_eq_true
   -- bne
   bne_iff_ne bne_eq_decide_not_eq
   -- Bool not eq true/false

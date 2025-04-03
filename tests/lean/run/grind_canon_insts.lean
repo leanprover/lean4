@@ -59,11 +59,11 @@ def fallback : Fallback := do
 set_option trace.Meta.debug true
 
 /--
-info: [Meta.debug] [NatCast.natCast a * (NatCast.natCast b * NatCast.natCast c),
-     NatCast.natCast b * NatCast.natCast c,
-     NatCast.natCast d * (NatCast.natCast b * NatCast.natCast c),
-     -1 * (NatCast.natCast a * (NatCast.natCast b * NatCast.natCast c)),
-     -1 * (NatCast.natCast d * (NatCast.natCast b * NatCast.natCast c)),
+info: [Meta.debug] [↑a * (↑b * ↑c),
+     ↑b * ↑c,
+     ↑d * (↑b * ↑c),
+     -1 * (↑a * (↑b * ↑c)),
+     -1 * (↑d * (↑b * ↑c)),
      a * (b * c),
      b * c,
      d * (b * c)]

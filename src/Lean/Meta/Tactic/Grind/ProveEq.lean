@@ -22,15 +22,23 @@ private def withoutModifyingState (x : GoalM α) : GoalM α := do
     set saved
 
 /--
-If `e` has not been internalized yet, simplify it, and internalize the result.
+If `e` has not been internalized yet, instantiate metavariables, unfold reducible, canonicalize,
+and internalize the result.
+
+This is an auxliary function used at `proveEq?` and `proveHEq?`.
 -/
-private def preprocessAndInternalize (e : Expr) (gen : Nat := 0) : GoalM Simp.Result := do
+private def ensureInternalized (e : Expr) : GoalM Expr := do
   if (← alreadyInternalized e) then
-    return { expr := e }
+    return e
   else
-    let r ← preprocess e
-    internalize r.expr gen
-    return r
+    /-
+    It is important to expand reducible declarations. Otherwise, we cannot prove
+    `¬ a = []` and `b ≠ []` by congruence closure even when `a` and `b` are in the same
+    equivalence class.
+    -/
+    let e ← shareCommon (← canon (← unfoldReducible (← instantiateMVars e)))
+    internalize e 0
+    return e
 
 /--
 Try to construct a proof that `lhs = rhs` using the information in the
@@ -42,24 +50,26 @@ This function mainly relies on congruence closure, and constraint
 propagation. It will not perform case analysis.
 -/
 def proveEq? (lhs rhs : Expr) : GoalM (Option Expr) := do
+  trace[grind.debug.proveEq] "({lhs}) = ({rhs})"
   if (← alreadyInternalized lhs <&&> alreadyInternalized rhs) then
     if (← isEqv lhs rhs) then
       return some (← mkEqProof lhs rhs)
     else
       return none
   else withoutModifyingState do
-    let lhs ← preprocessAndInternalize lhs
-    let rhs ← preprocessAndInternalize rhs
+    /-
+    We used to apply the `grind` normalizer, but it created unexpected failures.
+    Here is an example, suppose we are trying to prove `i < (a :: l).length` is equal to `0 < (a :: l).length`
+    when `i` and `0`  are in the same equivalence class. This should hold by applying congruence closure.
+    However, if we apply the normalizer, we obtain `i+1 ≤ (a :: l).length` and `1 ≤ (a :: l).length`, and
+    the equality cannot be detected by congruence closure anymore.
+    -/
+    let lhs ← ensureInternalized lhs
+    let rhs ← ensureInternalized rhs
     processNewFacts
-    unless (← isEqv lhs.expr rhs.expr) do return none
-    unless (← hasSameType lhs.expr rhs.expr) do return none
-    let h ← mkEqProof lhs.expr rhs.expr
-    let h ← match lhs.proof?, rhs.proof? with
-      | none,    none    => pure h
-      | none,    some h₂ => mkEqTrans h (← mkEqSymm h₂)
-      | some h₁, none    => mkEqTrans h₁ h
-      | some h₁, some h₂ => mkEqTrans (← mkEqTrans h₁ h) (← mkEqSymm h₂)
-    return some h
+    unless (← isEqv lhs rhs) do return none
+    unless (← hasSameType lhs rhs) do return none
+    mkEqProof lhs rhs
 
 /-- Similiar to `proveEq?`, but for heterogeneous equality. -/
 def proveHEq? (lhs rhs : Expr) : GoalM (Option Expr) := do
@@ -69,16 +79,11 @@ def proveHEq? (lhs rhs : Expr) : GoalM (Option Expr) := do
     else
       return none
   else withoutModifyingState do
-    let lhs ← preprocessAndInternalize lhs
-    let rhs ← preprocessAndInternalize rhs
+    -- See comment at `proveEq?`
+    let lhs ← ensureInternalized lhs
+    let rhs ← ensureInternalized rhs
     processNewFacts
-    unless (← isEqv lhs.expr rhs.expr) do return none
-    let h ← mkHEqProof lhs.expr rhs.expr
-    let h ← match lhs.proof?, rhs.proof? with
-      | none,    none    => pure h
-      | none,    some h₂ => mkHEqTrans h (← mkHEqSymm h₂)
-      | some h₁, none    => mkHEqTrans h₁ h
-      | some h₁, some h₂ => mkHEqTrans (← mkHEqTrans h₁ h) (← mkHEqSymm h₂)
-    return some h
+    unless (← isEqv lhs rhs) do return none
+    mkHEqProof lhs rhs
 
 end Lean.Meta.Grind

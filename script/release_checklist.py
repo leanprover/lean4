@@ -8,6 +8,11 @@ import subprocess
 import sys
 import os
 
+def debug(verbose, message):
+    """Print debug message if verbose mode is enabled."""
+    if verbose:
+        print(f"    [DEBUG] {message}")
+
 def parse_repos_config(file_path):
     with open(file_path, "r") as f:
         return yaml.safe_load(f)["repositories"]
@@ -90,7 +95,7 @@ def is_version_gte(version1, version2):
         return False
     return parse_version(version1) >= parse_version(version2)
 
-def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token):
+def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token, verbose=False):
     # First get the commit SHA for the tag
     api_base = repo_url.replace("https://github.com/", "https://api.github.com/repos/")
     headers = {'Authorization': f'token {github_token}'} if github_token else {}
@@ -98,6 +103,7 @@ def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token):
     # Get tag's commit SHA
     tag_response = requests.get(f"{api_base}/git/refs/tags/{tag_name}", headers=headers)
     if tag_response.status_code != 200:
+        debug(verbose, f"Could not fetch tag {tag_name}, status code: {tag_response.status_code}")
         return False
     
     # Handle both single object and array responses
@@ -106,22 +112,48 @@ def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token):
         # Find the exact matching tag in the list
         matching_tags = [tag for tag in tag_data if tag['ref'] == f'refs/tags/{tag_name}']
         if not matching_tags:
+            debug(verbose, f"No matching tag found for {tag_name} in response list")
             return False
         tag_sha = matching_tags[0]['object']['sha']
     else:
         tag_sha = tag_data['object']['sha']
-
+    
+    # Check if the tag is an annotated tag and get the actual commit SHA
+    if tag_data.get('object', {}).get('type') == 'tag' or (
+        isinstance(tag_data, list) and 
+        matching_tags and 
+        matching_tags[0].get('object', {}).get('type') == 'tag'):
+        
+        # Get the commit that this tag points to
+        tag_obj_response = requests.get(f"{api_base}/git/tags/{tag_sha}", headers=headers)
+        if tag_obj_response.status_code == 200:
+            tag_obj = tag_obj_response.json()
+            if 'object' in tag_obj and tag_obj['object']['type'] == 'commit':
+                commit_sha = tag_obj['object']['sha']
+                debug(verbose, f"Tag is annotated. Resolved commit SHA: {commit_sha}")
+                tag_sha = commit_sha  # Use the actual commit SHA
+    
     # Get commits on stable branch containing this SHA
     commits_response = requests.get(
         f"{api_base}/commits?sha={stable_branch}&per_page=100",
         headers=headers
     )
     if commits_response.status_code != 200:
+        debug(verbose, f"Could not fetch commits for branch {stable_branch}, status code: {commits_response.status_code}")
         return False
 
     # Check if any commit in stable's history matches our tag's SHA
     stable_commits = [commit['sha'] for commit in commits_response.json()]
-    return tag_sha in stable_commits
+    
+    is_merged = tag_sha in stable_commits
+    
+    debug(verbose, f"Tag SHA: {tag_sha}")
+    debug(verbose, f"First 5 stable commits: {stable_commits[:5]}")
+    debug(verbose, f"Total stable commits fetched: {len(stable_commits)}")
+    if not is_merged:
+        debug(verbose, f"Tag SHA not found in first {len(stable_commits)} commits of stable branch")
+    
+    return is_merged
 
 def is_release_candidate(version):
     return "-rc" in version
@@ -195,13 +227,15 @@ def pr_exists_with_title(repo_url, title, github_token):
     return None
 
 def main():
+    parser = argparse.ArgumentParser(description="Check release status of Lean4 repositories")
+    parser.add_argument("toolchain", help="The toolchain version to check (e.g., v4.6.0)")
+    parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose debugging output")
+    args = parser.parse_args()
+
     github_token = get_github_token()
-
-    if len(sys.argv) != 2:
-        print("Usage: python3 release_checklist.py <toolchain>")
-        sys.exit(1)
-
-    toolchain = sys.argv[1]
+    toolchain = args.toolchain
+    verbose = args.verbose
+    
     stripped_toolchain = strip_rc_suffix(toolchain)
     lean_repo_url = "https://github.com/leanprover/lean4"
 
@@ -291,6 +325,7 @@ def main():
                 print(f"  ✅ PR with title '{pr_title}' exists: #{pr_number} ({pr_url})")
             else:
                 print(f"  ❌ PR with title '{pr_title}' does not exist")
+                print(f"     Run `script/release_steps.py {toolchain} {name}` to create it")
             repo_status[name] = False
             continue
         print(f"  ✅ On compatible toolchain (>= {toolchain})")
@@ -303,8 +338,10 @@ def main():
             print(f"  ✅ Tag {toolchain} exists")
 
         if check_stable and not is_release_candidate(toolchain):
-            if not is_merged_into_stable(url, toolchain, "stable", github_token):
+            if not is_merged_into_stable(url, toolchain, "stable", github_token, verbose):
+                org_repo = extract_org_repo_from_url(url)
                 print(f"  ❌ Tag {toolchain} is not merged into stable")
+                print(f"     Run `script/merge_remote.py {org_repo} stable {toolchain}` to merge it")
                 repo_status[name] = False
                 continue
             print(f"  ✅ Tag {toolchain} is merged into stable")

@@ -17,7 +17,7 @@ instance : CommRing (BitVec w) where
   mul_assoc := BitVec.mul_assoc
   mul_comm := BitVec.mul_comm
   mul_one := BitVec.mul_one
-  left_distrib := BitVec.mul_add
-  zero_mul := BitVec.zero_mul
+  left_distrib _ _ _ := BitVec.mul_add
+  zero_mul _ := BitVec.zero_mul
 
 end Lean.Grind

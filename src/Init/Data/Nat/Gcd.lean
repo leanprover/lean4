@@ -89,7 +89,7 @@ theorem gcd_dvd_right (m n : Nat) : gcd m n ∣ n := (gcd_dvd m n).right
 
 theorem gcd_le_left (n) (h : 0 < m) : gcd m n ≤ m := le_of_dvd h <| gcd_dvd_left m n
 
-theorem gcd_le_right (n) (h : 0 < n) : gcd m n ≤ n := le_of_dvd h <| gcd_dvd_right m n
+theorem gcd_le_right (m) (h : 0 < n) : gcd m n ≤ n := le_of_dvd h <| gcd_dvd_right m n
 
 theorem dvd_gcd : k ∣ m → k ∣ n → k ∣ gcd m n := by
   induction m, n using gcd.induction with intro km kn
@@ -123,6 +123,7 @@ theorem gcd_assoc (m n k : Nat) : gcd (gcd m n) k = gcd m (gcd n k) :=
       (dvd_gcd (gcd_dvd_left m (gcd n k))
         (Nat.dvd_trans (gcd_dvd_right m (gcd n k)) (gcd_dvd_left n k)))
       (Nat.dvd_trans (gcd_dvd_right m (gcd n k)) (gcd_dvd_right n k)))
+instance : Std.Associative gcd := ⟨gcd_assoc⟩
 
 @[simp] theorem gcd_one_right (n : Nat) : gcd n 1 = 1 := (gcd_comm n 1).trans (gcd_one_left n)
 

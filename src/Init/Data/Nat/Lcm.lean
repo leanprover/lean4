@@ -86,7 +86,7 @@ theorem le_lcm_left (m : Nat) (hn : 0 < n) : m ≤ lcm m n :=
   (Nat.eq_zero_or_pos m).elim (by rintro rfl; simp)
     (fun hm => le_of_dvd (lcm_pos hm hn) (dvd_lcm_left m n))
 
-theorem le_lcm_right (hm : 0 < m) (n : Nat) : n ≤ lcm m n :=
+theorem le_lcm_right (n : Nat) (hm : 0 < m)  : n ≤ lcm m n :=
   (Nat.eq_zero_or_pos n).elim (by rintro rfl; simp)
     (fun hn => le_of_dvd (lcm_pos hm hn) (dvd_lcm_right m n))
 

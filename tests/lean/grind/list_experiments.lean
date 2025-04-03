@@ -1,12 +1,5 @@
 set_option grind.warning false
 
-attribute [grind] List.length_eq_zero_iff
-attribute [grind] List.length_pos_of_mem
--- attribute [grind] List.cons_ne_self -- Bad idea, this will instantiate on every `cons`.
-attribute [grind] List.get_eq_getElem List.getElem!_eq_getElem?_getD
-attribute [grind] List.getElem?_nil List.getElem?_cons_zero List.getElem?_cons_succ
-attribute [grind] List.getElem_cons_zero List.getElem_cons_succ
-
 namespace List'
 
 open List Nat
@@ -108,10 +101,10 @@ theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := by grind
 
 theorem getElem?_cons : (a :: l)[i]? = if i = 0 then some a else l[i-1]? := by cases i <;> grind
 
-theorem getElem?_eq_some_iff {l : List α} : l[i]? = some a ↔ ∃ h : i < l.length, l[i] = a := by
-  induction l
-  · grind
-  · grind
+-- theorem getElem?_eq_some_iff {l : List α} : l[i]? = some a ↔ ∃ h : i < l.length, l[i] = a := by
+--   induction l
+--   · grind
+--   · cases i <;> grind -- reported
 
 theorem some_eq_getElem?_iff {l : List α} : some a = l[i]? ↔ ∃ h : i < l.length, l[i] = a := by
   rw [eq_comm, getElem?_eq_some_iff]
@@ -178,12 +171,17 @@ theorem ext_getElem {l₁ l₂ : List α} (hl : length l₁ = length l₂)
       have h₁ := Nat.le_of_not_lt h₁
       rw [getElem?_eq_none h₁, getElem?_eq_none]; rwa [← hl]
 
-@[simp] theorem getElem_concat_length {l : List α} {a : α} {i : Nat} (h : i = l.length) (w) :
-    (l ++ [a])[i]'w = a := by
-  subst h; simp
+attribute [grind] getElem_append_left getElem_append_right
+
+-- @[simp] theorem getElem_concat_length {l : List α} {a : α} {i : Nat} (h : i = l.length) (w) :
+--     (l ++ [a])[i]'w = a := by
+--   subst h; grind -- reported
+
+attribute [grind] getElem?_append_left getElem?_append_right
+attribute [grind] getElem?_singleton
 
 theorem getElem?_concat_length {l : List α} {a : α} : (l ++ [a])[l.length]? = some a := by
-  simp
+  grind
 
 /-! ### getD
 
@@ -192,47 +190,33 @@ Because of this, there is only minimal API for `getD`.
 -/
 
 @[simp] theorem getD_eq_getElem?_getD {l : List α} {i : Nat} {a : α} : getD l i a = (l[i]?).getD a := by
-  simp [getD]
+  grind
 
-theorem getD_cons_zero : getD (x :: xs) 0 d = x := by simp
-theorem getD_cons_succ : getD (x :: xs) (n + 1) d = getD xs n d := by simp
+attribute [grind] Option.getD_none Option.getD_some
 
-/-! ### get!
+theorem getD_cons_zero : getD (x :: xs) 0 d = x := by grind
+theorem getD_cons_succ : getD (x :: xs) (n + 1) d = getD xs n d := by grind
 
-We simplify `l.get! i` to `l[i]!`.
--/
-
-set_option linter.deprecated false in
-@[deprecated "Use `a[i]!` instead." (since := "2025-02-12")]
-theorem get!_eq_getD [Inhabited α] : ∀ (l : List α) i, l.get! i = l.getD i default
-  | [], _      => rfl
-  | _a::_, 0   => by simp [get!]
-  | _a::l, n+1 => by simpa using get!_eq_getD l n
-
-set_option linter.deprecated false in
-@[deprecated "Use `a[i]!` instead." (since := "2025-02-12"), simp]
-theorem get!_eq_getElem! [Inhabited α] (l : List α) (i) : l.get! i = l[i]! := by
-  simp [get!_eq_getD]
 
 /-! ### mem -/
 
-@[simp] theorem not_mem_nil {a : α} : ¬ a ∈ [] := nofun
-
-@[simp] theorem mem_cons : a ∈ (b :: l) ↔ a = b ∨ a ∈ l :=
-  ⟨fun h => by cases h <;> simp [Membership.mem, *],
-   fun | Or.inl rfl => by constructor | Or.inr h => by constructor; assumption⟩
-
-theorem mem_cons_self {a : α} {l : List α} : a ∈ a :: l := .head ..
-
-theorem mem_concat_self {xs : List α} {a : α} : a ∈ xs ++ [a] :=
-  mem_append_right xs mem_cons_self
-
-theorem mem_append_cons_self : a ∈ xs ++ a :: ys := mem_append_right _ mem_cons_self
-
 attribute [grind] List.not_mem_nil
-attribute [grind] List.nil_append List.append_nil
-set_option trace.grind.ematch.pattern true in
+
+@[simp] theorem not_mem_nil {a : α} : ¬ a ∈ [] := by grind
+
 attribute [grind] List.mem_cons
+
+@[simp] theorem mem_cons : a ∈ b :: l ↔ a = b ∨ a ∈ l := by grind
+
+theorem mem_cons_self {a : α} {l : List α} : a ∈ a :: l := by grind
+
+attribute [grind] List.mem_append_left List.mem_append_right
+
+theorem mem_concat_self {xs : List α} {a : α} : a ∈ xs ++ [a] := by grind
+
+theorem mem_append_cons_self : a ∈ xs ++ a :: ys := by grind
+
+attribute [grind] List.nil_append List.append_nil
 
 theorem eq_append_cons_of_mem {a : α} {xs : List α} (h : a ∈ xs) :
     ∃ as bs, xs = as ++ a :: bs ∧ a ∉ as := by
@@ -244,22 +228,19 @@ theorem eq_append_cons_of_mem {a : α} {xs : List α} (h : a ∈ xs) :
     | inl h => exact ⟨[], xs, by grind⟩
     | inr h =>
       by_cases h' : a = x
-      · subst h'
-        exact ⟨[], xs, by grind⟩
+      · exact ⟨[], xs, by grind⟩
       · obtain ⟨as, bs, rfl, h⟩ := ih h
         exact ⟨x :: as, bs, rfl, by grind⟩
 
-theorem mem_cons_of_mem (y : α) {a : α} {l : List α} : a ∈ l → a ∈ y :: l := .tail _
+theorem mem_cons_of_mem (y : α) {a : α} {l : List α} : a ∈ l → a ∈ y :: l := by grind
 
--- The argument `l : List α` is intentionally explicit,
--- as a tactic may generate `h` without determining `l`.
 theorem exists_mem_of_ne_nil (l : List α) (h : l ≠ []) : ∃ x, x ∈ l :=
   exists_mem_of_length_pos (length_pos_iff.2 h)
 
-example (h : ∀ x, ¬ x ∈ h :: t) : False := by grind
+-- example (h : ∀ x, ¬ x ∈ h :: t) : False := by grind
 
-theorem eq_nil_iff_forall_not_mem {l : List α} : l = [] ↔ ∀ a, a ∉ l := by
-  cases l <;> grind
+-- theorem eq_nil_iff_forall_not_mem {l : List α} : l = [] ↔ ∀ a, a ∉ l := by
+--   cases l <;> grind
 
 @[simp] theorem mem_dite_nil_left {x : α} [Decidable p] {l : ¬ p → List α} :
     (x ∈ if h : p then [] else l h) ↔ ∃ h : ¬ p, x ∈ l h := by
@@ -317,20 +298,21 @@ theorem not_mem_cons_of_ne_of_not_mem {a y : α} {l : List α} : a ≠ y → a �
 
 theorem ne_and_not_mem_of_not_mem_cons {a y : α} {l : List α} : a ∉ y :: l → a ≠ y ∧ a ∉ l := by grind
 
+attribute [grind] List.length_cons
+
 theorem getElem_of_mem : ∀ {a} {l : List α}, a ∈ l → ∃ (i : Nat) (h : i < l.length), l[i]'h = a
-  | _, _ :: _, .head .. => ⟨0, Nat.succ_pos _, rfl⟩
-  | _, _ :: _, .tail _ m => let ⟨i, h, e⟩ := getElem_of_mem m; ⟨i+1, Nat.succ_lt_succ h, e⟩
+  | _, _ :: _, .head .. => ⟨0, by grind⟩
+  | _, _ :: _, .tail _ m => let ⟨i, h, e⟩ := getElem_of_mem m; ⟨i+1, by grind, by grind⟩
 
 theorem getElem?_of_mem {a} {l : List α} (h : a ∈ l) : ∃ i : Nat, l[i]? = some a := by
   let ⟨n, _, e⟩ := getElem_of_mem h
   exact ⟨n, e ▸ getElem?_eq_getElem _⟩
 
-theorem mem_of_getElem {l : List α} {i : Nat} {h} {a : α} (e : l[i] = a) : a ∈ l := by
-  subst e
-  simp
+attribute [grind] List.getElem_mem
 
-theorem mem_of_getElem? {l : List α} {i : Nat} {a : α} (e : l[i]? = some a) : a ∈ l :=
-  let ⟨_, e⟩ := getElem?_eq_some_iff.1 e; e ▸ getElem_mem ..
+theorem mem_of_getElem {l : List α} {i : Nat} {h} {a : α} (e : l[i] = a) : a ∈ l := by grind
+
+theorem mem_of_getElem? {l : List α} {i : Nat} {a : α} (e : l[i]? = some a) : a ∈ l := by grind
 
 theorem mem_iff_getElem {a} {l : List α} : a ∈ l ↔ ∃ (i : Nat) (h : i < l.length), l[i]'h = a :=
   ⟨getElem_of_mem, fun ⟨_, _, e⟩ => e ▸ getElem_mem ..⟩
@@ -347,20 +329,13 @@ theorem forall_getElem {l : List α} {p : α → Prop} :
     constructor
     · intro w
       constructor
-      · exact w 0 (by simp)
-      · apply ih.1
-        intro n h
-        simpa using w (n+1) (Nat.add_lt_add_right h 1)
-    · rintro ⟨h, w⟩
-      rintro (_ | n) h
-      · simpa
-      · apply w
-        simp only [getElem_cons_succ]
-        exact getElem_mem (lt_of_succ_lt_succ h)
+      · exact w 0 (by grind)
+      · grind
+    · rintro ⟨h, w⟩ (_ | n) <;> grind
 
 @[simp] theorem elem_eq_contains [BEq α] {a : α} {l : List α} :
     elem a l = l.contains a := by
-  simp [contains]
+  grind
 
 @[simp] theorem decide_mem_cons [BEq α] [LawfulBEq α] {l : List α} :
     decide (y ∈ a :: l) = (y == a || decide (y ∈ l)) := by
@@ -385,26 +360,21 @@ theorem elem_eq_mem [BEq α] [LawfulBEq α] (a : α) (as : List α) :
 
 /-! ### `isEmpty` -/
 
-@[simp] theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by
-  cases l <;> simp
+attribute [grind] List.isEmpty_iff
 
-@[deprecated isEmpty_iff (since := "2025-02-17")]
-abbrev isEmpty_eq_true := @isEmpty_iff
+@[simp] theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by grind
 
-@[simp] theorem isEmpty_eq_false_iff {l : List α} : l.isEmpty = false ↔ l ≠ [] := by
-  cases l <;> simp
-
-@[deprecated isEmpty_eq_false_iff (since := "2025-02-17")]
-abbrev isEmpty_eq_false := @isEmpty_eq_false_iff
+@[simp] theorem isEmpty_eq_false_iff {l : List α} : l.isEmpty = false ↔ l ≠ [] := by grind
 
 theorem isEmpty_eq_false_iff_exists_mem {xs : List α} :
     xs.isEmpty = false ↔ ∃ x, x ∈ xs := by
   cases xs <;> simp
 
-theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 := by
-  rw [isEmpty_iff, length_eq_zero_iff]
+theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 := by grind
 
 /-! ### any / all -/
+
+attribute [grind] List.any_nil List.any_cons List.all_nil List.all_cons
 
 theorem any_eq {l : List α} : l.any p = decide (∃ x, x ∈ l ∧ p x) := by induction l <;> simp [*]
 
@@ -448,27 +418,22 @@ theorem all_bne' [BEq α] [PartialEquivBEq α] {l : List α} :
 
 /-! ### set -/
 
--- As `List.set` is defined in `Init.Prelude`, we write the basic simplification lemmas here.
-@[simp] theorem set_nil {i : Nat} {a : α} : [].set i a = [] := rfl
+attribute [grind] List.set_nil List.set_cons_zero List.set_cons_succ
+
+@[simp] theorem set_nil {i : Nat} {a : α} : [].set i a = [] := by grind
 @[simp] theorem set_cons_zero {x : α} {xs : List α} {a : α} :
-  (x :: xs).set 0 a = a :: xs := rfl
+  (x :: xs).set 0 a = a :: xs := by grind
 @[simp] theorem set_cons_succ {x : α} {xs : List α} {i : Nat} {a : α} :
-  (x :: xs).set (i + 1) a = x :: xs.set i a := rfl
+  (x :: xs).set (i + 1) a = x :: xs.set i a := by grind
+
+attribute [grind] List.getElem_set List.getElem?_set
 
 @[simp] theorem getElem_set_self {l : List α} {i : Nat} {a : α} (h : i < (l.set i a).length) :
-    (l.set i a)[i] = a :=
-  match l, i with
-  | [], _ => by
-    simp at h
-  | _ :: _, 0 => by simp
-  | _ :: l, i + 1 => by simp [getElem_set_self]
+    (l.set i a)[i] = a := by grind
 
 @[simp] theorem getElem?_set_self {l : List α} {i : Nat} {a : α} (h : i < l.length) :
-    (l.set i a)[i]? = some a := by
-  simp_all [getElem?_eq_some_iff]
+    (l.set i a)[i]? = some a := by grind
 
-/-- This differs from `getElem?_set_self` by monadically mapping `Function.const _ a` over the `Option`
-returned by `l[i]?`. -/
 theorem getElem?_set_self' {l : List α} {i : Nat} {a : α} :
     (set l i a)[i]? = Function.const _ a <$> l[i]? := by
   by_cases h : i < l.length
@@ -478,78 +443,45 @@ theorem getElem?_set_self' {l : List α} {i : Nat} {a : α} :
 
 @[simp] theorem getElem_set_ne {l : List α} {i j : Nat} (h : i ≠ j) {a : α}
     (hj : j < (l.set i a).length) :
-    (l.set i a)[j] = l[j]'(by simp at hj; exact hj) :=
-  match l, i, j with
-  | [], _, _ => by simp
-  | _ :: _, 0, 0 => by contradiction
-  | _ :: _, 0, _ + 1 => by simp
-  | _ :: _, _ + 1, 0 => by simp
-  | _ :: l, i + 1, j + 1 => by
-    have g : i ≠ j := h ∘ congrArg (· + 1)
-    simp [getElem_set_ne g]
+    (l.set i a)[j] = l[j]'(by simp at hj; exact hj) := by grind
 
 @[simp] theorem getElem?_set_ne {l : List α} {i j : Nat} (h : i ≠ j) {a : α}  :
-    (l.set i a)[j]? = l[j]? := by
-  by_cases hj : j < (l.set i a).length
-  · rw [getElem?_eq_getElem hj, getElem?_eq_getElem (by simp_all)]
-    simp_all
-  · rw [getElem?_eq_none (by simp_all), getElem?_eq_none (by simp_all)]
+    (l.set i a)[j]? = l[j]? := by grind
 
 theorem getElem_set {l : List α} {i j} {a} (h) :
-    (set l i a)[j]'h = if i = j then a else l[j]'(length_set .. ▸ h) := by
-  if h : i = j then
-    subst h; simp only [getElem_set_self, ↓reduceIte]
-  else
-    simp [h]
+    (set l i a)[j]'h = if i = j then a else l[j]'(length_set .. ▸ h) := by grind
 
 theorem getElem?_set {l : List α} {i j : Nat} {a : α} :
-    (l.set i a)[j]? = if i = j then if i < l.length then some a else none else l[j]? := by
-  if h : i = j then
-    subst h
-    rw [if_pos rfl]
-    split <;> rename_i h
-    · simp only [getElem?_set_self (by simpa), h]
-    · simp_all
-  else
-    simp [h]
+    (l.set i a)[j]? = if i = j then if i < l.length then some a else none else l[j]? := by grind
 
-/-- This differs from `getElem?_set` by monadically mapping `Function.const _ a`
-over the `Option` returned by `l[j]`? -/
 theorem getElem?_set' {l : List α} {i j : Nat} {a : α} :
     (set l i a)[j]? = if i = j then Function.const _ a <$> l[j]? else l[j]? := by
   by_cases i = j
   · simp only [getElem?_set_self', Option.map_eq_map, ↓reduceIte, *]
   · simp only [ne_eq, not_false_eq_true, getElem?_set_ne, ↓reduceIte, *]
 
+attribute [grind] List.length_set
+
 @[simp] theorem set_getElem_self {as : List α} {i : Nat} (h : i < as.length) :
     as.set i as[i] = as := by
   apply ext_getElem
   · simp
   · intro n h₁ h₂
+    grind -- Why isn't this instantiating `getElem_set`?
     rw [getElem_set]
-    split <;> simp_all
+    grind
 
 theorem set_eq_of_length_le {l : List α} {i : Nat} (h : l.length ≤ i) {a : α} :
     l.set i a = l := by
   induction l generalizing i with
-  | nil => simp_all
-  | cons a l ih =>
-    induction i
-    · simp_all
-    · simp only [set_cons_succ, cons.injEq, true_and]
-      rw [ih]
-      exact Nat.succ_le_succ_iff.mp h
+  | nil => grind
+  | cons a l ih => cases i <;> grind
 
 @[simp] theorem set_eq_nil_iff {l : List α} (i : Nat) (a : α) : l.set i a = [] ↔ l = [] := by
-  cases l <;> cases i <;> simp [set]
+  cases l <;> cases i <;> grind
 
-theorem set_comm (a b : α) : ∀ {i j : Nat} {l : List α}, i ≠ j →
-    (l.set i a).set j b = (l.set j b).set i a
-  | _, _, [], _ => by simp
-  | _+1, 0, _ :: _, _ => by simp [set]
-  | 0, _+1, _ :: _, _ => by simp [set]
-  | _+1, _+1, _ :: t, h =>
-    congrArg _ <| set_comm a b fun h' => h <| Nat.succ_inj'.mpr h'
+theorem set_comm (a b : α) {i j : Nat} {l : List α} (h : i ≠ j) :
+    (l.set i a).set j b = (l.set j b).set i a := by grind
 
 @[simp]
 theorem set_set (a : α) {b : α} : ∀ {l : List α} {i : Nat}, (l.set i a).set i b = l.set i b
@@ -2949,9 +2881,8 @@ section replace
 variable [BEq α]
 
 attribute [grind] List.replace_cons
-grind_pattern LawfulBEq.rfl => a == a
 
-@[simp] theorem replace_cons_self [LawfulBEq α] {a : α} : (a::as).replace a b = b::as := by grind -- reported
+@[simp] theorem replace_cons_self [LawfulBEq α] {a : α} : (a::as).replace a b = b::as := by grind
 
 @[simp] theorem replace_of_not_mem [LawfulBEq α] {l : List α} (h : a ∉ l) : l.replace a b = l := by
   induction l with
@@ -3199,23 +3130,24 @@ theorem any_eq_not_all_not {l : List α} {p : α → Bool} : l.any p = !l.all (!
 theorem all_eq_not_any_not {l : List α} {p : α → Bool} : l.all p = !l.any (!p .) := by
   simp only [not_any_eq_all_not, Bool.not_not]
 
-@[simp] theorem any_map {l : List α} {p : β → Bool} : (l.map f).any p = l.any (p ∘ f) := by
-  induction l with simp | cons _ _ ih => rw [ih]
-
-@[simp] theorem all_map {l : List α} {p : β → Bool} : (l.map f).all p = l.all (p ∘ f) := by
-  induction l with simp | cons _ _ ih => rw [ih]
-
+attribute [grind] List.map_nil List.map_cons
 attribute [grind] List.filter_nil List.filter_cons
 attribute [grind] List.any_nil List.any_cons
 attribute [grind] List.all_nil List.all_cons
 
+@[simp] theorem any_map {l : List α} {p : β → Bool} : (l.map f).any p = l.any (p ∘ f) := by
+  induction l <;> grind
+
+@[simp] theorem all_map {l : List α} {p : β → Bool} : (l.map f).all p = l.all (p ∘ f) := by
+  induction l <;> grind
+
 @[simp] theorem any_filter {l : List α} {p q : α → Bool} :
     (filter p l).any q = l.any fun a => p a && q a := by
-  induction l <;> grind -- reported elsewhere
+  induction l <;> grind
 
 @[simp] theorem all_filter {l : List α} {p q : α → Bool} :
     (filter p l).all q = l.all fun a => !(p a) || q a := by
-  induction l <;> grind -- as for any_filter
+  induction l <;> grind
 
 @[simp] theorem any_filterMap {l : List α} {f : α → Option β} {p : β → Bool} :
     (filterMap f l).any p = l.any fun a => match f a with | some b => p b | none => false := by

@@ -10,4 +10,5 @@ lean_lib Foo where
   moreLinkArgs := if let some cfg := get_config? linkArgs then cfg.splitOn " " |>.toArray else #[]
 
 lean_lib FooDep
-lean_lib OrderTest
+lean_lib FooDepDep
+lean_exe orderTest

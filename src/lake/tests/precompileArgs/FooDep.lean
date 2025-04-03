@@ -1,1 +1,3 @@
-def greeting := "hello"
+import FooDepDep
+
+def greeting := hello

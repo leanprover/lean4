@@ -2,3 +2,6 @@
 import Foo.Bar
 -- then, import a module which does
 import Foo.Baz
+
+def main : IO Unit := do
+  IO.println (← greetingRef.get)

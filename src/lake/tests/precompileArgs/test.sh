@@ -3,12 +3,14 @@ source ../common.sh
 
 ./clean.sh
 
-# Test that the order of precompiled libraries is correct
+# Test that the link & load order of precompiled libraries is correct
 # https://github.com/leanprover/lean4/issues/7790
-test_run build OrderTest
+test_run -v exe orderTest
 
 # Test that `moreLinkArgs` are included when linking precompiled modules
+./clean.sh
 test_maybe_err "-lBogus" build -KlinkArgs=-lBogus
+./clean.sh
 
 # Test that dynlibs are part of the module trace unless `platformIndependent` is set
 test_run build -R

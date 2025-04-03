@@ -17,14 +17,3 @@ attribute [grind] List.getElem_append_left List.getElem_append_right
   subst h; grind
 -- [issue] failed to create E-match local theorem for
 --   ∀ (h₁ : True), (l ++ [a])[l.length] = [a][l.length - l.length]
-
-
-attribute [grind] List.map_nil List.map_cons
-attribute [grind] List.any_nil List.any_cons
-attribute [grind] List.all_nil List.all_cons
-
-@[simp] theorem any_map {l : List α} {p : β → Bool} : (l.map f).any p = l.any (p ∘ f) := by
-  induction l <;> grind -- Seems to have trouble with the Boolean `||`
-
-@[simp] theorem all_map {l : List α} {p : β → Bool} : (l.map f).all p = l.all (p ∘ f) := by
-  induction l <;> grind -- Seems to have trouble with the Boolean `&&`

@@ -147,5 +147,8 @@ init_grind_norm
   Int.Linear.sub_fold Int.Linear.neg_fold
   -- Int divides
   Int.one_dvd Int.zero_dvd
+  -- Function composition
+  Function.const_apply Function.comp_apply Function.const_comp
+  Function.comp_const Function.true_comp Function.false_comp
 
 end Lean.Grind

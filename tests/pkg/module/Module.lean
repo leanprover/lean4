@@ -21,3 +21,7 @@ open Lean
   let _ ← Core.CoreM.toIO (ctx := { fileName := "module.lean", fileMap := default }) (s := { env }) do
     assert! (← findDeclarationRanges? ``f).isSome
     assert! (getModuleDoc? (← getEnv) `Module.Basic).any (·.size == 1)
+
+/-! Theorems should be exported without their bodies -/
+
+#print t

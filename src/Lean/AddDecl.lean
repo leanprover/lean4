@@ -54,21 +54,26 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   if !Elab.async.get (← getOptions) then
     return (← addSynchronously)
 
+  let env ← getEnv
   -- convert `Declaration` to `ConstantInfo` to use as a preliminary value in the environment until
   -- kernel checking has finished; not all cases are supported yet
+  let mut exportedInfo? := none
+  let mut exportedKind? := none
   let (name, info, kind) ← match decl with
-    | .thmDecl thm => pure (thm.name, .thmInfo thm, .thm)
+    | .thmDecl thm =>
+      exportedInfo? := some <| .axiomInfo { thm with isUnsafe := false }
+      exportedKind? := some .axiom
+      pure (thm.name, .thmInfo thm, .thm)
     | .defnDecl defn => pure (defn.name, .defnInfo defn, .defn)
     | .mutualDefnDecl [defn] => pure (defn.name, .defnInfo defn, .defn)
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
     | _ => return (← addSynchronously)
 
-  let env ← getEnv
   -- no environment extension changes to report after kernel checking; ensures we do not
   -- accidentally wait for this snapshot when querying extension states
-  let async ← env.addConstAsync (reportExts := false) name kind
+  let async ← env.addConstAsync (reportExts := false) name kind (exportedKind?.getD kind)
   -- report preliminary constant info immediately
-  async.commitConst async.asyncEnv (some info)
+  async.commitConst async.asyncEnv (some info) exportedInfo?
   setEnv async.mainEnv
   let cancelTk ← IO.CancelToken.new
   let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do

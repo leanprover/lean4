@@ -997,7 +997,7 @@ given environment. The declaration name and kind must match the original values 
 def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environment)
     (info? : Option ConstantInfo := none) (exportedInfo? : Option ConstantInfo := none) :
     IO Unit := do
-  let info ← match info? <|> env.find? res.constName with
+  let info ← match info? <|> (env.setExporting false).find? res.constName with
     | some info => pure info
     | none =>
       throw <| .userError s!"AddConstAsyncResult.commitConst: constant {res.constName} not found in async context"
@@ -1016,7 +1016,7 @@ def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environme
       throw <| .userError s!"AddConstAsyncResult.commitConst: exported constant has different signature"
   res.constPromise.resolve {
     privateConstInfo := info
-    exportedConstInfo := exportedInfo?.getD info
+    exportedConstInfo := (exportedInfo? <|> (env.setExporting true).find? res.constName).getD info
     exts := env.base.extensions
     nestedConsts := env.asyncConsts
   }

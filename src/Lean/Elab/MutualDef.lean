@@ -1062,7 +1062,7 @@ where
     processDeriving headers
   elabAsync header view declId := do
     let env ← getEnv
-    let async ← env.addConstAsync declId.declName .thm
+    let async ← env.addConstAsync declId.declName .thm (exportedKind := .axiom)
     setEnv async.mainEnv
 
     -- TODO: parallelize header elaboration as well? Would have to refactor auto implicits catch,
@@ -1119,7 +1119,7 @@ where
     Core.logSnapshotTask { stx? := none, task := (← BaseIO.asTask (act ())), cancelTk? := cancelTk }
     applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
-  finishElab headers := withFunLocalDecls headers fun funFVars => do
+  finishElab headers := withFunLocalDecls headers fun funFVars => withoutExporting do
     for view in views, funFVar in funFVars do
       addLocalVarInfo view.declId funFVar
     let values ← try

@@ -7,7 +7,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionPrefixIssue.lean"},
      "position": {"line": 1, "character": 64}},
-    "id": {"fvar": {"id": "_uniq.29"}},
+    "id": {"fvar": {"id": "_uniq.32"}},
     "cPos": 0}},
   {"label": "veryLongDefinitionNameVeryLongDefinitionName",
    "kind": 21,

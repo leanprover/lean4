@@ -18,12 +18,6 @@ class CommSemigroup (α : Type u) extends Semigroup α where
 instance [CommSemigroup α] : MulComm α where
   mul_comm := CommSemigroup.mul_comm
 
-class One (α : Type u) where
-  one : α
-
-instance [One α] : OfNat α (nat_lit 1) where
-  ofNat := One.one
-
 class Monoid (α : Type u) extends Semigroup α, One α where
   one_mul (a : α) : 1 * a = a
   mul_one (a : α) : a * 1 = a
@@ -59,11 +53,11 @@ def fallback : Fallback := do
 set_option trace.Meta.debug true
 
 /--
-info: [Meta.debug] [NatCast.natCast a * (NatCast.natCast b * NatCast.natCast c),
-     NatCast.natCast b * NatCast.natCast c,
-     NatCast.natCast d * (NatCast.natCast b * NatCast.natCast c),
-     -1 * (NatCast.natCast a * (NatCast.natCast b * NatCast.natCast c)),
-     -1 * (NatCast.natCast d * (NatCast.natCast b * NatCast.natCast c)),
+info: [Meta.debug] [↑a * (↑b * ↑c),
+     ↑b * ↑c,
+     ↑d * (↑b * ↑c),
+     -1 * (↑a * (↑b * ↑c)),
+     -1 * (↑d * (↑b * ↑c)),
      a * (b * c),
      b * c,
      d * (b * c)]

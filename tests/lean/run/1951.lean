@@ -1,7 +1,5 @@
 class FunLike (F : Type _) (A : outParam (Type _)) (B : outParam (A → Type _)) where toFun : F → ∀ a, B a
 instance [FunLike F A B] : CoeFun F fun _ => ∀ a, B a where coe := FunLike.toFun
-class One (M) where one : M
-instance [One M] : OfNat M (nat_lit 1) where ofNat := One.one
 class OneHomClass (F) (A B : outParam _) [One A] [One B] extends FunLike F A fun _ => B where
   map_one (f : F) : f 1 = 1
 class MulHomClass (F) (A B : outParam _) [Mul A] [Mul B] extends FunLike F A fun _ => B

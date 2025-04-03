@@ -141,11 +141,11 @@ def grind
     let result ← Grind.main mvar'.mvarId! params mainDeclName fallback
     if result.hasFailures then
       throwError "`grind` failed\n{← result.toMessageData}"
-    let auxName ← Term.mkAuxName `grind
     -- `grind` proofs are often big
     let e ← if (← isProp type) then
-      mkAuxTheorem auxName type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+      mkAuxTheorem (prefix? := mainDeclName) type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
     else
+      let auxName ← Term.mkAuxName `grind
       mkAuxDefinition auxName type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
     mvarId.assign e
     return result.trace

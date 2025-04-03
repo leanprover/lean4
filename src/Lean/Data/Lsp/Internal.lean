@@ -7,6 +7,7 @@ Authors: Joscha Mennicken
 prelude
 import Lean.Expr
 import Lean.Data.Lsp.Basic
+import Lean.Data.JsonRpc
 import Std.Data.TreeMap
 
 set_option linter.missingDocs true -- keep it documented
@@ -200,5 +201,63 @@ structure LeanStaleDependencyParams where
   /-- The dependency that is stale. -/
   staleDependency : DocumentUri
   deriving FromJson, ToJson
+
+/-- LSP type for `Lean.OpenDecl`. -/
+inductive OpenNamespace
+  /-- All declarations in `«namespace»` are opened, except for `exceptions`. -/
+  | allExcept («namespace» : Name) (exceptions : Array Name)
+  /-- The declaration `«from»` is renamed to `to`. -/
+  | renamed («from» : Name) (to : Name)
+  deriving FromJson, ToJson
+
+/-- Query in the `$/lean/queryModule` watchdog <- worker request. -/
+structure LeanModuleQuery where
+  /-- Identifier (potentially partial) to query. -/
+  identifier : String
+  /--
+  Namespaces that are open at the position of `identifier`.
+  Used for accurately matching declarations against `identifier` in context.
+  -/
+  openNamespaces : Array OpenNamespace
+  deriving FromJson, ToJson
+
+/--
+Used in the `$/lean/queryModule` watchdog <- worker request, which is used by the worker to
+extract information from the .ilean information in the watchdog.
+-/
+structure LeanQueryModuleParams where
+  /--
+  The request ID in the context of which this worker -> watchdog request was emitted.
+  Used for cancelling this request in the watchdog.
+  -/
+  sourceRequestID : JsonRpc.RequestID
+  /-- Module queries for extracting .ilean information in the watchdog. -/
+  queries : Array LeanModuleQuery
+  deriving FromJson, ToJson
+
+/-- Result entry of a module query. -/
+structure LeanIdentifier where
+  /-- Module that `decl` is defined in. -/
+  module : Name
+  /-- Full name of the declaration that matches the query. -/
+  decl : Name
+  /-- Whether this `decl` matched the query exactly. -/
+  isExactMatch : Bool
+  deriving FromJson, ToJson
+
+/--
+Result for a single module query.
+Identifiers in the response are sorted descendingly by how well they match the query.
+-/
+abbrev LeanQueriedModule := Array LeanIdentifier
+
+/-- Response for the `$/lean/queryModule` watchdog <- worker request. -/
+structure LeanQueryModuleResponse where
+  /--
+  Results for each query in `LeanQueryModuleParams`.
+  Positions correspond to `queries` in the parameter of the request.
+  -/
+  queryResults : Array LeanQueriedModule
+  deriving FromJson, ToJson, Inhabited
 
 end Lean.Lsp

@@ -299,7 +299,10 @@ extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
 #elif defined(LEAN_MIMALLOC)
     void * r = mi_malloc(sz);
     if (r == nullptr) lean_internal_panic_out_of_memory();
-    return (lean_object*)r;
+    lean_object * o = (lean_object*)r;
+    // not a small object
+    o->m_cs_sz = 0;
+    return o;
 #else
     void * r = malloc(sz);
     if (r == nullptr) lean_internal_panic_out_of_memory();
@@ -1207,7 +1210,14 @@ void deactivate_promise(lean_promise_object * promise) {
 
 object * alloc_mpz(mpz const & m) {
     void * mem = lean_alloc_small_object(sizeof(mpz_object));
+#ifdef LEAN_MIMALLOC
+    // placement new is not guaranteed to preserve this field so store and restore it
+    unsigned sz = ((lean_object *)mem)->m_cs_sz;
+#endif
     mpz_object * o = new (mem) mpz_object(m);
+#ifdef LEAN_MIMALLOC
+    o->m_header.m_cs_sz = sz;
+#endif
     lean_set_st_header((lean_object*)o, LeanMPZ, 0);
     return (lean_object*)o;
 }

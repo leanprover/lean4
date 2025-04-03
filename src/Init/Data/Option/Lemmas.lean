@@ -312,7 +312,7 @@ theorem all_eq_true (p : α → Bool) (x : Option α) :
     x.all p = true ↔ ∀ y, x = some y → p y := by
   cases x <;> simp
 
-theorem all_eq_true' (p : α → Bool) (x : Option α) :
+theorem all_eq_true_iff_get (p : α → Bool) (x : Option α) :
     x.all p = true ↔ (h : x.isSome) → p (x.get h) := by
   cases x <;> simp
 
@@ -320,7 +320,7 @@ theorem all_eq_false (p : α → Bool) (x : Option α) :
     x.all p = false ↔ ∃ y, x = some y ∧ p y = false := by
   cases x <;> simp
 
-theorem all_eq_false' (p : α → Bool) (x : Option α) :
+theorem all_eq_false_iff_get (p : α → Bool) (x : Option α) :
     x.all p = false ↔ ∃ h : x.isSome, p (x.get h) = false := by
   cases x <;> simp
 
@@ -328,7 +328,7 @@ theorem any_eq_true (p : α → Bool) (x : Option α) :
     x.any p = true ↔ ∃ y, x = some y ∧ p y := by
   cases x <;> simp
 
-theorem any_eq_true' (p : α → Bool) (x : Option α) :
+theorem any_eq_true_iff_get (p : α → Bool) (x : Option α) :
     x.any p = true ↔ ∃ h : x.isSome, p (x.get h) := by
   cases x <;> simp
 
@@ -336,7 +336,7 @@ theorem any_eq_false (p : α → Bool) (x : Option α) :
     x.any p = false ↔ ∀ y, x = some y → p y = false := by
   cases x <;> simp
 
-theorem any_eq_false' (p : α → Bool) (x : Option α) :
+theorem any_eq_false_iff_get (p : α → Bool) (x : Option α) :
     x.any p = false ↔ (h : x.isSome) → p (x.get h) = false := by
   cases x <;> simp
 
@@ -410,7 +410,7 @@ theorem guard_comp {p : α → Prop} [DecidablePred p] {f : β → α} :
   ext1 b
   simp [guard]
 
-theorem bind_guard (x : Option α) (p : α → Prop) [DecidablePred p] :
+theorem bind_guard (x : Option α) (p : α → Prop) {_ : DecidablePred p} :
     x.bind (Option.guard p) = x.filter p := by
   simp only [Option.filter_eq_bind, decide_eq_true_eq]
 
@@ -419,7 +419,7 @@ theorem guard_eq_map (p : α → Prop) [DecidablePred p] :
   funext x
   simp [Option.guard]
 
-theorem guard_def (p : α → Prop) [DecidablePred p] :
+theorem guard_def (p : α → Prop) {_ : DecidablePred p} :
     Option.guard p = fun x => if p x then some x else none := rfl
 
 theorem liftOrGet_eq_or_eq {f : α → α → α} (h : ∀ a b, f a b = a ∨ f a b = b) :
@@ -770,7 +770,7 @@ theorem pmap_map (o : Option α) (f : α → β) {p : β → Prop} (g : ∀ b, p
       pmap (fun a h => g (f a) h) o (fun a m => H (f a) (mem_map_of_mem f m)) := by
   cases o <;> simp
 
-theorem pmap_congr.translate {α : Type u}
+theorem pmap_pred_congr {α : Type u}
     {p p' : α → Prop} (hp : ∀ x, p x ↔ p' x)
     {o o' : Option α} (ho : o = o')
     (h : ∀ x, x ∈ o → p x) : ∀ x, x ∈ o' → p' x := by
@@ -785,9 +785,8 @@ theorem pmap_congr {α : Type u} {β : Type v}
     (hf : ∀ x h, f x ((hp x).mpr h) = f' x h)
     {o o' : Option α} (ho : o = o')
     {h : ∀ x, x ∈ o → p x} :
-    Option.pmap f o h = Option.pmap f' o' (Option.pmap_congr.translate hp ho h) := by
+    Option.pmap f o h = Option.pmap f' o' (Option.pmap_pred_congr hp ho h) := by
   cases ho
-  unfold Option.pmap
   cases o
   · rfl
   · dsimp
@@ -830,13 +829,13 @@ theorem isSome_pfilter_iff {α : Type _} {o : Option α} {p : (a : α) → o = s
     (o.pfilter p).isSome ↔ ∃ (a : α) (ha : o = some a), p a ha := by
   cases o <;> simp
 
-theorem isSome_pfilter_iff' {α : Type _} {o : Option α} {p : (a : α) → o = some a → Bool} :
+theorem isSome_pfilter_iff_get {α : Type _} {o : Option α} {p : (a : α) → o = some a → Bool} :
     (o.pfilter p).isSome ↔ ∃ (h : o.isSome), p (o.get h) (get_mem h) := by
   cases o <;> simp
 
 theorem isSome_of_isSome_pfilter {α : Type _} {o : Option α} {p : (a : α) → o = some a → Bool}
     (h : (o.pfilter p).isSome) : o.isSome :=
-  (isSome_pfilter_iff'.mp h).1
+  (isSome_pfilter_iff_get.mp h).1
 
 @[simp] theorem get_pfilter {α : Type _} {o : Option α} {p : (a : α) → o = some a → Bool}
     (h : (o.pfilter p).isSome) :

@@ -4,12 +4,6 @@ class Semigroup (α : Type u) extends Mul α where
 class CommSemigroup (α : Type u) extends Semigroup α where
   mul_comm (a b : α) : a * b = b * a
 
-class One (α : Type u) where
-  one : α
-
-instance [One α] : OfNat α (nat_lit 1) where
-  ofNat := One.one
-
 class Monoid (α : Type u) extends Semigroup α, One α where
   one_mul (a : α) : 1 * a = a
   mul_one (a : α) : a * 1 = a

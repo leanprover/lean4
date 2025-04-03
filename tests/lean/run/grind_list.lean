@@ -1,4 +1,4 @@
-%reset_grind_attrs
+reset_grind_attrs%
 
 namespace List
 

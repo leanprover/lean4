@@ -8,6 +8,7 @@ import Init.Grind.Tactics
 import Lean.Meta.Tactic.Grind
 import Lean.Meta.Tactic.TryThis
 import Lean.Elab.Command
+import Lean.Elab.MutualDef
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.Config
 
@@ -27,7 +28,7 @@ def elabGrindPattern : CommandElab := fun stx => do
       let info ← getConstInfo declName
       forallTelescope info.type fun xs _ => do
         let patterns ← terms.getElems.mapM fun term => do
-          let pattern ← elabTerm term none
+          let pattern ← Term.elabTerm term none
           synthesizeSyntheticMVarsUsingDefault
           let pattern ← instantiateMVars pattern
           let pattern ← Grind.preprocessPattern pattern
@@ -132,12 +133,22 @@ def grind
     (mvarId : MVarId) (config : Grind.Config)
     (only : Bool)
     (ps   :  TSyntaxArray ``Parser.Tactic.grindParam)
-    (mainDeclName : Name) (fallback : Grind.Fallback) : MetaM Grind.Trace := do
-  let params ← mkGrindParams config only ps
-  let result ← Grind.main mvarId params mainDeclName fallback
-  if result.hasFailures then
-    throwError "`grind` failed\n{← result.toMessageData}"
-  return result.trace
+    (mainDeclName : Name) (fallback : Grind.Fallback) : TacticM Grind.Trace := do
+  mvarId.withContext do
+    let params ← mkGrindParams config only ps
+    let type ← mvarId.getType
+    let mvar' ← mkFreshExprSyntheticOpaqueMVar type
+    let result ← Grind.main mvar'.mvarId! params mainDeclName fallback
+    if result.hasFailures then
+      throwError "`grind` failed\n{← result.toMessageData}"
+    -- `grind` proofs are often big
+    let e ← if (← isProp type) then
+      mkAuxTheorem (prefix? := mainDeclName) type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+    else
+      let auxName ← Term.mkAuxName `grind
+      mkAuxDefinition auxName type (← instantiateMVarsProfiling mvar') (zetaDelta := true)
+    mvarId.assign e
+    return result.trace
 
 private def elabFallback (fallback? : Option Term) : TermElabM (Grind.GoalM Unit) := do
   let some fallback := fallback? | return (pure ())

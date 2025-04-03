@@ -34,11 +34,15 @@ namespace BVExpr
 structure Cache.Key where
   w : Nat
   expr : BVExpr w
-  deriving DecidableEq, Hashable
+  deriving DecidableEq
+
+instance : Hashable Cache.Key where
+  -- The width is already mixed into the hash of `key.expr` which is completely cached.
+  hash key := hash key.expr
 
 structure Cache (aig : AIG BVBit) where
-  map : Std.DHashMap Cache.Key (fun k => Vector (Nat × Bool) k.w)
-  hbound : ∀ k (h1 : k ∈ map), ∀ (h2 : i < k.1), (map.get k h1)[i].1 < aig.decls.size
+  map : Std.DHashMap Cache.Key (fun k => Vector AIG.Fanin k.w)
+  hbound : ∀ k (h1 : k ∈ map), ∀ (h2 : i < k.1), (map.get k h1)[i].gate < aig.decls.size
 
 @[inline]
 def Cache.empty : Cache aig :=

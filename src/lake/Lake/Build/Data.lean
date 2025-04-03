@@ -6,6 +6,7 @@ Authors: Mac Malone
 prelude
 import Lake.Build.Key
 import Lake.Util.Family
+import Lake.Config.Dynlib
 
 open Lean
 namespace Lake
@@ -28,7 +29,7 @@ class DataKind (α : Type u) where
   /-- The name which describes `α`. -/
   name : Name
   /-- Proof that `α` is the data type described by `name`. -/
-  wf : α = DataType name
+  wf : ¬ name.isAnonymous ∧ α = DataType name
 
 /--
 Tries to synthesize a `Name` descriptor of a data type.
@@ -45,6 +46,8 @@ def OptDataKind.anonymous : OptDataKind α where
   name := .anonymous
   wf h := by simp [Name.isAnonymous] at h
 
+instance : Inhabited (OptDataKind α) := ⟨OptDataKind.anonymous⟩
+
 @[inline] def OptDataKind.isAnonymous (self : OptDataKind α) : Bool :=
   self.name.isAnonymous
 
@@ -54,7 +57,7 @@ theorem OptDataKind.eq_data_type
 
 instance [DataKind α] : OptDataKind α where
   name := DataKind.name α
-  wf _ := DataKind.wf
+  wf _ := DataKind.wf.2
 
 instance : CoeOut (OptDataKind α) Lean.Name := ⟨(·.name)⟩
 instance : ToString (OptDataKind α) := ⟨(·.name.toString)⟩
@@ -103,9 +106,6 @@ as needed (via `package_data`).
 -/
 abbrev PackageData := FacetData Package.facetKind
 
-/-- The kind identifier for facets of a Lean library. -/
-@[match_pattern] abbrev LeanLib.facetKind : Name := `lean_lib
-
 /--
 The open type family which maps a Lean library facet's name to its output type.
 For example, the `FilePath` pf the generated static library for the `static` facet.
@@ -117,12 +117,6 @@ abbrev LibraryData := FacetData LeanLib.facetKind
 
 @[inherit_doc LibraryData]
 abbrev LeanLibData := LibraryData
-
-/-- The kind identifier for facets of a Lean executable. -/
-@[match_pattern] abbrev LeanExe.facetKind : Name := `lean_exe
-
-/-- The kind identifier for facets of an external library. -/
-@[match_pattern] abbrev ExternLib.facetKind : Name := `extern_lib
 
 /--
 The open type family which maps a custom package target
@@ -186,10 +180,13 @@ scoped macro (name := dataTypeDecl)
 : command => do
   let fam := mkCIdentFrom (← getRef) ``DataType
   let kindName := Name.quoteFrom kind kind.getId
-  let id := mkIdentFrom kind (canonical := true) <|
-    kind.getId.modifyBase (kind.getId ++ ·)
-  `($[$doc?]? family_def $id : $fam $kindName := $ty
-    instance : DataKind $ty := ⟨$kindName, by simp⟩)
+  `($[$doc?]? family_def $kind : $fam $kindName := $ty
+    instance : DataKind $ty := ⟨$kindName, by simp [Name.isAnonymous]⟩)
+
+data_type unit : Unit
+data_type bool : Bool
+data_type filepath : System.FilePath
+data_type dynlib : Dynlib
 
 /-- Internal macro for declaring new facet within Lake. -/
 scoped macro (name := builtinFacetCommand)
@@ -197,13 +194,11 @@ scoped macro (name := builtinFacetCommand)
   id?:optional(atomic(group(ident " @ "))) name:ident " : " ns:ident " => " ty:term
 : command => withRef tk do
   let fam := mkCIdentFrom tk ``FacetOut
-  let kindName ← match ns.getId with
-    | `Package => pure Package.facetKind
-    | `Module => pure Module.facetKind
-    | `LeanLib => pure LeanLib.facetKind
-    | `LeanExe => pure LeanExe.facetKind
-    | `ExternLib => pure ExternLib.facetKind
-    | _ => Macro.throwErrorAt ns "unknown facet kind"
+  let nsName :: _ ← Macro.resolveNamespace ns.getId
+    | Macro.throwErrorAt ns s!"unknown or ambiguous target namespace '{ns.getId}'"
+  let kindName := facetKindForNamespace nsName
+  if kindName.isAnonymous then
+    Macro.throwErrorAt ns s!"unknown target namespace '{ns.getId}'"
   let nameLit := Name.quoteFrom name name.getId (canonical := id?.isSome)
   let kindLit := Name.quoteFrom ns kindName (canonical := true)
   let facet := kindName ++ name.getId
@@ -218,7 +213,7 @@ scoped macro (name := builtinFacetCommand)
       | .str .anonymous n => pure <| mkIdentFrom name (ns.getId.str s!"{n}Facet") (canonical := true)
       | _ =>  Macro.throwErrorAt name "cannot generate facet declaration name from facet name"
   `(
-    $[$doc?]? abbrev $id := $facetLit
+    $[$doc?]? @[reducible] def $id := $facetLit
     family_def $facetId : $fam $facetLit := $ty
     instance : FamilyDef FacetOut ($kindLit ++ $nameLit) $ty :=
       inferInstanceAs (FamilyDef FacetOut $facetLit $ty)

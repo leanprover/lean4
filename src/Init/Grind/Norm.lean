@@ -106,6 +106,7 @@ init_grind_norm
   or_true true_or or_false false_or or_assoc
   -- ite
   ite_true ite_false ite_true_false ite_false_true
+  dite_eq_ite
   -- Forall
   forall_and
   -- Exists
@@ -119,7 +120,7 @@ init_grind_norm
   -- Bool not
   Bool.not_not
   -- beq
-  beq_iff_eq beq_eq_decide_eq
+  beq_iff_eq beq_eq_decide_eq beq_self_eq_true
   -- bne
   bne_iff_ne bne_eq_decide_not_eq
   -- Bool not eq true/false

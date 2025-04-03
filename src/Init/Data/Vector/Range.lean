@@ -86,7 +86,7 @@ theorem range'_1_concat {s n : Nat} : range' s (n + 1) = range' s n ++ #v[s + n]
     fun ⟨i, h, e⟩ => e ▸ ⟨Nat.le_add_right .., Nat.add_lt_add_left h _⟩,
     fun ⟨h₁, h₂⟩ => ⟨m - s, Nat.sub_lt_left_of_lt_add h₁ h₂, (Nat.add_sub_cancel' h₁).symm⟩⟩
 
-theorem map_sub_range' {a s n : Nat} (h : a ≤ s) :
+theorem map_sub_range' {a s : Nat} (h : a ≤ s) (n : Nat) :
     map (· - a) (range' s n step) = range' (s - a) n step := by
   conv => lhs; rw [← Nat.add_sub_cancel' h]
   rw [← map_add_range', map_map, (?_ : _∘_ = _), map_id]

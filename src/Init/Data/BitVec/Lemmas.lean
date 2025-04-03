@@ -289,6 +289,11 @@ theorem getMsbD_of_zero_length (h : w = 0) (x : BitVec w) : x.getMsbD i = false 
   subst h; simp [getMsbD_zero_length]
 theorem msb_of_zero_length (h : w = 0) (x : BitVec w) : x.msb = false := by
   subst h; simp [msb_zero_length]
+theorem eq_of_zero_length (h : w = 0) {x y : BitVec w} : x = y := by
+  subst h; rw [eq_nil x, eq_nil y]
+
+theorem length_pos_of_ne {x y : BitVec w} (h : x ≠ y) : 0 < w :=
+  Nat.zero_lt_of_ne_zero (mt (fun h => eq_of_zero_length h) h)
 
 theorem ofFin_ofNat (n : Nat) :
     ofFin (no_index (OfNat.ofNat n : Fin (2^w))) = OfNat.ofNat n := by
@@ -3732,6 +3737,11 @@ theorem not_lt_iff_le {x y : BitVec w} : (¬ x < y) ↔ y ≤ x := by
   constructor <;>
     (intro h; simp only [lt_def, Nat.not_lt, le_def] at h ⊢; omega)
 
+protected theorem le_of_lt {x y : BitVec w} (h : x < y) : x ≤ y := Nat.le_of_lt h
+
+protected theorem le_of_eq {x y : BitVec w} (h : x = y) : x ≤ y :=
+  Nat.le_of_eq (toNat_eq.mp h)
+
 @[simp]
 theorem not_lt_zero {x : BitVec w} : ¬x < 0#w := of_decide_eq_false rfl
 
@@ -3768,9 +3778,18 @@ theorem allOnes_le_iff {x : BitVec w} : allOnes w ≤ x ↔ x = allOnes w := by
 
 @[simp]
 theorem lt_allOnes_iff {x : BitVec w} : x < allOnes w ↔ x ≠ allOnes w := by
- have := not_congr (@allOnes_le_iff w x)
- rw [BitVec.not_le] at this
- exact this
+  have := not_congr (@allOnes_le_iff w x)
+  rw [BitVec.not_le] at this
+  exact this
+
+theorem le_of_zero_length (h : w = 0) {x y : BitVec w} : x ≤ y := by
+  exact BitVec.le_of_eq (eq_of_zero_length h)
+
+theorem pos_of_msb {x : BitVec w} (hx : x.msb = true) : 0#w < x := by
+  apply Decidable.by_contra
+  intro h
+  rw [BitVec.not_lt, le_zero_iff] at h
+  simp [h] at hx
 
 /-! ### udiv -/
 
@@ -4758,6 +4777,9 @@ The RHS is zero in case `w = 0` which is modeled by wrapping the expression in `
 theorem toNat_intMin : (intMin w).toNat = 2 ^ (w - 1) % 2 ^ w := by
   simp [intMin]
 
+theorem toNat_intMin_of_pos (hw : 0 < w) : (intMin w).toNat = 2 ^ (w - 1) := by
+  rw [toNat_intMin, Nat.mod_eq_of_lt (Nat.pow_lt_pow_of_lt (by decide) (Nat.sub_one_lt_of_lt hw))]
+
 @[simp]
 theorem intMin_eq_zero_iff {w : Nat} : intMin w = 0#w ↔ w = 0 := by
   by_cases h : w = 0
@@ -4853,6 +4875,37 @@ theorem ne_intMin_of_msb_eq_false (h : 0 < w) {n : BitVec w} (hn : n.msb = false
   rintro rfl
   simp only [msb_intMin, decide_eq_false_iff_not, Nat.not_lt, Nat.le_zero_eq] at hn
   omega
+
+theorem toInt_neg_eq_of_msb {x : BitVec w} (h : x.msb = false) : (-x).toInt = -x.toInt := by
+  match w with
+  | 0 => rw [of_length_zero (x := x), neg_zero, toInt_zero, Int.neg_zero]
+  | w' + 1 => exact toInt_neg_of_ne_intMin (ne_intMin_of_msb_eq_false (Nat.zero_lt_succ _) h)
+
+theorem lt_intMin_iff_msb_eq_false {x : BitVec w} (hw : 0 < w) :
+    x < intMin w ↔ x.msb = false := by
+  simp only [msb_eq_false_iff_two_mul_lt, toNat_intMin_of_pos hw, lt_def]
+  rw [← Nat.mul_lt_mul_left (by decide : 0 < 2), ← Nat.pow_add_one', Nat.sub_one_add_one_eq_of_pos hw]
+
+theorem intMin_le_iff_msb_eq_true {x : BitVec w} (hw : 0 < w) :
+    intMin w ≤ x ↔ x.msb = true := by
+  rw [← Decidable.not_iff_not, BitVec.not_le, Bool.not_eq_true]
+  exact lt_intMin_iff_msb_eq_false hw
+
+theorem le_intMin_of_msb_eq_false {x : BitVec w} (hx : x.msb = false) : x ≤ intMin w := by
+  match w with
+  | 0 => exact le_of_zero_length rfl
+  | w' + 1 =>
+    apply BitVec.le_of_lt
+    exact (lt_intMin_iff_msb_eq_false (Nat.zero_lt_succ _)).mpr hx
+
+theorem neg_le_intMin_of_msb_eq_true {x : BitVec w} (hx : x.msb = true) : -x ≤ intMin w := by
+  match w with
+  | 0 => exact le_of_zero_length rfl
+  | w' + 1 =>
+    rw [le_def, toNat_neg_of_pos (pos_of_msb hx), toNat_intMin_of_pos (Nat.zero_lt_succ _)]
+    simp only [Nat.succ_eq_add_one, Nat.add_one_sub_one, Nat.pow_add_one]
+    rw [msb_eq_true_iff_two_mul_ge, Nat.pow_add_one] at hx
+    omega
 
 /-! ### intMax -/
 

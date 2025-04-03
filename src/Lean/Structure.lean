@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 Helper functions for retrieving structure information.
 -/
 prelude
+import Init.Control.Option
 import Lean.Environment
 import Lean.ProjFns
 import Lean.Exception
@@ -26,8 +27,7 @@ structure StructureFieldInfo where
   subobject? : Option Name
   /-- The binder info for the field from the `structure` definition. -/
   binderInfo : BinderInfo
-  /-- If set, the field is an autoparam (a field declared using `fld := by ...` syntax).
-  The expression evaluates to a tactic `Syntax` object. Generally this is an `Expr.const` expression. -/
+  /-- Deprecated. -/
   autoParam? : Option Expr := none
   deriving Inhabited, Repr
 
@@ -98,7 +98,7 @@ structure StructureDescr where
   deriving Inhabited
 
 /--
-Declare a new structure to the elaborator.
+Declares a new structure to the elaborator.
 Every structure created by `structure` or `class` has such an entry.
 This should be followed up with `setStructureParents` and `setStructureResolutionOrder`.
 -/
@@ -110,7 +110,7 @@ def registerStructure (env : Environment) (e : StructureDescr) : Environment :=
   }
 
 /--
-Set parent projection info for a structure defined in the current module.
+Sets parent projection info for a structure defined in the current module.
 Throws an error if the structure has not already been registered with `Lean.registerStructure`.
 -/
 def setStructureParents [Monad m] [MonadEnv m] [MonadError m] (structName : Name) (parentInfo : Array StructureParentInfo) : m Unit := do
@@ -154,26 +154,29 @@ def getStructureCtor (env : Environment) (constName : Name) : ConstructorVal :=
 def getStructureFields (env : Environment) (structName : Name) : Array Name :=
   (getStructureInfo env structName).fieldNames
 
-/-- Get the `StructureFieldInfo` for the given direct field of the structure. -/
+/-- Gets the `StructureFieldInfo` for the given direct field of the structure. -/
 def getFieldInfo? (env : Environment) (structName : Name) (fieldName : Name) : Option StructureFieldInfo :=
   if let some info := getStructureInfo? env structName then
     info.fieldInfo.binSearch { fieldName := fieldName, projFn := default, subobject? := none, binderInfo := default } StructureFieldInfo.lt
   else
     none
 
-/-- If `fieldName` is a subobject (that it, if it is an embedded parent structure), then returns the name of that parent structure. -/
+/--
+If `fieldName` is a subobject (that it, if it is an embedded parent structure),
+then returns the name of that parent structure.
+-/
 def isSubobjectField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
   if let some fieldInfo := getFieldInfo? env structName fieldName then
     fieldInfo.subobject?
   else
     none
 
-/-- Get information for all the parents that appear in the `extends` clause. -/
+/-- Gets information for all the parents that appear in the `extends` clause. -/
 def getStructureParentInfo (env : Environment) (structName : Name) : Array StructureParentInfo :=
   (getStructureInfo env structName).parentInfo
 
 /--
-Return the parent structures that are embedded in the structure.
+Returns the parent structures that are embedded in the structure.
 This is the array of all results from `Lean.isSubobjectField?` in order.
 
 Note: this is *not* a subset of the parents from `getStructureParentInfo`.
@@ -184,14 +187,37 @@ def getStructureSubobjects (env : Environment) (structName : Name) : Array Name 
   (getStructureFields env structName).filterMap (isSubobjectField? env structName)
 
 /--
-Return the name of the structure that contains the field relative to structure `structName`.
+Returns the name of the structure that contains the field relative to structure `structName`.
 If `structName` contains the field itself, returns that,
-and otherwise recursively looks into parents that are subobjects. -/
+and otherwise recursively looks into parents that are subobjects.
+-/
 partial def findField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
   if (getStructureFields env structName).contains fieldName then
     some structName
   else
-    getStructureSubobjects env structName |>.findSome? fun parentStructName => findField? env parentStructName fieldName
+    getStructureSubobjects env structName |>.findSome? (findField? env · fieldName)
+
+/--
+Given a structure `structName` and a parent projection name `projName` (e.g. `toParentStructName`),
+returns the corresponding parent structure name.
+The parent projection name is a single-component name.
+
+Note: this relies on the fact that projection names are checked to be consistent across all parents.
+-/
+partial def findParentProjStruct? (env : Environment) (structName : Name) (projName : Name) : Option Name :=
+  go structName |>.run' {}
+where
+  -- Use a cache to navigate the DAG in polynomial time
+  go (structName : Name) : StateM NameSet (Option Name) := do
+    if (← get).contains structName then
+      return none
+    else
+      let parentInfos := getStructureParentInfo env structName
+      if let some parentInfo := parentInfos.find? (projName.isSuffixOf ·.projFn) then
+        return some parentInfo.structName
+      else
+        modify fun s => s.insert structName
+        parentInfos.findSomeM? (go ·.structName)
 
 /--
 Gets the name for a structure constructor where the fields have been fully flattened.
@@ -204,8 +230,8 @@ The body of the flat constructor has the following properties (recursively):
 - for subobject fields, the value is the unfolded flat constructor for that field
 - for standard fields, the value is one of the flat constructor parameters
 -/
-def mkFlatCtorOfStructName (structName : Name) : Name :=
-  structName ++ `_flat_ctor
+def mkFlatCtorOfStructCtorName (structCtorName : Name) : Name :=
+  structCtorName ++ `_flat_ctor
 
 private partial def getStructureFieldsFlattenedAux (env : Environment) (structName : Name) (fullNames : Array Name) (includeSubobjectFields : Bool) : Array Name :=
   (getStructureFields env structName).foldl (init := fullNames) fun fullNames fieldName =>
@@ -302,30 +328,27 @@ The effective autoParams are collected in the flat constructor.
 def getAutoParamFnForField? (env : Environment) (structName : Name) (fieldName : Name) : Option Name :=
   getFnForFieldUsing? mkAutoParamFnOfProjFn env structName fieldName
 
-partial def getPathToBaseStructureAux (env : Environment) (baseStructName : Name) (structName : Name) (path : List Name) : Option (List Name) :=
-  if baseStructName == structName then
-    some path.reverse
-  else
-    if let some info := getStructureInfo? env structName then
-      -- Prefer subobject projections
-      (info.fieldInfo.findSome? fun field =>
-        match field.subobject? with
-        | none                  => none
-        | some parentStructName => getPathToBaseStructureAux env baseStructName parentStructName (field.projFn :: path))
-      -- Otherwise, consider other parents
-      <|> info.parentInfo.findSome? fun parent =>
-        if parent.subobject then
-          none
-        else
-          getPathToBaseStructureAux env baseStructName parent.structName (parent.projFn :: path)
-    else none
-
 /--
-If `baseStructName` is an ancestor structure for `structName`, then return a sequence of projection functions
+If `baseStructName` is an ancestor structure for `structName`, then returns a sequence of projection functions
 to go from `structName` to `baseStructName`. Returns `[]` if `baseStructName == structName`.
 -/
-def getPathToBaseStructure? (env : Environment) (baseStructName : Name) (structName : Name) : Option (List Name) :=
-  getPathToBaseStructureAux env baseStructName structName []
+partial def getPathToBaseStructure? (env : Environment) (baseStructName : Name) (structName : Name) : Option (List Name) :=
+  OptionT.run (go structName []) |>.run' {}
+where
+  go (structName : Name) (path : List Name) : OptionT (StateM NameSet) (List Name) := do
+    if baseStructName == structName then
+      return path.reverse
+    else
+      guard <| !(← get).contains structName
+      modify fun s => s.insert structName
+      let some info := getStructureInfo? env structName | failure
+      -- Prefer subobject projections
+      (info.fieldInfo.firstM fun field => do
+        let some parentStructName := field.subobject? | failure
+        go parentStructName (field.projFn :: path))
+      -- Otherwise, consider other parents
+      <|> info.parentInfo.firstM fun parent => do
+        go parent.structName (parent.projFn :: path)
 
 /--
 Returns true iff `constName` is a non-recursive inductive datatype that has only one constructor and no indices.
@@ -348,7 +371,7 @@ def getStructureLikeCtor? (env : Environment) (constName : Name) : Option Constr
     | _ => panic! "ill-formed environment"
   | _ => none
 
-/-- Return number of fields for a structure-like type -/
+/-- Returns the number of fields for a structure-like type -/
 def getStructureLikeNumFields (env : Environment) (constName : Name) : Nat :=
   match env.find? constName with
   | some (.inductInfo { isRec := false, ctors := [ctor], numIndices := 0, .. }) =>

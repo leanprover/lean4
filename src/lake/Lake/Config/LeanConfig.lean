@@ -121,9 +121,11 @@ protected def BuildType.toString (bt : BuildType) : String :=
 
 instance : ToString BuildType := ⟨BuildType.toString⟩
 
-/-- Option that is used by Lean as if it was passed using `-D`. -/
+/-- An option that is used by Lean as if it was passed using `-D`. -/
 structure LeanOption where
+  /-- The option's name. -/
   name  : Lean.Name
+  /-- The option's value. -/
   value : Lean.LeanOptionValue
   deriving Inhabited, Repr
 
@@ -181,15 +183,26 @@ configuration LeanConfig where
   -/
   weakLeancArgs : Array String := #[]
   /--
+  Additional target objects to use when linking (both static and shared).
+  These will come *after* the paths of native facets.
+  -/
+  moreLinkObjs : TargetArray FilePath := #[]
+  /--
+  Additional target libraries to pass to `leanc` when linking
+  (e.g., for shared libraries or binary executables).
+  These will come *after* the paths of other link objects.
+  -/
+  moreLinkLibs : TargetArray Dynlib := #[]
+  /--
   Additional arguments to pass to `leanc` when linking (e.g., for shared
   libraries or binary executables). These will come *after* the paths of
-  external libraries.
+  the linked objects.
   -/
   moreLinkArgs : Array String := #[]
   /--
   Additional arguments to pass to `leanc` when linking (e.g., for shared
   libraries or binary executables). These will come *after* the paths of
-  external libraries.
+  the linked objects.
 
   Unlike `moreLinkArgs`, these arguments do not affect the trace
   of the build result, so they can be changed without triggering a rebuild.

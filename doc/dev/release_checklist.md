@@ -5,7 +5,7 @@ See below for the checklist for release candidates.
 
 We'll use `v4.6.0` as the intended release version as a running example.
 
-- Run `scripts/release_checklist.py v4.6.0` to check the status of the release.
+- Run `script/release_checklist.py v4.6.0` to check the status of the release.
   This script is purely informational, idempotent, and safe to run at any stage of the release process.
 - `git checkout releases/v4.6.0`
   (This branch should already exist, from the release candidates.)
@@ -13,7 +13,8 @@ We'll use `v4.6.0` as the intended release version as a running example.
 - In `src/CMakeLists.txt`, verify you see
   - `set(LEAN_VERSION_MINOR 6)` (for whichever `6` is appropriate)
   - `set(LEAN_VERSION_IS_RELEASE 1)`
-  - (both of these should already be in place from the release candidates)
+  - (all of these should already be in place from the release candidates)
+
 - `git tag v4.6.0`
 - `git push $REMOTE v4.6.0`, where `$REMOTE` is the upstream Lean repository (e.g., `origin`, `upstream`)
 - Now wait, while CI runs.
@@ -41,6 +42,10 @@ We'll use `v4.6.0` as the intended release version as a running example.
   - In order to have the access rights to push to these repositories and merge PRs,
     you will need to be a member of the `lean-release-managers` team at both `leanprover-community` and `leanprover`.
     Contact Kim Morrison (@kim-em) to arrange access.
+  - There is an experimental script that will guide you through the steps for each of the repositories below.
+    The script should be invoked as
+    `script/release_steps.py vx.y.x <repo>` where `<repo>` is a case-insensitive substring of the repo name.
+    For example: `script/release_steps.py v4.6.0 batt` will guide you through the steps for the Batteries repository.
   - For each of the repositories listed below:
     - Make a PR to `master`/`main` changing the toolchain to `v4.6.0`
       - The usual branch name would be `bump_to_v4.6.0`.
@@ -79,6 +84,11 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Warnings during `lake update` and `lake build` are expected.
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag
+      - There is no `stable` branch; skip this step
+    - [Reference Manual](https://github.com/leanprover/reference-manual)
+      - Dependencies: Verso
+      - Toolchain bump PR including updated Lake manifest
+      - Pushing the tag (whether for an RC or a final) triggers a deployment.
       - There is no `stable` branch; skip this step
     - [Cli](https://github.com/leanprover/lean4-cli)
       - No dependencies
@@ -123,6 +133,10 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag
       - Merge the tag into `stable`
+- An awkward situtation that sometimes occurs (e.g. with Verso) is that one of these upstream dependencies has
+  already moved its `master`/`main` branch to a nightly toolchain that comes *after* the stable toolchain we are
+  targeting. In this case it is necessary to create a branch `releases/v4.6.0` from the last commit which was on
+  an earlier toolchain, move that branch to the stable toolchain, and create the toolchain tag from that branch.
 - Run `script/release_checklist.py v4.6.0` again to check that everything is in order.
 - Finally, make an announcement!
   This should go in https://leanprover.zulipchat.com/#narrow/stream/113486-announce, with topic `v4.6.0`.
@@ -160,6 +174,7 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
     git fetch nightly tag nightly-2024-02-29
     git checkout nightly-2024-02-29
     git checkout -b releases/v4.7.0
+    git push --set-upstream origin releases/v4.18.0
     ```
 - In `RELEASES.md` replace `Development in progress` in the `v4.7.0` section with `Release notes to be written.`
 - In `src/CMakeLists.txt`,
@@ -169,6 +184,7 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
 - `git tag v4.7.0-rc1`
 - `git push origin v4.7.0-rc1`
 - Now wait, while CI runs.
+  - The CI setup parses the tag to discover the `-rc1` special description, and passes it to `cmake` using a `-D` option. The `-rc1` doesn't need to be placed in the configuration file.
   - You can monitor this at `https://github.com/leanprover/lean4/actions/workflows/ci.yml`, looking for the `v4.7.0-rc1` tag.
   - This step can take up to an hour.
 - (GitHub release notes) Once the release appears at https://github.com/leanprover/lean4/releases/

@@ -1482,8 +1482,11 @@ The `FileRight` structure describes these permissions for a file's owner, member
 group, and all others.
 -/
 structure AccessRight where
+  /-- The file can be read. -/
   read : Bool := false
+  /-- The file can be written to. -/
   write : Bool := false
+  /-- The file can be executed. -/
   execution : Bool := false
 
 /--

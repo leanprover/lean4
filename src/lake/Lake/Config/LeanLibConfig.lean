@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
+import Lean.Compiler.NameMangling
 import Lake.Util.Casing
 import Lake.Build.Facets
 import Lake.Config.InstallPath
@@ -42,13 +43,19 @@ configuration LeanLibConfig (name : Name) extends LeanConfig where
   globs : Array Glob := roots.map Glob.one
 
   /--
-  The name of the library.
+  The name of the library artifact.
   Used as a base for the file names of its static and dynamic binaries.
-  Defaults to the name of the target.
+  Defaults to the mangled name of the target.
   -/
-  libName : String := name.toString (escape := false)
+  libName : String := name.mangle ""
 
-  /-- An `Array` of target names to build before the library's modules. -/
+  /-- An `Array` of targets to build before the executable's modules. -/
+  needs : Array PartialBuildKey := #[]
+
+  /--
+   **Deprecated. Use `needs` instead.**
+  An `Array` of target names to build before the library's modules.
+  -/
   extraDepTargets : Array Name := #[]
 
   /--

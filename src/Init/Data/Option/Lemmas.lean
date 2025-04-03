@@ -619,7 +619,7 @@ theorem pbind_eq_none_iff {o : Option α} {f : (a : α) → a ∈ o → Option �
     · rintro ⟨a, rfl, h⟩
       exact h
 
-theorem isSome_pbind {o : Option α} {f : (a : α) → a ∈ o → Option β} :
+theorem pbind_isSome {o : Option α} {f : (a : α) → a ∈ o → Option β} :
     (o.pbind f).isSome = ∃ a h, (f a h).isSome := by
   cases o with
   | none => simp
@@ -630,8 +630,6 @@ theorem isSome_pbind {o : Option α} {f : (a : α) → a ∈ o → Option β} :
       exact ⟨a, rfl, h⟩
     · rintro ⟨a, rfl, h⟩
       exact h
-
-@[deprecated isSome_pbind (since := "2025-03-15")] abbrev pbind_isSome := @isSome_pbind
 
 theorem pbind_eq_some_iff {o : Option α} {f : (a : α) → a ∈ o → Option β} {b : β} :
     o.pbind f = some b ↔ ∃ a h, f a h = some b := by
@@ -657,11 +655,9 @@ theorem pbind_eq_some_iff {o : Option α} {f : (a : α) → a ∈ o → Option �
     pmap f o h = none ↔ o = none := by
   cases o <;> simp
 
-@[simp] theorem isSome_pmap {p : α → Prop} {f : ∀ (a : α), p a → β} {o : Option α} {h} :
+@[simp] theorem pmap_isSome {p : α → Prop} {f : ∀ (a : α), p a → β} {o : Option α} {h} :
     (pmap f o h).isSome = o.isSome := by
   cases o <;> simp
-
-@[deprecated isSome_pmap (since := "2025-03-15")] abbrev pmap_isSome := @isSome_pmap
 
 @[simp] theorem pmap_eq_some_iff {p : α → Prop} {f : ∀ (a : α), p a → β} {o : Option α} {h} :
     pmap f o h = some b ↔ ∃ (a : α) (h : p a), o = some a ∧ b = f a h := by

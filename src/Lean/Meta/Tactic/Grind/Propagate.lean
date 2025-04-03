@@ -119,15 +119,25 @@ builtin_grind_propagator propagateNotDown ↓Not := fun e => do
   else if (← isEqv e a) then
     closeGoal <| mkApp2 (mkConst ``Grind.false_of_not_eq_self) a (← mkEqProof e a)
 
+def propagateBoolDiseq (a : Expr) : GoalM Unit := do
+  if let some h ← mkDiseqProof? a (← getBoolFalseExpr) then
+    pushEqBoolTrue a <| mkApp2 (mkConst ``Grind.Bool.eq_true_of_not_eq_false') a h
+  if let some h ← mkDiseqProof? a (← getBoolTrueExpr) then
+    pushEqBoolFalse a <| mkApp2 (mkConst ``Grind.Bool.eq_false_of_not_eq_true') a h
+
 /-- Propagates `Eq` upwards -/
 builtin_grind_propagator propagateEqUp ↑Eq := fun e => do
-  let_expr Eq _ a b := e | return ()
+  let_expr Eq α a b := e | return ()
   if (← isEqTrue a) then
     pushEq e b <| mkApp3 (mkConst ``Grind.eq_eq_of_eq_true_left) a b (← mkEqTrueProof a)
   else if (← isEqTrue b) then
     pushEq e a <| mkApp3 (mkConst ``Grind.eq_eq_of_eq_true_right) a b (← mkEqTrueProof b)
   else if (← isEqv a b) then
     pushEqTrue e <| mkEqTrueCore e (← mkEqProof a b)
+  if α.isConstOf ``Bool then
+    if (← isEqFalse e) then
+      propagateBoolDiseq a
+      propagateBoolDiseq b
   let aRoot ← getRootENode a
   let bRoot ← getRootENode b
   if aRoot.ctor && bRoot.ctor && aRoot.self.getAppFn != bRoot.self.getAppFn then
@@ -146,6 +156,9 @@ builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
     pushEq a b <| mkOfEqTrueCore e (← mkEqTrueProof e)
   else if (← isEqFalse e) then
     let_expr Eq α lhs rhs := e | return ()
+    if α.isConstOf ``Bool then
+      propagateBoolDiseq lhs
+      propagateBoolDiseq rhs
     propagateCutsatDiseq lhs rhs
     let thms ← getExtTheorems α
     if !thms.isEmpty then
@@ -158,6 +171,25 @@ builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
         return ()
       for thm in (← getExtTheorems α) do
         instantiateExtTheorem thm e
+
+builtin_grind_propagator propagateBEqUp ↑BEq.beq := fun e => do
+  /-
+  `grind` uses the normalization rule `Bool.beq_eq_decide_eq`, but it is only applicable if
+  the type implements the instances `BEq`, `LawfulBEq`, **and** `DecidableEq α`.
+  However, we may be in a context where only `BEq` and `LawfulBEq` are available.
+  Thus, we have added this propagator as a backup.
+  -/
+  let_expr f@BEq.beq α binst a b := e | return ()
+  if (← isEqv a b) then
+    let u := f.constLevels!
+    let lawfulBEq := mkApp2 (mkConst ``LawfulBEq u) α binst
+    let .some linst ← trySynthInstance lawfulBEq | return ()
+    pushEqBoolTrue e <| mkApp6 (mkConst ``Grind.beq_eq_true_of_eq u) α binst linst a b (← mkEqProof a b)
+  else if let some h ← mkDiseqProof? a b then
+    let u := f.constLevels!
+    let lawfulBEq := mkApp2 (mkConst ``LawfulBEq u) α binst
+    let .some linst ← trySynthInstance lawfulBEq | return ()
+    pushEqBoolFalse e <| mkApp6 (mkConst ``Grind.beq_eq_false_of_diseq u) α binst linst a b h
 
 /-- Propagates `EqMatch` downwards -/
 builtin_grind_propagator propagateEqMatchDown ↓Grind.EqMatch := fun e => do

@@ -268,9 +268,9 @@ def withNewLemmas {α} (xs : Array Expr) (f : SimpM α) : SimpM α := do
   else
     withFreshCache do f
 
-def simpProj (e : Expr) : SimpM Result := do
+def simpProj (e : Expr) : SimpM Step := do
   match (← withSimpMetaConfig <| reduceProj? e) with
-  | some e => return { expr := e }
+  | some e => return .visit { expr := e }
   | none =>
     let s := e.projExpr!
     let motive? ← withLocalDeclD `s (← inferType s) fun s => do
@@ -287,20 +287,21 @@ def simpProj (e : Expr) : SimpM Result := do
       let r ← simp s
       let eNew := e.updateProj! r.expr
       match r.proof? with
-      | none => return { expr := eNew }
+      | none => return .done { expr := eNew }
       | some h =>
         let hNew ← mkEqNDRec motive (← mkEqRefl e) h
-        return { expr := eNew, proof? := some hNew }
+        return .done { expr := eNew, proof? := some hNew }
     else
-      return { expr := (← dsimp e) }
+      return .done { expr := (← dsimp e) }
 
 def simpConst (e : Expr) : SimpM Result :=
   return { expr := (← reduce e) }
 
-def simpLambda (e : Expr) : SimpM Result :=
+def simpLambda (e : Expr) : SimpM Step :=
   withParent e <| lambdaTelescopeDSimp e fun xs e => withNewLemmas xs do
     let r ← simp e
-    r.addLambdas xs
+    return .done (← r.addLambdas xs)
+
 
 def simpArrow (e : Expr) : SimpM Result := do
   trace[Debug.Meta.Tactic.simp] "arrow {e}"
@@ -334,10 +335,10 @@ def simpArrow (e : Expr) : SimpM Result := do
   else
     mkImpCongr e rp (← simp q)
 
-def simpForall (e : Expr) : SimpM Result := withParent e do
+def simpForall (e : Expr) : SimpM Step := withParent e do
   trace[Debug.Meta.Tactic.simp] "forall {e}"
   if e.isArrow then
-    simpArrow e
+    return .done (← simpArrow e)
   else if (← isProp e) then
     /- The forall is a proposition. -/
     let domain := e.bindingDomain!
@@ -370,7 +371,7 @@ def simpForall (e : Expr) : SimpM Result := withParent e do
           let q₂ ← mkLambdaFVars #[a] rb.expr
           let result ← mkForallFVars #[a] rb.expr
           let proof := mkApp6 (mkConst ``forall_prop_domain_congr) p₁ p₂ q₁ q₂ h₁ h₂
-          return { expr := result, proof? := proof }
+          return .done { expr := result, proof? := proof }
         return result
     let domain ← dsimp domain
     withLocalDecl e.bindingName! e.bindingInfo! domain fun x => withNewLemmas #[x] do
@@ -378,20 +379,20 @@ def simpForall (e : Expr) : SimpM Result := withParent e do
       let rb ← simp b
       let eNew ← mkForallFVars #[x] rb.expr
       match rb.proof? with
-      | none   => return { expr := eNew }
-      | some h => return { expr := eNew, proof? := (← mkForallCongr (← mkLambdaFVars #[x] h)) }
+      | none   => return .done { expr := eNew }
+      | some h => return .done { expr := eNew, proof? := (← mkForallCongr (← mkLambdaFVars #[x] h)) }
   else
-    return { expr := (← dsimp e) }
+    return .done { expr := (← dsimp e) }
 
-def simpLet (e : Expr) : SimpM Result := do
+def simpLet (e : Expr) : SimpM Step := do
   let .letE n t v b _ := e | unreachable!
   if (← getConfig).zeta then
-    return { expr := b.instantiate1 v }
+    return .visit { expr := b.instantiate1 v }
   else
     let simpLetCase ← getSimpLetCase n t b
     trace[Debug.Meta.Tactic.simp] "getSimpLetCase is {repr simpLetCase}:{indentExpr e}"
     match simpLetCase with
-    | SimpLetCase.dep => return { expr := (← dsimp e) }
+    | SimpLetCase.dep => return .done { expr := (← dsimp e) }
     | SimpLetCase.nondep =>
       let rv ← simp v
       withLocalDeclD n t fun x => withNewLemmas #[x] do
@@ -402,9 +403,9 @@ def simpLet (e : Expr) : SimpM Result := do
           | some h => pure (some (← mkLambdaFVars #[x] h))
         let e' := mkLet n t rv.expr (← rbx.expr.abstractM #[x])
         match rv.proof?, hb? with
-        | none,   none   => return { expr := e' }
-        | some h, none   => return { expr := e', proof? := some (← mkLetValCongr (← mkLambdaFVars #[x] rbx.expr) h) }
-        | _,      some h => return { expr := e', proof? := some (← mkLetCongr (← rv.getProof) h) }
+        | none,   none   => return .done { expr := e' }
+        | some h, none   => return .done { expr := e', proof? := some (← mkLetValCongr (← mkLambdaFVars #[x] rbx.expr) h) }
+        | _,      some h => return .done { expr := e', proof? := some (← mkLetCongr (← rv.getProof) h) }
     | SimpLetCase.nondepDepVar =>
       let v' ← dsimp v
       withLocalDeclD n t fun x => withNewLemmas #[x] do
@@ -412,10 +413,10 @@ def simpLet (e : Expr) : SimpM Result := do
         let rbx ← simp bx
         let e' := mkLet n t v' (← rbx.expr.abstractM #[x])
         match rbx.proof? with
-        | none => return { expr := e' }
+        | none => return .done { expr := e' }
         | some h =>
           let h ← mkLambdaFVars #[x] h
-          return { expr := e', proof? := some (← mkLetBodyCongr v' h) }
+          return .done { expr := e', proof? := some (← mkLetBodyCongr v' h) }
 
 private def dsimpReduce : DSimproc := fun e => do
   let mut eNew ← reduce e
@@ -702,36 +703,36 @@ partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
   else
     return { expr, proof? := proof }
 
-def simpApp (e : Expr) : SimpM Result := do
+def simpApp (e : Expr) : SimpM Step := do
   if isOfNatNatLit e || isOfScientificLit e || isCharLit e then
     -- Recall that we fold "orphan" kernel Nat literals `n` into `OfNat.ofNat n`
-    return { expr := e }
+    return .done { expr := e }
   else if isNonDepLetFun e then
-    simpNonDepLetFun e
+    return .visit (← simpNonDepLetFun e)
   else
-    congr e
+    return .visit (← congr e)
 
-def simpStep (e : Expr) : SimpM Result := do
+def simpStep (e : Expr) : SimpM Step := do
   match e with
-  | .mdata m e   => let r ← simp e; return { r with expr := mkMData m r.expr }
+  | .mdata m e   => let r ← simp e; return .done { r with expr := mkMData m r.expr }
   | .proj ..     => simpProj e
   | .app ..      => simpApp e
   | .lam ..      => simpLambda e
   | .forallE ..  => simpForall e
   | .letE ..     => simpLet e
-  | .const ..    => simpConst e
+  | .const ..    => return .visit (← simpConst e)
   | .bvar ..     => unreachable!
-  | .sort ..     => return { expr := e }
-  | .lit ..      => return { expr := e }
-  | .mvar ..     => return { expr := (← instantiateMVars e) }
-  | .fvar ..     => return { expr := (← reduceFVar (← getConfig) (← getSimpTheorems) e) }
+  | .sort ..     => return .done { expr := e }
+  | .lit ..      => return .done { expr := e }
+  | .mvar ..     => return .visit { expr := (← instantiateMVars e) }
+  | .fvar ..     => return .visit { expr := (← reduceFVar (← getConfig) (← getSimpTheorems) e) }
 
 def cacheResult (e : Expr) (cfg : Config) (r : Result) : SimpM Result := do
   if cfg.memoize && r.cache then
     modify fun s => { s with cache := s.cache.insert e r }
   return r
 
-partial def simpLoop (e : Expr) (fromSimpStep := false) : SimpM Result := withIncRecDepth do
+partial def simpLoop (e : Expr) (fromDoneStep := false) : SimpM Result := withIncRecDepth do
   let cfg ← getConfig
   if (← get).numSteps > cfg.maxSteps then
     throwError "simp failed, maximum number of steps exceeded"
@@ -741,29 +742,32 @@ partial def simpLoop (e : Expr) (fromSimpStep := false) : SimpM Result := withIn
     match (← pre e) with
     | .done r  => cacheResult e cfg r
     | .visit r => cacheResult e cfg (← r.mkEqTrans (← simpLoop r.expr))
-    | .continue none => visitPreContinue cfg { expr := e } fromSimpStep
-    | .continue (some r) => visitPreContinue cfg r (fromSimpStep && r.expr == e)
+    | .continue none => visitPreContinue cfg { expr := e } fromDoneStep
+    | .continue (some r) => visitPreContinue cfg r (fromDoneStep && r.expr == e)
 where
-  visitPreContinue (cfg : Config) (r : Result) (fromSimpStep : Bool) : SimpM Result := do
+  visitPreContinue (cfg : Config) (r : Result) (fromDoneStep : Bool) : SimpM Result := do
     let eNew ← reduceStep r.expr
     if eNew != r.expr then
       trace[Debug.Meta.Tactic.simp] "reduceStep (pre) {e} => {eNew}"
       let r := { r with expr := eNew }
       cacheResult e cfg (← r.mkEqTrans (← simpLoop r.expr))
     else
-      let mut r := r
-      unless fromSimpStep do
-        r ← r.mkEqTrans (← simpStep r.expr)
-      visitPost cfg r
-  visitPost (cfg : Config) (r : Result) : SimpM Result := do
+      if fromDoneStep then
+        visitPost cfg r true
+      else
+        match (← simpStep r.expr) with
+        | .done r' => visitPost cfg (← r.mkEqTrans r') true
+        | .visit r' => visitPost cfg (← r.mkEqTrans r') false
+        | .continue _ => unreachable!
+  visitPost (cfg : Config) (r : Result) (fromDoneStep : Bool) : SimpM Result := do
     match (← post r.expr) with
     | .done r' => cacheResult e cfg (← r.mkEqTrans r')
-    | .continue none => visitPostContinue cfg r true
-    | .visit r' | .continue (some r') => visitPostContinue cfg (← r.mkEqTrans r') (r'.expr == r.expr)
-  visitPostContinue (cfg : Config) (r : Result) (fromSimpStep : Bool) : SimpM Result := do
+    | .continue none => visitPostContinue cfg r fromDoneStep
+    | .visit r' | .continue (some r') => visitPostContinue cfg (← r.mkEqTrans r') (fromDoneStep && r'.expr == r.expr)
+  visitPostContinue (cfg : Config) (r : Result) (fromDoneStep : Bool) : SimpM Result := do
     let mut r := r
     unless cfg.singlePass || e == r.expr do
-      r ← r.mkEqTrans (← simpLoop r.expr fromSimpStep)
+      r ← r.mkEqTrans (← simpLoop r.expr fromDoneStep)
     cacheResult e cfg r
 
 @[export lean_simp]

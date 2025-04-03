@@ -96,7 +96,7 @@ theorem ne_nil_of_length_eq_add_one (_ : length l = n + 1) : l ≠ [] := fun _ =
 
 theorem ne_nil_of_length_pos (_ : 0 < length l) : l ≠ [] := fun _ => nomatch l
 
-@[simp, grind] theorem length_eq_zero_iff : length l = 0 ↔ l = [] :=
+@[simp] theorem length_eq_zero_iff : length l = 0 ↔ l = [] :=
   ⟨eq_nil_of_length_eq_zero, fun h => h ▸ rfl⟩
 
 @[deprecated length_eq_zero_iff (since := "2025-02-24")]

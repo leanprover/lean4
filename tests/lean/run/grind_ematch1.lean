@@ -1,3 +1,5 @@
+reset_grind_attrs%
+
 set_option trace.grind.ematch.pattern true
 
 attribute [grind =] Array.size_set

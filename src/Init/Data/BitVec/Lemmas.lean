@@ -3365,10 +3365,10 @@ theorem sub_eq_add_neg {n} (x y : BitVec n) : x - y = x + - y := by
   simp only [toNat_sub, toNat_add, toNat_neg, Nat.add_mod_mod]
   rw [Nat.add_comm]
 
+@[simp] theorem neg_zero (n:Nat) : -BitVec.ofNat n 0 = BitVec.ofNat n 0 := by apply eq_of_toNat_eq ; simp
+
 set_option linter.missingDocs false in
 @[deprecated sub_eq_add_neg (since := "2025-03-17")] abbrev sub_toAdd := @sub_eq_add_neg
-
-@[simp] theorem neg_zero (n:Nat) : -BitVec.ofNat n 0 = BitVec.ofNat n 0 := by apply eq_of_toNat_eq ; simp
 
 theorem add_sub_cancel (x y : BitVec w) : x + y - y = x := by
   apply eq_of_toNat_eq

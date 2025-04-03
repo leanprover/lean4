@@ -25,15 +25,18 @@ typedef struct {
     uv_cond_t    cond_var;  // Condition variable for signaling that `loop` is free.
     uv_async_t   async;     // Async handle to interrupt `loop`.
     _Atomic(int) n_waiters; // Atomic counter for managing waiters for `loop`.
+
+    bool thread_alive;      // Checks if the thread is alive
 } event_loop_t;
 
 // The multithreaded event loop object for all tasks in the task manager.
-extern event_loop_t global_ev;
+extern event_loop_t * global_ev;
 
 // =======================================
 // Event loop manipulation functions.
 void event_loop_init(event_loop_t *event_loop);
 void event_loop_cleanup(event_loop_t *event_loop);
+void event_loop_destroy(event_loop_t * event_loop);
 void event_loop_lock(event_loop_t *event_loop);
 void event_loop_unlock(event_loop_t *event_loop);
 void event_loop_run_loop(event_loop_t *event_loop);

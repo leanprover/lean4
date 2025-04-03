@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sofia Rodrigues, Henrik Böving
 */
 #include "runtime/uv/event_loop.h"
-
+#include "runtime/thread.h"
 
 /*
 This file builds a thread safe event loop on top of the thread unsafe libuv event loop.
@@ -21,7 +21,7 @@ namespace lean {
 #ifndef LEAN_EMSCRIPTEN
 using namespace std;
 
-event_loop_t global_ev;
+event_loop_t * global_ev;
 
 // Helpers
 
@@ -61,15 +61,7 @@ void event_loop_init(event_loop_t * event_loop) {
     check_uv(uv_cond_init(&event_loop->cond_var), "Failed to initialize condition variable");
     check_uv(uv_async_init(event_loop->loop, &event_loop->async, NULL), "Failed to initialize async");
     event_loop->n_waiters = 0;
-}
-
-// Destroy the event loop
-void event_loop_destroy(event_loop_t * event_loop) {
-    uv_stop(event_loop->loop);
-    check_uv(uv_loop_close(event_loop->loop), "Failed to close event loop");
-    uv_close((uv_handle_t*) &event_loop->async, nullptr);
-    uv_cond_destroy(&event_loop->cond_var);
-    uv_mutex_destroy(&event_loop->mutex);
+    event_loop->thread_alive = true;
 }
 
 // Locks the event loop for the side of the requesters.
@@ -108,6 +100,51 @@ void event_loop_run_loop(event_loop_t * event_loop) {
 
         uv_mutex_unlock(&event_loop->mutex);
     }
+
+    uv_mutex_lock(&event_loop->mutex);
+    event_loop->thread_alive = false;
+
+    uv_cond_signal(&event_loop->cond_var);
+    uv_mutex_unlock(&event_loop->mutex);
+}
+
+void event_loop_destroy(event_loop_t * event_loop) {
+    event_loop_lock(event_loop);
+    uv_cond_signal(&event_loop->cond_var);
+
+    uv_close((uv_handle_t*)&event_loop->async, nullptr);
+    int err = uv_loop_close(event_loop->loop);
+
+    if (err == UV_EBUSY) {
+        uv_walk(event_loop->loop, [](uv_handle_t* h, void* arg) {
+            if (uv_is_closing(h)) return;
+
+            uv_handle_type type = uv_handle_get_type(h);
+            const char* type_name = uv_handle_type_name(type);
+
+            if (!type_name) {
+                type_name = "Unknown";
+            }
+
+            std::string message = "active " + std::string(type_name) + " handle while closing all handles in " + std::to_string((long)h);
+            lean_internal_panic(message.c_str());
+        }, 0);
+
+        while (uv_loop_alive(event_loop->loop)) {
+            err = uv_run(event_loop->loop, UV_RUN_NOWAIT);
+        }
+
+        if (err != 0) lean_internal_panic("loop has active handles after stopping.");
+    }
+
+    uv_cond_signal(&event_loop->cond_var);
+
+    while (event_loop->thread_alive) {
+        uv_cond_wait(&event_loop->cond_var, &event_loop->mutex);
+    }
+
+    uv_mutex_unlock(&event_loop->mutex);
+    free(event_loop);
 }
 
 /* Std.Internal.UV.Loop.configure (options : Loop.Options) : BaseIO Unit */
@@ -115,40 +152,43 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
     bool accum = lean_ctor_get_uint8(options, 0);
     bool block = lean_ctor_get_uint8(options, 1);
 
-    event_loop_lock(&global_ev);
+    event_loop_lock(global_ev);
 
     if (accum) {
-        int result = uv_loop_configure(global_ev.loop, UV_METRICS_IDLE_TIME);
+        int result = uv_loop_configure(global_ev->loop, UV_METRICS_IDLE_TIME);
         if (result != 0) return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
     }
 
     #if!defined(WIN32) && !defined(_WIN32)
     if (block) {
-        int result = uv_loop_configure(global_ev.loop, UV_LOOP_BLOCK_SIGNAL, SIGPROF);
+        int result = uv_loop_configure(global_ev->loop, UV_LOOP_BLOCK_SIGNAL, SIGPROF);
         if (result != 0) return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
     }
     #endif
 
-    event_loop_unlock(&global_ev);
+    event_loop_unlock(global_ev);
 
     return lean_io_result_mk_ok(lean_box(0));
 }
 
 /* Std.Internal.UV.Loop.alive : BaseIO UInt64 */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive(obj_arg /* w */ ) {
-    event_loop_lock(&global_ev);
-    int is_alive = uv_loop_alive(global_ev.loop);
-    event_loop_unlock(&global_ev);
+    event_loop_lock(global_ev);
+    int is_alive = uv_loop_alive(global_ev->loop);
+    event_loop_unlock(global_ev);
 
     return lean_io_result_mk_ok(lean_box(is_alive));
 }
 
 void initialize_libuv_loop() {
-    event_loop_init(&global_ev);
+    event_loop_t* ev = (event_loop_t*)malloc(sizeof(event_loop_t));
+    event_loop_init(ev);
+    lthread([ev]() { event_loop_run_loop(ev); });
+    global_ev = ev;
 }
 
 void finalize_libuv_loop() {
-    event_loop_destroy(&global_ev);
+    event_loop_destroy(global_ev);
 }
 
 #else

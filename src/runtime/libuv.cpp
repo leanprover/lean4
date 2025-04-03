@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Markus Himmel, Sofia Rodrigues
  */
 #include <pthread.h>
-#include "runtime/libuv.h"
 #include "runtime/object.h"
+#include "runtime/libuv.h"
 
 namespace lean {
 
@@ -14,12 +14,10 @@ namespace lean {
 #include <uv.h>
 
 extern "C" void initialize_libuv() {
+    initialize_libuv_loop();
     initialize_libuv_timer();
     initialize_libuv_tcp_socket();
     initialize_libuv_udp_socket();
-    initialize_libuv_loop();
-
-    lthread([]() { event_loop_run_loop(&global_ev); });
 }
 
 extern "C" void finalize_libuv() {

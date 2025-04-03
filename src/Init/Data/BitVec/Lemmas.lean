@@ -3339,6 +3339,14 @@ theorem sub_toAdd {n} (x y : BitVec n) : x - y = x + - y := by
   simp only [toNat_sub, toNat_add, toNat_neg, Nat.add_mod_mod]
   rw [Nat.add_comm]
 
+theorem add_left_neg (x : BitVec w) : -x + x = 0#w := by
+  apply toInt_inj.mp
+  simp [toInt_neg, Int.add_left_neg]
+
+theorem add_right_neg (x : BitVec w) : x + -x = 0#w := by
+  rw [BitVec.add_comm]
+  exact add_left_neg x
+
 @[simp] theorem neg_zero (n:Nat) : -BitVec.ofNat n 0 = BitVec.ofNat n 0 := by apply eq_of_toNat_eq ; simp
 
 theorem add_sub_cancel (x y : BitVec w) : x + y - y = x := by
@@ -3561,30 +3569,30 @@ instance : Std.LawfulCommIdentity (fun (x y : BitVec w) => x * y) (1#w) where
   right_id := BitVec.mul_one
 
 @[simp]
-theorem mul_zero {x : BitVec w} : x * 0#w = 0#w := by
+theorem mul_zero (x : BitVec w) : x * 0#w = 0#w := by
   apply eq_of_toNat_eq
   simp [toNat_mul]
 
 @[simp]
-theorem zero_mul {x : BitVec w} : 0#w * x = 0#w := by
+theorem zero_mul (x : BitVec w) : 0#w * x = 0#w := by
   apply eq_of_toNat_eq
   simp [toNat_mul]
 
-theorem mul_add {x y z : BitVec w} :
+theorem mul_add (x y z : BitVec w) :
     x * (y + z) = x * y + x * z := by
   apply eq_of_toNat_eq
   simp only [toNat_mul, toNat_add, Nat.add_mod_mod, Nat.mod_add_mod]
   rw [Nat.mul_mod, Nat.mod_mod (y.toNat + z.toNat),
     ← Nat.mul_mod, Nat.mul_add]
 
-theorem mul_succ {x y : BitVec w} : x * (y + 1#w) = x * y + x := by simp [mul_add]
-theorem succ_mul {x y : BitVec w} : (x + 1#w) * y = x * y + y := by simp [BitVec.mul_comm, BitVec.mul_add]
+theorem mul_succ (x y : BitVec w) : x * (y + 1#w) = x * y + x := by simp [mul_add]
+theorem succ_mul (x y : BitVec w) : (x + 1#w) * y = x * y + y := by simp [BitVec.mul_comm, BitVec.mul_add]
 
-theorem mul_two {x : BitVec w} : x * 2#w = x + x := by
+theorem mul_two (x : BitVec w) : x * 2#w = x + x := by
   have : 2#w = 1#w + 1#w := by apply BitVec.eq_of_toNat_eq; simp
   simp [this, mul_succ]
 
-theorem two_mul {x : BitVec w} : 2#w * x = x + x := by rw [BitVec.mul_comm, mul_two]
+theorem two_mul (x : BitVec w) : 2#w * x = x + x := by rw [BitVec.mul_comm, mul_two]
 
 @[simp, bitvec_to_nat] theorem toInt_mul (x y : BitVec w) :
   (x * y).toInt = (x.toInt * y.toInt).bmod (2^w) := by

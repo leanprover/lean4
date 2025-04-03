@@ -4576,8 +4576,6 @@ theorem udiv_twoPow_eq_of_lt {w : Nat} {x : BitVec w} {k : Nat} (hk : k < w) : x
   have : 2^k < 2^w := Nat.pow_lt_pow_of_lt (by decide) hk
   simp [bitvec_to_nat, Nat.shiftRight_eq_div_pow, Nat.mod_eq_of_lt this]
 
-
-
 theorem toInt_mul_toInt_le {x y : BitVec w} : x.toInt * y.toInt ≤ 2 ^ (w * 2 - 2) := by
   rcases w with _|w
   · simp [of_length_zero]

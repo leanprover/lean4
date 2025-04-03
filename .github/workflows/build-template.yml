@@ -1,3 +1,4 @@
+# instantiated by ci.yml
 name: build-template
 on:
   workflow_call:
@@ -45,7 +46,7 @@ jobs:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       CCACHE_COMPRESS: true
       # current cache limit
-      CCACHE_MAXSIZE: 200M
+      CCACHE_MAXSIZE: 600M
       # squelch error message about missing nixpkgs channel
       NIX_BUILD_SHELL: bash
       LSAN_OPTIONS: max_leaks=10
@@ -97,32 +98,22 @@ jobs:
           sudo apt-get install -y gcc-multilib g++-multilib ccache libuv1-dev:i386 pkgconf:i386
         if: matrix.cmultilib
       - name: Cache
+        id: restore-cache
         if: matrix.name != 'Linux Lake'
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
+          # NOTE: must be in sync with `save` below
           path: |
             .ccache
-          key: ${{ matrix.name }}-build-v3-${{ github.event.pull_request.head.sha }}
-          # fall back to (latest) previous cache
-          restore-keys: |
-            ${{ matrix.name }}-build-v3
-          save-always: true
-      - name: Cache
-        if: matrix.name == 'Linux Lake'
-        uses: actions/cache@v4
-        with:
-          path: |
-            .ccache
-            build/stage1/**/*.trace
+            ${{ matrix.name == 'Linux Lake' && 'build/stage1/**/*.trace
             build/stage1/**/*.olean
             build/stage1/**/*.ilean
             build/stage1/**/*.c
-            build/stage1/**/*.c.o*
+            build/stage1/**/*.c.o*' || '' }}
           key: ${{ matrix.name }}-build-v3-${{ github.event.pull_request.head.sha }}
           # fall back to (latest) previous cache
           restore-keys: |
             ${{ matrix.name }}-build-v3
-          save-always: true
       # open nix-shell once for initial setup
       - name: Setup
         run: |
@@ -202,7 +193,7 @@ jobs:
         id: test
         run: |
           ulimit -c unlimited  # coredumps
-          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
+          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }} --timeout 200
         if: (matrix.wasm || !matrix.cross) && inputs.check-level >= 1
       - name: Test Summary
         uses: test-summary/action@v2
@@ -236,6 +227,7 @@ jobs:
           make -C build update-stage0 && rm -rf build/stage* && make -C build -j$NPROC
         if: matrix.name == 'Linux' && inputs.check-level >= 1
       - name: CCache stats
+        if: always()
         run: ccache -s
       - name: Show stacktrace for coredumps
         if: failure() && runner.os == 'Linux'
@@ -244,3 +236,16 @@ jobs:
             progbin="$(file $c | sed "s/.*execfn: '\([^']*\)'.*/\1/")"
             echo bt | $GDB/bin/gdb -q $progbin $c || true
           done
+      - name: Save Cache
+        if: always() && steps.restore-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          # NOTE: must be in sync with `restore` above
+          path: |
+            .ccache
+            ${{ matrix.name == 'Linux Lake' && 'build/stage1/**/*.trace
+            build/stage1/**/*.olean
+            build/stage1/**/*.ilean
+            build/stage1/**/*.c
+            build/stage1/**/*.c.o*' || '' }}
+          key: ${{ steps.restore-cache.outputs.cache-primary-key }}

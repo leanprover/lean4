@@ -23,6 +23,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Probe_filterByJmp_go(lean_object*,
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Probe_filterByCases(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Probe_getJps_start___spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Compiler_LCNF_Probe_countUnique___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__4;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Probe_filterByReturn___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Probe_toPass___elambda__1___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Probe_getJps(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -8531,6 +8532,18 @@ x_3 = l_Lean_PersistentHashMap_instInhabited(lean_box(0), lean_box(0), x_1, x_2)
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__3;
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Probe_runOnModule___rarg(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -8576,7 +8589,7 @@ lean_dec(x_1);
 x_19 = lean_ctor_get(x_13, 0);
 lean_inc(x_19);
 lean_dec(x_13);
-x_20 = l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__3;
+x_20 = l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__4;
 x_21 = l_Lean_PersistentEnvExtension_getModuleEntries___rarg(x_20, x_7, x_12, x_19);
 lean_dec(x_19);
 lean_dec(x_7);
@@ -8626,7 +8639,7 @@ lean_dec(x_1);
 x_35 = lean_ctor_get(x_28, 0);
 lean_inc(x_35);
 lean_dec(x_28);
-x_36 = l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__3;
+x_36 = l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__4;
 x_37 = l_Lean_PersistentEnvExtension_getModuleEntries___rarg(x_36, x_7, x_27, x_35);
 lean_dec(x_35);
 lean_dec(x_7);
@@ -8685,7 +8698,7 @@ return x_14;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_15 = l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__3;
+x_15 = l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__4;
 lean_inc(x_2);
 x_16 = l_Lean_PersistentEnvExtension_getModuleEntries___rarg(x_15, x_1, x_2, x_6);
 x_17 = l_Array_append___rarg(x_5, x_16);
@@ -9833,6 +9846,8 @@ l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__2 = _init_l_Lean_Compile
 lean_mark_persistent(l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__2);
 l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__3 = _init_l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__3();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__3);
+l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__4 = _init_l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__4();
+lean_mark_persistent(l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__4);
 l_Lean_addTrace___at_Lean_Compiler_LCNF_Probe_toPass___elambda__1___spec__2___closed__1 = _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_Probe_toPass___elambda__1___spec__2___closed__1();
 lean_mark_persistent(l_Lean_addTrace___at_Lean_Compiler_LCNF_Probe_toPass___elambda__1___spec__2___closed__1);
 l_Lean_addTrace___at_Lean_Compiler_LCNF_Probe_toPass___elambda__1___spec__2___closed__2 = _init_l_Lean_addTrace___at_Lean_Compiler_LCNF_Probe_toPass___elambda__1___spec__2___closed__2();

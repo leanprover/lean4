@@ -7,6 +7,13 @@ import base64
 import subprocess
 import sys
 import os
+# Import run_command from merge_remote.py
+from merge_remote import run_command
+
+def debug(verbose, message):
+    """Print debug message if verbose mode is enabled."""
+    if verbose:
+        print(f"    [DEBUG] {message}")
 
 def parse_repos_config(file_path):
     with open(file_path, "r") as f:
@@ -90,7 +97,7 @@ def is_version_gte(version1, version2):
         return False
     return parse_version(version1) >= parse_version(version2)
 
-def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token):
+def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token, verbose=False):
     # First get the commit SHA for the tag
     api_base = repo_url.replace("https://github.com/", "https://api.github.com/repos/")
     headers = {'Authorization': f'token {github_token}'} if github_token else {}
@@ -98,6 +105,7 @@ def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token):
     # Get tag's commit SHA
     tag_response = requests.get(f"{api_base}/git/refs/tags/{tag_name}", headers=headers)
     if tag_response.status_code != 200:
+        debug(verbose, f"Could not fetch tag {tag_name}, status code: {tag_response.status_code}")
         return False
     
     # Handle both single object and array responses
@@ -106,22 +114,48 @@ def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token):
         # Find the exact matching tag in the list
         matching_tags = [tag for tag in tag_data if tag['ref'] == f'refs/tags/{tag_name}']
         if not matching_tags:
+            debug(verbose, f"No matching tag found for {tag_name} in response list")
             return False
         tag_sha = matching_tags[0]['object']['sha']
     else:
         tag_sha = tag_data['object']['sha']
-
+    
+    # Check if the tag is an annotated tag and get the actual commit SHA
+    if tag_data.get('object', {}).get('type') == 'tag' or (
+        isinstance(tag_data, list) and 
+        matching_tags and 
+        matching_tags[0].get('object', {}).get('type') == 'tag'):
+        
+        # Get the commit that this tag points to
+        tag_obj_response = requests.get(f"{api_base}/git/tags/{tag_sha}", headers=headers)
+        if tag_obj_response.status_code == 200:
+            tag_obj = tag_obj_response.json()
+            if 'object' in tag_obj and tag_obj['object']['type'] == 'commit':
+                commit_sha = tag_obj['object']['sha']
+                debug(verbose, f"Tag is annotated. Resolved commit SHA: {commit_sha}")
+                tag_sha = commit_sha  # Use the actual commit SHA
+    
     # Get commits on stable branch containing this SHA
     commits_response = requests.get(
         f"{api_base}/commits?sha={stable_branch}&per_page=100",
         headers=headers
     )
     if commits_response.status_code != 200:
+        debug(verbose, f"Could not fetch commits for branch {stable_branch}, status code: {commits_response.status_code}")
         return False
 
     # Check if any commit in stable's history matches our tag's SHA
     stable_commits = [commit['sha'] for commit in commits_response.json()]
-    return tag_sha in stable_commits
+    
+    is_merged = tag_sha in stable_commits
+    
+    debug(verbose, f"Tag SHA: {tag_sha}")
+    debug(verbose, f"First 5 stable commits: {stable_commits[:5]}")
+    debug(verbose, f"Total stable commits fetched: {len(stable_commits)}")
+    if not is_merged:
+        debug(verbose, f"Tag SHA not found in first {len(stable_commits)} commits of stable branch")
+    
+    return is_merged
 
 def is_release_candidate(version):
     return "-rc" in version
@@ -195,13 +229,17 @@ def pr_exists_with_title(repo_url, title, github_token):
     return None
 
 def main():
+    parser = argparse.ArgumentParser(description="Check release status of Lean4 repositories")
+    parser.add_argument("toolchain", help="The toolchain version to check (e.g., v4.6.0)")
+    parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose debugging output")
+    parser.add_argument("--dry-run", action="store_true", help="Dry run mode (no actions taken)")
+    args = parser.parse_args()
+
     github_token = get_github_token()
-
-    if len(sys.argv) != 2:
-        print("Usage: python3 release_checklist.py <toolchain>")
-        sys.exit(1)
-
-    toolchain = sys.argv[1]
+    toolchain = args.toolchain
+    verbose = args.verbose
+    # dry_run = args.dry_run  # Not used yet but available for future implementation
+    
     stripped_toolchain = strip_rc_suffix(toolchain)
     lean_repo_url = "https://github.com/leanprover/lean4"
 
@@ -256,6 +294,7 @@ def main():
     for repo in repos:
         name = repo["name"]
         url = repo["url"]
+        org_repo = extract_org_repo_from_url(url)
         branch = repo["branch"]
         check_stable = repo["stable-branch"]
         check_tag = repo.get("toolchain-tag", True)
@@ -291,20 +330,38 @@ def main():
                 print(f"  ✅ PR with title '{pr_title}' exists: #{pr_number} ({pr_url})")
             else:
                 print(f"  ❌ PR with title '{pr_title}' does not exist")
+                print(f"     Run `script/release_steps.py {toolchain} {name}` to create it")
             repo_status[name] = False
             continue
         print(f"  ✅ On compatible toolchain (>= {toolchain})")
 
         if check_tag:
-            if not tag_exists(url, toolchain, github_token):
-                print(f"  ❌ Tag {toolchain} does not exist. Run `script/push_repo_release_tag.py {extract_org_repo_from_url(url)} {branch} {toolchain}`.")
-                repo_status[name] = False
-                continue
+            tag_exists_initially = tag_exists(url, toolchain, github_token)
+            if not tag_exists_initially:                
+                if args.dry_run:
+                    print(f"  ❌ Tag {toolchain} does not exist. Run `script/push_repo_release_tag.py {org_repo} {branch} {toolchain}`.")
+                    repo_status[name] = False
+                    continue
+                else:
+                    print(f"  … Tag {toolchain} does not exist. Running `script/push_repo_release_tag.py {org_repo} {branch} {toolchain}`...")
+                    
+                    # Run the script to create the tag
+                    subprocess.run(["script/push_repo_release_tag.py", org_repo, branch, toolchain])
+                    
+                    # Check again if the tag exists now
+                    if not tag_exists(url, toolchain, github_token):
+                        print(f"  ❌ Manual intervention required.")
+                        repo_status[name] = False
+                        continue
+            
+            # This will print in all successful cases - whether tag existed initially or was created successfully
             print(f"  ✅ Tag {toolchain} exists")
 
         if check_stable and not is_release_candidate(toolchain):
-            if not is_merged_into_stable(url, toolchain, "stable", github_token):
+            if not is_merged_into_stable(url, toolchain, "stable", github_token, verbose):
+                org_repo = extract_org_repo_from_url(url)
                 print(f"  ❌ Tag {toolchain} is not merged into stable")
+                print(f"     Run `script/merge_remote.py {org_repo} stable {toolchain}` to merge it")
                 repo_status[name] = False
                 continue
             print(f"  ✅ Tag {toolchain} is merged into stable")
@@ -313,9 +370,16 @@ def main():
             next_version = get_next_version(toolchain)
             bump_branch = f"bump/{next_version}"
             if not branch_exists(url, bump_branch, github_token):
-                print(f"  ❌ Bump branch {bump_branch} does not exist")
-                repo_status[name] = False
-                continue
+                if args.dry_run:
+                    print(f"  ❌ Bump branch {bump_branch} does not exist. Run `gh api -X POST /repos/{org_repo}/git/refs -f ref=refs/heads/{bump_branch} -f sha=$(gh api /repos/{org_repo}/git/refs/heads/{branch} --jq .object.sha)` to create it.")
+                    repo_status[name] = False
+                    continue
+                print(f"  … Bump branch {bump_branch} does not exist. Creating it...")
+                result = run_command(f"gh api -X POST /repos/{org_repo}/git/refs -f ref=refs/heads/{bump_branch} -f sha=$(gh api /repos/{org_repo}/git/refs/heads/{branch} --jq .object.sha)", check=False)
+                if result.returncode != 0:
+                    print(f"  ❌ Failed to create bump branch {bump_branch}")
+                    repo_status[name] = False
+                    continue
             print(f"  ✅ Bump branch {bump_branch} exists")
             if not check_bump_branch_toolchain(url, bump_branch, github_token):
                 repo_status[name] = False

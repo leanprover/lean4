@@ -136,6 +136,12 @@ protected theorem toNat_lt_twoPow_of_le (h : m ≤ n) {x : BitVec m} :
 
 theorem testBit_toNat (x : BitVec w) : x.toNat.testBit i = x.getLsbD i := rfl
 
+theorem two_pow_le_toNat_of_getElem_eq_true {i : Nat} {x : BitVec w}
+    (hi : i < w) (hx : x[i] = true) : 2^i ≤ x.toNat := by
+  apply Nat.testBit_implies_ge
+  rw [← getElem_eq_testBit_toNat x i hi]
+  exact hx
+
 theorem getMsb'_eq_getLsb' (x : BitVec w) (i : Fin w) :
     x.getMsb' i = x.getLsb' ⟨w - 1 - i, by omega⟩ := by
   simp only [getMsb', getLsb']

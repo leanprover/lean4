@@ -206,9 +206,13 @@ def augmentedLeanSrcPath (self : Workspace) : SearchPath :=
 /-
 The detected `sharedLibPathEnv` value of the environment augmented with
 the workspace's `libPath` and Lean installation's shared library directories.
+
+The order is Lean's, the workspace's, and then the enviroment's.
+Lean's comes first because Lean needs to load its own shared libraries from this path.
+Giving the workspace greater precedence can break this (e.g., when bootstrapping),
 -/
 def augmentedSharedLibPath (self : Workspace) : SearchPath :=
-  self.sharedLibPath ++ self.lakeEnv.sharedLibPath
+  self.lakeEnv.lean.sharedLibPath ++ self.sharedLibPath ++ self.lakeEnv.initSharedLibPath
 
 /--
 The detected environment augmented with Lake's and the workspace's paths.

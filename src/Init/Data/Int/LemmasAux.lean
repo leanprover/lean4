@@ -151,4 +151,59 @@ theorem bmod_bmod_of_dvd {a : Int} {n m : Nat} (hnm : n ∣ m) :
   obtain ⟨k, rfl⟩ := hnm
   simp [Int.mul_assoc]
 
+theorem bmod_eq_self_of_le_mul_two {x : Int} {y : Nat} (hle : -y ≤ x * 2) (hlt : x * 2 < y) :
+    x.bmod y = x := by
+  apply bmod_eq_self_of_le (by omega) (by omega)
+
+theorem mul_le_mul_of_natAbs_le {x y : Int} {s t : Nat} (hx : x.natAbs ≤ s) (hy : y.natAbs ≤ t) :
+    x * y ≤ s * t := by
+  by_cases 0 < s ∧ 0 < t
+  · have := Nat.mul_pos (n := s) (m := t) (by omega) (by omega)
+    by_cases hx : 0 < x <;> by_cases hy : 0 < y
+    · apply Int.mul_le_mul <;> omega
+    · have : x * y ≤ 0 := Int.mul_nonpos_of_nonneg_of_nonpos (by omega) (by omega); omega
+    · have : x * y ≤ 0 := Int.mul_nonpos_of_nonpos_of_nonneg (by omega) (by omega); omega
+    · have : -x * -y ≤ s * t := Int.mul_le_mul (by omega) (by omega) (by omega) (by omega)
+      simp [Int.neg_mul_neg] at this
+      norm_cast
+  · have : (x = 0 ∨ y = 0) → x * y = 0 := by simp [Int.mul_eq_zero]
+    norm_cast
+    omega
+
+/--
+This is a generalization of `a ≤ c` and `b ≤ d` implying `a * b ≤ c * d` for natural numbers,
+appropriately generalized to integers when `b` is nonnegative and `c` is nonpositive.
+-/
+theorem mul_le_mul_of_le_of_le_of_nonneg_of_nonpos {a b c d : Int}
+    (hac : a ≤ c) (hbd : d ≤ b) (hb : 0 ≤ b) (hc : c ≤ 0) : a * b ≤ c * d :=
+  Int.le_trans (Int.mul_le_mul_of_nonneg_right hac hb) (Int.mul_le_mul_of_nonpos_left hc hbd)
+
+theorem mul_le_mul_of_le_of_le_of_nonneg_of_nonneg {a b c d : Int}
+    (hac : a ≤ c) (hbd : b ≤ d) (hb : 0 ≤ b) (hc : 0 ≤ c) : a * b ≤ c * d :=
+  Int.le_trans (Int.mul_le_mul_of_nonneg_right hac hb) (Int.mul_le_mul_of_nonneg_left hbd hc)
+
+theorem mul_le_mul_of_le_of_le_of_nonpos_of_nonpos {a b c d : Int}
+    (hac : c ≤ a) (hbd : d ≤ b) (hb : b ≤ 0) (hc : c ≤ 0) : a * b ≤ c * d :=
+  Int.le_trans (Int.mul_le_mul_of_nonpos_right hac hb) (Int.mul_le_mul_of_nonpos_left hc hbd)
+
+theorem mul_le_mul_of_le_of_le_of_nonpos_of_nonneg {a b c d : Int}
+    (hac : c ≤ a) (hbd : b ≤ d) (hb : b ≤ 0) (hc : 0 ≤ c) : a * b ≤ c * d :=
+  Int.le_trans (Int.mul_le_mul_of_nonpos_right hac hb) (Int.mul_le_mul_of_nonneg_left hbd hc)
+
+/--
+A corollary of |s| ≤ x, and |t| ≤ y, then |s * t| ≤ x * y,
+-/
+theorem neg_mul_le_mul {x y : Int} {s t : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -t ≤ y) (uby : y < t) :
+      -(s * t) ≤ x * y := by
+  have := Nat.mul_pos (n := s) (m := t) (by omega) (by omega)
+  by_cases 0 ≤ x <;> by_cases 0 ≤ y
+  · have : 0 ≤ x * y := by apply Int.mul_nonneg <;> omega
+    norm_cast
+    omega
+  · rw [Int.mul_comm (a := x), Int.mul_comm (a := (s : Int)), ← Int.neg_mul]; apply Int.mul_le_mul_of_le_of_le_of_nonneg_of_nonpos <;> omega
+  · rw [← Int.neg_mul]; apply Int.mul_le_mul_of_le_of_le_of_nonneg_of_nonpos <;> omega
+  · have : 0 < x * y := by apply Int.mul_pos_of_neg_of_neg <;> omega
+    norm_cast
+    omega
+
 end Int

@@ -84,17 +84,26 @@ def generate_script(repo, version, config):
 
     script_lines.append("")
 
+    script_lines.extend([
+        f'git commit -am "chore: bump toolchain to {version}"',
+        ""
+    ])
+
     if re.search(r'rc\d+$', version) and repo_name in ["Batteries", "Mathlib"]:
         script_lines.extend([
             "echo 'This repo has nightly-testing infrastructure'",
-            f"git merge bump/{version}",
+            f"git merge origin/bump/{version.split('-rc')[0]}",
             "echo 'Please resolve any conflicts.'",
+            ""
+        ])
+    if repo_name != "Mathlib":
+        script_lines.extend([
+            "lake build && if lake check-test; then lake test; fi",
             ""
         ])
 
     script_lines.extend([
-        f'git commit -am "chore: bump toolchain to {version}"',
-        "gh pr create",
+        'gh pr create --title "chore: bump toolchain to ' + version + '" --body ""',
         "echo 'Please review the PR and merge it.'",
         ""
     ])

@@ -731,7 +731,7 @@ def cacheResult (e : Expr) (cfg : Config) (r : Result) : SimpM Result := do
     modify fun s => { s with cache := s.cache.insert e r }
   return r
 
-partial def simpLoop (e : Expr) (fromStep := false) : SimpM Result := withIncRecDepth do
+partial def simpLoop (e : Expr) (fromSimpStep := false) : SimpM Result := withIncRecDepth do
   let cfg ← getConfig
   if (← get).numSteps > cfg.maxSteps then
     throwError "simp failed, maximum number of steps exceeded"
@@ -741,29 +741,29 @@ partial def simpLoop (e : Expr) (fromStep := false) : SimpM Result := withIncRec
     match (← pre e) with
     | .done r  => cacheResult e cfg r
     | .visit r => cacheResult e cfg (← r.mkEqTrans (← simpLoop r.expr))
-    | .continue none => visitPreContinue cfg { expr := e } fromStep
-    | .continue (some r) => visitPreContinue cfg r (fromStep && r.expr == e)
+    | .continue none => visitPreContinue cfg { expr := e } fromSimpStep
+    | .continue (some r) => visitPreContinue cfg r (fromSimpStep && r.expr == e)
 where
-  visitPreContinue (cfg : Config) (r : Result) (unchanged : Bool) : SimpM Result := do
+  visitPreContinue (cfg : Config) (r : Result) (fromSimpStep : Bool) : SimpM Result := do
     let eNew ← reduceStep r.expr
     if eNew != r.expr then
       trace[Debug.Meta.Tactic.simp] "reduceStep (pre) {e} => {eNew}"
       let r := { r with expr := eNew }
       cacheResult e cfg (← r.mkEqTrans (← simpLoop r.expr))
-    else if unchanged then
-      cacheResult e cfg r
     else
-      let r ← r.mkEqTrans (← simpStep r.expr)
+      let mut r := r
+      unless fromSimpStep do
+        r ← r.mkEqTrans (← simpStep r.expr)
       visitPost cfg r
   visitPost (cfg : Config) (r : Result) : SimpM Result := do
     match (← post r.expr) with
     | .done r' => cacheResult e cfg (← r.mkEqTrans r')
     | .continue none => visitPostContinue cfg r true
     | .visit r' | .continue (some r') => visitPostContinue cfg (← r.mkEqTrans r') (r'.expr == r.expr)
-  visitPostContinue (cfg : Config) (r : Result) (unchanged : Bool) : SimpM Result := do
+  visitPostContinue (cfg : Config) (r : Result) (fromSimpStep : Bool) : SimpM Result := do
     let mut r := r
     unless cfg.singlePass || e == r.expr do
-      r ← r.mkEqTrans (← simpLoop r.expr (fromStep := unchanged))
+      r ← r.mkEqTrans (← simpLoop r.expr fromSimpStep)
     cacheResult e cfg r
 
 @[export lean_simp]

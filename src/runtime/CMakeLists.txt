@@ -10,7 +10,7 @@ if (USE_MIMALLOC)
   include_directories(${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/include)
   set_source_files_properties(${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c PROPERTIES
     # make all symbols visible, always build with optimizations as otherwise Lean becomes too slow
-    COMPILE_FLAGS "${LEANC_OPTS} -DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT -Wunused-function")
+    COMPILE_FLAGS "${CMAKE_CXX_FLAGS} ${LEANC_OPTS} -DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT -Wunused-function")
 endif()
 
 add_library(leanrt_initial-exec STATIC ${RUNTIME_OBJS})

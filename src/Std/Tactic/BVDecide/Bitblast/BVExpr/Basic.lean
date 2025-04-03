@@ -7,7 +7,6 @@ prelude
 import Init.Data.Hashable
 import Init.Data.BitVec
 import Init.Data.RArray
-import Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
 
 /-!
 This module contains the definition of the `BitVec` fragment that `bv_decide` internally operates
@@ -473,6 +472,7 @@ inductive BVBinPred where
   Unsigned Less Than
   -/
   | ult
+deriving DecidableEq, Hashable
 
 namespace BVBinPred
 
@@ -506,6 +506,7 @@ inductive BVPred where
   Getting a constant LSB from a `BitVec`.
   -/
   | getLsbD (expr : BVExpr w) (idx : Nat)
+deriving DecidableEq, Hashable
 
 namespace BVPred
 
@@ -540,20 +541,117 @@ theorem eval_getLsbD : eval assign (.getLsbD expr idx) = (expr.eval assign).getL
 
 end BVPred
 
+inductive Gate
+  | and
+  | xor
+  | beq
+  | or
+deriving DecidableEq, Hashable
+
+namespace Gate
+
+def toString : Gate → String
+  | and => "&&"
+  | xor => "^^"
+  | beq => "=="
+  | or => "||"
+
+def eval : Gate → Bool → Bool → Bool
+  | and => (· && ·)
+  | xor => (· ^^ ·)
+  | beq => (· == ·)
+  | or => (· || ·)
+
+end Gate
+
 /--
 Boolean substructure of problems involving predicates on BitVec as atoms.
 -/
-abbrev BVLogicalExpr := BoolExpr BVPred
+inductive BVLogicalExpr
+  | atom (pred : BVPred)
+  | const (val : Bool)
+  | not (expr : BVLogicalExpr)
+  | gate (g : Gate) (lhs rhs : BVLogicalExpr)
+  | ite (discr lhs rhs : BVLogicalExpr)
+with
+  @[computed_field]
+  hashCode : BVLogicalExpr → UInt64
+   | .atom pred => mixHash 5 <| hash pred
+   | .const val => mixHash 7 <| hash val
+   | .not expr => mixHash 11 <| hashCode expr
+   | .gate g lhs rhs => mixHash 13 <| mixHash (hash g) <| mixHash (hashCode lhs) (hashCode rhs)
+   | .ite discr lhs rhs =>
+     mixHash 17 <| mixHash (hashCode discr) <| mixHash (hashCode lhs) (hashCode rhs)
 
 namespace BVLogicalExpr
+
+def toString : BVLogicalExpr → String
+  | atom a => ToString.toString a
+  | const b => ToString.toString b
+  | not x => "!" ++ toString x
+  | gate g x y => "(" ++ toString x ++ " " ++ g.toString ++ " " ++ toString y ++ ")"
+  | ite d l r => "(if " ++ toString d ++ " " ++ toString l ++ " " ++ toString r ++ ")"
+
+instance : ToString BVLogicalExpr := ⟨toString⟩
+
+instance : Hashable BVLogicalExpr where
+  hash := BVLogicalExpr.hashCode
+
+def decEq : DecidableEq BVLogicalExpr := fun l r =>
+  withPtrEqDecEq l r fun _ =>
+    match l with
+    | .atom la =>
+      match r with
+      | .atom ra =>
+        if h : la = ra then .isTrue (by simp[h]) else .isFalse (by simp [h])
+      | .const .. | .not .. | .gate .. | .ite .. => .isFalse (by simp)
+    | .const lb =>
+      match r with
+      | .const rb =>
+        if h : lb = rb then .isTrue (by simp[h]) else .isFalse (by simp [h])
+      | .atom .. | .not .. | .gate .. | .ite .. => .isFalse (by simp)
+    | .not lexp =>
+      match r with
+      | .not rexp =>
+        match decEq lexp rexp with
+        | .isTrue h => .isTrue (by simp [h])
+        | .isFalse h => .isFalse (by simp [h])
+      | .const .. | .atom .. | .gate .. | .ite .. => .isFalse (by simp)
+    | .gate lg llhs lrhs =>
+      match r with
+      | .gate rg rlhs rrhs =>
+        if h1 : lg = rg then
+          match decEq llhs rlhs, decEq lrhs rrhs with
+          | .isTrue h2, .isTrue h3 => .isTrue (by simp [h1, h2, h3])
+          | .isFalse h2, _ => .isFalse (by simp [h2])
+          | _, .isFalse h2 => .isFalse (by simp [h2])
+        else
+          .isFalse (by simp [h1])
+      | .const .. | .atom .. | .not .. | .ite .. => .isFalse (by simp)
+    | .ite ldiscr llhs lrhs =>
+      match r with
+      | .ite rdiscr rlhs rrhs =>
+        match decEq ldiscr rdiscr, decEq llhs rlhs, decEq lrhs rrhs with
+        | .isTrue h1, .isTrue h2, .isTrue h3 => .isTrue (by simp [h1, h2, h3])
+        | .isFalse h1, _, _ => .isFalse (by simp [h1])
+        | _, .isFalse h1, _ => .isFalse (by simp [h1])
+        | _, _, .isFalse h1 => .isFalse (by simp [h1])
+      | .const .. | .atom .. | .not .. | .gate .. => .isFalse (by simp)
+
+instance : DecidableEq BVLogicalExpr := BVLogicalExpr.decEq
 
 /--
 The semantics of boolean problems involving BitVec predicates as atoms.
 -/
 def eval (assign : BVExpr.Assignment) (expr : BVLogicalExpr) : Bool :=
-  BoolExpr.eval (·.eval assign) expr
+  match expr with
+  | .atom a => a.eval assign
+  | .const b => b
+  | .not x => !eval assign x
+  | .gate g x y => g.eval (eval assign x) (eval assign y)
+  | .ite d l r => bif d.eval assign then l.eval assign else r.eval assign
 
-@[simp] theorem eval_literal : eval assign (.literal pred) = pred.eval assign := rfl
+@[simp] theorem eval_atom : eval assign (.atom pred) = pred.eval assign := rfl
 @[simp] theorem eval_const : eval assign (.const b) = b := rfl
 @[simp] theorem eval_not : eval assign (.not x) = !eval assign x := rfl
 @[simp] theorem eval_gate : eval assign (.gate g x y) = g.eval (eval assign x) (eval assign y) := rfl

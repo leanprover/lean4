@@ -3345,6 +3345,14 @@ theorem sub_toAdd {n} (x y : BitVec n) : x - y = x + - y := by
   simp only [toNat_sub, toNat_add, toNat_neg, Nat.add_mod_mod]
   rw [Nat.add_comm]
 
+theorem add_left_neg (x : BitVec w) : -x + x = 0#w := by
+  apply toInt_inj.mp
+  simp [toInt_neg, Int.add_left_neg]
+
+theorem add_right_neg (x : BitVec w) : x + -x = 0#w := by
+  rw [BitVec.add_comm]
+  exact add_left_neg x
+
 @[simp] theorem neg_zero (n:Nat) : -BitVec.ofNat n 0 = BitVec.ofNat n 0 := by apply eq_of_toNat_eq ; simp
 
 theorem add_sub_cancel (x y : BitVec w) : x + y - y = x := by

@@ -85,16 +85,6 @@ end Quotient
 
 end Mathlib.Data.Quot
 
-section Mathlib.Init.ZeroOne
-
-class One (α : Type u) where
-  one : α
-
-instance One.toOfNat1 {α} [One α] : OfNat α (nat_lit 1) where
-  ofNat := ‹One α›.1
-
-section Mathlib.Init.ZeroOne
-
 section Mathlib.Logic.Function.Basic
 
 namespace Function

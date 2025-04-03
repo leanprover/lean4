@@ -5,14 +5,6 @@ example : ¬1 % 2 = 0 := by
 
 universe u
 
-class One (α : Type u) where
-  one : α
-
-instance One.toOfNat1 {α} [One α] : OfNat α (nat_lit 1) where
-  ofNat := ‹One α›.1
-instance One.ofOfNat1 {α} [OfNat α (nat_lit 1)] : One α where
-  one := 1
-
 example : Not
   (@Eq.{1} Nat
     (@HMod.hMod.{0, 0, 0} Nat Nat Nat (@instHMod.{0} Nat Nat.instMod)

@@ -1,10 +1,11 @@
 set_option debug.proofAsSorry true
+set_option pp.mvars false
 
 /--
 error: type mismatch
   rfl
 has type
-  ?m.156 = ?m.156 : Prop
+  ?_ = ?_ : Prop
 but is expected to have type
   2 + 2 = 5 : Prop
 -/

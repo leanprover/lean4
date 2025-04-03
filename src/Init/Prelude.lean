@@ -1415,6 +1415,11 @@ class Zero (α : Type u) where
   /-- The zero element of the type. -/
   zero : α
 
+/-- A type with a "one" element. -/
+class One (α : Type u) where
+  /-- The "one" element of the type. -/
+  one : α
+
 /-- The homogeneous version of `HAdd`: `a + b : α` where `a b : α`. -/
 class Add (α : Type u) where
   /-- `a + b` computes the sum of `a` and `b`. See `HAdd`. -/

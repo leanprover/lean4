@@ -96,7 +96,7 @@ theorem ne_nil_of_length_eq_add_one (_ : length l = n + 1) : l ≠ [] := fun _ =
 
 theorem ne_nil_of_length_pos (_ : 0 < length l) : l ≠ [] := fun _ => nomatch l
 
-@[simp] theorem length_eq_zero_iff : length l = 0 ↔ l = [] :=
+@[simp, grind] theorem length_eq_zero_iff : length l = 0 ↔ l = [] :=
   ⟨eq_nil_of_length_eq_zero, fun h => h ▸ rfl⟩
 
 @[deprecated length_eq_zero_iff (since := "2025-02-24")]
@@ -105,7 +105,7 @@ abbrev length_eq_zero := @length_eq_zero_iff
 theorem eq_nil_iff_length_eq_zero : l = [] ↔ length l = 0 :=
   length_eq_zero_iff.symm
 
-theorem length_pos_of_mem {a : α} : ∀ {l : List α}, a ∈ l → 0 < length l
+@[grind] theorem length_pos_of_mem {a : α} : ∀ {l : List α}, a ∈ l → 0 < length l
   | _::_, _ => Nat.zero_lt_succ _
 
 theorem exists_mem_of_length_pos : ∀ {l : List α}, 0 < length l → ∃ a, a ∈ l
@@ -185,7 +185,8 @@ theorem singleton_inj {α : Type _} {a b : α} : [a] = [b] ↔ a = b := by
 We simplify `l.get i` to `l[i.1]'i.2` and `l.get? i` to `l[i]?`.
 -/
 
-@[simp] theorem get_eq_getElem {l : List α} {i : Fin l.length} : l.get i = l[i.1]'i.2 := rfl
+@[simp, grind]
+theorem get_eq_getElem {l : List α} {i : Fin l.length} : l.get i = l[i.1]'i.2 := rfl
 
 set_option linter.deprecated false in
 @[deprecated "Use `a[i]?` instead." (since := "2025-02-12")]
@@ -224,7 +225,8 @@ theorem get?_eq_getElem? {l : List α} {i : Nat} : l.get? i = l[i]? := by
 We simplify `l[i]!` to `(l[i]?).getD default`.
 -/
 
-@[simp] theorem getElem!_eq_getElem?_getD [Inhabited α] {l : List α} {i : Nat} :
+@[simp, grind]
+theorem getElem!_eq_getElem?_getD [Inhabited α] {l : List α} {i : Nat} :
     l[i]! = (l[i]?).getD (default : α) := by
   simp only [getElem!_def]
   match l[i]? with
@@ -233,16 +235,16 @@ We simplify `l[i]!` to `(l[i]?).getD default`.
 
 /-! ### getElem? and getElem -/
 
-@[simp] theorem getElem?_nil {i : Nat} : ([] : List α)[i]? = none := rfl
+@[simp, grind] theorem getElem?_nil {i : Nat} : ([] : List α)[i]? = none := rfl
 
 theorem getElem_cons {l : List α} (w : i < (a :: l).length) :
     (a :: l)[i] =
       if h : i = 0 then a else l[i-1]'(match i, h with | i+1, _ => succ_lt_succ_iff.mp w) := by
   cases i <;> simp
 
-theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := rfl
+@[grind] theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := rfl
 
-@[simp] theorem getElem?_cons_succ {l : List α} : (a::l)[i+1]? = l[i]? := rfl
+@[simp, grind] theorem getElem?_cons_succ {l : List α} : (a::l)[i+1]? = l[i]? := rfl
 
 theorem getElem?_cons : (a :: l)[i]? = if i = 0 then some a else l[i-1]? := by
   cases i <;> simp [getElem?_cons_zero]
@@ -335,7 +337,8 @@ We simplify away `getD`, replacing `getD l n a` with `(l[n]?).getD a`.
 Because of this, there is only minimal API for `getD`.
 -/
 
-@[simp] theorem getD_eq_getElem?_getD {l : List α} {i : Nat} {a : α} : getD l i a = (l[i]?).getD a := by
+@[simp, grind]
+theorem getD_eq_getElem?_getD {l : List α} {i : Nat} {a : α} : getD l i a = (l[i]?).getD a := by
   simp [getD]
 
 theorem getD_cons_zero : getD (x :: xs) 0 d = x := by simp
@@ -362,7 +365,7 @@ theorem get!_eq_getElem! [Inhabited α] (l : List α) (i) : l.get! i = l[i]! := 
 
 @[simp] theorem not_mem_nil {a : α} : ¬ a ∈ [] := nofun
 
-@[simp] theorem mem_cons : a ∈ (b :: l) ↔ a = b ∨ a ∈ l :=
+@[simp] theorem mem_cons : a ∈ b :: l ↔ a = b ∨ a ∈ l :=
   ⟨fun h => by cases h <;> simp [Membership.mem, *],
    fun | Or.inl rfl => by constructor | Or.inr h => by constructor; assumption⟩
 
@@ -683,7 +686,7 @@ theorem set_eq_of_length_le {l : List α} {i : Nat} (h : l.length ≤ i) {a : α
   induction l generalizing i with
   | nil => simp_all
   | cons a l ih =>
-    induction i
+    cases i
     · simp_all
     · simp only [set_cons_succ, cons.injEq, true_and]
       rw [ih]

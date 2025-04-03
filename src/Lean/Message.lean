@@ -329,6 +329,8 @@ def andList (xs : List MessageData) : MessageData :=
   | [x] => x
   | _ => joinSep xs.dropLast ", " ++ " and " ++ xs.getLast!
 
+def note (note : MessageData) : MessageData :=
+  .tagged `note <| "\n\nnote: " ++ note
 
 instance : Coe (List MessageData) MessageData := ⟨ofList⟩
 instance : Coe (List Expr) MessageData := ⟨fun es => ofList <| es.map ofExpr⟩

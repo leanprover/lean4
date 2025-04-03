@@ -1033,7 +1033,7 @@ def delabLit : Delab := do
   let Expr.lit l ← getExpr | unreachable!
   match l with
   | Literal.natVal n =>
-    if ← getPPOption getPPNatLit then
+    if (← getPPOption getPPNatLit) || (← getPPOption getPPExplicit) then
       `(nat_lit $(quote n))
     else
       return quote n

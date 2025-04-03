@@ -404,7 +404,7 @@ private partial def mkLinkOrder (libs : Array Dynlib) : JobM (Array Dynlib) := d
     go lib [] v o
   match r with
   | .ok (_, order) => pure order
-  | .error cycle => error s!"link cycle:\n{formatCycle cycle}"
+  | .error cycle => error s!"library dependency cycle:\n{formatCycle cycle}"
 where
   go lib (ps : List String) (v : RBMap String Unit compare) (o : Array Dynlib) := do
     let o := o.push lib

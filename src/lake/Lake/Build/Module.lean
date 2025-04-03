@@ -173,7 +173,7 @@ private partial def mkLoadOrder (libs : Array Dynlib) : JobM (Array Dynlib) := d
     go lib [] v o
   match r with
   | .ok (_, order) => pure order
-  | .error cycle => error s!"link cycle:\n{formatCycle cycle}"
+  | .error cycle => error s!"library dependency cycle:\n{formatCycle cycle}"
 where
   go lib (ps : List String) (v : RBMap String Unit compare) (o : Array Dynlib) := do
     if v.contains lib.name then
@@ -208,7 +208,7 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
     imp.olean.fetch
   let impLibsJob ← Job.collectArray <$>
     mod.fetchImportLibs directImports mod.shouldPrecompile
-  let externLibsJobs ← Job.collectArray <$>
+  let externLibsJob ← Job.collectArray <$>
     mod.pkg.externLibs.mapM (·.dynlib.fetch)
   let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg
   let pluginsJob ← mod.plugins.fetchIn mod.pkg
@@ -217,7 +217,7 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
   importJob.bindM (sync := true) fun _ => do
   let depTrace ← takeTrace
   impLibsJob.bindM (sync := true) fun impLibs => do
-  externLibsJobs.bindM (sync := true) fun externLibs => do
+  externLibsJob.bindM (sync := true) fun externLibs => do
   dynlibsJob.bindM (sync := true) fun dynlibs => do
   pluginsJob.mapM (sync := true) fun plugins => do
     match mod.platformIndependent with

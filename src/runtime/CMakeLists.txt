@@ -9,9 +9,8 @@ if (USE_MIMALLOC)
   # Lean code includes it as `lean/mimalloc.h` but for compiling `static.c` itself, add original dir
   include_directories(${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/include)
   set_source_files_properties(${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c PROPERTIES
-    # use C++ flags as C flags are not set up, make all symbols visible, always build with
-    # optimizations as otherwise Lean becomes too slow
-    COMPILE_FLAGS "${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}} -DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT -Wunused-function")
+    # make all symbols visible, always build with optimizations as otherwise Lean becomes too slow
+    COMPILE_FLAGS "${LEANC_OPTS} -DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT -Wunused-function")
 endif()
 
 add_library(leanrt_initial-exec STATIC ${RUNTIME_OBJS})

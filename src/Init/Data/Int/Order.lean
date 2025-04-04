@@ -552,6 +552,9 @@ theorem natAbs_of_nonneg {a : Int} (H : 0 ≤ a) : (natAbs a : Int) = a :=
 theorem ofNat_natAbs_of_nonpos {a : Int} (H : a ≤ 0) : (natAbs a : Int) = -a := by
   rw [← natAbs_neg, natAbs_of_nonneg (Int.neg_nonneg_of_nonpos H)]
 
+theorem eq_neg_natAbs_of_nonpos {a : Int} (h : a ≤ 0) : a = -natAbs a := by
+  rw [ofNat_natAbs_of_nonpos h, Int.neg_neg]
+
 theorem natAbs_sub_of_nonneg_of_le {a b : Int} (h₁ : 0 ≤ b) (h₂ : b ≤ a) :
     (a - b).natAbs = a.natAbs - b.natAbs := by
   rw [← Int.ofNat_inj]

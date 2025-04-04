@@ -63,4 +63,8 @@ theorem pow_lt_pow_of_lt {a : Int} {b c : Nat} (ha : 1 < a) (hbc : b < c):
   simp only [Int.ofNat_lt]
   omega
 
+theorem natAbs_pow (n : Int) : (k : Nat) → (n ^ k).natAbs = n.natAbs ^ k
+  | 0 => rfl
+  | k + 1 => by rw [Int.pow_succ, natAbs_mul, natAbs_pow, Nat.pow_succ]
+
 end Int

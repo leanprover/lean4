@@ -1173,7 +1173,7 @@ private theorem cooper_dvd_left_core
   have ⟨k, h₁, h₂, h₃, h₄, h₅⟩ := Int.cooper_resolution_dvd_left a_pos' b_pos d_pos |>.mp ⟨x, h₁', h₂', h₃⟩
   rw [Int.neg_mul] at h₂
   simp only [Int.neg_mul, neg_gcd, lcm_neg_left, Int.mul_neg, Int.neg_neg, Int.neg_dvd] at *
-  rw [Int.neg_ediv_of_dvd Int.gcd_dvd_left] at h₂
+  rw [Int.neg_ediv_of_dvd (Int.gcd_dvd_left ..)] at h₂
   simp only [lcm_neg_right] at h₂
   have : c * k + c * p + -(a * s) = c * p + -(a * s) + c * k := by ac_rfl
   rw [this] at h₅; clear this

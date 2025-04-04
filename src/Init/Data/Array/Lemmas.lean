@@ -1048,10 +1048,10 @@ theorem mem_or_eq_of_mem_setIfInBounds
   cases xs
   simp
 
-@[deprecated beq_empty_eq (since := "2025-03-15")]
+@[deprecated beq_empty_eq (since := "2025-04-04")]
 abbrev beq_empty_iff := @beq_empty_eq
 
-@[deprecated empty_beq_eq (since := "2025-03-15")]
+@[deprecated empty_beq_eq (since := "2025-04-04")]
 abbrev empty_beq_iff := @empty_beq_eq
 
 @[simp] theorem push_beq_push [BEq α] {a b : α} {xs ys : Array α} :
@@ -1677,7 +1677,7 @@ theorem forall_none_of_filterMap_eq_empty (h : filterMap f xs = #[]) : ∀ x ∈
   cases xs
   simp
 
-@[deprecated filterMap_eq_empty_iff (since := "2025-03-15")]
+@[deprecated filterMap_eq_empty_iff (since := "2025-04-04")]
 abbrev filterMap_eq_nil_iff := @filterMap_eq_empty_iff
 
 theorem filterMap_eq_push_iff {f : α → Option β} {xs : Array α} {ys : Array β} {b : β} :
@@ -3629,7 +3629,7 @@ theorem size_rightpad {n : Nat} {a : α} {xs : Array α} :
 
 theorem elem_push_self [BEq α] [LawfulBEq α] {xs : Array α} {a : α} : (xs.push a).elem a = true := by simp
 
-@[deprecated elem_push_self (since := "2025-03-15")]
+@[deprecated elem_push_self (since := "2025-04-04")]
 abbrev elem_cons_self := @elem_push_self
 
 theorem contains_eq_any_beq [BEq α] {xs : Array α} {a : α} : xs.contains a = xs.any (a == ·) := by
@@ -4599,7 +4599,7 @@ abbrev eq_push_pop_back_of_size_ne_zero := @eq_push_pop_back!_of_size_ne_zero
 @[deprecated size_setIfInBounds (since := "2024-11-24")] abbrev size_setD := @size_setIfInBounds
 @[deprecated getElem_setIfInBounds_eq (since := "2024-11-24")] abbrev getElem_setD_eq := @getElem_setIfInBounds_self
 @[deprecated getElem?_setIfInBounds_eq (since := "2024-11-24")] abbrev get?_setD_eq := @getElem?_setIfInBounds_self
-@[deprecated getD_getElem?_setIfInBounds (since := "2024-11-24")] abbrev getD_get?_setIfInBounds := @getD_getElem?_setIfInBounds
+@[deprecated getD_getElem?_setIfInBounds (since := "2025-04-04")] abbrev getD_get?_setIfInBounds := @getD_getElem?_setIfInBounds
 @[deprecated getD_getElem?_setIfInBounds (since := "2024-11-24")] abbrev getD_setD := @getD_getElem?_setIfInBounds
 @[deprecated getElem_setIfInBounds (since := "2024-11-24")] abbrev getElem_setD := @getElem_setIfInBounds
 

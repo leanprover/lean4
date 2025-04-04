@@ -2349,7 +2349,7 @@ theorem bmod_natAbs_add_one (x : Int) (w : 1 < x.natAbs) : bmod x (x.natAbs + 1)
     · exact ofNat_nonneg x
     · exact succ_ofNat_pos (x + 1)
 
-@[deprecated bmod_natAbs_add_one (since := "2025-03-15")]
+@[deprecated bmod_natAbs_add_one (since := "2025-04-04")]
 abbrev bmod_natAbs_plus_one := @bmod_natAbs_add_one
 
 @[simp]

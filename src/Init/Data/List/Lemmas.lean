@@ -729,10 +729,10 @@ theorem mem_or_eq_of_mem_set : ∀ {l : List α} {i : Nat} {a b : α}, a ∈ l.s
 @[simp] theorem nil_beq_eq [BEq α] {l : List α} : ([] == l) = l.isEmpty := by
   cases l <;> rfl
 
-@[deprecated beq_nil_eq (since := "2025-03-15")]
+@[deprecated beq_nil_eq (since := "2025-04-04")]
 abbrev beq_nil_iff := @beq_nil_eq
 
-@[deprecated nil_beq_eq (since := "2025-03-15")]
+@[deprecated nil_beq_eq (since := "2025-04-04")]
 abbrev nil_beq_iff := @nil_beq_eq
 
 @[simp] theorem cons_beq_cons [BEq α] {a b : α} {l₁ l₂ : List α} :
@@ -1282,7 +1282,7 @@ theorem length_filter_eq_length_iff {l} : (filter p l).length = l.length ↔ ∀
     · have := Nat.ne_of_lt (Nat.lt_succ.mpr (length_filter_le p l))
       simp_all
 
-@[deprecated length_filter_eq_length_iff (since := "2025-03-15")]
+@[deprecated length_filter_eq_length_iff (since := "2025-04-04")]
 abbrev filter_length_eq_length := @length_filter_eq_length_iff
 
 @[simp] theorem mem_filter : x ∈ filter p as ↔ x ∈ as ∧ p x := by

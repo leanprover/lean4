@@ -108,16 +108,16 @@ Needed for confluence of term `(a && b) ↔ a` which reduces to `(a && b) = a` v
 @[simp] theorem eq_self_and : ∀ {a b : Bool}, (a = (a && b)) ↔ (a → b) := by decide
 @[simp] theorem eq_and_self : ∀ {a b : Bool}, (b = (a && b)) ↔ (b → a) := by decide
 
-@[deprecated and_eq_left_iff_imp (since := "2025-03-15")]
+@[deprecated and_eq_left_iff_imp (since := "2025-04-04")]
 abbrev and_iff_left_iff_imp := @and_eq_left_iff_imp
 
-@[deprecated and_eq_right_iff_imp (since := "2025-03-15")]
+@[deprecated and_eq_right_iff_imp (since := "2025-04-04")]
 abbrev and_iff_right_iff_imp := @and_eq_right_iff_imp
 
-@[deprecated eq_self_and (since := "2025-03-15")]
+@[deprecated eq_self_and (since := "2025-04-04")]
 abbrev iff_self_and := @eq_self_and
 
-@[deprecated eq_and_self (since := "2025-03-15")]
+@[deprecated eq_and_self (since := "2025-04-04")]
 abbrev iff_and_self := @eq_and_self
 
 @[simp] theorem not_and_eq_left_iff_and  : ∀ {a b : Bool}, ((!a && b) = a) ↔ !a ∧ !b := by decide
@@ -125,16 +125,16 @@ abbrev iff_and_self := @eq_and_self
 @[simp] theorem eq_not_self_and : ∀ {a b : Bool}, (a = (!a && b)) ↔ !a ∧ !b := by decide
 @[simp] theorem eq_and_not_self : ∀ {a b : Bool}, (b = (a && !b)) ↔ !a ∧ !b := by decide
 
-@[deprecated not_and_eq_left_iff_and (since := "2025-03-15")]
+@[deprecated not_and_eq_left_iff_and (since := "2025-04-04")]
 abbrev not_and_iff_left_iff_imp := @not_and_eq_left_iff_and
 
-@[deprecated and_not_eq_right_iff_and (since := "2025-03-15")]
+@[deprecated and_not_eq_right_iff_and (since := "2025-04-04")]
 abbrev and_not_iff_right_iff_imp := @and_not_eq_right_iff_and
 
-@[deprecated eq_not_self_and (since := "2025-03-15")]
+@[deprecated eq_not_self_and (since := "2025-04-04")]
 abbrev iff_not_self_and := @eq_not_self_and
 
-@[deprecated eq_and_not_self (since := "2025-03-15")]
+@[deprecated eq_and_not_self (since := "2025-04-04")]
 abbrev iff_and_not_self := @eq_and_not_self
 
 /-! ### or -/
@@ -166,16 +166,16 @@ Needed for confluence of term `(a || b) ↔ a` which reduces to `(a || b) = a` v
 @[simp] theorem eq_self_or : ∀ {a b : Bool}, (a = (a || b)) ↔ (b → a) := by decide
 @[simp] theorem eq_or_self : ∀ {a b : Bool}, (b = (a || b)) ↔ (a → b) := by decide
 
-@[deprecated or_eq_left_iff_imp (since := "2025-03-15")]
+@[deprecated or_eq_left_iff_imp (since := "2025-04-04")]
 abbrev or_iff_left_iff_imp := @or_eq_left_iff_imp
 
-@[deprecated or_eq_right_iff_imp (since := "2025-03-15")]
+@[deprecated or_eq_right_iff_imp (since := "2025-04-04")]
 abbrev or_iff_right_iff_imp := @or_eq_right_iff_imp
 
-@[deprecated eq_self_or (since := "2025-03-15")]
+@[deprecated eq_self_or (since := "2025-04-04")]
 abbrev iff_self_or := @eq_self_or
 
-@[deprecated eq_or_self (since := "2025-03-15")]
+@[deprecated eq_or_self (since := "2025-04-04")]
 abbrev iff_or_self := @eq_or_self
 
 @[simp] theorem not_or_eq_left_iff_and  : ∀ {a b : Bool}, ((!a || b) = a) ↔ a ∧ b := by decide
@@ -183,16 +183,16 @@ abbrev iff_or_self := @eq_or_self
 @[simp] theorem eq_not_self_or : ∀ {a b : Bool}, (a = (!a || b)) ↔ a ∧ b := by decide
 @[simp] theorem eq_or_not_self : ∀ {a b : Bool}, (b = (a || !b)) ↔ a ∧ b := by decide
 
-@[deprecated not_or_eq_left_iff_and (since := "2025-03-15")]
+@[deprecated not_or_eq_left_iff_and (since := "2025-04-04")]
 abbrev not_or_iff_left_iff_imp := @not_or_eq_left_iff_and
 
-@[deprecated or_not_eq_right_iff_and (since := "2025-03-15")]
+@[deprecated or_not_eq_right_iff_and (since := "2025-04-04")]
 abbrev or_not_iff_right_iff_imp := @or_not_eq_right_iff_and
 
-@[deprecated eq_not_self_or (since := "2025-03-15")]
+@[deprecated eq_not_self_or (since := "2025-04-04")]
 abbrev iff_not_self_or := @eq_not_self_or
 
-@[deprecated eq_or_not_self (since := "2025-03-15")]
+@[deprecated eq_or_not_self (since := "2025-04-04")]
 abbrev iff_or_not_self := @eq_or_not_self
 
 theorem or_comm : ∀ (x y : Bool), (x || y) = (y || x) := by decide

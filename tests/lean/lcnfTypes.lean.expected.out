@@ -15,7 +15,7 @@ MonadControl.liftWith : {m : Type u → Type v} →
   {n : Type u → Type w} → [self : MonadControl m n] → {α : Type u} → (({β : Type u} → n β → m ◾) → m α) → n α
 MonadControl.restoreM : {m : Type u → Type v} → {n : Type u → Type w} → [self : MonadControl m n] → {α : Type u} → m ◾ → n α
 Decidable.casesOn : {p : Prop} → {motive : Decidable ◾ → Sort u} → Decidable ◾ → (◾ → motive ◾) → (◾ → motive ◾) → motive ◾
-Lean.getConstInfo : {m : Type → Type} → [inst : Monad m] → [inst : MonadEnv m] → [inst : MonadError m] → Name → m ConstantInfo
+Lean.getConstInfo : {m : Type → Type} → [Monad m] → [MonadEnv m] → [MonadError m] → Name → m ConstantInfo
 Lean.Meta.instMonadMetaM : Monad fun α =>
   Context → ST.Ref PUnit State → Core.Context → ST.Ref PUnit Core.State → PUnit → EStateM.Result Exception PUnit α
 Lean.Meta.inferType : Expr →

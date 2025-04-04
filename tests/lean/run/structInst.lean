@@ -318,3 +318,61 @@ example : A where
   m := by trace "b"; exact 0
 
 end Ex9
+
+/-!
+Issues with mixing optParams and autoParams.
+https://github.com/leanprover/lean4/issues/6769
+-/
+namespace Ex6769_1
+class Foo where
+  x : Nat := by fail
+
+class Bar extends Foo where
+  x := 0
+
+instance instBar : Bar where
+
+/--
+info: def Ex6769_1.instBar : Bar :=
+{ x := 0 }
+-/
+#guard_msgs in #print instBar
+end Ex6769_1
+
+namespace Ex6769_2
+class Foo where
+  x : Nat
+  hx : x = x
+
+class Bar extends Foo where
+  hx' : x = x := by rfl
+  hx := hx'
+
+instance instBar : Bar where
+  x := 0
+
+/--
+info: def Ex6769_2.instBar : Bar :=
+{ x := 0, hx := Mathlib12129.bar._proof_3, hx' := Mathlib12129.bar._proof_3 }
+-/
+#guard_msgs in #print instBar
+end Ex6769_2
+
+namespace Ex6769_3
+class Foo where
+  x : Nat
+  hx : x = x
+
+class Bar extends Foo where
+  hx' : x = x := rfl
+  hx := hx'
+
+instance instBar : Bar where
+  x := 0
+
+/--
+info: def Ex6769_3.instBar : Bar :=
+{ x := 0, hx := Mathlib12129.bar._proof_3, hx' := Mathlib12129.bar._proof_3 }
+-/
+#guard_msgs in #print instBar
+end Ex6769_3

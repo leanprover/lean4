@@ -207,6 +207,10 @@ theorem filter_attach {o : Option α} {p : {x // o = some x} → Bool} :
     o.attach.filter p = o.pbind fun a h => if p ⟨a, h⟩ then some ⟨a, h⟩ else none := by
   cases o <;> simp [filter_some]
 
+theorem toList_pbind {o : Option α} {f : (a : α) → o = some a → Option β} :
+    (o.pbind f).toList = o.attach.toList.flatMap (fun ⟨x, h⟩ => (f x h).toList) := by
+  cases o <;> simp
+
 /-! ## unattach
 
 `Option.unattach` is the (one-sided) inverse of `Option.attach`. It is a synonym for `Option.map Subtype.val`.

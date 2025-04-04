@@ -528,26 +528,35 @@ def definitionOf?
     return some ⟨⟨moduleUri, definitionRange⟩, definitionParentDeclInfo?⟩
   return none
 
+/-- A match in `References.definitionsMatching`. -/
+structure MatchedDefinition (α β : Type) where
+  /-- Result of `filterMapMod`. -/
+  mod   : α
+  /-- Result of `filterMapIdent`. -/
+  ident : β
+  /-- Definition range of matched identifier. -/
+  range : Range
+
 /-- Yields all definitions matching the given `filter`. -/
 def definitionsMatching
-    (self          : References)
-    (srcSearchPath : SearchPath)
-    (filter        : Name → Option α)
-    (maxAmount?    : Option Nat := none) : IO $ Array (α × Location) := do
+    (self           : References)
+    (filterMapMod   : Name → IO (Option α))
+    (filterMapIdent : Name → IO (Option β))
+    (cancelTk?      : Option CancelToken := none)
+    : IO (Array (MatchedDefinition α β)) := do
   let mut result := #[]
   for (module, refs) in self.allRefs do
-    let some path ← srcSearchPath.findModuleWithExt "lean" module
+    if let some cancelTk := cancelTk? then
+      if ← cancelTk.isSet then
+        return result
+    let some a ← filterMapMod module
       | continue
-    let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
     for (ident, info) in refs do
       let (RefIdent.const _ nameString, some ⟨definitionRange, _⟩) := (ident, info.definition?)
         | continue
-      let some a := filter nameString.toName
+      let some b ← filterMapIdent nameString.toName
         | continue
-      result := result.push (a, ⟨uri, definitionRange⟩)
-      if let some maxAmount := maxAmount? then
-        if result.size >= maxAmount then
-          return result
+      result := result.push ⟨a, b, definitionRange⟩
   return result
 
 end References

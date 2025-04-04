@@ -63,7 +63,9 @@ repositories:
     toolchain-tag: true
     stable-branch: false
     branch: main
-    dependencies: []
+    dependencies:
+      - Cli
+      - Batteries
 
   - name: plausible
     url: https://github.com/leanprover-community/plausible

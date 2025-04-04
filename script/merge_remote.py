@@ -49,7 +49,7 @@ def run_command(command, check=True, capture_output=True):
 def clone_repo(repo, temp_dir):
     """Clone the repository to a temporary directory using shallow clone."""
     print(f"Shallow cloning {repo}...")
-    # Use --depth=1 for shallow clone
+    # Keep the shallow clone for efficiency
     clone_result = run_command(f"gh repo clone {repo} {temp_dir} -- --depth=1", check=False)
     if clone_result.returncode != 0:
         print(f"Failed to clone repository {repo}.")
@@ -63,19 +63,21 @@ def check_and_merge(repo, branch, tag, temp_dir):
     # Change to the temporary directory
     os.chdir(temp_dir)
     
-    # Fetch only the specific branch and tag we need
-    print(f"Fetching branch '{branch}' and tag '{tag}'...")
-    fetch_branch = run_command(f"git fetch origin {branch}")
+    # First fetch the specific remote branch with its history
+    print(f"Fetching branch '{branch}'...")
+    fetch_branch = run_command(f"git fetch origin {branch}:refs/remotes/origin/{branch} --update-head-ok")
     if fetch_branch.returncode != 0:
         print(f"Error: Failed to fetch branch '{branch}'.")
         return False
-        
+    
+    # Then fetch the specific tag
+    print(f"Fetching tag '{tag}'...")
     fetch_tag = run_command(f"git fetch origin tag {tag}")
     if fetch_tag.returncode != 0:
         print(f"Error: Failed to fetch tag '{tag}'.")
         return False
-
-    # Check if branch exists
+    
+    # Check if branch exists now that we've fetched it
     branch_check = run_command(f"git branch -r | grep origin/{branch}")
     if branch_check.returncode != 0:
         print(f"Error: Branch '{branch}' does not exist in repository.")

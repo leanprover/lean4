@@ -760,4 +760,19 @@ def reverse : {w : Nat} → BitVec w → BitVec w
   | 0, x => x
   | w + 1, x => concat (reverse (x.truncate w)) (x.msb)
 
+/--  `umulOverflow x y` returns `true` if multiplying `x` and `y` results in *unsigned* overflow.
+
+  SMT-Lib name: `bvumulo`.
+-/
+def umulOverflow {w : Nat} (x y : BitVec w) : Bool := x.toNat * y.toNat ≥ 2 ^ w
+
+/-- `smulOverflow x y` returns `true` if multiplying `x` and `y` results in *signed* overflow,
+treating `x` and `y` as 2's complement signed bitvectors.
+
+  SMT-Lib name: `bvsmulo`.
+-/
+
+def smulOverflow {w : Nat} (x y : BitVec w) : Bool :=
+  (x.toInt * y.toInt ≥ 2 ^ (w - 1)) || (x.toInt * y.toInt < - 2 ^ (w - 1))
+
 end BitVec

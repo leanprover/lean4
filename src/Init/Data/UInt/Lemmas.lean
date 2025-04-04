@@ -2376,6 +2376,17 @@ instance : Std.LawfulIdentity (α := USize) (· + ·) 0 where
 @[simp] protected theorem UInt64.sub_self (a : UInt64) : a - a = 0 := UInt64.toBitVec_inj.1 (BitVec.sub_self _)
 @[simp] protected theorem USize.sub_self (a : USize) : a - a = 0 := USize.toBitVec_inj.1 (BitVec.sub_self _)
 
+protected theorem UInt8.add_left_neg (a : UInt8) : -a + a = 0 := UInt8.toBitVec_inj.1 (BitVec.add_left_neg _)
+protected theorem UInt8.add_right_neg (a : UInt8) : a + -a = 0 := UInt8.toBitVec_inj.1 (BitVec.add_right_neg _)
+protected theorem UInt16.add_left_neg (a : UInt16) : -a + a = 0 := UInt16.toBitVec_inj.1 (BitVec.add_left_neg _)
+protected theorem UInt16.add_right_neg (a : UInt16) : a + -a = 0 := UInt16.toBitVec_inj.1 (BitVec.add_right_neg _)
+protected theorem UInt32.add_left_neg (a : UInt32) : -a + a = 0 := UInt32.toBitVec_inj.1 (BitVec.add_left_neg _)
+protected theorem UInt32.add_right_neg (a : UInt32) : a + -a = 0 := UInt32.toBitVec_inj.1 (BitVec.add_right_neg _)
+protected theorem UInt64.add_left_neg (a : UInt64) : -a + a = 0 := UInt64.toBitVec_inj.1 (BitVec.add_left_neg _)
+protected theorem UInt64.add_right_neg (a : UInt64) : a + -a = 0 := UInt64.toBitVec_inj.1 (BitVec.add_right_neg _)
+protected theorem USize.add_left_neg (a : USize) : -a + a = 0 := USize.toBitVec_inj.1 (BitVec.add_left_neg _)
+protected theorem USize.add_right_neg (a : USize) : a + -a = 0 := USize.toBitVec_inj.1 (BitVec.add_right_neg _)
+
 @[simp] protected theorem UInt8.neg_zero : -(0 : UInt8) = 0 := rfl
 @[simp] protected theorem UInt16.neg_zero : -(0 : UInt16) = 0 := rfl
 @[simp] protected theorem UInt32.neg_zero : -(0 : UInt32) = 0 := rfl

@@ -56,4 +56,11 @@ protected theorem two_pow_pred_sub_two_pow' {w : Nat} (h : 0 < w) :
   rw [← Nat.two_pow_pred_add_two_pow_pred h]
   simp [h]
 
+theorem pow_lt_pow_of_lt {a : Int} {b c : Nat} (ha : 1 < a) (hbc : b < c):
+    a ^ b < a ^ c := by
+  rw [← Int.toNat_of_nonneg (a := a) (by omega), ← Int.natCast_pow, ← Int.natCast_pow]
+  have := Nat.pow_lt_pow_of_lt (a := a.toNat) (m := c) (n := b)
+  simp only [Int.ofNat_lt]
+  omega
+
 end Int

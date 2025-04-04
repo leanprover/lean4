@@ -1,15 +1,5 @@
 universe u v w v₁ v₂ v₃ u₁ u₂ u₃
 
-section Mathlib.Algebra.Group.ZeroOne
-
-class One (α : Type u) where
-  one : α
-
-instance (priority := 300) One.toOfNat1 {α} [One α] : OfNat α (nat_lit 1) where
-  ofNat := ‹One α›.1
-
-end Mathlib.Algebra.Group.ZeroOne
-
 section Mathlib.Algebra.Group.Defs
 
 class HSMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where

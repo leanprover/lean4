@@ -2393,6 +2393,17 @@ instance : Std.LawfulIdentity (α := ISize) (· + ·) 0 where
 @[simp] protected theorem Int64.sub_self (a : Int64) : a - a = 0 := Int64.toBitVec_inj.1 (BitVec.sub_self _)
 @[simp] protected theorem ISize.sub_self (a : ISize) : a - a = 0 := ISize.toBitVec_inj.1 (BitVec.sub_self _)
 
+protected theorem Int8.add_left_neg (a : Int8) : -a + a = 0 := Int8.toBitVec_inj.1 (BitVec.add_left_neg _)
+protected theorem Int8.add_right_neg (a : Int8) : a + -a = 0 := Int8.toBitVec_inj.1 (BitVec.add_right_neg _)
+protected theorem Int16.add_left_neg (a : Int16) : -a + a = 0 := Int16.toBitVec_inj.1 (BitVec.add_left_neg _)
+protected theorem Int16.add_right_neg (a : Int16) : a + -a = 0 := Int16.toBitVec_inj.1 (BitVec.add_right_neg _)
+protected theorem Int32.add_left_neg (a : Int32) : -a + a = 0 := Int32.toBitVec_inj.1 (BitVec.add_left_neg _)
+protected theorem Int32.add_right_neg (a : Int32) : a + -a = 0 := Int32.toBitVec_inj.1 (BitVec.add_right_neg _)
+protected theorem Int64.add_left_neg (a : Int64) : -a + a = 0 := Int64.toBitVec_inj.1 (BitVec.add_left_neg _)
+protected theorem Int64.add_right_neg (a : Int64) : a + -a = 0 := Int64.toBitVec_inj.1 (BitVec.add_right_neg _)
+protected theorem ISize.add_left_neg (a : ISize) : -a + a = 0 := ISize.toBitVec_inj.1 (BitVec.add_left_neg _)
+protected theorem ISize.add_right_neg (a : ISize) : a + -a = 0 := ISize.toBitVec_inj.1 (BitVec.add_right_neg _)
+
 @[simp] protected theorem Int8.sub_add_cancel (a b : Int8) : a - b + b = a :=
   Int8.toBitVec_inj.1 (BitVec.sub_add_cancel _ _)
 @[simp] protected theorem Int16.sub_add_cancel (a b : Int16) : a - b + b = a :=

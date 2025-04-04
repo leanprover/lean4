@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Jeremy Avigad, Leonardo de Moura, Mario Carneiro
+Authors: Jeremy Avigad, Leonardo de Moura, Mario Carneiro, Markus Himmel
 -/
 prelude
 import Init.Data.Nat.Dvd
@@ -393,7 +393,7 @@ protected theorem dvd_mul {k m n : Nat} : k ∣ m * n ↔ ∃ k₁ k₂, k₁ �
   · rintro ⟨k₁, k₂, hk₁, hk₂, rfl⟩
     exact Nat.mul_dvd_mul hk₁ hk₂
 
-theorem gcd_mul_dvd_mul_gcd (k m n : Nat) : gcd k (m * n) ∣ gcd k m * gcd k n := by
+theorem gcd_mul_right_dvd_mul_gcd (k m n : Nat) : gcd k (m * n) ∣ gcd k m * gcd k n := by
   let ⟨⟨⟨m', hm'⟩, ⟨n', hn'⟩⟩, (h : gcd k (m * n) = m' * n')⟩ :=
     dvdProdDvdOfDvdProd <| gcd_dvd_right k (m * n)
   rw [h]
@@ -401,6 +401,13 @@ theorem gcd_mul_dvd_mul_gcd (k m n : Nat) : gcd k (m * n) ∣ gcd k m * gcd k n 
   exact Nat.mul_dvd_mul
     (dvd_gcd (Nat.dvd_trans (Nat.dvd_mul_right m' n') h') hm')
     (dvd_gcd (Nat.dvd_trans (Nat.dvd_mul_left n' m') h') hn')
+
+@[deprecated gcd_mul_right_dvd_mul_gcd (since := "2025-04-02")]
+theorem gcd_mul_dvd_mul_gcd (k m n : Nat) : gcd k (m * n) ∣ gcd k m * gcd k n :=
+  gcd_mul_right_dvd_mul_gcd k m n
+
+theorem gcd_mul_left_dvd_mul_gcd (k m n : Nat) : gcd (m * n) k ∣ gcd m k * gcd n k := by
+  simpa [gcd_comm, Nat.mul_comm] using gcd_mul_right_dvd_mul_gcd _ _ _
 
 theorem dvd_gcd_mul_iff_dvd_mul {k n m : Nat} : k ∣ gcd k n * m ↔ k ∣ n * m := by
   refine ⟨(Nat.dvd_trans · <| Nat.mul_dvd_mul_right (k.gcd_dvd_right n) m), fun ⟨y, hy⟩ ↦ ?_⟩

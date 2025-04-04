@@ -7,6 +7,7 @@ prelude
 import Init.Data.BitVec.Folds
 import Init.Data.Nat.Mod
 import Init.Data.Int.LemmasAux
+import Init.Data.BitVec.Lemmas
 
 /-!
 # Bit blasting of bitvectors
@@ -1358,6 +1359,31 @@ theorem negOverflow_eq {w : Nat} (x : BitVec w) :
     simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod, Int.neg_inj]
     rw_mod_cast [Nat.mod_eq_of_lt (by simp [Nat.pow_lt_pow_succ])]
 
+theorem umulOverflow_eq {w : Nat} (x y : BitVec w) :
+    umulOverflow x y =
+      (0 < w && BitVec.twoPow (w * 2) w ≤ x.zeroExtend (w * 2) * y.zeroExtend (w * 2)) := by
+  simp only [umulOverflow, toNat_twoPow, le_def, toNat_mul, toNat_setWidth, mod_mul_mod]
+  rcases w with _|w
+  · simp [of_length_zero, toInt_zero, mul_mod_mod]
+  · simp only [ge_iff_le, show 0 < w + 1 by omega, decide_true, mul_mod_mod, Bool.true_and,
+      decide_eq_decide]
+    rw [Nat.mod_eq_of_lt BitVec.toNat_mul_toNat_lt, Nat.mod_eq_of_lt]
+    have := Nat.pow_lt_pow_of_lt (a := 2) (n := w + 1) (m := (w + 1) * 2)
+    omega
+
+theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
+    smulOverflow x y =
+      (0 < w &&
+      ((signExtend (w * 2) (intMax w)).slt (signExtend (w * 2) x * signExtend (w * 2) y) ||
+      (signExtend (w * 2) x * signExtend (w * 2) y).slt (signExtend (w * 2) (intMin w)))) := by
+  simp only [smulOverflow]
+  rcases w with _|w
+  · simp [of_length_zero, toInt_zero]
+  · have h₁ := BitVec.two_pow_le_toInt_mul_toInt_iff (x := x) (y := y)
+    have h₂ := BitVec.toInt_mul_toInt_lt_neg_two_pow_iff (x := x) (y := y)
+    simp only [Nat.add_one_sub_one] at h₁ h₂
+    simp [h₁, h₂]
+
 /- ### umod -/
 
 theorem getElem_umod {n d : BitVec w} (hi : i < w) :
@@ -1756,5 +1782,18 @@ theorem extractLsb'_mul {w len} {x y : BitVec w} (hlen : len ≤ w) :
 theorem append_add_append_eq_append {v w : Nat} {x : BitVec v} {y : BitVec w} :
     (x ++ 0#w) + (0#v ++ y) = x ++ y := by
   rw [add_eq_or_of_and_eq_zero] <;> ext i <;> simp
+
+/-- Heuristically, `y <<< x` is much larger than `x`,
+and hence low bits of `y <<< x`. Thus, `x + (y <<< x) = x ||| (y <<< x).` -/
+theorem add_shifLeft_eq_or_shiftLeft {x y : BitVec w} :
+    x + (y <<< x) =  x ||| (y <<< x) := by
+  rw [add_eq_or_of_and_eq_zero]
+  ext i hi
+  simp only [shiftLeft_eq', getElem_and, getElem_shiftLeft, getElem_zero, and_eq_false_imp,
+    not_eq_eq_eq_not, Bool.not_true, decide_eq_false_iff_not, Nat.not_lt]
+  intros hxi hxval
+  have : 2^i ≤ x.toNat := two_pow_le_toNat_of_getElem_eq_true hi hxi
+  have : i < 2^i := by exact Nat.lt_two_pow_self
+  omega
 
 end BitVec

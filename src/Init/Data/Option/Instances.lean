@@ -144,6 +144,13 @@ none
   | none => b
   | some a => f a rfl
 
+/-- Partial filter. If `o : Option α`, `p : (a : α) → o = some a → Bool`, then `o.pfilter p` is
+the same as `o.filter p` but `p` is passed the proof that `o = some a`. -/
+@[inline] def pfilter (o : Option α) (p : (a : α) → o = some a → Bool) : Option α :=
+  match o with
+  | none => none
+  | some a => bif p a rfl then o else none
+
 /--
 Executes a monadic action on an optional value if it is present, or does nothing if there is no
 value.

@@ -228,20 +228,8 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
   You will want a few bullet points for main topics from the release notes.
   Please also make sure that whoever is handling social media knows the release is out.
 - Begin the next development cycle (i.e. for `v4.8.0`) on the Lean repository, by making a PR that:
+  - Uses branch name `dev_cycle_v4.8`.
   - Updates `src/CMakeLists.txt` to say `set(LEAN_VERSION_MINOR 8)`
-  - Replaces the "release notes will be copied" text in the `v4.6.0` section of `RELEASES.md` with the
-    finalized release notes from the `releases/v4.6.0` branch.
-  - Replaces the "development in progress" in the `v4.7.0` section of `RELEASES.md` with
-    ```
-    Release candidate, release notes will be copied from the branch `releases/v4.7.0` once completed.
-    ```
-    and inserts the following section before that section:
-    ```
-    v4.8.0
-    ----------
-    Development in progress.
-    ```
-  - Removes all the entries from the `./releases_drafts/` folder.
   - Titled "chore: begin development cycle for v4.8.0"
 
 

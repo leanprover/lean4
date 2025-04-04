@@ -88,6 +88,18 @@ partial def SnapshotTree.findInfoTreeAtPos (text : FileMap) (tree : SnapshotTree
         | return (none, .proceed (foldChildren := true))
       return (infoTree, .done)
 
+partial def SnapshotTree.collectMessagesInRange (tree : SnapshotTree)
+    (requestedRange : String.Range) : ServerTask MessageLog :=
+  tree.foldSnaps (init := .empty) fun snap log => Id.run do
+    let some stx := snap.stx?
+      | return .pure (log, .proceed (foldChildren := true))
+    let some range := stx.getRangeWithTrailing? (canonicalOnly := true)
+      | return .pure (log, .proceed (foldChildren := true))
+    if ! range.overlaps requestedRange (includeFirstStop := true) (includeSecondStop := true) then
+      return .pure (log, .proceed (foldChildren := false))
+    return snap.task.asServerTask.mapCheap fun tree => Id.run do
+      return (log ++ tree.element.diagnostics.msgLog, .proceed (foldChildren := true))
+
 end Lean.Language
 
 namespace Lean.Server
@@ -109,13 +121,16 @@ def methodNotFound (method : String) : RequestError :=
     message := s!"No request handler found for '{method}'" }
 
 def invalidParams (message : String) : RequestError :=
-  {code := ErrorCode.invalidParams, message}
+  { code := ErrorCode.invalidParams, message }
 
 def internalError (message : String) : RequestError :=
   { code := ErrorCode.internalError, message }
 
 def requestCancelled : RequestError :=
   { code := ErrorCode.requestCancelled, message := "" }
+
+def rpcNeedsReconnect : RequestError :=
+  { code := ErrorCode.rpcNeedsReconnect, message := "Outdated RPC session" }
 
 def ofException (e : Lean.Exception) : IO RequestError :=
   return internalError (← e.toMessageData.toString)
@@ -132,17 +147,27 @@ end RequestError
 
 def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
     : Except RequestError paramType :=
-  fromJson? params |>.mapError fun inner =>
-    { code := JsonRpc.ErrorCode.parseError
-      message := s!"Cannot parse request params: {params.compress}\n{inner}" }
+  fromJson? params |>.mapError fun inner => {
+    code := JsonRpc.ErrorCode.invalidParams
+    message := s!"Cannot parse request params: {params.compress}\n{inner}"
+  }
+
+inductive ServerRequestResponse (α : Type) where
+  | success (response : α)
+  | failure (code : JsonRpc.ErrorCode) (message : String)
+  deriving Inhabited
+
+abbrev ServerRequestEmitter := (method : String) → (param : Json)
+  → BaseIO (ServerTask (ServerRequestResponse Json))
 
 structure RequestContext where
-  rpcSessions       : RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
-  srcSearchPathTask : ServerTask SearchPath
-  doc               : FileWorker.EditableDocument
-  hLog              : IO.FS.Stream
-  initParams        : Lsp.InitializeParams
-  cancelTk          : RequestCancellationToken
+  rpcSessions          : RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
+  srcSearchPathTask    : ServerTask SearchPath
+  doc                  : FileWorker.EditableDocument
+  hLog                 : IO.FS.Stream
+  initParams           : Lsp.InitializeParams
+  cancelTk             : RequestCancellationToken
+  serverRequestEmitter : ServerRequestEmitter
 
 def RequestContext.srcSearchPath (rc : RequestContext) : SearchPath :=
   rc.srcSearchPathTask.get
@@ -151,6 +176,9 @@ abbrev RequestTask α := ServerTask (Except RequestError α)
 abbrev RequestT m := ReaderT RequestContext <| ExceptT RequestError m
 /-- Workers execute request handlers in this monad. -/
 abbrev RequestM := ReaderT RequestContext <| EIO RequestError
+
+def RequestM.run (act : RequestM α) (rc : RequestContext) : EIO RequestError α :=
+  act rc
 
 abbrev RequestTask.pure (a : α) : RequestTask α := ServerTask.pure (.ok a)
 
@@ -209,10 +237,48 @@ def bindTaskCostly (t : ServerTask α) (f : α → RequestM (RequestTask β)) : 
   let rc ← readThe RequestContext
   ServerTask.EIO.bindTaskCostly t (f · rc)
 
+def mapRequestTaskCheap (t : RequestTask α) (f : α → RequestM β) : RequestM (RequestTask β) := do
+  mapTaskCheap (t := t) fun
+    | .error e => throw e
+    | .ok r => f r
+
+def mapRequestTaskCostly (t : RequestTask α) (f : α → RequestM β) : RequestM (RequestTask β) := do
+  mapTaskCostly (t := t) fun
+    | .error e => throw e
+    | .ok r => f r
+
+def bindRequestTaskCheap (t : RequestTask α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := do
+  bindTaskCheap (t := t) fun
+    | .error e => throw e
+    | .ok r => f r
+
+def bindRequestTaskCostly (t : RequestTask α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := do
+  bindTaskCostly (t := t) fun
+    | .error e => throw e
+    | .ok r => f r
+
+def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
+    : RequestM paramType :=
+  EIO.ofExcept <| Server.parseRequestParams paramType params
+
 def checkCancelled : RequestM Unit := do
   let rc ← readThe RequestContext
   if ← rc.cancelTk.wasCancelledByCancelRequest then
     throw .requestCancelled
+
+def sendServerRequest
+    paramType [ToJson paramType] responseType [FromJson responseType] [Inhabited responseType]
+    (method : String)
+    (param  : paramType)
+    : RequestM (ServerTask (ServerRequestResponse responseType)) := do
+  let ctx ← read
+  let task ← ctx.serverRequestEmitter method (toJson param)
+  return task.mapCheap fun
+    | ServerRequestResponse.success response =>
+      match fromJson? response with
+      | .ok (response : responseType) => ServerRequestResponse.success response
+      | .error err => ServerRequestResponse.failure .parseError s!"Cannot parse server request response: {response.compress}\n{err}"
+    | ServerRequestResponse.failure code msg => ServerRequestResponse.failure code msg
 
 def waitFindSnapAux (notFoundX : RequestM α) (x : Snapshot → RequestM α)
     : Except IO.Error (Option Snapshot) → RequestM α
@@ -385,7 +451,7 @@ def registerLspRequestHandler (method : String)
   let fileSource := fun j =>
     parseRequestParams paramType j |>.map Lsp.fileSource
   let handle := fun j => do
-    let params ← liftExcept <| parseRequestParams paramType j
+    let params ← RequestM.parseRequestParams paramType j
     let t ← handler params
     pure <| t.mapCheap <| Except.map ToJson.toJson
 
@@ -412,7 +478,7 @@ def chainLspRequestHandler (method : String)
       let t ← oldHandler.handle j
       let t := t.mapCheap fun x => x.bind fun j => FromJson.fromJson? j |>.mapError fun e =>
         .internalError s!"Failed to parse original LSP response for `{method}` when chaining: {e}"
-      let params ← liftExcept <| parseRequestParams paramType j
+      let params ← RequestM.parseRequestParams paramType j
       let t ← handler params t
       pure <| t.mapCheap <| Except.map ToJson.toJson
 
@@ -493,7 +559,7 @@ private def overrideStatefulLspRequestHandler
   let stateRef ← IO.mkRef initState
 
   let pureHandle : Json → Dynamic → RequestM (LspResponse Json × Dynamic) := fun param state => do
-    let param ← liftExcept <| parseRequestParams paramType param
+    let param ← RequestM.parseRequestParams paramType param
     let state ← getState! method state stateType
     let (r, state') ← handler param state
     return ({ r with response := toJson r.response }, Dynamic.mk state')

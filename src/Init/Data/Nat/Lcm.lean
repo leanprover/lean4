@@ -137,6 +137,9 @@ theorem eq_zero_of_lcm_eq_zero (h : lcm m n = 0) : m = 0 ∨ n = 0 := by
 @[simp] theorem lcm_eq_zero_iff : lcm m n = 0 ↔ m = 0 ∨ n = 0 := by
   cases m <;> cases n <;> simp [lcm_ne_zero] at *
 
+@[simp] theorem lcm_pos_iff : 0 < lcm m n ↔ 0 < m ∧ 0 < n := by
+  simp only [Nat.pos_iff_ne_zero, ne_eq, lcm_eq_zero_iff, not_or]
+
 theorem lcm_eq_iff {n m l : Nat} :
     lcm n m = l ↔ n ∣ l ∧ m ∣ l ∧ (∀ c, n ∣ c → m ∣ c → l ∣ c) := by
   refine ⟨?_, fun ⟨hn, hm, hl⟩ => Nat.dvd_antisymm (lcm_dvd hn hm) ?_⟩

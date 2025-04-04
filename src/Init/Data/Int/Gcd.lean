@@ -62,7 +62,8 @@ theorem gcd_zero_right (a : Int) : gcd a 0 = a.natAbs := by simp
 @[simp] theorem neg_gcd {a b : Int} : gcd (-a) b = gcd a b := by simp [gcd_eq_natAbs_gcd_natAbs]
 @[simp] theorem gcd_neg {a b : Int} : gcd a (-b) = gcd a b := by simp [gcd_eq_natAbs_gcd_natAbs]
 
-@[simp] theorem gcd_natCast_natCast {a b : Nat} : gcd (a : Int) (b : Int) = Nat.gcd a b := by
+@[simp, norm_cast] protected theorem gcd_natCast_natCast (a b : Nat) :
+    gcd (a : Int) (b : Int) = Nat.gcd a b := by
   simp [gcd_eq_natAbs_gcd_natAbs]
 
 theorem gcd_le_natAbs_left (b : Int) (ha : a ≠ 0) : gcd a b ≤ a.natAbs :=
@@ -321,6 +322,9 @@ theorem gcd_left_eq_iff {a a' b : Int} : gcd a b = gcd a' b ↔ ∀ c, c ∣ b �
 @[simp] theorem gcd_eq_zero_iff {a b : Int} : gcd a b = 0 ↔ a = 0 ∧ b = 0 := by
   simp [gcd_eq_natAbs_gcd_natAbs]
 
+@[simp] theorem gcd_pos_iff {a b : Int} : 0 < gcd a b ↔ a ≠ 0 ∨ b ≠ 0 := by
+  simp only [Nat.pos_iff_ne_zero, gcd_eq_zero_iff, ne_eq, Decidable.not_and_iff_not_or_not]
+
 theorem gcd_eq_iff {a b : Int} {g : Nat} :
     gcd a b = g ↔ (g : Int) ∣ a ∧ (g : Int) ∣ b ∧ (∀ c, c ∣ a → c ∣ b → c ∣ g) := by
   refine ⟨?_, fun ⟨ha, hb, hc⟩ => Nat.dvd_antisymm ?_ (dvd_gcd ha hb)⟩
@@ -396,6 +400,11 @@ theorem gcd_ediv_gcd_ediv_gcd_of_ne_zero_right {n m : Int} (h : m ≠ 0) :
     gcd (n / gcd n m) (m / gcd n m) = 1 := by
   rw [gcd_ediv (gcd_dvd_left _ _) (gcd_dvd_right _ _), natAbs_ofNat,
     Nat.div_self (gcd_pos_of_ne_zero_right _ h)]
+
+theorem gcd_ediv_gcd_ediv_gcd {i j : Int} (h : 0 < gcd i j) : gcd (i / gcd i j) (j / gcd i j) = 1 :=
+  match gcd_pos_iff.1 h with
+  | Or.inl h => gcd_ediv_gcd_ediv_gcd_of_ne_zero_left h
+  | Or.inr h => gcd_ediv_gcd_ediv_gcd_of_ne_zero_right h
 
 theorem pow_gcd_pow {n m : Int} {k : Nat} : gcd (n ^ k) (m ^ k) = (gcd n m) ^ k := by
   simpa [gcd_eq_natAbs_gcd_natAbs, natAbs_pow] using Nat.pow_gcd_pow
@@ -473,7 +482,8 @@ theorem lcm_zero_right (a : Int) : lcm a 0 = 0 := by simp
 @[simp] theorem neg_lcm {a b : Int} : lcm (-a) b = lcm a b := by simp [lcm_eq_natAbs_lcm_natAbs]
 @[simp] theorem lcm_neg {a b : Int} : lcm a (-b) = lcm a b := by simp [lcm_eq_natAbs_lcm_natAbs]
 
-@[simp] theorem lcm_natCast_natCast {a b : Nat} : lcm (a : Int) (b : Int) = Nat.lcm a b := by
+@[simp, norm_cast] protected theorem lcm_natCast_natCast (a b : Nat) :
+    lcm (a : Int) (b : Int) = Nat.lcm a b := by
   simp [lcm_eq_natAbs_lcm_natAbs]
 
 theorem natAbs_le_lcm_left (a : Int) (hb : b ≠ 0) : a.natAbs ≤ lcm a b :=
@@ -533,6 +543,9 @@ theorem eq_zero_of_lcm_eq_zero (h : lcm m n = 0) : m = 0 ∨ n = 0 := by
 
 @[simp] theorem lcm_eq_zero_iff : lcm m n = 0 ↔ m = 0 ∨ n = 0 :=
   ⟨eq_zero_of_lcm_eq_zero, by rintro (rfl|rfl) <;> simp⟩
+
+@[simp] theorem lcm_pos_iff : 0 < lcm m n ↔ m ≠ 0 ∧ n ≠ 0 := by
+  simp only [Nat.pos_iff_ne_zero, ne_eq, lcm_eq_zero_iff, not_or]
 
 theorem lcm_eq_iff {n m : Int} {l : Nat} :
     lcm n m = l ↔ n ∣ (l : Int) ∧ m ∣ (l : Int) ∧ (∀ c, n ∣ c → m ∣ c → (l : Int) ∣ c) := by

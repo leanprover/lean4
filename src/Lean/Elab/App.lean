@@ -1406,7 +1406,8 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         let (args, namedArgs) ← addLValArg baseStructName constName f args namedArgs projFn explicit
         elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
       else
-        let f ← elabAppArgs projFn #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false)
+        let (args, namedArgs) ← addLValArg baseStructName constName f #[] #[] projFn (explicit := false)
+        let f ← elabAppArgs projFn namedArgs args (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
     | LValResolution.localRec baseName fullName fvar =>
       let fvar ← addProjTermInfo lval.getRef fvar
@@ -1414,7 +1415,8 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         let (args, namedArgs) ← addLValArg baseName fullName f args namedArgs fvar explicit
         elabAppArgs fvar namedArgs args expectedType? explicit ellipsis
       else
-        let f ← elabAppArgs fvar #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false)
+        let (args, namedArgs) ← addLValArg baseName fullName f #[] #[] fvar (explicit := false)
+        let f ← elabAppArgs fvar namedArgs args (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
   loop f lvals
 

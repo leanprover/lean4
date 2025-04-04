@@ -181,7 +181,7 @@ def send (ch : Bounded α) (v : α) : BaseIO (Task (Option Unit)) := do
       else
         modify fun st =>
           { st with
-            buf := st.buf.set nextSendIdx (some v) sorry,
+            buf := st.buf.set st.sendIdx (some v) st.hsend,
             sendIdx := nextSendIdx,
             hsend := sorry
           }
@@ -202,7 +202,7 @@ def recv (ch : Bounded α) : BaseIO (Task (Option α)) := do
       set { st with producers }
       promise.resolve (some ())
       return .pure <| some val
-    else if st.recvIdx = st.sendIdx then 
+    else if st.recvIdx = st.sendIdx then
       if st.closed then
         return .pure none
       else
@@ -219,7 +219,7 @@ def recv (ch : Bounded α) : BaseIO (Task (Option α)) := do
           st.recvIdx + 1
       modify fun st =>
         { st with
-          buf := st.buf.set nextRecvIdx none sorry
+          buf := st.buf.set st.recvIdx none st.hrecv
           recvIdx := nextRecvIdx
           hrecv := sorry
         }

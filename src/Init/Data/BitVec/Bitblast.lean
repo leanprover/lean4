@@ -1785,7 +1785,7 @@ theorem append_add_append_eq_append {v w : Nat} {x : BitVec v} {y : BitVec w} :
 
 /-- Heuristically, `y <<< x` is much larger than `x`,
 and hence low bits of `y <<< x`. Thus, `x + (y <<< x) = x ||| (y <<< x).` -/
-theorem add_shifLeft_eq_or_shiftLeft {x y : BitVec w} :
+theorem add_shiftLeft_eq_or_shiftLeft {x y : BitVec w} :
     x + (y <<< x) =  x ||| (y <<< x) := by
   rw [add_eq_or_of_and_eq_zero]
   ext i hi

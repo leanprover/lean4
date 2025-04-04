@@ -2,7 +2,7 @@
 case a
 p : Sort u_1
 q r : Prop
-⊢ p → q
+⊢ ∀ (a : p), q
 
 case b
 p : Sort u_1

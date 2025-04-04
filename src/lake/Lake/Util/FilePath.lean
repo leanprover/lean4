@@ -24,11 +24,13 @@ scoped instance : ToJson FilePath where
   toJson path := toJson <| mkRelPathString path
 
 /--
-Joins a base path with a (potentially) relative path.
-If the relative path is `.`, this returns the base path.
+Joins a two (potentially) relative paths.
+If either path is `.`, this returns the other.
 -/
-def joinRelative (base rel : FilePath) : System.FilePath :=
-  if rel == "." then base else inline FilePath.join base rel
+def joinRelative (a b : FilePath) : System.FilePath :=
+  if b == "." then a
+  else if a == "." then b
+  else inline FilePath.join a b
 
 scoped instance : Div FilePath where
   div := joinRelative

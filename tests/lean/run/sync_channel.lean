@@ -49,11 +49,9 @@ def sendItSync (ch : Channel.Sync Nat) (messages : List Nat) : IO (Option Unit) 
 
 def recvItSync (ch : Channel.Sync Nat) : IO (List Nat) := do
   let mut messages := []
-  while true do
-    match ← ch.recv with
-    | none => return messages.reverse
-    | some msg => messages := msg :: messages
-  return messages
+  for msg in ch do
+    messages := msg :: messages
+  return messages.reverse
 
 def sendLotsSync (ch : Channel.Sync Nat) : IO Unit := do
   let messages := List.range 1000
@@ -100,5 +98,6 @@ def testIt (mkChannel : BaseIO (Channel Nat)) : IO Unit := do
 
 def suite : IO Unit := do
   testIt (Channel.new none)
+  testIt (Channel.new (some 0))
 
 #eval suite

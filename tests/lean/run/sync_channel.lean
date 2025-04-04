@@ -83,8 +83,8 @@ partial def sendLotsMultiSync (ch : Channel.Sync Nat) : IO Unit := do
   assertBEq (← IO.ofExcept (← IO.wait sendTask1)) (some ())
   assertBEq (← IO.ofExcept (← IO.wait sendTask2)) (some ())
   ch.close
-  let msg1 ← IO.ofExcept (← IO.wait recvTask1) 
-  let msg2 ← IO.ofExcept (← IO.wait recvTask2) 
+  let msg1 ← IO.ofExcept (← IO.wait recvTask1)
+  let msg2 ← IO.ofExcept (← IO.wait recvTask2)
   assertBEq (msg1.sum + msg2.sum) (2 * messages.sum)
 
 def testIt (mkChannel : BaseIO (Channel Nat)) : IO Unit := do
@@ -99,5 +99,8 @@ def testIt (mkChannel : BaseIO (Channel Nat)) : IO Unit := do
 def suite : IO Unit := do
   testIt (Channel.new none)
   testIt (Channel.new (some 0))
+  testIt (Channel.new (some 1))
+  -- TODO: broken
+  -- testIt (Channel.new (some 8))
 
-#eval suite
+#eval! suite

@@ -108,20 +108,6 @@ def generate_script(repo, version, config):
         ""
     ])
 
-    # Special cases for specific repositories
-    if repo_name == "ProofWidgets4":
-        script_lines.append(f"echo 'Note: Follow the version convention of the repository for tagging.'")
-    elif requires_tagging:
-        script_lines.append(f"git checkout {default_branch} && git pull")
-        script_lines.append(f'[ "$(cat lean-toolchain)" = "leanprover/lean4:{version}" ] && git tag -a {version} -m \'Release {version}\' && git push origin --tags || echo "Error: lean-toolchain does not contain expected version {version}"')
-
-    if has_stable_branch:
-        script_lines.extend([
-            "git checkout stable && git pull",
-            f"git merge {version} --no-edit",
-            "git push origin stable"
-        ])
-
     return "\n".join(script_lines)
 
 def main():
@@ -137,8 +123,10 @@ The script will generate shell commands to:
 1. Update the lean-toolchain file
 2. Create appropriate branches and commits
 3. Create pull requests
-4. Create version tags
-5. Update stable branches where applicable"""
+
+(Note that the steps of creating toolchain version tags, and merging these into `stable` branches,
+are handled by `script/release_checklist.py`.)
+"""
     )
     parser.add_argument("version", help="The version to set in the lean-toolchain file (e.g., v4.6.0)")
     parser.add_argument("repo", help="A substring of the repository name as specified in release_repos.yml")

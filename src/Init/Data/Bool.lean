@@ -612,11 +612,16 @@ protected theorem cond_false {α : Sort u} {a b : α} : cond false a b = b := co
 @[simp] theorem cond_false_right : ∀(c t : Bool), cond c t false = ( c && t) := by decide
 
 -- These restore confluence between the above lemmas and `cond_not`.
-@[simp] theorem cond_true_not_same  : ∀ (c b : Bool), cond c (!c) b = (!c && b) := by decide
-@[simp] theorem cond_false_not_same : ∀ (c b : Bool), cond c b (!c) = (!c || b) := by decide
+@[simp] theorem cond_then_not_self  : ∀ (c b : Bool), cond c (!c) b = (!c && b) := by decide
+@[simp] theorem cond_else_not_self : ∀ (c b : Bool), cond c b (!c) = (!c || b) := by decide
 
-@[simp] theorem cond_true_same  : ∀(c b : Bool), cond c c b = (c || b) := by decide
-@[simp] theorem cond_false_same : ∀(c b : Bool), cond c b c = (c && b) := by decide
+@[simp] theorem cond_then_self  : ∀ (c b : Bool), cond c c b = (c || b) := by decide
+@[simp] theorem cond_else_self : ∀ (c b : Bool), cond c b c = (c && b) := by decide
+
+@[deprecated cond_then_not_self (since := "2025-04-04")] abbrev cond_true_not_same := @cond_then_not_self
+@[deprecated cond_else_not_self (since := "2025-04-04")] abbrev cond_false_not_same := @cond_else_not_self
+@[deprecated cond_then_self (since := "2025-04-04")] abbrev cond_true_same := @cond_then_self
+@[deprecated cond_else_self (since := "2025-04-04")] abbrev cond_false_same := @cond_else_self
 
 theorem cond_pos {b : Bool} {a a' : α} (h : b = true) : (bif b then a else a') = a := by
   rw [h, cond_true]

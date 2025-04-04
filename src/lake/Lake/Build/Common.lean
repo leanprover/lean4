@@ -427,8 +427,7 @@ def buildSharedLib
   (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
   (weakArgs traceArgs : Array String := #[]) (linker := "c++")
   (extraDepTrace : JobM _ := pure BuildTrace.nil)
-  (linkDeps := Platform.isWindows)
-  (plugin := false)
+  (plugin := false) (linkDeps := Platform.isWindows)
 : SpawnM (Job Dynlib) :=
   (Job.collectArray linkObjs).bindM fun objs => do
   (Job.collectArray linkLibs).mapM (sync := true) fun libs => do
@@ -436,7 +435,7 @@ def buildSharedLib
     addPlatformTrace -- shared libraries are platform-dependent artifacts
     addTrace (← extraDepTrace)
     buildFileUnlessUpToDate' libFile do
-      let libs ← if linkDeps then mkLinkOrder libs else pure libs
+      let libs ← if linkDeps then mkLinkOrder libs else pure #[]
       let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs
       compileSharedLib libFile args linker
     return {name := libName, path := libFile, deps := libs, plugin}
@@ -458,7 +457,7 @@ def buildLeanSharedLib
     addPlatformTrace -- shared libraries are platform-dependent artifacts
     buildFileUnlessUpToDate' libFile do
       let lean ← getLeanInstall
-      let libs ← if linkDeps then mkLinkOrder libs else pure libs
+      let libs ← if linkDeps then mkLinkOrder libs else pure #[]
       let args := mkLinkObjArgs objs libs ++
         weakArgs ++ traceArgs ++ lean.ccLinkSharedFlags
       compileSharedLib libFile args lean.cc

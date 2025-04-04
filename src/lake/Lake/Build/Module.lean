@@ -143,32 +143,11 @@ from other libraries are loaded as part of the whole library.
     else return jobs
   return Job.collectArray jobs
 
-def computeModuleDeps
-  (impLibs : Array Dynlib) (externLibs : Array Dynlib)
-  (dynlibs : Array Dynlib) (plugins : Array Dynlib)
-: ModuleDeps := Id.run do
-  /-
-  Requirements:
-  * Lean wants the external library symbols before module symbols.
-  * Unix requires the file extension of the dynlib.
-  * For some reason, building from the Lean server requires full paths.
-    Everything else loads fine with just the augmented library path.
-  * Linux needs the augmented path to resolve nested dependencies in dynlibs.
-  -/
-  let mut plugins := plugins
-  let mut dynlibs := externLibs ++ dynlibs
-  for impLib in impLibs do
-    if impLib.plugin then
-      plugins := plugins.push impLib
-    else
-      dynlibs := dynlibs.push impLib
-  return {dynlibs, plugins}
-
 /--
 Topologically sorts the library dependency tree by name.
 Libraries come *after* their dependencies.
 -/
-private partial def mkLoadOrder (libs : Array Dynlib) : JobM (Array Dynlib) := do
+private partial def mkLoadOrder (libs : Array Dynlib) : FetchM (Array Dynlib) := do
   let r := libs.foldlM (m := Except (Cycle String)) (init := ({}, #[])) fun (v, o) lib =>
     go lib [] v o
   match r with
@@ -186,6 +165,28 @@ where
       go lib ps v o
     let o := o.push lib
     return (v, o)
+
+def computeModuleDeps
+  (impLibs : Array Dynlib) (externLibs : Array Dynlib)
+  (dynlibs : Array Dynlib) (plugins : Array Dynlib)
+: FetchM ModuleDeps := do
+  /-
+  Requirements:
+  * Lean wants the external library symbols before module symbols.
+  * Unix requires the file extension of the dynlib.
+  * For some reason, building from the Lean server requires full paths.
+    Everything else loads fine with just the augmented library path.
+  * Linux needs the augmented path to resolve nested dependencies in dynlibs.
+  -/
+  let impLibs ← mkLoadOrder impLibs
+  let mut dynlibs := externLibs ++ dynlibs
+  let mut plugins := plugins
+  for impLib in impLibs do
+    if impLib.plugin then
+      plugins := plugins.push impLib
+    else
+      dynlibs := dynlibs.push impLib
+  return {dynlibs, plugins}
 
 /--
 Recursively build a module's dependencies, including:
@@ -224,8 +225,7 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
     | none => addTrace depTrace
     | some false => addTrace depTrace; addPlatformTrace
     | some true => setTrace depTrace
-    let impLibs ← mkLoadOrder impLibs
-    return computeModuleDeps impLibs externLibs dynlibs plugins
+    computeModuleDeps impLibs externLibs dynlibs plugins
 
 /-- The `ModuleFacetConfig` for the builtin `depsFacet`. -/
 def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=

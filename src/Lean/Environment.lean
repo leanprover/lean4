@@ -865,10 +865,11 @@ def PromiseCheckedResult.commitChecked (res : PromiseCheckedResult) (env : Envir
 
 /-- Data transmitted by `AddConstAsyncResult.commitConst`. -/
 private structure ConstPromiseVal where
-  privateConstInfo  : ConstantInfo
-  exportedConstInfo : ConstantInfo
-  exts              : Array EnvExtensionState
-  nestedConsts      : AsyncConsts
+  privateConstInfo     : ConstantInfo
+  exportedConstInfo    : ConstantInfo
+  exts                 : Array EnvExtensionState
+  privateNestedConsts  : AsyncConsts
+  exportedNestedConsts : AsyncConsts
 deriving Nonempty
 
 /--
@@ -951,7 +952,7 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
       -- any value should work here, `base` does not block
       | none   => env.base.extensions)
     consts := constPromise.result?.map (sync := true) fun
-      | some v => .mk v.nestedConsts
+      | some v => .mk v.privateNestedConsts
       | none   => .mk (α := AsyncConsts) default
   }
   let exportedAsyncConst := { privateAsyncConst with
@@ -961,6 +962,9 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind)
         | some c => c.exportedConstInfo
         | none   => mkFallbackConstInfo constName exportedKind
     }
+    consts := constPromise.result?.map (sync := true) fun
+      | some v => .mk v.exportedNestedConsts
+      | none   => .mk (α := AsyncConsts) default
   }
   return {
     constName, kind
@@ -1018,7 +1022,8 @@ def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environme
     privateConstInfo := info
     exportedConstInfo := (exportedInfo? <|> (env.setExporting true).find? res.constName).getD info
     exts := env.base.extensions
-    nestedConsts := env.asyncConsts
+    privateNestedConsts := env.privateAsyncConsts
+    exportedNestedConsts := env.exportedAsyncConsts
   }
 
 /--

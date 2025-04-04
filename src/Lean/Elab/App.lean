@@ -14,6 +14,7 @@ import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.Arg
 import Lean.Elab.RecAppSyntax
+import Lean.Expr
 
 namespace Lean.Elab.Term
 open Meta
@@ -1322,14 +1323,20 @@ where
     let mut argIdx := argIdx
     let mut remainingNamedArgs := remainingNamedArgs
     let mut unusableNamedArgs := unusableNamedArgs
-    for x in xs, bInfo in bInfos do
+    let mut dotParamIdx? ← xs.findIdxM? fun x => return (← x.mvarId!.getDecl).type.isDotParam
+    let isDotParam (idx : Nat) (argType : Expr) : MetaM Bool := do
+      if let some dotParamIdx := dotParamIdx? then
+        return dotParamIdx == idx
+      else
+        typeMatchesBaseName argType baseName
+    for x in xs, bInfo in bInfos, i in [0:xs.size] do
       let xDecl ← x.mvarId!.getDecl
       if let some idx := remainingNamedArgs.findFinIdx? (·.name == xDecl.userName) then
         /- If there is named argument with name `xDecl.userName`, then it is accounted for and we can't make use of it. -/
         remainingNamedArgs := remainingNamedArgs.eraseIdx idx
       else
-        if ← typeMatchesBaseName xDecl.type baseName then
-          /- We found a type of the form (baseName ...), or we found the first explicit argument in useFirstExplicit mode.
+        if ← isDotParam i xDecl.type then
+          /- We found a type of the form (baseName ...), or if there's a dotParam, we've reached it.
              First, we check if the current argument is one that can be used positionally,
              and if the current explicit position "fits" at `args` (i.e., it must be ≤ arg.size) -/
           if h : argIdx ≤ args.size ∧ (explicit || bInfo.isExplicit) then

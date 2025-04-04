@@ -146,7 +146,7 @@ theorem testBit_toNat (x : BitVec w) : x.toNat.testBit i = x.getLsbD i := rfl
 
 theorem two_pow_le_toNat_of_getElem_eq_true {i : Nat} {x : BitVec w}
     (hi : i < w) (hx : x[i] = true) : 2^i ≤ x.toNat := by
-  apply Nat.testBit_implies_ge
+  apply Nat.ge_two_pow_of_testBit
   rw [← getElem_eq_testBit_toNat x i hi]
   exact hx
 

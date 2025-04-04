@@ -172,7 +172,7 @@ def combine (x y : Constraint) : Constraint where
 theorem combine_sat : (c : Constraint) → (c' : Constraint) → (t : Int) →
     (c.combine c').sat t = (c.sat t ∧ c'.sat t) := by
   rintro ⟨_ | l₁, _ | u₁⟩ <;> rintro ⟨_ | l₂, _ | u₂⟩ t
-    <;> simp [sat, LowerBound.sat, UpperBound.sat, combine, Int.le_min, Int.max_le, Option.merge] at *
+    <;> simp [sat, LowerBound.sat, UpperBound.sat, combine, Int.le_min, Int.max_le, Option.zipWith] at *
   · rw [And.comm]
   · rw [← and_assoc, And.comm (a := l₂ ≤ t), and_assoc]
   · rw [and_assoc]

@@ -12,11 +12,11 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 def markForeignTerm (e : Expr) (t : ForeignType) : GoalM Unit := do
-  modify' fun s => { s with foreignTerms := s.foreignTerms.insert { expr := e} t }
+  modify' fun s => { s with foreignTermType := s.foreignTermType.insert { expr := e} t }
   markAsCutsatTerm e
 
 def foreignTerm? (e : Expr) : GoalM (Option ForeignType) := do
-  return (← get').foreignTerms.find? { expr := e }
+  return (← get').foreignTermType.find? { expr := e }
 
 def foreignTermOrLit? (e : Expr) : GoalM (Option ForeignType) := do
   if isNatNum e then return some .nat

@@ -234,9 +234,10 @@ structure State where
   -/
   terms : PHashMap ENodeKey Poly := {}
   /--
-  Foreign terms (e.g., `Nat`). They are also marked using `markAsCutsatTerm`.
+  Mapping from foreign terms to their types (e.g., `Nat`). They are also marked using `markAsCutsatTerm`.
   -/
-  foreignTerms : PHashMap ENodeKey ForeignType := {}
+  foreignTermType : PHashMap ENodeKey ForeignType := {}
+
   /--
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/

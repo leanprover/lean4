@@ -2308,6 +2308,45 @@ abbrev getD_insertManyIfNewUnit_empty_list := @getD_insertManyIfNewUnit_emptyWit
 
 end Const
 
+section Union
+
+variable (m₁ m₂ : Raw₀ α β)
+
+--Temporary: presumably we'll want to have this somewhere else (and redefine it in terms of `insertMany`?)
+def union : Raw₀ α β := ⟨m₁.val.union m₂.val, sorry⟩
+
+@[simp]
+theorem union_singleton {k : α} {v : β k} [EquivBEq α] [LawfulHashable α] (h : m.val.WF) :
+    m.val.union {⟨k, v⟩} = m.insert k v := by
+  sorry
+
+@[simp]
+theorem union_contains [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
+    (m₁.union m₂).contains k = (m₁.contains k || m₂.contains k) := by
+  sorry
+
+@[simp]
+theorem mem_union_iff [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF) {k : α} :
+    (m₁.union m₂).contains k ↔ m₁.contains k ∨ m₂.contains k := by
+  sorry
+
+variable {m₁ m₂} in
+theorem mem_of_mem_union [EquivBEq α] [LawfulHashable α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} : (m₁.union m₂).contains k → m₂.contains k = false → m₁.contains k := by
+  sorry
+
+theorem get?_union_of_contains_eq_false [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₂.contains k = false) :
+    (m₁.union m₂).get? k = m.get? k := by
+  sorry
+
+theorem get_union_of_contains_eq_false [LawfulBEq α] (h₁ : m₁.val.WF) (h₂ : m₂.val.WF)
+    {k : α} (contains_eq_false : m₂.contains k = false) {h'} :
+    (m₁.union m₂).get k h' = m₁.get k (mem_of_mem_union h₁ h₂ h' contains_eq_false) := by
+  sorry
+
+end Union
+
 section Alter
 
 theorem isEmpty_alter_eq_isEmpty_erase [LawfulBEq α] (h : m.1.WF) {k : α}

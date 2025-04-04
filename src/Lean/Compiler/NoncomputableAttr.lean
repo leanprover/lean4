@@ -16,8 +16,8 @@ def addNoncomputable (env : Environment) (declName : Name) : Environment :=
 
 /--
   Return true iff the user has declared the given declaration as `noncomputable`.
-  Remark: we use this function only for introspection. It is currently not used by the code generator.
 -/
+@[export lean_is_noncomputable]
 def isNoncomputable (env : Environment) (declName : Name) : Bool :=
   noncomputableExt.isTagged env declName
 

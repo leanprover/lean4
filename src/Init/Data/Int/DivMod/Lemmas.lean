@@ -2307,7 +2307,7 @@ theorem bmod_le {x : Int} {m : Nat} (h : 0 < m) : bmod x m ≤ (m - 1) / 2 := by
       · trivial
 
 -- This could be strengthed by changing to `w : x ≠ -1` if needed.
-theorem bmod_natAbs_plus_one (x : Int) (w : 1 < x.natAbs) : bmod x (x.natAbs + 1) = - x.sign := by
+theorem bmod_natAbs_add_one (x : Int) (w : 1 < x.natAbs) : bmod x (x.natAbs + 1) = - x.sign := by
   have t₁ : ∀ (x : Nat), x % (x + 2) = x :=
     fun x => Nat.mod_eq_of_lt (Nat.lt_succ_of_lt (Nat.lt.base x))
   have t₂ : ∀ (x : Int), 0 ≤ x → x % (x + 2) = x := fun x h => by
@@ -2348,6 +2348,9 @@ theorem bmod_natAbs_plus_one (x : Int) (w : 1 < x.natAbs) : bmod x (x.natAbs + 1
           all_goals decide
     · exact ofNat_nonneg x
     · exact succ_ofNat_pos (x + 1)
+
+@[deprecated bmod_natAbs_add_one (since := "2025-04-04")]
+abbrev bmod_natAbs_plus_one := @bmod_natAbs_add_one
 
 @[simp]
 theorem bmod_neg_bmod : bmod (-(bmod x n)) n = bmod (-x) n := by

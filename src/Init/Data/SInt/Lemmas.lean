@@ -1812,11 +1812,11 @@ theorem ISize.toInt64_div_of_ne_right (a b : ISize) (hb : b ≠ -1) : (a / b).to
 @[simp] theorem Int64.toISize_mul (a b : Int64) : (a * b).toISize = a.toISize * b.toISize :=
   ISize.toBitVec_inj.1 (by simp [BitVec.signExtend_eq_setWidth_of_le, BitVec.setWidth_mul])
 
-protected theorem Int8.sub_eq_add_neg (a b : Int8) : a - b = a + -b := Int8.toBitVec.inj (by simp [BitVec.sub_toAdd])
-protected theorem Int16.sub_eq_add_neg (a b : Int16) : a - b = a + -b := Int16.toBitVec.inj (by simp [BitVec.sub_toAdd])
-protected theorem Int32.sub_eq_add_neg (a b : Int32) : a - b = a + -b := Int32.toBitVec.inj (by simp [BitVec.sub_toAdd])
-protected theorem Int64.sub_eq_add_neg (a b : Int64) : a - b = a + -b := Int64.toBitVec.inj (by simp [BitVec.sub_toAdd])
-protected theorem ISize.sub_eq_add_neg (a b : ISize) : a - b = a + -b := ISize.toBitVec.inj (by simp [BitVec.sub_toAdd])
+protected theorem Int8.sub_eq_add_neg (a b : Int8) : a - b = a + -b := Int8.toBitVec.inj (by simp [BitVec.sub_eq_add_neg])
+protected theorem Int16.sub_eq_add_neg (a b : Int16) : a - b = a + -b := Int16.toBitVec.inj (by simp [BitVec.sub_eq_add_neg])
+protected theorem Int32.sub_eq_add_neg (a b : Int32) : a - b = a + -b := Int32.toBitVec.inj (by simp [BitVec.sub_eq_add_neg])
+protected theorem Int64.sub_eq_add_neg (a b : Int64) : a - b = a + -b := Int64.toBitVec.inj (by simp [BitVec.sub_eq_add_neg])
+protected theorem ISize.sub_eq_add_neg (a b : ISize) : a - b = a + -b := ISize.toBitVec.inj (by simp [BitVec.sub_eq_add_neg])
 
 @[simp] theorem Int8.toInt_sub (a b : Int8) : (a - b).toInt = (a.toInt - b.toInt).bmod (2 ^ 8) := by
   simp [Int8.sub_eq_add_neg, Int.sub_eq_add_neg]

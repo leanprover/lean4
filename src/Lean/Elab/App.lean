@@ -1287,19 +1287,20 @@ private partial def mkBaseProjections (baseStructName : Name) (structName : Name
       e ← elabAppArgs projFn #[{ name := `self, val := Arg.expr e, suppressDeps := true }] (args := #[]) (expectedType? := none) (explicit := false) (ellipsis := false)
     return e
 
-private partial def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool := do
-  if baseName == `Function then
-    return (← whnf type).isForall
-  else if type.cleanupAnnotations.isAppOf baseName then
-    return true
-  else
-    let type ← whnfCore type
-    if type.isAppOf baseName then
+private partial def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool :=
+  withReducibleAndInstances do
+    if baseName == `Function then
+      return (← whnf type).isForall
+    else if type.cleanupAnnotations.isAppOf baseName then
       return true
     else
-      match ← unfoldDefinition? type with
-      | some type' => typeMatchesBaseName type' baseName
-      | none => return false
+      let type ← whnfCore type
+      if type.isAppOf baseName then
+        return true
+      else
+        match ← unfoldDefinition? type with
+        | some type' => typeMatchesBaseName type' baseName
+        | none => return false
 
 /--
 Auxiliary method for field notation. Tries to add `e` as a new argument to `args` or `namedArgs`.

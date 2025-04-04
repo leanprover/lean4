@@ -400,7 +400,7 @@ structure Methods where
   dpre       : DSimproc := fun _ => return .continue
   dpost      : DSimproc := fun e => return .done e
   /--
-  `discharge? a` attempts to prove `a` using the discharger, returning
+  `discharge? a` attempts to prove the `Prop` `a` using the discharger, returning
   `some pf` if a proof is found and `none` otherwise.
   -/
   discharge? : Expr → SimpM (Option Expr) := fun _ => return none

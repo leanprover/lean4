@@ -83,6 +83,9 @@ theorem Nat.pow_one (a : Nat) : a ^ 1 = a := by
 theorem Int.pow_one (a : Int) : a ^ 1 = a := by
   simp [Int.pow_succ]
 
+theorem forall_true (p : True → Prop) : (∀ h : True, p h) = p True.intro :=
+  propext <| Iff.intro (fun h => h True.intro) (fun h _ => h)
+
 init_grind_norm
   /- Pre theorems -/
   not_and not_or not_ite not_forall not_exists
@@ -108,7 +111,7 @@ init_grind_norm
   ite_true ite_false ite_true_false ite_false_true
   dite_eq_ite
   -- Forall
-  forall_and
+  forall_and forall_false forall_true
   -- Exists
   exists_const exists_or exists_prop exists_and_left exists_and_right
   -- Bool cond
@@ -131,7 +134,7 @@ init_grind_norm
   Nat.le_zero_eq Nat.lt_eq Nat.succ_eq_add_one
   Nat.add_eq Nat.sub_eq Nat.mul_eq Nat.zero_eq Nat.le_eq
   Nat.div_zero Nat.mod_zero Nat.div_one Nat.mod_one
-  Nat.sub_sub Nat.pow_zero Nat.pow_one
+  Nat.sub_sub Nat.pow_zero Nat.pow_one Nat.sub_self
   -- Int
   Int.lt_eq
   Int.emod_neg Int.ediv_neg
@@ -147,5 +150,8 @@ init_grind_norm
   Int.Linear.sub_fold Int.Linear.neg_fold
   -- Int divides
   Int.one_dvd Int.zero_dvd
+  -- Function composition
+  Function.const_apply Function.comp_apply Function.const_comp
+  Function.comp_const Function.true_comp Function.false_comp
 
 end Lean.Grind

@@ -22,7 +22,7 @@ t 2
    "severity": 1,
    "range":
    {"start": {"line": 2, "character": 22}, "end": {"line": 3, "character": 0}},
-   "message": "unsolved goals\nthis : Nat → Nat → True\n⊢ True",
+   "message": "unsolved goals\nthis : ∀ (a a : Nat), True\n⊢ True",
    "leanTags": [1],
    "fullRange":
    {"start": {"line": 2, "character": 22},

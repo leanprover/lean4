@@ -1950,7 +1950,7 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved
   addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
   if let some (e, projs) ← resolveLocalName n then
     unless explicitLevels.isEmpty do
-      throwError "invalid use of explicit universe parameters, '{e}' is a local"
+      throwError "invalid use of explicit universe parameters, '{e}' is a local variable"
     return [(e, projs)]
   let preresolved := preresolved.filterMap fun
     | .decl n projs => some (n, projs)

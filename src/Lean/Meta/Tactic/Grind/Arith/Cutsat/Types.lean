@@ -84,7 +84,7 @@ inductive EqCnstrProof where
     `p₁` and `p₂` are the polynomials corresponding to `a` and `b`.
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
-  | coreNat (a b : Expr) (ctx : Array Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
+  | coreNat (a b : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
   | norm (c : EqCnstr)
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
@@ -138,7 +138,7 @@ inductive CooperSplitProof where
 inductive DvdCnstrProof where
   | /-- Given `e` of the form `k ∣ p` s.t. `e = True` in the core.  -/
     core (e : Expr)
-  | coreNat (e : Expr) (ctx : Array Expr) (d : Nat) (b : Int.OfNat.Expr) (b' : Int.Linear.Expr)
+  | coreNat (e : Expr) (d : Nat) (b : Int.OfNat.Expr) (b' : Int.Linear.Expr)
   | norm (c : DvdCnstr)
   | divCoeffs (c : DvdCnstr)
   | solveCombine (c₁ c₂ : DvdCnstr)
@@ -158,8 +158,9 @@ structure LeCnstr where
 inductive LeCnstrProof where
   | core (e : Expr)
   | coreNeg (e : Expr) (p : Poly)
-  | coreNat (e : Expr) (ctx : Array Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
-  | coreNatNeg (e : Expr) (ctx : Array Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
+  | coreNat (e : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
+  | coreNatNeg (e : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
+  | denoteAsIntNonneg (rhs : Int.OfNat.Expr) (rhs' : Int.Linear.Expr)
   | dec (h : FVarId)
   | norm (c : LeCnstr)
   | divCoeffs (c : LeCnstr)
@@ -185,7 +186,7 @@ inductive DiseqCnstrProof where
     `p₁` and `p₂` are the polynomials corresponding to `a` and `b`.
     -/
     core (a b : Expr) (p₁ p₂ : Poly)
-  | coreNat (a b : Expr) (ctx : Array Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
+  | coreNat (a b : Expr) (lhs rhs : Int.OfNat.Expr) (lhs' rhs' : Int.Linear.Expr)
   | norm (c : DiseqCnstr)
   | divCoeffs (c : DiseqCnstr)
   | neg (c : DiseqCnstr)
@@ -220,7 +221,7 @@ abbrev VarSet := RBTree Var compare
 
 inductive ForeignType where
   | nat
-  deriving BEq
+  deriving BEq, Hashable
 
 /-- State of the cutsat procedure. -/
 structure State where
@@ -234,10 +235,10 @@ structure State where
   -/
   terms : PHashMap ENodeKey Poly := {}
   /--
-  Mapping from foreign terms to their types (e.g., `Nat`). They are also marked using `markAsCutsatTerm`.
+  Mapping from foreign terms to their variable and type (e.g., `Nat`). They are also marked using `markAsCutsatTerm`.
   -/
-  foreignTermType : PHashMap ENodeKey ForeignType := {}
-
+  foreignVarMap : PHashMap ENodeKey (Var × ForeignType) := {}
+  foreignVars : PHashMap ForeignType (PArray Expr) := {}
   /--
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/

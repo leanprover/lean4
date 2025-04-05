@@ -49,6 +49,10 @@ def inconsistent : GoalM Bool := do
   if (← isInconsistent) then return true
   return (← get').conflict?.isSome
 
+/-- Creates a new variable in the cutsat module. -/
+@[extern "lean_grind_cutsat_mk_var"] -- forward definition
+opaque mkVar (e : Expr) : GoalM Var
+
 def getVars : GoalM (PArray Expr) :=
   return (← get').vars
 
@@ -121,6 +125,9 @@ def DiseqCnstr.throwUnexpected (c : DiseqCnstr) : GoalM α := do
 def DiseqCnstr.denoteExpr (c : DiseqCnstr) : GoalM Expr := do
   return mkNot (mkIntEq (← c.p.denoteExpr') (mkIntLit 0))
 
+@[extern "lean_grind_cutsat_assert_le"] -- forward definition
+opaque LeCnstr.assert (c : LeCnstr) : GoalM Unit
+
 def LeCnstr.isTrivial (c : LeCnstr) : Bool :=
   match c.p with
   | .num k => k ≤ 0
@@ -171,13 +178,6 @@ partial def _root_.Int.Linear.Poly.updateOccs (p : Poly) : GoalM Unit := do
     let .add _ x p := p | return ()
     addOcc x y; go p
   go p
-
-def toContextExpr : GoalM Expr := do
-  let vars ← getVars
-  if h : 0 < vars.size then
-    return RArray.toExpr (mkConst ``Int) id (RArray.ofFn (vars[·]) h)
-  else
-    return RArray.toExpr (mkConst ``Int) id (RArray.leaf (mkIntLit 0))
 
 /--
 Tries to evaluate the polynomial `p` using the partial model/assignment built so far.

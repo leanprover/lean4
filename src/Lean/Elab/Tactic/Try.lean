@@ -226,6 +226,12 @@ instance : MonadBacktrack SavedState TryTacticM where
 abbrev withNonTerminal (x : TryTacticM α) : TryTacticM α :=
   withReader (fun c => { c with terminal := false}) x
 
+builtin_initialize tryTacticElabAttribute : KeyedDeclsAttribute TryTactic ← do
+  unsafe mkElabAttribute TryTactic `builtin_try_tactic `try_tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Try.TryTactic "try_tactic"
+
+private def getEvalFns (kind : SyntaxNodeKind) : CoreM (List (KeyedDeclsAttribute.AttributeEntry TryTactic)) := do
+  return tryTacticElabAttribute.getEntries (← getEnv) kind
+
 -- TODO: polymorphic `Tactic.focus`
 abbrev focus (x : TryTacticM α) : TryTacticM α := fun ctx => Tactic.focus (x ctx)
 

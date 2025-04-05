@@ -344,7 +344,26 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
 private def internalizeInt (e : Expr) : GoalM Unit := do
   if (← get').terms.contains { expr := e } then return ()
   let p ← toPoly e
-  markAsCutsatTerm e
+  trace[grind.debug.cutsat.markTerm] "internalizeInt: {e}"
+  unless (← isVar e) do
+    /-
+    We did not use to have the test `isVar e`. The test was added to prevent redundant invocations
+    to `markAsCutsatTerm` which would trigger equalities of the form `x = x` being propagated.
+    This redundancy only affected performancy and "poluted" trace messages with redundand information.
+    Consider the following example:
+    ```
+    set_option trace.grind.debug.cutsat.eq true in
+    example (a b : Nat) : c > a * b → c >= 1 := by
+      grind
+    ```
+    Without this test, it would produce:
+    ```
+    [grind.debug.cutsat.eq] ↑a * ↑b = ↑a * ↑b
+    [grind.debug.cutsat.eq] ↑a * ↑b = ↑a * ↑b
+    [grind.debug.cutsat.eq] c = 0
+    ```
+    -/
+    markAsCutsatTerm e
   trace[grind.cutsat.internalize] "{aquote e}:= {← p.pp}"
   modify' fun s => { s with terms := s.terms.insert { expr := e } p }
 

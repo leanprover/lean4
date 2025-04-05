@@ -73,7 +73,17 @@ where
         }
         TaggedText.tag t (go subTt)
 
-def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
+/--
+Pretty prints the expression `e` so that it is tagged with infos.
+- `explicit` (default: false) pretty prints in an explicit mode.
+  This is the default for hovers in the Infoview.
+  Uses `delabApp` rather than `delab`
+- `hover` (default: false) is for hovers that don't have `explicit` set.
+  This is for enabling pretty printing some things that are helpful on hovers but that you may
+  not normally want to see.
+  Uses `delab`.
+-/
+def ppExprTagged (e : Expr) (explicit : Bool := false) (hover : Bool := false) : MetaM CodeWithInfos := do
   if pp.raw.get (← getOptions) then
     return .text (toString (← instantiateMVars e))
   let delab := open PrettyPrinter.Delaborator in
@@ -82,10 +92,12 @@ def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := 
       withOptionAtCurrPos pp.explicit.name true do
       withOptionAtCurrPos pp.mvars.anonymous.name true do
         delabApp
-    else
+    else if hover then
       withOptionAtCurrPos pp.proofs.name true do
       withOptionAtCurrPos pp.sorrySource.name true do
         delab
+    else
+      delab
   let mut e := e
   -- When hovering over a metavariable, we want to see its value, even if `pp.instantiateMVars` is false.
   if explicit && e.isMVar then

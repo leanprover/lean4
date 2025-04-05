@@ -14,6 +14,7 @@ import Lake.Load.Config
 import Lake.Util.DRBMap
 import Lake.Util.OrdHashSet
 import Lake.Util.Version
+import Lake.Util.FilePath
 
 open System Lean
 
@@ -303,12 +304,14 @@ declare_opaque_type OpaquePostUpdateHook (pkg : Name)
 structure Package where
   /-- The name of the package. -/
   name : Name
-  /-- The path to the package's directory. -/
+  /-- The absolute path to the package's directory. -/
   dir : FilePath
   /-- The path to the package's directory relative to the workspace. -/
   relDir : FilePath
   /-- The package's user-defined configuration. -/
   config : PackageConfig name
+  /-- The absolute path to the package's configuration file. -/
+  configFile : FilePath
   /-- The path to the package's configuration file (relative to `dir`). -/
   relConfigFile : FilePath
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
@@ -450,10 +453,6 @@ namespace Package
 @[inline] def pkgsDir (self : Package) : FilePath :=
   self.dir / self.relPkgsDir
 
-/-- The full path to the package's configuration file. -/
-@[inline] def configFile (self : Package) : FilePath :=
-  self.dir / self.relConfigFile
-
 /-- The path to the package's JSON manifest of remote dependencies. -/
 @[inline] def manifestFile (self : Package) : FilePath :=
   self.dir / self.relManifestFile
@@ -589,7 +588,7 @@ The package's `buildDir` joined with its `nativeLibDir` configuration.
   self.buildDir / self.config.nativeLibDir
 
 /-- The package's `buildDir` joined with its `nativeLibDir` configuration. -/
-@[deprecated "Use staticLibDir or sharedLibDir instead." (since := "2025-03-29")]
+@[inline, deprecated "Use staticLibDir or sharedLibDir instead." (since := "2025-03-29")]
 def nativeLibDir (self : Package) : FilePath :=
   self.buildDir / self.config.nativeLibDir
 

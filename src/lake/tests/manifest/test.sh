@@ -25,14 +25,13 @@ git commit -m "initial commit"
 GIT_REV=`git rev-parse HEAD`
 popd
 
-LATEST_VER=v1.1.0
 LOCKED_REV='0538596b94a0510f55dc820cabd3bde41ad93c3e'
 
 # Test an update produces the expected manifest of the latest version
 test_update() {
   $LAKE update
   sed_i "s/$GIT_REV/$LOCKED_REV/g" lake-manifest.json
-  diff --strip-trailing-cr lake-manifest-$LATEST_VER.json lake-manifest.json
+  diff --strip-trailing-cr lake-manifest-latest.json lake-manifest.json
 }
 
 # ---

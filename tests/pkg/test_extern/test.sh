@@ -12,13 +12,13 @@ rm -rf .lake/build
 
 # Function to process the output
 verify_output() {
-    # Normalize path separators from backslashes to forward slashes
-    sed 's#\\#/#g' |
     awk '/error: .*lean:/, /error: Lean exited/' |
+    # Remove system-specific path information from error
+    sed 's/error: .*TestExtern.lean:/error: TestExtern.lean:/g' |
     sed '/error: Lean exited/d'
 }
 
-lake build 2>&1 | verify_output > produced.txt
+${LAKE:-lake} build 2>&1 | verify_output > produced.txt
 
 # Compare the actual output with the expected output
 if diff --strip-trailing-cr -q produced.txt expected.txt > /dev/null; then

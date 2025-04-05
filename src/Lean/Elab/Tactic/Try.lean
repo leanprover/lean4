@@ -216,19 +216,19 @@ structure Ctx where
   terminal : Bool
   config : Try.Config
 
-abbrev M := ReaderT Ctx TacticM
+abbrev TryTacticM := ReaderT Ctx TacticM
 
-instance : MonadBacktrack SavedState M where
+instance : MonadBacktrack SavedState TryTacticM where
   saveState := fun _ => saveState
   restoreState s := fun _ => restoreState s
 
-abbrev withNonTerminal (x : M α) : M α :=
+abbrev withNonTerminal (x : TryTacticM α) : TryTacticM α :=
   withReader (fun c => { c with terminal := false}) x
 
 -- TODO: polymorphic `Tactic.focus`
-abbrev focus (x : M α) : M α := fun ctx => Tactic.focus (x ctx)
+abbrev focus (x : TryTacticM α) : TryTacticM α := fun ctx => Tactic.focus (x ctx)
 
-def observing (x : M α) : M (TacticResult α) := do
+def observing (x : TryTacticM α) : TryTacticM (TacticResult α) := do
   let s ← saveState
   try
     let e ← x
@@ -271,7 +271,7 @@ private def merge? (tac1 tac2 : TSyntax `tactic) : Option (TSyntax `tactic) :=
   else
     none
 
-private def mergeAll? (tacs : Array (TSyntax `tactic)) : M (Option (TSyntax `tactic)) := do
+private def mergeAll? (tacs : Array (TSyntax `tactic)) : TryTacticM (Option (TSyntax `tactic)) := do
   if !(← read).config.merge || tacs.isEmpty then
     return none
   let tac0 := tacs[0]!
@@ -304,7 +304,7 @@ private def isOnlyAndNonOnly (tacs2 : Array (TSyntax `tactic)) : Bool := Id.run 
   else
     return false
 
-private def mkChainResult (tac1 : TSyntax `tactic) (tacss2 : Array (TSyntax `tactic)) : M (TSyntax `tactic) := do
+private def mkChainResult (tac1 : TSyntax `tactic) (tacss2 : Array (TSyntax `tactic)) : TryTacticM (TSyntax `tactic) := do
   let tacss2 := tacss2.map getSuggestionsCore
   if (← isTracingEnabledFor `try.debug) then
     trace[try.debug] "mkChainResultCore tac1{indentD tac1}"
@@ -343,7 +343,7 @@ private def mkChainResult (tac1 : TSyntax `tactic) (tacss2 : Array (TSyntax `tac
     (_, acc) ← go tacss2 0 [] none |>.run acc
   mkTrySuggestions acc
 where
-  go (tacss2 : Array (Array (TSyntax `tactic))) (i : Nat) (acc : List (TSyntax `tactic)) (kind? : Option SyntaxNodeKind) : StateT (Array (TSyntax `tactic)) M Unit := do
+  go (tacss2 : Array (Array (TSyntax `tactic))) (i : Nat) (acc : List (TSyntax `tactic)) (kind? : Option SyntaxNodeKind) : StateT (Array (TSyntax `tactic)) TryTacticM Unit := do
     if (← get).size > (← read).config.max then
       return ()
     else if h : i < tacss2.size then
@@ -371,7 +371,7 @@ where
                     $tacs2*)
       modify (·.push tac)
 
-private def evalSuggestGrindTrace (tac : TSyntax `tactic) : M (TSyntax `tactic) := do
+private def evalSuggestGrindTrace (tac : TSyntax `tactic) : TryTacticM (TSyntax `tactic) := do
   match tac with
   | `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
     let config ← elabGrindConfig configStx
@@ -386,7 +386,7 @@ private def evalSuggestGrindTrace (tac : TSyntax `tactic) : M (TSyntax `tactic) 
       return tac
   | _ => throwUnsupportedSyntax
 
-private def evalSuggestSimpTrace (tac : TSyntax `tactic) : M (TSyntax `tactic) := do (← getMainGoal).withContext do
+private def evalSuggestSimpTrace (tac : TSyntax `tactic) : TryTacticM (TSyntax `tactic) := do (← getMainGoal).withContext do
   match tac with
   | `(tactic| simp? $_:optConfig $[only%$only]? $[[$args,*]]? $(loc)?) =>
     let tac ← simpTraceToSimp tac
@@ -401,10 +401,10 @@ private def evalSuggestSimpTrace (tac : TSyntax `tactic) : M (TSyntax `tactic) :
   | _ => throwUnsupportedSyntax
 
 @[extern "lean_eval_suggest_tactic"] -- forward definition to avoid mutual block
-opaque evalSuggest (tac : TSyntax `tactic) : M (TSyntax `tactic)
+opaque evalSuggest (tac : TSyntax `tactic) : TryTacticM (TSyntax `tactic)
 
 /-- `evalSuggest` for `tac1 <;> tac2` -/
-private def evalSuggestChain (tac1 tac2 : TSyntax `tactic) : M (TSyntax `tactic) := focus do
+private def evalSuggestChain (tac1 tac2 : TSyntax `tactic) : TryTacticM (TSyntax `tactic) := focus do
   unless (← read).terminal do
     throwError "invalid `<;>` occurrence in non-terminal position for `try?` script{indentD (← read).root}"
   let tac1 ← withNonTerminal do evalSuggest tac1
@@ -422,7 +422,7 @@ private def evalSuggestChain (tac1 tac2 : TSyntax `tactic) : M (TSyntax `tactic)
   mkChainResult tac1 tac2s
 
 /-- `evalSuggest` for a sequence of tactics. -/
-private def evalSuggestSeq (tacs : Array (TSyntax `tactic)) : M (TSyntax `tactic) := do
+private def evalSuggestSeq (tacs : Array (TSyntax `tactic)) : TryTacticM (TSyntax `tactic) := do
   if (← read).terminal then
     let mut result := #[]
     for i in [:tacs.size - 1] do
@@ -433,10 +433,10 @@ private def evalSuggestSeq (tacs : Array (TSyntax `tactic)) : M (TSyntax `tactic
   else
     mkSeq (← tacs.mapM evalSuggest) (terminal := false)
 
-private def evalSuggestSeqCore (tacs : Array Syntax) : M (TSyntax `tactic) := do
+private def evalSuggestSeqCore (tacs : Array Syntax) : TryTacticM (TSyntax `tactic) := do
   evalSuggestSeq (tacs.map fun tac => ⟨tac⟩)
 
-private def evalSuggestTacticSeq (s : TSyntax ``Parser.Tactic.tacticSeq) : M (TSyntax `tactic) := do
+private def evalSuggestTacticSeq (s : TSyntax ``Parser.Tactic.tacticSeq) : TryTacticM (TSyntax `tactic) := do
   let tacs ← match s with
     | `(tacticSeq| { $t;* }) => pure t.getElems
     | `(tacticSeq| $t;*) => pure t.getElems
@@ -444,30 +444,30 @@ private def evalSuggestTacticSeq (s : TSyntax ``Parser.Tactic.tacticSeq) : M (TS
   evalSuggestSeq tacs
 
 /-- `evalSuggest` for `first` tactic. -/
-private partial def evalSuggestFirst (tacs : Array (TSyntax ``Parser.Tactic.tacticSeq)) : M (TSyntax `tactic) := do
+private partial def evalSuggestFirst (tacs : Array (TSyntax ``Parser.Tactic.tacticSeq)) : TryTacticM (TSyntax `tactic) := do
   if tacs.size == 0 then
     throwError "`first` expects at least one argument"
   go 0
 where
-  go (i : Nat) : M (TSyntax `tactic) := do
+  go (i : Nat) : TryTacticM (TSyntax `tactic) := do
     if i = tacs.size - 1 then
       evalSuggestTacticSeq tacs[i]!
     else
       evalSuggestTacticSeq tacs[i]! <|> go (i+1)
 
 /-- `evalSuggest` for `try` tactic. -/
-private partial def evalSuggestTry (tac : TSyntax ``Parser.Tactic.tacticSeq) : M (TSyntax `tactic) := do
+private partial def evalSuggestTry (tac : TSyntax ``Parser.Tactic.tacticSeq) : TryTacticM (TSyntax `tactic) := do
   (do evalSuggestTacticSeq tac)
   <|>
   `(tactic| skip)
 
 /-- `evalSuggest` for `attempt_all` tactic. -/
-private partial def evalSuggestAttemptAll (tacs : Array (TSyntax ``Parser.Tactic.tacticSeq)) : M (TSyntax `tactic) := do
+private partial def evalSuggestAttemptAll (tacs : Array (TSyntax ``Parser.Tactic.tacticSeq)) : TryTacticM (TSyntax `tactic) := do
   unless (← read).terminal do
     throwError "invalid occurrence of `attempt_all` in non-terminal position for `try?` script{indentD (← read).root}"
   go 0 none #[]
 where
-  go (i : Nat) (saved? : Option SavedState) (acc : Array (TSyntax `tactic)) : M (TSyntax `tactic) := do
+  go (i : Nat) (saved? : Option SavedState) (acc : Array (TSyntax `tactic)) : TryTacticM (TSyntax `tactic) := do
     -- Remark: we considered using `acc.size < (← read).config.max` here to truncate the search,
     -- but it had a negative effect when using `<;>`. We could miss a preferred solution `induction e <;> grind`
     -- because only a subset of the goals were solved by simpler tactics such as `rfl` and `simp`.
@@ -487,7 +487,7 @@ where
 
 -- `evalSuggest` implementation
 @[export lean_eval_suggest_tactic]
-private partial def evalSuggestImpl (tac : TSyntax `tactic) : M (TSyntax `tactic) := do
+private partial def evalSuggestImpl (tac : TSyntax `tactic) : TryTacticM (TSyntax `tactic) := do
   trace[try.debug] "{tac}"
   match tac with
   | `(tactic| $tac1 <;> $tac2) => evalSuggestChain tac1 tac2

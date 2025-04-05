@@ -59,6 +59,10 @@ def getVars : GoalM (PArray Expr) :=
 def getVar (x : Var) : GoalM Expr :=
   return (← get').vars[x]!
 
+/-- Returns `true` if `e` is already associated with a cutsat variable. -/
+def isVar (e : Expr) : GoalM Bool :=
+  return (← get').varMap.contains { expr := e }
+
 /-- Returns `true` if `x` has been eliminated using an equality constraint. -/
 def eliminated (x : Var) : GoalM Bool :=
   return (← get').elimEqs[x]!.isSome

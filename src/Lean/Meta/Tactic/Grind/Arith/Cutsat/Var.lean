@@ -37,6 +37,7 @@ def mkVarImpl (expr : Expr) : GoalM Var := do
     occurs    := s.occurs.push {}
     elimEqs   := s.elimEqs.push none
   }
+  trace[grind.debug.cutsat.markTerm] "mkVar: {expr}"
   markAsCutsatTerm expr
   assertHelpers expr
   return var

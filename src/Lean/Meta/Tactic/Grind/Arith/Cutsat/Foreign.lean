@@ -24,6 +24,7 @@ def mkForeignVar (e : Expr) (t : ForeignType) : GoalM Var := do
     foreignVars := s.foreignVars.insert t (vars.push e)
     foreignVarMap := s.foreignVarMap.insert { expr := e} (x, t)
   }
+  trace[grind.debug.cutsat.markTerm] "mkForeignVar: {e}"
   markAsCutsatTerm e
   return x
 

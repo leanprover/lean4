@@ -59,11 +59,6 @@ def getVar (x : Var) : GoalM Expr :=
 def eliminated (x : Var) : GoalM Bool :=
   return (← get').elimEqs[x]!.isSome
 
-def mkCnstrId : GoalM Nat := do
-  let id := (← get').nextCnstrId
-  modify' fun s => { s with nextCnstrId := id + 1 }
-  return id
-
 @[extern "lean_grind_cutsat_assert_eq"] -- forward definition
 opaque EqCnstr.assert (c : EqCnstr) : GoalM Unit
 

@@ -75735,7 +75735,7 @@ static lean_object* _init_l_Lean_Elab_Term_resolveName___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("' is a local", 12, 12);
+x_1 = lean_mk_string_unchecked("' is a local variable", 21, 21);
 return x_1;
 }
 }

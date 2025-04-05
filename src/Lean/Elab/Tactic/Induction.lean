@@ -52,44 +52,33 @@ private def getAltVars (alt : Syntax) : Array Syntax :=
   let lhs := getFirstAltLhs alt
   lhs[2].getArgs
 private def hasAltRHS (alt : Syntax) : Bool :=
-  if alt.getNumArgs == 3 then
-    -- Bootstrapping workaround. Delete case after stage0 update
-    true
-  else
-    alt[1].getNumArgs > 0
+  alt[1].getNumArgs > 0
 private def getAltRHS (alt : Syntax) : Syntax :=
-  if alt.getNumArgs == 3  then
-    -- Bootstrapping workaround. Delete case after stage0 update
-    alt[2]
-  else
-    alt[1][1]
+  alt[1][1]
 private def getAltDArrow (alt : Syntax) : Syntax :=
-  if alt.getNumArgs == 3 then
-    -- Bootstrapping workaround. Delete case after stage0 update
-    alt[1]
-  else if hasAltRHS alt then
-    alt[1][0]
-  else
-    -- Used as a ref
-    alt[1]
+  alt[1][0]
 
 -- Return true if `stx` is a term occurring in the RHS of the induction/cases tactic
 def isHoleRHS (rhs : Syntax) : Bool :=
   rhs.isOfKind ``Parser.Term.syntheticHole || rhs.isOfKind ``Parser.Term.hole
 
 def evalAlt (mvarId : MVarId) (alt : Syntax) (addInfo : TermElabM Unit) : TacticM Unit := do
-  if hasAltRHS alt then
+  if !hasAltRHS alt then
+    throwErrorAt alt "(internal error) RHS was not expanded"
+  else
     let rhs := getAltRHS alt
     withCaseRef (getAltDArrow alt) rhs do
       if isHoleRHS rhs then
         addInfo
-        mvarId.withContext <| withTacticInfoContext rhs do
+        let goals ← getGoals
+        setGoals [mvarId]
+        mvarId.withContext <| withTacticInfoContext (mkNullNode #[getAltLhses alt, rhs]) do
           let mvarDecl ← mvarId.getDecl
           let val ← elabTermEnsuringType rhs mvarDecl.type
           mvarId.assign val
           let gs' ← getMVarsNoDelayed val
           tagUntaggedGoals mvarDecl.userName `induction gs'.toList
-          setGoals <| (← getGoals) ++ gs'.toList
+          setGoals <| goals ++ gs'.toList
       else
         let goals ← getGoals
         try
@@ -99,13 +88,6 @@ def evalAlt (mvarId : MVarId) (alt : Syntax) (addInfo : TermElabM Unit) : Tactic
               (addInfo *> evalTactic rhs)
         finally
           setGoals goals
-  else
-    -- No RHS: use the mvarId as the new goal.
-    let ref := getAltDArrow alt
-    withRef ref do
-      addInfo
-      mvarId.withContext <| withTacticInfoContext ref do
-        setGoals <| (← getGoals) ++ [mvarId]
 
 /-!
   Helper method for creating an user-defined eliminator/recursor application.
@@ -458,7 +440,8 @@ where
     -- all previous alternatives have to be unchanged for reuse
     Term.withNarrowedArgTacticReuse (stx := mkNullNode altStxs) (argIdx := altStxIdx) fun altStx => do
     -- everything up to rhs has to be unchanged for reuse
-    Term.withNarrowedArgTacticReuse (stx := altStx) (argIdx := 1) fun _rhs => do
+    Term.withNarrowedArgTacticReuse (stx := altStx) (argIdx := 1) fun rhs? => do
+    Term.withNarrowedArgTacticReuse (stx := rhs?) (argIdx := 1) fun _rhs => do
     -- disable reuse if rhs is run multiple times
     Term.withoutTacticIncrementality (altMVarIds.length != 1 || isWildcard altStx) do
       for altMVarId' in altMVarIds do
@@ -557,12 +540,23 @@ private def withAltsOfOptInductionAlts (optInductionAlts : Syntax)
 private def getOptPreTacOfOptInductionAlts (optInductionAlts : Syntax) : Syntax :=
   if optInductionAlts.isNone then mkNullNode else optInductionAlts[0][1]
 
+/--
+Returns true if the `Lean.Parser.Tactic.inductionAlt` either has more than one alternative
+or has no RHS.
+-/
 private def isMultiAlt (alt : Syntax) : Bool :=
-  alt[0].getNumArgs > 1
+  alt[0].getNumArgs > 1 || alt[1].getNumArgs == 0
 
-/-- Return `some #[alt_1, ..., alt_n]` if `alt` has multiple LHSs. -/
+/--
+Returns `some #[alt_1, ..., alt_n]` if `alt` has multiple LHSs or if `alt` has no RHS.
+-/
 private def expandMultiAlt? (alt : Syntax) : Option (Array Syntax) := Id.run do
   if isMultiAlt alt then
+    let alt :=
+      if alt[1].getNumArgs == 0 then
+        alt.setArg 1 <| mkNullNode #[mkAtomFrom alt "=>", mkHole alt]
+      else
+        alt
     some <| alt[0].getArgs.map fun lhs => alt.setArg 0 (mkNullNode #[lhs])
   else
     none

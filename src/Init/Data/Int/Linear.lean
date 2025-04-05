@@ -1819,6 +1819,14 @@ theorem not_le_of_le (ctx : Context) (p q : Poly) (k : Nat)
   rw [← Int.add_assoc, ← Int.add_assoc, Int.add_neg_cancel_right, Lean.Omega.Int.add_le_zero_iff_le_neg']
   simp; exact Int.le_trans h (Int.ofNat_zero_le _)
 
+def eq_def_cert (x : Var) (xPoly : Poly) (p : Poly) : Bool :=
+  p == .add (-1) x xPoly
+
+theorem eq_def (ctx : Context) (x : Var) (xPoly : Poly) (p : Poly)
+    : eq_def_cert x xPoly p → x.denote ctx = xPoly.denote' ctx → p.denote' ctx = 0 := by
+  simp [eq_def_cert]; intro _ h; subst p; simp [h]
+  rw [← Int.sub_eq_add_neg, Int.sub_self]
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

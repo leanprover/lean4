@@ -226,9 +226,7 @@ def EqCnstr.assertImpl (c : EqCnstr) : GoalM Unit := do
     { d, p, h := .ofEq x c : DvdCnstr }.assert
 
 private def exprAsPoly (a : Expr) : GoalM Poly := do
-  if let some p := (← get').terms.find? { expr := a } then
-    return p
-  else if let some var := (← get').varMap.find? { expr := a } then
+  if let some var := (← get').varMap.find? { expr := a } then
     return .add 1 var (.num 0)
   else if let some k ← getIntValue? a then
     return .num k
@@ -342,30 +340,16 @@ private def isForbiddenParent (parent? : Option Expr) (k : SupportedTermKind) : 
   | _ => unreachable!
 
 private def internalizeInt (e : Expr) : GoalM Unit := do
-  if (← get').terms.contains { expr := e } then return ()
+  if (← hasVar e) then return ()
   let p ← toPoly e
-  trace[grind.debug.cutsat.markTerm] "internalizeInt: {e}"
-  unless (← isVar e) do
-    /-
-    We did not use to have the test `isVar e`. The test was added to prevent redundant invocations
-    to `markAsCutsatTerm` which would trigger equalities of the form `x = x` being propagated.
-    This redundancy only affected performance and "polluted" trace messages with redundant information.
-    Consider the following example:
-    ```
-    set_option trace.grind.debug.cutsat.eq true in
-    example (a b : Nat) : c > a * b → c >= 1 := by
-      grind
-    ```
-    Without this test, it would produce:
-    ```
-    [grind.debug.cutsat.eq] ↑a * ↑b = ↑a * ↑b
-    [grind.debug.cutsat.eq] ↑a * ↑b = ↑a * ↑b
-    [grind.debug.cutsat.eq] c = 0
-    ```
-    -/
-    markAsCutsatTerm e
   trace[grind.cutsat.internalize] "{aquote e}:= {← p.pp}"
-  modify' fun s => { s with terms := s.terms.insert { expr := e } p }
+  let x ← mkVar e
+  if p == .add 1 x (.num 0) then
+    -- It is pointless to assert `x = x`
+    -- This can happen if `e` is a nonlinear term (e.g., `e` is `a*b`)
+    return
+  let c := { p := .add (-1) x p, h := .defn e p : EqCnstr }
+  c.assert
 
 private def expandDivMod (a : Expr) (b : Int) : GoalM Unit := do
   if b == 0 || b == 1 || b == -1 then
@@ -423,6 +407,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     match k with
     | .div => propagateDiv e
     | .mod => propagateMod e
+    | .num => pure ()
     | _ => internalizeInt e
   else if type.isConstOf ``Nat then
     discard <| mkForeignVar e .nat

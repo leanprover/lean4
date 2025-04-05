@@ -217,6 +217,7 @@ structure Ctx where
   config : Try.Config
 
 abbrev TryTacticM := ReaderT Ctx TacticM
+abbrev TryTactic := TSyntax `tactic → TryTacticM (TSyntax `tactic)
 
 instance : MonadBacktrack SavedState TryTacticM where
   saveState := fun _ => saveState
@@ -371,7 +372,7 @@ where
                     $tacs2*)
       modify (·.push tac)
 
-private def evalSuggestGrindTrace (tac : TSyntax `tactic) : TryTacticM (TSyntax `tactic) := do
+private def evalSuggestGrindTrace : TryTactic := fun tac => do
   match tac with
   | `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
     let config ← elabGrindConfig configStx
@@ -386,7 +387,7 @@ private def evalSuggestGrindTrace (tac : TSyntax `tactic) : TryTacticM (TSyntax 
       return tac
   | _ => throwUnsupportedSyntax
 
-private def evalSuggestSimpTrace (tac : TSyntax `tactic) : TryTacticM (TSyntax `tactic) := do (← getMainGoal).withContext do
+private def evalSuggestSimpTrace : TryTactic := fun tac => do (← getMainGoal).withContext do
   match tac with
   | `(tactic| simp? $_:optConfig $[only%$only]? $[[$args,*]]? $(loc)?) =>
     let tac ← simpTraceToSimp tac
@@ -401,7 +402,7 @@ private def evalSuggestSimpTrace (tac : TSyntax `tactic) : TryTacticM (TSyntax `
   | _ => throwUnsupportedSyntax
 
 @[extern "lean_eval_suggest_tactic"] -- forward definition to avoid mutual block
-opaque evalSuggest (tac : TSyntax `tactic) : TryTacticM (TSyntax `tactic)
+opaque evalSuggest : TryTactic
 
 /-- `evalSuggest` for `tac1 <;> tac2` -/
 private def evalSuggestChain (tac1 tac2 : TSyntax `tactic) : TryTacticM (TSyntax `tactic) := focus do
@@ -487,7 +488,7 @@ where
 
 -- `evalSuggest` implementation
 @[export lean_eval_suggest_tactic]
-private partial def evalSuggestImpl (tac : TSyntax `tactic) : TryTacticM (TSyntax `tactic) := do
+private partial def evalSuggestImpl : TryTactic := fun tac => do
   trace[try.debug] "{tac}"
   match tac with
   | `(tactic| $tac1 <;> $tac2) => evalSuggestChain tac1 tac2

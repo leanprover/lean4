@@ -51,7 +51,6 @@ info: [grind.assert] f (c + 2) = a
 [grind.assert] ¬a = g (g (f c))
 [grind.ematch.instance] f.eq_2: f (c + 1).succ = g (f (c + 1))
 [grind.assert] f (c + 2) = g (f (c + 1))
-[grind.assert] -1 * ↑c ≤ 0
 [grind.ematch.instance] f.eq_2: f c.succ = g (f c)
 [grind.assert] f (c + 1) = g (f c)
 -/

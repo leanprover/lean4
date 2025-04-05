@@ -84,7 +84,7 @@ theorem ofNat_toNat (a : Int) : (NatCast.natCast a.toNat : Int) = if a ≤ 0 the
     have := Int.toNat_of_nonneg (Int.le_of_lt h)
     assumption
 
-theorem Expr.denoteAsInt_nonneg (ctx : Context) (e : Expr) : e.denoteAsInt ctx ≥ 0 := by
+theorem Expr.denoteAsInt_nonneg (ctx : Context) (e : Expr) : 0 ≤ e.denoteAsInt ctx := by
   simp [Expr.denoteAsInt_eq]
 
 end Int.OfNat

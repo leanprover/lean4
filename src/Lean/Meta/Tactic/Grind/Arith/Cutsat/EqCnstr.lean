@@ -242,12 +242,13 @@ private def processNewIntEq (a b : Expr) : GoalM Unit := do
   { p, h := .core a b p₁ p₂ : EqCnstr }.assert
 
 private def processNewNatEq (a b : Expr) : GoalM Unit := do
-  let (lhs, rhs, ctx) ← Int.OfNat.toIntEq a b
+  let (lhs, rhs) ← Int.OfNat.toIntEq a b
   let gen ← getGeneration a
+  let ctx ← getForeignVars .nat
   let lhs' ← toLinearExpr (lhs.denoteAsIntExpr ctx) gen
   let rhs' ← toLinearExpr (rhs.denoteAsIntExpr ctx) gen
   let p := lhs'.sub rhs' |>.norm
-  let c := { p, h := .coreNat a b ctx lhs rhs lhs' rhs' : EqCnstr }
+  let c := { p, h := .coreNat a b lhs rhs lhs' rhs' : EqCnstr }
   trace[grind.debug.cutsat.nat] "{← c.pp}"
   c.assert
 
@@ -288,12 +289,13 @@ private def processNewIntDiseq (a b : Expr) : GoalM Unit := do
   c.assert
 
 private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
-  let (lhs, rhs, ctx) ← Int.OfNat.toIntEq a b
+  let (lhs, rhs) ← Int.OfNat.toIntEq a b
   let gen ← getGeneration a
+  let ctx ← getForeignVars .nat
   let lhs' ← toLinearExpr (lhs.denoteAsIntExpr ctx) gen
   let rhs' ← toLinearExpr (rhs.denoteAsIntExpr ctx) gen
   let p := lhs'.sub rhs' |>.norm
-  let c := { p, h := .coreNat a b ctx lhs rhs lhs' rhs' : DiseqCnstr }
+  let c := { p, h := .coreNat a b lhs rhs lhs' rhs' : DiseqCnstr }
   trace[grind.debug.cutsat.nat] "{← c.pp}"
   c.assert
 
@@ -373,8 +375,8 @@ private def propagateMod (e : Expr) : GoalM Unit := do
 private def propagateNatSub (e : Expr) : GoalM Unit := do
   let_expr HSub.hSub _ _ _ inst a b := e | return ()
   unless (← isInstHSubNat inst) do return ()
-  markForeignTerm a .nat
-  markForeignTerm b .nat
+  discard <| mkForeignVar a .nat
+  discard <| mkForeignVar b .nat
   pushNewFact <| mkApp2 (mkConst ``Int.Linear.natCast_sub) a b
 
 private def propagateNatAbs (e : Expr) : GoalM Unit := do
@@ -404,7 +406,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
     | .mod => propagateMod e
     | _ => internalizeInt e
   else if type.isConstOf ``Nat then
-    markForeignTerm e .nat
+    discard <| mkForeignVar e .nat
     match k with
     | .sub => propagateNatSub e
     | .natAbs => propagateNatAbs e

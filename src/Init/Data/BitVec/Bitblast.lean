@@ -1359,6 +1359,83 @@ theorem negOverflow_eq {w : Nat} (x : BitVec w) :
     simp only [toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod, Int.neg_inj]
     rw_mod_cast [Nat.mod_eq_of_lt (by simp [Nat.pow_lt_pow_succ])]
 
+/--
+  Prove that signed division x.toInt / y.toInt only overflows when
+  x = intMin w and y = allOnes w (for 0 < w).
+
+  To show that this is the *only* case in which overflow happens, we refer to
+  overflow for negation (BitVec.sdivOverflow_eq_negOverflow_of_allOnes):
+  in fact, x.toInt/(allOnes w).toInt = - x.toInt, i.e.,
+  the overflow conditions are the same as negOverflow for x.
+
+  Then, we need to show that in all other cases (¬ y.toInt = -1) no overflow happens.
+  To do so, we first exclude special cases:
+  · y.toInt = 0 → x.toInt / y.toInt = 0
+  · y.toInt = 1 → x.toInt / y.toInt = x.toInt
+  · x.toInt = 0 → x.toInt / y.toInt = 0
+
+  We can then reason about the signs of the operands. All these cases rely on respective
+  theorems specifying the bounds of signed division once the special cases are excluded:
+  · BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_two_le_of_pos when 2 ≤ y.toInt and 0 < x.toInt
+  · BitVec.neg_two_pow_le_sdiv_and_sdiv_lt_zero_of_two_le_of_neg when 2 ≤ y.toInt and x.toInt < 0
+  · BitVec.neg_two_pow_le_sdiv_and_sdiv_le_zero_of_le_neg_two_of_pos when y.toInt ≤ -2 and 0 < x.toInt
+  · BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_le_neg_two_of_neg when y.toInt ≤ -2 and x.toInt < 0
+
+  These BitVec theorems themselves rely on numerous Int.udiv_* theorems, that carefully
+  set the bounds of signed division for integers.
+-/
+theorem sdivOverflow_eq {w : Nat} (x y : BitVec w) :
+    (sdivOverflow x y) = (decide (0 < w) && (x = intMin w) && (y = allOnes w)) := by
+  rcases w with _|w
+  · simp [sdivOverflow, of_length_zero]
+  · simp only [Nat.add_one_sub_one, ge_iff_le, zero_lt_succ, decide_true, Bool.true_and]
+    have xle := le_two_mul_toInt (x := x); have xlt := two_mul_toInt_lt (x := x)
+    have yle := le_two_mul_toInt (x := y); have ylt := two_mul_toInt_lt (x := y)
+    simp only [bool_to_prop]
+    by_cases hy : y = allOnes (w + 1)
+    · -- if y = allOnes (w + 1) the division overflows iff x = intMin (w + 1), as for negation
+      rw [BitVec.sdivOverflow_eq_negOverflow_of_allOnes (x := x) (y := y) hy, negOverflow,
+        Nat.add_one_sub_one, decide_and]
+      simp only [beq_eq_decide_eq, ← toInt_inj, toInt_intMin, Nat.add_one_sub_one, Int.ofNat_emod,
+        hy, decide_true, Bool.and_true, decide_eq_decide]
+      norm_cast
+      rw [Nat.mod_eq_of_lt (by apply Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := w + 1) (by omega) (by omega))]
+    · -- we exclude the case x.toInt / 0 = 0
+      by_cases hyZero : y.toInt = 0
+      · simp [sdivOverflow, hyZero, hy]
+        omega
+      · -- we exclude the case x.toInt / 1 = x.toInt
+        -- note that x.toInt < 0 → x.toInt / 1 < 0 : even if x.toInt = - 2 ^ w there is no overflow
+        by_cases hyOne : y.toInt = 1
+        · simp [sdivOverflow, hyOne, hy]
+          omega
+        · -- we can now reason about signs
+          simp only [sdivOverflow, Nat.add_one_sub_one, ge_iff_le, hy, _root_.and_false,
+            decide_false, or_eq_false_iff, decide_eq_false_iff_not, Int.not_le, Int.not_lt]
+          by_cases hxZero : x.toInt = 0
+          · simp [hxZero]; omega
+          · by_cases hy' : 0 < y.toInt
+            · by_cases hx : 0 < x.toInt
+              · -- numerator and denumerator are positive
+                have := BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_two_le_of_pos
+                      (x := x) (y := y) (by omega) (by omega)
+                simp at this; omega
+              · -- numerator is negative, denumerator is positive
+                have :=  BitVec.neg_two_pow_le_sdiv_and_sdiv_lt_zero_of_two_le_of_neg
+                      (x := x) (y := y) (by omega) (by omega) (by omega)
+                simp at this; omega
+            · simp only [← toInt_inj, toInt_allOnes, show 0 < w + 1 by omega, ↓reduceIte,
+              Int.reduceNeg] at hy
+              by_cases hx : 0 < x.toInt
+              · -- numerator is positive, denumerator is negative
+                have := BitVec.neg_two_pow_le_sdiv_and_sdiv_le_zero_of_le_neg_two_of_pos
+                      (x := x) (y := y) (by omega) (by omega) (by omega)
+                simp at this; omega
+              · -- numerator and denumerator are negative
+                have := BitVec.zero_le_sdiv_and_sdiv_lt_two_pow_of_le_neg_two_of_neg
+                      (x := x) (y := y) (by omega) (by omega)
+                simp at this; omega
+
 theorem umulOverflow_eq {w : Nat} (x y : BitVec w) :
     umulOverflow x y =
       (0 < w && BitVec.twoPow (w * 2) w ≤ x.zeroExtend (w * 2) * y.zeroExtend (w * 2)) := by

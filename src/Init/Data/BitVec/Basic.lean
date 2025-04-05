@@ -753,6 +753,15 @@ SMT-Lib name: `bvnego`.
 def negOverflow {w : Nat} (x : BitVec w) : Bool :=
   x.toInt == - 2 ^ (w - 1)
 
+/--
+`sdivOverflow x` returns `true` if the division of `x` by `y` results in overflow.
+For BitVecs `x` and `y` with width `0 < w`, this only happens if `x = intMin` and `y = allOnes w`.
+
+  SMT-LIB name: `bvsdivo`.
+-/
+def sdivOverflow {w : Nat} (x y : BitVec w) : Bool :=
+  (x.toInt / y.toInt ≥ 2 ^ (w - 1)) || (x.toInt / y.toInt < - 2 ^ (w - 1))
+
 /- ### reverse -/
 
 /-- Reverses the bits in a bitvector. -/

@@ -89,6 +89,8 @@ inductive EqCnstrProof where
   | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
   | ofLeGe (c₁ : LeCnstr) (c₂ : LeCnstr)
+  | /-- `e` is `p` -/
+    defn (e : Expr) (p : Poly)
 
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstr where
@@ -229,11 +231,6 @@ structure State where
   vars : PArray Expr := {}
   /-- Mapping from `Expr` to a variable representing it. -/
   varMap  : PHashMap ENodeKey Var := {}
-  /--
-  Mapping from terms (e.g., `x + 2*y + 2`, `3*x`, `5`) to polynomials representing them.
-  These are terms used to propagate equalities between this module and the congruence closure module.
-  -/
-  terms : PHashMap ENodeKey Poly := {}
   /--
   Mapping from foreign terms to their variable and type (e.g., `Nat`). They are also marked using `markAsCutsatTerm`.
   -/

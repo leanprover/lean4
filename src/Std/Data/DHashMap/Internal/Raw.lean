@@ -16,9 +16,9 @@ File contents: relating operations on `Raw` to operations on `Raw₀`
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v w
+universe u u' v v' w
 
-variable {α : Type u} {β : α → Type v} {γ : Type w} {δ : α → Type w}
+variable {α : Type u} {α' : Type u'} {β : α → Type v} {β' : α' → Type v'}  {γ : Type w} {δ : α → Type w}
 
 namespace Std.DHashMap.Internal
 

@@ -19,9 +19,9 @@ open Std.DHashMap.Internal
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v w
+universe u u' v v' w
 
-variable {α : Type u} {β : α → Type v} {γ : Type w} {δ : α → Type w}
+variable {α : Type u} {α' : Type u'} {β : α → Type v} {β' : α' → Type v'} {δ : α → Type w}
 
 namespace Std.DHashMap
 
@@ -37,6 +37,33 @@ theorem WF.filterMap [BEq α] [Hashable α] {m : Raw α β} (h : m.WF)
 theorem WF.map [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {f : (a : α) → β a → δ a} :
     (m.map f).WF := by
   simpa only [map_eq h] using .wf (Raw₀.map f ⟨m, h.size_buckets_pos⟩).2 (Raw₀.wfImp_map (WF.out h))
+
+/-- Internal implementation detail of the hash map -/
+@[inline] def pmapEntries {P : (a : α) → (b : β a) → Prop }
+    (f : (a : α) → (b : β a) → P a b → ((a' : α') × β' a'))
+    (m : Raw α β) (H : ∀ a b, ⟨a, b⟩ ∈ m.toList → P a b) : Raw α' β' :=
+  if h : 0 < m.buckets.size then
+    Raw₀.pmapEntries f ⟨m, h⟩ (by rwa [←Std.DHashMap.Internal.Raw.toList_eq_toListModel])
+  else ∅ -- will never happen for well-formed inputs
+
+-- TODO: Can't put it in `/Internal/Raw` because we need `toList_eq_toListModel`
+theorem pmapEntries_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {P : (a : α) → (b : β a) → Prop}
+    (f : (a : α) → (b : β a) → P a b → ((a' : α') × β' a'))
+    {H : ∀ a b, ⟨a, b⟩ ∈ m.toList → P a b} :
+    m.pmapEntries f H = Raw₀.pmapEntries f ⟨m, h.size_buckets_pos⟩
+      (by rwa [←toList_eq_toListModel]) := by
+  simp [Raw.pmapEntries, h.size_buckets_pos]
+
+-- NOTE: we need the Lawful/EquivBEq instances on `α` because the `.wf` only gives us that it holds
+-- for `α'`
+theorem WF.pmapEntries [BEq α] [EquivBEq α] [BEq α'] [Hashable α] [LawfulHashable α] [Hashable α']
+    {m : Raw α β} {P : (a : α) → β a → Prop}
+    (f : (a : α) → (b : β a) → P a b → ((a' : α') × β' a'))
+    (h₁ : ∀ a b h, hash (f a b h).1 = hash a)
+    (h₂ : ∀ a₁ b₁ a₂ b₂ h₁ h₂, (f a₁ b₁ h₁).1 == (f a₂ b₂ h₂).1 → a₁ == a₂)
+    {H : ∀ a b, ⟨a, b⟩ ∈ m.toList → P a b} (h : m.WF) : (m.pmapEntries f H).WF := by
+  simpa only [pmapEntries_eq h] using
+    .wf (Raw₀.pmapEntries f ⟨m, h.size_buckets_pos⟩ sorry).2 (Raw₀.wfImp_pmapEntries h₁ h₂ (WF.out h))
 
 end Raw
 

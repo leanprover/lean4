@@ -349,7 +349,7 @@ private def internalizeInt (e : Expr) : GoalM Unit := do
     /-
     We did not use to have the test `isVar e`. The test was added to prevent redundant invocations
     to `markAsCutsatTerm` which would trigger equalities of the form `x = x` being propagated.
-    This redundancy only affected performancy and "poluted" trace messages with redundand information.
+    This redundancy only affected performance and "polluted" trace messages with redundant information.
     Consider the following example:
     ```
     set_option trace.grind.debug.cutsat.eq true in

@@ -209,14 +209,14 @@ def fetchFileTrace (file : FilePath) (text := false) : JobM BuildTrace := do
 
 /--
 Builds `file` using `build` unless it already exists and the current job's
-trace matches the trace stored in the `.trace` file. If built, save the new
-trace and cache `file`'s hash in a `.hash` file. Otherwise, try to fetch the
+trace matches the trace stored in the `.trace` file. If built, saves the new
+trace and caches `file`'s hash in a `.hash` file. Otherwise, tries to fetch the
 hash from the `.hash` file using `fetchFileTrace`. Build logs (if any) are
 saved to the trace file and replayed from there if the build is skipped.
 
 For example, given `file := "foo.c"`, compares `getTrace` with that in
-`foo.c.trace` with the hash cached in `foo.c.hash` and the log cached in
-`foo.c.trace`.
+`foo.c.trace`. If built, the hash is cached in `foo.c.hash` and the new
+trace is saved to `foo.c.trace` (including the build log).
 
 If `text := true`, `file` is hashed as a text file rather than a binary file.
 -/
@@ -396,6 +396,29 @@ private def mkLinkObjArgs
   return args
 
 /--
+Topologically sorts the library dependency tree by name.
+Libraries come *before* their dependencies.
+-/
+private partial def mkLinkOrder (libs : Array Dynlib) : JobM (Array Dynlib) := do
+  let r := libs.foldlM (m := Except (Cycle String)) (init := ({}, #[])) fun (v, o) lib =>
+    go lib [] v o
+  match r with
+  | .ok (_, order) => pure order
+  | .error cycle => error s!"library dependency cycle:\n{formatCycle cycle}"
+where
+  go lib (ps : List String) (v : RBMap String Unit compare) (o : Array Dynlib) := do
+    let o := o.push lib
+    if v.contains lib.name then
+      return (v, o)
+    if ps.contains lib.name then
+      throw (lib.name :: ps)
+    let ps := lib.name :: ps
+    let v := v.insert lib.name ()
+    let (v, o) ← lib.deps.foldlM (init := (v, o)) fun (v, o) lib =>
+      go lib ps v o
+    return (v, o)
+
+/--
 Build a shared library by linking the results of `linkJobs`
 using the Lean toolchain's C compiler.
 -/
@@ -404,7 +427,7 @@ def buildSharedLib
   (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
   (weakArgs traceArgs : Array String := #[]) (linker := "c++")
   (extraDepTrace : JobM _ := pure BuildTrace.nil)
-  (plugin := false)
+  (plugin := false) (linkDeps := Platform.isWindows)
 : SpawnM (Job Dynlib) :=
   (Job.collectArray linkObjs).bindM fun objs => do
   (Job.collectArray linkLibs).mapM (sync := true) fun libs => do
@@ -412,9 +435,10 @@ def buildSharedLib
     addPlatformTrace -- shared libraries are platform-dependent artifacts
     addTrace (← extraDepTrace)
     buildFileUnlessUpToDate' libFile do
+      let libs ← if linkDeps then mkLinkOrder libs else pure #[]
       let args := mkLinkObjArgs objs libs ++ weakArgs ++ traceArgs
       compileSharedLib libFile args linker
-    return {name := libName, path := libFile, plugin}
+    return {name := libName, path := libFile, deps := libs, plugin}
 
 /--
 Build a shared library by linking the results of `linkJobs`
@@ -424,6 +448,7 @@ def buildLeanSharedLib
   (libName : String) (libFile : FilePath)
   (linkObjs : Array (Job FilePath)) (linkLibs : Array (Job Dynlib))
   (weakArgs traceArgs : Array String := #[]) (plugin := false)
+  (linkDeps := Platform.isWindows)
 : SpawnM (Job Dynlib) :=
   (Job.collectArray linkObjs).bindM fun objs => do
   (Job.collectArray linkLibs).mapM (sync := true) fun libs => do
@@ -432,10 +457,11 @@ def buildLeanSharedLib
     addPlatformTrace -- shared libraries are platform-dependent artifacts
     buildFileUnlessUpToDate' libFile do
       let lean ← getLeanInstall
+      let libs ← if linkDeps then mkLinkOrder libs else pure #[]
       let args := mkLinkObjArgs objs libs ++
         weakArgs ++ traceArgs ++ lean.ccLinkSharedFlags
       compileSharedLib libFile args lean.cc
-    return {name := libName, path := libFile, plugin}
+    return {name := libName, path := libFile, deps := libs, plugin}
 
 /--
 Build an executable by linking the results of `linkJobs`
@@ -453,6 +479,7 @@ def buildLeanExe
     addPlatformTrace -- executables are platform-dependent artifacts
     buildFileUnlessUpToDate' exeFile do
       let lean ← getLeanInstall
+      let libs ← mkLinkOrder libs
       let args := mkLinkObjArgs objs libs ++
         weakArgs ++ traceArgs ++ lean.ccLinkFlags sharedLean
       compileExe exeFile args lean.cc

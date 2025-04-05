@@ -36,7 +36,7 @@ abbrev RecBuildT (m : Type → Type) :=
 
 /-- Log build cycle and error. -/
 @[specialize] def buildCycleError [MonadError m] (cycle : Cycle BuildKey) : m α :=
-  error s!"build cycle detected:\n{"\n".intercalate <| cycle.map (s!"  {·}")}"
+  error s!"build cycle detected:\n{formatCycle cycle}"
 
 instance [Monad m] [MonadError m] : MonadCycleOf BuildKey (RecBuildT m) where
   throwCycle := buildCycleError

@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 prelude
 import Lake.Config.OutFormat
+import Lake.Build.Target.Basic
 
 open System Lean
 
@@ -18,6 +19,11 @@ structure Dynlib where
   name : String
   /-- Whether this library can be loaded as a plugin. -/
   plugin := false
+  /--
+  Transitive dependencies of this library for situations that need them
+  (e.g., linking on Windows, loading via `lean`).
+  -/
+  deps : Array Dynlib := #[]
   deriving Inhabited, Repr
 
 /-- Optional library directory (for `-L`). -/

@@ -96,27 +96,22 @@ protected def LeanLib.recBuildShared (self : LeanLib) : FetchM (Job Dynlib) := d
   let objJobs ← self.moreLinkObjs.foldlM (init := objJobs)
     (·.push <$> ·.fetchIn self.pkg)
   let libJobs ← id do
-    -- Fetch dependnecy dynlibs
-    -- for platforms that must link to them (e.g., Windows)
-    if Platform.isWindows then
-      let imps ← mods.foldlM (init := OrdModuleSet.empty) fun imps mod => do
-        return imps.appendArray (← (← mod.transImports.fetch).await)
-      let s := (NameSet.empty.insert self.name, #[])
-      let (_, jobs) ← imps.foldlM (init := s) fun (libs, jobs) imp => do
-        if libs.contains imp.lib.name then
-          return (libs, jobs)
-        else
-          let job ← imp.lib.shared.fetch
-          let moreJobs ← imp.lib.moreLinkLibs.mapM (·.fetchIn self.pkg)
-          let jobs := jobs.push job ++ moreJobs
-          return (libs.insert imp.lib.name, jobs)
-      let jobs ← self.moreLinkLibs.foldlM
-        (·.push <$> ·.fetchIn self.pkg) jobs
-      let jobs ← self.pkg.externLibs.foldlM
-        (·.push <$> ·.dynlib.fetch) jobs
-      return jobs
-    else
-      return #[]
+    -- Fetch dependency dynlibs
+    -- for situations that need them (see `Dynlib.deps`)
+    let imps ← mods.foldlM (init := OrdModuleSet.empty) fun imps mod => do
+      return imps.appendArray (← (← mod.transImports.fetch).await)
+    let s := (NameSet.empty.insert self.name, #[])
+    let (_, jobs) ← imps.foldlM (init := s) fun (libs, jobs) imp => do
+      if libs.contains imp.lib.name then
+        return (libs, jobs)
+      else
+        let jobs ← jobs.push <$> imp.lib.shared.fetch
+        return (libs.insert imp.lib.name, jobs)
+    let jobs ← self.moreLinkLibs.foldlM
+      (·.push <$> ·.fetchIn self.pkg) jobs
+    let jobs ← self.pkg.externLibs.foldlM
+      (·.push <$> ·.dynlib.fetch) jobs
+    return jobs
   buildLeanSharedLib self.libName self.sharedLibFile objJobs libJobs
     self.weakLinkArgs self.linkArgs (plugin := self.roots.size == 1)
 

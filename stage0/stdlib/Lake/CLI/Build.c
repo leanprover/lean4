@@ -3670,7 +3670,7 @@ LEAN_EXPORT lean_object* l_Lake_resolveDefaultPackageTarget(lean_object* x_1, le
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_3 = lean_ctor_get(x_2, 11);
+x_3 = lean_ctor_get(x_2, 12);
 lean_inc(x_3);
 x_4 = lean_array_get_size(x_3);
 x_5 = lean_unsigned_to_nat(0u);

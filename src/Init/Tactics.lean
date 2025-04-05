@@ -824,7 +824,7 @@ syntax inductionAltLHS := "| " (("@"? ident) <|> hole) (ident <|> hole)*
 In induction alternative, which can have 1 or more cases on the left
 and `_`, `?_`, or a tactic sequence after the `=>`.
 -/
-syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> syntheticHole <|> tacticSeq)
+syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ (" => " (hole <|> syntheticHole <|> tacticSeq))?
 /--
 After `with`, there is an optional tactic that runs on all branches, and
 then a list of alternatives.

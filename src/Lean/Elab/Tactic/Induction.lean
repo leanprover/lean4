@@ -26,8 +26,10 @@ open Meta
   Given an `inductionAlt` of the form
   ```
   syntax inductionAltLHS := "| " (group("@"? ident) <|> hole) (ident <|> hole)*
-  syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> syntheticHole <|> tacticSeq)
+  syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ (" => " (hole <|> syntheticHole <|> tacticSeq))?
   ```
+  We assume that the syntax has been expanded. There is exactly one `inductionAltLHS`,
+  and `" => " (hole <|> syntheticHole <|> tacticSeq)` is present
 -/
 private def getAltLhses (alt : Syntax) : Syntax :=
   alt[0]
@@ -49,36 +51,61 @@ private def altHasExplicitModifier (alt : Syntax) : Bool :=
 private def getAltVars (alt : Syntax) : Array Syntax :=
   let lhs := getFirstAltLhs alt
   lhs[2].getArgs
+private def hasAltRHS (alt : Syntax) : Bool :=
+  if alt.getNumArgs == 3 then
+    -- Bootstrapping workaround. Delete case after stage0 update
+    true
+  else
+    alt[1].getNumArgs > 0
 private def getAltRHS (alt : Syntax) : Syntax :=
-  alt[2]
+  if alt.getNumArgs == 3  then
+    -- Bootstrapping workaround. Delete case after stage0 update
+    alt[2]
+  else
+    alt[1][1]
 private def getAltDArrow (alt : Syntax) : Syntax :=
-  alt[1]
+  if alt.getNumArgs == 3 then
+    -- Bootstrapping workaround. Delete case after stage0 update
+    alt[1]
+  else if hasAltRHS alt then
+    alt[1][0]
+  else
+    -- Used as a ref
+    alt[1]
 
 -- Return true if `stx` is a term occurring in the RHS of the induction/cases tactic
 def isHoleRHS (rhs : Syntax) : Bool :=
   rhs.isOfKind ``Parser.Term.syntheticHole || rhs.isOfKind ``Parser.Term.hole
 
-def evalAlt (mvarId : MVarId) (alt : Syntax) (addInfo : TermElabM Unit) : TacticM Unit :=
-  let rhs := getAltRHS alt
-  withCaseRef (getAltDArrow alt) rhs do
-    if isHoleRHS rhs then
+def evalAlt (mvarId : MVarId) (alt : Syntax) (addInfo : TermElabM Unit) : TacticM Unit := do
+  if hasAltRHS alt then
+    let rhs := getAltRHS alt
+    withCaseRef (getAltDArrow alt) rhs do
+      if isHoleRHS rhs then
+        addInfo
+        mvarId.withContext <| withTacticInfoContext rhs do
+          let mvarDecl ← mvarId.getDecl
+          let val ← elabTermEnsuringType rhs mvarDecl.type
+          mvarId.assign val
+          let gs' ← getMVarsNoDelayed val
+          tagUntaggedGoals mvarDecl.userName `induction gs'.toList
+          setGoals <| (← getGoals) ++ gs'.toList
+      else
+        let goals ← getGoals
+        try
+          setGoals [mvarId]
+          closeUsingOrAdmit <|
+            withTacticInfoContext (mkNullNode #[getAltLhses alt, getAltDArrow alt]) <|
+              (addInfo *> evalTactic rhs)
+        finally
+          setGoals goals
+  else
+    -- No RHS: use the mvarId as the new goal.
+    let ref := getAltDArrow alt
+    withRef ref do
       addInfo
-      mvarId.withContext <| withTacticInfoContext rhs do
-        let mvarDecl ← mvarId.getDecl
-        let val ← elabTermEnsuringType rhs mvarDecl.type
-        mvarId.assign val
-        let gs' ← getMVarsNoDelayed val
-        tagUntaggedGoals mvarDecl.userName `induction gs'.toList
-        setGoals <| (← getGoals) ++ gs'.toList
-    else
-      let goals ← getGoals
-      try
-        setGoals [mvarId]
-        closeUsingOrAdmit <|
-          withTacticInfoContext (mkNullNode #[getAltLhses alt, getAltDArrow alt]) <|
-            (addInfo *> evalTactic rhs)
-      finally
-        setGoals goals
+      mvarId.withContext <| withTacticInfoContext ref do
+        setGoals <| (← getGoals) ++ [mvarId]
 
 /-!
   Helper method for creating an user-defined eliminator/recursor application.
@@ -431,7 +458,7 @@ where
     -- all previous alternatives have to be unchanged for reuse
     Term.withNarrowedArgTacticReuse (stx := mkNullNode altStxs) (argIdx := altStxIdx) fun altStx => do
     -- everything up to rhs has to be unchanged for reuse
-    Term.withNarrowedArgTacticReuse (stx := altStx) (argIdx := 2) fun _rhs => do
+    Term.withNarrowedArgTacticReuse (stx := altStx) (argIdx := 1) fun _rhs => do
     -- disable reuse if rhs is run multiple times
     Term.withoutTacticIncrementality (altMVarIds.length != 1 || isWildcard altStx) do
       for altMVarId' in altMVarIds do

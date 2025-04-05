@@ -1,2 +1,2 @@
 1
-noncompSection.lean:35:4-35:5: error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'Classical.choose', and it does not have executable code
+noncompSection.lean:35:4-35:5: error: failed to compile definition, consider marking it as 'noncomputable' because it depends on 'Classical.choose', which is 'noncomputable'

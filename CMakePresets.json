@@ -39,7 +39,7 @@
     },
     {
       "name": "sandebug",
-      "inherits": ["debug", "sanitize"],
+      "inherits": ["sanitize", "debug"],
       "displayName": "Sanitize+debug build config",
       "binaryDir": "${sourceDir}/build/sandebug"
     }

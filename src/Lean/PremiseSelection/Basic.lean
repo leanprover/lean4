@@ -75,33 +75,48 @@ abbrev Selector : Type := MVarId → Config → MetaM (Array Suggestion)
 
 section BlackList
 
-/-- Premises from a module whose name has one of the following as a component are not retrieved. -/
-def moduleBlackList : Array String := #[
-  "Aesop", "Auto", "Cli", "CodeAction", "DocGen4", "Duper", "ImportGraph", "Lake", "Lean",
-  "LeanSearchClient", "Linter", "Mathport", "MD4Lean", "Plausible", "ProofWidgets", "Qq",
-  "QuerySMT", "Tactic", "TacticExtra", "Test", "Testing", "UnicodeBasic", "Util"
-]
+/-- Premises from a module whose name has one of the following components are not retrieved. -/
+builtin_initialize moduleBlackListExt : SimplePersistentEnvExtension String (List String) ←
+  let initialBlackList := [
+      "Aesop", "Auto", "Cli", "CodeAction", "DocGen4", "Duper", "ImportGraph", "Lake", "Lean",
+      "LeanSearchClient", "Linter", "Mathport", "MD4Lean", "Plausible", "ProofWidgets", "Qq",
+      "QuerySMT", "Tactic", "TacticExtra", "Test", "Testing", "UnicodeBasic", "Util"
+    ]
+  registerSimplePersistentEnvExtension {
+    addEntryFn := (·.cons)
+    addImportedFn := mkStateFromImportedEntries (·.cons) initialBlackList
+  }
 
-/-- A premise whose name has one of the following as a component is not retrieved. -/
-def nameBlackList : Array String := #["Lean", "Lake", "Qq"]
+/-- A premise whose name has one of the following components is not retrieved. -/
+builtin_initialize nameBlackListExt : SimplePersistentEnvExtension String (List String) ←
+  let initialBlackList := ["Lean", "Lake", "Qq"]
+  registerSimplePersistentEnvExtension {
+    addEntryFn := (·.cons)
+    addImportedFn := mkStateFromImportedEntries (·.cons) initialBlackList
+  }
 
-/-- A premise whose `type.getForallBody.getAppFn` is a constant that has this prefix is not retrieved. -/
-def typePrefixBlackList : Array Name := #[`Lean]
+/-- A premise whose `type.getForallBody.getAppFn` is a constant that has one of these prefixes is not retrieved. -/
+builtin_initialize typePrefixBlackListExt : SimplePersistentEnvExtension Name (List Name) ←
+  let initialBlackList := [`Lean]
+  registerSimplePersistentEnvExtension {
+    addEntryFn := (·.cons)
+    addImportedFn := mkStateFromImportedEntries (·.cons) initialBlackList
+  }
 
-def isBlackListedModule (moduleName : Name) : Bool :=
-  moduleBlackList.any (fun p => moduleName.anyS (· == p))
+def isBlackListedModule (env : Environment) (moduleName : Name) : Bool :=
+  (moduleBlackListExt.getState env).any fun p => moduleName.anyS (· == p)
 
 def isBlackListedPremise (env : Environment) (name : Name) : Bool := Id.run do
   if name == ``sorryAx then return true
   if name.isInternalDetail then return true
-  if nameBlackList.any (fun p => name.anyS (· == p)) then return true
+  if (nameBlackListExt.getState env).any (fun p => name.anyS (· == p)) then return true
   if let some moduleIdx := env.getModuleIdxFor? name then
     let moduleName := env.header.moduleNames[moduleIdx.toNat]!
-    if isBlackListedModule moduleName then
+    if isBlackListedModule env moduleName then
       return true
   let some ci := env.find? name | return true
   if let .const fnName _ := ci.type.getForallBody.getAppFn then
-    if typePrefixBlackList.any (fun p => p.isPrefixOf fnName) then return true
+    if (typePrefixBlackListExt.getState env).any (fun p => p.isPrefixOf fnName) then return true
   return false
 
 end BlackList

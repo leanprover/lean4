@@ -424,7 +424,6 @@ lean_object * sharecommon_quick_fn::visit(lean_object * a) {
       Similarly to `sharecommon_fn`, we only maximally share arrays, scalar arrays, strings, and
       constructor objects.
     */
-    case LeanMPZ:             lean_inc_ref(a); return a;
     case LeanClosure:         lean_inc_ref(a); return a;
     case LeanThunk:           lean_inc_ref(a); return a;
     case LeanTask:            lean_inc_ref(a); return a;
@@ -432,6 +431,7 @@ lean_object * sharecommon_quick_fn::visit(lean_object * a) {
     case LeanRef:             lean_inc_ref(a); return a;
     case LeanExternal:        lean_inc_ref(a); return a;
     case LeanReserved:        lean_inc_ref(a); return a;
+    case LeanMPZ:             return visit_terminal(a);
     case LeanScalarArray:     return visit_terminal(a);
     case LeanString:          return visit_terminal(a);
     case LeanArray:           return visit_array(a);

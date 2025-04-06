@@ -35,3 +35,20 @@ run_meta do
   let a := mkA 1000
   let b := 1001
   runGrind (tst a b)
+
+def tst2 (a b : Nat) : IO Unit := do
+  IO.println a
+  IO.println b
+  let (a, b) := ShareCommon.shareCommon' (mkNatLit a, mkNatLit b)
+  IO.println (isSameExpr a b)
+
+/--
+info: 1000000000000000000000000001
+1000000000000000000000000001
+true
+-/
+#guard_msgs (info) in
+run_meta do
+  let a := mkA 1000000000000000000000000000
+  let b := 1000000000000000000000000001
+  tst2 a b

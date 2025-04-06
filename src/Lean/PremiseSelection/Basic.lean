@@ -73,6 +73,39 @@ structure Config where
 
 abbrev Selector : Type := MVarId → Config → MetaM (Array Suggestion)
 
+section BlackList
+
+/-- Premises from a module whose name has one of the following as a component are not retrieved. -/
+def moduleBlackList : Array String := #[
+  "Aesop", "Auto", "Cli", "CodeAction", "DocGen4", "Duper", "ImportGraph", "Lake", "Lean",
+  "LeanSearchClient", "Linter", "Mathport", "MD4Lean", "Plausible", "ProofWidgets", "Qq",
+  "QuerySMT", "Tactic", "TacticExtra", "Test", "Testing", "UnicodeBasic", "Util"
+]
+
+/-- A premise whose name has one of the following as a component is not retrieved. -/
+def nameBlackList : Array String := #["Lean", "Lake", "Qq"]
+
+/-- A premise whose `type.getForallBody.getAppFn` is a constant that has this prefix is not retrieved. -/
+def typePrefixBlackList : Array Name := #[`Lean]
+
+def isBlackListedModule (moduleName : Name) : Bool :=
+  moduleBlackList.any (fun p => moduleName.anyS (· == p))
+
+def isBlackListedPremise (env : Environment) (name : Name) : Bool := Id.run do
+  if name == ``sorryAx then return true
+  if name.isInternalDetail then return true
+  if nameBlackList.any (fun p => name.anyS (· == p)) then return true
+  if let some moduleIdx := env.getModuleIdxFor? name then
+    let moduleName := env.header.moduleNames[moduleIdx.toNat]!
+    if isBlackListedModule moduleName then
+      return true
+  let some ci := env.find? name | return true
+  if let .const fnName _ := ci.type.getForallBody.getAppFn then
+    if typePrefixBlackList.any (fun p => p.isPrefixOf fnName) then return true
+  return false
+
+end BlackList
+
 /--
 The trivial premise selector, which returns no suggestions.
 -/
@@ -88,7 +121,7 @@ def random (gen : StdGen := ⟨37, 59⟩) : Selector := fun _ cfg => do
   while suggestions.size < max do
     let i ← IO.rand 0 consts.size
     let name := consts[i]!
-    if ! (`Lean).isPrefixOf name && Lean.Meta.allowCompletion env name then
+    unless isBlackListedPremise env name do
       suggestions := suggestions.push { name := name, score := 1.0 / consts.size.toFloat }
   return suggestions
 

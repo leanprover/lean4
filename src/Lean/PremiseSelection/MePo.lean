@@ -45,8 +45,9 @@ def frequencyScore (frequency : Name → Nat) (relevant candidate : NameSet) : F
 
 def unweightedScore (relevant candidate : NameSet) : Float := weightedScore (fun _ => 1) relevant candidate
 
--- The values of p := 0.6 and c := 2.4 are taken from the MePo paper, and need to be tuned.
-def mepo (initialRelevant : NameSet) (score : NameSet → NameSet → Float) (accept : ConstantInfo → CoreM Bool) (p : Float := 0.6) (c : Float := 2.4) : CoreM (Array (Name × Float)) := do
+-- The value c = 0.5 essentially forces the `while` loop to only iterate once, which preliminary
+-- experiments found to be optimal.
+def mepo (initialRelevant : NameSet) (score : NameSet → NameSet → Float) (accept : ConstantInfo → CoreM Bool) (p : Float := 0.6) (c : Float := 0.5) : CoreM (Array (Name × Float)) := do
   let env ← getEnv
   let mut p := p
   let mut candidates := #[]
@@ -60,6 +61,7 @@ def mepo (initialRelevant : NameSet) (score : NameSet → NameSet → Float) (ac
     if newAccepted.isEmpty then return accepted
     accepted := newAccepted.foldl (fun acc (n, _, s) => acc.push (n, s)) accepted
     candidates := candidates'.map fun (n, c, _) => (n, c)
+    relevant := newAccepted.foldl (fun acc (_, ns, _) => acc ++ ns) relevant
     p := p + (1 - p) / c
   return accepted
 
@@ -83,7 +85,13 @@ public def mepoSelector (useRarity : Bool) (p : Float := 0.6) (c : Float := 2.4)
     let frequency := symbolFrequency env
     frequencyScore (frequency.getD · 0)
   else
-    unweightedScore
-  let accept := fun ci => return ! (`Lean).isPrefixOf ci.name && Lean.Meta.allowCompletion env ci.name
+    MePo.unweightedScore
+  let accept := fun ci => do
+    return ! isBlackListedPremise env ci.name
   let suggestions ← MePo.mepo constants score accept
-  return suggestions.map fun (n, s) => { name := n, score := s }
+  let suggestions := suggestions
+    |>.map (fun (n, s) => { name := n, score := s })
+    |>.reverse  -- we favor constants that appear at the end of `env.constants`
+  match config.maxSuggestions with
+  | none => return suggestions
+  | some k => return suggestions.take k

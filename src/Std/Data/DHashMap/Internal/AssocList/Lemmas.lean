@@ -16,6 +16,7 @@ File contents: Connecting operations on `AssocList` to operations defined in `Li
 
 set_option linter.missingDocs true
 set_option autoImplicit false
+set_option Elab.async false
 
 open Std.DHashMap.Internal
 open List (Perm perm_middle)
@@ -199,6 +200,24 @@ theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
     split
     · exact (ih _).trans (by simpa using perm_middle.symm)
     · exact ih _
+
+theorem filterMap_eq_map {f : (a : α) → β a → γ a} {l : AssocList α β} :
+    l.filterMap (fun k v => some (f k v)) = l.map f := by
+  dsimp [filterMap, map]
+  generalize nil = l'
+  induction l generalizing l' with
+  | nil => rfl
+  | cons k v t ih => simp only [filterMap.go, map.go, ih]
+
+theorem filterMap_eq_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
+    l.filterMap (fun k => Option.guard (fun v => f k v)) = l.filter f := by
+  dsimp [filterMap, filter]
+  generalize nil = l'
+  induction l generalizing l' with
+  | nil => rfl
+  | cons k v t ih =>
+    simp only [filterMap.go, filter.go, ih, Option.guard, cond_eq_if]
+    symm; split <;> rfl
 
 theorem toList_alter [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
     {l : AssocList α β} :

@@ -3308,6 +3308,13 @@ end filterMap
 
 section filter
 
+omit [BEq α] [Hashable α] in
+theorem filterMap_eq_filter
+    {f : (a : α) → β a → Bool} :
+    m.filterMap (fun k => Option.guard (fun v => f k v)) = m.filter f := by
+  rw [filter_eq_filterₘ, filterMap_eq_filterMapₘ, filterₘ, filterMapₘ]
+  simp only [AssocList.filterMap_eq_filter]
+
 theorem isEmpty_filter_iff [LawfulBEq α]
     {f : (a : α) → β a → Bool} (h : m.1.WF) :
     (m.filter f).1.isEmpty = true ↔
@@ -3565,7 +3572,17 @@ end filter
 
 section map
 
-variable {γ : α →  Type w}
+variable {γ : α → Type w}
+
+theorem filterMap_eq_map [EquivBEq α] [LawfulHashable α]
+    {f : (a : α) → β a → γ a} (h : m.1.WF) :
+    m.filterMap (fun k v => Option.some (f k v)) = m.map f := by
+  rw [map_eq_mapₘ, filterMap_eq_filterMapₘ, mapₘ, filterMapₘ]
+  simp only [AssocList.filterMap_eq_map, withComputedSize]
+  simp only [computeSize_eq, Subtype.mk.injEq, Raw.mk.injEq, and_true]
+  rw [(toListModel_updateAllBuckets (f := fun a => a.map f)
+    AssocList.toList_map (by simp)).length_eq]
+  rw [(Raw.WF.out h).size_eq, List.length_map]
 
 theorem isEmpty_map_iff [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → β a → γ a} (h : m.1.WF) :

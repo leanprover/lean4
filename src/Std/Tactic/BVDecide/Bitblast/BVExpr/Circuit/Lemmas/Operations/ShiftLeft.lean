@@ -206,11 +206,11 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
         Bool.false_eq, Bool.and_eq_false_imp, Bool.and_eq_true, decide_eq_true_eq,
         Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_lt, and_imp]
         intros
-        apply BitVec.getLsbD_ge
+        apply BitVec.getLsbD_of_ge
         omega
       · rw [hleft]
         simp only [BitVec.shiftLeft_eq', BitVec.toNat_twoPow, hmod, BitVec.getLsbD_shiftLeft, hidx,
-          decide_true, Bool.true_and, Bool.iff_and_self, Bool.not_eq_true', decide_eq_false_iff_not,
+          decide_true, Bool.true_and, Bool.eq_and_self, Bool.not_eq_true', decide_eq_false_iff_not,
           Nat.not_lt]
         omega
     · next hif1 =>
@@ -225,7 +225,7 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       rw [hleft]
       simp
   · have : rhs.getLsbD pow = false := by
-      apply BitVec.getLsbD_ge
+      apply BitVec.getLsbD_of_ge
       dsimp only
       omega
     simp only [this, Bool.false_eq_true, ↓reduceIte]
@@ -294,8 +294,8 @@ theorem denote_blastShiftLeft (aig : AIG α) (target : ArbitraryShiftTarget aig 
     subst hzero
     rw [← hg]
     simp only [hleft, Nat.zero_sub, BitVec.shiftLeftRec_zero, BitVec.and_twoPow, Nat.le_refl,
-      BitVec.getLsbD_ge, Bool.false_eq_true, ↓reduceIte, BitVec.reduceHShiftLeft',
-      BitVec.getLsbD_shiftLeft, Nat.sub_zero, Bool.iff_and_self, Bool.and_eq_true, decide_eq_true_eq,
+      BitVec.getLsbD_of_ge, Bool.false_eq_true, ↓reduceIte, BitVec.reduceHShiftLeft',
+      BitVec.getLsbD_shiftLeft, Nat.sub_zero, Bool.eq_and_self, Bool.and_eq_true, decide_eq_true_eq,
       Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_lt, Nat.zero_le, and_true]
     apply BitVec.lt_of_getLsbD
   · rw [← hg]

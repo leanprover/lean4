@@ -999,11 +999,19 @@ set_option linter.missingDocs false in
 theorem toBoolUsing_eq_true {p : Prop} (d : Decidable p) (h : p) : toBoolUsing d = true :=
   decide_eq_true (inst := d) h
 
-theorem ofBoolUsing_eq_true {p : Prop} {d : Decidable p} (h : toBoolUsing d = true) : p :=
-  of_decide_eq_true (inst := d) h
+theorem of_toBoolUsing_eq_true {p : Prop} {d : Decidable p} (h : toBoolUsing d = true) : p :=
+  of_decide_eq_true h
 
-theorem ofBoolUsing_eq_false {p : Prop} {d : Decidable p} (h : toBoolUsing d = false) : ¬ p :=
-  of_decide_eq_false (inst := d) h
+theorem of_toBoolUsing_eq_false {p : Prop} {d : Decidable p} (h : toBoolUsing d = false) : ¬p :=
+  of_decide_eq_false h
+
+set_option linter.missingDocs false in
+@[deprecated of_toBoolUsing_eq_true (since := "2025-04-04")]
+abbrev ofBoolUsing_eq_true := @of_toBoolUsing_eq_true
+
+set_option linter.missingDocs false in
+@[deprecated of_toBoolUsing_eq_false (since := "2025-04-04")]
+abbrev ofBoolUsing_eq_false := @of_toBoolUsing_eq_false
 
 instance : Decidable True :=
   isTrue trivial
@@ -1269,8 +1277,12 @@ theorem Relation.TransGen.trans {α : Sort u} {r : α → α → Prop} {a b c} :
 
 namespace Subtype
 
-theorem existsOfSubtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (fun x => p x)
+theorem exists_of_subtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (fun x => p x)
   | ⟨a, h⟩ => ⟨a, h⟩
+
+set_option linter.missingDocs false in
+@[deprecated exists_of_subtype (since := "2025-04-04")]
+abbrev existsOfSubtype := @exists_of_subtype
 
 variable {α : Type u} {p : α → Prop}
 

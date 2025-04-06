@@ -11,29 +11,19 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
-def markForeignTerm (e : Expr) (t : ForeignType) : GoalM Unit := do
-  modify' fun s => { s with foreignTerms := s.foreignTerms.insert { expr := e} t }
-  markAsCutsatTerm e
-
-def foreignTerm? (e : Expr) : GoalM (Option ForeignType) := do
-  return (← get').foreignTerms.find? { expr := e }
-
-def foreignTermOrLit? (e : Expr) : GoalM (Option ForeignType) := do
-  if isNatNum e then return some .nat
-  foreignTerm? e
-
 private def assertNatCast (e : Expr) : GoalM Unit := do
   let_expr NatCast.natCast _ inst a := e | return ()
   let_expr instNatCastInt := inst | return ()
+  trace[grind.debug.cutsat.natCast] "{a}"
   pushNewFact <| mkApp (mkConst ``Int.Linear.natCast_nonneg) a
-  markForeignTerm a .nat
+  discard <| mkForeignVar a .nat
 
 private def assertHelpers (e : Expr) : GoalM Unit := do
   assertNatCast e
   assertDenoteAsIntNonneg e
 
-/-- Creates a new variable in the cutsat module. -/
-def mkVar (expr : Expr) : GoalM Var := do
+@[export lean_grind_cutsat_mk_var]
+def mkVarImpl (expr : Expr) : GoalM Var := do
   if let some var := (← get').varMap.find? { expr } then
     return var
   let var : Var := (← get').vars.size
@@ -48,6 +38,7 @@ def mkVar (expr : Expr) : GoalM Var := do
     occurs    := s.occurs.push {}
     elimEqs   := s.elimEqs.push none
   }
+  trace[grind.debug.cutsat.markTerm] "mkVar: {expr}"
   markAsCutsatTerm expr
   assertHelpers expr
   return var

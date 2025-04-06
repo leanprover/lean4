@@ -36,18 +36,12 @@ Otherwise, returns an empty string.
 -/
 def realConfigFile (cfgFile : FilePath) : BaseIO FilePath := do
   if cfgFile.extension.isSome then
-    realPath cfgFile
+    resolvePath cfgFile
   else
-    let realLeanFile ← realPath (cfgFile.addExtension "lean")
-    if realLeanFile.toString.isEmpty then
-      realPath (cfgFile.addExtension "toml")
+    if let some path ← resolvePath? (cfgFile.addExtension "lean") then
+      return path
     else
-      return realLeanFile
-where
-  @[inline] realPath file := do
-    match (← (IO.FS.realPath file).toBaseIO) with
-    | .ok path => return if (← path.pathExists) then path else ""
-    | _ => return ""
+      resolvePath (cfgFile.addExtension "toml")
 
 /--
 Loads a Lake package configuration (either Lean or TOML).
@@ -57,8 +51,10 @@ def loadPackageCore
   (name : String) (cfg : LoadConfig)
 : LogIO (Package × Option Environment) := do
   if let some ext := cfg.relConfigFile.extension then
-    unless (← cfg.configFile.pathExists) do
-      error s!"{name}: configuration file not found: {cfg.configFile}"
+    let cfg ←
+      if let some configFile ← resolvePath? cfg.configFile then
+        pure {cfg with configFile}
+      else error s!"{name}: configuration file not found: {cfg.configFile}"
     match ext with
     | "lean" => (·.map id some) <$> loadLeanConfig cfg
     | "toml" => ((·,none)) <$> loadTomlConfig cfg
@@ -68,15 +64,17 @@ def loadPackageCore
     let relTomlFile := cfg.relConfigFile.addExtension "toml"
     let leanFile := cfg.pkgDir / relLeanFile
     let tomlFile := cfg.pkgDir / relTomlFile
-    let leanExists ← leanFile.pathExists
-    let tomlExists ← tomlFile.pathExists
-    if leanExists then
-      if tomlExists then
+    if let some configFile ← resolvePath? leanFile then
+      if (← tomlFile.pathExists) then
         logInfo s!"{name}: {relLeanFile} and {relTomlFile} are both present; using {relLeanFile}"
-      (·.map id some) <$> loadLeanConfig {cfg with relConfigFile := relLeanFile}
+       let cfg := {cfg with configFile, relConfigFile := relLeanFile}
+      let (pkg, env) ← loadLeanConfig cfg
+      return (pkg, some env)
     else
-      if tomlExists then
-        ((·,none)) <$> loadTomlConfig {cfg with relConfigFile := relTomlFile}
+      if let some configFile ← resolvePath? tomlFile then
+        let cfg := {cfg with configFile, relConfigFile := relTomlFile}
+        let pkg ← loadTomlConfig cfg
+        return (pkg, none)
       else
         error s!"{name}: no configuration file with a supported extension:\n{leanFile}\n{tomlFile}"
 

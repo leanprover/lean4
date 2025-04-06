@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_System_FilePath_join(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_updateManifest(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lake_instMonadLiftLogIOLoggerIO___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
@@ -40,6 +39,7 @@ lean_object* lean_io_error_to_string(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
 lean_object* l_Lake_Workspace_addFacetsFromEnv(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* _init_l_Lake_loadWorkspaceRoot___closed__1() {
@@ -136,7 +136,7 @@ lean_free_object(x_10);
 x_26 = lean_ctor_get(x_20, 0);
 lean_inc(x_26);
 lean_dec(x_20);
-x_27 = lean_ctor_get(x_1, 7);
+x_27 = lean_ctor_get(x_1, 9);
 lean_inc(x_27);
 lean_dec(x_1);
 x_28 = l_Lake_Workspace_addFacetsFromEnv(x_26, x_27, x_25);
@@ -257,7 +257,7 @@ lean_free_object(x_10);
 x_59 = lean_ctor_get(x_52, 0);
 lean_inc(x_59);
 lean_dec(x_52);
-x_60 = lean_ctor_get(x_1, 7);
+x_60 = lean_ctor_get(x_1, 9);
 lean_inc(x_60);
 lean_dec(x_1);
 x_61 = l_Lake_Workspace_addFacetsFromEnv(x_59, x_60, x_57);
@@ -383,7 +383,7 @@ lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93;
 x_90 = lean_ctor_get(x_82, 0);
 lean_inc(x_90);
 lean_dec(x_82);
-x_91 = lean_ctor_get(x_1, 7);
+x_91 = lean_ctor_get(x_1, 9);
 lean_inc(x_91);
 lean_dec(x_1);
 x_92 = l_Lake_Workspace_addFacetsFromEnv(x_90, x_91, x_87);
@@ -565,13 +565,13 @@ LEAN_EXPORT lean_object* l_Lake_loadWorkspace(lean_object* x_1, lean_object* x_2
 _start:
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
-x_4 = lean_ctor_get(x_1, 5);
+x_4 = lean_ctor_get(x_1, 7);
 lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 7);
+x_5 = lean_ctor_get(x_1, 9);
 lean_inc(x_5);
-x_6 = lean_ctor_get_uint8(x_1, sizeof(void*)*10);
-x_7 = lean_ctor_get_uint8(x_1, sizeof(void*)*10 + 1);
-x_8 = lean_ctor_get_uint8(x_1, sizeof(void*)*10 + 2);
+x_6 = lean_ctor_get_uint8(x_1, sizeof(void*)*12);
+x_7 = lean_ctor_get_uint8(x_1, sizeof(void*)*12 + 1);
+x_8 = lean_ctor_get_uint8(x_1, sizeof(void*)*12 + 2);
 x_38 = l_Lake_loadWorkspace___closed__1;
 x_39 = l_Lake_loadWorkspaceRoot(x_1, x_38, x_3);
 x_40 = lean_ctor_get(x_39, 0);
@@ -788,10 +788,10 @@ x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
-x_13 = lean_ctor_get(x_11, 5);
+x_13 = lean_ctor_get(x_11, 6);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = l_System_FilePath_join(x_12, x_13);
+x_14 = l_Lake_joinRelative(x_12, x_13);
 lean_dec(x_13);
 x_15 = l_Lake_Manifest_load_x3f(x_14, x_10);
 lean_dec(x_14);
@@ -882,9 +882,9 @@ LEAN_EXPORT lean_object* l_Lake_updateManifest(lean_object* x_1, lean_object* x_
 _start:
 {
 lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_5 = lean_ctor_get(x_1, 7);
+x_5 = lean_ctor_get(x_1, 9);
 lean_inc(x_5);
-x_6 = lean_ctor_get_uint8(x_1, sizeof(void*)*10 + 2);
+x_6 = lean_ctor_get_uint8(x_1, sizeof(void*)*12 + 2);
 x_21 = l_Lake_loadWorkspace___closed__1;
 x_22 = l_Lake_loadWorkspaceRoot(x_1, x_21, x_4);
 x_23 = lean_ctor_get(x_22, 0);

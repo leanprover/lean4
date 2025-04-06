@@ -8,11 +8,15 @@ if (USE_MIMALLOC)
   list(APPEND RUNTIME_OBJS ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c)
   # Lean code includes it as `lean/mimalloc.h` but for compiling `static.c` itself, add original dir
   include_directories(${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/include)
+  # make all symbols visible, always build with optimizations as otherwise Lean becomes too slow
+  set(MIMALLOC_FLAGS "-DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT -Wno-unused-function")
+  if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang|Clang")
+    string(APPEND MIMALLOC_FLAGS " -Wno-deprecated")
+  endif()
   set_source_files_properties(${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c PROPERTIES
     # (C flags are incomplete, compile as C++ instead like everything else)
     LANGUAGE CXX
-    # make all symbols visible, always build with optimizations as otherwise Lean becomes too slow
-    COMPILE_FLAGS "-DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT")
+    COMPILE_FLAGS ${MIMALLOC_FLAGS})
 endif()
 
 add_library(leanrt_initial-exec STATIC ${RUNTIME_OBJS})

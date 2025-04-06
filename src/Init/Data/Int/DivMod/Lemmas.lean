@@ -116,6 +116,9 @@ protected theorem mul_dvd_mul_iff_right {a b c : Int} (h : a ≠ 0) : (b * a) �
   rw [Int.mul_comm b a, Int.mul_comm c a]
   exact Int.mul_dvd_mul_iff_left h
 
+protected theorem mul_dvd_mul {a b c d : Int} : a ∣ b → c ∣ d → a * c ∣ b * d := by
+  simpa [← Int.natAbs_dvd_natAbs, natAbs_mul] using Nat.mul_dvd_mul
+
 /-! ### *div zero  -/
 
 @[simp] protected theorem zero_tdiv : ∀ b : Int, tdiv 0 b = 0
@@ -755,10 +758,12 @@ theorem neg_emod {a b : Int} : (-a) % b = if b ∣ a then 0 else b.natAbs - (a %
   · simp
     omega
 
-theorem natAbs_ediv (a : Int) {b : Int} (hb : b ≠ 0) : natAbs (a / b) = natAbs a / natAbs b + if 0 ≤ a ∨ b ∣ a then 0 else 1 := by
+theorem natAbs_ediv (a : Int) (b : Int) : natAbs (a / b) = natAbs a / natAbs b + if 0 ≤ a ∨ b = 0 ∨ b ∣ a then 0 else 1 := by
+  by_cases hb : b = 0 <;> try (simp_all; done)
+  simp only [hb, false_or]
   induction b using wlog_sign
-  case inv => simp
-  case w b =>
+  case neg.inv => simp
+  case neg.w b =>
     match a with
     | 0 => simp
     | (a + 1 : Nat) => norm_cast
@@ -776,6 +781,12 @@ theorem natAbs_ediv (a : Int) {b : Int} (hb : b ≠ 0) : natAbs (a / b) = natAbs
       · simp
       · rw [Nat.succ_div, if_neg h, sign_eq_one_of_pos (by omega), Int.sub_eq_add_neg, ← Int.neg_add, natAbs_neg]
         norm_cast
+
+theorem natAbs_ediv_of_nonneg {a b : Int} (ha : 0 ≤ a) : (a / b).natAbs = a.natAbs / b.natAbs := by
+  rw [natAbs_ediv, if_pos (Or.inl ha), Nat.add_zero]
+
+theorem natAbs_ediv_of_dvd {a b : Int} (hab : b ∣ a) : (a / b).natAbs = a.natAbs / b.natAbs := by
+  rw [natAbs_ediv, if_pos (Or.inr (Or.inr hab)), Nat.add_zero]
 
 theorem natAbs_emod_of_nonneg {a : Int} (h : 0 ≤ a) (b : Int) :
     natAbs (a % b) = natAbs a % natAbs b := by
@@ -2307,7 +2318,7 @@ theorem bmod_le {x : Int} {m : Nat} (h : 0 < m) : bmod x m ≤ (m - 1) / 2 := by
       · trivial
 
 -- This could be strengthed by changing to `w : x ≠ -1` if needed.
-theorem bmod_natAbs_plus_one (x : Int) (w : 1 < x.natAbs) : bmod x (x.natAbs + 1) = - x.sign := by
+theorem bmod_natAbs_add_one (x : Int) (w : 1 < x.natAbs) : bmod x (x.natAbs + 1) = - x.sign := by
   have t₁ : ∀ (x : Nat), x % (x + 2) = x :=
     fun x => Nat.mod_eq_of_lt (Nat.lt_succ_of_lt (Nat.lt.base x))
   have t₂ : ∀ (x : Int), 0 ≤ x → x % (x + 2) = x := fun x h => by
@@ -2348,6 +2359,9 @@ theorem bmod_natAbs_plus_one (x : Int) (w : 1 < x.natAbs) : bmod x (x.natAbs + 1
           all_goals decide
     · exact ofNat_nonneg x
     · exact succ_ofNat_pos (x + 1)
+
+@[deprecated bmod_natAbs_add_one (since := "2025-04-04")]
+abbrev bmod_natAbs_plus_one := @bmod_natAbs_add_one
 
 @[simp]
 theorem bmod_neg_bmod : bmod (-(bmod x n)) n = bmod (-x) n := by

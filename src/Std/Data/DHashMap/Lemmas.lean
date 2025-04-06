@@ -3061,13 +3061,13 @@ set_option linter.missingDocs false in
 @[deprecated equiv_empty_iff_isEmpty (since := "2025-03-11")]
 abbrev equiv_emptyc_iff_isEmpty := @equiv_empty_iff_isEmpty
 
-theorem empty_equivWithCapacity_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :
+theorem empty_emptyWithCapacity_iff_isEmpty [EquivBEq α] [LawfulHashable α] {c : Nat} :
     emptyWithCapacity c ~m m ↔ m.isEmpty :=
   Equiv.comm.trans equiv_emptyWithCapacity_iff_isEmpty
 
 @[simp]
 theorem empty_equiv_iff_isEmpty [EquivBEq α] [LawfulHashable α] : ∅ ~m m ↔ m.isEmpty :=
-  empty_equivWithCapacity_iff_isEmpty
+  empty_emptyWithCapacity_iff_isEmpty
 
 set_option linter.missingDocs false in
 @[deprecated empty_equiv_iff_isEmpty (since := "2025-03-11")]

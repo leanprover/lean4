@@ -13,6 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Option_pfilter___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_pfilter(lean_object*);
 LEAN_EXPORT lean_object* l_Option_forM(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_pelim___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instMembership(lean_object*);
@@ -267,6 +269,46 @@ lean_object* x_4;
 x_4 = l_Option_pelim___rarg(x_1, x_2, x_3);
 lean_dec(x_2);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Option_pfilter___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_3; 
+lean_dec(x_2);
+x_3 = lean_box(0);
+return x_3;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+x_5 = lean_apply_2(x_2, x_4, lean_box(0));
+x_6 = lean_unbox(x_5);
+lean_dec(x_5);
+if (x_6 == 0)
+{
+lean_object* x_7; 
+lean_dec(x_1);
+x_7 = lean_box(0);
+return x_7;
+}
+else
+{
+return x_1;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Option_pfilter(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Option_pfilter___rarg), 2, 0);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Option_forM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

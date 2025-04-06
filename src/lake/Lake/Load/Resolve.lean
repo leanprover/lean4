@@ -43,9 +43,13 @@ def loadDepPackage
   (leanOpts : Options) (reconfigure : Bool)
 : StateT Workspace LogIO Package := fun ws => do
   let name := dep.name.toString (escape := false)
+  let pkgDir := ws.dir / dep.relPkgDir
+  let some pkgDir ← resolvePath? pkgDir
+    | error s!"{name}: package directory not found: {pkgDir}"
   let (pkg, env?) ← loadPackageCore name {
     lakeEnv := ws.lakeEnv
     wsDir := ws.dir
+    pkgDir
     relPkgDir := dep.relPkgDir
     relConfigFile := dep.configFile
     lakeOpts, leanOpts, reconfigure

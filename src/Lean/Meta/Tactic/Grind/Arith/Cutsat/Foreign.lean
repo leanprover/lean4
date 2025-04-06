@@ -31,6 +31,9 @@ def mkForeignVar (e : Expr) (t : ForeignType) : GoalM Var := do
 def foreignTerm? (e : Expr) : GoalM (Option ForeignType) := do
   return (·.2) <$> (← get').foreignVarMap.find? { expr := e }
 
+def hasForeignVar (e : Expr) : GoalM Bool :=
+  return (← get').foreignVarMap.contains { expr := e }
+
 def foreignTermOrLit? (e : Expr) : GoalM (Option ForeignType) := do
   if isNatNum e then return some .nat
   foreignTerm? e

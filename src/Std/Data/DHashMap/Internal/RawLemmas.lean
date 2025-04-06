@@ -3584,6 +3584,16 @@ theorem filterMap_eq_map [EquivBEq α] [LawfulHashable α]
     AssocList.toList_map (by simp)).length_eq]
   rw [(Raw.WF.out h).size_eq, List.length_map]
 
+omit [BEq α] [Hashable α] in
+theorem map_id_equiv : (m.map fun _ v => v).1.Equiv m.1 := by
+  simp_to_model [map, Equiv] using List.Perm.of_eq (List.map_id _)
+
+omit [BEq α] [Hashable α] in
+theorem map_map_equiv {δ : α → Type _}
+    {f : (a : α) → β a → γ a} {g : (a : α) → γ a → δ a} :
+    ((m.map f).map g).1.Equiv (m.map fun k v => g k (f k v)) := by
+  simp_to_model [map, Equiv, Const.toList] using List.Perm.of_eq (List.map_map)
+
 theorem isEmpty_map_iff [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → β a → γ a} (h : m.1.WF) :
     (m.map f).1.isEmpty = m.1.isEmpty := by

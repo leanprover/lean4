@@ -1010,6 +1010,10 @@ theorem mem_keys [LawfulBEq α] (h : m.1.WF) {k : α} :
   simp_to_model [contains, keys]
   rw [List.containsKey_eq_keys_contains]
 
+theorem contains_of_mem_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α}
+    (h' : k ∈ m.1.keys) : m.contains k :=
+  (contains_keys m h).symm.trans (List.elem_eq_true_of_mem h')
+
 theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.keys.Pairwise (fun a b => (a == b) = false) := by
   simp_to_model [keys] using (Raw.WF.out h).distinct.distinct
@@ -1163,32 +1167,32 @@ namespace Const
 variable {β : Type v} (m : Raw₀ α (fun _ => β))
 
 theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m']
-    {f : δ → (a : α) → β → m' δ} {init : δ} :
+    {f : δ → α → β → m' δ} {init : δ} :
     m.1.foldM f init = (Raw.Const.toList m.1).foldlM (fun a b => f a b.1 b.2) init := by
   simp_to_model [foldM, Const.toList] using List.foldlM_eq_foldlM_toProd
 
-theorem fold_eq_foldl_toList {f : δ → (a : α) → β → δ} {init : δ} :
+theorem fold_eq_foldl_toList {f : δ → α → β → δ} {init : δ} :
     m.1.fold f init = (Raw.Const.toList m.1).foldl (fun a b => f a b.1 b.2) init := by
   simp_to_model [fold, Const.toList] using List.foldl_eq_foldl_toProd
 
 theorem foldRevM_eq_foldrM_toList [Monad m'] [LawfulMonad m']
-    {f : δ → (a : α) → β → m' δ} {init : δ} :
+    {f : δ → α → β → m' δ} {init : δ} :
     Raw.Internal.foldRevM f init m.1 =
       (Raw.Const.toList m.1).foldrM (fun a b => f b a.1 a.2) init := by
   have :=Raw.foldRevM_eq_foldrM_toListModel (m := m') (b := m.1) (init := init) (f := f)
 
   simp_to_model [foldRevM, Const.toList] using List.foldrM_eq_foldrM_toProd'
 
-theorem foldRev_eq_foldr_toList {f : δ → (a : α) → β → δ} {init : δ} :
+theorem foldRev_eq_foldr_toList {f : δ → α → β → δ} {init : δ} :
     Raw.Internal.foldRev f init m.1 = (Raw.Const.toList m.1).foldr (fun a b => f b a.1 a.2) init := by
   simp_to_model [foldRev, Const.toList] using List.foldr_eq_foldr_toProd'
 
-theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : (a : α) → β → m' PUnit} :
+theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : α → β → m' PUnit} :
     m.1.forM f = (Raw.Const.toList m.1).forM (fun a => f a.1 a.2) := by
   simp_to_model [forM, Const.toList] using List.forM_eq_forM_toProd
 
 theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
-    {f : (a : α) → β → δ → m' (ForInStep δ)} {init : δ} :
+    {f : α → β → δ → m' (ForInStep δ)} {init : δ} :
     m.1.forIn f init = ForIn.forIn (Raw.Const.toList m.1) init (fun a b => f a.1 a.2 b) := by
   simp_to_model [forIn, Const.toList] using List.forIn_eq_forIn_toProd
 
@@ -3185,51 +3189,51 @@ namespace Const
 variable {β : Type v} {γ : Type w} (m : Raw₀ α (fun _ => β))
 
 theorem isEmpty_filterMap_iff [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Option γ} (h : m.1.WF) :
+    {f : α → β → Option γ} (h : m.1.WF) :
     (m.filterMap f).1.isEmpty = true ↔
       ∀ (k : α) (h : m.contains k = true), f (m.getKey k h) (Const.get m k h) = none := by
   simp_to_model [filterMap, isEmpty, contains, getKey, Const.get] using List.Const.isEmpty_filterMap_eq_true
 
 theorem isEmpty_filterMap_eq_false_iff [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Option γ} (h : m.1.WF) :
+    {f : α → β → Option γ} (h : m.1.WF) :
     (m.filterMap f).1.isEmpty = false ↔
       ∃ (k : α) (h : m.contains k = true), (f (m.getKey k h) (Const.get m k h)).isSome := by
   simp_to_model [filterMap, isEmpty, contains, getKey, Const.get] using List.Const.isEmpty_filterMap_eq_false
 
 theorem contains_filterMap_iff [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Option γ} {k : α} (h : m.1.WF) :
+    {f : α → β → Option γ} {k : α} (h : m.1.WF) :
     (m.filterMap f).contains k = true ↔ ∃ (h' : m.contains k = true),
       (f (m.getKey k h') (Const.get m k h')).isSome := by
   simp_to_model [filterMap, contains, getKey, Const.get] using List.Const.containsKey_filterMap_iff
 
 theorem size_filterMap_eq_size_iff [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Option γ} (h : m.1.WF) :
+    {f : α → β → Option γ} (h : m.1.WF) :
     (m.filterMap f).1.size = m.1.size ↔ ∀ (a : α) (h : m.contains a),
       (f (m.getKey a h) (Const.get m a h)).isSome := by
   simp_to_model [filterMap, size, getKey, contains, Const.get] using List.Const.length_filterMap_eq_length_iff
 
 theorem get?_filterMap [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Option γ} {k : α} (h : m.1.WF) :
+    {f : α → β → Option γ} {k : α} (h : m.1.WF) :
     Const.get? (m.filterMap f) k = (Const.get? m k).pbind (fun x h' =>
       f (m.getKey k ((contains_eq_isSome_get? m h).trans (Option.isSome_of_eq_some h'))) x) := by
   simp_to_model [filterMap, getKey, Const.get?] using List.Const.getValue?_filterMap
 
 theorem get?_filterMap_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Option γ} {k k' : α} (h : m.1.WF) :
+    {f : α → β → Option γ} {k k' : α} (h : m.1.WF) :
     m.getKey? k = some k' → Const.get? (m.filterMap f) k = (Const.get? m k).bind
       fun x => f k' x := by
   simp_to_model [filterMap, getKey?, Const.get?]
     using List.Const.getValue?_filterMap_of_getKey?_eq_some
 
 theorem isSome_apply_of_contains_filterMap [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Option γ} {k : α} (h : m.1.WF) :
+    {f : α → β → Option γ} {k : α} (h : m.1.WF) :
     ∀ (h' : (m.filterMap f).contains k = true),
       (f (m.getKey k (contains_of_contains_filterMap m h h'))
         (Const.get m k (contains_of_contains_filterMap m h h'))).isSome := by
   simp_to_model [filterMap, getKey, Const.get, contains] using List.Const.isSome_apply_of_containsKey_filterMap
 
 theorem get_filterMap [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Option γ} {k : α} (h : m.1.WF) {h'} :
+    {f : α → β → Option γ} {k : α} (h : m.1.WF) {h'} :
     Const.get (m.filterMap f) k h' =
       (f (m.getKey k (contains_of_contains_filterMap m h h'))
         (Const.get m k (contains_of_contains_filterMap m h h'))).get
@@ -3237,35 +3241,35 @@ theorem get_filterMap [EquivBEq α] [LawfulHashable α]
   simp_to_model [filterMap, getKey, Const.get] using List.getValue_filterMap
 
 theorem get!_filterMap [EquivBEq α] [LawfulHashable α] [Inhabited γ]
-    {f : (a : α) → β → Option γ} {k : α} (h : m.1.WF) :
+    {f : α → β → Option γ} {k : α} (h : m.1.WF) :
     Const.get! (m.filterMap f) k =
       ((Const.get? m k).pbind (fun x h' =>
       f (m.getKey k ((contains_eq_isSome_get? m h).trans (Option.isSome_of_eq_some h'))) x)).get! := by
   simp_to_model [filterMap, Const.get!, getKey, Const.get?] using List.Const.getValue!_filterMap
 
 theorem get!_filterMap_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited γ]
-    {f : (a : α) → β → Option γ} {k k' : α} (h : m.1.WF) :
+    {f : α → β → Option γ} {k k' : α} (h : m.1.WF) :
     m.getKey? k = some k' → Const.get! (m.filterMap f) k = ((Const.get? m k).bind
       fun x => f k' x).get! := by
   simp_to_model [filterMap, getKey?, Const.get?, Const.get!]
     using List.Const.getValue!_filterMap_of_getKey?_eq_some
 
 theorem getD_filterMap [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Option γ} {k : α} {fallback : γ} (h : m.1.WF) :
+    {f : α → β → Option γ} {k : α} {fallback : γ} (h : m.1.WF) :
     Const.getD (m.filterMap f) k fallback =
       ((Const.get? m k).pbind (fun x h' =>
       f (m.getKey k ((contains_eq_isSome_get? m h).trans (Option.isSome_of_eq_some h'))) x)).getD fallback := by
   simp_to_model [filterMap, Const.getD, getKey, Const.get?] using List.Const.getValueD_filterMap
 
 theorem getD_filterMap_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Option γ} {k k' : α} {fallback : γ} (h : m.1.WF) :
+    {f : α → β → Option γ} {k k' : α} {fallback : γ} (h : m.1.WF) :
     m.getKey? k = some k' → Const.getD (m.filterMap f) k fallback = ((Const.get? m k).bind
       fun x => f k' x).getD fallback := by
   simp_to_model [filterMap, getKey?, Const.get?, Const.getD]
     using List.Const.getValueD_filterMap_of_getKey?_eq_some
 
 theorem toList_filterMap {α : Type u} {m : Raw₀ α fun _ => β}
-    {f : (a : α) → β → Option γ} :
+    {f : α → β → Option γ} :
     (Raw.Const.toList (m.filterMap f).1).Perm
       ((Raw.Const.toList m.1).filterMap (fun p => (f p.1 p.2).map (fun x => ⟨p.1, x⟩))) := by
   simp_to_model [Const.toList, filterMap]
@@ -3273,26 +3277,26 @@ theorem toList_filterMap {α : Type u} {m : Raw₀ α fun _ => β}
   rfl
 
 theorem getKey?_filterMap [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Option γ} {k : α} (h : m.1.WF) :
+    {f : α → β → Option γ} {k : α} (h : m.1.WF) :
     (m.filterMap f).getKey? k =
     (m.getKey? k).pfilter (fun x h' =>
       (f x (Const.get m x (contains_of_getKey?_eq_some m h h'))).isSome) := by
   simp_to_model [filterMap, Const.get, getKey?] using List.Const.getKey?_filterMap
 
 theorem getKey_filterMap [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Option γ} {k : α} (h : m.1.WF) {h'}:
+    {f : α → β → Option γ} {k : α} (h : m.1.WF) {h'}:
     (m.filterMap f).getKey k h' = m.getKey k (contains_of_contains_filterMap m h h') := by
   simp_to_model [filterMap, getKey] using List.getKey_filterMap
 
 theorem getKey!_filterMap [EquivBEq α] [LawfulHashable α] [Inhabited α]
-    {f : (a : α) → β → Option γ} {k : α} (h : m.1.WF) :
+    {f : α → β → Option γ} {k : α} (h : m.1.WF) :
     (m.filterMap f).getKey! k =
     ((m.getKey? k).pfilter (fun x h' =>
       (f x (Const.get m x (contains_of_getKey?_eq_some m h h'))).isSome)).get! := by
   simp_to_model [filterMap, Const.get, getKey?, getKey!] using List.Const.getKey!_filterMap
 
 theorem getKeyD_filterMap [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Option γ} {k fallback : α} (h : m.1.WF) :
+    {f : α → β → Option γ} {k fallback : α} (h : m.1.WF) :
     (m.filterMap f).getKeyD k fallback =
     ((m.getKey? k).pfilter (fun x h' =>
       (f x (Const.get m x (contains_of_getKey?_eq_some m h h'))).isSome)).getD fallback := by
@@ -3311,7 +3315,7 @@ theorem isEmpty_filter_iff [LawfulBEq α]
   simp_to_model [filter, contains, get, isEmpty] using List.isEmpty_filter_eq_true
 
 theorem isEmpty_filter_key_iff [LawfulBEq α]
-    {f : (a : α) → Bool} (h : m.1.WF) :
+    {f : α → Bool} (h : m.1.WF) :
     (m.filter (fun a _ => f a)).1.isEmpty = true ↔
       ∀ (k : α), m.contains k = true → f k = false :=
   isEmpty_filter_iff m h
@@ -3323,7 +3327,7 @@ theorem isEmpty_filter_eq_false_iff [LawfulBEq α]
   simp_to_model [filter, contains, get, isEmpty] using List.isEmpty_filter_eq_false
 
 theorem isEmpty_filter_key_eq_false_iff [LawfulBEq α]
-    {f : (a : α) → Bool} (h : m.1.WF) :
+    {f : α → Bool} (h : m.1.WF) :
     (m.filter (fun a _ => f a)).1.isEmpty = false ↔
       ∃ (k : α), m.contains k = true ∧ f k = true := by
   simp [isEmpty_filter_eq_false_iff m h]
@@ -3334,7 +3338,7 @@ theorem contains_filter [LawfulBEq α]
   simp_to_model [filter, contains, get?] using List.containsKey_filter
 
 theorem contains_filter_key [LawfulBEq α]
-    {f : (a : α) → Bool} {k : α} (h : m.1.WF) :
+    {f : α → Bool} {k : α} (h : m.1.WF) :
     (m.filter (fun a _ => f a)).contains k = (f k && m.contains k) := by
   simp only [h, contains_filter, Option.any_const, Bool.and_comm, contains_eq_isSome_get?]
 
@@ -3354,7 +3358,7 @@ theorem size_filter_eq_size_iff [LawfulBEq α]
   simp_to_model [filter, size, contains, get] using Internal.List.length_filter_eq_length_iff
 
 theorem size_filter_key_eq_size_iff [LawfulBEq α]
-    {f : (a : α) → Bool} (h : m.1.WF) :
+    {f : α → Bool} (h : m.1.WF) :
     (m.filter (fun a _ => f a)).1.size = m.1.size ↔ ∀ (a : α), m.contains a → f a = true := by
   apply size_filter_eq_size_iff m h
 
@@ -3388,7 +3392,7 @@ theorem toList_filter
 
 theorem keys_filter [LawfulBEq α] {f : (a : α) → β a → Bool} (h : m.1.WF):
     (m.filter f).1.keys.Perm
-      (m.1.keys.attach.filter (fun ⟨x, h'⟩ => f x (m.get x ((mem_keys m h).mp h')))).unattach := by
+      (m.1.keys.attach.filter (fun ⟨x, h'⟩ => f x (m.get x (contains_of_mem_keys m h h')))).unattach := by
   simp_to_model [keys, filter, Equiv, get]
   rw [List.attach_congr Raw.keys_eq_keys_toListModel]
   rw [List.keys_filter (Raw.WF.out h).distinct]
@@ -3426,68 +3430,68 @@ namespace Const
 variable {β : Type v} {γ : Type w} (m : Raw₀ α (fun _ => β))
 
 theorem isEmpty_filter_iff [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Bool} (h : m.1.WF) :
+    {f : α → β → Bool} (h : m.1.WF) :
     (m.filter f).1.isEmpty = true ↔
       ∀ (k : α) (h : m.contains k = true), f (m.getKey k h) (Const.get m k h) = false := by
   simp_to_model [filter, isEmpty, contains, getKey, Const.get] using List.Const.isEmpty_filter_eq_true
 
 theorem isEmpty_filter_eq_false_iff [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Bool} (h : m.1.WF) :
+    {f : α → β → Bool} (h : m.1.WF) :
     (m.filter f).1.isEmpty = false ↔
       ∃ (k : α) (h : m.contains k = true), (f (m.getKey k h) (Const.get m k h)) = true := by
   simp_to_model [filter, isEmpty, contains, getKey, Const.get] using List.Const.isEmpty_filter_eq_false
 
 theorem contains_filter_iff [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Bool} {k : α} (h : m.1.WF) :
+    {f : α → β → Bool} {k : α} (h : m.1.WF) :
     (m.filter f).contains k = true ↔ ∃ (h' : m.contains k = true),
       (f (m.getKey k h') (Const.get m k h')) := by
   simp_to_model [filter, contains, getKey, Const.get] using List.Const.containsKey_filter_iff
 
 theorem size_filter_eq_size_iff [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Bool} (h : m.1.WF) :
+    {f : α → β → Bool} (h : m.1.WF) :
     (m.filter f).1.size = m.1.size ↔ ∀ (a : α) (h : m.contains a),
       f (m.getKey a h) (Const.get m a h) := by
   simp_to_model [filter, size, contains, getKey, Const.get] using List.Const.length_filter_eq_length_iff
 
 theorem get?_filter [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Bool} {k : α} (h : m.1.WF) :
+    {f : α → β → Bool} {k : α} (h : m.1.WF) :
     Const.get? (m.filter f) k = (Const.get? m k).pfilter (fun x h' =>
       f (m.getKey k ((contains_eq_isSome_get? m h).trans (Option.isSome_of_eq_some h'))) x) := by
   simp_to_model [filter, Const.get?, getKey] using List.Const.getValue?_filter
 
 theorem get?_filter_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Bool} {k k' : α} (h : m.1.WF) :
+    {f : α → β → Bool} {k k' : α} (h : m.1.WF) :
     m.getKey? k = some k' →
       Const.get? (m.filter f) k = (Const.get? m k).filter (fun x => f k' x) := by
   simp_to_model [filter, Const.get?, getKey?] using List.Const.getValue?_filter_of_getKey?_eq_some
 
 theorem get_filter [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Bool} {k : α} (h : m.1.WF) {h'} :
+    {f : α → β → Bool} {k : α} (h : m.1.WF) {h'} :
     Const.get (m.filter f) k h' = Const.get m k (contains_of_contains_filter m h h') := by
   simp_to_model [filter, Const.get] using List.getValue_filter
 
 theorem get!_filter [EquivBEq α] [LawfulHashable α] [Inhabited β]
-    {f : (a : α) → β → Bool} {k : α} (h : m.1.WF) :
+    {f : α → β → Bool} {k : α} (h : m.1.WF) :
     Const.get! (m.filter f) k =
       ((Const.get? m k).pfilter (fun x h' =>
       f (m.getKey k ((contains_eq_isSome_get? m h).trans (Option.isSome_of_eq_some h'))) x)).get! := by
   simp_to_model [filter, Const.get!, getKey, Const.get?] using List.Const.getValue!_filter
 
 theorem get!_filter_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited β]
-    {f : (a : α) → β → Bool} {k k' : α} (h : m.1.WF) :
+    {f : α → β → Bool} {k k' : α} (h : m.1.WF) :
     m.getKey? k = some k' →
       Const.get! (m.filter f) k = ((Const.get? m k).filter (fun x => f k' x)).get! := by
   simp_to_model [filter, Const.get?, getKey?, Const.get!]
     using List.Const.getValue!_filter_of_getKey?_eq_some
 
 theorem getD_filter [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Bool} {k : α} {fallback : β} (h : m.1.WF) :
+    {f : α → β → Bool} {k : α} {fallback : β} (h : m.1.WF) :
     Const.getD (m.filter f) k fallback = ((Const.get? m k).pfilter (fun x h' =>
       f (m.getKey k ((contains_eq_isSome_get? m h).trans (Option.isSome_of_eq_some h'))) x)).getD fallback := by
   simp_to_model [filter, Const.getD, getKey, Const.get?] using List.Const.getValueD_filter
 
 theorem getD_filter_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited β]
-    {f : (a : α) → β → Bool} {k k' : α} {fallback : β} (h : m.1.WF) :
+    {f : α → β → Bool} {k k' : α} {fallback : β} (h : m.1.WF) :
     m.getKey? k = some k' →
       Const.getD (m.filter f) k fallback =
         ((Const.get? m k).filter (fun x => f k' x)).getD fallback := by
@@ -3495,55 +3499,64 @@ theorem getD_filter_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabi
     using List.Const.getValueD_filter_of_getKey?_eq_some
 
 theorem toList_filter {α : Type u} {m : Raw₀ α fun _ => β}
-    {f : (a : α) → β → Bool} :
+    {f : α → β → Bool} :
     (Raw.Const.toList (m.filter f).1).Perm
       ((Raw.Const.toList m.1).filter (fun p => f p.1 p.2)) := by
   simp_to_model [filter, Const.toList]
   simp only [List.filter_map, Function.comp_def]
   rfl
 
+theorem keys_filter [EquivBEq α] [LawfulHashable α] {f : α → β → Bool} (h : m.1.WF):
+    (m.filter f).1.keys.Perm
+      (m.1.keys.attach.filter (fun ⟨x, h'⟩ => f x (get m x (contains_of_mem_keys m h h')))).unattach := by
+  simp_to_model [keys, filter, Equiv, Const.get]
+  rw [List.attach_congr Raw.keys_eq_keys_toListModel]
+  rw [List.Const.keys_filter (Raw.WF.out h).distinct]
+  simp only [List.filter_map, Function.comp_def, List.unattach, List.map_map]
+  rfl
+
 theorem getKey?_filter [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Bool} {k : α} (h : m.1.WF) :
+    {f : α → β → Bool} {k : α} (h : m.1.WF) :
     (m.filter f).getKey? k =
     (m.getKey? k).pfilter (fun x h' =>
       (f x (Const.get m x (contains_of_getKey?_eq_some m h h')))) := by
   simp_to_model [filter, getKey?, Const.get] using List.Const.getKey?_filter
 
 theorem getKey_filter [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Bool} {k : α} (h : m.1.WF) {h'}:
+    {f : α → β → Bool} {k : α} (h : m.1.WF) {h'}:
     (m.filter f).getKey k h' = m.getKey k (contains_of_contains_filter m h h') := by
   simp_to_model [filter, getKey] using List.getKey_filter
 
 theorem getKey!_filter [EquivBEq α] [LawfulHashable α] [Inhabited α]
-    {f : (a : α) → β → Bool} {k : α} (h : m.1.WF) :
+    {f : α → β → Bool} {k : α} (h : m.1.WF) :
     (m.filter f).getKey! k =
     ((m.getKey? k).pfilter (fun x h' =>
       (f x (Const.get m x (contains_of_getKey?_eq_some m h h'))))).get! := by
   simp_to_model [filter, getKey!, getKey?, Const.get] using List.Const.getKey!_filter
 
 theorem getKeyD_filter [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → Bool} {k fallback : α} (h : m.1.WF) :
+    {f : α → β → Bool} {k fallback : α} (h : m.1.WF) :
     (m.filter f).getKeyD k fallback =
     ((m.getKey? k).pfilter (fun x h' =>
       (f x (Const.get m x (contains_of_getKey?_eq_some m h h'))))).getD fallback := by
   simp_to_model [filter, getKeyD, getKey?, Const.get] using List.Const.getKeyD_filter
 
 theorem getKey?_filter_key [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → Bool} {k : α} (h : m.1.WF) :
+    {f : α → Bool} {k : α} (h : m.1.WF) :
     (m.filter (fun a _ => f a)).getKey? k =
-      (m.getKey? k).filter (fun x => f x) := by
+      (m.getKey? k).filter f := by
   simp [h, getKey?_filter]
 
 theorem getKey!_filter_key [EquivBEq α] [LawfulHashable α] [Inhabited α]
-    {f : (a : α) → Bool} {k : α} (h : m.1.WF) :
+    {f : α → Bool} {k : α} (h : m.1.WF) :
     (m.filter (fun a _ => f a)).getKey! k =
-      ((m.getKey? k).filter (fun x => f x)).get! := by
+      ((m.getKey? k).filter f).get! := by
   simp [h, getKey!_filter]
 
 theorem getKeyD_filter_key [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → Bool} {k fallback : α} (h : m.1.WF) :
+    {f : α → Bool} {k fallback : α} (h : m.1.WF) :
     (m.filter (fun a _ => f a)).getKeyD k fallback =
-      ((m.getKey? k).filter (fun x => f x)).getD fallback := by
+      ((m.getKey? k).filter f).getD fallback := by
   simp [h, getKeyD_filter]
 
 end Const
@@ -3635,34 +3648,34 @@ namespace Const
 variable {β : Type v} {γ : Type w} (m : Raw₀ α (fun _ => β))
 
 theorem get?_map [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → γ} {k : α} (h : m.1.WF) :
+    {f : α → β → γ} {k : α} (h : m.1.WF) :
     Const.get? (m.map f) k = (Const.get? m k).pmap (fun v h' => f (m.getKey k h') v)
       (fun _ h' => (contains_eq_isSome_get? m h).trans (Option.isSome_of_mem h')) := by
   simp_to_model [map, Const.get?, contains, getKey] using Const.getValue?_map
 
 theorem get_map [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → γ} {k : α} (h : m.1.WF) {h'} :
+    {f : α → β → γ} {k : α} (h : m.1.WF) {h'} :
     Const.get (m.map f) k h' =
       (f (m.getKey k (contains_of_contains_map m h h'))
         (Const.get m k (contains_of_contains_map m h h'))) := by
   simp_to_model [map, getKey, Const.get, contains] using List.getValue_map
 
 theorem get!_map [EquivBEq α] [LawfulHashable α] [Inhabited γ]
-    {f : (a : α) → β → γ} {k : α} (h : m.1.WF) :
+    {f : α → β → γ} {k : α} (h : m.1.WF) :
     Const.get! (m.map f) k =
       ((get? m k).pmap (fun v h => f (m.getKey k h) v)
         (fun _ h' => (contains_eq_isSome_get? m h).trans (Option.isSome_of_mem h'))).get! := by
   simp_to_model [map, getKey, Const.get!, Const.get?, contains] using List.Const.getValue!_map
 
 theorem getD_map [EquivBEq α] [LawfulHashable α]
-    {f : (a : α) → β → γ} {k : α} {fallback : γ} (h : m.1.WF) :
+    {f : α → β → γ} {k : α} {fallback : γ} (h : m.1.WF) :
     Const.getD (m.map f) k fallback =
       ((get? m k).pmap (fun v h => f (m.getKey k h) v)
         (fun _ h' => (contains_eq_isSome_get? m h).trans (Option.isSome_of_mem h'))).getD fallback := by
   simp_to_model [map, getKey, Const.getD, Const.get?, contains] using List.Const.getValueD_map
 
 theorem toList_map {α : Type u} {m : Raw₀ α fun _ => β}
-    {f : (a : α) → β → γ} :
+    {f : α → β → γ} :
     (Raw.Const.toList (m.map f).1).Perm
       ((Raw.Const.toList m.1).map (fun p => (p.1, f p.1 p.2))) := by
   simp_to_model [map, Const.toList]

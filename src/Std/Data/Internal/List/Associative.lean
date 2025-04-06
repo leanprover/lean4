@@ -351,6 +351,10 @@ theorem containsKey_eq_keys_contains [BEq α] [PartialEquivBEq α] {l : List ((a
   · rfl
   · next k _ l ih => simp [ih, BEq.comm]
 
+theorem containsKey_of_mem_keys [BEq α] [EquivBEq α] {l : List ((a : α) × β a)}
+    {a : α} (h : a ∈ keys l) : containsKey a l :=
+  containsKey_eq_keys_contains.trans (List.elem_eq_true_of_mem h)
+
 @[simp]
 theorem DistinctKeys.nil [BEq α] : DistinctKeys ([] : List ((a : α) × β a)) :=
   ⟨by simp⟩
@@ -1842,6 +1846,28 @@ theorem keys_filter [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {f : (
     have (x : { x // x ∈ keys tl }) : (k == x.val) = False := eq_false <| by
       intro h
       rw [containsKey_congr h, mem_keys_iff_contains.mp x.2] at hl
+      contradiction
+    simp only [this, ↓reduceDIte]
+    split
+    · simp only [keys_cons, ih, List.unattach, List.map_cons, List.map_map, Function.comp_def]
+    · simp only [ih, List.unattach, List.map_map, Function.comp_def]
+
+theorem Const.keys_filter [BEq α] [EquivBEq α] {β : Type v}
+    {l : List ((_ : α) × β)} {f : α → β → Bool} (hl : DistinctKeys l) :
+    (keys (l.filter (fun x => f x.1 x.2))) =
+      (List.filter (fun x => f x.1 (getValue x.1 l (containsKey_of_mem_keys x.2)))
+        (keys l).attach).unattach := by
+  induction l using assoc_induction with
+  | nil => simp
+  | cons k v tl ih =>
+    rw [List.filter_cons]
+    specialize ih hl.tail
+    replace hl := hl.containsKey_eq_false
+    simp only [keys_cons, List.attach_cons, getValue_cons, ↓reduceDIte, cast_eq,
+      List.filter_cons, BEq.refl, List.filter_map, Function.comp_def]
+    have (x : { x // x ∈ keys tl }) : (k == x.val) = False := eq_false <| by
+      intro h
+      rw [containsKey_congr h, containsKey_of_mem_keys x.2] at hl
       contradiction
     simp only [this, ↓reduceDIte]
     split

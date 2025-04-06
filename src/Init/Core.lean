@@ -735,6 +735,18 @@ Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead
 
 recommended_spelling "bne" for "!=" in [bne, «term_!=_»]
 
+/-- `ReflBEq α` says that the `BEq` implementation is reflexive. -/
+class ReflBEq (α) [BEq α] : Prop where
+  /-- Reflexivity for `BEq`. -/
+  refl : (a : α) == a
+
+@[simp]
+theorem BEq.refl [BEq α] [ReflBEq α] {a : α} : a == a :=
+  ReflBEq.refl
+
+theorem beq_of_eq [BEq α] [ReflBEq α] {a b : α} : a = b → a == b
+  | rfl => BEq.refl
+
 /--
 A Boolean equality test coincides with propositional equality.
 
@@ -747,6 +759,9 @@ class LawfulBEq (α : Type u) [BEq α] : Prop where
   eq_of_beq : {a b : α} → a == b → a = b
   /-- `==` is reflexive, that is, `(a == a) = true`. -/
   protected rfl : {a : α} → a == a
+
+instance [BEq α] [LawfulBEq α] : ReflBEq α where
+  refl := LawfulBEq.rfl
 
 export LawfulBEq (eq_of_beq)
 

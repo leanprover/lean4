@@ -23,6 +23,15 @@
       "binaryDir": "${sourceDir}/build/debug"
     },
     {
+      "name": "reldebug",
+      "displayName": "Release with debug info build config",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      },
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/reldebug"
+    },
+    {
       "name": "sanitize",
       "displayName": "Sanitize build config",
       "cacheVariables": {
@@ -54,6 +63,10 @@
       "configurePreset": "debug"
     },
     {
+      "name": "reldebug",
+      "configurePreset": "reldebug"
+    },
+    {
       "name": "sanitize",
       "configurePreset": "sanitize"
     },
@@ -71,6 +84,11 @@
     {
       "name": "debug",
       "configurePreset": "debug",
+      "inherits": "release"
+    },
+    {
+      "name": "reldebug",
+      "configurePreset": "reldebug",
       "inherits": "release"
     },
     {

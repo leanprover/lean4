@@ -23,6 +23,7 @@ File contents: Verification of associative lists
 
 set_option linter.missingDocs true
 set_option autoImplicit false
+set_option Elab.async false
 
 universe u v w
 
@@ -1808,7 +1809,7 @@ theorem getEntry?_eraseKey [BEq α] [PartialEquivBEq α] {l : List ((a : α) × 
   · simp [getEntry?_eraseKey_of_false h, h]
   · simp [getEntry?_eraseKey_of_beq hl h, h]
 
-theorem keys_filterMap [BEq α] {l : List ((a : α) × β a)} {f : (a : α) → β a → Option (γ a)} :
+theorem keys_filterMap' {l : List ((a : α) × β a)} {f : (a : α) → β a → Option (γ a)} :
     keys (l.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩)) =
       keys (l.filter fun p => (f p.1 p.2).isSome) := by
   induction l using assoc_induction
@@ -1825,21 +1826,30 @@ theorem mem_keys_iff_contains [BEq α] [LawfulBEq α] {l : List ((a : α) × β 
     simp only [keys_cons, List.mem_cons, containsKey_cons, Bool.or_eq_true, beq_iff_eq]
     rw [ih, Eq.comm]
 
--- theorem keys_filter [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {f : (a : α) → β a → Bool} :
---    (keys (l.filter (fun x => f x.1 x.2))) =
---      (List.filter (fun x => f x.1 (getValueCast x.1 l (mem_keys_iff_contains.mp x.2)))
---        (keys l).attach).unattach := by
---  induction l using assoc_induction with
---  | nil => simp
---  | cons k v tl ih =>
---    rw [List.filter_cons]
---    by_cases h : f k v = true
---    · simp only [h, ↓reduceIte, keys_cons]
---      sorry
---    · sorry
+theorem keys_filter [BEq α] [LawfulBEq α] {l : List ((a : α) × β a)} {f : (a : α) → β a → Bool}
+    (hl : DistinctKeys l) :
+    (keys (l.filter (fun x => f x.1 x.2))) =
+      (List.filter (fun x => f x.1 (getValueCast x.1 l (mem_keys_iff_contains.mp x.2)))
+        (keys l).attach).unattach := by
+  induction l using assoc_induction with
+  | nil => simp
+  | cons k v tl ih =>
+    rw [List.filter_cons]
+    specialize ih hl.tail
+    replace hl := hl.containsKey_eq_false
+    simp only [keys_cons, List.attach_cons, getValueCast_cons, ↓reduceDIte, cast_eq,
+      List.filter_cons, BEq.refl, List.filter_map, Function.comp_def]
+    have (x : { x // x ∈ keys tl }) : (k == x.val) = False := eq_false <| by
+      intro h
+      rw [containsKey_congr h, mem_keys_iff_contains.mp x.2] at hl
+      contradiction
+    simp only [this, ↓reduceDIte]
+    split
+    · simp only [keys_cons, ih, List.unattach, List.map_cons, List.map_map, Function.comp_def]
+    · simp only [ih, List.unattach, List.map_map, Function.comp_def]
 
 @[simp]
-theorem keys_map [BEq α] {l : List ((a : α) × β a)} {f : (a : α) → β a → γ a} :
+theorem keys_map {l : List ((a : α) × β a)} {f : (a : α) → β a → γ a} :
     keys (l.map fun p => ⟨p.1, f p.1 p.2⟩) = keys l := by
   induction l using assoc_induction <;> simp_all
 
@@ -1847,7 +1857,7 @@ theorem DistinctKeys.filterMap [BEq α] [PartialEquivBEq α] {l : List ((a : α)
     {f : (a : α) → β a → Option (γ a)} :
     DistinctKeys l → DistinctKeys (l.filterMap fun p => (f p.1 p.2).map (⟨p.1, ·⟩)) := by
   apply distinctKeys_of_sublist_keys
-  rw [keys_filterMap, keys_eq_map, keys_eq_map]
+  rw [keys_filterMap', keys_eq_map, keys_eq_map]
   apply Sublist.map
   exact filter_sublist
 
@@ -5077,8 +5087,8 @@ theorem getValue?_map {β : Type v} {γ : Type w} [BEq α] [EquivBEq α]
         (fun _ h => containsKey_eq_isSome_getValue?.trans (Option.isSome_of_mem h)) := by
   simp only [getValue?_eq_getEntry?, getEntry?_map hl, Option.map_map, Function.comp_def,
     getKey, getKey?_eq_getEntry?, Option.get_map, Option.pmap_eq_dmap, Option.dmap_map]
-  conv => enter [2, 2, a, h]; simp only [Option.get_congr h, Option.get_some]
-  simp only [Option.dmap_eq_map]
+  conv => enter [2, 2, a, h]; simp only [h, Option.get_some]
+  rw [Option.dmap_eq_map]
 
 theorem getValue!_map {β : Type v} {γ : Type w} [BEq α] [EquivBEq α] [Inhabited γ]
     {f : (_ : α) → β → γ} {l : List ((_ : α) × β)} (hl : DistinctKeys l) {k : α} :

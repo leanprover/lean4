@@ -15,6 +15,7 @@ File contents: verification of operations on `Raw₀`
 
 set_option linter.missingDocs true
 set_option autoImplicit false
+set_option Elab.async false
 
 open Std.Internal.List
 open Std.Internal
@@ -3385,11 +3386,42 @@ theorem toList_filter
       (m.1.toList.filter (fun p => (f p.1 p.2))) := by
   simp_to_model [filter, toList, Equiv] using List.Perm.rfl
 
---theorem keys_filter [LawfulBEq α] {f : (a : α) → β a → Bool} (h : m.1.WF):
---    (m.filter f).1.keys.Perm
---      (m.1.keys.attach.filter (fun ⟨x,_h⟩ => f x (m.get x ((mem_keys m h).mp _h))) ).unattach := by
---  simp_to_model [keys, filter, Equiv, get]
---  sorry
+theorem _root_.List.Perm.unattach {α : Type u} {p : α → Prop}
+    {l₁ l₂ : List { x // p x }} (h : l₁.Perm l₂) :
+    l₁.unattach.Perm l₂.unattach :=
+  h.map _
+
+theorem _root_.List.pmap_normalize {α : Type u} {β : Type v} {p : α → Prop}
+    (l : List α) (f : (a : α) → p a → β) (h : ∀ x ∈ l, p x) :
+    l.pmap f h = l.pmap (fun a h' => f a (h a h')) (fun _ => id) := by
+  apply List.pmap_congr_left
+  intros; rfl
+
+theorem _root_.List.Perm.pmap' {α : Type u} {β : Type v} {p₁ p₂ : α → Prop}
+    {f₁ : (a : α) → p₁ a → β} {f₂ : (a : α) → p₂ a → β} {l₁ l₂ : List α}
+    {H₁ : ∀ (a : α), a ∈ l₁ → p₁ a} {H₂ : ∀ (a : α), a ∈ l₂ → p₂ a}
+    (hl : l₁.Perm l₂)
+    (hf : ∀ x h h', f₁ x h = f₂ x h' := by intros; rfl) :
+    (List.pmap f₁ l₁ H₁).Perm (List.pmap f₂ l₂ H₂) := by
+  have := List.Perm.pmap f₁ hl (H₁ := H₁) (H₂ := fun a h => H₁ a (hl.mem_iff.mpr h))
+  conv at this => rhs; rw [List.pmap_normalize]; arg 1; ext a h; rw [hf a _ (H₂ a h)]
+  conv => rhs; rw [List.pmap_normalize]
+  exact this
+
+theorem _root_.List.Perm.attach {α : Type u}
+    {l₁ l₂ : List α} (h : l₁.Perm l₂) :
+    l₁.attach.Perm (l₂.attach.map (fun x => ⟨x.1, h.mem_iff.mpr x.2⟩)) := by
+  simp only [List.attach, List.attachWith, List.map_pmap]
+  exact h.pmap'
+
+theorem keys_filter [LawfulBEq α] {f : (a : α) → β a → Bool} (h : m.1.WF):
+    (m.filter f).1.keys.Perm
+      (m.1.keys.attach.filter (fun ⟨x, h'⟩ => f x (m.get x ((mem_keys m h).mp h')))).unattach := by
+  simp_to_model [keys, filter, Equiv, get]
+  rw [List.attach_congr Raw.keys_eq_keys_toListModel]
+  rw [List.keys_filter (Raw.WF.out h).distinct]
+  simp only [List.filter_map, Function.comp_def, List.unattach, List.map_map]
+  rfl
 
 theorem getKey?_filter [LawfulBEq α]
     {f : (a : α) → β a → Bool} {k : α} (h : m.1.WF) :
@@ -3598,7 +3630,7 @@ theorem toList_map
       (m.1.toList.map (fun p => ⟨p.1, f p.1 p.2⟩)) := by
   simp_to_model [map, toList, Equiv] using List.Perm.rfl
 
-omit [Hashable α] in
+omit [BEq α] [Hashable α] in
 theorem keys_map
     {f : (a : α) → β a → γ a} :
     (m.map f).1.keys.Perm

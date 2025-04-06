@@ -14,6 +14,7 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 private def assertNatCast (e : Expr) : GoalM Unit := do
   let_expr NatCast.natCast _ inst a := e | return ()
   let_expr instNatCastInt := inst | return ()
+  trace[grind.debug.cutsat.natCast] "{a}"
   pushNewFact <| mkApp (mkConst ``Int.Linear.natCast_nonneg) a
   discard <| mkForeignVar a .nat
 

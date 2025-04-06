@@ -66,5 +66,6 @@ builtin_initialize registerTraceClass `grind.debug.cutsat.nat
 builtin_initialize registerTraceClass `grind.debug.cutsat.proof
 builtin_initialize registerTraceClass `grind.debug.cutsat.internalize
 builtin_initialize registerTraceClass `grind.debug.cutsat.markTerm
+builtin_initialize registerTraceClass `grind.debug.cutsat.natCast
 
 end Lean

@@ -27,19 +27,22 @@ instance : ToExpr OfNat.Expr where
   toExpr a := OfNat.toExpr a
   toTypeExpr := mkConst ``OfNat.Expr
 
-def Expr.denoteAsIntExpr (ctx : PArray Lean.Expr) (e : Expr) : Lean.Expr :=
-  match e with
-  | .num v    => mkIntLit v
-  | .var i    => mkIntNatCast ctx[i]!
-  | .add a b  => mkIntAdd (denoteAsIntExpr ctx a) (denoteAsIntExpr ctx b)
-  | .mul a b  => mkIntMul (denoteAsIntExpr ctx a) (denoteAsIntExpr ctx b)
-  | .div a b  => mkIntDiv (denoteAsIntExpr ctx a) (denoteAsIntExpr ctx b)
-  | .mod a b  => mkIntMod (denoteAsIntExpr ctx a) (denoteAsIntExpr ctx b)
-
 open Lean.Meta.Grind
 open Lean.Meta.Grind.Arith.Cutsat
 
 open Meta
+
+def Expr.denoteAsIntExpr (ctx : PArray Lean.Expr) (e : Expr) : GoalM Lean.Expr :=
+  shareCommon (go e)
+where
+  go (e : Expr) : Lean.Expr :=
+    match e with
+    | .num v    => mkIntLit v
+    | .var i    => mkIntNatCast ctx[i]!
+    | .add a b  => mkIntAdd (go a) (go b)
+    | .mul a b  => mkIntMul (go a) (go b)
+    | .div a b  => mkIntDiv (go a) (go b)
+    | .mod a b  => mkIntMod (go a) (go b)
 
 partial def toOfNatExpr (e : Lean.Expr) : GoalM Expr := do
   let mkVar (e : Lean.Expr) : GoalM Expr := do
@@ -125,13 +128,13 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 If `e` is of the form `a.denoteAsInt ctx` for some `a` and `ctx`,
 assert that `e` is nonnegative.
 -/
-def assertDenoteAsIntNonneg (e : Expr) : GoalM Unit := do
+def assertDenoteAsIntNonneg (e : Expr) : GoalM Unit := withIncRecDepth do
   if e.isAppOf ``NatCast.natCast then return ()
   let some rhs ← Int.OfNat.ofDenoteAsIntExpr? e |>.run | return ()
   let gen ← getGeneration e
   let ctx ← getForeignVars .nat
   let lhs' : Int.Linear.Expr := .num 0
-  let rhs' ← toLinearExpr (rhs.denoteAsIntExpr ctx) gen
+  let rhs' ← toLinearExpr (← rhs.denoteAsIntExpr ctx) gen
   let p := lhs'.sub rhs' |>.norm
   trace[grind.debug.cutsat.nat] "{← p.pp}"
   let c := { p, h := .denoteAsIntNonneg rhs rhs' : LeCnstr }

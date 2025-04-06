@@ -243,8 +243,8 @@ private def processNewNatEq (a b : Expr) : GoalM Unit := do
   let (lhs, rhs) ← Int.OfNat.toIntEq a b
   let gen ← getGeneration a
   let ctx ← getForeignVars .nat
-  let lhs' ← toLinearExpr (lhs.denoteAsIntExpr ctx) gen
-  let rhs' ← toLinearExpr (rhs.denoteAsIntExpr ctx) gen
+  let lhs' ← toLinearExpr (← lhs.denoteAsIntExpr ctx) gen
+  let rhs' ← toLinearExpr (← rhs.denoteAsIntExpr ctx) gen
   let p := lhs'.sub rhs' |>.norm
   let c := { p, h := .coreNat a b lhs rhs lhs' rhs' : EqCnstr }
   trace[grind.debug.cutsat.nat] "{← c.pp}"
@@ -290,8 +290,8 @@ private def processNewNatDiseq (a b : Expr) : GoalM Unit := do
   let (lhs, rhs) ← Int.OfNat.toIntEq a b
   let gen ← getGeneration a
   let ctx ← getForeignVars .nat
-  let lhs' ← toLinearExpr (lhs.denoteAsIntExpr ctx) gen
-  let rhs' ← toLinearExpr (rhs.denoteAsIntExpr ctx) gen
+  let lhs' ← toLinearExpr (← lhs.denoteAsIntExpr ctx) gen
+  let rhs' ← toLinearExpr (← rhs.denoteAsIntExpr ctx) gen
   let p := lhs'.sub rhs' |>.norm
   let c := { p, h := .coreNat a b lhs rhs lhs' rhs' : DiseqCnstr }
   trace[grind.debug.cutsat.nat] "{← c.pp}"

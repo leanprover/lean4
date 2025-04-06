@@ -2660,17 +2660,6 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   rw [getElem_append] -- Why does this not work with `simp [getElem_append]`?
   simp [show i < w by omega]
 
-theorem toNat_append_lt {m n : Nat} (x : BitVec m) (y : BitVec n) :
-    x.toNat <<< n ||| y.toNat < 2 ^ (m + n) := by
-  have hnLe : 2^n ≤ 2 ^(m + n) := by
-    rw [Nat.pow_add]
-    exact Nat.le_mul_of_pos_left (2 ^ n) (Nat.two_pow_pos m)
-  apply Nat.or_lt_two_pow
-  · have := Nat.two_pow_pos n
-    rw [Nat.shiftLeft_eq, Nat.pow_add, Nat.mul_lt_mul_right]
-    <;> omega
-  · omega
-
 theorem toInt_append {x : BitVec n} {y : BitVec m} :
     (x ++ y).toInt = if n == 0 then y.toInt else x.toInt * (2 ^ m) + y.toNat := by
   by_cases n0 : n = 0
@@ -2704,8 +2693,23 @@ theorem toInt_append {x : BitVec n} {y : BitVec m} :
     (0#m ++ x).toInt = if m = 0 then x.toInt else x.toNat := by
   simp [toInt_append]
 
+/--
+Show that `(x.toNat <<< n) ||| y.toNat` is within bounds of `BitVec (m + n)`.
+-/
+theorem toNat_shiftLeft_or_toNat_lt_two_pow_add {m n : Nat} (x : BitVec m) (y : BitVec n) :
+    x.toNat <<< n ||| y.toNat < 2 ^ (m + n) := by
+  have hnLe : 2^n ≤ 2 ^(m + n) := by
+    rw [Nat.pow_add]
+    exact Nat.le_mul_of_pos_left (2 ^ n) (Nat.two_pow_pos m)
+  apply Nat.or_lt_two_pow
+  · have := Nat.two_pow_pos n
+    rw [Nat.shiftLeft_eq, Nat.pow_add, Nat.mul_lt_mul_right]
+    <;> omega
+  · omega
+
 @[simp] theorem toFin_append {x : BitVec m} {y : BitVec n} :
-    (x ++ y).toFin = @Fin.mk (2^(m+n)) (x.toNat <<< n ||| y.toNat) (toNat_append_lt x y) := by
+    (x ++ y).toFin =
+      @Fin.mk (2^(m+n)) (x.toNat <<< n ||| y.toNat) (toNat_shiftLeft_or_toNat_lt_two_pow_add x y) := by
   ext
   simp
 

@@ -152,8 +152,8 @@ def propagateNatLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   let some (lhs, rhs) ← Int.OfNat.toIntLe? e | return ()
   let gen ← getGeneration e
   let ctx ← getForeignVars .nat
-  let lhs' ← toLinearExpr (lhs.denoteAsIntExpr ctx) gen
-  let rhs' ← toLinearExpr (rhs.denoteAsIntExpr ctx) gen
+  let lhs' ← toLinearExpr (← lhs.denoteAsIntExpr ctx) gen
+  let rhs' ← toLinearExpr (← rhs.denoteAsIntExpr ctx) gen
   let p := lhs'.sub rhs' |>.norm
   trace[grind.debug.cutsat.nat] "{← p.pp}"
   let c ← if eqTrue then

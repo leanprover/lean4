@@ -2679,7 +2679,7 @@ theorem toInt_append {x : BitVec n} {y : BitVec m} :
   · by_cases m0 : m = 0
     · subst m0
       simp [BitVec.eq_nil y, n0]
-    · simp [m0, n0]
+    · simp only [beq_iff_eq, n0, ↓reduceIte]
       by_cases x.msb
       case pos h =>
         rw [toInt_eq_msb_cond]

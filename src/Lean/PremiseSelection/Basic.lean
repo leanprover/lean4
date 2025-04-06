@@ -78,10 +78,10 @@ section BlackList
 /-- Premises from a module whose name has one of the following components are not retrieved. -/
 builtin_initialize moduleBlackListExt : SimplePersistentEnvExtension String (List String) ←
   let initialBlackList := [
-      "Aesop", "Auto", "Cli", "CodeAction", "DocGen4", "Duper", "ImportGraph", "Lake", "Lean",
-      "LeanSearchClient", "Linter", "Mathport", "MD4Lean", "Plausible", "ProofWidgets", "Qq",
-      "QuerySMT", "Tactic", "TacticExtra", "Test", "Testing", "UnicodeBasic", "Util"
-    ]
+    "Aesop", "Auto", "Cli", "CodeAction", "DocGen4", "Duper", "ImportGraph", "Lake", "Lean",
+    "LeanSearchClient", "Linter", "Mathport", "MD4Lean", "Plausible", "ProofWidgets", "Qq",
+    "QuerySMT", "Tactic", "TacticExtra", "Test", "Testing", "UnicodeBasic", "Util"
+  ]
   registerSimplePersistentEnvExtension {
     addEntryFn := (·.cons)
     addImportedFn := mkStateFromImportedEntries (·.cons) initialBlackList

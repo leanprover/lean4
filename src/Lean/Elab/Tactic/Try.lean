@@ -492,10 +492,45 @@ where
       else
         throwError "`attempt_all` failed"
 
+private partial def evalSuggestDefault (tac : TSyntax `tactic) : TryTacticM (TSyntax `tactic) := do
+  let kind := tac.raw.getKind
+  match (← getEvalFns kind) with
+  | [] => evalSuggestAtomic tac -- lift regular tactic
+  | evalFns => eval (← Tactic.saveState) evalFns #[]
+where
+  throwExs (failures : Array EvalTacticFailure) : TryTacticM (TSyntax `tactic) := do
+    if h : 0 < failures.size  then
+      let fail := failures[failures.size - 1]
+      fail.state.restore (restoreInfo := true)
+      throw fail.exception
+    else
+      throwErrorAt tac "unexpected syntax {indentD tac}"
+
+  eval (s : SavedState) (evalFns : List _) (failures : Array EvalTacticFailure) : TryTacticM (TSyntax `tactic) := do
+    match evalFns with
+    | [] => throwExs failures
+    | evalFn::evalFns =>
+      try
+        withTheReader Tactic.Context ({ · with elaborator := evalFn.declName }) do
+          evalFn.value tac
+      catch ex => match ex with
+      | .error .. =>
+        let failures := failures.push ⟨ex, ← Tactic.saveState⟩
+        s.restore (restoreInfo := true); eval s evalFns failures
+      | .internal id _ =>
+        if id == unsupportedSyntaxExceptionId then
+          s.restore (restoreInfo := true); eval s evalFns failures
+        else if id == abortTacticExceptionId then
+          let failures := failures.push ⟨ex, ← Tactic.saveState⟩
+          s.restore (restoreInfo := true); eval s evalFns failures
+        else
+          throw ex
+
 -- `evalSuggest` implementation
 @[export lean_eval_suggest_tactic]
 private partial def evalSuggestImpl : TryTactic := fun tac => do
   trace[try.debug] "{tac}"
+  -- TODO: Implement builtin cases using `[builtin_try_tactic]` after update-stage0
   match tac with
   | `(tactic| $tac1 <;> $tac2) => evalSuggestChain tac1 tac2
   | `(tactic| first $[| $tacs]*) => evalSuggestFirst tacs
@@ -514,7 +549,7 @@ private partial def evalSuggestImpl : TryTactic := fun tac => do
       else if k == ``Parser.Tactic.exact? then
         evalSuggestExact
       else
-        evalSuggestAtomic tac
+        evalSuggestDefault tac
       if (← read).terminal then
         unless (← getGoals).isEmpty do
           throwError "unsolved goals"

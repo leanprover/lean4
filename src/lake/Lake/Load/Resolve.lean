@@ -77,7 +77,7 @@ abbrev DepStackT m := CallStackT Name m
 
 /-- Log dependency cycle and error. -/
 @[specialize] def depCycleError [MonadError m] (cycle : Cycle Name) : m α :=
-  error s!"dependency cycle detected:\n{"\n".intercalate <| cycle.map (s!"  {·}")}"
+  error s!"dependency cycle detected:\n{formatCycle cycle}"
 
 instance [Monad m] [MonadError m] : MonadCycleOf Name (DepStackT m) where
   throwCycle := depCycleError

@@ -544,16 +544,17 @@ private def getOptPreTacOfOptInductionAlts (optInductionAlts : Syntax) : Syntax 
 Returns true if the `Lean.Parser.Tactic.inductionAlt` either has more than one alternative
 or has no RHS.
 -/
-private def isMultiAlt (alt : Syntax) : Bool :=
-  alt[0].getNumArgs > 1 || alt[1].getNumArgs == 0
+private def shouldExpandAlt (alt : Syntax) : Bool :=
+  alt[0].getNumArgs > 1 || (1 < alt.getNumArgs && alt[1].getNumArgs == 0)
 
 /--
 Returns `some #[alt_1, ..., alt_n]` if `alt` has multiple LHSs or if `alt` has no RHS.
+If there is no RHS, it is filled in with a hole.
 -/
-private def expandMultiAlt? (alt : Syntax) : Option (Array Syntax) := Id.run do
-  if isMultiAlt alt then
+private def expandAlt? (alt : Syntax) : Option (Array Syntax) := Id.run do
+  if shouldExpandAlt alt then
     let alt :=
-      if alt[1].getNumArgs == 0 then
+      if 1 < alt.getNumArgs && alt[1].getNumArgs == 0 then
         alt.setArg 1 <| mkNullNode #[mkAtomFrom alt "=>", mkHole alt]
       else
         alt
@@ -566,17 +567,17 @@ Given `inductionAlts` of the form
 ```
 syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)*)
 ```
-Return `some inductionAlts'` if one of the alternatives have multiple LHSs, in the new `inductionAlts'`
-all alternatives have a single LHS.
+Return `some inductionAlts'` if one of the alternatives has multiple LHSs or no RHS.
+In the new `inductionAlts'` all alternatives have a single LHS.
 
 Remark: the `RHS` of alternatives with multi LHSs is copied.
 -/
 private def expandInductionAlts? (inductionAlts : Syntax) : Option Syntax := Id.run do
   let alts := getAltsOfInductionAlts inductionAlts
-  if alts.any isMultiAlt then
+  if alts.any shouldExpandAlt then
     let mut altsNew := #[]
     for alt in alts do
-      if let some alt' := expandMultiAlt? alt then
+      if let some alt' := expandAlt? alt then
         altsNew := altsNew ++ alt'
       else
         altsNew := altsNew.push alt

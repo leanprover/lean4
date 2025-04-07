@@ -42,6 +42,7 @@ adds entry `f ↦ e` to `appMap`. Recall that `appMap` is a multi-map.
 -/
 private def updateAppMap (e : Expr) : GoalM Unit := do
   let key := e.toHeadIndex
+  trace_goal[grind.debug.appMap] "{e} => {repr key}"
   modify fun s => { s with
     appMap := if let some es := s.appMap.find? key then
       s.appMap.insert key (e :: es)
@@ -168,13 +169,16 @@ private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Un
     modify fun s => { s with ematch.thmMap := thmMap }
     let appMap := (← get).appMap
     for thm in thms do
+      trace[grind.debug.ematch.activate] "`{fName}` => `{thm.origin.key}`"
       unless (← get).ematch.thmMap.isErased thm.origin do
         let symbols := thm.symbols.filter fun sym => !appMap.contains sym
         let thm := { thm with symbols }
         match symbols with
-        | [] => activateTheorem thm generation
+        | [] =>
+          trace_goal[grind.debug.ematch.activate] "`{thm.origin.key}`"
+          activateTheorem thm generation
         | _ =>
-          trace_goal[grind.ematch] "reinsert `{thm.origin.key}`"
+          trace_goal[grind.debug.ematch.activate] "reinsert `{thm.origin.key}`"
           modify fun s => { s with ematch.thmMap := s.ematch.thmMap.insert thm }
 
 /--

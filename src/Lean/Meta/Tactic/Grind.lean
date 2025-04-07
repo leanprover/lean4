@@ -74,5 +74,7 @@ builtin_initialize registerTraceClass `grind.debug.mbtc
 builtin_initialize registerTraceClass `grind.debug.ematch
 builtin_initialize registerTraceClass `grind.debug.proveEq
 builtin_initialize registerTraceClass `grind.debug.pushNewFact
+builtin_initialize registerTraceClass `grind.debug.ematch.activate
+builtin_initialize registerTraceClass `grind.debug.appMap
 
 end Lean

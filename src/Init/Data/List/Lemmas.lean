@@ -829,9 +829,15 @@ theorem getElem_length_sub_one_eq_getLast {l : List α} (h : l.length - 1 < l.le
     l[l.length - 1] = getLast l (by cases l; simp at h; simp) := by
   rw [← getLast_eq_getElem]
 
+@[simp] theorem getLast_cons_cons {a : α} {l : List α} :
+    getLast (a :: b :: l) (by simp) = getLast (b :: l) (by simp) := by
+  rfl
+
 theorem getLast_cons {a : α} {l : List α} : ∀ (h : l ≠ nil),
     getLast (a :: l) (cons_ne_nil a l) = getLast l h := by
-  induction l <;> intros; {contradiction}; rfl
+  induction l <;> intros
+  · contradiction
+  · rfl
 
 theorem getLast_eq_getLastD {a l} (h) : @getLast α (a::l) h = getLastD l a := by
   cases l <;> rfl

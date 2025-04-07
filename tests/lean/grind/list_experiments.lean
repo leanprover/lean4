@@ -590,7 +590,7 @@ theorem replicate_beq_replicate [BEq α] {a b : α} {n : Nat} :
   | zero => grind
   | succ n =>
     rw [replicate_succ, replicate_succ, cons_beq_cons, replicate_beq_replicate]
-    rw [Bool.eq_iff_iff]
+    rw [Bool.eq_iff_iff] -- FIXME, why do we need this? reported in #7850
     grind
 
 theorem reflBEq_iff [BEq α] : ReflBEq (List α) ↔ ReflBEq α := by
@@ -642,30 +642,47 @@ theorem isEqv_eq [DecidableEq α] {l₁ l₂ : List α} : l₁.isEqv l₂ (· ==
 
 /-! ### getLast -/
 
+theorem _root_.List.length_pos_of_ne_nil {l : List α} (h : l ≠ []) : 0 < l.length := by
+  cases l <;> simp_all
+
+attribute [grind] List.length_pos_of_ne_nil
+
+attribute [grind] List.getLast_singleton
+
 theorem getLast_eq_getElem : ∀ {l : List α} (h : l ≠ []),
-    getLast l h = l[l.length - 1]'(by
-      match l with
-      | [] => contradiction
-      | a :: l => exact Nat.le_refl _)
-  | [_], _ => rfl
+    getLast l h = l[l.length - 1]'(by grind)
+  | [_], _ => rfl -- FIXME by grind -- Can't see that [head].length - 1 = 0?
   | _ :: _ :: _, _ => by
+    -- FIXME?
     simp [getLast, Nat.succ_sub_succ, getLast_eq_getElem]
 
+attribute [grind] List.getLast_eq_getElem
+
 theorem getElem_length_sub_one_eq_getLast {l : List α} (h : l.length - 1 < l.length) :
-    l[l.length - 1] = getLast l (by cases l; simp at h; simp) := by
-  rw [← getLast_eq_getElem]
+    l[l.length - 1] = getLast l (by cases l; simp at h; simp) := by grind
+
+@[grind, simp] theorem getLast_cons_cons {a : α} {l : List α} :
+    getLast (a :: b :: l) (by simp) = getLast (b :: l) (by simp) := by
+  rfl
 
 theorem getLast_cons {a : α} {l : List α} : ∀ (h : l ≠ nil),
     getLast (a :: l) (cons_ne_nil a l) = getLast l h := by
-  induction l <;> intros; {contradiction}; rfl
+  induction l <;> grind
 
+attribute [grind] List.getLastD_eq_getLast?
+attribute [grind] List.getLast?_nil
+
+attribute [grind] List.getLast?_cons
+attribute [grind] Option.getD_some
+attribute [grind] Option.getD_none
+
+-- FIXME?
 theorem getLast_eq_getLastD {a l} (h) : @getLast α (a::l) h = getLastD l a := by
   cases l <;> rfl
 
-theorem getLastD_eq_getLast? {a l} : @getLastD α l a = (getLast? l).getD a := by
-  cases l <;> rfl
+theorem getLastD_eq_getLast? {a l} : @getLastD α l a = (getLast? l).getD a := by grind
 
-theorem getLast_singleton {a} (h) : @getLast α [a] h = a := rfl
+theorem getLast_singleton {a} (h) : @getLast α [a] h = a := by grind
 
 theorem getLast!_cons_eq_getLastD [Inhabited α] : @getLast! α _ (a::l) = getLastD l a := by
   simp [getLast!, getLast_eq_getLastD]
@@ -689,11 +706,11 @@ theorem getElem_cons_length {x : α} {xs : List α} {i : Nat} (h : i = xs.length
 
 /-! ### getLast? -/
 
-theorem getLast?_singleton {a : α} : getLast? [a] = a := rfl
+theorem getLast?_singleton {a : α} : getLast? [a] = a := by grind
 
--- The `l : List α` argument is intentionally explicit.
-theorem getLast?_eq_getLast : ∀ {l : List α} h, l.getLast? = some (l.getLast h)
-  | [], h => nomatch h rfl
+theorem getLast?_eq_getLast {l : List α} h : l.getLast? = some (l.getLast h) :=
+  match l, h with
+  | [], h => by grind
   | _ :: _, _ => rfl
 
 theorem getLast?_eq_getElem? : ∀ {l : List α}, l.getLast? = l[l.length - 1]?
@@ -812,15 +829,21 @@ theorem head?_concat_concat : (l ++ [a, b]).head? = (l ++ [a]).head? := by
 theorem headD_eq_head?_getD {l : List α} : headD l a = (head? l).getD a := by
   cases l <;> simp [headD]
 
+attribute [grind] List.headD_eq_head?_getD
+
 /-! ### tailD -/
 
 /-- `simp` unfolds `tailD` in terms of `tail?` and `Option.getD`. -/
 theorem tailD_eq_tail? {l l' : List α} : tailD l l' = (tail? l).getD l' := by
   cases l <;> rfl
 
+attribute [grind] List.tailD_eq_tail?
+
 /-! ### tail -/
 
-theorem length_tail {l : List α} : l.tail.length = l.length - 1 := by cases l <;> rfl
+attribute [grind] List.length_tail
+
+theorem length_tail {l : List α} : l.tail.length = l.length - 1 := by grind
 
 theorem tail_eq_tailD {l : List α} : l.tail = tailD l [] := by cases l <;> rfl
 
@@ -882,13 +905,15 @@ theorem getLast?_tail {l : List α} : (tail l).getLast? = if l.length = 1 then n
 
 /-! ### map -/
 
+attribute [grind] List.map_nil List.map_cons
+
 theorem length_map {as : List α} (f : α → β) : (as.map f).length = as.length := by
-  induction as with
-  | nil => simp [List.map]
-  | cons _ as ih => simp [List.map, ih]
+  fun_induction List.map <;> grind
+
+-- attribute [grind] Option.map_none
 
 theorem getElem?_map {f : α → β} : ∀ {l : List α} {i : Nat}, (map f l)[i]? = Option.map f l[i]?
-  | [], _ => rfl
+  | [], _ => by grind
   | _ :: _, 0 => by simp
   | _ :: l, i+1 => by simp [getElem?_map]
 

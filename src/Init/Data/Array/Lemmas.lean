@@ -3758,11 +3758,6 @@ theorem getElem?_replace {xs : Array α} {i : Nat} :
   simp only [List.replace_toArray, List.getElem?_toArray, List.getElem?_replace, beq_iff_eq,
     take_eq_extract, List.extract_toArray, List.extract_eq_drop_take, Nat.sub_zero, List.drop_zero,
     mem_toArray]
-  split <;> rename_i h
-  · rw (occs := [2]) [if_pos]
-    simpa using h
-  · rw [if_neg]
-    simpa using h
 
 theorem getElem?_replace_of_ne {xs : Array α} {i : Nat} (h : xs[i]? ≠ some a) :
     (xs.replace a b)[i]? = xs[i]? := by

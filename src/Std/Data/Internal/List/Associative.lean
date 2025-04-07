@@ -4805,7 +4805,7 @@ theorem getKeyD_filterMap [BEq α] [LawfulBEq α]
 theorem getKey?_filter [BEq α] [LawfulBEq α]
     {f : (a : α) → β a → Bool}
     {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
-    getKey? k (l.filter fun p => (f p.1 p.2)) =
+    getKey? k (l.filter fun p => f p.1 p.2) =
       (getKey? k l).pfilter (fun x h =>
       (f x (getValueCast x l (containsKey_of_getKey?_eq_some (Option.mem_iff.mp h))))) := by
   rw [← List.filterMap_eq_filter, Option.guard_eq_map', getKey?_filterMap hl (f := fun a b =>
@@ -4818,13 +4818,37 @@ theorem getKey?_filter [BEq α] [LawfulBEq α]
   · rename_i h'
     simp [h']
 
+theorem getKey?_filter_key [BEq α] [EquivBEq α]
+    {f : α → Bool} {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
+    getKey? k (l.filter fun p => f p.1) = (getKey? k l).filter f := by
+  induction l using assoc_induction with
+  | nil => rfl
+  | cons k' v t ih =>
+    specialize ih hl.tail
+    simp only [getKey?_cons, List.filter_cons]
+    split
+    · simp only [getKey?_cons, ih, cond_eq_if, apply_ite (Option.filter f), Option.filter_some,
+        ‹f k'›, ↓reduceIte]
+    · replace hl := hl.containsKey_eq_false
+      simp only [ih, cond_eq_if]
+      split
+      · rw [containsKey_congr ‹_›] at hl
+        simp only [getKey?_eq_none hl, Option.filter_none, Option.filter_some, eq_false ‹_›,
+          ↓reduceIte]
+      · rfl
+
 theorem getKey!_filter [BEq α] [LawfulBEq α] [Inhabited α]
     {f : (a : α) → β a → Bool}
     {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
-    getKey! k (l.filter fun p => (f p.1 p.2)) =
+    getKey! k (l.filter fun p => f p.1 p.2) =
       ((getKey? k l).pfilter (fun x h =>
       (f x (getValueCast x l (containsKey_of_getKey?_eq_some (Option.mem_iff.mp h)))))).get! := by
   simp [getKey!_eq_getKey?, getKey?_filter hl]
+
+theorem getKey!_filter_key [BEq α] [EquivBEq α] [Inhabited α]
+    {f : α → Bool} {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :
+    getKey! k (l.filter fun p => f p.1) = ((getKey? k l).filter f).get! := by
+  simp [getKey!_eq_getKey?, getKey?_filter_key hl]
 
 theorem getKeyD_filter [BEq α] [LawfulBEq α]
     {f : (a : α) → β a → Bool}
@@ -4833,6 +4857,11 @@ theorem getKeyD_filter [BEq α] [LawfulBEq α]
       ((getKey? k l).pfilter (fun x h =>
       (f x (getValueCast x l (containsKey_of_getKey?_eq_some (Option.mem_iff.mp h)))))).getD fallback := by
   simp [getKeyD_eq_getKey?, getKey?_filter hl]
+
+theorem getKeyD_filter_key [BEq α] [EquivBEq α]
+    {f : α → Bool} {l : List ((a : α) × β a)} {k fallback : α} (hl : DistinctKeys l) :
+    getKeyD k (l.filter fun p => f p.1) fallback = ((getKey? k l).filter f).getD fallback := by
+  simp [getKeyD_eq_getKey?, getKey?_filter_key hl]
 
 theorem getKey?_map [BEq α] [EquivBEq α] {f : (a : α) → β a → γ a}
     {l : List ((a : α) × β a)} {k : α} (hl : DistinctKeys l) :

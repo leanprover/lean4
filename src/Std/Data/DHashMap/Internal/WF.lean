@@ -1065,6 +1065,21 @@ theorem wf_filterMap₀ [BEq α] [Hashable α] {m : Raw₀ α β} (h : m.1.WF)
     {f : (a : α) → β a → Option (δ a)} : (m.filterMap f).1.WF :=
   .wf (Raw₀.filterMap f ⟨m, h.size_buckets_pos⟩).2 (wfImp_filterMap (Raw.WF.out h))
 
+theorem filterMap_eq_filter {m : Raw₀ α β} {f : (a : α) → β a → Bool} :
+    m.filterMap (fun k => Option.guard (fun v => f k v)) = m.filter f := by
+  rw [filter_eq_filterₘ, filterMap_eq_filterMapₘ, filterₘ, filterMapₘ]
+  simp only [AssocList.filterMap_eq_filter]
+
+theorem filterMap_eq_map [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
+    {γ : α → Type w} (m : Raw₀ α β) (f : (a : α) → β a → γ a) (h : m.1.WF) :
+    m.filterMap (fun k v => Option.some (f k v)) = m.map f := by
+  rw [map_eq_mapₘ, filterMap_eq_filterMapₘ, mapₘ, filterMapₘ]
+  simp only [AssocList.filterMap_eq_map, withComputedSize]
+  simp only [computeSize_eq, Subtype.mk.injEq, Raw.mk.injEq, and_true]
+  rw [(toListModel_updateAllBuckets (f := fun a => a.map f)
+    AssocList.toList_map (by simp)).length_eq]
+  rw [(Raw.WF.out h).size_eq, List.length_map]
+
 /-! # `mapₘ` -/
 
 theorem toListModel_mapₘ {m : Raw₀ α β} {f : (a : α) → β a → δ a} :

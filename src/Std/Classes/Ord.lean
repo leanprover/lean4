@@ -379,7 +379,7 @@ instance [LawfulEqCmp cmp] [LawfulBEq α] :
   compare_eq_iff_beq := compare_eq_iff_eq.trans beq_iff_eq.symm
 
 theorem LawfulBEqCmp.equivBEq [inst : LawfulBEqCmp cmp] [TransCmp cmp] : EquivBEq α where
-  refl := inst.compare_eq_iff_beq.mp ReflCmp.compare_self
+  rfl := inst.compare_eq_iff_beq.mp ReflCmp.compare_self
   symm := by
     simp only [← inst.compare_eq_iff_beq]
     exact OrientedCmp.eq_symm
@@ -447,7 +447,7 @@ theorem eq_beqOfOrd_of_lawfulBEqOrd [Ord α] (inst : BEq α) [instLawful : Lawfu
 theorem equivBEq_of_transOrd [Ord α] [TransOrd α] : EquivBEq α where
   symm {a b} h := by simp_all [OrientedCmp.eq_comm]
   trans h₁ h₂ := by simp_all only [beq_eq, beq_iff_eq]; exact TransCmp.eq_trans h₁ h₂
-  refl := by simp only [beq_eq, beq_iff_eq]; exact compare_self
+  rfl := by simp only [beq_eq, beq_iff_eq]; exact compare_self
 
 theorem lawfulBEq_of_lawfulEqOrd [Ord α] [LawfulEqOrd α] : LawfulBEq α where
   eq_of_beq hbeq := by simp_all

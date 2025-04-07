@@ -3321,6 +3321,11 @@ theorem toList_filter
     (m.filter f).1.toList.Perm (m.1.toList.filter (fun p => f p.1 p.2)) := by
   simp_to_model [filter, toList, Equiv] using List.Perm.rfl
 
+theorem toList_filter_key
+    {f : α → Bool} :
+    (m.filter fun a _ => f a).1.toList.Perm (m.1.toList.filter (fun p => f p.1)) := by
+  simp [toList_filter]
+
 theorem keys_filter_key {f : α → Bool} :
     (m.filter fun k _ => f k).1.keys.Perm (m.1.keys.filter f) := by
   simp_to_model [keys, filter]
@@ -3368,10 +3373,20 @@ theorem contains_of_contains_filter [EquivBEq α] [LawfulHashable α]
     (m.filter f).contains k = true → m.contains k = true := by
   simp_to_model [filter, contains] using containsKey_of_containsKey_filter
 
+theorem contains_of_contains_filter_key [EquivBEq α] [LawfulHashable α]
+    {f : α → Bool} {k : α} (h : m.1.WF) :
+    (m.filter fun a _ => f a).contains k = true → m.contains k = true := by
+  apply contains_of_contains_filter _ h
+
 theorem size_filter_le_size [EquivBEq α] [LawfulHashable α]
     {f : (a : α) → β a → Bool} (h : m.1.WF) :
     (m.filter f).1.size ≤ m.1.size := by
   simp_to_model [filter, size] using List.length_filter_le
+
+theorem size_filter_key_le_size [EquivBEq α] [LawfulHashable α]
+    {f : α → Bool} (h : m.1.WF) :
+    (m.filter fun a _ => f a).1.size ≤ m.1.size := by
+  simp [size_filter_le_size, h]
 
 theorem size_filter_eq_size_iff [LawfulBEq α]
     {f : (a : α) → β a → Bool} (h : m.1.WF) :
@@ -3403,6 +3418,27 @@ theorem getD_filter [LawfulBEq α]
     {f : (a : α) → β a → Bool} {k : α} {fallback : β k} (h : m.1.WF) :
     (m.filter f).getD k fallback = ((m.get? k).filter (f k)).getD fallback := by
   simp_to_model [filter, getD, get?] using List.getValueCastD_filter
+
+theorem get?_filter_key [LawfulBEq α]
+    {f : α → Bool} {k : α} (h : m.1.WF) :
+    (m.filter fun a _ => f a).get? k = (m.get? k).filter (fun _ => f k) := by
+  simp [get?_filter, h]
+
+theorem get_filter_key [LawfulBEq α]
+    {f : α → Bool} {k : α} (h : m.1.WF) {h'} :
+    (m.filter fun a _ => f a).get k h' =
+      m.get k (contains_of_contains_filter m h h') := by
+  simp [get_filter, h]
+
+theorem get!_filter_key [LawfulBEq α]
+    {f : α → Bool} {k : α} [Inhabited (β k)] (h : m.1.WF) :
+    (m.filter fun a _ => f a).get! k = ((m.get? k).filter (fun _ => f k)).get! := by
+  simp [h, get!_filter]
+
+theorem getD_filter_key [LawfulBEq α]
+    {f : α → Bool} {k : α} {fallback : β k} (h : m.1.WF) :
+    (m.filter fun a _ => f a).getD k fallback = ((m.get? k).filter (fun _ =>f k)).getD fallback := by
+  simp [h, getD_filter]
 
 theorem keys_filter [LawfulBEq α] {f : (a : α) → β a → Bool} (h : m.1.WF) :
     (m.filter f).1.keys.Perm

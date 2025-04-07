@@ -2661,7 +2661,7 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   simp [show i < w by omega]
 
 theorem toInt_append {x : BitVec n} {y : BitVec m} :
-    (x ++ y).toInt = if n == 0 then y.toInt else x.toInt * (2 ^ m) + y.toNat := by
+    (x ++ y).toInt = if n == 0 then y.toInt else (2 ^ m) * x.toInt + y.toNat := by
   by_cases n0 : n = 0
   · subst n0
     simp [BitVec.eq_nil x, BitVec.toInt]
@@ -2672,14 +2672,18 @@ theorem toInt_append {x : BitVec n} {y : BitVec m} :
       by_cases x.msb
       case pos h =>
         rw [toInt_eq_msb_cond]
-        simp only [toInt_eq_msb_cond, show ((x ++ y).msb = true) by simp [msb_append, n0, h], ↓reduceIte,
-          toNat_append, h, Int.sub_mul, Nat.pow_add, ← Nat.shiftLeft_eq]
-        rw_mod_cast [← Nat.shiftLeft_add_eq_or_of_lt (by omega)]
+        simp only [show ((x ++ y).msb = true) by simp [msb_append, n0, h], ↓reduceIte, toNat_append,
+          Nat.pow_add, ← Nat.shiftLeft_eq, toInt_eq_msb_cond, h]
+        rw_mod_cast [← Nat.shiftLeft_add_eq_or_of_lt (by omega), Nat.shiftLeft_eq, Nat.shiftLeft_eq,
+          Nat.mul_comm, Int.mul_sub]
+        norm_cast
+        rw [Int.natCast_add, Nat.mul_comm (n := 2 ^ n)]
         omega
       case neg h =>
         rw [Bool.not_eq_true] at h
         rw [toInt_eq_toNat_of_msb h, toInt_eq_toNat_of_msb (by simp [msb_append, n0, h])]
-        rw_mod_cast [toNat_append, ← Nat.shiftLeft_add_eq_or_of_lt (by omega), Nat.shiftLeft_eq]
+        rw_mod_cast [toNat_append, ← Nat.shiftLeft_add_eq_or_of_lt (by omega), Nat.shiftLeft_eq,
+          Nat.mul_comm]
 
 @[simp] theorem toInt_append_zero {n m : Nat} {x : BitVec n} :
     (x ++ 0#m).toInt = x.toInt * (2 ^ m) := by

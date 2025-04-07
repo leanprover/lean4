@@ -595,6 +595,21 @@ def mulRec (x y : BitVec w) (s : Nat) : BitVec w :=
   | 0 => cur
   | s + 1 => mulRec x y s + cur
 
+def uppcRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
+  match s with
+  | 0 => x.msb
+  | i + 1 =>  x[w - (i + 1) - 1] && uppcRec x y i (by omega)
+
+def aandRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
+  match s with
+  | 0 => true
+  | i + 1 => y[i + 1] && uppcRec x y i (by omega)
+
+def resRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
+  match s with
+  | 0 => false
+  | i + 1 => uppcRec x y i (by omega) && aandRec x y (i + 1) (by omega)
+
 theorem mulRec_zero_eq (x y : BitVec w) :
     mulRec x y 0 = if y.getLsbD 0 then x else 0 := by
   simp [mulRec]

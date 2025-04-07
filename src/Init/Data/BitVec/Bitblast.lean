@@ -2311,6 +2311,10 @@ def resRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
 -- #eval resRec (2#3) (3#3) 2 (by omega) false
 -- #eval resRec (6#3) (5#3) 2 (by omega) true
 
+theorem fastUmulOverflow (x y : BitVec w) (hw : 0 < w) :
+    umulOverflow x y = (((zeroExtend (w + 1) x) * (zeroExtend (w + 1) y))[w] || resRec x y (w - 1) (by omega)) := by
+  sorry
+
 
 /-- Heuristically, `y <<< x` is much larger than `x`,
 and hence low bits of `y <<< x`. Thus, `(y <<< x) + x = (y <<< x) ||| x.` -/

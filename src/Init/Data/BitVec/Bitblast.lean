@@ -1715,6 +1715,295 @@ theorem toInt_sdiv (a b : BitVec w) : (a.sdiv b).toInt = (a.toInt.tdiv b.toInt).
   · rw [← toInt_bmod_cancel]
     rw [BitVec.toInt_sdiv_of_ne_or_ne _ _ (by simpa only [Decidable.not_and_iff_not_or_not] using h)]
 
+/--
+Rewrite `(x.sdiv y).toInt` as an exceptional case of `intMin / -1`,
+and a uniform uniformly expression as `x.toInt.tdiv y.toInt` for all other cases.
+
+Recall that `x.tdiv 0 = 0`, so there is an implicit case analysis on `y`.
+-/
+theorem toInt_sdiv_eq_ite {x y : BitVec w} :
+    (x.sdiv y).toInt =
+    if x = intMin w ∧ y = -1#w then (intMin w).toInt
+    else x.toInt.tdiv y.toInt := by
+  by_cases hx : x = intMin w
+  · simp only [hx, _root_.true_and]
+    by_cases hy : y = -1#w
+    · simp [hy, intMin_sdiv_neg_one]
+    · simp only [hy, ↓reduceIte]
+      apply toInt_sdiv_of_ne_or_ne
+      simp [hy]
+  · simp only [hx, _root_.false_and, ↓reduceIte]
+    apply toInt_sdiv_of_ne_or_ne
+    simp [hx]
+
+@[simp]
+theorem toInt_abs_eq_natAbs_toInt {x : BitVec w} : x.abs.toInt = x.toInt.natAbs := by
+  sorry -- @mhuisi: just edit the `sorry` here into `rw[BitVec.abs]` and it just hangs.
+  -- rw [BitVec.abs]
+  -- by_cases hmsb : x.msb
+
+theorem toInt_ne_zero_of_ne_zero_of_lt_zero {y : BitVec w} (hy : y ≠ 0#w) (hw : 0 < w) :
+    y.toInt ≠ 0 := by
+  have : 0 = (0#w).toInt := by simp
+  rw [this]
+  apply BitVec.toInt_inj
+  exact hy
+
+/--
+The result of division is zero if the numerator is less than the denominator.
+This applies in more cases than `Nat.div_eq_zero_iff_lt` as the latter requires a nonzero denominator.
+Note that a nonzero denominator is implicitly required to prove `hab : a < b`.
+-/
+theorem Nat.div_eq_zero_of_lt {a b : Nat} (hab : a < b) : a / b = 0 := by
+  by_cases h : b = 0
+  · subst h
+    simp [Nat.div_eq_zero_iff_lt _ |>.mpr hab]
+  · apply Nat.div_eq_zero_iff_lt _ |>.mpr <;> omega
+
+/--
+`Int.tdiv` equals zero if the absolute value of the numerator is less than the denominator.
+Note that this is true for `tdiv` as it has round-to-zero semantics.
+-/
+theorem Int.tdiv_ofNat_eq_zero_of_natAbs_lt {a : Int} {b : Nat}
+    (hab : a.natAbs < b) : a.tdiv b = 0 := by
+  by_cases h : a < 0
+  · obtain ⟨n, hn⟩  := Int.eq_negSucc_of_lt_zero h
+    subst hn
+    unfold Int.tdiv
+    simp
+    simp at hab
+    norm_cast
+    apply Nat.div_eq_zero_of_lt (by omega)
+  · simp only [Int.not_lt] at h;
+    obtain ⟨n, hn⟩  := Int.eq_ofNat_of_zero_le h
+    subst hn
+    unfold Int.tdiv
+    simp only [Int.ofNat_eq_coe]
+    simp only [Int.natAbs_ofNat] at hab
+    norm_cast
+    apply Nat.div_eq_zero_of_lt (by omega)
+
+/--
+Since `Int.tdiv` performs round-to-zero semantics,
+the result is zero iff the absolute value of the numerator is less than that of the denominator
+(when the denominator is valid, i.e. nonzero).
+-/
+theorem Int.tdiv_eq_zero_iff_natAbs_lt_of_ne_zero {a : Int} {b : Nat} (hb : b ≠ 0) :
+    (a.natAbs < b) ↔ a.tdiv b = 0 := by
+  by_cases h : a < 0
+  · obtain ⟨n, hn⟩  := Int.eq_negSucc_of_lt_zero h
+    subst hn
+    unfold Int.tdiv
+    simp
+    norm_cast
+    constructor
+    · intros hab
+      simp at hab
+      norm_cast
+      apply Nat.div_eq_zero_of_lt (by omega)
+    · intros hab
+      apply Nat.lt_of_div_eq_zero (by omega) hab
+  · simp only [Int.not_lt] at h;
+    obtain ⟨n, hn⟩  := Int.eq_ofNat_of_zero_le h
+    subst hn
+    unfold Int.tdiv
+    simp only [Int.ofNat_eq_coe, Int.natAbs_ofNat]
+    norm_cast
+    apply Nat.div_eq_zero_iff_lt (by omega) |>.symm
+
+/-- `0 < a.tdiv b` iff `0 < a` when the numerator is at least as large
+as the denominator. -/
+theorem Int.tdiv_ofNat_pos_iff_of_le_natAbs_of_ne_zero {a : Int} {b : Nat}
+    (hb : b ≠ 0) (hab : b ≤ a.natAbs) :
+    0 < a.tdiv b ↔ (0 < a) := by
+  have := Int.tdiv_eq_zero_iff_natAbs_lt_of_ne_zero (a := a) hb
+  norm_cast
+  rcases Int.lt_trichotomy 0 a with ha | ha | ha
+  · obtain ⟨a, ha⟩ := Int.eq_ofNat_of_zero_le (a := a) (by omega)
+    subst ha
+    unfold Int.tdiv
+    simp
+    norm_cast at ha
+    simp [ha]
+    simp at hab this
+    rw [Nat.div_eq_sub_div (by omega) (by omega)]
+    apply zero_lt_succ
+  · subst ha
+    simp only [Int.natAbs_zero, le_zero_eq] at hab
+    contradiction
+  · obtain ⟨a, ha⟩ := Int.eq_negSucc_of_lt_zero (a := a) (by omega)
+    subst ha
+    unfold Int.tdiv
+    simp
+
+/-- `0 < a.tdiv b` iff `0 < a` when the numerator is at least as large
+as the denominator. -/
+theorem Int.tdiv_ofNat_neg_iff_of_le_natAbs_of_ne_zero {a : Int} {b : Nat}
+    (hb : b ≠ 0) (hab : b ≤ a.natAbs) :
+    a.tdiv b < 0 ↔ (a < 0) := by
+  have := Int.tdiv_eq_zero_iff_natAbs_lt_of_ne_zero (a := a) hb
+  norm_cast
+  rcases Int.lt_trichotomy 0 a with ha | ha | ha
+  · obtain ⟨a, ha⟩ := Int.eq_ofNat_of_zero_le (a := a) (by omega)
+    subst ha
+    unfold Int.tdiv
+    simp
+    norm_cast at ha
+    norm_cast
+    simp [ha]
+  · subst ha
+    simp only [Int.natAbs_zero, le_zero_eq] at hab
+    contradiction
+  · obtain ⟨a, ha⟩ := Int.eq_negSucc_of_lt_zero (a := a) (by omega)
+    subst ha
+    unfold Int.tdiv
+    simp
+    simp at ha
+    simp at hab
+    rw [Nat.div_eq_sub_div (by omega) (by omega)]
+    generalize (a + 1 - b) / b = y
+    exact zero_lt_succ y
+
+@[simp]
+theorem Int.ofNat_tdiv_ofNat {a b : Nat} : (a : Int).tdiv (b : Int) = (a / b : Nat) := rfl
+
+/-- `a.tdiv b < 0` iff exactly one of `a < 0` or `b < 0` -/
+theorem Int.tdiv_neg_iff_neg_and_pos_or_pos_and_neg_of_ne_zero_of_natAbs_le_natAbs
+    {a b : Int} (hb : b ≠ 0) (hab : b.natAbs ≤ a.natAbs) :
+    a.tdiv b < 0 ↔ ((a < 0) ∧ (b > 0) ∨ ((a > 0) ∧ (b < 0))) := by
+  have hb' : b < 0 ∨ 0 < b := by omega
+  rcases hb' with hb' | hb'
+  · obtain ⟨bn, hbn⟩ := Int.exists_eq_neg_ofNat (a := b) (by omega)
+    subst hbn
+    simp [show 0 < bn by omega, show ¬ (bn : Int) < 0 by omega]
+    apply Int.tdiv_ofNat_pos_iff_of_le_natAbs_of_ne_zero (by omega) (by omega)
+  · obtain ⟨bn, hbn⟩ := Int.eq_ofNat_of_zero_le (a := b) (by omega)
+    subst hbn
+    simp [show ¬ (bn : Int) < 0 by omega, show 0 < bn by omega]
+    apply Int.tdiv_ofNat_neg_iff_of_le_natAbs_of_ne_zero (by omega) (by omega)
+
+/-- `a.tdiv b > 0` iff both `a < 0` and `b < 0`, or both `a > 0` and `b > 0`. -/
+theorem Int.tdiv_pos_iff_pos_and_pos_or_neg_and_neg_of_ne_zero_of_natAbs_le_natAbs
+    {a b : Int} (hb : b ≠ 0) (hab : b.natAbs ≤ a.natAbs) :
+    0 < a.tdiv b ↔ (((0 < a) ∧ (0 < b)) ∨ ((a < 0) ∧ (b < 0))) := by
+  have hb' : b < 0 ∨ 0 < b := by omega
+  rcases hb' with hb' | hb'
+  · obtain ⟨bn, hbn⟩ := Int.exists_eq_neg_ofNat (a := b) (by omega)
+    subst hbn
+    simp [show 0 < bn by omega, show ¬ (bn : Int) < 0 by omega]
+    apply Int.tdiv_ofNat_neg_iff_of_le_natAbs_of_ne_zero (by omega) (by omega)
+  · obtain ⟨bn, hbn⟩ := Int.eq_ofNat_of_zero_le (a := b) (by omega)
+    subst hbn
+    simp [show ¬ (bn : Int) < 0 by omega, show 0 < bn by omega]
+    apply Int.tdiv_ofNat_pos_iff_of_le_natAbs_of_ne_zero (by omega) (by omega)
+
+/-- `a.tdiv b > 0` iff both `a < 0` and `b < 0`, or both `a > 0` and `b > 0`. -/
+theorem Int.tdiv_eq_zero_iff_natAbs_lt_natAbs
+    {a b : Int} (hab : a.natAbs < b.natAbs) :
+    a.tdiv b = 0 := by
+  have hb' : b < 0 ∨ b = 0 ∨ 0 < b := by omega
+  rcases hb' with hb' | hb' | hb'
+  · obtain ⟨bn, hbn⟩ := Int.exists_eq_neg_ofNat (a := b) (by omega)
+    subst hbn
+    simp [show 0 < bn by omega, show ¬ (bn : Int) < 0 by omega]
+    simp at hab;
+    apply Int.tdiv_ofNat_eq_zero_of_natAbs_lt hab
+  · subst hb'; simp
+  · obtain ⟨bn, hbn⟩ := Int.eq_ofNat_of_zero_le (a := b) (by omega)
+    subst hbn
+    apply Int.tdiv_ofNat_eq_zero_of_natAbs_lt hab
+
+
+/- `0#w ≠ 1#w`for all widths `0 < w`. -/
+theorem not_zero_eq_one_iff_lt_zero (w : Nat) : (0 < w) ↔ ¬(0#w = 1#w) := by
+  constructor
+  · intros h
+    apply toNat_ne.mpr
+    have : 1 < 2^w := Nat.pow_lt_pow_of_lt (a := 2) (by decide) h
+    simp
+    omega
+  · intros h
+    apply Classical.byContradiction
+    intros hcontra
+    simp only [Nat.not_lt, le_zero_eq] at hcontra
+    subst hcontra
+    contradiction
+
+/-- `0#w ≠ -1#w` for all nonzero bitwidths. -/
+theorem not_zero_eq_minus_one_iff_lt_zero (w : Nat) : (0 < w) ↔ ¬(0#w = -1#w) := by
+  constructor
+  · intros h
+    apply Classical.byContradiction
+    simp only [Decidable.not_not, imp_false]
+    intros hcontra
+    have : (0#w)[0] = (allOnes w)[0] := by rw [hcontra, neg_one_eq_allOnes]
+    simp at this
+  · intros h
+    apply Classical.byContradiction
+    intros hcontra
+    simp only [Nat.not_lt, le_zero_eq] at hcontra
+    subst hcontra
+    contradiction
+
+/-- For all bitvectors `x, y`, either `x` is signed less than `y`, or is
+equal to `y`, or is signed greater than `y`. -/
+theorem slt_trichotomy (x y : BitVec w) : (x.slt y = true) ∨ (x = y) ∨ (y.slt x = true) := by
+  simp [slt_eq_decide]
+  have : (x = y) ↔ (x.toInt = y.toInt) := by
+    exact Iff.symm toInt_inj
+  rw [this]
+  omega
+
+/--
+The sign of a division is determined as follows:
+- if the denominator is zero, then the output is zero and the msb is false as it is non-negative.
+- If the deminator is positive, then the sign of the output is the same as the sign of the numerator.
+- If the denominator is negative, then the sign of the output is the opposite of the sign of the numerator,
+  except for the case where the numerator is `intMin`, in which case the result is `true`.
+-/
+theorem msb_sdiv_eq_decide {x y : BitVec w} :
+    (x.sdiv y).msb =
+      (decide (0 < w) &&
+        -- either we have x = intMin w and y = -1#w
+        ((decide (x = intMin w) && decide (y = -1#w)) ||
+        -- or we have `y = 0`, in which case the result is always non-negative.
+        -- Then, when `y <> 0` and `|x| ≥ |y|` and at *exactly* one of them is negative
+        (decide (y ≠ (0#w)) && decide (y.abs ≤ x.abs) && (x.msb ^^ y.msb))))
+     := by
+  by_cases hw : w = 0; subst hw; decide +revert
+  simp [show 0 < w by omega]
+  by_cases hmin : x = intMin w ∧ y = -1#w
+  · simp [hmin, decide_true, Bool.and_self, abs_intMin, Bool.true_or,
+      intMin_sdiv_neg_one, msb_intMin]
+    omega
+  · rw [Classical.not_and_iff_not_or_not] at hmin
+    rw [msb_eq_toInt, toInt_sdiv_of_ne_or_ne _ _ (by simp [hmin])]
+    have : (decide (x = intMin w) && decide (y = -1#w)) = false := by
+      rcases hmin with hmin | hmin <;> simp [hmin]
+    simp only [this, Bool.false_or]
+    by_cases hy0 : y = 0#w
+    · subst hy0; simp
+    · simp [hy0]
+      simp only [bool_to_prop]
+      /-
+      We begin the case bash. Nothing particularly interesting, but we must
+      case bash over `x.msb`, `y.msb`, and `y.abs ≤ x.abs`.
+      -/
+      by_cases habs : y.abs ≤ x.abs
+      · simp [habs]
+        have hmsb : (¬ (x.msb = y.msb)) =
+          (((x.toInt < 0) ∧ (0 < y.toInt)) ∨ ((0 < x.toInt) ∧ (y.toInt < 0))) := sorry
+        rw [hmsb]
+        apply Int.tdiv_neg_iff_neg_and_pos_or_pos_and_neg_of_ne_zero_of_natAbs_le_natAbs
+        · sorry
+        · sorry
+      · have : x.toInt.tdiv y.toInt = 0 := by
+          apply Int.tdiv_eq_zero_iff_natAbs_lt_natAbs
+          sorry
+          -- we need to know that .abs.toInt = .toInt.natAbs
+        simp [this, habs]
+
+
 theorem msb_umod_eq_false_of_left {x : BitVec w} (hx : x.msb = false) (y : BitVec w) : (x % y).msb = false := by
   rw [msb_eq_false_iff_two_mul_lt] at hx ⊢
   rw [toNat_umod]

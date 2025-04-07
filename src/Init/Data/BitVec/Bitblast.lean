@@ -1356,19 +1356,6 @@ theorem umulOverflow_eq {w : Nat} (x y : BitVec w) :
     have := Nat.pow_lt_pow_of_lt (a := 2) (n := w + 1) (m := (w + 1) * 2)
     omega
 
--- x = 0 0 0 1 0 1 → lzx = 3
---
-
--- "x and y in total have less than n - 1 leading zeroes (at most n - 2)"
--- 2 ^ (w - n) ≤ x.toNat ∧ 2 ^ (w - m) ≤ y.toNat ∧ m + n ≤ n - 2 → umulOverflow
-theorem umulOverflow_fast {w lzx lzy : Nat} (x y : BitVec w) (hlzx : x >>> lzx = 0#w) (hlzy : y >>> lzy = 0#w):
-    (∃ lzx, (x >>> lzx = 0#w) ∧ ¬ ∃ lzx', ¬ (lzx = lzx') ∧ lzx' < lzx ∧
-    ∃ lzy, (y >>> lzy = 0#w) ∧ ¬ ∃ lzy', ¬ (lzy = lzy') ∧ lzy' < lzy ∧
-    lzx + lzy < w - 1) → smulOverflow x y := by
-  simp
-
-  sorry
-
 theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
     smulOverflow x y =
       (0 < w &&
@@ -2311,10 +2298,26 @@ def resRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
 -- #eval resRec (2#3) (3#3) 2 (by omega) false
 -- #eval resRec (6#3) (5#3) 2 (by omega) true
 
+/--
+  complete fast overflow detecnion circuit for unsigned multiplication
+-/
 theorem fastUmulOverflow (x y : BitVec w) (hw : 0 < w) :
     umulOverflow x y = (((zeroExtend (w + 1) x) * (zeroExtend (w + 1) y))[w] || resRec x y (w - 1) (by omega)) := by
   sorry
 
+/--
+ from the paper:
+ "x and y in total have less than n - 1 leading zeroes (at most n - 2)"
+  2 ^ (w - n) ≤ x.toNat ∧ 2 ^ (w - m) ≤ y.toNat ∧ m + n ≤ n - 2 → umulOverflow
+  this is not the actual circuit, but I wanted to give it a try, based on the theoretical definition
+  of the fast circuit
+-/
+theorem umulOverflow_fast {w lzx lzy : Nat} (x y : BitVec w) (hlzx : x >>> lzx = 0#w) (hlzy : y >>> lzy = 0#w):
+    (∃ lzx, (x >>> lzx = 0#w) ∧ ¬ ∃ lzx', ¬ (lzx = lzx') ∧ lzx' < lzx ∧
+    ∃ lzy, (y >>> lzy = 0#w) ∧ ¬ ∃ lzy', ¬ (lzy = lzy') ∧ lzy' < lzy ∧
+    lzx + lzy < w - 1) → smulOverflow x y := by
+  simp
+  sorry
 
 /-- Heuristically, `y <<< x` is much larger than `x`,
 and hence low bits of `y <<< x`. Thus, `(y <<< x) + x = (y <<< x) ||| x.` -/

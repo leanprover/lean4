@@ -15,7 +15,7 @@ Basic example
 pp.all
 -/
 set_option pp.all true in
-/-- info: A.mk (@OfNat.ofNat.{0} Nat 1 (instOfNatNat 1)) : A -/
+/-- info: A.mk (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) : A -/
 #guard_msgs in #check { x := 1 : A }
 
 structure B extends A where
@@ -130,8 +130,9 @@ set_option pp.explicit true in
 
 set_option pp.explicit true in
 /--
-info: @G.mk (@OfNat.ofNat Nat 3 (instOfNatNat 3))
-  (@OfNat.ofNat Nat 3 (instOfNatNat 3)) : G (@OfNat.ofNat Nat 3 (instOfNatNat 3))
+info: @G.mk (@OfNat.ofNat Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))
+  (@OfNat.ofNat Nat (nat_lit 3)
+    (instOfNatNat (nat_lit 3))) : G (@OfNat.ofNat Nat (nat_lit 3) (instOfNatNat (nat_lit 3)))
 -/
 #guard_msgs in #check { : G 3 }
 

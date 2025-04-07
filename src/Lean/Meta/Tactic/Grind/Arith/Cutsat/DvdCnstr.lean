@@ -103,12 +103,13 @@ def propagateIntDvd (e : Expr) : GoalM Unit := do
     pushNewFact <| mkApp4 (mkConst ``Int.Linear.of_not_dvd) a b reflBoolTrue (mkOfEqFalseCore e (← mkEqFalseProof e))
 
 def propagateNatDvd (e : Expr) : GoalM Unit := do
-  let some (d, b, ctx) ← Int.OfNat.toIntDvd? e | return ()
+  let some (d, b) ← Int.OfNat.toIntDvd? e | return ()
   let gen ← getGeneration e
-  let b' ← toLinearExpr (b.denoteAsIntExpr ctx) gen
+  let ctx ← getForeignVars .nat
+  let b' ← toLinearExpr (← b.denoteAsIntExpr ctx) gen
   let p := b'.norm
   if (← isEqTrue e) then
-    let c := { d, p, h := .coreNat e ctx d b b' : DvdCnstr }
+    let c := { d, p, h := .coreNat e d b b' : DvdCnstr }
     c.assert
   else
     let_expr Dvd.dvd _ _ a b ← e | return ()

@@ -18,12 +18,6 @@ class CommSemigroup (α : Type u) extends Semigroup α where
 instance [CommSemigroup α] : MulComm α where
   mul_comm := CommSemigroup.mul_comm
 
-class One (α : Type u) where
-  one : α
-
-instance [One α] : OfNat α (nat_lit 1) where
-  ofNat := One.one
-
 class Monoid (α : Type u) extends Semigroup α, One α where
   one_mul (a : α) : 1 * a = a
   mul_one (a : α) : a * 1 = a
@@ -81,14 +75,6 @@ info: [Meta.debug] [@HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast
        (@NatCast.natCast Int instNatCastInt a),
      @HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
        (@NatCast.natCast Int instNatCastInt d),
-     @HMul.hMul Int Int Int (@instHMul Int Int.instMul)
-       (@Neg.neg Int Int.instNegInt (@OfNat.ofNat Int 1 (@instOfNat 1)))
-       (@HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
-         (@NatCast.natCast Int instNatCastInt a)),
-     @HMul.hMul Int Int Int (@instHMul Int Int.instMul)
-       (@Neg.neg Int Int.instNegInt (@OfNat.ofNat Int 1 (@instOfNat 1)))
-       (@HMul.hMul Int Int Int (@instHMul Int Int.instMul) (@NatCast.natCast Int instNatCastInt b)
-         (@NatCast.natCast Int instNatCastInt d)),
      @HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b a,
      @HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b d]
 -/

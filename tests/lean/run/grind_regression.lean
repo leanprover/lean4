@@ -640,9 +640,6 @@ end
 
 section
 
-class One (α) where one : α
-instance [One α] : OfNat α 1 where ofNat := One.one
-
 class Inv (α) where inv : α → α
 postfix:max "⁻¹" => Inv.inv
 

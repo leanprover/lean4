@@ -1,5 +1,5 @@
 repositories:
-  - name: Batteries
+  - name: batteries
     url: https://github.com/leanprover-community/batteries
     toolchain-tag: true
     stable-branch: true
@@ -28,14 +28,21 @@ repositories:
     branch: main
     dependencies: []
 
-  - name: Verso
+  - name: verso
     url: https://github.com/leanprover/verso
     toolchain-tag: true
     stable-branch: false
     branch: main
     dependencies: []
 
-  - name: Cli
+  - name: reference-manual
+    url: https://github.com/leanprover/reference-manual
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies: [verso]
+
+  - name: lean4-cli
     url: https://github.com/leanprover/lean4-cli
     toolchain-tag: true
     stable-branch: false
@@ -50,7 +57,7 @@ repositories:
     dependencies:
       - Batteries
 
-  - name: Aesop
+  - name: aesop
     url: https://github.com/leanprover-community/aesop
     toolchain-tag: true
     stable-branch: true
@@ -74,7 +81,7 @@ repositories:
     branch: main
     dependencies: []
 
-  - name: Mathlib
+  - name: mathlib4
     url: https://github.com/leanprover-community/mathlib4
     toolchain-tag: true
     stable-branch: true
@@ -89,7 +96,7 @@ repositories:
       - import-graph
       - plausible
 
-  - name: REPL
+  - name: repl
     url: https://github.com/leanprover-community/repl
     toolchain-tag: true
     stable-branch: true

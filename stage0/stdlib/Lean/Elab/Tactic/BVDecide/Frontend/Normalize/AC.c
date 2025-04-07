@@ -204,6 +204,7 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_VarStateM_com
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_BitVec_mkInstHMul___closed__1;
 static double l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_canonicalizeWithSharing___spec__2___lambda__4___closed__5;
 uint64_t l_Lean_Expr_hash(lean_object*);
+lean_object* l_Option_zipWith___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvAcNormalizePass___closed__2;
 lean_object* l_Lean_FVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getPropHyps(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -359,7 +360,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Op_instT
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_VarStateM_computeCoefficients_go___closed__6;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-lean_object* l_Option_merge___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_canonicalizeWithSharing___spec__2___lambda__4___closed__2;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_VarStateM_computeCoefficients_incrVar___spec__4(lean_object*, lean_object*, lean_object*);
@@ -7017,8 +7017,8 @@ x_42 = lean_alloc_closure((void*)(l_Lean_mkApp2), 3, 1);
 lean_closure_set(x_42, 0, x_41);
 lean_inc(x_28);
 lean_inc(x_42);
-x_43 = l_Option_merge___rarg(x_42, x_28, x_33);
-x_44 = l_Option_merge___rarg(x_42, x_28, x_39);
+x_43 = l_Option_zipWith___rarg(x_42, x_28, x_33);
+x_44 = l_Option_zipWith___rarg(x_42, x_28, x_39);
 lean_inc(x_3);
 x_45 = l_Lean_mkAppB(x_3, x_4, x_2);
 if (lean_obj_tag(x_43) == 0)
@@ -7702,8 +7702,8 @@ x_205 = lean_alloc_closure((void*)(l_Lean_mkApp2), 3, 1);
 lean_closure_set(x_205, 0, x_204);
 lean_inc(x_28);
 lean_inc(x_205);
-x_206 = l_Option_merge___rarg(x_205, x_28, x_33);
-x_207 = l_Option_merge___rarg(x_205, x_28, x_202);
+x_206 = l_Option_zipWith___rarg(x_205, x_28, x_33);
+x_207 = l_Option_zipWith___rarg(x_205, x_28, x_202);
 lean_inc(x_3);
 x_208 = l_Lean_mkAppB(x_3, x_4, x_2);
 if (lean_obj_tag(x_206) == 0)

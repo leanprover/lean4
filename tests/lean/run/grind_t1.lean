@@ -420,3 +420,7 @@ example [BEq α] [LawfulBEq α] (a b : α) : a ≠ b → foo a b = 0 := by
 
 example [BEq α] [LawfulBEq α] (a b : α) : a ≠ b → foo a b = 0 := by
   grind (splits := 0) [foo]
+
+@[simp] theorem getElem_concat_length {l : List α} {a : α} {i : Nat} (h : i = l.length) (w) :
+    (l ++ [a])[i]'w = a := by
+  subst h; grind [List.getElem_append_left, List.getElem_append_right]

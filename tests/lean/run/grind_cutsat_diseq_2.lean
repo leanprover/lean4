@@ -12,8 +12,10 @@ theorem ex₃ (a b c : Int) : a + b + c = 0 → a = c → b = 4 → c = -2 := by
   grind
 
 /--
-info: [grind.cutsat.assert] a + -2*b + -2*c = 0
-[grind.cutsat.assert] a + -2*b + -2*d ≠ 0
+info: [grind.cutsat.assert] -1*「a + -2 * b + -2 * c」 + a + -2*b + -2*c = 0
+[grind.cutsat.assert] 「a + -2 * b + -2 * c」 = 0
+[grind.cutsat.assert] -1*「a + -2 * b + -2 * d」 + a + -2*b + -2*d = 0
+[grind.cutsat.assert] 「a + -2 * b + -2 * d」 ≠ 0
 [grind.cutsat.diseq] d + -1*c ≠ 0
 [grind.cutsat.assert] -1*d + c = 0
 [grind.cutsat.assert] 0 ≠ 0

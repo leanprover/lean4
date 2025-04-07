@@ -42,15 +42,6 @@ class RatCast (K : Type u) where
 
 end Std.Classes.RatCast
 
-section Mathlib.Init.ZeroOne
-
-class One (α : Type u) where
-  one : α
-instance One.toOfNat1 {α} [One α] : OfNat α (nat_lit 1) where
-  ofNat := ‹One α›.1
-
-end Mathlib.Init.ZeroOne
-
 section Mathlib.Algebra.Group.Defs
 
 class Inv (α : Type u) where

@@ -97,7 +97,8 @@ where
         return some { p := c.p.addConst 1, h := .ofLeDiseq c c' }
     return none
 
-def LeCnstr.assert (c : LeCnstr) : GoalM Unit := do
+@[export lean_grind_cutsat_assert_le]
+def LeCnstr.assertImpl (c : LeCnstr) : GoalM Unit := do
   if (← inconsistent) then return ()
   let c ← c.norm.applySubsts
   if c.isUnsat then
@@ -148,16 +149,17 @@ def propagateIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   c.assert
 
 def propagateNatLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
-  let some (lhs, rhs, ctx) ← Int.OfNat.toIntLe? e | return ()
+  let some (lhs, rhs) ← Int.OfNat.toIntLe? e | return ()
   let gen ← getGeneration e
-  let lhs' ← toLinearExpr (lhs.denoteAsIntExpr ctx) gen
-  let rhs' ← toLinearExpr (rhs.denoteAsIntExpr ctx) gen
+  let ctx ← getForeignVars .nat
+  let lhs' ← toLinearExpr (← lhs.denoteAsIntExpr ctx) gen
+  let rhs' ← toLinearExpr (← rhs.denoteAsIntExpr ctx) gen
   let p := lhs'.sub rhs' |>.norm
   trace[grind.debug.cutsat.nat] "{← p.pp}"
   let c ← if eqTrue then
-    pure { p, h := .coreNat e ctx lhs rhs lhs' rhs' : LeCnstr }
+    pure { p, h := .coreNat e lhs rhs lhs' rhs' : LeCnstr }
   else
-    pure { p := p.mul (-1) |>.addConst 1, h := .coreNatNeg e ctx lhs rhs lhs' rhs' : LeCnstr }
+    pure { p := p.mul (-1) |>.addConst 1, h := .coreNatNeg e lhs rhs lhs' rhs' : LeCnstr }
   trace[grind.cutsat.assert.le] "{← c.pp}"
   c.assert
 

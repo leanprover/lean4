@@ -35,7 +35,6 @@ LEAN_EXPORT lean_object* l_Lake_Manifest_saveEntries(lean_object*, lean_object*,
 static lean_object* l_Lake_Manifest_getPackages___closed__6;
 static lean_object* l_Lake_PackageEntry_toJson___closed__1;
 static lean_object* l_Lake_PackageEntry_fromJson_x3f___closed__2;
-lean_object* l_System_FilePath_join(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Manifest_0__Lake_fromJsonPackageEntryV6____x40_Lake_Load_Manifest___hyg_115____lambda__3___closed__8;
 static lean_object* l_Lake_Manifest_toJson___closed__2;
 lean_object* l_Lean_Json_mkObj(lean_object*);
@@ -252,6 +251,7 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lake_PackageEntry_fromJson_x3f___closed__36;
 static lean_object* l_Lake_PackageEntry_fromJson_x3f___closed__4;
 static lean_object* l_Lake_PackageEntry_fromJson_x3f___closed__26;
+lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Load_Manifest_0__Lake_fromJsonPackageEntryV6____x40_Lake_Load_Manifest___hyg_115____lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Manifest_0__Lake_fromJsonPackageEntryV6____x40_Lake_Load_Manifest___hyg_115____closed__6;
 lean_object* l_Lean_RBNode_insert___at_Lean_Json_mkObj___spec__1(lean_object*, lean_object*, lean_object*);
@@ -5312,7 +5312,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = lean_ctor_get(x_3, 0);
-x_8 = l_System_FilePath_join(x_1, x_7);
+x_8 = l_Lake_joinRelative(x_1, x_7);
 lean_dec(x_7);
 lean_ctor_set(x_3, 0, x_8);
 return x_2;
@@ -5323,7 +5323,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11;
 x_9 = lean_ctor_get(x_3, 0);
 lean_inc(x_9);
 lean_dec(x_3);
-x_10 = l_System_FilePath_join(x_1, x_9);
+x_10 = l_Lake_joinRelative(x_1, x_9);
 lean_dec(x_9);
 x_11 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
@@ -5353,7 +5353,7 @@ if (lean_is_exclusive(x_3)) {
  lean_dec_ref(x_3);
  x_18 = lean_box(0);
 }
-x_19 = l_System_FilePath_join(x_1, x_17);
+x_19 = l_Lake_joinRelative(x_1, x_17);
 lean_dec(x_17);
 if (lean_is_scalar(x_18)) {
  x_20 = lean_alloc_ctor(0, 1, 0);

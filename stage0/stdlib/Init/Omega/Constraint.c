@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_add___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Option_merge_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_beqConstraint____x40_Init_Omega_Constraint___hyg_72____boxed(lean_object*, lean_object*);
 lean_object* l_List_foldr___at_Lean_Omega_IntList_gcd___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combo(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -70,6 +69,7 @@ LEAN_EXPORT uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x4
 lean_object* l_Int_repr(lean_object*);
 lean_object* l_Lean_Omega_IntList_leading(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_instToString___boxed(lean_object*);
+lean_object* l_Option_zipWith___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Omega_Constraint_instToString___closed__4;
 static lean_object* l_Option_repr___at___private_Init_Omega_Constraint_0__Lean_Omega_reprConstraint____x40_Init_Omega_Constraint___hyg_291____spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Omega_tidyConstraint(lean_object*, lean_object*);
@@ -99,7 +99,6 @@ lean_object* lean_string_length(lean_object*);
 static lean_object* l_Lean_Omega_Constraint_instToString___closed__7;
 static lean_object* l_Option_repr___at___private_Init_Omega_Constraint_0__Lean_Omega_reprConstraint____x40_Init_Omega_Constraint___hyg_291____spec__1___closed__2;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Option_merge_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_impossible;
 static lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_reprConstraint____x40_Init_Omega_Constraint___hyg_291____closed__8;
 LEAN_EXPORT lean_object* l_Option_repr___at___private_Init_Omega_Constraint_0__Lean_Omega_reprConstraint____x40_Init_Omega_Constraint___hyg_291____spec__1(lean_object*, lean_object*);
@@ -119,7 +118,6 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_bmod__div__term(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_reprConstraint____x40_Init_Omega_Constraint___hyg_291____closed__2;
 lean_object* l_Lean_Omega_IntList_smul(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Option_merge_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_map(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_neg___boxed(lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
@@ -145,7 +143,6 @@ LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Lean_Omega_tidy_x3
 static lean_object* l_Lean_Omega_Constraint_instToString___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Omega_normalize_x3f(lean_object*);
 lean_object* lean_int_neg(lean_object*);
-lean_object* l_Option_merge___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Option_repr___at___private_Init_Omega_Constraint_0__Lean_Omega_reprConstraint____x40_Init_Omega_Constraint___hyg_291____spec__1___closed__5;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_combine___lambda__2(lean_object*, lean_object*);
@@ -2080,7 +2077,7 @@ lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 x_5 = l_Lean_Omega_Constraint_combine___closed__1;
-x_6 = l_Option_merge___rarg(x_5, x_3, x_4);
+x_6 = l_Option_zipWith___rarg(x_5, x_3, x_4);
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
 lean_dec(x_1);
@@ -2088,7 +2085,7 @@ x_8 = lean_ctor_get(x_2, 1);
 lean_inc(x_8);
 lean_dec(x_2);
 x_9 = l_Lean_Omega_Constraint_combine___closed__2;
-x_10 = l_Option_merge___rarg(x_9, x_7, x_8);
+x_10 = l_Option_zipWith___rarg(x_9, x_7, x_8);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_6);
 lean_ctor_set(x_11, 1, x_10);
@@ -2113,75 +2110,6 @@ x_3 = l_Lean_Omega_Constraint_combine___lambda__2(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Option_merge_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_dec(x_6);
-lean_dec(x_4);
-if (lean_obj_tag(x_2) == 0)
-{
-lean_dec(x_5);
-lean_inc(x_3);
-return x_3;
-}
-else
-{
-lean_object* x_7; lean_object* x_8; 
-x_7 = lean_ctor_get(x_2, 0);
-lean_inc(x_7);
-lean_dec(x_2);
-x_8 = lean_apply_1(x_5, x_7);
-return x_8;
-}
-}
-else
-{
-lean_dec(x_5);
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_9; lean_object* x_10; 
-lean_dec(x_6);
-x_9 = lean_ctor_get(x_1, 0);
-lean_inc(x_9);
-lean_dec(x_1);
-x_10 = lean_apply_1(x_4, x_9);
-return x_10;
-}
-else
-{
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-lean_dec(x_4);
-x_11 = lean_ctor_get(x_1, 0);
-lean_inc(x_11);
-lean_dec(x_1);
-x_12 = lean_ctor_get(x_2, 0);
-lean_inc(x_12);
-lean_dec(x_2);
-x_13 = lean_apply_2(x_6, x_11, x_12);
-return x_13;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Option_merge_match__1_splitter(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Init_Omega_Constraint_0__Option_merge_match__1_splitter___rarg___boxed), 6, 0);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l___private_Init_Omega_Constraint_0__Option_merge_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l___private_Init_Omega_Constraint_0__Option_merge_match__1_splitter___rarg(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_3);
-return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Omega_Constraint_div(lean_object* x_1, lean_object* x_2) {

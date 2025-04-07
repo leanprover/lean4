@@ -92,9 +92,12 @@ noncomputable def fixF (x : α) (a : Acc r x) : C x := by
   induction a with
   | intro x₁ _ ih => exact F x₁ ih
 
-theorem fixFEq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p : r y x) => fixF F y (Acc.inv acx p)) := by
+theorem fixF_eq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p : r y x) => fixF F y (Acc.inv acx p)) := by
   induction acx with
   | intro x r _ => exact rfl
+
+@[deprecated fixF_eq (since := "2025-04-04")]
+abbrev fixFEq := @fixF_eq
 
 end
 
@@ -114,7 +117,7 @@ noncomputable def fix (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) �
 -- Well-founded fixpoint satisfies fixpoint equation
 theorem fix_eq (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) :
     fix hwf F x = F x (fun y _ => fix hwf F y) :=
-  fixFEq F x (apply hwf x)
+  fixF_eq F x (apply hwf x)
 end WellFounded
 
 open WellFounded

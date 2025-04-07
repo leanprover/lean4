@@ -334,6 +334,13 @@ theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x,
 
 @[simp] theorem exists_eq_right' : (∃ a, p a ∧ a' = a) ↔ p a' := by simp [@eq_comm _ a']
 
+@[simp] theorem exists_prop_eq {p : (a : α) → a = a' → Prop} :
+    (∃ (a : α) (h : a = a'), p a h) ↔ p a' rfl :=
+  ⟨fun ⟨_, e, h⟩ => e ▸ h, fun h => ⟨_, rfl, h⟩⟩
+
+@[simp] theorem exists_prop_eq' {p : (a : α) → a' = a → Prop} :
+    (∃ (a : α) (h : a' = a), p a h) ↔ p a' rfl := by simp [@eq_comm _ a']
+
 @[simp] theorem forall_eq_or_imp : (∀ a, a = a' ∨ q a → p a) ↔ p a' ∧ ∀ a, q a → p a := by
   simp only [or_imp, forall_and, forall_eq]
 

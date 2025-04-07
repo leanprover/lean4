@@ -47,11 +47,12 @@ inductive CliError
 | unknownLakeInstall
 | leanRevMismatch (expected actual : String)
 | invalidEnv (msg : String)
+| missingRootDir (path :  System.FilePath)
 deriving Inhabited, Repr
 
 namespace CliError
 
-def toString : CliError → String
+protected def toString : CliError → String
 | missingCommand          => "missing command"
 | unknownCommand cmd      => s!"unknown command '{cmd}'"
 | missingArg arg          => s!"missing {arg}"
@@ -83,5 +84,6 @@ def toString : CliError → String
 | unknownLakeInstall      => "could not detect the configuration of the Lake installation"
 | leanRevMismatch e a     => s!"expected Lean commit {e}, but got {if a.isEmpty then "nothing" else a}"
 | invalidEnv msg          => msg
+| missingRootDir p        => s!"workspace directory not found: {p}"
 
-instance : ToString CliError := ⟨toString⟩
+instance : ToString CliError := ⟨CliError.toString⟩

@@ -187,10 +187,10 @@ jobs:
                 "check-level": 1,
               },
               {
-                "name": "Linux Debug",
+                "name": "Linux Reldebug",
                 "os": "ubuntu-latest",
                 "check-level": 2,
-                "CMAKE_PRESET": "debug",
+                "CMAKE_PRESET": "reldebug",
                 // exclude seriously slow/stackoverflowing tests
                 "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest|bv_bitblast_stress|3807'"
               },
@@ -348,8 +348,6 @@ jobs:
 
   # This job creates releases from tags
   # (whether they are "unofficial" releases for experiments, or official releases when the tag is "v" followed by a semver string.)
-  # We do not attempt to automatically construct a changelog here:
-  # unofficial releases don't need them, and official release notes will be written by a human.
   release:
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest

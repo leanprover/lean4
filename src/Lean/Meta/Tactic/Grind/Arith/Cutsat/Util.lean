@@ -49,20 +49,23 @@ def inconsistent : GoalM Bool := do
   if (← isInconsistent) then return true
   return (← get').conflict?.isSome
 
+/-- Creates a new variable in the cutsat module. -/
+@[extern "lean_grind_cutsat_mk_var"] -- forward definition
+opaque mkVar (e : Expr) : GoalM Var
+
 def getVars : GoalM (PArray Expr) :=
   return (← get').vars
 
 def getVar (x : Var) : GoalM Expr :=
   return (← get').vars[x]!
 
+/-- Returns `true` if `e` is already associated with a cutsat variable. -/
+def hasVar (e : Expr) : GoalM Bool :=
+  return (← get').varMap.contains { expr := e }
+
 /-- Returns `true` if `x` has been eliminated using an equality constraint. -/
 def eliminated (x : Var) : GoalM Bool :=
   return (← get').elimEqs[x]!.isSome
-
-def mkCnstrId : GoalM Nat := do
-  let id := (← get').nextCnstrId
-  modify' fun s => { s with nextCnstrId := id + 1 }
-  return id
 
 @[extern "lean_grind_cutsat_assert_eq"] -- forward definition
 opaque EqCnstr.assert (c : EqCnstr) : GoalM Unit
@@ -77,7 +80,7 @@ where
   go (a : PArray Rat) : PArray Rat :=
     if a.size < sz then go (a.push 0) else a
 
-/-- Resets the assingment of any variable bigger or equal to `x`. -/
+/-- Resets the assignment of any variable bigger or equal to `x`. -/
 def resetAssignmentFrom (x : Var) : GoalM Unit := do
   modify' fun s => { s with assignment := shrink s.assignment x }
 
@@ -125,6 +128,9 @@ def DiseqCnstr.throwUnexpected (c : DiseqCnstr) : GoalM α := do
 
 def DiseqCnstr.denoteExpr (c : DiseqCnstr) : GoalM Expr := do
   return mkNot (mkIntEq (← c.p.denoteExpr') (mkIntLit 0))
+
+@[extern "lean_grind_cutsat_assert_le"] -- forward definition
+opaque LeCnstr.assert (c : LeCnstr) : GoalM Unit
 
 def LeCnstr.isTrivial (c : LeCnstr) : Bool :=
   match c.p with
@@ -176,13 +182,6 @@ partial def _root_.Int.Linear.Poly.updateOccs (p : Poly) : GoalM Unit := do
     let .add _ x p := p | return ()
     addOcc x y; go p
   go p
-
-def toContextExpr : GoalM Expr := do
-  let vars ← getVars
-  if h : 0 < vars.size then
-    return RArray.toExpr (mkConst ``Int) id (RArray.ofFn (vars[·]) h)
-  else
-    return RArray.toExpr (mkConst ``Int) id (RArray.leaf (mkIntLit 0))
 
 /--
 Tries to evaluate the polynomial `p` using the partial model/assignment built so far.

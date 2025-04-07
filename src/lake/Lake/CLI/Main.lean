@@ -75,11 +75,13 @@ def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
     opts.noCache |>.adaptExcept fun msg => .invalidEnv msg
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
-def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
+def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig := do
+  let some wsDir ← resolvePath? opts.rootDir
+    | throw <| .missingRootDir opts.rootDir
   return {
     lakeArgs? := opts.args.toArray
     lakeEnv := ← opts.computeEnv
-    wsDir := opts.rootDir
+    wsDir
     relConfigFile := opts.configFile
     packageOverrides := opts.packageOverrides
     lakeOpts := opts.configOpts

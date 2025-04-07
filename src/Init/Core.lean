@@ -744,7 +744,7 @@ class ReflBEq (α) [BEq α] : Prop where
 theorem BEq.refl [BEq α] [ReflBEq α] (a : α) : a == a := BEq.rfl
 
 theorem beq_of_eq [BEq α] [ReflBEq α] {a b : α} : a = b → a == b
-  | rfl => BEq.refl
+  | rfl => BEq.rfl
 
 theorem not_eq_of_beq_eq_false [BEq α] [ReflBEq α] {a b : α} (h : (a == b) = false) : ¬a = b := by
   intro h'; subst h'; have : true = false := BEq.rfl.symm.trans h; contradiction

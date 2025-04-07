@@ -3464,7 +3464,6 @@ theorem getValueCast!_alterKey {k k' : α} [Inhabited (β k')] {f : Option (β k
     Function.comp_apply]
   split
   · next heq =>
-    cases eq_of_beq heq
     simp only [cast_eq, Option.map_cast_apply]
   · rfl
 
@@ -3497,7 +3496,6 @@ theorem getKey!_alterKey [Inhabited α] {k k' : α} {f : Option (β k) → Optio
   simp only [getKey!_eq_getKey?, hl, getKey?_alterKey, beq_iff_eq]
   split
   · next heq =>
-    cases eq_of_beq heq
     split <;> rfl
   · next heq =>
     rfl
@@ -3532,7 +3530,6 @@ theorem getKeyD_alterKey {k k' fallback : α} {f : Option (β k) → Option (β 
   simp only [hl, getKeyD_eq_getKey?, getKey?_alterKey, beq_iff_eq, Function.comp_apply]
   split
   · next heq =>
-    cases eq_of_beq heq
     split <;> rfl
   · rfl
 
@@ -4712,7 +4709,7 @@ theorem minKey?_alterKey_eq_self [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd �
   simp only [minKey?_eq_some_iff_getKey?_eq_self_and_forall hd.alterKey, getKey?_alterKey _ hd,
     beq_self_eq_true, ↓reduceIte, ite_eq_left_iff, Bool.not_eq_true, Option.not_isSome,
     Option.isNone_iff_eq_none, reduceCtorEq, imp_false, ← Option.isSome_iff_ne_none,
-    containsKey_alterKey hd, beq_iff_eq, Bool.ite_eq_true_distrib, and_congr_right_iff]
+    containsKey_alterKey hd, Bool.ite_eq_true_distrib, and_congr_right_iff]
   intro hf
   apply Iff.intro
   · intro hk k' hk'

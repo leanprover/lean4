@@ -207,7 +207,11 @@ attribute [grind] List.not_mem_nil
 
 @[simp] theorem not_mem_nil {a : α} : ¬ a ∈ [] := by grind
 
-attribute [grind] List.mem_cons
+-- Asked Leo about `grind →` support for `iff`, so we can avoid monstrosities like this:
+theorem _root_.List.eq_head_or_mem_tail_of_mem_cons {a b : α} {l : List α} :
+    a ∈ b :: l → a = b ∨ a ∈ l := List.mem_cons.mp
+
+attribute [grind ] eq_head_or_mem_tail_of_mem_cons mem_cons_self mem_cons_of_mem
 
 @[simp] theorem mem_cons : a ∈ b :: l ↔ a = b ∨ a ∈ l := by grind
 
@@ -345,9 +349,15 @@ theorem forall_getElem {l : List α} {p : α → Prop} :
     elem a l = l.contains a := by
   grind
 
+example [DecidableEq α] {l : List α} :
+    (y ∈ a :: l) = (y = a) ∨ y ∈ l := by
+  grind only [List.mem_cons_self, eq_head_or_mem_tail_of_mem_cons, List.mem_cons_of_mem, cases Or]
+
+-- Reported.
 @[simp] theorem decide_mem_cons [BEq α] [LawfulBEq α] {l : List α} :
     decide (y ∈ a :: l) = (y == a || decide (y ∈ l)) := by
-  cases h : y == a <;> simp_all
+  grind
+  by_cases y = a <;> grind
 
 theorem elem_iff [BEq α] [LawfulBEq α] {a : α} {as : List α} :
     elem a as = true ↔ a ∈ as := ⟨mem_of_elem_eq_true, elem_eq_true_of_mem⟩
@@ -368,7 +378,10 @@ theorem elem_eq_mem [BEq α] [LawfulBEq α] (a : α) (as : List α) :
 
 /-! ### `isEmpty` -/
 
-attribute [grind] List.isEmpty_iff
+theorem nil_of_isEmpty {l : List α} (h : l.isEmpty) : l = [] :=  isEmpty_iff.mp h
+
+attribute [grind →] nil_of_isEmpty -- ideally we could just annotate isEmpty_iff without needing nil_of_isEmpty
+attribute [grind] isEmpty_nil
 
 @[simp] theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by grind
 
@@ -384,6 +397,7 @@ theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 :=
 
 attribute [grind] List.any_nil List.any_cons List.all_nil List.all_cons
 
+-- Perhaps waiting on improvements to grind's handling of `decide`?
 theorem any_eq {l : List α} : l.any p = decide (∃ x, x ∈ l ∧ p x) := by induction l <;> simp [*]
 
 theorem all_eq {l : List α} : l.all p = decide (∀ x, x ∈ l → p x) := by induction l <;> simp [*]
@@ -442,12 +456,29 @@ attribute [grind] List.getElem_set List.getElem?_set
 @[simp] theorem getElem?_set_self {l : List α} {i : Nat} {a : α} (h : i < l.length) :
     (l.set i a)[i]? = some a := by grind
 
+attribute [grind] List.length_set
+grind_pattern List.getElem?_eq_none => l.length ≤ i, l[i]?
+-- grind_pattern List.length_set => as.length, as.set i a
+
+-- attribute [grind] Option.not_mem_none
+-- attribute [grind] Option.map_eq_map
+attribute [grind] Option.map_none Option.map_some
+
+-- We just want one direction of `Option.mem_some`.
+theorem Option.of_mem_some {a b : α} (h : a ∈ some b) : a = b := by simp_all
+
+attribute [grind] Option.of_mem_some
+
+-- Skeptical:
+attribute [grind] List.getElem?_eq_some_getElem_iff
+
 theorem getElem?_set_self' {l : List α} {i : Nat} {a : α} :
     (set l i a)[i]? = Function.const _ a <$> l[i]? := by
+  -- Why doesn't this work before the `by_cases`?
+  -- grind
   by_cases h : i < l.length
-  · simp [getElem?_set_self h, getElem?_eq_getElem h]
-  · simp only [Nat.not_lt] at h
-    simpa [getElem?_eq_none_iff.2 h]
+  · grind
+  · grind
 
 @[simp] theorem getElem_set_ne {l : List α} {i j : Nat} (h : i ≠ j) {a : α}
     (hj : j < (l.set i a).length) :

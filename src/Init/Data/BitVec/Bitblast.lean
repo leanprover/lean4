@@ -2288,7 +2288,7 @@ def aandRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
 /--
   preliminary overflow flag for fast umulOverflow circuit
 -/
-def resRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
+def resRec (x y : BitVec w) (s : Nat) (hs : s < w) (_ : 1 < w): Bool :=
   match s with
   | 0 => false
   | i + 1 => uppcRec x y i (by omega) && aandRec x y (i + 1) (by omega)
@@ -2301,34 +2301,15 @@ def resRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
 /--
   complete fast overflow detecnion circuit for unsigned multiplication
 -/
-theorem fastUmulOverflow (x y : BitVec w) (hw : 0 < w) :
-    umulOverflow x y = (((zeroExtend (w + 1) x) * (zeroExtend (w + 1) y))[w] || resRec x y (w - 1) (by omega)) := by
-  sorry
-
-/--
-  count leading zeroes
--/
-def leadingZeroes (x : BitVec w) (s : Nat) (_ : s < w) : Nat :=
-  match x.getMsbD s with
-  | true => s
-  | false => if hs' : s + 1 < w then leadingZeroes x (s + 1) hs' else 0
-
--- #eval leadingZeroes (4#3) 0 (by omega) 0
--- #eval leadingZeroes (1#3) 0 (by omega) 2
--- #eval leadingZeroes (2#3) 0 (by omega) 1
--- #eval leadingZeroes (7#3) 0 (by omega) 0
-
-/--
- from the paper:
- "x and y in total have less than w - 1 leading zeroes (at most w - 2)"
-  2 ^ (w - n) ≤ x.toNat ∧ 2 ^ (w - m) ≤ y.toNat ∧ m + n ≤ n - 2 → umulOverflow
-  this is not the actual circuit, but I wanted to give it a try, based on the theoretical definition
-  of the fast circuit
--/
-theorem umulOverflow_fast (x y : BitVec w) (hw : 0 < w) :
-    umulOverflow x y = ((leadingZeroes x 0 hw) + (leadingZeroes y 0 hw) < w - 1) && ((zeroExtend (w + 1) x) * (zeroExtend (w + 1) y))[w] := by
-  simp
-  sorry
+theorem fastUmulOverflow (x y : BitVec w) (hw : 1 < w) :
+    umulOverflow x y = (((zeroExtend (w + 1) x) * (zeroExtend (w + 1) y)).getLsbD w || resRec x y (w - 1) (by omega) hw) := by
+  rcases w with _|_|w
+  · simp [hw]; omega
+  · simp [hw]; omega
+  · simp only [umulOverflow, ge_iff_le, truncate_eq_setWidth]
+    simp only [bool_to_prop]
+    simp [resRec, uppcRec, aandRec]
+    sorry
 
 /-- Heuristically, `y <<< x` is much larger than `x`,
 and hence low bits of `y <<< x`. Thus, `(y <<< x) + x = (y <<< x) ||| x.` -/

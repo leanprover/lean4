@@ -2275,7 +2275,7 @@ functional: consider x = 6#3 = 110, y = 5#3 = 101
 def uppcRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
   match s with
   | 0 => x.msb
-  | i + 1 =>  x[w - (i + 1) - 1] && uppcRec x y i (by omega)
+  | i + 1 =>  x.getLsbD (w - (i + 1) - 1) && uppcRec x y i (by omega)
 
 /--
   conjunction for fast umulOverflow circuit
@@ -2283,7 +2283,7 @@ def uppcRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
 def aandRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
   match s with
   | 0 => true
-  | i + 1 => y[i + 1] && uppcRec x y i (by omega)
+  | i + 1 => y.getLsbD (i + 1) && uppcRec x y i (by omega)
 
 /--
   preliminary overflow flag for fast umulOverflow circuit
@@ -2304,6 +2304,20 @@ def resRec (x y : BitVec w) (s : Nat) (hs : s < w): Bool :=
 theorem fastUmulOverflow (x y : BitVec w) (hw : 0 < w) :
     umulOverflow x y = (((zeroExtend (w + 1) x) * (zeroExtend (w + 1) y))[w] || resRec x y (w - 1) (by omega)) := by
   sorry
+
+/--
+  count leading zeroes
+-/
+def leadingZeroes (x : BitVec w) (s : Nat) (_ : s < w) : Nat :=
+  match x.getMsbD s with
+  | true => s
+  | false => if hs' : s + 1 < w then leadingZeroes x (s + 1) hs' else 0
+
+
+-- #eval leadingZeroes (4#3) 0 (by omega) 0
+-- #eval leadingZeroes (1#3) 0 (by omega) 2
+-- #eval leadingZeroes (2#3) 0 (by omega) 1
+-- #eval leadingZeroes (7#3) 0 (by omega) 0
 
 /--
  from the paper:

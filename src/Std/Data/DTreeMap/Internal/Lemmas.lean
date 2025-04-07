@@ -16,6 +16,7 @@ not rely on the contents of this file.
 
 set_option linter.missingDocs true
 set_option autoImplicit false
+set_option Elab.async false
 
 open Std.Internal.List
 open Std.Internal

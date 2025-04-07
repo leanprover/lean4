@@ -1003,7 +1003,7 @@ class BEq (α : Type u) where
 
 open BEq (beq)
 
-instance (priority := 100) [DecidableEq α] : BEq α where
+instance (priority := 500) [DecidableEq α] : BEq α where
   beq a b := decide (Eq a b)
 
 

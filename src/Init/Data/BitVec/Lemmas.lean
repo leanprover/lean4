@@ -2686,7 +2686,7 @@ theorem toInt_append {x : BitVec n} {y : BitVec m} :
           Nat.mul_comm]
 
 @[simp] theorem toInt_append_zero {n m : Nat} {x : BitVec n} :
-    (x ++ 0#m).toInt = x.toInt * (2 ^ m) := by
+    (x ++ 0#m).toInt = (2 ^ m) * x.toInt := by
   simp only [toInt_append, beq_iff_eq, toInt_zero, toNat_ofNat, Nat.zero_mod, Int.cast_ofNat_Int, Int.add_zero,
     ite_eq_right_iff]
   intros h

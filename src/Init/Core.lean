@@ -741,7 +741,7 @@ class ReflBEq (α) [BEq α] : Prop where
   protected rfl {a : α} : a == a
 
 @[simp] theorem BEq.rfl [BEq α] [ReflBEq α] {a : α} : a == a := ReflBEq.rfl
-theorem BEq.refl [BEq α] [ReflBEq α] {a : α} : a == a := BEq.rfl
+theorem BEq.refl [BEq α] [ReflBEq α] (a : α) : a == a := BEq.rfl
 
 theorem beq_of_eq [BEq α] [ReflBEq α] {a b : α} : a = b → a == b
   | rfl => BEq.refl

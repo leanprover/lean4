@@ -502,11 +502,11 @@ theorem getElem?_set' {l : List α} {i j : Nat} {a : α} :
 theorem set_getElem_self {as : List α} {i : Nat} (h : i < as.length) :
     as.set i as[i] = as := by
   apply ext_getElem
-  · simp
+  · grind only [length_set, → List.eq_nil_of_length_eq_zero]
   · intro n h₁ h₂
-    grind -- Why isn't this instantiating `getElem_set`?
-    rw [getElem_set]
-    grind
+    -- But just `attribute [grind] List.getElem_set` doesn't work! Reported.
+    grind [getElem_set]
+
 
 theorem set_eq_of_length_le {l : List α} {i : Nat} (h : l.length ≤ i) {a : α} :
     l.set i a = l := by

@@ -2151,7 +2151,7 @@ theorem replicate_succ' : replicate (n + 1) a = replicate n a ++ [a] := by
   | 0 => by simp
   | n+1 => by simp [replicate_succ, mem_replicate, Nat.succ_ne_zero]
 
-@[simp, deprecated mem_replicate (since := "2024-09-05")]
+@[deprecated mem_replicate (since := "2024-09-05")]
 theorem contains_replicate [BEq α] {n : Nat} {a b : α} :
     (replicate n b).contains a = (a == b && !n == 0) := by
   induction n with
@@ -2160,7 +2160,7 @@ theorem contains_replicate [BEq α] {n : Nat} {a b : α} :
     simp only [replicate_succ, elem_cons]
     split <;> simp_all
 
-@[simp, deprecated mem_replicate (since := "2024-09-05")]
+@[deprecated mem_replicate (since := "2024-09-05")]
 theorem decide_mem_replicate [BEq α] [LawfulBEq α] {a b : α} :
     ∀ {n}, decide (b ∈ replicate n a) = ((¬ n == 0) && b == a)
   | 0 => by simp

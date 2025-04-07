@@ -1345,32 +1345,27 @@ abbrev mkVector_beq_mkVector := @replicate_beq_replicate
     · intro h
       constructor
       rintro ⟨xs, h⟩
-      simpa using Array.isEqv_self_beq ..
+      simp
 
 @[simp] theorem lawfulBEq_iff [BEq α] [NeZero n] : LawfulBEq (Vector α n) ↔ LawfulBEq α := by
   match n, NeZero.ne n with
   | n + 1, _ =>
     constructor
     · intro h
+      have : ReflBEq α := reflBEq_iff.mp h.toReflBEq
       constructor
-      · intro a b h
-        have := replicate_inj (n := n+1) (a := a) (b := b)
-        simp only [Nat.add_one_ne_zero, false_or] at this
-        rw [← this]
-        apply eq_of_beq
-        rw [replicate_beq_replicate]
-        simpa
-      · intro a
-        suffices (replicate (n + 1) a == replicate (n + 1) a) = true by
-          rw [replicate_beq_replicate] at this
-          simpa
-        simp
+      intro a b h
+      have := replicate_inj (n := n+1) (a := a) (b := b)
+      simp only [Nat.add_one_ne_zero, false_or] at this
+      rw [← this]
+      apply eq_of_beq
+      rw [replicate_beq_replicate]
+      simpa
     · intro h
+      have : ReflBEq (Vector α (n + 1)) := reflBEq_iff.mpr inferInstance
       constructor
-      · rintro ⟨as, ha⟩ ⟨bs, hb⟩ h
-        simp_all
-      · rintro ⟨as, ha⟩
-        simp
+      rintro ⟨as, ha⟩ ⟨bs, hb⟩ h
+      simp_all
 
 /-! ### isEqv -/
 
@@ -2675,11 +2670,6 @@ theorem getElem?_replace {xs : Vector α n} {i : Nat} :
     (xs.replace a b)[i]? = if xs[i]? == some a then if a ∈ xs.take i then some a else some b else xs[i]? := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.getElem?_replace]
-  split <;> rename_i h
-  · rw (occs := [2]) [if_pos]
-    simpa using h
-  · rw [if_neg]
-    simpa using h
 
 theorem getElem?_replace_of_ne {xs : Vector α n} {i : Nat} (h : xs[i]? ≠ some a) :
     (xs.replace a b)[i]? = xs[i]? := by

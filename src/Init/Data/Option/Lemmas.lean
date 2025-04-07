@@ -561,27 +561,19 @@ variable [BEq α]
       simpa only [some_beq_some]
     simp
   · intro h
-    constructor
-    · rintro (_ | a) <;> simp
+    infer_instance
 
 @[simp] theorem lawfulBEq_iff : LawfulBEq (Option α) ↔ LawfulBEq α := by
   constructor
   · intro h
+    have : ReflBEq α := reflBEq_iff.mp inferInstance
     constructor
-    · intro a b h
-      apply Option.some.inj
-      apply eq_of_beq
-      simpa
-    · intro a
-      suffices (some a == some a) = true by
-        simpa only [some_beq_some]
-      simp
+    intro a b h
+    apply Option.some.inj
+    apply eq_of_beq
+    simpa
   · intro h
-    constructor
-    · intro a b h
-      simpa using h
-    · intro a
-      simp
+    infer_instance
 
 end beq
 

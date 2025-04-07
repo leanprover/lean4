@@ -131,6 +131,12 @@ theorem beq_cons₂ [BEq α] {a b : α} {as bs : List α} : List.beq (a::as) (b:
 
 instance [BEq α] : BEq (List α) := ⟨List.beq⟩
 
+instance [BEq α] [ReflBEq α] : ReflBEq (List α) where
+  rfl {as} := by
+    induction as with
+    | nil => rfl
+    | cons a as ih => simp [BEq.beq, List.beq]; exact ih
+
 instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where
   eq_of_beq {as bs} := by
     induction as generalizing bs with
@@ -142,10 +148,6 @@ instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where
         simp [show (a::as == b::bs) = (a == b && as == bs) from rfl, -and_imp]
         intro ⟨h₁, h₂⟩
         exact ⟨h₁, ih h₂⟩
-  rfl {as} := by
-    induction as with
-    | nil => rfl
-    | cons a as ih => simp [BEq.beq, List.beq, LawfulBEq.rfl]; exact ih
 
 /--
 Returns `true` if `as` and `bs` have the same length and they are pairwise related by `eqv`.

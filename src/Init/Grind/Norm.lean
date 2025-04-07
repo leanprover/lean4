@@ -89,6 +89,14 @@ theorem Int.pow_one (a : Int) : a ^ 1 = a := by
 theorem forall_true (p : True → Prop) : (∀ h : True, p h) = p True.intro :=
   propext <| Iff.intro (fun h => h True.intro) (fun h _ => h)
 
+-- Helper theorem used by the simproc `simpBoolEq`
+theorem flip_bool_eq (a b : Bool) : (a = b) = (b = a) := by
+  rw [@Eq.comm _ a b]
+
+-- Helper theorem used by the simproc `simpBoolEq`
+theorem bool_eq_to_prop (a b : Bool) : (a = b) = ((a = true) = (b = true)) := by
+  simp
+
 init_grind_norm
   /- Pre theorems -/
   not_and not_or not_ite not_forall not_exists

@@ -13,14 +13,14 @@ termination_by n
 -- #check bar.match_1
 -- #print bar.induct
 
--- NB: The induction theorem has both `h` in scope, as its original type mentioning `x`,
+-- NB: The induction theorem used to ahve two `h` in scope, as its original type mentioning `x`,
 -- and a refined `h` mentioning `m+1`.
--- The former is redundant here, but will we always know that?
--- No HEq between the two `h`s due to proof irrelevance
+-- At some point we had a HEq between them, but not any more, thanks to proof irrelevance
+-- Since #7110, we drop the shadowed `h`.
 
 /--
-info: bar.induct (motive : Nat → Prop) (case1 : motive 0)
-  (case2 : ∀ (m : Nat), ¬m + 1 = 0 → ¬m.succ = 0 → motive m → motive m.succ) (n : Nat) : motive n
+info: bar.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (m : Nat), ¬m + 1 = 0 → motive m → motive m.succ)
+  (n : Nat) : motive n
 -/
 #guard_msgs in
 #check bar.induct
@@ -38,11 +38,9 @@ termination_by n
 
 /--
 info: baz.induct (motive : (n : Nat) → Fin (n + 1) → Prop) (case1 : ∀ (i : Fin (0 + 1)), motive 0 i)
-  (case2 : ¬1 = 0 → ∀ (i : Fin (1 + 1)), ¬1 = 0 → motive 1 i)
+  (case2 : ¬1 = 0 → ∀ (i : Fin (1 + 1)), motive 1 i)
   (case3 :
-    ∀ (m : Nat),
-      ¬m + 2 = 0 →
-        ∀ (i : Fin (m.succ.succ + 1)), ¬m.succ.succ = 0 → motive (m + 1) ⟨↑(i + 1) - 1, ⋯⟩ → motive m.succ.succ i)
+    ∀ (m : Nat), ¬m + 2 = 0 → ∀ (i : Fin (m.succ.succ + 1)), motive (m + 1) ⟨↑(i + 1) - 1, ⋯⟩ → motive m.succ.succ i)
   (n : Nat) (i : Fin (n + 1)) : motive n i
 -/
 #guard_msgs in

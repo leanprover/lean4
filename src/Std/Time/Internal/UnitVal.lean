@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sofia Rodrigues
 -/
 prelude
+import Std.Classes.Ord
 import Std.Internal.Rat
 
 namespace Std
@@ -17,6 +18,7 @@ set_option linter.all true
 /--
 A structure representing a unit of a given ratio type `α`.
 -/
+@[ext]
 structure UnitVal (α : Rat) where
   /--
   Creates a `UnitVal` from an `Int`.
@@ -27,12 +29,27 @@ structure UnitVal (α : Rat) where
   Value inside the UnitVal Value.
   -/
   val : Int
-  deriving Inhabited, BEq
+deriving Inhabited, DecidableEq
 
 instance : LE (UnitVal x) where
   le x y := x.val ≤ y.val
 
-instance { x y : UnitVal z }: Decidable (x ≤ y) :=
+instance : Ord (UnitVal x) where
+  compare x y := compare x.val y.val
+
+theorem UnitVal.compare_def {x} {a b : UnitVal x} :
+    compare a b = compare a.1 b.1 := by rfl
+
+instance : OrientedOrd (UnitVal x) where
+  eq_swap := OrientedOrd.eq_swap (α := Int)
+
+instance : TransOrd (UnitVal x) where
+  isLE_trans := TransOrd.isLE_trans (α := Int)
+
+instance : LawfulEqOrd (UnitVal x) where
+  eq_of_compare := UnitVal.ext ∘ LawfulEqOrd.eq_of_compare (α := Int)
+
+instance {x y : UnitVal z}: Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
 
 namespace UnitVal

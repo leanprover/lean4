@@ -14,6 +14,9 @@ import Init.Data.List.Erase
 # Lemmas about `List.range` and `List.enum`
 -/
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 open Nat
@@ -27,7 +30,7 @@ open Nat
     fun ⟨i, h, e⟩ => e ▸ ⟨Nat.le_add_right .., Nat.add_lt_add_left h _⟩,
     fun ⟨h₁, h₂⟩ => ⟨m - s, Nat.sub_lt_left_of_lt_add h₁ h₂, (Nat.add_sub_cancel' h₁).symm⟩⟩
 
-theorem getLast?_range' (n : Nat) : (range' s n).getLast? = if n = 0 then none else some (s + n - 1) := by
+theorem getLast?_range' {n : Nat} : (range' s n).getLast? = if n = 0 then none else some (s + n - 1) := by
   induction n generalizing s with
   | zero => simp
   | succ n ih =>
@@ -39,12 +42,12 @@ theorem getLast?_range' (n : Nat) : (range' s n).getLast? = if n = 0 then none e
       simp
       omega
 
-@[simp] theorem getLast_range' (n : Nat) (h) : (range' s n).getLast h = s + n - 1 := by
+@[simp] theorem getLast_range' {n : Nat} (h) : (range' s n).getLast h = s + n - 1 := by
   cases n with
   | zero => simp at h
-  | succ n => simp [getLast?_range', getLast_eq_iff_getLast_eq_some]
+  | succ n => simp [getLast?_range', getLast_eq_iff_getLast?_eq_some]
 
-theorem pairwise_lt_range' s n (step := 1) (pos : 0 < step := by simp) :
+theorem pairwise_lt_range' {s n} (step := 1) (pos : 0 < step := by simp) :
     Pairwise (· < ·) (range' s n step) :=
   match s, n, step, pos with
   | _, 0, _, _ => Pairwise.nil
@@ -54,9 +57,9 @@ theorem pairwise_lt_range' s n (step := 1) (pos : 0 < step := by simp) :
     · intros n m
       rw [mem_range'] at m
       omega
-    · exact pairwise_lt_range' (s + step) n step pos
+    · exact pairwise_lt_range' (s := s + step) step pos
 
-theorem pairwise_le_range' s n (step := 1) :
+theorem pairwise_le_range' {s n} (step := 1) :
     Pairwise (· ≤ ·) (range' s n step) :=
   match s, n, step with
   | _, 0, _ => Pairwise.nil
@@ -66,12 +69,12 @@ theorem pairwise_le_range' s n (step := 1) :
     · intros n m
       rw [mem_range'] at m
       omega
-    · exact pairwise_le_range' (s + step) n step
+    · exact pairwise_le_range' (s := s + step) step
 
-theorem nodup_range' (s n : Nat) (step := 1) (h : 0 < step := by simp) : Nodup (range' s n step) :=
-  (pairwise_lt_range' s n step h).imp Nat.ne_of_lt
+theorem nodup_range' {s n : Nat} (step := 1) (h : 0 < step := by simp) : Nodup (range' s n step) :=
+  (pairwise_lt_range' step h).imp Nat.ne_of_lt
 
-theorem map_sub_range' (a s n : Nat) (h : a ≤ s) :
+theorem map_sub_range' {a s : Nat} (h : a ≤ s) (n : Nat) :
     map (· - a) (range' s n step) = range' (s - a) n step := by
   conv => lhs; rw [← Nat.add_sub_cancel' h]
   rw [← map_add_range', map_map, (?_ : _∘_ = _), map_id]
@@ -93,7 +96,7 @@ theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs =
     simp only [range'_succ]
     rw [cons_eq_append_iff]
     constructor
-    · rintro (⟨rfl, rfl⟩ | ⟨a, rfl, h⟩)
+    · rintro (⟨rfl, rfl⟩ | ⟨_, rfl, h⟩)
       · exact ⟨0, by simp [range'_succ]⟩
       · simp only [ih] at h
         obtain ⟨k, h, rfl, rfl⟩ := h
@@ -117,7 +120,7 @@ theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs =
   simp only [range'_eq_append_iff, eq_comm (a := i :: _), range'_eq_cons_iff]
   intro h
   constructor
-  · rintro ⟨as, ⟨x, k, h₁, rfl, rfl, h₂, rfl⟩, h₃⟩
+  · rintro ⟨as, ⟨_, k, h₁, rfl, rfl, h₂, rfl⟩, h₃⟩
     constructor
     · omega
     · simpa using h₃
@@ -156,7 +159,7 @@ theorem erase_range' :
 
 /-! ### range -/
 
-theorem reverse_range' : ∀ s n : Nat, reverse (range' s n) = map (s + n - 1 - ·) (range n)
+theorem reverse_range' : ∀ {s n : Nat}, reverse (range' s n) = map (s + n - 1 - ·) (range n)
   | _, 0 => rfl
   | s, n + 1 => by
     rw [range'_1_concat, reverse_append, range_succ_eq_map,
@@ -169,20 +172,20 @@ theorem mem_range {m n : Nat} : m ∈ range n ↔ m < n := by
 
 theorem not_mem_range_self {n : Nat} : n ∉ range n := by simp
 
-theorem self_mem_range_succ (n : Nat) : n ∈ range (n + 1) := by simp
+theorem self_mem_range_succ {n : Nat} : n ∈ range (n + 1) := by simp
 
-theorem pairwise_lt_range (n : Nat) : Pairwise (· < ·) (range n) := by
+theorem pairwise_lt_range {n : Nat} : Pairwise (· < ·) (range n) := by
   simp +decide only [range_eq_range', pairwise_lt_range']
 
-theorem pairwise_le_range (n : Nat) : Pairwise (· ≤ ·) (range n) :=
-  Pairwise.imp Nat.le_of_lt (pairwise_lt_range _)
+theorem pairwise_le_range {n : Nat} : Pairwise (· ≤ ·) (range n) :=
+  Pairwise.imp Nat.le_of_lt pairwise_lt_range
 
-@[simp] theorem take_range (m n : Nat) : take m (range n) = range (min m n) := by
+@[simp] theorem take_range {i n : Nat} : take i (range n) = range (min i n) := by
   apply List.ext_getElem
   · simp
   · simp +contextual [getElem_take, Nat.lt_min]
 
-theorem nodup_range (n : Nat) : Nodup (range n) := by
+theorem nodup_range {n : Nat} : Nodup (range n) := by
   simp +decide only [range_eq_range', nodup_range']
 
 @[simp] theorem find?_range_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
@@ -260,7 +263,7 @@ theorem iota_eq_append_iff : iota n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs = (rang
 
 @[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20")]
 theorem pairwise_gt_iota (n : Nat) : Pairwise (· > ·) (iota n) := by
-  simpa only [iota_eq_reverse_range', pairwise_reverse] using pairwise_lt_range' 1 n
+  simpa only [iota_eq_reverse_range', pairwise_reverse] using pairwise_lt_range'
 
 @[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20")]
 theorem nodup_iota (n : Nat) : Nodup (iota n) :=
@@ -345,14 +348,14 @@ end
 /-! ### zipIdx -/
 
 @[simp]
-theorem zipIdx_singleton (x : α) (k : Nat) : zipIdx [x] k = [(x, k)] :=
+theorem zipIdx_singleton {x : α} {k : Nat} : zipIdx [x] k = [(x, k)] :=
   rfl
 
-@[simp] theorem head?_zipIdx (l : List α) (k : Nat) :
+@[simp] theorem head?_zipIdx {l : List α} {k : Nat} :
     (zipIdx l k).head? = l.head?.map fun a => (a, k) := by
   simp [head?_eq_getElem?]
 
-@[simp] theorem getLast?_zipIdx (l : List α) (k : Nat) :
+@[simp] theorem getLast?_zipIdx {l : List α} {k : Nat} :
     (zipIdx l k).getLast? = l.getLast?.map fun a => (a, k + l.length - 1) := by
   simp [getLast?_eq_getElem?]
   cases l <;> simp; omega
@@ -398,12 +401,12 @@ theorem snd_lt_add_of_mem_zipIdx {x : α × Nat} {l : List α} {k : Nat} (h : x 
 theorem snd_lt_of_mem_zipIdx {x : α × Nat} {l : List α} {k : Nat} (h : x ∈ l.zipIdx k) : x.2 < l.length + k := by
   simpa [Nat.add_comm] using snd_lt_add_of_mem_zipIdx h
 
-theorem map_zipIdx (f : α → β) (l : List α) (k : Nat) :
+theorem map_zipIdx {f : α → β} {l : List α} {k : Nat} :
     map (Prod.map f id) (zipIdx l k) = zipIdx (l.map f) k := by
   induction l generalizing k <;> simp_all
 
 theorem fst_mem_of_mem_zipIdx {x : α × Nat} {l : List α} {k : Nat} (h : x ∈ zipIdx l k) : x.1 ∈ l :=
-  zipIdx_map_fst k l ▸ mem_map_of_mem _ h
+  zipIdx_map_fst k l ▸ mem_map_of_mem h
 
 theorem fst_eq_of_mem_zipIdx {x : α × Nat} {l : List α} {k : Nat} (h : x ∈ zipIdx l k) :
     x.1 = l[x.2 - k]'(by have := le_snd_of_mem_zipIdx h; have := snd_lt_add_of_mem_zipIdx h; omega) := by
@@ -411,7 +414,7 @@ theorem fst_eq_of_mem_zipIdx {x : α × Nat} {l : List α} {k : Nat} (h : x ∈ 
   | nil => cases h
   | cons hd tl ih =>
     cases h with
-    | head h => simp
+    | head _ => simp
     | tail h m =>
       specialize ih m
       have : x.2 - k = x.2 - (k + 1) + 1 := by
@@ -429,7 +432,7 @@ theorem mem_zipIdx' {x : α} {i : Nat} {xs : List α} (h : (x, i) ∈ xs.zipIdx)
     i < xs.length ∧ x = xs[i]'(by have := le_snd_of_mem_zipIdx h; have := snd_lt_add_of_mem_zipIdx h; omega) :=
   ⟨by simpa using snd_lt_add_of_mem_zipIdx h, fst_eq_of_mem_zipIdx h⟩
 
-theorem zipIdx_map (l : List α) (k : Nat) (f : α → β) :
+theorem zipIdx_map {l : List α} {k : Nat} {f : α → β} :
     zipIdx (l.map f) k = (zipIdx l k).map (Prod.map f id) := by
   induction l with
   | nil => rfl
@@ -437,7 +440,7 @@ theorem zipIdx_map (l : List α) (k : Nat) (f : α → β) :
     rw [map_cons, zipIdx_cons', zipIdx_cons', map_cons, map_map, IH, map_map]
     rfl
 
-theorem zipIdx_append (xs ys : List α) (k : Nat) :
+theorem zipIdx_append {xs ys : List α} {k : Nat} :
     zipIdx (xs ++ ys) k = zipIdx xs k ++ zipIdx ys (k + xs.length) := by
   induction xs generalizing ys k with
   | nil => simp
@@ -462,12 +465,12 @@ theorem zipIdx_eq_append_iff {l : List α} {k : Nat} :
       ∃ l₁' l₂', l = l₁' ++ l₂' ∧ l₁ = zipIdx l₁' k ∧ l₂ = zipIdx l₂' (k + l₁'.length) := by
   rw [zipIdx_eq_zip_range', zip_eq_append_iff]
   constructor
-  · rintro ⟨w, x, y, z, h, rfl, h', rfl, rfl⟩
+  · rintro ⟨ws, xs, ys, zs, h, rfl, h', rfl, rfl⟩
     rw [range'_eq_append_iff] at h'
     obtain ⟨k, -, rfl, rfl⟩ := h'
     simp only [length_range'] at h
     obtain rfl := h
-    refine ⟨w, x, rfl, ?_⟩
+    refine ⟨ws, xs, rfl, ?_⟩
     simp only [zipIdx_eq_zip_range', length_append, true_and]
     congr
     omega
@@ -529,7 +532,7 @@ theorem map_enumFrom (f : α → β) (n : Nat) (l : List α) :
 
 @[deprecated fst_mem_of_mem_zipIdx (since := "2025-01-21")]
 theorem snd_mem_of_mem_enumFrom {x : Nat × α} {n : Nat} {l : List α} (h : x ∈ enumFrom n l) : x.2 ∈ l :=
-  enumFrom_map_snd n l ▸ mem_map_of_mem _ h
+  enumFrom_map_snd n l ▸ mem_map_of_mem h
 
 @[deprecated fst_eq_of_mem_zipIdx (since := "2025-01-21")]
 theorem snd_eq_of_mem_enumFrom {x : Nat × α} {n : Nat} {l : List α} (h : x ∈ enumFrom n l) :
@@ -538,7 +541,7 @@ theorem snd_eq_of_mem_enumFrom {x : Nat × α} {n : Nat} {l : List α} (h : x �
   | nil => cases h
   | cons hd tl ih =>
     cases h with
-    | head h => simp
+    | head _ => simp
     | tail h m =>
       specialize ih m
       have : x.1 - n = x.1 - (n + 1) + 1 := by
@@ -589,12 +592,12 @@ theorem enumFrom_eq_append_iff {l : List α} {n : Nat} :
       ∃ l₁' l₂', l = l₁' ++ l₂' ∧ l₁ = l₁'.enumFrom n ∧ l₂ = l₂'.enumFrom (n + l₁'.length) := by
   rw [enumFrom_eq_zip_range', zip_eq_append_iff]
   constructor
-  · rintro ⟨w, x, y, z, h, h', rfl, rfl, rfl⟩
+  · rintro ⟨ws, xs, ys, zs, h, h', rfl, rfl, rfl⟩
     rw [range'_eq_append_iff] at h'
     obtain ⟨k, -, rfl, rfl⟩ := h'
     simp only [length_range'] at h
     obtain rfl := h
-    refine ⟨y, z, rfl, ?_⟩
+    refine ⟨ys, zs, rfl, ?_⟩
     simp only [enumFrom_eq_zip_range', length_append, true_and]
     congr
     omega
@@ -624,7 +627,7 @@ theorem enum_length : (enum l).length = l.length :=
   enumFrom_length
 
 @[deprecated getElem?_zipIdx (since := "2025-01-21"), simp]
-theorem getElem?_enum (l : List α) (n : Nat) : (enum l)[n]? = l[n]?.map fun a => (n, a) := by
+theorem getElem?_enum (l : List α) (i : Nat) : (enum l)[i]? = l[i]?.map fun a => (i, a) := by
   rw [enum, getElem?_enumFrom, Nat.zero_add]
 
 @[deprecated getElem_zipIdx (since := "2025-01-21"), simp]

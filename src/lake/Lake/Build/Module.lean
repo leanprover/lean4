@@ -14,17 +14,18 @@ import Lake.Build.Target
 Build function definitions for a module's builtin facets.
 -/
 
-open System
+open System Lean
 
 namespace Lake
 
 /-- Compute library directories and build external library Jobs of the given packages. -/
+@[deprecated "Deprecated without replacement" (since := "2025-03-28")]
 def recBuildExternDynlibs (pkgs : Array Package)
 : FetchM (Array (Job Dynlib) × Array FilePath) := do
   let mut libDirs := #[]
   let mut jobs : Array (Job Dynlib) := #[]
   for pkg in pkgs do
-    libDirs := libDirs.push pkg.nativeLibDir
+    libDirs := libDirs.push pkg.sharedLibDir
     jobs := jobs.append <| ← pkg.externLibs.mapM (·.dynlib.fetch)
   return (jobs, libDirs)
 
@@ -104,6 +105,89 @@ def Module.precompileImportsFacetConfig : ModuleFacetConfig precompileImportsFac
 def fetchExternLibs (pkgs : Array Package) : FetchM (Job (Array Dynlib)) :=
   Job.collectArray <$> pkgs.flatMapM (·.externLibs.mapM (·.dynlib.fetch))
 
+private def Module.fetchImportLibsCore
+  (self : Module) (imps : Array Module) (compileSelf : Bool)
+  (init : NameSet × Array (Job Dynlib))
+: FetchM (NameSet × Array (Job Dynlib)) :=
+  imps.foldlM (init := init) fun (libs, jobs) imp => do
+    if libs.contains imp.lib.name then
+      return (libs, jobs)
+    else if compileSelf && self.lib.name = imp.lib.name then
+      let job ← imp.dynlib.fetch
+      return (libs, jobs.push job)
+    else if compileSelf || imp.shouldPrecompile then
+      let jobs ← jobs.push <$> imp.lib.shared.fetch
+      return (libs.insert imp.lib.name, jobs)
+    else
+      return (libs, jobs)
+/--
+Computes the transitive dynamic libraries of a module's imports.
+Modules from the same library are loaded individually, while modules
+from other libraries are loaded as part of the whole library.
+-/
+@[inline] private def Module.fetchImportLibs
+  (self : Module) (imps : Array Module) (compileSelf : Bool)
+: FetchM (Array (Job Dynlib)) :=
+  (·.2) <$> self.fetchImportLibsCore imps compileSelf ({}, #[])
+
+/-- Fetch the dynlibs of a list of imports. **For internal use.**  -/
+@[inline] def fetchImportLibs
+  (mods : Array Module) : FetchM (Job (Array Dynlib))
+:= do
+  let (_, jobs) ← mods.foldlM (init := ({}, #[])) fun s mod => do
+    let imports ← (← mod.imports.fetch).await
+    mod.fetchImportLibsCore imports mod.shouldPrecompile s
+  let jobs ← mods.foldlM (init := jobs) fun jobs mod => do
+    if mod.shouldPrecompile then
+      jobs.push <$> mod.dynlib.fetch
+    else return jobs
+  return Job.collectArray jobs
+
+/--
+Topologically sorts the library dependency tree by name.
+Libraries come *after* their dependencies.
+-/
+private partial def mkLoadOrder (libs : Array Dynlib) : FetchM (Array Dynlib) := do
+  let r := libs.foldlM (m := Except (Cycle String)) (init := ({}, #[])) fun (v, o) lib =>
+    go lib [] v o
+  match r with
+  | .ok (_, order) => pure order
+  | .error cycle => error s!"library dependency cycle:\n{formatCycle cycle}"
+where
+  go lib (ps : List String) (v : RBMap String Unit compare) (o : Array Dynlib) := do
+    if v.contains lib.name then
+      return (v, o)
+    if ps.contains lib.name then
+      throw (lib.name :: ps)
+    let ps := lib.name :: ps
+    let v := v.insert lib.name ()
+    let (v, o) ← lib.deps.foldlM (init := (v, o)) fun (v, o) lib =>
+      go lib ps v o
+    let o := o.push lib
+    return (v, o)
+
+def computeModuleDeps
+  (impLibs : Array Dynlib) (externLibs : Array Dynlib)
+  (dynlibs : Array Dynlib) (plugins : Array Dynlib)
+: FetchM ModuleDeps := do
+  /-
+  Requirements:
+  * Lean wants the external library symbols before module symbols.
+  * Unix requires the file extension of the dynlib.
+  * For some reason, building from the Lean server requires full paths.
+    Everything else loads fine with just the augmented library path.
+  * Linux needs the augmented path to resolve nested dependencies in dynlibs.
+  -/
+  let impLibs ← mkLoadOrder impLibs
+  let mut dynlibs := externLibs ++ dynlibs
+  let mut plugins := plugins
+  for impLib in impLibs do
+    if impLib.plugin then
+      plugins := plugins.push impLib
+    else
+      dynlibs := dynlibs.push impLib
+  return {dynlibs, plugins}
+
 /--
 Recursively build a module's dependencies, including:
 * Transitive local imports
@@ -123,39 +207,25 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
     if imp.name = mod.name then
       logError s!"{mod.leanFile}: module imports itself"
     imp.olean.fetch
-  let precompileImports ← if mod.shouldPrecompile then
-    mod.transImports.fetch else mod.precompileImports.fetch
-  let precompileImports ← precompileImports.await
-  let modLibJobs ← precompileImports.mapM (·.dynlib.fetch)
-  let modLibsJob := Job.collectArray modLibJobs
-  let pkgs := precompileImports.foldl (·.insert ·.pkg) OrdPackageSet.empty
-  let pkgs := if mod.shouldPrecompile then pkgs.insert mod.pkg else pkgs
-  let externLibsJob ← fetchExternLibs pkgs.toArray
-  let dynlibsJob ← mod.dynlibs.fetch
-  let pluginsJob ← mod.plugins.fetch
+  let impLibsJob ← Job.collectArray <$>
+    mod.fetchImportLibs directImports mod.shouldPrecompile
+  let externLibsJob ← Job.collectArray <$>
+    mod.pkg.externLibs.mapM (·.dynlib.fetch)
+  let dynlibsJob ← mod.dynlibs.fetchIn mod.pkg
+  let pluginsJob ← mod.plugins.fetchIn mod.pkg
 
   extraDepJob.bindM fun _ => do
-  importJob.bindM fun _ => do
+  importJob.bindM (sync := true) fun _ => do
   let depTrace ← takeTrace
-  modLibsJob.bindM fun modLibs => do
-  externLibsJob.bindM fun externLibs => do
-  dynlibsJob.bindM fun dynlibs => do
-  pluginsJob.mapM fun plugins => do
+  impLibsJob.bindM (sync := true) fun impLibs => do
+  externLibsJob.bindM (sync := true) fun externLibs => do
+  dynlibsJob.bindM (sync := true) fun dynlibs => do
+  pluginsJob.mapM (sync := true) fun plugins => do
     match mod.platformIndependent with
     | none => addTrace depTrace
     | some false => addTrace depTrace; addPlatformTrace
     | some true => setTrace depTrace
-    /-
-    Requirements:
-    * Lean wants the external library symbols before module symbols.
-    * Unix requires the file extension of the dynlib.
-    * For some reason, building from the Lean server requires full paths.
-      Everything else loads fine with just the augmented library path.
-    * Linux needs the augmented path to resolve nested dependencies in dynlibs.
-    -/
-    let dynlibs := externLibs.map (·.path) ++ dynlibs.map (·.path)
-    let plugins := modLibs.map (·.path) ++ plugins.map (·.path)
-    return {dynlibs, plugins}
+    computeModuleDeps impLibs externLibs dynlibs plugins
 
 /-- The `ModuleFacetConfig` for the builtin `depsFacet`. -/
 def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=
@@ -310,57 +380,31 @@ def Module.oFacetConfig : ModuleFacetConfig oFacet :=
 Recursively build the shared library of a module
 (e.g., for `--load-dynlib` or `--plugin`).
 -/
--- TODO: Return `Job OrdModuleSet × OrdPackageSet` or `OrdRBSet Dynlib`?
 def Module.recBuildDynlib (mod : Module) : FetchM (Job Dynlib) :=
   withRegisterJob s!"{mod.name}:dynlib" do
-
   -- Fetch object files
-  let linkJobs ← mod.nativeFacets true |>.mapM (fetch <| mod.facet ·.name)
-  let linksJob := Job.collectArray linkJobs
-
+  let objJobs ← (mod.nativeFacets true).mapM (·.fetch mod)
   -- Fetch dependencies' dynlibs
-  -- for platforms that must link to them (e.g., Windows)
-  let (modLibsJob, externLibsJob) ← id do
-    if Platform.isWindows then
-      let transImports ← (← mod.transImports.fetch).await
-      let modLibsJob ← Job.collectArray <$> transImports.mapM (·.dynlib.fetch)
-      let pkgs := transImports.foldl (·.insert ·.pkg)
-        OrdPackageSet.empty |>.insert mod.pkg |>.toArray
-      let externLibsJob ← fetchExternLibs pkgs
-      return (modLibsJob, externLibsJob)
-    else
-      return (Job.pure #[], Job.pure #[])
-
-  -- Build dynlib
-  linksJob.bindM fun links => do
-  modLibsJob.bindM fun modLibs => do
-  externLibsJob.mapM fun externLibs => do
-    addLeanTrace
-    addPlatformTrace -- shared libraries are platform-dependent artifacts
-    addPureTrace mod.linkArgs
-    buildFileUnlessUpToDate' mod.dynlibFile do
-      let lean ← getLeanInstall
-      let args := links.map toString
-       let args :=
-        if Platform.isWindows then
-          args ++ (modLibs ++ externLibs).map (·.path.toString)
-        else
-          args
-      let args := args ++
-        mod.weakLinkArgs ++ mod.linkArgs ++ lean.ccLinkSharedFlags
-      compileSharedLib mod.dynlibFile args lean.cc
-    return ⟨mod.dynlibFile, mod.dynlibName⟩
+  let libJobs ← id do
+    let imps ← (← mod.imports.fetch).await
+    let libJobs ← mod.fetchImportLibs imps true
+    let libJobs ← mod.lib.moreLinkLibs.foldlM
+      (·.push <$> ·.fetchIn mod.pkg) libJobs
+    let libJobs ← mod.pkg.externLibs.foldlM
+      (·.push <$> ·.dynlib.fetch) libJobs
+    return libJobs
+  buildLeanSharedLib mod.dynlibName mod.dynlibFile objJobs libJobs
+    mod.weakLinkArgs mod.linkArgs (plugin := true)
 
 /-- The `ModuleFacetConfig` for the builtin `dynlibFacet`. -/
 def Module.dynlibFacetConfig : ModuleFacetConfig dynlibFacet :=
   mkFacetJobConfig Module.recBuildDynlib
 
-open Module in
 /--
 A name-configuration map for the initial set of
-Lake module facets (e.g., `lean.{imports, c, o, dynlib]`).
+Lake module facets (e.g., `imports`, `c`, `o`, `dynlib`).
 -/
-def initModuleFacetConfigs : DNameMap ModuleFacetConfig :=
+def Module.initFacetConfigs : DNameMap ModuleFacetConfig :=
   DNameMap.empty
   |>.insert importsFacet importsFacetConfig
   |>.insert transImportsFacet transImportsFacetConfig
@@ -379,3 +423,6 @@ def initModuleFacetConfigs : DNameMap ModuleFacetConfig :=
   |>.insert oExportFacet oExportFacetConfig
   |>.insert oNoExportFacet oNoExportFacetConfig
   |>.insert dynlibFacet dynlibFacetConfig
+
+@[inherit_doc Module.initFacetConfigs]
+abbrev initModuleFacetConfigs := Module.initFacetConfigs

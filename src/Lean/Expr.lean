@@ -972,6 +972,10 @@ def fvarId! : Expr → FVarId
   | fvar n => n
   | _      => panic! "fvar expected"
 
+def fvarId? : Expr → Option FVarId
+  | fvar n => some n
+  | _      => none
+
 def mvarId! : Expr → MVarId
   | mvar n => n
   | _      => panic! "mvar expected"
@@ -1132,7 +1136,7 @@ private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
 @[inline] def getAppArgs (e : Expr) : Array Expr :=
   let dummy := mkSort levelZero
   let nargs := e.getAppNumArgs
-  getAppArgsAux e (mkArray nargs dummy) (nargs-1)
+  getAppArgsAux e (.replicate nargs dummy) (nargs-1)
 
 private def getBoundedAppArgsAux : Expr → Array Expr → Nat → Array Expr
   | app f a, as, i + 1 => getBoundedAppArgsAux f (as.set! i a) i
@@ -1147,7 +1151,7 @@ where `k` is minimal such that the size of this array is at most `maxArgs`.
 @[inline] def getBoundedAppArgs (maxArgs : Nat) (e : Expr) : Array Expr :=
   let dummy := mkSort levelZero
   let nargs := min maxArgs e.getAppNumArgs
-  getBoundedAppArgsAux e (mkArray nargs dummy) nargs
+  getBoundedAppArgsAux e (.replicate nargs dummy) nargs
 
 private def getAppRevArgsAux : Expr → Array Expr → Array Expr
   | app f a, as => getAppRevArgsAux f (as.push a)
@@ -1165,7 +1169,7 @@ private def getAppRevArgsAux : Expr → Array Expr → Array Expr
 @[inline] def withApp (e : Expr) (k : Expr → Array Expr → α) : α :=
   let dummy := mkSort levelZero
   let nargs := e.getAppNumArgs
-  withAppAux k e (mkArray nargs dummy) (nargs-1)
+  withAppAux k e (.replicate nargs dummy) (nargs-1)
 
 /-- Return the function (name) and arguments of an application. -/
 def getAppFnArgs (e : Expr) : Name × Array Expr :=
@@ -1178,7 +1182,7 @@ The resulting array has size `n` even if `f.getAppNumArgs < n`.
 -/
 @[inline] def getAppArgsN (e : Expr) (n : Nat) : Array Expr :=
   let dummy := mkSort levelZero
-  loop n e (mkArray n dummy)
+  loop n e (.replicate n dummy)
 where
   loop : Nat → Expr → Array Expr → Array Expr
     | 0,   _,        as => as
@@ -1268,11 +1272,23 @@ This operation traverses the expression tree.
 @[extern "lean_expr_has_loose_bvar"]
 opaque hasLooseBVar (e : @& Expr) (bvarIdx : @& Nat) : Bool
 
-/-- Return true if `e` contains the loose bound variable `bvarIdx` in an explicit parameter, or in the range if `tryRange == true`. -/
-def hasLooseBVarInExplicitDomain : Expr → Nat → Bool → Bool
-  | Expr.forallE _ d b bi, bvarIdx, tryRange =>
-    (bi.isExplicit && hasLooseBVar d bvarIdx) || hasLooseBVarInExplicitDomain b (bvarIdx+1) tryRange
-  | e, bvarIdx, tryRange => tryRange && hasLooseBVar e bvarIdx
+/--
+Returns true if `e` contains the loose bound variable `bvarIdx` in an explicit parameter,
+or in the range if `considerRange == true`.
+Additionally, if the bound variable appears in an implicit parameter,
+it transitively looks for that implicit parameter.
+-/
+-- This should be kept in sync with `lean::has_loose_bvars_in_domain`
+def hasLooseBVarInExplicitDomain (e : Expr) (bvarIdx : Nat) (considerRange : Bool) : Bool :=
+  match e with
+  | Expr.forallE _ d b bi =>
+    (hasLooseBVar d bvarIdx
+      && (bi.isExplicit
+          -- "Transitivity": bvar occurs in current implicit argument,
+          -- so we search for the current argument in the body.
+          || hasLooseBVarInExplicitDomain b 0 considerRange))
+    || hasLooseBVarInExplicitDomain b (bvarIdx+1) considerRange
+  | e => considerRange && hasLooseBVar e bvarIdx
 
 /--
 Lower the loose bound variables `>= s` in `e` by `d`.
@@ -1293,16 +1309,27 @@ opaque liftLooseBVars (e : @& Expr) (s d : @& Nat) : Expr
 It marks any parameter with an explicit binder annotation if there is another explicit arguments that depends on it or
 the resulting type if `considerRange == true`.
 
-Remark: we use this function to infer the bind annotations of inductive datatype constructors, and structure projections.
-When the `{}` annotation is used in these commands, we set `considerRange == false`.
+Remark: we use this function to infer the binder annotations of structure projections.
 -/
-def inferImplicit : Expr → Nat → Bool → Expr
-  | Expr.forallE n d b bi, i+1, considerRange =>
+-- This should be kept in synch with `lean::infer_implicit`
+def inferImplicit (e : Expr) (numParams : Nat) (considerRange : Bool) : Expr :=
+  match e, numParams with
+  | Expr.forallE n d b bi, i + 1 =>
     let b       := inferImplicit b i considerRange
     let newInfo := if bi.isExplicit && hasLooseBVarInExplicitDomain b 0 considerRange then BinderInfo.implicit else bi
     mkForall n newInfo d b
-  | e, 0, _ => e
-  | e, _, _ => e
+  | e, _ => e
+
+/--
+Uses `newBinderInfos` to update the binder infos of the first `numParams` foralls.
+-/
+def updateForallBinderInfos (e : Expr) (binderInfos? : List (Option BinderInfo)) : Expr :=
+  match e, binderInfos? with
+  | Expr.forallE n d b bi, newBi? :: binderInfos? =>
+    let b  := updateForallBinderInfos b binderInfos?
+    let bi := newBi?.getD bi
+    Expr.forallE n d b bi
+  | e, _ => e
 
 /--
 Instantiates the loose bound variables in `e` using the `subst` array,
@@ -2212,6 +2239,8 @@ def mkInstHPow : Expr := mkApp3 (mkConst ``instHPow [levelZero, levelZero]) Int.
 def mkInstLT : Expr := mkConst ``Int.instLTInt
 def mkInstLE : Expr := mkConst ``Int.instLEInt
 
+def mkInstNatCast : Expr := mkConst ``instNatCastInt
+
 end Int
 
 private def intNegFn : Expr :=
@@ -2225,6 +2254,15 @@ private def intSubFn : Expr :=
 
 private def intMulFn : Expr :=
   mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHMul
+
+private def intDivFn : Expr :=
+  mkApp4 (mkConst ``HDiv.hDiv [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHDiv
+
+private def intModFn : Expr :=
+  mkApp4 (mkConst ``HMod.hMod [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHMod
+
+private def intNatCastFn : Expr :=
+  mkApp2 (mkConst ``NatCast.natCast [0]) Int.mkType Int.mkInstNatCast
 
 /-- Given `a : Int`, returns `- a` -/
 def mkIntNeg (a : Expr) : Expr :=
@@ -2241,6 +2279,18 @@ def mkIntSub (a b : Expr) : Expr :=
 /-- Given `a b : Int`, returns `a * b` -/
 def mkIntMul (a b : Expr) : Expr :=
   mkApp2 intMulFn a b
+
+/-- Given `a b : Int`, returns `a / b` -/
+def mkIntDiv (a b : Expr) : Expr :=
+  mkApp2 intDivFn a b
+
+/-- Given `a b : Int`, returns `a % b` -/
+def mkIntMod (a b : Expr) : Expr :=
+  mkApp2 intModFn a b
+
+/-- Given `a : Int`, returns `NatCast.natCast a` -/
+def mkIntNatCast (a : Expr) : Expr :=
+  mkApp intNatCastFn a
 
 private def intLEPred : Expr :=
   mkApp2 (mkConst ``LE.le [0]) Int.mkType Int.mkInstLE

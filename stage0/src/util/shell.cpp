@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "runtime/debug.h"
 #include "runtime/sstream.h"
-#include "runtime/load_dynlib.h"
 #include "runtime/array_ref.h"
 #include "runtime/object_ref.h"
 #include "runtime/utf8.h"
@@ -31,6 +30,7 @@ Author: Leonardo de Moura
 #include "library/elab_environment.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/trace.h"
+#include "library/dynlib.h"
 #include "library/formatter.h"
 #include "library/module.h"
 #include "library/time_task.h"
@@ -198,7 +198,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  -v, --version          display version information\n";
     std::cout << "  -V, --short-version    display short version number\n";
     std::cout << "  -g, --githash          display the git commit hash number used to build this binary\n";
-    std::cout << "      --run              call the 'main' definition in a file with the remaining arguments\n";
+    std::cout << "      --run <file>       call the 'main' definition in the given file with the remaining arguments\n";
     std::cout << "  -o, --o=oname          create olean file\n";
     std::cout << "  -i, --i=iname          create ilean file\n";
     std::cout << "  -c, --c=fname          name of the C output file\n";
@@ -439,12 +439,12 @@ extern void (*g_lean_report_task_get_blocked_time)(std::chrono::nanoseconds);
 }
 static bool trace_task_get_blocked = getenv("LEAN_TRACE_TASK_GET_BLOCKED") != nullptr;
 static void report_task_get_blocked_time(std::chrono::nanoseconds d) {
-    if (has_profiling_task()) {
-        report_profiling_time("blocked", d);
+    if (has_no_block_profiling_task()) {
+        report_profiling_time("blocked (unaccounted)", d);
         exclude_profiling_time_from_current_task(d);
         if (trace_task_get_blocked) {
             sstream ss;
-            ss << "Task.get blocked for " << std::chrono::duration_cast<std::chrono::seconds>(d).count() << "s";
+            ss << "Task.get blocked for " << std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(d).count() << "ms";
             // using a panic for reporting is a bit of a hack, but good enough for this
             // `lean`-specific use case
             lean_panic(ss.str().c_str(), /* force stderr */ true);
@@ -474,6 +474,9 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 #elif defined(LEAN_WINDOWS)
     // "best practice" according to https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-seterrormode
     SetErrorMode(SEM_FAILCRITICALERRORS);
+    // properly formats Unicode characters on the Windows console
+    // see https://github.com/leanprover/lean4/issues/4291
+    SetConsoleOutputCP(CP_UTF8);
 #endif
     auto init_start = std::chrono::steady_clock::now();
     lean::initializer init;
@@ -511,7 +514,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     buffer<string_ref> forwarded_args;
     buffer<name> error_kinds;
 
-    while (true) {
+    while (!run) {  // stop consuming arguments after `--run`
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
         if (c == -1)
             break; // end of command line
@@ -790,14 +793,14 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
         display_cumulative_profiling_times(std::cerr);
 
-#ifdef LEAN_SMALL_ALLOCATOR
-        // If the small allocator is not enabled, then we assume we are not using the sanitizer.
-        // Thus, we interrupt execution without garbage collecting.
-        // This is useful when profiling improvements to Lean startup time.
-        exit(ok ? 0 : 1);
-#else
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
         return ok ? 0 : 1;
 #endif
+#endif
+        // When not using the address/leak sanitizer, we interrupt execution without garbage collecting.
+        // This is useful when profiling improvements to Lean startup time.
+        exit(ok ? 0 : 1);
     } catch (lean::throwable & ex) {
         std::cerr << ex.what() << "\n";
     } catch (std::bad_alloc & ex) {

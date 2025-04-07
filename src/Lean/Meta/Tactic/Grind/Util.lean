@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Simproc
+import Init.Grind.Tactics
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Transform
 import Lean.Meta.Tactic.Util
@@ -19,14 +20,6 @@ def _root_.Lean.MVarId.ensureNoMVar (mvarId : MVarId) : MetaM Unit := do
   let type ← instantiateMVars (← mvarId.getType)
   if type.hasExprMVar then
     throwTacticEx `grind mvarId "goal contains metavariables"
-
-/--
-Throws an exception if target is not a proposition.
--/
-def _root_.Lean.MVarId.ensureProp (mvarId : MVarId) : MetaM Unit := do
-  let type ← mvarId.getType
-  unless (← isProp type) do
-    throwTacticEx `grind mvarId "goal is not a proposition"
 
 def _root_.Lean.MVarId.transformTarget (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := mvarId.withContext do
   mvarId.checkNotAssigned `grind
@@ -166,7 +159,7 @@ Normalizes the given expression using the `grind` simplification theorems and si
 This function is used for normalzing E-matching patterns. Note that it does not return a proof.
 -/
 @[extern "lean_grind_normalize"] -- forward definition
-opaque normalize (e : Expr) : MetaM Expr
+opaque normalize (e : Expr) (config : Grind.Config) : MetaM Expr
 
 /--
 Returns `Grind.MatchCond e`.

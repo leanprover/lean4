@@ -18,16 +18,30 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
 @[inline] private unsafe def attachWithImpl
     (o : Option α) (P : α → Prop) (_ : ∀ x ∈ o, P x) : Option {x // P x} := unsafeCast o
 
-/-- "Attach" a proof `P x` that holds for the element of `o`, if present,
-to produce a new option with the same element but in the type `{x // P x}`. -/
+/--
+“Attaches” a proof that some predicate holds for an optional value, if present, returning a subtype
+that expresses this fact.
+
+This function is primarily used to implement `Option.attach`, which allows definitions by
+well-founded recursion that use iteration operators (such as `Option.map`) to prove that an optional
+value drawn from a parameter is smaller than the parameter. This allows the well-founded recursion
+mechanism to prove that the function terminates.
+-/
 @[implemented_by attachWithImpl] def attachWith
     (xs : Option α) (P : α → Prop) (H : ∀ x ∈ xs, P x) : Option {x // P x} :=
   match xs with
   | none => none
   | some x => some ⟨x, H x (mem_some_self x)⟩
 
-/-- "Attach" the proof that the element of `xs`, if present, is in `xs`
-to produce a new option with the same elements but in the type `{x // x ∈ xs}`. -/
+/--
+“Attaches” a proof that an optional value, if present, is indeed this value, returning a subtype
+that expresses this fact.
+
+This function is primarily used to allow definitions by well-founded recursion that use iteration
+operators (such as `Option.map`) to prove that an optional value drawn from a parameter is smaller
+than the parameter. This allows the well-founded recursion mechanism to prove that the function
+terminates.
+-/
 @[inline] def attach (xs : Option α) : Option {x // x ∈ xs} := xs.attachWith _ fun _ => id
 
 @[simp] theorem attach_none : (none : Option α).attach = none := rfl
@@ -48,29 +62,27 @@ theorem attachWith_congr {o₁ o₂ : Option α} (w : o₁ = o₂) {P : α → P
   subst w
   simp
 
-theorem attach_map_coe (o : Option α) (f : α → β) :
+theorem attach_map_val (o : Option α) (f : α → β) :
     (o.attach.map fun (i : {i // i ∈ o}) => f i) = o.map f := by
   cases o <;> simp
 
-theorem attach_map_val (o : Option α) (f : α → β) :
-    (o.attach.map fun i => f i.val) = o.map f :=
-  attach_map_coe _ _
+@[deprecated attach_map_val (since := "2025-02-17")]
+abbrev attach_map_coe := @attach_map_val
 
 theorem attach_map_subtype_val (o : Option α) :
     o.attach.map Subtype.val = o :=
-  (attach_map_coe _ _).trans (congrFun Option.map_id _)
+  (attach_map_val _ _).trans (congrFun Option.map_id _)
 
-theorem attachWith_map_coe {p : α → Prop} (f : α → β) (o : Option α) (H : ∀ a ∈ o, p a) :
+theorem attachWith_map_val {p : α → Prop} (f : α → β) (o : Option α) (H : ∀ a ∈ o, p a) :
     ((o.attachWith p H).map fun (i : { i // p i}) => f i.val) = o.map f := by
   cases o <;> simp [H]
 
-theorem attachWith_map_val {p : α → Prop} (f : α → β) (o : Option α) (H : ∀ a ∈ o, p a) :
-    ((o.attachWith p H).map fun i => f i.val) = o.map f :=
-  attachWith_map_coe _ _ _
+@[deprecated attachWith_map_val (since := "2025-02-17")]
+abbrev attachWith_map_coe := @attachWith_map_val
 
 theorem attachWith_map_subtype_val {p : α → Prop} (o : Option α) (H : ∀ a ∈ o, p a) :
     (o.attachWith p H).map Subtype.val = o :=
-  (attachWith_map_coe _ _ _).trans (congrFun Option.map_id _)
+  (attachWith_map_val _ _ _).trans (congrFun Option.map_id _)
 
 theorem mem_attach : ∀ (o : Option α) (x : {x // x ∈ o}), x ∈ o.attach
   | none, ⟨x, h⟩ => by simp at h
@@ -202,11 +214,15 @@ Further, we provide simp lemmas that push `unattach` inwards.
 -/
 
 /--
-A synonym for `l.map (·.val)`. Mostly this should not be needed by users.
-It is introduced as an intermediate step by lemmas such as `map_subtype`,
-and is ideally subsequently simplified away by `unattach_attach`.
+Remove an attached proof that the value in an `Option` is indeed that value.
 
-If not, usually the right approach is `simp [Option.unattach, -Option.map_subtype]` to unfold.
+This function is usually inserted automatically by Lean, rather than explicitly in code. It is
+introduced as an intermediate step during the elaboration of definitions by well-founded recursion.
+
+If this function is encountered in a proof state, the right approach is usually the tactic
+`simp [Option.unattach, -Option.map_subtype]`.
+
+It is a synonym for `Option.map Subtype.val`.
 -/
 def unattach {α : Type _} {p : α → Prop} (o : Option { x // p x }) := o.map (·.val)
 

@@ -71,13 +71,11 @@ def simpExpr? (input : Expr) : MetaM (Option (Expr × Expr)) := do
   let (e, ctx) ← toLinearExpr input
   let p  := e.toPoly
   let p' := p.norm
-  if p'.length < p.length then
-    -- We only return some if monomials were fused
-    let e' : LinearExpr := p'.toExpr
-    let p := mkApp4 (mkConst ``Nat.Linear.Expr.eq_of_toNormPoly_eq) (toContextExpr ctx) (toExpr e) (toExpr e') reflBoolTrue
-    let r ← e'.toArith ctx
-    return some (r, ← mkExpectedTypeHint p (← mkEq input r))
-  else
+  let e' : LinearExpr := p'.toExpr
+  if e' == e then
     return none
+  let p := mkApp4 (mkConst ``Nat.Linear.Expr.eq_of_toNormPoly_eq) (toContextExpr ctx) (toExpr e) (toExpr e') reflBoolTrue
+  let r ← e'.toArith ctx
+  return some (r, ← mkExpectedTypeHint p (← mkEq input r))
 
 end Lean.Meta.Simp.Arith.Nat

@@ -94,6 +94,7 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
     -- share a name prefix with the top-level Lean declaration being compiled, e.g. from
     -- specialization.
     asyncMode     := .sync
+    replay?       := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·.name) (fun s d => s.insert d.name d)
   }
 
 @[export lean_ir_find_env_decl]

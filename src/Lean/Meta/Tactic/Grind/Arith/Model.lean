@@ -5,3 +5,4 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Arith.Offset.Model
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Model

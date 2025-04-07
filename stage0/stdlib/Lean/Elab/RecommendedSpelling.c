@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__5;
 lean_object* l_Lean_throwError___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -38,7 +37,7 @@ lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Command_commandElabAttribute;
 static lean_object* l___regBuiltin_Lean_Elab_Term_Doc_elabRecommendedSpelling__1___closed__3;
-lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Doc_allRecommendedSpellings___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Term_Doc_addRecommendedSpelling(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__1;
@@ -91,6 +90,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling(lean_objec
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Doc_elabRecommendedSpelling___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+lean_object* l_Array_emptyWithCapacity(lean_object*, lean_object*);
 static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Doc_elabRecommendedSpelling___spec__1___closed__1() {
 _start:
 {
@@ -260,7 +260,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
+x_2 = l_Array_emptyWithCapacity(lean_box(0), x_1);
 return x_2;
 }
 }
@@ -1066,7 +1066,7 @@ lean_dec(x_9);
 x_11 = l_Lean_Parser_Term_Doc_recommendedSpellingExt;
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
-x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*2);
+x_13 = lean_ctor_get_uint8(x_12, sizeof(void*)*3);
 x_14 = l_Lean_Elab_Term_Doc_allRecommendedSpellings___rarg___closed__1;
 x_15 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___rarg(x_14, x_12, x_6, x_13);
 lean_dec(x_12);
@@ -1077,7 +1077,7 @@ x_17 = lean_ctor_get(x_11, 4);
 lean_inc(x_17);
 x_18 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___lambda__1___closed__5;
 x_19 = l_Lean_Elab_Term_Doc_allRecommendedSpellings___rarg___closed__2;
-x_20 = l_Lean_PersistentEnvExtension_getState___rarg(x_18, x_19, x_10);
+x_20 = l_Lean_PersistentEnvExtension_getState___rarg(x_18, x_19, x_10, x_13);
 x_21 = lean_apply_1(x_17, x_20);
 x_22 = lean_array_push(x_16, x_21);
 x_23 = lean_array_get_size(x_22);
@@ -1128,7 +1128,7 @@ lean_dec(x_30);
 x_33 = l_Lean_Parser_Term_Doc_recommendedSpellingExt;
 x_34 = lean_ctor_get(x_33, 0);
 lean_inc(x_34);
-x_35 = lean_ctor_get_uint8(x_34, sizeof(void*)*2);
+x_35 = lean_ctor_get_uint8(x_34, sizeof(void*)*3);
 x_36 = l_Lean_Elab_Term_Doc_allRecommendedSpellings___rarg___closed__1;
 x_37 = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___rarg(x_36, x_34, x_6, x_35);
 lean_dec(x_34);
@@ -1139,7 +1139,7 @@ x_39 = lean_ctor_get(x_33, 4);
 lean_inc(x_39);
 x_40 = l_Lean_Elab_Term_Doc_elabRecommendedSpelling___lambda__1___closed__5;
 x_41 = l_Lean_Elab_Term_Doc_allRecommendedSpellings___rarg___closed__2;
-x_42 = l_Lean_PersistentEnvExtension_getState___rarg(x_40, x_41, x_32);
+x_42 = l_Lean_PersistentEnvExtension_getState___rarg(x_40, x_41, x_32, x_35);
 x_43 = lean_apply_1(x_39, x_42);
 x_44 = lean_array_push(x_38, x_43);
 x_45 = lean_array_get_size(x_44);

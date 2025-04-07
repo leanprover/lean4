@@ -141,7 +141,7 @@ private def propagateEqFalse (e : Expr) (u v : NodeId) (k k' : Int) : GoalM Unit
   let v ← getExpr v
   pushEqFalse e <| mkPropagateEqFalseProof u v k kuv k'
 
-/-- Propagates all pending contraints and equalities and resets to "to do" list. -/
+/-- Propagates all pending constraints and equalities and resets to "to do" list. -/
 private def propagatePending : GoalM Unit := do
   let todo ← modifyGet fun s => (s.arith.offset.propagate, { s with arith.offset.propagate := [] })
   for p in todo do
@@ -344,7 +344,7 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
         internalizeTerm e z k
 
 @[export lean_process_new_offset_eq]
-def processNewOffsetEqImpl (a b : Expr) : GoalM Unit := do
+def processNewEqImpl (a b : Expr) : GoalM Unit := do
   unless isSameExpr a b do
     trace[grind.offset.eq.to] "{a}, {b}"
     let u ← getNodeId a
@@ -354,7 +354,7 @@ def processNewOffsetEqImpl (a b : Expr) : GoalM Unit := do
     addEdge v u 0 <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_2) a b h
 
 @[export lean_process_new_offset_eq_lit]
-def processNewOffsetEqLitImpl (a b : Expr) : GoalM Unit := do
+def processNewEqLitImpl (a b : Expr) : GoalM Unit := do
   unless isSameExpr a b do
     trace[grind.offset.eq.to] "{a}, {b}"
     let some k := isNatNum? b | unreachable!

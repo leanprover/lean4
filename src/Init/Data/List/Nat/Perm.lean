@@ -7,6 +7,9 @@ prelude
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Perm
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 /-- Helper lemma for `set_set_perm`-/
@@ -44,7 +47,7 @@ theorem set_set_perm {as : List α} {i j : Nat} (h₁ : i < as.length) (h₂ : j
       subst t
       exact set_set_perm' _ _ (by omega)
     else
-      rw [set_comm _ _ _ (by omega)]
+      rw [set_comm _ _ (by omega)]
       let i' := i - j
       have t : i = j + i' := by omega
       generalize i' = i' at t

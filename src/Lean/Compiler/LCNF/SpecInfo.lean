@@ -86,6 +86,8 @@ builtin_initialize specExtension : SimplePersistentEnvExtension SpecEntry SpecSt
     addImportedFn := fun _ => {}
     toArrayFn     := fun s => sortEntries s.toArray
     asyncMode     := .sync
+    replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
+      (!·.specInfo.contains ·.declName) SpecState.addEntry
   }
 
 /--
@@ -148,7 +150,7 @@ def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
   let mut declsInfo := #[]
   for decl in decls do
     if hasNospecializeAttribute (← getEnv) decl.name then
-      declsInfo := declsInfo.push (mkArray decl.params.size .other)
+      declsInfo := declsInfo.push (.replicate decl.params.size .other)
     else
       let specArgs? := getSpecializationArgs? (← getEnv) decl.name
       let contains (i : Nat) : Bool := specArgs?.getD #[] |>.contains i

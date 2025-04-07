@@ -59,11 +59,28 @@ structure WorkspaceClientCapabilities where
   workspaceEdit? : Option WorkspaceEditClientCapabilities := none
   deriving ToJson, FromJson
 
+structure LeanClientCapabilities where
+  /--
+  Whether the client supports `DiagnosticWith.isSilent = true`.
+  If `none` or `false`, silent diagnostics will not be served to the client.
+  -/
+  silentDiagnosticSupport? : Option Bool := none
+  deriving ToJson, FromJson
+
 structure ClientCapabilities where
   textDocument? : Option TextDocumentClientCapabilities := none
   window?       : Option WindowClientCapabilities       := none
   workspace?    : Option WorkspaceClientCapabilities    := none
+  /-- Capabilties for Lean language server extensions. -/
+  lean?         : Option LeanClientCapabilities         := none
   deriving ToJson, FromJson
+
+def ClientCapabilities.silentDiagnosticSupport (c : ClientCapabilities) : Bool := Id.run do
+  let some lean := c.lean?
+    | return false
+  let some silentDiagnosticSupport := lean.silentDiagnosticSupport?
+    | return false
+  return silentDiagnosticSupport
 
 -- TODO largely unimplemented
 structure ServerCapabilities where

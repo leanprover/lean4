@@ -50,7 +50,7 @@ extern lean_object* l_Lean_Elab_Term_termElabAttribute;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_ShowTerm_evalShowTerm__1___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_ShowTerm_elabShowTerm_declRange__1___closed__6;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_ShowTerm_elabShowTerm_docString__1(lean_object*);
-lean_object* l_Lean_Meta_Tactic_TryThis_addExactSuggestion(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Tactic_TryThis_addExactSuggestion(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_ShowTerm_evalShowTerm___closed__1;
 lean_object* l_Lean_instantiateMVars___at_Lean_Elab_Tactic_getMainTarget___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_ShowTerm_elabShowTerm_declRange__1___closed__3;
@@ -168,7 +168,7 @@ x_23 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_23, 0, x_21);
 x_24 = lean_box(0);
 x_25 = 0;
-x_26 = l_Lean_Meta_Tactic_TryThis_addExactSuggestion(x_2, x_22, x_23, x_25, x_24, x_7, x_8, x_9, x_10, x_20);
+x_26 = l_Lean_Meta_Tactic_TryThis_addExactSuggestion(x_2, x_22, x_23, x_25, x_24, x_25, x_7, x_8, x_9, x_10, x_20);
 lean_dec(x_23);
 return x_26;
 }

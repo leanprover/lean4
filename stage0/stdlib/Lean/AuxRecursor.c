@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.AuxRecursor
-// Imports: Lean.Environment
+// Imports: Lean.EnvExtension
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -74,7 +74,7 @@ static lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_211____closed__2
 LEAN_EXPORT uint8_t l_Lean_isAuxRecursorWithSuffix(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isAuxRecursor___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
+lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isCasesOnRecursor(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_casesOnSuffix___closed__1() {
 _start:
@@ -255,10 +255,11 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_69_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_69____closed__3;
-x_3 = l_Lean_mkTagDeclarationExtension(x_2, x_1);
-return x_3;
+x_3 = 2;
+x_4 = l_Lean_mkTagDeclarationExtension(x_2, x_3, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_markAuxRecursor___closed__1() {
@@ -327,6 +328,7 @@ _start:
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = l_Lean_markAuxRecursor___closed__1;
+lean_inc(x_2);
 x_4 = l_Lean_TagDeclarationExtension_isTagged(x_3, x_1, x_2);
 if (x_4 == 0)
 {
@@ -539,10 +541,11 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_211_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_211____closed__2;
-x_3 = l_Lean_mkTagDeclarationExtension(x_2, x_1);
-return x_3;
+x_3 = 2;
+x_4 = l_Lean_mkTagDeclarationExtension(x_2, x_3, x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_markNoConfusion___closed__1() {
@@ -568,7 +571,6 @@ _start:
 lean_object* x_3; uint8_t x_4; 
 x_3 = l_Lean_markNoConfusion___closed__1;
 x_4 = l_Lean_TagDeclarationExtension_isTagged(x_3, x_1, x_2);
-lean_dec(x_2);
 return x_4;
 }
 }
@@ -581,13 +583,13 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* initialize_Lean_Environment(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_EnvExtension(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_AuxRecursor(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Environment(builtin, lean_io_mk_world());
+res = initialize_Lean_EnvExtension(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_casesOnSuffix___closed__1 = _init_l_Lean_casesOnSuffix___closed__1();

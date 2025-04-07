@@ -116,14 +116,19 @@ private def mkENode' (e : Expr) (generation : Nat) : GoalM Unit :=
 
 /-- Internalizes the nested ground terms in the given pattern. -/
 private partial def internalizePattern (pattern : Expr) (generation : Nat) : GoalM Expr := do
-  if pattern.isBVar || isPatternDontCare pattern then
-    return pattern
-  else if let some e := groundPattern? pattern then
-    let e ← preprocessGroundPattern e
-    internalize e generation none
-    return mkGroundPattern e
-  else pattern.withApp fun f args => do
-    return mkAppN f (← args.mapM (internalizePattern · generation))
+  -- Recall that it is important to ensure patterns are maximally shared since
+  -- we assume that in functions such as `getAppsOf` in `EMatch.lean`
+  go (← shareCommon pattern)
+where
+  go (pattern : Expr) : GoalM Expr := do
+    if pattern.isBVar || isPatternDontCare pattern then
+      return pattern
+    else if let some e := groundPattern? pattern then
+      let e ← preprocessGroundPattern e
+      internalize e generation none
+      return mkGroundPattern e
+    else pattern.withApp fun f args => do
+      return mkAppN f (← args.mapM go)
 
 /-- Internalizes the `MatchCond` gadget. -/
 private def internalizeMatchCond (matchCond : Expr) (generation : Nat) : GoalM Unit := do
@@ -228,8 +233,11 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
         internalizeImpl b generation e
         registerParent e b
       propagateUp e
-  | .lit .. | .const .. =>
+  | .lit .. =>
     mkENode e generation
+  | .const declName _ =>
+    mkENode e generation
+    activateTheoremPatterns declName generation
   | .mvar .. =>
     reportIssue! "unexpected metavariable during internalization{indentExpr e}\n`grind` is not supposed to be used in goals containing metavariables."
     mkENode' e generation
@@ -247,6 +255,7 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
     else if e.isAppOfArity ``Grind.MatchCond 1 then
       internalizeMatchCond e generation
     else e.withApp fun f args => do
+      mkENode e generation
       checkAndAddSplitCandidate e
       pushCastHEqs e
       addMatchEqns f generation
@@ -270,7 +279,6 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
           let arg := args[i]
           internalize arg generation e
           registerParent e arg
-      mkENode e generation
       addCongrTable e
       updateAppMap e
       Arith.internalize e parent?

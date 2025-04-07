@@ -21,7 +21,7 @@ inductive FunIndParamKind where
   | dropped
   | param
   | target
-deriving BEq, Repr
+deriving BEq, Repr, Inhabited
 
 /--
 A `FunIndInfo` indicates how a function's arguments map to the arguments of the functional induction

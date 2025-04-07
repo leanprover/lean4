@@ -18,33 +18,44 @@ open Monotonicity
 
 open Lean.Order
 
-private def replaceRecApps (recFnNames : Array Name) (fixedPrefixSize : Nat) (f : Expr) (e : Expr) : MetaM Expr := do
+private def replaceRecApps (recFnNames : Array Name) (fixedParamPerms : FixedParamPerms) (f : Expr) (e : Expr) : MetaM Expr := do
+  assert! recFnNames.size = fixedParamPerms.perms.size
   let t ← inferType f
-  return e.replace fun e =>
-    if let some idx := recFnNames.findIdx? (e.isAppOfArity · fixedPrefixSize) then
-      some <| PProdN.proj recFnNames.size idx t f
-    else
-      none
+  return e.replace fun e => do
+    let fn := e.getAppFn
+    guard fn.isConst
+    let idx ← recFnNames.idxOf? fn.constName!
+    let args := e.getAppArgs
+    let varying := fixedParamPerms.perms[idx]!.pickVarying args
+    return mkAppN (PProdN.proj recFnNames.size idx t f) varying
 
 /--
 For pretty error messages:
 Takes `F : (fun f => e)`, where `f` is the packed function, and replaces `f` in `e` with the user-visible
 constants, which are added to the environment temporarily.
 -/
-private def unReplaceRecApps {α} (preDefs : Array PreDefinition) (fixedArgs : Array Expr)
+private def unReplaceRecApps {α} (preDefs : Array PreDefinition) (fixedParamPerms : FixedParamPerms) (fixedArgs : Array Expr)
     (F : Expr) (k : Expr → MetaM α) : MetaM α := do
   unless F.isLambda do throwError "Expected lambda:{indentExpr F}"
   withoutModifyingEnv do
     preDefs.forM addAsAxiom
-    let fns := preDefs.map fun d =>
-      mkAppN (.const d.declName (d.levelParams.map mkLevelParam)) fixedArgs
+    let fns ← preDefs.mapIdxM fun funIdx preDef => do
+      let value ← fixedParamPerms.perms[funIdx]!.instantiateLambda preDef.value fixedArgs
+      lambdaTelescope value fun xs _ =>
+        let args := fixedParamPerms.perms[funIdx]!.buildArgs fixedArgs xs
+        let call := mkAppN (.const preDef.declName (preDef.levelParams.map mkLevelParam)) args
+        mkLambdaFVars (etaReduce := true) xs call
     let packedFn ← PProdN.mk 0 fns
     let e ← lambdaBoundedTelescope F 1 fun f e => do
       let f := f[0]!
       -- Replace f with calls to the constants
-      let e := e.replace fun e => do if e == f then return packedFn else none
-      -- And reduce projection redexes
+      let e := e.replace fun e => do
+        if e == f then return packedFn else none
+      -- And reduce projection and beta redexes
+      -- (This is a bit blunt; we could try harder to only replace the projection and beta-redexes
+      -- introduced above)
       let e ← PProdN.reduceProjs e
+      let e ← Core.betaReduce e
       pure e
     k e
 
@@ -81,15 +92,12 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
           mkAppOptM ``FlatOrder.instCCPO #[none, classicalWitness]
       mkLambdaFVars xs inst
 
-  let fixedPrefixSize ← Mutual.getFixedPrefix preDefs
-  trace[Elab.definition.partialFixpoint] "fixed prefix size: {fixedPrefixSize}"
-
   let declNames := preDefs.map (·.declName)
-
-  forallBoundedTelescope preDefs[0]!.type fixedPrefixSize fun fixedArgs _ => do
+  let fixedParamPerms ← getFixedParamPerms preDefs
+  fixedParamPerms.perms[0]!.forallTelescope preDefs[0]!.type fun fixedArgs => do
     -- ∀ x y, CCPO (rᵢ x y)
-    let ccpoInsts := ccpoInsts.map (·.beta fixedArgs)
-    let types ← preDefs.mapM (instantiateForall ·.type fixedArgs)
+    let ccpoInsts ← ccpoInsts.mapIdxM (fixedParamPerms.perms[·]!.instantiateLambda · fixedArgs)
+    let types ← preDefs.mapIdxM (fixedParamPerms.perms[·]!.instantiateForall ·.type fixedArgs)
 
     -- (∀ x y, r₁ x y) ×' (∀ x y, r₂ x y)
     let packedType ← PProdN.pack 0 types
@@ -108,7 +116,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
 
     -- Error reporting hook, presenting monotonicity errors in terms of recursive functions
     let failK {α} f (monoThms : Array Name) : MetaM α := do
-      unReplaceRecApps preDefs fixedArgs f fun t => do
+      unReplaceRecApps preDefs fixedParamPerms fixedArgs f fun t => do
         let extraMsg := if monoThms.isEmpty then m!"" else
           m!"Tried to apply {.andList (monoThms.toList.map (m!"'{.ofConstName ·}'"))}, but failed.\n\
              Possible cause: A missing `{.ofConstName ``MonoBind}` instance.\n\
@@ -122,13 +130,13 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
 
     -- Adjust the body of each function to take the other functions as a
     -- (packed) parameter
-    let Fs ← preDefs.mapM fun preDef => do
-      let body ← instantiateLambda preDef.value fixedArgs
+    let Fs ← preDefs.mapIdxM fun funIdx preDef => do
+      let body ← fixedParamPerms.perms[funIdx]!.instantiateLambda preDef.value fixedArgs
       withLocalDeclD (← mkFreshUserName `f) packedType fun f => do
         let body' ← withoutModifyingEnv do
           -- replaceRecApps needs the constants in the env to typecheck things
           preDefs.forM (addAsAxiom ·)
-          replaceRecApps declNames fixedPrefixSize f body
+          replaceRecApps declNames fixedParamPerms f body
         mkLambdaFVars #[f] body'
 
     -- Construct and solve monotonicity goals for each function separately
@@ -160,7 +168,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     trace[Elab.definition.partialFixpoint] "packedValue: {packedValue}"
 
     let declName :=
-      if preDefs.size = 1 then
+      if preDefs.size = 1 && fixedParamPerms.fixedArePrefix then
         preDefs[0]!.declName
       else
         preDefs[0]!.declName ++ `mutual
@@ -170,17 +178,22 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
       declName := declName
       type := packedType'
       value := packedValue'}
+
     let preDefsNonrec ← preDefs.mapIdxM fun fidx preDef => do
-      let us := preDefNonRec.levelParams.map mkLevelParam
-      let value := mkConst preDefNonRec.declName us
-      let value := mkAppN value fixedArgs
-      let value := PProdN.proj preDefs.size fidx packedType value
-      let value ← mkLambdaFVars fixedArgs value
-      pure { preDef with value }
+      forallBoundedTelescope preDef.type fixedParamPerms.perms[fidx]!.size fun params _ => do
+        let fixed := fixedParamPerms.perms[fidx]!.pickFixed params
+        let varying := fixedParamPerms.perms[fidx]!.pickVarying params
+        let us := preDefNonRec.levelParams.map mkLevelParam
+        let value := mkConst preDefNonRec.declName us
+        let value := mkAppN value fixed
+        let value := PProdN.proj preDefs.size fidx packedType value
+        let value := mkAppN value varying
+        let value ← mkLambdaFVars (etaReduce := true) params value
+        pure { preDef with value }
 
     Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
     let preDefs ← Mutual.cleanPreDefs preDefs
-    PartialFixpoint.registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize
+    PartialFixpoint.registerEqnsInfo preDefs preDefNonRec.declName fixedParamPerms
     Mutual.addPreDefAttributes preDefs
 
 end Lean.Elab

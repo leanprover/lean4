@@ -1,4 +1,4 @@
-error: ././././TestExtern.lean:5:0: native implementation did not agree with reference implementation!
+error: TestExtern.lean:5:0: native implementation did not agree with reference implementation!
 Compare the outputs of:
 #eval Nat.not_add 4 5
  and

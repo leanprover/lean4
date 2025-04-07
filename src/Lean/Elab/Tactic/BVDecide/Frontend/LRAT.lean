@@ -33,13 +33,7 @@ structure TacticContext where
   config : BVDecideConfig
 
 def TacticContext.new (lratPath : System.FilePath) (config : BVDecideConfig) :
-    Lean.Elab.TermElabM TacticContext := do
-  -- Account for: https://github.com/arminbiere/cadical/issues/112
-  let config :=
-    if System.Platform.isWindows then
-      { config with binaryProofs := false }
-    else
-      config
+    TermElabM TacticContext := do
   let exprDef ← Lean.Elab.Term.mkAuxName `_expr_def
   let certDef ← Lean.Elab.Term.mkAuxName `_cert_def
   let reflectionDef ← Lean.Elab.Term.mkAuxName `_reflection_def
@@ -153,62 +147,6 @@ def runExternal (cnf : CNF Nat) (solver : System.FilePath) (lratPath : System.Fi
         LratCert.ofFile lratPath trimProofs
 
     return .ok lratProof
-
-/--
-Add an auxiliary declaration. Only used to create constants that appear in our reflection proof.
--/
-def mkAuxDecl (name : Name) (value type : Expr) : CoreM Unit :=
-  addAndCompile <| .defnDecl {
-    name := name,
-    levelParams := [],
-    type := type,
-    value := value,
-    hints := .abbrev,
-    safety := .safe
-  }
-
-/--
-Turn an `LratCert` into a proof that some `reflected` expression is UNSAT by providing a `verifier`
-function together with a correctness theorem for it.
-
-- `verifier` is expected to have type `α → LratCert → Bool`
-- `unsat_of_verifier_eq_true` is expected to have type
-  `∀ (b : α) (c : LratCert), verifier b c = true → unsat b`
--/
-def LratCert.toReflectionProof [ToExpr α] (cert : LratCert) (cfg : TacticContext) (reflected : α)
-    (verifier : Name) (unsat_of_verifier_eq_true : Name) : MetaM Expr := do
-  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling expr term") do
-    mkAuxDecl cfg.exprDef (toExpr reflected) (toTypeExpr α)
-
-  let certType := toTypeExpr LratCert
-
-  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling proof certificate term") do
-    mkAuxDecl cfg.certDef (toExpr cert) certType
-
-  let reflectedExpr := mkConst cfg.exprDef
-  let certExpr := mkConst cfg.certDef
-
-  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling reflection proof term") do
-    let auxValue := mkApp2 (mkConst verifier) reflectedExpr certExpr
-    mkAuxDecl cfg.reflectionDef auxValue (mkConst ``Bool)
-
-  let auxType ← mkEq (mkConst cfg.reflectionDef) (toExpr true)
-  let auxProof :=
-    mkApp3
-      (mkConst ``Lean.ofReduceBool)
-      (mkConst cfg.reflectionDef)
-      (toExpr true)
-      (← mkEqRefl (toExpr true))
-  try
-    let auxLemma ←
-      -- disable async TC so we can catch its exceptions
-      withOptions (Elab.async.set · false) do
-        withTraceNode `Meta.Tactic.sat (fun _ => return "Verifying LRAT certificate") do
-          mkAuxLemma [] auxType auxProof
-    return mkApp3 (mkConst unsat_of_verifier_eq_true) reflectedExpr certExpr (mkConst auxLemma)
-  catch e =>
-    throwError m!"Failed to check the LRAT certificate in the kernel:\n{e.toMessageData}"
-
 
 end Frontend
 end Lean.Elab.Tactic.BVDecide

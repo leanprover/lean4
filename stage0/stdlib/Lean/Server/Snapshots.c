@@ -31,9 +31,11 @@ lean_object* l_outOfBounds___rarg(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__4;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_InfoState_substituteLazy(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runTermElabM(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCommandElabM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_task_get_own(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCommandElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCoreM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -131,7 +133,7 @@ static lean_object* _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("s.cmdState.infoState.trees.size == 1\n  ", 39, 39);
+x_1 = lean_mk_string_unchecked("infoState.trees.size == 1\n  ", 28, 28);
 return x_1;
 }
 }
@@ -167,7 +169,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Server_Snapshots_Snapshot_infoTree___closed__4;
 x_2 = l_Lean_Server_Snapshots_Snapshot_infoTree___closed__5;
-x_3 = lean_unsigned_to_nat(43u);
+x_3 = lean_unsigned_to_nat(45u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -177,49 +179,51 @@ return x_6;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_2 = lean_ctor_get(x_1, 2);
 lean_inc(x_2);
 lean_dec(x_1);
 x_3 = lean_ctor_get(x_2, 6);
 lean_inc(x_3);
 lean_dec(x_2);
-x_4 = lean_ctor_get(x_3, 1);
-lean_inc(x_4);
-lean_dec(x_3);
-x_5 = lean_ctor_get(x_4, 2);
-lean_inc(x_5);
-x_6 = lean_unsigned_to_nat(1u);
-x_7 = lean_nat_dec_eq(x_5, x_6);
-if (x_7 == 0)
-{
-lean_object* x_8; lean_object* x_9; 
+x_4 = l_Lean_Elab_InfoState_substituteLazy(x_3);
+x_5 = lean_task_get_own(x_4);
+x_6 = lean_ctor_get(x_5, 2);
+lean_inc(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
-x_8 = l_Lean_Server_Snapshots_Snapshot_infoTree___closed__6;
-x_9 = l_panic___at_Lean_Server_Snapshots_Snapshot_infoTree___spec__1(x_8);
-return x_9;
+x_7 = lean_ctor_get(x_6, 2);
+lean_inc(x_7);
+x_8 = lean_unsigned_to_nat(1u);
+x_9 = lean_nat_dec_eq(x_7, x_8);
+if (x_9 == 0)
+{
+lean_object* x_10; lean_object* x_11; 
+lean_dec(x_7);
+lean_dec(x_6);
+x_10 = l_Lean_Server_Snapshots_Snapshot_infoTree___closed__6;
+x_11 = l_panic___at_Lean_Server_Snapshots_Snapshot_infoTree___spec__1(x_10);
+return x_11;
 }
 else
 {
-lean_object* x_10; uint8_t x_11; 
-x_10 = lean_unsigned_to_nat(0u);
-x_11 = lean_nat_dec_lt(x_10, x_5);
-lean_dec(x_5);
-if (x_11 == 0)
-{
-lean_object* x_12; lean_object* x_13; 
-lean_dec(x_4);
-x_12 = l_Lean_Elab_instInhabitedInfoTree;
-x_13 = l_outOfBounds___rarg(x_12);
-return x_13;
-}
-else
+lean_object* x_12; uint8_t x_13; 
+x_12 = lean_unsigned_to_nat(0u);
+x_13 = lean_nat_dec_lt(x_12, x_7);
+lean_dec(x_7);
+if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
+lean_dec(x_6);
 x_14 = l_Lean_Elab_instInhabitedInfoTree;
-x_15 = l_Lean_PersistentArray_get_x21___rarg(x_14, x_4, x_10);
+x_15 = l_outOfBounds___rarg(x_14);
 return x_15;
+}
+else
+{
+lean_object* x_16; lean_object* x_17; 
+x_16 = l_Lean_Elab_instInhabitedInfoTree;
+x_17 = l_Lean_PersistentArray_get_x21___rarg(x_16, x_6, x_12);
+return x_17;
 }
 }
 }

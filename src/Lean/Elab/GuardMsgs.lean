@@ -152,6 +152,8 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
     let mut toCheck : MessageLog := .empty
     let mut toPassthrough : MessageLog := .empty
     for msg in msgs.toList do
+      if msg.isSilent then
+        continue
       match specFn msg with
       | .check       => toCheck := toCheck.add msg
       | .drop        => pure ()

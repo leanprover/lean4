@@ -2,5 +2,4 @@
   Type ((imax 1 u) + 1)
 but it is expected to have type
   Type (imax 1 u)
-1781.lean:25:4-25:8: error: (kernel) unknown constant 'Univ''
 Univ : Type

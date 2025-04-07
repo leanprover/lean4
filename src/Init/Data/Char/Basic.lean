@@ -15,7 +15,15 @@ Note that values in `[0xd800, 0xdfff]` are reserved for [UTF-16 surrogate pairs]
 
 namespace Char
 
+/--
+One character is less than another if its code point is strictly less than the other's.
+-/
 protected def lt (a b : Char) : Prop := a.val < b.val
+
+/--
+One character is less than or equal to another if its code point is less than or equal to the
+other's.
+-/
 protected def le (a b : Char) : Prop := a.val ≤ b.val
 
 instance : LT Char := ⟨Char.lt⟩
@@ -27,7 +35,10 @@ instance (a b : Char) :  Decidable (a < b) :=
 instance (a b : Char) : Decidable (a ≤ b) :=
   UInt32.decLe _ _
 
-/-- Determines if the given nat is a valid [Unicode scalar value](https://www.unicode.org/glossary/#unicode_scalar_value).-/
+/--
+True for natural numbers that are valid [Unicode scalar
+values](https://www.unicode.org/glossary/#unicode_scalar_value).
+-/
 abbrev isValidCharNat (n : Nat) : Prop :=
   n < 0xd800 ∨ (0xdfff < n ∧ n < 0x110000)
 
@@ -50,55 +61,93 @@ theorem isValidChar_of_isValidCharNat (n : Nat) (h : isValidCharNat n) : isValid
 theorem isValidChar_zero : isValidChar 0 :=
   Or.inl (by decide)
 
-/-- Underlying unicode code point as a `Nat`. -/
+/--
+The character's Unicode code point as a `Nat`.
+-/
 @[inline] def toNat (c : Char) : Nat :=
   c.val.toNat
 
-/-- Convert a character into a `UInt8`, by truncating (reducing modulo 256) if necessary. -/
+/--
+Converts a character into a `UInt8` that contains its code point.
+
+If the code point is larger than 255, it is truncated (reduced modulo 256).
+-/
 @[inline] def toUInt8 (c : Char) : UInt8 :=
   c.val.toUInt8
 
-/-- The numbers from 0 to 256 are all valid UTF-8 characters, so we can embed one in the other. -/
+/--
+Converts an 8-bit unsigned integer into a character.
+
+The integer's value is interpreted as a Unicode code point.
+-/
 def ofUInt8 (n : UInt8) : Char := ⟨n.toUInt32, .inl (Nat.lt_trans n.toBitVec.isLt (by decide))⟩
 
 instance : Inhabited Char where
   default := 'A'
 
-/-- Is the character a space (U+0020) a tab (U+0009), a carriage return (U+000D) or a newline (U+000A)? -/
+/--
+Returns `true` if the character is a space `(' ', U+0020)`, a tab `('\t', U+0009)`, a carriage
+return `('\r', U+000D)`, or a newline `('\n', U+000A)`.
+-/
 @[inline] def isWhitespace (c : Char) : Bool :=
   c = ' ' || c = '\t' || c = '\r' || c = '\n'
 
-/-- Is the character in `ABCDEFGHIJKLMNOPQRSTUVWXYZ`? -/
+/--
+Returns `true` if the character is a uppercase ASCII letter.
+
+The uppercase ASCII letters are the following: `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.
+-/
 @[inline] def isUpper (c : Char) : Bool :=
   c.val ≥ 65 && c.val ≤ 90
 
-/-- Is the character in `abcdefghijklmnopqrstuvwxyz`? -/
+/--
+Returns `true` if the character is a lowercase ASCII letter.
+
+The lowercase ASCII letters are the following: `abcdefghijklmnopqrstuvwxyz`.
+-/
 @[inline] def isLower (c : Char) : Bool :=
   c.val ≥ 97 && c.val ≤ 122
 
-/-- Is the character in `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`? -/
+/--
+Returns `true` if the character is an ASCII letter.
+
+The ASCII letters are the following: `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`.
+-/
 @[inline] def isAlpha (c : Char) : Bool :=
   c.isUpper || c.isLower
 
-/-- Is the character in `0123456789`? -/
+/--
+Returns `true` if the character is an ASCII digit.
+
+The ASCII digits are the following: `0123456789`.
+-/
 @[inline] def isDigit (c : Char) : Bool :=
   c.val ≥ 48 && c.val ≤ 57
 
-/-- Is the character in `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`? -/
+/--
+Returns `true` if the character is an ASCII letter or digit.
+
+The ASCII letters are the following: `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz`.
+The ASCII digits are the following: `0123456789`.
+-/
 @[inline] def isAlphanum (c : Char) : Bool :=
   c.isAlpha || c.isDigit
 
-/-- Convert an upper case character to its lower case character.
+/--
+Converts an uppercase ASCII letter to the corresponding lowercase letter. Letters outside the ASCII
+alphabet are returned unchanged.
 
-Only works on basic latin letters.
+The uppercase ASCII letters are the following: `ABCDEFGHIJKLMNOPQRSTUVWXYZ`.
 -/
 def toLower (c : Char) : Char :=
   let n := toNat c;
   if n >= 65 ∧ n <= 90 then ofNat (n + 32) else c
 
-/-- Convert a lower case character to its upper case character.
+/--
+Converts a lowercase ASCII letter to the corresponding uppercase letter. Letters outside the ASCII
+alphabet are returned unchanged.
 
-Only works on basic latin letters.
+The lowercase ASCII letters are the following: `abcdefghijklmnopqrstuvwxyz`.
 -/
 def toUpper (c : Char) : Char :=
   let n := toNat c;

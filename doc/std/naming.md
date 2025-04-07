@@ -239,3 +239,22 @@ If an acronym is typically spelled using mixed case, this mixed spelling may be 
 
 Simp sets centered around a conversion function should be called `source_to_target`. For example, a simp set for the `BitVec.toNat` function, which goes from `BitVec` to
 `Nat`, should be called `bitvec_to_nat`.
+
+## Variable names
+
+We make the following recommendations for variable names, but without insisting on them:
+* Simple hypotheses should be named `h`, `h'`, or using a numerical sequence `h₁`, `h₂`, etc.
+* Another common name for a simple hypothesis is `w` (for "witness").
+* `List`s should be named `l`, `l'`, `l₁`, etc, or `as`, `bs`, etc.
+  (Use of `as`, `bs` is encouraged when the lists are of different types, e.g. `as : List α` and `bs : List β`.)
+  `xs`, `ys`, `zs` are allowed, but it is better if these are reserved for `Array` and `Vector`.
+  A list of lists may be named `L`.
+* `Array`s should be named `xs`, `ys`, `zs`, although `as`, `bs` are encouraged when the arrays are of different types, e.g. `as : Array α` and `bs : Array β`.
+  An array of arrays may be named `xss`.
+* `Vector`s should be named `xs`, `ys`, `zs`, although `as`, `bs` are encouraged when the vectors are of different types, e.g. `as : Vector α n` and `bs : Vector β n`.
+  A vector of vectors may be named `xss`.
+* A common exception for `List` / `Array` / `Vector` is to use `acc` for an accumulator in a recursive function.
+* `i`, `j`, `k` are preferred for numerical indices.
+  Descriptive names such as `start`, `stop`, `lo`, and `hi` are encouraged when they increase readability.
+* `n`, `m` are preferred for sizes, e.g. in `Vector α n` or `xs.size = n`.
+* `w` is preferred for the width of a `BitVec`.

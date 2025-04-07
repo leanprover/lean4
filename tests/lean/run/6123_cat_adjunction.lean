@@ -57,14 +57,14 @@ universe v u
 
 namespace CategoryTheory
 
-class CategoryStruct (obj : Type u) extends Quiver.{v + 1} obj : Type max u (v + 1) where
+class CategoryStruct (obj : Type u) : Type max u (v + 1) extends Quiver.{v + 1} obj where
   id : ∀ X : obj, Hom X X
   comp : ∀ {X Y Z : obj}, (X ⟶ Y) → (Y ⟶ Z) → (X ⟶ Z)
 
 scoped notation "𝟙" => CategoryStruct.id
 scoped infixr:80 " ≫ " => CategoryStruct.comp
 
-class Category (obj : Type u) extends CategoryStruct.{v} obj : Type max u (v + 1) where
+class Category (obj : Type u) : Type max u (v + 1) extends CategoryStruct.{v} obj where
 
 end CategoryTheory
 
@@ -76,8 +76,8 @@ namespace CategoryTheory
 
 universe v v₁ v₂ v₃ u u₁ u₂ u₃
 
-structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.{v₂} D]
-    extends Prefunctor C D : Type max v₁ v₂ u₁ u₂ where
+structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.{v₂} D] : Type max v₁ v₂ u₁ u₂
+    extends Prefunctor C D where
 
 infixr:26 " ⥤ " => Functor
 
@@ -338,7 +338,6 @@ end Cat
 def typeToCat : Type u ⥤ Cat where
   obj X := Cat.of (Discrete X)
   map := fun {X} {Y} f => by
-    dsimp
     exact Discrete.functor (Discrete.mk ∘ f)
 
 @[simp] theorem typeToCat_obj (X : Type u) : typeToCat.obj X = Cat.of (Discrete X) := rfl
@@ -401,7 +400,7 @@ class IsPreconnected (J : Type u₁) [Category.{v₁} J] : Prop where
   iso_constant :
     ∀ {α : Type u₁} (F : J ⥤ Discrete α) (j : J), False
 
-class IsConnected (J : Type u₁) [Category.{v₁} J] extends IsPreconnected J : Prop where
+class IsConnected (J : Type u₁) [Category.{v₁} J] : Prop extends IsPreconnected J where
   [is_nonempty : Nonempty J]
 
 variable {J : Type u₁} [Category.{v₁} J]

@@ -255,6 +255,11 @@ structure InfoState where
   enabled    : Bool := true
   /-- Map from holes in the infotree to child infotrees. -/
   assignment : PersistentHashMap MVarId InfoTree := {}
+  /--
+  Assignments fulfilled by other elaboration tasks. We substitute them only just before reporting
+  the info tree via a snapshot to avoid premature blocking.
+  -/
+  lazyAssignment : PersistentHashMap MVarId (Task InfoTree) := {}
   /-- Pending child trees of a node. -/
   trees      : PersistentArray InfoTree := {}
   deriving Inhabited

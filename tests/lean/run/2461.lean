@@ -1,8 +1,5 @@
 section algebra_hierarchy_classes_to_comm_ring
 
-class One (α : Type) where
-  one : α
-
 class Semiring (α : Type) extends Add α, Mul α, Zero α, One α
 
 class CommSemiring (R : Type) extends Semiring R

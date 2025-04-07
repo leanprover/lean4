@@ -1,21 +1,19 @@
 {"textDocument": {"uri": "file:///travellingCompletions.lean"},
- "position": {"line": 7, "character": 33}}
+ "position": {"line": 7, "character": 37}}
 {"items":
- [{"sortText": "0",
-   "label": "aaaaaaaa",
+ [{"label": "aaaaaaaa",
    "kind": 21,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///travellingCompletions.lean"},
-     "position": {"line": 7, "character": 33}},
-    "id": {"const": {"declName": "aaaaaaaa"}},
+     "position": {"line": 7, "character": 37}},
+    "id": {"const": {"declName": "Foo.aaaaaaaa"}},
     "cPos": 0}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///travellingCompletions.lean"},
  "position": {"line": 20, "character": 20}}
 {"items":
- [{"sortText": "0",
-   "label": "foobar",
+ [{"label": "foobar",
    "kind": 5,
    "data":
    {"params":
@@ -23,12 +21,11 @@
      "position": {"line": 20, "character": 20}},
     "id": {"const": {"declName": "Bar.foobar"}},
     "cPos": 2}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///travellingCompletions.lean"},
  "position": {"line": 24, "character": 16}}
 {"items":
- [{"sortText": "0",
-   "label": "foobar",
+ [{"label": "foobar",
    "kind": 5,
    "data":
    {"params":
@@ -36,34 +33,31 @@
      "position": {"line": 24, "character": 16}},
     "id": {"const": {"declName": "Bar.foobar"}},
     "cPos": 2}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///travellingCompletions.lean"},
  "position": {"line": 38, "character": 45}}
 {"items":
- [{"sortText": "0",
-   "label": "continuousAdd",
-   "kind": 23,
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///travellingCompletions.lean"},
-     "position": {"line": 38, "character": 45}},
-    "id": {"const": {"declName": "Prod.continuousAdd"}},
-    "cPos": 1}},
-  {"sortText": "1",
-   "label": "continuousSMul",
+ [{"label": "continuousSMul",
    "kind": 23,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///travellingCompletions.lean"},
      "position": {"line": 38, "character": 45}},
     "id": {"const": {"declName": "Prod.continuousSMul"}},
+    "cPos": 1}},
+  {"label": "continuousAdd",
+   "kind": 23,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///travellingCompletions.lean"},
+     "position": {"line": 38, "character": 45}},
+    "id": {"const": {"declName": "Prod.continuousAdd"}},
     "cPos": 1}}],
- "isIncomplete": true}
+ "isIncomplete": false}
 {"textDocument": {"uri": "file:///travellingCompletions.lean"},
  "position": {"line": 42, "character": 25}}
 {"items":
- [{"sortText": "0",
-   "label": "intro",
+ [{"label": "intro",
    "kind": 4,
    "data":
    {"params":
@@ -71,4 +65,4 @@
      "position": {"line": 42, "character": 25}},
     "id": {"const": {"declName": "True.intro"}},
     "cPos": 1}}],
- "isIncomplete": true}
+ "isIncomplete": false}

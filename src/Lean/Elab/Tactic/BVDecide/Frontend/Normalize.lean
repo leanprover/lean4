@@ -6,6 +6,7 @@ Authors: Henrik Böving
 prelude
 import Lean.Elab.Tactic.FalseOrByContra
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
+import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ApplyControlFlow
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Simproc
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Rewrite
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AndFlatten
@@ -15,6 +16,7 @@ import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.IntToBitVec
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Enums
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
+import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ShortCircuit
 
 /-!
 This module contains the implementation of `bv_normalize`, the preprocessing tactic for `bv_decide`.
@@ -32,7 +34,7 @@ def passPipeline : PreProcessM (List Pass) := do
   let cfg ← PreProcessM.getConfig
 
   if cfg.acNf then
-    passPipeline := passPipeline ++ [acNormalizePass]
+    passPipeline := passPipeline ++ [bvAcNormalizePass]
 
   if cfg.andFlattening then
     passPipeline := passPipeline ++ [andFlatteningPass]
@@ -56,6 +58,22 @@ where
     if cfg.structures || cfg.enums then
       g := (← typeAnalysisPass.run g).get!
 
+    /-
+    There is a tension between the structures and enums pass at play:
+    1. Enums should run before structures as it could convert matches on enums into `cond`
+       chains. This in turn can be used by the structures pass to float projections into control
+       flow which might be necessary.
+    2. Structures should run before enums as it could reveal new facts about enums that we might
+       need to handle. For example a structure might contain a field that contains a fact about
+       some enum. This fact needs to be processed properly by the enums pass
+
+    To resolve this tension we do the following:
+    1. Run the structures pass (if enabled)
+    2. Run the enums pass (if enabled)
+    3. Within the enums pass we rerun the part of the structures pass that could profit from the
+       enums pass as described above. This comes down to adding a few more lemmas to a simp
+       invocation that is going to happen in the enums pass anyway and should thus be cheap.
+    -/
     if cfg.structures then
       let some g' ← structuresPass.run g | return none
       g := g'
@@ -70,7 +88,15 @@ where
 
     trace[Meta.Tactic.bv] m!"Running fixpoint pipeline on:\n{g}"
     let pipeline ← passPipeline
-    Pass.fixpointPipeline pipeline g
+    let some g' ← Pass.fixpointPipeline pipeline g | return none
+    /-
+    Run short circuiting once post fixpoint, as it increases the size of terms with
+    the aim of exposing potential short-circuit reasoning to the solver.
+    -/
+    if cfg.shortCircuit then
+      shortCircuitPass |>.run g'
+    else
+      return g'
 
 @[builtin_tactic Lean.Parser.Tactic.bvNormalize]
 def evalBVNormalize : Tactic := fun

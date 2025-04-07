@@ -7,6 +7,7 @@ prelude
 import Lean.Meta.Tactic.Grind.Combinators
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.EMatch
+import Lean.Meta.Tactic.Grind.Arith
 
 namespace Lean.Meta.Grind
 
@@ -59,6 +60,10 @@ def tryEmatch : Goal → M Bool := applyTac ematchAndAssert
 
 def trySplit : Goal → M Bool := applyTac splitNext
 
+def tryArith : Goal → M Bool := applyTac Arith.check
+
+def tryMBTC : Goal → M Bool := applyTac Arith.Cutsat.mbtcTac
+
 def maxNumFailuresReached : M Bool := do
   return (← get).failures.length ≥ (← getConfig).failures
 
@@ -72,9 +77,13 @@ partial def main (fallback : Fallback) : M Unit := do
       continue
     if (← tryAssertNext goal) then
       continue
+    if (← tryArith goal) then
+      continue
     if (← tryEmatch goal) then
       continue
     if (← trySplit goal) then
+      continue
+    if (← tryMBTC goal) then
       continue
     let goal ← GoalM.run' goal fallback
     if goal.inconsistent || (← goal.mvarId.isAssigned) then

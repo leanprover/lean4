@@ -50,10 +50,15 @@ def isEqBwdPattern? (e : Expr) : Option (Expr × Expr) :=
     | none
   some (lhs, rhs)
 
+-- Configuration for the `grind` normalizer. We want both `zetaDelta` and `zeta`
+private def normConfig : Grind.Config := {}
+theorem normConfig_zeta : normConfig.zeta = true := rfl
+theorem normConfig_zetaDelta : normConfig.zetaDelta = true := rfl
+
 def preprocessPattern (pat : Expr) (normalizePattern := true) : MetaM Expr := do
   let pat ← instantiateMVars pat
   let pat ← unfoldReducible pat
-  let pat ← if normalizePattern then normalize pat else pure pat
+  let pat ← if normalizePattern then normalize pat normConfig else pure pat
   let pat ← detectOffsets pat
   let pat ← foldProjs pat
   return pat
@@ -333,7 +338,7 @@ private def saveBVar (idx : Nat) : M Unit := do
   modify fun s => { s with bvarsFound := s.bvarsFound.insert idx }
 
 private def getPatternFn? (pattern : Expr) : Option Expr :=
-  if !pattern.isApp then
+  if !pattern.isApp && !pattern.isConst then
     none
   else match pattern.getAppFn with
     | f@(.const declName _) => if isForbidden declName then none else some f
@@ -594,7 +599,7 @@ def mkEMatchEqTheoremCore (origin : Origin) (levelParams : Array Name) (proof : 
     let pat := if useLhs then lhs else rhs
     trace[grind.debug.ematch.pattern] "mkEMatchEqTheoremCore: origin: {← origin.pp}, pat: {pat}, useLhs: {useLhs}"
     let pat ← preprocessPattern pat normalizePattern
-    trace[grind.debug.ematch.pattern] "mkEMatchEqTheoremCore: after preprocessing: {pat}, {← normalize pat}"
+    trace[grind.debug.ematch.pattern] "mkEMatchEqTheoremCore: after preprocessing: {pat}, {← normalize pat normConfig}"
     let pats := splitWhileForbidden (pat.abstract xs)
     return (xs.size, pats)
   mkEMatchTheoremCore origin levelParams numParams proof patterns (if useLhs then .eqLhs else .eqRhs)

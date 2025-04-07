@@ -17,13 +17,16 @@ LEAN_EXPORT lean_object* l_IO_Promise_resultD___rarg___lambda__1(lean_object*, l
 lean_object* lean_io_promise_new(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Promise_result_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Promise_result_x21(lean_object*);
+LEAN_EXPORT lean_object* l_IO_Promise_isResolved___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Promise_result(lean_object*);
+LEAN_EXPORT lean_object* l_IO_Promise_isResolved___rarg(lean_object*, lean_object*);
 lean_object* lean_option_get_or_block(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_System_Promise_0__IO_PromisePointed;
 LEAN_EXPORT lean_object* l_IO_Promise_resolve___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_promise_resolve(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Promise_new___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_promise_result_opt(lean_object*);
+LEAN_EXPORT lean_object* l_IO_Promise_isResolved(lean_object*);
 extern lean_object* l_Task_Priority_default;
 static lean_object* l_IO_Promise_result_x21___rarg___closed__1;
 LEAN_EXPORT lean_object* l_IO_Promise_result___rarg(lean_object*);
@@ -31,6 +34,7 @@ LEAN_EXPORT lean_object* l___private_Init_System_Promise_0__IO_Option_getOrBlock
 LEAN_EXPORT lean_object* l_IO_Promise_resultD___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Promise_resultD___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Promise_result_x21___rarg___boxed(lean_object*);
+lean_object* lean_io_get_task_state(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Promise_result_x21___rarg(lean_object*);
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_IO_Promise_resultD___rarg___lambda__1___boxed(lean_object*, lean_object*);
@@ -193,6 +197,117 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_IO_Promise_resultD___rarg(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_IO_Promise_isResolved___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_io_promise_result_opt(x_1);
+x_4 = lean_io_get_task_state(x_3, x_2);
+lean_dec(x_3);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; 
+x_5 = lean_ctor_get(x_4, 0);
+lean_inc(x_5);
+if (lean_obj_tag(x_5) == 2)
+{
+uint8_t x_6; 
+x_6 = !lean_is_exclusive(x_4);
+if (x_6 == 0)
+{
+lean_object* x_7; uint8_t x_8; lean_object* x_9; 
+x_7 = lean_ctor_get(x_4, 0);
+lean_dec(x_7);
+x_8 = 1;
+x_9 = lean_box(x_8);
+lean_ctor_set(x_4, 0, x_9);
+return x_4;
+}
+else
+{
+lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; 
+x_10 = lean_ctor_get(x_4, 1);
+lean_inc(x_10);
+lean_dec(x_4);
+x_11 = 1;
+x_12 = lean_box(x_11);
+x_13 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_13, 0, x_12);
+lean_ctor_set(x_13, 1, x_10);
+return x_13;
+}
+}
+else
+{
+uint8_t x_14; 
+lean_dec(x_5);
+x_14 = !lean_is_exclusive(x_4);
+if (x_14 == 0)
+{
+lean_object* x_15; uint8_t x_16; lean_object* x_17; 
+x_15 = lean_ctor_get(x_4, 0);
+lean_dec(x_15);
+x_16 = 0;
+x_17 = lean_box(x_16);
+lean_ctor_set(x_4, 0, x_17);
+return x_4;
+}
+else
+{
+lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; 
+x_18 = lean_ctor_get(x_4, 1);
+lean_inc(x_18);
+lean_dec(x_4);
+x_19 = 0;
+x_20 = lean_box(x_19);
+x_21 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_21, 0, x_20);
+lean_ctor_set(x_21, 1, x_18);
+return x_21;
+}
+}
+}
+else
+{
+uint8_t x_22; 
+x_22 = !lean_is_exclusive(x_4);
+if (x_22 == 0)
+{
+return x_4;
+}
+else
+{
+lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+x_23 = lean_ctor_get(x_4, 0);
+x_24 = lean_ctor_get(x_4, 1);
+lean_inc(x_24);
+lean_inc(x_23);
+lean_dec(x_4);
+x_25 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_25, 0, x_23);
+lean_ctor_set(x_25, 1, x_24);
+return x_25;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_IO_Promise_isResolved(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_IO_Promise_isResolved___rarg___boxed), 2, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_IO_Promise_isResolved___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_IO_Promise_isResolved___rarg(x_1, x_2);
 lean_dec(x_1);
 return x_3;
 }

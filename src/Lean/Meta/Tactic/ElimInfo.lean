@@ -120,6 +120,8 @@ where
       else
         collect (b.instantiate1 (← mkFreshExprMVar d)) (argIdx+1) targetIdx implicits targets'
     | _ =>
+      unless targetIdx = targets.size do
+        throwError "extra targets for '{elimInfo.elimExpr}'"
       return (implicits, targets')
 
 structure CustomEliminator where

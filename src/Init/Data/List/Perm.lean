@@ -18,7 +18,8 @@ another.
 The notation `~` is used for permutation equivalence.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- TODO: restore after an update-stage0
 -- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 open Nat
@@ -46,6 +47,14 @@ instance : Trans (Perm (α := α)) (Perm (α := α)) (Perm (α := α)) where
   trans h₁ h₂ := Perm.trans h₁ h₂
 
 theorem perm_comm {l₁ l₂ : List α} : l₁ ~ l₂ ↔ l₂ ~ l₁ := ⟨Perm.symm, Perm.symm⟩
+
+protected theorem Perm.congr_left {l₁ l₂ : List α} (h : l₁ ~ l₂) (l₃ : List α) :
+    l₁ ~ l₃ ↔ l₂ ~ l₃ :=
+  ⟨h.symm.trans, h.trans⟩
+
+protected theorem Perm.congr_right {l₁ l₂ : List α} (h : l₁ ~ l₂) (l₃ : List α) :
+    l₃ ~ l₁ ↔ l₃ ~ l₂ :=
+  ⟨fun h' => h'.trans h, fun h' => h'.trans h.symm⟩
 
 theorem Perm.swap' (x y : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) : y :: x :: l₁ ~ x :: y :: l₂ :=
   (swap ..).trans <| p.cons _ |>.cons _
@@ -182,7 +191,7 @@ theorem Perm.filterMap (f : α → Option β) {l₁ l₂ : List α} (p : l₁ ~ 
   | trans _p₁ _p₂ IH₁ IH₂ => exact IH₁.trans IH₂
 
 theorem Perm.map (f : α → β) {l₁ l₂ : List α} (p : l₁ ~ l₂) : map f l₁ ~ map f l₂ :=
-  filterMap_eq_map f ▸ p.filterMap _
+  filterMap_eq_map ▸ p.filterMap _
 
 theorem Perm.pmap {p : α → Prop} (f : ∀ a, p a → β) {l₁ l₂ : List α} (p : l₁ ~ l₂) {H₁ H₂} :
     pmap f l₁ H₁ ~ pmap f l₂ H₂ := by
@@ -375,7 +384,7 @@ theorem Perm.erase (a : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) : l₁.erase
 theorem cons_perm_iff_perm_erase {a : α} {l₁ l₂ : List α} :
     a :: l₁ ~ l₂ ↔ a ∈ l₂ ∧ l₁ ~ l₂.erase a := by
   refine ⟨fun h => ?_, fun ⟨m, h⟩ => (h.cons a).trans (perm_cons_erase m).symm⟩
-  have : a ∈ l₂ := h.subset (mem_cons_self a l₁)
+  have : a ∈ l₂ := h.subset mem_cons_self
   exact ⟨this, (h.trans <| perm_cons_erase this).cons_inv⟩
 
 theorem perm_iff_count {l₁ l₂ : List α} : l₁ ~ l₂ ↔ ∀ a, count a l₁ = count a l₂ := by
@@ -426,7 +435,7 @@ theorem Perm.pairwise_iff {R : α → α → Prop} (S : ∀ {x y}, R x y → R y
     induction d generalizing l₂ with
     | nil => rw [← p.nil_eq]; constructor
     | cons h _ IH =>
-      have : _ ∈ l₂ := p.subset (mem_cons_self _ _)
+      have : _ ∈ l₂ := p.subset mem_cons_self
       obtain ⟨s₂, t₂, rfl⟩ := append_of_mem this
       have p' := (p.trans perm_middle).cons_inv
       refine (pairwise_middle S).2 (pairwise_cons.2 ⟨fun b m => ?_, IH p'⟩)
@@ -449,8 +458,8 @@ theorem Perm.eq_of_sorted : ∀ {l₁ l₂ : List α}
   | [], b :: l₂, _, _, _, h => by simp_all
   | a :: l₁, [], _, _, _, h => by simp_all
   | a :: l₁, b :: l₂, w, h₁, h₂, h => by
-    have am : a ∈ b :: l₂ := h.subset (mem_cons_self _ _)
-    have bm : b ∈ a :: l₁ := h.symm.subset (mem_cons_self _ _)
+    have am : a ∈ b :: l₂ := h.subset mem_cons_self
+    have bm : b ∈ a :: l₁ := h.symm.subset mem_cons_self
     have ab : a = b := by
       simp only [mem_cons] at am
       rcases am with rfl | am
@@ -458,7 +467,7 @@ theorem Perm.eq_of_sorted : ∀ {l₁ l₂ : List α}
       · simp only [mem_cons] at bm
         rcases bm with rfl | bm
         · rfl
-        · exact w _ _ (mem_cons_self _ _) (mem_cons_self _ _)
+        · exact w _ _ mem_cons_self mem_cons_self
             (rel_of_pairwise_cons h₁ bm) (rel_of_pairwise_cons h₂ am)
     subst ab
     simp only [perm_cons] at h
@@ -514,7 +523,7 @@ theorem Perm.eraseP (f : α → Bool) {l₁ l₂ : List α}
     exact fun h h₁ h₂ => h h₂ h₁
 
 theorem perm_insertIdx {α} (x : α) (l : List α) {i} (h : i ≤ l.length) :
-    insertIdx i x l ~ x :: l := by
+    l.insertIdx i x ~ x :: l := by
   induction l generalizing i with
   | nil =>
     cases i with

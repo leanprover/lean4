@@ -21,6 +21,9 @@ import Init.Data.Bool
 
 -/
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 /-! ### splitInTwo -/
@@ -240,7 +243,7 @@ theorem merge_of_le : ∀ {xs ys : List α} (_ : ∀ a b, a ∈ xs → b ∈ ys 
     rw [if_pos, merge_of_le]
     · intro a b ma mb
       exact h a b (mem_cons_of_mem _ ma) mb
-    · exact h x y (mem_cons_self _ _) (mem_cons_self _ _)
+    · exact h x y mem_cons_self mem_cons_self
 
 variable (le) in
 theorem merge_perm_append : ∀ {xs ys : List α}, merge xs ys le ~ xs ++ ys
@@ -364,9 +367,9 @@ theorem mergeSort_cons {le : α → α → Bool}
       ∀ b, b ∈ l₁ → !le a b := by
   rw [← mergeSort_zipIdx]
   rw [zipIdx_cons]
-  have nd : Nodup ((a :: l).zipIdx.map (·.2)) := by rw [zipIdx_map_snd]; exact nodup_range' _ _
+  have nd : Nodup ((a :: l).zipIdx.map (·.2)) := by rw [zipIdx_map_snd]; exact nodup_range' _
   have m₁ : (a, 0) ∈ mergeSort ((a :: l).zipIdx) (zipIdxLE le) :=
-    mem_mergeSort.mpr (mem_cons_self _ _)
+    mem_mergeSort.mpr mem_cons_self
   obtain ⟨l₁, l₂, h⟩ := append_of_mem m₁
   have s := sorted_mergeSort (zipIdxLE_trans trans) (zipIdxLE_total total) ((a :: l).zipIdx)
   rw [h] at s
@@ -405,9 +408,9 @@ theorem mergeSort_cons {le : α → α → Bool}
     have nd' := nd.perm p.symm
     rw [map_append] at nd'
     have j0 := nd'.rel_of_mem_append
-      (mem_map_of_mem (·.2) m) (mem_map_of_mem _ (mem_cons_self _ _))
+      (mem_map_of_mem m) (mem_map_of_mem mem_cons_self)
     simp only [ne_eq] at j0
-    have r := s.rel_of_mem_append m (mem_cons_self _ _)
+    have r := s.rel_of_mem_append m mem_cons_self
     simp_all [zipIdxLE]
 
 /--
@@ -418,10 +421,10 @@ then `c` is still a sublist of `mergeSort le l`.
 theorem sublist_mergeSort
     (trans : ∀ (a b c : α), le a b → le b c → le a c)
     (total : ∀ (a b : α), le a b || le b a) :
-    ∀ {c : List α} (_ : c.Pairwise le) (_ : c <+ l),
-    c <+ mergeSort l le
+    ∀ {ys : List α} (_ : ys.Pairwise le) (_ : ys <+ xs),
+    ys <+ mergeSort xs le
   | _, _, .slnil => nil_sublist _
-  | c, hc, @Sublist.cons _ _ l a h => by
+  | ys, hc, @Sublist.cons _ _ l a h => by
     obtain ⟨l₁, l₂, h₁, h₂, -⟩ := mergeSort_cons trans total a l
     rw [h₁]
     have h' := sublist_mergeSort trans total hc h
@@ -460,9 +463,9 @@ theorem map_merge {f : α → β} {r : α → α → Bool} {s : β → β → Bo
     (hl : ∀ a ∈ l, ∀ b ∈ l', r a b = s (f a) (f b)) :
     (l.merge l' r).map f = (l.map f).merge (l'.map f) s := by
   match l, l' with
-  | [], x' => simp
-  | x, [] => simp
-  | x :: xs, x' :: xs' =>
+  | [], _ => simp
+  | _, [] => simp
+  | _ :: _, _ :: _ =>
     simp only [List.forall_mem_cons] at hl
     simp only [forall_and] at hl
     simp only [List.map, List.cons_merge_cons]

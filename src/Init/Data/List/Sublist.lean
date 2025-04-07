@@ -11,8 +11,8 @@ import Init.Data.List.TakeDrop
 # Lemmas about `List.Subset`, `List.Sublist`, `List.IsPrefix`, `List.IsSuffix`, and `List.IsInfix`.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
 
@@ -150,8 +150,8 @@ theorem Sublist.trans {l₁ l₂ l₃ : List α} (h₁ : l₁ <+ l₂) (h₂ : l
   | slnil => exact h₁
   | cons _ _ IH => exact (IH h₁).cons _
   | @cons₂ l₂ _ a _ IH =>
-    generalize e : a :: l₂ = l₂'
-    match e ▸ h₁ with
+    generalize e : a :: l₂ = l₂' at h₁
+    match h₁ with
     | .slnil => apply nil_sublist
     | .cons a' h₁' => cases e; apply (IH h₁').cons
     | .cons₂ a' h₁' => cases e; apply (IH h₁').cons₂
@@ -256,10 +256,10 @@ protected theorem Sublist.filter (p : α → Bool) {l₁ l₂} (s : l₁ <+ l₂
   rw [← filterMap_eq_filter]; apply s.filterMap
 
 theorem head_filter_mem (xs : List α) (p : α → Bool) (h) : (xs.filter p).head h ∈ xs :=
-  (filter_sublist xs).head_mem h
+  filter_sublist.head_mem h
 
 theorem getLast_filter_mem (xs : List α) (p : α → Bool) (h) : (xs.filter p).getLast h ∈ xs :=
-  (filter_sublist xs).getLast_mem h
+  filter_sublist.getLast_mem h
 
 theorem sublist_filterMap_iff {l₁ : List β} {f : α → Option β} :
     l₁ <+ l₂.filterMap f ↔ ∃ l', l' <+ l₂ ∧ l₁ = l'.filterMap f := by
@@ -991,10 +991,10 @@ theorem drop_subset_drop_left (l : List α) {i j : Nat} (h : i ≤ j) : drop j l
   (drop_sublist_drop_left l h).subset
 
 theorem takeWhile_prefix (p : α → Bool) : l.takeWhile p <+: l :=
-  ⟨l.dropWhile p, takeWhile_append_dropWhile p l⟩
+  ⟨l.dropWhile p, takeWhile_append_dropWhile⟩
 
 theorem dropWhile_suffix (p : α → Bool) : l.dropWhile p <:+ l :=
-  ⟨l.takeWhile p, takeWhile_append_dropWhile p l⟩
+  ⟨l.takeWhile p, takeWhile_append_dropWhile⟩
 
 theorem takeWhile_sublist (p : α → Bool) : l.takeWhile p <+ l :=
   (takeWhile_prefix p).sublist

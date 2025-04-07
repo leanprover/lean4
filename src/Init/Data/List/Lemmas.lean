@@ -2136,8 +2136,8 @@ theorem contains_replicate [BEq α] {n : Nat} {a b : α} :
     split <;> simp_all
 
 @[deprecated mem_replicate (since := "2024-09-05")]
-theorem decide_mem_replicate [BEq α] [LawfulBEq α] {a b : α}
-    {n} : decide (b ∈ replicate n a) = ((¬ n == 0) && b == a) := by
+theorem decide_mem_replicate [BEq α] [LawfulBEq α] {a b : α} :
+    ∀ {n}, decide (b ∈ replicate n a) = ((¬ n == 0) && b == a) := by
   simp [Bool.beq_eq_decide_eq]
 
 theorem eq_of_mem_replicate {a b : α} {n} (h : b ∈ replicate n a) : b = a := (mem_replicate.1 h).2

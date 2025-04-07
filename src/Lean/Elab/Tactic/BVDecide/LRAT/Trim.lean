@@ -63,13 +63,10 @@ partial def findInitialId (proof : Array IntAction) (curr : Nat := 0) : Except S
   else
     throw "LRAT proof doesn't contain a proper first proof step."
 
-def findEmptyId (proof : Array IntAction) : Except String Nat := do
-  if h : 0 < proof.size then
-    match proof[proof.size - 1] with
-    | .addEmpty id .. => pure id
-    | _ => throw "Last proof step is not the empty clause"
-  else
-    throw "The LRAT proof contains no steps."
+def findEmptyId (proof : Array IntAction) : Except String Nat :=
+  match proof.findSomeRev? (if let .addEmpty id .. := . then some id else none) with
+  | some id => pure id
+  | none => throw "LRAT proof doesn't contain the empty clause."
 
 def run (proof : Array IntAction) (x : M α) : Except String α := do
   let initialId ← findInitialId proof

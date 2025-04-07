@@ -82,6 +82,17 @@ private def isCongrToPrevSplit (c : Expr) : GoalM Bool := do
     else
       return isCongruent (← get).enodes c c'
 
+private def checkForallStatus (e : Expr) : GoalM CaseSplitStatus := do
+  if (← isEqTrue e) then
+    let .forallE _ p _ _ := e | return .resolved
+    if (← isEqTrue p <||> isEqFalse p) then
+      return .resolved
+    return .ready 2
+  else if (← isEqFalse e) then
+    return .resolved
+  else
+    return .notReady
+
 private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
   match_expr e with
   | Or a b => checkDisjunctStatus e a b
@@ -112,6 +123,8 @@ private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
       let .const declName _ := type.getAppFn | report; return .resolved
       let .inductInfo info ← getConstInfo declName | report; return .resolved
       return .ready info.ctors.length info.isRec
+    if e.isForall then
+      return (← checkForallStatus e)
     return .notReady
 
 private inductive SplitCandidate where
@@ -174,7 +187,9 @@ private def mkCasesMajor (c : Expr) : GoalM Expr := do
       -- model-based theory combination split
       return mkGrindEM c
   | _ =>
-    if (← isEqTrue c) then
+    if let .forallE _ p _ _ := c then
+      return mkGrindEM p
+    else if (← isEqTrue c) then
       return mkOfEqTrueCore c (← mkEqTrueProof c)
     else
       return c

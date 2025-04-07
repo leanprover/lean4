@@ -94,6 +94,9 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
     let .const declName _ := (← whnfD (← inferType e)).getAppFn | return ()
     if (← get).split.casesTypes.isSplit declName then
       addSplitCandidate e
+  | .forallE _ d _ _ =>
+    if Arith.isRelevantPred d || (← getConfig).splitImp then
+      addSplitCandidate e
   | _ => pure ()
 
 /--
@@ -237,6 +240,7 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
         internalizeImpl b generation e
         registerParent e b
       propagateUp e
+      checkAndAddSplitCandidate e
   | .lit .. =>
     mkENode e generation
   | .const declName _ =>

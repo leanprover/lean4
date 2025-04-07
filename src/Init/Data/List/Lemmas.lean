@@ -983,6 +983,12 @@ theorem head?_concat {a : α} : (l ++ [a]).head? = l.head?.getD a := by
 theorem head?_concat_concat : (l ++ [a, b]).head? = (l ++ [a]).head? := by
   cases l <;> simp
 
+theorem head_of_mem_head? {l : List α} {x} (hx : x ∈ l.head?) :
+    l.head (ne_nil_of_mem (mem_of_mem_head? hx)) = x := by
+  cases l
+  · contradiction
+  · simpa using hx
+
 /-! ### headD -/
 
 /-- `simp` unfolds `headD` in terms of `head?` and `Option.getD`. -/
@@ -2467,6 +2473,14 @@ theorem mem_of_mem_getLast? {l : List α} {a : α} (h : a ∈ getLast? l) : a �
   rw [getLast?_eq_head?_reverse] at h
   rw [← mem_reverse]
   exact mem_of_mem_head? h
+
+theorem getLast_of_mem_getLast? {l : List α} (hx : x ∈ l.getLast?) :
+    l.getLast (ne_nil_of_mem (mem_of_mem_getLast? hx)) = x := by
+  rw [Option.mem_def] at hx
+  cases l
+  · contradiction
+  · rw [← Option.some_inj, ← hx]
+    rfl
 
 @[simp] theorem map_reverse {f : α → β} {l : List α} : l.reverse.map f = (l.map f).reverse := by
   induction l <;> simp [*]

@@ -1620,8 +1620,6 @@ theorem toListModel_insertMany_list {_ : Ord α} [BEq α] [TransOrd α] [LawfulB
     exact insertList_perm_of_perm_first (toListModel_insert! h.balanced h.ordered)
       h.insert!.ordered.distinctKeys
 
--- ∀ k ∈ m.keys, f k
-
 theorem toListModel_insertMany!_list {_ : Ord α} [BEq α] [LawfulBEqOrd α] [TransOrd α]
     {l : List (α × β)} {t : Impl α β} (h : t.WF) :
     List.Perm (Const.insertMany! t l).val.toListModel (t.toListModel.insertListConst l) := by

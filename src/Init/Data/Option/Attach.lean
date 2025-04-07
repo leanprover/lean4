@@ -84,13 +84,12 @@ theorem attachWith_map_subtype_val {p : α → Prop} (o : Option α) (H : ∀ a,
     (o.attachWith p H).map Subtype.val = o :=
   (attachWith_map_val _ _ _).trans (congrFun Option.map_id _)
 
--- theorem mem_attach : ∀ (o : Option α) (x : {x // o = some x}), x ∈ o.attach
---   | none, ⟨x, h⟩ => by simp at h
---   | some a, ⟨x, h⟩ => by simpa using h
-
 theorem attach_eq_some : ∀ (o : Option a) (x : {x // o = some x}), o.attach = some x
   | none, ⟨x, h⟩ => by simp at h
   | some a, ⟨x, h⟩ => by simpa using h
+
+theorem mem_attach : ∀ (o : Option α) (x : {x // o = some x}), x ∈ o.attach :=
+  attach_eq_some
 
 @[simp] theorem isNone_attach (o : Option α) : o.attach.isNone = o.isNone := by
   cases o <;> simp

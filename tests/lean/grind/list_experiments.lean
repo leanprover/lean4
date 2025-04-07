@@ -492,12 +492,17 @@ theorem getElem_set {l : List α} {i j} {a} (h) :
 theorem getElem?_set {l : List α} {i j : Nat} {a : α} :
     (l.set i a)[j]? = if i = j then if i < l.length then some a else none else l[j]? := by grind
 
+attribute [grind] Option.not_mem_none
+
 theorem getElem?_set' {l : List α} {i j : Nat} {a : α} :
     (set l i a)[j]? = if i = j then Function.const _ a <$> l[j]? else l[j]? := by
   by_cases i = j
-  · simp only [getElem?_set_self', Option.map_eq_map, ↓reduceIte, *]
-  · simp only [ne_eq, not_false_eq_true, getElem?_set_ne, ↓reduceIte, *]
-
+  · -- FIXME
+    -- I think this is failing to instantiate `List.getElem?_eq_none`,
+    -- because it knows `i + 1 ≤ l.length` is false, but not that `l.length ≤ i`.
+    -- grind
+    simp only [getElem?_set_self', Option.map_eq_map, ↓reduceIte, *]
+  · grind
 
 theorem set_getElem_self {as : List α} {i : Nat} (h : i < as.length) :
     as.set i as[i] = as := by
@@ -506,7 +511,6 @@ theorem set_getElem_self {as : List α} {i : Nat} (h : i < as.length) :
   · intro n h₁ h₂
     -- But just `attribute [grind] List.getElem_set` doesn't work! Reported.
     grind [getElem_set]
-
 
 theorem set_eq_of_length_le {l : List α} {i : Nat} (h : l.length ≤ i) {a : α} :
     l.set i a = l := by
@@ -521,59 +525,73 @@ theorem set_comm (a b : α) {i j : Nat} {l : List α} (h : i ≠ j) :
     (l.set i a).set j b = (l.set j b).set i a := by grind
 
 theorem set_set (a : α) {b : α} : ∀ {l : List α} {i : Nat}, (l.set i a).set i b = l.set i b
-  | [], _ => by simp
-  | _ :: _, 0 => by sorry
-  | _ :: _, _+1 => by sorry
+  | [], _ => by grind
+  | _ :: _, 0 => by grind
+  | _ :: _, _+1 => by grind
+
+theorem set_set' (a : α) {b : α} {l : List α} {i : Nat} : (l.set i a).set i b = l.set i b := by grind
 
 theorem mem_set {l : List α} {i : Nat} (h : i < l.length) (a : α) :
     a ∈ l.set i a := by
-  simp [mem_iff_getElem]
-  exact ⟨i, (by simpa using h), by simp⟩
+  rw [mem_iff_getElem]
+  grind
+
+attribute [grind →] mem_or_eq_of_mem_set
 
 theorem mem_or_eq_of_mem_set : ∀ {l : List α} {i : Nat} {a b : α}, a ∈ l.set i b → a ∈ l ∨ a = b
-  | _ :: _, 0, _, _, h => ((mem_cons ..).1 h).symm.imp_left (.tail _)
-  | _ :: _, _+1, _, _, .head .. => .inl (.head ..)
-  | _ :: _, _+1, _, _, .tail _ h => (mem_or_eq_of_mem_set h).imp_left (.tail _)
+  | _ :: _, 0, _, _, h => by grind
+  | _ :: _, _+1, _, _, .head .. => by grind
+  -- FIXME without the type annotation on `h` we get stuck on an unfolded `Mem`
+  | _ :: l, n+1, a, _, .tail _ (h : a ∈ l.set n _) => by grind
 
--- See also `set_eq_take_append_cons_drop` in `Init.Data.List.TakeDrop`.
+theorem mem_or_eq_of_mem_set' {l : List α} {i : Nat} {a b : α} : a ∈ l.set i b → a ∈ l ∨ a = b := by
+  grind
 
 /-! ### BEq -/
 
-theorem beq_nil_iff [BEq α] {l : List α} : (l == []) = l.isEmpty := by
-  cases l <;> rfl
+attribute [grind] List.isEmpty_cons List.beq_nil_eq List.nil_beq_eq
 
-theorem nil_beq_iff [BEq α] {l : List α} : ([] == l) = l.isEmpty := by
-  cases l <;> rfl
+theorem beq_nil_eq [BEq α] {l : List α} : (l == []) = l.isEmpty := by grind
+
+theorem nil_beq_eq [BEq α] {l : List α} : ([] == l) = l.isEmpty := by grind
+
+attribute [grind] List.cons_beq_cons
 
 theorem cons_beq_cons [BEq α] {a b : α} {l₁ l₂ : List α} :
-    (a :: l₁ == b :: l₂) = (a == b && l₁ == l₂) := rfl
+    (a :: l₁ == b :: l₂) = (a == b && l₁ == l₂) := by grind
+
+attribute [grind] List.cons_append
+
+-- We only want the → part of `append_eq_nil_iff`.
+theorem _root_.List.eq_nil_of_append_eq_nil {l₁ l₂ : List α} (h : l₁ ++ l₂ = []) : l₁ = [] ∧ l₂ = [] := by
+  grind [List.append_eq_nil_iff]
+
+attribute [grind →] List.eq_nil_of_append_eq_nil
 
 theorem concat_beq_concat [BEq α] {a b : α} {l₁ l₂ : List α} :
     (l₁ ++ [a] == l₂ ++ [b]) = (l₁ == l₂ && a == b) := by
   induction l₁ generalizing l₂ with
-  | nil => cases l₂ <;> simp
+  | nil => cases l₂ <;> grind
   | cons x l₁ ih =>
     cases l₂ with
-    | nil => simp
+    | nil => grind
+    -- FIXME? grind not working here
     | cons y l₂ => simp [ih, Bool.and_assoc]
 
-theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l₁.length = l₂.length :=
-  match l₁, l₂ with
-  | [], [] => rfl
-  | [], _ :: _ => by simp [beq_nil_iff] at h
-  | _ :: _, [] => by simp [nil_beq_iff] at h
-  | a :: l₁, b :: l₂ => by
-    simp at h
-    simpa [Nat.add_one_inj] using length_eq_of_beq h.2
+attribute [grind →] List.length_eq_of_beq
+
+theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l₁.length = l₂.length := by grind
+
+attribute [grind] List.replicate_zero
 
 theorem replicate_beq_replicate [BEq α] {a b : α} {n : Nat} :
     (replicate n a == replicate n b) = (n == 0 || a == b) := by
   cases n with
-  | zero => simp
+  | zero => grind
   | succ n =>
     rw [replicate_succ, replicate_succ, cons_beq_cons, replicate_beq_replicate]
     rw [Bool.eq_iff_iff]
-    simp +contextual
+    grind
 
 theorem reflBEq_iff [BEq α] : ReflBEq (List α) ↔ ReflBEq α := by
   constructor

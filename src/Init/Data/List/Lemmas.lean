@@ -713,8 +713,8 @@ theorem set_set (a : α) {b : α} : ∀ {l : List α} {i : Nat}, (l.set i a).set
 
 theorem mem_set {l : List α} {i : Nat} (h : i < l.length) (a : α) :
     a ∈ l.set i a := by
-  simp [mem_iff_getElem]
-  exact ⟨i, (by simpa using h), by simp⟩
+  simp only [mem_iff_getElem]
+  exact ⟨i, by simpa using h, by simp⟩
 
 theorem mem_or_eq_of_mem_set : ∀ {l : List α} {i : Nat} {a b : α}, a ∈ l.set i b → a ∈ l ∨ a = b
   | _ :: _, 0, _, _, h => ((mem_cons ..).1 h).symm.imp_left (.tail _)

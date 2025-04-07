@@ -12,6 +12,9 @@ open List Nat
 
 /-! ### length -/
 
+attribute [grind →] List.eq_nil_of_length_eq_zero
+attribute [grind] List.length_nil
+
 theorem eq_nil_of_length_eq_zero (_ : length l = 0) : l = [] := by grind
 
 theorem ne_nil_of_length_eq_add_one (_ : length l = n + 1) : l ≠ [] := by grind
@@ -274,7 +277,10 @@ theorem exists_mem_nil (p : α → Prop) : ¬ (∃ x, ∃ _ : x ∈ @nil α, p x
 theorem forall_mem_nil (p : α → Prop) : ∀ (x) (_ : x ∈ @nil α), p x := by grind
 
 theorem exists_mem_cons {p : α → Prop} {a : α} {l : List α} :
-    (∃ x, ∃ _ : x ∈ a :: l, p x) ↔ p a ∨ ∃ x, ∃ _ : x ∈ l, p x := by grind
+    (∃ x, ∃ _ : x ∈ a :: l, p x) ↔ p a ∨ ∃ x, ∃ _ : x ∈ l, p x := by grind -- fails
+
+-- It would be great if we have some mechanism to make further progress with
+-- `∀ (x : α), ¬x ∈ a :: l ∨ ¬p x`, using `mem_cons : x ∈ a :: l ↔ x = a ∨ x ∈ l`.
 
 theorem forall_mem_singleton {p : α → Prop} {a : α} : (∀ (x) (_ : x ∈ [a]), p x) ↔ p a := by grind
 
@@ -311,6 +317,8 @@ theorem getElem?_of_mem {a} {l : List α} (h : a ∈ l) : ∃ i : Nat, l[i]? = s
 attribute [grind] List.getElem_mem
 
 theorem mem_of_getElem {l : List α} {i : Nat} {h} {a : α} (e : l[i] = a) : a ∈ l := by grind
+
+attribute [grind →] getElem_of_getElem?
 
 theorem mem_of_getElem? {l : List α} {i : Nat} {a : α} (e : l[i]? = some a) : a ∈ l := by grind
 

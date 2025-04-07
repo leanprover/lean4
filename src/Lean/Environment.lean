@@ -905,7 +905,8 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) (
     }
     exts? := guard reportExts *> some (constPromise.result?.map (sync := true) fun
       | some (_, exts, _) => exts
-      | none              => env.toKernelEnv.extensions)
+      -- any value should work here, `base` does not block
+      | none              => env.base.extensions)
     consts := constPromise.result?.map (sync := true) fun
       | some (_, _, consts) => .mk consts
       | none                => .mk (α := AsyncConsts) default

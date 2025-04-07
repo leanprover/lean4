@@ -15679,7 +15679,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Try_0__Lean_Elab_Tactic_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("unexpeted sequence", 18, 18);
+x_1 = lean_mk_string_unchecked("unexpected sequence", 19, 19);
 return x_1;
 }
 }

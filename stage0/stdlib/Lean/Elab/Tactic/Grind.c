@@ -3153,7 +3153,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_elabGrindParams_addEMatchTheorem___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("failed to genereate equation theorems for `", 43, 43);
+x_1 = lean_mk_string_unchecked("failed to generate equation theorems for `", 42, 42);
 return x_1;
 }
 }

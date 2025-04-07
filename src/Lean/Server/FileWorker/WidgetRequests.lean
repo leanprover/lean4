@@ -55,10 +55,10 @@ def makePopup : WithRpcRef InfoWithCtx → RequestM (RequestTask InfoPopup)
       let exprExplicit? ← match i.info with
         | Elab.Info.ofTermInfo ti
         | Elab.Info.ofDelabTermInfo { toTermInfo := ti, explicit := true, ..} =>
-          some <$> ppExprTaggedWithoutTopLevelHighlight ti.expr (explicit := true)
+          some <$> ppExprForPopup ti.expr (explicit := true) (withoutTopLevelHighlight := true)
         | Elab.Info.ofDelabTermInfo { toTermInfo := ti, explicit := false, ..} =>
           -- Keep the top-level tag so that users can also see the explicit version of the term on an additional hover.
-          some <$> ppExprTagged ti.expr (explicit := false)
+          some <$> ppExprForPopup ti.expr (explicit := false)
         | Elab.Info.ofFieldInfo fi => pure <| some <| TaggedText.text fi.fieldName.toString
         | _ => pure none
       return {
@@ -67,11 +67,11 @@ def makePopup : WithRpcRef InfoWithCtx → RequestM (RequestTask InfoPopup)
         doc := ← i.info.docString? : InfoPopup
       }
 where
-  ppExprTaggedWithoutTopLevelHighlight (e : Expr) (explicit : Bool) : MetaM CodeWithInfos := do
-    let pp ← ppExprTagged e (explicit := explicit)
-    return match pp with
-      | .tag _ tt => tt
-      | tt => tt
+  ppExprForPopup (e : Expr) (explicit : Bool) (withoutTopLevelHighlight : Bool := false) : MetaM CodeWithInfos := do
+    let pp ← ppExprTagged e (explicit := explicit) (hover := false)
+    return match pp, withoutTopLevelHighlight with
+      | .tag _ tt, true => tt
+      | tt,        _    => tt
 
 builtin_initialize
   registerBuiltinRpcProcedure

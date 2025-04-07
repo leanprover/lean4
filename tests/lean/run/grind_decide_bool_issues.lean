@@ -1,3 +1,5 @@
+reset_grind_attrs%
+
 example {P Q : Prop} [Decidable P] [Decidable Q] : (decide P || decide Q) = decide (P ∨ Q) := by grind
 
 @[grind] theorem eq_head_or_mem_tail_of_mem_cons {a b : α} {l : List α} :
@@ -16,4 +18,14 @@ example [DecidableEq α] {l : List α} :
 -- but inserting some `decide`s fails:
 example [BEq α] [LawfulBEq α] {l : List α} :
     decide (y ∈ a :: l) = (y == a || decide (y ∈ l)) := by
+  grind
+
+example [BEq α] (a b : α) : (a == b && a == b) = (a == b) := by
+  rw [Bool.eq_iff_iff]
+  grind
+
+example [BEq α] (a b : α) : (a == b && a == b) = (a == b) := by
+  grind
+
+example (a b : List Nat) : (a == b && b == a) = (a == b) := by
   grind

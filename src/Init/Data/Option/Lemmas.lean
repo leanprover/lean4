@@ -12,6 +12,7 @@ import Init.Ext
 
 namespace Option
 
+@[deprecated mem_def (since := "2025-04-07")]
 theorem mem_iff {a : α} {b : Option α} : a ∈ b ↔ b = some a := .rfl
 
 theorem mem_some {a b : α} : a ∈ some b ↔ b = a := by simp

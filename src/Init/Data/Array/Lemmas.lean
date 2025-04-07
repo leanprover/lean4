@@ -1085,29 +1085,19 @@ private theorem beq_of_beq_singleton [BEq α] {a b : α} : #[a] == #[b] → a ==
     apply beq_of_beq_singleton
     simp
   · intro h
-    constructor
-    apply Array.isEqv_self_beq
+    infer_instance
 
 @[simp] theorem lawfulBEq_iff [BEq α] : LawfulBEq (Array α) ↔ LawfulBEq α := by
   constructor
   · intro h
+    have : ReflBEq α := reflBEq_iff.mp inferInstance
     constructor
-    · intro a b h
-      apply singleton_inj.1
-      apply eq_of_beq
-      simpa [instBEq, isEqv, isEqvAux]
-    · intro a
-      apply beq_of_beq_singleton
-      simp
+    intro a b h
+    apply singleton_inj.1
+    apply eq_of_beq
+    simpa [instBEq, isEqv, isEqvAux]
   · intro h
-    constructor
-    · intro xs ys h
-      obtain ⟨hs, hi⟩ := isEqv_iff_rel.mp h
-      ext i h₁ h₂
-      · exact hs
-      · simpa using hi _ h₁
-    · intro xs
-      apply Array.isEqv_self_beq
+    infer_instance
 
 /-! ### isEqv -/
 

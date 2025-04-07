@@ -6,6 +6,13 @@ def assertBEq [BEq α] [ToString α] (is should : α) : IO Unit := do
   if is != should then
     throw <| .userError s!"{is} should be {should}"
 
+def closeClose (ch : Channel Nat) : IO Unit := do
+  assertBEq (← ch.isClosed) false
+  assertBEq (← ch.close) (some ())
+  assertBEq (← ch.isClosed) true
+  assertBEq (← ch.close) none
+  assertBEq (← ch.isClosed) true
+
 def paired (ch : Channel Nat) : IO Unit := do
   let sendTask ← ch.send 37
   let recvTask ← ch.recv
@@ -17,6 +24,27 @@ def syncPaired (ch : Channel.Sync Nat) : IO Unit := do
   let recvTask ← IO.asTask (prio := .dedicated) (ch.recv)
   assertBEq (← IO.ofExcept (← IO.wait sendTask)) (some ())
   assertBEq (← IO.ofExcept (← IO.wait recvTask)) (some 37)
+
+def trySend (ch : Channel Nat) (capacity : Option Nat) : IO Unit := do
+  -- ready a receiver ahead of time
+  let recvTask ← ch.recv
+  assertBEq (← ch.trySend 37) true
+  assertBEq (← IO.wait recvTask) (some 37)
+
+  -- the unbounded channel cannot go out of space so it is pointless to fill it up
+  match capacity with
+  | none => return ()
+  | some capacity =>
+    for i in [:capacity] do
+      assertBEq (← ch.trySend i) true
+
+    assertBEq (← ch.trySend (capacity + 1)) false
+
+def tryRecv (ch : Channel Nat) : IO Unit := do
+  assertBEq (← ch.tryRecv) none
+  let sendTask ← ch.send 37
+  assertBEq (← ch.tryRecv) (some 37)
+  assertBEq (← IO.wait sendTask) (some ())
 
 def sendIt (ch : Channel Nat) (messages : List Nat) : BaseIO (Task (Option Unit)) := do
   match messages with
@@ -87,20 +115,24 @@ partial def sendLotsMultiSync (ch : Channel.Sync Nat) : IO Unit := do
   let msg2 ← IO.ofExcept (← IO.wait recvTask2)
   assertBEq (msg1.sum + msg2.sum) (2 * messages.sum)
 
-def testIt (mkChannel : BaseIO (Channel Nat)) : IO Unit := do
-  paired (← mkChannel)
-  sendLots (← mkChannel)
-  sendLotsMulti (← mkChannel)
+def testIt (capacity : Option Nat) : IO Unit := do
+  closeClose (← Channel.new capacity)
+  trySend (← Channel.new capacity) capacity
+  tryRecv (← Channel.new capacity)
 
-  syncPaired (← mkChannel).sync
-  sendLotsSync (← mkChannel).sync
-  sendLotsMultiSync (← mkChannel).sync
+  paired (← Channel.new capacity)
+  sendLots (← Channel.new capacity)
+  sendLotsMulti (← Channel.new capacity)
+
+  syncPaired (← Channel.new capacity).sync
+  sendLotsSync (← Channel.new capacity).sync
+  sendLotsMultiSync (← Channel.new capacity).sync
 
 def suite : IO Unit := do
-  testIt (Channel.new none)
-  testIt (Channel.new (some 0))
-  testIt (Channel.new (some 1))
-  testIt (Channel.new (some 8))
-  testIt (Channel.new (some 128))
+  testIt none
+  testIt (some 0)
+  testIt (some 1)
+  testIt (some 8)
+  testIt (some 128)
 
 #eval suite

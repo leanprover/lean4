@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Henrik Böving, Gabriel Ebner
+Authors: Henrik Böving
 -/
 prelude
 import Init.System.Promise
@@ -46,7 +46,7 @@ deriving Nonempty
 
 namespace Unbounded
 
-def new : BaseIO (Unbounded α) := do
+private def new : BaseIO (Unbounded α) := do
   return {
     state := ← Mutex.new {
       values := ∅
@@ -55,7 +55,7 @@ def new : BaseIO (Unbounded α) := do
     }
   }
 
-def trySend (ch : Unbounded α) (v : α) : BaseIO Bool := do
+private def trySend (ch : Unbounded α) (v : α) : BaseIO Bool := do
   ch.state.atomically do
     let st ← get
     if st.closed then
@@ -68,24 +68,25 @@ def trySend (ch : Unbounded α) (v : α) : BaseIO Bool := do
       set { st with values := st.values.enqueue v }
       return true
 
-def send (ch : Unbounded α) (v : α) : BaseIO (Task (Option Unit)) := do
+private def send (ch : Unbounded α) (v : α) : BaseIO (Task (Option Unit)) := do
   if ← Unbounded.trySend ch v then
     return .pure <| some ()
   else
     return .pure <| none
 
-def close (ch : Unbounded α) : BaseIO Unit := do
+private def close (ch : Unbounded α) : BaseIO (Option Unit) := do
   ch.state.atomically do
     let st ← get
-    if st.closed then return ()
+    if st.closed then return none
     for consumer in st.consumers.toArray do consumer.resolve none
     set { st with consumers := ∅, closed := true }
+    return some ()
 
-def isClosed (ch : Unbounded α) : BaseIO Bool :=
+private def isClosed (ch : Unbounded α) : BaseIO Bool :=
   ch.state.atomically do
     return (← get).closed
 
-def tryRecv' : AtomicT (Unbounded.State α) BaseIO (Option α) := do
+private def tryRecv' : AtomicT (Unbounded.State α) BaseIO (Option α) := do
   let st ← get
   if let some (a, values) := st.values.dequeue? then
     set { st with values }
@@ -93,11 +94,11 @@ def tryRecv' : AtomicT (Unbounded.State α) BaseIO (Option α) := do
   else
     return none
 
-def tryRecv (ch : Unbounded α) : BaseIO (Option α) :=
+private def tryRecv (ch : Unbounded α) : BaseIO (Option α) :=
   ch.state.atomically do
     tryRecv'
 
-def recv (ch : Unbounded α) : BaseIO (Task (Option α)) := do
+private def recv (ch : Unbounded α) : BaseIO (Task (Option α)) := do
   ch.state.atomically do
     if let some val ← tryRecv' then
       return .pure <| some val
@@ -136,7 +137,7 @@ private structure Zero (α : Type) where
 
 namespace Zero
 
-def new : BaseIO (Zero α) := do
+private def new : BaseIO (Zero α) := do
   return {
     state := ← Mutex.new {
       producers := ∅
@@ -148,7 +149,7 @@ def new : BaseIO (Zero α) := do
 /--
 Precondition: The channel must not be closed.
 -/
-def trySend' (v : α) : AtomicT (Zero.State α) BaseIO Bool := do
+private def trySend' (v : α) : AtomicT (Zero.State α) BaseIO Bool := do
   let st ← get
   if let some (consumer, consumers) := st.consumers.dequeue? then
     consumer.resolve (some v)
@@ -157,14 +158,14 @@ def trySend' (v : α) : AtomicT (Zero.State α) BaseIO Bool := do
   else
     return false
 
-def trySend (ch : Zero α) (v : α) : BaseIO Bool := do
+private def trySend (ch : Zero α) (v : α) : BaseIO Bool := do
   ch.state.atomically do
     if (← get).closed then
       return false
     else
       trySend' v
 
-def send (ch : Zero α) (v : α) : BaseIO (Task (Option Unit)) := do
+private def send (ch : Zero α) (v : α) : BaseIO (Task (Option Unit)) := do
   ch.state.atomically do
     if (← get).closed then
       return .pure none
@@ -175,18 +176,19 @@ def send (ch : Zero α) (v : α) : BaseIO (Task (Option Unit)) := do
       modify fun st => { st with producers := st.producers.enqueue (v, promise) }
       return promise.result?.map (sync := true) discard
 
-def close (ch : Zero α) : BaseIO Unit := do
+private def close (ch : Zero α) : BaseIO (Option Unit) := do
   ch.state.atomically do
     let st ← get
-    if st.closed then return ()
+    if st.closed then return none
     for consumer in st.consumers.toArray do consumer.resolve none
     set { st with consumers := ∅, closed := true }
+    return some ()
 
-def isClosed (ch : Zero α) : BaseIO Bool :=
+private def isClosed (ch : Zero α) : BaseIO Bool :=
   ch.state.atomically do
     return (← get).closed
 
-def tryRecv' : AtomicT (Zero.State α) BaseIO (Option α) := do
+private def tryRecv' : AtomicT (Zero.State α) BaseIO (Option α) := do
   let st ← get
   if let some ((val, promise), producers) := st.producers.dequeue? then
     set { st with producers }
@@ -195,11 +197,11 @@ def tryRecv' : AtomicT (Zero.State α) BaseIO (Option α) := do
   else
       return none
 
-def tryRecv (ch : Zero α) : BaseIO (Option α) := do
+private def tryRecv (ch : Zero α) : BaseIO (Option α) := do
   ch.state.atomically do
     tryRecv'
 
-def recv (ch : Zero α) : BaseIO (Task (Option α)) := do
+private def recv (ch : Zero α) : BaseIO (Task (Option α)) := do
   ch.state.atomically do
     let st ← get
     if let some val ← tryRecv' then
@@ -273,7 +275,7 @@ private structure Bounded (α : Type) where
 
 namespace Bounded
 
-def new (capacity : Nat) (hcap : 0 < capacity) : BaseIO (Bounded α) := do
+private def new (capacity : Nat) (hcap : 0 < capacity) : BaseIO (Bounded α) := do
   return {
     state := ← Mutex.new {
       producers := ∅
@@ -290,21 +292,21 @@ def new (capacity : Nat) (hcap : 0 < capacity) : BaseIO (Bounded α) := do
   }
 
 @[inline]
-def incMod (idx : Nat) (cap : Nat) : Nat :=
+private def incMod (idx : Nat) (cap : Nat) : Nat :=
   if idx + 1 = cap then
     0
   else
     idx + 1
 
-theorem incMod_lt {idx cap : Nat} (h : idx < cap) : incMod idx cap < cap := by
+private theorem incMod_lt {idx cap : Nat} (h : idx < cap) : incMod idx cap < cap := by
   unfold incMod
   split <;> omega
 
 /--
 Precondition: The channel must not be closed.
 -/
-def trySend' (v : α) : AtomicT (Bounded.State α) BaseIO Bool :=
-  modifyGet fun st =>
+private def trySend' (v : α) : AtomicT (Bounded.State α) BaseIO Bool := do
+  let success ← modifyGet fun st =>
     if st.bufCount == st.capacity then
       (false, st)
     else
@@ -315,23 +317,29 @@ def trySend' (v : α) : AtomicT (Bounded.State α) BaseIO Bool :=
         hsend := incMod_lt st.hsend
       }
       (true, st)
+      let st ← get
 
-def trySend (ch : Bounded α) (v : α) : BaseIO Bool := do
+  if success then
+    if let some (consumer, consumers) := st.consumers.dequeue? then
+      consumer.resolve true
+      set { st with consumers }
+
+    return true
+  else
+    return false
+
+private def trySend (ch : Bounded α) (v : α) : BaseIO Bool := do
   ch.state.atomically do
     if (← get).closed then
       return false
     else
       trySend' v
 
-partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Option Unit)) := do
+private partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Option Unit)) := do
   ch.state.atomically do
     if (← get).closed then
       return .pure none
     else if ← trySend' v then
-      let st ← get
-      if let some (consumer, consumers) := st.consumers.dequeue? then
-        consumer.resolve true
-        set { st with consumers }
       return .pure <| some ()
     else
       let promise ← IO.Promise.new
@@ -342,18 +350,19 @@ partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Option Unit)) := do
         else
           return .pure none
 
-def close (ch : Bounded α) : BaseIO Unit := do
+private def close (ch : Bounded α) : BaseIO (Option Unit) := do
   ch.state.atomically do
     let st ← get
-    if st.closed then return ()
+    if st.closed then return none
     for consumer in st.consumers.toArray do consumer.resolve false
     set { st with consumers := ∅, closed := true : State α }
+    return some ()
 
-def isClosed (ch : Bounded α) : BaseIO Bool :=
+private def isClosed (ch : Bounded α) : BaseIO Bool :=
   ch.state.atomically do
     return (← get).closed
 
-def tryRecv' : AtomicT (Bounded.State α) BaseIO (Option α) :=
+private def tryRecv' : AtomicT (Bounded.State α) BaseIO (Option α) :=
   modifyGet fun st =>
     if st.bufCount == 0 then
       (none, st)
@@ -368,11 +377,11 @@ def tryRecv' : AtomicT (Bounded.State α) BaseIO (Option α) :=
       }
       (val, st)
 
-def tryRecv (ch : Bounded α) : BaseIO (Option α) :=
+private def tryRecv (ch : Bounded α) : BaseIO (Option α) :=
   ch.state.atomically do
     tryRecv'
 
-partial def recv (ch : Bounded α) : BaseIO (Task (Option α)) := do
+private partial def recv (ch : Bounded α) : BaseIO (Task (Option α)) := do
   ch.state.atomically do
     if let some val ← tryRecv' then
       -- Receive succeeded, see if we need to unblock a producer.
@@ -484,7 +493,7 @@ def isClosed (ch : Channel α) : BaseIO Bool :=
   | .bounded ch => Channel.Bounded.isClosed ch
 
 /--
-Try to receive a value to the channel, if this can be completed right away without blocking return
+Try to receive a value from the channel, if this can be completed right away without blocking return
 `some value`, otherwise return `none`.
 -/
 def tryRecv (ch : Channel α) : BaseIO (Option α) :=
@@ -515,6 +524,9 @@ partial def forAsync (f : α → BaseIO Unit) (ch : Channel α)
     | none => return .pure ()
     | some v => do f v; ch.forAsync f prio
 
+/--
+This function is a no-op and just a convenient way to expose the synchronous API of the channel.
+-/
 def sync (ch : Channel α) : Channel.Sync α := ch
 
 namespace Sync
@@ -525,6 +537,10 @@ def new (capacity : Option Nat := none) : BaseIO (Sync α) := Channel.new capaci
 @[inherit_doc Channel.trySend]
 def trySend (ch : Sync α) (v : α) : BaseIO Bool := Channel.trySend ch v
 
+/--
+Send a value through the channel, blocking until the transmission could be completed. Note that the
+task may resolve to `none` if the channel was closed before it could be completed.
+-/
 def send (ch : Sync α) (v : α) : BaseIO (Option Unit) := do
   IO.wait (← Channel.send ch v)
 
@@ -537,18 +553,21 @@ def isClosed (ch : Sync α) : BaseIO Bool := Channel.isClosed ch
 @[inherit_doc Channel.tryRecv]
 def tryRecv (ch : Sync α) : BaseIO (Option α) := Channel.tryRecv ch
 
-@[inherit_doc Channel.recv]
+/--
+Receive a value from the channel, blocking unitl the transmission could be completed. Note that the
+task may resolve to `none` if the channel was closed before it could be completed.
+-/
 def recv (ch : Sync α) : BaseIO (Option α) := do
   IO.wait (← Channel.recv ch)
 
 private partial def forIn [Monad m] [MonadLiftT BaseIO m]
     (ch : Sync α) (f : α → β → m (ForInStep β)) : β → m β := fun b => do
   match ← ch.recv with
-    | some a =>
-      match ← f a b with
-        | .done b => pure b
-        | .yield b => ch.forIn f b
-    | none => pure b
+  | some a =>
+    match ← f a b with
+    | .done b => pure b
+    | .yield b => ch.forIn f b
+  | none => pure b
 
 /-- `for msg in ch.sync do ...` receives all messages in the channel until it is closed. -/
 instance [MonadLiftT BaseIO m] : ForIn m (Sync α) α where

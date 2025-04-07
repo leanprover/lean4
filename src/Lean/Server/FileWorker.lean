@@ -252,7 +252,7 @@ This option can only be set on the command line, not in the lakefile or via `set
       let ts ← ts.flatMapM handleFinished
       -- all `ts` are now (likely) in-progress, report them
       sendFileProgress ts
-      -- check again whether this has changed before commiting to waiting
+      -- check again whether this has changed before committing to waiting
       if (← ts.anyM (IO.hasFinished ·.task)) then
         handleTasks ts
       else if h : ts.size > 0 then

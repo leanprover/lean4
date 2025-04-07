@@ -610,7 +610,7 @@ private structure SimpLetFunResult where
   expr     : Expr
   /--
   The proof that the simplified expression is equal to the input one.
-  It may containt loose bound variables. See `expr` field.
+  It may contain loose bound variables. See `expr` field.
   -/
   proof    : Expr
   /--

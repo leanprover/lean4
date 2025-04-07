@@ -641,7 +641,7 @@ where
 Decides whether the inductive type should be `Prop`-valued when the universe is not given
 and when the universe inference algorithm `collectUniverses` determines
 that the inductive type could naturally be `Prop`-valued.
-Recall: the natural universe level is the mimimum universe level for all the types of all the constructor parameters.
+Recall: the natural universe level is the minimum universe level for all the types of all the constructor parameters.
 
 Heuristic:
 - We want `Prop` when each inductive type is a syntactic subsingleton.

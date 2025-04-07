@@ -25,7 +25,7 @@ inductive Cnstr where
   deriving Inhabited
 
 /--
-Internal "marker" for representing unassigned elemens in the `assignment` field.
+Internal "marker" for representing unassigned elements in the `assignment` field.
 This is a small hack to avoid one extra level of indirection by using `Option Expr` at `assignment`.
 -/
 private def unassigned : Expr := mkConst (Name.mkSimple "[grind_unassigned]")

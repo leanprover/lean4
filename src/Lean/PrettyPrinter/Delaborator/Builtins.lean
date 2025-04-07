@@ -20,14 +20,24 @@ open TSyntax.Compat
 /--
 If `cond` is true, wraps the syntax produced by `d` in a type ascription.
 -/
-def withTypeAscription (d : Delab) (cond : Bool := true) : DelabM Term := do
+def withTypeAscription (d : Delab) (cond : Bool := true) : Delab := do
   let stx ← d
   if cond then
-    let stx ← annotateCurPos stx
+    let stx ← annotateTermInfoUnlessAnnotated stx
     let typeStx ← withType delab
     `(($stx : $typeStx))
   else
     return stx
+
+/--
+If `pp.tagAppFns` is set, then `d` is evaluated with the delaborated head constant as the ref.
+-/
+def withFnRefWhenTagAppFns (d : Delab) : Delab := do
+  if (← getExpr).getAppFn.isConst && (← getPPOption getPPTagAppFns) then
+    let head ← withNaryFn delab
+    withRef head <| d
+  else
+    d
 
 /--
 Wraps the identifier (or identifier with explicit universe levels) with `@` if `pp.analysis.blockImplicit` is set to true.
@@ -637,7 +647,7 @@ def delabStructureInstance : Delab := do
         else
           return (i + 1, args))
     withTypeAscription (cond := (← withType <| getPPOption getPPStructureInstanceType)) do
-      `(⟨$[$args],*⟩)
+      withFnRefWhenTagAppFns `(⟨$[$args],*⟩)
   else
     /-
     Otherwise, we use structure instance notation.
@@ -650,7 +660,7 @@ def delabStructureInstance : Delab := do
     let (_, fields) ← collectStructFields s.induct levels params #[] {} s
     let tyStx? : Option Term ← withType do
       if ← getPPOption getPPStructureInstanceType then delab else pure none
-    `({ $fields,* $[: $tyStx?]? })
+    withFnRefWhenTagAppFns `({ $fields,* $[: $tyStx?]? })
 
 
 /-- State for `delabAppMatch` and helpers. -/

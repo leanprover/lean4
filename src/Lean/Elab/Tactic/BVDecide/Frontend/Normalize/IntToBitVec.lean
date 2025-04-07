@@ -112,13 +112,13 @@ where
         ```
         Where:
         - all terms from `relevantTerms` in the implication are substituted by `x_1`, ...
-        - all occurences of `numBits` are substituted by `z`
+        - all occurrences of `numBits` are substituted by `z`
 
         Additionally we compute a new metavariable with type:
         ```
         ∀ (x_1 : BitVec const) (x_2 : BitVec const) ..., h1 → h2 → ... → False
         ```
-        with all occurences of `numBits` substituted by const. This meta variable is going to become
+        with all occurrences of `numBits` substituted by const. This meta variable is going to become
         the next goal
         -/
         let (motive, newGoalType) ←

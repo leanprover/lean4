@@ -186,7 +186,7 @@ When a synthetic hole appears under a binding construct, such as for example `fu
 the system creates a *delayed assignment*. This consists of
 1. A metavariable `?m` of type `(x : α) → (y : β) → γ x y` whose local context is the local context outside the `fun`,
   where `γ x y` is the type of `?s`. Recall that `x` and `y` appear in the local context of `?s`.
-2. A delayed assigment record associating `?m` to `?s` and the variables `#[x, y]` in the local context of `?s`
+2. A delayed assignment record associating `?m` to `?s` and the variables `#[x, y]` in the local context of `?s`
 
 Then, this function elaborates as `fun (x : α) (y : β) => ?m x y`, where one should understand `x` and `y` here
 as being De Bruijn indexes, since Lean uses the locally nameless encoding of lambda calculus.
@@ -197,7 +197,7 @@ then we can make the assignment `?m := fun (x' : α) (y' : β) => e[x := x', y :
 This delayed assignment mechanism is essential to the operation of basic tactics like `intro`,
 and a good mental model is that it is a way to "apply" the metavariable `?s` by substituting values in for some of its local variables.
 While it would be easier to immediately assign `?s := ?m x y`,
-delayed assigment preserves `?s` as an unsolved-for metavariable with a local context that still contains `x` and `y`,
+delayed assignment preserves `?s` as an unsolved-for metavariable with a local context that still contains `x` and `y`,
 which is exactly what tactics like `intro` need.
 
 By default, delayed assigned metavariables pretty print with what they are delayed assigned to.

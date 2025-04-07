@@ -951,6 +951,43 @@ theorem getKey_eq_getEntry_fst [BEq α] [LawfulBEq α] {l : List ((a : α) × β
     {h : containsKey a l} : getKey a l h = (getEntry a l h).fst := by
   simp [getKey, getKey?_eq_getEntry?, Option.get_map, getEntry]
 
+theorem forall_mem_keys_iff_forall_containsKey_getKey [BEq α] [EquivBEq α] {l : List ((a : α) × β a)}
+    {p : α → Prop} (hl : DistinctKeys l) :
+    (∀ k ∈ List.keys l, p k) ↔ ∀ (k : α) (h : containsKey k l), p (getKey k l h) := by
+  induction l using assoc_induction with
+  | nil => simp
+  | cons k' v tl ih =>
+    rw [distinctKeys_cons_iff] at hl
+    specialize ih (And.left hl)
+    simp only [keys_cons, List.mem_cons, forall_eq_or_imp, containsKey_cons, Bool.or_eq_true]
+    constructor
+    · intro h k h'
+      cases h' with
+      | inl h' =>
+        simp [getKey, h', h]
+      | inr h' =>
+        simp only [getKey_cons]
+        split
+        · rename_i k_k'
+          rw [containsKey_congr k_k'] at hl
+          simp [And.right hl] at h'
+        · rw [ih] at h
+          apply And.right h
+    · intro h
+      constructor
+      · specialize h k'
+        simp only [BEq.refl, true_or, getKey_cons, ↓reduceDIte, forall_const] at h
+        exact h
+      · rw [ih]
+        intro k hk
+        specialize h k (Or.inr hk)
+        simp only [getKey_cons] at h
+        split at h
+        · rename_i hk'
+          rw [containsKey_congr hk'] at hl
+          simp [hk] at hl
+        · exact h
+
 /-- Internal implementation detail of the hash map -/
 def getKeyD [BEq α] (a : α) (l : List ((a : α) × β a)) (fallback : α) : α :=
   (getKey? a l).getD fallback

@@ -1005,6 +1005,11 @@ theorem mem_keys [LawfulBEq α] (h : m.1.WF) {k : α} :
   simp_to_model [contains, keys]
   rw [List.containsKey_eq_keys_contains]
 
+theorem forall_mem_keys_iff_forall_contains_getKey [EquivBEq α] [LawfulHashable α]
+    (h : m.1.WF) {p : α → Prop} :
+    (∀ k ∈ m.1.keys, p k) ↔ ∀ (k : α) (h : m.contains k), p (m.getKey k h) := by
+  simp_to_model [keys, getKey, contains] using List.forall_mem_keys_iff_forall_containsKey_getKey
+
 theorem contains_of_mem_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α}
     (h' : k ∈ m.1.keys) : m.contains k :=
   (contains_keys m h).symm.trans (List.elem_eq_true_of_mem h')

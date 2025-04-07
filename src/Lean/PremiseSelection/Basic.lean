@@ -73,53 +73,46 @@ structure Config where
 
 abbrev Selector : Type := MVarId → Config → MetaM (Array Suggestion)
 
-section BlackList
+section DenyList
 
 /-- Premises from a module whose name has one of the following components are not retrieved. -/
-builtin_initialize moduleBlackListExt : SimplePersistentEnvExtension String (List String) ←
-  let initialBlackList := [
-    "Aesop", "Auto", "Cli", "CodeAction", "DocGen4", "Duper", "ImportGraph", "Lake", "Lean",
-    "LeanSearchClient", "Linter", "Mathport", "MD4Lean", "Plausible", "ProofWidgets", "Qq",
-    "QuerySMT", "Tactic", "TacticExtra", "Test", "Testing", "UnicodeBasic", "Util"
-  ]
+builtin_initialize moduleDenyListExt : SimplePersistentEnvExtension String (List String) ←
   registerSimplePersistentEnvExtension {
     addEntryFn := (·.cons)
-    addImportedFn := mkStateFromImportedEntries (·.cons) initialBlackList
+    addImportedFn := mkStateFromImportedEntries (·.cons) []
   }
 
 /-- A premise whose name has one of the following components is not retrieved. -/
-builtin_initialize nameBlackListExt : SimplePersistentEnvExtension String (List String) ←
-  let initialBlackList := ["Lean", "Lake", "Qq"]
+builtin_initialize nameDenyListExt : SimplePersistentEnvExtension String (List String) ←
   registerSimplePersistentEnvExtension {
     addEntryFn := (·.cons)
-    addImportedFn := mkStateFromImportedEntries (·.cons) initialBlackList
+    addImportedFn := mkStateFromImportedEntries (·.cons) []
   }
 
 /-- A premise whose `type.getForallBody.getAppFn` is a constant that has one of these prefixes is not retrieved. -/
-builtin_initialize typePrefixBlackListExt : SimplePersistentEnvExtension Name (List Name) ←
-  let initialBlackList := [`Lean]
+builtin_initialize typePrefixDenyListExt : SimplePersistentEnvExtension Name (List Name) ←
   registerSimplePersistentEnvExtension {
     addEntryFn := (·.cons)
-    addImportedFn := mkStateFromImportedEntries (·.cons) initialBlackList
+    addImportedFn := mkStateFromImportedEntries (·.cons) []
   }
 
-def isBlackListedModule (env : Environment) (moduleName : Name) : Bool :=
-  (moduleBlackListExt.getState env).any fun p => moduleName.anyS (· == p)
+def isDeniedModule (env : Environment) (moduleName : Name) : Bool :=
+  (moduleDenyListExt.getState env).any fun p => moduleName.anyS (· == p)
 
-def isBlackListedPremise (env : Environment) (name : Name) : Bool := Id.run do
+def isDeniedPremise (env : Environment) (name : Name) : Bool := Id.run do
   if name == ``sorryAx then return true
   if name.isInternalDetail then return true
-  if (nameBlackListExt.getState env).any (fun p => name.anyS (· == p)) then return true
+  if (nameDenyListExt.getState env).any (fun p => name.anyS (· == p)) then return true
   if let some moduleIdx := env.getModuleIdxFor? name then
     let moduleName := env.header.moduleNames[moduleIdx.toNat]!
-    if isBlackListedModule env moduleName then
+    if isDeniedModule env moduleName then
       return true
   let some ci := env.find? name | return true
   if let .const fnName _ := ci.type.getForallBody.getAppFn then
-    if (typePrefixBlackListExt.getState env).any (fun p => p.isPrefixOf fnName) then return true
+    if (typePrefixDenyListExt.getState env).any (fun p => p.isPrefixOf fnName) then return true
   return false
 
-end BlackList
+end DenyList
 
 /--
 The trivial premise selector, which returns no suggestions.
@@ -136,7 +129,7 @@ def random (gen : StdGen := ⟨37, 59⟩) : Selector := fun _ cfg => do
   while suggestions.size < max do
     let i ← IO.rand 0 consts.size
     let name := consts[i]!
-    unless isBlackListedPremise env name do
+    unless isDeniedPremise env name do
       suggestions := suggestions.push { name := name, score := 1.0 / consts.size.toFloat }
   return suggestions
 

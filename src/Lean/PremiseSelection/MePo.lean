@@ -45,9 +45,7 @@ def frequencyScore (frequency : Name → Nat) (relevant candidate : NameSet) : F
 
 def unweightedScore (relevant candidate : NameSet) : Float := weightedScore (fun _ => 1) relevant candidate
 
--- The value c = 0.5 essentially forces the `while` loop to only iterate once, which preliminary
--- experiments found to be optimal.
-def mepo (initialRelevant : NameSet) (score : NameSet → NameSet → Float) (accept : ConstantInfo → CoreM Bool) (p : Float := 0.6) (c : Float := 0.5) : CoreM (Array (Name × Float)) := do
+def mepo (initialRelevant : NameSet) (score : NameSet → NameSet → Float) (accept : ConstantInfo → CoreM Bool) (p : Float) (c : Float) : CoreM (Array (Name × Float)) := do
   let env ← getEnv
   let mut p := p
   let mut candidates := #[]
@@ -85,10 +83,10 @@ public def mepoSelector (useRarity : Bool) (p : Float := 0.6) (c : Float := 2.4)
     let frequency := symbolFrequency env
     frequencyScore (frequency.getD · 0)
   else
-    MePo.unweightedScore
+    unweightedScore
   let accept := fun ci => do
-    return ! isBlackListedPremise env ci.name
-  let suggestions ← MePo.mepo constants score accept
+    return ! isDeniedPremise env ci.name
+  let suggestions ← mepo constants score accept p c
   let suggestions := suggestions
     |>.map (fun (n, s) => { name := n, score := s })
     |>.reverse  -- we favor constants that appear at the end of `env.constants`

@@ -22,10 +22,7 @@ example [DecidableEq α] (s₁ s₂ : Set α) (a₁ a₂ : α) :
         s₂ = insertElem s₁ a₁ → a₁ = a₂ → contains s₂ a₂ := by
   grind
 
-/--
-info: [grind.ematch] reinsert `contains_insert`
-[grind.ematch] activated `contains_insert`, [@contains #3 (@insertElem _ #2 #1 #0) #0]
--/
+/-- info: [grind.ematch] activated `contains_insert`, [@contains #3 (@insertElem _ #2 #1 #0) #0] -/
 #guard_msgs (info) in
 example [DecidableEq α] (s₁ s₂ : Set α) (a₁ a₂ : α) :
         ¬ contains s₂ a₂ → s₂ = insertElem s₁ a₁ → a₁ = a₂ → False := by

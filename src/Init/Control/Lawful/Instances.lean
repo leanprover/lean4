@@ -124,7 +124,7 @@ namespace ReaderT
 @[simp] theorem run_monadLift [MonadLiftT n m] (x : n α) (ctx : ρ)
     : (monadLift x : ReaderT ρ m α).run ctx = (monadLift x : m α) := rfl
 
-@[simp] theorem run_monadMap [MonadFunctor n m] (f : {β : Type u} → n β → n β) (x : ReaderT ρ m α) (ctx : ρ)
+@[simp] theorem run_monadMap [MonadFunctorT n m] (f : {β : Type u} → n β → n β) (x : ReaderT ρ m α) (ctx : ρ)
     : (monadMap @f x : ReaderT ρ m α).run ctx = monadMap @f (x.run ctx) := rfl
 
 @[simp] theorem run_read [Monad m] (ctx : ρ) : (ReaderT.read : ReaderT ρ m ρ).run ctx = pure ctx := rfl
@@ -199,7 +199,7 @@ theorem run_bind_lift {α σ : Type u} [Monad m] [LawfulMonad m] (x : m α) (f :
 
 @[simp] theorem run_monadLift {α σ : Type u} [Monad m] [MonadLiftT n m] (x : n α) (s : σ) : (monadLift x : StateT σ m α).run s = (monadLift x : m α) >>= fun a => pure (a, s) := rfl
 
-@[simp] theorem run_monadMap [MonadFunctor n m] (f : {β : Type u} → n β → n β) (x : StateT σ m α) (s : σ) :
+@[simp] theorem run_monadMap [MonadFunctorT n m] (f : {β : Type u} → n β → n β) (x : StateT σ m α) (s : σ) :
     (monadMap @f x : StateT σ m α).run s = monadMap @f (x.run s) := rfl
 
 @[simp] theorem run_seq {α β σ : Type u} [Monad m] [LawfulMonad m] (f : StateT σ m (α → β)) (x : StateT σ m α) (s : σ) : (f <*> x).run s = (f.run s >>= fun fs => (fun (p : α × σ) => (fs.1 p.1, p.2)) <$> x.run fs.2) := by

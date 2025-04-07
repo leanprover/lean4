@@ -816,6 +816,11 @@ theorem le_shiftLeft {a b : Nat} : a ≤ a <<< b :=
 theorem lt_of_shiftLeft_lt {a b c : Nat} (h : a <<< b < c) : a < c :=
   Nat.lt_of_le_of_lt le_shiftLeft h
 
+theorem shiftLeft_add_eq_or_of_lt {b : Nat} (b_lt : b < 2^i) (a : Nat) :
+    a <<< i + b = a <<< i ||| b := by
+  rw [shiftLeft_eq, Nat.mul_comm]
+  rw [two_pow_add_eq_or_of_lt b_lt]
+
 /-! ### le -/
 
 theorem le_of_testBit {n m : Nat} (h : ∀ i, n.testBit i = true → m.testBit i = true) : n ≤ m := by

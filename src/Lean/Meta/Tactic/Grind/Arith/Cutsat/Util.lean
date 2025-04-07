@@ -80,7 +80,7 @@ where
   go (a : PArray Rat) : PArray Rat :=
     if a.size < sz then go (a.push 0) else a
 
-/-- Resets the assingment of any variable bigger or equal to `x`. -/
+/-- Resets the assignment of any variable bigger or equal to `x`. -/
 def resetAssignmentFrom (x : Var) : GoalM Unit := do
   modify' fun s => { s with assignment := shrink s.assignment x }
 

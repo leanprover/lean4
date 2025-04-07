@@ -198,7 +198,7 @@ This formulation requires that `==` and `lt` are compatible in the following sen
 - `==` is symmetric
   (we unnecessarily further assume it is transitive, to make use of the existing typeclasses)
 - `lt` is irreflexive with respect to `==` (i.e. if `x == y` then `lt x y = false`
-- `lt` is asymmmetric  (i.e. `lt x y = true → lt y x = false`)
+- `lt` is asymmetric  (i.e. `lt x y = true → lt y x = false`)
 - `lt` is antisymmetric with respect to `==` (i.e. `lt x y = false → lt y x = false → x == y`)
 -/
 theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α → Bool)

@@ -290,7 +290,7 @@ syntax (name := allGoals) "all_goals " tacticSeq : tactic
 
 /--
 `any_goals tac` applies the tactic `tac` to every goal,
-concating the resulting goals for successful tactic applications.
+concatenating the resulting goals for successful tactic applications.
 If the tactic fails on all of the goals, the entire `any_goals` tactic fails.
 
 This tactic is like `all_goals try tac` except that it fails if none of the applications of `tac` succeeds.

@@ -688,7 +688,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
 
         if (U_FAILURE(status)) {
             ucal_close(cal);
-            return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get next transation")));
+            return lean_io_result_mk_error(lean_decode_io_error(EINVAL, mk_string("failed to get next transition")));
         }
 
         tm = (int64_t)(nextTransition / 1000.0);

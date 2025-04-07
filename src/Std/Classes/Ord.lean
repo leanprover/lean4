@@ -420,7 +420,7 @@ namespace Internal
 variable {α : Type u}
 
 /--
-Internal funcion to derive a `BEq` instance from an `Ord` instance in order to connect the
+Internal function to derive a `BEq` instance from an `Ord` instance in order to connect the
 verification machinery for tree maps to the verification machinery for hash maps.
 -/
 @[local instance]

@@ -100,7 +100,7 @@ def suite : IO Unit := do
   testIt (Channel.new none)
   testIt (Channel.new (some 0))
   testIt (Channel.new (some 1))
-  -- TODO: broken
-  -- testIt (Channel.new (some 8))
+  testIt (Channel.new (some 8))
+  testIt (Channel.new (some 128))
 
-#eval! suite
+#eval suite

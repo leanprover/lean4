@@ -8,15 +8,16 @@ import Init.System.Promise
 import Init.Data.Queue
 import Std.Sync.Mutex
 
+/-!
+This module contains the implementation of `Std.Channel`. `Std.Channel` is a multi-producer
+multi-consumer FIFO channel that offers both bounded and unbounded buffering as well as synchronous
+and asynchronous APIs.
+-/
+
 namespace Std
 namespace Experimental
 
 namespace Channel
--- TODO: think harder about FBIP for better queue
--- TODO: think harder about FBIP for Bounded
--- TODO: Better queue
--- TODO: think about whether we can unlock earlier in some places
--- TODO: think about closed fast path more
 
 private structure Unbounded.State (α : Type) where
   values : Std.Queue α := ∅
@@ -129,10 +130,11 @@ def recv (ch : Zero α) : BaseIO (Task (Option α)) := do
 end Zero
 
 private structure Bounded.State (α : Type) where
-  producers : Std.Queue (α × IO.Promise (Option Unit)) := ∅
-  consumers : Std.Queue (IO.Promise (Option α)) := ∅
+  producers : Std.Queue (IO.Promise Bool) := ∅
+  consumers : Std.Queue (IO.Promise Bool) := ∅
   capacity : Nat
   buf : Vector (Option α) capacity
+  bufCount : Nat
   sendIdx : Nat
   hsend : sendIdx < capacity
   recvIdx : Nat
@@ -150,6 +152,7 @@ def new (capacity : Nat) (hcap : 0 < capacity) : BaseIO (Bounded α) := do
     state := ← Mutex.new {
       capacity := capacity
       buf := Vector.replicate capacity none
+      bufCount := 0
       sendIdx := 0
       hsend := hcap
       recvIdx := 0
@@ -157,73 +160,96 @@ def new (capacity : Nat) (hcap : 0 < capacity) : BaseIO (Bounded α) := do
     }
   }
 
-def send (ch : Bounded α) (v : α) : BaseIO (Task (Option Unit)) := do
-  ch.state.atomically do
-    let st ← get
+@[inline]
+def incMod (idx : Nat) (cap : Nat) : Nat :=
+  if idx + 1 = cap then
+    0
+  else
+    idx + 1
 
-    if st.closed then
+theorem incMod_lt {idx cap : Nat} (h : idx < cap) : incMod idx cap < cap := by
+  unfold incMod
+  split <;> omega
+
+def trySend' (v : α) : AtomicT (Bounded.State α) BaseIO Bool :=
+  modifyGet fun st =>
+    if st.bufCount == st.capacity then
+      (false, st)
+    else
+      let nextSendIdx := incMod st.sendIdx st.capacity
+      let st := { st with
+        buf := st.buf.set st.sendIdx (some v) st.hsend,
+        bufCount := st.bufCount + 1
+        sendIdx := nextSendIdx,
+        hsend := incMod_lt st.hsend
+      }
+      (true, st)
+
+partial def send (ch : Bounded α) (v : α) : BaseIO (Task (Option Unit)) := do
+  ch.state.atomically do
+    if (← get).closed then
       return .pure none
-    else if let some (consumer, consumers) := st.consumers.dequeue? then
-      consumer.resolve (some v)
-      set { st with consumers }
+    else if ← trySend' v then
+      -- Send succeeded, see if we need to unblock a consumer.
+      let st ← get
+      if let some (consumer, consumers) := (← get).consumers.dequeue? then
+        consumer.resolve true
+        set { st with consumers }
       return .pure <| some ()
     else
-      let nextSendIdx :=
-        if st.sendIdx + 1 = st.capacity then
-          0
+      -- The channel is full.
+      let promise ← IO.Promise.new
+      modify fun st => { st with producers := st.producers.enqueue promise }
+      BaseIO.bindTask promise.result? fun res => do
+        if res.getD false then
+          Bounded.send ch v
         else
-          st.sendIdx + 1
-
-      if nextSendIdx = st.recvIdx then
-        let promise ← IO.Promise.new
-        set { st with producers := st.producers.enqueue (v, promise) }
-        return promise.result?.map (sync := true) (·.bind id)
-      else
-        modify fun st =>
-          { st with
-            buf := st.buf.set st.sendIdx (some v) st.hsend,
-            sendIdx := nextSendIdx,
-            hsend := sorry
-          }
-        return .pure <| some ()
+          return .pure none
 
 def close (ch : Bounded α) : BaseIO Unit := do
   ch.state.atomically do
     let st ← get
     if st.closed then return ()
-    for consumer in st.consumers.toArray do consumer.resolve none
-    for producer in st.producers.toArray do producer.2.resolve none
+    for consumer in st.consumers.toArray do consumer.resolve false
+    for producer in st.producers.toArray do producer.resolve false
     set { st with consumers := ∅, producers := ∅, closed := true : State α }
 
-def recv (ch : Bounded α) : BaseIO (Task (Option α)) := do
-  ch.state.atomically do
-    let st ← get
-    if let some ((val, promise), producers) := st.producers.dequeue? then
-      set { st with producers }
-      promise.resolve (some ())
-      return .pure <| some val
-    else if st.recvIdx = st.sendIdx then
-      if st.closed then
-        return .pure none
-      else
-        let promise ← IO.Promise.new
-        set { st with consumers := st.consumers.enqueue promise }
-        return promise.result?.map (sync := true) (·.bind id)
+def tryRecv' : AtomicT (Bounded.State α) BaseIO (Option α) :=
+  modifyGet fun st =>
+    if st.bufCount == 0 then
+      (none, st)
     else
-      -- TODO: invariant
-      let some val := st.buf[st.recvIdx]'st.hrecv | unreachable!
-      let nextRecvIdx :=
-        if st.recvIdx + 1 = st.capacity then
-          0
+      -- TODO: show with an invariant that this is never none
+      let val := st.buf[st.recvIdx]'st.hrecv
+      let nextRecvIdx := incMod st.recvIdx st.capacity
+      let st := { st with
+        buf := st.buf.set st.recvIdx none st.hrecv,
+        bufCount := st.bufCount - 1
+        recvIdx := nextRecvIdx,
+        hrecv := incMod_lt st.hrecv
+      }
+      (val, st)
+
+partial def recv (ch : Bounded α) : BaseIO (Task (Option α)) := do
+  ch.state.atomically do
+    if let some val ← tryRecv' then
+      -- Receive succeeded, see if we need to unblock a producer.
+      let st ← get
+      if let some (producer, producers) := (← get).producers.dequeue? then
+        producer.resolve true
+        set { st with producers }
+      return .pure <| some val
+    else if (← get).closed then
+      return .pure none
+    else
+      -- The channel is empty.
+      let promise ← IO.Promise.new
+      modify fun st => { st with consumers := st.consumers.enqueue promise }
+      BaseIO.bindTask promise.result? fun res => do
+        if res.getD false then
+          Bounded.recv ch
         else
-          st.recvIdx + 1
-      modify fun st =>
-        { st with
-          buf := st.buf.set st.recvIdx none st.hrecv
-          recvIdx := nextRecvIdx
-          hrecv := sorry
-        }
-        return .pure <| some val
+          return .pure none
 
 end Bounded
 

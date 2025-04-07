@@ -260,6 +260,7 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
       internalizeMatchCond e generation
     else e.withApp fun f args => do
       mkENode e generation
+      updateAppMap e
       checkAndAddSplitCandidate e
       pushCastHEqs e
       addMatchEqns f generation
@@ -284,7 +285,6 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
           internalize arg generation e
           registerParent e arg
       addCongrTable e
-      updateAppMap e
       Arith.internalize e parent?
       propagateUp e
       propagateBetaForNewApp e

@@ -2313,7 +2313,6 @@ def leadingZeroes (x : BitVec w) (s : Nat) (_ : s < w) : Nat :=
   | true => s
   | false => if hs' : s + 1 < w then leadingZeroes x (s + 1) hs' else 0
 
-
 -- #eval leadingZeroes (4#3) 0 (by omega) 0
 -- #eval leadingZeroes (1#3) 0 (by omega) 2
 -- #eval leadingZeroes (2#3) 0 (by omega) 1
@@ -2321,15 +2320,13 @@ def leadingZeroes (x : BitVec w) (s : Nat) (_ : s < w) : Nat :=
 
 /--
  from the paper:
- "x and y in total have less than n - 1 leading zeroes (at most n - 2)"
+ "x and y in total have less than w - 1 leading zeroes (at most w - 2)"
   2 ^ (w - n) ≤ x.toNat ∧ 2 ^ (w - m) ≤ y.toNat ∧ m + n ≤ n - 2 → umulOverflow
   this is not the actual circuit, but I wanted to give it a try, based on the theoretical definition
   of the fast circuit
 -/
-theorem umulOverflow_fast {w lzx lzy : Nat} (x y : BitVec w) (hlzx : x >>> lzx = 0#w) (hlzy : y >>> lzy = 0#w):
-    (∃ lzx, (x >>> lzx = 0#w) ∧ ¬ ∃ lzx', ¬ (lzx = lzx') ∧ lzx' < lzx ∧
-    ∃ lzy, (y >>> lzy = 0#w) ∧ ¬ ∃ lzy', ¬ (lzy = lzy') ∧ lzy' < lzy ∧
-    lzx + lzy < w - 1) → smulOverflow x y := by
+theorem umulOverflow_fast (x y : BitVec w) (hw : 0 < w) :
+    umulOverflow x y = ((leadingZeroes x 0 hw) + (leadingZeroes y 0 hw) < w - 1) && ((zeroExtend (w + 1) x) * (zeroExtend (w + 1) y))[w] := by
   simp
   sorry
 
